@@ -28,7 +28,6 @@ uses
   Forms,
   ExtCtrls,
   StdCtrls,
-  u_CommonFormAndFrameParents,
   i_LanguageManager,
   i_CoordConverterFactory,
   i_GeometryLonLat,
@@ -44,7 +43,9 @@ uses
   i_TileFileNameGeneratorsList,
   i_MapTypeGUIConfigList,
   i_RegionProcessProgressInfoInternalFactory,
-  u_ExportProviderAbstract;
+  i_RegionProcessProvider,
+  i_InterfaceListStatic,
+  u_CommonFormAndFrameParents;
 
 type
   TfrExport = class(TFrame)
@@ -56,6 +57,7 @@ type
   private
     FZoom: byte;
     FPolygon: IGeometryLonLatPolygon;
+    FProviders: IInterfaceListStatic;
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
@@ -89,6 +91,8 @@ implementation
 
 uses
   gnugettext,
+  i_InterfaceListSimple,
+  u_InterfaceListSimple,
   u_ExportProviderRMapsSQLite,
   u_ExportProviderYaMobileV3,
   u_ExportProviderYaMobileV4,
@@ -123,10 +127,13 @@ constructor TfrExport.Create(
   const ATileNameGenerator: ITileFileNameGeneratorsList
 );
 var
-  VExportProvider: TExportProviderAbstract;
+  VExportProvider: IRegionProcessProvider;
+  VList: IInterfaceListSimple;
 begin
   TP_Ignore(Self, 'CBFormat.Items');
   inherited Create(ALanguageManager);
+  VList := TInterfaceListSimple.Create;
+
   VExportProvider :=
     TExportProviderIPhone.Create(
       AProgressFactory,
@@ -142,7 +149,8 @@ begin
       ABitmapTileSaveLoadFactory,
       True
     );
-  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VList.Add(VExportProvider);
+  CBFormat.Items.Add(VExportProvider.GetCaption);
 
   VExportProvider :=
     TExportProviderIPhone.Create(
@@ -159,7 +167,8 @@ begin
       ABitmapTileSaveLoadFactory,
       False
     );
-  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VList.Add(VExportProvider);
+  CBFormat.Items.Add(VExportProvider.GetCaption);
 
   VExportProvider :=
     TExportProviderGEKml.Create(
@@ -171,7 +180,8 @@ begin
       AProjectionFactory,
       AVectorGeometryProjectedFactory
     );
-  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VList.Add(VExportProvider);
+  CBFormat.Items.Add(VExportProvider.GetCaption);
 
   VExportProvider :=
     TExportProviderYaMobileV3.Create(
@@ -187,7 +197,8 @@ begin
       ALocalConverterFactory,
       ACoordConverterFactory
     );
-  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VList.Add(VExportProvider);
+  CBFormat.Items.Add(VExportProvider.GetCaption);
 
   VExportProvider :=
     TExportProviderYaMobileV4.Create(
@@ -203,7 +214,8 @@ begin
       ALocalConverterFactory,
       ACoordConverterFactory
     );
-  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VList.Add(VExportProvider);
+  CBFormat.Items.Add(VExportProvider.GetCaption);
 
   VExportProvider :=
     TExportProviderAUX.Create(
@@ -215,7 +227,8 @@ begin
       AProjectionFactory,
       AVectorGeometryProjectedFactory
     );
-  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VList.Add(VExportProvider);
+  CBFormat.Items.Add(VExportProvider.GetCaption);
 
   VExportProvider :=
     TExportProviderZip.Create(
@@ -229,7 +242,8 @@ begin
       AArchiveReadWriteFactory,
       ATileNameGenerator
     );
-  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VList.Add(VExportProvider);
+  CBFormat.Items.Add(VExportProvider.GetCaption);
 
   VExportProvider :=
     TExportProviderTar.Create(
@@ -243,7 +257,8 @@ begin
       AArchiveReadWriteFactory,
       ATileNameGenerator
     );
-  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VList.Add(VExportProvider);
+  CBFormat.Items.Add(VExportProvider.GetCaption);
 
   VExportProvider :=
     TExportProviderJNX.Create(
@@ -258,7 +273,8 @@ begin
       ABitmapPostProcessing,
       ACoordConverterFactory
     );
-  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VList.Add(VExportProvider);
+  CBFormat.Items.Add(VExportProvider.GetCaption);
 
   VExportProvider :=
     TExportProviderOgf2.Create(
@@ -274,7 +290,8 @@ begin
       ALocalConverterFactory,
       ACoordConverterFactory
     );
-  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VList.Add(VExportProvider);
+  CBFormat.Items.Add(VExportProvider.GetCaption);
 
   VExportProvider :=
     TExportProviderCE.Create(
@@ -287,7 +304,8 @@ begin
       AVectorGeometryProjectedFactory,
       ACoordConverterFactory
     );
-  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VList.Add(VExportProvider);
+  CBFormat.Items.Add(VExportProvider.GetCaption);
 
   VExportProvider :=
     TExportProviderRMapsSQLite.Create(
@@ -303,31 +321,27 @@ begin
       ACoordConverterFactory,
       ALocalConverterFactory
     );
-  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VList.Add(VExportProvider);
+  CBFormat.Items.Add(VExportProvider.GetCaption);
 
   CBFormat.ItemIndex := 0;
+  FProviders := VList.MakeStaticAndClear;
+  Assert(CBFormat.Items.Count = FProviders.Count);
 end;
 
 destructor TfrExport.Destroy;
-var
-  i: Integer;
 begin
-  if Assigned(CBFormat) then begin
-    for i := 0 to CBFormat.Items.Count - 1 do begin
-      CBFormat.Items.Objects[i].Free;
-      CBFormat.Items.Objects[i] := nil;
-    end;
-  end;
+  FProviders := nil;
   inherited;
 end;
 
 procedure TfrExport.CBFormatChange(Sender: TObject);
 var
-  VExportProvider: TExportProviderAbstract;
+  VExportProvider: IRegionProcessProvider;
   i: Integer;
 begin
-  for i := 0 to CBFormat.Items.Count - 1 do begin
-    VExportProvider := TExportProviderAbstract(CBFormat.Items.Objects[i]);
+  for i := 0 to FProviders.Count - 1 do begin
+    VExportProvider := IRegionProcessProvider(FProviders.Items[i]);
     if VExportProvider <> nil then begin
       if i = CBFormat.ItemIndex then begin
         VExportProvider.Show(pnlExport, FZoom, FPolygon);
@@ -341,13 +355,13 @@ end;
 procedure TfrExport.RefreshTranslation;
 var
   i: Integer;
-  VProvider: TExportProviderAbstract;
+  VProvider: IRegionProcessProvider;
   VIndex: Integer;
 begin
   inherited;
   VIndex := CBFormat.ItemIndex;
-  for i := 0 to CBFormat.Items.Count - 1 do begin
-    VProvider := TExportProviderAbstract(CBFormat.Items.Objects[i]);
+  for i := 0 to FProviders.Count - 1 do begin
+    VProvider := IRegionProcessProvider(FProviders.Items[i]);
     CBFormat.Items[i] := VProvider.GetCaption;
   end;
   CBFormat.ItemIndex := VIndex;
@@ -360,13 +374,13 @@ procedure TfrExport.Show(
 );
 var
   i: integer;
-  VExportProvider: TExportProviderAbstract;
+  VExportProvider: IRegionProcessProvider;
 begin
   Parent := AParent;
   FZoom := AZoom;
   FPolygon := APolygon;
-  for i := 0 to CBFormat.Items.Count - 1 do begin
-    VExportProvider := TExportProviderAbstract(CBFormat.Items.Objects[i]);
+  for i := 0 to FProviders.Count - 1 do begin
+    VExportProvider := IRegionProcessProvider(FProviders.Items[i]);
     if VExportProvider <> nil then begin
       VExportProvider.Show(pnlExport, AZoom, APolygon);
     end;
@@ -376,9 +390,9 @@ end;
 
 procedure TfrExport.StartProcess(const APolygon: IGeometryLonLatPolygon);
 var
-  VExportProvider: TExportProviderAbstract;
+  VExportProvider: IRegionProcessProvider;
 begin
-  VExportProvider := TExportProviderAbstract(CBFormat.Items.Objects[CBFormat.ItemIndex]);
+  VExportProvider := IRegionProcessProvider(FProviders.Items[CBFormat.ItemIndex]);
   if VExportProvider <> nil then begin
     VExportProvider.StartProcess(APolygon);
   end;
@@ -386,10 +400,10 @@ end;
 
 function TfrExport.Validate: Boolean;
 var
-  VExportProvider: TExportProviderAbstract;
+  VExportProvider: IRegionProcessProvider;
 begin
   Result := False;
-  VExportProvider := TExportProviderAbstract(CBFormat.Items.Objects[CBFormat.ItemIndex]);
+  VExportProvider := IRegionProcessProvider(FProviders.Items[CBFormat.ItemIndex]);
   if VExportProvider <> nil then begin
     Result := VExportProvider.Validate;
   end;

@@ -38,8 +38,7 @@ uses
   i_GeometryProjectedFactory,
   i_MarkSystem,
   i_RegionProcessProgressInfoInternalFactory,
-  u_ProviderDeleteTiles,
-  u_ProviderDeleteMarks,
+  i_RegionProcessProvider,
   u_CommonFormAndFrameParents;
 
 type
@@ -48,8 +47,8 @@ type
     tsTiles: TTabSheet;
     tsMarks: TTabSheet;
   private
-    FMarks: TProviderDeleteMarks;
-    FTiles: TProviderDeleteTiles;
+    FMarks: IRegionProcessProvider;
+    FTiles: IRegionProcessProvider;
   public
     procedure StartProcess(const APolygon: IGeometryLonLatPolygon);
     procedure Show(
@@ -74,6 +73,10 @@ type
   end;
 
 implementation
+
+uses
+  u_ProviderDeleteTiles,
+  u_ProviderDeleteMarks;
 
 {$R *.dfm}
 
@@ -117,8 +120,8 @@ end;
 
 destructor TfrDelete.Destroy;
 begin
-  FreeAndNil(FMarks);
-  FreeAndNil(FTiles);
+  FMarks := nil;
+  FTiles := nil;
   inherited;
 end;
 

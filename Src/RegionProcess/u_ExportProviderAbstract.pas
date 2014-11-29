@@ -31,10 +31,12 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_RegionProcessProgressInfoInternalFactory,
-  i_RegionProcessParamsFrame;
+  i_RegionProcessParamsFrame,
+  i_RegionProcessProvider,
+  u_BaseInterfacedObject;
 
 type
-  TExportProviderAbstract = class
+  TExportProviderAbstract = class(TBaseInterfacedObject, IRegionProcessProvider)
   private
     FFrame: TFrame;
     FLanguageManager: ILanguageManager;
@@ -43,6 +45,18 @@ type
     FGUIConfigList: IMapTypeGUIConfigList;
     FProgressFactory: IRegionProcessProgressInfoInternalFactory;
     function GetParamsFrame: IRegionProcessParamsFrameBase;
+  protected
+    function GetCaption: string; virtual; abstract;
+    procedure Show(
+      AParent: TWinControl;
+      AZoom: byte;
+      const APolygon: IGeometryLonLatPolygon
+    );
+    procedure Hide;
+    function Validate: Boolean;
+    procedure StartProcess(
+      const APolygon: IGeometryLonLatPolygon
+    ); virtual; abstract;
   protected
     function CreateFrame: TFrame; virtual; abstract;
     property ParamsFrame: IRegionProcessParamsFrameBase read GetParamsFrame;
@@ -60,17 +74,6 @@ type
       const AGUIConfigList: IMapTypeGUIConfigList
     );
     destructor Destroy; override;
-    function GetCaption: string; virtual; abstract;
-    procedure Show(
-      AParent: TWinControl;
-      AZoom: byte;
-      const APolygon: IGeometryLonLatPolygon
-    );
-    procedure Hide;
-    function Validate: Boolean;
-    procedure StartProcess(
-      const APolygon: IGeometryLonLatPolygon
-    ); virtual; abstract;
   end;
 
 implementation

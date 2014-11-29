@@ -51,6 +51,8 @@ uses
   i_GeometryProjectedProvider,
   i_GlobalViewMainConfig,
   i_RegionProcessProgressInfoInternalFactory,
+  i_RegionProcessProvider,
+  i_InterfaceListStatic,
   u_CommonFormAndFrameParents;
 
 type
@@ -64,6 +66,7 @@ type
   private
     FZoom: byte;
     FPolygon: IGeometryLonLatPolygon;
+    FProviders: IInterfaceListStatic;
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
@@ -104,7 +107,8 @@ implementation
 
 uses
   gnugettext,
-  u_ExportProviderAbstract,
+  i_InterfaceListSimple,
+  u_InterfaceListSimple,
   u_ProviderMapCombineBMP,
   u_ProviderMapCombineJPG,
   u_ProviderMapCombinePNG,
@@ -141,10 +145,12 @@ constructor TfrCombine.Create(
   const AMapCalibrationList: IMapCalibrationList
 );
 var
-  VExportProvider: TExportProviderAbstract;
+  VExportProvider: IRegionProcessProvider;
+  VList: IInterfaceListSimple;
 begin
   TP_Ignore(Self, 'cbbOutputFormat.Items');
   inherited Create(ALanguageManager);
+  VList := TInterfaceListSimple.Create;
 
   VExportProvider :=
     TProviderMapCombineJPG.Create(
@@ -169,7 +175,8 @@ begin
       AValueToStringConverter,
       AMapCalibrationList
     );
-  cbbOutputFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VList.Add(VExportProvider);
+  cbbOutputFormat.Items.Add(VExportProvider.GetCaption);
 
   VExportProvider :=
     TProviderMapCombinePNG.Create(
@@ -194,7 +201,8 @@ begin
       AValueToStringConverter,
       AMapCalibrationList
     );
-  cbbOutputFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VList.Add(VExportProvider);
+  cbbOutputFormat.Items.Add(VExportProvider.GetCaption);
 
   VExportProvider :=
     TProviderMapCombineBMP.Create(
@@ -219,7 +227,8 @@ begin
       AValueToStringConverter,
       AMapCalibrationList
     );
-  cbbOutputFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VList.Add(VExportProvider);
+  cbbOutputFormat.Items.Add(VExportProvider.GetCaption);
 
   VExportProvider :=
     TProviderMapCombineECW.Create(
@@ -244,7 +253,8 @@ begin
       AValueToStringConverter,
       AMapCalibrationList
     );
-  cbbOutputFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VList.Add(VExportProvider);
+  cbbOutputFormat.Items.Add(VExportProvider.GetCaption);
 
   VExportProvider :=
     TProviderMapCombineJP2.Create(
@@ -270,7 +280,8 @@ begin
       AMapCalibrationList,
       False // Lossless
     );
-  cbbOutputFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VList.Add(VExportProvider);
+  cbbOutputFormat.Items.Add(VExportProvider.GetCaption);
 
   VExportProvider :=
     TProviderMapCombineJP2.Create(
@@ -296,7 +307,8 @@ begin
       AMapCalibrationList,
       True // Lossless
     );
-  cbbOutputFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VList.Add(VExportProvider);
+  cbbOutputFormat.Items.Add(VExportProvider.GetCaption);
 
   VExportProvider :=
     TProviderMapCombineKMZ.Create(
@@ -323,31 +335,27 @@ begin
       AValueToStringConverter,
       AMapCalibrationList
     );
-  cbbOutputFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VList.Add(VExportProvider);
+  cbbOutputFormat.Items.Add(VExportProvider.GetCaption);
 
   cbbOutputFormat.ItemIndex := 0;
+  FProviders := VList.MakeStaticAndClear;
+  Assert(cbbOutputFormat.Items.Count = FProviders.Count);
 end;
 
 destructor TfrCombine.Destroy;
-var
-  i: Integer;
 begin
-  if Assigned(cbbOutputFormat) then begin
-    for i := 0 to cbbOutputFormat.Items.Count - 1 do begin
-      cbbOutputFormat.Items.Objects[i].Free;
-      cbbOutputFormat.Items.Objects[i] := nil;
-    end;
-  end;
+  FProviders := nil;
   inherited;
 end;
 
 procedure TfrCombine.cbbOutputFormatChange(Sender: TObject);
 var
-  VExportProvider: TExportProviderAbstract;
+  VExportProvider: IRegionProcessProvider;
   i: Integer;
 begin
-  for i := 0 to cbbOutputFormat.Items.Count - 1 do begin
-    VExportProvider := TExportProviderAbstract(cbbOutputFormat.Items.Objects[i]);
+  for i := 0 to FProviders.Count - 1 do begin
+    VExportProvider := IRegionProcessProvider(FProviders.Items[i]);
     if VExportProvider <> nil then begin
       if i = cbbOutputFormat.ItemIndex then begin
         VExportProvider.Show(pnlExport, FZoom, FPolygon);
@@ -361,13 +369,13 @@ end;
 procedure TfrCombine.RefreshTranslation;
 var
   i: Integer;
-  VProvider: TExportProviderAbstract;
+  VProvider: IRegionProcessProvider;
   VIndex: Integer;
 begin
   inherited;
   VIndex := cbbOutputFormat.ItemIndex;
-  for i := 0 to cbbOutputFormat.Items.Count - 1 do begin
-    VProvider := TExportProviderAbstract(cbbOutputFormat.Items.Objects[i]);
+  for i := 0 to FProviders.Count - 1 do begin
+    VProvider := IRegionProcessProvider(FProviders.Items[i]);
     cbbOutputFormat.Items[i] := VProvider.GetCaption;
   end;
   cbbOutputFormat.ItemIndex := VIndex;
@@ -380,13 +388,13 @@ procedure TfrCombine.Show(
 );
 var
   i: integer;
-  VExportProvider: TExportProviderAbstract;
+  VExportProvider: IRegionProcessProvider;
 begin
   Parent := AParent;
   FZoom := AZoom;
   FPolygon := APolygon;
-  for i := 0 to cbbOutputFormat.Items.Count - 1 do begin
-    VExportProvider := TExportProviderAbstract(cbbOutputFormat.Items.Objects[i]);
+  for i := 0 to FProviders.Count - 1 do begin
+    VExportProvider := IRegionProcessProvider(FProviders.Items[i]);
     if VExportProvider <> nil then begin
       VExportProvider.Show(pnlExport, AZoom, APolygon);
     end;
@@ -396,9 +404,9 @@ end;
 
 procedure TfrCombine.StartProcess(const APolygon: IGeometryLonLatPolygon);
 var
-  VExportProvider: TExportProviderAbstract;
+  VExportProvider: IRegionProcessProvider;
 begin
-  VExportProvider := TExportProviderAbstract(cbbOutputFormat.Items.Objects[cbbOutputFormat.ItemIndex]);
+  VExportProvider := IRegionProcessProvider(FProviders.Items[cbbOutputFormat.ItemIndex]);
   if VExportProvider <> nil then begin
     VExportProvider.StartProcess(APolygon);
   end;
@@ -406,10 +414,10 @@ end;
 
 function TfrCombine.Validate: Boolean;
 var
-  VExportProvider: TExportProviderAbstract;
+  VExportProvider: IRegionProcessProvider;
 begin
   Result := False;
-  VExportProvider := TExportProviderAbstract(cbbOutputFormat.Items.Objects[cbbOutputFormat.ItemIndex]);
+  VExportProvider := IRegionProcessProvider(FProviders.Items[cbbOutputFormat.ItemIndex]);
   if VExportProvider <> nil then begin
     Result := VExportProvider.Validate;
   end;

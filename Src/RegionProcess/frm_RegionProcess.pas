@@ -76,8 +76,8 @@ uses
   i_MapTypeGUIConfigList,
   i_GlobalBerkeleyDBHelper,
   i_RegionProcessProgressInfoInternalFactory,
+  i_RegionProcessProvider,
   u_CommonFormAndFrameParents,
-  u_ExportProviderAbstract,
   u_ProviderTilesDownload,
   u_MarkDbGUIHelper,
   fr_Combine,
@@ -117,9 +117,9 @@ type
     FLastSelectionInfo: ILastSelectionInfo;
     FZoom_rect: byte;
     FPolygonLL: IGeometryLonLatPolygon;
-    FProviderTilesGenPrev: TExportProviderAbstract;
-    FProviderTilesCopy: TExportProviderAbstract;
-    FProviderTilesDownload: TProviderTilesDownload;
+    FProviderTilesGenPrev: IRegionProcessProvider;
+    FProviderTilesCopy: IRegionProcessProvider;
+    FProviderTilesDownload: IRegionProcessProviderDownload;
     FMapGoto: IMapViewGoto;
     FMarkDBGUI: TMarkDbGUIHelper;
     FPosition: ILocalCoordConverterChangeable;
@@ -365,11 +365,12 @@ end;
 
 destructor TfrmRegionProcess.Destroy;
 begin
+  FProviderTilesGenPrev := nil;
+  FProviderTilesCopy := nil;
+  FProviderTilesDownload := nil;
+
   FreeAndNil(FfrExport);
   FreeAndNil(FfrDelete);
-  FreeAndNil(FProviderTilesGenPrev);
-  FreeAndNil(FProviderTilesCopy);
-  FreeAndNil(FProviderTilesDownload);
   FreeAndNil(FfrCombine);
   inherited;
 end;

@@ -51,6 +51,9 @@ type
     FNewFormat: Boolean;
   protected
     function CreateFrame: TFrame; override;
+  protected
+    function GetCaption: string; override;
+    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
@@ -66,8 +69,6 @@ type
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       ANewFormat: Boolean
     );
-    function GetCaption: string; override;
-    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
   end;
 
 

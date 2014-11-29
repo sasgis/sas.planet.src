@@ -44,6 +44,9 @@ type
     FPosition: ILocalCoordConverterChangeable;
   protected
     function CreateFrame: TFrame; override;
+  protected
+    function GetCaption: string; override;
+    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
@@ -55,8 +58,6 @@ type
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const AMarkSystem: IMarkSystem
     );
-    function GetCaption: string; override;
-    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
   end;
 
 implementation

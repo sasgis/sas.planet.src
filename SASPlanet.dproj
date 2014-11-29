@@ -1053,7 +1053,6 @@
     </DCCReference>
     <DCCReference Include="Src\RegionProcess\Export\SAS4Android\u_ExportProviderCE.pas" />
     <DCCReference Include="Src\RegionProcess\Export\SAS4Android\u_ThreadExportToCE.pas" />
-    <DCCReference Include="Src\RegionProcess\Export\u_ExportProviderAbstract.pas" />
     <DCCReference Include="Src\RegionProcess\Export\u_ThreadExportAbstract.pas" />
     <DCCReference Include="Src\RegionProcess\Export\YandexMobile\fr_ExportYaMobileV3.pas">
       <DesignClass>TFrame</DesignClass>
@@ -1096,6 +1095,8 @@
     <DCCReference Include="Src\RegionProcess\i_RegionProcessProgressInfo.pas" />
     <DCCReference Include="Src\RegionProcess\i_RegionProcessProgressInfoDownload.pas" />
     <DCCReference Include="Src\RegionProcess\i_RegionProcessProgressInfoInternalFactory.pas" />
+    <DCCReference Include="Src\RegionProcess\i_RegionProcessProvider.pas" />
+    <DCCReference Include="Src\RegionProcess\u_ExportProviderAbstract.pas" />
     <DCCReference Include="Src\RegionProcess\u_RegionProcessProgressInfo.pas" />
     <DCCReference Include="Src\RegionProcess\u_RegionProcessProgressInfoDownload.pas" />
     <DCCReference Include="Src\RegionProcess\u_RegionProcessProgressInfoInternalFactory.pas" />

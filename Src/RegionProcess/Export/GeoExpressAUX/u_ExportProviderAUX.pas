@@ -41,6 +41,9 @@ type
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   protected
     function CreateFrame: TFrame; override;
+  protected
+    function GetCaption: string; override;
+    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
@@ -51,8 +54,6 @@ type
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory
     );
-    function GetCaption: string; override;
-    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
   end;
 
 

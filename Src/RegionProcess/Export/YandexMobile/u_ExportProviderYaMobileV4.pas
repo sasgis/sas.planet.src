@@ -50,6 +50,9 @@ type
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   protected
     function CreateFrame: TFrame; override;
+  protected
+    function GetCaption: string; override;
+    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
@@ -64,8 +67,6 @@ type
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const ACoordConverterFactory: ICoordConverterFactory
     );
-    function GetCaption: string; override;
-    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
   end;
 
 implementation

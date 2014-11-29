@@ -98,7 +98,7 @@ type
     property LocalConverterFactory: ILocalCoordConverterFactorySimpe read FLocalConverterFactory;
   protected
     function CreateFrame: TFrame; override;
-  public
+  protected
     function GetCaption: string; override;
   public
     constructor Create(

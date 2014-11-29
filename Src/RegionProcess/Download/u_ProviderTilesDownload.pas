@@ -40,12 +40,18 @@ uses
   i_GlobalDownloadConfig,
   i_DownloadInfoSimple,
   i_RegionProcessProgressInfoInternalFactory,
+  i_RegionProcessProvider,
   u_ExportProviderAbstract,
   u_MarkDbGUIHelper,
   fr_TilesDownload;
 
 type
-  TProviderTilesDownload = class(TExportProviderAbstract)
+  IRegionProcessProviderDownload = interface(IRegionProcessProvider)
+    ['{664082BF-E983-48E8-A554-C655E925C45E}']
+    procedure StartBySLS(const AFileName: string);
+  end;
+
+  TProviderTilesDownload = class(TExportProviderAbstract, IRegionProcessProviderDownload)
   private
     FAppClosingNotifier: INotifierOneOperation;
     FValueToStringConverter: IValueToStringConverterChangeable;
@@ -60,6 +66,11 @@ type
 
   protected
     function CreateFrame: TFrame; override;
+  protected
+    function GetCaption: string; override;
+    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
+  private
+    procedure StartBySLS(const AFileName: string);
   public
     constructor Create(
       const AAppClosingNotifier: INotifierOneOperation;
@@ -78,9 +89,6 @@ type
       const AMapGoto: IMapViewGoto;
       const AMarkDBGUI: TMarkDbGUIHelper
     );
-    function GetCaption: string; override;
-    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
-    procedure StartBySLS(const AFileName: string);
   end;
 
 
