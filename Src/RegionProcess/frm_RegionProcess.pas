@@ -137,6 +137,12 @@ type
       const AZoom: Byte;
       const APolygon: IGeometryLonLatPolygon
     );
+  private
+    procedure LoadSelFromFile(
+      const AFileName: string;
+      out APolygon: IGeometryLonLatPolygon
+    );
+    procedure StartSlsFromFile(const AFileName: string);
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -179,11 +185,6 @@ type
       const AMarkDBGUI: TMarkDbGUIHelper
     ); reintroduce;
     destructor Destroy; override;
-    procedure LoadSelFromFile(
-      const AFileName: string;
-      out APolygon: IGeometryLonLatPolygon
-    );
-    procedure StartSlsFromFile(const AFileName: string);
   end;
 
 implementation
