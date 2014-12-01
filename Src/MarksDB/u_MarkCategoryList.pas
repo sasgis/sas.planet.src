@@ -18,47 +18,58 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_MarkCategoryDB;
+unit u_MarkCategoryList;
 
 interface
 
 uses
-  i_Notifier,
   i_MarkCategory,
   i_MarkCategoryList,
-  i_MarkCategoryTree,
-  i_MarkCategoryFactory;
+  i_InterfaceListStatic,
+  u_BaseInterfacedObject;
 
 type
-  IMarkCategoryDB = interface
-    ['{F418B319-3B89-4B09-BC9E-0E4FC684BADF}']
-    function GetCategoryByName(const AName: string): IMarkCategory;
-    function GetCategoryWithSubCategories(const ACategory: IMarkCategory): IMarkCategoryList;
-    function GetSubCategoryListForCategory(const ACategory: IMarkCategory): IMarkCategoryList;
-    function GetCategoriesList: IMarkCategoryList;
-    function GetVisibleCategories(AZoom: Byte): IMarkCategoryList;
-    function GetVisibleCategoriesIgnoreZoom: IMarkCategoryList;
-    function CategoryListToStaticTree(const AList: IMarkCategoryList): IMarkCategoryTree;
-    function FilterVisibleCategories(const ASourceList: IMarkCategoryList): IMarkCategoryList;
-
-    function UpdateCategory(
-      const AOldCategory: IMarkCategory;
-      const ANewCategory: IMarkCategory
-    ): IMarkCategory;
-    function UpdateCategoryList(
-      const AOldCategory: IMarkCategoryList;
-      const ANewCategory: IMarkCategoryList
-    ): IMarkCategoryList;
-
-    procedure SetAllCategoriesVisible(ANewVisible: Boolean);
-
-    function GetFactory: IMarkCategoryFactory;
-    property Factory: IMarkCategoryFactory read GetFactory;
-
-    function GetChangeNotifier: INotifier;
-    property ChangeNotifier: INotifier read GetChangeNotifier;
+  TMarkCategoryList = class(TBaseInterfacedObject, IMarkCategoryList)
+  private
+    FList: IInterfaceListStatic;
+  private
+    function GetCount: Integer;
+    function GetItem(const AIndex: Integer): IMarkCategory;
+  public
+    constructor Create(const AList: IInterfaceListStatic);
+    class function Build(const AList: IInterfaceListStatic): IMarkCategoryList;
   end;
 
 implementation
+
+{ TMarkCategoryList }
+
+class function TMarkCategoryList.Build(
+  const AList: IInterfaceListStatic
+): IMarkCategoryList;
+begin
+  Result := nil;
+  if Assigned(AList) and (AList.Count > 0) then begin
+    Result := Self.Create(AList);
+  end;
+end;
+
+constructor TMarkCategoryList.Create(const AList: IInterfaceListStatic);
+begin
+  Assert(Assigned(AList));
+  Assert(AList.Count > 0);
+  inherited Create;
+  FList := AList;
+end;
+
+function TMarkCategoryList.GetCount: Integer;
+begin
+  Result := FList.Count;
+end;
+
+function TMarkCategoryList.GetItem(const AIndex: Integer): IMarkCategory;
+begin
+  Result := IMarkCategory(FList.Items[AIndex]);
+end;
 
 end.

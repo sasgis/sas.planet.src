@@ -78,9 +78,7 @@ implementation
 uses
   SysUtils,
   t_CommonTypes,
-  i_StaticTreeBuilder,
-  i_InterfaceListStatic,
-  u_StaticTreeBuilderBase,
+  i_MarkCategoryList,
   u_MarkSystemSml,
   u_MarkSystemHelpers;
 
@@ -118,8 +116,7 @@ function TVectorItemTreeImporterSmlMarks.ProcessImport(
 ): IVectorItemTree;
 var
   VSml: IMarkSystemImpl;
-  VCategoiesList: IInterfaceListStatic;
-  VCategoryTreeBuilder: IStaticTreeBuilder;
+  VCategoiesList: IMarkCategoryList;
 begin
   Result := nil;
 
@@ -142,10 +139,9 @@ begin
   if VSml.State.GetStatic.ReadAccess = asEnabled then begin
     VCategoiesList := VSml.CategoryDB.GetCategoriesList;
     if Assigned(VCategoiesList) then begin
-      VCategoryTreeBuilder := TStaticTreeByCategoryListBuilder.Create('\', '');
       Result := CategoryTreeToMarkTreeHelper(
         VSml.MarkDb,
-        VCategoryTreeBuilder.BuildStatic(VCategoiesList),
+        CategoryListToCategoryTree(VCategoiesList),
         True {IncludeHiddenMarks}
       );
     end;

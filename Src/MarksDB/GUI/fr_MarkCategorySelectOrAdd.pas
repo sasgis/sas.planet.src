@@ -27,11 +27,11 @@ uses
   Controls,
   Forms,
   StdCtrls,
-  u_CommonFormAndFrameParents,
   i_LanguageManager,
-  i_InterfaceListStatic,
   i_Category,
-  i_MarkCategoryDB;
+  i_MarkCategoryList,
+  i_MarkCategoryDB,
+  u_CommonFormAndFrameParents;
 
 type
   TfrMarkCategorySelectOrAdd = class(TFrame)
@@ -39,9 +39,9 @@ type
     lblCategory: TLabel;
   private
     FCategoryDB: IMarkCategoryDB;
-    FCategoryList: IInterfaceListStatic;
+    FCategoryList: IMarkCategoryList;
     FLastUsedCategoryName: string;
-    procedure CategoryListToStrings(const AList: IInterfaceListStatic; AStrings: TStrings);
+    procedure CategoryListToStrings(const AList: IMarkCategoryList; AStrings: TStrings);
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -82,7 +82,7 @@ begin
 end;
 
 procedure TfrMarkCategorySelectOrAdd.CategoryListToStrings(
-  const AList: IInterfaceListStatic;
+  const AList: IMarkCategoryList;
   AStrings: TStrings
 );
 var

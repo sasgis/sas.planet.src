@@ -30,9 +30,9 @@ uses
   i_IDList,
   i_SimpleFlag,
   i_NotifierOperation,
-  i_InterfaceListStatic,
   i_Category,
   i_MarkCategory,
+  i_MarkCategoryList,
   i_MarkCategoryFactory,
   i_MarkCategoryFactoryDbInternal,
   i_MarkCategoryDBSmlInternal,
@@ -79,11 +79,11 @@ type
       const ANewCategory: IMarkCategory
     ): IMarkCategory;
     function UpdateCategoryList(
-      const AOldCategoryList: IInterfaceListStatic;
-      const ANewCategoryList: IInterfaceListStatic
-    ): IInterfaceListStatic;
+      const AOldCategoryList: IMarkCategoryList;
+      const ANewCategoryList: IMarkCategoryList
+    ): IMarkCategoryList;
 
-    function GetCategoriesList: IInterfaceListStatic;
+    function GetCategoriesList: IMarkCategoryList;
     procedure SetAllCategoriesVisible(ANewVisible: Boolean);
   public
     constructor Create(
@@ -109,6 +109,7 @@ uses
   u_InterfaceListSimple,
   u_SimpleFlagWithInterlock,
   i_MarkDbSmlInternal,
+  u_MarkCategoryList,
   u_MarkCategoryFactorySmlDbInternal;
 
 constructor TMarkCategoryDBSml.Create(
@@ -302,8 +303,8 @@ begin
 end;
 
 function TMarkCategoryDBSml.UpdateCategoryList(
-  const AOldCategoryList, ANewCategoryList: IInterfaceListStatic
-): IInterfaceListStatic;
+  const AOldCategoryList, ANewCategoryList: IMarkCategoryList
+): IMarkCategoryList;
 var
   i: Integer;
   VNew: IInterface;
@@ -356,7 +357,7 @@ begin
       UnlockWrite;
     end;
     Save;
-    Result := VTemp.MakeStaticAndClear;
+    Result := TMarkCategoryList.Build(VTemp.MakeStaticAndClear);
   end else begin
     LockWrite;
     try
@@ -512,7 +513,7 @@ begin
   end;
 end;
 
-function TMarkCategoryDBSml.GetCategoriesList: IInterfaceListStatic;
+function TMarkCategoryDBSml.GetCategoriesList: IMarkCategoryList;
 var
   VEnum: IEnumID;
   i: Cardinal;
@@ -532,7 +533,7 @@ begin
   finally
     UnlockRead;
   end;
-  Result := VTemp.MakeStaticAndClear;
+  Result := TMarkCategoryList.Build(VTemp.MakeStaticAndClear);
 end;
 
 procedure TMarkCategoryDBSml.Initialize(AOperationID: Integer; const ACancelNotifier: INotifierOperation);

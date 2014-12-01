@@ -54,6 +54,7 @@ uses
   i_WindowPositionConfig,
   i_MarkId,
   i_VectorDataItemSimple,
+  i_MarkCategoryList,
   i_MarkCategory,
   u_MarkDbGUIHelper;
 
@@ -161,7 +162,7 @@ type
   private
     FUseAsIndepentWindow: Boolean;
     FMapGoto: IMapViewGoto;
-    FCategoryList: IInterfaceListStatic;
+    FCategoryList: IMarkCategoryList;
     FMarksList: IInterfaceListStatic;
     FMarkDBGUI: TMarkDbGUIHelper;
     FGeometryLonLatFactory: IGeometryLonLatFactory;
@@ -220,7 +221,7 @@ uses
   t_CommonTypes,
   t_GeoTypes,
   i_InterfaceListSimple,
-  i_StaticTreeItem,
+  i_MarkCategoryTree,
   i_Category,
   i_ImportConfig,
   i_MarkTemplate,
@@ -302,17 +303,16 @@ end;
 
 procedure TfrmMarksExplorer.UpdateCategoryTree;
   procedure UpdateTreeSubItems(
-    const ATree: IStaticTreeItem;
+    const ATree: IMarkCategoryTree;
     const ASelectedCategory: ICategory;
     AParentNode: TTreeNode;
     ATreeItems: TTreeNodes
   );
   var
     i: Integer;
-    VTree: IStaticTreeItem;
+    VTree: IMarkCategoryTree;
     VNode: TTreeNode;
     VNodeToDelete: TTreeNode;
-    VCategory: IMarkCategory;
     VName: string;
   begin
     if AParentNode = nil then begin
@@ -332,14 +332,14 @@ procedure TfrmMarksExplorer.UpdateCategoryTree;
         end else begin
           VNode.Text := VName;
         end;
-        if Supports(VTree.Data, IMarkCategory, VCategory) then begin
-          VNode.Data := Pointer(VCategory);
-          if VCategory.Visible then begin
+        if Assigned(VTree.MarkCategory) then begin
+          VNode.Data := Pointer(VTree.MarkCategory);
+          if VTree.MarkCategory.Visible then begin
             VNode.StateIndex := 1;
           end else begin
             VNode.StateIndex := 2;
           end;
-          if VCategory.IsSame(ASelectedCategory) then begin
+          if VTree.MarkCategory.IsSame(ASelectedCategory) then begin
             VNode.Selected := True;
           end;
         end else begin
@@ -357,7 +357,7 @@ procedure TfrmMarksExplorer.UpdateCategoryTree;
     end;
   end;
 var
-  VTree: IStaticTreeItem;
+  VTree: IMarkCategoryTree;
   VSelectedCategory: ICategory;
   VNode: TTreeNode;
 begin
@@ -529,7 +529,7 @@ end;
 
 procedure TfrmMarksExplorer.btnExportClick(Sender: TObject);
 var
-  VCategoryList: IInterfaceListStatic;
+  VCategoryList: IMarkCategoryList;
   VOnlyVisible: Boolean;
 begin
   VOnlyVisible := (TComponent(Sender).tag = 1);
@@ -871,7 +871,7 @@ procedure TfrmMarksExplorer.CategoryTreeViewDragOver(
 var
   I: Integer;
   VNode: TTreeNode;
-  VList: IInterfaceListStatic;
+  VList: IMarkCategoryList;
   VOldCategory, VOldSubCategory, VNewCategory: IMarkCategory;
 begin
   Accept := (Source = MarksListBox) or (Source = CategoryTreeView);

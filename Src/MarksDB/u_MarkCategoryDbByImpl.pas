@@ -25,10 +25,9 @@ interface
 uses
   i_Listener,
   i_Notifier,
-  i_InterfaceListStatic,
-  i_StaticTreeItem,
-  i_StaticTreeBuilder,
   i_MarkCategory,
+  i_MarkCategoryList,
+  i_MarkCategoryTree,
   i_MarkCategoryFactory,
   i_MarkCategoryDB,
   i_MarkSystemImplChangeable,
@@ -40,7 +39,6 @@ type
     FMarkSystemImpl: IMarkSystemImplChangeable;
     FNotifier: INotifier;
 
-    FCategoryTreeBuilder: IStaticTreeBuilder;
     FMarkCategoryFactory: IMarkCategoryFactory;
     FChangeNotifier: INotifier;
     FChangeNotifierInternal: INotifierInternal;
@@ -51,21 +49,22 @@ type
     procedure OnDBImplChange;
   private
     function GetCategoryByName(const AName: string): IMarkCategory;
-    function GetSubCategoryListForCategory(const ACategory: IMarkCategory): IInterfaceListStatic;
-    function GetCategoriesList: IInterfaceListStatic;
-    function GetVisibleCategories(AZoom: Byte): IInterfaceListStatic;
-    function GetVisibleCategoriesIgnoreZoom: IInterfaceListStatic;
-    function CategoryListToStaticTree(const AList: IInterfaceListStatic): IStaticTreeItem;
-    function FilterVisibleCategories(const ASourceList: IInterfaceListStatic): IInterfaceListStatic;
+    function GetCategoryWithSubCategories(const ACategory: IMarkCategory): IMarkCategoryList;
+    function GetSubCategoryListForCategory(const ACategory: IMarkCategory): IMarkCategoryList;
+    function GetCategoriesList: IMarkCategoryList;
+    function GetVisibleCategories(AZoom: Byte): IMarkCategoryList;
+    function GetVisibleCategoriesIgnoreZoom: IMarkCategoryList;
+    function CategoryListToStaticTree(const AList: IMarkCategoryList): IMarkCategoryTree;
+    function FilterVisibleCategories(const ASourceList: IMarkCategoryList): IMarkCategoryList;
 
     function UpdateCategory(
       const AOldCategory: IMarkCategory;
       const ANewCategory: IMarkCategory
     ): IMarkCategory;
     function UpdateCategoryList(
-      const AOldCategory: IInterfaceListStatic;
-      const ANewCategory: IInterfaceListStatic
-    ): IInterfaceListStatic;
+      const AOldCategory: IMarkCategoryList;
+      const ANewCategory: IMarkCategoryList
+    ): IMarkCategoryList;
 
     procedure SetAllCategoriesVisible(ANewVisible: Boolean);
 
@@ -88,7 +87,8 @@ uses
   i_InterfaceListSimple,
   u_Notifier,
   u_InterfaceListSimple,
-  u_StaticTreeBuilderBase,
+  u_MarkCategoryList,
+  u_MarkSystemHelpers,
   u_Synchronizer,
   u_ListenerByEvent;
 
@@ -109,8 +109,7 @@ begin
   FChangeNotifier := FChangeNotifierInternal;
   FImplChangeListener := TNotifyNoMmgEventListener.Create(Self.OnImplChange);
   FDbImplChangeListener := TNotifyNoMmgEventListener.Create(Self.OnDbImplChange);
-  FCategoryTreeBuilder := TStaticTreeByCategoryListBuilder.Create('\', '');
-
+  
   FMarkSystemImpl.ChangeNotifier.Add(FImplChangeListener);
   OnDBImplChange;
 end;
@@ -129,8 +128,8 @@ begin
 end;
 
 function TMarkCategoryDbByImpl.FilterVisibleCategories(
-  const ASourceList: IInterfaceListStatic
-): IInterfaceListStatic;
+  const ASourceList: IMarkCategoryList
+): IMarkCategoryList;
 var
   VTmp: IInterfaceListSimple;
   VCategory: IMarkCategory;
@@ -146,20 +145,20 @@ begin
         end;
       end;
     end;
-    Result := VTmp.MakeStaticAndClear;
+    Result := TMarkCategoryList.Build(VTmp.MakeStaticAndClear);
   end;
 end;
 
 function TMarkCategoryDbByImpl.CategoryListToStaticTree(
-  const AList: IInterfaceListStatic): IStaticTreeItem;
+  const AList: IMarkCategoryList): IMarkCategoryTree;
 begin
   Result := nil;
   if Assigned(AList) then begin
-    Result := FCategoryTreeBuilder.BuildStatic(AList);
+    Result := CategoryListToCategoryTree(AList);
   end;
 end;
 
-function TMarkCategoryDbByImpl.GetCategoriesList: IInterfaceListStatic;
+function TMarkCategoryDbByImpl.GetCategoriesList: IMarkCategoryList;
 var
   VImpl: IMarkSystemImpl;
 begin
@@ -192,12 +191,46 @@ begin
   Result := FMarkCategoryFactory;
 end;
 
-function TMarkCategoryDbByImpl.GetSubCategoryListForCategory(
+function TMarkCategoryDbByImpl.GetCategoryWithSubCategories(
   const ACategory: IMarkCategory
-): IInterfaceListStatic;
+): IMarkCategoryList;
 var
   VTmp: IInterfaceListSimple;
-  VList: IInterfaceListStatic;
+  VList: IMarkCategoryList;
+  VCategory: IMarkCategory;
+  i: Integer;
+  VNameStart: string;
+  VImpl: IMarkSystemImpl;
+begin
+  Result := nil;
+  VImpl := FMarkSystemImpl.GetStatic;
+  if VImpl <> nil then begin
+    VList := VImpl.CategoryDB.GetCategoriesList;
+    if not Assigned(ACategory) then begin
+      Result := VList;
+      Exit;
+    end;
+    if Assigned(VList) and (VList.Count > 0) then begin
+      VNameStart := ACategory.Name + '\';
+      VTmp := TInterfaceListSimple.Create;
+      VTmp.Add(ACategory);
+      for i := 0 to VList.Count - 1 do begin
+        VCategory := VList.Items[i];
+        if StartsStr(VNameStart, VCategory.Name) then begin
+          VTmp.Add(VCategory);
+        end;
+      end;
+      Result := TMarkCategoryList.Build(VTmp.MakeStaticAndClear);
+    end;
+  end;
+end;
+
+function TMarkCategoryDbByImpl.GetSubCategoryListForCategory(
+  const ACategory: IMarkCategory
+): IMarkCategoryList;
+var
+  VTmp: IInterfaceListSimple;
+  VList: IMarkCategoryList;
   VCategory: IMarkCategory;
   i: Integer;
   VNameStart: string;
@@ -220,17 +253,17 @@ begin
           VTmp.Add(VCategory);
         end;
       end;
-      Result := VTmp.MakeStaticAndClear;
+      Result := TMarkCategoryList.Build(VTmp.MakeStaticAndClear);
     end;
   end;
 end;
 
 function TMarkCategoryDbByImpl.GetVisibleCategories(
   AZoom: Byte
-): IInterfaceListStatic;
+): IMarkCategoryList;
 var
   VTmp: IInterfaceListSimple;
-  VList: IInterfaceListStatic;
+  VList: IMarkCategoryList;
   VCategory: IMarkCategory;
   i: Integer;
   VImpl: IMarkSystemImpl;
@@ -249,15 +282,15 @@ begin
           VTmp.Add(VCategory);
         end;
       end;
-      Result := VTmp.MakeStaticAndClear;
+      Result := TMarkCategoryList.Build(VTmp.MakeStaticAndClear);
     end;
   end;
 end;
 
-function TMarkCategoryDbByImpl.GetVisibleCategoriesIgnoreZoom: IInterfaceListStatic;
+function TMarkCategoryDbByImpl.GetVisibleCategoriesIgnoreZoom: IMarkCategoryList;
 var
   VTmp: IInterfaceListSimple;
-  VList: IInterfaceListStatic;
+  VList: IMarkCategoryList;
   VCategory: IMarkCategory;
   i: Integer;
   VImpl: IMarkSystemImpl;
@@ -274,7 +307,7 @@ begin
           VTmp.Add(VCategory);
         end;
       end;
-      Result := VTmp.MakeStaticAndClear;
+      Result := TMarkCategoryList.Build(VTmp.MakeStaticAndClear);
     end;
   end;
 end;
@@ -322,8 +355,8 @@ begin
 end;
 
 function TMarkCategoryDbByImpl.UpdateCategoryList(
-  const AOldCategory, ANewCategory: IInterfaceListStatic
-): IInterfaceListStatic;
+  const AOldCategory, ANewCategory: IMarkCategoryList
+): IMarkCategoryList;
 var
   VImpl: IMarkSystemImpl;
 begin

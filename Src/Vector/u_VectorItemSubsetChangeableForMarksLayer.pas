@@ -93,8 +93,8 @@ type
 implementation
 
 uses
-  i_InterfaceListStatic,
   i_CoordConverter,
+  i_MarkCategoryList,
   u_ListenerNotifierLinksList,
   u_BackgroundTask,
   u_ListenerByEvent,
@@ -196,7 +196,7 @@ function TVectorItemSubsetChangeableForMarksLayer.GetMarksSubset(
   const ALocalConverter: ILocalCoordConverter
 ): IVectorItemSubset;
 var
-  VList: IInterfaceListStatic;
+  VList: IMarkCategoryList;
   VZoom: Byte;
   VMapPixelRect: TDoubleRect;
   VLonLatRect: TDoubleRect;

@@ -18,45 +18,27 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_MarkCategoryDB;
+unit i_MarkCategoryTree;
 
 interface
 
 uses
-  i_Notifier,
-  i_MarkCategory,
-  i_MarkCategoryList,
-  i_MarkCategoryTree,
-  i_MarkCategoryFactory;
+  i_MarkCategory;
 
 type
-  IMarkCategoryDB = interface
-    ['{F418B319-3B89-4B09-BC9E-0E4FC684BADF}']
-    function GetCategoryByName(const AName: string): IMarkCategory;
-    function GetCategoryWithSubCategories(const ACategory: IMarkCategory): IMarkCategoryList;
-    function GetSubCategoryListForCategory(const ACategory: IMarkCategory): IMarkCategoryList;
-    function GetCategoriesList: IMarkCategoryList;
-    function GetVisibleCategories(AZoom: Byte): IMarkCategoryList;
-    function GetVisibleCategoriesIgnoreZoom: IMarkCategoryList;
-    function CategoryListToStaticTree(const AList: IMarkCategoryList): IMarkCategoryTree;
-    function FilterVisibleCategories(const ASourceList: IMarkCategoryList): IMarkCategoryList;
+  IMarkCategoryTree = interface
+    ['{CC49C2B3-34DA-40F8-A443-33E6F0EED1E2}']
+    function GetMarkCategory: IMarkCategory;
+    property MarkCategory: IMarkCategory read GetMarkCategory;
 
-    function UpdateCategory(
-      const AOldCategory: IMarkCategory;
-      const ANewCategory: IMarkCategory
-    ): IMarkCategory;
-    function UpdateCategoryList(
-      const AOldCategory: IMarkCategoryList;
-      const ANewCategory: IMarkCategoryList
-    ): IMarkCategoryList;
+    function GetName: string;
+    property Name: string read GetName;
 
-    procedure SetAllCategoriesVisible(ANewVisible: Boolean);
+    function GetSubItemCount: Integer;
+    property SubItemCount: Integer read GetSubItemCount;
 
-    function GetFactory: IMarkCategoryFactory;
-    property Factory: IMarkCategoryFactory read GetFactory;
-
-    function GetChangeNotifier: INotifier;
-    property ChangeNotifier: INotifier read GetChangeNotifier;
+    function GetSubItem(AIndex: Integer): IMarkCategoryTree;
+    property SubItem[AIndex: Integer]: IMarkCategoryTree read GetSubItem;
   end;
 
 implementation

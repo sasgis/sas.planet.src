@@ -43,6 +43,7 @@ uses
   i_VectorDataItemSimple,
   i_MarkId,
   i_VectorItemSubset,
+  i_MarkCategoryList,
   i_MarkDbSmlInternal,
   i_MarkDbImpl,
   i_MarkFactorySmlInternal,
@@ -148,7 +149,7 @@ type
     );
 
     function GetMarkSubsetByCategoryList(
-      const ACategoryList: IInterfaceListStatic;
+      const ACategoryList: IMarkCategoryList;
       const AIncludeHiddenMarks: Boolean
     ): IVectorItemSubset;
     function GetMarkSubsetByCategory(
@@ -157,7 +158,7 @@ type
     ): IVectorItemSubset;
     function GetMarkSubsetByCategoryListInRect(
       const ARect: TDoubleRect;
-      const ACategoryList: IInterfaceListStatic;
+      const ACategoryList: IMarkCategoryList;
       const AIncludeHiddenMarks: Boolean
     ): IVectorItemSubset;
     function GetMarkSubsetByCategoryInRect(
@@ -1216,7 +1217,7 @@ begin
 end;
 
 function TMarkDbSml.GetMarkSubsetByCategoryList(
-  const ACategoryList: IInterfaceListStatic;
+  const ACategoryList: IMarkCategoryList;
   const AIncludeHiddenMarks: Boolean): IVectorItemSubset;
 var
   VResultList: IVectorItemSubsetBuilder;
@@ -1247,7 +1248,7 @@ end;
 
 function TMarkDbSml.GetMarkSubsetByCategoryListInRect(
   const ARect: TDoubleRect;
-  const ACategoryList: IInterfaceListStatic;
+  const ACategoryList: IMarkCategoryList;
   const AIncludeHiddenMarks: Boolean
 ): IVectorItemSubset;
 var

@@ -27,6 +27,7 @@ uses
   i_Listener,
   i_Notifier,
   i_Category,
+  i_MarkCategoryList,
   i_InterfaceListStatic,
   i_VectorItemSubset,
   i_MarkId,
@@ -57,7 +58,7 @@ type
     ): IVectorDataItem;
 
     function GetMarkSubsetByCategoryList(
-      const ACategoryList: IInterfaceListStatic;
+      const ACategoryList: IMarkCategoryList;
       const AIncludeHiddenMarks: Boolean
     ): IVectorItemSubset;
     function GetMarkSubsetByCategory(
@@ -66,7 +67,7 @@ type
     ): IVectorItemSubset;
     function GetMarkSubsetByCategoryListInRect(
       const ARect: TDoubleRect;
-      const ACategoryList: IInterfaceListStatic;
+      const ACategoryList: IMarkCategoryList;
       const AIncludeHiddenMarks: Boolean
     ): IVectorItemSubset;
     function GetMarkSubsetByCategoryInRect(
@@ -258,7 +259,7 @@ begin
 end;
 
 function TMarkDbByImpl.GetMarkSubsetByCategoryList(
-  const ACategoryList: IInterfaceListStatic;
+  const ACategoryList: IMarkCategoryList;
   const AIncludeHiddenMarks: Boolean
 ): IVectorItemSubset;
 var
@@ -273,7 +274,7 @@ end;
 
 function TMarkDbByImpl.GetMarkSubsetByCategoryListInRect(
   const ARect: TDoubleRect;
-  const ACategoryList: IInterfaceListStatic;
+  const ACategoryList: IMarkCategoryList;
   const AIncludeHiddenMarks: Boolean
 ): IVectorItemSubset;
 var

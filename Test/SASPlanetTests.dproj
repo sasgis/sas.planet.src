@@ -26,10 +26,10 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <Version>7.0</Version>
     <DCC_Define>DEBUG;_CONSOLE_TESTRUNNER</DCC_Define>
-    <DCC_UnitSearchPath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\</DCC_UnitSearchPath>
-    <DCC_ResourcePath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\</DCC_ResourcePath>
-    <DCC_ObjPath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\</DCC_ObjPath>
-    <DCC_IncludePath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\</DCC_IncludePath>
+    <DCC_UnitSearchPath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\MarksDB\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\;..\Src\Vector\;..\Src\Marker\</DCC_UnitSearchPath>
+    <DCC_ResourcePath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\MarksDB\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\;..\Src\Vector\;..\Src\Marker\</DCC_ResourcePath>
+    <DCC_ObjPath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\MarksDB\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\;..\Src\Vector\;..\Src\Marker\</DCC_ObjPath>
+    <DCC_IncludePath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\MarksDB\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\;..\Src\Vector\;..\Src\Marker\</DCC_IncludePath>
     <DCC_ExeOutput>$(SASBin)</DCC_ExeOutput>
     <DCC_DcuOutput>..\.dcu</DCC_DcuOutput>
     <DCC_ObjOutput>..\.dcu</DCC_ObjOutput>
@@ -64,6 +64,7 @@
     <DCCReference Include="u_GUIDSet_Test.pas" />
     <DCCReference Include="u_HashCacheWithQueuesAbstract_Test.pas" />
     <DCCReference Include="u_HashMatrix_Test.pas" />
+    <DCCReference Include="u_MarkCategoryListToTree_Test.pas" />
     <DCCReference Include="u_PathConfig_Test.pas" />
     <DCCReference Include="u_ProjectedSingleLine_Test.pas" />
     <DCCReference Include="u_SASTestCase.pas" />

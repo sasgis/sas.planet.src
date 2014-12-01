@@ -800,6 +800,8 @@
     <DCCReference Include="Src\MarksDB\i_MarkCategoryDBImpl.pas" />
     <DCCReference Include="Src\MarksDB\i_MarkCategoryFactory.pas" />
     <DCCReference Include="Src\MarksDB\i_MarkCategoryFactoryConfig.pas" />
+    <DCCReference Include="Src\MarksDB\i_MarkCategoryList.pas" />
+    <DCCReference Include="Src\MarksDB\i_MarkCategoryTree.pas" />
     <DCCReference Include="Src\MarksDB\i_MarkDb.pas" />
     <DCCReference Include="Src\MarksDB\i_MarkDbImpl.pas" />
     <DCCReference Include="Src\MarksDB\i_MarkFactory.pas" />
@@ -831,6 +833,8 @@
     <DCCReference Include="Src\MarksDB\u_MarkCategoryDbByImpl.pas" />
     <DCCReference Include="Src\MarksDB\u_MarkCategoryFactory.pas" />
     <DCCReference Include="Src\MarksDB\u_MarkCategoryFactoryConfig.pas" />
+    <DCCReference Include="Src\MarksDB\u_MarkCategoryList.pas" />
+    <DCCReference Include="Src\MarksDB\u_MarkCategoryTree.pas" />
     <DCCReference Include="Src\MarksDB\u_MarkDbByImpl.pas" />
     <DCCReference Include="Src\MarksDB\u_MarkFactory.pas" />
     <DCCReference Include="Src\MarksDB\u_MarkFactoryConfig.pas" />

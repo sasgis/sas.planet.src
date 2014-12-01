@@ -25,10 +25,12 @@ interface
 uses
   i_MarkDbImpl,
   i_MarkFactory,
+  i_MarkCategoryList,
+  i_MarkCategoryTree,
   i_MarkCategoryDBImpl,
   i_MarkCategoryFactory,
-  i_StaticTreeItem,
   i_VectorItemTree,
+  i_InterfaceListStatic,
   i_InterfaceListSimple,
   i_ImportConfig;
 
@@ -45,21 +47,25 @@ procedure PrepareFromTreeForImport(
 
 function CategoryTreeToMarkTreeHelper(
   const AMarkDB: IMarkDBImpl;
-  const ACategoryTree: IStaticTreeItem;
+  const ACategoryTree: IMarkCategoryTree;
   const AIncludeHiddenMarks: Boolean
 ): IVectorItemTree;
+
+function CategoryListToCategoryTree(const AList: IMarkCategoryList): IMarkCategoryTree;
 
 implementation
 
 uses
+  Classes,
   SysUtils,
   i_Category,
   i_MarkCategory,
   i_VectorDataItemSimple,
   i_VectorItemSubset,
-  i_InterfaceListStatic,
   i_GeometryLonLat,
   u_VectorItemTree,
+  
+  u_MarkCategoryTree,
   u_InterfaceListSimple;
 
 procedure PrepareFromTreeForImport( // ToDo: придумать более внятное название
@@ -155,11 +161,10 @@ end;
 
 function CategoryTreeToMarkTreeHelper(
   const AMarkDB: IMarkDBImpl;
-  const ACategoryTree: IStaticTreeItem;
+  const ACategoryTree: IMarkCategoryTree;
   const AIncludeHiddenMarks: Boolean
 ): IVectorItemTree;
 var
-  VCategory: IMarkCategory;
   VMarkSubset: IVectorItemSubset;
   VSubItems: IInterfaceListStatic;
   i: Integer;
@@ -172,8 +177,8 @@ begin
   VMarkSubset := nil;
 
   if Assigned(ACategoryTree) then begin
-    if Supports(ACategoryTree.Data, IMarkCategory, VCategory) then begin
-      VMarkSubset := AMarkDb.GetMarkSubsetByCategory(VCategory, AIncludeHiddenMarks);
+    if Assigned(ACategoryTree.MarkCategory) then begin
+      VMarkSubset := AMarkDb.GetMarkSubsetByCategory(ACategoryTree.MarkCategory, AIncludeHiddenMarks);
     end;
 
     VSubItems := nil;
@@ -197,6 +202,130 @@ begin
         VMarkSubset,
         VSubItems
       );
+  end;
+end;
+
+function GetLevelName(
+  const AName: string;
+  out ACurLevelName, ATrailName: string
+): Boolean;
+var
+  VPos: Integer;
+begin
+  VPos := Pos('\', AName);
+  if VPos > 0 then begin
+    ACurLevelName := Copy(AName, 1, VPos - 1);
+    ATrailName := Copy(AName, VPos + 1, Length(AName));
+    Result := True;
+  end else begin
+    ACurLevelName := AName;
+    ATrailName := '';
+    Result := False;
+  end;
+end;
+
+function TreeFromSortedStringList(
+  const AGroupName: string; 
+  const AGroupCategory: IMarkCategory; 
+  AStrings: TStringList
+): IMarkCategoryTree;
+var
+  VSubList: TStringList;
+  VSubItems: IInterfaceListSimple;
+  i: Integer;
+  VGroupName: string;
+  VName: string;
+  VNameTrail: string;
+  VNamePrefix: string;
+  VCategory: IMarkCategory;
+  VSubItem: IMarkCategoryTree;
+begin
+  Assert(AStrings.Count > 0);
+  VSubItems := TInterfaceListSimple.Create;
+  if AStrings.Count = 1 then begin
+    VName := AStrings.Strings[0];
+    if GetLevelName(VName, VNamePrefix, VNameTrail) then begin
+      AStrings.Strings[0] := VNameTrail;
+      VSubItem := TreeFromSortedStringList(VNamePrefix, nil, AStrings);
+    end else begin
+      VCategory := IMarkCategory(Pointer(AStrings.Objects[0]));
+      VSubItem := TMarkCategoryTree.Create(VCategory, VName, nil);
+    end;
+    VSubItems.Add(VSubItem);
+  end else begin
+    VSubList := TStringList.Create;
+    try
+      i := 0;
+      VName := AStrings.Strings[i];
+      if GetLevelName(VName, VNamePrefix, VNameTrail) then begin
+        VCategory := nil;
+        VGroupName := VNamePrefix;
+        VSubList.AddObject(VNameTrail, AStrings.Objects[i]);
+      end else begin
+        VGroupName := VName;
+        VCategory := IMarkCategory(Pointer(AStrings.Objects[i]));
+      end;
+      Inc(i);
+      while i < AStrings.Count do begin
+        VName := AStrings.Strings[i];
+        if GetLevelName(VName, VNamePrefix, VNameTrail) then begin
+          if VNamePrefix = VGroupName then begin
+            VSubList.AddObject(VNameTrail, AStrings.Objects[i]);
+          end else begin
+            if VSubList.Count > 0 then begin
+              VSubItem := TreeFromSortedStringList(VGroupName, VCategory, VSubList);
+            end else begin
+              VSubItem := TMarkCategoryTree.Create(VCategory, VGroupName, nil);
+            end;
+            VSubItems.Add(VSubItem);
+            VSubList.Clear;
+            VCategory := nil;
+            VGroupName := VNamePrefix;
+            VSubList.AddObject(VNameTrail, AStrings.Objects[i]);
+          end;
+        end else begin
+          if VSubList.Count > 0 then begin
+            VSubItem := TreeFromSortedStringList(VGroupName, VCategory, VSubList);
+          end else begin
+            VSubItem := TMarkCategoryTree.Create(VCategory, VGroupName, nil);
+          end;
+          VSubItems.Add(VSubItem);
+          VSubList.Clear;
+          VGroupName := VName;
+          VCategory := IMarkCategory(Pointer(AStrings.Objects[i]));
+        end;
+        Inc(i);
+      end;
+      if VSubList.Count > 0 then begin
+        VSubItem := TreeFromSortedStringList(VGroupName, VCategory, VSubList);
+      end else begin
+        VSubItem := TMarkCategoryTree.Create(VCategory, VGroupName, nil);
+      end;
+      VSubItems.Add(VSubItem);
+      VSubList.Clear;
+    finally
+      FreeAndNil(VSubList);
+    end;
+  end;
+  Result := TMarkCategoryTree.Create(AGroupCategory, AGroupName, VSubItems.MakeStaticAndClear);
+end;
+
+function CategoryListToCategoryTree(const AList: IMarkCategoryList): IMarkCategoryTree;
+var
+  VItems: TStringList;
+  i: Integer;
+  VItem: IMarkCategory;
+begin
+  VItems := TStringList.Create;
+  try
+    for i := 0 to AList.Count - 1 do begin
+      VItem := IMarkCategory(AList.Items[i]);
+      VItems.AddObject(VItem.Name, Pointer(VItem));
+    end;
+    VItems.Sort;
+    Result := TreeFromSortedStringList('', nil, VItems);
+  finally
+    FreeAndNil(VItems);
   end;
 end;
 

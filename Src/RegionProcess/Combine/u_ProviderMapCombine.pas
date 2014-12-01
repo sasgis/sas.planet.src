@@ -137,8 +137,8 @@ uses
   SysUtils,
   gnugettext,
   t_Bitmap32,
-  i_InterfaceListStatic,
   i_LonLatRect,
+  i_MarkCategoryList,
   i_MarkerProviderForVectorItem,
   i_VectorItemSubset,
   i_RegionProcessParamsFrame,
@@ -360,7 +360,7 @@ var
   VGeoConverter: ICoordConverter;
   VMarksSubset: IVectorItemSubset;
   VMarksConfigStatic: IUsedMarksConfigStatic;
-  VList: IInterfaceListStatic;
+  VList: IMarkCategoryList;
   VMarksImageProvider: IBitmapLayerProvider;
   VRecolorConfig: IBitmapPostProcessing;
   VSourceProvider: IBitmapLayerProvider;

@@ -42,6 +42,7 @@ uses
   i_MarkId,
   i_Category,
   i_MarkCategory,
+  i_MarkCategoryList,
   i_MarkSystem,
   i_ImportConfig,
   i_VectorItemTreeExporterList,
@@ -136,7 +137,7 @@ type
       AIgnoreMarksVisible: Boolean
     );
     procedure ExportCategoryList(
-      const ACategoryList: IInterfaceListStatic;
+      const ACategoryList: IMarkCategoryList;
       AIgnoreMarksVisible: Boolean
     );
     function ImportFilesModal(
@@ -174,14 +175,12 @@ uses
   gnugettext,
   i_DoublePointFilter,
   i_VectorItemTree,
-  i_InterfaceListSimple,
-  i_StaticTreeItem,
+  i_MarkCategoryTree,
   i_NotifierOperation,
   i_VectorItemTreeImporter,
   u_ResStrings,
   u_EnumDoublePointLine2Poly,
   u_VectorItemTree,
-  u_InterfaceListSimple,
   u_NotifierOperation,
   u_FileNameFunc,
   u_GeoToStrFunc;
@@ -318,7 +317,7 @@ function TMarkDbGUIHelper.DeleteCategoryModal(
 var
   I: Integer;
   VMessage: string;
-  VList: IInterfaceListStatic;
+  VList: IMarkCategoryList;
 begin
   Result := False;
   if ACategory <> nil then begin
@@ -468,10 +467,9 @@ procedure TMarkDbGUIHelper.ExportCategory(
 );
 var
   VFileName: string;
-  VSubCategoryList: IInterfaceListStatic;
-  VCategoryTree: IStaticTreeItem;
+  VSubCategoryList: IMarkCategoryList;
+  VCategoryTree: IMarkCategoryTree;
   VMarkTree: IVectorItemTree;
-  VList: IInterfaceListSimple;
   VExporterList: IVectorItemTreeExporterListStatic;
   VExporterItem: IVectorItemTreeExporterListItem;
   VNotifier: INotifierOperation;
@@ -486,14 +484,11 @@ begin
       if VFileName <> '' then begin
         VExporterItem := GetActiveExporter(VExporterList);
         if Assigned(VExporterItem) then begin
-          VSubCategoryList := FMarkSystem.CategoryDB.GetSubCategoryListForCategory(AMarkCategory);
+          VSubCategoryList := FMarkSystem.CategoryDB.GetCategoryWithSubCategories(AMarkCategory);
           if not AIgnoreMarksVisible then begin
             VSubCategoryList := FMarkSystem.CategoryDB.FilterVisibleCategories(VSubCategoryList);
           end;
-          VList := TInterfaceListSimple.Create;
-          VList.Add(AMarkCategory);
-          VList.AddListStatic(VSubCategoryList);
-          VCategoryTree := FMarkSystem.CategoryDB.CategoryListToStaticTree(VList.MakeStaticAndClear);
+          VCategoryTree := FMarkSystem.CategoryDB.CategoryListToStaticTree(VSubCategoryList);
           VMarkTree := FMarkSystem.CategoryTreeToMarkTree(VCategoryTree, AIgnoreMarksVisible);
           VNotifier := TNotifierOperationFake.Create;
           VExporterItem.Exporter.ProcessExport(VNotifier.CurrentOperation, VNotifier, VFileName, VMarkTree);
@@ -504,12 +499,12 @@ begin
 end;
 
 procedure TMarkDbGUIHelper.ExportCategoryList(
-  const ACategoryList: IInterfaceListStatic;
+  const ACategoryList: IMarkCategoryList;
   AIgnoreMarksVisible: Boolean
 );
 var
   VFileName: string;
-  VCategoryTree: IStaticTreeItem;
+  VCategoryTree: IMarkCategoryTree;
   VMarkTree: IVectorItemTree;
   VExporterList: IVectorItemTreeExporterListStatic;
   VExporterItem: IVectorItemTreeExporterListItem;

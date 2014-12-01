@@ -18,45 +18,21 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_MarkCategoryDB;
+unit i_MarkCategoryList;
 
 interface
 
 uses
-  i_Notifier,
-  i_MarkCategory,
-  i_MarkCategoryList,
-  i_MarkCategoryTree,
-  i_MarkCategoryFactory;
+  i_MarkCategory;
 
 type
-  IMarkCategoryDB = interface
-    ['{F418B319-3B89-4B09-BC9E-0E4FC684BADF}']
-    function GetCategoryByName(const AName: string): IMarkCategory;
-    function GetCategoryWithSubCategories(const ACategory: IMarkCategory): IMarkCategoryList;
-    function GetSubCategoryListForCategory(const ACategory: IMarkCategory): IMarkCategoryList;
-    function GetCategoriesList: IMarkCategoryList;
-    function GetVisibleCategories(AZoom: Byte): IMarkCategoryList;
-    function GetVisibleCategoriesIgnoreZoom: IMarkCategoryList;
-    function CategoryListToStaticTree(const AList: IMarkCategoryList): IMarkCategoryTree;
-    function FilterVisibleCategories(const ASourceList: IMarkCategoryList): IMarkCategoryList;
+  IMarkCategoryList = interface
+    ['{5200CE7B-45FE-41D1-8ABA-40A55637F457}']
+    function GetCount: Integer;
+    property Count: Integer read GetCount;
 
-    function UpdateCategory(
-      const AOldCategory: IMarkCategory;
-      const ANewCategory: IMarkCategory
-    ): IMarkCategory;
-    function UpdateCategoryList(
-      const AOldCategory: IMarkCategoryList;
-      const ANewCategory: IMarkCategoryList
-    ): IMarkCategoryList;
-
-    procedure SetAllCategoriesVisible(ANewVisible: Boolean);
-
-    function GetFactory: IMarkCategoryFactory;
-    property Factory: IMarkCategoryFactory read GetFactory;
-
-    function GetChangeNotifier: INotifier;
-    property ChangeNotifier: INotifier read GetChangeNotifier;
+    function GetItem(const AIndex: Integer): IMarkCategory;
+    property Items[const AIndex: Integer]: IMarkCategory read GetItem; default;
   end;
 
 implementation

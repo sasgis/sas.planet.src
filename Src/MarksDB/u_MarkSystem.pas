@@ -25,6 +25,7 @@ interface
 uses
   i_VectorDataItemSimple,
   i_MarkCategory,
+  i_MarkCategoryTree,
   i_MarkSystem,
   i_ReadWriteState,
   i_MarkDb,
@@ -35,7 +36,6 @@ uses
   i_AppearanceOfMarkFactory,
   i_VectorItemSubsetBuilder,
   i_VectorItemTree,
-  i_StaticTreeItem,
   i_PathConfig,
   i_MarkPicture,
   i_GeometryLonLatFactory,
@@ -73,7 +73,7 @@ type
     ): IInterfaceListStatic;
 
     function CategoryTreeToMarkTree(
-      const ACategoryTree: IStaticTreeItem;
+      const ACategoryTree: IMarkCategoryTree;
       const AIncludeHiddenMarks: Boolean
     ): IVectorItemTree;
   public
@@ -261,7 +261,7 @@ begin
 end;
 
 function TMarkSystem.CategoryTreeToMarkTree(
-  const ACategoryTree: IStaticTreeItem;
+  const ACategoryTree: IMarkCategoryTree;
   const AIncludeHiddenMarks: Boolean
 ): IVectorItemTree;
 var

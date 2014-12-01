@@ -18,47 +18,78 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_MarkCategoryDB;
+unit u_MarkCategoryTree;
 
 interface
 
 uses
-  i_Notifier,
   i_MarkCategory,
-  i_MarkCategoryList,
   i_MarkCategoryTree,
-  i_MarkCategoryFactory;
+  i_InterfaceListStatic,
+  u_BaseInterfacedObject;
 
 type
-  IMarkCategoryDB = interface
-    ['{F418B319-3B89-4B09-BC9E-0E4FC684BADF}']
-    function GetCategoryByName(const AName: string): IMarkCategory;
-    function GetCategoryWithSubCategories(const ACategory: IMarkCategory): IMarkCategoryList;
-    function GetSubCategoryListForCategory(const ACategory: IMarkCategory): IMarkCategoryList;
-    function GetCategoriesList: IMarkCategoryList;
-    function GetVisibleCategories(AZoom: Byte): IMarkCategoryList;
-    function GetVisibleCategoriesIgnoreZoom: IMarkCategoryList;
-    function CategoryListToStaticTree(const AList: IMarkCategoryList): IMarkCategoryTree;
-    function FilterVisibleCategories(const ASourceList: IMarkCategoryList): IMarkCategoryList;
-
-    function UpdateCategory(
-      const AOldCategory: IMarkCategory;
-      const ANewCategory: IMarkCategory
-    ): IMarkCategory;
-    function UpdateCategoryList(
-      const AOldCategory: IMarkCategoryList;
-      const ANewCategory: IMarkCategoryList
-    ): IMarkCategoryList;
-
-    procedure SetAllCategoriesVisible(ANewVisible: Boolean);
-
-    function GetFactory: IMarkCategoryFactory;
-    property Factory: IMarkCategoryFactory read GetFactory;
-
-    function GetChangeNotifier: INotifier;
-    property ChangeNotifier: INotifier read GetChangeNotifier;
+  TMarkCategoryTree = class(TBaseInterfacedObject, IMarkCategoryTree)
+  private
+    FMarkCategory: IMarkCategory;
+    FName: string;
+    FSubItems: IInterfaceListStatic;
+  private
+    function GetMarkCategory: IMarkCategory;
+    function GetName: string;
+    function GetSubItemCount: Integer;
+    function GetSubItem(AIndex: Integer): IMarkCategoryTree;
+  public
+    constructor Create(
+      const AMarkCategory: IMarkCategory;
+      const AName: string;
+      const ASubItems: IInterfaceListStatic
+    );
   end;
 
 implementation
+
+{ TMarkCategoryTree }
+
+constructor TMarkCategoryTree.Create(
+  const AMarkCategory: IMarkCategory;
+  const AName: string;
+  const ASubItems: IInterfaceListStatic
+);
+begin
+  inherited Create;
+  FMarkCategory := AMarkCategory;
+  FName := AName;
+  FSubItems := ASubItems;
+end;
+
+function TMarkCategoryTree.GetMarkCategory: IMarkCategory;
+begin
+  Result := FMarkCategory;
+end;
+
+function TMarkCategoryTree.GetName: string;
+begin
+  Result := FName;
+end;
+
+function TMarkCategoryTree.GetSubItem(AIndex: Integer): IMarkCategoryTree;
+begin
+  Result := nil;
+  if FSubItems <> nil then begin
+    if (AIndex >= 0) and (AIndex < FSubItems.Count) then begin
+      Result := IMarkCategoryTree(FSubItems.Items[AIndex]);
+    end;
+  end;
+end;
+
+function TMarkCategoryTree.GetSubItemCount: Integer;
+begin
+  if FSubItems <> nil then begin
+    Result := FSubItems.Count;
+  end else begin
+    Result := 0;
+  end;
+end;
 
 end.

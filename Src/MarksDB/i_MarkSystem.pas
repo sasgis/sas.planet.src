@@ -29,9 +29,9 @@ uses
   i_VectorItemTree,
   i_VectorDataItemSimple,
   i_MarkCategory,
+  i_MarkCategoryTree,
   i_MarkDb,
-  i_MarkCategoryDB,
-  i_StaticTreeItem;
+  i_MarkCategoryDB;
 
 type
   IMarkSystem = interface
@@ -57,7 +57,7 @@ type
     procedure DeleteCategoryWithMarks(const ACategory: IMarkCategory);
 
     function CategoryTreeToMarkTree(
-      const ACategoryTree: IStaticTreeItem;
+      const ACategoryTree: IMarkCategoryTree;
       const AIncludeHiddenMarks: Boolean
     ): IVectorItemTree;
   end;
