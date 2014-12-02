@@ -71,6 +71,7 @@ uses
   u_MarkerSimpleConfigStatic,
   u_PointsSetLayerConfig,
   u_ConfigProviderHelpers,
+  u_ConfigSaveLoadStrategyBasicUseProvider,
   u_ConfigSaveLoadStrategyBasicProviderSubItem;
 
 { TSelectionPolylineLayerConfig }
@@ -87,7 +88,7 @@ begin
 
   Add(
     FLineConfig,
-    TConfigSaveLoadStrategyBasicProviderSubItem.Create('Line')
+    TConfigSaveLoadStrategyBasicUseProvider.Create
   );
 
   FShadowConfig := TSelectionPolylineShadowLayerConfig.Create;
@@ -125,7 +126,7 @@ begin
     );
   Add(
     FPointsConfig,
-    TConfigSaveLoadStrategyBasicProviderSubItem.Create('Line')
+    TConfigSaveLoadStrategyBasicUseProvider.Create
   );
 end;
 
