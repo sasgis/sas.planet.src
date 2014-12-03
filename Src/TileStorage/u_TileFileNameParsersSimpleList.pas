@@ -54,20 +54,22 @@ uses
   u_TileFileNameES,
   u_TileFileNameGM1,
   u_TileFileNameGM2,
-  u_TileFileNameGM3;
+  u_TileFileNameGM3,
+  u_TileFileNameMobileAtlas;
 
 { TTileFileNameParsersSimpleList }
 
 constructor TTileFileNameParsersSimpleList.Create;
 begin
   inherited Create;
-  SetLength(FItems, 6);
+  SetLength(FItems, 7);
   FItems[0] := TTileFileNameGMV.Create;
   FItems[1] := TTileFileNameSAS.Create;
   FItems[2] := TTileFileNameES.Create;
   FItems[3] := TTileFileNameGM1.Create;
   FItems[4] := TTileFileNameGM2.Create;
   FItems[5] := TTileFileNameGM3.Create;
+  FItems[6] := TTileFileNameMobileAtlas.Create;
 end;
 
 destructor TTileFileNameParsersSimpleList.Destroy;
@@ -110,6 +112,10 @@ begin
     c_File_Cache_Id_GM_Bing:
     begin
       Result := FItems[5];
+    end;
+    c_File_Cache_Id_Mobile_Atlas:
+    begin
+      Result := FItems[6];
     end;
   else begin
     Assert(False);

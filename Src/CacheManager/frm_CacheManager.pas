@@ -235,9 +235,11 @@ begin
       end;
       atZip: begin
         // ToDo
+        Assert(False);
       end;
     else
       // Error
+      Assert(False);
     end;
   end else begin
     VStorageType := FTileStorageTypeList.GetItemByCode(AFormatID);
@@ -302,6 +304,7 @@ procedure TfrmCacheManager.ProcessCacheConverter;
       5: Result := c_File_Cache_Id_BDB;
       6: Result := c_File_Cache_Id_BDB_Versioned;
       7: Result := c_File_Cache_Id_DBMS;
+      8: Result := c_File_Cache_Id_Mobile_Atlas;
     else
       Result := c_File_Cache_Id_SAS;
     end;

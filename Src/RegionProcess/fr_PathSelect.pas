@@ -65,9 +65,6 @@ implementation
 
 {$R *.dfm}
 
-uses
-  gnugettext;
-
 { TfrPathSelect }
 
 procedure TfrPathSelect.CancelChanges;
@@ -100,7 +97,7 @@ var
   TempPath: string;
 begin
   TempPath := FPathConfig.FullPath;
-  if SelectDirectory(_(FCaption), '', TempPath) then begin
+  if SelectDirectory(FCaption, '', TempPath) then begin
     EPath.Text := StringReplace(IncludeTrailingPathDelimiter(TempPath), FPathConfig.BasePathConfig.Path, '.\', [rfIgnoreCase]);
   end;
 end;
@@ -109,7 +106,7 @@ procedure TfrPathSelect.Show(AParent: TWinControl);
 begin
   EPath.Text := IncludeTrailingPathDelimiter(FPathConfig.path);
   Parent := AParent;
-  LCaption.Caption := _(FCaption);
+  LCaption.Caption := FCaption;
 end;
 
 end.

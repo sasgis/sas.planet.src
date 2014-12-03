@@ -73,7 +73,7 @@ object frmSettings: TfrmSettings
       end
       object pnlDBMSPath: TPanel
         Left = 0
-        Top = 224
+        Top = 252
         Width = 644
         Height = 22
         Align = alTop
@@ -157,7 +157,7 @@ object frmSettings: TfrmSettings
       end
       object pnlGECachePath: TPanel
         Left = 0
-        Top = 112
+        Top = 140
         Width = 644
         Height = 28
         Align = alTop
@@ -167,16 +167,6 @@ object frmSettings: TfrmSettings
       end
       object pnledtBDBCachePath: TPanel
         Left = 0
-        Top = 140
-        Width = 644
-        Height = 28
-        Align = alTop
-        BevelEdges = []
-        BevelOuter = bvNone
-        TabOrder = 7
-      end
-      object pnledtBDBVerCachePath: TPanel
-        Left = 0
         Top = 168
         Width = 644
         Height = 28
@@ -185,9 +175,20 @@ object frmSettings: TfrmSettings
         BevelOuter = bvNone
         TabOrder = 8
       end
-      object pnledtGCCachePath: TPanel
+      object pnledtBDBVerCachePath: TPanel
         Left = 0
         Top = 196
+        Width = 644
+        Height = 28
+        Align = alTop
+        BevelEdges = []
+        BevelOuter = bvNone
+        TabOrder = 8
+        ExplicitTop = 168
+      end
+      object pnledtGCCachePath: TPanel
+        Left = 0
+        Top = 224
         Width = 644
         Height = 28
         Align = alTop
@@ -197,7 +198,7 @@ object frmSettings: TfrmSettings
       end
       object pnlDefCache: TPanel
         Left = 0
-        Top = 246
+        Top = 274
         Width = 644
         Height = 28
         Align = alTop
@@ -219,6 +220,7 @@ object frmSettings: TfrmSettings
           Align = alCustom
           Style = csDropDownList
           Anchors = [akLeft, akTop, akRight]
+          DropDownCount = 10
           ItemHeight = 13
           ItemIndex = 1
           TabOrder = 0
@@ -231,8 +233,20 @@ object frmSettings: TfrmSettings
             'BerkeleyDB'
             'BerkeleyDB (Versioned)'
             'DBMS'
-            'RAM')
+            'RAM'
+            'MobileAtlas')
         end
+      end
+      object pnlMATilesPath: TPanel
+        Left = 0
+        Top = 112
+        Width = 644
+        Height = 28
+        Align = alTop
+        BevelEdges = []
+        BevelOuter = bvNone
+        TabOrder = 11
+        ExplicitTop = 121
       end
     end
     object tsInternet: TTabSheet

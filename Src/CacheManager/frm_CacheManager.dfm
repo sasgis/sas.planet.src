@@ -78,7 +78,8 @@ object frmCacheManager: TfrmCacheManager
             'GlobalMapper Aux'
             'BerkeleyDB'
             'BerkeleyDB (Versioned)'
-            'DBMS')
+            'DBMS'
+            'MobileAtlas')
         end
         object chkIgnoreTNE: TCheckBox
           Left = 279
@@ -181,7 +182,8 @@ object frmCacheManager: TfrmCacheManager
             'GlobalMapper Aux'
             'BerkeleyDB'
             'BerkeleyDB (Versioned)'
-            'DBMS')
+            'DBMS'
+            'MobileAtlas')
         end
         object chkOverwrite: TCheckBox
           Left = 175

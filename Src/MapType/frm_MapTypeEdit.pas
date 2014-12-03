@@ -171,6 +171,9 @@ begin
     8: begin
       Result := c_File_Cache_Id_RAM;
     end;
+    9: begin
+      Result := c_File_Cache_Id_Mobile_Atlas;
+    end;
   else begin
     Result := c_File_Cache_Id_DEFAULT;
   end;
@@ -207,6 +210,9 @@ begin
     c_File_Cache_Id_RAM: begin
       Result := 8;
     end;
+    c_File_Cache_Id_Mobile_Atlas: begin
+      Result := 9;
+    end
   else begin
     Result := 0;
   end;

@@ -232,6 +232,7 @@ type
     pnlButtnos: TPanel;
     BtnDef: TButton;
     lbl: TLabel;
+    pnlMATilesPath: TPanel;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -272,6 +273,7 @@ type
     FfrOldCpath: TfrPathSelect;
     FfrEScPath: TfrPathSelect;
     FfrGMTilesPath: TfrPathSelect;
+    FfrMobileAtlasTilesPath: TfrPathSelect;
     FfrGECachePath: TfrPathSelect;
     FfrBDBCachePath: TfrPathSelect;
     FfrBDBVerCachePath: TfrPathSelect;
@@ -299,6 +301,7 @@ type
 implementation
 
 uses
+  gnugettext,
   c_CacheTypeCodes, // for default path
   c_InetConfig, // for default UserAgent
   t_CommonTypes,
@@ -338,6 +341,9 @@ begin
     7: begin
       Result := c_File_Cache_Id_RAM;
     end;
+    8: begin
+      Result := c_File_Cache_Id_Mobile_Atlas;
+    end;
   else begin
     Result := c_File_Cache_Id_SAS;
   end;
@@ -370,6 +376,9 @@ begin
     end;
     c_File_Cache_Id_RAM: begin
       Result := 7;
+    end;
+    c_File_Cache_Id_Mobile_Atlas: begin
+      Result := 8;
     end;
   else begin
     Result := 1;
@@ -419,103 +428,109 @@ begin
   FfrMapPathSelect :=
     TfrPathSelect.Create(
       ALanguageManager,
-      'Path to Maps',
+      _('Path to Maps'),
       GState.Config.MapsPath
     );
   FfrTerrainDataPathSelect :=
     TfrPathSelect.Create(
       ALanguageManager,
-      'Path to Terrain data',
+      _('Path to Terrain data'),
       GState.Config.TerrainDataPath
     );
   FfrUserDataPathSelect :=
     TfrPathSelect.Create(
       ALanguageManager,
-      'Path to user data',
+      _('Path to user data'),
       GState.Config.UserDataPath
     );
   FfrTrackPathSelect :=
     TfrPathSelect.Create(
       ALanguageManager,
-      'Path to gps tracks',
+      _('Path to gps tracks'),
       GState.Config.TrackPath
     );
   FfrMarksIconsPathSelect :=
     TfrPathSelect.Create(
       ALanguageManager,
-      'Path to marks icon',
+      _('Path to marks icon'),
       GState.Config.MarksIconsPath
     );
   FfrMarksDbPathSelect :=
     TfrPathSelect.Create(
       ALanguageManager,
-      'Path to Marks database',
+      _('Path to Marks database'),
       GState.Config.MarksDbPath
     );
   FfrMediaDataPathSelect :=
     TfrPathSelect.Create(
       ALanguageManager,
-      'Path to MediaData',
+      _('Path to MediaData'),
       GState.Config.MediaDataPath
     );
   FfrMapSvcScanPathSelect :=
     TfrPathSelect.Create(
       ALanguageManager,
-      'Path to map scan DB',
+      _('Path to map scan DB'),
       GState.Config.MapSvcScanConfig.Path
     );
   FfrBaseCahcePathSelect :=
     TfrPathSelect.Create(
       ALanguageManager,
-      'Base Cache path',
+      _('Base Cache path'),
       GState.Config.BaseCahcePath
     );
   FfrNewCpath :=
     TfrPathSelect.Create(
       ALanguageManager,
-      'Native cache folder:',
+      _('Native cache folder:'),
       GState.CacheConfig.NewCPath
     );
   FfrOldCpath :=
     TfrPathSelect.Create(
       ALanguageManager,
-      'GoogleMV cache folder:',
+      _('GoogleMV cache folder:'),
       GState.CacheConfig.OldCPath
     );
   FfrEScPath :=
     TfrPathSelect.Create(
       ALanguageManager,
-      'EarthSlicer cache folder:',
+      _('EarthSlicer cache folder:'),
       GState.CacheConfig.ESCPath
     );
   FfrGMTilesPath :=
     TfrPathSelect.Create(
       ALanguageManager,
-      'GlobalMapper Tiles (GMT) cache folder:',
+      _('GlobalMapper Tiles (GMT) cache folder:'),
       GState.CacheConfig.GMTilesPath
+    );
+  FfrMobileAtlasTilesPath :=
+    TfrPathSelect.Create(
+      ALanguageManager,
+      _('MobileAtlas cache folder:'),
+      GState.CacheConfig.MobileAtlasTilesPath
     );
   FfrGECachePath :=
     TfrPathSelect.Create(
       ALanguageManager,
-      'GoogleEarth cache folder:',
+      _('GoogleEarth cache folder:'),
       GState.CacheConfig.GECachePath
     );
   FfrBDBCachePath :=
     TfrPathSelect.Create(
       ALanguageManager,
-      'BerkeleyDB cache folder:',
+      _('BerkeleyDB cache folder:'),
       GState.CacheConfig.BDBCachePath
     );
   FfrBDBVerCachePath :=
     TfrPathSelect.Create(
       ALanguageManager,
-      'BerkeleyDB (Versioned) cache folder:',
+      _('BerkeleyDB (Versioned) cache folder:'),
       GState.CacheConfig.BDBVerCachePath
     );
   FfrGCCachePath :=
     TfrPathSelect.Create(
       ALanguageManager,
-      'GeoCacher root folder:',
+      _('GeoCacher root folder:'),
       GState.CacheConfig.GCCachePath
     );
 
@@ -723,6 +738,7 @@ begin
   FfrOldCpath.ApplyChanges;
   FfrESCPath.ApplyChanges;
   FfrGMTilesPath.ApplyChanges;
+  FfrMobileAtlasTilesPath.ApplyChanges;
   FfrGECachePath.ApplyChanges;
   FfrBDBCachePath.ApplyChanges;
   FfrBDBVerCachePath.ApplyChanges;
@@ -838,6 +854,7 @@ begin
   FreeAndNil(FfrOldCpath);
   FreeAndNil(FfrEScPath);
   FreeAndNil(FfrGMTilesPath);
+  FreeAndNil(FfrMobileAtlasTilesPath);
   FreeAndNil(FfrGECachePath);
   FreeAndNil(FfrBDBCachePath);
   FreeAndNil(FfrBDBVerCachePath);
@@ -870,6 +887,7 @@ begin
   FfrOldCpath.Show(pnlOldCpath);
   FfrEScPath.Show(pnlEScPath);
   FfrGMTilesPath.Show(pnlGMTilesPath);
+  FfrMobileAtlasTilesPath.Show(pnlMATilesPath);
   FfrGECachePath.Show(pnlGECachePath);
   FfrBDBCachePath.Show(pnledtBDBCachePath);
   FfrBDBVerCachePath.Show(pnledtBDBVerCachePath);

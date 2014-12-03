@@ -725,6 +725,7 @@ uses
   u_TileFileNameGM1 in 'Src\TileStorage\FileSystem\u_TileFileNameGM1.pas',
   u_TileFileNameGM2 in 'Src\TileStorage\FileSystem\u_TileFileNameGM2.pas',
   u_TileFileNameGM3 in 'Src\TileStorage\FileSystem\u_TileFileNameGM3.pas',
+  u_TileFileNameMobileAtlas in 'Src\TileStorage\FileSystem\u_TileFileNameMobileAtlas.pas',
   c_CacheTypeCodes in 'Src\TileStorage\c_CacheTypeCodes.pas',
   i_TileFileNameGenerator in 'Src\TileStorage\i_TileFileNameGenerator.pas',
   i_TileFileNameGeneratorsList in 'Src\TileStorage\i_TileFileNameGeneratorsList.pas',

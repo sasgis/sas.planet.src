@@ -255,6 +255,7 @@ begin
     4: Result := c_File_Cache_Id_BDB;
     5: Result := c_File_Cache_Id_BDB_Versioned;
     6: Result := c_File_Cache_Id_DBMS;
+    7: Result := c_File_Cache_Id_Mobile_Atlas;
   else
     Result := c_File_Cache_Id_SAS;
   end;

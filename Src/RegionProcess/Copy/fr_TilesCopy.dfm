@@ -66,7 +66,8 @@ object frTilesCopy: TfrTilesCopy
           'GlobalMapper Tiles'
           'BerkeleyDB'
           'BerkeleyDB (Versioned)'
-          'DBMS')
+          'DBMS'
+          'MobileAtlas')
       end
       object chkDeleteSource: TCheckBox
         AlignWithMargins = True

@@ -96,6 +96,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
           Height = 21
           Align = alClient
           Style = csDropDownList
+          DropDownCount = 10
           ItemHeight = 13
           TabOrder = 0
           Items.Strings = (
@@ -107,7 +108,8 @@ object frmMapTypeEdit: TfrmMapTypeEdit
             'BerkeleyDB'
             'BerkeleyDB (Versioned)'
             'DBMS'
-            'RAM')
+            'RAM'
+            'MobileAtlas')
         end
         object btnResetCacheType: TButton
           AlignWithMargins = True

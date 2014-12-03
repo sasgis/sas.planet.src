@@ -56,6 +56,7 @@ uses
   u_TileFileNameES,
   u_TileFileNameGM1,
   u_TileFileNameGM2,
+  u_TileFileNameMobileAtlas,
   u_TileStorageTypeConfig,
   u_TileStorageTypeGE,
   u_TileStorageTypeGoogleEarth,
@@ -77,6 +78,7 @@ const
   CTileStorageTypeFileSystemES: TGUID = '{F6056405-C25C-4573-AFAC-BC4F8DF52283}';
   CTileStorageTypeFileSystemGM1: TGUID = '{E6F98BC5-8684-42C9-92DE-3D994DA8C925}';
   CTileStorageTypeFileSystemGM2: TGUID = '{4EF99AD6-D05E-4175-805C-DBBE08AC43B3}';
+  CTileStorageTypeFileSystemMA: TGUID = '{033B64B5-008B-4BAF-9EA9-B8176EA35433}';
   CTileStorageTypeInRAM: TGUID = '{717034B7-B49E-4C89-BC75-002D0523E548}';
 
 { TTileStorageTypeListSimple }
@@ -188,6 +190,25 @@ begin
       VStorageType,
       True,
       False
+    );
+  VList.Add(VItem);
+
+  VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.MobileAtlasTilesPath);
+  VStorageType :=
+    TTileStorageTypeFileSystemSimple.Create(
+      TTileFileNameMobileAtlas.Create,
+      TTileFileNameMobileAtlas.Create,
+      AMapVersionFactoryList.GetSimpleVersionFactory,
+      VStorageTypeConfig
+    );
+  VItem :=
+    TTileStorageTypeListItem.Create(
+      CTileStorageTypeFileSystemMA,
+      c_File_Cache_Id_Mobile_Atlas,
+      'Files Mobile Atlas',
+      VStorageType,
+      True,
+      True
     );
   VList.Add(VItem);
 
