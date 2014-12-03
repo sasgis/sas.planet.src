@@ -738,7 +738,7 @@ uses
   i_TileStorageTypeConfig in 'Src\TileStorage\i_TileStorageTypeConfig.pas',
   i_TileStorageTypeList in 'Src\TileStorage\i_TileStorageTypeList.pas',
   i_TileStorageTypeListItem in 'Src\TileStorage\i_TileStorageTypeListItem.pas',
-  i_GlobalCacheConfig in 'Src\i_GlobalCacheConfig.pas',
+  i_GlobalCacheConfig in 'Src\TileStorage\i_GlobalCacheConfig.pas',
   u_GlobalCacheConfig in 'Src\TileStorage\u_GlobalCacheConfig.pas',
   u_TileFileNameGeneratorsSimpleList in 'Src\TileStorage\u_TileFileNameGeneratorsSimpleList.pas',
   u_TileFileNameParsersSimpleList in 'Src\TileStorage\u_TileFileNameParsersSimpleList.pas',

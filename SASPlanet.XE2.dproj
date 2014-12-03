@@ -897,7 +897,7 @@
 			<DCCReference Include="Src\TileStorage\i_TileStorageTypeConfig.pas"/>
 			<DCCReference Include="Src\TileStorage\i_TileStorageTypeList.pas"/>
 			<DCCReference Include="Src\TileStorage\i_TileStorageTypeListItem.pas"/>
-			<DCCReference Include="Src\i_GlobalCacheConfig.pas"/>
+			<DCCReference Include="Src\TileStorage\i_GlobalCacheConfig.pas"/>
 			<DCCReference Include="Src\TileStorage\u_GlobalCacheConfig.pas"/>
 			<DCCReference Include="Src\TileStorage\u_TileFileNameGeneratorsSimpleList.pas"/>
 			<DCCReference Include="Src\TileStorage\u_TileFileNameParsersSimpleList.pas"/>
