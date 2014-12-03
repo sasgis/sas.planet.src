@@ -35,7 +35,7 @@ object frmSettings: TfrmSettings
       object flwpnlMemCache: TFlowPanel
         AlignWithMargins = True
         Left = 3
-        Top = 277
+        Top = 305
         Width = 638
         Height = 25
         Align = alTop
@@ -43,16 +43,17 @@ object frmSettings: TfrmSettings
         TabOrder = 0
         object Label30: TLabel
           AlignWithMargins = True
-          Left = 3
+          Left = 0
           Top = 3
           Width = 173
           Height = 13
+          Margins.Left = 0
           Align = alLeft
           Caption = 'Number of tiles to be cached in RAM'
           Layout = tlCenter
         end
         object SETilesOCache: TSpinEdit
-          Left = 179
+          Left = 176
           Top = 0
           Width = 65
           Height = 22
