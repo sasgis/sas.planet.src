@@ -164,7 +164,7 @@ end;
 
 function TBitmap32SurfaceByGr32.GetSize: TPoint;
 begin
-  Result := Point(FBitmap.Width, FBitmap.Height);
+  Result := Types.Point(FBitmap.Width, FBitmap.Height);
 end;
 
 procedure TBitmap32SurfaceByGr32.Line(
