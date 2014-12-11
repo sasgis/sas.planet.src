@@ -951,6 +951,7 @@ object frmMain: TfrmMain
           Hint = ''
         end
         object TBXSubmenuMap: TTBXSubmenuItem
+          Images = MenusImageList
           Caption = 'Maps'
           Hint = ''
           object tbxnxtmap: TTBXItem
@@ -960,7 +961,22 @@ object frmMain: TfrmMain
           end
           object tbxprevmap: TTBXItem
             OnClick = tbxprevmapClick
-            Caption = 'Prev map with tile'
+            Caption = 'Previous map with tile'
+            Hint = ''
+          end
+        end
+        object TBXSubmnMapVer: TTBXSubmenuItem
+          Images = MenusImageList
+          Caption = 'Versions'
+          Hint = ''
+          object TBXNextVer: TTBXItem
+            OnClick = TBXNextVerClick
+            Caption = 'Next version'
+            Hint = ''
+          end
+          object TBXPrevVer: TTBXItem
+            OnClick = TBXPrevVerClick
+            Caption = 'Previous version'
             Hint = ''
           end
         end
@@ -1051,20 +1067,6 @@ object frmMain: TfrmMain
           OnClick = tbitmShowDebugInfoClick
           Caption = 'Debug Info'
           Hint = ''
-        end
-        object TBXSubmnMapVer: TTBXSubmenuItem
-          Caption = 'Map version'
-          Hint = ''
-          object TBXNextVer: TTBXItem
-            OnClick = TBXNextVerClick
-            Caption = 'Next version'
-            Hint = ''
-          end
-          object TBXPrevVer: TTBXItem
-            OnClick = TBXPrevVerClick
-            Caption = 'Prev version'
-            Hint = ''
-          end
         end
       end
       object NSources: TTBXSubmenuItem
