@@ -406,7 +406,6 @@
     <DCCReference Include="Src\i_BasicMemCache.pas" />
     <DCCReference Include="Src\i_FindVectorItems.pas" />
     <DCCReference Include="Src\i_GlobalAppConfig.pas" />
-    <DCCReference Include="Src\TileStorage\i_GlobalCacheConfig.pas" />
     <DCCReference Include="Src\i_GlobalConfig.pas" />
     <DCCReference Include="Src\i_GlobalViewMainConfig.pas" />
     <DCCReference Include="Src\i_HashFunction.pas" />
@@ -1279,6 +1278,7 @@
     <DCCReference Include="Src\TileStorage\FileSystem\u_TileStorageTypeFileSystemSimple.pas" />
     <DCCReference Include="Src\TileStorage\GoogleEarth\u_TileStorageGoogleEarth.pas" />
     <DCCReference Include="Src\TileStorage\GoogleEarth\u_TileStorageTypeGoogleEarth.pas" />
+    <DCCReference Include="Src\TileStorage\i_GlobalCacheConfig.pas" />
     <DCCReference Include="Src\TileStorage\i_SimpleTileStorageConfig.pas" />
     <DCCReference Include="Src\TileStorage\i_StorageState.pas" />
     <DCCReference Include="Src\TileStorage\i_StorageStateInternal.pas" />
