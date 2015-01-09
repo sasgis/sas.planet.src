@@ -5468,9 +5468,7 @@ begin
   VConverter := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(Point(x, y));
-  VIsClickInMap := VConverter.ValidatePixelPosFloat(VMouseMapPoint, VZoom, False);
-  VClickLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
-
+  VIsClickInMap := VConverter.CheckPixelPosFloat(VMouseMapPoint, VZoom);
   if (Button = mbLeft) and (FState.State <> ao_movemap) then begin
     if (FLineOnMapEdit <> nil) then begin
       movepoint := True;
@@ -5502,6 +5500,8 @@ begin
           end;
           if not PointIsEmpty(VMagnetPoint) then begin
             VClickLonLat := VMagnetPoint;
+          end else begin
+            VClickLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
           end;
           FLineOnMapEdit.InsertPoint(VClickLonLat);
         end;
@@ -5509,10 +5509,14 @@ begin
     end;
     if (FState.State = ao_select_rect) then begin
       if not FSelectionRect.IsEmpty then begin
+        VConverter.ValidatePixelPosFloat(VMouseMapPoint, VZoom, False);
+        VClickLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
         FSelectionRect.SetNextPoint(VClickLonLat, Shift);
       end;
     end;
     if (FState.State = ao_edit_point) then begin
+      VConverter.ValidatePixelPosFloat(VMouseMapPoint, VZoom, False);
+      VClickLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
       FPointOnMapEdit.Point := VClickLonLat;
       movepoint := True;
     end;
@@ -5663,11 +5667,11 @@ begin
     VConverter := VLocalConverter.GetGeoConverter;
     VZoomCurr := VLocalConverter.GetZoom;
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(Point(x, y));
-    VValidPoint := VConverter.ValidatePixelPosFloat(VMouseMapPoint, VZoomCurr, False);
-    VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
+    VValidPoint := VConverter.CheckPixelPosFloat(VMouseMapPoint, VZoomCurr);
 
     if VValidPoint then begin
-      if VMapType.GeoConvert.ValidateLonLatPos(VLonLat) then begin
+      VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
+      if VMapType.GeoConvert.CheckLonLatPos(VLonLat) then begin
         VTile :=
           PointFromDoublePoint(
             VMapType.GeoConvert.LonLat2TilePosFloat(VLonLat, VZoomCurr),
@@ -5698,6 +5702,8 @@ begin
       end;
     end;
     if (FState.State = ao_edit_point) then begin
+      VConverter.ValidatePixelPosFloat(VMouseMapPoint, VZoomCurr, False);
+      VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
       FPointOnMapEdit.Point := VLonLat;
       VPoint := GState.VectorGeometryLonLatFactory.CreateLonLatPoint(FPointOnMapEdit.Point);
       if FMarkDBGUI.SaveMarkModal(FEditMarkPoint, VPoint) then begin
@@ -5711,6 +5717,8 @@ begin
       if not FSelectionRect.IsEmpty then begin
         VSelectionFinished := True;
       end;
+      VConverter.ValidatePixelPosFloat(VMouseMapPoint, VZoomCurr, False);
+      VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
       FSelectionRect.SetNextPoint(VLonLat, Shift);
       VSelectionRect := FSelectionRect.GetRect;
       if VSelectionFinished then begin
