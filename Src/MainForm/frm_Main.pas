@@ -1027,7 +1027,7 @@ begin
   FfrmDGAvailablePic := nil;
   FLinksList := TListenerNotifierLinksList.Create;
   FState := TMainFormState.Create;
-  VMouseState := TMouseState.Create;
+  VMouseState := TMouseState.Create(GState.Timer);
   FMouseHandler := VMouseState;
   FMouseState := VMouseState;
   FConfig :=

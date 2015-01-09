@@ -31,6 +31,7 @@ uses
   t_GeoTypes,
   i_MouseState,
   i_MouseHandler,
+  i_Timer,
   u_BaseInterfacedObject;
 
 const
@@ -40,7 +41,7 @@ type
   TMouseState = class(TBaseInterfacedObject, IMouseState, IMouseHandler)
   private
     FCS: IReadWriteSync;
-    FNtQPC: Pointer;
+    FTimer: ITimer;
 
     FMinTime: Double;
     FMaxTime: Double;
@@ -88,22 +89,26 @@ type
       const APosition: TPoint
     );
   public
-    constructor Create;
+    constructor Create(
+      const ATimer: ITimer
+    );
   end;
 
 implementation
 
 uses
-  u_QueryPerfCounter,
   u_Synchronizer;
 
 { TMouseState }
 
-constructor TMouseState.Create;
+constructor TMouseState.Create(
+  const ATimer: ITimer
+);
 begin
+  Assert(Assigned(ATimer));
   inherited Create;
+  FTimer := ATimer;
   FCS := GSync.SyncVariable.Make(Self.ClassName);
-  FNtQPC := NtQueryPerformanceCounterPtr;
   FCurentTime := 0;
   FMinTime := 0.001;
   FMaxTime := 3;
@@ -247,17 +252,8 @@ var
   VFirstPoint, VSecondPoint: TPoint;
   i: Integer;
 begin
-  if (nil <> FNtQPC) then begin
-    // fast
-    TNtQueryPerformanceCounter(FNtQPC)(@VCurrTime, @VFrequency);
-  end else begin
-    // slow
-    QueryPerformanceCounter(VCurrTime);
-    if FCurentTime <> 0 then begin
-      QueryPerformanceFrequency(VFrequency);
-    end;
-  end;
-
+  VCurrTime := FTimer.CurrentTime;
+  VFrequency := FTimer.Freq;
   if FCurentTime <> 0 then begin
     VTimeFromLastMove := (VCurrTime - FCurentTime) / VFrequency;
     if VTimeFromLastMove < FMaxTime then begin

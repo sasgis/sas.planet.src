@@ -35,6 +35,7 @@ uses
   i_NotifierOperation,
   i_GPSPositionFactory,
   i_HashFunction,
+  i_Timer,
   i_Listener,
   i_AppearanceOfMarkFactory,
   i_BackgroundTask,
@@ -115,6 +116,7 @@ type
     FMainConfigProvider: IConfigDataWriteProvider;
     FZmpInfoSet: IZmpInfoSet;
     FHashFunction: IHashFunction;
+    FTimer: ITimer;
     FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FGeoCodePlacemarkFactory: IGeoCodePlacemarkFactory;
@@ -232,6 +234,7 @@ type
     property AppClosingNotifier: INotifierOneOperation read FAppClosingNotifier;
 
     property HashFunction: IHashFunction read FHashFunction;
+    property Timer: ITimer read FTimer;
     property AppearanceOfMarkFactory: IAppearanceOfMarkFactory read FAppearanceOfMarkFactory;
     property MainConfigProvider: IConfigDataWriteProvider read FMainConfigProvider;
     property ResourceProvider: IConfigDataProvider read FResourceProvider;
@@ -388,6 +391,7 @@ uses
   u_LocalCoordConverterFactory,
   u_LastSearchResult,
   u_ImageResamplerFactoryChangeableByConfig,
+  u_TimerByQueryPerformanceCounter,
   u_BuildInfo,
   u_AppEnum,
   u_ResStrings,
@@ -421,6 +425,7 @@ var
 begin
   inherited Create;
 
+  FTimer := MakeTimerByQueryPerformanceCounter;
   FAppEnum := TAppEnum.Create;
 
   if ModuleIsLib then begin
