@@ -895,6 +895,7 @@
     <DCCReference Include="Src\Network\u_DownloadUIConfig.pas" />
     <DCCReference Include="Src\Network\u_GlobalDownloadConfig.pas" />
     <DCCReference Include="Src\Network\u_GlobalInternetState.pas" />
+    <DCCReference Include="Src\Network\u_HttpStatusChecker.pas" />
     <DCCReference Include="Src\Network\u_InetConfig.pas" />
     <DCCReference Include="Src\Network\u_InetConfigStatic.pas" />
     <DCCReference Include="Src\Network\u_InetFunc.pas" />

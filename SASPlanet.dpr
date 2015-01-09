@@ -271,6 +271,7 @@ uses
   i_DownloadChecker in 'Src\Network\i_DownloadChecker.pas',
   i_TileDownloadResultSaver in 'Src\Network\i_TileDownloadResultSaver.pas',
   u_TileDownloadResultSaverStuped in 'Src\Network\u_TileDownloadResultSaverStuped.pas',
+  u_HttpStatusChecker in 'Src\Network\u_HttpStatusChecker.pas',
   u_DownloadCheckerStuped in 'Src\Network\u_DownloadCheckerStuped.pas',
   u_ActiveMapsLicenseList in 'Src\MapType\u_ActiveMapsLicenseList.pas',
   i_MapTypeSet in 'Src\MapType\i_MapTypeSet.pas',
