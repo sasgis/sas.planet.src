@@ -27,7 +27,6 @@ uses
   i_Listener,
   i_SimpleFlag,
   i_CoordConverter,
-  u_ListenerByEvent,
   u_BaseInterfacedObject;
 
 type

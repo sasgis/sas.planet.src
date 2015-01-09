@@ -22,12 +22,6 @@ unit u_ETS_Path;
 
 interface
 
-uses
-  t_ETS_Path;
-
 implementation
-
-uses
-  SysUtils;
 
 end.

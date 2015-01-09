@@ -68,7 +68,6 @@ type
 implementation
 
 uses
-  SysUtils,
   u_VectorDataItemBase;
 
 { TVectorDataFactorySimple }
