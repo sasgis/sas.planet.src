@@ -286,56 +286,56 @@ type
       const AZoom: byte
     ): TPoint; stdcall;
 
-    function ValidateZoom(var AZoom: Byte): boolean; stdcall;
-    function ValidateTilePos(
+    procedure ValidateZoom(var AZoom: Byte); stdcall;
+    procedure ValidateTilePos(
       var XY: TPoint;
       var AZoom: byte;
       ACicleMap: Boolean
-    ): boolean; stdcall;
-    function ValidateTilePosStrict(
+    ); stdcall;
+    procedure ValidateTilePosStrict(
       var XY: TPoint;
       var AZoom: byte;
       ACicleMap: Boolean
-    ): boolean; stdcall;
-    function ValidateTileRect(
+    ); stdcall;
+    procedure ValidateTileRect(
       var XY: TRect;
       var AZoom: byte
-    ): boolean; stdcall;
+    ); stdcall;
 
-    function ValidatePixelPos(
+    procedure ValidatePixelPos(
       var XY: TPoint;
       var AZoom: byte;
       ACicleMap: Boolean
-    ): boolean; stdcall;
-    function ValidatePixelPosFloat(
+    ); stdcall;
+    procedure ValidatePixelPosFloat(
       var XY: TDoublePoint;
       var AZoom: byte;
       ACicleMap: Boolean
-    ): boolean; stdcall;
-    function ValidatePixelPosStrict(
+    ); stdcall;
+    procedure ValidatePixelPosStrict(
       var XY: TPoint;
       var AZoom: byte;
       ACicleMap: Boolean
-    ): boolean; stdcall;
-    function ValidatePixelPosFloatStrict(
+    ); stdcall;
+    procedure ValidatePixelPosFloatStrict(
       var XY: TDoublePoint;
       var AZoom: byte;
       ACicleMap: Boolean
-    ): boolean; stdcall;
-    function ValidatePixelRect(
+    ); stdcall;
+    procedure ValidatePixelRect(
       var XY: TRect;
       var AZoom: byte
-    ): boolean; stdcall;
-    function ValidatePixelRectFloat(
+    ); stdcall;
+    procedure ValidatePixelRectFloat(
       var XY: TDoubleRect;
       var AZoom: byte
-    ): boolean; stdcall;
+    ); stdcall;
 
-    function ValidateRelativePos(var XY: TDoublePoint): boolean; stdcall;
-    function ValidateRelativeRect(var XY: TDoubleRect): boolean; stdcall;
+    procedure ValidateRelativePos(var XY: TDoublePoint); stdcall;
+    procedure ValidateRelativeRect(var XY: TDoubleRect); stdcall;
 
-    function ValidateLonLatPos(var XY: TDoublePoint): boolean; stdcall;
-    function ValidateLonLatRect(var XY: TDoubleRect): boolean; stdcall;
+    procedure ValidateLonLatPos(var XY: TDoublePoint); stdcall;
+    procedure ValidateLonLatRect(var XY: TDoubleRect); stdcall;
 
     function CheckZoom(const AZoom: Byte): boolean; stdcall;
     function CheckTilePos(

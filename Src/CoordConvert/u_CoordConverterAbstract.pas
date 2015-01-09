@@ -460,56 +460,56 @@ type
       const AZoom: byte
     ): TPoint; virtual; stdcall; abstract;
 
-    function ValidateZoom(var AZoom: Byte): boolean; virtual; stdcall; abstract;
-    function ValidateTilePos(
+    procedure ValidateZoom(var AZoom: Byte); virtual; stdcall; abstract;
+    procedure ValidateTilePos(
       var XY: TPoint;
       var AZoom: byte;
       ACicleMap: Boolean
-    ): boolean; virtual; stdcall; abstract;
-    function ValidateTilePosStrict(
+    ); virtual; stdcall; abstract;
+    procedure ValidateTilePosStrict(
       var XY: TPoint;
       var AZoom: byte;
       ACicleMap: Boolean
-    ): boolean; virtual; stdcall; abstract;
-    function ValidateTileRect(
+    ); virtual; stdcall; abstract;
+    procedure ValidateTileRect(
       var XY: TRect;
       var AZoom: byte
-    ): boolean; virtual; stdcall; abstract;
+    ); virtual; stdcall; abstract;
 
-    function ValidatePixelPos(
+    procedure ValidatePixelPos(
       var XY: TPoint;
       var AZoom: byte;
       ACicleMap: Boolean
-    ): boolean; virtual; stdcall; abstract;
-    function ValidatePixelPosFloat(
+    ); virtual; stdcall; abstract;
+    procedure ValidatePixelPosFloat(
       var XY: TDoublePoint;
       var AZoom: byte;
       ACicleMap: Boolean
-    ): boolean; virtual; stdcall; abstract;
-    function ValidatePixelPosStrict(
+    ); virtual; stdcall; abstract;
+    procedure ValidatePixelPosStrict(
       var XY: TPoint;
       var AZoom: byte;
       ACicleMap: Boolean
-    ): boolean; virtual; stdcall; abstract;
-    function ValidatePixelPosFloatStrict(
+    ); virtual; stdcall; abstract;
+    procedure ValidatePixelPosFloatStrict(
       var XY: TDoublePoint;
       var AZoom: byte;
       ACicleMap: Boolean
-    ): boolean; virtual; stdcall; abstract;
-    function ValidatePixelRect(
+    ); virtual; stdcall; abstract;
+    procedure ValidatePixelRect(
       var XY: TRect;
       var AZoom: byte
-    ): boolean; virtual; stdcall; abstract;
-    function ValidatePixelRectFloat(
+    ); virtual; stdcall; abstract;
+    procedure ValidatePixelRectFloat(
       var XY: TDoubleRect;
       var AZoom: byte
-    ): boolean; virtual; stdcall; abstract;
+    ); virtual; stdcall; abstract;
 
-    function ValidateRelativePos(var XY: TDoublePoint): boolean; virtual; stdcall; abstract;
-    function ValidateRelativeRect(var XY: TDoubleRect): boolean; virtual; stdcall; abstract;
+    procedure ValidateRelativePos(var XY: TDoublePoint); virtual; stdcall; abstract;
+    procedure ValidateRelativeRect(var XY: TDoubleRect); virtual; stdcall; abstract;
 
-    function ValidateLonLatPos(var XY: TDoublePoint): boolean; virtual; stdcall; abstract;
-    function ValidateLonLatRect(var XY: TDoubleRect): boolean; virtual; stdcall; abstract;
+    procedure ValidateLonLatPos(var XY: TDoublePoint); virtual; stdcall; abstract;
+    procedure ValidateLonLatRect(var XY: TDoubleRect); virtual; stdcall; abstract;
 
     function CheckZoom(const AZoom: Byte): boolean; virtual; stdcall; abstract;
     function CheckTilePos(
