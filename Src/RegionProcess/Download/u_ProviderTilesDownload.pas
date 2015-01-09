@@ -248,10 +248,6 @@ begin
   VMapType := FullMapsSet.GetMapTypeByGUID(VGuid);
   if VMapType = nil then begin
     raise Exception.CreateFmt('Map with GUID = %s not found', [VGuids]);
-  end else begin
-    if not VMapType.GeoConvert.ValidateZoom(VZoom) then begin
-      raise Exception.Create('Unknown zoom');
-    end;
   end;
   VVersionString := VSessionSection.ReadString('VersionDownload', '');
   if VVersionString <> '' then begin
@@ -277,6 +273,9 @@ begin
   if VZoom > 0 then begin
     Dec(VZoom);
   end else begin
+    raise Exception.Create('Unknown zoom');
+  end;
+  if not VMapType.GeoConvert.CheckZoom(VZoom) then begin
     raise Exception.Create('Unknown zoom');
   end;
   VReplaceExistTiles := VSessionSection.ReadBool('ReplaceExistTiles', VReplaceExistTiles);

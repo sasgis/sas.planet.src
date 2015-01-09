@@ -281,7 +281,7 @@ begin
     VGridZoom := FZoom;
   end;
   VGeoConvert := ALocalConverter.GetGeoConverter;
-  if not VGeoConvert.ValidateZoom(VGridZoom) then begin
+  if not VGeoConvert.CheckZoom(VGridZoom) then begin
     Exit;
   end;
   if VGridZoom > VCurrentZoom + 5 then begin

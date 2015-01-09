@@ -88,7 +88,7 @@ type
       const ACancelNotifier: INotifierOperation;
       const AOperationID: Integer;
       const AFinishNotifier: ITileRequestTaskFinishNotifier;
-      const AXY: TPoint;
+      const ATile: TPoint;
       const AZoom: Byte;
       const AVersion: IMapVersionInfo;
       const ACheckTileSize: Boolean
@@ -367,34 +367,30 @@ function TTileDownloadSubsystem.GetRequestTask(
   const ACancelNotifier: INotifierOperation;
   const AOperationID: Integer;
   const AFinishNotifier: ITileRequestTaskFinishNotifier;
-  const AXY: TPoint;
+  const ATile: TPoint;
   const AZoom: Byte;
   const AVersion: IMapVersionInfo;
   const ACheckTileSize: Boolean
 ): ITileRequestTask;
 var
   VRequest: ITileRequest;
-  VZoom: Byte;
-  VTile: TPoint;
 begin
   Result := nil;
   if FZmpDownloadEnabled then begin
     if FState.GetStatic.Enabled then begin
-      VZoom := AZoom;
-      VTile := AXY;
-      if FCoordConverter.ValidateTilePosStrict(VTile, VZoom, False) then begin
+      if FCoordConverter.CheckTilePosStrict(ATile, AZoom) then begin
         if ACheckTileSize then begin
           VRequest :=
             TTileRequestWithSizeCheck.Create(
-              VTile,
-              VZoom,
+              ATile,
+              AZoom,
               AVersion
             );
         end else begin
           VRequest :=
             TTileRequest.Create(
-              VTile,
-              VZoom,
+              ATile,
+              AZoom,
               AVersion
             );
         end;

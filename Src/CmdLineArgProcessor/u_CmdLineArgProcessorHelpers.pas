@@ -127,8 +127,9 @@ begin
   ALonLat := StrToCoord(AStr);
   Result := not PointIsEmpty(ALonLat);
   if Result then begin
-    Result := AGeoConverter.ValidateLonLatPos(ALonLat);
+    Result := AGeoConverter.CheckLonLatPos(ALonLat);
     if not Result then begin
+      ALonLat := DoublePoint(0, 0);
       ECode := ECode or cCmdLineArgProcessorLonLatOutOfBounds;
     end;
   end else begin
@@ -147,8 +148,9 @@ begin
   Result := (AZoom > 0);
   if Result then begin
     AZoom := AZoom - 1;
-    Result := AGeoConverter.ValidateZoom(AZoom);
+    Result := AGeoConverter.CheckZoom(AZoom);
     if not Result then begin
+      AZoom := 0;
       ECode := ECode or cCmdLineArgProcessorZoomOutOfBounds;
     end;
   end else begin

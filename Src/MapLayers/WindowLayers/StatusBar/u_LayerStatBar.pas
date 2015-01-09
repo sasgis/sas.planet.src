@@ -419,7 +419,7 @@ begin
       VOffset.X := VOffset.X + Layer.Bitmap.TextWidth(VString) + 20;
       VTileNameWidthAviable := Layer.Bitmap.Width - VOffset.X;
 
-      if VMapType.GeoConvert.ValidateLonLatPos(VLonLat) then begin
+      if VMapType.GeoConvert.CheckLonLatPos(VLonLat) then begin
         VTile :=
           PointFromDoublePoint(
             VMapType.GeoConvert.LonLat2TilePosFloat(VLonLat, VZoomCurr),
