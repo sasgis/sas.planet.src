@@ -337,6 +337,51 @@ type
     function ValidateLonLatPos(var XY: TDoublePoint): boolean; stdcall;
     function ValidateLonLatRect(var XY: TDoubleRect): boolean; stdcall;
 
+    function CheckZoom(const AZoom: Byte): boolean; stdcall;
+    function CheckTilePos(
+      const XY: TPoint;
+      const AZoom: byte
+    ): boolean; stdcall;
+    function CheckTilePosStrict(
+      const XY: TPoint;
+      const AZoom: byte
+    ): boolean; stdcall;
+    function CheckTileRect(
+      const XY: TRect;
+      const AZoom: byte
+    ): boolean; stdcall;
+
+    function CheckPixelPos(
+      const XY: TPoint;
+      const AZoom: byte
+    ): boolean; stdcall;
+    function CheckPixelPosFloat(
+      const XY: TDoublePoint;
+      const AZoom: byte
+    ): boolean; stdcall;
+    function CheckPixelPosStrict(
+      const XY: TPoint;
+      const AZoom: byte
+    ): boolean; stdcall;
+    function CheckPixelPosFloatStrict(
+      const XY: TDoublePoint;
+      const AZoom: byte
+    ): boolean; stdcall;
+    function CheckPixelRect(
+      const XY: TRect;
+      const AZoom: byte
+    ): boolean; stdcall;
+    function CheckPixelRectFloat(
+      const XY: TDoubleRect;
+      const AZoom: byte
+    ): boolean; stdcall;
+
+    function CheckRelativePos(const XY: TDoublePoint): boolean; stdcall;
+    function CheckRelativeRect(const XY: TDoubleRect): boolean; stdcall;
+
+    function CheckLonLatPos(const XY: TDoublePoint): boolean; stdcall;
+    function CheckLonLatRect(const XY: TDoubleRect): boolean; stdcall;
+
     // Возвращает код EPSG для этой проекции. Для нестандартных проекций и сфероидов будет возвращать 0
     function GetProjectionEPSG: Integer; stdcall;
     property ProjectionEPSG: Integer read GetProjectionEPSG;

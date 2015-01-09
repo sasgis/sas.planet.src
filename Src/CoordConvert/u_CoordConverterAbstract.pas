@@ -510,6 +510,52 @@ type
 
     function ValidateLonLatPos(var XY: TDoublePoint): boolean; virtual; stdcall; abstract;
     function ValidateLonLatRect(var XY: TDoubleRect): boolean; virtual; stdcall; abstract;
+
+    function CheckZoom(const AZoom: Byte): boolean; virtual; stdcall; abstract;
+    function CheckTilePos(
+      const XY: TPoint;
+      const AZoom: byte
+    ): boolean; virtual; stdcall; abstract;
+    function CheckTilePosStrict(
+      const XY: TPoint;
+      const AZoom: byte
+    ): boolean; virtual; stdcall; abstract;
+    function CheckTileRect(
+      const XY: TRect;
+      const AZoom: byte
+    ): boolean; virtual; stdcall; abstract;
+
+    function CheckPixelPos(
+      const XY: TPoint;
+      const AZoom: byte
+    ): boolean; virtual; stdcall; abstract;
+    function CheckPixelPosFloat(
+      const XY: TDoublePoint;
+      const AZoom: byte
+    ): boolean; virtual; stdcall; abstract;
+    function CheckPixelPosStrict(
+      const XY: TPoint;
+      const AZoom: byte
+    ): boolean; virtual; stdcall; abstract;
+    function CheckPixelPosFloatStrict(
+      const XY: TDoublePoint;
+      const AZoom: byte
+    ): boolean; virtual; stdcall; abstract;
+    function CheckPixelRect(
+      const XY: TRect;
+      const AZoom: byte
+    ): boolean; virtual; stdcall; abstract;
+    function CheckPixelRectFloat(
+      const XY: TDoubleRect;
+      const AZoom: byte
+    ): boolean; virtual; stdcall; abstract;
+
+    function CheckRelativePos(const XY: TDoublePoint): boolean; virtual; stdcall; abstract;
+    function CheckRelativeRect(const XY: TDoubleRect): boolean; virtual; stdcall; abstract;
+
+    function CheckLonLatPos(const XY: TDoublePoint): boolean; virtual; stdcall; abstract;
+    function CheckLonLatRect(const XY: TDoubleRect): boolean; virtual; stdcall; abstract;
+
     function GetTileSplitCode: Integer; virtual; stdcall; abstract;
     function LonLat2Metr(const AXY: TDoublePoint): TDoublePoint; stdcall;
     function Metr2LonLat(const AXY: TDoublePoint): TDoublePoint; stdcall;

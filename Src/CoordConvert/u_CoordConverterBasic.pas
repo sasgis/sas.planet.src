@@ -313,6 +313,51 @@ type
     function ValidateLonLatPos(var XY: TDoublePoint): boolean; override;
     function ValidateLonLatRect(var XY: TDoubleRect): boolean; override;
 
+    function CheckZoom(const AZoom: Byte): boolean; override;
+    function CheckTilePos(
+      const XY: TPoint;
+      const AZoom: byte
+    ): boolean; override;
+    function CheckTilePosStrict(
+      const XY: TPoint;
+      const AZoom: byte
+    ): boolean; override;
+    function CheckTileRect(
+      const XY: TRect;
+      const AZoom: byte
+    ): boolean; override;
+
+    function CheckPixelPos(
+      const XY: TPoint;
+      const AZoom: byte
+    ): boolean; override;
+    function CheckPixelPosFloat(
+      const XY: TDoublePoint;
+      const AZoom: byte
+    ): boolean; override;
+    function CheckPixelPosStrict(
+      const XY: TPoint;
+      const AZoom: byte
+    ): boolean; override;
+    function CheckPixelPosFloatStrict(
+      const XY: TDoublePoint;
+      const AZoom: byte
+    ): boolean; override;
+    function CheckPixelRect(
+      const XY: TRect;
+      const AZoom: byte
+    ): boolean; override;
+    function CheckPixelRectFloat(
+      const XY: TDoubleRect;
+      const AZoom: byte
+    ): boolean; override;
+
+    function CheckRelativePos(const XY: TDoublePoint): boolean; override;
+    function CheckRelativeRect(const XY: TDoubleRect): boolean; override;
+
+    function CheckLonLatPos(const XY: TDoublePoint): boolean; override;
+    function CheckLonLatRect(const XY: TDoubleRect): boolean; override;
+
     function GetTileSplitCode: Integer; override;
     function GetTileSize(
       const XY: TPoint;
@@ -2096,5 +2141,517 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+function TCoordConverterBasic.CheckZoom(const AZoom: Byte): boolean;
+begin
+  Result := AZoom <= 23;
+end;
+
+function TCoordConverterBasic.CheckTilePos(
+  const XY: TPoint;
+  const AZoom: byte
+): boolean;
+var
+  VTilesAtZoom: Integer;
+begin
+  Result := True;
+  if AZoom > 23 then begin
+    Result := False;
+    Exit;
+  end;
+  VTilesAtZoom := TilesAtZoom(AZoom);
+
+  if XY.X < 0 then begin
+    Result := False;
+    Exit;
+  end else begin
+    if XY.X > VTilesAtZoom then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+
+  if XY.Y < 0 then begin
+    Result := False;
+    Exit;
+  end else begin
+    if XY.Y > VTilesAtZoom then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+end;
+
+function TCoordConverterBasic.CheckTileRect(
+  const XY: TRect;
+  const AZoom: byte
+): boolean;
+var
+  VTilesAtZoom: Integer;
+begin
+  Result := True;
+  if AZoom > 23 then begin
+    Result := False;
+    Exit;
+  end;
+  VTilesAtZoom := TilesAtZoom(AZoom);
+
+  if XY.Left < 0 then begin
+    Result := False;
+    Exit;
+  end else begin
+    if XY.Left > VTilesAtZoom then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+
+  if XY.Top < 0 then begin
+    Result := False;
+    Exit;
+  end else begin
+    if XY.Top > VTilesAtZoom then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+
+  if XY.Right < 0 then begin
+    Result := False;
+    Exit;
+  end else begin
+    if XY.Right > VTilesAtZoom then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+
+  if XY.Bottom < 0 then begin
+    Result := False;
+    Exit;
+  end else begin
+    if XY.Bottom > VTilesAtZoom then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+end;
+
+function TCoordConverterBasic.CheckTilePosStrict(
+  const XY: TPoint;
+  const AZoom: byte
+): boolean;
+var
+  VTilesAtZoom: Integer;
+begin
+  Result := True;
+  if AZoom > 23 then begin
+    Result := False;
+    Exit;
+  end;
+  VTilesAtZoom := TilesAtZoom(AZoom);
+
+  if XY.X < 0 then begin
+    Result := False;
+    Exit;
+  end else begin
+    if XY.X >= VTilesAtZoom then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+
+  if XY.Y < 0 then begin
+    Result := False;
+    Exit;
+  end else begin
+    if XY.Y >= VTilesAtZoom then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+end;
+
+function TCoordConverterBasic.CheckPixelPos(
+  const XY: TPoint;
+  const AZoom: byte
+): boolean;
+var
+  VPixelsAtZoom: Integer;
+begin
+  Result := True;
+  if AZoom > 23 then begin
+    Result := False;
+    Exit;
+  end;
+  VPixelsAtZoom := PixelsAtZoom(AZoom);
+
+  if XY.X < 0 then begin
+    Result := False;
+    Exit;
+  end else begin
+    if (AZoom < 23) and (XY.X > VPixelsAtZoom) then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+
+  if XY.Y < 0 then begin
+    Result := False;
+    Exit;
+  end else begin
+    if (AZoom < 23) and (XY.Y > VPixelsAtZoom) then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+end;
+
+function TCoordConverterBasic.CheckPixelPosFloat(
+  const XY: TDoublePoint;
+  const AZoom: byte
+): boolean;
+var
+  VPixelsAtZoom: Double;
+begin
+  Result := True;
+  if AZoom > 23 then begin
+    Result := False;
+    Exit;
+  end;
+
+  VPixelsAtZoom := PixelsAtZoomFloatInternal(AZoom);
+
+  if XY.X < 0 then begin
+    Result := False;
+    Exit;
+  end else begin
+    if (XY.X > VPixelsAtZoom) then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+
+  if XY.Y < 0 then begin
+    Result := False;
+    Exit;
+  end else begin
+    if (XY.Y > VPixelsAtZoom) then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+end;
+
+function TCoordConverterBasic.CheckPixelRect(
+  const XY: TRect;
+  const AZoom: byte
+): boolean;
+var
+  VPixelsAtZoom: Integer;
+begin
+  Result := True;
+  if AZoom > 23 then begin
+    Result := False;
+    Exit;
+  end;
+  VPixelsAtZoom := PixelsAtZoom(AZoom);
+
+  if XY.Left < 0 then begin
+    Result := False;
+    Exit;
+  end else begin
+    if (AZoom < 23) and (XY.Left > VPixelsAtZoom) then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+
+  if XY.Top < 0 then begin
+    Result := False;
+    Exit;
+  end else begin
+    if (AZoom < 23) and (XY.Top > VPixelsAtZoom) then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+
+  if XY.Right < 0 then begin
+    Result := False;
+    Exit;
+  end else begin
+    if (AZoom < 23) and (XY.Right > VPixelsAtZoom) then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+
+  if XY.Bottom < 0 then begin
+    Result := False;
+    Exit;
+  end else begin
+    if (AZoom < 23) and (XY.Bottom > VPixelsAtZoom) then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+end;
+
+function TCoordConverterBasic.CheckPixelRectFloat(
+  const XY: TDoubleRect;
+  const AZoom: byte
+): boolean;
+var
+  VPixelsAtZoom: Double;
+begin
+  Result := True;
+  if AZoom > 23 then begin
+    Result := False;
+    Exit;
+  end;
+  VPixelsAtZoom := PixelsAtZoomFloatInternal(AZoom);
+
+  if XY.Left < 0 then begin
+    Result := False;
+    Exit;
+  end else begin
+    if XY.Left > VPixelsAtZoom then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+
+  if XY.Top < 0 then begin
+    Result := False;
+    Exit;
+  end else begin
+    if XY.Top > VPixelsAtZoom then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+
+  if XY.Right < 0 then begin
+    Result := False;
+    Exit;
+  end else begin
+    if XY.Right > VPixelsAtZoom then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+
+  if XY.Bottom < 0 then begin
+    Result := False;
+    Exit;
+  end else begin
+    if XY.Bottom > VPixelsAtZoom then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+end;
+
+function TCoordConverterBasic.CheckPixelPosStrict(
+  const XY: TPoint;
+  const AZoom: byte
+): boolean;
+var
+  VPixelsAtZoom: Integer;
+begin
+  Result := True;
+  if AZoom > 23 then begin
+    Result := False;
+    Exit;
+  end;
+  VPixelsAtZoom := PixelsAtZoom(AZoom);
+  if XY.X < 0 then begin
+    Result := False;
+      Exit;
+  end else begin
+    if (AZoom < 23) and (XY.X >= VPixelsAtZoom) then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+
+  if XY.Y < 0 then begin
+    Result := False;
+    Exit;
+  end else begin
+    if (AZoom < 23) and (XY.Y >= VPixelsAtZoom) then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+end;
+
+function TCoordConverterBasic.CheckPixelPosFloatStrict(
+  const XY: TDoublePoint;
+  const AZoom: byte
+): boolean;
+var
+  VPixelsAtZoom: Double;
+begin
+  Result := True;
+  if AZoom > 23 then begin
+    Result := False;
+    Exit;
+  end;
+  VPixelsAtZoom := PixelsAtZoomFloatInternal(AZoom);
+  if XY.X < 0 then begin
+    Result := False;
+    Exit;
+  end else begin
+    if (XY.X >= VPixelsAtZoom) then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+
+  if XY.Y < 0 then begin
+    Result := False;
+    Exit;
+  end else begin
+    if (XY.Y >= VPixelsAtZoom) then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+end;
+
+function TCoordConverterBasic.CheckRelativePos(const XY: TDoublePoint): boolean;
+begin
+  Result := True;
+  if XY.X < 0 then begin
+    Result := False;
+    Exit;
+  end else begin
+    if XY.X > 1 then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+
+  if XY.Y < 0 then begin
+    Result := False;
+    Exit;
+  end else begin
+    if XY.Y > 1 then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+end;
+
+function TCoordConverterBasic.CheckRelativeRect(const XY: TDoubleRect): boolean;
+begin
+  Result := True;
+  if XY.Left < 0 then begin
+    Result := False;
+    Exit;
+  end else begin
+    if XY.Left > 1 then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+
+  if XY.Top < 0 then begin
+    Result := False;
+    Exit;
+  end else begin
+    if XY.Top > 1 then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+
+  if XY.Right < 0 then begin
+    Result := False;
+    Exit;
+  end else begin
+    if XY.Right > 1 then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+
+  if XY.Bottom < 0 then begin
+    Result := False;
+    Exit;
+  end else begin
+    if XY.Bottom > 1 then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+end;
+
+function TCoordConverterBasic.CheckLonLatPos(const XY: TDoublePoint): boolean;
+begin
+  Result := True;
+  if XY.X < FValidLonLatRect.Left then begin
+    Result := False;
+    Exit;
+  end else begin
+    if XY.X > FValidLonLatRect.Right then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+  if XY.Y < FValidLonLatRect.Bottom then begin
+    Result := False;
+    Exit;
+  end else begin
+    if XY.Y > FValidLonLatRect.Top then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+end;
+
+function TCoordConverterBasic.CheckLonLatRect(const XY: TDoubleRect): boolean;
+begin
+  Result := True;
+  if XY.Left < FValidLonLatRect.Left then begin
+    Result := False;
+    Exit;
+  end else begin
+    if XY.Left > FValidLonLatRect.Right then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+  if XY.Bottom < FValidLonLatRect.Bottom then begin
+    Result := False;
+    Exit;
+  end else begin
+    if XY.Bottom > FValidLonLatRect.Top then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+
+  if XY.Right < FValidLonLatRect.Left then begin
+    Result := False;
+    Exit;
+  end else begin
+    if XY.Right > FValidLonLatRect.Right then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+  if XY.Top < FValidLonLatRect.Bottom then begin
+    Result := False;
+    Exit;
+  end else begin
+    if XY.Top > FValidLonLatRect.Top then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+end;
 
 end.
