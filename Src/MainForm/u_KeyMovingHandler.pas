@@ -28,6 +28,7 @@ uses
   t_GeoTypes,
   i_ViewPortState,
   i_KeyMovingConfig,
+  i_Timer,
   i_NotifierTime,
   i_ListenerTime,
   i_MessageHandler,
@@ -54,6 +55,7 @@ type
   TKeyMovingHandler = class(TBaseInterfacedObject, IMessageHandler)
   private
     FConfig: IKeyMovingConfig;
+    FTimer: ITimer;
     FTimerNotifier: INotifierTime;
     FViewPortState: IViewPortState;
 
@@ -71,6 +73,7 @@ type
   public
     constructor Create(
       const AViewPortState: IViewPortState;
+      const ATimer: ITimer;
       const ATimerNotifier: INotifierTime;
       const AConfig: IKeyMovingConfig
     );
@@ -89,12 +92,15 @@ uses
 
 constructor TKeyMovingHandler.Create(
   const AViewPortState: IViewPortState;
+  const ATimer: ITimer;
   const ATimerNotifier: INotifierTime;
   const AConfig: IKeyMovingConfig
 );
 begin
+  Assert(Assigned(ATimer));
   inherited Create;
   FConfig := AConfig;
+  FTimer := ATimer;
   FTimerNotifier := ATimerNotifier;
   FViewPortState := AViewPortState;
 
@@ -170,9 +176,8 @@ begin
       FKeyboardActive := False;
     end;
   end;
-
-  QueryPerformanceCounter(VCurrTick);
-  QueryPerformanceFrequency(VFr);
+  VCurrTick := FTimer.CurrentTime;
+  VFr := FTimer.Freq;
   VDelta.X := FHorizontal.GetDelta(VDirection.X, VFr, VCurrTick);
   VDelta.Y := FVertical.GetDelta(VDirection.Y, VFr, VCurrTick);
   if (Abs(VDelta.X) >= 1) or (Abs(VDelta.Y) >= 1) then begin

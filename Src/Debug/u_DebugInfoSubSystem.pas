@@ -46,6 +46,8 @@ type
 implementation
 
 uses
+  i_Timer,
+  u_TimerByQueryPerformanceCounter,
   u_BaseInterfacedObject,
   u_BaseInterfacedObjectDebug,
   u_InternalPerformanceCounter,
@@ -57,14 +59,22 @@ uses
 { TDebugInfoSubSystem }
 
 constructor TDebugInfoSubSystem.Create(const AConfig: IInternalDebugConfig);
+var
+  VTimer: ITimer;
+  VFactory: IInternalPerformanceCounterFactory;
 begin
   inherited Create;
   FListCS := GSync.SyncVariable.Make(Self.ClassName);
   if AConfig.IsShowDebugInfo then begin
-    FList := TInterfaceListSimple.Create;
-    FList.Capacity := 1000;
-    FRootCounterList := TInternalPerformanceCounterList.Create('', FListCS, FList, TInternalPerformanceCounterFactory.Create);
-  end else begin
+    VTimer := MakeTimerByQueryPerformanceCounter;
+    if Assigned(VTimer) then begin
+      VFactory := TInternalPerformanceCounterFactory.Create(VTimer);
+      FList := TInterfaceListSimple.Create;
+      FList.Capacity := 1000;
+      FRootCounterList := TInternalPerformanceCounterList.Create('', FListCS, FList, VFactory);
+    end;
+  end;
+  if not Assigned(FRootCounterList) then begin
     FRootCounterList := TInternalPerformanceCounterFake.Create;
   end;
 end;

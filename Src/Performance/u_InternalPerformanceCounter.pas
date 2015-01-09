@@ -23,12 +23,13 @@ unit u_InternalPerformanceCounter;
 interface
 
 uses
+  i_Timer,
   i_InternalPerformanceCounter;
 
 type
   TInternalPerformanceCounter = class(TInterfacedObject, IInternalPerformanceCounter)
   private
-    FQueryPerfCntrFunc: Pointer;
+    FTimer: ITimer;
     FMainThreadID: THandle;
     FId: Integer;
     FName: string;
@@ -49,42 +50,42 @@ type
     constructor Create(
       const AName: string;
       const AMainThreadID: THandle;
-      const AQueryPerfCntrFunc: Pointer
+      const ATimer: ITimer
     );
   end;
 
   TInternalPerformanceCounterFactory = class(TInterfacedObject, IInternalPerformanceCounterFactory)
   private
-    FNtQPC: Pointer;
+    FTimer: ITimer;
     FMainThreadID: THandle;
   private
     function Build(const AName: string): IInternalPerformanceCounter;
   public
-    constructor Create;
+    constructor Create(
+      const ATimer: ITimer
+    );
   end;
 
 implementation
 
 uses
   Windows,
-  u_InternalPerformanceCounterStaticData,
-  u_QueryPerfCounter;
+  u_InternalPerformanceCounterStaticData;
 
 { TInternalPerformanceCounter }
 
 constructor TInternalPerformanceCounter.Create(
   const AName: string;
   const AMainThreadID: THandle;
-  const AQueryPerfCntrFunc: Pointer
+  const ATimer: ITimer
 );
-var
-  VDummy: Int64;
 begin
+  Assert(Assigned(ATimer));
   inherited Create;
   FId := Integer(Self);
   FMainThreadID := AMainThreadID;
   FName := AName;
-  FQueryPerfCntrFunc := AQueryPerfCntrFunc;
+  FTimer := ATimer;
 
   FCounter := 0;
   FTotal := 0;
@@ -92,34 +93,28 @@ begin
   FTotalInMain := 0;
   FMin := $7FFFFFFFFFFFFFF;
   FMax := 0;
-
-  if (nil = FQueryPerfCntrFunc) or (0 <> TNtQueryPerformanceCounter(FQueryPerfCntrFunc)(@VDummy, @FFreq)) then begin
-    FFreq := 0;
-  end;
+  FFreq := FTimer.Freq;
 end;
 
 procedure TInternalPerformanceCounter.FinishOperation(const AContext: TInternalPerformanceCounterContext);
 var
-  VCounter, VFreq, VOperationCounter: Int64;
+  VCounter, VOperationCounter: Int64;
 begin
   if AContext <> 0 then begin
-    if (0 = TNtQueryPerformanceCounter(FQueryPerfCntrFunc)(@VCounter, @VFreq)) then begin
-      // check
-      Assert(VFreq = FFreq);
-      // accumulate
-      Inc(FCounter);
-      VOperationCounter := VCounter - AContext;
-      FTotal := FTotal + VOperationCounter;
-      if GetCurrentThreadId = FMainThreadID then begin
-        Inc(FCounterInMain);
-        FTotalInMain := FTotalInMain + VOperationCounter;
-      end;
-      if VOperationCounter > FMax then begin
-        FMax := VOperationCounter;
-      end;
-      if VOperationCounter < FMin then begin
-        FMin := VOperationCounter;
-      end;
+    VCounter := FTimer.CurrentTime;
+    // accumulate
+    Inc(FCounter);
+    VOperationCounter := VCounter - AContext;
+    FTotal := FTotal + VOperationCounter;
+    if GetCurrentThreadId = FMainThreadID then begin
+      Inc(FCounterInMain);
+      FTotalInMain := FTotalInMain + VOperationCounter;
+    end;
+    if VOperationCounter > FMax then begin
+      FMax := VOperationCounter;
+    end;
+    if VOperationCounter < FMin then begin
+      FMin := VOperationCounter;
     end;
   end;
 end;
@@ -157,26 +152,26 @@ end;
 
 function TInternalPerformanceCounter.StartOperation: TInternalPerformanceCounterContext;
 begin
-  if (nil = FQueryPerfCntrFunc) or (0 <> TNtQueryPerformanceCounter(FQueryPerfCntrFunc)(@Result, nil)) then begin
-    Result := 0;
-  end;
+  Result := FTimer.CurrentTime;
 end;
 
 { TInternalPerformanceCounterFactory }
 
-constructor TInternalPerformanceCounterFactory.Create;
+constructor TInternalPerformanceCounterFactory.Create(
+  const ATimer: ITimer
+);
 begin
+  Assert(Assigned(ATimer));
   inherited Create;
-
+  FTimer := ATimer;
   FMainThreadID := GetCurrentThreadId;
-  FNtQPC := NtQueryPerformanceCounterPtr;
 end;
 
 function TInternalPerformanceCounterFactory.Build(
   const AName: string
 ): IInternalPerformanceCounter;
 begin
-  Result := TInternalPerformanceCounter.Create(AName, FMainThreadID, FNtQPC);
+  Result := TInternalPerformanceCounter.Create(AName, FMainThreadID, FTimer);
 end;
 
 end.

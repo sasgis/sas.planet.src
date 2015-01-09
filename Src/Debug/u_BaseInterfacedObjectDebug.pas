@@ -55,6 +55,8 @@ implementation
 
 uses
   SysUtils,
+  i_Timer,
+  u_TimerByQueryPerformanceCounter,
   u_InternalPerformanceCounter,
   u_InternalPerformanceCounterListForDebug;
 
@@ -164,18 +166,22 @@ end;
 
 class procedure TBaseInterfacedObjectDebug.InitCounters;
 var
+  VTimer: ITimer;
   VFactory: IInternalPerformanceCounterFactory;
 begin
   if FCounters <> nil then begin
     Assert(False);
   end else begin
-    VFactory := TInternalPerformanceCounterFactory.Create;
-    FCountersFindCounter := VFactory.Build('/ObjectsCountrFind');
-    FCounters :=
-      TInternalPerformanceCounterListForDebug.Create(
-        '/Objects',
-        VFactory
-      );
+    VTimer := MakeTimerByQueryPerformanceCounter;
+    if Assigned(VTimer) then begin
+      VFactory := TInternalPerformanceCounterFactory.Create(VTimer);
+      FCountersFindCounter := VFactory.Build('/ObjectsCountrFind');
+      FCounters :=
+        TInternalPerformanceCounterListForDebug.Create(
+          '/Objects',
+          VFactory
+        );
+    end;
   end;
 end;
 

@@ -83,6 +83,7 @@ uses
   i_MainFormState,
   i_LocalCoordConverter,
   i_MouseHandler,
+  i_Timer,
   i_TreeChangeable,
   i_MapViewGoto,
   i_StaticTreeItem,
@@ -658,6 +659,7 @@ type
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
+    FTimer: ITimer;
     FViewPortState: IViewPortState;
     FSensorList: ISensorList;
     FCenterToGPSDelta: TDoublePoint;
@@ -1025,6 +1027,7 @@ begin
   FMapZoomAnimtion := False;
   FMapMoving := False;
   FfrmDGAvailablePic := nil;
+  FTimer := GState.Timer;
   FLinksList := TListenerNotifierLinksList.Create;
   FState := TMainFormState.Create;
   VMouseState := TMouseState.Create(GState.Timer);
@@ -1284,6 +1287,7 @@ begin
   FKeyMovingHandler :=
     TKeyMovingHandler.Create(
       FViewPortState,
+      GState.Timer,
       GState.GUISyncronizedTimerNotifier,
       FConfig.KeyMovingConfig
     );
@@ -3592,15 +3596,15 @@ begin
         VScaleFinish := 1;
         VTime := 0;
         VLastTime := 0;
-        QueryPerformanceCounter(ts1);
+        ts1 := FTimer.CurrentTime;
+        fr := FTimer.Freq;
         ts3 := ts1;
         while (VTime + VLastTime < VMaxTime) do begin
           VAlfa := VTime / VMaxTime;
           Scale := VScaleStart + (VScaleFinish - VScaleStart) * VAlfa;
           FViewPortState.ScaleTo(Scale, AFreezePos);
           application.ProcessMessages;
-          QueryPerformanceCounter(ts2);
-          QueryPerformanceFrequency(fr);
+          ts2 := FTimer.CurrentTime;
           VLastTime := (ts2 - ts3) / (fr / 1000);
           VTime := (ts2 - ts1) / (fr / 1000);
           ts3 := ts2;
@@ -3653,11 +3657,12 @@ begin
         VMapDeltaXY.x := VMapDeltaXYmul.x * Vk;
         VMapDeltaXY.y := VMapDeltaXYmul.y * Vk;
 
-        QueryPerformanceCounter(ts1);
+        ts1 := FTimer.CurrentTime;
         FViewPortState.ChangeMapPixelByLocalDelta(VMapDeltaXY);
         application.ProcessMessages;
-        QueryPerformanceCounter(ts2);
-        QueryPerformanceFrequency(fr);
+
+        ts2 := FTimer.CurrentTime;
+        fr := FTimer.Freq;
 
         VLastDrawTime := (ts2 - ts1) / fr;
         VTime := VTime + VLastDrawTime;
