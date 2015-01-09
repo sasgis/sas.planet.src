@@ -286,56 +286,56 @@ type
       const AZoom: byte
     ): TPoint; stdcall;
 
-    function CheckZoom(var AZoom: Byte): boolean; stdcall;
-    function CheckTilePos(
+    function ValidateZoom(var AZoom: Byte): boolean; stdcall;
+    function ValidateTilePos(
       var XY: TPoint;
       var AZoom: byte;
       ACicleMap: Boolean
     ): boolean; stdcall;
-    function CheckTilePosStrict(
+    function ValidateTilePosStrict(
       var XY: TPoint;
       var AZoom: byte;
       ACicleMap: Boolean
     ): boolean; stdcall;
-    function CheckTileRect(
+    function ValidateTileRect(
       var XY: TRect;
       var AZoom: byte
     ): boolean; stdcall;
 
-    function CheckPixelPos(
+    function ValidatePixelPos(
       var XY: TPoint;
       var AZoom: byte;
       ACicleMap: Boolean
     ): boolean; stdcall;
-    function CheckPixelPosFloat(
+    function ValidatePixelPosFloat(
       var XY: TDoublePoint;
       var AZoom: byte;
       ACicleMap: Boolean
     ): boolean; stdcall;
-    function CheckPixelPosStrict(
+    function ValidatePixelPosStrict(
       var XY: TPoint;
       var AZoom: byte;
       ACicleMap: Boolean
     ): boolean; stdcall;
-    function CheckPixelPosFloatStrict(
+    function ValidatePixelPosFloatStrict(
       var XY: TDoublePoint;
       var AZoom: byte;
       ACicleMap: Boolean
     ): boolean; stdcall;
-    function CheckPixelRect(
+    function ValidatePixelRect(
       var XY: TRect;
       var AZoom: byte
     ): boolean; stdcall;
-    function CheckPixelRectFloat(
+    function ValidatePixelRectFloat(
       var XY: TDoubleRect;
       var AZoom: byte
     ): boolean; stdcall;
 
-    function CheckRelativePos(var XY: TDoublePoint): boolean; stdcall;
-    function CheckRelativeRect(var XY: TDoubleRect): boolean; stdcall;
+    function ValidateRelativePos(var XY: TDoublePoint): boolean; stdcall;
+    function ValidateRelativeRect(var XY: TDoubleRect): boolean; stdcall;
 
-    function CheckLonLatPos(var XY: TDoublePoint): boolean; stdcall;
-    function CheckLonLatRect(var XY: TDoubleRect): boolean; stdcall;
+    function ValidateLonLatPos(var XY: TDoublePoint): boolean; stdcall;
+    function ValidateLonLatRect(var XY: TDoubleRect): boolean; stdcall;
 
     // Возвращает код EPSG для этой проекции. Для нестандартных проекций и сфероидов будет возвращать 0
     function GetProjectionEPSG: Integer; stdcall;

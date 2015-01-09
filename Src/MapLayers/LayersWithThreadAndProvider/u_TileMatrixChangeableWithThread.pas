@@ -349,7 +349,7 @@ begin
       VMapLonLatRect := VLonLatRect.Rect;
       VConverter := VTileMatrix.LocalConverter.GeoConverter;
       VZoom := VTileMatrix.LocalConverter.Zoom;
-      VConverter.CheckLonLatRect(VMapLonLatRect);
+      VConverter.ValidateLonLatRect(VMapLonLatRect);
       VTileRect := RectFromDoubleRect(VConverter.LonLatRect2TileRectFloat(VMapLonLatRect, VZoom), rrOutside);
       if Types.IntersectRect(VTileRectToUpdate, VTileRect, VTileMatrix.TileRect) then begin
         for i := VTileRectToUpdate.Top to VTileRectToUpdate.Bottom - 1 do begin

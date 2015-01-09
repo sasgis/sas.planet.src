@@ -143,7 +143,7 @@ begin
   VGeoConvert := ALocalConverter.GeoConverter;
   VCurrentZoom := ALocalConverter.Zoom;
   VLoadedRect := ALocalConverter.GetRectInMapPixelFloat;
-  VGeoConvert.CheckPixelRectFloat(VLoadedRect, VCurrentZoom);
+  VGeoConvert.ValidatePixelRectFloat(VLoadedRect, VCurrentZoom);
 
   VLoadedRelativeRect := VGeoConvert.PixelRectFloat2RelativeRect(VLoadedRect, VCurrentZoom);
   VTilesRect :=
@@ -197,7 +197,7 @@ begin
   VCurrentZoom := ALocalConverter.Zoom;
   VLocalRect := ALocalConverter.GetLocalRect;
   VMapRect := ALocalConverter.GetRectInMapPixelFloat;
-  VGeoConvert.CheckPixelRectFloat(VMapRect, VCurrentZoom);
+  VGeoConvert.ValidatePixelRectFloat(VMapRect, VCurrentZoom);
 
   VRelativeRect := VGeoConvert.PixelRectFloat2RelativeRect(VMapRect, VCurrentZoom);
   VTilesRect :=
@@ -281,7 +281,7 @@ begin
     VGridZoom := FZoom;
   end;
   VGeoConvert := ALocalConverter.GetGeoConverter;
-  if not VGeoConvert.CheckZoom(VGridZoom) then begin
+  if not VGeoConvert.ValidateZoom(VGridZoom) then begin
     Exit;
   end;
   if VGridZoom > VCurrentZoom + 5 then begin

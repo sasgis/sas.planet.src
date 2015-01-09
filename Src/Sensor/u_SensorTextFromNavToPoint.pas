@@ -109,8 +109,8 @@ begin
       VGeoConverter := VVisualConverter.GeoConverter;
 
       VCenterLonLat := VVisualConverter.GetCenterLonLat;
-      VGeoConverter.CheckLonLatPos(VNavLonLat);
-      VGeoConverter.CheckLonLatPos(VCenterLonLat);
+      VGeoConverter.ValidateLonLatPos(VNavLonLat);
+      VGeoConverter.ValidateLonLatPos(VCenterLonLat);
       Result := VGeoConverter.Datum.CalcDist(VNavLonLat, VCenterLonLat);
     end;
   end;

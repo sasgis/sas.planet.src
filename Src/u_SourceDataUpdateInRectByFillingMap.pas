@@ -126,7 +126,7 @@ begin
     Result := 0;
   end else begin
     Result := VZoom;
-    ALocalConverter.GetGeoConverter.CheckZoom(Result);
+    ALocalConverter.GetGeoConverter.ValidateZoom(Result);
   end;
 end;
 
@@ -254,13 +254,13 @@ begin
     VZoom := ALocalConverter.Zoom;
     VConverter := ALocalConverter.GeoConverter;
     VMapRect := ALocalConverter.GetRectInMapPixelFloat;
-    VConverter.CheckPixelRectFloat(VMapRect, VZoom);
+    VConverter.ValidatePixelRectFloat(VMapRect, VZoom);
     VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
     VNotifier := AMapListened.TileStorage.TileNotifier;
     if VNotifier <> nil then begin
       VConverter := AMapListened.GeoConvert;
       VMapLonLatRect := VLonLatRect;
-      VConverter.CheckLonLatRect(VMapLonLatRect);
+      VConverter.ValidateLonLatRect(VMapLonLatRect);
       VSourceZoom := GetActualZoom(ALocalConverter);
       VTileRect :=
         RectFromDoubleRect(

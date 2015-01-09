@@ -80,7 +80,7 @@ begin
   VConverter := AProjection.GeoConverter;
   VLonLatPoint := AGeometry.Point;
   if not PointIsEmpty(VLonLatPoint) then begin
-    VConverter.CheckLonLatPos(VLonLatPoint);
+    VConverter.ValidateLonLatPos(VLonLatPoint);
     VMapPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
     VDist := Sqr(VMapPoint.X - ACurrMapPixel.X) + Sqr(VMapPoint.Y - ACurrMapPixel.Y);
     Result := True;
@@ -111,7 +111,7 @@ begin
   VConverter := AProjection.GeoConverter;
   VEnum := AGeometry.GetEnum;
   if VEnum.Next(VLonLatPoint) then begin
-    VConverter.CheckLonLatPos(VLonLatPoint);
+    VConverter.ValidateLonLatPos(VLonLatPoint);
     VMapPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
     VDist := Sqr(VMapPoint.X - ACurrMapPixel.X) + Sqr(VMapPoint.Y - ACurrMapPixel.Y);
     APoint := VLonLatPoint;
@@ -119,7 +119,7 @@ begin
     Result := True;
 
     while VEnum.Next(VLonLatPoint) do begin
-      VConverter.CheckLonLatPos(VLonLatPoint);
+      VConverter.ValidateLonLatPos(VLonLatPoint);
       VMapPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
       VDist := Sqr(VMapPoint.X - ACurrMapPixel.X) + Sqr(VMapPoint.Y - ACurrMapPixel.Y);
       if VDist < ADist then begin
@@ -152,7 +152,7 @@ begin
   VConverter := AProjection.GeoConverter;
   VEnum := AGeometry.GetEnum;
   if VEnum.Next(VLonLatPoint) then begin
-    VConverter.CheckLonLatPos(VLonLatPoint);
+    VConverter.ValidateLonLatPos(VLonLatPoint);
     VMapPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
     VDist := Sqr(VMapPoint.X - ACurrMapPixel.X) + Sqr(VMapPoint.Y - ACurrMapPixel.Y);
     APoint := VLonLatPoint;
@@ -160,7 +160,7 @@ begin
     Result := True;
 
     while VEnum.Next(VLonLatPoint) do begin
-      VConverter.CheckLonLatPos(VLonLatPoint);
+      VConverter.ValidateLonLatPos(VLonLatPoint);
       VMapPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
       VDist := Sqr(VMapPoint.X - ACurrMapPixel.X) + Sqr(VMapPoint.Y - ACurrMapPixel.Y);
       if VDist < ADist then begin

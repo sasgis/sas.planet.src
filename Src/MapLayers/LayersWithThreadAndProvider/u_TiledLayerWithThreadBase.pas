@@ -285,12 +285,12 @@ begin
   VZoomSrc := ATileMatrix.LocalConverter.Zoom;
   if VZoomDst <> VZoomSrc then begin
     VMapPixelRect := ALocalConverter.LocalRect2MapRectFloat(ABuffer.ClipRect);
-    VConverter.CheckPixelRectFloat(VMapPixelRect, VZoomDst);
+    VConverter.ValidatePixelRectFloat(VMapPixelRect, VZoomDst);
     VRelativeRect := VConverter.PixelRectFloat2RelativeRect(VMapPixelRect, VZoomDst);
     VTileRectInClipRect := RectFromDoubleRect(VConverter.RelativeRect2TileRectFloat(VRelativeRect, VZoomSrc), rrOutside);
   end else begin
     VMapPixelRect := ALocalConverter.LocalRect2MapRectFloat(ABuffer.ClipRect);
-    VConverter.CheckPixelRectFloat(VMapPixelRect, VZoomDst);
+    VConverter.ValidatePixelRectFloat(VMapPixelRect, VZoomDst);
     VTileRectInClipRect := RectFromDoubleRect(VConverter.PixelRectFloat2TileRectFloat(VMapPixelRect, VZoomSrc), rrOutside);
   end;
   if Types.IntersectRect(VTileRectInClipRect, VTileRectInClipRect, ATileMatrix.TileRect) then begin

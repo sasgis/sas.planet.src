@@ -126,7 +126,7 @@ begin
   VGeoConverter := VLocalConverter.GeoConverter;
   VScreenSize := VLocalConverter.GetLocalRectSize;
 
-  VGeoConverter.CheckLonLatRect(VLLRect);
+  VGeoConverter.ValidateLonLatRect(VLLRect);
   VRelativeRect := VGeoConverter.LonLatRect2RelativeRect(VLLRect);
 
   VTargetZoom := 23;
@@ -139,8 +139,8 @@ begin
       Break;
     end;
   end;
-  VGeoConverter.CheckZoom(VTargetZoom);
-  VGeoConverter.CheckLonLatPos(VCenterLonLat);
+  VGeoConverter.ValidateZoom(VTargetZoom);
+  VGeoConverter.ValidateLonLatPos(VCenterLonLat);
   FViewPortState.ChangeLonLatAndZoom(VTargetZoom, VCenterLonLat);
 end;
 

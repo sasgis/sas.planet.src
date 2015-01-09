@@ -144,7 +144,7 @@ begin
   VLonLat := FPointOnMap.Point;
   if not PointIsEmpty(VLonLat) then begin
     VConverter := VLocalConverter.GetGeoConverter;
-    VConverter.CheckLonLatPos(VLonLat);
+    VConverter.ValidateLonLatPos(VLonLat);
     VMarker := FMarker.GetStatic;
     VFixedOnView := VLocalConverter.LonLat2LocalPixelFloat(VLonLat);
     VMarker.DrawToBitmap(ABuffer, VFixedOnView);

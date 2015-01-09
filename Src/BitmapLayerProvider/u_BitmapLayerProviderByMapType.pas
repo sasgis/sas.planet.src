@@ -242,7 +242,7 @@ begin
   VPixelRectTarget := APixelRectTarget;
   VZoom := AZoom;
   VCoordConverterSource := FTileStorage.CoordConverter;
-  VCoordConverterSource.CheckPixelRect(VPixelRectTarget, VZoom);
+  VCoordConverterSource.ValidatePixelRect(VPixelRectTarget, VZoom);
   VTileRect := VCoordConverterSource.PixelRect2TileRect(VPixelRectTarget, VZoom);
   if (VTileRect.Left = VTileRect.Right - 1) and
     (VTileRect.Top = VTileRect.Bottom - 1) then begin
@@ -378,9 +378,9 @@ begin
     VTargetImageSize.Y := APixelRectTarget.Bottom - APixelRectTarget.Top;
 
     VPixelRectTarget := APixelRectTarget;
-    ACoordConverterTarget.CheckPixelRect(VPixelRectTarget, VZoom);
+    ACoordConverterTarget.ValidatePixelRect(VPixelRectTarget, VZoom);
     VLonLatRectTarget := ACoordConverterTarget.PixelRect2LonLatRect(VPixelRectTarget, VZoom);
-    VCoordConverterSource.CheckLonLatRect(VLonLatRectTarget);
+    VCoordConverterSource.ValidateLonLatRect(VLonLatRectTarget);
     VPixelRectOfTargetPixelRectInSource :=
       RectFromDoubleRect(
         VCoordConverterSource.LonLatRect2PixelRectFloat(VLonLatRectTarget, VZoom),

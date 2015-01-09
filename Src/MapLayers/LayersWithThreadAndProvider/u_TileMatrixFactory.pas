@@ -262,7 +262,7 @@ begin
   VMapPixelRect := ANewConverter.GetRectInMapPixelFloat;
   VZoom := ANewConverter.Zoom;
   VConverter := ANewConverter.GeoConverter;
-  VConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
+  VConverter.ValidatePixelRectFloat(VMapPixelRect, VZoom);
   VTileRect := RectFromDoubleRect(VConverter.PixelRectFloat2TileRectFloat(VMapPixelRect, VZoom), rrOutside);
   if DoubleRectsEqual(VMapPixelRect, DoubleRect(VConverter.TileRect2PixelRect(VTileRect, VZoom))) then begin
     VNewConverter := ANewConverter;

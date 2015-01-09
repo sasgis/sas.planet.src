@@ -99,7 +99,7 @@ begin
   VGeoConverter := VData^.ProjectionInfo.GeoConverter;
   if Assigned(VData^.Path) then begin
     VTestArrLenLonLatRect := VData^.Path.Bounds.Rect;
-    VGeoConverter.CheckLonLatRect(VTestArrLenLonLatRect);
+    VGeoConverter.ValidateLonLatRect(VTestArrLenLonLatRect);
     VTestArrLenPixelRect :=
       VGeoConverter.LonLatRect2PixelRectFloat(
         VTestArrLenLonLatRect,
@@ -122,7 +122,7 @@ begin
     Result := VResultPath;
   end else if Assigned(VData^.Polygon) then begin
     VTestArrLenLonLatRect := VData^.Polygon.Bounds.Rect;
-    VGeoConverter.CheckLonLatRect(VTestArrLenLonLatRect);
+    VGeoConverter.ValidateLonLatRect(VTestArrLenLonLatRect);
     VTestArrLenPixelRect :=
       VGeoConverter.LonLatRect2PixelRectFloat(
         VTestArrLenLonLatRect,

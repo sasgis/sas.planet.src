@@ -127,7 +127,7 @@ begin
         VConverter := AVisualConverter.GetGeoConverter;
         VZoom := AVisualConverter.GetZoom;
         VMapRect := AVisualConverter.LocalRectFloat2MapRectFloat(VRect);
-        VConverter.CheckPixelRectFloat(VMapRect, VZoom);
+        VConverter.ValidatePixelRectFloat(VMapRect, VZoom);
         VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
         VPixelPos := AVisualConverter.LocalPixel2MapPixelFloat(ALocalPoint);
 

@@ -145,11 +145,11 @@ begin
 
                 SinCos(pi / 2 + Angle, s, c);
                 VResultPixelPos := DoublePoint(FPrevPoint.x + VRadius * c, FPrevPoint.y + VRadius * s);
-                FProjection.GeoConverter.CheckPixelPosFloat(VResultPixelPos, VZoom, false);
+                FProjection.GeoConverter.ValidatePixelPosFloat(VResultPixelPos, VZoom, false);
                 APoint := FProjection.GeoConverter.PixelPosFloat2LonLat(VResultPixelPos, VZoom);
                 SinCos(pi / 2 + Angle + pi, s, c);
                 VResultPixelPos := DoublePoint(FPrevPoint.x + VRadius * c, FPrevPoint.y + VRadius * s);
-                FProjection.GeoConverter.CheckPixelPosFloat(VResultPixelPos, VZoom, false);
+                FProjection.GeoConverter.ValidatePixelPosFloat(VResultPixelPos, VZoom, false);
                 FTemp.Add(
                   FProjection.GeoConverter.PixelPosFloat2LonLat(VResultPixelPos, VZoom)
                 );
@@ -192,12 +192,12 @@ begin
                   VRadius := VLonLatMul / sin(pi / 4);
                   SinCos(pi / 2 + pi / 4 + Angle, s, c);
                   VResultPixelPos := DoublePoint(FPrevPoint.x + VRadius * c, FPrevPoint.y + VRadius * s);
-                  FProjection.GeoConverter.CheckPixelPosFloat(VResultPixelPos, VZoom, false);
+                  FProjection.GeoConverter.ValidatePixelPosFloat(VResultPixelPos, VZoom, false);
                   APoint := FProjection.GeoConverter.PixelPosFloat2LonLat(VResultPixelPos, VZoom);
                   FTemp.Add(APoint);
                   SinCos(pi / 2 - pi / 4 + Angle + pi, s, c);
                   VResultPixelPos := DoublePoint(FPrevPoint.x + VRadius * c, FPrevPoint.y + VRadius * s);
-                  FProjection.GeoConverter.CheckPixelPosFloat(VResultPixelPos, VZoom, false);
+                  FProjection.GeoConverter.ValidatePixelPosFloat(VResultPixelPos, VZoom, false);
                   FTemp.Add(FProjection.GeoConverter.PixelPosFloat2LonLat(VResultPixelPos, VZoom));
                   FLineStarted := True;
 
@@ -219,13 +219,13 @@ begin
             VRadius := FPrevRadius / sin(pi / 4);
             SinCos(pi / 4 + Angle, s, c);
             VResultPixelPos := DoublePoint(FPrevPoint.x + VRadius * c, FPrevPoint.y + VRadius * s);
-            FProjection.GeoConverter.CheckPixelPosFloat(VResultPixelPos, VZoom, false);
+            FProjection.GeoConverter.ValidatePixelPosFloat(VResultPixelPos, VZoom, false);
             APoint := FProjection.GeoConverter.PixelPosFloat2LonLat(VResultPixelPos, VZoom);
             Result := True;
 
             SinCos(pi / 2 + pi / 4 + Angle + pi, s, c);
             VResultPixelPos := DoublePoint(FPrevPoint.x + VRadius * c, FPrevPoint.y + VRadius * s);
-            FProjection.GeoConverter.CheckPixelPosFloat(VResultPixelPos, VZoom, false);
+            FProjection.GeoConverter.ValidatePixelPosFloat(VResultPixelPos, VZoom, false);
             FTemp.Add(
               FProjection.GeoConverter.PixelPosFloat2LonLat(VResultPixelPos, VZoom)
             );

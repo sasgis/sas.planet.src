@@ -375,7 +375,7 @@ begin
   VLonLatRect := VRect.Rect;
   VGeoConverter := AProjection.GeoConverter;
   VZoom := AProjection.Zoom;
-  VGeoConverter.CheckLonLatRect(VLonLatRect);
+  VGeoConverter.ValidateLonLatRect(VLonLatRect);
 
   VMarksSubset := nil;
   VUseMarks := (ParamsFrame as IRegionProcessParamsFrameMapCombine).UseMarks;

@@ -192,7 +192,7 @@ begin
   Result := False;
   VConverter := ALocalConverter.GetGeoConverter;
   VPointLL := APoint.Point;
-  VConverter.CheckLonLatPos(VPointLL);
+  VConverter.ValidateLonLatPos(VPointLL);
   VLocalPos := ALocalConverter.LonLat2LocalPixelFloat(VPointLL);
   VRect := FPointMarker.GetBoundsForPosition(VLocalPos);
   if Types.IntersectRect(VRect, ALocalConverter.GetLocalRect, VRect) then begin
@@ -289,7 +289,7 @@ begin
   VGeoConvert := ALocalConverter.GetGeoConverter;
   VZoom := ALocalConverter.GetZoom;
   VMapPixelRect := ALocalConverter.GetRectInMapPixelFloat;
-  VGeoConvert.CheckPixelRectFloat(VMapPixelRect, VZoom);
+  VGeoConvert.ValidatePixelRectFloat(VMapPixelRect, VZoom);
   VLLRect := VGeoConvert.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
 
   VBitmapInited := False;

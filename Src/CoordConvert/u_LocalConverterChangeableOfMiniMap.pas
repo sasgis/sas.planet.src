@@ -138,7 +138,7 @@ begin
     end;
   end else begin
     Result := VZoom - AZoomDelta;
-    VGeoConvert.CheckZoom(Result);
+    VGeoConvert.ValidateZoom(Result);
   end;
 end;
 
@@ -191,7 +191,7 @@ begin
     VVisualMapCenter := AVisualCoordConverter.GetCenterMapPixelFloat;
     VSourceZoom := AVisualCoordConverter.GetZoom;
     VConverter := AVisualCoordConverter.GetGeoConverter;
-    VConverter.CheckPixelPosFloatStrict(VVisualMapCenter, VSourceZoom, True);
+    VConverter.ValidatePixelPosFloatStrict(VVisualMapCenter, VSourceZoom, True);
     VVisualMapCenterInRelative := VConverter.PixelPosFloat2Relative(VVisualMapCenter, VSourceZoom);
     VZoom := GetActualZoom(VConfig.ZoomDelta, AVisualCoordConverter);
     VVisualMapCenterInLayerMap := VConverter.Relative2PixelPosFloat(VVisualMapCenterInRelative, VZoom);

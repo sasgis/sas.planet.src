@@ -253,7 +253,7 @@ begin
   VConverter := ALocalConverter.GetGeoConverter;
   VZoom := ALocalConverter.GetZoom;
   VMapRect := ALocalConverter.GetRectInMapPixelFloat;
-  VConverter.CheckPixelRectFloat(VMapRect, VZoom);
+  VConverter.ValidatePixelRectFloat(VMapRect, VZoom);
   VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
   VSearch := ALStringReplace(ALStringReplace(VSearch, '*', '', [rfReplaceAll]), ':', '', [rfReplaceAll]);// убираем * и : из строки кадастрового номера
 

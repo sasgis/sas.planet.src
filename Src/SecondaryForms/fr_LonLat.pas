@@ -265,7 +265,7 @@ begin
       end;
       if Result then begin
         VLocalConverter := FViewPortState.GetStatic;
-        VLocalConverter.GeoConverter.CheckLonLatPos(VLonLat);
+        VLocalConverter.GeoConverter.ValidateLonLatPos(VLonLat);
       end;
     end;
     1: begin
@@ -279,7 +279,7 @@ begin
       if Result then begin
         VLocalConverter := FViewPortState.GetStatic;
         VZoom := cbbZoom.ItemIndex;
-        VLocalConverter.GeoConverter.CheckPixelPosFloat(XYPoint, VZoom, False);
+        VLocalConverter.GeoConverter.ValidatePixelPosFloat(XYPoint, VZoom, False);
         VLonLat := VLocalConverter.GetGeoConverter.PixelPosFloat2LonLat(XYPoint, VZoom);
       end;
     end;
@@ -307,7 +307,7 @@ begin
           end;
         end;
 
-        VLocalConverter.GeoConverter.CheckTilePos(VTile, VZoom, False);
+        VLocalConverter.GeoConverter.ValidateTilePos(VTile, VZoom, False);
         VLonLat := VLocalConverter.GeoConverter.TilePosFloat2LonLat(XYPoint, VZoom);
       end;
     end;

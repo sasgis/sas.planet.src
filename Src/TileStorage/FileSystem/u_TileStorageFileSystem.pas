@@ -375,7 +375,7 @@ begin
   if GetState.GetStatic.ReadAccess <> asDisabled then begin
     VRect := ARect;
     VZoom := AZoom;
-    GeoConverter.CheckTileRect(VRect, VZoom);
+    GeoConverter.ValidateTileRect(VRect, VZoom);
     VCount.X := VRect.Right - VRect.Left;
     VCount.Y := VRect.Bottom - VRect.Top;
     if (VCount.X > 0) and (VCount.Y > 0) and (VCount.X <= 2048) and (VCount.Y <= 2048) then begin

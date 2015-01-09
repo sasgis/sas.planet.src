@@ -161,7 +161,7 @@ begin
   VZoom := ALocalConverter.GetZoom;
   VScreenCenterMapPos := ALocalConverter.GetCenterMapPixelFloat;
   VLonLat := FMarkPoint;
-  VConverter.CheckLonLatPos(VLonLat);
+  VConverter.ValidateLonLatPos(VLonLat);
   VMarkMapPos := VConverter.LonLat2PixelPosFloat(VLonLat, VZoom);
   VDelta.X := VMarkMapPos.X - VScreenCenterMapPos.X;
   VDelta.Y := VMarkMapPos.Y - VScreenCenterMapPos.Y;

@@ -145,7 +145,7 @@ begin
   VLocalRect := ALocalConverter.GetLocalRect;
   VLoadedRect := ALocalConverter.GetRectInMapPixelFloat;
 
-  VGeoConvert.CheckPixelRectFloat(VLoadedRect, VZoom);
+  VGeoConvert.ValidatePixelRectFloat(VLoadedRect, VZoom);
 
   VLoadedLonLatRect := VGeoConvert.PixelRectFloat2LonLatRect(VLoadedRect, VZoom);
   if VLoadedLonLatRect.Top > 90 then begin
@@ -166,7 +166,7 @@ begin
 
   VLonLatRectOfCell.TopLeft := VGridLonLatRect.TopLeft;
   VLonLatRectOfCell.BottomRight := DoublePoint(VGridLonLatRect.Left + z.X, VGridLonLatRect.Top - z.Y);
-  VGeoConvert.CheckLonLatRect(VLonLatRectOfCell);
+  VGeoConvert.ValidateLonLatRect(VLonLatRectOfCell);
   VLocalRectOfCell := ALocalConverter.LonLatRect2LocalRectFloat(VLonLatRectOfCell);
   if abs(VLocalRectOfCell.Right - VLocalRectOfCell.Left) < 30 then begin
     exit;
@@ -179,7 +179,7 @@ begin
     for j := VGridRect.Bottom + 1 to VGridRect.Top do begin
       VLonLatRectOfCell.Bottom := VLonLatRectOfCell.Top;
       VLonLatRectOfCell.Top := j * z.Y;
-      VGeoConvert.CheckLonLatRect(VLonLatRectOfCell);
+      VGeoConvert.ValidateLonLatRect(VLonLatRectOfCell);
 
       VLocalRectOfCell := ALocalConverter.LonLatRect2LocalRectFloat(VLonLatRectOfCell);
       VLocalCellCenter := RectCenter(VLocalRectOfCell);
@@ -224,7 +224,7 @@ begin
   VLocalRect := ALocalConverter.GetLocalRect;
   VLoadedRect := ALocalConverter.GetRectInMapPixelFloat;
 
-  VGeoConvert.CheckPixelRectFloat(VLoadedRect, VZoom);
+  VGeoConvert.ValidatePixelRectFloat(VLoadedRect, VZoom);
 
   VLoadedLonLatRect := VGeoConvert.PixelRectFloat2LonLatRect(VLoadedRect, VZoom);
   if VLoadedLonLatRect.Top > 90 then begin
@@ -245,7 +245,7 @@ begin
 
   VLonLatRectOfCellsLine.TopLeft := VGridLonLatRect.TopLeft;
   VLonLatRectOfCellsLine.BottomRight := DoublePoint(VGridLonLatRect.Left + z.X, VGridLonLatRect.Top - z.Y);
-  VGeoConvert.CheckLonLatRect(VLonLatRectOfCellsLine);
+  VGeoConvert.ValidateLonLatRect(VLonLatRectOfCellsLine);
   VLocalRectOfCellsLine :=
     RectFromDoubleRect(
       ALocalConverter.LonLatRect2LocalRectFloat(VLonLatRectOfCellsLine),
@@ -260,7 +260,7 @@ begin
     VLonLatRectOfCellsLine.Top := VGridLonLatRect.Top;
     VLonLatRectOfCellsLine.Right := VLonLatRectOfCellsLine.Left;
     VLonLatRectOfCellsLine.Bottom := VGridLonLatRect.Bottom;
-    VGeoConvert.CheckLonLatRect(VLonLatRectOfCellsLine);
+    VGeoConvert.ValidateLonLatRect(VLonLatRectOfCellsLine);
     VLocalRectOfCellsLine :=
       RectFromDoubleRect(
         ALocalConverter.LonLatRect2LocalRectFloat(VLonLatRectOfCellsLine),
@@ -286,7 +286,7 @@ begin
     VLonLatRectOfCellsLine.Right := VGridLonLatRect.Right;
     VLonLatRectOfCellsLine.Bottom := VLonLatRectOfCellsLine.Top;
 
-    VGeoConvert.CheckLonLatRect(VLonLatRectOfCellsLine);
+    VGeoConvert.ValidateLonLatRect(VLonLatRectOfCellsLine);
     VLocalRectOfCellsLine :=
       RectFromDoubleRect(
         ALocalConverter.LonLatRect2LocalRectFloat(VLonLatRectOfCellsLine),

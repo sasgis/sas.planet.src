@@ -163,7 +163,7 @@ begin
   VGeoConvert := ALocalConverter.GetGeoConverter;
   VZoom := ALocalConverter.GetZoom;
   VSelectedLonLat := FSelectedLonLat;
-  VGeoConvert.CheckLonLatRect(VSelectedLonLat);
+  VGeoConvert.ValidateLonLatRect(VSelectedLonLat);
   VSelectedRelative := VGeoConvert.LonLatRect2RelativeRect(VSelectedLonLat);
   VSelectedPixels := VGeoConvert.RelativeRect2PixelRectFloat(VSelectedRelative, VZoom);
   VDrawRect :=

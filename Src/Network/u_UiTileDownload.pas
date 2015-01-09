@@ -394,12 +394,12 @@ begin
       VMapPixelRect := VLocalConverter.GetRectInMapPixelFloat;
       VZoom := VLocalConverter.GetZoom;
       VGeoConverter := VLocalConverter.GetGeoConverter;
-      VGeoConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
+      VGeoConverter.ValidatePixelRectFloat(VMapPixelRect, VZoom);
       VLonLatRect := VGeoConverter.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
 
       VMapGeoConverter := FMapType.GeoConvert;
       VLonLatRectInMap := VLonLatRect;
-      VMapGeoConverter.CheckLonLatRect(VLonLatRectInMap);
+      VMapGeoConverter.ValidateLonLatRect(VLonLatRectInMap);
 
       VMapTileRect :=
         RectFromDoubleRect(
@@ -410,7 +410,7 @@ begin
       Dec(VMapTileRect.Top, FTilesOut);
       Inc(VMapTileRect.Right, FTilesOut);
       Inc(VMapTileRect.Bottom, FTilesOut);
-      VMapGeoConverter.CheckTileRect(VMapTileRect, VZoom);
+      VMapGeoConverter.ValidateTileRect(VMapTileRect, VZoom);
 
       FRequestManager.InitSession(VZoom, VMapTileRect, VVersionInfo.BaseVersion);
 

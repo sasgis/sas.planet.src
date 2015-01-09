@@ -188,10 +188,10 @@ begin
   VViewMapSourceRect := AViewConverter.GetRectInMapPixelFloat;
   VZoomSource := AViewConverter.GetZoom;
   VGeoConvertSource := AViewConverter.GetGeoConverter;
-  VGeoConvertSource.CheckPixelRectFloat(VViewMapSourceRect, VZoomSource);
+  VGeoConvertSource.ValidatePixelRectFloat(VViewMapSourceRect, VZoomSource);
   VLonLatRect := VGeoConvertSource.PixelRectFloat2LonLatRect(VViewMapSourceRect, VZoomSource);
   VGeoConvertMiniMap := AMiniMapConverter.GeoConverter;
-  VGeoConvertMiniMap.CheckLonLatRect(VLonLatRect);
+  VGeoConvertMiniMap.ValidateLonLatRect(VLonLatRect);
   VBitmapRect := AMiniMapConverter.LonLatRect2LocalRectFloat(VLonLatRect);
 
   VBitmapRect.Left := VBitmapRect.Left + FViewRectMoveDelta.X;
@@ -309,7 +309,7 @@ begin
       VZoom := VLocalConverter.GetZoom;
 
       VMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(Point(X, Y));
-      VConverter.CheckPixelPosFloatStrict(VMapPoint, VZoom, False);
+      VConverter.ValidatePixelPosFloatStrict(VMapPoint, VZoom, False);
       VLonLat := VConverter.PixelPosFloat2LonLat(VMapPoint, VZoom);
       FViewRectMoveDelta := DoublePoint(0, 0);
 

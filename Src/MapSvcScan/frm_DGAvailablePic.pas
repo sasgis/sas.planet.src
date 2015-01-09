@@ -561,7 +561,7 @@ begin
   VConverter := FLocalConverter.GetGeoConverter;
   FAvailPicsTileInfo.Zoom := FLocalConverter.GetZoom;
   VMapPixel := FLocalConverter.LocalPixel2MapPixelFloat(AVisualPoint);
-  VConverter.CheckPixelPosFloatStrict(VMapPixel, FAvailPicsTileInfo.Zoom, True);
+  VConverter.ValidatePixelPosFloatStrict(VMapPixel, FAvailPicsTileInfo.Zoom, True);
   FAvailPicsTileInfo.LonLat := VConverter.PixelPosFloat2LonLat(VMapPixel, FAvailPicsTileInfo.Zoom);
   // full tile rect
   VTilePosFloat := VConverter.PixelPosFloat2TilePosFloat(VMapPixel, FAvailPicsTileInfo.Zoom);

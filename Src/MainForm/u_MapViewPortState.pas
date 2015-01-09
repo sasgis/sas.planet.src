@@ -136,7 +136,7 @@ begin
 
   VGeoConverter := _GetActiveCoordConverter;
   VZoom := 0;
-  VGeoConverter.CheckZoom(VZoom);
+  VGeoConverter.ValidateZoom(VZoom);
   VCenterPoint := RectCenter(VGeoConverter.PixelRectAtZoom(VZoom));
   VLocalRect := Rect(0, 0, 1024, 768);
   VLocalCenter := RectCenter(VLocalRect);
@@ -215,9 +215,9 @@ begin
     VLocalConverter := FView.GetStatic;
     VConverter := VLocalConverter.GeoConverter;
     VZoom := AZoom;
-    VConverter.CheckZoom(VZoom);
+    VConverter.ValidateZoom(VZoom);
     VLonLat := ALonLat;
-    VConverter.CheckLonLatPos(VLonLat);
+    VConverter.ValidateLonLatPos(VLonLat);
     VMapPixelCenter := VConverter.LonLat2PixelPosFloat(VLonLat, VZoom);
     VLocalRect := VLocalConverter.GetLocalRect;
     VLocalCenter := RectCenter(VLocalRect);
@@ -392,12 +392,12 @@ begin
     VZoomOld := VLocalConverter.Zoom;
     VZoomNew := AZoom;
     VConverter := VLocalConverter.GeoConverter;
-    VConverter.CheckZoom(VZoomNew);
+    VConverter.ValidateZoom(VZoomNew);
     if VZoomOld = VZoomNew then begin
       Exit;
     end;
     VFreezeMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(AFreezePoint);
-    VConverter.CheckPixelPosFloatStrict(VFreezeMapPoint, VZoomOld, False);
+    VConverter.ValidatePixelPosFloatStrict(VFreezeMapPoint, VZoomOld, False);
     VFreezePoint := VLocalConverter.MapPixelFloat2LocalPixelFloat(VFreezeMapPoint);
     VRelativeFreezePoint := VConverter.PixelPosFloat2Relative(VFreezeMapPoint, VZoomOld);
     VMapFreezPointAtNewZoom := VConverter.Relative2PixelPosFloat(VRelativeFreezePoint, VZoomNew);
@@ -435,11 +435,11 @@ begin
     VLocalConverter := FView.GetStatic;
     VGeoConverter := VLocalConverter.GeoConverter;
     VZoom := AConfigData.ReadInteger('Zoom', VLocalConverter.Zoom);
-    VGeoConverter.CheckZoom(VZoom);
+    VGeoConverter.ValidateZoom(VZoom);
     VLonLat := VLocalConverter.GetCenterLonLat;
     VLonLat.X := AConfigData.ReadFloat('X', VLonLat.X);
     VLonLat.Y := AConfigData.ReadFloat('Y', VLonLat.Y);
-    VGeoConverter.CheckLonLatPos(VLonLat);
+    VGeoConverter.ValidateLonLatPos(VLonLat);
 
     VLocalConverterNew :=
       FVisibleCoordConverterFactory.ChangeCenterLonLatAndZoom(
@@ -547,7 +547,7 @@ begin
     VZoom := VLocalConverter.Zoom;
     VGeoConverter := VLocalConverter.GeoConverter;
     VMapPointFixed := VLocalConverter.LocalPixel2MapPixelFloat(AFreezePoint);
-    VGeoConverter.CheckPixelPosFloatStrict(VMapPointFixed, VZoom, False);
+    VGeoConverter.ValidatePixelPosFloatStrict(VMapPointFixed, VZoom, False);
     VVisiblePointFixed := VLocalConverter.MapPixelFloat2LocalPixelFloat(VMapPointFixed);
 
     VLocalRect := VLocalConverter.GetLocalRect;

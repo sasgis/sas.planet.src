@@ -356,7 +356,7 @@ begin
       VZoom := ALocalConverter.Zoom;
       VConverter := ALocalConverter.GeoConverter;
       VMapRect := ALocalConverter.GetRectInMapPixelFloat;
-      VConverter.CheckPixelRectFloat(VMapRect, VZoom);
+      VConverter.ValidatePixelRectFloat(VMapRect, VZoom);
       VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
       VEnum := ALayerSet.GetIterator;
       i := 0;
@@ -367,7 +367,7 @@ begin
           if VNotifier <> nil then begin
             VConverter := VMap.GeoConvert;
             VMapLonLatRect := VLonLatRect;
-            VConverter.CheckLonLatRect(VMapLonLatRect);
+            VConverter.ValidateLonLatRect(VMapLonLatRect);
             VTileRect :=
               RectFromDoubleRect(
                 VConverter.LonLatRect2TileRectFloat(VMapLonLatRect, VZoom),
@@ -524,7 +524,7 @@ begin
   VGeoConvert := ALocalConverter.GetGeoConverter;
 
   VBitmapOnMapPixelRect := ALocalConverter.GetRectInMapPixelFloat;
-  VGeoConvert.CheckPixelRectFloat(VBitmapOnMapPixelRect, VZoom);
+  VGeoConvert.ValidatePixelRectFloat(VBitmapOnMapPixelRect, VZoom);
 
   VSourceLonLatRect := VGeoConvert.PixelRectFloat2LonLatRect(VBitmapOnMapPixelRect, VZoom);
   VTileSourceRect :=
@@ -586,7 +586,7 @@ begin
     VRect := AData.Geometry.Bounds;
     if VRect <> nil then begin
       VLLRect := VRect.Rect;
-      VConverter.CheckLonLatRect(VLLRect);
+      VConverter.ValidateLonLatRect(VLLRect);
       VBounds := ALocalConverter.LonLatRect2LocalRectFloat(VLLRect);
       if ((VBounds.Top < VSize.Y) and (VBounds.Bottom > 0) and (VBounds.Left < VSize.X) and (VBounds.Right > 0)) then begin
         if Supports(AData.Geometry, IGeometryLonLatPoint) or (((VBounds.Right - VBounds.Left) > 1) and ((VBounds.Bottom - VBounds.Top) > 1)) then begin

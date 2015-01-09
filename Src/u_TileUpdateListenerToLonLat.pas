@@ -91,13 +91,13 @@ begin
     if Supports(AMsg, ITileKey, VTileKey) then begin
       VTile := VTileKey.Tile;
       VZoom := VTileKey.Zoom;
-      FCoordConverter.CheckTilePosStrict(VTile, VZoom, True);
+      FCoordConverter.ValidateTilePosStrict(VTile, VZoom, True);
       VLonLatRect := TLonLatRect.Create(FCoordConverter.TilePos2LonLatRect(VTile, VZoom));
       FEvent(VLonLatRect);
     end else if Supports(AMsg, ITileRect, VTileRect) then begin
       VZoom := VTileRect.Zoom;
       VRect := VTileRect.Rect;
-      FCoordConverter.CheckTileRect(VRect, VZoom);
+      FCoordConverter.ValidateTileRect(VRect, VZoom);
       VLonLatRect := TLonLatRect.Create(FCoordConverter.TileRect2LonLatRect(VRect, VZoom));
       FEvent(VLonLatRect);
     end else begin

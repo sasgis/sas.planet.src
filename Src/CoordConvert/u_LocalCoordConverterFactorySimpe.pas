@@ -164,7 +164,7 @@ begin
   VZoom := ASource.Zoom;
   VConverter := ASource.GeoConverter;
   VLonLat := ALonLat;
-  VConverter.CheckLonLatPos(VLonLat);
+  VConverter.ValidateLonLatPos(VLonLat);
   VCenterMapPixel := ASource.GetCenterMapPixelFloat;
   VCenterMapPixelNew := VConverter.LonLat2PixelPosFloat(VLonLat, VZoom);
   if (Abs(VCenterMapPixel.X - VCenterMapPixelNew.X) < 0.001) and
@@ -206,14 +206,14 @@ begin
   VZoomNew := AZoom;
   VZoomOld := ASource.Zoom;
   VConverter := ASource.GeoConverter;
-  VConverter.CheckZoom(VZoomNew);
+  VConverter.ValidateZoom(VZoomNew);
   if VZoomNew = VZoomOld then begin
     Result := ChangeCenterLonLat(ASource, ALonLat);
     Exit;
   end;
 
   VLonLat := ALonLat;
-  VConverter.CheckLonLatPos(VLonLat);
+  VConverter.ValidateLonLatPos(VLonLat);
   VCenterMapPixelNew := VConverter.LonLat2PixelPosFloat(VLonLat, VZoomNew);
   VLocalRect := ASource.GetLocalRect;
   VScale := ASource.GetScale;
@@ -248,7 +248,7 @@ begin
   VConverter := ASource.GeoConverter;
   VCenterMapPixel := ASource.GetCenterMapPixelFloat;
   VCenterMapPixelNew := ASource.LocalPixel2MapPixelFloat(AVisualPoint);
-  VConverter.CheckPixelPosFloatStrict(VCenterMapPixelNew, VZoom, True);
+  VConverter.ValidatePixelPosFloatStrict(VCenterMapPixelNew, VZoom, True);
   if (Abs(VCenterMapPixel.X - VCenterMapPixelNew.X) < 0.001) and
     (Abs(VCenterMapPixel.Y - VCenterMapPixelNew.Y) < 0.001) then begin
     Result := ASource;
@@ -292,7 +292,7 @@ begin
     Exit;
   end;
   VCenterLonLat := ASource.GetCenterLonLat;
-  AConverter.CheckLonLatPos(VCenterLonLat);
+  AConverter.ValidateLonLatPos(VCenterLonLat);
   VZoom := ASource.Zoom;
   VScale := ASource.GetScale;
   VLocalRect := ASource.GetLocalRect;
@@ -330,7 +330,7 @@ begin
   VZoomOld := ASource.Zoom;
   VZoomNew := AZoom;
   VConverter := ASource.GeoConverter;
-  VConverter.CheckZoom(VZoomNew);
+  VConverter.ValidateZoom(VZoomNew);
   if VZoomOld = VZoomNew then begin
     Result := ASource;
     Exit;
@@ -373,14 +373,14 @@ begin
   VZoomOld := ASource.Zoom;
   VZoomNew := AZoom;
   VConverter := ASource.GeoConverter;
-  VConverter.CheckZoom(VZoomNew);
+  VConverter.ValidateZoom(VZoomNew);
   if VZoomOld = VZoomNew then begin
     Result := ASource;
     Exit;
   end;
 
   VFreezeMapPoint := ASource.LocalPixel2MapPixelFloat(AFreezePoint);
-  VConverter.CheckPixelPosFloatStrict(VFreezeMapPoint, VZoomOld, False);
+  VConverter.ValidatePixelPosFloatStrict(VFreezeMapPoint, VZoomOld, False);
   VFreezePoint := ASource.MapPixelFloat2LocalPixelFloat(VFreezeMapPoint);
   VRelativeFreezePoint := VConverter.PixelPosFloat2Relative(VFreezeMapPoint, VZoomOld);
   VMapFreezPointAtNewZoom := VConverter.Relative2PixelPosFloat(VRelativeFreezePoint, VZoomNew);
@@ -419,7 +419,7 @@ begin
   VViewSize.X := VSourcePixelRect.Right - VSourcePixelRect.Left;
   VViewSize.Y := VSourcePixelRect.Bottom - VSourcePixelRect.Top;
 
-  VConverter.CheckPixelRect(VSourcePixelRect, VZoom);
+  VConverter.ValidatePixelRect(VSourcePixelRect, VZoom);
 
   VTileRect := VConverter.PixelRect2TileRect(VSourcePixelRect, VZoom);
   VResultMapPixelRect := VConverter.TileRect2PixelRect(VTileRect, VZoom);
@@ -460,16 +460,16 @@ begin
     VConverter := ASource.GetGeoConverter;
     VZoom := ASource.GetZoom;
     VSourcePixelRect := ASource.GetRectInMapPixel;
-    VConverter.CheckPixelRect(VSourcePixelRect, VZoom);
+    VConverter.ValidatePixelRect(VSourcePixelRect, VZoom);
     VSourceLonLatRect := VConverter.PixelRect2LonLatRect(VSourcePixelRect, VZoom);
-    AGeoConverter.CheckZoom(VZoom);
-    AGeoConverter.CheckLonLatRect(VSourceLonLatRect);
+    AGeoConverter.ValidateZoom(VZoom);
+    AGeoConverter.ValidateLonLatRect(VSourceLonLatRect);
     VSourcePixelRect :=
       RectFromDoubleRect(
         AGeoConverter.LonLatRect2PixelRectFloat(VSourceLonLatRect, VZoom),
         rrToTopLeft
       );
-    AGeoConverter.CheckPixelRect(VSourcePixelRect, VZoom);
+    AGeoConverter.ValidatePixelRect(VSourcePixelRect, VZoom);
 
     VTileRect := AGeoConverter.PixelRect2TileRect(VSourcePixelRect, VZoom);
 
@@ -515,7 +515,7 @@ begin
       VLocalCenterMapPixelFloat.X := AMapPixelAtLocalZero.X + VLocalCenter.X;
       VLocalCenterMapPixelFloat.Y := AMapPixelAtLocalZero.Y + VLocalCenter.Y;
       VLocalCenterMapPixel := PointFromDoublePoint(VLocalCenterMapPixelFloat, prClosest);
-      AGeoConverter.CheckPixelPosStrict(VLocalCenterMapPixel, VZoom, False);
+      AGeoConverter.ValidatePixelPosStrict(VLocalCenterMapPixel, VZoom, False);
       VTopLeftMapPixelFloat.X := VLocalCenterMapPixel.X - VLocalCenter.X;
       VTopLeftMapPixelFloat.Y := VLocalCenterMapPixel.Y - VLocalCenter.Y;
       VTopLeftMapPixel := PointFromDoublePoint(VTopLeftMapPixelFloat, prClosest);
@@ -528,7 +528,7 @@ begin
     end else begin
       VLocalCenterMapPixelFloat.X := AMapPixelAtLocalZero.X + VLocalCenter.X;
       VLocalCenterMapPixelFloat.Y := AMapPixelAtLocalZero.Y + VLocalCenter.Y;
-      AGeoConverter.CheckPixelPosFloatStrict(VLocalCenterMapPixelFloat, VZoom, False);
+      AGeoConverter.ValidatePixelPosFloatStrict(VLocalCenterMapPixelFloat, VZoom, False);
       VTopLeftMapPixelFloat.X := VLocalCenterMapPixelFloat.X - VLocalCenter.X;
       VTopLeftMapPixelFloat.Y := VLocalCenterMapPixelFloat.Y - VLocalCenter.Y;
 
@@ -544,7 +544,7 @@ begin
     VLocalCenter.Y := VLocalCenter.Y / AMapScale;
     VLocalCenterMapPixelFloat.X := AMapPixelAtLocalZero.X + VLocalCenter.X;
     VLocalCenterMapPixelFloat.Y := AMapPixelAtLocalZero.Y + VLocalCenter.Y;
-    AGeoConverter.CheckPixelPosFloatStrict(VLocalCenterMapPixelFloat, VZoom, False);
+    AGeoConverter.ValidatePixelPosFloatStrict(VLocalCenterMapPixelFloat, VZoom, False);
     VTopLeftMapPixelFloat.X := VLocalCenterMapPixelFloat.X - VLocalCenter.X;
     VTopLeftMapPixelFloat.Y := VLocalCenterMapPixelFloat.Y - VLocalCenter.Y;
 

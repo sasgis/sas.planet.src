@@ -257,7 +257,7 @@ begin
   VZoom := ALocalConverter.Zoom;
   VConverter := ALocalConverter.GeoConverter;
   VMapRect := ALocalConverter.GetRectInMapPixelFloat;
-  VConverter.CheckPixelRectFloat(VMapRect, VZoom);
+  VConverter.ValidatePixelRectFloat(VMapRect, VZoom);
   VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
   for i := 0 to AMapsListened.Count - 1 do begin
     VMap := AMapsListened.Items[i];
@@ -266,7 +266,7 @@ begin
       if VNotifier <> nil then begin
         VConverter := VMap.GeoConvert;
         VMapLonLatRect := VLonLatRect;
-        VConverter.CheckLonLatRect(VMapLonLatRect);
+        VConverter.ValidateLonLatRect(VMapLonLatRect);
         VTileRect :=
           RectFromDoubleRect(
             VConverter.LonLatRect2TileRectFloat(VMapLonLatRect, VZoom),

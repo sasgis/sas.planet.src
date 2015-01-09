@@ -123,7 +123,7 @@ begin
   Result.TopLeft := APoint1;
   Result.BottomRight := APoint2;
 
-  VConverter.CheckLonLatRect(Result);
+  VConverter.ValidateLonLatRect(Result);
   if Result.Left > Result.Right then begin
     VTemp := Result.Left;
     Result.Left := Result.Right;

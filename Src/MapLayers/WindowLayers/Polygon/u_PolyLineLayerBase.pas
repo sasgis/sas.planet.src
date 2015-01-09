@@ -963,7 +963,7 @@ begin
         i := 0;
         for j := 0 to VSigleLine.Count - 1 do begin
           VLonLatPoint := VSigleLine.Points[j];
-          VConverter.CheckLonLatPos(VLonLatPoint);
+          VConverter.ValidateLonLatPos(VLonLatPoint);
           VProjectedPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
           if (VSegmentIndex = i) and (VPointIndex = j) then begin
             AProjectedPoints.Add(VProjectedPoint);
@@ -989,7 +989,7 @@ begin
           VSigleLine := VMultiLine.Item[i];
           for j := 0 to VSigleLine.Count - 1 do begin
             VLonLatPoint := VSigleLine.Points[j];
-            VConverter.CheckLonLatPos(VLonLatPoint);
+            VConverter.ValidateLonLatPos(VLonLatPoint);
             VProjectedPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
             if (VSegmentIndex = i) and (VPointIndex = j) then begin
               AProjectedPoints.Add(VProjectedPoint);
@@ -1101,7 +1101,7 @@ begin
         i := 0;
         for j := 0 to VSigleLine.Count - 1 do begin
           VLonLatPoint := VSigleLine.Points[j];
-          VConverter.CheckLonLatPos(VLonLatPoint);
+          VConverter.ValidateLonLatPos(VLonLatPoint);
           VProjectedPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
           if (VSegmentIndex = i) and (VPointIndex = j) then begin
             AProjectedPoints.Add(VProjectedPoint);
@@ -1127,7 +1127,7 @@ begin
           VSigleLine := VMultiLine.Item[i];
           for j := 0 to VSigleLine.Count - 1 do begin
             VLonLatPoint := VSigleLine.Points[j];
-            VConverter.CheckLonLatPos(VLonLatPoint);
+            VConverter.ValidateLonLatPos(VLonLatPoint);
             VProjectedPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
             if (VSegmentIndex = i) and (VPointIndex = j) then begin
               AProjectedPoints.Add(VProjectedPoint);

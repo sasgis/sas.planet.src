@@ -248,11 +248,11 @@ begin
   VConverter := AVisualCoordConverter.GetGeoConverter;
 
   VCenterPixelXY := AVisualCoordConverter.GetCenterMapPixelFloat;
-  VConverter.CheckPixelPosFloatStrict(VCenterPixelXY, VZoom, False);
+  VConverter.ValidatePixelPosFloatStrict(VCenterPixelXY, VZoom, False);
   VStartLonLat := VConverter.PixelPosFloat2LonLat(VCenterPixelXY, VZoom);
 
   VFinishPixelXY := DoublePoint(VCenterPixelXY.X, VCenterPixelXY.Y - ALineHeight / 2);
-  if VConverter.CheckPixelPosFloatStrict(VFinishPixelXY, VZoom, False) then begin
+  if VConverter.ValidatePixelPosFloatStrict(VFinishPixelXY, VZoom, False) then begin
     VFinishLonLat := VConverter.PixelPosFloat2LonLat(
       VFinishPixelXY,
       VZoom
@@ -263,7 +263,7 @@ begin
   end;
 
   VFinishPixelXY := DoublePoint(VCenterPixelXY.X, VCenterPixelXY.Y - ALineHeight);
-  if VConverter.CheckPixelPosFloatStrict(VFinishPixelXY, VZoom, False) then begin
+  if VConverter.ValidatePixelPosFloatStrict(VFinishPixelXY, VZoom, False) then begin
     VFinishLonLat := VConverter.PixelPosFloat2LonLat(
       VFinishPixelXY,
       VZoom
@@ -300,10 +300,10 @@ begin
     ),
     prToTopLeft
   );
-  VConverter.CheckPixelPosStrict(VCenterPixelXY, VZoom, False);
+  VConverter.ValidatePixelPosStrict(VCenterPixelXY, VZoom, False);
   VStartLonLat := VConverter.PixelPos2LonLat(VCenterPixelXY, VZoom);
   VFinishLonLat := VConverter.Datum.CalcFinishPosition(VStartLonLat, 0, VFullLenght);
-  VConverter.CheckLonLatPos(VFinishLonLat);
+  VConverter.ValidateLonLatPos(VFinishLonLat);
   VFinishPixelXY := VConverter.LonLat2PixelPosFloat(VFinishLonLat, VZoom);
 
   VHeight := Abs(VCenterPixelXY.Y - Round(VFinishPixelXY.Y));

@@ -2988,12 +2988,12 @@ begin
   VConverter := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
+  VConverter.ValidatePixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
   if VConverter.ProjectionEPSG <> CGoogleProjectionEPSG then begin
     VConverter := GState.CoordConverterFactory.GetCoordConverterByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256);
   end;
-  VConverter.CheckLonLatPos(VLonLat);
+  VConverter.ValidateLonLatPos(VLonLat);
   VLonLat := VConverter.LonLat2Metr(VLonLat);
   CopyStringToClipboard(
     Handle,
@@ -3789,7 +3789,7 @@ begin
     VIndex := -1;
     VZoomCurr := VLocalConverter.GetZoom;
     VLonLat := VLocalConverter.GetCenterLonLat;
-    if VMapType.GeoConvert.CheckLonLatPos(VLonLat) then begin
+    if VMapType.GeoConvert.ValidateLonLatPos(VLonLat) then begin
       VMapTile :=
         PointFromDoublePoint(
           VMapType.GeoConvert.LonLat2TilePosFloat(VLonLat, VZoomCurr),
@@ -3861,7 +3861,7 @@ begin
     VZoomCurr := VLocalConverter.GetZoom;
     VMousePos := FMouseState.GetLastDownPos(mbRight);
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(VMousePos);
-    VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, False);
+    VConverter.ValidatePixelPosFloatStrict(VMouseMapPoint, VZoomCurr, False);
     VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
 
     // to map
@@ -3930,7 +3930,7 @@ begin
   VConverter := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
+  VConverter.ValidatePixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
   CopyStringToClipboard(
     Handle,
@@ -4171,7 +4171,7 @@ begin
   VZoomCurr := VLocalConverter.GetZoom;
   VConverter := VLocalConverter.GetGeoConverter;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
+  VConverter.ValidatePixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
   VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
   VPoint := GState.VectorGeometryLonLatFactory.CreateLonLatPoint(VMouseLonLat);
   if FMarkDBGUI.SaveMarkModal(nil, VPoint) then begin
@@ -4195,7 +4195,7 @@ begin
   VConverter := VLocalConverter.GetGeoConverter;
   VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic;
 
-  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
+  VConverter.ValidatePixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
   VTile :=
     PointFromDoublePoint(
       VConverter.PixelPosFloat2TilePosFloat(VMouseMapPoint, VZoomCurr),
@@ -4220,7 +4220,7 @@ begin
   VZoomCurr := VLocalConverter.GetZoom;
   VConverter := VLocalConverter.GetGeoConverter;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
+  VConverter.ValidatePixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
   VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
   VStr := GState.ValueToStringConverter.GetStatic.LonLatConvert(VMouseLonLat);
   CopyStringToClipboard(Handle, VStr);
@@ -4241,9 +4241,9 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VZoomCurr := VLocalConverter.GetZoom;
   VConverter := VLocalConverter.GetGeoConverter;
-  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
+  VConverter.ValidatePixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
   VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
-  VMapType.GeoConvert.CheckLonLatPos(VMouseLonLat);
+  VMapType.GeoConvert.ValidateLonLatPos(VMouseLonLat);
   if FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible then begin
     VListName := LonLat2GShListName(VMouseLonLat, GetActualGshSCale(FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale, VZoomCurr), 100000000);
   end else begin
@@ -4267,9 +4267,9 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VZoomCurr := VLocalConverter.GetZoom;
   VConverter := VLocalConverter.GetGeoConverter;
-  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
+  VConverter.ValidatePixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
   VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
-  VMapType.GeoConvert.CheckLonLatPos(VMouseLonLat);
+  VMapType.GeoConvert.ValidateLonLatPos(VMouseLonLat);
   VTile :=
     PointFromDoublePoint(
       VMapType.GeoConvert.LonLat2TilePosFloat(VMouseLonLat, VZoomCurr),
@@ -4302,9 +4302,9 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VZoomCurr := VLocalConverter.GetZoom;
   VConverter := VLocalConverter.GetGeoConverter;
-  if VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True) then begin
+  if VConverter.ValidatePixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True) then begin
     VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
-    if VMapType.GeoConvert.CheckLonLatPos(VMouseLonLat) then begin
+    if VMapType.GeoConvert.ValidateLonLatPos(VMouseLonLat) then begin
       VTile :=
         PointFromDoublePoint(
           VMapType.GeoConvert.LonLat2TilePosFloat(VMouseLonLat, VZoomCurr),
@@ -4386,9 +4386,9 @@ begin
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
     VZoomCurr := VLocalConverter.GetZoom;
     VConverter := VLocalConverter.GetGeoConverter;
-    VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
+    VConverter.ValidatePixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
     VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
-    VMapType.GeoConvert.CheckLonLatPos(VMouseLonLat);
+    VMapType.GeoConvert.ValidateLonLatPos(VMouseLonLat);
     VTile :=
       PointFromDoublePoint(
         VMapType.GeoConvert.LonLat2TilePosFloat(VMouseLonLat, VZoomCurr),
@@ -4423,9 +4423,9 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VZoomCurr := VLocalConverter.GetZoom;
   VConverter := VLocalConverter.GetGeoConverter;
-  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
+  VConverter.ValidatePixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
   VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
-  VMapType.GeoConvert.CheckLonLatPos(VMouseLonLat);
+  VMapType.GeoConvert.ValidateLonLatPos(VMouseLonLat);
   VTile :=
     PointFromDoublePoint(
       VMapType.GeoConvert.LonLat2TilePosFloat(VMouseLonLat, VZoomCurr),
@@ -4590,9 +4590,9 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VZoomCurr := VLocalConverter.GetZoom;
   VConverter := VLocalConverter.GetGeoConverter;
-  if VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True) then begin
+  if VConverter.ValidatePixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True) then begin
     VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
-    if VMapType.GeoConvert.CheckLonLatPos(VMouseLonLat) then begin
+    if VMapType.GeoConvert.ValidateLonLatPos(VMouseLonLat) then begin
       VTile :=
         PointFromDoublePoint(
           VMapType.GeoConvert.LonLat2TilePosFloat(VMouseLonLat, VZoomCurr),
@@ -5230,7 +5230,7 @@ begin
   VConverter := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
+  VConverter.ValidatePixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
   GState.InternalBrowser.NavigatePost(
     NoaaForecastMeteorology1.Caption,
@@ -5260,9 +5260,9 @@ begin
     VConverter := VLocalConverter.GetGeoConverter;
     VZoomCurr := VLocalConverter.GetZoom;
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-    VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
+    VConverter.ValidatePixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
     VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
-    VMapType.GeoConvert.CheckLonLatPos(VMouseLonLat);
+    VMapType.GeoConvert.ValidateLonLatPos(VMouseLonLat);
     VTile :=
       PointFromDoublePoint(
         VMapType.GeoConvert.LonLat2TilePosFloat(VMouseLonLat, VZoomCurr),
@@ -5468,7 +5468,7 @@ begin
   VConverter := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(Point(x, y));
-  VIsClickInMap := VConverter.CheckPixelPosFloat(VMouseMapPoint, VZoom, False);
+  VIsClickInMap := VConverter.ValidatePixelPosFloat(VMouseMapPoint, VZoom, False);
   VClickLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
 
   if (Button = mbLeft) and (FState.State <> ao_movemap) then begin
@@ -5480,7 +5480,7 @@ begin
         VClickRect.Right := X + 5;
         VClickRect.Bottom := Y + 5;
         VClickMapRect := VLocalConverter.LocalRect2MapRectFloat(VClickRect);
-        VConverter.CheckPixelRectFloat(VClickMapRect, VZoom);
+        VConverter.ValidatePixelRectFloat(VClickMapRect, VZoom);
         VClickLonLatRect := VConverter.PixelRectFloat2LonLatRect(VClickMapRect, VZoom);
         if not FLineOnMapEdit.SelectPointInLonLatRect(VClickLonLatRect) then begin
           VVectorItem := nil;
@@ -5663,11 +5663,11 @@ begin
     VConverter := VLocalConverter.GetGeoConverter;
     VZoomCurr := VLocalConverter.GetZoom;
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(Point(x, y));
-    VValidPoint := VConverter.CheckPixelPosFloat(VMouseMapPoint, VZoomCurr, False);
+    VValidPoint := VConverter.ValidatePixelPosFloat(VMouseMapPoint, VZoomCurr, False);
     VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
 
     if VValidPoint then begin
-      if VMapType.GeoConvert.CheckLonLatPos(VLonLat) then begin
+      if VMapType.GeoConvert.ValidateLonLatPos(VLonLat) then begin
         VTile :=
           PointFromDoublePoint(
             VMapType.GeoConvert.LonLat2TilePosFloat(VLonLat, VZoomCurr),
@@ -5841,7 +5841,7 @@ begin
   VConverter := VLocalConverter.GetGeoConverter;
   VZoomCurr := VLocalConverter.GetZoom;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(VMousePos);
-  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, False);
+  VConverter.ValidatePixelPosFloatStrict(VMouseMapPoint, VZoomCurr, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
   if (FLineOnMapEdit <> nil) and (movepoint) then begin
     VMagnetPoint := CEmptyDoublePoint;
@@ -6350,7 +6350,7 @@ begin
   VConverter := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
+  VConverter.ValidatePixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
   CopyStringToClipboard(
     Handle,
@@ -6558,7 +6558,7 @@ begin
   VConverter := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
+  VConverter.ValidatePixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
   CopyStringToClipboard(
     Handle,
@@ -6618,7 +6618,7 @@ begin
   VConverter := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
   VMapRect := VLocalConverter.GetRectInMapPixelFloat;
-  VConverter.CheckPixelRectFloat(VMapRect, VZoom);
+  VConverter.ValidatePixelRectFloat(VMapRect, VZoom);
   VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
 
   VPolygon := GState.VectorGeometryLonLatFactory.CreateLonLatMultiPolygonByRect(VLonLatRect);
@@ -6700,10 +6700,10 @@ begin
   VConverter := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
+  VConverter.ValidatePixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
   VMapRect := VLocalConverter.GetRectInMapPixelFloat;
-  VConverter.CheckPixelRectFloat(VMapRect, VZoom);
+  VConverter.ValidatePixelRectFloat(VMapRect, VZoom);
   VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
   VImportConfig := FMarkDBGUI.EditModalImportConfig;
   if (nil = VImportConfig) then begin
@@ -6812,7 +6812,7 @@ begin
   VConverter := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
+  VConverter.ValidatePixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
   GState.InternalBrowser.Navigate(
     'http://api.geonames.org/srtm3',
@@ -6835,7 +6835,7 @@ begin
   VConverter := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
+  VConverter.ValidatePixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
   GState.InternalBrowser.Navigate(
     'http://api.geonames.org/gtopo30',
@@ -6858,7 +6858,7 @@ begin
   VConverter := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
+  VConverter.ValidatePixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
   CopyStringToClipboard(
     Handle,
@@ -6881,7 +6881,7 @@ begin
   VConverter := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
+  VConverter.ValidatePixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
   CopyStringToClipboard(
     Handle,
@@ -6905,7 +6905,7 @@ begin
   VConverter := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
+  VConverter.ValidatePixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
   CopyStringToClipboard(
     Handle,
@@ -6929,7 +6929,7 @@ begin
   VConverter := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
+  VConverter.ValidatePixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
   CopyStringToClipboard(
     Handle,

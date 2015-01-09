@@ -212,7 +212,7 @@ begin
     if AConfig.IgnoreCategoriesVisible or (Assigned(VList) and (VList.Count > 0)) then begin
       VGeoConverter := ALocalConverter.GetGeoConverter;
       VMapPixelRect := ALocalConverter.GetRectInMapPixelFloat;
-      VGeoConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
+      VGeoConverter.ValidatePixelRectFloat(VMapPixelRect, VZoom);
       VLonLatRect := VGeoConverter.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
       Result :=
         FMarkDB.MarkDb.GetMarkSubsetByCategoryListInRect(

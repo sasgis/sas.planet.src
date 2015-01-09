@@ -185,7 +185,7 @@ begin
 
   if VMapType <> nil then begin
     VZoom := cbbZoom.ItemIndex;
-    VMapType.GeoConvert.CheckZoom(VZoom);
+    VMapType.GeoConvert.ValidateZoom(VZoom);
     VPolyLL := FPolygLL;
     if VPolyLL <> nil then begin
       VProjected :=

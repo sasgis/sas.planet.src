@@ -73,7 +73,7 @@ begin
       if PointIsEmpty(VPoint) then begin
         APoint := VPoint;
       end else begin
-        FConverter.CheckLonLatPos(VPoint);
+        FConverter.ValidateLonLatPos(VPoint);
         APoint := FConverter.LonLat2PixelPosFloat(VPoint, FZoom);
       end;
       Result := True;

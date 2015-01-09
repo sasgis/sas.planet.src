@@ -35,55 +35,55 @@ type
   protected
     function GetValidLonLatRect: TDoubleRect;
 
-    procedure CheckZoomInternal(var AZoom: Byte); override;
+    procedure ValidateZoomInternal(var AZoom: Byte); override;
 
-    procedure CheckPixelPosInternal(
+    procedure ValidatePixelPosInternal(
       var XY: TPoint;
       var AZoom: byte
     ); override;
-    procedure CheckPixelPosStrictInternal(
+    procedure ValidatePixelPosStrictInternal(
       var XY: TPoint;
       var AZoom: byte
     ); override;
-    procedure CheckPixelPosFloatInternal(
+    procedure ValidatePixelPosFloatInternal(
       var XY: TDoublePoint;
       var AZoom: byte
     ); override;
-    procedure CheckPixelRectInternal(
+    procedure ValidatePixelRectInternal(
       var XY: TRect;
       var AZoom: byte
     ); override;
-    procedure CheckPixelRectFloatInternal(
+    procedure ValidatePixelRectFloatInternal(
       var XY: TDoubleRect;
       var AZoom: byte
     ); override;
 
-    procedure CheckTilePosInternal(
+    procedure ValidateTilePosInternal(
       var XY: TPoint;
       var AZoom: byte
     ); override;
-    procedure CheckTilePosStrictInternal(
+    procedure ValidateTilePosStrictInternal(
       var XY: TPoint;
       var AZoom: byte
     ); override;
-    procedure CheckTilePosFloatInternal(
+    procedure ValidateTilePosFloatInternal(
       var XY: TDoublePoint;
       var AZoom: byte
     ); override;
-    procedure CheckTileRectInternal(
+    procedure ValidateTileRectInternal(
       var XY: TRect;
       var AZoom: byte
     ); override;
-    procedure CheckTileRectFloatInternal(
+    procedure ValidateTileRectFloatInternal(
       var XY: TDoubleRect;
       var AZoom: byte
     ); override;
 
-    procedure CheckRelativePosInternal(var XY: TDoublePoint); override;
-    procedure CheckRelativeRectInternal(var XY: TDoubleRect); override;
+    procedure ValidateRelativePosInternal(var XY: TDoublePoint); override;
+    procedure ValidateRelativeRectInternal(var XY: TDoubleRect); override;
 
-    procedure CheckLonLatPosInternal(var XY: TDoublePoint); override;
-    procedure CheckLonLatRectInternal(var XY: TDoubleRect); override;
+    procedure ValidateLonLatPosInternal(var XY: TDoublePoint); override;
+    procedure ValidateLonLatRectInternal(var XY: TDoubleRect); override;
 
     function TileRectAtZoomInternal(const AZoom: byte): TRect; override;
     function PixelRectAtZoomInternal(const AZoom: byte): TRect; override;
@@ -262,56 +262,56 @@ type
       AZoom: byte
     ): TDoubleRect; override;
   protected
-    function CheckZoom(var AZoom: Byte): boolean; override;
-    function CheckTilePos(
+    function ValidateZoom(var AZoom: Byte): boolean; override;
+    function ValidateTilePos(
       var XY: TPoint;
       var AZoom: byte;
       ACicleMap: Boolean
     ): boolean; override;
-    function CheckTilePosStrict(
+    function ValidateTilePosStrict(
       var XY: TPoint;
       var AZoom: byte;
       ACicleMap: Boolean
     ): boolean; override;
-    function CheckTileRect(
+    function ValidateTileRect(
       var XY: TRect;
       var AZoom: byte
     ): boolean; override;
 
-    function CheckPixelPos(
+    function ValidatePixelPos(
       var XY: TPoint;
       var AZoom: byte;
       ACicleMap: Boolean
     ): boolean; override;
-    function CheckPixelPosFloat(
+    function ValidatePixelPosFloat(
       var XY: TDoublePoint;
       var AZoom: byte;
       ACicleMap: Boolean
     ): boolean; override;
-    function CheckPixelPosStrict(
+    function ValidatePixelPosStrict(
       var XY: TPoint;
       var AZoom: byte;
       ACicleMap: Boolean
     ): boolean; override;
-    function CheckPixelPosFloatStrict(
+    function ValidatePixelPosFloatStrict(
       var XY: TDoublePoint;
       var AZoom: byte;
       ACicleMap: Boolean
     ): boolean; override;
-    function CheckPixelRect(
+    function ValidatePixelRect(
       var XY: TRect;
       var AZoom: byte
     ): boolean; override;
-    function CheckPixelRectFloat(
+    function ValidatePixelRectFloat(
       var XY: TDoubleRect;
       var AZoom: byte
     ): boolean; override;
 
-    function CheckRelativePos(var XY: TDoublePoint): boolean; override;
-    function CheckRelativeRect(var XY: TDoubleRect): boolean; override;
+    function ValidateRelativePos(var XY: TDoublePoint): boolean; override;
+    function ValidateRelativeRect(var XY: TDoubleRect): boolean; override;
 
-    function CheckLonLatPos(var XY: TDoublePoint): boolean; override;
-    function CheckLonLatRect(var XY: TDoubleRect): boolean; override;
+    function ValidateLonLatPos(var XY: TDoublePoint): boolean; override;
+    function ValidateLonLatRect(var XY: TDoubleRect): boolean; override;
 
     function GetTileSplitCode: Integer; override;
     function GetTileSize(
@@ -362,13 +362,13 @@ var
 begin
   VXY := AXY;
   VZoom := AZoom;
-  CheckLonLatPosInternal(VXY);
+  ValidateLonLatPosInternal(VXY);
   if AZoom > 23 then begin
     VZoom := VZoom - 8;
-    CheckZoomInternal(VZoom);
+    ValidateZoomInternal(VZoom);
     Result := PointFromDoublePoint(Relative2PixelPosFloatInternal(LonLat2RelativeInternal(VXY), VZoom), prToTopLeft);
   end else begin
-    CheckZoomInternal(VZoom);
+    ValidateZoomInternal(VZoom);
     Result := PointFromDoublePoint(Relative2TilePosFloatInternal(LonLat2RelativeInternal(VXY), VZoom), prToTopLeft);
   end;
 end;
@@ -385,10 +385,10 @@ begin
   VZoom := AZoom;
   if AZoom > 23 then begin
     VZoom := VZoom - 8;
-    CheckPixelPosInternal(VXY, VZoom);
+    ValidatePixelPosInternal(VXY, VZoom);
     Result := PixelPos2LonLatInternal(VXY, VZoom);
   end else begin
-    CheckTilePosInternal(VXY, VZoom);
+    ValidateTilePosInternal(VXY, VZoom);
     Result := TilePos2LonLatInternal(VXY, VZoom);
   end;
 end;
@@ -407,7 +407,7 @@ begin
 end;
 
 //------------------------------------------------------------------------------
-procedure TCoordConverterBasic.CheckZoomInternal(var AZoom: Byte);
+procedure TCoordConverterBasic.ValidateZoomInternal(var AZoom: Byte);
 begin
   if AZoom > 23 then begin
     Assert(False, '—лишком большой зум ' + IntToStr(AZoom));
@@ -415,7 +415,7 @@ begin
   end;
 end;
 
-procedure TCoordConverterBasic.CheckTilePosInternal(
+procedure TCoordConverterBasic.ValidateTilePosInternal(
   var XY: TPoint;
   var AZoom: byte
 );
@@ -448,7 +448,7 @@ begin
   end;
 end;
 
-procedure TCoordConverterBasic.CheckTileRectInternal(
+procedure TCoordConverterBasic.ValidateTileRectInternal(
   var XY: TRect;
   var AZoom: byte
 );
@@ -498,7 +498,7 @@ begin
   end;
 end;
 
-procedure TCoordConverterBasic.CheckTilePosStrictInternal(
+procedure TCoordConverterBasic.ValidateTilePosStrictInternal(
   var XY: TPoint;
   var AZoom: byte
 );
@@ -530,7 +530,7 @@ begin
   end;
 end;
 
-procedure TCoordConverterBasic.CheckPixelPosInternal(
+procedure TCoordConverterBasic.ValidatePixelPosInternal(
   var XY: TPoint;
   var AZoom: byte
 );
@@ -569,7 +569,7 @@ begin
 
 end;
 
-procedure TCoordConverterBasic.CheckPixelRectInternal(
+procedure TCoordConverterBasic.ValidatePixelRectInternal(
   var XY: TRect;
   var AZoom: byte
 );
@@ -623,7 +623,7 @@ begin
   end;
 end;
 
-procedure TCoordConverterBasic.CheckPixelPosStrictInternal(
+procedure TCoordConverterBasic.ValidatePixelPosStrictInternal(
   var XY: TPoint;
   var AZoom: byte
 );
@@ -656,7 +656,7 @@ begin
   end;
 end;
 
-procedure TCoordConverterBasic.CheckRelativePosInternal(var XY: TDoublePoint);
+procedure TCoordConverterBasic.ValidateRelativePosInternal(var XY: TDoublePoint);
 begin
   if XY.X < 0 then begin
     Assert(False, 'ќтносительна€ координата X не может быть меньше нул€');
@@ -679,7 +679,7 @@ begin
   end;
 end;
 
-procedure TCoordConverterBasic.CheckRelativeRectInternal(var XY: TDoubleRect);
+procedure TCoordConverterBasic.ValidateRelativeRectInternal(var XY: TDoubleRect);
 begin
   if XY.Left < 0 then begin
     Assert(False, 'ќтносительна€ координата X не может быть меньше нул€');
@@ -722,7 +722,7 @@ begin
   end;
 end;
 
-procedure TCoordConverterBasic.CheckLonLatPosInternal(var XY: TDoublePoint);
+procedure TCoordConverterBasic.ValidateLonLatPosInternal(var XY: TDoublePoint);
 begin
   if XY.X < FValidLonLatRect.Left then begin
     Assert(False, 'ƒолгота не может быть меньше чем ' + FloatToStr(FValidLonLatRect.Left));
@@ -744,7 +744,7 @@ begin
   end;
 end;
 
-procedure TCoordConverterBasic.CheckLonLatRectInternal(var XY: TDoubleRect);
+procedure TCoordConverterBasic.ValidateLonLatRectInternal(var XY: TDoubleRect);
 begin
   if XY.Left < FValidLonLatRect.Left then begin
     Assert(False, 'ƒолгота не может быть меньше чем ' + FloatToStr(FValidLonLatRect.Left));
@@ -785,7 +785,7 @@ begin
   end;
 end;
 
-procedure TCoordConverterBasic.CheckTilePosFloatInternal(
+procedure TCoordConverterBasic.ValidateTilePosFloatInternal(
   var XY: TDoublePoint;
   var AZoom: byte
 );
@@ -817,7 +817,7 @@ begin
   end;
 end;
 
-procedure TCoordConverterBasic.CheckPixelRectFloatInternal(
+procedure TCoordConverterBasic.ValidatePixelRectFloatInternal(
   var XY: TDoubleRect;
   var AZoom: byte
 );
@@ -871,7 +871,7 @@ begin
   end;
 end;
 
-procedure TCoordConverterBasic.CheckPixelPosFloatInternal(
+procedure TCoordConverterBasic.ValidatePixelPosFloatInternal(
   var XY: TDoublePoint;
   var AZoom: byte
 );
@@ -905,7 +905,7 @@ begin
   end;
 end;
 
-procedure TCoordConverterBasic.CheckTileRectFloatInternal(
+procedure TCoordConverterBasic.ValidateTileRectFloatInternal(
   var XY: TDoubleRect;
   var AZoom: byte
 );
@@ -1482,7 +1482,7 @@ begin
 end;
 
 //------------------------------------------------------------------------------
-function TCoordConverterBasic.CheckZoom(var AZoom: Byte): boolean;
+function TCoordConverterBasic.ValidateZoom(var AZoom: Byte): boolean;
 begin
   Result := True;
   if AZoom > 23 then begin
@@ -1491,7 +1491,7 @@ begin
   end;
 end;
 
-function TCoordConverterBasic.CheckTilePos(
+function TCoordConverterBasic.ValidateTilePos(
   var XY: TPoint;
   var AZoom: byte;
   ACicleMap: Boolean
@@ -1535,7 +1535,7 @@ begin
   end;
 end;
 
-function TCoordConverterBasic.CheckTileRect(
+function TCoordConverterBasic.ValidateTileRect(
   var XY: TRect;
   var AZoom: byte
 ): boolean;
@@ -1590,7 +1590,7 @@ begin
   end;
 end;
 
-function TCoordConverterBasic.CheckTilePosStrict(
+function TCoordConverterBasic.ValidateTilePosStrict(
   var XY: TPoint;
   var AZoom: byte;
   ACicleMap: Boolean
@@ -1634,7 +1634,7 @@ begin
   end;
 end;
 
-function TCoordConverterBasic.CheckPixelPos(
+function TCoordConverterBasic.ValidatePixelPos(
   var XY: TPoint;
   var AZoom: byte;
   ACicleMap: Boolean
@@ -1690,7 +1690,7 @@ begin
   end;
 end;
 
-function TCoordConverterBasic.CheckPixelPosFloat(
+function TCoordConverterBasic.ValidatePixelPosFloat(
   var XY: TDoublePoint;
   var AZoom: byte;
   ACicleMap: Boolean
@@ -1735,7 +1735,7 @@ begin
   end;
 end;
 
-function TCoordConverterBasic.CheckPixelRect(
+function TCoordConverterBasic.ValidatePixelRect(
   var XY: TRect;
   var AZoom: byte
 ): boolean;
@@ -1822,7 +1822,7 @@ begin
   end;
 end;
 
-function TCoordConverterBasic.CheckPixelRectFloat(
+function TCoordConverterBasic.ValidatePixelRectFloat(
   var XY: TDoubleRect;
   var AZoom: byte
 ): boolean;
@@ -1877,7 +1877,7 @@ begin
   end;
 end;
 
-function TCoordConverterBasic.CheckPixelPosStrict(
+function TCoordConverterBasic.ValidatePixelPosStrict(
   var XY: TPoint;
   var AZoom: byte;
   ACicleMap: Boolean
@@ -1920,7 +1920,7 @@ begin
   end;
 end;
 
-function TCoordConverterBasic.CheckPixelPosFloatStrict(
+function TCoordConverterBasic.ValidatePixelPosFloatStrict(
   var XY: TDoublePoint;
   var AZoom: byte;
   ACicleMap: Boolean
@@ -1963,7 +1963,7 @@ begin
   end;
 end;
 
-function TCoordConverterBasic.CheckRelativePos(var XY: TDoublePoint): boolean;
+function TCoordConverterBasic.ValidateRelativePos(var XY: TDoublePoint): boolean;
 begin
   Result := True;
   if XY.X < 0 then begin
@@ -1987,7 +1987,7 @@ begin
   end;
 end;
 
-function TCoordConverterBasic.CheckRelativeRect(var XY: TDoubleRect): boolean;
+function TCoordConverterBasic.ValidateRelativeRect(var XY: TDoubleRect): boolean;
 begin
   Result := True;
   if XY.Left < 0 then begin
@@ -2031,7 +2031,7 @@ begin
   end;
 end;
 
-function TCoordConverterBasic.CheckLonLatPos(var XY: TDoublePoint): boolean;
+function TCoordConverterBasic.ValidateLonLatPos(var XY: TDoublePoint): boolean;
 begin
   Result := True;
   if XY.X < FValidLonLatRect.Left then begin
@@ -2054,7 +2054,7 @@ begin
   end;
 end;
 
-function TCoordConverterBasic.CheckLonLatRect(var XY: TDoubleRect): boolean;
+function TCoordConverterBasic.ValidateLonLatRect(var XY: TDoubleRect): boolean;
 begin
   Result := True;
   if XY.Left < FValidLonLatRect.Left then begin

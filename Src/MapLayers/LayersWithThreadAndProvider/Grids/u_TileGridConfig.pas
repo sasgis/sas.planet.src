@@ -113,7 +113,7 @@ begin
     Result := 0;
   end else begin
     Result := VZoom;
-    ALocalConverter.GetGeoConverter.CheckZoom(Result);
+    ALocalConverter.GetGeoConverter.ValidateZoom(Result);
   end;
 end;
 

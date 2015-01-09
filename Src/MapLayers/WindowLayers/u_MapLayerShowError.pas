@@ -281,9 +281,9 @@ begin
     VConverter := VMapType.GeoConvert;
     VZoom := VErrorInfo.Zoom;
     VTile := VErrorInfo.Tile;
-    VConverter.CheckTilePosStrict(VTile, VZoom, True);
+    VConverter.ValidateTilePosStrict(VTile, VZoom, True);
     VFixedLonLat := VConverter.PixelPosFloat2LonLat(RectCenter(VConverter.TilePos2PixelRect(VTile, VZoom)), VZoom);
-    ALocalConverter.GeoConverter.CheckLonLatPos(VFixedLonLat);
+    ALocalConverter.GeoConverter.ValidateLonLatPos(VFixedLonLat);
     VFixedOnView := ALocalConverter.LonLat2LocalPixelFloat(VFixedLonLat);
     if PixelPointInRect(VFixedOnView, DoubleRect(ALocalConverter.GetLocalRect)) then begin
       VMarker := FMarker;

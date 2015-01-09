@@ -141,7 +141,7 @@ begin
   VConverter := ALocalConverter.GetGeoConverter;
   VZoom := ALocalConverter.GetZoom;
   VMapRect := ALocalConverter.GetRectInMapPixelFloat;
-  VConverter.CheckPixelRectFloat(VMapRect, VZoom);
+  VConverter.ValidatePixelRectFloat(VMapRect, VZoom);
   VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
 
   VRadius := round(ALocalConverter.GetGeoConverter.Datum.CalcDist(VLonLatRect.TopLeft, VLonLatRect.BottomRight));

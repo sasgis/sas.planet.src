@@ -249,7 +249,7 @@ begin
   if VMapType = nil then begin
     raise Exception.CreateFmt('Map with GUID = %s not found', [VGuids]);
   end else begin
-    if not VMapType.GeoConvert.CheckZoom(VZoom) then begin
+    if not VMapType.GeoConvert.ValidateZoom(VZoom) then begin
       raise Exception.Create('Unknown zoom');
     end;
   end;

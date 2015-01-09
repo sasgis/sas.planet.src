@@ -254,7 +254,7 @@ begin
   VMarker := FMarkerProviderForVectorItem.GetMarker(FCaptionDrawConfigStatic, APoint);
   if VMarker <> nil then begin
     VLonLat := AGeometry.Point;
-    ALocalConverter.GeoConverter.CheckLonLatPos(VLonLat);
+    ALocalConverter.GeoConverter.ValidateLonLatPos(VLonLat);
     VLocalPoint := ALocalConverter.LonLat2LocalPixelFloat(VLonLat);
     if not ABitmapInited then begin
       InitBitmap(ATargetBmp, ALocalConverter);
@@ -363,7 +363,7 @@ begin
   VTargetRect := ALocalConverter.LocalRect2MapRectFloat(VRectWithDelta);
   VZoom := ALocalConverter.GetZoom;
   VConverter := ALocalConverter.GetGeoConverter;
-  VConverter.CheckPixelRectFloat(VTargetRect, VZoom);
+  VConverter.ValidatePixelRectFloat(VTargetRect, VZoom);
   VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VTargetRect, VZoom);
   VMarksSubset := FMarksSubset.GetSubsetByLonLatRect(VLonLatRect);
   Result := nil;

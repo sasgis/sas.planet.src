@@ -235,8 +235,8 @@ begin
   FProjection := AProjection;
   FZoom := FProjection.Zoom;
   FGeoConverter := FProjection.GeoConverter;
-  Assert(FProjection.GeoConverter.CheckPixelRect(FRectInMapPixel, FZoom));
-  Assert(FProjection.GeoConverter.CheckPixelRectFloat(FRectInMapPixelFloat, FZoom));
+  Assert(FProjection.GeoConverter.ValidatePixelRect(FRectInMapPixel, FZoom));
+  Assert(FProjection.GeoConverter.ValidatePixelRectFloat(FRectInMapPixelFloat, FZoom));
 end;
 
 function TLocalCoordConverterBase.GetCenterLonLat: TDoublePoint;

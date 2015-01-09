@@ -362,7 +362,7 @@ begin
       VSkipPoint := False;
       VPrevIsEmpty := False;
       VLonLat := VPrevLonLat;
-      VConverter.CheckLonLatPos(VLonLat);
+      VConverter.ValidateLonLatPos(VLonLat);
       VPrevProjected := VConverter.LonLat2PixelPosFloat(VLonLat, VZoom);
       while VEnum.Next(VCurrLonLat) do begin
         VCurrIsEmpty := PointIsEmpty(VCurrLonLat);
@@ -374,7 +374,7 @@ begin
             VTotalDist := VTotalDist + VDist;
           end;
           VLonLat := VCurrLonLat;
-          VConverter.CheckLonLatPos(VLonLat);
+          VConverter.ValidateLonLatPos(VLonLat);
           VCurrProjected := VConverter.LonLat2PixelPosFloat(VLonLat, VZoom);
           VSkipPoint :=
             (

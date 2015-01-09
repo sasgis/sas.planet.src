@@ -37,55 +37,55 @@ type
     FDatum: IDatum;
     FProjEPSG: integer;
   protected
-    procedure CheckZoomInternal(var AZoom: Byte); virtual; stdcall; abstract;
+    procedure ValidateZoomInternal(var AZoom: Byte); virtual; stdcall; abstract;
 
-    procedure CheckPixelPosInternal(
+    procedure ValidatePixelPosInternal(
       var XY: TPoint;
       var AZoom: byte
     ); virtual; stdcall; abstract;
-    procedure CheckPixelPosStrictInternal(
+    procedure ValidatePixelPosStrictInternal(
       var XY: TPoint;
       var AZoom: byte
     ); virtual; stdcall; abstract;
-    procedure CheckPixelPosFloatInternal(
+    procedure ValidatePixelPosFloatInternal(
       var XY: TDoublePoint;
       var AZoom: byte
     ); virtual; stdcall; abstract;
-    procedure CheckPixelRectInternal(
+    procedure ValidatePixelRectInternal(
       var XY: TRect;
       var AZoom: byte
     ); virtual; stdcall; abstract;
-    procedure CheckPixelRectFloatInternal(
+    procedure ValidatePixelRectFloatInternal(
       var XY: TDoubleRect;
       var AZoom: byte
     ); virtual; stdcall; abstract;
 
-    procedure CheckTilePosInternal(
+    procedure ValidateTilePosInternal(
       var XY: TPoint;
       var AZoom: byte
     ); virtual; stdcall; abstract;
-    procedure CheckTilePosStrictInternal(
+    procedure ValidateTilePosStrictInternal(
       var XY: TPoint;
       var AZoom: byte
     ); virtual; stdcall; abstract;
-    procedure CheckTilePosFloatInternal(
+    procedure ValidateTilePosFloatInternal(
       var XY: TDoublePoint;
       var AZoom: byte
     ); virtual; stdcall; abstract;
-    procedure CheckTileRectInternal(
+    procedure ValidateTileRectInternal(
       var XY: TRect;
       var AZoom: byte
     ); virtual; stdcall; abstract;
-    procedure CheckTileRectFloatInternal(
+    procedure ValidateTileRectFloatInternal(
       var XY: TDoubleRect;
       var AZoom: byte
     ); virtual; stdcall; abstract;
 
-    procedure CheckRelativePosInternal(var XY: TDoublePoint); virtual; stdcall; abstract;
-    procedure CheckRelativeRectInternal(var XY: TDoubleRect); virtual; stdcall; abstract;
+    procedure ValidateRelativePosInternal(var XY: TDoublePoint); virtual; stdcall; abstract;
+    procedure ValidateRelativeRectInternal(var XY: TDoubleRect); virtual; stdcall; abstract;
 
-    procedure CheckLonLatPosInternal(var XY: TDoublePoint); virtual; stdcall; abstract;
-    procedure CheckLonLatRectInternal(var XY: TDoubleRect); virtual; stdcall; abstract;
+    procedure ValidateLonLatPosInternal(var XY: TDoublePoint); virtual; stdcall; abstract;
+    procedure ValidateLonLatRectInternal(var XY: TDoubleRect); virtual; stdcall; abstract;
 
     function LonLat2MetrInternal(const Ll: TDoublePoint): TDoublePoint; virtual; stdcall; abstract;
     function Metr2LonLatInternal(const Mm: TDoublePoint): TDoublePoint; virtual; stdcall; abstract;
@@ -460,56 +460,56 @@ type
       const AZoom: byte
     ): TPoint; virtual; stdcall; abstract;
 
-    function CheckZoom(var AZoom: Byte): boolean; virtual; stdcall; abstract;
-    function CheckTilePos(
+    function ValidateZoom(var AZoom: Byte): boolean; virtual; stdcall; abstract;
+    function ValidateTilePos(
       var XY: TPoint;
       var AZoom: byte;
       ACicleMap: Boolean
     ): boolean; virtual; stdcall; abstract;
-    function CheckTilePosStrict(
+    function ValidateTilePosStrict(
       var XY: TPoint;
       var AZoom: byte;
       ACicleMap: Boolean
     ): boolean; virtual; stdcall; abstract;
-    function CheckTileRect(
+    function ValidateTileRect(
       var XY: TRect;
       var AZoom: byte
     ): boolean; virtual; stdcall; abstract;
 
-    function CheckPixelPos(
+    function ValidatePixelPos(
       var XY: TPoint;
       var AZoom: byte;
       ACicleMap: Boolean
     ): boolean; virtual; stdcall; abstract;
-    function CheckPixelPosFloat(
+    function ValidatePixelPosFloat(
       var XY: TDoublePoint;
       var AZoom: byte;
       ACicleMap: Boolean
     ): boolean; virtual; stdcall; abstract;
-    function CheckPixelPosStrict(
+    function ValidatePixelPosStrict(
       var XY: TPoint;
       var AZoom: byte;
       ACicleMap: Boolean
     ): boolean; virtual; stdcall; abstract;
-    function CheckPixelPosFloatStrict(
+    function ValidatePixelPosFloatStrict(
       var XY: TDoublePoint;
       var AZoom: byte;
       ACicleMap: Boolean
     ): boolean; virtual; stdcall; abstract;
-    function CheckPixelRect(
+    function ValidatePixelRect(
       var XY: TRect;
       var AZoom: byte
     ): boolean; virtual; stdcall; abstract;
-    function CheckPixelRectFloat(
+    function ValidatePixelRectFloat(
       var XY: TDoubleRect;
       var AZoom: byte
     ): boolean; virtual; stdcall; abstract;
 
-    function CheckRelativePos(var XY: TDoublePoint): boolean; virtual; stdcall; abstract;
-    function CheckRelativeRect(var XY: TDoubleRect): boolean; virtual; stdcall; abstract;
+    function ValidateRelativePos(var XY: TDoublePoint): boolean; virtual; stdcall; abstract;
+    function ValidateRelativeRect(var XY: TDoubleRect): boolean; virtual; stdcall; abstract;
 
-    function CheckLonLatPos(var XY: TDoublePoint): boolean; virtual; stdcall; abstract;
-    function CheckLonLatRect(var XY: TDoubleRect): boolean; virtual; stdcall; abstract;
+    function ValidateLonLatPos(var XY: TDoublePoint): boolean; virtual; stdcall; abstract;
+    function ValidateLonLatRect(var XY: TDoubleRect): boolean; virtual; stdcall; abstract;
     function GetTileSplitCode: Integer; virtual; stdcall; abstract;
     function LonLat2Metr(const AXY: TDoublePoint): TDoublePoint; stdcall;
     function Metr2LonLat(const AXY: TDoublePoint): TDoublePoint; stdcall;
@@ -539,7 +539,7 @@ var
 begin
   VXY := AXY;
   VZoom := AZoom;
-  CheckTilePosStrictInternal(VXY, VZoom);
+  ValidateTilePosStrictInternal(VXY, VZoom);
   Result := TilePos2PixelRectInternal(VXY, VZoom);
 end;
 
@@ -553,7 +553,7 @@ var
 begin
   VXY := AXY;
   VZoom := AZoom;
-  CheckTilePosStrictInternal(VXY, VZoom);
+  ValidateTilePosStrictInternal(VXY, VZoom);
   Result := TilePos2PixelRectFloatInternal(VXY, VZoom);
 end;
 
@@ -567,7 +567,7 @@ var
 begin
   VXY := AXY;
   VZoom := AZoom;
-  CheckTilePosStrictInternal(VXY, VZoom);
+  ValidateTilePosStrictInternal(VXY, VZoom);
   Result := TilePos2LonLatRectInternal(VXY, VZoom);
 end;
 
@@ -576,7 +576,7 @@ var
   VZoom: Byte;
 begin
   VZoom := AZoom;
-  CheckZoomInternal(VZoom);
+  ValidateZoomInternal(VZoom);
   Result := PixelsAtZoomInternal(VZoom);
 end;
 
@@ -585,7 +585,7 @@ var
   VZoom: Byte;
 begin
   VZoom := AZoom;
-  CheckZoomInternal(VZoom);
+  ValidateZoomInternal(VZoom);
   Result := PixelsAtZoomFloatInternal(VZoom);
 end;
 
@@ -594,7 +594,7 @@ var
   VZoom: Byte;
 begin
   VZoom := AZoom;
-  CheckZoomInternal(VZoom);
+  ValidateZoomInternal(VZoom);
   Result := PixelRectAtZoomInternal(VZoom);
 end;
 
@@ -603,7 +603,7 @@ var
   VZoom: Byte;
 begin
   VZoom := AZoom;
-  CheckZoomInternal(VZoom);
+  ValidateZoomInternal(VZoom);
   Result := TilesAtZoomInternal(VZoom);
 end;
 
@@ -612,7 +612,7 @@ var
   VZoom: Byte;
 begin
   VZoom := AZoom;
-  CheckZoomInternal(VZoom);
+  ValidateZoomInternal(VZoom);
   Result := TilesAtZoomFloatInternal(VZoom);
 end;
 
@@ -621,7 +621,7 @@ var
   VZoom: Byte;
 begin
   VZoom := AZoom;
-  CheckZoomInternal(VZoom);
+  ValidateZoomInternal(VZoom);
   Result := TileRectAtZoomInternal(VZoom);
 end;
 
@@ -635,7 +635,7 @@ var
 begin
   VXY := AXY;
   VZoom := AZoom;
-  CheckPixelPosInternal(VXY, VZoom);
+  ValidatePixelPosInternal(VXY, VZoom);
   Result := PixelPos2RelativeInternal(VXY, VZoom);
 end;
 
@@ -645,7 +645,7 @@ var
   VXY: TDoublePoint;
 begin
   VXY := AXY;
-  CheckRelativePosInternal(VXY);
+  ValidateRelativePosInternal(VXY);
   Result := Relative2LonLatInternal(VXY);
 end;
 
@@ -659,8 +659,8 @@ var
 begin
   VXY := AXY;
   VZoom := AZoom;
-  CheckRelativePosInternal(VXY);
-  CheckZoomInternal(VZoom);
+  ValidateRelativePosInternal(VXY);
+  ValidateZoomInternal(VZoom);
   Result := Relative2PixelPosFloatInternal(VXY, VZoom);
 end;
 
@@ -670,7 +670,7 @@ var
   VXY: TDoublePoint;
 begin
   VXY := AXY;
-  CheckLonLatPosInternal(VXY);
+  ValidateLonLatPosInternal(VXY);
   Result := LonLat2MetrInternal(VXY);
 end;
 
@@ -684,8 +684,8 @@ var
 begin
   VXY := AXY;
   VZoom := AZoom;
-  CheckLonLatPosInternal(VXY);
-  CheckZoomInternal(VZoom);
+  ValidateLonLatPosInternal(VXY);
+  ValidateZoomInternal(VZoom);
   Result := LonLat2PixelPosFloatInternal(VXY, VZoom);
 end;
 
@@ -699,7 +699,7 @@ var
 begin
   VXY := AXY;
   VZoom := AZoom;
-  CheckPixelPosInternal(VXY, VZoom);
+  ValidatePixelPosInternal(VXY, VZoom);
   Result := PixelPos2LonLatInternal(VXY, VZoom);
 end;
 
@@ -713,7 +713,7 @@ var
 begin
   VXY := AXY;
   VZoom := AZoom;
-  CheckTilePosInternal(VXY, VZoom);
+  ValidateTilePosInternal(VXY, VZoom);
   Result := TilePos2LonLatInternal(VXY, VZoom);
 end;
 
@@ -727,7 +727,7 @@ var
 begin
   VXY := AXY;
   VZoom := AZoom;
-  CheckTilePosInternal(VXY, VZoom);
+  ValidateTilePosInternal(VXY, VZoom);
   Result := TilePos2RelativeInternal(VXY, VZoom);
 end;
 
@@ -741,7 +741,7 @@ var
 begin
   VXY := AXY;
   VZoom := AZoom;
-  CheckTilePosStrictInternal(VXY, VZoom);
+  ValidateTilePosStrictInternal(VXY, VZoom);
   Result := TilePos2RelativeRectInternal(VXY, VZoom);
 end;
 
@@ -755,7 +755,7 @@ var
 begin
   VXY := XY;
   VZoom := AZoom;
-  CheckTilePosFloatInternal(VXY, VZoom);
+  ValidateTilePosFloatInternal(VXY, VZoom);
   Result := TilePosFloat2LonLatInternal(VXY, VZoom);
 end;
 
@@ -769,7 +769,7 @@ var
 begin
   VXY := XY;
   VZoom := AZoom;
-  CheckTilePosFloatInternal(VXY, VZoom);
+  ValidateTilePosFloatInternal(VXY, VZoom);
   Result := TilePosFloat2PixelPosFloatInternal(VXY, VZoom);
 end;
 
@@ -783,7 +783,7 @@ var
 begin
   VXY := XY;
   VZoom := AZoom;
-  CheckTilePosFloatInternal(VXY, VZoom);
+  ValidateTilePosFloatInternal(VXY, VZoom);
   Result := TilePosFloat2RelativeInternal(VXY, VZoom);
 end;
 
@@ -793,7 +793,7 @@ var
   VXY: TDoubleRect;
 begin
   VXY := AXY;
-  CheckLonLatRectInternal(VXY);
+  ValidateLonLatRectInternal(VXY);
   Result := LonLatRect2RelativeRectInternal(VXY);
 end;
 
@@ -807,8 +807,8 @@ var
 begin
   VXY := AXY;
   VZoom := AZoom;
-  CheckRelativePosInternal(VXY);
-  CheckZoomInternal(VZoom);
+  ValidateRelativePosInternal(VXY);
+  ValidateZoomInternal(VZoom);
   Result := Relative2TilePosFloatInternal(VXY, VZoom);
 end;
 
@@ -818,7 +818,7 @@ var
   VXY: TDoubleRect;
 begin
   VXY := AXY;
-  CheckRelativeRectInternal(VXY);
+  ValidateRelativeRectInternal(VXY);
   Result := RelativeRect2LonLatRectInternal(VXY);
 end;
 
@@ -832,8 +832,8 @@ var
 begin
   VXY := AXY;
   VZoom := AZoom;
-  CheckRelativeRectInternal(VXY);
-  CheckZoomInternal(VZoom);
+  ValidateRelativeRectInternal(VXY);
+  ValidateZoomInternal(VZoom);
   Result := RelativeRect2PixelRectFloatInternal(VXY, VZoom);
 end;
 
@@ -847,8 +847,8 @@ var
 begin
   VXY := AXY;
   VZoom := AZoom;
-  CheckRelativeRectInternal(VXY);
-  CheckZoomInternal(VZoom);
+  ValidateRelativeRectInternal(VXY);
+  ValidateZoomInternal(VZoom);
   Result := RelativeRect2TileRectFloatInternal(VXY, VZoom);
 end;
 
@@ -863,7 +863,7 @@ var
 begin
   VXY := AXY;
   VZoom := AZoom;
-  CheckPixelPosInternal(VXY, VZoom);
+  ValidatePixelPosInternal(VXY, VZoom);
   Result := PixelPos2TilePosInternal(VXY, VZoom, ARounding);
 end;
 
@@ -877,7 +877,7 @@ var
 begin
   VXY := XY;
   VZoom := AZoom;
-  CheckPixelPosInternal(VXY, VZoom);
+  ValidatePixelPosInternal(VXY, VZoom);
   Result := PixelPos2TilePosFloatInternal(VXY, VZoom);
 end;
 
@@ -891,7 +891,7 @@ var
 begin
   VXY := XY;
   VZoom := AZoom;
-  CheckPixelPosFloatInternal(VXY, VZoom);
+  ValidatePixelPosFloatInternal(VXY, VZoom);
   Result := PixelPosFloat2LonLatInternal(VXY, VZoom);
 end;
 
@@ -905,7 +905,7 @@ var
 begin
   VXY := XY;
   VZoom := AZoom;
-  CheckPixelPosFloatInternal(VXY, VZoom);
+  ValidatePixelPosFloatInternal(VXY, VZoom);
   Result := PixelPosFloat2RelativeInternal(VXY, VZoom);
 end;
 
@@ -919,7 +919,7 @@ var
 begin
   VXY := XY;
   VZoom := AZoom;
-  CheckPixelPosFloatInternal(VXY, VZoom);
+  ValidatePixelPosFloatInternal(VXY, VZoom);
   Result := PixelPosFloat2TilePosFloatInternal(VXY, VZoom);
 end;
 
@@ -933,7 +933,7 @@ var
 begin
   VXY := AXY;
   VZoom := AZoom;
-  CheckPixelRectInternal(VXY, VZoom);
+  ValidatePixelRectInternal(VXY, VZoom);
   Result := PixelRect2LonLatRectInternal(VXY, VZoom);
 end;
 
@@ -948,7 +948,7 @@ var
 begin
   VXY := AXY;
   VZoom := AZoom;
-  CheckPixelRectInternal(VXY, VZoom);
+  ValidatePixelRectInternal(VXY, VZoom);
   Result := PixelRect2TileRectInternal(VXY, VZoom);
 end;
 
@@ -962,7 +962,7 @@ var
 begin
   VXY := XY;
   VZoom := AZoom;
-  CheckPixelRectInternal(VXY, VZoom);
+  ValidatePixelRectInternal(VXY, VZoom);
   Result := PixelRect2TileRectFloatInternal(VXY, VZoom);
 end;
 
@@ -976,7 +976,7 @@ var
 begin
   VXY := XY;
   VZoom := AZoom;
-  CheckPixelRectFloatInternal(VXY, VZoom);
+  ValidatePixelRectFloatInternal(VXY, VZoom);
   Result := PixelRectFloat2LonLatRectInternal(VXY, VZoom);
 end;
 
@@ -990,7 +990,7 @@ var
 begin
   VXY := XY;
   VZoom := AZoom;
-  CheckPixelRectFloatInternal(VXY, VZoom);
+  ValidatePixelRectFloatInternal(VXY, VZoom);
   Result := PixelRectFloat2RelativeRectInternal(VXY, VZoom);
 end;
 
@@ -1004,7 +1004,7 @@ var
 begin
   VXY := XY;
   VZoom := AZoom;
-  CheckPixelRectFloatInternal(VXY, VZoom);
+  ValidatePixelRectFloatInternal(VXY, VZoom);
   Result := PixelRectFloat2TileRectFloatInternal(VXY, VZoom);
 end;
 
@@ -1018,7 +1018,7 @@ var
 begin
   VXY := AXY;
   VZoom := AZoom;
-  CheckTileRectInternal(VXY, VZoom);
+  ValidateTileRectInternal(VXY, VZoom);
   Result := TileRect2PixelRectInternal(VXY, VZoom);
 end;
 
@@ -1032,7 +1032,7 @@ var
 begin
   VXY := AXY;
   VZoom := AZoom;
-  CheckPixelRectInternal(VXY, VZoom);
+  ValidatePixelRectInternal(VXY, VZoom);
   Result := PixelRect2RelativeRectInternal(VXY, VZoom);
 end;
 
@@ -1046,7 +1046,7 @@ var
 begin
   VXY := AXY;
   VZoom := AZoom;
-  CheckTilePosInternal(VXY, VZoom);
+  ValidateTilePosInternal(VXY, VZoom);
   Result := TilePos2PixelPosInternal(VXY, VZoom);
 end;
 
@@ -1060,8 +1060,8 @@ var
 begin
   VXY := AXY;
   VZoom := AZoom;
-  CheckLonLatPosInternal(VXY);
-  CheckZoomInternal(VZoom);
+  ValidateLonLatPosInternal(VXY);
+  ValidateZoomInternal(VZoom);
   Result := LonLat2TilePosFloatInternal(VXY, VZoom);
 end;
 
@@ -1071,7 +1071,7 @@ var
   VXY: TDoublePoint;
 begin
   VXY := AXY;
-  CheckLonLatPosInternal(VXY);
+  ValidateLonLatPosInternal(VXY);
   Result := LonLat2RelativeInternal(VXY);
 end;
 
@@ -1085,7 +1085,7 @@ var
 begin
   VXY := AXY;
   VZoom := AZoom;
-  CheckTileRectInternal(VXY, VZoom);
+  ValidateTileRectInternal(VXY, VZoom);
   Result := TileRect2LonLatRectInternal(VXY, VZoom);
 end;
 
@@ -1099,7 +1099,7 @@ var
 begin
   VXY := AXY;
   VZoom := AZoom;
-  CheckTileRectInternal(VXY, VZoom);
+  ValidateTileRectInternal(VXY, VZoom);
   Result := TileRect2RelativeRectInternal(VXY, VZoom);
 end;
 
@@ -1113,7 +1113,7 @@ var
 begin
   VXY := XY;
   VZoom := AZoom;
-  CheckTileRectFloatInternal(VXY, VZoom);
+  ValidateTileRectFloatInternal(VXY, VZoom);
   Result := TileRectFloat2LonLatRectInternal(VXY, VZoom);
 end;
 
@@ -1127,7 +1127,7 @@ var
 begin
   VXY := XY;
   VZoom := AZoom;
-  CheckTileRectFloatInternal(VXY, VZoom);
+  ValidateTileRectFloatInternal(VXY, VZoom);
   Result := TileRectFloat2PixelRectFloatInternal(VXY, VZoom);
 end;
 
@@ -1141,7 +1141,7 @@ var
 begin
   VXY := XY;
   VZoom := AZoom;
-  CheckTileRectFloatInternal(VXY, VZoom);
+  ValidateTileRectFloatInternal(VXY, VZoom);
   Result := TileRectFloat2RelativeRectInternal(VXY, VZoom);
 end;
 
@@ -1155,8 +1155,8 @@ var
 begin
   VXY := XY;
   VZoom := AZoom;
-  CheckLonLatRectInternal(VXY);
-  CheckZoomInternal(VZoom);
+  ValidateLonLatRectInternal(VXY);
+  ValidateZoomInternal(VZoom);
   Result := LonLatRect2TileRectFloatInternal(VXY, VZoom);
 end;
 
@@ -1179,8 +1179,8 @@ var
 begin
   VXY := XY;
   VZoom := AZoom;
-  CheckLonLatRectInternal(VXY);
-  CheckZoomInternal(VZoom);
+  ValidateLonLatRectInternal(VXY);
+  ValidateZoomInternal(VZoom);
   Result := LonLatRect2PixelRectFloatInternal(VXY, VZoom);
 end;
 

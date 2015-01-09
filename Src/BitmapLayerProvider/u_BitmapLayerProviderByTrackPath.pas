@@ -282,7 +282,7 @@ begin
     VZoom := ALocalConverter.GetZoom;
     VConverter := ALocalConverter.GetGeoConverter;
     VTargetRect := ALocalConverter.GetRectInMapPixelFloat;
-    VConverter.CheckPixelRectFloat(VTargetRect, VZoom);
+    VConverter.ValidatePixelRectFloat(VTargetRect, VZoom);
     VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VTargetRect, VZoom);
     if IsIntersecLonLatRect(FLonLatRect, VLonLatRect) then begin
       VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
@@ -384,7 +384,7 @@ begin
     VPoint := FPointsLonLat[i];
     VCurrPointIsEmpty := PointIsEmpty(VPoint.Point);
     if not VCurrPointIsEmpty then begin
-      VGeoConverter.CheckLonLatPos(VPoint.Point);
+      VGeoConverter.ValidateLonLatPos(VPoint.Point);
       if FRectIsEmpty then begin
         FLonLatRect.TopLeft := VPoint.Point;
         FLonLatRect.BottomRight := VPoint.Point;

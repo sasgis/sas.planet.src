@@ -121,7 +121,7 @@ begin
     Result := 0;
   end else begin
     Result := VZoom;
-    ALocalConverter.GetGeoConverter.CheckZoom(Result);
+    ALocalConverter.GetGeoConverter.ValidateZoom(Result);
   end;
 end;
 
@@ -190,14 +190,14 @@ begin
     VTargetZoom := ALocalConverter.Zoom;
 
     VTargetMapPixelRect := ALocalConverter.GetRectInMapPixelFloat;
-    VTargetConverter.CheckPixelRectFloat(VTargetMapPixelRect, VTargetZoom);
+    VTargetConverter.ValidatePixelRectFloat(VTargetMapPixelRect, VTargetZoom);
 
     VSameSourceAndTarget := VSourceConverter.IsSameConverter(VTargetConverter);
     if VSameSourceAndTarget then begin
       VSourceRelativeRect := VSourceConverter.PixelRectFloat2RelativeRect(VTargetMapPixelRect, VTargetZoom);
     end else begin
       VLonLatRect := VTargetConverter.PixelRectFloat2LonLatRect(VTargetMapPixelRect, VTargetZoom);
-      VSourceConverter.CheckLonLatRect(VLonLatRect);
+      VSourceConverter.ValidateLonLatRect(VLonLatRect);
       VSourceRelativeRect := VSourceConverter.LonLatRect2RelativeRect(VLonLatRect);
     end;
     VSourceTileRect :=
@@ -219,7 +219,7 @@ begin
             VRelativeRectOfTile := VSourceConverter.TilePos2RelativeRect(VTileInfo.FTile, ASourceZoom);
           end else begin
             VLonLatRectOfTile := VSourceConverter.TilePos2LonLatRect(VTileInfo.FTile, ASourceZoom);
-            VTargetConverter.CheckLonLatRect(VLonLatRectOfTile);
+            VTargetConverter.ValidateLonLatRect(VLonLatRectOfTile);
             VRelativeRectOfTile := VTargetConverter.LonLatRect2RelativeRect(VLonLatRectOfTile);
           end;
           VMapPixelRectOfTile := VTargetConverter.RelativeRect2PixelRectFloat(VRelativeRectOfTile, VTargetZoom);

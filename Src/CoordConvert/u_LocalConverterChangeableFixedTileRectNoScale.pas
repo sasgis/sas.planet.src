@@ -131,7 +131,7 @@ begin
   VConverter := AVisualCoordConverter.GetGeoConverter;
   VZoom := AVisualCoordConverter.GetZoom;
   VSourcePixelRect := AVisualCoordConverter.GetRectInMapPixel;
-  VConverter.CheckPixelRect(VSourcePixelRect, VZoom);
+  VConverter.ValidatePixelRect(VSourcePixelRect, VZoom);
   VTileRect := VConverter.PixelRect2TileRect(VSourcePixelRect, VZoom);
   VResultMapPixelRect := VConverter.TileRect2PixelRect(VTileRect, VZoom);
 

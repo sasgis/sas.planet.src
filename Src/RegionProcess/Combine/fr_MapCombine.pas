@@ -327,7 +327,7 @@ begin
   end; //calc for layer if map is not selected
   if Vmt <> nil then begin
     VZoom := cbbZoom.ItemIndex;
-    Vmt.GeoConvert.CheckZoom(VZoom);
+    Vmt.GeoConvert.ValidateZoom(VZoom);
     VPolyLL := FPolygLL;
     if VPolyLL <> nil then begin
       VProjected :=

@@ -382,7 +382,7 @@ begin
     if FState.GetStatic.Enabled then begin
       VZoom := AZoom;
       VTile := AXY;
-      if FCoordConverter.CheckTilePosStrict(VTile, VZoom, False) then begin
+      if FCoordConverter.ValidateTilePosStrict(VTile, VZoom, False) then begin
         if ACheckTileSize then begin
           VRequest :=
             TTileRequestWithSizeCheck.Create(
