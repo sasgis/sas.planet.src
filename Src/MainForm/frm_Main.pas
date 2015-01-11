@@ -4416,7 +4416,6 @@ var
   VMouseLonLat: TDoublePoint;
   VTile: TPoint;
   VMapType: IMapType;
-  VCommandLine: AnsiString;
 begin
   if TMenuItem(Sender).Tag <> 0 then begin
     VMapType := IMapType(TMenuItem(Sender).Tag);
@@ -4438,8 +4437,7 @@ begin
     );
   VTileFileName := VMapType.TileStorage.GetTileFileName(VTile, VZoomCurr, VMapType.VersionRequestConfig.GetStatic.BaseVersion);
   if DirectoryExists(ExtractFilePath(VTileFileName)) then begin
-    VCommandLine := 'explorer /select,' + AnsiString(VTileFileName);
-    WinExec(PAnsiChar(VCommandLine), SW_SHOWNORMAL);
+    SelectFileInExplorer(VTileFileName);
   end else begin
     ShowMessageFmt(SAS_ERR_DirectoryNotExistFmt, [VTileFileName]);
   end;
