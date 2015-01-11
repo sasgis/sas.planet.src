@@ -4400,7 +4400,7 @@ begin
         prToTopLeft
       );
     VFileName := VMapType.TileStorage.GetTileFileName(VTile, VZoomCurr, VMapType.VersionRequestConfig.GetStatic.BaseVersion);
-    ShellExecute(0, 'open', PChar(VFileName), nil, nil, SW_SHOWNORMAL);
+    OpenFileInDefaultProgram(VFileName);
   end else begin
     ShowMessage(SAS_MSG_CantGetTileFileName);
   end;

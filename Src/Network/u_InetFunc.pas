@@ -23,6 +23,7 @@ unit u_InetFunc;
 interface
 
 procedure OpenUrlInBrowser(const URL: string);
+procedure OpenFileInDefaultProgram(const AFullFileName: string);
 procedure SelectFileInExplorer(const AFullFileName: String);
 
 function IsGZipped(const AHeader: AnsiString): Boolean;
@@ -31,13 +32,51 @@ implementation
 
 uses
   Windows,
+  ActiveX,
   ShellAPI,
   SysUtils,
   ALString;
 
+procedure ShellExecute(const AWnd: HWND; const AOperation, AFileName: String; const AParameters: String = ''; const ADirectory: String = ''; const AShowCmd: Integer = SW_SHOWNORMAL);
+var
+  ExecInfo: TShellExecuteInfo;
+  NeedUninitialize: Boolean;
+begin
+  Assert(AFileName <> '');
+
+  NeedUninitialize := SUCCEEDED(CoInitializeEx(nil, COINIT_APARTMENTTHREADED or COINIT_DISABLE_OLE1DDE));
+  try
+    FillChar(ExecInfo, SizeOf(ExecInfo), 0);
+    ExecInfo.cbSize := SizeOf(ExecInfo);
+
+    ExecInfo.Wnd := AWnd;
+    ExecInfo.lpVerb := Pointer(AOperation);
+    ExecInfo.lpFile := PChar(AFileName);
+    ExecInfo.lpParameters := Pointer(AParameters);
+    ExecInfo.lpDirectory := Pointer(ADirectory);
+    ExecInfo.nShow := AShowCmd;
+    ExecInfo.fMask := SEE_MASK_FLAG_DDEWAIT //SEE_MASK_NOASYNC { = SEE_MASK_FLAG_DDEWAIT для старых версий Delphi }
+                   or SEE_MASK_FLAG_NO_UI;
+
+    {$WARN SYMBOL_PLATFORM OFF}
+    Win32Check(ShellExecuteEx(@ExecInfo));
+    {$WARN SYMBOL_PLATFORM ON}
+  finally
+    if NeedUninitialize then
+      CoUninitialize;
+  end;
+end;
+
 procedure OpenUrlInBrowser(const URL: string);
 begin
-  ShellExecute(0, nil, PChar(URL), nil, nil, SW_RESTORE);
+  Assert(URL <> '');
+  ShellExecute(0, '', URL);
+end;
+
+procedure OpenFileInDefaultProgram(const AFullFileName: string);
+begin
+  Assert(AFullFileName <> '');
+  ShellExecute(0, '', AFullFileName);
 end;
 
 procedure SelectFileInExplorer(const AFullFileName: String);
