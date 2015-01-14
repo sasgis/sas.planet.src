@@ -3,7 +3,8 @@ unit i_TileRect;
 interface
 
 uses
-  Types;
+  Types,
+  i_ProjectionInfo;
 
 type
   ITileRect = interface
@@ -27,6 +28,9 @@ type
 
     function GetZoom: Byte;
     property Zoom: Byte read GetZoom;
+
+    function GetProjectionInfo: IProjectionInfo;
+    property ProjectionInfo: IProjectionInfo read GetProjectionInfo;
 
     function IsEqual(const ARect: TRect): Boolean; overload;
     function IsEqual(const ARect: ITileRect): Boolean; overload;
