@@ -125,7 +125,9 @@ type
 implementation
 
 uses
+  {$WARN UNIT_PLATFORM OFF}
   FileCtrl,
+  {$WARN UNIT_PLATFORM ON}
   SysUtils,
   t_CommonTypes,
   c_CacheTypeCodes,
