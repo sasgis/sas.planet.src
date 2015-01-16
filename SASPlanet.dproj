@@ -438,6 +438,7 @@
     <DCCReference Include="Src\i_TileKey.pas" />
     <DCCReference Include="Src\i_TileObjCache.pas" />
     <DCCReference Include="Src\i_TileRect.pas" />
+    <DCCReference Include="Src\i_TileRectChangeable.pas" />
     <DCCReference Include="Src\i_TreeChangeable.pas" />
     <DCCReference Include="Src\i_UrlByCoordProvider.pas" />
     <DCCReference Include="Src\i_UsedMarksConfig.pas" />

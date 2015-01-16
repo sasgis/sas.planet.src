@@ -236,6 +236,7 @@ uses
   u_TileKey in 'Src\u_TileKey.pas',
   i_TileRect in 'Src\i_TileRect.pas',
   u_TileRect in 'Src\u_TileRect.pas',
+  i_TileRectChangeable in 'Src\i_TileRectChangeable.pas',
   i_TileObjCache in 'Src\i_TileObjCache.pas',
   u_MemTileCache in 'Src\u_MemTileCache.pas',
   i_Appearance in 'Src\Vector\i_Appearance.pas',
