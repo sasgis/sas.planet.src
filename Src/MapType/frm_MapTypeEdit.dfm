@@ -68,6 +68,20 @@ object frmMapTypeEdit: TfrmMapTypeEdit
           TabOrder = 1
           OnClick = btnResetFolderClick
         end
+        object BtnSelectPath: TButton
+          Tag = 2
+          Left = 383
+          Top = 3
+          Width = 23
+          Height = 27
+          Align = alRight
+          Caption = '...'
+          TabOrder = 2
+          OnClick = BtnSelectPathClick
+          ExplicitLeft = 25
+          ExplicitTop = 2
+          ExplicitHeight = 19
+        end
       end
       object pnlCacheType: TPanel
         Left = 0

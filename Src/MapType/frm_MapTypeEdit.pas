@@ -94,6 +94,7 @@ type
     mmoParams: TMemo;
     mmoScript: TMemo;
     mmoInfo: TMemo;
+    BtnSelectPath: TButton;
     procedure btnOkClick(Sender: TObject);
     procedure FormClose(
       Sender: TObject;
@@ -108,6 +109,7 @@ type
     procedure btnResetCacheTypeClick(Sender: TObject);
     procedure btnResetVersionClick(Sender: TObject);
     procedure btnResetHeaderClick(Sender: TObject);
+    procedure BtnSelectPathClick(Sender: TObject);
   private
     FTileStorageTypeList: ITileStorageTypeListStatic;
     FMapType: IMapType;
@@ -123,6 +125,8 @@ type
 implementation
 
 uses
+  FileCtrl,
+  SysUtils,
   t_CommonTypes,
   c_CacheTypeCodes,
   i_TileDownloaderState,
@@ -264,6 +268,16 @@ end;
 procedure TfrmMapTypeEdit.btnResetVersionClick(Sender: TObject);
 begin
   edtVersion.Text := FMapType.Zmp.VersionConfig.StoreString;
+end;
+
+procedure TfrmMapTypeEdit.BtnSelectPathClick(Sender: TObject);
+var
+  TempPath: string;
+begin
+  TempPath := EditNameinCache.text;
+  if SelectDirectory('Cache folder', '', TempPath) then begin
+    EditNameinCache.Text := IncludeTrailingPathDelimiter(TempPath);
+  end;
 end;
 
 procedure TfrmMapTypeEdit.FormClose(
