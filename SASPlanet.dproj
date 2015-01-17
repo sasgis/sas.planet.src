@@ -1378,6 +1378,8 @@
     <DCCReference Include="Src\u_TileIteratorSpiralByRect.pas" />
     <DCCReference Include="Src\u_TileKey.pas" />
     <DCCReference Include="Src\u_TileRect.pas" />
+    <DCCReference Include="Src\u_TileRectChangeableByLocalConverter.pas" />
+    <DCCReference Include="Src\u_TileRectChangeableByOtherTileRect.pas" />
     <DCCReference Include="Src\u_TileRectInfo.pas" />
     <DCCReference Include="Src\u_TileRectInfoShort.pas" />
     <DCCReference Include="Src\u_TileUpdateListenerToLonLat.pas" />

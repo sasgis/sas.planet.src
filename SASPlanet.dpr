@@ -237,6 +237,8 @@ uses
   i_TileRect in 'Src\i_TileRect.pas',
   u_TileRect in 'Src\u_TileRect.pas',
   i_TileRectChangeable in 'Src\i_TileRectChangeable.pas',
+  u_TileRectChangeableByLocalConverter in 'Src\u_TileRectChangeableByLocalConverter.pas',
+  u_TileRectChangeableByOtherTileRect in 'Src\u_TileRectChangeableByOtherTileRect.pas',
   i_TileObjCache in 'Src\i_TileObjCache.pas',
   u_MemTileCache in 'Src\u_MemTileCache.pas',
   i_Appearance in 'Src\Vector\i_Appearance.pas',
