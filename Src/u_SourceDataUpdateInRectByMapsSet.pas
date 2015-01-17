@@ -26,6 +26,7 @@ uses
   SysUtils,
   i_ObjectWithListener,
   i_Listener,
+  i_TileRect,
   i_LocalCoordConverter,
   i_MapTypeSet,
   i_MapTypeSetChangeable,
@@ -44,7 +45,7 @@ type
     FMapListeners: IInterfaceListStatic;
 
     FListener: IListener;
-    FListenLocalConverter: ILocalCoordConverter;
+    FListenTileRect: ITileRect;
     procedure OnTileUpdate(const AMsg: IInterface);
     procedure OnMapSetChange;
 
@@ -53,13 +54,17 @@ type
     );
     procedure _SetListeners(
       const AMapsListened: IMapTypeSet;
-      const ALocalConverter: ILocalCoordConverter
+      const ATileRect: ITileRect
     );
   private
     procedure SetListener(
       const AListener: IListener;
       const ALocalConverter: ILocalCoordConverter
-    );
+    ); overload;
+    procedure SetListener(
+      const AListener: IListener;
+      const ATileRect: ITileRect
+    ); overload;
     procedure RemoveListener;
 
   public
@@ -83,6 +88,7 @@ uses
   u_ListenerByEvent,
   u_TileUpdateListenerToLonLat,
   u_GeoFunc,
+  u_TileRect,
   u_Synchronizer;
 
 { TSourceDataUpdateInRectByMapsSet }
@@ -120,14 +126,14 @@ begin
   FCS.BeginWrite;
   try
     if Assigned(FMapsListened) and not FMapsListened.IsEqual(VMapSet) then begin
-      if Assigned(FListener) and Assigned(FListenLocalConverter) then begin
+      if Assigned(FListener) and Assigned(FListenTileRect) then begin
         _RemoveListeners(FMapsListened);
       end;
       FMapListeners := nil;
     end;
     if Assigned(VMapSet) and not VMapSet.IsEqual(FMapsListened) then begin
-      if Assigned(FListener) and Assigned(FListenLocalConverter) then begin
-        _SetListeners(VMapSet, FListenLocalConverter);
+      if Assigned(FListener) and Assigned(FListenTileRect) then begin
+        _SetListeners(VMapSet, FListenTileRect);
       end;
     end;
     FMapsListened := VMapSet;
@@ -160,11 +166,11 @@ procedure TSourceDataUpdateInRectByMapsSet.RemoveListener;
 begin
   FCS.BeginWrite;
   try
-    if Assigned(FListener) and Assigned(FListenLocalConverter) and Assigned(FMapsListened) then begin
+    if Assigned(FListener) and Assigned(FListenTileRect) and Assigned(FMapsListened) then begin
       _RemoveListeners(FMapsListened);
     end;
     FListener := nil;
-    FListenLocalConverter := nil;
+    FListenTileRect := nil;
   finally
     FCS.EndWrite;
   end;
@@ -199,24 +205,69 @@ procedure TSourceDataUpdateInRectByMapsSet.SetListener(
   const AListener: IListener;
   const ALocalConverter: ILocalCoordConverter
 );
+var
+  VZoom: Byte;
+  VSourceTileRect: ITileRect;
+  VConverter: ICoordConverter;
+  VPixelRect: TDoubleRect;
+  VTileRectFloat: TDoubleRect;
+  VTileRect: TRect;
 begin
   FCS.BeginWrite;
   try
     if not Assigned(AListener) or not Assigned(ALocalConverter) then begin
-      if Assigned(FListener) and Assigned(FListenLocalConverter) and Assigned(FMapsListened) then begin
+      if Assigned(FListener) and Assigned(FListenTileRect) and Assigned(FMapsListened) then begin
         _RemoveListeners(FMapsListened);
       end;
       FListener := nil;
-      FListenLocalConverter := nil;
+      FListenTileRect := nil;
     end else begin
-      if not ALocalConverter.GetIsSameConverter(FListenLocalConverter) then begin
-        if Assigned(FListener) and Assigned(FListenLocalConverter) and Assigned(FMapsListened) then begin
+      VZoom := ALocalConverter.Zoom;
+      VConverter := ALocalConverter.GeoConverter;
+      VPixelRect := ALocalConverter.GetRectInMapPixelFloat;
+      VConverter.ValidatePixelRectFloat(VPixelRect, VZoom);
+      VTileRectFloat := VConverter.PixelRectFloat2TileRectFloat(VPixelRect, VZoom);
+      VTileRect := RectFromDoubleRect(VTileRectFloat, rrOutside);
+      Assert(VConverter.CheckTileRect(VTileRect, VZoom));
+      VSourceTileRect := TTileRect.Create(ALocalConverter.ProjectionInfo, VTileRect);
+      if not VSourceTileRect.IsEqual(FListenTileRect) then begin
+        if Assigned(FListener) and Assigned(FListenTileRect) and Assigned(FMapsListened) then begin
           _RemoveListeners(FMapsListened);
         end;
         if Assigned(FMapsListened) then begin
-          _SetListeners(FMapsListened, ALocalConverter);
+          _SetListeners(FMapsListened, VSourceTileRect);
         end;
-        FListenLocalConverter := ALocalConverter;
+        FListenTileRect := VSourceTileRect;
+      end;
+      FListener := AListener;
+    end;
+  finally
+    FCS.EndWrite;
+  end;
+end;
+
+procedure TSourceDataUpdateInRectByMapsSet.SetListener(
+  const AListener: IListener;
+  const ATileRect: ITileRect
+);
+begin
+  FCS.BeginWrite;
+  try
+    if not Assigned(AListener) or not Assigned(ATileRect) then begin
+      if Assigned(FListener) and Assigned(FListenTileRect) and Assigned(FMapsListened) then begin
+        _RemoveListeners(FMapsListened);
+      end;
+      FListener := nil;
+      FListenTileRect := nil;
+    end else begin
+      if not ATileRect.IsEqual(FListenTileRect) then begin
+        if Assigned(FListener) and Assigned(FListenTileRect) and Assigned(FMapsListened) then begin
+          _RemoveListeners(FMapsListened);
+        end;
+        if Assigned(FMapsListened) then begin
+          _SetListeners(FMapsListened, ATileRect);
+        end;
+        FListenTileRect := ATileRect;
       end;
       FListener := AListener;
     end;
@@ -227,7 +278,7 @@ end;
 
 procedure TSourceDataUpdateInRectByMapsSet._SetListeners(
   const AMapsListened: IMapTypeSet;
-  const ALocalConverter: ILocalCoordConverter
+  const ATileRect: ITileRect
 );
 var
   VListeners: IInterfaceListSimple;
@@ -237,7 +288,6 @@ var
   VZoom: Byte;
   VTileRect: TRect;
   VLonLatRect: TDoubleRect;
-  VMapRect: TDoubleRect;
   VConverter: ICoordConverter;
   VMapLonLatRect: TDoubleRect;
   VNotifier: INotifierTilePyramidUpdate;
@@ -254,11 +304,9 @@ begin
     end;
     FMapListeners := VListeners.MakeStaticAndClear;
   end;
-  VZoom := ALocalConverter.Zoom;
-  VConverter := ALocalConverter.GeoConverter;
-  VMapRect := ALocalConverter.GetRectInMapPixelFloat;
-  VConverter.ValidatePixelRectFloat(VMapRect, VZoom);
-  VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
+  VZoom := ATileRect.ProjectionInfo.Zoom;
+  VConverter := ATileRect.ProjectionInfo.GeoConverter;
+  VLonLatRect := VConverter.TileRect2LonLatRect(ATileRect.Rect, VZoom);
   for i := 0 to AMapsListened.Count - 1 do begin
     VMap := AMapsListened.Items[i];
     if VMap <> nil then begin

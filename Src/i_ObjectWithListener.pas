@@ -24,6 +24,7 @@ interface
 
 uses
   i_Listener,
+  i_TileRect,
   i_LocalCoordConverter;
 
 type
@@ -32,7 +33,11 @@ type
     procedure SetListener(
       const AListener: IListener;
       const ALocalConverter: ILocalCoordConverter
-    );
+    ); overload;
+    procedure SetListener(
+      const AListener: IListener;
+      const ATileRect: ITileRect
+    ); overload;
     procedure RemoveListener;
   end;
 
