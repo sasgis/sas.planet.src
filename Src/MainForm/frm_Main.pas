@@ -926,7 +926,7 @@ uses
   u_SourceDataUpdateInRectByMapsSet,
   u_TiledLayerWithThreadBase,
   u_BitmapLayerProviderChangeableForGrids,
-  u_MapLayerVectorMaps,
+  u_BitmapLayerProviderChangeableForVectorMaps,
   u_MiniMapLayer,
   u_MiniMapLayerViewRect,
   u_MiniMapLayerTopBorder,
@@ -1877,25 +1877,36 @@ begin
       TMarkerDrawableSimpleSquare,
       FConfig.LayersConfig.KmlLayerConfig.PointMarkerConfig
     );
-  VLayersList.Add(
-    TMapLayerVectorMaps.Create(
+  VTileMatrixFactory :=
+    TTileMatrixFactory.Create(
+      VTileMatrixDraftResampler,
+      GState.Bitmap32StaticFactory,
+      GState.LocalConverterFactory
+    );
+  VProvider :=
+    TBitmapLayerProviderChangeableForVectorMaps.Create(
+      FConfig.LayersConfig.KmlLayerConfig.DrawConfig,
+      VMarkerChangeable,
+      GState.Bitmap32StaticFactory,
+      GState.ProjectedGeometryProvider,
+      VVectorItems
+    );
+  VLayer :=
+    TTiledLayerWithThreadBase.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
       VTileRectForShow,
       FViewPortState.View,
-      VTileMatrixDraftResampler,
-      GState.LocalConverterFactory,
-      GState.ProjectedGeometryProvider,
+      VTileMatrixFactory,
+      VProvider,
+      nil,
       GState.GUISyncronizedTimerNotifier,
-      VVectorItems,
-      GState.Bitmap32StaticFactory,
-      VMarkerChangeable,
-      FConfig.LayersConfig.KmlLayerConfig.DrawConfig,
-      FConfig.LayersConfig.KmlLayerConfig.ThreadConfig
-    )
-  );
+      FConfig.LayersConfig.KmlLayerConfig.ThreadConfig,
+      'TMapLayerVectorMaps'
+    );
+  VLayersList.Add(VLayer);
   // Filling map layer
   VLayersList.Add(
     TMapLayerFillingMap.Create(
@@ -2259,25 +2270,36 @@ begin
       VPerfList.CreateAndAddNewCounter('FindItems'),
       6
     );
-  VLayersList.Add(
-    TMapLayerVectorMaps.Create(
+  VTileMatrixFactory :=
+    TTileMatrixFactory.Create(
+      VTileMatrixDraftResampler,
+      GState.Bitmap32StaticFactory,
+      GState.LocalConverterFactory
+    );
+  VProvider :=
+    TBitmapLayerProviderChangeableForVectorMaps.Create(
+      FConfig.LayersConfig.KmlLayerConfig.DrawConfig,
+      VMarkerChangeable,
+      GState.Bitmap32StaticFactory,
+      GState.ProjectedGeometryProvider,
+      VVectorItems
+    );
+  VLayer :=
+    TTiledLayerWithThreadBase.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
       VTileRectForShow,
       FViewPortState.View,
-      VTileMatrixDraftResampler,
-      GState.LocalConverterFactory,
-      GState.ProjectedGeometryProvider,
+      VTileMatrixFactory,
+      VProvider,
+      nil,
       GState.GUISyncronizedTimerNotifier,
-      VVectorItems,
-      GState.Bitmap32StaticFactory,
-      VMarkerChangeable,
-      FConfig.LayersConfig.KmlLayerConfig.DrawConfig,
-      FConfig.LayersConfig.KmlLayerConfig.ThreadConfig
-    )
-  );
+      FConfig.LayersConfig.KmlLayerConfig.ThreadConfig,
+      'TMapLayerVectorMaps'
+    );
+  VLayersList.Add(VLayer);
   // Goto marker visualisation layer
   VBitmap :=
     ReadBitmapByFileRef(

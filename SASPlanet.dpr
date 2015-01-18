@@ -373,7 +373,6 @@ uses
   u_VectorItemDrawConfig in 'Src\MapLayers\u_VectorItemDrawConfig.pas',
   i_KmlLayerConfig in 'Src\MapLayers\i_KmlLayerConfig.pas',
   u_KmlLayerConfig in 'Src\MapLayers\u_KmlLayerConfig.pas',
-  u_MapLayerVectorMaps in 'Src\MapLayers\LayersWithThreadAndProvider\u_MapLayerVectorMaps.pas',
   u_FindVectorItemsForVectorMaps in 'Src\u_FindVectorItemsForVectorMaps.pas',
   i_MiniMapLayerConfig in 'Src\MapLayers\LayersWithThreadAndProvider\MiniMap\i_MiniMapLayerConfig.pas',
   u_MiniMapMapsConfig in 'Src\MapLayers\LayersWithThreadAndProvider\MiniMap\u_MiniMapMapsConfig.pas',
