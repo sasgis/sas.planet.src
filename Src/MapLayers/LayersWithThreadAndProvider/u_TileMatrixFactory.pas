@@ -26,6 +26,7 @@ uses
   Types,
   GR32,
   i_TileRect,
+  i_ProjectionInfo,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_ImageResamplerFactoryChangeable,
@@ -52,13 +53,16 @@ type
     ): ITileMatrix;
 
     procedure PrepareCopyRects(
-      const ASourceConverter, ATargetConverter: ILocalCoordConverter;
+      const ASourceProjection: IProjectionInfo;
+      const ASourceTile: TPoint;
+      const ATargetProjection: IProjectionInfo;
+      const ATargetTile: TPoint;
       out ASourceRect, ATargetRect: TRect
     );
     function PrepareElementFromSource(
       const ASource: ITileMatrix;
+      const ATargetProjection: IProjectionInfo;
       const ATile: TPoint;
-      AZoom: Byte;
       var ABitmap: TCustomBitmap32;
       var AResampler: TCustomResampler
     ): ITileMatrixElement;
@@ -105,13 +109,16 @@ begin
 end;
 
 procedure TTileMatrixFactory.PrepareCopyRects(
-  const ASourceConverter, ATargetConverter: ILocalCoordConverter;
+  const ASourceProjection: IProjectionInfo;
+  const ASourceTile: TPoint;
+  const ATargetProjection: IProjectionInfo;
+  const ATargetTile: TPoint;
   out ASourceRect, ATargetRect: TRect
 );
 var
   VConverter: ICoordConverter;
+  VTargetMapPixelRect: TRect;
   VSourceMapPixelRect: TRect;
-  VTargetMapPixelRect: TDoubleRect;
   VTargetAtSourceMapPixelRect: TRect;
   VSourceZoom: Byte;
   VTargetZoom: Byte;
@@ -119,18 +126,18 @@ var
   VResultTargetMapPixelRect: TRect;
   VRelativeRect: TDoubleRect;
 begin
-  VConverter := ASourceConverter.GeoConverter;
-  Assert(VConverter.IsSameConverter(ATargetConverter.GeoConverter));
-  VSourceZoom := ASourceConverter.Zoom;
-  VTargetZoom := ATargetConverter.Zoom;
-  VTargetMapPixelRect := ATargetConverter.GetRectInMapPixelFloat;
-  VRelativeRect := VConverter.PixelRectFloat2RelativeRect(VTargetMapPixelRect, VTargetZoom);
+  VConverter := ASourceProjection.GeoConverter;
+  Assert(VConverter.IsSameConverter(ATargetProjection.GeoConverter));
+  VSourceZoom := ASourceProjection.Zoom;
+  VTargetZoom := ATargetProjection.Zoom;
+  VTargetMapPixelRect := VConverter.TilePos2PixelRect(ATargetTile, VTargetZoom);
+  VRelativeRect := VConverter.TilePos2RelativeRect(ATargetTile, VTargetZoom);
   VTargetAtSourceMapPixelRect :=
     RectFromDoubleRect(
       VConverter.RelativeRect2PixelRectFloat(VRelativeRect, VSourceZoom),
       rrToTopLeft
     );
-  VSourceMapPixelRect := ASourceConverter.GetRectInMapPixel;
+  VSourceMapPixelRect := VConverter.TilePos2PixelRect(ASourceTile, VSourceZoom);
   VResultSourceMapPixelRect.Left := VSourceMapPixelRect.Left;
   if VResultSourceMapPixelRect.Left < VTargetAtSourceMapPixelRect.Left then begin
     VResultSourceMapPixelRect.Left := VTargetAtSourceMapPixelRect.Left;
@@ -157,18 +164,21 @@ begin
       VConverter.RelativeRect2PixelRectFloat(VRelativeRect, VTargetZoom),
       rrToTopLeft
     );
-  ASourceRect := ASourceConverter.MapRect2LocalRect(VResultSourceMapPixelRect, rrToTopLeft);
-  ATargetRect := ATargetConverter.MapRect2LocalRect(VResultTargetMapPixelRect, rrToTopLeft);
+  ASourceRect := VResultSourceMapPixelRect;
+  ATargetRect := VResultTargetMapPixelRect;
+  OffsetRect(ASourceRect, -VSourceMapPixelRect.Left, -VSourceMapPixelRect.Top);
+  OffsetRect(ATargetRect, -VTargetMapPixelRect.Left, -VTargetMapPixelRect.Top);
 end;
 
 function TTileMatrixFactory.PrepareElementFromSource(
   const ASource: ITileMatrix;
+  const ATargetProjection: IProjectionInfo;
   const ATile: TPoint;
-  AZoom: Byte;
   var ABitmap: TCustomBitmap32;
   var AResampler: TCustomResampler
 ): ITileMatrixElement;
 var
+  VSourceProjection: IProjectionInfo;
   VConverter: ICoordConverter;
   VRelativeRectTargetTile: TDoubleRect;
   VSourceZoom: Byte;
@@ -184,9 +194,10 @@ var
   VDstCopyRect: TRect;
 begin
   Result := nil;
-  VSourceZoom := ASource.TileRect.ProjectionInfo.Zoom;
-  VConverter := ASource.TileRect.ProjectionInfo.GeoConverter;
-  VRelativeRectTargetTile := VConverter.TilePos2RelativeRect(ATile, AZoom);
+  VSourceProjection := ASource.TileRect.ProjectionInfo;
+  VSourceZoom := VSourceProjection.Zoom;
+  VConverter := VSourceProjection.GeoConverter;
+  VRelativeRectTargetTile := VConverter.TilePos2RelativeRect(ATile, ATargetProjection.Zoom);
   VTileRectSource := RectFromDoubleRect(VConverter.RelativeRect2TileRectFloat(VRelativeRectTargetTile, VSourceZoom), rrOutside);
   VBitmapStatic := nil;
   VTargetTileCoordConverter := nil;
@@ -202,14 +213,16 @@ begin
             if ABitmap = nil then begin
               ABitmap := TCustomBitmap32.Create;
             end;
-            VTargetTileCoordConverter := FLocalConverterFactory.CreateForTile(ATile, AZoom, VConverter);
+            VTargetTileCoordConverter := FLocalConverterFactory.CreateForTile(ATile, ATargetProjection.Zoom, VConverter);
             VTargetTileSize := VTargetTileCoordConverter.GetLocalRectSize;
             ABitmap.SetSize(VTargetTileSize.X, VTargetTileSize.Y);
             ABitmap.Clear(0);
           end;
           PrepareCopyRects(
-            VSourceElement.LocalConverter,
-            VTargetTileCoordConverter,
+            VSourceProjection,
+            VSourceTile,
+            ATargetProjection,
+            ATile,
             VSrcCopyRect,
             VDstCopyRect
           );
@@ -345,9 +358,11 @@ var
   VResampler: TCustomResampler;
   VBitmap: TCustomBitmap32;
   VNewTileRect: TRect;
+  VTargetProjection: IProjectionInfo;
 begin
   Assert(Assigned(ASource));
-  VConverter := ANewTileRect.ProjectionInfo.GeoConverter;
+  VTargetProjection := ANewTileRect.ProjectionInfo;
+  VConverter := VTargetProjection.GeoConverter;
   Assert(VConverter.IsSameConverter(ASource.TileRect.ProjectionInfo.GeoConverter));
   VZoom := ANewTileRect.Zoom;
   VZoomSource := ASource.TileRect.Zoom;
@@ -373,7 +388,7 @@ begin
             VTile.Y := VY;
             VIndex := (VTile.Y - VNewTileRect.Top) * VTileCount.X + (VTile.X - VNewTileRect.Left);
 
-            VElements[VIndex] := PrepareElementFromSource(ASource, VTile, VZoom, VBitmap, VResampler);
+            VElements[VIndex] := PrepareElementFromSource(ASource, VTargetProjection, VTile, VBitmap, VResampler);
           end;
         end;
       finally
