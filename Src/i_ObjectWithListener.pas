@@ -24,20 +24,15 @@ interface
 
 uses
   i_Listener,
-  i_TileRect,
-  i_LocalCoordConverter;
+  i_TileRect;
 
 type
   IObjectWithListener = interface
     ['{95B7E0FF-1FD5-4239-BBDA-1535BF03A965}']
     procedure SetListener(
       const AListener: IListener;
-      const ALocalConverter: ILocalCoordConverter
-    ); overload;
-    procedure SetListener(
-      const AListener: IListener;
       const ATileRect: ITileRect
-    ); overload;
+    );
     procedure RemoveListener;
   end;
 

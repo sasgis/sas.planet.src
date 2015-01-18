@@ -27,7 +27,6 @@ uses
   i_ObjectWithListener,
   i_Listener,
   i_TileRect,
-  i_LocalCoordConverter,
   i_MapTypeSet,
   i_MapTypeSetChangeable,
   i_InterfaceListStatic,
@@ -59,12 +58,8 @@ type
   private
     procedure SetListener(
       const AListener: IListener;
-      const ALocalConverter: ILocalCoordConverter
-    ); overload;
-    procedure SetListener(
-      const AListener: IListener;
       const ATileRect: ITileRect
-    ); overload;
+    );
     procedure RemoveListener;
 
   public
@@ -88,7 +83,6 @@ uses
   u_ListenerByEvent,
   u_TileUpdateListenerToLonLat,
   u_GeoFunc,
-  u_TileRect,
   u_Synchronizer;
 
 { TSourceDataUpdateInRectByMapsSet }
@@ -198,51 +192,6 @@ begin
         end;
       end;
     end;
-  end;
-end;
-
-procedure TSourceDataUpdateInRectByMapsSet.SetListener(
-  const AListener: IListener;
-  const ALocalConverter: ILocalCoordConverter
-);
-var
-  VZoom: Byte;
-  VSourceTileRect: ITileRect;
-  VConverter: ICoordConverter;
-  VPixelRect: TDoubleRect;
-  VTileRectFloat: TDoubleRect;
-  VTileRect: TRect;
-begin
-  FCS.BeginWrite;
-  try
-    if not Assigned(AListener) or not Assigned(ALocalConverter) then begin
-      if Assigned(FListener) and Assigned(FListenTileRect) and Assigned(FMapsListened) then begin
-        _RemoveListeners(FMapsListened);
-      end;
-      FListener := nil;
-      FListenTileRect := nil;
-    end else begin
-      VZoom := ALocalConverter.Zoom;
-      VConverter := ALocalConverter.GeoConverter;
-      VPixelRect := ALocalConverter.GetRectInMapPixelFloat;
-      VConverter.ValidatePixelRectFloat(VPixelRect, VZoom);
-      VTileRectFloat := VConverter.PixelRectFloat2TileRectFloat(VPixelRect, VZoom);
-      VTileRect := RectFromDoubleRect(VTileRectFloat, rrOutside);
-      Assert(VConverter.CheckTileRect(VTileRect, VZoom));
-      VSourceTileRect := TTileRect.Create(ALocalConverter.ProjectionInfo, VTileRect);
-      if not VSourceTileRect.IsEqual(FListenTileRect) then begin
-        if Assigned(FListener) and Assigned(FListenTileRect) and Assigned(FMapsListened) then begin
-          _RemoveListeners(FMapsListened);
-        end;
-        if Assigned(FMapsListened) then begin
-          _SetListeners(FMapsListened, VSourceTileRect);
-        end;
-        FListenTileRect := VSourceTileRect;
-      end;
-      FListener := AListener;
-    end;
-  finally
-    FCS.EndWrite;
   end;
 end;
 
