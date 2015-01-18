@@ -1822,7 +1822,7 @@ begin
       'TMapLayerBitmapMaps'
     );
   VLayer :=
-    TTiledLayerWithThreadBase.Create(
+    TTiledMapLayer.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
@@ -1859,7 +1859,7 @@ begin
       'TMapLayerGrids'
     );
   VLayer :=
-    TTiledLayerWithThreadBase.Create(
+    TTiledMapLayer.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
@@ -1923,7 +1923,7 @@ begin
       'TMapLayerVectorMaps'
     );
   VLayer :=
-    TTiledLayerWithThreadBase.Create(
+    TTiledMapLayer.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
@@ -1963,7 +1963,7 @@ begin
       'TMapLayerFillingMap'
     );
   VLayer :=
-    TTiledLayerWithThreadBase.Create(
+    TTiledMapLayer.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerFillingMap'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
@@ -2039,7 +2039,7 @@ begin
       'TMapLayerMarks'
     );
   VLayer :=
-    TTiledLayerWithThreadBase.Create(
+    TTiledMapLayer.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
@@ -2078,7 +2078,7 @@ begin
       'TMapLayerGPSTrack'
     );
   VLayer :=
-    TTiledLayerWithThreadBase.Create(
+    TTiledMapLayer.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
@@ -2388,7 +2388,7 @@ begin
       'TVectorFindResults'
     );
   VLayer :=
-    TTiledLayerWithThreadBase.Create(
+    TTiledMapLayer.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
@@ -2644,7 +2644,7 @@ begin
       'TMiniMapLayer'
     );
   VLayer :=
-    TTiledLayerWithThreadBase.Create(
+    TTiledMapLayer.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,

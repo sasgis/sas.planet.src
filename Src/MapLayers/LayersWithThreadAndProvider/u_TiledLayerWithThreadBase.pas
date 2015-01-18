@@ -40,7 +40,7 @@ uses
   u_WindowLayerBasic;
 
 type
-  TTiledLayerWithThreadBase = class(TWindowLayerAbstract)
+  TTiledMapLayer = class(TWindowLayerAbstract)
   private
     FLayer: TPositionedLayer;
     FTileMatrix: ITileMatrixChangeable;
@@ -101,7 +101,7 @@ uses
 
 { TTiledLayerWithThreadBase }
 
-constructor TTiledLayerWithThreadBase.Create(
+constructor TTiledMapLayer.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
@@ -142,7 +142,7 @@ begin
   );
 end;
 
-procedure TTiledLayerWithThreadBase.OnPaintLayer(
+procedure TTiledMapLayer.OnPaintLayer(
   Sender: TObject;
   Buffer: TBitmap32
 );
@@ -173,17 +173,17 @@ begin
   end;
 end;
 
-procedure TTiledLayerWithThreadBase.OnScaleChange;
+procedure TTiledMapLayer.OnScaleChange;
 begin
   FTileMatrixChangeFlag.SetFlag;
 end;
 
-procedure TTiledLayerWithThreadBase.OnTileMatrixChange;
+procedure TTiledMapLayer.OnTileMatrixChange;
 begin
   FTileMatrixChangeFlag.SetFlag;
 end;
 
-procedure TTiledLayerWithThreadBase.OnTimer;
+procedure TTiledMapLayer.OnTimer;
 var
   VLocalConverter: ILocalCoordConverter;
   VTileMatrix: ITileMatrix;
@@ -231,7 +231,7 @@ begin
   end;
 end;
 
-procedure TTiledLayerWithThreadBase.PaintLayerFromTileMatrix(
+procedure TTiledMapLayer.PaintLayerFromTileMatrix(
   ABuffer: TBitmap32;
   const ALocalConverter: ILocalCoordConverter;
   const ATileMatrix: ITileMatrix
@@ -345,7 +345,7 @@ begin
   end;
 end;
 
-procedure TTiledLayerWithThreadBase.StartThreads;
+procedure TTiledMapLayer.StartThreads;
 begin
   inherited;
   FLayer.OnPaint := OnPaintLayer;
