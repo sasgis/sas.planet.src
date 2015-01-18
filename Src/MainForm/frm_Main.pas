@@ -927,6 +927,8 @@ uses
   u_TiledLayerWithThreadBase,
   u_BitmapLayerProviderChangeableForGrids,
   u_BitmapLayerProviderChangeableForVectorMaps,
+  u_BitmapLayerProviderChangeableForFillingMap,
+  u_SourceDataUpdateInRectByFillingMap,
   u_MiniMapLayer,
   u_MiniMapLayerViewRect,
   u_MiniMapLayerTopBorder,
@@ -949,7 +951,6 @@ uses
   u_MapLayerGPSMarker,
   u_MapLayerGPSMarkerRings,
   u_FindVectorItemsForVectorMaps,
-  u_MapLayerFillingMap,
   u_MapLayerGoto,
   u_CenterScale,
   u_ResStrings,
@@ -1908,21 +1909,37 @@ begin
     );
   VLayersList.Add(VLayer);
   // Filling map layer
-  VLayersList.Add(
-    TMapLayerFillingMap.Create(
+  VTileMatrixFactory :=
+    TTileMatrixFactory.Create(
+      VTileMatrixDraftResampler,
+      GState.Bitmap32StaticFactory,
+      GState.LocalConverterFactory
+    );
+  VProvider :=
+    TBitmapLayerProviderChangeableForFillingMap.Create(
+      GState.Bitmap32StaticFactory,
+      FConfig.LayersConfig.FillingMapLayerConfig
+    );
+  VSourceChangeNotifier :=
+    TSourceDataUpdateInRectByFillingMap.Create(
+      FConfig.LayersConfig.FillingMapLayerConfig
+    );
+  VLayer :=
+    TTiledLayerWithThreadBase.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerFillingMap'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
       VTileRectForShow,
       FViewPortState.View,
-      VTileMatrixDraftResampler,
-      GState.LocalConverterFactory,
+      VTileMatrixFactory,
+      VProvider,
+      VSourceChangeNotifier,
       GState.GUISyncronizedTimerNotifier,
-      GState.Bitmap32StaticFactory,
-      FConfig.LayersConfig.FillingMapLayerConfig
-    )
-  );
+      FConfig.LayersConfig.FillingMapLayerConfig.ThreadConfig,
+      'TMapLayerFillingMap'
+    );
+  VLayersList.Add(VLayer);
   // Marks from MarkSystem
   VBitmap :=
     ReadBitmapByFileRef(

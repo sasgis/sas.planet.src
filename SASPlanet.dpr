@@ -705,7 +705,6 @@ uses
   i_TerrainConfig in 'Src\Terrain\i_TerrainConfig.pas',
   u_TerrainConfig in 'Src\Terrain\u_TerrainConfig.pas',
   u_BackgroundTask in 'Src\u_BackgroundTask.pas',
-  u_MapLayerFillingMap in 'Src\MapLayers\LayersWithThreadAndProvider\FillingMap\u_MapLayerFillingMap.pas',
   i_MarkCategory in 'Src\MarksDB\i_MarkCategory.pas',
   u_MarkCategory in 'Src\MarksDB\u_MarkCategory.pas',
   i_ReadWriteState in 'Src\i_ReadWriteState.pas',

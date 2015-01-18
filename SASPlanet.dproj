@@ -538,7 +538,6 @@
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\FillingMap\u_FillingMapLayerConfig.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\FillingMap\u_FillingMapLayerConfigStatic.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\FillingMap\u_FillingMapMapsConfig.pas" />
-    <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\FillingMap\u_MapLayerFillingMap.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\GPSTrack\i_MapLayerGPSTrackConfig.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\GPSTrack\u_MapLayerGPSTrack.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\GPSTrack\u_MapLayerGPSTrackConfig.pas" />
