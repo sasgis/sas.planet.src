@@ -27,8 +27,6 @@ uses
   GR32,
   i_TileRect,
   i_ProjectionInfo,
-  i_LocalCoordConverter,
-  i_LocalCoordConverterFactorySimpe,
   i_ImageResamplerFactoryChangeable,
   i_Bitmap32BufferFactory,
   i_TileMatrix,
@@ -37,7 +35,6 @@ uses
 type
   TTileMatrixFactory = class(TBaseInterfacedObject, ITileMatrixFactory)
   private
-    FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FBitmapFactory: IBitmap32StaticFactory;
     FImageResampler: IImageResamplerFactoryChangeable;
     function BuildEmpty(
@@ -74,8 +71,7 @@ type
   public
     constructor Create(
       const AImageResampler: IImageResamplerFactoryChangeable;
-      const ABitmapFactory: IBitmap32StaticFactory;
-      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe
+      const ABitmapFactory: IBitmap32StaticFactory
     );
   end;
 
@@ -95,16 +91,13 @@ uses
 
 constructor TTileMatrixFactory.Create(
   const AImageResampler: IImageResamplerFactoryChangeable;
-  const ABitmapFactory: IBitmap32StaticFactory;
-  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe
+  const ABitmapFactory: IBitmap32StaticFactory
 );
 begin
   Assert(Assigned(AImageResampler));
   Assert(Assigned(ABitmapFactory));
-  Assert(Assigned(ALocalConverterFactory));
   inherited Create;
   FImageResampler := AImageResampler;
-  FLocalConverterFactory := ALocalConverterFactory;
   FBitmapFactory := ABitmapFactory;
 end;
 
@@ -182,25 +175,27 @@ var
   VConverter: ICoordConverter;
   VRelativeRectTargetTile: TDoubleRect;
   VSourceZoom: Byte;
+  VTargetZoom: Byte;
   VTileRectSource: TRect;
   VBitmapStatic: IBitmap32Static;
   VX, VY: Integer;
   VSourceTile: TPoint;
-  VTargetTileCoordConverter: ILocalCoordConverter;
   VSourceElement: ITileMatrixElement;
   VSourceBitmap: IBitmap32Static;
   VTargetTileSize: TPoint;
   VSrcCopyRect: TRect;
   VDstCopyRect: TRect;
+  VIsInited: Boolean;
 begin
   Result := nil;
   VSourceProjection := ASource.TileRect.ProjectionInfo;
   VSourceZoom := VSourceProjection.Zoom;
+  VTargetZoom := ATargetProjection.Zoom;
   VConverter := VSourceProjection.GeoConverter;
   VRelativeRectTargetTile := VConverter.TilePos2RelativeRect(ATile, ATargetProjection.Zoom);
   VTileRectSource := RectFromDoubleRect(VConverter.RelativeRect2TileRectFloat(VRelativeRectTargetTile, VSourceZoom), rrOutside);
   VBitmapStatic := nil;
-  VTargetTileCoordConverter := nil;
+  VIsInited := False;
   for VX := VTileRectSource.Left to VTileRectSource.Right - 1 do begin
     VSourceTile.X := VX;
     for VY := VTileRectSource.Top to VTileRectSource.Bottom - 1 do begin
@@ -209,14 +204,14 @@ begin
       if VSourceElement <> nil then begin
         VSourceBitmap := VSourceElement.GetBitmap;
         if VSourceBitmap <> nil then begin
-          if VTargetTileCoordConverter = nil then begin
+          if not VIsInited then begin
             if ABitmap = nil then begin
               ABitmap := TCustomBitmap32.Create;
             end;
-            VTargetTileCoordConverter := FLocalConverterFactory.CreateForTile(ATile, ATargetProjection.Zoom, VConverter);
-            VTargetTileSize := VTargetTileCoordConverter.GetLocalRectSize;
+            VTargetTileSize := VConverter.GetTileSize(ATile, VTargetZoom);
             ABitmap.SetSize(VTargetTileSize.X, VTargetTileSize.Y);
             ABitmap.Clear(0);
+            VIsInited := True;
           end;
           PrepareCopyRects(
             VSourceProjection,
@@ -243,10 +238,10 @@ begin
       end;
     end;
   end;
-  if VTargetTileCoordConverter <> nil then begin
+  if VIsInited then begin
     VBitmapStatic :=
       FBitmapFactory.Build(
-        VTargetTileCoordConverter.GetLocalRectSize,
+        Point(ABitmap.Width, ABitmap.Height),
         ABitmap.Bits
       );
   end;
@@ -288,7 +283,6 @@ function TTileMatrixFactory.BuildEmpty(
 begin
   Result :=
     TTileMatrix.Create(
-      FLocalConverterFactory,
       ANewTileRect,
       []
     );
@@ -326,7 +320,6 @@ begin
 
       Result :=
         TTileMatrix.Create(
-          FLocalConverterFactory,
           ANewTileRect,
           VElements
         );
@@ -398,7 +391,6 @@ begin
 
       Result :=
         TTileMatrix.Create(
-          FLocalConverterFactory,
           ANewTileRect,
           VElements
         );

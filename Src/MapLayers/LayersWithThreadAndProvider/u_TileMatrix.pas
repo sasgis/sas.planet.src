@@ -24,8 +24,6 @@ interface
 
 uses
   Types,
-  i_LocalCoordConverter,
-  i_LocalCoordConverterFactorySimpe,
   i_TileRect,
   i_TileMatrix,
   u_BaseInterfacedObject;
@@ -42,7 +40,6 @@ type
     function GetItem(AX, AY: Integer): ITileMatrixElement;
   public
     constructor Create(
-      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const ATileRect: ITileRect;
       const AItems: array of ITileMatrixElement
     );
@@ -58,7 +55,6 @@ uses
 { TTileMatrix }
 
 constructor TTileMatrix.Create(
-  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const ATileRect: ITileRect;
   const AItems: array of ITileMatrixElement
 );
@@ -67,9 +63,6 @@ var
   VSourceItems: Integer;
   i: Integer;
   VTile: TPoint;
-  VTileConverter: ILocalCoordConverter;
-  VZoom: Byte;
-  VConverter: ICoordConverter;
 begin
   inherited Create;
   FTileRect := ATileRect;
@@ -93,22 +86,12 @@ begin
     FItems[i] := AItems[i];
   end;
 
-  VZoom := FTileRect.ProjectionInfo.Zoom;
-  VConverter := FTileRect.ProjectionInfo.GeoConverter;
-
   for i := 0 to VItemsCount - 1 do begin
     if FItems[i] = nil then begin
       VTile.Y := i div FTileCount.X;
       VTile.X := i - FTileCount.X * VTile.Y;
       Inc(VTile.X, FTileRect.Left);
       Inc(VTile.Y, FTileRect.Top);
-
-      VTileConverter :=
-        ALocalConverterFactory.CreateForTile(
-          VTile,
-          VZoom,
-          VConverter
-        );
 
       FItems[i] := TTileMatrixElement.Create(nil);
     end;

@@ -1792,8 +1792,7 @@ begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
       VTileMatrixDraftResampler,
-      GState.Bitmap32StaticFactory,
-      GState.LocalConverterFactory
+      GState.Bitmap32StaticFactory
     );
   VProvider :=
     TBitmapLayerProviderChangeableForMainLayer.Create(
@@ -1838,8 +1837,7 @@ begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
       VTileMatrixDraftResampler,
-      GState.Bitmap32StaticFactory,
-      GState.LocalConverterFactory
+      GState.Bitmap32StaticFactory
     );
   VProvider :=
     TBitmapLayerProviderChangeableForGrids.Create(
@@ -1901,8 +1899,7 @@ begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
       VTileMatrixDraftResampler,
-      GState.Bitmap32StaticFactory,
-      GState.LocalConverterFactory
+      GState.Bitmap32StaticFactory
     );
   VProvider :=
     TBitmapLayerProviderChangeableForVectorMaps.Create(
@@ -1941,8 +1938,7 @@ begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
       VTileMatrixDraftResampler,
-      GState.Bitmap32StaticFactory,
-      GState.LocalConverterFactory
+      GState.Bitmap32StaticFactory
     );
   VProvider :=
     TBitmapLayerProviderChangeableForFillingMap.Create(
@@ -2019,8 +2015,7 @@ begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
       VTileMatrixDraftResampler,
-      GState.Bitmap32StaticFactory,
-      GState.LocalConverterFactory
+      GState.Bitmap32StaticFactory
     );
   VProvider :=
     TBitmapLayerProviderChangeableForMarksLayer.Create(
@@ -2059,8 +2054,7 @@ begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
       VTileMatrixDraftResampler,
-      GState.Bitmap32StaticFactory,
-      GState.LocalConverterFactory
+      GState.Bitmap32StaticFactory
     );
   VProvider :=
     TBitmapLayerProviderChangeableForGpsTrack.Create(
@@ -2370,8 +2364,7 @@ begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
       VTileMatrixDraftResampler,
-      GState.Bitmap32StaticFactory,
-      GState.LocalConverterFactory
+      GState.Bitmap32StaticFactory
     );
   VProvider :=
     TBitmapLayerProviderChangeableForVectorMaps.Create(
@@ -2626,8 +2619,7 @@ begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
       VTileMatrixDraftResampler,
-      GState.Bitmap32StaticFactory,
-      GState.LocalConverterFactory
+      GState.Bitmap32StaticFactory
     );
   VProvider :=
     TBitmapLayerProviderChangeableForMainLayer.Create(

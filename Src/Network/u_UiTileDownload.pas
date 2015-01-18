@@ -43,7 +43,6 @@ uses
   i_TileRect,
   i_TileRectChangeable,
   i_ListenerNotifierLinksList,
-  i_LocalCoordConverter,
   u_UiTileRequestManager,
   u_BaseInterfacedObject;
 
