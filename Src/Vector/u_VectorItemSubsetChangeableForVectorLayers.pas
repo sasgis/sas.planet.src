@@ -30,8 +30,8 @@ uses
   i_VectorItemSubsetChangeable,
   i_Listener,
   i_InterfaceListSimple,
-  i_LocalCoordConverter,
-  i_LocalCoordConverterChangeable,
+  i_TileRect,
+  i_TileRectChangeable,
   i_ThreadConfig,
   i_BackgroundTask,
   i_MapVersionRequest,
@@ -53,7 +53,7 @@ type
     FLayersSet: IMapTypeSetChangeable;
     FErrorLogger: ITileErrorLogger;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-    FPosition: ILocalCoordConverterChangeable;
+    FTileRect: ITileRectChangeable;
     FAppStartedNotifier: INotifierOneOperation;
     FAppClosingNotifier: INotifierOneOperation;
 
@@ -66,7 +66,7 @@ type
     FOneTilePrepareCounter: IInternalPerformanceCounter;
 
     FPrevLayerSet: IMapTypeSet;
-    FPrevLocalConverter: ILocalCoordConverter;
+    FPrevTileRect: ITileRect;
     FLayerListeners: IInterfaceListStatic;
     FVersionListener: IListener;
 
@@ -91,13 +91,13 @@ type
     function PrepareSubset(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const ALocalConverter: ILocalCoordConverter;
+      const ATileRect: ITileRect;
       const ALayerSet: IMapTypeSet
     ): IVectorItemSubset;
     procedure AddWikiElement(
       const AElments: IVectorItemSubsetBuilder;
       const AData: IVectorDataItem;
-      const ALocalConverter: ILocalCoordConverter
+      const ATileRect: ITileRect
     );
     procedure AddElementsFromMap(
       AOperationID: Integer;
@@ -105,14 +105,14 @@ type
       const AElments: IVectorItemSubsetBuilder;
       const AAlayer: IMapType;
       const AVersion: IMapVersionRequest;
-      const ALocalConverter: ILocalCoordConverter
+      const ATileRect: ITileRect
     );
 
     procedure RemoveLayerListeners(
       const ALayerSet: IMapTypeSet
     );
     procedure AddLayerListeners(
-      const ALocalConverter: ILocalCoordConverter;
+      const ATileRect: ITileRect;
       const ALayerSet: IMapTypeSet
     );
     procedure RemoveVersionListener(
@@ -131,7 +131,7 @@ type
       const APerfList: IInternalPerformanceCounterList;
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
-      const APosition: ILocalCoordConverterChangeable;
+      const ATileRect: ITileRectChangeable;
       const ALayersSet: IMapTypeSetChangeable;
       const AErrorLogger: ITileErrorLogger;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
@@ -168,19 +168,19 @@ constructor TVectorItemSubsetChangeableForVectorLayers.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
-  const APosition: ILocalCoordConverterChangeable;
+  const ATileRect: ITileRectChangeable;
   const ALayersSet: IMapTypeSetChangeable;
   const AErrorLogger: ITileErrorLogger;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AThreadConfig: IThreadConfig
 );
 begin
-  Assert(Assigned(APosition));
+  Assert(Assigned(ATileRect));
   Assert(Assigned(ALayersSet));
   Assert(Assigned(AErrorLogger));
   Assert(Assigned(AVectorItemSubsetBuilderFactory));
   inherited Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifiers'));
-  FPosition := APosition;
+  FTileRect := ATileRect;
   FLayersSet := ALayersSet;
   FErrorLogger := AErrorLogger;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
@@ -201,7 +201,7 @@ begin
 
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnPosChange),
-    FPosition.ChangeNotifier
+    FTileRect.ChangeNotifier
   );
 
   FLinksList.Add(
@@ -318,7 +318,7 @@ begin
 end;
 
 procedure TVectorItemSubsetChangeableForVectorLayers.AddLayerListeners(
-  const ALocalConverter: ILocalCoordConverter;
+  const ATileRect: ITileRect;
   const ALayerSet: IMapTypeSet
 );
 var
@@ -332,7 +332,6 @@ var
   VNotifier: INotifierTilePyramidUpdate;
   VZoom: Byte;
   VConverter: ICoordConverter;
-  VMapRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
   VMapLonLatRect: TDoubleRect;
   VTileRect: TRect;
@@ -353,11 +352,9 @@ begin
         end;
         FLayerListeners := VListeners.MakeStaticAndClear;
       end;
-      VZoom := ALocalConverter.Zoom;
-      VConverter := ALocalConverter.GeoConverter;
-      VMapRect := ALocalConverter.GetRectInMapPixelFloat;
-      VConverter.ValidatePixelRectFloat(VMapRect, VZoom);
-      VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
+      VZoom := ATileRect.ProjectionInfo.Zoom;
+      VConverter := ATileRect.ProjectionInfo.GeoConverter;
+      VLonLatRect := VConverter.TileRect2LonLatRect(ATileRect.Rect, VZoom);
       VEnum := ALayerSet.GetIterator;
       i := 0;
       while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
@@ -434,7 +431,7 @@ procedure TVectorItemSubsetChangeableForVectorLayers.OnPrepareSubset(
 );
 var
   VNeedRedraw: Boolean;
-  VLocalConverter: ILocalCoordConverter;
+  VTileRect: ITileRect;
   VLayerSet: IMapTypeSet;
   VCounterContext: TInternalPerformanceCounterContext;
   VResult: IVectorItemSubset;
@@ -446,20 +443,20 @@ begin
     if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
       Exit;
     end;
-    VLocalConverter := FPosition.GetStatic;
+    VTileRect := FTileRect.GetStatic;
     VLayerSet := FLayersSet.GetStatic;
     if not VLayerSet.IsEqual(FPrevLayerSet) then begin
       RemoveLayerListeners(FPrevLayerSet);
       RemoveVersionListener(FPrevLayerSet);
       FLayerListeners := nil;
       FPrevLayerSet := VLayerSet;
-      FPrevLocalConverter := VLocalConverter;
+      FPrevTileRect := VTileRect;
       AddVersionListener(VLayerSet);
-      AddLayerListeners(VLocalConverter, VLayerSet);
-    end else if not VLocalConverter.GetIsSameConverter(FPrevLocalConverter) then begin
+      AddLayerListeners(VTileRect, VLayerSet);
+    end else if not VTileRect.IsEqual(FPrevTileRect) then begin
       RemoveLayerListeners(FPrevLayerSet);
-      AddLayerListeners(VLocalConverter, VLayerSet);
-      FPrevLocalConverter := VLocalConverter;
+      AddLayerListeners(VTileRect, VLayerSet);
+      FPrevTileRect := VTileRect;
     end;
 
     if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
@@ -467,7 +464,7 @@ begin
     end;
     VCounterContext := FSubsetPrepareCounter.StartOperation;
     try
-      VResult := PrepareSubset(AOperationID, ACancelNotifier, VLocalConverter, VLayerSet);
+      VResult := PrepareSubset(AOperationID, ACancelNotifier, VTileRect, VLayerSet);
     finally
       FSubsetPrepareCounter.FinishOperation(VCounterContext);
     end;
@@ -503,7 +500,7 @@ procedure TVectorItemSubsetChangeableForVectorLayers.AddElementsFromMap(
   const AElments: IVectorItemSubsetBuilder;
   const AAlayer: IMapType;
   const AVersion: IMapVersionRequest;
-  const ALocalConverter: ILocalCoordConverter
+  const ATileRect: ITileRect
 );
 var
   i: integer;
@@ -512,21 +509,17 @@ var
   VZoom: Byte;
   VSourceGeoConvert: ICoordConverter;
   VGeoConvert: ICoordConverter;
-  VBitmapOnMapPixelRect: TDoubleRect;
   VSourceLonLatRect: TDoubleRect;
   VTileSourceRect: TRect;
   VTile: TPoint;
   VErrorString: string;
   VError: ITileErrorInfo;
 begin
-  VZoom := ALocalConverter.GetZoom;
+  VZoom := ATileRect.ProjectionInfo.Zoom;
   VSourceGeoConvert := AAlayer.GeoConvert;
-  VGeoConvert := ALocalConverter.GetGeoConverter;
+  VGeoConvert := ATileRect.ProjectionInfo.GeoConverter;
 
-  VBitmapOnMapPixelRect := ALocalConverter.GetRectInMapPixelFloat;
-  VGeoConvert.ValidatePixelRectFloat(VBitmapOnMapPixelRect, VZoom);
-
-  VSourceLonLatRect := VGeoConvert.PixelRectFloat2LonLatRect(VBitmapOnMapPixelRect, VZoom);
+  VSourceLonLatRect := VGeoConvert.TileRect2LonLatRect(ATileRect.Rect, VZoom);
   VTileSourceRect :=
     RectFromDoubleRect(
       VSourceGeoConvert.LonLatRect2TileRectFloat(VSourceLonLatRect, VZoom),
@@ -543,7 +536,7 @@ begin
           Break;
         end else begin
           for i := 0 to VItems.Count - 1 do begin
-            AddWikiElement(AElments, VItems.GetItem(i), ALocalConverter);
+            AddWikiElement(AElments, VItems.GetItem(i), ATileRect);
           end;
         end;
       end;
@@ -571,28 +564,15 @@ end;
 procedure TVectorItemSubsetChangeableForVectorLayers.AddWikiElement(
   const AElments: IVectorItemSubsetBuilder;
   const AData: IVectorDataItem;
-  const ALocalConverter: ILocalCoordConverter
+  const ATileRect: ITileRect
 );
 var
-  VConverter: ICoordConverter;
-  VSize: TPoint;
   VRect: ILonLatRect;
-  VLLRect: TDoubleRect;
-  VBounds: TDoubleRect;
 begin
   if AData <> nil then begin
-    VSize := ALocalConverter.GetLocalRectSize;
-    VConverter := ALocalConverter.GetGeoConverter;
     VRect := AData.Geometry.Bounds;
     if VRect <> nil then begin
-      VLLRect := VRect.Rect;
-      VConverter.ValidateLonLatRect(VLLRect);
-      VBounds := ALocalConverter.LonLatRect2LocalRectFloat(VLLRect);
-      if ((VBounds.Top < VSize.Y) and (VBounds.Bottom > 0) and (VBounds.Left < VSize.X) and (VBounds.Right > 0)) then begin
-        if Supports(AData.Geometry, IGeometryLonLatPoint) or (((VBounds.Right - VBounds.Left) > 1) and ((VBounds.Bottom - VBounds.Top) > 1)) then begin
-          AElments.Add(AData);
-        end;
-      end;
+      AElments.Add(AData);
     end;
   end;
 end;
@@ -600,7 +580,7 @@ end;
 function TVectorItemSubsetChangeableForVectorLayers.PrepareSubset(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const ALocalConverter: ILocalCoordConverter;
+  const ATileRect: ITileRect;
   const ALayerSet: IMapTypeSet
 ): IVectorItemSubset;
 var
@@ -622,7 +602,7 @@ begin
           VElements,
           VMapType,
           VMapType.VersionRequestConfig.GetStatic,
-          ALocalConverter
+          ATileRect
         );
         if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
           Break;

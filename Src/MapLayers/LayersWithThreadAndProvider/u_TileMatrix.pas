@@ -26,26 +26,24 @@ uses
   Types,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
+  i_TileRect,
   i_TileMatrix,
   u_BaseInterfacedObject;
 
 type
   TTileMatrix = class(TBaseInterfacedObject, ITileMatrix)
   private
-    FLocalConverter: ILocalCoordConverter;
-    FTileRect: TRect;
+    FTileRect: ITileRect;
     FTileCount: TPoint;
     FItems: array of ITileMatrixElement;
   private
-    function GetLocalConverter: ILocalCoordConverter;
-    function GetTileRect: TRect;
+    function GetTileRect: ITileRect;
     function GetElementByTile(const ATile: TPoint): ITileMatrixElement;
     function GetItem(AX, AY: Integer): ITileMatrixElement;
   public
     constructor Create(
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-      const ALocalConverter: ILocalCoordConverter;
-      const ATileRect: TRect;
+      const ATileRect: ITileRect;
       const AItems: array of ITileMatrixElement
     );
     destructor Destroy; override;
@@ -54,14 +52,14 @@ type
 implementation
 
 uses
+  i_CoordConverter,
   u_TileMatrixElement;
 
 { TTileMatrix }
 
 constructor TTileMatrix.Create(
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-  const ALocalConverter: ILocalCoordConverter;
-  const ATileRect: TRect;
+  const ATileRect: ITileRect;
   const AItems: array of ITileMatrixElement
 );
 var
@@ -70,9 +68,10 @@ var
   i: Integer;
   VTile: TPoint;
   VTileConverter: ILocalCoordConverter;
+  VZoom: Byte;
+  VConverter: ICoordConverter;
 begin
   inherited Create;
-  FLocalConverter := ALocalConverter;
   FTileRect := ATileRect;
   FTileCount := Point(FTileRect.Right - FTileRect.Left, FTileRect.Bottom - FTileRect.Top);
   Assert(FTileCount.X > 0);
@@ -94,6 +93,9 @@ begin
     FItems[i] := AItems[i];
   end;
 
+  VZoom := FTileRect.ProjectionInfo.Zoom;
+  VConverter := FTileRect.ProjectionInfo.GeoConverter;
+
   for i := 0 to VItemsCount - 1 do begin
     if FItems[i] = nil then begin
       VTile.Y := i div FTileCount.X;
@@ -104,8 +106,8 @@ begin
       VTileConverter :=
         ALocalConverterFactory.CreateForTile(
           VTile,
-          ALocalConverter.Zoom,
-          ALocalConverter.GeoConverter
+          VZoom,
+          VConverter
         );
 
       FItems[i] :=
@@ -156,12 +158,7 @@ begin
   end;
 end;
 
-function TTileMatrix.GetLocalConverter: ILocalCoordConverter;
-begin
-  Result := FLocalConverter;
-end;
-
-function TTileMatrix.GetTileRect: TRect;
+function TTileMatrix.GetTileRect: ITileRect;
 begin
   Result := FTileRect;
 end;

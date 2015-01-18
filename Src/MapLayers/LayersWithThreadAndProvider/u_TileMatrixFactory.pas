@@ -25,6 +25,7 @@ interface
 uses
   Types,
   GR32,
+  i_TileRect,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_ImageResamplerFactoryChangeable,
@@ -39,18 +40,15 @@ type
     FBitmapFactory: IBitmap32StaticFactory;
     FImageResampler: IImageResamplerFactoryChangeable;
     function BuildEmpty(
-      const ATileRect: TRect;
-      const ANewConverter: ILocalCoordConverter
+      const ANewTileRect: ITileRect
     ): ITileMatrix;
     function BuildSameProjection(
       const ASource: ITileMatrix;
-      const ATileRect: TRect;
-      const ANewConverter: ILocalCoordConverter
+      const ANewTileRect: ITileRect
     ): ITileMatrix;
     function BuildZoomChange(
       const ASource: ITileMatrix;
-      const ATileRect: TRect;
-      const ANewConverter: ILocalCoordConverter
+      const ANewTileRect: ITileRect
     ): ITileMatrix;
 
     procedure PrepareCopyRects(
@@ -67,7 +65,7 @@ type
   private
     function BuildNewMatrix(
       const ASource: ITileMatrix;
-      const ANewConverter: ILocalCoordConverter
+      const ANewTileRect: ITileRect
     ): ITileMatrix;
   public
     constructor Create(
@@ -186,8 +184,8 @@ var
   VDstCopyRect: TRect;
 begin
   Result := nil;
-  VSourceZoom := ASource.LocalConverter.Zoom;
-  VConverter := ASource.LocalConverter.GeoConverter;
+  VSourceZoom := ASource.TileRect.ProjectionInfo.Zoom;
+  VConverter := ASource.TileRect.ProjectionInfo.GeoConverter;
   VRelativeRectTargetTile := VConverter.TilePos2RelativeRect(ATile, AZoom);
   VTileRectSource := RectFromDoubleRect(VConverter.RelativeRect2TileRectFloat(VRelativeRectTargetTile, VSourceZoom), rrOutside);
   VBitmapStatic := nil;
@@ -246,67 +244,46 @@ end;
 
 function TTileMatrixFactory.BuildNewMatrix(
   const ASource: ITileMatrix;
-  const ANewConverter: ILocalCoordConverter
+  const ANewTileRect: ITileRect
 ): ITileMatrix;
-var
-  VNewConverter: ILocalCoordConverter;
-  VTileRect: TRect;
-  VZoom: Byte;
-  VConverter: ICoordConverter;
-  VMapPixelRect: TDoubleRect;
 begin
   Result := nil;
-  if not Assigned(ANewConverter) then begin
+  if not Assigned(ANewTileRect) then begin
     Exit;
-  end;
-  VMapPixelRect := ANewConverter.GetRectInMapPixelFloat;
-  VZoom := ANewConverter.Zoom;
-  VConverter := ANewConverter.GeoConverter;
-  VConverter.ValidatePixelRectFloat(VMapPixelRect, VZoom);
-  VTileRect := RectFromDoubleRect(VConverter.PixelRectFloat2TileRectFloat(VMapPixelRect, VZoom), rrOutside);
-  if DoubleRectsEqual(VMapPixelRect, DoubleRect(VConverter.TileRect2PixelRect(VTileRect, VZoom))) then begin
-    VNewConverter := ANewConverter;
-  end else begin
-    VNewConverter := FLocalConverterFactory.CreateBySourceWithTileRect(ANewConverter);
-    VMapPixelRect := VNewConverter.GetRectInMapPixelFloat;
-    VTileRect := RectFromDoubleRect(VConverter.PixelRectFloat2TileRectFloat(VMapPixelRect, VZoom), rrOutside);
   end;
 
   if ASource = nil then begin
-    Result := BuildEmpty(VTileRect, VNewConverter);
-  end else if VNewConverter.GetIsSameConverter(ASource.LocalConverter) then begin
+    Result := BuildEmpty(ANewTileRect);
+  end else if ANewTileRect.IsEqual(ASource.TileRect) then begin
     Result := ASource;
-  end else if not VNewConverter.GeoConverter.IsSameConverter(ASource.LocalConverter.GeoConverter) then begin
-    Result := BuildEmpty(VTileRect, VNewConverter);
-  end else if VNewConverter.Zoom = ASource.LocalConverter.Zoom then begin
-    Result := BuildSameProjection(ASource, VTileRect, VNewConverter);
-  end else if VNewConverter.Zoom + 1 = ASource.LocalConverter.Zoom then begin
-    Result := BuildZoomChange(ASource, VTileRect, VNewConverter);
-  end else if VNewConverter.Zoom = ASource.LocalConverter.Zoom + 1 then begin
-    Result := BuildZoomChange(ASource, VTileRect, VNewConverter);
+  end else if not ANewTileRect.ProjectionInfo.GeoConverter.IsSameConverter(ASource.TileRect.ProjectionInfo.GeoConverter) then begin
+    Result := BuildEmpty(ANewTileRect);
+  end else if ANewTileRect.Zoom = ASource.TileRect.Zoom then begin
+    Result := BuildSameProjection(ASource, ANewTileRect);
+  end else if ANewTileRect.Zoom + 1 = ASource.TileRect.Zoom then begin
+    Result := BuildZoomChange(ASource, ANewTileRect);
+  end else if ANewTileRect.Zoom = ASource.TileRect.Zoom + 1 then begin
+    Result := BuildZoomChange(ASource, ANewTileRect);
   end else begin
-    Result := BuildEmpty(VTileRect, VNewConverter);
+    Result := BuildEmpty(ANewTileRect);
   end;
 end;
 
 function TTileMatrixFactory.BuildEmpty(
-  const ATileRect: TRect;
-  const ANewConverter: ILocalCoordConverter
+  const ANewTileRect: ITileRect
 ): ITileMatrix;
 begin
   Result :=
     TTileMatrix.Create(
       FLocalConverterFactory,
-      ANewConverter,
-      ATileRect,
+      ANewTileRect,
       []
     );
 end;
 
 function TTileMatrixFactory.BuildSameProjection(
   const ASource: ITileMatrix;
-  const ATileRect: TRect;
-  const ANewConverter: ILocalCoordConverter
+  const ANewTileRect: ITileRect
 ): ITileMatrix;
 var
   VIntersectRect: TRect;
@@ -316,18 +293,20 @@ var
   i: Integer;
   VIndex: Integer;
   VX, VY: Integer;
+  VRect: TRect;
 begin
-  if not Types.IntersectRect(VIntersectRect, ATileRect, ASource.TileRect) then begin
-    Result := BuildEmpty(ATileRect, ANewConverter);
+  if not Types.IntersectRect(VIntersectRect, ANewTileRect.Rect, ASource.TileRect.Rect) then begin
+    Result := BuildEmpty(ANewTileRect);
   end else begin
-    VTileCount := Types.Point(ATileRect.Right - ATileRect.Left, ATileRect.Bottom - ATileRect.Top);
+    VRect := ANewTileRect.Rect;
+    VTileCount := Types.Point(VRect.Right - VRect.Left, VRect.Bottom - VRect.Top);
     SetLength(VElements, VTileCount.X * VTileCount.Y);
     try
       for VX := VIntersectRect.Left to VIntersectRect.Right - 1 do begin
         VTile.X := VX;
         for VY := VIntersectRect.Top to VIntersectRect.Bottom - 1 do begin
           VTile.Y := VY;
-          VIndex := (VTile.Y - ATileRect.Top) * VTileCount.X + (VTile.X - ATileRect.Left);
+          VIndex := (VTile.Y - VRect.Top) * VTileCount.X + (VTile.X - VRect.Left);
           VElements[VIndex] := ASource.GetElementByTile(VTile);
         end;
       end;
@@ -335,8 +314,7 @@ begin
       Result :=
         TTileMatrix.Create(
           FLocalConverterFactory,
-          ANewConverter,
-          ATileRect,
+          ANewTileRect,
           VElements
         );
     finally
@@ -349,8 +327,7 @@ end;
 
 function TTileMatrixFactory.BuildZoomChange(
   const ASource: ITileMatrix;
-  const ATileRect: TRect;
-  const ANewConverter: ILocalCoordConverter
+  const ANewTileRect: ITileRect
 ): ITileMatrix;
 var
   VConverter: ICoordConverter;
@@ -367,22 +344,24 @@ var
   VX, VY: Integer;
   VResampler: TCustomResampler;
   VBitmap: TCustomBitmap32;
+  VNewTileRect: TRect;
 begin
   Assert(Assigned(ASource));
-  VConverter := ANewConverter.GeoConverter;
-  Assert(VConverter.IsSameConverter(ASource.LocalConverter.GeoConverter));
-  VZoom := ANewConverter.Zoom;
-  VZoomSource := ASource.LocalConverter.Zoom;
-  VRelativeRectSource := VConverter.TileRect2RelativeRect(ASource.TileRect, VZoomSource);
+  VConverter := ANewTileRect.ProjectionInfo.GeoConverter;
+  Assert(VConverter.IsSameConverter(ASource.TileRect.ProjectionInfo.GeoConverter));
+  VZoom := ANewTileRect.Zoom;
+  VZoomSource := ASource.TileRect.Zoom;
+  VRelativeRectSource := VConverter.TileRect2RelativeRect(ASource.TileRect.Rect, VZoomSource);
   VTileRectSourceAtTarget :=
     RectFromDoubleRect(
       VConverter.RelativeRect2TileRectFloat(VRelativeRectSource, VZoom),
       rrToTopLeft
     );
-  if not Types.IntersectRect(VIntersectRect, ATileRect, VTileRectSourceAtTarget) then begin
-    Result := BuildEmpty(ATileRect, ANewConverter);
+  VNewTileRect := ANewTileRect.Rect;
+  if not Types.IntersectRect(VIntersectRect, VNewTileRect, VTileRectSourceAtTarget) then begin
+    Result := BuildEmpty(ANewTileRect);
   end else begin
-    VTileCount := Types.Point(ATileRect.Right - ATileRect.Left, ATileRect.Bottom - ATileRect.Top);
+    VTileCount := Types.Point(VNewTileRect.Right - VNewTileRect.Left, VNewTileRect.Bottom - VNewTileRect.Top);
     SetLength(VElements, VTileCount.X * VTileCount.Y);
     try
       VResampler := nil;
@@ -392,7 +371,7 @@ begin
           VTile.X := VX;
           for VY := VIntersectRect.Top to VIntersectRect.Bottom - 1 do begin
             VTile.Y := VY;
-            VIndex := (VTile.Y - ATileRect.Top) * VTileCount.X + (VTile.X - ATileRect.Left);
+            VIndex := (VTile.Y - VNewTileRect.Top) * VTileCount.X + (VTile.X - VNewTileRect.Left);
 
             VElements[VIndex] := PrepareElementFromSource(ASource, VTile, VZoom, VBitmap, VResampler);
           end;
@@ -405,8 +384,7 @@ begin
       Result :=
         TTileMatrix.Create(
           FLocalConverterFactory,
-          ANewConverter,
-          ATileRect,
+          ANewTileRect,
           VElements
         );
     finally

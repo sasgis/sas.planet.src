@@ -28,6 +28,7 @@ uses
   i_NotifierOperation,
   i_LocalCoordConverterChangeable,
   i_LocalCoordConverterFactorySimpe,
+  i_TileRectChangeable,
   i_InternalPerformanceCounter,
   i_ThreadConfig,
   i_VectorItemDrawConfig,
@@ -46,7 +47,7 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
-      const APosition: ILocalCoordConverterChangeable;
+      const ATileRect: ITileRectChangeable;
       const AView: ILocalCoordConverterChangeable;
       const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -74,7 +75,7 @@ constructor TMapLayerVectorMaps.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier, AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
-  const APosition: ILocalCoordConverterChangeable;
+  const ATileRect: ITileRectChangeable;
   const AView: ILocalCoordConverterChangeable;
   const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -109,7 +110,7 @@ begin
     AAppStartedNotifier,
     AAppClosingNotifier,
     AParentMap,
-    APosition,
+    ATileRect,
     AView,
     VTileMatrixFactory,
     VProvider,

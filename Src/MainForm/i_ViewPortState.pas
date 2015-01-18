@@ -38,9 +38,6 @@ type
 
     function GetCurrentZoom: Byte;
 
-    function GetPosition: ILocalCoordConverterChangeable;
-    property Position: ILocalCoordConverterChangeable read GetPosition;
-
     function GetView: ILocalCoordConverterChangeable;
     property View: ILocalCoordConverterChangeable read GetView;
 

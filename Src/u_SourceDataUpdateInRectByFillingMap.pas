@@ -294,7 +294,6 @@ var
   VSourceZoom: Byte;
   VTileRect: TRect;
   VLonLatRect: TDoubleRect;
-  VMapRect: TDoubleRect;
   VConverter: ICoordConverter;
   VMapLonLatRect: TDoubleRect;
   VNotifier: INotifierTilePyramidUpdate;

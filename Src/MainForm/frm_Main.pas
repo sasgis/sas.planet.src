@@ -898,6 +898,7 @@ uses
   i_InternalDomainOptions,
   i_TileInfoBasic,
   i_TileStorage,
+  i_TileRectChangeable,
   i_GPS,
   i_GeoCoder,
   i_GPSRecorder,
@@ -949,6 +950,7 @@ uses
   u_SensorViewListGeneratorStuped,
   u_MainWindowPositionConfig,
   u_TileErrorLogProviedrStuped,
+  u_TileRectChangeableByLocalConverter,
   u_FullMapMouseCursorLayer,
   u_BitmapChangeableFaked,
   u_MarkerDrawableChangeableFaked,
@@ -992,6 +994,7 @@ uses
   u_ListenerByEvent,
   u_GUIDObjectSet,
   u_GlobalState,
+  u_Synchronizer,
   u_GeometryFunc,
   u_InetFunc,
   u_BitmapFunc,
@@ -1433,6 +1436,7 @@ var
   VMapLayersVsibleChangeListener: IListener;
   VMainFormMainConfigChangeListener: IListener;
   VGPSReceiverStateChangeListener: IListener;
+  VTileRectForDownload: ITileRectChangeable;
 begin
   if not ProgramStart then begin
     exit;
@@ -1637,13 +1641,19 @@ begin
     FLinksList.ActivateLinks;
     GState.StartThreads;
 
+    VTileRectForDownload :=
+      TTileRectChangeableByLocalConverterSimple.Create(
+        FViewPortState.View,
+        GSync.SyncVariable.Make('TileRectForDownloadMain'),
+        GSync.SyncVariable.Make('TileRectForDownloadResult')
+      );
     FUIDownload :=
       TUITileDownloadList.Create(
         GState.BGTimerNotifier,
         GState.AppClosingNotifier,
         FConfig.DownloadUIConfig,
-        GState.LocalConverterFactory,
-        FViewPortState.Position,
+        GState.ProjectionFactory,
+        VTileRectForDownload,
         FConfig.MainMapsConfig.GetAllMapsSet,
         FConfig.MainMapsConfig.GetAllActiveMapsSet,
         GState.DownloadInfo,
@@ -1747,7 +1757,16 @@ var
   VVectorItems: IVectorItemSubsetChangeable;
   VPerfList: IInternalPerformanceCounterList;
   VTileMatrixDraftResampler: IImageResamplerFactoryChangeable;
+  VTileRectForShow: ITileRectChangeable;
 begin
+  VTileRectForShow :=
+    TTileRectChangeableByLocalConverterSmart.Create(
+      GState.ProjectionFactory,
+      FViewPortState.View,
+      GSync.SyncVariable.Make('TileRectForShowMain'),
+      GSync.SyncVariable.Make('TileRectForShowResult')
+    );
+
   VTileMatrixDraftResampler :=
     TImageResamplerFactoryChangeableByConfig.Create(
       GState.Config.TileMatrixDraftResamplerConfig,
@@ -1761,7 +1780,7 @@ begin
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
-      FViewPortState.Position,
+      VTileRectForShow,
       FViewPortState.View,
       VTileMatrixDraftResampler,
       GState.LocalConverterFactory,
@@ -1782,7 +1801,7 @@ begin
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
-      FViewPortState.Position,
+      VTileRectForShow,
       FViewPortState.View,
       VTileMatrixDraftResampler,
       GState.LocalConverterFactory,
@@ -1798,7 +1817,7 @@ begin
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
-      FViewPortState.Position,
+      VTileRectForShow,
       FConfig.MainMapsConfig.GetActiveKmlLayersSet,
       FTileErrorLogger,
       GState.VectorItemSubsetBuilderFactory,
@@ -1823,7 +1842,7 @@ begin
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
-      FViewPortState.Position,
+      VTileRectForShow,
       FViewPortState.View,
       VTileMatrixDraftResampler,
       GState.LocalConverterFactory,
@@ -1842,7 +1861,7 @@ begin
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
-      FViewPortState.Position,
+      VTileRectForShow,
       FViewPortState.View,
       VTileMatrixDraftResampler,
       GState.LocalConverterFactory,
@@ -1876,7 +1895,7 @@ begin
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
-      FViewPortState.Position,
+      VTileRectForShow,
       FMarkDBGUI.MarksDb,
       FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig,
       FConfig.LayersConfig.MarksLayerConfig.ThreadConfig
@@ -1895,7 +1914,7 @@ begin
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
-      FViewPortState.Position,
+      VTileRectForShow,
       FViewPortState.View,
       VTileMatrixDraftResampler,
       GState.LocalConverterFactory,
@@ -1913,7 +1932,7 @@ begin
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
-      FViewPortState.Position,
+      VTileRectForShow,
       FViewPortState.View,
       VTileMatrixDraftResampler,
       GState.LocalConverterFactory,
@@ -2186,7 +2205,7 @@ begin
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
-      FViewPortState.Position,
+      VTileRectForShow,
       FViewPortState.View,
       VTileMatrixDraftResampler,
       GState.LocalConverterFactory,
@@ -2399,13 +2418,20 @@ begin
       FViewPortState.View,
       FConfig.LayersConfig.MiniMapLayerConfig.LocationConfig
     );
+  VTileRectForShow :=
+    TTileRectChangeableByLocalConverterSmart.Create(
+      GState.ProjectionFactory,
+      VMiniMapConverterChangeable,
+      GSync.SyncVariable.Make('TileRectMiniMapForShowMain'),
+      GSync.SyncVariable.Make('TileRectMiniMapForShowResult')
+    );
   VLayersList.Add(
     TMiniMapLayer.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TMiniMapLayer'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
-      VMiniMapConverterChangeable,
+      VTileRectForShow,
       VMiniMapConverterChangeable,
       VTileMatrixDraftResampler,
       GState.LocalConverterFactory,

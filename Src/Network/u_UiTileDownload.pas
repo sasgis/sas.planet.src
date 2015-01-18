@@ -37,10 +37,11 @@ uses
   i_TileError,
   i_TileRequestTask,
   i_TileRequestResult,
-  i_LocalCoordConverterFactorySimpe,
+  i_CoordConverterFactory,
   i_TileDownloaderState,
   i_GlobalInternetState,
-  i_LocalCoordConverterChangeable,
+  i_TileRect,
+  i_TileRectChangeable,
   i_ListenerNotifierLinksList,
   i_LocalCoordConverter,
   u_UiTileRequestManager,
@@ -52,8 +53,7 @@ type
     FConfig: IDownloadUIConfig;
     FGCNotifier: INotifierTime;
     FAppClosingNotifier: INotifierOneOperation;
-    FConverterFactory: ILocalCoordConverterFactorySimpe;
-    FViewPortState: ILocalCoordConverterChangeable;
+    FTileRect: ITileRectChangeable;
     FMapType: IMapType;
     FActiveMaps: IMapTypeSetChangeable;
     FDownloadInfo: IDownloadInfoSimple;
@@ -74,8 +74,6 @@ type
     FRequestManager: TUiTileRequestManager;
 
     FMapActive: Boolean;
-    FVisualCoordConverter: ILocalCoordConverter;
-    FVisualCoordConverterCS: IReadWriteSync;
     FTaskFinishNotifier: ITileRequestTaskFinishNotifier;
     FSoftCancelNotifier: INotifierOneOperation;
     FHardCancelNotifierInternal: INotifierOperationInternal;
@@ -101,8 +99,8 @@ type
       const AConfig: IDownloadUIConfig;
       const AGCNotifier: INotifierTime;
       const AAppClosingNotifier: INotifierOneOperation;
-      const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
-      const AViewPortState: ILocalCoordConverterChangeable;
+      const AProjectionInfoFactory: IProjectionInfoFactory;
+      const ATileRect: ITileRectChangeable;
       const AMapType: IMapType;
       const AActiveMaps: IMapTypeSetChangeable;
       const ADownloadInfo: IDownloadInfoSimple;
@@ -131,6 +129,7 @@ uses
   u_ListenerTime,
   u_TileRequestTask,
   u_BackgroundTask,
+  u_TileRectChangeableByOtherTileRect,
   u_GeoFunc,
   u_TileErrorInfo;
 
@@ -140,8 +139,8 @@ constructor TUiTileDownload.Create(
   const AConfig: IDownloadUIConfig;
   const AGCNotifier: INotifierTime;
   const AAppClosingNotifier: INotifierOneOperation;
-  const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
-  const AViewPortState: ILocalCoordConverterChangeable;
+  const AProjectionInfoFactory: IProjectionInfoFactory;
+  const ATileRect: ITileRectChangeable;
   const AMapType: IMapType;
   const AActiveMaps: IMapTypeSetChangeable;
   const ADownloadInfo: IDownloadInfoSimple;
@@ -154,15 +153,20 @@ begin
   FConfig := AConfig;
   FGCNotifier := AGCNotifier;
   FAppClosingNotifier := AAppClosingNotifier;
-  FConverterFactory := ACoordConverterFactory;
-  FViewPortState := AViewPortState;
   FMapType := AMapType;
   FActiveMaps := AActiveMaps;
   FDownloadInfo := ADownloadInfo;
   FGlobalInternetState := AGlobalInternetState;
   FErrorLogger := AErrorLogger;
 
-  FVisualCoordConverterCS := GSync.SyncVariable.Make(Self.ClassName);
+  FTileRect :=
+    TTileRectChangeableByOtherTileRect.Create(
+      AProjectionInfoFactory,
+      ATileRect,
+      FMapType.TileStorage.CoordConverter,
+      GSync.SyncVariable.Make(Self.ClassName + 'TileRectMain'),
+      GSync.SyncVariable.Make(Self.ClassName + 'TileRectResult')
+    );
 
   FDownloadState := FMapType.TileDownloadSubsystem.State;
 
@@ -193,7 +197,7 @@ begin
   );
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnPosChange),
-    FViewPortState.ChangeNotifier
+    FTileRect.ChangeNotifier
   );
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnAppClosing),
@@ -264,7 +268,6 @@ begin
   FreeAndNil(FRequestManager);
 
   FCS := nil;
-  FVisualCoordConverterCS := nil;
 
   inherited;
 end;
@@ -327,30 +330,8 @@ begin
 end;
 
 procedure TUiTileDownload.OnPosChange;
-var
-  VConverter: ILocalCoordConverter;
-  VNeedRestart: Boolean;
 begin
-  VConverter :=
-    FConverterFactory.CreateBySourceWithTileRectAndOtherGeo(
-      FViewPortState.GetStatic,
-      FMapType.GeoConvert
-    );
-  VNeedRestart := False;
-
-  FVisualCoordConverterCS.BeginWrite;
-  try
-    if (FVisualCoordConverter = nil) or not VConverter.GetIsSameConverter(FVisualCoordConverter) then begin
-      FVisualCoordConverter := VConverter;
-      VNeedRestart := True;
-    end;
-  finally
-    FVisualCoordConverterCS.EndWrite;
-  end;
-
-  if VNeedRestart then begin
-    RestartDownloadIfNeed;
-  end;
+  RestartDownloadIfNeed;
 end;
 
 procedure TUiTileDownload.DoProcessDownloadRequests(
@@ -359,12 +340,8 @@ procedure TUiTileDownload.DoProcessDownloadRequests(
 );
 var
   VTile: TPoint;
-  VLocalConverter: ILocalCoordConverter;
+  VTileRect: ITileRect;
   VGeoConverter: ICoordConverter;
-  VMapGeoConverter: ICoordConverter;
-  VMapPixelRect: TDoubleRect;
-  VLonLatRect: TDoubleRect;
-  VLonLatRectInMap: TDoubleRect;
   VMapTileRect: TRect;
   VZoom: Byte;
   VNeedDownload: Boolean;
@@ -379,38 +356,23 @@ begin
   VStorage := FMapType.TileStorage;
   VVersionInfo := FMapType.VersionRequestConfig.GetStatic;
 
-  FVisualCoordConverterCS.BeginRead;
-  try
-    VLocalConverter := FVisualCoordConverter;
-  finally
-    FVisualCoordConverterCS.EndRead;
-  end;
+  VTileRect := FTileRect.GetStatic;
 
-  if VLocalConverter <> nil then begin
+  if VTileRect <> nil then begin
     ACancelNotifier.AddListener(FRequestManager.SessionCancelListener);
     FSoftCancelNotifier := TNotifierOneOperationByNotifier.Create(ACancelNotifier, AOperationID);
     VCurrentOperation := FHardCancelNotifierInternal.CurrentOperation;
     try
-      VMapPixelRect := VLocalConverter.GetRectInMapPixelFloat;
-      VZoom := VLocalConverter.GetZoom;
-      VGeoConverter := VLocalConverter.GetGeoConverter;
-      VGeoConverter.ValidatePixelRectFloat(VMapPixelRect, VZoom);
-      VLonLatRect := VGeoConverter.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
+      VGeoConverter := FMapType.GeoConvert;
+      Assert(FMapType.GeoConvert.IsSameConverter(VTileRect.ProjectionInfo.GeoConverter));
+      VZoom := VTileRect.GetZoom;
 
-      VMapGeoConverter := FMapType.GeoConvert;
-      VLonLatRectInMap := VLonLatRect;
-      VMapGeoConverter.ValidateLonLatRect(VLonLatRectInMap);
-
-      VMapTileRect :=
-        RectFromDoubleRect(
-          VMapGeoConverter.LonLatRect2TileRectFloat(VLonLatRectInMap, VZoom),
-          rrOutside
-        );
+      VMapTileRect := VTileRect.Rect;
       Dec(VMapTileRect.Left, FTilesOut);
       Dec(VMapTileRect.Top, FTilesOut);
       Inc(VMapTileRect.Right, FTilesOut);
       Inc(VMapTileRect.Bottom, FTilesOut);
-      VMapGeoConverter.ValidateTileRect(VMapTileRect, VZoom);
+      VGeoConverter.ValidateTileRect(VMapTileRect, VZoom);
 
       FRequestManager.InitSession(VZoom, VMapTileRect, VVersionInfo.BaseVersion);
 
@@ -568,7 +530,7 @@ end;
 procedure TUiTileDownload.RestartDownloadIfNeed;
 var
   VDownloadTask: IBackgroundTask;
-  VVisualCoordConverter: ILocalCoordConverter;
+  VTileRect: ITileRect;
 begin
   FCS.BeginWrite;
   try
@@ -579,14 +541,9 @@ begin
 
     if (FUseDownload in [tsInternet, tsCacheInternet]) and FMapActive then begin
       // allow download
-      FVisualCoordConverterCS.BeginRead;
-      try
-        VVisualCoordConverter := FVisualCoordConverter;
-      finally
-        FVisualCoordConverterCS.EndRead;
-      end;
+      VTileRect := FTileRect.GetStatic;
 
-      if (VVisualCoordConverter <> nil) then begin
+      if (VTileRect <> nil) then begin
         if VDownloadTask = nil then begin
           VDownloadTask := TBackgroundTask.Create(
             FAppClosingNotifier,

@@ -31,8 +31,7 @@ uses
   i_Listener,
   i_ListenerNotifierLinksList,
   i_SimpleFlag,
-  i_LocalCoordConverter,
-  i_LocalCoordConverterChangeable,
+  i_TileRectChangeable,
   i_BitmapLayerProvider,
   i_BitmapLayerProviderChangeable,
   i_ObjectWithListener,
@@ -46,7 +45,7 @@ type
     FAppStartedNotifier: INotifierOneOperation;
     FAppClosingNotifier: INotifierOneOperation;
     FTileMatrixFactory: ITileMatrixFactory;
-    FPosition: ILocalCoordConverterChangeable;
+    FTileRect: ITileRectChangeable;
     FLayerProvider: IBitmapLayerProviderChangeable;
     FSourcUpdateNotyfier: IObjectWithListener;
     FDebugName: string;
@@ -88,7 +87,7 @@ type
       const APerfList: IInternalPerformanceCounterList;
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
-      const APosition: ILocalCoordConverterChangeable;
+      const ATileRect: ITileRectChangeable;
       const ATileMatrixFactory: ITileMatrixFactory;
       const ALayerProvider: IBitmapLayerProviderChangeable;
       const ASourcUpdateNotyfier: IObjectWithListener;
@@ -104,6 +103,7 @@ uses
   Types,
   t_GeoTypes,
   i_TileIterator,
+  i_TileRect,
   i_Bitmap32Static,
   i_CoordConverter,
   i_LonLatRect,
@@ -120,7 +120,7 @@ uses
 constructor TTileMatrixChangeableWithThread.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier, AAppClosingNotifier: INotifierOneOperation;
-  const APosition: ILocalCoordConverterChangeable;
+  const ATileRect: ITileRectChangeable;
   const ATileMatrixFactory: ITileMatrixFactory;
   const ALayerProvider: IBitmapLayerProviderChangeable;
   const ASourcUpdateNotyfier: IObjectWithListener;
@@ -132,14 +132,14 @@ var
 begin
   Assert(Assigned(AAppStartedNotifier));
   Assert(Assigned(AAppClosingNotifier));
-  Assert(Assigned(APosition));
+  Assert(Assigned(ATileRect));
   Assert(Assigned(ATileMatrixFactory));
   Assert(Assigned(ALayerProvider));
   inherited Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifiers'));
 
   FAppStartedNotifier := AAppStartedNotifier;
   FAppClosingNotifier := AAppClosingNotifier;
-  FPosition := APosition;
+  FTileRect := ATileRect;
   FTileMatrixFactory := ATileMatrixFactory;
   FLayerProvider := ALayerProvider;
   FSourcUpdateNotyfier := ASourcUpdateNotyfier;
@@ -170,7 +170,7 @@ begin
 
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnPosChange),
-    FPosition.ChangeNotifier
+    FTileRect.ChangeNotifier
   );
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnLayerProviderChange),
@@ -251,7 +251,7 @@ procedure TTileMatrixChangeableWithThread.OnPrepareTileMatrix(
 );
 var
   VProvider: IBitmapLayerProvider;
-  VLayerConverter: ILocalCoordConverter;
+  VTileRect: ITileRect;
   VTileMatrix: ITileMatrix;
   VUpdated: Boolean;
   VNeedRedraw: Boolean;
@@ -268,10 +268,10 @@ begin
     end;
   end;
 
-  VLayerConverter := nil;
+  VTileRect := nil;
   if Assigned(VProvider) then begin
-    VLayerConverter := FPosition.GetStatic;
-    if not Assigned(VLayerConverter) then begin
+    VTileRect := FTileRect.GetStatic;
+    if not Assigned(VTileRect) then begin
       FTileMatrixCS.BeginWrite;
       try
         VUpdated := Assigned(FTileMatrix);
@@ -283,13 +283,13 @@ begin
   end;
 
   VTileMatrix := nil;
-  if Assigned(VLayerConverter) then begin
+  if Assigned(VTileRect) then begin
     VTileMatrix := GetStatic;
     if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
       Exit;
     end;
-    if not Assigned(VTileMatrix) or not VTileMatrix.LocalConverter.GetIsSameConverter(VLayerConverter) then begin
-      VTileMatrix := FTileMatrixFactory.BuildNewMatrix(VTileMatrix, VLayerConverter);
+    if not Assigned(VTileMatrix) or not VTileMatrix.TileRect.IsEqual(VTileRect) then begin
+      VTileMatrix := FTileMatrixFactory.BuildNewMatrix(VTileMatrix, VTileRect);
       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         Exit;
       end;
@@ -304,7 +304,7 @@ begin
   end;
   if Assigned(FSourcUpdateNotyfier) then begin
     if Assigned(VTileMatrix) then begin
-      FSourcUpdateNotyfier.SetListener(FRectUpdateListener, VTileMatrix.LocalConverter);
+      FSourcUpdateNotyfier.SetListener(FRectUpdateListener, VTileMatrix.TileRect);
     end else begin
       FSourcUpdateNotyfier.RemoveListener;
     end;
@@ -347,11 +347,11 @@ begin
     VTileMatrix := GetStatic;
     if VTileMatrix <> nil then begin
       VMapLonLatRect := VLonLatRect.Rect;
-      VConverter := VTileMatrix.LocalConverter.GeoConverter;
-      VZoom := VTileMatrix.LocalConverter.Zoom;
+      VConverter := VTileMatrix.TileRect.ProjectionInfo.GeoConverter;
+      VZoom := VTileMatrix.TileRect.ProjectionInfo.Zoom;
       VConverter.ValidateLonLatRect(VMapLonLatRect);
       VTileRect := RectFromDoubleRect(VConverter.LonLatRect2TileRectFloat(VMapLonLatRect, VZoom), rrOutside);
-      if Types.IntersectRect(VTileRectToUpdate, VTileRect, VTileMatrix.TileRect) then begin
+      if Types.IntersectRect(VTileRectToUpdate, VTileRect, VTileMatrix.TileRect.Rect) then begin
         for i := VTileRectToUpdate.Top to VTileRectToUpdate.Bottom - 1 do begin
           VTile.Y := i;
           for j := VTileRectToUpdate.Left to VTileRectToUpdate.Right - 1 do begin
@@ -392,7 +392,7 @@ var
 begin
   Assert(Assigned(ATileMatrix));
   Assert(Assigned(ALayerProvider));
-  VTileIterator := TTileIteratorSpiralByRect.Create(ATileMatrix.TileRect);
+  VTileIterator := TTileIteratorSpiralByRect.Create(ATileMatrix.TileRect.Rect);
   while VTileIterator.Next(VTile) do begin
     VElement := ATileMatrix.GetElementByTile(VTile);
     Assert(Assigned(VElement));
@@ -424,7 +424,7 @@ var
   VElement: ITileMatrixElement;
 begin
   if ATileMatrix <> nil then begin
-    VTileRect := ATileMatrix.TileRect;
+    VTileRect := ATileMatrix.TileRect.Rect;
     for i := 0 to VTileRect.Right - VTileRect.Left - 1 do begin
       for j := 0 to VTileRect.Bottom - VTileRect.Top - 1 do begin
         VElement := ATileMatrix.Items[i, j];

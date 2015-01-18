@@ -28,8 +28,8 @@ uses
   i_VectorItemSubset,
   i_VectorItemSubsetChangeable,
   i_Listener,
-  i_LocalCoordConverter,
-  i_LocalCoordConverterChangeable,
+  i_TileRect,
+  i_TileRectChangeable,
   i_ThreadConfig,
   i_BackgroundTask,
   i_NotifierOperation,
@@ -44,7 +44,7 @@ type
   private
     FMarkDB: IMarkSystem;
     FConfig: IUsedMarksConfig;
-    FPosition: ILocalCoordConverterChangeable;
+    FTileRect: ITileRectChangeable;
     FAppStartedNotifier: INotifierOneOperation;
     FAppClosingNotifier: INotifierOneOperation;
 
@@ -70,7 +70,7 @@ type
     );
     function GetMarksSubset(
       const AConfig: IUsedMarksConfigStatic;
-      const ALocalConverter: ILocalCoordConverter
+      const ATileRect: ITileRect
     ): IVectorItemSubset;
   private
     function GetStatic: IVectorItemSubset;
@@ -82,7 +82,7 @@ type
       const APerfList: IInternalPerformanceCounterList;
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
-      const APosition: ILocalCoordConverterChangeable;
+      const ATileRect: ITileRectChangeable;
       const AMarkSystem: IMarkSystem;
       const AConfig: IUsedMarksConfig;
       const AThreadConfig: IThreadConfig
@@ -106,16 +106,16 @@ constructor TVectorItemSubsetChangeableForMarksLayer.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
-  const APosition: ILocalCoordConverterChangeable;
+  const ATileRect: ITileRectChangeable;
   const AMarkSystem: IMarkSystem;
   const AConfig: IUsedMarksConfig;
   const AThreadConfig: IThreadConfig
 );
 begin
-  Assert(Assigned(APosition));
+  Assert(Assigned(ATileRect));
   Assert(Assigned(AMarkSystem));
   inherited Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifiers'));
-  FPosition := APosition;
+  FTileRect := ATileRect;
   FMarkDB := AMarkSystem;
   FConfig := AConfig;
 
@@ -131,7 +131,7 @@ begin
 
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnPosChange),
-    FPosition.ChangeNotifier
+    FTileRect.ChangeNotifier
   );
 
   FLinksList.Add(
@@ -193,27 +193,24 @@ end;
 
 function TVectorItemSubsetChangeableForMarksLayer.GetMarksSubset(
   const AConfig: IUsedMarksConfigStatic;
-  const ALocalConverter: ILocalCoordConverter
+  const ATileRect: ITileRect
 ): IVectorItemSubset;
 var
   VList: IMarkCategoryList;
   VZoom: Byte;
-  VMapPixelRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
   VGeoConverter: ICoordConverter;
 begin
   VList := nil;
   Result := nil;
   if AConfig.IsUseMarks then begin
-    VZoom := ALocalConverter.GetZoom;
+    VZoom := ATileRect.ProjectionInfo.Zoom;
     if not AConfig.IgnoreCategoriesVisible then begin
       VList := FMarkDB.CategoryDB.GetVisibleCategories(VZoom);
     end;
     if AConfig.IgnoreCategoriesVisible or (Assigned(VList) and (VList.Count > 0)) then begin
-      VGeoConverter := ALocalConverter.GetGeoConverter;
-      VMapPixelRect := ALocalConverter.GetRectInMapPixelFloat;
-      VGeoConverter.ValidatePixelRectFloat(VMapPixelRect, VZoom);
-      VLonLatRect := VGeoConverter.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
+      VGeoConverter := ATileRect.ProjectionInfo.GetGeoConverter;
+      VLonLatRect := VGeoConverter.TileRect2LonLatRect(ATileRect.Rect, VZoom);
       Result :=
         FMarkDB.MarkDb.GetMarkSubsetByCategoryListInRect(
           VLonLatRect,
@@ -264,15 +261,15 @@ procedure TVectorItemSubsetChangeableForMarksLayer.OnPrepareSubset(
   const ACancelNotifier: INotifierOperation
 );
 var
-  VLocalConverter: ILocalCoordConverter;
+  VTileRect: ITileRect;
   VCounterContext: TInternalPerformanceCounterContext;
   VResult: IVectorItemSubset;
   VNeedNotify: Boolean;
 begin
-  VLocalConverter := FPosition.GetStatic;
+  VTileRect := FTileRect.GetStatic;
   VCounterContext := FGetMarksCounter.StartOperation;
   try
-    VResult := GetMarksSubset(FConfig.GetStatic, VLocalConverter);
+    VResult := GetMarksSubset(FConfig.GetStatic, VTileRect);
   finally
     FGetMarksCounter.FinishOperation(VCounterContext);
   end;

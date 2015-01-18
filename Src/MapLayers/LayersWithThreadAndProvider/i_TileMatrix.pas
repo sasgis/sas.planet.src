@@ -25,6 +25,7 @@ interface
 uses
   Types,
   i_Bitmap32Static,
+  i_TileRect,
   i_LocalCoordConverter;
 
 type
@@ -53,11 +54,8 @@ type
 
   ITileMatrix = interface
     ['{ABC6376A-F0CD-408F-8F19-043633E6D374}']
-    function GetLocalConverter: ILocalCoordConverter;
-    property LocalConverter: ILocalCoordConverter read GetLocalConverter;
-
-    function GetTileRect: TRect;
-    property TileRect: TRect read GetTileRect;
+    function GetTileRect: ITileRect;
+    property TileRect: ITileRect read GetTileRect;
 
     function GetElementByTile(const ATile: TPoint): ITileMatrixElement;
 
@@ -69,7 +67,7 @@ type
     ['{63A336D2-751D-4C4F-BC18-CF3791206619}']
     function BuildNewMatrix(
       const ASource: ITileMatrix;
-      const ANewConverter: ILocalCoordConverter
+      const ANewTileRect: ITileRect
     ): ITileMatrix;
   end;
 

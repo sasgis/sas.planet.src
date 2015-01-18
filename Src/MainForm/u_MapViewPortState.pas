@@ -46,7 +46,6 @@ type
     FMainMap: IMapTypeChangeable;
     FBaseScale: Double;
 
-    FPosition: ILocalCoordConverterChangeable;
     FView: ILocalCoordConverterChangeableInternal;
     FMainMapChangeListener: IListener;
 
@@ -64,7 +63,6 @@ type
 
     function GetCurrentZoom: Byte;
 
-    function GetPosition: ILocalCoordConverterChangeable;
     function GetView: ILocalCoordConverterChangeable;
 
     procedure ChangeViewSize(const ANewSize: TPoint);
@@ -155,12 +153,6 @@ begin
       VViewChangedFlag,
       VLocalConverter,
       APerfCounterList.CreateAndAddNewCounter('ScaleChange')
-    );
-  FPosition :=
-    TLocalConverterChangeableFixedTileRectNoScale.Create(
-      APerfCounterList.CreateAndAddNewCounter('PosChange'),
-      FVisibleCoordConverterFactory,
-      FView
     );
   FMainMap.ChangeNotifier.Add(FMainMapChangeListener);
 end;
@@ -499,11 +491,6 @@ begin
   finally
     UnlockRead;
   end;
-end;
-
-function TMapViewPortState.GetPosition: ILocalCoordConverterChangeable;
-begin
-  Result := FPosition;
 end;
 
 function TMapViewPortState.GetView: ILocalCoordConverterChangeable;

@@ -33,6 +33,7 @@ uses
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
+  i_TileRectChangeable,
   i_BitmapLayerProviderChangeable,
   i_SimpleFlag,
   i_TileMatrix,
@@ -78,7 +79,7 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
-      const APosition: ILocalCoordConverterChangeable;
+      const ATileRect: ITileRectChangeable;
       const AView: ILocalCoordConverterChangeable;
       const ATileMatrixFactory: ITileMatrixFactory;
       const ALayerProvider: IBitmapLayerProviderChangeable;
@@ -115,7 +116,7 @@ constructor TTiledLayerWithThreadBase.Create(
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
-  const APosition: ILocalCoordConverterChangeable;
+  const ATileRect: ITileRectChangeable;
   const AView: ILocalCoordConverterChangeable;
   const ATileMatrixFactory: ITileMatrixFactory;
   const ALayerProvider: IBitmapLayerProviderChangeable;
@@ -145,7 +146,7 @@ begin
       APerfList,
       AAppStartedNotifier,
       AAppClosingNotifier,
-      APosition,
+      ATileRect,
       ATileMatrixFactory,
       ALayerProvider,
       ASourcUpdateNotyfier,
@@ -228,10 +229,10 @@ begin
       if not VLocalConverter.GetIsSameConverter(FLastPaintConverter) then begin
         FLayer.Location := FloatRect(VLocalConverter.GetLocalRect);
         FLayer.Changed(VLocalConverter.GetLocalRect);
-        FShownIdMatrix.Reset(VTileMatrix.TileRect);
+        FShownIdMatrix.Reset(VTileMatrix.TileRect.Rect);
       end else begin
-        if VLocalConverter.ProjectionInfo.GetIsSameProjectionInfo(VTileMatrix.LocalConverter.ProjectionInfo) then begin
-          VTileIterator := TTileIteratorByRect.Create(VTileMatrix.TileRect);
+        if VLocalConverter.ProjectionInfo.GetIsSameProjectionInfo(VTileMatrix.TileRect.ProjectionInfo) then begin
+          VTileIterator := TTileIteratorByRect.Create(VTileMatrix.TileRect.Rect);
           while VTileIterator.Next(VTile) do begin
             VShownId := FShownIdMatrix.GetHash(VTile);
             VElement := VTileMatrix.GetElementByTile(VTile);
@@ -278,11 +279,11 @@ var
 begin
   inherited;
   VConverter := ALocalConverter.GeoConverter;
-  if not VConverter.IsSameConverter(ATileMatrix.LocalConverter.GeoConverter) then begin
+  if not VConverter.IsSameConverter(ATileMatrix.TileRect.ProjectionInfo.GeoConverter) then begin
     Exit;
   end;
   VZoomDst := ALocalConverter.Zoom;
-  VZoomSrc := ATileMatrix.LocalConverter.Zoom;
+  VZoomSrc := ATileMatrix.TileRect.ProjectionInfo.Zoom;
   if VZoomDst <> VZoomSrc then begin
     VMapPixelRect := ALocalConverter.LocalRect2MapRectFloat(ABuffer.ClipRect);
     VConverter.ValidatePixelRectFloat(VMapPixelRect, VZoomDst);
@@ -293,7 +294,7 @@ begin
     VConverter.ValidatePixelRectFloat(VMapPixelRect, VZoomDst);
     VTileRectInClipRect := RectFromDoubleRect(VConverter.PixelRectFloat2TileRectFloat(VMapPixelRect, VZoomSrc), rrOutside);
   end;
-  if Types.IntersectRect(VTileRectInClipRect, VTileRectInClipRect, ATileMatrix.TileRect) then begin
+  if Types.IntersectRect(VTileRectInClipRect, VTileRectInClipRect, ATileMatrix.TileRect.Rect) then begin
     VResampler := nil;
     try
       VTileIterator := TTileIteratorByRect.Create(VTileRectInClipRect);

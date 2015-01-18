@@ -25,11 +25,11 @@ interface
 uses
   i_NotifierOperation,
   i_DownloadUIConfig,
-  i_LocalCoordConverterChangeable,
+  i_TileRectChangeable,
   i_NotifierTime,
   i_MapTypeSet,
   i_MapTypeSetChangeable,
-  i_LocalCoordConverterFactorySimpe,
+  i_CoordConverterFactory,
   i_DownloadInfoSimple,
   i_GlobalInternetState,
   i_InterfaceListStatic,
@@ -45,8 +45,8 @@ type
       const AGCNotifier: INotifierTime;
       const AAppClosingNotifier: INotifierOneOperation;
       const AConfig: IDownloadUIConfig;
-      const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
-      const AViewPortState: ILocalCoordConverterChangeable;
+      const AProjectionInfoFactory: IProjectionInfoFactory;
+      const ATileRect: ITileRectChangeable;
       const AMapsSet: IMapTypeSet;
       const AActiveMaps: IMapTypeSetChangeable;
       const ADownloadInfo: IDownloadInfoSimple;
@@ -70,8 +70,8 @@ constructor TUITileDownloadList.Create(
   const AGCNotifier: INotifierTime;
   const AAppClosingNotifier: INotifierOneOperation;
   const AConfig: IDownloadUIConfig;
-  const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
-  const AViewPortState: ILocalCoordConverterChangeable;
+  const AProjectionInfoFactory: IProjectionInfoFactory;
+  const ATileRect: ITileRectChangeable;
   const AMapsSet: IMapTypeSet;
   const AActiveMaps: IMapTypeSetChangeable;
   const ADownloadInfo: IDownloadInfoSimple;
@@ -95,8 +95,8 @@ begin
           AConfig,
           AGCNotifier,
           AAppClosingNotifier,
-          ACoordConverterFactory,
-          AViewPortState,
+          AProjectionInfoFactory,
+          ATileRect,
           VMapType,
           AActiveMaps,
           ADownloadInfo,

@@ -30,6 +30,7 @@ uses
   i_BitmapPostProcessing,
   i_LocalCoordConverterChangeable,
   i_LocalCoordConverterFactorySimpe,
+  i_TileRectChangeable,
   i_UseTilePrevZoomConfig,
   i_Bitmap32BufferFactory,
   i_ThreadConfig,
@@ -48,7 +49,7 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
-      const APosition: ILocalCoordConverterChangeable;
+      const ATileRect: ITileRectChangeable;
       const AView: ILocalCoordConverterChangeable;
       const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -81,7 +82,7 @@ constructor TMapLayerBitmapMaps.Create(
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
-  const APosition: ILocalCoordConverterChangeable;
+  const ATileRect: ITileRectChangeable;
   const AView: ILocalCoordConverterChangeable;
   const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -123,7 +124,7 @@ begin
     AAppStartedNotifier,
     AAppClosingNotifier,
     AParentMap,
-    APosition,
+    ATileRect,
     AView,
     VTileMatrixFactory,
     VProvider,
