@@ -908,6 +908,9 @@ uses
   i_FillingMapLayerConfig,
   i_PopUp,
   i_CoordConverterList,
+  i_TileMatrix,
+  i_BitmapLayerProviderChangeable,
+  i_ObjectWithListener,
   u_InterfaceListSimple,
   u_ImportFromArcGIS,
   u_LocalConverterChangeableOfMiniMap,
@@ -918,6 +921,10 @@ uses
   u_VectorItemSubsetChangeableForVectorLayers,
   u_VectorItemSubsetChangeableForMarksLayer,
   u_VectorItemSubsetChangeableBySearchResult,
+  u_TileMatrixFactory,
+  u_BitmapLayerProviderChangeableForMainLayer,
+  u_SourceDataUpdateInRectByMapsSet,
+  u_TiledLayerWithThreadBase,
   u_MapLayerVectorMaps,
   u_MiniMapLayer,
   u_MiniMapLayerViewRect,
@@ -927,7 +934,6 @@ uses
   u_MiniMapLayerMinusButton,
   u_LayerLicenseList,
   u_LayerStatBar,
-  u_MapLayerBitmapMaps,
   u_MapLayerMarks,
   u_MapLayerGrids,
   u_MapLayerNavToMark,
@@ -1758,6 +1764,10 @@ var
   VPerfList: IInternalPerformanceCounterList;
   VTileMatrixDraftResampler: IImageResamplerFactoryChangeable;
   VTileRectForShow: ITileRectChangeable;
+  VTileMatrixFactory: ITileMatrixFactory;
+  VProvider: IBitmapLayerProviderChangeable;
+  VSourceChangeNotifier: IObjectWithListener;
+  VLayer: IInterface;
 begin
   VTileRectForShow :=
     TTileRectChangeableByLocalConverterSmart.Create(
@@ -1775,27 +1785,42 @@ begin
 
   VLayersList := TInterfaceListSimple.Create;
   // Main bitmap layer
-  VLayersList.Add(
-    TMapLayerBitmapMaps.Create(
+  VTileMatrixFactory :=
+    TTileMatrixFactory.Create(
+      VTileMatrixDraftResampler,
+      GState.Bitmap32StaticFactory,
+      GState.LocalConverterFactory
+    );
+  VProvider :=
+    TBitmapLayerProviderChangeableForMainLayer.Create(
+      FConfig.MainMapsConfig.GetActiveMap,
+      TMapTypeListChangeableByActiveMapsSet.Create(GState.MapTypeListBuilderFactory, FConfig.MainMapsConfig.GetActiveBitmapLayersSet),
+      GState.BitmapPostProcessing,
+      FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig,
+      GState.Bitmap32StaticFactory,
+      FTileErrorLogger
+    );
+
+  VSourceChangeNotifier :=
+    TSourceDataUpdateInRectByMapsSet.Create(
+      FConfig.MainMapsConfig.GetActiveBitmapMapsSet
+    );
+  VLayer :=
+    TTiledLayerWithThreadBase.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('MapLayerBitmapMaps'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
       VTileRectForShow,
       FViewPortState.View,
-      VTileMatrixDraftResampler,
-      GState.LocalConverterFactory,
-      FConfig.MainMapsConfig.GetActiveMap,
-      TMapTypeListChangeableByActiveMapsSet.Create(GState.MapTypeListBuilderFactory, FConfig.MainMapsConfig.GetActiveBitmapLayersSet),
-      FConfig.MainMapsConfig.GetActiveBitmapMapsSet,
-      GState.BitmapPostProcessing,
-      FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig,
+      VTileMatrixFactory,
+      VProvider,
+      VSourceChangeNotifier,
+      GState.GUISyncronizedTimerNotifier,
       FConfig.LayersConfig.MainMapLayerConfig.ThreadConfig,
-      GState.Bitmap32StaticFactory,
-      FTileErrorLogger,
-      GState.GUISyncronizedTimerNotifier
-    )
-  );
+      'TMapLayerBitmapMaps'
+    );
+  VLayersList.Add(VLayer);
   // Bitmap layer with grids
   VLayersList.Add(
     TMapLayerGrids.Create(

@@ -695,7 +695,6 @@ uses
   u_SelectionPolylineLayer in 'Src\MapLayers\WindowLayers\Selection\u_SelectionPolylineLayer.pas',
   u_SelectionRectLayer in 'Src\MapLayers\WindowLayers\Selection\u_SelectionRectLayer.pas',
   u_LayerLicenseList in 'Src\MapLayers\WindowLayers\u_LayerLicenseList.pas',
-  u_MapLayerBitmapMaps in 'Src\MapLayers\LayersWithThreadAndProvider\u_MapLayerBitmapMaps.pas',
   c_TerrainProvider in 'Src\Terrain\c_TerrainProvider.pas',
   i_TerrainProvider in 'Src\Terrain\i_TerrainProvider.pas',
   u_TerrainInfo in 'Src\Terrain\u_TerrainInfo.pas',

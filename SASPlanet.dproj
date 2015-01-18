@@ -563,7 +563,6 @@
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\MiniMap\u_MiniMapLayerTopBorder.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\MiniMap\u_MiniMapLayerViewRect.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\MiniMap\u_MiniMapMapsConfig.pas" />
-    <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\u_MapLayerBitmapMaps.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\u_MapLayerVectorMaps.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\u_TiledLayerWithThreadBase.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\u_TileMatrix.pas" />
