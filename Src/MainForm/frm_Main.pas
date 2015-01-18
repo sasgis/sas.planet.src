@@ -911,6 +911,7 @@ uses
   i_TileMatrix,
   i_BitmapLayerProviderChangeable,
   i_ObjectWithListener,
+  i_TileMatrixChangeable,
   u_InterfaceListSimple,
   u_ImportFromArcGIS,
   u_LocalConverterChangeableOfMiniMap,
@@ -987,6 +988,7 @@ uses
   u_MenuGeneratorByStaticTreeSimple,
   u_MapTypeListChangeableActiveBitmapLayers,
   u_MapTypeSetChangeableBySourceSetWithFilter,
+  u_TileMatrixChangeableWithThread,
   u_ActiveMapsLicenseList,
   u_NotifierOperation,
   u_MainFormState,
@@ -1767,6 +1769,7 @@ var
   VTileMatrixFactory: ITileMatrixFactory;
   VProvider: IBitmapLayerProviderChangeable;
   VSourceChangeNotifier: IObjectWithListener;
+  VTileMatrix: ITileMatrixChangeable;
   VLayer: IInterface;
 begin
   VTileRectForShow :=
@@ -1785,6 +1788,7 @@ begin
 
   VLayersList := TInterfaceListSimple.Create;
   // Main bitmap layer
+  VPerfList := GState.PerfCounterList.CreateAndAddNewSubList('MapLayerBitmapMaps');
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
       VTileMatrixDraftResampler,
@@ -1805,23 +1809,31 @@ begin
     TSourceDataUpdateInRectByMapsSet.Create(
       FConfig.MainMapsConfig.GetActiveBitmapMapsSet
     );
-  VLayer :=
-    TTiledLayerWithThreadBase.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('MapLayerBitmapMaps'),
+  VTileMatrix :=
+    TTileMatrixChangeableWithThread.Create(
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
-      map,
       VTileRectForShow,
-      FViewPortState.View,
       VTileMatrixFactory,
       VProvider,
       VSourceChangeNotifier,
-      GState.GUISyncronizedTimerNotifier,
       FConfig.LayersConfig.MainMapLayerConfig.ThreadConfig,
       'TMapLayerBitmapMaps'
     );
+  VLayer :=
+    TTiledLayerWithThreadBase.Create(
+      VPerfList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FViewPortState.View,
+      VTileMatrix,
+      GState.GUISyncronizedTimerNotifier
+    );
   VLayersList.Add(VLayer);
   // Bitmap layer with grids
+  VPerfList := GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerGrids');
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
       VTileMatrixDraftResampler,
@@ -1834,20 +1846,27 @@ begin
       GState.ValueToStringConverter,
       FConfig.LayersConfig.MapLayerGridsConfig
     );
-  VLayer :=
-    TTiledLayerWithThreadBase.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerGrids'),
+  VTileMatrix :=
+    TTileMatrixChangeableWithThread.Create(
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
-      map,
       VTileRectForShow,
-      FViewPortState.View,
       VTileMatrixFactory,
       VProvider,
       nil,
-      GState.GUISyncronizedTimerNotifier,
       FConfig.LayersConfig.MapLayerGridsConfig.ThreadConfig,
       'TMapLayerGrids'
+    );
+  VLayer :=
+    TTiledLayerWithThreadBase.Create(
+      VPerfList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FViewPortState.View,
+      VTileMatrix,
+      GState.GUISyncronizedTimerNotifier
     );
   VLayersList.Add(VLayer);
 
@@ -1891,23 +1910,31 @@ begin
       GState.ProjectedGeometryProvider,
       VVectorItems
     );
+  VTileMatrix :=
+    TTileMatrixChangeableWithThread.Create(
+      VPerfList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      VTileRectForShow,
+      VTileMatrixFactory,
+      VProvider,
+      nil,
+      FConfig.LayersConfig.KmlLayerConfig.ThreadConfig,
+      'TMapLayerVectorMaps'
+    );
   VLayer :=
     TTiledLayerWithThreadBase.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
-      VTileRectForShow,
       FViewPortState.View,
-      VTileMatrixFactory,
-      VProvider,
-      nil,
-      GState.GUISyncronizedTimerNotifier,
-      FConfig.LayersConfig.KmlLayerConfig.ThreadConfig,
-      'TMapLayerVectorMaps'
+      VTileMatrix,
+      GState.GUISyncronizedTimerNotifier
     );
   VLayersList.Add(VLayer);
   // Filling map layer
+  VPerfList := GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerFillingMap');
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
       VTileMatrixDraftResampler,
@@ -1923,20 +1950,27 @@ begin
     TSourceDataUpdateInRectByFillingMap.Create(
       FConfig.LayersConfig.FillingMapLayerConfig
     );
+  VTileMatrix :=
+    TTileMatrixChangeableWithThread.Create(
+      VPerfList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      VTileRectForShow,
+      VTileMatrixFactory,
+      VProvider,
+      VSourceChangeNotifier,
+      FConfig.LayersConfig.FillingMapLayerConfig.ThreadConfig,
+      'TMapLayerFillingMap'
+    );
   VLayer :=
     TTiledLayerWithThreadBase.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerFillingMap'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
-      VTileRectForShow,
       FViewPortState.View,
-      VTileMatrixFactory,
-      VProvider,
-      VSourceChangeNotifier,
-      GState.GUISyncronizedTimerNotifier,
-      FConfig.LayersConfig.FillingMapLayerConfig.ThreadConfig,
-      'TMapLayerFillingMap'
+      VTileMatrix,
+      GState.GUISyncronizedTimerNotifier
     );
   VLayersList.Add(VLayer);
   // Marks from MarkSystem
@@ -1992,20 +2026,27 @@ begin
       VMarkerProviderForVectorItem,
       VVectorItems
     );
+  VTileMatrix :=
+    TTileMatrixChangeableWithThread.Create(
+      VPerfList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      VTileRectForShow,
+      VTileMatrixFactory,
+      VProvider,
+      nil,
+      FConfig.LayersConfig.MarksLayerConfig.ThreadConfig,
+      'TMapLayerMarks'
+    );
   VLayer :=
     TTiledLayerWithThreadBase.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
-      VTileRectForShow,
       FViewPortState.View,
-      VTileMatrixFactory,
-      VProvider,
-      nil,
-      GState.GUISyncronizedTimerNotifier,
-      FConfig.LayersConfig.MarksLayerConfig.ThreadConfig,
-      'TMapLayerMarks'
+      VTileMatrix,
+      GState.GUISyncronizedTimerNotifier
     );
   VLayersList.Add(VLayer);
   // GPS track visualisation layer
@@ -2024,20 +2065,27 @@ begin
       GState.Bitmap32StaticFactory,
       GState.GpsTrackRecorder
     );
+  VTileMatrix :=
+    TTileMatrixChangeableWithThread.Create(
+      VPerfList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      VTileRectForShow,
+      VTileMatrixFactory,
+      VProvider,
+      nil,
+      FConfig.LayersConfig.GPSTrackConfig.ThreadConfig,
+      'TMapLayerGPSTrack'
+    );
   VLayer :=
     TTiledLayerWithThreadBase.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
-      VTileRectForShow,
       FViewPortState.View,
-      VTileMatrixFactory,
-      VProvider,
-      nil,
-      GState.GUISyncronizedTimerNotifier,
-      FConfig.LayersConfig.GPSTrackConfig.ThreadConfig,
-      'TMapLayerGPSTrack'
+      VTileMatrix,
+      GState.GUISyncronizedTimerNotifier
     );
   VLayersList.Add(VLayer);
   // GPS marker layer
@@ -2327,20 +2375,27 @@ begin
       GState.ProjectedGeometryProvider,
       VVectorItems
     );
+  VTileMatrix :=
+    TTileMatrixChangeableWithThread.Create(
+      VPerfList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      VTileRectForShow,
+      VTileMatrixFactory,
+      VProvider,
+      nil,
+      FConfig.LayersConfig.KmlLayerConfig.ThreadConfig,
+      'TVectorFindResults'
+    );
   VLayer :=
     TTiledLayerWithThreadBase.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
-      VTileRectForShow,
       FViewPortState.View,
-      VTileMatrixFactory,
-      VProvider,
-      nil,
-      GState.GUISyncronizedTimerNotifier,
-      FConfig.LayersConfig.KmlLayerConfig.ThreadConfig,
-      'TMapLayerVectorMaps'
+      VTileMatrix,
+      GState.GUISyncronizedTimerNotifier
     );
   VLayersList.Add(VLayer);
   // Goto marker visualisation layer
@@ -2560,6 +2615,7 @@ begin
       GSync.SyncVariable.Make('TileRectMiniMapForShowResult')
     );
   // MiniMap bitmap layer
+  VPerfList := GState.PerfCounterList.CreateAndAddNewSubList('TMiniMapLayer');
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
       VTileMatrixDraftResampler,
@@ -2575,20 +2631,27 @@ begin
       GState.Bitmap32StaticFactory,
       FTileErrorLogger
     );
-  VLayer :=
-    TTiledLayerWithThreadBase.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TMiniMapLayer'),
+  VTileMatrix :=
+    TTileMatrixChangeableWithThread.Create(
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
-      map,
       VTileRectForShow,
-      VMiniMapConverterChangeable,
       VTileMatrixFactory,
       VProvider,
       nil,
-      GState.GUISyncronizedTimerNotifier,
       FConfig.LayersConfig.MiniMapLayerConfig.ThreadConfig,
       'TMiniMapLayer'
+    );
+  VLayer :=
+    TTiledLayerWithThreadBase.Create(
+      VPerfList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      VMiniMapConverterChangeable,
+      VTileMatrix,
+      GState.GUISyncronizedTimerNotifier
     );
   VLayersList.Add(VLayer);
   

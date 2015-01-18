@@ -29,15 +29,11 @@ uses
   GR32_Layers,
   i_Notifier,
   i_NotifierTime,
-  i_ThreadConfig,
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
-  i_TileRectChangeable,
-  i_BitmapLayerProviderChangeable,
   i_SimpleFlag,
   i_TileMatrix,
-  i_ObjectWithListener,
   i_TileMatrixChangeable,
   i_InternalPerformanceCounter,
   i_HashMatrix,
@@ -79,14 +75,9 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
-      const ATileRect: ITileRectChangeable;
       const AView: ILocalCoordConverterChangeable;
-      const ATileMatrixFactory: ITileMatrixFactory;
-      const ALayerProvider: IBitmapLayerProviderChangeable;
-      const ASourcUpdateNotyfier: IObjectWithListener;
-      const ATimerNoifier: INotifierTime;
-      const AThreadConfig: IThreadConfig;
-      const ADebugThreadName: string = ''
+      const ATileMatrix: ITileMatrixChangeable;
+      const ATimerNoifier: INotifierTime
     );
   end;
 
@@ -105,8 +96,7 @@ uses
   u_TileIteratorByRect,
   u_HashMatrix,
   u_GeoFunc,
-  u_BitmapFunc,
-  u_TileMatrixChangeableWithThread;
+  u_BitmapFunc;
 
 
 { TTiledLayerWithThreadBase }
@@ -116,14 +106,9 @@ constructor TTiledLayerWithThreadBase.Create(
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
-  const ATileRect: ITileRectChangeable;
   const AView: ILocalCoordConverterChangeable;
-  const ATileMatrixFactory: ITileMatrixFactory;
-  const ALayerProvider: IBitmapLayerProviderChangeable;
-  const ASourcUpdateNotyfier: IObjectWithListener;
-  const ATimerNoifier: INotifierTime;
-  const AThreadConfig: IThreadConfig;
-  const ADebugThreadName: string = ''
+  const ATileMatrix: ITileMatrixChangeable;
+  const ATimerNoifier: INotifierTime
 );
 begin
   inherited Create(
@@ -134,6 +119,7 @@ begin
   FLayer.Visible := False;
   FLayer.MouseEvents := False;
   FView := AView;
+  FTileMatrix := ATileMatrix;
 
   FOnPaintCounter := APerfList.CreateAndAddNewCounter('OnPaint');
   FOneTilePaintSimpleCounter := APerfList.CreateAndAddNewCounter('OneTilePaintSimple');
@@ -141,18 +127,6 @@ begin
 
   FShownIdMatrix := THashMatrix.Create;
   FTileMatrixChangeFlag := TSimpleFlagWithInterlock.Create;
-  FTileMatrix :=
-    TTileMatrixChangeableWithThread.Create(
-      APerfList,
-      AAppStartedNotifier,
-      AAppClosingNotifier,
-      ATileRect,
-      ATileMatrixFactory,
-      ALayerProvider,
-      ASourcUpdateNotyfier,
-      AThreadConfig,
-      ADebugThreadName
-    );
 
   LinksList.Add(
     TListenerTimeCheck.Create(Self.OnTimer, 10),
