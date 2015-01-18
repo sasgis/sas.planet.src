@@ -925,7 +925,7 @@ uses
   u_TileMatrixFactory,
   u_BitmapLayerProviderChangeableForMainLayer,
   u_SourceDataUpdateInRectByMapsSet,
-  u_TiledLayerWithThreadBase,
+  u_TiledMapLayer,
   u_BitmapLayerProviderChangeableForGrids,
   u_BitmapLayerProviderChangeableForVectorMaps,
   u_BitmapLayerProviderChangeableForFillingMap,

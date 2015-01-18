@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_TiledLayerWithThreadBase;
+unit u_TiledMapLayer;
 
 interface
 
