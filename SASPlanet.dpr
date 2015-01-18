@@ -663,7 +663,6 @@ uses
   i_HashMatrix in 'Src\i_HashMatrix.pas',
   u_HashMatrix in 'Src\u_HashMatrix.pas',
   u_TiledLayerWithThreadBase in 'Src\MapLayers\LayersWithThreadAndProvider\u_TiledLayerWithThreadBase.pas',
-  u_MiniMapLayer in 'Src\MapLayers\LayersWithThreadAndProvider\MiniMap\u_MiniMapLayer.pas',
   u_MiniMapLayerTopBorder in 'Src\MapLayers\LayersWithThreadAndProvider\MiniMap\u_MiniMapLayerTopBorder.pas',
   u_MiniMapLayerLeftBorder in 'Src\MapLayers\LayersWithThreadAndProvider\MiniMap\u_MiniMapLayerLeftBorder.pas',
   u_MiniMapLayerPlusButton in 'Src\MapLayers\LayersWithThreadAndProvider\MiniMap\u_MiniMapLayerPlusButton.pas',

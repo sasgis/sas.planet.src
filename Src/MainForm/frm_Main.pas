@@ -931,7 +931,6 @@ uses
   u_SourceDataUpdateInRectByFillingMap,
   u_BitmapLayerProviderChangeableForMarksLayer,
   u_BitmapLayerProviderChangeableForGpsTrack,
-  u_MiniMapLayer,
   u_MiniMapLayerViewRect,
   u_MiniMapLayerTopBorder,
   u_MiniMapLayerLeftBorder,
@@ -2561,27 +2560,38 @@ begin
       GSync.SyncVariable.Make('TileRectMiniMapForShowResult')
     );
   // MiniMap bitmap layer
-  VLayersList.Add(
-    TMiniMapLayer.Create(
+  VTileMatrixFactory :=
+    TTileMatrixFactory.Create(
+      VTileMatrixDraftResampler,
+      GState.Bitmap32StaticFactory,
+      GState.LocalConverterFactory
+    );
+  VProvider :=
+    TBitmapLayerProviderChangeableForMainLayer.Create(
+      FConfig.LayersConfig.MiniMapLayerConfig.MapsConfig as IMapTypeChangeable,
+      TMapTypeListChangeableByActiveMapsSet.Create(GState.MapTypeListBuilderFactory, FConfig.LayersConfig.MiniMapLayerConfig.MapsConfig.GetActiveLayersSet),
+      GState.BitmapPostProcessing,
+      FConfig.LayersConfig.MiniMapLayerConfig.UseTilePrevZoomConfig,
+      GState.Bitmap32StaticFactory,
+      FTileErrorLogger
+    );
+  VLayer :=
+    TTiledLayerWithThreadBase.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TMiniMapLayer'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
       VTileRectForShow,
       VMiniMapConverterChangeable,
-      VTileMatrixDraftResampler,
-      GState.LocalConverterFactory,
-      FConfig.LayersConfig.MiniMapLayerConfig,
-      FConfig.LayersConfig.MiniMapLayerConfig.MapsConfig as IMapTypeChangeable,
-      TMapTypeListChangeableByActiveMapsSet.Create(GState.MapTypeListBuilderFactory, FConfig.LayersConfig.MiniMapLayerConfig.MapsConfig.GetActiveLayersSet),
-      GState.BitmapPostProcessing,
-      FConfig.LayersConfig.MiniMapLayerConfig.UseTilePrevZoomConfig,
+      VTileMatrixFactory,
+      VProvider,
+      nil,
+      GState.GUISyncronizedTimerNotifier,
       FConfig.LayersConfig.MiniMapLayerConfig.ThreadConfig,
-      GState.Bitmap32StaticFactory,
-      FTileErrorLogger,
-      GState.GUISyncronizedTimerNotifier
-    )
-  );
+      'TMiniMapLayer'
+    );
+  VLayersList.Add(VLayer);
+  
   VPopupMenu :=
     TLayerMiniMapPopupMenu.Create(
       map,

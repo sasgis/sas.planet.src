@@ -551,7 +551,6 @@
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\Marks\i_MarksLayerConfig.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\Marks\u_MarksLayerConfig.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\MiniMap\i_MiniMapLayerConfig.pas" />
-    <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\MiniMap\u_MiniMapLayer.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\MiniMap\u_MiniMapLayerConfig.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\MiniMap\u_MiniMapLayerLeftBorder.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\MiniMap\u_MiniMapLayerMinusButton.pas" />
