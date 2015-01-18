@@ -539,7 +539,6 @@
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\FillingMap\u_FillingMapLayerConfigStatic.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\FillingMap\u_FillingMapMapsConfig.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\GPSTrack\i_MapLayerGPSTrackConfig.pas" />
-    <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\GPSTrack\u_MapLayerGPSTrack.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\GPSTrack\u_MapLayerGPSTrackConfig.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\Grids\i_MapLayerGridsConfig.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\Grids\u_BaseGridConfig.pas" />
@@ -550,7 +549,6 @@
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\i_TileMatrix.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\i_TileMatrixChangeable.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\Marks\i_MarksLayerConfig.pas" />
-    <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\Marks\u_MapLayerMarks.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\Marks\u_MarksLayerConfig.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\MiniMap\i_MiniMapLayerConfig.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\MiniMap\u_MiniMapLayer.pas" />

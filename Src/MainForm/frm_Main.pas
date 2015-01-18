@@ -929,6 +929,8 @@ uses
   u_BitmapLayerProviderChangeableForVectorMaps,
   u_BitmapLayerProviderChangeableForFillingMap,
   u_SourceDataUpdateInRectByFillingMap,
+  u_BitmapLayerProviderChangeableForMarksLayer,
+  u_BitmapLayerProviderChangeableForGpsTrack,
   u_MiniMapLayer,
   u_MiniMapLayerViewRect,
   u_MiniMapLayerTopBorder,
@@ -937,9 +939,7 @@ uses
   u_MiniMapLayerMinusButton,
   u_LayerLicenseList,
   u_LayerStatBar,
-  u_MapLayerMarks,
   u_MapLayerNavToMark,
-  u_MapLayerGPSTrack,
   u_MapSvcScanStorage,
   u_SelectionLayer,
   u_LayerScaleLineHorizontal,
@@ -1979,41 +1979,68 @@ begin
       VPerfList.CreateAndAddNewCounter('FindItems'),
       24
     );
-  VLayersList.Add(
-    TMapLayerMarks.Create(
+  VTileMatrixFactory :=
+    TTileMatrixFactory.Create(
+      VTileMatrixDraftResampler,
+      GState.Bitmap32StaticFactory,
+      GState.LocalConverterFactory
+    );
+  VProvider :=
+    TBitmapLayerProviderChangeableForMarksLayer.Create(
+      FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig,
+      GState.Bitmap32StaticFactory,
+      GState.ProjectedGeometryProvider,
+      VMarkerProviderForVectorItem,
+      VVectorItems
+    );
+  VLayer :=
+    TTiledLayerWithThreadBase.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
       VTileRectForShow,
       FViewPortState.View,
-      VTileMatrixDraftResampler,
-      GState.LocalConverterFactory,
-      GState.ProjectedGeometryProvider,
-      VMarkerProviderForVectorItem,
+      VTileMatrixFactory,
+      VProvider,
+      nil,
       GState.GUISyncronizedTimerNotifier,
-      GState.Bitmap32StaticFactory,
-      VVectorItems,
-      FConfig.LayersConfig.MarksLayerConfig
-    )
-  );
+      FConfig.LayersConfig.MarksLayerConfig.ThreadConfig,
+      'TMapLayerMarks'
+    );
+  VLayersList.Add(VLayer);
   // GPS track visualisation layer
-  VLayersList.Add(
-    TMapLayerGPSTrack.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerGPSTrack'),
+  VPerfList := GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerGPSTrack');
+  VTileMatrixFactory :=
+    TTileMatrixFactory.Create(
+      VTileMatrixDraftResampler,
+      GState.Bitmap32StaticFactory,
+      GState.LocalConverterFactory
+    );
+  VProvider :=
+    TBitmapLayerProviderChangeableForGpsTrack.Create(
+      VPerfList,
+      GState.GUISyncronizedTimerNotifier,
+      FConfig.LayersConfig.GPSTrackConfig,
+      GState.Bitmap32StaticFactory,
+      GState.GpsTrackRecorder
+    );
+  VLayer :=
+    TTiledLayerWithThreadBase.Create(
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
       VTileRectForShow,
       FViewPortState.View,
-      VTileMatrixDraftResampler,
-      GState.LocalConverterFactory,
+      VTileMatrixFactory,
+      VProvider,
+      nil,
       GState.GUISyncronizedTimerNotifier,
-      GState.Bitmap32StaticFactory,
-      FConfig.LayersConfig.GPSTrackConfig,
-      GState.GpsTrackRecorder
-    )
-  );
+      FConfig.LayersConfig.GPSTrackConfig.ThreadConfig,
+      'TMapLayerGPSTrack'
+    );
+  VLayersList.Add(VLayer);
   // GPS marker layer
   VMarkerChangeable :=
     TMarkerDrawableChangeableSimple.Create(
