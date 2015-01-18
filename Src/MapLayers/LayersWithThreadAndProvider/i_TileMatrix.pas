@@ -25,18 +25,11 @@ interface
 uses
   Types,
   i_Bitmap32Static,
-  i_TileRect,
-  i_LocalCoordConverter;
+  i_TileRect;
 
 type
   ITileMatrixElement = interface
     ['{3F060F92-8F09-4989-AFD8-B7D2B8E5DC20}']
-    function GetTile: TPoint;
-    property Tile: TPoint read GetTile;
-
-    function GetLocalConverter: ILocalCoordConverter;
-    property LocalConverter: ILocalCoordConverter read GetLocalConverter;
-
     function GetReadyID: Integer;
     property ReadyID: Integer read GetReadyID;
 

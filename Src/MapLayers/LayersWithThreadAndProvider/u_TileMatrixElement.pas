@@ -26,7 +26,6 @@ uses
   Types,
   SysUtils,
   i_Bitmap32Static,
-  i_LocalCoordConverter,
   i_TileMatrix,
   u_BaseInterfacedObject;
 
@@ -35,15 +34,10 @@ type
   private
     FSync: IReadWriteSync;
 
-    FTile: TPoint;
-    FLocalConverter: ILocalCoordConverter;
-
     FReadyID: Integer;
     FExpectedID: Integer;
     FBitmap: IBitmap32Static;
   private
-    function GetTile: TPoint;
-    function GetLocalConverter: ILocalCoordConverter;
     function GetReadyID: Integer;
     function GetExpectedID: Integer;
     function GetBitmap: IBitmap32Static;
@@ -55,8 +49,6 @@ type
     );
   public
     constructor Create(
-      const ATile: TPoint;
-      const ALocalConverter: ILocalCoordConverter;
       const ABitmap: IBitmap32Static
     );
   end;
@@ -70,24 +62,14 @@ uses
 { TTileMatrixElement }
 
 constructor TTileMatrixElement.Create(
-  const ATile: TPoint;
-  const ALocalConverter: ILocalCoordConverter;
   const ABitmap: IBitmap32Static
 );
-var
-  VZoom: Byte;
-  VConverter: ICoordConverter;
 begin
   inherited Create;
-  FTile := ATile;
-  FLocalConverter := ALocalConverter;
   FBitmap := ABitmap;
   FSync := GSync.SyncVariable.Make(Self.ClassName);
   FReadyID := 0;
   FExpectedID := 1;
-  VZoom := FLocalConverter.Zoom;
-  VConverter := FLocalConverter.GeoConverter;
-  Assert(EqualRect(FLocalConverter.GetRectInMapPixel, VConverter.TilePos2PixelRect(FTile, VZoom)));
 end;
 
 function TTileMatrixElement.GetBitmap: IBitmap32Static;
@@ -110,11 +92,6 @@ begin
   end;
 end;
 
-function TTileMatrixElement.GetLocalConverter: ILocalCoordConverter;
-begin
-  Result := FLocalConverter;
-end;
-
 function TTileMatrixElement.GetReadyID: Integer;
 begin
   FSync.BeginRead;
@@ -123,11 +100,6 @@ begin
   finally
     FSync.EndRead;
   end;
-end;
-
-function TTileMatrixElement.GetTile: TPoint;
-begin
-  Result := FTile;
 end;
 
 procedure TTileMatrixElement.IncExpectedID;

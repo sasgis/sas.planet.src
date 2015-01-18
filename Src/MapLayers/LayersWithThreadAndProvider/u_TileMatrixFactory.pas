@@ -251,7 +251,7 @@ begin
       );
   end;
   if VBitmapStatic <> nil then begin
-    Result := TTileMatrixElement.Create(ATile, VTargetTileCoordConverter, VBitmapStatic);
+    Result := TTileMatrixElement.Create(VBitmapStatic);
   end;
 end;
 

@@ -34,6 +34,7 @@ uses
   i_TileRectChangeable,
   i_BitmapLayerProvider,
   i_BitmapLayerProviderChangeable,
+  i_LocalCoordConverterFactorySimpe,
   i_ObjectWithListener,
   i_TileMatrix,
   i_TileMatrixChangeable,
@@ -44,6 +45,7 @@ type
   private
     FAppStartedNotifier: INotifierOneOperation;
     FAppClosingNotifier: INotifierOneOperation;
+    FConverterFactory: ILocalCoordConverterFactorySimpe;
     FTileMatrixFactory: ITileMatrixFactory;
     FTileRect: ITileRectChangeable;
     FLayerProvider: IBitmapLayerProviderChangeable;
@@ -89,6 +91,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       const ATileRect: ITileRectChangeable;
       const ATileMatrixFactory: ITileMatrixFactory;
+      const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const ALayerProvider: IBitmapLayerProviderChangeable;
       const ASourcUpdateNotyfier: IObjectWithListener;
       const AThreadConfig: IThreadConfig;
@@ -106,6 +109,7 @@ uses
   i_TileRect,
   i_Bitmap32Static,
   i_CoordConverter,
+  i_LocalCoordConverter,
   i_LonLatRect,
   u_SimpleFlagWithInterlock,
   u_ListenerNotifierLinksList,
@@ -122,6 +126,7 @@ constructor TTileMatrixChangeableWithThread.Create(
   const AAppStartedNotifier, AAppClosingNotifier: INotifierOneOperation;
   const ATileRect: ITileRectChangeable;
   const ATileMatrixFactory: ITileMatrixFactory;
+  const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const ALayerProvider: IBitmapLayerProviderChangeable;
   const ASourcUpdateNotyfier: IObjectWithListener;
   const AThreadConfig: IThreadConfig;
@@ -134,6 +139,7 @@ begin
   Assert(Assigned(AAppClosingNotifier));
   Assert(Assigned(ATileRect));
   Assert(Assigned(ATileMatrixFactory));
+  Assert(Assigned(AConverterFactory));
   Assert(Assigned(ALayerProvider));
   inherited Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifiers'));
 
@@ -141,6 +147,7 @@ begin
   FAppClosingNotifier := AAppClosingNotifier;
   FTileRect := ATileRect;
   FTileMatrixFactory := ATileMatrixFactory;
+  FConverterFactory := AConverterFactory;
   FLayerProvider := ALayerProvider;
   FSourcUpdateNotyfier := ASourcUpdateNotyfier;
 
@@ -389,9 +396,14 @@ var
   VBitmap: IBitmap32Static;
   VCounterContext: TInternalPerformanceCounterContext;
   VId: Integer;
+  VLocalConverter: ILocalCoordConverter;
+  VConverter: ICoordConverter;
+  VZoom: Byte;
 begin
   Assert(Assigned(ATileMatrix));
   Assert(Assigned(ALayerProvider));
+  VConverter := ATileMatrix.TileRect.ProjectionInfo.GeoConverter;
+  VZoom := ATileMatrix.TileRect.ProjectionInfo.Zoom;
   VTileIterator := TTileIteratorSpiralByRect.Create(ATileMatrix.TileRect.Rect);
   while VTileIterator.Next(VTile) do begin
     VElement := ATileMatrix.GetElementByTile(VTile);
@@ -401,7 +413,8 @@ begin
       if VElement.ReadyID <> VId then begin
         VCounterContext := FOneTilePrepareCounter.StartOperation;
         try
-          VBitmap := ALayerProvider.GetBitmapRect(AOperationID, ACancelNotifier, VElement.LocalConverter);
+          VLocalConverter := FConverterFactory.CreateForTile(VTile, VZoom, VConverter);
+          VBitmap := ALayerProvider.GetBitmapRect(AOperationID, ACancelNotifier, VLocalConverter);
           VElement.UpdateBitmap(VId, VBitmap);
         finally
           FOneTilePrepareCounter.FinishOperation(VCounterContext);

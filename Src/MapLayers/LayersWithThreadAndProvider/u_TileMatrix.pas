@@ -110,12 +110,7 @@ begin
           VConverter
         );
 
-      FItems[i] :=
-        TTileMatrixElement.Create(
-          VTile,
-          VTileConverter,
-          nil
-        );
+      FItems[i] := TTileMatrixElement.Create(nil);
     end;
   end;
 end;
