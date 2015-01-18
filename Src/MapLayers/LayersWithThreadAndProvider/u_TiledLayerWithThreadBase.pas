@@ -218,6 +218,7 @@ var
   VTile: TPoint;
   VDstRect: TRect;
   VShownId: THashValue;
+  VMapRect: TRect;
 begin
   if FTileMatrixChangeFlag.CheckFlagAndReset then begin
     VTileMatrix := FTileMatrix.GetStatic;
@@ -238,11 +239,12 @@ begin
             VElement := VTileMatrix.GetElementByTile(VTile);
             if VElement <> nil then begin
               if VElement.ReadyID <> VShownId then begin
-                VDstRect :=
-                  VLocalConverter.MapRect2LocalRect(
-                    VElement.LocalConverter.GetRectInMapPixel,
-                    rrClosest
+                VMapRect :=
+                  VLocalConverter.GeoConverter.TilePos2PixelRect(
+                    VTile,
+                    VLocalConverter.Zoom
                   );
+                VDstRect := VLocalConverter.MapRect2LocalRect(VMapRect, rrClosest);
                 FShownIdMatrix.SetHash(VTile, VElement.ReadyID);
                 FLayer.Changed(VDstRect);
               end;
@@ -302,11 +304,7 @@ begin
         VElement := ATileMatrix.GetElementByTile(VTile);
         if VElement <> nil then begin
           if VZoomDst <> VZoomSrc then begin
-            VRelativeRect :=
-              VConverter.PixelRectFloat2RelativeRect(
-                VElement.LocalConverter.GetRectInMapPixelFloat,
-                VZoomSrc
-              );
+            VRelativeRect := VConverter.TilePos2RelativeRect(VTile, VZoomSrc);
             VDstRect :=
               RectFromDoubleRect(
                 ALocalConverter.MapRectFloat2LocalRectFloat(VConverter.RelativeRect2PixelRectFloat(VRelativeRect, VZoomDst)),
@@ -315,7 +313,7 @@ begin
           end else begin
             VDstRect :=
               ALocalConverter.MapRect2LocalRect(
-                VElement.LocalConverter.GetRectInMapPixel,
+                VConverter.TilePos2PixelRect(VTile, VZoomSrc),
                 rrClosest
               );
           end;
