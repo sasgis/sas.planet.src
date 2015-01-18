@@ -1774,6 +1774,7 @@ begin
     );
 
   VLayersList := TInterfaceListSimple.Create;
+  // Main bitmap layer
   VLayersList.Add(
     TMapLayerBitmapMaps.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('MapLayerBitmapMaps'),
@@ -1795,6 +1796,7 @@ begin
       GState.GUISyncronizedTimerNotifier
     )
   );
+  // Bitmap layer with grids
   VLayersList.Add(
     TMapLayerGrids.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerGrids'),
@@ -1811,6 +1813,7 @@ begin
       FConfig.LayersConfig.MapLayerGridsConfig
     )
   );
+  // Layer with randered vector maps
   VPerfList := GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerVectorMaps');
   VVectorItems :=
     TVectorItemSubsetChangeableForVectorLayers.Create(
@@ -1855,6 +1858,7 @@ begin
       FConfig.LayersConfig.KmlLayerConfig.ThreadConfig
     )
   );
+  // Filling map layer
   VLayersList.Add(
     TMapLayerFillingMap.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerFillingMap'),
@@ -1870,6 +1874,7 @@ begin
       FConfig.LayersConfig.FillingMapLayerConfig
     )
   );
+  // Marks from MarkSystem
   VBitmap :=
     ReadBitmapByFileRef(
       GState.ResourceProvider,
@@ -1926,6 +1931,7 @@ begin
       FConfig.LayersConfig.MarksLayerConfig
     )
   );
+  // GPS track visualisation layer
   VLayersList.Add(
     TMapLayerGPSTrack.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerGPSTrack'),
@@ -1942,6 +1948,7 @@ begin
       GState.GpsTrackRecorder
     )
   );
+  // GPS marker layer
   VMarkerChangeable :=
     TMarkerDrawableChangeableSimple.Create(
       TMarkerDrawableSimpleSquare,
@@ -1966,6 +1973,7 @@ begin
       GState.GPSRecorder
     )
   );
+  // Layer with rings around GPS marker
   VLayersList.Add(
     TMapLayerGPSMarkerRings.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerGPSMarkerRings'),
@@ -1980,6 +1988,7 @@ begin
       GState.GPSRecorder
     )
   );
+  // Last selection visualisation layer
   VLayersList.Add(
     TSelectionLayer.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TSelectionLayer'),
@@ -1992,6 +2001,7 @@ begin
       GState.LastSelectionInfo
     )
   );
+  // CalcLine line visualisation layer
   VLayersList.Add(
     TPathEditLayer.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TPathEditLayerCalcLine'),
@@ -2004,6 +2014,7 @@ begin
       FConfig.LayersConfig.CalcLineLayerConfig.LineConfig
     )
   );
+  // CalcLine points visualisation layer
   VLayersList.Add(
     TPathEditPointsSetLayer.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TPathEditPointsSetLayerCalcLine'),
@@ -2018,6 +2029,7 @@ begin
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.CalcLineLayerConfig.PointsConfig.NormalPointMarker)
     )
   );
+  // CalcLine captions layer
   VLayersList.Add(
     TCalcLineLayer.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TCalcLineLayer'),
@@ -2030,6 +2042,7 @@ begin
       GState.ValueToStringConverter
     )
   );
+  // PathEdit line visualisation layer
   VLayersList.Add(
     TPathEditLayer.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TPathEditLayerEditLine'),
@@ -2042,6 +2055,7 @@ begin
       FConfig.LayersConfig.MarkPolyLineLayerConfig.LineConfig
     )
   );
+  // PathEdit poinst visualisation layer
   VLayersList.Add(
     TPathEditPointsSetLayer.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TPathEditPointsSetLayerEditLine'),
@@ -2056,6 +2070,7 @@ begin
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolyLineLayerConfig.PointsConfig.NormalPointMarker)
     )
   );
+  // PathEdit captions layer
   VLayersList.Add(
     TCalcLineLayer.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TCalcLineLayerEditLine'),
@@ -2068,6 +2083,7 @@ begin
       GState.ValueToStringConverter
     )
   );
+  // PolygonEdit line and fill visualisation layer
   VLayersList.Add(
     TPolygonEditLayer.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TPolygonEditLayerEditPoly'),
@@ -2080,6 +2096,7 @@ begin
       FConfig.LayersConfig.MarkPolygonLayerConfig.LineConfig
     )
   );
+  // PolygonEdit points visualisation layer
   VLayersList.Add(
     TPolygonEditPointsSetLayer.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TPolygonEditPointsSetLayerEditPoly'),
@@ -2094,6 +2111,7 @@ begin
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolygonLayerConfig.PointsConfig.NormalPointMarker)
     )
   );
+  // PolygonSelection line and fill visualisation layer
   VLayersList.Add(
     TPolygonEditLayer.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TPolygonEditLayerSelection'),
@@ -2106,6 +2124,7 @@ begin
       FConfig.LayersConfig.SelectionPolygonLayerConfig.LineConfig
     )
   );
+  // PolygonSelection points visualisation layer
   VLayersList.Add(
     TPolygonEditPointsSetLayer.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TPolygonEditPointsSetLayerSelection'),
@@ -2120,7 +2139,7 @@ begin
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolygonLayerConfig.PointsConfig.NormalPointMarker)
     )
   );
-
+  // SelectionByLyne shadow visualisation layer
   VLayersList.Add(
     TSelectionPolylineShadowLayer.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TSelectionPolylineShadowLayer'),
@@ -2134,6 +2153,7 @@ begin
       FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig
     )
   );
+  // SelectionByLyne line visualisation layer
   VLayersList.Add(
     TPathEditLayer.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TPathEditLayerSelectionLine'),
@@ -2146,6 +2166,7 @@ begin
       FConfig.LayersConfig.SelectionPolylineLayerConfig.LineConfig
     )
   );
+  // SelectionByLyne points visualisation layer
   VLayersList.Add(
     TPathEditPointsSetLayer.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TPathEditPointsSetLayerSelectionLine'),
@@ -2160,7 +2181,7 @@ begin
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolylineLayerConfig.PointsConfig.NormalPointMarker)
     )
   );
-
+  // SelectionByRect visualisation layer
   VLayersList.Add(
     TSelectionRectLayer.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TSelectionRectLayer'),
@@ -2172,6 +2193,7 @@ begin
       FConfig.LayersConfig.SelectionRectLayerConfig
     )
   );
+  // Vector search results visualisation layer
   VPerfList := GState.PerfCounterList.CreateAndAddNewSubList('TSearchResultsLayer');
   VBitmap :=
     ReadBitmapByFileRef(
@@ -2218,6 +2240,7 @@ begin
       FConfig.LayersConfig.KmlLayerConfig.ThreadConfig
     )
   );
+  // Goto marker visualisation layer
   VBitmap :=
     ReadBitmapByFileRef(
       GState.ResourceProvider,
@@ -2245,6 +2268,7 @@ begin
       FConfig.LayersConfig.GotoLayerConfig
     )
   );
+  // Navigation to mark marker visualisation layer
   VMarkerChangeable :=
     TMarkerDrawableChangeableSimple.Create(
       TMarkerDrawableSimpleCross,
@@ -2269,6 +2293,7 @@ begin
       FConfig.LayersConfig.NavToPointMarkerConfig
     )
   );
+  // Error info visualisation layer
   VLayersList.Add(
     TTileErrorInfoLayer.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TTileErrorInfoLayer'),
@@ -2282,6 +2307,7 @@ begin
       GState.GUISyncronizedTimerNotifier
     )
   );
+  // Point edit marker visualisation layer
   VBitmap :=
     ReadBitmapByFileRef(
       GState.ResourceProvider,
@@ -2307,6 +2333,7 @@ begin
       FPointOnMapEdit
     )
   );
+  // Full map cursor layer
   VLayersList.Add(
     TFullMapMouseCursorLayer.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TFullMapMouseCursorLayer'),
@@ -2320,6 +2347,7 @@ begin
       FConfig.LayersConfig.FullMapMouseCursorLayerConfig
     )
   );
+  // Center scale layer
   VMarkerChangeable :=
     TMarkerDrawableChangeableFaked.Create(
       TMarkerDrawableCenterScale.Create(GState.Bitmap32StaticFactory)
@@ -2343,6 +2371,7 @@ begin
       Self.tbitmOnInterfaceOptionsClick
     );
 
+  // Horizontal scale line layer
   VLayersList.Add(
     TLayerScaleLineHorizontal.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TLayerScaleLineHorizontal'),
@@ -2355,6 +2384,7 @@ begin
       FConfig.LayersConfig.ScaleLineConfig
     )
   );
+  // Vertical scale line layer
   VLayersList.Add(
     TLayerScaleLineVertical.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TLayerScaleLineVertical'),
@@ -2367,6 +2397,7 @@ begin
       FConfig.LayersConfig.ScaleLineConfig
     )
   );
+  // Map licenses visualisation layer
   VLicensList :=
     TActiveMapsLicenseList.Create(
       GState.Config.LanguageManager,
@@ -2381,7 +2412,7 @@ begin
       VLicensList
     )
   );
-
+  // Status bar layer
   VPopupMenu :=
     TLayerStatBarPopupMenu.Create(
       GState.Config.LanguageManager,
@@ -2425,6 +2456,7 @@ begin
       GSync.SyncVariable.Make('TileRectMiniMapForShowMain'),
       GSync.SyncVariable.Make('TileRectMiniMapForShowResult')
     );
+  // MiniMap bitmap layer
   VLayersList.Add(
     TMiniMapLayer.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TMiniMapLayer'),
@@ -2453,6 +2485,7 @@ begin
       GState.MapType.GUIConfigList,
       FMapTypeIcons18List
     );
+  // View rect in MiniMap visualisation layer
   VLayersList.Add(
     TMiniMapLayerViewRect.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TMiniMapLayerViewRect'),
@@ -2466,6 +2499,7 @@ begin
       FConfig.LayersConfig.MiniMapLayerConfig.LocationConfig
     )
   );
+  // Mini Map top border
   VLayersList.Add(
     TMiniMapLayerTopBorder.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TMiniMapLayerTopBorder'),
@@ -2476,6 +2510,7 @@ begin
       FConfig.LayersConfig.MiniMapLayerConfig
     )
   );
+  // Mini Map left border
   VLayersList.Add(
     TMiniMapLayerLeftBorder.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TMiniMapLayerLeftBorder'),
@@ -2486,6 +2521,7 @@ begin
       FConfig.LayersConfig.MiniMapLayerConfig
     )
   );
+  // Mini map Minus button
   VBitmap :=
     ReadBitmapByFileRef(
       GState.ResourceProvider,
@@ -2508,6 +2544,7 @@ begin
       FConfig.LayersConfig.MiniMapLayerConfig
     )
   );
+  // Mini Map plus button
   VBitmap :=
     ReadBitmapByFileRef(
       GState.ResourceProvider,
