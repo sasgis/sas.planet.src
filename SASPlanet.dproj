@@ -546,7 +546,6 @@
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\Grids\u_BaseGridConfig.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\Grids\u_DegreeGridConfig.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\Grids\u_GenShtabGridConfig.pas" />
-    <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\Grids\u_MapLayerGrids.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\Grids\u_MapLayerGridsConfig.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\Grids\u_TileGridConfig.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\i_TileMatrix.pas" />

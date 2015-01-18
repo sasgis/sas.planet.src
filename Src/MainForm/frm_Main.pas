@@ -925,6 +925,7 @@ uses
   u_BitmapLayerProviderChangeableForMainLayer,
   u_SourceDataUpdateInRectByMapsSet,
   u_TiledLayerWithThreadBase,
+  u_BitmapLayerProviderChangeableForGrids,
   u_MapLayerVectorMaps,
   u_MiniMapLayer,
   u_MiniMapLayerViewRect,
@@ -935,7 +936,6 @@ uses
   u_LayerLicenseList,
   u_LayerStatBar,
   u_MapLayerMarks,
-  u_MapLayerGrids,
   u_MapLayerNavToMark,
   u_MapLayerGPSTrack,
   u_MapSvcScanStorage,
@@ -1822,22 +1822,35 @@ begin
     );
   VLayersList.Add(VLayer);
   // Bitmap layer with grids
-  VLayersList.Add(
-    TMapLayerGrids.Create(
+  VTileMatrixFactory :=
+    TTileMatrixFactory.Create(
+      VTileMatrixDraftResampler,
+      GState.Bitmap32StaticFactory,
+      GState.LocalConverterFactory
+    );
+  VProvider :=
+    TBitmapLayerProviderChangeableForGrids.Create(
+      GState.Bitmap32StaticFactory,
+      GState.ValueToStringConverter,
+      FConfig.LayersConfig.MapLayerGridsConfig
+    );
+  VLayer :=
+    TTiledLayerWithThreadBase.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerGrids'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
       VTileRectForShow,
       FViewPortState.View,
-      VTileMatrixDraftResampler,
-      GState.LocalConverterFactory,
+      VTileMatrixFactory,
+      VProvider,
+      nil,
       GState.GUISyncronizedTimerNotifier,
-      GState.Bitmap32StaticFactory,
-      GState.ValueToStringConverter,
-      FConfig.LayersConfig.MapLayerGridsConfig
-    )
-  );
+      FConfig.LayersConfig.MapLayerGridsConfig.ThreadConfig,
+      'TMapLayerGrids'
+    );
+  VLayersList.Add(VLayer);
+
   // Layer with randered vector maps
   VPerfList := GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerVectorMaps');
   VVectorItems :=

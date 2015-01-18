@@ -676,7 +676,6 @@ uses
   u_LayerMiniMapPopupMenu in 'Src\MainForm\u_LayerMiniMapPopupMenu.pas',
   u_FullMapMouseCursorLayer in 'Src\MapLayers\WindowLayers\FullMapMouseCursor\u_FullMapMouseCursorLayer.pas',
   u_MapLayerBasic in 'Src\MapLayers\WindowLayers\u_MapLayerBasic.pas',
-  u_MapLayerGrids in 'Src\MapLayers\LayersWithThreadAndProvider\Grids\u_MapLayerGrids.pas',
   u_MapLayerMarks in 'Src\MapLayers\LayersWithThreadAndProvider\Marks\u_MapLayerMarks.pas',
   u_MapLayerNavToMark in 'Src\MapLayers\WindowLayers\NavToMark\u_MapLayerNavToMark.pas',
   u_SelectionLayer in 'Src\MapLayers\WindowLayers\Selection\u_SelectionLayer.pas',
