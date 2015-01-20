@@ -49,6 +49,7 @@ type
     );
   public
     constructor Create(
+      const ASync: IReadWriteSync;
       const ABitmap: IBitmap32Static
     );
   end;
@@ -56,18 +57,19 @@ type
 implementation
 
 uses
-  i_CoordConverter,
-  u_Synchronizer;
+  i_CoordConverter;
 
 { TTileMatrixElement }
 
 constructor TTileMatrixElement.Create(
+  const ASync: IReadWriteSync;
   const ABitmap: IBitmap32Static
 );
 begin
+  Assert(Assigned(ASync));
   inherited Create;
   FBitmap := ABitmap;
-  FSync := GSync.SyncVariable.Make(Self.ClassName);
+  FSync := ASync;
   FReadyID := 0;
   FExpectedID := 1;
 end;

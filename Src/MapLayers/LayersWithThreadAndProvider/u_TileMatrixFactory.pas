@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  SysUtils,
   GR32,
   i_TileRect,
   i_ProjectionInfo,
@@ -37,6 +38,7 @@ type
   private
     FBitmapFactory: IBitmap32StaticFactory;
     FImageResampler: IImageResamplerFactoryChangeable;
+    FSync: IReadWriteSync;
     function BuildEmpty(
       const ANewTileRect: ITileRect
     ): ITileMatrix;
@@ -85,7 +87,8 @@ uses
   u_GeoFunc,
   u_BitmapFunc,
   u_TileMatrixElement,
-  u_TileMatrix;
+  u_TileMatrix,
+  u_Synchronizer;
 
 { TTileMatrixFactory }
 
@@ -99,6 +102,7 @@ begin
   inherited Create;
   FImageResampler := AImageResampler;
   FBitmapFactory := ABitmapFactory;
+  FSync := GSync.SyncVariable.Make(Self.ClassName);
 end;
 
 procedure TTileMatrixFactory.PrepareCopyRects(
@@ -246,7 +250,7 @@ begin
       );
   end;
   if VBitmapStatic <> nil then begin
-    Result := TTileMatrixElement.Create(VBitmapStatic);
+    Result := TTileMatrixElement.Create(FSync, VBitmapStatic);
   end;
 end;
 
@@ -283,6 +287,7 @@ function TTileMatrixFactory.BuildEmpty(
 begin
   Result :=
     TTileMatrix.Create(
+      FSync,
       ANewTileRect,
       []
     );
@@ -320,6 +325,7 @@ begin
 
       Result :=
         TTileMatrix.Create(
+          FSync,
           ANewTileRect,
           VElements
         );
@@ -391,6 +397,7 @@ begin
 
       Result :=
         TTileMatrix.Create(
+          FSync,
           ANewTileRect,
           VElements
         );

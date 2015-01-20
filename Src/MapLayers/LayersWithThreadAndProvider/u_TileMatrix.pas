@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  SysUtils,
   i_TileRect,
   i_TileMatrix,
   u_BaseInterfacedObject;
@@ -40,6 +41,7 @@ type
     function GetItem(AX, AY: Integer): ITileMatrixElement;
   public
     constructor Create(
+      const ASync: IReadWriteSync;
       const ATileRect: ITileRect;
       const AItems: array of ITileMatrixElement
     );
@@ -55,6 +57,7 @@ uses
 { TTileMatrix }
 
 constructor TTileMatrix.Create(
+  const ASync: IReadWriteSync;
   const ATileRect: ITileRect;
   const AItems: array of ITileMatrixElement
 );
@@ -93,7 +96,7 @@ begin
       Inc(VTile.X, FTileRect.Left);
       Inc(VTile.Y, FTileRect.Top);
 
-      FItems[i] := TTileMatrixElement.Create(nil);
+      FItems[i] := TTileMatrixElement.Create(ASync, nil);
     end;
   end;
 end;
