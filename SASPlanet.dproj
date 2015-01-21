@@ -410,7 +410,6 @@
     <DCCReference Include="Src\i_GlobalViewMainConfig.pas" />
     <DCCReference Include="Src\i_HashFunction.pas" />
     <DCCReference Include="Src\i_HashInterfaceCache.pas" />
-    <DCCReference Include="Src\i_HashMatrix.pas" />
     <DCCReference Include="Src\i_HtmlToHintTextConverter.pas" />
     <DCCReference Include="Src\i_InterfaceQueue.pas" />
     <DCCReference Include="Src\i_LanguageListStatic.pas" />
@@ -546,8 +545,6 @@
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\Grids\u_GenShtabGridConfig.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\Grids\u_MapLayerGridsConfig.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\Grids\u_TileGridConfig.pas" />
-    <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\i_TileMatrix.pas" />
-    <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\i_TileMatrixChangeable.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\Marks\i_MarksLayerConfig.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\Marks\u_MarksLayerConfig.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\MiniMap\i_MiniMapLayerConfig.pas" />
@@ -559,10 +556,6 @@
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\MiniMap\u_MiniMapLayerViewRect.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\MiniMap\u_MiniMapMapsConfig.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\u_TiledMapLayer.pas" />
-    <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\u_TileMatrix.pas" />
-    <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\u_TileMatrixChangeableWithThread.pas" />
-    <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\u_TileMatrixElement.pas" />
-    <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\u_TileMatrixFactory.pas" />
     <DCCReference Include="Src\MapLayers\u_KmlLayerConfig.pas" />
     <DCCReference Include="Src\MapLayers\u_MainFormLayersConfig.pas" />
     <DCCReference Include="Src\MapLayers\u_MainMapLayerConfig.pas" />
@@ -1216,6 +1209,14 @@
     <DCCReference Include="Src\Terrain\u_TerrainInfo.pas" />
     <DCCReference Include="Src\Terrain\u_TerrainProviderList.pas" />
     <DCCReference Include="Src\Terrain\u_TerrainProviderListElement.pas" />
+    <DCCReference Include="Src\TileMatrix\i_HashMatrix.pas" />
+    <DCCReference Include="Src\TileMatrix\i_TileMatrix.pas" />
+    <DCCReference Include="Src\TileMatrix\i_TileMatrixChangeable.pas" />
+    <DCCReference Include="Src\TileMatrix\u_HashMatrix.pas" />
+    <DCCReference Include="Src\TileMatrix\u_TileMatrix.pas" />
+    <DCCReference Include="Src\TileMatrix\u_TileMatrixChangeableWithThread.pas" />
+    <DCCReference Include="Src\TileMatrix\u_TileMatrixElement.pas" />
+    <DCCReference Include="Src\TileMatrix\u_TileMatrixFactory.pas" />
     <DCCReference Include="Src\TileProvider\i_BinaryTileProvider.pas" />
     <DCCReference Include="Src\TileProvider\i_BitmapTileProvider.pas" />
     <DCCReference Include="Src\TileProvider\i_VectorTileProvider.pas" />
@@ -1329,7 +1330,6 @@
     <DCCReference Include="Src\u_HashFunctionByImpl.pas" />
     <DCCReference Include="Src\u_HashFunctionWithCounter.pas" />
     <DCCReference Include="Src\u_HashInterfaceCache2Q.pas" />
-    <DCCReference Include="Src\u_HashMatrix.pas" />
     <DCCReference Include="Src\u_HtmlToHintTextConverterStuped.pas" />
     <DCCReference Include="Src\u_ImportFromArcGIS.pas" />
     <DCCReference Include="Src\u_InterfaceQueue.pas" />
