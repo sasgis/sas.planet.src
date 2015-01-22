@@ -591,8 +591,9 @@ end;
 function TLocalCoordConverterNoScaleIntDelta.LocalPixel2MapPixelFloat(
   const APoint: TPoint): TDoublePoint;
 begin
-  Result.X := APoint.X + FMapPixelAtLocalZero.X;
-  Result.Y := APoint.Y + FMapPixelAtLocalZero.Y;
+  Result := DoublePoint(APoint);
+  Result.X := Result.X + FMapPixelAtLocalZero.X;
+  Result.Y := Result.Y + FMapPixelAtLocalZero.Y;
 end;
 
 function TLocalCoordConverterNoScaleIntDelta.LocalPixelFloat2MapPixelFloat(
@@ -614,8 +615,9 @@ end;
 function TLocalCoordConverterNoScaleIntDelta.MapPixel2LocalPixelFloat(
   const APoint: TPoint): TDoublePoint;
 begin
-  Result.X := APoint.X - FMapPixelAtLocalZero.X;
-  Result.Y := APoint.Y - FMapPixelAtLocalZero.Y;
+  Result := DoublePoint(APoint);
+  Result.X := Result.X - FMapPixelAtLocalZero.X;
+  Result.Y := Result.Y - FMapPixelAtLocalZero.Y;
 end;
 
 function TLocalCoordConverterNoScaleIntDelta.MapPixelFloat2LocalPixelFloat(
