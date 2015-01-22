@@ -30,6 +30,11 @@ uses
   ExtCtrls,
   ComCtrls,
   Spin,
+  SynEdit,
+  SynEditHighlighter,
+  SynHighlighterIni,
+  SynHighlighterPas,
+  SynHighlighterHtml,
   i_MapType,
   i_LanguageManager,
   i_TileStorageTypeList,
@@ -59,18 +64,15 @@ type
     lblCacheType: TLabel;
     btnResetCacheType: TButton;
     pnlBottomButtons: TPanel;
-    pnlSeparator: TPanel;
     pnlCacheType: TPanel;
     grdpnlHotKey: TGridPanel;
-    grdpnlSleep: TGridPanel;
-    grdpnlSleepAndKey: TGridPanel;
     pnlParentItem: TPanel;
     pnlCacheName: TPanel;
     pnlUrl: TPanel;
     pnlUrlRight: TPanel;
     lblHotKey: TLabel;
     CheckEnabled: TCheckBox;
-    pnlTop: TPanel;
+    pnlBottom: TPanel;
     lblZmpName: TLabel;
     edtZmp: TEdit;
     pnlVersion: TPanel;
@@ -87,14 +89,15 @@ type
     mmoDownloadState: TMemo;
     chkDownloadEnabled: TCheckBox;
     PageControl1: TPageControl;
-    tsMaps: TTabSheet;
+    tsInternet: TTabSheet;
     tsParams: TTabSheet;
     tsGetURLScript: TTabSheet;
     tsInfo: TTabSheet;
-    mmoParams: TMemo;
-    mmoScript: TMemo;
-    mmoInfo: TMemo;
     BtnSelectPath: TButton;
+    tvMenu: TTreeView;
+    tsOthers: TTabSheet;
+    spl1: TSplitter;
+    pnlSleep: TPanel;
     procedure btnOkClick(Sender: TObject);
     procedure FormClose(
       Sender: TObject;
@@ -110,9 +113,20 @@ type
     procedure btnResetVersionClick(Sender: TObject);
     procedure btnResetHeaderClick(Sender: TObject);
     procedure BtnSelectPathClick(Sender: TObject);
+    procedure tvMenuClick(Sender: TObject);
+    procedure tvMenuCollapsing(
+      Sender: TObject;
+      Node: TTreeNode;
+      var AllowCollapse: Boolean
+    );
   private
+    synedtParams: TSynEdit;
+    synedtScript: TSynEdit;
+    synedtInfo: TSynEdit;
     FTileStorageTypeList: ITileStorageTypeListStatic;
     FMapType: IMapType;
+    procedure BuildTreeViewMenu;
+    procedure CreateSynEditTextHighlighters;
   public
     function EditMapModadl(const AMapType: IMapType): Boolean;
   public
@@ -125,6 +139,7 @@ type
 implementation
 
 uses
+  gnugettext,
   {$WARN UNIT_PLATFORM OFF}
   FileCtrl,
   {$WARN UNIT_PLATFORM ON}
@@ -145,6 +160,8 @@ constructor TfrmMapTypeEdit.Create(
 begin
   inherited Create(ALanguageManager);
   FTileStorageTypeList := ATileStorageTypeList;
+  BuildTreeViewMenu;
+  CreateSynEditTextHighlighters;
 end;
 
 function GetCacheIdFromIndex(const AIndex: Integer): Byte;
@@ -277,7 +294,7 @@ var
   TempPath: string;
 begin
   TempPath := EditNameinCache.text;
-  if SelectDirectory('Cache folder', '', TempPath) then begin
+  if SelectDirectory(_('Cache folder'), '', TempPath) then begin
     EditNameinCache.Text := IncludeTrailingPathDelimiter(TempPath);
   end;
 end;
@@ -348,7 +365,7 @@ begin
   FMapType := AMapType;
 
   Caption := SAS_STR_EditMap + ' ' + FMapType.GUIConfig.Name.Value;
-  edtZmp.Text := AMapType.Zmp.FileName;
+  edtZmp.Text := '%Maps%' + PathDelim + AMapType.Zmp.FileName;
 
   FMapType.TileDownloadRequestBuilderConfig.LockRead;
   try
@@ -358,10 +375,9 @@ begin
     FMapType.TileDownloadRequestBuilderConfig.UnlockRead;
   end;
 
-  mmoParams.Text := FMapType.Zmp.DataProvider.ReadString('params.txt', '');
-  mmoInfo.Text := FMapType.Zmp.DataProvider.ReadString('info.txt', '');
-  mmoScript.Text := FMapType.Zmp.DataProvider.ReadString('GetUrlScript.txt', '');
-
+  synedtParams.Text := FMapType.Zmp.DataProvider.ReadString('params.txt', '');
+  synedtInfo.Text := FMapType.Zmp.DataProvider.ReadString('info.txt', '');
+  synedtScript.Text := FMapType.Zmp.DataProvider.ReadString('GetUrlScript.txt', '');
 
   SESleep.Value := FMapType.TileDownloaderConfig.WaitInterval;
   EditParSubMenu.Text := FMapType.GUIConfig.ParentSubMenu.Value;
@@ -391,7 +407,7 @@ begin
 
   // download availability
   if VDownloadState.Enabled then begin
-    mmoDownloadState.Text := SAS_STR_Yes;
+    mmoDownloadState.Text := _('Download Enabled');
   end else begin
     mmoDownloadState.Text := VDownloadState.DisableReason;
   end;
@@ -399,10 +415,99 @@ begin
 
   // check storage write access
   if (FMapType.TileStorage.State.GetStatic.WriteAccess = asDisabled) then begin
-    mmoDownloadState.Lines.Add('No write access to tile storage');
+    mmoDownloadState.Lines.Add(_('No write access to tile storage'));
   end;
 
   Result := ShowModal = mrOk;
+end;
+
+procedure TfrmMapTypeEdit.BuildTreeViewMenu;
+var
+  I: Integer;
+  VRoot, VDefNode: TTreeNode;
+begin
+  // hide all tabs
+  for I := 0 to PageControl1.PageCount - 1 do begin
+    PageControl1.Pages[I].TabVisible := False;
+  end;
+
+  // build menu
+  VRoot := tvMenu.Items.AddChildObjectFirst(nil, _('Settings'), nil);
+  VDefNode := tvMenu.Items.AddChildObject(VRoot, _('Internet'), tsInternet);
+  tvMenu.Items.AddChildObject(VRoot, _('Cache and Other'), tsOthers);
+
+  VRoot := tvMenu.Items.AddChildObject(nil, _('Listings'), nil);
+  tvMenu.Items.AddChildObject(VRoot, 'Params.txt', tsParams);
+  tvMenu.Items.AddChildObject(VRoot, 'GetUrlScript.txt', tsGetURLScript);
+  tvMenu.Items.AddChildObject(VRoot, 'Info.txt', tsInfo);
+
+  tvMenu.FullExpand;
+
+  // show default tab
+  VDefNode.Selected := True;
+  tvMenuClick(Self);
+end;
+
+procedure TfrmMapTypeEdit.tvMenuClick(Sender: TObject);
+var
+  VTreeIndex: Integer;
+  VNewPageIndex, VActivePageIndex: Integer;
+begin
+  if not Assigned(tvMenu.Selected.Data) then begin
+    VTreeIndex := tvMenu.Selected.AbsoluteIndex;
+    Inc(VTreeIndex);
+    tvMenu.Items[VTreeIndex].Selected := True;
+    Assert(Assigned(tvMenu.Selected.Data));
+  end;
+  VNewPageIndex := TTabSheet(tvMenu.Selected.Data).PageIndex;
+  VActivePageIndex := PageControl1.ActivePageIndex;
+  if VNewPageIndex <> VActivePageIndex then begin
+    if VActivePageIndex <> -1 then begin
+      PageControl1.Pages[VActivePageIndex].TabVisible := False;
+    end;
+    PageControl1.Pages[VNewPageIndex].TabVisible := True;
+    PageControl1.ActivePageIndex := VNewPageIndex;
+  end;
+end;
+
+procedure TfrmMapTypeEdit.tvMenuCollapsing(
+  Sender: TObject;
+  Node: TTreeNode;
+  var AllowCollapse: Boolean
+);
+begin
+  AllowCollapse := False;
+end;
+
+procedure TfrmMapTypeEdit.CreateSynEditTextHighlighters;
+
+  function NewSynEdit(
+    AHighlighter: TSynCustomHighlighter;
+    AParent: TWinControl
+  ): TSynEdit;
+  begin
+    Result := TSynEdit.Create(Self);
+    with AHighlighter do begin
+      Options.AutoDetectEnabled := False;
+      Options.AutoDetectLineLimit := 0;
+      Options.Visible := False;
+    end;
+    with Result do begin
+      Parent := AParent;
+      Align := alClient;
+      Gutter.Visible := False;
+      Highlighter := AHighlighter;
+      ReadOnly := True;
+      ScrollBars := ssVertical;
+      FontSmoothing := fsmNone;
+      WordWrap := True;
+    end;
+  end;
+
+begin
+  synedtParams := NewSynEdit(TSynIniSyn.Create(Self), tsParams);
+  synedtScript := NewSynEdit(TSynPasSyn.Create(Self), tsGetURLScript);
+  synedtInfo := NewSynEdit(TSynHTMLSyn.Create(Self), tsInfo);
 end;
 
 end.
