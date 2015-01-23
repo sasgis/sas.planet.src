@@ -163,8 +163,8 @@ begin
     );
   ASourceRect := VResultSourceMapPixelRect;
   ATargetRect := VResultTargetMapPixelRect;
-  OffsetRect(ASourceRect, -VSourceMapPixelRect.Left, -VSourceMapPixelRect.Top);
-  OffsetRect(ATargetRect, -VTargetMapPixelRect.Left, -VTargetMapPixelRect.Top);
+  Types.OffsetRect(ASourceRect, -VSourceMapPixelRect.Left, -VSourceMapPixelRect.Top);
+  Types.OffsetRect(ATargetRect, -VTargetMapPixelRect.Left, -VTargetMapPixelRect.Top);
 end;
 
 function TTileMatrixFactory.PrepareElementFromSource(
@@ -245,7 +245,7 @@ begin
   if VIsInited then begin
     VBitmapStatic :=
       FBitmapFactory.Build(
-        Point(ABitmap.Width, ABitmap.Height),
+        Types.Point(ABitmap.Width, ABitmap.Height),
         ABitmap.Bits
       );
   end;
