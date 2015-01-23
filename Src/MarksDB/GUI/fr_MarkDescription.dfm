@@ -7,17 +7,6 @@ object frMarkDescription: TfrMarkDescription
   ParentShowHint = False
   ShowHint = True
   TabOrder = 0
-  object EditComment: TMemo
-    AlignWithMargins = True
-    Left = 3
-    Top = 31
-    Width = 445
-    Height = 270
-    Align = alClient
-    ScrollBars = ssVertical
-    TabOrder = 0
-    OnKeyDown = EditCommentKeyDown
-  end
   object pnlDescriptionTop: TPanel
     Left = 0
     Top = 0

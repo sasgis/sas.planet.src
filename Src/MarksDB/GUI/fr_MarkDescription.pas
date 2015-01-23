@@ -37,13 +37,13 @@ uses
   TB2Item,
   TB2Dock,
   TB2Toolbar,
+  SynEdit,
   i_LanguageManager,
   i_PathConfig,
   u_CommonFormAndFrameParents;
 
 type
   TfrMarkDescription = class(TFrame)
-    EditComment: TMemo;
     pnlDescriptionTop: TPanel;
     Label2: TLabel;
     TBXToolbar1: TTBXToolbar;
@@ -64,7 +64,7 @@ type
       Shift: TShiftState);
   private
     FMediaPath: IPathConfig;
-
+    EditComment: TSynEdit;
     function GetDescription: string;
     procedure SetDescription(const Value: string);
   public
@@ -81,6 +81,7 @@ implementation
 uses
   StrUtils,
   SysUtils,
+  SynHighlighterHtml,
   c_InternalBrowser;
 
 {$R *.dfm}
@@ -95,6 +96,23 @@ constructor TfrMarkDescription.Create(
 begin
   inherited Create(ALanguageManager);
   FMediaPath := AMediaPath;
+  EditComment := TSynEdit.Create(Self);
+  with EditComment do begin
+    Parent := Self;
+    AlignWithMargins := True;
+    Left := 3;
+    Top := 31;
+    Width := 445;
+    Height := 270;
+    Align := alClient;
+    ScrollBars := ssVertical;
+    TabOrder := 0;
+    OnKeyDown := EditCommentKeyDown;
+    Highlighter := TSynHTMLSyn.Create(Self);
+    Gutter.Visible := False;
+    FontSmoothing := fsmNone;
+    WordWrap := True;
+  end;
 end;
 
 procedure TfrMarkDescription.EditCommentKeyDown(Sender: TObject; var Key: Word;
