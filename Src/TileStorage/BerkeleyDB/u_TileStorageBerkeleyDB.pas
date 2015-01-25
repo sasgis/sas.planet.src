@@ -38,6 +38,7 @@ uses
   i_TileStorage,
   i_NotifierTime,
   i_ListenerTime,
+  i_NotifierTilePyramidUpdate,
   i_TileFileNameGenerator,
   i_GlobalBerkeleyDBHelper,
   i_TileStorageAbilities,
@@ -137,6 +138,7 @@ type
       const AStorageForceAbilities: ITileStorageAbilities;
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AGeoConverter: ICoordConverter;
+      const ATileNotifier: INotifierTilePyramidUpdateInternal;
       const AStoragePath: string;
       const AStorageConfig: ITileStorageBerkeleyDBConfigStatic;
       const AIsVersioned: Boolean;
@@ -183,6 +185,7 @@ constructor TTileStorageBerkeleyDB.Create(
   const AStorageForceAbilities: ITileStorageAbilities;
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AGeoConverter: ICoordConverter;
+  const ATileNotifier: INotifierTilePyramidUpdateInternal;
   const AStoragePath: string;
   const AStorageConfig: ITileStorageBerkeleyDBConfigStatic;
   const AIsVersioned: Boolean;
@@ -200,6 +203,7 @@ begin
     AStorageForceAbilities,
     AMapVersionFactory,
     AGeoConverter,
+    ATileNotifier,
     AStoragePath
   );
   FStorageConfig := AStorageConfig;

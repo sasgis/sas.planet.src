@@ -29,6 +29,7 @@ uses
   i_NotifierTime,
   i_MapVersionFactory,
   i_ConfigDataProvider,
+  i_NotifierTilePyramidUpdate,
   i_TileStorage,
   i_TileStorageAbilities,
   i_TileStorageTypeConfig,
@@ -46,6 +47,7 @@ type
       const AForceAbilities: ITileStorageAbilities;
       const AGeoConverter: ICoordConverter;
       const AMainContentType: IContentTypeInfoBasic;
+      const ATileNotifier: INotifierTilePyramidUpdateInternal;
       const APath: string;
       const ACacheTileInfo: ITileInfoBasicMemCache
     ): ITileStorage; override;
@@ -96,6 +98,7 @@ function TTileStorageTypeDBMS.BuildStorageInternal(
   const AForceAbilities: ITileStorageAbilities;
   const AGeoConverter: ICoordConverter;
   const AMainContentType: IContentTypeInfoBasic;
+  const ATileNotifier: INotifierTilePyramidUpdateInternal;
   const APath: string;
   const ACacheTileInfo: ITileInfoBasicMemCache
 ): ITileStorage;
@@ -105,6 +108,7 @@ begin
       GetAbilities,
       AForceAbilities,
       AGeoConverter,
+      ATileNotifier,
       GetConfig.BasePath.Path,
       ExcludeTrailingPathDelimiter(APath),
       FGCNotifier,

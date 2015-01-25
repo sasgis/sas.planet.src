@@ -1060,6 +1060,7 @@ begin
     FBitmap32StaticFactory,
     FContentTypeManager,
     FCoordConverterFactory,
+    FProjectionFactory,
     FInvisibleBrowser,
     FProjConverterFactory,
     VLocalMapsConfig

@@ -28,6 +28,7 @@ uses
   i_TileInfoBasicMemCache,
   i_MapVersionFactory,
   i_ConfigDataProvider,
+  i_NotifierTilePyramidUpdate,
   i_TileStorage,
   i_TileStorageAbilities,
   i_TileStorageTypeConfig,
@@ -41,6 +42,7 @@ type
       const AForceAbilities: ITileStorageAbilities;
       const AGeoConverter: ICoordConverter;
       const AMainContentType: IContentTypeInfoBasic;
+      const ATileNotifier: INotifierTilePyramidUpdateInternal;
       const APath: string;
       const ACacheTileInfo: ITileInfoBasicMemCache
     ): ITileStorage; override;
@@ -84,6 +86,7 @@ function TTileStorageTypeInRAM.BuildStorageInternal(
   const AForceAbilities: ITileStorageAbilities;
   const AGeoConverter: ICoordConverter;
   const AMainContentType: IContentTypeInfoBasic;
+  const ATileNotifier: INotifierTilePyramidUpdateInternal;
   const APath: string;
   const ACacheTileInfo: ITileInfoBasicMemCache
 ): ITileStorage;
@@ -94,6 +97,7 @@ begin
       AForceAbilities,
       ACacheTileInfo,
       AGeoConverter,
+      ATileNotifier,
       GetMapVersionFactory,
       AMainContentType
     );

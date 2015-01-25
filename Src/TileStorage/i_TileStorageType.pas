@@ -27,6 +27,7 @@ uses
   i_ContentTypeInfo,
   i_TileStorageAbilities,
   i_MapVersionFactory,
+  i_NotifierTilePyramidUpdate,
   i_TileInfoBasicMemCache,
   i_TileStorageTypeConfig,
   i_TileStorage;
@@ -47,6 +48,7 @@ type
       const AForceAbilities: ITileStorageAbilities;
       const AGeoConverter: ICoordConverter;
       const AMainContentType: IContentTypeInfoBasic;
+      const ATileNotifier: INotifierTilePyramidUpdateInternal;
       const APath: string;
       const ACacheTileInfo: ITileInfoBasicMemCache
     ): ITileStorage;

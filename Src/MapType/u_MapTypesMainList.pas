@@ -108,6 +108,7 @@ type
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AContentTypeManager: IContentTypeManager;
       const ACoordConverterFactory: ICoordConverterFactory;
+      const AProjectionInfoFactory: IProjectionInfoFactory;
       const AInvisibleBrowser: IInvisibleBrowser;
       const AProjFactory: IProjConverterFactory;
       const ALocalMapsConfig: IConfigDataProvider
@@ -208,6 +209,7 @@ procedure TMapTypesMainList.LoadMaps(
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AContentTypeManager: IContentTypeManager;
   const ACoordConverterFactory: ICoordConverterFactory;
+  const AProjectionInfoFactory: IProjectionInfoFactory;
   const AInvisibleBrowser: IInvisibleBrowser;
   const AProjFactory: IProjConverterFactory;
   const ALocalMapsConfig: IConfigDataProvider
@@ -274,6 +276,7 @@ begin
           ADownloaderThreadConfig,
           AContentTypeManager,
           ACoordConverterFactory,
+          AProjectionInfoFactory,
           AInvisibleBrowser,
           AProjFactory,
           VLocalMapConfig,

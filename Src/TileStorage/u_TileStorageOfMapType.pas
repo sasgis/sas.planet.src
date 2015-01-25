@@ -32,6 +32,7 @@ uses
   i_NotifierTilePyramidUpdate,
   i_StorageState,
   i_CoordConverter,
+  i_CoordConverterFactory,
   i_ContentTypeInfo,
   i_Listener,
   i_MapVersionInfo,
@@ -60,6 +61,7 @@ type
     FActualPath: IPathConfig;
     FStorageState: IStorageStateChangeble;
     FStorageStateProxy: IStorageStateProxy;
+    FTileNotifier: INotifierTilePyramidUpdateInternal;
     FAbilitiesNoStorage: ITileStorageTypeAbilities;
 
     FStorageLock: ICounter;
@@ -156,6 +158,7 @@ type
     constructor Create(
       const AGlobalCacheConfig: IGlobalCacheConfig;
       const ACoordConverter: ICoordConverter;
+      const AProjectionInfoFactory: IProjectionInfoFactory;
       const ATileStorageTypeList: ITileStorageTypeListStatic;
       const AConfig: ISimpleTileStorageConfig;
       const ACacheTileInfo: ITileInfoBasicMemCache;
@@ -173,6 +176,7 @@ uses
   u_ListenerByEvent,
   u_PathConfig,
   u_StorageStateProxy,
+  u_NotifierTilePyramidUpdate,
   u_TileStorageAbilities,
   u_SimpleFlagWithInterlock,
   u_Synchronizer;
@@ -182,6 +186,7 @@ uses
 constructor TTileStorageOfMapType.Create(
   const AGlobalCacheConfig: IGlobalCacheConfig;
   const ACoordConverter: ICoordConverter;
+  const AProjectionInfoFactory: IProjectionInfoFactory;
   const ATileStorageTypeList: ITileStorageTypeListStatic;
   const AConfig: ISimpleTileStorageConfig;
   const ACacheTileInfo: ITileInfoBasicMemCache;
@@ -206,6 +211,7 @@ begin
   FStorageStateProxy := VState;
   FStorageLock := TCounterInterlock.Create;
   FStorageNeedUpdate := TSimpleFlagWithInterlock.Create;
+  FTileNotifier := TNotifierTilePyramidUpdate.Create(AProjectionInfoFactory, FCoordConverter);
 
   FPerfCounterList := APerfCounterList.CreateAndAddNewSubList('TileStorage');
   FGetTileInfoCounter := FPerfCounterList.CreateAndAddNewCounter('GetTileInfo');
@@ -274,6 +280,7 @@ begin
             AConfig.Abilities,
             VCoordConverter,
             VMainContentType,
+            FTileNotifier,
             FCurrentPath,
             FCacheTileInfo
           );
@@ -294,7 +301,9 @@ var
   VConfig: ISimpleTileStorageConfigStatic;
   VPath: string;
   VTypeCode: Byte;
+  VNeedNotify: Boolean;
 begin
+  VNeedNotify := False;
   FStorageCS.BeginWrite;
   try
     VConfig := FConfig.GetStatic;
@@ -306,9 +315,13 @@ begin
     // build
     if (FCurrentTypeCode <> VTypeCode) or (FCurrentPath <> VPath) then begin
       BuildStorage(VConfig, VTypeCode, VPath);
+      VNeedNotify := True;
     end;
   finally
     FStorageCS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    FTileNotifier.TileFullUpdateNotify;
   end;
 end;
 
@@ -465,14 +478,8 @@ begin
 end;
 
 function TTileStorageOfMapType.GetTileNotifier: INotifierTilePyramidUpdate;
-var
-  VStorage: ITileStorage;
 begin
-  Result := nil;
-  VStorage := GetStorage;
-  if VStorage <> nil then begin
-    Result := VStorage.TileNotifier;
-  end;
+  Result := FTileNotifier;
 end;
 
 function TTileStorageOfMapType.GetState: IStorageStateChangeble;

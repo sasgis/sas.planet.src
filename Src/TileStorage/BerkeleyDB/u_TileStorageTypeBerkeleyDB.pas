@@ -32,6 +32,7 @@ uses
   i_TileStorageAbilities,
   i_TileStorageTypeConfig,
   i_ConfigDataProvider,
+  i_NotifierTilePyramidUpdate,
   i_TileInfoBasicMemCache,
   i_GlobalBerkeleyDBHelper,
   i_TileStorageBerkeleyDBConfigStatic,
@@ -53,6 +54,7 @@ type
       const AForceAbilities: ITileStorageAbilities;
       const AGeoConverter: ICoordConverter;
       const AMainContentType: IContentTypeInfoBasic;
+      const ATileNotifier: INotifierTilePyramidUpdateInternal;
       const APath: string;
       const ACacheTileInfo: ITileInfoBasicMemCache
     ): ITileStorage; override;
@@ -153,6 +155,7 @@ function TTileStorageTypeBerkeleyDB.BuildStorageInternal(
   const AForceAbilities: ITileStorageAbilities;
   const AGeoConverter: ICoordConverter;
   const AMainContentType: IContentTypeInfoBasic;
+  const ATileNotifier: INotifierTilePyramidUpdateInternal;
   const APath: string;
   const ACacheTileInfo: ITileInfoBasicMemCache
 ): ITileStorage;
@@ -166,6 +169,7 @@ begin
       AForceAbilities,
       FGlobalBerkeleyDBHelper,
       AGeoConverter,
+      ATileNotifier,
       APath,
       VConfig,
       FIsVersioned,

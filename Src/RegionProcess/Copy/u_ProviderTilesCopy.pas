@@ -193,6 +193,7 @@ begin
           nil,
           VTasks[i].FSource.CoordConverter,
           VMapType.ContentType,
+          nil,
           VTargetStoragePath,
           nil
         );

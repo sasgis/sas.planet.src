@@ -50,7 +50,7 @@ type
     procedure Remove(const AListener: IListener);
   end;
 
-  INotifierTilePyramidUpdateInternal = interface
+  INotifierTilePyramidUpdateInternal = interface(INotifierTilePyramidUpdate)
     procedure TileFullUpdateNotify;
     procedure TileUpdateNotify(const ATileKey: ITileKey); overload;
     procedure TileUpdateNotify(

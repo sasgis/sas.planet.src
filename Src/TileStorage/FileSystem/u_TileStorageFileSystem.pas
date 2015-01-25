@@ -32,6 +32,7 @@ uses
   i_MapVersionFactory,
   i_MapVersionRequest,
   i_ContentTypeInfo,
+  i_NotifierTilePyramidUpdate,
   i_TileInfoBasic,
   i_TileStorageAbilities,
   i_TileStorage,
@@ -104,6 +105,7 @@ type
       const AStorageTypeAbilities: ITileStorageTypeAbilities;
       const AStorageForceAbilities: ITileStorageAbilities;
       const AGeoConverter: ICoordConverter;
+      const ATileNotifier: INotifierTilePyramidUpdateInternal;
       const AStoragePath: string;
       const AMainContentType: IContentTypeInfoBasic;
       const AMapVersionFactory: IMapVersionFactory;
@@ -140,6 +142,7 @@ constructor TTileStorageFileSystem.Create(
   const AStorageTypeAbilities: ITileStorageTypeAbilities;
   const AStorageForceAbilities: ITileStorageAbilities;
   const AGeoConverter: ICoordConverter;
+  const ATileNotifier: INotifierTilePyramidUpdateInternal;
   const AStoragePath: string;
   const AMainContentType: IContentTypeInfoBasic;
   const AMapVersionFactory: IMapVersionFactory;
@@ -157,6 +160,7 @@ begin
     AStorageForceAbilities,
     AMapVersionFactory,
     AGeoConverter,
+    ATileNotifier,
     AStoragePath
   );
   FMainContentType := AMainContentType;

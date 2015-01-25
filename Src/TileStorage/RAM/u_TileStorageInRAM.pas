@@ -33,6 +33,7 @@ uses
   i_TileInfoBasic,
   i_BasicMemCache,
   i_CoordConverter,
+  i_NotifierTilePyramidUpdate,
   i_TileStorageAbilities,
   i_TileStorage,
   i_TileInfoBasicMemCache,
@@ -96,6 +97,7 @@ type
       const AStorageForceAbilities: ITileStorageAbilities;
       const ATileInfoMemCache: ITileInfoBasicMemCache;
       const AGeoConverter: ICoordConverter;
+      const ATileNotifier: INotifierTilePyramidUpdateInternal;
       const AMapVersionFactory: IMapVersionFactory;
       const AMainContentType: IContentTypeInfoBasic
     );
@@ -125,6 +127,7 @@ constructor TTileStorageInRAM.Create(
   const AStorageForceAbilities: ITileStorageAbilities;
   const ATileInfoMemCache: ITileInfoBasicMemCache;
   const AGeoConverter: ICoordConverter;
+  const ATileNotifier: INotifierTilePyramidUpdateInternal;
   const AMapVersionFactory: IMapVersionFactory;
   const AMainContentType: IContentTypeInfoBasic
 );
@@ -138,6 +141,7 @@ begin
     AStorageForceAbilities,
     AMapVersionFactory,
     AGeoConverter,
+    ATileNotifier,
     ''
   );
   FTileInfoMemCache := ATileInfoMemCache;

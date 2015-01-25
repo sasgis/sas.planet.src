@@ -28,6 +28,7 @@ uses
   i_TileStorageAbilities,
   i_ConfigDataProvider,
   i_MapVersionFactory,
+  i_NotifierTilePyramidUpdate,
   i_TileInfoBasicMemCache,
   i_TileStorageTypeConfig,
   i_TileStorage,
@@ -50,6 +51,7 @@ type
       const AForceAbilities: ITileStorageAbilities;
       const AGeoConverter: ICoordConverter;
       const AMainContentType: IContentTypeInfoBasic;
+      const ATileNotifier: INotifierTilePyramidUpdateInternal;
       const APath: string;
       const ACacheTileInfo: ITileInfoBasicMemCache
     ): ITileStorage; virtual; abstract;
@@ -61,6 +63,7 @@ type
       const AForceAbilities: ITileStorageAbilities;
       const AGeoConverter: ICoordConverter;
       const AMainContentType: IContentTypeInfoBasic;
+      const ATileNotifier: INotifierTilePyramidUpdateInternal;
       const APath: string;
       const ACacheTileInfo: ITileInfoBasicMemCache
     ): ITileStorage;
@@ -128,6 +131,7 @@ function TTileStorageTypeBase.BuildStorage(
   const AForceAbilities: ITileStorageAbilities;
   const AGeoConverter: ICoordConverter;
   const AMainContentType: IContentTypeInfoBasic;
+  const ATileNotifier: INotifierTilePyramidUpdateInternal;
   const APath: string;
   const ACacheTileInfo: ITileInfoBasicMemCache
 ): ITileStorage;
@@ -155,6 +159,7 @@ begin
       VAbilities,
       AGeoConverter,
       AMainContentType,
+      ATileNotifier,
       APath,
       ACacheTileInfo
     );
@@ -166,6 +171,9 @@ constructor TTileStorageTypeBase.Create(
   const AConfig: ITileStorageTypeConfig
 );
 begin
+  Assert(Assigned(AAbilities));
+  Assert(Assigned(AMapVersionFactory));
+  Assert(Assigned(AConfig));
   inherited Create;
   FAbilities := AAbilities;
   FMapVersionFactory := AMapVersionFactory;

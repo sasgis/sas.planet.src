@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  i_ProjectionInfo,
   i_TileKey,
   u_BaseInterfacedObject;
 
@@ -31,16 +32,17 @@ type
   TTileKey = class(TBaseInterfacedObject, ITileKey)
   private
     FTile: TPoint;
-    FZoom: Byte;
+    FProjectionInfo: IProjectionInfo;
   private
     function GetTile: TPoint;
     function GetZoom: Byte;
+    function GetProjectionInfo: IProjectionInfo;
 
     function IsSame(const AValue: ITileKey): Boolean;
   public
     constructor Create(
-      const ATile: TPoint;
-      const AZoom: Byte
+      const AProjectionInfo: IProjectionInfo;
+      const ATile: TPoint
     );
   end;
 
@@ -49,13 +51,20 @@ implementation
 { TTileKey }
 
 constructor TTileKey.Create(
-  const ATile: TPoint;
-  const AZoom: Byte
+  const AProjectionInfo: IProjectionInfo;
+  const ATile: TPoint
 );
 begin
+  Assert(Assigned(AProjectionInfo));
+  Assert(AProjectionInfo.GeoConverter.CheckTilePosStrict(ATile, AProjectionInfo.Zoom));
   inherited Create;
   FTile := ATile;
-  FZoom := AZoom;
+  FProjectionInfo := AProjectionInfo;
+end;
+
+function TTileKey.GetProjectionInfo: IProjectionInfo;
+begin
+  Result := FProjectionInfo;
 end;
 
 function TTileKey.GetTile: TPoint;
@@ -65,7 +74,7 @@ end;
 
 function TTileKey.GetZoom: Byte;
 begin
-  Result := FZoom;
+  Result := FProjectionInfo.Zoom;
 end;
 
 function TTileKey.IsSame(const AValue: ITileKey): Boolean;
@@ -75,11 +84,15 @@ begin
   if AValue = nil then begin
     Result := False;
   end else begin
-    VTile := AValue.Tile;
-    if (FTile.X <> VTile.X) or (FTile.Y <> VTile.Y) or (FZoom <> AValue.Zoom) then begin
+    if not FProjectionInfo.GetIsSameProjectionInfo(AValue.ProjectionInfo) then begin
       Result := False;
     end else begin
-      Result := True;
+      VTile := AValue.Tile;
+      if (FTile.X <> VTile.X) or (FTile.Y <> VTile.Y) then begin
+        Result := False;
+      end else begin
+        Result := True;
+      end;
     end;
   end;
 end;

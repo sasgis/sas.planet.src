@@ -35,6 +35,7 @@ uses
   i_TileInfoBasic,
   i_BasicMemCache,
   i_CoordConverter,
+  i_NotifierTilePyramidUpdate,
   i_TileStorageAbilities,
   i_TileStorage,
   i_TileInfoBasicMemCache,
@@ -129,6 +130,7 @@ type
       const AStorageTypeAbilities: ITileStorageTypeAbilities;
       const AStorageForceAbilities: ITileStorageAbilities;
       const AGeoConverter: ICoordConverter;
+      const ATileNotifier: INotifierTilePyramidUpdateInternal;
       const AStoragePath: string;
       const ANameInCache: string;
       const AIsTerrainStorage: Boolean;
@@ -160,6 +162,7 @@ constructor TTileStorageGoogleEarth.Create(
   const AStorageTypeAbilities: ITileStorageTypeAbilities;
   const AStorageForceAbilities: ITileStorageAbilities;
   const AGeoConverter: ICoordConverter;
+  const ATileNotifier: INotifierTilePyramidUpdateInternal;
   const AStoragePath: string;
   const ANameInCache: string;
   const AIsTerrainStorage: Boolean;
@@ -173,6 +176,7 @@ begin
     AStorageForceAbilities,
     AMapVersionFactory,
     AGeoConverter,
+    ATileNotifier,
     AStoragePath
   );
 

@@ -33,6 +33,7 @@ uses
   i_MapVersionConfig,
   i_BasicMemCache,
   i_ContentTypeInfo,
+  i_NotifierTilePyramidUpdate,
   i_TileInfoBasic,
   i_TileStorage,
   i_TileStorageAbilities,
@@ -237,6 +238,7 @@ type
       const AStorageTypeAbilities: ITileStorageTypeAbilities;
       const AStorageForceAbilities: ITileStorageAbilities;
       const AGeoConverter: ICoordConverter;
+      const ATileNotifier: INotifierTilePyramidUpdateInternal;
       const AGlobalStorageIdentifier, AStoragePath: String;
       const AGCNotifier: INotifierTime;
       const ACacheTileInfo: ITileInfoBasicMemCache;
@@ -625,6 +627,7 @@ constructor TTileStorageETS.Create(
   const AStorageTypeAbilities: ITileStorageTypeAbilities;
   const AStorageForceAbilities: ITileStorageAbilities;
   const AGeoConverter: ICoordConverter;
+  const ATileNotifier: INotifierTilePyramidUpdateInternal;
   const AGlobalStorageIdentifier, AStoragePath: String;
   const AGCNotifier: INotifierTime;
   const ACacheTileInfo: ITileInfoBasicMemCache;
@@ -646,6 +649,7 @@ begin
     AStorageForceAbilities,
     AMapVersionFactory,
     AGeoConverter,
+    ATileNotifier,
     VCorrectPath
   );
 

@@ -30,6 +30,7 @@ uses
   i_TileKey,
   i_TileRect,
   i_CoordConverter,
+  i_CoordConverterFactory,
   i_NotifierTilePyramidUpdate,
   u_BaseInterfacedObject;
 
@@ -73,6 +74,7 @@ type
   TNotifierTilePyramidUpdate = class(TBaseInterfacedObject, INotifierTilePyramidUpdate, INotifierTilePyramidUpdateInternal)
   private
     FGeoCoder: ICoordConverter;
+    FProjectionInfoFactory: IProjectionInfoFactory;
     FMinValidZoom: Byte;
     FMaxValidZoom: Byte;
     FSynchronizer: IReadWriteSync;
@@ -108,6 +110,7 @@ type
     ); overload;
   public
     constructor Create(
+      const AProjectionInfoFactory: IProjectionInfoFactory;
       const AGeoCoder: ICoordConverter
     );
     destructor Destroy; override;
@@ -117,6 +120,7 @@ implementation
 
 uses
   u_TileKey,
+  u_TileRect,
   u_Synchronizer;
 
 { TNotifierTileRectUpdateOneZoomSimple }
@@ -310,14 +314,19 @@ end;
 
 { TNotifierTileRectUpdate }
 
-constructor TNotifierTilePyramidUpdate.Create(const AGeoCoder: ICoordConverter);
+constructor TNotifierTilePyramidUpdate.Create(
+  const AProjectionInfoFactory: IProjectionInfoFactory;
+  const AGeoCoder: ICoordConverter
+);
 var
   VCount: Integer;
   i: Integer;
 begin
   Assert(AGeoCoder <> nil);
+  Assert(Assigned(AProjectionInfoFactory));
   inherited Create;
   FGeoCoder := AGeoCoder;
+  FProjectionInfoFactory := AProjectionInfoFactory;
   FMinValidZoom := FGeoCoder.MinZoom;
   FMaxValidZoom := FGeoCoder.MaxZoom;
   FSynchronizer := GSync.SyncBig.Make(Self.ClassName);
@@ -605,7 +614,11 @@ begin
       FSynchronizer.EndRead;
     end;
     if VList.Count > 0 then begin
-      VTileRect := nil; //TODO: Доделать создание ITileRect
+      VTileRect :=
+        TTileRect.Create(
+          FProjectionInfoFactory.GetByConverterAndZoom(FGeoCoder, AZoom),
+          ATileRect
+        );
       for i := 0 to VList.Count - 1 do begin
         VListener := VList[i];
         IListener(VListener).Notification(VTileRect);
@@ -647,7 +660,11 @@ begin
       FSynchronizer.EndRead;
     end;
     if VList.Count > 0 then begin
-      VKey := TTileKey.Create(ATile, AZoom);
+      VKey :=
+        TTileKey.Create(
+          FProjectionInfoFactory.GetByConverterAndZoom(FGeoCoder, AZoom),
+          ATile
+        );
       for i := 0 to VList.Count - 1 do begin
         VListener := VList[i];
         IListener(VListener).Notification(VKey);

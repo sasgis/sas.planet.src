@@ -119,6 +119,7 @@ type
       const AStorageForceAbilities: ITileStorageAbilities;
       const AMapVersionFactory: IMapVersionFactory;
       const AGeoConverter: ICoordConverter;
+      const ATileNotifier: INotifierTilePyramidUpdateInternal;
       const AStoragePath: string
     );
   end;
@@ -126,7 +127,6 @@ type
 implementation
 
 uses
-  u_NotifierTilePyramidUpdate,
   u_StorageStateInternal;
 
 { TTileStorageAbstract }
@@ -136,10 +136,10 @@ constructor TTileStorageAbstract.Create(
   const AStorageForceAbilities: ITileStorageAbilities;
   const AMapVersionFactory: IMapVersionFactory;
   const AGeoConverter: ICoordConverter;
+  const ATileNotifier: INotifierTilePyramidUpdateInternal;
   const AStoragePath: string
 );
 var
-  VNotifier: TNotifierTilePyramidUpdate;
   VState: TStorageStateInternal;
 begin
   inherited Create;
@@ -152,9 +152,8 @@ begin
   FStorageStateInternal := VState;
   FStorageState := VState;
 
-  VNotifier := TNotifierTilePyramidUpdate.Create(AGeoConverter);
-  FTileNotifier := VNotifier;
-  FTileNotifierInternal := VNotifier;
+  FTileNotifier := ATileNotifier;
+  FTileNotifierInternal := ATileNotifier;
 end;
 
 function TTileStorageAbstract.GetCoordConverter: ICoordConverter;
@@ -192,7 +191,9 @@ procedure TTileStorageAbstract.NotifyTileUpdate(
   const AVersion: IMapVersionInfo
 );
 begin
-  FTileNotifierInternal.TileUpdateNotify(ATile, AZoom);
+  if Assigned(FTileNotifierInternal) then begin
+    FTileNotifierInternal.TileUpdateNotify(ATile, AZoom);
+  end;
 end;
 
 function TTileStorageAbstract.ScanTiles(
