@@ -95,13 +95,14 @@ type
     TabSheet5: TTabSheet;
     Button3: TButton;
     SaveSelDialog: TSaveDialog;
-    CBCloseWithStart: TCheckBox;
     TabSheet6: TTabSheet;
     pnlBottomButtons: TPanel;
     TBXOperationsToolbar: TTBXToolbar;
     tbtmMark: TTBItem;
     tbtmZoom: TTBItem;
     tbtmSave: TTBItem;
+    TBXDontClose: TTBXToolbar;
+    tbtmDontClose: TTBItem;
     procedure Button1Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -489,7 +490,7 @@ begin
     5: VResult := savefilesREG(FPolygonLL);
   end;
   if VResult then begin
-    if CBCloseWithStart.Checked then begin
+    if not tbtmDontClose.Checked then begin
       close;
     end;
   end;

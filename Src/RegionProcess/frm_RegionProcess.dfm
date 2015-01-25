@@ -31,46 +31,26 @@ object frmRegionProcess: TfrmRegionProcess
       Tag = 1
       Caption = 'Stitch'
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
     end
     object TabSheet3: TTabSheet
       Tag = 2
       Caption = 'Generate'
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
     end
     object TabSheet4: TTabSheet
       Tag = 3
       Caption = 'Delete'
       ImageIndex = 3
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
     end
     object TabSheet5: TTabSheet
       Tag = 4
       Caption = 'Export'
       ImageIndex = 4
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
     end
     object TabSheet6: TTabSheet
       Tag = 5
       Caption = 'Copy'
       ImageIndex = 5
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
     end
   end
   object pnlBottomButtons: TPanel
@@ -106,18 +86,6 @@ object frmRegionProcess: TfrmRegionProcess
       TabOrder = 1
       OnClick = Button3Click
     end
-    object CBCloseWithStart: TCheckBox
-      AlignWithMargins = True
-      Left = 6
-      Top = 6
-      Width = 398
-      Height = 25
-      Align = alClient
-      Caption = 'Close this window after start'
-      Checked = True
-      State = cbChecked
-      TabOrder = 2
-    end
     object TBXOperationsToolbar: TTBXToolbar
       Left = 329
       Top = 6
@@ -126,7 +94,7 @@ object frmRegionProcess: TfrmRegionProcess
       Align = alCustom
       Images = frmMain.MenusImageList
       ShrinkMode = tbsmWrap
-      TabOrder = 3
+      TabOrder = 2
       object tbtmSave: TTBItem
         ImageIndex = 17
         OnClick = tbtmSaveClick
@@ -144,6 +112,22 @@ object frmRegionProcess: TfrmRegionProcess
         OnClick = tbtmMarkClick
         Caption = ''
         Hint = 'Save selection info to file'
+      end
+    end
+    object TBXDontClose: TTBXToolbar
+      Left = 4
+      Top = 6
+      Width = 25
+      Height = 24
+      Align = alCustom
+      Images = frmMain.MenusImageList
+      ShrinkMode = tbsmWrap
+      TabOrder = 3
+      object tbtmDontClose: TTBItem
+        AutoCheck = True
+        ImageIndex = 46
+        Caption = ''
+        Hint = 'Do not close this window after start'
       end
     end
   end

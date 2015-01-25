@@ -20,7 +20,7 @@ object frmProgressSimple: TfrmProgressSimple
   object MemoInfo: TMemo
     Left = 0
     Top = 0
-    Width = 269
+    Width = 244
     Height = 28
     Align = alClient
     BorderStyle = bsNone
@@ -41,9 +41,9 @@ object frmProgressSimple: TfrmProgressSimple
     TabOrder = 1
   end
   object TBXOperationsToolbar: TTBXToolbar
-    Left = 269
+    Left = 244
     Top = 0
-    Width = 50
+    Width = 75
     Height = 28
     Align = alRight
     Images = frmMain.MenusImageList
@@ -60,6 +60,12 @@ object frmProgressSimple: TfrmProgressSimple
       OnClick = tbtmZoomClick
       Caption = ''
       Hint = 'Fit to Screen'
+    end
+    object tbtmDontClose: TTBItem
+      AutoCheck = True
+      ImageIndex = 46
+      Caption = ''
+      Hint = 'Do not close this window when finish'
     end
   end
 end

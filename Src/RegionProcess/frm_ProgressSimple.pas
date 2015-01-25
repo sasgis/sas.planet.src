@@ -53,6 +53,7 @@ type
     TBXOperationsToolbar: TTBXToolbar;
     tbtmSelect: TTBItem;
     tbtmZoom: TTBItem;
+    tbtmDontClose: TTBItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(
       Sender: TObject;
@@ -165,7 +166,9 @@ begin
 
   FAppClosingNotifier.Add(FAppClosingListener);
   if FAppClosingNotifier.IsExecuted then begin
-    OnClose;
+    if not tbtmDontClose.Checked then begin
+      OnClose;
+    end;
   end;
 end;
 
@@ -215,7 +218,9 @@ procedure TfrmProgressSimple.FormKeyUp(
 );
 begin
   if Key = VK_ESCAPE then begin
-    close;
+    if not tbtmDontClose.Checked then begin
+      close;
+    end;
   end;
 end;
 
@@ -237,7 +242,9 @@ begin
     MemoInfo.Lines[1] := FProgressInfo.SecondLine;
     FRarProgress.Progress1 := Trunc(FProgressInfo.ProcessedRatio * 100);
     if FProgressInfo.Finished then begin
-      Close;
+      if not tbtmDontClose.Checked then begin
+        Close;
+      end;
     end;
   end;
 end;
