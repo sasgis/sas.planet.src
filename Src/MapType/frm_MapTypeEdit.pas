@@ -494,11 +494,6 @@ const
   ): TSynEdit;
   begin
     Result := TSynEdit.Create(Self);
-    with AHighlighter do begin
-      Options.AutoDetectEnabled := False;
-      Options.AutoDetectLineLimit := 0;
-      Options.Visible := False;
-    end;
     with Result do begin
       Parent := AParent;
       Align := alClient;
