@@ -100,18 +100,14 @@ begin
   with EditComment do begin
     Parent := Self;
     AlignWithMargins := True;
-    Left := 3;
-    Top := 31;
-    Width := 445;
-    Height := 270;
     Align := alClient;
     ScrollBars := ssVertical;
-    TabOrder := 0;
     OnKeyDown := EditCommentKeyDown;
     Highlighter := TSynHTMLSyn.Create(Self);
     Gutter.Visible := False;
     FontSmoothing := fsmNone;
     WordWrap := True;
+    DoubleBuffered := True;
   end;
 end;
 

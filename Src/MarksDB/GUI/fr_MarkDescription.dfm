@@ -14,7 +14,7 @@ object frMarkDescription: TfrMarkDescription
     Height = 28
     Align = alTop
     BevelOuter = bvNone
-    TabOrder = 1
+    TabOrder = 0
     object Label2: TLabel
       AlignWithMargins = True
       Left = 3
