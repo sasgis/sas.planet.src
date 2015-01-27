@@ -481,6 +481,13 @@ end;
 
 procedure TfrmMapTypeEdit.CreateSynEditTextHighlighters;
 
+const
+  cNumber = $000080FF;
+  cString = $00808080;
+  cComment = $00008000;
+  cSection = $00FF0080;
+  cInstructionWord = $00FF0000;
+
   function NewSynEdit(
     AHighlighter: TSynCustomHighlighter;
     AParent: TWinControl
@@ -501,12 +508,38 @@ procedure TfrmMapTypeEdit.CreateSynEditTextHighlighters;
       ScrollBars := ssVertical;
       FontSmoothing := fsmNone;
       WordWrap := True;
+      DoubleBuffered := True;
+    end;
+  end;
+
+  function BuildSynPas: TSynPasSyn;
+  begin
+    Result := TSynPasSyn.Create(Self);
+    with Result do begin
+      CommentAttri.Foreground := cComment;
+      KeyAttri.Foreground := cInstructionWord;
+      NumberAttri.Foreground := cNumber;
+      FloatAttri.Foreground := cNumber;
+      HexAttri.Foreground := cNumber;
+      StringAttri.Foreground := cString;
+      CharAttri.Foreground := cString;
+    end;
+  end;
+
+  function BuildSynIni: TSynIniSyn;
+  begin
+    Result := TSynIniSyn.Create(Self);
+    with Result do begin
+      CommentAttri.Foreground := cComment;
+      SectionAttri.Foreground := cSection;
+      NumberAttri.Foreground := cNumber;
+      StringAttri.Foreground := cString;
     end;
   end;
 
 begin
-  synedtParams := NewSynEdit(TSynIniSyn.Create(Self), tsParams);
-  synedtScript := NewSynEdit(TSynPasSyn.Create(Self), tsGetURLScript);
+  synedtParams := NewSynEdit(BuildSynIni, tsParams);
+  synedtScript := NewSynEdit(BuildSynPas, tsGetURLScript);
   synedtInfo := NewSynEdit(TSynHTMLSyn.Create(Self), tsInfo);
 end;
 
