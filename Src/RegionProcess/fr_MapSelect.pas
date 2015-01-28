@@ -259,7 +259,7 @@ begin
             end;
           end;
           if VAdd then begin
-            VAddedIndex := cbbMap.Items.AddObject(VCurMapType.GUIConfig.Name.Value, TObject(VCurMapType));
+            VAddedIndex := cbbMap.Items.AddObject(VCurMapType.GUIConfig.Name.Value, TObject(Pointer(VCurMapType)));
             if IsEqualGUID(VCurMapType.Zmp.GUID, VActiveMapGUID) then begin
               // select active map as default
               VDefaultIndex := VAddedIndex;

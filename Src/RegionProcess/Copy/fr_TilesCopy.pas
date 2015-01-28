@@ -283,7 +283,7 @@ begin
     VGUID := VGUIDList.Items[i];
     VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID);
     if (VMapType.GUIConfig.Enabled) then begin
-      VAddedIndex := chklstMaps.Items.AddObject(VMapType.GUIConfig.Name.Value, TObject(VMapType));
+      VAddedIndex := chklstMaps.Items.AddObject(VMapType.GUIConfig.Name.Value, TObject(Pointer(VMapType)));
       if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
         chklstMaps.ItemIndex := VAddedIndex;
         chklstMaps.Checked[VAddedIndex] := True;
