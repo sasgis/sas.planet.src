@@ -55,6 +55,9 @@ type
 
 implementation
 
+uses
+  u_GeoFunc;
+
 { TNavigationToPoint }
 
 constructor TNavigationToPoint.Create;
@@ -72,6 +75,9 @@ begin
     FMarkId := AConfigData.ReadString('ID', FMarkId);
     FLonLat.X := AConfigData.ReadFloat('X', FLonLat.X);
     FLonLat.Y := AConfigData.ReadFloat('Y', FLonLat.Y);
+    if PointIsEmpty(FLonLat) then begin
+      FIsActive := False;
+    end;
     SetChanged;
   end;
 end;
@@ -119,14 +125,18 @@ end;
 
 procedure TNavigationToPoint.StartNavLonLat(const APointLonLat: TDoublePoint);
 begin
-  LockWrite;
-  try
-    FIsActive := True;
-    FMarkId := '';
-    FLonLat := APointLonLat;
-    SetChanged;
-  finally
-    UnlockWrite;
+  if PointIsEmpty(APointLonLat) then begin
+    StopNav;
+  end else begin
+    LockWrite;
+    try
+      FIsActive := True;
+      FMarkId := '';
+      FLonLat := APointLonLat;
+      SetChanged;
+    finally
+      UnlockWrite;
+    end;
   end;
 end;
 
@@ -135,14 +145,18 @@ procedure TNavigationToPoint.StartNavToMark(
   const APointLonLat: TDoublePoint
 );
 begin
-  LockWrite;
-  try
-    FIsActive := True;
-    FMarkId := AMarkId;
-    FLonLat := APointLonLat;
-    SetChanged;
-  finally
-    UnlockWrite;
+  if PointIsEmpty(APointLonLat) then begin
+    StopNav;
+  end else begin
+    LockWrite;
+    try
+      FIsActive := True;
+      FMarkId := AMarkId;
+      FLonLat := APointLonLat;
+      SetChanged;
+    finally
+      UnlockWrite;
+    end;
   end;
 end;
 
