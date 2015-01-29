@@ -753,6 +753,10 @@ var
   VFilter: ILonLatPointFilter;
 begin
   Result := nil;
+  if not Assigned(AGeometry.Bounds) then begin
+    Exit;
+  end;
+
   if Supports(AGeometry, IGeometryLonLatPolygon, VPoly) then begin
     Result := VPoly;
   end else if Supports(AGeometry, IGeometryLonLatLine, VLine) then begin

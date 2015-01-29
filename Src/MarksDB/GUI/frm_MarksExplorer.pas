@@ -625,7 +625,7 @@ var
   VMark: IVectorDataItem;
 begin
   VMark := GetSelectedMarkFull;
-  if VMark <> nil then begin
+  if Assigned(VMark) and Assigned(VMark.Geometry.Bounds) then begin
     FMapGoto.FitRectToScreen(VMark.Geometry.Bounds.Rect);
     FMapGoto.ShowMarker(VMark.Geometry.GetGoToPoint);
   end;
@@ -1113,7 +1113,7 @@ var
   VMark: IVectorDataItem;
 begin
   VMark := GetSelectedMarkFull;
-  if VMark <> nil then begin
+  if Assigned(VMark) and Assigned(VMark.Geometry.Bounds) then begin
     FMapGoto.FitRectToScreen(VMark.Geometry.Bounds.Rect);
     FMapGoto.ShowMarker(VMark.Geometry.GetGoToPoint);
   end;

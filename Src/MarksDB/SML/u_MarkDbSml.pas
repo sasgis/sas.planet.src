@@ -201,6 +201,7 @@ uses
   i_MarkCategoryFactoryDbInternal,
   u_IDInterfaceList,
   u_InterfaceListSimple,
+  u_GeoFunc,
   u_SimpleFlagWithInterlock;
 
 constructor TMarkDbSml.Create(
@@ -679,7 +680,12 @@ begin
   FCdsMarks.FieldByName('name').AsString := AMark.Name;
   FCdsMarks.FieldByName('categoryid').AsInteger := VCategoryId;
   FCdsMarks.FieldByName('descr').AsString := AMark.Desc;
-  VRect := AMark.Geometry.Bounds.Rect;
+  if not Assigned(AMark.Geometry.Bounds) then begin
+    VRect.TopLeft := CEmptyDoublePoint;
+    VRect.BottomRight := CEmptyDoublePoint;
+  end else begin
+    VRect := AMark.Geometry.Bounds.Rect;
+  end;
   FCdsMarks.FieldByName('LonL').AsFloat := VRect.Left;
   FCdsMarks.FieldByName('LatT').AsFloat := VRect.Top;
   FCdsMarks.FieldByName('LonR').AsFloat := VRect.Right;
@@ -1202,7 +1208,7 @@ var
 begin
   VEnum := ASourceList.GetEnumUnknown;
   while VEnum.Next(1, VMark, @VCnt) = S_OK do begin
-    if VMark.Geometry.Bounds.IsIntersecWithRect(ARect) then begin
+    if Assigned(VMark.Geometry.Bounds) and VMark.Geometry.Bounds.IsIntersecWithRect(ARect) then begin
       if not AIgnoreVisible then begin
         if Supports(VMark.MainInfo, IMarkSMLInternal, VMarkInternal) then begin
           if VMarkInternal.Visible then begin
