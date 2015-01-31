@@ -3,8 +3,7 @@ object frCacheTypeList: TfrCacheTypeList
   Top = 0
   Align = alClient
   Height = 70
-  Width = 350  
-  TabOrder = 0
+  Width = 350
   object cbbCacheType: TComboBox
     Left = 0
     Top = 0

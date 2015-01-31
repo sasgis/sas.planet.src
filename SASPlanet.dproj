@@ -1144,6 +1144,10 @@
     <DCCReference Include="Src\Settings\frm_ShortCutEdit.pas">
       <Form>frmShortCutEdit</Form>
     </DCCReference>
+    <DCCReference Include="Src\Settings\fr_CacheTypeList.pas">
+      <Form>frCacheTypeList</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
     <DCCReference Include="Src\Settings\fr_GPSConfig.pas">
       <Form>frGPSConfig</Form>
       <DesignClass>TFrame</DesignClass>
