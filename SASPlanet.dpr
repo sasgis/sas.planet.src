@@ -1232,6 +1232,7 @@ uses
   i_UpdateDownloader in 'Src\UpdateChecker\i_UpdateDownloader.pas',
   u_UpdateDownloader in 'Src\UpdateChecker\u_UpdateDownloader.pas',
   frm_ShortCutEdit in 'Src\Settings\frm_ShortCutEdit.pas' {frmShortCutEdit},
+  fr_CacheTypeList in 'Src\Settings\fr_CacheTypeList.pas' {frCacheTypeList: TFrame},
   frm_JpegImportConfigEdit in 'Src\MarksDB\GUI\frm_JpegImportConfigEdit.pas' {frmJpegImportConfigEdit},
   fr_JpegImportOptions in 'Src\MarksDB\GUI\fr_JpegImportOptions.pas' {frJpegImportOptions: TFrame};
 

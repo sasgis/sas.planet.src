@@ -48,7 +48,7 @@ type
 implementation
 
 uses
-  c_CacheTypeCodes, // for default path
+  c_CacheTypeCodes,
   i_InterfaceListSimple,
   u_InterfaceListSimple,
   u_TileFileNameSAS,
@@ -81,6 +81,21 @@ const
   CTileStorageTypeFileSystemMA: TGUID = '{033B64B5-008B-4BAF-9EA9-B8176EA35433}';
   CTileStorageTypeInRAM: TGUID = '{717034B7-B49E-4C89-BC75-002D0523E548}';
 
+resourcestring
+  rsSASPlanetCacheName = 'SAS.Planet';
+  rsGoogleMVCacheName = 'GoogleMV';
+  rsEarthSlicerCacheName = 'EarthSlicer 1.95';
+  rsGlobalMapperCacheName = 'GlobalMapper Tiles';
+  rsGlobalMapperAuxCacheName = 'GlobalMapper Aux';
+  rsGlobalMapperBingCacheName = 'GlobalMapper Bing';
+  rsGoogleEarthCacheName = 'GoogleEarth';
+  rsGeoCacherCacheName = 'GeoCacher';
+  rsBerkeleyDBCacheName = 'BerkeleyDB';
+  rsBerkeleyDBVersionedCacheName = 'BerkeleyDB (Versioned)';
+  rsMobileAtlasCacheName = 'MobileAtlas';
+  rsDBMSCacheName = 'DBMS';
+  rsRAMCacheName = 'RAM';
+
 { TTileStorageTypeListSimple }
 
 constructor TTileStorageTypeListSimple.Create(
@@ -110,7 +125,7 @@ begin
     TTileStorageTypeListItem.Create(
       CTileStorageTypeFileSystemSAS,
       c_File_Cache_Id_SAS,
-      'Files SAS.Planet',
+      rsSASPlanetCacheName,
       VStorageType,
       True,
       True
@@ -129,7 +144,7 @@ begin
     TTileStorageTypeListItem.Create(
       CTileStorageTypeFileSystemGMV,
       c_File_Cache_Id_GMV,
-      'Files GMV',
+      rsGoogleMVCacheName,
       VStorageType,
       True,
       True
@@ -148,7 +163,7 @@ begin
     TTileStorageTypeListItem.Create(
       CTileStorageTypeFileSystemES,
       c_File_Cache_Id_ES,
-      'Files ES',
+      rsEarthSlicerCacheName,
       VStorageType,
       True,
       True
@@ -167,7 +182,7 @@ begin
     TTileStorageTypeListItem.Create(
       CTileStorageTypeFileSystemGM1,
       c_File_Cache_Id_GM,
-      'Files GM',
+      rsGlobalMapperCacheName,
       VStorageType,
       True,
       True
@@ -186,7 +201,7 @@ begin
     TTileStorageTypeListItem.Create(
       CTileStorageTypeFileSystemGM2,
       c_File_Cache_Id_GM_Aux,
-      'Files GM aux',
+      rsGlobalMapperAuxCacheName,
       VStorageType,
       True,
       False
@@ -205,7 +220,7 @@ begin
     TTileStorageTypeListItem.Create(
       CTileStorageTypeFileSystemMA,
       c_File_Cache_Id_Mobile_Atlas,
-      'Files Mobile Atlas',
+      rsMobileAtlasCacheName,
       VStorageType,
       True,
       True
@@ -223,7 +238,7 @@ begin
     TTileStorageTypeListItem.Create(
       CTileStorageTypeGC,
       c_File_Cache_Id_GC,
-      'GC cache',
+      rsGeoCacherCacheName,
       VStorageType,
       False,
       False
@@ -244,7 +259,7 @@ begin
     TTileStorageTypeListItem.Create(
       CTileStorageTypeBerkeleyDB,
       c_File_Cache_Id_BDB,
-      'Berkeley DB',
+      rsBerkeleyDBCacheName,
       VStorageType,
       True,
       True
@@ -265,7 +280,7 @@ begin
     TTileStorageTypeListItem.Create(
       CTileStorageTypeBerkeleyDB,
       c_File_Cache_Id_BDB_Versioned,
-      'Berkeley DB (Versioned)',
+      rsBerkeleyDBVersionedCacheName,
       VStorageType,
       True,
       True
@@ -283,7 +298,7 @@ begin
     TTileStorageTypeListItem.Create(
       CTileStorageTypeGE,
       c_File_Cache_Id_GE,
-      'Google Earth Cache (Read Only)',
+      rsGoogleEarthCacheName,
       VStorageType,
       False,
       False
@@ -320,7 +335,7 @@ begin
     TTileStorageTypeListItem.Create(
       CTileStorageTypeDBMS,
       c_File_Cache_Id_DBMS,
-      'DBMS',
+      rsDBMSCacheName,
       VStorageType,
       True,
       False
@@ -337,7 +352,7 @@ begin
     TTileStorageTypeListItem.Create(
       CTileStorageTypeInRAM,
       c_File_Cache_Id_RAM,
-      'RAM',
+      rsRAMCacheName,
       VStorageType,
       True,
       True

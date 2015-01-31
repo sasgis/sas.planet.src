@@ -46,6 +46,7 @@ uses
   fr_MapsList,
   fr_GPSConfig,
   fr_PathSelect,
+  fr_CacheTypeList,
   fr_ShortCutList;
 
 type
@@ -227,12 +228,12 @@ type
     pnlDBMSPath: TPanel;
     pnlBaseCahcePath: TPanel;
     pnlDefCache: TPanel;
-    CBCacheType: TComboBox;
     edtDBMSCachePath: TEdit;
     pnlButtnos: TPanel;
     BtnDef: TButton;
     lbl: TLabel;
     pnlMATilesPath: TPanel;
+    pnlCacheTypesList: TPanel;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -278,6 +279,7 @@ type
     FfrBDBCachePath: TfrPathSelect;
     FfrBDBVerCachePath: TfrPathSelect;
     FfrGCCachePath: TfrPathSelect;
+    FfrCacheTypesList: TfrCacheTypeList;
 
     procedure InitResamplersList(
       const AList: IImageResamplerFactoryList;
@@ -313,78 +315,6 @@ uses
   u_ResStrings;
 
 {$R *.dfm}
-
-function GetDefCacheFromIndex(const AIndex: Integer): Byte;
-begin
-  case AIndex of
-    0: begin
-      Result := c_File_Cache_Id_GMV;
-    end;
-    1: begin
-      Result := c_File_Cache_Id_SAS;
-    end;
-    2: begin
-      Result := c_File_Cache_Id_ES;
-    end;
-    3: begin
-      Result := c_File_Cache_Id_GM;
-    end;
-    4: begin
-      Result := c_File_Cache_Id_BDB;
-    end;
-    5: begin
-      Result := c_File_Cache_Id_BDB_Versioned;
-    end;
-    6: begin
-      Result := c_File_Cache_Id_DBMS;
-    end;
-    7: begin
-      Result := c_File_Cache_Id_RAM;
-    end;
-    8: begin
-      Result := c_File_Cache_Id_Mobile_Atlas;
-    end;
-  else begin
-    Result := c_File_Cache_Id_SAS;
-  end;
-  end;
-end;
-
-function GetIndexFromDefCache(const ADefCacheId: Byte): Integer;
-begin
-  case ADefCacheId of
-    c_File_Cache_Id_GMV: begin
-      Result := 0;
-    end;
-    c_File_Cache_Id_SAS: begin
-      Result := 1;
-    end;
-    c_File_Cache_Id_ES: begin
-      Result := 2;
-    end;
-    c_File_Cache_Id_GM: begin
-      Result := 3;
-    end;
-    c_File_Cache_Id_BDB: begin
-      Result := 4;
-    end;
-    c_File_Cache_Id_BDB_Versioned: begin
-      Result := 5;
-    end;
-    c_File_Cache_Id_DBMS: begin
-      Result := 6;
-    end;
-    c_File_Cache_Id_RAM: begin
-      Result := 7;
-    end;
-    c_File_Cache_Id_Mobile_Atlas: begin
-      Result := 8;
-    end;
-  else begin
-    Result := 1;
-  end;
-  end;
-end;
 
 constructor TfrmSettings.Create(
   const ALanguageManager: ILanguageManager;
@@ -424,6 +354,11 @@ begin
       FMainFormConfig.GPSBehaviour,
       FMainFormConfig.LayersConfig.GPSTrackConfig,
       GState.Config.GPSConfig
+    );
+  FfrCacheTypesList :=
+    TfrCacheTypeList.Create(
+      ALanguageManager,
+      GState.TileStorageTypeList
     );
   FfrMapPathSelect :=
     TfrPathSelect.Create(
@@ -665,7 +600,7 @@ begin
     FMainFormConfig.LayersConfig.MapLayerGridsConfig.UnlockWrite;
   end;
 
-  GState.CacheConfig.DefCache := GetDefCacheFromIndex(CBCacheType.ItemIndex);
+  GState.CacheConfig.DefCache := FfrCacheTypesList.IntCode;
 
   GState.Config.ValueToStringConverterConfig.LockWrite;
   try
@@ -859,6 +794,7 @@ begin
   FreeAndNil(FfrBDBCachePath);
   FreeAndNil(FfrBDBVerCachePath);
   FreeAndNil(FfrGCCachePath);
+  FreeAndNil(FfrCacheTypesList);
   inherited;
 end;
 
@@ -892,6 +828,7 @@ begin
   FfrBDBCachePath.Show(pnledtBDBCachePath);
   FfrBDBVerCachePath.Show(pnledtBDBVerCachePath);
   FfrGCCachePath.Show(pnledtGCCachePath);
+  FfrCacheTypesList.Show(pnlCacheTypesList);
 
   frGPSConfig.Parent := tsGPS;
   frGPSConfig.Init;
@@ -993,7 +930,7 @@ begin
     FMainFormConfig.MainConfig.UnlockRead;
   end;
 
-  CBCacheType.ItemIndex := GetIndexFromDefCache(GState.CacheConfig.DefCache);
+  FfrCacheTypesList.IntCode := GState.CacheConfig.DefCache;
   edtDBMSCachePath.text := GState.CacheConfig.DBMSCachePath.Path;
 
   FMainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.LockRead;

@@ -213,29 +213,15 @@ object frmSettings: TfrmSettings
           Height = 13
           Caption = 'Default cache type'
         end
-        object CBCacheType: TComboBox
+        object pnlCacheTypesList: TPanel
           Left = 200
-          Top = 4
+          Top = 5
           Width = 395
-          Height = 21
+          Height = 23
           Align = alCustom
-          Style = csDropDownList
-          Anchors = [akLeft, akTop, akRight]
-          DropDownCount = 10
-          ItemHeight = 13
-          ItemIndex = 1
+          Anchors = [akLeft, akTop, akRight, akBottom]
+          BevelOuter = bvNone
           TabOrder = 0
-          Text = 'SAS.Planet'
-          Items.Strings = (
-            'GoogleMV'
-            'SAS.Planet'
-            'EarthSlicer 1.95'
-            'GlobalMapper Tiles'
-            'BerkeleyDB'
-            'BerkeleyDB (Versioned)'
-            'DBMS'
-            'RAM'
-            'MobileAtlas')
         end
       end
       object pnlMATilesPath: TPanel

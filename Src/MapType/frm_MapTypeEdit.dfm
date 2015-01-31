@@ -11,6 +11,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
   Position = poMainFormCenter
   ShowHint = True
   OnClose = FormClose
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object spl1: TSplitter
@@ -363,29 +364,6 @@ object frmMapTypeEdit: TfrmMapTypeEdit
           Layout = tlCenter
           ExplicitHeight = 13
         end
-        object CBCacheType: TComboBox
-          AlignWithMargins = True
-          Left = 67
-          Top = 6
-          Width = 297
-          Height = 21
-          Align = alClient
-          Style = csDropDownList
-          DropDownCount = 10
-          ItemHeight = 0
-          TabOrder = 0
-          Items.Strings = (
-            'By default'
-            'GoogleMV'
-            'SAS.Planet'
-            'EarthSlicer 1.95'
-            'GlobalMapper Tiles'
-            'BerkeleyDB'
-            'BerkeleyDB (Versioned)'
-            'DBMS'
-            'RAM'
-            'MobileAtlas')
-        end
         object btnResetCacheType: TButton
           AlignWithMargins = True
           Left = 370
@@ -397,8 +375,22 @@ object frmMapTypeEdit: TfrmMapTypeEdit
           Caption = '<>'
           ParentShowHint = False
           ShowHint = True
-          TabOrder = 1
+          TabOrder = 0
           OnClick = btnResetCacheTypeClick
+        end
+        object pnlCacheTypesList: TPanel
+          AlignWithMargins = True
+          Left = 67
+          Top = 6
+          Width = 297
+          Height = 21
+          Align = alClient
+          BevelOuter = bvNone
+          TabOrder = 1
+          ExplicitLeft = 128
+          ExplicitTop = 8
+          ExplicitWidth = 185
+          ExplicitHeight = 41
         end
       end
       object pnlParentItem: TPanel

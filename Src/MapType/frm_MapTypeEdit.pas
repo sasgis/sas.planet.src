@@ -38,7 +38,8 @@ uses
   i_MapType,
   i_LanguageManager,
   i_TileStorageTypeList,
-  u_CommonFormAndFrameParents;
+  u_CommonFormAndFrameParents,
+  fr_CacheTypeList;
 
 type
   TfrmMapTypeEdit = class(TFormWitghLanguageManager)
@@ -60,7 +61,6 @@ type
     SESleep: TSpinEdit;
     lblPause: TLabel;
     btnResetPause: TButton;
-    CBCacheType: TComboBox;
     lblCacheType: TLabel;
     btnResetCacheType: TButton;
     pnlBottomButtons: TPanel;
@@ -98,6 +98,7 @@ type
     tsOthers: TTabSheet;
     spl1: TSplitter;
     pnlSleep: TPanel;
+    pnlCacheTypesList: TPanel;
     procedure btnOkClick(Sender: TObject);
     procedure FormClose(
       Sender: TObject;
@@ -119,12 +120,14 @@ type
       Node: TTreeNode;
       var AllowCollapse: Boolean
     );
+    procedure FormShow(Sender: TObject);
   private
     synedtParams: TSynEdit;
     synedtScript: TSynEdit;
     synedtInfo: TSynEdit;
     FTileStorageTypeList: ITileStorageTypeListStatic;
     FMapType: IMapType;
+    FfrCacheTypesList: TfrCacheTypeList;
     procedure BuildTreeViewMenu;
     procedure CreateSynEditTextHighlighters;
   public
@@ -134,6 +137,7 @@ type
       const ALanguageManager: ILanguageManager;
       const ATileStorageTypeList: ITileStorageTypeListStatic
     );
+    destructor Destroy; override;
   end;
 
 implementation
@@ -159,87 +163,26 @@ constructor TfrmMapTypeEdit.Create(
 );
 begin
   inherited Create(ALanguageManager);
+  FfrCacheTypesList :=
+    TfrCacheTypeList.Create(
+      ALanguageManager,
+      ATileStorageTypeList,
+      True
+    );
   FTileStorageTypeList := ATileStorageTypeList;
   BuildTreeViewMenu;
   CreateSynEditTextHighlighters;
 end;
 
-function GetCacheIdFromIndex(const AIndex: Integer): Byte;
+destructor TfrmMapTypeEdit.Destroy;
 begin
-  case AIndex of
-    0: begin
-      Result := c_File_Cache_Id_DEFAULT;
-    end;
-    1: begin
-      Result := c_File_Cache_Id_GMV;
-    end;
-    2: begin
-      Result := c_File_Cache_Id_SAS;
-    end;
-    3: begin
-      Result := c_File_Cache_Id_ES;
-    end;
-    4: begin
-      Result := c_File_Cache_Id_GM;
-    end;
-    5: begin
-      Result := c_File_Cache_Id_BDB;
-    end;
-    6: begin
-      Result := c_File_Cache_Id_BDB_Versioned;
-    end;
-    7: begin
-      Result := c_File_Cache_Id_DBMS;
-    end;
-    8: begin
-      Result := c_File_Cache_Id_RAM;
-    end;
-    9: begin
-      Result := c_File_Cache_Id_Mobile_Atlas;
-    end;
-  else begin
-    Result := c_File_Cache_Id_DEFAULT;
-  end;
-  end;
+  FreeAndNil(FfrCacheTypesList);
+  inherited;
 end;
 
-function GetIndexFromCacheId(const ACacheId: Byte): Integer;
+procedure TfrmMapTypeEdit.FormShow(Sender: TObject);
 begin
-  case ACacheId of
-    c_File_Cache_Id_DEFAULT: begin
-      Result := 0;
-    end;
-    c_File_Cache_Id_GMV: begin
-      Result := 1;
-    end;
-    c_File_Cache_Id_SAS: begin
-      Result := 2;
-    end;
-    c_File_Cache_Id_ES: begin
-      Result := 3;
-    end;
-    c_File_Cache_Id_GM: begin
-      Result := 4;
-    end;
-    c_File_Cache_Id_BDB: begin
-      Result := 5;
-    end;
-    c_File_Cache_Id_BDB_Versioned: begin
-      Result := 6;
-    end;
-    c_File_Cache_Id_DBMS: begin
-      Result := 7;
-    end;
-    c_File_Cache_Id_RAM: begin
-      Result := 8;
-    end;
-    c_File_Cache_Id_Mobile_Atlas: begin
-      Result := 9;
-    end
-  else begin
-    Result := 0;
-  end;
-  end;
+  FfrCacheTypesList.Show(pnlCacheTypesList);
 end;
 
 procedure TfrmMapTypeEdit.btnResetHeaderClick(Sender: TObject);
@@ -273,7 +216,7 @@ begin
     FMapType.StorageConfig.NameInCache := EditNameinCache.Text;
     // do not change cache types for GE and GC
     if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE, c_File_Cache_Id_GC]) then begin
-      FMapType.StorageConfig.CacheTypeCode := GetCacheIdFromIndex(CBCacheType.ItemIndex);
+      FMapType.StorageConfig.CacheTypeCode := FfrCacheTypesList.IntCode;
     end;
   finally
     FMapType.StorageConfig.UnlockWrite;
@@ -317,7 +260,7 @@ begin
   EditHotKey.HotKey := FMapType.Zmp.GUI.HotKey;
 
   if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE, c_File_Cache_Id_GC]) then begin
-    CBCacheType.ItemIndex := GetIndexFromCacheId(FMapType.Zmp.StorageConfig.CacheTypeCode);
+    FfrCacheTypesList.IntCode := FMapType.Zmp.StorageConfig.CacheTypeCode;
   end;
 
   EditParSubMenu.Text := FMapType.GUIConfig.ParentSubMenu.GetDefaultValue;
@@ -354,7 +297,7 @@ end;
 procedure TfrmMapTypeEdit.btnResetCacheTypeClick(Sender: TObject);
 begin
   if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE, c_File_Cache_Id_GC]) then begin
-    CBCacheType.ItemIndex := GetIndexFromCacheId(FMapType.Zmp.StorageConfig.CacheTypeCode);
+    FfrCacheTypesList.IntCode := FMapType.Zmp.StorageConfig.CacheTypeCode;
   end;
 end;
 
@@ -390,7 +333,7 @@ begin
     if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE, c_File_Cache_Id_GC]) then begin
       pnlCacheType.Visible := True;
       pnlCacheType.Enabled := True;
-      CBCacheType.ItemIndex := GetIndexFromCacheId(FMapType.StorageConfig.CacheTypeCode);
+      FfrCacheTypesList.IntCode := FMapType.StorageConfig.CacheTypeCode;
     end else begin
       // GE or GC
       pnlCacheType.Visible := False;
