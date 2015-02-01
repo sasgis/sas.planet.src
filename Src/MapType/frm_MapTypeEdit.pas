@@ -99,6 +99,7 @@ type
     spl1: TSplitter;
     pnlSleep: TPanel;
     pnlCacheTypesList: TPanel;
+    chkCacheReadOnly: TCheckBox;
     procedure btnOkClick(Sender: TObject);
     procedure FormClose(
       Sender: TObject;
@@ -217,6 +218,7 @@ begin
     // do not change cache types for GE and GC
     if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE, c_File_Cache_Id_GC]) then begin
       FMapType.StorageConfig.CacheTypeCode := FfrCacheTypesList.IntCode;
+      FMapType.StorageConfig.IsReadOnly := chkCacheReadOnly.Checked;
     end;
   finally
     FMapType.StorageConfig.UnlockWrite;
@@ -262,7 +264,7 @@ begin
   if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE, c_File_Cache_Id_GC]) then begin
     FfrCacheTypesList.IntCode := FMapType.Zmp.StorageConfig.CacheTypeCode;
   end;
-
+  chkCacheReadOnly.Checked := FMapType.Zmp.StorageConfig.Abilities.IsReadOnly;
   EditParSubMenu.Text := FMapType.GUIConfig.ParentSubMenu.GetDefaultValue;
   chkBoxSeparator.Checked := FMapType.Zmp.GUI.Separator;
   CheckEnabled.Checked := FMapType.Zmp.GUI.Enabled;
@@ -329,15 +331,17 @@ begin
   FMapType.StorageConfig.LockRead;
   try
     EditNameinCache.Text := FMapType.StorageConfig.NameInCache;
-
+    chkCacheReadOnly.Checked := FMapType.StorageConfig.IsReadOnly;
     if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE, c_File_Cache_Id_GC]) then begin
       pnlCacheType.Visible := True;
       pnlCacheType.Enabled := True;
+      chkCacheReadOnly.Enabled := True;
       FfrCacheTypesList.IntCode := FMapType.StorageConfig.CacheTypeCode;
     end else begin
       // GE or GC
       pnlCacheType.Visible := False;
       pnlCacheType.Enabled := False;
+      chkCacheReadOnly.Enabled := False;
     end;
   finally
     FMapType.StorageConfig.UnlockRead;

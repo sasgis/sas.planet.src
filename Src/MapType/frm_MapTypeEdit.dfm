@@ -395,7 +395,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       end
       object pnlParentItem: TPanel
         Left = 0
-        Top = 66
+        Top = 89
         Width = 397
         Height = 33
         Align = alTop
@@ -438,7 +438,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       end
       object grdpnlHotKey: TGridPanel
         Left = 0
-        Top = 122
+        Top = 145
         Width = 397
         Height = 25
         Align = alTop
@@ -518,7 +518,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       object chkBoxSeparator: TCheckBox
         AlignWithMargins = True
         Left = 6
-        Top = 102
+        Top = 125
         Width = 388
         Height = 17
         Margins.Left = 6
@@ -536,6 +536,17 @@ object frmMapTypeEdit: TfrmMapTypeEdit
         Align = alBottom
         Caption = 'Map enabled'
         TabOrder = 5
+      end
+      object chkCacheReadOnly: TCheckBox
+        AlignWithMargins = True
+        Left = 6
+        Top = 69
+        Width = 388
+        Height = 17
+        Margins.Left = 6
+        Align = alTop
+        Caption = 'Cache is Read-Only'
+        TabOrder = 6
       end
     end
     object tsParams: TTabSheet
