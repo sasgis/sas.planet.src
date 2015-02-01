@@ -47,27 +47,14 @@ object frTilesCopy: TfrTilesCopy
         AutoSize = False
         Caption = 'Output format'
       end
-      object cbbNamesType: TComboBox
+      object pnlCacheTypes: TPanel
         Left = 3
         Top = 20
         Width = 370
         Height = 21
         Align = alTop
-        Style = csDropDownList
-        ItemHeight = 13
-        ItemIndex = 1
+        BevelOuter = bvNone
         TabOrder = 0
-        Text = 'SAS.Planet'
-        OnChange = cbbNamesTypeChange
-        Items.Strings = (
-          'GoogleMV'
-          'SAS.Planet'
-          'ES1.95'
-          'GlobalMapper Tiles'
-          'BerkeleyDB'
-          'BerkeleyDB (Versioned)'
-          'DBMS'
-          'MobileAtlas')
       end
       object chkDeleteSource: TCheckBox
         AlignWithMargins = True

@@ -32,6 +32,7 @@ uses
   CheckLst,
   ExtCtrls,
   fr_ZoomsSelect,
+  fr_CacheTypeList,
   i_LanguageManager,
   i_MapTypeSet,
   i_MapTypeListStatic,
@@ -39,6 +40,7 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_GeometryLonLat,
+  i_TileStorageTypeList,
   i_RegionProcessParamsFrame,
   u_CommonFormAndFrameParents;
 
@@ -79,7 +81,7 @@ type
     pnlZoom: TPanel;
     pnlMain: TPanel;
     lblNamesType: TLabel;
-    cbbNamesType: TComboBox;
+    pnlCacheTypes: TPanel;
     pnlTop: TPanel;
     lblTargetPath: TLabel;
     edtTargetPath: TEdit;
@@ -94,7 +96,7 @@ type
     edSetTargetVersionValue: TEdit;
     pnSetTargetVersionOptions: TPanel;
     procedure btnSelectTargetPathClick(Sender: TObject);
-    procedure cbbNamesTypeChange(Sender: TObject);
+    procedure OnCacheTypeChange(Sender: TObject);
     procedure chkSetTargetVersionToClick(Sender: TObject);
   private
     FMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
@@ -102,6 +104,7 @@ type
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
     FfrZoomsSelect: TfrZoomsSelect;
+    FfrCacheTypeList: TfrCacheTypeList;
   private
     procedure Init(
       const AZoom: byte;
@@ -127,10 +130,10 @@ type
       const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
-      const AGUIConfigList: IMapTypeGUIConfigList
+      const AGUIConfigList: IMapTypeGUIConfigList;
+      const ATileStorageTypeList: ITileStorageTypeListStatic
     ); reintroduce;
     destructor Destroy; override;
-    procedure RefreshTranslation; override;
   end;
 
 implementation
@@ -152,7 +155,8 @@ constructor TfrTilesCopy.Create(
   const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
-  const AGUIConfigList: IMapTypeGUIConfigList
+  const AGUIConfigList: IMapTypeGUIConfigList;
+  const ATileStorageTypeList: ITileStorageTypeListStatic
 );
 begin
   inherited Create(ALanguageManager);
@@ -160,7 +164,13 @@ begin
   FMapTypeListBuilderFactory := AMapTypeListBuilderFactory;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
-  cbbNamesType.ItemIndex := 1;
+  FfrCacheTypeList :=
+    TfrCacheTypeList.Create(
+      ALanguageManager,
+      ATileStorageTypeList,
+      False,
+      Self.OnCacheTypeChange
+    );
   FfrZoomsSelect :=
     TfrZoomsSelect.Create(
       ALanguageManager
@@ -171,6 +181,7 @@ end;
 destructor TfrTilesCopy.Destroy;
 begin
   FreeAndNil(FfrZoomsSelect);
+  FreeAndNil(FfrCacheTypeList);
   inherited;
 end;
 
@@ -183,11 +194,17 @@ begin
   end;
 end;
 
-procedure TfrTilesCopy.cbbNamesTypeChange(Sender: TObject);
+procedure TfrTilesCopy.OnCacheTypeChange(Sender: TObject);
 var
+  VIntCode: Byte;
   VAllowSetVersion: Boolean;
 begin
-  VAllowSetVersion := (GetTargetCacheType in [c_File_Cache_Id_DBMS, c_File_Cache_Id_BDB_Versioned]);
+  VIntCode := GetTargetCacheType;
+  if VIntCode in [c_File_Cache_Id_RAM] then begin
+    MessageDlg(_('Can''t use in-memory tile storage as output format!'), mtError, [mbOK], 0);
+    FfrCacheTypeList.IntCode := c_File_Cache_Id_SAS;
+  end;
+  VAllowSetVersion := (VIntCode in [c_File_Cache_Id_DBMS, c_File_Cache_Id_BDB_Versioned]);
   chkSetTargetVersionTo.Enabled := VAllowSetVersion;
   UpdateSetTargetVersionState;
 end;
@@ -247,18 +264,7 @@ end;
 
 function TfrTilesCopy.GetTargetCacheType: Byte;
 begin
-  case cbbNamesType.ItemIndex of
-    0: Result := c_File_Cache_Id_GMV;
-    1: Result := c_File_Cache_Id_SAS;
-    2: Result := c_File_Cache_Id_ES;
-    3: Result := c_File_Cache_Id_GM;
-    4: Result := c_File_Cache_Id_BDB;
-    5: Result := c_File_Cache_Id_BDB_Versioned;
-    6: Result := c_File_Cache_Id_DBMS;
-    7: Result := c_File_Cache_Id_Mobile_Atlas;
-  else
-    Result := c_File_Cache_Id_SAS;
-  end;
+  Result := Byte(FfrCacheTypeList.IntCode);
 end;
 
 function TfrTilesCopy.GetZoomArray: TByteDynArray;
@@ -276,6 +282,8 @@ var
   VGUID: TGUID;
 begin
   FfrZoomsSelect.Show(pnlZoom);
+  FfrCacheTypeList.Show(pnlCacheTypes);
+  FfrCacheTypeList.IntCode := c_File_Cache_Id_SAS;
   VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetStatic.GUID;
   chklstMaps.Items.Clear;
   VGUIDList := FGUIConfigList.OrderedMapGUIDList;
@@ -290,15 +298,6 @@ begin
       end;
     end;
   end;
-end;
-
-procedure TfrTilesCopy.RefreshTranslation;
-var
-  i: Integer;
-begin
-  i := cbbNamesType.ItemIndex;
-  inherited;
-  cbbNamesType.ItemIndex := i;
 end;
 
 procedure TfrTilesCopy.UpdateSetTargetVersionState;

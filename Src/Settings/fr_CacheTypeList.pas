@@ -18,9 +18,11 @@ uses
   u_CommonFormAndFrameParents;
 
 type
-  TfrCacheTypeList = class(TCommonFrameParent)
+  TfrCacheTypeList = class(TFrame)
     cbbCacheType: TComboBox;
+    procedure cbbCacheTypeChange(Sender: TObject);
   private
+    FOnChange: TNotifyEvent;
     procedure FillItems(
       const ATypesList: ITileStorageTypeListStatic;
       const AWithDefaultItem: Boolean
@@ -34,7 +36,8 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const ATileStorageTypeList: ITileStorageTypeListStatic;
-      const AWithDefaultItem: Boolean = False
+      const AWithDefaultItem: Boolean = False;
+      const AOnChange: TNotifyEvent = nil
     );
   end;
 
@@ -52,10 +55,12 @@ uses
 constructor TfrCacheTypeList.Create(
   const ALanguageManager: ILanguageManager;
   const ATileStorageTypeList: ITileStorageTypeListStatic;
-  const AWithDefaultItem: Boolean
+  const AWithDefaultItem: Boolean;
+  const AOnChange: TNotifyEvent
 );
 begin
   inherited Create(ALanguageManager);
+  FOnChange := AOnChange;
   FillItems(ATileStorageTypeList, AWithDefaultItem);
 end;
 
@@ -117,6 +122,16 @@ begin
     end;
   end;
   Assert(VFound);
+  if Assigned(FOnChange) and VFound then begin
+    FOnChange(Self);
+  end;
+end;
+
+procedure TfrCacheTypeList.cbbCacheTypeChange(Sender: TObject);
+begin
+  if Assigned(FOnChange) then begin
+    FOnChange(Self);
+  end;
 end;
 
 end.

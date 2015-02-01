@@ -12,5 +12,6 @@ object frCacheTypeList: TfrCacheTypeList
     Align = alTop
     ItemHeight = 13
     TabOrder = 0
+    OnChange = cbbCacheTypeChange
   end
 end

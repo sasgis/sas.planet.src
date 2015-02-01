@@ -127,7 +127,8 @@ begin
       FMapTypeListBuilderFactory,
       Self.MainMapsConfig,
       Self.FullMapsSet,
-      Self.GUIConfigList
+      Self.GUIConfigList,
+      FTileStorageTypeList
     );
   Assert(Supports(Result, IRegionProcessParamsFrameZoomArray));
   Assert(Supports(Result, IRegionProcessParamsFrameTargetPath));
