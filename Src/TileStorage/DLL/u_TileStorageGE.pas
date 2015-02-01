@@ -429,7 +429,7 @@ var
   VVersion: IMapVersionInfo;
   i: Integer;
 begin
-  VList := nil;
+  VList := TInterfaceListSimple.Create;
 
   FDLLSync.BeginRead;
   try
@@ -450,7 +450,6 @@ begin
           try
             // make version for each item
             if (TStringList(VEnumInfo.ListOfVersions).Count > 0) then begin
-              VList := TInterfaceListSimple.Create;
               for i := 0 to TStringList(VEnumInfo.ListOfVersions).Count - 1 do begin
                 VVersion := MapVersionFactory.CreateByStoreString(TStringList(VEnumInfo.ListOfVersions).Strings[i]);
                 VList.Add(VVersion);
