@@ -35,6 +35,7 @@ uses
   StdCtrls,
   ExtCtrls,
   ComCtrls,
+  fr_CacheTypeList,
   i_NotifierOperation,
   i_CoordConverter,
   i_CoordConverterFactory,
@@ -62,7 +63,7 @@ type
     grpSrc: TGroupBox;
     lblPath: TLabel;
     edtPath: TEdit;
-    cbbCacheTypes: TComboBox;
+    pnlCacheTypes: TPanel;
     lblCacheType: TLabel;
     chkIgnoreTNE: TCheckBox;
     chkRemove: TCheckBox;
@@ -72,7 +73,7 @@ type
     lblDestPath: TLabel;
     lblDestFormat: TLabel;
     edtDestPath: TEdit;
-    cbbDestCacheTypes: TComboBox;
+    pnlDestCacheTypes: TPanel;
     chkOverwrite: TCheckBox;
     btnSelectSrcPath: TButton;
     btnSelectDestPath: TButton;
@@ -84,6 +85,7 @@ type
     procedure btnSelectSrcPathClick(Sender: TObject);
     procedure btnSelectDestPathClick(Sender: TObject);
     procedure btnCanselClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
     type
       TTileCacheInArchiveType = (atNoArch = 0, atTar = 1, atZip = 2, atUnk = 3);
@@ -101,6 +103,8 @@ type
     FFileNameGeneratorsList: ITileFileNameGeneratorsList;
     FFileNameParsersList: ITileFileNameParsersList;
     FValueToStringConverter: IValueToStringConverterChangeable;
+    FfrSrcCacheTypesList: TfrCacheTypeList;
+    FfrDestCacheTypesList: TfrCacheTypeList;
     procedure ProcessCacheConverter;
     function CreateSimpleTileStorage(
       const ARootPath: string;
@@ -125,6 +129,7 @@ type
       const AFileNameParsersList: ITileFileNameParsersList;
       const AValueToStringConverter: IValueToStringConverterChangeable
     ); reintroduce;
+    destructor Destroy; override;
   end;
 
 implementation
@@ -184,8 +189,31 @@ begin
   FValueToStringConverter := AValueToStringConverter;
   FTileStorageTypeList := ATileStorageTypeList;
 
-  cbbCacheTypes.ItemIndex := 1; // SAS.Planet
-  cbbDestCacheTypes.ItemIndex := 5; // BerkeleyDB
+  FfrSrcCacheTypesList :=
+    TfrCacheTypeList.Create(
+      ALanguageManager,
+      ATileStorageTypeList
+    );
+  FfrDestCacheTypesList :=
+    TfrCacheTypeList.Create(
+      ALanguageManager,
+      ATileStorageTypeList
+    );
+end;
+
+destructor TfrmCacheManager.Destroy;
+begin
+  FreeAndNil(FfrSrcCacheTypesList);
+  FreeAndNil(FfrDestCacheTypesList);
+  inherited;
+end;
+
+procedure TfrmCacheManager.FormShow(Sender: TObject);
+begin
+  FfrSrcCacheTypesList.Show(pnlCacheTypes);
+  FfrDestCacheTypesList.Show(pnlDestCacheTypes);
+  FfrSrcCacheTypesList.IntCode := c_File_Cache_Id_SAS;
+  FfrDestCacheTypesList.IntCode := c_File_Cache_Id_BDB;
 end;
 
 function TfrmCacheManager.CreateSimpleTileStorage(
@@ -294,23 +322,6 @@ end;
 
 procedure TfrmCacheManager.ProcessCacheConverter;
 
-  function GetCacheFormatFromIndex(const AIndex: Integer): Byte;
-  begin
-    case AIndex of
-      0: Result := c_File_Cache_Id_GMV;
-      1: Result := c_File_Cache_Id_SAS;
-      2: Result := c_File_Cache_Id_ES;
-      3: Result := c_File_Cache_Id_GM;
-      4: Result := c_File_Cache_Id_GM_Aux;
-      5: Result := c_File_Cache_Id_BDB;
-      6: Result := c_File_Cache_Id_BDB_Versioned;
-      7: Result := c_File_Cache_Id_DBMS;
-      8: Result := c_File_Cache_Id_Mobile_Atlas;
-    else
-      Result := c_File_Cache_Id_SAS;
-    end;
-  end;
-
   function IsTileCacheInArchive(const APath: string; out AArchType: TTileCacheInArchiveType): Boolean;
   begin
     if LowerCase(ExtractFileExt(APath)) = '.tar' then begin
@@ -371,13 +382,13 @@ begin
       VDefExtention,
       VArchType,
       VCoordConverter,
-      GetCacheFormatFromIndex(cbbCacheTypes.ItemIndex)
+      FfrSrcCacheTypesList.IntCode
     );
 
   VDestPath := Trim(edtDestPath.Text);
   if not IsTileCacheInArchive(VDestPath, VArchType) then begin
     VDestPath := IncludeTrailingPathDelimiter(VDestPath);
-    if GetCacheFormatFromIndex(cbbDestCacheTypes.ItemIndex) <> c_File_Cache_Id_DBMS then begin
+    if FfrDestCacheTypesList.IntCode <> c_File_Cache_Id_DBMS then begin
       ForceDirectories(VDestPath);
     end;
   end;
@@ -388,7 +399,7 @@ begin
       VDefExtention,
       VArchType,
       VCoordConverter,
-      GetCacheFormatFromIndex(cbbDestCacheTypes.ItemIndex)
+      FfrDestCacheTypesList.IntCode
     );
 
   VSourceVersion := nil;

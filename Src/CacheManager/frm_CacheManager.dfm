@@ -9,6 +9,7 @@ object frmCacheManager: TfrmCacheManager
   OldCreateOrder = False
   PopupMode = pmExplicit
   Position = poMainFormCenter
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object PageControl1: TPageControl
@@ -62,24 +63,13 @@ object frmCacheManager: TfrmCacheManager
           Anchors = [akLeft, akTop, akRight]
           TabOrder = 0
         end
-        object cbbCacheTypes: TComboBox
+        object pnlCacheTypes: TPanel
           Left = 10
           Top = 81
           Width = 153
           Height = 21
-          ItemHeight = 13
+          BevelOuter = bvNone
           TabOrder = 1
-          Text = 'SAS.Planet'
-          Items.Strings = (
-            'GoogleMV'
-            'SAS.Planet'
-            'EarthSlicer 1.95'
-            'GlobalMapper Tiles'
-            'GlobalMapper Aux'
-            'BerkeleyDB'
-            'BerkeleyDB (Versioned)'
-            'DBMS'
-            'MobileAtlas')
         end
         object chkIgnoreTNE: TCheckBox
           Left = 279
@@ -166,24 +156,13 @@ object frmCacheManager: TfrmCacheManager
           Anchors = [akLeft, akTop, akRight]
           TabOrder = 0
         end
-        object cbbDestCacheTypes: TComboBox
+        object pnlDestCacheTypes: TPanel
           Left = 10
           Top = 81
           Width = 153
           Height = 21
-          ItemHeight = 13
+          BevelOuter = bvNone
           TabOrder = 1
-          Text = 'BerkeleyDB'
-          Items.Strings = (
-            'GoogleMV'
-            'SAS.Planet'
-            'EarthSlicer 1.95'
-            'GlobalMapper Tiles'
-            'GlobalMapper Aux'
-            'BerkeleyDB'
-            'BerkeleyDB (Versioned)'
-            'DBMS'
-            'MobileAtlas')
         end
         object chkOverwrite: TCheckBox
           Left = 175
