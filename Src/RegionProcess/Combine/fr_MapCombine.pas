@@ -37,6 +37,7 @@ uses
   i_LanguageManager,
   i_MapType,
   i_MapTypeSet,
+  i_MapTypeListChangeable,
   i_CoordConverterFactory,
   i_CoordConverterList,
   i_GeometryLonLat,
@@ -136,8 +137,10 @@ type
     chkSaveGeoRefInfoToJpegExif: TCheckBox;
     chkUseMapGrids: TCheckBox;
     pnlMaps: TPanel;
+    chkAddVisibleLayers: TCheckBox;
     procedure cbbZoomChange(Sender: TObject);
     procedure btnSelectTargetFileClick(Sender: TObject);
+    procedure chkAddVisibleLayersClick(Sender: TObject);
   private
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FBitmapFactory: IBitmap32StaticFactory;
@@ -145,6 +148,7 @@ type
     FCoordConverterList: ICoordConverterList;
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
+    FActiveMapsSet: IMapTypeListChangeable;
     FGUIConfigList: IMapTypeGUIConfigList;
     FMapCalibrationList: IMapCalibrationList;
     FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
@@ -188,6 +192,7 @@ type
       const ABitmapFactory: IBitmap32StaticFactory;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
+      const AActiveMapsSet: IMapTypeListChangeable;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AViewConfig: IGlobalViewMainConfig;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
@@ -209,6 +214,7 @@ uses
   gnugettext,
   t_GeoTypes,
   i_MapVersionRequest,
+  i_MapTypeListStatic,
   i_InterfaceListSimple,
   i_GeometryProjected,
   i_CoordConverter,
@@ -231,6 +237,7 @@ constructor TfrMapCombine.Create(
   const ABitmapFactory: IBitmap32StaticFactory;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
+  const AActiveMapsSet: IMapTypeListChangeable;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AViewConfig: IGlobalViewMainConfig;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
@@ -249,6 +256,7 @@ begin
   FBitmapFactory := ABitmapFactory;
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;
+  FActiveMapsSet := AActiveMapsSet;
   FGUIConfigList := AGUIConfigList;
   FMapCalibrationList := AMapCalibrationList;
   FViewConfig := AViewConfig;
@@ -355,6 +363,11 @@ begin
   end;
 end;
 
+procedure TfrMapCombine.chkAddVisibleLayersClick(Sender: TObject);
+begin
+  FfrLayerSelect.SetEnabled(not chkAddVisibleLayers.Checked);
+end;
+
 function TfrMapCombine.GetBGColor: TColor32;
 var
   VMap: IMapType;
@@ -446,6 +459,7 @@ var
   VMapVersion: IMapVersionRequest;
   VLayer: IMapType;
   VLayerVersion: IMapVersionRequest;
+  VActiveMapsSet: IMapTypeListStatic;
 begin
   VMap := FfrMapSelect.GetSelectedMapType;
   if Assigned(VMap) then begin
@@ -453,12 +467,22 @@ begin
   end else begin
     VMapVersion := nil;
   end;
+
   VLayer := FfrLayerSelect.GetSelectedMapType;
   if Assigned(VLayer) then begin
     VLayerVersion := VLayer.VersionRequestConfig.GetStatic;
   end else begin
     VLayerVersion := nil;
   end;
+
+  if chkAddVisibleLayers.Checked then begin
+    VLayer := nil;
+    VLayerVersion := nil;
+    VActiveMapsSet := FActiveMapsSet.List;
+  end else begin
+    VActiveMapsSet := nil;
+  end;
+
   Result :=
     TBitmapLayerProviderMapWithLayer.Create(
       FBitmapFactory,
@@ -466,6 +490,7 @@ begin
       VMapVersion,
       VLayer,
       VLayerVersion,
+      VActiveMapsSet,
       FUseTilePrevZoomConfig.UsePrevZoomAtMap,
       FUseTilePrevZoomConfig.UsePrevZoomAtLayer
     );

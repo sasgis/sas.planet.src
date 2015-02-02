@@ -202,6 +202,7 @@ begin
         FFrame.GetSat.VersionRequestConfig.GetStatic,
         nil,
         nil,
+        nil,
         False,
         False
       );
@@ -219,6 +220,7 @@ begin
         FBitmap32StaticFactory,
         FFrame.GetMap,
         FFrame.GetMap.VersionRequestConfig.GetStatic,
+        nil,
         nil,
         nil,
         False,
@@ -248,6 +250,7 @@ begin
         VMapVersion,
         FFrame.GetHyb,
         VLayerVersion,
+        nil,
         False,
         False
       );

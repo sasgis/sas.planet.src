@@ -51,6 +51,7 @@ uses
   i_MapCalibration,
   i_GeometryProjectedFactory,
   i_GlobalViewMainConfig,
+  i_MapTypeListChangeable,
   i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
   fr_MapCombine;
@@ -73,6 +74,7 @@ type
     FMarksDB: IMarkSystem;
     FMarksShowConfig: IUsedMarksConfig;
     FMarksDrawConfig: IMarksDrawConfig;
+    FActiveMapsSet: IMapTypeListChangeable;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FBitmapPostProcessing: IBitmapPostProcessingChangeable;
     FMapCalibrationList: IMapCalibrationList;
@@ -106,6 +108,7 @@ type
       const ALanguageManager: ILanguageManager;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
+      const AActiveMapsSet: IMapTypeListChangeable;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AViewConfig: IGlobalViewMainConfig;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
@@ -160,6 +163,7 @@ constructor TProviderMapCombineBase.Create(
   const ALanguageManager: ILanguageManager;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
+  const AActiveMapsSet: IMapTypeListChangeable;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AViewConfig: IGlobalViewMainConfig;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
@@ -196,6 +200,7 @@ begin
   FMarksShowConfig := AMarksShowConfig;
   FMarksDrawConfig := AMarksDrawConfig;
   FMarksDB := AMarksDB;
+  FActiveMapsSet := AActiveMapsSet;
   FLocalConverterFactory := ALocalConverterFactory;
   FBitmapPostProcessing := ABitmapPostProcessing;
   FBitmapFactory := ABitmapFactory;
@@ -223,6 +228,7 @@ begin
       FBitmapFactory,
       Self.MainMapsConfig,
       Self.FullMapsSet,
+      FActiveMapsSet,
       Self.GUIConfigList,
       FViewConfig,
       FUseTilePrevZoomConfig,

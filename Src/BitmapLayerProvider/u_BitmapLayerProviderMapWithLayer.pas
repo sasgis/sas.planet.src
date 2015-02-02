@@ -28,6 +28,7 @@ uses
   i_Bitmap32BufferFactory,
   i_LocalCoordConverter,
   i_BitmapLayerProvider,
+  i_MapTypeListStatic,
   i_MapVersionRequest,
   i_MapType,
   u_BaseInterfacedObject;
@@ -35,13 +36,16 @@ uses
 type
   TBitmapLayerProviderMapWithLayer = class(TBaseInterfacedObject, IBitmapLayerProvider)
   private
+    type
+      TMapTypeItem = record
+        FMapType: IMapType;
+        FVersion: IMapVersionRequest;
+      end;
+  private
     FBitmap32StaticFactory: IBitmap32StaticFactory;
-    FMapTypeMain: IMapType;
-    FMapTypeMainVersion: IMapVersionRequest;
-    FMapTypeHybr: IMapType;
-    FMapTypeHybrVersion: IMapVersionRequest;
+    FMapTypeArray: array of TMapTypeItem;
     FUsePrevZoomAtMap: Boolean;
-    FUsePrevZoomAtLayer: Boolean;
+    FUsePrevZoomAtLayers: Boolean;
   private
     function GetBitmapRect(
       AOperationID: Integer;
@@ -55,8 +59,9 @@ type
       const AMapTypeMainVersion: IMapVersionRequest;
       const AMapTypeHybr: IMapType;
       const AMapTypeHybrVersion: IMapVersionRequest;
-      AUsePrevZoomAtMap: Boolean;
-      AUsePrevZoomAtLayer: Boolean
+      const AMapTypeActiveMapsSet: IMapTypeListStatic;
+      const AUsePrevZoomAtMap: Boolean;
+      const AUsePrevZoomAtLayers: Boolean
     );
   end;
 
@@ -75,18 +80,50 @@ constructor TBitmapLayerProviderMapWithLayer.Create(
   const AMapTypeMainVersion: IMapVersionRequest;
   const AMapTypeHybr: IMapType;
   const AMapTypeHybrVersion: IMapVersionRequest;
-  AUsePrevZoomAtMap, AUsePrevZoomAtLayer: Boolean
+  const AMapTypeActiveMapsSet: IMapTypeListStatic;
+  const AUsePrevZoomAtMap: Boolean;
+  const AUsePrevZoomAtLayers: Boolean
 );
+var
+  I, J: Integer;
 begin
   Assert(Assigned(ABitmap32StaticFactory));
+
+  if Assigned(AMapTypeActiveMapsSet) then begin
+    Assert(not Assigned(AMapTypeHybr));
+  end;
+
   inherited Create;
+
   FBitmap32StaticFactory := ABitmap32StaticFactory;
-  FMapTypeMain := AMapTypeMain;
-  FMapTypeMainVersion := AMapTypeMainVersion;
-  FMapTypeHybr := AMapTypeHybr;
-  FMapTypeHybrVersion := AMapTypeHybrVersion;
+
+  I := 2;
+  if Assigned(AMapTypeActiveMapsSet) then begin
+    Inc(I, AMapTypeActiveMapsSet.Count);
+  end;
+
+  SetLength(FMapTypeArray, I);
+
+  I := 0;
+
+  FMapTypeArray[I].FMapType := AMapTypeMain;
+  FMapTypeArray[I].FVersion := AMapTypeMainVersion;
+  Inc(I);
+
+  FMapTypeArray[I].FMapType := AMapTypeHybr;
+  FMapTypeArray[I].FVersion := AMapTypeHybrVersion;
+  Inc(I);
+
+  if Assigned(AMapTypeActiveMapsSet) then begin
+    for J := 0 to AMapTypeActiveMapsSet.Count - 1 do begin
+      FMapTypeArray[I].FMapType := AMapTypeActiveMapsSet.Items[J];
+      FMapTypeArray[I].FVersion := AMapTypeActiveMapsSet.Items[J].VersionRequestConfig.GetStatic;
+      Inc(I);
+    end;
+  end;
+
   FUsePrevZoomAtMap := AUsePrevZoomAtMap;
-  FUsePrevZoomAtLayer := AUsePrevZoomAtLayer;
+  FUsePrevZoomAtLayers := AUsePrevZoomAtLayers;
 end;
 
 function TBitmapLayerProviderMapWithLayer.GetBitmapRect(
@@ -95,55 +132,55 @@ function TBitmapLayerProviderMapWithLayer.GetBitmapRect(
   const ALocalConverter: ILocalCoordConverter
 ): IBitmap32Static;
 var
-  VLayer: IBitmap32Static;
+  I: Integer;
+  VResult: IBitmap32Static;
   VBitmap: TBitmap32ByStaticBitmap;
+  VUsePrevZoom: Boolean;
 begin
   Result := nil;
-  VLayer := nil;
-  if FMapTypeMain <> nil then begin
-    Result :=
-      FMapTypeMain.LoadBitmapUni(
-        ALocalConverter.GetRectInMapPixel,
-        ALocalConverter.GetZoom,
-        FMapTypeMainVersion,
-        ALocalConverter.GetGeoConverter,
-        FUsePrevZoomAtMap,
-        True,
-        True
-      );
-  end;
 
-  if FMapTypeHybr <> nil then begin
-    VLayer :=
-      FMapTypeHybr.LoadBitmapUni(
-        ALocalConverter.GetRectInMapPixel,
-        ALocalConverter.GetZoom,
-        FMapTypeHybrVersion,
-        ALocalConverter.GetGeoConverter,
-        FUsePrevZoomAtLayer,
-        True,
-        True
-      );
-  end;
+  for I := 0 to Length(FMapTypeArray) - 1 do begin
+    VResult := nil;
 
-  if Result <> nil then begin
-    if VLayer <> nil then begin
-      VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
-      try
-        AssignStaticToBitmap32(VBitmap, Result);
-        BlockTransferFull(
-          VBitmap,
-          0, 0,
-          VLayer,
-          dmBlend
-        );
-        Result := VBitmap.MakeAndClear;
-      finally
-        VBitmap.Free;
+    if FMapTypeArray[I].FMapType <> nil then begin
+
+      if FMapTypeArray[I].FMapType.Zmp.IsLayer then begin
+        VUsePrevZoom := FUsePrevZoomAtLayers;
+      end else begin
+        VUsePrevZoom := FUsePrevZoomAtMap;
       end;
+
+      VResult :=
+        FMapTypeArray[I].FMapType.LoadBitmapUni(
+          ALocalConverter.GetRectInMapPixel,
+          ALocalConverter.GetZoom,
+          FMapTypeArray[I].FVersion,
+          ALocalConverter.GetGeoConverter,
+          VUsePrevZoom,
+          True,
+          True
+        );
     end;
-  end else begin
-    Result := VLayer;
+
+    if Result <> nil then begin
+      if VResult <> nil then begin
+        VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
+        try
+          AssignStaticToBitmap32(VBitmap, Result);
+          BlockTransferFull(
+            VBitmap,
+            0, 0,
+            VResult,
+            dmBlend
+          );
+          Result := VBitmap.MakeAndClear;
+        finally
+          VBitmap.Free;
+        end;
+      end;
+    end else begin
+      Result := VResult;
+    end;
   end;
 end;
 

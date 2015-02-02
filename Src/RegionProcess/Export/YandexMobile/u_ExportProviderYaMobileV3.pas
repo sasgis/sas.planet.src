@@ -178,6 +178,7 @@ begin
         VMapVersion,
         FFrame.GetHyb.GetSelectedMapType,
         VLayerVersion,
+        nil,
         False,
         False
       );
@@ -192,6 +193,7 @@ begin
         FBitmap32StaticFactory,
         FFrame.GetMap.GetSelectedMapType,
         FFrame.GetMap.GetSelectedMapType.VersionRequestConfig.GetStatic,
+        nil,
         nil,
         nil,
         False,

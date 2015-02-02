@@ -46,6 +46,7 @@ uses
   i_MapLayerGridsConfig,
   i_ValueToStringConverter,
   i_MapCalibration,
+  i_MapTypeListChangeable,
   i_GeometryProjectedFactory,
   i_GeometryProjectedProvider,
   i_GlobalViewMainConfig,
@@ -64,6 +65,7 @@ type
       const ALanguageManager: ILanguageManager;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
+      const AActiveMapsSet: IMapTypeListChangeable;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AViewConfig: IGlobalViewMainConfig;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
@@ -106,6 +108,7 @@ constructor TProviderMapCombineKMZ.Create(
   const ALanguageManager: ILanguageManager;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
+  const AActiveMapsSet: IMapTypeListChangeable;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AViewConfig: IGlobalViewMainConfig;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
@@ -131,6 +134,7 @@ begin
     ALanguageManager,
     AMainMapsConfig,
     AFullMapsSet,
+    AActiveMapsSet,
     AGUIConfigList,
     AViewConfig,
     AUseTilePrevZoomConfig,

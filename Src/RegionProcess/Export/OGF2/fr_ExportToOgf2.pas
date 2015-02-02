@@ -308,6 +308,7 @@ begin
       VMapVersion,
       VLayer,
       VLayerVersion,
+      nil,
       VUsePrevZoom,
       VUsePrevZoom
     );

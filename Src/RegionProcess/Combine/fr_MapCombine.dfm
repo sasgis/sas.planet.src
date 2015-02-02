@@ -89,7 +89,7 @@ object frMapCombine: TfrMapCombine
       end
       object flwpnlJpegQuality: TFlowPanel
         Left = 3
-        Top = 88
+        Top = 105
         Width = 204
         Height = 25
         Align = alTop
@@ -99,6 +99,7 @@ object frMapCombine: TfrMapCombine
         Constraints.MinHeight = 25
         Padding.Top = 2
         TabOrder = 2
+        ExplicitTop = 88
         object lblJpgQulity: TLabel
           AlignWithMargins = True
           Left = 0
@@ -150,6 +151,17 @@ object frMapCombine: TfrMapCombine
         Align = alTop
         Caption = 'Add visible grids'
         TabOrder = 5
+      end
+      object chkAddVisibleLayers: TCheckBox
+        Left = 3
+        Top = 88
+        Width = 204
+        Height = 17
+        Align = alTop
+        Caption = 'Add visible layers'
+        TabOrder = 6
+        OnClick = chkAddVisibleLayersClick
+        ExplicitTop = 77
       end
     end
     object pnlPrTypes: TPanel

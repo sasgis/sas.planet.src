@@ -192,11 +192,13 @@ implementation
 
 uses
   gnugettext,
+  i_MapTypeListChangeable,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   u_ConfigDataProviderByIniFile,
   u_ConfigDataWriteProviderByIniFile,
   u_ConfigProviderHelpers,
+  u_MapTypeListChangeableActiveBitmapLayers,
   u_RegionProcessProgressInfoInternalFactory,
   u_ProviderTilesGenPrev,
   u_ProviderTilesCopy;
@@ -244,6 +246,7 @@ constructor TfrmRegionProcess.Create(
   const AMarkDBGUI: TMarkDbGUIHelper
 );
 var
+  VActiveMapsSet: IMapTypeListChangeable;
   VProgressFactory: IRegionProcessProgressInfoInternalFactory;
 begin
   inherited Create(ALanguageManager);
@@ -253,6 +256,11 @@ begin
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FMapGoto := AMapGoto;
   FMarkDBGUI := AMarkDBGUI;
+  VActiveMapsSet :=
+    TMapTypeListChangeableByActiveMapsSet.Create(
+        AMapTypeListBuilderFactory,
+        AMainMapsConfig.GetActiveBitmapLayersSet
+      );
   VProgressFactory :=
     TRegionProcessProgressInfoInternalFactory.Create(
       AAppClosingNotifier,
@@ -344,6 +352,7 @@ begin
       ALanguageManager,
       AMainMapsConfig,
       AFullMapsSet,
+      VActiveMapsSet,
       AGUIConfigList,
       AViewConfig,
       AUseTilePrevZoomConfig,

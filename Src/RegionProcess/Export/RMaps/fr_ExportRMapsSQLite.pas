@@ -391,6 +391,7 @@ begin
       VMapVersion,
       VLayer,
       VLayerVersion,
+      nil,
       chkUsePrevZoom.Checked,
       chkUsePrevZoom.Checked
     );
