@@ -25,6 +25,7 @@ interface
 uses
   Types,
   SysUtils,
+  i_NotifierOperation,
   i_MapVersionRequest,
   i_VectorItemSubset,
   i_ProjectionInfo,
@@ -45,7 +46,11 @@ type
     FIsIgnoreError: Boolean;
   private
     function GetProjectionInfo: IProjectionInfo;
-    function GetTile(const ATile: TPoint): IVectorItemSubset;
+    function GetTile(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
+      const ATile: TPoint
+    ): IVectorItemSubset;
   public
     constructor Create(
       const AIsIgnoreError: Boolean;
@@ -93,7 +98,11 @@ begin
   Result := FProjectionInfo;
 end;
 
-function TVectorTileProviderByStorage.GetTile(const ATile: TPoint): IVectorItemSubset;
+function TVectorTileProviderByStorage.GetTile(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
+  const ATile: TPoint
+): IVectorItemSubset;
 var
   VTileInfo: ITileInfoWithData;
   VZoom: Byte;

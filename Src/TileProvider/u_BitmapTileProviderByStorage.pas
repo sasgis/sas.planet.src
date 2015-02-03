@@ -25,6 +25,7 @@ interface
 uses
   Types,
   SysUtils,
+  i_NotifierOperation,
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
   i_MapVersionRequest,
@@ -47,7 +48,11 @@ type
     FImageResampler: IImageResamplerFactoryChangeable;
   private
     function GetProjectionInfo: IProjectionInfo;
-    function GetTile(const ATile: TPoint): IBitmap32Static;
+    function GetTile(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
+      const ATile: TPoint
+    ): IBitmap32Static;
   public
     constructor Create(
       const AIsIgnoreError: Boolean;
@@ -102,7 +107,11 @@ begin
   Result := FProjectionInfo;
 end;
 
-function TBitmapTileProviderByStorage.GetTile(const ATile: TPoint): IBitmap32Static;
+function TBitmapTileProviderByStorage.GetTile(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
+  const ATile: TPoint
+): IBitmap32Static;
 var
   VTileInfo: ITileInfoWithData;
   VRect: TRect;

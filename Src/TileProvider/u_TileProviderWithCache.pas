@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  i_NotifierOperation,
   i_Bitmap32Static,
   i_VectorItemSubset,
   i_ProjectionInfo,
@@ -39,7 +40,11 @@ type
     FCache: ITileObjCacheBitmap;
   private
     function GetProjectionInfo: IProjectionInfo;
-    function GetTile(const ATile: TPoint): IBitmap32Static;
+    function GetTile(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
+      const ATile: TPoint
+    ): IBitmap32Static;
   public
     constructor Create(
       const ASource: IBitmapTileProvider;
@@ -53,7 +58,11 @@ type
     FCache: ITileObjCacheVector;
   private
     function GetProjectionInfo: IProjectionInfo;
-    function GetTile(const ATile: TPoint): IVectorItemSubset;
+    function GetTile(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
+      const ATile: TPoint
+    ): IVectorItemSubset;
   public
     constructor Create(
       const ASource: IVectorTileProvider;
@@ -83,6 +92,8 @@ begin
 end;
 
 function TBitmapTileProviderWithCache.GetTile(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
   const ATile: TPoint
 ): IBitmap32Static;
 var
@@ -91,7 +102,7 @@ begin
   VZoom := FSource.ProjectionInfo.Zoom;
   Result := FCache.TryLoadTileFromCache(ATile, VZoom);
   if Result = nil then begin
-    Result := FSource.GetTile(ATile);
+    Result := FSource.GetTile(AOperationID, ACancelNotifier, ATile);
     if Result <> nil then begin
       FCache.AddTileToCache(Result, ATile, VZoom);
     end;
@@ -118,6 +129,8 @@ begin
 end;
 
 function TVectorTileProviderWithCache.GetTile(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
   const ATile: TPoint
 ): IVectorItemSubset;
 var
@@ -126,7 +139,7 @@ begin
   VZoom := FSource.ProjectionInfo.Zoom;
   Result := FCache.TryLoadTileFromCache(ATile, VZoom);
   if Result = nil then begin
-    Result := FSource.GetTile(ATile);
+    Result := FSource.GetTile(AOperationID, ACancelNotifier, ATile);
     if Result <> nil then begin
       FCache.AddTileToCache(Result, ATile, VZoom);
     end;

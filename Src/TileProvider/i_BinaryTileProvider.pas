@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  i_NotifierOperation,
   i_ProjectionInfo,
   i_BinaryData;
 
@@ -34,6 +35,8 @@ type
     property ProjectionInfo: IProjectionInfo read GetProjectionInfo;
 
     function GetTile(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
       const ATile: TPoint
     ): IBinaryData;
   end;
