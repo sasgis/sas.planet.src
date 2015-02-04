@@ -387,7 +387,7 @@ begin
 
       if FileExists(VPath) then begin
         VHelper := GetStorageHelper;
-        if AMode = gtimWithoutData then begin
+        if (AMode = gtimWithoutData) or (AMode = gtimAsIs) then begin
           VResult :=
             VHelper.LoadTileInfo(
               VPath,
@@ -518,7 +518,7 @@ begin
 
       if FileExists(VPath) then begin
         VHelper := GetStorageHelper;
-        if AMode = gtimWithoutData then begin
+        if (AMode = gtimWithoutData) or (AMode = gtimAsIs) then begin
           VResult :=
             VHelper.LoadTileInfo(
               VPath,
