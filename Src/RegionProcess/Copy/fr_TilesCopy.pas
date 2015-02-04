@@ -169,6 +169,7 @@ begin
       ALanguageManager,
       ATileStorageTypeList,
       False,
+      True,
       Self.OnCacheTypeChange
     );
   FfrZoomsSelect :=
@@ -200,10 +201,6 @@ var
   VAllowSetVersion: Boolean;
 begin
   VIntCode := GetTargetCacheType;
-  if VIntCode in [c_File_Cache_Id_RAM] then begin
-    MessageDlg(_('Can''t use in-memory tile storage as output format!'), mtError, [mbOK], 0);
-    FfrCacheTypeList.IntCode := c_File_Cache_Id_SAS;
-  end;
   VAllowSetVersion := (VIntCode in [c_File_Cache_Id_DBMS, c_File_Cache_Id_BDB_Versioned]);
   chkSetTargetVersionTo.Enabled := VAllowSetVersion;
   UpdateSetTargetVersionState;

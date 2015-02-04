@@ -192,12 +192,16 @@ begin
   FfrSrcCacheTypesList :=
     TfrCacheTypeList.Create(
       ALanguageManager,
-      ATileStorageTypeList
+      ATileStorageTypeList,
+      False,
+      True
     );
   FfrDestCacheTypesList :=
     TfrCacheTypeList.Create(
       ALanguageManager,
-      ATileStorageTypeList
+      ATileStorageTypeList,
+      False,
+      True
     );
 end;
 

@@ -25,7 +25,8 @@ type
     FOnChange: TNotifyEvent;
     procedure FillItems(
       const ATypesList: ITileStorageTypeListStatic;
-      const AWithDefaultItem: Boolean
+      const AWithDefaultItem: Boolean;
+      const AIngoreRamCache: Boolean
     );
   public
     procedure Show(AParent: TWinControl);
@@ -37,6 +38,7 @@ type
       const ALanguageManager: ILanguageManager;
       const ATileStorageTypeList: ITileStorageTypeListStatic;
       const AWithDefaultItem: Boolean = False;
+      const AIngoreRamCache: Boolean = False;
       const AOnChange: TNotifyEvent = nil
     );
   end;
@@ -56,12 +58,13 @@ constructor TfrCacheTypeList.Create(
   const ALanguageManager: ILanguageManager;
   const ATileStorageTypeList: ITileStorageTypeListStatic;
   const AWithDefaultItem: Boolean;
+  const AIngoreRamCache: Boolean;
   const AOnChange: TNotifyEvent
 );
 begin
   inherited Create(ALanguageManager);
   FOnChange := AOnChange;
-  FillItems(ATileStorageTypeList, AWithDefaultItem);
+  FillItems(ATileStorageTypeList, AWithDefaultItem, AIngoreRamCache);
 end;
 
 procedure TfrCacheTypeList.Show(AParent: TWinControl);
@@ -71,7 +74,8 @@ end;
 
 procedure TfrCacheTypeList.FillItems(
   const ATypesList: ITileStorageTypeListStatic;
-  const AWithDefaultItem: Boolean
+  const AWithDefaultItem: Boolean;
+  const AIngoreRamCache: Boolean
 );
 var
   I: Integer;
@@ -87,6 +91,9 @@ begin
 
   for I := 0 to ATypesList.Count - 1 do begin
     VItem := ATypesList.Items[I];
+    if AIngoreRamCache and (VItem.IntCode in [c_File_Cache_Id_RAM]) then begin
+      Continue;
+    end;
     if VItem.CanUseAsDefault then begin
       cbbCacheType.Items.AddObject(VItem.Caption, TObject(VItem.IntCode));
     end;
