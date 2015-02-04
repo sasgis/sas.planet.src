@@ -70,6 +70,7 @@ uses
   u_GeoCoderByGpx,
   u_GeoCoderByTXT,
   u_GeoCoderByCoord,
+  u_GeoCoderByGPSies,
   u_GeoCoderByMarks;
 
 { TGeoCoderListSimple }
@@ -201,6 +202,14 @@ begin
       CGeoCoderMarksGUID,
       'Marks',
       TGeoCoderByMarks.Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory, AMarksDb)
+    );
+  VList.Add(VItem);
+
+  VItem :=
+    TGeoCoderListEntity.Create(
+      CGeoCoderGPSiesGUID,
+      'www.GPSies.com',
+      TGeoCoderByGPSies.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory)
     );
   VList.Add(VItem);
 

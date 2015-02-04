@@ -932,6 +932,7 @@
 			<DCCReference Include="Src\GeoCoder\u_GeoCoderByGoogle.pas"/>
 			<DCCReference Include="Src\GeoCoder\u_GeoCoderByNavitel.pas"/>
 			<DCCReference Include="Src\GeoCoder\u_GeoCoderByOSM.pas"/>
+			<DCCReference Include="Src\GeoCoder\u_GeoCoderByGPSies.pas"/>
 			<DCCReference Include="Src\GeoCoder\u_GeoCoderByPolishMap.pas"/>
 			<DCCReference Include="Src\GeoCoder\u_GeoCoderByGpx.pas"/>
 			<DCCReference Include="Src\GeoCoder\u_GeoCoderByRosreestr.pas"/>
