@@ -32,6 +32,7 @@ uses
 type
   TPredicateByTileInfoAbstract = class(TBaseInterfacedObject, IPredicateByTileInfo)
   protected
+    function GetUseTileData: Boolean; virtual;
     function Check(
       const ATileInfo: ITileInfoBasic;
       AZoom: Byte;
@@ -49,6 +50,7 @@ type
   private
     FDataCheck: IPredicateByBinaryData;
   protected
+    function GetUseTileData: Boolean; override;
     function Check(const ATileInfo: TTileInfo): Boolean; override;
   public
     constructor Create(const ADataCheck: IPredicateByBinaryData);
@@ -145,6 +147,11 @@ begin
   VTileInfo.FContentType := ATileInfo.ContentType;
   VTileInfo.FSize := ATileInfo.Size;
   Result := Check(VTileInfo);
+end;
+
+function TPredicateByTileInfoAbstract.GetUseTileData: Boolean;
+begin
+  Result := False;
 end;
 
 { TPredicateByTileInfoEqualSize }
@@ -253,6 +260,11 @@ constructor TPredicateByTileInfoExistsTileCheckData.Create(
 begin
   inherited Create;
   FDataCheck := ADataCheck;
+end;
+
+function TPredicateByTileInfoExistsTileCheckData.GetUseTileData: Boolean;
+begin
+  Result := True;
 end;
 
 function TPredicateByTileInfoExistsTileCheckData.Check(

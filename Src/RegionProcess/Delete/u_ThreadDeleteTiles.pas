@@ -101,6 +101,7 @@ var
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
   VTileInfo: ITileInfoBasic;
+  VGetTileInfoMode: TGetTileInfoMode;
 begin
   inherited;
   VTileIterator := TTileIteratorByPolygon.Create(FProjection, FPolyProjected);
@@ -112,12 +113,18 @@ begin
   VDeletedCount := 0;
   ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess, VDeletedCount);
 
+  if FPredicate.UseTileData then begin
+    VGetTileInfoMode := gtimWithData;
+  end else begin
+    VGetTileInfoMode := gtimAsIs;
+  end;
+
   // foreach selected tile
   while VTileIterator.Next(VTile) do begin
     if CancelNotifier.IsOperationCanceled(OperationID) then begin
       exit;
     end;
-    VTileInfo := FTileStorage.GetTileInfoEx(VTile, FZoom, FVersion, gtimWithoutData);
+    VTileInfo := FTileStorage.GetTileInfoEx(VTile, FZoom, FVersion, VGetTileInfoMode);
     if (VTileInfo <> nil) then begin
       if FPredicate.Check(VTileInfo, FZoom, VTile) then begin
         if FTileStorage.DeleteTile(VTile, FZoom, VTileInfo.VersionInfo) then begin
