@@ -297,7 +297,6 @@ uses
   u_BitmapTileMatrix in 'Src\TileMatrix\u_BitmapTileMatrix.pas',
   i_BitmapTileMatrixBuilder in 'Src\TileMatrix\i_BitmapTileMatrixBuilder.pas',
   u_BitmapTileMatrixBuilder in 'Src\TileMatrix\u_BitmapTileMatrixBuilder.pas',
-  u_BitmapTileMatrixChangeableWithThread in 'Src\TileMatrix\u_BitmapTileMatrixChangeableWithThread.pas',
   i_HashTileMatrix in 'Src\TileMatrix\i_HashTileMatrix.pas',
   i_HashTileMatrixBuilder in 'Src\TileMatrix\i_HashTileMatrixBuilder.pas',
   u_HashTileMatrixBuilder in 'Src\TileMatrix\u_HashTileMatrixBuilder.pas',
