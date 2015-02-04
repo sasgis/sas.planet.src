@@ -274,7 +274,17 @@ begin
     except
       on E: EBerkeleyDBBadValue do begin
         FGlobalBerkeleyDBHelper.LogException(E.ClassName + ': ' + E.Message);
-        ADatabase.Del(AVersionedMetaKey, ATransaction, AIsDeadLock);
+        if not FIsReadOnly then begin
+          if ADatabase.Del(AVersionedMetaKey, ATransaction, AIsDeadLock) then begin
+            FGlobalBerkeleyDBHelper.LogException('Broken Versioned Meta Data removed from db');
+          end else begin
+            FGlobalBerkeleyDBHelper.LogException('Can''t remove broken Versioned Meta Data from db');
+          end;
+        end else begin
+          FGlobalBerkeleyDBHelper.LogException(
+            'Turn off Read-Only mode to auto-remove broken Versioned Meta Data from db'
+          );
+        end;
         Result := nil;
       end;
     else

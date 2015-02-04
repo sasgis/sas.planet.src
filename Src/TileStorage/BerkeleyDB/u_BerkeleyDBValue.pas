@@ -224,6 +224,7 @@ type
 implementation
 
 uses
+  Math,
   CRC32,
   u_BerkeleyDBValueZlib;
 
@@ -560,8 +561,20 @@ begin
       FValue.TileSize := PCardinal(VPtr)^;
       Inc(VPtr, SizeOf(FValue.TileSize));
 
+      if Integer(FValue.TileSize) < 0 then begin
+        raise EBerkeleyDBBadValue.Create(
+          'Read value error - bad TileSize: ' + IntToStr(FValue.TileSize)
+        );
+      end;
+
       FValue.TileDate := PDateTime(VPtr)^;
       Inc(VPtr, SizeOf(FValue.TileDate));
+
+      if IsNan(FValue.TileDate) then begin
+        raise EBerkeleyDBBadValue.Create(
+          'Read value error - bad TileDate: NaN'
+        );
+      end;
 
       FValue.TileVersion := PWideChar(VPtr);
       Inc(VPtr, (Length(FValue.TileVersion) + 1) * SizeOf(WideChar));
@@ -711,8 +724,20 @@ begin
   FValue.TileSize := PInteger(VPtr)^;
   Inc(VPtr, SizeOf(FValue.TileSize));
 
+  if Integer(FValue.TileSize) < 0 then begin
+    raise EBerkeleyDBBadValue.Create(
+      'Read meta-value element error - bad TileSize: ' + IntToStr(FValue.TileSize)
+    );
+  end;
+
   FValue.TileDate := PDateTime(VPtr)^;
   Inc(VPtr, SizeOf(FValue.TileDate));
+
+  if IsNan(FValue.TileDate) then begin
+    raise EBerkeleyDBBadValue.Create(
+      'Read meta-value element error - bad TileDate: NaN'
+    );
+  end;
 
   FValue.TileCRC := PCardinal(VPtr)^;
   Inc(VPtr, SizeOf(FValue.TileCRC));
