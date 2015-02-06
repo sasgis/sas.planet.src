@@ -114,7 +114,6 @@ implementation
 uses
   Types,
   u_Synchronizer,
-  t_GeoTypes,
   i_DownloadResult,
   i_CoordConverter,
   i_TileInfoBasic,
@@ -129,7 +128,6 @@ uses
   u_TileRequestTask,
   u_BackgroundTask,
   u_TileRectChangeableByOtherTileRect,
-  u_GeoFunc,
   u_TileErrorInfo;
 
 { TUiTileDownload }

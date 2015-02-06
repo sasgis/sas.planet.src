@@ -149,7 +149,6 @@ uses
   i_CoordConverter,
   i_TileIterator,
   i_LonLatRect,
-  i_GeometryLonLat,
   u_InterfaceListSimple,
   u_SimpleFlagWithInterlock,
   u_ListenerNotifierLinksList,

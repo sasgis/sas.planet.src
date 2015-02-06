@@ -28,7 +28,6 @@ uses
   i_Bitmap32Static,
   i_ProjectionInfo,
   i_BitmapTileProvider,
-  i_BitmapTileMatrix,
   i_Bitmap32BufferFactory,
   i_ImageResamplerFactory,
   u_BaseInterfacedObject;

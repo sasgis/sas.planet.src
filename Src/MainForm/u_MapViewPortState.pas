@@ -104,7 +104,6 @@ uses
   u_ListenerByEvent,
   u_SimpleFlagWithInterlock,
   u_LocalCoordConverterChangeable,
-  u_LocalConverterChangeableFixedTileRectNoScale,
   u_GeoFunc;
 
 { TMapViewPortStateNew }

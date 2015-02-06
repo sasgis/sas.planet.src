@@ -24,7 +24,6 @@ interface
 
 uses
   SysUtils,
-  i_Changeable,
   i_TileRect,
   i_TileRectChangeable,
   i_CoordConverterFactory,
