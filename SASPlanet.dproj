@@ -758,6 +758,7 @@
     </DCCReference>
     <DCCReference Include="Src\MarksDB\GUI\fr_JpegImportOptions.pas">
       <Form>frJpegImportOptions</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="Src\MarksDB\GUI\fr_MarkCategorySelectOrAdd.pas">
       <Form>frMarkCategorySelectOrAdd</Form>
