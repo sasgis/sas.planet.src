@@ -986,7 +986,7 @@ uses
   u_MenuGeneratorByStaticTreeSimple,
   u_MapTypeListChangeableActiveBitmapLayers,
   u_MapTypeSetChangeableBySourceSetWithFilter,
-  u_TileMatrixChangeableWithThread,
+  u_BitmapTileMatrixChangeableWithThread,
   u_ActiveMapsLicenseList,
   u_NotifierOperation,
   u_MainFormState,

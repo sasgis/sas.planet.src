@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_TileMatrixChangeableWithThread;
+unit u_BitmapTileMatrixChangeableWithThread;
 
 interface
 

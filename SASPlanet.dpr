@@ -259,7 +259,7 @@ uses
   u_HtmlToHintTextConverterStuped in 'Src\u_HtmlToHintTextConverterStuped.pas',
   i_ContentTypeSubst in 'Src\ContentType\i_ContentTypeSubst.pas',
   u_ContentTypeSubstByList in 'Src\ContentType\u_ContentTypeSubstByList.pas',
-  u_TileMatrixChangeableWithThread in 'Src\TileMatrix\u_TileMatrixChangeableWithThread.pas',
+  u_BitmapTileMatrixChangeableWithThread in 'Src\TileMatrix\u_BitmapTileMatrixChangeableWithThread.pas',
   i_AntiBan in 'Src\Network\i_AntiBan.pas',
   u_AntiBanStuped in 'Src\Network\u_AntiBanStuped.pas',
   i_DownloadResult in 'Src\Network\i_DownloadResult.pas',

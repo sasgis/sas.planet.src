@@ -1225,10 +1225,10 @@
     <DCCReference Include="Src\TileMatrix\i_VectorTileMatrixChangeable.pas" />
     <DCCReference Include="Src\TileMatrix\u_BitmapTileMatrix.pas" />
     <DCCReference Include="Src\TileMatrix\u_BitmapTileMatrixBuilder.pas" />
+    <DCCReference Include="Src\TileMatrix\u_BitmapTileMatrixChangeableWithThread.pas" />
     <DCCReference Include="Src\TileMatrix\u_HashMatrix.pas" />
     <DCCReference Include="Src\TileMatrix\u_HashTileMatrix.pas" />
     <DCCReference Include="Src\TileMatrix\u_HashTileMatrixBuilder.pas" />
-    <DCCReference Include="Src\TileMatrix\u_TileMatrixChangeableWithThread.pas" />
     <DCCReference Include="Src\TileMatrix\u_VectorTileMatrix.pas" />
     <DCCReference Include="Src\TileProvider\i_BinaryTileProvider.pas" />
     <DCCReference Include="Src\TileProvider\i_BitmapTileProvider.pas" />
