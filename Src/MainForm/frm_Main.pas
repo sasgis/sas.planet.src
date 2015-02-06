@@ -908,10 +908,9 @@ uses
   i_FillingMapLayerConfig,
   i_PopUp,
   i_CoordConverterList,
-  i_TileMatrix,
   i_BitmapLayerProviderChangeable,
   i_ObjectWithListener,
-  i_TileMatrixChangeable,
+  i_BitmapTileMatrixChangeable,
   u_InterfaceListSimple,
   u_ImportFromArcGIS,
   u_LocalConverterChangeableOfMiniMap,
@@ -922,7 +921,6 @@ uses
   u_VectorItemSubsetChangeableForVectorLayers,
   u_VectorItemSubsetChangeableForMarksLayer,
   u_VectorItemSubsetChangeableBySearchResult,
-  u_TileMatrixFactory,
   u_BitmapLayerProviderChangeableForMainLayer,
   u_SourceDataUpdateInRectByMapsSet,
   u_TiledMapLayer,
@@ -1763,14 +1761,15 @@ var
   VLayersList: IInterfaceListSimple;
   VPopupMenu: IPopUp;
   VVectorItems: IVectorItemSubsetChangeable;
+  VPerfListGroup: IInternalPerformanceCounterList;
   VPerfList: IInternalPerformanceCounterList;
   VTileMatrixDraftResampler: IImageResamplerFactoryChangeable;
   VTileRectForShow: ITileRectChangeable;
-  VTileMatrixFactory: ITileMatrixFactory;
   VProvider: IBitmapLayerProviderChangeable;
   VSourceChangeNotifier: IObjectWithListener;
-  VTileMatrix: ITileMatrixChangeable;
+  VTileMatrix: IBitmapTileMatrixChangeable;
   VLayer: IInterface;
+  VDebugName: string;
 begin
   VTileRectForShow :=
     TTileRectChangeableByLocalConverterSmart.Create(
@@ -1787,13 +1786,11 @@ begin
     );
 
   VLayersList := TInterfaceListSimple.Create;
+  VPerfListGroup := GState.PerfCounterList.CreateAndAddNewSubList('MapLayer');
+  
   // Main bitmap layer
-  VPerfList := GState.PerfCounterList.CreateAndAddNewSubList('MapLayerBitmapMaps');
-  VTileMatrixFactory :=
-    TTileMatrixFactory.Create(
-      VTileMatrixDraftResampler,
-      GState.Bitmap32StaticFactory
-    );
+  VDebugName := 'MainBitmapMaps';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VProvider :=
     TBitmapLayerProviderChangeableForMainLayer.Create(
       FConfig.MainMapsConfig.GetActiveMap,
@@ -1809,17 +1806,19 @@ begin
       FConfig.MainMapsConfig.GetActiveBitmapMapsSet
     );
   VTileMatrix :=
-    TTileMatrixChangeableWithThread.Create(
+    TBitmapTileMatrixChangeableWithThread.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       VTileRectForShow,
-      VTileMatrixFactory,
       GState.LocalConverterFactory,
+      VTileMatrixDraftResampler,
+      GState.Bitmap32StaticFactory,
+      GState.HashFunction,
       VProvider,
       VSourceChangeNotifier,
       FConfig.LayersConfig.MainMapLayerConfig.ThreadConfig,
-      'TMapLayerBitmapMaps'
+      VDebugName
     );
   VLayer :=
     TTiledMapLayer.Create(
@@ -1827,18 +1826,17 @@ begin
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
+      GState.HashFunction,
       FViewPortState.View,
       VTileMatrix,
-      GState.GUISyncronizedTimerNotifier
+      GState.GUISyncronizedTimerNotifier,
+      VDebugName
     );
   VLayersList.Add(VLayer);
+  
   // Bitmap layer with grids
-  VPerfList := GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerGrids');
-  VTileMatrixFactory :=
-    TTileMatrixFactory.Create(
-      VTileMatrixDraftResampler,
-      GState.Bitmap32StaticFactory
-    );
+  VDebugName := 'Grids';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VProvider :=
     TBitmapLayerProviderChangeableForGrids.Create(
       GState.Bitmap32StaticFactory,
@@ -1846,17 +1844,19 @@ begin
       FConfig.LayersConfig.MapLayerGridsConfig
     );
   VTileMatrix :=
-    TTileMatrixChangeableWithThread.Create(
+    TBitmapTileMatrixChangeableWithThread.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       VTileRectForShow,
-      VTileMatrixFactory,
       GState.LocalConverterFactory,
+      VTileMatrixDraftResampler,
+      GState.Bitmap32StaticFactory,
+      GState.HashFunction,
       VProvider,
       nil,
       FConfig.LayersConfig.MapLayerGridsConfig.ThreadConfig,
-      'TMapLayerGrids'
+      VDebugName
     );
   VLayer :=
     TTiledMapLayer.Create(
@@ -1864,14 +1864,17 @@ begin
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
+      GState.HashFunction,
       FViewPortState.View,
       VTileMatrix,
-      GState.GUISyncronizedTimerNotifier
+      GState.GUISyncronizedTimerNotifier,
+      VDebugName
     );
   VLayersList.Add(VLayer);
 
   // Layer with randered vector maps
-  VPerfList := GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerVectorMaps');
+  VDebugName := 'VectorMaps';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VVectorItems :=
     TVectorItemSubsetChangeableForVectorLayers.Create(
       VPerfList,
@@ -1896,11 +1899,6 @@ begin
       TMarkerDrawableSimpleSquare,
       FConfig.LayersConfig.KmlLayerConfig.PointMarkerConfig
     );
-  VTileMatrixFactory :=
-    TTileMatrixFactory.Create(
-      VTileMatrixDraftResampler,
-      GState.Bitmap32StaticFactory
-    );
   VProvider :=
     TBitmapLayerProviderChangeableForVectorMaps.Create(
       FConfig.LayersConfig.KmlLayerConfig.DrawConfig,
@@ -1910,17 +1908,19 @@ begin
       VVectorItems
     );
   VTileMatrix :=
-    TTileMatrixChangeableWithThread.Create(
+    TBitmapTileMatrixChangeableWithThread.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       VTileRectForShow,
-      VTileMatrixFactory,
       GState.LocalConverterFactory,
+      VTileMatrixDraftResampler,
+      GState.Bitmap32StaticFactory,
+      GState.HashFunction,
       VProvider,
       nil,
       FConfig.LayersConfig.KmlLayerConfig.ThreadConfig,
-      'TMapLayerVectorMaps'
+      VDebugName
     );
   VLayer :=
     TTiledMapLayer.Create(
@@ -1928,18 +1928,17 @@ begin
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
+      GState.HashFunction,
       FViewPortState.View,
       VTileMatrix,
-      GState.GUISyncronizedTimerNotifier
+      GState.GUISyncronizedTimerNotifier,
+      VDebugName
     );
   VLayersList.Add(VLayer);
+  
   // Filling map layer
-  VPerfList := GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerFillingMap');
-  VTileMatrixFactory :=
-    TTileMatrixFactory.Create(
-      VTileMatrixDraftResampler,
-      GState.Bitmap32StaticFactory
-    );
+  VDebugName := 'FillingMap';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VProvider :=
     TBitmapLayerProviderChangeableForFillingMap.Create(
       GState.Bitmap32StaticFactory,
@@ -1950,29 +1949,34 @@ begin
       FConfig.LayersConfig.FillingMapLayerConfig
     );
   VTileMatrix :=
-    TTileMatrixChangeableWithThread.Create(
+    TBitmapTileMatrixChangeableWithThread.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       VTileRectForShow,
-      VTileMatrixFactory,
       GState.LocalConverterFactory,
+      VTileMatrixDraftResampler,
+      GState.Bitmap32StaticFactory,
+      GState.HashFunction,
       VProvider,
       VSourceChangeNotifier,
       FConfig.LayersConfig.FillingMapLayerConfig.ThreadConfig,
-      'TMapLayerFillingMap'
+      VDebugName
     );
   VLayer :=
     TTiledMapLayer.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerFillingMap'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
+      GState.HashFunction,
       FViewPortState.View,
       VTileMatrix,
-      GState.GUISyncronizedTimerNotifier
+      GState.GUISyncronizedTimerNotifier,
+      VDebugName
     );
   VLayersList.Add(VLayer);
+  
   // Marks from MarkSystem
   VBitmap :=
     ReadBitmapByFileRef(
@@ -1993,7 +1997,8 @@ begin
       GState.HashFunction,
       TMarkerProviderForVectorItemForMarkPoints.Create(GState.Bitmap32StaticFactory, VMarkerChangeable)
     );
-  VPerfList := GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerMarks');
+  VDebugName := 'Marks';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VVectorItems :=
     TVectorItemSubsetChangeableForMarksLayer.Create(
       VPerfList,
@@ -2012,11 +2017,6 @@ begin
       VPerfList.CreateAndAddNewCounter('FindItems'),
       24
     );
-  VTileMatrixFactory :=
-    TTileMatrixFactory.Create(
-      VTileMatrixDraftResampler,
-      GState.Bitmap32StaticFactory
-    );
   VProvider :=
     TBitmapLayerProviderChangeableForMarksLayer.Create(
       FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig,
@@ -2026,17 +2026,19 @@ begin
       VVectorItems
     );
   VTileMatrix :=
-    TTileMatrixChangeableWithThread.Create(
+    TBitmapTileMatrixChangeableWithThread.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       VTileRectForShow,
-      VTileMatrixFactory,
       GState.LocalConverterFactory,
+      VTileMatrixDraftResampler,
+      GState.Bitmap32StaticFactory,
+      GState.HashFunction,
       VProvider,
       nil,
       FConfig.LayersConfig.MarksLayerConfig.ThreadConfig,
-      'TMapLayerMarks'
+      VDebugName
     );
   VLayer :=
     TTiledMapLayer.Create(
@@ -2044,18 +2046,17 @@ begin
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
+      GState.HashFunction,
       FViewPortState.View,
       VTileMatrix,
-      GState.GUISyncronizedTimerNotifier
+      GState.GUISyncronizedTimerNotifier,
+      VDebugName
     );
   VLayersList.Add(VLayer);
+  
   // GPS track visualisation layer
-  VPerfList := GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerGPSTrack');
-  VTileMatrixFactory :=
-    TTileMatrixFactory.Create(
-      VTileMatrixDraftResampler,
-      GState.Bitmap32StaticFactory
-    );
+  VDebugName := 'GPSTrack';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VProvider :=
     TBitmapLayerProviderChangeableForGpsTrack.Create(
       VPerfList,
@@ -2065,17 +2066,19 @@ begin
       GState.GpsTrackRecorder
     );
   VTileMatrix :=
-    TTileMatrixChangeableWithThread.Create(
+    TBitmapTileMatrixChangeableWithThread.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       VTileRectForShow,
-      VTileMatrixFactory,
       GState.LocalConverterFactory,
+      VTileMatrixDraftResampler,
+      GState.Bitmap32StaticFactory,
+      GState.HashFunction,
       VProvider,
       nil,
       FConfig.LayersConfig.GPSTrackConfig.ThreadConfig,
-      'TMapLayerGPSTrack'
+      VDebugName
     );
   VLayer :=
     TTiledMapLayer.Create(
@@ -2083,11 +2086,14 @@ begin
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
+      GState.HashFunction,
       FViewPortState.View,
       VTileMatrix,
-      GState.GUISyncronizedTimerNotifier
+      GState.GUISyncronizedTimerNotifier,
+      VDebugName
     );
   VLayersList.Add(VLayer);
+  
   // GPS marker layer
   VMarkerChangeable :=
     TMarkerDrawableChangeableSimple.Create(
@@ -2099,9 +2105,11 @@ begin
       TMarkerDrawableSimpleArrow,
       FConfig.LayersConfig.GPSMarker.MovedMarkerConfig
     );
-  VLayersList.Add(
+  VDebugName := 'GPSMarker';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
     TMapLayerGPSMarker.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerGPSMarker'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -2111,12 +2119,15 @@ begin
       VMarkerWithDirectionChangeable,
       VMarkerChangeable,
       GState.GPSRecorder
-    )
-  );
+    );
+  VLayersList.Add(VLayer);
+  
   // Layer with rings around GPS marker
-  VLayersList.Add(
+  VDebugName := 'GPSMarkerRings';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
     TMapLayerGPSMarkerRings.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerGPSMarkerRings'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -2126,12 +2137,15 @@ begin
       GState.VectorGeometryLonLatFactory,
       FConfig.LayersConfig.GPSMarker.MarkerRingsConfig,
       GState.GPSRecorder
-    )
-  );
+    );
+  VLayersList.Add(VLayer);
+  
   // Last selection visualisation layer
-  VLayersList.Add(
+  VDebugName := 'LastSelection';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
     TSelectionLayer.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TSelectionLayer'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -2139,12 +2153,15 @@ begin
       GState.VectorGeometryProjectedFactory,
       FConfig.LayersConfig.LastSelectionLayerConfig,
       GState.LastSelectionInfo
-    )
-  );
+    );
+  VLayersList.Add(VLayer);
+
   // CalcLine line visualisation layer
-  VLayersList.Add(
+  VDebugName := 'CalcLine';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
     TPathEditLayer.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TPathEditLayerCalcLine'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -2152,12 +2169,15 @@ begin
       GState.VectorGeometryProjectedFactory,
       FLineOnMapByOperation[ao_calc_line] as IPathOnMapEdit,
       FConfig.LayersConfig.CalcLineLayerConfig.LineConfig
-    )
-  );
+    );
+  VLayersList.Add(VLayer);
+
   // CalcLine points visualisation layer
-  VLayersList.Add(
+  VDebugName := 'CalcLinePoints';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
     TPathEditPointsSetLayer.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TPathEditPointsSetLayerCalcLine'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -2167,12 +2187,15 @@ begin
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.CalcLineLayerConfig.PointsConfig.FirstPointMarker),
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.CalcLineLayerConfig.PointsConfig.ActivePointMarker),
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.CalcLineLayerConfig.PointsConfig.NormalPointMarker)
-    )
-  );
+    );
+  VLayersList.Add(VLayer);
+
   // CalcLine captions layer
-  VLayersList.Add(
+  VDebugName := 'CalcLineCaptions';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
     TCalcLineLayer.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TCalcLineLayer'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -2180,12 +2203,15 @@ begin
       FLineOnMapByOperation[ao_calc_line] as IPathOnMapEdit,
       FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig,
       GState.ValueToStringConverter
-    )
-  );
+    );
+  VLayersList.Add(VLayer);
+  
   // PathEdit line visualisation layer
-  VLayersList.Add(
+  VDebugName := 'PathEdit';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
     TPathEditLayer.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TPathEditLayerEditLine'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -2193,12 +2219,15 @@ begin
       GState.VectorGeometryProjectedFactory,
       FLineOnMapByOperation[ao_edit_line] as IPathOnMapEdit,
       FConfig.LayersConfig.MarkPolyLineLayerConfig.LineConfig
-    )
-  );
+    );
+  VLayersList.Add(VLayer);
+
   // PathEdit poinst visualisation layer
-  VLayersList.Add(
+  VDebugName := 'PathEditPoints';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
     TPathEditPointsSetLayer.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TPathEditPointsSetLayerEditLine'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -2208,12 +2237,15 @@ begin
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolyLineLayerConfig.PointsConfig.FirstPointMarker),
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolyLineLayerConfig.PointsConfig.ActivePointMarker),
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolyLineLayerConfig.PointsConfig.NormalPointMarker)
-    )
-  );
+    );
+  VLayersList.Add(VLayer);
+
   // PathEdit captions layer
-  VLayersList.Add(
+  VDebugName := 'PathEditCaptions';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
     TCalcLineLayer.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TCalcLineLayerEditLine'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -2221,12 +2253,15 @@ begin
       FLineOnMapByOperation[ao_edit_line] as IPathOnMapEdit,
       FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig,
       GState.ValueToStringConverter
-    )
-  );
+    );
+  VLayersList.Add(VLayer);
+
   // PolygonEdit line and fill visualisation layer
-  VLayersList.Add(
+  VDebugName := 'PolygonEdit';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
     TPolygonEditLayer.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TPolygonEditLayerEditPoly'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -2234,12 +2269,15 @@ begin
       GState.VectorGeometryProjectedFactory,
       FLineOnMapByOperation[ao_edit_poly] as IPolygonOnMapEdit,
       FConfig.LayersConfig.MarkPolygonLayerConfig.LineConfig
-    )
-  );
+    );
+  VLayersList.Add(VLayer);
+
   // PolygonEdit points visualisation layer
-  VLayersList.Add(
+  VDebugName := 'PolygonEditPoints';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
     TPolygonEditPointsSetLayer.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TPolygonEditPointsSetLayerEditPoly'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -2249,12 +2287,15 @@ begin
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolygonLayerConfig.PointsConfig.FirstPointMarker),
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolygonLayerConfig.PointsConfig.ActivePointMarker),
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolygonLayerConfig.PointsConfig.NormalPointMarker)
-    )
-  );
+    );
+  VLayersList.Add(VLayer);
+
   // PolygonSelection line and fill visualisation layer
-  VLayersList.Add(
+  VDebugName := 'PolygonSelection';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
     TPolygonEditLayer.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TPolygonEditLayerSelection'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -2262,12 +2303,15 @@ begin
       GState.VectorGeometryProjectedFactory,
       FLineOnMapByOperation[ao_select_poly] as IPolygonOnMapEdit,
       FConfig.LayersConfig.SelectionPolygonLayerConfig.LineConfig
-    )
-  );
+    );
+  VLayersList.Add(VLayer);
+
   // PolygonSelection points visualisation layer
-  VLayersList.Add(
+  VDebugName := 'PolygonSelectionPoints';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
     TPolygonEditPointsSetLayer.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TPolygonEditPointsSetLayerSelection'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -2277,12 +2321,15 @@ begin
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolygonLayerConfig.PointsConfig.FirstPointMarker),
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolygonLayerConfig.PointsConfig.ActivePointMarker),
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolygonLayerConfig.PointsConfig.NormalPointMarker)
-    )
-  );
-  // SelectionByLyne shadow visualisation layer
-  VLayersList.Add(
+    );
+  VLayersList.Add(VLayer);
+
+  // SelectionByLine shadow visualisation layer
+  VDebugName := 'SelectionByLineShadow';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
     TSelectionPolylineShadowLayer.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TSelectionPolylineShadowLayer'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -2291,12 +2338,15 @@ begin
       GState.VectorGeometryLonLatFactory,
       FLineOnMapByOperation[ao_select_line] as IPathOnMapEdit,
       FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig
-    )
-  );
+    );
+  VLayersList.Add(VLayer);
+    
   // SelectionByLyne line visualisation layer
-  VLayersList.Add(
+  VDebugName := 'SelectionByLine';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
     TPathEditLayer.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TPathEditLayerSelectionLine'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -2304,12 +2354,15 @@ begin
       GState.VectorGeometryProjectedFactory,
       FLineOnMapByOperation[ao_select_line] as IPathOnMapEdit,
       FConfig.LayersConfig.SelectionPolylineLayerConfig.LineConfig
-    )
-  );
+    );
+  VLayersList.Add(VLayer);
+    
   // SelectionByLyne points visualisation layer
-  VLayersList.Add(
+  VDebugName := 'SelectionByLinePoints';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
     TPathEditPointsSetLayer.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TPathEditPointsSetLayerSelectionLine'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -2319,22 +2372,27 @@ begin
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolylineLayerConfig.PointsConfig.FirstPointMarker),
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolylineLayerConfig.PointsConfig.ActivePointMarker),
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolylineLayerConfig.PointsConfig.NormalPointMarker)
-    )
-  );
+    );
+  VLayersList.Add(VLayer);
+    
   // SelectionByRect visualisation layer
-  VLayersList.Add(
+  VDebugName := 'SelectionByRect';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
     TSelectionRectLayer.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TSelectionRectLayer'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
       FViewPortState.View,
       FSelectionRect,
       FConfig.LayersConfig.SelectionRectLayerConfig
-    )
-  );
+    );
+  VLayersList.Add(VLayer);
+    
   // Vector search results visualisation layer
-  VPerfList := GState.PerfCounterList.CreateAndAddNewSubList('TSearchResultsLayer');
+  VDebugName := 'SearchResults';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VBitmap :=
     ReadBitmapByFileRef(
       GState.ResourceProvider,
@@ -2361,11 +2419,6 @@ begin
       VPerfList.CreateAndAddNewCounter('FindItems'),
       6
     );
-  VTileMatrixFactory :=
-    TTileMatrixFactory.Create(
-      VTileMatrixDraftResampler,
-      GState.Bitmap32StaticFactory
-    );
   VProvider :=
     TBitmapLayerProviderChangeableForVectorMaps.Create(
       FConfig.LayersConfig.KmlLayerConfig.DrawConfig,
@@ -2375,17 +2428,19 @@ begin
       VVectorItems
     );
   VTileMatrix :=
-    TTileMatrixChangeableWithThread.Create(
+    TBitmapTileMatrixChangeableWithThread.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       VTileRectForShow,
-      VTileMatrixFactory,
       GState.LocalConverterFactory,
+      VTileMatrixDraftResampler,
+      GState.Bitmap32StaticFactory,
+      GState.HashFunction,
       VProvider,
       nil,
       FConfig.LayersConfig.KmlLayerConfig.ThreadConfig,
-      'TVectorFindResults'
+      VDebugName
     );
   VLayer :=
     TTiledMapLayer.Create(
@@ -2393,11 +2448,14 @@ begin
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
+      GState.HashFunction,
       FViewPortState.View,
       VTileMatrix,
-      GState.GUISyncronizedTimerNotifier
+      GState.GUISyncronizedTimerNotifier,
+      VDebugName
     );
   VLayersList.Add(VLayer);
+  
   // Goto marker visualisation layer
   VBitmap :=
     ReadBitmapByFileRef(
@@ -2413,9 +2471,11 @@ begin
         TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(7, 6))
       );
   end;
-  VLayersList.Add(
+  VDebugName := 'GotoMarker';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
     TGotoLayer.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TGotoLayer'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -2424,8 +2484,9 @@ begin
       VMarkerChangeable,
       FMapGoto,
       FConfig.LayersConfig.GotoLayerConfig
-    )
-  );
+    );
+  VLayersList.Add(VLayer);
+    
   // Navigation to mark marker visualisation layer
   VMarkerChangeable :=
     TMarkerDrawableChangeableSimple.Create(
@@ -2438,9 +2499,11 @@ begin
       FConfig.LayersConfig.NavToPointMarkerConfig.ArrowMarkerConfig
     );
 
-  VLayersList.Add(
+  VDebugName := 'NavToMark';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
     TNavToMarkLayer.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TNavToMarkLayer'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -2449,12 +2512,15 @@ begin
       VMarkerWithDirectionChangeable,
       VMarkerChangeable,
       FConfig.LayersConfig.NavToPointMarkerConfig
-    )
-  );
+    );
+  VLayersList.Add(VLayer);
+
   // Error info visualisation layer
-  VLayersList.Add(
+  VDebugName := 'TileErrorInfo';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
     TTileErrorInfoLayer.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TTileErrorInfoLayer'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -2463,8 +2529,9 @@ begin
       GState.Bitmap32StaticFactory,
       FTileErrorLogProvider,
       GState.GUISyncronizedTimerNotifier
-    )
-  );
+    );
+  VLayersList.Add(VLayer);
+
   // Point edit marker visualisation layer
   VBitmap :=
     ReadBitmapByFileRef(
@@ -2480,21 +2547,26 @@ begin
         TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(7, 6))
       );
   end;
-  VLayersList.Add(
+  VDebugName := 'PointOnMapEdit';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
     TPointOnMapEditLayer.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TPointOnMapEditLayer'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
       FViewPortState.View,
       VMarkerChangeable,
       FPointOnMapEdit
-    )
-  );
+    );
+  VLayersList.Add(VLayer);
+    
   // Full map cursor layer
-  VLayersList.Add(
+  VDebugName := 'FullMapMouseCursor';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
     TFullMapMouseCursorLayer.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TFullMapMouseCursorLayer'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -2503,24 +2575,28 @@ begin
       GState.GUISyncronizedTimerNotifier,
       FMouseState,
       FConfig.LayersConfig.FullMapMouseCursorLayerConfig
-    )
-  );
+    );
+  VLayersList.Add(VLayer);
+    
   // Center scale layer
   VMarkerChangeable :=
     TMarkerDrawableChangeableFaked.Create(
       TMarkerDrawableCenterScale.Create(GState.Bitmap32StaticFactory)
     );
-  VLayersList.Add(
+  VDebugName := 'CenterScale';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
     TLayerCenterScale.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TLayerCenterScale'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
       FViewPortState.View,
       VMarkerChangeable,
       FConfig.LayersConfig.CenterScaleConfig
-    )
-  );
+    );
+  VLayersList.Add(VLayer);
+
   VPopupMenu :=
     TLayerScaleLinePopupMenu.Create(
       GState.Config.LanguageManager,
@@ -2530,9 +2606,11 @@ begin
     );
 
   // Horizontal scale line layer
-  VLayersList.Add(
+  VDebugName := 'ScaleLineHorizontal';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
     TLayerScaleLineHorizontal.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TLayerScaleLineHorizontal'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -2540,12 +2618,15 @@ begin
       GState.GUISyncronizedTimerNotifier,
       VPopupMenu,
       FConfig.LayersConfig.ScaleLineConfig
-    )
-  );
+    );
+  VLayersList.Add(VLayer);
+    
   // Vertical scale line layer
-  VLayersList.Add(
+  VDebugName := 'ScaleLineVertical';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
     TLayerScaleLineVertical.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TLayerScaleLineVertical'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -2553,23 +2634,27 @@ begin
       GState.GUISyncronizedTimerNotifier,
       VPopupMenu,
       FConfig.LayersConfig.ScaleLineConfig
-    )
-  );
+    );
+  VLayersList.Add(VLayer);
+    
   // Map licenses visualisation layer
+  VDebugName := 'LicenseList';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLicensList :=
     TActiveMapsLicenseList.Create(
       GState.Config.LanguageManager,
       TMapTypeSetChangeableBySourceSetWithFilterLicenseNotEmpty.Create(GState.MapTypeSetBuilderFactory, FConfig.MainMapsConfig.GetAllActiveMapsSet)
     );
-  VLayersList.Add(
+  VLayer :=
     TLayerLicenseList.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TLayerLicenseList'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
       VLicensList
-    )
-  );
+    );
+  VLayersList.Add(VLayer);
+    
   // Status bar layer
   VPopupMenu :=
     TLayerStatBarPopupMenu.Create(
@@ -2580,10 +2665,12 @@ begin
       GState.TerrainProviderList,
       Self.tbitmOnInterfaceOptionsClick
     );
-  VLayersList.Add(
+  VDebugName := 'StatusBar';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
     TLayerStatBar.Create(
       GState.Config.LanguageManager,
-      GState.PerfCounterList.CreateAndAddNewSubList('TLayerStatBar'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -2598,8 +2685,9 @@ begin
       GState.GlobalInternetState,
       VPopupMenu,
       FConfig.MainMapsConfig.GetActiveMap
-    )
-  );
+    );
+  VLayersList.Add(VLayer);
+    
   VMiniMapConverterChangeable :=
     TLocalConverterChangeableOfMiniMap.Create(
       GState.PerfCounterList.CreateAndAddNewCounter('MiniMapConverter'),
@@ -2614,13 +2702,10 @@ begin
       GSync.SyncVariable.Make('TileRectMiniMapForShowMain'),
       GSync.SyncVariable.Make('TileRectMiniMapForShowResult')
     );
+    
   // MiniMap bitmap layer
-  VPerfList := GState.PerfCounterList.CreateAndAddNewSubList('TMiniMapLayer');
-  VTileMatrixFactory :=
-    TTileMatrixFactory.Create(
-      VTileMatrixDraftResampler,
-      GState.Bitmap32StaticFactory
-    );
+  VDebugName := 'MiniMap';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VProvider :=
     TBitmapLayerProviderChangeableForMainLayer.Create(
       FConfig.LayersConfig.MiniMapLayerConfig.MapsConfig as IMapTypeChangeable,
@@ -2631,17 +2716,19 @@ begin
       FTileErrorLogger
     );
   VTileMatrix :=
-    TTileMatrixChangeableWithThread.Create(
+    TBitmapTileMatrixChangeableWithThread.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       VTileRectForShow,
-      VTileMatrixFactory,
       GState.LocalConverterFactory,
+      VTileMatrixDraftResampler,
+      GState.Bitmap32StaticFactory,
+      GState.HashFunction,
       VProvider,
       nil,
       FConfig.LayersConfig.MiniMapLayerConfig.ThreadConfig,
-      'TMiniMapLayer'
+      VDebugName
     );
   VLayer :=
     TTiledMapLayer.Create(
@@ -2649,12 +2736,14 @@ begin
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
+      GState.HashFunction,
       VMiniMapConverterChangeable,
       VTileMatrix,
-      GState.GUISyncronizedTimerNotifier
+      GState.GUISyncronizedTimerNotifier,
+      VDebugName
     );
   VLayersList.Add(VLayer);
-  
+
   VPopupMenu :=
     TLayerMiniMapPopupMenu.Create(
       map,
@@ -2662,10 +2751,13 @@ begin
       GState.MapType.GUIConfigList,
       FMapTypeIcons18List
     );
+    
   // View rect in MiniMap visualisation layer
-  VLayersList.Add(
+  VDebugName := 'MiniMapViewRect';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
     TMiniMapLayerViewRect.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TMiniMapLayerViewRect'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -2674,30 +2766,37 @@ begin
       GState.GUISyncronizedTimerNotifier,
       VPopupMenu,
       FConfig.LayersConfig.MiniMapLayerConfig.LocationConfig
-    )
-  );
+    );
+  VLayersList.Add(VLayer);
+    
   // Mini Map top border
-  VLayersList.Add(
+  VDebugName := 'MiniMapTopBorder';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
     TMiniMapLayerTopBorder.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TMiniMapLayerTopBorder'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
       VMiniMapConverterChangeable,
       FConfig.LayersConfig.MiniMapLayerConfig
-    )
-  );
+    );
+  VLayersList.Add(VLayer);
+
   // Mini Map left border
-  VLayersList.Add(
+  VDebugName := 'MiniMapLeftBorder';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
     TMiniMapLayerLeftBorder.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TMiniMapLayerLeftBorder'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
       VMiniMapConverterChangeable,
       FConfig.LayersConfig.MiniMapLayerConfig
-    )
-  );
+    );
+  VLayersList.Add(VLayer);
+
   // Mini map Minus button
   VBitmap :=
     ReadBitmapByFileRef(
@@ -2710,17 +2809,20 @@ begin
   if VBitmap <> nil then begin
     VBitmapChangeable := TBitmapChangeableFaked.Create(VBitmap);
   end;
-  VLayersList.Add(
+  VDebugName := 'MiniMapMinusButton';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
     TMiniMapLayerMinusButton.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TMiniMapLayerMinusButton'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
       VMiniMapConverterChangeable,
       VBitmapChangeable,
       FConfig.LayersConfig.MiniMapLayerConfig
-    )
-  );
+    );
+  VLayersList.Add(VLayer);
+
   // Mini Map plus button
   VBitmap :=
     ReadBitmapByFileRef(
@@ -2733,17 +2835,20 @@ begin
   if VBitmap <> nil then begin
     VBitmapChangeable := TBitmapChangeableFaked.Create(VBitmap);
   end;
-  VLayersList.Add(
+  VDebugName := 'MiniMapPlusButton';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
     TMiniMapLayerPlusButton.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TMiniMapLayerPlusButton'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
       VMiniMapConverterChangeable,
       VBitmapChangeable,
       FConfig.LayersConfig.MiniMapLayerConfig
-    )
-  );
+    );
+  VLayersList.Add(VLayer);
+    
   FLayersList := VLayersList.MakeStaticAndClear;
 end;
 

@@ -27,26 +27,28 @@ uses
   GR32,
   GR32_Image,
   GR32_Layers,
+  i_HashFunction,
   i_Notifier,
   i_NotifierTime,
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_SimpleFlag,
-  i_TileMatrix,
-  i_TileMatrixChangeable,
+  i_BitmapTileMatrix,
+  i_BitmapTileMatrixChangeable,
   i_InternalPerformanceCounter,
-  i_HashMatrix,
+  i_HashTileMatrixBuilder,
   u_WindowLayerBasic;
 
 type
   TTiledMapLayer = class(TWindowLayerAbstract)
   private
     FLayer: TPositionedLayer;
-    FTileMatrix: ITileMatrixChangeable;
+    FTileMatrix: IBitmapTileMatrixChangeable;
     FView: ILocalCoordConverterChangeable;
+    FDebugName: string;
 
-    FShownIdMatrix: IHashMatrix;
+    FShownIdMatrix: IHashTileMatrixBuilder;
     FOnPaintCounter: IInternalPerformanceCounter;
     FOneTilePaintSimpleCounter: IInternalPerformanceCounter;
     FOneTilePaintResizeCounter: IInternalPerformanceCounter;
@@ -61,7 +63,7 @@ type
     procedure PaintLayerFromTileMatrix(
       ABuffer: TBitmap32;
       const ALocalConverter: ILocalCoordConverter;
-      const ATileMatrix: ITileMatrix
+      const ATileMatrix: IBitmapTileMatrix
     );
     procedure OnTimer;
 
@@ -75,9 +77,11 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
+      const AHashFunction: IHashFunction;
       const AView: ILocalCoordConverterChangeable;
-      const ATileMatrix: ITileMatrixChangeable;
-      const ATimerNoifier: INotifierTime
+      const ATileMatrix: IBitmapTileMatrixChangeable;
+      const ATimerNoifier: INotifierTime;
+      const ADebugName: string
     );
   end;
 
@@ -94,23 +98,26 @@ uses
   u_ListenerByEvent,
   u_ListenerTime,
   u_TileIteratorByRect,
-  u_HashMatrix,
+  u_HashTileMatrixBuilder,
   u_GeoFunc,
   u_BitmapFunc;
 
 
-{ TTiledLayerWithThreadBase }
+{ TTiledMapLayer }
 
 constructor TTiledMapLayer.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
+  const AHashFunction: IHashFunction;
   const AView: ILocalCoordConverterChangeable;
-  const ATileMatrix: ITileMatrixChangeable;
-  const ATimerNoifier: INotifierTime
+  const ATileMatrix: IBitmapTileMatrixChangeable;
+  const ATimerNoifier: INotifierTime;
+  const ADebugName: string
 );
 begin
+  Assert(Assigned(AHashFunction));
   inherited Create(
     AAppStartedNotifier,
     AAppClosingNotifier
@@ -120,12 +127,13 @@ begin
   FLayer.MouseEvents := False;
   FView := AView;
   FTileMatrix := ATileMatrix;
+  FDebugName := ADebugName;
 
   FOnPaintCounter := APerfList.CreateAndAddNewCounter('OnPaint');
   FOneTilePaintSimpleCounter := APerfList.CreateAndAddNewCounter('OneTilePaintSimple');
   FOneTilePaintResizeCounter := APerfList.CreateAndAddNewCounter('OneTilePaintResize');
 
-  FShownIdMatrix := THashMatrix.Create;
+  FShownIdMatrix := THashTileMatrixBuilder.Create(AHashFunction);
   FTileMatrixChangeFlag := TSimpleFlagWithInterlock.Create;
 
   LinksList.Add(
@@ -147,28 +155,32 @@ procedure TTiledMapLayer.OnPaintLayer(
   Buffer: TBitmap32
 );
 var
-  VTileMatrix: ITileMatrix;
+  VTileMatrix: IBitmapTileMatrix;
   VLocalConverter: ILocalCoordConverter;
   VCounterContext: TInternalPerformanceCounterContext;
   VOldClipRect: TRect;
   VNewClipRect: TRect;
 begin
   VLocalConverter := FView.GetStatic;
-  VTileMatrix := FTileMatrix.GetStatic;
-  if (VLocalConverter <> nil) and (VTileMatrix <> nil) then begin
-    VCounterContext := FOnPaintCounter.StartOperation;
-    try
-      VOldClipRect := Buffer.ClipRect;
-      if Types.IntersectRect(VNewClipRect, VOldClipRect, VLocalConverter.GetLocalRect) then begin
-        Buffer.ClipRect := VNewClipRect;
-        try
-          PaintLayerFromTileMatrix(Buffer, VLocalConverter, VTileMatrix);
-        finally
-          Buffer.ClipRect := VOldClipRect;
+  if Assigned(VLocalConverter) then begin
+    VTileMatrix := FTileMatrix.GetStatic;
+    if Assigned(VTileMatrix) then begin
+      VCounterContext := FOnPaintCounter.StartOperation;
+      try
+        VOldClipRect := Buffer.ClipRect;
+        if Types.IntersectRect(VNewClipRect, VOldClipRect, VLocalConverter.GetLocalRect) then begin
+          Buffer.ClipRect := VNewClipRect;
+          try
+            PaintLayerFromTileMatrix(Buffer, VLocalConverter, VTileMatrix);
+          finally
+            Buffer.ClipRect := VOldClipRect;
+          end;
         end;
+      finally
+        FOnPaintCounter.FinishOperation(VCounterContext);
       end;
-    finally
-      FOnPaintCounter.FinishOperation(VCounterContext);
+    end else begin
+      Buffer.Changed;
     end;
   end;
 end;
@@ -186,47 +198,57 @@ end;
 procedure TTiledMapLayer.OnTimer;
 var
   VLocalConverter: ILocalCoordConverter;
-  VTileMatrix: ITileMatrix;
-  VElement: ITileMatrixElement;
+  VTileMatrix: IBitmapTileMatrix;
   VTileIterator: ITileIterator;
   VTile: TPoint;
   VDstRect: TRect;
   VShownId: THashValue;
   VMapRect: TRect;
+  VBitmap: IBitmap32Static;
+  VReadyId: THashValue;
 begin
   if FTileMatrixChangeFlag.CheckFlagAndReset then begin
     VTileMatrix := FTileMatrix.GetStatic;
-    if FLayer.Visible <> Assigned(VTileMatrix) then begin
-      FLayer.Visible := Assigned(VTileMatrix);
-    end;
-    VLocalConverter := FView.GetStatic;
-    if (VLocalConverter <> nil) and (VTileMatrix <> nil) then begin
-      if not VLocalConverter.GetIsSameConverter(FLastPaintConverter) then begin
-        FLayer.Location := FloatRect(VLocalConverter.GetLocalRect);
-        FLayer.Changed(VLocalConverter.GetLocalRect);
-        FShownIdMatrix.Reset(VTileMatrix.TileRect.Rect);
-      end else begin
-        if VLocalConverter.ProjectionInfo.GetIsSameProjectionInfo(VTileMatrix.TileRect.ProjectionInfo) then begin
-          VTileIterator := TTileIteratorByRect.Create(VTileMatrix.TileRect.Rect);
-          while VTileIterator.Next(VTile) do begin
-            VShownId := FShownIdMatrix.GetHash(VTile);
-            VElement := VTileMatrix.GetElementByTile(VTile);
-            if VElement <> nil then begin
-              if VElement.ReadyID <> VShownId then begin
+    if Assigned(VTileMatrix) then begin
+      if not FLayer.Visible then begin
+        FLayer.Visible := True;
+      end;
+      VLocalConverter := FView.GetStatic;
+      if Assigned(VLocalConverter) then begin
+        if not VLocalConverter.GetIsSameConverter(FLastPaintConverter) then begin
+          FLayer.Location := FloatRect(VLocalConverter.GetLocalRect);
+          FLayer.Changed(VLocalConverter.GetLocalRect);
+          FShownIdMatrix.SetRectWithReset(VTileMatrix.TileRect, 0);
+        end else begin
+          if VLocalConverter.ProjectionInfo.GetIsSameProjectionInfo(VTileMatrix.TileRect.ProjectionInfo) then begin
+            VTileIterator := TTileIteratorByRect.Create(VTileMatrix.TileRect.Rect);
+            while VTileIterator.Next(VTile) do begin
+              VShownId := FShownIdMatrix.Tiles[VTile];
+              VBitmap := VTileMatrix.GetElementByTile(VTile);
+              if Assigned(VBitmap) then begin
+                VReadyId := VBitmap.Hash;
+              end else begin
+                VReadyId := 0;
+              end;
+              if VReadyId <> VShownId then begin
                 VMapRect :=
                   VLocalConverter.GeoConverter.TilePos2PixelRect(
                     VTile,
                     VLocalConverter.Zoom
                   );
                 VDstRect := VLocalConverter.MapRect2LocalRect(VMapRect, rrClosest);
-                FShownIdMatrix.SetHash(VTile, VElement.ReadyID);
+                FShownIdMatrix.Tiles[VTile] := VReadyId;
                 FLayer.Changed(VDstRect);
               end;
             end;
           end;
         end;
+        FLastPaintConverter := VLocalConverter;
       end;
-      FLastPaintConverter := VLocalConverter;
+    end else begin
+      if FLayer.Visible then begin
+        FLayer.Visible := False;
+      end;
     end;
   end;
 end;
@@ -234,7 +256,7 @@ end;
 procedure TTiledMapLayer.PaintLayerFromTileMatrix(
   ABuffer: TBitmap32;
   const ALocalConverter: ILocalCoordConverter;
-  const ATileMatrix: ITileMatrix
+  const ATileMatrix: IBitmapTileMatrix
 );
 var
   VTileRectInClipRect: TRect;
@@ -243,7 +265,6 @@ var
   VZoomSrc: Byte;
   VTileIterator: ITileIterator;
   VTile: TPoint;
-  VElement: ITileMatrixElement;
   VBitmap: IBitmap32Static;
   VResampler: TCustomResampler;
   VDstRect: TRect;
@@ -275,8 +296,8 @@ begin
     try
       VTileIterator := TTileIteratorByRect.Create(VTileRectInClipRect);
       while VTileIterator.Next(VTile) do begin
-        VElement := ATileMatrix.GetElementByTile(VTile);
-        if VElement <> nil then begin
+        VBitmap := ATileMatrix.GetElementByTile(VTile);
+        if Assigned(VBitmap) then begin
           if VZoomDst <> VZoomSrc then begin
             VRelativeRect := VConverter.TilePos2RelativeRect(VTile, VZoomSrc);
             VDstRect :=
@@ -294,45 +315,40 @@ begin
 
           Types.IntersectRect(VClipedDstRect, VDstRect, ABuffer.ClipRect);
 
-          VBitmap := VElement.GetBitmap;
-          if VBitmap <> nil then begin
-            if not ABuffer.MeasuringMode then begin
-              VDstSize := Types.Point(VDstRect.Right - VDstRect.Left, VDstRect.Bottom - VDstRect.Top);
-              if (VDstSize.X = VBitmap.Size.X) and (VDstSize.Y = VBitmap.Size.Y) then begin
-                VCounterContext := FOneTilePaintSimpleCounter.StartOperation;
-                try
-                  BlockTransferFull(
-                    ABuffer,
-                    VDstRect.Left,
-                    VDstRect.Top,
-                    VBitmap,
-                    dmBlend,
-                    cmBlend
-                  );
-                finally
-                  FOneTilePaintSimpleCounter.FinishOperation(VCounterContext);
-                end;
-              end else begin
-                if VResampler = nil then begin
-                  VResampler := TNearestResampler.Create;
-                end;
-                Assert(VResampler <> nil);
-                VCounterContext := FOneTilePaintResizeCounter.StartOperation;
-                try
-                  StretchTransferFull(
-                    ABuffer,
-                    VDstRect,
-                    VBitmap,
-                    VResampler,
-                    dmBlend,
-                    cmBlend
-                  );
-                finally
-                  FOneTilePaintResizeCounter.FinishOperation(VCounterContext);
-                end;
+          if not ABuffer.MeasuringMode then begin
+            VDstSize := Types.Point(VDstRect.Right - VDstRect.Left, VDstRect.Bottom - VDstRect.Top);
+            if (VDstSize.X = VBitmap.Size.X) and (VDstSize.Y = VBitmap.Size.Y) then begin
+              VCounterContext := FOneTilePaintSimpleCounter.StartOperation;
+              try
+                BlockTransferFull(
+                  ABuffer,
+                  VDstRect.Left,
+                  VDstRect.Top,
+                  VBitmap,
+                  dmBlend,
+                  cmBlend
+                );
+              finally
+                FOneTilePaintSimpleCounter.FinishOperation(VCounterContext);
               end;
             end else begin
-              ABuffer.Changed(VDstRect);
+              if VResampler = nil then begin
+                VResampler := TNearestResampler.Create;
+              end;
+              Assert(VResampler <> nil);
+              VCounterContext := FOneTilePaintResizeCounter.StartOperation;
+              try
+                StretchTransferFull(
+                  ABuffer,
+                  VDstRect,
+                  VBitmap,
+                  VResampler,
+                  dmBlend,
+                  cmBlend
+                );
+              finally
+                FOneTilePaintResizeCounter.FinishOperation(VCounterContext);
+              end;
             end;
           end else begin
             ABuffer.Changed(VDstRect);

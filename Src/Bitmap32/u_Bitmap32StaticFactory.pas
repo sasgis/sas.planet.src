@@ -80,8 +80,7 @@ begin
   Assert(Assigned(ABuffer));
   if Assigned(ABuffer) then begin
     VSize := ABuffer.Size;
-//    VHash := FHashFunction.CalcHashByBuffer(ABuffer.Data, VSize.X * VSize.Y * SizeOf(TColor32));
-    VHash := 0;
+    VHash := FHashFunction.CalcHashByBuffer(ABuffer.Data, VSize.X * VSize.Y * SizeOf(TColor32));
     Result := TBitmap32Static.Create(VHash, ABuffer);
   end;
 end;

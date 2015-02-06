@@ -29,69 +29,79 @@ uses
   i_InternalPerformanceCounter,
   i_NotifierOperation,
   i_Listener,
-  i_ListenerNotifierLinksList,
   i_SimpleFlag,
+  i_ImageResamplerFactoryChangeable,
+  i_Bitmap32BufferFactory,
+  i_HashFunction,
+  i_TileRect,
   i_TileRectChangeable,
+  i_BitmapTileMatrix,
+  i_BitmapTileMatrixBuilder,
+  i_BitmapTileMatrixChangeable,
   i_BitmapLayerProvider,
   i_BitmapLayerProviderChangeable,
   i_LocalCoordConverterFactorySimpe,
   i_ObjectWithListener,
-  i_TileMatrix,
-  i_TileMatrixChangeable,
+  i_HashTileMatrix,
+  i_HashTileMatrixBuilder,
   u_ChangeableBase;
 
 type
-  TTileMatrixChangeableWithThread = class(TChangeableBase, ITileMatrixChangeable)
+  TBitmapTileMatrixChangeableWithThread = class(TChangeableBase, IBitmapTileMatrixChangeable)
   private
     FAppStartedNotifier: INotifierOneOperation;
     FAppClosingNotifier: INotifierOneOperation;
     FConverterFactory: ILocalCoordConverterFactorySimpe;
-    FTileMatrixFactory: ITileMatrixFactory;
     FTileRect: ITileRectChangeable;
     FLayerProvider: IBitmapLayerProviderChangeable;
     FSourcUpdateNotyfier: IObjectWithListener;
     FDebugName: string;
 
-    FLinksList: IListenerNotifierLinksList;
     FDrawTask: IBackgroundTask;
-    FDelicateRedrawFlag: ISimpleFlag;
+    FOneTilePrepareCounter: IInternalPerformanceCounter;
+    FUpdateResultCounter: IInternalPerformanceCounter;
+
+    FSourceCounter: ICounter;
+    FTileRectPrev: ITileRect;
+    FSourceHashMatrix: IHashTileMatrixBuilder;
+    FSourceHashMatrixCS: IReadWriteSync;
+
+    FPreparedHashMatrix: IHashTileMatrixBuilder;
+
+    FPosChangeListener: IListener;
+    FLayerProviderListener: IListener;
     FRectUpdateListener: IListener;
     FAppStartedListener: IListener;
     FAppClosingListener: IListener;
 
-    FTileMatrix: ITileMatrix;
-    FTileMatrixCS: IReadWriteSync;
+    FVisible: Boolean;
+    FPreparedBitmapMatrix: IBitmapTileMatrixBuilder;
+    FResult: IBitmapTileMatrix;
+    FResultCS: IReadWriteSync;
 
-    FOneTilePrepareCounter: IInternalPerformanceCounter;
-    FTileMatrixUpdateCounter: IInternalPerformanceCounter;
-    procedure OnPosChange;
-    procedure OnLayerProviderChange;
-    procedure OnRectUpdate(const AMsg: IInterface);
     procedure OnAppStarted;
     procedure OnAppClosing;
+    procedure OnLayerProviderChange;
+    procedure OnPosChange;
+    procedure OnRectUpdate(const AMsg: IInterface);
 
+    procedure DoUpdateResultAndNotify;
     procedure OnPrepareTileMatrix(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation
     );
-
-    procedure PrepareTileMatrixItems(
-      AOperationID: Integer;
-      const ACancelNotifier: INotifierOperation;
-      const ATileMatrix: ITileMatrix;
-      const ALayerProvider: IBitmapLayerProvider
-    );
-    procedure SetMatrixNotReady(const ATileMatrix: ITileMatrix);
   private
-    function GetStatic: ITileMatrix;
+    function GetStatic: IBitmapTileMatrix;
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       const ATileRect: ITileRectChangeable;
-      const ATileMatrixFactory: ITileMatrixFactory;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
+      const AImageResampler: IImageResamplerFactoryChangeable;
+      const ABitmapFactory: IBitmap32StaticFactory;
+      const AHashFunction: IHashFunction;
       const ALayerProvider: IBitmapLayerProviderChangeable;
       const ASourcUpdateNotyfier: IObjectWithListener;
       const AThreadConfig: IThreadConfig;
@@ -104,29 +114,32 @@ implementation
 
 uses
   Types,
+  t_Hash,
   t_GeoTypes,
   i_TileIterator,
-  i_TileRect,
   i_Bitmap32Static,
   i_CoordConverter,
   i_LocalCoordConverter,
   i_LonLatRect,
   u_SimpleFlagWithInterlock,
-  u_ListenerNotifierLinksList,
   u_ListenerByEvent,
   u_TileIteratorSpiralByRect,
+  u_HashTileMatrixBuilder,
+  u_BitmapTileMatrixBuilder,
   u_BackgroundTask,
   u_GeoFunc,
   u_Synchronizer;
 
-{ TTileMatrixChangeableWithThread }
+{ TBitmapTileMatrixChangeableWithThread }
 
-constructor TTileMatrixChangeableWithThread.Create(
+constructor TBitmapTileMatrixChangeableWithThread.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier, AAppClosingNotifier: INotifierOneOperation;
   const ATileRect: ITileRectChangeable;
-  const ATileMatrixFactory: ITileMatrixFactory;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
+  const AImageResampler: IImageResamplerFactoryChangeable;
+  const ABitmapFactory: IBitmap32StaticFactory;
+  const AHashFunction: IHashFunction;
   const ALayerProvider: IBitmapLayerProviderChangeable;
   const ASourcUpdateNotyfier: IObjectWithListener;
   const AThreadConfig: IThreadConfig;
@@ -138,51 +151,54 @@ begin
   Assert(Assigned(AAppStartedNotifier));
   Assert(Assigned(AAppClosingNotifier));
   Assert(Assigned(ATileRect));
-  Assert(Assigned(ATileMatrixFactory));
   Assert(Assigned(AConverterFactory));
   Assert(Assigned(ALayerProvider));
-  inherited Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifiers'));
-
-  FAppStartedNotifier := AAppStartedNotifier;
-  FAppClosingNotifier := AAppClosingNotifier;
-  FTileRect := ATileRect;
-  FTileMatrixFactory := ATileMatrixFactory;
-  FConverterFactory := AConverterFactory;
-  FLayerProvider := ALayerProvider;
-  FSourcUpdateNotyfier := ASourcUpdateNotyfier;
-
-  FLinksList := TListenerNotifierLinksList.Create;
-  FTileMatrixCS := GSync.SyncVariable.Make(Self.ClassName);
-  FOneTilePrepareCounter := APerfList.CreateAndAddNewCounter('OneTilePrepare');
-  FTileMatrixUpdateCounter := APerfList.CreateAndAddNewCounter('TileMatrixUpdate');
-  if Assigned(FSourcUpdateNotyfier) then begin
-    FRectUpdateListener := TNotifyEventListener.Create(Self.OnRectUpdate);
-  end;
-
-  FDelicateRedrawFlag := TSimpleFlagWithInterlock.Create;
-
-  FDebugName := ADebugName;
   VDebugName := ADebugName;
   if VDebugName = '' then begin
     VDebugName := Self.ClassName;
   end;
+  inherited Create(GSync.SyncVariable.Make(VDebugName + '\Notifiers'));
+
+  FAppStartedNotifier := AAppStartedNotifier;
+  FAppClosingNotifier := AAppClosingNotifier;
+  FTileRect := ATileRect;
+  FConverterFactory := AConverterFactory;
+  FLayerProvider := ALayerProvider;
+  FSourcUpdateNotyfier := ASourcUpdateNotyfier;
+  FDebugName := VDebugName;
+
+
+  FSourceHashMatrixCS := GSync.SyncVariable.Make(FDebugName + '\SourceUpdates');
+  FResultCS := GSync.SyncVariable.Make(FDebugName + '\Result');
+
+  FPosChangeListener := TNotifyNoMmgEventListener.Create(Self.OnPosChange);
+  FLayerProviderListener := TNotifyNoMmgEventListener.Create(Self.OnLayerProviderChange);
+
+  FOneTilePrepareCounter := APerfList.CreateAndAddNewCounter('OneTilePrepare');
+  FUpdateResultCounter := APerfList.CreateAndAddNewCounter('UpdateResult');
+  if Assigned(FSourcUpdateNotyfier) then begin
+    FRectUpdateListener := TNotifyEventListener.Create(Self.OnRectUpdate);
+  end;
+
+  FSourceCounter := TCounterInterlock.Create;
+  FSourceHashMatrix := THashTileMatrixBuilder.Create(AHashFunction);
+  FPreparedHashMatrix := THashTileMatrixBuilder.Create(AHashFunction);
+  FPreparedBitmapMatrix :=
+    TBitmapTileMatrixBuilder.Create(
+      AImageResampler,
+      ABitmapFactory,
+      AHashFunction
+    );
+  FVisible := False;
 
   FDrawTask :=
     TBackgroundTask.Create(
       AAppClosingNotifier,
       OnPrepareTileMatrix,
       AThreadConfig,
-      VDebugName
+      FDebugName
     );
 
-  FLinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnPosChange),
-    FTileRect.ChangeNotifier
-  );
-  FLinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnLayerProviderChange),
-    FLayerProvider.ChangeNotifier
-  );
   FAppStartedListener := TNotifyNoMmgEventListener.Create(Self.OnAppStarted);
   FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);
   FAppStartedNotifier.Add(FAppStartedListener);
@@ -195,9 +211,16 @@ begin
   end;
 end;
 
-destructor TTileMatrixChangeableWithThread.Destroy;
+destructor TBitmapTileMatrixChangeableWithThread.Destroy;
 begin
-  FLinksList := nil;
+  if Assigned(FTileRect) and Assigned(FPosChangeListener) then begin
+    FTileRect.ChangeNotifier.Remove(FPosChangeListener);
+    FPosChangeListener := nil;
+  end;
+  if Assigned(FLayerProvider) and Assigned(FLayerProviderListener) then begin
+    FLayerProvider.ChangeNotifier.Remove(FLayerProviderListener);
+    FLayerProviderListener := nil;
+  end;
   if Assigned(FSourcUpdateNotyfier) then begin
     FSourcUpdateNotyfier.RemoveListener;
     FSourcUpdateNotyfier := nil;
@@ -213,239 +236,236 @@ begin
   inherited;
 end;
 
-function TTileMatrixChangeableWithThread.GetStatic: ITileMatrix;
+function TBitmapTileMatrixChangeableWithThread.GetStatic: IBitmapTileMatrix;
 begin
-  FTileMatrixCS.BeginRead;
+  FResultCS.BeginRead;
   try
-    Result := FTileMatrix;
+    Result := FResult;
   finally
-    FTileMatrixCS.EndRead;
+    FResultCS.EndRead;
   end;
 end;
 
-procedure TTileMatrixChangeableWithThread.OnAppClosing;
+procedure TBitmapTileMatrixChangeableWithThread.OnAppClosing;
 begin
-  FLinksList.DeactivateLinks;
   FDrawTask.Terminate;
 end;
 
-procedure TTileMatrixChangeableWithThread.OnAppStarted;
+procedure TBitmapTileMatrixChangeableWithThread.OnAppStarted;
 begin
-  FLinksList.ActivateLinks;
   FDrawTask.Start;
+  if Assigned(FLayerProvider) and Assigned(FLayerProviderListener) then begin
+    FLayerProvider.ChangeNotifier.Add(FLayerProviderListener);
+  end;
   FDrawTask.StartExecute;
 end;
 
-procedure TTileMatrixChangeableWithThread.OnLayerProviderChange;
-var
-  VTileMatrix: ITileMatrix;
+procedure TBitmapTileMatrixChangeableWithThread.OnLayerProviderChange;
 begin
   FDrawTask.StopExecute;
-  VTileMatrix := GetStatic;
-  SetMatrixNotReady(VTileMatrix);
+  FSourceHashMatrixCS.BeginWrite;
+  try
+    FSourceHashMatrix.Reset(FSourceCounter.Inc);
+  finally
+    FSourceHashMatrixCS.EndWrite;
+  end;
   FDrawTask.StartExecute;
 end;
 
-procedure TTileMatrixChangeableWithThread.OnPosChange;
+procedure TBitmapTileMatrixChangeableWithThread.OnPosChange;
 begin
   FDrawTask.StopExecute;
   FDrawTask.StartExecute;
 end;
 
-procedure TTileMatrixChangeableWithThread.OnPrepareTileMatrix(
+procedure TBitmapTileMatrixChangeableWithThread.OnPrepareTileMatrix(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation
 );
 var
   VProvider: IBitmapLayerProvider;
   VTileRect: ITileRect;
-  VTileMatrix: ITileMatrix;
-  VUpdated: Boolean;
-  VNeedRedraw: Boolean;
+  VTileIterator: ITileIterator;
+  VSourceHashMatrix: IHashTileMatrix;
+  VTile: TPoint;
+  VZoom: Byte;
+  VConverter: ICoordConverter;
+  VCounterContext: TInternalPerformanceCounterContext;
+  VLocalConverter: ILocalCoordConverter;
+  VBitmap: IBitmap32Static;
+  VSourceHash: THashValue;
+  VTileRectChanged: Boolean;
 begin
-  VUpdated := False;
   VProvider := FLayerProvider.GetStatic;
   if not Assigned(VProvider) then begin
-    FTileMatrixCS.BeginWrite;
-    try
-      VUpdated := Assigned(FTileMatrix);
-      FTileMatrix := nil;
-    finally
-      FTileMatrixCS.EndWrite;
-    end;
-  end;
-
-  VTileRect := nil;
-  if Assigned(VProvider) then begin
-    VTileRect := FTileRect.GetStatic;
-    if not Assigned(VTileRect) then begin
-      FTileMatrixCS.BeginWrite;
+    if FVisible then begin
+      FTileRect.ChangeNotifier.Remove(FPosChangeListener);
+      if Assigned(FSourcUpdateNotyfier) then begin
+        FSourcUpdateNotyfier.RemoveListener;
+      end;
+      FSourceHashMatrixCS.BeginWrite;
       try
-        VUpdated := Assigned(FTileMatrix);
-        FTileMatrix := nil;
+        FSourceHashMatrix.SetRectWithReset(nil, 0);
       finally
-        FTileMatrixCS.EndWrite;
+        FSourceHashMatrixCS.EndWrite
       end;
+      FPreparedHashMatrix.SetRectWithReset(nil, 0);
+      FPreparedBitmapMatrix.SetRectWithReset(nil);
+      FVisible := False;
+      FTileRectPrev := nil;
+      DoUpdateResultAndNotify;
     end;
-  end;
+  end else begin
+    VTileRect := FTileRect.GetStatic;
+    if Assigned(VTileRect) then begin
+      VTileRectChanged := not VTileRect.IsEqual(FTileRectPrev);
 
-  VTileMatrix := nil;
-  if Assigned(VTileRect) then begin
-    VTileMatrix := GetStatic;
-    if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-      Exit;
-    end;
-    if not Assigned(VTileMatrix) or not VTileMatrix.TileRect.IsEqual(VTileRect) then begin
-      VTileMatrix := FTileMatrixFactory.BuildNewMatrix(VTileMatrix, VTileRect);
+      FSourceHashMatrixCS.BeginWrite;
+      try
+        if VTileRectChanged then begin
+          FSourceHashMatrix.SetRect(VTileRect, FSourceCounter.Inc);
+        end;
+        VSourceHashMatrix := FSourceHashMatrix.MakeStatic;
+      finally
+        FSourceHashMatrixCS.EndWrite
+      end;
+      if not FVisible then begin
+        FTileRect.ChangeNotifier.Add(FPosChangeListener);
+        FVisible := True;
+      end;
+      if VTileRectChanged then begin
+        FTileRectPrev := VTileRect;
+        if Assigned(FSourcUpdateNotyfier) then begin
+          FSourcUpdateNotyfier.SetListener(FRectUpdateListener, VTileRect);
+        end;
+        FPreparedHashMatrix.SetRect(VTileRect, 0);
+        FPreparedBitmapMatrix.SetRect(VTileRect);
+        DoUpdateResultAndNotify;
+      end;
       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         Exit;
       end;
-    end;
-    FTileMatrixCS.BeginWrite;
-    try
-      VUpdated := FTileMatrix <> VTileMatrix;
-      FTileMatrix := VTileMatrix;
-    finally
-      FTileMatrixCS.EndWrite;
-    end;
-  end;
-  if Assigned(FSourcUpdateNotyfier) then begin
-    if Assigned(VTileMatrix) then begin
-      FSourcUpdateNotyfier.SetListener(FRectUpdateListener, VTileMatrix.TileRect);
+      VZoom := VTileRect.Zoom;
+      VConverter := VTileRect.ProjectionInfo.GeoConverter;
+      VTileIterator := TTileIteratorSpiralByRect.Create(VTileRect.Rect);
+      while VTileIterator.Next(VTile) do begin
+        VSourceHash := FSourceHashMatrix.Tiles[VTile];
+        if FPreparedHashMatrix.Tiles[VTile] <> VSourceHash then begin
+          VCounterContext := FOneTilePrepareCounter.StartOperation;
+          try
+            VLocalConverter := FConverterFactory.CreateForTile(VTile, VZoom, VConverter);
+            VBitmap := VProvider.GetBitmapRect(AOperationID, ACancelNotifier, VLocalConverter);
+            FPreparedBitmapMatrix.Tiles[VTile] := VBitmap;
+          finally
+            FOneTilePrepareCounter.FinishOperation(VCounterContext);
+          end;
+          FPreparedHashMatrix.Tiles[VTile] := VSourceHash;
+          DoUpdateResultAndNotify;
+          if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+            Exit;
+          end;
+        end;
+      end;
     end else begin
-      FSourcUpdateNotyfier.RemoveListener;
-    end;
-  end;
-  if VUpdated then begin
-    DoChangeNotify;
-  end;
-  FDelicateRedrawFlag.CheckFlagAndReset;
-  if Assigned(VTileMatrix) then begin
-    VNeedRedraw := True;
-    while VNeedRedraw do begin
-      if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-        Exit;
+      if Assigned(FSourcUpdateNotyfier) then begin
+        FSourcUpdateNotyfier.RemoveListener;
       end;
-      PrepareTileMatrixItems(
-        AOperationID,
-        ACancelNotifier,
-        VTileMatrix,
-        VProvider
-      );
-      VNeedRedraw := FDelicateRedrawFlag.CheckFlagAndReset;
     end;
   end;
 end;
 
-procedure TTileMatrixChangeableWithThread.OnRectUpdate(const AMsg: IInterface);
+procedure TBitmapTileMatrixChangeableWithThread.OnRectUpdate(
+  const AMsg: IInterface
+);
 var
-  VLonLatRect: ILonLatRect;
-  VTileMatrix: ITileMatrix;
-  VTileRect: TRect;
-  VMapLonLatRect: TDoubleRect;
+  VTileRectUpdated: TRect;
+  VLonLatRectUpdated: ILonLatRect;
+  VLonLatRectAtMap: TDoubleRect;
   VConverter: ICoordConverter;
   VZoom: Byte;
   VTileRectToUpdate: TRect;
+  VTileRect: ITileRect;
+  VCounter: Integer;
   i, j: Integer;
   VTile: TPoint;
-  VElement: ITileMatrixElement;
+  VChanged: Boolean;
 begin
-  if Supports(AMsg, ILonLatRect, VLonLatRect) then begin
-    VTileMatrix := GetStatic;
-    if VTileMatrix <> nil then begin
-      VMapLonLatRect := VLonLatRect.Rect;
-      VConverter := VTileMatrix.TileRect.ProjectionInfo.GeoConverter;
-      VZoom := VTileMatrix.TileRect.ProjectionInfo.Zoom;
-      VConverter.ValidateLonLatRect(VMapLonLatRect);
-      VTileRect := RectFromDoubleRect(VConverter.LonLatRect2TileRectFloat(VMapLonLatRect, VZoom), rrOutside);
-      if Types.IntersectRect(VTileRectToUpdate, VTileRect, VTileMatrix.TileRect.Rect) then begin
-        for i := VTileRectToUpdate.Top to VTileRectToUpdate.Bottom - 1 do begin
-          VTile.Y := i;
-          for j := VTileRectToUpdate.Left to VTileRectToUpdate.Right - 1 do begin
-            VTile.X := j;
-            VElement := VTileMatrix.GetElementByTile(VTile);
-            if VElement <> nil then begin
-              VElement.IncExpectedID;
-              FDelicateRedrawFlag.SetFlag;
-              FDrawTask.StartExecute;
+  VChanged := False;
+  FSourceHashMatrixCS.BeginWrite;
+  try
+    VTileRect := FSourceHashMatrix.TileRect;
+    if Assigned(VTileRect) then begin
+      if Supports(AMsg, ILonLatRect, VLonLatRectUpdated) then begin
+        VLonLatRectAtMap := VLonLatRectUpdated.Rect;
+        VConverter := VTileRect.ProjectionInfo.GeoConverter;
+        VZoom := VTileRect.ProjectionInfo.Zoom;
+        VConverter.ValidateLonLatRect(VLonLatRectAtMap);
+        VTileRectUpdated := RectFromDoubleRect(VConverter.LonLatRect2TileRectFloat(VLonLatRectAtMap, VZoom), rrOutside);
+
+        if Types.IntersectRect(VTileRectToUpdate, VTileRectUpdated, VTileRect.Rect) then begin
+          VCounter := FSourceCounter.Inc;
+          for i := VTileRectToUpdate.Top to VTileRectToUpdate.Bottom - 1 do begin
+            VTile.Y := i;
+            for j := VTileRectToUpdate.Left to VTileRectToUpdate.Right - 1 do begin
+              VTile.X := j;
+              FSourceHashMatrix.Tiles[VTile] := VCounter;
             end;
           end;
+          VChanged := True;
         end;
+      end else begin
+        VCounter := FSourceCounter.Inc;
+        FSourceHashMatrix.Reset(VCounter);
+        VChanged := True;
       end;
     end;
-  end else begin
-    VTileMatrix := GetStatic;
-    if VTileMatrix <> nil then begin
-      SetMatrixNotReady(VTileMatrix);
-    end;
-    FDelicateRedrawFlag.SetFlag;
+  finally
+    FSourceHashMatrixCS.EndWrite;
+  end;
+  if VChanged then begin
     FDrawTask.StartExecute;
   end;
 end;
 
-procedure TTileMatrixChangeableWithThread.PrepareTileMatrixItems(
-  AOperationID: Integer;
-  const ACancelNotifier: INotifierOperation;
-  const ATileMatrix: ITileMatrix;
-  const ALayerProvider: IBitmapLayerProvider
-);
+procedure TBitmapTileMatrixChangeableWithThread.DoUpdateResultAndNotify;
 var
-  VTileIterator: ITileIterator;
-  VTile: TPoint;
-  VElement: ITileMatrixElement;
-  VBitmap: IBitmap32Static;
   VCounterContext: TInternalPerformanceCounterContext;
-  VId: Integer;
-  VLocalConverter: ILocalCoordConverter;
-  VConverter: ICoordConverter;
-  VZoom: Byte;
+  VResult: IBitmapTileMatrix;
+  VChanged: Boolean;
 begin
-  Assert(Assigned(ATileMatrix));
-  Assert(Assigned(ALayerProvider));
-  VConverter := ATileMatrix.TileRect.ProjectionInfo.GeoConverter;
-  VZoom := ATileMatrix.TileRect.ProjectionInfo.Zoom;
-  VTileIterator := TTileIteratorSpiralByRect.Create(ATileMatrix.TileRect.Rect);
-  while VTileIterator.Next(VTile) do begin
-    VElement := ATileMatrix.GetElementByTile(VTile);
-    Assert(Assigned(VElement));
-    if VElement <> nil then begin
-      VId := VElement.ExpectedID;
-      if VElement.ReadyID <> VId then begin
-        VCounterContext := FOneTilePrepareCounter.StartOperation;
-        try
-          VLocalConverter := FConverterFactory.CreateForTile(VTile, VZoom, VConverter);
-          VBitmap := ALayerProvider.GetBitmapRect(AOperationID, ACancelNotifier, VLocalConverter);
-          VElement.UpdateBitmap(VId, VBitmap);
-        finally
-          FOneTilePrepareCounter.FinishOperation(VCounterContext);
+  VCounterContext := FUpdateResultCounter.StartOperation;
+  try
+    VResult := FPreparedBitmapMatrix.MakeStatic;
+    FResultCS.BeginWrite;
+    try
+      if Assigned(VResult) then begin
+        if Assigned(FResult) then begin
+          if VResult.Hash <> FResult.Hash then begin
+            FResult := VResult;
+            VChanged := True;
+          end else begin
+            VChanged := False;
+          end;
+        end else begin
+          FResult := VResult;
+          VChanged := True;
         end;
-        DoChangeNotify;
-      end;
-    end;
-    if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-      Exit;
-    end;
-  end;
-end;
-
-procedure TTileMatrixChangeableWithThread.SetMatrixNotReady(
-  const ATileMatrix: ITileMatrix
-);
-var
-  i, j: Integer;
-  VTileRect: TRect;
-  VElement: ITileMatrixElement;
-begin
-  if ATileMatrix <> nil then begin
-    VTileRect := ATileMatrix.TileRect.Rect;
-    for i := 0 to VTileRect.Right - VTileRect.Left - 1 do begin
-      for j := 0 to VTileRect.Bottom - VTileRect.Top - 1 do begin
-        VElement := ATileMatrix.Items[i, j];
-        if VElement <> nil then begin
-          VElement.IncExpectedID;
+      end else begin
+        if Assigned(FResult) then begin
+          FResult := nil;
+          VChanged := True;
+        end else begin
+          VChanged := False;
         end;
       end;
+    finally
+      FResultCS.EndWrite;
     end;
+    if VChanged then begin
+      DoChangeNotify;
+    end;
+  finally
+    FUpdateResultCounter.FinishOperation(VCounterContext);
   end;
 end;
 
