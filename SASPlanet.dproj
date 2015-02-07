@@ -1222,6 +1222,7 @@
     <DCCReference Include="Src\TileMatrix\i_HashTileMatrix.pas" />
     <DCCReference Include="Src\TileMatrix\i_HashTileMatrixBuilder.pas" />
     <DCCReference Include="Src\TileMatrix\i_VectorTileMatrix.pas" />
+    <DCCReference Include="Src\TileMatrix\i_VectorTileMatrixBuilder.pas" />
     <DCCReference Include="Src\TileMatrix\i_VectorTileMatrixChangeable.pas" />
     <DCCReference Include="Src\TileMatrix\u_BitmapTileMatrix.pas" />
     <DCCReference Include="Src\TileMatrix\u_BitmapTileMatrixBuilder.pas" />
@@ -1230,6 +1231,7 @@
     <DCCReference Include="Src\TileMatrix\u_HashTileMatrix.pas" />
     <DCCReference Include="Src\TileMatrix\u_HashTileMatrixBuilder.pas" />
     <DCCReference Include="Src\TileMatrix\u_VectorTileMatrix.pas" />
+    <DCCReference Include="Src\TileMatrix\u_VectorTileMatrixBuilder.pas" />
     <DCCReference Include="Src\TileProvider\i_BinaryTileProvider.pas" />
     <DCCReference Include="Src\TileProvider\i_BitmapTileProvider.pas" />
     <DCCReference Include="Src\TileProvider\i_VectorTileProvider.pas" />
@@ -1237,6 +1239,8 @@
     <DCCReference Include="Src\TileProvider\u_BitmapTileProviderByOtherProjection.pas" />
     <DCCReference Include="Src\TileProvider\u_BitmapTileProviderByStorage.pas" />
     <DCCReference Include="Src\TileProvider\u_TileProviderWithCache.pas" />
+    <DCCReference Include="Src\TileProvider\u_VectorTileProviderByMatrix.pas" />
+    <DCCReference Include="Src\TileProvider\u_VectorTileProviderByOtherBase.pas" />
     <DCCReference Include="Src\TileProvider\u_VectorTileProviderByStorage.pas" />
     <DCCReference Include="Src\TileStorage\Archive\u_TileStorageArchive.pas" />
     <DCCReference Include="Src\TileStorage\Archive\u_TileStorageTar.pas" />
