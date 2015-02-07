@@ -37,6 +37,7 @@ type
   TVectorTileMatrixBuilder = class(TBaseInterfacedObject, IVectorTileMatrixBuilder)
   private
     FVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+    FOversize: TRect;
     FHashFunction: IHashFunction;
     FTileRect: ITileRect;
     FItems: IInterfaceListSimple;
@@ -53,6 +54,7 @@ type
   public
     constructor Create(
       const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+      const AOversize: TRect;
       const AHashFunction: IHashFunction
     );
   end;
@@ -63,11 +65,14 @@ uses
   t_Hash,
   t_GeoTypes,
   i_TileIterator,
+  i_VectorTileProvider,
   i_CoordConverter,
   i_InterfaceListStatic,
   u_TileIteratorByRect,
   u_InterfaceListSimple,
   u_GeoFunc,
+  u_VectorTileProviderByMatrix,
+  u_VectorTileProviderByOtherProjection,
   u_VectorTileMatrix;
 
 function IndexByPos(const ARect: TRect; const APos: TPoint): Integer; inline;
@@ -79,12 +84,22 @@ end;
 
 constructor TVectorTileMatrixBuilder.Create(
   const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+  const AOversize: TRect;
   const AHashFunction: IHashFunction
 );
 begin
   Assert(Assigned(AVectorSubsetBuilderFactory));
+  Assert(AOversize.Left >= 0);
+  Assert(AOversize.Left < 4096);
+  Assert(AOversize.Top >= 0);
+  Assert(AOversize.Top < 4096);
+  Assert(AOversize.Right >= 0);
+  Assert(AOversize.Right < 4096);
+  Assert(AOversize.Bottom >= 0);
+  Assert(AOversize.Bottom < 4096);
   Assert(Assigned(AHashFunction));
   inherited Create;
+  FOversize := AOversize;
   FVectorSubsetBuilderFactory := AVectorSubsetBuilderFactory;
   FHashFunction := AHashFunction;
   FTileRect := nil;
@@ -187,7 +202,7 @@ var
   VConverter: ICoordConverter;
   VConverterSource: ICoordConverter;
   VSourceAtTarget: TRect;
-  VSubsetBuilder: IVectorItemSubsetBuilder;
+  VTileProvider: IVectorTileProvider;
 begin
   Assert(Assigned(ATileRect));
   VZoom := ATileRect.Zoom;
@@ -209,11 +224,17 @@ begin
         if not IntersectRect(VIntersectRect, ATileRect.Rect, VSourceAtTarget) then begin
           SetRectWithReset(ATileRect);
         end else begin
-          VSubsetBuilder := FVectorSubsetBuilderFactory.Build;
+          VTileProvider :=
+            TVectorTileProviderBySameProjection.Create(
+              FVectorSubsetBuilderFactory,
+              FOversize,
+              TVectorTileProviderByMatrix.Create(MakeStatic),
+              ATileRect.ProjectionInfo
+            );
 
           VIterator := TTileIteratorByRect.Create(VIntersectRect);
           while VIterator.Next(VTile) do begin
-//            FItems.Items[IndexByPos(VTileRect, VTile)] := VTileProvider.GetTile(0, nil, VTile);
+            FItems.Items[IndexByPos(VTileRect, VTile)] := VTileProvider.GetTile(0, nil, VTile);
           end;
         end;
       end else begin
@@ -229,7 +250,18 @@ begin
         if not IntersectRect(VIntersectRect, ATileRect.Rect, VSourceAtTarget) then begin
           SetRectWithReset(ATileRect);
         end else begin
-          VSubsetBuilder := FVectorSubsetBuilderFactory.Build;
+          VTileProvider :=
+            TVectorTileProviderByOtherProjection.Create(
+              FVectorSubsetBuilderFactory,
+              FOversize,
+              TVectorTileProviderByMatrix.Create(MakeStatic),
+              ATileRect.ProjectionInfo
+            );
+
+          VIterator := TTileIteratorByRect.Create(VIntersectRect);
+          while VIterator.Next(VTile) do begin
+            FItems.Items[IndexByPos(VTileRect, VTile)] := VTileProvider.GetTile(0, nil, VTile);
+          end;
         end;
       end;
     end else begin

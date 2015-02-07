@@ -302,7 +302,7 @@ uses
   u_VectorTileMatrix in 'Src\TileMatrix\u_VectorTileMatrix.pas',
   u_VectorTileMatrixBuilder in 'Src\TileMatrix\u_VectorTileMatrixBuilder.pas',
   u_VectorTileProviderByMatrix in 'Src\TileProvider\u_VectorTileProviderByMatrix.pas',
-  u_VectorTileProviderByOtherBase in 'Src\TileProvider\u_VectorTileProviderByOtherBase.pas',
+  u_VectorTileProviderByOtherProjection in 'Src\TileProvider\u_VectorTileProviderByOtherProjection.pas',
   u_BitmapTileProviderByMatrix in 'Src\TileProvider\u_BitmapTileProviderByMatrix.pas',
   u_BitmapTileProviderByOtherProjection in 'Src\TileProvider\u_BitmapTileProviderByOtherProjection.pas',
   u_RegionProcessProgressInfoDownload in 'Src\RegionProcess\u_RegionProcessProgressInfoDownload.pas',

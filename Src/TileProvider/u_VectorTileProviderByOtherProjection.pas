@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_VectorTileProviderByOtherBase;
+unit u_VectorTileProviderByOtherProjection;
 
 interface
 
@@ -182,12 +182,13 @@ var
   VSourceZoom: Byte;
   VTargetConverter: ICoordConverter;
   VTargetZoom: Byte;
-  VLonLatRect: TDoubleRect;
-  VTargetPixelRectAtSource: TDoubleRect;
+  VLonLatRectSource: TDoubleRect;
+  VLonLatRectTarget: TDoubleRect;
   VSourceTileRect: TRect;
   VTileIterator: ITileIterator;
   VSourceTile: TPoint;
   VSource: IVectorItemSubset;
+  VSubsetBuilder: IVectorItemSubsetBuilder;
 begin
   Result := nil;
   VTile := ATile;
@@ -200,22 +201,35 @@ begin
     Exit;
   end;
   VTargetPixelRect := VTargetConverter.TilePos2PixelRect(VTile, VTargetZoom);
-  VLonLatRect := VTargetConverter.PixelRect2LonLatRect(VTargetPixelRect, VTargetZoom);
-  VSourceConverter.CheckLonLatRect(VLonLatRect);
-  VTargetPixelRectAtSource := VSourceConverter.LonLatRect2PixelRectFloat(VLonLatRect, VSourceZoom);
-  VSourceTileRect := RectFromDoubleRect(VSourceConverter.PixelRectFloat2TileRectFloat(VTargetPixelRectAtSource, VSourceZoom), rrOutside);
+  Dec(VTargetPixelRect.Left, FOversize.Left);
+  Dec(VTargetPixelRect.Top, FOversize.Top);
+  Inc(VTargetPixelRect.Right, FOversize.Right);
+  Inc(VTargetPixelRect.Bottom, FOversize.Bottom);
+  VTargetConverter.ValidatePixelRect(VTargetPixelRect, VTargetZoom);
+  VLonLatRectTarget := VTargetConverter.PixelRect2LonLatRect(VTargetPixelRect, VTargetZoom);
+  VLonLatRectSource := VLonLatRectTarget;
+  VSourceConverter.ValidateLonLatRect(VLonLatRectSource);
+  VSourceTileRect := RectFromDoubleRect(VSourceConverter.LonLatRect2TileRectFloat(VLonLatRectSource, VSourceZoom), rrOutside);
   Assert(VSourceTileRect.Right > VSourceTileRect.Left);
   Assert(VSourceTileRect.Bottom > VSourceTileRect.Top);
   if (VSourceTileRect.Right - VSourceTileRect.Left = 1) and (VSourceTileRect.Bottom - VSourceTileRect.Top = 1) then begin
     VSourceTile := VSourceTileRect.TopLeft;
     VSource := FProvider.GetTile(AOperationID, ACancelNotifier, VSourceTile);
     if Assigned(VSource) then begin
+      VSubsetBuilder := FVectorSubsetBuilderFactory.Build;
+      TileToBuilder(VLonLatRectTarget, VSubsetBuilder, VSource);
+      Result := VSubsetBuilder.MakeStaticAndClear;
     end;
   end else begin
+    VSubsetBuilder := FVectorSubsetBuilderFactory.Build;
     VTileIterator := TTileIteratorByRect.Create(VSourceTileRect);
     while VTileIterator.Next(VSourceTile) do begin
       VSource := FProvider.GetTile(AOperationID, ACancelNotifier, VSourceTile);
+      if Assigned(VSource) then begin
+        TileToBuilder(VLonLatRectTarget, VSubsetBuilder, VSource);
+      end;
     end;
+    Result := VSubsetBuilder.MakeStaticAndClear;
   end;
 end;
 
@@ -240,16 +254,16 @@ function TVectorTileProviderBySameProjection.GetTile(
 var
   VTile: TPoint;
   VTargetPixelRect: TRect;
-  VTargetTileSize: TPoint;
   VConverter: ICoordConverter;
   VSourceZoom: Byte;
   VTargetZoom: Byte;
   VRelativeRect: TDoubleRect;
-  VTargetPixelRectAtSource: TDoubleRect;
   VSourceTileRect: TRect;
   VTileIterator: ITileIterator;
   VSourceTile: TPoint;
   VSource: IVectorItemSubset;
+  VLonLatRectTarget: TDoubleRect;
+  VSubsetBuilder: IVectorItemSubsetBuilder;
 begin
   Result := nil;
   VTile := ATile;
@@ -261,24 +275,34 @@ begin
     Exit;
   end;
   VTargetPixelRect := VConverter.TilePos2PixelRect(VTile, VTargetZoom);
-  VTargetTileSize := Point(VTargetPixelRect.Right - VTargetPixelRect.Left, VTargetPixelRect.Bottom - VTargetPixelRect.Top);
+  Dec(VTargetPixelRect.Left, FOversize.Left);
+  Dec(VTargetPixelRect.Top, FOversize.Top);
+  Inc(VTargetPixelRect.Right, FOversize.Right);
+  Inc(VTargetPixelRect.Bottom, FOversize.Bottom);
+  VConverter.ValidatePixelRect(VTargetPixelRect, VTargetZoom);
+  VLonLatRectTarget := VConverter.PixelRect2LonLatRect(VTargetPixelRect, VTargetZoom);
   VRelativeRect := VConverter.PixelRect2RelativeRect(VTargetPixelRect, VTargetZoom);
-  VTargetPixelRectAtSource := VConverter.RelativeRect2PixelRectFloat(VRelativeRect, VSourceZoom);
-  VSourceTileRect := RectFromDoubleRect(VConverter.PixelRectFloat2TileRectFloat(VTargetPixelRectAtSource, VSourceZoom), rrOutside);
+  VSourceTileRect := RectFromDoubleRect(VConverter.RelativeRect2TileRectFloat(VRelativeRect, VSourceZoom), rrOutside);
   Assert(VSourceTileRect.Right > VSourceTileRect.Left);
   Assert(VSourceTileRect.Bottom > VSourceTileRect.Top);
   if (VSourceTileRect.Right - VSourceTileRect.Left = 1) and (VSourceTileRect.Bottom - VSourceTileRect.Top = 1) then begin
     VSourceTile := VSourceTileRect.TopLeft;
     VSource := FProvider.GetTile(AOperationID, ACancelNotifier, VSourceTile);
     if Assigned(VSource) then begin
+      VSubsetBuilder := FVectorSubsetBuilderFactory.Build;
+      TileToBuilder(VLonLatRectTarget, VSubsetBuilder, VSource);
+      Result := VSubsetBuilder.MakeStaticAndClear;
     end;
   end else begin
+    VSubsetBuilder := FVectorSubsetBuilderFactory.Build;
     VTileIterator := TTileIteratorByRect.Create(VSourceTileRect);
     while VTileIterator.Next(VSourceTile) do begin
       VSource := FProvider.GetTile(AOperationID, ACancelNotifier, VSourceTile);
       if Assigned(VSource) then begin
+        TileToBuilder(VLonLatRectTarget, VSubsetBuilder, VSource);
       end;
     end;
+    Result := VSubsetBuilder.MakeStaticAndClear;
   end;
 end;
 
