@@ -268,7 +268,6 @@
     <DCCReference Include="Src\CoordConvert\u_CoordConverterSimpleLonLat.pas" />
     <DCCReference Include="Src\CoordConvert\u_Datum.pas" />
     <DCCReference Include="Src\CoordConvert\u_DatumFactory.pas" />
-    <DCCReference Include="Src\CoordConvert\u_LocalConverterChangeableFixedTileRectNoScale.pas" />
     <DCCReference Include="Src\CoordConvert\u_LocalConverterChangeableOfMiniMap.pas" />
     <DCCReference Include="Src\CoordConvert\u_LocalCoordConverter.pas" />
     <DCCReference Include="Src\CoordConvert\u_LocalCoordConverterChangeable.pas" />

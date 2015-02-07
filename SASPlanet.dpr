@@ -492,7 +492,6 @@ uses
   u_LocalCoordConverter in 'Src\CoordConvert\u_LocalCoordConverter.pas',
   i_LocalCoordConverterChangeable in 'Src\CoordConvert\i_LocalCoordConverterChangeable.pas',
   u_LocalCoordConverterChangeable in 'Src\CoordConvert\u_LocalCoordConverterChangeable.pas',
-  u_LocalConverterChangeableFixedTileRectNoScale in 'Src\CoordConvert\u_LocalConverterChangeableFixedTileRectNoScale.pas',
   u_LocalConverterChangeableOfMiniMap in 'Src\CoordConvert\u_LocalConverterChangeableOfMiniMap.pas',
   i_LocalCoordConverterFactory in 'Src\CoordConvert\i_LocalCoordConverterFactory.pas',
   u_LocalCoordConverterFactory in 'Src\CoordConvert\u_LocalCoordConverterFactory.pas',
