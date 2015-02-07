@@ -204,7 +204,7 @@ begin
   VSourcePixelRect := ASourceCoordConverter.TilePos2PixelRect(ASourceTile, ASourceZoom);
 
   VSourceLonLatRect := ASourceCoordConverter.TilePos2LonLatRect(ASourceTile, ASourceZoom);
-  AResultCoordConverter.CheckLonLatRect(VSourceLonLatRect);
+  AResultCoordConverter.ValidateLonLatRect(VSourceLonLatRect);
   VTargetRectFloat := AResultCoordConverter.LonLatRect2PixelRectFloat(VSourceLonLatRect, AResultZoom);
   VTargetRect := RectFromDoubleRect(VTargetRectFloat, rrClosest);
   Dec(VTargetRect.Left, AResultMapRect.Left);
@@ -255,7 +255,7 @@ begin
   VTargetPixelRect := VTargetConverter.TilePos2PixelRect(VTile, VTargetZoom);
   VTargetTileSize := Point(VTargetPixelRect.Right - VTargetPixelRect.Left, VTargetPixelRect.Bottom - VTargetPixelRect.Top);
   VLonLatRect := VTargetConverter.PixelRect2LonLatRect(VTargetPixelRect, VTargetZoom);
-  VSourceConverter.CheckLonLatRect(VLonLatRect);
+  VSourceConverter.ValidateLonLatRect(VLonLatRect);
   VTargetPixelRectAtSource := VSourceConverter.LonLatRect2PixelRectFloat(VLonLatRect, VSourceZoom);
   VSourceTileRect := RectFromDoubleRect(VSourceConverter.PixelRectFloat2TileRectFloat(VTargetPixelRectAtSource, VSourceZoom), rrOutside);
   Assert(VSourceTileRect.Right > VSourceTileRect.Left);
