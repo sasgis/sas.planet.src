@@ -59,6 +59,7 @@ type
 
     FDrawTask: IBackgroundTask;
     FOneTilePrepareCounter: IInternalPerformanceCounter;
+    FMatrixChangeRectCounter: IInternalPerformanceCounter;
     FUpdateResultCounter: IInternalPerformanceCounter;
 
     FSourceCounter: ICounter;
@@ -176,6 +177,7 @@ begin
 
   FOneTilePrepareCounter := APerfList.CreateAndAddNewCounter('OneTilePrepare');
   FUpdateResultCounter := APerfList.CreateAndAddNewCounter('UpdateResult');
+  FMatrixChangeRectCounter := APerfList.CreateAndAddNewCounter('MatrixChangeRect');
   if Assigned(FSourcUpdateNotyfier) then begin
     FRectUpdateListener := TNotifyEventListener.Create(Self.OnRectUpdate);
   end;
@@ -338,8 +340,13 @@ begin
         if Assigned(FSourcUpdateNotyfier) then begin
           FSourcUpdateNotyfier.SetListener(FRectUpdateListener, VTileRect);
         end;
-        FPreparedHashMatrix.SetRect(VTileRect, 0);
-        FPreparedBitmapMatrix.SetRect(VTileRect);
+        VCounterContext := FMatrixChangeRectCounter.StartOperation;
+        try
+          FPreparedHashMatrix.SetRect(VTileRect, 0);
+          FPreparedBitmapMatrix.SetRect(VTileRect);
+        finally
+          FMatrixChangeRectCounter.FinishOperation(VCounterContext);
+        end;
         DoUpdateResultAndNotify;
       end;
       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
@@ -355,10 +362,10 @@ begin
           try
             VLocalConverter := FConverterFactory.CreateForTile(VTile, VZoom, VConverter);
             VBitmap := VProvider.GetBitmapRect(AOperationID, ACancelNotifier, VLocalConverter);
-            FPreparedBitmapMatrix.Tiles[VTile] := VBitmap;
           finally
             FOneTilePrepareCounter.FinishOperation(VCounterContext);
           end;
+          FPreparedBitmapMatrix.Tiles[VTile] := VBitmap;
           FPreparedHashMatrix.Tiles[VTile] := VSourceHash;
           DoUpdateResultAndNotify;
           if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
