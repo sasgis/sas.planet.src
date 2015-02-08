@@ -31,7 +31,6 @@ uses
   StdCtrls,
   ExtCtrls,
   RarProgress,
-  Buttons,
   TB2Item,
   TB2Dock,
   TB2Toolbar,

@@ -38,7 +38,6 @@ uses
   i_VectorTileMatrixBuilder,
   i_VectorTileProvider,
   i_VectorTileProviderChangeable,
-  i_LocalCoordConverterFactorySimpe,
   i_ObjectWithListener,
   i_HashTileMatrix,
   i_HashTileMatrixBuilder,
