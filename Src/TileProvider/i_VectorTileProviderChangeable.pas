@@ -18,39 +18,21 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_VectorTileProvider;
+unit i_VectorTileProviderChangeable;
 
 interface
 
 uses
-  Types,
-  i_NotifierOperation,
-  i_ProjectionInfo,
-  i_VectorItemSubset;
+  i_Changeable,
+  i_VectorTileProvider;
 
 type
-  IVectorTileProvider = interface
-    ['{00ADB9F4-D421-4F71-A9B6-3F8A6E8FFCB9}']
-    function GetProjectionInfo: IProjectionInfo;
-    property ProjectionInfo: IProjectionInfo read GetProjectionInfo;
-
-    function GetTile(
-      AOperationID: Integer;
-      const ACancelNotifier: INotifierOperation;
-      const ATile: TPoint
-    ): IVectorItemSubset;
-  end;
-
-  IVectorTileUniProvider = interface
-    ['{6C027AA3-6DA2-4475-8179-5F80170165AD}']
-    function GetTile(
-      AOperationID: Integer;
-      const ACancelNotifier: INotifierOperation;
-      const AProjectionInfo: IProjectionInfo;
-      const ATile: TPoint
-    ): IVectorItemSubset;
+  IVectorTileUniProviderChangeable = interface(IChangeable)
+    ['{6781A4FE-F0FD-45EC-863D-1D1C1F7D607F}']
+    function GetStatic: IVectorTileUniProvider;
   end;
 
 implementation
 
 end.
+

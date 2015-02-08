@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_VectorTileProvider;
+unit i_VectorTileRenderer;
 
 interface
 
@@ -26,29 +26,19 @@ uses
   Types,
   i_NotifierOperation,
   i_ProjectionInfo,
-  i_VectorItemSubset;
+  i_VectorItemSubset,
+  i_Bitmap32Static;
 
 type
-  IVectorTileProvider = interface
-    ['{00ADB9F4-D421-4F71-A9B6-3F8A6E8FFCB9}']
-    function GetProjectionInfo: IProjectionInfo;
-    property ProjectionInfo: IProjectionInfo read GetProjectionInfo;
-
-    function GetTile(
-      AOperationID: Integer;
-      const ACancelNotifier: INotifierOperation;
-      const ATile: TPoint
-    ): IVectorItemSubset;
-  end;
-
-  IVectorTileUniProvider = interface
-    ['{6C027AA3-6DA2-4475-8179-5F80170165AD}']
-    function GetTile(
+  IVectorTileRenderer = interface
+    ['{B7550698-FB07-4F04-988A-951F3DE76BA1}']
+    function RenderVectorTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const AProjectionInfo: IProjectionInfo;
-      const ATile: TPoint
-    ): IVectorItemSubset;
+      const ATile: TPoint;
+      const ASource: IVectorItemSubset
+    ): IBitmap32Static;
   end;
 
 implementation
