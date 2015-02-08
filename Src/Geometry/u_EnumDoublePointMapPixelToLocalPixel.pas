@@ -24,6 +24,20 @@ type
     );
   end;
 
+  TEnumDoublePointMapPixelToLocalPixelSimple = class(TBaseInterfacedObject, IEnumLocalPoint)
+  private
+    FSourceEnum: IEnumProjectedPoint;
+    FTopLeft: TDoublePoint;
+    FFinished: Boolean;
+  private
+    function Next(out APoint: TDoublePoint): Boolean;
+  public
+    constructor Create(
+      const ATopLeft: TDoublePoint;
+      const ASourceEnum: IEnumProjectedPoint
+    );
+  end;
+
   TProjectedPointConverter = class(TBaseInterfacedObject, IProjectedPointConverter)
   private
     FLocalConverter: ILocalCoordConverter;
@@ -93,6 +107,44 @@ function TProjectedPointConverter.CreateFilteredEnum(
 ): IEnumLocalPoint;
 begin
   Result := TEnumDoublePointMapPixelToLocalPixel.Create(FLocalConverter, ASource);
+end;
+
+{ TEnumDoublePointMapPixelToLocalPixelSimple }
+
+constructor TEnumDoublePointMapPixelToLocalPixelSimple.Create(
+  const ATopLeft: TDoublePoint;
+  const ASourceEnum: IEnumProjectedPoint
+);
+begin
+  inherited Create;
+  FSourceEnum := ASourceEnum;
+  FTopLeft := ATopLeft;
+  FFinished := False;
+end;
+
+function TEnumDoublePointMapPixelToLocalPixelSimple.Next(
+  out APoint: TDoublePoint
+): Boolean;
+var
+  VPoint: TDoublePoint;
+begin
+  if FFinished then begin
+    Result := False;
+    APoint := CEmptyDoublePoint;
+  end else begin
+    if FSourceEnum.Next(VPoint) then begin
+      if PointIsEmpty(VPoint) then begin
+        APoint := VPoint;
+      end else begin
+        APoint := DoublePoint(VPoint.X - FTopLeft.X, VPoint.Y - FTopLeft.Y);
+      end;
+      Result := True;
+    end else begin
+      FFinished := True;
+      Result := False;
+      APoint := CEmptyDoublePoint;
+    end;
+  end;
 end;
 
 end.
