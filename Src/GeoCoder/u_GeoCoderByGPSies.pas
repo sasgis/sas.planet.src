@@ -161,8 +161,8 @@ begin
   Result :=
     PrepareRequestByURL(
       'http://www.gpsies.com/api.do?key=yzzgoiguqwvdeeaa&searchText=' + URLEncode(AnsiToUtf8(VSearch)) + '&filetype=kml&limit=20&BBOX=' +
-      R2AnsiStrPoint(VLonLatRect.Bottom) + ',' + R2AnsiStrPoint(VLonLatRect.Left) + '|' +
-      R2AnsiStrPoint(VLonLatRect.Top) + ',' + R2AnsiStrPoint(VLonLatRect.Right)
+      R2AnsiStrPoint(VLonLatRect.Left) + ',' + R2AnsiStrPoint(VLonLatRect.Bottom) + ',' +
+      R2AnsiStrPoint(VLonLatRect.Right) + ',' + R2AnsiStrPoint(VLonLatRect.Top)
     );
 end;
 
