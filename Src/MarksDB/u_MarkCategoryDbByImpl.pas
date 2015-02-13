@@ -325,6 +325,7 @@ begin
     FNotifier := VImpl.CategoryDB.ChangeNotifier;
     FNotifier.Add(FDbImplChangeListener);
   end;
+  OnDbImplChange;
 end;
 
 procedure TMarkCategoryDbByImpl.OnDbImplChange;
