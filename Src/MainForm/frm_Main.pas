@@ -841,6 +841,7 @@ type
     ): IVectorItemSubset;
 
     procedure ProcessOpenFiles(AFiles: TStrings);
+    procedure MakeRosreestrPolygon(const APoint: TPoint);
   protected
     procedure CreateWnd; override;
     procedure DestroyWnd; override;
@@ -5806,7 +5807,9 @@ begin
     (ssRight in Shift) and (ssLeft in Shift) or
     (HiWord(GetKeyState(VK_DELETE)) <> 0) or
     (HiWord(GetKeyState(VK_INSERT)) <> 0) or
-    (HiWord(GetKeyState(VK_F6)) <> 0) then begin
+    (HiWord(GetKeyState(VK_F6)) <> 0) or
+    (HiWord(GetKeyState(VK_F8)) <> 0)
+  then begin
     exit;
   end;
   Screen.ActiveForm.SetFocusedControl(map);
@@ -6044,6 +6047,10 @@ begin
       end;
       if HiWord(GetKeyState(VK_F6)) <> 0 then begin
         SafeCreateDGAvailablePic(Point(X, Y));
+        Exit;
+      end;
+      if HiWord(GetKeyState(VK_F8)) <> 0 then begin
+        MakeRosreestrPolygon(Point(X, Y));
         Exit;
       end;
     end;
@@ -7038,7 +7045,7 @@ begin
   NextVersion(-1);
 end;
 
-procedure TfrmMain.TBXMakeRosreestrPolygonClick(Sender: TObject);
+procedure TfrmMain.MakeRosreestrPolygon(const APoint: TPoint);
 var
   VLocalConverter: ILocalCoordConverter;
   VConverter: ICoordConverter;
@@ -7053,7 +7060,7 @@ begin
   VLocalConverter := FViewPortState.View.GetStatic;
   VConverter := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
-  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(APoint);
   VConverter.ValidatePixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
   VMapRect := VLocalConverter.GetRectInMapPixelFloat;
@@ -7086,6 +7093,11 @@ begin
       VImportConfig
     );
   end;
+end;
+
+procedure TfrmMain.TBXMakeRosreestrPolygonClick(Sender: TObject);
+begin
+  MakeRosreestrPolygon(FMouseState.GetLastDownPos(mbRight));
 end;
 
 procedure TfrmMain.TBXSearchEditAcceptText(

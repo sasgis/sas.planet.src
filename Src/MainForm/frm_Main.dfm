@@ -3654,12 +3654,12 @@ object frmMain: TfrmMain
         ImageIndex = 11
         Images = MenusImageList
         OnClick = DigitalGlobe1Click
-        Caption = 'Images available'
+        Caption = 'Images available (F6+MLeft)'
         Hint = ''
       end
       object TBXMakeRosreestrPolygon: TTBXItem
         OnClick = TBXMakeRosreestrPolygonClick
-        Caption = 'Make Polygon by RosReestr'
+        Caption = 'Make Polygon by RosReestr (F8+MLeft)'
         Hint = ''
       end
       object tbsprtAdditionalOperations0: TTBXSeparatorItem
