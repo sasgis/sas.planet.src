@@ -35,6 +35,7 @@ type
   private
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FConfig: IFillingMapLayerConfig;
+    FMapType: IMapTypeChangeable;
 
     FVersionListener: IListener;
     FSourceMapLast: IMapType;
@@ -45,6 +46,7 @@ type
   public
     constructor Create(
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
+      const AMapType: IMapTypeChangeable;
       const AConfig: IFillingMapLayerConfig
     );
     destructor Destroy; override;
@@ -63,13 +65,16 @@ uses
 
 constructor TBitmapLayerProviderChangeableForFillingMap.Create(
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
+  const AMapType: IMapTypeChangeable;
   const AConfig: IFillingMapLayerConfig
 );
 begin
   Assert(Assigned(ABitmap32StaticFactory));
+  Assert(Assigned(AMapType));
   Assert(Assigned(AConfig));
   inherited Create;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
+  FMapType := AMapType;
   FConfig := AConfig;
 
   FVersionListener := TNotifyNoMmgEventListener.Create(Self.OnMapVersionChange);
@@ -77,6 +82,10 @@ begin
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(OnConfigChange),
     FConfig.ChangeNotifier
+  );
+  LinksList.Add(
+    TNotifyNoMmgEventListener.Create(OnConfigChange),
+    FMapType.ChangeNotifier
   );
 end;
 
@@ -101,7 +110,7 @@ begin
   VResult := nil;
   VConfig := FConfig.GetStatic;
   if VConfig.Visible then begin
-    VMap := VConfig.ActualMap;
+    VMap := FMapType.GetStatic;
     if FSourceMapLast <> VMap then begin
       if Assigned(FSourceMapLast) then begin
         FSourceMapLast.VersionRequestConfig.ChangeNotifier.Remove(FVersionListener);

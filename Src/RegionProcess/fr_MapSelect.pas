@@ -38,6 +38,7 @@ uses
   i_MapTypeSet,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
+  u_BaseInterfacedObject,
   u_CommonFormAndFrameParents;
 
 type
@@ -60,7 +61,8 @@ type
     procedure cbbMapChange(Sender: TObject);
 
   private
-    FMainMapsConfig: IMainMapsConfig;
+    FMainMapConfig: IActiveMapConfig;
+    FMainLayersConfig: IActiveLayersConfig;
     FGUIConfigList: IMapTypeGUIConfigList;
     FFullMapsSet: IMapTypeSet;
     FMapSelectFilter: TMapSelectFilter;
@@ -72,7 +74,8 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AMainMapsConfig: IMainMapsConfig;
+      const AMainMapConfig: IActiveMapConfig;
+      const AMainLayersConfig: IActiveLayersConfig;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AFullMapsSet: IMapTypeSet;
       const AMapSelectFilter: TMapSelectFilter;
@@ -85,6 +88,41 @@ type
     procedure SetEnabled(Amode: boolean); reintroduce;
     procedure Show(AParent: TWinControl);
     property OnMapChange: TNotifyEvent read FOnMapChange write FOnMapChange;
+  end;
+
+type
+  IMapSelectFrameBuilder = interface
+    function Build(
+      const AMapSelectFilter: TMapSelectFilter;
+      const ANoItemAdd: boolean;
+      const AShowDisabled: boolean;
+      AMapSelectPredicate: TMapSelectPredicate
+    ): TfrMapSelect;
+  end;
+
+type
+  TMapSelectFrameBuilder = class(TBaseInterfacedObject, IMapSelectFrameBuilder)
+  private
+    FLanguageManager: ILanguageManager;
+    FMainMapConfig: IActiveMapConfig;
+    FMainLayersConfig: IActiveLayersConfig;
+    FGUIConfigList: IMapTypeGUIConfigList;
+    FFullMapsSet: IMapTypeSet;
+  private
+    function Build(
+      const AMapSelectFilter: TMapSelectFilter;
+      const ANoItemAdd: boolean;
+      const AShowDisabled: boolean;
+      AMapSelectPredicate: TMapSelectPredicate
+    ): TfrMapSelect;
+  public
+    constructor Create(
+      const ALanguageManager: ILanguageManager;
+      const AMainMapConfig: IActiveMapConfig;
+      const AMainLayersConfig: IActiveLayersConfig;
+      const AGUIConfigList: IMapTypeGUIConfigList;
+      const AFullMapsSet: IMapTypeSet
+    );
   end;
 
 implementation
@@ -100,7 +138,8 @@ uses
 
 constructor TfrMapSelect.Create(
   const ALanguageManager: ILanguageManager;
-  const AMainMapsConfig: IMainMapsConfig;
+  const AMainMapConfig: IActiveMapConfig;
+  const AMainLayersConfig: IActiveLayersConfig;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AFullMapsSet: IMapTypeSet;
   const AMapSelectFilter: TMapSelectFilter;
@@ -109,8 +148,8 @@ constructor TfrMapSelect.Create(
   AMapSelectPredicate: TMapSelectPredicate
 );
 begin
-  Assert(Assigned(AMainMapsConfig));
-  Assert(Assigned(AMainMapsConfig));
+  Assert(Assigned(AMainMapConfig));
+  Assert(Assigned(AMainLayersConfig));
   Assert(Assigned(AGUIConfigList));
   Assert(Assigned(AFullMapsSet));
   Assert(Assigned(AMapSelectPredicate));
@@ -118,7 +157,8 @@ begin
   inherited Create(ALanguageManager);
   FGUIConfigList := AGUIConfigList;
   FFullMapsSet := AFullMapsSet;
-  FMainMapsConfig := AMainMapsConfig;
+  FMainMapConfig := AMainMapConfig;
+  FMainLayersConfig := AMainLayersConfig;
   FMapSelectFilter := AMapSelectFilter;
   FNoItemAdd := ANoItemAdd;
   FShowDisabled := AShowDisabled;
@@ -177,7 +217,7 @@ var
   VGUIDList: IGUIDListStatic;
   VGUID: TGUID;
   VAdd: Boolean;
-  VLayers: IMapTypeSet;
+  VLayers: IGUIDSetStatic;
   VMapName: string;
   VFilter: string;
   VHint: string;
@@ -207,12 +247,11 @@ begin
 
   VDefaultIndex := -1;
 
-  VLayers := nil;
   VFilter := AnsiUpperCase(TBX_AFilter.Text);
 
   // get active map
-  VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetStatic.GUID;
-  VLayers := FMainMapsConfig.GetActiveLayersSet.GetStatic;
+  VActiveMapGUID := FMainMapConfig.MainMapGUID;
+  VLayers := FMainLayersConfig.LayerGuids;
 
   // refresh list
   cbbMap.Items.BeginUpdate;
@@ -236,10 +275,11 @@ begin
             1: VAdd := True;  // all maps
             2: VAdd := (not VCurMapType.Zmp.IsLayer); // only maps
             3: VAdd := (VCurMapType.Zmp.IsLayer);// only layers
-            4: if (VCurMapType.Zmp.IsLayer) then // only visible items: main map or visible layer
-                 VAdd := VLayers.GetMapTypeByGUID(VGUID) <> nil
-               else
+            4: if (VCurMapType.Zmp.IsLayer) then begin // only visible items: main map or visible layer
+                 VAdd := Assigned(VLayers) and VLayers.IsExists(VGUID);
+               end else begin
                  VAdd := IsEqualGUID(VActiveMapGUID, VGUID);
+               end;
             5: begin // Filter by name
               if VFilter <> '' then begin //фильтруем
                 VMapName := AnsiUpperCase(VCurMapType.GUIConfig.Name.Value);
@@ -266,7 +306,7 @@ begin
             end;
             if (VDefaultIndex = -1) then begin
               if VCurMapType.Zmp.IsLayer then begin
-                if (VLayers.GetMapTypeByGUID(VGUID) <> nil) then begin
+                if Assigned(VLayers) and VLayers.IsExists(VGUID) then begin
                   // select first active layer as default
                   VDefaultIndex := VAddedIndex;
                 end;
@@ -314,6 +354,49 @@ begin
     end;
   end;
   cbbMap.Hint := VHint;
+end;
+
+{ TMapSelectFrameBuilder }
+
+constructor TMapSelectFrameBuilder.Create(
+  const ALanguageManager: ILanguageManager;
+  const AMainMapConfig: IActiveMapConfig;
+  const AMainLayersConfig: IActiveLayersConfig;
+  const AGUIConfigList: IMapTypeGUIConfigList;
+  const AFullMapsSet: IMapTypeSet
+);
+begin
+  Assert(Assigned(ALanguageManager));
+  Assert(Assigned(AMainMapConfig));
+  Assert(Assigned(AMainLayersConfig));
+  Assert(Assigned(AGUIConfigList));
+  Assert(Assigned(AFullMapsSet));
+  inherited Create;
+  FLanguageManager :=  ALanguageManager;
+  FMainMapConfig := AMainMapConfig;
+  FMainLayersConfig := AMainLayersConfig;
+  FGUIConfigList := AGUIConfigList;
+  FFullMapsSet := AFullMapsSet;
+end;
+
+function TMapSelectFrameBuilder.Build(
+  const AMapSelectFilter: TMapSelectFilter;
+  const ANoItemAdd, AShowDisabled: boolean;
+  AMapSelectPredicate: TMapSelectPredicate
+): TfrMapSelect;
+begin
+  Result :=
+    TfrMapSelect.Create(
+      FLanguageManager,
+      FMainMapConfig,
+      FMainLayersConfig,
+      FGUIConfigList,
+      FFullMapsSet,
+      AMapSelectFilter,
+      ANoItemAdd,
+      AShowDisabled,
+      AMapSelectPredicate
+    );
 end;
 
 end.

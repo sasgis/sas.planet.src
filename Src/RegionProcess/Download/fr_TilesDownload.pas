@@ -32,13 +32,10 @@ uses
   StdCtrls,
   Windows,
   i_MapType,
-  i_MapTypeSet,
   i_CoordConverterFactory,
   i_LanguageManager,
   i_GeometryLonLat,
   i_GeometryProjectedFactory,
-  i_ActiveMapsConfig,
-  i_MapTypeGUIConfigList,
   i_RegionProcessParamsFrame,
   fr_MapSelect,
   u_CommonFormAndFrameParents;
@@ -99,9 +96,6 @@ type
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FPolygLL: IGeometryLonLatPolygon;
-    FMainMapsConfig: IMainMapsConfig;
-    FFullMapsSet: IMapTypeSet;
-    FGUIConfigList: IMapTypeGUIConfigList;
     FfrMapSelect: TfrMapSelect;
 
   private
@@ -126,9 +120,7 @@ type
       const ALanguageManager: ILanguageManager;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const AMainMapsConfig: IMainMapsConfig;
-      const AFullMapsSet: IMapTypeSet;
-      const AGUIConfigList: IMapTypeGUIConfigList
+      const AMapSelectFrameBuilder: IMapSelectFrameBuilder
     ); reintroduce;
     destructor Destroy; override;
   end;
@@ -209,23 +201,14 @@ constructor TfrTilesDownload.Create(
   const ALanguageManager: ILanguageManager;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const AMainMapsConfig: IMainMapsConfig;
-  const AFullMapsSet: IMapTypeSet;
-  const AGUIConfigList: IMapTypeGUIConfigList
+  const AMapSelectFrameBuilder: IMapSelectFrameBuilder
 );
 begin
   inherited Create(ALanguageManager);
   FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
-  FMainMapsConfig := AMainMapsConfig;
-  FFullMapsSet := AFullMapsSet;
-  FGUIConfigList := AGUIConfigList;
   FfrMapSelect :=
-    TfrMapSelect.Create(
-      ALanguageManager,
-      AMainMapsConfig,
-      AGUIConfigList,
-      AFullMapsSet,
+    AMapSelectFrameBuilder.Build(
       mfAll, // show maps and layers
       false,  // add -NO- to combobox
       false,  // show disabled map

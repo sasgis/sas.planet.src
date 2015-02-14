@@ -27,9 +27,6 @@ uses
   Forms,
   i_LanguageManager,
   i_GeometryLonLat,
-  i_MapTypeSet,
-  i_ActiveMapsConfig,
-  i_MapTypeGUIConfigList,
   i_ImageResamplerFactory,
   i_ImageResamplerConfig,
   i_CoordConverterFactory,
@@ -38,6 +35,7 @@ uses
   i_GlobalViewMainConfig,
   i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
+  fr_MapSelect,
   fr_TilesGenPrev;
 
 type
@@ -58,9 +56,7 @@ type
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
-      const AMainMapsConfig: IMainMapsConfig;
-      const AFullMapsSet: IMapTypeSet;
-      const AGUIConfigList: IMapTypeGUIConfigList;
+      const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const AViewConfig: IGlobalViewMainConfig;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -88,9 +84,7 @@ uses
 constructor TProviderTilesGenPrev.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
-  const AMainMapsConfig: IMainMapsConfig;
-  const AFullMapsSet: IMapTypeSet;
-  const AGUIConfigList: IMapTypeGUIConfigList;
+  const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const AViewConfig: IGlobalViewMainConfig;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -102,9 +96,7 @@ begin
   inherited Create(
     AProgressFactory,
     ALanguageManager,
-    AMainMapsConfig,
-    AFullMapsSet,
-    AGUIConfigList
+    AMapSelectFrameBuilder
   );
   FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
@@ -119,9 +111,7 @@ begin
   Result :=
     TfrTilesGenPrev.Create(
       Self.LanguageManager,
-      Self.MainMapsConfig,
-      Self.FullMapsSet,
-      Self.GUIConfigList,
+      Self.MapSelectFrameBuilder,
       FImageResamplerFactoryList,
       FImageResamplerConfig
     );

@@ -67,6 +67,7 @@ type
 
   public
     constructor Create(
+      const AMapType: IMapTypeChangeable;
       const AConfig: IFillingMapLayerConfig
     );
     destructor Destroy; override;
@@ -88,15 +89,20 @@ uses
 { TSourceDataUpdateInRectByMap }
 
 constructor TSourceDataUpdateInRectByFillingMap.Create(
+  const AMapType: IMapTypeChangeable;
   const AConfig: IFillingMapLayerConfig
 );
 begin
+  Assert(Assigned(AMapType));
+  Assert(Assigned(AConfig));
   inherited Create;
+  FMapType := AMapType;
   FConfig := AConfig;
   FCS := GSync.SyncVariable.Make(Self.ClassName);
 
   FMapTypeListener := TNotifyNoMmgEventListener.Create(Self.OnMapChange);
   FConfig.ChangeNotifier.Add(FMapTypeListener);
+  FMapType.ChangeNotifier.Add(FMapTypeListener);
   OnMapChange;
 end;
 
@@ -105,8 +111,12 @@ begin
   if Assigned(FMapType) and Assigned(FMapTypeListener) then begin
     FMapType.ChangeNotifier.Remove(FMapTypeListener);
     FMapType := nil;
-    FMapTypeListener := nil;
   end;
+  if Assigned(FConfig) and Assigned(FMapTypeListener) then begin
+    FConfig.ChangeNotifier.Remove(FMapTypeListener);
+    FConfig := nil;
+  end;
+  FMapTypeListener := nil;
   if Assigned(FMapListened) and Assigned(FMapListener) then begin
     _RemoveListener(FMapListened);
   end;
@@ -135,7 +145,7 @@ procedure TSourceDataUpdateInRectByFillingMap.OnMapChange;
 var
   VMap: IMapType;
 begin
-  VMap := FConfig.GetStatic.ActualMap;
+  VMap := FMapType.GetStatic;
   FCS.BeginWrite;
   try
     if Assigned(FMapListened) and not (FMapListened = VMap) then begin

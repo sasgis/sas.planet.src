@@ -27,12 +27,10 @@ uses
   Forms,
   i_LanguageManager,
   i_GeometryLonLat,
-  i_MapTypeSet,
-  i_ActiveMapsConfig,
-  i_MapTypeGUIConfigList,
   i_RegionProcessProgressInfoInternalFactory,
   i_RegionProcessParamsFrame,
   i_RegionProcessProvider,
+  fr_MapSelect,
   u_BaseInterfacedObject;
 
 type
@@ -40,9 +38,7 @@ type
   private
     FFrame: TFrame;
     FLanguageManager: ILanguageManager;
-    FMainMapsConfig: IMainMapsConfig;
-    FFullMapsSet: IMapTypeSet;
-    FGUIConfigList: IMapTypeGUIConfigList;
+    FMapSelectFrameBuilder: IMapSelectFrameBuilder;
     FProgressFactory: IRegionProcessProgressInfoInternalFactory;
     function GetParamsFrame: IRegionProcessParamsFrameBase;
   protected
@@ -62,16 +58,12 @@ type
     property ParamsFrame: IRegionProcessParamsFrameBase read GetParamsFrame;
     property ProgressFactory: IRegionProcessProgressInfoInternalFactory read FProgressFactory;
     property LanguageManager: ILanguageManager read FLanguageManager;
-    property MainMapsConfig: IMainMapsConfig read FMainMapsConfig;
-    property FullMapsSet: IMapTypeSet read FFullMapsSet;
-    property GUIConfigList: IMapTypeGUIConfigList read FGUIConfigList;
+    property MapSelectFrameBuilder: IMapSelectFrameBuilder read FMapSelectFrameBuilder;
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
-      const AMainMapsConfig: IMainMapsConfig;
-      const AFullMapsSet: IMapTypeSet;
-      const AGUIConfigList: IMapTypeGUIConfigList
+      const AMapSelectFrameBuilder: IMapSelectFrameBuilder
     );
     destructor Destroy; override;
   end;
@@ -86,17 +78,16 @@ uses
 constructor TExportProviderAbstract.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
-  const AMainMapsConfig: IMainMapsConfig;
-  const AFullMapsSet: IMapTypeSet;
-  const AGUIConfigList: IMapTypeGUIConfigList
+  const AMapSelectFrameBuilder: IMapSelectFrameBuilder
 );
 begin
+  Assert(Assigned(AProgressFactory));
+  Assert(Assigned(ALanguageManager));
+  Assert(Assigned(AMapSelectFrameBuilder));
   inherited Create;
   FProgressFactory := AProgressFactory;
   FLanguageManager := ALanguageManager;
-  FMainMapsConfig := AMainMapsConfig;
-  FFullMapsSet := AFullMapsSet;
-  FGUIConfigList := AGUIConfigList;
+  FMapSelectFrameBuilder := AMapSelectFrameBuilder;
 end;
 
 destructor TExportProviderAbstract.Destroy;

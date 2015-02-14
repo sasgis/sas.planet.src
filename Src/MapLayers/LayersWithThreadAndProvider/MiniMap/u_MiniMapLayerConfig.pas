@@ -28,9 +28,6 @@ uses
   i_ThreadConfig,
   i_MiniMapLayerConfig,
   i_ActiveMapsConfig,
-  i_MapType,
-  i_MapTypeSet,
-  i_MapTypeSetBuilder,
   i_UseTilePrevZoomConfig,
   u_ConfigDataElementComplexBase;
 
@@ -41,7 +38,8 @@ type
 
     FLocationConfig: IMiniMapLayerLocationConfig;
     FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
-    FMapsConfig: IActivMapWithLayers;
+    FMapConfig: IActiveMapConfig;
+    FLayersConfig: IActiveLayersConfig;
     FThreadConfig: IThreadConfig;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
@@ -52,28 +50,26 @@ type
 
     function GetLocationConfig: IMiniMapLayerLocationConfig;
     function GetUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
-    function GetMapsConfig: IActivMapWithLayers;
+    function GetMapConfig: IActiveMapConfig;
+    function GetLayersConfig: IActiveLayersConfig;
     function GetThreadConfig: IThreadConfig;
   public
-    constructor Create(
-      const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
-      const AMainMap: IMapTypeChangeable;
-      const AMapsSet: IMapTypeSet;
-      const ALayersSet: IMapTypeSet
-    );
+    constructor Create;
   end;
 
 implementation
 
 uses
   Classes,
+  c_ZeroGUID,
   u_BaseInterfacedObject,
   u_ConfigDataElementBase,
   u_ConfigSaveLoadStrategyBasicUseProvider,
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
+  u_ActiveMapConfig,
+  u_ActiveLayersConfig,
   u_ThreadConfig,
-  u_UseTilePrevZoomConfig,
-  u_MiniMapMapsConfig;
+  u_UseTilePrevZoomConfig;
 
 type
   TMiniMapLayerLocationConfigStatic = class(TBaseInterfacedObject, IMiniMapLayerLocationConfigStatic)
@@ -313,12 +309,7 @@ end;
 
 { TMiniMapLayerConfig }
 
-constructor TMiniMapLayerConfig.Create(
-  const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
-  const AMainMap: IMapTypeChangeable;
-  const AMapsSet: IMapTypeSet;
-  const ALayersSet: IMapTypeSet
-);
+constructor TMiniMapLayerConfig.Create;
 begin
   inherited Create;
   FMasterAlpha := 150;
@@ -329,14 +320,11 @@ begin
   FLocationConfig := TMiniMapLayerLocationConfig.Create;
   Add(FLocationConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
 
-  FMapsConfig :=
-    TMiniMapMapsConfig.Create(
-      AMapTypeSetBuilderFactory,
-      AMainMap,
-      AMapsSet,
-      ALayersSet
-    );
-  Add(FMapsConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps'));
+  FMapConfig := TActiveMapConfig.Create(True, CGUID_Zero);
+  Add(FMapConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps'));
+
+  FLayersConfig := TActiveLayersConfig.Create;
+  Add(FLayersConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps'));
 
   FThreadConfig := TThreadConfig.Create(tpLower);
   Add(FThreadConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
@@ -360,14 +348,19 @@ begin
   AConfigData.WriteInteger('Alpha', FMasterAlpha);
 end;
 
+function TMiniMapLayerConfig.GetLayersConfig: IActiveLayersConfig;
+begin
+  Result := FLayersConfig;
+end;
+
 function TMiniMapLayerConfig.GetLocationConfig: IMiniMapLayerLocationConfig;
 begin
   Result := FLocationConfig;
 end;
 
-function TMiniMapLayerConfig.GetMapsConfig: IActivMapWithLayers;
+function TMiniMapLayerConfig.GetMapConfig: IActiveMapConfig;
 begin
-  Result := FMapsConfig;
+  Result := FMapConfig;
 end;
 
 function TMiniMapLayerConfig.GetMasterAlpha: Integer;

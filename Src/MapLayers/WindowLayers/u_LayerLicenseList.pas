@@ -134,10 +134,13 @@ begin
 end;
 
 procedure TLayerLicenseList.OnListChange;
+var
+  VList: IStringListStatic;
 begin
   ViewUpdateLock;
   try
-    Visible := FLicenseList.GetStatic.Count > 0;
+    VList := FLicenseList.GetStatic;
+    Visible := Assigned(VList) and (VList.Count > 0);
     SetNeedUpdateBitmapSize;
     SetNeedUpdateBitmapDraw;
   finally

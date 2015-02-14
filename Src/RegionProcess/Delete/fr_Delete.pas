@@ -23,15 +23,11 @@ unit fr_Delete;
 interface
 
 uses
-  SysUtils,
   Classes,
   Controls,
   Forms,
   ComCtrls,
   i_LanguageManager,
-  i_MapTypeSet,
-  i_ActiveMapsConfig,
-  i_MapTypeGUIConfigList,
   i_GeometryLonLat,
   i_CoordConverterFactory,
   i_LocalCoordConverterChangeable,
@@ -39,6 +35,7 @@ uses
   i_MarkSystem,
   i_RegionProcessProgressInfoInternalFactory,
   i_RegionProcessProvider,
+  fr_MapSelect,
   u_CommonFormAndFrameParents;
 
 type
@@ -61,9 +58,7 @@ type
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
-      const AMainMapsConfig: IMainMapsConfig;
-      const AFullMapsSet: IMapTypeSet;
-      const AGUIConfigList: IMapTypeGUIConfigList;
+      const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const APosition: ILocalCoordConverterChangeable;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -85,9 +80,7 @@ uses
 constructor TfrDelete.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
-  const AMainMapsConfig: IMainMapsConfig;
-  const AFullMapsSet: IMapTypeSet;
-  const AGUIConfigList: IMapTypeGUIConfigList;
+  const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const APosition: ILocalCoordConverterChangeable;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -99,9 +92,7 @@ begin
     TProviderDeleteTiles.Create(
       AProgressFactory,
       ALanguageManager,
-      AMainMapsConfig,
-      AFullMapsSet,
-      AGUIConfigList,
+      AMapSelectFrameBuilder,
       AProjectionFactory,
       AVectorGeometryProjectedFactory
     );
@@ -109,9 +100,7 @@ begin
     TProviderDeleteMarks.Create(
       AProgressFactory,
       ALanguageManager,
-      AMainMapsConfig,
-      AFullMapsSet,
-      AGUIConfigList,
+      AMapSelectFrameBuilder,
       APosition,
       AVectorGeometryProjectedFactory,
       AMarkSystem

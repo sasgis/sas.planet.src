@@ -59,7 +59,6 @@ type
 implementation
 
 uses
-  ActiveX,
   i_InterfaceListSimple,
   u_InterfaceListSimple,
   u_SortFunc,
@@ -84,9 +83,7 @@ end;
 
 destructor TMapTypeListChangeableByActiveMapsSet.Destroy;
 var
-  VEnum: IEnumGUID;
-  VGuid: TGUID;
-  VCnt: Cardinal;
+  i: Integer;
   VMapType: IMapType;
 begin
   if Assigned(FSourceSet) and Assigned(FLayerSetListener) then begin
@@ -95,9 +92,8 @@ begin
     FSourceSet := nil;
   end;
   if Assigned(FLayersSet) and Assigned(FZOrderListener) then begin
-    VEnum := FLayersSet.GetIterator;
-    while VEnum.Next(1, VGuid, VCnt) = S_OK do begin
-      VMapType := FLayersSet.GetMapTypeByGUID(VGuid);
+    for i := 0 to FLayersSet.Count - 1 do begin
+      VMapType := FLayersSet.Items[i];
       if VMapType <> nil then begin
         VMapType.LayerDrawConfig.ChangeNotifier.Remove(FZOrderListener);
       end;
@@ -112,8 +108,6 @@ var
   VLayers: IMapTypeListBuilder;
   VZArray: array of Integer;
   i: Integer;
-  VEnum: IEnumUnknown;
-  VCnt: Integer;
   VCount: Integer;
   VMapType: IMapType;
   VList: IInterfaceListSimple;
@@ -123,12 +117,12 @@ begin
     VCount := FLayersSet.GetCount;
     VList := TInterfaceListSimple.Create;
     VList.Capacity := VCount;
-    VEnum := FLayersSet.GetMapTypeIterator;
-    while VEnum.Next(1, VMapType, @VCnt) = S_OK do begin
-      if Assigned(VMapType) then begin
-        VList.Add(VMapType);
-      end;
+    for i := 0 to VCount - 1 do begin
+      VMapType := FLayersSet.Items[i];
+      Assert(Assigned(VMapType));
+      VList.Add(VMapType);
     end;
+
     VCount := VList.GetCount;
     if VCount > 1 then begin
       SetLength(VZArray, VCount);
@@ -153,10 +147,8 @@ end;
 procedure TMapTypeListChangeableByActiveMapsSet.OnLayerSetChanged;
 var
   VNewSet: IMapTypeSet;
-  VEnum: IEnumGUID;
-  VGuid: TGUID;
-  VCnt: Cardinal;
   VMapType: IMapType;
+  i: Integer;
 begin
   VNewSet := FSourceSet.GetStatic;
   LockWrite;
@@ -164,25 +156,19 @@ begin
     if (FLayersSet <> nil) and FLayersSet.IsEqual(VNewSet) then begin
       Exit;
     end;
-    if FLayersSet <> nil then begin
-      VEnum := FLayersSet.GetIterator;
-      while VEnum.Next(1, VGuid, VCnt) = S_OK do begin
-        if (VNewSet = nil) or (VNewSet.GetMapTypeByGUID(VGuid) = nil) then begin
-          VMapType := FLayersSet.GetMapTypeByGUID(VGuid);
-          if VMapType <> nil then begin
-            VMapType.LayerDrawConfig.ChangeNotifier.Remove(FZOrderListener);
-          end;
+    if Assigned(FLayersSet) then begin
+      for i := 0 to FLayersSet.Count - 1 do begin
+        VMapType := FLayersSet.Items[i];
+        if not Assigned(VNewSet) or not Assigned(VNewSet.GetMapTypeByGUID(VMapType.GUID)) then begin
+          VMapType.LayerDrawConfig.ChangeNotifier.Remove(FZOrderListener);
         end;
       end;
     end;
     if VNewSet <> nil then begin
-      VEnum := VNewSet.GetIterator;
-      while VEnum.Next(1, VGuid, VCnt) = S_OK do begin
-        if (FLayersSet = nil) or (FLayersSet.GetMapTypeByGUID(VGuid) = nil) then begin
-          VMapType := VNewSet.GetMapTypeByGUID(VGuid);
-          if VMapType <> nil then begin
-            VMapType.LayerDrawConfig.ChangeNotifier.Add(FZOrderListener);
-          end;
+      for i := 0 to VNewSet.Count - 1 do begin
+        VMapType := VNewSet.Items[i];
+        if not Assigned(FLayersSet) or not Assigned(FLayersSet.GetMapTypeByGUID(VMapType.GUID)) then begin
+          VMapType.LayerDrawConfig.ChangeNotifier.Add(FZOrderListener);
         end;
       end;
     end;

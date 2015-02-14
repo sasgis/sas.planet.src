@@ -35,7 +35,6 @@ type
 implementation
 
 uses
-  ActiveX,
   Classes,
   i_MapType,
   i_MapTypeSet,
@@ -85,30 +84,29 @@ var
   VMapType: IMapType;
   VLangIndex: Integer;
   VLicense: string;
-  VEnum: IEnumGUID;
-  VGUID: TGUID;
-  VCnt: Cardinal;
+  i: Integer;
 begin
-  VStringList := TStringList.Create;
-  try
-    VLangIndex := FLanguageManager.CurrentLanguageIndex;
-    VMapsSet := FMapsSet.GetStatic;
-    VEnum := VMapsSet.GetIterator;
-    while VEnum.Next(1, VGUID, VCnt) = S_OK do begin
-      VMapType := VMapsSet.GetMapTypeByGUID(VGUID);
-      if VMapType <> nil then begin
+  Result := nil;
+  VMapsSet := FMapsSet.GetStatic;
+  if Assigned(VMapsSet) then begin
+    VStringList := TStringList.Create;
+    try
+      VLangIndex := FLanguageManager.CurrentLanguageIndex;
+      for i := 0 to VMapsSet.Count - 1 do begin
+        VMapType := VMapsSet.Items[i];
+        Assert(Assigned(VMapType));
         VLicense := VMapType.Zmp.License.GetString(VLangIndex);
         if VLicense <> '' then begin
           VStringList.Add(VLicense);
         end;
       end;
+      VStatic := TStringListStatic.CreateWithOwn(VStringList);
+      VStringList := nil;
+    finally
+      VStringList.Free;
     end;
-    VStatic := TStringListStatic.CreateWithOwn(VStringList);
-    VStringList := nil;
-  finally
-    VStringList.Free;
+    Result := VStatic;
   end;
-  Result := VStatic;
 end;
 
 function TActiveMapsLicenseList.GetStatic: IStringListStatic;

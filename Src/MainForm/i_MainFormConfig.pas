@@ -99,8 +99,11 @@ type
     function GetSearchHistory: IStringHistory;
     property SearchHistory: IStringHistory read GetSearchHistory;
 
-    function GetMainMapsConfig: IMainMapsConfig;
-    property MainMapsConfig: IMainMapsConfig read GetMainMapsConfig;
+    function GetMainMapConfig: IActiveMapConfig;
+    property MainMapConfig: IActiveMapConfig read GetMainMapConfig;
+
+    function GetMapLayersConfig: IActiveLayersConfig;
+    property MapLayersConfig: IActiveLayersConfig read GetMapLayersConfig;
 
     function GetDownloadUIConfig: IDownloadUIConfig;
     property DownloadUIConfig: IDownloadUIConfig read GetDownloadUIConfig;

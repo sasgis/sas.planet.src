@@ -32,10 +32,7 @@ uses
   i_CoordConverterFactory,
   i_CoordConverterList,
   i_GeometryLonLat,
-  i_MapTypeSet,
   i_UseTilePrevZoomConfig,
-  i_ActiveMapsConfig,
-  i_MapTypeGUIConfigList,
   i_BitmapTileSaveLoadFactory,
   i_ArchiveReadWriteFactory,
   i_LocalCoordConverterFactorySimpe,
@@ -54,6 +51,7 @@ uses
   i_RegionProcessProgressInfoInternalFactory,
   i_RegionProcessProvider,
   i_InterfaceListStatic,
+  fr_MapSelect,
   u_CommonFormAndFrameParents;
 
 type
@@ -72,10 +70,8 @@ type
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
-      const AMainMapsConfig: IMainMapsConfig;
-      const AFullMapsSet: IMapTypeSet;
+      const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const AActiveMapsSet: IMapTypeListChangeable;
-      const AGUIConfigList: IMapTypeGUIConfigList;
       const AViewConfig: IGlobalViewMainConfig;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
       const AProjectionFactory: IProjectionInfoFactory;
@@ -125,10 +121,8 @@ uses
 constructor TfrCombine.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
-  const AMainMapsConfig: IMainMapsConfig;
-  const AFullMapsSet: IMapTypeSet;
+  const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const AActiveMapsSet: IMapTypeListChangeable;
-  const AGUIConfigList: IMapTypeGUIConfigList;
   const AViewConfig: IGlobalViewMainConfig;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
   const AProjectionFactory: IProjectionInfoFactory;
@@ -159,10 +153,8 @@ begin
     TProviderMapCombineJPG.Create(
       AProgressFactory,
       ALanguageManager,
-      AMainMapsConfig,
-      AFullMapsSet,
+      AMapSelectFrameBuilder,
       AActiveMapsSet,
-      AGUIConfigList,
       AViewConfig,
       AUseTilePrevZoomConfig,
       AProjectionFactory,
@@ -186,10 +178,8 @@ begin
     TProviderMapCombinePNG.Create(
       AProgressFactory,
       ALanguageManager,
-      AMainMapsConfig,
-      AFullMapsSet,
+      AMapSelectFrameBuilder,
       AActiveMapsSet,
-      AGUIConfigList,
       AViewConfig,
       AUseTilePrevZoomConfig,
       AProjectionFactory,
@@ -213,10 +203,8 @@ begin
     TProviderMapCombineBMP.Create(
       AProgressFactory,
       ALanguageManager,
-      AMainMapsConfig,
-      AFullMapsSet,
+      AMapSelectFrameBuilder,
       AActiveMapsSet,
-      AGUIConfigList,
       AViewConfig,
       AUseTilePrevZoomConfig,
       AProjectionFactory,
@@ -240,10 +228,8 @@ begin
     TProviderMapCombineECW.Create(
       AProgressFactory,
       ALanguageManager,
-      AMainMapsConfig,
-      AFullMapsSet,
+      AMapSelectFrameBuilder,
       AActiveMapsSet,
-      AGUIConfigList,
       AViewConfig,
       AUseTilePrevZoomConfig,
       AProjectionFactory,
@@ -267,10 +253,8 @@ begin
     TProviderMapCombineJP2.Create(
       AProgressFactory,
       ALanguageManager,
-      AMainMapsConfig,
-      AFullMapsSet,
+      AMapSelectFrameBuilder,
       AActiveMapsSet,
-      AGUIConfigList,
       AViewConfig,
       AUseTilePrevZoomConfig,
       AProjectionFactory,
@@ -295,10 +279,8 @@ begin
     TProviderMapCombineJP2.Create(
       AProgressFactory,
       ALanguageManager,
-      AMainMapsConfig,
-      AFullMapsSet,
+      AMapSelectFrameBuilder,
       AActiveMapsSet,
-      AGUIConfigList,
       AViewConfig,
       AUseTilePrevZoomConfig,
       AProjectionFactory,
@@ -323,10 +305,8 @@ begin
     TProviderMapCombineKMZ.Create(
       AProgressFactory,
       ALanguageManager,
-      AMainMapsConfig,
-      AFullMapsSet,
+      AMapSelectFrameBuilder,
       AActiveMapsSet,
-      AGUIConfigList,
       AViewConfig,
       AUseTilePrevZoomConfig,
       AProjectionFactory,

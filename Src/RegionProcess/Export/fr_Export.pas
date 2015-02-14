@@ -37,14 +37,11 @@ uses
   i_ArchiveReadWriteFactory,
   i_LocalCoordConverterFactorySimpe,
   i_Bitmap32BufferFactory,
-  i_MapTypeSet,
-  i_MapTypeListBuilder,
-  i_ActiveMapsConfig,
   i_TileFileNameGeneratorsList,
-  i_MapTypeGUIConfigList,
   i_RegionProcessProgressInfoInternalFactory,
   i_RegionProcessProvider,
   i_InterfaceListStatic,
+  fr_MapSelect,
   u_CommonFormAndFrameParents;
 
 type
@@ -62,10 +59,7 @@ type
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
-      const AMainMapsConfig: IMainMapsConfig;
-      const AFullMapsSet: IMapTypeSet;
-      const AGUIConfigList: IMapTypeGUIConfigList;
-      const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
+      const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const ACoordConverterFactory: ICoordConverterFactory;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionFactory: IProjectionInfoFactory;
@@ -112,10 +106,7 @@ uses
 constructor TfrExport.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
-  const AMainMapsConfig: IMainMapsConfig;
-  const AFullMapsSet: IMapTypeSet;
-  const AGUIConfigList: IMapTypeGUIConfigList;
-  const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
+  const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const ACoordConverterFactory: ICoordConverterFactory;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionFactory: IProjectionInfoFactory;
@@ -138,9 +129,7 @@ begin
     TExportProviderIPhone.Create(
       AProgressFactory,
       ALanguageManager,
-      AMainMapsConfig,
-      AFullMapsSet,
-      AGUIConfigList,
+      AMapSelectFrameBuilder,
       ACoordConverterFactory,
       ALocalConverterFactory,
       AProjectionFactory,
@@ -156,9 +145,7 @@ begin
     TExportProviderIPhone.Create(
       AProgressFactory,
       ALanguageManager,
-      AMainMapsConfig,
-      AFullMapsSet,
-      AGUIConfigList,
+      AMapSelectFrameBuilder,
       ACoordConverterFactory,
       ALocalConverterFactory,
       AProjectionFactory,
@@ -174,9 +161,7 @@ begin
     TExportProviderGEKml.Create(
       AProgressFactory,
       ALanguageManager,
-      AMainMapsConfig,
-      AFullMapsSet,
-      AGUIConfigList,
+      AMapSelectFrameBuilder,
       AProjectionFactory,
       AVectorGeometryProjectedFactory
     );
@@ -187,9 +172,7 @@ begin
     TExportProviderYaMobileV3.Create(
       AProgressFactory,
       ALanguageManager,
-      AMainMapsConfig,
-      AFullMapsSet,
-      AGUIConfigList,
+      AMapSelectFrameBuilder,
       AProjectionFactory,
       AVectorGeometryProjectedFactory,
       ABitmap32StaticFactory,
@@ -204,9 +187,7 @@ begin
     TExportProviderYaMobileV4.Create(
       AProgressFactory,
       ALanguageManager,
-      AMainMapsConfig,
-      AFullMapsSet,
-      AGUIConfigList,
+      AMapSelectFrameBuilder,
       AProjectionFactory,
       AVectorGeometryProjectedFactory,
       ABitmap32StaticFactory,
@@ -221,9 +202,7 @@ begin
     TExportProviderAUX.Create(
       AProgressFactory,
       ALanguageManager,
-      AMainMapsConfig,
-      AFullMapsSet,
-      AGUIConfigList,
+      AMapSelectFrameBuilder,
       AProjectionFactory,
       AVectorGeometryProjectedFactory
     );
@@ -234,9 +213,7 @@ begin
     TExportProviderZip.Create(
       AProgressFactory,
       ALanguageManager,
-      AMainMapsConfig,
-      AFullMapsSet,
-      AGUIConfigList,
+      AMapSelectFrameBuilder,
       AProjectionFactory,
       AVectorGeometryProjectedFactory,
       AArchiveReadWriteFactory,
@@ -249,9 +226,7 @@ begin
     TExportProviderTar.Create(
       AProgressFactory,
       ALanguageManager,
-      AMainMapsConfig,
-      AFullMapsSet,
-      AGUIConfigList,
+      AMapSelectFrameBuilder,
       AProjectionFactory,
       AVectorGeometryProjectedFactory,
       AArchiveReadWriteFactory,
@@ -264,9 +239,7 @@ begin
     TExportProviderJNX.Create(
       AProgressFactory,
       ALanguageManager,
-      AMainMapsConfig,
-      AFullMapsSet,
-      AGUIConfigList,
+      AMapSelectFrameBuilder,
       AProjectionFactory,
       AVectorGeometryProjectedFactory,
       ABitmapTileSaveLoadFactory,
@@ -280,9 +253,7 @@ begin
     TExportProviderOgf2.Create(
       AProgressFactory,
       ALanguageManager,
-      AMainMapsConfig,
-      AFullMapsSet,
-      AGUIConfigList,
+      AMapSelectFrameBuilder,
       AProjectionFactory,
       AVectorGeometryProjectedFactory,
       ABitmap32StaticFactory,
@@ -297,9 +268,7 @@ begin
     TExportProviderCE.Create(
       AProgressFactory,
       ALanguageManager,
-      AMainMapsConfig,
-      AFullMapsSet,
-      AGUIConfigList,
+      AMapSelectFrameBuilder,
       AProjectionFactory,
       AVectorGeometryProjectedFactory,
       ACoordConverterFactory
@@ -311,9 +280,7 @@ begin
     TExportProviderRMapsSQLite.Create(
       AProgressFactory,
       ALanguageManager,
-      AMainMapsConfig,
-      AFullMapsSet,
-      AGUIConfigList,
+      AMapSelectFrameBuilder,
       AProjectionFactory,
       AVectorGeometryProjectedFactory,
       ABitmap32StaticFactory,

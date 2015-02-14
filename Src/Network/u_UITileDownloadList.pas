@@ -58,7 +58,6 @@ type
 implementation
 
 uses
-  ActiveX,
   i_InterfaceListSimple,
   i_MapType,
   u_InterfaceListSimple,
@@ -79,16 +78,16 @@ constructor TUITileDownloadList.Create(
   const AErrorLogger: ITileErrorLogger
 );
 var
-  VEnum: IEnumUnknown;
-  VCnt: Integer;
   VDownload: IInterface;
   VList: IInterfaceListSimple;
   VMapType: IMapType;
+  i: Integer;
 begin
+  Assert(Assigned(AMapsSet));
   inherited Create;
   VList := TInterfaceListSimple.Create;
-  VEnum := AMapsSet.GetMapTypeIterator;
-  while VEnum.Next(1, VMapType, @VCnt) = S_OK do begin
+  for i := 0 to AMapsSet.Count - 1 do begin
+    VMapType := AMapsSet.Items[i];
     if VMapType.Zmp.TileDownloaderConfig.Enabled then begin
       VDownload :=
         TUiTileDownload.Create(
@@ -106,6 +105,7 @@ begin
       VList.Add(VDownload);
     end;
   end;
+
   FList := VList.MakeStaticAndClear;
 end;
 

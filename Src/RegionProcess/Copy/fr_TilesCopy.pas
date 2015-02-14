@@ -100,7 +100,7 @@ type
     procedure chkSetTargetVersionToClick(Sender: TObject);
   private
     FMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
-    FMainMapsConfig: IMainMapsConfig;
+    FMainMapConfig: IActiveMapConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
     FfrZoomsSelect: TfrZoomsSelect;
@@ -128,7 +128,7 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
-      const AMainMapsConfig: IMainMapsConfig;
+      const AMainMapConfig: IActiveMapConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const ATileStorageTypeList: ITileStorageTypeListStatic
@@ -153,14 +153,14 @@ uses
 constructor TfrTilesCopy.Create(
   const ALanguageManager: ILanguageManager;
   const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
-  const AMainMapsConfig: IMainMapsConfig;
+  const AMainMapConfig: IActiveMapConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const ATileStorageTypeList: ITileStorageTypeListStatic
 );
 begin
   inherited Create(ALanguageManager);
-  FMainMapsConfig := AMainMapsConfig;
+  FMainMapConfig := AMainMapConfig;
   FMapTypeListBuilderFactory := AMapTypeListBuilderFactory;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
@@ -281,7 +281,7 @@ begin
   FfrZoomsSelect.Show(pnlZoom);
   FfrCacheTypeList.Show(pnlCacheTypes);
   FfrCacheTypeList.IntCode := c_File_Cache_Id_SAS;
-  VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetStatic.GUID;
+  VActiveMapGUID := FMainMapConfig.MainMapGUID;
   chklstMaps.Items.Clear;
   VGUIDList := FGUIConfigList.OrderedMapGUIDList;
   For i := 0 to VGUIDList.Count - 1 do begin

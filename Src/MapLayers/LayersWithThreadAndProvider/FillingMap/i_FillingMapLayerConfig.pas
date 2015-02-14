@@ -25,7 +25,6 @@ interface
 uses
   t_Bitmap32,
   t_FillingMapModes,
-  i_MapType,
   i_ThreadConfig,
   i_ActiveMapsConfig,
   i_ConfigDataElement;
@@ -36,11 +35,8 @@ type
     function GetVisible: Boolean;
     property Visible: Boolean read GetVisible;
 
-    function GetSelectedMap: IMapType;
-    property SelectedMap: IMapType read GetSelectedMap;
-
-    function GetActualMap: IMapType;
-    property ActualMap: IMapType read GetActualMap;
+    function GetSelectedMap: TGUID;
+    property SelectedMap: TGUID read GetSelectedMap;
 
     function GetUseRelativeZoom: Boolean;
     property UseRelativeZoom: Boolean read GetUseRelativeZoom;
@@ -68,11 +64,6 @@ type
 
     function GetFillLastDay: TDateTime;
     property FillLastDay: TDateTime read GetFillLastDay;
-  end;
-
-  IFillingMapMapsConfig = interface(IMainActiveMap)
-    ['{5000C2DF-8CE0-4BC6-9238-28C0367C0C83}']
-    function GetActualMap: IMapType;
   end;
 
   IFillingMapLayerConfig = interface(IConfigDataElement)
@@ -120,8 +111,8 @@ type
     function GetThreadConfig: IThreadConfig;
     property ThreadConfig: IThreadConfig read GetThreadConfig;
 
-    function GetSourceMap: IFillingMapMapsConfig;
-    property SourceMap: IFillingMapMapsConfig read GetSourceMap;
+    function GetSourceMap: IActiveMapConfig;
+    property SourceMap: IActiveMapConfig read GetSourceMap;
 
     function GetStatic: IFillingMapLayerConfigStatic;
   end;

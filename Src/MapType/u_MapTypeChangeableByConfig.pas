@@ -18,35 +18,36 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_MapTypeChangeableByNotifier;
+unit u_MapTypeChangeableByConfig;
 
 interface
 
 uses
-  Windows,
   SysUtils,
   i_Notifier,
   i_Listener,
   i_MapType,
   i_MapTypeSet,
-  u_ConfigDataElementBase;
+  i_ActiveMapsConfig,
+  u_ChangeableBase;
 
 type
-  TMapTypeChangeableByNotifier = class(TConfigDataElementBaseEmptySaveLoad, IMapTypeChangeable)
+  TMapTypeChangeableByConfig = class(TChangeableBase, IMapTypeChangeable)
   private
-    FIsAllowNil: Boolean;
+    FConfig: IActiveMapConfig;
     FMapsSet: IMapTypeSet;
+
+    FListener: IListener;
+
     FStatic: IMapType;
-  private
-    FMainMapChangeNotyfier: INotifier;
-    FMainMapListener: IListener;
-    procedure OnMainMapChange(const AGUID: TGUID);
+    FStaticCS: IReadWriteSync;
+
+    procedure OnConfigChange;
   private
     function GetStatic: IMapType;
   public
     constructor Create(
-      const AIsAllowNil: Boolean;
-      const AMainMapChangeNotyfier: INotifier;
+      const AConfig: IActiveMapConfig;
       const AMapsSet: IMapTypeSet
     );
     destructor Destroy; override;
@@ -55,83 +56,71 @@ type
 implementation
 
 uses
-  ActiveX,
   c_ZeroGUID,
-  u_NotifyWithGUIDEvent;
+  u_ListenerByEvent,
+  u_Synchronizer;
 
-{ TActiveMapConfigNew }
+{ TMapTypeChangeableByConfig }
 
-constructor TMapTypeChangeableByNotifier.Create(
-  const AIsAllowNil: Boolean;
-  const AMainMapChangeNotyfier: INotifier;
+constructor TMapTypeChangeableByConfig.Create(
+  const AConfig: IActiveMapConfig;
   const AMapsSet: IMapTypeSet
 );
-var
-  i: Cardinal;
-  VGUID: TGUID;
 begin
-  Assert(AMainMapChangeNotyfier <> nil);
-  Assert(AMapsSet <> nil);
-  inherited Create;
-  FIsAllowNil := AIsAllowNil;
+  Assert(Assigned(AConfig));
+  Assert(Assigned(AMapsSet));
+  inherited Create(GSync.SyncVariable.Make(ClassName + 'Notifiers'));
+  FConfig := AConfig;
   FMapsSet := AMapsSet;
-  FMainMapChangeNotyfier := AMainMapChangeNotyfier;
-  FMainMapListener := TNotifyWithGUIDEventListener.Create(Self.OnMainMapChange);
-  FMainMapChangeNotyfier.Add(FMainMapListener);
-  if FIsAllowNil then begin
-    FStatic := nil;
-  end else begin
-    if FMapsSet.GetIterator.Next(1, VGUID, i) <> S_OK then begin
-      raise Exception.Create('Empty maps list');
-    end;
-    FStatic := FMapsSet.GetMapTypeByGUID(VGUID);
-  end;
+
+  FStaticCS := GSync.SyncVariable.Make(ClassName);
+  FListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
+  FConfig.ChangeNotifier.Add(FListener);
+  OnConfigChange;
 end;
 
-destructor TMapTypeChangeableByNotifier.Destroy;
+destructor TMapTypeChangeableByConfig.Destroy;
 begin
-  if Assigned(FMainMapChangeNotyfier) and Assigned(FMainMapListener) then begin
-    FMainMapChangeNotyfier.Remove(FMainMapListener);
-    FMainMapListener := nil;
-    FMainMapChangeNotyfier := nil;
+  if Assigned(FConfig) and Assigned(FListener) then begin
+    FConfig.ChangeNotifier.Remove(FListener);
+    FListener := nil;
+    FConfig := nil;
   end;
-  FMapsSet := nil;
   inherited;
 end;
 
-function TMapTypeChangeableByNotifier.GetStatic: IMapType;
+function TMapTypeChangeableByConfig.GetStatic: IMapType;
 begin
-  LockRead;
+  FStaticCS.BeginRead;
   try
     Result := FStatic;
   finally
-    UnlockRead;
+    FStaticCS.EndRead;
   end;
 end;
 
-procedure TMapTypeChangeableByNotifier.OnMainMapChange(const AGUID: TGUID);
+procedure TMapTypeChangeableByConfig.OnConfigChange;
 var
   VGUID: TGUID;
   VMapType: IMapType;
+  VChanged: Boolean;
 begin
-  LockWrite;
+  VGUID := FConfig.MainMapGUID;
+  Assert(not IsEqualGUID(VGUID, CGUID_Zero));
+  VChanged := False;
+  FStaticCS.BeginWrite;
   try
-    VGUID := CGUID_Zero;
-    if Assigned(FStatic) then begin
-      VGUID := FStatic.GUID;
-    end;
-    if not IsEqualGUID(VGUID, AGUID) then begin
-      if IsEqualGUID(AGUID, CGUID_Zero) then begin
-        FStatic := nil;
-        SetChanged;
-      end else begin
-        VMapType := FMapsSet.GetMapTypeByGUID(AGUID);
-        FStatic := VMapType;
-        SetChanged;
-      end;
+    if not Assigned(FStatic) or not IsEqualGUID(VGUID, FStatic.GUID) then begin
+      VMapType := FMapsSet.GetMapTypeByGUID(VGUID);
+      Assert(Assigned(VMapType));
+      FStatic := VMapType;
+      VChanged := True;
     end;
   finally
-    UnlockWrite;
+    FStaticCS.EndWrite;
+  end;
+  if VChanged then begin
+    DoChangeNotify;
   end;
 end;
 

@@ -77,8 +77,11 @@ type
     function GetUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
     property UseTilePrevZoomConfig: IUseTilePrevZoomConfig read GetUseTilePrevZoomConfig;
 
-    function GetMapsConfig: IActivMapWithLayers;
-    property MapsConfig: IActivMapWithLayers read GetMapsConfig;
+    function GetMapConfig: IActiveMapConfig;
+    property MapConfig: IActiveMapConfig read GetMapConfig;
+
+    function GetLayersConfig: IActiveLayersConfig;
+    property LayersConfig: IActiveLayersConfig read GetLayersConfig;
 
     function GetThreadConfig: IThreadConfig;
     property ThreadConfig: IThreadConfig read GetThreadConfig;

@@ -36,11 +36,8 @@ uses
   i_GeometryProjected,
   i_GeometryLonLat,
   i_GeometryProjectedProvider,
-  i_MapTypeSet,
   i_UseTilePrevZoomConfig,
   i_Bitmap32BufferFactory,
-  i_ActiveMapsConfig,
-  i_MapTypeGUIConfigList,
   i_LocalCoordConverterFactorySimpe,
   i_BitmapPostProcessing,
   i_MapLayerGridsConfig,
@@ -54,6 +51,7 @@ uses
   i_MapTypeListChangeable,
   i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
+  fr_MapSelect,
   fr_MapCombine;
 
 type
@@ -106,10 +104,8 @@ type
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
-      const AMainMapsConfig: IMainMapsConfig;
-      const AFullMapsSet: IMapTypeSet;
+      const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const AActiveMapsSet: IMapTypeListChangeable;
-      const AGUIConfigList: IMapTypeGUIConfigList;
       const AViewConfig: IGlobalViewMainConfig;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
       const AProjectionFactory: IProjectionInfoFactory;
@@ -161,10 +157,8 @@ uses
 constructor TProviderMapCombineBase.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
-  const AMainMapsConfig: IMainMapsConfig;
-  const AFullMapsSet: IMapTypeSet;
+  const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const AActiveMapsSet: IMapTypeListChangeable;
-  const AGUIConfigList: IMapTypeGUIConfigList;
   const AViewConfig: IGlobalViewMainConfig;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
   const AProjectionFactory: IProjectionInfoFactory;
@@ -190,9 +184,7 @@ begin
   inherited Create(
     AProgressFactory,
     ALanguageManager,
-    AMainMapsConfig,
-    AFullMapsSet,
-    AGUIConfigList
+    AMapSelectFrameBuilder
   );
   FMapCalibrationList := AMapCalibrationList;
   FViewConfig := AViewConfig;
@@ -226,10 +218,8 @@ begin
       FCoordConverterList,
       FVectorGeometryProjectedFactory,
       FBitmapFactory,
-      Self.MainMapsConfig,
-      Self.FullMapsSet,
+      Self.MapSelectFrameBuilder,
       FActiveMapsSet,
-      Self.GUIConfigList,
       FViewConfig,
       FUseTilePrevZoomConfig,
       FMapCalibrationList,

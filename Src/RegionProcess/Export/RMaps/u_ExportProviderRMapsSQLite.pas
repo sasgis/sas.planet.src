@@ -27,15 +27,13 @@ uses
   i_GeometryLonLat,
   i_GeometryProjectedFactory,
   i_LanguageManager,
-  i_MapTypeSet,
-  i_ActiveMapsConfig,
-  i_MapTypeGUIConfigList,
   i_RegionProcessProgressInfoInternalFactory,
   i_CoordConverterFactory,
   i_LocalCoordConverterFactorySimpe,
   i_Bitmap32BufferFactory,
   i_BitmapTileSaveLoadFactory,
   u_ExportProviderAbstract,
+  fr_MapSelect,
   fr_ExportRMapsSQLite;
 
 type
@@ -56,9 +54,7 @@ type
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
-      const AMainMapsConfig: IMainMapsConfig;
-      const AFullMapsSet: IMapTypeSet;
-      const AGUIConfigList: IMapTypeGUIConfigList;
+      const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
@@ -90,9 +86,7 @@ uses
 constructor TExportProviderRMapsSQLite.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
-  const AMainMapsConfig: IMainMapsConfig;
-  const AFullMapsSet: IMapTypeSet;
-  const AGUIConfigList: IMapTypeGUIConfigList;
+  const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
@@ -105,9 +99,7 @@ begin
   inherited Create(
     AProgressFactory,
     ALanguageManager,
-    AMainMapsConfig,
-    AFullMapsSet,
-    AGUIConfigList
+    AMapSelectFrameBuilder
   );
   FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
@@ -122,9 +114,7 @@ begin
   Result :=
     TfrExportRMapsSQLite.Create(
       Self.LanguageManager,
-      Self.MainMapsConfig,
-      Self.FullMapsSet,
-      Self.GUIConfigList,
+      Self.MapSelectFrameBuilder,
       FBitmap32StaticFactory,
       FBitmapTileSaveLoadFactory
     );

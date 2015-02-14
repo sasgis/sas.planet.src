@@ -18,41 +18,31 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_MainActiveMap;
+unit u_ActiveMapConfig;
 
 interface
 
 uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_MapType,
-  i_MapTypeSet,
   i_ActiveMapsConfig,
-  u_ConfigDataElementComplexBase,
-  u_NotifyWithGUIDEvent;
+  u_ConfigDataElementBase;
 
 type
-  TMainActiveMap = class(TConfigDataElementComplexBase, IMainActiveMap)
+  TActiveMapConfig = class(TConfigDataElementBase, IActiveMapConfig)
   private
-    FIsAllowNil: Boolean;
-    FMapsSet: IMapTypeSet;
-    FMainMapChangeNotyfier: INotifierWithGUID;
-    FActiveMap: IMapTypeChangeable;
+    FIsAllowZeroGUID: Boolean;
+    FMainMapGUID: TGUID;
   protected
-    property MainMapChangeNotyfier: INotifierWithGUID read FMainMapChangeNotyfier;
-  protected
-    procedure SelectMainByGUID(const AMapGUID: TGUID);
-    function GetActiveMap: IMapTypeChangeable;
-
-    function GetMapsSet: IMapTypeSet;
+    function GetMainMapGUID: TGUID;
+    procedure SetMainMapGUID(const AMapGUID: TGUID);
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   public
     constructor Create(
-      const AIsAllowNil: Boolean;
-      const AMapsSet: IMapTypeSet;
-      const AMainMapChangeNotyfier: INotifierWithGUID = nil
+      const AIsAllowZeroGUID: Boolean;
+      const AMainMapGUID: TGUID
     );
   end;
 
@@ -60,38 +50,25 @@ implementation
 
 uses
   SysUtils,
-  ActiveX,
-  c_ZeroGUID,
-  u_Synchronizer,
-  u_MapTypeChangeableByNotifier;
+  c_ZeroGUID;
 
 const
   CKeyNameMap = 'Map';
 
-{ TMainActiveMap }
+{ TActiveMapConfig }
 
-constructor TMainActiveMap.Create(
-  const AIsAllowNil: Boolean;
-  const AMapsSet: IMapTypeSet;
-  const AMainMapChangeNotyfier: INotifierWithGUID
+constructor TActiveMapConfig.Create(
+  const AIsAllowZeroGUID: Boolean;
+  const AMainMapGUID: TGUID
 );
 begin
+  Assert(AIsAllowZeroGUID or not IsEqualGUID(AMainMapGUID, CGUID_Zero));
   inherited Create;
-  FIsAllowNil := AIsAllowNil;
-  FMapsSet := AMapsSet;
-  FMainMapChangeNotyfier := AMainMapChangeNotyfier;
-  if FMainMapChangeNotyfier = nil then begin
-    FMainMapChangeNotyfier :=
-      TNotifierWithGUID.Create(
-        GSync.SyncVariable.Make(Self.ClassName + 'Notifier')
-      );
-  end;
-
-  FActiveMap := TMapTypeChangeableByNotifier.Create(FIsAllowNil, FMainMapChangeNotyfier, FMapsSet);
-  Add(FActiveMap);
+  FIsAllowZeroGUID := AIsAllowZeroGUID;
+  FMainMapGUID := AMainMapGUID;
 end;
 
-procedure TMainActiveMap.DoReadConfig(const AConfigData: IConfigDataProvider);
+procedure TActiveMapConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 var
   VGUIDString: string;
   VGUID: TGUID;
@@ -109,48 +86,56 @@ begin
     end;
   end;
   if IsEqualGUID(VGUID, CGUID_Zero) then begin
-    if FIsAllowNil then begin
-      SelectMainByGUID(VGUID);
+    if FIsAllowZeroGUID then begin
+      SetMainMapGUID(VGUID);
     end;
   end else begin
-    if FMapsSet.GetMapTypeByGUID(VGUID) <> nil then begin
-      SelectMainByGUID(VGUID);
-    end;
+    SetMainMapGUID(VGUID);
   end;
 end;
 
-procedure TMainActiveMap.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
+procedure TActiveMapConfig.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
 var
-  VMapType: IMapType;
-  VGUID: TGUID;
   VGUIDString: string;
 begin
   inherited;
-  VGUID := CGUID_Zero;
-  VMapType := FActiveMap.GetStatic;
-  if Assigned(VMapType) then begin
-    VGUID := VMapType.GUID;
-  end;
-  VGUIDString := GUIDToString(VGUID);
+  VGUIDString := GUIDToString(FMainMapGUID);
   AConfigData.WriteString(CKeyNameMap, VGUIDString);
 end;
 
-function TMainActiveMap.GetActiveMap: IMapTypeChangeable;
+function TActiveMapConfig.GetMainMapGUID: TGUID;
 begin
-  Result := FActiveMap;
+  LockRead;
+  try
+    Result := FMainMapGUID;
+  finally
+    UnlockRead;
+  end;
 end;
 
-function TMainActiveMap.GetMapsSet: IMapTypeSet;
+procedure TActiveMapConfig.SetMainMapGUID(const AMapGUID: TGUID);
 begin
-  Result := FMapsSet;
-end;
-
-procedure TMainActiveMap.SelectMainByGUID(const AMapGUID: TGUID);
-begin
-  if (FMapsSet.GetMapTypeByGUID(AMapGUID) <> nil) or (FIsAllowNil and IsEqualGUID(AMapGUID, CGUID_Zero)) then begin
+  if IsEqualGUID(AMapGUID, CGUID_Zero) then begin
+    if FIsAllowZeroGUID then begin
+      LockWrite;
+      try
+        if not IsEqualGUID(FMainMapGUID, AMapGUID) then begin
+          FMainMapGUID := AMapGUID;
+          SetChanged;
+        end;
+      finally
+        UnlockWrite;
+      end;
+    end else begin
+      Assert(not IsEqualGUID(AMapGUID, CGUID_Zero));
+    end;
+  end else begin
     LockWrite;
     try
-      FMainMapChangeNotyfier.NotifyByGUID(AMapGUID);
+      if not IsEqualGUID(FMainMapGUID, AMapGUID) then begin
+        FMainMapGUID := AMapGUID;
+        SetChanged;
+      end;
     finally
       UnlockWrite;
     end;

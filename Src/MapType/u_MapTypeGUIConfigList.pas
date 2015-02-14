@@ -23,7 +23,6 @@ unit u_MapTypeGUIConfigList;
 interface
 
 uses
-  ActiveX,
   i_Notifier,
   i_Listener,
   i_GUIDListStatic,
@@ -77,9 +76,7 @@ constructor TMapTypeGUIConfigList.Create(
   const AMapsSet: IMapTypeSet
 );
 var
-  VGUID: TGUID;
-  VEnum: IEnumGUID;
-  VGetCount: Cardinal;
+  i: Integer;
   VMap: IMapType;
 begin
   inherited Create;
@@ -87,9 +84,8 @@ begin
   FMapsSet := AMapsSet;
   FOrderedMapGUIDList := CreateOrderedList;
   FHotKeyList := CreateHotKeyList;
-  VEnum := FMapsSet.GetIterator;
-  while VEnum.Next(1, VGUID, VGetCount) = S_OK do begin
-    VMap := FMapsSet.GetMapTypeByGUID(VGUID);
+  for i := 0 to FMapsSet.Count - 1 do begin
+    VMap := FMapsSet.Items[i];
     Add(VMap.GUIConfig, nil);
   end;
   FBeforeLangChangeListener := TNotifyNoMmgEventListener.Create(Self.OnBeforeLangChange);
@@ -125,8 +121,6 @@ function TMapTypeGUIConfigList.CreateOrderedList: IGUIDListStatic;
 var
   VIndexList: array of Integer;
   VGUIDList: array of TGUID;
-  VEnum: IEnumUnknown;
-  VGetCount: Integer;
   VMap: IMapType;
   VCount: Integer;
   i: Integer;
@@ -137,12 +131,11 @@ begin
     VCount := FMapsSet.GetCount;
     VList := TInterfaceListSimple.Create;
     VList.Capacity := VCount;
-    VEnum := FMapsSet.GetMapTypeIterator;
-    while VEnum.Next(1, VMap, @VGetCount) = S_OK do begin
-      if Assigned(VMap) then begin
-        VList.Add(VMap);
-      end;
+    for i := 0 to FMapsSet.Count - 1 do begin
+      VMap := FMapsSet.Items[i];
+      VList.Add(VMap);
     end;
+
     VCount := VList.GetCount;
     if VCount > 1 then begin
       SetLength(VIndexList, VCount);

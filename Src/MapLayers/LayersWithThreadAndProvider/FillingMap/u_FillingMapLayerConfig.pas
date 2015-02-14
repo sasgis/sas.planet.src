@@ -28,8 +28,7 @@ uses
   t_Bitmap32,
   t_FillingMapModes,
   i_ThreadConfig,
-  i_MapType,
-  i_MapTypeSet,
+  i_ActiveMapsConfig,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_FillingMapLayerConfig,
@@ -44,7 +43,7 @@ type
     FNoTileColor: TColor32;
     FShowTNE: Boolean;
     FTNEColor: TColor32;
-    FSourceMap: IFillingMapMapsConfig;
+    FSourceMap: IActiveMapConfig;
     FFillMode: TFillMode;
     FFilterMode: Boolean;
     FFillFirstDay: TDateTime;
@@ -74,9 +73,6 @@ type
     function GetTNEColor: TColor32;
     procedure SetTNEColor(const AValue: TColor32);
 
-    function GetSourceMap: IFillingMapMapsConfig;
-    function GetStatic: IFillingMapLayerConfigStatic;
-
     function GetFillMode: TFillMode;
     procedure SetFillMode(const AValue: TFillMode);
 
@@ -90,11 +86,11 @@ type
     procedure SetFillLastDay(const AValue: TDateTime);
 
     function GetThreadConfig: IThreadConfig;
+    function GetSourceMap: IActiveMapConfig;
+
+    function GetStatic: IFillingMapLayerConfigStatic;
   public
-    constructor Create(
-      const AMainMap: IMapTypeChangeable;
-      const AMapsSet: IMapTypeSet
-    );
+    constructor Create;
   end;
 
 implementation
@@ -102,18 +98,16 @@ implementation
 uses
   Classes,
   GR32,
+  c_ZeroGUID,
   u_ConfigSaveLoadStrategyBasicUseProvider,
   u_ConfigProviderHelpers,
   u_ThreadConfig,
-  u_FillingMapMapsConfig,
+  u_ActiveMapConfig,
   u_FillingMapLayerConfigStatic;
 
 { TFillingMapLayerConfig }
 
-constructor TFillingMapLayerConfig.Create(
-  const AMainMap: IMapTypeChangeable;
-  const AMapsSet: IMapTypeSet
-);
+constructor TFillingMapLayerConfig.Create;
 begin
   inherited Create;
   FVisible := False;
@@ -126,11 +120,8 @@ begin
   FFilterMode := False;
   FFillFirstDay := EncodeDate(2000, 1, 1);
   FFillLastDay := DateOf(Now);
-  FSourceMap :=
-    TFillingMapMapsConfig.Create(
-      AMainMap,
-      AMapsSet
-    );
+
+  FSourceMap := TActiveMapConfig.Create(True, CGUID_Zero);
   Add(FSourceMap, TConfigSaveLoadStrategyBasicUseProvider.Create);
 
   FThreadConfig := TThreadConfig.Create(tpLowest);
@@ -144,8 +135,7 @@ begin
   VStatic :=
     TFillingMapLayerConfigStatic.Create(
       FVisible,
-      FSourceMap.GetActiveMap.GetStatic,
-      FSourceMap.GetActualMap,
+      FSourceMap.MainMapGUID,
       FUseRelativeZoom,
       FZoom,
       FNoTileColor,
@@ -219,7 +209,7 @@ begin
   end;
 end;
 
-function TFillingMapLayerConfig.GetSourceMap: IFillingMapMapsConfig;
+function TFillingMapLayerConfig.GetSourceMap: IActiveMapConfig;
 begin
   Result := FSourceMap;
 end;

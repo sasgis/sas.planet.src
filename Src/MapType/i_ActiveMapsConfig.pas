@@ -23,37 +23,26 @@ unit i_ActiveMapsConfig;
 interface
 
 uses
-  i_MapType,
-  i_MapTypeSet,
-  i_MapTypeSetChangeable,
+  i_GUIDListStatic,
   i_ConfigDataElement;
 
 type
-  IMainActiveMap = interface(IConfigDataElement)
-    procedure SelectMainByGUID(const AMapGUID: TGUID);
-    function GetActiveMap: IMapTypeChangeable;
-
-    function GetMapsSet: IMapTypeSet;
+  IActiveMapConfig = interface(IConfigDataElement)
+    ['{12F3937E-E4A6-4751-AC5A-CE6CFBB10DAB}']
+    function GetMainMapGUID: TGUID;
+    procedure SetMainMapGUID(const AMapGUID: TGUID);
+    property MainMapGUID: TGUID read GetMainMapGUID write SetMainMapGUID;
   end;
 
-  IActivMapWithLayers = interface(IMainActiveMap)
+  IActiveLayersConfig = interface(IConfigDataElement)
     ['{92B95280-7FD6-402A-8260-3FD83ED6BE36}']
+    function GetLayerGuids: IGUIDSetStatic;
+    procedure SetLayerGuids(const AValue: IGUIDSetStatic);
+    property LayerGuids: IGUIDSetStatic read GetLayerGuids write SetLayerGuids;
+
     procedure InvertLayerSelectionByGUID(const AMapGUID: TGUID);
     procedure SelectLayerByGUID(const AMapGUID: TGUID);
     procedure UnSelectLayerByGUID(const AMapGUID: TGUID);
-
-    function GetActiveLayersSet: IMapTypeSetChangeable;
-    function GetAllActiveMapsSet: IMapTypeSetChangeable;
-
-    function GetLayersSet: IMapTypeSet;
-    function GetAllMapsSet: IMapTypeSet;
-  end;
-
-  IMainMapsConfig = interface(IActivMapWithLayers)
-    ['{8A8A42A5-9252-4E85-812C-6A5EEEF98443}']
-    function GetActiveBitmapMapsSet: IMapTypeSetChangeable;
-    function GetActiveBitmapLayersSet: IMapTypeSetChangeable;
-    function GetActiveKmlLayersSet: IMapTypeSetChangeable;
   end;
 
 implementation

@@ -63,6 +63,7 @@ uses
   i_UsedMarksConfig,
   i_MarksDrawConfig,
   i_MarkSystem,
+  i_MapTypeListChangeable,
   i_MapTypeSet,
   i_MapTypeListBuilder,
   i_RegionProcess,
@@ -150,7 +151,9 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifierTime;
       const ALastSelectionInfo: ILastSelectionInfo;
-      const AMainMapsConfig: IMainMapsConfig;
+      const AMainMapConfig: IActiveMapConfig;
+      const AMainLayersConfig: IActiveLayersConfig;
+      const AActiveBitmapLayersList: IMapTypeListChangeable;
       const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const APosition: ILocalCoordConverterChangeable;
@@ -192,16 +195,15 @@ implementation
 
 uses
   gnugettext,
-  i_MapTypeListChangeable,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   u_ConfigDataProviderByIniFile,
   u_ConfigDataWriteProviderByIniFile,
   u_ConfigProviderHelpers,
-  u_MapTypeListChangeableActiveBitmapLayers,
   u_RegionProcessProgressInfoInternalFactory,
   u_ProviderTilesGenPrev,
-  u_ProviderTilesCopy;
+  u_ProviderTilesCopy,
+  fr_MapSelect;
 
 {$R *.dfm}
 
@@ -210,7 +212,9 @@ constructor TfrmRegionProcess.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   const ATimerNoifier: INotifierTime;
   const ALastSelectionInfo: ILastSelectionInfo;
-  const AMainMapsConfig: IMainMapsConfig;
+  const AMainMapConfig: IActiveMapConfig;
+  const AMainLayersConfig: IActiveLayersConfig;
+  const AActiveBitmapLayersList: IMapTypeListChangeable;
   const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const APosition: ILocalCoordConverterChangeable;
@@ -246,8 +250,8 @@ constructor TfrmRegionProcess.Create(
   const AMarkDBGUI: TMarkDbGUIHelper
 );
 var
-  VActiveMapsSet: IMapTypeListChangeable;
   VProgressFactory: IRegionProcessProgressInfoInternalFactory;
+  VMapSelectFrameBuilder: IMapSelectFrameBuilder;
 begin
   inherited Create(ALanguageManager);
   FLastSelectionInfo := ALastSelectionInfo;
@@ -256,11 +260,14 @@ begin
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FMapGoto := AMapGoto;
   FMarkDBGUI := AMarkDBGUI;
-  VActiveMapsSet :=
-    TMapTypeListChangeableByActiveMapsSet.Create(
-        AMapTypeListBuilderFactory,
-        AMainMapsConfig.GetActiveBitmapLayersSet
-      );
+  VMapSelectFrameBuilder :=
+    TMapSelectFrameBuilder.Create(
+      ALanguageManager,
+      AMainMapConfig,
+      AMainLayersConfig,
+      AGUIConfigList,
+      AFullMapsSet
+    );
   VProgressFactory :=
     TRegionProcessProgressInfoInternalFactory.Create(
       AAppClosingNotifier,
@@ -272,10 +279,7 @@ begin
     TfrExport.Create(
       VProgressFactory,
       ALanguageManager,
-      AMainMapsConfig,
-      AFullMapsSet,
-      AGUIConfigList,
-      AMapTypeListBuilderFactory,
+      VMapSelectFrameBuilder,
       ACoordConverterFactory,
       ALocalConverterFactory,
       AProjectionFactory,
@@ -291,9 +295,7 @@ begin
     TfrDelete.Create(
       VProgressFactory,
       ALanguageManager,
-      AMainMapsConfig,
-      AFullMapsSet,
-      AGUIConfigList,
+      VMapSelectFrameBuilder,
       APosition,
       AProjectionFactory,
       AVectorGeometryProjectedFactory,
@@ -303,9 +305,7 @@ begin
     TProviderTilesGenPrev.Create(
       VProgressFactory,
       ALanguageManager,
-      AMainMapsConfig,
-      AFullMapsSet,
-      AGUIConfigList,
+      VMapSelectFrameBuilder,
       AViewConfig,
       AProjectionFactory,
       AVectorGeometryProjectedFactory,
@@ -318,7 +318,8 @@ begin
       ATimerNoifier,
       VProgressFactory,
       ALanguageManager,
-      AMainMapsConfig,
+      VMapSelectFrameBuilder,
+      AMainMapConfig,
       AGlobalBerkeleyDBHelper,
       AFullMapsSet,
       AGUIConfigList,
@@ -334,9 +335,8 @@ begin
       VProgressFactory,
       ALanguageManager,
       AValueToStringConverter,
-      AMainMapsConfig,
+      VMapSelectFrameBuilder,
       AFullMapsSet,
-      AGUIConfigList,
       AProjectionFactory,
       AVectorGeometryLonLatFactory,
       AVectorGeometryProjectedFactory,
@@ -350,10 +350,8 @@ begin
     TfrCombine.Create(
       VProgressFactory,
       ALanguageManager,
-      AMainMapsConfig,
-      AFullMapsSet,
-      VActiveMapsSet,
-      AGUIConfigList,
+      VMapSelectFrameBuilder,
+      AActiveBitmapLayersList,
       AViewConfig,
       AUseTilePrevZoomConfig,
       AProjectionFactory,

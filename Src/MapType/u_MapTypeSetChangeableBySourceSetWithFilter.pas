@@ -74,7 +74,6 @@ type
 implementation
 
 uses
-  ActiveX,
   u_ListenerByEvent;
 
 { TMapTypeSetChangeableBySourceSetWithFilter }
@@ -107,20 +106,15 @@ end;
 function TMapTypeSetChangeableBySourceSetWithFilter.CreateStatic: IInterface;
 var
   VResult: IMapTypeSetBuilder;
-  VEnum: IEnumGUID;
-  VGuid: TGUID;
-  VCnt: Cardinal;
+  i: Integer;
   VMapType: IMapType;
 begin
   VResult := FMapTypeSetBuilderFactory.Build(False);
   if FPrevSourceSetStatic <> nil then begin
-    VEnum := FPrevSourceSetStatic.GetIterator;
-    while VEnum.Next(1, VGuid, VCnt) = S_OK do begin
-      VMapType := FPrevSourceSetStatic.GetMapTypeByGUID(VGuid);
-      if VMapType <> nil then begin
-        if IsValidMapType(VMapType) then begin
-          VResult.Add(VMapType);
-        end;
+    for i := 0 to FPrevSourceSetStatic.Count - 1 do begin
+      VMapType := FPrevSourceSetStatic.Items[i];
+      if IsValidMapType(VMapType) then begin
+        VResult.Add(VMapType);
       end;
     end;
   end;
@@ -141,9 +135,7 @@ end;
 procedure TMapTypeSetChangeableBySourceSetWithFilter.OnActiveMapsSetChange;
 var
   VNewSet: IMapTypeSet;
-  VEnum: IEnumGUID;
-  VGuid: TGUID;
-  VCnt: Cardinal;
+  i: Integer;
   VMapType: IMapType;
   VChanged: Boolean;
 begin
@@ -155,27 +147,21 @@ begin
     end;
     VChanged := False;
     if FPrevSourceSetStatic <> nil then begin
-      VEnum := FPrevSourceSetStatic.GetIterator;
-      while VEnum.Next(1, VGuid, VCnt) = S_OK do begin
-        if (VNewSet = nil) or (VNewSet.GetMapTypeByGUID(VGuid) = nil) then begin
-          VMapType := FPrevSourceSetStatic.GetMapTypeByGUID(VGuid);
-          if VMapType <> nil then begin
-            if IsValidMapType(VMapType) then begin
-              VChanged := True;
-            end;
+      for i := 0 to FPrevSourceSetStatic.Count - 1 do begin
+        VMapType := FPrevSourceSetStatic.Items[i];
+        if (VNewSet = nil) or (VNewSet.GetMapTypeByGUID(VMapType.GUID) = nil) then begin
+          if IsValidMapType(VMapType) then begin
+            VChanged := True;
           end;
         end;
       end;
     end;
     if VNewSet <> nil then begin
-      VEnum := VNewSet.GetIterator;
-      while VEnum.Next(1, VGuid, VCnt) = S_OK do begin
-        if (FPrevSourceSetStatic = nil) or (FPrevSourceSetStatic.GetMapTypeByGUID(VGuid) = nil) then begin
-          VMapType := VNewSet.GetMapTypeByGUID(VGuid);
-          if VMapType <> nil then begin
-            if IsValidMapType(VMapType) then begin
-              VChanged := True;
-            end;
+      for i := 0 to VNewSet.Count - 1 do begin
+        VMapType := VNewSet.Items[i];
+        if (FPrevSourceSetStatic = nil) or (FPrevSourceSetStatic.GetMapTypeByGUID(VMapType.GUID) = nil) then begin
+          if IsValidMapType(VMapType) then begin
+            VChanged := True;
           end;
         end;
       end;

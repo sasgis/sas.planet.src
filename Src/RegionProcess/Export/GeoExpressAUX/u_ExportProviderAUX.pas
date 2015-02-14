@@ -25,13 +25,11 @@ interface
 uses
   Forms,
   i_LanguageManager,
-  i_MapTypeSet,
-  i_ActiveMapsConfig,
   i_CoordConverterFactory,
   i_GeometryProjectedFactory,
-  i_MapTypeGUIConfigList,
   i_GeometryLonLat,
   i_RegionProcessProgressInfoInternalFactory,
+  fr_MapSelect,
   u_ExportProviderAbstract;
 
 type
@@ -48,9 +46,7 @@ type
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
-      const AMainMapsConfig: IMainMapsConfig;
-      const AFullMapsSet: IMapTypeSet;
-      const AGUIConfigList: IMapTypeGUIConfigList;
+      const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory
     );
@@ -76,9 +72,7 @@ uses
 constructor TExportProviderAUX.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
-  const AMainMapsConfig: IMainMapsConfig;
-  const AFullMapsSet: IMapTypeSet;
-  const AGUIConfigList: IMapTypeGUIConfigList;
+  const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory
 );
@@ -86,9 +80,7 @@ begin
   inherited Create(
     AProgressFactory,
     ALanguageManager,
-    AMainMapsConfig,
-    AFullMapsSet,
-    AGUIConfigList
+    AMapSelectFrameBuilder
   );
   FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
@@ -99,9 +91,7 @@ begin
   Result :=
     TfrExportAUX.Create(
       Self.LanguageManager,
-      Self.MainMapsConfig,
-      Self.FullMapsSet,
-      Self.GUIConfigList
+      Self.MapSelectFrameBuilder
     );
   Assert(Supports(Result, IRegionProcessParamsFrameOneMap));
   Assert(Supports(Result, IRegionProcessParamsFrameOneZoom));

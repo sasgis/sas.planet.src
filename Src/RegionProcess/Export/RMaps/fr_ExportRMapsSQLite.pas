@@ -33,9 +33,6 @@ uses
   ExtCtrls,
   Spin,
   i_LanguageManager,
-  i_MapTypeSet,
-  i_ActiveMapsConfig,
-  i_MapTypeGUIConfigList,
   i_GeometryLonLat,
   i_RegionProcessParamsFrame,
   i_Bitmap32BufferFactory,
@@ -101,9 +98,6 @@ type
     procedure cbbImageFormatChange(Sender: TObject);
     procedure chkUsePrevZoomClick(Sender: TObject);
   private
-    FMainMapsConfig: IMainMapsConfig;
-    FFullMapsSet: IMapTypeSet;
-    FGUIConfigList: IMapTypeGUIConfigList;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FfrMapSelect: TfrMapSelect;
@@ -130,9 +124,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AMainMapsConfig: IMainMapsConfig;
-      const AFullMapsSet: IMapTypeSet;
-      const AGUIConfigList: IMapTypeGUIConfigList;
+      const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory
     ); reintroduce;
@@ -153,9 +145,7 @@ uses
 
 constructor TfrExportRMapsSQLite.Create(
   const ALanguageManager: ILanguageManager;
-  const AMainMapsConfig: IMainMapsConfig;
-  const AFullMapsSet: IMapTypeSet;
-  const AGUIConfigList: IMapTypeGUIConfigList;
+  const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory
 );
@@ -163,19 +153,11 @@ begin
   Assert(Assigned(ABitmap32StaticFactory));
   inherited Create(ALanguageManager);
 
-  FMainMapsConfig := AMainMapsConfig;
-  FFullMapsSet := AFullMapsSet;
-  FGUIConfigList := AGUIConfigList;
-
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
 
   FfrMapSelect :=
-    TfrMapSelect.Create(
-      ALanguageManager,
-      AMainMapsConfig,
-      AGUIConfigList,
-      AFullMapsSet,
+    AMapSelectFrameBuilder.Build(
       mfMaps,          // show maps
       True,            // add -NO- to combobox
       False,           // show disabled map
@@ -184,11 +166,7 @@ begin
   FfrMapSelect.OnMapChange := Self.OnMapChange;
 
   FfrOverlaySelect :=
-    TfrMapSelect.Create(
-      ALanguageManager,
-      AMainMapsConfig,
-      AGUIConfigList,
-      AFullMapsSet,
+    AMapSelectFrameBuilder.Build(
       mfLayers,        // show layers
       True,            // add -NO- to combobox
       False,           // show disabled map

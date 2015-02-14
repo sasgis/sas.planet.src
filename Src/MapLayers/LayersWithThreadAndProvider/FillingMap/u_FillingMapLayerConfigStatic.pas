@@ -25,7 +25,6 @@ interface
 uses
   t_Bitmap32,
   t_FillingMapModes,
-  i_MapType,
   i_FillingMapLayerConfig,
   u_BaseInterfacedObject;
 
@@ -33,8 +32,7 @@ type
   TFillingMapLayerConfigStatic = class(TBaseInterfacedObject, IFillingMapLayerConfigStatic)
   private
     FVisible: Boolean;
-    FSelectedMap: IMapType;
-    FActualMap: IMapType;
+    FSelectedMap: TGUID;
     FUseRelativeZoom: Boolean;
     FZoom: Byte;
     FNoTileColor: TColor32;
@@ -46,8 +44,7 @@ type
     FFillLastDay: TDateTime;
   private
     function GetVisible: Boolean;
-    function GetSelectedMap: IMapType;
-    function GetActualMap: IMapType;
+    function GetSelectedMap: TGUID;
     function GetUseRelativeZoom: Boolean;
     function GetZoom: Byte;
     function GetNoTileColor: TColor32;
@@ -60,8 +57,7 @@ type
   public
     constructor Create(
       AVisible: Boolean;
-      const ASelectedMap: IMapType;
-      const AActualMap: IMapType;
+      const ASelectedMap: TGUID;
       AUseRelativeZoom: Boolean;
       AZoom: Byte;
       ANoTileColor: TColor32;
@@ -80,8 +76,7 @@ implementation
 
 constructor TFillingMapLayerConfigStatic.Create(
   AVisible: Boolean;
-  const ASelectedMap: IMapType;
-  const AActualMap: IMapType;
+  const ASelectedMap: TGUID;
   AUseRelativeZoom: Boolean;
   AZoom: Byte;
   ANoTileColor: TColor32;
@@ -96,7 +91,6 @@ begin
   inherited Create;
   FVisible := AVisible;
   FSelectedMap := ASelectedMap;
-  FActualMap := AActualMap;
   FUseRelativeZoom := AUseRelativeZoom;
   FZoom := AZoom;
   FNoTileColor := ANoTileColor;
@@ -108,17 +102,12 @@ begin
   FFillLastDay := AFillLastDay;
 end;
 
-function TFillingMapLayerConfigStatic.GetActualMap: IMapType;
-begin
-  Result := FActualMap;
-end;
-
 function TFillingMapLayerConfigStatic.GetNoTileColor: TColor32;
 begin
   Result := FNoTileColor;
 end;
 
-function TFillingMapLayerConfigStatic.GetSelectedMap: IMapType;
+function TFillingMapLayerConfigStatic.GetSelectedMap: TGUID;
 begin
   Result := FSelectedMap;
 end;

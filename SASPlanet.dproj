@@ -469,6 +469,7 @@
     <DCCReference Include="Src\MainForm\i_MainFormConfig.pas" />
     <DCCReference Include="Src\MainForm\i_MainFormState.pas" />
     <DCCReference Include="Src\MainForm\i_MainGeoCoderConfig.pas" />
+    <DCCReference Include="Src\MainForm\i_MainMapsState.pas" />
     <DCCReference Include="Src\MainForm\i_MainWindowPosition.pas" />
     <DCCReference Include="Src\MainForm\i_MapMovingConfig.pas" />
     <DCCReference Include="Src\MainForm\i_MapTypeIconsList.pas" />
@@ -499,6 +500,7 @@
     <DCCReference Include="Src\MainForm\u_MainFormMainConfig.pas" />
     <DCCReference Include="Src\MainForm\u_MainFormState.pas" />
     <DCCReference Include="Src\MainForm\u_MainGeoCoderConfig.pas" />
+    <DCCReference Include="Src\MainForm\u_MainMapsState.pas" />
     <DCCReference Include="Src\MainForm\u_MainWindowPositionConfig.pas" />
     <DCCReference Include="Src\MainForm\u_MainWindowToolbarsLock.pas" />
     <DCCReference Include="Src\MainForm\u_MapMovingConfig.pas" />
@@ -536,7 +538,6 @@
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\FillingMap\u_FillingMapColorerSimple.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\FillingMap\u_FillingMapLayerConfig.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\FillingMap\u_FillingMapLayerConfigStatic.pas" />
-    <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\FillingMap\u_FillingMapMapsConfig.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\GPSTrack\i_MapLayerGPSTrackConfig.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\GPSTrack\u_MapLayerGPSTrackConfig.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\Grids\i_MapLayerGridsConfig.pas" />
@@ -554,7 +555,6 @@
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\MiniMap\u_MiniMapLayerPlusButton.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\MiniMap\u_MiniMapLayerTopBorder.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\MiniMap\u_MiniMapLayerViewRect.pas" />
-    <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\MiniMap\u_MiniMapMapsConfig.pas" />
     <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\u_TiledMapLayer.pas" />
     <DCCReference Include="Src\MapLayers\u_KmlLayerConfig.pas" />
     <DCCReference Include="Src\MapLayers\u_MainFormLayersConfig.pas" />
@@ -658,15 +658,15 @@
     <DCCReference Include="Src\MapType\i_ZmpConfig.pas" />
     <DCCReference Include="Src\MapType\i_ZmpInfo.pas" />
     <DCCReference Include="Src\MapType\i_ZmpInfoSet.pas" />
+    <DCCReference Include="Src\MapType\u_ActiveLayersConfig.pas" />
+    <DCCReference Include="Src\MapType\u_ActiveMapConfig.pas" />
     <DCCReference Include="Src\MapType\u_ActiveMapsLicenseList.pas" />
-    <DCCReference Include="Src\MapType\u_ActivMapWithLayers.pas" />
     <DCCReference Include="Src\MapType\u_LayerDrawConfig.pas" />
-    <DCCReference Include="Src\MapType\u_MainActiveMap.pas" />
-    <DCCReference Include="Src\MapType\u_MainMapsConfig.pas" />
     <DCCReference Include="Src\MapType\u_MapAbilitiesConfig.pas" />
     <DCCReference Include="Src\MapType\u_MapAbilitiesConfigStatic.pas" />
     <DCCReference Include="Src\MapType\u_MapType.pas" />
-    <DCCReference Include="Src\MapType\u_MapTypeChangeableByNotifier.pas" />
+    <DCCReference Include="Src\MapType\u_MapTypeChangeableByConfig.pas" />
+    <DCCReference Include="Src\MapType\u_MapTypeChangeableWithDefault.pas" />
     <DCCReference Include="Src\MapType\u_MapTypeConfigModalEditByForm.pas" />
     <DCCReference Include="Src\MapType\u_MapTypeGUIConfig.pas" />
     <DCCReference Include="Src\MapType\u_MapTypeGUIConfigList.pas" />

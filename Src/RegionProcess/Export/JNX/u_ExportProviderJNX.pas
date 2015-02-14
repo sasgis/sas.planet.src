@@ -28,13 +28,11 @@ uses
   i_CoordConverterFactory,
   i_GeometryProjectedFactory,
   i_LanguageManager,
-  i_MapTypeSet,
-  i_ActiveMapsConfig,
-  i_MapTypeGUIConfigList,
   i_BitmapTileSaveLoadFactory,
   i_BitmapPostProcessing,
   i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
+  fr_MapSelect,
   fr_ExportToJNX;
 
 type
@@ -54,9 +52,7 @@ type
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
-      const AMainMapsConfig: IMainMapsConfig;
-      const AFullMapsSet: IMapTypeSet;
-      const AGUIConfigList: IMapTypeGUIConfigList;
+      const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
@@ -81,9 +77,7 @@ uses
 constructor TExportProviderJNX.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
-  const AMainMapsConfig: IMainMapsConfig;
-  const AFullMapsSet: IMapTypeSet;
-  const AGUIConfigList: IMapTypeGUIConfigList;
+  const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
@@ -94,9 +88,7 @@ begin
   inherited Create(
     AProgressFactory,
     ALanguageManager,
-    AMainMapsConfig,
-    AFullMapsSet,
-    AGUIConfigList
+    AMapSelectFrameBuilder
   );
   FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
@@ -111,9 +103,7 @@ begin
     TfrExportToJNX.Create(
       Self.LanguageManager,
       FBitmapTileSaveLoadFactory,
-      Self.MainMapsConfig,
-      Self.FullMapsSet,
-      Self.GUIConfigList,
+      Self.MapSelectFrameBuilder,
       'JNX |*.jnx',
       'jnx'
     );

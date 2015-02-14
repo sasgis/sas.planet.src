@@ -34,9 +34,6 @@ uses
   t_CommonTypes,
   i_LanguageManager,
   i_MapType,
-  i_MapTypeSet,
-  i_ActiveMapsConfig,
-  i_MapTypeGUIConfigList,
   i_PredicateByTileInfo,
   i_GeometryLonLat,
   i_RegionProcessParamsFrame,
@@ -63,9 +60,6 @@ type
     pnlFrame: TPanel;
     lblMapCaption: TLabel;
   private
-    FMainMapsConfig: IMainMapsConfig;
-    FFullMapsSet: IMapTypeSet;
-    FGUIConfigList: IMapTypeGUIConfigList;
     FfrMapSelect: TfrMapSelect;
   private
     procedure Init(
@@ -82,9 +76,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AMainMapsConfig: IMainMapsConfig;
-      const AFullMapsSet: IMapTypeSet;
-      const AGUIConfigList: IMapTypeGUIConfigList
+      const AMapSelectFrameBuilder: IMapSelectFrameBuilder
     ); reintroduce;
     destructor Destroy; override;
   end;
@@ -104,22 +96,13 @@ uses
 
 constructor TfrDeleteTiles.Create(
   const ALanguageManager: ILanguageManager;
-  const AMainMapsConfig: IMainMapsConfig;
-  const AFullMapsSet: IMapTypeSet;
-  const AGUIConfigList: IMapTypeGUIConfigList
+  const AMapSelectFrameBuilder: IMapSelectFrameBuilder
 );
 begin
   inherited Create(ALanguageManager);
-  FMainMapsConfig := AMainMapsConfig;
-  FFullMapsSet := AFullMapsSet;
-  FGUIConfigList := AGUIConfigList;
 
   FfrMapSelect :=
-    TfrMapSelect.Create(
-      ALanguageManager,
-      AMainMapsConfig,
-      AGUIConfigList,
-      AFullMapsSet,
+    AMapSelectFrameBuilder.Build(
       mfAll, // show maps and layers
       False,  // add -NO- to combobox
       true,  // show disabled map

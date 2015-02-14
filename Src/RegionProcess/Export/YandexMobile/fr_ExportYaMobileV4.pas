@@ -32,9 +32,6 @@ uses
   Spin,
   ExtCtrls,
   i_LanguageManager,
-  i_MapTypeSet,
-  i_ActiveMapsConfig,
-  i_MapTypeGUIConfigList,
   i_GeometryLonLat,
   i_MapType,
   i_RegionProcessParamsFrame,
@@ -73,9 +70,6 @@ type
     pnlSat: TPanel;
     procedure btnSelectTargetPathClick(Sender: TObject);
   private
-    FMainMapsConfig: IMainMapsConfig;
-    FFullMapsSet: IMapTypeSet;
-    FGUIConfigList: IMapTypeGUIConfigList;
     FfrSatSelect: TfrMapSelect;
     FfrMapSelect: TfrMapSelect;
     FfrHybSelect: TfrMapSelect;
@@ -95,9 +89,7 @@ type
     function GetHyb(): TfrMapSelect;
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AMainMapsConfig: IMainMapsConfig;
-      const AFullMapsSet: IMapTypeSet;
-      const AGUIConfigList: IMapTypeGUIConfigList
+      const AMapSelectFrameBuilder: IMapSelectFrameBuilder
     ); reintroduce;
     destructor Destroy; override;
   end;
@@ -115,43 +107,26 @@ uses
 
 constructor TfrExportYaMobileV4.Create(
   const ALanguageManager: ILanguageManager;
-  const AMainMapsConfig: IMainMapsConfig;
-  const AFullMapsSet: IMapTypeSet;
-  const AGUIConfigList: IMapTypeGUIConfigList
+  const AMapSelectFrameBuilder: IMapSelectFrameBuilder
 );
 begin
   inherited Create(ALanguageManager);
-  FMainMapsConfig := AMainMapsConfig;
-  FFullMapsSet := AFullMapsSet;
-  FGUIConfigList := AGUIConfigList;
   FfrSatSelect :=
-    TfrMapSelect.Create(
-      ALanguageManager,
-      AMainMapsConfig,
-      AGUIConfigList,
-      AFullMapsSet,
+    AMapSelectFrameBuilder.Build(
       mfMaps, // show maps and layers
       True,  // add -NO- to combobox
       False,  // show disabled map
       GetAllowExport
     );
   FfrMapSelect :=
-    TfrMapSelect.Create(
-      ALanguageManager,
-      AMainMapsConfig,
-      AGUIConfigList,
-      AFullMapsSet,
+    AMapSelectFrameBuilder.Build(
       mfMaps, // show maps and layers
       True,  // add -NO- to combobox
       False,  // show disabled map
       GetAllowExport
     );
   FfrHybSelect :=
-    TfrMapSelect.Create(
-      ALanguageManager,
-      AMainMapsConfig,
-      AGUIConfigList,
-      AFullMapsSet,
+    AMapSelectFrameBuilder.Build(
       mfLayers, // show maps and layers
       True,  // add -NO- to combobox
       False,  // show disabled map

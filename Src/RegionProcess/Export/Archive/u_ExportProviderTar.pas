@@ -26,15 +26,13 @@ uses
   Forms,
   i_LanguageManager,
   i_GeometryLonLat,
-  i_MapTypeSet,
-  i_ActiveMapsConfig,
-  i_MapTypeGUIConfigList,
   i_CoordConverterFactory,
   i_GeometryProjectedFactory,
   i_ArchiveReadWriteFactory,
   i_TileFileNameGeneratorsList,
   i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
+  fr_MapSelect,
   fr_ExportToFileCont;
 
 type
@@ -53,9 +51,7 @@ type
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
-      const AMainMapsConfig: IMainMapsConfig;
-      const AFullMapsSet: IMapTypeSet;
-      const AGUIConfigList: IMapTypeGUIConfigList;
+      const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
@@ -81,9 +77,7 @@ uses
 constructor TExportProviderTar.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
-  const AMainMapsConfig: IMainMapsConfig;
-  const AFullMapsSet: IMapTypeSet;
-  const AGUIConfigList: IMapTypeGUIConfigList;
+  const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
@@ -93,9 +87,7 @@ begin
   inherited Create(
     AProgressFactory,
     ALanguageManager,
-    AMainMapsConfig,
-    AFullMapsSet,
-    AGUIConfigList
+    AMapSelectFrameBuilder
   );
   FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
@@ -108,9 +100,7 @@ begin
   Result :=
     TfrExportToFileCont.Create(
       Self.LanguageManager,
-      Self.MainMapsConfig,
-      Self.FullMapsSet,
-      Self.GUIConfigList,
+      Self.MapSelectFrameBuilder,
       FTileNameGenerator,
       'Tar |*.tar',
       'tar'

@@ -28,7 +28,7 @@ uses
   TBX,
   i_MapTypeSet,
   i_MapType,
-  i_MapTypeSetChangeable,
+  i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_MapTypeIconsList;
 
@@ -39,9 +39,8 @@ type
     FIconsList: IMapTypeIconsList;
     FRootMenu: TTBCustomItem;
     FMapsSet: IMapTypeSet;
-    FActiveMap: IMapTypeChangeable;
-    FActiveLayers: IMapTypeSetChangeable;
-    FOnClick: TNotifyEvent;
+    FMapConfig: IActiveMapConfig;
+    FLayersConfig: IActiveLayersConfig;
     procedure ClearLists; virtual;
     procedure ProcessSubItemsCreate; virtual;
     procedure ProcessSubItemGUID(const AGUID: TGUID); virtual;
@@ -52,10 +51,9 @@ type
     constructor Create(
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AMapsSet: IMapTypeSet;
-      const AActiveMap: IMapTypeChangeable;
-      const AActiveLayers: IMapTypeSetChangeable;
+      const AMapConfig: IActiveMapConfig;
+      const ALayersConfig: IActiveLayersConfig;
       ARootMenu: TTBCustomItem;
-      AOnClick: TNotifyEvent;
       const AIconsList: IMapTypeIconsList
     );
     procedure BuildControls;
@@ -74,25 +72,23 @@ uses
 constructor TMapMenuGeneratorBasic.Create(
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AMapsSet: IMapTypeSet;
-  const AActiveMap: IMapTypeChangeable;
-  const AActiveLayers: IMapTypeSetChangeable;
+  const AMapConfig: IActiveMapConfig;
+  const ALayersConfig: IActiveLayersConfig;
   ARootMenu: TTBCustomItem;
-  AOnClick: TNotifyEvent;
   const AIconsList: IMapTypeIconsList
 );
 begin
   Assert(AGUIConfigList <> nil);
   Assert(AMapsSet <> nil);
-  Assert(Assigned(AActiveLayers) or Assigned(AActiveMap));
+  Assert(Assigned(ALayersConfig) or Assigned(AMapConfig));
   Assert(AIconsList <> nil);
   inherited Create;
   FGUIConfigList := AGUIConfigList;
   FMapsSet := AMapsSet;
-  FActiveMap := AActiveMap;
-  FActiveLayers := AActiveLayers;
+  FMapConfig := AMapConfig;
+  FLayersConfig := ALayersConfig;
   FRootMenu := ARootMenu;
   FIconsList := AIconsList;
-  FOnClick := AOnClick;
 end;
 
 function TMapMenuGeneratorBasic.CreateMenuItem(
@@ -101,16 +97,15 @@ function TMapMenuGeneratorBasic.CreateMenuItem(
 var
   VGUID: TGUID;
 begin
-  if Assigned(FActiveMap) then begin
-    Result := TActiveMapTBXItem.Create(FRootMenu, AMapType, FActiveMap);
-  end else begin
-    Result := TActiveLayerTBXItem.Create(FRootMenu, AMapType, FActiveLayers);
-  end;
   VGUID := AMapType.GUID;
+  if Assigned(FMapConfig) then begin
+    Result := TActiveMapTBXItem.Create(FRootMenu, VGUID, FMapConfig);
+  end else begin
+    Result := TActiveLayerTBXItem.Create(FRootMenu, VGUID, FLayersConfig);
+  end;
+  Result.tag := -1;
   Result.Caption := AMapType.GUIConfig.Name.Value;
   Result.ImageIndex := FIconsList.GetIconIndexByGUID(VGUID);
-  Result.Tag := Integer(AMapType);
-  Result.OnClick := FOnClick;
 end;
 
 function TMapMenuGeneratorBasic.CreateSubMenuItem(

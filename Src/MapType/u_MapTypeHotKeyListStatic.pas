@@ -45,24 +45,20 @@ type
 implementation
 
 uses
-  ActiveX,
   u_IDInterfaceList;
 
 { TMapTypeHotKeyListStatic }
 
 constructor TMapTypeHotKeyListStatic.Create(const AMapsSet: IMapTypeSet);
 var
-  VEnum: IEnumGUID;
-  VGUID: TGUID;
-  VGetCount: Cardinal;
   VMap: IMapType;
   VHotKey: TShortCut;
+  i: Integer;
 begin
   inherited Create;
   FList := TIDInterfaceList.Create(False);
-  VEnum := AMapsSet.GetIterator;
-  while VEnum.Next(1, VGUID, VGetCount) = S_OK do begin
-    VMap := AMapsSet.GetMapTypeByGUID(VGUID);
+  for i := 0 to AMapsSet.Count - 1 do begin
+    VMap := AMapsSet.Items[i];
     VHotKey := VMap.GUIConfig.HotKey;
     if VHotKey <> 0 then begin
       FList.Add(VHotKey, VMap);
@@ -71,7 +67,8 @@ begin
 end;
 
 function TMapTypeHotKeyListStatic.GetMapTypeGUIDByHotKey(
-  AHotKey: TShortCut): IMapType;
+  AHotKey: TShortCut
+): IMapType;
 begin
   Result := IMapType(FList.GetByID(AHotKey));
 end;

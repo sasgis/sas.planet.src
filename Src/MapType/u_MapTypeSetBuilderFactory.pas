@@ -62,8 +62,6 @@ type
     function IsEqual(const AValue: IMapTypeSet): Boolean;
     function IsExists(const AGUID: TGUID): Boolean;
     function GetMapTypeByGUID(const AGUID: TGUID): IMapType;
-    function GetIterator: IEnumGUID;
-    function GetMapTypeIterator: IEnumUnknown;
     function GetItem(AIndex: Integer): IMapType;
     function GetCount: Integer;
   public
@@ -99,26 +97,14 @@ begin
   Result := FList.Items[AIndex] as IMapType;
 end;
 
-function TMapTypeSet.GetIterator: IEnumGUID;
-begin
-  Result := FList.GetGUIDEnum;
-end;
-
 function TMapTypeSet.GetMapTypeByGUID(const AGUID: TGUID): IMapType;
 begin
   Result := FList.GetByGUID(AGUID) as IMapType;
 end;
 
-function TMapTypeSet.GetMapTypeIterator: IEnumUnknown;
-begin
-  Result := FList.GetEnumUnknown;
-end;
-
 function TMapTypeSet.IsEqual(const AValue: IMapTypeSet): Boolean;
 var
-  VEnum: IEnumGUID;
-  VGUID: TGUID;
-  i: Cardinal;
+  i: Integer;
 begin
   if AValue = nil then begin
     Result := False;
@@ -137,13 +123,13 @@ begin
     Result := False;
     Exit;
   end;
-  VEnum := AValue.GetIterator;
-  while VEnum.Next(1, VGUID, i) = S_OK do begin
-    if not FList.IsExists(VGUID) then begin
+  for i := 0 to FList.Count - 1 do begin
+    if FList.Items[i] <> AValue.Items[i] then begin
       Result := False;
       Exit;
     end;
   end;
+
   Result := True;
 end;
 
@@ -234,17 +220,20 @@ var
   VGUID: TGUID;
   VFetched: Cardinal;
 begin
-  VHash := CInitialHash;
-  if not Assigned(FList) then begin
-    FList := TGUIDInterfaceSet.Create(FAllowNil);
-  end else begin
-    VEnum := FList.GetGUIDEnum;
-    while VEnum.Next(1, VGUID, VFetched) = S_OK do begin
-      FHashFunction.UpdateHashByGUID(VHash, VGUID);
+  Result := nil;
+  if Assigned(FList) and (FList.Count > 0) then begin
+    VHash := CInitialHash;
+    if not Assigned(FList) then begin
+      FList := TGUIDInterfaceSet.Create(FAllowNil);
+    end else begin
+      VEnum := FList.GetGUIDEnum;
+      while VEnum.Next(1, VGUID, VFetched) = S_OK do begin
+        FHashFunction.UpdateHashByGUID(VHash, VGUID);
+      end;
     end;
+    Result := TMapTypeSet.Create(VHash, FList);
+    FList := nil;
   end;
-  Result := TMapTypeSet.Create(VHash, FList);
-  FList := nil;
 end;
 
 function TMapTypeSetBuilder.MakeCopy: IMapTypeSet;
@@ -255,9 +244,10 @@ var
   VGUID: TGUID;
   VHash: THashValue;
 begin
-  VHash := CInitialHash;
-  VList := TGUIDInterfaceSet.Create(FAllowNil);
-  if Assigned(FList) then begin
+  Result := nil;
+  if Assigned(FList) and (FList.Count > 0) then begin
+    VHash := CInitialHash;
+    VList := TGUIDInterfaceSet.Create(FAllowNil);
     for i := 0 to FList.Count - 1 do begin
       VMap := FList.Items[i] as IMapType;
       if Assigned(VMap) then begin
@@ -268,8 +258,8 @@ begin
       VList.Add(VGUID, VMap);
       FHashFunction.UpdateHashByGUID(VHash, VGUID);
     end;
+    Result := TMapTypeSet.Create(VHash, VList);
   end;
-  Result := TMapTypeSet.Create(VHash, VList);
 end;
 
 procedure TMapTypeSetBuilder.SetCapacity(ANewCapacity: Integer);

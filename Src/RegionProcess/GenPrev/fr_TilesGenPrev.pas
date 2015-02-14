@@ -35,9 +35,6 @@ uses
   i_LanguageManager,
   i_ImageResamplerFactory,
   i_MapType,
-  i_MapTypeSet,
-  i_ActiveMapsConfig,
-  i_MapTypeGUIConfigList,
   i_ImageResamplerConfig,
   i_GeometryLonLat,
   i_RegionProcessParamsFrame,
@@ -98,9 +95,6 @@ type
     procedure chklstZoomsClickCheck(Sender: TObject);
     procedure chkReplaceClick(Sender: TObject);
   private
-    FMainMapsConfig: IMainMapsConfig;
-    FFullMapsSet: IMapTypeSet;
-    FGUIConfigList: IMapTypeGUIConfigList;
     FImageResamplerFactoryList: IImageResamplerFactoryList;
     FImageResamplerConfig: IImageResamplerConfig;
     FfrMapSelect: TfrMapSelect;
@@ -126,9 +120,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AMainMapsConfig: IMainMapsConfig;
-      const AFullMapsSet: IMapTypeSet;
-      const AGUIConfigList: IMapTypeGUIConfigList;
+      const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const AImageResamplerFactoryList: IImageResamplerFactoryList;
       const AImageResamplerConfig: IImageResamplerConfig
     ); reintroduce;
@@ -148,9 +140,7 @@ const
 
 constructor TfrTilesGenPrev.Create(
   const ALanguageManager: ILanguageManager;
-  const AMainMapsConfig: IMainMapsConfig;
-  const AFullMapsSet: IMapTypeSet;
-  const AGUIConfigList: IMapTypeGUIConfigList;
+  const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const AImageResamplerFactoryList: IImageResamplerFactoryList;
   const AImageResamplerConfig: IImageResamplerConfig
 );
@@ -158,17 +148,10 @@ begin
   TP_Ignore(Self, 'cbbResampler.Items');
   TP_Ignore(Self, 'cbbResampler.Text');
   inherited Create(ALanguageManager);
-  FMainMapsConfig := AMainMapsConfig;
-  FFullMapsSet := AFullMapsSet;
-  FGUIConfigList := AGUIConfigList;
   FImageResamplerFactoryList := AImageResamplerFactoryList;
   FImageResamplerConfig := AImageResamplerConfig;
   FfrMapSelect :=
-    TfrMapSelect.Create(
-      ALanguageManager,
-      AMainMapsConfig,
-      AGUIConfigList,
-      AFullMapsSet,
+    AMapSelectFrameBuilder.Build(
       mfAll, // show maps and layers
       False,  // add -NO- to combobox
       False,  // show disabled map

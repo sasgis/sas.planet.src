@@ -31,11 +31,9 @@ uses
   i_Bitmap32BufferFactory,
   i_BitmapTileSaveLoadFactory,
   i_LanguageManager,
-  i_MapTypeSet,
-  i_ActiveMapsConfig,
-  i_MapTypeGUIConfigList,
   i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
+  fr_MapSelect,
   fr_ExportToOgf2;
 
 type
@@ -56,9 +54,7 @@ type
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
-      const AMainMapsConfig: IMainMapsConfig;
-      const AFullMapsSet: IMapTypeSet;
-      const AGUIConfigList: IMapTypeGUIConfigList;
+      const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
@@ -86,9 +82,7 @@ uses
 constructor TExportProviderOgf2.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
-  const AMainMapsConfig: IMainMapsConfig;
-  const AFullMapsSet: IMapTypeSet;
-  const AGUIConfigList: IMapTypeGUIConfigList;
+  const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
@@ -101,9 +95,7 @@ begin
   inherited Create(
     AProgressFactory,
     ALanguageManager,
-    AMainMapsConfig,
-    AFullMapsSet,
-    AGUIConfigList
+    AMapSelectFrameBuilder
   );
   FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
@@ -122,9 +114,7 @@ begin
       FVectorGeometryProjectedFactory,
       FBitmapTileSaveLoadFactory,
       FBitmap32StaticFactory,
-      Self.MainMapsConfig,
-      Self.FullMapsSet,
-      Self.GUIConfigList,
+      Self.MapSelectFrameBuilder,
       'OGF2 (*.ogf2) |*.ogf2',
       'ogf2'
     );

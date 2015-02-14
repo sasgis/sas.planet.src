@@ -28,6 +28,7 @@ uses
   i_MapViewGoto,
   i_RegionProcess,
   i_ViewPortState,
+  i_MapTypeSet,
   i_MainFormConfig,
   i_GeometryLonLatFactory,
   i_AppearanceOfMarkFactory,
@@ -41,6 +42,7 @@ type
     FMarkSystem: IMarkSystem;
     FMapGoTo: IMapViewGoto;
     FViewPortState: IViewPortState;
+    FAllMapsSet: IMapTypeSet;
     FMainFormConfig: IMainFormConfig;
     FGeometryLonLatFactory: IGeometryLonLatFactory;
     FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
@@ -64,6 +66,7 @@ type
       const AMarkSystem: IMarkSystem;
       const AMapGoto: IMapViewGoto;
       const AViewPortState: IViewPortState;
+      const AAllMapsSet: IMapTypeSet;
       const AMainFormConfig: IMainFormConfig;
       const AGeometryLonLatFactory: IGeometryLonLatFactory;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
@@ -89,6 +92,7 @@ constructor TCmdLineArgProcessor.Create(
   const AMarkSystem: IMarkSystem;
   const AMapGoto: IMapViewGoto;
   const AViewPortState: IViewPortState;
+  const AAllMapsSet: IMapTypeSet;
   const AMainFormConfig: IMainFormConfig;
   const AGeometryLonLatFactory: IGeometryLonLatFactory;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
@@ -99,6 +103,7 @@ begin
   FMarkSystem := AMarkSystem;
   FMapGoTo := AMapGoto;
   FViewPortState := AViewPortState;
+  FAllMapsSet := AAllMapsSet;
   FMainFormConfig := AMainFormConfig;
   FGeometryLonLatFactory := AGeometryLonLatFactory;
   FAppearanceOfMarkFactory := AAppearanceOfMarkFactory;
@@ -186,12 +191,12 @@ begin
       if VParseResult.HasArgument('map') then begin
         VStrValue := VParseResult.GetValue('map');
         if GetGUID(VStrValue, VGUID, Result) then begin
-          VMap := FMainFormConfig.MainMapsConfig.GetAllMapsSet.GetMapTypeByGUID(VGUID);
+          VMap := FAllMapsSet.GetMapTypeByGUID(VGUID);
           if VMap <> nil then begin
             if VMap.Zmp.IsLayer then begin
-              FMainFormConfig.MainMapsConfig.InvertLayerSelectionByGUID(VGUID);
+              FMainFormConfig.MapLayersConfig.InvertLayerSelectionByGUID(VGUID);
             end else begin
-              FMainFormConfig.MainMapsConfig.SelectMainByGUID(VGUID);
+              FMainFormConfig.MainMapConfig.MainMapGUID := VGUID;
             end;
           end else begin
             Result := Result or cCmdLineArgProcessorUnknownGUID;

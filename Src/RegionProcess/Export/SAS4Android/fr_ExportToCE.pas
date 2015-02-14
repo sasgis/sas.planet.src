@@ -34,9 +34,6 @@ uses
   Dialogs,
   i_LanguageManager,
   i_MapType,
-  i_MapTypeSet,
-  i_ActiveMapsConfig,
-  i_MapTypeGUIConfigList,
   i_GeometryLonLat,
   i_RegionProcessParamsFrame,
   fr_MapSelect,
@@ -85,9 +82,6 @@ type
     procedure CMapNameClick(Sender: TObject);
     procedure CCommentClick(Sender: TObject);
   private
-    FMainMapsConfig: IMainMapsConfig;
-    FFullMapsSet: IMapTypeSet;
-    FGUIConfigList: IMapTypeGUIConfigList;
     FfrMapSelect: TfrMapSelect;
     FfrZoomsSelect: TfrZoomsSelect;
   private
@@ -108,9 +102,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AMainMapsConfig: IMainMapsConfig;
-      const AFullMapsSet: IMapTypeSet;
-      const AGUIConfigList: IMapTypeGUIConfigList;
+      const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const AFileFilters: string;
       const AFileExtDefault: string
     ); reintroduce;
@@ -129,23 +121,14 @@ uses
 
 constructor TfrExportToCe.Create(
   const ALanguageManager: ILanguageManager;
-  const AMainMapsConfig: IMainMapsConfig;
-  const AFullMapsSet: IMapTypeSet;
-  const AGUIConfigList: IMapTypeGUIConfigList;
+  const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const AFileFilters: string;
   const AFileExtDefault: string
 );
 begin
   inherited Create(ALanguageManager);
-  FMainMapsConfig := AMainMapsConfig;
-  FFullMapsSet := AFullMapsSet;
-  FGUIConfigList := AGUIConfigList;
   FfrMapSelect :=
-    TfrMapSelect.Create(
-      ALanguageManager,
-      AMainMapsConfig,
-      AGUIConfigList,
-      AFullMapsSet,
+    AMapSelectFrameBuilder.Build(
       mfAll, // show maps and layers
       False,  // add -NO- to combobox
       False,  // show disabled map

@@ -28,14 +28,13 @@ uses
   TB2Item,
   TBX,
   i_Listener,
-  i_MapType,
-  i_MapTypeSetChangeable;
+  i_ActiveMapsConfig;
 
 type
   TActiveMapTBXItem = class(TTBXCustomItem)
   private
-    FMapType: IMapType;
-    FActiveMap: IMapTypeChangeable;
+    FGUID: TGUID;
+    FConfig: IActiveMapConfig;
     FListener: IListener;
     procedure OnMapChangeState;
     procedure AdjustFont(
@@ -44,19 +43,20 @@ type
       Font: TFont;
       StateFlags: Integer
     );
+    procedure ItemClick(Sender: TObject);
   public
     constructor Create(
       AOwner: TComponent;
-      const AMapType: IMapType;
-      const AActiveMap: IMapTypeChangeable
+      const AGUID: TGUID;
+      const AConfig: IActiveMapConfig
     ); reintroduce;
     destructor Destroy; override;
   end;
 
   TActiveLayerTBXItem = class(TTBXCustomItem)
   private
-    FMapType: IMapType;
-    FActiveLayers: IMapTypeSetChangeable;
+    FGUID: TGUID;
+    FConfig: IActiveLayersConfig;
     FListener: IListener;
     procedure OnMapChangeState;
     procedure AdjustFont(
@@ -65,11 +65,12 @@ type
       Font: TFont;
       StateFlags: Integer
     );
+    procedure ItemClick(Sender: TObject);
   public
     constructor Create(
       AOwner: TComponent;
-      const AMapType: IMapType;
-      const AActiveLayers: IMapTypeSetChangeable
+      const AGUID: TGUID;
+      const AConfig: IActiveLayersConfig
     ); reintroduce;
     destructor Destroy; override;
   end;
@@ -77,30 +78,33 @@ type
 implementation
 
 uses
+  SysUtils,
+  i_GUIDListStatic,
   u_ListenerByEvent;
 
 { TActiveMapTBXItem }
 
 constructor TActiveMapTBXItem.Create(
   AOwner: TComponent;
-  const AMapType: IMapType;
-  const AActiveMap: IMapTypeChangeable
+  const AGUID: TGUID;
+  const AConfig: IActiveMapConfig
 );
 begin
-  Assert(Assigned(AActiveMap));
+  Assert(Assigned(AConfig));
   inherited Create(AOwner);
-  FMapType := AMapType;
-  FActiveMap := AActiveMap;
+  FGUID := AGUID;
+  FConfig := AConfig;
   OnAdjustFont := Self.AdjustFont;
+  OnClick := Self.ItemClick;
   FListener := TNotifyNoMmgEventListener.Create(Self.OnMapChangeState);
-  FActiveMap.ChangeNotifier.Add(FListener);
+  FConfig.ChangeNotifier.Add(FListener);
   OnMapChangeState;
 end;
 
 destructor TActiveMapTBXItem.Destroy;
 begin
-  if Assigned(FActiveMap) and Assigned(FListener) then begin
-    FActiveMap.ChangeNotifier.Remove(FListener);
+  if Assigned(FConfig) and Assigned(FListener) then begin
+    FConfig.ChangeNotifier.Remove(FListener);
     FListener := nil;
   end;
   inherited;
@@ -120,34 +124,39 @@ begin
   end;
 end;
 
+procedure TActiveMapTBXItem.ItemClick(Sender: TObject);
+begin
+  FConfig.MainMapGUID := FGUID;
+end;
+
 procedure TActiveMapTBXItem.OnMapChangeState;
 begin
-  Self.Checked := FActiveMap.GetStatic = FMapType;
+  Self.Checked := IsEqualGUID(FConfig.MainMapGUID, FGUID);
 end;
 
 { TActiveLayerTBXItem }
 
 constructor TActiveLayerTBXItem.Create(
   AOwner: TComponent;
-  const AMapType: IMapType;
-  const AActiveLayers: IMapTypeSetChangeable
+  const AGUID: TGUID;
+  const AConfig: IActiveLayersConfig
 );
 begin
-  Assert(Assigned(AMapType));
-  Assert(Assigned(AActiveLayers));
+  Assert(Assigned(AConfig));
   inherited Create(AOwner);
-  FMapType := AMapType;
-  FActiveLayers := AActiveLayers;
+  FGUID := AGUID;
+  FConfig := AConfig;
   OnAdjustFont := Self.AdjustFont;
+  OnClick := Self.ItemClick;
   FListener := TNotifyNoMmgEventListener.Create(Self.OnMapChangeState);
-  FActiveLayers.GetChangeNotifier.Add(FListener);
+  FConfig.ChangeNotifier.Add(FListener);
   OnMapChangeState;
 end;
 
 destructor TActiveLayerTBXItem.Destroy;
 begin
-  if Assigned(FActiveLayers) and Assigned(FListener) then begin
-    FActiveLayers.ChangeNotifier.Remove(FListener);
+  if Assigned(FConfig) and Assigned(FListener) then begin
+    FConfig.ChangeNotifier.Remove(FListener);
     FListener := nil;
   end;
   inherited;
@@ -167,9 +176,17 @@ begin
   end;
 end;
 
-procedure TActiveLayerTBXItem.OnMapChangeState;
+procedure TActiveLayerTBXItem.ItemClick(Sender: TObject);
 begin
-  Self.Checked := FActiveLayers.GetStatic.IsExists(FMapType.GUID);
+  FConfig.InvertLayerSelectionByGUID(FGUID);
+end;
+
+procedure TActiveLayerTBXItem.OnMapChangeState;
+var
+  VLayers: IGUIDSetStatic;
+begin
+  VLayers := FConfig.LayerGuids;
+  Self.Checked := Assigned(VLayers) and VLayers.IsExists(FGUID);
 end;
 
 end.

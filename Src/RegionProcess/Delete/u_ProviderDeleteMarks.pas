@@ -27,13 +27,11 @@ uses
   Forms,
   i_LanguageManager,
   i_MarkSystem,
-  i_MapTypeSet,
-  i_ActiveMapsConfig,
-  i_MapTypeGUIConfigList,
   i_GeometryProjectedFactory,
   i_GeometryLonLat,
   i_LocalCoordConverterChangeable,
   i_RegionProcessProgressInfoInternalFactory,
+  fr_MapSelect,
   u_ExportProviderAbstract;
 
 type
@@ -51,9 +49,7 @@ type
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
-      const AMainMapsConfig: IMainMapsConfig;
-      const AFullMapsSet: IMapTypeSet;
-      const AGUIConfigList: IMapTypeGUIConfigList;
+      const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const APosition: ILocalCoordConverterChangeable;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const AMarkSystem: IMarkSystem
@@ -78,9 +74,7 @@ uses
 constructor TProviderDeleteMarks.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
-  const AMainMapsConfig: IMainMapsConfig;
-  const AFullMapsSet: IMapTypeSet;
-  const AGUIConfigList: IMapTypeGUIConfigList;
+  const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const APosition: ILocalCoordConverterChangeable;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const AMarkSystem: IMarkSystem
@@ -89,9 +83,7 @@ begin
   inherited Create(
     AProgressFactory,
     ALanguageManager,
-    AMainMapsConfig,
-    AFullMapsSet,
-    AGUIConfigList
+    AMapSelectFrameBuilder
   );
   FPosition := APosition;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;

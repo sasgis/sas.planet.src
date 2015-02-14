@@ -38,6 +38,7 @@ uses
   i_GlobalBerkeleyDBHelper,
   i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
+  fr_MapSelect,
   fr_TilesCopy;
 
 type
@@ -50,6 +51,9 @@ type
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FContentTypeManager: IContentTypeManager;
     FTileStorageTypeList: ITileStorageTypeListStatic;
+    FMainMapConfig: IActiveMapConfig;
+    FFullMapsSet: IMapTypeSet;
+    FGUIConfigList: IMapTypeGUIConfigList;
   protected
     function CreateFrame: TFrame; override;
   protected
@@ -60,7 +64,8 @@ type
       const ATimerNoifier: INotifierTime;
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
-      const AMainMapsConfig: IMainMapsConfig;
+      const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
+      const AMainMapConfig: IActiveMapConfig;
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
@@ -92,7 +97,8 @@ constructor TProviderTilesCopy.Create(
   const ATimerNoifier: INotifierTime;
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
-  const AMainMapsConfig: IMainMapsConfig;
+  const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
+  const AMainMapConfig: IActiveMapConfig;
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
@@ -106,10 +112,11 @@ begin
   inherited Create(
     AProgressFactory,
     ALanguageManager,
-    AMainMapsConfig,
-    AFullMapsSet,
-    AGUIConfigList
+    AMapSelectFrameBuilder
   );
+  FMainMapConfig := AMainMapConfig;
+  FFullMapsSet := AFullMapsSet;
+  FGUIConfigList := AGUIConfigList;
   FMapTypeListBuilderFactory := AMapTypeListBuilderFactory;
   FTimerNoifier := ATimerNoifier;
   FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
@@ -125,9 +132,9 @@ begin
     TfrTilesCopy.Create(
       Self.LanguageManager,
       FMapTypeListBuilderFactory,
-      Self.MainMapsConfig,
-      Self.FullMapsSet,
-      Self.GUIConfigList,
+      FMainMapConfig,
+      FFullMapsSet,
+      FGUIConfigList,
       FTileStorageTypeList
     );
   Assert(Supports(Result, IRegionProcessParamsFrameZoomArray));

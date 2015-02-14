@@ -23,8 +23,6 @@ unit u_MainFormConfig;
 interface
 
 uses
-  i_MapTypeSet,
-  i_MapTypeSetBuilder,
   i_ActiveMapsConfig,
   i_NavigationToPoint,
   i_MainFormConfig,
@@ -49,7 +47,8 @@ type
     FGPSBehaviour: IMainFormBehaviourByGPSConfig;
     FSearchHistory: IStringHistory;
     FMainGeoCoderConfig: IMainGeoCoderConfig;
-    FMainMapsConfig: IMainMapsConfig;
+    FMainMapConfig: IActiveMapConfig;
+    FMapLayersConfig: IActiveLayersConfig;
     FDownloadUIConfig: IDownloadUIConfig;
     FKeyMovingConfig: IKeyMovingConfig;
     FMapZoomingConfig: IMapZoomingConfig;
@@ -63,7 +62,8 @@ type
     function GetGPSBehaviour: IMainFormBehaviourByGPSConfig;
     function GetSearchHistory: IStringHistory;
     function GetMainGeoCoderConfig: IMainGeoCoderConfig;
-    function GetMainMapsConfig: IMainMapsConfig;
+    function GetMainMapConfig: IActiveMapConfig;
+    function GetMapLayersConfig: IActiveLayersConfig;
     function GetDownloadUIConfig: IDownloadUIConfig;
     function GetKeyMovingConfig: IKeyMovingConfig;
     function GetMapZoomingConfig: IMapZoomingConfig;
@@ -71,8 +71,6 @@ type
     function GetMarksExplorerWindowConfig: IWindowPositionConfig;
   public
     constructor Create(
-      const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
-      const AMapsSet, ALayersSet: IMapTypeSet;
       const ADefaultMapGUID: TGUID
     );
   end;
@@ -82,7 +80,6 @@ implementation
 uses
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_ConfigSaveLoadStrategyBasicUseProvider,
-  u_MainMapsConfig,
   u_MainWindowToolbarsLock,
   u_NavigationToPoint,
   u_MainFormLayersConfig,
@@ -93,14 +90,14 @@ uses
   u_MapZoomingConfig,
   u_DownloadUIConfig,
   u_KeyMovingConfig,
+  u_ActiveMapConfig,
+  u_ActiveLayersConfig,
   u_MainFormMainConfig,
   u_WindowPositionConfig;
 
 { TMainFormConfig }
 
 constructor TMainFormConfig.Create(
-  const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
-  const AMapsSet, ALayersSet: IMapTypeSet;
   const ADefaultMapGUID: TGUID
 );
 begin
@@ -117,9 +114,11 @@ begin
   Add(FMainGeoCoderConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('GeoCoder'));
   FSearchHistory := TStringHistory.Create;
   Add(FSearchHistory, TConfigSaveLoadStrategyBasicProviderSubItem.Create('History'));
-  FMainMapsConfig := TMainMapsConfig.Create(AMapTypeSetBuilderFactory, AMapsSet, ALayersSet, ADefaultMapGUID);
-  Add(FMainMapsConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps'));
-  FLayersConfig := TMainFormLayersConfig.Create(AMapTypeSetBuilderFactory, FMainMapsConfig);
+  FMainMapConfig := TActiveMapConfig.Create(False, ADefaultMapGUID);
+  Add(FMainMapConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps'));
+  FMapLayersConfig := TActiveLayersConfig.Create;
+  Add(FMapLayersConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps'));
+  FLayersConfig := TMainFormLayersConfig.Create;
   Add(FLayersConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
   FDownloadUIConfig := TDownloadUIConfig.Create;
   Add(FDownloadUIConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('ViewDownload'));
@@ -163,9 +162,9 @@ begin
   Result := FMainGeoCoderConfig;
 end;
 
-function TMainFormConfig.GetMainMapsConfig: IMainMapsConfig;
+function TMainFormConfig.GetMainMapConfig: IActiveMapConfig;
 begin
-  Result := FMainMapsConfig;
+  Result := FMainMapConfig;
 end;
 
 function TMainFormConfig.GetMapZoomingConfig: IMapZoomingConfig;
@@ -176,6 +175,11 @@ end;
 function TMainFormConfig.GetMarksExplorerWindowConfig: IWindowPositionConfig;
 begin
   Result := FMarksExplorerWindowConfig;
+end;
+
+function TMainFormConfig.GetMapLayersConfig: IActiveLayersConfig;
+begin
+  Result := FMapLayersConfig;
 end;
 
 function TMainFormConfig.GetMapMovingConfig: IMapMovingConfig;

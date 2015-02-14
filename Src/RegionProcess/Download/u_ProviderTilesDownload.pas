@@ -34,8 +34,6 @@ uses
   i_GeometryProjectedFactory,
   i_CoordConverterFactory,
   i_LanguageManager,
-  i_ActiveMapsConfig,
-  i_MapTypeGUIConfigList,
   i_ValueToStringConverter,
   i_GlobalDownloadConfig,
   i_DownloadInfoSimple,
@@ -43,6 +41,7 @@ uses
   i_RegionProcessProvider,
   u_ExportProviderAbstract,
   u_MarkDbGUIHelper,
+  fr_MapSelect,
   fr_TilesDownload;
 
 type
@@ -63,6 +62,7 @@ type
     FRegionProcess: IRegionProcess;
     FMapGoto: IMapViewGoto;
     FMarkDBGUI: TMarkDbGUIHelper;
+    FFullMapsSet: IMapTypeSet;
 
   protected
     function CreateFrame: TFrame; override;
@@ -77,9 +77,8 @@ type
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AValueToStringConverter: IValueToStringConverterChangeable;
-      const AMainMapsConfig: IMainMapsConfig;
+      const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const AFullMapsSet: IMapTypeSet;
-      const AGUIConfigList: IMapTypeGUIConfigList;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -127,9 +126,8 @@ constructor TProviderTilesDownload.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AValueToStringConverter: IValueToStringConverterChangeable;
-  const AMainMapsConfig: IMainMapsConfig;
+  const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const AFullMapsSet: IMapTypeSet;
-  const AGUIConfigList: IMapTypeGUIConfigList;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -143,15 +141,14 @@ begin
   inherited Create(
     AProgressFactory,
     ALanguageManager,
-    AMainMapsConfig,
-    AFullMapsSet,
-    AGUIConfigList
+    AMapSelectFrameBuilder
   );
   FAppClosingNotifier := AAppClosingNotifier;
   FValueToStringConverter := AValueToStringConverter;
   FProjectionFactory := AProjectionFactory;
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
+  FFullMapsSet := AFullMapsSet;
   FDownloadConfig := ADownloadConfig;
   FDownloadInfo := ADownloadInfo;
   FRegionProcess := ARegionProcess;
@@ -166,9 +163,7 @@ begin
       Self.LanguageManager,
       FProjectionFactory,
       FVectorGeometryProjectedFactory,
-      Self.MainMapsConfig,
-      Self.FullMapsSet,
-      Self.GUIConfigList
+      Self.MapSelectFrameBuilder
     );
   Assert(Supports(Result, IRegionProcessParamsFrameOneMap));
   Assert(Supports(Result, IRegionProcessParamsFrameOneZoom));
@@ -245,7 +240,7 @@ begin
     raise Exception.Create('Map GUID is empty');
   end;
   VGuid := StringToGUID(VGuids);
-  VMapType := FullMapsSet.GetMapTypeByGUID(VGuid);
+  VMapType := FFullMapsSet.GetMapTypeByGUID(VGuid);
   if VMapType = nil then begin
     raise Exception.CreateFmt('Map with GUID = %s not found', [VGuids]);
   end;

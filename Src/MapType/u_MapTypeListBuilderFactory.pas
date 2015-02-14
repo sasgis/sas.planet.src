@@ -205,11 +205,14 @@ var
   VHash: THashValue;
   i: Integer;
 begin
-  VHash := CInitialHash;
-  for i := 0 to FList.Count - 1 do begin
-    FHashFunction.UpdateHashByGUID(VHash, GetItem(i).GUID);
+  Result := nil;
+  if FList.Count > 0 then begin
+    VHash := CInitialHash;
+    for i := 0 to FList.Count - 1 do begin
+      FHashFunction.UpdateHashByGUID(VHash, GetItem(i).GUID);
+    end;
+    Result := TMapTypeListStatic.Create(VHash, FList.MakeStaticAndClear);
   end;
-  Result := TMapTypeListStatic.Create(VHash, FList.MakeStaticAndClear);
 end;
 
 function TMapTypeListBuilder.MakeCopy: IMapTypeListStatic;
@@ -217,11 +220,14 @@ var
   VHash: THashValue;
   i: Integer;
 begin
-  VHash := CInitialHash;
-  for i := 0 to FList.Count - 1 do begin
-    FHashFunction.UpdateHashByGUID(VHash, GetItem(i).GUID);
+  Result := nil;
+  if FList.Count > 0 then begin
+    VHash := CInitialHash;
+    for i := 0 to FList.Count - 1 do begin
+      FHashFunction.UpdateHashByGUID(VHash, GetItem(i).GUID);
+    end;
+    Result := TMapTypeListStatic.Create(VHash, FList.MakeStaticCopy);
   end;
-  Result := TMapTypeListStatic.Create(VHash, FList.MakeStaticCopy);
 end;
 
 procedure TMapTypeListBuilder.SetCapacity(ANewCapacity: Integer);

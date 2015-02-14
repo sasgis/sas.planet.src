@@ -32,10 +32,7 @@ uses
   i_GeometryLonLat,
   i_GeometryProjectedProvider,
   i_RegionProcessProgressInfo,
-  i_MapTypeSet,
   i_UseTilePrevZoomConfig,
-  i_ActiveMapsConfig,
-  i_MapTypeGUIConfigList,
   i_LocalCoordConverterFactorySimpe,
   i_BitmapPostProcessing,
   i_Bitmap32BufferFactory,
@@ -50,6 +47,7 @@ uses
   i_GlobalViewMainConfig,
   i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
+  fr_MapSelect,
   u_ProviderMapCombine;
 
 type
@@ -60,10 +58,8 @@ type
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
-      const AMainMapsConfig: IMainMapsConfig;
-      const AFullMapsSet: IMapTypeSet;
+      const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const AActiveMapsSet: IMapTypeListChangeable;
-      const AGUIConfigList: IMapTypeGUIConfigList;
       const AViewConfig: IGlobalViewMainConfig;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
       const AProjectionFactory: IProjectionInfoFactory;
@@ -101,10 +97,8 @@ uses
 constructor TProviderMapCombineJP2.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
-  const AMainMapsConfig: IMainMapsConfig;
-  const AFullMapsSet: IMapTypeSet;
+  const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const AActiveMapsSet: IMapTypeListChangeable;
-  const AGUIConfigList: IMapTypeGUIConfigList;
   const AViewConfig: IGlobalViewMainConfig;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
   const AProjectionFactory: IProjectionInfoFactory;
@@ -135,10 +129,8 @@ begin
   inherited Create(
     AProgressFactory,
     ALanguageManager,
-    AMainMapsConfig,
-    AFullMapsSet,
+    AMapSelectFrameBuilder,
     AActiveMapsSet,
-    AGUIConfigList,
     AViewConfig,
     AUseTilePrevZoomConfig,
     AProjectionFactory,

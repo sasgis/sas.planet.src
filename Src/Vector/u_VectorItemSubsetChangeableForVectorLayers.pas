@@ -144,7 +144,6 @@ implementation
 
 uses
   Types,
-  ActiveX,
   i_NotifierTilePyramidUpdate,
   i_CoordConverter,
   i_TileIterator,
@@ -301,17 +300,13 @@ procedure TVectorItemSubsetChangeableForVectorLayers.AddVersionListener(
 );
 var
   VMap: IMapType;
-  VEnum: IEnumGUID;
-  VGUID: TGUID;
-  Vcnt: Cardinal;
+  i: Integer;
 begin
   if Assigned(ALayerSet) then begin
-    VEnum := ALayerSet.GetIterator;
-    while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
-      VMap := ALayerSet.GetMapTypeByGUID(VGUID);
-      if VMap <> nil then begin
-        VMap.VersionRequestConfig.ChangeNotifier.Add(FVersionListener);
-      end;
+    for i := 0 to ALayerSet.Count - 1 do begin
+      VMap := ALayerSet.Items[i];
+      Assert(Assigned(VMap));
+      VMap.VersionRequestConfig.ChangeNotifier.Add(FVersionListener);
     end;
   end;
 end;
@@ -324,9 +319,6 @@ var
   VListeners: IInterfaceListSimple;
   VListener: IListener;
   VMap: IMapType;
-  VEnum: IEnumGUID;
-  VGUID: TGUID;
-  Vcnt: Cardinal;
   i: Integer;
   VNotifier: INotifierTilePyramidUpdate;
   VZoom: Byte;
@@ -340,38 +332,30 @@ begin
       if FLayerListeners = nil then begin
         VListeners := TInterfaceListSimple.Create;
         VListeners.Capacity := ALayerSet.GetCount;
-        VEnum := ALayerSet.GetIterator;
-        while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
-          VMap := ALayerSet.GetMapTypeByGUID(VGUID);
+        for i := 0 to ALayerSet.Count - 1 do begin
+          VMap := ALayerSet.Items[i];
           Assert(Assigned(VMap));
-          if VMap <> nil then begin
-            VListener := TTileUpdateListenerToLonLat.Create(VMap.GeoConvert, Self.OnTileUpdate);
-            VListeners.Add(VListener);
-          end;
+          VListener := TTileUpdateListenerToLonLat.Create(VMap.GeoConvert, Self.OnTileUpdate);
+          VListeners.Add(VListener);
         end;
         FLayerListeners := VListeners.MakeStaticAndClear;
       end;
       VZoom := ATileRect.ProjectionInfo.Zoom;
       VConverter := ATileRect.ProjectionInfo.GeoConverter;
       VLonLatRect := VConverter.TileRect2LonLatRect(ATileRect.Rect, VZoom);
-      VEnum := ALayerSet.GetIterator;
-      i := 0;
-      while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
-        VMap := ALayerSet.GetMapTypeByGUID(VGUID);
-        if VMap <> nil then begin
-          VNotifier := VMap.TileStorage.TileNotifier;
-          if VNotifier <> nil then begin
-            VConverter := VMap.GeoConvert;
-            VMapLonLatRect := VLonLatRect;
-            VConverter.ValidateLonLatRect(VMapLonLatRect);
-            VTileRect :=
-              RectFromDoubleRect(
-                VConverter.LonLatRect2TileRectFloat(VMapLonLatRect, VZoom),
-                rrToTopLeft
-              );
-            VNotifier.AddListenerByRect(IListener(FLayerListeners[i]), VZoom, VTileRect);
-          end;
-          Inc(i);
+      for i := 0 to ALayerSet.Count - 1 do begin
+        VMap := ALayerSet.Items[i];
+        VNotifier := VMap.TileStorage.TileNotifier;
+        if VNotifier <> nil then begin
+          VConverter := VMap.GeoConvert;
+          VMapLonLatRect := VLonLatRect;
+          VConverter.ValidateLonLatRect(VMapLonLatRect);
+          VTileRect :=
+            RectFromDoubleRect(
+              VConverter.LonLatRect2TileRectFloat(VMapLonLatRect, VZoom),
+              rrToTopLeft
+            );
+          VNotifier.AddListenerByRect(IListener(FLayerListeners[i]), VZoom, VTileRect);
         end;
       end;
     end;
@@ -385,21 +369,13 @@ var
   VNotifier: INotifierTilePyramidUpdate;
   i: Integer;
   VMap: IMapType;
-  VEnum: IEnumGUID;
-  VGUID: TGUID;
-  Vcnt: Cardinal;
 begin
   if Assigned(ALayerSet) then begin
-    VEnum := ALayerSet.GetIterator;
-    i := 0;
-    while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
-      VMap := ALayerSet.GetMapTypeByGUID(VGUID);
-      if VMap <> nil then begin
-        VNotifier := VMap.TileStorage.TileNotifier;
-        if VNotifier <> nil then begin
-          VNotifier.Remove(IListener(FLayerListeners.Items[i]));
-        end;
-        Inc(i);
+    for i := 0 to ALayerSet.Count - 1 do begin
+      VMap := ALayerSet.Items[i];
+      VNotifier := VMap.TileStorage.TileNotifier;
+      if VNotifier <> nil then begin
+        VNotifier.Remove(IListener(FLayerListeners.Items[i]));
       end;
     end;
   end;
@@ -409,17 +385,12 @@ procedure TVectorItemSubsetChangeableForVectorLayers.RemoveVersionListener(
   const ALayerSet: IMapTypeSet);
 var
   VMap: IMapType;
-  VEnum: IEnumGUID;
-  VGUID: TGUID;
-  Vcnt: Cardinal;
+  i: Integer;
 begin
   if Assigned(ALayerSet) then begin
-    VEnum := ALayerSet.GetIterator;
-    while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
-      VMap := ALayerSet.GetMapTypeByGUID(VGUID);
-      if VMap <> nil then begin
-        VMap.VersionRequestConfig.ChangeNotifier.Remove(FVersionListener);
-      end;
+    for i := 0 to ALayerSet.Count - 1 do begin
+      VMap := ALayerSet.Items[i];
+      VMap.VersionRequestConfig.ChangeNotifier.Remove(FVersionListener);
     end;
   end;
 end;
@@ -444,28 +415,33 @@ begin
     end;
     VTileRect := FTileRect.GetStatic;
     VLayerSet := FLayersSet.GetStatic;
-    if not VLayerSet.IsEqual(FPrevLayerSet) then begin
+    if Assigned(FPrevLayerSet) and not FPrevLayerSet.IsEqual(VLayerSet) then begin
       RemoveLayerListeners(FPrevLayerSet);
       RemoveVersionListener(FPrevLayerSet);
       FLayerListeners := nil;
       FPrevLayerSet := VLayerSet;
       FPrevTileRect := VTileRect;
-      AddVersionListener(VLayerSet);
-      AddLayerListeners(VTileRect, VLayerSet);
-    end else if not VTileRect.IsEqual(FPrevTileRect) then begin
-      RemoveLayerListeners(FPrevLayerSet);
-      AddLayerListeners(VTileRect, VLayerSet);
-      FPrevTileRect := VTileRect;
     end;
+    VResult := nil;
+    if Assigned(VLayerSet) then begin
+      if VLayerSet.IsEqual(FPrevLayerSet) then begin
+        AddVersionListener(VLayerSet);
+        AddLayerListeners(VTileRect, VLayerSet);
+      end else if not VTileRect.IsEqual(FPrevTileRect) then begin
+        RemoveLayerListeners(FPrevLayerSet);
+        AddLayerListeners(VTileRect, VLayerSet);
+        FPrevTileRect := VTileRect;
+      end;
 
-    if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-      Exit;
-    end;
-    VCounterContext := FSubsetPrepareCounter.StartOperation;
-    try
-      VResult := PrepareSubset(AOperationID, ACancelNotifier, VTileRect, VLayerSet);
-    finally
-      FSubsetPrepareCounter.FinishOperation(VCounterContext);
+      if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+        Exit;
+      end;
+      VCounterContext := FSubsetPrepareCounter.StartOperation;
+      try
+        VResult := PrepareSubset(AOperationID, ACancelNotifier, VTileRect, VLayerSet);
+      finally
+        FSubsetPrepareCounter.FinishOperation(VCounterContext);
+      end;
     end;
     FResultCS.BeginWrite;
     try
@@ -583,17 +559,14 @@ function TVectorItemSubsetChangeableForVectorLayers.PrepareSubset(
   const ALayerSet: IMapTypeSet
 ): IVectorItemSubset;
 var
-  VEnum: IEnumGUID;
-  VGUID: TGUID;
-  Vcnt: Cardinal;
+  i: Integer;
   VMapType: IMapType;
   VElements: IVectorItemSubsetBuilder;
 begin
   VElements := FVectorItemSubsetBuilderFactory.Build;
   if ALayerSet <> nil then begin
-    VEnum := ALayerSet.GetIterator;
-    while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
-      VMapType := ALayerSet.GetMapTypeByGUID(VGUID);
+    for i := 0 to ALayerSet.Count - 1 do begin
+      VMapType := ALayerSet.Items[i];
       if VMapType.IsKmlTiles then begin
         AddElementsFromMap(
           AOperationID,

@@ -36,14 +36,11 @@ uses
   t_Bitmap32,
   i_LanguageManager,
   i_MapType,
-  i_MapTypeSet,
   i_MapTypeListChangeable,
   i_CoordConverterFactory,
   i_CoordConverterList,
   i_GeometryLonLat,
   i_GeometryProjectedFactory,
-  i_ActiveMapsConfig,
-  i_MapTypeGUIConfigList,
   i_MapCalibration,
   i_UseTilePrevZoomConfig,
   i_GlobalViewMainConfig,
@@ -146,10 +143,7 @@ type
     FBitmapFactory: IBitmap32StaticFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FCoordConverterList: ICoordConverterList;
-    FMainMapsConfig: IMainMapsConfig;
-    FFullMapsSet: IMapTypeSet;
-    FActiveMapsSet: IMapTypeListChangeable;
-    FGUIConfigList: IMapTypeGUIConfigList;
+    FActiveMapsList: IMapTypeListChangeable;
     FMapCalibrationList: IMapCalibrationList;
     FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
     FPolygLL: IGeometryLonLatPolygon;
@@ -190,10 +184,8 @@ type
       const ACoordConverterList: ICoordConverterList;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
-      const AMainMapsConfig: IMainMapsConfig;
-      const AFullMapsSet: IMapTypeSet;
-      const AActiveMapsSet: IMapTypeListChangeable;
-      const AGUIConfigList: IMapTypeGUIConfigList;
+      const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
+      const AActiveMapsList: IMapTypeListChangeable;
       const AViewConfig: IGlobalViewMainConfig;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
       const AMapCalibrationList: IMapCalibrationList;
@@ -235,10 +227,8 @@ constructor TfrMapCombine.Create(
   const ACoordConverterList: ICoordConverterList;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
-  const AMainMapsConfig: IMainMapsConfig;
-  const AFullMapsSet: IMapTypeSet;
-  const AActiveMapsSet: IMapTypeListChangeable;
-  const AGUIConfigList: IMapTypeGUIConfigList;
+  const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
+  const AActiveMapsList: IMapTypeListChangeable;
   const AViewConfig: IGlobalViewMainConfig;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
   const AMapCalibrationList: IMapCalibrationList;
@@ -254,10 +244,7 @@ begin
   FCoordConverterList := ACoordConverterList;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmapFactory := ABitmapFactory;
-  FMainMapsConfig := AMainMapsConfig;
-  FFullMapsSet := AFullMapsSet;
-  FActiveMapsSet := AActiveMapsSet;
-  FGUIConfigList := AGUIConfigList;
+  FActiveMapsList := AActiveMapsList;
   FMapCalibrationList := AMapCalibrationList;
   FViewConfig := AViewConfig;
   FUseTilePrevZoomConfig := AUseTilePrevZoomConfig;
@@ -270,22 +257,14 @@ begin
   flwpnlJpegQuality.Visible := FUseQuality;
   chkSaveGeoRefInfoToJpegExif.Visible := FUseExif;
   FfrMapSelect :=
-    TfrMapSelect.Create(
-      ALanguageManager,
-      AMainMapsConfig,
-      AGUIConfigList,
-      AFullMapsSet,
+    AMapSelectFrameBuilder.Build(
       mfMaps,    // show Maps
       True,      // add -NO- to combobox
       False,     // show disabled maps
       GetAllowWrite
     );
   FfrLayerSelect :=
-    TfrMapSelect.Create(
-      ALanguageManager,
-      AMainMapsConfig,
-      AGUIConfigList,
-      AFullMapsSet,
+    AMapSelectFrameBuilder.Build(
       mfLayers,  // show Layers
       True,      // add -NO- to combobox
       False,     // show disabled maps
@@ -478,7 +457,7 @@ begin
   if chkAddVisibleLayers.Checked then begin
     VLayer := nil;
     VLayerVersion := nil;
-    VActiveMapsSet := FActiveMapsSet.List;
+    VActiveMapsSet := FActiveMapsList.List;
   end else begin
     VActiveMapsSet := nil;
   end;

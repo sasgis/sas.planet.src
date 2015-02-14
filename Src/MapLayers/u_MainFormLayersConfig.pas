@@ -23,8 +23,6 @@ unit u_MainFormLayersConfig;
 interface
 
 uses
-  i_MapTypeSetBuilder,
-  i_ActiveMapsConfig,
   i_MapLayerGridsConfig,
   i_StatBarConfig,
   i_MapLayerGPSMarkerConfig,
@@ -96,10 +94,7 @@ type
     function GetGotoLayerConfig: IGotoLayerConfig;
     function GetFullMapMouseCursorLayerConfig: IFullMapMouseCursorLayerConfig;
   public
-    constructor Create(
-      const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
-      const AMapsConfig: IMainMapsConfig
-    );
+    constructor Create;
   end;
 
 implementation
@@ -131,10 +126,7 @@ uses
 
 { TMainFormLayersConfig }
 
-constructor TMainFormLayersConfig.Create(
-  const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
-  const AMapsConfig: IMainMapsConfig
-);
+constructor TMainFormLayersConfig.Create;
 begin
   inherited Create;
   FMainMapLayerConfig := TMainMapLayerConfig.Create;
@@ -153,7 +145,7 @@ begin
   Add(FMarksLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarksShow'));
   FKmlLayerConfig := TKmlLayerConfig.Create;
   Add(FKmlLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('WikiLayer'));
-  FMiniMapLayerConfig := TMiniMapLayerConfig.Create(AMapTypeSetBuilderFactory, AMapsConfig.GetActiveMap, AMapsConfig.GetMapsSet, AMapsConfig.GetLayersSet);
+  FMiniMapLayerConfig := TMiniMapLayerConfig.Create;
   Add(FMiniMapLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MiniMap'));
   FCenterScaleConfig := TCenterScaleConfig.Create;
   Add(FCenterScaleConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('CenterScale'));
@@ -173,7 +165,7 @@ begin
   Add(FMarkPolygonLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('EditMarkPolygon'));
   FMarkPolyLineLayerConfig := TMarkPolyLineLayerConfig.Create;
   Add(FMarkPolyLineLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('EditMarkPolyLine'));
-  FFillingMapLayerConfig := TFillingMapLayerConfig.Create(AMapsConfig.GetActiveMap, AMapsConfig.GetAllMapsSet);
+  FFillingMapLayerConfig := TFillingMapLayerConfig.Create;
   Add(FFillingMapLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('FillingLayer'));
   FGotoLayerConfig := TGotoLayerConfig.Create;
   Add(FGotoLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('GotoMarker'));

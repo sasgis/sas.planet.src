@@ -23,7 +23,6 @@ unit i_MapTypeSet;
 interface
 
 uses
-  ActiveX,
   t_Hash,
   i_MapType;
 
@@ -42,8 +41,8 @@ type
     function IsEqual(const AValue: IMapTypeSet): Boolean;
     function IsExists(const AGUID: TGUID): Boolean;
     function GetMapTypeByGUID(const AGUID: TGUID): IMapType;
-    function GetIterator: IEnumGUID;
-    function GetMapTypeIterator: IEnumUnknown;
+//    function GetIterator: IEnumGUID;
+//    function GetMapTypeIterator: IEnumUnknown;
   end;
 
 implementation

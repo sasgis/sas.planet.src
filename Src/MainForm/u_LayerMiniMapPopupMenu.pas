@@ -30,6 +30,7 @@ uses
   i_MapTypeIconsList,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
+  i_MapTypeSet,
   i_PopUp,
   u_BaseInterfacedObject;
 
@@ -38,20 +39,24 @@ type
   private
     FParentMap: TImage32;
     FIconsList: IMapTypeIconsList;
-    FMapsConfig: IActivMapWithLayers;
+    FMapConfig: IActiveMapConfig;
+    FLayersConfig: IActiveLayersConfig;
     FGUIConfigList: IMapTypeGUIConfigList;
+    FMapsSet: IMapTypeSet;
+    FLayersSet: IMapTypeSet;
 
     FPopup: TTBXPopupMenu;
     procedure BuildPopUpMenu;
     procedure BuildMapsListUI(AMapssSubMenu, ALayersSubMenu: TTBCustomItem);
-    procedure OnClickMapItem(Sender: TObject);
-    procedure OnClickLayerItem(Sender: TObject);
   private
     procedure PopUp;
   public
     constructor Create(
       const AParentMap: TImage32;
-      const AMapsConfig: IActivMapWithLayers;
+      const AMapConfig: IActiveMapConfig;
+      const ALayersConfig: IActiveLayersConfig;
+      const AMapsSet: IMapTypeSet;
+      const ALayersSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AIconsList: IMapTypeIconsList
     );
@@ -63,7 +68,6 @@ implementation
 uses
   SysUtils,
   c_ZeroGUID,
-  i_MapType,
   u_ActiveMapTBXItem,
   u_MapTypeMenuItemsGeneratorBasic,
   u_ResStrings;
@@ -72,14 +76,26 @@ uses
 
 constructor TLayerMiniMapPopupMenu.Create(
   const AParentMap: TImage32;
-  const AMapsConfig: IActivMapWithLayers;
+  const AMapConfig: IActiveMapConfig;
+  const ALayersConfig: IActiveLayersConfig;
+  const AMapsSet: IMapTypeSet;
+  const ALayersSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AIconsList: IMapTypeIconsList
 );
 begin
+  Assert(Assigned(AParentMap));
+  Assert(Assigned(AMapConfig));
+  Assert(Assigned(ALayersConfig));
+  Assert(Assigned(AMapsSet));
+  Assert(Assigned(AGUIConfigList));
+  Assert(Assigned(AIconsList));
   inherited Create;
   FParentMap := AParentMap;
-  FMapsConfig := AMapsConfig;
+  FMapConfig := AMapConfig;
+  FLayersConfig := ALayersConfig;
+  FMapsSet := AMapsSet;
+  FLayersSet := ALayersSet;
   FIconsList := AIconsList;
   FGUIConfigList := AGUIConfigList;
 
@@ -100,11 +116,10 @@ var
 begin
   VGenerator := TMapMenuGeneratorBasic.Create(
     FGUIConfigList,
-    FMapsConfig.GetMapsSet,
-    FMapsConfig.GetActiveMap,
+    FMapsSet,
+    FMapConfig,
     nil,
     AMapssSubMenu,
-    Self.OnClickMapItem,
     FIconsList
   );
   try
@@ -114,11 +129,10 @@ begin
   end;
   VGenerator := TMapMenuGeneratorBasic.Create(
     FGUIConfigList,
-    FMapsConfig.GetLayersSet,
+    FLayersSet,
     nil,
-    FMapsConfig.GetActiveLayersSet,
+    FLayersConfig,
     ALayersSubMenu,
-    Self.OnClickLayerItem,
     FIconsList
   );
   try
@@ -146,45 +160,13 @@ begin
   FPopup.Items.Add(VSubMenuItem);
   VLayersSubMenu := VSubMenuItem;
 
-  VMenuItemAsMainMap := TActiveMapTBXItem.Create(FPopup, nil, FMapsConfig.GetActiveMap);
+  VMenuItemAsMainMap := TActiveMapTBXItem.Create(FPopup, CGUID_Zero, FMapConfig);
   VMenuItemAsMainMap.Name := 'MapAsMainLayer';
   VMenuItemAsMainMap.Caption := SAS_STR_MiniMapAsMainMap;
   VMenuItemAsMainMap.Hint := '';
-  VMenuItemAsMainMap.OnClick := Self.OnClickMapItem;
   FPopup.Items.Add(VMenuItemAsMainMap);
 
   BuildMapsListUI(FPopup.Items, VLayersSubMenu);
-end;
-
-procedure TLayerMiniMapPopupMenu.OnClickLayerItem(Sender: TObject);
-var
-  VSender: TTBCustomItem;
-  VMapType: IMapType;
-begin
-  if Sender is TTBCustomItem then begin
-    VSender := TTBCustomItem(Sender);
-    VMapType := IMapType(VSender.Tag);
-    if VMapType <> nil then begin
-      FMapsConfig.InvertLayerSelectionByGUID(VMapType.GUID);
-    end;
-  end;
-end;
-
-procedure TLayerMiniMapPopupMenu.OnClickMapItem(Sender: TObject);
-var
-  VSender: TComponent;
-  VMapType: IMapType;
-  VGUID: TGUID;
-begin
-  if Sender is TComponent then begin
-    VGUID := CGUID_Zero;
-    VSender := TComponent(Sender);
-    VMapType := IMapType(VSender.Tag);
-    if VMapType <> nil then begin
-      VGUID := VMapType.GUID;
-    end;
-    FMapsConfig.SelectMainByGUID(VGUID);
-  end;
 end;
 
 procedure TLayerMiniMapPopupMenu.PopUp;

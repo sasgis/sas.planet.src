@@ -32,9 +32,6 @@ uses
   StdCtrls,
   ExtCtrls,
   i_LanguageManager,
-  i_MapTypeSet,
-  i_ActiveMapsConfig,
-  i_MapTypeGUIConfigList,
   i_GeometryLonLat,
   i_MapType,
   i_TileFileNameGenerator,
@@ -74,9 +71,6 @@ type
     pnlFrame: TPanel;
     procedure btnSelectTargetFileClick(Sender: TObject);
   private
-    FMainMapsConfig: IMainMapsConfig;
-    FFullMapsSet: IMapTypeSet;
-    FGUIConfigList: IMapTypeGUIConfigList;
     FTileNameGeneratorList: ITileFileNameGeneratorsList;
     FfrMapSelect: TfrMapSelect;
     FfrZoomsSelect: TfrZoomsSelect;
@@ -95,9 +89,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AMainMapsConfig: IMainMapsConfig;
-      const AFullMapsSet: IMapTypeSet;
-      const AGUIConfigList: IMapTypeGUIConfigList;
+      const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const ATileNameGeneratorList: ITileFileNameGeneratorsList;
       const AFileFilters: string;
       const AFileExtDefault: string
@@ -115,28 +107,19 @@ uses
 
 constructor TfrExportToFileCont.Create(
   const ALanguageManager: ILanguageManager;
-  const AMainMapsConfig: IMainMapsConfig;
-  const AFullMapsSet: IMapTypeSet;
-  const AGUIConfigList: IMapTypeGUIConfigList;
+  const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const ATileNameGeneratorList: ITileFileNameGeneratorsList;
   const AFileFilters: string;
   const AFileExtDefault: string
 );
 begin
   inherited Create(ALanguageManager);
-  FMainMapsConfig := AMainMapsConfig;
-  FFullMapsSet := AFullMapsSet;
-  FGUIConfigList := AGUIConfigList;
   FTileNameGeneratorList := ATileNameGeneratorList;
   dlgSaveTargetFile.Filter := AFileFilters;
   dlgSaveTargetFile.DefaultExt := AFileExtDefault;
   cbbNamesType.ItemIndex := 1;
   FfrMapSelect :=
-    TfrMapSelect.Create(
-      ALanguageManager,
-      AMainMapsConfig,
-      AGUIConfigList,
-      AFullMapsSet,
+    AMapSelectFrameBuilder.Build(
       mfAll, // show maps and layers
       False,  // add -NO- to combobox
       False,  // show disabled map

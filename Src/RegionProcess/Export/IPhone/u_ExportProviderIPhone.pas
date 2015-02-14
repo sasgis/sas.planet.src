@@ -26,16 +26,14 @@ uses
   Forms,
   i_LanguageManager,
   i_GeometryLonLat,
-  i_MapTypeSet,
-  i_ActiveMapsConfig,
   i_Bitmap32BufferFactory,
   i_CoordConverterFactory,
   i_LocalCoordConverterFactorySimpe,
   i_GeometryProjectedFactory,
-  i_MapTypeGUIConfigList,
   i_BitmapTileSaveLoadFactory,
   i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
+  fr_MapSelect,
   fr_ExportIPhone;
 
 type
@@ -58,9 +56,7 @@ type
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
-      const AMainMapsConfig: IMainMapsConfig;
-      const AFullMapsSet: IMapTypeSet;
-      const AGUIConfigList: IMapTypeGUIConfigList;
+      const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const ACoordConverterFactory: ICoordConverterFactory;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionFactory: IProjectionInfoFactory;
@@ -90,9 +86,7 @@ uses
 constructor TExportProviderIPhone.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
-  const AMainMapsConfig: IMainMapsConfig;
-  const AFullMapsSet: IMapTypeSet;
-  const AGUIConfigList: IMapTypeGUIConfigList;
+  const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const ACoordConverterFactory: ICoordConverterFactory;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionFactory: IProjectionInfoFactory;
@@ -106,9 +100,7 @@ begin
   inherited Create(
     AProgressFactory,
     ALanguageManager,
-    AMainMapsConfig,
-    AFullMapsSet,
-    AGUIConfigList
+    AMapSelectFrameBuilder
   );
   FCoordConverterFactory := ACoordConverterFactory;
   FLocalConverterFactory := ALocalConverterFactory;
@@ -124,9 +116,7 @@ begin
   FFrame :=
     TfrExportIPhone.Create(
       Self.LanguageManager,
-      Self.MainMapsConfig,
-      Self.FullMapsSet,
-      Self.GUIConfigList
+      Self.MapSelectFrameBuilder
     );
   Result := FFrame;
   Assert(Supports(Result, IRegionProcessParamsFrameZoomArray));

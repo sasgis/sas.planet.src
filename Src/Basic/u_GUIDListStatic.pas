@@ -54,11 +54,24 @@ type
     function GetItem(AIndex: Integer): TGUID;
     function GetCount: Integer;
     function IsExists(const AGUID: TGUID): boolean;
-  public
-    constructor CreateAndSort(
+  private
+    constructor Create(
       const AList: array of TGUID;
       ACount: Integer
     );
+  public
+    class function CreateAndSort(
+      const AList: array of TGUID;
+      ACount: Integer
+    ): IGUIDSetStatic;
+    class function CreateByAdd(
+      const ASource: IGUIDSetStatic;
+      const AGUID: TGUID
+    ): IGUIDSetStatic;
+    class function CreateByRemove(
+      const ASource: IGUIDSetStatic;
+      const AGUID: TGUID
+    ): IGUIDSetStatic;
     destructor Destroy; override;
   end;
 
@@ -238,15 +251,9 @@ end;
 
 { TGUIDSetStatic }
 
-constructor TGUIDSetStatic.CreateAndSort(
-  const AList: array of TGUID;
-  ACount: Integer
-);
+constructor TGUIDSetStatic.Create(const AList: array of TGUID; ACount: Integer);
 var
   i: Integer;
-  VGUIDCurr: TGUID;
-  VGUIDPrev: TGUID;
-  VPrevIndex: Integer;
 begin
   inherited Create;
   SetLength(FList, ACount);
@@ -254,12 +261,36 @@ begin
   for i := 0 to FCount - 1 do begin
     FList[i] := AList[i];
   end;
-  if FCount > 1 then begin
-    QuickSort(FList, 0, FCount - 1);
-    VGUIDPrev := FList[0];
-    VPrevIndex := FCount - 1;
-    for i := 1 to FCount - 1 do begin
-      VGUIDCurr := FList[i];
+end;
+
+class function TGUIDSetStatic.CreateAndSort(
+  const AList: array of TGUID;
+  ACount: Integer
+): IGUIDSetStatic;
+var
+  i: Integer;
+  VGUIDCurr: TGUID;
+  VGUIDPrev: TGUID;
+  VPrevIndex: Integer;
+  VList: array of TGUID;
+  VCount: Integer;
+begin
+  Assert(ACount >= 0);
+  if ACount = 0 then begin
+    Result := nil;
+    Exit;
+  end;
+  SetLength(VList, ACount);
+  VCount := ACount;
+  for i := 0 to VCount - 1 do begin
+    VList[i] := AList[i];
+  end;
+  if VCount > 1 then begin
+    QuickSort(VList, 0, VCount - 1);
+    VGUIDPrev := VList[0];
+    VPrevIndex := VCount - 1;
+    for i := 1 to VCount - 1 do begin
+      VGUIDCurr := VList[i];
       if IsEqualGUID(VGUIDPrev, VGUIDCurr) then begin
         VPrevIndex := i - 1;
         Break;
@@ -267,16 +298,74 @@ begin
         VGUIDPrev := VGUIDCurr;
       end;
     end;
-    if VPrevIndex < FCount - 1 then begin
-      for i := VPrevIndex + 1 to FCount - 1 do begin
-        VGUIDCurr := FList[i];
+    if VPrevIndex < VCount - 1 then begin
+      for i := VPrevIndex + 1 to VCount - 1 do begin
+        VGUIDCurr := VList[i];
         if not IsEqualGUID(VGUIDPrev, VGUIDCurr) then begin
           Inc(VPrevIndex);
           VGUIDPrev := VGUIDCurr;
-          FList[VPrevIndex] := VGUIDCurr;
+          VList[VPrevIndex] := VGUIDCurr;
         end;
       end;
-      FCount := VPrevIndex + 1;
+      VCount := VPrevIndex + 1;
+    end;
+  end;
+  Result := TGUIDSetStatic.Create(VList, VCount);
+end;
+
+class function TGUIDSetStatic.CreateByAdd(
+  const ASource: IGUIDSetStatic;
+  const AGUID: TGUID
+): IGUIDSetStatic;
+var
+  VList: array of TGUID;
+  VCount: Integer;
+  i: Integer;
+begin
+  if not Assigned(ASource) then begin
+    Result := TGUIDSetStatic.Create(AGUID, 1);
+  end else begin
+    VCount := ASource.Count + 1;
+    SetLength(VList, VCount);
+    for i := 0 to ASource.Count - 1 do begin
+      VList[i] := ASource.Items[i];
+    end;
+    VList[VCount - 1] := AGUID;
+    Result := CreateAndSort(VList, VCount);
+  end;
+end;
+
+class function TGUIDSetStatic.CreateByRemove(
+  const ASource: IGUIDSetStatic;
+  const AGUID: TGUID
+): IGUIDSetStatic;
+var
+  VList: array of TGUID;
+  VCount: Integer;
+  i: Integer;
+  VIndex: Integer;
+  VGUID: TGUID;
+begin
+  Assert(Assigned(ASource));
+  Assert(ASource.IsExists(AGUID));
+  if not Assigned(ASource) then begin
+    Result := nil;
+  end else begin
+    if (ASource.Count = 1) and IsEqualGUID(ASource.Items[0], AGUID) then begin
+      Result := nil;
+    end else begin
+      VCount := ASource.Count;
+      VIndex := 0;
+      SetLength(VList, VCount);
+      for i := 0 to VCount - 1 do begin
+        VGUID := ASource.Items[i];
+        if not IsEqualGUID(VGUID, AGUID) then begin
+          VList[VIndex] := VGUID;
+          Inc(VIndex);
+        end;
+      end;
+      VCount := VIndex;
+      Result := TGUIDSetStatic.Create(VList, VCount);
     end;
   end;
 end;

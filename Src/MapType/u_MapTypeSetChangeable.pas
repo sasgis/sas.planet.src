@@ -23,55 +23,52 @@ unit u_MapTypeSetChangeable;
 interface
 
 uses
+  SysUtils,
   i_Notifier,
   i_Listener,
   i_MapType,
   i_MapTypeSet,
   i_MapTypeSetBuilder,
+  i_ActiveMapsConfig,
   i_MapTypeSetChangeable,
-  u_ConfigDataElementBase;
+  u_ChangeableBase;
 
 type
-  TLayerSetChangeable = class(TConfigDataElementBaseEmptySaveLoad, IMapTypeSetChangeable)
+  TLayerSetChangeableByConfig = class(TChangeableBase, IMapTypeSetChangeable)
   private
     FMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
-    FMapsSet: IMapTypeSet;
+    FLayersSet: IMapTypeSet;
+    FConfig: IActiveLayersConfig;
 
     FStatic: IMapTypeSet;
+    FStaticCS: IReadWriteSync;
 
-    FLayerSetSelectNotyfier: INotifier;
-    FLayerSetUnselectNotyfier: INotifier;
+    FListener: IListener;
 
-    FLayerSetSelectListener: IListener;
-    FLayerSetUnselectListener: IListener;
-
-    procedure OnLayerSetSelect(const AGUID: TGUID);
-    procedure OnLayerSetUnselect(const AGUID: TGUID);
+    procedure OnConfigChange;
   private
     function GetStatic: IMapTypeSet;
   public
     constructor Create(
       const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
-      const AMapsSet: IMapTypeSet;
-      const ALayerSetSelectNotyfier: INotifier;
-      const ALayerSetUnselectNotyfier: INotifier
+      const ALayersSet: IMapTypeSet;
+      const AConfig: IActiveLayersConfig
     );
     destructor Destroy; override;
   end;
 
-  TMapsSetChangeableByMainMapAndLayersSet = class(TConfigDataElementWithStaticBaseEmptySaveLoad, IMapTypeSetChangeable)
+  TMapsSetChangeableMainAndLayers = class(TChangeableBase, IMapTypeSetChangeable)
   private
     FMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
     FMainMap: IMapTypeChangeable;
     FLayersSet: IMapTypeSetChangeable;
 
-    FMainMapListener: IListener;
-    FLayerSetListener: IListener;
+    FStatic: IMapTypeSet;
+    FStaticCS: IReadWriteSync;
 
-    procedure OnMainMapChange;
-    procedure OnLayersSetChange;
-  protected
-    function CreateStatic: IInterface; override;
+    FListener: IListener;
+
+    procedure OnChange;
   private
     function GetStatic: IMapTypeSet;
   public
@@ -86,212 +83,181 @@ type
 implementation
 
 uses
-  ActiveX,
+  i_GUIDListStatic,
   u_ListenerByEvent,
-  u_NotifyWithGUIDEvent;
+  u_Synchronizer;
 
-{ TActiveMapsSet }
+{ TLayerSetChangeableByConfig }
 
-constructor TLayerSetChangeable.Create(
+constructor TLayerSetChangeableByConfig.Create(
   const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
-  const AMapsSet: IMapTypeSet;
-  const ALayerSetSelectNotyfier, ALayerSetUnselectNotyfier: INotifier
+  const ALayersSet: IMapTypeSet;
+  const AConfig: IActiveLayersConfig
 );
-var
-  VMapTypeSetBuilder: IMapTypeSetBuilder;
 begin
-  Assert(AMapsSet <> nil);
-  Assert(ALayerSetSelectNotyfier <> nil);
-  Assert(ALayerSetUnselectNotyfier <> nil);
-  inherited Create;
+  Assert(Assigned(AMapTypeSetBuilderFactory));
+  Assert(Assigned(AConfig));
+  inherited Create(GSync.SyncVariable.Make(ClassName + 'Notifiers'));
   FMapTypeSetBuilderFactory := AMapTypeSetBuilderFactory;
-  FMapsSet := AMapsSet;
-  VMapTypeSetBuilder := FMapTypeSetBuilderFactory.Build(True);
-  FStatic := VMapTypeSetBuilder.MakeAndClear;
-
-  FLayerSetSelectNotyfier := ALayerSetSelectNotyfier;
-  if FLayerSetSelectNotyfier <> nil then begin
-    FLayerSetSelectListener := TNotifyWithGUIDEventListener.Create(Self.OnLayerSetSelect);
-    FLayerSetSelectNotyfier.Add(FLayerSetSelectListener);
+  FLayersSet := ALayersSet;
+  FConfig := AConfig;
+  if Assigned(FLayersSet) then begin
+    FStaticCS := GSync.SyncVariable.Make(ClassName);
+    FListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
+    FConfig.ChangeNotifier.Add(FListener);
   end;
-
-  FLayerSetUnselectNotyfier := ALayerSetUnselectNotyfier;
-  if FLayerSetUnselectNotyfier <> nil then begin
-    FLayerSetUnselectListener := TNotifyWithGUIDEventListener.Create(Self.OnLayerSetUnselect);
-    FLayerSetUnselectNotyfier.Add(FLayerSetUnselectListener);
-  end;
+  OnConfigChange;
 end;
 
-destructor TLayerSetChangeable.Destroy;
+destructor TLayerSetChangeableByConfig.Destroy;
 begin
-  if Assigned(FLayerSetSelectNotyfier) and Assigned(FLayerSetSelectListener) then begin
-    FLayerSetSelectNotyfier.Remove(FLayerSetSelectListener);
-    FLayerSetSelectListener := nil;
-    FLayerSetSelectNotyfier := nil;
+  if Assigned(FConfig) and Assigned(FListener) then begin
+    FConfig.ChangeNotifier.Remove(FListener);
+    FListener := nil;
+    FConfig := nil;
   end;
-
-  if Assigned(FLayerSetUnselectNotyfier) and Assigned(FLayerSetUnselectListener) then begin
-    FLayerSetUnselectNotyfier.Remove(FLayerSetUnselectListener);
-    FLayerSetUnselectListener := nil;
-    FLayerSetUnselectNotyfier := nil;
-  end;
-
   inherited;
 end;
 
-function TLayerSetChangeable.GetStatic: IMapTypeSet;
+function TLayerSetChangeableByConfig.GetStatic: IMapTypeSet;
 begin
-  LockRead;
+  Result := nil;
+  if Assigned(FStaticCS) then begin
+    FStaticCS.BeginRead;
+    try
+      Result := FStatic;
+    finally
+      FStaticCS.EndRead;
+    end;
+  end;
+end;
+
+procedure TLayerSetChangeableByConfig.OnConfigChange;
+var
+  VGuids: IGUIDSetStatic;
+  i: Integer;
+  VResultBuilder: IMapTypeSetBuilder;
+  VResult: IMapTypeSet;
+  VGUID: TGUID;
+  VMapType: IMapType;
+  VChanged: Boolean;
+begin
+  VGuids := FConfig.LayerGuids;
+  if Assigned(VGuids) then begin
+    VResultBuilder := FMapTypeSetBuilderFactory.Build(False);
+    for i := 0 to VGuids.Count - 1 do begin
+      VGUID := VGuids.Items[i];
+      VMapType := FLayersSet.GetMapTypeByGUID(VGUID);
+      if Assigned(VMapType) then begin
+        VResultBuilder.Add(VMapType);
+      end;
+    end;
+    VResult := VResultBuilder.MakeAndClear;
+  end else begin
+    VResult := nil;
+  end;
+  VChanged := False;
+  FStaticCS.BeginWrite;
   try
-    Result := FStatic;
+    if Assigned(VResult) then begin
+      if not VResult.IsEqual(FStatic) then begin
+        FStatic := VResult;
+        VChanged := True;
+      end;
+    end else begin
+      if Assigned(FStatic) then begin
+        FStatic := nil;
+        VChanged := True;
+      end;
+    end;
   finally
-    UnlockRead;
+    FStaticCS.EndWrite;
+  end;
+  if VChanged then begin
+    DoChangeNotify;
   end;
 end;
 
-procedure TLayerSetChangeable.OnLayerSetSelect(const AGUID: TGUID);
-var
-  VMapType: IMapType;
-  VList: IMapTypeSetBuilder;
-  VEnun: IEnumGUID;
-  VGUID: TGUID;
-  i: Cardinal;
-begin
-  VMapType := FMapsSet.GetMapTypeByGUID(AGUID);
-  if VMapType <> nil then begin
-    LockWrite;
-    try
-      if FStatic.GetMapTypeByGUID(AGUID) = nil then begin
-        VList := FMapTypeSetBuilderFactory.Build(True);
-        VList.Capacity := FStatic.Count + 1;
-        VEnun := FStatic.GetIterator;
-        while VEnun.Next(1, VGUID, i) = S_OK do begin
-          VList.Add(FMapsSet.GetMapTypeByGUID(VGUID));
-        end;
-        VList.Add(VMapType);
-        FStatic := VList.MakeAndClear;
-        SetChanged;
-      end;
-    finally
-      UnlockWrite;
-    end;
-  end;
-end;
 
-procedure TLayerSetChangeable.OnLayerSetUnselect(const AGUID: TGUID);
-var
-  VMapType: IMapType;
-  VList: IMapTypeSetBuilder;
-  VEnun: IEnumGUID;
-  VGUID: TGUID;
-  i: Cardinal;
-begin
-  VMapType := FMapsSet.GetMapTypeByGUID(AGUID);
-  if VMapType <> nil then begin
-    LockWrite;
-    try
-      if FStatic.GetMapTypeByGUID(AGUID) <> nil then begin
-        VList := FMapTypeSetBuilderFactory.Build(True);
-        if FStatic.Count > 0 then begin
-          VList.Capacity := FStatic.Count - 1;
-        end;
-        VEnun := FStatic.GetIterator;
-        while VEnun.Next(1, VGUID, i) = S_OK do begin
-          if not IsEqualGUID(VGUID, AGUID) then begin
-            VList.Add(FMapsSet.GetMapTypeByGUID(VGUID));
-          end;
-        end;
-        FStatic := VList.MakeAndClear;
-        SetChanged;
-      end;
-    finally
-      UnlockWrite;
-    end;
-  end;
-end;
+{ TMapsSetChangeableMainAndLayers }
 
-{ TMapsSetChangeableByMainMapAndLayersSet }
-
-constructor TMapsSetChangeableByMainMapAndLayersSet.Create(
+constructor TMapsSetChangeableMainAndLayers.Create(
   const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
   const AMainMap: IMapTypeChangeable;
   const ALayersSet: IMapTypeSetChangeable
 );
 begin
-  Assert(AMainMap <> nil);
-  Assert(ALayersSet <> nil);
-  inherited Create;
+  Assert(Assigned(AMapTypeSetBuilderFactory));
+  Assert(Assigned(AMainMap));
+  Assert(Assigned(ALayersSet));
+  inherited Create(GSync.SyncVariable.Make(ClassName + 'Notifiers'));
   FMapTypeSetBuilderFactory := AMapTypeSetBuilderFactory;
   FMainMap := AMainMap;
   FLayersSet := ALayersSet;
-
-  FMainMapListener := TNotifyNoMmgEventListener.Create(Self.OnMainMapChange);
-  FMainMap.ChangeNotifier.Add(FMainMapListener);
-
-  FLayerSetListener := TNotifyNoMmgEventListener.Create(Self.OnLayersSetChange);
-  FLayersSet.ChangeNotifier.Add(FLayerSetListener);
+  FStaticCS := GSync.SyncVariable.Make(ClassName);
+  FListener := TNotifyNoMmgEventListener.Create(Self.OnChange);
+  FMainMap.ChangeNotifier.Add(FListener);
+  FLayersSet.ChangeNotifier.Add(FListener);
+  OnChange;
 end;
 
-function TMapsSetChangeableByMainMapAndLayersSet.CreateStatic: IInterface;
-var
-  VLayersSet: IMapTypeSet;
-  VList: IMapTypeSetBuilder;
-  VEnun: IEnumGUID;
-  VGUID: TGUID;
-  i: Cardinal;
-  VStatic: IMapTypeSet;
+destructor TMapsSetChangeableMainAndLayers.Destroy;
 begin
-  VLayersSet := FLayersSet.GetStatic;
-  VList := FMapTypeSetBuilderFactory.Build(True);
-  VList.Capacity := VLayersSet.Count + 1;
-  VEnun := VLayersSet.GetIterator;
-  while VEnun.Next(1, VGUID, i) = S_OK do begin
-    VList.Add(VLayersSet.GetMapTypeByGUID(VGUID));
-  end;
-  VList.Add(FMainMap.GetStatic);
-  VStatic := VList.MakeAndClear;
-  Result := VStatic;
-end;
-
-destructor TMapsSetChangeableByMainMapAndLayersSet.Destroy;
-begin
-  if Assigned(FMainMap) and Assigned(FMainMapListener) then begin
-    FMainMap.ChangeNotifier.Remove(FMainMapListener);
+  if Assigned(FMainMap) and Assigned(FListener) then begin
+    FMainMap.ChangeNotifier.Remove(FListener);
     FMainMap := nil;
-    FMainMapListener := nil;
   end;
-
-  if Assigned(FLayersSet) and Assigned(FLayerSetListener) then begin
-    FLayersSet.ChangeNotifier.Remove(FLayerSetListener);
+  if Assigned(FLayersSet) and Assigned(FListener) then begin
+    FLayersSet.ChangeNotifier.Remove(FListener);
     FLayersSet := nil;
-    FLayerSetListener := nil;
   end;
+  FListener := nil;
 
   inherited;
 end;
 
-function TMapsSetChangeableByMainMapAndLayersSet.GetStatic: IMapTypeSet;
+function TMapsSetChangeableMainAndLayers.GetStatic: IMapTypeSet;
 begin
-  Result := IMapTypeSet(GetStaticInternal);
-end;
-
-procedure TMapsSetChangeableByMainMapAndLayersSet.OnLayersSetChange;
-begin
-  LockWrite;
+  FStaticCS.BeginRead;
   try
-    SetChanged;
+    Result := FStatic;
   finally
-    UnlockWrite;
+    FStaticCS.EndRead;
   end;
 end;
 
-procedure TMapsSetChangeableByMainMapAndLayersSet.OnMainMapChange;
+procedure TMapsSetChangeableMainAndLayers.OnChange;
+var
+  VResultBuilder: IMapTypeSetBuilder;
+  VResult: IMapTypeSet;
+  VMapType: IMapType;
+  VLayers: IMapTypeSet;
+  i: Integer;
+  VChanged: Boolean;
 begin
-  LockWrite;
+  VResultBuilder := FMapTypeSetBuilderFactory.Build(False);
+  VLayers := FLayersSet.GetStatic;
+  if Assigned(VLayers) then begin
+    for i := 0 to VLayers.Count - 1 do begin
+      VResultBuilder.Add(VLayers.Items[i]);
+    end;
+  end;
+  VMapType := FMainMap.GetStatic;
+  Assert(Assigned(VMapType));
+  VResultBuilder.Add(VMapType);
+  VResult := VResultBuilder.MakeAndClear;
+  VChanged := False;
+  FStaticCS.BeginWrite;
   try
-    SetChanged;
+    if not VResult.IsEqual(FStatic) then begin
+      FStatic := VResult;
+      VChanged := True;
+    end;
   finally
-    UnlockWrite;
+    FStaticCS.EndWrite;
+  end;
+  if VChanged then begin
+    DoChangeNotify;
   end;
 end;
 

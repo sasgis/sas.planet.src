@@ -35,14 +35,11 @@ uses
   fr_MapSelect,
   i_LanguageManager,
   i_MapType,
-  i_MapTypeSet,
   i_BitmapTileSaveLoad,
   i_CoordConverterFactory,
   i_GeometryLonLat,
   i_GeometryProjectedFactory,
-  i_ActiveMapsConfig,
   i_Bitmap32BufferFactory,
-  i_MapTypeGUIConfigList,
   i_BitmapLayerProvider,
   i_BitmapTileSaveLoadFactory,
   i_RegionProcessParamsFrame,
@@ -97,9 +94,6 @@ type
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
-    FMainMapsConfig: IMainMapsConfig;
-    FFullMapsSet: IMapTypeSet;
-    FGUIConfigList: IMapTypeGUIConfigList;
     FPolygLL: IGeometryLonLatPolygon;
     FfrMapSelect: TfrMapSelect;
     FfrHybSelect: TfrMapSelect;
@@ -124,9 +118,7 @@ type
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
-      const AMainMapsConfig: IMainMapsConfig;
-      const AFullMapsSet: IMapTypeSet;
-      const AGUIConfigList: IMapTypeGUIConfigList;
+      const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const AFileFilters: string;
       const AFileExtDefault: string
     );
@@ -222,9 +214,7 @@ constructor TfrExportToOgf2.Create(
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
-  const AMainMapsConfig: IMainMapsConfig;
-  const AFullMapsSet: IMapTypeSet;
-  const AGUIConfigList: IMapTypeGUIConfigList;
+  const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const AFileFilters: string;
   const AFileExtDefault: string
 );
@@ -235,28 +225,17 @@ begin
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
-  FMainMapsConfig := AMainMapsConfig;
-  FFullMapsSet := AFullMapsSet;
-  FGUIConfigList := AGUIConfigList;
   dlgSaveTargetFile.Filter := AFileFilters;
   dlgSaveTargetFile.DefaultExt := AFileExtDefault;
   FfrMapSelect :=
-    TfrMapSelect.Create(
-      ALanguageManager,
-      AMainMapsConfig,
-      AGUIConfigList,
-      AFullMapsSet,
+    AMapSelectFrameBuilder.Build(
       mfMaps, // show maps and layers
       False,  // add -NO- to combobox
       False,  // show disabled map
       GetAllowExport
     );
   FfrHybSelect :=
-    TfrMapSelect.Create(
-      ALanguageManager,
-      AMainMapsConfig,
-      AGUIConfigList,
-      AFullMapsSet,
+    AMapSelectFrameBuilder.Build(
       mfLayers, // show maps and layers
       true,  // add -NO- to combobox
       False,  // show disabled map
