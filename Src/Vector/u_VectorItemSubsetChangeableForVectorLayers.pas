@@ -419,14 +419,15 @@ begin
       RemoveLayerListeners(FPrevLayerSet);
       RemoveVersionListener(FPrevLayerSet);
       FLayerListeners := nil;
-      FPrevLayerSet := VLayerSet;
-      FPrevTileRect := VTileRect;
+      FPrevLayerSet := nil;
     end;
     VResult := nil;
     if Assigned(VLayerSet) then begin
-      if VLayerSet.IsEqual(FPrevLayerSet) then begin
+      if not VLayerSet.IsEqual(FPrevLayerSet) then begin
         AddVersionListener(VLayerSet);
         AddLayerListeners(VTileRect, VLayerSet);
+        FPrevLayerSet := VLayerSet;
+        FPrevTileRect := VTileRect;
       end else if not VTileRect.IsEqual(FPrevTileRect) then begin
         RemoveLayerListeners(FPrevLayerSet);
         AddLayerListeners(VTileRect, VLayerSet);
