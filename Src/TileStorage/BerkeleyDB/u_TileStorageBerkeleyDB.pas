@@ -32,7 +32,6 @@ uses
   i_MapVersionListStatic,
   i_ContentTypeInfo,
   i_TileInfoBasic,
-  i_BasicMemCache,
   i_ContentTypeManager,
   i_CoordConverter,
   i_TileStorage,
@@ -48,7 +47,7 @@ uses
   u_TileStorageAbstract;
 
 type
-  TTileStorageBerkeleyDB = class(TTileStorageAbstract, IBasicMemCache)
+  TTileStorageBerkeleyDB = class(TTileStorageAbstract)
   private
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FStorageHelper: ITileStorageBerkeleyDBHelper;
@@ -128,10 +127,6 @@ type
       const AIgnoreTNE: Boolean;
       const AIgnoreMultiVersionTiles: Boolean
     ): IEnumTileInfo; override;
-  private
-    { IBasicMemCache }
-    procedure ClearMemCache;
-    procedure IBasicMemCache.Clear = ClearMemCache;
   public
     constructor Create(
       const AStorageTypeAbilities: ITileStorageTypeAbilities;
@@ -1104,13 +1099,6 @@ begin
       );
   finally
     VProcessFileMasks.Free;
-  end;
-end;
-
-procedure TTileStorageBerkeleyDB.ClearMemCache;
-begin
-  if Assigned(FTileInfoMemCache) then begin
-    FTileInfoMemCache.Clear;
   end;
 end;
 

@@ -403,7 +403,6 @@
     <DCCReference Include="Src\InternalDomain\u_InternalDomainInfoProviderList.pas" />
     <DCCReference Include="Src\InternalDomain\u_TextByVectorItemHTMLByDescription.pas" />
     <DCCReference Include="Src\InternalDomain\u_TextByVectorItemMarkInfo.pas" />
-    <DCCReference Include="Src\i_BasicMemCache.pas" />
     <DCCReference Include="Src\i_GlobalAppConfig.pas" />
     <DCCReference Include="Src\i_GlobalConfig.pas" />
     <DCCReference Include="Src\i_GlobalViewMainConfig.pas" />

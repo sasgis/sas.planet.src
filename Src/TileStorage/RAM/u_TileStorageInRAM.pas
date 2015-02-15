@@ -31,7 +31,6 @@ uses
   i_MapVersionRequest,
   i_ContentTypeInfo,
   i_TileInfoBasic,
-  i_BasicMemCache,
   i_CoordConverter,
   i_NotifierTilePyramidUpdate,
   i_TileStorageAbilities,
@@ -40,7 +39,7 @@ uses
   u_TileStorageAbstract;
 
 type
-  TTileStorageInRAM = class(TTileStorageAbstract, IBasicMemCache)
+  TTileStorageInRAM = class(TTileStorageAbstract)
   private
     FMainContentType: IContentTypeInfoBasic;
     FTileNotExistsTileInfo: ITileInfoBasic;
@@ -87,10 +86,6 @@ type
       const AData: IBinaryData;
       const AIsOverwrite: Boolean
     ): Boolean; override;
-  private
-    { IBasicMemCache }
-    procedure ClearMemCache;
-    procedure IBasicMemCache.Clear = ClearMemCache;
   public
     constructor Create(
       const AStorageTypeAbilities: ITileStorageTypeAbilities;
@@ -320,13 +315,6 @@ begin
       TTileInfoBasicNotExists.Create(0, AVersionInfo)
     );
     NotifyTileUpdate(AXY, AZoom, AVersionInfo);
-  end;
-end;
-
-procedure TTileStorageInRAM.ClearMemCache;
-begin
-  if Assigned(FTileInfoMemCache) then begin
-    FTileInfoMemCache.Clear;
   end;
 end;
 

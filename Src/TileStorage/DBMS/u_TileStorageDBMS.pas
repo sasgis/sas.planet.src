@@ -30,7 +30,6 @@ uses
   i_MapVersionFactory,
   i_MapVersionListStatic,
   i_MapVersionRequest,
-  i_BasicMemCache,
   i_ContentTypeInfo,
   i_NotifierTilePyramidUpdate,
   i_TileInfoBasic,
@@ -47,9 +46,7 @@ uses
   t_ETS_Provider;
 
 type
-  TTileStorageETS = class(TTileStorageAbstract
-                        , IInternalDomainOptions
-                        , IBasicMemCache)
+  TTileStorageETS = class(TTileStorageAbstract, IInternalDomainOptions)
   // base interface
   private
     FMainContentType: IContentTypeInfoBasic;
@@ -172,10 +169,6 @@ type
       out AFlags: TDomainOptionsResponseFlags;
       const ARequestType: LongWord = c_IDO_RT_None
     ): Boolean;
-  private
-    { IBasicMemCache }
-    procedure ClearMemCache;
-    procedure IBasicMemCache.Clear = ClearMemCache;
   protected
     // base storage interface
     function GetTileFileName(
@@ -588,12 +581,6 @@ begin
       raise EETSCannotConnect.Create(SAS_ERR_ETS_CannotConnect);
     end;
   end;
-end;
-
-procedure TTileStorageETS.ClearMemCache;
-begin
-  if Assigned(FTileInfoMemCache) then
-    FTileInfoMemCache.Clear;
 end;
 
 constructor TTileStorageETS.Create(

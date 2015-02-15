@@ -233,7 +233,6 @@ implementation
 uses
   GR32,
   c_InternalBrowser,
-  i_BasicMemCache,
   i_TileInfoBasic,
   i_MapVersionFactory,
   i_DownloadResultFactory,
@@ -259,8 +258,6 @@ uses
   u_ListenerByEvent;
 
 procedure TMapType.ClearMemCache;
-var
-  VBasicMemCache: IBasicMemCache;
 begin
   if FCacheTileInfo <> nil then begin
     FCacheTileInfo.Clear;
@@ -270,12 +267,6 @@ begin
   end;
   if FCacheVector <> nil then begin
     FCacheVector.Clear;
-  end;
-  // clear internal MemCache
-  if Assigned(FStorage) then begin
-    if Supports(FStorage, IBasicMemCache, VBasicMemCache) then begin
-      VBasicMemCache.Clear;
-    end;
   end;
 end;
 

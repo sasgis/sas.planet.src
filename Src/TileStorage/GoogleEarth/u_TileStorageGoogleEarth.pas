@@ -33,7 +33,6 @@ uses
   i_MapVersionRequest,
   i_ContentTypeInfo,
   i_TileInfoBasic,
-  i_BasicMemCache,
   i_CoordConverter,
   i_NotifierTilePyramidUpdate,
   i_TileStorageAbilities,
@@ -42,7 +41,7 @@ uses
   u_TileStorageAbstract;
 
 type
-  TTileStorageGoogleEarth = class(TTileStorageAbstract, IBasicMemCache, IEnumTileInfo)
+  TTileStorageGoogleEarth = class(TTileStorageAbstract, IEnumTileInfo)
   private
     FCachePath: string;
     FDatabaseName: string;
@@ -118,10 +117,6 @@ type
       const AIgnoreTNE: Boolean;
       const AIgnoreMultiVersionTiles: Boolean
     ): IEnumTileInfo; override;
-  private
-    { IBasicMemCache }
-    procedure ClearMemCache;
-    procedure IBasicMemCache.Clear = ClearMemCache;
   private
     { IEnumTileInfo }
     function Next(var ATileInfo: TTileInfo): Boolean;
@@ -744,13 +739,6 @@ end;
 function TTileStorageGoogleEarth.Next(var ATileInfo: TTileInfo): Boolean;
 begin
   Result := False; // ToDo
-end;
-
-procedure TTileStorageGoogleEarth.ClearMemCache;
-begin
-  if Assigned(FTileInfoMemCache) then begin
-    FTileInfoMemCache.Clear;
-  end;
 end;
 
 end.

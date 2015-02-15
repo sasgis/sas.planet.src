@@ -923,7 +923,6 @@ uses
   u_ImageResamplerConfig in 'Src\ImageResampler\u_ImageResamplerConfig.pas',
   i_MainMemCacheConfig in 'Src\i_MainMemCacheConfig.pas',
   u_MainMemCacheConfig in 'Src\u_MainMemCacheConfig.pas',
-  i_BasicMemCache in 'Src\i_BasicMemCache.pas',
   i_MainGeoCoderConfig in 'Src\MainForm\i_MainGeoCoderConfig.pas',
   u_MainGeoCoderConfig in 'Src\MainForm\u_MainGeoCoderConfig.pas',
   i_KeyMovingConfig in 'Src\MainForm\i_KeyMovingConfig.pas',
