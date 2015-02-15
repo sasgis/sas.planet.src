@@ -910,6 +910,9 @@ uses
   i_BitmapLayerProviderChangeable,
   i_ObjectWithListener,
   i_BitmapTileMatrixChangeable,
+  i_VectorTileMatrixChangeable,
+  i_VectorTileRendererChangeable,
+  i_VectorTileProviderChangeable,
   u_InterfaceListSimple,
   u_ImportFromArcGIS,
   u_LocalConverterChangeableOfMiniMap,
@@ -948,6 +951,7 @@ uses
   u_MapLayerGPSMarker,
   u_MapLayerGPSMarkerRings,
   u_FindVectorItemsForVectorMaps,
+  u_FindVectorItemsForVectorTileMatrix,
   u_MapLayerGoto,
   u_CenterScale,
   u_ResStrings,
@@ -1003,6 +1007,10 @@ uses
   u_InetFunc,
   u_BitmapFunc,
   u_ClipboardFunc,
+  u_BitmapTileMatrixChangeableByVectorMatrix,
+  u_VectorTileMatrixChangeableForVectorLayers,
+  u_VectorTileRendererChangeableForVectorMaps,
+  u_VectorTileProviderChangeableForVectorLayers,
   u_ImageResamplerFactoryChangeableByConfig,
   u_LayerScaleLinePopupMenu,
   u_LayerStatBarPopupMenu,
@@ -1775,6 +1783,9 @@ var
   VProvider: IBitmapLayerProviderChangeable;
   VSourceChangeNotifier: IObjectWithListener;
   VTileMatrix: IBitmapTileMatrixChangeable;
+  VVectorRenderer: IVectorTileRendererChangeable;
+  VVectorTileProvider: IVectorTileUniProviderChangeable;
+  VVectorTileMatrix: IVectorTileMatrixChangeable;
   VLayer: IInterface;
   VDebugName: string;
 begin
@@ -1882,50 +1893,62 @@ begin
   // Layer with randered vector maps
   VDebugName := 'VectorMaps';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
-  VVectorItems :=
-    TVectorItemSubsetChangeableForVectorLayers.Create(
-      VPerfList,
-      GState.AppStartedNotifier,
-      GState.AppClosingNotifier,
-      VTileRectForShow,
-      FMainMapState.ActiveKmlLayersSet,
-      FTileErrorLogger,
-      GState.VectorItemSubsetBuilderFactory,
-      FConfig.LayersConfig.KmlLayerConfig.ThreadConfig
-    );
-  FWikiLayer :=
-    TFindVectorItemsForVectorMaps.Create(
-      GState.VectorItemSubsetBuilderFactory,
-      GState.ProjectedGeometryProvider,
-      VVectorItems,
-      VPerfList.CreateAndAddNewCounter('FindItems'),
-      6
-    );
   VMarkerChangeable :=
     TMarkerDrawableChangeableSimple.Create(
       TMarkerDrawableSimpleSquare,
       FConfig.LayersConfig.KmlLayerConfig.PointMarkerConfig
     );
-  VProvider :=
-    TBitmapLayerProviderChangeableForVectorMaps.Create(
-      FConfig.LayersConfig.KmlLayerConfig.DrawConfig,
-      VMarkerChangeable,
-      GState.Bitmap32StaticFactory,
-      GState.ProjectedGeometryProvider,
-      VVectorItems
+  VVectorTileProvider :=
+    TVectorTileProviderChangeableForVectorLayers.Create(
+      FMainMapState.ActiveKmlLayersSet,
+      GState.VectorItemSubsetBuilderFactory,
+      FTileErrorLogger,
+      Rect(10, 10, 10, 10)
     );
-  VTileMatrix :=
-    TBitmapTileMatrixChangeableWithThread.Create(
-      VPerfList,
+  VSourceChangeNotifier :=
+    TSourceDataUpdateInRectByMapsSet.Create(
+      FMainMapState.ActiveKmlLayersSet
+    );
+  VVectorTileMatrix :=
+    TVectorTileMatrixChangeableForVectorLayers.Create(
+      VPerfList.CreateAndAddNewSubList('VectorMatrix'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       VTileRectForShow,
-      GState.LocalConverterFactory,
+      GState.HashFunction,
+      GState.VectorItemSubsetBuilderFactory,
+      VVectorTileProvider,
+      VSourceChangeNotifier,
+      FConfig.LayersConfig.KmlLayerConfig.ThreadConfig,
+      Rect(10, 10, 10, 10),
+      VDebugName
+    );
+  FWikiLayer :=
+    TFindVectorItemsForVectorTileMatrix.Create(
+      GState.VectorItemSubsetBuilderFactory,
+      GState.ProjectedGeometryProvider,
+      VVectorTileMatrix,
+      VPerfList.CreateAndAddNewCounter('FindItems'),
+      6
+    );
+  VVectorRenderer :=
+    TVectorTileRendererChangeableForVectorMaps.Create(
+      FConfig.LayersConfig.KmlLayerConfig.DrawConfig,
+      VMarkerChangeable,
+      GState.Bitmap32StaticFactory,
+      GState.ProjectedGeometryProvider
+    );
+
+  VTileMatrix :=
+    TBitmapTileMatrixChangeableByVectorMatrix.Create(
+      VPerfList.CreateAndAddNewSubList('BitmapMatrix'),
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      VVectorTileMatrix,
+      VVectorRenderer,
       VTileMatrixDraftResampler,
       GState.Bitmap32StaticFactory,
       GState.HashFunction,
-      VProvider,
-      nil,
       FConfig.LayersConfig.KmlLayerConfig.ThreadConfig,
       VDebugName
     );
