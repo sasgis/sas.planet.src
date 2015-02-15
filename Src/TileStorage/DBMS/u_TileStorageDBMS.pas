@@ -30,7 +30,6 @@ uses
   i_MapVersionFactory,
   i_MapVersionListStatic,
   i_MapVersionRequest,
-  i_MapVersionConfig,
   i_BasicMemCache,
   i_ContentTypeInfo,
   i_NotifierTilePyramidUpdate,
@@ -55,7 +54,6 @@ type
   private
     FMainContentType: IContentTypeInfoBasic;
     FContentTypeManager: IContentTypeManager;
-    FMapVersionConfig: IMapVersionConfig;
     FGCNotifier: INotifierTime;
     FETSTTLListener: IListenerTimeWithUsedFlag;
     FTileInfoMemCache: ITileInfoBasicMemCache;
@@ -569,33 +567,8 @@ function TTileStorageETS.CallbackLib_SetVersionNotifier(
   const ACallbackPointer: Pointer;
   const ASetVersionOption: PETS_SET_VERSION_OPTION
 ): Byte;
-var
-  VStringVersion: String;
-  VMapVersionInfo: IMapVersionInfo;
 begin
   Result := ETS_RESULT_OK;
-  if (ASetVersionOption<>nil) and (FMapVersionConfig<>nil) then begin
-    // make version by pointer and flag
-    if (nil=ASetVersionOption^.szVersion) then begin
-      // no version
-      VMapVersionInfo := FEmptyVersion;
-    end else begin
-      // has version
-      if ((ASetVersionOption^.dwOptions and ETS_SVO_ANSI_VALUES)<>0) then begin
-        // version is AnsiString
-        VStringVersion := (AnsiString(PAnsiChar(ASetVersionOption^.szVersion)));
-      end else begin
-        // version is WideString
-        VStringVersion := (WideString(PWideChar(ASetVersionOption^.szVersion)));
-      end;
-      VMapVersionInfo := MapVersionFactory.CreateByStoreString(VStringVersion);
-    end;
-
-    // switch to version
-    if (nil<>VMapVersionInfo) then begin
-      FMapVersionConfig.Version := VMapVersionInfo;
-    end;
-  end;
 end;
 
 procedure TTileStorageETS.CheckMalfunction;
@@ -659,7 +632,6 @@ begin
 
   FContentTypeManager := AContentTypeManager;
   FMainContentType := AMainContentType;
-  FMapVersionConfig := nil;
   FTileInfoMemCache := ACacheTileInfo;
 
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
@@ -789,7 +761,6 @@ begin
 
     FETSTTLListener := nil;
     FTileInfoMemCache := nil;
-    FMapVersionConfig := nil;
     FMainContentType := nil;
     FContentTypeManager := nil;
     FTileNotExistsTileInfo := nil;
