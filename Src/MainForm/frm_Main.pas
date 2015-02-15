@@ -1788,6 +1788,7 @@ var
   VVectorTileMatrix: IVectorTileMatrixChangeable;
   VLayer: IInterface;
   VDebugName: string;
+  VVectorOversizeRect: TRect;
 begin
   VTileRectForShow :=
     TTileRectChangeableByLocalConverterSmart.Create(
@@ -1893,6 +1894,7 @@ begin
   // Layer with randered vector maps
   VDebugName := 'VectorMaps';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VVectorOversizeRect := Rect(300, 300, 300, 300);
   VMarkerChangeable :=
     TMarkerDrawableChangeableSimple.Create(
       TMarkerDrawableSimpleSquare,
@@ -1903,7 +1905,7 @@ begin
       FMainMapState.ActiveKmlLayersSet,
       GState.VectorItemSubsetBuilderFactory,
       FTileErrorLogger,
-      Rect(10, 10, 10, 10)
+      VVectorOversizeRect
     );
   VSourceChangeNotifier :=
     TSourceDataUpdateInRectByMapsSet.Create(
@@ -1920,7 +1922,7 @@ begin
       VVectorTileProvider,
       VSourceChangeNotifier,
       FConfig.LayersConfig.KmlLayerConfig.ThreadConfig,
-      Rect(10, 10, 10, 10),
+      VVectorOversizeRect,
       VDebugName
     );
   FWikiLayer :=
