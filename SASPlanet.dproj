@@ -404,7 +404,6 @@
     <DCCReference Include="Src\InternalDomain\u_TextByVectorItemHTMLByDescription.pas" />
     <DCCReference Include="Src\InternalDomain\u_TextByVectorItemMarkInfo.pas" />
     <DCCReference Include="Src\i_BasicMemCache.pas" />
-    <DCCReference Include="Src\i_FindVectorItems.pas" />
     <DCCReference Include="Src\i_GlobalAppConfig.pas" />
     <DCCReference Include="Src\i_GlobalConfig.pas" />
     <DCCReference Include="Src\i_GlobalViewMainConfig.pas" />
@@ -461,6 +460,7 @@
       <Form>frSearchResultsItem</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
+    <DCCReference Include="Src\MainForm\i_FindVectorItems.pas" />
     <DCCReference Include="Src\MainForm\i_KeyMovingConfig.pas" />
     <DCCReference Include="Src\MainForm\i_LastSearchResult.pas" />
     <DCCReference Include="Src\MainForm\i_LastSelectionInfo.pas" />
@@ -485,6 +485,8 @@
     <DCCReference Include="Src\MainForm\i_SelectionRect.pas" />
     <DCCReference Include="Src\MainForm\i_ViewPortState.pas" />
     <DCCReference Include="Src\MainForm\u_ActiveMapTBXItem.pas" />
+    <DCCReference Include="Src\MainForm\u_FindVectorItemsForVectorMaps.pas" />
+    <DCCReference Include="Src\MainForm\u_FindVectorItemsForVectorTileMatrix.pas" />
     <DCCReference Include="Src\MainForm\u_KeyMovingConfig.pas" />
     <DCCReference Include="Src\MainForm\u_KeyMovingHandler.pas" />
     <DCCReference Include="Src\MainForm\u_LanguageTBXItem.pas" />
@@ -1246,6 +1248,8 @@
     <DCCReference Include="Src\TileProvider\u_VectorTileProviderByMatrix.pas" />
     <DCCReference Include="Src\TileProvider\u_VectorTileProviderByOtherProjection.pas" />
     <DCCReference Include="Src\TileProvider\u_VectorTileProviderByStorage.pas" />
+    <DCCReference Include="Src\TileProvider\u_VectorTileProviderChangeableForVectorLayers.pas" />
+    <DCCReference Include="Src\TileProvider\u_VectorTileProviderForVectorLayers.pas" />
     <DCCReference Include="Src\TileProvider\u_VectorTileRenderer.pas" />
     <DCCReference Include="Src\TileProvider\u_VectorTileRendererChangeableForVectorMaps.pas" />
     <DCCReference Include="Src\TileStorage\Archive\u_TileStorageArchive.pas" />
@@ -1345,7 +1349,6 @@
     <DCCReference Include="Src\u_BackgroundTask.pas" />
     <DCCReference Include="Src\u_BitmapFunc.pas" />
     <DCCReference Include="Src\u_CommonFormAndFrameParents.pas" />
-    <DCCReference Include="Src\u_FindVectorItemsForVectorMaps.pas" />
     <DCCReference Include="Src\u_GeoFunc.pas" />
     <DCCReference Include="Src\u_GeoToStrFunc.pas" />
     <DCCReference Include="Src\u_GlobalAppConfig.pas" />

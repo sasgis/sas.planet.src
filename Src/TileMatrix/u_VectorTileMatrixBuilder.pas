@@ -231,6 +231,7 @@ begin
               TVectorTileProviderByMatrix.Create(MakeStatic),
               ATileRect.ProjectionInfo
             );
+          SetRectWithReset(ATileRect);
 
           VIterator := TTileIteratorByRect.Create(VIntersectRect);
           while VIterator.Next(VTile) do begin
@@ -257,6 +258,7 @@ begin
               TVectorTileProviderByMatrix.Create(MakeStatic),
               ATileRect.ProjectionInfo
             );
+          SetRectWithReset(ATileRect);
 
           VIterator := TTileIteratorByRect.Create(VIntersectRect);
           while VIterator.Next(VTile) do begin

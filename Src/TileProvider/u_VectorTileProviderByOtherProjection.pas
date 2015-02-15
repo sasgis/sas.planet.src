@@ -229,6 +229,7 @@ begin
         TileToBuilder(VLonLatRectTarget, VSubsetBuilder, VSource);
       end;
     end;
+    VSubsetBuilder.RemoveDuplicates;
     Result := VSubsetBuilder.MakeStaticAndClear;
   end;
 end;
@@ -302,6 +303,7 @@ begin
         TileToBuilder(VLonLatRectTarget, VSubsetBuilder, VSource);
       end;
     end;
+    VSubsetBuilder.RemoveDuplicates;
     Result := VSubsetBuilder.MakeStaticAndClear;
   end;
 end;

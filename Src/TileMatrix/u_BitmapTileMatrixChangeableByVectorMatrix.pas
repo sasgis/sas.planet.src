@@ -227,6 +227,12 @@ end;
 
 procedure TBitmapTileMatrixChangeableByVectorMatrix.OnAppStarted;
 begin
+  if Assigned(FSourceTileMatrix) and Assigned(FSourceTileMatrixListener) then begin
+    FSourceTileMatrix.ChangeNotifier.Add(FSourceTileMatrixListener);
+  end;
+  if Assigned(FTileRenderer) and Assigned(FTileRendererListener) then begin
+    FTileRenderer.ChangeNotifier.Add(FTileRendererListener);
+  end;
   FDrawTask.Start;
   FDrawTask.StartExecute;
 end;
@@ -264,7 +270,7 @@ var
   VIsNeedFullRedraw: Boolean;
 begin
   VRenderer := FTileRenderer.GetStatic;
-  if not Assigned(VRenderer) then begin
+  if Assigned(VRenderer) then begin
     VSourceMatrix := FSourceTileMatrix.GetStatic;
     if Assigned(VSourceMatrix) then begin
       VTileRect := VSourceMatrix.TileRect;
@@ -304,6 +310,9 @@ begin
               VBitmap := VRenderer.RenderVectorTile(AOperationID, ACancelNotifier, VProjection, VTile, VSourceItem);
             finally
               FOneTilePrepareCounter.FinishOperation(VCounterContext);
+            end;
+            if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+              Exit;
             end;
             FPreparedBitmapMatrix.Tiles[VTile] := VBitmap;
             FPreparedHashMatrix.Tiles[VTile] := VSourceHash;

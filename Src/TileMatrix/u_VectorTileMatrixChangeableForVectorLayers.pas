@@ -51,7 +51,6 @@ type
     FAppStartedNotifier: INotifierOneOperation;
     FAppClosingNotifier: INotifierOneOperation;
     FTileRect: ITileRectChangeable;
-    FOversize: TRect;
     FVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FTileProvider: IVectorTileUniProviderChangeable;
     FSourcUpdateNotyfier: IObjectWithListener;
@@ -161,7 +160,6 @@ begin
   FAppClosingNotifier := AAppClosingNotifier;
   FTileRect := ATileRect;
   FVectorSubsetBuilderFactory := AVectorSubsetBuilderFactory;
-  FOversize := AOversize;
   FTileProvider := ATileProvider;
   FSourcUpdateNotyfier := ASourcUpdateNotyfier;
   FDebugName := VDebugName;
@@ -186,7 +184,7 @@ begin
   FPreparedVectorMatrix :=
     TVectorTileMatrixBuilder.Create(
       AVectorSubsetBuilderFactory,
-      FOversize,
+      AOversize,
       AHashFunction
     );
   FVisible := False;
@@ -358,6 +356,9 @@ begin
             VVectorTile := VProvider.GetTile(AOperationID, ACancelNotifier, VProjection, VTile);
           finally
             FOneTilePrepareCounter.FinishOperation(VCounterContext);
+          end;
+          if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+            Exit;
           end;
           FPreparedVectorMatrix.Tiles[VTile] := VVectorTile;
           FPreparedHashMatrix.Tiles[VTile] := VSourceHash;
