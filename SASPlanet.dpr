@@ -314,6 +314,7 @@ uses
   u_BitmapTileMatrixChangeableByVectorMatrix in 'Src\TileMatrix\u_BitmapTileMatrixChangeableByVectorMatrix.pas',
   u_VectorTileMatrixChangeableForVectorLayers in 'Src\TileMatrix\u_VectorTileMatrixChangeableForVectorLayers.pas',
   i_VectorTileProviderChangeable in 'Src\TileProvider\i_VectorTileProviderChangeable.pas',
+  u_BitmapTileMatrixChangeableComposite in 'Src\TileMatrix\u_BitmapTileMatrixChangeableComposite.pas',
   u_RegionProcessProgressInfoDownload in 'Src\RegionProcess\u_RegionProcessProgressInfoDownload.pas',
   u_ThreadDownloadTiles in 'Src\RegionProcess\Download\u_ThreadDownloadTiles.pas',
   u_ThreadMapCombineBase in 'Src\RegionProcess\Combine\u_ThreadMapCombineBase.pas',
