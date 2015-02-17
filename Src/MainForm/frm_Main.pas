@@ -1011,6 +1011,7 @@ uses
   u_VectorTileMatrixChangeableForVectorLayers,
   u_VectorTileRendererChangeableForVectorMaps,
   u_VectorTileProviderChangeableForVectorLayers,
+  u_BitmapTileMatrixChangeableComposite,
   u_ImageResamplerFactoryChangeableByConfig,
   u_LayerScaleLinePopupMenu,
   u_LayerStatBarPopupMenu,
@@ -1789,6 +1790,7 @@ var
   VLayer: IInterface;
   VDebugName: string;
   VVectorOversizeRect: TRect;
+  VMatrixList: IInterfaceListSimple;
 begin
   VTileRectForShow :=
     TTileRectChangeableByLocalConverterSmart.Create(
@@ -1806,7 +1808,8 @@ begin
 
   VLayersList := TInterfaceListSimple.Create;
   VPerfListGroup := GState.PerfCounterList.CreateAndAddNewSubList('MapLayer');
-  
+
+  VMatrixList := TInterfaceListSimple.Create;
   // Main bitmap layer
   VDebugName := 'MainBitmapMaps';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
@@ -1839,20 +1842,8 @@ begin
       FConfig.LayersConfig.MainMapLayerConfig.ThreadConfig,
       VDebugName
     );
-  VLayer :=
-    TTiledMapLayer.Create(
-      VPerfList,
-      GState.AppStartedNotifier,
-      GState.AppClosingNotifier,
-      map,
-      GState.HashFunction,
-      FViewPortState.View,
-      VTileMatrix,
-      GState.GUISyncronizedTimerNotifier,
-      VDebugName
-    );
-  VLayersList.Add(VLayer);
-  
+  VMatrixList.Add(VTileMatrix);
+
   // Bitmap layer with grids
   VDebugName := 'Grids';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
@@ -1877,19 +1868,7 @@ begin
       FConfig.LayersConfig.MapLayerGridsConfig.ThreadConfig,
       VDebugName
     );
-  VLayer :=
-    TTiledMapLayer.Create(
-      VPerfList,
-      GState.AppStartedNotifier,
-      GState.AppClosingNotifier,
-      map,
-      GState.HashFunction,
-      FViewPortState.View,
-      VTileMatrix,
-      GState.GUISyncronizedTimerNotifier,
-      VDebugName
-    );
-  VLayersList.Add(VLayer);
+  VMatrixList.Add(VTileMatrix);
 
   // Layer with randered vector maps
   VDebugName := 'VectorMaps';
@@ -1954,20 +1933,8 @@ begin
       FConfig.LayersConfig.KmlLayerConfig.ThreadConfig,
       VDebugName
     );
-  VLayer :=
-    TTiledMapLayer.Create(
-      VPerfList,
-      GState.AppStartedNotifier,
-      GState.AppClosingNotifier,
-      map,
-      GState.HashFunction,
-      FViewPortState.View,
-      VTileMatrix,
-      GState.GUISyncronizedTimerNotifier,
-      VDebugName
-    );
-  VLayersList.Add(VLayer);
-  
+  VMatrixList.Add(VTileMatrix);
+
   // Filling map layer
   VDebugName := 'FillingMap';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
@@ -1997,20 +1964,8 @@ begin
       FConfig.LayersConfig.FillingMapLayerConfig.ThreadConfig,
       VDebugName
     );
-  VLayer :=
-    TTiledMapLayer.Create(
-      VPerfList,
-      GState.AppStartedNotifier,
-      GState.AppClosingNotifier,
-      map,
-      GState.HashFunction,
-      FViewPortState.View,
-      VTileMatrix,
-      GState.GUISyncronizedTimerNotifier,
-      VDebugName
-    );
-  VLayersList.Add(VLayer);
-  
+  VMatrixList.Add(VTileMatrix);
+
   // Marks from MarkSystem
   VBitmap :=
     ReadBitmapByFileRef(
@@ -2074,20 +2029,62 @@ begin
       FConfig.LayersConfig.MarksLayerConfig.ThreadConfig,
       VDebugName
     );
-  VLayer :=
-    TTiledMapLayer.Create(
+  VMatrixList.Add(VTileMatrix);
+
+  // Vector search results visualisation layer
+  VDebugName := 'SearchResults';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VBitmap :=
+    ReadBitmapByFileRef(
+      GState.ResourceProvider,
+      'FOUNDPNT.png',
+      GState.ContentTypeManager,
+      nil
+    );
+  VMarkerChangeable := nil;
+  if VBitmap <> nil then begin
+    VMarkerChangeable :=
+      TMarkerDrawableChangeableFaked.Create(
+        TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(8, 8))
+      );
+  end;
+  VVectorItems :=
+    TVectorItemSubsetChangeableBySearchResult.Create(
+      GState.LastSearchResult
+    );
+  FLayerSearchResults :=
+    TFindVectorItemsForVectorMaps.Create(
+      GState.VectorItemSubsetBuilderFactory,
+      GState.ProjectedGeometryProvider,
+      VVectorItems,
+      VPerfList.CreateAndAddNewCounter('FindItems'),
+      6
+    );
+  VProvider :=
+    TBitmapLayerProviderChangeableForVectorMaps.Create(
+      FConfig.LayersConfig.KmlLayerConfig.DrawConfig,
+      VMarkerChangeable,
+      GState.Bitmap32StaticFactory,
+      GState.ProjectedGeometryProvider,
+      VVectorItems
+    );
+  VTileMatrix :=
+    TBitmapTileMatrixChangeableWithThread.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
-      map,
+      VTileRectForShow,
+      GState.LocalConverterFactory,
+      VTileMatrixDraftResampler,
+      GState.Bitmap32StaticFactory,
       GState.HashFunction,
-      FViewPortState.View,
-      VTileMatrix,
-      GState.GUISyncronizedTimerNotifier,
+      VProvider,
+      nil,
+      FConfig.LayersConfig.KmlLayerConfig.ThreadConfig,
       VDebugName
     );
-  VLayersList.Add(VLayer);
-  
+  VMatrixList.Add(VTileMatrix);
+
   // GPS track visualisation layer
   VDebugName := 'GPSTrack';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
@@ -2114,6 +2111,24 @@ begin
       FConfig.LayersConfig.GPSTrackConfig.ThreadConfig,
       VDebugName
     );
+  VMatrixList.Add(VTileMatrix);
+
+  // Composite tiled layer
+  VDebugName := 'Composite';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VTileMatrix :=
+    TBitmapTileMatrixChangeableComposite.Create(
+      VPerfList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      VTileRectForShow,
+      VMatrixList.MakeStaticAndClear,
+      VTileMatrixDraftResampler,
+      GState.Bitmap32StaticFactory,
+      GState.HashFunction,
+      FConfig.LayersConfig.KmlLayerConfig.ThreadConfig,
+      VDebugName
+    );
   VLayer :=
     TTiledMapLayer.Create(
       VPerfList,
@@ -2127,7 +2142,7 @@ begin
       VDebugName
     );
   VLayersList.Add(VLayer);
-  
+
   // GPS marker layer
   VMarkerChangeable :=
     TMarkerDrawableChangeableSimple.Create(
@@ -2424,72 +2439,6 @@ begin
     );
   VLayersList.Add(VLayer);
     
-  // Vector search results visualisation layer
-  VDebugName := 'SearchResults';
-  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
-  VBitmap :=
-    ReadBitmapByFileRef(
-      GState.ResourceProvider,
-      'FOUNDPNT.png',
-      GState.ContentTypeManager,
-      nil
-    );
-  VMarkerChangeable := nil;
-  if VBitmap <> nil then begin
-    VMarkerChangeable :=
-      TMarkerDrawableChangeableFaked.Create(
-        TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(8, 8))
-      );
-  end;
-  VVectorItems :=
-    TVectorItemSubsetChangeableBySearchResult.Create(
-      GState.LastSearchResult
-    );
-  FLayerSearchResults :=
-    TFindVectorItemsForVectorMaps.Create(
-      GState.VectorItemSubsetBuilderFactory,
-      GState.ProjectedGeometryProvider,
-      VVectorItems,
-      VPerfList.CreateAndAddNewCounter('FindItems'),
-      6
-    );
-  VProvider :=
-    TBitmapLayerProviderChangeableForVectorMaps.Create(
-      FConfig.LayersConfig.KmlLayerConfig.DrawConfig,
-      VMarkerChangeable,
-      GState.Bitmap32StaticFactory,
-      GState.ProjectedGeometryProvider,
-      VVectorItems
-    );
-  VTileMatrix :=
-    TBitmapTileMatrixChangeableWithThread.Create(
-      VPerfList,
-      GState.AppStartedNotifier,
-      GState.AppClosingNotifier,
-      VTileRectForShow,
-      GState.LocalConverterFactory,
-      VTileMatrixDraftResampler,
-      GState.Bitmap32StaticFactory,
-      GState.HashFunction,
-      VProvider,
-      nil,
-      FConfig.LayersConfig.KmlLayerConfig.ThreadConfig,
-      VDebugName
-    );
-  VLayer :=
-    TTiledMapLayer.Create(
-      VPerfList,
-      GState.AppStartedNotifier,
-      GState.AppClosingNotifier,
-      map,
-      GState.HashFunction,
-      FViewPortState.View,
-      VTileMatrix,
-      GState.GUISyncronizedTimerNotifier,
-      VDebugName
-    );
-  VLayersList.Add(VLayer);
-  
   // Goto marker visualisation layer
   VBitmap :=
     ReadBitmapByFileRef(
