@@ -853,12 +853,10 @@ function TTileStorageBerkeleyDB.SaveTile(
 ): Boolean;
 var
   VPath: string;
-  VDoNotifyUpdate: Boolean;
   VTileInfo: ITileInfoBasic;
   VHelper: ITileStorageBerkeleyDBHelper;
 begin
   Result := False;
-  VDoNotifyUpdate := False;
   try
     if GetState.GetStatic.WriteAccess <> asDisabled then begin
 
@@ -897,7 +895,7 @@ begin
             AContentType,
             AData
           );
-          if Result then begin
+          if Result and Assigned(FTileInfoMemCache) then begin
             VTileInfo :=
               TTileInfoBasicExistsWithTile.Create(
                 ALoadDate,
@@ -905,15 +903,6 @@ begin
                 AVersionInfo,
                 FMainContentType
               );
-            if Assigned(FTileInfoMemCache) then begin
-              FTileInfoMemCache.Add(
-                AXY,
-                AZoom,
-                AVersionInfo,
-                VTileInfo
-              );
-            end;
-            VDoNotifyUpdate := True;
           end;
         end;
       end else begin
@@ -933,16 +922,8 @@ begin
             nil,
             nil
           );
-          if Result then begin
-            if Assigned(FTileInfoMemCache) then begin
-              FTileInfoMemCache.Add(
-                AXY,
-                AZoom,
-                AVersionInfo,
-                TTileInfoBasicTNE.Create(ALoadDate, AVersionInfo)
-              );
-            end;
-            VDoNotifyUpdate := True;
+          if Result and Assigned(FTileInfoMemCache) then begin
+            VTileInfo := TTileInfoBasicTNE.Create(ALoadDate, AVersionInfo);
           end;
         end;
       end;
@@ -957,7 +938,15 @@ begin
     end;
   end;
 
-  if VDoNotifyUpdate then begin
+  if Result then begin
+    if Assigned(FTileInfoMemCache) then begin
+      FTileInfoMemCache.Add(
+        AXY,
+        AZoom,
+        AVersionInfo,
+        VTileInfo
+      );
+    end;
     NotifyTileUpdate(AXY, AZoom, AVersionInfo);
     OnCommitSync;
   end;
@@ -980,11 +969,9 @@ function TTileStorageBerkeleyDB.DeleteTileInternal(
 ): Boolean;
 var
   VPath: string;
-  VDoNotifyUpdate: Boolean;
   VHelper: ITileStorageBerkeleyDBHelper;
 begin
   Result := False;
-  VDoNotifyUpdate := False;
   try
     if GetState.GetStatic.DeleteAccess <> asDisabled then begin
       try
@@ -1030,7 +1017,6 @@ begin
             TTileInfoBasicNotExists.Create(0, AVersionInfo)
           );
         end;
-        VDoNotifyUpdate := True;
       end;
     end;
   except
@@ -1043,7 +1029,7 @@ begin
     end;
   end;
 
-  if ANeedTileChangeNotify and VDoNotifyUpdate then begin
+  if ANeedTileChangeNotify and Result then begin
     NotifyTileUpdate(AXY, AZoom, AVersionInfo);
     OnCommitSync;
   end;
