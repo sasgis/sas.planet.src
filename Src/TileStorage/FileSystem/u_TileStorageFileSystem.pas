@@ -478,6 +478,9 @@ begin
       FFileNameGenerator.GetTileFileName(AXY, AZoom) +
       FFileExt;
     Result := GetTileInfoByPath(VPath, AVersionInfo, AMode = gtimWithData);
+    if Assigned(FTileInfoMemCache) then begin
+      FTileInfoMemCache.Add(AXY, AZoom, AVersionInfo, Result);
+    end;
   end;
 end;
 
