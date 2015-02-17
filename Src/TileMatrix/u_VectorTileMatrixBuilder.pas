@@ -230,7 +230,7 @@ begin
         if not IntersectRect(VIntersectRect, ATileRect.Rect, VSourceAtTarget) then begin
           SetRectWithReset(ATileRect);
         end else begin
-          VSourceTileMatrix := MakeStatic;
+          VSourceTileMatrix := nil;// MakeStatic;
           SetRectWithReset(ATileRect);
 
           if Assigned(VSourceTileMatrix) then begin
@@ -260,7 +260,7 @@ begin
         if not IntersectRect(VIntersectRect, ATileRect.Rect, VSourceAtTarget) then begin
           SetRectWithReset(ATileRect);
         end else begin
-          VSourceTileMatrix := MakeStatic;
+          VSourceTileMatrix := nil;// MakeStatic;
           SetRectWithReset(ATileRect);
 
           if Assigned(VSourceTileMatrix) then begin
