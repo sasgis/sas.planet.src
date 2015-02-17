@@ -132,6 +132,7 @@ var
   i: Integer;
   VStaticList: IInterfaceListStatic;
   VTile: IVectorItemSubset;
+  VIsEmpty: Boolean;
 begin
   Result := nil;
   if not Assigned(FTileRect) then begin
@@ -140,20 +141,24 @@ begin
   VStaticList := FItems.MakeStaticCopy;
 
   VHash := $5f9ef5b5f150c35a;
+  VIsEmpty := True;
 
   for i := 0 to VStaticList.Count - 1 do begin
     VTile := IVectorItemSubset(VStaticList.Items[i]);
     if Assigned(VTile) then begin
       FHashFunction.UpdateHashByHash(VHash, VTile.Hash);
+      VIsEmpty := False;
     end;
   end;
 
-  Result :=
-    TVectorTileMatrix.Create(
-      VHash,
-      FTileRect,
-      VStaticList
-    );
+  if not VIsEmpty then begin
+    Result :=
+      TVectorTileMatrix.Create(
+        VHash,
+        FTileRect,
+        VStaticList
+      );
+  end;
 end;
 
 procedure TVectorTileMatrixBuilder.SetTile(
@@ -203,6 +208,7 @@ var
   VConverterSource: ICoordConverter;
   VSourceAtTarget: TRect;
   VTileProvider: IVectorTileProvider;
+  VSourceTileMatrix: IVectorTileMatrix;
 begin
   Assert(Assigned(ATileRect));
   VZoom := ATileRect.Zoom;
@@ -224,18 +230,21 @@ begin
         if not IntersectRect(VIntersectRect, ATileRect.Rect, VSourceAtTarget) then begin
           SetRectWithReset(ATileRect);
         end else begin
-          VTileProvider :=
-            TVectorTileProviderBySameProjection.Create(
-              FVectorSubsetBuilderFactory,
-              FOversize,
-              TVectorTileProviderByMatrix.Create(MakeStatic),
-              ATileRect.ProjectionInfo
-            );
+          VSourceTileMatrix := MakeStatic;
           SetRectWithReset(ATileRect);
 
-          VIterator := TTileIteratorByRect.Create(VIntersectRect);
-          while VIterator.Next(VTile) do begin
-            FItems.Items[IndexByPos(VTileRect, VTile)] := VTileProvider.GetTile(0, nil, VTile);
+          if Assigned(VSourceTileMatrix) then begin
+            VTileProvider :=
+              TVectorTileProviderBySameProjection.Create(
+                FVectorSubsetBuilderFactory,
+                FOversize,
+                TVectorTileProviderByMatrix.Create(VSourceTileMatrix),
+                ATileRect.ProjectionInfo
+              );
+            VIterator := TTileIteratorByRect.Create(VIntersectRect);
+            while VIterator.Next(VTile) do begin
+              FItems.Items[IndexByPos(VTileRect, VTile)] := VTileProvider.GetTile(0, nil, VTile);
+            end;
           end;
         end;
       end else begin
@@ -251,18 +260,21 @@ begin
         if not IntersectRect(VIntersectRect, ATileRect.Rect, VSourceAtTarget) then begin
           SetRectWithReset(ATileRect);
         end else begin
-          VTileProvider :=
-            TVectorTileProviderByOtherProjection.Create(
-              FVectorSubsetBuilderFactory,
-              FOversize,
-              TVectorTileProviderByMatrix.Create(MakeStatic),
-              ATileRect.ProjectionInfo
-            );
+          VSourceTileMatrix := MakeStatic;
           SetRectWithReset(ATileRect);
 
-          VIterator := TTileIteratorByRect.Create(VIntersectRect);
-          while VIterator.Next(VTile) do begin
-            FItems.Items[IndexByPos(VTileRect, VTile)] := VTileProvider.GetTile(0, nil, VTile);
+          if Assigned(VSourceTileMatrix) then begin
+            VTileProvider :=
+              TVectorTileProviderByOtherProjection.Create(
+                FVectorSubsetBuilderFactory,
+                FOversize,
+                TVectorTileProviderByMatrix.Create(VSourceTileMatrix),
+                ATileRect.ProjectionInfo
+              );
+            VIterator := TTileIteratorByRect.Create(VIntersectRect);
+            while VIterator.Next(VTile) do begin
+              FItems.Items[IndexByPos(VTileRect, VTile)] := VTileProvider.GetTile(0, nil, VTile);
+            end;
           end;
         end;
       end;

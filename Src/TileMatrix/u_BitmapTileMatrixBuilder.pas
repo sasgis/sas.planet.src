@@ -126,6 +126,7 @@ var
   i: Integer;
   VStaticList: IInterfaceListStatic;
   VBitmap: IBitmap32Static;
+  VIsEmpty: Boolean;
 begin
   Result := nil;
   if not Assigned(FTileRect) then begin
@@ -134,20 +135,23 @@ begin
   VStaticList := FItems.MakeStaticCopy;
 
   VHash := $5f9ef5b5f150c35a;
+  VIsEmpty := True;
 
   for i := 0 to VStaticList.Count - 1 do begin
     VBitmap := IBitmap32Static(VStaticList.Items[i]);
     if Assigned(VBitmap) then begin
       FHashFunction.UpdateHashByHash(VHash, VBitmap.Hash);
+      VIsEmpty := False;
     end;
   end;
-
-  Result :=
-    TBitmapTileMatrix.Create(
-      VHash,
-      FTileRect,
-      VStaticList
-    );
+  if not VIsEmpty then begin
+    Result :=
+      TBitmapTileMatrix.Create(
+        VHash,
+        FTileRect,
+        VStaticList
+      );
+  end;
 end;
 
 procedure TBitmapTileMatrixBuilder.SetTile(
@@ -197,6 +201,7 @@ var
   VConverterSource: ICoordConverter;
   VSourceAtTarget: TRect;
   VTileProvider: IBitmapTileProvider;
+  VSourceTileMatrix: IBitmapTileMatrix;
 begin
   Assert(Assigned(ATileRect));
   VZoom := ATileRect.Zoom;
@@ -218,17 +223,20 @@ begin
         if not IntersectRect(VIntersectRect, ATileRect.Rect, VSourceAtTarget) then begin
           SetRectWithReset(ATileRect);
         end else begin
-          VTileProvider :=
-            TBitmapTileProviderBySameProjection.Create(
-              FBitmapFactory,
-              FImageResampler.GetStatic,
-              TBitmapTileProviderByMatrix.Create(MakeStatic),
-              ATileRect.ProjectionInfo
-            );
+          VSourceTileMatrix := MakeStatic;
           SetRectWithReset(ATileRect);
-          VIterator := TTileIteratorByRect.Create(VIntersectRect);
-          while VIterator.Next(VTile) do begin
-            FItems.Items[IndexByPos(VTileRect, VTile)] := VTileProvider.GetTile(0, nil, VTile);
+          if Assigned(VSourceTileMatrix) then begin
+            VTileProvider :=
+              TBitmapTileProviderBySameProjection.Create(
+                FBitmapFactory,
+                FImageResampler.GetStatic,
+                TBitmapTileProviderByMatrix.Create(VSourceTileMatrix),
+                ATileRect.ProjectionInfo
+              );
+            VIterator := TTileIteratorByRect.Create(VIntersectRect);
+            while VIterator.Next(VTile) do begin
+              FItems.Items[IndexByPos(VTileRect, VTile)] := VTileProvider.GetTile(0, nil, VTile);
+            end;
           end;
         end;
       end else begin
@@ -244,17 +252,20 @@ begin
         if not IntersectRect(VIntersectRect, ATileRect.Rect, VSourceAtTarget) then begin
           SetRectWithReset(ATileRect);
         end else begin
-          VTileProvider :=
-            TBitmapTileProviderByOtherProjection.Create(
-              FBitmapFactory,
-              FImageResampler.GetStatic,
-              TBitmapTileProviderByMatrix.Create(MakeStatic),
-              ATileRect.ProjectionInfo
-            );
+          VSourceTileMatrix := MakeStatic;
           SetRectWithReset(ATileRect);
-          VIterator := TTileIteratorByRect.Create(VIntersectRect);
-          while VIterator.Next(VTile) do begin
-            FItems.Items[IndexByPos(VTileRect, VTile)] := VTileProvider.GetTile(0, nil, VTile);
+          if Assigned(VSourceTileMatrix) then begin
+            VTileProvider :=
+              TBitmapTileProviderByOtherProjection.Create(
+                FBitmapFactory,
+                FImageResampler.GetStatic,
+                TBitmapTileProviderByMatrix.Create(VSourceTileMatrix),
+                ATileRect.ProjectionInfo
+              );
+            VIterator := TTileIteratorByRect.Create(VIntersectRect);
+            while VIterator.Next(VTile) do begin
+              FItems.Items[IndexByPos(VTileRect, VTile)] := VTileProvider.GetTile(0, nil, VTile);
+            end;
           end;
         end;
       end;
