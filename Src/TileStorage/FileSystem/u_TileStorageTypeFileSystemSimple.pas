@@ -111,6 +111,7 @@ begin
       APath,
       AMainContentType,
       GetMapVersionFactory,
+      ACacheTileInfo,
       FNameGenerator,
       FTileNameParser
     );

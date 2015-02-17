@@ -270,6 +270,9 @@ begin
     if VMainContentType <> nil then begin
       VStroageType := FTileStorageTypeList.GetItemByCode(ATypeCode);
       if VStroageType <> nil then begin
+        if Assigned(FCacheTileInfo) then begin
+          FCacheTileInfo.Clear;
+        end;
         FStorage :=
           VStroageType.StorageType.BuildStorage(
             AConfig.Abilities,

@@ -34,6 +34,7 @@ uses
   i_ContentTypeInfo,
   i_NotifierTilePyramidUpdate,
   i_TileInfoBasic,
+  i_TileInfoBasicMemCache,
   i_TileStorageAbilities,
   i_TileStorage,
   i_TileFileNameGenerator,
@@ -43,6 +44,7 @@ uses
 type
   TTileStorageFileSystem = class(TTileStorageAbstract)
   private
+    FTileInfoMemCache: ITileInfoBasicMemCache;
     FMainContentType: IContentTypeInfoBasic;
     FFileExt: string;
     FTileFileNameParser: ITileFileNameParser;
@@ -109,6 +111,7 @@ type
       const AStoragePath: string;
       const AMainContentType: IContentTypeInfoBasic;
       const AMapVersionFactory: IMapVersionFactory;
+      const ACacheTileInfo: ITileInfoBasicMemCache;
       const ATileNameGenerator: ITileFileNameGenerator;
       const ATileNameParser: ITileFileNameParser
     );
@@ -146,6 +149,7 @@ constructor TTileStorageFileSystem.Create(
   const AStoragePath: string;
   const AMainContentType: IContentTypeInfoBasic;
   const AMapVersionFactory: IMapVersionFactory;
+  const ACacheTileInfo: ITileInfoBasicMemCache;
   const ATileNameGenerator: ITileFileNameGenerator;
   const ATileNameParser: ITileFileNameParser
 );
@@ -163,6 +167,7 @@ begin
     ATileNotifier,
     AStoragePath
   );
+  FTileInfoMemCache := ACacheTileInfo;
   FMainContentType := AMainContentType;
   FTileFileNameParser := ATileNameParser;
   FFileNameGenerator := ATileNameGenerator;
@@ -213,6 +218,14 @@ begin
       Result := false;
     end;
     if Result then begin
+      if Assigned(FTileInfoMemCache) then begin
+        FTileInfoMemCache.Add(
+          AXY,
+          AZoom,
+          AVersionInfo,
+          TTileInfoBasicNotExists.Create(0, AVersionInfo)
+        );
+      end;
       NotifyTileUpdate(AXY, AZoom, AVersionInfo);
     end;
   end;
@@ -453,6 +466,12 @@ var
   VPath: String;
 begin
   Result := nil;
+  if Assigned(FTileInfoMemCache) then begin
+    Result := FTileInfoMemCache.Get(AXY, AZoom, AVersionInfo, AMode, True);
+    if Result <> nil then begin
+      Exit;
+    end;
+  end;
   if GetState.GetStatic.ReadAccess <> asDisabled then begin
     VPath :=
       StoragePath +
@@ -479,7 +498,7 @@ var
   VFileStream: THandleStream;
   VTileInfo: ITileInfoBasic;
 begin
-  Result := True;
+  Result := False;
   if GetState.GetStatic.WriteAccess <> asDisabled then begin
     if Assigned(AContentType) then begin
       if not FMainContentType.CheckOtherForSaveCompatible(AContentType) then begin
@@ -535,6 +554,15 @@ begin
         end;
         DeleteFile(VTneName);
         Result := True;
+        if Assigned(FTileInfoMemCache) then begin
+          VTileInfo :=
+            TTileInfoBasicExistsWithTile.Create(
+              ALoadDate,
+              AData,
+              AVersionInfo,
+              FMainContentType
+            );
+        end;
       end else begin
         if not FileExists(VTneName) then begin
           CreateDirIfNotExists(VTneName);
@@ -563,12 +591,25 @@ begin
           end;
           DeleteFile(VFileName);
           Result := True;
+          if Assigned(FTileInfoMemCache) then begin
+            VTileInfo := TTileInfoBasicTNE.Create(ALoadDate, AVersionInfo);
+          end;
         end;
       end;
     finally
       FFsLock.EndWrite;
     end;
-    NotifyTileUpdate(AXY, AZoom, AVersionInfo);
+    if Result then begin
+      if Assigned(FTileInfoMemCache) then begin
+        FTileInfoMemCache.Add(
+          AXY,
+          AZoom,
+          AVersionInfo,
+          VTileInfo
+        );
+      end;
+      NotifyTileUpdate(AXY, AZoom, AVersionInfo);
+    end;
   end;
 end;
 
