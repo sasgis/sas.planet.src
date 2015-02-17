@@ -7392,7 +7392,7 @@ begin
     VGUID := VGUIDList.Items[i];
     VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID);
     if (VMapType.Zmp.IsLayer) then begin
-      VLayerIsActive := VActiveLayersSet.IsExists(VGUID);
+      VLayerIsActive := Assigned(VActiveLayersSet) and VActiveLayersSet.IsExists(VGUID);
       TTBXItem(FNDwnItemList.GetByGUID(VGUID)).Visible := VLayerIsActive;
       TTBXItem(FNDelItemList.GetByGUID(VGUID)).Visible := VLayerIsActive;
       TTBXItem(FNOpenDirItemList.GetByGUID(VGUID)).Visible := VLayerIsActive;
@@ -7458,7 +7458,7 @@ begin
     VGUID := VGUIDList.Items[i];
     VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID);
     if (VMapType.Zmp.IsLayer) then begin
-      VLayerIsActive := VActiveLayersSet.IsExists(VGUID);
+      VLayerIsActive := Assigned(VActiveLayersSet) and VActiveLayersSet.IsExists(VGUID);
       TTBXItem(FNLayerParamsItemList.GetByGUID(VGUID)).Visible := VLayerIsActive;
       if VLayerIsActive then begin
         NLayerParams.Visible := True;
