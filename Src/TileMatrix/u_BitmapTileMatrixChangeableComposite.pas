@@ -55,6 +55,8 @@ type
 
     FDrawTask: IBackgroundTask;
     FOneTilePrepareCounter: IInternalPerformanceCounter;
+    FSourceDataGetCounter: IInternalPerformanceCounter;
+    FHashCheckCounter: IInternalPerformanceCounter;
     FMatrixChangeRectCounter: IInternalPerformanceCounter;
     FUpdateResultCounter: IInternalPerformanceCounter;
 
@@ -168,6 +170,8 @@ begin
   FOneTilePrepareCounter := APerfList.CreateAndAddNewCounter('OneTilePrepare');
   FUpdateResultCounter := APerfList.CreateAndAddNewCounter('UpdateResult');
   FMatrixChangeRectCounter := APerfList.CreateAndAddNewCounter('MatrixChangeRect');
+  FSourceDataGetCounter := APerfList.CreateAndAddNewCounter('SourceDataGet');
+  FHashCheckCounter := APerfList.CreateAndAddNewCounter('HashCheck');
 
   FPreparedHashMatrix := THashTileMatrixBuilder.Create(AHashFunction);
   FPreparedBitmapMatrix :=
@@ -283,6 +287,7 @@ var
   i: Integer;
   VTileCount: Integer;
   VBitmapGR32: TBitmap32ByStaticBitmap;
+  VIsFillEmptyOnlyMode: Boolean;
 begin
   VTileRect := FTileRect.GetStatic;
   if Assigned(VTileRect) then begin
@@ -301,33 +306,51 @@ begin
         Exit;
       end;
     end;
-    VSourceMatrixList := TInterfaceListSimple.Create;
-    VSourceMatrixList.Capacity := FSourceTileMatrixList.Count;
-    for i := 0 to FSourceTileMatrixList.Count - 1 do begin
-      VSourceMatrix := IBitmapTileMatrixChangeable(FSourceTileMatrixList.Items[i]).GetStatic;
-      if Assigned(VSourceMatrix) then begin
-        if VProjection.GetIsSameProjectionInfo(VSourceMatrix.TileRect.ProjectionInfo) then begin
-          VSourceMatrixList.Add(VSourceMatrix);
+    VCounterContext := FSourceDataGetCounter.StartOperation;
+    try
+      VIsFillEmptyOnlyMode := False;
+      VSourceMatrixList := TInterfaceListSimple.Create;
+      VSourceMatrixList.Capacity := FSourceTileMatrixList.Count;
+      for i := 0 to FSourceTileMatrixList.Count - 1 do begin
+        VSourceMatrix := IBitmapTileMatrixChangeable(FSourceTileMatrixList.Items[i]).GetStatic;
+        if Assigned(VSourceMatrix) then begin
+          if VProjection.GetIsSameProjectionInfo(VSourceMatrix.TileRect.ProjectionInfo) then begin
+            VSourceMatrixList.Add(VSourceMatrix);
+          end else begin
+            VIsFillEmptyOnlyMode := True;
+          end;
         end;
       end;
+    finally
+      FSourceDataGetCounter.FinishOperation(VCounterContext);
     end;
 
     if VSourceMatrixList.Count > 0 then begin
       VConverter := VProjection.GeoConverter;
       VTileIterator := TTileIteratorSpiralByRect.Create(VTileRect.Rect);
       while VTileIterator.Next(VTile) do begin
-        VTileCount := 0;
-        for i := 0 to VSourceMatrixList.Count - 1 do begin
-          VSourceItem := IBitmapTileMatrix(VSourceMatrixList.Items[i]).GetElementByTile(VTile);
-          if Assigned(VSourceItem) then begin
-            if VTileCount = 0 then begin
-              VBitmap := VSourceItem;
-              VSourceHash := VSourceItem.Hash;
-            end else begin
-              FHashFunction.UpdateHashByHash(VSourceHash, VSourceItem.Hash);
-            end;
-            Inc(VTileCount);
+        if VIsFillEmptyOnlyMode then begin
+          if Assigned(FPreparedBitmapMatrix.Tiles[VTile]) then begin
+            Continue;
           end;
+        end;
+        VCounterContext := FHashCheckCounter.StartOperation;
+        try
+          VTileCount := 0;
+          for i := 0 to VSourceMatrixList.Count - 1 do begin
+            VSourceItem := IBitmapTileMatrix(VSourceMatrixList.Items[i]).GetElementByTile(VTile);
+            if Assigned(VSourceItem) then begin
+              if VTileCount = 0 then begin
+                VBitmap := VSourceItem;
+                VSourceHash := VSourceItem.Hash;
+              end else begin
+                FHashFunction.UpdateHashByHash(VSourceHash, VSourceItem.Hash);
+              end;
+              Inc(VTileCount);
+            end;
+          end;
+        finally
+          FHashCheckCounter.FinishOperation(VCounterContext);
         end;
 
         if VTileCount > 0 then begin
