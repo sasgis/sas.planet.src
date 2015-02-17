@@ -26,6 +26,7 @@ uses
   Windows,
   i_Listener,
   i_NotifierOperation,
+  i_SimpleFlag,
   i_ThreadConfig,
   i_BackgroundTask,
   u_InterfacedThread;
@@ -43,6 +44,7 @@ type
     FOnExecute: TBackgroundTaskExecuteEvent;
     FCancelNotifierInternal: INotifierOperationInternal;
     FCancelNotifier: INotifierOperation;
+    FNeedStart: ISimpleFlag;
     FStopThreadHandle: THandle;
     FAllowExecuteHandle: THandle;
     FAppClosingListener: IListener;
@@ -70,6 +72,7 @@ uses
   u_Notifier,
   u_NotifierOperation,
   u_Synchronizer,
+  u_SimpleFlagWithInterlock,
   u_ListenerByEvent;
 
 { TBackgroundTask }
@@ -93,6 +96,7 @@ begin
   Assert(Assigned(FOnExecute));
   FStopThreadHandle := CreateEvent(nil, TRUE, FALSE, nil);
   FAllowExecuteHandle := CreateEvent(nil, TRUE, FALSE, nil);
+  FNeedStart := TSimpleFlagWithInterlock.Create;
   VOperationNotifier :=
     TNotifierOperation.Create(
       TNotifierBase.Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifier'))
@@ -129,6 +133,7 @@ var
   VHandles: array [0..1] of THandle;
   VWaitResult: DWORD;
   VOperatonID: Integer;
+  VNeedStart: Boolean;
 begin
   inherited;
   VHandles[0] := FAllowExecuteHandle;
@@ -138,15 +143,20 @@ begin
     case VWaitResult of
       WAIT_OBJECT_0:
       begin
-        ResetEvent(FAllowExecuteHandle);
-        VOperatonID := FCancelNotifier.CurrentOperation;
+        VNeedStart := FNeedStart.CheckFlagAndReset;
+        while VNeedStart do begin
 
-        if Assigned(FOnExecute) then begin
-          FOnExecute(VOperatonID, FCancelNotifier);
-        end;
+          ResetEvent(FAllowExecuteHandle);
+          VOperatonID := FCancelNotifier.CurrentOperation;
 
-        if Terminated then begin
-          Exit;
+          if Assigned(FOnExecute) then begin
+            FOnExecute(VOperatonID, FCancelNotifier);
+          end;
+
+          if Terminated then begin
+            Exit;
+          end;
+          VNeedStart := FNeedStart.CheckFlagAndReset;
         end;
       end;
     end;
@@ -160,6 +170,7 @@ end;
 
 procedure TBackgroundTask.StartExecute;
 begin
+  FNeedStart.SetFlag;
   SetEvent(FAllowExecuteHandle);
 end;
 
