@@ -42,7 +42,8 @@ type
     FSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FUseCache: Boolean;
     FErrorLogger: ITileErrorLogger;
-    FOversize: TRect;
+    FTileSelectOversize: TRect;
+    FItemSelectOversize: TRect;
 
     procedure AddElementsFromMap(
       AOperationID: Integer;
@@ -50,7 +51,8 @@ type
       const AElments: IVectorItemSubsetBuilder;
       const AAlayer: IMapType;
       const AZoom: Byte;
-      const ALonLatRect: TDoubleRect
+      const ATileSelectLonLatRect: TDoubleRect;
+      const AItemSelectLonLatRect: TDoubleRect
     );
 
   private
@@ -66,7 +68,8 @@ type
       const ALayersSet: IMapTypeSet;
       AUseCache: Boolean;
       const AErrorLogger: ITileErrorLogger;
-      const AOversize: TRect
+      const ATileSelectOversize: TRect;
+      const AItemSelectOversize: TRect
     );
   end;
 
@@ -91,25 +94,35 @@ constructor TVectorTileProviderForVectorLayers.Create(
   const ALayersSet: IMapTypeSet;
   AUseCache: Boolean;
   const AErrorLogger: ITileErrorLogger;
-  const AOversize: TRect
+  const ATileSelectOversize: TRect;
+  const AItemSelectOversize: TRect
 );
 begin
   Assert(Assigned(ASubsetBuilderFactory));
   Assert(Assigned(ALayersSet));
-  Assert(AOversize.Left >= 0);
-  Assert(AOversize.Left < 4096);
-  Assert(AOversize.Top >= 0);
-  Assert(AOversize.Top < 4096);
-  Assert(AOversize.Right >= 0);
-  Assert(AOversize.Right < 4096);
-  Assert(AOversize.Bottom >= 0);
-  Assert(AOversize.Bottom < 4096);
+  Assert(ATileSelectOversize.Left >= 0);
+  Assert(ATileSelectOversize.Left < 4096);
+  Assert(ATileSelectOversize.Top >= 0);
+  Assert(ATileSelectOversize.Top < 4096);
+  Assert(ATileSelectOversize.Right >= 0);
+  Assert(ATileSelectOversize.Right < 4096);
+  Assert(ATileSelectOversize.Bottom >= 0);
+  Assert(ATileSelectOversize.Bottom < 4096);
+  Assert(AItemSelectOversize.Left >= 0);
+  Assert(AItemSelectOversize.Left < 4096);
+  Assert(AItemSelectOversize.Top >= 0);
+  Assert(AItemSelectOversize.Top < 4096);
+  Assert(AItemSelectOversize.Right >= 0);
+  Assert(AItemSelectOversize.Right < 4096);
+  Assert(AItemSelectOversize.Bottom >= 0);
+  Assert(AItemSelectOversize.Bottom < 4096);
   inherited Create;
   FSubsetBuilderFactory := ASubsetBuilderFactory;
   FLayersSet := ALayersSet;
   FUseCache := AUseCache;
   FErrorLogger := AErrorLogger;
-  FOversize := AOversize;
+  FTileSelectOversize := ATileSelectOversize;
+  FItemSelectOversize := AItemSelectOversize;
 end;
 
 procedure TVectorTileProviderForVectorLayers.AddElementsFromMap(
@@ -118,7 +131,8 @@ procedure TVectorTileProviderForVectorLayers.AddElementsFromMap(
   const AElments: IVectorItemSubsetBuilder;
   const AAlayer: IMapType;
   const AZoom: Byte;
-  const ALonLatRect: TDoubleRect
+  const ATileSelectLonLatRect: TDoubleRect;
+  const AItemSelectLonLatRect: TDoubleRect
 );
 var
   VSourceGeoConvert: ICoordConverter;
@@ -137,7 +151,7 @@ begin
   VVersion := AAlayer.VersionRequestConfig.GetStatic;
   VTileSourceRect :=
     RectFromDoubleRect(
-      VSourceGeoConvert.LonLatRect2TileRectFloat(ALonLatRect, AZoom),
+      VSourceGeoConvert.LonLatRect2TileRectFloat(ATileSelectLonLatRect, AZoom),
       rrOutside
     );
   VTileIterator := TTileIteratorByRect.Create(VTileSourceRect);
@@ -154,7 +168,7 @@ begin
             VItem := VItems.GetItem(i);
             if Assigned(VItem) then begin
               VBounds := VItem.Geometry.Bounds;
-              if Assigned(VBounds) and VBounds.IsIntersecWithRect(ALonLatRect) then begin
+              if Assigned(VBounds) and VBounds.IsIntersecWithRect(AItemSelectLonLatRect) then begin
                 AElments.Add(VItem);
               end;
             end;
@@ -194,24 +208,35 @@ var
   VMapType: IMapType;
   VZoom: Byte;
   VConverter: ICoordConverter;
-  VMapRect: TDoubleRect;
-  VLonLatRect: TDoubleRect;
+  VTileSelectPixelRect: TDoubleRect;
+  VItemSelectPixelRect: TDoubleRect;
+  VTileSelectLonLatRect: TDoubleRect;
+  VItemSelectLonLatRect: TDoubleRect;
 begin
   Result := nil;
   if FLayersSet <> nil then begin
     VZoom := AProjectionInfo.Zoom;
     VConverter := AProjectionInfo.GeoConverter;
     Assert(VConverter.CheckTilePosStrict(ATile, VZoom));
-    VMapRect := VConverter.TilePos2PixelRectFloat(ATile, VZoom);
+    VTileSelectPixelRect := VConverter.TilePos2PixelRectFloat(ATile, VZoom);
+    VItemSelectPixelRect := VTileSelectPixelRect;
 
-    VMapRect.Left := VMapRect.Left - FOversize.Left;
-    VMapRect.Top := VMapRect.Top - FOversize.Top;
-    VMapRect.Right := VMapRect.Right + FOversize.Right;
-    VMapRect.Bottom := VMapRect.Bottom + FOversize.Bottom;
+    VTileSelectPixelRect.Left := VTileSelectPixelRect.Left - FTileSelectOversize.Left;
+    VTileSelectPixelRect.Top := VTileSelectPixelRect.Top - FTileSelectOversize.Top;
+    VTileSelectPixelRect.Right := VTileSelectPixelRect.Right + FTileSelectOversize.Right;
+    VTileSelectPixelRect.Bottom := VTileSelectPixelRect.Bottom + FTileSelectOversize.Bottom;
 
-    VConverter.ValidatePixelRectFloat(VMapRect, VZoom);
-    VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
-    
+    VConverter.ValidatePixelRectFloat(VTileSelectPixelRect, VZoom);
+    VTileSelectLonLatRect := VConverter.PixelRectFloat2LonLatRect(VTileSelectPixelRect, VZoom);
+
+    VItemSelectPixelRect.Left := VItemSelectPixelRect.Left - FItemSelectOversize.Left;
+    VItemSelectPixelRect.Top := VItemSelectPixelRect.Top - FItemSelectOversize.Top;
+    VItemSelectPixelRect.Right := VItemSelectPixelRect.Right + FItemSelectOversize.Right;
+    VItemSelectPixelRect.Bottom := VItemSelectPixelRect.Bottom + FItemSelectOversize.Bottom;
+
+    VConverter.ValidatePixelRectFloat(VItemSelectPixelRect, VZoom);
+    VItemSelectLonLatRect := VConverter.PixelRectFloat2LonLatRect(VItemSelectPixelRect, VZoom);
+
     VElements := FSubsetBuilderFactory.Build;
     for i := 0 to FLayersSet.Count - 1 do begin
       VMapType := FLayersSet.Items[i];
@@ -222,7 +247,8 @@ begin
           VElements,
           VMapType,
           VZoom,
-          VLonLatRect
+          VTileSelectLonLatRect,
+          VItemSelectLonLatRect
         );
         if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
           Break;

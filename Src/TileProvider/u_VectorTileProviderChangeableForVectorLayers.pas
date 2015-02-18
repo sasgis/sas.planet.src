@@ -40,7 +40,8 @@ type
     FErrorLogger: ITileErrorLogger;
     FSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FLayesSet: IMapTypeSetChangeable;
-    FOversize: TRect;
+    FTileSelectOversize: TRect;
+    FItemSelectOversize: TRect;
 
     FLinksList: IListenerNotifierLinksList;
 
@@ -55,7 +56,8 @@ type
       const ALayesSet: IMapTypeSetChangeable;
       const ASubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AErrorLogger: ITileErrorLogger;
-      const AOversize: TRect
+      const ATileSelectOversize: TRect;
+      const AItemSelectOversize: TRect
     );
   end;
 
@@ -73,7 +75,8 @@ constructor TVectorTileProviderChangeableForVectorLayers.Create(
   const ALayesSet: IMapTypeSetChangeable;
   const ASubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AErrorLogger: ITileErrorLogger;
-  const AOversize: TRect
+  const ATileSelectOversize: TRect;
+  const AItemSelectOversize: TRect
 );
 begin
   Assert(Assigned(ALayesSet));
@@ -82,7 +85,8 @@ begin
   FSubsetBuilderFactory := ASubsetBuilderFactory;
   FLayesSet := ALayesSet;
   FErrorLogger := AErrorLogger;
-  FOversize := AOversize;
+  FTileSelectOversize := ATileSelectOversize;
+  FItemSelectOversize := AItemSelectOversize;
 
   FResultCS := GSync.SyncVariable.Make(Self.ClassName);
   FLinksList := TListenerNotifierLinksList.Create;
@@ -119,7 +123,8 @@ begin
         VLayers,
         True,
         FErrorLogger,
-        FOversize
+        FTileSelectOversize,
+        FItemSelectOversize
       );
   end;
 

@@ -1873,7 +1873,7 @@ begin
   // Layer with randered vector maps
   VDebugName := 'VectorMaps';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
-  VVectorOversizeRect := Rect(300, 300, 300, 300);
+  VVectorOversizeRect := Rect(10, 10, 10, 10);
   VMarkerChangeable :=
     TMarkerDrawableChangeableSimple.Create(
       TMarkerDrawableSimpleSquare,
@@ -1884,6 +1884,7 @@ begin
       FMainMapState.ActiveKmlLayersSet,
       GState.VectorItemSubsetBuilderFactory,
       FTileErrorLogger,
+      Rect(300, 300, 300, 300),
       VVectorOversizeRect
     );
   VSourceChangeNotifier :=
