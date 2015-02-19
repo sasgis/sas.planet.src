@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_CenterScale;
+unit u_WindowLayerCenterScale;
 
 interface
 
@@ -36,7 +36,7 @@ uses
   u_WindowLayerBasicBase;
 
 type
-  TLayerCenterScale = class(TWindowLayerBasicBase)
+  TWindowLayerCenterScale = class(TWindowLayerBasicBase)
   private
     FConfig: ICenterScaleConfig;
     FMarkerChangeable: IMarkerDrawableChangeable;
@@ -67,9 +67,9 @@ uses
   u_ListenerByEvent,
   u_GeoFunc;
 
-{ TLayerCenterScale }
+{ TWindowLayerCenterScale }
 
-constructor TLayerCenterScale.Create(
+constructor TWindowLayerCenterScale.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
@@ -100,7 +100,7 @@ begin
   );
 end;
 
-procedure TLayerCenterScale.OnConfigChange;
+procedure TWindowLayerCenterScale.OnConfigChange;
 begin
   ViewUpdateLock;
   try
@@ -110,7 +110,7 @@ begin
   end;
 end;
 
-procedure TLayerCenterScale.PaintLayer(ABuffer: TBitmap32);
+procedure TWindowLayerCenterScale.PaintLayer(ABuffer: TBitmap32);
 var
   VMarker: IMarkerDrawable;
   VFixedPoint: TDoublePoint;
@@ -122,7 +122,7 @@ begin
   end;
 end;
 
-procedure TLayerCenterScale.OnPosChange;
+procedure TWindowLayerCenterScale.OnPosChange;
 var
   VNewFixedPoint: TDoublePoint;
 begin
@@ -140,7 +140,7 @@ begin
   end;
 end;
 
-procedure TLayerCenterScale.StartThreads;
+procedure TWindowLayerCenterScale.StartThreads;
 begin
   inherited;
   OnConfigChange;

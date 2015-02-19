@@ -570,8 +570,8 @@
     <DCCReference Include="Src\MapLayers\WindowLayers\CalcLine\u_CalcLineLayer.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\CalcLine\u_CalcLineLayerConfig.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\CenterScale\i_CenterScaleConfig.pas" />
-    <DCCReference Include="Src\MapLayers\WindowLayers\CenterScale\u_CenterScale.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\CenterScale\u_CenterScaleConfig.pas" />
+    <DCCReference Include="Src\MapLayers\WindowLayers\CenterScale\u_WindowLayerCenterScale.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\FullMapMouseCursor\i_FullMapMouseCursorLayerConfig.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\FullMapMouseCursor\u_FullMapMouseCursorLayer.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\FullMapMouseCursor\u_FullMapMouseCursorLayerConfig.pas" />

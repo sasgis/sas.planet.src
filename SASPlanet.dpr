@@ -694,7 +694,7 @@ uses
   u_MiniMapLayerPlusButton in 'Src\MapLayers\LayersWithThreadAndProvider\MiniMap\u_MiniMapLayerPlusButton.pas',
   u_MiniMapLayerMinusButton in 'Src\MapLayers\LayersWithThreadAndProvider\MiniMap\u_MiniMapLayerMinusButton.pas',
   u_MiniMapLayerViewRect in 'Src\MapLayers\LayersWithThreadAndProvider\MiniMap\u_MiniMapLayerViewRect.pas',
-  u_CenterScale in 'Src\MapLayers\WindowLayers\CenterScale\u_CenterScale.pas',
+  u_WindowLayerCenterScale in 'Src\MapLayers\WindowLayers\CenterScale\u_WindowLayerCenterScale.pas',
   u_WindowLayerStatusBar in 'Src\MapLayers\WindowLayers\StatusBar\u_WindowLayerStatusBar.pas',
   u_LayerStatBarPopupMenu in 'Src\MainForm\u_LayerStatBarPopupMenu.pas',
   u_LayerMiniMapPopupMenu in 'Src\MainForm\u_LayerMiniMapPopupMenu.pas',

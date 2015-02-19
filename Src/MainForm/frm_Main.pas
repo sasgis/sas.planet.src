@@ -953,7 +953,7 @@ uses
   u_FindVectorItemsForVectorMaps,
   u_FindVectorItemsForVectorTileMatrix,
   u_MapLayerGoto,
-  u_CenterScale,
+  u_WindowLayerCenterScale,
   u_ResStrings,
   u_SensorViewListGeneratorStuped,
   u_MainWindowPositionConfig,
@@ -2570,7 +2570,7 @@ begin
   VDebugName := 'CenterScale';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
-    TLayerCenterScale.Create(
+    TWindowLayerCenterScale.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
