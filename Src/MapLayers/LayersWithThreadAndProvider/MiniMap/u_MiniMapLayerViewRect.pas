@@ -39,7 +39,7 @@ uses
   i_MiniMapLayerConfig,
   i_ViewPortState,
   i_PopUp,
-  u_WindowLayerBasic;
+  u_WindowLayerAbstract;
 
 type
   TMiniMapLayerViewRect = class(TWindowLayerAbstract)

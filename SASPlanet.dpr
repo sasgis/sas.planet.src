@@ -683,7 +683,7 @@ uses
   u_BitmapLayerProviderChangeableForGrids in 'Src\BitmapLayerProvider\u_BitmapLayerProviderChangeableForGrids.pas',
   u_BitmapLayerProviderChangeableForFillingMap in 'Src\BitmapLayerProvider\u_BitmapLayerProviderChangeableForFillingMap.pas',
   u_BitmapLayerProviderChangeableForMapType in 'Src\BitmapLayerProvider\u_BitmapLayerProviderChangeableForMapType.pas',
-  u_WindowLayerBasic in 'Src\MapLayers\WindowLayers\u_WindowLayerBasic.pas',
+  u_WindowLayerAbstract in 'Src\MapLayers\WindowLayers\u_WindowLayerAbstract.pas',
   u_WindowLayerWithPos in 'Src\MapLayers\WindowLayers\u_WindowLayerWithPos.pas',
   i_HashMatrix in 'Src\TileMatrix\i_HashMatrix.pas',
   u_HashMatrix in 'Src\TileMatrix\u_HashMatrix.pas',

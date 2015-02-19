@@ -31,7 +31,7 @@ uses
   i_LocalCoordConverterChangeable,
   i_SimpleFlag,
   i_InternalPerformanceCounter,
-  u_WindowLayerBasic;
+  u_WindowLayerAbstract;
 
 type
   TMapLayerBasicNoBitmap = class(TWindowLayerAbstract)

@@ -30,7 +30,7 @@ uses
   i_NotifierOperation,
   i_SimpleFlag,
   i_InternalPerformanceCounter,
-  u_WindowLayerBasic;
+  u_WindowLayerAbstract;
 
 type
   TWindowLayerBasicBase = class(TWindowLayerAbstract)

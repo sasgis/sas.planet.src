@@ -618,7 +618,7 @@
     <DCCReference Include="Src\MapLayers\WindowLayers\u_MapLayerBasic.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\u_MapLayerShowError.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\u_PointOnMapEditLayer.pas" />
-    <DCCReference Include="Src\MapLayers\WindowLayers\u_WindowLayerBasic.pas" />
+    <DCCReference Include="Src\MapLayers\WindowLayers\u_WindowLayerAbstract.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\u_WindowLayerWithPos.pas" />
     <DCCReference Include="Src\MapSvcScan\frm_DGAvailablePic.pas">
       <Form>frmDGAvailablePic</Form>

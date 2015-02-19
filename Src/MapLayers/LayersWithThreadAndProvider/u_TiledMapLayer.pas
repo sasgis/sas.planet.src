@@ -38,7 +38,7 @@ uses
   i_BitmapTileMatrixChangeable,
   i_InternalPerformanceCounter,
   i_HashTileMatrixBuilder,
-  u_WindowLayerBasic;
+  u_WindowLayerAbstract;
 
 type
   TTiledMapLayer = class(TWindowLayerAbstract)

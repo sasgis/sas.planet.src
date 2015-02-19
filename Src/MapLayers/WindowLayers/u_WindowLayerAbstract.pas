@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_WindowLayerBasic;
+unit u_WindowLayerAbstract;
 
 interface
 
