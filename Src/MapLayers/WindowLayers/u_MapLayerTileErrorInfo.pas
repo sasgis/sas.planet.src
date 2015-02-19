@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_MapLayerShowError;
+unit u_MapLayerTileErrorInfo;
 
 interface
 
@@ -43,7 +43,7 @@ uses
   u_MapLayerBasicNoBitmap;
 
 type
-  TTileErrorInfoLayer = class(TMapLayerBasicNoBitmap)
+  TMapLayerTileErrorInfo = class(TMapLayerBasicNoBitmap)
   private
     FLogProvider: ITileErrorLogProviedrStuped;
     FBitmapFactory: IBitmap32StaticFactory;
@@ -98,7 +98,7 @@ uses
 
 { TTileErrorInfoLayer }
 
-constructor TTileErrorInfoLayer.Create(
+constructor TMapLayerTileErrorInfo.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
@@ -134,7 +134,7 @@ begin
   );
 end;
 
-function TTileErrorInfoLayer.CreateMarkerByError(
+function TMapLayerTileErrorInfo.CreateMarkerByError(
   const AMapType: IMapType;
   const AErrorInfo: ITileErrorInfo
 ): IMarkerDrawable;
@@ -186,7 +186,7 @@ begin
   end;
 end;
 
-procedure TTileErrorInfoLayer.DoHide;
+procedure TMapLayerTileErrorInfo.DoHide;
 begin
   inherited;
   FHideAfterTime := 0;
@@ -194,12 +194,12 @@ begin
   FMarker := nil;
 end;
 
-procedure TTileErrorInfoLayer.OnErrorRecive;
+procedure TMapLayerTileErrorInfo.OnErrorRecive;
 begin
   FNeedUpdateFlag.SetFlag;
 end;
 
-procedure TTileErrorInfoLayer.OnTimer;
+procedure TMapLayerTileErrorInfo.OnTimer;
 var
   VCurrTime: Cardinal;
   VNeedHide: Boolean;
@@ -251,7 +251,7 @@ begin
 
 end;
 
-procedure TTileErrorInfoLayer.PaintLayer(
+procedure TMapLayerTileErrorInfo.PaintLayer(
   ABuffer: TBitmap32;
   const ALocalConverter: ILocalCoordConverter
 );

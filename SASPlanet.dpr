@@ -707,7 +707,7 @@ uses
   u_LayerScaleLineHorizontal in 'Src\MapLayers\WindowLayers\ScaleLine\u_LayerScaleLineHorizontal.pas',
   u_LayerScaleLinePopupMenu in 'Src\MainForm\u_LayerScaleLinePopupMenu.pas',
   u_MapLayerGPSMarkerRings in 'Src\MapLayers\WindowLayers\GPSMarker\u_MapLayerGPSMarkerRings.pas',
-  u_MapLayerShowError in 'Src\MapLayers\WindowLayers\u_MapLayerShowError.pas',
+  u_MapLayerTileErrorInfo in 'Src\MapLayers\WindowLayers\u_MapLayerTileErrorInfo.pas',
   u_MapLayerGoto in 'Src\MapLayers\WindowLayers\GoTo\u_MapLayerGoto.pas',
   u_MapLayerGPSMarker in 'Src\MapLayers\WindowLayers\GPSMarker\u_MapLayerGPSMarker.pas',
   u_PolyLineLayerBase in 'Src\MapLayers\WindowLayers\Polygon\u_PolyLineLayerBase.pas',

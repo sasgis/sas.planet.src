@@ -944,7 +944,7 @@ uses
   u_SelectionLayer,
   u_LayerScaleLineHorizontal,
   u_LayerScaleLineVertical,
-  u_MapLayerShowError,
+  u_MapLayerTileErrorInfo,
   u_CalcLineLayer,
   u_SelectionPolylineLayer,
   u_SelectionRectLayer,
@@ -2503,7 +2503,7 @@ begin
   VDebugName := 'TileErrorInfo';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
-    TTileErrorInfoLayer.Create(
+    TMapLayerTileErrorInfo.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
