@@ -612,8 +612,8 @@
     <DCCReference Include="Src\MapLayers\WindowLayers\Selection\u_SelectionRectLayer.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\Selection\u_SelectionRectLayerConfig.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\StatusBar\i_StatBarConfig.pas" />
-    <DCCReference Include="Src\MapLayers\WindowLayers\StatusBar\u_LayerStatBar.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\StatusBar\u_StatBarConfig.pas" />
+    <DCCReference Include="Src\MapLayers\WindowLayers\StatusBar\u_WindowLayerStatusBar.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\u_MapLayerBasicNoBitmap.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\u_MapLayerTileErrorInfo.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\u_PointOnMapEditLayer.pas" />

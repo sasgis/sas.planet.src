@@ -938,7 +938,7 @@ uses
   u_MiniMapLayerPlusButton,
   u_MiniMapLayerMinusButton,
   u_WindowLayerLicenseList,
-  u_LayerStatBar,
+  u_WindowLayerStatusBar,
   u_MapLayerNavToMark,
   u_MapSvcScanStorage,
   u_SelectionLayer,
@@ -2652,7 +2652,7 @@ begin
   VDebugName := 'StatusBar';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
-    TLayerStatBar.Create(
+    TWindowLayerStatusBar.Create(
       GState.Config.LanguageManager,
       VPerfList,
       GState.AppStartedNotifier,

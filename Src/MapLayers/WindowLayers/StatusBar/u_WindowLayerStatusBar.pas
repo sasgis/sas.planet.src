@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_LayerStatBar;
+unit u_WindowLayerStatusBar;
 
 interface
 
@@ -51,7 +51,7 @@ uses
   u_WindowLayerWithBitmapBase;
 
 type
-  TLayerStatBar = class(TWindowLayerWithBitmapBase)
+  TWindowLayerStatusBar = class(TWindowLayerWithBitmapBase)
   private
     FConfig: IStatBarConfig;
     FMainMap: IMapTypeChangeable;
@@ -124,9 +124,9 @@ const
   //  онстанта дл€ преобразовани€ градусов в радианы
   D2R: Double = 0.017453292519943295769236907684886;
 
-{ TLayerStatBar }
+{ TWindowLayerStatusBar }
 
-constructor TLayerStatBar.Create(
+constructor TWindowLayerStatusBar.Create(
   const ALanguageManager: ILanguageManager;
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
@@ -185,19 +185,19 @@ begin
   FLastUpdateTick := 0;
 end;
 
-destructor TLayerStatBar.Destroy;
+destructor TWindowLayerStatusBar.Destroy;
 begin
   FreeAndNil(FTimeZoneInfo);
   inherited;
 end;
 
-function TLayerStatBar.GetNewBitmapSize: TPoint;
+function TWindowLayerStatusBar.GetNewBitmapSize: TPoint;
 begin
   Result.X := FView.GetStatic.GetLocalRectSize.X;
   Result.Y := FConfig.Height;
 end;
 
-function TLayerStatBar.GetNewLayerLocation: TFloatRect;
+function TWindowLayerStatusBar.GetNewLayerLocation: TFloatRect;
 var
   VLocalCoordConverter: ILocalCoordConverter;
 begin
@@ -215,7 +215,7 @@ begin
   end;
 end;
 
-procedure TLayerStatBar.OnConfigChange;
+procedure TWindowLayerStatusBar.OnConfigChange;
 
   procedure SetValidFontSize(
     AFont: TFont;
@@ -258,7 +258,7 @@ begin
   end;
 end;
 
-procedure TLayerStatBar.OnPosChange;
+procedure TWindowLayerStatusBar.OnPosChange;
 begin
   ViewUpdateLock;
   try
@@ -269,7 +269,7 @@ begin
   end;
 end;
 
-procedure TLayerStatBar.OnTimerEvent;
+procedure TWindowLayerStatusBar.OnTimerEvent;
 begin
   ViewUpdateLock;
   try
@@ -279,7 +279,7 @@ begin
   end;
 end;
 
-procedure TLayerStatBar.OnMouseDown(
+procedure TWindowLayerStatusBar.OnMouseDown(
   Sender: TObject;
   Button: TMouseButton;
   Shift: TShiftState;
@@ -291,19 +291,19 @@ begin
   end;
 end;
 
-procedure TLayerStatBar.StartThreads;
+procedure TWindowLayerStatusBar.StartThreads;
 begin
   inherited;
   OnConfigChange;
 end;
 
-procedure TLayerStatBar.DoUpdateLayerVisibility;
+procedure TWindowLayerStatusBar.DoUpdateLayerVisibility;
 begin
   inherited;
   Layer.MouseEvents := Visible;
 end;
 
-procedure TLayerStatBar.DoUpdateBitmapDraw;
+procedure TWindowLayerStatusBar.DoUpdateBitmapDraw;
 
   procedure RenderText(
   const AOffset: TPoint;
