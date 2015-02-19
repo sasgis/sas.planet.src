@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_LayerLicenseList;
+unit u_WindowLayerLicenseList;
 
 interface
 
@@ -32,7 +32,7 @@ uses
   u_WindowLayerWithBitmapBase;
 
 type
-  TLayerLicenseList = class(TWindowLayerWithBitmapBase)
+  TWindowLayerLicenseList = class(TWindowLayerWithBitmapBase)
   private
     FLicenseList: IStringListChangeable;
 
@@ -61,7 +61,7 @@ uses
 
 { TLayerLicenseList }
 
-constructor TLayerLicenseList.Create(
+constructor TWindowLayerLicenseList.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier,
   AAppClosingNotifier: INotifierOneOperation;
@@ -83,7 +83,7 @@ begin
   );
 end;
 
-procedure TLayerLicenseList.DoUpdateBitmapDraw;
+procedure TWindowLayerLicenseList.DoUpdateBitmapDraw;
 var
   VStrings: IStringListStatic;
   VRowsCount: Integer;
@@ -107,7 +107,7 @@ begin
   end;
 end;
 
-function TLayerLicenseList.GetNewBitmapSize: TPoint;
+function TWindowLayerLicenseList.GetNewBitmapSize: TPoint;
 var
   VStrings: IStringListStatic;
   VRowsCount: Integer;
@@ -125,7 +125,7 @@ begin
   end;
 end;
 
-function TLayerLicenseList.GetNewLayerLocation: TFloatRect;
+function TWindowLayerLicenseList.GetNewLayerLocation: TFloatRect;
 begin
   Result.Left := 0;
   Result.Top := 0;
@@ -133,7 +133,7 @@ begin
   Result.Bottom := Result.Top + Layer.Bitmap.Height;
 end;
 
-procedure TLayerLicenseList.OnListChange;
+procedure TWindowLayerLicenseList.OnListChange;
 var
   VList: IStringListStatic;
 begin
@@ -148,7 +148,7 @@ begin
   end;
 end;
 
-procedure TLayerLicenseList.StartThreads;
+procedure TWindowLayerLicenseList.StartThreads;
 begin
   inherited;
   OnListChange;

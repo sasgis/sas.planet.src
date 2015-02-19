@@ -937,7 +937,7 @@ uses
   u_MiniMapLayerLeftBorder,
   u_MiniMapLayerPlusButton,
   u_MiniMapLayerMinusButton,
-  u_LayerLicenseList,
+  u_WindowLayerLicenseList,
   u_LayerStatBar,
   u_MapLayerNavToMark,
   u_MapSvcScanStorage,
@@ -2630,7 +2630,7 @@ begin
       FMainMapState.ActiveMapsSetLicenseNotEmpty
     );
   VLayer :=
-    TLayerLicenseList.Create(
+    TWindowLayerLicenseList.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
