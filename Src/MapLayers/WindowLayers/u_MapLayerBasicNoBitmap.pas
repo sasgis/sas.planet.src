@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_MapLayerBasic;
+unit u_MapLayerBasicNoBitmap;
 
 interface
 

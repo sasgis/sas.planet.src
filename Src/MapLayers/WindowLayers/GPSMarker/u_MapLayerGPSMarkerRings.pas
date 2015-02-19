@@ -43,7 +43,7 @@ uses
   i_GeometryProjectedFactory,
   i_GeometryLonLatFactory,
   i_GPSRecorder,
-  u_MapLayerBasic;
+  u_MapLayerBasicNoBitmap;
 
 type
   TMapLayerGPSMarkerRings = class(TMapLayerBasicNoBitmap)

@@ -40,7 +40,7 @@ uses
   i_TileErrorLogProviedrStuped,
   i_MapType,
   i_MapTypeSet,
-  u_MapLayerBasic;
+  u_MapLayerBasicNoBitmap;
 
 type
   TTileErrorInfoLayer = class(TMapLayerBasicNoBitmap)

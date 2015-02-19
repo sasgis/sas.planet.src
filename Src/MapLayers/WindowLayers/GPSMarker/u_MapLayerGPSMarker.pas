@@ -37,7 +37,7 @@ uses
   i_MarkerDrawable,
   i_MapLayerGPSMarkerConfig,
   i_GPSRecorder,
-  u_MapLayerBasic;
+  u_MapLayerBasicNoBitmap;
 
 type
   TMapLayerGPSMarker = class(TMapLayerBasicNoBitmap)

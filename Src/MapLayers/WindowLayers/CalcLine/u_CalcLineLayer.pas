@@ -37,7 +37,7 @@ uses
   i_DoublePointsAggregator,
   i_ValueToStringConverter,
   i_PointCaptionsLayerConfig,
-  u_MapLayerBasic;
+  u_MapLayerBasicNoBitmap;
 
 type
   TCalcLineLayer = class(TMapLayerBasicNoBitmap)

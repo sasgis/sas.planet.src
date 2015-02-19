@@ -32,7 +32,7 @@ uses
   i_InternalPerformanceCounter,
   i_SelectionRect,
   i_SelectionRectLayerConfig,
-  u_MapLayerBasic;
+  u_MapLayerBasicNoBitmap;
 
 type
   TSelectionRectLayer = class(TMapLayerBasicNoBitmap)

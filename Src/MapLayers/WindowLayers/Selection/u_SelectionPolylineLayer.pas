@@ -34,7 +34,7 @@ uses
   i_LineOnMapEdit,
   i_SelectionPolylineLayerConfig,
   u_PolyLineLayerBase,
-  u_MapLayerBasic;
+  u_MapLayerBasicNoBitmap;
 
 type
   TSelectionPolylineShadowLayer = class(TPolygonLayerBase)

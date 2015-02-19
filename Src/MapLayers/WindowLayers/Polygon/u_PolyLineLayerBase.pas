@@ -41,7 +41,7 @@ uses
   i_GeometryProjected,
   i_PolyLineLayerConfig,
   i_PolygonLayerConfig,
-  u_MapLayerBasic;
+  u_MapLayerBasicNoBitmap;
 
 type
   TLineLayerBase = class(TMapLayerBasicNoBitmap)

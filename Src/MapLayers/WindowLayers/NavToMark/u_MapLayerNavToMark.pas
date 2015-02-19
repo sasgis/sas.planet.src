@@ -34,7 +34,7 @@ uses
   i_NavigationToPoint,
   i_MapLayerNavToPointMarkerConfig,
   i_MarkerDrawable,
-  u_MapLayerBasic;
+  u_MapLayerBasicNoBitmap;
 
 type
   TNavToMarkLayer = class(TMapLayerBasicNoBitmap)
