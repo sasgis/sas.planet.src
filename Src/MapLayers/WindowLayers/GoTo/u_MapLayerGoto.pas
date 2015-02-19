@@ -35,7 +35,7 @@ uses
   i_MapViewGoto,
   i_LocalCoordConverter,
   i_GotoLayerConfig,
-  u_WindowLayerWithPos;
+  u_WindowLayerBasicBase;
 
 type
   TGotoLayer = class(TWindowLayerBasicBase)

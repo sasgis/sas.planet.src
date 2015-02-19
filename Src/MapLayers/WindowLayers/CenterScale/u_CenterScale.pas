@@ -33,7 +33,7 @@ uses
   i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
   i_CenterScaleConfig,
-  u_WindowLayerWithPos;
+  u_WindowLayerBasicBase;
 
 type
   TLayerCenterScale = class(TWindowLayerBasicBase)

@@ -34,7 +34,7 @@ uses
   i_FullMapMouseCursorLayerConfig,
   i_MainFormState,
   i_MouseState,
-  u_WindowLayerWithPos;
+  u_WindowLayerBasicBase;
 
 type
   TFullMapMouseCursorLayer = class(TWindowLayerBasicBase)

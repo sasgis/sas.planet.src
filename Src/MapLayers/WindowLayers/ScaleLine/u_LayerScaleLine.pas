@@ -36,7 +36,7 @@ uses
   i_InternalPerformanceCounter,
   i_ScaleLineConfig,
   i_PopUp,
-  u_WindowLayerWithPos;
+  u_WindowLayerWithBitmapBase;
 
 type
   TLayerScaleLineBase = class(TWindowLayerWithBitmapBase)

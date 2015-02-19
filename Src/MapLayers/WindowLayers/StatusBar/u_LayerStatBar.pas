@@ -48,7 +48,7 @@ uses
   i_TerrainProviderList,
   i_PopUp,
   u_TimeZoneInfo,
-  u_WindowLayerWithPos;
+  u_WindowLayerWithBitmapBase;
 
 type
   TLayerStatBar = class(TWindowLayerWithBitmapBase)

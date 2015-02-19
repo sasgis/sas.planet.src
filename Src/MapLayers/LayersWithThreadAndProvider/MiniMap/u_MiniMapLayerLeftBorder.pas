@@ -34,7 +34,7 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_MiniMapLayerConfig,
-  u_WindowLayerWithPos;
+  u_WindowLayerWithBitmapBase;
 
 type
   TMiniMapLayerLeftBorder = class(TWindowLayerWithBitmapBase)

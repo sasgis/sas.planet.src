@@ -32,7 +32,7 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_PointOnMapEdit,
-  u_WindowLayerWithPos;
+  u_WindowLayerBasicBase;
 
 type
   TPointOnMapEditLayer = class(TWindowLayerBasicBase)

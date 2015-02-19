@@ -29,7 +29,7 @@ uses
   i_StringListChangeable,
   i_NotifierOperation,
   i_InternalPerformanceCounter,
-  u_WindowLayerWithPos;
+  u_WindowLayerWithBitmapBase;
 
 type
   TLayerLicenseList = class(TWindowLayerWithBitmapBase)
