@@ -596,10 +596,10 @@
     <DCCReference Include="Src\MapLayers\WindowLayers\Polygon\u_PolyLineLayerBase.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\Polygon\u_PolyLineLayerConfig.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\ScaleLine\i_ScaleLineConfig.pas" />
-    <DCCReference Include="Src\MapLayers\WindowLayers\ScaleLine\u_LayerScaleLine.pas" />
-    <DCCReference Include="Src\MapLayers\WindowLayers\ScaleLine\u_LayerScaleLineHorizontal.pas" />
-    <DCCReference Include="Src\MapLayers\WindowLayers\ScaleLine\u_LayerScaleLineVertical.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\ScaleLine\u_ScaleLineConfig.pas" />
+    <DCCReference Include="Src\MapLayers\WindowLayers\ScaleLine\u_WindowLayerScaleLineBase.pas" />
+    <DCCReference Include="Src\MapLayers\WindowLayers\ScaleLine\u_WindowLayerScaleLineHorizontal.pas" />
+    <DCCReference Include="Src\MapLayers\WindowLayers\ScaleLine\u_WindowLayerScaleLineVertical.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\Selection\i_LastSelectionLayerConfig.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\Selection\i_SelectionPolygonLayerConfig.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\Selection\i_SelectionPolylineLayerConfig.pas" />

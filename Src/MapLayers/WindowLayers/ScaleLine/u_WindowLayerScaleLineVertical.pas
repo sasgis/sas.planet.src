@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_LayerScaleLineVertical;
+unit u_WindowLayerScaleLineVertical;
 
 interface
 
@@ -28,10 +28,10 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_ScaleLineConfig,
-  u_LayerScaleLine;
+  u_WindowLayerScaleLineBase;
 
 type
-  TLayerScaleLineVertical = class(TLayerScaleLineBase)
+  TWindowLayerScaleLineVertical = class(TWindowLayerScaleLineBase)
   private
     procedure RedrawScaleLegend(const AVisualCoordConverter: ILocalCoordConverter);
     procedure DrawScaleLegend(
@@ -74,9 +74,9 @@ uses
   u_ResStrings,
   u_GeoFunc;
 
-{ TLayerScaleLine }
+{ TWindowLayerScaleLineVertical }
 
-procedure TLayerScaleLineVertical.DoUpdateBitmapDraw;
+procedure TWindowLayerScaleLineVertical.DoUpdateBitmapDraw;
 var
   VVisualCoordConverter: ILocalCoordConverter;
 begin
@@ -88,7 +88,7 @@ begin
   end;
 end;
 
-procedure TLayerScaleLineVertical.RedrawScaleLegend(const AVisualCoordConverter: ILocalCoordConverter);
+procedure TWindowLayerScaleLineVertical.RedrawScaleLegend(const AVisualCoordConverter: ILocalCoordConverter);
 var
   VUnitsString: string;
   VFullLenght, VHalfLenght: Double;
@@ -157,7 +157,7 @@ begin
   );
 end;
 
-procedure TLayerScaleLineVertical.DrawScaleLegend(
+procedure TWindowLayerScaleLineVertical.DrawScaleLegend(
   ALineColor: TColor32;
   AOutLineColor: TColor32;
   ATextColor: TColor32;
@@ -203,7 +203,7 @@ begin
   end;
 end;
 
-procedure TLayerScaleLineVertical.DrawScaleMarks(
+procedure TWindowLayerScaleLineVertical.DrawScaleMarks(
   ALineColor, AOutLineColor, ATextColor: TColor32;
   const AText: string;
   AScalePos: Integer;
@@ -233,7 +233,7 @@ begin
   ATargetBitmap.VertLineS(VStartX, AScalePos - 1, AScalePos + 1, AOutLineColor);
 end;
 
-procedure TLayerScaleLineVertical.GetMetersPerLine(
+procedure TWindowLayerScaleLineVertical.GetMetersPerLine(
   const AVisualCoordConverter: ILocalCoordConverter;
   ALineHeight: Integer;
   out AHalfLen, AFullLen: Double
@@ -274,7 +274,7 @@ begin
   end;
 end;
 
-procedure TLayerScaleLineVertical.ModifyLenAndHeight(
+procedure TWindowLayerScaleLineVertical.ModifyLenAndHeight(
   const AVisualCoordConverter: ILocalCoordConverter;
   var AFullLenght: Double;
   var AHeight: Integer
@@ -316,13 +316,13 @@ begin
   end;
 end;
 
-function TLayerScaleLineVertical.GetNewBitmapSize: TPoint;
+function TWindowLayerScaleLineVertical.GetNewBitmapSize: TPoint;
 begin
   Result.X := 100;
   Result.Y := Config.Width + 10;
 end;
 
-function TLayerScaleLineVertical.GetNewVisibility: boolean;
+function TWindowLayerScaleLineVertical.GetNewVisibility: boolean;
 begin
   Result := Config.Visible and Config.Extended;
 end;

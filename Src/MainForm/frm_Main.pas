@@ -942,8 +942,8 @@ uses
   u_MapLayerNavToMark,
   u_MapSvcScanStorage,
   u_SelectionLayer,
-  u_LayerScaleLineHorizontal,
-  u_LayerScaleLineVertical,
+  u_WindowLayerScaleLineHorizontal,
+  u_WindowLayerScaleLineVertical,
   u_MapLayerTileErrorInfo,
   u_CalcLineLayer,
   u_SelectionPolylineLayer,
@@ -2593,7 +2593,7 @@ begin
   VDebugName := 'ScaleLineHorizontal';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
-    TLayerScaleLineHorizontal.Create(
+    TWindowLayerScaleLineHorizontal.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
@@ -2609,7 +2609,7 @@ begin
   VDebugName := 'ScaleLineVertical';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
-    TLayerScaleLineVertical.Create(
+    TWindowLayerScaleLineVertical.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,

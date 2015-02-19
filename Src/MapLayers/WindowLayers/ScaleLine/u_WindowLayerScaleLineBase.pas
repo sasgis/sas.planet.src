@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_LayerScaleLine;
+unit u_WindowLayerScaleLineBase;
 
 interface
 
@@ -39,7 +39,7 @@ uses
   u_WindowLayerWithBitmapBase;
 
 type
-  TLayerScaleLineBase = class(TWindowLayerWithBitmapBase)
+  TWindowLayerScaleLineBase = class(TWindowLayerWithBitmapBase)
   private
     FConfig: IScaleLineConfig;
     FView: ILocalCoordConverterChangeable;
@@ -94,9 +94,9 @@ uses
   u_SimpleFlagWithInterlock,
   u_ListenerTime;
 
-{ TLayerScaleLine }
+{ TWindowLayerScaleLineBase }
 
-constructor TLayerScaleLineBase.Create(
+constructor TWindowLayerScaleLineBase.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
@@ -142,13 +142,13 @@ begin
   FTmpBitmap.Font.Size := Layer.Bitmap.Font.Size;
 end;
 
-destructor TLayerScaleLineBase.Destroy;
+destructor TWindowLayerScaleLineBase.Destroy;
 begin
   FreeAndNil(FTmpBitmap);
   inherited;
 end;
 
-function TLayerScaleLineBase.GetNiceLen(ALen: Double): Double;
+function TWindowLayerScaleLineBase.GetNiceLen(ALen: Double): Double;
 const
   CNiceValues: array [0..54] of Double =
     (
@@ -219,7 +219,7 @@ begin
   end;
 end;
 
-procedure TLayerScaleLineBase.OnConfigChange;
+procedure TWindowLayerScaleLineBase.OnConfigChange;
 var
   VVisible: Boolean;
 begin
@@ -237,12 +237,12 @@ begin
   end;
 end;
 
-procedure TLayerScaleLineBase.OnPosChange;
+procedure TWindowLayerScaleLineBase.OnPosChange;
 begin
   FLayerChangeFlag.SetFlag;
 end;
 
-procedure TLayerScaleLineBase.OnTimer;
+procedure TWindowLayerScaleLineBase.OnTimer;
 var
   VVisible: Boolean;
 begin
@@ -261,7 +261,7 @@ begin
   end;
 end;
 
-procedure TLayerScaleLineBase.OnMouseDown(
+procedure TWindowLayerScaleLineBase.OnMouseDown(
   Sender: TObject;
   Button: TMouseButton;
   Shift: TShiftState;
@@ -273,19 +273,19 @@ begin
   end;
 end;
 
-procedure TLayerScaleLineBase.StartThreads;
+procedure TWindowLayerScaleLineBase.StartThreads;
 begin
   inherited;
   OnConfigChange;
 end;
 
-procedure TLayerScaleLineBase.DoUpdateLayerVisibility;
+procedure TWindowLayerScaleLineBase.DoUpdateLayerVisibility;
 begin
   inherited;
   Layer.MouseEvents := Visible;
 end;
 
-procedure TLayerScaleLineBase.DrawOutLinedText(
+procedure TWindowLayerScaleLineBase.DrawOutLinedText(
   X, Y: Integer;
   const Text: string;
   TextColor: TColor32;
@@ -326,7 +326,7 @@ begin
   );
 end;
 
-function TLayerScaleLineBase.GetNewLayerLocation: TFloatRect;
+function TWindowLayerScaleLineBase.GetNewLayerLocation: TFloatRect;
 var
   VSize: TPoint;
 begin
