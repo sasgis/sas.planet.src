@@ -159,7 +159,7 @@ begin
     try
       if VPolygon <> nil then begin
         if not ABitmapInited then begin
-          InitBitmap(ATargetBmp, Point(AMapRect.Right - AMapRect.Left, AMapRect.Bottom - AMapRect.Top));
+          InitBitmap(ATargetBmp, Types.Point(AMapRect.Right - AMapRect.Left, AMapRect.Bottom - AMapRect.Top));
           ABitmapInited := True;
         end;
 
@@ -208,7 +208,7 @@ begin
   VRect := FPointMarker.GetBoundsForPosition(VLocalPos);
   if Types.IntersectRect(VRect, Rect(0, 0, AMapRect.Right - AMapRect.Left, AMapRect.Bottom - AMapRect.Top), VRect) then begin
     if not ABitmapInited then begin
-      InitBitmap(ATargetBmp, Point(AMapRect.Right - AMapRect.Left, AMapRect.Bottom - AMapRect.Top));
+      InitBitmap(ATargetBmp, Types.Point(AMapRect.Right - AMapRect.Left, AMapRect.Bottom - AMapRect.Top));
       ABitmapInited := True;
     end;
     Result := FPointMarker.DrawToBitmap(ATargetBmp, VLocalPos);
@@ -240,7 +240,7 @@ begin
     );
     if VPolygon <> nil then begin
       if not ABitmapInited then begin
-        InitBitmap(ATargetBmp, Point(AMapRect.Right - AMapRect.Left, AMapRect.Bottom - AMapRect.Top));
+        InitBitmap(ATargetBmp, Types.Point(AMapRect.Right - AMapRect.Left, AMapRect.Bottom - AMapRect.Top));
         ABitmapInited := True;
       end;
       with VPolygon.Outline do try
