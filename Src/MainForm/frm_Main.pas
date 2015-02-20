@@ -946,8 +946,8 @@ uses
   u_WindowLayerScaleLineVertical,
   u_MapLayerTileErrorInfo,
   u_CalcLineLayer,
-  u_SelectionPolylineLayer,
-  u_SelectionRectLayer,
+  u_MapLayerSelectionByPolylineShadow,
+  u_MapLayerSelectionByRect,
   u_MapLayerGPSMarker,
   u_MapLayerGPSMarkerRings,
   u_FindVectorItemsForVectorMaps,
@@ -2378,7 +2378,7 @@ begin
   VDebugName := 'SelectionByLineShadow';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
-    TSelectionPolylineShadowLayer.Create(
+    TMapLayerSelectionByPolylineShadow.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
@@ -2429,7 +2429,7 @@ begin
   VDebugName := 'SelectionByRect';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
-    TSelectionRectLayer.Create(
+    TMapLayerSelectionByRect.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,

@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_SelectionPolylineLayer;
+unit u_MapLayerSelectionByPolylineShadow;
 
 interface
 
@@ -37,7 +37,7 @@ uses
   u_MapLayerBasicNoBitmap;
 
 type
-  TSelectionPolylineShadowLayer = class(TPolygonLayerBase)
+  TMapLayerSelectionByPolylineShadow = class(TPolygonLayerBase)
   private
     FLineOnMapEdit: IPathOnMapEdit;
     FConfig: ISelectionPolylineShadowLayerConfig;
@@ -72,7 +72,7 @@ uses
 
 { TSelectionPolylineShadowLayer }
 
-constructor TSelectionPolylineShadowLayer.Create(
+constructor TMapLayerSelectionByPolylineShadow.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
@@ -103,13 +103,13 @@ begin
   );
 end;
 
-procedure TSelectionPolylineShadowLayer.DoConfigChange;
+procedure TMapLayerSelectionByPolylineShadow.DoConfigChange;
 begin
   inherited;
   FRadius := FConfig.Radius;
 end;
 
-function TSelectionPolylineShadowLayer.GetLine(
+function TMapLayerSelectionByPolylineShadow.GetLine(
   const ALocalConverter: ILocalCoordConverter
 ): IGeometryLonLatPolygon;
 var
@@ -132,7 +132,7 @@ begin
   end;
 end;
 
-procedure TSelectionPolylineShadowLayer.OnLineChange;
+procedure TMapLayerSelectionByPolylineShadow.OnLineChange;
 begin
   ViewUpdateLock;
   try

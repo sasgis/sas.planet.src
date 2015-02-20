@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_SelectionRectLayer;
+unit u_MapLayerSelectionByRect;
 
 interface
 
@@ -35,7 +35,7 @@ uses
   u_MapLayerBasicNoBitmap;
 
 type
-  TSelectionRectLayer = class(TMapLayerBasicNoBitmap)
+  TMapLayerSelectionByRect = class(TMapLayerBasicNoBitmap)
   private
     FConfig: ISelectionRectLayerConfig;
     FSelection: ISelectionRect;
@@ -77,7 +77,7 @@ uses
 
 { TSelectionRectLayer }
 
-constructor TSelectionRectLayer.Create(
+constructor TMapLayerSelectionByRect.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
@@ -107,7 +107,7 @@ begin
   );
 end;
 
-procedure TSelectionRectLayer.OnConfigChange;
+procedure TMapLayerSelectionByRect.OnConfigChange;
 begin
   ViewUpdateLock;
   try
@@ -126,7 +126,7 @@ begin
   end;
 end;
 
-procedure TSelectionRectLayer.OnSelectionChange;
+procedure TMapLayerSelectionByRect.OnSelectionChange;
 begin
   ViewUpdateLock;
   try
@@ -142,7 +142,7 @@ begin
   end;
 end;
 
-procedure TSelectionRectLayer.PaintLayer(
+procedure TMapLayerSelectionByRect.PaintLayer(
   ABuffer: TBitmap32;
   const ALocalConverter: ILocalCoordConverter
 );
@@ -230,7 +230,7 @@ begin
   end;
 end;
 
-procedure TSelectionRectLayer.StartThreads;
+procedure TMapLayerSelectionByRect.StartThreads;
 begin
   inherited;
   OnConfigChange;
