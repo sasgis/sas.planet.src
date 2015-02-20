@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_PointOnMapEditLayer;
+unit u_MapLayerPointOnMapEdit;
 
 interface
 
@@ -35,7 +35,7 @@ uses
   u_WindowLayerBasicBase;
 
 type
-  TPointOnMapEditLayer = class(TWindowLayerBasicBase)
+  TMapLayerPointOnMapEdit = class(TWindowLayerBasicBase)
   private
     FLocalConverter: ILocalCoordConverterChangeable;
     FPointOnMap: IPointOnMapEdit;
@@ -69,7 +69,7 @@ uses
 
 { TPointOnMapEditLayer }
 
-constructor TPointOnMapEditLayer.Create(
+constructor TMapLayerPointOnMapEdit.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
@@ -107,7 +107,7 @@ begin
   );
 end;
 
-procedure TPointOnMapEditLayer.OnPointChange;
+procedure TMapLayerPointOnMapEdit.OnPointChange;
 var
   VPoint: TDoublePoint;
 begin
@@ -121,7 +121,7 @@ begin
   end;
 end;
 
-procedure TPointOnMapEditLayer.OnPosChange;
+procedure TMapLayerPointOnMapEdit.OnPosChange;
 begin
   ViewUpdateLock;
   try
@@ -131,7 +131,7 @@ begin
   end;
 end;
 
-procedure TPointOnMapEditLayer.PaintLayer(ABuffer: TBitmap32);
+procedure TMapLayerPointOnMapEdit.PaintLayer(ABuffer: TBitmap32);
 var
   VLocalConverter: ILocalCoordConverter;
   VConverter: ICoordConverter;
@@ -151,7 +151,7 @@ begin
   end;
 end;
 
-procedure TPointOnMapEditLayer.StartThreads;
+procedure TMapLayerPointOnMapEdit.StartThreads;
 begin
   inherited;
   OnPointChange;

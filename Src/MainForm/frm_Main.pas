@@ -971,7 +971,7 @@ uses
   u_PolyLineLayerBase,
   u_LineOnMapEdit,
   u_PointOnMapEdit,
-  u_PointOnMapEditLayer,
+  u_MapLayerPointOnMapEdit,
   u_MapTypeIconsList,
   u_SelectionRect,
   u_KeyMovingHandler,
@@ -2534,7 +2534,7 @@ begin
   VDebugName := 'PointOnMapEdit';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
-    TPointOnMapEditLayer.Create(
+    TMapLayerPointOnMapEdit.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,

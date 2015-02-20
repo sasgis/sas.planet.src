@@ -711,7 +711,7 @@ uses
   u_MapLayerGoto in 'Src\MapLayers\WindowLayers\GoTo\u_MapLayerGoto.pas',
   u_MapLayerGPSMarker in 'Src\MapLayers\WindowLayers\GPSMarker\u_MapLayerGPSMarker.pas',
   u_PolyLineLayerBase in 'Src\MapLayers\WindowLayers\Polygon\u_PolyLineLayerBase.pas',
-  u_PointOnMapEditLayer in 'Src\MapLayers\WindowLayers\u_PointOnMapEditLayer.pas',
+  u_MapLayerPointOnMapEdit in 'Src\MapLayers\WindowLayers\u_MapLayerPointOnMapEdit.pas',
   u_CalcLineLayer in 'Src\MapLayers\WindowLayers\CalcLine\u_CalcLineLayer.pas',
   u_SelectionPolylineLayer in 'Src\MapLayers\WindowLayers\Selection\u_SelectionPolylineLayer.pas',
   u_SelectionRectLayer in 'Src\MapLayers\WindowLayers\Selection\u_SelectionRectLayer.pas',
