@@ -605,7 +605,7 @@
     <DCCReference Include="Src\MapLayers\WindowLayers\Selection\i_SelectionPolylineLayerConfig.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\Selection\i_SelectionRectLayerConfig.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\Selection\u_LastSelectionLayerConfig.pas" />
-    <DCCReference Include="Src\MapLayers\WindowLayers\Selection\u_SelectionLayer.pas" />
+    <DCCReference Include="Src\MapLayers\WindowLayers\Selection\u_MapLayerLastSelection.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\Selection\u_SelectionPolygonLayerConfig.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\Selection\u_SelectionPolylineLayer.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\Selection\u_SelectionPolylineLayerConfig.pas" />

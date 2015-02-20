@@ -701,7 +701,7 @@ uses
   u_FullMapMouseCursorLayer in 'Src\MapLayers\WindowLayers\FullMapMouseCursor\u_FullMapMouseCursorLayer.pas',
   u_MapLayerBasicNoBitmap in 'Src\MapLayers\WindowLayers\u_MapLayerBasicNoBitmap.pas',
   u_MapLayerNavToMark in 'Src\MapLayers\WindowLayers\NavToMark\u_MapLayerNavToMark.pas',
-  u_SelectionLayer in 'Src\MapLayers\WindowLayers\Selection\u_SelectionLayer.pas',
+  u_MapLayerLastSelection in 'Src\MapLayers\WindowLayers\Selection\u_MapLayerLastSelection.pas',
   u_WindowLayerScaleLineBase in 'Src\MapLayers\WindowLayers\ScaleLine\u_WindowLayerScaleLineBase.pas',
   u_WindowLayerScaleLineVertical in 'Src\MapLayers\WindowLayers\ScaleLine\u_WindowLayerScaleLineVertical.pas',
   u_WindowLayerScaleLineHorizontal in 'Src\MapLayers\WindowLayers\ScaleLine\u_WindowLayerScaleLineHorizontal.pas',

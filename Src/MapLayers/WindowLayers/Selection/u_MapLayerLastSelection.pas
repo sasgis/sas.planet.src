@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_SelectionLayer;
+unit u_MapLayerLastSelection;
 
 interface
 
@@ -35,7 +35,7 @@ uses
   u_PolyLineLayerBase;
 
 type
-  TSelectionLayer = class(TPolygonLayerBase)
+  TMapLayerLastSelection = class(TPolygonLayerBase)
   private
     FConfig: ILastSelectionLayerConfig;
     FLastSelectionInfo: ILastSelectionInfo;
@@ -68,7 +68,7 @@ uses
 
 { TSelectionLayer }
 
-constructor TSelectionLayer.Create(
+constructor TMapLayerLastSelection.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
@@ -97,7 +97,7 @@ begin
   );
 end;
 
-procedure TSelectionLayer.DoConfigChange;
+procedure TMapLayerLastSelection.DoConfigChange;
 begin
   inherited;
   SetNeedRedraw;
@@ -107,7 +107,7 @@ begin
   end;
 end;
 
-function TSelectionLayer.GetLine(
+function TMapLayerLastSelection.GetLine(
   const ALocalConverter: ILocalCoordConverter
 ): IGeometryLonLatPolygon;
 begin
@@ -118,7 +118,7 @@ begin
   end;
 end;
 
-procedure TSelectionLayer.OnChangeSelection;
+procedure TMapLayerLastSelection.OnChangeSelection;
 begin
   ViewUpdateLock;
   try
@@ -137,7 +137,7 @@ begin
   end;
 end;
 
-procedure TSelectionLayer.StartThreads;
+procedure TMapLayerLastSelection.StartThreads;
 begin
   inherited;
   OnChangeSelection;

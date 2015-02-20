@@ -941,7 +941,7 @@ uses
   u_WindowLayerStatusBar,
   u_MapLayerNavToMark,
   u_MapSvcScanStorage,
-  u_SelectionLayer,
+  u_MapLayerLastSelection,
   u_WindowLayerScaleLineHorizontal,
   u_WindowLayerScaleLineVertical,
   u_MapLayerTileErrorInfo,
@@ -2194,7 +2194,7 @@ begin
   VDebugName := 'LastSelection';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
-    TSelectionLayer.Create(
+    TMapLayerLastSelection.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
