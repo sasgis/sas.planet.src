@@ -1490,7 +1490,7 @@ begin
                 if FStoreInBinaryFormat then begin
                   VFormat := dfBinary;
                 end else begin
-                  VFormat := dfXML;
+                  VFormat := dfXMLUTF8;
                 end;
                 FCdsMarks.SaveToStream(FStream, VFormat);
               end else begin

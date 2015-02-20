@@ -593,7 +593,7 @@ begin
               if FStoreInBinaryFormat then begin
                 VFormat := dfBinary;
               end else begin
-                VFormat := dfXML;
+                VFormat := dfXMLUTF8;
               end;
               FCdsCategory.SaveToStream(FStream, VFormat);
             end else begin
