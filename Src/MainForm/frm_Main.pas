@@ -1875,11 +1875,29 @@ begin
   VDebugName := 'VectorMaps';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VVectorOversizeRect := Rect(10, 10, 10, 10);
-  VMarkerChangeable :=
-    TMarkerDrawableChangeableSimple.Create(
-      TMarkerDrawableSimpleSquare,
-      FConfig.LayersConfig.KmlLayerConfig.PointMarkerConfig
+
+  VBitmap :=
+    ReadBitmapByFileRef(
+      GState.ResourceProvider,
+      'PANORAMIO.png',
+      GState.ContentTypeManager,
+      nil
     );
+  if VBitmap <> nil then begin
+    VMarkerChangeable :=
+      TMarkerDrawableChangeableFaked.Create(
+        TMarkerDrawableByBitmap32Static.Create(
+          VBitmap, DoublePoint(VBitmap.Size.X / 2, VBitmap.Size.Y / 2)
+        )
+      );
+  end else begin
+    VMarkerChangeable :=
+      TMarkerDrawableChangeableSimple.Create(
+        TMarkerDrawableSimpleSquare,
+        FConfig.LayersConfig.KmlLayerConfig.PointMarkerConfig
+      );
+  end;
+  
   VVectorTileProvider :=
     TVectorTileProviderChangeableForVectorLayers.Create(
       FMainMapState.ActiveKmlLayersSet,
