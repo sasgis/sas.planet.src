@@ -60,6 +60,7 @@
     <DCCReference Include="u_EnumDoublePointFilterEqual_Test.pas" />
     <DCCReference Include="u_EnumDoublePointLine2Poly_Test.pas" />
     <DCCReference Include="u_EnumDoublePointWithClip_Test.pas" />
+    <DCCReference Include="u_GeometrySaveLoadWKB_Test.pas" />
     <DCCReference Include="u_GUIDSetStatic_Test.pas" />
     <DCCReference Include="u_GUIDSet_Test.pas" />
     <DCCReference Include="u_HashCacheWithQueuesAbstract_Test.pas" />
