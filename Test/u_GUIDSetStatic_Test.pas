@@ -46,15 +46,7 @@ var
   VList: IGUIDSetStatic;
 begin
   VList := TGUIDSetStatic.CreateAndSort([], 0);
-  CheckEquals(0, VList.Count);
-
-  CheckFalse(VList.IsExists(G1));
-  CheckFalse(VList.IsExists(G2));
-  CheckFalse(VList.IsExists(G3));
-  CheckFalse(VList.IsExists(G4));
-  CheckFalse(VList.IsExists(G5));
-  CheckFalse(VList.IsExists(G6));
-  CheckFalse(VList.IsExists(G7));
+  CheckNull(VList);
 end;
 
 procedure TestTGUIDSetStatic.TestOneItem;

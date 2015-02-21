@@ -10,6 +10,7 @@ interface
 
 uses
   TestFramework,
+  i_MarkCategoryList,
   i_MarkCategoryTree,
   i_MarkCategory,
   i_InterfaceListStatic;
@@ -26,6 +27,7 @@ implementation
 uses
   i_InterfaceListSimple,
   u_InterfaceListSimple,
+  u_MarkCategoryList,
   u_MarkCategory,
   u_MarkSystemHelpers;
 
@@ -44,7 +46,7 @@ begin
   VList.Add(VCategory);
   VCategory := TMarkCategory.Create('T3', True, 0, 24);
   VList.Add(VCategory);
-  VTree := CategoryListToCategoryTree(VList.MakeStaticCopy);
+  VTree := CategoryListToCategoryTree(TMarkCategoryList.Build(VList.MakeStaticCopy));
   CheckEqualsString('', VTree.Name);
   CheckEquals(3, VTree.SubItemCount);
   CheckNull(VTree.MarkCategory);
@@ -85,7 +87,7 @@ begin
   VList.Add(VCategory);
   VCategory := TMarkCategory.Create('T3\TT1\TTT1', True, 0, 24);
   VList.Add(VCategory);
-  VTree := CategoryListToCategoryTree(VList.MakeStaticCopy);
+  VTree := CategoryListToCategoryTree(TMarkCategoryList.Build(VList.MakeStaticCopy));
   CheckEqualsString('', VTree.Name);
   CheckNull(VTree.MarkCategory);
   CheckEquals(3, VTree.SubItemCount);
