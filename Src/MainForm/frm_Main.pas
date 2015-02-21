@@ -969,6 +969,7 @@ uses
   u_MarkerDrawableSimpleCross,
   u_MarkerDrawableSimpleSquare,
   u_PolyLineLayerBase,
+  u_MapLayerPointsSet,
   u_LineOnMapEdit,
   u_PointOnMapEdit,
   u_MapLayerPointOnMapEdit,

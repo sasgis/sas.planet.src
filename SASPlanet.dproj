@@ -592,6 +592,7 @@
     <DCCReference Include="Src\MapLayers\WindowLayers\NavToMark\u_MapLayerNavToPointMarkerConfig.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\Polygon\i_PolygonLayerConfig.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\Polygon\i_PolyLineLayerConfig.pas" />
+    <DCCReference Include="Src\MapLayers\WindowLayers\Polygon\u_MapLayerPointsSet.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\Polygon\u_PolygonLayerConfig.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\Polygon\u_PolyLineLayerBase.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\Polygon\u_PolyLineLayerConfig.pas" />
