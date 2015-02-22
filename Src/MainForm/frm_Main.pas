@@ -913,6 +913,7 @@ uses
   i_VectorTileMatrixChangeable,
   i_VectorTileRendererChangeable,
   i_VectorTileProviderChangeable,
+  i_GeometryLonLatChangeable,
   u_InterfaceListSimple,
   u_ImportFromArcGIS,
   u_LocalConverterChangeableOfMiniMap,
@@ -941,12 +942,10 @@ uses
   u_WindowLayerStatusBar,
   u_MapLayerNavToMark,
   u_MapSvcScanStorage,
-  u_MapLayerLastSelection,
   u_WindowLayerScaleLineHorizontal,
   u_WindowLayerScaleLineVertical,
   u_MapLayerTileErrorInfo,
   u_CalcLineLayer,
-  u_MapLayerSelectionByPolylineShadow,
   u_MapLayerSelectionByRect,
   u_MapLayerGPSMarker,
   u_MapLayerGPSMarkerRings,
@@ -1014,6 +1013,10 @@ uses
   u_VectorTileProviderChangeableForVectorLayers,
   u_BitmapTileMatrixChangeableComposite,
   u_ImageResamplerFactoryChangeableByConfig,
+  u_GeometryLonLatLineChangeableByPathEdit,
+  u_GeometryLonLatPolygonChangeableByPolygonEdit,
+  u_GeometryLonLatPolygonChangeableByLastSelection,
+  u_GeometryLonLatPolygonChangeableByPathEdit,
   u_LayerScaleLinePopupMenu,
   u_LayerStatBarPopupMenu,
   u_LayerMiniMapPopupMenu,
@@ -1792,6 +1795,8 @@ var
   VDebugName: string;
   VVectorOversizeRect: TRect;
   VMatrixList: IInterfaceListSimple;
+  VLineChangeable: IGeometryLonLatLineChangeable;
+  VPolygonChangeable: IGeometryLonLatPolygonChangeable;
 begin
   VTileRectForShow :=
     TTileRectChangeableByLocalConverterSmart.Create(
@@ -2212,8 +2217,13 @@ begin
   // Last selection visualisation layer
   VDebugName := 'LastSelection';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VPolygonChangeable :=
+    TGeometryLonLatPolygonChangeableByLastSelection.Create(
+      FConfig.LayersConfig.LastSelectionLayerConfig,
+      GState.LastSelectionInfo
+    );
   VLayer :=
-    TMapLayerLastSelection.Create(
+    TMapLayerSinglePolygon.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
@@ -2221,23 +2231,27 @@ begin
       FViewPortState.View,
       GState.VectorGeometryProjectedFactory,
       FConfig.LayersConfig.LastSelectionLayerConfig,
-      GState.LastSelectionInfo
+      VPolygonChangeable
     );
   VLayersList.Add(VLayer);
 
   // CalcLine line visualisation layer
   VDebugName := 'CalcLine';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLineChangeable :=
+    TGeometryLonLatLineChangeableByPathEdit.Create(
+      FLineOnMapByOperation[ao_calc_line] as IPathOnMapEdit
+    );
   VLayer :=
-    TPathEditLayer.Create(
+    TMapLayerSingleLine.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
       FViewPortState.View,
       GState.VectorGeometryProjectedFactory,
-      FLineOnMapByOperation[ao_calc_line] as IPathOnMapEdit,
-      FConfig.LayersConfig.CalcLineLayerConfig.LineConfig
+      FConfig.LayersConfig.CalcLineLayerConfig.LineConfig,
+      VLineChangeable
     );
   VLayersList.Add(VLayer);
 
@@ -2274,20 +2288,24 @@ begin
       GState.ValueToStringConverter
     );
   VLayersList.Add(VLayer);
-  
+
   // PathEdit line visualisation layer
   VDebugName := 'PathEdit';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLineChangeable :=
+    TGeometryLonLatLineChangeableByPathEdit.Create(
+      FLineOnMapByOperation[ao_edit_line] as IPathOnMapEdit
+    );
   VLayer :=
-    TPathEditLayer.Create(
+    TMapLayerSingleLine.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
       FViewPortState.View,
       GState.VectorGeometryProjectedFactory,
-      FLineOnMapByOperation[ao_edit_line] as IPathOnMapEdit,
-      FConfig.LayersConfig.MarkPolyLineLayerConfig.LineConfig
+      FConfig.LayersConfig.MarkPolyLineLayerConfig.LineConfig,
+      VLineChangeable
     );
   VLayersList.Add(VLayer);
 
@@ -2328,16 +2346,21 @@ begin
   // PolygonEdit line and fill visualisation layer
   VDebugName := 'PolygonEdit';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VPolygonChangeable :=
+    TGeometryLonLatPolygonChangeableByPolygonEdit.Create(
+      FLineOnMapByOperation[ao_edit_poly] as IPolygonOnMapEdit
+    );
+
   VLayer :=
-    TPolygonEditLayer.Create(
+    TMapLayerSinglePolygon.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
       FViewPortState.View,
       GState.VectorGeometryProjectedFactory,
-      FLineOnMapByOperation[ao_edit_poly] as IPolygonOnMapEdit,
-      FConfig.LayersConfig.MarkPolygonLayerConfig.LineConfig
+      FConfig.LayersConfig.MarkPolygonLayerConfig.LineConfig,
+      VPolygonChangeable
     );
   VLayersList.Add(VLayer);
 
@@ -2362,16 +2385,20 @@ begin
   // PolygonSelection line and fill visualisation layer
   VDebugName := 'PolygonSelection';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VPolygonChangeable :=
+    TGeometryLonLatPolygonChangeableByPolygonEdit.Create(
+      FLineOnMapByOperation[ao_select_poly] as IPolygonOnMapEdit
+    );
   VLayer :=
-    TPolygonEditLayer.Create(
+    TMapLayerSinglePolygon.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
       FViewPortState.View,
       GState.VectorGeometryProjectedFactory,
-      FLineOnMapByOperation[ao_select_poly] as IPolygonOnMapEdit,
-      FConfig.LayersConfig.SelectionPolygonLayerConfig.LineConfig
+      FConfig.LayersConfig.SelectionPolygonLayerConfig.LineConfig,
+      VPolygonChangeable
     );
   VLayersList.Add(VLayer);
 
@@ -2396,33 +2423,43 @@ begin
   // SelectionByLine shadow visualisation layer
   VDebugName := 'SelectionByLineShadow';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VPolygonChangeable :=
+    TGeometryLonLatPolygonChangeableByPathEdit.Create(
+      GState.VectorGeometryLonLatFactory,
+      FViewPortState.View,
+      FLineOnMapByOperation[ao_select_line] as IPathOnMapEdit,
+      FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig
+    );
   VLayer :=
-    TMapLayerSelectionByPolylineShadow.Create(
+    TMapLayerSinglePolygon.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
       FViewPortState.View,
       GState.VectorGeometryProjectedFactory,
-      GState.VectorGeometryLonLatFactory,
-      FLineOnMapByOperation[ao_select_line] as IPathOnMapEdit,
-      FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig
+      FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig,
+      VPolygonChangeable
     );
   VLayersList.Add(VLayer);
     
   // SelectionByLyne line visualisation layer
   VDebugName := 'SelectionByLine';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLineChangeable :=
+    TGeometryLonLatLineChangeableByPathEdit.Create(
+      FLineOnMapByOperation[ao_select_line] as IPathOnMapEdit
+    );
   VLayer :=
-    TPathEditLayer.Create(
+    TMapLayerSingleLine.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
       FViewPortState.View,
       GState.VectorGeometryProjectedFactory,
-      FLineOnMapByOperation[ao_select_line] as IPathOnMapEdit,
-      FConfig.LayersConfig.SelectionPolylineLayerConfig.LineConfig
+      FConfig.LayersConfig.SelectionPolylineLayerConfig.LineConfig,
+      VLineChangeable
     );
   VLayersList.Add(VLayer);
     

@@ -36,6 +36,7 @@ uses
   i_DoublePointsAggregator,
   i_GeometryProjectedFactory,
   i_GeometryLonLat,
+  i_GeometryLonLatChangeable,
   i_GeometryProjected,
   i_PolyLineLayerConfig,
   i_PolygonLayerConfig,
@@ -96,38 +97,48 @@ type
     constructor CreateFromSource(ASource: TPolygon32);
   end;
 
-  TPathLayerBase = class(TLineLayerBase)
+  TMapLayerSingleLine = class(TLineLayerBase)
   private
-    FLine: IGeometryLonLatLine;
+    FSource: IGeometryLonLatLineChangeable;
+    FPrevLine: IGeometryLonLatLine;
     FProjection: IProjectionInfo;
     FProjectedLine: IGeometryProjectedLine;
     FLocalConverter: ILocalCoordConverter;
     FPolygon: IDrawablePolygon;
-  protected
-    procedure ChangedSource;
-    function GetLine(const ALocalConverter: ILocalCoordConverter): IGeometryLonLatLine; virtual; abstract;
+    procedure OnChangedSource;
   protected
     procedure PaintLayer(
       ABuffer: TBitmap32;
       const ALocalConverter: ILocalCoordConverter
     ); override;
+  public
+    constructor Create(
+      const APerfList: IInternalPerformanceCounterList;
+      const AAppStartedNotifier: INotifierOneOperation;
+      const AAppClosingNotifier: INotifierOneOperation;
+      AParentMap: TImage32;
+      const AView: ILocalCoordConverterChangeable;
+      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+      const AConfig: ILineLayerConfig;
+      const ASource: IGeometryLonLatLineChangeable
+    );
   end;
 
-  TPolygonLayerBase = class(TLineLayerBase)
+  TMapLayerSinglePolygon = class(TLineLayerBase)
   private
     FConfig: IPolygonLayerConfig;
+    FSource: IGeometryLonLatPolygonChangeable;
+
     FFillColor: TColor32;
     FFillVisible: Boolean;
 
-    FLine: IGeometryLonLatPolygon;
+    FPrevLine: IGeometryLonLatPolygon;
     FProjection: IProjectionInfo;
     FProjectedLine: IGeometryProjectedPolygon;
     FLocalConverter: ILocalCoordConverter;
     FPolygonBorder: IDrawablePolygon;
     FPolygonFill: IDrawablePolygon;
-  protected
-    procedure ChangedSource;
-    function GetLine(const ALocalConverter: ILocalCoordConverter): IGeometryLonLatPolygon; virtual; abstract;
+    procedure OnChangedSource;
   protected
     procedure DoConfigChange; override;
     procedure PaintLayer(
@@ -142,49 +153,50 @@ type
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const AConfig: IPolygonLayerConfig
+      const AConfig: IPolygonLayerConfig;
+      const ASource: IGeometryLonLatPolygonChangeable
     );
   end;
 
-  TPathEditLayer = class(TPathLayerBase)
-  private
-    FLineOnMapEdit: IPathOnMapEdit;
-    FLine: ILonLatPathWithSelected;
-    procedure OnLineChange;
-  protected
-    function GetLine(const ALocalConverter: ILocalCoordConverter): IGeometryLonLatLine; override;
-  public
-    constructor Create(
-      const APerfList: IInternalPerformanceCounterList;
-      const AAppStartedNotifier: INotifierOneOperation;
-      const AAppClosingNotifier: INotifierOneOperation;
-      AParentMap: TImage32;
-      const AView: ILocalCoordConverterChangeable;
-      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const ALineOnMapEdit: IPathOnMapEdit;
-      const AConfig: ILineLayerConfig
-    );
-  end;
-
-  TPolygonEditLayer = class(TPolygonLayerBase)
-  private
-    FLineOnMapEdit: IPolygonOnMapEdit;
-    FLine: ILonLatPolygonWithSelected;
-    procedure OnLineChange;
-  protected
-    function GetLine(const ALocalConverter: ILocalCoordConverter): IGeometryLonLatPolygon; override;
-  public
-    constructor Create(
-      const APerfList: IInternalPerformanceCounterList;
-      const AAppStartedNotifier: INotifierOneOperation;
-      const AAppClosingNotifier: INotifierOneOperation;
-      AParentMap: TImage32;
-      const AView: ILocalCoordConverterChangeable;
-      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const ALineOnMapEdit: IPolygonOnMapEdit;
-      const AConfig: IPolygonLayerConfig
-    );
-  end;
+//  TPathEditLayer = class(TPathLayerBase)
+//  private
+//    FLineOnMapEdit: IPathOnMapEdit;
+//    FLine: ILonLatPathWithSelected;
+//    procedure OnLineChange;
+//  protected
+//    function GetLine(const ALocalConverter: ILocalCoordConverter): IGeometryLonLatLine; override;
+//  public
+//    constructor Create(
+//      const APerfList: IInternalPerformanceCounterList;
+//      const AAppStartedNotifier: INotifierOneOperation;
+//      const AAppClosingNotifier: INotifierOneOperation;
+//      AParentMap: TImage32;
+//      const AView: ILocalCoordConverterChangeable;
+//      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+//      const ALineOnMapEdit: IPathOnMapEdit;
+//      const AConfig: ILineLayerConfig
+//    );
+//  end;
+//
+//  TPolygonEditLayer = class(TPolygonLayerBase)
+//  private
+//    FLineOnMapEdit: IPolygonOnMapEdit;
+//    FLine: ILonLatPolygonWithSelected;
+//    procedure OnLineChange;
+//  protected
+//    function GetLine(const ALocalConverter: ILocalCoordConverter): IGeometryLonLatPolygon; override;
+//  public
+//    constructor Create(
+//      const APerfList: IInternalPerformanceCounterList;
+//      const AAppStartedNotifier: INotifierOneOperation;
+//      const AAppClosingNotifier: INotifierOneOperation;
+//      AParentMap: TImage32;
+//      const AView: ILocalCoordConverterChangeable;
+//      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+//      const ALineOnMapEdit: IPolygonOnMapEdit;
+//      const AConfig: IPolygonLayerConfig
+//    );
+//  end;
 
 implementation
 
@@ -206,6 +218,8 @@ constructor TLineLayerBase.Create(
   const AConfig: ILineLayerConfig
 );
 begin
+  Assert(Assigned(AVectorGeometryProjectedFactory));
+  Assert(Assigned(AConfig));
   inherited Create(
     APerfList,
     AAppStartedNotifier,
@@ -266,14 +280,64 @@ begin
   Assign(ASource);
 end;
 
-{ TPathLayerSimple }
+{ TMapLayerSingleLine }
 
-procedure TPathLayerBase.ChangedSource;
+constructor TMapLayerSingleLine.Create(
+  const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier, AAppClosingNotifier: INotifierOneOperation;
+  AParentMap: TImage32;
+  const AView: ILocalCoordConverterChangeable;
+  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+  const AConfig: ILineLayerConfig;
+  const ASource: IGeometryLonLatLineChangeable
+);
 begin
-  FLine := nil;
+  Assert(Assigned(ASource));
+  inherited Create(
+    APerfList,
+    AAppStartedNotifier,
+    AAppClosingNotifier,
+    AParentMap,
+    AView,
+    AVectorGeometryProjectedFactory,
+    AConfig
+  );
+  FSource := ASource;
+  LinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnChangedSource),
+    FSource.ChangeNotifier
+  );
 end;
 
-procedure TPathLayerBase.PaintLayer(
+procedure TMapLayerSingleLine.OnChangedSource;
+var
+  VLine: IGeometryLonLatLine;
+begin
+  ViewUpdateLock;
+  try
+    VLine := FSource.GetStatic;
+    if Assigned(VLine) then begin
+      if Assigned(FPrevLine) then begin
+        if not VLine.IsSameGeometry(FPrevLine) then begin
+          FPrevLine := nil;
+          SetNeedRedraw;
+        end;
+      end else begin
+        SetNeedRedraw;
+        Show;
+      end;
+    end else begin
+      if Assigned(FPrevLine) then begin
+        FPrevLine := nil;
+        Hide;
+      end;
+    end;
+  finally
+    ViewUpdateUnlock;
+  end;
+end;
+
+procedure TMapLayerSingleLine.PaintLayer(
   ABuffer: TBitmap32;
   const ALocalConverter: ILocalCoordConverter
 );
@@ -292,29 +356,29 @@ begin
     Exit;
   end;
 
-  VLonLatLine := FLine;
+  VLonLatLine := FPrevLine;
   VProjection := FProjection;
   VProjectedLine := FProjectedLine;
   VLocalConverter := FLocalConverter;
   VDrawablePolygon := FPolygon;
 
-  if VLonLatLine = nil then begin
-    VLonLatLine := GetLine(ALocalConverter);
-    FLine := VLonLatLine;
+  if not Assigned(VLonLatLine) then begin
+    VLonLatLine := FSource.GetStatic;
+    FPrevLine := VLonLatLine;
     VProjectedLine := nil;
     VProjection := nil;
   end;
 
-  if VLonLatLine = nil then begin
+  if not Assigned(VLonLatLine) then begin
     Exit;
   end;
-  if VProjectedLine <> nil then begin
+  if Assigned(VProjectedLine) then begin
     if not ALocalConverter.ProjectionInfo.GetIsSameProjectionInfo(VProjection) then begin
       VProjectedLine := nil;
     end;
   end;
 
-  if VProjectedLine = nil then begin
+  if not Assigned(VProjectedLine) then begin
     VDrawablePolygon := nil;
     VLocalConverter := nil;
     VProjection := ALocalConverter.ProjectionInfo;
@@ -328,16 +392,18 @@ begin
     FProjection := VProjection;
   end;
 
-  if VProjectedLine = nil then begin
+  if not Assigned(VProjectedLine) then begin
     Exit;
   end;
 
-  if not ALocalConverter.GetIsSameConverter(VLocalConverter) then begin
-    VDrawablePolygon := nil;
-    VLocalConverter := nil;
+  if Assigned(VDrawablePolygon) then begin
+    if not ALocalConverter.GetIsSameConverter(VLocalConverter) then begin
+      VDrawablePolygon := nil;
+      VLocalConverter := nil;
+    end;
   end;
 
-  if VDrawablePolygon = nil then begin
+  if not Assigned(VDrawablePolygon) then begin
     VPolygon := nil;
     try
       ProjectedLine2GR32Polygon(
@@ -370,24 +436,26 @@ begin
     FPolygon := VDrawablePolygon;
     FLocalConverter := VLocalConverter;
   end;
-  if VDrawablePolygon = nil then begin
+  if not Assigned(VDrawablePolygon) then begin
     Exit;
   end;
   VDrawablePolygon.DrawFill(ABuffer, FLineColor);
 end;
 
-{ TPolygonLayerBase }
+{ TMapLayerSinglePolygon }
 
-constructor TPolygonLayerBase.Create(
+constructor TMapLayerSinglePolygon.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const AConfig: IPolygonLayerConfig
+  const AConfig: IPolygonLayerConfig;
+  const ASource: IGeometryLonLatPolygonChangeable
 );
 begin
+  Assert(Assigned(ASource));
   inherited Create(
     APerfList,
     AAppStartedNotifier,
@@ -398,21 +466,49 @@ begin
     AConfig
   );
   FConfig := AConfig;
+  FSource := ASource;
+  LinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnChangedSource),
+    FSource.ChangeNotifier
+  );
 end;
 
-procedure TPolygonLayerBase.ChangedSource;
-begin
-  FLine := nil;
-end;
-
-procedure TPolygonLayerBase.DoConfigChange;
+procedure TMapLayerSinglePolygon.DoConfigChange;
 begin
   inherited;
   FFillColor := FConfig.FillColor;
   FFillVisible := (AlphaComponent(FFillColor) > 0);
 end;
 
-procedure TPolygonLayerBase.PaintLayer(
+procedure TMapLayerSinglePolygon.OnChangedSource;
+var
+  VLine: IGeometryLonLatPolygon;
+begin
+  ViewUpdateLock;
+  try
+    VLine := FSource.GetStatic;
+    if Assigned(VLine) then begin
+      if Assigned(FPrevLine) then begin
+        if not VLine.IsSameGeometry(FPrevLine) then begin
+          FPrevLine := nil;
+          SetNeedRedraw;
+        end;
+      end else begin
+        SetNeedRedraw;
+        Show;
+      end;
+    end else begin
+      if Assigned(FPrevLine) then begin
+        FPrevLine := nil;
+        Hide;
+      end;
+    end;
+  finally
+    ViewUpdateUnlock;
+  end;
+end;
+
+procedure TMapLayerSinglePolygon.PaintLayer(
   ABuffer: TBitmap32;
   const ALocalConverter: ILocalCoordConverter
 );
@@ -432,31 +528,31 @@ begin
     Exit;
   end;
 
-  VLonLatLine := FLine;
+  VLonLatLine := FPrevLine;
   VProjection := FProjection;
   VProjectedLine := FProjectedLine;
   VLocalConverter := FLocalConverter;
   VDrawablePolygonFill := FPolygonFill;
   VDrawablePolygonBorder := FPolygonBorder;
-  if VLonLatLine = nil then begin
-    VLonLatLine := GetLine(ALocalConverter);
-    FLine := VLonLatLine;
+  if not Assigned(VLonLatLine) then begin
+    VLonLatLine := FSource.GetStatic;
+    FPrevLine := VLonLatLine;
     VProjectedLine := nil;
     VProjection := nil;
   end;
 
-  if VLonLatLine = nil then begin
+  if not Assigned(VLonLatLine) then begin
     Exit;
   end;
 
-  if VProjectedLine <> nil then begin
+  if Assigned(VProjectedLine) then begin
     if not ALocalConverter.ProjectionInfo.GetIsSameProjectionInfo(VProjection) then begin
       VProjection := nil;
       VProjectedLine := nil;
     end;
   end;
 
-  if VProjectedLine = nil then begin
+  if not Assigned(VProjectedLine) then begin
     VDrawablePolygonFill := nil;
     VDrawablePolygonBorder := nil;
     VLocalConverter := nil;
@@ -471,17 +567,19 @@ begin
     FProjectedLine := VProjectedLine;
   end;
 
-  if VProjectedLine = nil then begin
+  if not Assigned(VProjectedLine) then begin
     Exit;
   end;
 
-  if not ALocalConverter.GetIsSameConverter(VLocalConverter) then begin
-    VDrawablePolygonFill := nil;
-    VDrawablePolygonBorder := nil;
-    VLocalConverter := nil;
+  if Assigned(VDrawablePolygonFill) or Assigned(VDrawablePolygonBorder) then begin
+    if not ALocalConverter.GetIsSameConverter(VLocalConverter) then begin
+      VDrawablePolygonFill := nil;
+      VDrawablePolygonBorder := nil;
+      VLocalConverter := nil;
+    end;
   end;
 
-  if (VDrawablePolygonFill = nil) then begin
+  if not Assigned(VDrawablePolygonFill) then begin
     VPolygon := nil;
     try
       ProjectedPolygon2GR32Polygon(
@@ -515,7 +613,7 @@ begin
     FPolygonBorder := VDrawablePolygonBorder;
     FLocalConverter := VLocalConverter;
   end;
-  if (VDrawablePolygonFill = nil) then begin
+  if not Assigned(VDrawablePolygonFill) then begin
     Exit;
   end;
   if FFillVisible then begin
@@ -530,123 +628,123 @@ begin
     end;
   end;
 
-  if VDrawablePolygonBorder <> nil then begin
+  if Assigned(VDrawablePolygonBorder) then begin
     VDrawablePolygonBorder.DrawFill(ABuffer, FLineColor);
   end;
 end;
 
-{ TPathEditLayer }
-
-constructor TPathEditLayer.Create(
-  const APerfList: IInternalPerformanceCounterList;
-  const AAppStartedNotifier: INotifierOneOperation;
-  const AAppClosingNotifier: INotifierOneOperation;
-  AParentMap: TImage32;
-  const AView: ILocalCoordConverterChangeable;
-  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const ALineOnMapEdit: IPathOnMapEdit;
-  const AConfig: ILineLayerConfig
-);
-begin
-  inherited Create(
-    APerfList,
-    AAppStartedNotifier,
-    AAppClosingNotifier,
-    AParentMap,
-    AView,
-    AVectorGeometryProjectedFactory,
-    AConfig
-  );
-  FLineOnMapEdit := ALineOnMapEdit;
-
-  LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnLineChange),
-    FLineOnMapEdit.GetChangeNotifier
-  );
-end;
-
-function TPathEditLayer.GetLine(
-  const ALocalConverter: ILocalCoordConverter
-): IGeometryLonLatLine;
-begin
-  Result := nil;
-  if Assigned(FLine) then begin
-    Result := FLine.Geometry;
-  end;
-end;
-
-procedure TPathEditLayer.OnLineChange;
-begin
-  ViewUpdateLock;
-  try
-    FLine := FLineOnMapEdit.Path;
-    if not FLine.Geometry.IsEmpty then begin
-      SetNeedRedraw;
-      Show;
-    end else begin
-      Hide;
-    end;
-    ChangedSource;
-  finally
-    ViewUpdateUnlock;
-  end;
-end;
-
+//{ TPathEditLayer }
+//
+//constructor TPathEditLayer.Create(
+//  const APerfList: IInternalPerformanceCounterList;
+//  const AAppStartedNotifier: INotifierOneOperation;
+//  const AAppClosingNotifier: INotifierOneOperation;
+//  AParentMap: TImage32;
+//  const AView: ILocalCoordConverterChangeable;
+//  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+//  const ALineOnMapEdit: IPathOnMapEdit;
+//  const AConfig: ILineLayerConfig
+//);
+//begin
+//  inherited Create(
+//    APerfList,
+//    AAppStartedNotifier,
+//    AAppClosingNotifier,
+//    AParentMap,
+//    AView,
+//    AVectorGeometryProjectedFactory,
+//    AConfig
+//  );
+//  FLineOnMapEdit := ALineOnMapEdit;
+//
+//  LinksList.Add(
+//    TNotifyNoMmgEventListener.Create(Self.OnLineChange),
+//    FLineOnMapEdit.GetChangeNotifier
+//  );
+//end;
+//
+//function TPathEditLayer.GetLine(
+//  const ALocalConverter: ILocalCoordConverter
+//): IGeometryLonLatLine;
+//begin
+//  Result := nil;
+//  if Assigned(FLine) then begin
+//    Result := FLine.Geometry;
+//  end;
+//end;
+//
+//procedure TPathEditLayer.OnLineChange;
+//begin
+//  ViewUpdateLock;
+//  try
+//    FLine := FLineOnMapEdit.Path;
+//    if not FLine.Geometry.IsEmpty then begin
+//      SetNeedRedraw;
+//      Show;
+//    end else begin
+//      Hide;
+//    end;
+//    ChangedSource;
+//  finally
+//    ViewUpdateUnlock;
+//  end;
+//end;
+//
 { TPolygonEditLayer }
-
-constructor TPolygonEditLayer.Create(
-  const APerfList: IInternalPerformanceCounterList;
-  const AAppStartedNotifier: INotifierOneOperation;
-  const AAppClosingNotifier: INotifierOneOperation;
-  AParentMap: TImage32;
-  const AView: ILocalCoordConverterChangeable;
-  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const ALineOnMapEdit: IPolygonOnMapEdit;
-  const AConfig: IPolygonLayerConfig
-);
-begin
-  inherited Create(
-    APerfList,
-    AAppStartedNotifier,
-    AAppClosingNotifier,
-    AParentMap,
-    AView,
-    AVectorGeometryProjectedFactory,
-    AConfig
-  );
-  FLineOnMapEdit := ALineOnMapEdit;
-
-  LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnLineChange),
-    FLineOnMapEdit.GetChangeNotifier
-  );
-end;
-
-function TPolygonEditLayer.GetLine(
-  const ALocalConverter: ILocalCoordConverter
-): IGeometryLonLatPolygon;
-begin
-  Result := nil;
-  if Assigned(FLine) then begin
-    Result := FLine.Geometry;
-  end;
-end;
-
-procedure TPolygonEditLayer.OnLineChange;
-begin
-  ViewUpdateLock;
-  try
-    FLine := FLineOnMapEdit.Polygon;
-    if not FLine.Geometry.IsEmpty then begin
-      SetNeedRedraw;
-      Show;
-    end else begin
-      Hide;
-    end;
-    ChangedSource;
-  finally
-    ViewUpdateUnlock;
-  end;
-end;
-
+//
+//constructor TPolygonEditLayer.Create(
+//  const APerfList: IInternalPerformanceCounterList;
+//  const AAppStartedNotifier: INotifierOneOperation;
+//  const AAppClosingNotifier: INotifierOneOperation;
+//  AParentMap: TImage32;
+//  const AView: ILocalCoordConverterChangeable;
+//  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+//  const ALineOnMapEdit: IPolygonOnMapEdit;
+//  const AConfig: IPolygonLayerConfig
+//);
+//begin
+//  inherited Create(
+//    APerfList,
+//    AAppStartedNotifier,
+//    AAppClosingNotifier,
+//    AParentMap,
+//    AView,
+//    AVectorGeometryProjectedFactory,
+//    AConfig
+//  );
+//  FLineOnMapEdit := ALineOnMapEdit;
+//
+//  LinksList.Add(
+//    TNotifyNoMmgEventListener.Create(Self.OnLineChange),
+//    FLineOnMapEdit.GetChangeNotifier
+//  );
+//end;
+//
+//function TPolygonEditLayer.GetLine(
+//  const ALocalConverter: ILocalCoordConverter
+//): IGeometryLonLatPolygon;
+//begin
+//  Result := nil;
+//  if Assigned(FLine) then begin
+//    Result := FLine.Geometry;
+//  end;
+//end;
+//
+//procedure TPolygonEditLayer.OnLineChange;
+//begin
+//  ViewUpdateLock;
+//  try
+//    FLine := FLineOnMapEdit.Polygon;
+//    if not FLine.Geometry.IsEmpty then begin
+//      SetNeedRedraw;
+//      Show;
+//    end else begin
+//      Hide;
+//    end;
+//    ChangedSource;
+//  finally
+//    ViewUpdateUnlock;
+//  end;
+//end;
+//
 end.

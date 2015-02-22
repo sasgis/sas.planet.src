@@ -322,6 +322,7 @@
     <DCCReference Include="Src\Geometry\i_EnumDoublePoint.pas" />
     <DCCReference Include="Src\Geometry\i_GeometryFromStream.pas" />
     <DCCReference Include="Src\Geometry\i_GeometryLonLat.pas" />
+    <DCCReference Include="Src\Geometry\i_GeometryLonLatChangeable.pas" />
     <DCCReference Include="Src\Geometry\i_GeometryLonLatFactory.pas" />
     <DCCReference Include="Src\Geometry\i_GeometryProjected.pas" />
     <DCCReference Include="Src\Geometry\i_GeometryProjectedFactory.pas" />
@@ -486,6 +487,10 @@
     <DCCReference Include="Src\MainForm\u_ActiveMapTBXItem.pas" />
     <DCCReference Include="Src\MainForm\u_FindVectorItemsForVectorMaps.pas" />
     <DCCReference Include="Src\MainForm\u_FindVectorItemsForVectorTileMatrix.pas" />
+    <DCCReference Include="Src\MainForm\u_GeometryLonLatLineChangeableByPathEdit.pas" />
+    <DCCReference Include="Src\MainForm\u_GeometryLonLatPolygonChangeableByLastSelection.pas" />
+    <DCCReference Include="Src\MainForm\u_GeometryLonLatPolygonChangeableByPathEdit.pas" />
+    <DCCReference Include="Src\MainForm\u_GeometryLonLatPolygonChangeableByPolygonEdit.pas" />
     <DCCReference Include="Src\MainForm\u_KeyMovingConfig.pas" />
     <DCCReference Include="Src\MainForm\u_KeyMovingHandler.pas" />
     <DCCReference Include="Src\MainForm\u_LanguageTBXItem.pas" />
@@ -606,8 +611,6 @@
     <DCCReference Include="Src\MapLayers\WindowLayers\Selection\i_SelectionPolylineLayerConfig.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\Selection\i_SelectionRectLayerConfig.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\Selection\u_LastSelectionLayerConfig.pas" />
-    <DCCReference Include="Src\MapLayers\WindowLayers\Selection\u_MapLayerLastSelection.pas" />
-    <DCCReference Include="Src\MapLayers\WindowLayers\Selection\u_MapLayerSelectionByPolylineShadow.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\Selection\u_MapLayerSelectionByRect.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\Selection\u_SelectionPolygonLayerConfig.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\Selection\u_SelectionPolylineLayerConfig.pas" />
