@@ -308,7 +308,6 @@ var
   VZoom: Byte;
   VGeoConvert: ICoordConverter;
   VMapPixelRect: TRect;
-  VLLRect: TDoubleRect;
   VBitmapInited: Boolean;
   VBitmap: TBitmap32ByStaticBitmap;
   VIsEmpty: Boolean;
@@ -321,7 +320,6 @@ begin
     Exit;
   end;
   VMapPixelRect := VGeoConvert.TilePos2PixelRect(ATile, VZoom);
-  VLLRect := VGeoConvert.PixelRect2LonLatRect(VMapPixelRect, VZoom);
 
   VBitmapInited := False;
   if (ASource <> nil) and (ASource.Count > 0) then begin
@@ -330,13 +328,11 @@ begin
       VIsEmpty := True;
       for i := 0 to ASource.Count - 1 do begin
         VItem := ASource.Items[i];
-        if VItem.Geometry.Bounds.IsIntersecWithRect(VLLRect) then begin
-          if DrawWikiElement(VBitmapInited, VBitmap, VItem.Geometry, AProjectionInfo, VMapPixelRect, VFixedPointArray) then begin
-            VIsEmpty := False;
-          end;
-          if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-            Break;
-          end;
+        if DrawWikiElement(VBitmapInited, VBitmap, VItem.Geometry, AProjectionInfo, VMapPixelRect, VFixedPointArray) then begin
+          VIsEmpty := False;
+        end;
+        if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+          Break;
         end;
       end;
       if not VIsEmpty then begin
