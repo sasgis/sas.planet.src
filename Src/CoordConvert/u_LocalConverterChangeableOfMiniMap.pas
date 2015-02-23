@@ -168,13 +168,13 @@ var
   VConverter: ICoordConverter;
   VVisualMapCenterInRelative: TDoublePoint;
   VVisualMapCenterInLayerMap: TDoublePoint;
-  VMapPixelAtLocalZero: TPoint;
-  VLocalTopLeftAtMapFloat: TDoublePoint;
+  VMapPixelAtLocalZero: TDoublePoint;
   VLayerSize: TPoint;
   VVeiwSize: TPoint;
   VWidth: Integer;
   VBottomMargin: Integer;
   VLocalRect: TRect;
+  VScale: Double;
 begin
   Result := nil;
   VConfig := FConfig.GetStatic;
@@ -188,6 +188,7 @@ begin
     VLocalRect.Left := VLocalRect.Right - VLayerSize.X;
     VLocalRect.Top := VLocalRect.Bottom - VLayerSize.Y;
 
+    VScale := AVisualCoordConverter.GetScale;
     VVisualMapCenter := AVisualCoordConverter.GetCenterMapPixelFloat;
     VSourceZoom := AVisualCoordConverter.GetZoom;
     VConverter := AVisualCoordConverter.GetGeoConverter;
@@ -195,19 +196,20 @@ begin
     VVisualMapCenterInRelative := VConverter.PixelPosFloat2Relative(VVisualMapCenter, VSourceZoom);
     VZoom := GetActualZoom(VConfig.ZoomDelta, AVisualCoordConverter);
     VVisualMapCenterInLayerMap := VConverter.Relative2PixelPosFloat(VVisualMapCenterInRelative, VZoom);
-    VLocalTopLeftAtMapFloat :=
+    VMapPixelAtLocalZero :=
       DoublePoint(
-        VVisualMapCenterInLayerMap.X - (VLocalRect.Left + VLayerSize.X / 2),
-        VVisualMapCenterInLayerMap.Y - (VLocalRect.Top + VLayerSize.Y / 2)
+        VVisualMapCenterInLayerMap.X - (VLocalRect.Left + VLayerSize.X / 2) / VScale,
+        VVisualMapCenterInLayerMap.Y - (VLocalRect.Top + VLayerSize.Y / 2) / VScale
       );
-    VMapPixelAtLocalZero := PointFromDoublePoint(VLocalTopLeftAtMapFloat, prToTopLeft);
 
-    Result := FConverterFactory.CreateConverterNoScale(
-      VLocalRect,
-      VZoom,
-      VConverter,
-      VMapPixelAtLocalZero
-    );
+    Result :=
+      FConverterFactory.CreateConverter(
+        VLocalRect,
+        VZoom,
+        VConverter,
+        VScale,
+        VMapPixelAtLocalZero
+      );
   end;
 end;
 
