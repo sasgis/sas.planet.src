@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_FullMapMouseCursorLayer;
+unit u_WindowLayerFullMapMouseCursor;
 
 interface
 
@@ -37,7 +37,7 @@ uses
   u_WindowLayerBasicBase;
 
 type
-  TFullMapMouseCursorLayer = class(TWindowLayerBasicBase)
+  TWindowLayerFullMapMouseCursor = class(TWindowLayerBasicBase)
   private
     FLocalConverter: ILocalCoordConverterChangeable;
     FConfig: IFullMapMouseCursorLayerConfig;
@@ -73,9 +73,9 @@ uses
   u_ListenerTime,
   u_ListenerByEvent;
 
-{ TFullMapMouseCursorLayer }
+{ TWindowLayerFullMapMouseCursor }
 
-constructor TFullMapMouseCursorLayer.Create(
+constructor TWindowLayerFullMapMouseCursor.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
@@ -112,7 +112,7 @@ begin
   );
 end;
 
-procedure TFullMapMouseCursorLayer.OnConfigChange;
+procedure TWindowLayerFullMapMouseCursor.OnConfigChange;
 begin
   ViewUpdateLock;
   try
@@ -122,7 +122,7 @@ begin
   end;
 end;
 
-procedure TFullMapMouseCursorLayer.OnTimerEvent;
+procedure TWindowLayerFullMapMouseCursor.OnTimerEvent;
 var
   VPos: TPoint;
   VRect: TRect;
@@ -162,7 +162,7 @@ begin
   end;
 end;
 
-procedure TFullMapMouseCursorLayer.PaintLayer(ABuffer: TBitmap32);
+procedure TWindowLayerFullMapMouseCursor.PaintLayer(ABuffer: TBitmap32);
 var
   VPos: TPoint;
   VColor: TColor32;
@@ -174,7 +174,7 @@ begin
   ABuffer.HorzLineS(0, VPos.Y, ABuffer.Width, VColor);
 end;
 
-procedure TFullMapMouseCursorLayer.StartThreads;
+procedure TWindowLayerFullMapMouseCursor.StartThreads;
 begin
   inherited;
   OnConfigChange;

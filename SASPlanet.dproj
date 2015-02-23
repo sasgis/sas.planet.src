@@ -578,8 +578,8 @@
     <DCCReference Include="Src\MapLayers\WindowLayers\CenterScale\u_CenterScaleConfig.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\CenterScale\u_WindowLayerCenterScale.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\FullMapMouseCursor\i_FullMapMouseCursorLayerConfig.pas" />
-    <DCCReference Include="Src\MapLayers\WindowLayers\FullMapMouseCursor\u_FullMapMouseCursorLayer.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\FullMapMouseCursor\u_FullMapMouseCursorLayerConfig.pas" />
+    <DCCReference Include="Src\MapLayers\WindowLayers\FullMapMouseCursor\u_WindowLayerFullMapMouseCursor.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\GoTo\i_GotoLayerConfig.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\GoTo\u_GotoLayerConfig.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\GoTo\u_MapLayerGoto.pas" />

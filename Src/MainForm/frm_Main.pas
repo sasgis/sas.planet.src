@@ -958,7 +958,7 @@ uses
   u_MainWindowPositionConfig,
   u_TileErrorLogProviedrStuped,
   u_TileRectChangeableByLocalConverter,
-  u_FullMapMouseCursorLayer,
+  u_WindowLayerFullMapMouseCursor,
   u_BitmapChangeableFaked,
   u_MarkerDrawableChangeableFaked,
   u_MarkerDrawableByBitmap32Static,
@@ -2605,7 +2605,7 @@ begin
   VDebugName := 'FullMapMouseCursor';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
-    TFullMapMouseCursorLayer.Create(
+    TWindowLayerFullMapMouseCursor.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,

@@ -703,7 +703,7 @@ uses
   u_WindowLayerStatusBar in 'Src\MapLayers\WindowLayers\StatusBar\u_WindowLayerStatusBar.pas',
   u_LayerStatBarPopupMenu in 'Src\MainForm\u_LayerStatBarPopupMenu.pas',
   u_LayerMiniMapPopupMenu in 'Src\MainForm\u_LayerMiniMapPopupMenu.pas',
-  u_FullMapMouseCursorLayer in 'Src\MapLayers\WindowLayers\FullMapMouseCursor\u_FullMapMouseCursorLayer.pas',
+  u_WindowLayerFullMapMouseCursor in 'Src\MapLayers\WindowLayers\FullMapMouseCursor\u_WindowLayerFullMapMouseCursor.pas',
   u_MapLayerBasicNoBitmap in 'Src\MapLayers\WindowLayers\u_MapLayerBasicNoBitmap.pas',
   u_MapLayerNavToMark in 'Src\MapLayers\WindowLayers\NavToMark\u_MapLayerNavToMark.pas',
   u_WindowLayerScaleLineBase in 'Src\MapLayers\WindowLayers\ScaleLine\u_WindowLayerScaleLineBase.pas',
