@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_PolyLineLayerBase;
+unit u_MapLayerSingleGeometry;
 
 interface
 
@@ -43,7 +43,7 @@ uses
   u_MapLayerBasicNoBitmap;
 
 type
-  TLineLayerBase = class(TMapLayerBasicNoBitmap)
+  TMapLayerSingleGeometryBase = class(TMapLayerBasicNoBitmap)
   private
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FConfig: ILineLayerConfig;
@@ -97,7 +97,7 @@ type
     constructor CreateFromSource(ASource: TPolygon32);
   end;
 
-  TMapLayerSingleLine = class(TLineLayerBase)
+  TMapLayerSingleLine = class(TMapLayerSingleGeometryBase)
   private
     FSource: IGeometryLonLatLineChangeable;
     FPrevLine: IGeometryLonLatLine;
@@ -124,7 +124,7 @@ type
     );
   end;
 
-  TMapLayerSinglePolygon = class(TLineLayerBase)
+  TMapLayerSinglePolygon = class(TMapLayerSingleGeometryBase)
   private
     FConfig: IPolygonLayerConfig;
     FSource: IGeometryLonLatPolygonChangeable;
@@ -208,7 +208,7 @@ uses
 
 { TLineLayerBase }
 
-constructor TLineLayerBase.Create(
+constructor TMapLayerSingleGeometryBase.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
@@ -237,7 +237,7 @@ begin
   FPreparedPointsAggreagtor := TDoublePointsAggregator.Create;
 end;
 
-procedure TLineLayerBase.DoConfigChange;
+procedure TMapLayerSingleGeometryBase.DoConfigChange;
 begin
   FLineColor := FConfig.LineColor;
   FLineWidth := FConfig.LineWidth;
@@ -245,7 +245,7 @@ begin
   FSimpleLineDraw := (FLineWidth = 1);
 end;
 
-procedure TLineLayerBase.OnConfigChange;
+procedure TMapLayerSingleGeometryBase.OnConfigChange;
 begin
   ViewUpdateLock;
   try
@@ -260,7 +260,7 @@ begin
   end;
 end;
 
-procedure TLineLayerBase.StartThreads;
+procedure TMapLayerSingleGeometryBase.StartThreads;
 begin
   inherited;
   OnConfigChange;

@@ -714,7 +714,7 @@ uses
   u_MapLayerTileErrorInfo in 'Src\MapLayers\WindowLayers\u_MapLayerTileErrorInfo.pas',
   u_MapLayerGoto in 'Src\MapLayers\WindowLayers\GoTo\u_MapLayerGoto.pas',
   u_MapLayerGPSMarker in 'Src\MapLayers\WindowLayers\GPSMarker\u_MapLayerGPSMarker.pas',
-  u_PolyLineLayerBase in 'Src\MapLayers\WindowLayers\Polygon\u_PolyLineLayerBase.pas',
+  u_MapLayerSingleGeometry in 'Src\MapLayers\WindowLayers\Polygon\u_MapLayerSingleGeometry.pas',
   u_MapLayerPointsSet in 'Src\MapLayers\WindowLayers\Polygon\u_MapLayerPointsSet.pas',
   u_MapLayerPointOnMapEdit in 'Src\MapLayers\WindowLayers\u_MapLayerPointOnMapEdit.pas',
   u_CalcLineLayer in 'Src\MapLayers\WindowLayers\CalcLine\u_CalcLineLayer.pas',

@@ -967,7 +967,7 @@ uses
   u_MarkerDrawableSimpleArrow,
   u_MarkerDrawableSimpleCross,
   u_MarkerDrawableSimpleSquare,
-  u_PolyLineLayerBase,
+  u_MapLayerSingleGeometry,
   u_MapLayerPointsSet,
   u_LineOnMapEdit,
   u_PointOnMapEdit,

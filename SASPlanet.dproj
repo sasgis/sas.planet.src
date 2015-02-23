@@ -598,8 +598,8 @@
     <DCCReference Include="Src\MapLayers\WindowLayers\Polygon\i_PolygonLayerConfig.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\Polygon\i_PolyLineLayerConfig.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\Polygon\u_MapLayerPointsSet.pas" />
+    <DCCReference Include="Src\MapLayers\WindowLayers\Polygon\u_MapLayerSingleGeometry.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\Polygon\u_PolygonLayerConfig.pas" />
-    <DCCReference Include="Src\MapLayers\WindowLayers\Polygon\u_PolyLineLayerBase.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\Polygon\u_PolyLineLayerConfig.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\ScaleLine\i_ScaleLineConfig.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\ScaleLine\u_ScaleLineConfig.pas" />
