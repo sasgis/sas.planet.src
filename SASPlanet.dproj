@@ -582,7 +582,7 @@
     <DCCReference Include="Src\MapLayers\WindowLayers\FullMapMouseCursor\u_WindowLayerFullMapMouseCursor.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\GoTo\i_GotoLayerConfig.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\GoTo\u_GotoLayerConfig.pas" />
-    <DCCReference Include="Src\MapLayers\WindowLayers\GoTo\u_MapLayerGoto.pas" />
+    <DCCReference Include="Src\MapLayers\WindowLayers\GoTo\u_MapLayerGotoMarker.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\GPSMarker\i_MapLayerGPSMarkerConfig.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\GPSMarker\i_MarkerRingsConfig.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\GPSMarker\i_ProjectedDrawableElement.pas" />

@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_MapLayerGoto;
+unit u_MapLayerGotoMarker;
 
 interface
 
@@ -38,7 +38,7 @@ uses
   u_WindowLayerBasicBase;
 
 type
-  TGotoLayer = class(TWindowLayerBasicBase)
+  TMapLayerGotoMarker = class(TWindowLayerBasicBase)
   private
     FLocalConverter: ILocalCoordConverterChangeable;
     FConfig: IGotoLayerConfig;
@@ -78,9 +78,9 @@ uses
   u_ListenerByEvent,
   u_GeoFunc;
 
-{ TGotoLayer }
+{ TMapLayerGotoMarker }
 
-constructor TGotoLayer.Create(
+constructor TMapLayerGotoMarker.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
@@ -131,7 +131,7 @@ begin
   );
 end;
 
-function TGotoLayer.GetIsVisible: Boolean;
+function TMapLayerGotoMarker.GetIsVisible: Boolean;
 var
   VCurrTime: TDateTime;
   VGotoTime: TDateTime;
@@ -160,7 +160,7 @@ begin
   end;
 end;
 
-procedure TGotoLayer.OnConfigChange;
+procedure TMapLayerGotoMarker.OnConfigChange;
 begin
   ViewUpdateLock;
   try
@@ -171,7 +171,7 @@ begin
   end;
 end;
 
-procedure TGotoLayer.OnPosChange;
+procedure TMapLayerGotoMarker.OnPosChange;
 begin
   ViewUpdateLock;
   try
@@ -181,7 +181,7 @@ begin
   end;
 end;
 
-procedure TGotoLayer.OnTimer;
+procedure TMapLayerGotoMarker.OnTimer;
 begin
   if Visible then begin
     ViewUpdateLock;
@@ -193,7 +193,7 @@ begin
   end;
 end;
 
-procedure TGotoLayer.PaintLayer(
+procedure TMapLayerGotoMarker.PaintLayer(
   ABuffer: TBitmap32
 );
 var
@@ -222,7 +222,7 @@ begin
   end;
 end;
 
-procedure TGotoLayer.StartThreads;
+procedure TMapLayerGotoMarker.StartThreads;
 begin
   inherited;
   OnConfigChange;

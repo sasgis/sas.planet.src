@@ -712,7 +712,7 @@ uses
   u_LayerScaleLinePopupMenu in 'Src\MainForm\u_LayerScaleLinePopupMenu.pas',
   u_MapLayerGPSMarkerRings in 'Src\MapLayers\WindowLayers\GPSMarker\u_MapLayerGPSMarkerRings.pas',
   u_MapLayerTileErrorInfo in 'Src\MapLayers\WindowLayers\u_MapLayerTileErrorInfo.pas',
-  u_MapLayerGoto in 'Src\MapLayers\WindowLayers\GoTo\u_MapLayerGoto.pas',
+  u_MapLayerGotoMarker in 'Src\MapLayers\WindowLayers\GoTo\u_MapLayerGotoMarker.pas',
   u_MapLayerGPSMarker in 'Src\MapLayers\WindowLayers\GPSMarker\u_MapLayerGPSMarker.pas',
   u_MapLayerSingleGeometry in 'Src\MapLayers\WindowLayers\Polygon\u_MapLayerSingleGeometry.pas',
   u_MapLayerPointsSet in 'Src\MapLayers\WindowLayers\Polygon\u_MapLayerPointsSet.pas',

@@ -951,7 +951,7 @@ uses
   u_MapLayerGPSMarkerRings,
   u_FindVectorItemsForVectorMaps,
   u_FindVectorItemsForVectorTileMatrix,
-  u_MapLayerGoto,
+  u_MapLayerGotoMarker,
   u_WindowLayerCenterScale,
   u_ResStrings,
   u_SensorViewListGeneratorStuped,
@@ -2514,7 +2514,7 @@ begin
   VDebugName := 'GotoMarker';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
-    TGotoLayer.Create(
+    TMapLayerGotoMarker.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
