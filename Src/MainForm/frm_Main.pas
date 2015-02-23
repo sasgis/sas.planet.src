@@ -2542,7 +2542,7 @@ begin
   VDebugName := 'NavToMark';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
-    TNavToMarkLayer.Create(
+    TMapLayerNavToMark.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,

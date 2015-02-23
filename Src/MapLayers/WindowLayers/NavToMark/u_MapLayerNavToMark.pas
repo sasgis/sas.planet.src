@@ -37,7 +37,7 @@ uses
   u_MapLayerBasicNoBitmap;
 
 type
-  TNavToMarkLayer = class(TMapLayerBasicNoBitmap)
+  TMapLayerNavToMark = class(TMapLayerBasicNoBitmap)
   private
     FConfig: IMapLayerNavToPointMarkerConfig;
     FNavToPoint: INavigationToPoint;
@@ -74,9 +74,9 @@ uses
   i_CoordConverter,
   u_ListenerByEvent;
 
-{ TNavToMarkLayer }
+{ TMapLayerNavToMark }
 
-constructor TNavToMarkLayer.Create(
+constructor TMapLayerNavToMark.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
@@ -118,7 +118,7 @@ begin
   );
 end;
 
-procedure TNavToMarkLayer.OnConfigChange;
+procedure TMapLayerNavToMark.OnConfigChange;
 begin
   ViewUpdateLock;
   try
@@ -128,7 +128,7 @@ begin
   end;
 end;
 
-procedure TNavToMarkLayer.OnNavToPointChange;
+procedure TMapLayerNavToMark.OnNavToPointChange;
 begin
   ViewUpdateLock;
   try
@@ -140,7 +140,7 @@ begin
   end;
 end;
 
-procedure TNavToMarkLayer.PaintLayer(
+procedure TMapLayerNavToMark.PaintLayer(
   ABuffer: TBitmap32;
   const ALocalConverter: ILocalCoordConverter
 );
@@ -184,7 +184,7 @@ begin
   end;
 end;
 
-procedure TNavToMarkLayer.StartThreads;
+procedure TMapLayerNavToMark.StartThreads;
 begin
   inherited;
   OnNavToPointChange;
