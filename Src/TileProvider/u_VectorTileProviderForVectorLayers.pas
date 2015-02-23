@@ -136,6 +136,7 @@ procedure TVectorTileProviderForVectorLayers.AddElementsFromMap(
 );
 var
   VSourceGeoConvert: ICoordConverter;
+  VTileSelectLonLatRect: TDoubleRect;
   VTileSourceRect: TRect;
   VTileIterator: ITileIterator;
   VVersion: IMapVersionRequest;
@@ -149,9 +150,11 @@ var
 begin
   VSourceGeoConvert := AAlayer.GeoConvert;
   VVersion := AAlayer.VersionRequestConfig.GetStatic;
+  VTileSelectLonLatRect := ATileSelectLonLatRect;
+  VSourceGeoConvert.ValidateLonLatRect(VTileSelectLonLatRect);
   VTileSourceRect :=
     RectFromDoubleRect(
-      VSourceGeoConvert.LonLatRect2TileRectFloat(ATileSelectLonLatRect, AZoom),
+      VSourceGeoConvert.LonLatRect2TileRectFloat(VTileSelectLonLatRect, AZoom),
       rrOutside
     );
   VTileIterator := TTileIteratorByRect.Create(VTileSourceRect);
