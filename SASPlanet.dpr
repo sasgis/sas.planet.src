@@ -717,7 +717,7 @@ uses
   u_MapLayerSingleGeometry in 'Src\MapLayers\WindowLayers\Polygon\u_MapLayerSingleGeometry.pas',
   u_MapLayerPointsSet in 'Src\MapLayers\WindowLayers\Polygon\u_MapLayerPointsSet.pas',
   u_MapLayerPointOnMapEdit in 'Src\MapLayers\WindowLayers\u_MapLayerPointOnMapEdit.pas',
-  u_CalcLineLayer in 'Src\MapLayers\WindowLayers\CalcLine\u_CalcLineLayer.pas',
+  u_MapLayerCalcLineCaptions in 'Src\MapLayers\WindowLayers\CalcLine\u_MapLayerCalcLineCaptions.pas',
   u_MapLayerSelectionByRect in 'Src\MapLayers\WindowLayers\Selection\u_MapLayerSelectionByRect.pas',
   u_WindowLayerLicenseList in 'Src\MapLayers\WindowLayers\u_WindowLayerLicenseList.pas',
   c_TerrainProvider in 'Src\Terrain\c_TerrainProvider.pas',

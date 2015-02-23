@@ -945,7 +945,7 @@ uses
   u_WindowLayerScaleLineHorizontal,
   u_WindowLayerScaleLineVertical,
   u_MapLayerTileErrorInfo,
-  u_CalcLineLayer,
+  u_MapLayerCalcLineCaptions,
   u_MapLayerSelectionByRect,
   u_MapLayerGPSMarker,
   u_MapLayerGPSMarkerRings,
@@ -2277,7 +2277,7 @@ begin
   VDebugName := 'CalcLineCaptions';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
-    TCalcLineLayer.Create(
+    TMapLayerCalcLineCaptions.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
@@ -2331,7 +2331,7 @@ begin
   VDebugName := 'PathEditCaptions';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
-    TCalcLineLayer.Create(
+    TMapLayerCalcLineCaptions.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,

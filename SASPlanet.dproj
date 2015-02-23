@@ -572,8 +572,8 @@
     <DCCReference Include="Src\MapLayers\u_UseTilePrevZoomConfig.pas" />
     <DCCReference Include="Src\MapLayers\u_VectorItemDrawConfig.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\CalcLine\i_CalcLineLayerConfig.pas" />
-    <DCCReference Include="Src\MapLayers\WindowLayers\CalcLine\u_CalcLineLayer.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\CalcLine\u_CalcLineLayerConfig.pas" />
+    <DCCReference Include="Src\MapLayers\WindowLayers\CalcLine\u_MapLayerCalcLineCaptions.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\CenterScale\i_CenterScaleConfig.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\CenterScale\u_CenterScaleConfig.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\CenterScale\u_WindowLayerCenterScale.pas" />

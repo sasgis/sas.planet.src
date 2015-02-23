@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_CalcLineLayer;
+unit u_MapLayerCalcLineCaptions;
 
 interface
 
@@ -40,7 +40,7 @@ uses
   u_MapLayerBasicNoBitmap;
 
 type
-  TCalcLineLayer = class(TMapLayerBasicNoBitmap)
+  TMapLayerCalcLineCaptions = class(TMapLayerBasicNoBitmap)
   private
     FConfig: IPointCaptionsLayerConfig;
     FValueToStringConverter: IValueToStringConverterChangeable;
@@ -108,9 +108,9 @@ uses
   u_DoublePointsAggregator,
   u_ResStrings;
 
-{ TCalcLineLayer }
+{ TMapLayerCalcLineCaptions }
 
-constructor TCalcLineLayer.Create(
+constructor TMapLayerCalcLineCaptions.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
@@ -150,7 +150,7 @@ begin
   FTempLastPointBitmap.Font.Size := 9;
 end;
 
-destructor TCalcLineLayer.Destroy;
+destructor TMapLayerCalcLineCaptions.Destroy;
 begin
   FreeAndNil(FDistStrings);
   FreeAndNil(FTempBitmap);
@@ -158,12 +158,12 @@ begin
   inherited;
 end;
 
-procedure TCalcLineLayer.ChangedSource;
+procedure TMapLayerCalcLineCaptions.ChangedSource;
 begin
   FNeedUpdatePoints := True;
 end;
 
-procedure TCalcLineLayer.DrawPointText(
+procedure TMapLayerCalcLineCaptions.DrawPointText(
   ABuffer: TBitmap32;
   const ABitmapSize: TPoint;
   const AText: string;
@@ -190,7 +190,7 @@ begin
   end;
 end;
 
-procedure TCalcLineLayer.OnConfigChange;
+procedure TMapLayerCalcLineCaptions.OnConfigChange;
 var
   VConfig: IPointCaptionsLayerConfigStatic;
 begin
@@ -206,7 +206,7 @@ begin
   end;
 end;
 
-procedure TCalcLineLayer.OnLineChange;
+procedure TMapLayerCalcLineCaptions.OnLineChange;
 begin
   ViewUpdateLock;
   try
@@ -223,7 +223,7 @@ begin
   end;
 end;
 
-procedure TCalcLineLayer.PaintLayer(
+procedure TMapLayerCalcLineCaptions.PaintLayer(
   ABuffer: TBitmap32;
   const ALocalConverter: ILocalCoordConverter
 );
@@ -317,7 +317,7 @@ begin
   end;
 end;
 
-procedure TCalcLineLayer.PreparePoints(
+procedure TMapLayerCalcLineCaptions.PreparePoints(
   const AProjection: IProjectionInfo;
   out AProjectedPoints: IDoublePointsAggregator;
   out ADistStrings: TStringList;
@@ -426,7 +426,7 @@ begin
   end;
 end;
 
-procedure TCalcLineLayer.StartThreads;
+procedure TMapLayerCalcLineCaptions.StartThreads;
 begin
   inherited;
   OnConfigChange;
