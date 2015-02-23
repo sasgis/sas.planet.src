@@ -39,7 +39,7 @@ uses
   u_MapLayerBasicNoBitmap;
 
 type
-  TPointsSetLayerBase = class(TMapLayerBasicNoBitmap)
+  TMapLayerPointsSetBase = class(TMapLayerBasicNoBitmap)
   private
     FFirstPointMarker: IMarkerDrawableChangeable;
     FActivePointMarker: IMarkerDrawableChangeable;
@@ -77,7 +77,7 @@ type
     );
   end;
 
-  TPathEditPointsSetLayer = class(TPointsSetLayerBase)
+  TMapLayerPointsSetByPathEdit = class(TMapLayerPointsSetBase)
   private
     FLineOnMapEdit: IPathOnMapEdit;
     FLine: ILonLatPathWithSelected;
@@ -103,7 +103,7 @@ type
     );
   end;
 
-  TPolygonEditPointsSetLayer = class(TPointsSetLayerBase)
+  TMapLayerPointsSetByPolygonEdit = class(TMapLayerPointsSetBase)
   private
     FLineOnMapEdit: IPolygonOnMapEdit;
     FLine: ILonLatPolygonWithSelected;
@@ -138,14 +138,9 @@ uses
   u_DoublePointsAggregator,
   u_ListenerByEvent;
 
-{ TPointsSetLayerBase }
+{ TMapLayerPointsSetBase }
 
-procedure TPointsSetLayerBase.ChangedSource;
-begin
-  FNeedUpdatePoints := True;
-end;
-
-constructor TPointsSetLayerBase.Create(
+constructor TMapLayerPointsSetBase.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
@@ -185,7 +180,7 @@ begin
   );
 end;
 
-procedure TPointsSetLayerBase.OnConfigChange;
+procedure TMapLayerPointsSetBase.OnConfigChange;
 begin
   ViewUpdateLock;
   try
@@ -195,7 +190,12 @@ begin
   end;
 end;
 
-procedure TPointsSetLayerBase.PaintLayer(
+procedure TMapLayerPointsSetBase.ChangedSource;
+begin
+  FNeedUpdatePoints := True;
+end;
+
+procedure TMapLayerPointsSetBase.PaintLayer(
   ABuffer: TBitmap32;
   const ALocalConverter: ILocalCoordConverter
 );
@@ -267,15 +267,15 @@ begin
   end;
 end;
 
-procedure TPointsSetLayerBase.StartThreads;
+procedure TMapLayerPointsSetBase.StartThreads;
 begin
   inherited;
   OnConfigChange;
 end;
 
-{ TPathEditPointsSetLayer }
+{ TMapLayerPointsSetByPathEdit }
 
-constructor TPathEditPointsSetLayer.Create(
+constructor TMapLayerPointsSetByPathEdit.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
@@ -307,7 +307,7 @@ begin
   );
 end;
 
-procedure TPathEditPointsSetLayer.OnLineChange;
+procedure TMapLayerPointsSetByPathEdit.OnLineChange;
 begin
   ViewUpdateLock;
   try
@@ -324,7 +324,7 @@ begin
   end;
 end;
 
-procedure TPathEditPointsSetLayer.PreparePoints(
+procedure TMapLayerPointsSetByPathEdit.PreparePoints(
   const AProjection: IProjectionInfo;
   out AProjectedPoints: IDoublePointsAggregator;
   out AActivePointIndex: Integer
@@ -411,9 +411,9 @@ begin
   end;
 end;
 
-{ TPolygonEditPointsSetLayer }
+{ TMapLayerPointsSetByPolygonEdit }
 
-constructor TPolygonEditPointsSetLayer.Create(
+constructor TMapLayerPointsSetByPolygonEdit.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
@@ -445,7 +445,7 @@ begin
   );
 end;
 
-procedure TPolygonEditPointsSetLayer.OnLineChange;
+procedure TMapLayerPointsSetByPolygonEdit.OnLineChange;
 begin
   ViewUpdateLock;
   try
@@ -462,7 +462,7 @@ begin
   end;
 end;
 
-procedure TPolygonEditPointsSetLayer.PreparePoints(
+procedure TMapLayerPointsSetByPolygonEdit.PreparePoints(
   const AProjection: IProjectionInfo;
   out AProjectedPoints: IDoublePointsAggregator;
   out AActivePointIndex: Integer

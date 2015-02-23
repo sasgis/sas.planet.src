@@ -2259,7 +2259,7 @@ begin
   VDebugName := 'CalcLinePoints';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
-    TPathEditPointsSetLayer.Create(
+    TMapLayerPointsSetByPathEdit.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
@@ -2313,7 +2313,7 @@ begin
   VDebugName := 'PathEditPoints';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
-    TPathEditPointsSetLayer.Create(
+    TMapLayerPointsSetByPathEdit.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
@@ -2368,7 +2368,7 @@ begin
   VDebugName := 'PolygonEditPoints';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
-    TPolygonEditPointsSetLayer.Create(
+    TMapLayerPointsSetByPolygonEdit.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
@@ -2406,7 +2406,7 @@ begin
   VDebugName := 'PolygonSelectionPoints';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
-    TPolygonEditPointsSetLayer.Create(
+    TMapLayerPointsSetByPolygonEdit.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
@@ -2467,7 +2467,7 @@ begin
   VDebugName := 'SelectionByLinePoints';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
-    TPathEditPointsSetLayer.Create(
+    TMapLayerPointsSetByPathEdit.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
