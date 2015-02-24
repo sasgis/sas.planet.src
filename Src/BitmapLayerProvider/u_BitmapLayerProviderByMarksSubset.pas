@@ -83,7 +83,7 @@ type
     ): Boolean;
     procedure InitBitmap(
       ATargetBmp: TCustomBitmap32;
-      const ALocalConverter: ILocalCoordConverter
+      const ASize: TPoint
     );
   private
     function GetBitmapRect(
@@ -165,7 +165,7 @@ begin
   try
     if Assigned(VPolygon) then begin
       if not ABitmapInited then begin
-        InitBitmap(ATargetBmp, ALocalConverter);
+        InitBitmap(ATargetBmp, ALocalConverter.GetLocalRectSize);
         ABitmapInited := True;
       end;
       if Supports(AAppearance, IAppearanceLine, VAppearanceLine) then begin
@@ -213,7 +213,7 @@ begin
     );
     if VPolygon <> nil then begin
       if not ABitmapInited then begin
-        InitBitmap(ATargetBmp, ALocalConverter);
+        InitBitmap(ATargetBmp, ALocalConverter.GetLocalRectSize);
         ABitmapInited := True;
       end;
       if Supports(AAppearance, IAppearancePolygonFill, VAppearanceFill) then begin
@@ -257,7 +257,7 @@ begin
     ALocalConverter.GeoConverter.ValidateLonLatPos(VLonLat);
     VLocalPoint := ALocalConverter.LonLat2LocalPixelFloat(VLonLat);
     if not ABitmapInited then begin
-      InitBitmap(ATargetBmp, ALocalConverter);
+      InitBitmap(ATargetBmp, ALocalConverter.GetLocalRectSize);
       ABitmapInited := True;
     end;
     Result := VMarker.DrawToBitmap(ATargetBmp, VLocalPoint);
@@ -381,13 +381,10 @@ end;
 
 procedure TBitmapLayerProviderByMarksSubset.InitBitmap(
   ATargetBmp: TCustomBitmap32;
-  const ALocalConverter: ILocalCoordConverter
+  const ASize: TPoint
 );
-var
-  VSize: TPoint;
 begin
-  VSize := ALocalConverter.GetLocalRectSize;
-  ATargetBmp.SetSize(VSize.X, VSize.Y);
+  ATargetBmp.SetSize(ASize.X, ASize.Y);
   ATargetBmp.Clear(0);
   ATargetBmp.CombineMode := cmMerge;
 end;

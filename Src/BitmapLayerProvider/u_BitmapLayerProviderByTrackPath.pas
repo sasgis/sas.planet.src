@@ -63,7 +63,7 @@ type
     );
     procedure InitBitmap(
       ATargetBmp: TCustomBitmap32;
-      const ALocalConverter: ILocalCoordConverter
+      const ASize: TPoint
     );
     procedure DrawSection(
       ATargetBmp: TCustomBitmap32;
@@ -217,7 +217,7 @@ begin
       if not VPointPrevIsEmpty then begin
         if (VPointPrevCode and VPointCurrCode) = 0 then begin
           if not Result then begin
-            InitBitmap(ATargetBmp, ALocalConverter);
+            InitBitmap(ATargetBmp, ALocalConverter.GetLocalRectSize);
             Result := True;
           end;
           DrawSection(ATargetBmp, ATrackColorer, ALineWidth, VPointPrevLocal, VPointCurrLocal, FPointsProjected[i].Speed);
@@ -311,12 +311,11 @@ begin
 end;
 
 procedure TBitmapLayerProviderByTrackPath.InitBitmap(
-  ATargetBmp: TCustomBitmap32; const ALocalConverter: ILocalCoordConverter);
-var
-  VSize: TPoint;
+  ATargetBmp: TCustomBitmap32;
+  const ASize: TPoint
+);
 begin
-  VSize := ALocalConverter.GetLocalRectSize;
-  ATargetBmp.SetSize(VSize.X, VSize.Y);
+  ATargetBmp.SetSize(ASize.X, ASize.Y);
   ATargetBmp.Clear(0);
   ATargetBmp.CombineMode := cmMerge;
 end;

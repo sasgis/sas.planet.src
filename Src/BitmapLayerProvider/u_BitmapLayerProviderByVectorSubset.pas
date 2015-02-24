@@ -55,7 +55,7 @@ type
 
     procedure InitBitmap(
       ATargetBmp: TCustomBitmap32;
-      const ALocalConverter: ILocalCoordConverter
+      const ASize: TPoint
     );
     function DrawPoint(
       var ABitmapInited: Boolean;
@@ -153,7 +153,7 @@ begin
     try
       if VPolygon <> nil then begin
         if not ABitmapInited then begin
-          InitBitmap(ATargetBmp, ALocalConverter);
+          InitBitmap(ATargetBmp, ALocalConverter.GetLocalRectSize);
           ABitmapInited := True;
         end;
 
@@ -197,7 +197,7 @@ begin
   VRect := FPointMarker.GetBoundsForPosition(VLocalPos);
   if Types.IntersectRect(VRect, ALocalConverter.GetLocalRect, VRect) then begin
     if not ABitmapInited then begin
-      InitBitmap(ATargetBmp, ALocalConverter);
+      InitBitmap(ATargetBmp, ALocalConverter.GetLocalRectSize);
       ABitmapInited := True;
     end;
     Result := FPointMarker.DrawToBitmap(ATargetBmp, VLocalPos);
@@ -227,7 +227,7 @@ begin
     );
     if VPolygon <> nil then begin
       if not ABitmapInited then begin
-        InitBitmap(ATargetBmp, ALocalConverter);
+        InitBitmap(ATargetBmp, ALocalConverter.GetLocalRectSize);
         ABitmapInited := True;
       end;
       with VPolygon.Outline do try
@@ -320,13 +320,10 @@ end;
 
 procedure TBitmapLayerProviderByVectorSubset.InitBitmap(
   ATargetBmp: TCustomBitmap32;
-  const ALocalConverter: ILocalCoordConverter
+  const ASize: TPoint
 );
-var
-  VSize: TPoint;
 begin
-  VSize := ALocalConverter.GetLocalRectSize;
-  ATargetBmp.SetSize(VSize.X, VSize.Y);
+  ATargetBmp.SetSize(ASize.X, ASize.Y);
   ATargetBmp.Clear(0);
   ATargetBmp.CombineMode := cmMerge;
 end;

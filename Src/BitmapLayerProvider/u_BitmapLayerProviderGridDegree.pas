@@ -49,7 +49,7 @@ type
     FBitmap: TBitmap32;
     FBitmapChangeFlag: ISimpleFlag;
     procedure OnBitmapChange(Sender: TObject);
-    procedure InitBitmap(const ALocalConverter: ILocalCoordConverter);
+    procedure InitBitmap(const ASize: TPoint);
     procedure DrawLines(
       const ALocalConverter: ILocalCoordConverter
     );
@@ -316,7 +316,7 @@ begin
   Result := nil;
   FCS.BeginWrite;
   try
-    InitBitmap(ALocalConverter);
+    InitBitmap(ALocalConverter.GetLocalRectSize);
     FBitmapChangeFlag.CheckFlagAndReset;
     if FShowLines then begin
       DrawLines(ALocalConverter);
@@ -334,12 +334,10 @@ begin
 end;
 
 procedure TBitmapLayerProviderGridDegree.InitBitmap(
-  const ALocalConverter: ILocalCoordConverter);
-var
-  VSize: TPoint;
+  const ASize: TPoint
+);
 begin
-  VSize := ALocalConverter.GetLocalRectSize;
-  FBitmap.SetSize(VSize.X, VSize.Y);
+  FBitmap.SetSize(ASize.X, ASize.Y);
   FBitmap.Clear(0);
 end;
 
