@@ -23,21 +23,25 @@ unit u_BitmapPostProcessingChangeableByConfig;
 interface
 
 uses
+  SysUtils,
   i_BitmapPostProcessing,
   i_BitmapPostProcessingConfig,
   i_Bitmap32BufferFactory,
   i_Listener,
-  u_ConfigDataElementBase;
+  u_ChangeableBase;
 
 type
-  TBitmapPostProcessingChangeableByConfig = class(TConfigDataElementWithStaticBaseEmptySaveLoad, IBitmapPostProcessingChangeable)
+  TBitmapPostProcessingChangeableByConfig = class(TChangeableBase, IBitmapPostProcessingChangeable)
   private
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FConfig: IBitmapPostProcessingConfig;
     FConfigChangeListener: IListener;
+    FPrevConfig: IBitmapPostProcessingConfigStatic;
+    FStatic: IBitmapPostProcessing;
+
+    FCS: IReadWriteSync;
     procedure OnConfigChange;
-  protected
-    function CreateStatic: IInterface; override;
+    function CreateStatic(const AConfig: IBitmapPostProcessingConfigStatic): IBitmapPostProcessing;
   private
     function GetStatic: IBitmapPostProcessing;
   public
@@ -52,7 +56,8 @@ implementation
 
 uses
   u_BitmapPostProcessing,
-  u_ListenerByEvent;
+  u_ListenerByEvent,
+  u_Synchronizer;
 
 function BLimit(B: Integer): Byte;
 begin
@@ -137,35 +142,39 @@ constructor TBitmapPostProcessingChangeableByConfig.Create(
   const AConfig: IBitmapPostProcessingConfig;
   const ABitmap32StaticFactory: IBitmap32StaticFactory
 );
+var
+  VCS: IReadWriteSync;
 begin
   Assert(Assigned(AConfig));
   Assert(Assigned(ABitmap32StaticFactory));
-  inherited Create;
+  VCS := GSync.SyncVariable.Make(ClassName);
+  inherited Create(VCS);
+  FCS := VCS;
   FConfig := AConfig;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FConfig.ChangeNotifier.Add(FConfigChangeListener);
 end;
 
-function TBitmapPostProcessingChangeableByConfig.CreateStatic: IInterface;
+function TBitmapPostProcessingChangeableByConfig.CreateStatic(
+  const AConfig: IBitmapPostProcessingConfigStatic
+): IBitmapPostProcessing;
 var
   VStatic: IBitmapPostProcessing;
   VTable: TComponentTable;
-  VConfig: IBitmapPostProcessingConfigStatic;
 begin
-  VConfig := FConfig.GetStatic;
-  if (VConfig.ContrastN = 0) and (not VConfig.InvertColor) and (VConfig.GammaN = 50) then begin
+  if (AConfig.ContrastN = 0) and (not AConfig.InvertColor) and (AConfig.GammaN = 50) then begin
     VStatic := TBitmapPostProcessingSimple.Create;
   end else begin
     VTable := GetEqualTable;
-    if VConfig.ContrastN <> 0 then begin
-      VTable := CombineTables(GetContrastTable(VConfig.ContrastN), VTable);
+    if AConfig.ContrastN <> 0 then begin
+      VTable := CombineTables(GetContrastTable(AConfig.ContrastN), VTable);
     end;
-    if VConfig.InvertColor then begin
+    if AConfig.InvertColor then begin
       VTable := CombineTables(GetInvertTable, VTable);
     end;
-    if VConfig.GammaN <> 50 then begin
-      VTable := CombineTables(GetGammaTable(VConfig.GammaN), VTable);
+    if AConfig.GammaN <> 50 then begin
+      VTable := CombineTables(GetGammaTable(AConfig.GammaN), VTable);
     end;
     VStatic :=
       TBitmapPostProcessingByTable.Create(
@@ -187,16 +196,33 @@ end;
 
 function TBitmapPostProcessingChangeableByConfig.GetStatic: IBitmapPostProcessing;
 begin
-  Result := IBitmapPostProcessing(GetStaticInternal);
+  FCS.BeginRead;
+  try
+    Result := FStatic;
+  finally
+    FCS.EndRead;
+  end;
 end;
 
 procedure TBitmapPostProcessingChangeableByConfig.OnConfigChange;
+var
+  VNeedNotify: Boolean;
+  VConfig: IBitmapPostProcessingConfigStatic;
 begin
-  LockWrite;
+  VNeedNotify := False;
+  FCS.BeginWrite;
   try
-    SetChanged;
+    VConfig := FConfig.GetStatic;
+    if VConfig <> FPrevConfig then begin
+      FPrevConfig := VConfig;
+      FStatic := CreateStatic(VConfig);
+      VNeedNotify := True;
+    end;
   finally
-    UnlockWrite;
+    FCS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
