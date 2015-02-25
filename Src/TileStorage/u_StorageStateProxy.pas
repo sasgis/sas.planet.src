@@ -23,20 +23,22 @@ unit u_StorageStateProxy;
 interface
 
 uses
+  SysUtils,
   t_CommonTypes,
   i_Listener,
   i_StorageState,
   i_StorageStateProxy,
-  u_ConfigDataElementBase;
+  u_ChangeableBase;
 
 type
-  TStorageStateProxy = class(TConfigDataElementBaseEmptySaveLoad, IStorageStateProxy, IStorageStateChangeble)
+  TStorageStateProxy = class(TChangeableBase, IStorageStateProxy, IStorageStateChangeble)
   private
     FTarget: IStorageStateChangeble;
     FTargetChangeListener: IListener;
     FDisableStatic: IStorageStateStatic;
 
     FLastStatic: IStorageStateStatic;
+    FCS: IReadWriteSync;
     procedure OnTargetChange;
   private
     function GetTarget: IStorageStateChangeble;
@@ -52,13 +54,18 @@ implementation
 
 uses
   u_ListenerByEvent,
-  u_StorageStateStatic;
+  u_StorageStateStatic,
+  u_Synchronizer;
 
 { TStorageStateProxy }
 
 constructor TStorageStateProxy.Create;
+var
+  VCS: IReadWriteSync;
 begin
-  inherited Create;
+  VCS := GSync.SyncVariable.Make(ClassName);
+  inherited Create(VCS);
+  FCS := VCS;
   FTarget := nil;
   FDisableStatic :=
     TStorageStateStatic.Create(
@@ -74,7 +81,7 @@ end;
 
 destructor TStorageStateProxy.Destroy;
 begin
-  LockWrite;
+  FCS.BeginWrite;
   try
     if Assigned(FTarget) and Assigned(FTargetChangeListener) then begin
       FTarget.ChangeNotifier.Remove(FTargetChangeListener);
@@ -82,7 +89,7 @@ begin
       FTargetChangeListener := nil;
     end;
   finally
-    UnlockWrite;
+    FCS.EndWrite;
   end;
 
   inherited;
@@ -90,29 +97,31 @@ end;
 
 function TStorageStateProxy.GetStatic: IStorageStateStatic;
 begin
-  LockRead;
+  FCS.BeginRead;
   try
     Result := FLastStatic;
   finally
-    UnlockRead;
+    FCS.EndRead;
   end;
 end;
 
 function TStorageStateProxy.GetTarget: IStorageStateChangeble;
 begin
-  LockRead;
+  FCS.BeginRead;
   try
     Result := FTarget;
   finally
-    UnlockRead;
+    FCS.EndRead;
   end;
 end;
 
 procedure TStorageStateProxy.OnTargetChange;
 var
   VState: IStorageStateStatic;
+  VNeedNotify: Boolean;
 begin
-  LockWrite;
+  VNeedNotify := False;
+  FCS.BeginWrite;
   try
     VState := nil;
     if FTarget <> nil then begin
@@ -123,29 +132,47 @@ begin
     end;
     if not FLastStatic.IsSame(VState) then begin
       FLastStatic := VState;
-      SetChanged;
+      VNeedNotify := True;
     end;
   finally
-    UnlockWrite;
+    FCS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
 procedure TStorageStateProxy.SetTarget(const AValue: IStorageStateChangeble);
+var
+  VState: IStorageStateStatic;
+  VNeedNotify: Boolean;
 begin
-  LockWrite;
+  VNeedNotify := False;
+  FCS.BeginWrite;
   try
     if FTarget <> AValue then begin
+      VState := nil;
       if FTarget <> nil then begin
         FTarget.ChangeNotifier.Remove(FTargetChangeListener);
       end;
       FTarget := AValue;
       if FTarget <> nil then begin
         FTarget.ChangeNotifier.Add(FTargetChangeListener);
+        VState := FTarget.GetStatic;
       end;
-      OnTargetChange;
+      if VState = nil then begin
+        VState := FDisableStatic;
+      end;
+      if not FLastStatic.IsSame(VState) then begin
+        FLastStatic := VState;
+        VNeedNotify := True;
+      end;
     end;
   finally
-    UnlockWrite;
+    FCS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
