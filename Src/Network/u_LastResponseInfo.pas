@@ -23,42 +23,64 @@ unit u_LastResponseInfo;
 interface
 
 uses
+  SysUtils,
   i_LastResponseInfo,
-  u_ConfigDataElementBase;
+  u_ChangeableBase;
 
 type
-  TLastResponseInfo = class(TConfigDataElementBaseEmptySaveLoad, ILastResponseInfo)
+  TLastResponseInfo = class(TChangeableBase, ILastResponseInfo)
   private
     FResponseHead: AnsiString;
+    FCS: IReadWriteSync;
   private
     function GetResponseHead: AnsiString;
     procedure SetResponseHead(const AValue: AnsiString);
+  public
+    constructor Create;
   end;
 
 implementation
 
+uses
+  u_Synchronizer;
+
 { TLastResponseInfo }
+
+constructor TLastResponseInfo.Create;
+var
+  VCS: IReadWriteSync;
+begin
+  VCS := GSync.SyncVariable.Make(ClassName);
+  inherited Create(VCS);
+  FCS := VCS;
+end;
 
 function TLastResponseInfo.GetResponseHead: AnsiString;
 begin
-  LockRead;
+  FCS.BeginRead;
   try
     Result := FResponseHead;
   finally
-    UnlockRead;
+    FCS.EndRead;
   end;
 end;
 
 procedure TLastResponseInfo.SetResponseHead(const AValue: AnsiString);
+var
+  VNeedNotify: Boolean;
 begin
-  LockWrite;
+  VNeedNotify := False;
+  FCS.BeginWrite;
   try
     if FResponseHead <> AValue then begin
       FResponseHead := AValue;
-      SetChanged;
+      VNeedNotify := True;
     end;
   finally
-    UnlockWrite;
+    FCS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 

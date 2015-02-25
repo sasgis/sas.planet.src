@@ -23,10 +23,10 @@ unit i_LastResponseInfo;
 interface
 
 uses
-  i_ConfigDataElement;
+  i_Changeable;
 
 type
-  ILastResponseInfo = interface(IConfigDataElement)
+  ILastResponseInfo = interface(IChangeable)
     ['{42E58C67-DC1F-4077-8E23-C65785AC3C37}']
     function GetResponseHead: AnsiString;
     procedure SetResponseHead(const AValue: AnsiString);
