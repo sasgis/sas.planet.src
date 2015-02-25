@@ -71,7 +71,6 @@ uses
   Types,
   t_GeoTypes,
   i_CoordConverter,
-  u_SimpleFlagWithInterlock,
   u_ListenerByEvent,
   u_LocalCoordConverterChangeable,
   u_GeoFunc;
@@ -92,7 +91,6 @@ begin
 
   FInternal :=
     TLocalCoordConverterChangeable.Create(
-      TSimpleFlagWithInterlock.Create,
       FSoruce.GetStatic,
       AChangeCounter
     );

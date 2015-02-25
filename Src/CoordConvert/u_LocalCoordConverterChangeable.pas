@@ -23,26 +23,25 @@ unit u_LocalCoordConverterChangeable;
 interface
 
 uses
-  i_SimpleFlag,
+  SysUtils,
   i_InternalPerformanceCounter,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
-  u_ConfigDataElementBase;
+  u_ChangeableBase;
 
 type
-  TLocalCoordConverterChangeable = class(TConfigDataElementWithStaticBaseEmptySaveLoad, ILocalCoordConverterChangeable, ILocalCoordConverterChangeableInternal)
+  TLocalCoordConverterChangeable = class(TChangeableBase, ILocalCoordConverterChangeable, ILocalCoordConverterChangeableInternal)
   private
     FConverter: ILocalCoordConverter;
+    FCS: IReadWriteSync;
     FChangeCounter: IInternalPerformanceCounter;
   private
     function GetStatic: ILocalCoordConverter;
     procedure SetConverter(const AValue: ILocalCoordConverter);
   protected
-    function CreateStatic: IInterface; override;
     procedure DoChangeNotify; override;
   public
     constructor Create(
-      const AChangedFlag: ISimpleFlag;
       const ASource: ILocalCoordConverter;
       const AChangeCounter: IInternalPerformanceCounter
     );
@@ -50,22 +49,23 @@ type
 
 implementation
 
+uses
+  u_Synchronizer;
+
 { TLocalCoordConverterChangeable }
 
 constructor TLocalCoordConverterChangeable.Create(
-  const AChangedFlag: ISimpleFlag;
   const ASource: ILocalCoordConverter;
   const AChangeCounter: IInternalPerformanceCounter
 );
+var
+  VCS: IReadWriteSync;
 begin
-  inherited Create(AChangedFlag);
+  VCS := GSync.SyncVariable.Make(ClassName);
+  inherited Create(VCS);
+  FCS := VCS;
   FConverter := ASource;
   FChangeCounter := AChangeCounter;
-end;
-
-function TLocalCoordConverterChangeable.CreateStatic: IInterface;
-begin
-  Result := FConverter;
 end;
 
 procedure TLocalCoordConverterChangeable.DoChangeNotify;
@@ -82,22 +82,34 @@ end;
 
 function TLocalCoordConverterChangeable.GetStatic: ILocalCoordConverter;
 begin
-  Result := ILocalCoordConverter(GetStaticInternal);
+  FCS.BeginRead;
+  try
+    Result := FConverter;
+  finally
+    FCS.EndRead;
+  end;
 end;
 
 procedure TLocalCoordConverterChangeable.SetConverter(
-  const AValue: ILocalCoordConverter);
+  const AValue: ILocalCoordConverter
+);
+var
+  VNeedNotify: Boolean;
 begin
-  LockWrite;
+  VNeedNotify := False;
+  FCS.BeginWrite;
   try
     if (Assigned(FConverter) and not FConverter.GetIsSameConverter(AValue))
       or (Assigned(AValue) and not Assigned(FConverter))
     then begin
       FConverter := AValue;
-      SetChanged;
+      VNeedNotify := True;
     end;
   finally
-    UnlockWrite;
+    FCS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 

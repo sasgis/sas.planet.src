@@ -24,10 +24,9 @@ interface
 
 uses
   Types,
+  t_GeoTypes,
   i_Notifier,
   i_Listener,
-  t_GeoTypes,
-  i_SimpleFlag,
   i_CoordConverter,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
@@ -102,7 +101,6 @@ implementation
 uses
   SysUtils,
   u_ListenerByEvent,
-  u_SimpleFlagWithInterlock,
   u_LocalCoordConverterChangeable,
   u_GeoFunc;
 
@@ -120,7 +118,6 @@ var
   VLocalRect: TRect;
   VLocalCenter: TDoublePoint;
   VZoom: Byte;
-  VViewChangedFlag: ISimpleFlag;
 begin
   inherited Create;
 
@@ -146,10 +143,8 @@ begin
       FBaseScale,
       DoublePoint(VCenterPoint.X - VLocalCenter.X / FBaseScale, VCenterPoint.Y - VLocalCenter.Y / FBaseScale)
     );
-  VViewChangedFlag := TSimpleFlagWithInterlock.Create;
   FView :=
     TLocalCoordConverterChangeable.Create(
-      VViewChangedFlag,
       VLocalConverter,
       APerfCounterList.CreateAndAddNewCounter('ScaleChange')
     );
