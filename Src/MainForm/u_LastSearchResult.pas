@@ -23,53 +23,83 @@ unit u_LastSearchResult;
 interface
 
 uses
+  SysUtils,
   i_LastSearchResult,
   i_GeoCoder,
-  u_ConfigDataElementBase;
+  u_ChangeableBase;
 
 type
-  TLastSearchResult = class(TConfigDataElementBaseEmptySaveLoad, ILastSearchResult)
+  TLastSearchResult = class(TChangeableBase, ILastSearchResult)
   private
     FGeoCodeResult: IGeoCodeResult;
+    FCS: IReadWriteSync;
   private
     function GetGeoCodeResult: IGeoCodeResult;
     procedure SetGeoCodeResult(const AValue: IGeoCodeResult);
     procedure ClearGeoCodeResult;
+  public
+    constructor Create;
   end;
 
 implementation
 
+uses
+  u_Synchronizer;
+
+constructor TLastSearchResult.Create;
+var
+  VCS: IReadWriteSync;
+begin
+  VCS := GSync.SyncVariable.Make(ClassName);
+  inherited Create(VCS);
+  FCS := VCS;
+end;
+
 function TLastSearchResult.GetGeoCodeResult: IGeoCodeResult;
 begin
-  LockRead;
+  FCS.BeginRead;
   try
     Result := FGeoCodeResult;
   finally
-    UnlockRead;
+    FCS.EndRead;
   end;
 end;
 
 procedure TLastSearchResult.SetGeoCodeResult(const AValue: IGeoCodeResult);
+var
+  VNeedNotify: Boolean;
 begin
-  LockWrite;
+  VNeedNotify := False;
+  FCS.BeginWrite;
   try
     if FGeoCodeResult <> AValue then begin
       FGeoCodeResult := AValue;
-      SetChanged;
+      VNeedNotify := True;
     end;
   finally
-    UnlockWrite;
+    FCS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
 procedure TLastSearchResult.ClearGeoCodeResult;
+var
+  VNeedNotify: Boolean;
 begin
-  LockWrite;
+  VNeedNotify := False;
+  FCS.BeginWrite;
   try
-    FGeoCodeResult := nil;
-    SetChanged;
+    if Assigned(FGeoCodeResult) then begin
+      FGeoCodeResult := nil;
+      VNeedNotify := True;
+    end;
   finally
-    UnlockWrite;
+    FCS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
