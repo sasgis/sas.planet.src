@@ -23,42 +23,64 @@ unit u_InternalBrowserLastContent;
 interface
 
 uses
+  SysUtils,
   i_InternalBrowserLastContent,
-  u_ConfigDataElementBase;
+  u_ChangeableBase;
 
 type
-  TInternalBrowserLastContent = class(TConfigDataElementBaseEmptySaveLoad, IInternalBrowserLastContent)
+  TInternalBrowserLastContent = class(TChangeableBase, IInternalBrowserLastContent)
   private
     FContent: string;
+    FCS: IReadWriteSync;
   private
     function GetContent: string;
     procedure SetContent(const AValue: string);
+  public
+    constructor Create;
   end;
 
 implementation
 
+uses
+  u_Synchronizer;
+
 { IInternalBrowserLastContent }
+
+constructor TInternalBrowserLastContent.Create;
+var
+  VCS: IReadWriteSync;
+begin
+  VCS := GSync.SyncVariable.Make(ClassName);
+  inherited Create(VCS);
+  FCS := VCS;
+end;
 
 function TInternalBrowserLastContent.GetContent: string;
 begin
-  LockRead;
+  FCS.BeginRead;
   try
     Result := FContent;
   finally
-    UnlockRead;
+    FCS.EndRead;
   end;
 end;
 
 procedure TInternalBrowserLastContent.SetContent(const AValue: string);
+var
+  VNeedNotify: Boolean;
 begin
-  LockWrite;
+  VNeedNotify := False;
+  FCS.BeginWrite;
   try
     if FContent <> AValue then begin
       FContent := AValue;
-      SetChanged;
+      VNeedNotify := True;
     end;
   finally
-    UnlockWrite;
+    FCS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
