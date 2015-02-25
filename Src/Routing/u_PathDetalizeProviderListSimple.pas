@@ -34,6 +34,16 @@ uses
 
 type
   TPathDetalizeProviderListSimple = class(TPathDetalizeProviderListBase)
+  private
+    procedure InitList(
+      const ALanguageManager: ILanguageManager;
+      const AInetConfig: IInetConfig;
+      const AGCNotifier: INotifierTime;
+      const AResultFactory: IDownloadResultFactory;
+      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
+      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+      const AKmlLoader: IVectorDataLoader
+    );
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -73,6 +83,27 @@ constructor TPathDetalizeProviderListSimple.Create(
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AKmlLoader: IVectorDataLoader
 );
+begin
+  inherited Create;
+  InitList(
+    ALanguageManager,
+    AInetConfig,
+    AGCNotifier,
+    AResultFactory,
+    AVectorDataItemMainInfoFactory,
+    AVectorGeometryLonLatFactory,
+    AKmlLoader
+  );
+end;
+
+procedure TPathDetalizeProviderListSimple.InitList(
+  const ALanguageManager: ILanguageManager;
+  const AInetConfig: IInetConfig;
+  const AGCNotifier: INotifierTime;
+  const AResultFactory: IDownloadResultFactory;
+  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+  const AKmlLoader: IVectorDataLoader);
 var
   VEntity: IPathDetalizeProviderListEntity;
   VCaption: IStringConfigDataElement;
@@ -81,7 +112,6 @@ var
   VProvider: IPathDetalizeProvider;
   VDownloader: IDownloader;
 begin
-  inherited Create;
   VCaption :=
     TStringConfigDataElementWithDefByGetText.Create(
       ALanguageManager,

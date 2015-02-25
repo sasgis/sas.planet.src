@@ -24,12 +24,12 @@ interface
 
 uses
   ActiveX,
-  u_ConfigDataElementBase,
   i_GUIDSet,
-  i_PathDetalizeProviderList;
+  i_PathDetalizeProviderList,
+  u_ChangeableBase;
 
 type
-  TPathDetalizeProviderListBase = class(TConfigDataElementBaseEmptySaveLoad, IPathDetalizeProviderList)
+  TPathDetalizeProviderListBase = class(TChangeableBase, IPathDetalizeProviderList)
   private
     FList: IGUIDInterfaceSet;
   private
@@ -44,13 +44,14 @@ type
 implementation
 
 uses
-  u_GUIDInterfaceSet;
+  u_GUIDInterfaceSet,
+  u_ReadWriteSyncAbstract;
 
 { TPathDetalizeProviderListBase }
 
 constructor TPathDetalizeProviderListBase.Create;
 begin
-  inherited Create;
+  inherited Create(TSynchronizerFake.Create);
   FList := TGUIDInterfaceSet.Create(False);
 end;
 
@@ -58,26 +59,15 @@ procedure TPathDetalizeProviderListBase.Add(
   const AItem: IPathDetalizeProviderListEntity
 );
 begin
-  LockWrite;
-  try
-    if not FList.IsExists(AItem.GUID) then begin
-      FList.Add(AItem.GUID, AItem);
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
+  if not FList.IsExists(AItem.GUID) then begin
+    FList.Add(AItem.GUID, AItem);
   end;
 end;
 
 function TPathDetalizeProviderListBase.Get(
   const AGUID: TGUID): IPathDetalizeProviderListEntity;
 begin
-  LockRead;
-  try
-    Result := IPathDetalizeProviderListEntity(FList.GetByGUID(AGUID));
-  finally
-    UnlockRead;
-  end;
+  Result := IPathDetalizeProviderListEntity(FList.GetByGUID(AGUID));
 end;
 
 function TPathDetalizeProviderListBase.GetGUIDEnum: IEnumGUID;
