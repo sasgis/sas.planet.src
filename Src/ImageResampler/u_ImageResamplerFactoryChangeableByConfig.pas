@@ -23,23 +23,26 @@ unit u_ImageResamplerFactoryChangeableByConfig;
 interface
 
 uses
+  SysUtils,
   i_ImageResamplerFactory,
   i_ImageResamplerConfig,
   i_ImageResamplerFactoryChangeable,
   i_Listener,
-  u_ConfigDataElementBase;
+  u_ChangeableBase;
 
 type
-  TImageResamplerFactoryChangeableByConfig = class(TConfigDataElementWithStaticBaseEmptySaveLoad, IImageResamplerFactoryChangeable)
+  TImageResamplerFactoryChangeableByConfig = class(TChangeableBase, IImageResamplerFactoryChangeable)
   private
     FDefGUID: TGUID;
     FList: IImageResamplerFactoryList;
     FConfig: IImageResamplerConfig;
     FConfigChangeListener: IListener;
     FDefItem: IImageResamplerFactory;
+    FCS: IReadWriteSync;
+    FStatic: IImageResamplerFactory;
+    FPrevGUID: TGUID;
     procedure OnConfigChange;
-  protected
-    function CreateStatic: IInterface; override;
+    function CreateStatic(const AGUID: TGUID): IImageResamplerFactory;
   private
     function GetStatic: IImageResamplerFactory;
   public
@@ -53,9 +56,9 @@ type
 implementation
 
 uses
-  SysUtils,
   c_ZeroGUID,
-  u_ListenerByEvent;
+  u_ListenerByEvent,
+  u_Synchronizer;
 
 { TImageResamplerFactoryChangeableByConfig }
 
@@ -65,11 +68,14 @@ constructor TImageResamplerFactoryChangeableByConfig.Create(
 );
 var
   VIndex: Integer;
+  VCS: IReadWriteSync;
 begin
   Assert(Assigned(AConfig));
   Assert(Assigned(AList));
   Assert(AList.Count > 0);
-  inherited Create;
+  VCS := GSync.SyncVariable.Make(ClassName);
+  inherited Create(VCS);
+  FCS := VCS;
   FList := AList;
   FConfig := AConfig;
   FDefGUID := FConfig.DefaultGUID;
@@ -84,6 +90,8 @@ begin
 
   FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FConfig.ChangeNotifier.Add(FConfigChangeListener);
+  
+  OnConfigChange;
 end;
 
 destructor TImageResamplerFactoryChangeableByConfig.Destroy;
@@ -95,16 +103,16 @@ begin
   inherited;
 end;
 
-function TImageResamplerFactoryChangeableByConfig.CreateStatic: IInterface;
+function TImageResamplerFactoryChangeableByConfig.CreateStatic(
+  const AGUID: TGUID
+): IImageResamplerFactory;
 var
-  VGUID: TGUID;
   VIndex: Integer;
 begin
-  VGUID := FConfig.ActiveGUID;
-  if IsEqualGUID(VGUID, CGUID_Zero) then begin
+  if IsEqualGUID(AGUID, CGUID_Zero) then begin
     Result := FDefItem;
   end else begin
-    VIndex := FList.GetIndexByGUID(VGUID);
+    VIndex := FList.GetIndexByGUID(AGUID);
     if VIndex < 0 then begin
       Result := FDefItem;
     end else begin
@@ -115,20 +123,38 @@ end;
 
 function TImageResamplerFactoryChangeableByConfig.GetStatic: IImageResamplerFactory;
 begin
-  Result := IImageResamplerFactory(GetStaticInternal);
+  FCS.BeginRead;
+  try
+    Result := FStatic;
+  finally
+    FCS.EndRead;
+  end;
 end;
 
 procedure TImageResamplerFactoryChangeableByConfig.OnConfigChange;
+var
+  VNeedNotify: Boolean;
+  VGUID: TGUID;
 begin
-  if FList.GetIndexByGUID(FConfig.ActiveGUID) < 0 then begin
+  VNeedNotify := False;
+  VGUID := FConfig.ActiveGUID;
+  if FList.GetIndexByGUID(VGUID) < 0 then begin
     FConfig.ActiveGUID := FDefGUID;
   end;
 
-  LockWrite;
+  FCS.BeginRead;
   try
-    SetChanged;
+    VGUID := FConfig.ActiveGUID;
+    if not IsEqualGUID(VGUID, FPrevGUID) then begin
+      FPrevGUID := VGUID;
+      FStatic := CreateStatic(VGUID);
+      VNeedNotify := True;
+    end;
   finally
-    UnlockWrite;
+    FCS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
