@@ -26,10 +26,10 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_ZmpConfig,
-  u_ConfigDataElementComplexBase;
+  u_ConfigDataElementBase;
 
 type
-  TZmpConfig = class(TConfigDataElementComplexBase, IZmpConfig)
+  TZmpConfig = class(TConfigDataElementBase, IZmpConfig)
   private
     FMaxConnectToServerCount: Cardinal;
     FUseMemCache: Boolean;

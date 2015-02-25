@@ -52,7 +52,7 @@ type
     constructor Create;
   end;
 
-  TMarksDrawOrderConfig = class(TConfigDataElementComplexWithStaticBase, IMarksDrawOrderConfig)
+  TMarksDrawOrderConfig = class(TConfigDataElementWithStaticBase, IMarksDrawOrderConfig)
   private
     FUseSimpleDrawOrder: Boolean;
     FOverSizeRect: TRect;

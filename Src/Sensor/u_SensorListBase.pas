@@ -26,10 +26,10 @@ uses
   ActiveX,
   i_GUIDSet,
   i_SensorList,
-  u_ConfigDataElementComplexBase;
+  u_ChangeableBase;
 
 type
-  TSensorListBase = class(TConfigDataElementComplexBase, ISensorList)
+  TSensorListBase = class(TChangeableBase, ISensorList)
   private
     FList: IGUIDInterfaceSet;
   private
@@ -44,38 +44,27 @@ type
 implementation
 
 uses
-  u_GUIDInterfaceSet;
+  u_GUIDInterfaceSet,
+  u_ReadWriteSyncAbstract;
 
 { TSensorListBase }
 
 constructor TSensorListBase.Create;
 begin
-  inherited Create;
+  inherited Create(TSynchronizerFake.Create);
   FList := TGUIDInterfaceSet.Create(False);
 end;
 
 procedure TSensorListBase.Add(const AItem: ISensorListEntity);
 begin
-  LockWrite;
-  try
-    if not FList.IsExists(AItem.GUID) then begin
-      FList.Add(AItem.GUID, AItem);
-      inherited Add(AItem.GetSensor);
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
+  if not FList.IsExists(AItem.GUID) then begin
+    FList.Add(AItem.GUID, AItem);
   end;
 end;
 
 function TSensorListBase.Get(const AGUID: TGUID): ISensorListEntity;
 begin
-  LockRead;
-  try
-    Result := ISensorListEntity(FList.GetByGUID(AGUID));
-  finally
-    UnlockRead;
-  end;
+  Result := ISensorListEntity(FList.GetByGUID(AGUID));
 end;
 
 function TSensorListBase.GetGUIDEnum: IEnumGUID;

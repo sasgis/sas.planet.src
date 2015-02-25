@@ -67,7 +67,7 @@ type
     constructor Create(const AList: IInterfaceListSimple);
   end;
 
-  TTrackColorerConfig = class(TConfigDataElementComplexWithStaticBase, ITrackColorerConfig)
+  TTrackColorerConfig = class(TConfigDataElementWithStaticBase, ITrackColorerConfig)
   private
     FList: IInterfaceListSimple;
     procedure CreateDefault;
