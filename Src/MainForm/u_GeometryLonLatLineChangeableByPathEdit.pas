@@ -31,13 +31,12 @@ uses
   u_ChangeableBase;
 
 type
-  TGeometryLonLatLineChangeableByPathEdit = class(TChangeableBase, IGeometryLonLatLineChangeable)
+  TGeometryLonLatLineChangeableByPathEdit = class(TChangeableWithSimpleLockBase, IGeometryLonLatLineChangeable)
   private
     FSource: IPathOnMapEdit;
     FSourceListener: IListener;
 
     FResult: IGeometryLonLatLine;
-    FResultCS: IReadWriteSync;
     procedure OnSourceChange;
   private
     function GetStatic: IGeometryLonLatLine;
@@ -51,8 +50,7 @@ type
 implementation
 
 uses
-  u_ListenerByEvent,
-  u_Synchronizer;
+  u_ListenerByEvent;
 
 { TGeometryLonLatLineChangeableByPathEdit }
 
@@ -61,11 +59,10 @@ constructor TGeometryLonLatLineChangeableByPathEdit.Create(
 );
 begin
   Assert(Assigned(ASource));
-  inherited Create(GSync.SyncVariable.Make(ClassName + 'Notifier'));
+  inherited Create;
 
   FSource := ASource;
   FSourceListener := TNotifyNoMmgEventListener.Create(Self.OnSourceChange);
-  FResultCS := GSync.SyncVariable.Make(ClassName);
 
   FSource.ChangeNotifier.Add(FSourceListener);
 end;
@@ -82,11 +79,11 @@ end;
 
 function TGeometryLonLatLineChangeableByPathEdit.GetStatic: IGeometryLonLatLine;
 begin
-  FResultCS.BeginRead;
+  CS.BeginRead;
   try
     Result := FResult;
   finally
-    FResultCS.EndRead;
+    CS.EndRead;
   end;
 end;
 
@@ -96,7 +93,7 @@ var
   VResult: IGeometryLonLatLine;
   VChanged: Boolean;
 begin
-  FResultCS.BeginWrite;
+  CS.BeginWrite;
   try
     VResult := nil;
     VPath := FSource.Path;
@@ -112,7 +109,7 @@ begin
       FResult := VResult;
     end;
   finally
-    FResultCS.EndWrite;
+    CS.EndWrite;
   end;
   if VChanged then begin
     DoChangeNotify;

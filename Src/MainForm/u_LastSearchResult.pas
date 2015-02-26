@@ -29,10 +29,9 @@ uses
   u_ChangeableBase;
 
 type
-  TLastSearchResult = class(TChangeableBase, ILastSearchResult)
+  TLastSearchResult = class(TChangeableWithSimpleLockBase, ILastSearchResult)
   private
     FGeoCodeResult: IGeoCodeResult;
-    FCS: IReadWriteSync;
   private
     function GetGeoCodeResult: IGeoCodeResult;
     procedure SetGeoCodeResult(const AValue: IGeoCodeResult);
@@ -43,25 +42,18 @@ type
 
 implementation
 
-uses
-  u_Synchronizer;
-
 constructor TLastSearchResult.Create;
-var
-  VCS: IReadWriteSync;
 begin
-  VCS := GSync.SyncVariable.Make(ClassName);
-  inherited Create(VCS);
-  FCS := VCS;
+  inherited Create;
 end;
 
 function TLastSearchResult.GetGeoCodeResult: IGeoCodeResult;
 begin
-  FCS.BeginRead;
+  CS.BeginRead;
   try
     Result := FGeoCodeResult;
   finally
-    FCS.EndRead;
+    CS.EndRead;
   end;
 end;
 
@@ -70,14 +62,14 @@ var
   VNeedNotify: Boolean;
 begin
   VNeedNotify := False;
-  FCS.BeginWrite;
+  CS.BeginWrite;
   try
     if FGeoCodeResult <> AValue then begin
       FGeoCodeResult := AValue;
       VNeedNotify := True;
     end;
   finally
-    FCS.EndWrite;
+    CS.EndWrite;
   end;
   if VNeedNotify then begin
     DoChangeNotify;
@@ -89,14 +81,14 @@ var
   VNeedNotify: Boolean;
 begin
   VNeedNotify := False;
-  FCS.BeginWrite;
+  CS.BeginWrite;
   try
     if Assigned(FGeoCodeResult) then begin
       FGeoCodeResult := nil;
       VNeedNotify := True;
     end;
   finally
-    FCS.EndWrite;
+    CS.EndWrite;
   end;
   if VNeedNotify then begin
     DoChangeNotify;

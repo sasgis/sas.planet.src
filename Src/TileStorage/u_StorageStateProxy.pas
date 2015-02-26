@@ -31,14 +31,13 @@ uses
   u_ChangeableBase;
 
 type
-  TStorageStateProxy = class(TChangeableBase, IStorageStateProxy, IStorageStateChangeble)
+  TStorageStateProxy = class(TChangeableWithSimpleLockBase, IStorageStateProxy, IStorageStateChangeble)
   private
     FTarget: IStorageStateChangeble;
     FTargetChangeListener: IListener;
     FDisableStatic: IStorageStateStatic;
 
     FLastStatic: IStorageStateStatic;
-    FCS: IReadWriteSync;
     procedure OnTargetChange;
   private
     function GetTarget: IStorageStateChangeble;
@@ -54,18 +53,13 @@ implementation
 
 uses
   u_ListenerByEvent,
-  u_StorageStateStatic,
-  u_Synchronizer;
+  u_StorageStateStatic;
 
 { TStorageStateProxy }
 
 constructor TStorageStateProxy.Create;
-var
-  VCS: IReadWriteSync;
 begin
-  VCS := GSync.SyncVariable.Make(ClassName);
-  inherited Create(VCS);
-  FCS := VCS;
+  inherited Create;
   FTarget := nil;
   FDisableStatic :=
     TStorageStateStatic.Create(
@@ -81,7 +75,7 @@ end;
 
 destructor TStorageStateProxy.Destroy;
 begin
-  FCS.BeginWrite;
+  CS.BeginWrite;
   try
     if Assigned(FTarget) and Assigned(FTargetChangeListener) then begin
       FTarget.ChangeNotifier.Remove(FTargetChangeListener);
@@ -89,7 +83,7 @@ begin
       FTargetChangeListener := nil;
     end;
   finally
-    FCS.EndWrite;
+    CS.EndWrite;
   end;
 
   inherited;
@@ -97,21 +91,21 @@ end;
 
 function TStorageStateProxy.GetStatic: IStorageStateStatic;
 begin
-  FCS.BeginRead;
+  CS.BeginRead;
   try
     Result := FLastStatic;
   finally
-    FCS.EndRead;
+    CS.EndRead;
   end;
 end;
 
 function TStorageStateProxy.GetTarget: IStorageStateChangeble;
 begin
-  FCS.BeginRead;
+  CS.BeginRead;
   try
     Result := FTarget;
   finally
-    FCS.EndRead;
+    CS.EndRead;
   end;
 end;
 
@@ -121,7 +115,7 @@ var
   VNeedNotify: Boolean;
 begin
   VNeedNotify := False;
-  FCS.BeginWrite;
+  CS.BeginWrite;
   try
     VState := nil;
     if FTarget <> nil then begin
@@ -135,7 +129,7 @@ begin
       VNeedNotify := True;
     end;
   finally
-    FCS.EndWrite;
+    CS.EndWrite;
   end;
   if VNeedNotify then begin
     DoChangeNotify;
@@ -148,7 +142,7 @@ var
   VNeedNotify: Boolean;
 begin
   VNeedNotify := False;
-  FCS.BeginWrite;
+  CS.BeginWrite;
   try
     if FTarget <> AValue then begin
       VState := nil;
@@ -169,7 +163,7 @@ begin
       end;
     end;
   finally
-    FCS.EndWrite;
+    CS.EndWrite;
   end;
   if VNeedNotify then begin
     DoChangeNotify;

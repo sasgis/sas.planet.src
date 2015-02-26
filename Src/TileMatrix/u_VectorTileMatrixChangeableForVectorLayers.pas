@@ -46,7 +46,7 @@ uses
   u_ChangeableBase;
 
 type
-  TVectorTileMatrixChangeableForVectorLayers = class(TChangeableBase, IVectorTileMatrixChangeable)
+  TVectorTileMatrixChangeableForVectorLayers = class(TChangeableWithSimpleLockBase, IVectorTileMatrixChangeable)
   private
     FAppStartedNotifier: INotifierOneOperation;
     FAppClosingNotifier: INotifierOneOperation;
@@ -77,7 +77,6 @@ type
     FVisible: Boolean;
     FPreparedVectorMatrix: IVectorTileMatrixBuilder;
     FResult: IVectorTileMatrix;
-    FResultCS: IReadWriteSync;
 
     procedure OnAppStarted;
     procedure OnAppClosing;
@@ -154,7 +153,7 @@ begin
   if VDebugName = '' then begin
     VDebugName := Self.ClassName;
   end;
-  inherited Create(GSync.SyncVariable.Make(VDebugName + '\Notifiers'));
+  inherited Create;
 
   FAppStartedNotifier := AAppStartedNotifier;
   FAppClosingNotifier := AAppClosingNotifier;
@@ -164,9 +163,7 @@ begin
   FSourcUpdateNotyfier := ASourcUpdateNotyfier;
   FDebugName := VDebugName;
 
-
   FSourceHashMatrixCS := GSync.SyncVariable.Make(FDebugName + '\SourceUpdates');
-  FResultCS := GSync.SyncVariable.Make(FDebugName + '\Result');
 
   FPosChangeListener := TNotifyNoMmgEventListener.Create(Self.OnPosChange);
   FLayerProviderListener := TNotifyNoMmgEventListener.Create(Self.OnLayerProviderChange);
@@ -236,11 +233,11 @@ end;
 
 function TVectorTileMatrixChangeableForVectorLayers.GetStatic: IVectorTileMatrix;
 begin
-  FResultCS.BeginRead;
+  CS.BeginRead;
   try
     Result := FResult;
   finally
-    FResultCS.EndRead;
+    CS.EndRead;
   end;
 end;
 
@@ -438,7 +435,7 @@ begin
   VCounterContext := FUpdateResultCounter.StartOperation;
   try
     VResult := FPreparedVectorMatrix.MakeStatic;
-    FResultCS.BeginWrite;
+    CS.BeginWrite;
     try
       if Assigned(VResult) then begin
         if Assigned(FResult) then begin
@@ -461,7 +458,7 @@ begin
         end;
       end;
     finally
-      FResultCS.EndWrite;
+      CS.EndWrite;
     end;
     if VChanged then begin
       DoChangeNotify;

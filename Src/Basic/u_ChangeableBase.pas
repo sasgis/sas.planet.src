@@ -48,10 +48,20 @@ type
     constructor Create(const ANotifierSync: IReadWriteSync);
   end;
 
+  TChangeableWithSimpleLockBase = class(TChangeableBase)
+  private
+    FCS: IReadWriteSync;
+  protected
+    property CS: IReadWriteSync read FCS;
+  public
+    constructor Create;
+  end;
+
 implementation
 
 uses
-  u_Notifier;
+  u_Notifier,
+  u_Synchronizer;
 
 { TChangeableBase }
 
@@ -101,6 +111,17 @@ end;
 function TChangeableBase.GetChangeNotifier: INotifier;
 begin
   Result := FChangeNotifier;
+end;
+
+{ TChangeableWithSimpleLockBase }
+
+constructor TChangeableWithSimpleLockBase.Create;
+var
+  VCS: IReadWriteSync;
+begin
+  VCS := GSync.SyncVariable.Make(ClassName);
+  inherited Create(VCS);
+  FCS := VCS;
 end;
 
 end.

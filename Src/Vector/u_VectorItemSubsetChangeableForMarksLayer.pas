@@ -40,7 +40,7 @@ uses
   u_ChangeableBase;
 
 type
-  TVectorItemSubsetChangeableForMarksLayer = class(TChangeableBase, IVectorItemSubsetChangeable)
+  TVectorItemSubsetChangeableForMarksLayer = class(TChangeableWithSimpleLockBase, IVectorItemSubsetChangeable)
   private
     FMarkDB: IMarkSystem;
     FConfig: IUsedMarksConfig;
@@ -55,7 +55,6 @@ type
     FLinksList: IListenerNotifierLinksList;
     FGetMarksCounter: IInternalPerformanceCounter;
 
-    FResultCS: IReadWriteSync;
     FResult: IVectorItemSubset;
 
     procedure OnAppStarted;
@@ -97,8 +96,7 @@ uses
   i_MarkCategoryList,
   u_ListenerNotifierLinksList,
   u_BackgroundTask,
-  u_ListenerByEvent,
-  u_Synchronizer;
+  u_ListenerByEvent;
 
 { TVectorItemSubsetChangeableForMarksLayer }
 
@@ -114,7 +112,7 @@ constructor TVectorItemSubsetChangeableForMarksLayer.Create(
 begin
   Assert(Assigned(ATileRect));
   Assert(Assigned(AMarkSystem));
-  inherited Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifiers'));
+  inherited Create;
   FTileRect := ATileRect;
   FMarkDB := AMarkSystem;
   FConfig := AConfig;
@@ -124,7 +122,6 @@ begin
   FAppStartedNotifier := AAppStartedNotifier;
   FAppClosingNotifier := AAppClosingNotifier;
 
-  FResultCS := GSync.SyncVariable.Make(Self.ClassName);
   FLinksList := TListenerNotifierLinksList.Create;
   FAppStartedListener := TNotifyNoMmgEventListener.Create(Self.OnAppStarted);
   FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);
@@ -223,11 +220,11 @@ end;
 
 function TVectorItemSubsetChangeableForMarksLayer.GetStatic: IVectorItemSubset;
 begin
-  FResultCS.BeginRead;
+  CS.BeginRead;
   try
     Result := FResult;
   finally
-    FResultCS.EndRead;
+    CS.EndRead;
   end;
 end;
 
@@ -276,7 +273,7 @@ begin
   if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
     Exit;
   end;
-  FResultCS.BeginWrite;
+  CS.BeginWrite;
   try
     if FResult = nil then begin
       VNeedNotify := (VResult <> nil) and (not VResult.IsEmpty);
@@ -287,7 +284,7 @@ begin
       FResult := VResult;
     end;
   finally
-    FResultCS.EndWrite;
+    CS.EndWrite;
   end;
   if VNeedNotify then begin
     DoChangeNotify;

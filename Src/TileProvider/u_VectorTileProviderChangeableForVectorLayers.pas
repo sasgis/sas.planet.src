@@ -35,7 +35,7 @@ uses
   u_ChangeableBase;
 
 type
-  TVectorTileProviderChangeableForVectorLayers = class(TChangeableBase, IVectorTileUniProviderChangeable)
+  TVectorTileProviderChangeableForVectorLayers = class(TChangeableWithSimpleLockBase, IVectorTileUniProviderChangeable)
   private
     FErrorLogger: ITileErrorLogger;
     FSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
@@ -46,7 +46,6 @@ type
     FLinksList: IListenerNotifierLinksList;
 
     FResult: IVectorTileUniProvider;
-    FResultCS: IReadWriteSync;
 
     procedure OnLayerListChange;
   private
@@ -66,8 +65,7 @@ implementation
 uses
   u_ListenerByEvent,
   u_ListenerNotifierLinksList,
-  u_VectorTileProviderForVectorLayers,
-  u_Synchronizer;
+  u_VectorTileProviderForVectorLayers;
 
 { TVectorLayerProviderChangeableForMainLayer }
 
@@ -81,14 +79,13 @@ constructor TVectorTileProviderChangeableForVectorLayers.Create(
 begin
   Assert(Assigned(ALayesSet));
   Assert(Assigned(ASubsetBuilderFactory));
-  inherited Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifiers'));
+  inherited Create;
   FSubsetBuilderFactory := ASubsetBuilderFactory;
   FLayesSet := ALayesSet;
   FErrorLogger := AErrorLogger;
   FTileSelectOversize := ATileSelectOversize;
   FItemSelectOversize := AItemSelectOversize;
 
-  FResultCS := GSync.SyncVariable.Make(Self.ClassName);
   FLinksList := TListenerNotifierLinksList.Create;
 
   FLinksList.Add(
@@ -101,11 +98,11 @@ end;
 
 function TVectorTileProviderChangeableForVectorLayers.GetStatic: IVectorTileUniProvider;
 begin
-  FResultCS.BeginRead;
+  CS.BeginRead;
   try
     Result := FResult;
   finally
-    FResultCS.EndRead;
+    CS.EndRead;
   end;
 end;
 
@@ -128,11 +125,11 @@ begin
       );
   end;
 
-  FResultCS.BeginWrite;
+  CS.BeginWrite;
   try
     FResult := VResult;
   finally
-    FResultCS.EndWrite;
+    CS.EndWrite;
   end;
   DoChangeNotify;
 end;

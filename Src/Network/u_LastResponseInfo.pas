@@ -28,10 +28,9 @@ uses
   u_ChangeableBase;
 
 type
-  TLastResponseInfo = class(TChangeableBase, ILastResponseInfo)
+  TLastResponseInfo = class(TChangeableWithSimpleLockBase, ILastResponseInfo)
   private
     FResponseHead: AnsiString;
-    FCS: IReadWriteSync;
   private
     function GetResponseHead: AnsiString;
     procedure SetResponseHead(const AValue: AnsiString);
@@ -41,27 +40,20 @@ type
 
 implementation
 
-uses
-  u_Synchronizer;
-
 { TLastResponseInfo }
 
 constructor TLastResponseInfo.Create;
-var
-  VCS: IReadWriteSync;
 begin
-  VCS := GSync.SyncVariable.Make(ClassName);
-  inherited Create(VCS);
-  FCS := VCS;
+  inherited Create;
 end;
 
 function TLastResponseInfo.GetResponseHead: AnsiString;
 begin
-  FCS.BeginRead;
+  CS.BeginRead;
   try
     Result := FResponseHead;
   finally
-    FCS.EndRead;
+    CS.EndRead;
   end;
 end;
 
@@ -70,14 +62,14 @@ var
   VNeedNotify: Boolean;
 begin
   VNeedNotify := False;
-  FCS.BeginWrite;
+  CS.BeginWrite;
   try
     if FResponseHead <> AValue then begin
       FResponseHead := AValue;
       VNeedNotify := True;
     end;
   finally
-    FCS.EndWrite;
+    CS.EndWrite;
   end;
   if VNeedNotify then begin
     DoChangeNotify;

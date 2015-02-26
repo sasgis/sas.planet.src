@@ -28,10 +28,9 @@ uses
   u_ChangeableBase;
 
 type
-  TInternalBrowserLastContent = class(TChangeableBase, IInternalBrowserLastContent)
+  TInternalBrowserLastContent = class(TChangeableWithSimpleLockBase, IInternalBrowserLastContent)
   private
     FContent: string;
-    FCS: IReadWriteSync;
   private
     function GetContent: string;
     procedure SetContent(const AValue: string);
@@ -41,27 +40,20 @@ type
 
 implementation
 
-uses
-  u_Synchronizer;
-
 { IInternalBrowserLastContent }
 
 constructor TInternalBrowserLastContent.Create;
-var
-  VCS: IReadWriteSync;
 begin
-  VCS := GSync.SyncVariable.Make(ClassName);
-  inherited Create(VCS);
-  FCS := VCS;
+  inherited Create;
 end;
 
 function TInternalBrowserLastContent.GetContent: string;
 begin
-  FCS.BeginRead;
+  CS.BeginRead;
   try
     Result := FContent;
   finally
-    FCS.EndRead;
+    CS.EndRead;
   end;
 end;
 
@@ -70,14 +62,14 @@ var
   VNeedNotify: Boolean;
 begin
   VNeedNotify := False;
-  FCS.BeginWrite;
+  CS.BeginWrite;
   try
     if FContent <> AValue then begin
       FContent := AValue;
       VNeedNotify := True;
     end;
   finally
-    FCS.EndWrite;
+    CS.EndWrite;
   end;
   if VNeedNotify then begin
     DoChangeNotify;

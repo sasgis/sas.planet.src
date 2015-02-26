@@ -29,10 +29,9 @@ uses
   u_ChangeableBase;
 
 type
-  TPointOnMapEdit = class(TChangeableBase, IPointOnMapEdit)
+  TPointOnMapEdit = class(TChangeableWithSimpleLockBase, IPointOnMapEdit)
   private
     FPoint: TDoublePoint;
-    FCS: IReadWriteSync;
   private
     function GetPoint: TDoublePoint;
     procedure SetPoint(const AValue: TDoublePoint);
@@ -45,18 +44,13 @@ type
 implementation
 
 uses
-  u_Synchronizer,
   u_GeoFunc;
 
 { TPointOnMapEdit }
 
 constructor TPointOnMapEdit.Create;
-var
-  VCS: IReadWriteSync;
 begin
-  VCS := GSync.SyncVariable.Make(ClassName);
-  inherited Create(VCS);
-  FCS := VCS;
+  inherited Create;
   FPoint := CEmptyDoublePoint;
 end;
 
@@ -67,11 +61,11 @@ end;
 
 function TPointOnMapEdit.GetPoint: TDoublePoint;
 begin
-  FCS.BeginRead;
+  CS.BeginRead;
   try
     Result := FPoint;
   finally
-    FCS.EndRead;
+    CS.EndRead;
   end;
 end;
 
@@ -80,14 +74,14 @@ var
   VNeedNotify: Boolean;
 begin
   VNeedNotify := False;
-  FCS.BeginWrite;
+  CS.BeginWrite;
   try
     if not DoublePointsEqual(AValue, FPoint) then begin
       FPoint := AValue;
       VNeedNotify := True;
     end;
   finally
-    FCS.EndWrite;
+    CS.EndWrite;
   end;
   if VNeedNotify then begin
     DoChangeNotify;

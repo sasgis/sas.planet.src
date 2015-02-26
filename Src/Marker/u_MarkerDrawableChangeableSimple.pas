@@ -32,14 +32,13 @@ uses
   u_ChangeableBase;
 
 type
-  TMarkerDrawableChangeableSimple = class(TChangeableBase, IMarkerDrawableChangeable)
+  TMarkerDrawableChangeableSimple = class(TChangeableWithSimpleLockBase, IMarkerDrawableChangeable)
   private
     FMarkerClass: TMarkerDrawableSimpleAbstractClass;
     FConfig: IMarkerSimpleConfig;
 
     FConfigListener: IListener;
 
-    FStaticCS: IReadWriteSync;
     FStatic: IMarkerDrawable;
     procedure OnConfigChange;
   private
@@ -53,14 +52,13 @@ type
   end;
 
 type
-  TMarkerDrawableWithDirectionChangeableSimple = class(TChangeableBase, IMarkerDrawableWithDirectionChangeable)
+  TMarkerDrawableWithDirectionChangeableSimple = class(TChangeableWithSimpleLockBase, IMarkerDrawableWithDirectionChangeable)
   private
     FMarkerClass: TMarkerDrawableWithDirectionSimpleAbstractClass;
     FConfig: IMarkerSimpleConfig;
 
     FConfigListener: IListener;
 
-    FStaticCS: IReadWriteSync;
     FStatic: IMarkerDrawableWithDirection;
     procedure OnConfigChange;
   private
@@ -76,8 +74,7 @@ type
 implementation
 
 uses
-  u_ListenerByEvent,
-  u_Synchronizer;
+  u_ListenerByEvent;
 
 { TMarkerDrawableChangeableSimple }
 
@@ -86,11 +83,9 @@ constructor TMarkerDrawableChangeableSimple.Create(
   const AConfig: IMarkerSimpleConfig
 );
 begin
-  inherited Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifiers'));
+  inherited Create;
   FMarkerClass := AMarkerClass;
   FConfig := AConfig;
-
-  FStaticCS := GSync.SyncVariable.Make(Self.ClassName);
 
   FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FConfig.ChangeNotifier.Add(FConfigListener);
@@ -109,11 +104,11 @@ end;
 
 function TMarkerDrawableChangeableSimple.GetStatic: IMarkerDrawable;
 begin
-  FStaticCS.BeginRead;
+  CS.BeginRead;
   try
     Result := FStatic;
   finally
-    FStaticCS.EndRead;
+    CS.EndRead;
   end;
 end;
 
@@ -122,11 +117,11 @@ var
   VStatic: IMarkerDrawable;
 begin
   VStatic := FMarkerClass.Create(FConfig.GetStatic);
-  FStaticCS.BeginWrite;
+  CS.BeginWrite;
   try
     FStatic := VStatic;
   finally
-    FStaticCS.EndWrite;
+    CS.EndWrite;
   end;
   DoChangeNotify;
 end;
@@ -138,11 +133,9 @@ constructor TMarkerDrawableWithDirectionChangeableSimple.Create(
   const AConfig: IMarkerSimpleConfig
 );
 begin
-  inherited Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifiers'));
+  inherited Create;
   FMarkerClass := AMarkerClass;
   FConfig := AConfig;
-
-  FStaticCS := GSync.SyncVariable.Make(Self.ClassName);
 
   FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FConfig.ChangeNotifier.Add(FConfigListener);
@@ -161,11 +154,11 @@ end;
 
 function TMarkerDrawableWithDirectionChangeableSimple.GetStatic: IMarkerDrawableWithDirection;
 begin
-  FStaticCS.BeginRead;
+  CS.BeginRead;
   try
     Result := FStatic;
   finally
-    FStaticCS.EndRead;
+    CS.EndRead;
   end;
 end;
 
@@ -174,11 +167,11 @@ var
   VStatic: IMarkerDrawableWithDirection;
 begin
   VStatic := FMarkerClass.Create(FConfig.GetStatic);
-  FStaticCS.BeginWrite;
+  CS.BeginWrite;
   try
     FStatic := VStatic;
   finally
-    FStaticCS.EndWrite;
+    CS.EndWrite;
   end;
   DoChangeNotify;
 end;

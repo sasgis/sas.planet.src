@@ -34,14 +34,13 @@ uses
   u_ChangeableBase;
 
 type
-  TLayerSetChangeableByConfig = class(TChangeableBase, IMapTypeSetChangeable)
+  TLayerSetChangeableByConfig = class(TChangeableWithSimpleLockBase, IMapTypeSetChangeable)
   private
     FMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
     FLayersSet: IMapTypeSet;
     FConfig: IActiveLayersConfig;
 
     FStatic: IMapTypeSet;
-    FStaticCS: IReadWriteSync;
 
     FListener: IListener;
 
@@ -57,14 +56,13 @@ type
     destructor Destroy; override;
   end;
 
-  TMapsSetChangeableMainAndLayers = class(TChangeableBase, IMapTypeSetChangeable)
+  TMapsSetChangeableMainAndLayers = class(TChangeableWithSimpleLockBase, IMapTypeSetChangeable)
   private
     FMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
     FMainMap: IMapTypeChangeable;
     FLayersSet: IMapTypeSetChangeable;
 
     FStatic: IMapTypeSet;
-    FStaticCS: IReadWriteSync;
 
     FListener: IListener;
 
@@ -84,8 +82,7 @@ implementation
 
 uses
   i_GUIDListStatic,
-  u_ListenerByEvent,
-  u_Synchronizer;
+  u_ListenerByEvent;
 
 { TLayerSetChangeableByConfig }
 
@@ -97,12 +94,11 @@ constructor TLayerSetChangeableByConfig.Create(
 begin
   Assert(Assigned(AMapTypeSetBuilderFactory));
   Assert(Assigned(AConfig));
-  inherited Create(GSync.SyncVariable.Make(ClassName + 'Notifiers'));
+  inherited Create;
   FMapTypeSetBuilderFactory := AMapTypeSetBuilderFactory;
   FLayersSet := ALayersSet;
   FConfig := AConfig;
   if Assigned(FLayersSet) then begin
-    FStaticCS := GSync.SyncVariable.Make(ClassName);
     FListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
     FConfig.ChangeNotifier.Add(FListener);
   end;
@@ -122,12 +118,12 @@ end;
 function TLayerSetChangeableByConfig.GetStatic: IMapTypeSet;
 begin
   Result := nil;
-  if Assigned(FStaticCS) then begin
-    FStaticCS.BeginRead;
+  if Assigned(CS) then begin
+    CS.BeginRead;
     try
       Result := FStatic;
     finally
-      FStaticCS.EndRead;
+      CS.EndRead;
     end;
   end;
 end;
@@ -157,7 +153,7 @@ begin
     VResult := nil;
   end;
   VChanged := False;
-  FStaticCS.BeginWrite;
+  CS.BeginWrite;
   try
     if Assigned(VResult) then begin
       if not VResult.IsEqual(FStatic) then begin
@@ -171,7 +167,7 @@ begin
       end;
     end;
   finally
-    FStaticCS.EndWrite;
+    CS.EndWrite;
   end;
   if VChanged then begin
     DoChangeNotify;
@@ -190,11 +186,10 @@ begin
   Assert(Assigned(AMapTypeSetBuilderFactory));
   Assert(Assigned(AMainMap));
   Assert(Assigned(ALayersSet));
-  inherited Create(GSync.SyncVariable.Make(ClassName + 'Notifiers'));
+  inherited Create;
   FMapTypeSetBuilderFactory := AMapTypeSetBuilderFactory;
   FMainMap := AMainMap;
   FLayersSet := ALayersSet;
-  FStaticCS := GSync.SyncVariable.Make(ClassName);
   FListener := TNotifyNoMmgEventListener.Create(Self.OnChange);
   FMainMap.ChangeNotifier.Add(FListener);
   FLayersSet.ChangeNotifier.Add(FListener);
@@ -218,11 +213,11 @@ end;
 
 function TMapsSetChangeableMainAndLayers.GetStatic: IMapTypeSet;
 begin
-  FStaticCS.BeginRead;
+  CS.BeginRead;
   try
     Result := FStatic;
   finally
-    FStaticCS.EndRead;
+    CS.EndRead;
   end;
 end;
 
@@ -247,14 +242,14 @@ begin
   VResultBuilder.Add(VMapType);
   VResult := VResultBuilder.MakeAndClear;
   VChanged := False;
-  FStaticCS.BeginWrite;
+  CS.BeginWrite;
   try
     if not VResult.IsEqual(FStatic) then begin
       FStatic := VResult;
       VChanged := True;
     end;
   finally
-    FStaticCS.EndWrite;
+    CS.EndWrite;
   end;
   if VChanged then begin
     DoChangeNotify;

@@ -34,7 +34,7 @@ uses
   u_ChangeableBase;
 
 type
-  TVectorTileRendererChangeableForVectorMaps = class(TChangeableBase, IVectorTileRendererChangeable)
+  TVectorTileRendererChangeableForVectorMaps = class(TChangeableWithSimpleLockBase, IVectorTileRendererChangeable)
   private
     FConfig: IVectorItemDrawConfig;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
@@ -43,7 +43,6 @@ type
 
     FLinksList: IListenerNotifierLinksList;
     FResult: IVectorTileRenderer;
-    FResultCS: IReadWriteSync;
     procedure OnConfigChange;
   protected
     function GetStatic: IVectorTileRenderer;
@@ -60,7 +59,6 @@ implementation
 
 uses
   u_ListenerByEvent,
-  u_Synchronizer,
   u_ListenerNotifierLinksList,
   u_VectorTileRenderer;
 
@@ -77,13 +75,12 @@ begin
   Assert(Assigned(APointMarker));
   Assert(Assigned(ABitmap32StaticFactory));
   Assert(Assigned(AProjectedProvider));
-  inherited Create(GSync.SyncVariable.Make(ClassName + '\Notifiers'));
+  inherited Create;
   FConfig := AConfig;
   FPointMarker := APointMarker;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FProjectedProvider := AProjectedProvider;
 
-  FResultCS := GSync.SyncVariable.Make(ClassName);
   FLinksList := TListenerNotifierLinksList.Create;
 
   FLinksList.Add(
@@ -101,11 +98,11 @@ end;
 
 function TVectorTileRendererChangeableForVectorMaps.GetStatic: IVectorTileRenderer;
 begin
-  FResultCS.BeginRead;
+  CS.BeginRead;
   try
     Result := FResult;
   finally
-    FResultCS.EndRead;
+    CS.EndRead;
   end;
 end;
 
@@ -125,11 +122,11 @@ begin
       FProjectedProvider
     );
 
-  FResultCS.BeginWrite;
+  CS.BeginWrite;
   try
     FResult := VResult;
   finally
-    FResultCS.EndWrite;
+    CS.EndWrite;
   end;
   DoChangeNotify;
 end;

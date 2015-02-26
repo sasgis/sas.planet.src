@@ -31,14 +31,13 @@ uses
   u_ChangeableBase;
 
 type
-  TMapTypeChangeableWithDefault = class(TChangeableBase, IMapTypeChangeable)
+  TMapTypeChangeableWithDefault = class(TChangeableWithSimpleLockBase, IMapTypeChangeable)
   private
     FMapsSet: IMapTypeSet;
     FParentMap: IMapTypeChangeable;
     FConfig: IActiveMapConfig;
 
     FStatic: IMapType;
-    FStaticCS: IReadWriteSync;
 
     FListener: IListener;
     procedure OnChange;
@@ -57,8 +56,7 @@ implementation
 
 uses
   c_ZeroGUID,
-  u_ListenerByEvent,
-  u_Synchronizer;
+  u_ListenerByEvent;
 
 { TMapTypeChangeableWithDefault }
 
@@ -71,12 +69,11 @@ begin
   Assert(Assigned(AMapsSet));
   Assert(Assigned(AParentMap));
   Assert(Assigned(AConfig));
-  inherited Create(GSync.SyncVariable.Make(ClassName + 'Notifiers'));
+  inherited Create;
   FMapsSet := AMapsSet;
   FParentMap := AParentMap;
   FConfig := AConfig;
 
-  FStaticCS := GSync.SyncVariable.Make(ClassName);
   FListener := TNotifyNoMmgEventListener.Create(Self.OnChange);
   FConfig.ChangeNotifier.Add(FListener);
   FParentMap.ChangeNotifier.Add(FListener);
@@ -100,11 +97,11 @@ end;
 
 function TMapTypeChangeableWithDefault.GetStatic: IMapType;
 begin
-  FStaticCS.BeginRead;
+  CS.BeginRead;
   try
     Result := FStatic;
   finally
-    FStaticCS.EndRead;
+    CS.EndRead;
   end;
 end;
 
@@ -124,7 +121,7 @@ begin
   end;
 
   VChanged := False;
-  FStaticCS.BeginWrite;
+  CS.BeginWrite;
   try
     if not Assigned(FStatic) or not IsEqualGUID(VGUID, FStatic.GUID) then begin
       if not Assigned(VMapType) then begin
@@ -135,7 +132,7 @@ begin
       VChanged := True;
     end;
   finally
-    FStaticCS.EndWrite;
+    CS.EndWrite;
   end;
   if VChanged then begin
     DoChangeNotify;

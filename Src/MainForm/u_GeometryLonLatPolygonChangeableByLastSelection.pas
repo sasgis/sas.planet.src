@@ -32,7 +32,7 @@ uses
   u_ChangeableBase;
 
 type
-  TGeometryLonLatPolygonChangeableByLastSelection = class(TChangeableBase, IGeometryLonLatPolygonChangeable)
+  TGeometryLonLatPolygonChangeableByLastSelection = class(TChangeableWithSimpleLockBase, IGeometryLonLatPolygonChangeable)
   private
     FConfig: ILastSelectionLayerConfig;
     FLastSelectionInfo: ILastSelectionInfo;
@@ -40,7 +40,6 @@ type
     FSourceListener: IListener;
 
     FResult: IGeometryLonLatPolygon;
-    FResultCS: IReadWriteSync;
     procedure OnSourceChange;
   private
     function GetStatic: IGeometryLonLatPolygon;
@@ -55,8 +54,7 @@ type
 implementation
 
 uses
-  u_ListenerByEvent,
-  u_Synchronizer;
+  u_ListenerByEvent;
 
 { TGeometryLonLatPolygonChangeableByPolygonEdit }
 
@@ -67,12 +65,11 @@ constructor TGeometryLonLatPolygonChangeableByLastSelection.Create(
 begin
   Assert(Assigned(AConfig));
   Assert(Assigned(ALastSelectionInfo));
-  inherited Create(GSync.SyncVariable.Make(ClassName + 'Notifier'));
+  inherited Create;
 
   FConfig := AConfig;
   FLastSelectionInfo := ALastSelectionInfo;
   FSourceListener := TNotifyNoMmgEventListener.Create(Self.OnSourceChange);
-  FResultCS := GSync.SyncVariable.Make(ClassName);
 
   FConfig.ChangeNotifier.Add(FSourceListener);
   FLastSelectionInfo.ChangeNotifier.Add(FSourceListener);
@@ -93,11 +90,11 @@ end;
 
 function TGeometryLonLatPolygonChangeableByLastSelection.GetStatic: IGeometryLonLatPolygon;
 begin
-  FResultCS.BeginRead;
+  CS.BeginRead;
   try
     Result := FResult;
   finally
-    FResultCS.EndRead;
+    CS.EndRead;
   end;
 end;
 
@@ -106,7 +103,7 @@ var
   VResult: IGeometryLonLatPolygon;
   VChanged: Boolean;
 begin
-  FResultCS.BeginWrite;
+  CS.BeginWrite;
   try
     VResult := nil;
     if FConfig.Visible then begin
@@ -121,7 +118,7 @@ begin
       FResult := VResult;
     end;
   finally
-    FResultCS.EndWrite;
+    CS.EndWrite;
   end;
   if VChanged then begin
     DoChangeNotify;

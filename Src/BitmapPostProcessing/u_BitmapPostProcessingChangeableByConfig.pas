@@ -31,7 +31,7 @@ uses
   u_ChangeableBase;
 
 type
-  TBitmapPostProcessingChangeableByConfig = class(TChangeableBase, IBitmapPostProcessingChangeable)
+  TBitmapPostProcessingChangeableByConfig = class(TChangeableWithSimpleLockBase, IBitmapPostProcessingChangeable)
   private
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FConfig: IBitmapPostProcessingConfig;
@@ -39,7 +39,6 @@ type
     FPrevConfig: IBitmapPostProcessingConfigStatic;
     FStatic: IBitmapPostProcessing;
 
-    FCS: IReadWriteSync;
     procedure OnConfigChange;
     function CreateStatic(const AConfig: IBitmapPostProcessingConfigStatic): IBitmapPostProcessing;
   private
@@ -56,8 +55,7 @@ implementation
 
 uses
   u_BitmapPostProcessing,
-  u_ListenerByEvent,
-  u_Synchronizer;
+  u_ListenerByEvent;
 
 function BLimit(B: Integer): Byte;
 begin
@@ -142,14 +140,10 @@ constructor TBitmapPostProcessingChangeableByConfig.Create(
   const AConfig: IBitmapPostProcessingConfig;
   const ABitmap32StaticFactory: IBitmap32StaticFactory
 );
-var
-  VCS: IReadWriteSync;
 begin
   Assert(Assigned(AConfig));
   Assert(Assigned(ABitmap32StaticFactory));
-  VCS := GSync.SyncVariable.Make(ClassName);
-  inherited Create(VCS);
-  FCS := VCS;
+  inherited Create;
   FConfig := AConfig;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
@@ -196,11 +190,11 @@ end;
 
 function TBitmapPostProcessingChangeableByConfig.GetStatic: IBitmapPostProcessing;
 begin
-  FCS.BeginRead;
+  CS.BeginRead;
   try
     Result := FStatic;
   finally
-    FCS.EndRead;
+    CS.EndRead;
   end;
 end;
 
@@ -210,7 +204,7 @@ var
   VConfig: IBitmapPostProcessingConfigStatic;
 begin
   VNeedNotify := False;
-  FCS.BeginWrite;
+  CS.BeginWrite;
   try
     VConfig := FConfig.GetStatic;
     if VConfig <> FPrevConfig then begin
@@ -219,7 +213,7 @@ begin
       VNeedNotify := True;
     end;
   finally
-    FCS.EndWrite;
+    CS.EndWrite;
   end;
   if VNeedNotify then begin
     DoChangeNotify;

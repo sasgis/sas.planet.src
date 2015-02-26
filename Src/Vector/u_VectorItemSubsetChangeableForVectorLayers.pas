@@ -48,7 +48,7 @@ uses
   u_ChangeableBase;
 
 type
-  TVectorItemSubsetChangeableForVectorLayers = class(TChangeableBase, IVectorItemSubsetChangeable)
+  TVectorItemSubsetChangeableForVectorLayers = class(TChangeableWithSimpleLockBase, IVectorItemSubsetChangeable)
   private
     FLayersSet: IMapTypeSetChangeable;
     FErrorLogger: ITileErrorLogger;
@@ -72,9 +72,7 @@ type
 
     FDelicateUpdateFlag: ISimpleFlag;
 
-    FResultCS: IReadWriteSync;
     FResult: IVectorItemSubset;
-
 
     procedure OnAppStarted;
     procedure OnAppClosing;
@@ -157,7 +155,6 @@ uses
   u_TileIteratorByRect,
   u_TileErrorInfo,
   u_ResStrings,
-  u_Synchronizer,
   u_GeoFunc;
 
 { TVectorItemSubsetChangeableForVectorLayers }
@@ -177,7 +174,7 @@ begin
   Assert(Assigned(ALayersSet));
   Assert(Assigned(AErrorLogger));
   Assert(Assigned(AVectorItemSubsetBuilderFactory));
-  inherited Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifiers'));
+  inherited Create;
   FTileRect := ATileRect;
   FLayersSet := ALayersSet;
   FErrorLogger := AErrorLogger;
@@ -190,7 +187,6 @@ begin
   FAppClosingNotifier := AAppClosingNotifier;
 
   FDelicateUpdateFlag := TSimpleFlagWithInterlock.Create;
-  FResultCS := GSync.SyncVariable.Make(Self.ClassName);
   FLinksList := TListenerNotifierLinksList.Create;
   FAppStartedListener := TNotifyNoMmgEventListener.Create(Self.OnAppStarted);
   FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);
@@ -256,11 +252,11 @@ end;
 
 function TVectorItemSubsetChangeableForVectorLayers.GetStatic: IVectorItemSubset;
 begin
-  FResultCS.BeginRead;
+  CS.BeginRead;
   try
     Result := FResult;
   finally
-    FResultCS.EndRead;
+    CS.EndRead;
   end;
 end;
 
@@ -444,7 +440,7 @@ begin
         FSubsetPrepareCounter.FinishOperation(VCounterContext);
       end;
     end;
-    FResultCS.BeginWrite;
+    CS.BeginWrite;
     try
       if FResult = nil then begin
         VNeedNotify := (VResult <> nil) and (not VResult.IsEmpty);
@@ -453,7 +449,7 @@ begin
       end;
       FResult := VResult;
     finally
-      FResultCS.EndWrite;
+      CS.EndWrite;
     end;
     if VNeedNotify then begin
       DoChangeNotify;

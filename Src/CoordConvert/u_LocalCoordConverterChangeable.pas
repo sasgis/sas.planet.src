@@ -30,10 +30,9 @@ uses
   u_ChangeableBase;
 
 type
-  TLocalCoordConverterChangeable = class(TChangeableBase, ILocalCoordConverterChangeable, ILocalCoordConverterChangeableInternal)
+  TLocalCoordConverterChangeable = class(TChangeableWithSimpleLockBase, ILocalCoordConverterChangeable, ILocalCoordConverterChangeableInternal)
   private
     FConverter: ILocalCoordConverter;
-    FCS: IReadWriteSync;
     FChangeCounter: IInternalPerformanceCounter;
   private
     function GetStatic: ILocalCoordConverter;
@@ -49,21 +48,14 @@ type
 
 implementation
 
-uses
-  u_Synchronizer;
-
 { TLocalCoordConverterChangeable }
 
 constructor TLocalCoordConverterChangeable.Create(
   const ASource: ILocalCoordConverter;
   const AChangeCounter: IInternalPerformanceCounter
 );
-var
-  VCS: IReadWriteSync;
 begin
-  VCS := GSync.SyncVariable.Make(ClassName);
-  inherited Create(VCS);
-  FCS := VCS;
+  inherited Create;
   FConverter := ASource;
   FChangeCounter := AChangeCounter;
 end;
@@ -82,11 +74,11 @@ end;
 
 function TLocalCoordConverterChangeable.GetStatic: ILocalCoordConverter;
 begin
-  FCS.BeginRead;
+  CS.BeginRead;
   try
     Result := FConverter;
   finally
-    FCS.EndRead;
+    CS.EndRead;
   end;
 end;
 
@@ -97,7 +89,7 @@ var
   VNeedNotify: Boolean;
 begin
   VNeedNotify := False;
-  FCS.BeginWrite;
+  CS.BeginWrite;
   try
     if (Assigned(FConverter) and not FConverter.GetIsSameConverter(AValue))
       or (Assigned(AValue) and not Assigned(FConverter))
@@ -106,7 +98,7 @@ begin
       VNeedNotify := True;
     end;
   finally
-    FCS.EndWrite;
+    CS.EndWrite;
   end;
   if VNeedNotify then begin
     DoChangeNotify;

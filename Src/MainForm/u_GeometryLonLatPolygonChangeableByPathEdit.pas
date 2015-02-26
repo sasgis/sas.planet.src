@@ -35,7 +35,7 @@ uses
   u_ChangeableBase;
 
 type
-  TGeometryLonLatPolygonChangeableByPathEdit = class(TChangeableBase, IGeometryLonLatPolygonChangeable)
+  TGeometryLonLatPolygonChangeableByPathEdit = class(TChangeableWithSimpleLockBase, IGeometryLonLatPolygonChangeable)
   private
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FConverter: ILocalCoordConverterChangeable;
@@ -47,7 +47,6 @@ type
     FLastProjection: IProjectionInfo;
     FLastRadius: Double;
     FResult: IGeometryLonLatPolygon;
-    FResultCS: IReadWriteSync;
     procedure OnSourceChange;
     function PolygonByLine(
       const ALine: IGeometryLonLatLine;
@@ -72,8 +71,7 @@ uses
   i_LocalCoordConverter,
   i_DoublePointFilter,
   u_EnumDoublePointLine2Poly,
-  u_ListenerByEvent,
-  u_Synchronizer;
+  u_ListenerByEvent;
 
 { TGeometryLonLatLineChangeableByPathEdit }
 
@@ -88,14 +86,13 @@ begin
   Assert(Assigned(AConverter));
   Assert(Assigned(ASource));
   Assert(Assigned(AConfig));
-  inherited Create(GSync.SyncVariable.Make(ClassName + 'Notifier'));
+  inherited Create;
 
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FConverter := AConverter;
   FSource := ASource;
   FConfig := AConfig;
   FSourceListener := TNotifyNoMmgEventListener.Create(Self.OnSourceChange);
-  FResultCS := GSync.SyncVariable.Make(ClassName);
   FLastLine := nil;
   FLastRadius := 0;
 
@@ -123,11 +120,11 @@ end;
 
 function TGeometryLonLatPolygonChangeableByPathEdit.GetStatic: IGeometryLonLatPolygon;
 begin
-  FResultCS.BeginRead;
+  CS.BeginRead;
   try
     Result := FResult;
   finally
-    FResultCS.EndRead;
+    CS.EndRead;
   end;
 end;
 
@@ -141,7 +138,7 @@ var
   VResult: IGeometryLonLatPolygon;
   VChanged: Boolean;
 begin
-  FResultCS.BeginWrite;
+  CS.BeginWrite;
   try
     VResult := nil;
     VPath := FSource.Path;
@@ -196,7 +193,7 @@ begin
       FResult := VResult;
     end;
   finally
-    FResultCS.EndWrite;
+    CS.EndWrite;
   end;
   if VChanged then begin
     DoChangeNotify;

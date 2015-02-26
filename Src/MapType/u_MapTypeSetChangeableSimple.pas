@@ -34,10 +34,9 @@ type
     procedure SetStatic(const AValue: IMapTypeSet);
   end;
 
-  TMapTypeSetChangeableSimple = class(TChangeableBase, IMapTypeSetChangeable, IMapTypeSetChangeableSimpleInternal)
+  TMapTypeSetChangeableSimple = class(TChangeableWithSimpleLockBase, IMapTypeSetChangeable, IMapTypeSetChangeableSimpleInternal)
   private
     FMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
-    FCS: IReadWriteSync;
     FStatic: IMapTypeSet;
   private
     function GetStatic: IMapTypeSet;
@@ -52,9 +51,6 @@ type
 
 implementation
 
-uses
-  u_Synchronizer;
-
 { TMapTypeSetChangeableSimple }
 
 constructor TMapTypeSetChangeableSimple.Create(
@@ -62,19 +58,18 @@ constructor TMapTypeSetChangeableSimple.Create(
   const ACurrentSet: IMapTypeSet
 );
 begin
-  inherited Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifiers'));
+  inherited Create;
   FMapTypeSetBuilderFactory := AMapTypeSetBuilderFactory;
-  FCS := GSync.SyncVariable.Make(Self.ClassName);
   SetStatic(ACurrentSet);
 end;
 
 function TMapTypeSetChangeableSimple.GetStatic: IMapTypeSet;
 begin
-  FCS.BeginRead;
+  CS.BeginRead;
   try
     Result := FStatic;
   finally
-    FCS.EndRead;
+    CS.EndRead;
   end;
 end;
 
@@ -82,7 +77,7 @@ procedure TMapTypeSetChangeableSimple.SetStatic(const AValue: IMapTypeSet);
 var
   VList: IMapTypeSetBuilder;
 begin
-  FCS.BeginWrite;
+  CS.BeginWrite;
   try
     if AValue = nil then begin
       VList := FMapTypeSetBuilderFactory.Build(False);
@@ -91,7 +86,7 @@ begin
       FStatic := AValue;
     end;
   finally
-    FCS.EndWrite;
+    CS.EndWrite;
   end;
 end;
 

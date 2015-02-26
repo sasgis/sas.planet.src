@@ -30,9 +30,8 @@ uses
   u_ChangeableBase;
 
 type
-  TBatteryStatus = class(TChangeableBase, IBatteryStatus)
+  TBatteryStatus = class(TChangeableWithSimpleLockBase, IBatteryStatus)
   private
-    FLock: IReadWriteSync;
     FTimer: TTimer;
     FStatic: IBatteryStatusStatic;
 
@@ -47,7 +46,6 @@ type
 implementation
 
 uses
-  u_Synchronizer,
   u_BaseInterfacedObject;
 
 type
@@ -109,8 +107,7 @@ end;
 
 constructor TBatteryStatus.Create;
 begin
-  inherited Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifiers'));
-  FLock := GSync.SyncVariable.Make(Self.ClassName);
+  inherited Create;
   FTimer := TTimer.Create(nil);
   FTimer.Interval := 1000;
   FTimer.OnTimer := Self.OnTimer;
@@ -126,11 +123,11 @@ end;
 
 function TBatteryStatus.GetStatic: IBatteryStatusStatic;
 begin
-  FLock.BeginRead;
+  CS.BeginRead;
   try
     Result := FStatic;
   finally
-    FLock.EndRead;
+    CS.EndRead;
   end;
 end;
 
@@ -149,7 +146,7 @@ begin
     (sps.BatteryLifePercent <> VStatic.BatteryLifePercent) or
     (sps.BatteryFullLifeTime <> VStatic.BatteryLifeTime);
   if VChanged then begin
-    FLock.BeginWrite;
+    CS.BeginWrite;
     try
       FStatic :=
         TBatteryStatusStatic.Create(
@@ -159,7 +156,7 @@ begin
           sps.BatteryFullLifeTime
         );
     finally
-      FLock.EndWrite;
+      CS.EndWrite;
     end;
     DoChangeNotify;
   end;

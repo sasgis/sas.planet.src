@@ -31,13 +31,12 @@ uses
   u_ChangeableBase;
 
 type
-  TGeometryLonLatPolygonChangeableByPolygonEdit = class(TChangeableBase, IGeometryLonLatPolygonChangeable)
+  TGeometryLonLatPolygonChangeableByPolygonEdit = class(TChangeableWithSimpleLockBase, IGeometryLonLatPolygonChangeable)
   private
     FSource: IPolygonOnMapEdit;
     FSourceListener: IListener;
 
     FResult: IGeometryLonLatPolygon;
-    FResultCS: IReadWriteSync;
     procedure OnSourceChange;
   private
     function GetStatic: IGeometryLonLatPolygon;
@@ -51,8 +50,7 @@ type
 implementation
 
 uses
-  u_ListenerByEvent,
-  u_Synchronizer;
+  u_ListenerByEvent;
 
 { TGeometryLonLatPolygonChangeableByPolygonEdit }
 
@@ -61,11 +59,10 @@ constructor TGeometryLonLatPolygonChangeableByPolygonEdit.Create(
 );
 begin
   Assert(Assigned(ASource));
-  inherited Create(GSync.SyncVariable.Make(ClassName + 'Notifier'));
+  inherited Create;
 
   FSource := ASource;
   FSourceListener := TNotifyNoMmgEventListener.Create(Self.OnSourceChange);
-  FResultCS := GSync.SyncVariable.Make(ClassName);
 
   FSource.ChangeNotifier.Add(FSourceListener);
 end;
@@ -82,11 +79,11 @@ end;
 
 function TGeometryLonLatPolygonChangeableByPolygonEdit.GetStatic: IGeometryLonLatPolygon;
 begin
-  FResultCS.BeginRead;
+  CS.BeginRead;
   try
     Result := FResult;
   finally
-    FResultCS.EndRead;
+    CS.EndRead;
   end;
 end;
 
@@ -96,7 +93,7 @@ var
   VResult: IGeometryLonLatPolygon;
   VChanged: Boolean;
 begin
-  FResultCS.BeginWrite;
+  CS.BeginWrite;
   try
     VResult := nil;
     VPath := FSource.Polygon;
@@ -112,7 +109,7 @@ begin
       FResult := VResult;
     end;
   finally
-    FResultCS.EndWrite;
+    CS.EndWrite;
   end;
   if VChanged then begin
     DoChangeNotify;

@@ -32,12 +32,11 @@ uses
   u_ChangeableBase;
 
 type
-  TVectorItemSubsetChangeableBySearchResult = class(TChangeableBase, IVectorItemSubsetChangeable)
+  TVectorItemSubsetChangeableBySearchResult = class(TChangeableWithSimpleLockBase, IVectorItemSubsetChangeable)
   private
     FLastSearchResults: ILastSearchResult;
     FSearchResultListener: IListener;
 
-    FResultCS: IReadWriteSync;
     FResult: IVectorItemSubset;
     procedure OnSearchResultChange;
   private
@@ -52,8 +51,7 @@ type
 implementation
 
 uses
-  u_ListenerByEvent,
-  u_Synchronizer;
+  u_ListenerByEvent;
 
 { TVectorItemSubsetChangeableBySearchResult }
 
@@ -62,10 +60,9 @@ constructor TVectorItemSubsetChangeableBySearchResult.Create(
 );
 begin
   Assert(Assigned(ALastSearchResults));
-  inherited Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifiers'));
+  inherited Create;
   FLastSearchResults := ALastSearchResults;
 
-  FResultCS := GSync.SyncVariable.Make(Self.ClassName);
   FSearchResultListener := TNotifyNoMmgEventListener.Create(Self.OnSearchResultChange);
   FLastSearchResults.ChangeNotifier.Add(FSearchResultListener);
 end;
@@ -83,11 +80,11 @@ end;
 
 function TVectorItemSubsetChangeableBySearchResult.GetStatic: IVectorItemSubset;
 begin
-  FResultCS.BeginRead;
+  CS.BeginRead;
   try
     Result := FResult;
   finally
-    FResultCS.EndRead;
+    CS.EndRead;
   end;
 end;
 
@@ -99,7 +96,7 @@ begin
   VNewResult := nil;
   VNewResult := FLastSearchResults.GeoCodeResult;
 
-  FResultCS.BeginWrite;
+  CS.BeginWrite;
   try
     if FResult <> nil then begin
       VNeedNotify := not FResult.IsEqual(VNewResult);
@@ -110,7 +107,7 @@ begin
       FResult := VNewResult;
     end;
   finally
-    FResultCS.EndWrite;
+    CS.EndWrite;
   end;
   if VNeedNotify then begin
     DoChangeNotify;

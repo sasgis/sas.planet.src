@@ -43,7 +43,7 @@ uses
   u_ChangeableBase;
 
 type
-  TBitmapTileMatrixChangeableByVectorMatrix = class(TChangeableBase, IBitmapTileMatrixChangeable)
+  TBitmapTileMatrixChangeableByVectorMatrix = class(TChangeableWithSimpleLockBase, IBitmapTileMatrixChangeable)
   private
     FAppStartedNotifier: INotifierOneOperation;
     FAppClosingNotifier: INotifierOneOperation;
@@ -67,7 +67,6 @@ type
     FPreparedBitmapMatrix: IBitmapTileMatrixBuilder;
 
     FResult: IBitmapTileMatrix;
-    FResultCS: IReadWriteSync;
 
     procedure OnAppStarted;
     procedure OnAppClosing;
@@ -114,8 +113,7 @@ uses
   u_TileIteratorSpiralByRect,
   u_HashTileMatrixBuilder,
   u_BitmapTileMatrixBuilder,
-  u_BackgroundTask,
-  u_Synchronizer;
+  u_BackgroundTask;
 
 { TBitmapTileMatrixChangeableByVectorMatrix }
 
@@ -142,16 +140,13 @@ begin
   if VDebugName = '' then begin
     VDebugName := Self.ClassName;
   end;
-  inherited Create(GSync.SyncVariable.Make(VDebugName + '\Notifiers'));
+  inherited Create;
 
   FAppStartedNotifier := AAppStartedNotifier;
   FAppClosingNotifier := AAppClosingNotifier;
   FTileRenderer := ATileRenderer;
   FSourceTileMatrix := ASourceTileMatrix;
   FDebugName := VDebugName;
-
-
-  FResultCS := GSync.SyncVariable.Make(FDebugName + '\Result');
 
   FIsNeedFullUpdate := TSimpleFlagWithInterlock.Create;
   FSourceTileMatrixListener := TNotifyNoMmgEventListener.Create(Self.OnSourceTileMatrixChange);
@@ -212,11 +207,11 @@ end;
 
 function TBitmapTileMatrixChangeableByVectorMatrix.GetStatic: IBitmapTileMatrix;
 begin
-  FResultCS.BeginRead;
+  CS.BeginRead;
   try
     Result := FResult;
   finally
-    FResultCS.EndRead;
+    CS.EndRead;
   end;
 end;
 
@@ -353,7 +348,7 @@ begin
   VCounterContext := FUpdateResultCounter.StartOperation;
   try
     VResult := FPreparedBitmapMatrix.MakeStatic;
-    FResultCS.BeginWrite;
+    CS.BeginWrite;
     try
       if Assigned(VResult) then begin
         if Assigned(FResult) then begin
@@ -376,7 +371,7 @@ begin
         end;
       end;
     finally
-      FResultCS.EndWrite;
+      CS.EndWrite;
     end;
     if VChanged then begin
       DoChangeNotify;
