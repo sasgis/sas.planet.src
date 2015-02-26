@@ -25,10 +25,10 @@ interface
 uses
   i_ListenerNotifierLinksList,
   i_StringConfigDataElement,
-  u_ConfigDataElementBase;
+  u_ChangeableBase;
 
 type
-  TUserInterfaceItemBase = class(TConfigDataElementBaseEmptySaveLoad)
+  TUserInterfaceItemBase = class(TChangeableWithSimpleLockBase)
   private
     FGUID: TGUID;
     FCaption: IStringConfigDataElement;
@@ -112,12 +112,7 @@ end;
 
 procedure TUserInterfaceItemBase.OnTextChange;
 begin
-  LockWrite;
-  try
-    SetChanged;
-  finally
-    UnlockWrite;
-  end;
+  DoChangeNotify;
 end;
 
 end.
