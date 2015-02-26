@@ -25,10 +25,10 @@ interface
 uses
   i_LastSelectionInfo,
   i_GeometryLonLat,
-  u_ConfigDataElementBase;
+  u_ChangeableBase;
 
 type
-  TLastSelectionInfo = class(TConfigDataElementBaseEmptySaveLoad, ILastSelectionInfo)
+  TLastSelectionInfo = class(TChangeableWithSimpleLockBase, ILastSelectionInfo)
   private
     // Полигон последнего выделения при операциях с областью.
     FPolygon: IGeometryLonLatPolygon;
@@ -58,21 +58,21 @@ end;
 
 function TLastSelectionInfo.GetPolygon: IGeometryLonLatPolygon;
 begin
-  LockRead;
+  CS.BeginRead;
   try
     Result := FPolygon;
   finally
-    UnlockRead;
+    CS.EndRead;
   end;
 end;
 
 function TLastSelectionInfo.GetZoom: Byte;
 begin
-  LockRead;
+  CS.BeginRead;
   try
     Result := FZoom;
   finally
-    UnlockRead;
+    CS.EndRead;
   end;
 end;
 
@@ -81,14 +81,14 @@ procedure TLastSelectionInfo.SetPolygon(
   AZoom: Byte
 );
 begin
-  LockWrite;
+  CS.BeginWrite;
   try
     FPolygon := ALonLatPolygon;
     FZoom := AZoom;
-    SetChanged;
   finally
-    UnlockWrite;
+    CS.EndWrite;
   end;
+  DoChangeNotify;
 end;
 
 end.
