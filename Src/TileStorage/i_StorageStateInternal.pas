@@ -25,10 +25,10 @@ interface
 uses
   t_CommonTypes,
   i_StorageState,
-  i_ConfigDataElement;
+  i_Changeable;
 
 type
-  IStorageStateInternal = interface(IConfigDataElement)
+  IStorageStateInternal = interface(IChangeable)
     ['{1ABE492B-E945-4921-AA99-709090CF62F5}']
     function GetReadAccess: TAccesState;
     procedure SetReadAccess(AValue: TAccesState);
