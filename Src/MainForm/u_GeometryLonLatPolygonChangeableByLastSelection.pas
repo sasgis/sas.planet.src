@@ -113,7 +113,7 @@ begin
       VResult := FLastSelectionInfo.Polygon;
     end;
     if Assigned(VResult) then begin
-      VChanged := VResult.IsSameGeometry(FResult);
+      VChanged := not VResult.IsSameGeometry(FResult);
     end else begin
       VChanged := Assigned(FResult);
     end;
