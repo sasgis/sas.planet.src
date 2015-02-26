@@ -31,11 +31,11 @@ uses
   i_MarkSystemImplFactory,
   i_MarkSystemImpl,
   i_MarkSystemImplChangeable,
-  u_ConfigDataElementBase,
+  u_ChangeableBase,
   u_ReadWriteStateInternalByOther;
 
 type
-  TMarkSystemImplChangeable = class(TConfigDataElementBaseEmptySaveLoad, IMarkSystemImplChangeable)
+  TMarkSystemImplChangeable = class(TChangeableWithSimpleLockBase, IMarkSystemImplChangeable)
   private
     FBasePath: IPathConfig;
     FBaseFactory: IMarkSystemImplFactoryChangeable;
@@ -155,7 +155,7 @@ begin
         );
     end;
   end;
-  LockWrite;
+  CS.BeginWrite;
   try
     FStatic := VStatic;
     if Assigned(VStatic) and Assigned(VFactory) then begin
@@ -163,10 +163,10 @@ begin
     end else begin
       FStateInternal.SetOther(nil);
     end;
-    SetChanged;
   finally
-    UnlockWrite;
+    CS.EndWrite;
   end;
+  DoChangeNotify;
 end;
 
 function TMarkSystemImplChangeable.GetState: IReadWriteStateChangeble;
@@ -176,11 +176,11 @@ end;
 
 function TMarkSystemImplChangeable.GetStatic: IMarkSystemImpl;
 begin
-  LockRead;
+  CS.BeginRead;
   try
     Result := FStatic;
   finally
-    UnlockRead;
+    CS.EndRead;
   end;
 end;
 
