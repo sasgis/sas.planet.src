@@ -148,6 +148,7 @@ begin
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FConfig.ChangeNotifier.Add(FConfigChangeListener);
+  OnConfigChange;
 end;
 
 function TBitmapPostProcessingChangeableByConfig.CreateStatic(
