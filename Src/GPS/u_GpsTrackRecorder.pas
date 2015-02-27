@@ -30,7 +30,7 @@ uses
   i_PathConfig,
   i_GPS,
   i_GPSRecorder,
-  u_ConfigDataElementBase;
+  u_ChangeableBase;
 
 type
   ITrackPoitnsBlock = interface
@@ -53,7 +53,7 @@ type
   end;
 
 type
-  TGpsTrackRecorder = class(TConfigDataElementBaseEmptySaveLoad, IGpsTrackRecorder, IGpsTrackRecorderInternal)
+  TGpsTrackRecorder = class(TChangeableWithSimpleLockBase, IGpsTrackRecorder, IGpsTrackRecorderInternal)
   private
     FDataFile: IPathConfig;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
@@ -64,6 +64,7 @@ type
     FLastPositionOK: Boolean;
 
     procedure _AddPointInternal(const APoint: TGPSTrackPoint);
+    function _AddEmptyPointInternal: Boolean;
   private
     procedure Load;
     procedure Save;
@@ -458,27 +459,25 @@ end;
 
 procedure TGpsTrackRecorder.AddEmptyPoint;
 var
-  VPoint: TGPSTrackPoint;
+  VNeedNotify: Boolean;
 begin
-  VPoint.Point := CEmptyDoublePoint;
-  VPoint.Speed := 0;
-  VPoint.Time := NaN;
-  LockWrite;
+  CS.BeginWrite;
   try
-    if (FLastPositionOK) then begin
-      _AddPointInternal(VPoint);
-      FLastPositionOK := False;
-      SetChanged;
-    end;
+    VNeedNotify := _AddEmptyPointInternal;
   finally
-    UnlockWrite;
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
 procedure TGpsTrackRecorder.AddPoint(const APosition: IGPSPosition);
 var
   VPoint: TGPSTrackPoint;
+  VNeedNotify: Boolean;
 begin
+  VNeedNotify := False;
   if APosition.PositionOK then begin
     VPoint.Point := APosition.LonLat;
   end else begin
@@ -496,15 +495,33 @@ begin
   end else begin
     VPoint.Speed := APosition.Speed_KMH;
   end;
-  LockWrite;
+  CS.BeginWrite;
   try
     if FLastPositionOK or APosition.PositionOK then begin
       _AddPointInternal(VPoint);
       FLastPositionOK := APosition.PositionOK;
-      SetChanged;
+      VNeedNotify := True;
     end;
   finally
-    UnlockWrite;
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
+  end;
+end;
+
+function TGpsTrackRecorder._AddEmptyPointInternal: Boolean;
+var
+  VPoint: TGPSTrackPoint;
+begin
+  Result := False;
+  if (FLastPositionOK) then begin
+    VPoint.Point := CEmptyDoublePoint;
+    VPoint.Speed := 0;
+    VPoint.Time := NaN;
+    _AddPointInternal(VPoint);
+    FLastPositionOK := False;
+    Result := True;
   end;
 end;
 
@@ -528,18 +545,24 @@ begin
 end;
 
 procedure TGpsTrackRecorder.ClearTrack;
+var
+  VNeedNotify: Boolean;
 begin
-  LockWrite;
+  VNeedNotify := False;
+  CS.BeginWrite;
   try
     if FTrack <> nil then begin
       FTrack := TTrackPointsBlocksListStatic.Create;
       FLastBlock := nil;
       FPointsInBlockCount := 0;
       FLastPositionOK := False;
-      SetChanged;
+      VNeedNotify := True;
     end;
   finally
-    UnlockWrite;
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
@@ -548,7 +571,7 @@ var
   VTrackPointsEnum: IEnumGPSTrackPoint;
   VPointsEnum: IEnumLonLatPoint;
 begin
-  LockRead;
+  CS.BeginRead;
   try
     VTrackPointsEnum :=
       TEnumGPSTrackPointByBlocksList.Create(
@@ -559,17 +582,17 @@ begin
       TEnumTrackPointsByEnumGPSTrackPoint.Create(VTrackPointsEnum);
     Result := FVectorGeometryLonLatFactory.CreateLonLatMultiLineByEnum(VPointsEnum);
   finally
-    UnlockRead;
+    CS.EndRead;
   end;
 end;
 
 function TGpsTrackRecorder.IsEmpty: Boolean;
 begin
-  LockRead;
+  CS.BeginRead;
   try
     Result := FLastBlock <> nil;
   finally
-    UnlockRead;
+    CS.EndRead;
   end;
 end;
 
@@ -586,7 +609,7 @@ begin
   if VPointsLeft < 0 then begin
     VPointsLeft := 0;
   end;
-  LockRead;
+  CS.BeginRead;
   try
     if (VPointsLeft <= 0) or ((FTrack.Count = 1) and (FPointsInBlockCount = 0)) then begin
       Result := TEnumGPSTrackPointEmpty.Create;
@@ -614,7 +637,7 @@ begin
       end;
     end;
   finally
-    UnlockRead;
+    CS.EndRead;
   end;
 end;
 
@@ -624,48 +647,57 @@ var
   VStream: TStream;
   VPoint: TGPSTrackPoint;
   VVersion: Integer;
+  VNeedNotify: Boolean;
 begin
-  inherited;
-  VFileName := FDataFile.FullPath;
-  if FileExists(VFileName) then begin
-    try
-      VStream := TFileStream.Create(VFileName, fmOpenRead);
+  VNeedNotify := False;
+  CS.BeginWrite;
+  try
+    VFileName := FDataFile.FullPath;
+    if FileExists(VFileName) then begin
       try
-        if VStream.Read(VVersion, SizeOf(VVersion)) = SizeOf(VVersion) then begin
-          if VVersion = CVersionMagicID then begin
-            while True do begin
-              if VStream.Read(VPoint.Point.X, SizeOf(VPoint.Point.X)) <> SizeOf(VPoint.Point.X) then begin
-                AddEmptyPoint;
-                Break;
-              end;
-              if VStream.Read(VPoint.Point.Y, SizeOf(VPoint.Point.Y)) <> SizeOf(VPoint.Point.Y) then begin
-                AddEmptyPoint;
-                Break;
-              end;
-              if VStream.Read(VPoint.Speed, SizeOf(VPoint.Speed)) <> SizeOf(VPoint.Speed) then begin
-                AddEmptyPoint;
-                Break;
-              end;
-              if VStream.Read(VPoint.Time, SizeOf(VPoint.Time)) <> SizeOf(VPoint.Time) then begin
-                AddEmptyPoint;
-                Break;
-              end;
-              if PointIsEmpty(VPoint.Point) then begin
-                AddEmptyPoint;
-              end else begin
-                _AddPointInternal(VPoint);
-                FLastPositionOK := True;
-                SetChanged;
+        VStream := TFileStream.Create(VFileName, fmOpenRead);
+        try
+          if VStream.Read(VVersion, SizeOf(VVersion)) = SizeOf(VVersion) then begin
+            if VVersion = CVersionMagicID then begin
+              while True do begin
+                if VStream.Read(VPoint.Point.X, SizeOf(VPoint.Point.X)) <> SizeOf(VPoint.Point.X) then begin
+                  _AddEmptyPointInternal;
+                  Break;
+                end;
+                if VStream.Read(VPoint.Point.Y, SizeOf(VPoint.Point.Y)) <> SizeOf(VPoint.Point.Y) then begin
+                  _AddEmptyPointInternal;
+                  Break;
+                end;
+                if VStream.Read(VPoint.Speed, SizeOf(VPoint.Speed)) <> SizeOf(VPoint.Speed) then begin
+                  _AddEmptyPointInternal;
+                  Break;
+                end;
+                if VStream.Read(VPoint.Time, SizeOf(VPoint.Time)) <> SizeOf(VPoint.Time) then begin
+                  _AddEmptyPointInternal;
+                  Break;
+                end;
+                if PointIsEmpty(VPoint.Point) then begin
+                  _AddEmptyPointInternal;
+                end else begin
+                  _AddPointInternal(VPoint);
+                  FLastPositionOK := True;
+                  VNeedNotify := True;
+                end;
               end;
             end;
           end;
+        finally
+          VStream.Free;
         end;
-      finally
-        VStream.Free;
+      except
+        Assert(False, 'Exception on GPSRecorder read');
       end;
-    except
-      Assert(False, 'Exception on GPSRecorder read');
     end;
+  finally
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
@@ -677,7 +709,6 @@ var
   VPoint: TGPSTrackPoint;
   VVersion: Integer;
 begin
-  inherited;
   VFileName := FDataFile.FullPath;
   try
     VStream := nil;
