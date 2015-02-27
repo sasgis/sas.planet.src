@@ -28,10 +28,10 @@ uses
   i_SelectionRect,
   i_LocalCoordConverterChangeable,
   i_MapLayerGridsConfig,
-  u_ConfigDataElementBase;
+  u_ChangeableBase;
 
 type
-  TSelectionRect = class(TConfigDataElementBaseEmptySaveLoad, ISelectionRect)
+  TSelectionRect = class(TChangeableWithSimpleLockBase, ISelectionRect)
   private
     FViewPortState: ILocalCoordConverterChangeable;
     FTileGridConfig: ITileGridConfig;
@@ -90,21 +90,21 @@ end;
 
 function TSelectionRect.GetRect: TDoubleRect;
 begin
-  LockRead;
+  CS.BeginRead;
   try
     Result := FResultRect;
   finally
-    UnlockRead;
+    CS.EndRead;
   end;
 end;
 
 function TSelectionRect.IsEmpty: Boolean;
 begin
-  LockRead;
+  CS.BeginRead;
   try
     Result := FIsEmpty;
   finally
-    UnlockRead;
+    CS.EndRead;
   end;
 end;
 
@@ -150,8 +150,11 @@ begin
 end;
 
 procedure TSelectionRect.Reset;
+var
+  VNeedNotify: Boolean;
 begin
-  LockWrite;
+  VNeedNotify := False;
+  CS.BeginWrite;
   try
     if not FIsEmpty then begin
       FFirstPoint.X := 0;
@@ -161,10 +164,13 @@ begin
       FResultRect.TopLeft := FFirstPoint;
       FResultRect.BottomRight := FSecondPoint;
       FIsEmpty := True;
-      SetChanged;
+      VNeedNotify := True;
     end;
   finally
-    UnlockWrite;
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
@@ -174,8 +180,11 @@ procedure TSelectionRect.SetNextPoint(
 );
 var
   VNewRect: TDoubleRect;
+var
+  VNeedNotify: Boolean;
 begin
-  LockWrite;
+  VNeedNotify := False;
+  CS.BeginWrite;
   try
     if FIsEmpty then begin
       FIsEmpty := False;
@@ -183,18 +192,21 @@ begin
       FSecondPoint := ALonLat;
       FShift := Shift;
       FResultRect := PrepareSelectionRect(FFirstPoint, FSecondPoint, FShift);
-      SetChanged;
+      VNeedNotify := True;
     end else begin
       FSecondPoint := ALonLat;
       FShift := Shift;
       VNewRect := PrepareSelectionRect(FFirstPoint, FSecondPoint, FShift);
       if not DoubleRectsEqual(FResultRect, VNewRect) then begin
         FResultRect := VNewRect;
-        SetChanged;
+        VNeedNotify := True;
       end;
     end;
   finally
-    UnlockWrite;
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
