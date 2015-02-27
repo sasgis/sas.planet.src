@@ -30,7 +30,7 @@ uses
   u_ConfigDataElementBase;
 
 type
-  TMapSvcScanConfig = class(TConfigDataElementBaseEmptySaveLoad, IMapSvcScanConfig)
+  TMapSvcScanConfig = class(TConfigDataElementBase, IMapSvcScanConfig)
   private
     FMapSvcScanPath: IPathConfig;
     FUseStorage: Boolean;
