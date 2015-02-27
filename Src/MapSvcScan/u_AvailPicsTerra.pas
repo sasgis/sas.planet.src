@@ -122,6 +122,12 @@ function TAvailPicsTerraserver.ParseResponse(const AResultOk: IDownloadResultOk)
       Exit
     end;
 
+    //skip  "<option value='0.336'>0.03km&sup2;</option>"+
+    if GetBetween(AOptionText, '>', '&sup2;') <> '' then begin
+      Result := FALSE;
+      Exit
+    end;
+
     // value='dg,4c0512fac553a1d9cf226b003610efad'  selected='selected'  >5/22/2011
     VValue := GetBetween(AOptionText, '>', '&nbsp;');
 
@@ -232,6 +238,7 @@ begin
     // search for:
     // <option value='dg,26410504ede5bddf1bbc7aba966ab61e'  selected='selected'  >9/17/2012&nbsp;-&nbsp;0.5m&nbsp;</option>
     // <option value='dg,f09a1d6be635f037f9b2a079ea57040b'  >7/19/2010</option>
+
     while (VResponse.Count>0) do begin
       S := Trim(VResponse[0]);
       S := GetBetween(S, '<option', '</option>');
@@ -264,7 +271,7 @@ begin
           'cx=' + RoundEx(FTileInfoPtr.LonLat.X, 4) +
           '&cy=' + RoundEx(FTileInfoPtr.LonLat.Y, 4) +
           '&mpp=5' +
-          '&proj=4326&pic=img&prov=-1&stac=-1&ovrl=-1&drwl=' +
+          '&proj=4326&pic=img&prov=-1&stac=-1&ovrl=-1&drwl=&ms=km' +
           '&lgin=' + _RandInt5 +
           '&styp=&vic=';
  Result := TDownloadRequest.Create(
