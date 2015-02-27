@@ -30,10 +30,10 @@ uses
   i_PathConfig,
   i_GPS,
   i_GPSRecorder,
-  u_ConfigDataElementBase;
+  u_ChangeableBase;
 
 type
-  TGPSRecorder = class(TConfigDataElementBaseEmptySaveLoad, IGPSRecorder, IGPSRecorderInternal)
+  TGPSRecorder = class(TChangeableWithSimpleLockBase, IGPSRecorder, IGPSRecorderInternal)
   private
     FDataFile: IPathConfig;
     FDatum: IDatum;
@@ -115,27 +115,36 @@ var
   VIniFile: TMemIniFile;
   VData: IConfigDataProvider;
   VSensorsData: IConfigDataProvider;
+  VNeedNotify: Boolean;
 begin
-  inherited;
-  VFileName := FDataFile.FullPath;
-  if FileExists(VFileName) then begin
-    try
-      VIniFile := TMemIniFile.Create(VFileName);
+  VNeedNotify := False;
+  CS.BeginWrite;
+  try
+    VFileName := FDataFile.FullPath;
+    if FileExists(VFileName) then begin
       try
-        VData := TConfigDataProviderByIniFile.CreateWithOwn(VIniFile);
-        VIniFile := nil;
-      finally
-        VIniFile.Free;
+        VIniFile := TMemIniFile.Create(VFileName);
+        try
+          VData := TConfigDataProviderByIniFile.CreateWithOwn(VIniFile);
+          VIniFile := nil;
+        finally
+          VIniFile.Free;
+        end;
+        VSensorsData := VData.GetSubItem('GPS');
+        if VSensorsData <> nil then begin
+          FOdometer1 := VSensorsData.ReadFloat('Odometer1', FOdometer1);
+          FOdometer2 := VSensorsData.ReadFloat('Odometer2', FOdometer2);
+          VNeedNotify := True;
+        end;
+      except
+        Assert(False, 'Exception on GPSRecorder read');
       end;
-      VSensorsData := VData.GetSubItem('GPS');
-      if VSensorsData <> nil then begin
-        FOdometer1 := VSensorsData.ReadFloat('Odometer1', FOdometer1);
-        FOdometer2 := VSensorsData.ReadFloat('Odometer2', FOdometer2);
-        SetChanged;
-      end;
-    except
-      Assert(False, 'Exception on GPSRecorder read');
     end;
+  finally
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
@@ -146,40 +155,49 @@ var
   VData: IConfigDataWriteProvider;
   VSensorsData: IConfigDataWriteProvider;
 begin
-  inherited;
-  VFileName := FDataFile.FullPath;
+  CS.BeginRead;
   try
-    VIniFile := TMemIniFile.Create(VFileName);
+    VFileName := FDataFile.FullPath;
     try
-      VData := TConfigDataWriteProviderByIniFile.CreateWithOwn(VIniFile);
-      VIniFile := nil;
-    finally
-      VIniFile.Free;
+      VIniFile := TMemIniFile.Create(VFileName);
+      try
+        VData := TConfigDataWriteProviderByIniFile.CreateWithOwn(VIniFile);
+        VIniFile := nil;
+      finally
+        VIniFile.Free;
+      end;
+      VSensorsData := VData.GetOrCreateSubItem('GPS');
+      VSensorsData.WriteFloat('Odometer1', FOdometer1);
+      VSensorsData.WriteFloat('Odometer2', FOdometer2);
+    except
+      Assert(False, 'Exception on GPSRecorder write');
     end;
-    VSensorsData := VData.GetOrCreateSubItem('GPS');
-    VSensorsData.WriteFloat('Odometer1', FOdometer1);
-    VSensorsData.WriteFloat('Odometer2', FOdometer2);
-  except
-    Assert(False, 'Exception on GPSRecorder write');
+  finally
+    CS.EndRead;
   end;
 end;
 
 procedure TGPSRecorder.AddEmptyPoint;
 var
   VPoint: TGPSTrackPoint;
+  VNeedNotify: Boolean;
 begin
+  VNeedNotify := False;
   VPoint.Point := CEmptyDoublePoint;
   VPoint.Speed := 0;
   VPoint.Time := NaN;
-  LockWrite;
+  CS.BeginWrite;
   try
     if (FLastPositionOK) then begin
       FLastPositionOK := False;
-      SetChanged;
+      VNeedNotify := True;
     end;
     FCurrentPosition := FEmptyPosition;
   finally
-    UnlockWrite;
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
@@ -189,8 +207,10 @@ var
   VBeta: Double;
   VDistToPrev: Double;
   VPointPrev: TDoublePoint;
+  VNeedNotify: Boolean;
 begin
-  LockWrite;
+  VNeedNotify := False;
+  CS.BeginWrite;
   try
     if FLastPositionOK or APosition.PositionOK then begin
       VPointPrev := FLastPosition;
@@ -229,177 +249,210 @@ begin
       end;
 
       FLastPositionOK := APosition.PositionOK;
-      SetChanged;
+      VNeedNotify := True;
     end;
     FCurrentPosition := APosition;
   finally
-    UnlockWrite;
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
 function TGPSRecorder.GetAvgSpeed: Double;
 begin
-  LockRead;
+  CS.BeginRead;
   try
     Result := FAvgSpeed;
   finally
-    UnlockRead;
+    CS.EndRead;
   end;
 end;
 
 function TGPSRecorder.GetCurrentPosition: IGPSPosition;
 begin
-  LockRead;
+  CS.BeginRead;
   try
     Result := FCurrentPosition;
   finally
-    UnlockRead;
+    CS.EndRead;
   end;
 end;
 
 function TGPSRecorder.GetDist: Double;
 begin
-  LockRead;
+  CS.BeginRead;
   try
     Result := FDist;
   finally
-    UnlockRead;
+    CS.EndRead;
   end;
 end;
 
 function TGPSRecorder.GetLastAltitude: Double;
 begin
-  LockRead;
+  CS.BeginRead;
   try
     Result := FLastAltitude;
   finally
-    UnlockRead;
+    CS.EndRead;
   end;
 end;
 
 function TGPSRecorder.GetLastHeading: Double;
 begin
-  LockRead;
+  CS.BeginRead;
   try
     Result := FLastHeading;
   finally
-    UnlockRead;
+    CS.EndRead;
   end;
 end;
 
 function TGPSRecorder.GetLastPosition: TDoublePoint;
 begin
-  LockRead;
+  CS.BeginRead;
   try
     Result := FLastPosition;
   finally
-    UnlockRead;
+    CS.EndRead;
   end;
 end;
 
 function TGPSRecorder.GetLastSpeed: Double;
 begin
-  LockRead;
+  CS.BeginRead;
   try
     Result := FLastSpeed;
   finally
-    UnlockRead;
+    CS.EndRead;
   end;
 end;
 
 function TGPSRecorder.GetMaxSpeed: Double;
 begin
-  LockRead;
+  CS.BeginRead;
   try
     Result := FMaxSpeed;
   finally
-    UnlockRead;
+    CS.EndRead;
   end;
 end;
 
 function TGPSRecorder.GetOdometer1: Double;
 begin
-  LockRead;
+  CS.BeginRead;
   try
     Result := FOdometer1;
   finally
-    UnlockRead;
+    CS.EndRead;
   end;
 end;
 
 function TGPSRecorder.GetOdometer2: Double;
 begin
-  LockRead;
+  CS.BeginRead;
   try
     Result := FOdometer2;
   finally
-    UnlockRead;
+    CS.EndRead;
   end;
 end;
 
 procedure TGPSRecorder.ResetAvgSpeed;
+var
+  VNeedNotify: Boolean;
 begin
-  LockWrite;
+  VNeedNotify := False;
+  CS.BeginWrite;
   try
     if FAvgSpeed <> 0 then begin
       FAvgSpeed := 0;
       FAvgSpeedTickCount := 0;
-      SetChanged;
+      VNeedNotify := True;
     end;
   finally
-    UnlockWrite;
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
 procedure TGPSRecorder.ResetDist;
+var
+  VNeedNotify: Boolean;
 begin
-  LockWrite;
+  VNeedNotify := False;
+  CS.BeginWrite;
   try
     if FDist <> 0 then begin
       FDist := 0;
-      SetChanged;
+      VNeedNotify := True;
     end;
   finally
-    UnlockWrite;
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
 procedure TGPSRecorder.ResetMaxSpeed;
+var
+  VNeedNotify: Boolean;
 begin
-  LockWrite;
+  VNeedNotify := False;
+  CS.BeginWrite;
   try
     if FMaxSpeed <> 0 then begin
       FMaxSpeed := 0;
-      SetChanged;
+      VNeedNotify := True;
     end;
   finally
-    UnlockWrite;
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
 procedure TGPSRecorder.ResetOdometer1;
+var
+  VNeedNotify: Boolean;
 begin
-  LockWrite;
+  VNeedNotify := False;
+  CS.BeginWrite;
   try
     if FOdometer1 <> 0 then begin
       FOdometer1 := 0;
-      SetChanged;
+      VNeedNotify := True;
     end;
   finally
-    UnlockWrite;
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
 procedure TGPSRecorder.ResetOdometer2;
+var
+  VNeedNotify: Boolean;
 begin
-  LockWrite;
+  VNeedNotify := False;
+  CS.BeginWrite;
   try
     if FOdometer2 <> 0 then begin
       FOdometer2 := 0;
-      SetChanged;
+      VNeedNotify := True;
     end;
   finally
-    UnlockWrite;
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
