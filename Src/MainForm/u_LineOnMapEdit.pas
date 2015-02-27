@@ -27,10 +27,10 @@ uses
   i_GeometryLonLat,
   i_GeometryLonLatFactory,
   i_LineOnMapEdit,
-  u_ConfigDataElementBase;
+  u_ChangeableBase;
 
 type
-  TLineOnMapEdit = class(TConfigDataElementBaseEmptySaveLoad, ILineOnMapEdit)
+  TLineOnMapEdit = class(TChangeableWithSimpleLockBase, ILineOnMapEdit)
   private
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FPoints: array of TDoublePoint;
@@ -158,7 +158,7 @@ end;
 
 procedure TLineOnMapEdit.Clear;
 begin
-  LockWrite;
+  CS.BeginWrite;
   try
     if FPointsCount > 0 then begin
       FPointsCount := 0;
@@ -166,8 +166,9 @@ begin
       _UpdateLineObject;
     end;
   finally
-    UnlockWrite;
+    CS.EndWrite;
   end;
+  DoChangeNotify;
 end;
 
 procedure TLineOnMapEdit.DeleteActivePoint;
@@ -176,7 +177,7 @@ var
   VNextPoint: TDoublePoint;
   VDelCount: Integer;
 begin
-  LockWrite;
+  CS.BeginWrite;
   try
     if FPointsCount > 0 then begin
       if FSelectedPointIndex < FPointsCount then begin
@@ -212,8 +213,9 @@ begin
       end;
     end;
   finally
-    UnlockWrite;
+    CS.EndWrite;
   end;
+  DoChangeNotify;
 end;
 
 procedure TLineOnMapEdit.InsertPoint(const APoint: TDoublePoint);
@@ -222,7 +224,7 @@ var
   VCurrPoint: TDoublePoint;
   VNextPoint: TDoublePoint;
 begin
-  LockWrite;
+  CS.BeginWrite;
   try
     if (FPointsCount <= 0) or (FSelectedPointIndex >= FPointsCount) then begin
       VCurrPoint := CEmptyDoublePoint;
@@ -283,8 +285,9 @@ begin
       end;
     end;
   finally
-    UnlockWrite;
+    CS.EndWrite;
   end;
+  DoChangeNotify;
 end;
 
 procedure TLineOnMapEdit.MoveActivePoint(const APoint: TDoublePoint);
@@ -292,7 +295,7 @@ var
   VCurrPoint: TDoublePoint;
 begin
   if not PointIsEmpty(APoint) then begin
-    LockWrite;
+    CS.BeginWrite;
     try
       if FPointsCount > 0 then begin
         if FSelectedPointIndex < FPointsCount then begin
@@ -306,8 +309,9 @@ begin
         end;
       end;
     finally
-      UnlockWrite;
+      CS.EndWrite;
     end;
+    DoChangeNotify;
   end;
 end;
 
@@ -318,7 +322,7 @@ var
   i: Integer;
 begin
   Result := False;
-  LockWrite;
+  CS.BeginWrite;
   try
     VIndex := -1;
     if FPointsCount > 0 then begin
@@ -352,13 +356,14 @@ begin
       Result := True;
     end;
   finally
-    UnlockWrite;
+    CS.EndWrite;
   end;
+  DoChangeNotify;
 end;
 
 function TLineOnMapEdit.SetSelectedNextPoint: TDoublePoint;
 begin
-  LockWrite;
+  CS.BeginWrite;
   try
     Result := CEmptyDoublePoint;
     if FPointsCount > 0 then begin
@@ -371,8 +376,9 @@ begin
       end;
     end;
   finally
-    UnlockWrite;
+    CS.EndWrite;
   end;
+  DoChangeNotify;
 end;
 
 procedure TLineOnMapEdit.SetSelectedPoint(ASegmentIndex,
@@ -383,7 +389,7 @@ var
   VPointIndex: Integer;
   VResult: Integer;
 begin
-  LockWrite;
+  CS.BeginWrite;
   try
     VResult := -1;
     VSegmentIndex := 0;
@@ -409,13 +415,14 @@ begin
       end;
     end;
   finally
-    UnlockWrite;
+    CS.EndWrite;
   end;
+  DoChangeNotify;
 end;
 
 function TLineOnMapEdit.SetSelectedPrevPoint: TDoublePoint;
 begin
-  LockWrite;
+  CS.BeginWrite;
   try
     Result := CEmptyDoublePoint;
     if FPointsCount > 0 then begin
@@ -426,8 +433,9 @@ begin
       end;
     end;
   finally
-    UnlockWrite;
+    CS.EndWrite;
   end;
+  DoChangeNotify;
 end;
 
 procedure TLineOnMapEdit._GrowPoints(AAddCount: Integer);
@@ -453,11 +461,11 @@ end;
 
 function TPathOnMapEdit.GetPath: ILonLatPathWithSelected;
 begin
-  LockRead;
+  CS.BeginRead;
   try
     Result := FLineWithSelected;
   finally
-    UnlockRead;
+    CS.EndRead;
   end;
 end;
 
@@ -467,7 +475,7 @@ var
   VLine: IGeometryLonLatSingleLine;
   VMulitLine: IGeometryLonLatMultiLine;
 begin
-  LockWrite;
+  CS.BeginWrite;
   try
     FSelectedPointIndex := -1;
     FPointsCount := 0;
@@ -514,30 +522,31 @@ begin
     end;
     _UpdateLineObject;
   finally
-    UnlockWrite;
+    CS.EndWrite;
   end;
+  DoChangeNotify;
 end;
 
 function TPathOnMapEdit.IsEmpty: Boolean;
 begin
-  LockRead;
+  CS.BeginRead;
   try
     Result := FLine.IsEmpty;
   finally
-    UnlockRead;
+    CS.EndRead;
   end;
 end;
 
 function TPathOnMapEdit.IsReady: Boolean;
 begin
-  LockRead;
+  CS.BeginRead;
   try
     Result := False;
     if not FLine.IsEmpty then begin
       Result := IsValidLonLatLine(FLine);
     end;
   finally
-    UnlockRead;
+    CS.EndRead;
   end;
 end;
 
@@ -547,7 +556,7 @@ var
   VLine: IGeometryLonLatSingleLine;
   VMultiLine: IGeometryLonLatMultiLine;
 begin
-  LockWrite;
+  CS.BeginWrite;
   try
     FPointsCount := 0;
     if Supports(AValue, IGeometryLonLatSingleLine, VLine) then begin
@@ -577,8 +586,9 @@ begin
     end;
     _UpdateLineObject;
   finally
-    UnlockWrite;
+    CS.EndWrite;
   end;
+  DoChangeNotify;
 end;
 
 procedure TPathOnMapEdit._UpdateLineObject;
@@ -590,18 +600,17 @@ end;
 procedure TPathOnMapEdit._UpdateLineWithSelected;
 begin
   FLineWithSelected := TLonLatPathWithSelected.Create(FLine, FSelectedPointIndex);
-  SetChanged;
 end;
 
 { TPolygonOnMapEdit }
 
 function TPolygonOnMapEdit.GetPolygon: ILonLatPolygonWithSelected;
 begin
-  LockRead;
+  CS.BeginRead;
   try
     Result := FLineWithSelected;
   finally
-    UnlockRead;
+    CS.EndRead;
   end;
 end;
 
@@ -611,7 +620,7 @@ var
   VLine: IGeometryLonLatSinglePolygon;
   VMultiLine: IGeometryLonLatMultiPolygon;
 begin
-  LockWrite;
+  CS.BeginWrite;
   try
     FSelectedPointIndex := -1;
     FPointsCount := 0;
@@ -658,30 +667,31 @@ begin
     end;
     _UpdateLineObject;
   finally
-    UnlockWrite;
+    CS.EndWrite;
   end;
+  DoChangeNotify;
 end;
 
 function TPolygonOnMapEdit.IsEmpty: Boolean;
 begin
-  LockRead;
+  CS.BeginRead;
   try
     Result := not FLine.IsEmpty;
   finally
-    UnlockRead;
+    CS.EndRead;
   end;
 end;
 
 function TPolygonOnMapEdit.IsReady: Boolean;
 begin
-  LockRead;
+  CS.BeginRead;
   try
     Result := False;
     if not FLine.IsEmpty then begin
       Result := IsValidLonLatPolygon(FLine);
     end;
   finally
-    UnlockRead;
+    CS.EndRead;
   end;
 end;
 
@@ -691,7 +701,7 @@ var
   VLine: IGeometryLonLatSinglePolygon;
   VMultiLine: IGeometryLonLatMultiPolygon;
 begin
-  LockWrite;
+  CS.BeginWrite;
   try
     FPointsCount := 0;
     if Supports(AValue, IGeometryLonLatSinglePolygon, VLine) then begin
@@ -720,8 +730,9 @@ begin
     end;
     _UpdateLineObject;
   finally
-    UnlockWrite;
+    CS.EndWrite;
   end;
+  DoChangeNotify;
 end;
 
 procedure TPolygonOnMapEdit._UpdateLineObject;
@@ -733,7 +744,6 @@ end;
 procedure TPolygonOnMapEdit._UpdateLineWithSelected;
 begin
   FLineWithSelected := TLonLatPolygonWithSelected.Create(FLine, FSelectedPointIndex);
-  SetChanged;
 end;
 
 { TLonLatLineWithSelectedBase }
