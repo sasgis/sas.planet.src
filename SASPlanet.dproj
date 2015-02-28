@@ -1415,6 +1415,7 @@
     <DCCReference Include="Src\u_UsedMarksConfigStatic.pas" />
     <DCCReference Include="Src\u_UserInterfaceItemBase.pas" />
     <DCCReference Include="Src\u_ValueToStringConverter.pas" />
+    <DCCReference Include="Src\u_ValueToStringConverterChangeable.pas" />
     <DCCReference Include="Src\u_ValueToStringConverterConfig.pas" />
     <DCCReference Include="Src\u_WindowPositionConfig.pas" />
     <DCCReference Include="Src\VectorLoaders\i_XmlVectorObjects.pas" />

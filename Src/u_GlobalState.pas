@@ -398,7 +398,7 @@ uses
   u_VectorItemTreeExporterListSimple,
   u_VectorItemTreeImporterListSimple,
   u_BitmapPostProcessingChangeableByConfig,
-  u_ValueToStringConverter,
+  u_ValueToStringConverterChangeable,
   u_InternalBrowserLastContent,
   u_TileStorageTypeListSimple,
   u_TileFileNameParsersSimpleList,

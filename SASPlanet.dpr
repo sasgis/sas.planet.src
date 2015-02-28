@@ -951,6 +951,7 @@ uses
   i_ValueToStringConverterConfig in 'Src\i_ValueToStringConverterConfig.pas',
   i_ValueToStringConverter in 'Src\i_ValueToStringConverter.pas',
   u_ValueToStringConverter in 'Src\u_ValueToStringConverter.pas',
+  u_ValueToStringConverterChangeable in 'Src\u_ValueToStringConverterChangeable.pas',
   u_ValueToStringConverterConfig in 'Src\u_ValueToStringConverterConfig.pas',
   i_StatBarConfig in 'Src\MapLayers\WindowLayers\StatusBar\i_StatBarConfig.pas',
   u_StatBarConfig in 'Src\MapLayers\WindowLayers\StatusBar\u_StatBarConfig.pas',

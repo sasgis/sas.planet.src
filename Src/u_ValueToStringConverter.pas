@@ -25,12 +25,8 @@ interface
 uses
   t_GeoTypes,
   t_CommonTypes,
-  i_Notifier,
-  i_Listener,
   i_ValueToStringConverter,
-  i_ValueToStringConverterConfig,
-  u_BaseInterfacedObject,
-  u_ConfigDataElementBase;
+  u_BaseInterfacedObject;
 
 type
   TValueToStringConverter = class(TBaseInterfacedObject, IValueToStringConverter)
@@ -84,31 +80,12 @@ type
     );
   end;
 
-  TValueToStringConverterChangeable = class(TConfigDataElementWithStaticBaseEmptySaveLoad, IValueToStringConverterChangeable)
-  private
-    FConfig: IValueToStringConverterConfig;
-    FDependentNotifier: INotifier;
-    FDependentListener: IListener;
-    procedure OnDependentNotifier;
-  protected
-    function CreateStatic: IInterface; override;
-  private
-    function GetStatic: IValueToStringConverter;
-  public
-    constructor Create(
-      const AConfig: IValueToStringConverterConfig;
-      const ADependentNotifier: INotifier
-    );
-    destructor Destroy; override;
-  end;
-
 implementation
 
 uses
   Math,
   SysUtils,
   StrUtils,
-  u_ListenerByEvent,
   u_ResStrings;
 
 { TValueToStringConverter }
@@ -395,65 +372,6 @@ begin
   end;
 
   Result := FormatFloat('0.0', AKmph) + ' ' + FUnitsKmph;
-end;
-
-{ TValueToStringConverterChangeable }
-
-constructor TValueToStringConverterChangeable.Create(
-  const AConfig: IValueToStringConverterConfig;
-  const ADependentNotifier: INotifier
-);
-begin
-  inherited Create;
-  FConfig := AConfig;
-  FDependentNotifier := ADependentNotifier;
-  FDependentListener := TNotifyNoMmgEventListener.Create(Self.OnDependentNotifier);
-  FDependentNotifier.Add(FDependentListener);
-  FConfig.ChangeNotifier.Add(FDependentListener);
-end;
-
-destructor TValueToStringConverterChangeable.Destroy;
-begin
-  if Assigned(FDependentNotifier) and Assigned(FDependentListener) then begin
-    FDependentNotifier.Remove(FDependentListener);
-    FDependentNotifier := nil;
-  end;
-  if Assigned(FConfig) and Assigned(FDependentListener) then begin
-    FConfig.ChangeNotifier.Remove(FDependentListener);
-    FConfig := nil;
-  end;
-  inherited;
-end;
-
-function TValueToStringConverterChangeable.CreateStatic: IInterface;
-var
-  VConfig: IValueToStringConverterConfigStatic;
-  VStatic: IValueToStringConverter;
-begin
-  VConfig := FConfig.GetStatic;
-  VStatic :=
-    TValueToStringConverter.Create(
-      VConfig.DistStrFormat,
-      VConfig.IsLatitudeFirst,
-      VConfig.DegrShowFormat,
-      VConfig.AreaShowFormat
-    );
-  Result := VStatic;
-end;
-
-function TValueToStringConverterChangeable.GetStatic: IValueToStringConverter;
-begin
-  Result := IValueToStringConverter(GetStaticInternal);
-end;
-
-procedure TValueToStringConverterChangeable.OnDependentNotifier;
-begin
-  LockWrite;
-  try
-    SetChanged;
-  finally
-    UnlockWrite;
-  end;
 end;
 
 end.
