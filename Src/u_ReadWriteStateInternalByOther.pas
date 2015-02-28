@@ -25,24 +25,21 @@ interface
 uses
   i_ReadWriteState,
   i_Listener,
-  u_ConfigDataElementBase;
+  u_ChangeableBase;
 
 type
   IReadWriteStateInternalByOther = interface(IReadWriteStateChangeble)
     procedure SetOther(const AState: IReadWriteStateChangeble);
   end;
 
-  TReadWriteStateInternalByOther = class(TConfigDataElementWithStaticBaseEmptySaveLoad, IReadWriteStateChangeble, IReadWriteStateInternalByOther)
+  TReadWriteStateInternalByOther = class(TChangeableWithSimpleLockBase, IReadWriteStateChangeble, IReadWriteStateInternalByOther)
   private
     FOtherState: IReadWriteStateChangeble;
     FDefault: IReadWriteStateStatic;
     FOtherStateListener: IListener;
     procedure OnOtherStateChange;
-  protected
-    function CreateStatic: IInterface; override;
   private
     procedure SetOther(const AState: IReadWriteStateChangeble);
-  private
     function GetStatic: IReadWriteStateStatic;
   public
     constructor Create();
@@ -75,9 +72,9 @@ begin
   inherited;
 end;
 
-function TReadWriteStateInternalByOther.CreateStatic: IInterface;
+function TReadWriteStateInternalByOther.GetStatic: IReadWriteStateStatic;
 begin
-  LockRead;
+  CS.BeginRead;
   try
     if FOtherState <> nil then begin
       Result := FOtherState.GetStatic;
@@ -85,29 +82,23 @@ begin
       Result := FDefault;
     end;
   finally
-    UnlockRead;
+    CS.EndRead;
   end;
-end;
-
-function TReadWriteStateInternalByOther.GetStatic: IReadWriteStateStatic;
-begin
-  Result := IReadWriteStateStatic(GetStaticInternal);
 end;
 
 procedure TReadWriteStateInternalByOther.OnOtherStateChange;
 begin
-  LockWrite;
-  try
-    SetChanged;
-  finally
-    UnlockWrite;
-  end;
+  DoChangeNotify;
 end;
 
 procedure TReadWriteStateInternalByOther.SetOther(
-  const AState: IReadWriteStateChangeble);
+  const AState: IReadWriteStateChangeble
+);
+var
+  VNeedNotify: Boolean;
 begin
-  LockWrite;
+  VNeedNotify := False;
+  CS.BeginWrite;
   try
     if FOtherState <> AState then begin
       if FOtherState <> nil then begin
@@ -117,10 +108,13 @@ begin
       if FOtherState <> nil then begin
         FOtherState.ChangeNotifier.Add(FOtherStateListener);
       end;
-      SetChanged;
+      VNeedNotify := True;
     end;
   finally
-    UnlockWrite;
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
