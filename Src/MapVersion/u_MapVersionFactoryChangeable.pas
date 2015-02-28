@@ -24,17 +24,14 @@ interface
 
 uses
   i_MapVersionFactory,
-  u_ConfigDataElementBase;
+  u_ChangeableBase;
 
 type
-  TMapVersionFactoryChangeable = class(TConfigDataElementWithStaticBaseEmptySaveLoad, IMapVersionFactoryChangeable, IMapVersionFactoryChangeableInternal)
+  TMapVersionFactoryChangeable = class(TChangeableWithSimpleLockBase, IMapVersionFactoryChangeable, IMapVersionFactoryChangeableInternal)
   private
     FFactory: IMapVersionFactory;
-  protected
-    function CreateStatic: IInterface; override;
   private
     procedure SetFactory(const AValue: IMapVersionFactory);
-  private
     function GetStatic: IMapVersionFactory;
   public
     constructor Create(
@@ -53,28 +50,34 @@ begin
   FFactory := ADefFactory;
 end;
 
-function TMapVersionFactoryChangeable.CreateStatic: IInterface;
-begin
-  Result := FFactory;
-end;
-
 function TMapVersionFactoryChangeable.GetStatic: IMapVersionFactory;
 begin
-  Result := IMapVersionFactory(GetStaticInternal);
+  CS.BeginRead;
+  try
+    Result := FFactory;
+  finally
+    CS.EndRead;
+  end;
 end;
 
 procedure TMapVersionFactoryChangeable.SetFactory(
   const AValue: IMapVersionFactory
 );
+var
+  VNeedNotify: Boolean;
 begin
-  LockWrite;
+  VNeedNotify := False;
+  CS.BeginWrite;
   try
     if not FFactory.IsSameFactoryClass(AValue) then begin
       FFactory := AValue;
-      SetChanged;
+      VNeedNotify := True;
     end;
   finally
-    UnlockWrite;
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
