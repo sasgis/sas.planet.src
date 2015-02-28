@@ -24,11 +24,11 @@ interface
 
 uses
   i_TileDownloaderState,
-  i_ConfigDataElement,
-  u_ConfigDataElementBase;
+  i_Changeable,
+  u_ChangeableBase;
 
 type
-  ITileDownloaderStateInternal = interface(IConfigDataElement)
+  ITileDownloaderStateInternal = interface(IChangeable)
     ['{BD4A155B-92AC-4E61-8A1D-A0F8516E1340}']
     function GetEnabled: Boolean;
     property Enabled: Boolean read GetEnabled;
@@ -43,12 +43,12 @@ type
   end;
 
 type
-  TTileDownloaderStateInternal = class(TConfigDataElementWithStaticBaseEmptySaveLoad, ITileDownloaderStateInternal, ITileDownloaderStateChangeble)
+  TTileDownloaderStateInternal = class(TChangeableWithSimpleLockBase, ITileDownloaderStateInternal, ITileDownloaderStateChangeble)
   private
     FEnabled: Boolean;
     FReason: string;
-  protected
-    function CreateStatic: IInterface; override;
+    FStatic: ITileDownloaderStateStatic;
+    function CreateStatic: ITileDownloaderStateStatic;
   private
     function GetEnabled: Boolean;
     function GetDisableReason: string;
@@ -73,51 +73,63 @@ constructor TTileDownloaderStateInternal.Create;
 begin
   inherited Create;
   FEnabled := True;
+  FStatic := CreateStatic;
 end;
 
-function TTileDownloaderStateInternal.CreateStatic: IInterface;
-var
-  VStatic: ITileDownloaderStateStatic;
+function TTileDownloaderStateInternal.CreateStatic: ITileDownloaderStateStatic;
 begin
-  VStatic :=
+  Result :=
     TTileDownloaderStateStatic.Create(
       FEnabled,
       FReason
     );
-  Result := VStatic;
 end;
 
 procedure TTileDownloaderStateInternal.Disable(const AReason: string);
+var
+  VNeedNotify: Boolean;
 begin
-  LockWrite;
+  VNeedNotify := False;
+  CS.BeginWrite;
   try
     if FEnabled then begin
       FEnabled := False;
       FReason := AReason;
-      SetChanged;
+      FStatic := CreateStatic;
+      VNeedNotify := True;
     end;
   finally
-    UnlockWrite
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
 procedure TTileDownloaderStateInternal.Enable;
+var
+  VNeedNotify: Boolean;
 begin
-  LockWrite;
+  VNeedNotify := False;
+  CS.BeginWrite;
   try
     if not FEnabled then begin
       FEnabled := True;
       FReason := '';
-      SetChanged;
+      FStatic := CreateStatic;
+      VNeedNotify := True;
     end;
   finally
-    UnlockWrite
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
 function TTileDownloaderStateInternal.GetDisableReason: string;
 begin
-  LockRead;
+  CS.BeginRead;
   try
     if FEnabled then begin
       Result := '';
@@ -125,23 +137,28 @@ begin
       Result := FReason;
     end;
   finally
-    UnlockRead;
+    CS.EndRead;
   end;
 end;
 
 function TTileDownloaderStateInternal.GetEnabled: Boolean;
 begin
-  LockRead;
+  CS.BeginRead;
   try
     Result := FEnabled;
   finally
-    UnlockRead;
+    CS.EndRead;
   end;
 end;
 
 function TTileDownloaderStateInternal.GetStatic: ITileDownloaderStateStatic;
 begin
-  Result := ITileDownloaderStateStatic(GetStaticInternal);
+  CS.BeginRead;
+  try
+    Result := FStatic;
+  finally
+    CS.EndRead;
+  end;
 end;
 
 end.
