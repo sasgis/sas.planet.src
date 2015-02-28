@@ -8,20 +8,20 @@ uses
   i_StringListChangeable,
   i_MapTypeSetChangeable,
   i_LanguageManager,
-  u_ConfigDataElementBase;
+  u_ChangeableBase;
 
 type
-  TActiveMapsLicenseList = class(TConfigDataElementWithStaticBaseEmptySaveLoad, IStringListChangeable)
+  TActiveMapsLicenseList = class(TChangeableWithSimpleLockBase, IStringListChangeable)
   private
     FMapsSet: IMapTypeSetChangeable;
     FLanguageManager: ILanguageManager;
 
     FMapsListListener: IListener;
     FLanguageManagerListener: IListener;
+    FStatic: IStringListStatic;
     procedure OnMapsListChange;
     procedure OnLangChange;
-  protected
-    function CreateStatic: IInterface; override;
+    function CreateStatic: IStringListStatic;
   private
     function GetStatic: IStringListStatic;
   public
@@ -59,6 +59,7 @@ begin
 
   FLanguageManagerListener := TNotifyNoMmgEventListener.Create(Self.OnLangChange);
   FLanguageManager.ChangeNotifier.Add(FLanguageManagerListener);
+  FStatic := CreateStatic;
 end;
 
 destructor TActiveMapsLicenseList.Destroy;
@@ -76,7 +77,7 @@ begin
   inherited;
 end;
 
-function TActiveMapsLicenseList.CreateStatic: IInterface;
+function TActiveMapsLicenseList.CreateStatic: IStringListStatic;
 var
   VStatic: IStringListStatic;
   VStringList: TStringList;
@@ -111,27 +112,34 @@ end;
 
 function TActiveMapsLicenseList.GetStatic: IStringListStatic;
 begin
-  Result := IStringListStatic(GetStaticInternal);
+  CS.BeginRead;
+  try
+    Result := FStatic;
+  finally
+    CS.EndRead;
+  end;
 end;
 
 procedure TActiveMapsLicenseList.OnLangChange;
 begin
-  LockWrite;
+  CS.BeginWrite;
   try
-    SetChanged;
+    FStatic := CreateStatic;
   finally
-    UnlockWrite;
+    CS.EndWrite;
   end;
+  DoChangeNotify;
 end;
 
 procedure TActiveMapsLicenseList.OnMapsListChange;
 begin
-  LockWrite;
+  CS.BeginWrite;
   try
-    SetChanged;
+    FStatic := CreateStatic;
   finally
-    UnlockWrite;
+    CS.EndWrite;
   end;
+  DoChangeNotify;
 end;
 
 end.
