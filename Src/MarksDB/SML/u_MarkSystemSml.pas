@@ -248,10 +248,36 @@ function TMarkSystemSml.PrepareStream(
 ): TStream;
 begin
   Result := nil;
-  AState.LockWrite;
-  try
-    if AState.ReadAccess <> asDisabled then begin
-      if FileExists(AFileName) then begin
+  if AState.ReadAccess <> asDisabled then begin
+    if FileExists(AFileName) then begin
+      if AState.WriteAccess <> asDisabled then begin
+        try
+          Result := TFileStream.Create(AFileName, fmOpenReadWrite + fmShareDenyWrite);
+          AState.WriteAccess := asEnabled;
+        except
+          Result := nil;
+          AState.WriteAccess := asDisabled;
+        end;
+      end;
+      if Result = nil then begin
+        try
+          Result := TFileStream.Create(AFileName, fmOpenRead + fmShareDenyNone);
+          AState.ReadAccess := asEnabled;
+        except
+          AState.ReadAccess := asDisabled;
+          Result := nil;
+        end;
+      end;
+    end else begin
+      if AState.WriteAccess <> asDisabled then begin
+        try
+          Result := TFileStream.Create(AFileName, fmCreate);
+          Result.Free;
+          Result := nil;
+        except
+          AState.WriteAccess := asDisabled;
+          Result := nil;
+        end;
         if AState.WriteAccess <> asDisabled then begin
           try
             Result := TFileStream.Create(AFileName, fmOpenReadWrite + fmShareDenyWrite);
@@ -261,39 +287,8 @@ begin
             AState.WriteAccess := asDisabled;
           end;
         end;
-        if Result = nil then begin
-          try
-            Result := TFileStream.Create(AFileName, fmOpenRead + fmShareDenyNone);
-            AState.ReadAccess := asEnabled;
-          except
-            AState.ReadAccess := asDisabled;
-            Result := nil;
-          end;
-        end;
-      end else begin
-        if AState.WriteAccess <> asDisabled then begin
-          try
-            Result := TFileStream.Create(AFileName, fmCreate);
-            Result.Free;
-            Result := nil;
-          except
-            AState.WriteAccess := asDisabled;
-            Result := nil;
-          end;
-          if AState.WriteAccess <> asDisabled then begin
-            try
-              Result := TFileStream.Create(AFileName, fmOpenReadWrite + fmShareDenyWrite);
-              AState.WriteAccess := asEnabled;
-            except
-              Result := nil;
-              AState.WriteAccess := asDisabled;
-            end;
-          end;
-        end;
       end;
     end;
-  finally
-    AState.UnlockWrite;
   end;
 end;
 

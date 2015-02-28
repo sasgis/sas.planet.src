@@ -1414,49 +1414,44 @@ begin
     VCounterContext := 0;
   end;
   try
-    FStateInternal.LockWrite;
+    LockWrite;
     try
-      LockWrite;
-      try
-        InitEmptyDS;
-        FMarkList.Clear;
-        FByCategoryList.Clear;
-        if FStateInternal.ReadAccess <> asDisabled then begin
-          if FStream <> nil then begin
-            try
-              FCdsMarks.LoadFromStream(FStream);
-              UpgradeXmlSchema;
-              FCdsMarks.MergeChangeLog;
-              FCdsMarks.LogChanges := False;
-            except
-              FStateInternal.WriteAccess := asDisabled;
-              InitEmptyDS;
-            end;
-          end;
-
-          FCdsMarks.Filtered := False;
-          FCdsMarks.First;
-          while not FCdsMarks.Eof do begin
-            VMark := ReadCurrentMark;
-            if Assigned(VMark) and Supports(VMark.MainInfo, IMarkSMLInternal, VMarkInternal) then begin
-              VIdNew := VMarkInternal.Id;
-              VCategoryIdNew := VMarkInternal.CategoryId;
-              FMarkList.Add(VIdNew, VMark);
-              VList := IIDInterfaceList(FByCategoryList.GetByID(VCategoryIdNew));
-              if VList = nil then begin
-                VList := TIDInterfaceList.Create;
-                FByCategoryList.Add(VCategoryIdNew, VList);
-              end;
-              VList.Add(VIdNew, VMark);
-            end;
-            FCdsMarks.Next;
+      InitEmptyDS;
+      FMarkList.Clear;
+      FByCategoryList.Clear;
+      if FStateInternal.ReadAccess <> asDisabled then begin
+        if FStream <> nil then begin
+          try
+            FCdsMarks.LoadFromStream(FStream);
+            UpgradeXmlSchema;
+            FCdsMarks.MergeChangeLog;
+            FCdsMarks.LogChanges := False;
+          except
+            FStateInternal.WriteAccess := asDisabled;
+            InitEmptyDS;
           end;
         end;
-      finally
-        UnlockWrite
+
+        FCdsMarks.Filtered := False;
+        FCdsMarks.First;
+        while not FCdsMarks.Eof do begin
+          VMark := ReadCurrentMark;
+          if Assigned(VMark) and Supports(VMark.MainInfo, IMarkSMLInternal, VMarkInternal) then begin
+            VIdNew := VMarkInternal.Id;
+            VCategoryIdNew := VMarkInternal.CategoryId;
+            FMarkList.Add(VIdNew, VMark);
+            VList := IIDInterfaceList(FByCategoryList.GetByID(VCategoryIdNew));
+            if VList = nil then begin
+              VList := TIDInterfaceList.Create;
+              FByCategoryList.Add(VCategoryIdNew, VList);
+            end;
+            VList.Add(VIdNew, VMark);
+          end;
+          FCdsMarks.Next;
+        end;
       end;
     finally
-      FStateInternal.UnlockWrite;
+      UnlockWrite
     end;
   finally
     if VCounterContext <> 0 then begin
@@ -1479,31 +1474,26 @@ begin
     end;
     try
       try
-        FStateInternal.LockRead;
-        try
-          if FStateInternal.WriteAccess = asEnabled then begin
-            LockRead;
-            try
-              if FStream <> nil then begin
-                FStream.Size := 0;
-                FStream.Position := 0;
-                if FStoreInBinaryFormat then begin
-                  VFormat := dfBinary;
-                end else begin
-                  VFormat := dfXMLUTF8;
-                end;
-                FCdsMarks.SaveToStream(FStream, VFormat);
+        if FStateInternal.WriteAccess = asEnabled then begin
+          LockRead;
+          try
+            if FStream <> nil then begin
+              FStream.Size := 0;
+              FStream.Position := 0;
+              if FStoreInBinaryFormat then begin
+                VFormat := dfBinary;
               end else begin
-                FNeedSaveFlag.SetFlag;
+                VFormat := dfXMLUTF8;
               end;
-            finally
-              UnlockRead;
+              FCdsMarks.SaveToStream(FStream, VFormat);
+            end else begin
+              FNeedSaveFlag.SetFlag;
             end;
-          end else begin
-            FNeedSaveFlag.SetFlag;
+          finally
+            UnlockRead;
           end;
-        finally
-          FStateInternal.UnlockRead;
+        end else begin
+          FNeedSaveFlag.SetFlag;
         end;
       except
         result := false;

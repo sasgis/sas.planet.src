@@ -541,37 +541,32 @@ var
   VCategory: IMarkCategory;
   VId: Integer;
 begin
-  FStateInternal.LockWrite;
+  LockWrite;
   try
-    LockWrite;
-    try
-      InitEmptyDS;
-      FList.Clear;
-      if FStateInternal.ReadAccess <> asDisabled then begin
-        if FStream <> nil then begin
-          try
-            FCdsCategory.LoadFromStream(FStream);
-            FCdsCategory.MergeChangeLog;
-            FCdsCategory.LogChanges := False;
-          except
-            FStateInternal.WriteAccess := asDisabled;
-            InitEmptyDS;
-          end;
-        end;
-
-        FCdsCategory.Filtered := false;
-        FCdsCategory.First;
-        while not (FCdsCategory.Eof) do begin
-          VCategory := ReadCurrentCategory(VId);
-          FList.Add(VId, VCategory);
-          FCdsCategory.Next;
+    InitEmptyDS;
+    FList.Clear;
+    if FStateInternal.ReadAccess <> asDisabled then begin
+      if FStream <> nil then begin
+        try
+          FCdsCategory.LoadFromStream(FStream);
+          FCdsCategory.MergeChangeLog;
+          FCdsCategory.LogChanges := False;
+        except
+          FStateInternal.WriteAccess := asDisabled;
+          InitEmptyDS;
         end;
       end;
-    finally
-      UnlockWrite;
+
+      FCdsCategory.Filtered := false;
+      FCdsCategory.First;
+      while not (FCdsCategory.Eof) do begin
+        VCategory := ReadCurrentCategory(VId);
+        FList.Add(VId, VCategory);
+        FCdsCategory.Next;
+      end;
     end;
   finally
-    FStateInternal.UnlockWrite;
+    UnlockWrite;
   end;
 end;
 
@@ -582,31 +577,26 @@ begin
   result := true;
   if FNeedSaveFlag.CheckFlagAndReset then begin
     try
-      FStateInternal.LockRead;
-      try
-        if FStateInternal.WriteAccess = asEnabled then begin
-          LockRead;
-          try
-            if FStream <> nil then begin
-              FStream.Size := 0;
-              FStream.Position := 0;
-              if FStoreInBinaryFormat then begin
-                VFormat := dfBinary;
-              end else begin
-                VFormat := dfXMLUTF8;
-              end;
-              FCdsCategory.SaveToStream(FStream, VFormat);
+      if FStateInternal.WriteAccess = asEnabled then begin
+        LockRead;
+        try
+          if FStream <> nil then begin
+            FStream.Size := 0;
+            FStream.Position := 0;
+            if FStoreInBinaryFormat then begin
+              VFormat := dfBinary;
             end else begin
-              FNeedSaveFlag.SetFlag;
+              VFormat := dfXMLUTF8;
             end;
-          finally
-            UnlockRead;
+            FCdsCategory.SaveToStream(FStream, VFormat);
+          end else begin
+            FNeedSaveFlag.SetFlag;
           end;
-        end else begin
-          FNeedSaveFlag.SetFlag;
+        finally
+          UnlockRead;
         end;
-      finally
-        FStateInternal.UnlockRead;
+      end else begin
+        FNeedSaveFlag.SetFlag;
       end;
     except
       result := false;
