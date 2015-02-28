@@ -409,10 +409,6 @@ begin
   VNewPageIndex := TTabSheet(tvMenu.Selected.Data).PageIndex;
   VActivePageIndex := PageControl1.ActivePageIndex;
   if VNewPageIndex <> VActivePageIndex then begin
-    if VActivePageIndex <> -1 then begin
-      PageControl1.Pages[VActivePageIndex].TabVisible := False;
-    end;
-    PageControl1.Pages[VNewPageIndex].TabVisible := True;
     PageControl1.ActivePageIndex := VNewPageIndex;
   end;
 end;

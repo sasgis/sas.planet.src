@@ -29,10 +29,12 @@ object frmMapTypeEdit: TfrmMapTypeEdit
     Height = 389
     ActivePage = tsInternet
     Align = alClient
+    Style = tsFlatButtons
     TabOrder = 0
     object tsInternet: TTabSheet
       Caption = 'Internet'
       ImageIndex = 8
+      TabVisible = False
       object pnlDownloaderState: TPanel
         Left = 0
         Top = 216
@@ -285,10 +287,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
     object tsOthers: TTabSheet
       Caption = 'Cache and Other'
       ImageIndex = 5
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
+      TabVisible = False      
       object pnlCacheName: TPanel
         Left = 0
         Top = 0
@@ -552,26 +551,17 @@ object frmMapTypeEdit: TfrmMapTypeEdit
     object tsParams: TTabSheet
       Caption = 'Params.txt'
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
+      TabVisible = False
     end
     object tsGetURLScript: TTabSheet
       Caption = 'GetURLScript.txt'
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
+      TabVisible = False
     end
     object tsInfo: TTabSheet
       Caption = 'Info.txt'
       ImageIndex = 3
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
+      TabVisible = False
     end
   end
   object pnlBottomButtons: TPanel
