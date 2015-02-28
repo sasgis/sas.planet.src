@@ -53,7 +53,7 @@ uses
   i_Sensor,
   i_StringConfigDataElement,
   i_SensorList,
-  u_SensorBase,
+  u_SensorListEntity,
   u_StringConfigDataElementWithDefByStringRec,
   u_ResStrings,
   u_SensorTextFromNavToPoint,

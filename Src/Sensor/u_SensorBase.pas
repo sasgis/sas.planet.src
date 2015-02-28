@@ -26,32 +26,11 @@ uses
   t_GeoTypes,
   i_Notifier,
   i_GPS,
-  i_StringConfigDataElement,
   i_Sensor,
-  i_SensorList,
   i_ListenerNotifierLinksList,
-  u_UserInterfaceItemBase,
   u_ConfigDataElementBase;
 
 type
-  TSensorListEntity = class(TUserInterfaceItemBase, ISensorListEntity)
-  private
-    FSensor: ISensor;
-    FSensorTypeIID: TGUID;
-  private
-    function GetSensor: ISensor;
-    function GetSensorTypeIID: TGUID;
-  public
-    constructor Create(
-      const AGUID: TGUID;
-      const ACaption: IStringConfigDataElement;
-      const ADescription: IStringConfigDataElement;
-      const AMenuItemName: IStringConfigDataElement;
-      const ASensor: ISensor;
-      const ASensorTypeIID: TGUID
-    );
-  end;
-
   TSensorBase = class(TConfigDataElementBaseEmptySaveLoad, ISensor)
   private
     FLinksList: IListenerNotifierLinksList;
@@ -181,30 +160,6 @@ begin
 
   FLinksList := TListenerNotifierLinksList.Create;
   FLinksList.ActivateLinks;
-end;
-
-{ TSensorListEntity }
-
-constructor TSensorListEntity.Create(
-  const AGUID: TGUID;
-  const ACaption, ADescription, AMenuItemName: IStringConfigDataElement;
-  const ASensor: ISensor;
-  const ASensorTypeIID: TGUID
-);
-begin
-  inherited Create(AGUID, ACaption, ADescription, AMenuItemName);
-  FSensor := ASensor;
-  FSensorTypeIID := ASensorTypeIID;
-end;
-
-function TSensorListEntity.GetSensor: ISensor;
-begin
-  Result := FSensor;
-end;
-
-function TSensorListEntity.GetSensorTypeIID: TGUID;
-begin
-  Result := FSensorTypeIID;
 end;
 
 { TSensorDoubeleValue }

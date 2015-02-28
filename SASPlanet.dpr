@@ -878,6 +878,7 @@ uses
   u_TreeByMapActiveMapsSet in 'Src\u_TreeByMapActiveMapsSet.pas',
   i_Sensor in 'Src\Sensor\i_Sensor.pas',
   i_SensorList in 'Src\Sensor\i_SensorList.pas',
+  u_SensorListEntity in 'Src\Sensor\u_SensorListEntity.pas',
   u_SensorListBase in 'Src\Sensor\u_SensorListBase.pas',
   u_SensorListStuped in 'Src\Sensor\u_SensorListStuped.pas',
   u_SensorViewTextTBXPanel in 'Src\Sensor\u_SensorViewTextTBXPanel.pas',
