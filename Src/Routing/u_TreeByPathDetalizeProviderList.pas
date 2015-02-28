@@ -24,19 +24,23 @@ interface
 
 uses
   Classes,
-  u_TreeChangeableBase,
-  i_PathDetalizeProviderList;
+  i_StaticTreeItem,
+  i_StaticTreeBuilder,
+  i_PathDetalizeProviderList,
+  u_TreeChangeableBase;
 
 type
   TTreeByPathDetalizeProviderList = class(TTreeChangeableBase)
   private
+    FStaticTreeBuilder: IStaticTreeBuilder;
     FProviderList: IPathDetalizeProviderList;
   protected
-    function GetSource: IInterface; override;
+    function CreateStatic: IStaticTreeItem; override;
   public
-    constructor Create(const AProviderList: IPathDetalizeProviderList);
+    constructor Create(
+      const AProviderList: IPathDetalizeProviderList
+    );
   end;
-
 
 implementation
 
@@ -99,16 +103,14 @@ constructor TTreeByPathDetalizeProviderList.Create(
   const AProviderList: IPathDetalizeProviderList
 );
 begin
+  inherited Create(AProviderList.ChangeNotifier);
   FProviderList := AProviderList;
-  inherited Create(
-    TStaticTreeByPathDetalizeProviderListBuilder.Create,
-    FProviderList.GetChangeNotifier
-  );
+  FStaticTreeBuilder := TStaticTreeByPathDetalizeProviderListBuilder.Create;
 end;
 
-function TTreeByPathDetalizeProviderList.GetSource: IInterface;
+function TTreeByPathDetalizeProviderList.CreateStatic: IStaticTreeItem;
 begin
-  Result := FProviderList;
+  Result := FStaticTreeBuilder.BuildStatic(FProviderList);
 end;
 
 end.

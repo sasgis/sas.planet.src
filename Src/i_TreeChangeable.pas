@@ -23,16 +23,13 @@ unit i_TreeChangeable;
 interface
 
 uses
-  i_Notifier,
-  i_StaticTreeItem;
+  i_StaticTreeItem,
+  i_Changeable;
 
 type
-  ITreeChangeable = interface
+  ITreeChangeable = interface(IChangeable)
     ['{5AB4FBFC-826D-412C-B40A-4C1FA7366F18}']
     function GetStatic: IStaticTreeItem;
-
-    function GetChangeNotifier: INotifier;
-    property ChangeNotifier: INotifier read GetChangeNotifier;
   end;
 
 implementation

@@ -33,9 +33,6 @@ type
     function GetGUID: TGUID;
     property GUID: TGUID read GetGUID;
 
-    function GetCaption: string;
-    property Caption: string read GetCaption;
-
     function GetDescription: string;
     property Description: string read GetDescription;
 

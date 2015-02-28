@@ -27,19 +27,17 @@ uses
   i_StaticTreeItem,
   i_MapTypeSet,
   i_TreeChangeable,
-  u_BaseInterfacedObject;
+  u_ChangeableBase;
 
 type
-  TTreeByMapActiveMapsSet = class(TBaseInterfacedObject, ITreeChangeable)
+  TTreeByMapActiveMapsSet = class(TChangeableWithSimpleLockBase, ITreeChangeable)
   private
     FMapsSet: IMapTypeSet;
     FStaticTree: IStaticTreeItem;
-    FChangeNotifier: INotifier;
   protected
     function CreateStatic: IStaticTreeItem;
   protected
     function GetStatic: IStaticTreeItem;
-    function GetChangeNotifier: INotifier;
   public
     constructor Create(const AMapsSet: IMapTypeSet);
   end;
@@ -56,21 +54,12 @@ constructor TTreeByMapActiveMapsSet.Create(const AMapsSet: IMapTypeSet);
 begin
   inherited Create;
   FMapsSet := AMapsSet;
-  FChangeNotifier :=
-    TNotifierBase.Create(
-      GSync.SyncVariable.Make(Self.ClassName + 'Notifier')
-    );
   FStaticTree := CreateStatic;
 end;
 
 function TTreeByMapActiveMapsSet.CreateStatic: IStaticTreeItem;
 begin
   Result := nil;
-end;
-
-function TTreeByMapActiveMapsSet.GetChangeNotifier: INotifier;
-begin
-  Result := FChangeNotifier;
 end;
 
 function TTreeByMapActiveMapsSet.GetStatic: IStaticTreeItem;

@@ -27,30 +27,25 @@ uses
   i_Notifier,
   i_Listener,
   i_StaticTreeItem,
-  i_StaticTreeBuilder,
   i_TreeChangeable,
-  u_BaseInterfacedObject;
+  u_ChangeableBase;
 
 type
-  TTreeChangeableBase = class(TBaseInterfacedObject, ITreeChangeable)
+  TTreeChangeableBase = class(TChangeableWithSimpleLockBase, ITreeChangeable)
   private
-    FStaticTreeBuilder: IStaticTreeBuilder;
     FConfigChangeListener: IListener;
     FConfigChangeNotifier: INotifier;
     FChangeNotifier: INotifierInternal;
-    FCS: IReadWriteSync;
 
     FStatic: IStaticTreeItem;
     procedure OnConfigChange;
   protected
-    function CreateStatic: IStaticTreeItem;
-    function GetSource: IInterface; virtual; abstract;
+    function CreateStatic: IStaticTreeItem; virtual; abstract;
+    procedure AfterConstruction; override;
   protected
     function GetStatic: IStaticTreeItem;
-    function GetChangeNotifier: INotifier;
   public
     constructor Create(
-      const AStaticTreeBuilder: IStaticTreeBuilder;
       const AConfigChangeNotifier: INotifier
     );
     destructor Destroy; override;
@@ -59,27 +54,23 @@ type
 implementation
 
 uses
-  u_Synchronizer,
-  u_Notifier,
   u_ListenerByEvent;
 
 { TTreeChangeableBase }
 
 constructor TTreeChangeableBase.Create(
-  const AStaticTreeBuilder: IStaticTreeBuilder;
   const AConfigChangeNotifier: INotifier
 );
 begin
   inherited Create;
-  FStaticTreeBuilder := AStaticTreeBuilder;
   FConfigChangeNotifier := AConfigChangeNotifier;
-  FChangeNotifier :=
-    TNotifierBase.Create(
-      GSync.SyncVariable.Make(Self.ClassName + 'Notifier')
-    );
-  FCS := GSync.SyncVariable.Make(Self.ClassName);
   FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FConfigChangeNotifier.Add(FConfigChangeListener);
+end;
+
+procedure TTreeChangeableBase.AfterConstruction;
+begin
+  inherited;
   OnConfigChange;
 end;
 
@@ -91,28 +82,16 @@ begin
     FConfigChangeNotifier := nil;
   end;
 
-  FCS := nil;
-
   inherited;
-end;
-
-function TTreeChangeableBase.CreateStatic: IStaticTreeItem;
-begin
-  Result := FStaticTreeBuilder.BuildStatic(GetSource);
-end;
-
-function TTreeChangeableBase.GetChangeNotifier: INotifier;
-begin
-  Result := FChangeNotifier;
 end;
 
 function TTreeChangeableBase.GetStatic: IStaticTreeItem;
 begin
-  FCS.BeginRead;
+  CS.BeginRead;
   try
     Result := FStatic;
   finally
-    FCS.EndRead;
+    CS.EndRead;
   end;
 end;
 
@@ -121,13 +100,13 @@ var
   VStatic: IStaticTreeItem;
 begin
   VStatic := CreateStatic;
-  FCS.BeginWrite;
+  CS.BeginWrite;
   try
     FStatic := VStatic;
   finally
-    FCS.EndWrite;
+    CS.EndWrite;
   end;
-  FChangeNotifier.Notify(nil);
+  DoChangeNotify;
 end;
 
 end.
