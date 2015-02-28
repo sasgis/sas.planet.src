@@ -31,10 +31,10 @@ uses
   i_MapTypeListStatic,
   i_MapTypeListBuilder,
   i_MapTypeListChangeable,
-  u_ConfigDataElementBase;
+  u_ChangeableBase;
 
 type
-  TMapTypeListChangeableByActiveMapsSet = class(TConfigDataElementWithStaticBaseEmptySaveLoad, IMapTypeListChangeable)
+  TMapTypeListChangeableByActiveMapsSet = class(TChangeableWithSimpleLockBase, IMapTypeListChangeable)
   private
     FMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
     FSourceSet: IMapTypeSetChangeable;
@@ -42,12 +42,12 @@ type
     FZOrderListener: IListener;
     FLayerSetListener: IListener;
     FLayersSet: IMapTypeSet;
+    FStatic: IMapTypeListStatic;
     procedure OnMapZOrderChanged;
     procedure OnLayerSetChanged;
+    function CreateStatic: IMapTypeListStatic;
   private
     function GetList: IMapTypeListStatic;
-  protected
-    function CreateStatic: IInterface; override;
   public
     constructor Create(
       const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
@@ -103,7 +103,7 @@ begin
   inherited;
 end;
 
-function TMapTypeListChangeableByActiveMapsSet.CreateStatic: IInterface;
+function TMapTypeListChangeableByActiveMapsSet.CreateStatic: IMapTypeListStatic;
 var
   VLayers: IMapTypeListBuilder;
   VZArray: array of Integer;
@@ -141,7 +141,12 @@ end;
 
 function TMapTypeListChangeableByActiveMapsSet.GetList: IMapTypeListStatic;
 begin
-  Result := IMapTypeListStatic(GetStaticInternal);
+  CS.BeginRead;
+  try
+    Result := FStatic;
+  finally
+    CS.EndRead;
+  end;
 end;
 
 procedure TMapTypeListChangeableByActiveMapsSet.OnLayerSetChanged;
@@ -149,43 +154,48 @@ var
   VNewSet: IMapTypeSet;
   VMapType: IMapType;
   i: Integer;
+  VNeedNotify: Boolean;
 begin
-  VNewSet := FSourceSet.GetStatic;
-  LockWrite;
+  VNeedNotify := False;
+  CS.BeginWrite;
   try
-    if (FLayersSet <> nil) and FLayersSet.IsEqual(VNewSet) then begin
-      Exit;
-    end;
-    if Assigned(FLayersSet) then begin
-      for i := 0 to FLayersSet.Count - 1 do begin
-        VMapType := FLayersSet.Items[i];
-        if not Assigned(VNewSet) or not Assigned(VNewSet.GetMapTypeByGUID(VMapType.GUID)) then begin
-          VMapType.LayerDrawConfig.ChangeNotifier.Remove(FZOrderListener);
+    VNewSet := FSourceSet.GetStatic;
+    if (FLayersSet = nil) or not FLayersSet.IsEqual(VNewSet) then begin
+      if Assigned(FLayersSet) then begin
+        for i := 0 to FLayersSet.Count - 1 do begin
+          VMapType := FLayersSet.Items[i];
+          if not Assigned(VNewSet) or not Assigned(VNewSet.GetMapTypeByGUID(VMapType.GUID)) then begin
+            VMapType.LayerDrawConfig.ChangeNotifier.Remove(FZOrderListener);
+          end;
         end;
       end;
-    end;
-    if VNewSet <> nil then begin
-      for i := 0 to VNewSet.Count - 1 do begin
-        VMapType := VNewSet.Items[i];
-        if not Assigned(FLayersSet) or not Assigned(FLayersSet.GetMapTypeByGUID(VMapType.GUID)) then begin
-          VMapType.LayerDrawConfig.ChangeNotifier.Add(FZOrderListener);
+      if VNewSet <> nil then begin
+        for i := 0 to VNewSet.Count - 1 do begin
+          VMapType := VNewSet.Items[i];
+          if not Assigned(FLayersSet) or not Assigned(FLayersSet.GetMapTypeByGUID(VMapType.GUID)) then begin
+            VMapType.LayerDrawConfig.ChangeNotifier.Add(FZOrderListener);
+          end;
         end;
       end;
+      FLayersSet := VNewSet;
+      FStatic := CreateStatic;
+      VNeedNotify := True;
     end;
-    FLayersSet := VNewSet;
-    SetChanged;
   finally
-    UnlockWrite;
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
 procedure TMapTypeListChangeableByActiveMapsSet.OnMapZOrderChanged;
 begin
-  LockWrite;
+  CS.BeginWrite;
   try
-    SetChanged;
+    FStatic := CreateStatic;
   finally
-    UnlockWrite;
+    CS.EndWrite;
   end;
 end;
 
