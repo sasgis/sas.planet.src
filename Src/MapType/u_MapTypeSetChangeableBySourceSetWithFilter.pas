@@ -28,21 +28,21 @@ uses
   i_MapTypeSet,
   i_MapTypeSetBuilder,
   i_MapTypeSetChangeable,
-  u_ConfigDataElementBase;
+  u_ChangeableBase;
 
 type
-  TMapTypeSetChangeableBySourceSetWithFilter = class(TConfigDataElementWithStaticBaseEmptySaveLoad, IMapTypeSetChangeable)
+  TMapTypeSetChangeableBySourceSetWithFilter = class(TChangeableWithSimpleLockBase, IMapTypeSetChangeable)
   private
     FMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
     FSourceSet: IMapTypeSetChangeable;
     FSourceSetListener: IListener;
 
     FPrevSourceSetStatic: IMapTypeSet;
+    FStatic: IMapTypeSet;
     procedure OnActiveMapsSetChange;
+    function CreateStatic: IMapTypeSet;
   private
     function GetStatic: IMapTypeSet;
-  protected
-    function CreateStatic: IInterface; override;
   protected
     function IsValidMapType(const AMapType: IMapType): Boolean; virtual;
   public
@@ -91,6 +91,7 @@ begin
   FSourceSet.ChangeNotifier.Add(FSourceSetListener);
 
   FPrevSourceSetStatic := FSourceSet.GetStatic;
+  FStatic := CreateStatic;
 end;
 
 destructor TMapTypeSetChangeableBySourceSetWithFilter.Destroy;
@@ -103,7 +104,7 @@ begin
   inherited;
 end;
 
-function TMapTypeSetChangeableBySourceSetWithFilter.CreateStatic: IInterface;
+function TMapTypeSetChangeableBySourceSetWithFilter.CreateStatic: IMapTypeSet;
 var
   VResult: IMapTypeSetBuilder;
   i: Integer;
@@ -123,7 +124,12 @@ end;
 
 function TMapTypeSetChangeableBySourceSetWithFilter.GetStatic: IMapTypeSet;
 begin
-  Result := IMapTypeSet(GetStaticInternal);
+  CS.BeginRead;
+  try
+    Result := FStatic;
+  finally
+    CS.EndRead;
+  end;
 end;
 
 function TMapTypeSetChangeableBySourceSetWithFilter.IsValidMapType(
@@ -139,13 +145,13 @@ var
   VMapType: IMapType;
   VChanged: Boolean;
 begin
-  VNewSet := FSourceSet.GetStatic;
-  LockWrite;
+  VChanged := False;
+  CS.BeginWrite;
   try
+    VNewSet := FSourceSet.GetStatic;
     if (FPrevSourceSetStatic <> nil) and FPrevSourceSetStatic.IsEqual(VNewSet) then begin
       Exit;
     end;
-    VChanged := False;
     if FPrevSourceSetStatic <> nil then begin
       for i := 0 to FPrevSourceSetStatic.Count - 1 do begin
         VMapType := FPrevSourceSetStatic.Items[i];
@@ -168,10 +174,13 @@ begin
     end;
     FPrevSourceSetStatic := VNewSet;
     if VChanged then begin
-      SetChanged;
+      FStatic := CreateStatic;
     end;
   finally
-    UnlockWrite;
+    CS.EndWrite;
+  end;
+  if VChanged then begin
+    DoChangeNotify;
   end;
 end;
 
