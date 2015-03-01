@@ -18,50 +18,71 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_PathDetalizeProviderListEntity;
+unit u_PathDetalizeProviderTreeEntity;
 
 interface
 
 uses
   i_PathDetalizeProvider,
-  i_StringConfigDataElement,
-  i_PathDetalizeProviderList,
-  u_UserInterfaceItemBase;
+  i_PathDetalizeProviderTreeEntity,
+  u_BaseInterfacedObject;
 
 type
-  TPathDetalizeProviderListEntity = class(TUserInterfaceItemBase, IPathDetalizeProviderListEntity)
+  TPathDetalizeProviderTreeEntity = class(TBaseInterfacedObject, IPathDetalizeProviderTreeEntity)
   private
+    FGUID: TGUID;
+    FDescription: string;
+    FMenuItemName: string;
     FProvider: IPathDetalizeProvider;
   private
+    function GetGUID: TGUID;
+    function GetDescription: string;
+    function GetMenuItemName: string;
+
     function GetProvider: IPathDetalizeProvider;
   public
     constructor Create(
       const AGUID: TGUID;
-      const ACaption: IStringConfigDataElement;
-      const ADescription: IStringConfigDataElement;
-      const AMenuItemName: IStringConfigDataElement;
+      const ADescription: string;
+      const AMenuItemName: string;
       const AProvider: IPathDetalizeProvider
     );
   end;
-
 
 implementation
 
 { TPathDetalizeProviderListEntity }
 
-constructor TPathDetalizeProviderListEntity.Create(
+constructor TPathDetalizeProviderTreeEntity.Create(
   const AGUID: TGUID;
-  const ACaption: IStringConfigDataElement;
-  const ADescription: IStringConfigDataElement;
-  const AMenuItemName: IStringConfigDataElement;
+  const ADescription: string;
+  const AMenuItemName: string;
   const AProvider: IPathDetalizeProvider
 );
 begin
-  inherited Create(AGUID, ACaption, ADescription, AMenuItemName);
+  inherited Create;
+  FGUID := AGUID;
+  FDescription := ADescription;
+  FMenuItemName := AMenuItemName;
   FProvider := AProvider;
 end;
 
-function TPathDetalizeProviderListEntity.GetProvider: IPathDetalizeProvider;
+function TPathDetalizeProviderTreeEntity.GetDescription: string;
+begin
+  Result := FDescription;
+end;
+
+function TPathDetalizeProviderTreeEntity.GetGUID: TGUID;
+begin
+  Result := FGUID;
+end;
+
+function TPathDetalizeProviderTreeEntity.GetMenuItemName: string;
+begin
+  Result := FMenuItemName;
+end;
+
+function TPathDetalizeProviderTreeEntity.GetProvider: IPathDetalizeProvider;
 begin
   Result := FProvider;
 end;

@@ -35,16 +35,15 @@ type
   private
     FConfigChangeListener: IListener;
     FConfigChangeNotifier: INotifier;
-    FChangeNotifier: INotifierInternal;
 
     FStatic: IStaticTreeItem;
     procedure OnConfigChange;
   protected
     function CreateStatic: IStaticTreeItem; virtual; abstract;
-    procedure AfterConstruction; override;
   protected
     function GetStatic: IStaticTreeItem;
   public
+    procedure AfterConstruction; override;
     constructor Create(
       const AConfigChangeNotifier: INotifier
     );

@@ -74,7 +74,7 @@ uses
   i_MapTypeSetBuilder,
   i_MapTypeListBuilder,
   i_MapCalibration,
-  i_PathDetalizeProviderList,
+  i_TreeChangeable,
   i_GPSRecorder,
   i_SatellitesInViewMapDraw,
   i_TerrainProviderList,
@@ -165,7 +165,7 @@ type
     FDebugInfoSubSystem: IDebugInfoSubSystem;
     FProtocol: TIeEmbeddedProtocolRegistration;
     FMapVersionFactoryList: IMapVersionFactoryList;
-    FPathDetalizeList: IPathDetalizeProviderList;
+    FPathDetalizeTree: ITreeChangeable;
     FInvisibleBrowser: IInvisibleBrowser;
     FInternalBrowser: IInternalBrowser;
     FDebugInfoWindow: IDebugInfoWindow;
@@ -252,7 +252,7 @@ type
     property BitmapPostProcessing: IBitmapPostProcessingChangeable read FBitmapPostProcessing;
     property GPSRecorder: IGPSRecorder read FGPSRecorder;
     property GpsTrackRecorder: IGpsTrackRecorder read FGpsTrackRecorder;
-    property PathDetalizeList: IPathDetalizeProviderList read FPathDetalizeList;
+    property PathDetalizeTree: ITreeChangeable read FPathDetalizeTree;
     property InternalBrowser: IInternalBrowser read FInternalBrowser;
     property DebugInfoWindow: IDebugInfoWindow read FDebugInfoWindow;
     property VectorGeometryLonLatFactory: IGeometryLonLatFactory read FVectorGeometryLonLatFactory;
@@ -360,7 +360,7 @@ uses
   u_VectorDataFactorySimple,
   u_GeometryProjectedFactory,
   u_DownloadResultFactory,
-  u_PathDetalizeProviderListSimple,
+  u_PathDetalizeProviderTreeSimple,
   u_InternalDomainInfoProviderList,
   u_InternalDomainInfoProviderByMapTypeList,
   u_InternalDomainInfoProviderByDataProvider,
@@ -792,8 +792,8 @@ begin
       FVectorItemSubsetBuilderFactory,
       True
     );
-  FPathDetalizeList :=
-    TPathDetalizeProviderListSimple.Create(
+  FPathDetalizeTree :=
+    TPathDetalizeProviderTreeSimple.Create(
       FGlobalConfig.LanguageManager,
       FGlobalConfig.InetConfig,
       FBGTimerNotifier,

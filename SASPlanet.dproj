@@ -1101,14 +1101,12 @@
     <DCCReference Include="Src\RegionProcess\u_ThreadRegionProcessAbstract.pas" />
     <DCCReference Include="Src\Routing\c_PathDetalizeProvidersGUID.pas" />
     <DCCReference Include="Src\Routing\i_PathDetalizeProvider.pas" />
-    <DCCReference Include="Src\Routing\i_PathDetalizeProviderList.pas" />
+    <DCCReference Include="Src\Routing\i_PathDetalizeProviderTreeEntity.pas" />
     <DCCReference Include="Src\Routing\u_PathDetalizeProviderCloudMade.pas" />
-    <DCCReference Include="Src\Routing\u_PathDetalizeProviderListBase.pas" />
-    <DCCReference Include="Src\Routing\u_PathDetalizeProviderListEntity.pas" />
-    <DCCReference Include="Src\Routing\u_PathDetalizeProviderListSimple.pas" />
     <DCCReference Include="Src\Routing\u_PathDetalizeProviderMailRu.pas" />
+    <DCCReference Include="Src\Routing\u_PathDetalizeProviderTreeEntity.pas" />
+    <DCCReference Include="Src\Routing\u_PathDetalizeProviderTreeSimple.pas" />
     <DCCReference Include="Src\Routing\u_PathDetalizeProviderYourNavigation.pas" />
-    <DCCReference Include="Src\Routing\u_TreeByPathDetalizeProviderList.pas" />
     <DCCReference Include="Src\SASPlanet.modules.pas" />
     <DCCReference Include="Src\SecondaryForms\frm_About.pas">
       <Form>frmAbout</Form>

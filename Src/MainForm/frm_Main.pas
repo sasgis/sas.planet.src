@@ -882,7 +882,7 @@ uses
   i_MarkerDrawable,
   i_LanguageManager,
   i_DoublePointFilter,
-  i_PathDetalizeProviderList,
+  i_PathDetalizeProviderTreeEntity,
   i_SensorViewListGenerator,
   i_VectorItemSubsetBuilder,
   i_GeometryLonLatFactory,
@@ -985,7 +985,6 @@ uses
   u_EnumDoublePointLine2Poly,
   u_SaveLoadTBConfigByConfigProvider,
   u_MapTypeMenuItemsGeneratorBasic,
-  u_TreeByPathDetalizeProviderList,
   u_MenuGeneratorByStaticTreeSimple,
   u_BitmapTileMatrixChangeableWithThread,
   u_MainMapsState,
@@ -1626,7 +1625,7 @@ begin
 
     LoadParams;
 
-    FPathProvidersTree := TTreeByPathDetalizeProviderList.Create(GState.PathDetalizeList);
+    FPathProvidersTree := GState.PathDetalizeTree;
     FPathProvidersMenuBuilder := TMenuGeneratorByStaticTreeSimple.Create(Self.TBEditPathMarshClick);
 
     FLinksList.Add(
@@ -7481,7 +7480,7 @@ end;
 procedure TfrmMain.TBEditPathMarshClick(Sender: TObject);
 var
   VResult: IGeometryLonLatLine;
-  VEntity: IPathDetalizeProviderListEntity;
+  VEntity: IPathDetalizeProviderTreeEntity;
   VProvider: IPathDetalizeProvider;
   VIsError: Boolean;
   VInterface: IInterface;
@@ -7490,7 +7489,7 @@ var
 begin
   if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathOnMapEdit) then begin
     VInterface := IInterface(TTBXItem(Sender).tag);
-    if Supports(VInterface, IPathDetalizeProviderListEntity, VEntity) then begin
+    if Supports(VInterface, IPathDetalizeProviderTreeEntity, VEntity) then begin
       VProvider := VEntity.GetProvider;
       VIsError := True;
       try
