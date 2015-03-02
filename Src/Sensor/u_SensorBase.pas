@@ -28,120 +28,89 @@ uses
   i_GPS,
   i_Sensor,
   i_ListenerNotifierLinksList,
-  u_ConfigDataElementBase;
+  u_ChangeableBase;
 
 type
-  TSensorBase = class(TConfigDataElementBaseEmptySaveLoad, ISensor)
+  TSensorBase = class(TChangeableWithSimpleLockBase, ISensor)
   private
     FLinksList: IListenerNotifierLinksList;
   protected
     property LinksList: IListenerNotifierLinksList read FLinksList;
   protected
+    procedure OnDataChanged; virtual; abstract;
     function GetSensorTypeIID: TGUID; virtual; abstract;
   public
-    constructor Create;
+    procedure AfterConstruction; override;
+  public
+    constructor Create(
+      const ADataChangeNotifier: INotifier
+    );
   end;
 
   TSensorDoubeleValue = class(TSensorBase)
   private
     FLastValue: Double;
-    procedure OnDataChanged;
     function ValueChanged(const AOld, ANew: Double): Boolean;
   protected
+    procedure OnDataChanged; override;
     function GetCurrentValue: Double; virtual; abstract;
   protected
     function GetValue: Double;
-  public
-    procedure AfterConstruction; override;
-  public
-    constructor Create(
-      const ADataChangeNotifier: INotifier
-    );
   end;
 
   TSensorByteValue = class(TSensorBase)
   private
     FLastValue: Byte;
-    procedure OnDataChanged;
     function ValueChanged(const AOld, ANew: Byte): Boolean;
   protected
+    procedure OnDataChanged; override;
     function GetCurrentValue: Byte; virtual; abstract;
   protected
     function GetValue: Byte;
-  public
-    procedure AfterConstruction; override;
-  public
-    constructor Create(
-      const ADataChangeNotifier: INotifier
-    );
   end;
 
   TSensorDateTimeValue = class(TSensorBase)
   private
     FLastValue: TDateTime;
-    procedure OnDataChanged;
     function ValueChanged(const AOld, ANew: TDateTime): Boolean;
   protected
+    procedure OnDataChanged; override;
     function GetCurrentValue: TDateTime; virtual; abstract;
   protected
     function GetValue: TDateTime;
-  public
-    procedure AfterConstruction; override;
-  public
-    constructor Create(
-      const ADataChangeNotifier: INotifier
-    );
   end;
 
   TSensorPosititonValue = class(TSensorBase)
   private
     FLastValue: TDoublePoint;
-    procedure OnDataChanged;
     function ValueChanged(const AOld, ANew: TDoublePoint): Boolean;
   protected
+    procedure OnDataChanged; override;
     function GetCurrentValue: TDoublePoint; virtual; abstract;
   protected
     function GetValue: TDoublePoint;
-  public
-    procedure AfterConstruction; override;
-  public
-    constructor Create(
-      const ADataChangeNotifier: INotifier
-    );
   end;
 
   TSensorTextValue = class(TSensorBase)
   private
     FLastValue: string;
-    procedure OnDataChanged;
     function ValueChanged(const AOld, ANew: string): Boolean;
   protected
+    procedure OnDataChanged; override;
     function GetCurrentValue: string; virtual; abstract;
   protected
     function GetText: string;
-  public
-    procedure AfterConstruction; override;
-  public
-    constructor Create(
-      const ADataChangeNotifier: INotifier
-    );
   end;
 
   TSensorGPSSatellitesValue = class(TSensorBase)
   private
     FLastValue: IGPSSatellitesInView;
-    procedure OnDataChanged;
     function ValueChanged(const AOld, ANew: IGPSSatellitesInView): Boolean;
   protected
+    procedure OnDataChanged; override;
     function GetCurrentValue: IGPSSatellitesInView; virtual; abstract;
   protected
     function GetInfo: IGPSSatellitesInView;
-  public
-    procedure AfterConstruction; override;
-  public
-    constructor Create(
-      const ADataChangeNotifier: INotifier
-    );
   end;
 
 implementation
@@ -154,55 +123,56 @@ uses
 
 { TSensorBase }
 
-constructor TSensorBase.Create;
+constructor TSensorBase.Create(
+  const ADataChangeNotifier: INotifier
+);
 begin
   inherited Create;
 
   FLinksList := TListenerNotifierLinksList.Create;
-  FLinksList.ActivateLinks;
-end;
-
-{ TSensorDoubeleValue }
-
-procedure TSensorDoubeleValue.AfterConstruction;
-begin
-  inherited;
-  OnDataChanged;
-end;
-
-constructor TSensorDoubeleValue.Create(
-  const ADataChangeNotifier: INotifier);
-begin
-  inherited Create;
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnDataChanged),
     ADataChangeNotifier
   );
 end;
 
+procedure TSensorBase.AfterConstruction;
+begin
+  inherited;
+  FLinksList.ActivateLinks;
+  OnDataChanged;
+end;
+
+{ TSensorDoubeleValue }
+
 function TSensorDoubeleValue.GetValue: Double;
 begin
-  LockRead;
+  CS.BeginRead;
   try
     Result := FLastValue;
   finally
-    UnlockRead;
+    CS.EndRead;
   end;
 end;
 
 procedure TSensorDoubeleValue.OnDataChanged;
 var
   VValue: Double;
+  VNeedNotify: Boolean;
 begin
+  VNeedNotify := False;
   VValue := GetCurrentValue;
-  LockWrite;
+  CS.BeginWrite;
   try
     if ValueChanged(FLastValue, VValue) then begin
       FLastValue := VValue;
-      SetChanged;
+      VNeedNotify := True;
     end;
   finally
-    UnlockWrite;
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
@@ -224,46 +194,34 @@ end;
 
 { TSensorDateTimeValue }
 
-procedure TSensorDateTimeValue.AfterConstruction;
-begin
-  inherited;
-  OnDataChanged;
-end;
-
-constructor TSensorDateTimeValue.Create(
-  const ADataChangeNotifier: INotifier
-);
-begin
-  inherited Create;
-  LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnDataChanged),
-    ADataChangeNotifier
-  );
-end;
-
 function TSensorDateTimeValue.GetValue: TDateTime;
 begin
-  LockRead;
+  CS.BeginRead;
   try
     Result := FLastValue;
   finally
-    UnlockRead;
+    CS.EndRead;
   end;
 end;
 
 procedure TSensorDateTimeValue.OnDataChanged;
 var
   VValue: TDateTime;
+  VNeedNotify: Boolean;
 begin
+  VNeedNotify := False;
   VValue := GetCurrentValue;
-  LockWrite;
+  CS.BeginWrite;
   try
     if ValueChanged(FLastValue, VValue) then begin
       FLastValue := VValue;
-      SetChanged;
+      VNeedNotify := True;
     end;
   finally
-    UnlockWrite;
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
@@ -286,46 +244,34 @@ end;
 
 { TSensorPosititonValue }
 
-procedure TSensorPosititonValue.AfterConstruction;
-begin
-  inherited;
-  OnDataChanged;
-end;
-
-constructor TSensorPosititonValue.Create(
-  const ADataChangeNotifier: INotifier
-);
-begin
-  inherited Create;
-  LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnDataChanged),
-    ADataChangeNotifier
-  );
-end;
-
 function TSensorPosititonValue.GetValue: TDoublePoint;
 begin
-  LockRead;
+  CS.BeginRead;
   try
     Result := FLastValue;
   finally
-    UnlockRead;
+    CS.EndRead;
   end;
 end;
 
 procedure TSensorPosititonValue.OnDataChanged;
 var
   VValue: TDoublePoint;
+  VNeedNotify: Boolean;
 begin
+  VNeedNotify := False;
   VValue := GetCurrentValue;
-  LockWrite;
+  CS.BeginWrite;
   try
     if ValueChanged(FLastValue, VValue) then begin
       FLastValue := VValue;
-      SetChanged;
+      VNeedNotify := True;
     end;
   finally
-    UnlockWrite;
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
@@ -337,46 +283,34 @@ end;
 
 { TSensorTextValue }
 
-procedure TSensorTextValue.AfterConstruction;
-begin
-  inherited;
-  OnDataChanged;
-end;
-
-constructor TSensorTextValue.Create(
-  const ADataChangeNotifier: INotifier
-);
-begin
-  inherited Create;
-  LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnDataChanged),
-    ADataChangeNotifier
-  );
-end;
-
 function TSensorTextValue.GetText: string;
 begin
-  LockRead;
+  CS.BeginRead;
   try
     Result := FLastValue;
   finally
-    UnlockRead;
+    CS.EndRead;
   end;
 end;
 
 procedure TSensorTextValue.OnDataChanged;
 var
   VValue: string;
+  VNeedNotify: Boolean;
 begin
+  VNeedNotify := False;
   VValue := GetCurrentValue;
-  LockWrite;
+  CS.BeginWrite;
   try
     if ValueChanged(FLastValue, VValue) then begin
       FLastValue := VValue;
-      SetChanged;
+      VNeedNotify := True;
     end;
   finally
-    UnlockWrite;
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
@@ -387,45 +321,34 @@ end;
 
 { TSensorByteValue }
 
-procedure TSensorByteValue.AfterConstruction;
-begin
-  inherited;
-  OnDataChanged;
-end;
-
-constructor TSensorByteValue.Create(
-  const ADataChangeNotifier: INotifier);
-begin
-  inherited Create;
-  LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnDataChanged),
-    ADataChangeNotifier
-  );
-end;
-
 function TSensorByteValue.GetValue: Byte;
 begin
-  LockRead;
+  CS.BeginRead;
   try
     Result := FLastValue;
   finally
-    UnlockRead;
+    CS.EndRead;
   end;
 end;
 
 procedure TSensorByteValue.OnDataChanged;
 var
   VValue: Byte;
+  VNeedNotify: Boolean;
 begin
+  VNeedNotify := False;
   VValue := GetCurrentValue;
-  LockWrite;
+  CS.BeginWrite;
   try
     if ValueChanged(FLastValue, VValue) then begin
       FLastValue := VValue;
-      SetChanged;
+      VNeedNotify := True;
     end;
   finally
-    UnlockWrite;
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
@@ -436,45 +359,34 @@ end;
 
 { TSensorGPSSatellitesValue }
 
-procedure TSensorGPSSatellitesValue.AfterConstruction;
-begin
-  inherited;
-  OnDataChanged;
-end;
-
-constructor TSensorGPSSatellitesValue.Create(
-  const ADataChangeNotifier: INotifier);
-begin
-  inherited Create;
-  LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnDataChanged),
-    ADataChangeNotifier
-  );
-end;
-
 function TSensorGPSSatellitesValue.GetInfo: IGPSSatellitesInView;
 begin
-  LockRead;
+  CS.BeginRead;
   try
     Result := FLastValue;
   finally
-    UnlockRead;
+    CS.EndRead;
   end;
 end;
 
 procedure TSensorGPSSatellitesValue.OnDataChanged;
 var
   VValue: IGPSSatellitesInView;
+  VNeedNotify: Boolean;
 begin
+  VNeedNotify := False;
   VValue := GetCurrentValue;
-  LockWrite;
+  CS.BeginWrite;
   try
     if ValueChanged(FLastValue, VValue) then begin
       FLastValue := VValue;
-      SetChanged;
+      VNeedNotify := True;
     end;
   finally
-    UnlockWrite;
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
