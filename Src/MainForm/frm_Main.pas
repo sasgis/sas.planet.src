@@ -921,7 +921,6 @@ uses
   u_MarkerProviderForVectorItemForMarkPoints,
   u_GeoFunc,
   u_GeoToStrFunc,
-  u_VectorItemSubsetChangeableForVectorLayers,
   u_VectorItemSubsetChangeableForMarksLayer,
   u_VectorItemSubsetChangeableBySearchResult,
   u_BitmapLayerProviderChangeableForMainLayer,

@@ -410,7 +410,6 @@ uses
   u_FullMapMouseCursorLayerConfig in 'Src\MapLayers\WindowLayers\FullMapMouseCursor\u_FullMapMouseCursorLayerConfig.pas',
   u_PLTSimpleParser in 'Src\VectorLoaders\u_PLTSimpleParser.pas',
   i_VectorItemSubsetChangeable in 'Src\Vector\i_VectorItemSubsetChangeable.pas',
-  u_VectorItemSubsetChangeableForVectorLayers in 'Src\Vector\u_VectorItemSubsetChangeableForVectorLayers.pas',
   u_VectorItemSubsetChangeableForMarksLayer in 'Src\Vector\u_VectorItemSubsetChangeableForMarksLayer.pas',
   u_VectorItemSubsetChangeableBySearchResult in 'Src\Vector\u_VectorItemSubsetChangeableBySearchResult.pas',
   u_GeoFunc in 'Src\u_GeoFunc.pas',
