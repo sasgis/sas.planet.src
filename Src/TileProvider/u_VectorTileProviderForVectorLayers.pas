@@ -48,7 +48,7 @@ type
     procedure AddElementsFromMap(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AElments: IVectorItemSubsetBuilder;
+      const AElements: IVectorItemSubsetBuilder;
       const AAlayer: IMapType;
       const AZoom: Byte;
       const ATileSelectLonLatRect: TDoubleRect;
@@ -128,7 +128,7 @@ end;
 procedure TVectorTileProviderForVectorLayers.AddElementsFromMap(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const AElments: IVectorItemSubsetBuilder;
+  const AElements: IVectorItemSubsetBuilder;
   const AAlayer: IMapType;
   const AZoom: Byte;
   const ATileSelectLonLatRect: TDoubleRect;
@@ -172,7 +172,7 @@ begin
             if Assigned(VItem) then begin
               VBounds := VItem.Geometry.Bounds;
               if Assigned(VBounds) and VBounds.IsIntersecWithRect(AItemSelectLonLatRect) then begin
-                AElments.Add(VItem);
+                AElements.Add(VItem);
               end;
             end;
           end;
