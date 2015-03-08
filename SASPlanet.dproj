@@ -138,7 +138,6 @@
     <DCCReference Include="Src\Bitmap32\u_ObjectPoolBitmap32Standart.pas" />
     <DCCReference Include="Src\BitmapLayerProvider\i_BitmapLayerProvider.pas" />
     <DCCReference Include="Src\BitmapLayerProvider\i_BitmapLayerProviderChangeable.pas" />
-    <DCCReference Include="Src\BitmapLayerProvider\u_BitmapLayerProviderByMapType.pas" />
     <DCCReference Include="Src\BitmapLayerProvider\u_BitmapLayerProviderByMarksSubset.pas" />
     <DCCReference Include="Src\BitmapLayerProvider\u_BitmapLayerProviderByTrackPath.pas" />
     <DCCReference Include="Src\BitmapLayerProvider\u_BitmapLayerProviderChangeableBase.pas" />
@@ -146,7 +145,6 @@
     <DCCReference Include="Src\BitmapLayerProvider\u_BitmapLayerProviderChangeableForGpsTrack.pas" />
     <DCCReference Include="Src\BitmapLayerProvider\u_BitmapLayerProviderChangeableForGrids.pas" />
     <DCCReference Include="Src\BitmapLayerProvider\u_BitmapLayerProviderChangeableForMainLayer.pas" />
-    <DCCReference Include="Src\BitmapLayerProvider\u_BitmapLayerProviderChangeableForMapType.pas" />
     <DCCReference Include="Src\BitmapLayerProvider\u_BitmapLayerProviderChangeableForMarksLayer.pas" />
     <DCCReference Include="Src\BitmapLayerProvider\u_BitmapLayerProviderComplex.pas" />
     <DCCReference Include="Src\BitmapLayerProvider\u_BitmapLayerProviderFillingMap.pas" />
