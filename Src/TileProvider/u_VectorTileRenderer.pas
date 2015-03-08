@@ -59,8 +59,7 @@ type
       ATargetBmp: TCustomBitmap32;
       const APoint: IGeometryLonLatPoint;
       const AProjectionInfo: IProjectionInfo;
-      const AMapRect: TRect;
-      var AFixedPointArray: TArrayOfFixedPoint
+      const AMapRect: TRect
     ): Boolean;
     function DrawPath(
       var ABitmapInited: Boolean;
@@ -188,8 +187,7 @@ function TVectorTileRenderer.DrawPoint(
   ATargetBmp: TCustomBitmap32;
   const APoint: IGeometryLonLatPoint;
   const AProjectionInfo: IProjectionInfo;
-  const AMapRect: TRect;
-  var AFixedPointArray: TArrayOfFixedPoint
+  const AMapRect: TRect
 ): Boolean;
 var
   VConverter: ICoordConverter;
@@ -275,7 +273,7 @@ var
   VItemPoly: IGeometryLonLatPolygon;
 begin
   if Supports(AData, IGeometryLonLatPoint, VItemPoint) then begin
-    Result := DrawPoint(ABitmapInited, ATargetBmp, VItemPoint, AProjectionInfo, AMapRect, AFixedPointArray);
+    Result := DrawPoint(ABitmapInited, ATargetBmp, VItemPoint, AProjectionInfo, AMapRect);
   end else if Supports(AData, IGeometryLonLatLine, VItemLine) then begin
     Result := DrawPath(ABitmapInited, ATargetBmp, VItemLine, AProjectionInfo, AMapRect, AFixedPointArray);
   end else if Supports(AData, IGeometryLonLatPolygon, VItemPoly) then begin
