@@ -922,12 +922,10 @@ uses
   u_GeoFunc,
   u_GeoToStrFunc,
   u_VectorItemSubsetChangeableForMarksLayer,
-  u_VectorItemSubsetChangeableBySearchResult,
   u_BitmapLayerProviderChangeableForMainLayer,
   u_SourceDataUpdateInRectByMapsSet,
   u_TiledMapLayer,
   u_BitmapLayerProviderChangeableForGrids,
-  u_BitmapLayerProviderChangeableForVectorMaps,
   u_BitmapLayerProviderChangeableForFillingMap,
   u_SourceDataUpdateInRectByFillingMap,
   u_BitmapLayerProviderChangeableForMarksLayer,
@@ -1009,6 +1007,7 @@ uses
   u_VectorTileMatrixChangeableForVectorLayers,
   u_VectorTileRendererChangeableForVectorMaps,
   u_VectorTileProviderChangeableForVectorLayers,
+  u_VectorTileProviderChangeableForLastSearchResult,
   u_BitmapTileMatrixChangeableComposite,
   u_ImageResamplerFactoryChangeableByConfig,
   u_GeometryLonLatLineChangeableByPathEdit,
@@ -2071,38 +2070,53 @@ begin
         TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(8, 8))
       );
   end;
-  VVectorItems :=
-    TVectorItemSubsetChangeableBySearchResult.Create(
-      GState.LastSearchResult
-    );
-  FLayerSearchResults :=
-    TFindVectorItemsForVectorMaps.Create(
+  VVectorOversizeRect := Rect(10, 10, 10, 10);
+  VVectorTileProvider :=
+    TVectorTileProviderChangeableForLastSearchResult.Create(
+      GState.LastSearchResult,
       GState.VectorItemSubsetBuilderFactory,
-      GState.ProjectedGeometryProvider,
-      VVectorItems,
-      VPerfList.CreateAndAddNewCounter('FindItems'),
-      6
+      VVectorOversizeRect
     );
-  VProvider :=
-    TBitmapLayerProviderChangeableForVectorMaps.Create(
-      FConfig.LayersConfig.KmlLayerConfig.DrawConfig,
-      VMarkerChangeable,
-      GState.Bitmap32StaticFactory,
-      GState.ProjectedGeometryProvider,
-      VVectorItems
-    );
-  VTileMatrix :=
-    TBitmapTileMatrixChangeableWithThread.Create(
-      VPerfList,
+  VVectorTileMatrix :=
+    TVectorTileMatrixChangeableForVectorLayers.Create(
+      VPerfList.CreateAndAddNewSubList('VectorMatrix'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       VTileRectForShow,
-      GState.LocalConverterFactory,
+      GState.HashFunction,
+      GState.VectorItemSubsetBuilderFactory,
+      VVectorTileProvider,
+      nil,
+      FConfig.LayersConfig.KmlLayerConfig.ThreadConfig,
+      VVectorOversizeRect,
+      VDebugName
+    );
+  FLayerSearchResults :=
+    TFindVectorItemsForVectorTileMatrix.Create(
+      GState.VectorItemSubsetBuilderFactory,
+      GState.ProjectedGeometryProvider,
+      VVectorTileMatrix,
+      VPerfList.CreateAndAddNewCounter('FindItems'),
+      6
+    );
+  VVectorRenderer :=
+    TVectorTileRendererChangeableForVectorMaps.Create(
+      FConfig.LayersConfig.KmlLayerConfig.DrawConfig,
+      VMarkerChangeable,
+      GState.Bitmap32StaticFactory,
+      GState.ProjectedGeometryProvider
+    );
+
+  VTileMatrix :=
+    TBitmapTileMatrixChangeableByVectorMatrix.Create(
+      VPerfList.CreateAndAddNewSubList('BitmapMatrix'),
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      VVectorTileMatrix,
+      VVectorRenderer,
       VTileMatrixDraftResampler,
       GState.Bitmap32StaticFactory,
       GState.HashFunction,
-      VProvider,
-      nil,
       FConfig.LayersConfig.KmlLayerConfig.ThreadConfig,
       VDebugName
     );
