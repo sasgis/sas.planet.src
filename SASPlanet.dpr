@@ -310,6 +310,8 @@ uses
   u_VectorTileProviderByOtherProjection in 'Src\TileProvider\u_VectorTileProviderByOtherProjection.pas',
   u_VectorTileProviderChangeableForVectorLayers in 'Src\TileProvider\u_VectorTileProviderChangeableForVectorLayers.pas',
   u_VectorTileProviderForVectorLayers in 'Src\TileProvider\u_VectorTileProviderForVectorLayers.pas',
+  u_VectorTileProviderByFixedSubset in 'Src\TileProvider\u_VectorTileProviderByFixedSubset.pas',
+  u_VectorTileProviderChangeableForLastSearchResult in 'Src\TileProvider\u_VectorTileProviderChangeableForLastSearchResult.pas',
   u_BitmapTileProviderByMatrix in 'Src\TileProvider\u_BitmapTileProviderByMatrix.pas',
   u_BitmapTileProviderByOtherProjection in 'Src\TileProvider\u_BitmapTileProviderByOtherProjection.pas',
   i_VectorTileRenderer in 'Src\TileProvider\i_VectorTileRenderer.pas',

@@ -1249,9 +1249,11 @@
     <DCCReference Include="Src\TileProvider\u_BitmapTileProviderByOtherProjection.pas" />
     <DCCReference Include="Src\TileProvider\u_BitmapTileProviderByStorage.pas" />
     <DCCReference Include="Src\TileProvider\u_TileProviderWithCache.pas" />
+    <DCCReference Include="Src\TileProvider\u_VectorTileProviderByFixedSubset.pas" />
     <DCCReference Include="Src\TileProvider\u_VectorTileProviderByMatrix.pas" />
     <DCCReference Include="Src\TileProvider\u_VectorTileProviderByOtherProjection.pas" />
     <DCCReference Include="Src\TileProvider\u_VectorTileProviderByStorage.pas" />
+    <DCCReference Include="Src\TileProvider\u_VectorTileProviderChangeableForLastSearchResult.pas" />
     <DCCReference Include="Src\TileProvider\u_VectorTileProviderChangeableForVectorLayers.pas" />
     <DCCReference Include="Src\TileProvider\u_VectorTileProviderForVectorLayers.pas" />
     <DCCReference Include="Src\TileProvider\u_VectorTileRenderer.pas" />
