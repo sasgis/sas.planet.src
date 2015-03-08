@@ -51,28 +51,29 @@ type
     FMarksSubset: IVectorItemSubset;
     FProjectedCache: IGeometryProjectedProvider;
 
-    FFixedPointArray: TArrayOfFixedPoint;
-
     function DrawSubset(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const AMarksSubset: IVectorItemSubset;
       ATargetBmp: TCustomBitmap32;
-      const ALocalConverter: ILocalCoordConverter
+      const ALocalConverter: ILocalCoordConverter;
+      var AFixedPointArray: TArrayOfFixedPoint
     ): Boolean;
     function DrawPath(
       var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
       const ALocalConverter: ILocalCoordConverter;
       const AAppearance: IAppearance;
-      const ALine: IGeometryLonLatLine
+      const ALine: IGeometryLonLatLine;
+      var AFixedPointArray: TArrayOfFixedPoint
     ): Boolean;
     function DrawPoly(
       var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
       const ALocalConverter: ILocalCoordConverter;
       const AAppearance: IAppearance;
-      const APoly: IGeometryLonLatPolygon
+      const APoly: IGeometryLonLatPolygon;
+      var AFixedPointArray: TArrayOfFixedPoint
     ): Boolean;
     function DrawPoint(
       var ABitmapInited: Boolean;
@@ -145,7 +146,8 @@ function TBitmapLayerProviderByMarksSubset.DrawPath(
   ATargetBmp: TCustomBitmap32;
   const ALocalConverter: ILocalCoordConverter;
   const AAppearance: IAppearance;
-  const ALine: IGeometryLonLatLine
+  const ALine: IGeometryLonLatLine;
+  var AFixedPointArray: TArrayOfFixedPoint
 ): Boolean;
 var
   VPolygon: TPolygon32;
@@ -159,7 +161,7 @@ begin
     VProjected,
     ALocalConverter,
     am4times,
-    FFixedPointArray,
+    AFixedPointArray,
     VPolygon
   );
   try
@@ -192,7 +194,8 @@ function TBitmapLayerProviderByMarksSubset.DrawPoly(
   ATargetBmp: TCustomBitmap32;
   const ALocalConverter: ILocalCoordConverter;
   const AAppearance: IAppearance;
-  const APoly: IGeometryLonLatPolygon
+  const APoly: IGeometryLonLatPolygon;
+  var AFixedPointArray: TArrayOfFixedPoint
 ): Boolean;
 var
   VPolygon: TPolygon32;
@@ -208,7 +211,7 @@ begin
       VProjected,
       ALocalConverter,
       am4times,
-      FFixedPointArray,
+      AFixedPointArray,
       VPolygon
     );
     if VPolygon <> nil then begin
@@ -269,7 +272,8 @@ function TBitmapLayerProviderByMarksSubset.DrawSubset(
   const ACancelNotifier: INotifierOperation;
   const AMarksSubset: IVectorItemSubset;
   ATargetBmp: TCustomBitmap32;
-  const ALocalConverter: ILocalCoordConverter
+  const ALocalConverter: ILocalCoordConverter;
+  var AFixedPointArray: TArrayOfFixedPoint
 ): Boolean;
 var
   VEnumMarks: IEnumUnknown;
@@ -293,11 +297,11 @@ begin
           Result := True;
         end;
       end else if Supports(VMark.Geometry, IGeometryLonLatLine, VLine) then begin
-        if DrawPath(VBitmapInited, ATargetBmp, ALocalConverter, VMark.Appearance, VLine) then begin
+        if DrawPath(VBitmapInited, ATargetBmp, ALocalConverter, VMark.Appearance, VLine, AFixedPointArray) then begin
           Result := True;
         end;
       end else if Supports(VMark.Geometry, IGeometryLonLatPolygon, VPoly) then begin
-        if DrawPoly(VBitmapInited, ATargetBmp, ALocalConverter, VMark.Appearance, VPoly) then begin
+        if DrawPoly(VBitmapInited, ATargetBmp, ALocalConverter, VMark.Appearance, VPoly, AFixedPointArray) then begin
           Result := True;
         end;
       end;
@@ -308,7 +312,7 @@ begin
         Break;
       end;
       if Supports(VMark.Geometry, IGeometryLonLatPolygon, VPoly) then begin
-        if DrawPoly(VBitmapInited, ATargetBmp, ALocalConverter, VMark.Appearance, VPoly) then begin
+        if DrawPoly(VBitmapInited, ATargetBmp, ALocalConverter, VMark.Appearance, VPoly, AFixedPointArray) then begin
           Result := True;
         end;
       end;
@@ -319,7 +323,7 @@ begin
         Break;
       end;
       if Supports(VMark.Geometry, IGeometryLonLatLine, VLine) then begin
-        if DrawPath(VBitmapInited, ATargetBmp, ALocalConverter, VMark.Appearance, VLine) then begin
+        if DrawPath(VBitmapInited, ATargetBmp, ALocalConverter, VMark.Appearance, VLine, AFixedPointArray) then begin
           Result := True;
         end;
       end;
@@ -353,6 +357,7 @@ var
   VMarksSubset: IVectorItemSubset;
   VDeltaSizeInPixel: TRect;
   VBitmap: TBitmap32ByStaticBitmap;
+  VFixedPointArray: TArrayOfFixedPoint;
 begin
   VLocalRect := ALocalConverter.GetLocalRect;
   VDeltaSizeInPixel := FDrawOrderConfigStatic.OverSizeRect;
@@ -370,7 +375,7 @@ begin
   if Assigned(VMarksSubset) and not VMarksSubset.IsEmpty then begin
     VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
     try
-      if DrawSubset(AOperationID, ACancelNotifier, VMarksSubset, VBitmap, ALocalConverter) then begin
+      if DrawSubset(AOperationID, ACancelNotifier, VMarksSubset, VBitmap, ALocalConverter, VFixedPointArray) then begin
         Result := VBitmap.MakeAndClear;
       end;
     finally
