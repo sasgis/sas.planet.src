@@ -23,7 +23,9 @@ unit u_BitmapTileMatrixChangeableComposite;
 interface
 
 uses
+  Types,
   SysUtils,
+  t_Hash,
   i_BackgroundTask,
   i_ThreadConfig,
   i_InternalPerformanceCounter,
@@ -34,8 +36,10 @@ uses
   i_Bitmap32BufferFactory,
   i_HashFunction,
   i_TileRect,
+  i_Bitmap32Static,
   i_HashTileMatrixBuilder,
   i_InterfaceListStatic,
+  i_InterfaceListSimple,
   i_TileRectChangeable,
   i_BitmapTileMatrix,
   i_BitmapTileMatrixBuilder,
@@ -78,6 +82,13 @@ type
     procedure OnTileRectChange;
 
     procedure DoUpdateResultAndNotify;
+    function PrepareBitmap(
+      const ATile: TPoint;
+      const ASourceMatrixList: IInterfaceListSimple;
+      const AExistedSourceHash: THashValue;
+      var AResult: IBitmap32Static;
+      var ASourceHash: THashValue
+    ): Boolean;
     procedure OnPrepareTileMatrix(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation
@@ -103,14 +114,10 @@ type
 implementation
 
 uses
-  Types,
   GR32,
-  t_Hash,
   i_TileIterator,
-  i_Bitmap32Static,
   i_CoordConverter,
   i_ProjectionInfo,
-  i_InterfaceListSimple,
   u_InterfaceListSimple,
   u_SimpleFlagWithInterlock,
   u_ListenerByEvent,
@@ -262,6 +269,83 @@ begin
   FDrawTask.StartExecute;
 end;
 
+function TBitmapTileMatrixChangeableComposite.PrepareBitmap(
+  const ATile: TPoint;
+  const ASourceMatrixList: IInterfaceListSimple;
+  const AExistedSourceHash: THashValue;
+  var AResult: IBitmap32Static;
+  var ASourceHash: THashValue
+): Boolean;
+var
+  VCounterContext: TInternalPerformanceCounterContext;
+  i:  Integer;
+  VSourceItem: IBitmap32Static;
+  VBitmapGR32: TBitmap32ByStaticBitmap;
+  VTileCount: Integer;
+begin
+  Result := True;
+  AResult := nil;
+  ASourceHash := 0;
+  VCounterContext := FHashCheckCounter.StartOperation;
+  try
+    VTileCount := 0;
+    for i := 0 to ASourceMatrixList.Count - 1 do begin
+      VSourceItem := IBitmapTileMatrix(ASourceMatrixList.Items[i]).GetElementByTile(ATile);
+      if Assigned(VSourceItem) then begin
+        if VTileCount = 0 then begin
+          AResult := VSourceItem;
+          ASourceHash := VSourceItem.Hash;
+        end else begin
+          FHashFunction.UpdateHashByHash(ASourceHash, VSourceItem.Hash);
+        end;
+        Inc(VTileCount);
+      end;
+    end;
+  finally
+    FHashCheckCounter.FinishOperation(VCounterContext);
+  end;
+  if AExistedSourceHash = ASourceHash then begin
+    Result := False;
+    Exit;
+  end;
+  if VTileCount = 0 then begin
+    AResult := nil;
+    Exit
+  end;
+  if VTileCount = 1 then begin
+    Exit
+  end;
+
+  VCounterContext := FOneTilePrepareCounter.StartOperation;
+  try
+    VBitmapGR32 := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
+    try
+      VTileCount := 0;
+      for i := 0 to ASourceMatrixList.Count - 1 do begin
+        VSourceItem := IBitmapTileMatrix(ASourceMatrixList.Items[i]).GetElementByTile(ATile);
+        if Assigned(VSourceItem) then begin
+          if VTileCount = 0 then begin
+            AssignStaticToBitmap32(VBitmapGR32, VSourceItem);
+          end else begin
+            BlockTransferFull(
+              VBitmapGR32,
+              0, 0,
+              VSourceItem,
+              dmBlend
+            );
+          end;
+          Inc(VTileCount);
+        end;
+      end;
+      AResult := VBitmapGR32.MakeAndClear;
+    finally
+      VBitmapGR32.Free;
+    end;
+  finally
+    FOneTilePrepareCounter.FinishOperation(VCounterContext);
+  end;
+end;
+
 procedure TBitmapTileMatrixChangeableComposite.OnPrepareTileMatrix(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation
@@ -275,14 +359,11 @@ var
   VCounterContext: TInternalPerformanceCounterContext;
   VBitmap: IBitmap32Static;
   VSourceHash: THashValue;
-  VSourceItem: IBitmap32Static;
   VTileRectChanged: Boolean;
   VSourceMatrix: IBitmapTileMatrix;
   VSourceMatrixList: IInterfaceListSimple;
   i: Integer;
-  VTileCount: Integer;
-  VBitmapGR32: TBitmap32ByStaticBitmap;
-  VIsFillEmptyOnlyMode: Boolean;
+  VAllSourceReady: Boolean;
 begin
   VTileRect := FTileRect.GetStatic;
   if Assigned(VTileRect) then begin
@@ -303,7 +384,7 @@ begin
     end;
     VCounterContext := FSourceDataGetCounter.StartOperation;
     try
-      VIsFillEmptyOnlyMode := False;
+      VAllSourceReady := True;
       VSourceMatrixList := TInterfaceListSimple.Create;
       VSourceMatrixList.Capacity := FSourceTileMatrixList.Count;
       for i := 0 to FSourceTileMatrixList.Count - 1 do begin
@@ -312,7 +393,7 @@ begin
           if VProjection.GetIsSameProjectionInfo(VSourceMatrix.TileRect.ProjectionInfo) then begin
             VSourceMatrixList.Add(VSourceMatrix);
           end else begin
-            VIsFillEmptyOnlyMode := True;
+            VAllSourceReady := False;
           end;
         end;
       end;
@@ -323,63 +404,12 @@ begin
     if VSourceMatrixList.Count > 0 then begin
       VConverter := VProjection.GeoConverter;
       VTileIterator := TTileIteratorSpiralByRect.Create(VTileRect.Rect);
-      while VTileIterator.Next(VTile) do begin
-        if VIsFillEmptyOnlyMode then begin
+      if not VAllSourceReady then begin
+        while VTileIterator.Next(VTile) do begin
           if Assigned(FPreparedBitmapMatrix.Tiles[VTile]) then begin
             Continue;
           end;
-        end;
-        VCounterContext := FHashCheckCounter.StartOperation;
-        try
-          VTileCount := 0;
-          for i := 0 to VSourceMatrixList.Count - 1 do begin
-            VSourceItem := IBitmapTileMatrix(VSourceMatrixList.Items[i]).GetElementByTile(VTile);
-            if Assigned(VSourceItem) then begin
-              if VTileCount = 0 then begin
-                VBitmap := VSourceItem;
-                VSourceHash := VSourceItem.Hash;
-              end else begin
-                FHashFunction.UpdateHashByHash(VSourceHash, VSourceItem.Hash);
-              end;
-              Inc(VTileCount);
-            end;
-          end;
-        finally
-          FHashCheckCounter.FinishOperation(VCounterContext);
-        end;
-
-        if VTileCount > 0 then begin
-          if FPreparedHashMatrix.Tiles[VTile] <> VSourceHash then begin
-            if VTileCount > 1 then begin
-              VCounterContext := FOneTilePrepareCounter.StartOperation;
-              try
-                VBitmapGR32 := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
-                try
-                  VTileCount := 0;
-                  for i := 0 to VSourceMatrixList.Count - 1 do begin
-                    VSourceItem := IBitmapTileMatrix(VSourceMatrixList.Items[i]).GetElementByTile(VTile);
-                    if Assigned(VSourceItem) then begin
-                      if VTileCount = 0 then begin
-                        AssignStaticToBitmap32(VBitmapGR32, VSourceItem);
-                      end else begin
-                        BlockTransferFull(
-                          VBitmapGR32,
-                          0, 0,
-                          VSourceItem,
-                          dmBlend
-                        );
-                      end;
-                      Inc(VTileCount);
-                    end;
-                  end;
-                  VBitmap := VBitmapGR32.MakeAndClear;
-                finally
-                  VBitmapGR32.Free;
-                end;
-              finally
-                FOneTilePrepareCounter.FinishOperation(VCounterContext);
-              end;
-            end;
+          if PrepareBitmap(VTile, VSourceMatrixList, FPreparedHashMatrix.Tiles[VTile], VBitmap, VSourceHash) then begin
             FPreparedBitmapMatrix.Tiles[VTile] := VBitmap;
             FPreparedHashMatrix.Tiles[VTile] := VSourceHash;
             DoUpdateResultAndNotify;
@@ -387,17 +417,26 @@ begin
               Exit;
             end;
           end;
-        end else begin
-          if Assigned(FPreparedBitmapMatrix.Tiles[VTile]) then begin
-            FPreparedBitmapMatrix.Tiles[VTile] := nil;
-            FPreparedHashMatrix.Tiles[VTile] := 0;
-            DoUpdateResultAndNotify;
-            if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-              Exit;
-            end;
+        end;
+        VTileIterator.Reset;
+      end;
+      if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+        Exit;
+      end;
+      while VTileIterator.Next(VTile) do begin
+        if PrepareBitmap(VTile, VSourceMatrixList, FPreparedHashMatrix.Tiles[VTile], VBitmap, VSourceHash) then begin
+          FPreparedBitmapMatrix.Tiles[VTile] := VBitmap;
+          FPreparedHashMatrix.Tiles[VTile] := VSourceHash;
+          DoUpdateResultAndNotify;
+          if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+            Exit;
           end;
         end;
       end;
+    end else begin
+      FPreparedHashMatrix.SetRectWithReset(nil, 0);
+      FPreparedBitmapMatrix.SetRectWithReset(nil);
+      DoUpdateResultAndNotify;
     end;
   end else begin
     FPreparedHashMatrix.SetRectWithReset(nil, 0);
