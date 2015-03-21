@@ -363,12 +363,12 @@ begin
           finally
             FOneTilePrepareCounter.FinishOperation(VCounterContext);
           end;
-          FPreparedBitmapMatrix.Tiles[VTile] := VBitmap;
-          FPreparedHashMatrix.Tiles[VTile] := VSourceHash;
-          DoUpdateResultAndNotify;
           if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
             Exit;
           end;
+          FPreparedBitmapMatrix.Tiles[VTile] := VBitmap;
+          FPreparedHashMatrix.Tiles[VTile] := VSourceHash;
+          DoUpdateResultAndNotify;
         end;
       end;
     end else begin
