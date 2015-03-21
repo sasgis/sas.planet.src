@@ -31,6 +31,7 @@ uses
   i_MapVersionListStatic,
   i_MapVersionRequest,
   i_ContentTypeInfo,
+  i_NotifierOperation,
   i_NotifierTilePyramidUpdate,
   i_TileInfoBasic,
   i_TileStorage,
@@ -192,6 +193,8 @@ type
     ): ITileInfoBasic; override;
 
     function GetTileRectInfo(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
       const ARect: TRect;
       const AZoom: byte;
       const AVersionInfo: IMapVersionRequest
@@ -1241,6 +1244,8 @@ begin
 end;
 
 function TTileStorageETS.GetTileRectInfo(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
   const ARect: TRect;
   const AZoom: byte;
   const AVersionInfo: IMapVersionRequest

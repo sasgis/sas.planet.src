@@ -36,6 +36,7 @@ uses
   i_StorageStateInternal,
   i_TileInfoBasic,
   i_TileStorage,
+  i_NotifierOperation,
   i_NotifierTilePyramidUpdate,
   u_BaseInterfacedObject;
 
@@ -84,6 +85,8 @@ type
       const AMode: TGetTileInfoMode
     ): ITileInfoBasic; virtual; abstract;
     function GetTileRectInfo(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
       const ARect: TRect;
       const AZoom: byte;
       const AVersionInfo: IMapVersionRequest

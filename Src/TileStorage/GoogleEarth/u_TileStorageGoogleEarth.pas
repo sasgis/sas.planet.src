@@ -34,6 +34,7 @@ uses
   i_ContentTypeInfo,
   i_TileInfoBasic,
   i_CoordConverter,
+  i_NotifierOperation,
   i_NotifierTilePyramidUpdate,
   i_TileStorageAbilities,
   i_TileStorage,
@@ -86,6 +87,8 @@ type
     ): ITileInfoBasic; override;
 
     function GetTileRectInfo(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
       const ARect: TRect;
       const AZoom: Byte;
       const AVersionInfo: IMapVersionRequest
@@ -640,6 +643,8 @@ begin
 end;
 
 function TTileStorageGoogleEarth.GetTileRectInfo(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
   const ARect: TRect;
   const AZoom: Byte;
   const AVersionInfo: IMapVersionRequest
@@ -676,6 +681,10 @@ begin
       SetLength(VItems, VCount.X * VCount.Y);
       VIterator := TTileIteratorByRect.Create(VRect);
       while VIterator.Next(VTile) do begin
+        if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+          Result := nil;
+          Exit;
+        end;
         VIndex := TTileRectInfoShort.TileInRectToIndex(VTile, VRect);
         Assert(VIndex >=0);
         if VIndex >= 0 then begin

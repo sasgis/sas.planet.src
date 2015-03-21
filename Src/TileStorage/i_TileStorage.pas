@@ -26,6 +26,7 @@ uses
   Types,
   i_BinaryData,
   i_CoordConverter,
+  i_NotifierOperation,
   i_NotifierTilePyramidUpdate,
   i_ContentTypeInfo,
   i_MapVersionInfo,
@@ -97,6 +98,8 @@ type
     ): IMapVersionListStatic;
 
     function GetTileRectInfo(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
       const ARect: TRect;
       const AZoom: byte;
       const AVersionInfo: IMapVersionRequest

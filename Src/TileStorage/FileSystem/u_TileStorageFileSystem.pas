@@ -32,6 +32,7 @@ uses
   i_MapVersionFactory,
   i_MapVersionRequest,
   i_ContentTypeInfo,
+  i_NotifierOperation,
   i_NotifierTilePyramidUpdate,
   i_TileInfoBasic,
   i_TileInfoBasicMemCache,
@@ -78,6 +79,8 @@ type
       const AMode: TGetTileInfoMode
     ): ITileInfoBasic; override;
     function GetTileRectInfo(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
       const ARect: TRect;
       const AZoom: byte;
       const AVersionInfo: IMapVersionRequest
@@ -369,6 +372,8 @@ begin
 end;
 
 function TTileStorageFileSystem.GetTileRectInfo(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
   const ARect: TRect;
   const AZoom: byte;
   const AVersionInfo: IMapVersionRequest
@@ -401,6 +406,10 @@ begin
       VPrevFolderExist := False;
       VIterator := TTileIteratorByRect.Create(VRect);
       while VIterator.Next(VTile) do begin
+        if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+          Result := nil;
+          Exit;
+        end;
         VIndex := TTileRectInfoShort.TileInRectToIndex(VTile, VRect);
         Assert(VIndex >=0);
         if VIndex >= 0 then begin

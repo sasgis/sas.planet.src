@@ -29,6 +29,7 @@ uses
   i_TileStorage,
   i_ContentTypeManager,
   i_InternalPerformanceCounter,
+  i_NotifierOperation,
   i_NotifierTilePyramidUpdate,
   i_StorageState,
   i_CoordConverter,
@@ -120,6 +121,8 @@ type
       const AMode: TGetTileInfoMode
     ): ITileInfoBasic;
     function GetTileRectInfo(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
       const ARect: TRect;
       const AZoom: byte;
       const AVersionInfo: IMapVersionRequest
@@ -538,6 +541,8 @@ begin
 end;
 
 function TTileStorageOfMapType.GetTileRectInfo(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
   const ARect: TRect;
   const AZoom: byte;
   const AVersionInfo: IMapVersionRequest
@@ -553,7 +558,7 @@ begin
   try
     VStorage := GetStorage;
     if VStorage <> nil then begin
-      Result := VStorage.GetTileRectInfo(ARect, AZoom, AVersionInfo);
+      Result := VStorage.GetTileRectInfo(AOperationID, ACancelNotifier, ARect, AZoom, AVersionInfo);
     end;
   finally
     VCounter.FinishOperation(VCounterContext);

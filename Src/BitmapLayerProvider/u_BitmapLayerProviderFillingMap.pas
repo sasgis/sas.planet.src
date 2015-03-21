@@ -208,7 +208,12 @@ begin
     VSolidDrow :=
       (VSize.X <= (VSourceTileRect.Right - VSourceTileRect.Left) * 2) or
       (VSize.Y <= (VSourceTileRect.Bottom - VSourceTileRect.Top) * 2);
-    VTileRectInfo := FStorage.GetTileRectInfo(VSourceTileRect, ASourceZoom, AVersion);
+    VTileRectInfo := FStorage.GetTileRectInfo(AOperationID, ACancelNotifier, VSourceTileRect, ASourceZoom, AVersion);
+    if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+      Result := nil;
+      Exit;
+    end;
+
     if VTileRectInfo <> nil then begin
       VIterator := TTileIteratorByRect.Create(VSourceTileRect);
       VEnumTileInfo := VTileRectInfo.GetEnum(VIterator);

@@ -40,6 +40,7 @@ uses
   i_TileFileNameParser,
   i_TileFileNameGenerator,
   i_TileStorageAbilities,
+  i_NotifierOperation,
   i_NotifierTilePyramidUpdate,
   u_BaseInterfacedObject;
 
@@ -102,6 +103,8 @@ type
       const AVersionInfo: IMapVersionRequest
     ): IMapVersionListStatic;
     function GetTileRectInfo(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
       const ARect: TRect;
       const AZoom: byte;
       const AVersionInfo: IMapVersionRequest
@@ -267,6 +270,8 @@ begin
 end;
 
 function TTileStorageArchive.GetTileRectInfo(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
   const ARect: TRect;
   const AZoom: byte;
   const AVersionInfo: IMapVersionRequest

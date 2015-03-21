@@ -37,6 +37,7 @@ uses
   i_TileStorage,
   i_NotifierTime,
   i_ListenerTime,
+  i_NotifierOperation,
   i_NotifierTilePyramidUpdate,
   i_TileFileNameGenerator,
   i_GlobalBerkeleyDBHelper,
@@ -96,6 +97,8 @@ type
     ): ITileInfoBasic; override;
 
     function GetTileRectInfo(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
       const ARect: TRect;
       const AZoom: Byte;
       const AVersionInfo: IMapVersionRequest
@@ -661,6 +664,8 @@ begin
 end;
 
 function TTileStorageBerkeleyDB.GetTileRectInfo(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
   const ARect: TRect;
   const AZoom: Byte;
   const AVersionInfo: IMapVersionRequest
@@ -724,6 +729,10 @@ begin
         ClearInfo(VTneFileInfo);
         VIterator := TTileIteratorByRect.Create(VRect);
         while VIterator.Next(VTile) do begin
+          if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+            Result := nil;
+            Exit;
+          end;
           VIndex := TTileRectInfoShort.TileInRectToIndex(VTile, VRect);
           Assert(VIndex >=0);
           if VIndex >= 0 then begin
