@@ -41,6 +41,7 @@ type
     FMiniMapConfig: IActiveMapConfig;
     FMiniLayersConfig: IActiveLayersConfig;
     FFillingMapConfig: IActiveMapConfig;
+    FFirstMainMapGUID: TGUID;
 
     FMapsSet: IMapTypeSet;
     FActiveMap: IMapTypeChangeable;
@@ -97,6 +98,7 @@ type
       const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
       const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
       const AMapsSet, ALayersSet: IMapTypeSet;
+      const AFirstMainMapGUID: TGUID;
       const AMainMapConfig: IActiveMapConfig;
       const AMainLayersConfig: IActiveLayersConfig;
       const AMiniMapConfig: IActiveMapConfig;
@@ -108,6 +110,7 @@ type
 implementation
 
 uses
+  c_ZeroGUID,
   u_MapTypeChangeableByConfig,
   u_MapTypeSetChangeable,
   u_MapTypeSetChangeableBySourceSetWithFilter,
@@ -120,6 +123,7 @@ constructor TMainMapsState.Create(
   const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
   const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
   const AMapsSet, ALayersSet: IMapTypeSet;
+  const AFirstMainMapGUID: TGUID;
   const AMainMapConfig: IActiveMapConfig;
   const AMainLayersConfig: IActiveLayersConfig;
   const AMiniMapConfig: IActiveMapConfig;
@@ -134,6 +138,7 @@ var
   VMiniMapMapsSet: IMapTypeSetBuilder;
   VMiniMapLayersSet: IMapTypeSetBuilder;
   i: Integer;
+  VGUID: TGUID;
 begin
   Assert(Assigned(AMapTypeSetBuilderFactory));
   Assert(Assigned(AMapTypeListBuilderFactory));
@@ -147,6 +152,7 @@ begin
   inherited Create;
   FMapsSet := AMapsSet;
   FLayersSet := ALayersSet;
+  FFirstMainMapGUID := AFirstMainMapGUID;
   FMainMapConfig := AMainMapConfig;
   FMainLayersConfig := AMainLayersConfig;
   FMiniMapConfig := AMiniMapConfig;
@@ -182,6 +188,11 @@ begin
   FBitmapLayersSet := VBitmapLayersSet.MakeAndClear;
   FKmlLayersSet := VKmlLayersSet.MakeAndClear;
 
+
+  VGUID := FMainMapConfig.MainMapGUID;
+  if not FMapsSet.IsExists(VGUID) then begin
+    FMainMapConfig.MainMapGUID := FFirstMainMapGUID;
+  end;
   FActiveMap :=
     TMapTypeChangeableByConfig.Create(
       FMainMapConfig,
@@ -234,6 +245,10 @@ begin
   FMiniMapLayersSet := VMiniMapLayersSet.MakeAndClear;
 
   if Assigned(VMiniMapMapsSet) then begin
+    VGUID := FMiniMapConfig.MainMapGUID;
+    if not FMiniMapMapsSet.IsExists(VGUID) then begin
+      FMiniMapConfig.MainMapGUID := CGUID_Zero;
+    end;
     FMiniMapActiveMap :=
       TMapTypeChangeableWithDefault.Create(
         FMiniMapMapsSet,
@@ -256,6 +271,10 @@ begin
       FMiniMapActiveLayersSet
     );
 
+  VGUID := FFillingMapConfig.MainMapGUID;
+  if not FAllMapsSet.IsExists(VGUID) then begin
+    FFillingMapConfig.MainMapGUID := CGUID_Zero;
+  end;
   FFillingMapActiveMap :=
     TMapTypeChangeableWithDefault.Create(
       FAllMapsSet,
