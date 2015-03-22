@@ -67,7 +67,7 @@ type
 implementation
 
 uses
-  i_LocalCoordConverter,
+  i_ProjectionInfo,
   i_CoordConverter,
   u_GeoFunc;
 
@@ -115,10 +115,10 @@ function TSelectionRect.PrepareSelectionRect(
 var
   VConverter: ICoordConverter;
   VTemp: Double;
-  VLocalConverter: ILocalCoordConverter;
+  VProjection: IProjectionInfo;
 begin
-  VLocalConverter := FViewPortState.GetStatic;
-  VConverter := VLocalConverter.GetGeoConverter;
+  VProjection := FViewPortState.GetStatic.ProjectionInfo;
+  VConverter := VProjection.GeoConverter;
 
   Result.TopLeft := APoint1;
   Result.BottomRight := APoint2;
@@ -135,17 +135,17 @@ begin
     Result.Bottom := VTemp;
   end;
   if (ssCtrl in Shift) then begin
-    Result := FTileGridConfig.GetRectStickToGrid(VLocalConverter, Result);
+    Result := FTileGridConfig.GetRectStickToGrid(VProjection, Result);
   end;
   if (ssShift in Shift) then begin
     if FGenShtabGridConfig.Scale <> 0 then begin
-      Result := FGenShtabGridConfig.GetRectStickToGrid(VLocalConverter, Result);
+      Result := FGenShtabGridConfig.GetRectStickToGrid(VProjection, Result);
     end else begin
-      Result := FDegreeGridConfig.GetRectStickToGrid(VLocalConverter, Result);
+      Result := FDegreeGridConfig.GetRectStickToGrid(VProjection, Result);
     end;
   end;
   if (ssAlt in Shift) then begin
-    Result := FDegreeGridConfig.GetRectStickToGrid(VLocalConverter, Result);
+    Result := FDegreeGridConfig.GetRectStickToGrid(VProjection, Result);
   end;
 end;
 

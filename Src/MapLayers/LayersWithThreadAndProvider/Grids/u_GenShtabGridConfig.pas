@@ -24,7 +24,7 @@ interface
 
 uses
   t_GeoTypes,
-  i_LocalCoordConverter,
+  i_ProjectionInfo,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_MapLayerGridsConfig,
@@ -39,11 +39,11 @@ type
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetPointStickToGrid(
-      const ALocalConverter: ILocalCoordConverter;
+      const AProjection: IProjectionInfo;
       const ASourceLonLat: TDoublePoint
     ): TDoublePoint; override;
     function GetRectStickToGrid(
-      const ALocalConverter: ILocalCoordConverter;
+      const AProjection: IProjectionInfo;
       const ASourceRect: TDoubleRect
     ): TDoubleRect; override;
   private
@@ -86,7 +86,7 @@ begin
 end;
 
 function TGenShtabGridConfig.GetPointStickToGrid(
-  const ALocalConverter: ILocalCoordConverter;
+  const AProjection: IProjectionInfo;
   const ASourceLonLat: TDoublePoint
 ): TDoublePoint;
 var
@@ -103,7 +103,7 @@ begin
   end;
   Result := ASourceLonLat;
   if VVisible and (VScale > 0) then begin
-    z := GetGhBordersStepByScale(VScale, ALocalConverter.Getzoom);
+    z := GetGhBordersStepByScale(VScale, AProjection.Zoom);
 
     Result.X := Result.X - (round(Result.X * GSHprec) mod round(z.X * GSHprec)) / GSHprec;
     if Result.X < 0 then begin
@@ -118,7 +118,7 @@ begin
 end;
 
 function TGenShtabGridConfig.GetRectStickToGrid(
-  const ALocalConverter: ILocalCoordConverter;
+  const AProjection: IProjectionInfo;
   const ASourceRect: TDoubleRect
 ): TDoubleRect;
 var
@@ -135,7 +135,7 @@ begin
   end;
   Result := ASourceRect;
   if VVisible and (VScale > 0) then begin
-    z := GetGhBordersStepByScale(VScale, ALocalConverter.Getzoom);
+    z := GetGhBordersStepByScale(VScale, AProjection.Zoom);
 
     Result.Left := Result.Left - (round(Result.Left * GSHprec) mod round(z.X * GSHprec)) / GSHprec;
     if Result.Left < 0 then begin

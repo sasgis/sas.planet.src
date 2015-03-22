@@ -25,7 +25,7 @@ interface
 uses
   t_Bitmap32,
   t_GeoTypes,
-  i_LocalCoordConverter,
+  i_ProjectionInfo,
   i_ThreadConfig,
   i_ConfigDataElement;
 
@@ -45,11 +45,11 @@ type
     property ShowText: Boolean read GetShowText write SetShowText;
 
     function GetPointStickToGrid(
-      const ALocalConverter: ILocalCoordConverter;
+      const AProjection: IProjectionInfo;
       const ASourceLonLat: TDoublePoint
     ): TDoublePoint;
     function GetRectStickToGrid(
-      const ALocalConverter: ILocalCoordConverter;
+      const AProjection: IProjectionInfo;
       const ASourceRect: TDoubleRect
     ): TDoubleRect;
   end;
@@ -64,7 +64,7 @@ type
     procedure SetZoom(AValue: Integer);
     property Zoom: Integer read GetZoom write SetZoom;
 
-    function GetActualZoom(const ALocalConverter: ILocalCoordConverter): Byte;
+    function GetActualZoom(const AProjection: IProjectionInfo): Byte;
   end;
 
   IGenShtabGridConfig = interface(IBaseGridConfig)

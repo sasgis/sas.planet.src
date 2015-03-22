@@ -6230,17 +6230,17 @@ begin
     VMagnetPoint := CEmptyDoublePoint;
     if FConfig.MainConfig.MagnetDraw then begin
       if (ssCtrl in Shift) then begin
-        VMagnetPoint := FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.GetPointStickToGrid(VLocalConverter, VLonLat);
+        VMagnetPoint := FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.GetPointStickToGrid(VLocalConverter.ProjectionInfo, VLonLat);
       end;
       if (ssShift in Shift) then begin
         if FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale <> 0 then begin
-          VMagnetPoint := FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.GetPointStickToGrid(VLocalConverter, VLonLat);
+          VMagnetPoint := FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.GetPointStickToGrid(VLocalConverter.ProjectionInfo, VLonLat);
         end else begin
-          VMagnetPoint := FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.GetPointStickToGrid(VLocalConverter, VLonLat);
+          VMagnetPoint := FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.GetPointStickToGrid(VLocalConverter.ProjectionInfo, VLonLat);
         end;
       end;
       if (ssAlt in Shift) then begin
-        VMagnetPoint := FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.GetPointStickToGrid(VLocalConverter, VLonLat);
+        VMagnetPoint := FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.GetPointStickToGrid(VLocalConverter.ProjectionInfo, VLonLat);
       end;
 
       VVectorItem := nil;

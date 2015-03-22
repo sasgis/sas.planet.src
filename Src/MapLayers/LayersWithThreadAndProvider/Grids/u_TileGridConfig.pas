@@ -24,7 +24,7 @@ interface
 
 uses
   t_GeoTypes,
-  i_LocalCoordConverter,
+  i_ProjectionInfo,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_MapLayerGridsConfig,
@@ -40,11 +40,11 @@ type
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetPointStickToGrid(
-      const ALocalConverter: ILocalCoordConverter;
+      const AProjection: IProjectionInfo;
       const ASourceLonLat: TDoublePoint
     ): TDoublePoint; override;
     function GetRectStickToGrid(
-      const ALocalConverter: ILocalCoordConverter;
+      const AProjection: IProjectionInfo;
       const ASourceRect: TDoubleRect
     ): TDoubleRect; override;
   private
@@ -54,7 +54,7 @@ type
     function GetZoom: Integer;
     procedure SetZoom(AValue: Integer);
 
-    function GetActualZoom(const ALocalConverter: ILocalCoordConverter): Byte;
+    function GetActualZoom(const AProjection: IProjectionInfo): Byte;
   public
     constructor Create;
   end;
@@ -93,7 +93,7 @@ begin
 end;
 
 function TTileGridConfig.GetActualZoom(
-  const ALocalConverter: ILocalCoordConverter
+  const AProjection: IProjectionInfo
 ): Byte;
 var
   VZoom: Integer;
@@ -107,18 +107,18 @@ begin
     UnlockRead;
   end;
   if VRelative then begin
-    VZoom := VZoom + ALocalConverter.GetZoom;
+    VZoom := VZoom + AProjection.GetZoom;
   end;
   if VZoom < 0 then begin
     Result := 0;
   end else begin
     Result := VZoom;
-    ALocalConverter.GetGeoConverter.ValidateZoom(Result);
+    AProjection.GeoConverter.ValidateZoom(Result);
   end;
 end;
 
 function TTileGridConfig.GetPointStickToGrid(
-  const ALocalConverter: ILocalCoordConverter;
+  const AProjection: IProjectionInfo;
   const ASourceLonLat: TDoublePoint
 ): TDoublePoint;
 var
@@ -128,12 +128,12 @@ var
   VSelectedTile: TPoint;
   VConverter: ICoordConverter;
 begin
-  VZoomCurr := ALocalConverter.GetZoom;
-  VConverter := ALocalConverter.GetGeoConverter;
+  VZoomCurr := AProjection.Zoom;
+  VConverter := AProjection.GeoConverter;
   LockRead;
   try
     if GetVisible then begin
-      VZoom := GetActualZoom(ALocalConverter);
+      VZoom := GetActualZoom(AProjection);
     end else begin
       VZoom := VZoomCurr;
     end;
@@ -146,7 +146,7 @@ begin
 end;
 
 function TTileGridConfig.GetRectStickToGrid(
-  const ALocalConverter: ILocalCoordConverter;
+  const AProjection: IProjectionInfo;
   const ASourceRect: TDoubleRect
 ): TDoubleRect;
 var
@@ -156,12 +156,12 @@ var
   VSelectedTiles: TRect;
   VConverter: ICoordConverter;
 begin
-  VZoomCurr := ALocalConverter.GetZoom;
-  VConverter := ALocalConverter.GetGeoConverter;
+  VZoomCurr := AProjection.Zoom;
+  VConverter := AProjection.GeoConverter;
   LockRead;
   try
     if GetVisible then begin
-      VZoom := GetActualZoom(ALocalConverter);
+      VZoom := GetActualZoom(AProjection);
     end else begin
       VZoom := VZoomCurr;
     end;

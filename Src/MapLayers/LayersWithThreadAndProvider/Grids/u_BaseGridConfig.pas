@@ -27,7 +27,7 @@ uses
   t_GeoTypes,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_LocalCoordConverter,
+  i_ProjectionInfo,
   i_MapLayerGridsConfig,
   u_ConfigDataElementBase;
 
@@ -42,11 +42,11 @@ type
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetPointStickToGrid(
-      const ALocalConverter: ILocalCoordConverter;
+      const AProjection: IProjectionInfo;
       const ASourceLonLat: TDoublePoint
     ): TDoublePoint; virtual; abstract;
     function GetRectStickToGrid(
-      const ALocalConverter: ILocalCoordConverter;
+      const AProjection: IProjectionInfo;
       const ASourceRect: TDoubleRect
     ): TDoubleRect; virtual; abstract;
 
