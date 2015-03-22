@@ -63,8 +63,6 @@ type
     function GetZoom: Integer;
     procedure SetZoom(AValue: Integer);
     property Zoom: Integer read GetZoom write SetZoom;
-
-    function GetActualZoom(const AProjection: IProjectionInfo): Byte;
   end;
 
   IGenShtabGridConfig = interface(IBaseGridConfig)

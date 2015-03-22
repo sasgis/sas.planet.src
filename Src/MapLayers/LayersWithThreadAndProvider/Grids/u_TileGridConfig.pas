@@ -35,6 +35,8 @@ type
   private
     FUseRelativeZoom: Boolean;
     FZoom: Integer;
+
+    function GetActualZoom(const AProjection: IProjectionInfo): Byte;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
@@ -53,8 +55,6 @@ type
 
     function GetZoom: Integer;
     procedure SetZoom(AValue: Integer);
-
-    function GetActualZoom(const AProjection: IProjectionInfo): Byte;
   public
     constructor Create;
   end;
