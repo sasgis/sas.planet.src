@@ -26,6 +26,7 @@ uses
   i_NotifierOperation,
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
+  i_ProjectionInfo,
   i_LocalCoordConverter,
   i_TileStorage,
   i_MapVersionRequest,
@@ -44,7 +45,7 @@ type
     FColorer: IFillingMapColorer;
 
     function GetActualZoom(
-      const ALocalConverter: ILocalCoordConverter
+      const AProjection: IProjectionInfo
     ): Byte;
     function GetFillingMapBitmap(
       AOperationID: Integer;
@@ -108,20 +109,20 @@ begin
 end;
 
 function TBitmapLayerProviderFillingMap.GetActualZoom(
-  const ALocalConverter: ILocalCoordConverter
+  const AProjection: IProjectionInfo
 ): Byte;
 var
   VZoom: Integer;
 begin
   VZoom := FZoom;
   if FUseRelativeZoom then begin
-    VZoom := VZoom + ALocalConverter.GetZoom;
+    VZoom := VZoom + AProjection.Zoom;
   end;
   if VZoom < 0 then begin
     Result := 0;
   end else begin
     Result := VZoom;
-    ALocalConverter.GetGeoConverter.ValidateZoom(Result);
+    AProjection.GeoConverter.ValidateZoom(Result);
   end;
 end;
 
@@ -133,7 +134,7 @@ function TBitmapLayerProviderFillingMap.GetBitmapRect(
 var
   VSourceZoom: Byte;
 begin
-  VSourceZoom := GetActualZoom(ALocalConverter);
+  VSourceZoom := GetActualZoom(ALocalConverter.ProjectionInfo);
   if ALocalConverter.Zoom > VSourceZoom then begin
     Result := nil;
   end else begin
