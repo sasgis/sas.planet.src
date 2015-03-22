@@ -81,13 +81,6 @@ type
       const AZoom: Byte;
       const AGeoConverter: ICoordConverter
     ): ILocalCoordConverter;
-    function CreateBySourceWithTileRect(
-      const ASource: ILocalCoordConverter
-    ): ILocalCoordConverter;
-    function CreateBySourceWithTileRectAndOtherGeo(
-      const ASource: ILocalCoordConverter;
-      const AGeoConverter: ICoordConverter
-    ): ILocalCoordConverter;
   end;
 
 implementation
