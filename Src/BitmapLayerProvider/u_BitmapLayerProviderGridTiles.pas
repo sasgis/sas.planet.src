@@ -47,7 +47,7 @@ type
     FBitmap: TBitmap32;
     FBitmapChangeFlag: ISimpleFlag;
     procedure OnBitmapChange(Sender: TObject);
-    procedure InitBitmap(const ALocalConverter: ILocalCoordConverter);
+    procedure InitBitmap(const ASize: TPoint);
     procedure DrawLines(
       AGridZoom: Byte;
       const ALocalConverter: ILocalCoordConverter
@@ -290,7 +290,7 @@ begin
 
   FCS.BeginWrite;
   try
-    InitBitmap(ALocalConverter);
+    InitBitmap(ALocalConverter.GetLocalRectSize);
     FBitmapChangeFlag.CheckFlagAndReset;
     if FShowLines then begin
       DrawLines(VGridZoom, ALocalConverter);
@@ -310,12 +310,10 @@ begin
 end;
 
 procedure TBitmapLayerProviderGridTiles.InitBitmap(
-  const ALocalConverter: ILocalCoordConverter);
-var
-  VSize: TPoint;
+  const ASize: TPoint
+);
 begin
-  VSize := ALocalConverter.GetLocalRectSize;
-  FBitmap.SetSize(VSize.X, VSize.Y);
+  FBitmap.SetSize(ASize.X, ASize.Y);
   FBitmap.Clear(0);
 end;
 
