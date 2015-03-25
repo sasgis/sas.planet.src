@@ -127,18 +127,20 @@ begin
   finally
     VGenerator.Free;
   end;
-  VGenerator := TMapMenuGeneratorBasic.Create(
-    FGUIConfigList,
-    FLayersSet,
-    nil,
-    FLayersConfig,
-    ALayersSubMenu,
-    FIconsList
-  );
-  try
-    VGenerator.BuildControls;
-  finally
-    VGenerator.Free;
+  if Assigned(FLayersSet) then begin
+    VGenerator := TMapMenuGeneratorBasic.Create(
+      FGUIConfigList,
+      FLayersSet,
+      nil,
+      FLayersConfig,
+      ALayersSubMenu,
+      FIconsList
+    );
+    try
+      VGenerator.BuildControls;
+    finally
+      VGenerator.Free;
+    end;
   end;
 end;
 

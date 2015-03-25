@@ -3096,21 +3096,26 @@ var
   VLayersSet: IMapTypeSet;
 begin
   VLayersSet := FMainMapState.LayersSet;
-  VGenerator := TMapMenuGeneratorBasic.Create(
-    GState.MapType.GUIConfigList,
-    VLayersSet,
-    nil,
-    FConfig.MapLayersConfig,
-    TBLayerSel,
-    FMapTypeIcons18List
-  );
-  try
-    VGenerator.BuildControls;
-  finally
-    FreeAndNil(VGenerator);
+  if Assigned(VLayersSet) then begin
+    VGenerator := TMapMenuGeneratorBasic.Create(
+      GState.MapType.GUIConfigList,
+      VLayersSet,
+      nil,
+      FConfig.MapLayersConfig,
+      TBLayerSel,
+      FMapTypeIcons18List
+    );
+    try
+      VGenerator.BuildControls;
+    finally
+      FreeAndNil(VGenerator);
+    end;
+    btnHideAll.Visible := True;
+    HideSeparator.Visible := True;
+  end else begin
+    btnHideAll.Visible := False;
+    HideSeparator.Visible := False;
   end;
-  btnHideAll.Visible := VLayersSet.Count > 0;
-  HideSeparator.Visible := VLayersSet.Count > 0;
 end;
 
 procedure TfrmMain.CreateMapUILayerSubMenu;

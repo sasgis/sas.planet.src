@@ -143,7 +143,6 @@ begin
   Assert(Assigned(AMapTypeSetBuilderFactory));
   Assert(Assigned(AMapTypeListBuilderFactory));
   Assert(Assigned(AMapsSet));
-  Assert(Assigned(ALayersSet));
   Assert(Assigned(AMainMapConfig));
   Assert(Assigned(AMainLayersConfig));
   Assert(Assigned(AMiniMapConfig));
@@ -172,16 +171,18 @@ begin
       VMiniMapMapsSet.Add(VMapType);
     end;
   end;
-  for i := 0 to ALayersSet.Count - 1 do begin
-    VMapType := ALayersSet.Items[i];
-    VAllMapsSet.Add(VMapType);
-    if VMapType.IsBitmapTiles then begin
-      if VMapType.Abilities.IsShowOnSmMap then begin
-        VMiniMapLayersSet.Add(VMapType);
+  if Assigned(ALayersSet) then begin
+    for i := 0 to ALayersSet.Count - 1 do begin
+      VMapType := ALayersSet.Items[i];
+      VAllMapsSet.Add(VMapType);
+      if VMapType.IsBitmapTiles then begin
+        if VMapType.Abilities.IsShowOnSmMap then begin
+          VMiniMapLayersSet.Add(VMapType);
+        end;
+        VBitmapLayersSet.Add(VMapType);
+      end else if VMapType.IsKmlTiles then begin
+        VKmlLayersSet.Add(VMapType);
       end;
-      VBitmapLayersSet.Add(VMapType);
-    end else if VMapType.IsKmlTiles then begin
-      VKmlLayersSet.Add(VMapType);
     end;
   end;
   FAllMapsSet := VAllMapsSet.MakeAndClear;

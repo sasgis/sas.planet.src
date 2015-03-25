@@ -101,8 +101,8 @@ begin
   if Assigned(FLayersSet) then begin
     FListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
     FConfig.ChangeNotifier.Add(FListener);
+    OnConfigChange;
   end;
-  OnConfigChange;
 end;
 
 destructor TLayerSetChangeableByConfig.Destroy;
