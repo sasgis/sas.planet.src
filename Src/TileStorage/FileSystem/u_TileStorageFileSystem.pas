@@ -367,8 +367,15 @@ end;
 function TTileStorageFileSystem.GetTileInfoEx(const AXY: TPoint;
   const AZoom: byte; const AVersionInfo: IMapVersionRequest;
   const AMode: TGetTileInfoMode): ITileInfoBasic;
+var
+  VVersionInfo: IMapVersionInfo;
 begin
-  Result := GetTileInfo(AXY, AZoom, nil, AMode);
+  if Assigned(AVersionInfo) then  begin
+    VVersionInfo := AVersionInfo.BaseVersion;
+  end else begin
+    VVersionInfo := nil;
+  end;
+  Result := GetTileInfo(AXY, VVersionInfo, nil, AMode);
 end;
 
 function TTileStorageFileSystem.GetTileRectInfo(
