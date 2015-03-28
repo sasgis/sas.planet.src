@@ -375,7 +375,7 @@ begin
   end else begin
     VVersionInfo := nil;
   end;
-  Result := GetTileInfo(AXY, VVersionInfo, nil, AMode);
+  Result := GetTileInfo(AXY, AZoom, VVersionInfo, AMode);
 end;
 
 function TTileStorageFileSystem.GetTileRectInfo(
