@@ -153,7 +153,6 @@ uses
   c_CacheTypeCodes,
   i_TileDownloaderState,
   u_SafeStrUtil,
-  u_GlobalState,
   u_ResStrings;
 
 {$R *.dfm}
@@ -349,7 +348,6 @@ begin
   chkBoxSeparator.Checked := FMapType.GUIConfig.Separator;
   CheckEnabled.Checked := FMapType.GUIConfig.Enabled;
   edtVersion.Text := FMapType.VersionRequestConfig.Version.StoreString;
-  pnlHeader.Visible := GState.Config.InternalDebugConfig.IsShowDebugInfo;
   VDownloadState := FMapType.TileDownloadSubsystem.State.GetStatic;
 
   // download availability
