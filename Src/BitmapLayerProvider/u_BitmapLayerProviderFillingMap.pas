@@ -23,6 +23,7 @@ unit u_BitmapLayerProviderFillingMap;
 interface
 
 uses
+  Types,
   i_NotifierOperation,
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
@@ -50,7 +51,8 @@ type
     function GetFillingMapBitmap(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const ALocalConverter: ILocalCoordConverter;
+      const AProjection: IProjectionInfo;
+      const AMapRect: TRect;
       ASourceZoom: byte;
       const AVersion: IMapVersionRequest;
       const AColorer: IFillingMapColorer
@@ -142,7 +144,8 @@ begin
       GetFillingMapBitmap(
         AOperationID,
         ACancelNotifier,
-        ALocalConverter,
+        ALocalConverter.ProjectionInfo,
+        ALocalConverter.GetRectInMapPixel,
         VSourceZoom,
         FVersion,
         FColorer
@@ -153,7 +156,8 @@ end;
 function TBitmapLayerProviderFillingMap.GetFillingMapBitmap(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const ALocalConverter: ILocalCoordConverter;
+  const AProjection: IProjectionInfo;
+  const AMapRect: TRect;
   ASourceZoom: byte;
   const AVersion: IMapVersionRequest;
   const AColorer: IFillingMapColorer
@@ -161,7 +165,6 @@ function TBitmapLayerProviderFillingMap.GetFillingMapBitmap(
 var
   VBitmap: TBitmap32ByStaticBitmap;
   VSize: TPoint;
-  VTargetMapPixelRect: TDoubleRect;
   VSourceTileRect: TRect;
   VSourceRelativeRect: TDoubleRect;
   VSourceConverter: ICoordConverter;
@@ -182,22 +185,19 @@ var
 begin
   VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
   try
-    VSize := ALocalConverter.GetLocalRectSize;
+    VSize := Types.Point(AMapRect.Right - AMapRect.Left, AMapRect.Bottom - AMapRect.Top);
     VBitmap.SetSize(VSize.X, VSize.Y);
     VBitmap.Clear(0);
 
     VSourceConverter := FStorage.CoordConverter;
-    VTargetConverter := ALocalConverter.GeoConverter;
-    VTargetZoom := ALocalConverter.Zoom;
-
-    VTargetMapPixelRect := ALocalConverter.GetRectInMapPixelFloat;
-    VTargetConverter.ValidatePixelRectFloat(VTargetMapPixelRect, VTargetZoom);
+    VTargetConverter := AProjection.GeoConverter;
+    VTargetZoom := AProjection.Zoom;
 
     VSameSourceAndTarget := VSourceConverter.IsSameConverter(VTargetConverter);
     if VSameSourceAndTarget then begin
-      VSourceRelativeRect := VSourceConverter.PixelRectFloat2RelativeRect(VTargetMapPixelRect, VTargetZoom);
+      VSourceRelativeRect := VSourceConverter.PixelRect2RelativeRect(AMapRect, VTargetZoom);
     end else begin
-      VLonLatRect := VTargetConverter.PixelRectFloat2LonLatRect(VTargetMapPixelRect, VTargetZoom);
+      VLonLatRect := VTargetConverter.PixelRect2LonLatRect(AMapRect, VTargetZoom);
       VSourceConverter.ValidateLonLatRect(VLonLatRect);
       VSourceRelativeRect := VSourceConverter.LonLatRect2RelativeRect(VLonLatRect);
     end;
@@ -229,7 +229,10 @@ begin
             VRelativeRectOfTile := VTargetConverter.LonLatRect2RelativeRect(VLonLatRectOfTile);
           end;
           VMapPixelRectOfTile := VTargetConverter.RelativeRect2PixelRectFloat(VRelativeRectOfTile, VTargetZoom);
-          VLocalPixelRectOfTile := RectFromDoubleRect(ALocalConverter.MapRectFloat2LocalRectFloat(VMapPixelRectOfTile), rrToTopLeft);
+          VLocalPixelRectOfTile.Left := Trunc(VMapPixelRectOfTile.Left - AMapRect.Left);
+          VLocalPixelRectOfTile.Top := Trunc(VMapPixelRectOfTile.Top - AMapRect.Top);
+          VLocalPixelRectOfTile.Right := Trunc(VMapPixelRectOfTile.Right - AMapRect.Left);
+          VLocalPixelRectOfTile.Bottom := Trunc(VMapPixelRectOfTile.Bottom - AMapRect.Top);
           if not VSolidDrow then begin
             Dec(VLocalPixelRectOfTile.Right);
             Dec(VLocalPixelRectOfTile.Bottom);
