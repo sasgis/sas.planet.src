@@ -331,16 +331,15 @@ begin
   try
     EditNameinCache.Text := FMapType.StorageConfig.NameInCache;
     chkCacheReadOnly.Checked := FMapType.StorageConfig.IsReadOnly;
+    chkCacheReadOnly.Enabled := not FMapType.Zmp.StorageConfig.Abilities.IsReadOnly;
     if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE, c_File_Cache_Id_GC]) then begin
       pnlCacheType.Visible := True;
       pnlCacheType.Enabled := True;
-      chkCacheReadOnly.Enabled := True;
       FfrCacheTypesList.IntCode := FMapType.StorageConfig.CacheTypeCode;
     end else begin
       // GE or GC
       pnlCacheType.Visible := False;
       pnlCacheType.Enabled := False;
-      chkCacheReadOnly.Enabled := False;
     end;
   finally
     FMapType.StorageConfig.UnlockRead;
