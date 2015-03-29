@@ -28,6 +28,7 @@ uses
   GR32,
   i_SimpleFlag,
   i_NotifierOperation,
+  i_ProjectionInfo,
   i_LocalCoordConverter,
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
@@ -51,12 +52,14 @@ type
     procedure OnBitmapChange(Sender: TObject);
     procedure InitBitmap(const ASize: TPoint);
     procedure DrawLines(
-      const ALocalConverter: ILocalCoordConverter
+      const AProjection: IProjectionInfo;
+      const AMapRect: TRect
     );
     procedure DrawCaptions(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const ALocalConverter: ILocalCoordConverter
+      const AProjection: IProjectionInfo;
+      const AMapRect: TRect
     );
   private
     function GetBitmapRect(
@@ -120,16 +123,17 @@ end;
 procedure TBitmapLayerProviderGridDegree.DrawCaptions(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const ALocalConverter: ILocalCoordConverter
+  const AProjection: IProjectionInfo;
+  const AMapRect: TRect
 );
 var
   VLocalRect: TRect;
   z: TDoublePoint;
   VZoom: Byte;
-  VLoadedRect: TDoubleRect;
   VLoadedLonLatRect: TDoubleRect;
   VGridLonLatRect: TDoubleRect;
   VLonLatRectOfCell: TDoubleRect;
+  VMapRectOfCell: TDoubleRect;
   VLocalRectOfCell: TDoubleRect;
   VGeoConvert: ICoordConverter;
   VGridRect: TRect;
@@ -139,15 +143,12 @@ var
   VLocalCellCenter: TDoublePoint;
   VOutPoint: TPoint;
 begin
-  VGeoConvert := ALocalConverter.GetGeoConverter;
-  VZoom := ALocalConverter.GetZoom;
+  VGeoConvert := AProjection.GeoConverter;
+  VZoom := AProjection.Zoom;
   z := GetDegBordersStepByScale(FScale, VZoom);
-  VLocalRect := ALocalConverter.GetLocalRect;
-  VLoadedRect := ALocalConverter.GetRectInMapPixelFloat;
+  VLocalRect := Rect(0, 0, AMapRect.Right - AMapRect.Left, AMapRect.Bottom - AMapRect.Top);
 
-  VGeoConvert.ValidatePixelRectFloat(VLoadedRect, VZoom);
-
-  VLoadedLonLatRect := VGeoConvert.PixelRectFloat2LonLatRect(VLoadedRect, VZoom);
+  VLoadedLonLatRect := VGeoConvert.PixelRect2LonLatRect(AMapRect, VZoom);
   if VLoadedLonLatRect.Top > 90 then begin
     VLoadedLonLatRect.Top := 90;
   end;
@@ -167,7 +168,8 @@ begin
   VLonLatRectOfCell.TopLeft := VGridLonLatRect.TopLeft;
   VLonLatRectOfCell.BottomRight := DoublePoint(VGridLonLatRect.Left + z.X, VGridLonLatRect.Top - z.Y);
   VGeoConvert.ValidateLonLatRect(VLonLatRectOfCell);
-  VLocalRectOfCell := ALocalConverter.LonLatRect2LocalRectFloat(VLonLatRectOfCell);
+  VMapRectOfCell := VGeoConvert.LonLatRect2PixelRectFloat(VLonLatRectOfCell, VZoom);
+  VLocalRectOfCell := RectMove(VMapRectOfCell, AMapRect.TopLeft);
   if abs(VLocalRectOfCell.Right - VLocalRectOfCell.Left) < 30 then begin
     exit;
   end;
@@ -181,7 +183,8 @@ begin
       VLonLatRectOfCell.Top := j * z.Y;
       VGeoConvert.ValidateLonLatRect(VLonLatRectOfCell);
 
-      VLocalRectOfCell := ALocalConverter.LonLatRect2LocalRectFloat(VLonLatRectOfCell);
+      VMapRectOfCell := VGeoConvert.LonLatRect2PixelRectFloat(VLonLatRectOfCell, VZoom);
+      VLocalRectOfCell := RectMove(VMapRectOfCell, AMapRect.TopLeft);
       VLocalCellCenter := RectCenter(VLocalRectOfCell);
 
       if abs(VLonLatRectOfCell.Top) <= 85 then begin
@@ -203,30 +206,28 @@ begin
 end;
 
 procedure TBitmapLayerProviderGridDegree.DrawLines(
-  const ALocalConverter: ILocalCoordConverter
+  const AProjection: IProjectionInfo;
+  const AMapRect: TRect
 );
 var
   VLocalRect: TRect;
   z: TDoublePoint;
   VZoom: Byte;
-  VLoadedRect: TDoubleRect;
   VLoadedLonLatRect: TDoubleRect;
   VGridLonLatRect: TDoubleRect;
   VLonLatRectOfCellsLine: TDoubleRect;
   VLocalRectOfCellsLine: TRect;
+  VMapRectOfCell: TDoubleRect;
   VGeoConvert: ICoordConverter;
   VGridRect: TRect;
   i: Integer;
 begin
-  VGeoConvert := ALocalConverter.GetGeoConverter;
-  VZoom := ALocalConverter.GetZoom;
+  VGeoConvert := AProjection.GeoConverter;
+  VZoom := AProjection.Zoom;
   z := GetDegBordersStepByScale(FScale, VZoom);
-  VLocalRect := ALocalConverter.GetLocalRect;
-  VLoadedRect := ALocalConverter.GetRectInMapPixelFloat;
+  VLocalRect := Rect(0, 0, AMapRect.Right - AMapRect.Left, AMapRect.Bottom - AMapRect.Top);
 
-  VGeoConvert.ValidatePixelRectFloat(VLoadedRect, VZoom);
-
-  VLoadedLonLatRect := VGeoConvert.PixelRectFloat2LonLatRect(VLoadedRect, VZoom);
+  VLoadedLonLatRect := VGeoConvert.PixelRect2LonLatRect(AMapRect, VZoom);
   if VLoadedLonLatRect.Top > 90 then begin
     VLoadedLonLatRect.Top := 90;
   end;
@@ -246,9 +247,11 @@ begin
   VLonLatRectOfCellsLine.TopLeft := VGridLonLatRect.TopLeft;
   VLonLatRectOfCellsLine.BottomRight := DoublePoint(VGridLonLatRect.Left + z.X, VGridLonLatRect.Top - z.Y);
   VGeoConvert.ValidateLonLatRect(VLonLatRectOfCellsLine);
+
+  VMapRectOfCell := VGeoConvert.LonLatRect2PixelRectFloat(VLonLatRectOfCellsLine, VZoom);
   VLocalRectOfCellsLine :=
     RectFromDoubleRect(
-      ALocalConverter.LonLatRect2LocalRectFloat(VLonLatRectOfCellsLine),
+      RectMove(VMapRectOfCell, AMapRect.TopLeft),
       rrToTopLeft
     );
   if abs(VLocalRectOfCellsLine.Right - VLocalRectOfCellsLine.Left) < 4 then begin
@@ -261,9 +264,10 @@ begin
     VLonLatRectOfCellsLine.Right := VLonLatRectOfCellsLine.Left;
     VLonLatRectOfCellsLine.Bottom := VGridLonLatRect.Bottom;
     VGeoConvert.ValidateLonLatRect(VLonLatRectOfCellsLine);
+    VMapRectOfCell := VGeoConvert.LonLatRect2PixelRectFloat(VLonLatRectOfCellsLine, VZoom);
     VLocalRectOfCellsLine :=
       RectFromDoubleRect(
-        ALocalConverter.LonLatRect2LocalRectFloat(VLonLatRectOfCellsLine),
+        RectMove(VMapRectOfCell, AMapRect.TopLeft),
         rrToTopLeft
       );
     VLocalRectOfCellsLine.Top := VLocalRect.Top;
@@ -287,9 +291,10 @@ begin
     VLonLatRectOfCellsLine.Bottom := VLonLatRectOfCellsLine.Top;
 
     VGeoConvert.ValidateLonLatRect(VLonLatRectOfCellsLine);
+    VMapRectOfCell := VGeoConvert.LonLatRect2PixelRectFloat(VLonLatRectOfCellsLine, VZoom);
     VLocalRectOfCellsLine :=
       RectFromDoubleRect(
-        ALocalConverter.LonLatRect2LocalRectFloat(VLonLatRectOfCellsLine),
+        RectMove(VMapRectOfCell, AMapRect.TopLeft),
         rrToTopLeft
       );
     VLocalRectOfCellsLine.Left := VLocalRect.Left;
@@ -312,18 +317,21 @@ function TBitmapLayerProviderGridDegree.GetBitmapRect(
   const ACancelNotifier: INotifierOperation;
   const ALocalConverter: ILocalCoordConverter
 ): IBitmap32Static;
+var
+  VMapRect: TRect;
 begin
   Result := nil;
   FCS.BeginWrite;
   try
     InitBitmap(ALocalConverter.GetLocalRectSize);
+    VMapRect := ALocalConverter.GetRectInMapPixel;
     FBitmapChangeFlag.CheckFlagAndReset;
     if FShowLines then begin
-      DrawLines(ALocalConverter);
+      DrawLines(ALocalConverter.ProjectionInfo, VMapRect);
     end;
 
     if FShowText then begin
-      DrawCaptions(AOperationID, ACancelNotifier, ALocalConverter);
+      DrawCaptions(AOperationID, ACancelNotifier, ALocalConverter.ProjectionInfo, VMapRect);
     end;
     if FBitmapChangeFlag.CheckFlagAndReset then begin
       Result := FBitmapFactory.Build(Types.Point(FBitmap.Width, FBitmap.Height), FBitmap.Bits);
