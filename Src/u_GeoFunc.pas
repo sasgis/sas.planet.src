@@ -38,7 +38,16 @@ uses
   function DoubleRect(const ALeft, ATop, ARight, ABottom: Double): TDoubleRect; overload;
   function RectCenter(const ARect: TRect): TDoublePoint; overload;
   function RectCenter(const ARect: TDoubleRect): TDoublePoint; overload;
+  function RectSize(const ARect: TRect): TPoint; overload; inline;
+  function RectSize(const ARect: TDoubleRect): TDoublePoint; overload; inline;
 
+  function PointMove(const APoint: TPoint; const APointDelta: TPoint): TPoint; overload; inline;
+  function PointMove(const APoint: TDoublePoint; const APointDelta: TPoint): TDoublePoint; overload; inline;
+  function PointMove(const APoint: TDoublePoint; const APointDelta: TDoublePoint): TDoublePoint; overload; inline;
+
+  function RectMove(const ARect: TRect; const APointDelta: TPoint): TRect; overload; inline;
+  function RectMove(const ARect: TDoubleRect; const APointDelta: TPoint): TDoubleRect; overload; inline;
+  function RectMove(const ARect: TDoubleRect; const APointDelta: TDoublePoint): TDoubleRect; overload; inline;
 
   function LonLatPointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean;
   function PixelPointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean;
@@ -342,6 +351,60 @@ function RectCenter(const ARect: TDoubleRect): TDoublePoint; overload;
 begin
   Result.X := (ARect.Left + ARect.Right) / 2;
   Result.Y := (ARect.Top + ARect.Bottom) / 2;
+end;
+
+function RectSize(const ARect: TRect): TPoint; overload;
+begin
+  Result.X := ARect.Right - ARect.Left;
+  Result.Y := ARect.Bottom - ARect.Top;
+end;
+
+function RectSize(const ARect: TDoubleRect): TDoublePoint; overload;
+begin
+  Result.X := ARect.Right - ARect.Left;
+  Result.Y := ARect.Bottom - ARect.Top;
+end;
+
+function PointMove(const APoint: TPoint; const APointDelta: TPoint): TPoint; overload;
+begin
+  Result.X := APoint.X - APointDelta.X;
+  Result.Y := APoint.Y - APointDelta.Y;
+end;
+
+function PointMove(const APoint: TDoublePoint; const APointDelta: TPoint): TDoublePoint; overload;
+begin
+  Result.X := APoint.X - APointDelta.X;
+  Result.Y := APoint.Y - APointDelta.Y;
+end;
+
+function PointMove(const APoint: TDoublePoint; const APointDelta: TDoublePoint): TDoublePoint; overload;
+begin
+  Result.X := APoint.X - APointDelta.X;
+  Result.Y := APoint.Y - APointDelta.Y;
+end;
+
+function RectMove(const ARect: TRect; const APointDelta: TPoint): TRect; overload;
+begin
+  Result.Left := ARect.Left - APointDelta.X;
+  Result.Top := ARect.Top - APointDelta.Y;
+  Result.Right := ARect.Right - APointDelta.X;
+  Result.Bottom := ARect.Bottom - APointDelta.Y;
+end;
+
+function RectMove(const ARect: TDoubleRect; const APointDelta: TPoint): TDoubleRect; overload;
+begin
+  Result.Left := ARect.Left - APointDelta.X;
+  Result.Top := ARect.Top - APointDelta.Y;
+  Result.Right := ARect.Right - APointDelta.X;
+  Result.Bottom := ARect.Bottom - APointDelta.Y;
+end;
+
+function RectMove(const ARect: TDoubleRect; const APointDelta: TDoublePoint): TDoubleRect; overload;
+begin
+  Result.Left := ARect.Left - APointDelta.X;
+  Result.Top := ARect.Top - APointDelta.Y;
+  Result.Right := ARect.Right - APointDelta.X;
+  Result.Bottom := ARect.Bottom - APointDelta.Y;
 end;
 
 function IsDoubleRectEmpty(const Rect: TDoubleRect): Boolean;
