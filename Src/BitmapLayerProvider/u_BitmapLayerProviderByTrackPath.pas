@@ -76,7 +76,8 @@ type
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       ATargetBmp: TCustomBitmap32;
-      const ALocalConverter: ILocalCoordConverter;
+      const AProjection: IProjectionInfo;
+      const AMapRect: TRect;
       const ATrackColorer: ITrackColorerStatic;
       const ALineWidth: Double;
       APointsCount: Integer
@@ -102,6 +103,7 @@ implementation
 
 uses
   SysUtils,
+  Types,
   i_CoordConverter,
   u_Bitmap32ByStaticBitmap,
   u_GeoFunc;
@@ -146,7 +148,8 @@ function TBitmapLayerProviderByTrackPath.DrawPath(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   ATargetBmp: TCustomBitmap32;
-  const ALocalConverter: ILocalCoordConverter;
+  const AProjection: IProjectionInfo;
+  const AMapRect: TRect;
   const ATrackColorer: ITrackColorerStatic;
   const ALineWidth: Double;
   APointsCount: Integer
@@ -194,8 +197,8 @@ var
   VMapPixelRect: TDoubleRect;
 begin
   Result := False;
-  VGeoConvert := ALocalConverter.GetGeoConverter;
-  VMapPixelRect := ALocalConverter.GetRectInMapPixelFloat;
+  VGeoConvert := AProjection.GeoConverter;
+  VMapPixelRect := DoubleRect(AMapRect);
 
   VPointCurrCode := 0;
   VPointPrevCode := 0;
@@ -203,7 +206,8 @@ begin
   VPointPrevIsEmpty := PointIsEmpty(VPointPrev);
   if not VPointPrevIsEmpty then begin
     VPointPrevCode := GetCode(VMapPixelRect, VPointPrev);
-    VPointPrevLocal := ALocalConverter.MapPixelFloat2LocalPixelFloat(VPointPrev);
+    VPointPrevLocal.X := VPointPrev.X - VMapPixelRect.Left;
+    VPointPrevLocal.Y := VPointPrev.Y - VMapPixelRect.Top;
   end;
   for i := APointsCount - 2 downto 0 do begin
     if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
@@ -213,11 +217,12 @@ begin
     VPointCurrIsEmpty := PointIsEmpty(VPointCurr);
     if not VPointCurrIsEmpty then begin
       VPointCurrCode := GetCode(VMapPixelRect, VPointCurr);
-      VPointCurrLocal := ALocalConverter.MapPixelFloat2LocalPixelFloat(VPointCurr);
+      VPointCurrLocal.X := VPointCurr.X - VMapPixelRect.Left;
+      VPointCurrLocal.Y := VPointCurr.Y - VMapPixelRect.Top;
       if not VPointPrevIsEmpty then begin
         if (VPointPrevCode and VPointCurrCode) = 0 then begin
           if not Result then begin
-            InitBitmap(ATargetBmp, ALocalConverter.GetLocalRectSize);
+            InitBitmap(ATargetBmp, Types.Point(AMapRect.Right - AMapRect.Left, AMapRect.Bottom - AMapRect.Top));
             Result := True;
           end;
           DrawSection(ATargetBmp, ATrackColorer, ALineWidth, VPointPrevLocal, VPointCurrLocal, FPointsProjected[i].Speed);
@@ -271,7 +276,7 @@ function TBitmapLayerProviderByTrackPath.GetBitmapRect(
   const ALocalConverter: ILocalCoordConverter
 ): IBitmap32Static;
 var
-  VTargetRect: TDoubleRect;
+  VTargetRect: TRect;
   VLonLatRect: TDoubleRect;
   VConverter: ICoordConverter;
   VZoom: Byte;
@@ -281,9 +286,9 @@ begin
   if not FRectIsEmpty then begin
     VZoom := ALocalConverter.GetZoom;
     VConverter := ALocalConverter.GetGeoConverter;
-    VTargetRect := ALocalConverter.GetRectInMapPixelFloat;
-    VConverter.ValidatePixelRectFloat(VTargetRect, VZoom);
-    VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VTargetRect, VZoom);
+    VTargetRect := ALocalConverter.GetRectInMapPixel;
+    VConverter.ValidatePixelRect(VTargetRect, VZoom);
+    VLonLatRect := VConverter.PixelRect2LonLatRect(VTargetRect, VZoom);
     if IsIntersecLonLatRect(FLonLatRect, VLonLatRect) then begin
       VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
       try
@@ -295,7 +300,8 @@ begin
             AOperationID,
             ACancelNotifier,
             VBitmap,
-            ALocalConverter,
+            ALocalConverter.ProjectionInfo,
+            VTargetRect,
             FTrackColorer,
             FLineWidth,
             FPointsProjectedCount
