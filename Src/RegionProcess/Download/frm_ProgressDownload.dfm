@@ -93,31 +93,31 @@ object frmProgressDownload: TfrmProgressDownload
           Caption = ''
           Hint = 'Selection Manager'
         end
-        object tbtmMark: TTBItem
-          ImageIndex = 17
-          OnClick = tbtmMarkClick
-          Caption = ''
-          Hint = 'Store selection as Poligon'
-        end
-        object tbtmZoom: TTBSubmenuItem
-          DisplayMode = nbdmImageAndText
-          DropdownCombo = True
+        object tbtmZoom: TTBItem
           ImageIndex = 43
           OnClick = tbtmZoomClick
           Caption = ''
           Hint = 'Fit to Screen'
-          object tbtmGotoMap: TTBItem
-            ImageIndex = 0
-            OnClick = tbtmGotoMapClick
-            Caption = ''
-            Hint = ''
-          end
         end
-        object tbtmSave: TTBItem
+        object tbtmGotoMap: TTBItem
+          ImageIndex = 0
+          OnClick = tbtmGotoMapClick
+          Caption = ''
+          Hint = ''
+        end
+        object tbtmSave: TTBSubmenuItem
+          DisplayMode = nbdmImageAndText
+          DropdownCombo = True
           ImageIndex = 25
           OnClick = tbtmSaveClick
           Caption = ''
           Hint = 'Save current session'
+          object tbtmMark: TTBItem
+            ImageIndex = 17
+            OnClick = tbtmMarkClick
+            Caption = 'Store selection as Poligon'
+            Hint = ''
+          end
         end
       end
     end

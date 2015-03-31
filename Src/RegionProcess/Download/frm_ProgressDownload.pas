@@ -38,6 +38,7 @@ uses
   TB2Toolbar,
   TBX,
   i_MapType,
+  i_MapTypeIconsList,
   i_MapViewGoto,
   i_ActiveMapsConfig,
   i_LogSimpleProvider,
@@ -78,8 +79,8 @@ type
     pnlSizeToFinish: TPanel;
     pnlTimeToFinish: TPanel;
     TBXOperationsToolbar: TTBXToolbar;
-    tbtmSave: TTBItem;
-    tbtmZoom: TTBSubmenuItem;    
+    tbtmZoom: TTBItem;
+    tbtmSave: TTBSubmenuItem;
     tbtmMark: TTBItem;
     tbtmSelect: TTBItem;
     tbtmGotoMap: TTBItem;
@@ -92,8 +93,8 @@ type
       var Action: TCloseAction
     );
     procedure Panel1Resize(Sender: TObject);
-    procedure tbtmZoomClick(Sender: TObject);
     procedure tbtmSaveClick(Sender: TObject);
+    procedure tbtmZoomClick(Sender: TObject);
     procedure tbtmSelectClick(Sender: TObject);
     procedure tbtmMarkClick(Sender: TObject);
     procedure tbtmGotoMapClick(Sender: TObject);
@@ -112,6 +113,7 @@ type
     FMarkDBGUI: TMarkDbGUIHelper;
     FMainConfig: IActiveMapConfig;
     FMapType: IMapType;
+    FMapTypeIcons18List: IMapTypeIconsList;
     procedure UpdateProgressForm;
     procedure UpdateMemoProgressForm;
     function GetTimeEnd(
@@ -147,6 +149,7 @@ uses
   IniFiles,
   i_ConfigDataWriteProvider,
   u_ResStrings,
+  u_MapTypeIconsList,
   u_ConfigDataWriteProviderByIniFile;
 
 {$R *.dfm}
@@ -164,6 +167,8 @@ constructor TfrmProgressDownload.Create(
   const AMainConfig: IActiveMapConfig;
   const AMapType: IMapType
 );
+var
+  VList18: TMapTypeIconsList;
 begin
   Assert(AValueToStringConverter <> nil);
   Assert(ACancelNotifier <> nil);
@@ -180,8 +185,14 @@ begin
   FMarkDBGUI := AMarkDBGUI;
   FMainConfig := AMainConfig;
   FMapType := AMapType;
+  // Goto map button avail and icon ..
   tbtmGotoMap.Caption := FMapType.GUIConfig.Name.Value;
   tbtmGotoMap.Enabled := not FMapType.Zmp.IsLayer;
+  VList18 := TMapTypeIconsList.Create(18, 18);
+  FMapTypeIcons18List := VList18;
+  VList18.Add(AMapType.GUID, AMapType.Zmp.GUI.Bmp18);
+  tbtmGotoMap.Images := FMapTypeIcons18List.GetImageList;
+  tbtmGotoMap.ImageIndex := FMapTypeIcons18List.GetIconIndexByGUID(FMapType.GUID);
 
   with FProgress do begin
     Height := 17;
