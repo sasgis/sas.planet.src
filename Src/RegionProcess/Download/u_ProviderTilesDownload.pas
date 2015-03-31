@@ -28,6 +28,7 @@ uses
   i_NotifierOperation,
   i_MapTypeSet,
   i_MapViewGoto,
+  i_ActiveMapsConfig,
   i_RegionProcess,
   i_GeometryLonLat,
   i_GeometryLonLatFactory,
@@ -63,6 +64,7 @@ type
     FMapGoto: IMapViewGoto;
     FMarkDBGUI: TMarkDbGUIHelper;
     FFullMapsSet: IMapTypeSet;
+    FMainConfig: IActiveMapConfig;
 
   protected
     function CreateFrame: TFrame; override;
@@ -86,7 +88,8 @@ type
       const ADownloadInfo: IDownloadInfoSimple;
       const ARegionProcess: IRegionProcess;
       const AMapGoto: IMapViewGoto;
-      const AMarkDBGUI: TMarkDbGUIHelper
+      const AMarkDBGUI: TMarkDbGUIHelper;
+      const AMainConfig: IActiveMapConfig
     );
   end;
 
@@ -135,7 +138,8 @@ constructor TProviderTilesDownload.Create(
   const ADownloadInfo: IDownloadInfoSimple;
   const ARegionProcess: IRegionProcess;
   const AMapGoto: IMapViewGoto;
-  const AMarkDBGUI: TMarkDbGUIHelper
+  const AMarkDBGUI: TMarkDbGUIHelper;
+  const AMainConfig: IActiveMapConfig
 );
 begin
   inherited Create(
@@ -154,6 +158,7 @@ begin
   FRegionProcess := ARegionProcess;
   FMapGoto := AMapGoto;
   FMarkDBGUI := AMarkDBGUI;
+  FMainConfig := AMainConfig;
 end;
 
 function TProviderTilesDownload.CreateFrame: TFrame;
@@ -333,7 +338,9 @@ begin
     'z' + IntToStr(VZoom + 1) + ' ' + VMapType.GUIConfig.Name.Value,
     FRegionProcess,
     FMapGoto,
-    FMarkDBGUI
+    FMarkDBGUI,
+    FMainConfig,
+    VMapType
   );
   Application.ProcessMessages;
   VForm.Show;
@@ -424,7 +431,9 @@ begin
     'z' + IntToStr(VZoom + 1) + ' ' + VMapType.GUIConfig.Name.Value,
     FRegionProcess,
     FMapGoto,
-    FMarkDBGUI
+    FMarkDBGUI,
+    FMainConfig,
+    VMapType
   );
   Application.ProcessMessages;
   VForm.Show;

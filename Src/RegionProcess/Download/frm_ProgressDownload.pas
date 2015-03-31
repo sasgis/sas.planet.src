@@ -37,7 +37,9 @@ uses
   TB2Dock,
   TB2Toolbar,
   TBX,
+  i_MapType,
   i_MapViewGoto,
+  i_ActiveMapsConfig,
   i_LogSimpleProvider,
   i_LanguageManager,
   i_NotifierOperation,
@@ -77,9 +79,10 @@ type
     pnlTimeToFinish: TPanel;
     TBXOperationsToolbar: TTBXToolbar;
     tbtmSave: TTBItem;
-    tbtmZoom: TTBItem;
+    tbtmZoom: TTBSubmenuItem;    
     tbtmMark: TTBItem;
     tbtmSelect: TTBItem;
+    tbtmGotoMap: TTBItem;
     procedure btnCloseClick(Sender: TObject);
     procedure btnMinimizeClick(Sender: TObject);
     procedure btnPauseClick(Sender: TObject);
@@ -93,6 +96,7 @@ type
     procedure tbtmSaveClick(Sender: TObject);
     procedure tbtmSelectClick(Sender: TObject);
     procedure tbtmMarkClick(Sender: TObject);
+    procedure tbtmGotoMapClick(Sender: TObject);
   private
     FValueToStringConverter: IValueToStringConverterChangeable;
     FCancelNotifier: INotifierOperationInternal;
@@ -106,6 +110,8 @@ type
     FPolygon: IGeometryLonLatPolygon;
     FFormCaption: string;
     FMarkDBGUI: TMarkDbGUIHelper;
+    FMainConfig: IActiveMapConfig;
+    FMapType: IMapType;
     procedure UpdateProgressForm;
     procedure UpdateMemoProgressForm;
     function GetTimeEnd(
@@ -126,7 +132,9 @@ type
       const AFormCaption: string;
       const ARegionProcess: IRegionProcess;
       const AMapGoto: IMapViewGoto;
-      const AMarkDBGUI: TMarkDbGUIHelper
+      const AMarkDBGUI: TMarkDbGUIHelper;
+      const AMainConfig: IActiveMapConfig;
+      const AMapType: IMapType
     ); reintroduce;
     destructor Destroy; override;
   end;
@@ -152,7 +160,9 @@ constructor TfrmProgressDownload.Create(
   const AFormCaption: string;
   const ARegionProcess: IRegionProcess;
   const AMapGoto: IMapViewGoto;
-  const AMarkDBGUI: TMarkDbGUIHelper
+  const AMarkDBGUI: TMarkDbGUIHelper;
+  const AMainConfig: IActiveMapConfig;
+  const AMapType: IMapType
 );
 begin
   Assert(AValueToStringConverter <> nil);
@@ -168,6 +178,10 @@ begin
   FPolygon := APolygon;
   FFormCaption := AFormCaption;
   FMarkDBGUI := AMarkDBGUI;
+  FMainConfig := AMainConfig;
+  FMapType := AMapType;
+  tbtmGotoMap.Caption := FMapType.GUIConfig.Name.Value;
+  tbtmGotoMap.Enabled := not FMapType.Zmp.IsLayer;
 
   with FProgress do begin
     Height := 17;
@@ -365,6 +379,11 @@ end;
 procedure TfrmProgressDownload.UpdateTimerTimer(Sender: TObject);
 begin
   UpdateProgressForm;
+end;
+
+procedure TfrmProgressDownload.tbtmGotoMapClick(Sender: TObject);
+begin
+  FMainConfig.MainMapGUID :=  FMapType.GUID;
 end;
 
 procedure TfrmProgressDownload.tbtmMarkClick(Sender: TObject);

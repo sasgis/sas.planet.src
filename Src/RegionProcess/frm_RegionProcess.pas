@@ -344,7 +344,8 @@ begin
       ADownloadInfo,
       Self,
       FMapGoto,
-      FMarkDBGUI
+      FMarkDBGUI,
+      AMainMapConfig
     );
   FfrCombine :=
     TfrCombine.Create(

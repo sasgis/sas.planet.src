@@ -99,11 +99,19 @@ object frmProgressDownload: TfrmProgressDownload
           Caption = ''
           Hint = 'Store selection as Poligon'
         end
-        object tbtmZoom: TTBItem
+        object tbtmZoom: TTBSubmenuItem
+          DisplayMode = nbdmImageAndText
+          DropdownCombo = True
           ImageIndex = 43
           OnClick = tbtmZoomClick
           Caption = ''
           Hint = 'Fit to Screen'
+          object tbtmGotoMap: TTBItem
+            ImageIndex = 0
+            OnClick = tbtmGotoMapClick
+            Caption = ''
+            Hint = ''
+          end
         end
         object tbtmSave: TTBItem
           ImageIndex = 25
