@@ -51,7 +51,6 @@ type
   private
     FAppStartedNotifier: INotifierOneOperation;
     FAppClosingNotifier: INotifierOneOperation;
-    FConverterFactory: ILocalCoordConverterFactorySimpe;
     FTileRect: ITileRectChangeable;
     FLayerProvider: IBitmapLayerProviderChangeable;
     FSourcUpdateNotyfier: IObjectWithListener;
@@ -98,7 +97,6 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       const ATileRect: ITileRectChangeable;
-      const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const AImageResampler: IImageResamplerFactoryChangeable;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AHashFunction: IHashFunction;
@@ -136,7 +134,6 @@ constructor TBitmapTileMatrixChangeableWithThread.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier, AAppClosingNotifier: INotifierOneOperation;
   const ATileRect: ITileRectChangeable;
-  const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const AImageResampler: IImageResamplerFactoryChangeable;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AHashFunction: IHashFunction;
@@ -151,7 +148,6 @@ begin
   Assert(Assigned(AAppStartedNotifier));
   Assert(Assigned(AAppClosingNotifier));
   Assert(Assigned(ATileRect));
-  Assert(Assigned(AConverterFactory));
   Assert(Assigned(ALayerProvider));
   VDebugName := ADebugName;
   if VDebugName = '' then begin
@@ -162,7 +158,6 @@ begin
   FAppStartedNotifier := AAppStartedNotifier;
   FAppClosingNotifier := AAppClosingNotifier;
   FTileRect := ATileRect;
-  FConverterFactory := AConverterFactory;
   FLayerProvider := ALayerProvider;
   FSourcUpdateNotyfier := ASourcUpdateNotyfier;
   FDebugName := VDebugName;
@@ -288,10 +283,8 @@ var
   VTileIterator: ITileIterator;
   VSourceHashMatrix: IHashTileMatrix;
   VTile: TPoint;
-  VZoom: Byte;
   VConverter: ICoordConverter;
   VCounterContext: TInternalPerformanceCounterContext;
-  VLocalConverter: ILocalCoordConverter;
   VBitmap: IBitmap32Static;
   VSourceHash: THashValue;
   VTileRectChanged: Boolean;
@@ -350,7 +343,6 @@ begin
       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         Exit;
       end;
-      VZoom := VTileRect.Zoom;
       VConverter := VTileRect.ProjectionInfo.GeoConverter;
       VTileIterator := TTileIteratorSpiralByRect.Create(VTileRect.Rect);
       while VTileIterator.Next(VTile) do begin
@@ -358,8 +350,7 @@ begin
         if FPreparedHashMatrix.Tiles[VTile] <> VSourceHash then begin
           VCounterContext := FOneTilePrepareCounter.StartOperation;
           try
-            VLocalConverter := FConverterFactory.CreateForTile(VTile, VZoom, VConverter);
-            VBitmap := VProvider.GetBitmapRect(AOperationID, ACancelNotifier, VLocalConverter);
+            VBitmap := VProvider.GetTile(AOperationID, ACancelNotifier, VTileRect.ProjectionInfo, VTile);
           finally
             FOneTilePrepareCounter.FinishOperation(VCounterContext);
           end;
