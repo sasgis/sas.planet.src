@@ -63,6 +63,12 @@ type
       const ACancelNotifier: INotifierOperation;
       const ALocalConverter: ILocalCoordConverter
     ): IBitmap32Static;
+    function GetTile(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
+      const AProjectionInfo: IProjectionInfo;
+      const ATile: TPoint
+    ): IBitmap32Static;
   public
     constructor Create(
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
@@ -146,6 +152,32 @@ begin
         ACancelNotifier,
         ALocalConverter.ProjectionInfo,
         ALocalConverter.GetRectInMapPixel,
+        VSourceZoom,
+        FVersion,
+        FColorer
+      );
+  end;
+end;
+
+function TBitmapLayerProviderFillingMap.GetTile(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
+  const AProjectionInfo: IProjectionInfo;
+  const ATile: TPoint
+): IBitmap32Static;
+var
+  VSourceZoom: Byte;
+begin
+  VSourceZoom := GetActualZoom(AProjectionInfo);
+  if AProjectionInfo.Zoom > VSourceZoom then begin
+    Result := nil;
+  end else begin
+    Result :=
+      GetFillingMapBitmap(
+        AOperationID,
+        ACancelNotifier,
+        AProjectionInfo,
+        AProjectionInfo.GeoConverter.TilePos2PixelRect(ATile, AProjectionInfo.Zoom),
         VSourceZoom,
         FVersion,
         FColorer

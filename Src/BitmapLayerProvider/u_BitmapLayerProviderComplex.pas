@@ -23,9 +23,11 @@ unit u_BitmapLayerProviderComplex;
 interface
 
 uses
+  Types,
   i_NotifierOperation,
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
+  i_ProjectionInfo,
   i_LocalCoordConverter,
   i_BitmapLayerProvider,
   u_BaseInterfacedObject;
@@ -41,6 +43,12 @@ type
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const ALocalConverter: ILocalCoordConverter
+    ): IBitmap32Static;
+    function GetTile(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
+      const AProjectionInfo: IProjectionInfo;
+      const ATile: TPoint
     ): IBitmap32Static;
   public
     constructor Create(
@@ -85,6 +93,43 @@ var
 begin
   VResultFirst := FProviderFrist.GetBitmapRect(AOperationID, ACancelNotifier, ALocalConverter);
   VResultSecond := FProviderSecond.GetBitmapRect(AOperationID, ACancelNotifier, ALocalConverter);
+  if VResultFirst = nil then begin
+    Result := VResultSecond;
+  end else begin
+    if VResultSecond = nil then begin
+      Result := VResultFirst;
+    end else begin
+      VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
+      try
+        AssignStaticToBitmap32(VBitmap, VResultFirst);
+        BlockTransferFull(
+          VBitmap,
+          0, 0,
+          VResultSecond,
+          dmBlend,
+          cmMerge
+        );
+        Result := VBitmap.MakeAndClear;
+      finally
+        VBitmap.Free;
+      end;
+    end;
+  end;
+end;
+
+function TBitmapLayerProviderComplex.GetTile(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
+  const AProjectionInfo: IProjectionInfo;
+  const ATile: TPoint
+): IBitmap32Static;
+var
+  VResultFirst: IBitmap32Static;
+  VResultSecond: IBitmap32Static;
+  VBitmap: TBitmap32ByStaticBitmap;
+begin
+  VResultFirst := FProviderFrist.GetTile(AOperationID, ACancelNotifier, AProjectionInfo, ATile);
+  VResultSecond := FProviderSecond.GetTile(AOperationID, ACancelNotifier, AProjectionInfo, ATile);
   if VResultFirst = nil then begin
     Result := VResultSecond;
   end else begin

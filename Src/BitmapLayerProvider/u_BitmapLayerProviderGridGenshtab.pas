@@ -65,6 +65,12 @@ type
       const ACancelNotifier: INotifierOperation;
       const ALocalConverter: ILocalCoordConverter
     ): IBitmap32Static;
+    function GetTile(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
+      const AProjectionInfo: IProjectionInfo;
+      const ATile: TPoint
+    ): IBitmap32Static;
   public
     constructor Create(
       const ABitmapFactory: IBitmap32StaticFactory;
@@ -320,6 +326,36 @@ begin
 
     if FShowText then begin
       DrawCaptions(AOperationID, ACancelNotifier, ALocalConverter.ProjectionInfo, VMapRect);
+    end;
+    if FBitmapChangeFlag.CheckFlagAndReset then begin
+      Result := FBitmapFactory.Build(Types.Point(FBitmap.Width, FBitmap.Height), FBitmap.Bits);
+    end;
+  finally
+    FCS.EndWrite;
+  end;
+end;
+
+function TBitmapLayerProviderGridGenshtab.GetTile(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
+  const AProjectionInfo: IProjectionInfo;
+  const ATile: TPoint
+): IBitmap32Static;
+var
+  VMapRect: TRect;
+begin
+  Result := nil;
+  FCS.BeginWrite;
+  try
+    VMapRect := AProjectionInfo.GeoConverter.TilePos2PixelRect(ATile, AProjectionInfo.Zoom);
+    InitBitmap(RectSize(VMapRect));
+    FBitmapChangeFlag.CheckFlagAndReset;
+    if FShowLines then begin
+      DrawLines(AProjectionInfo, VMapRect);
+    end;
+
+    if FShowText then begin
+      DrawCaptions(AOperationID, ACancelNotifier, AProjectionInfo, VMapRect);
     end;
     if FBitmapChangeFlag.CheckFlagAndReset then begin
       Result := FBitmapFactory.Build(Types.Point(FBitmap.Width, FBitmap.Height), FBitmap.Bits);

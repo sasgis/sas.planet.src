@@ -23,10 +23,12 @@ unit u_BitmapLayerProviderWithBgColor;
 interface
 
 uses
+  Types,
   t_Bitmap32,
   i_NotifierOperation,
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
+  i_ProjectionInfo,
   i_LocalCoordConverter,
   i_BitmapLayerProvider,
   u_BaseInterfacedObject;
@@ -42,6 +44,12 @@ type
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const ALocalConverter: ILocalCoordConverter
+    ): IBitmap32Static;
+    function GetTile(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
+      const AProjectionInfo: IProjectionInfo;
+      const ATile: TPoint
     ): IBitmap32Static;
   public
     constructor Create(
@@ -94,6 +102,45 @@ begin
     VTargetBmp := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
     try
       VTileSize := ALocalConverter.GetLocalRectSize;
+      VTargetBmp.SetSize(VTileSize.X, VTileSize.Y);
+      VTargetBmp.Clear(FBackGroundColor);
+      BlockTransferFull(
+        VTargetBmp,
+        0,
+        0,
+        Result,
+        dmBlend
+      );
+      Result := VTargetBmp.MakeAndClear;
+    finally
+      VTargetBmp.Free;
+    end;
+  end;
+end;
+
+function TBitmapLayerProviderWithBGColor.GetTile(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
+  const AProjectionInfo: IProjectionInfo;
+  const ATile: TPoint
+): IBitmap32Static;
+var
+  VPixelRect: TRect;
+  VTileSize: TPoint;
+  VTargetBmp: TBitmap32ByStaticBitmap;
+begin
+  Result :=
+    FSourceProvider.GetTile(
+      AOperationID,
+      ACancelNotifier,
+      AProjectionInfo,
+      ATile
+    );
+  if Result <> nil then begin
+    VTargetBmp := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
+    try
+      VPixelRect :=  AProjectionInfo.GeoConverter.TilePos2PixelRect(ATile, AProjectionInfo.Zoom);
+      VTileSize := Point(VPixelRect.Right - VPixelRect.Left, VPixelRect.Bottom - VPixelRect.Top);
       VTargetBmp.SetSize(VTileSize.X, VTileSize.Y);
       VTargetBmp.Clear(FBackGroundColor);
       BlockTransferFull(

@@ -23,8 +23,10 @@ unit u_BitmapLayerProviderInPolygon;
 interface
 
 uses
+  Types,
   i_NotifierOperation,
   i_Bitmap32Static,
+  i_ProjectionInfo,
   i_LocalCoordConverter,
   i_GeometryProjected,
   i_BitmapLayerProvider,
@@ -41,6 +43,12 @@ type
       const ACancelNotifier: INotifierOperation;
       const ALocalConverter: ILocalCoordConverter
     ): IBitmap32Static;
+    function GetTile(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
+      const AProjectionInfo: IProjectionInfo;
+      const ATile: TPoint
+    ): IBitmap32Static;
   public
     constructor Create(
       const APolyProjected: IGeometryProjectedPolygon;
@@ -51,7 +59,8 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  t_GeoTypes;
 
 { TBitmapLayerProviderInPolygon }
 
@@ -91,6 +100,29 @@ begin
         AOperationID,
         ACancelNotifier,
         ALocalConverter
+      );
+  end else begin
+    Result := nil;
+  end;
+end;
+
+function TBitmapLayerProviderInPolygon.GetTile(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
+  const AProjectionInfo: IProjectionInfo;
+  const ATile: TPoint
+): IBitmap32Static;
+var
+  VMapRect: TDoubleRect;
+begin
+  VMapRect := AProjectionInfo.GeoConverter.TilePos2PixelRectFloat(ATile, AProjectionInfo.Zoom);
+  if FLine.IsRectIntersectPolygon(VMapRect) then begin
+    Result :=
+      FSourceProvider.GetTile(
+        AOperationID,
+        ACancelNotifier,
+        AProjectionInfo,
+        ATile
       );
   end else begin
     Result := nil;

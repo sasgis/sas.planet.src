@@ -23,9 +23,11 @@ unit u_BitmapLayerProviderSimpleForCombine;
 interface
 
 uses
+  Types,
   i_NotifierOperation,
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
+  i_ProjectionInfo,
   i_LocalCoordConverter,
   i_BitmapLayerProvider,
   i_BitmapPostProcessing,
@@ -43,6 +45,12 @@ type
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const ALocalConverter: ILocalCoordConverter
+    ): IBitmap32Static;
+    function GetTile(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
+      const AProjectionInfo: IProjectionInfo;
+      const ATile: TPoint
     ): IBitmap32Static;
   public
     constructor Create(
@@ -95,6 +103,46 @@ begin
   end;
   if FMarksImageProvider <> nil then begin
     VLayer := FMarksImageProvider.GetBitmapRect(AOperationID, ACancelNotifier, ALocalConverter);
+  end;
+  if Result <> nil then begin
+    if VLayer <> nil then begin
+      VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
+      try
+        AssignStaticToBitmap32(VBitmap, Result);
+        BlockTransferFull(
+          VBitmap,
+          0, 0,
+          VLayer,
+          dmBlend
+        );
+        Result := VBitmap.MakeAndClear;
+      finally
+        VBitmap.Free;
+      end;
+    end;
+  end else begin
+    Result := VLayer;
+  end;
+end;
+
+function TBitmapLayerProviderSimpleForCombine.GetTile(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
+  const AProjectionInfo: IProjectionInfo;
+  const ATile: TPoint
+): IBitmap32Static;
+var
+  VLayer: IBitmap32Static;
+  VBitmap: TBitmap32ByStaticBitmap;
+begin
+  Result := FSourceProvider.GetTile(AOperationID, ACancelNotifier, AProjectionInfo, ATile);
+  if Result <> nil then begin
+    if FRecolorConfig <> nil then begin
+      Result := FRecolorConfig.Process(Result);
+    end;
+  end;
+  if FMarksImageProvider <> nil then begin
+    VLayer := FMarksImageProvider.GetTile(AOperationID, ACancelNotifier, AProjectionInfo, ATile);
   end;
   if Result <> nil then begin
     if VLayer <> nil then begin

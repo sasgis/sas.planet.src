@@ -98,6 +98,10 @@ type
       const ACancelNotifier: INotifierOperation;
       const ALocalConverter: ILocalCoordConverter
     ): IBitmap32Static;
+    function GetTile(AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
+      const AProjectionInfo: IProjectionInfo;
+      const ATile: TPoint): IBitmap32Static;
   public
     constructor Create(
       const ADrawOrderConfigStatic: IMarksDrawOrderConfigStatic;
@@ -387,6 +391,46 @@ begin
     VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
     try
       if DrawSubset(AOperationID, ACancelNotifier, VMarksSubset, VBitmap, ALocalConverter.ProjectionInfo, VMapRect, VFixedPointArray) then begin
+        Result := VBitmap.MakeAndClear;
+      end;
+    finally
+      VBitmap.Free;
+    end;
+  end;
+end;
+
+function TBitmapLayerProviderByMarksSubset.GetTile(AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
+  const AProjectionInfo: IProjectionInfo;
+  const ATile: TPoint
+): IBitmap32Static;
+var
+  VRectWithDelta: TRect;
+  VMapRect: TRect;
+  VLonLatRect: TDoubleRect;
+  VConverter: ICoordConverter;
+  VZoom: Byte;
+  VMarksSubset: IVectorItemSubset;
+  VDeltaSizeInPixel: TRect;
+  VBitmap: TBitmap32ByStaticBitmap;
+  VFixedPointArray: TArrayOfFixedPoint;
+begin
+  VZoom := AProjectionInfo.Zoom;
+  VConverter := AProjectionInfo.GeoConverter;
+  VMapRect := VConverter.TilePos2PixelRect(ATile, VZoom);
+  VDeltaSizeInPixel := FDrawOrderConfigStatic.OverSizeRect;
+  VRectWithDelta.Left := VMapRect.Left - VDeltaSizeInPixel.Left;
+  VRectWithDelta.Top := VMapRect.Top - VDeltaSizeInPixel.Top;
+  VRectWithDelta.Right := VMapRect.Right + VDeltaSizeInPixel.Right;
+  VRectWithDelta.Bottom := VMapRect.Bottom + VDeltaSizeInPixel.Bottom;
+  VConverter.ValidatePixelRect(VRectWithDelta, VZoom);
+  VLonLatRect := VConverter.PixelRect2LonLatRect(VRectWithDelta, VZoom);
+  VMarksSubset := FMarksSubset.GetSubsetByLonLatRect(VLonLatRect);
+  Result := nil;
+  if Assigned(VMarksSubset) and not VMarksSubset.IsEmpty then begin
+    VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
+    try
+      if DrawSubset(AOperationID, ACancelNotifier, VMarksSubset, VBitmap, AProjectionInfo, VMapRect, VFixedPointArray) then begin
         Result := VBitmap.MakeAndClear;
       end;
     finally

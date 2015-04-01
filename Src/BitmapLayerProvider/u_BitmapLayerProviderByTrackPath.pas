@@ -88,6 +88,12 @@ type
       const ACancelNotifier: INotifierOperation;
       const ALocalConverter: ILocalCoordConverter
     ): IBitmap32Static;
+    function GetTile(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
+      const AProjectionInfo: IProjectionInfo;
+      const ATile: TPoint
+    ): IBitmap32Static;
   public
     constructor Create(
       AMaxPointsCount: Integer;
@@ -301,6 +307,53 @@ begin
             ACancelNotifier,
             VBitmap,
             ALocalConverter.ProjectionInfo,
+            VTargetRect,
+            FTrackColorer,
+            FLineWidth,
+            FPointsProjectedCount
+          )
+        then begin
+          Result := VBitmap.MakeAndClear;
+        end;
+      finally
+        VBitmap.Free;
+      end;
+    end;
+  end;
+end;
+
+function TBitmapLayerProviderByTrackPath.GetTile(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
+  const AProjectionInfo: IProjectionInfo;
+  const ATile: TPoint
+): IBitmap32Static;
+var
+  VTargetRect: TRect;
+  VLonLatRect: TDoubleRect;
+  VConverter: ICoordConverter;
+  VZoom: Byte;
+  VBitmap: TBitmap32ByStaticBitmap;
+begin
+  Result := nil;
+  if not FRectIsEmpty then begin
+    VZoom := AProjectionInfo.Zoom;
+    VConverter := AProjectionInfo.GeoConverter;
+    VTargetRect := VConverter.TilePos2PixelRect(ATile, VZoom);
+    VConverter.ValidatePixelRect(VTargetRect, VZoom);
+    VLonLatRect := VConverter.PixelRect2LonLatRect(VTargetRect, VZoom);
+    if IsIntersecLonLatRect(FLonLatRect, VLonLatRect) then begin
+      VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
+      try
+        if not AProjectionInfo.GetIsSameProjectionInfo(FPreparedProjection) then begin
+          PrepareProjectedPoints(AProjectionInfo);
+        end;
+        if
+          DrawPath(
+            AOperationID,
+            ACancelNotifier,
+            VBitmap,
+            AProjectionInfo,
             VTargetRect,
             FTrackColorer,
             FLineWidth,

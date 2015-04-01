@@ -67,6 +67,12 @@ type
       const ACancelNotifier: INotifierOperation;
       const ALocalConverter: ILocalCoordConverter
     ): IBitmap32Static;
+    function GetTile(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
+      const AProjectionInfo: IProjectionInfo;
+      const ATile: TPoint
+    ): IBitmap32Static;
   public
     constructor Create(
       const ABitmapFactory: IBitmap32StaticFactory;
@@ -299,6 +305,55 @@ begin
     if FShowText then begin
       if (VGridZoom >= VCurrentZoom - 2) and (VGridZoom <= VCurrentZoom + 3) then begin
         DrawCaptions(AOperationID, ACancelNotifier, VGridZoom, ALocalConverter.ProjectionInfo, VMapRect);
+      end;
+    end;
+    if FBitmapChangeFlag.CheckFlagAndReset then begin
+      Result := FBitmapFactory.Build(Types.Point(FBitmap.Width, FBitmap.Height), FBitmap.Bits);
+    end;
+  finally
+    FCS.EndWrite;
+  end;
+end;
+
+function TBitmapLayerProviderGridTiles.GetTile(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
+  const AProjectionInfo: IProjectionInfo;
+  const ATile: TPoint
+): IBitmap32Static;
+var
+  VCurrentZoom: Byte;
+  VGridZoom: Byte;
+  VGeoConvert: ICoordConverter;
+  VMapRect: TRect;
+begin
+  Result := nil;
+  VCurrentZoom := AProjectionInfo.Zoom;
+  if FUseRelativeZoom then begin
+    VGridZoom := VCurrentZoom + FZoom;
+  end else begin
+    VGridZoom := FZoom;
+  end;
+  VGeoConvert := AProjectionInfo.GeoConverter;
+  if not VGeoConvert.CheckZoom(VGridZoom) then begin
+    Exit;
+  end;
+  if VGridZoom > VCurrentZoom + 5 then begin
+    Exit;
+  end;
+  VMapRect := VGeoConvert.TilePos2PixelRect(ATile, VCurrentZoom);
+
+  FCS.BeginWrite;
+  try
+    InitBitmap(RectSize(VMapRect));
+    FBitmapChangeFlag.CheckFlagAndReset;
+    if FShowLines then begin
+      DrawLines(VGridZoom, AProjectionInfo, VMapRect);
+    end;
+
+    if FShowText then begin
+      if (VGridZoom >= VCurrentZoom - 2) and (VGridZoom <= VCurrentZoom + 3) then begin
+        DrawCaptions(AOperationID, ACancelNotifier, VGridZoom, AProjectionInfo, VMapRect);
       end;
     end;
     if FBitmapChangeFlag.CheckFlagAndReset then begin

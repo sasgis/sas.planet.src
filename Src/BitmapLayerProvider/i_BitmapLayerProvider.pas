@@ -23,8 +23,10 @@ unit i_BitmapLayerProvider;
 interface
 
 uses
+  Types,
   i_NotifierOperation,
   i_Bitmap32Static,
+  i_ProjectionInfo,
   i_LocalCoordConverter;
 
 type
@@ -34,6 +36,12 @@ type
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const ALocalConverter: ILocalCoordConverter
+    ): IBitmap32Static;
+    function GetTile(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
+      const AProjectionInfo: IProjectionInfo;
+      const ATile: TPoint
     ): IBitmap32Static;
   end;
 
