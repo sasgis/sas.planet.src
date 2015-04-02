@@ -23,25 +23,18 @@ unit u_MapAbilitiesConfig;
 interface
 
 uses
-  i_Notifier,
-  i_Listener,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_MapAbilitiesConfig,
-  i_SimpleTileStorageConfig,
   u_ConfigDataElementBase;
 
 type
   TMapAbilitiesConfig = class(TConfigDataElementWithStaticBase, IMapAbilitiesConfig)
   private
     FDefConfig: IMapAbilitiesConfigStatic;
-    FStorageConfig: ISimpleTileStorageConfig;
-    FStorageConfigListener: IListener;
 
     FIsShowOnSmMap: Boolean;
     FUseDownload: Boolean;
-
-    procedure OnStorageConfigChange;
   protected
     function CreateStatic: IInterface; override;
   protected
@@ -57,44 +50,26 @@ type
     function GetStatic: IMapAbilitiesConfigStatic;
   public
     constructor Create(
-      const ADefConfig: IMapAbilitiesConfigStatic;
-      const AStorageConfig: ISimpleTileStorageConfig
+      const ADefConfig: IMapAbilitiesConfigStatic
     );
-    destructor Destroy; override;
   end;
 
 implementation
 
 uses
-  u_ListenerByEvent,
   u_MapAbilitiesConfigStatic;
 
 { TMapAbilitiesConfig }
 
 constructor TMapAbilitiesConfig.Create(
-  const ADefConfig: IMapAbilitiesConfigStatic;
-  const AStorageConfig: ISimpleTileStorageConfig
+  const ADefConfig: IMapAbilitiesConfigStatic
 );
 begin
   inherited Create;
   FDefConfig := ADefConfig;
-  FStorageConfig := AStorageConfig;
 
   FIsShowOnSmMap := FDefConfig.IsShowOnSmMap;
   FUseDownload := FDefConfig.UseDownload;
-
-  FStorageConfigListener := TNotifyNoMmgEventListener.Create(Self.OnStorageConfigChange);
-  FStorageConfig.GetChangeNotifier.Add(FStorageConfigListener);
-end;
-
-destructor TMapAbilitiesConfig.Destroy;
-begin
-  if Assigned(FStorageConfig) and Assigned(FStorageConfigListener) then begin
-    FStorageConfig.GetChangeNotifier.Remove(FStorageConfigListener);
-    FStorageConfigListener := nil;
-    FStorageConfig := nil;
-  end;
-  inherited;
 end;
 
 function TMapAbilitiesConfig.CreateStatic: IInterface;
@@ -156,16 +131,6 @@ begin
   end;
 end;
 
-procedure TMapAbilitiesConfig.OnStorageConfigChange;
-begin
-  LockWrite;
-  try
-    SetUseDownload(FUseDownload);
-  finally
-    UnlockWrite;
-  end;
-end;
-
 function TMapAbilitiesConfig.GetStatic: IMapAbilitiesConfigStatic;
 begin
   Result := IMapAbilitiesConfigStatic(GetStaticInternal);
@@ -187,12 +152,10 @@ end;
 procedure TMapAbilitiesConfig.SetUseDownload(AValue: Boolean);
 var
   VValue: Boolean;
-  VStorageConfig: ISimpleTileStorageConfigStatic;
 begin
-  VStorageConfig := FStorageConfig.GetStatic;
   LockWrite;
   try
-    VValue := FDefConfig.UseDownload and VStorageConfig.Abilities.AllowAdd and AValue;
+    VValue := FDefConfig.UseDownload and AValue;
     if FUseDownload <> VValue then begin
       FUseDownload := VValue;
       SetChanged;

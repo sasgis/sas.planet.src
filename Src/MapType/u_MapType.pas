@@ -332,11 +332,7 @@ begin
   FVersionRequestConfig.ChangeNotifier.Add(FVersionChangeListener);
 
   FStorageConfig := TSimpleTileStorageConfig.Create(FZmp.StorageConfig);
-  FAbilitiesConfig :=
-    TMapAbilitiesConfig.Create(
-      FZmp.Abilities,
-      FStorageConfig
-    );
+  FAbilitiesConfig := TMapAbilitiesConfig.Create(FZmp.Abilities);
 
   FGUIConfig.ReadConfig(AConfig);
   FLayerDrawConfig.ReadConfig(AConfig);
