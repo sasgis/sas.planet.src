@@ -225,11 +225,11 @@ begin
         FTileInfoMemCache.Add(
           AXY,
           AZoom,
-          AVersionInfo,
-          TTileInfoBasicNotExists.Create(0, AVersionInfo)
+          nil,
+          TTileInfoBasicNotExists.Create(0, nil)
         );
       end;
-      NotifyTileUpdate(AXY, AZoom, AVersionInfo);
+      NotifyTileUpdate(AXY, AZoom, nil);
     end;
   end;
 end;
@@ -367,15 +367,8 @@ end;
 function TTileStorageFileSystem.GetTileInfoEx(const AXY: TPoint;
   const AZoom: byte; const AVersionInfo: IMapVersionRequest;
   const AMode: TGetTileInfoMode): ITileInfoBasic;
-var
-  VVersionInfo: IMapVersionInfo;
 begin
-  if Assigned(AVersionInfo) then  begin
-    VVersionInfo := AVersionInfo.BaseVersion;
-  end else begin
-    VVersionInfo := nil;
-  end;
-  Result := GetTileInfo(AXY, AZoom, VVersionInfo, AMode);
+  Result := GetTileInfo(AXY, AZoom, nil, AMode);
 end;
 
 function TTileStorageFileSystem.GetTileRectInfo(
@@ -483,7 +476,7 @@ var
 begin
   Result := nil;
   if Assigned(FTileInfoMemCache) then begin
-    Result := FTileInfoMemCache.Get(AXY, AZoom, AVersionInfo, AMode, True);
+    Result := FTileInfoMemCache.Get(AXY, AZoom, nil, AMode, True);
     if Result <> nil then begin
       Exit;
     end;
@@ -493,9 +486,9 @@ begin
       StoragePath +
       FFileNameGenerator.GetTileFileName(AXY, AZoom) +
       FFileExt;
-    Result := GetTileInfoByPath(VPath, AVersionInfo, AMode = gtimWithData);
+    Result := GetTileInfoByPath(VPath, nil, AMode = gtimWithData);
     if Assigned(FTileInfoMemCache) then begin
-      FTileInfoMemCache.Add(AXY, AZoom, AVersionInfo, Result);
+      FTileInfoMemCache.Add(AXY, AZoom, nil, Result);
     end;
   end;
 end;
@@ -532,7 +525,7 @@ begin
     FFsLock.BeginWrite;
     try
       if not AIsOverwrite then begin
-        VTileInfo := GetTileInfo(AXY, AZoom, AVersionInfo, gtimAsIs);
+        VTileInfo := GetTileInfo(AXY, AZoom, nil, gtimAsIs);
         if Assigned(VTileInfo) and (VTileInfo.IsExists or VTileInfo.IsExistsTNE) then begin
           Exit;
         end;
@@ -578,7 +571,7 @@ begin
             TTileInfoBasicExistsWithTile.Create(
               ALoadDate,
               AData,
-              AVersionInfo,
+              nil,
               FMainContentType
             );
         end;
@@ -611,7 +604,7 @@ begin
           DeleteFile(VFileName);
           Result := True;
           if Assigned(FTileInfoMemCache) then begin
-            VTileInfo := TTileInfoBasicTNE.Create(ALoadDate, AVersionInfo);
+            VTileInfo := TTileInfoBasicTNE.Create(ALoadDate, nil);
           end;
         end;
       end;
@@ -623,11 +616,11 @@ begin
         FTileInfoMemCache.Add(
           AXY,
           AZoom,
-          AVersionInfo,
+          nil,
           VTileInfo
         );
       end;
-      NotifyTileUpdate(AXY, AZoom, AVersionInfo);
+      NotifyTileUpdate(AXY, AZoom, nil);
     end;
   end;
 end;
