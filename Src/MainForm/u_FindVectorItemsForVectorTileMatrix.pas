@@ -27,7 +27,6 @@ uses
   i_InternalPerformanceCounter,
   i_VectorItemSubset,
   i_VectorItemSubsetBuilder,
-  i_VectorItemSubsetChangeable,
   i_LocalCoordConverter,
   i_GeometryProjectedProvider,
   i_VectorTileMatrixChangeable,

@@ -107,7 +107,6 @@ implementation
 
 uses
   GR32_Polygons,
-  i_LonLatRect,
   u_Bitmap32ByStaticBitmap,
   u_GeometryFunc;
 
