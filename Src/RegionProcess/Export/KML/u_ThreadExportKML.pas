@@ -78,6 +78,7 @@ uses
   i_ProjectionInfo,
   i_TileInfoBasic,
   i_TileIterator,
+  u_TileIteratorByRect,
   u_TileIteratorByPolygon,
   u_GeoToStrFunc,
   u_GeoFunc,
@@ -118,10 +119,11 @@ procedure TThreadExportKML.KmlFileWrite(
 );
 var
   VZoom: Byte;
-  xi, yi: integer;
+  VIterator: TTileIteratorByRectRecord;
   savepath, north, south, east, west: string;
   VText: UTF8String;
   VTileRect: TRect;
+  VTile: TPoint;
   VExtRect: TDoubleRect;
   VTileInfo: ITileInfoBasic;
 begin
@@ -184,10 +186,9 @@ begin
         FTileStorage.CoordConverter.RelativeRect2TileRectFloat(FTileStorage.CoordConverter.TilePos2RelativeRect(ATile, AZoom), VZoom),
         rrClosest
       );
-    for xi := VTileRect.Left to VTileRect.Right - 1 do begin
-      for yi := VTileRect.Top to VTileRect.Bottom - 1 do begin
-        KmlFileWrite(AKmlStream, Point(xi, yi), VZoom, level + 1);
-      end;
+    VIterator.Init(VTileRect);
+    while VIterator.Next(VTile) do begin
+      KmlFileWrite(AKmlStream, VTile, VZoom, level + 1);
     end;
   end;
   VText := #13#10;
