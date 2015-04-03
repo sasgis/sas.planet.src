@@ -120,6 +120,7 @@ uses
   i_LonLatRect,
   u_SimpleFlagWithInterlock,
   u_ListenerByEvent,
+  u_TileIteratorByRect,
   u_TileIteratorSpiralByRect,
   u_HashTileMatrixBuilder,
   u_VectorTileMatrixBuilder,
@@ -385,7 +386,7 @@ var
   VTileRectToUpdate: TRect;
   VTileRect: ITileRect;
   VCounter: Integer;
-  i, j: Integer;
+  VIterator: TTileIteratorByRectRecord;
   VTile: TPoint;
   VChanged: Boolean;
 begin
@@ -403,12 +404,9 @@ begin
 
         if Types.IntersectRect(VTileRectToUpdate, VTileRectUpdated, VTileRect.Rect) then begin
           VCounter := FSourceCounter.Inc;
-          for i := VTileRectToUpdate.Top to VTileRectToUpdate.Bottom - 1 do begin
-            VTile.Y := i;
-            for j := VTileRectToUpdate.Left to VTileRectToUpdate.Right - 1 do begin
-              VTile.X := j;
-              FSourceHashMatrix.Tiles[VTile] := VCounter;
-            end;
+          VIterator.Init(VTileRectToUpdate);
+          while VIterator.Next(VTile) do begin
+            FSourceHashMatrix.Tiles[VTile] := VCounter;
           end;
           VChanged := True;
         end;
