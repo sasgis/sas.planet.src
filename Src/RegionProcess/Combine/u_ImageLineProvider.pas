@@ -145,7 +145,8 @@ type
 implementation
 
 uses
-  t_GeoTypes;
+  t_GeoTypes,
+  u_TileIteratorByRect;
 
 { TImageLineProviderAbstract }
 
@@ -277,22 +278,19 @@ procedure TImageLineProviderAbstract.PrepareBufferData(
 );
 var
   VTile: TPoint;
-  i, j: Integer;
+  VIterator: TTileIteratorByRectRecord;
   VTileConverter: ILocalCoordConverter;
   VRectOfTile: TRect;
 begin
   PrepareBufferMem(AConverter.GetLocalRect);
   VRectOfTile := FMainGeoConverter.PixelRect2TileRect(AConverter.GetRectInMapPixel, FZoom);
-  for i := VRectOfTile.Top to VRectOfTile.Bottom - 1 do begin
-    VTile.Y := i;
-    for j := VRectOfTile.Left to VRectOfTile.Right - 1 do begin
-      VTile.X := j;
+  VIterator.Init(VRectOfTile);
+  while VIterator.Next(VTile) do begin
       VTileConverter := FConverterFactory.CreateForTile(VTile, FZoom, FMainGeoConverter);
       AddTile(
         FImageProvider.GetBitmapRect(AOperationID, ACancelNotifier, VTileConverter),
         VTileConverter
       );
-    end;
   end;
 end;
 
