@@ -91,6 +91,7 @@ uses
   t_GeoTypes,
   i_CoordConverter,
   u_SimpleFlagWithInterlock,
+  u_TileIteratorByRect,
   u_GeoFunc,
   u_Synchronizer;
 
@@ -137,7 +138,7 @@ var
   VCurrentZoom: Byte;
   VLoadedRelativeRect: TDoubleRect;
   VTilesRect: TRect;
-  i, j: integer;
+  VIterator: TTileIteratorByRectRecord;
   VTileIndex: TPoint;
   VTileRelativeRect: TDoubleRect;
   VPixelRectOfTile: TDoubleRect;
@@ -158,10 +159,8 @@ begin
       VGeoConvert.RelativeRect2TileRectFloat(VLoadedRelativeRect, AGridZoom),
       rrOutside
     );
-  for i := VTilesRect.Top to VTilesRect.Bottom - 1 do begin
-    VTileIndex.Y := i;
-    for j := VTilesRect.Left to VTilesRect.Right - 1 do begin
-      VTileIndex.X := j;
+  VIterator.Init(VTilesRect);
+  while VIterator.Next(VTileIndex) do begin
       VTileRelativeRect := VGeoConvert.TilePos2RelativeRect(VTileIndex, AGridZoom);
       VPixelRectOfTile := VGeoConvert.RelativeRect2PixelRectFloat(VTileRelativeRect, VCurrentZoom);
       VLocalRectOfTile.Left := VPixelRectOfTile.Left - AMapRect.Left;
@@ -182,7 +181,6 @@ begin
         VOutPoint := Types.Point(Trunc(VTileCenter.X - Sz2.cx / 2), Trunc(VTileCenter.Y));
         FBitmap.RenderText(VOutPoint.X, VOutPoint.Y, textouty, 0, FColor);
       end;
-    end;
   end;
 end;
 
