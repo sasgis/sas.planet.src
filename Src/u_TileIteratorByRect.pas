@@ -51,6 +51,19 @@ type
     constructor Create(const ARect: TRect);
   end;
 
+  TTileIteratorByRectRecord = record
+  private
+    FTilesRect: TRect;
+    FCurrent: TPoint;
+    FTilesTotal: Int64;
+    FEOI: Boolean;
+  public
+    procedure Init(const ARect: TRect); inline;
+    property TilesTotal: Int64 read FTilesTotal;
+    function Next(out ATile: TPoint): Boolean; inline;
+    procedure Reset; inline;
+  end;
+
 implementation
 
 { TTileIteratorByRectBase }
@@ -109,6 +122,47 @@ begin
   end else begin
     FEOI := False;
     FCurrent := TilesRect.TopLeft;
+  end;
+end;
+
+{ TTileIteratorByRectRecord }
+
+procedure TTileIteratorByRectRecord.Init(const ARect: TRect);
+begin
+  FTilesRect := ARect;
+  if IsRectEmpty(FTilesRect) then begin
+    FTilesTotal := 0;
+  end else begin
+    FTilesTotal := (FTilesRect.Right - FTilesRect.Left);
+    FTilesTotal := FTilesTotal * (FTilesRect.Bottom - FTilesRect.Top);
+  end;
+  Reset;
+end;
+
+function TTileIteratorByRectRecord.Next(out ATile: TPoint): Boolean;
+begin
+  Result := False;
+  if not FEOI then begin
+    Result := True;
+    ATile := FCurrent;
+    Inc(FCurrent.X);
+    if FCurrent.X >= FTilesRect.Right then begin
+      FCurrent.X := FTilesRect.Left;
+      Inc(FCurrent.Y);
+      if FCurrent.Y >= FTilesRect.Bottom then begin
+        FEOI := True;
+      end;
+    end;
+  end;
+end;
+
+procedure TTileIteratorByRectRecord.Reset;
+begin
+  if IsRectEmpty(FTilesRect) then begin
+    FEOI := True;
+  end else begin
+    FEOI := False;
+    FCurrent := FTilesRect.TopLeft;
   end;
 end;
 
