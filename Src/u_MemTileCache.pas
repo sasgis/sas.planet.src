@@ -133,6 +133,7 @@ uses
   i_TileRect,
   i_NotifierTilePyramidUpdate,
   u_ListenerTime,
+  u_TileIteratorByRect,
   u_Synchronizer,
   u_ListenerByEvent;
 
@@ -295,7 +296,7 @@ procedure TMemTileCacheBase.DeleteTileRectFromCache(
 var
   VSize: TPoint;
   VTile: TPoint;
-  i, j: Integer;
+  VIterator: TTileIteratorByRectRecord;
   VKey: string;
   VIndex: Integer;
 begin
@@ -307,16 +308,13 @@ begin
     end else begin
       FSync.BeginWrite;
       try
-        for j := ARect.Left to ARect.Right - 1 do begin
-          VTile.X := j;
-          for i := ARect.Top to ARect.Bottom - 1 do begin
-            VTile.Y := i;
-            VKey := GetMemCacheKey(VTile, AZoom);
-            VIndex := FCacheList.IndexOf(VKey);
-            if VIndex >= 0 then begin
-              ItemFree(VIndex);
-              FCacheList.Delete(VIndex);
-            end;
+        VIterator.Init(ARect);
+        while VIterator.Next(VTile) do begin
+          VKey := GetMemCacheKey(VTile, AZoom);
+          VIndex := FCacheList.IndexOf(VKey);
+          if VIndex >= 0 then begin
+            ItemFree(VIndex);
+            FCacheList.Delete(VIndex);
           end;
         end;
       finally
