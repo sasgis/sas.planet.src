@@ -238,6 +238,7 @@ uses
   i_DownloadResultFactory,
   u_StringProviderForMapTileItem,
   u_LayerDrawConfig,
+  u_TileIteratorByRect,
   u_TileDownloaderConfig,
   u_TileDownloadRequestBuilderConfig,
   u_DownloadResultFactory,
@@ -834,7 +835,7 @@ var
   VTileRect: TRect;
   VTargetImageSize: TPoint;
   VPixelRectCurrTile: TRect;
-  i, j: Integer;
+  VIterator: TTileIteratorByRectRecord;
   VTile: TPoint;
   VSpr: IBitmap32Static;
   VSourceBounds: TRect;
@@ -863,10 +864,8 @@ begin
     VBitmap.SetSize(VTargetImageSize.X, VTargetImageSize.Y);
     VBitmap.Clear(0);
 
-    for i := VTileRect.Top to VTileRect.Bottom - 1 do begin
-      VTile.Y := i;
-      for j := VTileRect.Left to VTileRect.Right - 1 do begin
-        VTile.X := j;
+    VIterator.Init(VTileRect);
+    while VIterator.Next(VTile) do begin
         VSpr := LoadTileOrPreZ(VTile, VZoom, AVersion, IgnoreError, AUsePre, ACache);
         if VSpr <> nil then begin
           VPixelRectCurrTile := FCoordConverter.TilePos2PixelRect(VTile, VZoom);
@@ -932,7 +931,6 @@ begin
             Exit;
           end;
         end;
-      end;
     end;
     Result := VBitmap.MakeAndClear;
   finally
