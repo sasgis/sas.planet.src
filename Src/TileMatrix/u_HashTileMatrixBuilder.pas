@@ -177,7 +177,7 @@ var
   VIntersectRect: TRect;
   VOldItems: THashValueArray;
   VOldRect: TRect;
-  VIterator: ITileIterator;
+  VIterator: TTileIteratorByRectRecord;
   VTile: TPoint;
 begin
   if not Assigned(ATileRect) then begin
@@ -198,7 +198,7 @@ begin
             VTileRect := ATileRect.Rect;
             VOldRect := FTileRect.Rect;
             SetRectWithReset(ATileRect, AValue);
-            VIterator := TTileIteratorByRect.Create(VIntersectRect);
+            VIterator.Init(VIntersectRect);
             while VIterator.Next(VTile) do begin
               FItems[IndexByPos(VTileRect, VTile)] :=
                 VOldItems[IndexByPos(VOldRect, VTile)];

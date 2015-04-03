@@ -142,6 +142,7 @@ type
 implementation
 
 uses
+  Types,
   t_GeoTypes,
   t_CommonTypes,
   i_TileIterator,
@@ -656,7 +657,7 @@ var
   VItems: TArrayOfTileInfoShortInternal;
   VIndex: Integer;
   VTile: TPoint;
-  VIterator: ITileIterator;
+  VIterator: TTileIteratorByRectRecord;
   VTileInfo: ITileInfoBasic;
   VVersion: IMapVersionInfo;
   VShowPrev: Boolean;
@@ -679,7 +680,7 @@ begin
     VCount.Y := VRect.Bottom - VRect.Top;
     if (VCount.X > 0) and (VCount.Y > 0) and (VCount.X <= 2048) and (VCount.Y <= 2048) then begin
       SetLength(VItems, VCount.X * VCount.Y);
-      VIterator := TTileIteratorByRect.Create(VRect);
+      VIterator.Init(VRect);
       while VIterator.Next(VTile) do begin
         if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
           Result := nil;

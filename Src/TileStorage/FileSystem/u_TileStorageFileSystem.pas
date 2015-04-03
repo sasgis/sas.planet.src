@@ -124,6 +124,7 @@ type
 implementation
 
 uses
+  Types,
   WideStrings,
   t_CommonTypes,
   i_TileIterator,
@@ -387,7 +388,7 @@ var
   VItems: TArrayOfTileInfoShortInternal;
   VIndex: Integer;
   VTile: TPoint;
-  VIterator: ITileIterator;
+  VIterator: TTileIteratorByRectRecord;
   VFolderName: string;
   VPrevFolderName: string;
   VPrevFolderExist: Boolean;
@@ -404,7 +405,7 @@ begin
       SetLength(VItems, VCount.X * VCount.Y);
       VPrevFolderName := '';
       VPrevFolderExist := False;
-      VIterator := TTileIteratorByRect.Create(VRect);
+      VIterator.Init(VRect);
       while VIterator.Next(VTile) do begin
         if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
           Result := nil;

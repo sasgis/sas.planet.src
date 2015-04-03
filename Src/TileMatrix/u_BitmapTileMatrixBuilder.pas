@@ -192,7 +192,7 @@ var
   VIntersectRect: TRect;
   VOldItems: IInterfaceListStatic;
   VOldRect: TRect;
-  VIterator: ITileIterator;
+  VIterator: TTileIteratorByRectRecord;
   VTile: TPoint;
   VRelativeRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
@@ -233,7 +233,7 @@ begin
                 TBitmapTileProviderByMatrix.Create(VSourceTileMatrix),
                 ATileRect.ProjectionInfo
               );
-            VIterator := TTileIteratorByRect.Create(VIntersectRect);
+            VIterator.Init(VIntersectRect);
             while VIterator.Next(VTile) do begin
               FItems.Items[IndexByPos(VTileRect, VTile)] := VTileProvider.GetTile(0, nil, VTile);
             end;
@@ -262,7 +262,7 @@ begin
                 TBitmapTileProviderByMatrix.Create(VSourceTileMatrix),
                 ATileRect.ProjectionInfo
               );
-            VIterator := TTileIteratorByRect.Create(VIntersectRect);
+            VIterator.Init(VIntersectRect);
             while VIterator.Next(VTile) do begin
               FItems.Items[IndexByPos(VTileRect, VTile)] := VTileProvider.GetTile(0, nil, VTile);
             end;
@@ -277,7 +277,7 @@ begin
           VOldItems := FItems.MakeStaticAndClear;
           VOldRect := FTileRect.Rect;
           SetRectWithReset(ATileRect);
-          VIterator := TTileIteratorByRect.Create(VIntersectRect);
+          VIterator.Init(VIntersectRect);
           while VIterator.Next(VTile) do begin
             FItems.Items[IndexByPos(VTileRect, VTile)] :=
               VOldItems.Items[IndexByPos(VOldRect, VTile)];

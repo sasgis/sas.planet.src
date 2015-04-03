@@ -161,7 +161,7 @@ var
   VRelativeRect: TDoubleRect;
   VSubTileBounds: TRect;
   VSubTileInTargetBounds: TRect;
-  VSubTileIterator: ITileIterator;
+  VSubTileIterator: TTileIteratorByRectRecord;
   VProjectedPolygon: IGeometryProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
@@ -243,7 +243,7 @@ begin
                 VGeoConvert.RelativeRect2TileRectFloat(VRelativeRect, VZoomPrev),
                 rrToTopLeft
               );
-            VSubTileIterator := TTileIteratorByRect.Create(VRectOfSubTiles);
+            VSubTileIterator.Init(VRectOfSubTiles);
             VSubTileCount := VSubTileIterator.TilesTotal;
             VSubTilesSavedCount := 0;
             while VSubTileIterator.Next(VSubTile) do begin

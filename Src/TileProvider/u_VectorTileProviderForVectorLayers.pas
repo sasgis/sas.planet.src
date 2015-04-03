@@ -138,7 +138,7 @@ var
   VSourceGeoConvert: ICoordConverter;
   VTileSelectLonLatRect: TDoubleRect;
   VTileSourceRect: TRect;
-  VTileIterator: ITileIterator;
+  VTileIterator: TTileIteratorByRectRecord;
   VVersion: IMapVersionRequest;
   VTile: TPoint;
   VErrorString: string;
@@ -157,7 +157,7 @@ begin
       VSourceGeoConvert.LonLatRect2TileRectFloat(VTileSelectLonLatRect, AZoom),
       rrOutside
     );
-  VTileIterator := TTileIteratorByRect.Create(VTileSourceRect);
+  VTileIterator.Init(VTileSourceRect);
 
   while VTileIterator.Next(VTile) do begin
     VErrorString := '';

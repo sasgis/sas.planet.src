@@ -185,7 +185,7 @@ var
   VLonLatRectSource: TDoubleRect;
   VLonLatRectTarget: TDoubleRect;
   VSourceTileRect: TRect;
-  VTileIterator: ITileIterator;
+  VTileIterator: TTileIteratorByRectRecord;
   VSourceTile: TPoint;
   VSource: IVectorItemSubset;
   VSubsetBuilder: IVectorItemSubsetBuilder;
@@ -222,7 +222,7 @@ begin
     end;
   end else begin
     VSubsetBuilder := FVectorSubsetBuilderFactory.Build;
-    VTileIterator := TTileIteratorByRect.Create(VSourceTileRect);
+    VTileIterator.Init(VSourceTileRect);
     while VTileIterator.Next(VSourceTile) do begin
       VSource := FProvider.GetTile(AOperationID, ACancelNotifier, VSourceTile);
       if Assigned(VSource) then begin
@@ -260,7 +260,7 @@ var
   VTargetZoom: Byte;
   VRelativeRect: TDoubleRect;
   VSourceTileRect: TRect;
-  VTileIterator: ITileIterator;
+  VTileIterator: TTileIteratorByRectRecord;
   VSourceTile: TPoint;
   VSource: IVectorItemSubset;
   VLonLatRectTarget: TDoubleRect;
@@ -296,7 +296,7 @@ begin
     end;
   end else begin
     VSubsetBuilder := FVectorSubsetBuilderFactory.Build;
-    VTileIterator := TTileIteratorByRect.Create(VSourceTileRect);
+    VTileIterator.Init(VSourceTileRect);
     while VTileIterator.Next(VSourceTile) do begin
       VSource := FProvider.GetTile(AOperationID, ACancelNotifier, VSourceTile);
       if Assigned(VSource) then begin

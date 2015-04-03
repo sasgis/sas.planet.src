@@ -152,12 +152,14 @@ type
 implementation
 
 uses
+  Types,
   WideStrings,
   t_CommonTypes,
   i_TileIterator,
   i_FileNameIterator,
   i_TileFileNameParser,
   u_ListenerTime,
+  u_TileRect,
   u_TileRectInfoShort,
   u_TileFileNameBerkeleyDB,
   u_TileIteratorByRect,
@@ -694,7 +696,7 @@ var
   VItems: TArrayOfTileInfoShortInternal;
   VIndex: Integer;
   VTile: TPoint;
-  VIterator: ITileIterator;
+  VIterator: TTileIteratorByRectRecord;
   VFolderInfo: TInfo;
   VFileInfo: TInfo;
   VTneFileInfo: TInfo;
@@ -727,7 +729,7 @@ begin
         ClearInfo(VFolderInfo);
         ClearInfo(VFileInfo);
         ClearInfo(VTneFileInfo);
-        VIterator := TTileIteratorByRect.Create(VRect);
+        VIterator.Init(VRect);
         while VIterator.Next(VTile) do begin
           if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
             Result := nil;

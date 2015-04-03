@@ -236,7 +236,7 @@ var
   VLonLatRect: TDoubleRect;
   VTargetPixelRectAtSource: TDoubleRect;
   VSourceTileRect: TRect;
-  VTileIterator: ITileIterator;
+  VTileIterator: TTileIteratorByRectRecord;
   VSourceTile: TPoint;
   VResampler: TCustomResampler;
   VBitmap: TBitmap32ByStaticBitmap;
@@ -284,7 +284,7 @@ begin
         Result := VBitmap.MakeAndClear;
       end;
     end else begin
-      VTileIterator := TTileIteratorByRect.Create(VSourceTileRect);
+      VTileIterator.Init(VSourceTileRect);
       while VTileIterator.Next(VSourceTile) do begin
         VSourceImage := FProvider.GetTile(AOperationID, ACancelNotifier, VSourceTile);
         if Assigned(VSourceImage) then begin
@@ -344,7 +344,7 @@ var
   VRelativeRect: TDoubleRect;
   VTargetPixelRectAtSource: TDoubleRect;
   VSourceTileRect: TRect;
-  VTileIterator: ITileIterator;
+  VTileIterator: TTileIteratorByRectRecord;
   VSourceTile: TPoint;
   VResampler: TCustomResampler;
   VBitmap: TBitmap32ByStaticBitmap;
@@ -389,7 +389,7 @@ begin
         Result := VBitmap.MakeAndClear;
       end;
     end else begin
-      VTileIterator := TTileIteratorByRect.Create(VSourceTileRect);
+      VTileIterator.Init(VSourceTileRect);
       while VTileIterator.Next(VSourceTile) do begin
         VSourceImage := FProvider.GetTile(AOperationID, ACancelNotifier, VSourceTile);
         if Assigned(VSourceImage) then begin

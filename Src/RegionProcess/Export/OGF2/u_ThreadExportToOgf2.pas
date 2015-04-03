@@ -208,7 +208,7 @@ var
   VBitmapTile: IBitmap32Static;
   VZoom: Byte;
   VTile: TPoint;
-  VTileIterator: ITileIterator;
+  VTileIterator: TTileIteratorByRectRecord;
   VSaver: IBitmapTileSaver;
   VGeoConvert: ICoordConverter;
   VWriter: TOgf2Writer;
@@ -252,8 +252,7 @@ begin
     VZoom
   );
 
-  VTileIterator := TTileIteratorByRect.Create(VTileRect);
-  try
+  VTileIterator.Init(VTileRect);
     VTilesToProcess := VTilesToProcess + VTileIterator.TilesTotal;
 
     ProgressInfo.SetCaption(SAS_STR_ExportTiles);
@@ -364,9 +363,6 @@ begin
         VOfg2FileStream.Free;
       end;
     end;
-  finally
-    VTileIterator := nil;
-  end;
 end;
 
 end.
