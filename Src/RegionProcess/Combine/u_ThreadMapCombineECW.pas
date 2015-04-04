@@ -129,7 +129,7 @@ var
   i: Integer;
   VWidth: Integer;
 begin
-  VWidth := FImageLineProvider.LocalConverter.GetLocalRectSize.X;
+  VWidth := FImageLineProvider.ImageSize.X;
   VRGB := FImageLineProvider.GetLine(OperationID, CancelNotifier, ALine);
   for i := 0 to VWidth - 1 do begin
     LineR[i] := VRGB[i].R;

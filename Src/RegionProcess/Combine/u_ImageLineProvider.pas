@@ -68,7 +68,7 @@ type
       ACount: Integer
     ); virtual; abstract;
   private
-    function GetLocalConverter: ILocalCoordConverter;
+    function GetImageSize: TPoint;
     function GetBytesPerPixel: Integer;
     function GetLine(
       AOperationID: Integer;
@@ -234,6 +234,11 @@ begin
   Result := FBytesPerPixel;
 end;
 
+function TImageLineProviderAbstract.GetImageSize: TPoint;
+begin
+  Result := FLocalConverter.GetLocalRectSize;
+end;
+
 function TImageLineProviderAbstract.GetLine(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
@@ -254,11 +259,6 @@ begin
     PrepareBufferData(AOperationID, ACancelNotifier, FPreparedConverter);
   end;
   Result := GetLocalLine(ALine);
-end;
-
-function TImageLineProviderAbstract.GetLocalConverter: ILocalCoordConverter;
-begin
-  Result := FLocalConverter;
 end;
 
 function TImageLineProviderAbstract.GetLocalLine(ALine: Integer): Pointer;
