@@ -34,7 +34,6 @@ uses
   i_BitmapLayerProvider,
   i_RegionProcessProgressInfo,
   i_CoordConverterFactory,
-  i_LocalCoordConverterFactorySimpe,
   i_GeometryProjectedFactory,
   i_GeometryLonLat,
   u_ThreadExportAbstract;
@@ -56,7 +55,6 @@ type
     FIsReplace: boolean;
     FExportPath: string;
     FCoordConverterFactory: ICoordConverterFactory;
-    FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     function GetMobileFile(
       X, Y: Integer;
       Z: Byte;
@@ -80,7 +78,6 @@ type
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const ACoordConverterFactory: ICoordConverterFactory;
-      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
@@ -114,7 +111,6 @@ const
 constructor TThreadExportYaMobileV3.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const ACoordConverterFactory: ICoordConverterFactory;
-  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
@@ -132,7 +128,6 @@ begin
     Self.ClassName
   );
   FCoordConverterFactory := ACoordConverterFactory;
-  FLocalConverterFactory := ALocalConverterFactory;
   FProjectionFactory := AProjectionFactory;
   FBitmapFactory := ABitmapFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
@@ -297,11 +292,11 @@ var
   VGeoConvert: ICoordConverter;
   VTile: TPoint;
   VTileIterators: array of ITileIterator;
+  VTileIterator: ITileIterator;
   VProjection: IProjectionInfo;
   VProjectedPolygon: IGeometryProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
-  VTileConverter: ILocalCoordConverter;
   VStaticBitmapCrop: IBitmap32Static;
   VDataToSave: IBinaryData;
 begin
@@ -338,17 +333,20 @@ begin
       ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
       tc := GetTickCount;
       for i := 0 to Length(FZooms) - 1 do begin
-        VZoom := FZooms[i];
-        while VTileIterators[i].Next(VTile) do begin
+        VTileIterator := VTileIterators[i];
+        VProjection := VTileIterator.TilesRect.ProjectionInfo;
+        VZoom := VProjection.Zoom;
+        while VTileIterator.Next(VTile) do begin
           if CancelNotifier.IsOperationCanceled(OperationID) then begin
             exit;
           end;
-          VTileConverter := FLocalConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert);
           for j := 0 to length(FTasks) - 1 do begin
             VBitmapTile :=
-              FTasks[j].FImageProvider.GetBitmapRect(
-                OperationID, CancelNotifier,
-                FLocalConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert)
+              FTasks[j].FImageProvider.GetTile(
+                OperationID,
+                CancelNotifier,
+                VProjection,
+                VTile
               );
             if VBitmapTile <> nil then begin
               for xi := 0 to hxyi do begin
