@@ -36,7 +36,6 @@ uses
   i_BitmapTileSaveLoad,
   i_BitmapLayerProvider,
   i_CoordConverterFactory,
-  i_LocalCoordConverterFactorySimpe,
   i_GeometryProjectedFactory,
   i_CoordConverter,
   i_GeometryLonLat,
@@ -62,7 +61,6 @@ type
     //FSQLite3Lib: TALSqlite3Library;
     //FSqlite3: PSQLite3;
     FCoordConverterFactory: ICoordConverterFactory;
-    FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     procedure WritePListFile(const AGeoConvert: ICoordConverter);
@@ -79,7 +77,6 @@ type
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const ACoordConverterFactory: ICoordConverterFactory;
-      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
@@ -104,7 +101,6 @@ uses
   i_ProjectionInfo,
   i_GeometryProjected,
   i_TileIterator,
-  i_LocalCoordConverter,
   u_GeoToStrFunc,
   u_ResStrings,
   u_GeoFunc,
@@ -114,7 +110,6 @@ uses
 constructor TThreadExportIPhone.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const ACoordConverterFactory: ICoordConverterFactory;
-  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
@@ -134,7 +129,6 @@ begin
     Self.ClassName
   );
   FCoordConverterFactory := ACoordConverterFactory;
-  FLocalConverterFactory := ALocalConverterFactory;
   FProjectionFactory := AProjectionFactory;
   FBitmapFactory := ABitmapFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
@@ -224,7 +218,6 @@ var
   VProjectedPolygon: IGeometryProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
-  VTileConverter: ILocalCoordConverter;
   VSQLite3DbHandler: TSQLite3DbHandler;
 begin
   inherited;
@@ -316,20 +309,21 @@ begin
         VSQLite3DbHandler.BeginTran;
         try
           for i := 0 to Length(FZooms) - 1 do begin
-            VZoom := FZooms[i];
             VTileIterator := VTileIterators[i];
+            VProjection := VTileIterator.TilesRect.ProjectionInfo;
+            VZoom := VProjection.Zoom;
             while VTileIterator.Next(VTile) do begin
               if CancelNotifier.IsOperationCanceled(OperationID) then begin
                 exit;
               end;
-              VTileConverter := FLocalConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert);
               for j := 0 to Length(FTasks) - 1 do begin
-                VBitmapTile := FTasks[j].FImageProvider.GetBitmapRect(
-                  OperationID,
-                  CancelNotifier,
-                  FLocalConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert)
-                );
-
+                VBitmapTile :=
+                  FTasks[j].FImageProvider.GetTile(
+                    OperationID,
+                    CancelNotifier,
+                    VProjection,
+                    VTile
+                  );
                 // цикл по тайлам в картинке
                 if VBitmapTile <> nil then
                 for xi := 0 to hxyi - 1 do
