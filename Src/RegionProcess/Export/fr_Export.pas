@@ -189,7 +189,6 @@ begin
       AVectorGeometryProjectedFactory,
       ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
-      ALocalConverterFactory,
       ACoordConverterFactory
     );
   VList.Add(VExportProvider);

@@ -36,7 +36,6 @@ uses
   i_RegionProcessProgressInfo,
   i_BitmapLayerProvider,
   i_CoordConverterFactory,
-  i_LocalCoordConverterFactorySimpe,
   i_GeometryProjectedFactory,
   u_ThreadExportAbstract;
 
@@ -57,7 +56,6 @@ type
     FIsReplace: Boolean;
     FExportPath: string;
     FCoordConverterFactory: ICoordConverterFactory;
-    FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FProjectionFactory: IProjectionInfoFactory;
     FBitmapFactory: IBitmap32StaticFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -82,7 +80,6 @@ type
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const ACoordConverterFactory: ICoordConverterFactory;
-      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
@@ -115,7 +112,6 @@ uses
 constructor TThreadExportYaMobileV4.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const ACoordConverterFactory: ICoordConverterFactory;
-  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
@@ -137,7 +133,6 @@ begin
   );
   FTileSize := ATileSize;
   FCoordConverterFactory := ACoordConverterFactory;
-  FLocalConverterFactory := ALocalConverterFactory;
   FProjectionFactory := AProjectionFactory;
   FBitmapFactory := ABitmapFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
@@ -290,6 +285,7 @@ var
   VGeoConvert: ICoordConverter;
   VTile: TPoint;
   VTileIterators: array of ITileIterator;
+  VTileIterator: ITileIterator;
   VProjection: IProjectionInfo;
   VProjectedPolygon: IGeometryProjectedPolygon;
   VTilesToProcess: Int64;
@@ -333,16 +329,20 @@ begin
         for j := 0 to length(FTasks) - 1 do begin
           GenUserXml(IntToStr(FTasks[j].FMapId), FTasks[j].FMapName);
           for i := 0 to Length(FZooms) - 1 do begin
-            VZoom := FZooms[i];
-            VTileIterators[i].Reset;
-            while VTileIterators[i].Next(VTile) do begin
+            VTileIterator := VTileIterators[i];
+            VProjection := VTileIterator.TilesRect.ProjectionInfo;
+            VZoom := VProjection.Zoom;
+            VTileIterator.Reset;
+            while VTileIterator.Next(VTile) do begin
               if CancelNotifier.IsOperationCanceled(OperationID) then begin
                 exit;
               end;
               VBitmapTile :=
-                FTasks[j].FImageProvider.GetBitmapRect(
-                  OperationID, CancelNotifier,
-                  FLocalConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert)
+                FTasks[j].FImageProvider.GetTile(
+                  OperationID,
+                  CancelNotifier,
+                  VProjection,
+                  VTile
                 );
               if VBitmapTile <> nil then begin
                 case FTileSize of

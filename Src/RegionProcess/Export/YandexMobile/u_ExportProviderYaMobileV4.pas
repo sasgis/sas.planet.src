@@ -30,7 +30,6 @@ uses
   i_GeometryProjectedFactory,
   i_CoordConverterFactory,
   i_BitmapTileSaveLoadFactory,
-  i_LocalCoordConverterFactorySimpe,
   i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
   fr_MapSelect,
@@ -41,7 +40,6 @@ type
   private
     FFrame: TfrExportYaMobileV4;
     FCoordConverterFactory: ICoordConverterFactory;
-    FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
@@ -60,7 +58,6 @@ type
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
-      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const ACoordConverterFactory: ICoordConverterFactory
     );
   end;
@@ -88,7 +85,6 @@ constructor TExportProviderYaMobileV4.Create(
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
-  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const ACoordConverterFactory: ICoordConverterFactory
 );
 begin
@@ -99,7 +95,6 @@ begin
     AMapSelectFrameBuilder
   );
   FCoordConverterFactory := ACoordConverterFactory;
-  FLocalConverterFactory := ALocalConverterFactory;
   FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
@@ -198,7 +193,6 @@ begin
     TThreadExportYaMobileV4.Create(
       VProgressInfo,
       FCoordConverterFactory,
-      FLocalConverterFactory,
       FProjectionFactory,
       FVectorGeometryProjectedFactory,
       FBitmap32StaticFactory,
