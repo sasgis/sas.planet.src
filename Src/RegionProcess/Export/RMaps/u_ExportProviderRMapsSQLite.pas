@@ -29,7 +29,6 @@ uses
   i_LanguageManager,
   i_RegionProcessProgressInfoInternalFactory,
   i_CoordConverterFactory,
-  i_LocalCoordConverterFactorySimpe,
   i_Bitmap32BufferFactory,
   i_BitmapTileSaveLoadFactory,
   u_ExportProviderAbstract,
@@ -44,7 +43,6 @@ type
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FCoordConverterFactory: ICoordConverterFactory;
-    FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
   protected
     function CreateFrame: TFrame; override;
   protected
@@ -59,8 +57,7 @@ type
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
-      const ACoordConverterFactory: ICoordConverterFactory;
-      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe
+      const ACoordConverterFactory: ICoordConverterFactory
     );
   end;
 
@@ -91,8 +88,7 @@ constructor TExportProviderRMapsSQLite.Create(
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
-  const ACoordConverterFactory: ICoordConverterFactory;
-  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe
+  const ACoordConverterFactory: ICoordConverterFactory
 );
 begin
   Assert(Assigned(ABitmap32StaticFactory));
@@ -106,7 +102,6 @@ begin
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FCoordConverterFactory := ACoordConverterFactory;
-  FLocalConverterFactory := ALocalConverterFactory;
 end;
 
 function TExportProviderRMapsSQLite.CreateFrame: TFrame;
@@ -176,7 +171,6 @@ begin
       FProjectionFactory,
       FVectorGeometryProjectedFactory,
       FCoordConverterFactory,
-      FLocalConverterFactory,
       APolygon,
       VZoomArr,
       VTileStorage,

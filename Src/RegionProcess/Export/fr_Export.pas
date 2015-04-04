@@ -285,8 +285,7 @@ begin
       AVectorGeometryProjectedFactory,
       ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
-      ACoordConverterFactory,
-      ALocalConverterFactory
+      ACoordConverterFactory
     );
   VList.Add(VExportProvider);
   CBFormat.Items.Add(VExportProvider.GetCaption);

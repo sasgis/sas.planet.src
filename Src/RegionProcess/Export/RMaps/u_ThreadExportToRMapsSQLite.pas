@@ -32,7 +32,6 @@ uses
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
   i_CoordConverterFactory,
-  i_LocalCoordConverterFactorySimpe,
   i_GeometryProjectedFactory,
   i_GeometryLonLat,
   i_TileInfoBasic,
@@ -48,7 +47,6 @@ type
     FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FCoordConverterFactory: ICoordConverterFactory;
-    FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FExportPath: string;
     FTileStorage: ITileStorage;
     FMapVersion: IMapVersionRequest;
@@ -77,7 +75,6 @@ type
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ACoordConverterFactory: ICoordConverterFactory;
-      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const APolygon: IGeometryLonLatPolygon;
       const AZoomArr: TByteDynArray;
       const ATileStorage: ITileStorage;
@@ -112,7 +109,6 @@ constructor TThreadExportToRMapsSQLite.Create(
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ACoordConverterFactory: ICoordConverterFactory;
-  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const APolygon: IGeometryLonLatPolygon;
   const AZoomArr: TByteDynArray;
   const ATileStorage: ITileStorage;
@@ -133,7 +129,6 @@ begin
   FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FCoordConverterFactory := ACoordConverterFactory;
-  FLocalConverterFactory := ALocalConverterFactory;
   FExportPath := AExportPath;
   FTileStorage := ATileStorage;
   FMapVersion := AMapVersion;
@@ -210,6 +205,7 @@ begin
       VZoom := FZooms[I];
       VTileIterator := VTileIterators[I];
       if Assigned(VTileIterator) then begin
+        VProjection := VTileIterator.TilesRect.ProjectionInfo;
         while VTileIterator.Next(VTile) do begin
           if CancelNotifier.IsOperationCanceled(OperationID) then begin
             Exit;
@@ -222,10 +218,11 @@ begin
             end;
           end else begin
             VBitmapTile :=
-              FBitmapProvider.GetBitmapRect(
+              FBitmapProvider.GetTile(
                 Self.OperationID,
                 Self.CancelNotifier,
-                FLocalConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert)
+                VProjection,
+                VTile
               );
             if Assigned(VBitmapTile) then begin
               VTileData := FBitmapTileSaver.Save(VBitmapTile);
