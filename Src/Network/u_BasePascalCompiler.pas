@@ -176,6 +176,7 @@ begin
   if ALSameText(AName, 'SYSTEM') then begin
     // numeric routines
     Sender.AddDelphiFunction('function Random(const X: Integer): Integer');
+    Sender.AddDelphiFunction('function RandomRange(const AFrom, ATo: Integer): Integer');
     Sender.AddDelphiFunction('function RoundEx(const chislo: Double; const Precision: Integer): String');
     Sender.AddDelphiFunction('function Power(const Base, Exponent: Extended): Extended');
     Sender.AddDelphiFunction('function IntPower(const Base: Extended; const Exponent: Integer): Extended register');
@@ -259,6 +260,7 @@ begin
   Self.RegisterDelphiFunction(@Power, 'Power', cdRegister);
   Self.RegisterDelphiFunction(@IntPower, 'IntPower', cdRegister);
   Self.RegisterDelphiFunction(@RandomInt, 'Random', cdRegister);
+  Self.RegisterDelphiFunction(@RandomRange, 'RandomRange', cdRegister);
   Self.RegisterDelphiFunction(@IntToHex, 'IntToHex', cdRegister);
   Self.RegisterDelphiFunction(@Ceil, 'Ceil', cdRegister);
   Self.RegisterDelphiFunction(@Floor, 'Floor', cdRegister);
