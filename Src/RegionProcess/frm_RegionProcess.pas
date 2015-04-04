@@ -281,7 +281,6 @@ begin
       ALanguageManager,
       VMapSelectFrameBuilder,
       ACoordConverterFactory,
-      ALocalConverterFactory,
       AProjectionFactory,
       AVectorGeometryProjectedFactory,
       ABitmapFactory,

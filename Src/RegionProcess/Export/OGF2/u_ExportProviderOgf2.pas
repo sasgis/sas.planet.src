@@ -26,7 +26,6 @@ uses
   Forms,
   i_GeometryLonLat,
   i_CoordConverterFactory,
-  i_LocalCoordConverterFactorySimpe,
   i_GeometryProjectedFactory,
   i_Bitmap32BufferFactory,
   i_BitmapTileSaveLoadFactory,
@@ -40,7 +39,6 @@ type
   TExportProviderOgf2 = class(TExportProviderAbstract)
   private
     FCoordConverterFactory: ICoordConverterFactory;
-    FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FProjectionFactory: IProjectionInfoFactory;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -59,7 +57,6 @@ type
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
-      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const ACoordConverterFactory: ICoordConverterFactory
     );
   end;
@@ -87,7 +84,6 @@ constructor TExportProviderOgf2.Create(
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
-  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const ACoordConverterFactory: ICoordConverterFactory
 );
 begin
@@ -102,7 +98,6 @@ begin
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FCoordConverterFactory := ACoordConverterFactory;
-  FLocalConverterFactory := ALocalConverterFactory;
 end;
 
 function TExportProviderOgf2.CreateFrame: TFrame;
@@ -153,7 +148,6 @@ begin
     TThreadExportToOgf2.Create(
       VProgressInfo,
       FCoordConverterFactory,
-      FLocalConverterFactory,
       FProjectionFactory,
       FBitmap32StaticFactory,
       FVectorGeometryProjectedFactory,

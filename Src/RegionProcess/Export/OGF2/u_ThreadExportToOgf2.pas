@@ -35,7 +35,6 @@ uses
   i_GeometryLonLat,
   i_CoordConverter,
   i_CoordConverterFactory,
-  i_LocalCoordConverterFactorySimpe,
   i_GeometryProjectedFactory,
   u_ResStrings,
   u_ThreadRegionProcessAbstract;
@@ -50,7 +49,6 @@ type
     FTargetFile: string;
     FImageProvider: IBitmapLayerProvider;
     FCoordConverterFactory: ICoordConverterFactory;
-    FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FProjectionFactory: IProjectionInfoFactory;
     FBitmapFactory: IBitmap32StaticFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -73,7 +71,6 @@ type
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const ACoordConverterFactory: ICoordConverterFactory;
-      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionFactory: IProjectionInfoFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -95,6 +92,7 @@ uses
   c_CoordConverter,
   i_MapCalibration,
   i_Bitmap32Static,
+  i_ProjectionInfo,
   i_TileIterator,
   i_GeometryProjected,
   u_TileIteratorByRect,
@@ -111,7 +109,6 @@ const
 constructor TThreadExportToOgf2.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const ACoordConverterFactory: ICoordConverterFactory;
-  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionFactory: IProjectionInfoFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -132,7 +129,6 @@ begin
   FZoom := AZoom;
   FTargetFile := ATargetFile;
   FCoordConverterFactory := ACoordConverterFactory;
-  FLocalConverterFactory := ALocalConverterFactory;
   FProjectionFactory := AProjectionFactory;
   FBitmapFactory := ABitmapFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
@@ -214,6 +210,7 @@ var
   VWriter: TOgf2Writer;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
+  VProjection: IProjectionInfo;
   VProjected: IGeometryProjectedPolygon;
   VLine: IGeometryProjectedSinglePolygon;
   VBounds: TDoubleRect;
@@ -234,10 +231,10 @@ begin
       CGoogleProjectionEPSG, // Merkator, WSG84, EPSG = 3785
       CTileSplitQuadrate256x256
     );
-
+  VProjection := FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom);
   VProjected :=
     FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-      FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom),
+      VProjection,
       Self.PolygLL
     );
 
@@ -302,10 +299,11 @@ begin
               end;
 
               VBitmapTile :=
-                FImageProvider.GetBitmapRect(
+                FImageProvider.GetTile(
                   OperationID,
                   CancelNotifier,
-                  FLocalConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert)
+                  VProjection,
+                  VTile
                 );
 
               for I := 0 to (256 div FOgf2TileWidth) - 1 do begin

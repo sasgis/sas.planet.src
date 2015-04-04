@@ -35,7 +35,6 @@ uses
   i_BitmapTileSaveLoadFactory,
   i_BitmapPostProcessing,
   i_ArchiveReadWriteFactory,
-  i_LocalCoordConverterFactorySimpe,
   i_Bitmap32BufferFactory,
   i_TileFileNameGeneratorsList,
   i_RegionProcessProgressInfoInternalFactory,
@@ -61,7 +60,6 @@ type
       const ALanguageManager: ILanguageManager;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const ACoordConverterFactory: ICoordConverterFactory;
-      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
@@ -108,7 +106,6 @@ constructor TfrExport.Create(
   const ALanguageManager: ILanguageManager;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const ACoordConverterFactory: ICoordConverterFactory;
-  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
@@ -254,7 +251,6 @@ begin
       AVectorGeometryProjectedFactory,
       ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
-      ALocalConverterFactory,
       ACoordConverterFactory
     );
   VList.Add(VExportProvider);
