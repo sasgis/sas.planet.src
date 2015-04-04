@@ -28,6 +28,7 @@ uses
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
   i_ProjectionInfo,
+  i_CoordConverterFactory,
   i_LocalCoordConverter,
   i_TileStorage,
   i_MapVersionRequest,
@@ -39,21 +40,22 @@ type
   TBitmapLayerProviderFillingMap = class(TBaseInterfacedObject, IBitmapLayerProvider)
   private
     FBitmap32StaticFactory: IBitmap32StaticFactory;
+    FProjectionFactory: IProjectionInfoFactory;
     FStorage: ITileStorage;
     FVersion: IMapVersionRequest;
     FUseRelativeZoom: Boolean;
     FZoom: Integer;
     FColorer: IFillingMapColorer;
 
-    function GetActualZoom(
+    function GetActualProjection(
       const AProjection: IProjectionInfo
-    ): Byte;
+    ): IProjectionInfo;
     function GetFillingMapBitmap(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const AProjection: IProjectionInfo;
       const AMapRect: TRect;
-      ASourceZoom: byte;
+      const ASourceProjection: IProjectionInfo;
       const AVersion: IMapVersionRequest;
       const AColorer: IFillingMapColorer
     ): IBitmap32Static;
@@ -72,6 +74,7 @@ type
   public
     constructor Create(
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
+      const AProjectionFactory: IProjectionInfoFactory;
       const AStorage: ITileStorage;
       const AVersion: IMapVersionRequest;
       AUseRelativeZoom: Boolean;
@@ -86,8 +89,10 @@ uses
   GR32,
   t_GeoTypes,
   i_CoordConverter,
+  i_TileRect,
   i_TileIterator,
   i_TileInfoBasic,
+  u_TileRect,
   u_GeoFunc,
   u_TileIteratorByRect,
   u_Bitmap32ByStaticBitmap;
@@ -96,6 +101,7 @@ uses
 
 constructor TBitmapLayerProviderFillingMap.Create(
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
+  const AProjectionFactory: IProjectionInfoFactory;
   const AStorage: ITileStorage;
   const AVersion: IMapVersionRequest;
   AUseRelativeZoom: Boolean;
@@ -104,11 +110,13 @@ constructor TBitmapLayerProviderFillingMap.Create(
 );
 begin
   Assert(Assigned(ABitmap32StaticFactory));
+  Assert(Assigned(AProjectionFactory));
   Assert(Assigned(AStorage));
   Assert(Assigned(AVersion));
   Assert(Assigned(AColorer));
   inherited Create;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
+  FProjectionFactory := AProjectionFactory;
   FStorage := AStorage;
   FVersion := AVersion;
   FUseRelativeZoom := AUseRelativeZoom;
@@ -116,21 +124,25 @@ begin
   FColorer := AColorer;
 end;
 
-function TBitmapLayerProviderFillingMap.GetActualZoom(
+function TBitmapLayerProviderFillingMap.GetActualProjection(
   const AProjection: IProjectionInfo
-): Byte;
+): IProjectionInfo;
 var
+  VConverter: ICoordConverter;
   VZoom: Integer;
+  VResultZoom: Byte;
 begin
+  VConverter := AProjection.GeoConverter;
   VZoom := FZoom;
   if FUseRelativeZoom then begin
     VZoom := VZoom + AProjection.Zoom;
   end;
   if VZoom < 0 then begin
-    Result := 0;
+    Result := FProjectionFactory.GetByConverterAndZoom(VConverter, 0);
   end else begin
-    Result := VZoom;
-    AProjection.GeoConverter.ValidateZoom(Result);
+    VResultZoom := VZoom;
+    VConverter.ValidateZoom(VResultZoom);
+    Result := FProjectionFactory.GetByConverterAndZoom(VConverter, VResultZoom);
   end;
 end;
 
@@ -140,10 +152,10 @@ function TBitmapLayerProviderFillingMap.GetBitmapRect(
   const ALocalConverter: ILocalCoordConverter
 ): IBitmap32Static;
 var
-  VSourceZoom: Byte;
+  VSourceProjection: IProjectionInfo;
 begin
-  VSourceZoom := GetActualZoom(ALocalConverter.ProjectionInfo);
-  if ALocalConverter.Zoom > VSourceZoom then begin
+  VSourceProjection := GetActualProjection(ALocalConverter.ProjectionInfo);
+  if ALocalConverter.Zoom > VSourceProjection.Zoom then begin
     Result := nil;
   end else begin
     Result :=
@@ -152,7 +164,7 @@ begin
         ACancelNotifier,
         ALocalConverter.ProjectionInfo,
         ALocalConverter.GetRectInMapPixel,
-        VSourceZoom,
+        VSourceProjection,
         FVersion,
         FColorer
       );
@@ -166,10 +178,10 @@ function TBitmapLayerProviderFillingMap.GetTile(
   const ATile: TPoint
 ): IBitmap32Static;
 var
-  VSourceZoom: Byte;
+  VSourceProjection: IProjectionInfo;
 begin
-  VSourceZoom := GetActualZoom(AProjectionInfo);
-  if AProjectionInfo.Zoom > VSourceZoom then begin
+  VSourceProjection := GetActualProjection(AProjectionInfo);
+  if AProjectionInfo.Zoom > VSourceProjection.Zoom then begin
     Result := nil;
   end else begin
     Result :=
@@ -178,7 +190,7 @@ begin
         ACancelNotifier,
         AProjectionInfo,
         AProjectionInfo.GeoConverter.TilePos2PixelRect(ATile, AProjectionInfo.Zoom),
-        VSourceZoom,
+        VSourceProjection,
         FVersion,
         FColorer
       );
@@ -190,7 +202,7 @@ function TBitmapLayerProviderFillingMap.GetFillingMapBitmap(
   const ACancelNotifier: INotifierOperation;
   const AProjection: IProjectionInfo;
   const AMapRect: TRect;
-  ASourceZoom: byte;
+  const ASourceProjection: IProjectionInfo;
   const AVersion: IMapVersionRequest;
   const AColorer: IFillingMapColorer
 ): IBitmap32Static;
@@ -202,6 +214,7 @@ var
   VSourceConverter: ICoordConverter;
   VTargetConverter: ICoordConverter;
   VSameSourceAndTarget: Boolean;
+  VSourceZoom: Byte;
   VTargetZoom: Byte;
   VLonLatRect: TDoubleRect;
   VIterator: ITileIterator;
@@ -214,6 +227,7 @@ var
   VMapPixelRectOfTile: TDoubleRect;
   VLocalPixelRectOfTile: TRect;
   VTileColor: TColor32;
+  VTileRect: ITileRect;
 begin
   VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
   try
@@ -224,6 +238,7 @@ begin
     VSourceConverter := FStorage.CoordConverter;
     VTargetConverter := AProjection.GeoConverter;
     VTargetZoom := AProjection.Zoom;
+    VSourceZoom := ASourceProjection.Zoom;
 
     VSameSourceAndTarget := VSourceConverter.IsSameConverter(VTargetConverter);
     if VSameSourceAndTarget then begin
@@ -235,28 +250,29 @@ begin
     end;
     VSourceTileRect :=
       RectFromDoubleRect(
-        VSourceConverter.RelativeRect2TileRectFloat(VSourceRelativeRect, ASourceZoom),
+        VSourceConverter.RelativeRect2TileRectFloat(VSourceRelativeRect, VSourceZoom),
         rrOutside
       );
     VSolidDrow :=
       (VSize.X <= (VSourceTileRect.Right - VSourceTileRect.Left) * 2) or
       (VSize.Y <= (VSourceTileRect.Bottom - VSourceTileRect.Top) * 2);
-    VTileRectInfo := FStorage.GetTileRectInfo(AOperationID, ACancelNotifier, VSourceTileRect, ASourceZoom, AVersion);
+    VTileRectInfo := FStorage.GetTileRectInfo(AOperationID, ACancelNotifier, VSourceTileRect, VSourceZoom, AVersion);
     if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
       Result := nil;
       Exit;
     end;
 
     if VTileRectInfo <> nil then begin
-      VIterator := TTileIteratorByRect.Create(VSourceTileRect);
+      VTileRect := TTileRect.Create(ASourceProjection, VSourceTileRect);
+      VIterator := TTileIteratorByRect.Create(VTileRect);
       VEnumTileInfo := VTileRectInfo.GetEnum(VIterator);
       while VEnumTileInfo.Next(VTileInfo) do begin
         VTileColor := AColorer.GetColor(VTileInfo);
         if VTileColor <> 0 then begin
           if VSameSourceAndTarget then begin
-            VRelativeRectOfTile := VSourceConverter.TilePos2RelativeRect(VTileInfo.FTile, ASourceZoom);
+            VRelativeRectOfTile := VSourceConverter.TilePos2RelativeRect(VTileInfo.FTile, VSourceZoom);
           end else begin
-            VLonLatRectOfTile := VSourceConverter.TilePos2LonLatRect(VTileInfo.FTile, ASourceZoom);
+            VLonLatRectOfTile := VSourceConverter.TilePos2LonLatRect(VTileInfo.FTile, VSourceZoom);
             VTargetConverter.ValidateLonLatRect(VLonLatRectOfTile);
             VRelativeRectOfTile := VTargetConverter.LonLatRect2RelativeRect(VLonLatRectOfTile);
           end;

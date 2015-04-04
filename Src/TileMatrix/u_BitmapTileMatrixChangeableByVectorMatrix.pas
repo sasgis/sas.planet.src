@@ -294,7 +294,7 @@ begin
       end;
       VProjection := VTileRect.ProjectionInfo;
       VConverter := VProjection.GeoConverter;
-      VTileIterator := TTileIteratorSpiralByRect.Create(VTileRect.Rect);
+      VTileIterator := TTileIteratorSpiralByRect.Create(VTileRect);
       while VTileIterator.Next(VTile) do begin
         VSourceItem := VSourceMatrix.GetElementByTile(VTile);
         if Assigned(VSourceItem) then begin

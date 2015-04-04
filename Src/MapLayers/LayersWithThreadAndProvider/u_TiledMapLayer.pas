@@ -221,7 +221,7 @@ begin
           FShownIdMatrix.SetRectWithReset(VTileMatrix.TileRect, 0);
         end else begin
           if VLocalConverter.ProjectionInfo.GetIsSameProjectionInfo(VTileMatrix.TileRect.ProjectionInfo) then begin
-            VTileIterator := TTileIteratorByRect.Create(VTileMatrix.TileRect.Rect);
+            VTileIterator := TTileIteratorByRect.Create(VTileMatrix.TileRect);
             while VTileIterator.Next(VTile) do begin
               VShownId := FShownIdMatrix.Tiles[VTile];
               VBitmap := VTileMatrix.GetElementByTile(VTile);

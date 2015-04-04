@@ -1962,6 +1962,7 @@ begin
   VProvider :=
     TBitmapLayerProviderChangeableForFillingMap.Create(
       GState.Bitmap32StaticFactory,
+      GState.ProjectionFactory,
       FMainMapState.FillingMapActiveMap,
       FConfig.LayersConfig.FillingMapLayerConfig
     );

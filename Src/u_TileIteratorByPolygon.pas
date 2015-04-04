@@ -27,6 +27,7 @@ uses
   t_GeoTypes,
   i_CoordConverter,
   i_ProjectionInfo,
+  i_TileRect,
   i_TileIterator,
   i_GeometryProjected,
   u_BaseInterfacedObject;
@@ -36,6 +37,7 @@ type
   private
     FCurrent: TPoint;
     FTilesRect: TRect;
+    FRect: ITileRect;
     FTilesTotal: Int64;
     // устанавливается только если один кусок (для скорости)
     FSingleLine: IGeometryProjectedSinglePolygon;
@@ -46,7 +48,7 @@ type
     FGeoConverter: ICoordConverter;
   private
     function GetTilesTotal: Int64;
-    function GetTilesRect: TRect;
+    function GetTilesRect: ITileRect;
     function Next(out ATile: TPoint): Boolean;
     procedure Reset;
   private
@@ -62,6 +64,7 @@ implementation
 
 uses
   SysUtils,
+  u_TileRect,
   u_GeoFunc;
 
 { TTileIteratorByPolygon }
@@ -81,6 +84,7 @@ begin
     FTilesTotal := 0;
     FTilesRect := Rect(0, 0, 0, 0);
     Assert(False);
+    FRect := TTileRect.Create(AProjection, FTilesRect);
   end else begin
     if Supports(AProjected, IGeometryProjectedSinglePolygon, FSingleLine) then begin
       FMultiProjected := nil;
@@ -99,6 +103,7 @@ begin
       FMultiProjected := nil;
       FTilesTotal := 0;
       FTilesRect := Rect(0, 0, 0, 0);
+      FRect := TTileRect.Create(AProjection, FTilesRect);
       Exit;
     end;
     VBounds := AProjected.Bounds;
@@ -108,7 +113,7 @@ begin
         FGeoConverter.PixelRectFloat2TileRectFloat(VBounds, FZoom),
         rrOutside
       );
-
+    FRect := TTileRect.Create(AProjection, FTilesRect);
     Reset;
     FTilesTotal := 0;
     while Next(VTile) do begin
@@ -118,9 +123,9 @@ begin
   end;
 end;
 
-function TTileIteratorByPolygon.GetTilesRect: TRect;
+function TTileIteratorByPolygon.GetTilesRect: ITileRect;
 begin
-  Result := FTilesRect;
+  Result := FRect;
 end;
 
 function TTileIteratorByPolygon.GetTilesTotal: Int64;

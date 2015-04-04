@@ -26,6 +26,7 @@ uses
   Windows,
   SyncObjs,
   i_Listener,
+  i_TileRect,
   i_TileIterator,
   i_MapVersionInfo;
 
@@ -53,8 +54,6 @@ type
     FCancelListener: IListener;
 
     FSessionID: Integer;
-    FSessionZoom: Byte;
-    FSessionRect: TRect;
     FSessionVersionInfo: IMapVersionInfo;
     FSessionTileIterator: ITileIterator;
     FSessionLock: TCriticalSection;
@@ -97,8 +96,7 @@ type
     );
 
     procedure InitSession(
-      const AZoom: Byte;
-      const ARect: TRect;
+      const ATileRect: ITileRect;
       const AVersionInfo: IMapVersionInfo
     );
 
@@ -202,22 +200,22 @@ begin
 end;
 
 procedure TUiTileRequestManager.InitSession(
-  const AZoom: Byte;
-  const ARect: TRect;
+  const ATileRect: ITileRect;
   const AVersionInfo: IMapVersionInfo
 );
 var
   I: Integer;
   VSessionID: Integer;
+  VZoom: Byte;
+  VRect: TRect;
 begin
   FSessionLock.Acquire;
   try
     VSessionID := InterlockedIncrement(FSessionID);
-    FSessionZoom := AZoom;
-    FSessionRect := ARect;
     FSessionVersionInfo := AVersionInfo;
-    FSessionTileIterator := TTileIteratorSpiralByRect.Create(FSessionRect);
-
+    FSessionTileIterator := TTileIteratorSpiralByRect.Create(ATileRect);
+    VZoom := ATileRect.Zoom;
+    VRect := ATileRect.Rect;
     FTaskArrayLock.Acquire;
     try
       for I := 0 to Length(FTaskArray) - 1 do begin
@@ -228,9 +226,9 @@ begin
             Dec(FMissedTaskCount);
           end;
           tsActive: begin
-            if (FTaskArray[I].Zoom = FSessionZoom) and
+            if (FTaskArray[I].Zoom = VZoom) and
                IsEqualVersionInfo(FTaskArray[I].Version, FSessionVersionInfo) and
-               IsPointInRect(FTaskArray[I].Tile, ARect) then
+               IsPointInRect(FTaskArray[I].Tile, VRect) then
             begin
               FTaskArray[I].State := tsActiveWaiting;
               FTaskArray[I].SessionID := VSessionID;
@@ -238,9 +236,9 @@ begin
             end;
           end;
           tsActiveWaiting: begin
-            if (FTaskArray[I].Zoom = FSessionZoom) and
+            if (FTaskArray[I].Zoom = VZoom) and
                IsEqualVersionInfo(FTaskArray[I].Version, FSessionVersionInfo) and
-               IsPointInRect(FTaskArray[I].Tile, ARect) then
+               IsPointInRect(FTaskArray[I].Tile, VRect) then
             begin
               FTaskArray[I].SessionID := VSessionID;
             end else begin
@@ -439,10 +437,10 @@ begin
       FSessionLock.Acquire;
       try
         VSessionID := InterlockedCompareExchange(FSessionID, 0, 0);
-        VZoom := FSessionZoom;
-        VRect := FSessionRect;
         VVersion := FSessionVersionInfo;
         VIterator := FSessionTileIterator;
+        VZoom := VIterator.TilesRect.ProjectionInfo.Zoom;
+        VRect := VIterator.TilesRect.Rect;
       finally
         FSessionLock.Release;
       end;

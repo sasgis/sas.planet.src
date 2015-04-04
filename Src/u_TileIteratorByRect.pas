@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  i_TileRect,
   i_TileIterator,
   u_BaseInterfacedObject;
 
@@ -31,13 +32,14 @@ type
   TTileIteratorByRectBase = class(TBaseInterfacedObject)
   private
     FTilesTotal: Int64;
-    FTilesRect: TRect;
+    FRect: TRect;
+    FTilesRect: ITileRect;
   protected
-    property TilesRect: TRect read FTilesRect;
+    property TilesRect: TRect read FRect;
     function GetTilesTotal: Int64;
-    function GetTilesRect: TRect;
+    function GetTilesRect: ITileRect;
   public
-    constructor Create(const ARect: TRect);
+    constructor Create(const ARect: ITileRect);
   end;
 
   TTileIteratorByRect = class(TTileIteratorByRectBase, ITileIterator, ITileIteratorByRows)
@@ -48,7 +50,7 @@ type
     function Next(out ATile: TPoint): Boolean;
     procedure Reset;
   public
-    constructor Create(const ARect: TRect);
+    constructor Create(const ARect: ITileRect);
   end;
 
   TTileIteratorByRectRecord = record
@@ -68,19 +70,20 @@ implementation
 
 { TTileIteratorByRectBase }
 
-constructor TTileIteratorByRectBase.Create(const ARect: TRect);
+constructor TTileIteratorByRectBase.Create(const ARect: ITileRect);
 begin
   inherited Create;
   FTilesRect := ARect;
-  if IsRectEmpty(FTilesRect) then begin
+  FRect := FTilesRect.Rect;
+  if IsRectEmpty(FRect) then begin
     FTilesTotal := 0;
   end else begin
-    FTilesTotal := (FTilesRect.Right - FTilesRect.Left);
-    FTilesTotal := FTilesTotal * (FTilesRect.Bottom - FTilesRect.Top);
+    FTilesTotal := (FRect.Right - FRect.Left);
+    FTilesTotal := FTilesTotal * (FRect.Bottom - FRect.Top);
   end;
 end;
 
-function TTileIteratorByRectBase.GetTilesRect: TRect;
+function TTileIteratorByRectBase.GetTilesRect: ITileRect;
 begin
   Result := FTilesRect;
 end;
@@ -92,7 +95,7 @@ end;
 
 { TTileIteratorByRect }
 
-constructor TTileIteratorByRect.Create(const ARect: TRect);
+constructor TTileIteratorByRect.Create(const ARect: ITileRect);
 begin
   inherited Create(ARect);
   Reset;

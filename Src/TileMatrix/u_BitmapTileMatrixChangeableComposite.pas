@@ -403,7 +403,7 @@ begin
 
     if VSourceMatrixList.Count > 0 then begin
       VConverter := VProjection.GeoConverter;
-      VTileIterator := TTileIteratorSpiralByRect.Create(VTileRect.Rect);
+      VTileIterator := TTileIteratorSpiralByRect.Create(VTileRect);
       if not VAllSourceReady then begin
         while VTileIterator.Next(VTile) do begin
           if Assigned(FPreparedBitmapMatrix.Tiles[VTile]) then begin

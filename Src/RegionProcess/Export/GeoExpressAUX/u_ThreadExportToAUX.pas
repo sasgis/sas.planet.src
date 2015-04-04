@@ -119,7 +119,7 @@ begin
     );
     VTilesProcessed := 0;
     ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
-    VPixelRect := VGeoConvert.TileRect2PixelRect(VTileIterator.TilesRect, FZoom);
+    VPixelRect := VGeoConvert.TileRect2PixelRect(VTileIterator.TilesRect.Rect, FZoom);
     VFileStream := TFileStream.Create(FFileName, fmCreate);
     try
       while VTileIterator.Next(VTile) do begin

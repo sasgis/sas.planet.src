@@ -125,6 +125,7 @@ uses
   u_ListenerNotifierLinksList,
   u_ListenerByEvent,
   u_ListenerTime,
+  u_TileRect,
   u_TileRequestTask,
   u_BackgroundTask,
   u_TileRectChangeableByOtherTileRect,
@@ -340,6 +341,7 @@ var
   VTileRect: ITileRect;
   VGeoConverter: ICoordConverter;
   VMapTileRect: TRect;
+  VDownloadTileRect: ITileRect;
   VZoom: Byte;
   VNeedDownload: Boolean;
   VTask: ITileRequestTask;
@@ -370,8 +372,9 @@ begin
       Inc(VMapTileRect.Right, FTilesOut);
       Inc(VMapTileRect.Bottom, FTilesOut);
       VGeoConverter.ValidateTileRect(VMapTileRect, VZoom);
+      VDownloadTileRect := TTileRect.Create(VTileRect.ProjectionInfo, VMapTileRect);
 
-      FRequestManager.InitSession(VZoom, VMapTileRect, VVersionInfo.BaseVersion);
+      FRequestManager.InitSession(VDownloadTileRect, VVersionInfo.BaseVersion);
 
       while FRequestManager.Acquire(VTile) do begin
         VNeedDownload := False;

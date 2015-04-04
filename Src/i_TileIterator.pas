@@ -23,18 +23,20 @@ unit i_TileIterator;
 interface
 
 uses
-  Types;
+  Types,
+  i_TileRect;
 
 type
   ITileIterator = interface
     ['{E563544C-4A6E-4A8C-B5C9-81190F1416AF}']
-    function GetTilesTotal: Int64;
-    function GetTilesRect: TRect;
     function Next(out ATile: TPoint): Boolean;
     procedure Reset;
 
+    function GetTilesTotal: Int64;
     property TilesTotal: Int64 read GetTilesTotal;
-    property TilesRect: TRect read GetTilesRect;
+
+    function GetTilesRect: ITileRect;
+    property TilesRect: ITileRect read GetTilesRect;
   end;
 
   ITileIteratorByRows = interface(ITileIterator)

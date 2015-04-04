@@ -343,7 +343,7 @@ begin
         Exit;
       end;
       VConverter := VTileRect.ProjectionInfo.GeoConverter;
-      VTileIterator := TTileIteratorSpiralByRect.Create(VTileRect.Rect);
+      VTileIterator := TTileIteratorSpiralByRect.Create(VTileRect);
       while VTileIterator.Next(VTile) do begin
         VSourceHash := FSourceHashMatrix.Tiles[VTile];
         if FPreparedHashMatrix.Tiles[VTile] <> VSourceHash then begin

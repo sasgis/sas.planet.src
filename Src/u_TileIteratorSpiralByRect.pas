@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  i_TileRect,
   i_TileIterator,
   u_TileIteratorByRect;
 
@@ -52,10 +53,10 @@ type
     procedure Reset;
   public
     constructor CreateWithCenter(
-      const ARect: TRect;
+      const ARect: ITileRect;
       const APoint: TPoint
     );
-    constructor Create(const ARect: TRect);
+    constructor Create(const ARect: ITileRect);
   end;
 
 implementation
@@ -63,7 +64,7 @@ implementation
 { TTileIteratorSpiralByRect }
 
 constructor TTileIteratorSpiralByRect.CreateWithCenter(
-  const ARect: TRect;
+  const ARect: ITileRect;
   const APoint: TPoint
 );
 begin
@@ -85,9 +86,9 @@ begin
     (APoint.Y < TilesRect.Bottom);
 end;
 
-constructor TTileIteratorSpiralByRect.Create(const ARect: TRect);
+constructor TTileIteratorSpiralByRect.Create(const ARect: ITileRect);
 begin
-  CreateWithCenter(ARect, Point((ARect.Left + ARect.Right) div 2, (ARect.Top + ARect.Bottom) div 2));
+  CreateWithCenter(ARect, CenterPoint(ARect.Rect));
 end;
 
 class function TTileIteratorSpiralByRect.GetDeltaByRingAndIndex(ARad,

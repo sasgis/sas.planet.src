@@ -24,6 +24,7 @@ interface
 
 uses
   i_Listener,
+  i_CoordConverterFactory,
   i_FillingMapLayerConfig,
   i_MapType,
   i_Bitmap32BufferFactory,
@@ -34,6 +35,7 @@ type
   TBitmapLayerProviderChangeableForFillingMap = class(TBitmapLayerProviderChangeableBase)
   private
     FBitmap32StaticFactory: IBitmap32StaticFactory;
+    FProjectionFactory: IProjectionInfoFactory;
     FConfig: IFillingMapLayerConfig;
     FMapType: IMapTypeChangeable;
 
@@ -46,6 +48,7 @@ type
   public
     constructor Create(
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
+      const AProjectionFactory: IProjectionInfoFactory;
       const AMapType: IMapTypeChangeable;
       const AConfig: IFillingMapLayerConfig
     );
@@ -65,15 +68,18 @@ uses
 
 constructor TBitmapLayerProviderChangeableForFillingMap.Create(
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
+  const AProjectionFactory: IProjectionInfoFactory;
   const AMapType: IMapTypeChangeable;
   const AConfig: IFillingMapLayerConfig
 );
 begin
   Assert(Assigned(ABitmap32StaticFactory));
+  Assert(Assigned(AProjectionFactory));
   Assert(Assigned(AMapType));
   Assert(Assigned(AConfig));
   inherited Create;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
+  FProjectionFactory := AProjectionFactory;
   FMapType := AMapType;
   FConfig := AConfig;
 
@@ -134,6 +140,7 @@ begin
     VResult :=
       TBitmapLayerProviderFillingMap.Create(
         FBitmap32StaticFactory,
+        FProjectionFactory,
         VMap.TileStorage,
         VVersionRequest,
         VConfig.UseRelativeZoom,
