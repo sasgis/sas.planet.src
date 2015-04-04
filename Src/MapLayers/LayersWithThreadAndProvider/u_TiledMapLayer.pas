@@ -263,7 +263,7 @@ var
   VConverter: ICoordConverter;
   VZoomDst: Byte;
   VZoomSrc: Byte;
-  VTileIterator: ITileIterator;
+  VTileIterator: TTileIteratorByRectRecord;
   VTile: TPoint;
   VBitmap: IBitmap32Static;
   VResampler: TCustomResampler;
@@ -294,7 +294,7 @@ begin
   if Types.IntersectRect(VTileRectInClipRect, VTileRectInClipRect, ATileMatrix.TileRect.Rect) then begin
     VResampler := nil;
     try
-      VTileIterator := TTileIteratorByRect.Create(VTileRectInClipRect);
+      VTileIterator.Init(VTileRectInClipRect);
       while VTileIterator.Next(VTile) do begin
         VBitmap := ATileMatrix.GetElementByTile(VTile);
         if Assigned(VBitmap) then begin
