@@ -112,37 +112,12 @@ function CommonAppScriptOnUses(
   Sender: TPSPascalCompiler;
   const AName: tbtString
 ): Boolean;
-var
-  VType: TPSType;
-  RecT: TPSRecordType;
 begin
   // common types
   if ALSameText(AName, 'SYSTEM') then begin
-    // TPoint
-    VType := Sender.FindType('integer');
-    RecT := TPSRecordType(Sender.AddType('TPoint', btRecord));
-    with RecT.AddRecVal do begin
-      FieldOrgName := 'x';
-      aType := VType;
-    end;
-
-    with RecT.AddRecVal do begin
-      FieldOrgName := 'y';
-      aType := VType;
-    end;
-
-    // TDoublePoint
-    VType := Sender.FindType('Double');
-    RecT := TPSRecordType(Sender.AddType('TDoublePoint', btRecord));
-    with RecT.AddRecVal do begin
-      FieldOrgName := 'x';
-      aType := VType;
-    end;
-
-    with RecT.AddRecVal do begin
-      FieldOrgName := 'y';
-      aType := VType;
-    end;
+    Sender.AddTypeS('TPoint', 'record X, Y: Integer; end;');
+    Sender.AddTypeS('TDoublePoint', 'record X, Y: Double; end;');
+    Sender.AddTypeS('TRect', 'record Left, Top, Right, Bottom: Integer; end;');
 
     with Sender.AddInterface(Sender.FindInterface('IUNKNOWN'), IProjConverter, 'IProjConverter') do begin
       RegisterMethod('Function LonLat2XY( const AProjLP : TDoublePoint) : TDoublePoint', cdRegister);
@@ -166,15 +141,12 @@ begin
 
       RegisterMethod('function TilePos2PixelPos(const XY : TPoint; Azoom : byte): TPoint', cdStdCall);
       RegisterMethod('function TilePos2PixelRect(const XY : TPoint; Azoom : byte): TRect', cdStdCall);
-
-      RegisterMethod('function GetProj4Converter: IProj4Converter', cdStdCall);
     end;
 
     //ISimpleHttpDownloader
     with Sender.AddInterface(Sender.FindInterface('IUNKNOWN'), ISimpleHttpDownloader, 'ISimpleHttpDownloader') do begin
       RegisterMethod('function DoHttpRequest(const ARequestUrl, ARequestHeader, APostData : AnsiString; out AResponseHeader, AResponseData : AnsiString) : Cardinal', cdRegister);
     end;
-
   end;
 
   // custom vars and functions
