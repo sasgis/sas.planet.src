@@ -32,8 +32,11 @@ uses
   i_BitmapLayerProvider,
   i_MapCalibration,
   i_GeometryLonLat,
+  i_Bitmap32Static,
+  i_Bitmap32BufferFactory,
   i_BitmapTileSaveLoadFactory,
   i_ArchiveReadWriteFactory,
+  i_ProjectionInfo,
   i_LocalCoordConverterFactorySimpe,
   t_GeoTypes,
   u_ThreadMapCombineBase;
@@ -42,8 +45,16 @@ type
   TThreadMapCombineKMZ = class(TThreadMapCombineBase)
   private
     FQuality: Integer;
+    FBitmapFactory: IBitmap32StaticFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
+    function GetBitmapRect(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
+      const AImageProvider: IBitmapLayerProvider;
+      const AProjection: IProjectionInfo;
+      const AMapRect: TRect
+    ): IBitmap32Static;
   protected
     procedure SaveRect(
       AOperationID: Integer;
@@ -60,6 +71,7 @@ type
       const ATargetConverter: ILocalCoordConverter;
       const AImageProvider: IBitmapLayerProvider;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const AMapCalibrationList: IMapCalibrationList;
       const AFileName: string;
       const ASplitCount: TPoint;
@@ -72,12 +84,16 @@ type
 implementation
 
 uses
-  i_Bitmap32Static,
+  GR32,
   i_BinaryData,
   i_CoordConverter,
   i_BitmapTileSaveLoad,
   i_ArchiveReadWrite,
+  u_TileIteratorByRect,
   u_BinaryDataByMemStream,
+  u_Bitmap32ByStaticBitmap,
+  u_BitmapFunc,
+  u_GeoFunc,
   u_GeoToStrFunc;
 
 constructor TThreadMapCombineKMZ.Create(
@@ -86,6 +102,7 @@ constructor TThreadMapCombineKMZ.Create(
   const ATargetConverter: ILocalCoordConverter;
   const AImageProvider: IBitmapLayerProvider;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const AMapCalibrationList: IMapCalibrationList;
   const AFileName: string;
   const ASplitCount: TPoint;
@@ -107,7 +124,71 @@ begin
   );
   FQuality := AQuality;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
+  FBitmapFactory := ABitmapFactory;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
+end;
+
+function TThreadMapCombineKMZ.GetBitmapRect(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
+  const AImageProvider: IBitmapLayerProvider;
+  const AProjection: IProjectionInfo;
+  const AMapRect: TRect
+): IBitmap32Static;
+var
+  VTileRect: TRect;
+  VGeoConverter: ICoordConverter;
+  VZoom: Byte;
+  VIterator: TTileIteratorByRectRecord;
+  VTile: TPoint;
+  VBitmap: TBitmap32ByStaticBitmap;
+  VMapSize: TPoint;
+  VTileBitmap: IBitmap32Static;
+  VTileMapPixelRect: TRect;
+  VCopyRect: TRect;
+  VCopyPos: TPoint;
+begin
+  Result := nil;
+  if not IsRectEmpty(AMapRect) then begin
+    VZoom := AProjection.Zoom;
+    VGeoConverter := AProjection.GeoConverter;
+    VMapSize := RectSize(AMapRect);
+    VTileRect := VGeoConverter.PixelRect2TileRect(AMapRect, VZoom);
+
+    VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
+    try
+      VIterator.Init(VTileRect);
+      while VIterator.Next(VTile) do begin
+        VTileBitmap :=
+          AImageProvider.GetTile(
+            AOperationID,
+            ACancelNotifier,
+            AProjection,
+            VTile
+          );
+        if Assigned(VTileBitmap) then begin
+          if VBitmap.Empty then begin
+            VBitmap.SetSize(VMapSize.X, VMapSize.Y);
+            VBitmap.Clear(0);
+          end;
+          VTileMapPixelRect := VGeoConverter.TilePos2PixelRect(VTile, VZoom);
+          IntersectRect(VCopyRect, AMapRect, VTileMapPixelRect);
+          VCopyPos := PointMove(VCopyRect.TopLeft, AMapRect.TopLeft);
+          BlockTransfer(
+            VBitmap,
+            VCopyPos.X,
+            VCopyPos.Y,
+            VTileBitmap,
+            RectMove(VCopyRect, VTileMapPixelRect.TopLeft),
+            dmOpaque
+          );
+        end;
+      end;
+      Result := VBitmap.MakeAndClear;
+    finally
+      VBitmap.Free;
+    end;
+  end;
 end;
 
 procedure TThreadMapCombineKMZ.SaveRect(
@@ -129,8 +210,6 @@ var
   nim: TPoint;
   VZip: IArchiveWriter;
   VPixelRect: TRect;
-  VLocalConverter: ILocalCoordConverter;
-  VLocalRect: TRect;
   JPGSaver: IBitmapTileSaver;
   VKmzFileNameOnly: string;
   VCurrentPieceRect: TRect;
@@ -157,10 +236,6 @@ begin
   kmlm := TMemoryStream.Create;
   try
     VStr := ansiToUTF8('<?xml version="1.0" encoding="UTF-8"?>' + #13#10 + '<kml xmlns="http://earth.google.com/kml/2.2">' + #13#10 + '<Folder>' + #13#10 + '<name>' + VKmzFileNameOnly + '</name>' + #13#10);
-    VLocalRect.Left := 0;
-    VLocalRect.Top := 0;
-    VLocalRect.Right := iWidth;
-    VLocalRect.Bottom := iHeight;
     for i := 1 to nim.X do begin
       for j := 1 to nim.Y do begin
         if CancelNotifier.IsOperationCanceled(OperationID) then begin
@@ -170,14 +245,15 @@ begin
         VPixelRect.Right := VCurrentPieceRect.Left + iWidth * i;
         VPixelRect.Top := VCurrentPieceRect.Top + iHeight * (j - 1);
         VPixelRect.Bottom := VCurrentPieceRect.Top + iHeight * j;
-        VLocalConverter :=
-          AConverterFactory.CreateConverterNoScale(
-            VLocalRect,
-            ALocalConverter.Zoom,
-            VGeoConverter,
-            VPixelRect.TopLeft
+        VBitmapTile :=
+          GetBitmapRect(
+            AOperationID,
+            ACancelNotifier,
+            AImageProvider,
+            ALocalConverter.ProjectionInfo,
+            VPixelRect
           );
-        VBitmapTile := AImageProvider.GetBitmapRect(AOperationID, ACancelNotifier, VLocalConverter);
+          // AImageProvider.GetBitmapRect(AOperationID, ACancelNotifier, VLocalConverter);
         if VBitmapTile <> nil then begin
           if CancelNotifier.IsOperationCanceled(OperationID) then begin
             break;

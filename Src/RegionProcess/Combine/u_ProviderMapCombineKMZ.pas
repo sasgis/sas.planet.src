@@ -56,6 +56,7 @@ type
   TProviderMapCombineKMZ = class(TProviderMapCombineBase)
   private
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+    FBitmapFactory: IBitmap32StaticFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
   public
     constructor Create(
@@ -150,6 +151,7 @@ begin
     gettext_NoExtract('KMZ for Garmin (JPEG Overlays)')
   );
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
+  FBitmapFactory := ABitmapFactory;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
 end;
 
@@ -193,6 +195,7 @@ begin
       VTargetConverter,
       VImageProvider,
       LocalConverterFactory,
+      FBitmapFactory,
       VMapCalibrations,
       VFileName,
       VSplitCount,
