@@ -203,7 +203,6 @@ begin
     Sender.AddDelphiFunction('function MinExt(const A, B: Extended): Extended;');
 
     // string routines
-    Sender.AddDelphiFunction('function Length(Str: AnsiString): integer');
     Sender.AddDelphiFunction('function GetAfter(SubStr, Str: AnsiString): AnsiString');
     Sender.AddDelphiFunction('function GetBefore(SubStr, Str: AnsiString): AnsiString');
     Sender.AddDelphiFunction('function GetBetween(Str, After, Before: AnsiString): AnsiString');
@@ -412,7 +411,6 @@ begin
   Self.RegisterDelphiFunction(@MinExt, 'MinExt', cdRegister);
 
   // string routines
-  Self.RegisterDelphiFunction(@StrLength, 'Length', cdRegister);
   Self.RegisterDelphiFunction(@GetAfter, 'GetAfter', cdRegister);
   Self.RegisterDelphiFunction(@GetBefore, 'GetBefore', cdRegister);
   Self.RegisterDelphiFunction(@GetBetween, 'GetBetween', cdRegister);

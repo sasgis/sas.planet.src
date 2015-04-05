@@ -28,7 +28,6 @@ function MaxExt(const A, B: Extended): Extended;
 function MinInt(const A, B: Integer): Integer;
 function MinExt(const A, B: Extended): Extended;
 function GetUnixTime: Int64;
-function StrLength(const Str: AnsiString): Integer;
 function GetAfter(const SubStr, Str: AnsiString): AnsiString;
 function GetBefore(const SubStr, Str: AnsiString): AnsiString;
 function GetBetween(const Str, After, Before: AnsiString): AnsiString;
@@ -82,11 +81,6 @@ end;
 function GetUnixTime: Int64;
 begin
   Result := DateTimeToUnix(now);
-end;
-
-function StrLength(const Str: AnsiString): Integer;
-begin
-  Result := Length(Str);
 end;
 
 function GetAfter(const SubStr, Str: AnsiString): AnsiString;
