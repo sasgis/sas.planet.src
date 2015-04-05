@@ -441,9 +441,6 @@ begin
   inherited Create;
   FCompiledData := '';
   FScriptText := AScriptText;
-  if FScriptText = '' then begin
-    FCompiledData := '';
-  end;
 end;
 
 function TBaseFactoryPascalScript.DoCompilerOnAuxUses(
