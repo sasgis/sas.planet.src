@@ -22,6 +22,8 @@ unit u_BasePascalCompiler;
 
 interface
 
+{.$DEFINE DO_DUMP_PASCAL_SCRIPT_ENV} // out file: '.\PascalScriptEnv.txt'
+
 uses
   SysUtils,
   uPSC_dll,
@@ -56,6 +58,13 @@ type
   public
     constructor Create(const AScriptText: AnsiString);
     function CompileAndGetOutput(var AData: TbtString): Boolean;
+    {$IFDEF DO_DUMP_PASCAL_SCRIPT_ENV}
+    function KnownVarsToString: string;
+    function KnownProcsToString(const AWikiFormat: Boolean = True): string;
+    function KnownConstsToString: string;
+    function KnownTypesToString: string;
+    procedure EnvToLog(const AFileName: string);
+    {$ENDIF}
     property OnAuxUses: TOnBasePascalCompilerUsesProc read FOnAuxUses write FOnAuxUses;
   end;
 
@@ -86,6 +95,9 @@ type
 implementation
 
 uses
+  {$IFDEF DO_DUMP_PASCAL_SCRIPT_ENV}
+  Classes,
+  {$ENDIF}
   Math,
   ALString,
   RegExprUtils,
@@ -218,6 +230,12 @@ begin
   end else begin
     Result := False;
   end;
+
+  {$IFDEF DO_DUMP_PASCAL_SCRIPT_ENV}
+  if (Sender is TBasePascalCompiler) then begin
+    (Sender as TBasePascalCompiler).EnvToLog('.\PascalScriptEnv.txt');
+  end;
+  {$ENDIF}
 end;
 
 
@@ -248,6 +266,128 @@ begin
   OnExternalProc := DllExternalProc;
   OnUses := CommonAppScriptOnUses;
 end;
+
+{$IFDEF DO_DUMP_PASCAL_SCRIPT_ENV}
+function TBasePascalCompiler.KnownVarsToString: string;
+var
+  I: Integer;
+  VVar: TPSVar;
+begin
+  Result := '';
+  for I := 0 to Self.GetVarCount - 1 do begin
+    VVar := Self.GetVar(I);
+    if I > 0 then begin
+      Result := Result + #13#10;
+    end;                   
+    Result := Result + VVar.OrgName;
+    if Assigned(VVar.aType) then begin
+      Result := Result + ': ' + VVar.aType.OriginalName;
+    end;
+  end;
+end;
+
+function TBasePascalCompiler.KnownProcsToString(const AWikiFormat: Boolean = True): string;
+var
+  I, J: Integer;
+  VProc: TPSRegProc;
+  VListIdent: string;
+  VBoldIdent: string;
+begin
+  Result := '';
+  if AWikiFormat then begin
+    VListIdent := '  * ';
+    VBoldIdent := '**';
+  end else begin
+    VListIdent := '';
+    VBoldIdent := '';
+  end;
+  for I := 0 to Self.GetRegProcCount - 1 do begin
+    VProc := Self.GetRegProc(I);
+    if I > 0 then begin
+      Result := Result + #13#10;
+    end;
+    if Assigned(VProc.Decl.Result) then begin
+      Result := Result + VListIdent + 'function ';
+    end else begin
+      Result := Result + VListIdent + 'procedure ';
+    end;
+    Result := Result + VBoldIdent + VProc.OrgName + VBoldIdent;
+    if VProc.Decl.ParamCount > 0 then begin
+      Result := Result + '(';
+      for J := 0 to VProc.Decl.ParamCount - 1 do begin
+        if J > 0 then begin
+          Result := Result + '; ';
+        end;
+        case VProc.Decl.Params[J].Mode of
+          pmIn: Result := Result + 'const ';
+          pmOut: Result := Result + 'out ';
+          pmInOut: Result := Result + 'var ';
+        end;
+        Result := Result + VProc.Decl.Params[J].OrgName;
+        if Assigned(VProc.Decl.Params[J].aType) then begin
+          Result := Result + ': ' + VProc.Decl.Params[J].aType.OriginalName;
+        end;
+      end;
+      Result := Result + ')';
+    end;
+    if Assigned(VProc.Decl.Result) then begin
+      Result := Result + ': ' + VProc.Decl.Result.OriginalName + ';';
+    end else begin
+      Result := Result + ';';
+    end;
+  end;
+end;
+
+function TBasePascalCompiler.KnownConstsToString: string;
+var
+  I: Integer;
+  VConst: TPSConstant;
+begin
+  Result := '';
+  for I := 0 to Self.GetConstCount - 1 do begin
+    VConst := Self.GetConst(I);
+    if I > 0 then begin
+      Result := Result + #13#10;
+    end;
+    Result := Result + VConst.OrgName;
+  end;
+end;
+function TBasePascalCompiler.KnownTypesToString: string;
+var
+  I: Integer;
+  VType: TPSType;
+begin
+  for I := 0 to Self.GetTypeCount - 1 do begin
+    VType := GetType(I);
+    if I > 0 then begin
+      Result := Result + #13#10;
+    end;
+    Result := Result + VType.OriginalName;
+  end;
+end;
+
+procedure TBasePascalCompiler.EnvToLog(const AFileName: string);
+const
+  CRLF = #13#10#13#10;
+var
+  VStream: TMemoryStream;
+  VText: string;
+begin
+  VStream := TMemoryStream.Create;
+  try
+    VText :=
+      'PascalScript ' + PSCurrentversion + CRLF +
+      'Types (' + IntToStr(Self.GetTypeCount) + '):' + CRLF + KnownTypesToString + CRLF +
+      'Const (' + IntToStr(Self.GetConstCount) + '):' + CRLF + KnownConstsToString + CRLF +
+      'Var (' + IntToStr(Self.GetVarCount) + '):' + CRLF + KnownVarsToString + CRLF +
+      'Proc (' + IntToStr(Self.GetRegProcCount) + '):' + CRLF + KnownProcsToString;
+    VStream.WriteBuffer(VText[1], Length(VText)*SizeOf(VText[1]));
+    VStream.SaveToFile(AFileName);
+  finally
+    VStream.Free;
+  end;
+end;
+{$ENDIF}
 
 { TBasePascalScriptExec }
 
