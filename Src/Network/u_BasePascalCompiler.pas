@@ -212,11 +212,11 @@ begin
     Sender.AddDelphiFunction('function GetNumberAfter(const ASubStr, AText: AnsiString): AnsiString');
     Sender.AddDelphiFunction('function GetDiv3Path(const ANumber: AnsiString): AnsiString');
     Sender.AddDelphiFunction('function StringReplace(const S, OldPattern, NewPattern: AnsiString; const ReplaceAll, IgnoreCase: Boolean): AnsiString;');
+    Sender.AddDelphiFunction('function SetHeaderValue(AHeaders, AName, AValue: AnsiString): AnsiString');
+    Sender.AddDelphiFunction('function GetHeaderValue(AHeaders, AName: AnsiString): AnsiString');
 
     // system routines
     Sender.AddDelphiFunction('function GetUnixTime:int64');
-    Sender.AddDelphiFunction('function SetHeaderValue(AHeaders, AName, AValue: AnsiString): AnsiString');
-    Sender.AddDelphiFunction('function GetHeaderValue(AHeaders, AName: AnsiString): AnsiString');
     Sender.AddDelphiFunction('function SaveToLocalFile(const AFullLocalFilename, AData: AnsiString): Integer');
     Sender.AddDelphiFunction('function FileExists(const FileName: AnsiString): Boolean');
 
@@ -418,13 +418,13 @@ begin
   Self.RegisterDelphiFunction(@RegExprGetMatchSubStr, 'RegExprGetMatchSubStr', cdRegister);
   Self.RegisterDelphiFunction(@RegExprReplaceMatchSubStr, 'RegExprReplaceMatchSubStr', cdRegister);
   Self.RegisterDelphiFunction(@GetNumberAfter, 'GetNumberAfter', cdRegister);
+  Self.RegisterDelphiFunction(@GetDiv3Path, 'GetDiv3Path', cdRegister);
   Self.RegisterDelphiFunction(@StringReplaceAnsi, 'StringReplace', cdRegister);
+  Self.RegisterDelphiFunction(@SetHeaderValue, 'SetHeaderValue', cdRegister);
+  Self.RegisterDelphiFunction(@GetHeaderValue, 'GetHeaderValue', cdRegister);
 
   // system routines
   Self.RegisterDelphiFunction(@GetUnixTime, 'GetUnixTime', cdRegister);
-  Self.RegisterDelphiFunction(@SetHeaderValue, 'SetHeaderValue', cdRegister);
-  Self.RegisterDelphiFunction(@GetHeaderValue, 'GetHeaderValue', cdRegister);
-  Self.RegisterDelphiFunction(@GetDiv3Path, 'GetDiv3Path', cdRegister);
   Self.RegisterDelphiFunction(@SaveToLocalFile, 'SaveToLocalFile', cdRegister);
   Self.RegisterDelphiFunction(@FileExists, 'FileExists', cdRegister);
 
