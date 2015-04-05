@@ -91,8 +91,8 @@ end;
 
 function GetAfter(const SubStr, Str: AnsiString): AnsiString;
 begin
-  if pos(substr, str) > 0 then begin
-    result := copy(str, pos(substr, str) + length(substr), length(str));
+  if ALPos(substr, str) > 0 then begin
+    result := ALCopyStr(str, ALPos(substr, str) + length(substr), length(str));
   end else begin
     result := '';
   end;
@@ -100,8 +100,8 @@ end;
 
 function GetBefore(const SubStr, Str: AnsiString): AnsiString;
 begin
-  if pos(substr, str) > 0 then begin
-    result := copy(str, 1, pos(substr, str) - 1);
+  if ALPos(substr, str) > 0 then begin
+    result := ALCopyStr(str, 1, ALPos(substr, str) - 1);
   end else begin
     result := '';
   end;
@@ -172,7 +172,7 @@ begin
     try
       VRegExpr.Expression := '(?i)' + AName + ':(\s+|)(.*?)(\r\n|$)';
       if VRegExpr.Exec(AHeaders) then begin
-        Result := StringReplace(AHeaders, VRegExpr.Match[2], AValue, [rfIgnoreCase]);
+        Result := ALStringReplace(AHeaders, VRegExpr.Match[2], AValue, [rfIgnoreCase]);
       end else begin
         Result := AName + ': ' + AValue + #13#10 + AHeaders;
       end;
@@ -236,7 +236,7 @@ var
   VPos: Integer;
 begin
   Result := '';
-  VPos := SYstem.Pos(ASubStr, AText);
+  VPos := System.Pos(ASubStr, AText);
   if (VPos > 0) then begin
     VPos := VPos + Length(ASubStr);
     while ((VPos <= System.Length(AText)) and (AText[VPos] in ['0', '1'..'9'])) do begin
