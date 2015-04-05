@@ -212,6 +212,7 @@ begin
     Sender.AddDelphiFunction('function RegExprReplaceMatchSubStr(const Str, MatchExpr, Replace: AnsiString): AnsiString');
     Sender.AddDelphiFunction('function GetNumberAfter(const ASubStr, AText: AnsiString): AnsiString');
     Sender.AddDelphiFunction('function GetDiv3Path(const ANumber: AnsiString): AnsiString');
+    Sender.AddDelphiFunction('function StringReplace(const S, OldPattern, NewPattern: AnsiString; const ReplaceAll, IgnoreCase: Boolean): AnsiString;');
 
     // system routines
     Sender.AddDelphiFunction('function GetUnixTime:int64');
@@ -419,6 +420,7 @@ begin
   Self.RegisterDelphiFunction(@RegExprGetMatchSubStr, 'RegExprGetMatchSubStr', cdRegister);
   Self.RegisterDelphiFunction(@RegExprReplaceMatchSubStr, 'RegExprReplaceMatchSubStr', cdRegister);
   Self.RegisterDelphiFunction(@GetNumberAfter, 'GetNumberAfter', cdRegister);
+  Self.RegisterDelphiFunction(@StringReplaceAnsi, 'StringReplace', cdRegister);
 
   // system routines
   Self.RegisterDelphiFunction(@GetUnixTime, 'GetUnixTime', cdRegister);

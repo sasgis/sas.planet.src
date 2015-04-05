@@ -41,6 +41,7 @@ function SaveToLocalFile(const AFullLocalFilename, AData: AnsiString): Integer;
 function Base64EncodeStr(const Data: AnsiString): AnsiString;
 function Base64UrlEncodeStr(const Data: AnsiString): AnsiString;
 function Base64DecodeStr(const Data: AnsiString): AnsiString;
+function StringReplaceAnsi(const S, OldPattern, NewPattern: AnsiString; const ReplaceAll, IgnoreCase: Boolean): AnsiString;
 
 implementation
 
@@ -48,6 +49,7 @@ uses
   SysUtils,
   Classes,
   Math,
+  ALString,
   EDBase64,
   DateUtils,
   RegExpr;
@@ -284,6 +286,21 @@ end;
 function Base64DecodeStr(const Data: AnsiString): AnsiString;
 begin
   Result := Base64Decode(Data);
+end;
+
+function StringReplaceAnsi(const S, OldPattern, NewPattern: AnsiString;
+  const ReplaceAll, IgnoreCase: Boolean): AnsiString;
+var
+  VFlags: TReplaceFlags;
+begin
+  VFlags := [];
+  if ReplaceAll then begin
+    Include(VFlags, rfReplaceAll);
+  end;
+  if IgnoreCase then begin
+    Include(VFlags, rfIgnoreCase);
+  end;
+  Result := ALStringReplace(S, OldPattern, NewPattern, VFlags);
 end;
 
 end.
