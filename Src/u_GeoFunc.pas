@@ -63,6 +63,7 @@ uses
 
   function DoublePointsEqual(const p1,p2: TDoublePoint): Boolean;
   function DoubleRectsEqual(const ARect1, ARect2: TDoubleRect): Boolean;
+  function IsPointsEqual(const P1, P2: TPoint): Boolean; inline;
 
   function GetGhBordersStepByScale(AScale: Integer; AZoom: Byte): TDoublePoint;
   function GetDegBordersStepByScale(const AScale: Double; AZoom: Byte): TDoublePoint;
@@ -189,6 +190,13 @@ begin
     (ARect1.Top = ARect2.Top) and
     (ARect1.Right = ARect2.Right) and
     (ARect1.Bottom = ARect2.Bottom);
+end;
+
+function IsPointsEqual(const P1, P2: TPoint): Boolean;
+begin
+  Result :=
+    (P1.X = P2.X) and
+    (P1.Y = P2.Y);
 end;
 
 function GetActualGshSCale(AScale: Integer; AZoom:Byte): Integer;
