@@ -72,10 +72,8 @@ type
 
     function AcquireByIterator(
       out ATile: TPoint;
-      const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
       const AIterator: ITileIterator;
-      const ARect: TRect;
       const ASessionID: Integer
     ): Boolean;
 
@@ -269,13 +267,12 @@ end;
 
 function TUiTileRequestManager.AcquireByIterator(
   out ATile: TPoint;
-  const AZoom: Byte;
   const AVersionInfo: IMapVersionInfo;
   const AIterator: ITileIterator;
-  const ARect: TRect;
   const ASessionID: Integer
 ): Boolean;
 var
+  VZoom: Byte;
   I: Integer;
   VState: TTaskState;
   VEmptyItemIndex: Integer;
@@ -283,7 +280,7 @@ begin
   Result := False;
 
   while IsValidSession(ASessionID) and AIterator.Next(ATile) do begin
-
+    VZoom := AIterator.TilesRect.ProjectionInfo.Zoom;
     VState := tsNone;
     VEmptyItemIndex := -1;
 
@@ -301,7 +298,7 @@ begin
           end;
         end
         else
-        if (FTaskArray[I].Zoom = AZoom) and
+        if (FTaskArray[I].Zoom = VZoom) and
            (FTaskArray[I].Tile.X = ATile.X) and
            (FTaskArray[I].Tile.Y = ATile.Y) and
            IsEqualVersionInfo(FTaskArray[I].Version, AVersionInfo) then
@@ -330,7 +327,7 @@ begin
 
         FTaskArray[I].State := tsActive;
         FTaskArray[I].SessionID := ASessionID;
-        FTaskArray[I].Zoom := AZoom;
+        FTaskArray[I].Zoom := VZoom;
         FTaskArray[I].Tile.X := ATile.X;
         FTaskArray[I].Tile.Y := ATile.Y;
         FTaskArray[I].Version := AVersionInfo;
@@ -418,8 +415,6 @@ function TUiTileRequestManager.Acquire(out ATile: TPoint): Boolean;
 var
   VIterator: ITileIterator;
   VSessionID: Integer;
-  VZoom: Byte;
-  VRect: TRect;
   VVersion: IMapVersionInfo;
   VWaitResult: DWORD;
   VHandles: array [0..1] of THandle;
@@ -439,16 +434,14 @@ begin
         VSessionID := InterlockedCompareExchange(FSessionID, 0, 0);
         VVersion := FSessionVersionInfo;
         VIterator := FSessionTileIterator;
-        VZoom := VIterator.TilesRect.ProjectionInfo.Zoom;
-        VRect := VIterator.TilesRect.Rect;
       finally
         FSessionLock.Release;
       end;
 
       if Assigned(VIterator) and IsValidSession(VSessionID) then begin
-        Result := AcquireByIterator(ATile, VZoom, VVersion, VIterator, VRect, VSessionID);
+        Result := AcquireByIterator(ATile, VVersion, VIterator, VSessionID);
         if not Result then begin
-          Result := AcquireByMissedTasks(ATile, VZoom, VVersion, VSessionID);
+          Result := AcquireByMissedTasks(ATile, VIterator.TilesRect.ProjectionInfo.Zoom, VVersion, VSessionID);
         end;
       end;
     finally
