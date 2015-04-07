@@ -314,6 +314,7 @@ uses
   u_VectorTileProviderChangeableForLastSearchResult in 'Src\TileProvider\u_VectorTileProviderChangeableForLastSearchResult.pas',
   u_BitmapTileProviderByMatrix in 'Src\TileProvider\u_BitmapTileProviderByMatrix.pas',
   u_BitmapTileProviderByOtherProjection in 'Src\TileProvider\u_BitmapTileProviderByOtherProjection.pas',
+  u_BitmapTileProviderByBitmapTileUniProvider in 'Src\TileProvider\u_BitmapTileProviderByBitmapTileUniProvider.pas',
   i_VectorTileRenderer in 'Src\TileProvider\i_VectorTileRenderer.pas',
   i_VectorTileRendererChangeable in 'Src\TileProvider\i_VectorTileRendererChangeable.pas',
   u_VectorTileRenderer in 'Src\TileProvider\u_VectorTileRenderer.pas',
