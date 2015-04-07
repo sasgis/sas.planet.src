@@ -29,7 +29,6 @@ uses
   i_SimpleFlag,
   i_NotifierOperation,
   i_ProjectionInfo,
-  i_LocalCoordConverter,
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
   i_BitmapLayerProvider,
@@ -60,11 +59,6 @@ type
       const AMapRect: TRect
     );
   private
-    function GetBitmapRect(
-      AOperationID: Integer;
-      const ACancelNotifier: INotifierOperation;
-      const ALocalConverter: ILocalCoordConverter
-    ): IBitmap32Static;
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
@@ -303,35 +297,6 @@ begin
         FColor
       );
     end;
-  end;
-end;
-
-function TBitmapLayerProviderGridGenshtab.GetBitmapRect(
-  AOperationID: Integer;
-  const ACancelNotifier: INotifierOperation;
-  const ALocalConverter: ILocalCoordConverter
-): IBitmap32Static;
-var
-  VMapRect: TRect;
-begin
-  Result := nil;
-  FCS.BeginWrite;
-  try
-    VMapRect := ALocalConverter.GetRectInMapPixel;
-    InitBitmap(ALocalConverter.GetLocalRectSize);
-    FBitmapChangeFlag.CheckFlagAndReset;
-    if FShowLines then begin
-      DrawLines(ALocalConverter.ProjectionInfo, VMapRect);
-    end;
-
-    if FShowText then begin
-      DrawCaptions(AOperationID, ACancelNotifier, ALocalConverter.ProjectionInfo, VMapRect);
-    end;
-    if FBitmapChangeFlag.CheckFlagAndReset then begin
-      Result := FBitmapFactory.Build(Types.Point(FBitmap.Width, FBitmap.Height), FBitmap.Bits);
-    end;
-  finally
-    FCS.EndWrite;
   end;
 end;
 

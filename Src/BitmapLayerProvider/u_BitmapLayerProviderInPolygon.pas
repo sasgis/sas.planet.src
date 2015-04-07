@@ -27,7 +27,6 @@ uses
   i_NotifierOperation,
   i_Bitmap32Static,
   i_ProjectionInfo,
-  i_LocalCoordConverter,
   i_GeometryProjected,
   i_BitmapLayerProvider,
   u_BaseInterfacedObject;
@@ -38,11 +37,6 @@ type
     FSourceProvider: IBitmapLayerProvider;
     FLine: IGeometryProjectedSinglePolygon;
   private
-    function GetBitmapRect(
-      AOperationID: Integer;
-      const ACancelNotifier: INotifierOperation;
-      const ALocalConverter: ILocalCoordConverter
-    ): IBitmap32Static;
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
@@ -85,24 +79,6 @@ begin
       Assert(False);
       FLine := nil;
     end;
-  end;
-end;
-
-function TBitmapLayerProviderInPolygon.GetBitmapRect(
-  AOperationID: Integer;
-  const ACancelNotifier: INotifierOperation;
-  const ALocalConverter: ILocalCoordConverter
-): IBitmap32Static;
-begin
-  if FLine.IsRectIntersectPolygon(ALocalConverter.GetRectInMapPixelFloat) then begin
-    Result :=
-      FSourceProvider.GetBitmapRect(
-        AOperationID,
-        ACancelNotifier,
-        ALocalConverter
-      );
-  end else begin
-    Result := nil;
   end;
 end;
 

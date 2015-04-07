@@ -32,7 +32,6 @@ uses
   i_GeometryProjectedProvider,
   i_Appearance,
   i_ProjectionInfo,
-  i_LocalCoordConverter,
   i_NotifierOperation,
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
@@ -93,11 +92,6 @@ type
       const ASize: TPoint
     );
   private
-    function GetBitmapRect(
-      AOperationID: Integer;
-      const ACancelNotifier: INotifierOperation;
-      const ALocalConverter: ILocalCoordConverter
-    ): IBitmap32Static;
     function GetTile(AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const AProjectionInfo: IProjectionInfo;
@@ -355,46 +349,6 @@ begin
           Result := True;
         end;
       end;
-    end;
-  end;
-end;
-
-function TBitmapLayerProviderByMarksSubset.GetBitmapRect(
-  AOperationID: Integer;
-  const ACancelNotifier: INotifierOperation;
-  const ALocalConverter: ILocalCoordConverter
-): IBitmap32Static;
-var
-  VRectWithDelta: TRect;
-  VMapRect: TRect;
-  VLonLatRect: TDoubleRect;
-  VConverter: ICoordConverter;
-  VZoom: Byte;
-  VMarksSubset: IVectorItemSubset;
-  VDeltaSizeInPixel: TRect;
-  VBitmap: TBitmap32ByStaticBitmap;
-  VFixedPointArray: TArrayOfFixedPoint;
-begin
-  VMapRect := ALocalConverter.GetRectInMapPixel;
-  VDeltaSizeInPixel := FDrawOrderConfigStatic.OverSizeRect;
-  VRectWithDelta.Left := VMapRect.Left - VDeltaSizeInPixel.Left;
-  VRectWithDelta.Top := VMapRect.Top - VDeltaSizeInPixel.Top;
-  VRectWithDelta.Right := VMapRect.Right + VDeltaSizeInPixel.Right;
-  VRectWithDelta.Bottom := VMapRect.Bottom + VDeltaSizeInPixel.Bottom;
-  VZoom := ALocalConverter.GetZoom;
-  VConverter := ALocalConverter.GetGeoConverter;
-  VConverter.ValidatePixelRect(VRectWithDelta, VZoom);
-  VLonLatRect := VConverter.PixelRect2LonLatRect(VRectWithDelta, VZoom);
-  VMarksSubset := FMarksSubset.GetSubsetByLonLatRect(VLonLatRect);
-  Result := nil;
-  if Assigned(VMarksSubset) and not VMarksSubset.IsEmpty then begin
-    VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
-    try
-      if DrawSubset(AOperationID, ACancelNotifier, VMarksSubset, VBitmap, ALocalConverter.ProjectionInfo, VMapRect, VFixedPointArray) then begin
-        Result := VBitmap.MakeAndClear;
-      end;
-    finally
-      VBitmap.Free;
     end;
   end;
 end;

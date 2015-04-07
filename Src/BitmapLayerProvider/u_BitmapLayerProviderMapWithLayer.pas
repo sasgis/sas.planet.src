@@ -28,7 +28,6 @@ uses
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
   i_ProjectionInfo,
-  i_LocalCoordConverter,
   i_BitmapLayerProvider,
   i_MapTypeListStatic,
   i_MapVersionRequest,
@@ -49,11 +48,6 @@ type
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayers: Boolean;
   private
-    function GetBitmapRect(
-      AOperationID: Integer;
-      const ACancelNotifier: INotifierOperation;
-      const ALocalConverter: ILocalCoordConverter
-    ): IBitmap32Static;
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
@@ -132,64 +126,6 @@ begin
 
   FUsePrevZoomAtMap := AUsePrevZoomAtMap;
   FUsePrevZoomAtLayers := AUsePrevZoomAtLayers;
-end;
-
-function TBitmapLayerProviderMapWithLayer.GetBitmapRect(
-  AOperationID: Integer;
-  const ACancelNotifier: INotifierOperation;
-  const ALocalConverter: ILocalCoordConverter
-): IBitmap32Static;
-var
-  I: Integer;
-  VResult: IBitmap32Static;
-  VBitmap: TBitmap32ByStaticBitmap;
-  VUsePrevZoom: Boolean;
-begin
-  Result := nil;
-
-  for I := 0 to Length(FMapTypeArray) - 1 do begin
-    VResult := nil;
-
-    if FMapTypeArray[I].FMapType <> nil then begin
-
-      if FMapTypeArray[I].FMapType.Zmp.IsLayer then begin
-        VUsePrevZoom := FUsePrevZoomAtLayers;
-      end else begin
-        VUsePrevZoom := FUsePrevZoomAtMap;
-      end;
-
-      VResult :=
-        FMapTypeArray[I].FMapType.LoadBitmapUni(
-          ALocalConverter.GetRectInMapPixel,
-          ALocalConverter.GetZoom,
-          FMapTypeArray[I].FVersion,
-          ALocalConverter.GetGeoConverter,
-          VUsePrevZoom,
-          True,
-          True
-        );
-    end;
-
-    if Result <> nil then begin
-      if VResult <> nil then begin
-        VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
-        try
-          AssignStaticToBitmap32(VBitmap, Result);
-          BlockTransferFull(
-            VBitmap,
-            0, 0,
-            VResult,
-            dmBlend
-          );
-          Result := VBitmap.MakeAndClear;
-        finally
-          VBitmap.Free;
-        end;
-      end;
-    end else begin
-      Result := VResult;
-    end;
-  end;
 end;
 
 function TBitmapLayerProviderMapWithLayer.GetTile(

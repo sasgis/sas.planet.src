@@ -29,7 +29,6 @@ uses
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
   i_ProjectionInfo,
-  i_LocalCoordConverter,
   i_BitmapLayerProvider,
   u_BaseInterfacedObject;
 
@@ -40,11 +39,6 @@ type
     FSourceProvider: IBitmapLayerProvider;
     FBackGroundColor: TColor32;
   private
-    function GetBitmapRect(
-      AOperationID: Integer;
-      const ACancelNotifier: INotifierOperation;
-      const ALocalConverter: ILocalCoordConverter
-    ): IBitmap32Static;
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
@@ -81,41 +75,6 @@ begin
   FBackGroundColor := ABackGroundColor;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   Assert(FSourceProvider <> nil);
-end;
-
-function TBitmapLayerProviderWithBGColor.GetBitmapRect(
-  AOperationID: Integer;
-  const ACancelNotifier: INotifierOperation;
-  const ALocalConverter: ILocalCoordConverter
-): IBitmap32Static;
-var
-  VTileSize: TPoint;
-  VTargetBmp: TBitmap32ByStaticBitmap;
-begin
-  Result :=
-    FSourceProvider.GetBitmapRect(
-      AOperationID,
-      ACancelNotifier,
-      ALocalConverter
-    );
-  if Result <> nil then begin
-    VTargetBmp := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
-    try
-      VTileSize := ALocalConverter.GetLocalRectSize;
-      VTargetBmp.SetSize(VTileSize.X, VTileSize.Y);
-      VTargetBmp.Clear(FBackGroundColor);
-      BlockTransferFull(
-        VTargetBmp,
-        0,
-        0,
-        Result,
-        dmBlend
-      );
-      Result := VTargetBmp.MakeAndClear;
-    finally
-      VTargetBmp.Free;
-    end;
-  end;
 end;
 
 function TBitmapLayerProviderWithBGColor.GetTile(

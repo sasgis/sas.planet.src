@@ -30,7 +30,6 @@ uses
   i_ProjectionInfo,
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
-  i_LocalCoordConverter,
   i_BitmapLayerProvider,
   i_GPSRecorder,
   i_MapLayerGPSTrackConfig,
@@ -83,11 +82,6 @@ type
       APointsCount: Integer
     ): Boolean;
   private
-    function GetBitmapRect(
-      AOperationID: Integer;
-      const ACancelNotifier: INotifierOperation;
-      const ALocalConverter: ILocalCoordConverter
-    ): IBitmap32Static;
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
@@ -273,52 +267,6 @@ begin
       end;
     end;
     FPolygon.Clear;
-  end;
-end;
-
-function TBitmapLayerProviderByTrackPath.GetBitmapRect(
-  AOperationID: Integer;
-  const ACancelNotifier: INotifierOperation;
-  const ALocalConverter: ILocalCoordConverter
-): IBitmap32Static;
-var
-  VTargetRect: TRect;
-  VLonLatRect: TDoubleRect;
-  VConverter: ICoordConverter;
-  VZoom: Byte;
-  VBitmap: TBitmap32ByStaticBitmap;
-begin
-  Result := nil;
-  if not FRectIsEmpty then begin
-    VZoom := ALocalConverter.GetZoom;
-    VConverter := ALocalConverter.GetGeoConverter;
-    VTargetRect := ALocalConverter.GetRectInMapPixel;
-    VConverter.ValidatePixelRect(VTargetRect, VZoom);
-    VLonLatRect := VConverter.PixelRect2LonLatRect(VTargetRect, VZoom);
-    if IsIntersecLonLatRect(FLonLatRect, VLonLatRect) then begin
-      VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
-      try
-        if not ALocalConverter.ProjectionInfo.GetIsSameProjectionInfo(FPreparedProjection) then begin
-          PrepareProjectedPoints(ALocalConverter.ProjectionInfo);
-        end;
-        if
-          DrawPath(
-            AOperationID,
-            ACancelNotifier,
-            VBitmap,
-            ALocalConverter.ProjectionInfo,
-            VTargetRect,
-            FTrackColorer,
-            FLineWidth,
-            FPointsProjectedCount
-          )
-        then begin
-          Result := VBitmap.MakeAndClear;
-        end;
-      finally
-        VBitmap.Free;
-      end;
-    end;
   end;
 end;
 

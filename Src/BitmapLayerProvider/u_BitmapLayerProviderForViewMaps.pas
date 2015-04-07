@@ -29,7 +29,6 @@ uses
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
   i_ProjectionInfo,
-  i_LocalCoordConverter,
   i_MapType,
   i_MapTypeListStatic,
   i_BitmapLayerProvider,
@@ -60,11 +59,6 @@ type
       const AMapType: IMapType
     ): IBitmap32Static;
   private
-    function GetBitmapRect(
-      AOperationID: Integer;
-      const ACancelNotifier: INotifierOperation;
-      const ALocalConverter: ILocalCoordConverter
-    ): IBitmap32Static;
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
@@ -199,55 +193,6 @@ begin
         VBitmap.Free;
       end;
     end;
-  end;
-end;
-
-function TBitmapLayerProviderForViewMaps.GetBitmapRect(
-  AOperationID: Integer;
-  const ACancelNotifier: INotifierOperation;
-  const ALocalConverter: ILocalCoordConverter
-): IBitmap32Static;
-var
-  VTile: TPoint;
-  Vzoom: byte;
-  VCoordConverterTarget: ICoordConverter;
-  VPixelRect: TRect;
-  i: Integer;
-begin
-  Vzoom := ALocalConverter.Zoom;
-  VCoordConverterTarget := ALocalConverter.GeoConverter;
-  VPixelRect := ALocalConverter.GetRectInMapPixel;
-  VTile := VCoordConverterTarget.PixelRect2TileRect(VPixelRect, Vzoom).TopLeft;
-  Assert(Types.EqualRect(VPixelRect, VCoordConverterTarget.TilePos2PixelRect(VTile, Vzoom)));
-
-  Result :=
-    GetBitmapByMapType(
-      AOperationID,
-      ACancelNotifier,
-      VTile,
-      Vzoom,
-      VCoordConverterTarget,
-      nil,
-      FUsePrevZoomAtMap,
-      FMainMap
-    );
-  if FLayersList <> nil then begin
-    for i := 0 to FLayersList.Count - 1 do begin
-      Result :=
-        GetBitmapByMapType(
-          AOperationID,
-          ACancelNotifier,
-          VTile,
-          Vzoom,
-          VCoordConverterTarget,
-          Result,
-          FUsePrevZoomAtLayer,
-          FLayersList.Items[i]
-        );
-    end;
-  end;
-  if FPostProcessingConfig <> nil then begin
-    Result := FPostProcessingConfig.Process(Result);
   end;
 end;
 

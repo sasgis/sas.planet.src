@@ -29,7 +29,6 @@ uses
   i_Bitmap32BufferFactory,
   i_ProjectionInfo,
   i_CoordConverterFactory,
-  i_LocalCoordConverter,
   i_TileStorage,
   i_MapVersionRequest,
   i_BitmapLayerProvider,
@@ -60,11 +59,6 @@ type
       const AColorer: IFillingMapColorer
     ): IBitmap32Static;
   private
-    function GetBitmapRect(
-      AOperationID: Integer;
-      const ACancelNotifier: INotifierOperation;
-      const ALocalConverter: ILocalCoordConverter
-    ): IBitmap32Static;
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
@@ -143,31 +137,6 @@ begin
     VResultZoom := VZoom;
     VConverter.ValidateZoom(VResultZoom);
     Result := FProjectionFactory.GetByConverterAndZoom(VConverter, VResultZoom);
-  end;
-end;
-
-function TBitmapLayerProviderFillingMap.GetBitmapRect(
-  AOperationID: Integer;
-  const ACancelNotifier: INotifierOperation;
-  const ALocalConverter: ILocalCoordConverter
-): IBitmap32Static;
-var
-  VSourceProjection: IProjectionInfo;
-begin
-  VSourceProjection := GetActualProjection(ALocalConverter.ProjectionInfo);
-  if ALocalConverter.Zoom > VSourceProjection.Zoom then begin
-    Result := nil;
-  end else begin
-    Result :=
-      GetFillingMapBitmap(
-        AOperationID,
-        ACancelNotifier,
-        ALocalConverter.ProjectionInfo,
-        ALocalConverter.GetRectInMapPixel,
-        VSourceProjection,
-        FVersion,
-        FColorer
-      );
   end;
 end;
 

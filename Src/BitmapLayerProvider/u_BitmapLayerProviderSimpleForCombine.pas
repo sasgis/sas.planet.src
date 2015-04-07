@@ -28,7 +28,6 @@ uses
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
   i_ProjectionInfo,
-  i_LocalCoordConverter,
   i_BitmapLayerProvider,
   i_BitmapPostProcessing,
   u_BaseInterfacedObject;
@@ -41,11 +40,6 @@ type
     FMarksImageProvider: IBitmapLayerProvider;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
   private
-    function GetBitmapRect(
-      AOperationID: Integer;
-      const ACancelNotifier: INotifierOperation;
-      const ALocalConverter: ILocalCoordConverter
-    ): IBitmap32Static;
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
@@ -84,45 +78,6 @@ begin
   FSourceProvider := ASourceProvider;
   FMarksImageProvider := AMarksImageProvider;
   FRecolorConfig := ARecolorConfig;
-end;
-
-function TBitmapLayerProviderSimpleForCombine.GetBitmapRect(
-  AOperationID: Integer;
-  const ACancelNotifier: INotifierOperation;
-  const ALocalConverter: ILocalCoordConverter
-): IBitmap32Static;
-var
-  VLayer: IBitmap32Static;
-  VBitmap: TBitmap32ByStaticBitmap;
-begin
-  Result := FSourceProvider.GetBitmapRect(AOperationID, ACancelNotifier, ALocalConverter);
-  if Result <> nil then begin
-    if FRecolorConfig <> nil then begin
-      Result := FRecolorConfig.Process(Result);
-    end;
-  end;
-  if FMarksImageProvider <> nil then begin
-    VLayer := FMarksImageProvider.GetBitmapRect(AOperationID, ACancelNotifier, ALocalConverter);
-  end;
-  if Result <> nil then begin
-    if VLayer <> nil then begin
-      VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
-      try
-        AssignStaticToBitmap32(VBitmap, Result);
-        BlockTransferFull(
-          VBitmap,
-          0, 0,
-          VLayer,
-          dmBlend
-        );
-        Result := VBitmap.MakeAndClear;
-      finally
-        VBitmap.Free;
-      end;
-    end;
-  end else begin
-    Result := VLayer;
-  end;
 end;
 
 function TBitmapLayerProviderSimpleForCombine.GetTile(

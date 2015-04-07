@@ -26,17 +26,11 @@ uses
   Types,
   i_NotifierOperation,
   i_Bitmap32Static,
-  i_ProjectionInfo,
-  i_LocalCoordConverter;
+  i_ProjectionInfo;
 
 type
   IBitmapLayerProvider = interface
     ['{A4E2AEE1-1747-46F1-9836-173AFB62CCF9}']
-    function GetBitmapRect(
-      AOperationID: Integer;
-      const ACancelNotifier: INotifierOperation;
-      const ALocalConverter: ILocalCoordConverter
-    ): IBitmap32Static;
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;

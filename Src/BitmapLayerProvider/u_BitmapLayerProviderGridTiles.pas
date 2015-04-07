@@ -29,7 +29,6 @@ uses
   i_SimpleFlag,
   i_NotifierOperation,
   i_ProjectionInfo,
-  i_LocalCoordConverter,
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
   i_BitmapLayerProvider,
@@ -62,11 +61,6 @@ type
       const AMapRect: TRect
     );
   private
-    function GetBitmapRect(
-      AOperationID: Integer;
-      const ACancelNotifier: INotifierOperation;
-      const ALocalConverter: ILocalCoordConverter
-    ): IBitmap32Static;
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
@@ -262,54 +256,6 @@ begin
         FColor
       );
     end;
-  end;
-end;
-
-function TBitmapLayerProviderGridTiles.GetBitmapRect(
-  AOperationID: Integer;
-  const ACancelNotifier: INotifierOperation;
-  const ALocalConverter: ILocalCoordConverter
-): IBitmap32Static;
-var
-  VCurrentZoom: Byte;
-  VGridZoom: Byte;
-  VGeoConvert: ICoordConverter;
-  VMapRect: TRect;
-begin
-  Result := nil;
-  VCurrentZoom := ALocalConverter.GetZoom;
-  if FUseRelativeZoom then begin
-    VGridZoom := VCurrentZoom + FZoom;
-  end else begin
-    VGridZoom := FZoom;
-  end;
-  VGeoConvert := ALocalConverter.GetGeoConverter;
-  if not VGeoConvert.CheckZoom(VGridZoom) then begin
-    Exit;
-  end;
-  if VGridZoom > VCurrentZoom + 5 then begin
-    Exit;
-  end;
-  VMapRect := ALocalConverter.GetRectInMapPixel;
-
-  FCS.BeginWrite;
-  try
-    InitBitmap(ALocalConverter.GetLocalRectSize);
-    FBitmapChangeFlag.CheckFlagAndReset;
-    if FShowLines then begin
-      DrawLines(VGridZoom, ALocalConverter.ProjectionInfo, VMapRect);
-    end;
-
-    if FShowText then begin
-      if (VGridZoom >= VCurrentZoom - 2) and (VGridZoom <= VCurrentZoom + 3) then begin
-        DrawCaptions(AOperationID, ACancelNotifier, VGridZoom, ALocalConverter.ProjectionInfo, VMapRect);
-      end;
-    end;
-    if FBitmapChangeFlag.CheckFlagAndReset then begin
-      Result := FBitmapFactory.Build(Types.Point(FBitmap.Width, FBitmap.Height), FBitmap.Bits);
-    end;
-  finally
-    FCS.EndWrite;
   end;
 end;
 

@@ -28,7 +28,6 @@ uses
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
   i_ProjectionInfo,
-  i_LocalCoordConverter,
   i_BitmapLayerProvider,
   u_BaseInterfacedObject;
 
@@ -39,11 +38,6 @@ type
     FProviderFrist: IBitmapLayerProvider;
     FProviderSecond: IBitmapLayerProvider;
   private
-    function GetBitmapRect(
-      AOperationID: Integer;
-      const ACancelNotifier: INotifierOperation;
-      const ALocalConverter: ILocalCoordConverter
-    ): IBitmap32Static;
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
@@ -79,42 +73,6 @@ begin
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FProviderFrist := AProviderFrist;
   FProviderSecond := AProviderSecond;
-end;
-
-function TBitmapLayerProviderComplex.GetBitmapRect(
-  AOperationID: Integer;
-  const ACancelNotifier: INotifierOperation;
-  const ALocalConverter: ILocalCoordConverter
-): IBitmap32Static;
-var
-  VResultFirst: IBitmap32Static;
-  VResultSecond: IBitmap32Static;
-  VBitmap: TBitmap32ByStaticBitmap;
-begin
-  VResultFirst := FProviderFrist.GetBitmapRect(AOperationID, ACancelNotifier, ALocalConverter);
-  VResultSecond := FProviderSecond.GetBitmapRect(AOperationID, ACancelNotifier, ALocalConverter);
-  if VResultFirst = nil then begin
-    Result := VResultSecond;
-  end else begin
-    if VResultSecond = nil then begin
-      Result := VResultFirst;
-    end else begin
-      VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
-      try
-        AssignStaticToBitmap32(VBitmap, VResultFirst);
-        BlockTransferFull(
-          VBitmap,
-          0, 0,
-          VResultSecond,
-          dmBlend,
-          cmMerge
-        );
-        Result := VBitmap.MakeAndClear;
-      finally
-        VBitmap.Free;
-      end;
-    end;
-  end;
 end;
 
 function TBitmapLayerProviderComplex.GetTile(
