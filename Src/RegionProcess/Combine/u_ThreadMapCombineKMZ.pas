@@ -48,7 +48,7 @@ type
     function GetBitmapRect(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AImageProvider: IBitmapLayerProvider;
+      const AImageProvider: IBitmapTileUniProvider;
       const AProjection: IProjectionInfo;
       const AMapRect: TRect
     ): IBitmap32Static;
@@ -57,7 +57,7 @@ type
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
-      const AImageProvider: IBitmapLayerProvider;
+      const AImageProvider: IBitmapTileUniProvider;
       const AProjection: IProjectionInfo;
       const AMapRect: TRect
     ); override;
@@ -67,7 +67,7 @@ type
       const APolygon: IGeometryLonLatPolygon;
       const AProjection: IProjectionInfo;
       const AMapRect: TRect;
-      const AImageProvider: IBitmapLayerProvider;
+      const AImageProvider: IBitmapTileUniProvider;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AMapCalibrationList: IMapCalibrationList;
       const AFileName: string;
@@ -99,7 +99,7 @@ constructor TThreadMapCombineKMZ.Create(
   const APolygon: IGeometryLonLatPolygon;
   const AProjection: IProjectionInfo;
   const AMapRect: TRect;
-  const AImageProvider: IBitmapLayerProvider;
+  const AImageProvider: IBitmapTileUniProvider;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AMapCalibrationList: IMapCalibrationList;
   const AFileName: string;
@@ -129,7 +129,7 @@ end;
 function TThreadMapCombineKMZ.GetBitmapRect(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const AImageProvider: IBitmapLayerProvider;
+  const AImageProvider: IBitmapTileUniProvider;
   const AProjection: IProjectionInfo;
   const AMapRect: TRect
 ): IBitmap32Static;
@@ -193,7 +193,7 @@ procedure TThreadMapCombineKMZ.SaveRect(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const AFileName: string;
-  const AImageProvider: IBitmapLayerProvider;
+  const AImageProvider: IBitmapTileUniProvider;
   const AProjection: IProjectionInfo;
   const AMapRect: TRect
 );

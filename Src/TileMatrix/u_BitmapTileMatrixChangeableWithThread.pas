@@ -277,7 +277,7 @@ procedure TBitmapTileMatrixChangeableWithThread.OnPrepareTileMatrix(
   const ACancelNotifier: INotifierOperation
 );
 var
-  VProvider: IBitmapLayerProvider;
+  VProvider: IBitmapTileUniProvider;
   VTileRect: ITileRect;
   VTileIterator: ITileIterator;
   VSourceHashMatrix: IHashTileMatrix;

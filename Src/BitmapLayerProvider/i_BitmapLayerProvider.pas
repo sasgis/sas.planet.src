@@ -29,8 +29,8 @@ uses
   i_ProjectionInfo;
 
 type
-  IBitmapLayerProvider = interface
-    ['{A4E2AEE1-1747-46F1-9836-173AFB62CCF9}']
+  IBitmapTileUniProvider = interface
+    ['{2BF95639-5B11-4A46-AE5A-A06DC22B4E8E}']
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;

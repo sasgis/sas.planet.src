@@ -35,7 +35,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TBitmapLayerProviderMapWithLayer = class(TBaseInterfacedObject, IBitmapLayerProvider)
+  TBitmapLayerProviderMapWithLayer = class(TBaseInterfacedObject, IBitmapTileUniProvider)
   private
     type
       TMapTypeItem = record

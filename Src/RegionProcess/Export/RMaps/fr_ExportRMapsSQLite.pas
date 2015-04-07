@@ -117,7 +117,7 @@ type
     function GetReplaceExistingTiles: Boolean;
     function GetDirectTilesCopy: Boolean;
     function GetAllowExport(const AMapType: IMapType): Boolean;
-    function GetProvider: IBitmapLayerProvider;
+    function GetProvider: IBitmapTileUniProvider;
     function GetBitmapTileSaver: IBitmapTileSaver;
     procedure OnDirectTilesCopyChange(const AEnableDirectCopy: Boolean);
     procedure OnMapChange(Sender: TObject);
@@ -341,7 +341,7 @@ begin
   Result := FfrZoomsSelect.GetZoomList;
 end;
 
-function TfrExportRMapsSQLite.GetProvider: IBitmapLayerProvider;
+function TfrExportRMapsSQLite.GetProvider: IBitmapTileUniProvider;
 var
   VMap: IMapType;
   VMapVersion: IMapVersionRequest;

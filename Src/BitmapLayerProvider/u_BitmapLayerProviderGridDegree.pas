@@ -36,7 +36,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TBitmapLayerProviderGridDegree = class(TBaseInterfacedObject, IBitmapLayerProvider)
+  TBitmapLayerProviderGridDegree = class(TBaseInterfacedObject, IBitmapTileUniProvider)
   private
     FColor: TColor32;
     FShowText: Boolean;

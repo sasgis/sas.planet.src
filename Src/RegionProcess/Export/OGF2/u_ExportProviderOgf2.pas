@@ -128,7 +128,7 @@ procedure TExportProviderOgf2.StartProcess(const APolygon: IGeometryLonLatPolygo
 var
   VTargetFile: string;
   VProgressInfo: IRegionProcessProgressInfoInternal;
-  VImageProvider: IBitmapLayerProvider;
+  VImageProvider: IBitmapTileUniProvider;
   VZoom: Byte;
   VSaver: IBitmapTileSaver;
   VTileSize: TPoint;

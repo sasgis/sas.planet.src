@@ -163,7 +163,7 @@ type
     );
     function Validate: Boolean;
   private
-    function GetProvider: IBitmapLayerProvider;
+    function GetProvider: IBitmapTileUniProvider;
     function GetPath: string;
     function GetProjection: IProjectionInfo;
     function GetMapCalibrationList: IMapCalibrationList;
@@ -432,7 +432,7 @@ begin
   end;
 end;
 
-function TfrMapCombine.GetProvider: IBitmapLayerProvider;
+function TfrMapCombine.GetProvider: IBitmapTileUniProvider;
 var
   VMap: IMapType;
   VMapVersion: IMapVersionRequest;

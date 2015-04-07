@@ -134,7 +134,7 @@ var
   VReplaceExistingTiles: Boolean;
   VDirectTilesCopy: Boolean;
   VBitmapTileSaver: IBitmapTileSaver;
-  VBitmapProvider: IBitmapLayerProvider;
+  VBitmapProvider: IBitmapTileUniProvider;
   VMapType: IMapType;
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VThread: TThread;

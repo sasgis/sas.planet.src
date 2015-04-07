@@ -53,7 +53,7 @@ type
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
-      const AImageProvider: IBitmapLayerProvider;
+      const AImageProvider: IBitmapTileUniProvider;
       const AProjection: IProjectionInfo;
       const AMapRect: TRect
     ); override;
@@ -63,7 +63,7 @@ type
       const APolygon: IGeometryLonLatPolygon;
       const AProjection: IProjectionInfo;
       const AMapRect: TRect;
-      const AImageProvider: IBitmapLayerProvider;
+      const AImageProvider: IBitmapTileUniProvider;
       const AMapCalibrationList: IMapCalibrationList;
       const AFileName: string;
       const ASplitCount: TPoint;
@@ -88,7 +88,7 @@ constructor TThreadMapCombineECW.Create(
   const APolygon: IGeometryLonLatPolygon;
   const AProjection: IProjectionInfo;
   const AMapRect: TRect;
-  const AImageProvider: IBitmapLayerProvider;
+  const AImageProvider: IBitmapTileUniProvider;
   const AMapCalibrationList: IMapCalibrationList;
   const AFileName: string;
   const ASplitCount: TPoint;
@@ -146,7 +146,7 @@ procedure TThreadMapCombineECW.SaveRect(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const AFileName: string;
-  const AImageProvider: IBitmapLayerProvider;
+  const AImageProvider: IBitmapTileUniProvider;
   const AProjection: IProjectionInfo;
   const AMapRect: TRect
 );

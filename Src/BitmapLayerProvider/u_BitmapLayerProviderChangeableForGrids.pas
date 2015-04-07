@@ -102,8 +102,8 @@ var
   VShowLines: Boolean;
   VScale: Integer;
   VScaleDegree: Double;
-  VProvider: IBitmapLayerProvider;
-  VResult: IBitmapLayerProvider;
+  VProvider: IBitmapTileUniProvider;
+  VResult: IBitmapTileUniProvider;
 begin
   VResult := nil;
   FConfig.TileGrid.LockRead;

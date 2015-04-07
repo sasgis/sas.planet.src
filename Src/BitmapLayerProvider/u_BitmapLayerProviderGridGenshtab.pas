@@ -35,7 +35,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TBitmapLayerProviderGridGenshtab = class(TBaseInterfacedObject, IBitmapLayerProvider)
+  TBitmapLayerProviderGridGenshtab = class(TBaseInterfacedObject, IBitmapTileUniProvider)
   private
     FColor: TColor32;
     FShowText: Boolean;

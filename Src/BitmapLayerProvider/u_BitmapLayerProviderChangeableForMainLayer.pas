@@ -125,7 +125,7 @@ var
   VPostProcessingConfig: IBitmapPostProcessing;
   VLayersList: IMapTypeListStatic;
   VUsePrevConfig: IUseTilePrevZoomTileConfigStatic;
-  VResult: IBitmapLayerProvider;
+  VResult: IBitmapTileUniProvider;
 begin
   VMainMap := FMainMap.GetStatic;
   if FMainMapLast <> VMainMap then begin

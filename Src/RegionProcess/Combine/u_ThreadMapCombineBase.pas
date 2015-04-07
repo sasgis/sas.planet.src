@@ -37,7 +37,7 @@ uses
 type
   TThreadMapCombineBase = class(TThreadRegionProcessAbstract)
   private
-    FImageProvider: IBitmapLayerProvider;
+    FImageProvider: IBitmapTileUniProvider;
     FProjection: IProjectionInfo;
     FMapRect: TRect;
     FMapCalibrationList: IMapCalibrationList;
@@ -51,7 +51,7 @@ type
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
-      const AImageProvider: IBitmapLayerProvider;
+      const AImageProvider: IBitmapTileUniProvider;
       const AProjection: IProjectionInfo;
       const AMapRect: TRect
     ); virtual; abstract;
@@ -63,7 +63,7 @@ type
       const APolygon: IGeometryLonLatPolygon;
       const AProjection: IProjectionInfo;
       const AMapRect: TRect;
-      const AImageProvider: IBitmapLayerProvider;
+      const AImageProvider: IBitmapTileUniProvider;
       const AMapCalibrationList: IMapCalibrationList;
       const AFileName: string;
       const ASplitCount: TPoint;
@@ -85,7 +85,7 @@ constructor TThreadMapCombineBase.Create(
   const APolygon: IGeometryLonLatPolygon;
   const AProjection: IProjectionInfo;
   const AMapRect: TRect;
-  const AImageProvider: IBitmapLayerProvider;
+  const AImageProvider: IBitmapTileUniProvider;
   const AMapCalibrationList: IMapCalibrationList;
   const AFileName: string;
   const ASplitCount: TPoint;

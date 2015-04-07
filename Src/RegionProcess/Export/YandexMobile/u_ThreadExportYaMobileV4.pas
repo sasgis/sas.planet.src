@@ -46,7 +46,7 @@ type
     FMapId: Integer;
     FMapName: string;
     FSaver: IBitmapTileSaver;
-    FImageProvider: IBitmapLayerProvider;
+    FImageProvider: IBitmapTileUniProvider;
   end;
   TExportTaskYaMobileV4Array = array of TExportTaskYaMobileV4;
 

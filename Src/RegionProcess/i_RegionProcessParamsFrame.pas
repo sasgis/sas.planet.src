@@ -82,8 +82,8 @@ type
 
   IRegionProcessParamsFrameImageProvider = interface(IRegionProcessParamsFrameBase)
     ['{98A4BE9B-AF50-45F5-8E26-0DBF0F094C0B}']
-    function GetProvider: IBitmapLayerProvider;
-    property Provider: IBitmapLayerProvider read GetProvider;
+    function GetProvider: IBitmapTileUniProvider;
+    property Provider: IBitmapTileUniProvider read GetProvider;
   end;
 
   IRegionProcessParamsFrameProcessPredicate = interface(IRegionProcessParamsFrameBase)

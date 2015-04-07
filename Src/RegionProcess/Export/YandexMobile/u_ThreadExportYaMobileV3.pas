@@ -42,7 +42,7 @@ type
   TExportTaskYaMobileV3 = record
     FMapId: Integer;
     FSaver: IBitmapTileSaver;
-    FImageProvider: IBitmapLayerProvider;
+    FImageProvider: IBitmapTileUniProvider;
   end;
   TExportTaskYaMobileV3Array = array of TExportTaskYaMobileV3;
 

@@ -108,7 +108,7 @@ end;
 function TBitmapLayerProviderChangeableForFillingMap.CreateStatic: IInterface;
 var
   VConfig: IFillingMapLayerConfigStatic;
-  VResult: IBitmapLayerProvider;
+  VResult: IBitmapTileUniProvider;
   VMap: IMapType;
   VColorer: IFillingMapColorer;
   VVersionRequest: IMapVersionRequest;

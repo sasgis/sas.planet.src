@@ -51,7 +51,7 @@ type
     FTileStorage: ITileStorage;
     FMapVersion: IMapVersionRequest;
     FBitmapTileSaver: IBitmapTileSaver;
-    FBitmapProvider: IBitmapLayerProvider;
+    FBitmapProvider: IBitmapTileUniProvider;
     FForceDropTarget: Boolean;
     FIsReplace: Boolean;
     FDirectTilesCopy: Boolean;
@@ -80,7 +80,7 @@ type
       const ATileStorage: ITileStorage;
       const AMapVersion: IMapVersionRequest;
       const ABitmapTileSaver: IBitmapTileSaver;
-      const ABitmapProvider: IBitmapLayerProvider;
+      const ABitmapProvider: IBitmapTileUniProvider;
       const AForceDropTarget: Boolean;
       const AReplace: Boolean;
       const ADirectTilesCopy: Boolean
@@ -114,7 +114,7 @@ constructor TThreadExportToRMapsSQLite.Create(
   const ATileStorage: ITileStorage;
   const AMapVersion: IMapVersionRequest;
   const ABitmapTileSaver: IBitmapTileSaver;
-  const ABitmapProvider: IBitmapLayerProvider;
+  const ABitmapProvider: IBitmapTileUniProvider;
   const AForceDropTarget: Boolean;
   const AReplace: Boolean;
   const ADirectTilesCopy: Boolean

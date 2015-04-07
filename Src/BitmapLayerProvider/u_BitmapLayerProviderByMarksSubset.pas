@@ -43,7 +43,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TBitmapLayerProviderByMarksSubset = class(TBaseInterfacedObject, IBitmapLayerProvider)
+  TBitmapLayerProviderByMarksSubset = class(TBaseInterfacedObject, IBitmapTileUniProvider)
   private
     FDrawOrderConfigStatic: IMarksDrawOrderConfigStatic;
     FCaptionDrawConfigStatic: ICaptionDrawConfigStatic;

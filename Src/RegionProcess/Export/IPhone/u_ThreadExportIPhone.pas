@@ -45,7 +45,7 @@ type
   TExportTaskIPhone = record
     FFlag: Integer;
     FSaver: IBitmapTileSaver;
-    FImageProvider: IBitmapLayerProvider;
+    FImageProvider: IBitmapTileUniProvider;
   end;
   TExportTaskIPhoneArray = array of TExportTaskIPhone;
 

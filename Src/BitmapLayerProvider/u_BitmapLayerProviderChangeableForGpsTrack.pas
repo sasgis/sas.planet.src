@@ -105,7 +105,7 @@ end;
 
 function TBitmapLayerProviderChangeableForGpsTrack.CreateStatic: IInterface;
 var
-  VResult: IBitmapLayerProvider;
+  VResult: IBitmapTileUniProvider;
   VTrackColorer: ITrackColorerStatic;
   VPointsCount: Integer;
   VLineWidth: Double;

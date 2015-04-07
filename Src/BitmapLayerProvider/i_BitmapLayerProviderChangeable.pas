@@ -29,7 +29,7 @@ uses
 type
   IBitmapLayerProviderChangeable = interface(IChangeable)
     ['{92FA4B43-19A9-4B94-BF01-8365EA389248}']
-    function GetStatic: IBitmapLayerProvider;
+    function GetStatic: IBitmapTileUniProvider;
   end;
 
 implementation

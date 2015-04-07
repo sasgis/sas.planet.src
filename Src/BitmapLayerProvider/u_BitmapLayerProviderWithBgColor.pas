@@ -33,10 +33,10 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TBitmapLayerProviderWithBGColor = class(TBaseInterfacedObject, IBitmapLayerProvider)
+  TBitmapLayerProviderWithBGColor = class(TBaseInterfacedObject, IBitmapTileUniProvider)
   private
     FBitmap32StaticFactory: IBitmap32StaticFactory;
-    FSourceProvider: IBitmapLayerProvider;
+    FSourceProvider: IBitmapTileUniProvider;
     FBackGroundColor: TColor32;
   private
     function GetTile(
@@ -49,7 +49,7 @@ type
     constructor Create(
       ABackGroundColor: TColor32;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
-      const ASourceProvider: IBitmapLayerProvider
+      const ASourceProvider: IBitmapTileUniProvider
     );
   end;
 
@@ -65,7 +65,7 @@ uses
 constructor TBitmapLayerProviderWithBGColor.Create(
   ABackGroundColor: TColor32;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
-  const ASourceProvider: IBitmapLayerProvider
+  const ASourceProvider: IBitmapTileUniProvider
 );
 begin
   Assert(Assigned(ASourceProvider));

@@ -85,8 +85,8 @@ type
       const APolygon: IGeometryLonLatPolygon;
       const AProjection: IProjectionInfo;
       const AProjectedPolygon: IGeometryProjectedPolygon
-    ): IBitmapLayerProvider;
-    function PrepareGridsProvider: IBitmapLayerProvider;
+    ): IBitmapTileUniProvider;
+    function PrepareGridsProvider: IBitmapTileUniProvider;
     function PrepareProjection: IProjectionInfo;
     function PreparePolygon(
       const AProjection: IProjectionInfo;
@@ -236,7 +236,7 @@ begin
   Result := _(FFormatName);
 end;
 
-function TProviderMapCombineBase.PrepareGridsProvider: IBitmapLayerProvider;
+function TProviderMapCombineBase.PrepareGridsProvider: IBitmapTileUniProvider;
 var
   VVisible: Boolean;
   VColor: TColor32;
@@ -246,8 +246,8 @@ var
   VShowLines: Boolean;
   VScale: Integer;
   VScaleDegree: Double;
-  VProvider: IBitmapLayerProvider;
-  VResult: IBitmapLayerProvider;
+  VProvider: IBitmapTileUniProvider;
+  VResult: IBitmapTileUniProvider;
 begin
   VResult := nil;
   FGridsConfig.TileGrid.LockRead;
@@ -341,7 +341,7 @@ function TProviderMapCombineBase.PrepareImageProvider(
   const APolygon: IGeometryLonLatPolygon;
   const AProjection: IProjectionInfo;
   const AProjectedPolygon: IGeometryProjectedPolygon
-): IBitmapLayerProvider;
+): IBitmapTileUniProvider;
 var
   VRect: ILonLatRect;
   VLonLatRect: TDoubleRect;
@@ -350,14 +350,14 @@ var
   VMarksSubset: IVectorItemSubset;
   VMarksConfigStatic: IUsedMarksConfigStatic;
   VList: IMarkCategoryList;
-  VMarksImageProvider: IBitmapLayerProvider;
+  VMarksImageProvider: IBitmapTileUniProvider;
   VRecolorConfig: IBitmapPostProcessing;
-  VSourceProvider: IBitmapLayerProvider;
+  VSourceProvider: IBitmapTileUniProvider;
   VUseMarks: Boolean;
   VUseGrids: Boolean;
   VUseRecolor: Boolean;
   VMarkerProvider: IMarkerProviderForVectorItem;
-  VGridsProvider: IBitmapLayerProvider;
+  VGridsProvider: IBitmapTileUniProvider;
 begin
   VSourceProvider := (ParamsFrame as IRegionProcessParamsFrameImageProvider).Provider;
   VRect := APolygon.Bounds;

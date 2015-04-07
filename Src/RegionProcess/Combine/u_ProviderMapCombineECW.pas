@@ -144,7 +144,7 @@ var
   VSplitCount: TPoint;
   VProjection: IProjectionInfo;
   VProjectedPolygon: IGeometryProjectedPolygon;
-  VImageProvider: IBitmapLayerProvider;
+  VImageProvider: IBitmapTileUniProvider;
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VBGColor: TColor32;
   VThread: TThread;

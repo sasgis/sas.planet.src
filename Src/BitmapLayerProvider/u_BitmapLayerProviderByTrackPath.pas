@@ -36,7 +36,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TBitmapLayerProviderByTrackPath = class(TBaseInterfacedObject, IBitmapLayerProvider)
+  TBitmapLayerProviderByTrackPath = class(TBaseInterfacedObject, IBitmapTileUniProvider)
   private
     FLineWidth: Double;
     FTrackColorer: ITrackColorerStatic;

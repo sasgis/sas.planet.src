@@ -35,7 +35,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TBitmapLayerProviderGridTiles = class(TBaseInterfacedObject, IBitmapLayerProvider)
+  TBitmapLayerProviderGridTiles = class(TBaseInterfacedObject, IBitmapTileUniProvider)
   private
     FColor: TColor32;
     FUseRelativeZoom: Boolean;

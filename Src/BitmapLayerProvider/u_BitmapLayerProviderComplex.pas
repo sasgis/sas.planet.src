@@ -32,11 +32,11 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TBitmapLayerProviderComplex = class(TBaseInterfacedObject, IBitmapLayerProvider)
+  TBitmapLayerProviderComplex = class(TBaseInterfacedObject, IBitmapTileUniProvider)
   private
     FBitmap32StaticFactory: IBitmap32StaticFactory;
-    FProviderFrist: IBitmapLayerProvider;
-    FProviderSecond: IBitmapLayerProvider;
+    FProviderFrist: IBitmapTileUniProvider;
+    FProviderSecond: IBitmapTileUniProvider;
   private
     function GetTile(
       AOperationID: Integer;
@@ -47,8 +47,8 @@ type
   public
     constructor Create(
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
-      const AProviderFrist: IBitmapLayerProvider;
-      const AProviderSecond: IBitmapLayerProvider
+      const AProviderFrist: IBitmapTileUniProvider;
+      const AProviderSecond: IBitmapTileUniProvider
     );
   end;
 
@@ -63,7 +63,7 @@ uses
 
 constructor TBitmapLayerProviderComplex.Create(
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
-  const AProviderFrist, AProviderSecond: IBitmapLayerProvider
+  const AProviderFrist, AProviderSecond: IBitmapTileUniProvider
 );
 begin
   Assert(Assigned(ABitmap32StaticFactory));

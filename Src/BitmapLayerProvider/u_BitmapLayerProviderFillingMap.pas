@@ -36,7 +36,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TBitmapLayerProviderFillingMap = class(TBaseInterfacedObject, IBitmapLayerProvider)
+  TBitmapLayerProviderFillingMap = class(TBaseInterfacedObject, IBitmapTileUniProvider)
   private
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FProjectionFactory: IProjectionInfoFactory;

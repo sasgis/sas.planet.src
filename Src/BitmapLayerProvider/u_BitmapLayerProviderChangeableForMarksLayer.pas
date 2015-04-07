@@ -98,7 +98,7 @@ end;
 function TBitmapLayerProviderChangeableForMarksLayer.CreateStatic: IInterface;
 var
   VVectorItems: IVectorItemSubset;
-  VResult: IBitmapLayerProvider;
+  VResult: IBitmapTileUniProvider;
 begin
   VResult := nil;
   VVectorItems := FVectorItems.GetStatic;

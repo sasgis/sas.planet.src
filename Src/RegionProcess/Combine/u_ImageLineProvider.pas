@@ -38,7 +38,7 @@ type
   private
     FProjection: IProjectionInfo;
     FMapRect: TRect;
-    FImageProvider: IBitmapLayerProvider;
+    FImageProvider: IBitmapTileUniProvider;
     FBytesPerPixel: Integer;
     FBgColor: TColor32;
 
@@ -78,7 +78,7 @@ type
     ): Pointer;
   public
     constructor Create(
-      const AImageProvider: IBitmapLayerProvider;
+      const AImageProvider: IBitmapTileUniProvider;
       const AProjection: IProjectionInfo;
       const AMapRect: TRect;
       ABgColor: TColor32;
@@ -90,7 +90,7 @@ type
   TImageLineProviderNoAlfa = class(TImageLineProviderAbstract)
   public
     constructor Create(
-      const AImageProvider: IBitmapLayerProvider;
+      const AImageProvider: IBitmapTileUniProvider;
       const AProjection: IProjectionInfo;
       const AMapRect: TRect;
       ABgColor: TColor32
@@ -100,7 +100,7 @@ type
   TImageLineProviderWithAlfa = class(TImageLineProviderAbstract)
   public
     constructor Create(
-      const AImageProvider: IBitmapLayerProvider;
+      const AImageProvider: IBitmapTileUniProvider;
       const AProjection: IProjectionInfo;
       const AMapRect: TRect;
       ABgColor: TColor32
@@ -153,7 +153,7 @@ uses
 { TImageLineProviderAbstract }
 
 constructor TImageLineProviderAbstract.Create(
-  const AImageProvider: IBitmapLayerProvider;
+  const AImageProvider: IBitmapTileUniProvider;
   const AProjection: IProjectionInfo;
   const AMapRect: TRect;
   ABgColor: TColor32;
@@ -323,7 +323,7 @@ end;
 { TImageLineProviderNoAlfa }
 
 constructor TImageLineProviderNoAlfa.Create(
-  const AImageProvider: IBitmapLayerProvider;
+  const AImageProvider: IBitmapTileUniProvider;
   const AProjection: IProjectionInfo;
   const AMapRect: TRect;
   ABgColor: TColor32
@@ -341,7 +341,7 @@ end;
 { TImageLineProviderWithAlfa }
 
 constructor TImageLineProviderWithAlfa.Create(
-  const AImageProvider: IBitmapLayerProvider;
+  const AImageProvider: IBitmapTileUniProvider;
   const AProjection: IProjectionInfo;
   const AMapRect: TRect;
   ABgColor: TColor32

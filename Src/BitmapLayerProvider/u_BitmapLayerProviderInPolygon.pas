@@ -32,9 +32,9 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TBitmapLayerProviderInPolygon = class(TBaseInterfacedObject, IBitmapLayerProvider)
+  TBitmapLayerProviderInPolygon = class(TBaseInterfacedObject, IBitmapTileUniProvider)
   private
-    FSourceProvider: IBitmapLayerProvider;
+    FSourceProvider: IBitmapTileUniProvider;
     FLine: IGeometryProjectedSinglePolygon;
   private
     function GetTile(
@@ -46,7 +46,7 @@ type
   public
     constructor Create(
       const APolyProjected: IGeometryProjectedPolygon;
-      const ASourceProvider: IBitmapLayerProvider
+      const ASourceProvider: IBitmapTileUniProvider
     );
   end;
 
@@ -60,7 +60,7 @@ uses
 
 constructor TBitmapLayerProviderInPolygon.Create(
   const APolyProjected: IGeometryProjectedPolygon;
-  const ASourceProvider: IBitmapLayerProvider
+  const ASourceProvider: IBitmapTileUniProvider
 );
 var
   VMultiPolygon: IGeometryProjectedMultiPolygon;

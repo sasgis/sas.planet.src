@@ -104,7 +104,7 @@ type
     );
     function Validate: Boolean;
   private
-    function GetProvider: IBitmapLayerProvider;
+    function GetProvider: IBitmapTileUniProvider;
     function GetZoom: Byte;
     function GetPath: string;
   private
@@ -260,7 +260,7 @@ begin
   Result := edtTargetFile.Text;
 end;
 
-function TfrExportToOgf2.GetProvider: IBitmapLayerProvider;
+function TfrExportToOgf2.GetProvider: IBitmapTileUniProvider;
 var
   VMap: IMapType;
   VMapVersion: IMapVersionRequest;

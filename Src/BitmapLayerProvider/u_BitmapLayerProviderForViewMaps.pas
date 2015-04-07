@@ -37,7 +37,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TBitmapLayerProviderForViewMaps = class(TBaseInterfacedObject, IBitmapLayerProvider)
+  TBitmapLayerProviderForViewMaps = class(TBaseInterfacedObject, IBitmapTileUniProvider)
   private
     FMainMap: IMapType;
     FLayersList: IMapTypeListStatic;

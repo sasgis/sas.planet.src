@@ -47,7 +47,7 @@ type
     FOgf2TileHeight: Integer;
     FTileSaver: IBitmapTileSaver;
     FTargetFile: string;
-    FImageProvider: IBitmapLayerProvider;
+    FImageProvider: IBitmapTileUniProvider;
     FCoordConverterFactory: ICoordConverterFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FBitmapFactory: IBitmap32StaticFactory;
@@ -76,7 +76,7 @@ type
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ATargetFile: string;
       const APolygon: IGeometryLonLatPolygon;
-      const AImageProvider: IBitmapLayerProvider;
+      const AImageProvider: IBitmapTileUniProvider;
       AZoom: Byte;
       const ATileSize: TPoint;
       const ATileSaver: IBitmapTileSaver
@@ -113,7 +113,7 @@ constructor TThreadExportToOgf2.Create(
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ATargetFile: string;
   const APolygon: IGeometryLonLatPolygon;
-  const AImageProvider: IBitmapLayerProvider;
+  const AImageProvider: IBitmapTileUniProvider;
   AZoom: Byte;
   const ATileSize: TPoint;
   const ATileSaver: IBitmapTileSaver

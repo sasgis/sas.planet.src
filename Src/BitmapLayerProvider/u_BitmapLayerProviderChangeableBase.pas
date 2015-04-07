@@ -33,7 +33,7 @@ type
   private
     FLinksList: IListenerNotifierLinksList;
   private
-    function GetStatic: IBitmapLayerProvider;
+    function GetStatic: IBitmapTileUniProvider;
 
   protected
     property LinksList: IListenerNotifierLinksList read FLinksList;
@@ -70,9 +70,9 @@ begin
   FLinksList.DeactivateLinks;
 end;
 
-function TBitmapLayerProviderChangeableBase.GetStatic: IBitmapLayerProvider;
+function TBitmapLayerProviderChangeableBase.GetStatic: IBitmapTileUniProvider;
 begin
-  Result := IBitmapLayerProvider(GetStaticInternal);
+  Result := IBitmapTileUniProvider(GetStaticInternal);
 end;
 
 end.
