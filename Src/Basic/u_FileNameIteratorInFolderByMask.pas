@@ -92,10 +92,9 @@ begin
       if IsNeedProcess(FFindFileData) then begin
         AFileName := FFolderNameFromRoot + FFindFileData.cFileName;
         Result := True;
-        FValidFindData := Windows.FindNextFileW(FFindHandle, FFindFileData);
-        Break;
       end;
-    until not FValidFindData;
+      FValidFindData := Windows.FindNextFileW(FFindHandle, FFindFileData);
+    until not FValidFindData or Result;
   end;
 end;
 
