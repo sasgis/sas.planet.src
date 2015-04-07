@@ -65,7 +65,6 @@ implementation
 uses
   t_Hash,
   t_GeoTypes,
-  i_TileIterator,
   i_BitmapTileProvider,
   i_CoordConverter,
   i_InterfaceListStatic,

@@ -106,7 +106,6 @@ implementation
 
 uses
   t_CommonTypes,
-  i_TileIterator,
   u_TileRectInfoShort,
   u_TileIteratorByRect,
   u_TileInfoBasic;

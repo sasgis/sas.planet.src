@@ -24,7 +24,6 @@ interface
 
 uses
   i_LanguageManager,
-  i_LocalCoordConverter,
   i_CoordConverterFactory,
   i_CoordConverterList,
   i_BitmapLayerProvider,
@@ -34,7 +33,6 @@ uses
   i_ArchiveReadWriteFactory,
   i_UseTilePrevZoomConfig,
   i_BitmapTileSaveLoadFactory,
-  i_LocalCoordConverterFactorySimpe,
   i_BitmapPostProcessing,
   i_Bitmap32BufferFactory,
   i_UsedMarksConfig,

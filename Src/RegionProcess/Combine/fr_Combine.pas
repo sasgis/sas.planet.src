@@ -35,7 +35,6 @@ uses
   i_UseTilePrevZoomConfig,
   i_BitmapTileSaveLoadFactory,
   i_ArchiveReadWriteFactory,
-  i_LocalCoordConverterFactorySimpe,
   i_BitmapPostProcessing,
   i_Bitmap32BufferFactory,
   i_UsedMarksConfig,

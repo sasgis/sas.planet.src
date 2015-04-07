@@ -93,7 +93,6 @@ uses
   i_MapCalibration,
   i_Bitmap32Static,
   i_ProjectionInfo,
-  i_TileIterator,
   i_GeometryProjected,
   u_TileIteratorByRect,
   u_MapCalibrationOzi,

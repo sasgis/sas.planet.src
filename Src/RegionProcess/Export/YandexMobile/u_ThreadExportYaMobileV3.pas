@@ -100,7 +100,6 @@ uses
   i_ProjectionInfo,
   i_GeometryProjected,
   i_TileIterator,
-  i_LocalCoordConverter,
   u_BitmapFunc,
   u_ResStrings,
   u_TileIteratorByPolygon;

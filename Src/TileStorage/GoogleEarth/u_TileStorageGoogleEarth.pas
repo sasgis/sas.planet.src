@@ -145,7 +145,6 @@ uses
   Types,
   t_GeoTypes,
   t_CommonTypes,
-  i_TileIterator,
   i_InterfaceListSimple,
   u_GeoFunc,
   u_InterfaceListSimple,

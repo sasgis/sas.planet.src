@@ -24,7 +24,6 @@ interface
 
 uses
   i_LanguageManager,
-  i_LocalCoordConverter,
   i_CoordConverterFactory,
   i_CoordConverterList,
   i_BitmapLayerProvider,

@@ -127,7 +127,6 @@ uses
   Types,
   WideStrings,
   t_CommonTypes,
-  i_TileIterator,
   i_FileNameIterator,
   i_StorageState,
   u_TileRectInfoShort,

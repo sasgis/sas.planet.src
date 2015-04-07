@@ -64,7 +64,6 @@ implementation
 uses
   t_Hash,
   t_GeoTypes,
-  i_TileIterator,
   i_VectorTileProvider,
   i_CoordConverter,
   i_InterfaceListStatic,

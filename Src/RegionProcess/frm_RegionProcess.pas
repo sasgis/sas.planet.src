@@ -55,7 +55,6 @@ uses
   i_Bitmap32BufferFactory,
   i_BitmapTileSaveLoadFactory,
   i_ArchiveReadWriteFactory,
-  i_LocalCoordConverterFactorySimpe,
   i_BitmapPostProcessing,
   i_GlobalDownloadConfig,
   i_DownloadInfoSimple,

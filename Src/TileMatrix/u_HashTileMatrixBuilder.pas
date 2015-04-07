@@ -59,7 +59,6 @@ type
 implementation
 
 uses
-  i_TileIterator,
   u_TileIteratorByRect,
   u_HashTileMatrix;
 

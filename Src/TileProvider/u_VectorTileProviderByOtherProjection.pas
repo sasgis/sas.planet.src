@@ -94,7 +94,6 @@ uses
   i_CoordConverter,
   i_VectorDataItemSimple,
   i_LonLatRect,
-  i_TileIterator,
   u_TileIteratorByRect,
   u_GeoFunc;
 
