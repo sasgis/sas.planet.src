@@ -68,7 +68,6 @@ type
       const AMarksShowConfig: IUsedMarksConfig;
       const AMarksDrawConfig: IMarksDrawConfig;
       const AMarksDB: IMarkSystem;
-      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const ABitmapFactory: IBitmap32StaticFactory;
       const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
       const AGridsConfig: IMapLayerGridsConfig;
@@ -106,7 +105,6 @@ constructor TProviderMapCombineJPG.Create(
   const AMarksShowConfig: IUsedMarksConfig;
   const AMarksDrawConfig: IMarksDrawConfig;
   const AMarksDB: IMarkSystem;
-  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
   const AGridsConfig: IMapLayerGridsConfig;
@@ -128,7 +126,6 @@ begin
     AMarksShowConfig,
     AMarksDrawConfig,
     AMarksDB,
-    ALocalConverterFactory,
     ABitmapFactory,
     ABitmapPostProcessing,
     AGridsConfig,
@@ -149,7 +146,6 @@ var
   VSplitCount: TPoint;
   VProjection: IProjectionInfo;
   VProjectedPolygon: IGeometryProjectedPolygon;
-  VTargetConverter: ILocalCoordConverter;
   VImageProvider: IBitmapLayerProvider;
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VBGColor: TColor32;
@@ -157,7 +153,6 @@ var
 begin
   VProjection := PrepareProjection;
   VProjectedPolygon := PreparePolygon(VProjection, APolygon);
-  VTargetConverter := PrepareTargetConverter(VProjection, VProjectedPolygon.Bounds);
   VImageProvider := PrepareImageProvider(APolygon, VProjection, VProjectedPolygon);
   VMapCalibrations := (ParamsFrame as IRegionProcessParamsFrameMapCalibrationList).MapCalibrationList;
   VFileName := PrepareTargetFileName;
@@ -169,9 +164,9 @@ begin
     TThreadMapCombineJPG.Create(
       VProgressInfo,
       APolygon,
-      VTargetConverter,
+      VProjection,
+      PrepareTargetRect(VProjection, VProjectedPolygon),
       VImageProvider,
-      LocalConverterFactory,
       VMapCalibrations,
       VFileName,
       VSplitCount,

@@ -28,7 +28,6 @@ uses
   t_GeoTypes,
   i_LanguageManager,
   i_CoordConverter,
-  i_LocalCoordConverter,
   i_CoordConverterFactory,
   i_CoordConverterList,
   i_BitmapLayerProvider,
@@ -38,7 +37,6 @@ uses
   i_GeometryProjectedProvider,
   i_UseTilePrevZoomConfig,
   i_Bitmap32BufferFactory,
-  i_LocalCoordConverterFactorySimpe,
   i_BitmapPostProcessing,
   i_MapLayerGridsConfig,
   i_ValueToStringConverter,
@@ -73,17 +71,16 @@ type
     FMarksShowConfig: IUsedMarksConfig;
     FMarksDrawConfig: IMarksDrawConfig;
     FActiveMapsSet: IMapTypeListChangeable;
-    FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FBitmapPostProcessing: IBitmapPostProcessingChangeable;
     FMapCalibrationList: IMapCalibrationList;
     FGridsConfig: IMapLayerGridsConfig;
     FValueToStringConverter: IValueToStringConverterChangeable;
   protected
     function PrepareTargetFileName: string;
-    function PrepareTargetConverter(
+    function PrepareTargetRect(
       const AProjection: IProjectionInfo;
-      const ARect: TDoubleRect
-    ): ILocalCoordConverter;
+      const APolygon: IGeometryProjectedPolygon
+    ): TRect;
     function PrepareImageProvider(
       const APolygon: IGeometryLonLatPolygon;
       const AProjection: IProjectionInfo;
@@ -95,7 +92,6 @@ type
       const AProjection: IProjectionInfo;
       const APolygon: IGeometryLonLatPolygon
     ): IGeometryProjectedPolygon;
-    property LocalConverterFactory: ILocalCoordConverterFactorySimpe read FLocalConverterFactory;
   protected
     function CreateFrame: TFrame; override;
   protected
@@ -115,7 +111,6 @@ type
       const AMarksShowConfig: IUsedMarksConfig;
       const AMarksDrawConfig: IMarksDrawConfig;
       const AMarksDB: IMarkSystem;
-      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const ABitmapFactory: IBitmap32StaticFactory;
       const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
       const AGridsConfig: IMapLayerGridsConfig;
@@ -168,7 +163,6 @@ constructor TProviderMapCombineBase.Create(
   const AMarksShowConfig: IUsedMarksConfig;
   const AMarksDrawConfig: IMarksDrawConfig;
   const AMarksDB: IMarkSystem;
-  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
   const AGridsConfig: IMapLayerGridsConfig;
@@ -193,7 +187,6 @@ begin
   FMarksDrawConfig := AMarksDrawConfig;
   FMarksDB := AMarksDB;
   FActiveMapsSet := AActiveMapsSet;
-  FLocalConverterFactory := ALocalConverterFactory;
   FBitmapPostProcessing := ABitmapPostProcessing;
   FBitmapFactory := ABitmapFactory;
   FProjectionFactory := AProjectionFactory;
@@ -473,25 +466,12 @@ begin
   Result := (ParamsFrame as IRegionProcessParamsFrameTargetProjection).Projection;
 end;
 
-function TProviderMapCombineBase.PrepareTargetConverter(
+function TProviderMapCombineBase.PrepareTargetRect(
   const AProjection: IProjectionInfo;
-  const ARect: TDoubleRect
-): ILocalCoordConverter;
-var
-  VMapRect: TRect;
-  VMapSize: TPoint;
+  const APolygon: IGeometryProjectedPolygon
+): TRect;
 begin
-  VMapRect := RectFromDoubleRect(ARect, rrOutside);
-  VMapSize.X := VMapRect.Right - VMapRect.Left;
-  VMapSize.Y := VMapRect.Bottom - VMapRect.Top;
-
-  Result :=
-    FLocalConverterFactory.CreateConverterNoScale(
-      Rect(0, 0, VMapSize.X, VMapSize.Y),
-      AProjection.Zoom,
-      AProjection.GeoConverter,
-      VMapRect.TopLeft
-    );
+  Result := RectFromDoubleRect(APolygon.Bounds, rrOutside);
 end;
 
 function TProviderMapCombineBase.PrepareTargetFileName: string;

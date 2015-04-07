@@ -32,9 +32,8 @@ uses
   i_RegionProcessProgressInfo,
   i_BitmapLayerProvider,
   i_MapCalibration,
-  i_LocalCoordConverter,
+  i_ProjectionInfo,
   i_GeometryLonLat,
-  i_LocalCoordConverterFactorySimpe,
   u_ThreadMapCombineBase;
 
 type
@@ -59,16 +58,16 @@ type
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
       const AImageProvider: IBitmapLayerProvider;
-      const ALocalConverter: ILocalCoordConverter;
-      const AConverterFactory: ILocalCoordConverterFactorySimpe
+      const AProjection: IProjectionInfo;
+      const AMapRect: TRect
     ); override;
   public
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: IGeometryLonLatPolygon;
-      const ATargetConverter: ILocalCoordConverter;
+      const AProjection: IProjectionInfo;
+      const AMapRect: TRect;
       const AImageProvider: IBitmapLayerProvider;
-      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AMapCalibrationList: IMapCalibrationList;
       const AFileName: string;
       const ASplitCount: TPoint;
@@ -83,6 +82,7 @@ uses
   LibPngWriter,
   i_CoordConverter,
   u_ImageLineProvider,
+  u_GeoFunc,
   u_ResStrings;
 
 { TThreadMapCombinePNG }
@@ -90,9 +90,9 @@ uses
 constructor TThreadMapCombinePNG.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: IGeometryLonLatPolygon;
-  const ATargetConverter: ILocalCoordConverter;
+  const AProjection: IProjectionInfo;
+  const AMapRect: TRect;
   const AImageProvider: IBitmapLayerProvider;
-  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AMapCalibrationList: IMapCalibrationList;
   const AFileName: string;
   const ASplitCount: TPoint;
@@ -103,9 +103,9 @@ begin
   inherited Create(
     AProgressInfo,
     APolygon,
-    ATargetConverter,
+    AProjection,
+    AMapRect,
     AImageProvider,
-    ALocalConverterFactory,
     AMapCalibrationList,
     AFileName,
     ASplitCount,
@@ -120,8 +120,8 @@ procedure TThreadMapCombinePNG.SaveRect(
   const ACancelNotifier: INotifierOperation;
   const AFileName: string;
   const AImageProvider: IBitmapLayerProvider;
-  const ALocalConverter: ILocalCoordConverter;
-  const AConverterFactory: ILocalCoordConverterFactorySimpe
+  const AProjection: IProjectionInfo;
+  const AMapRect: TRect
 );
 const
   PNG_MAX_HEIGHT = 65536;
@@ -137,9 +137,9 @@ begin
   FOperationID := AOperationID;
   FCancelNotifier := ACancelNotifier;
 
-  VGeoConverter := ALocalConverter.GeoConverter;
-  VCurrentPieceRect := ALocalConverter.GetRectInMapPixel;
-  VMapPieceSize := ALocalConverter.GetLocalRectSize;
+  VGeoConverter := AProjection.GeoConverter;
+  VCurrentPieceRect := AMapRect;
+  VMapPieceSize := RectSize(VCurrentPieceRect);
 
   FWidth := VMapPieceSize.X;
   FHeight := VMapPieceSize.Y;
@@ -156,8 +156,8 @@ begin
     FLineProvider :=
       TImageLineProviderRGBA.Create(
         AImageProvider,
-        ALocalConverter,
-        AConverterFactory,
+        AProjection,
+        AMapRect,
         FBgColor
       );
   end else begin
@@ -165,8 +165,8 @@ begin
     FLineProvider :=
       TImageLineProviderRGB.Create(
         AImageProvider,
-        ALocalConverter,
-        AConverterFactory,
+        AProjection,
+        AMapRect,
         FBgColor
       );
   end;

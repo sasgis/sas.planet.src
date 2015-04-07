@@ -1118,7 +1118,6 @@ begin
       FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig,
       FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig,
       GState.MarksDb,
-      GState.LocalConverterFactory,
       GState.BitmapPostProcessing,
       GState.ProjectionFactory,
       GState.CoordConverterList,

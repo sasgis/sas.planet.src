@@ -170,7 +170,6 @@ type
       const AMarksShowConfig: IUsedMarksConfig;
       const AMarksDrawConfig: IMarksDrawConfig;
       const AMarksDB: IMarkSystem;
-      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
       const AProjectionFactory: IProjectionInfoFactory;
       const ACoordConverterList: ICoordConverterList;
@@ -231,7 +230,6 @@ constructor TfrmRegionProcess.Create(
   const AMarksShowConfig: IUsedMarksConfig;
   const AMarksDrawConfig: IMarksDrawConfig;
   const AMarksDB: IMarkSystem;
-  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
   const AProjectionFactory: IProjectionInfoFactory;
   const ACoordConverterList: ICoordConverterList;
@@ -363,7 +361,6 @@ begin
       AMarksShowConfig,
       AMarksDrawConfig,
       AMarksDB,
-      ALocalConverterFactory,
       ABitmapFactory,
       ABitmapPostProcessing,
       AGridsConfig,

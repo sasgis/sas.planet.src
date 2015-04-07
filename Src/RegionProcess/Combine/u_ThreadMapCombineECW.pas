@@ -30,11 +30,10 @@ uses
   i_NotifierOperation,
   i_BitmapLayerProvider,
   i_RegionProcessProgressInfo,
-  i_LocalCoordConverter,
+  i_ProjectionInfo,
   i_GeometryLonLat,
   i_ImageLineProvider,
   i_MapCalibration,
-  i_LocalCoordConverterFactorySimpe,
   u_ECWWrite,
   u_ThreadMapCombineBase;
 
@@ -55,16 +54,16 @@ type
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
       const AImageProvider: IBitmapLayerProvider;
-      const ALocalConverter: ILocalCoordConverter;
-      const AConverterFactory: ILocalCoordConverterFactorySimpe
+      const AProjection: IProjectionInfo;
+      const AMapRect: TRect
     ); override;
   public
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: IGeometryLonLatPolygon;
-      const ATargetConverter: ILocalCoordConverter;
+      const AProjection: IProjectionInfo;
+      const AMapRect: TRect;
       const AImageProvider: IBitmapLayerProvider;
-      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AMapCalibrationList: IMapCalibrationList;
       const AFileName: string;
       const ASplitCount: TPoint;
@@ -81,14 +80,15 @@ uses
   i_CoordConverter,
   u_CalcWFileParams,
   u_ImageLineProvider,
+  u_GeoFunc,
   u_ResStrings;
 
 constructor TThreadMapCombineECW.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: IGeometryLonLatPolygon;
-  const ATargetConverter: ILocalCoordConverter;
+  const AProjection: IProjectionInfo;
+  const AMapRect: TRect;
   const AImageProvider: IBitmapLayerProvider;
-  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AMapCalibrationList: IMapCalibrationList;
   const AFileName: string;
   const ASplitCount: TPoint;
@@ -99,9 +99,9 @@ begin
   inherited Create(
     AProgressInfo,
     APolygon,
-    ATargetConverter,
+    AProjection,
+    AMapRect,
     AImageProvider,
-    ALocalConverterFactory,
     AMapCalibrationList,
     AFileName,
     ASplitCount,
@@ -147,8 +147,8 @@ procedure TThreadMapCombineECW.SaveRect(
   const ACancelNotifier: INotifierOperation;
   const AFileName: string;
   const AImageProvider: IBitmapLayerProvider;
-  const ALocalConverter: ILocalCoordConverter;
-  const AConverterFactory: ILocalCoordConverterFactorySimpe
+  const AProjection: IProjectionInfo;
+  const AMapRect: TRect
 );
 var
   Datum, Proj: string;
@@ -165,20 +165,20 @@ begin
     FImageLineProvider :=
       TImageLineProviderBGR.Create(
         AImageProvider,
-        ALocalConverter,
-        AConverterFactory,
+        AProjection,
+        AMapRect,
         FBgColor
       );
-    VGeoConverter := ALocalConverter.GeoConverter;
-    VCurrentPieceRect := ALocalConverter.GetRectInMapPixel;
-    VMapPieceSize := ALocalConverter.GetLocalRectSize;
+    VGeoConverter := AProjection.GeoConverter;
+    VCurrentPieceRect := AMapRect;
+    VMapPieceSize := RectSize(AMapRect);
     FLinesCount := VMapPieceSize.Y;
     Datum := 'EPSG:' + IntToStr(VGeoConverter.Datum.EPSG);
     Proj := 'EPSG:' + IntToStr(VGeoConverter.GetProjectionEPSG);
     Units := GetUnitsByProjectionEPSG(VGeoConverter.ProjectionEPSG);
     CalculateWFileParams(
-      ALocalConverter.GeoConverter.PixelPos2LonLat(VCurrentPieceRect.TopLeft, ALocalConverter.Zoom),
-      ALocalConverter.GeoConverter.PixelPos2LonLat(VCurrentPieceRect.BottomRight, ALocalConverter.Zoom),
+      VGeoConverter.PixelPos2LonLat(VCurrentPieceRect.TopLeft, AProjection.Zoom),
+      VGeoConverter.PixelPos2LonLat(VCurrentPieceRect.BottomRight, AProjection.Zoom),
       VMapPieceSize.X, VMapPieceSize.Y, VGeoConverter,
       CellIncrementX, CellIncrementY, OriginX, OriginY
     );

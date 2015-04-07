@@ -83,7 +83,6 @@ type
       const AMarksShowConfig: IUsedMarksConfig;
       const AMarksDrawConfig: IMarksDrawConfig;
       const AMarksDB: IMarkSystem;
-      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const ABitmapFactory: IBitmap32StaticFactory;
       const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
       const AGridsConfig: IMapLayerGridsConfig;
@@ -134,7 +133,6 @@ constructor TfrCombine.Create(
   const AMarksShowConfig: IUsedMarksConfig;
   const AMarksDrawConfig: IMarksDrawConfig;
   const AMarksDB: IMarkSystem;
-  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
   const AGridsConfig: IMapLayerGridsConfig;
@@ -164,7 +162,6 @@ begin
       AMarksShowConfig,
       AMarksDrawConfig,
       AMarksDB,
-      ALocalConverterFactory,
       ABitmapFactory,
       ABitmapPostProcessing,
       AGridsConfig,
@@ -189,7 +186,6 @@ begin
       AMarksShowConfig,
       AMarksDrawConfig,
       AMarksDB,
-      ALocalConverterFactory,
       ABitmapFactory,
       ABitmapPostProcessing,
       AGridsConfig,
@@ -214,7 +210,6 @@ begin
       AMarksShowConfig,
       AMarksDrawConfig,
       AMarksDB,
-      ALocalConverterFactory,
       ABitmapFactory,
       ABitmapPostProcessing,
       AGridsConfig,
@@ -239,7 +234,6 @@ begin
       AMarksShowConfig,
       AMarksDrawConfig,
       AMarksDB,
-      ALocalConverterFactory,
       ABitmapFactory,
       ABitmapPostProcessing,
       AGridsConfig,
@@ -264,7 +258,6 @@ begin
       AMarksShowConfig,
       AMarksDrawConfig,
       AMarksDB,
-      ALocalConverterFactory,
       ABitmapFactory,
       ABitmapPostProcessing,
       AGridsConfig,
@@ -290,7 +283,6 @@ begin
       AMarksShowConfig,
       AMarksDrawConfig,
       AMarksDB,
-      ALocalConverterFactory,
       ABitmapFactory,
       ABitmapPostProcessing,
       AGridsConfig,
@@ -318,7 +310,6 @@ begin
       AMarksShowConfig,
       AMarksDrawConfig,
       AMarksDB,
-      ALocalConverterFactory,
       ABitmapFactory,
       ABitmapPostProcessing,
       AGridsConfig,

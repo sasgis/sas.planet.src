@@ -33,7 +33,6 @@ uses
   i_GeometryProjectedProvider,
   i_RegionProcessProgressInfo,
   i_UseTilePrevZoomConfig,
-  i_LocalCoordConverterFactorySimpe,
   i_BitmapPostProcessing,
   i_Bitmap32BufferFactory,
   i_UsedMarksConfig,
@@ -69,7 +68,6 @@ type
       const AMarksShowConfig: IUsedMarksConfig;
       const AMarksDrawConfig: IMarksDrawConfig;
       const AMarksDB: IMarkSystem;
-      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const ABitmapFactory: IBitmap32StaticFactory;
       const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
       const AGridsConfig: IMapLayerGridsConfig;
@@ -108,7 +106,6 @@ constructor TProviderMapCombineJP2.Create(
   const AMarksShowConfig: IUsedMarksConfig;
   const AMarksDrawConfig: IMarksDrawConfig;
   const AMarksDB: IMarkSystem;
-  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
   const AGridsConfig: IMapLayerGridsConfig;
@@ -140,7 +137,6 @@ begin
     AMarksShowConfig,
     AMarksDrawConfig,
     AMarksDB,
-    ALocalConverterFactory,
     ABitmapFactory,
     ABitmapPostProcessing,
     AGridsConfig,
@@ -160,7 +156,6 @@ var
   VSplitCount: TPoint;
   VProjection: IProjectionInfo;
   VProjectedPolygon: IGeometryProjectedPolygon;
-  VTargetConverter: ILocalCoordConverter;
   VImageProvider: IBitmapLayerProvider;
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VBGColor: TColor32;
@@ -169,7 +164,6 @@ var
 begin
   VProjection := PrepareProjection;
   VProjectedPolygon := PreparePolygon(VProjection, APolygon);
-  VTargetConverter := PrepareTargetConverter(VProjection, VProjectedPolygon.Bounds);
   VImageProvider := PrepareImageProvider(APolygon, VProjection, VProjectedPolygon);
   VMapCalibrations := (ParamsFrame as IRegionProcessParamsFrameMapCalibrationList).MapCalibrationList;
   VFileName := PrepareTargetFileName;
@@ -187,9 +181,9 @@ begin
     TThreadMapCombineECW.Create(
       VProgressInfo,
       APolygon,
-      VTargetConverter,
+      VProjection,
+      PrepareTargetRect(VProjection, VProjectedPolygon),
       VImageProvider,
-      LocalConverterFactory,
       VMapCalibrations,
       VFileName,
       VSplitCount,

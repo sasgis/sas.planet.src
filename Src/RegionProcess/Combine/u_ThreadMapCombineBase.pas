@@ -26,21 +26,20 @@ uses
   Classes,
   Types,
   i_NotifierOperation,
+  i_ProjectionInfo,
   i_BitmapLayerProvider,
   i_RegionProcessProgressInfo,
   i_GeometryLonLat,
   i_CoordConverter,
   i_MapCalibration,
-  i_LocalCoordConverter,
-  i_LocalCoordConverterFactorySimpe,
   u_ThreadRegionProcessAbstract;
 
 type
   TThreadMapCombineBase = class(TThreadRegionProcessAbstract)
   private
-    FTargetConverter: ILocalCoordConverter;
     FImageProvider: IBitmapLayerProvider;
-    FConverterFactory: ILocalCoordConverterFactorySimpe;
+    FProjection: IProjectionInfo;
+    FMapRect: TRect;
     FMapCalibrationList: IMapCalibrationList;
     FSplitCount: TPoint;
     FFileName: string;
@@ -53,8 +52,8 @@ type
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
       const AImageProvider: IBitmapLayerProvider;
-      const ALocalConverter: ILocalCoordConverter;
-      const AConverterFactory: ILocalCoordConverterFactorySimpe
+      const AProjection: IProjectionInfo;
+      const AMapRect: TRect
     ); virtual; abstract;
 
     procedure ProcessRegion; override;
@@ -62,9 +61,9 @@ type
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: IGeometryLonLatPolygon;
-      const ATargetConverter: ILocalCoordConverter;
+      const AProjection: IProjectionInfo;
+      const AMapRect: TRect;
       const AImageProvider: IBitmapLayerProvider;
-      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AMapCalibrationList: IMapCalibrationList;
       const AFileName: string;
       const ASplitCount: TPoint;
@@ -76,6 +75,7 @@ implementation
 
 uses
   SysUtils,
+  u_GeoFunc,
   u_ResStrings;
 
 { TMapCombineThreadBase }
@@ -83,9 +83,9 @@ uses
 constructor TThreadMapCombineBase.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: IGeometryLonLatPolygon;
-  const ATargetConverter: ILocalCoordConverter;
+  const AProjection: IProjectionInfo;
+  const AMapRect: TRect;
   const AImageProvider: IBitmapLayerProvider;
-  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AMapCalibrationList: IMapCalibrationList;
   const AFileName: string;
   const ASplitCount: TPoint;
@@ -97,14 +97,14 @@ begin
     APolygon,
     ADebugThreadName
   );
-  FTargetConverter := ATargetConverter;
+  FProjection := AProjection;
+  FMapRect := AMapRect;
   FImageProvider := AImageProvider;
   FSplitCount := ASplitCount;
   FFilePath := ExtractFilePath(AFileName);
   FFileExt := ExtractFileExt(AFileName);
   FFileName := ChangeFileExt(ExtractFileName(AFileName), '');
   FMapCalibrationList := AMapCalibrationList;
-  FConverterFactory := ALocalConverterFactory;
 end;
 
 procedure TThreadMapCombineBase.ProgressFormUpdateOnProgress(AProgress: Double);
@@ -119,7 +119,6 @@ var
   i, j, pti: integer;
   VProcessTiles: Int64;
   VTileRect: TRect;
-  VCurrentPieceConverter: ILocalCoordConverter;
   VMapRect: TRect;
   VMapSize: TPoint;
   VCurrentPieceRect: TRect;
@@ -129,12 +128,12 @@ var
   VStr: string;
 begin
   inherited;
-  VMapSize := FTargetConverter.GetLocalRectSize;
-  VMapRect := FTargetConverter.GetRectInMapPixel;
+  VMapRect := FMapRect;
+  VMapSize := RectSize(VMapRect);
   VTileRect :=
-    FTargetConverter.GeoConverter.PixelRect2TileRect(
+    FProjection.GeoConverter.PixelRect2TileRect(
       VMapRect,
-      FTargetConverter.Zoom
+      FProjection.Zoom
     );
   VSizeInTile.X := VTileRect.Right - VTileRect.Left;
   VSizeInTile.Y := VTileRect.Bottom - VTileRect.Top;
@@ -164,13 +163,6 @@ begin
       VCurrentPieceRect.Top := VMapRect.Top + VMapPieceSize.Y * (j - 1);
       VCurrentPieceRect.Bottom := VMapRect.Top + VMapPieceSize.Y * j;
 
-      VCurrentPieceConverter :=
-        FConverterFactory.CreateConverterNoScale(
-          Rect(0, 0, VMapPieceSize.X, VMapPieceSize.Y),
-          FTargetConverter.Zoom,
-          FTargetConverter.GeoConverter,
-          VCurrentPieceRect.TopLeft
-        );
       if (FSplitCount.X > 1) or (FSplitCount.Y > 1) then begin
         VCurrentFileName := FFilePath + FFileName + '_' + inttostr(i) + '-' + inttostr(j) + FFileExt;
       end else begin
@@ -184,8 +176,8 @@ begin
               VCurrentFileName,
               VCurrentPieceRect.TopLeft,
               VCurrentPieceRect.BottomRight,
-              FTargetConverter.Zoom,
-              FTargetConverter.GeoConverter
+              FProjection.Zoom,
+              FProjection.GeoConverter
             );
           except
             //TODO: ƒобавить сюда нормальную обработку ошибок.
@@ -198,8 +190,8 @@ begin
           CancelNotifier,
           VCurrentFileName,
           FImageProvider,
-          VCurrentPieceConverter,
-          FConverterFactory
+          FProjection,
+          VCurrentPieceRect
         );
       except
         on E: Exception do begin

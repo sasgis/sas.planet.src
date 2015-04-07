@@ -30,8 +30,7 @@ uses
   i_NotifierOperation,
   i_BitmapLayerProvider,
   i_RegionProcessProgressInfo,
-  i_LocalCoordConverter,
-  i_LocalCoordConverterFactorySimpe,
+  i_ProjectionInfo,
   i_GeometryLonLat,
   i_MapCalibration,
   u_ThreadMapCombineBase,
@@ -47,16 +46,16 @@ type
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
       const AImageProvider: IBitmapLayerProvider;
-      const ALocalConverter: ILocalCoordConverter;
-      const AConverterFactory: ILocalCoordConverterFactorySimpe
+      const AProjection: IProjectionInfo;
+      const AMapRect: TRect
     ); override;
   public
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: IGeometryLonLatPolygon;
-      const ATargetConverter: ILocalCoordConverter;
+      const AProjection: IProjectionInfo;
+      const AMapRect: TRect;
       const AImageProvider: IBitmapLayerProvider;
-      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AMapCalibrationList: IMapCalibrationList;
       const AFileName: string;
       const ASplitCount: TPoint;
@@ -70,14 +69,15 @@ uses
   gnugettext,
   i_ImageLineProvider,
   u_ImageLineProvider,
+  u_GeoFunc,
   u_ResStrings;
 
 constructor TThreadMapCombineBMP.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: IGeometryLonLatPolygon;
-  const ATargetConverter: ILocalCoordConverter;
+  const AProjection: IProjectionInfo;
+  const AMapRect: TRect;
   const AImageProvider: IBitmapLayerProvider;
-  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AMapCalibrationList: IMapCalibrationList;
   const AFileName: string;
   const ASplitCount: TPoint;
@@ -87,9 +87,9 @@ begin
   inherited Create(
     AProgressInfo,
     APolygon,
-    ATargetConverter,
+    AProjection,
+    AMapRect,
     AImageProvider,
-    ALocalConverterFactory,
     AMapCalibrationList,
     AFileName,
     ASplitCount,
@@ -103,8 +103,8 @@ procedure TThreadMapCombineBMP.SaveRect(
   const ACancelNotifier: INotifierOperation;
   const AFileName: string;
   const AImageProvider: IBitmapLayerProvider;
-  const ALocalConverter: ILocalCoordConverter;
-  const AConverterFactory: ILocalCoordConverterFactorySimpe
+  const AProjection: IProjectionInfo;
+  const AMapRect: TRect
 );
 const
   BMP_MAX_WIDTH = 32768;
@@ -116,7 +116,7 @@ var
   VSize: TPoint;
   VLineProvider: IImageLineProvider;
 begin
-  VSize := ALocalConverter.GetLocalRectSize;
+  VSize := RectSize(AMapRect);
 
   if (VSize.X >= BMP_MAX_WIDTH) or (VSize.Y >= BMP_MAX_HEIGHT) then begin
     raise Exception.CreateFmt(SAS_ERR_ImageIsTooBig, ['BMP', VSize.X, BMP_MAX_WIDTH, VSize.Y, BMP_MAX_HEIGHT, 'BMP']);
@@ -127,8 +127,8 @@ begin
     VLineProvider :=
       TImageLineProviderBGR.Create(
         AImageProvider,
-        ALocalConverter,
-        AConverterFactory,
+        AProjection,
+        AMapRect,
         FBgColor
       );
     for i := 0 to VSize.Y - 1 do begin

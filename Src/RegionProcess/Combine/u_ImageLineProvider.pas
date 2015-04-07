@@ -28,8 +28,7 @@ uses
   i_NotifierOperation,
   i_Bitmap32Static,
   i_CoordConverter,
-  i_LocalCoordConverter,
-  i_LocalCoordConverterFactorySimpe,
+  i_ProjectionInfo,
   i_ImageLineProvider,
   i_BitmapLayerProvider,
   u_BaseInterfacedObject;
@@ -37,29 +36,31 @@ uses
 type
   TImageLineProviderAbstract = class(TBaseInterfacedObject, IImageLineProvider)
   private
+    FProjection: IProjectionInfo;
+    FMapRect: TRect;
     FImageProvider: IBitmapLayerProvider;
-    FConverterFactory: ILocalCoordConverterFactorySimpe;
-    FLocalConverter: ILocalCoordConverter;
     FBytesPerPixel: Integer;
     FBgColor: TColor32;
 
     FZoom: byte;
     FMainGeoConverter: ICoordConverter;
-    FPreparedData: array of Pointer;
-    FPreparedConverter: ILocalCoordConverter;
 
-    function PrepareConverterForLocalLine(ALine: Integer): ILocalCoordConverter;
+    FPreparedTileRect: TRect;
+    FPreparedMapRect: TRect;
+    FPreparedData: array of Pointer;
+
     function GetLocalLine(ALine: Integer): Pointer;
     procedure AddTile(
-      const ATargetBitmap: IBitmap32Static;
-      const AConverter: ILocalCoordConverter
+      const ABitmap: IBitmap32Static;
+      const ATile: TPoint
     );
     procedure PrepareBufferMem(ARect: TRect);
     procedure ClearBuffer;
+    function GetMapRectForLine(ALine: Integer): TRect;
     procedure PrepareBufferData(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AConverter: ILocalCoordConverter
+      const AMapRect: TRect
     );
   protected
     procedure PreparePixleLine(
@@ -78,8 +79,8 @@ type
   public
     constructor Create(
       const AImageProvider: IBitmapLayerProvider;
-      const ALocalConverter: ILocalCoordConverter;
-      const AConverterFactory: ILocalCoordConverterFactorySimpe;
+      const AProjection: IProjectionInfo;
+      const AMapRect: TRect;
       ABgColor: TColor32;
       ABytesPerPixel: Integer
     );
@@ -90,8 +91,8 @@ type
   public
     constructor Create(
       const AImageProvider: IBitmapLayerProvider;
-      const ALocalConverter: ILocalCoordConverter;
-      const AConverterFactory: ILocalCoordConverterFactorySimpe;
+      const AProjection: IProjectionInfo;
+      const AMapRect: TRect;
       ABgColor: TColor32
     );
   end;
@@ -100,8 +101,8 @@ type
   public
     constructor Create(
       const AImageProvider: IBitmapLayerProvider;
-      const ALocalConverter: ILocalCoordConverter;
-      const AConverterFactory: ILocalCoordConverterFactorySimpe;
+      const AProjection: IProjectionInfo;
+      const AMapRect: TRect;
       ABgColor: TColor32
     );
   end;
@@ -146,27 +147,30 @@ implementation
 
 uses
   t_GeoTypes,
+  u_GeoFunc,
   u_TileIteratorByRect;
 
 { TImageLineProviderAbstract }
 
 constructor TImageLineProviderAbstract.Create(
   const AImageProvider: IBitmapLayerProvider;
-  const ALocalConverter: ILocalCoordConverter;
-  const AConverterFactory: ILocalCoordConverterFactorySimpe;
+  const AProjection: IProjectionInfo;
+  const AMapRect: TRect;
   ABgColor: TColor32;
   ABytesPerPixel: Integer
 );
 begin
+  Assert(Assigned(AImageProvider));
+  Assert(Assigned(AProjection));
   inherited Create;
   FImageProvider := AImageProvider;
-  FLocalConverter := ALocalConverter;
-  FConverterFactory := AConverterFactory;
+  FProjection := AProjection;
+  FMapRect := AMapRect;
   FBgColor := ABgColor;
   FBytesPerPixel := ABytesPerPixel;
 
-  FZoom := FLocalConverter.Zoom;
-  FMainGeoConverter := FLocalConverter.GeoConverter;
+  FZoom := FProjection.Zoom;
+  FMainGeoConverter := FProjection.GeoConverter;
 end;
 
 destructor TImageLineProviderAbstract.Destroy;
@@ -176,42 +180,36 @@ begin
 end;
 
 procedure TImageLineProviderAbstract.AddTile(
-  const ATargetBitmap: IBitmap32Static;
-  const AConverter: ILocalCoordConverter
+  const ABitmap: IBitmap32Static;
+  const ATile: TPoint
 );
 var
   i: Integer;
-  VBitmapRect: TRect;
-  VPreparedMapRect: TRect;
-  VIntersectionAtPrepared: TRect;
-  VIntersectionAtBitmap: TRect;
+  VTileMapRect: TRect;
+  VTileSize: TPoint;
+  VCopyRectSize: TPoint;
+  VCopyMapRect: TRect;
+  VCopyRectAtSource: TRect;
+  VCopyRectAtTarget: TRect;
   VSourceLine: PColor32;
 begin
-  VBitmapRect := AConverter.GetRectInMapPixel;
-  VPreparedMapRect := FPreparedConverter.GetRectInMapPixel;
-  Assert(VBitmapRect.Top = VPreparedMapRect.Top);
-  Assert(VBitmapRect.Bottom = VPreparedMapRect.Bottom);
-  Assert(VBitmapRect.Right > VPreparedMapRect.Left);
-  Assert(VBitmapRect.Left < VPreparedMapRect.Right);
+  Assert(Assigned(ABitmap));
+  Assert(PtInRect(FPreparedTileRect, ATile));
+  VTileMapRect := FMainGeoConverter.TilePos2PixelRect(ATile, FZoom);
+  VTileSize := ABitmap.Size;
+  Assert(IsPointsEqual(VTileSize, RectSize(VTileMapRect)));
+  IntersectRect(VCopyMapRect, VTileMapRect, FPreparedMapRect);
 
-  if VBitmapRect.Left < VPreparedMapRect.Left then begin
-    VBitmapRect.Left := VPreparedMapRect.Left;
-  end;
-  if VBitmapRect.Right > VPreparedMapRect.Right then begin
-    VBitmapRect.Right := VPreparedMapRect.Right;
-  end;
-  VIntersectionAtPrepared := FPreparedConverter.MapRect2LocalRect(VBitmapRect, rrToTopLeft);
-  VIntersectionAtBitmap := AConverter.MapRect2LocalRect(VBitmapRect, rrToTopLeft);
-  for i := 0 to (VBitmapRect.Bottom - VBitmapRect.Top - 1) do begin
-    if ATargetBitmap <> nil then begin
-      VSourceLine := @ATargetBitmap.Data[VIntersectionAtBitmap.Left + i * ATargetBitmap.Size.X];
-    end else begin
-      VSourceLine := nil;
-    end;
+  VCopyRectSize := RectSize(VCopyMapRect);
+  VCopyRectAtTarget := RectMove(VCopyMapRect, FPreparedMapRect.TopLeft);
+  VCopyRectAtSource := RectMove(VCopyMapRect, VTileMapRect.TopLeft);
+
+  for i := 0 to VCopyRectSize.Y - 1 do begin
+    VSourceLine := @ABitmap.Data[VCopyRectAtSource.Left + (i + VCopyRectAtSource.Top) * VTileSize.X];
     PreparePixleLine(
       VSourceLine,
-      Pointer(Cardinal(FPreparedData[i]) + Cardinal(VIntersectionAtPrepared.Left * FBytesPerPixel)),
-      VBitmapRect.Right - VBitmapRect.Left
+      Pointer(Cardinal(FPreparedData[i + VCopyRectAtTarget.Top]) + Cardinal(VCopyRectAtTarget.Left * FBytesPerPixel)),
+      VCopyRectSize.X
     );
   end;
 end;
@@ -236,7 +234,7 @@ end;
 
 function TImageLineProviderAbstract.GetImageSize: TPoint;
 begin
-  Result := FLocalConverter.GetLocalRectSize;
+  Result := RectSize(FMapRect);
 end;
 
 function TImageLineProviderAbstract.GetLine(
@@ -244,53 +242,49 @@ function TImageLineProviderAbstract.GetLine(
   const ACancelNotifier: INotifierOperation;
   ALine: Integer
 ): Pointer;
-var
-  VRect: TRect;
 begin
-  if (FPreparedConverter <> nil) then begin
-    VRect := FPreparedConverter.GetLocalRect;
-    if (ALine < VRect.Top) or (ALine >= VRect.Bottom) then begin
-      FPreparedConverter := nil;
+  if  not IsRectEmpty(FPreparedMapRect) then begin
+    if (ALine < FPreparedMapRect.Top) or (ALine >= FPreparedMapRect.Bottom) then begin
+      FPreparedMapRect := Rect(0, 0, 0, 0);
     end;
   end;
 
-  if FPreparedConverter = nil then begin
-    FPreparedConverter := PrepareConverterForLocalLine(ALine);
-    PrepareBufferData(AOperationID, ACancelNotifier, FPreparedConverter);
+  if IsRectEmpty(FPreparedMapRect) then begin
+    FPreparedMapRect := GetMapRectForLine(ALine);
+    PrepareBufferData(AOperationID, ACancelNotifier, FPreparedMapRect);
   end;
   Result := GetLocalLine(ALine);
 end;
 
 function TImageLineProviderAbstract.GetLocalLine(ALine: Integer): Pointer;
 var
-  VPreparedLocalRect: TRect;
+  VMapLine: Integer;
 begin
-  VPreparedLocalRect := FPreparedConverter.GetLocalRect;
-  Assert(ALine >= VPreparedLocalRect.Top);
-  Assert(ALine < VPreparedLocalRect.Bottom);
-  Result := FPreparedData[ALine - VPreparedLocalRect.Top];
+  Assert(ALine > 0);
+  VMapLine := FMapRect.Top + ALine;
+  Assert(VMapLine < FMapRect.Bottom);
+  Assert(VMapLine >= FPreparedMapRect.Top);
+  Assert(VMapLine < FPreparedMapRect.Bottom);
+  Result := FPreparedData[VMapLine - FPreparedMapRect.Top];
 end;
 
 procedure TImageLineProviderAbstract.PrepareBufferData(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const AConverter: ILocalCoordConverter
+  const AMapRect: TRect
 );
 var
   VTile: TPoint;
   VIterator: TTileIteratorByRectRecord;
-  VTileConverter: ILocalCoordConverter;
-  VRectOfTile: TRect;
 begin
-  PrepareBufferMem(AConverter.GetLocalRect);
-  VRectOfTile := FMainGeoConverter.PixelRect2TileRect(AConverter.GetRectInMapPixel, FZoom);
-  VIterator.Init(VRectOfTile);
+  PrepareBufferMem(AMapRect);
+  FPreparedTileRect := FMainGeoConverter.PixelRect2TileRect(AMapRect, FZoom);
+  VIterator.Init(FPreparedTileRect);
   while VIterator.Next(VTile) do begin
-      VTileConverter := FConverterFactory.CreateForTile(VTile, FZoom, FMainGeoConverter);
-      AddTile(
-        FImageProvider.GetBitmapRect(AOperationID, ACancelNotifier, VTileConverter),
-        VTileConverter
-      );
+    AddTile(
+      FImageProvider.GetTile(AOperationID, ACancelNotifier, FProjection, VTile),
+      VTile
+    );
   end;
 end;
 
@@ -312,57 +306,33 @@ begin
   end;
 end;
 
-function TImageLineProviderAbstract.PrepareConverterForLocalLine(
-  ALine: Integer): ILocalCoordConverter;
+function TImageLineProviderAbstract.GetMapRectForLine(ALine: Integer): TRect;
 var
-  VPixel: TPoint;
-  VTile: TPoint;
-  VPreparedMapRect: TRect;
-  VCurrentPieceRect: TRect;
-  VCurrentPieceMapRect: TRect;
-  VPreparedLocalRect: TRect;
+  VMapLine: Integer;
+  VTilePos: TPoint;
   VPixelRect: TRect;
 begin
-  VCurrentPieceRect := FLocalConverter.GetLocalRect;
-  VPixel :=
-    FLocalConverter.LocalPixel2MapPixel(
-      Types.Point(VCurrentPieceRect.Left, ALine),
-      prToTopLeft
-    );
-  VTile := FMainGeoConverter.PixelPos2TilePos(VPixel, FZoom, prToTopLeft);
-  VPixelRect := FMainGeoConverter.TilePos2PixelRect(VTile, FZoom);
-  VCurrentPieceMapRect := FLocalConverter.GetRectInMapPixel;
-  VPreparedMapRect :=
-    Rect(
-      VCurrentPieceMapRect.Left,
-      VPixelRect.Top,
-      VCurrentPieceMapRect.Right,
-      VPixelRect.Bottom
-    );
-
-  VPreparedLocalRect := FLocalConverter.MapRect2LocalRect(VPreparedMapRect, rrToTopLeft);
-  Result :=
-    FConverterFactory.CreateConverterNoScale(
-      VPreparedLocalRect,
-      FZoom,
-      FMainGeoConverter,
-      VCurrentPieceMapRect.TopLeft
-    );
+  Assert(ALine > 0);
+  VMapLine := FMapRect.Top + ALine;
+  Assert(VMapLine < FMapRect.Bottom);
+  VTilePos := FMainGeoConverter.PixelPos2TilePos(Point(FMapRect.Left, VMapLine), FZoom, prToTopLeft);
+  VPixelRect := FMainGeoConverter.TilePos2PixelRect(VTilePos, FZoom);
+  Result := Rect(FMapRect.Left, VPixelRect.Top, FMapRect.Right, VPixelRect.Bottom);
 end;
 
 { TImageLineProviderNoAlfa }
 
 constructor TImageLineProviderNoAlfa.Create(
   const AImageProvider: IBitmapLayerProvider;
-  const ALocalConverter: ILocalCoordConverter;
-  const AConverterFactory: ILocalCoordConverterFactorySimpe;
+  const AProjection: IProjectionInfo;
+  const AMapRect: TRect;
   ABgColor: TColor32
 );
 begin
   inherited Create(
     AImageProvider,
-    ALocalConverter,
-    AConverterFactory,
+    AProjection,
+    AMapRect,
     ABgColor,
     3
   );
@@ -372,15 +342,15 @@ end;
 
 constructor TImageLineProviderWithAlfa.Create(
   const AImageProvider: IBitmapLayerProvider;
-  const ALocalConverter: ILocalCoordConverter;
-  const AConverterFactory: ILocalCoordConverterFactorySimpe;
+  const AProjection: IProjectionInfo;
+  const AMapRect: TRect;
   ABgColor: TColor32
 );
 begin
   inherited Create(
     AImageProvider,
-    ALocalConverter,
-    AConverterFactory,
+    AProjection,
+    AMapRect,
     ABgColor,
     4
   );

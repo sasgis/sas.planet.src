@@ -75,7 +75,6 @@ type
       const AMarksShowConfig: IUsedMarksConfig;
       const AMarksDrawConfig: IMarksDrawConfig;
       const AMarksDB: IMarkSystem;
-      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const ABitmapFactory: IBitmap32StaticFactory;
       const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
       const AGridsConfig: IMapLayerGridsConfig;
@@ -95,6 +94,7 @@ uses
   i_RegionProcessParamsFrame,
   i_ProjectionInfo,
   u_ThreadMapCombineKMZ,
+  u_GeoFunc,
   u_ResStrings,
   fr_MapCombine;
 
@@ -116,7 +116,6 @@ constructor TProviderMapCombineKMZ.Create(
   const AMarksShowConfig: IUsedMarksConfig;
   const AMarksDrawConfig: IMarksDrawConfig;
   const AMarksDB: IMarkSystem;
-  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
   const AGridsConfig: IMapLayerGridsConfig;
@@ -138,7 +137,6 @@ begin
     AMarksShowConfig,
     AMarksDrawConfig,
     AMarksDB,
-    ALocalConverterFactory,
     ABitmapFactory,
     ABitmapPostProcessing,
     AGridsConfig,
@@ -162,9 +160,9 @@ var
   VSplitCount: TPoint;
   VProjection: IProjectionInfo;
   VProjectedPolygon: IGeometryProjectedPolygon;
-  VTargetConverter: ILocalCoordConverter;
   VImageProvider: IBitmapLayerProvider;
   VProgressInfo: IRegionProcessProgressInfoInternal;
+  VMapRect: TRect;
   VMapSize: TPoint;
   VMapPieceSize: TPoint;
   VKmzImgesCount: TPoint;
@@ -172,13 +170,13 @@ var
 begin
   VProjection := PrepareProjection;
   VProjectedPolygon := PreparePolygon(VProjection, APolygon);
-  VTargetConverter := PrepareTargetConverter(VProjection, VProjectedPolygon.Bounds);
   VImageProvider := PrepareImageProvider(APolygon, VProjection, VProjectedPolygon);
   VMapCalibrations := (ParamsFrame as IRegionProcessParamsFrameMapCalibrationList).MapCalibrationList;
   VFileName := PrepareTargetFileName;
   VSplitCount := (ParamsFrame as IRegionProcessParamsFrameMapCombine).SplitCount;
 
-  VMapSize := VTargetConverter.GetLocalRectSize;
+  VMapRect := PrepareTargetRect(VProjection, VProjectedPolygon);
+  VMapSize := RectSize(VMapRect);
   VMapPieceSize.X := VMapSize.X div VSplitCount.X;
   VMapPieceSize.Y := VMapSize.Y div VSplitCount.Y;
   VKmzImgesCount.X := ((VMapPieceSize.X - 1) div 1024) + 1;
@@ -192,9 +190,9 @@ begin
     TThreadMapCombineKMZ.Create(
       VProgressInfo,
       APolygon,
-      VTargetConverter,
+      VProjection,
+      VMapRect,
       VImageProvider,
-      LocalConverterFactory,
       FBitmapFactory,
       VMapCalibrations,
       VFileName,
