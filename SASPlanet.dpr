@@ -315,6 +315,8 @@ uses
   u_BitmapTileProviderByMatrix in 'Src\TileProvider\u_BitmapTileProviderByMatrix.pas',
   u_BitmapTileProviderByOtherProjection in 'Src\TileProvider\u_BitmapTileProviderByOtherProjection.pas',
   u_BitmapTileProviderByBitmapTileUniProvider in 'Src\TileProvider\u_BitmapTileProviderByBitmapTileUniProvider.pas',
+  u_BitmapTileProviderWithBGColor in 'Src\TileProvider\u_BitmapTileProviderWithBGColor.pas',
+  u_BitmapTileProviderInPolygon in 'Src\TileProvider\u_BitmapTileProviderInPolygon.pas',
   i_VectorTileRenderer in 'Src\TileProvider\i_VectorTileRenderer.pas',
   i_VectorTileRendererChangeable in 'Src\TileProvider\i_VectorTileRendererChangeable.pas',
   u_VectorTileRenderer in 'Src\TileProvider\u_VectorTileRenderer.pas',
