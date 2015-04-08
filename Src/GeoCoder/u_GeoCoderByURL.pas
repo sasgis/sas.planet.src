@@ -199,7 +199,7 @@ begin
   if ALPosEx('binged.it', VLink, 1) > 0 then begin
     VSName := 'bing';
     VLink := ALStringReplace(AhttpData, '%2c', ',', [rfReplaceAll]);
-    if RegExprGetMatchSubStr(VLink, 'bing\.com\..+cp=[0-9]+', 0) <> '' then begin
+    if RegExprGetMatchSubStr(VLink, 'bing\.com.+cp=[0-9]+', 0) <> '' then begin
       I := ALPosEx('cp=', VLink, 1);
       J := ALPosEx('~', VLink, I);
       VSLat := Copy(VLink, I + 3, J - (I + 3));
@@ -443,13 +443,16 @@ begin
 
   // http://maps.yandex.ru/?ll=44.514541%2C48.708958&spn=0.322723%2C0.181775&z=12&l=map
   // http://harita.yandex.com.tr/?ll=29.086777%2C41.000749&spn=0.005043%2C0.003328&z=18&l=sat%2Ctrf&trfm=cur
-  if RegExprGetMatchSubStr(VLink, '\.yandex\..+/\?ll=[0-9]+', 0) <> '' then begin
+  // https://n.maps.yandex.ru/#!/?z=15&ll=37.438471%2C55.816492
+  // https://n.maps.yandex.ru/?ll=37.43843%2C55.817359&spn=0.037723%2C0.017035&z=15&l=wmap&oid=105810
+  if RegExprGetMatchSubStr(VLink, '\.yandex\..+ll=[0-9]+', 0) <> '' then begin
     VSName := 'Yandex';
     I := ALPosEx('ll', VLink, 1);
     J := ALPosEx(',', VLink, I);
     VSLon := Copy(VLink, I + 3, J - (I + 3));
     I := J;
     J := ALPosEx('&', VLink, I);
+    if J = 0 then J := Length(VLink);
     VSLat := Copy(VLink, I + 1, J - (I + 1));
   end;
 
@@ -733,6 +736,7 @@ end;
 // http://maps.2gis.ru/#/?history=project/krasnodar/center/38.993668%2C45.197055/zoom/17/state/index/sort/relevance
 // http://harita.yandex.com.tr/?ll=29.086777%2C41.000749&spn=0.005043%2C0.003328&z=18&l=sat%2Ctrf&trfm=cur
 // http://osm.org.ru/#layer=M&zoom=3&lat=61.98&lon=88
+// https://n.maps.yandex.ru/#!/?z=15&ll=37.438471%2C55.816492
 
 // тайловые ссылки
 // http://a.tile.openstreetmap.org/15/19928/11707.png
