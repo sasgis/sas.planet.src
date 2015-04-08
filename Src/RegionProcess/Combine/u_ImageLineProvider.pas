@@ -260,7 +260,7 @@ function TImageLineProviderAbstract.GetLocalLine(ALine: Integer): Pointer;
 var
   VMapLine: Integer;
 begin
-  Assert(ALine > 0);
+  Assert(ALine >= 0);
   VMapLine := FMapRect.Top + ALine;
   Assert(VMapLine < FMapRect.Bottom);
   Assert(VMapLine >= FPreparedMapRect.Top);
@@ -312,7 +312,7 @@ var
   VTilePos: TPoint;
   VPixelRect: TRect;
 begin
-  Assert(ALine > 0);
+  Assert(ALine >= 0);
   VMapLine := FMapRect.Top + ALine;
   Assert(VMapLine < FMapRect.Bottom);
   VTilePos := FMainGeoConverter.PixelPos2TilePos(Point(FMapRect.Left, VMapLine), FZoom, prToTopLeft);
