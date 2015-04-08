@@ -37,6 +37,7 @@ type
   private
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FSourceProvider: IBitmapTileProvider;
+    FEmptyTile: IBitmap32Static;
     FBackGroundColor: TColor32;
   private
     function GetProjectionInfo: IProjectionInfo;
@@ -58,6 +59,7 @@ implementation
 uses
   GR32,
   u_BitmapFunc,
+  u_GeoFunc,
   u_Bitmap32ByStaticBitmap;
 
 { TBitmapTileProviderWithBGColor }
@@ -67,6 +69,9 @@ constructor TBitmapTileProviderWithBGColor.Create(
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ASourceProvider: IBitmapTileProvider
 );
+var
+  VTileSize: TPoint;
+  VTargetBmp: TBitmap32ByStaticBitmap;
 begin
   Assert(Assigned(ASourceProvider));
   Assert(Assigned(ABitmap32StaticFactory));
@@ -74,6 +79,17 @@ begin
   FSourceProvider := ASourceProvider;
   FBackGroundColor := ABackGroundColor;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
+
+  VTileSize := ASourceProvider.ProjectionInfo.GeoConverter.GetTileSize(Point(0, 0), ASourceProvider.ProjectionInfo.Zoom);
+  VTargetBmp := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
+  try
+    VTargetBmp.SetSize(VTileSize.X, VTileSize.Y);
+    VTargetBmp.Clear(FBackGroundColor);
+    FEmptyTile := VTargetBmp.MakeAndClear;
+  finally
+    VTargetBmp.Free;
+  end;
+
   Assert(FSourceProvider <> nil);
 end;
 
@@ -88,7 +104,6 @@ function TBitmapTileProviderWithBGColor.GetTile(
   const ATile: TPoint
 ): IBitmap32Static;
 var
-  VPixelRect: TRect;
   VTileSize: TPoint;
   VTargetBmp: TBitmap32ByStaticBitmap;
 begin
@@ -101,8 +116,7 @@ begin
   if Result <> nil then begin
     VTargetBmp := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
     try
-      VPixelRect :=  FSourceProvider.ProjectionInfo.GeoConverter.TilePos2PixelRect(ATile, FSourceProvider.ProjectionInfo.Zoom);
-      VTileSize := Point(VPixelRect.Right - VPixelRect.Left, VPixelRect.Bottom - VPixelRect.Top);
+      VTileSize :=  FSourceProvider.ProjectionInfo.GeoConverter.GetTileSize(ATile, FSourceProvider.ProjectionInfo.Zoom);
       VTargetBmp.SetSize(VTileSize.X, VTileSize.Y);
       VTargetBmp.Clear(FBackGroundColor);
       BlockTransferFull(
@@ -115,6 +129,20 @@ begin
       Result := VTargetBmp.MakeAndClear;
     finally
       VTargetBmp.Free;
+    end;
+  end else begin
+    VTileSize :=  FSourceProvider.ProjectionInfo.GeoConverter.GetTileSize(ATile, FSourceProvider.ProjectionInfo.Zoom);
+    if IsPointsEqual(VTileSize, FEmptyTile.Size) then begin
+      Result := FEmptyTile;
+    end else begin
+      VTargetBmp := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
+      try
+        VTargetBmp.SetSize(VTileSize.X, VTileSize.Y);
+        VTargetBmp.Clear(FBackGroundColor);
+        Result := VTargetBmp.MakeAndClear;
+      finally
+        VTargetBmp.Free;
+      end;
     end;
   end;
 end;
