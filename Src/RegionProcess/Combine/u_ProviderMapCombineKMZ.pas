@@ -26,7 +26,7 @@ uses
   i_LanguageManager,
   i_CoordConverterFactory,
   i_CoordConverterList,
-  i_BitmapLayerProvider,
+  i_BitmapTileProvider,
   i_GeometryProjected,
   i_GeometryLonLat,
   i_RegionProcessProgressInfo,
@@ -158,7 +158,7 @@ var
   VSplitCount: TPoint;
   VProjection: IProjectionInfo;
   VProjectedPolygon: IGeometryProjectedPolygon;
-  VImageProvider: IBitmapTileUniProvider;
+  VImageProvider: IBitmapTileProvider;
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VMapRect: TRect;
   VMapSize: TPoint;
@@ -188,7 +188,6 @@ begin
     TThreadMapCombineKMZ.Create(
       VProgressInfo,
       APolygon,
-      VProjection,
       VMapRect,
       VImageProvider,
       FBitmapFactory,

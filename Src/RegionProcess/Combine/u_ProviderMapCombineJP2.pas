@@ -26,7 +26,7 @@ uses
   i_LanguageManager,
   i_CoordConverterFactory,
   i_CoordConverterList,
-  i_BitmapLayerProvider,
+  i_BitmapTileProvider,
   i_GeometryProjected,
   i_GeometryLonLat,
   i_GeometryProjectedProvider,
@@ -155,7 +155,7 @@ var
   VSplitCount: TPoint;
   VProjection: IProjectionInfo;
   VProjectedPolygon: IGeometryProjectedPolygon;
-  VImageProvider: IBitmapTileUniProvider;
+  VImageProvider: IBitmapTileProvider;
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VBGColor: TColor32;
   VThread: TThread;
@@ -180,7 +180,6 @@ begin
     TThreadMapCombineECW.Create(
       VProgressInfo,
       APolygon,
-      VProjection,
       PrepareTargetRect(VProjection, VProjectedPolygon),
       VImageProvider,
       VMapCalibrations,

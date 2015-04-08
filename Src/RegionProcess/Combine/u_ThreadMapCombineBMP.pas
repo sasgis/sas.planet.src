@@ -28,7 +28,7 @@ uses
   Types,
   t_Bitmap32,
   i_NotifierOperation,
-  i_BitmapLayerProvider,
+  i_BitmapTileProvider,
   i_RegionProcessProgressInfo,
   i_ProjectionInfo,
   i_GeometryLonLat,
@@ -45,17 +45,15 @@ type
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
-      const AImageProvider: IBitmapTileUniProvider;
-      const AProjection: IProjectionInfo;
+      const AImageProvider: IBitmapTileProvider;
       const AMapRect: TRect
     ); override;
   public
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: IGeometryLonLatPolygon;
-      const AProjection: IProjectionInfo;
       const AMapRect: TRect;
-      const AImageProvider: IBitmapTileUniProvider;
+      const AImageProvider: IBitmapTileProvider;
       const AMapCalibrationList: IMapCalibrationList;
       const AFileName: string;
       const ASplitCount: TPoint;
@@ -75,9 +73,8 @@ uses
 constructor TThreadMapCombineBMP.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: IGeometryLonLatPolygon;
-  const AProjection: IProjectionInfo;
   const AMapRect: TRect;
-  const AImageProvider: IBitmapTileUniProvider;
+  const AImageProvider: IBitmapTileProvider;
   const AMapCalibrationList: IMapCalibrationList;
   const AFileName: string;
   const ASplitCount: TPoint;
@@ -87,7 +84,6 @@ begin
   inherited Create(
     AProgressInfo,
     APolygon,
-    AProjection,
     AMapRect,
     AImageProvider,
     AMapCalibrationList,
@@ -102,8 +98,7 @@ procedure TThreadMapCombineBMP.SaveRect(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const AFileName: string;
-  const AImageProvider: IBitmapTileUniProvider;
-  const AProjection: IProjectionInfo;
+  const AImageProvider: IBitmapTileProvider;
   const AMapRect: TRect
 );
 const
@@ -127,7 +122,6 @@ begin
     VLineProvider :=
       TImageLineProviderBGR.Create(
         AImageProvider,
-        AProjection,
         AMapRect,
         FBgColor
       );

@@ -28,7 +28,7 @@ uses
   Types,
   t_Bitmap32,
   i_NotifierOperation,
-  i_BitmapLayerProvider,
+  i_BitmapTileProvider,
   i_RegionProcessProgressInfo,
   i_ProjectionInfo,
   i_GeometryLonLat,
@@ -53,17 +53,15 @@ type
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
-      const AImageProvider: IBitmapTileUniProvider;
-      const AProjection: IProjectionInfo;
+      const AImageProvider: IBitmapTileProvider;
       const AMapRect: TRect
     ); override;
   public
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: IGeometryLonLatPolygon;
-      const AProjection: IProjectionInfo;
       const AMapRect: TRect;
-      const AImageProvider: IBitmapTileUniProvider;
+      const AImageProvider: IBitmapTileProvider;
       const AMapCalibrationList: IMapCalibrationList;
       const AFileName: string;
       const ASplitCount: TPoint;
@@ -86,9 +84,8 @@ uses
 constructor TThreadMapCombineECW.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: IGeometryLonLatPolygon;
-  const AProjection: IProjectionInfo;
   const AMapRect: TRect;
-  const AImageProvider: IBitmapTileUniProvider;
+  const AImageProvider: IBitmapTileProvider;
   const AMapCalibrationList: IMapCalibrationList;
   const AFileName: string;
   const ASplitCount: TPoint;
@@ -99,7 +96,6 @@ begin
   inherited Create(
     AProgressInfo,
     APolygon,
-    AProjection,
     AMapRect,
     AImageProvider,
     AMapCalibrationList,
@@ -146,8 +142,7 @@ procedure TThreadMapCombineECW.SaveRect(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const AFileName: string;
-  const AImageProvider: IBitmapTileUniProvider;
-  const AProjection: IProjectionInfo;
+  const AImageProvider: IBitmapTileProvider;
   const AMapRect: TRect
 );
 var
@@ -157,6 +152,7 @@ var
   errecw: integer;
   VECWWriter: TECWWrite;
   VCurrentPieceRect: TRect;
+  VZoom: Byte;
   VGeoConverter: ICoordConverter;
   VMapPieceSize: TPoint;
 begin
@@ -165,11 +161,11 @@ begin
     FImageLineProvider :=
       TImageLineProviderBGR.Create(
         AImageProvider,
-        AProjection,
         AMapRect,
         FBgColor
       );
-    VGeoConverter := AProjection.GeoConverter;
+    VGeoConverter := AImageProvider.ProjectionInfo.GeoConverter;
+    VZoom := AImageProvider.ProjectionInfo.Zoom;
     VCurrentPieceRect := AMapRect;
     VMapPieceSize := RectSize(AMapRect);
     FLinesCount := VMapPieceSize.Y;
@@ -177,8 +173,8 @@ begin
     Proj := 'EPSG:' + IntToStr(VGeoConverter.GetProjectionEPSG);
     Units := GetUnitsByProjectionEPSG(VGeoConverter.ProjectionEPSG);
     CalculateWFileParams(
-      VGeoConverter.PixelPos2LonLat(VCurrentPieceRect.TopLeft, AProjection.Zoom),
-      VGeoConverter.PixelPos2LonLat(VCurrentPieceRect.BottomRight, AProjection.Zoom),
+      VGeoConverter.PixelPos2LonLat(VCurrentPieceRect.TopLeft, VZoom),
+      VGeoConverter.PixelPos2LonLat(VCurrentPieceRect.BottomRight, VZoom),
       VMapPieceSize.X, VMapPieceSize.Y, VGeoConverter,
       CellIncrementX, CellIncrementY, OriginX, OriginY
     );

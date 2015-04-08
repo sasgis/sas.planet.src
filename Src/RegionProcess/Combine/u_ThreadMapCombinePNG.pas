@@ -30,7 +30,7 @@ uses
   i_ImageLineProvider,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
-  i_BitmapLayerProvider,
+  i_BitmapTileProvider,
   i_MapCalibration,
   i_ProjectionInfo,
   i_GeometryLonLat,
@@ -57,17 +57,15 @@ type
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
-      const AImageProvider: IBitmapTileUniProvider;
-      const AProjection: IProjectionInfo;
+      const AImageProvider: IBitmapTileProvider;
       const AMapRect: TRect
     ); override;
   public
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: IGeometryLonLatPolygon;
-      const AProjection: IProjectionInfo;
       const AMapRect: TRect;
-      const AImageProvider: IBitmapTileUniProvider;
+      const AImageProvider: IBitmapTileProvider;
       const AMapCalibrationList: IMapCalibrationList;
       const AFileName: string;
       const ASplitCount: TPoint;
@@ -90,9 +88,8 @@ uses
 constructor TThreadMapCombinePNG.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: IGeometryLonLatPolygon;
-  const AProjection: IProjectionInfo;
   const AMapRect: TRect;
-  const AImageProvider: IBitmapTileUniProvider;
+  const AImageProvider: IBitmapTileProvider;
   const AMapCalibrationList: IMapCalibrationList;
   const AFileName: string;
   const ASplitCount: TPoint;
@@ -103,7 +100,6 @@ begin
   inherited Create(
     AProgressInfo,
     APolygon,
-    AProjection,
     AMapRect,
     AImageProvider,
     AMapCalibrationList,
@@ -119,8 +115,7 @@ procedure TThreadMapCombinePNG.SaveRect(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const AFileName: string;
-  const AImageProvider: IBitmapTileUniProvider;
-  const AProjection: IProjectionInfo;
+  const AImageProvider: IBitmapTileProvider;
   const AMapRect: TRect
 );
 const
@@ -137,7 +132,7 @@ begin
   FOperationID := AOperationID;
   FCancelNotifier := ACancelNotifier;
 
-  VGeoConverter := AProjection.GeoConverter;
+  VGeoConverter := AImageProvider.ProjectionInfo.GeoConverter;
   VCurrentPieceRect := AMapRect;
   VMapPieceSize := RectSize(VCurrentPieceRect);
 
@@ -156,7 +151,6 @@ begin
     FLineProvider :=
       TImageLineProviderRGBA.Create(
         AImageProvider,
-        AProjection,
         AMapRect,
         FBgColor
       );
@@ -165,7 +159,6 @@ begin
     FLineProvider :=
       TImageLineProviderRGB.Create(
         AImageProvider,
-        AProjection,
         AMapRect,
         FBgColor
       );

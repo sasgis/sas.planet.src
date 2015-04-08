@@ -31,6 +31,7 @@ uses
   i_CoordConverterFactory,
   i_CoordConverterList,
   i_BitmapLayerProvider,
+  i_BitmapTileProvider,
   i_ProjectionInfo,
   i_GeometryProjected,
   i_GeometryLonLat,
@@ -75,6 +76,7 @@ type
     FMapCalibrationList: IMapCalibrationList;
     FGridsConfig: IMapLayerGridsConfig;
     FValueToStringConverter: IValueToStringConverterChangeable;
+    function PrepareGridsProvider: IBitmapTileUniProvider;
   protected
     function PrepareTargetFileName: string;
     function PrepareTargetRect(
@@ -85,8 +87,7 @@ type
       const APolygon: IGeometryLonLatPolygon;
       const AProjection: IProjectionInfo;
       const AProjectedPolygon: IGeometryProjectedPolygon
-    ): IBitmapTileUniProvider;
-    function PrepareGridsProvider: IBitmapTileUniProvider;
+    ): IBitmapTileProvider;
     function PrepareProjection: IProjectionInfo;
     function PreparePolygon(
       const AProjection: IProjectionInfo;
@@ -144,8 +145,9 @@ uses
   u_BitmapLayerProviderGridGenshtab,
   u_BitmapLayerProviderGridDegree,
   u_BitmapLayerProviderGridTiles,
-  u_BitmapLayerProviderInPolygon,
-  u_BitmapLayerProviderWithBGColor;
+  u_BitmapTileProviderByBitmapTileUniProvider,
+  u_BitmapTileProviderInPolygon,
+  u_BitmapTileProviderWithBGColor;
 
 { TProviderMapCombineBase }
 
@@ -341,7 +343,7 @@ function TProviderMapCombineBase.PrepareImageProvider(
   const APolygon: IGeometryLonLatPolygon;
   const AProjection: IProjectionInfo;
   const AProjectedPolygon: IGeometryProjectedPolygon
-): IBitmapTileUniProvider;
+): IBitmapTileProvider;
 var
   VRect: ILonLatRect;
   VLonLatRect: TDoubleRect;
@@ -358,6 +360,7 @@ var
   VUseRecolor: Boolean;
   VMarkerProvider: IMarkerProviderForVectorItem;
   VGridsProvider: IBitmapTileUniProvider;
+  VResult: IBitmapTileUniProvider;
 begin
   VSourceProvider := (ParamsFrame as IRegionProcessParamsFrameImageProvider).Provider;
   VRect := APolygon.Bounds;
@@ -415,7 +418,7 @@ begin
   if VUseRecolor then begin
     VRecolorConfig := FBitmapPostProcessing.GetStatic;
   end;
-  Result :=
+  VResult :=
     TBitmapLayerProviderSimpleForCombine.Create(
       FBitmapFactory,
       VRecolorConfig,
@@ -428,21 +431,26 @@ begin
     VGridsProvider := PrepareGridsProvider;
   end;
   if Assigned(VGridsProvider) then begin
-    Result :=
+    VResult :=
       TBitmapLayerProviderComplex.Create(
         FBitmapFactory,
-        Result,
+        VResult,
         VGridsProvider
       );
   end;
 
   Result :=
-    TBitmapLayerProviderInPolygon.Create(
+    TBitmapTileProviderByBitmapTileUniProvider.Create(
+      AProjection,
+      VResult
+    );
+  Result :=
+    TBitmapTileProviderInPolygon.Create(
       AProjectedPolygon,
       Result
     );
   Result :=
-    TBitmapLayerProviderWithBGColor.Create(
+    TBitmapTileProviderWithBGColor.Create(
       (ParamsFrame as IRegionProcessParamsFrameMapCombine).BGColor,
       FBitmapFactory,
       Result

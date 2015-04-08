@@ -30,15 +30,14 @@ uses
   i_CoordConverter,
   i_ProjectionInfo,
   i_ImageLineProvider,
-  i_BitmapLayerProvider,
+  i_BitmapTileProvider,
   u_BaseInterfacedObject;
 
 type
   TImageLineProviderAbstract = class(TBaseInterfacedObject, IImageLineProvider)
   private
-    FProjection: IProjectionInfo;
     FMapRect: TRect;
-    FImageProvider: IBitmapTileUniProvider;
+    FImageProvider: IBitmapTileProvider;
     FBytesPerPixel: Integer;
     FBgColor: TColor32;
 
@@ -78,8 +77,7 @@ type
     ): Pointer;
   public
     constructor Create(
-      const AImageProvider: IBitmapTileUniProvider;
-      const AProjection: IProjectionInfo;
+      const AImageProvider: IBitmapTileProvider;
       const AMapRect: TRect;
       ABgColor: TColor32;
       ABytesPerPixel: Integer
@@ -90,8 +88,7 @@ type
   TImageLineProviderNoAlfa = class(TImageLineProviderAbstract)
   public
     constructor Create(
-      const AImageProvider: IBitmapTileUniProvider;
-      const AProjection: IProjectionInfo;
+      const AImageProvider: IBitmapTileProvider;
       const AMapRect: TRect;
       ABgColor: TColor32
     );
@@ -100,8 +97,7 @@ type
   TImageLineProviderWithAlfa = class(TImageLineProviderAbstract)
   public
     constructor Create(
-      const AImageProvider: IBitmapTileUniProvider;
-      const AProjection: IProjectionInfo;
+      const AImageProvider: IBitmapTileProvider;
       const AMapRect: TRect;
       ABgColor: TColor32
     );
@@ -153,24 +149,21 @@ uses
 { TImageLineProviderAbstract }
 
 constructor TImageLineProviderAbstract.Create(
-  const AImageProvider: IBitmapTileUniProvider;
-  const AProjection: IProjectionInfo;
+  const AImageProvider: IBitmapTileProvider;
   const AMapRect: TRect;
   ABgColor: TColor32;
   ABytesPerPixel: Integer
 );
 begin
   Assert(Assigned(AImageProvider));
-  Assert(Assigned(AProjection));
   inherited Create;
   FImageProvider := AImageProvider;
-  FProjection := AProjection;
   FMapRect := AMapRect;
   FBgColor := ABgColor;
   FBytesPerPixel := ABytesPerPixel;
 
-  FZoom := FProjection.Zoom;
-  FMainGeoConverter := FProjection.GeoConverter;
+  FZoom := FImageProvider.ProjectionInfo.Zoom;
+  FMainGeoConverter := FImageProvider.ProjectionInfo.GeoConverter;
 end;
 
 destructor TImageLineProviderAbstract.Destroy;
@@ -282,7 +275,7 @@ begin
   VIterator.Init(FPreparedTileRect);
   while VIterator.Next(VTile) do begin
     AddTile(
-      FImageProvider.GetTile(AOperationID, ACancelNotifier, FProjection, VTile),
+      FImageProvider.GetTile(AOperationID, ACancelNotifier, VTile),
       VTile
     );
   end;
@@ -323,15 +316,13 @@ end;
 { TImageLineProviderNoAlfa }
 
 constructor TImageLineProviderNoAlfa.Create(
-  const AImageProvider: IBitmapTileUniProvider;
-  const AProjection: IProjectionInfo;
+  const AImageProvider: IBitmapTileProvider;
   const AMapRect: TRect;
   ABgColor: TColor32
 );
 begin
   inherited Create(
     AImageProvider,
-    AProjection,
     AMapRect,
     ABgColor,
     3
@@ -341,15 +332,13 @@ end;
 { TImageLineProviderWithAlfa }
 
 constructor TImageLineProviderWithAlfa.Create(
-  const AImageProvider: IBitmapTileUniProvider;
-  const AProjection: IProjectionInfo;
+  const AImageProvider: IBitmapTileProvider;
   const AMapRect: TRect;
   ABgColor: TColor32
 );
 begin
   inherited Create(
     AImageProvider,
-    AProjection,
     AMapRect,
     ABgColor,
     4

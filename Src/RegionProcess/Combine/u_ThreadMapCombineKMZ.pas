@@ -29,7 +29,7 @@ uses
   i_ProjectionInfo,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
-  i_BitmapLayerProvider,
+  i_BitmapTileProvider,
   i_MapCalibration,
   i_GeometryLonLat,
   i_Bitmap32Static,
@@ -48,8 +48,7 @@ type
     function GetBitmapRect(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AImageProvider: IBitmapTileUniProvider;
-      const AProjection: IProjectionInfo;
+      const AImageProvider: IBitmapTileProvider;
       const AMapRect: TRect
     ): IBitmap32Static;
   protected
@@ -57,17 +56,15 @@ type
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
-      const AImageProvider: IBitmapTileUniProvider;
-      const AProjection: IProjectionInfo;
+      const AImageProvider: IBitmapTileProvider;
       const AMapRect: TRect
     ); override;
   public
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: IGeometryLonLatPolygon;
-      const AProjection: IProjectionInfo;
       const AMapRect: TRect;
-      const AImageProvider: IBitmapTileUniProvider;
+      const AImageProvider: IBitmapTileProvider;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AMapCalibrationList: IMapCalibrationList;
       const AFileName: string;
@@ -97,9 +94,8 @@ uses
 constructor TThreadMapCombineKMZ.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: IGeometryLonLatPolygon;
-  const AProjection: IProjectionInfo;
   const AMapRect: TRect;
-  const AImageProvider: IBitmapTileUniProvider;
+  const AImageProvider: IBitmapTileProvider;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AMapCalibrationList: IMapCalibrationList;
   const AFileName: string;
@@ -112,7 +108,6 @@ begin
   inherited Create(
     AProgressInfo,
     APolygon,
-    AProjection,
     AMapRect,
     AImageProvider,
     AMapCalibrationList,
@@ -129,8 +124,7 @@ end;
 function TThreadMapCombineKMZ.GetBitmapRect(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const AImageProvider: IBitmapTileUniProvider;
-  const AProjection: IProjectionInfo;
+  const AImageProvider: IBitmapTileProvider;
   const AMapRect: TRect
 ): IBitmap32Static;
 var
@@ -148,8 +142,8 @@ var
 begin
   Result := nil;
   if not IsRectEmpty(AMapRect) then begin
-    VZoom := AProjection.Zoom;
-    VGeoConverter := AProjection.GeoConverter;
+    VZoom := AImageProvider.ProjectionInfo.Zoom;
+    VGeoConverter := AImageProvider.ProjectionInfo.GeoConverter;
     VMapSize := RectSize(AMapRect);
     VTileRect := VGeoConverter.PixelRect2TileRect(AMapRect, VZoom);
 
@@ -161,7 +155,6 @@ begin
           AImageProvider.GetTile(
             AOperationID,
             ACancelNotifier,
-            AProjection,
             VTile
           );
         if Assigned(VTileBitmap) then begin
@@ -193,8 +186,7 @@ procedure TThreadMapCombineKMZ.SaveRect(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const AFileName: string;
-  const AImageProvider: IBitmapTileUniProvider;
-  const AProjection: IProjectionInfo;
+  const AImageProvider: IBitmapTileProvider;
   const AMapRect: TRect
 );
 var
@@ -218,7 +210,7 @@ var
   VBitmapTile: IBitmap32Static;
   VData: IBinaryData;
 begin
-  VGeoConverter := AProjection.GeoConverter;
+  VGeoConverter := AImageProvider.ProjectionInfo.GeoConverter;
   VCurrentPieceRect := AMapRect;
   VMapPieceSize := RectSize(VCurrentPieceRect);
   nim.X := ((VMapPieceSize.X - 1) div 1024) + 1;
@@ -248,7 +240,6 @@ begin
             AOperationID,
             ACancelNotifier,
             AImageProvider,
-            AProjection,
             VPixelRect
           );
         if VBitmapTile <> nil then begin
@@ -262,7 +253,7 @@ begin
             VNameInKmz := 'files/' + VFileName;
             VStr := VStr + ansiToUTF8('<GroundOverlay>' + #13#10 + '<name>' + VFileName + '</name>' + #13#10 + '<drawOrder>75</drawOrder>' + #13#10);
             VStr := VStr + ansiToUTF8('<Icon><href>' + VNameInKmz + '</href>' + '<viewBoundScale>0.75</viewBoundScale></Icon>' + #13#10);
-            VLLRect := VGeoConverter.PixelRect2LonLatRect(VPixelRect, AProjection.Zoom);
+            VLLRect := VGeoConverter.PixelRect2LonLatRect(VPixelRect, AImageProvider.ProjectionInfo.Zoom);
             VStr := VStr + ansiToUTF8('<LatLonBox>' + #13#10);
             VStr := VStr + ansiToUTF8('<north>' + R2StrPoint(VLLRect.Top) + '</north>' + #13#10);
             VStr := VStr + ansiToUTF8('<south>' + R2StrPoint(VLLRect.Bottom) + '</south>' + #13#10);

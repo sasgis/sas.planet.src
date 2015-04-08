@@ -27,7 +27,7 @@ uses
   Types,
   i_NotifierOperation,
   i_ProjectionInfo,
-  i_BitmapLayerProvider,
+  i_BitmapTileProvider,
   i_RegionProcessProgressInfo,
   i_GeometryLonLat,
   i_CoordConverter,
@@ -37,8 +37,7 @@ uses
 type
   TThreadMapCombineBase = class(TThreadRegionProcessAbstract)
   private
-    FImageProvider: IBitmapTileUniProvider;
-    FProjection: IProjectionInfo;
+    FImageProvider: IBitmapTileProvider;
     FMapRect: TRect;
     FMapCalibrationList: IMapCalibrationList;
     FSplitCount: TPoint;
@@ -51,8 +50,7 @@ type
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
-      const AImageProvider: IBitmapTileUniProvider;
-      const AProjection: IProjectionInfo;
+      const AImageProvider: IBitmapTileProvider;
       const AMapRect: TRect
     ); virtual; abstract;
 
@@ -61,9 +59,8 @@ type
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: IGeometryLonLatPolygon;
-      const AProjection: IProjectionInfo;
       const AMapRect: TRect;
-      const AImageProvider: IBitmapTileUniProvider;
+      const AImageProvider: IBitmapTileProvider;
       const AMapCalibrationList: IMapCalibrationList;
       const AFileName: string;
       const ASplitCount: TPoint;
@@ -83,9 +80,8 @@ uses
 constructor TThreadMapCombineBase.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: IGeometryLonLatPolygon;
-  const AProjection: IProjectionInfo;
   const AMapRect: TRect;
-  const AImageProvider: IBitmapTileUniProvider;
+  const AImageProvider: IBitmapTileProvider;
   const AMapCalibrationList: IMapCalibrationList;
   const AFileName: string;
   const ASplitCount: TPoint;
@@ -97,7 +93,6 @@ begin
     APolygon,
     ADebugThreadName
   );
-  FProjection := AProjection;
   FMapRect := AMapRect;
   FImageProvider := AImageProvider;
   FSplitCount := ASplitCount;
@@ -116,6 +111,8 @@ end;
 
 procedure TThreadMapCombineBase.ProcessRegion;
 var
+  VGeoConverter: ICoordConverter;
+  VZoom: Byte;
   i, j, pti: integer;
   VProcessTiles: Int64;
   VTileRect: TRect;
@@ -128,13 +125,11 @@ var
   VStr: string;
 begin
   inherited;
+  VGeoConverter := FImageProvider.ProjectionInfo.GeoConverter;
+  VZoom := FImageProvider.ProjectionInfo.Zoom;
   VMapRect := FMapRect;
   VMapSize := RectSize(VMapRect);
-  VTileRect :=
-    FProjection.GeoConverter.PixelRect2TileRect(
-      VMapRect,
-      FProjection.Zoom
-    );
+  VTileRect := VGeoConverter.PixelRect2TileRect(VMapRect, VZoom);
   VSizeInTile.X := VTileRect.Right - VTileRect.Left;
   VSizeInTile.Y := VTileRect.Bottom - VTileRect.Top;
   VProcessTiles := VSizeInTile.X;
@@ -176,8 +171,8 @@ begin
               VCurrentFileName,
               VCurrentPieceRect.TopLeft,
               VCurrentPieceRect.BottomRight,
-              FProjection.Zoom,
-              FProjection.GeoConverter
+              VZoom,
+              VGeoConverter
             );
           except
             //TODO: ƒобавить сюда нормальную обработку ошибок.
@@ -190,7 +185,6 @@ begin
           CancelNotifier,
           VCurrentFileName,
           FImageProvider,
-          FProjection,
           VCurrentPieceRect
         );
       except

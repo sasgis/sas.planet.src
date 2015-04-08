@@ -31,7 +31,7 @@ uses
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
   i_ProjectionInfo,
-  i_BitmapLayerProvider,
+  i_BitmapTileProvider,
   i_MapCalibration,
   i_GeometryLonLat,
   i_ImageLineProvider,
@@ -57,17 +57,15 @@ type
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
-      const AImageProvider: IBitmapTileUniProvider;
-      const AProjection: IProjectionInfo;
+      const AImageProvider: IBitmapTileProvider;
       const AMapRect: TRect
     ); override;
   public
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: IGeometryLonLatPolygon;
-      const AProjection: IProjectionInfo;
       const AMapRect: TRect;
-      const AImageProvider: IBitmapTileUniProvider;
+      const AImageProvider: IBitmapTileProvider;
       const AMapCalibrationList: IMapCalibrationList;
       const AFileName: string;
       const ASplitCount: TPoint;
@@ -92,9 +90,8 @@ uses
 constructor TThreadMapCombineJPG.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: IGeometryLonLatPolygon;
-  const AProjection: IProjectionInfo;
   const AMapRect: TRect;
-  const AImageProvider: IBitmapTileUniProvider;
+  const AImageProvider: IBitmapTileProvider;
   const AMapCalibrationList: IMapCalibrationList;
   const AFileName: string;
   const ASplitCount: TPoint;
@@ -106,7 +103,6 @@ begin
   inherited Create(
     AProgressInfo,
     APolygon,
-    AProjection,
     AMapRect,
     AImageProvider,
     AMapCalibrationList,
@@ -123,8 +119,7 @@ procedure TThreadMapCombineJPG.SaveRect(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const AFileName: string;
-  const AImageProvider: IBitmapTileUniProvider;
-  const AProjection: IProjectionInfo;
+  const AImageProvider: IBitmapTileProvider;
   const AMapRect: TRect
 );
 const
@@ -140,7 +135,7 @@ var
   VCenterLonLat: TDoublePoint;
   VUseBGRAColorSpace: Boolean;
 begin
-  VGeoConverter := AProjection.GeoConverter;
+  VGeoConverter := AImageProvider.ProjectionInfo.GeoConverter;
   VCurrentPieceRect := AMapRect;
   VMapPieceSize := RectSize(VCurrentPieceRect);
 
@@ -150,7 +145,6 @@ begin
     FLineProvider :=
       TImageLineProviderBGRA.Create(
         AImageProvider,
-        AProjection,
         AMapRect,
         FBgColor
       );
@@ -158,7 +152,6 @@ begin
     FLineProvider :=
       TImageLineProviderRGB.Create(
         AImageProvider,
-        AProjection,
         AMapRect,
         FBgColor
       );
@@ -178,7 +171,7 @@ begin
       VJpegWriter.Quality := FQuality;
       VJpegWriter.AddCommentMarker('Created with SAS.Planet' + #0);
       if FSaveGeoRefInfoToExif then begin
-        VCenterLonLat := VGeoConverter.PixelPos2LonLat(CenterPoint(AMapRect), AProjection.Zoom);
+        VCenterLonLat := VGeoConverter.PixelPos2LonLat(CenterPoint(AMapRect), AImageProvider.ProjectionInfo.Zoom);
         VExif := TExifSimple.Create(VCenterLonLat.Y, VCenterLonLat.X);
         try
           VJpegWriter.AddExifMarker(VExif.Stream);
