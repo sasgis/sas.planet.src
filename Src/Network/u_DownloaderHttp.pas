@@ -145,12 +145,12 @@ implementation
 uses
   UrlMon,
   ALString,
+  u_StrUtil,
   u_ListenerByEvent,
   u_Synchronizer,
   u_HttpStatusChecker,
   u_SimpleFlagWithInterlock,
   u_StreamReadOnlyByBinaryData,
-  u_TileRequestBuilderHelpers,
   u_ReadableThreadNames,
   u_BinaryData,
   u_BinaryDataByMemStream;

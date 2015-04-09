@@ -98,15 +98,13 @@ uses
   {$IFDEF DO_DUMP_PASCAL_SCRIPT_ENV}
   Classes,
   {$ENDIF}
-  Math,
   ALString,
-  RegExprUtils,
-  i_SimpleHttpDownloader,
-  i_ProjConverter,
-  i_CoordConverter,
   u_ResStrings,
-  u_GeoToStrFunc,
-  u_TileRequestBuilderHelpers;
+  u_PascalScriptBase64,
+  u_PascalScriptRegExpr,
+  u_PascalScriptMath,
+  u_PascalScriptTypes,
+  u_PascalScriptUtils;
 
 function CommonAppScriptOnUses(
   Sender: TPSPascalCompiler;
@@ -115,38 +113,11 @@ function CommonAppScriptOnUses(
 begin
   // common types
   if ALSameText(AName, 'SYSTEM') then begin
-    Sender.AddTypeS('TPoint', 'record X, Y: Integer; end;');
-    Sender.AddTypeS('TDoublePoint', 'record X, Y: Double; end;');
-    Sender.AddTypeS('TRect', 'record Left, Top, Right, Bottom: Integer; end;');
-
-    with Sender.AddInterface(Sender.FindInterface('IUNKNOWN'), IProjConverter, 'IProjConverter') do begin
-      RegisterMethod('Function LonLat2XY( const AProjLP : TDoublePoint) : TDoublePoint', cdRegister);
-      RegisterMethod('Function XY2LonLat( const AProjXY : TDoublePoint) : TDoublePoint', cdRegister);
-    end;
-
-    with Sender.AddInterface(Sender.FindInterface('IUNKNOWN'), IProjConverterFactory, 'IProjConverterFactory') do begin
-      RegisterMethod('Function GetByEPSG( const AEPSG : Integer) : IProjConverter', cdRegister);
-      RegisterMethod('Function GetByInitString( const AArgs : AnsiString) : IProjConverter', cdRegister);
-    end;
-
-    // ICoordConverter
-    with Sender.AddInterface(Sender.FindInterface('IUnknown'), ICoordConverterSimple, 'ICoordConverter') do begin
-      RegisterMethod('function Pos2LonLat(const XY : TPoint; Azoom : byte) : TDoublePoint', cdStdCall);
-      RegisterMethod('function LonLat2Pos(const Ll : TDoublePoint; Azoom : byte) : Tpoint', cdStdCall);
-      RegisterMethod('function LonLat2Metr(const Ll : TDoublePoint) : TDoublePoint', cdStdCall);
-      RegisterMethod('function Metr2LonLat(const Mm : TDoublePoint) : TDoublePoint', cdStdCall);
-
-      RegisterMethod('function TilesAtZoom(AZoom: byte): Longint', cdStdCall);
-      RegisterMethod('function PixelsAtZoom(AZoom: byte): Longint', cdStdCall);
-
-      RegisterMethod('function TilePos2PixelPos(const XY : TPoint; Azoom : byte): TPoint', cdStdCall);
-      RegisterMethod('function TilePos2PixelRect(const XY : TPoint; Azoom : byte): TRect', cdStdCall);
-    end;
-
-    //ISimpleHttpDownloader
-    with Sender.AddInterface(Sender.FindInterface('IUNKNOWN'), ISimpleHttpDownloader, 'ISimpleHttpDownloader') do begin
-      RegisterMethod('function DoHttpRequest(const ARequestUrl, ARequestHeader, APostData : AnsiString; out AResponseHeader, AResponseData : AnsiString) : Cardinal', cdRegister);
-    end;
+    CompileTimeReg_CommonTypes(Sender);
+    CompileTimeReg_ProjConverter(Sender);
+    CompileTimeReg_ProjConverterFactory(Sender);
+    CompileTimeReg_CoordConverterSimple(Sender);
+    CompileTimeReg_SimpleHttpDownloader(Sender);
   end;
 
   // custom vars and functions
@@ -158,45 +129,10 @@ begin
 
   // common functions
   if ALSameText(AName, 'SYSTEM') then begin
-    // numeric routines
-    Sender.AddDelphiFunction('function Random(const X: Integer): Integer');
-    Sender.AddDelphiFunction('function RandomRange(const AFrom, ATo: Integer): Integer');
-    Sender.AddDelphiFunction('function RoundEx(const chislo: Double; const Precision: Integer): String');
-    Sender.AddDelphiFunction('function Power(const Base, Exponent: Extended): Extended');
-    Sender.AddDelphiFunction('function IntPower(const Base: Extended; const Exponent: Integer): Extended register');
-    Sender.AddDelphiFunction('function IntToHex(Value: Integer; Digits: Integer): String');
-    Sender.AddDelphiFunction('function Ceil(const X: Extended): Integer;');
-    Sender.AddDelphiFunction('function Floor(const X: Extended): Integer;');
-    Sender.AddDelphiFunction('function Log2(const X: Extended): Extended;');
-    Sender.AddDelphiFunction('function Ln(const X: Extended): Extended;');
-    Sender.AddDelphiFunction('function Max(const A, B: Integer): Integer;');
-    Sender.AddDelphiFunction('function MaxExt(const A, B: Extended): Extended;');
-    Sender.AddDelphiFunction('function Min(const A, B: Integer): Integer;');
-    Sender.AddDelphiFunction('function MinExt(const A, B: Extended): Extended;');
-
-    // string routines
-    Sender.AddDelphiFunction('function GetAfter(SubStr, Str: AnsiString): AnsiString');
-    Sender.AddDelphiFunction('function GetBefore(SubStr, Str: AnsiString): AnsiString');
-    Sender.AddDelphiFunction('function GetBetween(Str, After, Before: AnsiString): AnsiString');
-    Sender.AddDelphiFunction('function SubStrPos(const Str, SubStr: AnsiString; FromPos: integer): integer');
-    Sender.AddDelphiFunction('function RegExprGetMatchSubStr(const Str, MatchExpr: AnsiString; AMatchID: Integer): AnsiString');
-    Sender.AddDelphiFunction('function RegExprReplaceMatchSubStr(const Str, MatchExpr, Replace: AnsiString): AnsiString');
-    Sender.AddDelphiFunction('function GetNumberAfter(const ASubStr, AText: AnsiString): AnsiString');
-    Sender.AddDelphiFunction('function GetDiv3Path(const ANumber: AnsiString): AnsiString');
-    Sender.AddDelphiFunction('function StringReplace(const S, OldPattern, NewPattern: AnsiString; const ReplaceAll, IgnoreCase: Boolean): AnsiString;');
-    Sender.AddDelphiFunction('function SetHeaderValue(AHeaders, AName, AValue: AnsiString): AnsiString');
-    Sender.AddDelphiFunction('function GetHeaderValue(AHeaders, AName: AnsiString): AnsiString');
-
-    // system routines
-    Sender.AddDelphiFunction('function GetUnixTime:int64');
-    Sender.AddDelphiFunction('function SaveToLocalFile(const AFullLocalFilename, AData: AnsiString): Integer');
-    Sender.AddDelphiFunction('function FileExists(const FileName: AnsiString): Boolean');
-
-    // Base64 routines
-    Sender.AddDelphiFunction('function Base64Encode(const Data: AnsiString): AnsiString');
-    Sender.AddDelphiFunction('function Base64UrlEncode(const Data: AnsiString): AnsiString');
-    Sender.AddDelphiFunction('function Base64Decode(const Data: AnsiString): AnsiString');
-
+    CompileTimeReg_Math(Sender);
+    CompileTimeReg_RegExpr(Sender);
+    CompileTimeReg_Base64(Sender);
+    CompileTimeReg_Utils(Sender);
     Result := True;
   end else begin
     Result := False;
@@ -208,7 +144,6 @@ begin
   end;
   {$ENDIF}
 end;
-
 
 { TBasePascalCompiler }
 
@@ -323,6 +258,7 @@ begin
     Result := Result + VConst.OrgName;
   end;
 end;
+
 function TBasePascalCompiler.KnownTypesToString: string;
 var
   I: Integer;
@@ -365,45 +301,11 @@ end;
 procedure TBasePascalScriptExec.RegisterAppCommonRoutines;
 begin
   RegisterDLLRuntime(Self);
-
-  // numeric routines
-  Self.RegisterDelphiFunction(@RoundEx, 'RoundEx', cdRegister);
-  Self.RegisterDelphiFunction(@Power, 'Power', cdRegister);
-  Self.RegisterDelphiFunction(@IntPower, 'IntPower', cdRegister);
-  Self.RegisterDelphiFunction(@RandomInt, 'Random', cdRegister);
-  Self.RegisterDelphiFunction(@RandomRange, 'RandomRange', cdRegister);
-  Self.RegisterDelphiFunction(@IntToHex, 'IntToHex', cdRegister);
-  Self.RegisterDelphiFunction(@Ceil, 'Ceil', cdRegister);
-  Self.RegisterDelphiFunction(@Floor, 'Floor', cdRegister);
-  Self.RegisterDelphiFunction(@Log2, 'Log2', cdRegister);
-  Self.RegisterDelphiFunction(@Ln, 'Ln', cdRegister);
-  Self.RegisterDelphiFunction(@MaxInt, 'Max', cdRegister);
-  Self.RegisterDelphiFunction(@MaxExt, 'MaxExt', cdRegister);
-  Self.RegisterDelphiFunction(@MinInt, 'Min', cdRegister);
-  Self.RegisterDelphiFunction(@MinExt, 'MinExt', cdRegister);
-
-  // string routines
-  Self.RegisterDelphiFunction(@GetAfter, 'GetAfter', cdRegister);
-  Self.RegisterDelphiFunction(@GetBefore, 'GetBefore', cdRegister);
-  Self.RegisterDelphiFunction(@GetBetween, 'GetBetween', cdRegister);
-  Self.RegisterDelphiFunction(@SubStrPos, 'SubStrPos', cdRegister);
-  Self.RegisterDelphiFunction(@RegExprGetMatchSubStr, 'RegExprGetMatchSubStr', cdRegister);
-  Self.RegisterDelphiFunction(@RegExprReplaceMatchSubStr, 'RegExprReplaceMatchSubStr', cdRegister);
-  Self.RegisterDelphiFunction(@GetNumberAfter, 'GetNumberAfter', cdRegister);
-  Self.RegisterDelphiFunction(@GetDiv3Path, 'GetDiv3Path', cdRegister);
-  Self.RegisterDelphiFunction(@StringReplaceAnsi, 'StringReplace', cdRegister);
-  Self.RegisterDelphiFunction(@SetHeaderValue, 'SetHeaderValue', cdRegister);
-  Self.RegisterDelphiFunction(@GetHeaderValue, 'GetHeaderValue', cdRegister);
-
-  // system routines
-  Self.RegisterDelphiFunction(@GetUnixTime, 'GetUnixTime', cdRegister);
-  Self.RegisterDelphiFunction(@SaveToLocalFile, 'SaveToLocalFile', cdRegister);
-  Self.RegisterDelphiFunction(@FileExists, 'FileExists', cdRegister);
-
-  // Base64 routines
-  Self.RegisterDelphiFunction(@Base64EncodeStr, 'Base64Encode', cdRegister);
-  Self.RegisterDelphiFunction(@Base64UrlEncodeStr, 'Base64UrlEncode', cdRegister);
-  Self.RegisterDelphiFunction(@Base64DecodeStr, 'Base64Decode', cdRegister);
+  
+  ExecTimeReg_Math(Self);
+  ExecTimeReg_RegExpr(Self);
+  ExecTimeReg_Base64(Self);
+  ExecTimeReg_Utils(Self);
 end;
 
 { TBaseFactoryPascalScript }

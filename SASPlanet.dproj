@@ -910,7 +910,6 @@
     <DCCReference Include="Src\Network\u_TileDownloadSubsystemState.pas" />
     <DCCReference Include="Src\Network\u_TilePostDownloadCropConfigStatic.pas" />
     <DCCReference Include="Src\Network\u_TileRequest.pas" />
-    <DCCReference Include="Src\Network\u_TileRequestBuilderHelpers.pas" />
     <DCCReference Include="Src\Network\u_TileRequestProcessorPool.pas" />
     <DCCReference Include="Src\Network\u_TileRequestQueueProcessorThread.pas" />
     <DCCReference Include="Src\Network\u_TileRequestResult.pas" />
@@ -918,6 +917,11 @@
     <DCCReference Include="Src\Network\u_UiTileDownload.pas" />
     <DCCReference Include="Src\Network\u_UITileDownloadList.pas" />
     <DCCReference Include="Src\Network\u_UiTileRequestManager.pas" />
+    <DCCReference Include="Src\PascalScript\u_PascalScriptBase64.pas" />
+    <DCCReference Include="Src\PascalScript\u_PascalScriptMath.pas" />
+    <DCCReference Include="Src\PascalScript\u_PascalScriptRegExpr.pas" />
+    <DCCReference Include="Src\PascalScript\u_PascalScriptTypes.pas" />
+    <DCCReference Include="Src\PascalScript\u_PascalScriptUtils.pas" />
     <DCCReference Include="Src\Performance\i_InternalPerformanceCounter.pas" />
     <DCCReference Include="Src\Performance\i_InternalPerformanceCounterListForDebug.pas" />
     <DCCReference Include="Src\Performance\u_InternalPerformanceCounter.pas" />

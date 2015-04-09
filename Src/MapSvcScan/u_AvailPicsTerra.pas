@@ -44,9 +44,9 @@ type
 implementation
 
 uses
+  u_StrUtil,
   u_GeoToStrFunc,
-  u_StreamReadOnlyByBinaryData,
-  u_TileRequestBuilderHelpers;
+  u_StreamReadOnlyByBinaryData;
 
 function _RandInt5: String;
 var i: Integer;
