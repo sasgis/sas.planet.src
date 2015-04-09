@@ -258,16 +258,20 @@ begin
   end else begin
     VVersionForDownload := VMapType.VersionRequestConfig.GetStatic.BaseVersion;
   end;
+  VVersionCheckShowPrev := VSessionSection.ReadBool('VersionCheckPrev', False);
   VVersionString := VSessionSection.ReadString('VersionCheck', '');
   if VVersionString <> '' then begin
-    VVersionCheckShowPrev := VSessionSection.ReadBool('VersionCheckPrev', False);
     VVersionForCheck :=
       TMapVersionRequest.Create(
         VMapType.VersionRequestConfig.VersionFactory.GetStatic.CreateByStoreString(VVersionString),
         VVersionCheckShowPrev
       );
   end else begin
-    VVersionForDownload := VVersionForDownload;
+    VVersionForCheck :=
+      TMapVersionRequest.Create(
+        VVersionForDownload,
+        VVersionCheckShowPrev
+      );
   end;
   VZoom := VSessionSection.ReadInteger('Zoom', 0);
   if VZoom > 0 then begin

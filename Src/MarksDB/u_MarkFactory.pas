@@ -132,7 +132,6 @@ begin
   inherited Create;
   FConfig := AConfig;
   FHashFunction := AHashFunction;
-  FHashFunction := AHashFunction;
   FAppearanceOfMarkFactory := AAppearanceOfMarkFactory;
   FHintConverter := AHintConverter;
   FMarkPictureList := AMarkPictureList;

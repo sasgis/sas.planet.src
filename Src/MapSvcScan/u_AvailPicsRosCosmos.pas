@@ -282,7 +282,6 @@ begin
         VSurvayDate := PlacemarkNode.GetAttribute('survaydate');
 
         try
-          VParams := nil;
           VParams := TStringList.Create;
           VDate := copy(VSurvayDate, 1, 10);
           VDate[5] := DateSeparator;

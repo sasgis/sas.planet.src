@@ -170,7 +170,7 @@ begin
   FNeedPause := APaused;
   FProcessedRatio := 0;
   FFinished := False;
-  FElapsedTime := FElapsedTime;
+  FElapsedTime := AElapsedTime;
   FStartTime := Now;
   FTotalInRegion := 0;
   FProcessed := 0;

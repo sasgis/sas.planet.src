@@ -105,6 +105,7 @@ var
   VMemStream: TMemoryStream;
   VItemIndex: Integer;
 begin
+  Result := nil;
   VItemIndex := FZip.Entries.IndexOf(AnsiString(AItemName));
   if VItemIndex >= 0 then begin
     VMemStream := TMemoryStream.Create;
@@ -133,6 +134,7 @@ function TArchiveReadByKaZip.GetItemByIndex(
   out AItemName: string
 ): IBinaryData;
 begin
+  Result := nil;
   AItemName := GetItemNameByIndex(AItemIndex);
   if AItemName <> '' then begin
     Result := GetItemByName(AItemName);

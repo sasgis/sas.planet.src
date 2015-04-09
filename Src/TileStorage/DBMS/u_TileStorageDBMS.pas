@@ -1099,7 +1099,6 @@ begin
       else begin
         // failed
         raise EETSCriticalError.Create(SAS_ERR_ETS_CriticalError);
-        Exit;
       end;
     end;
   until FALSE;
@@ -1213,7 +1212,6 @@ begin
         // repeat exclusively
         if ExclusiveFlagWasSetUp(VBufferIn.dwOptionsIn) then begin
           raise EETSCriticalError.Create(SAS_ERR_ETS_CriticalError);
-          //Exit;
         end;
         SetUpExclusiveFlag(VBufferIn.dwOptionsIn);
       end;
@@ -1232,7 +1230,6 @@ begin
       else begin
         // failed
         raise EETSCriticalError.Create(SAS_ERR_ETS_CriticalError);
-        Exit;
       end;
     end;
   until FALSE;

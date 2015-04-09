@@ -211,6 +211,7 @@ const
 var
   i: Integer;
 begin
+  Result := 0;
   for i := 0 to Length(CNiceValues) - 1 do begin
     Result := CNiceValues[i];
     if ALen > Result then begin

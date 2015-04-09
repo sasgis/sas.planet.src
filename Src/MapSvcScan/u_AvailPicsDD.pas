@@ -194,7 +194,6 @@ begin
           SubNode := PlacemarkNode.ChildNodes[j];
           if subNode.nodename='Footprint' then begin
           try
-            VParams := nil;
             VParams := TStringList.Create;
             VDate := copy(SubNode.GetAttribute('acq_date'), 1, 10);
             VDate[5] := DateSeparator;

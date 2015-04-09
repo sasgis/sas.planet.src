@@ -181,6 +181,7 @@ var
   VPoly: IGeometryLonLatSinglePolygon;
   VMultiPoly: IGeometryLonLatMultiPolygon;
 begin
+  Result := '';
   if Supports(AGeometry, IGeometryLonLatPoint, VPoint) then begin
     Result := GetTextForPoint(VPoint);
   end else if Supports(AGeometry, IGeometryLonLatSingleLine, VLine) then begin

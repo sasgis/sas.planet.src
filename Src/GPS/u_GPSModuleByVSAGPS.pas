@@ -802,6 +802,7 @@ function TGPSModuleByVSAGPS.ExecuteGPSCommand(
   const APointer: Pointer
 ): string;
 begin
+  Result := '';
   // some special commands
 
   if (gpsc_Refresh_GPSUnitInfo=ACommand) then begin

@@ -103,6 +103,7 @@ var
   I: Integer;
   VFileName: string;
 begin
+  Result := nil;
   VZip := FArchiveReadWriteFactory.Zip.ReaderFactory.BuildByStream(AStream);
   VItemsCount := VZip.GetItemsCount;
   if VItemsCount > 0 then begin

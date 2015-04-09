@@ -77,7 +77,7 @@ begin
   FMagnetDrawSize := 10;
   FShowMapName := True;
   FMouseScrollInvert := False;
-  FMouseScrollInvert := False;
+  FDisableZoomingByMouseScroll := False;
   FShowHintOnMarks := True;
   FShowHintOnlyInMapMoveMode := False;
 end;
