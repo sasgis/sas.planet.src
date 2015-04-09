@@ -235,9 +235,16 @@ function TImageLineProviderAbstract.GetLine(
   const ACancelNotifier: INotifierOperation;
   ALine: Integer
 ): Pointer;
+var
+  VMapLine: Integer;
 begin
+  Assert(ALine >= 0);
+  VMapLine := FMapRect.Top + ALine;
+  Assert(VMapLine < FMapRect.Bottom);
+  Assert(VMapLine >= FMapRect.Top);
+  Assert(VMapLine < FMapRect.Bottom);
   if  not IsRectEmpty(FPreparedMapRect) then begin
-    if (ALine < FPreparedMapRect.Top) or (ALine >= FPreparedMapRect.Bottom) then begin
+    if (VMapLine < FPreparedMapRect.Top) or (VMapLine >= FPreparedMapRect.Bottom) then begin
       FPreparedMapRect := Rect(0, 0, 0, 0);
     end;
   end;
