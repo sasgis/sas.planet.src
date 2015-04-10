@@ -23,27 +23,39 @@ unit u_BasePascalCompiler;
 interface
 
 uses
-  SysUtils,
-  uPSR_dll,
-  uPSRuntime;
+  uPSRuntime,
+  t_PascalScript;
 
 type
-  TBasePascalScriptExec = class(TPSExec)
+  TPSExecEx = class(TPSExec)
+  private
+    procedure DoExecTimeReg(const ARegProcArray: TOnExecTimeRegProcArray);
   public
-    procedure RegisterAppCommonRoutines;
+    constructor Create(
+      const ARegProcArray: TOnExecTimeRegProcArray = nil
+    );
   end;
 
 implementation
 
 uses
+  uPSR_dll,
   u_PascalScriptBase64,
   u_PascalScriptRegExpr,
   u_PascalScriptMath,
   u_PascalScriptUtils;
 
-{ TBasePascalScriptExec }
+{ TPSExecEx }
 
-procedure TBasePascalScriptExec.RegisterAppCommonRoutines;
+constructor TPSExecEx.Create(const ARegProcArray: TOnExecTimeRegProcArray);
+begin
+  inherited Create;
+  DoExecTimeReg(ARegProcArray);
+end;
+
+procedure TPSExecEx.DoExecTimeReg(const ARegProcArray: TOnExecTimeRegProcArray);
+var
+  I: Integer;
 begin
   RegisterDLLRuntime(Self);
   
@@ -51,6 +63,10 @@ begin
   ExecTimeReg_RegExpr(Self);
   ExecTimeReg_Base64(Self);
   ExecTimeReg_Utils(Self);
+
+  for I := Low(ARegProcArray) to High(ARegProcArray) do begin
+    ARegProcArray[I](Self);
+  end;
 end;
 
 end.

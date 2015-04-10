@@ -61,7 +61,7 @@ type
     FLangListener: IListener;
     FLangChangeFlag: ISimpleFlag;
 
-    FPSExec: TBasePascalScriptExec;
+    FPSExec: TPSExecEx;
     FPSVars: TRequestBuilderVars;
 
     procedure PrepareCompiledScript(const ACompiledData: TbtString);
@@ -227,14 +227,10 @@ end;
 
 procedure TTileDownloadRequestBuilderPascalScript.PrepareCompiledScript(const ACompiledData: TbtString);
 begin
-  // TODO: compare with TBasePascalScriptCompiled
   FScriptBuffer := '';
 
   // create
-  FPSExec := TBasePascalScriptExec.Create;
-
-  // init by common
-  FPSExec.RegisterAppCommonRoutines;
+  FPSExec := TPSExecEx.Create;
 
   // load
   if not FPSExec.LoadData(ACompiledData) then begin

@@ -23,12 +23,18 @@ unit t_PascalScript;
 interface
 
 uses
+  uPSRuntime,
   uPSCompiler;
 
 type
   TOnCompileTimeRegProc = procedure (const APSComp: TPSPascalCompiler);
 
   TOnCompileTimeRegProcArray = array of TOnCompileTimeRegProc;
+
+
+  TOnExecTimeRegProc = procedure (const APSExec: TPSExec);
+
+  TOnExecTimeRegProcArray = array of TOnExecTimeRegProc;
 
 implementation
 
