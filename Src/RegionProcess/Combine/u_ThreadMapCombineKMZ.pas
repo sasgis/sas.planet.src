@@ -141,7 +141,7 @@ var
   VCopyPos: TPoint;
 begin
   Result := nil;
-  if not IsRectEmpty(AMapRect) then begin
+  if not Types.IsRectEmpty(AMapRect) then begin
     VZoom := AImageProvider.ProjectionInfo.Zoom;
     VGeoConverter := AImageProvider.ProjectionInfo.GeoConverter;
     VMapSize := RectSize(AMapRect);
@@ -163,7 +163,7 @@ begin
             VBitmap.Clear(0);
           end;
           VTileMapPixelRect := VGeoConverter.TilePos2PixelRect(VTile, VZoom);
-          IntersectRect(VCopyRect, AMapRect, VTileMapPixelRect);
+          Types.IntersectRect(VCopyRect, AMapRect, VTileMapPixelRect);
           VCopyPos := PointMove(VCopyRect.TopLeft, AMapRect.TopLeft);
           BlockTransfer(
             VBitmap,

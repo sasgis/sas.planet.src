@@ -80,7 +80,7 @@ begin
   FBackGroundColor := ABackGroundColor;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
 
-  VTileSize := ASourceProvider.ProjectionInfo.GeoConverter.GetTileSize(Point(0, 0), ASourceProvider.ProjectionInfo.Zoom);
+  VTileSize := ASourceProvider.ProjectionInfo.GeoConverter.GetTileSize(Types.Point(0, 0), ASourceProvider.ProjectionInfo.Zoom);
   VTargetBmp := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
   try
     VTargetBmp.SetSize(VTileSize.X, VTileSize.Y);

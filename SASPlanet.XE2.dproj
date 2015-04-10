@@ -521,7 +521,7 @@
 			<DCCReference Include="Src\MapLayers\u_VectorItemDrawConfig.pas"/>
 			<DCCReference Include="Src\MapLayers\i_KmlLayerConfig.pas"/>
 			<DCCReference Include="Src\MapLayers\u_KmlLayerConfig.pas"/>
-			<DCCReference Include="Src\u_FindVectorItemsForVectorMaps.pas"/>
+			<DCCReference Include="Src\MainForm\u_FindVectorItemsForVectorMaps.pas"/>
 			<DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\MiniMap\i_MiniMapLayerConfig.pas"/>
 			<DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\MiniMap\u_MiniMapMapsConfig.pas"/>
 			<DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\MiniMap\u_MiniMapLayerConfig.pas"/>
@@ -692,7 +692,7 @@
 			<DCCReference Include="Src\Network\u_DownloadResultTextProvider.pas"/>
 			<DCCReference Include="Src\GeoCoder\u_GeoCodePlacemark.pas"/>
 			<DCCReference Include="Src\Network\i_ProxySettings.pas"/>
-			<DCCReference Include="Src\i_FindVectorItems.pas"/>
+			<DCCReference Include="Src\MainForm\i_FindVectorItems.pas"/>
 			<DCCReference Include="Src\MainForm\i_MapViewGoto.pas"/>
 			<DCCReference Include="Src\MainForm\u_MapViewGoto.pas"/>
 			<DCCReference Include="Src\MapLayers\WindowLayers\GoTo\i_GotoLayerConfig.pas"/>
