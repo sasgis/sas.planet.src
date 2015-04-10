@@ -23,6 +23,7 @@ unit u_TileDownloadRequestBuilderPascalScript;
 interface
 
 uses
+  Types,
   Windows,
   SysUtils,
   uPSRuntime,
@@ -42,7 +43,8 @@ uses
   i_TileDownloadRequest,
   i_TileDownloadRequestBuilderConfig,
   u_BasePascalCompiler,
-  u_TileDownloadRequestBuilder;
+  u_TileDownloadRequestBuilder,
+  u_TileDownloadRequestBuilderPascalScriptVars;
 
 type
   TTileDownloadRequestBuilderPascalScript = class(TTileDownloadRequestBuilder)
@@ -61,32 +63,9 @@ type
     FLangChangeFlag: ISimpleFlag;
 
     FPSExec: TBasePascalScriptExec;
-    FpResultUrl: PPSVariantAString;
-    FpPostData: PPSVariantAString;
-    FpGetURLBase: PPSVariantAString;
-    FpRequestHead: PPSVariantAString;
-    FpResponseHead: PPSVariantAString;
-    FpScriptBuffer: PPSVariantAString;
-    FpVersion: PPSVariantAString;
-    FpLang: PPSVariantAString;
-    FpGetX: PPSVariantS32;
-    FpGetY: PPSVariantS32;
-    FpGetZ: PPSVariantS32;
-    FpGetLlon: PPSVariantDouble;
-    FpGetTLat: PPSVariantDouble;
-    FpGetBLat: PPSVariantDouble;
-    FpGetRLon: PPSVariantDouble;
-    FpGetLMetr: PPSVariantDouble;
-    FpGetRMetr: PPSVariantDouble;
-    FpGetTMetr: PPSVariantDouble;
-    FpGetBMetr: PPSVariantDouble;
-    FpConverter: PPSVariantInterface;
-    FpDownloader: PPSVariantInterface;
-    FpDefProjConverter: PPSVariantInterface;
-    FpProjFactory: PPSVariantInterface;
+    FPSVars: TRequestBuilderVars;
+
     procedure PrepareCompiledScript(const ACompiledData: TbtString);
-    procedure RegisterAppVars;
-    procedure RegisterAppRoutines;
     procedure SetVar(
       const ALastResponseInfo: ILastResponseInfo;
       const ADownloaderConfig: ITileDownloaderConfigStatic;
@@ -122,6 +101,7 @@ implementation
 uses
   t_GeoTypes,
   i_BinaryData,
+  i_MapVersionInfo,
   i_SimpleHttpDownloader,
   u_BinaryData,
   u_ListenerByEvent,
@@ -215,13 +195,13 @@ begin
           FPSExec.Stop;
           raise;
         end;
-        if FpResultUrl.Data <> '' then begin
-          if FpPostData.Data <> '' then begin
-            VPostData := TBinaryData.CreateByAnsiString(FpPostData.Data);
+        if FPSVars.ResultUrl <> '' then begin
+          if FPSVars.PostData <> '' then begin
+            VPostData := TBinaryData.CreateByAnsiString(FPSVars.PostData);
             Result :=
               TTileDownloadPostRequest.Create(
-                FpResultUrl.Data,
-                FpRequestHead.Data,
+                FPSVars.ResultUrl,
+                FPSVars.RequestHead,
                 VPostData,
                 VDownloaderConfig.InetConfigStatic,
                 FCheker,
@@ -230,15 +210,15 @@ begin
           end else begin
             Result :=
               TTileDownloadRequest.Create(
-                FpResultUrl.Data,
-                FpRequestHead.Data,
+                FPSVars.ResultUrl,
+                FPSVars.RequestHead,
                 VDownloaderConfig.InetConfigStatic,
                 FCheker,
                 ASource
               );
           end;
         end;
-        FScriptBuffer := FpScriptBuffer.Data;
+        FScriptBuffer := FPSVars.ScriptBuffer;
       end;
     finally
       Unlock;
@@ -257,9 +237,6 @@ begin
   // init by common
   FPSExec.RegisterAppCommonRoutines;
 
-  // init by self
-  Self.RegisterAppRoutines;
-
   // load
   if not FPSExec.LoadData(ACompiledData) then begin
     raise Exception.Create(
@@ -269,44 +246,7 @@ begin
   end;
 
   // loaded - add variables
-  Self.RegisterAppVars;
-end;
-
-procedure TTileDownloadRequestBuilderPascalScript.RegisterAppRoutines;
-begin
-  // empty
-end;
-
-procedure TTileDownloadRequestBuilderPascalScript.RegisterAppVars;
-begin
-  FpResultUrl := PPSVariantAString(FPSExec.GetVar2('ResultURL'));
-  FpPostData := PPSVariantAString(FPSExec.GetVar2('PostData'));
-  FpGetURLBase := PPSVariantAString(FPSExec.GetVar2('GetURLBase'));
-  FpGetURLBase.Data := '';
-  FpRequestHead := PPSVariantAString(FPSExec.GetVar2('RequestHead'));
-  FpRequestHead.Data := '';
-  FpResponseHead := PPSVariantAString(FPSExec.GetVar2('ResponseHead'));
-  FpResponseHead.Data := '';
-  FpVersion := PPSVariantAString(FPSExec.GetVar2('Version'));
-  FpVersion.Data := '';
-  FpLang := PPSVariantAString(FPSExec.GetVar2('Lang'));
-  FpLang.Data := '';
-  FpScriptBuffer := PPSVariantAString(FPSExec.GetVar2('ScriptBuffer'));
-  FpGetX := PPSVariantS32(FPSExec.GetVar2('GetX'));
-  FpGetY := PPSVariantS32(FPSExec.GetVar2('GetY'));
-  FpGetZ := PPSVariantS32(FPSExec.GetVar2('GetZ'));
-  FpGetLlon := PPSVariantDouble(FPSExec.GetVar2('GetLlon'));
-  FpGetTLat := PPSVariantDouble(FPSExec.GetVar2('GetTLat'));
-  FpGetBLat := PPSVariantDouble(FPSExec.GetVar2('GetBLat'));
-  FpGetRLon := PPSVariantDouble(FPSExec.GetVar2('GetRLon'));
-  FpGetLMetr := PPSVariantDouble(FPSExec.GetVar2('GetLmetr'));
-  FpGetTMetr := PPSVariantDouble(FPSExec.GetVar2('GetTmetr'));
-  FpGetBMetr := PPSVariantDouble(FPSExec.GetVar2('GetBmetr'));
-  FpGetRMetr := PPSVariantDouble(FPSExec.GetVar2('GetRmetr'));
-  FpConverter := PPSVariantInterface(FPSExec.GetVar2('Converter'));
-  FpDownloader := PPSVariantInterface(FPSExec.GetVar2('Downloader'));
-  FpDefProjConverter := PPSVariantInterface(FPSExec.GetVar2('DefProjConverter'));
-  FpProjFactory := PPSVariantInterface(FPSExec.GetVar2('ProjFactory'));
+  FPSVars.ExecTimeInit(FPSExec);
 end;
 
 procedure TTileDownloadRequestBuilderPascalScript.SetVar(
@@ -317,61 +257,25 @@ procedure TTileDownloadRequestBuilderPascalScript.SetVar(
   AOperationID: Integer
 );
 var
-  XY: TPoint;
-  VLonLat: TDoublePoint;
-  VTile: TPoint;
-  VZoom: Byte;
+  VUrlBase: AnsiString;
+  VRequestHeader: AnsiString;
   VUseDownloader: Boolean;
   VSimpleDownloader: ISimpleHttpDownloader;
 begin
-  VTile := ASource.Tile;
-  VZoom := ASource.Zoom;
-  FpGetX.Data := VTile.X;
-  FpGetY.Data := VTile.Y;
-  FpGetZ.Data := VZoom + 1;
-  VLonLat := FCoordConverter.Pos2LonLat(VTile, VZoom);
-  FpGetLlon.Data := VLonLat.X;
-  FpGetTLat.Data := VLonLat.Y;
-  VLonLat := FCoordConverter.LonLat2Metr(VLonLat);
-  FpGetLMetr.Data := VLonLat.X;
-  FpGetTMetr.Data := VLonLat.Y;
-  XY := VTile;
-  Inc(XY.X);
-  Inc(XY.Y);
-  VLonLat := FCoordConverter.Pos2LonLat(XY, VZoom);
-  FpGetRLon.Data := VLonLat.X;
-  FpGetBLat.Data := VLonLat.Y;
-  VLonLat := FCoordConverter.LonLat2Metr(VLonLat);
-  FpGetRMetr.Data := VLonLat.X;
-  FpGetBMetr.Data := VLonLat.Y;
-  FpConverter.Data := FCoordConverter;
-
-  FpResultUrl.Data := '';
-  FpPostData.Data := '';
   Config.LockRead;
   try
-    FpGetURLBase.Data := Config.UrlBase;
-    FpRequestHead.Data := Config.RequestHeader;
+    VUrlBase := Config.UrlBase;
+    VRequestHeader := Config.RequestHeader;
     VUseDownloader := Config.IsUseDownloader;
   finally
     Config.UnlockRead;
   end;
 
-  if ALastResponseInfo <> nil then begin
-    FpResponseHead.Data := ALastResponseInfo.ResponseHead;
-  end else begin
-    FpResponseHead.Data := '';
-  end;
-  FpScriptBuffer.Data := FScriptBuffer;
-  if ASource.VersionInfo <> nil then begin
-    FpVersion.Data := ASource.VersionInfo.UrlString;
-  end else begin
-    FpVersion.Data := '';
-  end;
   if FLangChangeFlag.CheckFlagAndReset then begin
     FLang := FLangManager.GetCurrentLanguageCode;
   end;
-  FpLang.Data := FLang;
+
+  VSimpleDownloader := nil;
   if FDownloader <> nil then begin
     if VUseDownloader then begin
       VSimpleDownloader :=
@@ -381,13 +285,21 @@ begin
           ACancelNotifier,
           AOperationID
         );
-      FpDownloader.Data := VSimpleDownloader;
     end;
-  end else begin
-    FpDownloader.Data := nil;
   end;
-  FpDefProjConverter.Data := FDefProjConverter;
-  FpProjFactory.Data := FProjFactory;
+
+  FPSVars.ExecTimeSet(
+    VUrlBase,
+    VRequestHeader,
+    FScriptBuffer,
+    FLang,
+    FCoordConverter,
+    VSimpleDownloader,
+    ALastResponseInfo,
+    ASource,
+    FDefProjConverter,
+    FProjFactory
+  );
 end;
 
 end.

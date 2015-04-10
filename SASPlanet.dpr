@@ -539,6 +539,7 @@ uses
   u_TileDownloadRequestBuilderLazy in 'Src\Network\u_TileDownloadRequestBuilderLazy.pas',
   u_TileDownloadRequestBuilder in 'Src\Network\u_TileDownloadRequestBuilder.pas',
   u_TileDownloadRequestBuilderPascalScript in 'Src\Network\u_TileDownloadRequestBuilderPascalScript.pas',
+  u_TileDownloadRequestBuilderPascalScriptVars in 'Src\Network\u_TileDownloadRequestBuilderPascalScriptVars.pas',
   i_TileRequestResult in 'Src\Network\i_TileRequestResult.pas',
   u_TileRequestResult in 'Src\Network\u_TileRequestResult.pas',
   i_TileDownloader in 'Src\Network\i_TileDownloader.pas',

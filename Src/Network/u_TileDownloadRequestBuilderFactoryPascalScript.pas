@@ -78,7 +78,8 @@ uses
   ALString,
   uPSCompiler,
   u_Synchronizer,
-  u_TileDownloadRequestBuilderPascalScript;
+  u_TileDownloadRequestBuilderPascalScript,
+  u_TileDownloadRequestBuilderPascalScriptVars;
 
 { TTileDownloadRequestBuilderFactoryPascalScript }
 
@@ -117,47 +118,9 @@ function TTileDownloadRequestBuilderFactoryPascalScript.DoCompilerOnAuxUses(
   ACompiler: TBasePascalCompiler;
   const AName: tbtString
 ): Boolean;
-var
-  VType: TPSType;
 begin
   if ALSameText('SYSTEM', AName) then begin
-    VType := ACompiler.FindType('ISimpleHttpDownloader');
-    ACompiler.AddUsedVariable('Downloader', VType);
-
-    VType := ACompiler.FindType('IProjConverter');
-    ACompiler.AddUsedVariable('DefProjConverter', VType);
-
-    VType := ACompiler.FindType('IProjConverterFactory');
-    ACompiler.AddUsedVariable('ProjFactory', VType);
-
-    VType := ACompiler.FindType('ICoordConverter');
-    ACompiler.AddUsedVariable('Converter', VType);
-
-    VType := ACompiler.FindType('AnsiString');
-    ACompiler.AddUsedVariable('ResultURL', VType);
-    ACompiler.AddUsedVariable('PostData', VType);
-    ACompiler.AddUsedVariable('GetURLBase', VType);
-    ACompiler.AddUsedVariable('RequestHead', VType);
-    ACompiler.AddUsedVariable('ResponseHead', VType);
-    ACompiler.AddUsedVariable('ScriptBuffer', VType);
-    ACompiler.AddUsedVariable('Version', VType);
-    ACompiler.AddUsedVariable('Lang', VType);
-
-    VType := ACompiler.FindType('integer');
-    ACompiler.AddUsedVariable('GetX', VType);
-    ACompiler.AddUsedVariable('GetY', VType);
-    ACompiler.AddUsedVariable('GetZ', VType);
-
-    VType := ACompiler.FindType('Double');
-    ACompiler.AddUsedVariable('GetLlon', VType);
-    ACompiler.AddUsedVariable('GetTLat', VType);
-    ACompiler.AddUsedVariable('GetBLat', VType);
-    ACompiler.AddUsedVariable('GetRLon', VType);
-    ACompiler.AddUsedVariable('GetLMetr', VType);
-    ACompiler.AddUsedVariable('GetRMetr', VType);
-    ACompiler.AddUsedVariable('GetTMetr', VType);
-    ACompiler.AddUsedVariable('GetBMetr', VType);
-
+    CompileTimeReg_RequestBuilderVars(ACompiler);
     Result := True;
   end else begin
     Result := False;

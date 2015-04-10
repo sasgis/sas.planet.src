@@ -905,6 +905,7 @@
     <DCCReference Include="Src\Network\u_TileDownloadRequestBuilderFactoryPascalScript.pas" />
     <DCCReference Include="Src\Network\u_TileDownloadRequestBuilderLazy.pas" />
     <DCCReference Include="Src\Network\u_TileDownloadRequestBuilderPascalScript.pas" />
+    <DCCReference Include="Src\Network\u_TileDownloadRequestBuilderPascalScriptVars.pas" />
     <DCCReference Include="Src\Network\u_TileDownloadResultSaverStuped.pas" />
     <DCCReference Include="Src\Network\u_TileDownloadSubsystem.pas" />
     <DCCReference Include="Src\Network\u_TileDownloadSubsystemState.pas" />
