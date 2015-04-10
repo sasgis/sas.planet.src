@@ -1395,6 +1395,7 @@
     <DCCReference Include="Src\u_SourceDataUpdateInRectByMapsSet.pas" />
     <DCCReference Include="Src\u_StaticTreeBuilderBase.pas" />
     <DCCReference Include="Src\u_StaticTreeItem.pas" />
+    <DCCReference Include="Src\u_StrFunc.pas" />
     <DCCReference Include="Src\u_StringByLanguageWithStaticList.pas" />
     <DCCReference Include="Src\u_StringHistory.pas" />
     <DCCReference Include="Src\u_StringProviderForMapTileItem.pas" />

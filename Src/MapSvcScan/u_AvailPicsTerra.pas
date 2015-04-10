@@ -44,7 +44,7 @@ type
 implementation
 
 uses
-  u_StrUtil,
+  u_StrFunc,
   u_GeoToStrFunc,
   u_StreamReadOnlyByBinaryData;
 

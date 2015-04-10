@@ -145,7 +145,7 @@ implementation
 uses
   UrlMon,
   ALString,
-  u_StrUtil,
+  u_StrFunc,
   u_ListenerByEvent,
   u_Synchronizer,
   u_HttpStatusChecker,

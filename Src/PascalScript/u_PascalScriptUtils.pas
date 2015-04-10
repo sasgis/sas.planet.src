@@ -37,7 +37,7 @@ uses
   ALString,
   DateUtils,
   u_GeoToStrFunc,
-  u_StrUtil;
+  u_StrFunc;
 
 procedure CompileTimeReg_Utils(const APSComp: TPSPascalCompiler);
 begin
@@ -53,7 +53,7 @@ begin
   // u_GeoToStrFunc
   APSComp.AddDelphiFunction('function RoundEx(const chislo: Double; const Precision: Integer): String');
 
-  // u_StrUtil
+  // u_StrFunc
   APSComp.AddDelphiFunction('function GetAfter(SubStr, Str: AnsiString): AnsiString');
   APSComp.AddDelphiFunction('function GetBefore(SubStr, Str: AnsiString): AnsiString');
   APSComp.AddDelphiFunction('function GetBetween(Str, After, Before: AnsiString): AnsiString');
@@ -205,7 +205,7 @@ begin
   // u_GeoToStrFunc
   APSExec.RegisterDelphiFunction(@RoundEx, 'RoundEx', cdRegister);
 
-  // u_StrUtil
+  // u_StrFunc
   APSExec.RegisterDelphiFunction(@GetAfter, 'GetAfter', cdRegister);
   APSExec.RegisterDelphiFunction(@GetBefore, 'GetBefore', cdRegister);
   APSExec.RegisterDelphiFunction(@GetBetween, 'GetBetween', cdRegister);

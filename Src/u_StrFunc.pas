@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_StrUtil;
+unit u_StrFunc;
 
 interface
 

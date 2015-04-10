@@ -75,7 +75,7 @@ uses
   u_BinaryData,
   u_DownloadRequest,
   u_NotifierOperation,
-  u_StrUtil;
+  u_StrFunc;
 
 procedure GenerateAvailPicsDD(
   var ADDs: TAvailPicsDataDoors;

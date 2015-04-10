@@ -1165,6 +1165,7 @@ uses
   u_SearchResultPresenterOnPanel in 'Src\MainForm\u_SearchResultPresenterOnPanel.pas',
   u_BitmapFunc in 'Src\u_BitmapFunc.pas',
   u_ClipboardFunc in 'Src\System\u_ClipboardFunc.pas',
+  u_StrFunc in 'Src\u_StrFunc.pas',
   i_PlayerPlugin in 'Src\Player\i_PlayerPlugin.pas',
   t_PlayerPlugin in 'Src\Player\t_PlayerPlugin.pas',
   u_PlayerPlugin in 'Src\Player\u_PlayerPlugin.pas',
