@@ -25,32 +25,17 @@ interface
 uses
   SysUtils,
   uPSR_dll,
-  uPSRuntime,  
-  uPSUtils,
-  u_BaseInterfacedObject;
+  uPSRuntime;
 
 type
-  EPascalScriptEmptyScript = class(Exception);
-  EPascalScriptRunError = class(Exception);
-
   TBasePascalScriptExec = class(TPSExec)
   public
     procedure RegisterAppCommonRoutines;
   end;
 
-  TBasePascalScriptCompiled = class(TBaseInterfacedObject)
-  protected
-    FExec: TBasePascalScriptExec;
-  protected
-    procedure PrepareCompiledScript(const ACompiledData: TbtString);
-    procedure RegisterAppRoutines; virtual;
-    procedure RegisterAppVars; virtual; abstract;
-  end;
-
 implementation
 
 uses
-  u_ResStrings,
   u_PascalScriptBase64,
   u_PascalScriptRegExpr,
   u_PascalScriptMath,
@@ -66,36 +51,6 @@ begin
   ExecTimeReg_RegExpr(Self);
   ExecTimeReg_Base64(Self);
   ExecTimeReg_Utils(Self);
-end;
-
-{ TBasePascalScriptCompiled }
-
-procedure TBasePascalScriptCompiled.PrepareCompiledScript(const ACompiledData: TbtString);
-begin
-  // create
-  FExec := TBasePascalScriptExec.Create;
-
-  // init by common
-  FExec.RegisterAppCommonRoutines;
-
-  // init by self
-  Self.RegisterAppRoutines;
-
-  // load
-  if not FExec.LoadData(ACompiledData) then begin
-    raise Exception.Create(
-      SAS_ERR_PascalScriptByteCodeLoad + #13#10 +
-      string(TIFErrorToString(FExec.ExceptionCode, FExec.ExceptionString))
-    );
-  end;
-
-  // loaded - add variables
-  Self.RegisterAppVars;
-end;
-
-procedure TBasePascalScriptCompiled.RegisterAppRoutines;
-begin
-  // empty
 end;
 
 end.
