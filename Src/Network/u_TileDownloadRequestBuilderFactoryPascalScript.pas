@@ -24,7 +24,6 @@ interface
 
 uses
   SysUtils,
-  uPSUtils,
   i_LanguageManager,
   i_Downloader,
   i_CoordConverter,
@@ -35,11 +34,11 @@ uses
   i_TileDownloadRequestBuilderConfig,
   i_TileDownloadRequestBuilder,
   i_TileDownloadRequestBuilderFactory,
-  u_BasePascalCompiler,
+  u_BaseInterfacedObject,
   u_TileDownloaderStateInternal;
 
 type
-  TTileDownloadRequestBuilderFactoryPascalScript = class(TBaseFactoryPascalScript, ITileDownloadRequestBuilderFactory)
+  TTileDownloadRequestBuilderFactoryPascalScript = class(TBaseInterfacedObject, ITileDownloadRequestBuilderFactory)
   private
     FState: ITileDownloaderStateChangeble;
     FStateInternal: ITileDownloaderStateInternal;
@@ -49,14 +48,12 @@ type
     FCheker: IDownloadChecker;
     FLangManager: ILanguageManager;
     FCS: IReadWriteSync;
+    FCompiledData: AnsiString;
+    FScriptText: AnsiString;
     FScriptInited: Boolean;
     FDefProjConverter: IProjConverter;
     FProjFactory: IProjConverterFactory;
-  protected
-    function DoCompilerOnAuxUses(
-      ACompiler: TBasePascalCompiler;
-      const AName: tbtString
-    ): Boolean; override;
+    procedure DoCompileScript;
   protected
     function GetState: ITileDownloaderStateChangeble;
     function BuildRequestBuilder(const ADownloader: IDownloader): ITileDownloadRequestBuilder;
@@ -75,9 +72,10 @@ type
 implementation
 
 uses
-  ALString,
-  uPSCompiler,
+  t_PascalScript,
   u_Synchronizer,
+  u_PascalScriptTypes,
+  u_PascalScriptCompiler,
   u_TileDownloadRequestBuilderPascalScript,
   u_TileDownloadRequestBuilderPascalScriptVars;
 
@@ -95,8 +93,8 @@ constructor TTileDownloadRequestBuilderFactoryPascalScript.Create(
 var
   VState: TTileDownloaderStateInternal;
 begin
-  inherited Create(AScriptText);
-
+  inherited Create;
+  FScriptText := AScriptText;
   FConfig := AConfig;
   FCheker := ACheker;
   FLangManager := ALangManager;
@@ -109,21 +107,35 @@ begin
   FStateInternal := VState;
   FState := VState;
 
-  if AScriptText = '' then begin
+  if FScriptText = '' then begin
     FStateInternal.Disable('Empty script');
   end;
+
+  FCompiledData := '';
 end;
 
-function TTileDownloadRequestBuilderFactoryPascalScript.DoCompilerOnAuxUses(
-  ACompiler: TBasePascalCompiler;
-  const AName: tbtString
-): Boolean;
+procedure TTileDownloadRequestBuilderFactoryPascalScript.DoCompileScript;
+
+  function _GetRegProcArray: TOnCompileTimeRegProcArray;
+  begin
+    SetLength(Result, 5);
+    Result[0] := @CompileTimeReg_ProjConverter;
+    Result[1] := @CompileTimeReg_ProjConverterFactory;
+    Result[2] := @CompileTimeReg_CoordConverterSimple;
+    Result[3] := @CompileTimeReg_SimpleHttpDownloader;
+    Result[4] := @CompileTimeReg_RequestBuilderVars;
+  end; 
+
+var
+  VCompiler: TPascalScriptCompiler;
 begin
-  if ALSameText('SYSTEM', AName) then begin
-    CompileTimeReg_RequestBuilderVars(ACompiler);
-    Result := True;
-  end else begin
-    Result := False;
+  VCompiler := TPascalScriptCompiler.Create(FScriptText, _GetRegProcArray);
+  try
+    if not VCompiler.CompileAndGetOutput(FCompiledData) then begin
+      FCompiledData := '';
+    end;
+  finally
+    VCompiler.Free;
   end;
 end;
 
@@ -150,7 +162,7 @@ begin
               if VProjArgs <> '' then begin
                 FDefProjConverter := FProjFactory.GetByInitString(VProjArgs);
               end;
-              PreparePascalScript;
+              DoCompileScript;
               FScriptInited := True;
             except
               on E: EPascalScriptCompileError do begin
@@ -167,7 +179,7 @@ begin
       end;
       Result :=
         TTileDownloadRequestBuilderPascalScript.Create(
-          CompiledData,
+          FCompiledData,
           FConfig,
           FTileDownloaderConfig,
           FCoordConverter,

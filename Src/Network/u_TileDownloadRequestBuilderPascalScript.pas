@@ -23,8 +23,7 @@ unit u_TileDownloadRequestBuilderPascalScript;
 interface
 
 uses
-  Types,
-  Windows,
+  Types,  
   SysUtils,
   uPSRuntime,
   uPSUtils,
@@ -240,7 +239,7 @@ begin
   // load
   if not FPSExec.LoadData(ACompiledData) then begin
     raise Exception.Create(
-      SAS_ERR_UrlScriptByteCodeLoad + #13#10 +
+      SAS_ERR_PascalScriptByteCodeLoad + #13#10 +
       string(TIFErrorToString(FPSExec.ExceptionCode, FPSExec.ExceptionString))
     );
   end;

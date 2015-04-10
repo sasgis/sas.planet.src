@@ -85,8 +85,8 @@ ResourceString
   SAS_ERR_MapGUIDError = 'There is an error %1:s in map %0:s';
   SAS_ERR_MapGUIDDuplicate = 'Files %0:s and %1:s have the same GUID';
   SAS_ERR_MainMapNotExists = 'You need at least one MAP among your ZMP files';
-  SAS_ERR_UrlScriptCompileError = 'Compilation error in script '#13#10'%0:s';
-  SAS_ERR_UrlScriptByteCodeLoad = 'Error at script bytecode loading';
+  SAS_ERR_PascalScriptCompileError = 'Compilation error in script '#13#10'%0:s';
+  SAS_ERR_PascalScriptByteCodeLoad = 'Error at script bytecode loading';
   SAS_ERR_MapProjectionUnexpectedType = 'Error in projection "%0:s" of the map';
   SAS_ERR_TileDownloadUnexpectedError = 'Unknown error during download';
   SAS_ERR_CoordinatesInput = 'Error in geographic coordinates';
