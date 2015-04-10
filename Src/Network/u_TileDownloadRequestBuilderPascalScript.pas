@@ -41,7 +41,7 @@ uses
   i_SimpleFlag,
   i_TileDownloadRequest,
   i_TileDownloadRequestBuilderConfig,
-  u_BasePascalCompiler,
+  u_PSExecEx,
   u_TileDownloadRequestBuilder,
   u_TileDownloadRequestBuilderPascalScriptVars;
 

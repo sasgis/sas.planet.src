@@ -870,7 +870,6 @@
     <DCCReference Include="Src\Network\i_TileRequestResult.pas" />
     <DCCReference Include="Src\Network\i_TileRequestTask.pas" />
     <DCCReference Include="Src\Network\u_AntiBanStuped.pas" />
-    <DCCReference Include="Src\Network\u_BasePascalCompiler.pas" />
     <DCCReference Include="Src\Network\u_DownloadCheckerStuped.pas" />
     <DCCReference Include="Src\Network\u_DownloaderFaked.pas" />
     <DCCReference Include="Src\Network\u_DownloaderHttp.pas" />
@@ -889,6 +888,7 @@
     <DCCReference Include="Src\Network\u_InetFunc.pas" />
     <DCCReference Include="Src\Network\u_LastResponseInfo.pas" />
     <DCCReference Include="Src\Network\u_ProxyConfig.pas" />
+    <DCCReference Include="Src\PascalScript\u_PSExecEx.pas" />
     <DCCReference Include="Src\Network\u_SimpleHttpDownloader.pas" />
     <DCCReference Include="Src\Network\u_TileDownloaderConfig.pas" />
     <DCCReference Include="Src\Network\u_TileDownloaderConfigStatic.pas" />

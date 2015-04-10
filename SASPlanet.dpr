@@ -530,7 +530,7 @@ uses
   i_CoordConverterList in 'Src\CoordConvert\i_CoordConverterList.pas',
   u_CoordConverterListStatic in 'Src\CoordConvert\u_CoordConverterListStatic.pas',
   u_CoordConverterListStaticSimple in 'Src\CoordConvert\u_CoordConverterListStaticSimple.pas',
-  u_BasePascalCompiler in 'Src\Network\u_BasePascalCompiler.pas',
+  u_PSExecEx in 'Src\PascalScript\u_PSExecEx.pas',
   i_InterfaceQueue in 'Src\i_InterfaceQueue.pas',
   u_InterfaceQueue in 'Src\u_InterfaceQueue.pas',
   u_TileDownloaderWithQueue in 'Src\Network\u_TileDownloaderWithQueue.pas',
