@@ -193,6 +193,8 @@ uses
   i_ArchiveReadWrite,
   i_ConfigDataProvider,
   i_CoordConverter,
+  i_LastResponseInfo,
+  i_MapVersionInfo,
   i_SimpleHttpDownloader,
   u_PascalScriptTypes,
   u_ZmpInfo,
