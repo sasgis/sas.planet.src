@@ -506,6 +506,7 @@
     <DCCReference Include="Src\MainForm\u_MapMovingConfig.pas" />
     <DCCReference Include="Src\MainForm\u_MapTypeIconsList.pas" />
     <DCCReference Include="Src\MainForm\u_MapTypeMenuItemsGeneratorBasic.pas" />
+    <DCCReference Include="Src\MainForm\u_MapTypeMenuItemsGeneratorSimple.pas" />
     <DCCReference Include="Src\MainForm\u_MapViewGoto.pas" />
     <DCCReference Include="Src\MainForm\u_MapViewPortState.pas" />
     <DCCReference Include="Src\MainForm\u_MapZoomingConfig.pas" />
@@ -888,7 +889,6 @@
     <DCCReference Include="Src\Network\u_InetFunc.pas" />
     <DCCReference Include="Src\Network\u_LastResponseInfo.pas" />
     <DCCReference Include="Src\Network\u_ProxyConfig.pas" />
-    <DCCReference Include="Src\PascalScript\u_PSExecEx.pas" />
     <DCCReference Include="Src\Network\u_SimpleHttpDownloader.pas" />
     <DCCReference Include="Src\Network\u_TileDownloaderConfig.pas" />
     <DCCReference Include="Src\Network\u_TileDownloaderConfigStatic.pas" />
@@ -918,6 +918,12 @@
     <DCCReference Include="Src\Network\u_UiTileDownload.pas" />
     <DCCReference Include="Src\Network\u_UITileDownloadList.pas" />
     <DCCReference Include="Src\Network\u_UiTileRequestManager.pas" />
+    <DCCReference Include="Src\PascalScript\frm_PascalScriptDbgOut.pas">
+      <Form>frmPascalScriptDbgOut</Form>
+    </DCCReference>
+    <DCCReference Include="Src\PascalScript\frm_PascalScriptIDE.pas">
+      <Form>frmPascalScriptIDE</Form>
+    </DCCReference>
     <DCCReference Include="Src\PascalScript\t_PascalScript.pas" />
     <DCCReference Include="Src\PascalScript\u_PascalScriptBase64.pas" />
     <DCCReference Include="Src\PascalScript\u_PascalScriptCompiler.pas" />
@@ -925,6 +931,7 @@
     <DCCReference Include="Src\PascalScript\u_PascalScriptRegExpr.pas" />
     <DCCReference Include="Src\PascalScript\u_PascalScriptTypes.pas" />
     <DCCReference Include="Src\PascalScript\u_PascalScriptUtils.pas" />
+    <DCCReference Include="Src\PascalScript\u_PSExecEx.pas" />
     <DCCReference Include="Src\PascalScript\u_PSPascalCompilerEx.pas" />
     <DCCReference Include="Src\Performance\i_InternalPerformanceCounter.pas" />
     <DCCReference Include="Src\Performance\i_InternalPerformanceCounterListForDebug.pas" />

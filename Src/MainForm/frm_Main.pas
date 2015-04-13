@@ -106,6 +106,7 @@ uses
   frm_GoTo,
   frm_PointProjecting,
   frm_UpdateChecker,
+  frm_PascalScriptIDE,
   u_CommonFormAndFrameParents;
 
 type
@@ -420,6 +421,8 @@ type
     TBXSubmenuMap: TTBXSubmenuItem;
     tbxnxtmap: TTBXItem;
     tbxprevmap: TTBXItem;
+    tbxtmPascalScriptIDE: TTBXItem;
+    tbxSep2: TTBXSeparatorItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -655,6 +658,7 @@ type
     procedure TBXPrevVerClick(Sender: TObject);
     procedure tbxnxtmapClick(Sender: TObject);
     procedure tbxprevmapClick(Sender: TObject);
+    procedure tbxtmPascalScriptIDEClick(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -732,6 +736,7 @@ type
     FfrmAbout: TfrmAbout;
     FfrmPointProjecting: TfrmPointProjecting;
     FfrmUpdateChecker: TfrmUpdateChecker;
+    FfrmPascalScriptIDE: TfrmPascalScriptIDE;
 
     FPathProvidersTree: ITreeChangeable;
     FPathProvidersTreeStatic: IStaticTreeItem;
@@ -1074,6 +1079,8 @@ begin
     );
   FViewPortState.ReadConfig(GState.MainConfigProvider.GetSubItem('Position'));
 
+  LoadMapIconsList;
+
   FMapGoto := TMapViewGoto.Create(FViewPortState);
   FMarkDBGUI :=
     TMarkDbGUIHelper.Create(
@@ -1178,6 +1185,25 @@ begin
     );
   FfrmUpdateChecker.PopupParent := Self;
 
+  FfrmPascalScriptIDE :=
+    TfrmPascalScriptIDE.Create(
+      GState.MapType.GUIConfigList,
+      FMainMapState,
+      GState.Config.ZmpConfig,
+      GState.CoordConverterFactory,
+      GState.ContentTypeManager,
+      GState.MapVersionFactoryList.GetSimpleVersionFactory,
+      GState.BufferFactory,
+      GState.Bitmap32StaticFactory,
+      GState.Config.InetConfig,
+      GState.ProjConverterFactory,
+      GState.ArchiveReadWriteFactory,
+      GState.Config.LanguageManager,
+      GState.AppClosingNotifier,
+      FViewPortState.View
+    );
+  FfrmPascalScriptIDE.PopupParent := Self;
+
   FfrmPointProjecting :=
     TfrmPointProjecting.Create(
       GState.Config.LanguageManager,
@@ -1200,8 +1226,6 @@ begin
       GState.Config.LanguageManager,
       GState.TileStorageTypeList
     );
-
-  LoadMapIconsList;
 
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnStateChange),
@@ -3298,6 +3322,7 @@ begin
   FreeAndNil(FfrmPointProjecting);
   FreeAndNil(FMarkDBGUI);
   FreeAndNil(FfrmUpdateChecker);
+  FreeAndNil(FfrmPascalScriptIDE);
   inherited;
 end;
 
@@ -6848,6 +6873,11 @@ end;
 procedure TfrmMain.TBXSensorsBarVisibleChanged(Sender: TObject);
 begin
   NSensors.Checked := TTBXToolWindow(Sender).Visible;
+end;
+
+procedure TfrmMain.tbxtmPascalScriptIDEClick(Sender: TObject);
+begin
+  FfrmPascalScriptIDE.Show;
 end;
 
 procedure TfrmMain.NSensorsClick(Sender: TObject);

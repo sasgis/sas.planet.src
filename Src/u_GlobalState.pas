@@ -226,6 +226,7 @@ type
     property CoordConverterFactory: ICoordConverterFactory read FCoordConverterFactory;
     property CoordConverterList: ICoordConverterList read FCoordConverterList;
     property ProjectionFactory: IProjectionInfoFactory read FProjectionFactory;
+    property ProjConverterFactory: IProjConverterFactory read FProjConverterFactory;
     property LocalConverterFactory: ILocalCoordConverterFactorySimpe read FLocalConverterFactory;
     property MapTypeSetBuilderFactory: IMapTypeSetBuilderFactory read FMapTypeSetBuilderFactory;
     property MapTypeListBuilderFactory: IMapTypeListBuilderFactory read FMapTypeListBuilderFactory;

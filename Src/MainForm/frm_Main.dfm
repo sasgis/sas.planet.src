@@ -1362,6 +1362,16 @@ object frmMain: TfrmMain
           Caption = 'Check for updates...'
           Hint = ''
         end
+        object tbxSep2: TTBXSeparatorItem
+          Caption = ''
+          Hint = ''
+        end
+        object tbxtmPascalScriptIDE: TTBXItem
+          Images = MenusImageList
+          OnClick = tbxtmPascalScriptIDEClick
+          Caption = 'PascalScript IDE'
+          Hint = ''
+        end
       end
     end
     object TBXToolBarSearch: TTBXToolbar
