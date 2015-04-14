@@ -127,7 +127,7 @@ type
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
   private
     FPrepared: Boolean;
-    FZmpModified: Boolean;
+    FNeedSavePrompt: Boolean;
     FLastPath: string;
     FfrmDebug: TfrmPascalScriptDbgOut;
     synedtScript: TSynEdit;
@@ -168,6 +168,8 @@ type
     procedure InitByZmp(const AZmp: IZmpInfo);
     procedure OnAppClosing;
     procedure CancelOperation;
+    function IsModified: Boolean;
+    procedure ResetModified;
   public
     constructor Create(
       const AGUIConfigList: IMapTypeGUIConfigList;
@@ -304,7 +306,7 @@ begin
   );
 
   FPrepared := False;
-  FZmpModified := True;
+  FNeedSavePrompt := False;
   FZmp := nil;
   FArchiveStream := TMemoryStream.Create;
   FLastPath := '';
@@ -332,8 +334,9 @@ end;
 
 procedure TfrmPascalScriptIDE.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
-  if FZmpModified then begin
+  if FNeedSavePrompt then begin
     CanClose := MessageDlg(rsCanCloseQuery, mtInformation, [mbYes, mbNo], 0) = mrYes;
+    FNeedSavePrompt := not CanClose;
   end;
 end;
 
@@ -354,7 +357,6 @@ begin
     CreateMapUILayersList;
   end;
   InitByZmp(FMainMapState.ActiveMap.GetStatic.Zmp);
-  FZmpModified := False;
 end;
 
 procedure TfrmPascalScriptIDE.InitByZmp(const AZmp: IZmpInfo);
@@ -363,21 +365,26 @@ begin
   synedtParams.Text := FZmp.DataProvider.ReadString('params.txt', '');
   synedtScript.Text := FZmp.DataProvider.ReadString('GetUrlScript.txt', '');
   FScriptBuffer := '';
+  ResetModified;
+  FNeedSavePrompt := False;
 end;
 
 function TfrmPascalScriptIDE.Compile(out AByteCode: AnsiString): Boolean;
 var
   I: Integer;
   VCode: string;
+  VBuff: AnsiString;
   VComp: TPSPascalCompilerEx;
 begin
   AByteCode := '';
 
   FfrmDebug.mmoDbgOut.Lines.Clear;
 
-  if FZmpModified then begin
+  if IsModified then begin
+    VBuff := FScriptBuffer;
     InitByZmp(GetZmpFromGUI);
-    FZmpModified := False;
+    FScriptBuffer := VBuff;
+    FNeedSavePrompt := True;
   end;
   
   VCode := FZmp.DataProvider.ReadString('GetUrlScript.txt', '');
@@ -567,7 +574,6 @@ var
 begin
   VMapType := IMapType(TTBXItem(Sender).Tag);
   InitByZmp(VMapType.Zmp);
-  FZmpModified := False;
 end;
 
 procedure TfrmPascalScriptIDE.OnBeforeRunScript(const APSExec: TPSExecEx);
@@ -691,7 +697,6 @@ begin
   if SelectDirectory('', '', FLastPath, [sdNewUI, sdShowEdit, sdShowShares]) then begin
     FLastPath := IncludeTrailingPathDelimiter(FLastPath);
     InitByZmp(GetZmpFromFolder(FLastPath));
-    FZmpModified := False;
   end;
 end;
 
@@ -699,7 +704,6 @@ procedure TfrmPascalScriptIDE.tbxtmFromZipClick(Sender: TObject);
 begin
   if dlgOpenZmpFile.Execute then begin
     InitByZmp(GetZmpFromZip(dlgOpenZmpFile.FileName));
-    FZmpModified := False;
   end;
 end;
 
@@ -707,7 +711,6 @@ procedure TfrmPascalScriptIDE.tbxtmToArchiveClick(Sender: TObject);
 begin
   if dlgSaveZmpFile.Execute then begin
     InitByZmp(GetZmpFromGUI); // this will init FArchiveStream with zmp data
-    FZmpModified := False;
     FArchiveStream.SaveToFile(dlgSaveZmpFile.FileName);
   end;
 end;
@@ -722,9 +725,8 @@ begin
     if not ForceDirectories(FLastPath) then begin
       RaiseLastOSError;
     end;
-    if FZmpModified then begin
+    if IsModified then begin
       InitByZmp(GetZmpFromGUI);
-      FZmpModified := False;
     end;
     VStream := TMemoryStream.Create;
     try
@@ -821,11 +823,22 @@ var
 begin
   VEdit := TSynEdit(Sender);
   if scModified in Changes then begin
-    FZmpModified := True;
+    FNeedSavePrompt := True;
   end;
   statEditor.Panels[0].Text :=
     'Ln : ' + IntToStr(VEdit.CaretY) + '    ' +
     'Col : ' + IntToStr(VEdit.CaretX);
+end;
+
+function TfrmPascalScriptIDE.IsModified: Boolean;
+begin
+  Result := synedtScript.Modified or synedtParams.Modified;
+end;
+
+procedure TfrmPascalScriptIDE.ResetModified;
+begin
+  synedtScript.Modified := False;
+  synedtParams.Modified := False;
 end;
 
 procedure TfrmPascalScriptIDE.tbxtmWordWrapClick(Sender: TObject);
