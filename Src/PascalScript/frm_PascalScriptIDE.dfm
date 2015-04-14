@@ -13,6 +13,7 @@ object frmPascalScriptIDE: TfrmPascalScriptIDE
   OldCreateOrder = False
   Position = poMainFormCenter
   OnClose = FormClose
+  OnCloseQuery = FormCloseQuery
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
@@ -37,6 +38,7 @@ object frmPascalScriptIDE: TfrmPascalScriptIDE
     UseThemeColor = False
     Caption = 'tbtlbrMain'
     object tbxsbmntmOpen: TTBXSubmenuItem
+      Options = [tboDropdownArrow]
       Caption = 'Open zmp'
       Hint = ''
       object tbxtmFromFolder: TTBXItem
@@ -59,6 +61,21 @@ object frmPascalScriptIDE: TfrmPascalScriptIDE
       end
       object tbxsbmntmLayer: TTBXSubmenuItem
         Caption = 'From Layer'
+        Hint = ''
+      end
+    end
+    object tbxSave: TTBXSubmenuItem
+      Options = [tboDropdownArrow]
+      Caption = 'Save zmp'
+      Hint = ''
+      object tbxtmToFolder: TTBXItem
+        OnClick = tbxtmToFolderClick
+        Caption = 'To Folder'
+        Hint = ''
+      end
+      object tbxtmToArchive: TTBXItem
+        OnClick = tbxtmToArchiveClick
+        Caption = 'To Archive'
         Hint = ''
       end
     end
@@ -108,7 +125,7 @@ object frmPascalScriptIDE: TfrmPascalScriptIDE
       Caption = 'Decompile'
       Hint = ''
     end
-    object tbxsprtrtm1: TTBXSeparatorItem
+    object tbxsprtrtm3: TTBXSeparatorItem
       Caption = ''
       Hint = ''
     end
@@ -117,6 +134,15 @@ object frmPascalScriptIDE: TfrmPascalScriptIDE
       Checked = True
       OnClick = tbxtmWordWrapClick
       Caption = 'Word Wrap'
+      Hint = ''
+    end
+    object tbxsprtrtm1: TTBXSeparatorItem
+      Caption = ''
+      Hint = ''
+    end
+    object tbxtmHelp: TTBXItem
+      OnClick = tbxtmHelpClick
+      Caption = 'On-Line Help'
       Hint = ''
     end
   end
@@ -288,8 +314,17 @@ object frmPascalScriptIDE: TfrmPascalScriptIDE
     end
   end
   object dlgOpenZmpFile: TOpenDialog
+    DefaultExt = '*.zmp'
+    Filter = 'ZMP | *.zmp'
     Options = [ofFileMustExist, ofEnableSizing]
     Left = 8
+    Top = 56
+  end
+  object dlgSaveZmpFile: TSaveDialog
+    DefaultExt = '*.zmp'
+    Filter = 'ZMP | *.zmp'
+    Options = [ofEnableSizing]
+    Left = 40
     Top = 56
   end
 end

@@ -104,6 +104,12 @@ type
     lblGetZ: TLabel;
     edtGetZ: TEdit;
     btnSetXYZ: TButton;
+    tbxSave: TTBXSubmenuItem;
+    tbxtmToFolder: TTBXItem;
+    tbxtmToArchive: TTBXItem;
+    dlgSaveZmpFile: TSaveDialog;
+    tbxtmHelp: TTBXItem;
+    tbxsprtrtm3: TTBXSeparatorItem;
     procedure tbxtmParamsClick(Sender: TObject);
     procedure tbxtmScriptClick(Sender: TObject);
     procedure tbxtmRunClick(Sender: TObject);
@@ -115,6 +121,10 @@ type
     procedure tbxtmFromFolderClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btnSetXYZClick(Sender: TObject);
+    procedure tbxtmToArchiveClick(Sender: TObject);
+    procedure tbxtmToFolderClick(Sender: TObject);
+    procedure tbxtmHelpClick(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
   private
     FPrepared: Boolean;
     FZmpModified: Boolean;
@@ -199,6 +209,7 @@ uses
   u_PascalScriptTypes,
   u_ZmpInfo,
   u_GeoFunc,
+  u_InetFunc,
   u_BinaryData,
   u_TileRequest,
   u_Notifier,
@@ -217,6 +228,19 @@ uses
 resourcestring
   rsSuccessfullyCompiled = 'Successfully compiled';
   rsSuccessfullyExecuted = 'Successfully executed';
+
+  rsCanCloseQuery =
+    'ZMP has been modified, but not saved yet!' + #13#10#13#10 +
+    'Do you really want to close without saving?';
+
+const
+  cWikiPage =
+    'http://www.sasgis.org/wikisasiya/doku.php/' +
+    '%D0%BE%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D1%8F_' +
+    '%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0_%D0%BF' +
+    '%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%' +
+    'D0%B5%D0%BB%D1%8C%D1%81%D0%BA%D0%B8%D1%85_%D0%BA%' +
+    'D0%B0%D1%80%D1%82_zmp';
 
 function CompileTime_GetRegProcArray: TOnCompileTimeRegProcArray;
 begin
@@ -306,6 +330,13 @@ begin
   Application.MainForm.SetFocus;
 end;
 
+procedure TfrmPascalScriptIDE.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+begin
+  if FZmpModified then begin
+    CanClose := MessageDlg(rsCanCloseQuery, mtInformation, [mbYes, mbNo], 0) = mrYes;
+  end;
+end;
+
 procedure TfrmPascalScriptIDE.FormShow(Sender: TObject);
 var
   I: Integer;
@@ -329,7 +360,7 @@ end;
 procedure TfrmPascalScriptIDE.InitByZmp(const AZmp: IZmpInfo);
 begin
   FZmp := AZmp;
-  synedtParams.Text := FZmp.DataProvider.ReadString('Params.txt', '');
+  synedtParams.Text := FZmp.DataProvider.ReadString('params.txt', '');
   synedtScript.Text := FZmp.DataProvider.ReadString('GetUrlScript.txt', '');
   FScriptBuffer := '';
 end;
@@ -657,7 +688,7 @@ end;
 
 procedure TfrmPascalScriptIDE.tbxtmFromFolderClick(Sender: TObject);
 begin
-  if SelectDirectory('', '', FLastPath) then begin
+  if SelectDirectory('', '', FLastPath, [sdNewUI, sdShowEdit, sdShowShares]) then begin
     FLastPath := IncludeTrailingPathDelimiter(FLastPath);
     InitByZmp(GetZmpFromFolder(FLastPath));
     FZmpModified := False;
@@ -670,6 +701,49 @@ begin
     InitByZmp(GetZmpFromZip(dlgOpenZmpFile.FileName));
     FZmpModified := False;
   end;
+end;
+
+procedure TfrmPascalScriptIDE.tbxtmToArchiveClick(Sender: TObject);
+begin
+  if dlgSaveZmpFile.Execute then begin
+    InitByZmp(GetZmpFromGUI); // this will init FArchiveStream with zmp data
+    FZmpModified := False;
+    FArchiveStream.SaveToFile(dlgSaveZmpFile.FileName);
+  end;
+end;
+
+procedure TfrmPascalScriptIDE.tbxtmToFolderClick(Sender: TObject);
+var
+  VData: AnsiString;
+  VStream: TMemoryStream;
+begin
+  if SelectDirectory('', '', FLastPath, [sdNewFolder, sdNewUI, sdShowEdit, sdShowShares]) then begin
+    FLastPath := IncludeTrailingPathDelimiter(FLastPath);
+    if not ForceDirectories(FLastPath) then begin
+      RaiseLastOSError;
+    end;
+    if FZmpModified then begin
+      InitByZmp(GetZmpFromGUI);
+      FZmpModified := False;
+    end;
+    VStream := TMemoryStream.Create;
+    try
+      VData := FZmp.DataProvider.ReadAnsiString('GetUrlScript.txt', '');
+      VStream.WriteBuffer(VData[1], Length(VData));
+      VStream.SaveToFile(FLastPath + 'GetUrlScript.txt');
+      VStream.Clear;
+      VData := FZmp.DataProvider.ReadAnsiString('params.txt', '');
+      VStream.WriteBuffer(VData[1], Length(VData));
+      VStream.SaveToFile(FLastPath + 'params.txt');
+    finally
+      VStream.Free;
+    end;
+  end;
+end;
+
+procedure TfrmPascalScriptIDE.tbxtmHelpClick(Sender: TObject);
+begin
+  OpenUrlInBrowser(cWikiPage);
 end;
 
 procedure TfrmPascalScriptIDE.CreateSynEditTextHighlighters;
