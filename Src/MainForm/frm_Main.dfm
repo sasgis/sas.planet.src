@@ -1356,20 +1356,20 @@ object frmMain: TfrmMain
           Caption = ''
           Hint = ''
         end
-        object tbitmCheckUpdate: TTBXItem
+        object tbxtmPascalScriptIDE: TTBXItem
           Images = MenusImageList
-          OnClick = tbitmCheckUpdateClick
-          Caption = 'Check for updates...'
+          OnClick = tbxtmPascalScriptIDEClick
+          Caption = 'PascalScript IDE'
           Hint = ''
         end
         object tbxSep2: TTBXSeparatorItem
           Caption = ''
           Hint = ''
         end
-        object tbxtmPascalScriptIDE: TTBXItem
+        object tbitmCheckUpdate: TTBXItem
           Images = MenusImageList
-          OnClick = tbxtmPascalScriptIDEClick
-          Caption = 'PascalScript IDE'
+          OnClick = tbitmCheckUpdateClick
+          Caption = 'Check for updates...'
           Hint = ''
         end
       end
