@@ -363,6 +363,8 @@ type
       const XY: TPoint;
       const AZoom: byte
     ): TPoint; override;
+    function LonLat2MetrInternal(const ALl: TDoublePoint): TDoublePoint; override;
+    function Metr2LonLatInternal(const AMm: TDoublePoint): TDoublePoint; override;
   private
     function Pos2LonLat(
       const AXY: TPoint;
@@ -1477,6 +1479,19 @@ end;
 
 //------------------------------------------------------------------------------
 // LonLatPos
+function TCoordConverterBasic.LonLat2MetrInternal(
+  const ALl: TDoublePoint
+): TDoublePoint;
+var
+  VRelative: TDoublePoint;
+  VMul: Double;
+begin
+  VRelative := LonLat2RelativeInternal(ALl);
+  VMul := 2 * Pi * GetDatum.GetSpheroidRadiusA;
+  Result.X := (VRelative.X - 0.5) * VMul;
+  Result.Y := (0.5 - VRelative.Y) * VMul;
+end;
+
 function TCoordConverterBasic.LonLat2PixelPosFloatInternal(
   const ALonLat: TDoublePoint;
   AZoom: byte
@@ -1524,6 +1539,19 @@ begin
       LonLatRect2RelativeRectInternal(XY),
       AZoom
     );
+end;
+
+function TCoordConverterBasic.Metr2LonLatInternal(
+  const AMm: TDoublePoint
+): TDoublePoint;
+var
+  VRelative: TDoublePoint;
+  VMul: Double;
+begin
+  VMul := 1.0 / (2 * Pi * GetDatum.GetSpheroidRadiusA);
+  VRelative.X := AMm.X * VMul - 0.5;
+  VRelative.Y := 0.5 - AMm.Y * VMul;
+  Result := Relative2LonLatInternal(VRelative);
 end;
 
 //------------------------------------------------------------------------------

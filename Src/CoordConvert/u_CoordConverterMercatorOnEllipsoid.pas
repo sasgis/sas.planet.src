@@ -33,8 +33,6 @@ type
   private
     FExct: Double;
   protected
-    function LonLat2MetrInternal(const ALL: TDoublePoint): TDoublePoint; override;
-    function Metr2LonLatInternal(const AMm: TDoublePoint): TDoublePoint; override;
     function LonLat2RelativeInternal(const XY: TDoublePoint): TDoublePoint; override; stdcall;
     function Relative2LonLatInternal(const XY: TDoublePoint): TDoublePoint; override; stdcall;
   public
@@ -48,8 +46,7 @@ type
 implementation
 
 uses
-  Math,
-  u_CoordConverterRoutines;
+  Math;
 
 const
   MerkElipsK = 0.000000001;
@@ -71,11 +68,6 @@ begin
   FExct := sqrt(VRadiusA * VRadiusA - VRadiusB * VRadiusB) / VRadiusA;
 end;
 
-function TCoordConverterMercatorOnEllipsoid.LonLat2MetrInternal(const ALL: TDoublePoint): TDoublePoint;
-begin
-  Result := Ellipsoid_LonLat2Metr(Datum.GetSpheroidRadiusA, FExct, ALL);
-end;
-
 function TCoordConverterMercatorOnEllipsoid.LonLat2RelativeInternal(
   const XY: TDoublePoint): TDoublePoint;
 var
@@ -87,11 +79,6 @@ begin
   z := sin(VLonLat.y * Pi / 180);
   c := (1 / (2 * Pi));
   Result.y := (0.5 - c * (ArcTanh(z) - FExct * ArcTanh(FExct * z)));
-end;
-
-function TCoordConverterMercatorOnEllipsoid.Metr2LonLatInternal(const AMm: TDoublePoint): TDoublePoint;
-begin
-  Result := Ellipsoid_Metr2LonLat(Datum.GetSpheroidRadiusA, FExct, AMm);
 end;
 
 function TCoordConverterMercatorOnEllipsoid.Relative2LonLatInternal(

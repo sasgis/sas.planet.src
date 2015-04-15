@@ -32,8 +32,6 @@ uses
 type
   TCoordConverterMercatorOnSphere = class(TCoordConverterBasic)
   protected
-    function LonLat2MetrInternal(const ALl: TDoublePoint): TDoublePoint; override;
-    function Metr2LonLatInternal(const AMm: TDoublePoint): TDoublePoint; override;
     function LonLat2RelativeInternal(const XY: TDoublePoint): TDoublePoint; override; stdcall;
     function Relative2LonLatInternal(const XY: TDoublePoint): TDoublePoint; override; stdcall;
   public
@@ -59,17 +57,6 @@ begin
   inherited;
 end;
 
-function TCoordConverterMercatorOnSphere.LonLat2MetrInternal(const ALl: TDoublePoint): TDoublePoint;
-var
-  VLonLat: TDoublePoint;
-begin
-  VLonLat := ALl;
-  VLonLat.x := VLonLat.x * (Pi / 180);
-  VLonLat.y := VLonLat.y * (Pi / 180);
-  result.x := Datum.GetSpheroidRadiusA * VLonLat.x;
-  result.y := Datum.GetSpheroidRadiusA * Ln(Tan(PI / 4 + VLonLat.y / 2));
-end;
-
 function TCoordConverterMercatorOnSphere.LonLat2RelativeInternal(const XY: TDoublePoint): TDoublePoint;
 var
   z, c: Extended;
@@ -78,16 +65,6 @@ begin
   z := sin(XY.y * Pi / 180);
   c := 1 / (2 * Pi);
   Result.y := 0.5 - 0.5 * ln((1 + z) / (1 - z)) * c;
-end;
-
-function TCoordConverterMercatorOnSphere.Metr2LonLatInternal(const AMm: TDoublePoint): TDoublePoint;
-begin
-  result.X := (AMm.X / Datum.GetSpheroidRadiusA) * (180 / Pi);
-
-  Result.Y := (AMm.Y / Datum.GetSpheroidRadiusA);
-  Result.Y := exp(Result.Y);
-  Result.Y := ArcTan(Result.Y);
-  Result.Y := (2 * (180 / Pi) * Result.Y) - 90;
 end;
 
 function TCoordConverterMercatorOnSphere.Relative2LonLatInternal(

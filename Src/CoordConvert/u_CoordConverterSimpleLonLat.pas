@@ -33,8 +33,6 @@ type
   private
     FExct: Double;
   protected
-    function LonLat2MetrInternal(const ALl: TDoublePoint): TDoublePoint; override;
-    function Metr2LonLatInternal(const AMm: TDoublePoint): TDoublePoint; override;
     function LonLat2RelativeInternal(const XY: TDoublePoint): TDoublePoint; override; stdcall;
     function Relative2LonLatInternal(const XY: TDoublePoint): TDoublePoint; override; stdcall;
   public
@@ -46,9 +44,6 @@ type
   end;
 
 implementation
-
-uses
-  u_CoordConverterRoutines;
 
 { TCoordConverterSimpleLonLat }
 
@@ -67,21 +62,11 @@ begin
   FExct := sqrt(VRadiusA * VRadiusA - VRadiusB * VRadiusB) / VRadiusA;
 end;
 
-function TCoordConverterSimpleLonLat.LonLat2MetrInternal(const ALl: TDoublePoint): TDoublePoint;
-begin
-  Result := Ellipsoid_LonLat2Metr(Datum.GetSpheroidRadiusA, FExct, ALl);
-end;
-
 function TCoordConverterSimpleLonLat.LonLat2RelativeInternal(
   const XY: TDoublePoint): TDoublePoint;
 begin
   Result.x := (0.5 + XY.x / 360);
   Result.y := (0.5 - XY.y / 360);
-end;
-
-function TCoordConverterSimpleLonLat.Metr2LonLatInternal(const AMm: TDoublePoint): TDoublePoint;
-begin
-  Result := Ellipsoid_Metr2LonLat(Datum.GetSpheroidRadiusA, FExct, AMm);
 end;
 
 function TCoordConverterSimpleLonLat.Relative2LonLatInternal(

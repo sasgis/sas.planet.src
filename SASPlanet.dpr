@@ -553,7 +553,6 @@ uses
   u_TileDownloaderSimple in 'Src\Network\u_TileDownloaderSimple.pas',
   u_DownloaderHttpWithTTL in 'Src\Network\u_DownloaderHttpWithTTL.pas',
   i_CoordConverter in 'Src\CoordConvert\i_CoordConverter.pas',
-  u_CoordConverterRoutines in 'Src\CoordConvert\u_CoordConverterRoutines.pas',
   u_CoordConverterAbstract in 'Src\CoordConvert\u_CoordConverterAbstract.pas',
   u_CoordConverterBasic in 'Src\CoordConvert\u_CoordConverterBasic.pas',
   u_CoordConverterMercatorOnEllipsoid in 'Src\CoordConvert\u_CoordConverterMercatorOnEllipsoid.pas',
