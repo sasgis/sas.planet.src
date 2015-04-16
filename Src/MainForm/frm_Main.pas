@@ -4798,6 +4798,7 @@ end;
 
 procedure TfrmMain.tbitmOpenFolderMainMapTileClick(Sender: TObject);
 var
+  VTilePath: string;
   VTileFileName: string;
   VZoomCurr: Byte;
   VLocalConverter: ILocalCoordConverter;
@@ -4826,10 +4827,11 @@ begin
       prToTopLeft
     );
   VTileFileName := VMapType.TileStorage.GetTileFileName(VTile, VZoomCurr, VMapType.VersionRequestConfig.GetStatic.BaseVersion);
-  if DirectoryExists(ExtractFilePath(VTileFileName)) then begin
-    SelectFileInExplorer(VTileFileName);
+  VTilePath := ExtractFilePath(VTileFileName);
+  if DirectoryExists(VTilePath) then begin
+    SelectPathInExplorer(VTilePath);
   end else begin
-    ShowMessageFmt(SAS_ERR_DirectoryNotExistFmt, [VTileFileName]);
+    ShowMessageFmt(SAS_ERR_DirectoryNotExistFmt, [VTilePath]);
   end;
 end;
 
