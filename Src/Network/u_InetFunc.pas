@@ -117,7 +117,7 @@ end;
 procedure SelectPathInExplorer(const APath: string);
 begin
   Assert(APath <> '');
-  ExecCmdLine('explorer /open,' + APath);
+  ExecCmdLine('explorer /root,' + APath);
 end;
 
 function IsGZipped(const AHeader: AnsiString): Boolean;
