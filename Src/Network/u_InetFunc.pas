@@ -68,6 +68,34 @@ begin
   end;
 end;
 
+procedure ExecCmdLine(const ACmdLine: string);
+const
+  ACmdShow: UINT = SW_SHOWNORMAL;
+var
+  SI: TStartupInfo;
+  PI: TProcessInformation;
+  CmdLine: string;
+begin
+  Assert(ACmdLine <> '');
+
+  CmdLine := ACmdLine;
+
+  UniqueString(CmdLine);
+
+  FillChar(SI, SizeOf(SI), 0);
+  FillChar(PI, SizeOf(PI), 0);
+  SI.cb := SizeOf(SI);
+  SI.dwFlags := STARTF_USESHOWWINDOW;
+  SI.wShowWindow := ACmdShow;
+
+  SetLastError(ERROR_INVALID_PARAMETER);
+  {$WARN SYMBOL_PLATFORM OFF}
+  Win32Check(CreateProcess(nil, PChar(CmdLine), nil, nil, False, CREATE_DEFAULT_ERROR_MODE {$IFDEF UNICODE}or CREATE_UNICODE_ENVIRONMENT{$ENDIF}, nil, nil, SI, PI));
+  {$WARN SYMBOL_PLATFORM ON}
+  CloseHandle(PI.hThread);
+  CloseHandle(PI.hProcess);
+end;
+
 procedure OpenUrlInBrowser(const URL: string);
 begin
   Assert(URL <> '');
@@ -81,57 +109,15 @@ begin
 end;
 
 procedure SelectFileInExplorer(const AFullFileName: String);
-const
-  ACmdShow: UINT = SW_SHOWNORMAL;
-var
-  SI: TStartupInfo;
-  PI: TProcessInformation;
-  CmdLine: String;
 begin
   Assert(AFullFileName <> '');
-
-  CmdLine := 'explorer /select,' + AFullFileName;
-  UniqueString(CmdLine);
-
-  FillChar(SI, SizeOf(SI), 0);
-  FillChar(PI, SizeOf(PI), 0);
-  SI.cb := SizeOf(SI);
-  SI.dwFlags := STARTF_USESHOWWINDOW;
-  SI.wShowWindow := ACmdShow;
-
-  SetLastError(ERROR_INVALID_PARAMETER);
-  {$WARN SYMBOL_PLATFORM OFF}
-  Win32Check(CreateProcess(nil, PChar(CmdLine), nil, nil, False, CREATE_DEFAULT_ERROR_MODE {$IFDEF UNICODE}or CREATE_UNICODE_ENVIRONMENT{$ENDIF}, nil, nil, SI, PI));
-  {$WARN SYMBOL_PLATFORM ON}
-  CloseHandle(PI.hThread);
-  CloseHandle(PI.hProcess);
+  ExecCmdLine('explorer /select,' + AFullFileName);
 end;
 
 procedure SelectPathInExplorer(const APath: string);
-const
-  ACmdShow: UINT = SW_SHOWNORMAL;
-var
-  SI: TStartupInfo;
-  PI: TProcessInformation;
-  CmdLine: String;
 begin
   Assert(APath <> '');
-
-  CmdLine := 'explorer /open,' + APath;
-  UniqueString(CmdLine);
-
-  FillChar(SI, SizeOf(SI), 0);
-  FillChar(PI, SizeOf(PI), 0);
-  SI.cb := SizeOf(SI);
-  SI.dwFlags := STARTF_USESHOWWINDOW;
-  SI.wShowWindow := ACmdShow;
-
-  SetLastError(ERROR_INVALID_PARAMETER);
-  {$WARN SYMBOL_PLATFORM OFF}
-  Win32Check(CreateProcess(nil, PChar(CmdLine), nil, nil, False, CREATE_DEFAULT_ERROR_MODE {$IFDEF UNICODE}or CREATE_UNICODE_ENVIRONMENT{$ENDIF}, nil, nil, SI, PI));
-  {$WARN SYMBOL_PLATFORM ON}
-  CloseHandle(PI.hThread);
-  CloseHandle(PI.hProcess);
+  ExecCmdLine('explorer /open,' + APath);
 end;
 
 function IsGZipped(const AHeader: AnsiString): Boolean;
