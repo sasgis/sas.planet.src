@@ -4790,7 +4790,11 @@ begin
         prToTopLeft
       );
     VFileName := VMapType.TileStorage.GetTileFileName(VTile, VZoomCurr, VMapType.VersionRequestConfig.GetStatic.BaseVersion);
-    OpenFileInDefaultProgram(VFileName);
+    if FileExists(VFileName) then begin
+      OpenFileInDefaultProgram(VFileName);
+    end else begin
+      ShowMessageFmt(SAS_ERR_FileNotExistFmt, [VFileName]);
+    end;
   end else begin
     ShowMessage(SAS_MSG_CantGetTileFileName);
   end;

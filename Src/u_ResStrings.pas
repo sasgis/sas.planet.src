@@ -95,6 +95,7 @@ ResourceString
   SAS_ERR_EmptyZMPFileName = 'Empty ZMP file name';
   SAS_ERR_FileNotFoundFmt = 'File %0:s not found';
   SAS_ERR_DirectoryNotExistFmt = 'Directory %0:s not exist';
+  SAS_ERR_FileNotExistFmt = 'File %0:s not exist';
   SAS_ERR_CantLoadBitmapFromSourceType = 'Can''t load bitmap from source type';
   SAS_ERR_CantSaveBitmapToTargetType = 'Can''t save bitmap to target type';
   SAS_ERR_EmptyServerResponse = 'Empty server response';
