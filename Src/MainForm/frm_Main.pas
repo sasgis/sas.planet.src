@@ -4833,7 +4833,11 @@ begin
   VTileFileName := VMapType.TileStorage.GetTileFileName(VTile, VZoomCurr, VMapType.VersionRequestConfig.GetStatic.BaseVersion);
   VTilePath := ExtractFilePath(VTileFileName);
   if DirectoryExists(VTilePath) then begin
-    SelectPathInExplorer(VTilePath);
+    if FileExists(VTileFileName) then begin
+      SelectFileInExplorer(VTileFileName);
+    end else begin
+      SelectPathInExplorer(VTilePath);
+    end;
   end else begin
     ShowMessageFmt(SAS_ERR_DirectoryNotExistFmt, [VTilePath]);
   end;
