@@ -1268,7 +1268,9 @@
     <DCCReference Include="Src\TileProvider\u_VectorTileProviderChangeableForVectorLayers.pas" />
     <DCCReference Include="Src\TileProvider\u_VectorTileProviderForVectorLayers.pas" />
     <DCCReference Include="Src\TileProvider\u_VectorTileRenderer.pas" />
+    <DCCReference Include="Src\TileProvider\u_VectorTileRendererChangeableForMarksLayer.pas" />
     <DCCReference Include="Src\TileProvider\u_VectorTileRendererChangeableForVectorMaps.pas" />
+    <DCCReference Include="Src\TileProvider\u_VectorTileRendererForMarks.pas" />
     <DCCReference Include="Src\TileStorage\Archive\u_TileStorageArchive.pas" />
     <DCCReference Include="Src\TileStorage\Archive\u_TileStorageTar.pas" />
     <DCCReference Include="Src\TileStorage\BerkeleyDB\i_BerkeleyDB.pas" />

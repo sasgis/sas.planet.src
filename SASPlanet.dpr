@@ -332,6 +332,8 @@ uses
   i_VectorTileRendererChangeable in 'Src\TileProvider\i_VectorTileRendererChangeable.pas',
   u_VectorTileRenderer in 'Src\TileProvider\u_VectorTileRenderer.pas',
   u_VectorTileRendererChangeableForVectorMaps in 'Src\TileProvider\u_VectorTileRendererChangeableForVectorMaps.pas',
+  u_VectorTileRendererForMarks in 'Src\TileProvider\u_VectorTileRendererForMarks.pas',
+  u_VectorTileRendererChangeableForMarksLayer in 'Src\TileProvider\u_VectorTileRendererChangeableForMarksLayer.pas',
   u_BitmapTileMatrixChangeableByVectorMatrix in 'Src\TileMatrix\u_BitmapTileMatrixChangeableByVectorMatrix.pas',
   u_VectorTileMatrixChangeableForVectorLayers in 'Src\TileMatrix\u_VectorTileMatrixChangeableForVectorLayers.pas',
   i_VectorTileProviderChangeable in 'Src\TileProvider\i_VectorTileProviderChangeable.pas',
