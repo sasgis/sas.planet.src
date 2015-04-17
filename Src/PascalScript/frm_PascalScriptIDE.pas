@@ -146,7 +146,7 @@ type
     FInetConfig: IInetConfig;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FArchiveStream: TMemoryStream;
-    FScriptBuffer: string;
+    FScriptBuffer: AnsiString;
     FProjFactory: IProjConverterFactory;
     FDownloader: IDownloader;
     FAppClosingNotifier: INotifierOneOperation;
@@ -372,7 +372,7 @@ end;
 function TfrmPascalScriptIDE.Compile(out AByteCode: AnsiString): Boolean;
 var
   I: Integer;
-  VCode: string;
+  VCode: TbtString;
   VBuff: AnsiString;
   VComp: TPSPascalCompilerEx;
 begin
@@ -387,7 +387,7 @@ begin
     FNeedSavePrompt := True;
   end;
   
-  VCode := FZmp.DataProvider.ReadString('GetUrlScript.txt', '');
+  VCode := FZmp.DataProvider.ReadAnsiString('GetUrlScript.txt', '');
 
   VComp := TPSPascalCompilerEx.Create(CompileTime_GetRegProcArray);
   try
@@ -533,13 +533,13 @@ begin
     FArchiveReadWriteFactory.Zip.WriterFactory.BuildByStream(FArchiveStream);
 
   VArchiveWriter.AddFile(
-    TBinaryData.CreateByString(synedtParams.Text),
+    TBinaryData.CreateByAnsiString(AnsiString(synedtParams.Text)),
     'params.txt',
     Now
   );
 
   VArchiveWriter.AddFile(
-    TBinaryData.CreateByString(synedtScript.Text),
+    TBinaryData.CreateByAnsiString(AnsiString(synedtScript.Text)),
     'GetUrlScript.txt',
     Now
   );
@@ -614,8 +614,8 @@ begin
 
   VSource :=
     TTileRequest.Create(
-      Point(StrToInt(edtGetX.Text), StrToInt(edtGetY.Text)),
-      StrToInt(edtGetZ.Text) - 1,
+      Point(SysUtils.StrToInt(edtGetX.Text), SysUtils.StrToInt(edtGetY.Text)),
+      SysUtils.StrToInt(edtGetZ.Text) - 1,
       FZmp.VersionConfig
     );
 
@@ -681,7 +681,7 @@ end;
 procedure TfrmPascalScriptIDE.tbxtmDecompileClick(Sender: TObject);
 var
   VByteCode: TbtString;
-  VByteCodeReadable: TbtString;
+  VByteCodeReadable: string;
 begin
   tbxtmScript.Checked := True;
   pgcMain.ActivePageIndex := 1;
