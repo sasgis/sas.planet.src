@@ -1010,7 +1010,9 @@ uses
   u_ClipboardFunc,
   u_BitmapTileMatrixChangeableByVectorMatrix,
   u_VectorTileMatrixChangeableForVectorLayers,
+  u_VectorTileMatrixChangeableByVectorSubsetChangeable,
   u_VectorTileRendererChangeableForVectorMaps,
+  u_VectorTileRendererChangeableForMarksLayer,
   u_VectorTileProviderChangeableForVectorLayers,
   u_VectorTileProviderChangeableForLastSearchResult,
   u_BitmapTileMatrixChangeableComposite,
@@ -2031,6 +2033,7 @@ begin
       TMarkerProviderForVectorItemForMarkPoints.Create(GState.Bitmap32StaticFactory, VMarkerChangeable)
     );
   VDebugName := 'Marks';
+  VVectorOversizeRect := FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.DrawOrderConfig.OverSizeRect;
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VVectorItems :=
     TVectorItemSubsetChangeableForMarksLayer.Create(
@@ -2040,35 +2043,49 @@ begin
       VTileRectForShow,
       FMarkDBGUI.MarksDb,
       FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig,
+      VVectorOversizeRect,
       FConfig.LayersConfig.MarksLayerConfig.ThreadConfig
     );
-  FLayerMapMarks :=
-    TFindVectorItemsForVectorMaps.Create(
-      GState.VectorItemSubsetBuilderFactory,
-      GState.ProjectedGeometryProvider,
-      VVectorItems,
-      VPerfList.CreateAndAddNewCounter('FindItems'),
-      24
-    );
-  VProvider :=
-    TBitmapLayerProviderChangeableForMarksLayer.Create(
-      FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig,
-      GState.Bitmap32StaticFactory,
-      GState.ProjectedGeometryProvider,
-      VMarkerProviderForVectorItem,
-      VVectorItems
-    );
-  VTileMatrix :=
-    TBitmapTileMatrixChangeableWithThread.Create(
-      VPerfList,
+  VVectorTileMatrix :=
+    TVectorTileMatrixChangeableByVectorSubsetChangeable.Create(
+      VPerfList.CreateAndAddNewSubList('VectorMatrix'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       VTileRectForShow,
+      GState.HashFunction,
+      GState.VectorItemSubsetBuilderFactory,
+      VVectorItems,
+      FConfig.LayersConfig.MarksLayerConfig.ThreadConfig,
+      VVectorOversizeRect,
+      VDebugName
+    );
+  FLayerMapMarks :=
+    TFindVectorItemsForVectorTileMatrix.Create(
+      GState.VectorItemSubsetBuilderFactory,
+      GState.ProjectedGeometryProvider,
+      VVectorTileMatrix,
+      VPerfList.CreateAndAddNewCounter('FindItems'),
+      24
+    );
+  VVectorRenderer :=
+    TVectorTileRendererChangeableForMarksLayer.Create(
+      FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.DrawOrderConfig,
+      FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.CaptionDrawConfig,
+      GState.Bitmap32StaticFactory,
+      GState.ProjectedGeometryProvider,
+      VMarkerProviderForVectorItem
+    );
+
+  VTileMatrix :=
+    TBitmapTileMatrixChangeableByVectorMatrix.Create(
+      VPerfList.CreateAndAddNewSubList('BitmapMatrix'),
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      VVectorTileMatrix,
+      VVectorRenderer,
       VTileMatrixDraftResampler,
       GState.Bitmap32StaticFactory,
       GState.HashFunction,
-      VProvider,
-      nil,
       FConfig.LayersConfig.MarksLayerConfig.ThreadConfig,
       VDebugName
     );

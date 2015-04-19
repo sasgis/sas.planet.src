@@ -24,6 +24,7 @@ interface
 
 uses
   SysUtils,
+  Types,
   t_GeoTypes,
   i_VectorItemSubset,
   i_VectorItemSubsetChangeable,
@@ -47,6 +48,7 @@ type
     FTileRect: ITileRectChangeable;
     FAppStartedNotifier: INotifierOneOperation;
     FAppClosingNotifier: INotifierOneOperation;
+    FItemSelectOversize: TRect;
 
     FAppStartedListener: IListener;
     FAppClosingListener: IListener;
@@ -84,6 +86,7 @@ type
       const ATileRect: ITileRectChangeable;
       const AMarkSystem: IMarkSystem;
       const AConfig: IUsedMarksConfig;
+      const AItemSelectOversize: TRect;
       const AThreadConfig: IThreadConfig
     );
     destructor Destroy; override;
@@ -96,6 +99,7 @@ uses
   i_MarkCategoryList,
   u_ListenerNotifierLinksList,
   u_BackgroundTask,
+  u_GeoFunc,
   u_ListenerByEvent;
 
 { TVectorItemSubsetChangeableForMarksLayer }
@@ -107,15 +111,25 @@ constructor TVectorItemSubsetChangeableForMarksLayer.Create(
   const ATileRect: ITileRectChangeable;
   const AMarkSystem: IMarkSystem;
   const AConfig: IUsedMarksConfig;
+  const AItemSelectOversize: TRect;
   const AThreadConfig: IThreadConfig
 );
 begin
   Assert(Assigned(ATileRect));
   Assert(Assigned(AMarkSystem));
+  Assert(AItemSelectOversize.Left >= 0);
+  Assert(AItemSelectOversize.Left < 4096);
+  Assert(AItemSelectOversize.Top >= 0);
+  Assert(AItemSelectOversize.Top < 4096);
+  Assert(AItemSelectOversize.Right >= 0);
+  Assert(AItemSelectOversize.Right < 4096);
+  Assert(AItemSelectOversize.Bottom >= 0);
+  Assert(AItemSelectOversize.Bottom < 4096);
   inherited Create;
   FTileRect := ATileRect;
   FMarkDB := AMarkSystem;
   FConfig := AConfig;
+  FItemSelectOversize := AItemSelectOversize;
 
   FGetMarksCounter := APerfList.CreateAndAddNewCounter('GetMarks');
 
@@ -195,6 +209,7 @@ function TVectorItemSubsetChangeableForMarksLayer.GetMarksSubset(
 var
   VList: IMarkCategoryList;
   VZoom: Byte;
+  VItemSelectPixelRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
   VGeoConverter: ICoordConverter;
 begin
@@ -207,7 +222,15 @@ begin
     end;
     if AConfig.IgnoreCategoriesVisible or (Assigned(VList) and (VList.Count > 0)) then begin
       VGeoConverter := ATileRect.ProjectionInfo.GetGeoConverter;
-      VLonLatRect := VGeoConverter.TileRect2LonLatRect(ATileRect.Rect, VZoom);
+      VItemSelectPixelRect := VGeoConverter.TileRectFloat2PixelRectFloat(DoubleRect(ATileRect.Rect), VZoom);
+      VItemSelectPixelRect.Left := VItemSelectPixelRect.Left - FItemSelectOversize.Left;
+      VItemSelectPixelRect.Top := VItemSelectPixelRect.Top - FItemSelectOversize.Top;
+      VItemSelectPixelRect.Right := VItemSelectPixelRect.Right + FItemSelectOversize.Right;
+      VItemSelectPixelRect.Bottom := VItemSelectPixelRect.Bottom + FItemSelectOversize.Bottom;
+
+      VGeoConverter.ValidatePixelRectFloat(VItemSelectPixelRect, VZoom);
+      VLonLatRect := VGeoConverter.PixelRectFloat2LonLatRect(VItemSelectPixelRect, VZoom);
+
       Result :=
         FMarkDB.MarkDb.GetMarkSubsetByCategoryListInRect(
           VLonLatRect,
