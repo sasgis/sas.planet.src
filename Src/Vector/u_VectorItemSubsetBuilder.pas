@@ -144,7 +144,6 @@ begin
       Result :=
         TVectorItemSubset.Create(
           FHash,
-          FVectorItemSubsetBuilderFactory,
           FList.MakeStaticAndClear
         );
     end;
@@ -159,7 +158,6 @@ begin
       Result :=
         TVectorItemSubset.Create(
           FHash,
-          FVectorItemSubsetBuilderFactory,
           FList.MakeStaticCopy
         );
     end;

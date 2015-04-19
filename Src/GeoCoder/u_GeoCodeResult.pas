@@ -24,7 +24,6 @@ interface
 
 uses
   ActiveX,
-  t_GeoTypes,
   t_Hash,
   i_VectorDataItemSimple,
   i_VectorItemSubset,
@@ -43,7 +42,6 @@ type
     function GetResultCode: Integer;
     function GetMessage: string;
   private
-    function GetSubsetByLonLatRect(const ARect: TDoubleRect): IVectorItemSubset;
     function GetEnum: IEnumUnknown;
     function IsEmpty: Boolean;
     function IsEqual(const ASubset: IVectorItemSubset): Boolean;
@@ -126,17 +124,6 @@ end;
 function TGeoCodeResult.GetSearchText: string;
 begin
   Result := FSearchText;
-end;
-
-function TGeoCodeResult.GetSubsetByLonLatRect(
-  const ARect: TDoubleRect
-): IVectorItemSubset;
-begin
-  if Assigned(FList) then begin
-    Result := FList.GetSubsetByLonLatRect(ARect);
-  end else begin
-    Result := nil;
-  end;
 end;
 
 function TGeoCodeResult.IsEmpty: Boolean;

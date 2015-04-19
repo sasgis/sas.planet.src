@@ -25,10 +25,8 @@ interface
 uses
   ActiveX,
   t_Hash,
-  t_GeoTypes,
   i_VectorDataItemSimple,
   i_InterfaceListStatic,
-  i_VectorItemSubsetBuilder,
   i_VectorItemSubset,
   u_BaseInterfacedObject;
 
@@ -36,10 +34,8 @@ type
   TVectorItemSubset = class(TBaseInterfacedObject, IVectorItemSubset)
   private
     FHash: THashValue;
-    FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FList: IInterfaceListStatic;
   private
-    function GetSubsetByLonLatRect(const ARect: TDoubleRect): IVectorItemSubset;
     function GetEnum: IEnumUnknown;
     function IsEmpty: Boolean;
     function IsEqual(const ASubset: IVectorItemSubset): Boolean;
@@ -50,7 +46,6 @@ type
   public
     constructor Create(
       const AHash: THashValue;
-      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AList: IInterfaceListStatic
     );
   end;
@@ -64,13 +59,11 @@ uses
 
 constructor TVectorItemSubset.Create(
   const AHash: THashValue;
-  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AList: IInterfaceListStatic
 );
 begin
   inherited Create;
   FHash := AHash;
-  FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FList := AList;
 end;
 
@@ -92,23 +85,6 @@ end;
 function TVectorItemSubset.GetItem(AIndex: Integer): IVectorDataItem;
 begin
   Result := IVectorDataItem(FList.Items[AIndex]);
-end;
-
-function TVectorItemSubset.GetSubsetByLonLatRect(
-  const ARect: TDoubleRect): IVectorItemSubset;
-var
-  VNewList: IVectorItemSubsetBuilder;
-  i: Integer;
-  VItem: IVectorDataItem;
-begin
-  VNewList := FVectorItemSubsetBuilderFactory.Build;
-  for i := 0 to FList.Count - 1 do begin
-    VItem := IVectorDataItem(FList.Items[i]);
-    if VItem.Geometry.Bounds.IsIntersecWithRect(ARect) then begin
-      VNewList.Add(VItem);
-    end;
-  end;
-  Result := VNewList.MakeStaticAndClear;
 end;
 
 function TVectorItemSubset.IsEmpty: Boolean;
