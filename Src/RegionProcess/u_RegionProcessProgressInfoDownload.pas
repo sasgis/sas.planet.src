@@ -36,10 +36,16 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TRegionProcessProgressInfoDownload = class(TBaseInterfacedObject, IProgressInfoBase, IRegionProcessProgressInfoDownload, IRegionProcessProgressInfoDownloadInternal)
+  TRegionProcessProgressInfoDownload = class(
+    TBaseInterfacedObject,
+    IProgressInfoBase,
+    IRegionProcessProgressInfoDownload,
+    IRegionProcessProgressInfoDownloadInternal
+  )
   private
     FGUID: TGUID;
     FZoom: Byte;
+    FZoomArr: TByteDynArray;
     FPolygon: IGeometryLonLatPolygon;
     FVersionForCheck: IMapVersionRequest;
     FVersionForDownload: IMapVersionInfo;
@@ -75,6 +81,8 @@ type
     function GetDownloadSize: UInt64;
     function GetElapsedTime: TDateTime;
     function GetZoom: Byte;
+    procedure SetZoom(const AValue: Byte);
+    function GetZoomArray: TByteDynArray;
     function GetLogProvider: ILogSimpleProvider;
 
     function GetIsPaused: Boolean;
@@ -107,6 +115,7 @@ type
       const AVersionForCheck: IMapVersionRequest;
       const AVersionForDownload: IMapVersionInfo;
       AZoom: Byte;
+      const AZoomArr: TByteDynArray;
       const APolygon: IGeometryLonLatPolygon;
       ASecondLoadTNE: boolean;
       AReplaceExistTiles: boolean;
@@ -125,6 +134,7 @@ implementation
 
 uses
   u_ConfigProviderHelpers,
+  u_ZoomArrayFunc,
   u_Synchronizer;
 
 { TRegionProcessProgressInfoDownload }
@@ -136,6 +146,7 @@ constructor TRegionProcessProgressInfoDownload.Create(
   const AVersionForCheck: IMapVersionRequest;
   const AVersionForDownload: IMapVersionInfo;
   AZoom: Byte;
+  const AZoomArr: TByteDynArray;
   const APolygon: IGeometryLonLatPolygon;
   ASecondLoadTNE: boolean;
   AReplaceExistTiles: boolean;
@@ -154,6 +165,7 @@ begin
   FVersionForCheck := AVersionForCheck;
   FVersionForDownload := AVersionForDownload;
   FZoom := AZoom;
+  FZoomArr := GetZoomArrayCopy(AZoomArr);
   FPolygon := APolygon;
   FSecondLoadTNE := ASecondLoadTNE;
   FReplaceExistTiles := AReplaceExistTiles;
@@ -356,7 +368,32 @@ end;
 
 function TRegionProcessProgressInfoDownload.GetZoom: Byte;
 begin
-  Result := FZoom;
+  FCS.BeginRead;
+  try
+    Result := FZoom;
+  finally
+    FCS.EndRead;
+  end;
+end;
+
+procedure TRegionProcessProgressInfoDownload.SetZoom(const AValue: Byte);
+begin
+  FCS.BeginWrite;
+  try
+    FZoom := AValue;
+  finally
+    FCS.EndWrite;
+  end;
+end;
+
+function TRegionProcessProgressInfoDownload.GetZoomArray: TByteDynArray;
+begin
+  FCS.BeginRead;
+  try
+    Result := GetZoomArrayCopy(FZoomArr);
+  finally
+    FCS.EndRead;
+  end;
 end;
 
 procedure TRegionProcessProgressInfoDownload.Pause;
@@ -399,6 +436,9 @@ begin
   ASLSSection.WriteString('VersionCheck', VVersionForCheck);
   ASLSSection.WriteBool('VersionCheckPrev', VVersionForCheckUsePrev);
   ASLSSection.WriteInteger('Zoom', FZoom + 1);
+  if Length(FZoomArr) > 1 then begin
+    ASLSSection.WriteString('ZoomArr', ZoomArrayToStr(FZoomArr));
+  end;
   ASLSSection.WriteBool('ReplaceExistTiles', FReplaceExistTiles);
   ASLSSection.WriteBool('CheckExistTileSize', FCheckExistTileSize);
   ASLSSection.WriteBool('CheckExistTileDate', FCheckExistTileDate);

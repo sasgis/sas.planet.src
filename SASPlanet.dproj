@@ -1103,6 +1103,7 @@
     <DCCReference Include="Src\RegionProcess\u_RegionProcessProgressInfoDownload.pas" />
     <DCCReference Include="Src\RegionProcess\u_RegionProcessProgressInfoInternalFactory.pas" />
     <DCCReference Include="Src\RegionProcess\u_ThreadRegionProcessAbstract.pas" />
+    <DCCReference Include="Src\RegionProcess\u_ZoomArrayFunc.pas" />
     <DCCReference Include="Src\Routing\c_PathDetalizeProvidersGUID.pas" />
     <DCCReference Include="Src\Routing\i_PathDetalizeProvider.pas" />
     <DCCReference Include="Src\Routing\i_PathDetalizeProviderTreeEntity.pas" />

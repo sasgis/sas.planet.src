@@ -50,6 +50,9 @@ type
     function GetZoom: Byte;
     property Zoom: Byte read GetZoom;
 
+    function GetZoomArray: TByteDynArray;
+    property ZoomArray: TByteDynArray read GetZoomArray;
+
     function GetLogProvider: ILogSimpleProvider;
     property LogProvider: ILogSimpleProvider read GetLogProvider;
 
@@ -84,6 +87,8 @@ type
 
     function GetLog: ILogSimple;
     property Log: ILogSimple read GetLog;
+
+    procedure SetZoom(const AValue: Byte);
   end;
 
 

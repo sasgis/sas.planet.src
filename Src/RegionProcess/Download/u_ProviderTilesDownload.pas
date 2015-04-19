@@ -33,7 +33,9 @@ uses
   i_GeometryLonLat,
   i_GeometryLonLatFactory,
   i_GeometryProjectedFactory,
+  i_CoordConverter,
   i_CoordConverterFactory,
+  i_ConfigDataProvider,
   i_LanguageManager,
   i_ValueToStringConverter,
   i_GlobalDownloadConfig,
@@ -73,6 +75,12 @@ type
     procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
   private
     procedure StartBySLS(const AFileName: string);
+    procedure ReadZoom(
+      const ACoordConverter: ICoordConverter;
+      const ASessionSection: IConfigDataProvider;
+      out AZoom: Byte;
+      out AZoomArr: TByteDynArray
+    );
   public
     constructor Create(
       const AAppClosingNotifier: INotifierOneOperation;
@@ -101,7 +109,6 @@ uses
   SysUtils,
   IniFiles,
   i_GeometryProjected,
-  i_ConfigDataProvider,
   i_MapType,
   i_ProjectionInfo,
   i_RegionProcessParamsFrame,
@@ -119,6 +126,7 @@ uses
   u_NotifierOperation,
   u_DownloadInfoSimple,
   u_Synchronizer,
+  u_ZoomArrayFunc,
   frm_ProgressDownload,
   u_ResStrings;
 
@@ -180,6 +188,37 @@ begin
   Result := SAS_STR_OperationDownloadCaption;
 end;
 
+procedure TProviderTilesDownload.ReadZoom(
+  const ACoordConverter: ICoordConverter;
+  const ASessionSection: IConfigDataProvider;
+  out AZoom: Byte;
+  out AZoomArr: TByteDynArray
+);
+  procedure CheckZoom(var AZoom: Byte);
+  begin
+    if AZoom > 0 then begin
+      Dec(AZoom);
+    end else begin
+      raise Exception.Create('Unknown zoom: ' + IntToStr(AZoom));
+    end;
+    if not ACoordConverter.CheckZoom(AZoom) then begin
+      raise Exception.Create('Unknown zoom: ' + IntToStr(AZoom));
+    end;
+  end;
+var
+  I: Integer;
+begin
+  AZoom := ASessionSection.ReadInteger('Zoom', 0);
+  if not ZoomArrayFromStr(ASessionSection.ReadString('ZoomArr', ''), AZoomArr) then begin
+    SetLength(AZoomArr, 1);
+    AZoomArr[0] := AZoom;
+  end;
+  for I := Low(AZoomArr) to High(AZoomArr) do begin
+    CheckZoom(AZoomArr[I]);
+  end;
+  Assert(IsZoomInZoomArray(AZoom-1, AZoomArr));
+end;
+
 procedure TProviderTilesDownload.StartBySLS(const AFileName: string);
 var
   VIniFile: TMemIniFile;
@@ -195,6 +234,7 @@ var
   VGuids: string;
   VGuid: TGUID;
   VZoom: Byte;
+  VZoomArr: TByteDynArray;
   VReplaceExistTiles: Boolean;
   VCheckExistTileSize: Boolean;
   VCheckExistTileDate: Boolean;
@@ -273,15 +313,9 @@ begin
         VVersionCheckShowPrev
       );
   end;
-  VZoom := VSessionSection.ReadInteger('Zoom', 0);
-  if VZoom > 0 then begin
-    Dec(VZoom);
-  end else begin
-    raise Exception.Create('Unknown zoom');
-  end;
-  if not VMapType.GeoConvert.CheckZoom(VZoom) then begin
-    raise Exception.Create('Unknown zoom');
-  end;
+
+  ReadZoom(VMapType.GeoConvert, VSessionSection, VZoom, VZoomArr);
+
   VReplaceExistTiles := VSessionSection.ReadBool('ReplaceExistTiles', VReplaceExistTiles);
   VCheckExistTileSize := VSessionSection.ReadBool('CheckExistTileSize', VCheckExistTileSize);
   VCheckExistTileDate := VSessionSection.ReadBool('CheckExistTileDate', VCheckExistTileDate);
@@ -321,6 +355,7 @@ begin
       VVersionForCheck,
       VVersionForDownload,
       VZoom,
+      VZoomArr,
       VPolygon,
       VSecondLoadTNE,
       VReplaceExistTiles,
@@ -339,7 +374,7 @@ begin
     VCancelNotifierInternal,
     VProgressInfo,
     VPolygon,
-    'z' + IntToStr(VZoom + 1) + ' ' + VMapType.GUIConfig.Name.Value,
+    'z' + ZoomArrayToStr(VZoomArr) + ' ' + VMapType.GUIConfig.Name.Value,
     FRegionProcess,
     FMapGoto,
     FMarkDBGUI,
@@ -417,6 +452,7 @@ begin
       VMapType.VersionRequestConfig.GetStatic,
       VMapType.VersionRequestConfig.GetStatic.BaseVersion,
       VZoom,
+      VZoomArr,
       APolygon,
       (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsIgnoreTne,
       (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplace,
@@ -435,7 +471,7 @@ begin
     VCancelNotifierInternal,
     VProgressInfo,
     APolygon,
-    'z' + IntToStr(VZoom + 1) + ' ' + VMapType.GUIConfig.Name.Value,
+    'z' + ZoomArrayToStr(VZoomArr) + ' ' + VMapType.GUIConfig.Name.Value,
     FRegionProcess,
     FMapGoto,
     FMarkDBGUI,

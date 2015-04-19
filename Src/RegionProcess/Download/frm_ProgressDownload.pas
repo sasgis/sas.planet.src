@@ -289,6 +289,7 @@ var
   VValueConverter: IValueToStringConverter;
   VTotal: Int64;
   VDownloadSize: Double;
+  VZoomCaption: string;
 begin
   VTotal := FProgressInfo.TotalToProcess;
   if VTotal > 0 then begin
@@ -298,13 +299,20 @@ begin
   end;
   VDownloadSize := FProgressInfo.DownloadSize / 1024;
   VValueConverter := FValueToStringConverter.GetStatic;
+  
+  if Length(FProgressInfo.ZoomArray) = 1 then begin
+    VZoomCaption := ' (z' + inttostr(FProgressInfo.Zoom + 1) + ')';
+  end else begin
+    VZoomCaption := '';
+  end;
+
   if FProgressInfo.Finished then begin
     if not FFinished then begin
       FFinished := True;
       UpdateTimer.Enabled := false;
       UpdateMemoProgressForm;
       Self.Caption := SAS_MSG_LoadComplete + ' ' + FFormCaption;
-      lblToProcessValue.Caption := inttostr(VTotal) + ' ' + SAS_STR_Files + ' (z' + inttostr(FProgressInfo.Zoom + 1) + ')';
+      lblToProcessValue.Caption := inttostr(VTotal) + ' ' + SAS_STR_Files + VZoomCaption;
       lblProcessedValue.Caption := inttostr(FProgressInfo.Processed) + ' ' + SAS_STR_Files;
       lblDownloadedValue.Caption := inttostr(FProgressInfo.Downloaded) + ' (' + VValueConverter.DataSizeConvert(VDownloadSize) + ') ' + SAS_STR_Files;
       lblTimeToFinishValue.Caption := GetTimeEnd(VTotal, FProgressInfo.Processed, FProgressInfo.ElapsedTime);
@@ -324,7 +332,7 @@ begin
     end else begin
       Self.Caption := Format(SAS_STR_DownloadingCaption, [VComplete]) + ' ' + FFormCaption;
       Application.ProcessMessages;
-      lblToProcessValue.Caption := inttostr(VTotal) + ' ' + SAS_STR_Files + ' (z' + inttostr(FProgressInfo.Zoom + 1) + ')';
+      lblToProcessValue.Caption := inttostr(VTotal) + ' ' + SAS_STR_Files + VZoomCaption;
       lblProcessedValue.Caption := inttostr(FProgressInfo.Processed) + ' ' + SAS_STR_Files;
       lblDownloadedValue.Caption := inttostr(FProgressInfo.Downloaded) + ' (' + VValueConverter.DataSizeConvert(VDownloadSize) + ') ' + SAS_STR_Files;
       lblTimeToFinishValue.Caption := GetTimeEnd(VTotal, FProgressInfo.Processed, FProgressInfo.ElapsedTime);

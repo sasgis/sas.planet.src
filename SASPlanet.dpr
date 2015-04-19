@@ -303,6 +303,7 @@ uses
   i_RegionProcessProgressInfoInternalFactory in 'Src\RegionProcess\i_RegionProcessProgressInfoInternalFactory.pas',
   u_RegionProcessProgressInfoInternalFactory in 'Src\RegionProcess\u_RegionProcessProgressInfoInternalFactory.pas',
   i_RegionProcessProgressInfoDownload in 'Src\RegionProcess\i_RegionProcessProgressInfoDownload.pas',
+  u_ZoomArrayFunc in 'Src\RegionProcess\u_ZoomArrayFunc.pas',
   i_BitmapTileMatrix in 'Src\TileMatrix\i_BitmapTileMatrix.pas',
   i_BitmapTileMatrixChangeable in 'Src\TileMatrix\i_BitmapTileMatrixChangeable.pas',
   u_BitmapTileMatrix in 'Src\TileMatrix\u_BitmapTileMatrix.pas',
