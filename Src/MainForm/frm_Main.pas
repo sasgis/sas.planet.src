@@ -1131,6 +1131,7 @@ begin
       GState.VectorGeometryLonLatFactory,
       GState.VectorGeometryProjectedFactory,
       GState.ProjectedGeometryProvider,
+      GState.VectorItemSubsetBuilderFactory,
       GState.Bitmap32StaticFactory,
       GState.BitmapTileSaveLoadFactory,
       GState.ArchiveReadWriteFactory,

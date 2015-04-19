@@ -36,6 +36,7 @@ uses
   i_GeometryProjected,
   i_GeometryLonLat,
   i_GeometryProjectedProvider,
+  i_VectorItemSubsetBuilder,
   i_UseTilePrevZoomConfig,
   i_Bitmap32BufferFactory,
   i_BitmapPostProcessing,
@@ -68,6 +69,7 @@ type
     FCoordConverterList: ICoordConverterList;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FProjectedGeometryProvider: IGeometryProjectedProvider;
+    FVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FMarksDB: IMarkSystem;
     FMarksShowConfig: IUsedMarksConfig;
     FMarksDrawConfig: IMarksDrawConfig;
@@ -109,6 +111,7 @@ type
       const ACoordConverterList: ICoordConverterList;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const AProjectedGeometryProvider: IGeometryProjectedProvider;
+      const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AMarksShowConfig: IUsedMarksConfig;
       const AMarksDrawConfig: IMarksDrawConfig;
       const AMarksDB: IMarkSystem;
@@ -136,9 +139,13 @@ uses
   i_MarkCategoryList,
   i_MarkerProviderForVectorItem,
   i_VectorItemSubset,
+  i_VectorTileProvider,
+  i_VectorTileRenderer,
   i_RegionProcessParamsFrame,
   u_GeoFunc,
   u_MarkerProviderForVectorItemForMarkPoints,
+  u_VectorTileProviderByFixedSubset,
+  u_VectorTileRendererForMarks,
   u_BitmapLayerProviderByMarksSubset,
   u_BitmapLayerProviderSimpleForCombine,
   u_BitmapLayerProviderComplex,
@@ -162,6 +169,7 @@ constructor TProviderMapCombineBase.Create(
   const ACoordConverterList: ICoordConverterList;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const AProjectedGeometryProvider: IGeometryProjectedProvider;
+  const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AMarksShowConfig: IUsedMarksConfig;
   const AMarksDrawConfig: IMarksDrawConfig;
   const AMarksDB: IMarkSystem;
@@ -195,6 +203,7 @@ begin
   FCoordConverterList := ACoordConverterList;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FProjectedGeometryProvider := AProjectedGeometryProvider;
+  FVectorSubsetBuilderFactory := AVectorSubsetBuilderFactory;
   FGridsConfig := AGridsConfig;
   FValueToStringConverter := AValueToStringConverter;
   FUseQuality := AUseQuality;
@@ -358,6 +367,8 @@ var
   VUseMarks: Boolean;
   VUseGrids: Boolean;
   VUseRecolor: Boolean;
+  VVectorTileProvider: IVectorTileUniProvider;
+  VVectorTileRenderer: IVectorTileRenderer;
   VMarkerProvider: IMarkerProviderForVectorItem;
   VGridsProvider: IBitmapTileUniProvider;
   VResult: IBitmapTileUniProvider;
@@ -403,14 +414,24 @@ begin
         FBitmapFactory,
         nil
       );
-    VMarksImageProvider :=
-      TBitmapLayerProviderByMarksSubset.Create(
+    VVectorTileRenderer :=
+      TVectorTileRendererForMarks.Create(
         FMarksDrawConfig.DrawOrderConfig.GetStatic,
         FMarksDrawConfig.CaptionDrawConfig.GetStatic,
         FBitmapFactory,
         FProjectedGeometryProvider,
-        VMarkerProvider,
+        VMarkerProvider
+      );
+    VVectorTileProvider :=
+      TVectorTileProviderByFixedSubset.Create(
+        FVectorSubsetBuilderFactory,
+        FMarksDrawConfig.DrawOrderConfig.GetStatic.OverSizeRect,
         VMarksSubset
+      );
+    VMarksImageProvider :=
+      TBitmapLayerProviderByMarksSubset.Create(
+        VVectorTileProvider,
+        VVectorTileRenderer
       );
   end;
   VRecolorConfig := nil;

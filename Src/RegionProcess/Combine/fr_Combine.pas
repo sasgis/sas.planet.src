@@ -46,6 +46,7 @@ uses
   i_MapTypeListChangeable,
   i_GeometryProjectedFactory,
   i_GeometryProjectedProvider,
+  i_VectorItemSubsetBuilder,
   i_GlobalViewMainConfig,
   i_RegionProcessProgressInfoInternalFactory,
   i_RegionProcessProvider,
@@ -77,6 +78,7 @@ type
       const ACoordConverterList: ICoordConverterList;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const AProjectedGeometryProvider: IGeometryProjectedProvider;
+      const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const AMarksShowConfig: IUsedMarksConfig;
@@ -127,6 +129,7 @@ constructor TfrCombine.Create(
   const ACoordConverterList: ICoordConverterList;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const AProjectedGeometryProvider: IGeometryProjectedProvider;
+  const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const AMarksShowConfig: IUsedMarksConfig;
@@ -158,6 +161,7 @@ begin
       ACoordConverterList,
       AVectorGeometryProjectedFactory,
       AProjectedGeometryProvider,
+      AVectorSubsetBuilderFactory,
       AMarksShowConfig,
       AMarksDrawConfig,
       AMarksDB,
@@ -182,6 +186,7 @@ begin
       ACoordConverterList,
       AVectorGeometryProjectedFactory,
       AProjectedGeometryProvider,
+      AVectorSubsetBuilderFactory,
       AMarksShowConfig,
       AMarksDrawConfig,
       AMarksDB,
@@ -206,6 +211,7 @@ begin
       ACoordConverterList,
       AVectorGeometryProjectedFactory,
       AProjectedGeometryProvider,
+      AVectorSubsetBuilderFactory,
       AMarksShowConfig,
       AMarksDrawConfig,
       AMarksDB,
@@ -230,6 +236,7 @@ begin
       ACoordConverterList,
       AVectorGeometryProjectedFactory,
       AProjectedGeometryProvider,
+      AVectorSubsetBuilderFactory,
       AMarksShowConfig,
       AMarksDrawConfig,
       AMarksDB,
@@ -254,6 +261,7 @@ begin
       ACoordConverterList,
       AVectorGeometryProjectedFactory,
       AProjectedGeometryProvider,
+      AVectorSubsetBuilderFactory,
       AMarksShowConfig,
       AMarksDrawConfig,
       AMarksDB,
@@ -279,6 +287,7 @@ begin
       ACoordConverterList,
       AVectorGeometryProjectedFactory,
       AProjectedGeometryProvider,
+      AVectorSubsetBuilderFactory,
       AMarksShowConfig,
       AMarksDrawConfig,
       AMarksDB,
@@ -304,6 +313,7 @@ begin
       ACoordConverterList,
       AVectorGeometryProjectedFactory,
       AProjectedGeometryProvider,
+      AVectorSubsetBuilderFactory,
       ABitmapTileSaveLoadFactory,
       AArchiveReadWriteFactory,
       AMarksShowConfig,

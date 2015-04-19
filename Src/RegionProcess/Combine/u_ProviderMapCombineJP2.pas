@@ -42,6 +42,7 @@ uses
   i_MapCalibration,
   i_MapTypeListChangeable,
   i_GeometryProjectedFactory,
+  i_VectorItemSubsetBuilder,
   i_GlobalViewMainConfig,
   i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
@@ -64,6 +65,7 @@ type
       const ACoordConverterList: ICoordConverterList;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const AProjectedGeometryProvider: IGeometryProjectedProvider;
+      const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AMarksShowConfig: IUsedMarksConfig;
       const AMarksDrawConfig: IMarksDrawConfig;
       const AMarksDB: IMarkSystem;
@@ -102,6 +104,7 @@ constructor TProviderMapCombineJP2.Create(
   const ACoordConverterList: ICoordConverterList;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const AProjectedGeometryProvider: IGeometryProjectedProvider;
+  const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AMarksShowConfig: IUsedMarksConfig;
   const AMarksDrawConfig: IMarksDrawConfig;
   const AMarksDB: IMarkSystem;
@@ -133,6 +136,7 @@ begin
     ACoordConverterList,
     AVectorGeometryProjectedFactory,
     AProjectedGeometryProvider,
+    AVectorSubsetBuilderFactory,
     AMarksShowConfig,
     AMarksDrawConfig,
     AMarksDB,
