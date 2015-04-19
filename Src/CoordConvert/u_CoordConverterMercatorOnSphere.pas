@@ -23,7 +23,6 @@ unit u_CoordConverterMercatorOnSphere;
 interface
 
 uses
-  Math,
   t_Hash,
   t_GeoTypes,
   i_Datum,

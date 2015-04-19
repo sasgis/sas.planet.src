@@ -25,7 +25,6 @@ interface
 uses
   ActiveX,
   t_Hash,
-  t_GeoTypes,
   i_VectorDataItemSimple;
 
 type
