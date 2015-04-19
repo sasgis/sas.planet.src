@@ -206,6 +206,7 @@ type
 implementation
 
 uses
+  Types,
   GR32,
   gnugettext,
   t_GeoTypes,
