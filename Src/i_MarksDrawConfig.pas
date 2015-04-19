@@ -55,19 +55,12 @@ type
 
   IMarksDrawOrderConfigStatic = interface
     ['{2BC70BD2-74E8-4063-BB70-03445CBCFD00}']
-    function GetUseSimpleDrawOrder: Boolean;
-    property UseSimpleDrawOrder: Boolean read GetUseSimpleDrawOrder;
-
     function GetOverSizeRect: TRect;
     property OverSizeRect: TRect read GetOverSizeRect;
   end;
 
   IMarksDrawOrderConfig = interface(IConfigDataElement)
     ['{66D58712-23C7-4796-8A5C-6FA3F762686D}']
-    function GetUseSimpleDrawOrder: Boolean;
-    procedure SetUseSimpleDrawOrder(AValue: Boolean);
-    property UseSimpleDrawOrder: Boolean read GetUseSimpleDrawOrder write SetUseSimpleDrawOrder;
-
     function GetOverSizeRect: TRect;
     procedure SetOverSizeRect(AValue: TRect);
     property OverSizeRect: TRect read GetOverSizeRect write SetOverSizeRect;

@@ -35,7 +35,6 @@ uses
 type
   TVectorTileRendererChangeableForMarksLayer = class(TChangeableWithSimpleLockBase, IVectorTileRendererChangeable)
   private
-    FDrawOrderConfig: IMarksDrawOrderConfig;
     FCaptionDrawConfig: ICaptionDrawConfig;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FProjectedProvider: IGeometryProjectedProvider;
@@ -48,7 +47,6 @@ type
     function GetStatic: IVectorTileRenderer;
   public
     constructor Create(
-      const ADrawOrderConfig: IMarksDrawOrderConfig;
       const ACaptionDrawConfig: ICaptionDrawConfig;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AProjectedProvider: IGeometryProjectedProvider;
@@ -66,20 +64,17 @@ uses
 { TBitmapLayerProviderChangeableForMarksLayer }
 
 constructor TVectorTileRendererChangeableForMarksLayer.Create(
-  const ADrawOrderConfig: IMarksDrawOrderConfig;
   const ACaptionDrawConfig: ICaptionDrawConfig;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AProjectedProvider: IGeometryProjectedProvider;
   const AMarkerProvider: IMarkerProviderForVectorItem
 );
 begin
-  Assert(Assigned(ADrawOrderConfig));
   Assert(Assigned(ACaptionDrawConfig));
   Assert(Assigned(ABitmap32StaticFactory));
   Assert(Assigned(AProjectedProvider));
   Assert(Assigned(AMarkerProvider));
   inherited Create;
-  FDrawOrderConfig := ADrawOrderConfig;
   FCaptionDrawConfig := ACaptionDrawConfig;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FProjectedProvider := AProjectedProvider;
@@ -87,10 +82,6 @@ begin
 
   FLinksList := TListenerNotifierLinksList.Create;
 
-  FLinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FDrawOrderConfig.ChangeNotifier
-  );
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FCaptionDrawConfig.ChangeNotifier
@@ -115,7 +106,6 @@ var
 begin
   VResult :=
     TVectorTileRendererForMarks.Create(
-      FDrawOrderConfig.GetStatic,
       FCaptionDrawConfig.GetStatic,
       FBitmap32StaticFactory,
       FProjectedProvider,

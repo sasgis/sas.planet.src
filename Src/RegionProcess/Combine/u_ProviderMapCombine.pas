@@ -427,7 +427,6 @@ begin
         );
       VVectorTileRenderer :=
         TVectorTileRendererForMarks.Create(
-          FMarksDrawConfig.DrawOrderConfig.GetStatic,
           FMarksDrawConfig.CaptionDrawConfig.GetStatic,
           FBitmapFactory,
           FProjectedGeometryProvider,

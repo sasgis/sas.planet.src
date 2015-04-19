@@ -45,7 +45,6 @@ uses
 type
   TVectorTileRendererForMarks = class(TBaseInterfacedObject, IVectorTileRenderer)
   private
-    FDrawOrderConfigStatic: IMarksDrawOrderConfigStatic;
     FCaptionDrawConfigStatic: ICaptionDrawConfigStatic;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
@@ -100,7 +99,6 @@ type
     ): IBitmap32Static;
   public
     constructor Create(
-      const ADrawOrderConfigStatic: IMarksDrawOrderConfigStatic;
       const ACaptionDrawConfigStatic: ICaptionDrawConfigStatic;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AProjectedCache: IGeometryProjectedProvider;
@@ -123,20 +121,17 @@ uses
 { TMapMarksBitmapLayerProviderByMarksSubset }
 
 constructor TVectorTileRendererForMarks.Create(
-  const ADrawOrderConfigStatic: IMarksDrawOrderConfigStatic;
   const ACaptionDrawConfigStatic: ICaptionDrawConfigStatic;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AProjectedCache: IGeometryProjectedProvider;
   const AMarkerProviderForVectorItem: IMarkerProviderForVectorItem
 );
 begin
-  Assert(Assigned(ADrawOrderConfigStatic));
   Assert(Assigned(ACaptionDrawConfigStatic));
   Assert(Assigned(ABitmap32StaticFactory));
   Assert(Assigned(AProjectedCache));
   Assert(Assigned(AMarkerProviderForVectorItem));
   inherited Create;
-  FDrawOrderConfigStatic := ADrawOrderConfigStatic;
   FCaptionDrawConfigStatic := ACaptionDrawConfigStatic;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FProjectedCache := AProjectedCache;
@@ -296,56 +291,35 @@ begin
   Result := False;
   VBitmapInited := False;
   VEnumMarks := AMarksSubset.GetEnum;
-  if FDrawOrderConfigStatic.UseSimpleDrawOrder then begin
-    while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
-      if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-        Break;
-      end;
-      if Supports(VMark.Geometry, IGeometryLonLatPoint, VPoint) then begin
-        if DrawPoint(VBitmapInited, ATargetBmp, AProjection, AMapRect, VPoint, VMark) then begin
-          Result := True;
-        end;
-      end else if Supports(VMark.Geometry, IGeometryLonLatLine, VLine) then begin
-        if DrawPath(VBitmapInited, ATargetBmp, AProjection, AMapRect, VMark.Appearance, VLine, AFixedPointArray) then begin
-          Result := True;
-        end;
-      end else if Supports(VMark.Geometry, IGeometryLonLatPolygon, VPoly) then begin
-        if DrawPoly(VBitmapInited, ATargetBmp, AProjection, AMapRect, VMark.Appearance, VPoly, AFixedPointArray) then begin
-          Result := True;
-        end;
+  while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
+    if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+      Break;
+    end;
+    if Supports(VMark.Geometry, IGeometryLonLatPolygon, VPoly) then begin
+      if DrawPoly(VBitmapInited, ATargetBmp, AProjection, AMapRect, VMark.Appearance, VPoly, AFixedPointArray) then begin
+        Result := True;
       end;
     end;
-  end else begin
-    while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
-      if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-        Break;
-      end;
-      if Supports(VMark.Geometry, IGeometryLonLatPolygon, VPoly) then begin
-        if DrawPoly(VBitmapInited, ATargetBmp, AProjection, AMapRect, VMark.Appearance, VPoly, AFixedPointArray) then begin
-          Result := True;
-        end;
+  end;
+  VEnumMarks.Reset;
+  while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
+    if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+      Break;
+    end;
+    if Supports(VMark.Geometry, IGeometryLonLatLine, VLine) then begin
+      if DrawPath(VBitmapInited, ATargetBmp, AProjection, AMapRect, VMark.Appearance, VLine, AFixedPointArray) then begin
+        Result := True;
       end;
     end;
-    VEnumMarks.Reset;
-    while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
-      if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-        Break;
-      end;
-      if Supports(VMark.Geometry, IGeometryLonLatLine, VLine) then begin
-        if DrawPath(VBitmapInited, ATargetBmp, AProjection, AMapRect, VMark.Appearance, VLine, AFixedPointArray) then begin
-          Result := True;
-        end;
-      end;
+  end;
+  VEnumMarks.Reset;
+  while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
+    if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+      Break;
     end;
-    VEnumMarks.Reset;
-    while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
-      if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-        Break;
-      end;
-      if Supports(VMark.Geometry, IGeometryLonLatPoint, VPoint) then begin
-        if DrawPoint(VBitmapInited, ATargetBmp, AProjection, AMapRect, VPoint, VMark) then begin
-          Result := True;
-        end;
+    if Supports(VMark.Geometry, IGeometryLonLatPoint, VPoint) then begin
+      if DrawPoint(VBitmapInited, ATargetBmp, AProjection, AMapRect, VPoint, VMark) then begin
+        Result := True;
       end;
     end;
   end;

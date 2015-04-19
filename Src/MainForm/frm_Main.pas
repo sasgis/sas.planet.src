@@ -2068,7 +2068,6 @@ begin
     );
   VVectorRenderer :=
     TVectorTileRendererChangeableForMarksLayer.Create(
-      FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.DrawOrderConfig,
       FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.CaptionDrawConfig,
       GState.Bitmap32StaticFactory,
       GState.ProjectedGeometryProvider,

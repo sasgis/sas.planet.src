@@ -54,7 +54,6 @@ type
 
   TMarksDrawOrderConfig = class(TConfigDataElementWithStaticBase, IMarksDrawOrderConfig)
   private
-    FUseSimpleDrawOrder: Boolean;
     FOverSizeRect: TRect;
   protected
     function CreateStatic: IInterface; override;
@@ -62,9 +61,6 @@ type
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
-    function GetUseSimpleDrawOrder: Boolean;
-    procedure SetUseSimpleDrawOrder(AValue: Boolean);
-
     function GetOverSizeRect: TRect;
     procedure SetOverSizeRect(AValue: TRect);
 
@@ -96,7 +92,6 @@ constructor TMarksDrawOrderConfig.Create;
 begin
   inherited Create;
 
-  FUseSimpleDrawOrder := false;
   FOverSizeRect := Rect(256, 128, 64, 128);
 end;
 
@@ -106,7 +101,6 @@ var
 begin
   VStatic :=
     TMarksDrawOrderConfigStatic.Create(
-      FUseSimpleDrawOrder,
       FOverSizeRect
     );
   Result := VStatic;
@@ -116,7 +110,6 @@ procedure TMarksDrawOrderConfig.DoReadConfig(const AConfigData: IConfigDataProvi
 begin
   inherited;
   if AConfigData <> nil then begin
-    FUseSimpleDrawOrder := AConfigData.ReadBool('UseSimpleDrawOrder', FUseSimpleDrawOrder);
     FOverSizeRect.Left := AConfigData.ReadInteger('OverSizeRect.Left', FOverSizeRect.Left);
     FOverSizeRect.Top := AConfigData.ReadInteger('OverSizeRect.Top', FOverSizeRect.Top);
     FOverSizeRect.Right := AConfigData.ReadInteger('OverSizeRect.Right', FOverSizeRect.Right);
@@ -128,7 +121,6 @@ end;
 procedure TMarksDrawOrderConfig.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
-  AConfigData.WriteBool('UseSimpleDrawOrder', FUseSimpleDrawOrder);
   AConfigData.WriteInteger('OverSizeRect.Left', FOverSizeRect.Left);
   AConfigData.WriteInteger('OverSizeRect.Top', FOverSizeRect.Top);
   AConfigData.WriteInteger('OverSizeRect.Right', FOverSizeRect.Right);
@@ -145,16 +137,6 @@ begin
   end;
 end;
 
-function TMarksDrawOrderConfig.GetUseSimpleDrawOrder: Boolean;
-begin
-  LockRead;
-  try
-    Result := FUseSimpleDrawOrder;
-  finally
-    UnlockRead;
-  end;
-end;
-
 function TMarksDrawOrderConfig.GetStatic: IMarksDrawOrderConfigStatic;
 begin
   Result := IMarksDrawOrderConfigStatic(GetStaticInternal);
@@ -166,19 +148,6 @@ begin
   try
     if not EqualRect(FOverSizeRect, AValue) then begin
       FOverSizeRect := AValue;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-procedure TMarksDrawOrderConfig.SetUseSimpleDrawOrder(AValue: Boolean);
-begin
-  LockWrite;
-  try
-    if FUseSimpleDrawOrder <> AValue then begin
-      FUseSimpleDrawOrder := AValue;
       SetChanged;
     end;
   finally
