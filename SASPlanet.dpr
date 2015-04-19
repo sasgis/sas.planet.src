@@ -685,8 +685,6 @@ uses
   i_ObjectWithListener in 'Src\i_ObjectWithListener.pas',
   u_SourceDataUpdateInRectByMapsSet in 'Src\u_SourceDataUpdateInRectByMapsSet.pas',
   u_SourceDataUpdateInRectByFillingMap in 'Src\u_SourceDataUpdateInRectByFillingMap.pas',
-  u_BitmapLayerProviderSimpleForCombine in 'Src\BitmapLayerProvider\u_BitmapLayerProviderSimpleForCombine.pas',
-  u_BitmapLayerProviderByMarksSubset in 'Src\BitmapLayerProvider\u_BitmapLayerProviderByMarksSubset.pas',
   u_BitmapLayerProviderByTrackPath in 'Src\BitmapLayerProvider\u_BitmapLayerProviderByTrackPath.pas',
   u_BitmapLayerProviderMapWithLayer in 'Src\BitmapLayerProvider\u_BitmapLayerProviderMapWithLayer.pas',
   u_BitmapLayerProviderForViewMaps in 'Src\BitmapLayerProvider\u_BitmapLayerProviderForViewMaps.pas',
