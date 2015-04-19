@@ -436,9 +436,7 @@ begin
   ASLSSection.WriteString('VersionCheck', VVersionForCheck);
   ASLSSection.WriteBool('VersionCheckPrev', VVersionForCheckUsePrev);
   ASLSSection.WriteInteger('Zoom', FZoom + 1);
-  if Length(FZoomArr) > 1 then begin
-    ASLSSection.WriteString('ZoomArr', ZoomArrayToStr(FZoomArr));
-  end;
+  ASLSSection.WriteString('ZoomArr', ZoomArrayToStr(FZoomArr));
   ASLSSection.WriteBool('ReplaceExistTiles', FReplaceExistTiles);
   ASLSSection.WriteBool('CheckExistTileSize', FCheckExistTileSize);
   ASLSSection.WriteBool('CheckExistTileDate', FCheckExistTileDate);
