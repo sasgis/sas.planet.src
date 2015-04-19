@@ -146,13 +146,14 @@ uses
   u_MarkerProviderForVectorItemForMarkPoints,
   u_VectorTileProviderByFixedSubset,
   u_VectorTileRendererForMarks,
-  u_BitmapLayerProviderByMarksSubset,
-  u_BitmapLayerProviderSimpleForCombine,
   u_BitmapLayerProviderComplex,
   u_BitmapLayerProviderGridGenshtab,
   u_BitmapLayerProviderGridDegree,
   u_BitmapLayerProviderGridTiles,
   u_BitmapTileProviderByBitmapTileUniProvider,
+  u_BitmapTileProviderWithRecolor,
+  u_BitmapTileProviderByVectorTileProvider,
+  u_BitmapTileProviderComplex,
   u_BitmapTileProviderInPolygon,
   u_BitmapTileProviderWithBGColor;
 
@@ -361,7 +362,7 @@ var
   VMarksSubset: IVectorItemSubset;
   VMarksConfigStatic: IUsedMarksConfigStatic;
   VList: IMarkCategoryList;
-  VMarksImageProvider: IBitmapTileUniProvider;
+  VMarksImageProvider: IBitmapTileProvider;
   VRecolorConfig: IBitmapPostProcessing;
   VSourceProvider: IBitmapTileUniProvider;
   VUseMarks: Boolean;
@@ -370,19 +371,33 @@ var
   VVectorTileProvider: IVectorTileUniProvider;
   VVectorTileRenderer: IVectorTileRenderer;
   VMarkerProvider: IMarkerProviderForVectorItem;
-  VGridsProvider: IBitmapTileUniProvider;
-  VResult: IBitmapTileUniProvider;
+  VGridsProvider: IBitmapTileProvider;
 begin
   VSourceProvider := (ParamsFrame as IRegionProcessParamsFrameImageProvider).Provider;
+  Result :=
+    TBitmapTileProviderByBitmapTileUniProvider.Create(
+      AProjection,
+      VSourceProvider
+    );
+  VUseRecolor := (ParamsFrame as IRegionProcessParamsFrameMapCombine).UseRecolor;
+  if VUseRecolor then begin
+    VRecolorConfig := FBitmapPostProcessing.GetStatic;
+    Result :=
+      TBitmapTileProviderWithRecolor.Create(
+        VRecolorConfig,
+        Result
+      );
+  end;
+
   VRect := APolygon.Bounds;
   VLonLatRect := VRect.Rect;
   VGeoConverter := AProjection.GeoConverter;
   VZoom := AProjection.Zoom;
   VGeoConverter.ValidateLonLatRect(VLonLatRect);
 
-  VMarksSubset := nil;
   VUseMarks := (ParamsFrame as IRegionProcessParamsFrameMapCombine).UseMarks;
   if VUseMarks then begin
+    VMarksSubset := nil;
     VMarksConfigStatic := FMarksShowConfig.GetStatic;
     if VMarksConfigStatic.IsUseMarks then begin
       VList := nil;
@@ -404,67 +419,56 @@ begin
         VList := nil;
       end;
     end;
-  end else begin
-    VMarksSubset := nil;
+    if VMarksSubset <> nil then begin
+      VMarkerProvider :=
+        TMarkerProviderForVectorItemForMarkPoints.Create(
+          FBitmapFactory,
+          nil
+        );
+      VVectorTileRenderer :=
+        TVectorTileRendererForMarks.Create(
+          FMarksDrawConfig.DrawOrderConfig.GetStatic,
+          FMarksDrawConfig.CaptionDrawConfig.GetStatic,
+          FBitmapFactory,
+          FProjectedGeometryProvider,
+          VMarkerProvider
+        );
+      VVectorTileProvider :=
+        TVectorTileProviderByFixedSubset.Create(
+          FVectorSubsetBuilderFactory,
+          FMarksDrawConfig.DrawOrderConfig.GetStatic.OverSizeRect,
+          VMarksSubset
+        );
+      VMarksImageProvider :=
+        TBitmapTileProviderByVectorTileProvider.Create(
+          AProjection,
+          VVectorTileProvider,
+          VVectorTileRenderer
+        );
+      Result :=
+        TBitmapTileProviderComplex.Create(
+          FBitmapFactory,
+          Result,
+          VMarksImageProvider
+        );
+    end;
   end;
-  VMarksImageProvider := nil;
-  if VMarksSubset <> nil then begin
-    VMarkerProvider :=
-      TMarkerProviderForVectorItemForMarkPoints.Create(
-        FBitmapFactory,
-        nil
-      );
-    VVectorTileRenderer :=
-      TVectorTileRendererForMarks.Create(
-        FMarksDrawConfig.DrawOrderConfig.GetStatic,
-        FMarksDrawConfig.CaptionDrawConfig.GetStatic,
-        FBitmapFactory,
-        FProjectedGeometryProvider,
-        VMarkerProvider
-      );
-    VVectorTileProvider :=
-      TVectorTileProviderByFixedSubset.Create(
-        FVectorSubsetBuilderFactory,
-        FMarksDrawConfig.DrawOrderConfig.GetStatic.OverSizeRect,
-        VMarksSubset
-      );
-    VMarksImageProvider :=
-      TBitmapLayerProviderByMarksSubset.Create(
-        VVectorTileProvider,
-        VVectorTileRenderer
-      );
-  end;
-  VRecolorConfig := nil;
-  VUseRecolor := (ParamsFrame as IRegionProcessParamsFrameMapCombine).UseRecolor;
-  if VUseRecolor then begin
-    VRecolorConfig := FBitmapPostProcessing.GetStatic;
-  end;
-  VResult :=
-    TBitmapLayerProviderSimpleForCombine.Create(
-      FBitmapFactory,
-      VRecolorConfig,
-      VSourceProvider,
-      VMarksImageProvider
-    );
   VUseGrids := (ParamsFrame as IRegionProcessParamsFrameMapCombine).UseGrids;
   VGridsProvider := nil;
   if VUseGrids then begin
-    VGridsProvider := PrepareGridsProvider;
-  end;
-  if Assigned(VGridsProvider) then begin
-    VResult :=
-      TBitmapLayerProviderComplex.Create(
+    VGridsProvider :=
+      TBitmapTileProviderByBitmapTileUniProvider.Create(
+        AProjection,
+        PrepareGridsProvider
+      );
+    Result :=
+      TBitmapTileProviderComplex.Create(
         FBitmapFactory,
-        VResult,
+        Result,
         VGridsProvider
       );
   end;
 
-  Result :=
-    TBitmapTileProviderByBitmapTileUniProvider.Create(
-      AProjection,
-      VResult
-    );
   Result :=
     TBitmapTileProviderInPolygon.Create(
       AProjectedPolygon,
