@@ -246,8 +246,6 @@ var
   VElapsedTime: TDateTime;
   VMapType: IMapType;
   VPolygon: IGeometryLonLatPolygon;
-  VProjection: IProjectionInfo;
-  VProjectedPolygon: IGeometryProjectedPolygon;
   VVersionForDownload: IMapVersionInfo;
   VVersionForCheck: IMapVersionRequest;
   VVersionString: string;
@@ -332,21 +330,12 @@ begin
     VLastProcessedPoint.X := VSessionSection.ReadInteger('StartX', -1);
     VLastProcessedPoint.Y := VSessionSection.ReadInteger('StartY', -1);
   end;
+
   VPolygon := ReadPolygon(VSessionSection, FVectorGeometryLonLatFactory);
-  if not VPolygon.IsEmpty then begin
-    VProjection :=
-      FProjectionFactory.GetByConverterAndZoom(
-        VMapType.GeoConvert,
-        VZoom
-      );
-    VProjectedPolygon :=
-      FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-        VProjection,
-        VPolygon
-      );
-  end else begin
+  if VPolygon.IsEmpty then begin
     raise Exception.Create('Empty polygon');
   end;
+
   VProgressInfo :=
     TRegionProcessProgressInfoDownload.Create(
       VLogSimple,
@@ -393,8 +382,9 @@ begin
       VMapType,
       VVersionForCheck,
       VVersionForDownload,
-      VProjection,
-      VProjectedPolygon,
+      VPolygon,
+      FProjectionFactory,
+      FVectorGeometryProjectedFactory,
       FDownloadConfig,
       TDownloadInfoSimple.Create(FDownloadInfo, VProcessedTileCount, VProcessedSize),
       VReplaceExistTiles,
@@ -402,6 +392,8 @@ begin
       VCheckExistTileDate,
       VCheckTileDate,
       VSecondLoadTNE,
+      VZoomArr,
+      VZoom,
       VLastProcessedPoint,
       VElapsedTime
     );
@@ -416,8 +408,6 @@ var
   VLog: TLogSimpleProvider;
   VLogSimple: ILogSimple;
   VLogProvider: ILogSimpleProvider;
-  VProjection: IProjectionInfo;
-  VProjectedPolygon: IGeometryProjectedPolygon;
   VForm: TfrmProgressDownload;
   VCancelNotifierInternal: INotifierOperationInternal;
   VOperationID: Integer;
@@ -429,12 +419,6 @@ begin
 
   VZoom := VZoomArr[0];
 
-  VProjection := FProjectionFactory.GetByConverterAndZoom(VMapType.GeoConvert, VZoom);
-  VProjectedPolygon :=
-    FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-      VProjection,
-      APolygon
-    );
   VLog := TLogSimpleProvider.Create(5000, 0);
   VLogSimple := VLog;
   VLogProvider := VLog;
@@ -491,8 +475,9 @@ begin
         VMapType,
         VMapType.VersionRequestConfig.GetStatic,
         VMapType.VersionRequestConfig.GetStatic.BaseVersion,
-        VProjection,
-        VProjectedPolygon,
+        APolygon,
+        FProjectionFactory,
+        FVectorGeometryProjectedFactory,
         FDownloadConfig,
         TDownloadInfoSimple.Create(FDownloadInfo),
         (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplace,
@@ -500,6 +485,8 @@ begin
         (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplaceIfOlder,
         (ParamsFrame as IRegionProcessParamsFrameTilesDownload).ReplaceDate,
         (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsIgnoreTne,
+        VZoomArr,
+        VZoom,
         Point(-1, -1),
         0
       );

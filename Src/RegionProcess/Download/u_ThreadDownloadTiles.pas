@@ -23,6 +23,7 @@ unit u_ThreadDownloadTiles;
 interface
 
 uses
+  Types,
   Windows,
   SyncObjs,
   Classes,
@@ -35,9 +36,13 @@ uses
   i_GlobalDownloadConfig,
   i_TileRequestTask,
   i_TileRequestResult,
+  i_GeometryLonLat,
   i_GeometryProjected,
+  i_GeometryProjectedFactory,
+  i_CoordConverterFactory,
   i_DownloadInfoSimple,
   i_MapType,
+  i_TileIterator,
   i_RegionProcessProgressInfoDownload;
 
 type
@@ -47,19 +52,22 @@ type
 
     FAppClosingNotifier: INotifierOneOperation;
     FMapType: IMapType;
-    FZoom: Byte;
-    FProjection: IProjectionInfo;
     FVersionForCheck: IMapVersionRequest;
     FVersionForDownload: IMapVersionInfo;
     FDownloadInfo: IDownloadInfoSimple;
-    FPolyProjected: IGeometryProjectedPolygon;
     FSecondLoadTNE: boolean;
     FReplaceExistTiles: boolean;
     FCheckExistTileSize: boolean;
     FCheckExistTileDate: boolean;
     FDownloadConfig: IGlobalDownloadConfig;
     FCheckTileDate: TDateTime;
+    FZoomArray: TByteDynArray;
+    FLastProcessedZoom: Byte;
     FLastProcessedPoint: TPoint;
+
+    FPolygon: IGeometryLonLatPolygon;
+    FProjectionFactory: IProjectionInfoFactory;
+    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
 
     FPausedSleepTime: Cardinal;
     FBanSleepTime: Cardinal;
@@ -100,6 +108,15 @@ type
     procedure SleepCancelable(ATime: Cardinal);
 
     procedure PrepareStrings;
+
+    procedure ProcessTiles(
+      const AZoom: Byte;
+      const ATileIterator: ITileIterator;
+      const ACancelNotifier: INotifierOneOperation
+    );
+    procedure SkipTiles(
+      const ATileIterator: ITileIterator
+    );
   protected
     procedure Execute; override;
   public
@@ -111,8 +128,9 @@ type
       const AMapType: IMapType;
       const AVersionForCheck: IMapVersionRequest;
       const AVersionForDownload: IMapVersionInfo;
-      const AProjection: IProjectionInfo;
-      const APolyProjected: IGeometryProjectedPolygon;
+      const APolygon: IGeometryLonLatPolygon;
+      const AProjectionFactory: IProjectionInfoFactory;
+      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ADownloadConfig: IGlobalDownloadConfig;
       const ADownloadInfo: IDownloadInfoSimple;
       AReplaceExistTiles: Boolean;
@@ -120,6 +138,8 @@ type
       ACheckExistTileDate: Boolean;
       const AReplaceOlderDate: TDateTime;
       ASecondLoadTNE: Boolean;
+      const AZoomArray: TByteDynArray;
+      const ALastProcessedZoom: Byte;
       const ALastProcessedPoint: TPoint;
       const AElapsedTime: TDateTime
     );
@@ -130,12 +150,11 @@ implementation
 
 uses
   SysUtils,
-  Types,
   i_DownloadResult,
   i_TileInfoBasic,
-  i_TileIterator,
   i_TileDownloaderState,
   i_TileStorage,
+  u_ZoomArrayFunc,
   u_NotifierOperation,
   u_TileIteratorByPolygon,
   u_TileRequestTask,
@@ -151,13 +170,16 @@ constructor TThreadDownloadTiles.Create(
   const AMapType: IMapType;
   const AVersionForCheck: IMapVersionRequest;
   const AVersionForDownload: IMapVersionInfo;
-  const AProjection: IProjectionInfo;
-  const APolyProjected: IGeometryProjectedPolygon;
+  const APolygon: IGeometryLonLatPolygon;
+  const AProjectionFactory: IProjectionInfoFactory;
+  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ADownloadConfig: IGlobalDownloadConfig;
   const ADownloadInfo: IDownloadInfoSimple;
   AReplaceExistTiles, ACheckExistTileSize, ACheckExistTileDate: Boolean;
   const AReplaceOlderDate: TDateTime;
   ASecondLoadTNE: Boolean;
+  const AZoomArray: TByteDynArray;
+  const ALastProcessedZoom: Byte;
   const ALastProcessedPoint: TPoint;
   const AElapsedTime: TDateTime
 );
@@ -168,7 +190,9 @@ begin
   Assert(AProgressInfo <> nil);
   Assert(AAppClosingNotifier <> nil);
   Assert(AMapType <> nil);
-  Assert(APolyProjected <> nil);
+  Assert(APolygon <> nil);
+  Assert(AProjectionFactory <> nil);
+  Assert(AVectorGeometryProjectedFactory <> nil);
   Assert(ADownloadConfig <> nil);
   Assert(ADownloadInfo <> nil);
   inherited Create(False);
@@ -188,9 +212,11 @@ begin
   FDownloadErrorSleepTime := 5000;
   Priority := tpLower;
 
+  FPolygon := APolygon;
+  FProjectionFactory := AProjectionFactory;
+  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
+
   FReplaceExistTiles := AReplaceExistTiles;
-  FZoom := AProjection.Zoom;
-  FProjection := AProjection;
   FCheckExistTileSize := ACheckExistTileSize;
   FMapType := AMapType;
   FVersionForCheck := AVersionForCheck;
@@ -198,7 +224,8 @@ begin
   FCheckTileDate := AReplaceOlderDate;
   FCheckExistTileDate := ACheckExistTileDate;
   FSecondLoadTNE := ASecondLoadTNE;
-  FPolyProjected := APolyProjected;
+  FZoomArray := GetZoomArrayCopy(AZoomArray);
+  FLastProcessedZoom := ALastProcessedZoom;
   FLastProcessedPoint := ALastProcessedPoint;
 
   if FMapType = nil then begin
@@ -216,12 +243,12 @@ begin
     Terminate;
     Exit;
   end;
-  if FPolyProjected = nil then begin
+  if FPolygon = nil then begin
     FProgressInfo.Log.WriteText('Polygon does not exist', 10);
     Terminate;
     Exit;
   end;
-  if FPolyProjected.IsEmpty then begin
+  if FPolygon.IsEmpty then begin
     FProgressInfo.Log.WriteText('Empty Polygon', 10);
     Terminate;
     Exit;
@@ -274,16 +301,164 @@ begin
   FFinishEvent.WaitFor(ATime);
 end;
 
-procedure TThreadDownloadTiles.Execute;
+procedure TThreadDownloadTiles.SkipTiles(const ATileIterator: ITileIterator);
 var
-  VTileInfo: ITileInfoBasic;
   VTile: TPoint;
-  VTileIterator: ITileIterator;
-  VTask: ITileRequestTask;
-  VGotoNextTile: Boolean;
   VLastSkipped: TPoint;
   VCntSkipped: Cardinal;
+begin
+  if (FLastProcessedPoint.X >= 0) and (FLastProcessedPoint.Y >= 0) then begin
+    VCntSkipped := 0;
+    while ATileIterator.Next(VTile) do begin
+      if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
+        Break;
+      end;
+      if (VTile.X = FLastProcessedPoint.X) and (VTile.Y = FLastProcessedPoint.Y) then begin
+        Break;
+      end;
+      Inc(VCntSkipped);
+      VLastSkipped := VTile;
+      if VCntSkipped > 100 then begin
+        FProgressInfo.AddManyProcessedTile(VLastSkipped, VCntSkipped);
+        VCntSkipped := 0;
+      end;
+    end;
+    if VCntSkipped > 0 then begin
+      FProgressInfo.AddManyProcessedTile(VLastSkipped, VCntSkipped);
+    end;
+  end;
+end;
+
+procedure TThreadDownloadTiles.ProcessTiles(
+  const AZoom: Byte;
+  const ATileIterator: ITileIterator;
+  const ACancelNotifier: INotifierOneOperation
+);
+var
+  VTile: TPoint;
+  VTask: ITileRequestTask;
+  VTileInfo: ITileInfoBasic;
+  VGotoNextTile: Boolean;
+begin
+  while ATileIterator.Next(VTile) do begin
+    VGotoNextTile := False;
+    while not VGotoNextTile do begin
+      FFinishEvent.ResetEvent;
+      if FProgressInfo.NeedPause then begin
+        FProgressInfo.SetPaused;
+        FProgressInfo.Log.WriteText(FRES_UserStop, 10);
+        while FProgressInfo.NeedPause do begin
+          if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
+            Exit;
+          end;
+          SleepCancelable(FPausedSleepTime);
+        end;
+        FProgressInfo.SetStarted;
+      end;
+      if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
+        Exit;
+      end;
+
+      // notify about current tile
+      FProgressInfo.Log.WriteText(Format(FRES_ProcessedFile, [FMapType.GetTileShowName(VTile, AZoom, FVersionForDownload)]), 0);
+      // if gtimWithData - tile will be loaded, so we use gtimAsIs
+      VTileInfo := FMapType.TileStorage.GetTileInfoEx(VTile, AZoom, FVersionForCheck, gtimAsIs);
+
+      if (FReplaceExistTiles) or not (VTileInfo.IsExists) then begin
+        // what to do
+        if VTileInfo.IsExists then begin
+          FProgressInfo.Log.WriteText(FRES_LoadProcessRepl, 0);
+        end else begin
+          FProgressInfo.Log.WriteText(FRES_LoadProcess, 0);
+        end;
+        if (FCheckExistTileDate) and (VTileInfo.IsExists or VTileInfo.IsExistsTNE) and (VTileInfo.LoadDate >= FCheckTileDate) then begin
+          // skip existing newer tile
+          FProgressInfo.Log.WriteText(FRES_FileBeCreateTime, 0);
+          FLastProcessedPoint := VTile;
+          VGotoNextTile := True;
+        end else begin
+          try
+            if (not (FSecondLoadTNE)) and
+              (VTileInfo.IsExistsTNE) and
+              (FDownloadConfig.IsSaveTileNotExists) then begin
+              // tne found - skip downloading tile
+              FProgressInfo.Log.WriteText('(tne exists)', 0);
+              FLastProcessedPoint := VTile;
+              VGotoNextTile := True;
+            end else begin
+              // download tile
+              VTask := FMapType.TileDownloadSubsystem.GetRequestTask(
+                ACancelNotifier,
+                FCancelNotifier,
+                FOperationID,
+                FTaskFinishNotifier,
+                VTile,
+                AZoom,
+                FVersionForDownload,
+                FCheckExistTileSize
+              );
+              if VTask <> nil then begin
+                FTileRequestResult := nil;
+                FMapType.TileDownloadSubsystem.Download(VTask);
+                if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
+                  Exit;
+                end;
+                FFinishEvent.WaitFor(INFINITE);
+                if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
+                  Exit;
+                end;
+                VGotoNextTile := ProcessResultAndCheckGotoNextTile(FTileRequestResult);
+                if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
+                  Exit;
+                end;
+                FLastProcessedPoint := VTile;
+              end else begin
+                FProgressInfo.Log.WriteText('Download disabled', 0);
+                VGotoNextTile := False;
+                FProgressInfo.NeedPause := True;
+              end;
+            end;
+          except
+            on E: Exception do begin
+              FProgressInfo.Log.WriteText(E.Message, 0);
+              VGotoNextTile := True;
+            end;
+          end;
+        end;
+      end else begin
+        FProgressInfo.Log.WriteText(FRES_FileExistsShort, 0);
+        VGotoNextTile := True;
+      end;
+      if VGotoNextTile then begin
+        FProgressInfo.AddProcessedTile(VTile);
+      end;
+      if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
+        Exit;
+      end;
+    end;
+    if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
+      Exit;
+    end;
+  end;
+end;
+
+procedure TThreadDownloadTiles.Execute;
+type
+  TIterTask = record
+    FZoom: Byte;
+    FTileIterator: ITileIterator;
+  end;
+var
+  I: Integer;
+  VZoom: Byte;
+  VStartZoomIndex: Integer;
+  VTilesTotal: Int64;
+  VIterTaskCount: Integer;
+  VIterTaskArray: array of TIterTask;
+  VTileIterator: ITileIterator;
   VSoftCancelNotifier: INotifierOneOperation;
+  VProjection: IProjectionInfo;
+  VProjectedPolygon: IGeometryProjectedPolygon;
 begin
   try
     if Terminated then begin
@@ -295,138 +470,72 @@ begin
 
     VSoftCancelNotifier := TNotifierOneOperationByNotifier.Create(FCancelNotifier, FOperationID);
 
-    VTileIterator :=
-      TTileIteratorByPolygon.Create(
-        FProjection,
-        FPolyProjected
-      );
-    FProgressInfo.SetTotalToProcess(VTileIterator.TilesTotal);
-    if (FLastProcessedPoint.X >= 0) and (FLastProcessedPoint.Y >= 0) then begin
-      VCntSkipped := 0;
-      while VTileIterator.Next(VTile) do begin
-        if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
-          Break;
-        end;
-        if (VTile.X = FLastProcessedPoint.X) and (VTile.Y = FLastProcessedPoint.Y) then begin
-          Break;
-        end;
-        Inc(VCntSkipped);
-        VLastSkipped := VTile;
-        if VCntSkipped > 100 then begin
-          FProgressInfo.AddManyProcessedTile(VLastSkipped, VCntSkipped);
-          VCntSkipped := 0;
-        end;
-      end;
-      if VCntSkipped > 0 then begin
-        FProgressInfo.AddManyProcessedTile(VLastSkipped, VCntSkipped);
+    VStartZoomIndex := 0;
+    for I := Low(FZoomArray) to High(FZoomArray) do begin
+      if FZoomArray[I] = FLastProcessedZoom then begin
+        VStartZoomIndex := I;
+        Break;
       end;
     end;
+
+    // prepare iterators
+    VIterTaskCount := 0;
+    SetLength(VIterTaskArray, 0);
+    for I := VStartZoomIndex to High(FZoomArray) do begin
+      VZoom := FZoomArray[I];
+
+      VProjection := FProjectionFactory.GetByConverterAndZoom(FMapType.GeoConvert, VZoom);
+
+      VProjectedPolygon :=
+        FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
+          VProjection,
+          FPolygon
+        );
+
+      VTileIterator :=
+        TTileIteratorByPolygon.Create(
+          VProjection,
+          VProjectedPolygon
+        );
+
+      SetLength(VIterTaskArray, VIterTaskCount+1);
+
+      VIterTaskArray[VIterTaskCount].FZoom := FZoomArray[I];
+      VIterTaskArray[VIterTaskCount].FTileIterator := VTileIterator;
+
+      Inc(VIterTaskCount);
+    end;
+
+    // calc tiles count
+    VTilesTotal := 0;
+    for I := 0 to Length(VIterTaskArray) - 1 do begin
+      Inc(VTilesTotal, VIterTaskArray[I].FTileIterator.TilesTotal);
+    end;
+    FProgressInfo.SetTotalToProcess(VTilesTotal);
+
+    // skip tiles processed in last session
+    if Length(VIterTaskArray) > 0 then begin
+      FProgressInfo.SetZoom(VIterTaskArray[0].FZoom);
+      SkipTiles(VIterTaskArray[0].FTileIterator);
+    end;
+
     if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
       Exit;
     end;
-    while VTileIterator.Next(VTile) do begin
-      VGotoNextTile := false;
-      while not VGotoNextTile do begin
-        FFinishEvent.ResetEvent;
-        if FProgressInfo.NeedPause then begin
-          FProgressInfo.SetPaused;
-          FProgressInfo.Log.WriteText(FRES_UserStop, 10);
-          While FProgressInfo.NeedPause do begin
-            if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
-              Exit;
-            end;
-            SleepCancelable(FPausedSleepTime);
-          end;
-          FProgressInfo.SetStarted;
-        end;
-        if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
-          Exit;
-        end;
 
-        // notify about current tile
-        FProgressInfo.Log.WriteText(Format(FRES_ProcessedFile, [FMapType.GetTileShowName(VTile, FZoom, FVersionForDownload)]), 0);
-        // if gtimWithData - tile will be loaded, so we use gtimAsIs
-        VTileInfo := FMapType.TileStorage.GetTileInfoEx(VTile, FZoom, FVersionForCheck, gtimAsIs);
-
-        if (FReplaceExistTiles) or not (VTileInfo.IsExists) then begin
-          // what to do
-          if VTileInfo.IsExists then begin
-            FProgressInfo.Log.WriteText(FRES_LoadProcessRepl, 0);
-          end else begin
-            FProgressInfo.Log.WriteText(FRES_LoadProcess, 0);
-          end;
-          if (FCheckExistTileDate) and (VTileInfo.IsExists or VTileInfo.IsExistsTNE) and (VTileInfo.LoadDate >= FCheckTileDate) then begin
-            // skip existing newer tile
-            FProgressInfo.Log.WriteText(FRES_FileBeCreateTime, 0);
-            FLastProcessedPoint := VTile;
-            VGotoNextTile := True;
-          end else begin
-            try
-              if (not (FSecondLoadTNE)) and
-                (VTileInfo.IsExistsTNE) and
-                (FDownloadConfig.IsSaveTileNotExists) then begin
-                // tne found - skip downloading tile
-                FProgressInfo.Log.WriteText('(tne exists)', 0);
-                FLastProcessedPoint := VTile;
-                VGotoNextTile := True;
-              end else begin
-                // download tile
-                VTask := FMapType.TileDownloadSubsystem.GetRequestTask(
-                  VSoftCancelNotifier,
-                  FCancelNotifier,
-                  FOperationID,
-                  FTaskFinishNotifier,
-                  VTile,
-                  FZoom,
-                  FVersionForDownload,
-                  FCheckExistTileSize
-                );
-                if VTask <> nil then begin
-                  FTileRequestResult := nil;
-                  FMapType.TileDownloadSubsystem.Download(VTask);
-                  if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
-                    Exit;
-                  end;
-                  FFinishEvent.WaitFor(INFINITE);
-                  if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
-                    Exit;
-                  end;
-                  VGotoNextTile := ProcessResultAndCheckGotoNextTile(FTileRequestResult);
-                  if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
-                    Exit;
-                  end;
-                  FLastProcessedPoint := VTile;
-                end else begin
-                  FProgressInfo.Log.WriteText('Download disabled', 0);
-                  VGotoNextTile := False;
-                  FProgressInfo.NeedPause := True;
-                end;
-              end;
-            except
-              on E: Exception do begin
-                FProgressInfo.Log.WriteText(E.Message, 0);
-                VGotoNextTile := True;
-              end;
-            end;
-          end;
-        end else begin
-          FProgressInfo.Log.WriteText(FRES_FileExistsShort, 0);
-          VGotoNextTile := True;
-        end;
-        if VGotoNextTile then begin
-          FProgressInfo.AddProcessedTile(VTile);
-        end;
-        if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
-          Exit;
-        end;
-      end;
+    // start downloading
+    for I := 0 to Length(VIterTaskArray) - 1 do begin
+      FProgressInfo.SetZoom(VIterTaskArray[I].FZoom);
+      ProcessTiles(
+        VIterTaskArray[I].FZoom,
+        VIterTaskArray[I].FTileIterator,
+        VSoftCancelNotifier
+      );
       if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
         Exit;
       end;
     end;
-    if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
-      Exit;
-    end;
+
     FProgressInfo.Log.WriteText(FRES_ProcessFilesComplete, 0);
   finally
     FProgressInfo.Finish;
