@@ -209,14 +209,15 @@ var
   I: Integer;
 begin
   AZoom := ASessionSection.ReadInteger('Zoom', 0);
+  CheckZoom(AZoom);
   if not ZoomArrayFromStr(ASessionSection.ReadString('ZoomArr', ''), AZoomArr) then begin
     SetLength(AZoomArr, 1);
-    AZoomArr[0] := AZoom;
+    AZoomArr[0] := AZoom+1;
   end;
   for I := Low(AZoomArr) to High(AZoomArr) do begin
     CheckZoom(AZoomArr[I]);
   end;
-  Assert(IsZoomInZoomArray(AZoom-1, AZoomArr));
+  Assert(IsZoomInZoomArray(AZoom, AZoomArr));
 end;
 
 procedure TProviderTilesDownload.StartBySLS(const AFileName: string);
