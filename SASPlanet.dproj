@@ -145,7 +145,6 @@
     <DCCReference Include="Src\BitmapLayerProvider\u_BitmapLayerProviderChangeableForGpsTrack.pas" />
     <DCCReference Include="Src\BitmapLayerProvider\u_BitmapLayerProviderChangeableForGrids.pas" />
     <DCCReference Include="Src\BitmapLayerProvider\u_BitmapLayerProviderChangeableForMainLayer.pas" />
-    <DCCReference Include="Src\BitmapLayerProvider\u_BitmapLayerProviderChangeableForMarksLayer.pas" />
     <DCCReference Include="Src\BitmapLayerProvider\u_BitmapLayerProviderComplex.pas" />
     <DCCReference Include="Src\BitmapLayerProvider\u_BitmapLayerProviderFillingMap.pas" />
     <DCCReference Include="Src\BitmapLayerProvider\u_BitmapLayerProviderForViewMaps.pas" />
@@ -478,7 +477,6 @@
     <DCCReference Include="Src\MainForm\i_SelectionRect.pas" />
     <DCCReference Include="Src\MainForm\i_ViewPortState.pas" />
     <DCCReference Include="Src\MainForm\u_ActiveMapTBXItem.pas" />
-    <DCCReference Include="Src\MainForm\u_FindVectorItemsForVectorMaps.pas" />
     <DCCReference Include="Src\MainForm\u_FindVectorItemsForVectorTileMatrix.pas" />
     <DCCReference Include="Src\MainForm\u_GeometryLonLatLineChangeableByPathEdit.pas" />
     <DCCReference Include="Src\MainForm\u_GeometryLonLatPolygonChangeableByLastSelection.pas" />
