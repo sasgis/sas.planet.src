@@ -44,7 +44,7 @@ type
     FLinksList: IListenerNotifierLinksList;
     FResult: IVectorTileRenderer;
     procedure OnConfigChange;
-  protected
+  private
     function GetStatic: IVectorTileRenderer;
   public
     constructor Create(
