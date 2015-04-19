@@ -67,7 +67,6 @@ type
     lblSizeToFinishValue: TLabel;
     SaveSessionDialog: TSaveDialog;
     UpdateTimer: TTimer;
-    btnMinimize: TButton;
     btnPause: TButton;
     btnClose: TButton;
     pnlBottom: TPanel;
@@ -85,7 +84,6 @@ type
     tbtmSelect: TTBItem;
     tbtmGotoMap: TTBItem;
     procedure btnCloseClick(Sender: TObject);
-    procedure btnMinimizeClick(Sender: TObject);
     procedure btnPauseClick(Sender: TObject);
     procedure UpdateTimerTimer(Sender: TObject);
     procedure FormClose(
@@ -243,11 +241,6 @@ end;
 procedure TfrmProgressDownload.btnCloseClick(Sender: TObject);
 begin
   Close;
-end;
-
-procedure TfrmProgressDownload.btnMinimizeClick(Sender: TObject);
-begin
-  Perform(wm_SysCommand, SC_MINIMIZE, 0);
 end;
 
 procedure TfrmProgressDownload.btnPauseClick(Sender: TObject);

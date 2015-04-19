@@ -2,8 +2,8 @@ object frmProgressDownload: TfrmProgressDownload
   Left = 226
   Top = 306
   Caption = 'Please wait...'
-  ClientHeight = 239
-  ClientWidth = 328
+  ClientHeight = 251
+  ClientWidth = 324
   Color = clBtnFace
   Constraints.MinHeight = 243
   Constraints.MinWidth = 336
@@ -19,38 +19,44 @@ object frmProgressDownload: TfrmProgressDownload
     AlignWithMargins = True
     Left = 3
     Top = 3
-    Width = 322
-    Height = 233
+    Width = 318
+    Height = 245
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
     OnResize = Panel1Resize
+    ExplicitWidth = 322
+    ExplicitHeight = 233
     object mmoLog: TMemo
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 316
-      Height = 78
+      Width = 312
+      Height = 90
       Align = alClient
       ReadOnly = True
       ScrollBars = ssBoth
       TabOrder = 0
+      ExplicitWidth = 316
+      ExplicitHeight = 78
     end
     object pnlBottom: TPanel
       Left = 0
-      Top = 203
-      Width = 322
+      Top = 215
+      Width = 318
       Height = 30
       Margins.Top = 0
       Align = alBottom
       AutoSize = True
       BevelOuter = bvNone
       TabOrder = 1
+      ExplicitTop = 203
+      ExplicitWidth = 322
       object btnClose: TButton
         AlignWithMargins = True
-        Left = 254
+        Left = 230
         Top = 3
-        Width = 65
+        Width = 85
         Height = 24
         Align = alRight
         Caption = 'Quit'
@@ -59,34 +65,27 @@ object frmProgressDownload: TfrmProgressDownload
       end
       object btnPause: TButton
         AlignWithMargins = True
-        Left = 173
+        Left = 139
         Top = 3
-        Width = 75
+        Width = 85
         Height = 24
         Align = alRight
         Caption = 'Pause'
         TabOrder = 1
         OnClick = btnPauseClick
+        ExplicitLeft = 144
       end
-      object btnMinimize: TButton
+      object TBXOperationsToolbar: TTBXToolbar
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 60
+        Width = 111
         Height = 24
         Align = alLeft
-        Caption = 'Minimize'
-        TabOrder = 2
-        OnClick = btnMinimizeClick
-      end
-      object TBXOperationsToolbar: TTBXToolbar
-        Left = 67
-        Top = 3
-        Width = 100
-        Height = 24
         Images = frmMain.MenusImageList
         ShrinkMode = tbsmWrap
-        TabOrder = 3
+        TabOrder = 2
+        ExplicitLeft = 67
         object tbtmSelect: TTBItem
           ImageIndex = 44
           OnClick = tbtmSelectClick
@@ -123,186 +122,216 @@ object frmProgressDownload: TfrmProgressDownload
     end
     object pnlProgress: TPanel
       AlignWithMargins = True
-      Left = 5
-      Top = 169
-      Width = 312
+      Left = 2
+      Top = 181
+      Width = 314
       Height = 17
-      Margins.Left = 5
+      Margins.Left = 2
       Margins.Top = 0
-      Margins.Right = 5
+      Margins.Right = 2
       Margins.Bottom = 0
       Align = alBottom
       BevelOuter = bvNone
       TabOrder = 2
+      ExplicitLeft = 5
+      ExplicitTop = 169
+      ExplicitWidth = 312
     end
     object pnlToProcess: TPanel
       Left = 0
-      Top = 84
-      Width = 322
+      Top = 96
+      Width = 318
       Height = 17
       Align = alBottom
       BevelOuter = bvNone
       TabOrder = 3
+      ExplicitTop = 84
+      ExplicitWidth = 322
       object lblToProcess: TLabel
         Left = 0
         Top = 0
         Width = 112
-        Height = 13
+        Height = 17
         Align = alLeft
         BiDiMode = bdLeftToRight
         Caption = 'Process not more than:'
         ParentBiDiMode = False
         Layout = tlCenter
+        ExplicitHeight = 13
       end
       object lblToProcessValue: TLabel
-        Left = 316
+        Left = 312
         Top = 0
         Width = 6
-        Height = 13
+        Height = 17
         Align = alRight
         Alignment = taRightJustify
         BiDiMode = bdLeftToRight
         Caption = '  '
         ParentBiDiMode = False
         Layout = tlCenter
+        ExplicitLeft = 316
+        ExplicitHeight = 13
       end
     end
     object pnlProcessed: TPanel
       Left = 0
-      Top = 101
-      Width = 322
+      Top = 113
+      Width = 318
       Height = 17
       Align = alBottom
       BevelOuter = bvNone
       TabOrder = 4
+      ExplicitTop = 101
+      ExplicitWidth = 322
       object lblProcessed: TLabel
         Left = 0
         Top = 0
         Width = 78
-        Height = 13
+        Height = 17
         Align = alLeft
         BiDiMode = bdLeftToRight
         Caption = 'Processed total:'
         ParentBiDiMode = False
         Layout = tlCenter
+        ExplicitHeight = 13
       end
       object lblProcessedValue: TLabel
-        Left = 316
+        Left = 312
         Top = 0
         Width = 6
-        Height = 13
+        Height = 17
         Align = alRight
         Alignment = taRightJustify
         BiDiMode = bdLeftToRight
         Caption = '  '
         ParentBiDiMode = False
         Layout = tlCenter
+        ExplicitLeft = 316
+        ExplicitHeight = 13
       end
     end
     object pnlDownloaded: TPanel
       Left = 0
-      Top = 118
-      Width = 322
+      Top = 130
+      Width = 318
       Height = 17
       Align = alBottom
       BevelOuter = bvNone
       TabOrder = 5
+      ExplicitTop = 118
+      ExplicitWidth = 322
       object lblDownloaded: TLabel
         Left = 0
         Top = 0
         Width = 88
-        Height = 13
+        Height = 17
         Align = alLeft
         BiDiMode = bdLeftToRight
         Caption = 'Downloaded total:'
         ParentBiDiMode = False
         Layout = tlCenter
+        ExplicitHeight = 13
       end
       object lblDownloadedValue: TLabel
-        Left = 316
+        Left = 312
         Top = 0
         Width = 6
-        Height = 13
+        Height = 17
         Align = alRight
         Alignment = taRightJustify
         BiDiMode = bdLeftToRight
         Caption = '  '
         ParentBiDiMode = False
         Layout = tlCenter
+        ExplicitLeft = 316
+        ExplicitHeight = 13
       end
     end
     object pnlSizeToFinish: TPanel
       Left = 0
-      Top = 152
-      Width = 322
+      Top = 164
+      Width = 318
       Height = 17
       Align = alBottom
       BevelOuter = bvNone
       TabOrder = 6
+      ExplicitTop = 152
+      ExplicitWidth = 322
       object lblSizeToFinish: TLabel
         Left = 0
         Top = 0
         Width = 105
-        Height = 13
+        Height = 17
         Align = alLeft
         BiDiMode = bdLeftToRight
         Caption = 'Approx. to download:'
         ParentBiDiMode = False
         Layout = tlCenter
+        ExplicitHeight = 13
       end
       object lblSizeToFinishValue: TLabel
-        Left = 316
+        Left = 312
         Top = 0
         Width = 6
-        Height = 13
+        Height = 17
         Align = alRight
         Alignment = taRightJustify
         BiDiMode = bdLeftToRight
         Caption = '  '
         ParentBiDiMode = False
         Layout = tlCenter
+        ExplicitLeft = 316
+        ExplicitHeight = 13
       end
     end
     object pnlTimeToFinish: TPanel
       Left = 0
-      Top = 135
-      Width = 322
+      Top = 147
+      Width = 318
       Height = 17
       Align = alBottom
       BevelOuter = bvNone
       TabOrder = 7
+      ExplicitTop = 135
+      ExplicitWidth = 322
       object lblTimeToFinish: TLabel
         Left = 0
         Top = 0
         Width = 75
-        Height = 13
+        Height = 17
         Align = alLeft
         BiDiMode = bdLeftToRight
         Caption = 'Time remaining:'
         ParentBiDiMode = False
         Layout = tlCenter
+        ExplicitHeight = 13
       end
       object lblTimeToFinishValue: TLabel
-        Left = 316
+        Left = 312
         Top = 0
         Width = 6
-        Height = 13
+        Height = 17
         Align = alRight
         Alignment = taRightJustify
         BiDiMode = bdLeftToRight
         Caption = '  '
         ParentBiDiMode = False
         Layout = tlCenter
+        ExplicitLeft = 316
+        ExplicitHeight = 13
       end
     end
     object chkAutoCloseWhenFinish: TCheckBox
       Left = 0
-      Top = 186
-      Width = 322
+      Top = 198
+      Width = 318
       Height = 17
       Align = alBottom
       Caption = 'Close this window once finished'
       TabOrder = 8
+      ExplicitTop = 186
+      ExplicitWidth = 322
     end
   end
   object SaveSessionDialog: TSaveDialog
