@@ -155,6 +155,8 @@ type
     FFormatName: string;
     FfrMapSelect: TfrMapSelect;
     FfrLayerSelect: TfrMapSelect;
+    FMinPartSize: TPoint;
+    FMaxPartSize: TPoint;
     procedure UpdateProjectionsList(Sender: TObject);
   private
     procedure Init(
@@ -189,6 +191,8 @@ type
       const AViewConfig: IGlobalViewMainConfig;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
       const AMapCalibrationList: IMapCalibrationList;
+      const AMinPartSize: TPoint;
+      const AMaxPartSize: TPoint;
       const AUseQuality: Boolean;
       const AUseExif: Boolean;
       const AUseAlfa: Boolean;
@@ -232,6 +236,8 @@ constructor TfrMapCombine.Create(
   const AViewConfig: IGlobalViewMainConfig;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
   const AMapCalibrationList: IMapCalibrationList;
+  const AMinPartSize: TPoint;
+  const AMaxPartSize: TPoint;
   const AUseQuality: Boolean;
   const AUseExif: Boolean;
   const AUseAlfa: Boolean;
@@ -239,6 +245,8 @@ constructor TfrMapCombine.Create(
   const AFormatName: string
 );
 begin
+  Assert(AMinPartSize.X <= AMaxPartSize.X);
+  Assert(AMinPartSize.Y <= AMaxPartSize.Y);
   inherited Create(ALanguageManager);
   FProjectionFactory := AProjectionFactory;
   FCoordConverterList := ACoordConverterList;
@@ -246,6 +254,8 @@ begin
   FBitmapFactory := ABitmapFactory;
   FActiveMapsList := AActiveMapsList;
   FMapCalibrationList := AMapCalibrationList;
+  FMinPartSize := AMinPartSize;
+  FMaxPartSize := AMaxPartSize;
   FViewConfig := AViewConfig;
   FUseTilePrevZoomConfig := AUseTilePrevZoomConfig;
   FUseQuality := AUseQuality;
@@ -593,12 +603,51 @@ function TfrMapCombine.Validate: Boolean;
 var
   VPath: string;
   VMsg: string;
+  VProjection: IProjectionInfo;
+  VLonLatRect: TDoubleRect;
+  VPixelRect: TRect;
+  VSplitCount: TPoint;
+  VPixelSize: TPoint;
 begin
   if (FfrMapSelect.GetSelectedMapType = nil) and (FfrLayerSelect.GetSelectedMapType = nil) then begin
     ShowMessage(_('Please select map or layer'));
     Result := False;
     Exit;
   end;
+  VProjection := GetProjection;
+  VLonLatRect := FPolygLL.Bounds.Rect;
+  VProjection.GeoConverter.ValidateLonLatRect(VLonLatRect);
+  VPixelRect :=
+    RectFromDoubleRect(
+      VProjection.GeoConverter.LonLatRect2PixelRectFloat(VLonLatRect, VProjection.Zoom),
+      rrOutside
+    );
+  VSplitCount := GetSplitCount;
+  VPixelSize := RectSize(VPixelRect);
+  VPixelSize.X := Trunc(VPixelSize.X / VSplitCount.X);
+  VPixelSize.Y := Trunc(VPixelSize.Y / VSplitCount.Y);
+  if VPixelSize.X < FMinPartSize.X then begin
+    ShowMessageFmt(_('Every map part must have width more than %0:d but exist %1:d'), [FMinPartSize.X, VPixelSize.X]);
+    Result := False;
+    Exit;
+  end;
+  if VPixelSize.Y < FMinPartSize.Y then begin
+    ShowMessageFmt(_('Every map part must have height more than %0:d but exist %1:d'), [FMinPartSize.Y, VPixelSize.Y]);
+    Result := False;
+    Exit;
+  end;
+
+  if VPixelSize.X > FMaxPartSize.X then begin
+    ShowMessageFmt(_('Every map part must have width less than %0:d but exist %1:d'), [FMaxPartSize.X, VPixelSize.X]);
+    Result := False;
+    Exit;
+  end;
+  if VPixelSize.Y > FMaxPartSize.Y then begin
+    ShowMessageFmt(_('Every map part must have height less than %0:d but exist %1:d'), [FMaxPartSize.Y, VPixelSize.Y]);
+    Result := False;
+    Exit;
+  end;
+
   VPath := GetPath;
   if VPath = '' then begin
     ShowMessage(_('Please, select output file first!'));

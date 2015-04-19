@@ -78,6 +78,8 @@ type
     FMapCalibrationList: IMapCalibrationList;
     FGridsConfig: IMapLayerGridsConfig;
     FValueToStringConverter: IValueToStringConverterChangeable;
+    FMinPartSize: TPoint;
+    FMaxPartSize: TPoint;
     function PrepareGridsProvider: IBitmapTileUniProvider;
   protected
     function PrepareTargetFileName: string;
@@ -120,6 +122,8 @@ type
       const AGridsConfig: IMapLayerGridsConfig;
       const AValueToStringConverter: IValueToStringConverterChangeable;
       const AMapCalibrationList: IMapCalibrationList;
+      const AMinPartSize: TPoint;
+      const AMaxPartSize: TPoint;
       const AUseQuality: Boolean;
       const AUseExif: Boolean;
       const AUseAlfa: Boolean;
@@ -179,6 +183,8 @@ constructor TProviderMapCombineBase.Create(
   const AGridsConfig: IMapLayerGridsConfig;
   const AValueToStringConverter: IValueToStringConverterChangeable;
   const AMapCalibrationList: IMapCalibrationList;
+  const AMinPartSize: TPoint;
+  const AMaxPartSize: TPoint;
   const AUseQuality: Boolean;
   const AUseExif: Boolean;
   const AUseAlfa: Boolean;
@@ -186,6 +192,8 @@ constructor TProviderMapCombineBase.Create(
   const AFormatName: string
 );
 begin
+  Assert(AMinPartSize.X <= AMaxPartSize.X);
+  Assert(AMinPartSize.Y <= AMaxPartSize.Y);
   inherited Create(
     AProgressFactory,
     ALanguageManager,
@@ -207,6 +215,8 @@ begin
   FVectorSubsetBuilderFactory := AVectorSubsetBuilderFactory;
   FGridsConfig := AGridsConfig;
   FValueToStringConverter := AValueToStringConverter;
+  FMinPartSize := AMinPartSize;
+  FMaxPartSize := AMaxPartSize;
   FUseQuality := AUseQuality;
   FUseExif := AUseExif;
   FUseAlfa := AUseAlfa;
@@ -228,6 +238,8 @@ begin
       FViewConfig,
       FUseTilePrevZoomConfig,
       FMapCalibrationList,
+      FMinPartSize,
+      FMaxPartSize,
       FUseQuality,
       FUseExif,
       FUseAlfa,

@@ -133,6 +133,8 @@ begin
     AGridsConfig,
     AValueToStringConverter,
     AMapCalibrationList,
+    Point(100, 100),
+    Point(MaxInt, MaxInt),
     True,
     False,
     False,

@@ -144,7 +144,10 @@ begin
     ABitmapPostProcessing,
     AGridsConfig,
     AValueToStringConverter,
-    AMapCalibrationList, not FLossless, // Show Quality option
+    AMapCalibrationList,
+    Point(100, 100),
+    Point(MaxInt, MaxInt),
+    not FLossless, // Show Quality option
     False,         // Show Exif option
     False,         // Show Alfa chanel option
     'jp2',
