@@ -37,8 +37,6 @@ uses
   i_VectorTileMatrix,
   i_VectorTileMatrixBuilder,
   i_VectorItemSubsetChangeable,
-  i_ObjectWithListener,
-  i_HashTileMatrix,
   i_HashTileMatrixBuilder,
   i_VectorItemSubsetBuilder,
   i_VectorTileMatrixChangeable,
@@ -106,23 +104,17 @@ implementation
 
 uses
   t_Hash,
-  t_GeoTypes,
   i_TileIterator,
   i_VectorItemSubset,
-  i_CoordConverter,
   i_ProjectionInfo,
   i_VectorTileProvider,
-  i_LonLatRect,
   u_SimpleFlagWithInterlock,
   u_ListenerByEvent,
-  u_TileIteratorByRect,
   u_TileIteratorSpiralByRect,
   u_HashTileMatrixBuilder,
   u_VectorTileMatrixBuilder,
   u_VectorTileProviderByFixedSubset,
-  u_BackgroundTask,
-  u_GeoFunc,
-  u_Synchronizer;
+  u_BackgroundTask;
 
 { TBitmapTileMatrixChangeableWithThread }
 
