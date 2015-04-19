@@ -339,6 +339,7 @@ var
   VTask: ITileRequestTask;
   VTileInfo: ITileInfoBasic;
   VGotoNextTile: Boolean;
+  VProcessingTileMsg: string;
 begin
   while ATileIterator.Next(VTile) do begin
     VGotoNextTile := False;
@@ -360,7 +361,10 @@ begin
       end;
 
       // notify about current tile
-      FProgressInfo.Log.WriteText(Format(FRES_ProcessedFile, [FMapType.GetTileShowName(VTile, AZoom, FVersionForDownload)]), 0);
+      VProcessingTileMsg := Format('[z%d/x%d/y%d] %s',
+        [AZoom+1, VTile.X, VTile.Y, FMapType.GetTileShowName(VTile, AZoom, FVersionForDownload)]);
+      FProgressInfo.Log.WriteText(Format(FRES_ProcessedFile, [VProcessingTileMsg]), 0);
+      
       // if gtimWithData - tile will be loaded, so we use gtimAsIs
       VTileInfo := FMapType.TileStorage.GetTileInfoEx(VTile, AZoom, FVersionForCheck, gtimAsIs);
 
