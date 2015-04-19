@@ -336,6 +336,7 @@ uses
   u_VectorTileRendererChangeableForMarksLayer in 'Src\TileProvider\u_VectorTileRendererChangeableForMarksLayer.pas',
   u_BitmapTileMatrixChangeableByVectorMatrix in 'Src\TileMatrix\u_BitmapTileMatrixChangeableByVectorMatrix.pas',
   u_VectorTileMatrixChangeableForVectorLayers in 'Src\TileMatrix\u_VectorTileMatrixChangeableForVectorLayers.pas',
+  u_VectorTileMatrixChangeableByVectorSubsetChangeable in 'Src\TileMatrix\u_VectorTileMatrixChangeableByVectorSubsetChangeable.pas',
   i_VectorTileProviderChangeable in 'Src\TileProvider\i_VectorTileProviderChangeable.pas',
   u_BitmapTileMatrixChangeableComposite in 'Src\TileMatrix\u_BitmapTileMatrixChangeableComposite.pas',
   u_RegionProcessProgressInfoDownload in 'Src\RegionProcess\u_RegionProcessProgressInfoDownload.pas',

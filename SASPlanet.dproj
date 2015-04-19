@@ -1246,6 +1246,7 @@
     <DCCReference Include="Src\TileMatrix\u_HashTileMatrixBuilder.pas" />
     <DCCReference Include="Src\TileMatrix\u_VectorTileMatrix.pas" />
     <DCCReference Include="Src\TileMatrix\u_VectorTileMatrixBuilder.pas" />
+    <DCCReference Include="Src\TileMatrix\u_VectorTileMatrixChangeableByVectorSubsetChangeable.pas" />
     <DCCReference Include="Src\TileMatrix\u_VectorTileMatrixChangeableForVectorLayers.pas" />
     <DCCReference Include="Src\TileProvider\i_BinaryTileProvider.pas" />
     <DCCReference Include="Src\TileProvider\i_BitmapTileProvider.pas" />
