@@ -23,6 +23,7 @@ unit fr_TilesDownload;
 interface
 
 uses
+  Types,
   Classes,
   Controls,
   ComCtrls,
@@ -38,6 +39,7 @@ uses
   i_GeometryProjectedFactory,
   i_RegionProcessParamsFrame,
   fr_MapSelect,
+  fr_ZoomsSelect,
   u_CommonFormAndFrameParents;
 
 type
@@ -67,16 +69,14 @@ type
       TFrame,
       IRegionProcessParamsFrameBase,
       IRegionProcessParamsFrameOneMap,
-      IRegionProcessParamsFrameOneZoom,
+      IRegionProcessParamsFrameZoomArray,
       IRegionProcessParamsFrameTilesDownload
     )
-    lblZoom: TLabel;
     lblStat: TLabel;
     chkReplace: TCheckBox;
     chkReplaceIfDifSize: TCheckBox;
     chkReplaceOlder: TCheckBox;
     dtpReplaceOlderDate: TDateTimePicker;
-    cbbZoom: TComboBox;
     chkTryLoadIfTNE: TCheckBox;
     pnlTop: TPanel;
     pnlBottom: TPanel;
@@ -97,7 +97,14 @@ type
     FProjectionFactory: IProjectionInfoFactory;
     FPolygLL: IGeometryLonLatPolygon;
     FfrMapSelect: TfrMapSelect;
-
+    FfrZoomsSelect: TfrZoomsSelect;
+    function GetZoomInfo(
+      const AZoom: Byte;
+      const AMapType: IMapType;
+      out ATileRect: TRect;
+      out APixelRect: TRect;
+      out ATilesCount: Int64
+    ): Boolean;
   private
     procedure Init(
       const AZoom: byte;
@@ -106,7 +113,7 @@ type
     function Validate: Boolean;
   private
     function GetMapType: IMapType;
-    function GetZoom: Byte;
+    function GetZoomArray: TByteDynArray;
   private
     function GetIsStartPaused: Boolean;
     function GetIsIgnoreTne: Boolean;
@@ -128,57 +135,87 @@ type
 implementation
 
 uses
+  Dialogs,
   t_GeoTypes,
   i_GeometryProjected,
   u_GeoFunc,
   u_ResStrings;
 
 {$R *.dfm}
-
-procedure TfrTilesDownload.cbbZoomChange(Sender: TObject);
+function TfrTilesDownload.GetZoomInfo(
+  const AZoom: Byte;
+  const AMapType: IMapType;
+  out ATileRect: TRect;
+  out APixelRect: TRect;
+  out ATilesCount: Int64
+): Boolean;
 var
-  numd: int64;
-  Vmt: IMapType;
-  VZoom: byte;
+  VZoom: Byte;
+  VBounds: TDoubleRect;
   VPolyLL: IGeometryLonLatPolygon;
   VProjected: IGeometryProjectedPolygon;
-  VBounds: TDoubleRect;
-  VPixelRect: TRect;
-  VTileRect: TRect;
 begin
-  Vmt := FfrMapSelect.GetSelectedMapType;
-  if Vmt <> nil then begin
-    VZoom := cbbZoom.ItemIndex;
-    Vmt.GeoConvert.ValidateZoom(VZoom);
+  Result := False;
+  if AMapType <> nil then begin
+    VZoom := AZoom;
+    AMapType.GeoConvert.ValidateZoom(VZoom);
     VPolyLL := FPolygLL;
     if VPolyLL <> nil then begin
       VProjected :=
         FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-          FProjectionFactory.GetByConverterAndZoom(Vmt.GeoConvert, VZoom),
+          FProjectionFactory.GetByConverterAndZoom(AMapType.GeoConvert, VZoom),
           VPolyLL
         );
       if not VProjected.IsEmpty then begin
         VBounds := VProjected.Bounds;
-        VPixelRect := RectFromDoubleRect(VBounds, rrOutside);
-        VTileRect := Vmt.GeoConvert.PixelRect2TileRect(VPixelRect, VZoom);
-        numd := (VTileRect.Right - VTileRect.Left);
-        numd := numd * (VTileRect.Bottom - VTileRect.Top);
-        lblStat.Caption :=
-          SAS_STR_filesnum + ': ' +
-          inttostr(VTileRect.Right - VTileRect.Left) + 'x' +
-          inttostr(VTileRect.Bottom - VTileRect.Top) +
-          '(' + inttostr(numd) + ')' +
-          ', ' + SAS_STR_Resolution + ' ' +
-          inttostr(VPixelRect.Right - VPixelRect.Left) + 'x' +
-          inttostr(VPixelRect.Bottom - VPixelRect.Top);
+        APixelRect := RectFromDoubleRect(VBounds, rrOutside);
+        ATileRect := AMapType.GeoConvert.PixelRect2TileRect(APixelRect, VZoom);
+        ATilesCount :=
+          (ATileRect.Right - ATileRect.Left) * (ATileRect.Bottom - ATileRect.Top);
+        Result := True;
       end;
     end;
+  end;
+end;
+
+procedure TfrTilesDownload.cbbZoomChange(Sender: TObject);
+var
+  I: Integer;
+  VZoomArr: TByteDynArray;
+  VMapType: IMapType;
+  VTileRect: TRect;
+  VPixelRect: TRect;
+  VTilesCount: Int64;
+  VTilesTotal: Int64;
+begin
+  VMapType := FfrMapSelect.GetSelectedMapType;
+  VZoomArr := FfrZoomsSelect.GetZoomList;
+  if Length(VZoomArr) = 1 then begin
+    if GetZoomInfo(VZoomArr[0], VMapType, VTileRect, VPixelRect, VTilesCount) then begin
+      lblStat.Caption :=
+        SAS_STR_filesnum + ': ' +
+        IntToStr(VTileRect.Right - VTileRect.Left) + 'x' +
+        IntToStr(VTileRect.Bottom - VTileRect.Top) +
+        '(' + IntToStr(VTilesCount) + ')' +
+        ', ' + SAS_STR_Resolution + ' ' +
+        IntToStr(VPixelRect.Right - VPixelRect.Left) + 'x' +
+        IntToStr(VPixelRect.Bottom - VPixelRect.Top) + ' pix';
+    end;
+  end else begin
+    VTilesTotal := 0;
+    for I := 0 to Length(VZoomArr) - 1 do begin
+      if GetZoomInfo(VZoomArr[I], VMapType, VTileRect, VPixelRect, VTilesCount) then begin
+        Inc(VTilesTotal, VTilesCount);
+      end;
+    end;
+    lblStat.Caption := SAS_STR_filesnum + ': ' + IntToStr(VTilesTotal);
   end;
 end;
 
 destructor TfrTilesDownload.Destroy;
 begin
   FreeAndNil(FfrMapSelect);
+  FreeAndNil(FfrZoomsSelect);
   inherited;
 end;
 
@@ -214,6 +251,12 @@ begin
       false,  // show disabled map
       GetAllowDownload
     );
+  FfrZoomsSelect :=
+    TfrZoomsSelect.Create(
+      ALanguageManager,
+      Self.cbbZoomChange
+    );
+  FfrZoomsSelect.Init(0, 23);
 end;
 
 function TfrTilesDownload.GetAllowDownload(const AMapType: IMapType): boolean; // чисто для проверки
@@ -256,37 +299,30 @@ begin
   Result := dtpReplaceOlderDate.DateTime;
 end;
 
-function TfrTilesDownload.GetZoom: Byte;
+function TfrTilesDownload.GetZoomArray: TByteDynArray;
 begin
-  if cbbZoom.ItemIndex < 0 then begin
-    cbbZoom.ItemIndex := 0;
-  end;
-  Result := cbbZoom.ItemIndex;
+  Result := FfrZoomsSelect.GetZoomList;
 end;
 
 procedure TfrTilesDownload.Init(
   const AZoom: Byte;
   const APolygon: IGeometryLonLatPolygon
 );
-var
-  i: integer;
 begin
   FPolygLL := APolygon;
-  cbbZoom.Items.Clear;
-  for i := 1 to 24 do begin
-    cbbZoom.Items.Add(inttostr(i));
-  end;
-  cbbZoom.ItemIndex := AZoom;
+  FfrZoomsSelect.Show(pnlZoom);
+  FfrZoomsSelect.CheckZoom(AZoom);
   dtpReplaceOlderDate.Date := now;
-  cbbZoomChange(nil);
   FfrMapSelect.Show(pnlFrame);
-  cbbZoomChange(cbbzoom);
-
+  cbbZoomChange(Self);
 end;
 
 function TfrTilesDownload.Validate: Boolean;
 begin
-  Result := True;
+  Result := FfrZoomsSelect.Validate;
+  if not Result then begin
+    MessageDlg(SAS_MSG_NeedZoom, mtError, [mbOk], 0);
+  end;
 end;
 
 end.

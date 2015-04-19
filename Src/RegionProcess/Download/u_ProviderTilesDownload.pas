@@ -171,7 +171,7 @@ begin
       Self.MapSelectFrameBuilder
     );
   Assert(Supports(Result, IRegionProcessParamsFrameOneMap));
-  Assert(Supports(Result, IRegionProcessParamsFrameOneZoom));
+  Assert(Supports(Result, IRegionProcessParamsFrameZoomArray));
   Assert(Supports(Result, IRegionProcessParamsFrameTilesDownload));
 end;
 
@@ -377,6 +377,7 @@ procedure TProviderTilesDownload.StartProcess(const APolygon: IGeometryLonLatPol
 var
   VMapType: IMapType;
   VZoom: byte;
+  VZoomArr: TByteDynArray;
   VLog: TLogSimpleProvider;
   VLogSimple: ILogSimple;
   VLogProvider: ILogSimpleProvider;
@@ -389,7 +390,9 @@ var
   VThread: TThread;
 begin
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
-  VZoom := (ParamsFrame as IRegionProcessParamsFrameOneZoom).Zoom;
+  VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
+
+  VZoom := VZoomArr[0];
 
   VProjection := FProjectionFactory.GetByConverterAndZoom(VMapType.GeoConvert, VZoom);
   VProjectedPolygon :=

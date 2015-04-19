@@ -29,6 +29,7 @@ uses
   CheckLst,
   StdCtrls,
   Controls,
+  i_LanguageManager,
   u_CommonFormAndFrameParents;
 
 type
@@ -40,13 +41,19 @@ type
     procedure chklstZoomsDblClick(Sender: TObject);
     procedure chkAllZoomsClick(Sender: TObject);
     procedure chklstZoomsClick(Sender: TObject);
-
+  private
+    FOnClick: TNotifyEvent;
   public
     procedure Show(AParent: TWinControl);
     function GetZoomList: TByteDynArray;
     function Validate: Boolean;
     procedure Init(AminZoom, AmaxZoom: Byte);
     procedure DisableZoom(AitemValue: Byte);
+    procedure CheckZoom(AZoom: Byte);
+    constructor Create(
+      const ALanguageManager: ILanguageManager;
+      const AOnClick: TNotifyEvent = nil
+    ); reintroduce;
   end;
 
 implementation
@@ -54,6 +61,15 @@ implementation
 {$R *.dfm}
 
 { TfrZoomsSelect }
+
+constructor TfrZoomsSelect.Create(
+  const ALanguageManager: ILanguageManager;
+  const AOnClick: TNotifyEvent
+);
+begin
+  inherited Create(ALanguageManager);
+  FOnClick := AOnClick;
+end;
 
 procedure TfrZoomsSelect.chkAllZoomsClick(Sender: TObject);
 var
@@ -66,6 +82,9 @@ begin
       then begin
         chklstZooms.Checked[i] := TCheckBox(Sender).Checked;
       end;
+    end;
+    if Assigned(FOnClick) then begin
+      FOnClick(Sender);
     end;
   end;
 end;
@@ -123,6 +142,9 @@ begin
       chkAllZooms.State := cbUnchecked;
     end;
   end;
+  if Assigned(FOnClick) then begin
+    FOnClick(Sender);
+  end;
 end;
 
 procedure TfrZoomsSelect.chklstZoomsDblClick(Sender: TObject);
@@ -161,6 +183,10 @@ begin
       chkAllZooms.state := cbGrayed;
     end;
   end;
+
+  if Assigned(FOnClick) then begin
+    FOnClick(Sender);
+  end;
 end;
 
 function TfrZoomsSelect.GetZoomList: TByteDynArray;
@@ -195,6 +221,15 @@ begin
       Break;
     end;
   end;
+end;
+
+procedure TfrZoomsSelect.CheckZoom(AZoom: Byte);
+begin
+  Assert(AZoom <= chklstZooms.Count);
+  Assert(chklstZooms.ItemEnabled[AZoom]);
+  chklstZooms.Checked[AZoom] := True;
+  chklstZooms.TopIndex := AZoom;
+  chkAllZooms.state := cbGrayed;
 end;
 
 end.
