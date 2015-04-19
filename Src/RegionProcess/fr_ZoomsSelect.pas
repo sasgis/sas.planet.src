@@ -50,6 +50,7 @@ type
     procedure Init(AminZoom, AmaxZoom: Byte);
     procedure DisableZoom(AitemValue: Byte);
     procedure CheckZoom(AZoom: Byte);
+    procedure UncheckAllZooms;
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AOnClick: TNotifyEvent = nil
@@ -230,6 +231,16 @@ begin
   chklstZooms.Checked[AZoom] := True;
   chklstZooms.TopIndex := AZoom;
   chkAllZooms.state := cbGrayed;
+end;
+
+procedure TfrZoomsSelect.UncheckAllZooms;
+var
+  I: Integer;
+begin
+  for I := 0 to chklstZooms.Count - 1 do begin
+    chklstZooms.Checked[I] := False;
+  end;
+  chkAllZooms.state := cbUnchecked;
 end;
 
 end.

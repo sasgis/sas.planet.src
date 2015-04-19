@@ -311,6 +311,7 @@ procedure TfrTilesDownload.Init(
 begin
   FPolygLL := APolygon;
   FfrZoomsSelect.Show(pnlZoom);
+  FfrZoomsSelect.UncheckAllZooms;
   FfrZoomsSelect.CheckZoom(AZoom);
   dtpReplaceOlderDate.Date := now;
   FfrMapSelect.Show(pnlFrame);
