@@ -94,13 +94,13 @@ begin
   SetLength(VTmpBuf, AResult.Data.Size);
   Move(AResult.Data.Buffer^, VTmpBuf[1], AResult.Data.Size);
 
-  VJsonObject := SO(VTmpBuf);
+  VJsonObject := SO(Utf8ToAnsi(VTmpBuf));
 
   if not Assigned(VJsonObject) then begin
     raise EParserError.Create('JSON parser error');
   end;
 
-  VStatus := Utf8ToAnsi(VJsonObject.S['status']);
+  VStatus := VJsonObject.S['status'];
 
   (*
     https://developers.google.com/maps/documentation/geocoding/index#StatusCodes
@@ -138,9 +138,9 @@ begin
   for I := 0 to VJsonArray.Length - 1 do begin
     VResultItem := VJsonArray.O[I];
     Assert(VResultItem <> nil);
-    VName := Utf8ToAnsi(VResultItem.S['formatted_address']);
-    VLat := Utf8ToAnsi(VResultItem.S['geometry.location.lat']);
-    VLon := Utf8ToAnsi(VResultItem.S['geometry.location.lng']);
+    VName := VResultItem.S['formatted_address'];
+    VLat := VResultItem.S['geometry.location.lat'];
+    VLon := VResultItem.S['geometry.location.lng'];
     try
       VPoint.X := StrToFloat(VLon, VFormatSettings);
       VPoint.Y := StrToFloat(VLat, VFormatSettings);

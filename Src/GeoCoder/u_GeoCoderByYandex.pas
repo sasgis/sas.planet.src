@@ -113,7 +113,7 @@ begin
   SetLength(VTmpBuf, AResult.Data.Size);
   Move(AResult.Data.Buffer^, VTmpBuf[1], AResult.Data.Size);
 
-  VJsonObject := SO(VTmpBuf);
+  VJsonObject := SO(Utf8ToAnsi(VTmpBuf));
 
   if not Assigned(VJsonObject) then begin
     raise EParserError.Create('JSON parser error');
@@ -124,9 +124,9 @@ begin
     for I := 0 to VJsonArray.Length - 1 do begin
       VResultItem := VJsonArray.O[I];
       Assert(VResultItem <> nil);
-      VName := Utf8ToAnsi(VResultItem.S['GeoObject.name']);
-      VDescription := Utf8ToAnsi(VResultItem.S['GeoObject.description']);
-      VPoint := _PosToPoint(Utf8ToAnsi(VResultItem.S['GeoObject.Point.pos']));
+      VName := VResultItem.S['GeoObject.name'];
+      VDescription := VResultItem.S['GeoObject.description'];
+      VPoint := _PosToPoint(VResultItem.S['GeoObject.Point.pos']);
       VPlace := PlacemarkFactory.Build(VPoint, VName, VDescription, '', 4);
       VList.Add(VPlace);
     end;
