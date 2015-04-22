@@ -49,7 +49,7 @@ type
     FLogCS: TCriticalSection;
     FFormatSettings: TFormatSettings;
     function GetFullPathName(const ARelativePathName: string): string;
-    procedure SaveErrorToLog(const AMsg: string);
+    procedure LogMsg(const AMsg: string);
     procedure OnCacheConfigChange;
   private
     { IGlobalBerkeleyDBHelper }
@@ -69,6 +69,8 @@ type
 procedure TryShowLastExceptionData;
 
 implementation
+
+{.$DEFINE LOG_EVN_OPERATIONS}
 
 uses
   {$IFDEF EUREKALOG}
@@ -153,6 +155,9 @@ var
 begin
   Assert(AStorageConfig <> nil);
   Result := nil;
+  {$IFDEF LOG_EVN_OPERATIONS}
+  LogMsg(Format('Enter AllocateEnvironment [%s]', [AEnvRootPath]));
+  {$ENDIF}
   FEnvCS.Acquire;
   try
     VPath := GetFullPathName(AEnvRootPath);
@@ -162,11 +167,17 @@ begin
         if VEnv.RootPath = VPath then begin
           VEnv.ClientsCount := VEnv.ClientsCount + 1;
           Result := VEnv;
+          {$IFDEF LOG_EVN_OPERATIONS}
+          LogMsg(Format('Found existing env, ClientsCount = %d [%s]', [VEnv.ClientsCount, VPath]));
+          {$ENDIF}
           Break;
         end;
       end;
     end;
     if not Assigned(Result) then begin
+      {$IFDEF LOG_EVN_OPERATIONS}
+      LogMsg(Format('Try create new env [%s]', [VPath]));
+      {$ENDIF}
       VEnv := TBerkeleyDBEnv.Create(
         (Self as IGlobalBerkeleyDBHelper),
         AIsReadOnly,
@@ -176,10 +187,16 @@ begin
       );
       FEnvList.Add(VEnv);
       Result := VEnv;
+      {$IFDEF LOG_EVN_OPERATIONS}
+      LogMsg(Format('Env created successful [%s]', [VPath]));
+      {$ENDIF}
     end;
   finally
     FEnvCS.Release;
   end;
+  {$IFDEF LOG_EVN_OPERATIONS}
+  LogMsg(Format('Leave AllocateEnvironment [%s]', [AEnvRootPath]));
+  {$ENDIF}
 end;
 
 procedure TGlobalBerkeleyDBHelper.FreeEnvironment(const AEnv: IBerkeleyDBEnvironment);
@@ -187,6 +204,9 @@ var
   I: Integer;
   VEnv: IBerkeleyDBEnvironment;
 begin
+  {$IFDEF LOG_EVN_OPERATIONS}
+  LogMsg('Enter FreeEnvironment');
+  {$ENDIF}
   FEnvCS.Acquire;
   try
     if Assigned(AEnv) then begin
@@ -194,9 +214,15 @@ begin
         VEnv := FEnvList.Items[I] as IBerkeleyDBEnvironment;
         if Assigned(VEnv) then begin
           if (VEnv as IInterface) = (AEnv as IInterface) then begin
+            {$IFDEF LOG_EVN_OPERATIONS}
+            LogMsg(Format('Found assigned env, ClientsCount = %d [%s]', [VEnv.ClientsCount, VEnv.RootPath]));
+            {$ENDIF}
             VEnv.ClientsCount := VEnv.ClientsCount - 1;
             if VEnv.ClientsCount <= 0 then begin
               FEnvList.Remove(VEnv);
+              {$IFDEF LOG_EVN_OPERATIONS}
+              LogMsg(Format('Destroy env [%s]', [VEnv.RootPath]));
+              {$ENDIF}
             end;
             Break;
           end;
@@ -206,9 +232,12 @@ begin
   finally
     FEnvCS.Release;
   end;
+  {$IFDEF LOG_EVN_OPERATIONS}
+  LogMsg('Leave FreeEnvironment');
+  {$ENDIF}
 end;
 
-procedure TGlobalBerkeleyDBHelper.SaveErrorToLog(const AMsg: string);
+procedure TGlobalBerkeleyDBHelper.LogMsg(const AMsg: string);
 var
   VLogMsg: string;
   VLogFileName: string;
@@ -237,7 +266,7 @@ procedure TGlobalBerkeleyDBHelper.LogException(const EMsg: string);
 begin
   if FSaveErrorsToLog then
   try
-    SaveErrorToLog(EMsg);
+    LogMsg(EMsg);
   except
     // ignore
   end;
