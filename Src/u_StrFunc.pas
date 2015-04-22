@@ -22,6 +22,13 @@ unit u_StrFunc;
 
 interface
 
+uses
+  SysUtils;
+
+{$IF CompilerVersion < 23}
+function CharInSet(AChar: AnsiChar; const ASet: TSysCharSet): Boolean; inline;
+{$IFEND}
+
 function GetAfter(const SubStr, Str: AnsiString): AnsiString;
 function GetBefore(const SubStr, Str: AnsiString): AnsiString;
 function GetBetween(const Str, After, Before: AnsiString): AnsiString;
@@ -32,9 +39,15 @@ function GetHeaderValue(const AHeaders, AName: AnsiString): AnsiString;
 implementation
 
 uses
-  SysUtils,
   ALString,
   RegExpr;
+
+{$IF CompilerVersion < 23}
+function CharInSet(AChar: AnsiChar; const ASet: TSysCharSet): Boolean; inline;
+begin
+  Result := AChar in ASet;
+end;
+{$IFEND}
 
 function GetAfter(const SubStr, Str: AnsiString): AnsiString;
 begin

@@ -107,15 +107,9 @@ implementation
 
 uses
   SysUtils,
+  u_StrFunc,
   u_GeoFunc,
   u_GeoToStrFunc;
-
-{$IF CompilerVersion < 23}
-function CharInSet(const AChar: AnsiChar; const ASet: TSysCharSet): Boolean; inline;
-begin
-  Result := (AChar in ASet)
-end;
-{$IFEND}
 
 function _IsCoord(const ASym: Char): Boolean;
 begin

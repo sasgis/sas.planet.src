@@ -64,11 +64,11 @@ begin
   // internal routines
   APSComp.AddDelphiFunction('function SubStrPos(const Str, SubStr: AnsiString; FromPos: Integer): Integer');
 
-  APSComp.AddDelphiFunction('function GetNumberAfter(const ASubStr, AText: AnsiString): AnsiString');
-  APSComp.AddDelphiFunction('function GetDiv3Path(const ANumber: AnsiString): AnsiString');
+  APSComp.AddDelphiFunction('function GetNumberAfter(const ASubStr, AText: string): string');
+  APSComp.AddDelphiFunction('function GetDiv3Path(const ANumber: string): string');
 
   APSComp.AddDelphiFunction('function GetUnixTime: Int64');
-  APSComp.AddDelphiFunction('function SaveToLocalFile(const AFullLocalFilename, AData: AnsiString): Integer');
+  APSComp.AddDelphiFunction('function SaveToLocalFile(const AFullLocalFilename: string; const AData: AnsiString): Integer');
 
 end;
 
@@ -120,7 +120,7 @@ asm
   POP EDI
 end;
 
-function GetNumberAfter_P(const ASubStr, AText: AnsiString): AnsiString;
+function GetNumberAfter_P(const ASubStr, AText: string): string;
 var
   VPos: Integer;
 begin
@@ -128,14 +128,14 @@ begin
   VPos := System.Pos(ASubStr, AText);
   if (VPos > 0) then begin
     VPos := VPos + Length(ASubStr);
-    while ((VPos <= System.Length(AText)) and (AText[VPos] in ['0', '1'..'9'])) do begin
+    while ((VPos <= System.Length(AText)) and CharInSet(AText[VPos], ['0', '1'..'9'])) do begin
       Result := Result + AText[VPos];
       Inc(VPos);
     end;
   end;
 end;
 
-function GetDiv3Path_P(const ASource: AnsiString): AnsiString;
+function GetDiv3Path_P(const ASource: string): string;
 var
   i: Integer;
 begin
@@ -167,7 +167,7 @@ begin
   Result := DateTimeToUnix(now);
 end;
 
-function SaveToLocalFile_P(const AFullLocalFilename, AData: AnsiString): Integer;
+function SaveToLocalFile_P(const AFullLocalFilename: string; const AData: AnsiString): Integer;
 var
   VPath: String;
   VStream: TFileStream;
