@@ -550,7 +550,7 @@ begin
   // http://c.tile.openstreetmap.org/10/622/367.png
   if RegExprGetMatchSubStr(VLink, '\.(openstreetmap|opencyclemap|osm).+\.png', 0) <> '' then begin
     VSName := 'OpenStreetMap';
-    I := ALPosEx(RegExprGetMatchSubStr(VLink, '/[0-9]?[0-9]/', 0), VLink, 1); // Z значение
+    I := PosEx(RegExprGetMatchSubStr(VLink, '/[0-9]?[0-9]/', 0), VLink, 1); // Z значение
     J := ALPosEx('/', VLink, I + 1);
     VZoom := (ALStrToInt(Copy(VLink, I + 1, J - (I + 1))));
     Inc(VZoom);
