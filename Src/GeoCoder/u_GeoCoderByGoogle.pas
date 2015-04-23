@@ -76,12 +76,13 @@ var
   VTmpBuf: UTF8String;
   VJsonObject: ISuperObject;
   VJsonArray: TSuperArray;
+  VAdressArray: TSuperArray;
   VResultItem: ISuperObject;
   VPoint: TDoublePoint;
   VPlace: IVectorDataItem;
   VList: IInterfaceListSimple;
   VFormatSettings: TFormatSettings;
-  VStatus, VName, VLon, VLat: string;
+  VStatus, VName, VDesc, VLon, VLat: string;
 begin
   if AResult.Data.Size <= 0 then begin
     raise EParserError.Create(SAS_ERR_EmptyServerResponse);
@@ -138,7 +139,14 @@ begin
   for I := 0 to VJsonArray.Length - 1 do begin
     VResultItem := VJsonArray.O[I];
     Assert(VResultItem <> nil);
-    VName := VResultItem.S['formatted_address'];
+    VAdressArray := VResultItem.A['address_components'];
+    if Assigned(VAdressArray) and (VAdressArray.Length > 1) then begin
+      VName := VAdressArray.O[0].S['long_name'];
+      VDesc := VResultItem.S['formatted_address'];
+    end else begin
+      VName := VResultItem.S['formatted_address'];
+      VDesc := '';
+    end;
     VLat := VResultItem.S['geometry.location.lat'];
     VLon := VResultItem.S['geometry.location.lng'];
     try
@@ -147,7 +155,7 @@ begin
     except
       raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [VLon, VLat]);
     end;
-    VPlace := PlacemarkFactory.Build(VPoint, VName, '', '', 4);
+    VPlace := PlacemarkFactory.Build(VPoint, VName, VDesc, '', 4);
     VList.Add(VPlace);
   end;
 
