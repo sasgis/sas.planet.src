@@ -90,7 +90,21 @@ end;
 
 constructor TBinaryData.CreateByString(const ASource: String);
 begin
-  Create(Length(ASource) * SizeOf(ASource[1]), @ASource[1]);
+  inherited Create;
+  FSize := Length(ASource);
+  if FSize > 0 then begin
+    if SizeOf(ASource[1]) = 1 then begin
+      GetMem(FBuffer, FSize);
+      Move(ASource[1], FBuffer^, FSize);
+    end else begin
+      FSize := FSize * SizeOf(ASource[1]) + SizeOf(WideChar);
+      GetMem(FBuffer, FSize);
+      PWideChar(FBuffer)^ := WideChar($FEFF);
+      Move(ASource[1], (PWideChar(FBuffer) + 1)^, FSize - SizeOf(WideChar));
+    end;
+  end else begin
+    FBuffer := nil;
+  end;
 end;
 
 constructor TBinaryData.CreateWithOwn(
