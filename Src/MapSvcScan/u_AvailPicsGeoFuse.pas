@@ -59,6 +59,7 @@ implementation
 uses
   ALZLibExGZ,
   u_StreamReadOnlyByBinaryData,
+  u_StrFunc,
   u_InetFunc,
   u_GeoToStrFunc;
 
@@ -150,14 +151,14 @@ const
       // line as ':{"rings":[[[58.051913790000071'
       // get last number as first part of coordinates
       VTrimmed := System.Copy(AGeoLineSrc, VPos + Length(c_rings_quoted), Length(AGeoLineSrc));
-      while (0<Length(VTrimmed)) and (VTrimmed[1] in ['[',':','{',' ']) do begin
+      while (0<Length(VTrimmed)) and CharInSet(VTrimmed[1], ['[',':','{',' ']) do begin
         System.Delete(VTrimmed, 1, 1);
       end;
     end else if (AGeoLineSrc[1]='[') then begin
       // first part of coordinates
       // [57.860857047000081
       VTrimmed := AGeoLineSrc;
-      while (0<Length(VTrimmed)) and (VTrimmed[1] in ['[',':','{',' ']) do begin
+      while (0<Length(VTrimmed)) and CharInSet(VTrimmed[1], ['[',':','{',' ']) do begin
         System.Delete(VTrimmed, 1, 1);
       end;
     end else begin
@@ -170,14 +171,14 @@ const
         // very last line of geometry
         VTrimmed := System.Copy(AGeoLineSrc, 1, (VPos - 1));
         // cleanup start of geometry
-        while (0<Length(AFullGeoLine)) and (AFullGeoLine[1] in ['[',':','{',' ']) do begin
+        while (0<Length(AFullGeoLine)) and CharInSet(AFullGeoLine[1], ['[',':','{',' ']) do begin
           System.Delete(AFullGeoLine, 1, 1);
         end;
         Result := TRUE;
       end else begin
         VTrimmed := AGeoLineSrc;
       end;
-      while (0<Length(VTrimmed)) and (VTrimmed[Length(VTrimmed)] in [']',':','}',' ']) do begin
+      while (0<Length(VTrimmed)) and CharInSet(VTrimmed[Length(VTrimmed)], [']',':','}',' ']) do begin
         SetLength(VTrimmed, Length(VTrimmed) - 1);
       end;
     end;
@@ -294,7 +295,7 @@ begin
           end;
           gfwlt_Value: begin
             // simple value
-            while (0<Length(VLine)) and (VLine[Length(VLine)] in [']','}']) do begin
+            while (0<Length(VLine)) and CharInSet(VLine[Length(VLine)], [']','}']) do begin
               SetLength(VLine, Length(VLine) - 1);
             end;
             if (0<Length(VLine)) and (0<Length(VJSonParameter)) then begin

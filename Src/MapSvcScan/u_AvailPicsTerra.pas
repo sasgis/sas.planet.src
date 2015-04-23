@@ -144,7 +144,7 @@ function TAvailPicsTerraserver.ParseResponse(const AResultOk: IDownloadResultOk)
         VPos := 1;
         VSep := '';
         while (VPos <= Length(VValue)) do begin
-          if (VValue[VPos] in ['0','1'..'9']) then
+          if CharInSet(VValue[VPos], ['0','1'..'9']) then
             Inc(VPos)
           else begin
             // found
