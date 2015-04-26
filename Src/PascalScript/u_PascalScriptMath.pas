@@ -38,7 +38,7 @@ begin
   APSComp.AddDelphiFunction('function Random(const X: Integer): Integer');
   APSComp.AddDelphiFunction('function RandomRange(const AFrom, ATo: Integer): Integer');
   APSComp.AddDelphiFunction('function Power(const Base, Exponent: Extended): Extended');
-  APSComp.AddDelphiFunction('function IntPower(const Base: Extended; const Exponent: Integer): Extended register');
+  APSComp.AddDelphiFunction('function IntPower(const Base: Extended; const Exponent: Integer): Extended');
   APSComp.AddDelphiFunction('function Ceil(const X: Extended): Integer');
   APSComp.AddDelphiFunction('function Floor(const X: Extended): Integer');
   APSComp.AddDelphiFunction('function Log2(const X: Extended): Extended');
@@ -74,12 +74,17 @@ begin
   Result := Min(A, B);
 end;
 
+function IntPower_P(const Base: Extended; const Exponent: Integer): Extended;
+begin
+  Result := IntPower(Base, Exponent);
+end;
+
 procedure ExecTimeReg_Math(const APSExec: TPSExec);
 begin
   APSExec.RegisterDelphiFunction(@RandomInt_P, 'Random', cdRegister);
   APSExec.RegisterDelphiFunction(@RandomRange, 'RandomRange', cdRegister);
   APSExec.RegisterDelphiFunction(@Power, 'Power', cdRegister);
-  APSExec.RegisterDelphiFunction(@IntPower, 'IntPower', cdRegister);
+  APSExec.RegisterDelphiFunction(@IntPower_P, 'IntPower', cdRegister);
   APSExec.RegisterDelphiFunction(@Ceil, 'Ceil', cdRegister);
   APSExec.RegisterDelphiFunction(@Floor, 'Floor', cdRegister);
   APSExec.RegisterDelphiFunction(@Log2, 'Log2', cdRegister);
