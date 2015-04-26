@@ -57,6 +57,7 @@ procedure AdjustMinimalBingHiResZoom(var AActualZoom: Byte);
 implementation
 
 uses
+  ALString,
   u_GeoToStrFunc,
   xmldom,
   u_XmlLoaderByVSAGPS,
@@ -206,16 +207,16 @@ end;
 
 function TAvailPicsBing.GetRequest(const AInetConfig: IInetConfig): IDownloadRequest;
 var VZoom: Byte;
-    VLink: string;
+    VLink: AnsiString;
 begin
  VZoom := FTileInfoPtr.Zoom;
  AdjustCustomBingHiResZoom(VZoom);
  VLink := 'http://dev.virtualearth.net/REST/V1/Imagery/Metadata/Aerial/'+
-            RoundEx(FTileInfoPtr.LonLat.Y, 6) + ',' + RoundEx(FTileInfoPtr.LonLat.X, 6)+
-            '?zl=' + IntToStr(VZoom) + '&o=xml&key=' + FDefaultKey;
+            RoundExAnsi(FTileInfoPtr.LonLat.Y, 6) + ',' + RoundExAnsi(FTileInfoPtr.LonLat.X, 6)+
+            '?zl=' + ALIntToStr(VZoom) + '&o=xml&key=' + FDefaultKey;
 
  Result := TDownloadRequest.Create(
-           AnsiString(VLink),
+           VLink,
            '',
            AInetConfig.GetStatic
            );

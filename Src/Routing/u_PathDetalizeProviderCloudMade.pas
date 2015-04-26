@@ -43,7 +43,7 @@ type
   TPathDetalizeProviderCloudMade = class(TBaseInterfacedObject, IPathDetalizeProvider)
   private
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
-    FBaseUrl: string;
+    FBaseUrl: AnsiString;
     FVehicle: TRouteVehicle;
     FRouteCalcType: TRouteCalcType;
     FDownloader: IDownloader;
@@ -105,7 +105,7 @@ function TPathDetalizeProviderCloudMade.GetPath(
   var AComment: string
 ): IGeometryLonLatLine;
 var
-  url: string;
+  url: AnsiString;
   conerr: boolean;
   VPointsAggregator: IDoublePointsAggregator;
   VPoint: TDoublePoint;
@@ -135,8 +135,8 @@ begin
         Continue;
       end;
       url := FBaseUrl;
-      url := url + R2StrPoint(VPrevPoint.y) + ',' + R2StrPoint(VPrevPoint.x) +
-        ',' + R2StrPoint(VCurrPoint.y) + ',' + R2StrPoint(VCurrPoint.x);
+      url := url + R2AnsiStrPoint(VPrevPoint.y) + ',' + R2AnsiStrPoint(VPrevPoint.x) +
+        ',' + R2AnsiStrPoint(VCurrPoint.y) + ',' + R2AnsiStrPoint(VCurrPoint.x);
       case FVehicle of
         car: begin
           url := url + '/car';

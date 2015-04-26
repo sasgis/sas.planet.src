@@ -44,16 +44,17 @@ type
 implementation
 
 uses
+  ALString,
   u_StrFunc,
   u_GeoToStrFunc,
   u_StreamReadOnlyByBinaryData;
 
-function _RandInt5: String;
+function _RandInt5: AnsiString;
 var i: Integer;
 begin
   // returns integer value as string[5]
   i := 20000 + Random(60000);
-  Result := IntToStr(i);
+  Result := ALIntToStr(i);
 end;
 
 function _ConvertToYYYYMMDD(const AText, ASep: String): String;
@@ -265,11 +266,11 @@ end;
 
 function TAvailPicsTerraserver.GetRequest(const AInetConfig: IInetConfig): IDownloadRequest;
 var
-  VLink: string;
+  VLink: AnsiString;
 begin
  VLink := 'http://www.terraserver.com/view_frm.asp?' +
-          'cx=' + RoundEx(FTileInfoPtr.LonLat.X, 4) +
-          '&cy=' + RoundEx(FTileInfoPtr.LonLat.Y, 4) +
+          'cx=' + RoundExAnsi(FTileInfoPtr.LonLat.X, 4) +
+          '&cy=' + RoundExAnsi(FTileInfoPtr.LonLat.Y, 4) +
           '&mpp=5' +
           '&proj=4326&pic=img&prov=-1&stac=-1&ovrl=-1&drwl=&ms=km' +
           '&lgin=' + _RandInt5 +

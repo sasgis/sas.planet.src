@@ -346,16 +346,16 @@ end;
 
 function TAvailPicsESRI.GetRequest(const AInetConfig: IInetConfig): IDownloadRequest;
 var
-  VLink: string;
+  VLink: AnsiString;
 begin
  VLink := 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/'+
            '0'+
            '/query?text=&geometry='+
            // 26,40,74,80 = lon_min,lat_min,lon_max,lat_max
-           RoundEx(FTileInfoPtr.TileRect.Left, 6) + '%2C'+
-           RoundEx(FTileInfoPtr.TileRect.Bottom, 6) + '%2C'+
-           RoundEx(FTileInfoPtr.TileRect.Right, 6) + '%2C'+
-           RoundEx(FTileInfoPtr.TileRect.Top, 6) +
+           RoundExAnsi(FTileInfoPtr.TileRect.Left, 6) + '%2C'+
+           RoundExAnsi(FTileInfoPtr.TileRect.Bottom, 6) + '%2C'+
+           RoundExAnsi(FTileInfoPtr.TileRect.Right, 6) + '%2C'+
+           RoundExAnsi(FTileInfoPtr.TileRect.Top, 6) +
            '&geometryType=esriGeometryEnvelope&inSR=4326'+
            '&spatialRel=esriSpatialRelEnvelopeIntersects&relationParam=&objectIds=&where=&time='+
            '&returnCountOnly=false'+ // true
@@ -363,7 +363,7 @@ begin
            '&returnGeometry=true'+
            '&maxAllowableOffset=&outSR=4326&outFields=*&f=pjson'; // pjson // kmz // html
  Result := TDownloadRequest.Create(
-           AnsiString(VLink),
+           VLink,
            '',
            AInetConfig.GetStatic
            );

@@ -39,7 +39,7 @@ type
   private
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
-    FBaseUrl: string;
+    FBaseUrl: AnsiString;
     FKmlLoader: IVectorDataLoader;
     FDownloader: IDownloader;
     FInetConfig: IInetConfig;
@@ -57,7 +57,7 @@ type
       const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AKmlLoader: IVectorDataLoader;
-      const ABaseUrl: string
+      const ABaseUrl: AnsiString
     );
   end;
 
@@ -82,7 +82,7 @@ constructor TPathDetalizeProviderYourNavigation.Create(
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AKmlLoader: IVectorDataLoader;
-  const ABaseUrl: string
+  const ABaseUrl: AnsiString
 );
 begin
   inherited Create;
@@ -101,7 +101,7 @@ function TPathDetalizeProviderYourNavigation.GetPath(
   var AComment: string
 ): IGeometryLonLatLine;
 var
-  url: string;
+  url: AnsiString;
   kml: IVectorItemSubset;
   conerr: boolean;
   VPointsAggregator: IDoublePointsAggregator;
@@ -125,8 +125,8 @@ begin
       if conerr then begin
         Continue;
       end;
-      url := url + '&flat=' + R2StrPoint(VPrevPoint.y) + '&flon=' + R2StrPoint(VPrevPoint.x) +
-        '&tlat=' + R2StrPoint(VCurrPoint.y) + '&tlon=' + R2StrPoint(VCurrPoint.x);
+      url := url + '&flat=' + R2AnsiStrPoint(VPrevPoint.y) + '&flon=' + R2AnsiStrPoint(VPrevPoint.x) +
+        '&tlat=' + R2AnsiStrPoint(VCurrPoint.y) + '&tlon=' + R2AnsiStrPoint(VCurrPoint.x);
       VRequest := TDownloadRequest.Create(url, '', FInetConfig.GetStatic);
       VResult := FDownloader.DoRequest(VRequest, ACancelNotifier, AOperationID);
       if Supports(VResult, IDownloadResultOk, VResultOk) then begin

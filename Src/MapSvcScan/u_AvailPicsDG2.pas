@@ -47,6 +47,7 @@ type
 implementation
 
 uses
+  ALString,
   xmldom,
   u_XmlLoaderByVSAGPS,
   u_StreamReadOnlyByBinaryData,
@@ -266,13 +267,13 @@ end;
 
 function TAvailPicsdg2.GetRequest(const AInetConfig: IInetConfig): IDownloadRequest;
 var
-  VLink: string;
-  key:string;
+  VLink: AnsiString;
+  key: AnsiString;
   i: integer;
 begin
   Key:= FDefaultKey;
   for i := 1 to Length(Key) do begin
-    Key[i] := Chr(Ord(Key[i]) + 1);
+    Key[i] := AnsiChar(Ord(Key[i]) + 1);
   end;
 
   // zoom 15 - 256x256
@@ -282,17 +283,17 @@ begin
   if FTileInfoPtr.Zoom<14 then begin
     i := i shl (14-FTileInfoPtr.Zoom);
   end;
-  VLink := IntToStr(i);
+  VLink := ALIntToStr(i);
 
   VLink  := 'https://services.digitalglobe.com/catalogservice/wfsaccess?WIDTH=' + VLink + '&HEIGHT=' + VLink + '&CONNECTID=' + Key +
             '&MAXFEATURES=500&SERVICE=WFS&REQUEST=GetFeature&TYPENAME=DigitalGlobe:FinishedFeature&VERSION=1.1.0&BBOX='+
-            RoundEx(FTileInfoPtr.TileRect.Bottom, 8) + ','+
-            RoundEx(FTileInfoPtr.TileRect.Left, 8) + ','+
-            RoundEx(FTileInfoPtr.TileRect.Top, 8) + ','+
-            RoundEx(FTileInfoPtr.TileRect.Right, 8);
+            RoundExAnsi(FTileInfoPtr.TileRect.Bottom, 8) + ','+
+            RoundExAnsi(FTileInfoPtr.TileRect.Left, 8) + ','+
+            RoundExAnsi(FTileInfoPtr.TileRect.Top, 8) + ','+
+            RoundExAnsi(FTileInfoPtr.TileRect.Right, 8);
 
  Result := TDownloadRequest.Create(
-           AnsiString(VLink),
+           VLink,
            '',
            AInetConfig.GetStatic
            );

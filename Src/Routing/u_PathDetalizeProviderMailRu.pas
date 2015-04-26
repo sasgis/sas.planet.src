@@ -36,7 +36,7 @@ type
   TPathDetalizeProviderMailRu = class(TBaseInterfacedObject, IPathDetalizeProvider)
   private
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
-    FBaseUrl: string;
+    FBaseUrl: AnsiString;
     FDownloader: IDownloader;
     FInetConfig: IInetConfig;
 
@@ -53,7 +53,7 @@ type
       const AInetConfig: IInetConfig;
       const ADownloader: IDownloader;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
-      const ABaseUrl: string
+      const ABaseUrl: AnsiString
     );
   end;
 
@@ -63,6 +63,7 @@ uses
   SysUtils,
   StrUtils,
   DateUtils,
+  ALString,
   i_DownloadRequest,
   i_DownloadResult,
   i_EnumDoublePoint,
@@ -79,7 +80,7 @@ constructor TPathDetalizeProviderMailRu.Create(
   const AInetConfig: IInetConfig;
   const ADownloader: IDownloader;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
-  const ABaseUrl: string
+  const ABaseUrl: AnsiString
 );
 begin
   inherited Create;
@@ -97,7 +98,7 @@ function TPathDetalizeProviderMailRu.GetPath(
 ): IGeometryLonLatLine;
 var
   pathstr, timeT1: string;
-  url: string;
+  url: AnsiString;
   i, posit, posit2, endpos, dd, seconds, meters: integer;
   VDateT1: TDateTime;
   VPoint: TDoublePoint;
@@ -117,7 +118,7 @@ begin
   end;
   i := 0;
   while VEnum.Next(VPoint) do begin
-    url := url + '&x' + inttostr(i) + '=' + R2StrPoint(VPoint.x) + '&y' + inttostr(i) + '=' + R2StrPoint(VPoint.y);
+    url := url + '&x' + ALIntToStr(i) + '=' + R2AnsiStrPoint(VPoint.x) + '&y' + ALIntToStr(i) + '=' + R2AnsiStrPoint(VPoint.y);
     Inc(i);
   end;
   VRequest := TDownloadRequest.Create(url, '', FInetConfig.GetStatic);

@@ -93,7 +93,7 @@ type
   TAvailPicsByKey = class(TAvailPicsAbstract)
   protected
     // TODO: obtain key online or get it from zmp
-    FDefaultKey: String;
+    FDefaultKey: AnsiString;
   end;
 
 function CheckHiResResolution(const AStrResolution: String): Boolean;

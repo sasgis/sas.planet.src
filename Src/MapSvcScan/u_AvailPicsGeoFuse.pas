@@ -368,7 +368,7 @@ end;
 
 function TAvailPicsGeoFuse.GetRequest(const AInetConfig: IInetConfig): IDownloadRequest;
 var
-  VLink: String;
+  VLink: AnsiString;
   VHeader: AnsiString;
 begin
   VHeader :='User-Agent: Mozilla/5.0 (Windows NT 6.0; rv:14.0) Gecko/20100101 Firefox/14.0.1'+#$D#$A+
@@ -384,17 +384,17 @@ begin
  VLink := 'http://geofuse.geoeye.com/ArcGIS/rest/services/GeoEyeCatalogFeatures/MapServer/exts/CatalogServer//query?'+
            'geometryType=esriGeometryEnvelope&geometry='+
            // 26,40,74,80 = lon_min,lat_min,lon_max,lat_max
-           RoundEx(FTileInfoPtr.TileRect.Left, 6) + '%2C'+
-           RoundEx(FTileInfoPtr.TileRect.Bottom, 6) + '%2C'+
-           RoundEx(FTileInfoPtr.TileRect.Right, 6) + '%2C'+
-           RoundEx(FTileInfoPtr.TileRect.Top, 6) +
+           RoundExAnsi(FTileInfoPtr.TileRect.Left, 6) + '%2C'+
+           RoundExAnsi(FTileInfoPtr.TileRect.Bottom, 6) + '%2C'+
+           RoundExAnsi(FTileInfoPtr.TileRect.Right, 6) + '%2C'+
+           RoundExAnsi(FTileInfoPtr.TileRect.Top, 6) +
            '&inSR=4326&outSR=4326' +
            '&spatialRel=esriSpatialRelEnvelopeIntersects&returnGeometry=true' +
            '&where=COLLECTION_ANGLE_ELEV%20BETWEEN%200%20AND%2090&outFields=*' +
            '&pageStart=1&pageSize=200&spatialRank=false&sort=true&f=json'; // json // kmz // html
 
  Result := TDownloadRequest.Create(
-           AnsiString(VLink),
+           VLink,
            VHeader,
            AInetConfig.GetStatic
            );

@@ -35,10 +35,10 @@ uses
 type
   TAvailPicsDG = class(TAvailPicsAbstract)
   private
-    FStack_Key: String;
-    FStack_Number: String;
+    FStack_Key: AnsiString;
+    FStack_Number: AnsiString;
     FStack_Descript: String;
-    FStack_AppId: String;
+    FStack_AppId: AnsiString;
   public
     function ContentType: String; override;
 
@@ -61,6 +61,7 @@ procedure GenerateAvailPicsDG(
 implementation
 
 uses
+  ALString,
   u_StreamReadOnlyByBinaryData,
   u_GeoToStrFunc;
 
@@ -117,7 +118,7 @@ DG:
 *)
 
 var
-  Stacks: array [0..13,0..3] of string =
+  Stacks: array [0..13,0..3] of AnsiString =
             (
              ('227400001','1','GlobeXplorer Premium Stack','020100S'),
              ('227400001','2','USGS 1:24k Topo Stack','020100S'),
@@ -202,7 +203,7 @@ begin
   end;
 end;
 
-function EncodeDG(const S: String): String;
+function EncodeDG(const S: AnsiString): AnsiString;
 var i: integer;
 begin
   Result := S;
@@ -210,15 +211,15 @@ begin
   if (0<Length(S)) then
   for i := 1 to Length(S) do begin
     if (0 = (Ord(S[i]) mod 2)) then
-      Result[i] := Chr(Ord(S[i]) + 1)
+      Result[i] := AnsiChar(Ord(S[i]) + 1)
     else
-      Result[i] := Chr(Ord(S[i]) - 1);
+      Result[i] := AnsiChar(Ord(S[i]) - 1);
   end;
 end;
 
-function Encode64(const S: String): String;
+function Encode64(const S: AnsiString): AnsiString;
 const
-  Codes64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+  Codes64: AnsiString = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 var
   i, a, x, b: Integer;
 begin
@@ -394,18 +395,18 @@ end;
 function TAvailPicsDG.GetRequest(const AInetConfig: IInetConfig): IDownloadRequest;
 var
   VLink: AnsiString;
-  VEncrypt: String;
+  VEncrypt: AnsiString;
 begin
   VEncrypt:= Encode64(EncodeDG('cmd=info&id=' + FStack_Key+
                                '&appid=' + FStack_AppId+
                                '&ls=' + FStack_Number+
-                               '&xc=' + RoundEx(FTileInfoPtr.LonLat.X, 6)+
-                               '&yc=' + RoundEx(FTileInfoPtr.LonLat.y, 6)+
-                               '&mpp=' + R2StrPoint(FTileInfoPtr.mpp)+
-                               '&iw=' + inttostr(FTileInfoPtr.wi)+
-                               '&ih=' + inttostr(FTileInfoPtr.hi)+
+                               '&xc=' + RoundExAnsi(FTileInfoPtr.LonLat.X, 6)+
+                               '&yc=' + RoundExAnsi(FTileInfoPtr.LonLat.y, 6)+
+                               '&mpp=' + R2AnsiStrPoint(FTileInfoPtr.mpp)+
+                               '&iw=' + ALIntToStr(FTileInfoPtr.wi)+
+                               '&ih=' + ALIntToStr(FTileInfoPtr.hi)+
                                '&extentset=all'));
-  VLink := 'http://image.globexplorer.com/gexservlets/gex?encrypt=' + AnsiString(VEncrypt);
+  VLink := 'http://image.globexplorer.com/gexservlets/gex?encrypt=' + VEncrypt;
   Result := TDownloadRequest.Create(
               VLink,
               '',

@@ -37,7 +37,7 @@ type
   TAvailPicsNMC = class(TAvailPicsByKey)
   private
     FWorkingZoom: Byte;
-    FProfile: String;
+    FProfile: AnsiString;
   private
     function GetQuadKey: AnsiString;
     function ParseExifXml(const AStream: TMemoryStream): Integer;

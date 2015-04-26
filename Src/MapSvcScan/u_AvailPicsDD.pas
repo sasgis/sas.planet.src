@@ -38,7 +38,7 @@ uses
 type
   TAvailPicsDD = class(TAvailPicsByKey)
   Private
-   FLayerKey: string;
+   FLayerKey: AnsiString;
    FResultFactory: IDownloadResultFactory;
   public
     procedure AfterConstruction; override;
@@ -49,7 +49,7 @@ type
 
     function GetRequest(const AInetConfig: IInetConfig): IDownloadRequest; override;
 
-    property LayerKey: string read FLayerKey write FLayerKey;
+    property LayerKey: AnsiString read FLayerKey write FLayerKey;
 
   end;
   TAvailPicsDataDoorsID = (dd1=1, dd2=2, dd3=3, dd4=4, dd5=5);
@@ -67,6 +67,7 @@ implementation
 uses
   forms,
   windows,
+  ALString,
   i_BinaryData,
   i_Downloader,
   i_NotifierOperation,
@@ -313,7 +314,7 @@ begin
     '    </ApplicationParameters>'+#$D#$A+
     '  </SOAP-ENV:Body>'+#$D#$A+
     '</SOAP-ENV:Envelope>';
-  VPostData := TBinaryData.CreateByAnsiString(VPostdataStr); // !! VPostdataStr not init
+  VPostData := TBinaryData.CreateByAnsiString(VStrPostData);
   VPostRequest := TDownloadPostRequest.Create(
                    Vlink,
                    VHeader,
@@ -344,7 +345,7 @@ begin
     '    </AuthenticateGuest>'+#$D#$A+
     '  </SOAP-ENV:Body>'+#$D#$A+
     '</SOAP-ENV:Envelope>';
-  VPostData := TBinaryData.CreateByAnsiString(VPostdataStr); // !! VPostdataStr not init
+  VPostData := TBinaryData.CreateByAnsiString(VStrPostData);
   VHeader :='User-Agent: Opera/9.80 (Windows NT 6.1; U; ru) Presto/2.10.289 Version/12.01'+#$D#$A+
     'Host: www.datadoors.net'+#$D#$A+
     'Accept: text/html, application/xml;q=0.9, application/xhtml+xml, image/png, image/webp, image/jpeg, image/gif, image/x-xbitmap, */*;q=0.1'+#$D#$A+
@@ -390,11 +391,11 @@ begin
     '        <UserUID>'+V_user_guest_uid + '</UserUID>' + #$D#$A+
     '        <ProductUID>'+LayerKey + '</ProductUID>' + #$D#$A+
     '        <AOI>MULTIPOLYGON((('+#$D#$A+
-    RoundEx(FTileInfoPtr.TileRect.Left, 8) + ' '+RoundEx(FTileInfoPtr.TileRect.Top, 8) + ','+
-    RoundEx(FTileInfoPtr.TileRect.Left, 8) + ' '+RoundEx(FTileInfoPtr.TileRect.Bottom, 8) + ','+
-    RoundEx(FTileInfoPtr.TileRect.Right, 8) + ' '+RoundEx(FTileInfoPtr.TileRect.Top, 8) + ','+
-    RoundEx(FTileInfoPtr.TileRect.Right, 8) + ' '+RoundEx(FTileInfoPtr.TileRect.Bottom, 8) + ','+
-    RoundEx(FTileInfoPtr.TileRect.Left, 8) + ' '+RoundEx(FTileInfoPtr.TileRect.Top, 8)+
+    RoundExAnsi(FTileInfoPtr.TileRect.Left, 8) + ' '+RoundExAnsi(FTileInfoPtr.TileRect.Top, 8) + ','+
+    RoundExAnsi(FTileInfoPtr.TileRect.Left, 8) + ' '+RoundExAnsi(FTileInfoPtr.TileRect.Bottom, 8) + ','+
+    RoundExAnsi(FTileInfoPtr.TileRect.Right, 8) + ' '+RoundExAnsi(FTileInfoPtr.TileRect.Top, 8) + ','+
+    RoundExAnsi(FTileInfoPtr.TileRect.Right, 8) + ' '+RoundExAnsi(FTileInfoPtr.TileRect.Bottom, 8) + ','+
+    RoundExAnsi(FTileInfoPtr.TileRect.Left, 8) + ' '+RoundExAnsi(FTileInfoPtr.TileRect.Top, 8)+
     ')))</AOI>' + #$D#$A+
     '        <MetadataCriteria CloudCover="5" UnusableData="-1" IncidenceAngle="-1" SunAngle="-1" SnowCover="-1" Quality="-1" Accuracy="-1" RelevantLicensing="false"/>'+#$D#$A+
     '      </Criteria>'+#$D#$A+

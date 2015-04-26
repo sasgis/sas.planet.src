@@ -36,10 +36,10 @@ type
   TAvailPicsKS = class(TAvailPicsAbstract)
   private
     FKSMode: Byte;
-    FMinDate: string;
-    FMaxDate: string;
+    FMinDate: AnsiString;
+    FMaxDate: AnsiString;
     FMaxCloudCover: Byte;
-    FEveryYear: string;
+    FEveryYear: AnsiString;
     FMaxOfNadir: Byte;
     FResultFactory: IDownloadResultFactory;
     function GetPlainJsonKosmosnimkiText(
@@ -56,7 +56,7 @@ type
     ): Boolean;
     function PrepareToParseString(const AStrValue: String): String;
     procedure PrepareStringList(const AList: Tstrings);
-    function MakePostString: string;
+    function MakePostString: AnsiString;
   public
     function ContentType: String; override;
 
@@ -74,11 +74,12 @@ type
     ks_IK=6,
     ks_ERA=7,
     ks_PLE=8,
-    ks_SPT5=9,
+    ks_SPOT5=9,
     ks_SPT3=10,
     ks_SPT1=11,
     ks_SPT4=12,
-    ks_SPT2=13
+    ks_SPT2=13,
+    ks_SPOT6=14
   );
   TAvailPicsKosmosnimki = array [TAvailPicsKosmosnimkiID] of TAvailPicsKS;
 
@@ -92,6 +93,7 @@ procedure GenerateAvailPicsKS(
 implementation
 
 uses
+  ALString,
   ALZLibExGZ,
   i_BinaryData,
   u_GeoToStrFunc,
@@ -108,8 +110,10 @@ procedure GenerateAvailPicsKS(
 );
 var
   j: TAvailPicsKosmosnimkiID;
+  VFormatSettings: TALFormatSettings;
 begin
   Assert(AResultFactory<>nil);
+  VFormatSettings.DateSeparator := '-';
   for j := Low(TAvailPicsKosmosnimkiID) to High(TAvailPicsKosmosnimkiID) do begin
     if (nil=AKSs[j]) then begin
       AKSs[j] := TAvailPicsKS.Create(
@@ -120,7 +124,7 @@ begin
         FResultFactory := AResultFactory;
         FKSMode := Ord(j);
         FMinDate := '1993-01-01';
-        FMaxDate := FormatDateTime('yyyy-mm-dd', Now);
+        FMaxDate := ALFormatDateTime('yyyy-mm-dd', Now, VFormatSettings);
         FMaxCloudCover := 100;
         FEveryYear := 'false';
         FMaxOfNadir := 90;
@@ -133,7 +137,7 @@ end;
 
 function TAvailPicsKS.ContentType: String;
 begin
-  Result := 'text/html; charset=utf-8'; //'text/plain' // 'text/plain;charset=utf-8'   // 'text/html'
+  Result := 'text/plain; charset=utf-8'; //'text/plain' // 'text/html;charset=utf-8'   // 'text/html'
 end;
 
 function TAvailPicsKS.ParseResponse(const AResultOk: IDownloadResultOk): Integer;
@@ -182,6 +186,8 @@ function TAvailPicsKS.ParseResponse(const AResultOk: IDownloadResultOk): Integer
       // copy params
       for i := 0 to AParams.Count - 1 do begin
         VName := AParams.Names[i];
+        if VName = 'geometry' then
+          Break;
         VOutParams.Values[VName] := AParams.ValueFromIndex[i];
       end;
 
@@ -288,9 +294,9 @@ begin
   end;
 end;
 
-function TAvailPicsKS.MakePostString: string;
+function TAvailPicsKS.MakePostString: AnsiString;
 var
-  VText: String;
+  VText: AnsiString;
 begin
 (*
 satellites      GE-1,WV01,WV02,QB02,EROS-B,IK-2,EROS-A1,Pleiades,SPOT 5
@@ -312,9 +318,10 @@ wkt     POLYGON((56.60156 61.20494,56.75537 61.20494,56.75537 61.09875,56.60156 
     6: Result := 'IK-2';
     7: Result := 'EROS-A1';
     8: Result := 'Pleiades';
+    14: Result := 'SPOT 6';
     else begin
       Result := 'SPOT 5';
-      VText := IntToStr(FKSMode - 8);
+      VText := ALIntToStr(FKSMode - 8);
     end;
   end;
 
@@ -326,18 +333,18 @@ wkt     POLYGON((56.60156 61.20494,56.75537 61.20494,56.75537 61.09875,56.60156 
   end;
 
   Result := Result + '&min_date=' + FMinDate + '&max_date=' + FMaxDate;
-  Result := Result + '&max_cloud_cover=' + IntToStr(FMaxCloudCover);
+  Result := Result + '&max_cloud_cover=' + ALIntToStr(FMaxCloudCover);
   Result := Result + '&every_year=' + FEveryYear;
-  Result := Result + '&max_off_nadir=' + IntToStr(FMaxOfNadir);
+  Result := Result + '&max_off_nadir=' + ALIntToStr(FMaxOfNadir);
 
   // first=last
-  VText := RoundEx(FTileInfoPtr.TileRect.Left, 8) + ' '+RoundEx(FTileInfoPtr.TileRect.Top, 8);
+  VText := RoundExAnsi(FTileInfoPtr.TileRect.Left, 8) + ' '+RoundExAnsi(FTileInfoPtr.TileRect.Top, 8);
 
   Result := Result +  '&wkt=POLYGON((' +
     VText + ','+
-    RoundEx(FTileInfoPtr.TileRect.Left, 8) + ' '+RoundEx(FTileInfoPtr.TileRect.Bottom, 8) + ','+
-    RoundEx(FTileInfoPtr.TileRect.Right, 8) + ' '+RoundEx(FTileInfoPtr.TileRect.Top, 8) + ','+
-    RoundEx(FTileInfoPtr.TileRect.Right, 8) + ' '+RoundEx(FTileInfoPtr.TileRect.Bottom, 8) + ','+
+    RoundExAnsi(FTileInfoPtr.TileRect.Left, 8) + ' '+RoundExAnsi(FTileInfoPtr.TileRect.Bottom, 8) + ','+
+    RoundExAnsi(FTileInfoPtr.TileRect.Right, 8) + ' '+RoundExAnsi(FTileInfoPtr.TileRect.Top, 8) + ','+
+    RoundExAnsi(FTileInfoPtr.TileRect.Right, 8) + ' '+RoundExAnsi(FTileInfoPtr.TileRect.Bottom, 8) + ','+
     VText +
     '));';
 end;
@@ -390,7 +397,7 @@ begin
   VLink := 'http://search.kosmosnimki.ru/QuicklooksJson.ashx'; // json
 
   // Формируем строку запроса на получение списка снимков
-  VPostDataStr := AnsiString(MakePostString);
+  VPostDataStr := MakePostString;
 
   VPostData :=
     TBinaryData.CreateByAnsiString(VPostDataStr);
@@ -461,6 +468,12 @@ begin
   end;
   //убираем [ в начале и ] в конце
   Result := System.Copy(AStrValue, 2, Length(AStrValue) - 2);
+  //формат немного изменился
+  if System.Pos('"Status":"ok"', Result)>0 then begin
+    Result := System.Copy(Result, 2, Length(Result)-2);
+    Result := StringReplace(Result, '"Status":"ok","Result":', '', [rfReplaceAll]);
+    Result := System.Copy(Result, 2, Length(Result)-2);
+  end;
   Result := StringReplace(Result, ' ', '_', [rfReplaceAll]);
   Result := StringReplace(Result, '},{', '|*|', [rfReplaceAll]);
   if (0<Length(Result)) then begin
