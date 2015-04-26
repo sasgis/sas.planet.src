@@ -79,15 +79,35 @@ begin
   Result := IntPower(Base, Exponent);
 end;
 
+function Power_P(const Base, Exponent: Extended): Extended;
+begin
+  Result := Power(Base, Exponent);
+end;
+
+function Ceil_P(const X: Extended): Integer;
+begin
+  Result := Ceil(X);
+end;
+
+function Floor_P(const X: Extended): Integer;
+begin
+  Result := Floor(X);
+end;
+
+function Log2_P(const X: Extended): Extended;
+begin
+  Result := Log2(X);
+end;
+
 procedure ExecTimeReg_Math(const APSExec: TPSExec);
 begin
   APSExec.RegisterDelphiFunction(@RandomInt_P, 'Random', cdRegister);
   APSExec.RegisterDelphiFunction(@RandomRange, 'RandomRange', cdRegister);
-  APSExec.RegisterDelphiFunction(@Power, 'Power', cdRegister);
+  APSExec.RegisterDelphiFunction(@Power_P, 'Power', cdRegister);
   APSExec.RegisterDelphiFunction(@IntPower_P, 'IntPower', cdRegister);
-  APSExec.RegisterDelphiFunction(@Ceil, 'Ceil', cdRegister);
-  APSExec.RegisterDelphiFunction(@Floor, 'Floor', cdRegister);
-  APSExec.RegisterDelphiFunction(@Log2, 'Log2', cdRegister);
+  APSExec.RegisterDelphiFunction(@Ceil_P, 'Ceil', cdRegister);
+  APSExec.RegisterDelphiFunction(@Floor_P, 'Floor', cdRegister);
+  APSExec.RegisterDelphiFunction(@Log2_P, 'Log2', cdRegister);
   APSExec.RegisterDelphiFunction(@Ln, 'Ln', cdRegister);
   APSExec.RegisterDelphiFunction(@MaxInt_P, 'Max', cdRegister);
   APSExec.RegisterDelphiFunction(@MaxExt_P, 'MaxExt', cdRegister);
