@@ -1,10 +1,12 @@
 object frExportToJNX: TfrExportToJNX
   Left = 0
   Top = 0
-  Width = 451
-  Height = 304
+  Width = 480
+  Height = 220
   Align = alClient
   Anchors = [akLeft, akRight, akBottom]
+  Constraints.MinHeight = 220
+  Constraints.MinWidth = 480
   ParentShowHint = False
   ShowHint = True
   TabOrder = 0
@@ -12,7 +14,7 @@ object frExportToJNX: TfrExportToJNX
   object pnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 451
+    Width = 480
     Height = 27
     Align = alTop
     BevelOuter = bvNone
@@ -26,23 +28,21 @@ object frExportToJNX: TfrExportToJNX
       Height = 21
       Margins.Left = 0
       Margins.Top = 0
-      Margins.Bottom = 0
       Align = alLeft
       Alignment = taRightJustify
       Caption = 'Save to:'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
     object edtTargetFile: TEdit
       Left = 47
       Top = 3
-      Width = 380
+      Width = 409
       Height = 21
       Align = alClient
       TabOrder = 0
     end
     object btnSelectTargetFile: TButton
-      Left = 427
+      Left = 456
       Top = 3
       Width = 21
       Height = 21
@@ -55,8 +55,8 @@ object frExportToJNX: TfrExportToJNX
   object PageControl1: TPageControl
     Left = 0
     Top = 27
-    Width = 451
-    Height = 277
+    Width = 480
+    Height = 193
     ActivePage = Map
     Align = alClient
     TabOrder = 1
@@ -64,13 +64,13 @@ object frExportToJNX: TfrExportToJNX
     object Map: TTabSheet
       Caption = 'Map'
       DesignSize = (
-        443
-        249)
+        472
+        165)
       object pnlCenter: TPanel
         Left = 0
         Top = 0
-        Width = 443
-        Height = 249
+        Width = 472
+        Height = 165
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 0
@@ -87,7 +87,7 @@ object frExportToJNX: TfrExportToJNX
           Caption = 'Map:'
         end
         object pnlMain: TPanel
-          Left = 226
+          Left = 255
           Top = 0
           Width = 216
           Height = 241
@@ -402,14 +402,14 @@ object frExportToJNX: TfrExportToJNX
       object MapsPanel: TPanel
         Left = 3
         Top = 18
-        Width = 225
-        Height = 231
+        Width = 254
+        Height = 147
         Anchors = [akLeft, akTop, akRight, akBottom]
         BevelOuter = bvNone
         TabOrder = 1
         DesignSize = (
-          225
-          231)
+          254
+          147)
         object ChMap1: TCheckBox
           Left = 3
           Top = 3
@@ -457,7 +457,7 @@ object frExportToJNX: TfrExportToJNX
         object pnlMap: TPanel
           Left = 23
           Top = 1
-          Width = 199
+          Width = 228
           Height = 21
           Anchors = [akLeft, akTop, akRight]
           BevelOuter = bvNone
@@ -466,7 +466,7 @@ object frExportToJNX: TfrExportToJNX
         object pnlMap2: TPanel
           Left = 23
           Top = 28
-          Width = 199
+          Width = 228
           Height = 21
           Anchors = [akLeft, akTop, akRight]
           BevelOuter = bvNone
@@ -475,7 +475,7 @@ object frExportToJNX: TfrExportToJNX
         object pnlMap4: TPanel
           Left = 23
           Top = 82
-          Width = 199
+          Width = 228
           Height = 21
           Anchors = [akLeft, akTop, akRight]
           BevelOuter = bvNone
@@ -484,7 +484,7 @@ object frExportToJNX: TfrExportToJNX
         object pnlMap3: TPanel
           Left = 23
           Top = 55
-          Width = 199
+          Width = 228
           Height = 21
           Anchors = [akLeft, akTop, akRight]
           BevelOuter = bvNone
@@ -493,7 +493,7 @@ object frExportToJNX: TfrExportToJNX
         object pnlMap5: TPanel
           Left = 23
           Top = 109
-          Width = 199
+          Width = 228
           Height = 21
           Anchors = [akLeft, akTop, akRight]
           BevelOuter = bvNone
@@ -563,7 +563,7 @@ object frExportToJNX: TfrExportToJNX
           Height = 21
           Align = alCustom
           AutoDropDown = True
-          ItemHeight = 13
+          ItemHeight = 0
           TabOrder = 1
           Items.Strings = (
             '0 - BirdsEye'
@@ -597,8 +597,8 @@ object frExportToJNX: TfrExportToJNX
         object TreeView1: TTreeView
           Left = 355
           Top = 0
-          Width = 89
-          Height = 245
+          Width = 118
+          Height = 161
           Align = alCustom
           Anchors = [akLeft, akTop, akRight, akBottom]
           HideSelection = False
@@ -614,7 +614,7 @@ object frExportToJNX: TfrExportToJNX
           Width = 41
           Height = 21
           Style = csDropDownList
-          ItemHeight = 13
+          ItemHeight = 0
           ItemIndex = 0
           TabOrder = 5
           Text = '3'

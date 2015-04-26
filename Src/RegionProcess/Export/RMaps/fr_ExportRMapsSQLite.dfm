@@ -1,25 +1,27 @@
 object frExportRMapsSQLite: TfrExportRMapsSQLite
   Left = 0
   Top = 0
-  Width = 451
-  Height = 304
+  Width = 550
+  Height = 230
   Align = alClient
+  Constraints.MinHeight = 230
+  Constraints.MinWidth = 550
   ParentShowHint = False
   ShowHint = True
   TabOrder = 0
   object pnlCenter: TPanel
     Left = 0
     Top = 27
-    Width = 451
-    Height = 277
+    Width = 550
+    Height = 203
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
     object pnlMain: TPanel
       Left = 0
       Top = 0
-      Width = 368
-      Height = 277
+      Width = 467
+      Height = 203
       Align = alClient
       BevelOuter = bvNone
       BorderWidth = 3
@@ -28,7 +30,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 362
+        Width = 461
         Height = 13
         Margins.Left = 0
         Margins.Top = 0
@@ -36,21 +38,19 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
         Align = alTop
         AutoSize = False
         Caption = 'Map'
-        ExplicitWidth = 370
       end
       object lblOverlay: TLabel
         Left = 3
         Top = 39
-        Width = 362
+        Width = 461
         Height = 13
         Align = alTop
         Caption = 'Overlay layer'
-        ExplicitWidth = 65
       end
       object chkReplaceExistingTiles: TCheckBox
         Left = 3
         Top = 95
-        Width = 362
+        Width = 461
         Height = 17
         Align = alTop
         Caption = 'Replace existing tiles'
@@ -62,7 +62,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
         AlignWithMargins = True
         Left = 3
         Top = 78
-        Width = 362
+        Width = 461
         Height = 17
         Margins.Left = 0
         Margins.Right = 0
@@ -76,7 +76,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
       object pnlMap: TPanel
         Left = 3
         Top = 16
-        Width = 362
+        Width = 461
         Height = 23
         Align = alTop
         BevelOuter = bvNone
@@ -85,18 +85,17 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
       object chkDirectTilesCopy: TCheckBox
         Left = 3
         Top = 129
-        Width = 362
+        Width = 461
         Height = 17
         Align = alTop
         Caption = 'Direct tiles copy (without any modifications)'
         TabOrder = 3
         OnClick = chkDirectTilesCopyClick
-        ExplicitTop = 112
       end
       object pnlOverlay: TPanel
         Left = 3
         Top = 52
-        Width = 362
+        Width = 461
         Height = 23
         Align = alTop
         BevelOuter = bvNone
@@ -105,12 +104,11 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
       object pnlImageFormat: TPanel
         Left = 3
         Top = 146
-        Width = 362
+        Width = 461
         Height = 48
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 5
-        ExplicitTop = 129
         object lblJpgQulity: TLabel
           Left = 156
           Top = 6
@@ -177,20 +175,19 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
       object chkUsePrevZoom: TCheckBox
         Left = 3
         Top = 112
-        Width = 362
+        Width = 461
         Height = 17
         Align = alTop
         Caption = 'Use tiles from lower zooms (on unavalible tile)'
         TabOrder = 6
         OnClick = chkUsePrevZoomClick
-        ExplicitLeft = 6
       end
     end
     object PnlZoom: TPanel
-      Left = 368
+      Left = 467
       Top = 0
       Width = 83
-      Height = 277
+      Height = 203
       Align = alRight
       BevelOuter = bvNone
       BiDiMode = bdLeftToRight
@@ -201,7 +198,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
   object pnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 451
+    Width = 550
     Height = 27
     Align = alTop
     BevelOuter = bvNone
@@ -218,18 +215,17 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
       Align = alLeft
       Caption = 'Save to:'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
     object edtTargetFile: TEdit
       Left = 47
       Top = 3
-      Width = 380
+      Width = 479
       Height = 21
       Align = alClient
       TabOrder = 0
     end
     object btnSelectTargetFile: TButton
-      Left = 427
+      Left = 526
       Top = 3
       Width = 21
       Height = 21

@@ -1,25 +1,27 @@
 object frTilesGenPrev: TfrTilesGenPrev
   Left = 0
   Top = 0
-  Width = 451
-  Height = 304
+  Width = 503
+  Height = 230
   Align = alClient
+  Constraints.MinHeight = 230
+  Constraints.MinWidth = 500
   ParentShowHint = False
   ShowHint = True
   TabOrder = 0
   object pnlBottom: TPanel
     Left = 0
     Top = 65
-    Width = 451
-    Height = 239
+    Width = 503
+    Height = 165
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
     object pnlRight: TPanel
-      Left = 337
+      Left = 389
       Top = 0
       Width = 114
-      Height = 239
+      Height = 165
       Align = alRight
       BevelOuter = bvNone
       BorderWidth = 3
@@ -34,11 +36,10 @@ object frTilesGenPrev: TfrTilesGenPrev
         Margins.Right = 0
         Align = alTop
         Caption = 'To zooms:'
-        ExplicitWidth = 49
       end
       object chkAllZooms: TCheckBox
         Left = 3
-        Top = 219
+        Top = 145
         Width = 108
         Height = 17
         Align = alBottom
@@ -48,9 +49,9 @@ object frTilesGenPrev: TfrTilesGenPrev
       end
       object chklstZooms: TCheckListBox
         Left = 3
-        Top = 22
+        Top = 19
         Width = 108
-        Height = 197
+        Height = 126
         OnClickCheck = chklstZoomsClickCheck
         Align = alClient
         ItemHeight = 13
@@ -60,19 +61,19 @@ object frTilesGenPrev: TfrTilesGenPrev
     object pnlCenter: TPanel
       Left = 0
       Top = 0
-      Width = 337
-      Height = 239
+      Width = 389
+      Height = 165
       Align = alClient
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 1
       DesignSize = (
-        337
-        239)
+        389
+        165)
       object lblStat: TLabel
         Left = 10
         Top = 100
-        Width = 3
+        Width = 55
         Height = 13
         Anchors = [akLeft, akTop, akRight]
       end
@@ -80,20 +81,19 @@ object frTilesGenPrev: TfrTilesGenPrev
         AlignWithMargins = True
         Left = 3
         Top = 6
-        Width = 331
+        Width = 383
         Height = 13
         Margins.Left = 0
         Margins.Right = 0
         Align = alTop
         AutoSize = False
         Caption = 'Resize algorithm:'
-        ExplicitTop = 43
       end
       object Bevel1: TBevel
         AlignWithMargins = True
         Left = 3
-        Top = 48
-        Width = 331
+        Top = 45
+        Width = 383
         Height = 3
         Margins.Left = 0
         Margins.Top = 5
@@ -101,12 +101,11 @@ object frTilesGenPrev: TfrTilesGenPrev
         Margins.Bottom = 0
         Align = alTop
         Shape = bsTopLine
-        ExplicitTop = 85
       end
       object cbbResampler: TComboBox
         Left = 3
-        Top = 22
-        Width = 331
+        Top = 19
+        Width = 383
         Height = 21
         Align = alTop
         Style = csDropDownList
@@ -132,8 +131,8 @@ object frTilesGenPrev: TfrTilesGenPrev
       object chkReplace: TCheckBox
         AlignWithMargins = True
         Left = 3
-        Top = 54
-        Width = 331
+        Top = 51
+        Width = 383
         Height = 17
         Margins.Left = 0
         Margins.Right = 0
@@ -145,8 +144,8 @@ object frTilesGenPrev: TfrTilesGenPrev
       end
       object chkSaveFullOnly: TCheckBox
         Left = 3
-        Top = 94
-        Width = 331
+        Top = 91
+        Width = 383
         Height = 17
         Align = alTop
         Caption = 'Save only complete tiles'
@@ -154,8 +153,8 @@ object frTilesGenPrev: TfrTilesGenPrev
       end
       object chkFromPrevZoom: TCheckBox
         Left = 3
-        Top = 111
-        Width = 331
+        Top = 108
+        Width = 383
         Height = 17
         Align = alTop
         Caption = 'Generate each zoom from previous one'
@@ -164,8 +163,8 @@ object frTilesGenPrev: TfrTilesGenPrev
       end
       object pnlUsePrevTiles: TPanel
         Left = 3
-        Top = 71
-        Width = 331
+        Top = 68
+        Width = 383
         Height = 23
         Align = alTop
         AutoSize = True
@@ -176,7 +175,7 @@ object frTilesGenPrev: TfrTilesGenPrev
           AlignWithMargins = True
           Left = 18
           Top = 3
-          Width = 310
+          Width = 362
           Height = 17
           Align = alTop
           Caption = 'Use tile from lower zoom if tile not available'
@@ -189,7 +188,7 @@ object frTilesGenPrev: TfrTilesGenPrev
   object pnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 451
+    Width = 503
     Height = 22
     Align = alTop
     Alignment = taLeftJustify
@@ -203,7 +202,7 @@ object frTilesGenPrev: TfrTilesGenPrev
   object pnlMapSelect: TPanel
     Left = 0
     Top = 22
-    Width = 451
+    Width = 503
     Height = 43
     Align = alTop
     Alignment = taLeftJustify
@@ -213,10 +212,10 @@ object frTilesGenPrev: TfrTilesGenPrev
     BorderWidth = 3
     TabOrder = 2
     DesignSize = (
-      451
+      503
       41)
     object pnlZoom: TPanel
-      Left = 340
+      Left = 392
       Top = 3
       Width = 108
       Height = 35
@@ -252,7 +251,7 @@ object frTilesGenPrev: TfrTilesGenPrev
     object pnlFrame: TPanel
       Left = 3
       Top = 4
-      Width = 335
+      Width = 387
       Height = 40
       Alignment = taLeftJustify
       Anchors = [akLeft, akTop, akRight]
@@ -261,11 +260,10 @@ object frTilesGenPrev: TfrTilesGenPrev
       object lblMapCaption: TLabel
         Left = 0
         Top = 0
-        Width = 335
+        Width = 387
         Height = 13
         Align = alTop
         Caption = 'Map:'
-        ExplicitWidth = 24
       end
     end
   end

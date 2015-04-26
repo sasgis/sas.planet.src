@@ -1,14 +1,16 @@
 object frDeleteMarks: TfrDeleteMarks
   Left = 0
   Top = 0
-  Width = 320
-  Height = 240
+  Width = 480
+  Height = 100
   Align = alClient
+  Constraints.MinHeight = 100
+  Constraints.MinWidth = 480
   TabOrder = 0
   object chkDelHidden: TCheckBox
     Left = 0
     Top = 56
-    Width = 320
+    Width = 480
     Height = 17
     Align = alTop
     Caption = 'Delete hidden placemarks'
@@ -23,7 +25,7 @@ object frDeleteMarks: TfrDeleteMarks
   object PnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 320
+    Width = 480
     Height = 56
     Align = alTop
     BevelKind = bkTile
@@ -32,7 +34,7 @@ object frDeleteMarks: TfrDeleteMarks
     object chkPlacemarks: TCheckBox
       Left = 0
       Top = 0
-      Width = 316
+      Width = 476
       Height = 17
       Align = alTop
       Caption = 'Placemarks'
@@ -41,7 +43,7 @@ object frDeleteMarks: TfrDeleteMarks
     object chkPaths: TCheckBox
       Left = 0
       Top = 17
-      Width = 316
+      Width = 476
       Height = 17
       Align = alTop
       Caption = 'Paths'
@@ -50,7 +52,7 @@ object frDeleteMarks: TfrDeleteMarks
     object chkPolygons: TCheckBox
       Left = 0
       Top = 34
-      Width = 316
+      Width = 476
       Height = 17
       Align = alTop
       Caption = 'Polygons'

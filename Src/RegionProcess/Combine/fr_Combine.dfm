@@ -1,14 +1,16 @@
 object frCombine: TfrCombine
   Left = 0
   Top = 0
-  Width = 451
-  Height = 304
+  Width = 480
+  Height = 60
   Align = alClient
+  Constraints.MinHeight = 60
+  Constraints.MinWidth = 480
   TabOrder = 0
   object pnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 630
+    Width = 480
     Height = 22
     Align = alTop
     Alignment = taLeftJustify
@@ -23,7 +25,7 @@ object frCombine: TfrCombine
   object pnlOutputFormat: TPanel
     Left = 0
     Top = 22
-    Width = 630
+    Width = 480
     Height = 27
     Align = alTop
     AutoSize = True
@@ -35,7 +37,7 @@ object frCombine: TfrCombine
       Left = 3
       Top = 3
       Width = 73
-      Height = 13
+      Height = 21
       Margins.Left = 0
       Margins.Top = 0
       Align = alLeft
@@ -45,11 +47,11 @@ object frCombine: TfrCombine
     object cbbOutputFormat: TComboBox
       Left = 79
       Top = 3
-      Width = 548
+      Width = 398
       Height = 21
       Align = alClient
       Style = csDropDownList
-      ItemHeight = 0
+      ItemHeight = 13
       TabOrder = 0
       OnChange = cbbOutputFormatChange
     end
@@ -57,8 +59,8 @@ object frCombine: TfrCombine
   object pnlExport: TPanel
     Left = 0
     Top = 49
-    Width = 451
-    Height = 255
+    Width = 480
+    Height = 11
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 2

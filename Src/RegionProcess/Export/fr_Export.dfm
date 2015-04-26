@@ -1,15 +1,17 @@
 object frExport: TfrExport
   Left = 0
   Top = 0
-  Width = 458
-  Height = 273
+  Width = 480
+  Height = 80
   Align = alClient
+  Constraints.MinHeight = 80
+  Constraints.MinWidth = 480
   TabOrder = 0
   object pnlExport: TPanel
     Left = 0
     Top = 30
-    Width = 458
-    Height = 243
+    Width = 480
+    Height = 50
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
@@ -17,7 +19,7 @@ object frExport: TfrExport
   object pnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 458
+    Width = 480
     Height = 30
     Align = alTop
     TabOrder = 1
@@ -34,7 +36,7 @@ object frExport: TfrExport
       AlignWithMargins = True
       Left = 129
       Top = 4
-      Width = 325
+      Width = 347
       Height = 21
       Align = alClient
       Style = csDropDownList

@@ -1,25 +1,27 @@
 object frTilesCopy: TfrTilesCopy
   Left = 0
   Top = 0
-  Width = 451
-  Height = 304
+  Width = 480
+  Height = 300
   Align = alClient
+  Constraints.MinHeight = 300
+  Constraints.MinWidth = 480
   ParentShowHint = False
   ShowHint = True
   TabOrder = 0
   object pnlCenter: TPanel
     Left = 0
     Top = 49
-    Width = 451
-    Height = 255
+    Width = 480
+    Height = 251
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
     object pnlZoom: TPanel
-      Left = 376
+      Left = 400
       Top = 0
-      Width = 75
-      Height = 255
+      Width = 80
+      Height = 251
       Align = alRight
       BevelOuter = bvNone
       BorderWidth = 3
@@ -28,8 +30,8 @@ object frTilesCopy: TfrTilesCopy
     object pnlMain: TPanel
       Left = 0
       Top = 0
-      Width = 376
-      Height = 255
+      Width = 400
+      Height = 251
       Align = alClient
       BevelOuter = bvNone
       BorderWidth = 3
@@ -38,7 +40,7 @@ object frTilesCopy: TfrTilesCopy
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 370
+        Width = 394
         Height = 14
         Margins.Left = 0
         Margins.Top = 0
@@ -49,8 +51,8 @@ object frTilesCopy: TfrTilesCopy
       end
       object pnlCacheTypes: TPanel
         Left = 3
-        Top = 20
-        Width = 370
+        Top = 17
+        Width = 394
         Height = 21
         Align = alTop
         BevelOuter = bvNone
@@ -59,8 +61,8 @@ object frTilesCopy: TfrTilesCopy
       object chkDeleteSource: TCheckBox
         AlignWithMargins = True
         Left = 3
-        Top = 61
-        Width = 370
+        Top = 58
+        Width = 394
         Height = 17
         Margins.Left = 0
         Margins.Right = 0
@@ -72,8 +74,8 @@ object frTilesCopy: TfrTilesCopy
       object chkReplaseTarget: TCheckBox
         AlignWithMargins = True
         Left = 3
-        Top = 78
-        Width = 370
+        Top = 75
+        Width = 394
         Height = 17
         Margins.Left = 0
         Margins.Top = 0
@@ -85,8 +87,8 @@ object frTilesCopy: TfrTilesCopy
       object chkAllMaps: TCheckBox
         AlignWithMargins = True
         Left = 3
-        Top = 235
-        Width = 370
+        Top = 231
+        Width = 394
         Height = 17
         Margins.Left = 0
         Margins.Right = 0
@@ -97,17 +99,17 @@ object frTilesCopy: TfrTilesCopy
       end
       object chklstMaps: TCheckListBox
         Left = 3
-        Top = 142
-        Width = 370
-        Height = 90
+        Top = 139
+        Width = 394
+        Height = 89
         Align = alClient
         ItemHeight = 13
         TabOrder = 4
       end
       object pnSetTargetVersionOptions: TPanel
         Left = 3
-        Top = 98
-        Width = 370
+        Top = 95
+        Width = 394
         Height = 44
         Margins.Left = 0
         Margins.Top = 0
@@ -120,7 +122,7 @@ object frTilesCopy: TfrTilesCopy
         object chkSetTargetVersionTo: TCheckBox
           Left = 0
           Top = 0
-          Width = 370
+          Width = 394
           Height = 17
           Margins.Left = 0
           Margins.Top = 0
@@ -135,7 +137,7 @@ object frTilesCopy: TfrTilesCopy
           AlignWithMargins = True
           Left = 3
           Top = 20
-          Width = 364
+          Width = 388
           Height = 21
           Align = alTop
           Enabled = False
@@ -144,8 +146,8 @@ object frTilesCopy: TfrTilesCopy
       end
       object chkPlaceInNameSubFolder: TCheckBox
         Left = 3
-        Top = 41
-        Width = 370
+        Top = 38
+        Width = 394
         Height = 17
         Align = alTop
         Caption = 'Make subfolder with map path name'
@@ -158,7 +160,7 @@ object frTilesCopy: TfrTilesCopy
   object pnlTop: TPanel
     Left = 0
     Top = 22
-    Width = 451
+    Width = 480
     Height = 27
     Align = alTop
     BevelOuter = bvNone
@@ -169,24 +171,23 @@ object frTilesCopy: TfrTilesCopy
       Left = 3
       Top = 3
       Width = 41
-      Height = 18
+      Height = 21
       Margins.Left = 0
       Margins.Top = 0
       Align = alLeft
       Caption = 'Save to:'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
     object edtTargetPath: TEdit
       Left = 47
       Top = 3
-      Width = 380
+      Width = 409
       Height = 21
       Align = alClient
       TabOrder = 0
     end
     object btnSelectTargetPath: TButton
-      Left = 427
+      Left = 456
       Top = 3
       Width = 21
       Height = 21
@@ -199,7 +200,7 @@ object frTilesCopy: TfrTilesCopy
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 451
+    Width = 480
     Height = 22
     Align = alTop
     Alignment = taLeftJustify

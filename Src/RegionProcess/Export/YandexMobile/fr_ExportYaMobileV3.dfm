@@ -1,25 +1,27 @@
 object frExportYaMobileV3: TfrExportYaMobileV3
   Left = 0
   Top = 0
-  Width = 451
-  Height = 304
+  Width = 480
+  Height = 180
   Align = alClient
+  Constraints.MinHeight = 180
+  Constraints.MinWidth = 480
   ParentShowHint = False
   ShowHint = True
   TabOrder = 0
   object pnlCenter: TPanel
     Left = 0
     Top = 27
-    Width = 451
-    Height = 277
+    Width = 480
+    Height = 153
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
     object pnlZoom: TPanel
-      Left = 360
+      Left = 389
       Top = 0
       Width = 91
-      Height = 277
+      Height = 153
       Align = alRight
       BevelOuter = bvNone
       BorderWidth = 3
@@ -28,15 +30,15 @@ object frExportYaMobileV3: TfrExportYaMobileV3
     object pnlMapsSelect: TPanel
       Left = 0
       Top = 0
-      Width = 360
-      Height = 277
+      Width = 389
+      Height = 153
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
       object chkReplaseTiles: TCheckBox
         Left = 0
         Top = 93
-        Width = 360
+        Width = 389
         Height = 20
         Align = alTop
         Caption = 'Replace existing tiles'
@@ -45,7 +47,7 @@ object frExportYaMobileV3: TfrExportYaMobileV3
       object grdpnlMaps: TGridPanel
         Left = 0
         Top = 0
-        Width = 360
+        Width = 389
         Height = 93
         Align = alTop
         BevelOuter = bvNone
@@ -151,10 +153,10 @@ object frExportYaMobileV3: TfrExportYaMobileV3
           end>
         TabOrder = 1
         DesignSize = (
-          360
+          389
           93)
         object lblMapCompress: TLabel
-          Left = 280
+          Left = 309
           Top = 20
           Width = 80
           Height = 21
@@ -164,7 +166,7 @@ object frExportYaMobileV3: TfrExportYaMobileV3
           Layout = tlCenter
         end
         object seMapCompress: TSpinEdit
-          Left = 240
+          Left = 269
           Top = 20
           Width = 40
           Height = 22
@@ -175,7 +177,7 @@ object frExportYaMobileV3: TfrExportYaMobileV3
           Value = 2
         end
         object seSatCompress: TSpinEdit
-          Left = 240
+          Left = 269
           Top = 41
           Width = 40
           Height = 22
@@ -186,25 +188,21 @@ object frExportYaMobileV3: TfrExportYaMobileV3
           Value = 85
         end
         object lblSatCompress: TLabel
-          Left = 280
+          Left = 309
           Top = 41
           Width = 80
           Height = 21
           Align = alClient
           Caption = '100..1 max'
           Layout = tlCenter
-          ExplicitWidth = 55
-          ExplicitHeight = 13
         end
         object lblCompress: TLabel
-          Left = 240
+          Left = 269
           Top = 0
           Width = 120
           Height = 20
           Align = alClient
           Caption = 'Compression:'
-          ExplicitWidth = 65
-          ExplicitHeight = 13
         end
         object lblHybr: TLabel
           Left = 0
@@ -215,7 +213,6 @@ object frExportYaMobileV3: TfrExportYaMobileV3
           AutoSize = False
           Caption = 'Hybrid'
           Layout = tlCenter
-          ExplicitWidth = 43
         end
         object lblMap: TLabel
           Left = 0
@@ -226,7 +223,6 @@ object frExportYaMobileV3: TfrExportYaMobileV3
           AutoSize = False
           Caption = 'Map'
           Layout = tlCenter
-          ExplicitWidth = 43
         end
         object lblSat: TLabel
           Left = 0
@@ -237,24 +233,21 @@ object frExportYaMobileV3: TfrExportYaMobileV3
           AutoSize = False
           Caption = 'Satellite'
           Layout = tlCenter
-          ExplicitWidth = 43
         end
         object lblMaps: TLabel
           Left = 0
           Top = 0
-          Width = 240
+          Width = 269
           Height = 20
           Align = alClient
           AutoSize = False
           Caption = 'Enable the following map types:'
           Layout = tlCenter
-          ExplicitLeft = 43
-          ExplicitWidth = 197
         end
         object pnlHyb: TPanel
           Left = 50
           Top = 62
-          Width = 190
+          Width = 219
           Height = 21
           Align = alClient
           Anchors = []
@@ -264,7 +257,7 @@ object frExportYaMobileV3: TfrExportYaMobileV3
         object pnlMap: TPanel
           Left = 50
           Top = 41
-          Width = 190
+          Width = 219
           Height = 21
           Align = alClient
           BevelOuter = bvNone
@@ -273,7 +266,7 @@ object frExportYaMobileV3: TfrExportYaMobileV3
         object pnlSat: TPanel
           Left = 50
           Top = 20
-          Width = 190
+          Width = 219
           Height = 21
           Align = alClient
           Anchors = []
@@ -286,7 +279,7 @@ object frExportYaMobileV3: TfrExportYaMobileV3
   object pnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 451
+    Width = 480
     Height = 27
     Align = alTop
     BevelOuter = bvNone
@@ -300,22 +293,20 @@ object frExportYaMobileV3: TfrExportYaMobileV3
       Height = 21
       Margins.Left = 0
       Margins.Top = 0
-      Margins.Bottom = 0
       Align = alLeft
       Caption = 'Save to:'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
     object edtTargetPath: TEdit
       Left = 47
       Top = 3
-      Width = 380
+      Width = 409
       Height = 21
       Align = alClient
       TabOrder = 0
     end
     object btnSelectTargetPath: TButton
-      Left = 427
+      Left = 456
       Top = 3
       Width = 21
       Height = 21

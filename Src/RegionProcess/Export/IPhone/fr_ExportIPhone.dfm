@@ -1,16 +1,18 @@
 object frExportIPhone: TfrExportIPhone
   Left = 0
   Top = 0
-  Width = 451
-  Height = 304
+  Width = 521
+  Height = 150
   Align = alClient
+  Constraints.MinHeight = 150
+  Constraints.MinWidth = 480
   ParentShowHint = False
   ShowHint = True
   TabOrder = 0
   object pnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 451
+    Width = 521
     Height = 27
     Align = alTop
     BevelOuter = bvNone
@@ -24,14 +26,12 @@ object frExportIPhone: TfrExportIPhone
       Height = 21
       Margins.Left = 0
       Margins.Top = 0
-      Margins.Bottom = 0
       Align = alLeft
       Caption = 'Save to:'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
     object btnSelectTargetPath: TButton
-      Left = 427
+      Left = 497
       Top = 3
       Width = 21
       Height = 21
@@ -43,7 +43,7 @@ object frExportIPhone: TfrExportIPhone
     object edtTargetPath: TEdit
       Left = 47
       Top = 3
-      Width = 380
+      Width = 450
       Height = 21
       Align = alClient
       TabOrder = 1
@@ -52,16 +52,16 @@ object frExportIPhone: TfrExportIPhone
   object pnlBottom: TPanel
     Left = 0
     Top = 27
-    Width = 451
-    Height = 277
+    Width = 521
+    Height = 123
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
     object pnlMaps: TPanel
       Left = 0
       Top = 0
-      Width = 376
-      Height = 277
+      Width = 446
+      Height = 123
       Align = alClient
       Alignment = taLeftJustify
       BevelOuter = bvNone
@@ -69,7 +69,7 @@ object frExportIPhone: TfrExportIPhone
       object chkAppendTilse: TCheckBox
         Left = 0
         Top = 91
-        Width = 376
+        Width = 446
         Height = 17
         Align = alTop
         Caption = 'Add tiles to database'
@@ -78,7 +78,7 @@ object frExportIPhone: TfrExportIPhone
       object grdpnlMaps: TGridPanel
         Left = 0
         Top = 0
-        Width = 376
+        Width = 446
         Height = 91
         Align = alTop
         BevelOuter = bvNone
@@ -211,10 +211,10 @@ object frExportIPhone: TfrExportIPhone
           end>
         TabOrder = 1
         DesignSize = (
-          376
+          446
           91)
         object lblMapCompress: TLabel
-          Left = 306
+          Left = 376
           Top = 20
           Width = 70
           Height = 21
@@ -222,13 +222,9 @@ object frExportIPhone: TfrExportIPhone
           AutoSize = False
           Caption = '0..9 max'
           Layout = tlCenter
-          ExplicitLeft = 476
-          ExplicitTop = 3
-          ExplicitWidth = 80
-          ExplicitHeight = 20
         end
         object seMapCompress: TSpinEdit
-          Left = 251
+          Left = 321
           Top = 20
           Width = 49
           Height = 22
@@ -239,7 +235,7 @@ object frExportIPhone: TfrExportIPhone
           Value = 2
         end
         object seSatCompress: TSpinEdit
-          Left = 251
+          Left = 321
           Top = 41
           Width = 49
           Height = 22
@@ -250,7 +246,7 @@ object frExportIPhone: TfrExportIPhone
           Value = 85
         end
         object rbHybr: TRadioButton
-          Left = 231
+          Left = 301
           Top = 62
           Width = 15
           Height = 21
@@ -259,7 +255,7 @@ object frExportIPhone: TfrExportIPhone
           TabOrder = 2
         end
         object rbMap: TRadioButton
-          Left = 231
+          Left = 301
           Top = 20
           Width = 15
           Height = 21
@@ -270,7 +266,7 @@ object frExportIPhone: TfrExportIPhone
           TabStop = True
         end
         object rbSat: TRadioButton
-          Left = 231
+          Left = 301
           Top = 41
           Width = 15
           Height = 21
@@ -279,36 +275,30 @@ object frExportIPhone: TfrExportIPhone
           TabOrder = 4
         end
         object lblHybrCompress: TLabel
-          Left = 306
+          Left = 376
           Top = 62
           Width = 70
           Height = 21
           Align = alClient
           Caption = '100..1 max'
           Layout = tlCenter
-          ExplicitWidth = 55
-          ExplicitHeight = 13
         end
         object lblSatCompress: TLabel
-          Left = 306
+          Left = 376
           Top = 41
           Width = 70
           Height = 21
           Align = alClient
           Caption = '100..1 max'
           Layout = tlCenter
-          ExplicitWidth = 55
-          ExplicitHeight = 13
         end
         object lblCompress: TLabel
-          Left = 246
+          Left = 316
           Top = 0
           Width = 130
           Height = 20
           Align = alClient
           Caption = 'Compression:'
-          ExplicitWidth = 65
-          ExplicitHeight = 13
         end
         object lblHybr: TLabel
           Left = 0
@@ -319,7 +309,6 @@ object frExportIPhone: TfrExportIPhone
           AutoSize = False
           Caption = 'Hybrid'
           Layout = tlCenter
-          ExplicitWidth = 44
         end
         object lblMap: TLabel
           Left = 0
@@ -330,7 +319,6 @@ object frExportIPhone: TfrExportIPhone
           AutoSize = False
           Caption = 'Map'
           Layout = tlCenter
-          ExplicitWidth = 121
         end
         object lblSat: TLabel
           Left = 0
@@ -341,22 +329,19 @@ object frExportIPhone: TfrExportIPhone
           AutoSize = False
           Caption = 'Satellite'
           Layout = tlCenter
-          ExplicitWidth = 97
         end
         object lblMaps: TLabel
           Left = 50
           Top = 0
-          Width = 181
+          Width = 251
           Height = 20
           Align = alTop
           AutoSize = False
           Caption = 'Enable the following map types:'
           Layout = tlCenter
-          ExplicitWidth = 20
-          ExplicitHeight = 186
         end
         object seHybrCompress: TSpinEdit
-          Left = 251
+          Left = 321
           Top = 62
           Width = 49
           Height = 22
@@ -369,7 +354,7 @@ object frExportIPhone: TfrExportIPhone
         object pnlHyb: TPanel
           Left = 50
           Top = 62
-          Width = 181
+          Width = 251
           Height = 21
           Align = alClient
           BevelOuter = bvNone
@@ -378,7 +363,7 @@ object frExportIPhone: TfrExportIPhone
         object pnlMap: TPanel
           Left = 50
           Top = 20
-          Width = 181
+          Width = 251
           Height = 21
           Align = alClient
           BevelOuter = bvNone
@@ -387,7 +372,7 @@ object frExportIPhone: TfrExportIPhone
         object pnlSat: TPanel
           Left = 50
           Top = 41
-          Width = 181
+          Width = 251
           Height = 21
           Align = alClient
           BevelOuter = bvNone
@@ -396,10 +381,10 @@ object frExportIPhone: TfrExportIPhone
       end
     end
     object pnlZoom: TPanel
-      Left = 376
+      Left = 446
       Top = 0
       Width = 75
-      Height = 277
+      Height = 123
       Align = alRight
       Anchors = []
       BevelOuter = bvNone

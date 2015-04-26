@@ -1,9 +1,11 @@
 object frExportToOgf2: TfrExportToOgf2
   Left = 0
   Top = 0
-  Width = 451
-  Height = 304
+  Width = 540
+  Height = 210
   Align = alClient
+  Constraints.MinHeight = 210
+  Constraints.MinWidth = 540
   ParentShowHint = False
   ShowHint = True
   TabOrder = 0
@@ -11,16 +13,16 @@ object frExportToOgf2: TfrExportToOgf2
   object pnlCenter: TPanel
     Left = 0
     Top = 27
-    Width = 378
-    Height = 252
+    Width = 467
+    Height = 158
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
     object pnlMain: TPanel
       Left = 0
       Top = 0
-      Width = 378
-      Height = 252
+      Width = 467
+      Height = 158
       Align = alClient
       AutoSize = True
       BevelOuter = bvNone
@@ -123,7 +125,7 @@ object frExportToOgf2: TfrExportToOgf2
       object pnlMap: TPanel
         Left = 3
         Top = 22
-        Width = 372
+        Width = 461
         Height = 23
         Align = alCustom
         Anchors = [akLeft, akTop, akRight]
@@ -133,7 +135,7 @@ object frExportToOgf2: TfrExportToOgf2
       object pnlHyb: TPanel
         Left = 3
         Top = 56
-        Width = 372
+        Width = 461
         Height = 23
         Align = alCustom
         Anchors = [akLeft, akTop, akRight]
@@ -145,7 +147,7 @@ object frExportToOgf2: TfrExportToOgf2
   object pnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 451
+    Width = 540
     Height = 27
     Align = alTop
     BevelOuter = bvNone
@@ -159,23 +161,21 @@ object frExportToOgf2: TfrExportToOgf2
       Height = 21
       Margins.Left = 0
       Margins.Top = 0
-      Margins.Bottom = 0
       Align = alLeft
       Alignment = taRightJustify
       Caption = 'Save to:'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
     object edtTargetFile: TEdit
       Left = 47
       Top = 3
-      Width = 380
+      Width = 469
       Height = 21
       Align = alClient
       TabOrder = 0
     end
     object btnSelectTargetFile: TButton
-      Left = 427
+      Left = 516
       Top = 3
       Width = 21
       Height = 21
@@ -186,10 +186,10 @@ object frExportToOgf2: TfrExportToOgf2
     end
   end
   object pnlZoom: TPanel
-    Left = 378
+    Left = 467
     Top = 27
     Width = 73
-    Height = 252
+    Height = 158
     Align = alRight
     BevelOuter = bvNone
     BorderWidth = 3
@@ -210,7 +210,7 @@ object frExportToOgf2: TfrExportToOgf2
     end
     object cbbZoom: TComboBox
       Left = 3
-      Top = 19
+      Top = 16
       Width = 67
       Height = 21
       Align = alTop
@@ -222,8 +222,8 @@ object frExportToOgf2: TfrExportToOgf2
   end
   object pnlBottom: TPanel
     Left = 0
-    Top = 279
-    Width = 451
+    Top = 185
+    Width = 540
     Height = 25
     Align = alBottom
     Alignment = taLeftJustify
@@ -234,7 +234,7 @@ object frExportToOgf2: TfrExportToOgf2
     object lblStat: TLabel
       Left = 0
       Top = 0
-      Width = 451
+      Width = 540
       Height = 13
       Align = alTop
       Caption = '_'
@@ -245,7 +245,6 @@ object frExportToOgf2: TfrExportToOgf2
       Font.Style = [fsBold]
       ParentFont = False
       Layout = tlCenter
-      ExplicitWidth = 7
     end
   end
   object dlgSaveTargetFile: TSaveDialog

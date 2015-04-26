@@ -1,16 +1,18 @@
 object frDeleteTiles: TfrDeleteTiles
   Left = 0
   Top = 0
-  Width = 451
-  Height = 234
+  Width = 480
+  Height = 190
   Align = alClient
+  Constraints.MinHeight = 190
+  Constraints.MinWidth = 480
   ParentShowHint = False
   ShowHint = True
   TabOrder = 0
   object pnlMapSelect: TPanel
     Left = 0
     Top = 0
-    Width = 451
+    Width = 480
     Height = 43
     Align = alTop
     BevelEdges = [beBottom]
@@ -18,10 +20,10 @@ object frDeleteTiles: TfrDeleteTiles
     BevelOuter = bvNone
     TabOrder = 0
     DesignSize = (
-      451
+      480
       41)
     object pnlZoom: TPanel
-      Left = 392
+      Left = 421
       Top = 0
       Width = 59
       Height = 41
@@ -55,7 +57,7 @@ object frDeleteTiles: TfrDeleteTiles
     object pnlFrame: TPanel
       Left = 0
       Top = 5
-      Width = 392
+      Width = 421
       Height = 44
       Alignment = taLeftJustify
       Anchors = [akLeft, akTop, akRight]
@@ -64,7 +66,7 @@ object frDeleteTiles: TfrDeleteTiles
       object lblMapCaption: TLabel
         Left = 0
         Top = 0
-        Width = 392
+        Width = 421
         Height = 13
         Align = alTop
         Caption = 'Map:'
@@ -74,7 +76,7 @@ object frDeleteTiles: TfrDeleteTiles
   object rgTarget: TRadioGroup
     Left = 0
     Top = 43
-    Width = 451
+    Width = 480
     Height = 99
     Align = alTop
     Caption = 'Delete target'
@@ -90,7 +92,7 @@ object frDeleteTiles: TfrDeleteTiles
     AlignWithMargins = True
     Left = 3
     Top = 145
-    Width = 445
+    Width = 474
     Height = 24
     Align = alTop
     AutoSize = True

@@ -1,24 +1,26 @@
 object frExportAUX: TfrExportAUX
   Left = 0
   Top = 0
-  Width = 451
-  Height = 304
+  Width = 400
+  Height = 90
   Align = alClient
+  Constraints.MinHeight = 90
+  Constraints.MinWidth = 400
   ParentShowHint = False
   ShowHint = True
   TabOrder = 0
   object pnlCenter: TPanel
     Left = 0
     Top = 27
-    Width = 451
-    Height = 277
+    Width = 400
+    Height = 63
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
     object pnlMapSelect: TPanel
       Left = 0
       Top = 0
-      Width = 451
+      Width = 400
       Height = 43
       Align = alTop
       BevelEdges = [beBottom]
@@ -26,10 +28,10 @@ object frExportAUX: TfrExportAUX
       BevelOuter = bvNone
       TabOrder = 0
       DesignSize = (
-        451
+        400
         41)
       object pnlZoom: TPanel
-        Left = 392
+        Left = 341
         Top = 0
         Width = 59
         Height = 41
@@ -51,7 +53,6 @@ object frExportAUX: TfrExportAUX
           Margins.Right = 0
           Align = alTop
           Caption = 'Zoom:'
-          ExplicitWidth = 30
         end
         object cbbZoom: TComboBox
           Left = 3
@@ -67,7 +68,7 @@ object frExportAUX: TfrExportAUX
       object pnlFrame: TPanel
         Left = 3
         Top = 4
-        Width = 392
+        Width = 341
         Height = 43
         Anchors = [akLeft, akTop, akRight]
         BevelOuter = bvNone
@@ -75,11 +76,10 @@ object frExportAUX: TfrExportAUX
         object lblMapCaption: TLabel
           Left = 0
           Top = 0
-          Width = 392
+          Width = 341
           Height = 13
           Align = alTop
           Caption = 'Map:'
-          ExplicitWidth = 24
         end
       end
     end
@@ -87,7 +87,7 @@ object frExportAUX: TfrExportAUX
   object pnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 451
+    Width = 400
     Height = 27
     Align = alTop
     BevelOuter = bvNone
@@ -101,22 +101,20 @@ object frExportAUX: TfrExportAUX
       Height = 21
       Margins.Left = 0
       Margins.Top = 0
-      Margins.Bottom = 0
       Align = alLeft
       Caption = 'Save to:'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
     object edtTargetFile: TEdit
       Left = 47
       Top = 3
-      Width = 380
+      Width = 329
       Height = 21
       Align = alClient
       TabOrder = 0
     end
     object btnSelectTargetFile: TButton
-      Left = 427
+      Left = 376
       Top = 3
       Width = 21
       Height = 21
