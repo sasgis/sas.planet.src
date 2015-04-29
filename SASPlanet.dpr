@@ -820,6 +820,7 @@ uses
   u_ThreadMapCombineJPG in 'Src\RegionProcess\Combine\u_ThreadMapCombineJPG.pas',
   u_ThreadMapCombineKMZ in 'Src\RegionProcess\Combine\u_ThreadMapCombineKMZ.pas',
   u_ThreadMapCombinePNG in 'Src\RegionProcess\Combine\u_ThreadMapCombinePNG.pas',
+  u_ThreadMapCombineRAW in 'Src\RegionProcess\Combine\u_ThreadMapCombineRAW.pas',
   fr_TilesCopy in 'Src\RegionProcess\Copy\fr_TilesCopy.pas' {frTilesCopy: TFrame},
   u_ProviderTilesCopy in 'Src\RegionProcess\Copy\u_ProviderTilesCopy.pas',
   u_ThreadCopyFromStorageToStorage in 'Src\RegionProcess\Copy\u_ThreadCopyFromStorageToStorage.pas',
