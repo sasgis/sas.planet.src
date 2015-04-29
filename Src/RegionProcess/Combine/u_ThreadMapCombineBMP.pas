@@ -38,8 +38,6 @@ uses
 
 type
   TThreadMapCombineBMP = class(TThreadMapCombineBase)
-  private
-    FBgColor: TColor32;
   protected
     procedure SaveRect(
       AOperationID: Integer;
@@ -56,8 +54,7 @@ type
       const AImageProvider: IBitmapTileProvider;
       const AMapCalibrationList: IMapCalibrationList;
       const AFileName: string;
-      const ASplitCount: TPoint;
-      ABgColor: TColor32
+      const ASplitCount: TPoint
     );
   end;
 
@@ -77,8 +74,7 @@ constructor TThreadMapCombineBMP.Create(
   const AImageProvider: IBitmapTileProvider;
   const AMapCalibrationList: IMapCalibrationList;
   const AFileName: string;
-  const ASplitCount: TPoint;
-  ABgColor: TColor32
+  const ASplitCount: TPoint
 );
 begin
   inherited Create(
@@ -91,7 +87,6 @@ begin
     ASplitCount,
     Self.ClassName
   );
-  FBgColor := ABgColor;
 end;
 
 procedure TThreadMapCombineBMP.SaveRect(
@@ -122,8 +117,7 @@ begin
     VLineProvider :=
       TImageLineProviderBGR.Create(
         AImageProvider,
-        AMapRect,
-        FBgColor
+        AMapRect
       );
     for i := 0 to VSize.Y - 1 do begin
       VLineBGR := VLineProvider.GetLine(AOperationID, ACancelNotifier, i);

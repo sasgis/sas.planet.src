@@ -41,7 +41,6 @@ type
   private
     FWidth: Integer;
     FHeight: Integer;
-    FBgColor: TColor32;
     FWithAlpha: Boolean;
     FLineProvider: IImageLineProvider;
     FOperationID: Integer;
@@ -69,7 +68,6 @@ type
       const AMapCalibrationList: IMapCalibrationList;
       const AFileName: string;
       const ASplitCount: TPoint;
-      ABgColor: TColor32;
       AWithAlpha: Boolean
     );
   end;
@@ -93,7 +91,6 @@ constructor TThreadMapCombinePNG.Create(
   const AMapCalibrationList: IMapCalibrationList;
   const AFileName: string;
   const ASplitCount: TPoint;
-  ABgColor: TColor32;
   AWithAlpha: Boolean
 );
 begin
@@ -107,7 +104,6 @@ begin
     ASplitCount,
     Self.ClassName
   );
-  FBgColor := ABgColor;
   FWithAlpha := AWithAlpha;
 end;
 
@@ -151,16 +147,14 @@ begin
     FLineProvider :=
       TImageLineProviderRGBA.Create(
         AImageProvider,
-        AMapRect,
-        FBgColor
+        AMapRect
       );
   end else begin
     VBitsPerPix := 24;
     FLineProvider :=
       TImageLineProviderRGB.Create(
         AImageProvider,
-        AMapRect,
-        FBgColor
+        AMapRect
       );
   end;
 

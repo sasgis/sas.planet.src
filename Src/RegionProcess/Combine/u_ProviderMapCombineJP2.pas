@@ -164,7 +164,6 @@ var
   VProjectedPolygon: IGeometryProjectedPolygon;
   VImageProvider: IBitmapTileProvider;
   VProgressInfo: IRegionProcessProgressInfoInternal;
-  VBGColor: TColor32;
   VThread: TThread;
   VQuality: Integer;
 begin
@@ -174,7 +173,6 @@ begin
   VMapCalibrations := (ParamsFrame as IRegionProcessParamsFrameMapCalibrationList).MapCalibrationList;
   VFileName := PrepareTargetFileName;
   VSplitCount := (ParamsFrame as IRegionProcessParamsFrameMapCombine).SplitCount;
-  VBGColor := (ParamsFrame as IRegionProcessParamsFrameMapCombine).BGColor;
 
   if FLossless then begin
     VQuality := 100;
@@ -192,7 +190,6 @@ begin
       VMapCalibrations,
       VFileName,
       VSplitCount,
-      VBGColor,
       VQuality
     );
   VThread.Resume;

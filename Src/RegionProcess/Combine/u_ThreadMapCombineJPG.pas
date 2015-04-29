@@ -43,7 +43,6 @@ type
     FWidth: Integer;
     FHeight: Integer;
     FQuality: Integer;
-    FBgColor: TColor32;
     FLineProvider: IImageLineProvider;
     FSaveGeoRefInfoToExif: Boolean;
     function GetLine(
@@ -69,7 +68,6 @@ type
       const AMapCalibrationList: IMapCalibrationList;
       const AFileName: string;
       const ASplitCount: TPoint;
-      const ABgColor: TColor32;
       const AQuality: Integer;
       const ASaveGeoRefInfoToExif: Boolean
     );
@@ -95,7 +93,6 @@ constructor TThreadMapCombineJPG.Create(
   const AMapCalibrationList: IMapCalibrationList;
   const AFileName: string;
   const ASplitCount: TPoint;
-  const ABgColor: TColor32;
   const AQuality: Integer;
   const ASaveGeoRefInfoToExif: Boolean
 );
@@ -110,7 +107,6 @@ begin
     ASplitCount,
     Self.ClassName
   );
-  FBgColor := ABgColor;
   FQuality := AQuality;
   FSaveGeoRefInfoToExif := ASaveGeoRefInfoToExif;
 end;
@@ -145,15 +141,13 @@ begin
     FLineProvider :=
       TImageLineProviderBGRA.Create(
         AImageProvider,
-        AMapRect,
-        FBgColor
+        AMapRect
       );
   end else begin
     FLineProvider :=
       TImageLineProviderRGB.Create(
         AImageProvider,
-        AMapRect,
-        FBgColor
+        AMapRect
       );
   end;
 

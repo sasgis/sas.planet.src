@@ -43,7 +43,6 @@ type
     FImageLineProvider: IImageLineProvider;
     FLinesCount: Integer;
     FQuality: Integer;
-    FBgColor: TColor32;
     function ReadLine(
       ALine: Integer;
       var LineR, LineG, LineB: PLineRGB
@@ -65,7 +64,6 @@ type
       const AMapCalibrationList: IMapCalibrationList;
       const AFileName: string;
       const ASplitCount: TPoint;
-      ABgColor: TColor32;
       AQuality: Integer
     );
   end;
@@ -89,7 +87,6 @@ constructor TThreadMapCombineECW.Create(
   const AMapCalibrationList: IMapCalibrationList;
   const AFileName: string;
   const ASplitCount: TPoint;
-  ABgColor: TColor32;
   AQuality: Integer
 );
 begin
@@ -103,7 +100,6 @@ begin
     ASplitCount,
     Self.ClassName
   );
-  FBgColor := ABgColor;
   FQuality := AQuality;
 end;
 
@@ -161,8 +157,7 @@ begin
     FImageLineProvider :=
       TImageLineProviderBGR.Create(
         AImageProvider,
-        AMapRect,
-        FBgColor
+        AMapRect
       );
     VGeoConverter := AImageProvider.ProjectionInfo.GeoConverter;
     VZoom := AImageProvider.ProjectionInfo.Zoom;

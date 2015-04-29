@@ -39,7 +39,6 @@ type
     FMapRect: TRect;
     FImageProvider: IBitmapTileProvider;
     FBytesPerPixel: Integer;
-    FBgColor: TColor32;
 
     FZoom: byte;
     FMainGeoConverter: ICoordConverter;
@@ -79,7 +78,6 @@ type
     constructor Create(
       const AImageProvider: IBitmapTileProvider;
       const AMapRect: TRect;
-      ABgColor: TColor32;
       ABytesPerPixel: Integer
     );
     destructor Destroy; override;
@@ -89,8 +87,7 @@ type
   public
     constructor Create(
       const AImageProvider: IBitmapTileProvider;
-      const AMapRect: TRect;
-      ABgColor: TColor32
+      const AMapRect: TRect
     );
   end;
 
@@ -98,8 +95,7 @@ type
   public
     constructor Create(
       const AImageProvider: IBitmapTileProvider;
-      const AMapRect: TRect;
-      ABgColor: TColor32
+      const AMapRect: TRect
     );
   end;
 
@@ -151,7 +147,6 @@ uses
 constructor TImageLineProviderAbstract.Create(
   const AImageProvider: IBitmapTileProvider;
   const AMapRect: TRect;
-  ABgColor: TColor32;
   ABytesPerPixel: Integer
 );
 begin
@@ -159,7 +154,6 @@ begin
   inherited Create;
   FImageProvider := AImageProvider;
   FMapRect := AMapRect;
-  FBgColor := ABgColor;
   FBytesPerPixel := ABytesPerPixel;
 
   FZoom := FImageProvider.ProjectionInfo.Zoom;
@@ -324,14 +318,12 @@ end;
 
 constructor TImageLineProviderNoAlfa.Create(
   const AImageProvider: IBitmapTileProvider;
-  const AMapRect: TRect;
-  ABgColor: TColor32
+  const AMapRect: TRect
 );
 begin
   inherited Create(
     AImageProvider,
     AMapRect,
-    ABgColor,
     3
   );
 end;
@@ -340,14 +332,12 @@ end;
 
 constructor TImageLineProviderWithAlfa.Create(
   const AImageProvider: IBitmapTileProvider;
-  const AMapRect: TRect;
-  ABgColor: TColor32
+  const AMapRect: TRect
 );
 begin
   inherited Create(
     AImageProvider,
     AMapRect,
-    ABgColor,
     4
   );
 end;
@@ -386,24 +376,15 @@ var
   VSource: PColor32Entry;
   VTarget: ^TRGB;
 begin
-  if ASource <> nil then begin
-    VSource := PColor32Entry(ASource);
-    VTarget := ATarget;
-    for i := 0 to ACount - 1 do begin
-      VTarget.B := VSource.B;
-      VTarget.G := VSource.G;
-      VTarget.R := VSource.R;
-      Inc(VSource);
-      Inc(VTarget);
-    end;
-  end else begin
-    VTarget := ATarget;
-    for i := 0 to ACount - 1 do begin
-      VTarget.B := TColor32Entry(FBgColor).B;
-      VTarget.G := TColor32Entry(FBgColor).G;
-      VTarget.R := TColor32Entry(FBgColor).R;
-      Inc(VTarget);
-    end;
+  Assert(Assigned(ASource));
+  VSource := PColor32Entry(ASource);
+  VTarget := ATarget;
+  for i := 0 to ACount - 1 do begin
+    VTarget.B := VSource.B;
+    VTarget.G := VSource.G;
+    VTarget.R := VSource.R;
+    Inc(VSource);
+    Inc(VTarget);
   end;
 end;
 
@@ -419,24 +400,15 @@ var
   VSource: PColor32Entry;
   VTarget: ^TBGR;
 begin
-  if ASource <> nil then begin
-    VSource := PColor32Entry(ASource);
-    VTarget := ATarget;
-    for i := 0 to ACount - 1 do begin
-      VTarget.B := VSource.B;
-      VTarget.G := VSource.G;
-      VTarget.R := VSource.R;
-      Inc(VSource);
-      Inc(VTarget);
-    end;
-  end else begin
-    VTarget := ATarget;
-    for i := 0 to ACount - 1 do begin
-      VTarget.B := TColor32Entry(FBgColor).B;
-      VTarget.G := TColor32Entry(FBgColor).G;
-      VTarget.R := TColor32Entry(FBgColor).R;
-      Inc(VTarget);
-    end;
+  Assert(Assigned(ASource));
+  VSource := PColor32Entry(ASource);
+  VTarget := ATarget;
+  for i := 0 to ACount - 1 do begin
+    VTarget.B := VSource.B;
+    VTarget.G := VSource.G;
+    VTarget.R := VSource.R;
+    Inc(VSource);
+    Inc(VTarget);
   end;
 end;
 
@@ -452,26 +424,16 @@ var
   VSource: PColor32Entry;
   VTarget: ^TRGBA;
 begin
-  if ASource <> nil then begin
-    VSource := PColor32Entry(ASource);
-    VTarget := ATarget;
-    for i := 0 to ACount - 1 do begin
-      VTarget.B := VSource.B;
-      VTarget.G := VSource.G;
-      VTarget.R := VSource.R;
-      VTarget.A := VSource.A;
-      Inc(VSource);
-      Inc(VTarget);
-    end;
-  end else begin
-    VTarget := ATarget;
-    for i := 0 to ACount - 1 do begin
-      VTarget.B := TColor32Entry(FBgColor).B;
-      VTarget.G := TColor32Entry(FBgColor).G;
-      VTarget.R := TColor32Entry(FBgColor).R;
-      VTarget.A := TColor32Entry(FBgColor).A;
-      Inc(VTarget);
-    end;
+  Assert(Assigned(ASource));
+  VSource := PColor32Entry(ASource);
+  VTarget := ATarget;
+  for i := 0 to ACount - 1 do begin
+    VTarget.B := VSource.B;
+    VTarget.G := VSource.G;
+    VTarget.R := VSource.R;
+    VTarget.A := VSource.A;
+    Inc(VSource);
+    Inc(VTarget);
   end;
 end;
 
@@ -482,19 +444,9 @@ procedure TImageLineProviderBGRA.PreparePixleLine(
   ATarget: Pointer;
   ACount: Integer
 );
-var
-  VTarget: PColor32;
-  i: Integer;
 begin
-  if ASource <> nil then begin
-    Move(ASource^, ATarget^, ACount * SizeOf(ASource^));
-  end else begin
-    VTarget := ATarget;
-    for i := 0 to ACount - 1 do begin
-      VTarget^ := FBgColor;
-      Inc(VTarget);
-    end;
-  end;
+  Assert(Assigned(ASource));
+  Move(ASource^, ATarget^, ACount * SizeOf(ASource^));
 end;
 
 end.
