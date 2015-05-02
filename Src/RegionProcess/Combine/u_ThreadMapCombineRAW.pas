@@ -105,9 +105,6 @@ procedure TThreadMapCombineRAW.SaveRect(
   const AImageProvider: IBitmapTileProvider;
   const AMapRect: TRect
 );
-const
-  BMP_MAX_WIDTH = 32768;
-  BMP_MAX_HEIGHT = 32768;
 var
   i: Integer;
   VRawFile: TFileStream;
@@ -120,10 +117,6 @@ var
   VBgColor: TColor32Entry;
 begin
   VSize := RectSize(AMapRect);
-
-  if (VSize.X >= BMP_MAX_WIDTH) or (VSize.Y >= BMP_MAX_HEIGHT) then begin
-    raise Exception.CreateFmt(SAS_ERR_ImageIsTooBig, ['BMP', VSize.X, BMP_MAX_WIDTH, VSize.Y, BMP_MAX_HEIGHT, 'BMP']);
-  end;
 
   VRawFile := TFileStream.Create(AFileName, fmCreate);
   try

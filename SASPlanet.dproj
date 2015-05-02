@@ -964,6 +964,7 @@
     <DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombineJPG.pas" />
     <DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombineKMZ.pas" />
     <DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombinePNG.pas" />
+    <DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombineRAW.pas" />
     <DCCReference Include="Src\RegionProcess\Combine\u_ThreadMapCombineBase.pas" />
     <DCCReference Include="Src\RegionProcess\Combine\u_ThreadMapCombineBMP.pas" />
     <DCCReference Include="Src\RegionProcess\Combine\u_ThreadMapCombineECW.pas" />

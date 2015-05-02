@@ -112,6 +112,7 @@ uses
   u_ProviderMapCombinePNG,
   u_ProviderMapCombineKMZ,
   u_ProviderMapCombineECW,
+  u_ProviderMapCombineRAW,
   u_ProviderMapCombineJP2;
 
 {$R *.dfm}
@@ -316,6 +317,31 @@ begin
       AVectorSubsetBuilderFactory,
       ABitmapTileSaveLoadFactory,
       AArchiveReadWriteFactory,
+      AMarksShowConfig,
+      AMarksDrawConfig,
+      AMarksDB,
+      ABitmapFactory,
+      ABitmapPostProcessing,
+      AGridsConfig,
+      AValueToStringConverter,
+      AMapCalibrationList
+    );
+  VList.Add(VExportProvider);
+  cbbOutputFormat.Items.Add(VExportProvider.GetCaption);
+
+  VExportProvider :=
+    TProviderMapCombineRAW.Create(
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AActiveMapsSet,
+      AViewConfig,
+      AUseTilePrevZoomConfig,
+      AProjectionFactory,
+      ACoordConverterList,
+      AVectorGeometryProjectedFactory,
+      AProjectedGeometryProvider,
+      AVectorSubsetBuilderFactory,
       AMarksShowConfig,
       AMarksDrawConfig,
       AMarksDB,

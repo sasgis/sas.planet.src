@@ -814,6 +814,7 @@ uses
   u_ProviderMapCombineJPG in 'Src\RegionProcess\Combine\u_ProviderMapCombineJPG.pas',
   u_ProviderMapCombineKMZ in 'Src\RegionProcess\Combine\u_ProviderMapCombineKMZ.pas',
   u_ProviderMapCombinePNG in 'Src\RegionProcess\Combine\u_ProviderMapCombinePNG.pas',
+  u_ProviderMapCombineRAW in 'Src\RegionProcess\Combine\u_ProviderMapCombineRAW.pas',
   u_ThreadMapCombineBMP in 'Src\RegionProcess\Combine\u_ThreadMapCombineBMP.pas',
   u_ThreadMapCombineBase in 'Src\RegionProcess\Combine\u_ThreadMapCombineBase.pas',
   u_ThreadMapCombineECW in 'Src\RegionProcess\Combine\u_ThreadMapCombineECW.pas',
