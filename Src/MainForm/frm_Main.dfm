@@ -20,9 +20,9 @@ object frmMain: TfrmMain
   PixelsPerInch = 96
   TextHeight = 13
   object map: TImage32
-    Left = 239
+    Left = 413
     Top = 59
-    Width = 439
+    Width = 265
     Height = 571
     Align = alClient
     Bitmap.CombineMode = cmMerge
@@ -36,6 +36,8 @@ object frmMain: TfrmMain
     TabOrder = 0
     OnDblClick = mapDblClick
     OnMouseLeave = mapMouseLeave
+    ExplicitLeft = 239
+    ExplicitWidth = 439
   end
   object TBDock: TTBXDock
     Left = 0
@@ -464,6 +466,12 @@ object frmMain: TfrmMain
             Control = TBSearchWindow
             Images = MenusImageList
             Caption = 'Search Results'
+            Hint = ''
+          end
+          object tbxMergePolygonsShow: TTBXVisibilityToggleItem
+            Control = tbMergePolygons
+            Images = MenusImageList
+            Caption = 'Merge Polygons'
             Hint = ''
           end
           object TBXVisibilityToggleItem3: TTBXVisibilityToggleItem
@@ -1188,6 +1196,12 @@ object frmMain: TfrmMain
           Caption = 'Project Point'
           Hint = ''
         end
+        object tbxMergePolygonsShow1: TTBXVisibilityToggleItem
+          Control = tbMergePolygons
+          Images = PanelsImageList
+          Caption = 'Merge Polygons'
+          Hint = ''
+        end
       end
       object tbsbmGPS: TTBXSubmenuItem
         Caption = 'GPS'
@@ -1475,7 +1489,7 @@ object frmMain: TfrmMain
   object TBDockLeft: TTBXDock
     Left = 0
     Top = 59
-    Width = 239
+    Width = 413
     Height = 571
     PopupMenu = TBXPopupPanels
     Position = dpLeft
@@ -1716,6 +1730,29 @@ object frmMain: TfrmMain
         TabOrder = 0
         Value = 100000
         OnChange = TBEditSelectPolylineRadiusChange
+      end
+    end
+    object tbMergePolygons: TTBXDockablePanel
+      Left = 239
+      Top = 0
+      DockedWidth = 170
+      DockPos = 6
+      DockRow = 2
+      FloatingWidth = 128
+      FloatingHeight = 128
+      TabOrder = 3
+      Visible = False
+      OnClose = tbMergePolygonsClose
+      Caption = 'Merge Polygons'
+      object mmoMergePolyHint: TMemo
+        Left = 0
+        Top = 0
+        Width = 170
+        Height = 549
+        Align = alClient
+        BorderStyle = bsNone
+        ReadOnly = True
+        TabOrder = 0
       end
     end
   end

@@ -72,6 +72,7 @@ uses
   i_ViewPortState,
   i_SensorList,
   i_SearchResultPresenter,
+  i_MergePolygonsPresenter,
   i_MainWindowPosition,
   i_SelectionRect,
   i_RegionProcess,
@@ -423,6 +424,10 @@ type
     tbxprevmap: TTBXItem;
     tbxtmPascalScriptIDE: TTBXItem;
     tbxSep2: TTBXSeparatorItem;
+    tbMergePolygons: TTBXDockablePanel;
+    mmoMergePolyHint: TMemo;
+    tbxMergePolygonsShow: TTBXVisibilityToggleItem;
+    tbxMergePolygonsShow1: TTBXVisibilityToggleItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -659,6 +664,7 @@ type
     procedure tbxnxtmapClick(Sender: TObject);
     procedure tbxprevmapClick(Sender: TObject);
     procedure tbxtmPascalScriptIDEClick(Sender: TObject);
+    procedure tbMergePolygonsClose(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -698,6 +704,7 @@ type
     FLayersList: IInterfaceListStatic;
 
     FSearchPresenter: ISearchResultPresenter;
+    FMergePolygonsPresenter: IMergePolygonsPresenter;
     FMapMoving: Boolean;
     FMapMovingButton: TMouseButton;
     FMapZoomAnimtion: Boolean;
@@ -749,6 +756,7 @@ type
     FArgProcessor: ICmdLineArgProcessor;
 
     procedure InitSearchers;
+    procedure InitMergepolygons;
     procedure InitLayers;
     procedure InitGridsMenus;
     procedure InitMouseCursors;
@@ -811,6 +819,7 @@ type
     procedure OnActivLayersChange;
     procedure OnFillingMapChange;
     procedure OnShowSearchResults(Sender: TObject);
+    procedure OnShowMergePolygons(Sender: TObject);
 
     procedure SafeCreateDGAvailablePic(const AVisualPoint: TPoint);
 
@@ -996,6 +1005,7 @@ uses
   u_MainFormConfig,
   u_SensorListStuped,
   u_SearchResultPresenterOnPanel,
+  u_MergePolygonsPresenterOnPanel,
   u_ListenerNotifierLinksList,
   u_TileDownloaderUIOneTile,
   u_ListenerByEvent,
@@ -1657,6 +1667,7 @@ begin
     );
 
     InitSearchers;
+    InitMergePolygons;
     CreateLangMenu;
 
     FfrmSettings :=
@@ -2989,6 +3000,20 @@ begin
   end;
 end;
 
+procedure TfrmMain.InitMergePolygons;
+begin
+  FMergePolygonsPresenter :=
+    TMergePolygonsPresenterOnPanel.Create(
+      tbMergePolygons,
+      Self.OnShowMergePolygons,
+      GState.AppClosingNotifier,
+      GState.VectorDataFactory,
+      GState.VectorGeometryLonLatFactory,
+      FMapGoto
+    );
+  mmoMergePolyHint.Text := _('Press Ctrl and click on polygon to add one...');
+end;
+
 procedure TfrmMain.CreateProjectionMenu;
 
   procedure _AddItem(const ACaption: string; const ATag: Integer; const AChecked: Boolean);
@@ -3317,6 +3342,7 @@ begin
   FLineOnMapEdit := nil;
   FWinPosition := nil;
   FSearchPresenter := nil;
+  FMergePolygonsPresenter := nil;
   FNLayerParamsItemList := nil;
   FNLayerInfoItemList := nil;
   FNDwnItemList := nil;
@@ -6182,6 +6208,10 @@ begin
     if (FState.State = ao_movemap) and (Button = mbLeft) then begin
       VVectorItems := FindItems(VLocalConverter, Point(x, y));
       if (VVectorItems <> nil) and (VVectorItems.Count > 0) then begin
+        if (ssCtrl in Shift) then begin
+          FMergePolygonsPresenter.AddVectorItems(VVectorItems);
+          Exit;
+        end;
         if VVectorItems.Count > 1 then begin
           VDescription := '';
           for i := 0 to VVectorItems.Count - 1 do begin
@@ -7023,6 +7053,20 @@ begin
     FState.State := ao_movemap;
     ProcessOpenFiles(OpenDialog1.Files);
   end;
+end;
+
+procedure TfrmMain.OnShowMergePolygons(Sender: TObject);
+begin
+  tbMergePolygons.Show;
+  if FWinPosition.IsFullScreen then begin
+    TBDockLeft.Parent := map;
+    TBDockLeft.Visible := True;
+  end;
+end;
+
+procedure TfrmMain.tbMergePolygonsClose(Sender: TObject);
+begin
+  FMergePolygonsPresenter.ClearAll;
 end;
 
 procedure TfrmMain.tbitmGPSOptionsClick(Sender: TObject);
