@@ -27,45 +27,63 @@ object frMergePolygons: TfrMergePolygons
     Width = 451
     Height = 23
     Align = alTop
+    Images = frmMain.MenusImageList
     TabOrder = 1
     Caption = 'tbTop'
-    object tbxUp: TTBXItem
-      OnClick = tbxUpClick
-      Caption = 'Up'
-      Hint = ''
+    object tbUp: TTBItem
+      ImageIndex = 22
+      OnClick = tbUpClick
+      Caption = ''
+      Hint = 'Move item Up'
     end
-    object tbxDown: TTBXItem
-      OnClick = tbxDownClick
-      Caption = 'Down'
-      Hint = ''
+    object tbDown: TTBItem
+      ImageIndex = 21
+      OnClick = tbDownClick
+      Caption = ''
+      Hint = 'Move item Down'
     end
     object tbxSep1: TTBXSeparatorItem
       Caption = ''
       Hint = ''
     end
-    object tbxDel: TTBXItem
-      OnClick = tbxDelClick
-      Caption = 'Del'
-      Hint = ''
+    object tbDel: TTBItem
+      ImageIndex = 30
+      OnClick = tbDelClick
+      Caption = ''
+      Hint = 'Delete item from list'
     end
     object tbxSep2: TTBXSeparatorItem
       Caption = ''
       Hint = ''
     end
     object tbxOperation: TTBXComboBoxItem
+      ReadOnly = True
       DropDownList = True
       Lines.Strings = (
         'AND'
         'OR'
         'NOT'
-        'XOR')
+        'XOR'
+        'Group')
       Caption = ''
-      Hint = ''
+      Hint = 'Merge operation'
     end
-    object tbxMerge: TTBXItem
-      OnClick = tbxMergeClick
+    object tbMerge: TTBItem
+      ImageIndex = 38
+      OnClick = tbMergeClick
       Caption = 'Merge'
       Hint = ''
+    end
+    object tbtmSelect: TTBItem
+      ImageIndex = 44
+      Caption = ''
+      Hint = 'Selection Manager'
+    end
+    object tbtmSave: TTBItem
+      ImageIndex = 25
+      OnClick = tbtmSaveClick
+      Caption = ''
+      Hint = 'Save result to marks db'
     end
   end
 end

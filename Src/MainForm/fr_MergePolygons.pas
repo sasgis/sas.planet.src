@@ -43,29 +43,32 @@ uses
   i_VectorDataItemSimple,
   i_MergePolygonsResult,
   t_MergePolygonsProcessor,
-  u_MergePolygonsProcessor;
+  u_MergePolygonsProcessor,
+  u_MarkDbGUIHelper;
 
 type
   TfrMergePolygons = class(TFrame)
     tvPolygonsList: TTreeView;
     tbTop: TTBXToolbar;
     tbxOperation: TTBXComboBoxItem;
-    tbxMerge: TTBXItem;
+    tbMerge: TTBItem;
     tbxSep1: TTBXSeparatorItem;
-    tbxUp: TTBXItem;
-    tbxDown: TTBXItem;
     tbxSep2: TTBXSeparatorItem;
-    tbxDel: TTBXItem;
+    tbtmSelect: TTBItem;
+    tbtmSave: TTBItem;
     procedure tvPolygonsListAddition(Sender: TObject; Node: TTreeNode);
-    procedure tbxMergeClick(Sender: TObject);
-    procedure tbxUpClick(Sender: TObject);
-    procedure tbxDownClick(Sender: TObject);
-    procedure tbxDelClick(Sender: TObject);
+    procedure tbMergeClick(Sender: TObject);
+    procedure tbUpClick(Sender: TObject);
+    procedure tbDownClick(Sender: TObject);
+    procedure tbDelClick(Sender: TObject);
     procedure tvPolygonsListDblClick(Sender: TObject);
+    procedure tbtmSaveClick(Sender: TObject);
   private
     FMapGoto: IMapViewGoto;
+    FMarkDBGUI: TMarkDbGUIHelper;
     FItems: TMergePolygonsItemArray;
     FMergeProcessor: TMergePolygonsProcessor;
+    FMergeResultInternal: IVectorDataItem;
     FMergePolygonsResult: IMergePolygonsResult;
     procedure RebuildTree;
     function IsDublicate(const AItem: TMergePolygonsItem): Boolean;
@@ -86,7 +89,8 @@ type
       const AVectorDataFactory: IVectorDataFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AMergePolygonsResult: IMergePolygonsResult;
-      const AMapGoto: IMapViewGoto
+      const AMapGoto: IMapViewGoto;
+      const AMarkDBGUI: TMarkDbGUIHelper
     ); reintroduce;
     destructor Destroy; override;
   end;
@@ -163,7 +167,8 @@ constructor TfrMergePolygons.Create(
   const AVectorDataFactory: IVectorDataFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AMergePolygonsResult: IMergePolygonsResult;
-  const AMapGoto: IMapViewGoto
+  const AMapGoto: IMapViewGoto;
+  const AMarkDBGUI: TMarkDbGUIHelper
 );
 begin
   inherited Create(AOwner);
@@ -171,8 +176,10 @@ begin
   Parent := AParent;
   FMergePolygonsResult := AMergePolygonsResult;
   FMapGoto := AMapGoto;
+  FMarkDBGUI := AMarkDBGUI;
 
   SetLength(FItems, 0);
+
   tbxOperation.ItemIndex := Integer(moOR);
 
   FMergeProcessor :=
@@ -181,6 +188,8 @@ begin
       AVectorDataFactory,
       AVectorGeometryLonLatFactory
     );
+
+  FMergeResultInternal := nil;
 end;
 
 destructor TfrMergePolygons.Destroy;
@@ -231,7 +240,7 @@ begin
   Result := False;
 end;
 
-procedure TfrMergePolygons.tbxMergeClick(Sender: TObject);
+procedure TfrMergePolygons.tbMergeClick(Sender: TObject);
 var
   VOperation: TMergeOperation;
 begin
@@ -241,16 +250,26 @@ begin
   FMergeProcessor.MergeAsync(FItems, VOperation, Self.OnMergeFinished);
 end;
 
+procedure TfrMergePolygons.tbtmSaveClick(Sender: TObject);
+begin
+  FMarkDBGUI.SaveMarkModal(
+    nil,//FMergeResultInternal,
+    FMergeResultInternal.Geometry,
+    True
+  );
+end;
+
 procedure TfrMergePolygons.OnMergeFinished(const AVectorItem: IVectorDataItem);
 begin
   //ToDo: Close progress info
   Self.Enabled := True;
   if Assigned(AVectorItem) then begin
+    FMergeResultInternal := AVectorItem;
     FMergePolygonsResult.Polygon := (AVectorItem.Geometry as IGeometryLonLatPolygon);
   end;
 end;
 
-procedure TfrMergePolygons.tbxUpClick(Sender: TObject);
+procedure TfrMergePolygons.tbUpClick(Sender: TObject);
 var
   I, J: Integer;
   VNode, VPrev: TTreeNode;
@@ -273,7 +292,7 @@ begin
   end;
 end;
 
-procedure TfrMergePolygons.tbxDelClick(Sender: TObject);
+procedure TfrMergePolygons.tbDelClick(Sender: TObject);
 var
   I, J: Integer;
   VDelIndex: Integer;
@@ -296,7 +315,7 @@ begin
   end;
 end;
 
-procedure TfrMergePolygons.tbxDownClick(Sender: TObject);
+procedure TfrMergePolygons.tbDownClick(Sender: TObject);
 var
   I, J: Integer;
   VNode, VNext: TTreeNode;

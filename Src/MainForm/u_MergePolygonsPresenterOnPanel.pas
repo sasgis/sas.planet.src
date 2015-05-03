@@ -32,6 +32,7 @@ uses
   i_GeometryLonLatFactory,
   i_MergePolygonsPresenter,
   i_MergePolygonsResult,
+  u_MarkDbGUIHelper,
   u_BaseInterfacedObject,
   fr_MergePolygons;
 
@@ -45,6 +46,7 @@ type
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FMergePolygonsResult: IMergePolygonsResult;
     FMapGoto: IMapViewGoto;
+    FMarkDBGUI: TMarkDbGUIHelper;
     FfrMergePolygons: TfrMergePolygons;
   private
     { IMergePolygonsPresenter }
@@ -58,7 +60,8 @@ type
       const AVectorDataFactory: IVectorDataFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AMergePolygonsResult: IMergePolygonsResult;
-      const AMapGoto: IMapViewGoto
+      const AMapGoto: IMapViewGoto;
+      const AMarkDBGUI: TMarkDbGUIHelper
     );
     destructor Destroy; override;
   end;
@@ -79,7 +82,8 @@ constructor TMergePolygonsPresenterOnPanel.Create(
   const AVectorDataFactory: IVectorDataFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AMergePolygonsResult: IMergePolygonsResult;
-  const AMapGoto: IMapViewGoto
+  const AMapGoto: IMapViewGoto;
+  const AMarkDBGUI: TMarkDbGUIHelper
 );
 begin
   inherited Create;
@@ -91,12 +95,13 @@ begin
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FMergePolygonsResult := AMergePolygonsResult;
   FMapGoto := AMapGoto;
-
+  FMarkDBGUI := AMarkDBGUI;
   FfrMergePolygons := nil;
 end;
 
 destructor TMergePolygonsPresenterOnPanel.Destroy;
 begin
+  FMarkDBGUI := nil;
   FreeAndNil(FfrMergePolygons);
   inherited Destroy;
 end;
@@ -120,7 +125,8 @@ begin
         FVectorDataFactory,
         FVectorGeometryLonLatFactory,
         FMergePolygonsResult,
-        FMapGoTo
+        FMapGoTo,
+        FMarkDBGUI
       );
   end;
 

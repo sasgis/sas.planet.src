@@ -27,7 +27,7 @@ uses
   i_VectorDataItemSimple;
 
 type
-  TMergeOperation = (moAND, moOR, moNOT, moXOR);
+  TMergeOperation = (moAND, moOR, moNOT, moXOR, moGroup);
 
   TMergePolygonsItem = record
     Name: string;

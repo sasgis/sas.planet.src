@@ -67,6 +67,7 @@ uses
   Classes,
   i_ThreadConfig,
   i_VectorDataItemSimple,
+  i_GeometryLonLat,
   u_ThreadConfig,
   u_BackgroundTask;
 
@@ -141,18 +142,43 @@ procedure TMergePolygonsProcessor.OnExecute(
   const ACancelNotifier: INotifierOperation
 );
 var
+  I, J: Integer;
   VVectorItem: IVectorDataItem;
+  VResultPolygon: IGeometryLonLatPolygon;
+  VMultiPolygonBuilder: IGeometryLonLatMultiPolygonBuilder;
 begin
   VVectorItem := nil;
   try
+    if FOperation = moGroup then begin
+      VMultiPolygonBuilder :=
+        FVectorGeometryLonLatFactory.MakeGeometryLonLatMultiPolygonBuilder;
+      for I := 0 to Length(FItems) - 1 do begin
+        if Assigned(FItems[I].SinglePolygon) then begin
+          VMultiPolygonBuilder.Add(FItems[I].SinglePolygon);
+        end else begin
+          for J := 0 to FItems[I].MultiPolygon.Count - 1 do begin
+            VMultiPolygonBuilder.Add(FItems[I].MultiPolygon.Item[J]);
+          end;
+        end;
+      end;
+      VResultPolygon := VMultiPolygonBuilder.MakeStaticAndClear;
+    end else begin
 
-    //ToDo: Merge polygons
+      //ToDo: Merge polygons logically here
+
+      // Fake result (for tests only)
+      if Assigned(FItems[0].SinglePolygon) then begin
+        VResultPolygon := FItems[0].SinglePolygon;
+      end else begin
+        VResultPolygon := FItems[0].MultiPolygon;
+      end;
+    end;    
 
     VVectorItem :=
       FVectorDataFactory.BuildItem(
         FItems[0].VectorInfo,
-        nil,
-        FItems[0].SinglePolygon
+        nil, // ToDo: AAppearance
+        VResultPolygon
       );
 
     //Sleep(10000);
