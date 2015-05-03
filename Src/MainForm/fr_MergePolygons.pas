@@ -41,6 +41,7 @@ uses
   i_GeometryLonLatFactory,
   i_VectorDataFactory,
   i_VectorDataItemSimple,
+  i_MergePolygonsResult,
   t_MergePolygonsProcessor,
   u_MergePolygonsProcessor;
 
@@ -65,6 +66,7 @@ type
     FMapGoto: IMapViewGoto;
     FItems: TMergePolygonsItemArray;
     FMergeProcessor: TMergePolygonsProcessor;
+    FMergePolygonsResult: IMergePolygonsResult;
     procedure RebuildTree;
     function IsDublicate(const AItem: TMergePolygonsItem): Boolean;
     procedure SwapItems(const A, B: Integer);
@@ -83,6 +85,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       const AVectorDataFactory: IVectorDataFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+      const AMergePolygonsResult: IMergePolygonsResult;
       const AMapGoto: IMapViewGoto
     ); reintroduce;
     destructor Destroy; override;
@@ -159,12 +162,14 @@ constructor TfrMergePolygons.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   const AVectorDataFactory: IVectorDataFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+  const AMergePolygonsResult: IMergePolygonsResult;
   const AMapGoto: IMapViewGoto
 );
 begin
   inherited Create(AOwner);
 
   Parent := AParent;
+  FMergePolygonsResult := AMergePolygonsResult;
   FMapGoto := AMapGoto;
 
   SetLength(FItems, 0);
@@ -241,7 +246,7 @@ begin
   //ToDo: Close progress info
   Self.Enabled := True;
   if Assigned(AVectorItem) then begin
-    //ToDo: Draw item on map
+    FMergePolygonsResult.Polygon := (AVectorItem.Geometry as IGeometryLonLatPolygon);
   end;
 end;
 
@@ -354,6 +359,7 @@ procedure TfrMergePolygons.Clear;
 begin
   tvPolygonsList.Items.Clear;
   SetLength(FItems, 0);
+  FMergePolygonsResult.Polygon := nil;
 end;
 
 procedure TfrMergePolygons.RebuildTree;

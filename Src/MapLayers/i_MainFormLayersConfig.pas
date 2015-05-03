@@ -34,6 +34,7 @@ uses
   i_CenterScaleConfig,
   i_ScaleLineConfig,
   i_LastSelectionLayerConfig,
+  i_MergePolygonsResultLayerConfig,
   i_CalcLineLayerConfig,
   i_SelectionRectLayerConfig,
   i_SelectionPolygonLayerConfig,
@@ -84,6 +85,9 @@ type
 
     function GetLastSelectionLayerConfig: ILastSelectionLayerConfig;
     property LastSelectionLayerConfig: ILastSelectionLayerConfig read GetLastSelectionLayerConfig;
+
+    function GetMergePolygonsResultLayerConfig: IMergePolygonsResultLayerConfig;
+    property MergePolygonsResultLayerConfig: IMergePolygonsResultLayerConfig read GetMergePolygonsResultLayerConfig;
 
     function GetCalcLineLayerConfig: ICalcLineLayerConfig;
     property CalcLineLayerConfig: ICalcLineLayerConfig read GetCalcLineLayerConfig;

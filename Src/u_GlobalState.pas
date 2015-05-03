@@ -58,6 +58,7 @@ uses
   i_GeoCoderList,
   i_MarkPicture,
   i_LastSelectionInfo,
+  i_MergePolygonsResult,
   i_InternalPerformanceCounter,
   i_DebugInfoSubSystem,
   i_MarkSystem,
@@ -192,6 +193,7 @@ type
     FInternalBrowserContent: IInternalBrowserLastContent;
     FTileStorageTypeList: ITileStorageTypeListStatic;
     FLastSelectionInfo: ILastSelectionInfo;
+    FMergePolygonsResult: IMergePolygonsResult;
     FImageResamplerFactoryList: IImageResamplerFactoryList;
     FLastSearchResult: ILastSearchResult;
     FValueToStringConverter: IValueToStringConverterChangeable;
@@ -250,6 +252,7 @@ type
     property SystemTime: ISystemTimeProvider read FSystemTime;
 
     property LastSelectionInfo: ILastSelectionInfo read FLastSelectionInfo;
+    property MergePolygonsResult: IMergePolygonsResult read FMergePolygonsResult;
     property BitmapPostProcessing: IBitmapPostProcessingChangeable read FBitmapPostProcessing;
     property GPSRecorder: IGPSRecorder read FGPSRecorder;
     property GpsTrackRecorder: IGpsTrackRecorder read FGpsTrackRecorder;
@@ -389,6 +392,7 @@ uses
   u_ArchiveReadWriteFactory,
   u_DebugInfoSubSystem,
   u_LastSelectionInfo,
+  u_MergePolygonsResult,
   u_LocalCoordConverterFactory,
   u_LastSearchResult,
   u_ImageResamplerFactoryChangeableByConfig,
@@ -537,6 +541,8 @@ begin
   FProjConverterFactory := TProjConverterFactory.Create;
   FLastSelectionInfo := TLastSelectionInfo.Create;
   FLastSearchResult := TLastSearchResult.Create;
+
+  FMergePolygonsResult := TMergePolygonsResult.Create;
 
   FDatumFactory := TDatumFactory.Create(FHashFunction);
   FCoordConverterFactory := TCoordConverterFactorySimple.Create(FHashFunction, FDatumFactory);

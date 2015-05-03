@@ -34,6 +34,7 @@ uses
   i_CenterScaleConfig,
   i_ScaleLineConfig,
   i_LastSelectionLayerConfig,
+  i_MergePolygonsResultLayerConfig,
   i_CalcLineLayerConfig,
   i_SelectionRectLayerConfig,
   i_SelectionPolygonLayerConfig,
@@ -62,6 +63,7 @@ type
     FCenterScaleConfig: ICenterScaleConfig;
     FScaleLineConfig: IScaleLineConfig;
     FLastSelectionLayerConfig: ILastSelectionLayerConfig;
+    FMergePolygonsResultLayerConfig: IMergePolygonsResultLayerConfig;
     FCalcLineLayerConfig: ICalcLineLayerConfig;
     FSelectionRectLayerConfig: ISelectionRectLayerConfig;
     FSelectionPolygonLayerConfig: ISelectionPolygonLayerConfig;
@@ -84,6 +86,7 @@ type
     function GetCenterScaleConfig: ICenterScaleConfig;
     function GetScaleLineConfig: IScaleLineConfig;
     function GetLastSelectionLayerConfig: ILastSelectionLayerConfig;
+    function GetMergePolygonsResultLayerConfig: IMergePolygonsResultLayerConfig;
     function GetCalcLineLayerConfig: ICalcLineLayerConfig;
     function GetSelectionRectLayerConfig: ISelectionRectLayerConfig;
     function GetSelectionPolygonLayerConfig: ISelectionPolygonLayerConfig;
@@ -113,6 +116,7 @@ uses
   u_CenterScaleConfig,
   u_ScaleLineConfig,
   u_LastSelectionLayerConfig,
+  u_MergePolygonsResultLayerConfig,
   u_CalcLineLayerConfig,
   u_SelectionRectLayerConfig,
   u_SelectionPolygonLayerConfig,
@@ -153,6 +157,8 @@ begin
   Add(FScaleLineConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('ScaleLine'));
   FLastSelectionLayerConfig := TLastSelectionLayerConfig.Create;
   Add(FLastSelectionLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('LastSelection'));
+  FMergePolygonsResultLayerConfig := TMergePolygonsResultLayerConfig.Create;
+  Add(FMergePolygonsResultLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MergePolygonsResult'));
   FCalcLineLayerConfig := TCalcLineLayerConfig.Create;
   Add(FCalcLineLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('CalcLine'));
   FSelectionRectLayerConfig := TSelectionRectLayerConfig.Create;
@@ -216,6 +222,11 @@ end;
 function TMainFormLayersConfig.GetLastSelectionLayerConfig: ILastSelectionLayerConfig;
 begin
   Result := FLastSelectionLayerConfig;
+end;
+
+function TMainFormLayersConfig.GetMergePolygonsResultLayerConfig: IMergePolygonsResultLayerConfig;
+begin
+  Result := FMergePolygonsResultLayerConfig;
 end;
 
 function TMainFormLayersConfig.GetMainMapLayerConfig: IMainMapLayerConfig;

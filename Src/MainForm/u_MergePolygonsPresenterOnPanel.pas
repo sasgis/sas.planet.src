@@ -31,6 +31,7 @@ uses
   i_VectorDataFactory,
   i_GeometryLonLatFactory,
   i_MergePolygonsPresenter,
+  i_MergePolygonsResult,
   u_BaseInterfacedObject,
   fr_MergePolygons;
 
@@ -42,6 +43,7 @@ type
     FAppClosingNotifier: INotifierOneOperation;
     FVectorDataFactory: IVectorDataFactory;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+    FMergePolygonsResult: IMergePolygonsResult;
     FMapGoto: IMapViewGoto;
     FfrMergePolygons: TfrMergePolygons;
   private
@@ -55,6 +57,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       const AVectorDataFactory: IVectorDataFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+      const AMergePolygonsResult: IMergePolygonsResult;
       const AMapGoto: IMapViewGoto
     );
     destructor Destroy; override;
@@ -75,6 +78,7 @@ constructor TMergePolygonsPresenterOnPanel.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   const AVectorDataFactory: IVectorDataFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+  const AMergePolygonsResult: IMergePolygonsResult;
   const AMapGoto: IMapViewGoto
 );
 begin
@@ -85,6 +89,7 @@ begin
   FAppClosingNotifier := AAppClosingNotifier;
   FVectorDataFactory := AVectorDataFactory;
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
+  FMergePolygonsResult := AMergePolygonsResult;
   FMapGoto := AMapGoto;
 
   FfrMergePolygons := nil;
@@ -114,6 +119,7 @@ begin
         FAppClosingNotifier,
         FVectorDataFactory,
         FVectorGeometryLonLatFactory,
+        FMergePolygonsResult,
         FMapGoTo
       );
   end;

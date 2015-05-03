@@ -105,7 +105,7 @@ procedure TMergePolygonsProcessor.MergeAsync(
 var
   VThreadConfig: IThreadConfig;
 begin
-  Assert(Length(FItems) > 0);
+  Assert(Length(AItems) > 0);
   Assert(Assigned(AOnMergeFinished));
   
   FItems := AItems;
@@ -155,7 +155,7 @@ begin
         FItems[0].SinglePolygon
       );
 
-    Sleep(10000);
+    //Sleep(10000);
     
   finally
     FOnMergeFinished(VVectorItem);

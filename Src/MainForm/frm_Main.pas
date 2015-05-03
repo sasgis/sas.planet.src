@@ -1028,6 +1028,7 @@ uses
   u_GeometryLonLatLineChangeableByPathEdit,
   u_GeometryLonLatPolygonChangeableByPolygonEdit,
   u_GeometryLonLatPolygonChangeableByLastSelection,
+  u_GeometryLonLatPolygonChangeableByMergePolygonsResult,
   u_GeometryLonLatPolygonChangeableByPathEdit,
   u_LayerScaleLinePopupMenu,
   u_LayerStatBarPopupMenu,
@@ -2293,6 +2294,27 @@ begin
     );
   VLayersList.Add(VLayer);
 
+  // Merge polygons result visualisation layer
+  VDebugName := 'MergePolygonsResult';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VPolygonChangeable :=
+    TGeometryLonLatPolygonChangeableByMergePolygonsResult.Create(
+      FConfig.LayersConfig.MergePolygonsResultLayerConfig,
+      GState.MergePolygonsResult
+    );
+  VLayer :=
+    TMapLayerSinglePolygon.Create(
+      VPerfList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FViewPortState.View,
+      GState.VectorGeometryProjectedFactory,
+      FConfig.LayersConfig.MergePolygonsResultLayerConfig,
+      VPolygonChangeable
+    );
+  VLayersList.Add(VLayer);
+
   // CalcLine line visualisation layer
   VDebugName := 'CalcLine';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
@@ -3009,6 +3031,7 @@ begin
       GState.AppClosingNotifier,
       GState.VectorDataFactory,
       GState.VectorGeometryLonLatFactory,
+      GState.MergePolygonsResult,
       FMapGoto
     );
   mmoMergePolyHint.Text := _('Press Ctrl and click on polygon to add one...');
