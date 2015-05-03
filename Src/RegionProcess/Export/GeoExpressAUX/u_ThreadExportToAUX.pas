@@ -62,6 +62,7 @@ implementation
 
 uses
   Classes,
+  ALString,
   i_CoordConverter,
   i_TileInfoBasic,
   u_ResStrings,
@@ -102,7 +103,7 @@ var
   VPixelRect: TRect;
   VRectOfTilePixels: TRect;
   VFileName: string;
-  VOutString: string;
+  VOutString: AnsiString;
   VOutPos: TPoint;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
@@ -132,7 +133,7 @@ begin
           VOutPos.X := VRectOfTilePixels.Left - VPixelRect.Left;
           VOutPos.Y := VPixelRect.Bottom - VRectOfTilePixels.Bottom;
           VFileName := FTileStorage.GetTileFileName(VTile, FZoom, FVersion);
-          VOutString := '"' + VFileName + '" ' + IntToStr(VOutPos.X) + ' ' + IntToStr(VOutPos.Y) + #13#10;
+          VOutString := '"' + AnsiToUtf8(VFileName) + '" ' + ALIntToStr(VOutPos.X) + ' ' + ALIntToStr(VOutPos.Y) + #13#10;
           VFileStream.WriteBuffer(VOutString[1], Length(VOutString));
         end;
         inc(VTilesProcessed);
