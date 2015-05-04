@@ -446,7 +446,7 @@
     <DCCReference Include="Src\MainForm\frm_Main.pas">
       <Form>frmMain</Form>
     </DCCReference>
-    <DCCReference Include="Src\MainForm\fr_MergePolygons.pas">
+    <DCCReference Include="Src\MainForm\MergePolygons\fr_MergePolygons.pas">
       <Form>frMergePolygons</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
@@ -470,8 +470,8 @@
     <DCCReference Include="Src\MainForm\i_MapViewGoto.pas" />
     <DCCReference Include="Src\MainForm\i_MapZoomingConfig.pas" />
     <DCCReference Include="Src\MainForm\i_MenuGeneratorByTree.pas" />
-    <DCCReference Include="Src\MainForm\i_MergePolygonsPresenter.pas" />
-    <DCCReference Include="Src\MainForm\i_MergePolygonsResult.pas" />
+    <DCCReference Include="Src\MainForm\MergePolygons\i_MergePolygonsPresenter.pas" />
+    <DCCReference Include="Src\MainForm\MergePolygons\i_MergePolygonsResult.pas" />
     <DCCReference Include="Src\MainForm\i_MessageHandler.pas" />
     <DCCReference Include="Src\MainForm\i_MouseHandler.pas" />
     <DCCReference Include="Src\MainForm\i_MouseState.pas" />
@@ -480,12 +480,12 @@
     <DCCReference Include="Src\MainForm\i_SearchResultPresenter.pas" />
     <DCCReference Include="Src\MainForm\i_SelectionRect.pas" />
     <DCCReference Include="Src\MainForm\i_ViewPortState.pas" />
-    <DCCReference Include="Src\MainForm\t_MergePolygonsProcessor.pas" />
+    <DCCReference Include="Src\MainForm\MergePolygons\t_MergePolygonsProcessor.pas" />
     <DCCReference Include="Src\MainForm\u_ActiveMapTBXItem.pas" />
     <DCCReference Include="Src\MainForm\u_FindVectorItemsForVectorTileMatrix.pas" />
     <DCCReference Include="Src\MainForm\u_GeometryLonLatLineChangeableByPathEdit.pas" />
     <DCCReference Include="Src\MainForm\u_GeometryLonLatPolygonChangeableByLastSelection.pas" />
-    <DCCReference Include="Src\MainForm\u_GeometryLonLatPolygonChangeableByMergePolygonsResult.pas" />
+    <DCCReference Include="Src\MainForm\MergePolygons\u_GeometryLonLatPolygonChangeableByMergePolygonsResult.pas" />
     <DCCReference Include="Src\MainForm\u_GeometryLonLatPolygonChangeableByPathEdit.pas" />
     <DCCReference Include="Src\MainForm\u_GeometryLonLatPolygonChangeableByPolygonEdit.pas" />
     <DCCReference Include="Src\MainForm\u_KeyMovingConfig.pas" />
@@ -514,9 +514,9 @@
     <DCCReference Include="Src\MainForm\u_MapViewPortState.pas" />
     <DCCReference Include="Src\MainForm\u_MapZoomingConfig.pas" />
     <DCCReference Include="Src\MainForm\u_MenuGeneratorByStaticTreeSimple.pas" />
-    <DCCReference Include="Src\MainForm\u_MergePolygonsPresenterOnPanel.pas" />
-    <DCCReference Include="Src\MainForm\u_MergePolygonsProcessor.pas" />
-    <DCCReference Include="Src\MainForm\u_MergePolygonsResult.pas" />
+    <DCCReference Include="Src\MainForm\MergePolygons\u_MergePolygonsPresenterOnPanel.pas" />
+    <DCCReference Include="Src\MainForm\MergePolygons\u_MergePolygonsProcessor.pas" />
+    <DCCReference Include="Src\MainForm\MergePolygons\u_MergePolygonsResult.pas" />
     <DCCReference Include="Src\MainForm\u_MouseState.pas" />
     <DCCReference Include="Src\MainForm\u_PointOnMapEdit.pas" />
     <DCCReference Include="Src\MainForm\u_SaveLoadTBConfigByConfigProvider.pas" />
