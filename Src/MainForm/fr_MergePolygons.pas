@@ -66,6 +66,7 @@ type
     procedure tvPolygonsListDblClick(Sender: TObject);
     procedure tbtmSaveClick(Sender: TObject);
     procedure tbtmSelectClick(Sender: TObject);
+    procedure tbxOperationChange(Sender: TObject);
   private
     FMapGoto: IMapViewGoto;
     FRegionProcess: IRegionProcess;
@@ -398,6 +399,11 @@ begin
     end;
     FMapGoto.GotoLonLat(VGoToPoint, False);
   end;
+end;
+
+procedure TfrMergePolygons.tbxOperationChange(Sender: TObject);
+begin
+  ResetMergeResult;
 end;
 
 procedure TfrMergePolygons.Clear;

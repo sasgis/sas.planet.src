@@ -58,6 +58,7 @@ object frMergePolygons: TfrMergePolygons
     end
     object tbxOperation: TTBXComboBoxItem
       ReadOnly = True
+      OnChange = tbxOperationChange
       DropDownList = True
       Lines.Strings = (
         'AND'
