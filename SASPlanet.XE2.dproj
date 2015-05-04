@@ -1522,7 +1522,7 @@
 			<DCCReference Include="Src\i_WindowPositionConfig.pas"/>
 			<DCCReference Include="Src\t_CommonTypes.pas"/>
 			<DCCReference Include="Src\t_GeoTypes.pas"/>
-			<DCCReference Include="Src\u_BackgroundTask.pas"/>
+			<DCCReference Include="Src\Basic\u_BackgroundTask.pas"/>
 			<DCCReference Include="Src\u_BitmapFunc.pas"/>
 			<DCCReference Include="Src\u_CommonFormAndFrameParents.pas"/>
 			<DCCReference Include="Src\u_GeoFunc.pas"/>

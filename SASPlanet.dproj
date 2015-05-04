@@ -1381,7 +1381,7 @@
     </DCCReference>
     <DCCReference Include="Src\UpdateChecker\i_UpdateDownloader.pas" />
     <DCCReference Include="Src\UpdateChecker\u_UpdateDownloader.pas" />
-    <DCCReference Include="Src\u_BackgroundTask.pas" />
+    <DCCReference Include="Src\Basic\u_BackgroundTask.pas" />
     <DCCReference Include="Src\u_BitmapFunc.pas" />
     <DCCReference Include="Src\u_CommonFormAndFrameParents.pas" />
     <DCCReference Include="Src\u_GeoFunc.pas" />
