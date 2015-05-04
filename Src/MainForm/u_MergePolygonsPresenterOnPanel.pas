@@ -27,6 +27,7 @@ uses
   Controls,
   i_NotifierOperation,
   i_MapViewGoto,
+  i_RegionProcess,
   i_VectorItemSubset,
   i_VectorDataFactory,
   i_GeometryLonLatFactory,
@@ -46,6 +47,7 @@ type
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FMergePolygonsResult: IMergePolygonsResult;
     FMapGoto: IMapViewGoto;
+    FRegionProcess: IRegionProcess;
     FMarkDBGUI: TMarkDbGUIHelper;
     FfrMergePolygons: TfrMergePolygons;
   private
@@ -61,6 +63,7 @@ type
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AMergePolygonsResult: IMergePolygonsResult;
       const AMapGoto: IMapViewGoto;
+      const ARegionProcess: IRegionProcess;
       const AMarkDBGUI: TMarkDbGUIHelper
     );
     destructor Destroy; override;
@@ -83,6 +86,7 @@ constructor TMergePolygonsPresenterOnPanel.Create(
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AMergePolygonsResult: IMergePolygonsResult;
   const AMapGoto: IMapViewGoto;
+  const ARegionProcess: IRegionProcess;
   const AMarkDBGUI: TMarkDbGUIHelper
 );
 begin
@@ -95,6 +99,7 @@ begin
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FMergePolygonsResult := AMergePolygonsResult;
   FMapGoto := AMapGoto;
+  FRegionProcess := ARegionProcess;
   FMarkDBGUI := AMarkDBGUI;
   FfrMergePolygons := nil;
 end;
@@ -126,6 +131,7 @@ begin
         FVectorGeometryLonLatFactory,
         FMergePolygonsResult,
         FMapGoTo,
+        FRegionProcess,
         FMarkDBGUI
       );
   end;
@@ -135,7 +141,7 @@ begin
   for I := 0 to AItems.Count - 1 do begin
     VItem := AItems.Items[I];
     if Supports(VItem.Geometry, IGeometryLonLatPolygon, VPoly) then begin
-      FfrMergePolygons.AddPoly(VPoly, VItem.MainInfo);
+      FfrMergePolygons.AddItem(VItem);
     end;
   end;
 

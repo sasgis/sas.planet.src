@@ -31,7 +31,7 @@ type
 
   TMergePolygonsItem = record
     Name: string;
-    VectorInfo: IVectorDataItemMainInfo;
+    VectorData: IVectorDataItem;
     MultiPolygon: IGeometryLonLatMultiPolygon;
     SinglePolygon: IGeometryLonLatSinglePolygon;
   end;

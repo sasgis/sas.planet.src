@@ -7,9 +7,9 @@ object frMergePolygons: TfrMergePolygons
   TabOrder = 0
   object tvPolygonsList: TTreeView
     Left = 0
-    Top = 23
+    Top = 24
     Width = 451
-    Height = 281
+    Height = 280
     Align = alClient
     Indent = 19
     MultiSelect = True
@@ -25,7 +25,7 @@ object frMergePolygons: TfrMergePolygons
     Left = 0
     Top = 0
     Width = 451
-    Height = 23
+    Height = 24
     Align = alTop
     Images = frmMain.MenusImageList
     TabOrder = 1
@@ -74,8 +74,13 @@ object frMergePolygons: TfrMergePolygons
       Caption = 'Merge'
       Hint = ''
     end
+    object tbSep3: TTBSeparatorItem
+      Caption = ''
+      Hint = ''
+    end
     object tbtmSelect: TTBItem
-      ImageIndex = 44
+      ImageIndex = 10
+      OnClick = tbtmSelectClick
       Caption = ''
       Hint = 'Selection Manager'
     end

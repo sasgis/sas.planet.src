@@ -37,6 +37,7 @@ uses
   TB2Toolbar,
   i_NotifierOperation,
   i_MapViewGoto,
+  i_RegionProcess,
   i_GeometryLonLat,
   i_GeometryLonLatFactory,
   i_VectorDataFactory,
@@ -56,6 +57,7 @@ type
     tbxSep2: TTBXSeparatorItem;
     tbtmSelect: TTBItem;
     tbtmSave: TTBItem;
+    tbSep3: TTBSeparatorItem;
     procedure tvPolygonsListAddition(Sender: TObject; Node: TTreeNode);
     procedure tbMergeClick(Sender: TObject);
     procedure tbUpClick(Sender: TObject);
@@ -63,23 +65,23 @@ type
     procedure tbDelClick(Sender: TObject);
     procedure tvPolygonsListDblClick(Sender: TObject);
     procedure tbtmSaveClick(Sender: TObject);
+    procedure tbtmSelectClick(Sender: TObject);
   private
     FMapGoto: IMapViewGoto;
+    FRegionProcess: IRegionProcess;
     FMarkDBGUI: TMarkDbGUIHelper;
     FItems: TMergePolygonsItemArray;
     FMergeProcessor: TMergePolygonsProcessor;
     FMergeResultInternal: IVectorDataItem;
     FMergePolygonsResult: IMergePolygonsResult;
+    procedure ResetMergeResult;
     procedure RebuildTree;
     function IsDublicate(const AItem: TMergePolygonsItem): Boolean;
     procedure SwapItems(const A, B: Integer);
     procedure SwapNodesText(const A, B: TTreeNode);
     procedure OnMergeFinished(const AVectorItem: IVectorDataItem);
   public
-    procedure AddPoly(
-      const APoly: IGeometryLonLatPolygon;
-      const AInfo: IVectorDataItemMainInfo
-    );
+    procedure AddItem(const AItem: IVectorDataItem);
     procedure Clear;
   public
     constructor Create(
@@ -90,6 +92,7 @@ type
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AMergePolygonsResult: IMergePolygonsResult;
       const AMapGoto: IMapViewGoto;
+      const ARegionProcess: IRegionProcess;
       const AMarkDBGUI: TMarkDbGUIHelper
     ); reintroduce;
     destructor Destroy; override;
@@ -103,6 +106,9 @@ uses
 resourcestring
   rsSubject = '[subject]';
   rsClip = '[clip]';
+
+  rsErrorNeedMerge = 'You must MERGE polygons first!';
+  rsErrorTwoPolygons = 'You must add at least TWO polygons!';
 
 {$R *.dfm}
 
@@ -125,36 +131,35 @@ end;
 procedure CopyItem(const ASrc: TMergePolygonsItem; out ADest: TMergePolygonsItem); inline;
 begin
   ADest.Name := ASrc.Name;
-  ADest.VectorInfo := ASrc.VectorInfo;
+  ADest.VectorData := ASrc.VectorData;
   ADest.MultiPolygon := ASrc.MultiPolygon;
   ADest.SinglePolygon := ASrc.SinglePolygon;
 end;
 
 procedure InitItem(
-  const APoly: IGeometryLonLatPolygon;
-  const AInfo: IVectorDataItemMainInfo;
+  const AVectorData: IVectorDataItem;
   out AItem: TMergePolygonsItem
 );
 begin
-  AItem.VectorInfo := AInfo;
+  AItem.VectorData := AVectorData;
   AItem.MultiPolygon := nil;
   AItem.SinglePolygon := nil;
 
-  if Supports(APoly, IGeometryLonLatMultiPolygon, AItem.MultiPolygon) then begin
+  if Supports(AVectorData.Geometry, IGeometryLonLatMultiPolygon, AItem.MultiPolygon) then begin
     if AItem.MultiPolygon.Count = 1 then begin
       AItem.SinglePolygon := AItem.MultiPolygon.Item[0];
       AItem.MultiPolygon := nil;
     end;
   end else begin
-    if not Supports(APoly, IGeometryLonLatSinglePolygon, AItem.SinglePolygon) then begin
+    if not Supports(AVectorData.Geometry, IGeometryLonLatSinglePolygon, AItem.SinglePolygon) then begin
       raise Exception.Create('Unsupported GeometryLonLatPolygon interface!');
     end;
   end;
 
   if Assigned(AItem.MultiPolygon) then begin
-    AItem.Name := AInfo.Name + ' (' + 'Multi ' + IntToStr(AItem.MultiPolygon.Count) + ')';
+    AItem.Name := AVectorData.Name + ' (' + 'Multi ' + IntToStr(AItem.MultiPolygon.Count) + ')';
   end else begin
-    AItem.Name := AInfo.Name + ' (' + 'Single' + ')';
+    AItem.Name := AVectorData.Name + ' (' + 'Single' + ')';
   end;
 end;
 
@@ -168,6 +173,7 @@ constructor TfrMergePolygons.Create(
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AMergePolygonsResult: IMergePolygonsResult;
   const AMapGoto: IMapViewGoto;
+  const ARegionProcess: IRegionProcess;
   const AMarkDBGUI: TMarkDbGUIHelper
 );
 begin
@@ -176,6 +182,7 @@ begin
   Parent := AParent;
   FMergePolygonsResult := AMergePolygonsResult;
   FMapGoto := AMapGoto;
+  FRegionProcess := ARegionProcess;
   FMarkDBGUI := AMarkDBGUI;
 
   SetLength(FItems, 0);
@@ -189,7 +196,7 @@ begin
       AVectorGeometryLonLatFactory
     );
 
-  FMergeResultInternal := nil;
+  ResetMergeResult;
 end;
 
 destructor TfrMergePolygons.Destroy;
@@ -198,18 +205,14 @@ begin
   inherited Destroy;
 end;
 
-procedure TfrMergePolygons.AddPoly(
-  const APoly: IGeometryLonLatPolygon;
-  const AInfo: IVectorDataItemMainInfo
-);
+procedure TfrMergePolygons.AddItem(const AItem: IVectorDataItem);
 var
   I: Integer;
   VItem: TMergePolygonsItem;
 begin
-  Assert(Assigned(APoly));
-  Assert(Assigned(AInfo));
+  Assert(Assigned(AItem));
   
-  InitItem(APoly, AInfo, VItem);
+  InitItem(AItem, VItem);
 
   if not IsDublicate(VItem) then begin
     I := Length(FItems);
@@ -218,6 +221,8 @@ begin
     CopyItem(VItem, FItems[I]);
 
     tvPolygonsList.Items.AddChildObject(nil, FItems[I].Name, Pointer(I));
+
+    ResetMergeResult;
   end;
 end;
 
@@ -244,19 +249,15 @@ procedure TfrMergePolygons.tbMergeClick(Sender: TObject);
 var
   VOperation: TMergeOperation;
 begin
+  if Length(FItems) < 2 then begin
+    MessageDlg(rsErrorTwoPolygons, mtError, [mbOK], 0);
+    Exit;
+  end;
+  ResetMergeResult;
   VOperation := TMergeOperation(tbxOperation.ItemIndex);
   Self.Enabled := False;
   //ToDo: Show progress info
   FMergeProcessor.MergeAsync(FItems, VOperation, Self.OnMergeFinished);
-end;
-
-procedure TfrMergePolygons.tbtmSaveClick(Sender: TObject);
-begin
-  FMarkDBGUI.SaveMarkModal(
-    nil,//FMergeResultInternal,
-    FMergeResultInternal.Geometry,
-    True
-  );
 end;
 
 procedure TfrMergePolygons.OnMergeFinished(const AVectorItem: IVectorDataItem);
@@ -266,6 +267,28 @@ begin
   if Assigned(AVectorItem) then begin
     FMergeResultInternal := AVectorItem;
     FMergePolygonsResult.Polygon := (AVectorItem.Geometry as IGeometryLonLatPolygon);
+  end;
+end;
+
+procedure TfrMergePolygons.tbtmSaveClick(Sender: TObject);
+begin
+  if Assigned(FMergeResultInternal) then begin
+    FMarkDBGUI.SaveMarkModal(
+      FMergeResultInternal,
+      FMergeResultInternal.Geometry,
+      True
+    );
+  end else begin
+    MessageDlg(rsErrorNeedMerge, mtError, [mbOK], 0);
+  end;
+end;
+
+procedure TfrMergePolygons.tbtmSelectClick(Sender: TObject);
+begin
+  if Assigned(FMergeResultInternal) then begin
+    FRegionProcess.ProcessPolygon(FMergePolygonsResult.Polygon);
+  end else begin
+    MessageDlg(rsErrorNeedMerge, mtError, [mbOK], 0);
   end;
 end;
 
@@ -285,6 +308,7 @@ begin
         SwapItems(I, J);
         SwapNodesText(VNode, VPrev);
         tvPolygonsList.Select(VPrev);
+        ResetMergeResult;
       end;
     end;
   finally
@@ -312,6 +336,7 @@ begin
     end;
     FItems := VItems;
     RebuildTree;
+    ResetMergeResult;
   end;
 end;
 
@@ -331,6 +356,7 @@ begin
         SwapItems(I, J);
         SwapNodesText(VNode, VNext);
         tvPolygonsList.Select(VNext);
+        ResetMergeResult;
       end;
     end;
   finally
@@ -378,7 +404,7 @@ procedure TfrMergePolygons.Clear;
 begin
   tvPolygonsList.Items.Clear;
   SetLength(FItems, 0);
-  FMergePolygonsResult.Polygon := nil;
+  ResetMergeResult;
 end;
 
 procedure TfrMergePolygons.RebuildTree;
@@ -428,6 +454,12 @@ begin
   end else begin
     MarkAsClip(B);
   end;
+end;
+
+procedure TfrMergePolygons.ResetMergeResult;
+begin
+  FMergePolygonsResult.Polygon := nil;
+  FMergeResultInternal := nil;
 end;
 
 end.

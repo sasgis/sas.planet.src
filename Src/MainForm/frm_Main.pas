@@ -3033,6 +3033,7 @@ begin
       GState.VectorGeometryLonLatFactory,
       GState.MergePolygonsResult,
       FMapGoto,
+      FRegionProcess,
       FMarkDBGUI
     );
   mmoMergePolyHint.Text := _('Press Ctrl and click on polygon to add one...');
