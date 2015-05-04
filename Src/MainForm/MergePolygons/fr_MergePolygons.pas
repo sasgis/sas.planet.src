@@ -80,7 +80,12 @@ type
     function IsDublicate(const AItem: TMergePolygonsItem): Boolean;
     procedure SwapItems(const A, B: Integer);
     procedure SwapNodesText(const A, B: TTreeNode);
-    procedure OnMergeFinished(const AVectorItem: IVectorDataItem);
+    procedure OnMergeFinished(
+      const AVectorItem: IVectorDataItem;
+      const APolygonsCount: Integer;
+      const AHolesCount: Integer;
+      const APerformanceInfo: string
+    );
   public
     procedure AddItem(const AItem: IVectorDataItem);
     procedure Clear;
@@ -110,6 +115,11 @@ resourcestring
 
   rsErrorNeedMerge = 'You must MERGE polygons first!';
   rsErrorTwoPolygons = 'You must add at least TWO polygons!';
+
+  rsMergeFail = 'Merge failed!';
+
+  rsMergeFinish = 'Merge finished successful!' + #13#10 +
+                  'New item have %d polygon(s) with %d hole(s)';
 
 {$R *.dfm}
 
@@ -257,17 +267,29 @@ begin
   ResetMergeResult;
   VOperation := TMergeOperation(tbxOperation.ItemIndex);
   Self.Enabled := False;
-  //ToDo: Show progress info
   FMergeProcessor.MergeAsync(FItems, VOperation, Self.OnMergeFinished);
 end;
 
-procedure TfrMergePolygons.OnMergeFinished(const AVectorItem: IVectorDataItem);
+procedure TfrMergePolygons.OnMergeFinished(
+  const AVectorItem: IVectorDataItem;
+  const APolygonsCount: Integer;
+  const AHolesCount: Integer;
+  const APerformanceInfo: string
+);
+var
+  VMessage: string;
 begin
-  //ToDo: Close progress info
   Self.Enabled := True;
   if Assigned(AVectorItem) then begin
     FMergeResultInternal := AVectorItem;
     FMergePolygonsResult.Polygon := (AVectorItem.Geometry as IGeometryLonLatPolygon);
+    VMessage := Format(rsMergeFinish, [APolygonsCount, AHolesCount]);
+    {$IFDEF DEBUG}
+    VMessage := VMessage + #13#10 + 'Processed at: ' + APerformanceInfo;
+    {$ENDIF}
+    MessageDlg(VMessage, mtInformation, [mbOK], 0);
+  end else begin
+    MessageDlg(rsMergeFail, mtError, [mbOK], 0);
   end;
 end;
 

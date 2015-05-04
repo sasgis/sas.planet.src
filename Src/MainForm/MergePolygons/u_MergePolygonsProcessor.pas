@@ -25,6 +25,7 @@ interface
 uses
   clipper,
   t_MergePolygonsProcessor,
+  i_Timer,
   i_BackgroundTask,
   i_VectorDataFactory,
   i_GeometryLonLat,
@@ -41,6 +42,10 @@ type
     FAppClosingNotifier: INotifierOneOperation;
     FVectorDataFactory: IVectorDataFactory;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+    FPolyCount: Integer;
+    FHolesCount: Integer;
+    FTimer: ITimer;
+    FPerfInfo: string;
   private
     procedure OnExecute(
       AOperationID: Integer;
@@ -74,6 +79,9 @@ type
     function GetClipType(
       const AMergeOperation: TMergeOperation
     ): TClipType;
+  private
+    function GetCurTime: Int64; inline;
+    function GetCurTimeDiff(const ATime: Int64): Double; inline;
   public
     procedure MergeAsync(
       const AItems: TMergePolygonsItemArray;
@@ -98,6 +106,7 @@ uses
   t_GeoTypes,
   i_ThreadConfig,
   i_VectorDataItemSimple,
+  u_TimerByQueryPerformanceCounter,
   u_ThreadConfig,
   u_BackgroundTask;
 
@@ -118,6 +127,7 @@ begin
   FVectorDataFactory := AVectorDataFactory;
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
 
+  FTimer := MakeTimerByQueryPerformanceCounter;
   FBackgroundTask := nil;
 end;
 
@@ -178,6 +188,10 @@ var
   VVectorItem: IVectorDataItem;
   VResultPolygon: IGeometryLonLatPolygon;
 begin
+  FPolyCount := 0;
+  FHolesCount := 0;
+  FPerfInfo := '';
+
   VVectorItem := nil;
   try
     if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
@@ -203,7 +217,7 @@ begin
         );
     end;
   finally
-    FOnMergeFinished(VVectorItem);
+    FOnMergeFinished(VVectorItem, FPolyCount, FHolesCount, FPerfInfo);
   end;
 end;
 
@@ -213,9 +227,13 @@ function TMergePolygonsProcessor.ProcessGroupOperation(
 ): IGeometryLonLatPolygon;
 var
   I, J: Integer;
+  VTime: Int64;
+  VTimeDiff: Double;
   VMultiPolygonBuilder: IGeometryLonLatMultiPolygonBuilder;
 begin
   Result := nil;
+
+  VTime := GetCurTime;
 
   VMultiPolygonBuilder := FVectorGeometryLonLatFactory.MakeGeometryLonLatMultiPolygonBuilder;
 
@@ -225,9 +243,11 @@ begin
     end;
     if Assigned(FItems[I].SinglePolygon) then begin
       VMultiPolygonBuilder.Add(FItems[I].SinglePolygon);
+      Inc(FPolyCount);
     end else begin
       for J := 0 to FItems[I].MultiPolygon.Count - 1 do begin
         VMultiPolygonBuilder.Add(FItems[I].MultiPolygon.Item[J]);
+        Inc(FPolyCount);
         if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
           Exit;
         end;
@@ -236,6 +256,9 @@ begin
   end;
 
   Result := VMultiPolygonBuilder.MakeStaticAndClear;
+
+  VTimeDiff := GetCurTimeDiff(VTime);
+  FPerfInfo := Format('%f sec.', [VTimeDiff]);
 end;
 
 function TMergePolygonsProcessor.ProcessLogicOperation(
@@ -253,17 +276,24 @@ var
   {$IFDEF CLIPPER_POLY_TREE}
   VPolyTree: TPolyTree;
   {$ELSE}
-  //VIsHole: Boolean;
+  VIsHole: Boolean;
   VSinglePoly: IGeometryLonLatSinglePolygon;
   {$ENDIF}
+  VIsClipSuccessful: Boolean;
+  VTime: Int64;
+  VTimeDiff1, VTimeDiff2, VTimeDiff3: Double;
   VMultiPolygonBuilder: IGeometryLonLatMultiPolygonBuilder;
 begin
   Result := nil;
+
+  VTimeDiff3 := 0;
   
   VClipType := GetClipType(FOperation);
 
   VClipper := TClipper.Create;
   try
+    VTime := GetCurTime;
+
     // init clipper by polygons
     for I := 0 to Length(FItems) - 1 do begin
       if I > 0 then begin
@@ -290,37 +320,60 @@ begin
       end;
     end;
 
+    VTimeDiff1 := GetCurTimeDiff(VTime);
+
     //ToDo: compare usability and performanse between TPolyTree and TPaths
 
     {$IFDEF CLIPPER_POLY_TREE}
     VPolyTree := TPolyTree.Create;
     try
-      if VClipper.Execute(VClipType, VPolyTree) then begin
+      VTime := GetCurTime;
+      VIsClipSuccessful := VClipper.Execute(VClipType, VPolyTree);
+      VTimeDiff2 := GetCurTimeDiff(VTime);
+      if VIsClipSuccessful then begin
+        VTime := GetCurTime;
         VMultiPolygonBuilder := FVectorGeometryLonLatFactory.MakeGeometryLonLatMultiPolygonBuilder;
         for I := 0 to VPolyTree.ChildCount - 1 do begin
           ProcessClipperNode(VPolyTree.Childs[I], VMultiPolygonBuilder);
         end;
         Result := VMultiPolygonBuilder.MakeStaticAndClear;
+        VTimeDiff3 := GetCurTimeDiff(VTime);
       end;
     finally
       VPolyTree.Free;
     end;
     {$ELSE}
-    if VClipper.Execute(VClipType, VPaths) then begin
+    VTime := GetCurTime;
+    VIsClipSuccessful := VClipper.Execute(VClipType, VPaths);
+    VTimeDiff2 := GetCurTimeDiff(VTime);
+    if VIsClipSuccessful then begin
+      VTime := GetCurTime;
       VMultiPolygonBuilder := FVectorGeometryLonLatFactory.MakeGeometryLonLatMultiPolygonBuilder;
       for I := 0 to Length(VPaths) - 1 do begin
-        //VIsHole := not Orientation(VPaths[I]); // slow?
-        VSinglePoly := ClipperPathToSinglePolygon(VPaths[I]);
-        if Assigned(VSinglePoly) then begin
-          VMultiPolygonBuilder.Add(VSinglePoly);
+        VIsHole := not Orientation(VPaths[I]); // slow?
+        if VIsHole then begin
+          //ToDo
+          Inc(FHolesCount);
+        end else begin
+          VSinglePoly := ClipperPathToSinglePolygon(VPaths[I]);
+          if Assigned(VSinglePoly) then begin
+            VMultiPolygonBuilder.Add(VSinglePoly);
+            Inc(FPolyCount);
+          end;
         end;
       end;
       Result := VMultiPolygonBuilder.MakeStaticAndClear;
+      VTimeDiff3 := GetCurTimeDiff(VTime);
     end;
     {$ENDIF}
   finally
     VClipper.Free;
   end;
+
+  FPerfInfo := Format(
+    '%f sec. [%f/%f/%f]',
+    [(VTimeDiff1 + VTimeDiff2 + VTimeDiff3), VTimeDiff1, VTimeDiff2, VTimeDiff3]
+  );
 end;
 
 procedure TMergePolygonsProcessor.ProcessClipperNode(
@@ -331,9 +384,15 @@ var
   I: Integer;
   VSinglePoly: IGeometryLonLatSinglePolygon;
 begin
-  VSinglePoly := ClipperPathToSinglePolygon(ANode.Contour);
-  if Assigned(VSinglePoly) then begin
-    AMultiPolygonBuilder.Add(VSinglePoly);
+  if ANode.IsHole then begin
+    //ToDo
+    Inc(FHolesCount);
+  end else begin
+    VSinglePoly := ClipperPathToSinglePolygon(ANode.Contour);
+    if Assigned(VSinglePoly) then begin
+      AMultiPolygonBuilder.Add(VSinglePoly);
+      Inc(FPolyCount);
+    end;
   end;
   for I := 0 to ANode.ChildCount - 1 do begin
     ProcessClipperNode(ANode.Childs[I], AMultiPolygonBuilder);
@@ -403,6 +462,24 @@ begin
     VPoints[I].Y := APath[I].Y / cClipperCoeff;
   end;
   Result := FVectorGeometryLonLatFactory.CreateLonLatPolygon(@VPoints[0], VCount);
+end;
+
+function TMergePolygonsProcessor.GetCurTime: Int64;
+begin
+  if Assigned(FTimer) then begin
+    Result := FTimer.CurrentTime;
+  end else begin
+    Result := 0;
+  end;
+end;
+
+function TMergePolygonsProcessor.GetCurTimeDiff(const ATime: Int64): Double;
+begin
+  if Assigned(FTimer) then begin
+    Result := (FTimer.CurrentTime - ATime) / FTimer.Freq;
+  end else begin
+    Result := 0;
+  end;
 end;
 
 end.
