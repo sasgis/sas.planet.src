@@ -43,9 +43,10 @@ uses
   i_VectorDataFactory,
   i_VectorDataItemSimple,
   i_MergePolygonsResult,
+  i_MergePolygonsProgress,
   t_MergePolygonsProcessor,
   u_MergePolygonsProcessor,
-  u_MarkDbGUIHelper;
+  u_MarkDbGUIHelper, ExtCtrls;
 
 type
   TfrMergePolygons = class(TFrame)
@@ -58,6 +59,7 @@ type
     tbtmSelect: TTBItem;
     tbtmSave: TTBItem;
     tbSep3: TTBSeparatorItem;
+    tmrProgressCheck: TTimer;
     procedure tvPolygonsListAddition(Sender: TObject; Node: TTreeNode);
     procedure tbMergeClick(Sender: TObject);
     procedure tbUpClick(Sender: TObject);
@@ -67,6 +69,7 @@ type
     procedure tbtmSaveClick(Sender: TObject);
     procedure tbtmSelectClick(Sender: TObject);
     procedure tbxOperationChange(Sender: TObject);
+    procedure tmrProgressCheckTimer(Sender: TObject);
   private
     FMapGoto: IMapViewGoto;
     FRegionProcess: IRegionProcess;
@@ -75,17 +78,13 @@ type
     FMergeProcessor: TMergePolygonsProcessor;
     FMergeResultInternal: IVectorDataItem;
     FMergePolygonsResult: IMergePolygonsResult;
+    FMergePolygonsProgress: IMergePolygonsProgress;
     procedure ResetMergeResult;
     procedure RebuildTree;
     function IsDublicate(const AItem: TMergePolygonsItem): Boolean;
     procedure SwapItems(const A, B: Integer);
     procedure SwapNodesText(const A, B: TTreeNode);
-    procedure OnMergeFinished(
-      const AVectorItem: IVectorDataItem;
-      const APolygonsCount: Integer;
-      const AHolesCount: Integer;
-      const APerformanceInfo: string
-    );
+    procedure OnMergeFinished;
   public
     procedure AddItem(const AItem: IVectorDataItem);
     procedure Clear;
@@ -107,7 +106,8 @@ type
 implementation
 
 uses
-  t_GeoTypes;
+  t_GeoTypes,
+  u_MergePolygonsProgress;
 
 resourcestring
   rsSubject = '[subject]';
@@ -198,16 +198,19 @@ begin
 
   SetLength(FItems, 0);
 
-  tbxOperation.ItemIndex := Integer(moOR);
+  FMergePolygonsProgress := TMergePolygonsProgress.Create;
 
   FMergeProcessor :=
     TMergePolygonsProcessor.Create(
+      FMergePolygonsProgress,
       AAppClosingNotifier,
       AVectorDataFactory,
       AVectorGeometryLonLatFactory
     );
 
   ResetMergeResult;
+
+  tbxOperation.ItemIndex := Integer(moOR);
 end;
 
 destructor TfrMergePolygons.Destroy;
@@ -257,39 +260,47 @@ begin
 end;
 
 procedure TfrMergePolygons.tbMergeClick(Sender: TObject);
-var
-  VOperation: TMergeOperation;
 begin
   if Length(FItems) < 2 then begin
     MessageDlg(rsErrorTwoPolygons, mtError, [mbOK], 0);
     Exit;
   end;
+
   ResetMergeResult;
-  VOperation := TMergeOperation(tbxOperation.ItemIndex);
+
   Self.Enabled := False;
-  FMergeProcessor.MergeAsync(FItems, VOperation, Self.OnMergeFinished);
+  tmrProgressCheck.Enabled := True;
+
+  FMergeProcessor.MergeAsync(FItems, TMergeOperation(tbxOperation.ItemIndex));
 end;
 
-procedure TfrMergePolygons.OnMergeFinished(
-  const AVectorItem: IVectorDataItem;
-  const APolygonsCount: Integer;
-  const AHolesCount: Integer;
-  const APerformanceInfo: string
-);
+procedure TfrMergePolygons.OnMergeFinished;
 var
   VMessage: string;
+  VTime: Double;
+  VPolygonsCount: Integer;
+  VHolesCount: Integer;
+  VVectorItem: IVectorDataItem;
 begin
   Self.Enabled := True;
-  if Assigned(AVectorItem) then begin
-    FMergeResultInternal := AVectorItem;
-    FMergePolygonsResult.Polygon := (AVectorItem.Geometry as IGeometryLonLatPolygon);
-    VMessage := Format(rsMergeFinish, [APolygonsCount, AHolesCount]);
-    {$IFDEF DEBUG}
-    VMessage := VMessage + #13#10 + 'Processed at: ' + APerformanceInfo;
-    {$ENDIF}
-    MessageDlg(VMessage, mtInformation, [mbOK], 0);
+
+  if not FMergePolygonsProgress.IsAborted then begin
+    FMergePolygonsProgress.GetProgress(
+      VPolygonsCount, VHolesCount, VTime, VVectorItem);
+    if Assigned(VVectorItem) then begin
+      FMergeResultInternal := VVectorItem;
+      FMergePolygonsResult.Polygon := (VVectorItem.Geometry as IGeometryLonLatPolygon);
+      VMessage := Format(rsMergeFinish, [VPolygonsCount, VHolesCount]);
+      {$IFDEF DEBUG}
+      VMessage := VMessage + #13#10 + #13#10 +
+        'Processed at: ' + Format('%.8f sec.', [VTime]);
+      {$ENDIF}
+      MessageDlg(VMessage, mtInformation, [mbOK], 0);
+    end else begin
+      MessageDlg(rsMergeFail, mtError, [mbOK], 0);
+    end;
   end else begin
-    MessageDlg(rsMergeFail, mtError, [mbOK], 0);
+    FMergeProcessor.AbortOperation;
   end;
 end;
 
@@ -428,11 +439,21 @@ begin
   ResetMergeResult;
 end;
 
+procedure TfrMergePolygons.tmrProgressCheckTimer(Sender: TObject);
+begin
+  if FMergePolygonsProgress.IsFinished or FMergePolygonsProgress.IsAborted then begin
+    tmrProgressCheck.Enabled := False;
+    OnMergeFinished;
+  end;
+end;
+
 procedure TfrMergePolygons.Clear;
 begin
+  FMergeProcessor.AbortOperation;
   tvPolygonsList.Items.Clear;
   SetLength(FItems, 0);
   ResetMergeResult;
+  Self.Enabled := True;
 end;
 
 procedure TfrMergePolygons.RebuildTree;
@@ -488,6 +509,9 @@ procedure TfrMergePolygons.ResetMergeResult;
 begin
   FMergePolygonsResult.Polygon := nil;
   FMergeResultInternal := nil;
+  
+  tmrProgressCheck.Enabled := False;
+  FMergePolygonsProgress.ResetProgress;
 end;
 
 end.

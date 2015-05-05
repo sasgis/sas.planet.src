@@ -92,4 +92,11 @@ object frMergePolygons: TfrMergePolygons
       Hint = 'Save result to marks db'
     end
   end
+  object tmrProgressCheck: TTimer
+    Enabled = False
+    Interval = 150
+    OnTimer = tmrProgressCheckTimer
+    Left = 8
+    Top = 32
+  end
 end
