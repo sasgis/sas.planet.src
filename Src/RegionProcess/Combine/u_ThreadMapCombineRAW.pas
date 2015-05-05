@@ -123,14 +123,14 @@ begin
     if FWithAlpha then begin
       VBytesPerPix := 4;
       VLineProvider :=
-        TImageLineProviderBGRA.Create(
+        TImageLineProviderRGBA.Create(
           AImageProvider,
           AMapRect
         );
     end else begin
       VBytesPerPix := 3;
       VLineProvider :=
-        TImageLineProviderBGR.Create(
+        TImageLineProviderRGB.Create(
           AImageProvider,
           AMapRect
         );
@@ -142,11 +142,11 @@ begin
     if FWithAlpha then begin
       VMetaInfo := VMetaInfo + 'Bit/pixel=32' + #13#10;
       VMetaInfo := VMetaInfo + 'ByteOrder=BGRA' + #13#10;
-      VMetaInfo := VMetaInfo + 'DefaultColor=#' + AlIntToHex(VBgColor.B, 2) + AlIntToHex(VBgColor.G, 2) + AlIntToHex(VBgColor.R, 2) + AlIntToHex(VBgColor.A, 2) + #13#10;
+      VMetaInfo := VMetaInfo + 'DefaultFill=#' + AlIntToHex(VBgColor.R, 2) + AlIntToHex(VBgColor.G, 2) + AlIntToHex(VBgColor.B, 2) + AlIntToHex(VBgColor.A, 2) + #13#10;
     end else begin
       VMetaInfo := VMetaInfo + 'Bit/pixel=24' + #13#10;
       VMetaInfo := VMetaInfo + 'ByteOrder=BGR'  + #13#10;
-      VMetaInfo := VMetaInfo + 'DefaultColor=#' + AlIntToHex(VBgColor.B, 2) + AlIntToHex(VBgColor.G, 2) + AlIntToHex(VBgColor.R, 2) + #13#10;
+      VMetaInfo := VMetaInfo + 'DefaultFill=#' + AlIntToHex(VBgColor.R, 2) + AlIntToHex(VBgColor.G, 2) + AlIntToHex(VBgColor.B, 2) + #13#10;
     end;
 
     VMetaFile := TFileStream.Create(AFileName + '.meta', fmCreate);
