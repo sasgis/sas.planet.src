@@ -318,6 +318,8 @@ var
   VBounds: TDoubleRect;
   VPixelRect: TRect;
   VTileRect: TRect;
+  VPixelSize: TPoint;
+  VTileSize: TPoint;
 begin
   Vmt := FfrMapSelect.GetSelectedMapType;
   if (Vmt = nil) then begin
@@ -337,17 +339,23 @@ begin
       if Assigned(VLine) then begin
         VBounds := VLine.Bounds;
         VPixelRect := RectFromDoubleRect(VBounds, rrOutside);
+        VPixelSize := RectSize(VPixelRect);
         VTileRect := Vmt.GeoConvert.PixelRect2TileRect(VPixelRect, VZoom);
-        numd := (VTileRect.Right - VTileRect.Left);
-        numd := numd * (VTileRect.Bottom - VTileRect.Top);
+        VTileSize := RectSize(VTileRect);
+
+        numd := VTileSize.X;
+        numd := numd * VTileSize.Y;
         lblStat.Caption :=
-          SAS_STR_filesnum + ': ' +
-          inttostr(VTileRect.Right - VTileRect.Left) + 'x' +
-          inttostr(VTileRect.Bottom - VTileRect.Top) +
-          '(' + inttostr(numd) + ')' +
-          ', ' + SAS_STR_Resolution + ' ' +
-          inttostr(VPixelRect.Right - VPixelRect.Left) + 'x' +
-          inttostr(VPixelRect.Bottom - VPixelRect.Top);
+          Format(
+            _('Number of tiles: %0:sx%1:s (%2:s), size: %3:sx%4:s'),
+            [
+              IntToStr(VTileSize.X),
+              IntToStr(VTileSize.Y),
+              IntToStr(numd),
+              IntToStr(VPixelSize.X),
+              IntToStr(VPixelSize.Y)
+            ]
+          );
       end;
     end;
   end;
