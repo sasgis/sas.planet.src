@@ -141,11 +141,11 @@ begin
     VMetaInfo := VMetaInfo + 'Height=' + ALIntToStr(VSize.Y) + #13#10;
     if FWithAlpha then begin
       VMetaInfo := VMetaInfo + 'Bit/pixel=32' + #13#10;
-      VMetaInfo := VMetaInfo + 'ByteOrder=BGRA' + #13#10;
+      VMetaInfo := VMetaInfo + 'ByteOrder=RGBA' + #13#10;
       VMetaInfo := VMetaInfo + 'DefaultFill=#' + AlIntToHex(VBgColor.R, 2) + AlIntToHex(VBgColor.G, 2) + AlIntToHex(VBgColor.B, 2) + AlIntToHex(VBgColor.A, 2) + #13#10;
     end else begin
       VMetaInfo := VMetaInfo + 'Bit/pixel=24' + #13#10;
-      VMetaInfo := VMetaInfo + 'ByteOrder=BGR'  + #13#10;
+      VMetaInfo := VMetaInfo + 'ByteOrder=RGB'  + #13#10;
       VMetaInfo := VMetaInfo + 'DefaultFill=#' + AlIntToHex(VBgColor.R, 2) + AlIntToHex(VBgColor.G, 2) + AlIntToHex(VBgColor.B, 2) + #13#10;
     end;
 
