@@ -52,6 +52,7 @@ uses
   i_MarkFactory,
   i_MarkFactoryConfig,
   i_MarkPicture,
+  i_MergePolygonsPresenter,
   frm_MarkCategoryEdit,
   frm_MarkEditPoint,
   frm_MarkEditPath,
@@ -145,6 +146,15 @@ type
     ): IInterfaceListStatic;
     function ImportModal(ParentWnd: HWND): IInterfaceListStatic;
 
+    procedure AddMarkIdListToMergePolygons(
+      const AMarkIdList: IInterfaceListStatic;
+      const AMergePolygonsPresenter: IMergePolygonsPresenter
+    );
+    procedure AddCategoryToMergePolygons(
+      const ACategory: IMarkCategory;
+      const AMergePolygonsPresenter: IMergePolygonsPresenter
+    );
+
     property MarksDb: IMarkSystem read FMarkSystem;
     property MarkFactoryConfig: IMarkFactoryConfig read FMarkFactoryConfig;
   public
@@ -175,6 +185,7 @@ uses
   gnugettext,
   i_DoublePointFilter,
   i_VectorItemTree,
+  i_VectorItemSubset,
   i_MarkCategoryTree,
   i_NotifierOperation,
   i_VectorItemTreeImporter,
@@ -839,6 +850,87 @@ begin
         Result := True;
       end;
     end;
+  end;
+end;
+
+procedure TMarkDbGUIHelper.AddMarkIdListToMergePolygons(
+  const AMarkIdList: IInterfaceListStatic;
+  const AMergePolygonsPresenter: IMergePolygonsPresenter
+);
+var
+  I: Integer;
+  VMarkId: IMarkId;
+  VMark: IVectorDataItem;
+  VSubset: IVectorItemSubset;
+  VSubsetBuilder: IVectorItemSubsetBuilder;
+begin
+  if AMarkIdList <> nil then begin
+    VSubsetBuilder := FVectorItemSubsetBuilderFactory.Build;
+    for I := 0 to AMarkIdList.Count - 1 do begin
+      VMarkId := IMarkId(AMarkIdList[I]);
+      VMark := FMarkSystem.MarkDb.GetMarkByID(VMarkId);
+      if Supports(VMark.Geometry, IGeometryLonLatPolygon) then begin
+        VSubsetBuilder.Add(VMark);
+      end;
+    end;
+    if VSubsetBuilder.Count > 0 then begin
+      VSubset := VSubsetBuilder.MakeStaticAndClear;
+      AMergePolygonsPresenter.AddVectorItems(VSubset);
+    end else begin
+      MessageDlg(_('No one polygon selected!'), mtWarning, [mbOk], 0);
+    end;
+  end else begin
+    MessageDlg(_('Please, select at least one polygon!'), mtWarning, [mbOk], 0);
+  end;
+end;
+
+procedure AddItems(const ATree: IVectorItemTree; const ABuilder: IVectorItemSubsetBuilder);
+var
+  I: Integer;
+  VItem: IVectorDataItem;
+  VSubset: IVectorItemSubset;
+begin
+  VSubset := ATree.Items;
+  if Assigned(VSubset) then begin
+    for I := 0 to VSubset.Count - 1 do begin
+      VItem := VSubset.Items[I];
+      if Supports(VItem.Geometry, IGeometryLonLatPolygon) then begin
+        ABuilder.Add(VItem);
+      end;
+    end;
+  end;
+  for I := 0 to ATree.SubTreeItemCount - 1 do begin
+    AddItems(ATree.GetSubTreeItem(I), ABuilder);
+  end;
+end;
+
+procedure TMarkDbGUIHelper.AddCategoryToMergePolygons(
+  const ACategory: IMarkCategory;
+  const AMergePolygonsPresenter: IMergePolygonsPresenter
+);
+var
+  VIsFound: Boolean;
+  VSubset: IVectorItemSubset;
+  VSubsetBuilder: IVectorItemSubsetBuilder;
+  VSubCategoryList: IMarkCategoryList;
+  VCategoryTree: IMarkCategoryTree;
+  VMarkTree: IVectorItemTree;
+begin
+  VIsFound := False;
+  if Assigned(ACategory) then begin
+    VSubsetBuilder := FVectorItemSubsetBuilderFactory.Build;
+    VSubCategoryList := FMarkSystem.CategoryDB.GetCategoryWithSubCategories(ACategory);
+    VCategoryTree := FMarkSystem.CategoryDB.CategoryListToStaticTree(VSubCategoryList);
+    VMarkTree := FMarkSystem.CategoryTreeToMarkTree(VCategoryTree, False);
+    AddItems(VMarkTree, VSubsetBuilder);
+    if VSubsetBuilder.Count > 0 then begin
+      VSubset := VSubsetBuilder.MakeStaticAndClear;
+      AMergePolygonsPresenter.AddVectorItems(VSubset);
+      VIsFound := True;
+    end;
+  end;
+  if not VIsFound then begin
+    MessageDlg(_('Please, select category with at least one polygon!'), mtWarning, [mbOk], 0);
   end;
 end;
 

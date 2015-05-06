@@ -56,6 +56,7 @@ uses
   i_VectorDataItemSimple,
   i_MarkCategoryList,
   i_MarkCategory,
+  i_MergePolygonsPresenter,
   u_MarkDbGUIHelper;
 
 type
@@ -116,6 +117,8 @@ type
     CheckBox2: TCheckBox;
     CheckBox3: TCheckBox;
     tbitmAllVisible: TTBXItem;
+    tbxtmAddToMergePolygons: TTBXItem;
+    tbxtmCatAddToMergePolygons: TTBXItem;
     procedure BtnAddCategoryClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure BtnDelKatClick(Sender: TObject);
@@ -159,6 +162,8 @@ type
       State: TDragState; var Accept: Boolean);
     procedure CategoryTreeViewDragDrop(Sender, Source: TObject; X, Y: Integer);
     procedure tbitmAllVisibleClick(Sender: TObject);
+    procedure tbxtmAddToMergePolygonsClick(Sender: TObject);
+    procedure tbxtmCatAddToMergePolygonsClick(Sender: TObject);
   private
     FUseAsIndepentWindow: Boolean;
     FMapGoto: IMapViewGoto;
@@ -177,7 +182,7 @@ type
     FConfigListener: IListener;
     FMarksSystemStateListener: IListener;
     FRegionProcess: IRegionProcess;
-
+    FMergePolygonsPresenter: IMergePolygonsPresenter;
 
     procedure OnCategoryDbChanged;
     procedure OnMarksDbChanged;
@@ -206,6 +211,7 @@ type
       const ANavToPoint: INavigationToPoint;
       const AWindowConfig: IWindowPositionConfig;
       const AMarksShowConfig: IUsedMarksConfig;
+      const AMergePolygonsPresenter: IMergePolygonsPresenter;
       AMarkDBGUI: TMarkDbGUIHelper;
       const AMapGoto: IMapViewGoto;
       const ARegionProcess: IRegionProcess
@@ -240,6 +246,7 @@ constructor TfrmMarksExplorer.Create(
   const ANavToPoint: INavigationToPoint;
   const AWindowConfig: IWindowPositionConfig;
   const AMarksShowConfig: IUsedMarksConfig;
+  const AMergePolygonsPresenter: IMergePolygonsPresenter;
   AMarkDBGUI: TMarkDbGUIHelper;
   const AMapGoto: IMapViewGoto;
   const ARegionProcess: IRegionProcess
@@ -247,6 +254,7 @@ constructor TfrmMarksExplorer.Create(
 begin
   inherited Create(ALanguageManager);
   FUseAsIndepentWindow := AUseAsIndepentWindow;
+  FMergePolygonsPresenter := AMergePolygonsPresenter;
   FMarkDBGUI := AMarkDBGUI;
   FGeometryLonLatFactory := AGeometryLonLatFactory;
   FMapGoto := AMapGoto;
@@ -1203,6 +1211,16 @@ begin
   end else begin
     tbitmAddCategory.Caption := _('Add SubCategory');
   end;
+end;
+
+procedure TfrmMarksExplorer.tbxtmAddToMergePolygonsClick(Sender: TObject);
+begin
+  FMarkDBGUI.AddMarkIdListToMergePolygons(GetSelectedMarksIdList, FMergePolygonsPresenter);
+end;
+
+procedure TfrmMarksExplorer.tbxtmCatAddToMergePolygonsClick(Sender: TObject);
+begin
+  FMarkDBGUI.AddCategoryToMergePolygons(GetSelectedCategory, FMergePolygonsPresenter);
 end;
 
 procedure TfrmMarksExplorer.ToggleVisible;

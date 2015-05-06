@@ -534,6 +534,11 @@ object frmMarksExplorer: TfrmMarksExplorer
       Caption = 'Export Placemarks'
       Hint = 'Export placemarks from selected category'
     end
+    object tbxtmCatAddToMergePolygons: TTBXItem
+      OnClick = tbxtmCatAddToMergePolygonsClick
+      Caption = 'Add to Merge Polygons'
+      Hint = ''
+    end
   end
   object tbpmnMarks: TTBXPopupMenu
     Images = frmMain.MenusImageList
@@ -572,6 +577,11 @@ object frmMarksExplorer: TfrmMarksExplorer
       OnClick = btnSaveMarkClick
       Caption = 'Export Placemark'
       Hint = 'Export selected placemark'
+    end
+    object tbxtmAddToMergePolygons: TTBXItem
+      OnClick = tbxtmAddToMergePolygonsClick
+      Caption = 'Add to Merge Polygons'
+      Hint = ''
     end
   end
 end

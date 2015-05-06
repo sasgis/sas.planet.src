@@ -1694,6 +1694,7 @@ begin
         FConfig.NavToPoint,
         FConfig.MarksExplorerWindowConfig,
         FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig,
+        FMergePolygonsPresenter,
         FMarkDBGUI,
         FMapGoto,
         FFormRegionProcess
