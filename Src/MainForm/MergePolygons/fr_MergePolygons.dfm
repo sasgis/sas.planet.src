@@ -77,12 +77,12 @@ object frMergePolygons: TfrMergePolygons
         'XOR'
         'Group')
       Caption = ''
-      Hint = 'Merge operation'
+      Hint = 'Operation type'
     end
     object tbMerge: TTBItem
       ImageIndex = 38
       OnClick = tbMergeClick
-      Caption = 'Merge'
+      Caption = 'Merge polygons'
       Hint = ''
     end
     object tbSep3: TTBSeparatorItem
@@ -99,7 +99,7 @@ object frMergePolygons: TfrMergePolygons
       ImageIndex = 25
       OnClick = tbtmSaveClick
       Caption = ''
-      Hint = 'Save result to marks db'
+      Hint = 'Save result polygon as...'
     end
   end
   object tmrProgressCheck: TTimer

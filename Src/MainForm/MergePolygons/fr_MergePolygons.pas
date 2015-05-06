@@ -126,8 +126,10 @@ resourcestring
 
   rsMergeFail = 'Merge failed!';
 
-  rsMergeFinish = 'Merge finished successful!' + #13#10 +
-                  'New item have %d polygon(s) with %d hole(s)';
+  rsMergeFinish = 'Merge operation finished successful!' + #13#10 +
+                  'Result contains %d polygon(s) with %d hole(s)';
+
+  rsProcessedAt = 'Processed at: %.8f sec.';
 
 {$R *.dfm}
 
@@ -301,7 +303,7 @@ begin
       VMessage := Format(rsMergeFinish, [VPolygonsCount, VHolesCount]);
       {$IFDEF DEBUG}
       VMessage := VMessage + #13#10 + #13#10 +
-        'Processed at: ' + Format('%.8f sec.', [VTime]);
+        Format(rsProcessedAt, [VTime]);
       {$ENDIF}
       MessageDlg(VMessage, mtInformation, [mbOK], 0);
     end else begin

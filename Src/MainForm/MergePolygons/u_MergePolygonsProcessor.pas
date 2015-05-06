@@ -115,7 +115,7 @@ uses
 type
   EMergePolygonsProcessorError = class(Exception);
 
-{.$DEFINE MAX_PERCITION}
+{.$DEFINE MAX_PRECISION}
 
 function MakePathsUnion(AClipper: TClipper; ASubj, AClip: TPaths): TPaths; inline;
 begin
@@ -158,7 +158,7 @@ begin
   Assert(SizeOf(clipper.cInt) = SizeOf(Int64));
 
   // Coeff for Double <-> Int64 coversions
-  {$IFNDEF MAX_PERCITION}
+  {$IFNDEF MAX_PRECISION}
   FIntToDoubleCoeff := clipper.LoRange div 180; // fastes
   {$ELSE}
   FIntToDoubleCoeff := clipper.HiRange div 180; // big integer math
