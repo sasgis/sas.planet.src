@@ -23,6 +23,7 @@ unit fr_MergePolygons;
 interface
 
 uses
+  Windows,
   SysUtils,
   Classes,
   Controls,
@@ -60,6 +61,7 @@ type
     tbtmSave: TTBItem;
     tbSep3: TTBSeparatorItem;
     tmrProgressCheck: TTimer;
+    tbtmClear: TTBItem;
     procedure tvPolygonsListAddition(Sender: TObject; Node: TTreeNode);
     procedure tbMergeClick(Sender: TObject);
     procedure tbUpClick(Sender: TObject);
@@ -70,6 +72,12 @@ type
     procedure tbtmSelectClick(Sender: TObject);
     procedure tbxOperationChange(Sender: TObject);
     procedure tmrProgressCheckTimer(Sender: TObject);
+    procedure tvPolygonsListKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure tvPolygonsListDragDrop(Sender, Source: TObject; X, Y: Integer);
+    procedure tvPolygonsListDragOver(Sender, Source: TObject; X, Y: Integer;
+      State: TDragState; var Accept: Boolean);
+    procedure tbtmClearClick(Sender: TObject);
   private
     FMapGoto: IMapViewGoto;
     FRegionProcess: IRegionProcess;
@@ -304,6 +312,12 @@ begin
   end;
 end;
 
+procedure TfrMergePolygons.tbtmClearClick(Sender: TObject);
+begin
+  Clear;
+  RebuildTree;
+end;
+
 procedure TfrMergePolygons.tbtmSaveClick(Sender: TObject);
 begin
   if Assigned(FMergeResultInternal) then begin
@@ -431,6 +445,55 @@ begin
       VGoToPoint := FItems[I].SinglePolygon.GetGoToPoint;
     end;
     FMapGoto.GotoLonLat(VGoToPoint, False);
+  end;
+end;
+
+procedure TfrMergePolygons.tvPolygonsListDragDrop(Sender, Source: TObject; X,
+  Y: Integer);
+var
+  I, J: Integer;
+  VNode, VNext: TTreeNode;
+begin
+  VNext := tvPolygonsList.GetNodeAt(X, Y);
+  tvPolygonsList.Items.BeginUpdate;
+  try
+    VNode := tvPolygonsList.Selected;
+    if Assigned(VNode) then begin
+      if Assigned(VNext) then begin
+        I := Integer(VNode.Data);
+        J := Integer(VNext.Data);
+        SwapItems(I, J);
+        SwapNodesText(VNode, VNext);
+        tvPolygonsList.Select(VNext);
+        ResetMergeResult;
+      end;
+    end;
+  finally
+    tvPolygonsList.Items.EndUpdate;
+  end;
+end;
+
+procedure TfrMergePolygons.tvPolygonsListDragOver(Sender, Source: TObject; X,
+  Y: Integer; State: TDragState; var Accept: Boolean);
+begin
+  Accept := True;
+end;
+
+procedure TfrMergePolygons.tvPolygonsListKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if Key = VK_RETURN then begin
+    tvPolygonsListDblClick(Sender);
+    Key := 0;
+  end else if Key = VK_DELETE then begin
+    tbDelClick(Sender);
+    Key := 0;
+  end else if (Key = VK_UP) and (ssShift in Shift) then begin
+    tbUpClick(Sender);
+    Key := 0;
+  end else if (Key = VK_DOWN) and (ssShift in Shift) then begin
+    tbDownClick(Sender);
+    Key := 0;
   end;
 end;
 

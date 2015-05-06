@@ -11,6 +11,7 @@ object frMergePolygons: TfrMergePolygons
     Width = 451
     Height = 280
     Align = alClient
+    DragMode = dmAutomatic
     Indent = 19
     MultiSelect = True
     ReadOnly = True
@@ -20,6 +21,9 @@ object frMergePolygons: TfrMergePolygons
     TabOrder = 0
     OnAddition = tvPolygonsListAddition
     OnDblClick = tvPolygonsListDblClick
+    OnDragDrop = tvPolygonsListDragDrop
+    OnDragOver = tvPolygonsListDragOver
+    OnKeyDown = tvPolygonsListKeyDown
   end
   object tbTop: TTBXToolbar
     Left = 0
@@ -34,13 +38,13 @@ object frMergePolygons: TfrMergePolygons
       ImageIndex = 22
       OnClick = tbUpClick
       Caption = ''
-      Hint = 'Move item Up'
+      Hint = 'Move selected item Up (Shift + Up Arrow)'
     end
     object tbDown: TTBItem
       ImageIndex = 21
       OnClick = tbDownClick
       Caption = ''
-      Hint = 'Move item Down'
+      Hint = 'Move selected item Down (Shift + Down Arrow)'
     end
     object tbxSep1: TTBXSeparatorItem
       Caption = ''
@@ -50,7 +54,13 @@ object frMergePolygons: TfrMergePolygons
       ImageIndex = 30
       OnClick = tbDelClick
       Caption = ''
-      Hint = 'Delete item from list'
+      Hint = 'Remove selected (Delete)'
+    end
+    object tbtmClear: TTBItem
+      ImageIndex = 35
+      OnClick = tbtmClearClick
+      Caption = ''
+      Hint = 'Remove All'
     end
     object tbxSep2: TTBXSeparatorItem
       Caption = ''
