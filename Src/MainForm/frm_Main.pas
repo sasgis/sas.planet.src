@@ -428,6 +428,7 @@ type
     mmoMergePolyHint: TMemo;
     tbxMergePolygonsShow: TTBXVisibilityToggleItem;
     tbxMergePolygonsShow1: TTBXVisibilityToggleItem;
+    tbxtmAddToMergePolygons: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -665,6 +666,7 @@ type
     procedure tbxprevmapClick(Sender: TObject);
     procedure tbxtmPascalScriptIDEClick(Sender: TObject);
     procedure tbMergePolygonsClose(Sender: TObject);
+    procedure tbxtmAddToMergePolygonsClick(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -6955,6 +6957,20 @@ begin
   NSensors.Checked := TTBXToolWindow(Sender).Visible;
 end;
 
+procedure TfrmMain.tbxtmAddToMergePolygonsClick(Sender: TObject);
+var
+  VMouseDownPos: TPoint;
+  VVectorItems: IVectorItemSubset;
+  VLocalConverter: ILocalCoordConverter;
+begin
+  VLocalConverter := FViewPortState.View.GetStatic;
+  VMouseDownPos := FMouseState.GetLastDownPos(mbRight);
+  VVectorItems := FindItems(VLocalConverter, VMouseDownPos);
+  if (VVectorItems <> nil) and (VVectorItems.Count > 0) then begin
+    FMergePolygonsPresenter.AddVectorItems(VVectorItems);
+  end;
+end;
+
 procedure TfrmMain.tbxtmPascalScriptIDEClick(Sender: TObject);
 begin
   FfrmPascalScriptIDE.Show;
@@ -7503,6 +7519,10 @@ begin
   end else begin
     tbitmHideThisMark.Visible := False;
   end;
+
+  tbxtmAddToMergePolygons.Visible :=
+    (Assigned(VMark) and Supports(VMark.Geometry, IGeometryLonLatPolygon)) or
+    (FSelectedWiki <> nil);
 
   tbitmProperties.Visible := VMark <> nil;
   NMarkExport.Visible := VMark <> nil;

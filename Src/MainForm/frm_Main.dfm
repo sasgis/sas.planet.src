@@ -36,8 +36,6 @@ object frmMain: TfrmMain
     TabOrder = 0
     OnDblClick = mapDblClick
     OnMouseLeave = mapMouseLeave
-    ExplicitLeft = 239
-    ExplicitWidth = 439
   end
   object TBDock: TTBXDock
     Left = 0
@@ -117,7 +115,7 @@ object frmMain: TfrmMain
       end
     end
     object SrcToolbar: TTBXToolbar
-      Left = 230
+      Left = 242
       Top = 25
       DockPos = 224
       DockRow = 1
@@ -158,7 +156,7 @@ object frmMain: TfrmMain
       end
     end
     object TBMarksToolbar: TTBXToolbar
-      Left = 363
+      Left = 369
       Top = 25
       DockPos = 363
       DockRow = 1
@@ -169,7 +167,7 @@ object frmMain: TfrmMain
       Caption = 'Placemarks'
     end
     object GPSToolbar: TTBXToolbar
-      Left = 534
+      Left = 540
       Top = 25
       DockPos = 504
       DockRow = 1
@@ -1389,7 +1387,7 @@ object frmMain: TfrmMain
       end
     end
     object TBXToolBarSearch: TTBXToolbar
-      Left = 429
+      Left = 399
       Top = 0
       DockPos = 413
       Options = [tboNoRotation]
@@ -1415,7 +1413,7 @@ object frmMain: TfrmMain
       end
     end
     object FillDates: TTBXToolbar
-      Left = 629
+      Left = 610
       Top = 0
       DefaultDock = TBDock
       DockPos = 643
@@ -1467,8 +1465,8 @@ object frmMain: TfrmMain
         OnChange = DateTimePicker1Change
       end
       object DateTimePicker2: TDateTimePicker
-        Left = 203
-        Top = 21
+        Left = 141
+        Top = 0
         Width = 81
         Height = 21
         Date = 40830.496065717590000000
@@ -1548,7 +1546,7 @@ object frmMain: TfrmMain
         Hint = ''
       end
       object labZoom: TLabel
-        Left = 8
+        Left = 24
         Top = 221
         Width = 14
         Height = 13
@@ -1568,7 +1566,7 @@ object frmMain: TfrmMain
         Transparent = True
       end
       object ZSlider: TImage32
-        Left = 2
+        Left = 18
         Top = 32
         Width = 25
         Height = 153
@@ -1722,7 +1720,7 @@ object frmMain: TfrmMain
       end
       object TBEditSelectPolylineRadius: TSpinEdit
         Left = 0
-        Top = 138
+        Top = 136
         Width = 61
         Height = 22
         MaxValue = 100000
@@ -3539,6 +3537,11 @@ object frmMain: TfrmMain
       ImageIndex = 43
       OnClick = tbitmFitMarkToScreenClick
       Caption = 'Fit to Screen'
+      Hint = ''
+    end
+    object tbxtmAddToMergePolygons: TTBXItem
+      OnClick = tbxtmAddToMergePolygonsClick
+      Caption = 'Add to Merge Polygons (Ctrl+MLeft)'
       Hint = ''
     end
     object tbitmHideThisMark: TTBXItem
