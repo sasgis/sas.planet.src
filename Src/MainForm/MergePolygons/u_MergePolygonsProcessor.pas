@@ -47,6 +47,7 @@ type
     FHolesCount: Integer;
     FTimer: ITimer;
     FMergePolygonsProgress: IMergePolygonsProgress;
+    FIntToDoubleCoeff: Int64;
   private
     procedure OnExecute(
       AOperationID: Integer;
@@ -70,13 +71,11 @@ type
       const AMultiPolygonBuilder: IGeometryLonLatMultiPolygonBuilder
     );
     function MultiPolygonToClipperPaths(
-      const APolygon: IGeometryLonLatMultiPolygon;
-      out APaths: TPaths
-    ): Boolean;
-    function SinglePolygonToClipperPath(
-      const APolygon: IGeometryLonLatSinglePolygon;
-      out APath: TPath
-    ): Boolean;
+      const APolygon: IGeometryLonLatMultiPolygon
+    ): TPaths;
+    function SinglePolygonToClipperPaths(
+      const APolygon: IGeometryLonLatSinglePolygon
+    ): TPaths;
     function ClipperPathToSinglePolygon(
       const APath: TPath
     ): IGeometryLonLatSinglePolygon;
@@ -113,8 +112,29 @@ uses
   u_ThreadConfig,
   u_BackgroundTask;
 
-const
-  cClipperCoeff = 1000000; // for Double <-> Int64 coversions
+type
+  EMergePolygonsProcessorError = class(Exception);
+
+{.$DEFINE MAX_PERCITION}
+
+function MakePathsUnion(AClipper: TClipper; ASubj, AClip: TPaths): TPaths; inline;
+begin
+  if not AClipper.AddPaths(ASubj, ptSubject, True) then begin
+    raise EMergePolygonsProcessorError.Create(
+      'MakePathsUnion: Add subject FAIL!'
+    );
+  end;
+  if not AClipper.AddPaths(AClip, ptClip, True) then begin
+    raise EMergePolygonsProcessorError.Create(
+      'MakePathsUnion: Add clip FAIL!'
+    );
+  end;
+  if not AClipper.Execute(ctUnion, Result) then begin
+    raise EMergePolygonsProcessorError.Create(
+      'MakePathsUnion: Clipper Exec FAIL!'
+    );
+  end;
+end;
 
 { TMergePolygonsProcessor }
 
@@ -134,6 +154,15 @@ begin
 
   FTimer := MakeTimerByQueryPerformanceCounter;
   FBackgroundTask := nil;
+
+  Assert(SizeOf(clipper.cInt) = SizeOf(Int64));
+
+  // Coeff for Double <-> Int64 coversions
+  {$IFNDEF MAX_PERCITION}
+  FIntToDoubleCoeff := clipper.LoRange div 180; // fastes
+  {$ELSE}
+  FIntToDoubleCoeff := clipper.HiRange div 180; // big integer math
+  {$ENDIF}
 end;
 
 destructor TMergePolygonsProcessor.Destroy;
@@ -280,11 +309,15 @@ begin
   VClipper := TClipper.Create;
   try
     if not VClipper.AddPaths(GetSubjPoly, ptSubject, True) then begin
-      Assert(False);
+      raise EMergePolygonsProcessorError.Create(
+        'ProcessLogicOperation: Add subject FAIL!'
+      );
     end;
 
     if not VClipper.AddPaths(GetClipPoly, ptClip, True) then begin
-      Assert(False);
+      raise EMergePolygonsProcessorError.Create(
+        'ProcessLogicOperation: Add clip FAIL!'
+      );
     end;
 
     if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
@@ -307,7 +340,9 @@ begin
 
         Result := VMultiPolygonBuilder.MakeStaticAndClear;
       end else begin
-        Assert(False);
+        raise EMergePolygonsProcessorError.Create(
+          'ProcessLogicOperation: Clipper Exec FAIL!'
+        );
       end;
     finally
       VPolyTree.Free;
@@ -318,25 +353,12 @@ begin
 end;
 
 function TMergePolygonsProcessor.GetPaths(const AIndex: Integer): TPaths;
-var
-  VPath: TPath;
-  VPaths: TPaths;
 begin
-  SetLength(Result, 0);
   if Assigned(FItems[AIndex].SinglePolygon) then begin
-    if SinglePolygonToClipperPath(FItems[AIndex].SinglePolygon, VPath) then begin
-      Result := SimplifyPolygon(VPath);
-    end else begin
-      Assert(False);
-    end;
+    Result := SinglePolygonToClipperPaths(FItems[AIndex].SinglePolygon);
   end else begin
-    if MultiPolygonToClipperPaths(FItems[AIndex].MultiPolygon, VPaths) then begin
-      Result := SimplifyPolygons(VPaths);
-    end else begin
-      Assert(False);
-    end;
+    Result := MultiPolygonToClipperPaths(FItems[AIndex].MultiPolygon);
   end;
-  Assert(Length(Result) > 0);
 end;
 
 function TMergePolygonsProcessor.GetSubjPoly: TPaths;
@@ -347,6 +369,7 @@ end;
 function TMergePolygonsProcessor.GetClipPoly: TPaths;
 var
   I: Integer;
+  VPaths: TPaths;
   VClipper: TClipper;
 begin
   // Make Union of all clip's: (((clip1 OR clip2) OR clip3) OR clip4)...
@@ -354,16 +377,19 @@ begin
   try
     SetLength(Result, 0);
     for I := 1 to Length(FItems) - 1 do begin
+      VPaths := GetPaths(I);
       if Length(Result) > 0 then begin
-        VClipper.AddPaths(Result, ptSubject, True);
-        VClipper.AddPaths(GetPaths(I), ptClip, True);
-        VClipper.Execute(ctUnion, Result);
         VClipper.Clear;
+        Result := MakePathsUnion(VClipper, Result, VPaths);
       end else begin
-        Result := GetPaths(I);
+        Result := VPaths;
       end;
     end;
-    Assert(Length(Result) > 0);
+    if Length(Result) = 0 then begin
+      raise EMergePolygonsProcessorError.Create(
+        'GetClipPoly: Empty result!'
+      );
+    end;
   finally
     VClipper.Free;
   end;
@@ -402,42 +428,66 @@ begin
     moNOT: Result := ctDifference;
     moXOR: Result := ctXor;
   else
-    raise Exception.CreateFmt('Unknown merge operation: %d', [Integer(AMergeOperation)]);
+    raise EMergePolygonsProcessorError.CreateFmt(
+      'Unknown merge operation: %d', [Integer(AMergeOperation)]
+    );
   end;
 end;
 
 function TMergePolygonsProcessor.MultiPolygonToClipperPaths(
-  const APolygon: IGeometryLonLatMultiPolygon;
-  out APaths: TPaths
-): Boolean;
+  const APolygon: IGeometryLonLatMultiPolygon
+): TPaths;
 var
   I: Integer;
+  VPaths: TPaths;
+  VClipper: TClipper;
 begin
-  Result := False;
-  SetLength(APaths, APolygon.Count);
-  for I := 0 to APolygon.Count - 1 do begin
-    Result := SinglePolygonToClipperPath(APolygon.Item[I], APaths[I]);
-    if not Result then begin
-      Break;
+  // Make Union of all polygons in multipoligon
+  SetLength(Result, 0);
+  VClipper := TClipper.Create;
+  try
+    for I := 0 to APolygon.Count - 1 do begin
+      VPaths := SinglePolygonToClipperPaths(APolygon.Item[I]);
+      if Length(Result) > 0 then begin
+        VClipper.Clear;
+        Result := MakePathsUnion(VClipper, Result, VPaths);
+      end else begin
+        Result := VPaths;
+      end;
     end;
+    if Length(Result) = 0 then begin
+      raise EMergePolygonsProcessorError.Create(
+        'MultiPolygonToClipperPaths: Empty result!'
+      );
+    end;
+  finally
+    VClipper.Free;
   end;
 end;
 
-function TMergePolygonsProcessor.SinglePolygonToClipperPath(
-  const APolygon: IGeometryLonLatSinglePolygon;
-  out APath: TPath
-): Boolean;
+function TMergePolygonsProcessor.SinglePolygonToClipperPaths(
+  const APolygon: IGeometryLonLatSinglePolygon
+): TPaths;
 var
   I: Integer;
+  VPath: TPath;
   VPoints: PDoublePointArray;
 begin
-  SetLength(APath, APolygon.Count);
+  SetLength(VPath, APolygon.Count);
   VPoints := APolygon.Points;
   for I := 0 to APolygon.Count - 1 do begin
-    APath[I].X := Round(VPoints[I].X * cClipperCoeff);
-    APath[I].Y := Round(VPoints[I].Y * cClipperCoeff);
+    VPath[I].X := Round(VPoints[I].X * FIntToDoubleCoeff);
+    VPath[I].Y := Round(VPoints[I].Y * FIntToDoubleCoeff);
   end;
-  Result := Length(APath) > 0;
+
+  // Convert a self-intersecting polygon into a simple polygon
+  Result := SimplifyPolygon(VPath);
+
+  if Length(Result) = 0 then begin
+    raise EMergePolygonsProcessorError.Create(
+      'SinglePolygonToClipperPaths: Empty result!'
+    );
+  end;
 end;
 
 function TMergePolygonsProcessor.ClipperPathToSinglePolygon(
@@ -451,8 +501,8 @@ begin
   VCount := Length(APath);
   SetLength(VPoints, VCount);
   for I := 0 to VCount - 1 do begin
-    VPoints[I].X := APath[I].X / cClipperCoeff;
-    VPoints[I].Y := APath[I].Y / cClipperCoeff;
+    VPoints[I].X := APath[I].X / FIntToDoubleCoeff;
+    VPoints[I].Y := APath[I].Y / FIntToDoubleCoeff;
   end;
   Result := FVectorGeometryLonLatFactory.CreateLonLatPolygon(@VPoints[0], VCount);
 end;
