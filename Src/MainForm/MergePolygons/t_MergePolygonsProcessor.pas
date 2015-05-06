@@ -39,13 +39,6 @@ type
   
   TMergePolygonsItemArray = array of TMergePolygonsItem;
 
-  TOnMergeFinished = procedure(
-    const AVectorItem: IVectorDataItem;
-    const APolygonsCount: Integer;
-    const AHolesCount: Integer;
-    const APerformanceInfo: string
-  ) of object;
-
 implementation
 
 end.
