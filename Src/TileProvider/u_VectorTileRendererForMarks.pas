@@ -68,6 +68,14 @@ type
       const ALine: IGeometryLonLatLine;
       var AFixedPointArray: TArrayOfFixedPoint
     ): Boolean;
+    function DrawSinglePolygon(
+      var ABitmapInited: Boolean;
+      ATargetBmp: TCustomBitmap32;
+      const AMapRect: TRect;
+      const AAppearance: IAppearance;
+      const APoly: IGeometryProjectedSinglePolygon;
+      var AFixedPointArray: TArrayOfFixedPoint
+    ): Boolean;
     function DrawPoly(
       var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
@@ -187,27 +195,24 @@ begin
   end;
 end;
 
-function TVectorTileRendererForMarks.DrawPoly(
+function TVectorTileRendererForMarks.DrawSinglePolygon(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
-  const AProjection: IProjectionInfo;
   const AMapRect: TRect;
   const AAppearance: IAppearance;
-  const APoly: IGeometryLonLatPolygon;
+  const APoly: IGeometryProjectedSinglePolygon;
   var AFixedPointArray: TArrayOfFixedPoint
 ): Boolean;
 var
   VPolygon: TPolygon32;
-  VProjected: IGeometryProjectedPolygon;
   VAppearanceBorder: IAppearancePolygonBorder;
   VAppearanceFill: IAppearancePolygonFill;
 begin
   Result := False;
-  VProjected := FProjectedCache.GetProjectedPolygon(AProjection, APoly);
   VPolygon := nil;
   try
     ProjectedPolygon2GR32Polygon(
-      VProjected,
+      APoly,
       AMapRect,
       am4times,
       AFixedPointArray,
@@ -237,6 +242,39 @@ begin
     end;
   finally
     VPolygon.Free;
+  end;
+end;
+
+function TVectorTileRendererForMarks.DrawPoly(
+  var ABitmapInited: Boolean;
+  ATargetBmp: TCustomBitmap32;
+  const AProjection: IProjectionInfo;
+  const AMapRect: TRect;
+  const AAppearance: IAppearance;
+  const APoly: IGeometryLonLatPolygon;
+  var AFixedPointArray: TArrayOfFixedPoint
+): Boolean;
+var
+  VProjected: IGeometryProjectedPolygon;
+  VProjectedSingle: IGeometryProjectedSinglePolygon;
+  VProjectedMulti: IGeometryProjectedMultiPolygon;
+  i: Integer;
+begin
+  Result := False;
+  VProjected := FProjectedCache.GetProjectedPolygon(AProjection, APoly);
+  if Assigned(VProjected) then begin
+    if Supports(VProjected, IGeometryProjectedSinglePolygon, VProjectedSingle) then begin
+      Result := DrawSinglePolygon(ABitmapInited, ATargetBmp, AMapRect, AAppearance, VProjectedSingle, AFixedPointArray);
+    end else if Supports(VProjected, IGeometryProjectedMultiPolygon, VProjectedMulti) then begin
+      for i := 0 to VProjectedMulti.Count - 1 do begin
+        VProjectedSingle := VProjectedMulti.Item[i];
+        if DrawSinglePolygon(ABitmapInited, ATargetBmp, AMapRect, AAppearance, VProjectedSingle, AFixedPointArray) then begin
+          Result := True;
+        end;
+      end;
+    end else begin
+      Assert(False);
+    end;
   end;
 end;
 
