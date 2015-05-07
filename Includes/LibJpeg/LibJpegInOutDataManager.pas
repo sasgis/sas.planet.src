@@ -10,7 +10,12 @@ interface
     {$ENDIF}
 {$ENDIF}
 
+{.$DEFINE LIB_JPEG_VERBOSE}
+
 uses
+  {$IFDEF LIB_JPEG_VERBOSE}
+  Windows,
+  {$ENDIF}
   Classes,
   SysUtils
   {$IFDEF LIB_JPEG_62_SUPPORT}
@@ -94,6 +99,9 @@ implementation
 {$IFDEF LIB_JPEG_62_SUPPORT}
 procedure libjpeg_init_destination(cinfo: LibJpeg62.j_compress_ptr); cdecl;
 begin
+  {$IFDEF LIB_JPEG_VERBOSE}
+  OutputDebugString('libjpeg_init_destination');
+  {$ENDIF}
   with PJpeg62OutPutDataManager(cinfo^.dest)^ do begin
     OutPutStream := TStream(cinfo^.client_data^);
     jpeg_dest_mgr.next_output_byte := @OutPutBuffer[1];
@@ -104,10 +112,18 @@ end;
 function libjpeg_empty_output_buffer(cinfo: LibJpeg62.j_compress_ptr): boolean; cdecl;
 begin
   with PJpeg62OutPutDataManager(cinfo^.dest)^ do begin
+    {$IFDEF LIB_JPEG_VERBOSE}
+    OutputDebugString(PChar(
+      'libjpeg_empty_output_buffer [free_in_buffer = ' + IntToStr(jpeg_dest_mgr.free_in_buffer) + ']:'
+    ));
+    {$ENDIF}
     if jpeg_dest_mgr.free_in_buffer < Cardinal(Length(OutPutBuffer)) then begin
       OutPutStream.WriteBuffer(OutPutBuffer[1], Length(OutPutBuffer));
       jpeg_dest_mgr.next_output_byte := @OutPutBuffer[1];
       jpeg_dest_mgr.free_in_buffer := Length(OutPutBuffer);
+      {$IFDEF DEBUG}
+      FillChar(OutPutBuffer[1], Length(OutPutBuffer), 0);
+      {$ENDIF}
     end;
   end;
   Result := True;
@@ -118,13 +134,15 @@ var
   I: Integer;
 begin
   with PJpeg62OutPutDataManager(cinfo^.dest)^ do begin
-    for I := Low(OutPutBuffer) to High(OutPutBuffer) do begin
-      if (OutPutBuffer[I] = $FF) and (OutPutBuffer[I+1] = JPEG_EOI) then begin
-        OutPutStream.WriteBuffer(OutPutBuffer[I], 2);
-        Break;
-      end else begin
-        OutPutStream.WriteBuffer(OutPutBuffer[I], 1);
-      end;
+    {$IFDEF LIB_JPEG_VERBOSE}
+    OutputDebugString(PChar(
+      'libjpeg_term_destination [free_in_buffer = ' + IntToStr(jpeg_dest_mgr.free_in_buffer) + ']:'
+    ));
+    {$ENDIF}
+    I := Cardinal(Length(OutPutBuffer)) - jpeg_dest_mgr.free_in_buffer;
+    if I > 0 then begin
+      OutPutStream.WriteBuffer(OutPutBuffer[1], I);
+      Assert(OutPutBuffer[I] = JPEG_EOI);
     end;
   end;
 end;
@@ -133,6 +151,9 @@ end;
 {$IFDEF LIB_JPEG_8_SUPPORT}
 procedure libjpeg_init_destination(cinfo: LibJpeg8.j_compress_ptr); cdecl;
 begin
+  {$IFDEF LIB_JPEG_VERBOSE}
+  OutputDebugString('libjpeg_init_destination');
+  {$ENDIF}
   with PJpeg8OutPutDataManager(cinfo^.dest)^ do begin
     OutPutStream := TStream(cinfo^.client_data^);
     jpeg_dest_mgr.next_output_byte := @OutPutBuffer[1];
@@ -143,10 +164,18 @@ end;
 function libjpeg_empty_output_buffer(cinfo: LibJpeg8.j_compress_ptr): boolean; cdecl;
 begin
   with PJpeg8OutPutDataManager(cinfo^.dest)^ do begin
+    {$IFDEF LIB_JPEG_VERBOSE}
+    OutputDebugString(PChar(
+      'libjpeg_empty_output_buffer [free_in_buffer = ' + IntToStr(jpeg_dest_mgr.free_in_buffer) + ']:'
+    ));
+    {$ENDIF}
     if jpeg_dest_mgr.free_in_buffer < Cardinal(Length(OutPutBuffer)) then begin
       OutPutStream.WriteBuffer(OutPutBuffer[1], Length(OutPutBuffer));
       jpeg_dest_mgr.next_output_byte := @OutPutBuffer[1];
       jpeg_dest_mgr.free_in_buffer := Length(OutPutBuffer);
+      {$IFDEF DEBUG}
+      FillChar(OutPutBuffer[1], Length(OutPutBuffer), 0);
+      {$ENDIF}
     end;
   end;
   Result := True;
@@ -157,13 +186,15 @@ var
   I: Integer;
 begin
   with PJpeg8OutPutDataManager(cinfo^.dest)^ do begin
-    for I := Low(OutPutBuffer) to High(OutPutBuffer) do begin
-      if (OutPutBuffer[I] = $FF) and (OutPutBuffer[I+1] = JPEG_EOI) then begin
-        OutPutStream.WriteBuffer(OutPutBuffer[I], 2);
-        Break;
-      end else begin
-        OutPutStream.WriteBuffer(OutPutBuffer[I], 1);
-      end;
+    {$IFDEF LIB_JPEG_VERBOSE}
+    OutputDebugString(PChar(
+      'libjpeg_term_destination [free_in_buffer = ' + IntToStr(jpeg_dest_mgr.free_in_buffer) + ']:'
+    ));
+    {$ENDIF}
+    I := Cardinal(Length(OutPutBuffer)) - jpeg_dest_mgr.free_in_buffer;
+    if I > 0 then begin
+      OutPutStream.WriteBuffer(OutPutBuffer[1], I);
+      Assert(OutPutBuffer[I] = JPEG_EOI);
     end;
   end;
 end;
