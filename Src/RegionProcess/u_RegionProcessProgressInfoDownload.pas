@@ -71,6 +71,7 @@ type
     FDownloadedCount: Int64;
     FLastProcessedPoint: TPoint;
     FLastSuccessfulPoint: TPoint;
+    FLastSuccessfulSize: Integer;
   private
     function GetProcessedRatio: Double;
     function GetFinished: Boolean;
@@ -84,6 +85,12 @@ type
     procedure SetZoom(const AValue: Byte);
     function GetZoomArray: TByteDynArray;
     function GetLogProvider: ILogSimpleProvider;
+
+    procedure GetLastTileInfo(
+      out AZoom: Byte;
+      out APoint: TPoint;
+      out ASize: Integer
+    );
 
     function GetIsPaused: Boolean;
     procedure Pause;
@@ -133,6 +140,7 @@ type
 implementation
 
 uses
+  u_GeoFunc,
   u_ConfigProviderHelpers,
   u_ZoomArrayFunc,
   u_Synchronizer;
@@ -190,6 +198,7 @@ begin
   FDownloadedCount := ADownloadedCount;
   FLastProcessedPoint := ALastProcessedPoint;
   FLastSuccessfulPoint := Point(-1, -1);
+  FLastSuccessfulSize := -1;
 end;
 
 procedure TRegionProcessProgressInfoDownload.AddDownloadedTile(
@@ -200,6 +209,7 @@ begin
   FCS.BeginWrite;
   try
     FLastSuccessfulPoint := ATile;
+    FLastSuccessfulSize := ASize;
     Inc(FDownloadedSize, ASize);
     Inc(FDownloadedCount);
   finally
@@ -227,6 +237,7 @@ begin
   FCS.BeginWrite;
   try
     FLastSuccessfulPoint := ATile;
+    FLastSuccessfulSize := -1;
   finally
     FCS.EndWrite;
   end;
@@ -391,6 +402,26 @@ begin
   FCS.BeginRead;
   try
     Result := GetZoomArrayCopy(FZoomArr);
+  finally
+    FCS.EndRead;
+  end;
+end;
+
+procedure TRegionProcessProgressInfoDownload.GetLastTileInfo(
+  out AZoom: Byte;
+  out APoint: TPoint;
+  out ASize: Integer
+);
+begin
+  FCS.BeginRead;
+  try
+    AZoom := FZoom;
+    APoint := FLastProcessedPoint;
+    if IsPointsEqual(FLastSuccessfulPoint, FLastProcessedPoint) then begin
+      ASize := FLastSuccessfulSize;
+    end else begin
+      ASize := 0;
+    end;
   finally
     FCS.EndRead;
   end;

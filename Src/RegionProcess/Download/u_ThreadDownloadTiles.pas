@@ -361,7 +361,7 @@ begin
       end;
 
       // notify about current tile
-      VProcessingTileMsg := Format('[z%d/x%d/y%d] %s',
+      VProcessingTileMsg := Format('[z%d/x%d/y%d]' + #13#10 +'%s',
         [AZoom+1, VTile.X, VTile.Y, FMapType.GetTileShowName(VTile, AZoom, FVersionForDownload)]);
       FProgressInfo.Log.WriteText(Format(FRES_ProcessedFile, [VProcessingTileMsg]), 0);
       

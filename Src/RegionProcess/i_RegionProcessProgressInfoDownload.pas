@@ -53,6 +53,12 @@ type
     function GetZoomArray: TByteDynArray;
     property ZoomArray: TByteDynArray read GetZoomArray;
 
+    procedure GetLastTileInfo(
+      out AZoom: Byte;
+      out APoint: TPoint;
+      out ASize: Integer
+    );
+
     function GetLogProvider: ILogSimpleProvider;
     property LogProvider: ILogSimpleProvider read GetLogProvider;
 

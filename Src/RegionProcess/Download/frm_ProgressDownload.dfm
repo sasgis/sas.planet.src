@@ -2,7 +2,7 @@ object frmProgressDownload: TfrmProgressDownload
   Left = 226
   Top = 306
   Caption = 'Please wait...'
-  ClientHeight = 251
+  ClientHeight = 262
   ClientWidth = 324
   Color = clBtnFace
   Constraints.MinHeight = 243
@@ -20,29 +20,27 @@ object frmProgressDownload: TfrmProgressDownload
     Left = 3
     Top = 3
     Width = 318
-    Height = 245
+    Height = 238
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
     OnResize = Panel1Resize
-    ExplicitWidth = 322
-    ExplicitHeight = 233
+    ExplicitHeight = 245
     object mmoLog: TMemo
       AlignWithMargins = True
       Left = 3
       Top = 3
       Width = 312
-      Height = 90
+      Height = 83
       Align = alClient
       ReadOnly = True
       ScrollBars = ssBoth
       TabOrder = 0
-      ExplicitWidth = 316
-      ExplicitHeight = 78
+      ExplicitHeight = 90
     end
     object pnlBottom: TPanel
       Left = 0
-      Top = 215
+      Top = 208
       Width = 318
       Height = 30
       Margins.Top = 0
@@ -50,8 +48,7 @@ object frmProgressDownload: TfrmProgressDownload
       AutoSize = True
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitTop = 203
-      ExplicitWidth = 322
+      ExplicitTop = 215
       object btnClose: TButton
         AlignWithMargins = True
         Left = 230
@@ -73,7 +70,6 @@ object frmProgressDownload: TfrmProgressDownload
         Caption = 'Pause'
         TabOrder = 1
         OnClick = btnPauseClick
-        ExplicitLeft = 144
       end
       object TBXOperationsToolbar: TTBXToolbar
         AlignWithMargins = True
@@ -85,7 +81,6 @@ object frmProgressDownload: TfrmProgressDownload
         Images = frmMain.MenusImageList
         ShrinkMode = tbsmWrap
         TabOrder = 2
-        ExplicitLeft = 67
         object tbtmSelect: TTBItem
           ImageIndex = 44
           OnClick = tbtmSelectClick
@@ -123,7 +118,7 @@ object frmProgressDownload: TfrmProgressDownload
     object pnlProgress: TPanel
       AlignWithMargins = True
       Left = 2
-      Top = 181
+      Top = 174
       Width = 314
       Height = 17
       Margins.Left = 2
@@ -133,20 +128,17 @@ object frmProgressDownload: TfrmProgressDownload
       Align = alBottom
       BevelOuter = bvNone
       TabOrder = 2
-      ExplicitLeft = 5
-      ExplicitTop = 169
-      ExplicitWidth = 312
+      ExplicitTop = 181
     end
     object pnlToProcess: TPanel
       Left = 0
-      Top = 96
+      Top = 89
       Width = 318
       Height = 17
       Align = alBottom
       BevelOuter = bvNone
       TabOrder = 3
-      ExplicitTop = 84
-      ExplicitWidth = 322
+      ExplicitTop = 96
       object lblToProcess: TLabel
         Left = 0
         Top = 0
@@ -170,20 +162,18 @@ object frmProgressDownload: TfrmProgressDownload
         Caption = '  '
         ParentBiDiMode = False
         Layout = tlCenter
-        ExplicitLeft = 316
         ExplicitHeight = 13
       end
     end
     object pnlProcessed: TPanel
       Left = 0
-      Top = 113
+      Top = 106
       Width = 318
       Height = 17
       Align = alBottom
       BevelOuter = bvNone
       TabOrder = 4
-      ExplicitTop = 101
-      ExplicitWidth = 322
+      ExplicitTop = 113
       object lblProcessed: TLabel
         Left = 0
         Top = 0
@@ -207,20 +197,18 @@ object frmProgressDownload: TfrmProgressDownload
         Caption = '  '
         ParentBiDiMode = False
         Layout = tlCenter
-        ExplicitLeft = 316
         ExplicitHeight = 13
       end
     end
     object pnlDownloaded: TPanel
       Left = 0
-      Top = 130
+      Top = 123
       Width = 318
       Height = 17
       Align = alBottom
       BevelOuter = bvNone
       TabOrder = 5
-      ExplicitTop = 118
-      ExplicitWidth = 322
+      ExplicitTop = 130
       object lblDownloaded: TLabel
         Left = 0
         Top = 0
@@ -244,20 +232,18 @@ object frmProgressDownload: TfrmProgressDownload
         Caption = '  '
         ParentBiDiMode = False
         Layout = tlCenter
-        ExplicitLeft = 316
         ExplicitHeight = 13
       end
     end
     object pnlSizeToFinish: TPanel
       Left = 0
-      Top = 164
+      Top = 157
       Width = 318
       Height = 17
       Align = alBottom
       BevelOuter = bvNone
       TabOrder = 6
-      ExplicitTop = 152
-      ExplicitWidth = 322
+      ExplicitTop = 164
       object lblSizeToFinish: TLabel
         Left = 0
         Top = 0
@@ -281,20 +267,18 @@ object frmProgressDownload: TfrmProgressDownload
         Caption = '  '
         ParentBiDiMode = False
         Layout = tlCenter
-        ExplicitLeft = 316
         ExplicitHeight = 13
       end
     end
     object pnlTimeToFinish: TPanel
       Left = 0
-      Top = 147
+      Top = 140
       Width = 318
       Height = 17
       Align = alBottom
       BevelOuter = bvNone
       TabOrder = 7
-      ExplicitTop = 135
-      ExplicitWidth = 322
+      ExplicitTop = 147
       object lblTimeToFinish: TLabel
         Left = 0
         Top = 0
@@ -318,21 +302,40 @@ object frmProgressDownload: TfrmProgressDownload
         Caption = '  '
         ParentBiDiMode = False
         Layout = tlCenter
-        ExplicitLeft = 316
         ExplicitHeight = 13
       end
     end
     object chkAutoCloseWhenFinish: TCheckBox
       Left = 0
-      Top = 198
+      Top = 191
       Width = 318
       Height = 17
       Align = alBottom
       Caption = 'Close this window once finished'
       TabOrder = 8
-      ExplicitTop = 186
-      ExplicitWidth = 322
+      ExplicitTop = 198
     end
+  end
+  object tbxStatusBar: TTBXStatusBar
+    Left = 0
+    Top = 244
+    Width = 324
+    Height = 18
+    Panels = <
+      item
+        Size = 30
+        Tag = 0
+      end
+      item
+        Size = 180
+        Tag = 0
+      end
+      item
+        Size = 100
+        Tag = 0
+      end>
+    UseSystemFont = False
+    ExplicitTop = 246
   end
   object SaveSessionDialog: TSaveDialog
     DefaultExt = '*.sls'
