@@ -30,12 +30,14 @@ uses
   Forms,
   ComCtrls,
   Dialogs,
+  ExtCtrls,
   TBX,
   TBXExtItems,
   TB2Item,
   TB2ExtItems,
   TB2Dock,
   TB2Toolbar,
+  i_NotifierTime,
   i_NotifierOperation,
   i_MapViewGoto,
   i_RegionProcess,
@@ -47,7 +49,8 @@ uses
   i_MergePolygonsProgress,
   t_MergePolygonsProcessor,
   u_MergePolygonsProcessor,
-  u_MarkDbGUIHelper, ExtCtrls;
+  u_MarkDbGUIHelper,
+  frm_MergePolygonsProgress;
 
 type
   TfrMergePolygons = class(TFrame)
@@ -79,6 +82,12 @@ type
       State: TDragState; var Accept: Boolean);
     procedure tbtmClearClick(Sender: TObject);
   private
+    FfrmProgress: TfrmMergePolygonsProgress;
+    FAppClosingNotifier: INotifierOneOperation;
+    FNotifierTimeInternal: INotifierTimeInternal;
+    FCancelNotifier: INotifierOperationInternal;
+    FCurrentOperation: Integer;
+    FNeedShowProgress: Boolean;
     FMapGoto: IMapViewGoto;
     FRegionProcess: IRegionProcess;
     FMarkDBGUI: TMarkDbGUIHelper;
@@ -114,7 +123,12 @@ type
 implementation
 
 uses
+  DateUtils,
   t_GeoTypes,
+  u_Synchronizer,
+  u_Notifier,
+  u_NotifierTime,
+  u_NotifierOperation,
   u_MergePolygonsProgress;
 
 resourcestring
@@ -201,6 +215,7 @@ begin
   inherited Create(AOwner);
 
   Parent := AParent;
+  FAppClosingNotifier := AAppClosingNotifier;
   FMergePolygonsResult := AMergePolygonsResult;
   FMapGoto := AMapGoto;
   FRegionProcess := ARegionProcess;
@@ -208,12 +223,24 @@ begin
 
   SetLength(FItems, 0);
 
+  FNotifierTimeInternal :=
+    TNotifierTime.Create(GSync.SyncStd.Make(Self.ClassName + 'TimerNotifier'));
+
+  FCancelNotifier :=
+    TNotifierOperation.Create(
+      TNotifierBase.Create(GSync.SyncStd.Make(Self.ClassName + 'CancelNotifier'))
+    );
+
+  FCurrentOperation := FCancelNotifier.CurrentOperation;
+  FCancelNotifier.NextOperation;
+
   FMergePolygonsProgress := TMergePolygonsProgress.Create;
 
   FMergeProcessor :=
     TMergePolygonsProcessor.Create(
       FMergePolygonsProgress,
       AAppClosingNotifier,
+      FCancelNotifier,
       AVectorDataFactory,
       AVectorGeometryLonLatFactory
     );
@@ -221,11 +248,23 @@ begin
   ResetMergeResult;
 
   tbxOperation.ItemIndex := Integer(moOR);
+
+  FfrmProgress :=
+    TfrmMergePolygonsProgress.Create(
+      Self,
+      tmrProgressCheck.Interval,
+      FAppClosingNotifier,
+      FNotifierTimeInternal,
+      FCancelNotifier,
+      FMergePolygonsProgress
+    );
 end;
 
 destructor TfrMergePolygons.Destroy;
 begin
+  Clear;
   FreeAndNil(FMergeProcessor);
+  FreeAndNil(FfrmProgress);
   inherited Destroy;
 end;
 
@@ -280,6 +319,10 @@ begin
 
   Self.Enabled := False;
   tmrProgressCheck.Enabled := True;
+  FNeedShowProgress := True;
+
+  FCancelNotifier.NextOperation;
+  FCurrentOperation := FCancelNotifier.CurrentOperation;
 
   FMergeProcessor.MergeAsync(FItems, TMergeOperation(tbxOperation.ItemIndex));
 end;
@@ -294,7 +337,8 @@ var
 begin
   Self.Enabled := True;
 
-  if not FMergePolygonsProgress.IsAborted then begin
+  if not FCancelNotifier.IsOperationCanceled(FCurrentOperation) then begin
+    FCancelNotifier.NextOperation;
     FMergePolygonsProgress.GetProgress(
       VPolygonsCount, VHolesCount, VTime, VVectorItem);
     if Assigned(VVectorItem) then begin
@@ -309,8 +353,6 @@ begin
     end else begin
       MessageDlg(rsMergeFail, mtError, [mbOK], 0);
     end;
-  end else begin
-    FMergeProcessor.AbortOperation;
   end;
 end;
 
@@ -506,15 +548,23 @@ end;
 
 procedure TfrMergePolygons.tmrProgressCheckTimer(Sender: TObject);
 begin
-  if FMergePolygonsProgress.IsFinished or FMergePolygonsProgress.IsAborted then begin
+  FNotifierTimeInternal.Notify(GetTickCount);
+
+  if FNeedShowProgress and (SecondsBetween(Now, FMergePolygonsProgress.StartedAt) >= 1)  then begin
+    FNeedShowProgress := False;
+    FfrmProgress.Show;
+  end;
+
+  if FMergePolygonsProgress.IsFinished then begin
     tmrProgressCheck.Enabled := False;
+    FfrmProgress.Hide;
     OnMergeFinished;
   end;
 end;
 
 procedure TfrMergePolygons.Clear;
 begin
-  FMergeProcessor.AbortOperation;
+  FCancelNotifier.NextOperation;
   tvPolygonsList.Items.Clear;
   SetLength(FItems, 0);
   ResetMergeResult;

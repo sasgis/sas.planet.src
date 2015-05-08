@@ -475,6 +475,9 @@
     <DCCReference Include="Src\MainForm\i_SearchResultPresenter.pas" />
     <DCCReference Include="Src\MainForm\i_SelectionRect.pas" />
     <DCCReference Include="Src\MainForm\i_ViewPortState.pas" />
+    <DCCReference Include="Src\MainForm\MergePolygons\frm_MergePolygonsProgress.pas">
+      <Form>frmMergePolygonsProgress</Form>
+    </DCCReference>
     <DCCReference Include="Src\MainForm\MergePolygons\fr_MergePolygons.pas">
       <Form>frMergePolygons</Form>
       <DesignClass>TFrame</DesignClass>

@@ -352,6 +352,7 @@ uses
   u_TileErrorInfo in 'Src\Logger\u_TileErrorInfo.pas',
   u_TileErrorLogProviedrStuped in 'Src\Logger\u_TileErrorLogProviedrStuped.pas',
   fr_MergePolygons in 'Src\MainForm\MergePolygons\fr_MergePolygons.pas' {frMergePolygons: TFrame},
+  frm_MergePolygonsProgress in 'Src\MainForm\MergePolygons\frm_MergePolygonsProgress.pas' {frmMergePolygonsProgress},
   i_MergePolygonsPresenter in 'Src\MainForm\MergePolygons\i_MergePolygonsPresenter.pas',
   i_MergePolygonsProgress in 'Src\MainForm\MergePolygons\i_MergePolygonsProgress.pas',
   i_MergePolygonsResult in 'Src\MainForm\MergePolygons\i_MergePolygonsResult.pas',

@@ -36,7 +36,7 @@ type
     FTime: Double;
     FVectorItem: IVectorDataItem;
     FIsFinished: Boolean;
-    FIsAborted: Boolean;
+    FStartedAt: TDateTime;
     FLock: TCriticalSection;
   public
     procedure ResetProgress;
@@ -54,14 +54,17 @@ type
     );
     function GetFinished: Boolean;
     procedure SetFinished(const AValue: Boolean);
-    function GetAborted: Boolean;
-    procedure SetAborted(const AValue: Boolean);
+    function GetStartedAt: TDateTime;
+    procedure SetStartedAt(const AValue: TDateTime);
   public
     constructor Create;
     destructor Destroy; override;
   end;
 
 implementation
+
+uses
+  SysUtils;
 
 { TMergePolygonsProgress }
 
@@ -87,7 +90,7 @@ begin
     FTime := 0;
     FVectorItem := nil;
     FIsFinished := False;
-    FIsAborted := False;
+    FStartedAt := Now;
   finally
     FLock.Release;
   end;
@@ -149,21 +152,21 @@ begin
   end;
 end;
 
-function TMergePolygonsProgress.GetAborted: Boolean;
+function TMergePolygonsProgress.GetStartedAt: TDateTime;
 begin
   FLock.Acquire;
   try
-    Result := FIsAborted;
+    Result := FStartedAt;
   finally
     FLock.Release;
   end;
 end;
 
-procedure TMergePolygonsProgress.SetAborted(const AValue: Boolean);
+procedure TMergePolygonsProgress.SetStartedAt(const AValue: TDateTime);
 begin
   FLock.Acquire;
   try
-    FIsAborted := AValue;
+    FStartedAt := AValue;
   finally
     FLock.Release;
   end;

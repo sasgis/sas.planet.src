@@ -48,9 +48,9 @@ type
     procedure SetFinished(const AValue: Boolean);
     property IsFinished: Boolean read GetFinished write SetFinished;
 
-    function GetAborted: Boolean;
-    procedure SetAborted(const AValue: Boolean);
-    property IsAborted: Boolean read GetAborted write SetAborted;
+    function GetStartedAt: TDateTime;
+    procedure SetStartedAt(const AValue: TDateTime);
+    property StartedAt: TDateTime read GetStartedAt write SetStartedAt;
   end;
 
 implementation

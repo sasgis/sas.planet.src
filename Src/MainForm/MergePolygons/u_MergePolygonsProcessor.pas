@@ -27,6 +27,7 @@ uses
   t_MergePolygonsProcessor,
   i_MergePolygonsProgress,
   i_Timer,
+  i_Listener,
   i_BackgroundTask,
   i_VectorDataFactory,
   i_VectorDataItemSimple,
@@ -46,6 +47,8 @@ type
     FPolyCount: Integer;
     FHolesCount: Integer;
     FTimer: ITimer;
+    FCancelListener: IListener;
+    FCancelNotifier: INotifierOperation;
     FMergePolygonsProgress: IMergePolygonsProgress;
     FIntToDoubleCoeff: Int64;
   private
@@ -95,6 +98,7 @@ type
     constructor Create(
       const AMergePolygonsProgress: IMergePolygonsProgress;
       const AAppClosingNotifier: INotifierOneOperation;
+      const ACancelNotifier: INotifierOperation;
       const AVectorDataFactory: IVectorDataFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory
     );
@@ -108,6 +112,7 @@ uses
   SysUtils,
   t_GeoTypes,
   i_ThreadConfig,
+  u_ListenerByEvent,
   u_TimerByQueryPerformanceCounter,
   u_ThreadConfig,
   u_BackgroundTask;
@@ -141,6 +146,7 @@ end;
 constructor TMergePolygonsProcessor.Create(
   const AMergePolygonsProgress: IMergePolygonsProgress;
   const AAppClosingNotifier: INotifierOneOperation;
+  const ACancelNotifier: INotifierOperation;
   const AVectorDataFactory: IVectorDataFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory
 );
@@ -149,8 +155,16 @@ begin
   
   FMergePolygonsProgress := AMergePolygonsProgress;
   FAppClosingNotifier := AAppClosingNotifier;
+  FCancelNotifier := ACancelNotifier;
   FVectorDataFactory := AVectorDataFactory;
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
+
+  if Assigned(FCancelNotifier) then begin
+    FCancelListener := TNotifyNoMmgEventListener.Create(Self.AbortOperation);
+    FCancelNotifier.AddListener(FCancelListener);
+  end else begin
+    FCancelListener := nil;
+  end;
 
   FTimer := MakeTimerByQueryPerformanceCounter;
   FBackgroundTask := nil;
@@ -167,6 +181,11 @@ end;
 
 destructor TMergePolygonsProcessor.Destroy;
 begin
+  if Assigned(FCancelNotifier) and Assigned(FCancelListener) then begin
+    FCancelNotifier.RemoveListener(FCancelListener);
+    FCancelNotifier := nil;
+    FCancelListener := nil;
+  end;
   AbortOperation;
   inherited Destroy;
 end;
@@ -204,7 +223,6 @@ end;
 
 procedure TMergePolygonsProcessor.AbortOperation;
 begin
-  FMergePolygonsProgress.IsAborted := True;
   if Assigned(FBackgroundTask) then begin
     FBackgroundTask.StopExecute;
     FBackgroundTask.Terminate;
@@ -229,7 +247,6 @@ begin
     VVectorItem := nil;
 
     if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-      FMergePolygonsProgress.IsAborted := True;
       Exit;
     end;
 
@@ -244,7 +261,6 @@ begin
     VTimeDiff := GetCurTimeDiff(VTime);
 
     if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-      FMergePolygonsProgress.IsAborted := True;
       Exit;
     end;
 
@@ -321,7 +337,6 @@ begin
     end;
 
     if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-      FMergePolygonsProgress.IsAborted := True;
       Exit;
     end;
 
@@ -329,7 +344,6 @@ begin
     try
       if VClipper.Execute(GetClipType(FOperation), VPolyTree) then begin
         if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-          FMergePolygonsProgress.IsAborted := True;
           Exit;
         end;
 
