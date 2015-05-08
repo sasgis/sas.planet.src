@@ -43,6 +43,7 @@ uses
   i_RegionProcess,
   i_GeometryLonLat,
   i_GeometryLonLatFactory,
+  i_VectorItemSubset,
   i_VectorDataFactory,
   i_VectorDataItemSimple,
   i_MergePolygonsResult,
@@ -102,8 +103,10 @@ type
     procedure SwapItems(const A, B: Integer);
     procedure SwapNodesText(const A, B: TTreeNode);
     procedure OnMergeFinished;
+    function AddItemInternal(const AItem: IVectorDataItem): Boolean;
   public
     procedure AddItem(const AItem: IVectorDataItem);
+    procedure AddItems(const AItems: IVectorItemSubset);
     procedure Clear;
   public
     constructor Create(
@@ -268,13 +271,13 @@ begin
   inherited Destroy;
 end;
 
-procedure TfrMergePolygons.AddItem(const AItem: IVectorDataItem);
+function TfrMergePolygons.AddItemInternal(const AItem: IVectorDataItem): Boolean;
 var
   I: Integer;
   VItem: TMergePolygonsItem;
 begin
-  Assert(Assigned(AItem));
-  
+  Result := False;
+
   InitItem(AItem, VItem);
 
   if not IsDublicate(VItem) then begin
@@ -285,6 +288,45 @@ begin
 
     tvPolygonsList.Items.AddChildObject(nil, FItems[I].Name, Pointer(I));
 
+    Result := True;
+  end;
+end;
+
+procedure TfrMergePolygons.AddItem(const AItem: IVectorDataItem);
+begin
+  Assert(Assigned(AItem));
+  if Supports(AItem.Geometry, IGeometryLonLatPolygon) then begin
+    if AddItemInternal(AItem) then begin
+      ResetMergeResult;
+    end;
+  end;
+end;
+
+procedure TfrMergePolygons.AddItems(const AItems: IVectorItemSubset);
+var
+  I: Integer;
+  VCount: Integer;
+  VVectorItem: IVectorDataItem;
+begin
+  Assert(Assigned(AItems));
+
+  VCount := 0;
+
+  tvPolygonsList.Items.BeginUpdate;
+  try
+    for I := 0 to AItems.Count - 1 do begin
+      VVectorItem := AItems.Items[I];
+      if Supports(VVectorItem.Geometry, IGeometryLonLatPolygon) then begin
+        if AddItemInternal(VVectorItem) then begin
+          Inc(VCount);
+        end;
+      end;
+    end;
+  finally
+    tvPolygonsList.Items.EndUpdate;
+  end;
+
+  if VCount > 0 then begin
     ResetMergeResult;
   end;
 end;

@@ -114,10 +114,6 @@ end;
 procedure TMergePolygonsPresenterOnPanel.AddVectorItems(
   const AItems: IVectorItemSubset
 );
-var
-  I: Integer;
-  VItem: IVectorDataItem;
-  VPoly: IGeometryLonLatPolygon;
 begin
   Assert(Assigned(AItems));
 
@@ -137,13 +133,7 @@ begin
   end;
 
   FfrMergePolygons.Visible := True;
-
-  for I := 0 to AItems.Count - 1 do begin
-    VItem := AItems.Items[I];
-    if Supports(VItem.Geometry, IGeometryLonLatPolygon, VPoly) then begin
-      FfrMergePolygons.AddItem(VItem);
-    end;
-  end;
+  FfrMergePolygons.AddItems(AItems);
 
   if Assigned(FOnAddItems) then begin
     FOnAddItems(Self);
