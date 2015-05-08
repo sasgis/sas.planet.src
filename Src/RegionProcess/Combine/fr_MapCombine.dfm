@@ -128,7 +128,7 @@ object frMapCombine: TfrMapCombine
         Width = 209
         Height = 17
         Align = alTop
-        Caption = 'Save with alpha channel'
+        Caption = 'Include alpha channel'
         Checked = True
         State = cbChecked
         TabOrder = 3

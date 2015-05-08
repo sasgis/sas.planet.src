@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2015, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -156,11 +156,6 @@ begin
       FreeAndNil(VMetaFile);
     end;
 
-    VLineProvider :=
-      TImageLineProviderBGR.Create(
-        AImageProvider,
-        AMapRect
-      );
     for i := 0 to VSize.Y - 1 do begin
       VLine := VLineProvider.GetLine(AOperationID, ACancelNotifier, i);
       if VLine <> nil then begin
