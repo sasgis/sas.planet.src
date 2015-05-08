@@ -863,13 +863,10 @@ function TMarkDbGUIHelper.UpdateMark(
 ): Boolean;
 var
   VMark: IVectorDataItem;
-  VVisible: Boolean;
   VResult: IVectorDataItem;
-  VDescription: string;
 begin
   Result := False;
   if AMark <> nil then begin
-    VVisible := FMarkSystem.MarkDb.GetMarkVisible(AMark);
     VMark := FMarkSystem.MarkDb.Factory.ModifyGeometry(AMark, AGeometry);
     if VMark <> nil then begin
       VResult := FMarkSystem.MarkDb.UpdateMark(AMark, VMark);
