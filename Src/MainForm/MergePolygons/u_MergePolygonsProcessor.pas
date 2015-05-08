@@ -64,6 +64,7 @@ type
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation
     ): IGeometryLonLatPolygon;
+    procedure AbortOperation;
   private
     // clipper lib helpers
     function GetPaths(const AIndex: Integer): TPaths;
@@ -93,7 +94,6 @@ type
       const AItems: TMergePolygonsItemArray;
       const AOperation: TMergeOperation
     );
-    procedure AbortOperation;
   public
     constructor Create(
       const AMergePolygonsProgress: IMergePolygonsProgress;

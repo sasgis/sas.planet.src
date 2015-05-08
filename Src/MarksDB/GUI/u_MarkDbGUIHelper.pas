@@ -129,6 +129,10 @@ type
       const ADescription: string = '';
       const ATemplate: IMarkTemplate = nil
     ): Boolean;
+    function UpdateMark(
+      const AMark: IVectorDataItem;
+      const AGeometry: IGeometryLonLat
+    ): Boolean;
     function EditModalImportConfig: IImportConfig;
     function EditModalJpegImportConfig: IInterface;
     function MarksMultiEditModal(const ACategory: ICategory): IImportConfig;
@@ -847,6 +851,29 @@ begin
       VResult := FMarkSystem.MarkDb.UpdateMark(VSourceMark, VMark);
       if VResult <> nil then begin
         FMarkSystem.MarkDb.SetMarkVisible(VResult, VVisible);
+        Result := True;
+      end;
+    end;
+  end;
+end;
+
+function TMarkDbGUIHelper.UpdateMark(
+  const AMark: IVectorDataItem;
+  const AGeometry: IGeometryLonLat
+): Boolean;
+var
+  VMark: IVectorDataItem;
+  VVisible: Boolean;
+  VResult: IVectorDataItem;
+  VDescription: string;
+begin
+  Result := False;
+  if AMark <> nil then begin
+    VVisible := FMarkSystem.MarkDb.GetMarkVisible(AMark);
+    VMark := FMarkSystem.MarkDb.Factory.ModifyGeometry(AMark, AGeometry);
+    if VMark <> nil then begin
+      VResult := FMarkSystem.MarkDb.UpdateMark(AMark, VMark);
+      if VResult <> nil then begin
         Result := True;
       end;
     end;

@@ -3520,13 +3520,24 @@ begin
   TBAdd_Line.Checked := VNewState = ao_edit_line;
   TBAdd_Poly.Checked := VNewState = ao_edit_poly;
   TBEditPath.Visible := False;
+
   tbitmSaveMark.Visible :=
     (VNewState = ao_edit_line) or
     (VNewState = ao_edit_poly);
+
   tbitmSaveMark.DropdownCombo :=
     ((VNewState = ao_edit_line) and (FEditMarkLine <> nil)) or
     ((VNewState = ao_edit_poly) and (FEditMarkPoly <> nil));
+
+  if tbitmSaveMark.DropdownCombo then begin
+    tbitmSaveMark.Hint := _('Save');
+    tbitmSaveMark.OnClick := Self.TBEditPathSaveClick;
+  end else begin
+    tbitmSaveMark.Hint := _('Save as..');
+    tbitmSaveMark.OnClick := Self.tbitmSaveMarkAsNewClick;
+  end;
   tbitmSaveMarkAsNew.Visible := tbitmSaveMark.DropdownCombo;
+
   TBEditPathOk.Visible :=
     (VNewState = ao_select_poly) or
     (VNewState = ao_select_line);
@@ -6627,12 +6638,12 @@ begin
   case FState.State of
     ao_edit_poly: begin
       if Supports(FLineOnMapEdit, IPolygonOnMapEdit, VPolygonEdit) then begin
-        VResult := FMarkDBGUI.SaveMarkModal(FEditMarkPoly, VPolygonEdit.Polygon.Geometry);
+        VResult := FMarkDBGUI.UpdateMark(FEditMarkPoly, VPolygonEdit.Polygon.Geometry);
       end;
     end;
     ao_edit_line: begin
       if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathEdit) then begin
-        VResult := FMarkDBGUI.SaveMarkModal(FEditMarkLine, VPathEdit.Path.Geometry, False, FMarshrutComment);
+        VResult := FMarkDBGUI.UpdateMark(FEditMarkLine, VPathEdit.Path.Geometry);
       end;
     end;
   end;

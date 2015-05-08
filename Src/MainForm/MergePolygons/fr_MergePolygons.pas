@@ -143,7 +143,7 @@ resourcestring
 
   rsMergeFail = 'Merge failed!';
 
-  rsMergeFinish = 'Merge operation finished successful!' + #13#10 +
+  rsMergeFinish = 'Merge process completed successfully!' + #13#10 +
                   'Result contains %d polygon(s) with %d hole(s)';
 
   rsProcessedAt = 'Processed at: %.8f sec.';

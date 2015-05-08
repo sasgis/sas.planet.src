@@ -35,13 +35,13 @@ object frMergePolygons: TfrMergePolygons
     TabOrder = 1
     Caption = 'tbTop'
     object tbUp: TTBItem
-      ImageIndex = 22
+      ImageIndex = 47
       OnClick = tbUpClick
       Caption = ''
       Hint = 'Move selected item Up (Shift + Up Arrow)'
     end
     object tbDown: TTBItem
-      ImageIndex = 21
+      ImageIndex = 48
       OnClick = tbDownClick
       Caption = ''
       Hint = 'Move selected item Down (Shift + Down Arrow)'
@@ -51,13 +51,13 @@ object frMergePolygons: TfrMergePolygons
       Hint = ''
     end
     object tbDel: TTBItem
-      ImageIndex = 30
+      ImageIndex = 50
       OnClick = tbDelClick
       Caption = ''
       Hint = 'Remove selected (Delete)'
     end
     object tbtmClear: TTBItem
-      ImageIndex = 35
+      ImageIndex = 49
       OnClick = tbtmClearClick
       Caption = ''
       Hint = 'Remove All'
@@ -99,7 +99,7 @@ object frMergePolygons: TfrMergePolygons
       ImageIndex = 25
       OnClick = tbtmSaveClick
       Caption = ''
-      Hint = 'Save result polygon as...'
+      Hint = 'Save merged polygon as...'
     end
   end
   object tmrProgressCheck: TTimer
