@@ -3031,6 +3031,7 @@ begin
     TMergePolygonsPresenterOnPanel.Create(
       tbMergePolygons,
       Self.OnShowMergePolygons,
+      GState.Config.LanguageManager,
       GState.AppClosingNotifier,
       GState.VectorDataFactory,
       GState.VectorGeometryLonLatFactory,

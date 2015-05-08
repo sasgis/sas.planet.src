@@ -46,15 +46,17 @@ uses
   i_VectorItemSubset,
   i_VectorDataFactory,
   i_VectorDataItemSimple,
+  i_LanguageManager,
   i_MergePolygonsResult,
   i_MergePolygonsProgress,
   t_MergePolygonsProcessor,
   u_MergePolygonsProcessor,
   u_MarkDbGUIHelper,
+  u_CommonFormAndFrameParents,
   frm_MergePolygonsProgress;
 
 type
-  TfrMergePolygons = class(TFrame)
+  TfrMergePolygons = class(TCommonFrameParent)
     tvPolygonsList: TTreeView;
     tbTop: TTBXToolbar;
     tbxOperation: TTBXComboBoxItem;
@@ -110,8 +112,8 @@ type
     procedure Clear;
   public
     constructor Create(
-      AOwner: TComponent;
       AParent: TWinControl;
+      const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: INotifierOneOperation;
       const AVectorDataFactory: IVectorDataFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
@@ -204,8 +206,8 @@ end;
 { TfrMergePolygons }
 
 constructor TfrMergePolygons.Create(
-  AOwner: TComponent;
   AParent: TWinControl;
+  const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: INotifierOneOperation;
   const AVectorDataFactory: IVectorDataFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
@@ -215,7 +217,7 @@ constructor TfrMergePolygons.Create(
   const AMarkDBGUI: TMarkDbGUIHelper
 );
 begin
-  inherited Create(AOwner);
+  inherited Create(ALanguageManager);
 
   Parent := AParent;
   FAppClosingNotifier := AAppClosingNotifier;

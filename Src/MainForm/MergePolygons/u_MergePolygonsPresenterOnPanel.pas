@@ -25,6 +25,7 @@ interface
 uses
   Classes,
   Controls,
+  i_LanguageManager,
   i_NotifierOperation,
   i_MapViewGoto,
   i_RegionProcess,
@@ -42,6 +43,7 @@ type
   private
     FDrawParent: TWinControl;
     FOnAddItems: TNotifyEvent;
+    FLanguageManager: ILanguageManager;
     FAppClosingNotifier: INotifierOneOperation;
     FVectorDataFactory: IVectorDataFactory;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
@@ -58,6 +60,7 @@ type
     constructor Create(
       ADrawParent: TWinControl;
       AOnAddItems: TNotifyEvent;
+      const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: INotifierOneOperation;
       const AVectorDataFactory: IVectorDataFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
@@ -81,6 +84,7 @@ uses
 constructor TMergePolygonsPresenterOnPanel.Create(
   ADrawParent: TWinControl;
   AOnAddItems: TNotifyEvent;
+  const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: INotifierOneOperation;
   const AVectorDataFactory: IVectorDataFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
@@ -94,6 +98,7 @@ begin
 
   FDrawParent := ADrawParent;
   FOnAddItems := AOnAddItems;
+  FLanguageManager := ALanguageManager;
   FAppClosingNotifier := AAppClosingNotifier;
   FVectorDataFactory := AVectorDataFactory;
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
@@ -120,8 +125,8 @@ begin
   if not Assigned(FfrMergePolygons) then begin
     FfrMergePolygons :=
       TfrMergePolygons.Create(
-        nil,
         FDrawParent,
+        FLanguageManager,
         FAppClosingNotifier,
         FVectorDataFactory,
         FVectorGeometryLonLatFactory,
