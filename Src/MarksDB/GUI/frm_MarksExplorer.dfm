@@ -118,6 +118,7 @@ object frmMarksExplorer: TfrmMarksExplorer
               Hint = 'Export selected placemark'
             end
             object tbitmAllVisible: TTBXItem
+              ImageIndex = 55
               OnClick = tbitmAllVisibleClick
               Caption = 'All Visible'
               Hint = 'Set all marks in all categories visible'
