@@ -3531,10 +3531,10 @@ begin
     ((VNewState = ao_edit_poly) and (FEditMarkPoly <> nil));
 
   if tbitmSaveMark.DropdownCombo then begin
-    tbitmSaveMark.Hint := _('Save');
+    tbitmSaveMark.Hint := _('Save (Enter)');
     tbitmSaveMark.OnClick := Self.TBEditPathSaveClick;
   end else begin
-    tbitmSaveMark.Hint := _('Save as..');
+    tbitmSaveMark.Hint := _('Save as... (Enter)');
     tbitmSaveMark.OnClick := Self.tbitmSaveMarkAsNewClick;
   end;
   tbitmSaveMarkAsNew.Visible := tbitmSaveMark.DropdownCombo;
