@@ -3982,7 +3982,7 @@ begin
             VLineOnMapEdit := FLineOnMapEdit;
             if VLineOnMapEdit <> nil then begin
               if VLineOnMapEdit.IsReady then begin
-                TBEditPathSaveClick(Self);
+                tbitmSaveMark.OnClick(Self);
                 Handled := True;
               end;
             end;
@@ -3992,7 +3992,7 @@ begin
             VLineOnMapEdit := FLineOnMapEdit;
             if VLineOnMapEdit <> nil then begin
               if VLineOnMapEdit.IsReady then begin
-                TBEditPathSaveClick(Self);
+                tbitmSaveMark.OnClick(Self);
                 Handled := True;
               end;
             end;
