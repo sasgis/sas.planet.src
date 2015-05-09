@@ -110,6 +110,7 @@ type
     dlgSaveZmpFile: TSaveDialog;
     tbxtmHelp: TTBXItem;
     tbxsprtrtm3: TTBXSeparatorItem;
+    tbxsprtrtm4: TTBXSeparatorItem;
     procedure tbxtmParamsClick(Sender: TObject);
     procedure tbxtmScriptClick(Sender: TObject);
     procedure tbxtmRunClick(Sender: TObject);

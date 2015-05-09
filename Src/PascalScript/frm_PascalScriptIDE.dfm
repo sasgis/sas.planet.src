@@ -31,16 +31,21 @@ object frmPascalScriptIDE: TfrmPascalScriptIDE
     FullSize = True
     ItemTransparency = itEnable
     MenuBar = True
+    ParentShowHint = False
     ProcessShortCuts = True
+    ShowHint = True
     ShrinkMode = tbsmWrap
     Stretch = True
     TabOrder = 0
     UseThemeColor = False
     Caption = 'tbtlbrMain'
     object tbxsbmntmOpen: TTBXSubmenuItem
+      DisplayMode = nbdmImageAndText
+      ImageIndex = 34
+      Images = frmMain.MenusImageList
       Options = [tboDropdownArrow]
       Caption = 'Open zmp'
-      Hint = ''
+      Hint = 'Open zmp'
       object tbxtmFromFolder: TTBXItem
         OnClick = tbxtmFromFolderClick
         Caption = 'From Folder'
@@ -65,9 +70,12 @@ object frmPascalScriptIDE: TfrmPascalScriptIDE
       end
     end
     object tbxSave: TTBXSubmenuItem
+      DisplayMode = nbdmImageAndText
+      ImageIndex = 25
+      Images = frmMain.MenusImageList
       Options = [tboDropdownArrow]
       Caption = 'Save zmp'
-      Hint = ''
+      Hint = 'Save zmp'
       object tbxtmToFolder: TTBXItem
         OnClick = tbxtmToFolderClick
         Caption = 'To Folder'
@@ -90,7 +98,7 @@ object frmPascalScriptIDE: TfrmPascalScriptIDE
       Stretch = True
       OnClick = tbxtmParamsClick
       Caption = 'Params'
-      Hint = ''
+      Hint = 'Params.txt'
     end
     object tbxtmScript: TTBXItem
       AutoCheck = True
@@ -100,30 +108,41 @@ object frmPascalScriptIDE: TfrmPascalScriptIDE
       Stretch = True
       OnClick = tbxtmScriptClick
       Caption = 'GetUrlScript'
-      Hint = ''
+      Hint = 'GetUrlScript.txt'
     end
     object tbxSep1: TTBXSeparatorItem
       Caption = ''
       Hint = ''
     end
     object tbxtmRun: TTBXItem
+      DisplayMode = nbdmImageAndText
+      ImageIndex = 51
+      Images = frmMain.MenusImageList
       ShortCut = 120
       Stretch = True
       OnClick = tbxtmRunClick
-      Caption = 'Run (F9)'
+      Caption = 'Run'
+      Hint = 'Run'
+    end
+    object tbxsprtrtm4: TTBXSeparatorItem
+      Caption = ''
       Hint = ''
     end
     object tbxtmSyntaxCheck: TTBXItem
+      ImageIndex = 52
+      Images = frmMain.MenusImageList
       Stretch = True
       OnClick = tbxtmSyntaxCheckClick
-      Caption = 'Syntax Check'
-      Hint = ''
+      Caption = ''
+      Hint = 'Syntax Check'
     end
     object tbxtmDecompile: TTBXItem
+      ImageIndex = 53
+      Images = frmMain.MenusImageList
       Stretch = True
       OnClick = tbxtmDecompileClick
-      Caption = 'Decompile'
-      Hint = ''
+      Caption = ''
+      Hint = 'Decompile'
     end
     object tbxsprtrtm3: TTBXSeparatorItem
       Caption = ''
@@ -132,18 +151,22 @@ object frmPascalScriptIDE: TfrmPascalScriptIDE
     object tbxtmWordWrap: TTBXItem
       AutoCheck = True
       Checked = True
+      ImageIndex = 54
+      Images = frmMain.MenusImageList
       OnClick = tbxtmWordWrapClick
-      Caption = 'Word Wrap'
-      Hint = ''
+      Caption = ''
+      Hint = 'Word Wrap'
     end
     object tbxsprtrtm1: TTBXSeparatorItem
       Caption = ''
       Hint = ''
     end
     object tbxtmHelp: TTBXItem
+      ImageIndex = 26
+      Images = frmMain.MenusImageList
       OnClick = tbxtmHelpClick
-      Caption = 'On-Line Help'
-      Hint = ''
+      Caption = ''
+      Hint = 'On-Line Help'
     end
   end
   object statEditor: TStatusBar
