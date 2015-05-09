@@ -56,10 +56,9 @@ uses
   frm_MergePolygonsProgress;
 
 type
-  TfrMergePolygons = class(TCommonFrameParent)
+  TfrMergePolygons = class(TFrame)
     tvPolygonsList: TTreeView;
     tbTop: TTBXToolbar;
-    tbxOperation: TTBXComboBoxItem;
     tbMerge: TTBItem;
     tbxSep1: TTBXSeparatorItem;
     tbxSep2: TTBXSeparatorItem;
@@ -68,6 +67,13 @@ type
     tbSep3: TTBSeparatorItem;
     tmrProgressCheck: TTimer;
     tbtmClear: TTBItem;
+    tbOperationType: TTBSubmenuItem;
+    tbtmAND: TTBItem;
+    tbtmOR: TTBItem;
+    tbtmNOT: TTBItem;
+    tbtmXOR: TTBItem;
+    tbSep4: TTBSeparatorItem;
+    tbtmGroup: TTBItem;
     procedure tvPolygonsListAddition(Sender: TObject; Node: TTreeNode);
     procedure tbMergeClick(Sender: TObject);
     procedure tbUpClick(Sender: TObject);
@@ -76,7 +82,6 @@ type
     procedure tvPolygonsListDblClick(Sender: TObject);
     procedure tbtmSaveClick(Sender: TObject);
     procedure tbtmSelectClick(Sender: TObject);
-    procedure tbxOperationChange(Sender: TObject);
     procedure tmrProgressCheckTimer(Sender: TObject);
     procedure tvPolygonsListKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
@@ -84,6 +89,7 @@ type
     procedure tvPolygonsListDragOver(Sender, Source: TObject; X, Y: Integer;
       State: TDragState; var Accept: Boolean);
     procedure tbtmClearClick(Sender: TObject);
+    procedure OnOperationClick(Sender: TObject);
   private
     FfrmProgress: TfrmMergePolygonsProgress;
     FAppClosingNotifier: INotifierOneOperation;
@@ -99,6 +105,7 @@ type
     FMergeResultInternal: IVectorDataItem;
     FMergePolygonsResult: IMergePolygonsResult;
     FMergePolygonsProgress: IMergePolygonsProgress;
+    FOperation: TMergeOperation;
     procedure ResetMergeResult;
     procedure RebuildTree;
     function IsDublicate(const AItem: TMergePolygonsItem): Boolean;
@@ -252,7 +259,8 @@ begin
 
   ResetMergeResult;
 
-  tbxOperation.ItemIndex := Integer(moOR);
+  FOperation := moOR;
+  tbtmOR.Click;
 
   FfrmProgress :=
     TfrmMergePolygonsProgress.Create(
@@ -368,7 +376,7 @@ begin
   FCancelNotifier.NextOperation;
   FCurrentOperation := FCancelNotifier.CurrentOperation;
 
-  FMergeProcessor.MergeAsync(FItems, TMergeOperation(tbxOperation.ItemIndex));
+  FMergeProcessor.MergeAsync(FItems, FOperation);
 end;
 
 procedure TfrMergePolygons.OnMergeFinished;
@@ -564,7 +572,7 @@ end;
 procedure TfrMergePolygons.tvPolygonsListDragOver(Sender, Source: TObject; X,
   Y: Integer; State: TDragState; var Accept: Boolean);
 begin
-  Accept := True;
+  Accept := Assigned(tvPolygonsList.GetNodeAt(X, Y));
 end;
 
 procedure TfrMergePolygons.tvPolygonsListKeyDown(Sender: TObject; var Key: Word;
@@ -583,11 +591,6 @@ begin
     tbDownClick(Sender);
     Key := 0;
   end;
-end;
-
-procedure TfrMergePolygons.tbxOperationChange(Sender: TObject);
-begin
-  ResetMergeResult;
 end;
 
 procedure TfrMergePolygons.tmrProgressCheckTimer(Sender: TObject);
@@ -671,6 +674,25 @@ begin
   
   tmrProgressCheck.Enabled := False;
   FMergePolygonsProgress.ResetProgress;
+end;
+
+procedure TfrMergePolygons.OnOperationClick(Sender: TObject);
+var
+  VItem: TTBItem;
+  VOperation: TMergeOperation;
+begin
+  if Sender is TTBItem then begin
+    VItem := (Sender as TTBItem);
+    VOperation := TMergeOperation(VItem.Tag);
+
+    tbOperationType.ImageIndex := VItem.ImageIndex;
+    tbOperationType.Hint := VItem.Caption;
+
+    if FOperation <> VOperation then begin
+      FOperation := VOperation;
+      ResetMergeResult;
+    end;
+  end;
 end;
 
 end.

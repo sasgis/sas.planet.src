@@ -66,18 +66,49 @@ object frMergePolygons: TfrMergePolygons
       Caption = ''
       Hint = ''
     end
-    object tbxOperation: TTBXComboBoxItem
-      ReadOnly = True
-      OnChange = tbxOperationChange
-      DropDownList = True
-      Lines.Strings = (
-        'AND'
-        'OR'
-        'NOT'
-        'XOR'
-        'Group')
+    object tbOperationType: TTBSubmenuItem
+      DropdownCombo = True
+      ImageIndex = 60
       Caption = ''
-      Hint = 'Operation type'
+      Hint = ''
+      object tbtmAND: TTBItem
+        ImageIndex = 58
+        OnClick = OnOperationClick
+        Caption = 'Intersection (AND)'
+        Hint = ''
+      end
+      object tbtmOR: TTBItem
+        Tag = 1
+        ImageIndex = 60
+        OnClick = OnOperationClick
+        Caption = 'Union (OR)'
+        Hint = ''
+      end
+      object tbtmNOT: TTBItem
+        Tag = 2
+        ImageIndex = 59
+        OnClick = OnOperationClick
+        Caption = 'Difference (NOT)'
+        Hint = ''
+      end
+      object tbtmXOR: TTBItem
+        Tag = 3
+        ImageIndex = 61
+        OnClick = OnOperationClick
+        Caption = 'Exclusive or (XOR)'
+        Hint = ''
+      end
+      object tbSep4: TTBSeparatorItem
+        Caption = ''
+        Hint = ''
+      end
+      object tbtmGroup: TTBItem
+        Tag = 4
+        ImageIndex = 56
+        OnClick = OnOperationClick
+        Caption = 'Group'
+        Hint = ''
+      end
     end
     object tbMerge: TTBItem
       ImageIndex = 38
