@@ -536,6 +536,7 @@ object frmMarksExplorer: TfrmMarksExplorer
       Hint = 'Export placemarks from selected category'
     end
     object tbxtmCatAddToMergePolygons: TTBXItem
+      ImageIndex = 62
       OnClick = tbxtmCatAddToMergePolygonsClick
       Caption = 'Add to Merge Polygons'
       Hint = ''
@@ -580,6 +581,7 @@ object frmMarksExplorer: TfrmMarksExplorer
       Hint = 'Export selected placemark'
     end
     object tbxtmAddToMergePolygons: TTBXItem
+      ImageIndex = 62
       OnClick = tbxtmAddToMergePolygonsClick
       Caption = 'Add to Merge Polygons'
       Hint = ''
