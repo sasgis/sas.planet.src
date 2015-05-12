@@ -73,13 +73,6 @@ type
     constructor Create(const ALineSet: IGeometryProjectedMultiLine);
   end;
 
-  TEnumProjectedPointByPolygon = class(TEnumDoublePointByLineSetBase, IEnumProjectedPoint)
-  private
-    function GetNextEnum: IEnumDoublePoint; override;
-  public
-    constructor Create(const ALineSet: IGeometryProjectedMultiPolygon);
-  end;
-
 implementation
 
 uses
@@ -177,18 +170,6 @@ end;
 function TEnumProjectedPointByPath.GetNextEnum: IEnumDoublePoint;
 begin
   Result := IGeometryProjectedMultiLine(FSourceLineSet).Item[FIndex].GetEnum;
-end;
-
-{ TEnumProjectedPointByPolygon }
-
-constructor TEnumProjectedPointByPolygon.Create(const ALineSet: IGeometryProjectedMultiPolygon);
-begin
-  inherited CreateInternal(ALineSet, ALineSet.Count, True);
-end;
-
-function TEnumProjectedPointByPolygon.GetNextEnum: IEnumDoublePoint;
-begin
-  Result := IGeometryProjectedMultiPolygon(FSourceLineSet).Item[FIndex].GetEnum;
 end;
 
 end.

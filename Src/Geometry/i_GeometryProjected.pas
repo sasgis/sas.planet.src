@@ -66,8 +66,6 @@ type
 
   IGeometryProjectedPolygon = interface(IGeometryProjected)
     ['{828A0CAD-B231-46F2-86D8-F10437828179}']
-    function GetEnum: IEnumProjectedPoint;
-
     function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
     function IsPointOnBorder(
       const APoint: TDoublePoint;
@@ -78,13 +76,19 @@ type
     function CalcArea: Double;
   end;
 
-  IGeometryProjectedSinglePolygon = interface(IGeometryProjectedPolygon)
-    ['{30424113-D148-45EB-A4C8-C0150DB89D22}']
+  IGeometryProjectedContour = interface(IGeometryProjectedPolygon)
+    ['{962D2412-3432-4859-8D12-D4D48BACFAAE}']
+    function GetEnum: IEnumProjectedPoint;
+
     function GetCount: Integer;
     property Count: Integer read GetCount;
 
     function GetPoints: PDoublePointArray;
     property Points: PDoublePointArray read GetPoints;
+  end;
+
+  IGeometryProjectedSinglePolygon = interface(IGeometryProjectedContour)
+    ['{30424113-D148-45EB-A4C8-C0150DB89D22}']
   end;
 
   IGeometryProjectedMultiPolygon = interface(IGeometryProjectedPolygon)

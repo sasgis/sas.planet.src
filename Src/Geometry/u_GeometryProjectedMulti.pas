@@ -38,7 +38,6 @@ type
 
   TGeometryProjectedMultiPolygon = class(TGeometryProjectedMultiBase, IGeometryProjectedPolygon, IGeometryProjectedMultiPolygon)
   private
-    function GetEnum: IEnumProjectedPoint;
     function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
     function IsPointOnBorder(
       const APoint: TDoublePoint;
@@ -76,7 +75,6 @@ type
   private
     function IsEmpty: Boolean;
     function GetCount: Integer;
-    function GetEnum: IEnumProjectedPoint;
     function GetBounds: TDoubleRect;
     function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
     function IsPointOnBorder(
@@ -220,11 +218,6 @@ begin
     VLine := GetItem(i);
     Result := Result + VLine.CalcArea;
   end;
-end;
-
-function TGeometryProjectedMultiPolygon.GetEnum: IEnumProjectedPoint;
-begin
-  Result := TEnumProjectedPointByPolygon.Create(Self);
 end;
 
 function TGeometryProjectedMultiPolygon.GetItem(AIndex: Integer): IGeometryProjectedSinglePolygon;
@@ -378,11 +371,6 @@ end;
 function TGeometryProjectedMultiPolygonOneLine.GetCount: Integer;
 begin
   Result := 1;
-end;
-
-function TGeometryProjectedMultiPolygonOneLine.GetEnum: IEnumProjectedPoint;
-begin
-  Result := FLine.GetEnum;
 end;
 
 function TGeometryProjectedMultiPolygonOneLine.GetItem(
