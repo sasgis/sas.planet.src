@@ -157,6 +157,9 @@ ResourceString
   SAS_STR_ExtendedPointCaption = '%0:s (Placemark)';
   SAS_STR_ExtendedPathCaption = '%0:s (Path)';
   SAS_STR_ExtendedPolygonCaption = '%0:s (Polygon)';
+  SAS_STR_ExtendedMultiPointCaption = '%0:s (MultiPlacemark %d)';
+  SAS_STR_ExtendedMultiPathCaption = '%0:s (MultiPath %d)';
+  SAS_STR_ExtendedMultiPolygonCaption = '%0:s (MultiPolygon %d)';
   SAS_STR_Finished = 'Finished';
   SAS_STR_CacheConvertionIsFinished = 'Cache conversion is finished!';
   SAS_STR_EditMap = 'Map Settings:';

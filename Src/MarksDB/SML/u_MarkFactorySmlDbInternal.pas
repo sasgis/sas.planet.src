@@ -117,6 +117,20 @@ uses
   u_MarkId,
   u_VectorDataItemBase;
 
+function CalcMultiGeometryCount(const AGeometry: IGeometryLonLat): Integer;
+var
+  VLine: IGeometryLonLatMultiLine;
+  VPoly: IGeometryLonLatMultiPolygon;
+begin
+  if Supports(AGeometry, IGeometryLonLatMultiLine, VLine) then begin
+    Result := VLine.Count;
+  end else if Supports(AGeometry, IGeometryLonLatMultiPolygon, VPoly) then begin
+    Result := VPoly.Count;
+  end else begin
+    Result := 0;
+  end;
+end;
+
 { TMarkFactorySmlDbInternal }
 
 constructor TMarkFactorySmlDbInternal.Create(
@@ -186,6 +200,7 @@ begin
       ADesc,
       AId,
       FDbId,
+      CalcMultiGeometryCount(AGeometry),
       ACategory,
       AVisible
     );
@@ -269,6 +284,7 @@ begin
       ADesc,
       AId,
       FDbId,
+      CalcMultiGeometryCount(AGeometry),
       ACategory,
       AVisible
     );
@@ -319,6 +335,7 @@ begin
       ADesc,
       AId,
       FDbId,
+      CalcMultiGeometryCount(AGeometry),
       ACategory,
       AVisible
     );

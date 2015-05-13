@@ -37,6 +37,9 @@ type
     function GetName: string;
     property Name: string read GetName;
 
+    function GetMultiGeometryCount: Integer;
+    property MultiGeometryCount: Integer read GetMultiGeometryCount;
+
     function GetMarkType: TMarkIdType;
     property MarkType: TMarkIdType read GetMarkType;
 

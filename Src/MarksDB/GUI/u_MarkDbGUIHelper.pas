@@ -593,23 +593,38 @@ var
   VPathCaptionFormat: string;
   VFormat: string;
   VName: string;
+  VMultiFormat: Boolean;
 begin
   VName := AMarkId.Name;
   if VName = '' then begin
     VName := '(NoName)';
   end;
   if FMarksGUIConfig.IsAddTypeToCaption then begin
-    VPointCaptionFormat := SAS_STR_ExtendedPointCaption;
-    VPolygonCaptionFormat := SAS_STR_ExtendedPolygonCaption;
-    VPathCaptionFormat := SAS_STR_ExtendedPathCaption;
+    VMultiFormat := (AMarkId.MultiGeometryCount > 1);
+    if VMultiFormat then begin
+      VPointCaptionFormat := SAS_STR_ExtendedMultiPointCaption;
+      VPolygonCaptionFormat := SAS_STR_ExtendedMultiPolygonCaption;
+      VPathCaptionFormat := SAS_STR_ExtendedMultiPathCaption;
+    end else begin
+      VPointCaptionFormat := SAS_STR_ExtendedPointCaption;
+      VPolygonCaptionFormat := SAS_STR_ExtendedPolygonCaption;
+      VPathCaptionFormat := SAS_STR_ExtendedPathCaption;
+    end;
     case AMarkId.MarkType of
       midPoint: VFormat := VPointCaptionFormat;
       midLine: VFormat := VPathCaptionFormat;
       midPoly: VFormat := VPolygonCaptionFormat;
     else
-      VFormat := '%0:s';
+      begin
+        VFormat := '%0:s';
+        VMultiFormat := False;
+      end;
     end;
-    Result := Format(VFormat, [VName]);
+    if VMultiFormat then begin
+      Result := Format(VFormat, [VName, AMarkId.MultiGeometryCount]);
+    end else begin
+      Result := Format(VFormat, [VName]);
+    end;
   end else begin
     Result := VName;
   end;

@@ -43,6 +43,7 @@ type
     FCategoryId: Integer;
     FVisible: Boolean;
     FType: TMarkIdType;
+    FMultiGeometryCount: Integer;
     FHintConverter: IHtmlToHintTextConverter;
   protected
     function IsEqualInternal(const AMarkInternal: IMarkSMLInternal): Boolean;
@@ -56,6 +57,7 @@ type
     function GetInfoUrl: string;
     function GetInfoCaption: string;
     function GetMarkType: TMarkIdType;
+    function GetMultiGeometryCount: Integer;
   protected
     function GetId: Integer;
     function GetDbId: integer;
@@ -75,6 +77,7 @@ type
       const ADesc: string;
       AId: Integer;
       ADbId: Integer;
+      AMultiGeometryCount: Integer;
       const ACategory: ICategory;
       AVisible: Boolean
     );
@@ -97,6 +100,7 @@ constructor TMarkId.Create(
   const ADesc: string;
   AId: Integer;
   ADbId: Integer;
+  AMultiGeometryCount: Integer;
   const ACategory: ICategory;
   AVisible: Boolean
 );
@@ -112,6 +116,7 @@ begin
   FDesc := ADesc;
   FId := AId;
   FDbId := ADbId;
+  FMultiGeometryCount := AMultiGeometryCount;
   FCategory := ACategory;
   FCategoryId := CNotExistCategoryID;
   if FCategory <> nil then begin
@@ -183,6 +188,11 @@ end;
 function TMarkId.GetMarkType: TMarkIdType;
 begin
   Result := FType;
+end;
+
+function TMarkId.GetMultiGeometryCount: Integer;
+begin
+  Result := FMultiGeometryCount;
 end;
 
 function TMarkId.GetName: string;
