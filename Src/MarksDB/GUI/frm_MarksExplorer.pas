@@ -119,6 +119,7 @@ type
     tbitmAllVisible: TTBXItem;
     tbxtmAddToMergePolygons: TTBXItem;
     tbxtmCatAddToMergePolygons: TTBXItem;
+    tbxtmUngroup: TTBXItem;
     procedure BtnAddCategoryClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure BtnDelKatClick(Sender: TObject);
@@ -164,6 +165,8 @@ type
     procedure tbitmAllVisibleClick(Sender: TObject);
     procedure tbxtmAddToMergePolygonsClick(Sender: TObject);
     procedure tbxtmCatAddToMergePolygonsClick(Sender: TObject);
+    procedure tbpmnMarksPopup(Sender: TObject);
+    procedure tbxtmUngroupClick(Sender: TObject);
   private
     FUseAsIndepentWindow: Boolean;
     FMapGoto: IMapViewGoto;
@@ -1211,6 +1214,30 @@ begin
   end else begin
     tbitmAddCategory.Caption := _('Add SubCategory');
   end;
+end;
+
+procedure TfrmMarksExplorer.tbpmnMarksPopup(Sender: TObject);
+var
+  VMark: IVectorDataItem;
+  VLine: IGeometryLonLatMultiLine;
+  VPolygon: IGeometryLonLatMultiPolygon;
+  VUngroupVisible: Boolean;
+begin
+  VUngroupVisible := False;
+  VMark := GetSelectedMarkFull;
+  if Assigned(VMark) then begin
+    if Supports(VMark.Geometry, IGeometryLonLatMultiPolygon, VPolygon) then begin
+      VUngroupVisible := (VPolygon.Count > 1);
+    end else if Supports(VMark.Geometry, IGeometryLonLatMultiLine, VLine) then begin
+      VUngroupVisible := (VLine.Count > 1);
+    end;
+  end;
+  tbxtmUngroup.Visible := VUngroupVisible;
+end;
+
+procedure TfrmMarksExplorer.tbxtmUngroupClick(Sender: TObject);
+begin
+  FMarkDBGUI.UngroupMultiItem(GetSelectedMarkFull);
 end;
 
 procedure TfrmMarksExplorer.tbxtmAddToMergePolygonsClick(Sender: TObject);

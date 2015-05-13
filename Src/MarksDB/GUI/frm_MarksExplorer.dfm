@@ -544,6 +544,7 @@ object frmMarksExplorer: TfrmMarksExplorer
   end
   object tbpmnMarks: TTBXPopupMenu
     Images = frmMain.MenusImageList
+    OnPopup = tbpmnMarksPopup
     Left = 264
     Top = 256
     object tbitmAddMark: TTBXItem
@@ -584,6 +585,12 @@ object frmMarksExplorer: TfrmMarksExplorer
       ImageIndex = 62
       OnClick = tbxtmAddToMergePolygonsClick
       Caption = 'Add to Merge Polygons'
+      Hint = ''
+    end
+    object tbxtmUngroup: TTBXItem
+      ImageIndex = 57
+      OnClick = tbxtmUngroupClick
+      Caption = 'Ungroup'
       Hint = ''
     end
   end

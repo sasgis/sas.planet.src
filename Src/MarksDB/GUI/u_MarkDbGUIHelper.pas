@@ -36,6 +36,7 @@ uses
   i_GeoCalc,
   i_GeometryLonLat,
   i_LocalCoordConverterChangeable,
+  i_VectorDataFactory,
   i_VectorDataItemSimple,
   i_VectorItemSubsetBuilder,
   i_MarkTemplate,
@@ -68,6 +69,8 @@ type
     FMarkSystem: IMarkSystem;
     FMarkFactoryConfig: IMarkFactoryConfig;
     FMarksGUIConfig: IMarksGUIConfig;
+    FVectorDataFactory: IVectorDataFactory;
+    FVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FfrmMarkEditPoint: TfrmMarkEditPoint;
@@ -159,6 +162,10 @@ type
       const AMergePolygonsPresenter: IMergePolygonsPresenter
     );
 
+    procedure UngroupMultiItem(
+      const AMultiItem: IVectorDataItem
+    );
+
     property MarksDb: IMarkSystem read FMarkSystem;
     property MarkFactoryConfig: IMarkFactoryConfig read FMarkFactoryConfig;
   public
@@ -174,6 +181,8 @@ type
       const AExporterList: IVectorItemTreeExporterListChangeable;
       const AImporterList: IVectorItemTreeImporterListChangeable;
       const AViewPortState: ILocalCoordConverterChangeable;
+      const AVectorDataFactory: IVectorDataFactory;
+      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
@@ -214,6 +223,8 @@ constructor TMarkDbGUIHelper.Create(
   const AExporterList: IVectorItemTreeExporterListChangeable;
   const AImporterList: IVectorItemTreeImporterListChangeable;
   const AViewPortState: ILocalCoordConverterChangeable;
+  const AVectorDataFactory: IVectorDataFactory;
+  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
@@ -222,6 +233,8 @@ constructor TMarkDbGUIHelper.Create(
 begin
   inherited Create;
   FMarkSystem := AMarkSystem;
+  FVectorDataFactory := AVectorDataFactory;
+  FVectorDataItemMainInfoFactory := AVectorDataItemMainInfoFactory;
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FMarkFactoryConfig := AMarkFactoryConfig;
   FMarksGUIConfig := AMarksGUIConfig;
@@ -955,6 +968,64 @@ begin
   end;
   if not VIsFound then begin
     MessageDlg(_('Please, select category with at least one polygon!'), mtWarning, [mbOk], 0);
+  end;
+end;
+
+procedure TMarkDbGUIHelper.UngroupMultiItem(
+  const AMultiItem: IVectorDataItem
+);
+var
+  I: Integer;
+  VSubset: IVectorItemSubset;
+  VSubsetBuilder: IVectorItemSubsetBuilder;
+  VItem: IVectorDataItem;
+  VInfo: IVectorDataItemMainInfo;
+  VLine: IGeometryLonLatMultiLine;
+  VPolygon: IGeometryLonLatMultiPolygon;
+  VTree: IVectorItemTree;
+  VImportConfig: IImportConfig;
+begin
+  VSubsetBuilder := FVectorItemSubsetBuilderFactory.Build;
+
+  if Supports(AMultiItem.Geometry, IGeometryLonLatMultiPolygon, VPolygon) then begin
+    for I := 0 to VPolygon.Count - 1 do begin
+      VInfo :=
+        FVectorDataItemMainInfoFactory.BuildMainInfo(
+          nil,
+          Format('%s_#%d', [AMultiItem.Name, I+1]),
+          AMultiItem.Desc
+        );
+      VItem :=
+        FVectorDataFactory.BuildItem(
+          VInfo,
+          AMultiItem.Appearance,
+          VPolygon.Item[I]
+        );
+      VSubsetBuilder.Add(VItem);
+    end;
+  end else if Supports(AMultiItem.Geometry, IGeometryLonLatMultiLine, VLine) then begin
+    for I := 0 to VLine.Count - 1 do begin
+      VInfo :=
+        FVectorDataItemMainInfoFactory.BuildMainInfo(
+          nil,
+          Format('%s_#%d', [AMultiItem.Name, I+1]),
+          AMultiItem.Desc
+        );
+      VItem :=
+        FVectorDataFactory.BuildItem(
+          VInfo,
+          AMultiItem.Appearance,
+          VLine.Item[I]
+        );
+      VSubsetBuilder.Add(VItem);
+    end;
+  end;
+
+  VSubset := VSubsetBuilder.MakeStaticAndClear;
+  if VSubset.Count > 1 then begin
+    VTree := TVectorItemTree.Create('', VSubset, nil);
+    VImportConfig := EditModalImportConfig;
+    FMarkSystem.ImportItemsTree(VTree, VImportConfig);
   end;
 end;
 

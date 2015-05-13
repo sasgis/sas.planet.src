@@ -1108,6 +1108,8 @@ begin
       GState.ExporterList,
       GState.ImporterList,
       FViewPortState.View,
+      GState.VectorDataFactory,
+      GState.VectorDataItemMainInfoFactory,
       GState.VectorGeometryLonLatFactory,
       GState.ArchiveReadWriteFactory,
       GState.VectorItemSubsetBuilderFactory,
