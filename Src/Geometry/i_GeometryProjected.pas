@@ -89,6 +89,14 @@ type
 
   IGeometryProjectedSinglePolygon = interface(IGeometryProjectedContour)
     ['{30424113-D148-45EB-A4C8-C0150DB89D22}']
+    function GetOuterBorder: IGeometryProjectedContour;
+    property OuterBorder: IGeometryProjectedContour read GetOuterBorder;
+
+    function GetHoleCount: Integer;
+    property HoleCount: Integer read GetHoleCount;
+
+    function GetHoleBorder(const AIndex: Integer): IGeometryProjectedContour;
+    property HoleBorder[const AIndex: Integer]: IGeometryProjectedContour read GetHoleBorder;
   end;
 
   IGeometryProjectedMultiPolygon = interface(IGeometryProjectedPolygon)

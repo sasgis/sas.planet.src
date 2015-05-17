@@ -48,7 +48,7 @@ type
     );
   end;
 
-  TGeometryProjectedPolygon = class(TGeometryProjectedBase, IGeometryProjectedPolygon, IGeometryProjectedSinglePolygon)
+  TGeometryProjectedContour = class(TGeometryProjectedBase, IGeometryProjectedPolygon, IGeometryProjectedContour)
   private
     function GetEnum: IEnumProjectedPoint;
     function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
@@ -59,6 +59,18 @@ type
     function IsRectIntersectPolygon(const ARect: TDoubleRect): Boolean;
     function IsRectIntersectBorder(const ARect: TDoubleRect): Boolean;
     function CalcArea: Double;
+  public
+    constructor Create(
+      const APoints: PDoublePointArray;
+      ACount: Integer
+    );
+  end;
+
+  TGeometryProjectedPolygon = class(TGeometryProjectedContour, IGeometryProjectedSinglePolygon)
+  private
+    function GetOuterBorder: IGeometryProjectedContour;
+    function GetHoleCount: Integer;
+    function GetHoleBorder(const AIndex: Integer): IGeometryProjectedContour;
   public
     constructor Create(
       const APoints: PDoublePointArray;
@@ -286,9 +298,9 @@ begin
   end;
 end;
 
-{ TGeometryProjectedPolygon }
+{ TGeometryProjectedContour }
 
-function TGeometryProjectedPolygon.CalcArea: Double;
+function TGeometryProjectedContour.CalcArea: Double;
 var
   VEnum: IEnumProjectedPoint;
   VPrevPoint: TDoublePoint;
@@ -305,7 +317,7 @@ begin
   end;
 end;
 
-constructor TGeometryProjectedPolygon.Create(
+constructor TGeometryProjectedContour.Create(
   const APoints: PDoublePointArray;
   ACount: Integer
 );
@@ -313,12 +325,12 @@ begin
   inherited Create(True, APoints, ACount);
 end;
 
-function TGeometryProjectedPolygon.GetEnum: IEnumProjectedPoint;
+function TGeometryProjectedContour.GetEnum: IEnumProjectedPoint;
 begin
   Result := TEnumDoublePointBySingleProjectedLine.Create(Self, True, @FPoints[0], FCount);
 end;
 
-function TGeometryProjectedPolygon.IsPointInPolygon(
+function TGeometryProjectedContour.IsPointInPolygon(
   const APoint: TDoublePoint): Boolean;
 var
   VEnum: IEnumDoublePoint;
@@ -339,7 +351,7 @@ begin
   end;
 end;
 
-function TGeometryProjectedPolygon.IsPointOnBorder(
+function TGeometryProjectedContour.IsPointOnBorder(
   const APoint: TDoublePoint;
   const ADist: Double
 ): Boolean;
@@ -382,7 +394,7 @@ begin
   end;
 end;
 
-function TGeometryProjectedPolygon.IsRectIntersectBorder(
+function TGeometryProjectedContour.IsRectIntersectBorder(
   const ARect: TDoubleRect): Boolean;
 var
   VEnum: IEnumProjectedPoint;
@@ -471,7 +483,7 @@ begin
   end;
 end;
 
-function TGeometryProjectedPolygon.IsRectIntersectPolygon(
+function TGeometryProjectedContour.IsRectIntersectPolygon(
   const ARect: TDoubleRect
 ): Boolean;
 var
@@ -573,6 +585,34 @@ begin
       end;
     end;
   end;
+end;
+
+{ TGeometryProjectedPolygon }
+
+constructor TGeometryProjectedPolygon.Create(
+  const APoints: PDoublePointArray;
+  ACount: Integer
+);
+begin
+  inherited Create(APoints, ACount);
+end;
+
+function TGeometryProjectedPolygon.GetHoleBorder(
+  const AIndex: Integer
+): IGeometryProjectedContour;
+begin
+  Result := nil;
+  Assert(False);
+end;
+
+function TGeometryProjectedPolygon.GetHoleCount: Integer;
+begin
+  Result := 0;
+end;
+
+function TGeometryProjectedPolygon.GetOuterBorder: IGeometryProjectedContour;
+begin
+  Result := Self;
 end;
 
 end.
