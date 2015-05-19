@@ -43,29 +43,6 @@ type
       ACount: Integer
     ): IGeometryProjectedMultiPolygon;
 
-    function CreateProjectedPolygonByRect(
-      const ARect: TDoubleRect
-    ): IGeometryProjectedMultiPolygon;
-
-    function CreateProjectedPathByEnum(
-      const AEnum: IEnumProjectedPoint;
-      const ATemp: IDoublePointsAggregator = nil
-    ): IGeometryProjectedMultiLine;
-    function CreateProjectedPolygonByEnum(
-      const AEnum: IEnumProjectedPoint;
-      const ATemp: IDoublePointsAggregator = nil
-    ): IGeometryProjectedMultiPolygon;
-    function CreateProjectedPathByLonLatEnum(
-      const AProjection: IProjectionInfo;
-      const AEnum: IEnumLonLatPoint;
-      const ATemp: IDoublePointsAggregator = nil
-    ): IGeometryProjectedMultiLine;
-    function CreateProjectedPolygonByLonLatEnum(
-      const AProjection: IProjectionInfo;
-      const AEnum: IEnumLonLatPoint;
-      const ATemp: IDoublePointsAggregator = nil
-    ): IGeometryProjectedMultiPolygon;
-
     function CreateProjectedPathByLonLatPath(
       const AProjection: IProjectionInfo;
       const ASource: IGeometryLonLatLine;
@@ -74,43 +51,6 @@ type
     function CreateProjectedPolygonByLonLatPolygon(
       const AProjection: IProjectionInfo;
       const ASource: IGeometryLonLatPolygon;
-      const ATemp: IDoublePointsAggregator = nil
-    ): IGeometryProjectedMultiPolygon;
-
-    function CreateProjectedPathWithClipByLonLatEnum(
-      const AProjection: IProjectionInfo;
-      const AEnum: IEnumLonLatPoint;
-      const AMapPixelsClipRect: TDoubleRect;
-      const ATemp: IDoublePointsAggregator = nil
-    ): IGeometryProjectedMultiLine;
-    function CreateProjectedPolygonWithClipByLonLatEnum(
-      const AProjection: IProjectionInfo;
-      const AEnum: IEnumLonLatPoint;
-      const AMapPixelsClipRect: TDoubleRect;
-      const ATemp: IDoublePointsAggregator = nil
-    ): IGeometryProjectedMultiPolygon;
-
-    function CreateProjectedPathWithClipByLonLatPath(
-      const AProjection: IProjectionInfo;
-      const ASource: IGeometryLonLatLine;
-      const AMapPixelsClipRect: TDoubleRect;
-      const ATemp: IDoublePointsAggregator = nil
-    ): IGeometryProjectedMultiLine;
-    function CreateProjectedPolygonWithClipByLonLatPolygon(
-      const AProjection: IProjectionInfo;
-      const ASource: IGeometryLonLatPolygon;
-      const AMapPixelsClipRect: TDoubleRect;
-      const ATemp: IDoublePointsAggregator = nil
-    ): IGeometryProjectedMultiPolygon;
-
-    function CreateProjectedPathByLonLatPathUseConverter(
-      const ASource: IGeometryLonLatLine;
-      const AConverter: ILonLatPointConverter;
-      const ATemp: IDoublePointsAggregator = nil
-    ): IGeometryProjectedMultiLine;
-    function CreateProjectedPolygonByLonLatPolygonUseConverter(
-      const ASource: IGeometryLonLatPolygon;
-      const AConverter: ILonLatPointConverter;
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryProjectedMultiPolygon;
   end;

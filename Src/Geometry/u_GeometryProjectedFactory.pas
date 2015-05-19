@@ -28,13 +28,6 @@ type
       ACount: Integer
     ): IGeometryProjectedMultiPolygon;
 
-    function CreateProjectedPolygonLineByRect(
-      const ARect: TDoubleRect
-    ): IGeometryProjectedSinglePolygon;
-    function CreateProjectedPolygonByRect(
-      const ARect: TDoubleRect
-    ): IGeometryProjectedMultiPolygon;
-
     function CreateProjectedPathByEnum(
       const AEnum: IEnumProjectedPoint;
       const ATemp: IDoublePointsAggregator = nil
@@ -65,43 +58,6 @@ type
       const ASource: IGeometryLonLatPolygon;
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryProjectedMultiPolygon;
-
-    function CreateProjectedPathWithClipByLonLatEnum(
-      const AProjection: IProjectionInfo;
-      const AEnum: IEnumLonLatPoint;
-      const AMapPixelsClipRect: TDoubleRect;
-      const ATemp: IDoublePointsAggregator = nil
-    ): IGeometryProjectedMultiLine;
-    function CreateProjectedPolygonWithClipByLonLatEnum(
-      const AProjection: IProjectionInfo;
-      const AEnum: IEnumLonLatPoint;
-      const AMapPixelsClipRect: TDoubleRect;
-      const ATemp: IDoublePointsAggregator = nil
-    ): IGeometryProjectedMultiPolygon;
-
-    function CreateProjectedPathWithClipByLonLatPath(
-      const AProjection: IProjectionInfo;
-      const ASource: IGeometryLonLatLine;
-      const AMapPixelsClipRect: TDoubleRect;
-      const ATemp: IDoublePointsAggregator = nil
-    ): IGeometryProjectedMultiLine;
-    function CreateProjectedPolygonWithClipByLonLatPolygon(
-      const AProjection: IProjectionInfo;
-      const ASource: IGeometryLonLatPolygon;
-      const AMapPixelsClipRect: TDoubleRect;
-      const ATemp: IDoublePointsAggregator = nil
-    ): IGeometryProjectedMultiPolygon;
-
-    function CreateProjectedPathByLonLatPathUseConverter(
-      const ASource: IGeometryLonLatLine;
-      const AConverter: ILonLatPointConverter;
-      const ATemp: IDoublePointsAggregator = nil
-    ): IGeometryProjectedMultiLine;
-    function CreateProjectedPolygonByLonLatPolygonUseConverter(
-      const ASource: IGeometryLonLatPolygon;
-      const AConverter: ILonLatPointConverter;
-      const ATemp: IDoublePointsAggregator = nil
-    ): IGeometryProjectedMultiPolygon;
   public
     constructor Create;
   end;
@@ -129,15 +85,6 @@ begin
   VEmpty := TProjectedLineSetEmpty.Create;
   FEmptyPath := VEmpty;
   FEmptyPolygon := VEmpty;
-end;
-
-function TGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygonUseConverter(
-  const ASource: IGeometryLonLatPolygon;
-  const AConverter: ILonLatPointConverter;
-  const ATemp: IDoublePointsAggregator = nil
-): IGeometryProjectedMultiPolygon;
-begin
-  Result := CreateProjectedPolygonByEnum(AConverter.CreateFilteredEnum(ASource.GetEnum), ATemp);
 end;
 
 function TGeometryProjectedFactory.CreateProjectedPath(
@@ -314,61 +261,6 @@ begin
     );
 end;
 
-function TGeometryProjectedFactory.CreateProjectedPathByLonLatPathUseConverter(
-  const ASource: IGeometryLonLatLine;
-  const AConverter: ILonLatPointConverter;
-  const ATemp: IDoublePointsAggregator =
-  nil
-): IGeometryProjectedMultiLine;
-begin
-  Result := CreateProjectedPathByEnum(AConverter.CreateFilteredEnum(ASource.GetEnum), ATemp);
-end;
-
-function TGeometryProjectedFactory.CreateProjectedPathWithClipByLonLatEnum(
-  const AProjection: IProjectionInfo;
-  const AEnum: IEnumLonLatPoint;
-  const AMapPixelsClipRect: TDoubleRect;
-  const ATemp: IDoublePointsAggregator
-): IGeometryProjectedMultiLine;
-var
-  VEnum: IEnumProjectedPoint;
-begin
-  VEnum :=
-    TEnumDoublePointLonLatToMapPixel.Create(
-      AProjection.Zoom,
-      AProjection.GeoConverter,
-      AEnum
-    );
-  VEnum := TEnumProjectedPointFilterEqual.Create(VEnum);
-  VEnum :=
-    TEnumProjectedPointClipByRect.Create(
-      False,
-      AMapPixelsClipRect,
-      VEnum
-    );
-  Result :=
-    CreateProjectedPathByEnum(
-      VEnum,
-      ATemp
-    );
-end;
-
-function TGeometryProjectedFactory.CreateProjectedPathWithClipByLonLatPath(
-  const AProjection: IProjectionInfo;
-  const ASource: IGeometryLonLatLine;
-  const AMapPixelsClipRect: TDoubleRect;
-  const ATemp: IDoublePointsAggregator
-): IGeometryProjectedMultiLine;
-begin
-  Result :=
-    CreateProjectedPathWithClipByLonLatEnum(
-      AProjection,
-      ASource.GetEnum,
-      AMapPixelsClipRect,
-      ATemp
-    );
-end;
-
 function TGeometryProjectedFactory.CreateProjectedPolygon(
   const APoints: PDoublePointArray;
   ACount: Integer
@@ -540,74 +432,6 @@ begin
     CreateProjectedPolygonByLonLatEnum(
       AProjection,
       ASource.GetEnum,
-      ATemp
-    );
-end;
-
-function TGeometryProjectedFactory.CreateProjectedPolygonByRect(
-  const ARect: TDoubleRect
-): IGeometryProjectedMultiPolygon;
-begin
-  Result := TGeometryProjectedMultiPolygonOneLine.Create(CreateProjectedPolygonLineByRect(ARect));
-end;
-
-function TGeometryProjectedFactory.CreateProjectedPolygonLineByRect(
-  const ARect: TDoubleRect
-): IGeometryProjectedSinglePolygon;
-var
-  VPoints: array [0..4] of TDoublePoint;
-begin
-  VPoints[0] := ARect.TopLeft;
-  VPoints[1].X := ARect.Right;
-  VPoints[1].Y := ARect.Top;
-  VPoints[2] := ARect.BottomRight;
-  VPoints[3].X := ARect.Left;
-  VPoints[3].Y := ARect.Bottom;
-  Result := TGeometryProjectedPolygon.Create(@VPoints[0], 4);
-end;
-
-function TGeometryProjectedFactory.CreateProjectedPolygonWithClipByLonLatEnum(
-  const AProjection: IProjectionInfo;
-  const AEnum: IEnumLonLatPoint;
-  const AMapPixelsClipRect: TDoubleRect;
-  const ATemp: IDoublePointsAggregator
-): IGeometryProjectedMultiPolygon;
-var
-  VEnum: IEnumProjectedPoint;
-begin
-  VEnum :=
-    TEnumDoublePointLonLatToMapPixel.Create(
-      AProjection.Zoom,
-      AProjection.GeoConverter,
-      AEnum
-    );
-  VEnum := TEnumProjectedPointFilterEqual.Create(VEnum);
-
-  VEnum :=
-    TEnumProjectedPointClipByRect.Create(
-      True,
-      AMapPixelsClipRect,
-      VEnum
-    );
-  Result :=
-    CreateProjectedPolygonByEnum(
-      VEnum,
-      ATemp
-    );
-end;
-
-function TGeometryProjectedFactory.CreateProjectedPolygonWithClipByLonLatPolygon(
-  const AProjection: IProjectionInfo;
-  const ASource: IGeometryLonLatPolygon;
-  const AMapPixelsClipRect: TDoubleRect;
-  const ATemp: IDoublePointsAggregator
-): IGeometryProjectedMultiPolygon;
-begin
-  Result :=
-    CreateProjectedPolygonWithClipByLonLatEnum(
-      AProjection,
-      ASource.GetEnum,
-      AMapPixelsClipRect,
       ATemp
     );
 end;
