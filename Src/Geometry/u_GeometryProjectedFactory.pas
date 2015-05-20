@@ -19,45 +19,39 @@ type
     FEmptyPath: IGeometryProjectedMultiLine;
     FEmptyPolygon: IGeometryProjectedMultiPolygon;
   private
-    function CreateProjectedPath(
-      const APoints: PDoublePointArray;
-      ACount: Integer
-    ): IGeometryProjectedMultiLine;
-    function CreateProjectedPolygon(
-      const APoints: PDoublePointArray;
-      ACount: Integer
-    ): IGeometryProjectedMultiPolygon;
+    function CreateProjectedPathEmpty: IGeometryProjectedLine;
+    function CreateProjectedPolygonEmpty: IGeometryProjectedPolygon;
 
     function CreateProjectedPathByEnum(
       const AEnum: IEnumProjectedPoint;
       const ATemp: IDoublePointsAggregator = nil
-    ): IGeometryProjectedMultiLine;
+    ): IGeometryProjectedLine;
     function CreateProjectedPolygonByEnum(
       const AEnum: IEnumProjectedPoint;
       const ATemp: IDoublePointsAggregator = nil
-    ): IGeometryProjectedMultiPolygon;
+    ): IGeometryProjectedPolygon;
 
     function CreateProjectedPathByLonLatEnum(
       const AProjection: IProjectionInfo;
       const AEnum: IEnumLonLatPoint;
       const ATemp: IDoublePointsAggregator = nil
-    ): IGeometryProjectedMultiLine;
+    ): IGeometryProjectedLine;
     function CreateProjectedPolygonByLonLatEnum(
       const AProjection: IProjectionInfo;
       const AEnum: IEnumLonLatPoint;
       const ATemp: IDoublePointsAggregator = nil
-    ): IGeometryProjectedMultiPolygon;
+    ): IGeometryProjectedPolygon;
 
     function CreateProjectedPathByLonLatPath(
       const AProjection: IProjectionInfo;
       const ASource: IGeometryLonLatLine;
       const ATemp: IDoublePointsAggregator = nil
-    ): IGeometryProjectedMultiLine;
+    ): IGeometryProjectedLine;
     function CreateProjectedPolygonByLonLatPolygon(
       const AProjection: IProjectionInfo;
       const ASource: IGeometryLonLatPolygon;
       const ATemp: IDoublePointsAggregator = nil
-    ): IGeometryProjectedMultiPolygon;
+    ): IGeometryProjectedPolygon;
   public
     constructor Create;
   end;
@@ -87,80 +81,15 @@ begin
   FEmptyPolygon := VEmpty;
 end;
 
-function TGeometryProjectedFactory.CreateProjectedPath(
-  const APoints: PDoublePointArray;
-  ACount: Integer
-): IGeometryProjectedMultiLine;
-var
-  VLine: IGeometryProjectedSingleLine;
-  i: Integer;
-  VStart: PDoublePointArray;
-  VLineLen: Integer;
-  VLineCount: Integer;
-  VList: IInterfaceListSimple;
-  VPoint: TDoublePoint;
-  VBounds: TDoubleRect;
+function TGeometryProjectedFactory.CreateProjectedPathEmpty: IGeometryProjectedLine;
 begin
-  VLineCount := 0;
-  VStart := APoints;
-  VLineLen := 0;
-  for i := 0 to ACount - 1 do begin
-    VPoint := APoints[i];
-    if PointIsEmpty(VPoint) then begin
-      if VLineLen > 0 then begin
-        if VLineCount > 0 then begin
-          if VLineCount = 1 then begin
-            VList := TInterfaceListSimple.Create;
-          end;
-          VList.Add(VLine);
-          VLine := nil;
-        end;
-        VLine := TGeometryProjectedLine.Create(VStart, VLineLen);
-        if VLineCount > 0 then begin
-          VBounds := UnionProjectedRects(VBounds, VLine.Bounds);
-        end else begin
-          VBounds := VLine.Bounds;
-        end;
-        Inc(VLineCount);
-        VLineLen := 0;
-      end;
-    end else begin
-      if VLineLen = 0 then begin
-        VStart := @APoints[i];
-      end;
-      Inc(VLineLen);
-    end;
-  end;
-  if VLineLen > 0 then begin
-    if VLineCount > 0 then begin
-      if VLineCount = 1 then begin
-        VList := TInterfaceListSimple.Create;
-      end;
-      VList.Add(VLine);
-      VLine := nil;
-    end;
-    VLine := TGeometryProjectedLine.Create(VStart, VLineLen);
-    if VLineCount > 0 then begin
-      VBounds := UnionProjectedRects(VBounds, VLine.Bounds);
-    end else begin
-      VBounds := VLine.Bounds;
-    end;
-    Inc(VLineCount);
-  end;
-  if VLineCount = 0 then begin
-    Result := FEmptyPath;
-  end else if VLineCount = 1 then begin
-    Result := TGeometryProjectedMultiLineOneLine.Create(VLine);
-  end else begin
-    VList.Add(VLine);
-    Result := TGeometryProjectedMultiLine.Create(VBounds, VList.MakeStaticAndClear);
-  end;
+  Result := FEmptyPath;
 end;
 
 function TGeometryProjectedFactory.CreateProjectedPathByEnum(
   const AEnum: IEnumProjectedPoint;
   const ATemp: IDoublePointsAggregator
-): IGeometryProjectedMultiLine;
+): IGeometryProjectedLine;
 var
   VPoint: TDoublePoint;
   VLine: IGeometryProjectedSingleLine;
@@ -229,7 +158,7 @@ function TGeometryProjectedFactory.CreateProjectedPathByLonLatEnum(
   const AProjection: IProjectionInfo;
   const AEnum: IEnumLonLatPoint;
   const ATemp: IDoublePointsAggregator
-): IGeometryProjectedMultiLine;
+): IGeometryProjectedLine;
 var
   VEnum: IEnumProjectedPoint;
 begin
@@ -251,7 +180,7 @@ function TGeometryProjectedFactory.CreateProjectedPathByLonLatPath(
   const AProjection: IProjectionInfo;
   const ASource: IGeometryLonLatLine;
   const ATemp: IDoublePointsAggregator
-): IGeometryProjectedMultiLine;
+): IGeometryProjectedLine;
 begin
   Result :=
     CreateProjectedPathByLonLatEnum(
@@ -261,80 +190,15 @@ begin
     );
 end;
 
-function TGeometryProjectedFactory.CreateProjectedPolygon(
-  const APoints: PDoublePointArray;
-  ACount: Integer
-): IGeometryProjectedMultiPolygon;
-var
-  VLine: IGeometryProjectedSinglePolygon;
-  i: Integer;
-  VStart: PDoublePointArray;
-  VLineLen: Integer;
-  VLineCount: Integer;
-  VList: IInterfaceListSimple;
-  VPoint: TDoublePoint;
-  VBounds: TDoubleRect;
+function TGeometryProjectedFactory.CreateProjectedPolygonEmpty: IGeometryProjectedPolygon;
 begin
-  VLineCount := 0;
-  VStart := APoints;
-  VLineLen := 0;
-  for i := 0 to ACount - 1 do begin
-    VPoint := APoints[i];
-    if PointIsEmpty(VPoint) then begin
-      if VLineLen > 0 then begin
-        if VLineCount > 0 then begin
-          if VLineCount = 1 then begin
-            VList := TInterfaceListSimple.Create;
-          end;
-          VList.Add(VLine);
-          VLine := nil;
-        end;
-        VLine := TGeometryProjectedPolygon.Create(VStart, VLineLen);
-        if VLineCount > 0 then begin
-          VBounds := UnionProjectedRects(VBounds, VLine.Bounds);
-        end else begin
-          VBounds := VLine.Bounds;
-        end;
-        Inc(VLineCount);
-        VLineLen := 0;
-      end;
-    end else begin
-      if VLineLen = 0 then begin
-        VStart := @APoints[i];
-      end;
-      Inc(VLineLen);
-    end;
-  end;
-  if VLineLen > 0 then begin
-    if VLineCount > 0 then begin
-      if VLineCount = 1 then begin
-        VList := TInterfaceListSimple.Create;
-      end;
-      VList.Add(VLine);
-      VLine := nil;
-    end;
-    VLine := TGeometryProjectedPolygon.Create(VStart, VLineLen);
-    if VLineCount > 0 then begin
-      VBounds := UnionProjectedRects(VBounds, VLine.Bounds);
-    end else begin
-      VBounds := VLine.Bounds;
-    end;
-    Inc(VLineCount);
-  end;
-  if VLineCount = 0 then begin
-    Result := FEmptyPolygon;
-  end else if VLineCount = 1 then begin
-    Result := TGeometryProjectedMultiPolygonOneLine.Create(VLine);
-  end else begin
-    VList.Add(VLine);
-    Result := TGeometryProjectedMultiPolygon.Create(VBounds, VList.MakeStaticAndClear);
-  end;
+  Result := FEmptyPolygon;
 end;
 
 function TGeometryProjectedFactory.CreateProjectedPolygonByEnum(
   const AEnum: IEnumProjectedPoint;
   const ATemp: IDoublePointsAggregator
-): IGeometryProjectedMultiPolygon;
+): IGeometryProjectedPolygon;
 var
   VPoint: TDoublePoint;
   VLine: IGeometryProjectedSinglePolygon;
@@ -403,7 +267,7 @@ function TGeometryProjectedFactory.CreateProjectedPolygonByLonLatEnum(
   const AProjection: IProjectionInfo;
   const AEnum: IEnumLonLatPoint;
   const ATemp: IDoublePointsAggregator
-): IGeometryProjectedMultiPolygon;
+): IGeometryProjectedPolygon;
 var
   VEnum: IEnumProjectedPoint;
 begin
@@ -426,7 +290,7 @@ function TGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
   const AProjection: IProjectionInfo;
   const ASource: IGeometryLonLatPolygon;
   const ATemp: IDoublePointsAggregator
-): IGeometryProjectedMultiPolygon;
+): IGeometryProjectedPolygon;
 begin
   Result :=
     CreateProjectedPolygonByLonLatEnum(

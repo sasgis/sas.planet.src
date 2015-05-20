@@ -88,8 +88,8 @@ function TGeometryProjectedProvider.CreateByKey(
 ): IInterface;
 var
   VData: PDataRecord;
-  VResultPath: IGeometryProjectedMultiLine;
-  VResultPolygon: IGeometryProjectedMultiPolygon;
+  VResultPath: IGeometryProjectedLine;
+  VResultPolygon: IGeometryProjectedPolygon;
   VGeoConverter: ICoordConverter;
   VTestArrLenLonLatRect: TDoubleRect;
   VTestArrLenPixelRect: TDoubleRect;
@@ -113,11 +113,7 @@ begin
           VData^.Path
         );
     end else begin
-      VResultPath :=
-        FVectorGeometryProjectedFactory.CreateProjectedPath(
-          nil,
-          0
-        );
+      VResultPath := FVectorGeometryProjectedFactory.CreateProjectedPathEmpty;
     end;
     Result := VResultPath;
   end else if Assigned(VData^.Polygon) then begin
@@ -136,11 +132,7 @@ begin
           VData^.Polygon
         );
     end else begin
-      VResultPolygon :=
-        FVectorGeometryProjectedFactory.CreateProjectedPolygon(
-          nil,
-          0
-        );
+      VResultPolygon := FVectorGeometryProjectedFactory.CreateProjectedPolygonEmpty;
     end;
     Result := VResultPolygon;
   end;

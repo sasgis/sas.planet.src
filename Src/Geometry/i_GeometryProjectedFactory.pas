@@ -34,25 +34,19 @@ uses
 type
   IGeometryProjectedFactory = interface
     ['{06CC36BA-1833-4AE8-953F-D003B6D81BB7}']
-    function CreateProjectedPath(
-      const APoints: PDoublePointArray;
-      ACount: Integer
-    ): IGeometryProjectedMultiLine;
-    function CreateProjectedPolygon(
-      const APoints: PDoublePointArray;
-      ACount: Integer
-    ): IGeometryProjectedMultiPolygon;
+    function CreateProjectedPathEmpty: IGeometryProjectedLine;
+    function CreateProjectedPolygonEmpty: IGeometryProjectedPolygon;
 
     function CreateProjectedPathByLonLatPath(
       const AProjection: IProjectionInfo;
       const ASource: IGeometryLonLatLine;
       const ATemp: IDoublePointsAggregator = nil
-    ): IGeometryProjectedMultiLine;
+    ): IGeometryProjectedLine;
     function CreateProjectedPolygonByLonLatPolygon(
       const AProjection: IProjectionInfo;
       const ASource: IGeometryLonLatPolygon;
       const ATemp: IDoublePointsAggregator = nil
-    ): IGeometryProjectedMultiPolygon;
+    ): IGeometryProjectedPolygon;
   end;
 
 implementation
