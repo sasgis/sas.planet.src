@@ -52,7 +52,7 @@ type
   end;
 
   IMapTypeListBuilderFactory = interface
-    ['{C5573186-2284-470D-B617-30F4C22898FF}']
+    ['{E777DE62-2311-491A-A028-1704754EA6D8}']
     function Build: IMapTypeListBuilder;
   end;
 
