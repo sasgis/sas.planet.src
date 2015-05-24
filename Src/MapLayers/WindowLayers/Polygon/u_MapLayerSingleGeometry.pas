@@ -39,6 +39,8 @@ uses
   i_GeometryProjected,
   i_PolyLineLayerConfig,
   i_PolygonLayerConfig,
+  i_InterfaceListStatic,
+  u_BaseInterfacedObject,
   u_MapLayerBasicNoBitmap;
 
 type
@@ -94,6 +96,29 @@ type
   public
     constructor Create; override;
     constructor CreateFromSource(ASource: TPolygon32);
+  end;
+
+  TDrawablePolygonByList = class(TBaseInterfacedObject, IDrawablePolygon)
+  private
+    FList: IInterfaceListStatic;
+  private
+    procedure DrawFill(
+      Bitmap: TCustomBitmap32;
+      Color: TColor32;
+      Transformation: TTransformation = nil
+    );
+    procedure DrawEdge(
+      Bitmap: TCustomBitmap32;
+      Color: TColor32;
+      Transformation: TTransformation = nil
+    );
+    procedure Draw(
+      Bitmap: TCustomBitmap32;
+      OutlineColor, FillColor: TColor32;
+      Transformation: TTransformation = nil
+    );
+  public
+    constructor Create(const AList: IInterfaceListStatic);
   end;
 
   TMapLayerSingleLine = class(TMapLayerSingleGeometryBase)
@@ -588,6 +613,61 @@ begin
 
   if Assigned(VDrawablePolygonBorder) then begin
     VDrawablePolygonBorder.DrawFill(ABuffer, FLineColor);
+  end;
+end;
+
+{ TDrawablePolygonByList }
+
+constructor TDrawablePolygonByList.Create(const AList: IInterfaceListStatic);
+begin
+  Assert(Assigned(AList));
+  Assert(AList.Count > 1);
+  inherited Create;
+  FList := AList;
+end;
+
+procedure TDrawablePolygonByList.Draw(
+  Bitmap: TCustomBitmap32;
+  OutlineColor, FillColor: TColor32;
+  Transformation: TTransformation
+);
+var
+  i: Integer;
+  VItem: IDrawablePolygon;
+begin
+  for i := 0 to FList.Count - 1 do begin
+    VItem := IDrawablePolygon(FList.Items[i]);
+    VItem.Draw(Bitmap, OutlineColor, FillColor, Transformation);
+  end;
+end;
+
+procedure TDrawablePolygonByList.DrawEdge(
+  Bitmap: TCustomBitmap32;
+  Color: TColor32;
+  Transformation: TTransformation
+);
+var
+  i: Integer;
+  VItem: IDrawablePolygon;
+begin
+  for i := 0 to FList.Count - 1 do begin
+    VItem := IDrawablePolygon(FList.Items[i]);
+    VItem.DrawEdge(Bitmap, Color, Transformation);
+  end;
+end;
+
+procedure TDrawablePolygonByList.DrawFill(
+  Bitmap: TCustomBitmap32;
+  Color: TColor32;
+  Transformation: TTransformation
+);
+var
+  i: Integer;
+  VItem: IDrawablePolygon;
+begin
+  for i := 0 to FList.Count - 1 do begin
+    VItem := IDrawablePolygon(FList.Items[i]);
+    VItem.DrawFill(Bitmap, Color, Transformation);
   end;
 end;
 
