@@ -163,6 +163,12 @@ type
     FPolygonBorder: IDrawablePolygon;
     FPolygonFill: IDrawablePolygon;
     procedure OnChangedSource;
+    procedure PrepareFillAndBorder(
+      const AProjectedLine: IGeometryProjectedPolygon;
+      const ALocalConverter: ILocalCoordConverter;
+      var ADrawablePolygonFill: IDrawablePolygon;
+      var ADrawablePolygonBorder: IDrawablePolygon
+    );
   protected
     procedure DoConfigChange; override;
     procedure PaintLayer(
@@ -456,6 +462,45 @@ begin
   );
 end;
 
+procedure TMapLayerSinglePolygon.PrepareFillAndBorder(
+  const AProjectedLine: IGeometryProjectedPolygon;
+  const ALocalConverter: ILocalCoordConverter;
+  var ADrawablePolygonFill: IDrawablePolygon;
+  var ADrawablePolygonBorder: IDrawablePolygon
+);
+var
+  VPolygonGrow: TPolygon32;
+  VPolygonOutline: TPolygon32;
+  VPathFixedPoints: TArrayOfFixedPoint;
+  VPolygon: TPolygon32;
+begin
+  VPolygon := nil;
+  try
+    ProjectedPolygon2GR32Polygon(AProjectedLine, ALocalConverter, am4times, VPathFixedPoints, VPolygon);
+    if Assigned(VPolygon) then
+    begin
+      ADrawablePolygonFill := TDrawablePolygon32.CreateFromSource(VPolygon);
+      ADrawablePolygonBorder := nil;
+      if not FSimpleLineDraw then
+      begin
+        VPolygonOutline := VPolygon.Outline;
+        try
+          VPolygonGrow := VPolygonOutline.Grow(Fixed(FLineWidth / 2), 0.5);
+          try
+            ADrawablePolygonBorder := TDrawablePolygon32.CreateFromSource(VPolygonGrow);
+          finally
+            VPolygonGrow.Free;
+          end;
+        finally
+          VPolygonOutline.Free;
+        end;
+      end;
+    end;
+  finally
+    VPolygon.Free;
+  end;
+end;
+
 procedure TMapLayerSinglePolygon.DoConfigChange;
 begin
   inherited;
@@ -499,13 +544,8 @@ var
   VLonLatLine: IGeometryLonLatPolygon;
   VProjection: IProjectionInfo;
   VProjectedLine: IGeometryProjectedPolygon;
-  VLocalConverter: ILocalCoordConverter;
   VDrawablePolygonFill: IDrawablePolygon;
   VDrawablePolygonBorder: IDrawablePolygon;
-  VPolygon: TPolygon32;
-  VPolygonOutline: TPolygon32;
-  VPolygonGrow: TPolygon32;
-  VPathFixedPoints: TArrayOfFixedPoint;
 begin
   if not FFillVisible and not FLineVisible then begin
     Exit;
@@ -514,7 +554,6 @@ begin
   VLonLatLine := FPrevLine;
   VProjection := FProjection;
   VProjectedLine := FProjectedLine;
-  VLocalConverter := FLocalConverter;
   VDrawablePolygonFill := FPolygonFill;
   VDrawablePolygonBorder := FPolygonBorder;
   if not Assigned(VLonLatLine) then begin
@@ -538,7 +577,6 @@ begin
   if not Assigned(VProjectedLine) then begin
     VDrawablePolygonFill := nil;
     VDrawablePolygonBorder := nil;
-    VLocalConverter := nil;
     VProjection := ALocalConverter.ProjectionInfo;
     VProjectedLine :=
       FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
@@ -555,46 +593,17 @@ begin
   end;
 
   if Assigned(VDrawablePolygonFill) or Assigned(VDrawablePolygonBorder) then begin
-    if not ALocalConverter.GetIsSameConverter(VLocalConverter) then begin
+    if not ALocalConverter.GetIsSameConverter(FLocalConverter) then begin
       VDrawablePolygonFill := nil;
       VDrawablePolygonBorder := nil;
-      VLocalConverter := nil;
     end;
   end;
 
   if not Assigned(VDrawablePolygonFill) then begin
-    VPolygon := nil;
-    try
-      ProjectedPolygon2GR32Polygon(
-        VProjectedLine,
-        ALocalConverter,
-        am4times,
-        VPathFixedPoints,
-        VPolygon
-      );
-      if Assigned(VPolygon) then begin
-        VDrawablePolygonFill := TDrawablePolygon32.CreateFromSource(VPolygon);
-        VDrawablePolygonBorder := nil;
-        if not FSimpleLineDraw then begin
-          VPolygonOutline := VPolygon.Outline;
-          try
-            VPolygonGrow := VPolygonOutline.Grow(Fixed(FLineWidth / 2), 0.5);
-            try
-              VDrawablePolygonBorder := TDrawablePolygon32.CreateFromSource(VPolygonGrow);
-            finally
-              VPolygonGrow.Free;
-            end;
-          finally
-            VPolygonOutline.Free;
-          end;
-        end;
-      end;
-    finally
-      VPolygon.Free;
-    end;
+    PrepareFillAndBorder(VProjectedLine, ALocalConverter, VDrawablePolygonFill, VDrawablePolygonBorder);
     FPolygonFill := VDrawablePolygonFill;
     FPolygonBorder := VDrawablePolygonBorder;
-    FLocalConverter := VLocalConverter;
+    FLocalConverter := ALocalConverter;
   end;
   if not Assigned(VDrawablePolygonFill) then begin
     Exit;
