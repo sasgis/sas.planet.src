@@ -69,6 +69,13 @@ type
       const AMapRect: TRect;
       var AFixedPointArray: TArrayOfFixedPoint
     ): Boolean;
+    function DrawSinglePolygon(
+      var ABitmapInited: Boolean;
+      ATargetBmp: TCustomBitmap32;
+      const APoly: IGeometryProjectedSinglePolygon;
+      const AMapRect: TRect;
+      var AFixedPointArray: TArrayOfFixedPoint
+    ): Boolean;
     function DrawPoly(
       var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
@@ -221,15 +228,44 @@ function TVectorTileRenderer.DrawPoly(
   var AFixedPointArray: TArrayOfFixedPoint
 ): Boolean;
 var
-  VPolygon: TPolygon32;
   VProjected: IGeometryProjectedPolygon;
+  VProjectedSingle: IGeometryProjectedSinglePolygon;
+  VProjectedMulti: IGeometryProjectedMultiPolygon;
+  i: Integer;
+begin
+  Result := False;
+  VProjected := FProjectedCache.GetProjectedPolygon(AProjectionInfo, APoly);
+  if Assigned(VProjected) then begin
+    if Supports(VProjected, IGeometryProjectedSinglePolygon, VProjectedSingle) then begin
+      Result := DrawSinglePolygon(ABitmapInited, ATargetBmp, VProjectedSingle, AMapRect, AFixedPointArray);
+    end else if Supports(VProjected, IGeometryProjectedMultiPolygon, VProjectedMulti) then begin
+      for i := 0 to VProjectedMulti.Count - 1 do begin
+        VProjectedSingle := VProjectedMulti.Item[i];
+        if DrawSinglePolygon(ABitmapInited, ATargetBmp, VProjectedSingle, AMapRect, AFixedPointArray) then begin
+          Result := True;
+        end;
+      end;
+    end else begin
+      Assert(False);
+    end;
+  end;
+end;
+
+function TVectorTileRenderer.DrawSinglePolygon(
+  var ABitmapInited: Boolean;
+  ATargetBmp: TCustomBitmap32;
+  const APoly: IGeometryProjectedSinglePolygon;
+  const AMapRect: TRect;
+  var AFixedPointArray: TArrayOfFixedPoint
+): Boolean;
+var
+  VPolygon: TPolygon32;
 begin
   VPolygon := nil;
   Result := False;
-  VProjected := FProjectedCache.GetProjectedPolygon(AProjectionInfo, APoly);
   try
     ProjectedPolygon2GR32Polygon(
-      VProjected,
+      APoly,
       AMapRect,
       am4times,
       AFixedPointArray,
