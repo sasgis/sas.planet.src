@@ -56,6 +56,7 @@ type
 implementation
 
 uses
+  SysUtils,
   t_GeoTypes,
   u_GeometryFunc,
   u_GeoFunc;
@@ -86,6 +87,9 @@ var
   VPolygon: TPolygon32;
   VPathFixedPoints: TArrayOfFixedPoint;
   VIntersectRect: TDoubleRect;
+  i: integer;
+  VProjectedMultiLine: IGeometryProjectedMultiPolygon;
+  VProjectedSingleLine: IGeometryProjectedSinglePolygon;
 begin
 
   if not FSource.IsEmpty then begin
@@ -95,17 +99,33 @@ begin
         VPolygon := TPolygon32.Create;
         try
           VPolygon.Closed := True;
-
-          ProjectedPolygon2GR32Polygon(
-            FSource,
-            ALocalConverter,
-            am4times,
-            VPathFixedPoints,
-            VPolygon
-          );
-          if Assigned(VPolygon) then begin
-            VPolygon.DrawEdge(ABitmap, FColor);
+          if Supports(FSource, IGeometryProjectedSinglePolygon, VProjectedSingleLine) then begin
+            ProjectedPolygon2GR32Polygon(
+              VProjectedSingleLine,
+              ALocalConverter,
+              am4times,
+              VPathFixedPoints,
+              VPolygon
+            );
+            if Assigned(VPolygon) then begin
+              VPolygon.DrawEdge(ABitmap, FColor);
+            end;
+          end else if Supports(FSource, IGeometryProjectedMultiPolygon, VProjectedMultiLine) then begin
+            for i := 0 to VProjectedMultiLine.Count - 1 do begin
+              VProjectedSingleLine := VProjectedMultiLine.Item[i];
+              ProjectedPolygon2GR32Polygon(
+                VProjectedSingleLine,
+                ALocalConverter,
+                am4times,
+                VPathFixedPoints,
+                VPolygon
+              );
+              if Assigned(VPolygon) then begin
+                VPolygon.DrawEdge(ABitmap, FColor);
+              end;
+            end;
           end;
+
           VPathFixedPoints := nil;
         finally
           VPolygon.Free;
