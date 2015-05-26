@@ -39,7 +39,7 @@ procedure ProjectedLine2GR32Polygon(
 ); overload;
 
 procedure ProjectedPolygon2GR32Polygon(
-  const ALine: IGeometryProjectedPolygon;
+  const ALine: IGeometryProjectedSinglePolygon;
   const ALocalConverter: ILocalCoordConverter;
   const AAntialiasMode: TAntialiasMode;
   var AFixedPointArray: TArrayOfFixedPoint;
@@ -47,7 +47,7 @@ procedure ProjectedPolygon2GR32Polygon(
 ); overload;
 
 procedure ProjectedPolygon2GR32Polygon(
-  const ALine: IGeometryProjectedPolygon;
+  const ALine: IGeometryProjectedSinglePolygon;
   const AMapRect: TRect;
   const AAntialiasMode: TAntialiasMode;
   var AFixedPointArray: TArrayOfFixedPoint;
@@ -552,8 +552,8 @@ begin
   end;
 end;
 
-procedure SinglePoly2GR32Polygon(
-  const ALine: IGeometryProjectedSinglePolygon;
+procedure SingleContour2GR32Polygon(
+  const ALine: IGeometryProjectedContour;
   const ALocalConverter: ILocalCoordConverter;
   const ARectWithDelta: TDoubleRect;
   const AMapRect: TDoubleRect;
@@ -617,8 +617,8 @@ begin
   end;
 end;
 
-procedure SinglePoly2GR32Polygon(
-  const ALine: IGeometryProjectedSinglePolygon;
+procedure SingleContour2GR32Polygon(
+  const ALine: IGeometryProjectedContour;
   const ARectWithDelta: TDoubleRect;
   const AMapRect: TDoubleRect;
   const AAntialiasMode: TAntialiasMode;
@@ -682,7 +682,7 @@ begin
 end;
 
 procedure ProjectedPolygon2GR32Polygon(
-  const ALine: IGeometryProjectedPolygon;
+  const ALine: IGeometryProjectedSinglePolygon;
   const ALocalConverter: ILocalCoordConverter;
   const AAntialiasMode: TAntialiasMode;
   var AFixedPointArray: TArrayOfFixedPoint;
@@ -692,8 +692,6 @@ var
   VMapRect: TDoubleRect;
   VLocalRect: TDoubleRect;
   VRectWithDelta: TDoubleRect;
-  VProjectedMultiLine: IGeometryProjectedMultiPolygon;
-  VProjectedSingleLine: IGeometryProjectedSinglePolygon;
   VLineIndex: Integer;
 begin
   if Assigned(APolygon) then begin
@@ -709,9 +707,18 @@ begin
         VRectWithDelta.Top := VLocalRect.Top - 10;
         VRectWithDelta.Right := VLocalRect.Right + 10;
         VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
-        if Supports(ALine, IGeometryProjectedSinglePolygon, VProjectedSingleLine) then begin
-          SinglePoly2GR32Polygon(
-            VProjectedSingleLine,
+        SingleContour2GR32Polygon(
+          ALine.OuterBorder,
+          ALocalConverter,
+          VRectWithDelta,
+          VMapRect,
+          AAntialiasMode,
+          AFixedPointArray,
+          APolygon
+        );
+        for VLineIndex := 0 to ALine.HoleCount - 1 do begin
+          SingleContour2GR32Polygon(
+            ALine.HoleBorder[VLineIndex],
             ALocalConverter,
             VRectWithDelta,
             VMapRect,
@@ -719,19 +726,6 @@ begin
             AFixedPointArray,
             APolygon
           );
-        end else if Supports(ALine, IGeometryProjectedMultiPolygon, VProjectedMultiLine) then begin
-          for VLineIndex := 0 to VProjectedMultiLine.Count - 1 do begin
-            VProjectedSingleLine := VProjectedMultiLine.Item[VLineIndex];
-            SinglePoly2GR32Polygon(
-              VProjectedSingleLine,
-              ALocalConverter,
-              VRectWithDelta,
-              VMapRect,
-              AAntialiasMode,
-              AFixedPointArray,
-              APolygon
-            );
-          end;
         end;
       end;
     end;
@@ -739,7 +733,7 @@ begin
 end;
 
 procedure ProjectedPolygon2GR32Polygon(
-  const ALine: IGeometryProjectedPolygon;
+  const ALine: IGeometryProjectedSinglePolygon;
   const AMapRect: TRect;
   const AAntialiasMode: TAntialiasMode;
   var AFixedPointArray: TArrayOfFixedPoint;
@@ -749,8 +743,6 @@ var
   VMapRect: TDoubleRect;
   VLocalRect: TDoubleRect;
   VRectWithDelta: TDoubleRect;
-  VProjectedMultiLine: IGeometryProjectedMultiPolygon;
-  VProjectedSingleLine: IGeometryProjectedSinglePolygon;
   VLineIndex: Integer;
 begin
   if Assigned(APolygon) then begin
@@ -766,27 +758,23 @@ begin
         VRectWithDelta.Top := VLocalRect.Top - 10;
         VRectWithDelta.Right := VLocalRect.Right + 10;
         VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
-        if Supports(ALine, IGeometryProjectedSinglePolygon, VProjectedSingleLine) then begin
-          SinglePoly2GR32Polygon(
-            VProjectedSingleLine,
+        SingleContour2GR32Polygon(
+          ALine.OuterBorder,
+          VRectWithDelta,
+          VMapRect,
+          AAntialiasMode,
+          AFixedPointArray,
+          APolygon
+        );
+        for VLineIndex := 0 to ALine.HoleCount - 1 do begin
+          SingleContour2GR32Polygon(
+            ALine.HoleBorder[VLineIndex],
             VRectWithDelta,
             VMapRect,
             AAntialiasMode,
             AFixedPointArray,
             APolygon
           );
-        end else if Supports(ALine, IGeometryProjectedMultiPolygon, VProjectedMultiLine) then begin
-          for VLineIndex := 0 to VProjectedMultiLine.Count - 1 do begin
-            VProjectedSingleLine := VProjectedMultiLine.Item[VLineIndex];
-            SinglePoly2GR32Polygon(
-              VProjectedSingleLine,
-              VRectWithDelta,
-              VMapRect,
-              AAntialiasMode,
-              AFixedPointArray,
-              APolygon
-            );
-          end;
         end;
       end;
     end;
