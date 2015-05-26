@@ -163,12 +163,6 @@ type
     FPolygonBorder: IDrawablePolygon;
     FPolygonFill: IDrawablePolygon;
     procedure OnChangedSource;
-    procedure PrepareFillAndBorder(
-      const AProjectedLine: IGeometryProjectedPolygon;
-      const ALocalConverter: ILocalCoordConverter;
-      var ADrawablePolygonFill: IDrawablePolygon;
-      var ADrawablePolygonBorder: IDrawablePolygon
-    );
   protected
     procedure DoConfigChange; override;
     procedure PaintLayer(
@@ -191,6 +185,9 @@ type
 implementation
 
 uses
+  SysUtils,
+  i_InterfaceListSimple,
+  u_InterfaceListSimple,
   u_DoublePointsAggregator,
   u_ListenerByEvent,
   u_GeometryFunc;
@@ -462,8 +459,10 @@ begin
   );
 end;
 
-procedure TMapLayerSinglePolygon.PrepareFillAndBorder(
-  const AProjectedLine: IGeometryProjectedPolygon;
+procedure PrepareFillAndBorderForSinglePolygon(
+  const ASimpleLineDraw: Boolean;
+  const ALineWidth: Integer;
+  const AProjectedLine: IGeometryProjectedSinglePolygon;
   const ALocalConverter: ILocalCoordConverter;
   var ADrawablePolygonFill: IDrawablePolygon;
   var ADrawablePolygonBorder: IDrawablePolygon
@@ -481,11 +480,11 @@ begin
     begin
       ADrawablePolygonFill := TDrawablePolygon32.CreateFromSource(VPolygon);
       ADrawablePolygonBorder := nil;
-      if not FSimpleLineDraw then
+      if not ASimpleLineDraw then
       begin
         VPolygonOutline := VPolygon.Outline;
         try
-          VPolygonGrow := VPolygonOutline.Grow(Fixed(FLineWidth / 2), 0.5);
+          VPolygonGrow := VPolygonOutline.Grow(Fixed(ALineWidth / 2), 0.5);
           try
             ADrawablePolygonBorder := TDrawablePolygon32.CreateFromSource(VPolygonGrow);
           finally
@@ -498,6 +497,82 @@ begin
     end;
   finally
     VPolygon.Free;
+  end;
+end;
+
+procedure PrepareFillAndBorder(
+  const ASimpleLineDraw: Boolean;
+  const ALineWidth: Integer;
+  const AProjectedLine: IGeometryProjectedPolygon;
+  const ALocalConverter: ILocalCoordConverter;
+  var ADrawablePolygonFill: IDrawablePolygon;
+  var ADrawablePolygonBorder: IDrawablePolygon
+);
+var
+  VSinglePolygon: IGeometryProjectedSinglePolygon;
+  VMultiPolygon: IGeometryProjectedMultiPolygon;
+  i: Integer;
+  VFillList: IInterfaceListSimple;
+  VBorderList: IInterfaceListSimple;
+begin
+  if Supports(AProjectedLine, IGeometryProjectedSinglePolygon, VSinglePolygon) then begin
+    PrepareFillAndBorderForSinglePolygon(
+      ASimpleLineDraw,
+      ALineWidth,
+      VSinglePolygon,
+      ALocalConverter,
+      ADrawablePolygonFill,
+      ADrawablePolygonBorder
+    );
+  end else if Supports(AProjectedLine, IGeometryProjectedMultiPolygon, VMultiPolygon) then begin
+    if VMultiPolygon.Count = 0 then begin
+      ADrawablePolygonFill := nil;
+      ADrawablePolygonBorder := nil;
+    end else if VMultiPolygon.Count = 1 then begin
+      VSinglePolygon := VMultiPolygon.Item[0];
+      PrepareFillAndBorderForSinglePolygon(
+        ASimpleLineDraw,
+        ALineWidth,
+        VSinglePolygon,
+        ALocalConverter,
+        ADrawablePolygonFill,
+        ADrawablePolygonBorder
+      );
+    end else begin
+      VFillList := TInterfaceListSimple.Create;
+      VBorderList := TInterfaceListSimple.Create;
+      for i := 0 to VMultiPolygon.Count - 1 do begin
+        VSinglePolygon := VMultiPolygon.Item[i];
+        PrepareFillAndBorderForSinglePolygon(
+          ASimpleLineDraw,
+          ALineWidth,
+          VSinglePolygon,
+          ALocalConverter,
+          ADrawablePolygonFill,
+          ADrawablePolygonBorder
+        );
+        if Assigned(ADrawablePolygonFill) then begin
+          VFillList.Add(ADrawablePolygonFill);
+        end;
+        if Assigned(ADrawablePolygonBorder) then begin
+          VBorderList.Add(ADrawablePolygonBorder);
+        end;
+      end;
+      if VFillList.Count = 0 then begin
+        ADrawablePolygonFill := nil;
+      end else if VFillList.Count = 1 then begin
+        ADrawablePolygonFill := IDrawablePolygon(VFillList.Items[0]);
+      end else begin
+        ADrawablePolygonFill := TDrawablePolygonByList.Create(VFillList.MakeStaticAndClear);
+      end;
+      if VBorderList.Count = 0 then begin
+        ADrawablePolygonBorder := nil;
+      end else if VBorderList.Count = 1 then begin
+        ADrawablePolygonBorder := IDrawablePolygon(VBorderList.Items[0]);
+      end else begin
+        ADrawablePolygonBorder := TDrawablePolygonByList.Create(VBorderList.MakeStaticAndClear);
+      end;
+    end;
   end;
 end;
 
@@ -600,7 +675,7 @@ begin
   end;
 
   if not Assigned(VDrawablePolygonFill) then begin
-    PrepareFillAndBorder(VProjectedLine, ALocalConverter, VDrawablePolygonFill, VDrawablePolygonBorder);
+    PrepareFillAndBorder(FSimpleLineDraw, FLineWidth, VProjectedLine, ALocalConverter, VDrawablePolygonFill, VDrawablePolygonBorder);
     FPolygonFill := VDrawablePolygonFill;
     FPolygonBorder := VDrawablePolygonBorder;
     FLocalConverter := ALocalConverter;
