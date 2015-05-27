@@ -87,7 +87,7 @@ type
     property Points: PDoublePointArray read GetPoints;
   end;
 
-  IGeometryProjectedSinglePolygon = interface(IGeometryProjectedContour)
+  IGeometryProjectedSinglePolygon = interface(IGeometryProjectedPolygon)
     ['{30424113-D148-45EB-A4C8-C0150DB89D22}']
     function GetOuterBorder: IGeometryProjectedContour;
     property OuterBorder: IGeometryProjectedContour read GetOuterBorder;
