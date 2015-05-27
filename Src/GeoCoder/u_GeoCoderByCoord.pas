@@ -815,6 +815,7 @@ begin
   V2Search := ReplaceStr(V2Search, '=', ' '); // разделители
   V2Search := ReplaceStr(V2Search, ';', ' '); // разделители
   V2Search := ReplaceStr(V2Search, '#', ' '); // разделители
+  V2Search := ReplaceStr(V2Search, '/', ' '); // разделители
   V2Search := RegExprReplaceMatchSubStr(V2Search, 'ШИРОТ(А|Ы)', 'N ');
   V2Search := RegExprReplaceMatchSubStr(V2Search, 'ДОЛГОТ(А|Ы)', 'E ');
 
