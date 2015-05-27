@@ -69,6 +69,10 @@ type
       const APoly: IGeometryProjectedPolygon;
       const APoint: TDoublePoint
     ): Boolean;
+    function IsPointInContour(
+      const APoly: IGeometryProjectedContour;
+      const APoint: TDoublePoint
+    ): Boolean;
     function IsPointInSinglePolygon(
       const APoly: IGeometryProjectedSinglePolygon;
       const APoint: TDoublePoint
@@ -79,6 +83,11 @@ type
     ): Boolean;
     function IsPointOnPolygonBorder(
       const APoly: IGeometryProjectedPolygon;
+      const APoint: TDoublePoint;
+      const ADist: Double
+    ): Boolean;
+    function IsPointOnContourBorder(
+      const APoly: IGeometryProjectedContour;
       const APoint: TDoublePoint;
       const ADist: Double
     ): Boolean;
@@ -96,6 +105,10 @@ type
       const APoly: IGeometryProjectedPolygon;
       const ARect: TDoubleRect
     ): Boolean;
+    function IsRectIntersectContour(
+      const APoly: IGeometryProjectedContour;
+      const ARect: TDoubleRect
+    ): Boolean;
     function IsRectIntersectSinglePolygon(
       const APoly: IGeometryProjectedSinglePolygon;
       const ARect: TDoubleRect
@@ -106,6 +119,10 @@ type
     ): Boolean;
     function IsRectIntersectPolygonBorder(
       const APoly: IGeometryProjectedPolygon;
+      const ARect: TDoubleRect
+    ): Boolean;
+    function IsRectIntersectContourBorder(
+      const APoly: IGeometryProjectedContour;
       const ARect: TDoubleRect
     ): Boolean;
     function IsRectIntersectSinglePolygonBorder(
@@ -119,6 +136,9 @@ type
     function CalcPolygonArea(
       const APoly: IGeometryProjectedPolygon
     ): Double;
+    function CalcContourArea(
+      const APoly: IGeometryProjectedContour
+    ): Double;
     function CalcSinglePolygonArea(
       const APoly: IGeometryProjectedSinglePolygon
     ): Double;
@@ -127,6 +147,9 @@ type
     ): Double;
     function CalcPolygonPerimeter(
       const APoly: IGeometryProjectedPolygon
+    ): Double;
+    function CalcContourPerimeter(
+      const APoly: IGeometryProjectedContour
     ): Double;
     function CalcSinglePolygonPerimeter(
       const APoly: IGeometryProjectedSinglePolygon

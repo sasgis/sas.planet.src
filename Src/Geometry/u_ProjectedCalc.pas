@@ -71,6 +71,10 @@ type
       const APoly: IGeometryProjectedPolygon;
       const APoint: TDoublePoint
     ): Boolean;
+    function IsPointInContour(
+      const APoly: IGeometryProjectedContour;
+      const APoint: TDoublePoint
+    ): Boolean;
     function IsPointInSinglePolygon(
       const APoly: IGeometryProjectedSinglePolygon;
       const APoint: TDoublePoint
@@ -81,6 +85,11 @@ type
     ): Boolean;
     function IsPointOnPolygonBorder(
       const APoly: IGeometryProjectedPolygon;
+      const APoint: TDoublePoint;
+      const ADist: Double
+    ): Boolean;
+    function IsPointOnContourBorder(
+      const APoly: IGeometryProjectedContour;
       const APoint: TDoublePoint;
       const ADist: Double
     ): Boolean;
@@ -98,6 +107,10 @@ type
       const APoly: IGeometryProjectedPolygon;
       const ARect: TDoubleRect
     ): Boolean;
+    function IsRectIntersectContour(
+      const APoly: IGeometryProjectedContour;
+      const ARect: TDoubleRect
+    ): Boolean;
     function IsRectIntersectSinglePolygon(
       const APoly: IGeometryProjectedSinglePolygon;
       const ARect: TDoubleRect
@@ -108,6 +121,10 @@ type
     ): Boolean;
     function IsRectIntersectPolygonBorder(
       const APoly: IGeometryProjectedPolygon;
+      const ARect: TDoubleRect
+    ): Boolean;
+    function IsRectIntersectContourBorder(
+      const APoly: IGeometryProjectedContour;
       const ARect: TDoubleRect
     ): Boolean;
     function IsRectIntersectSinglePolygonBorder(
@@ -121,6 +138,9 @@ type
     function CalcPolygonArea(
       const APoly: IGeometryProjectedPolygon
     ): Double;
+    function CalcContourArea(
+      const APoly: IGeometryProjectedContour
+    ): Double;
     function CalcSinglePolygonArea(
       const APoly: IGeometryProjectedSinglePolygon
     ): Double;
@@ -129,6 +149,9 @@ type
     ): Double;
     function CalcPolygonPerimeter(
       const APoly: IGeometryProjectedPolygon
+    ): Double;
+    function CalcContourPerimeter(
+      const APoly: IGeometryProjectedContour
     ): Double;
     function CalcSinglePolygonPerimeter(
       const APoly: IGeometryProjectedSinglePolygon
@@ -263,8 +286,8 @@ begin
   end;
 end;
 
-function TProjectedCalc.CalcSinglePolygonArea(
-  const APoly: IGeometryProjectedSinglePolygon
+function TProjectedCalc.CalcContourArea(
+  const APoly: IGeometryProjectedContour
 ): Double;
 var
   VEnum: IEnumProjectedPoint;
@@ -282,8 +305,22 @@ begin
   end;
 end;
 
-function TProjectedCalc.CalcSinglePolygonPerimeter(
+function TProjectedCalc.CalcSinglePolygonArea(
   const APoly: IGeometryProjectedSinglePolygon
+): Double;
+var
+  i: Integer;
+  VContour: IGeometryProjectedContour;
+begin
+  Result := CalcContourArea(APoly.OuterBorder);
+  for i := 0 to APoly.HoleCount - 1 do begin
+    VContour := APoly.HoleBorder[i];
+    Result := Result - CalcContourArea(VContour);
+  end;
+end;
+
+function TProjectedCalc.CalcContourPerimeter(
+  const APoly: IGeometryProjectedContour
 ): Double;
 var
   VEnum: IEnumProjectedPoint;
@@ -297,6 +334,20 @@ begin
       Result := Result + Sqrt(Sqr(VPrevPoint.X - VCurrPoint.X) + Sqr(VPrevPoint.Y - VCurrPoint.Y));
       VPrevPoint := VCurrPoint;
     end;
+  end;
+end;
+
+function TProjectedCalc.CalcSinglePolygonPerimeter(
+  const APoly: IGeometryProjectedSinglePolygon
+): Double;
+var
+  i: Integer;
+  VContour: IGeometryProjectedContour;
+begin
+  Result := CalcContourPerimeter(APoly.OuterBorder);
+  for i := 0 to APoly.HoleCount - 1 do begin
+    VContour := APoly.HoleBorder[i];
+    Result := Result + CalcContourPerimeter(VContour);
   end;
 end;
 
@@ -335,8 +386,8 @@ begin
   end;
 end;
 
-function TProjectedCalc.IsPointInSinglePolygon(
-  const APoly: IGeometryProjectedSinglePolygon;
+function TProjectedCalc.IsPointInContour(
+  const APoly: IGeometryProjectedContour;
   const APoint: TDoublePoint
 ): Boolean;
 var
@@ -354,6 +405,26 @@ begin
         result := not (result);
       end;
       VPrevPoint := VCurrPoint;
+    end;
+  end;
+end;
+
+function TProjectedCalc.IsPointInSinglePolygon(
+  const APoly: IGeometryProjectedSinglePolygon;
+  const APoint: TDoublePoint
+): Boolean;
+var
+  i: Integer;
+  VContour: IGeometryProjectedContour;
+begin
+  Result := false;
+  if IsPointInContour(APoly.OuterBorder, APoint) then begin
+    for i := 0 to APoly.HoleCount - 1 do begin
+      VContour := APoly.HoleBorder[i];
+      if IsPointInContour(VContour, APoint) then begin
+        Break;
+      end;
+      Result := True;
     end;
   end;
 end;
@@ -476,8 +547,8 @@ begin
   end;
 end;
 
-function TProjectedCalc.IsPointOnSinglePolygonBorder(
-  const APoly: IGeometryProjectedSinglePolygon;
+function TProjectedCalc.IsPointOnContourBorder(
+  const APoly: IGeometryProjectedContour;
   const APoint: TDoublePoint;
   const ADist: Double
 ): Boolean;
@@ -516,6 +587,29 @@ begin
         end;
       end;
       VPrevPoint := VCurrPoint;
+    end;
+  end;
+end;
+
+function TProjectedCalc.IsPointOnSinglePolygonBorder(
+  const APoly: IGeometryProjectedSinglePolygon;
+  const APoint: TDoublePoint;
+  const ADist: Double
+): Boolean;
+var
+  i: Integer;
+  VContour: IGeometryProjectedContour;
+begin
+  Result := false;
+  if IsPointOnContourBorder(APoly.OuterBorder, APoint, ADist) then begin
+    Result := True;
+  end else begin
+    for i := 0 to APoly.HoleCount - 1 do begin
+      VContour := APoly.HoleBorder[i];
+      if IsPointOnContourBorder(VContour, APoint, ADist) then begin
+        Result := True;
+        Break;
+      end;
     end;
   end;
 end;
@@ -713,8 +807,8 @@ begin
   end;
 end;
 
-function TProjectedCalc.IsRectIntersectSinglePolygon(
-  const APoly: IGeometryProjectedSinglePolygon;
+function TProjectedCalc.IsRectIntersectContour(
+  const APoly: IGeometryProjectedContour;
   const ARect: TDoubleRect
 ): Boolean;
 var
@@ -818,8 +912,31 @@ begin
   end;
 end;
 
-function TProjectedCalc.IsRectIntersectSinglePolygonBorder(
+function TProjectedCalc.IsRectIntersectSinglePolygon(
   const APoly: IGeometryProjectedSinglePolygon;
+  const ARect: TDoubleRect
+): Boolean;
+var
+  i: Integer;
+  VContour: IGeometryProjectedContour;
+begin
+  Result := false;
+  if IsRectIntersectContour(APoly.OuterBorder, ARect) then begin
+    Result := False;
+    for i := 0 to APoly.HoleCount - 1 do begin
+      VContour := APoly.HoleBorder[i];
+      if IsPointInContour(VContour, ARect.TopLeft) then begin
+        if not IsRectIntersectContourBorder(VContour, ARect) then begin
+          Result := False;
+          Break;
+        end;
+      end;
+    end;
+  end;
+end;
+
+function TProjectedCalc.IsRectIntersectContourBorder(
+  const APoly: IGeometryProjectedContour;
   const ARect: TDoubleRect
 ): Boolean;
 var
@@ -904,6 +1021,28 @@ begin
         end;
 
         VPrevPoint := VCurrPoint;
+      end;
+    end;
+  end;
+end;
+
+function TProjectedCalc.IsRectIntersectSinglePolygonBorder(
+  const APoly: IGeometryProjectedSinglePolygon;
+  const ARect: TDoubleRect
+): Boolean;
+var
+  i: Integer;
+  VContour: IGeometryProjectedContour;
+begin
+  Result := false;
+  if IsRectIntersectContourBorder(APoly.OuterBorder, ARect) then begin
+    Result := True;
+  end else begin
+    for i := 0 to APoly.HoleCount - 1 do begin
+      VContour := APoly.HoleBorder[i];
+      if IsRectIntersectContourBorder(VContour, ARect) then begin
+        Result := True;
+        Break;
       end;
     end;
   end;
