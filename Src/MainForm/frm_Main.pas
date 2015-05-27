@@ -5005,7 +5005,6 @@ procedure TfrmMain.NDegScale0Click(Sender: TObject);
 var
   VTag: Double;
 begin
-  TTBXItem(Sender).checked := True;
   if NDegScaleUser.Checked then begin
     VTag := (ConvLatLon2Scale(NDegValue.text) * 100000000);
   end else begin
@@ -5017,8 +5016,17 @@ begin
     if VTag = 0 then begin
       FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible := False;
       FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Scale := VTag;
+      TTBXItem(Sender).checked := True;
     end else begin
-      FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible := True;
+      if FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible then begin
+        if FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Scale = VTag then begin
+          FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible := False;
+          NDegScale0.checked := True;
+        end;
+      end else begin
+        FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible := True;
+        TTBXItem(Sender).checked := True;
+      end;
       FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Scale := VTag;
     end;
   finally
@@ -5371,11 +5379,26 @@ begin
   end else begin
     FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.LockWrite;
     try
-      FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := True;
       if VTag >= 100 then begin
+        if FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible then begin
+          if (FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Zoom = VTag - 100) and
+            (FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UseRelativeZoom)
+          then begin
+            FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := False;
+          end;
+        end else FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := True;
+
         FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UseRelativeZoom := True;
         FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Zoom := VTag - 100;
       end else begin
+        if FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible then begin
+          if (FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Zoom = VTag - 1) and
+            (not FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UseRelativeZoom)
+          then begin
+            FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := False;
+          end;
+        end else FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := True;
+
         FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UseRelativeZoom := False;
         FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Zoom := VTag - 1;
       end;
@@ -6549,14 +6572,22 @@ var
   VTag: Integer;
 begin
   VTag := TTBXItem(Sender).Tag;
-  TTBXItem(Sender).checked := True;
   FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.LockWrite;
   try
     if VTag = 0 then begin
       FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible := False;
       FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale := VTag; // всёравно записываем Scale=0 - признак того что сетка отключена
+      TTBXItem(Sender).checked := True;
     end else begin
-      FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible := True;
+      if FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible then begin
+        if FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale = VTag then begin
+          FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible := False;
+          NGShScale0.Checked := True;
+        end;
+      end else begin
+        FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible := True;
+        TTBXItem(Sender).checked := True;
+      end;
       FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale := VTag;
     end;
   finally
