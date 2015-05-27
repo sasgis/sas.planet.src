@@ -417,14 +417,15 @@ var
   i: Integer;
   VContour: IGeometryProjectedContour;
 begin
-  Result := false;
+  Result := False;
   if IsPointInContour(APoly.OuterBorder, APoint) then begin
+    Result := True;
     for i := 0 to APoly.HoleCount - 1 do begin
       VContour := APoly.HoleBorder[i];
       if IsPointInContour(VContour, APoint) then begin
+        Result := False;
         Break;
       end;
-      Result := True;
     end;
   end;
 end;
