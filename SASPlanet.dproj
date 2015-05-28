@@ -1064,6 +1064,12 @@
     </DCCReference>
     <DCCReference Include="Src\RegionProcess\Export\OGF2\u_ExportProviderOgf2.pas" />
     <DCCReference Include="Src\RegionProcess\Export\OGF2\u_ThreadExportToOgf2.pas" />
+    <DCCReference Include="Src\RegionProcess\Export\OruxMaps\fr_ExportOruxMapsSQLite.pas">
+      <Form>frExportOruxMapsSQLite</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
+    <DCCReference Include="Src\RegionProcess\Export\OruxMaps\u_ExportProviderOruxMapsSQLite.pas" />
+    <DCCReference Include="Src\RegionProcess\Export\OruxMaps\u_ThreadExportToOruxMapsSQLite.pas" />
     <DCCReference Include="Src\RegionProcess\Export\RMaps\fr_ExportRMapsSQLite.pas">
       <DesignClass>TFrame</DesignClass>
       <Form>frExportRMapsSQLite</Form>

@@ -86,6 +86,7 @@ uses
   i_InterfaceListSimple,
   u_InterfaceListSimple,
   u_ExportProviderRMapsSQLite,
+  u_ExportProviderOruxMapsSQLite,
   u_ExportProviderYaMobileV3,
   u_ExportProviderYaMobileV4,
   u_ExportProviderGEKml,
@@ -282,7 +283,23 @@ begin
   VList.Add(VExportProvider);
   CBFormat.Items.Add(VExportProvider.GetCaption);
 
+  VExportProvider :=
+    TExportProviderOruxMapsSQLite.Create(
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AProjectionFactory,
+      AVectorGeometryProjectedFactory,
+      ABitmap32StaticFactory,
+      ABitmapTileSaveLoadFactory,
+      ACoordConverterFactory
+    );
+  VList.Add(VExportProvider);
+  CBFormat.Items.Add(VExportProvider.GetCaption);
+
   CBFormat.ItemIndex := 0;
+  CBFormat.DropDownCount := VList.Count;
+  
   FProviders := VList.MakeStaticAndClear;
   Assert(CBFormat.Items.Count = FProviders.Count);
 end;
