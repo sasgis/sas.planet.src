@@ -68,6 +68,7 @@ uses
   Types,
   Classes,
   SysUtils,
+  i_BinaryData,
   i_BitmapTileSaveLoad,
   i_BitmapLayerProvider,
   i_RegionProcessParamsFrame,
@@ -138,6 +139,7 @@ var
   VThread: TThread;
   VMapVersion: IMapVersionRequest;
   VTileStorage: ITileStorage;
+  VBlankTile: IBinaryData;
 begin
   inherited;
 
@@ -155,6 +157,7 @@ begin
 
   with (ParamsFrame as IRegionProcessParamsFrameOruxMapsSQLiteExport) do begin
     VDirectTilesCopy := DirectTilesCopy;
+    VBlankTile := BlankTile;
     VBitmapTileSaver := BitmapTileSaver;
   end;
 
@@ -173,6 +176,7 @@ begin
       VMapVersion,
       VBitmapTileSaver,
       VBitmapProvider,
+      VBlankTile,
       VDirectTilesCopy
     );
   VThread.Resume;

@@ -57,6 +57,7 @@ type
     FDirectTilesCopy: Boolean;
     FSQLite3DB: TSQLite3DbHandler;
     FSQLiteAvailable: Boolean;
+    FBlankTile: IBinaryData;
     FBasePoint: TPoint;
   private
     procedure WriteMainOtrk2File(const ATileIterators: array of ITileIterator);
@@ -82,6 +83,7 @@ type
       const AMapVersion: IMapVersionRequest;
       const ABitmapTileSaver: IBitmapTileSaver;
       const ABitmapProvider: IBitmapTileUniProvider;
+      const ABlankTile: IBinaryData;
       const ADirectTilesCopy: Boolean
     );
   end;
@@ -98,7 +100,10 @@ uses
   i_ProjectionInfo,
   i_Bitmap32Static,
   i_TileRect,
+  u_TileRect,
+  u_TileIteratorByRect,
   u_TileIteratorByPolygon,
+  u_GeoFunc,
   u_ResStrings;
 
 const
@@ -122,6 +127,7 @@ constructor TThreadExportToOruxMapsSQLite.Create(
   const AMapVersion: IMapVersionRequest;
   const ABitmapTileSaver: IBitmapTileSaver;
   const ABitmapProvider: IBitmapTileUniProvider;
+  const ABlankTile: IBinaryData;
   const ADirectTilesCopy: Boolean
 );
 begin
@@ -140,6 +146,7 @@ begin
   FMapVersion := AMapVersion;
   FBitmapTileSaver := ABitmapTileSaver;
   FBitmapProvider := ABitmapProvider;
+  FBlankTile := ABlankTile;
   FDirectTilesCopy := ADirectTilesCopy;
   FSQLiteAvailable := FSQLite3DB.Init;
 end;
@@ -149,18 +156,23 @@ var
   I: Integer;
   VZoom: Byte;
   VTile: TPoint;
-  VBasePoints: array of TPoint;
+  VDoubleRect: TDoubleRect;
   VDoDirectCopy: Boolean;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
   VGeoConvert: ICoordConverter;
+  VRect: TRect;
+  VTileRect: ITileRect;
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
+  VProjectedPolygons: array of IGeometryProjectedPolygon;
   VProjectedPolygon: IGeometryProjectedPolygon;
   VTileInfo: ITileInfoWithData;
   VBitmapTile: IBitmap32Static;
   VTileData: IBinaryData;
   VProjection: IProjectionInfo;
+  VIterByRect: Boolean;
+  VDoSaveBlank: Boolean;
 begin
   inherited;
 
@@ -171,31 +183,44 @@ begin
     Assert(FBitmapTileSaver <> nil);
   end;
 
-  SetLength(VBasePoints, Length(FZooms));
+  if not DirectoryExists(FExportPath) then begin
+    if not ForceDirectories(FExportPath) then begin
+      RaiseLastOSError;
+    end;
+  end;
+
+  VIterByRect := Assigned(FBlankTile);
+
   SetLength(VTileIterators, Length(FZooms));
+  SetLength(VProjectedPolygons, Length(FZooms));
+
   VTilesToProcess := 0;
 
   VGeoConvert := FTileStorage.CoordConverter;
 
   for I := 0 to Length(FZooms) - 1 do begin
     VProjection := FProjectionFactory.GetByConverterAndZoom(VGeoConvert, FZooms[I]);
-    VProjectedPolygon :=
+    VProjectedPolygons[I] :=
       FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
         VProjection,
         PolygLL
       );
-    VTileIterators[I] :=
-      TTileIteratorByPolygon.Create(
-        VProjection,
-        VProjectedPolygon
-      );
-    VTilesToProcess := VTilesToProcess + VTileIterators[I].TilesTotal;
-  end;
-
-  if not DirectoryExists(FExportPath) then begin
-    if not ForceDirectories(FExportPath) then begin
-      RaiseLastOSError;
+    if VIterByRect then begin
+      VRect :=
+        RectFromDoubleRect(
+          VGeoConvert.PixelRectFloat2TileRectFloat(VProjectedPolygons[I].Bounds, FZooms[I]),
+          rrOutside
+        );
+      VTileRect := TTileRect.Create(VProjection, VRect);
+      VTileIterators[I] := TTileIteratorByRect.Create(VTileRect);
+    end else begin
+      VTileIterators[I] :=
+        TTileIteratorByPolygon.Create(
+          VProjection,
+          VProjectedPolygons[I]
+        );
     end;
+    VTilesToProcess := VTilesToProcess + VTileIterators[I].TilesTotal;
   end;
 
   WriteMainOtrk2File(VTileIterators);
@@ -212,6 +237,7 @@ begin
     for I := 0 to Length(FZooms) - 1 do begin
       VZoom := FZooms[I];
       VTileIterator := VTileIterators[I];
+      VProjectedPolygon := VProjectedPolygons[I];
       if Assigned(VTileIterator) then begin
         VProjection := VTileIterator.TilesRect.ProjectionInfo;
         FBasePoint := VTileIterator.TilesRect.TopLeft;
@@ -220,24 +246,41 @@ begin
             Exit;
           end;
 
-          if VDoDirectCopy then begin
-            if Supports(FTileStorage.GetTileInfoEx(VTile, VZoom, FMapVersion, gtimWithData), ITileInfoWithData, VTileInfo) then begin
-              // save tile as is
-              SaveTileToSQLiteStorage(VTile, VZoom, VTileInfo.TileData);
+          VDoSaveBlank := False;
+
+          if VIterByRect then begin
+            VDoubleRect := VGeoConvert.TilePos2PixelRectFloat(VTile, VZoom);
+            VDoSaveBlank := not VProjectedPolygon.IsRectIntersectPolygon(VDoubleRect);
+          end;
+
+          if not VDoSaveBlank then begin
+            if VDoDirectCopy then begin
+              if Supports(FTileStorage.GetTileInfoEx(VTile, VZoom, FMapVersion, gtimWithData), ITileInfoWithData, VTileInfo) then begin
+                // save tile as is
+                SaveTileToSQLiteStorage(VTile, VZoom, VTileInfo.TileData);
+              end else begin
+                VDoSaveBlank := True;
+              end;
+            end else begin
+              VBitmapTile :=
+                FBitmapProvider.GetTile(
+                  Self.OperationID,
+                  Self.CancelNotifier,
+                  VProjection,
+                  VTile
+                );
+              if Assigned(VBitmapTile) then begin
+                VTileData := FBitmapTileSaver.Save(VBitmapTile);
+                // save tile with overlay
+                SaveTileToSQLiteStorage(VTile, VZoom, VTileData);
+              end else begin
+                VDoSaveBlank := True;
+              end;
             end;
-          end else begin
-            VBitmapTile :=
-              FBitmapProvider.GetTile(
-                Self.OperationID,
-                Self.CancelNotifier,
-                VProjection,
-                VTile
-              );
-            if Assigned(VBitmapTile) then begin
-              VTileData := FBitmapTileSaver.Save(VBitmapTile);
-              // save tile with overlay
-              SaveTileToSQLiteStorage(VTile, VZoom, VTileData);
-            end;
+          end;
+
+          if VIterByRect and VDoSaveBlank then begin
+            SaveTileToSQLiteStorage(VTile, VZoom, FBlankTile);
           end;
 
           Inc(VTilesProcessed);
@@ -251,8 +294,10 @@ begin
     CloseSQLiteStorage;
     for I := 0 to Length(FZooms) - 1 do begin
       VTileIterators[I] := nil;
+      VProjectedPolygons[I] := nil;
     end;
     VTileIterators := nil;
+    VProjectedPolygons := nil;
   end;
 end;
 

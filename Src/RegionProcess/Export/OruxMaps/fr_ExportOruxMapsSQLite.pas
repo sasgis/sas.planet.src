@@ -40,6 +40,7 @@ uses
   i_BitmapTileSaveLoad,
   i_BitmapTileSaveLoadFactory,
   i_MapType,
+  i_BinaryData,
   fr_MapSelect,
   fr_ZoomsSelect,
   u_CommonFormAndFrameParents;
@@ -49,6 +50,9 @@ type
     ['{AF048EAA-5AE3-45CD-94FD-443DFCB580B6}']
     function GetDirectTilesCopy: Boolean;
     property DirectTilesCopy: Boolean read GetDirectTilesCopy;
+
+    function GetBlankTile: IBinaryData;
+    property BlankTile: IBinaryData read GetBlankTile;
     
     function GetBitmapTileSaver: IBitmapTileSaver;
     property BitmapTileSaver: IBitmapTileSaver read GetBitmapTileSaver;
@@ -83,6 +87,7 @@ type
     seCompression: TSpinEdit;
     lblCompression: TLabel;
     chkUsePrevZoom: TCheckBox;
+    chkStoreBlankTiles: TCheckBox;
     procedure btnSelectTargetPathClick(Sender: TObject);
     procedure cbbImageFormatChange(Sender: TObject);
   private
@@ -106,6 +111,7 @@ type
     function GetAllowExport(const AMapType: IMapType): Boolean;
     function GetProvider: IBitmapTileUniProvider;
     function GetBitmapTileSaver: IBitmapTileSaver;
+    function GetBlankTile: IBinaryData;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -124,7 +130,9 @@ uses
   {$WARN UNIT_PLATFORM ON}
   gnugettext,
   Graphics,
+  t_Bitmap32,
   c_CoordConverter,
+  i_Bitmap32Static,
   i_MapVersionRequest,
   i_ContentTypeInfo,
   u_BitmapLayerProviderMapWithLayer;
@@ -201,6 +209,27 @@ end;
 function TfrExportOruxMapsSQLite.GetAllowExport(const AMapType: IMapType): Boolean;
 begin
   Result := AMapType.IsBitmapTiles;
+end;
+
+function TfrExportOruxMapsSQLite.GetBlankTile: IBinaryData;
+const
+  cOruxMapsBackground = TColor32($FFCBD3F3);
+var
+  VBuffer: IBitmap32Buffer;
+  VBitmapStatic: IBitmap32Static;
+  VBitmapSaver: IBitmapTileSaver;
+begin
+  Result := nil;
+  if chkStoreBlankTiles.Checked then begin
+    VBuffer :=
+      FBitmap32StaticFactory.BufferFactory.BuildEmptyClear(
+        Point(256, 256),
+        cOruxMapsBackground
+      );
+    VBitmapStatic := FBitmap32StaticFactory.BuildWithOwnBuffer(VBuffer);
+    VBitmapSaver := Self.GetBitmapTileSaver;
+    Result := VBitmapSaver.Save(VBitmapStatic);
+  end;
 end;
 
 function TfrExportOruxMapsSQLite.GetMapType: IMapType;

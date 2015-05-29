@@ -68,12 +68,13 @@ object frExportOruxMapsSQLite: TfrExportOruxMapsSQLite
       end
       object pnlImageFormat: TPanel
         Left = 3
-        Top = 95
+        Top = 112
         Width = 461
         Height = 48
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 2
+        ExplicitTop = 95
         object lblJpgQulity: TLabel
           Left = 156
           Top = 6
@@ -144,6 +145,19 @@ object frExportOruxMapsSQLite: TfrExportOruxMapsSQLite
         Align = alTop
         Caption = 'Use tiles from lower zooms (on unavalible tile)'
         TabOrder = 3
+        ExplicitLeft = 0
+      end
+      object chkStoreBlankTiles: TCheckBox
+        Left = 3
+        Top = 95
+        Width = 461
+        Height = 17
+        Align = alTop
+        Caption = 'Store blank tiles'
+        Checked = True
+        State = cbChecked
+        TabOrder = 4
+        ExplicitLeft = 0
       end
     end
     object PnlZoom: TPanel
