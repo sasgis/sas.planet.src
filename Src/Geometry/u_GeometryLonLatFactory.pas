@@ -42,8 +42,8 @@ type
       ACount: Integer
     ): IGeometryLonLatSinglePolygon;
 
-    function MakeGeometryLonLatMultiLineBuilder(): IGeometryLonLatMultiLineBuilder;
-    function MakeGeometryLonLatMultiPolygonBuilder(): IGeometryLonLatMultiPolygonBuilder;
+    function MakeMultiLineBuilder(): IGeometryLonLatMultiLineBuilder;
+    function MakeMultiPolygonBuilder(): IGeometryLonLatMultiPolygonBuilder;
 
     function CreateLonLatMultiLine(
       const APoints: PDoublePointArray;
@@ -460,7 +460,7 @@ var
   VLineBounds: TDoubleRect;
   VBuilder: IGeometryLonLatMultiLineBuilder;
 begin
-  VBuilder := MakeGeometryLonLatMultiLineBuilder;
+  VBuilder := MakeMultiLineBuilder;
   VStart := APoints;
   VLineLen := 0;
   for i := 0 to ACount - 1 do begin
@@ -511,7 +511,7 @@ var
   VLineBounds: TDoubleRect;
   VBuilder: IGeometryLonLatMultiLineBuilder;
 begin
-  VBuilder := MakeGeometryLonLatMultiLineBuilder;
+  VBuilder := MakeMultiLineBuilder;
   VTemp := ATemp;
   if VTemp = nil then begin
     VTemp := TDoublePointsAggregator.Create;
@@ -580,7 +580,7 @@ var
 begin
   VStart := APoints;
   VLineLen := 0;
-  VBuilder := MakeGeometryLonLatMultiPolygonBuilder;
+  VBuilder := MakeMultiPolygonBuilder;
   for i := 0 to ACount - 1 do begin
     VPoint := APoints[i];
     if PointIsEmpty(VPoint) then begin
@@ -629,7 +629,7 @@ var
   VLineBounds: TDoubleRect;
   VBuilder: IGeometryLonLatMultiPolygonBuilder;
 begin
-  VBuilder := MakeGeometryLonLatMultiPolygonBuilder;
+  VBuilder := MakeMultiPolygonBuilder;
   VTemp := ATemp;
   if VTemp = nil then begin
     VTemp := TDoublePointsAggregator.Create;
@@ -683,7 +683,7 @@ var
   VLineBounds: TDoubleRect;
   VBuilder: IGeometryLonLatMultiPolygonBuilder;
 begin
-  VBuilder := MakeGeometryLonLatMultiPolygonBuilder;
+  VBuilder := MakeMultiPolygonBuilder;
 
   VTemp := TDoublePointsAggregator.Create;
   VEnum := AFilter.CreateFilteredEnum(ASource.GetEnum);
@@ -744,12 +744,12 @@ begin
   Result := CreateLonLatPolygonInternal(ARect, @VPoints[0], 4);
 end;
 
-function TGeometryLonLatFactory.MakeGeometryLonLatMultiLineBuilder: IGeometryLonLatMultiLineBuilder;
+function TGeometryLonLatFactory.MakeMultiLineBuilder: IGeometryLonLatMultiLineBuilder;
 begin
   Result := TGeometryLonLatMultiLineBuilder.Create(FEmptyLonLatPath, FHashFunction);
 end;
 
-function TGeometryLonLatFactory.MakeGeometryLonLatMultiPolygonBuilder: IGeometryLonLatMultiPolygonBuilder;
+function TGeometryLonLatFactory.MakeMultiPolygonBuilder: IGeometryLonLatMultiPolygonBuilder;
 begin
   Result := TGeometryLonLatMultiPolygonBuilder.Create(FEmptyLonLatPolygon, FHashFunction);
 end;

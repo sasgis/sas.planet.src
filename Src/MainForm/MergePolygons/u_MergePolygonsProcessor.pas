@@ -288,7 +288,7 @@ var
   VMultiPolygonBuilder: IGeometryLonLatMultiPolygonBuilder;
 begin
   Result := nil;
-  VMultiPolygonBuilder := FVectorGeometryLonLatFactory.MakeGeometryLonLatMultiPolygonBuilder;
+  VMultiPolygonBuilder := FVectorGeometryLonLatFactory.MakeMultiPolygonBuilder;
 
   for I := 0 to Length(FItems) - 1 do begin
     if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
@@ -347,7 +347,7 @@ begin
           Exit;
         end;
 
-        VMultiPolygonBuilder := FVectorGeometryLonLatFactory.MakeGeometryLonLatMultiPolygonBuilder;
+        VMultiPolygonBuilder := FVectorGeometryLonLatFactory.MakeMultiPolygonBuilder;
         for I := 0 to VPolyTree.ChildCount - 1 do begin
           ProcessClipperNode(VPolyTree.Childs[I], VMultiPolygonBuilder);
         end;

@@ -61,8 +61,8 @@ type
       ACount: Integer
     ): IGeometryLonLatSinglePolygon;
 
-    function MakeGeometryLonLatMultiLineBuilder(): IGeometryLonLatMultiLineBuilder;
-    function MakeGeometryLonLatMultiPolygonBuilder(): IGeometryLonLatMultiPolygonBuilder;
+    function MakeMultiLineBuilder(): IGeometryLonLatMultiLineBuilder;
+    function MakeMultiPolygonBuilder(): IGeometryLonLatMultiPolygonBuilder;
 
     function CreateLonLatMultiLine(
       const APoints: PDoublePointArray;
