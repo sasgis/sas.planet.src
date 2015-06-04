@@ -83,6 +83,17 @@ type
     function GetEnum: IEnumLonLatPoint;
   end;
 
+  IGeometryLonLatContour = interface(IGeometryLonLatPolygon)
+    ['{4729DBB2-3537-42F7-BA7E-C37669D89811}']
+    function IsSame(const ALine: IGeometryLonLatContour): Boolean;
+
+    function GetCount: Integer;
+    property Count: Integer read GetCount;
+
+    function GetPoints: PDoublePointArray;
+    property Points: PDoublePointArray read GetPoints;
+  end;
+
   IGeometryLonLatSinglePolygon = interface(IGeometryLonLatPolygon)
     ['{C9FF5A32-B90D-43D2-9394-9E54A4F29905}']
     function IsSame(const ALine: IGeometryLonLatSinglePolygon): Boolean;
@@ -92,6 +103,15 @@ type
 
     function GetPoints: PDoublePointArray;
     property Points: PDoublePointArray read GetPoints;
+
+    function GetOuterBorder: IGeometryLonLatContour;
+    property OuterBorder: IGeometryLonLatContour read GetOuterBorder;
+
+    function GetHoleCount: Integer;
+    property HoleCount: Integer read GetHoleCount;
+
+    function GetHoleBorder(const AIndex: Integer): IGeometryLonLatContour;
+    property HoleBorder[const AIndex: Integer]: IGeometryLonLatContour read GetHoleBorder;
   end;
 
   IGeometryLonLatMultiPolygon = interface(IGeometryLonLatPolygon)

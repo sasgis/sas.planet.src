@@ -66,12 +66,27 @@ type
     );
   end;
 
-  TGeometryLonLatSinglePolygon = class(TGeometryLonLatBase, IGeometryLonLat, IGeometryLonLatPolygon, IGeometryLonLatSinglePolygon)
+  TGeometryLonLatContour = class(TGeometryLonLatBase, IGeometryLonLat, IGeometryLonLatPolygon, IGeometryLonLatContour)
   private
     function GetEnum: IEnumLonLatPoint;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
-    function IsSame(const ALine: IGeometryLonLatSinglePolygon): Boolean;
+    function IsSame(const ALine: IGeometryLonLatContour): Boolean;
     function GetGoToPoint: TDoublePoint;
+  public
+    constructor Create(
+      const ABounds: ILonLatRect;
+      const AHash: THashValue;
+      const APoints: PDoublePointArray;
+      ACount: Integer
+    );
+  end;
+
+  TGeometryLonLatSinglePolygon = class(TGeometryLonLatContour, IGeometryLonLatSinglePolygon)
+  private
+    function IsSame(const ALine: IGeometryLonLatSinglePolygon): Boolean;
+    function GetOuterBorder: IGeometryLonLatContour;
+    function GetHoleCount: Integer;
+    function GetHoleBorder(const AIndex: Integer): IGeometryLonLatContour;
   public
     constructor Create(
       const ABounds: ILonLatRect;
@@ -222,9 +237,9 @@ begin
   end;
 end;
 
-{ TGeometryLonLatSinglePolygon }
+{ TGeometryLonLatContour }
 
-constructor TGeometryLonLatSinglePolygon.Create(
+constructor TGeometryLonLatContour.Create(
   const ABounds: ILonLatRect;
   const AHash: THashValue;
   const APoints: PDoublePointArray;
@@ -234,22 +249,22 @@ begin
   inherited Create(True, ABounds, AHash, APoints, ACount);
 end;
 
-function TGeometryLonLatSinglePolygon.GetEnum: IEnumLonLatPoint;
+function TGeometryLonLatContour.GetEnum: IEnumLonLatPoint;
 begin
   Result := TEnumDoublePointBySingleLonLatLine.Create(Self, True, @FPoints[0], FCount);
 end;
 
-function TGeometryLonLatSinglePolygon.GetGoToPoint: TDoublePoint;
+function TGeometryLonLatContour.GetGoToPoint: TDoublePoint;
 begin
   Result := FBounds.CalcRectCenter;
 end;
 
-function TGeometryLonLatSinglePolygon.IsSame(const ALine: IGeometryLonLatSinglePolygon): Boolean;
+function TGeometryLonLatContour.IsSame(const ALine: IGeometryLonLatContour): Boolean;
 var
   i: Integer;
   VPoints: PDoublePointArray;
 begin
-  if ALine = IGeometryLonLatSinglePolygon(Self) then begin
+  if ALine = IGeometryLonLatContour(Self) then begin
     Result := True;
     Exit;
   end;
@@ -280,11 +295,11 @@ begin
   end;
 end;
 
-function TGeometryLonLatSinglePolygon.IsSameGeometry(
+function TGeometryLonLatContour.IsSameGeometry(
   const AGeometry: IGeometryLonLat
 ): Boolean;
 var
-  VLine: IGeometryLonLatSinglePolygon;
+  VLine: IGeometryLonLatContour;
 begin
   if AGeometry = nil then begin
     Result := False;
@@ -300,9 +315,46 @@ begin
   end;
 
   Result := False;
-  if Supports(AGeometry, IGeometryLonLatSinglePolygon, VLine) then begin
+  if Supports(AGeometry, IGeometryLonLatContour, VLine) then begin
     Result := IsSame(VLine);
   end;
+end;
+
+{ TGeometryLonLatSinglePolygon }
+
+constructor TGeometryLonLatSinglePolygon.Create(
+  const ABounds: ILonLatRect;
+  const AHash: THashValue;
+  const APoints: PDoublePointArray;
+  ACount: Integer
+);
+begin
+  inherited Create(ABounds, AHash, APoints, ACount);
+end;
+
+function TGeometryLonLatSinglePolygon.GetHoleBorder(
+  const AIndex: Integer
+): IGeometryLonLatContour;
+begin
+  Result := nil;
+  Assert(False);
+end;
+
+function TGeometryLonLatSinglePolygon.GetHoleCount: Integer;
+begin
+  Result := 0;
+end;
+
+function TGeometryLonLatSinglePolygon.GetOuterBorder: IGeometryLonLatContour;
+begin
+  Result := Self;
+end;
+
+function TGeometryLonLatSinglePolygon.IsSame(
+  const ALine: IGeometryLonLatSinglePolygon
+): Boolean;
+begin
+  Result := IsSameGeometry(ALine);
 end;
 
 { TGeometryLonLatPoint }
