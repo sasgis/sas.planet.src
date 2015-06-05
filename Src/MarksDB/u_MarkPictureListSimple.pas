@@ -378,6 +378,9 @@ begin
         IncludeTrailingPathDelimiter(FMediaDataPath.FullPath),
         [rfIgnoreCase]
       );
+      if not FileExists(VFullName) then begin
+        VFullName := '';
+      end;
       VShortName := AValue;
     end else if FileExists(AValue) then begin
       VFullName := AValue;
