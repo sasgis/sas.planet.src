@@ -354,6 +354,18 @@ begin
     VSLon := Copy(VLink, I + 1, J - (I + 1));
   end;
 
+  // https://www.google.ru/maps/@43.6545592,40.9555717,19z/data=!3m1!1e3
+  if RegExprGetMatchSubStr(VLink, '\.google\..+\/maps\/', 0) <> '' then begin
+    VSName := 'Google';
+    I := ALPosEx('@', VLink, 1);
+    J := ALPosEx(',', VLink, I);
+    VSLat := Copy(VLink, I + 1, J - (I + 1));
+    I := J;
+    J := ALPosEx(',', VLink, I + 1);
+    VSLon := Copy(VLink, I + 1, J - (I + 1));
+  end;
+
+
   // http://maps.navitel.su/?zoom=16&lat=45.03446&lon=38.96867&fl=J&rId=hN21H5ByVER8e4A%3D&rp=5
   if RegExprGetMatchSubStr(VLink, 'maps\.navitel\.su.+lat=.+lon=', 0) <> '' then begin
     VSName := 'Navitel';
@@ -722,6 +734,7 @@ end;
 
 // Полные ссылки
 // http://maps.google.com/?ll=48.718079,44.504639&spn=0.722115,1.234589&t=h&z=10
+// https://www.google.ru/maps/@43.6545592,40.9555717,19z/data=!3m1!1e3
 // http://maps.yandex.ru/?ll=44.514541%2C48.708958&spn=0.322723%2C0.181775&z=12&l=map
 // http://maps.navitel.su/?zoom=6&lat=55.8&lon=37.6
 // http://kosmosnimki.ru/?x=44.1053254382903&y=45.6876903573303&z=6&fullscreen=false&mode=satellite
