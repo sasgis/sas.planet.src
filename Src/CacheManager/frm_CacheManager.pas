@@ -194,14 +194,14 @@ begin
       ALanguageManager,
       ATileStorageTypeList,
       False,
-      True
+      [foDisallowInMemory]
     );
   FfrDestCacheTypesList :=
     TfrCacheTypeList.Create(
       ALanguageManager,
       ATileStorageTypeList,
       False,
-      True
+      [foDisallowInMemory]
     );
 end;
 

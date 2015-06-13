@@ -169,7 +169,7 @@ begin
       ALanguageManager,
       ATileStorageTypeList,
       False,
-      True,
+      [foDisallowInMemory],
       Self.OnCacheTypeChange
     );
   FfrZoomsSelect :=

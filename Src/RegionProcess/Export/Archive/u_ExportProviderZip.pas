@@ -29,6 +29,7 @@ uses
   i_CoordConverterFactory,
   i_GeometryProjectedFactory,
   i_ArchiveReadWriteFactory,
+  i_TileStorageTypeList,
   i_TileFileNameGeneratorsList,
   i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
@@ -41,6 +42,7 @@ type
     FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
+    FTileStorageTypeList: ITileStorageTypeListStatic;
     FTileNameGenerator: ITileFileNameGeneratorsList;
   protected
     function CreateFrame: TFrame; override;
@@ -55,6 +57,7 @@ type
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+      const ATileStorageTypeList: ITileStorageTypeListStatic;
       const ATileNameGenerator: ITileFileNameGeneratorsList
     );
   end;
@@ -81,6 +84,7 @@ constructor TExportProviderZip.Create(
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+  const ATileStorageTypeList: ITileStorageTypeListStatic;
   const ATileNameGenerator: ITileFileNameGeneratorsList
 );
 begin
@@ -92,6 +96,7 @@ begin
   FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
+  FTileStorageTypeList := ATileStorageTypeList;
   FTileNameGenerator := ATileNameGenerator;
 end;
 
@@ -102,6 +107,7 @@ begin
       Self.LanguageManager,
       Self.MapSelectFrameBuilder,
       FTileNameGenerator,
+      FTileStorageTypeList,
       'Zip |*.zip',
       'zip'
     );

@@ -36,9 +36,11 @@ uses
   i_MapType,
   i_TileFileNameGenerator,
   i_TileFileNameGeneratorsList,
+  i_TileStorageTypeList,
   i_RegionProcessParamsFrame,
   fr_MapSelect,
   fr_ZoomsSelect,
+  fr_CacheTypeList,
   u_CommonFormAndFrameParents;
 
 type
@@ -66,14 +68,15 @@ type
     edtTargetFile: TEdit;
     btnSelectTargetFile: TButton;
     dlgSaveTargetFile: TSaveDialog;
-    cbbNamesType: TComboBox;
     lblNamesType: TLabel;
     pnlFrame: TPanel;
+    pnlCacheTypes: TPanel;
     procedure btnSelectTargetFileClick(Sender: TObject);
   private
     FTileNameGeneratorList: ITileFileNameGeneratorsList;
     FfrMapSelect: TfrMapSelect;
     FfrZoomsSelect: TfrZoomsSelect;
+    FfrCacheTypeList: TfrCacheTypeList;
   private
     procedure Init(
       const AZoom: byte;
@@ -91,6 +94,7 @@ type
       const ALanguageManager: ILanguageManager;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const ATileNameGeneratorList: ITileFileNameGeneratorsList;
+      const ATileStorageTypeList: ITileStorageTypeListStatic;
       const AFileFilters: string;
       const AFileExtDefault: string
     ); reintroduce;
@@ -109,6 +113,7 @@ constructor TfrExportToFileCont.Create(
   const ALanguageManager: ILanguageManager;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const ATileNameGeneratorList: ITileFileNameGeneratorsList;
+  const ATileStorageTypeList: ITileStorageTypeListStatic;
   const AFileFilters: string;
   const AFileExtDefault: string
 );
@@ -117,7 +122,13 @@ begin
   FTileNameGeneratorList := ATileNameGeneratorList;
   dlgSaveTargetFile.Filter := AFileFilters;
   dlgSaveTargetFile.DefaultExt := AFileExtDefault;
-  cbbNamesType.ItemIndex := 1;
+  FfrCacheTypeList :=
+    TfrCacheTypeList.Create(
+      ALanguageManager,
+      ATileStorageTypeList,
+      False,
+      [foAllowFileSys]
+    );
   FfrMapSelect :=
     AMapSelectFrameBuilder.Build(
       mfAll, // show maps and layers
@@ -136,6 +147,7 @@ destructor TfrExportToFileCont.Destroy;
 begin
   FreeAndNil(FfrMapSelect);
   FreeAndNil(FfrZoomsSelect);
+  FreeAndNil(FfrCacheTypeList);
   inherited;
 end;
 
@@ -159,7 +171,7 @@ end;
 
 function TfrExportToFileCont.GetNameGenerator: ITileFileNameGenerator;
 begin
-  Result := FTileNameGeneratorList.GetGenerator(cbbNamesType.ItemIndex + 1);
+  Result := FTileNameGeneratorList.GetGenerator(FfrCacheTypeList.IntCode);
 end;
 
 function TfrExportToFileCont.GetPath: string;
@@ -176,15 +188,12 @@ procedure TfrExportToFileCont.Init;
 begin
   FfrMapSelect.Show(pnlFrame);
   FfrZoomsSelect.Show(pnlZoom);
+  FfrCacheTypeList.Show(pnlCacheTypes);
 end;
 
 procedure TfrExportToFileCont.RefreshTranslation;
-var
-  i: Integer;
 begin
-  i := cbbNamesType.ItemIndex;
   inherited;
-  cbbNamesType.ItemIndex := i;
 end;
 
 function TfrExportToFileCont.Validate: Boolean;

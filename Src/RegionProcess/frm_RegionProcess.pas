@@ -287,6 +287,7 @@ begin
       ABitmapPostProcessing,
       ABitmapTileSaveLoadFactory,
       AArchiveReadWriteFactory,
+      ATileStorageTypeList,
       ATileNameGenerator
     );
 

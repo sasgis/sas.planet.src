@@ -36,6 +36,7 @@ uses
   i_BitmapPostProcessing,
   i_ArchiveReadWriteFactory,
   i_Bitmap32BufferFactory,
+  i_TileStorageTypeList,
   i_TileFileNameGeneratorsList,
   i_RegionProcessProgressInfoInternalFactory,
   i_RegionProcessProvider,
@@ -66,6 +67,7 @@ type
       const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+      const ATileStorageTypeList: ITileStorageTypeListStatic;
       const ATileNameGenerator: ITileFileNameGeneratorsList
     ); reintroduce;
     destructor Destroy; override;
@@ -113,6 +115,7 @@ constructor TfrExport.Create(
   const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+  const ATileStorageTypeList: ITileStorageTypeListStatic;
   const ATileNameGenerator: ITileFileNameGeneratorsList
 );
 var
@@ -211,6 +214,7 @@ begin
       AProjectionFactory,
       AVectorGeometryProjectedFactory,
       AArchiveReadWriteFactory,
+      ATileStorageTypeList,
       ATileNameGenerator
     );
   VList.Add(VExportProvider);
@@ -224,6 +228,7 @@ begin
       AProjectionFactory,
       AVectorGeometryProjectedFactory,
       AArchiveReadWriteFactory,
+      ATileStorageTypeList,
       ATileNameGenerator
     );
   VList.Add(VExportProvider);

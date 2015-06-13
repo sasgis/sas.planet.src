@@ -15,18 +15,34 @@ uses
   StdCtrls,
   i_LanguageManager,
   i_TileStorageTypeList,
+  i_TileStorageTypeListItem,
   u_CommonFormAndFrameParents;
 
 type
+  TCacheTypeListOption = (
+    foAllowAll,
+    foAllowInMemory,
+    foAllowFileSys,
+    foAllowNoFileSys,
+    foDisallowInMemory,
+    foDisallowFileSys,
+    foDisallowNoFileSys
+  );
+
+  TCacheTypeListOptions = set of TCacheTypeListOption;
+
   TfrCacheTypeList = class(TFrame)
     cbbCacheType: TComboBox;
     procedure cbbCacheTypeChange(Sender: TObject);
   private
     FOnChange: TNotifyEvent;
+    FOptions: TCacheTypeListOptions;
+    function IsItemAllowed(
+      const AItem: ITileStorageTypeListItem
+    ): Boolean; inline;
     procedure FillItems(
       const ATypesList: ITileStorageTypeListStatic;
-      const AWithDefaultItem: Boolean;
-      const AIngoreRamCache: Boolean
+      const AWithDefaultItem: Boolean
     );
   public
     procedure Show(AParent: TWinControl);
@@ -38,7 +54,7 @@ type
       const ALanguageManager: ILanguageManager;
       const ATileStorageTypeList: ITileStorageTypeListStatic;
       const AWithDefaultItem: Boolean = False;
-      const AIngoreRamCache: Boolean = False;
+      const AFilterOptions: TCacheTypeListOptions = [foAllowAll];
       const AOnChange: TNotifyEvent = nil
     );
   end;
@@ -50,7 +66,7 @@ implementation
 uses
   gnugettext,
   c_CacheTypeCodes,
-  i_TileStorageTypeListItem;
+  i_TileStorageAbilities;
 
 { TfrCacheTypeList }
 
@@ -58,13 +74,26 @@ constructor TfrCacheTypeList.Create(
   const ALanguageManager: ILanguageManager;
   const ATileStorageTypeList: ITileStorageTypeListStatic;
   const AWithDefaultItem: Boolean;
-  const AIngoreRamCache: Boolean;
+  const AFilterOptions: TCacheTypeListOptions;
   const AOnChange: TNotifyEvent
 );
 begin
   inherited Create(ALanguageManager);
   FOnChange := AOnChange;
-  FillItems(ATileStorageTypeList, AWithDefaultItem, AIngoreRamCache);
+
+  FOptions := AFilterOptions;
+  if
+    not (foAllowAll in FOptions) and
+    not (foAllowInMemory in FOptions) and
+    not (foAllowFileSys in FOptions) and
+    not (foAllowNoFileSys in FOptions) then
+  begin
+    if not (foDisallowInMemory in FOptions) then Include(FOptions, foAllowInMemory);
+    if not (foDisallowFileSys in FOptions) then Include(FOptions, foAllowFileSys);
+    if not (foDisallowNoFileSys in FOptions) then Include(FOptions, foAllowNoFileSys);
+  end;
+
+  FillItems(ATileStorageTypeList, AWithDefaultItem);
 end;
 
 procedure TfrCacheTypeList.Show(AParent: TWinControl);
@@ -72,10 +101,33 @@ begin
   Parent := AParent;
 end;
 
+function TfrCacheTypeList.IsItemAllowed(const AItem: ITileStorageTypeListItem): Boolean;
+var
+  VItemAbilities: ITileStorageTypeAbilities;
+begin
+  Result := False;
+
+  if not AItem.CanUseAsDefault then begin
+    Exit;
+  end;
+
+  if foAllowAll in FOptions then begin
+    Result := True;
+  end else if AItem.IntCode in [c_File_Cache_Id_RAM] then begin
+    Result := (foAllowInMemory in FOptions) and not (foDisallowInMemory in FOptions);
+  end else begin
+    VItemAbilities := AItem.StorageType.Abilities;
+    if VItemAbilities.IsFileCache then begin
+      Result := (foAllowFileSys in FOptions) and not (foDisallowFileSys in FOptions);
+    end else begin
+      Result := (foAllowNoFileSys in FOptions) and not (foDisallowNoFileSys in FOptions);
+    end;
+  end;
+end;
+
 procedure TfrCacheTypeList.FillItems(
   const ATypesList: ITileStorageTypeListStatic;
-  const AWithDefaultItem: Boolean;
-  const AIngoreRamCache: Boolean
+  const AWithDefaultItem: Boolean
 );
 var
   I: Integer;
@@ -91,10 +143,7 @@ begin
 
   for I := 0 to ATypesList.Count - 1 do begin
     VItem := ATypesList.Items[I];
-    if AIngoreRamCache and (VItem.IntCode in [c_File_Cache_Id_RAM]) then begin
-      Continue;
-    end;
-    if VItem.CanUseAsDefault then begin
+    if IsItemAllowed(VItem) then begin
       cbbCacheType.Items.AddObject(VItem.Caption, TObject(VItem.IntCode));
     end;
   end;
