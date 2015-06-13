@@ -47,8 +47,8 @@ type
     function GetGMTilesPath: IPathConfig;
     property GMTilesPath: IPathConfig read GetGMTilesPath;
 
-    function GetMobileAtlasTilesPath: IPathConfig;
-    property MobileAtlasTilesPath: IPathConfig read GetMobileAtlasTilesPath;
+    function GetMOBACTilesPath: IPathConfig;
+    property MOBACTilesPath: IPathConfig read GetMOBACTilesPath;
 
     function GetGECachePath: IPathConfig;
     property GECachePath: IPathConfig read GetGECachePath;

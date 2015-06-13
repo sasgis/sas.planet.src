@@ -1344,7 +1344,7 @@
     <DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameGM2.pas" />
     <DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameGM3.pas" />
     <DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameGMV.pas" />
-    <DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameMobileAtlas.pas" />
+    <DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameMOBAC.pas" />
     <DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameSAS.pas" />
     <DCCReference Include="Src\TileStorage\FileSystem\u_TileStorageFileSystem.pas" />
     <DCCReference Include="Src\TileStorage\FileSystem\u_TileStorageTypeFileSystemSimple.pas" />

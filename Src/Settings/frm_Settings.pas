@@ -441,8 +441,8 @@ begin
   FfrMobileAtlasTilesPath :=
     TfrPathSelect.Create(
       ALanguageManager,
-      _('MobileAtlas cache folder:'),
-      GState.CacheConfig.MobileAtlasTilesPath
+      _('MOBAC cache folder:'),
+      GState.CacheConfig.MOBACTilesPath
     );
   FfrGECachePath :=
     TfrPathSelect.Create(

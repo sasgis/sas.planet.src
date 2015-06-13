@@ -30,7 +30,7 @@ const
   c_File_Cache_Id_GM = 4;
   c_File_Cache_Id_GM_Aux = 41; // auxillary
   c_File_Cache_Id_GM_Bing = 42; // "Bing Maps (Virtual Earth) Tiles"
-  c_File_Cache_Id_Mobile_Atlas = 43; // "Mobile Atlas" <ZOOM>\<X>\<Y>.<ext>
+  c_File_Cache_Id_MOBAC = 43; // "Mobile Atlas Creator" <ZOOM>\<X>\<Y>.<ext>
   c_File_Cache_Id_GE = 5;  // GE imagery cache direct access
   c_File_Cache_Id_GEt = 51;  // GE terrain cache direct access
   c_File_Cache_Id_BDB = 6;

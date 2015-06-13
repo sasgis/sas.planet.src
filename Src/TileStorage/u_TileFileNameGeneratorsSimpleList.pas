@@ -50,7 +50,7 @@ uses
   u_TileFileNameGM1,
   u_TileFileNameGM2,
   u_TileFileNameGM3,
-  u_TileFileNameMobileAtlas;
+  u_TileFileNameMOBAC;
 
 { TTileFileNameGeneratorsSimpleList }
 
@@ -64,7 +64,7 @@ begin
   FItems[3] := TTileFileNameGM1.Create;
   FItems[4] := TTileFileNameGM2.Create;
   FItems[5] := TTileFileNameGM3.Create;
-  FItems[6] := TTileFileNameMobileAtlas.Create;
+  FItems[6] := TTileFileNameMOBAC.Create;
 end;
 
 destructor TTileFileNameGeneratorsSimpleList.Destroy;
@@ -107,7 +107,7 @@ begin
     begin
       Result := FItems[5];
     end;
-    c_File_Cache_Id_Mobile_Atlas:
+    c_File_Cache_Id_MOBAC:
     begin
       Result := FItems[6];
     end;

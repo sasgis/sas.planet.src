@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_TileFileNameMobileAtlas;
+unit u_TileFileNameMOBAC;
 
 interface
 
@@ -29,7 +29,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TTileFileNameMobileAtlas = class(
+  TTileFileNameMOBAC = class(
     TBaseInterfacedObject,
     ITileFileNameParser,
     ITileFileNameGenerator
@@ -56,9 +56,9 @@ uses
 const
   c_MA_Expr  = '^(.+\\)?(\d\d?)\\(\d+)\\(\d+)(\..+)?$';
 
-{ TTileFileNameMobileAtlas }
+{ TTileFileNameMOBAC }
 
-function TTileFileNameMobileAtlas.GetTileFileName(
+function TTileFileNameMOBAC.GetTileFileName(
   AXY: TPoint;
   AZoom: Byte
 ): string;
@@ -70,7 +70,7 @@ begin
     ]);
 end;
 
-function TTileFileNameMobileAtlas.GetTilePoint(
+function TTileFileNameMOBAC.GetTilePoint(
   const ATileFileName: string;
   out ATileXY: TPoint;
   out ATileZoom: Byte

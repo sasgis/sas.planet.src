@@ -1086,7 +1086,7 @@ uses
   u_TileFileNameGM2 in 'Src\TileStorage\FileSystem\u_TileFileNameGM2.pas',
   u_TileFileNameGM3 in 'Src\TileStorage\FileSystem\u_TileFileNameGM3.pas',
   u_TileFileNameGMV in 'Src\TileStorage\FileSystem\u_TileFileNameGMV.pas',
-  u_TileFileNameMobileAtlas in 'Src\TileStorage\FileSystem\u_TileFileNameMobileAtlas.pas',
+  u_TileFileNameMOBAC in 'Src\TileStorage\FileSystem\u_TileFileNameMOBAC.pas',
   u_TileFileNameSAS in 'Src\TileStorage\FileSystem\u_TileFileNameSAS.pas',
   u_TileStorageFileSystem in 'Src\TileStorage\FileSystem\u_TileStorageFileSystem.pas',
   u_TileStorageTypeFileSystemSimple in 'Src\TileStorage\FileSystem\u_TileStorageTypeFileSystemSimple.pas',

@@ -56,7 +56,7 @@ uses
   u_TileFileNameES,
   u_TileFileNameGM1,
   u_TileFileNameGM2,
-  u_TileFileNameMobileAtlas,
+  u_TileFileNameMOBAC,
   u_TileStorageTypeConfig,
   u_TileStorageTypeGE,
   u_TileStorageTypeGoogleEarth,
@@ -92,7 +92,7 @@ resourcestring
   rsGeoCacherCacheName = 'GeoCacher';
   rsBerkeleyDBCacheName = 'BerkeleyDB';
   rsBerkeleyDBVersionedCacheName = 'BerkeleyDB (Versioned)';
-  rsMobileAtlasCacheName = 'MobileAtlas';
+  rsMobileAtlasCacheName = 'Mobile Atlas Creator (MOBAC)';
   rsDBMSCacheName = 'DBMS';
   rsRAMCacheName = 'RAM';
 
@@ -208,18 +208,18 @@ begin
     );
   VList.Add(VItem);
 
-  VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.MobileAtlasTilesPath);
+  VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.MOBACTilesPath);
   VStorageType :=
     TTileStorageTypeFileSystemSimple.Create(
-      TTileFileNameMobileAtlas.Create,
-      TTileFileNameMobileAtlas.Create,
+      TTileFileNameMOBAC.Create,
+      TTileFileNameMOBAC.Create,
       AMapVersionFactoryList.GetSimpleVersionFactory,
       VStorageTypeConfig
     );
   VItem :=
     TTileStorageTypeListItem.Create(
       CTileStorageTypeFileSystemMA,
-      c_File_Cache_Id_Mobile_Atlas,
+      c_File_Cache_Id_MOBAC,
       rsMobileAtlasCacheName,
       VStorageType,
       True,

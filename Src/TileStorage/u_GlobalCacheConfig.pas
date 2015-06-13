@@ -42,7 +42,7 @@ type
     FOldCPath: IPathConfig;
     FESCPath: IPathConfig;
     FGMTilesPath: IPathConfig;
-    FMobileAtlasPath: IPathConfig;
+    FMOBACPath: IPathConfig;
     FGECachePath: IPathConfig;
     FGCCachePath: IPathConfig;
     FBDBCachePath: IPathConfig;
@@ -56,7 +56,7 @@ type
     function GetOldCPath: IPathConfig;
     function GetESCPath: IPathConfig;
     function GetGMTilesPath: IPathConfig;
-    function GetMobileAtlasTilesPath: IPathConfig;
+    function GetMOBACTilesPath: IPathConfig;
     function GetGECachePath: IPathConfig;
     function GetGCCachePath: IPathConfig;
     function GetBDBCachePath: IPathConfig;
@@ -100,8 +100,8 @@ begin
   FGMTilesPath := TPathConfig.Create('GMTiles', c_File_Cache_Default_GM, FCacheGlobalPath);
   Add(FGMTilesPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
 
-  FMobileAtlasPath := TPathConfig.Create('MobileAtlasTiles', c_File_Cache_Default_MA, FCacheGlobalPath);
-  Add(FMobileAtlasPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
+  FMOBACPath := TPathConfig.Create('MOBACTiles', c_File_Cache_Default_MA, FCacheGlobalPath);
+  Add(FMOBACPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
 
   FGECachePath := TPathConfig.Create('GECache', c_File_Cache_Default_GE, FCacheGlobalPath);
   Add(FGECachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
@@ -188,9 +188,9 @@ begin
   Result := FGMTilesPath;
 end;
 
-function TGlobalCacheConfig.GetMobileAtlasTilesPath: IPathConfig;
+function TGlobalCacheConfig.GetMOBACTilesPath: IPathConfig;
 begin
-  Result := FMobileAtlasPath;
+  Result := FMOBACPath;
 end;
 
 function TGlobalCacheConfig.GetNewCPath: IPathConfig;
@@ -213,7 +213,7 @@ begin
         c_File_Cache_Id_ES,
         c_File_Cache_Id_GM,
         c_File_Cache_Id_GM_Aux,
-        c_File_Cache_Id_Mobile_Atlas,
+        c_File_Cache_Id_MOBAC,
         c_File_Cache_Id_DBMS,
         c_File_Cache_Id_RAM,
         c_File_Cache_Id_BDB,
