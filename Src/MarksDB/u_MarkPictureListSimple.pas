@@ -112,6 +112,13 @@ begin
   end;
 end;
 
+procedure ListSetUp(AList: TStringList);
+begin
+  AList.Sorted := False; // http://www.sasgis.org/mantis/view.php?id=2747
+  AList.CaseSensitive := False;
+  AList.Duplicates := dupIgnore;
+end;
+
 { TMarkPictureListSimple }
 
 constructor TMarkPictureListSimple.Create(
@@ -126,9 +133,14 @@ begin
   FBasePath := ABasePath;
   FMediaDataPath := AMediaDataPath;
   FContentTypeManager := AContentTypeManager;
+
   FBaseList := TStringList.Create;
   FRuntimeList := TStringList.Create;
   FRuntimeFailList := TStringList.Create;
+
+  ListSetUp(FBaseList);
+  ListSetUp(FRuntimeList);
+  ListSetUp(FRuntimeFailList);
 end;
 
 destructor TMarkPictureListSimple.Destroy;
@@ -242,14 +254,21 @@ begin
   LockRead;
   try
     if AValue <> '' then begin
-      if FBaseList.Find(AValue, VIndex) then begin
+      VIndex := FBaseList.IndexOf(AValue);
+      if VIndex >= 0 then begin
         Result := Get(VIndex);
-      end else if FRuntimeList.Find(AValue, VIndex) then begin
-        Result := GetFromRuntimeList(VIndex);
-      end else if FRuntimeFailList.Find(AValue, VIndex) then begin
-        Result := GetDefaultPicture;
       end else begin
-        VTryLoadPictureInRuntime := True;
+        VIndex := FRuntimeList.IndexOf(AValue);
+        if VIndex >= 0 then begin
+          Result := GetFromRuntimeList(VIndex);
+        end else begin
+          VIndex := FRuntimeFailList.IndexOf(AValue);
+          if VIndex >= 0 then begin
+            Result := GetDefaultPicture;
+          end else begin
+            VTryLoadPictureInRuntime := True;
+          end;
+        end;
       end;
     end else begin
       Result := GetDefaultPicture;
