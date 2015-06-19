@@ -24,10 +24,13 @@ interface
 
 uses
   Types,
+  SysUtils,
+  t_GeoTypes,
   i_NotifierOperation,
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
   i_ProjectionInfo,
+  i_CoordConverter,
   i_GeometryProjected,
   i_GeometryProjectedFactory,
   i_CoordConverterFactory,
@@ -56,6 +59,13 @@ type
     function GetActualProjection(
       const AProjection: IProjectionInfo
     ): IProjectionInfo;
+    function GetIntersectedRect(
+      out AIntersectedLonLatRect: TDoubleRect;
+      const ALonLatRect: TDoubleRect;
+      const AZoom: Byte;
+      const AProjectedPolygon: IGeometryProjectedPolygon;
+      const ACoordConverter: ICoordConverter
+    ): Boolean;
     function GetFillingMapBitmap(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
@@ -91,8 +101,6 @@ implementation
 
 uses
   GR32,
-  t_GeoTypes,
-  i_CoordConverter,
   i_TileRect,
   i_TileIterator,
   i_TileInfoBasic,
@@ -208,6 +216,59 @@ begin
   end;
 end;
 
+function TBitmapLayerProviderFillingMap.GetIntersectedRect(
+  out AIntersectedLonLatRect: TDoubleRect;
+  const ALonLatRect: TDoubleRect;
+  const AZoom: Byte;
+  const AProjectedPolygon: IGeometryProjectedPolygon;
+  const ACoordConverter: ICoordConverter
+): Boolean;
+var
+  I, J: Integer;
+  VTmpRect: TDoubleRect;
+  VMultiPolygonGeo: IGeometryLonLatMultiPolygon;
+  VMultiPolygonProj: IGeometryProjectedMultiPolygon;
+begin
+  Result := False;
+
+  if Supports(FPolygon, IGeometryLonLatMultiPolygon, VMultiPolygonGeo) then begin
+    J := 0;
+    for I := 0 to VMultiPolygonGeo.Count - 1 do begin
+      if VMultiPolygonGeo.Item[I].Bounds.IntersecWithRect(VTmpRect, ALonLatRect) then begin
+        Inc(J);
+        AIntersectedLonLatRect := VTmpRect;
+        Result := True;
+      end;
+    end;
+    if J > 1 then begin
+      Result := FPolygon.Bounds.IntersecWithRect(AIntersectedLonLatRect, ALonLatRect);
+    end;
+  end else begin
+    Result := FPolygon.Bounds.IntersecWithRect(AIntersectedLonLatRect, ALonLatRect);
+  end;
+
+  if Result then begin
+    Result := False;
+
+    Assert(AIntersectedLonLatRect.Left >= ALonLatRect.Left);
+    Assert(AIntersectedLonLatRect.Right <= ALonLatRect.Right);
+    Assert(AIntersectedLonLatRect.Top <= ALonLatRect.Top);
+    Assert(AIntersectedLonLatRect.Bottom >= ALonLatRect.Bottom);
+
+    VTmpRect := ACoordConverter.LonLatRect2PixelRectFloat(AIntersectedLonLatRect, AZoom);
+    if Supports(AProjectedPolygon, IGeometryProjectedMultiPolygon, VMultiPolygonProj) then begin
+      for I := 0 to VMultiPolygonProj.Count - 1 do begin
+        if VMultiPolygonProj.Item[I].IsRectIntersectPolygon(VTmpRect) then begin
+          Result := True;
+          Break;
+        end;
+      end;
+    end else begin
+      Result := AProjectedPolygon.IsRectIntersectPolygon(VTmpRect);
+    end;
+  end;
+end;
+
 function TBitmapLayerProviderFillingMap.GetFillingMapBitmap(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
@@ -242,6 +303,7 @@ var
   VTileColor: TColor32;
   VTileRect: ITileRect;
 begin
+  Result := nil;
   VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
   try
     VSize := Types.Point(AMapRect.Right - AMapRect.Left, AMapRect.Bottom - AMapRect.Top);
@@ -264,28 +326,21 @@ begin
     VSourceTileRect :=
       RectFromDoubleRect(
         VSourceConverter.RelativeRect2TileRectFloat(VSourceRelativeRect, VSourceZoom),
-        rrOutside
+        t_GeoTypes.rrOutside
       );
     VSolidDrow :=
       (VSize.X <= (VSourceTileRect.Right - VSourceTileRect.Left) * 2) or
       (VSize.Y <= (VSourceTileRect.Bottom - VSourceTileRect.Top) * 2);
 
     if Assigned(FPolygon) then begin
-       VSourceLonLatRect := VSourceConverter.TileRect2LonLatRect(VSourceTileRect, VSourceZoom);
-      if FPolygon.Bounds.IntersecWithRect(VLonLatRect, VSourceLonLatRect) then begin
-        VSourceRelativeRect := VSourceConverter.LonLatRect2PixelRectFloat(VLonLatRect, VSourceZoom);
-        if AProjectedPolygon.IsRectIntersectPolygon(VSourceRelativeRect) then begin
-          VSourceTileRect :=
-            RectFromDoubleRect(
-              VSourceConverter.LonLatRect2TileRectFloat(VLonLatRect, VSourceZoom),
-              rrOutside
-            );
-        end else begin
-          Result := nil;
-          Exit;
-        end;
+      VSourceLonLatRect := VSourceConverter.TileRect2LonLatRect(VSourceTileRect, VSourceZoom);
+      if GetIntersectedRect(VLonLatRect, VSourceLonLatRect, VSourceZoom, AProjectedPolygon, VSourceConverter) then begin
+        VSourceTileRect :=
+          RectFromDoubleRect(
+            VSourceConverter.LonLatRect2TileRectFloat(VLonLatRect, VSourceZoom),
+            t_GeoTypes.rrOutside
+          );
       end else begin
-        Result := nil;
         Exit;
       end;
     end;
@@ -293,7 +348,6 @@ begin
     VTileRectInfo := FStorage.GetTileRectInfo(AOperationID, ACancelNotifier, VSourceTileRect, VSourceZoom, AVersion);
 
     if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-      Result := nil;
       Exit;
     end;
 
