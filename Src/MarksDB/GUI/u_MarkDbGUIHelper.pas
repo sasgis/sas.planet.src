@@ -25,6 +25,7 @@ interface
 uses
   Windows,
   Dialogs,
+  Controls,
   Classes,  
   i_PathConfig,
   i_LanguageManager,
@@ -685,6 +686,7 @@ var
   VImportConfig: IImportConfig;
   VRecArr: TImportRecArr;
   VNotifier: INotifierOperation;
+  VMsg: string;
 begin
   Result := nil;
 
@@ -710,15 +712,22 @@ begin
           end;
         end;
       end else begin
-        ShowMessageFmt(_('Can''t open file: %s'), [VFileName]);
+        MessageDlg( Format(_('Can''t open file: %s'), [VFileName]), mtError, [mbOK], 0);
       end;
     end;
   end;
 
   if VCount > 0 then begin
-    ShowMessageFmt(_('Import finished. Total processed: %d files. Successfull imported: %d files.'), [AFiles.Count, VCount]);
+    VMsg := _(
+      'Import finished. Total processed: %d files. Successfull imported: %d files.' + #13#10 +
+      'Fit to screen the last imported item?'
+    );
+    VMsg := Format(VMsg, [AFiles.Count, VCount]);
+    if MessageDlg(VMsg, mtInformation, [mbYes, mbNo], 0) = mrNo then begin
+      Result := nil;
+    end;
   end else begin
-    ShowMessage(_('Nothing to import!'));
+    MessageDlg(_('Nothing to import!'), mtError, [mbOK], 0);
   end;
 end;
 
