@@ -82,6 +82,7 @@ uses
   i_MessageHandler,
   i_MouseState,
   i_MainFormState,
+  i_GeometryLonLat,
   i_LocalCoordConverter,
   i_MouseHandler,
   i_Timer,
@@ -93,6 +94,7 @@ uses
   i_PlayerPlugin,
   i_VectorItemSubset,
   i_ImportConfig,
+  i_FillingMapPolygon,
   i_CmdLineArgProcessor,
   u_CmdLineArgProcessorAPI,
   u_ShortcutManager,
@@ -429,6 +431,7 @@ type
     tbxMergePolygonsShow: TTBXVisibilityToggleItem;
     tbxMergePolygonsShow1: TTBXVisibilityToggleItem;
     tbxtmAddToMergePolygons: TTBXItem;
+    tbxFillingMap: TTBXSubmenuItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -667,6 +670,7 @@ type
     procedure tbxtmPascalScriptIDEClick(Sender: TObject);
     procedure tbMergePolygonsClose(Sender: TObject);
     procedure tbxtmAddToMergePolygonsClick(Sender: TObject);
+    procedure tbxFillingMapClick(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -756,6 +760,8 @@ type
     FMapGoto: IMapViewGoto;
 
     FArgProcessor: ICmdLineArgProcessor;
+    FFillingMapPolygon: IFillingMapPolygon;
+    FSelectedPolygon: IGeometryLonLatPolygon;
 
     procedure InitSearchers;
     procedure InitMergepolygons;
@@ -890,7 +896,6 @@ uses
   i_MapTypeSet,
   i_GeoCoderList,
   i_CoordConverter,
-  i_GeometryLonLat,
   i_GeometryProjected,
   i_LocalCoordConverterChangeable,
   i_GUIDListStatic,
@@ -1036,6 +1041,7 @@ uses
   u_LayerStatBarPopupMenu,
   u_LayerMiniMapPopupMenu,
   u_PlayerPlugin,
+  u_FillingMapPolygon,
   u_CmdLineArgProcessor,
   u_CmdLineArgProcessorHelpers,
   frm_LonLatRectEdit;
@@ -1415,6 +1421,10 @@ begin
   OnToolbarsLockChange;
   TBEditPath.Visible := False;
   TrayIcon.Icon.LoadFromResourceName(Hinstance, 'MAINICON');
+
+  FFillingMapPolygon := TFillingMapPolygon.Create;
+  FSelectedPolygon := nil;
+
   InitLayers;
 
   FArgProcessor :=
@@ -2004,7 +2014,9 @@ begin
     TBitmapLayerProviderChangeableForFillingMap.Create(
       GState.Bitmap32StaticFactory,
       GState.ProjectionFactory,
+      GState.VectorGeometryProjectedFactory,
       FMainMapState.FillingMapActiveMap,
+      FFillingMapPolygon,
       FConfig.LayersConfig.FillingMapLayerConfig
     );
   VSourceChangeNotifier :=
@@ -3346,6 +3358,11 @@ begin
   map.OnMouseMove := nil;
   map.OnDblClick := nil;
   map.OnMouseLeave := nil;
+
+  if Assigned(FFillingMapPolygon.Polygon) then begin
+    FConfig.LayersConfig.FillingMapLayerConfig.Visible := False;
+  end;
+
   FLinksList.DeactivateLinks;
   GState.SendTerminateToThreads;
   for i := 0 to Screen.FormCount - 1 do begin
@@ -5319,6 +5336,7 @@ var
 begin
   if (ACol = 0) and (ARow = 0) then begin
     FConfig.LayersConfig.FillingMapLayerConfig.Visible := False;
+    FFillingMapPolygon.Polygon := nil;
   end else begin
     if ARow < 5 then begin
       VZoom := 5 * ARow + ACol - 1;
@@ -5327,6 +5345,12 @@ begin
       VZoom := 5 * (ARow - 5) + ACol;
       VRelative := True;
     end;
+
+    if Assigned(FSelectedPolygon) then begin
+      FFillingMapPolygon.Polygon := FSelectedPolygon;
+      FSelectedPolygon := nil;
+    end;
+
     FConfig.LayersConfig.FillingMapLayerConfig.LockWrite;
     try
       FConfig.LayersConfig.FillingMapLayerConfig.Visible := True;
@@ -5335,6 +5359,20 @@ begin
     finally
       FConfig.LayersConfig.FillingMapLayerConfig.UnlockWrite;
     end;
+  end;
+end;
+
+procedure TfrmMain.tbxFillingMapClick(Sender: TObject);
+var
+  VMark: IVectorDataItem;
+begin
+  FSelectedPolygon := nil;
+  VMark := FSelectedMark;
+  if not Assigned(VMark) then begin
+    VMark := FSelectedWiki;
+  end;
+  if Assigned(VMark) then begin
+    Supports(VMark.Geometry, IGeometryLonLatPolygon, FSelectedPolygon);
   end;
 end;
 
@@ -7567,6 +7605,10 @@ begin
   end;
 
   tbxtmAddToMergePolygons.Visible :=
+    (Assigned(VMark) and Supports(VMark.Geometry, IGeometryLonLatPolygon)) or
+    (FSelectedWiki <> nil);
+
+  tbxFillingMap.Visible :=
     (Assigned(VMark) and Supports(VMark.Geometry, IGeometryLonLatPolygon)) or
     (FSelectedWiki <> nil);
 

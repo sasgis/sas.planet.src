@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2015, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -28,11 +28,14 @@ uses
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
   i_ProjectionInfo,
+  i_GeometryProjected,
+  i_GeometryProjectedFactory,
   i_CoordConverterFactory,
   i_TileStorage,
   i_MapVersionRequest,
   i_BitmapLayerProvider,
   i_FillingMapColorer,
+  i_GeometryLonLat,
   u_BaseInterfacedObject;
 
 type
@@ -40,10 +43,14 @@ type
   private
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FProjectionFactory: IProjectionInfoFactory;
+    FGeometryProjectedFactory: IGeometryProjectedFactory;
     FStorage: ITileStorage;
     FVersion: IMapVersionRequest;
     FUseRelativeZoom: Boolean;
-    FZoom: Integer;
+    FZoom: Byte;
+    FProjectionInfo: IProjectionInfo;
+    FPolygon: IGeometryLonLatPolygon;
+    FProjectedPolygon: IGeometryProjectedPolygon;
     FColorer: IFillingMapColorer;
 
     function GetActualProjection(
@@ -55,6 +62,7 @@ type
       const AProjection: IProjectionInfo;
       const AMapRect: TRect;
       const ASourceProjection: IProjectionInfo;
+      const AProjectedPolygon: IGeometryProjectedPolygon;
       const AVersion: IMapVersionRequest;
       const AColorer: IFillingMapColorer
     ): IBitmap32Static;
@@ -69,10 +77,12 @@ type
     constructor Create(
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AProjectionFactory: IProjectionInfoFactory;
+      const AGeometryProjectedFactory: IGeometryProjectedFactory;
       const AStorage: ITileStorage;
       const AVersion: IMapVersionRequest;
-      AUseRelativeZoom: Boolean;
-      AZoom: Integer;
+      const AUseRelativeZoom: Boolean;
+      const AZoom: Byte;
+      const APolygon: IGeometryLonLatPolygon;
       const AColorer: IFillingMapColorer
     );
   end;
@@ -96,10 +106,12 @@ uses
 constructor TBitmapLayerProviderFillingMap.Create(
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AProjectionFactory: IProjectionInfoFactory;
+  const AGeometryProjectedFactory: IGeometryProjectedFactory;
   const AStorage: ITileStorage;
   const AVersion: IMapVersionRequest;
-  AUseRelativeZoom: Boolean;
-  AZoom: Integer;
+  const AUseRelativeZoom: Boolean;
+  const AZoom: Byte;
+  const APolygon: IGeometryLonLatPolygon;
   const AColorer: IFillingMapColorer
 );
 begin
@@ -111,11 +123,15 @@ begin
   inherited Create;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FProjectionFactory := AProjectionFactory;
+  FGeometryProjectedFactory := AGeometryProjectedFactory;
   FStorage := AStorage;
   FVersion := AVersion;
   FUseRelativeZoom := AUseRelativeZoom;
   FZoom := AZoom;
+  FPolygon := APolygon;
   FColorer := AColorer;
+  FProjectedPolygon := nil;
+  FProjectionInfo := nil;
 end;
 
 function TBitmapLayerProviderFillingMap.GetActualProjection(
@@ -148,11 +164,36 @@ function TBitmapLayerProviderFillingMap.GetTile(
 ): IBitmap32Static;
 var
   VSourceProjection: IProjectionInfo;
+  VReprojectPolygon: Boolean;
 begin
   VSourceProjection := GetActualProjection(AProjectionInfo);
   if AProjectionInfo.Zoom > VSourceProjection.Zoom then begin
     Result := nil;
   end else begin
+
+    // prepare projected polygon
+    if Assigned(FPolygon) then begin
+      VReprojectPolygon := False;
+      if Assigned(FProjectionInfo) then begin
+        if not FProjectionInfo.GetIsSameProjectionInfo(VSourceProjection) then begin
+          FProjectionInfo := VSourceProjection;
+          VReprojectPolygon := True;
+        end;
+      end else begin
+        FProjectionInfo := VSourceProjection;
+        VReprojectPolygon := True;
+      end;
+      if VReprojectPolygon or not Assigned(FProjectedPolygon) then begin
+        FProjectedPolygon :=
+          FGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
+            FProjectionInfo,
+            FPolygon
+          );
+      end;
+    end else begin
+      FProjectedPolygon := nil;
+    end;
+
     Result :=
       GetFillingMapBitmap(
         AOperationID,
@@ -160,6 +201,7 @@ begin
         AProjectionInfo,
         AProjectionInfo.GeoConverter.TilePos2PixelRect(ATile, AProjectionInfo.Zoom),
         VSourceProjection,
+        FProjectedPolygon,
         FVersion,
         FColorer
       );
@@ -172,6 +214,7 @@ function TBitmapLayerProviderFillingMap.GetFillingMapBitmap(
   const AProjection: IProjectionInfo;
   const AMapRect: TRect;
   const ASourceProjection: IProjectionInfo;
+  const AProjectedPolygon: IGeometryProjectedPolygon;
   const AVersion: IMapVersionRequest;
   const AColorer: IFillingMapColorer
 ): IBitmap32Static;
@@ -179,6 +222,7 @@ var
   VBitmap: TBitmap32ByStaticBitmap;
   VSize: TPoint;
   VSourceTileRect: TRect;
+  VSourceLonLatRect: TDoubleRect;
   VSourceRelativeRect: TDoubleRect;
   VSourceConverter: ICoordConverter;
   VTargetConverter: ICoordConverter;
@@ -225,7 +269,29 @@ begin
     VSolidDrow :=
       (VSize.X <= (VSourceTileRect.Right - VSourceTileRect.Left) * 2) or
       (VSize.Y <= (VSourceTileRect.Bottom - VSourceTileRect.Top) * 2);
+
+    if Assigned(FPolygon) then begin
+       VSourceLonLatRect := VSourceConverter.TileRect2LonLatRect(VSourceTileRect, VSourceZoom);
+      if FPolygon.Bounds.IntersecWithRect(VLonLatRect, VSourceLonLatRect) then begin
+        VSourceRelativeRect := VSourceConverter.LonLatRect2PixelRectFloat(VLonLatRect, VSourceZoom);
+        if AProjectedPolygon.IsRectIntersectPolygon(VSourceRelativeRect) then begin
+          VSourceTileRect :=
+            RectFromDoubleRect(
+              VSourceConverter.LonLatRect2TileRectFloat(VLonLatRect, VSourceZoom),
+              rrOutside
+            );
+        end else begin
+          Result := nil;
+          Exit;
+        end;
+      end else begin
+        Result := nil;
+        Exit;
+      end;
+    end;
+
     VTileRectInfo := FStorage.GetTileRectInfo(AOperationID, ACancelNotifier, VSourceTileRect, VSourceZoom, AVersion);
+
     if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
       Result := nil;
       Exit;

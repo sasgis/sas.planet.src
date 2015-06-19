@@ -451,6 +451,7 @@
       <Form>frSearchResultsItem</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
+    <DCCReference Include="Src\MainForm\i_FillingMapPolygon.pas" />
     <DCCReference Include="Src\MainForm\i_FindVectorItems.pas" />
     <DCCReference Include="Src\MainForm\i_KeyMovingConfig.pas" />
     <DCCReference Include="Src\MainForm\i_LastSearchResult.pas" />
@@ -492,6 +493,7 @@
     <DCCReference Include="Src\MainForm\MergePolygons\u_MergePolygonsProgress.pas" />
     <DCCReference Include="Src\MainForm\MergePolygons\u_MergePolygonsResult.pas" />
     <DCCReference Include="Src\MainForm\u_ActiveMapTBXItem.pas" />
+    <DCCReference Include="Src\MainForm\u_FillingMapPolygon.pas" />
     <DCCReference Include="Src\MainForm\u_FindVectorItemsForVectorTileMatrix.pas" />
     <DCCReference Include="Src\MainForm\u_GeometryLonLatLineChangeableByPathEdit.pas" />
     <DCCReference Include="Src\MainForm\u_GeometryLonLatPolygonChangeableByLastSelection.pas" />

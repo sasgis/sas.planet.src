@@ -3805,6 +3805,14 @@ object frmMain: TfrmMain
       Caption = 'Add to Merge Polygons (Ctrl+MLeft)'
       Hint = ''
     end
+    object tbxFillingMap: TTBXSubmenuItem
+      ImageIndex = 7
+      Images = MenusImageList
+      LinkSubitems = NFillMap
+      OnClick = tbxFillingMapClick
+      Caption = 'Cached Tiles Map'
+      Hint = ''
+    end
     object tbitmHideThisMark: TTBXItem
       ImageIndex = 19
       OnClick = tbitmHideThisMarkClick

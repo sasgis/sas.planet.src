@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2015, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -25,8 +25,10 @@ interface
 uses
   i_Listener,
   i_CoordConverterFactory,
+  i_FillingMapPolygon,
   i_FillingMapLayerConfig,
   i_MapType,
+  i_GeometryProjectedFactory,
   i_Bitmap32BufferFactory,
   i_BitmapLayerProvider,
   u_BitmapLayerProviderChangeableBase;
@@ -36,9 +38,10 @@ type
   private
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FProjectionFactory: IProjectionInfoFactory;
+    FGeometryProjectedFactory: IGeometryProjectedFactory;
     FConfig: IFillingMapLayerConfig;
     FMapType: IMapTypeChangeable;
-
+    FPolygon: IFillingMapPolygon;
     FVersionListener: IListener;
     FSourceMapLast: IMapType;
     procedure OnMapVersionChange;
@@ -49,7 +52,9 @@ type
     constructor Create(
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AProjectionFactory: IProjectionInfoFactory;
+      const AGeometryProjectedFactory: IGeometryProjectedFactory;
       const AMapType: IMapTypeChangeable;
+      const APolygon: IFillingMapPolygon;
       const AConfig: IFillingMapLayerConfig
     );
     destructor Destroy; override;
@@ -69,18 +74,25 @@ uses
 constructor TBitmapLayerProviderChangeableForFillingMap.Create(
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AProjectionFactory: IProjectionInfoFactory;
+  const AGeometryProjectedFactory: IGeometryProjectedFactory;
   const AMapType: IMapTypeChangeable;
+  const APolygon: IFillingMapPolygon;
   const AConfig: IFillingMapLayerConfig
 );
 begin
   Assert(Assigned(ABitmap32StaticFactory));
   Assert(Assigned(AProjectionFactory));
   Assert(Assigned(AMapType));
+  Assert(Assigned(APolygon));
   Assert(Assigned(AConfig));
+
   inherited Create;
+
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FProjectionFactory := AProjectionFactory;
+  FGeometryProjectedFactory := AGeometryProjectedFactory;
   FMapType := AMapType;
+  FPolygon := APolygon;
   FConfig := AConfig;
 
   FVersionListener := TNotifyNoMmgEventListener.Create(Self.OnMapVersionChange);
@@ -92,6 +104,10 @@ begin
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(OnConfigChange),
     FMapType.ChangeNotifier
+  );
+  LinksList.Add(
+    TNotifyNoMmgEventListener.Create(OnConfigChange),
+    FPolygon.ChangeNotifier
   );
 end;
 
@@ -141,10 +157,12 @@ begin
       TBitmapLayerProviderFillingMap.Create(
         FBitmap32StaticFactory,
         FProjectionFactory,
+        FGeometryProjectedFactory,
         VMap.TileStorage,
         VVersionRequest,
         VConfig.UseRelativeZoom,
         VConfig.Zoom,
+        FPolygon.Polygon,
         VColorer
       );
   end;
