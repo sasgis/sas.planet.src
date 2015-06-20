@@ -33,11 +33,11 @@ type
     function CreateLonLatPoint(
       const APoint: TDoublePoint
     ): IGeometryLonLatPoint;
-    function CreateLonLatLine(
+    function CreateLonLatSingleLine(
       const APoints: PDoublePointArray;
       ACount: Integer
     ): IGeometryLonLatSingleLine;
-    function CreateLonLatPolygon(
+    function CreateLonLatSinglePolygon(
       const APoints: PDoublePointArray;
       ACount: Integer
     ): IGeometryLonLatSinglePolygon;
@@ -62,12 +62,9 @@ type
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryLonLatMultiPolygon;
 
-    function CreateLonLatPolygonLineByRect(
+    function CreateLonLatPolygonByRect(
       const ARect: TDoubleRect
-    ): IGeometryLonLatSinglePolygon;
-    function CreateLonLatMultiPolygonByRect(
-      const ARect: TDoubleRect
-    ): IGeometryLonLatMultiPolygon;
+    ): IGeometryLonLatPolygon;
 
     function CreateLonLatMultiPolygonCircleByPoint(
       const AProjection: IProjectionInfo;
@@ -328,7 +325,7 @@ begin
   Result := TLonLatPolygonOneLine.Create(VLine);
 end;
 
-function TGeometryLonLatFactory.CreateLonLatLine(
+function TGeometryLonLatFactory.CreateLonLatSingleLine(
   const APoints: PDoublePointArray;
   ACount: Integer
 ): IGeometryLonLatSingleLine;
@@ -370,7 +367,7 @@ begin
   end;
 end;
 
-function TGeometryLonLatFactory.CreateLonLatPolygon(
+function TGeometryLonLatFactory.CreateLonLatSinglePolygon(
   const APoints: PDoublePointArray;
   ACount: Integer
 ): IGeometryLonLatSinglePolygon;
@@ -726,16 +723,9 @@ begin
   Result := VBuilder.MakeStaticAndClear;
 end;
 
-function TGeometryLonLatFactory.CreateLonLatMultiPolygonByRect(
+function TGeometryLonLatFactory.CreateLonLatPolygonByRect(
   const ARect: TDoubleRect
-): IGeometryLonLatMultiPolygon;
-begin
-  Result := TLonLatPolygonOneLine.Create(CreateLonLatPolygonLineByRect(ARect));
-end;
-
-function TGeometryLonLatFactory.CreateLonLatPolygonLineByRect(
-  const ARect: TDoubleRect
-): IGeometryLonLatSinglePolygon;
+): IGeometryLonLatPolygon;
 var
   VPoints: array [0..4] of TDoublePoint;
 begin

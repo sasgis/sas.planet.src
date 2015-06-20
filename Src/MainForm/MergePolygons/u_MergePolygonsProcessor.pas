@@ -518,7 +518,7 @@ begin
     VPoints[I].X := APath[I].X / FIntToDoubleCoeff;
     VPoints[I].Y := APath[I].Y / FIntToDoubleCoeff;
   end;
-  Result := FVectorGeometryLonLatFactory.CreateLonLatPolygon(@VPoints[0], VCount);
+  Result := FVectorGeometryLonLatFactory.CreateLonLatSinglePolygon(@VPoints[0], VCount);
 end;
 
 function TMergePolygonsProcessor.GetCurTime: Int64;

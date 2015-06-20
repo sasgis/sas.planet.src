@@ -52,11 +52,11 @@ type
     function CreateLonLatPoint(
       const APoint: TDoublePoint
     ): IGeometryLonLatPoint;
-    function CreateLonLatLine(
+    function CreateLonLatSingleLine(
       const APoints: PDoublePointArray;
       ACount: Integer
     ): IGeometryLonLatSingleLine;
-    function CreateLonLatPolygon(
+    function CreateLonLatSinglePolygon(
       const APoints: PDoublePointArray;
       ACount: Integer
     ): IGeometryLonLatSinglePolygon;
@@ -81,9 +81,9 @@ type
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryLonLatMultiPolygon;
 
-    function CreateLonLatMultiPolygonByRect(
+    function CreateLonLatPolygonByRect(
       const ARect: TDoubleRect
-    ): IGeometryLonLatMultiPolygon;
+    ): IGeometryLonLatPolygon;
     function CreateLonLatMultiPolygonCircleByPoint(
       const AProjection: IProjectionInfo;
       const APos: TDoublePoint;
