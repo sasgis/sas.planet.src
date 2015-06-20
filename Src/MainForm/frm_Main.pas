@@ -6948,7 +6948,7 @@ begin
               FViewPortState.View.GetStatic.ProjectionInfo
             );
           VPoly :=
-            GState.VectorGeometryLonLatFactory.CreateLonLatMultiPolygonByLonLatPathAndFilter(
+            GState.VectorGeometryLonLatFactory.CreateLonLatPolygonByLonLatPathAndFilter(
               VPath,
               VFilter
             );

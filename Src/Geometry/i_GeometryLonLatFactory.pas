@@ -35,16 +35,16 @@ type
     ['{19605EB8-E09C-4E69-A86E-B8701F1FB9C9}']
     procedure Add(const AElement: IGeometryLonLatSingleLine);
 
-    function MakeStaticAndClear: IGeometryLonLatMultiLine;
-    function MakeStaticCopy: IGeometryLonLatMultiLine;
+    function MakeStaticAndClear: IGeometryLonLatLine;
+    function MakeStaticCopy: IGeometryLonLatLine;
   end;
 
   IGeometryLonLatMultiPolygonBuilder = interface
     ['{993D049C-A360-4185-94CF-E1828503F7F4}']
     procedure Add(const AElement: IGeometryLonLatSinglePolygon);
 
-    function MakeStaticAndClear: IGeometryLonLatMultiPolygon;
-    function MakeStaticCopy: IGeometryLonLatMultiPolygon;
+    function MakeStaticAndClear: IGeometryLonLatPolygon;
+    function MakeStaticCopy: IGeometryLonLatPolygon;
   end;
 
   IGeometryLonLatFactory = interface
@@ -72,27 +72,27 @@ type
       const APoints: PDoublePointArray;
       ACount: Integer
     ): IGeometryLonLatPolygon;
-    function CreateLonLatMultiLineByEnum(
+    function CreateLonLatLineByEnum(
       const AEnum: IEnumLonLatPoint;
       const ATemp: IDoublePointsAggregator = nil
-    ): IGeometryLonLatMultiLine;
-    function CreateLonLatMultiPolygonByEnum(
+    ): IGeometryLonLatLine;
+    function CreateLonLatPolygonByEnum(
       const AEnum: IEnumLonLatPoint;
       const ATemp: IDoublePointsAggregator = nil
-    ): IGeometryLonLatMultiPolygon;
+    ): IGeometryLonLatPolygon;
 
     function CreateLonLatPolygonByRect(
       const ARect: TDoubleRect
     ): IGeometryLonLatPolygon;
-    function CreateLonLatMultiPolygonCircleByPoint(
+    function CreateLonLatPolygonCircleByPoint(
       const AProjection: IProjectionInfo;
       const APos: TDoublePoint;
       const ARadius: double
-    ): IGeometryLonLatMultiPolygon;
-    function CreateLonLatMultiPolygonByLonLatPathAndFilter(
+    ): IGeometryLonLatPolygon;
+    function CreateLonLatPolygonByLonLatPathAndFilter(
       const ASource: IGeometryLonLatLine;
       const AFilter: ILonLatPointFilter
-    ): IGeometryLonLatMultiPolygon;
+    ): IGeometryLonLatPolygon;
   end;
 
 implementation

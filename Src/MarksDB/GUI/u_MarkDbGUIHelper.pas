@@ -822,10 +822,10 @@ begin
       end;
       VFilter := TLonLatPointFilterLine2Poly.Create(VRadius, AProjection);
       Result :=
-        FVectorGeometryLonLatFactory.CreateLonLatMultiPolygonByLonLatPathAndFilter(
+        FVectorGeometryLonLatFactory.CreateLonLatPolygonByLonLatPathAndFilter(
           VLine,
           VFilter
-          );
+        );
     end;
   end else begin
     if Supports(AGeometry, IGeometryLonLatPoint, VPoint) then begin
@@ -838,7 +838,7 @@ begin
           Exit;
         end;
         Result :=
-          FVectorGeometryLonLatFactory.CreateLonLatMultiPolygonCircleByPoint(
+          FVectorGeometryLonLatFactory.CreateLonLatPolygonCircleByPoint(
             AProjection,
             VPoint.Point,
             VRadius

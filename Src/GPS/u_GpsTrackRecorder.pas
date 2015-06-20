@@ -580,7 +580,7 @@ begin
       );
     VPointsEnum :=
       TEnumTrackPointsByEnumGPSTrackPoint.Create(VTrackPointsEnum);
-    Result := FVectorGeometryLonLatFactory.CreateLonLatMultiLineByEnum(VPointsEnum);
+    Result := FVectorGeometryLonLatFactory.CreateLonLatLineByEnum(VPointsEnum);
   finally
     CS.EndRead;
   end;

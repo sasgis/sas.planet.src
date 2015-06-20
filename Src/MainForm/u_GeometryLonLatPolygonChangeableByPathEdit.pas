@@ -216,7 +216,7 @@ begin
         AProjection
       );
     Result :=
-      FVectorGeometryLonLatFactory.CreateLonLatMultiPolygonByLonLatPathAndFilter(
+      FVectorGeometryLonLatFactory.CreateLonLatPolygonByLonLatPathAndFilter(
         ALine,
         VFilter
       );
