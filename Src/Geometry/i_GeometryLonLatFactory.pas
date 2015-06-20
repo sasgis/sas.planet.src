@@ -64,14 +64,14 @@ type
     function MakeMultiLineBuilder(): IGeometryLonLatMultiLineBuilder;
     function MakeMultiPolygonBuilder(): IGeometryLonLatMultiPolygonBuilder;
 
-    function CreateLonLatMultiLine(
+    function CreateLonLatLine(
       const APoints: PDoublePointArray;
       ACount: Integer
-    ): IGeometryLonLatMultiLine;
-    function CreateLonLatMultiPolygon(
+    ): IGeometryLonLatLine;
+    function CreateLonLatPolygon(
       const APoints: PDoublePointArray;
       ACount: Integer
-    ): IGeometryLonLatMultiPolygon;
+    ): IGeometryLonLatPolygon;
     function CreateLonLatMultiLineByEnum(
       const AEnum: IEnumLonLatPoint;
       const ATemp: IDoublePointsAggregator = nil

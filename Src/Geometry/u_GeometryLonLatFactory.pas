@@ -45,14 +45,14 @@ type
     function MakeMultiLineBuilder(): IGeometryLonLatMultiLineBuilder;
     function MakeMultiPolygonBuilder(): IGeometryLonLatMultiPolygonBuilder;
 
-    function CreateLonLatMultiLine(
+    function CreateLonLatLine(
       const APoints: PDoublePointArray;
       ACount: Integer
-    ): IGeometryLonLatMultiLine;
-    function CreateLonLatMultiPolygon(
+    ): IGeometryLonLatLine;
+    function CreateLonLatPolygon(
       const APoints: PDoublePointArray;
       ACount: Integer
-    ): IGeometryLonLatMultiPolygon;
+    ): IGeometryLonLatPolygon;
     function CreateLonLatMultiLineByEnum(
       const AEnum: IEnumLonLatPoint;
       const ATemp: IDoublePointsAggregator = nil
@@ -448,10 +448,10 @@ begin
   Result := TGeometryLonLatSinglePolygon.Create(VRect, VHash, APoints, ACount);
 end;
 
-function TGeometryLonLatFactory.CreateLonLatMultiLine(
+function TGeometryLonLatFactory.CreateLonLatLine(
   const APoints: PDoublePointArray;
   ACount: Integer
-): IGeometryLonLatMultiLine;
+): IGeometryLonLatLine;
 var
   VLine: IGeometryLonLatSingleLine;
   i: Integer;
@@ -566,10 +566,10 @@ begin
   Result := TGeometryLonLatPoint.Create(VHash, VRect);
 end;
 
-function TGeometryLonLatFactory.CreateLonLatMultiPolygon(
+function TGeometryLonLatFactory.CreateLonLatPolygon(
   const APoints: PDoublePointArray;
   ACount: Integer
-): IGeometryLonLatMultiPolygon;
+): IGeometryLonLatPolygon;
 var
   VLine: IGeometryLonLatSinglePolygon;
   i: Integer;

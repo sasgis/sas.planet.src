@@ -399,9 +399,9 @@ begin
       VGeometry := AGeometryFactory.CreateLonLatPoint(APointsAggregator.Points[0]);
     end;
   end else if (APointsAggregator.Count > 2) and DoublePointsEqual(APointsAggregator.Points[0], APointsAggregator.Points[APointsAggregator.Count - 1]) then begin
-    VGeometry := AGeometryFactory.CreateLonLatMultiPolygon(APointsAggregator.Points, APointsAggregator.Count);
+    VGeometry := AGeometryFactory.CreateLonLatPolygon(APointsAggregator.Points, APointsAggregator.Count);
   end else begin
-    VGeometry := AGeometryFactory.CreateLonLatMultiLine(APointsAggregator.Points, APointsAggregator.Count);
+    VGeometry := AGeometryFactory.CreateLonLatLine(APointsAggregator.Points, APointsAggregator.Count);
   end;
   VItem := nil;
   if Assigned(VGeometry) then begin

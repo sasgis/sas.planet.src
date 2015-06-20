@@ -162,7 +162,7 @@ begin
       end;
     except
     end;
-    Result := FVectorGeometryLonLatFactory.CreateLonLatMultiLine(VPointsAggregator.Points, VPointsAggregator.Count);
+    Result := FVectorGeometryLonLatFactory.CreateLonLatLine(VPointsAggregator.Points, VPointsAggregator.Count);
     if meters > 1000 then begin
       AComment := SAS_STR_MarshLen + RoundEx(meters / 1000, 2) + ' ' + SAS_UNITS_km;
     end else begin

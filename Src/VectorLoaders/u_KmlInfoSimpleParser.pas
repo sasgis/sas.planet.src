@@ -139,9 +139,9 @@ begin
       end;
     end else begin
       if DoublePointsEqual(APointsAggregator.Points[0], APointsAggregator.Points[VPointCount - 1]) then begin
-        VGeometry := FVectorGeometryLonLatFactory.CreateLonLatMultiPolygon(APointsAggregator.Points, VPointCount);
+        VGeometry := FVectorGeometryLonLatFactory.CreateLonLatPolygon(APointsAggregator.Points, VPointCount);
       end else begin
-        VGeometry := FVectorGeometryLonLatFactory.CreateLonLatMultiLine(APointsAggregator.Points, VPointCount);
+        VGeometry := FVectorGeometryLonLatFactory.CreateLonLatLine(APointsAggregator.Points, VPointCount);
       end;
     end;
     if Assigned(VGeometry) then begin

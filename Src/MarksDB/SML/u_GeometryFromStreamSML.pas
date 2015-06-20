@@ -141,9 +141,9 @@ begin
       end;
     end else begin
       if DoublePointsEqual(VPoints.Points[0], VPoints.Points[VPoints.Count - 1]) then begin
-        Result := FFactory.CreateLonLatMultiPolygon(VPoints.Points, VPoints.Count - 1);
+        Result := FFactory.CreateLonLatPolygon(VPoints.Points, VPoints.Count - 1);
       end else begin
-        Result := FFactory.CreateLonLatMultiLine(VPoints.Points, VPoints.Count);
+        Result := FFactory.CreateLonLatLine(VPoints.Points, VPoints.Count);
       end;
     end;
   end;

@@ -190,7 +190,7 @@ begin
     end;
   end;
   if VPointsAggregator.Count > 2 then begin
-    VPolygon := FVectorGeometryLonLatFactory.CreateLonLatMultiPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
+    VPolygon := FVectorGeometryLonLatFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
   end;
   if VPolygon <> nil then begin
     VItem :=
