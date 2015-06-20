@@ -108,12 +108,12 @@ begin
     if (abs(VTestArrLenPixelRect.Left - VTestArrLenPixelRect.Right) > CMinProjectedSize) or
       (abs(VTestArrLenPixelRect.Top - VTestArrLenPixelRect.Bottom) > CMinProjectedSize) then begin
       VResultPath :=
-        FVectorGeometryProjectedFactory.CreateProjectedPathByLonLatPath(
+        FVectorGeometryProjectedFactory.CreateProjectedLineByLonLatPath(
           VData^.ProjectionInfo,
           VData^.Path
         );
     end else begin
-      VResultPath := FVectorGeometryProjectedFactory.CreateProjectedPathEmpty;
+      VResultPath := FVectorGeometryProjectedFactory.CreateProjectedLineEmpty;
     end;
     Result := VResultPath;
   end else if Assigned(VData^.Polygon) then begin

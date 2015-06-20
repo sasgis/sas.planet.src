@@ -22,10 +22,10 @@ type
     function MakeMultiLineBuilder(): IGeometryProjectedMultiLineBuilder;
     function MakeMultiPolygonBuilder(): IGeometryProjectedMultiPolygonBuilder;
 
-    function CreateProjectedPathEmpty: IGeometryProjectedLine;
+    function CreateProjectedLineEmpty: IGeometryProjectedLine;
     function CreateProjectedPolygonEmpty: IGeometryProjectedPolygon;
 
-    function CreateProjectedPathByEnum(
+    function CreateProjectedLineByEnum(
       const AEnum: IEnumProjectedPoint;
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryProjectedLine;
@@ -34,7 +34,7 @@ type
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryProjectedPolygon;
 
-    function CreateProjectedPathByLonLatEnum(
+    function CreateProjectedLineByLonLatEnum(
       const AProjection: IProjectionInfo;
       const AEnum: IEnumLonLatPoint;
       const ATemp: IDoublePointsAggregator = nil
@@ -45,7 +45,7 @@ type
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryProjectedPolygon;
 
-    function CreateProjectedPathByLonLatPath(
+    function CreateProjectedLineByLonLatPath(
       const AProjection: IProjectionInfo;
       const ASource: IGeometryLonLatLine;
       const ATemp: IDoublePointsAggregator = nil
@@ -230,12 +230,12 @@ begin
   FEmptyPolygon := VEmpty;
 end;
 
-function TGeometryProjectedFactory.CreateProjectedPathEmpty: IGeometryProjectedLine;
+function TGeometryProjectedFactory.CreateProjectedLineEmpty: IGeometryProjectedLine;
 begin
   Result := FEmptyPath;
 end;
 
-function TGeometryProjectedFactory.CreateProjectedPathByEnum(
+function TGeometryProjectedFactory.CreateProjectedLineByEnum(
   const AEnum: IEnumProjectedPoint;
   const ATemp: IDoublePointsAggregator
 ): IGeometryProjectedLine;
@@ -303,7 +303,7 @@ begin
   end;
 end;
 
-function TGeometryProjectedFactory.CreateProjectedPathByLonLatEnum(
+function TGeometryProjectedFactory.CreateProjectedLineByLonLatEnum(
   const AProjection: IProjectionInfo;
   const AEnum: IEnumLonLatPoint;
   const ATemp: IDoublePointsAggregator
@@ -319,20 +319,20 @@ begin
     );
   VEnum := TEnumProjectedPointFilterEqual.Create(VEnum);
   Result :=
-    CreateProjectedPathByEnum(
+    CreateProjectedLineByEnum(
       VEnum,
       ATemp
     );
 end;
 
-function TGeometryProjectedFactory.CreateProjectedPathByLonLatPath(
+function TGeometryProjectedFactory.CreateProjectedLineByLonLatPath(
   const AProjection: IProjectionInfo;
   const ASource: IGeometryLonLatLine;
   const ATemp: IDoublePointsAggregator
 ): IGeometryProjectedLine;
 begin
   Result :=
-    CreateProjectedPathByLonLatEnum(
+    CreateProjectedLineByLonLatEnum(
       AProjection,
       ASource.GetEnum,
       ATemp

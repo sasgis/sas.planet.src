@@ -53,10 +53,10 @@ type
     function MakeMultiLineBuilder(): IGeometryProjectedMultiLineBuilder;
     function MakeMultiPolygonBuilder(): IGeometryProjectedMultiPolygonBuilder;
 
-    function CreateProjectedPathEmpty: IGeometryProjectedLine;
+    function CreateProjectedLineEmpty: IGeometryProjectedLine;
     function CreateProjectedPolygonEmpty: IGeometryProjectedPolygon;
 
-    function CreateProjectedPathByLonLatPath(
+    function CreateProjectedLineByLonLatPath(
       const AProjection: IProjectionInfo;
       const ASource: IGeometryLonLatLine;
       const ATemp: IDoublePointsAggregator = nil
