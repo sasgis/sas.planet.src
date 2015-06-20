@@ -18,6 +18,16 @@ type
   private
     FEmptyPath: IGeometryProjectedMultiLine;
     FEmptyPolygon: IGeometryProjectedMultiPolygon;
+    function CreateProjectedLineInternal(
+      const ARect: TDoubleRect;
+      const APoints: PDoublePointArray;
+      ACount: Integer
+    ): IGeometryProjectedSingleLine;
+    function CreateProjectedPolygonInternal(
+      const ARect: TDoubleRect;
+      const APoints: PDoublePointArray;
+      ACount: Integer
+    ): IGeometryProjectedSinglePolygon;
   private
     function MakeMultiLineBuilder(): IGeometryProjectedMultiLineBuilder;
     function MakeMultiPolygonBuilder(): IGeometryProjectedMultiPolygonBuilder;
@@ -235,6 +245,15 @@ begin
   Result := FEmptyPath;
 end;
 
+function TGeometryProjectedFactory.CreateProjectedLineInternal(
+  const ARect: TDoubleRect;
+  const APoints: PDoublePointArray;
+  ACount: Integer
+): IGeometryProjectedSingleLine;
+begin
+  Result := TGeometryProjectedLine.Create(APoints, ACount);
+end;
+
 function TGeometryProjectedFactory.CreateProjectedLineByEnum(
   const AEnum: IEnumProjectedPoint;
   const ATemp: IDoublePointsAggregator
@@ -242,65 +261,51 @@ function TGeometryProjectedFactory.CreateProjectedLineByEnum(
 var
   VPoint: TDoublePoint;
   VLine: IGeometryProjectedSingleLine;
-  VList: IInterfaceListSimple;
-  VLineCount: Integer;
   VTemp: IDoublePointsAggregator;
   VBounds: TDoubleRect;
+  VBuilder: IGeometryProjectedMultiLineBuilder;
 begin
+  VBuilder := MakeMultiLineBuilder;
+
   VTemp := ATemp;
   if VTemp = nil then begin
     VTemp := TDoublePointsAggregator.Create;
   end;
   VTemp.Clear;
-  VLineCount := 0;
   while AEnum.Next(VPoint) do begin
     if PointIsEmpty(VPoint) then begin
       if VTemp.Count > 0 then begin
-        if VLineCount > 0 then begin
-          if VLineCount = 1 then begin
-            VList := TInterfaceListSimple.Create;
-          end;
-          VList.Add(VLine);
-          VLine := nil;
-        end;
-        VLine := TGeometryProjectedLine.Create(VTemp.Points, VTemp.Count);
-        if VLineCount > 0 then begin
-          VBounds := UnionProjectedRects(VBounds, VLine.Bounds);
-        end else begin
-          VBounds := VLine.Bounds;
-        end;
-        Inc(VLineCount);
+        VLine := CreateProjectedLineInternal(VBounds, VTemp.Points, VTemp.Count);
+        VBuilder.Add(VLine);
         VTemp.Clear;
       end;
     end else begin
+      if VTemp.Count = 0 then begin
+        VBounds.TopLeft := VPoint;
+        VBounds.BottomRight := VPoint;
+      end else begin
+        if VBounds.Left > VPoint.X then begin
+          VBounds.Left := VPoint.X;
+        end;
+        if VBounds.Top < VPoint.Y then begin
+          VBounds.Top := VPoint.Y;
+        end;
+        if VBounds.Right < VPoint.X then begin
+          VBounds.Right := VPoint.X;
+        end;
+        if VBounds.Bottom > VPoint.Y then begin
+          VBounds.Bottom := VPoint.Y;
+        end;
+      end;
       VTemp.Add(VPoint);
     end;
   end;
   if VTemp.Count > 0 then begin
-    if VLineCount > 0 then begin
-      if VLineCount = 1 then begin
-        VList := TInterfaceListSimple.Create;
-      end;
-      VList.Add(VLine);
-      VLine := nil;
-    end;
-    VLine := TGeometryProjectedLine.Create(VTemp.Points, VTemp.Count);
-    if VLineCount > 0 then begin
-      VBounds := UnionProjectedRects(VBounds, VLine.Bounds);
-    end else begin
-      VBounds := VLine.Bounds;
-    end;
-    Inc(VLineCount);
+    VLine := CreateProjectedLineInternal(VBounds, VTemp.Points, VTemp.Count);
+    VBuilder.Add(VLine);
     VTemp.Clear;
   end;
-  if VLineCount = 0 then begin
-    Result := FEmptyPath;
-  end else if VLineCount = 1 then begin
-    Result := TGeometryProjectedMultiLineOneLine.Create(VLine);
-  end else begin
-    VList.Add(VLine);
-    Result := TGeometryProjectedMultiLine.Create(VBounds, VList.MakeStaticAndClear);
-  end;
+  Result := VBuilder.MakeStaticAndClear;
 end;
 
 function TGeometryProjectedFactory.CreateProjectedLineByLonLatEnum(
@@ -344,6 +349,15 @@ begin
   Result := FEmptyPolygon;
 end;
 
+function TGeometryProjectedFactory.CreateProjectedPolygonInternal(
+  const ARect: TDoubleRect;
+  const APoints: PDoublePointArray;
+  ACount: Integer
+): IGeometryProjectedSinglePolygon;
+begin
+  Result := TGeometryProjectedPolygon.Create(APoints, ACount);
+end;
+
 function TGeometryProjectedFactory.MakeMultiLineBuilder: IGeometryProjectedMultiLineBuilder;
 begin
   Result := TGeometryProjectedMultiLineBuilder.Create(FEmptyPath);
@@ -361,65 +375,51 @@ function TGeometryProjectedFactory.CreateProjectedPolygonByEnum(
 var
   VPoint: TDoublePoint;
   VLine: IGeometryProjectedSinglePolygon;
-  VList: IInterfaceListSimple;
-  VLineCount: Integer;
   VTemp: IDoublePointsAggregator;
   VBounds: TDoubleRect;
+  VBuilder: IGeometryProjectedMultiPolygonBuilder;
 begin
+  VBuilder := MakeMultiPolygonBuilder;
+
   VTemp := ATemp;
   if VTemp = nil then begin
     VTemp := TDoublePointsAggregator.Create;
   end;
   VTemp.Clear;
-  VLineCount := 0;
   while AEnum.Next(VPoint) do begin
     if PointIsEmpty(VPoint) then begin
       if VTemp.Count > 0 then begin
-        if VLineCount > 0 then begin
-          if VLineCount = 1 then begin
-            VList := TInterfaceListSimple.Create;
-          end;
-          VList.Add(VLine);
-          VLine := nil;
-        end;
-        VLine := TGeometryProjectedPolygon.Create(VTemp.Points, VTemp.Count);
-        if VLineCount > 0 then begin
-          VBounds := UnionProjectedRects(VBounds, VLine.Bounds);
-        end else begin
-          VBounds := VLine.Bounds;
-        end;
-        Inc(VLineCount);
+        VLine := CreateProjectedPolygonInternal(VBounds, VTemp.Points, VTemp.Count);
+        VBuilder.Add(VLine);
         VTemp.Clear;
       end;
     end else begin
+      if VTemp.Count = 0 then begin
+        VBounds.TopLeft := VPoint;
+        VBounds.BottomRight := VPoint;
+      end else begin
+        if VBounds.Left > VPoint.X then begin
+          VBounds.Left := VPoint.X;
+        end;
+        if VBounds.Top < VPoint.Y then begin
+          VBounds.Top := VPoint.Y;
+        end;
+        if VBounds.Right < VPoint.X then begin
+          VBounds.Right := VPoint.X;
+        end;
+        if VBounds.Bottom > VPoint.Y then begin
+          VBounds.Bottom := VPoint.Y;
+        end;
+      end;
       VTemp.Add(VPoint);
     end;
   end;
   if VTemp.Count > 0 then begin
-    if VLineCount > 0 then begin
-      if VLineCount = 1 then begin
-        VList := TInterfaceListSimple.Create;
-      end;
-      VList.Add(VLine);
-      VLine := nil;
-    end;
-    VLine := TGeometryProjectedPolygon.Create(VTemp.Points, VTemp.Count);
-    if VLineCount > 0 then begin
-      VBounds := UnionProjectedRects(VBounds, VLine.Bounds);
-    end else begin
-      VBounds := VLine.Bounds;
-    end;
-    Inc(VLineCount);
+    VLine := CreateProjectedPolygonInternal(VBounds, VTemp.Points, VTemp.Count);
+    VBuilder.Add(VLine);
     VTemp.Clear;
   end;
-  if VLineCount = 0 then begin
-    Result := FEmptyPolygon;
-  end else if VLineCount = 1 then begin
-    Result := TGeometryProjectedMultiPolygonOneLine.Create(VLine);
-  end else begin
-    VList.Add(VLine);
-    Result := TGeometryProjectedMultiPolygon.Create(VBounds, VList.MakeStaticAndClear);
-  end;
+  Result := VBuilder.MakeStaticAndClear;
 end;
 
 function TGeometryProjectedFactory.CreateProjectedPolygonByLonLatEnum(
