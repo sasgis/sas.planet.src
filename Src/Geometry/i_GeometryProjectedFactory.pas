@@ -32,8 +32,27 @@ uses
   i_GeometryProjected;
 
 type
+  IGeometryProjectedMultiLineBuilder = interface
+    ['{95459DF2-C324-452F-A738-7C7D3D4EA533}']
+    procedure Add(const AElement: IGeometryProjectedSingleLine);
+
+    function MakeStaticAndClear: IGeometryProjectedMultiLine;
+    function MakeStaticCopy: IGeometryProjectedMultiLine;
+  end;
+
+  IGeometryProjectedMultiPolygonBuilder = interface
+    ['{6057514C-8A8F-40A4-A865-E92AFA4373A6}']
+    procedure Add(const AElement: IGeometryProjectedSinglePolygon);
+
+    function MakeStaticAndClear: IGeometryProjectedMultiPolygon;
+    function MakeStaticCopy: IGeometryProjectedMultiPolygon;
+  end;
+
   IGeometryProjectedFactory = interface
     ['{06CC36BA-1833-4AE8-953F-D003B6D81BB7}']
+    function MakeMultiLineBuilder(): IGeometryProjectedMultiLineBuilder;
+    function MakeMultiPolygonBuilder(): IGeometryProjectedMultiPolygonBuilder;
+
     function CreateProjectedPathEmpty: IGeometryProjectedLine;
     function CreateProjectedPolygonEmpty: IGeometryProjectedPolygon;
 
