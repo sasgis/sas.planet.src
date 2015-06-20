@@ -278,7 +278,7 @@ object frmMarksExplorer: TfrmMarksExplorer
             TabOrder = 0
             OnClick = CheckBox2Click
           end
-          object CheckBox3: TCheckBox
+          object chkCascade: TCheckBox
             AlignWithMargins = True
             Left = 89
             Top = 3
