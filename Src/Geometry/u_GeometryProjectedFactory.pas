@@ -75,25 +75,25 @@ uses
 type
   TGeometryProjectedMultiLineBuilder = class(TBaseInterfacedObject, IGeometryProjectedMultiLineBuilder)
   private
-    FEmpty: IGeometryProjectedMultiLine;
+    FEmpty: IGeometryProjectedLine;
     FBounds: TDoubleRect;
     FLine: IGeometryProjectedSingleLine;
     FList: IInterfaceListSimple;
   private
     procedure Add(const AElement: IGeometryProjectedSingleLine);
 
-    function MakeStaticAndClear: IGeometryProjectedMultiLine;
-    function MakeStaticCopy: IGeometryProjectedMultiLine;
+    function MakeStaticAndClear: IGeometryProjectedLine;
+    function MakeStaticCopy: IGeometryProjectedLine;
   public
     constructor Create(
-      const AEmpty: IGeometryProjectedMultiLine
+      const AEmpty: IGeometryProjectedLine
     );
   end;
 
 { TGeometryProjectedMultiLineBuilder }
 
 constructor TGeometryProjectedMultiLineBuilder.Create(
-  const AEmpty: IGeometryProjectedMultiLine
+  const AEmpty: IGeometryProjectedLine
 );
 begin
   inherited Create;
@@ -120,27 +120,27 @@ begin
   end;
 end;
 
-function TGeometryProjectedMultiLineBuilder.MakeStaticAndClear: IGeometryProjectedMultiLine;
+function TGeometryProjectedMultiLineBuilder.MakeStaticAndClear: IGeometryProjectedLine;
 begin
   Result := FEmpty;
   if Assigned(FLine) then begin
     if Assigned(FList) and (FList.Count > 0) then begin
       Result := TGeometryProjectedMultiLine.Create(FBounds, FList.MakeStaticAndClear);
     end else begin
-      Result := TGeometryProjectedMultiLineOneLine.Create(FLine);
+      Result := FLine;
     end;
     FLine := nil;
   end;
 end;
 
-function TGeometryProjectedMultiLineBuilder.MakeStaticCopy: IGeometryProjectedMultiLine;
+function TGeometryProjectedMultiLineBuilder.MakeStaticCopy: IGeometryProjectedLine;
 begin
   Result := FEmpty;
   if Assigned(FLine) then begin
     if Assigned(FList) and (FList.Count > 0) then begin
        Result := TGeometryProjectedMultiLine.Create(FBounds, FList.MakeStaticCopy);
     end else begin
-      Result := TGeometryProjectedMultiLineOneLine.Create(FLine);
+      Result := FLine;
     end;
   end;
 end;
@@ -148,25 +148,25 @@ end;
 type
   TGeometryProjectedMultiPolygonBuilder = class(TBaseInterfacedObject, IGeometryProjectedMultiPolygonBuilder)
   private
-    FEmpty: IGeometryProjectedMultiPolygon;
+    FEmpty: IGeometryProjectedPolygon;
     FBounds: TDoubleRect;
     FLine: IGeometryProjectedSinglePolygon;
     FList: IInterfaceListSimple;
   private
     procedure Add(const AElement: IGeometryProjectedSinglePolygon);
 
-    function MakeStaticAndClear: IGeometryProjectedMultiPolygon;
-    function MakeStaticCopy: IGeometryProjectedMultiPolygon;
+    function MakeStaticAndClear: IGeometryProjectedPolygon;
+    function MakeStaticCopy: IGeometryProjectedPolygon;
   public
     constructor Create(
-      const AEmpty: IGeometryProjectedMultiPolygon
+      const AEmpty: IGeometryProjectedPolygon
     );
   end;
 
 { TGeometryProjectedMultiPolygonBuilder }
 
 constructor TGeometryProjectedMultiPolygonBuilder.Create(
-  const AEmpty: IGeometryProjectedMultiPolygon
+  const AEmpty: IGeometryProjectedPolygon
 );
 begin
   inherited Create;
@@ -193,27 +193,27 @@ begin
   end;
 end;
 
-function TGeometryProjectedMultiPolygonBuilder.MakeStaticAndClear: IGeometryProjectedMultiPolygon;
+function TGeometryProjectedMultiPolygonBuilder.MakeStaticAndClear: IGeometryProjectedPolygon;
 begin
   Result := FEmpty;
   if Assigned(FLine) then begin
     if Assigned(FList) and (FList.Count > 0) then begin
       Result := TGeometryProjectedMultiPolygon.Create(FBounds, FList.MakeStaticAndClear);
     end else begin
-      Result := TGeometryProjectedMultiPolygonOneLine.Create(FLine);
+      Result := FLine;
     end;
     FLine := nil;
   end;
 end;
 
-function TGeometryProjectedMultiPolygonBuilder.MakeStaticCopy: IGeometryProjectedMultiPolygon;
+function TGeometryProjectedMultiPolygonBuilder.MakeStaticCopy: IGeometryProjectedPolygon;
 begin
   Result := FEmpty;
   if Assigned(FLine) then begin
     if Assigned(FList) and (FList.Count > 0) then begin
       Result := TGeometryProjectedMultiPolygon.Create(FBounds, FList.MakeStaticCopy);
     end else begin
-      Result := TGeometryProjectedMultiPolygonOneLine.Create(FLine);
+      Result := FLine;
     end;
   end;
 end;

@@ -36,16 +36,16 @@ type
     ['{95459DF2-C324-452F-A738-7C7D3D4EA533}']
     procedure Add(const AElement: IGeometryProjectedSingleLine);
 
-    function MakeStaticAndClear: IGeometryProjectedMultiLine;
-    function MakeStaticCopy: IGeometryProjectedMultiLine;
+    function MakeStaticAndClear: IGeometryProjectedLine;
+    function MakeStaticCopy: IGeometryProjectedLine;
   end;
 
   IGeometryProjectedMultiPolygonBuilder = interface
     ['{6057514C-8A8F-40A4-A865-E92AFA4373A6}']
     procedure Add(const AElement: IGeometryProjectedSinglePolygon);
 
-    function MakeStaticAndClear: IGeometryProjectedMultiPolygon;
-    function MakeStaticCopy: IGeometryProjectedMultiPolygon;
+    function MakeStaticAndClear: IGeometryProjectedPolygon;
+    function MakeStaticCopy: IGeometryProjectedPolygon;
   end;
 
   IGeometryProjectedFactory = interface
