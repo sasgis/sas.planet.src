@@ -104,6 +104,7 @@ uses
   u_MarkSystemImplFactorySML,
   u_MarkSystemImplFactoryChangeable,
   u_MarkDbByImpl,
+  u_MarkCategoryList,
   u_MarkCategoryDbByImpl,
   u_MarkSystemHelpers,
   u_MarkSystemImplChangeable;
@@ -249,7 +250,8 @@ function TMarkSystem.ImportItemsTree(
 ): IInterfaceListStatic;
 var
   VImpl: IMarkSystemImpl;
-  VMarkList: IInterfaceListSimple;
+  VList: IInterfaceListSimple;
+  VCategoryList: IMarkCategoryList;
 begin
   Assert(Assigned(ADataItemTree));
   Assert(Assigned(AImportConfig));
@@ -258,10 +260,25 @@ begin
 
   VImpl := FSystemImpl.GetStatic;
   if VImpl <> nil then begin
-    VMarkList := TInterfaceListSimple.Create;
+    VList := TInterfaceListSimple.Create;
+
+    PrepareCategoriesFromTreeForImport(
+      VList,
+      ADataItemTree,
+      AImportConfig,
+      VImpl.CategoryDB,
+      FCategoryDB.Factory
+    );
+
+    if VList.Count > 0 then begin
+      VCategoryList := TMarkCategoryList.Build(VList.MakeStaticAndClear);
+      FCategoryDB.UpdateCategoryList(nil, VCategoryList)
+    end;
+
+    VList.Clear;
 
     PrepareFromTreeForImport(
-      VMarkList,
+      VList,
       ADataItemTree,
       AImportConfig,
       VImpl.MarkDb,
@@ -270,8 +287,8 @@ begin
       FCategoryDB.Factory
     );
 
-    if VMarkList.Count > 0 then begin
-      Result := FMarkDb.UpdateMarkList(nil, VMarkList.MakeStaticAndClear);
+    if VList.Count > 0 then begin
+      Result := FMarkDb.UpdateMarkList(nil, VList.MakeStaticAndClear);
     end;
   end;
 end;

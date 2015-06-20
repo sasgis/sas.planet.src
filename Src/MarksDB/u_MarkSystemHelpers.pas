@@ -45,6 +45,15 @@ procedure PrepareFromTreeForImport(
   const AParentCategoryName: string = ''
 );
 
+procedure PrepareCategoriesFromTreeForImport(
+  const ACategoryList: IInterfaceListSimple;
+  const ADataItemTree: IVectorItemTree;
+  const AImportConfig: IImportConfig;
+  const ACategoryDB: IMarkCategoryDBImpl;
+  const ACategoryFactory: IMarkCategoryFactory;
+  const AParentCategoryName: string = ''
+);
+
 function CategoryTreeToMarkTreeHelper(
   const AMarkDB: IMarkDBImpl;
   const ACategoryTree: IMarkCategoryTree;
@@ -64,9 +73,50 @@ uses
   i_VectorItemSubset,
   i_GeometryLonLat,
   u_VectorItemTree,
-  
   u_MarkCategoryTree,
   u_InterfaceListSimple;
+
+procedure PrepareCategoriesFromTreeForImport(
+  const ACategoryList: IInterfaceListSimple;
+  const ADataItemTree: IVectorItemTree;
+  const AImportConfig: IImportConfig;
+  const ACategoryDB: IMarkCategoryDBImpl;
+  const ACategoryFactory: IMarkCategoryFactory;
+  const AParentCategoryName: string
+);
+var
+  I: Integer;
+  VCategoryName: string;
+  VCategory: ICategory;
+  VMarkCategory: IMarkCategory;
+begin
+  VCategory := AImportConfig.RootCategory;
+
+  VCategoryName := AParentCategoryName;
+  if VCategoryName = '' then begin
+    VCategoryName := VCategory.Name;
+  end;
+
+  if Assigned(ADataItemTree) and (ADataItemTree.Name <> '') then begin
+    VCategoryName := VCategoryName + '\' + ADataItemTree.Name;
+    VMarkCategory := ACategoryDB.GetCategoryByName(VCategoryName);
+    if not Assigned(VMarkCategory) then begin
+      VMarkCategory := ACategoryFactory.CreateNew(VCategoryName);
+      ACategoryList.Add(VMarkCategory);
+    end;
+  end;
+
+  for I := 0 to ADataItemTree.SubTreeItemCount - 1 do begin
+    PrepareCategoriesFromTreeForImport(
+      ACategoryList,
+      ADataItemTree.GetSubTreeItem(I),
+      AImportConfig,
+      ACategoryDB,
+      ACategoryFactory,
+      VCategoryName
+    );
+  end;
+end;
 
 procedure PrepareFromTreeForImport( // ToDo: придумать более внятное название
   const AMarkList: IInterfaceListSimple;
