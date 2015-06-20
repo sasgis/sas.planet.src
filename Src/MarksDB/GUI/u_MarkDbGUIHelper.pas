@@ -344,7 +344,6 @@ function TMarkDbGUIHelper.DeleteCategoryModal(
   handle: THandle
 ): Boolean;
 var
-  I: Integer;
   VMessage: string;
   VList: IMarkCategoryList;
 begin
@@ -358,9 +357,7 @@ begin
     end;
     if MessageBox(handle, PChar(VMessage), PChar(SAS_MSG_coution), 36) = IDYES then begin
       if Assigned(VList) then begin
-        for I := 0 to VList.Count - 1 do begin
-          FMarkSystem.DeleteCategoryWithMarks(IMarkCategory(VList[I]));
-        end;
+        FMarkSystem.DeleteCategoryListWithMarks(VList);
       end;
       FMarkSystem.DeleteCategoryWithMarks(ACategory);
       Result := True;

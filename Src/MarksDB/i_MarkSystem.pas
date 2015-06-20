@@ -29,6 +29,7 @@ uses
   i_VectorItemTree,
   i_VectorDataItemSimple,
   i_MarkCategory,
+  i_MarkCategoryList,
   i_MarkCategoryTree,
   i_MarkDb,
   i_MarkCategoryDB;
@@ -55,6 +56,7 @@ type
     ): IInterfaceListStatic;
 
     procedure DeleteCategoryWithMarks(const ACategory: IMarkCategory);
+    procedure DeleteCategoryListWithMarks(const ACategoryList: IMarkCategoryList);
 
     function CategoryTreeToMarkTree(
       const ACategoryTree: IMarkCategoryTree;

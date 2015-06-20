@@ -45,6 +45,7 @@ uses
   i_HtmlToHintTextConverter,
   i_MarkSystemImplChangeable,
   i_MarkFactory,
+  i_MarkCategoryList,
   i_MarkCategoryFactory,
   u_BaseInterfacedObject;
 
@@ -66,6 +67,7 @@ type
     function GetMarkCategoryByStringId(const AId: string): IMarkCategory;
 
     procedure DeleteCategoryWithMarks(const ACategory: IMarkCategory);
+    procedure DeleteCategoryListWithMarks(const ACategoryList: IMarkCategoryList);
 
     function ImportItemsTree(
       const ADataItemTree: IVectorItemTree;
@@ -170,6 +172,20 @@ begin
     FMarkDb.UpdateMarkList(VMarkIdList, nil);
   end;
   FCategoryDB.UpdateCategory(ACategory, nil);
+end;
+
+procedure TMarkSystem.DeleteCategoryListWithMarks(const ACategoryList: IMarkCategoryList);
+var
+  I: Integer;
+  VMarkIdList: IInterfaceListStatic;
+begin
+  for I := 0 to ACategoryList.Count - 1 do begin
+    VMarkIdList := FMarkDb.GetMarkIdListByCategory(ACategoryList.Items[I]);
+    if Assigned(VMarkIdList) and (VMarkIdList.Count > 0) then begin
+      FMarkDb.UpdateMarkList(VMarkIdList, nil);
+    end;
+  end;
+  FCategoryDB.UpdateCategoryList(ACategoryList, nil);
 end;
 
 function TMarkSystem.GetCategoryDB: IMarkCategoryDB;
