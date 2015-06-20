@@ -145,6 +145,8 @@ begin
     if not Assigned(FList) then begin
       FList := TInterfaceListSimple.Create;
       FList.Add(FLine);
+    end else if FList.Count = 0 then begin
+      FList.Add(FLine);
     end;
     FList.Add(AElement);
     FHashFunction.UpdateHashByHash(FHash, AElement.Hash);
@@ -228,6 +230,8 @@ begin
   end else begin
     if not Assigned(FList) then begin
       FList := TInterfaceListSimple.Create;
+      FList.Add(FLine);
+    end else if FList.Count = 0 then begin
       FList.Add(FLine);
     end;
     FList.Add(AElement);
