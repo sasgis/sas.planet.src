@@ -55,7 +55,7 @@
 			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
 			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
 			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
-			<DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
+			<DCC_Namespace>System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1)'!=''">
 			<Version>7.0</Version>
@@ -189,6 +189,7 @@
 			<DCCReference Include="Src\Basic\i_Timer.pas"/>
 			<DCCReference Include="Src\Basic\t_Hash.pas"/>
 			<DCCReference Include="Src\Basic\t_Listener.pas"/>
+			<DCCReference Include="Src\Basic\u_BackgroundTask.pas"/>
 			<DCCReference Include="Src\Basic\u_BinaryData.pas"/>
 			<DCCReference Include="Src\Basic\u_BinaryDataByMemStream.pas"/>
 			<DCCReference Include="Src\Basic\u_BinaryDataListStatic.pas"/>
@@ -508,6 +509,22 @@
 			<DCCReference Include="Src\Logger\u_LogForTaskThread.pas"/>
 			<DCCReference Include="Src\Logger\u_TileErrorInfo.pas"/>
 			<DCCReference Include="Src\Logger\u_TileErrorLogProviedrStuped.pas"/>
+			<DCCReference Include="Src\MainForm\MergePolygons\fr_MergePolygons.pas">
+				<Form>frMergePolygons</Form>
+				<DesignClass>TFrame</DesignClass>
+			</DCCReference>
+			<DCCReference Include="Src\MainForm\MergePolygons\frm_MergePolygonsProgress.pas">
+				<Form>frmMergePolygonsProgress</Form>
+			</DCCReference>
+			<DCCReference Include="Src\MainForm\MergePolygons\i_MergePolygonsPresenter.pas"/>
+			<DCCReference Include="Src\MainForm\MergePolygons\i_MergePolygonsProgress.pas"/>
+			<DCCReference Include="Src\MainForm\MergePolygons\i_MergePolygonsResult.pas"/>
+			<DCCReference Include="Src\MainForm\MergePolygons\t_MergePolygonsProcessor.pas"/>
+			<DCCReference Include="Src\MainForm\MergePolygons\u_GeometryLonLatPolygonChangeableByMergePolygonsResult.pas"/>
+			<DCCReference Include="Src\MainForm\MergePolygons\u_MergePolygonsPresenterOnPanel.pas"/>
+			<DCCReference Include="Src\MainForm\MergePolygons\u_MergePolygonsProcessor.pas"/>
+			<DCCReference Include="Src\MainForm\MergePolygons\u_MergePolygonsProgress.pas"/>
+			<DCCReference Include="Src\MainForm\MergePolygons\u_MergePolygonsResult.pas"/>
 			<DCCReference Include="Src\MainForm\fr_SearchResultsItem.pas">
 				<Form>frSearchResultsItem</Form>
 				<DesignClass>TFrame</DesignClass>
@@ -515,6 +532,7 @@
 			<DCCReference Include="Src\MainForm\frm_Main.pas">
 				<Form>frmMain</Form>
 			</DCCReference>
+			<DCCReference Include="Src\MainForm\i_FillingMapPolygon.pas"/>
 			<DCCReference Include="Src\MainForm\i_FindVectorItems.pas"/>
 			<DCCReference Include="Src\MainForm\i_KeyMovingConfig.pas"/>
 			<DCCReference Include="Src\MainForm\i_LastSearchResult.pas"/>
@@ -540,6 +558,7 @@
 			<DCCReference Include="Src\MainForm\i_SelectionRect.pas"/>
 			<DCCReference Include="Src\MainForm\i_ViewPortState.pas"/>
 			<DCCReference Include="Src\MainForm\u_ActiveMapTBXItem.pas"/>
+			<DCCReference Include="Src\MainForm\u_FillingMapPolygon.pas"/>
 			<DCCReference Include="Src\MainForm\u_FindVectorItemsForVectorTileMatrix.pas"/>
 			<DCCReference Include="Src\MainForm\u_GeometryLonLatLineChangeableByPathEdit.pas"/>
 			<DCCReference Include="Src\MainForm\u_GeometryLonLatPolygonChangeableByLastSelection.pas"/>
@@ -630,6 +649,8 @@
 			<DCCReference Include="Src\MapLayers\WindowLayers\GoTo\i_GotoLayerConfig.pas"/>
 			<DCCReference Include="Src\MapLayers\WindowLayers\GoTo\u_GotoLayerConfig.pas"/>
 			<DCCReference Include="Src\MapLayers\WindowLayers\GoTo\u_MapLayerGotoMarker.pas"/>
+			<DCCReference Include="Src\MapLayers\WindowLayers\MergePolygons\i_MergePolygonsResultLayerConfig.pas"/>
+			<DCCReference Include="Src\MapLayers\WindowLayers\MergePolygons\u_MergePolygonsResultLayerConfig.pas"/>
 			<DCCReference Include="Src\MapLayers\WindowLayers\NavToMark\i_MapLayerNavToPointMarkerConfig.pas"/>
 			<DCCReference Include="Src\MapLayers\WindowLayers\NavToMark\u_MapLayerNavToMark.pas"/>
 			<DCCReference Include="Src\MapLayers\WindowLayers\NavToMark\u_MapLayerNavToPointMarkerConfig.pas"/>
@@ -877,6 +898,18 @@
 			<DCCReference Include="Src\MarksDB\i_MarkSystemImplChangeable.pas"/>
 			<DCCReference Include="Src\MarksDB\i_MarkSystemImplFactory.pas"/>
 			<DCCReference Include="Src\MarksDB\i_MarkTemplate.pas"/>
+			<DCCReference Include="Src\MarksDB\mORMot\i_MarkCategoryDbInternalORM.pas"/>
+			<DCCReference Include="Src\MarksDB\mORMot\i_MarkCategoryFactoryDbInternalORM.pas"/>
+			<DCCReference Include="Src\MarksDB\mORMot\i_MarkCategoryInternalORM.pas"/>
+			<DCCReference Include="Src\MarksDB\mORMot\i_MarkDbInternalORM.pas"/>
+			<DCCReference Include="Src\MarksDB\mORMot\t_MarkSystemModelORM.pas"/>
+			<DCCReference Include="Src\MarksDB\mORMot\t_MarkSystemORM.pas"/>
+			<DCCReference Include="Src\MarksDB\mORMot\u_MarkCategoryDbImplORM.pas"/>
+			<DCCReference Include="Src\MarksDB\mORMot\u_MarkCategoryDbInternalORM.pas"/>
+			<DCCReference Include="Src\MarksDB\mORMot\u_MarkCategoryFactoryDbInternalORM.pas"/>
+			<DCCReference Include="Src\MarksDB\mORMot\u_MarkDbImplORM.pas"/>
+			<DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemImplFactoryORM.pas"/>
+			<DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemImplORM.pas"/>
 			<DCCReference Include="Src\MarksDB\u_MarkCategory.pas"/>
 			<DCCReference Include="Src\MarksDB\u_MarkCategoryDbByImpl.pas"/>
 			<DCCReference Include="Src\MarksDB\u_MarkCategoryFactory.pas"/>
@@ -1029,12 +1062,14 @@
 			<DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombineJPG.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombineKMZ.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombinePNG.pas"/>
+			<DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombineRAW.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_ThreadMapCombineBMP.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_ThreadMapCombineBase.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_ThreadMapCombineECW.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_ThreadMapCombineJPG.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_ThreadMapCombineKMZ.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_ThreadMapCombinePNG.pas"/>
+			<DCCReference Include="Src\RegionProcess\Combine\u_ThreadMapCombineRAW.pas"/>
 			<DCCReference Include="Src\RegionProcess\Copy\fr_TilesCopy.pas">
 				<Form>frTilesCopy</Form>
 				<DesignClass>TFrame</DesignClass>
@@ -1104,6 +1139,12 @@
 			</DCCReference>
 			<DCCReference Include="Src\RegionProcess\Export\OGF2\u_ExportProviderOgf2.pas"/>
 			<DCCReference Include="Src\RegionProcess\Export\OGF2\u_ThreadExportToOgf2.pas"/>
+			<DCCReference Include="Src\RegionProcess\Export\OruxMaps\fr_ExportOruxMapsSQLite.pas">
+				<Form>frExportOruxMapsSQLite</Form>
+				<DesignClass>TFrame</DesignClass>
+			</DCCReference>
+			<DCCReference Include="Src\RegionProcess\Export\OruxMaps\u_ExportProviderOruxMapsSQLite.pas"/>
+			<DCCReference Include="Src\RegionProcess\Export\OruxMaps\u_ThreadExportToOruxMapsSQLite.pas"/>
 			<DCCReference Include="Src\RegionProcess\Export\RMaps\fr_ExportRMapsSQLite.pas">
 				<Form>frExportRMapsSQLite</Form>
 				<DesignClass>TFrame</DesignClass>
@@ -1380,7 +1421,7 @@
 			<DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameGM2.pas"/>
 			<DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameGM3.pas"/>
 			<DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameGMV.pas"/>
-			<DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameMobileAtlas.pas"/>
+			<DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameMOBAC.pas"/>
 			<DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameSAS.pas"/>
 			<DCCReference Include="Src\TileStorage\FileSystem\u_TileStorageFileSystem.pas"/>
 			<DCCReference Include="Src\TileStorage\FileSystem\u_TileStorageTypeFileSystemSimple.pas"/>
@@ -1522,7 +1563,6 @@
 			<DCCReference Include="Src\i_WindowPositionConfig.pas"/>
 			<DCCReference Include="Src\t_CommonTypes.pas"/>
 			<DCCReference Include="Src\t_GeoTypes.pas"/>
-			<DCCReference Include="Src\Basic\u_BackgroundTask.pas"/>
 			<DCCReference Include="Src\u_BitmapFunc.pas"/>
 			<DCCReference Include="Src\u_CommonFormAndFrameParents.pas"/>
 			<DCCReference Include="Src\u_GeoFunc.pas"/>
@@ -1590,6 +1630,11 @@
 			<DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
 			<DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
 			<DCCReference Include="Src\u_WindowPositionConfig.pas"/>
+			<DCCReference Include="Src\MarksDB\mORMot\i_MarkFactoryDbInternalORM.pas"/>
+			<DCCReference Include="Src\MarksDB\mORMot\u_MarkFactoryDbInternalORM.pas"/>
+			<DCCReference Include="Src\MarksDB\mORMot\u_MarkIdORM.pas"/>
+			<DCCReference Include="Src\MarksDB\mORMot\u_MarkDbImplHelperORM.pas"/>
+			<DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemORMTools.pas"/>
 			<BuildConfiguration Include="Debug">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
@@ -1604,3 +1649,11 @@
 		</ItemGroup>
 		<Import Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')" Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj"/>
 	</Project>
+
+<!-- EurekaLog First Line
+[Exception Log]
+EurekaLog Version=7007
+Activate=0
+DeleteMapAfterCompile=0
+Encrypt Password=""
+EurekaLog Last Line -->
