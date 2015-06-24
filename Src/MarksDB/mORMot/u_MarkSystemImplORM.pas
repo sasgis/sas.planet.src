@@ -154,6 +154,9 @@ begin
       TSQLRestServerDB
     );
 
+  FClientDB.DB.WALMode := True;
+  //FClientDB.DB.Synchronous := smNormal;
+
   FClientDB.Server.CreateMissingTables;
 
   VUserName := StringToUTF8('sasgis');
