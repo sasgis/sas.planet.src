@@ -56,7 +56,8 @@ type
     function _UpdateCategory(
       const AOldCategory: IInterface;
       const ANewCategory: IInterface;
-      out AIsChanged: Boolean
+      out AIsChanged: Boolean;
+      const AUseTransactions: Boolean = True
     ): IMarkCategory;
     function _GetCategory(const ID: TID; const AName: string): IMarkCategory;
   private
@@ -94,11 +95,12 @@ uses
   t_CommonTypes,
   i_EnumID,
   i_InterfaceListSimple,
+  i_MarkCategoryInternalORM,
   u_IDInterfaceList,
   u_InterfaceListSimple,
   u_SimpleFlagWithInterlock,
-  i_MarkCategoryInternalORM,
   u_MarkCategoryList,
+  u_MarkSystemORMTools,
   u_MarkCategoryFactoryDbInternalORM;
 
 type
@@ -131,7 +133,8 @@ end;
 function TMarkCategoryDbImplORM._UpdateCategory(
   const AOldCategory: IInterface;
   const ANewCategory: IInterface;
-  out AIsChanged: Boolean
+  out AIsChanged: Boolean;
+  const AUseTransactions: Boolean
 ): IMarkCategory;
 var
   VOperation: TCategoryUpdateOperType;
@@ -143,7 +146,7 @@ var
   VSQLWhere: RawUTF8;
   VSQLCategory: TSQLCategory;
   VSQLCategoryView: TSQLCategoryView;
-  VSessionID: Cardinal;
+  VTransaction: TTransactionRec;
 begin
   Result := nil;
   AIsChanged := False;
@@ -172,31 +175,35 @@ begin
     end;
   end;
 
-  // DELETE
-  if VOperation = uoDelete then begin
-    if (VCategoryID > 0) then begin
-      // first delete view
-      VSQLWhere := FormatUTF8('Category=?', [], [VCategoryID]);
-      FClient.Delete(TSQLCategoryView, VSQLWhere);
-      // then delete category
-      AIsChanged := FClient.Delete(TSQLCategory, VCategoryID);
-      Assert(AIsChanged);
-    end else begin
-      Assert(False);
-    end;
-    Exit;
+  if AUseTransactions then begin
+    StartTransaction(FClient, VTransaction, TSQLCategory);
   end;
+  try
+    // DELETE
+    if VOperation = uoDelete then begin
+      if VCategoryID > 0 then begin
+        // first delete view for all users
+        VSQLWhere := FormatUTF8('Category=?', [], [VCategoryID]);
+        CheckDeleteResult( FClient.Delete(TSQLCategoryView, VSQLWhere) );
+        // then delete category
+        CheckDeleteResult( FClient.Delete(TSQLCategory, VCategoryID) );
+        AIsChanged := True;
+      end else begin
+        Assert(False);
+      end;
+      Exit;
+    end;
 
-  // INSERT
-  if VOperation = uoInsert then begin
-    if Supports(ANewCategory, IMarkCategory, VCategory) then begin
-      VSQLCategory := TSQLCategory.Create;
-      try
-        // insert category
-        VSQLCategory.Name := StringToUTF8(VCategory.Name);
-        FClient.Add(VSQLCategory, True);
-        // insert view
-        if VSQLCategory.ID > 0 then begin
+    // INSERT
+    if VOperation = uoInsert then begin
+      if Supports(ANewCategory, IMarkCategory, VCategory) then begin
+        VSQLCategory := TSQLCategory.Create;
+        try
+          // insert category
+          VSQLCategory.Name := StringToUTF8(VCategory.Name);
+          CheckID( FClient.Add(VSQLCategory, True) );
+
+          // insert view
           VSQLCategoryView := TSQLCategoryView.Create;
           try
             VSQLCategoryView.User := Pointer(FUserID);
@@ -204,12 +211,11 @@ begin
             VSQLCategoryView.Visible := VCategory.Visible;
             VSQLCategoryView.MinZoom := VCategory.AfterScale;
             VSQLCategoryView.MaxZoom := VCategory.BeforeScale;
-            if FClient.Add(VSQLCategoryView, True) = 0 then begin
-              Assert(False);
-            end;
+            CheckID( FClient.Add(VSQLCategoryView, True) );
           finally
             VSQLCategoryView.Free;
           end;
+
           Result :=
             FFactoryDbInternal.CreateCategory(
               VSQLCategory.ID,
@@ -218,74 +224,69 @@ begin
               VCategory.AfterScale,
               VCategory.BeforeScale
             );
+
           AIsChanged := True;
-        end else begin
-          Assert(False);
+        finally
+          VSQLCategory.Free;
         end;
-      finally
-        VSQLCategory.Free;
+      end;
+      Exit;
+    end;
+
+    // UPDATE
+
+    if VCategoryID > 0 then begin
+      VOldCategory := GetCategoryByID(VCategoryID);
+      if Assigned(VOldCategory) then begin
+        VOldCategoryName := VOldCategory.Name + '\';
+        if Supports(ANewCategory, IMarkCategory, VCategory) then begin
+          if VOldCategory.IsEqual(VCategory) then begin
+            Result := VOldCategory;
+            Exit;
+          end;
+        end;
+      end else begin
+        VCategoryID := 0;
       end;
     end;
-    Exit;
-  end;
 
-  // UPDATE
-
-  if VCategoryID > 0 then begin
-    VOldCategory := GetCategoryByID(VCategoryID);
     if Assigned(VOldCategory) then begin
-      VOldCategoryName := VOldCategory.Name + '\';
       if Supports(ANewCategory, IMarkCategory, VCategory) then begin
-        if VOldCategory.IsEqual(VCategory) then begin
-          Result := VOldCategory;
-          Exit;
-        end;
-      end;
-    end else begin
-      VCategoryID := 0;
-    end;
-  end;
-
-  if Assigned(VOldCategory) then begin
-    if Supports(ANewCategory, IMarkCategory, VCategory) then begin
-      // update
-      VSQLCategory := TSQLCategory.Create(FClient, VCategoryID);
-      try
-        if VSQLCategory.ID > 0 then begin
-          // update view
-          VSQLCategoryView := TSQLCategoryView.Create(
-            FClient, '(Category=? AND User=?)', [VSQLCategory.ID, FUserID]
-          );
-          try
-            if VSQLCategoryView.ID > 0 then begin
-              if (VSQLCategoryView.Visible <> VCategory.Visible) or
-                 (VSQLCategoryView.MinZoom <> VCategory.AfterScale) or
-                 (VSQLCategoryView.MaxZoom <> VCategory.BeforeScale) then
-              begin
+        // update
+        VSQLCategory := TSQLCategory.Create(FClient, VCategoryID);
+        try
+          if VSQLCategory.ID > 0 then begin
+            // update view
+            VSQLCategoryView := TSQLCategoryView.Create(
+              FClient, 'Category=? AND User=?', [VSQLCategory.ID, FUserID]
+            );
+            try
+              if VSQLCategoryView.ID > 0 then begin
+                if (VSQLCategoryView.Visible <> VCategory.Visible) or
+                   (VSQLCategoryView.MinZoom <> VCategory.AfterScale) or
+                   (VSQLCategoryView.MaxZoom <> VCategory.BeforeScale) then
+                begin
+                  VSQLCategoryView.Visible := VCategory.Visible;
+                  VSQLCategoryView.MinZoom := VCategory.AfterScale;
+                  VSQLCategoryView.MaxZoom := VCategory.BeforeScale;
+                  FClient.Update(VSQLCategoryView);
+                end;
+              end else begin
+                VSQLCategoryView.User := Pointer(FUserID);
+                VSQLCategoryView.Category := Pointer(VSQLCategory.ID);
                 VSQLCategoryView.Visible := VCategory.Visible;
                 VSQLCategoryView.MinZoom := VCategory.AfterScale;
                 VSQLCategoryView.MaxZoom := VCategory.BeforeScale;
-                FClient.Update(VSQLCategoryView);
+                CheckID( FClient.Add(VSQLCategoryView, True) );
               end;
-            end else begin
-              VSQLCategoryView.User := Pointer(FUserID);
-              VSQLCategoryView.Category := Pointer(VSQLCategory.ID);
-              VSQLCategoryView.Visible := VCategory.Visible;
-              VSQLCategoryView.MinZoom := VCategory.AfterScale;
-              VSQLCategoryView.MaxZoom := VCategory.BeforeScale;
-              FClient.Add(VSQLCategoryView, True);
+            finally
+              VSQLCategoryView.Free;
             end;
-          finally
-            VSQLCategoryView.Free;
-          end;
-          // update name
-          if UTF8ToString(VSQLCategory.Name) <> VCategory.Name then begin
-            VSQLCategory.Name := StringToUTF8(VCategory.Name);
-            FClient.Update(VSQLCategory);
-            // update sub categories names
-            VSessionID := GetTickCount;
-            FClient.TransactionBegin(TSQLCategory, VSessionID);
-            try
+            // update name
+            if UTF8ToString(VSQLCategory.Name) <> VCategory.Name then begin
+              VSQLCategory.Name := StringToUTF8(VCategory.Name);
+              CheckUpdateResult( FClient.UpdateField(TSQLCategory, VSQLCategory.ID, 'Name', [VSQLCategory.Name]) );
+              // update sub categories names
               VNewName := VCategory.Name + '\';
               VSQLCategory.FillPrepare(FClient, '');
               while VSQLCategory.FillOne do begin
@@ -294,29 +295,36 @@ begin
                   VSQLCategory.Name := StringToUTF8(
                     StringReplace(VName, VOldCategoryName, VNewName, [rfIgnoreCase])
                   );
-                  FClient.Update(VSQLCategory);
+                  CheckUpdateResult( FClient.UpdateField(TSQLCategory, VSQLCategory.ID, 'Name', [VSQLCategory.Name]) );
                 end;
               end;
-            finally
-              FClient.Commit(VSessionID, False);
             end;
+            Result :=
+              FFactoryDbInternal.CreateCategory(
+                VSQLCategory.ID,
+                VCategory.Name,
+                VCategory.Visible,
+                VCategory.AfterScale,
+                VCategory.BeforeScale
+              );
+            AIsChanged := True;
+          end else begin
+            Assert(False);
           end;
-          Result :=
-            FFactoryDbInternal.CreateCategory(
-              VSQLCategory.ID,
-              VCategory.Name,
-              VCategory.Visible,
-              VCategory.AfterScale,
-              VCategory.BeforeScale
-            );
-          AIsChanged := True;
-        end else begin
-          Assert(False);
+        finally
+          VSQLCategory.Free;
         end;
-      finally
-        VSQLCategory.Free;
       end;
     end;
+
+    if AUseTransactions then begin
+      CommitTransaction(FClient, VTransaction);
+    end;
+  except
+    if AUseTransactions then begin
+      RollBackTransaction(FClient, VTransaction);
+    end;
+    raise;
   end;
 end;
 
@@ -352,15 +360,15 @@ var
   VMaxCount: Integer;
   VIsChanged: Boolean;
   VDoNotify: Boolean;
-  VSessionID: Cardinal;
+  VTransaction: TTransactionRec;
   VTemp:  IInterfaceListSimple;
 begin
   Result := nil;
   LockWrite;
   try
     VDoNotify := False;
-    VSessionID := GetTickCount;
-    FClient.TransactionBegin(TSQLCategory, VSessionID);
+
+    StartTransaction(FClient, VTransaction, TSQLCategory);
     try
       if ANewCategoryList <> nil then begin
         VTemp := TInterfaceListSimple.Create;
@@ -382,7 +390,7 @@ begin
         for I := 0 to VMinCount - 1 do begin
           VOld := AOldCategoryList[I];
           VNew := ANewCategoryList[I];
-          VResult := _UpdateCategory(VOld, VNew, VIsChanged);
+          VResult := _UpdateCategory(VOld, VNew, VIsChanged, False);
           VDoNotify := VDoNotify or VIsChanged;
           VTemp.Add(VResult);
         end;
@@ -396,7 +404,7 @@ begin
           if (I < ANewCategoryList.Count) then begin
             VNew := ANewCategoryList[I];
           end;
-          VResult := _UpdateCategory(VOld, VNew, VIsChanged);
+          VResult := _UpdateCategory(VOld, VNew, VIsChanged, False);
           VDoNotify := VDoNotify or VIsChanged;
           if I < VTemp.Capacity then begin
             VTemp.Add(VResult);
@@ -406,13 +414,17 @@ begin
         Result := TMarkCategoryList.Build(VTemp.MakeStaticAndClear);
       end else begin
         for I := 0 to AOldCategoryList.Count - 1 do begin
-          _UpdateCategory(AOldCategoryList[I], nil, VIsChanged);
+          _UpdateCategory(AOldCategoryList[I], nil, VIsChanged, False);
           VDoNotify := VDoNotify or VIsChanged;
         end;
       end;
-    finally
-      FClient.Commit(VSessionID, False);
+
+      CommitTransaction(FClient, VTransaction);
+    except
+      RollBackTransaction(FClient, VTransaction);
+      raise;
     end;
+
     if VDoNotify then begin
       SetChanged;
     end;
@@ -441,49 +453,51 @@ end;
 
 function TMarkCategoryDbImplORM._GetCategory(const ID: TID; const AName: string): IMarkCategory;
 var
-  VCategory: TSQLCategory;
-  VCategoryView: TSQLCategoryView;
+  VName: RawUTF8;
+  VSQLCategory: TSQLCategory;
+  VSQLCategoryView: TSQLCategoryView;
 begin
   Assert( (ID > 0) or (AName <> '') );
 
   Result := nil;
 
   if ID > 0 then begin
-    VCategory := TSQLCategory.Create(FClient, ID);
+    VSQLCategory := TSQLCategory.Create(FClient, ID);
   end else if AName <> '' then begin
-    VCategory := TSQLCategory.Create(FClient, 'Name=?', [AName]);
+    VName := StringToUTF8(AName);
+    VSQLCategory := TSQLCategory.Create(FClient, 'Name=?', [VName]);
   end else begin
     Exit;
   end;
 
   try
-    if VCategory.ID > 0 then begin
-      VCategoryView := TSQLCategoryView.Create(
-        FClient, 'User=? AND Category=?', [FUserID, VCategory.ID]
+    if VSQLCategory.ID > 0 then begin
+      VSQLCategoryView := TSQLCategoryView.Create(
+        FClient, 'Category=? AND User=?', [VSQLCategory.ID, FUserID]
       );
       try
-        if VCategoryView.ID > 0 then begin
+        if VSQLCategoryView.ID > 0 then begin
           Result :=
             FFactoryDbInternal.CreateCategory(
-              VCategory.ID,
-              UTF8ToString(VCategory.Name),
-              VCategoryView.Visible,
-              VCategoryView.MinZoom,
-              VCategoryView.MaxZoom
+              VSQLCategory.ID,
+              UTF8ToString(VSQLCategory.Name),
+              VSQLCategoryView.Visible,
+              VSQLCategoryView.MinZoom,
+              VSQLCategoryView.MaxZoom
             );
         end else begin
           Result :=
             FFactoryDbInternal.CreateCategory(
-              VCategory.ID,
-              UTF8ToString(VCategory.Name)
+              VSQLCategory.ID,
+              UTF8ToString(VSQLCategory.Name)
             );
         end;
       finally
-        VCategoryView.Free;
+        VSQLCategoryView.Free;
       end;
     end;
   finally
-    VCategory.Free;
+    VSQLCategory.Free;
   end;
 end;
 
@@ -515,13 +529,13 @@ var
   VSQLCategory: TSQLCategory;
   VSQLCategoryView: TSQLCategoryView;
   VDoNotify: Boolean;
-  VSessionID: Cardinal;
+  VTransaction: TTransactionRec;
 begin
   LockWrite;
   try
     VDoNotify := False;
-    VSessionID := GetTickCount;
-    FClient.TransactionBegin(TSQLCategoryView, VSessionID);
+
+    StartTransaction(FClient, VTransaction, TSQLCategoryView);
     try
       if ANewVisible then begin
         VSQLCategoryView := TSQLCategoryView.CreateAndFillPrepare(
@@ -530,10 +544,12 @@ begin
         try
           while VSQLCategoryView.FillOne do begin
             if VSQLCategoryView.Visible <> ANewVisible then begin
-              VDoNotify := VDoNotify or FClient.UpdateField(
-                TSQLCategoryView, VSQLCategoryView.ID, 'Visible', [ANewVisible]
+              CheckUpdateResult(
+                FClient.UpdateField(
+                  TSQLCategoryView, VSQLCategoryView.ID, 'Visible', [ANewVisible]
+                )
               );
-              Assert(VDoNotify);
+              VDoNotify := True;
             end;
           end;
         finally
@@ -545,13 +561,15 @@ begin
           VSQLCategory := TSQLCategory.CreateAndFillPrepare(FClient, '');
           try
             while VSQLCategory.FillOne do begin
-              VSQLWhere := FormatUTF8('(Category=? AND User=?)', [], [VSQLCategory.ID, FUserID]);
+              VSQLWhere := FormatUTF8('Category=? AND User=?', [], [VSQLCategory.ID, FUserID]);
               if FClient.Retrieve(VSQLWhere, VSQLCategoryView) then begin
                 if VSQLCategoryView.Visible <> ANewVisible then begin
-                  VDoNotify := VDoNotify or FClient.UpdateField(
-                    TSQLCategoryView, VSQLCategoryView.ID, 'Visible', [ANewVisible]
+                  CheckUpdateResult(
+                    FClient.UpdateField(
+                      TSQLCategoryView, VSQLCategoryView.ID, 'Visible', [ANewVisible]
+                    )
                   );
-                  Assert(VDoNotify);
+                  VDoNotify := True;
                 end;
               end else begin
                 VSQLCategoryView.User := Pointer(FUserID);
@@ -559,11 +577,8 @@ begin
                 VSQLCategoryView.Visible := ANewVisible;
                 VSQLCategoryView.MinZoom := 3;
                 VSQLCategoryView.MaxZoom := 23;
-                if FClient.Add(VSQLCategoryView, True) > 0 then begin
-                  VDoNotify := True;
-                end else begin
-                  Assert(False);
-                end;
+                CheckID( FClient.Add(VSQLCategoryView, True) );
+                VDoNotify := True;
               end;
             end;
           finally
@@ -573,9 +588,12 @@ begin
           VSQLCategoryView.Free;
         end;
       end;
-    finally
-      FClient.Commit(VSessionID, False);
+
+      CommitTransaction(FClient, VTransaction);
+    except
+      RollBackTransaction(FClient, VTransaction);
     end;
+
     if VDoNotify then begin
       SetChanged;
     end;
@@ -601,7 +619,7 @@ begin
       VSQLCategory := TSQLCategory.CreateAndFillPrepare(FClient, '');
       try
         while VSQLCategory.FillOne do begin
-          VSQLWhere := FormatUTF8('(Category=? AND User=?)', [], [VSQLCategory.ID, FUserID]);
+          VSQLWhere := FormatUTF8('Category=? AND User=?', [], [VSQLCategory.ID, FUserID]);
           if FClient.Retrieve(VSQLWhere, VSQLCategoryView) then begin
             VMarkCategory :=
               FFactoryDbInternal.CreateCategory(
