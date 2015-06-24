@@ -369,7 +369,7 @@ begin
     VLocalConverter := nil;
     VProjection := ALocalConverter.ProjectionInfo;
     VProjectedLine :=
-      FVectorGeometryProjectedFactory.CreateProjectedPathByLonLatPath(
+      FVectorGeometryProjectedFactory.CreateProjectedLineByLonLatPath(
         VProjection,
         VLonLatLine,
         FPreparedPointsAggreagtor
