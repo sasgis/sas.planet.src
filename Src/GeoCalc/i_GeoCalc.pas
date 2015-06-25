@@ -33,6 +33,7 @@ type
     function CalcMultiLineLength(const ALine: IGeometryLonLatMultiLine): Double;
     function CalcLineLength(const ALine: IGeometryLonLatLine): Double;
 
+    function CalcContourPerimeter(const ALine: IGeometryLonLatContour): Double;
     function CalcSinglePolygonPerimeter(const ALine: IGeometryLonLatSinglePolygon): Double;
     function CalcMultiPolygonPerimeter(const ALine: IGeometryLonLatMultiPolygon): Double;
     function CalcPolygonPerimeter(const ALine: IGeometryLonLatPolygon): Double;

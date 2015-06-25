@@ -37,6 +37,7 @@ type
     function CalcSingleLineLength(const ALine: IGeometryLonLatSingleLine): Double;
     function CalcMultiLineLength(const ALine: IGeometryLonLatMultiLine): Double;
 
+    function CalcContourPerimeter(const ALine: IGeometryLonLatContour): Double;
     function CalcSinglePolygonPerimeter(const ALine: IGeometryLonLatSinglePolygon): Double;
     function CalcMultiPolygonPerimeter(const ALine: IGeometryLonLatMultiPolygon): Double;
     function CalcSinglePolygonArea(
@@ -198,8 +199,8 @@ begin
   end;
 end;
 
-function TGeoCalc.CalcSinglePolygonPerimeter(
-  const ALine: IGeometryLonLatSinglePolygon
+function TGeoCalc.CalcContourPerimeter(
+  const ALine: IGeometryLonLatContour
 ): Double;
 var
   VEnum: IEnumLonLatPoint;
@@ -213,6 +214,18 @@ begin
       Result := Result + FDatum.CalcDist(VPrevPoint, VCurrPoint);
       VPrevPoint := VCurrPoint;
     end;
+  end;
+end;
+
+function TGeoCalc.CalcSinglePolygonPerimeter(
+  const ALine: IGeometryLonLatSinglePolygon
+): Double;
+var
+  i: Integer;
+begin
+  Result := CalcContourPerimeter(ALine.OuterBorder);
+  for i := 0 to ALine.HoleCount - 1 do begin
+    Result := Result + CalcContourPerimeter(ALine.HoleBorder[i]);
   end;
 end;
 
