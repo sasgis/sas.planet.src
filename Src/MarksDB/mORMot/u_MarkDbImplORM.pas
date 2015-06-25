@@ -79,15 +79,10 @@ type
       const ACategoryID: TID = 0
     ): IVectorDataItem;
 
-    function _SetMarkVisibleByID(
-      const AID: TID;
-      const AVisible: Boolean;
-      const AUseTransaction: Boolean = True
-    ): Boolean;
-
-    function _InsertMark(
-      const AMark: IVectorDataItem
-    ): IVectorDataItem;
+    procedure _SQLMarkRecFromMark(
+      const AMark: IVectorDataItem;
+      out AMarkRec: TSQLMarkRec
+    );
 
     function _GetMarkIdList(
       const ACategoryId: TID = 0
@@ -387,19 +382,145 @@ end;
 
 // INSERT/DELETE/UPDATE Marks
 
+procedure TMarkDbImplORM._SQLMarkRecFromMark(
+  const AMark: IVectorDataItem;
+  out AMarkRec: TSQLMarkRec
+);
+var
+  VPoint: IGeometryLonLatPoint;
+  VLine: IGeometryLonLatLine;
+  VPoly: IGeometryLonLatPolygon;
+  VMarkInternalORM: IMarkInternalORM;
+  VAppearanceIcon: IAppearancePointIcon;
+  VAppearanceCaption: IAppearancePointCaption;
+  VAppearanceLine: IAppearanceLine;
+  VAppearanceBorder: IAppearancePolygonBorder;
+  VAppearanceFill: IAppearancePolygonFill;
+  VTextColor: TColor32;
+  VTextBgColor: TColor32;
+  VFontSize: Integer;
+  VMarkerSize: Integer;
+  VLineColor: TColor32;
+  VLineWidth: Integer;
+  VFillColor: TColor32;
+  VMarkWithCategory: IVectorDataItemWithCategory;
+  VCategory: IMarkCategoryInternalORM;
+begin
+  Assert(Assigned(AMark));
+
+  AMarkRec := cEmptySQLMarkRec;
+
+  if Supports(AMark.MainInfo, IMarkInternalORM, VMarkInternalORM) then begin
+    AMarkRec.FMarkId := VMarkInternalORM.Id;
+    AMarkRec.FCategoryId := VMarkInternalORM.CategoryId;
+    AMarkRec.FVisible := VMarkInternalORM.Visible;
+  end else begin
+    if Supports(AMark.MainInfo, IVectorDataItemWithCategory, VMarkWithCategory) then begin
+      if Supports(VMarkWithCategory.Category, IMarkCategoryInternalORM, VCategory) then begin
+        AMarkRec.FCategoryId := VCategory.Id;
+      end;
+    end;
+  end;
+
+  if AMarkRec.FCategoryId = 0 then begin
+    Assert(False);
+    Exit;
+  end;
+
+  if not Assigned(AMark.Geometry.Bounds) then begin
+    Assert(False);
+    Exit;
+  end;
+
+  AMarkRec.FName := AMark.Name;
+  AMarkRec.FDesc := AMark.Desc;
+  AMarkRec.FGeometry := AMark.Geometry;
+
+  if Supports(AMark.Geometry, IGeometryLonLatPoint, VPoint) then begin
+    VTextColor := 0;
+    VTextBgColor := 0;
+    VFontSize := 0;
+    VMarkerSize := 0;
+
+    if Supports(AMark.Appearance, IAppearancePointCaption, VAppearanceCaption) then begin
+      VTextColor := VAppearanceCaption.TextColor;
+      VTextBgColor := VAppearanceCaption.TextBgColor;
+      VFontSize := VAppearanceCaption.FontSize;
+    end;
+
+    if Supports(AMark.Appearance, IAppearancePointIcon, VAppearanceIcon) then begin
+      VMarkerSize := VAppearanceIcon.MarkerSize;
+      AMarkRec.FPicName := VAppearanceIcon.PicName;
+    end;
+
+    AMarkRec.FColor1 := VTextColor;
+    AMarkRec.FColor2 := VTextBgColor;
+    AMarkRec.FScale1 := VFontSize;
+    AMarkRec.FScale2 := VMarkerSize;
+
+    AMarkRec.FGeoType := gtPoint;
+    AMarkRec.FGeoLon := VPoint.Point.X;
+    AMarkRec.FGeoLat := VPoint.Point.Y;
+
+  end else if Supports(AMark.Geometry, IGeometryLonLatLine, VLine) then begin
+    VLineColor := 0;
+    VLineWidth := 0;
+
+    if Supports(AMark.Appearance, IAppearanceLine, VAppearanceLine) then begin
+      VLineColor := VAppearanceLine.LineColor;
+      VLineWidth := VAppearanceLine.LineWidth;
+    end;
+
+    AMarkRec.FColor1 := VLineColor;
+    AMarkRec.FColor2 := 0;
+    AMarkRec.FScale1 := VLineWidth;
+    AMarkRec.FScale2 := 0;
+
+    AMarkRec.FGeoType := gtLine;
+    AMarkRec.FGeoLon := VLine.GetGoToPoint.X;
+    AMarkRec.FGeoLat := VLine.GetGoToPoint.Y;
+    AMarkRec.FGeoCount := CalcMultiGeometryCount(VLine);
+
+  end else if Supports(AMark.Geometry, IGeometryLonLatPolygon, VPoly) then begin
+    VLineColor := 0;
+    VLineWidth := 0;
+    VFillColor := 0;
+
+    if Supports(AMark.Appearance, IAppearancePolygonBorder, VAppearanceBorder) then begin
+      VLineColor := VAppearanceBorder.LineColor;
+      VLineWidth := VAppearanceBorder.LineWidth;
+    end;
+
+    if Supports(AMark.Appearance, IAppearancePolygonFill, VAppearanceFill) then begin
+      VFillColor := VAppearanceFill.FillColor;
+    end;
+
+    AMarkRec.FColor1 := VLineColor;
+    AMarkRec.FColor2 := VFillColor;
+    AMarkRec.FScale1 := VLineWidth;
+    AMarkRec.FScale2 := 0;
+
+    AMarkRec.FGeoType := gtPoly;
+    AMarkRec.FGeoLon := VPoly.GetGoToPoint.X;
+    AMarkRec.FGeoLat := VPoly.GetGoToPoint.Y;
+    AMarkRec.FGeoCount := CalcMultiGeometryCount(VPoly);
+  end else begin
+    raise EMarkSystemORMError.Create('MarkSystemORM: Unknown geometry type!');
+  end;
+end;
+
 function TMarkDbImplORM._UpdateMark(
   const AOldMark: IInterface;
   const ANewMark: IInterface;
   out AIsChanged: Boolean
 ): IVectorDataItem;
 var
-  VIdOld: Integer;
-  //VIdNew: Integer;
+  VIdOld: TID;
   VMarkInternal: IMarkInternalORM;
   VOldMark: IVectorDataItem;
   VNewMark: IVectorDataItem;
-  //VCategoryIdOld: Integer;
-  //VCategoryIdNew: Integer;
+  VSQLMarkRecNew: TSQLMarkRec;
+  VSQLMarkRecOld: TSQLMarkRec;
 begin
   Result := nil;
   AIsChanged := False;
@@ -456,17 +577,24 @@ begin
 
   if VOldMark <> nil then begin
     if VNewMark <> nil then begin
-
-      //ToDo: UPDATE
-
+      // UPDATE
+      _SQLMarkRecFromMark(VOldMark, VSQLMarkRecOld);
+      _SQLMarkRecFromMark(VNewMark, VSQLMarkRecNew);
+      UpdateMarkSQL(VSQLMarkRecOld, VSQLMarkRecNew, FUserID, FClient, FGeometryWriter);
+      Result := FFactoryDbInternal.CreateMark(VSQLMarkRecNew);
+      AIsChanged := True;
     end else begin
+      // DELETE
       DeleteMarkSQL(VIdOld, FClient);
       AIsChanged := True;
     end;
   end else begin
+    // INSERT
     if VNewMark <> nil then begin
-      Result := _InsertMark(VNewMark);
-      AIsChanged := (Result <> nil);
+      _SQLMarkRecFromMark(VNewMark, VSQLMarkRecNew);
+      InsertMarkSQL(VSQLMarkRecNew, FUserID, FClient, FGeometryWriter);
+      Result := FFactoryDbInternal.CreateMark(VSQLMarkRecNew);
+      AIsChanged := True;
     end;
   end;
 end;
@@ -585,135 +713,6 @@ begin
       UnlockWrite;
     end;
   end;
-end;
-
-function TMarkDbImplORM._InsertMark(const AMark: IVectorDataItem): IVectorDataItem;
-var
-  VPoint: IGeometryLonLatPoint;
-  VLine: IGeometryLonLatLine;
-  VPoly: IGeometryLonLatPolygon;
-  VMarkInternalORM: IMarkInternalORM;
-  VAppearanceIcon: IAppearancePointIcon;
-  VAppearanceCaption: IAppearancePointCaption;
-  VAppearanceLine: IAppearanceLine;
-  VAppearanceBorder: IAppearancePolygonBorder;
-  VAppearanceFill: IAppearancePolygonFill;
-  VTextColor: TColor32;
-  VTextBgColor: TColor32;
-  VFontSize: Integer;
-  VMarkerSize: Integer;
-  VLineColor: TColor32;
-  VLineWidth: Integer;
-  VFillColor: TColor32;
-  VMarkWithCategory: IVectorDataItemWithCategory;
-  VCategory: IMarkCategoryInternalORM;
-  VMarkRec: TSQLMarkRec;
-begin
-  Assert(Assigned(AMark));
-
-  Result := nil;
-
-  VMarkRec := cEmptySQLMarkRec;
-
-  if Supports(AMark.MainInfo, IMarkInternalORM, VMarkInternalORM) then begin
-    VMarkRec.FVisible := VMarkInternalORM.Visible;
-    VMarkRec.FCategoryId := VMarkInternalORM.CategoryId;
-  end else begin
-    if Supports(AMark.MainInfo, IVectorDataItemWithCategory, VMarkWithCategory) then begin
-      if Supports(VMarkWithCategory.Category, IMarkCategoryInternalORM, VCategory) then begin
-        VMarkRec.FCategoryId := VCategory.Id;
-      end;
-    end;
-  end;
-
-  if VMarkRec.FCategoryId = 0 then begin
-    Assert(False);
-    Exit;
-  end;
-
-  if not Assigned(AMark.Geometry.Bounds) then begin
-    Assert(False);
-    Exit;
-  end;
-
-  VMarkRec.FName := AMark.Name;
-  VMarkRec.FDesc := AMark.Desc;
-  VMarkRec.FGeometry := AMark.Geometry;
-
-  if Supports(AMark.Geometry, IGeometryLonLatPoint, VPoint) then begin
-    VTextColor := 0;
-    VTextBgColor := 0;
-    VFontSize := 0;
-    VMarkerSize := 0;
-
-    if Supports(AMark.Appearance, IAppearancePointCaption, VAppearanceCaption) then begin
-      VTextColor := VAppearanceCaption.TextColor;
-      VTextBgColor := VAppearanceCaption.TextBgColor;
-      VFontSize := VAppearanceCaption.FontSize;
-    end;
-
-    if Supports(AMark.Appearance, IAppearancePointIcon, VAppearanceIcon) then begin
-      VMarkerSize := VAppearanceIcon.MarkerSize;
-      VMarkRec.FPicName := VAppearanceIcon.PicName;
-    end;
-
-    VMarkRec.FColor1 := VTextColor;
-    VMarkRec.FColor2 := VTextBgColor;
-    VMarkRec.FScale1 := VFontSize;
-    VMarkRec.FScale2 := VMarkerSize;
-
-    VMarkRec.FGeoType := gtPoint;
-    VMarkRec.FGeoLon := VPoint.Point.X;
-    VMarkRec.FGeoLat := VPoint.Point.Y;
-
-  end else if Supports(AMark.Geometry, IGeometryLonLatLine, VLine) then begin
-    VLineColor := 0;
-    VLineWidth := 0;
-
-    if Supports(AMark.Appearance, IAppearanceLine, VAppearanceLine) then begin
-      VLineColor := VAppearanceLine.LineColor;
-      VLineWidth := VAppearanceLine.LineWidth;
-    end;
-
-    VMarkRec.FColor1 := VLineColor;
-    VMarkRec.FColor2 := 0;
-    VMarkRec.FScale1 := VLineWidth;
-    VMarkRec.FScale2 := 0;
-
-    VMarkRec.FGeoType := gtLine;
-    VMarkRec.FGeoLon := VLine.GetGoToPoint.X;
-    VMarkRec.FGeoLat := VLine.GetGoToPoint.Y;
-    VMarkRec.FGeoCount := CalcMultiGeometryCount(VLine);
-
-  end else if Supports(AMark.Geometry, IGeometryLonLatPolygon, VPoly) then begin
-    VLineColor := 0;
-    VLineWidth := 0;
-    VFillColor := 0;
-
-    if Supports(AMark.Appearance, IAppearancePolygonBorder, VAppearanceBorder) then begin
-      VLineColor := VAppearanceBorder.LineColor;
-      VLineWidth := VAppearanceBorder.LineWidth;
-    end;
-
-    if Supports(AMark.Appearance, IAppearancePolygonFill, VAppearanceFill) then begin
-      VFillColor := VAppearanceFill.FillColor;
-    end;
-
-    VMarkRec.FColor1 := VLineColor;
-    VMarkRec.FColor2 := VFillColor;
-    VMarkRec.FScale1 := VLineWidth;
-    VMarkRec.FScale2 := 0;
-
-    VMarkRec.FGeoType := gtPoly;
-    VMarkRec.FGeoLon := VPoly.GetGoToPoint.X;
-    VMarkRec.FGeoLat := VPoly.GetGoToPoint.Y;
-    VMarkRec.FGeoCount := CalcMultiGeometryCount(VPoly);
-  end else begin
-    Exit;
-  end;
-
-  InsertMarkSQL(VMarkRec, FUserID, FClient, FGeometryWriter);
-  Result := FFactoryDbInternal.CreateMark(VMarkRec);
 end;
 
 // =============================================================================
@@ -1049,51 +1048,6 @@ begin
   end;
 end;
 
-function TMarkDbImplORM._SetMarkVisibleByID(
-  const AID: TID;
-  const AVisible: Boolean;
-  const AUseTransaction: Boolean
-): Boolean;
-var
-  VSQLMarkView: TSQLMarkView;
-  VTransaction: TTransactionRec;
-begin
-  Assert(AID > 0);
-
-  Result := False;
-
-  if AUseTransaction then begin
-    StartTransaction(FClient, VTransaction, TSQLMarkView);
-  end;
-  try
-    VSQLMarkView := TSQLMarkView.Create(FClient, 'Mark=? AND User=?', [AID, FUserID]);
-    try
-      if VSQLMarkView.ID > 0 then begin
-        if VSQLMarkView.Visible <> AVisible then begin
-          Result := FClient.UpdateField(TSQLMarkView, VSQLMarkView.ID, 'Visible', [AVisible]);
-          CheckUpdateResult(Result);
-        end;
-      end else if not AVisible then begin
-        VSQLMarkView.User := Pointer(FUserID);
-        VSQLMarkView.Mark := Pointer(AID);
-        VSQLMarkView.Visible := AVisible;
-        CheckID(FClient.Add(VSQLMarkView, True));
-        Result := True;
-      end;
-    finally
-      VSQLMarkView.Free;
-    end;
-    if AUseTransaction then begin
-      CommitTransaction(FClient, VTransaction);
-    end;
-  except
-    if AUseTransaction then begin
-      RollBackTransaction(FClient, VTransaction);
-    end;
-    raise;
-  end;
-end;
-
 procedure TMarkDbImplORM.SetAllMarksInCategoryVisible(
   const ACategory: ICategory;
   ANewVisible: Boolean
@@ -1114,7 +1068,7 @@ begin
         VSQLMark := TSQLMark.CreateAndFillPrepare(FClient, 'Category=?', [VCategoryId]);
         try
           while VSQLMark.FillOne do begin
-            if _SetMarkVisibleByID(VSQLMark.ID, ANewVisible, False) then begin
+            if SetMarkVisibleSQL(VSQLMark.ID, FUserID, ANewVisible, FClient, False) then begin
               VIsChanged := True;
             end;
           end;
@@ -1147,12 +1101,15 @@ begin
     VId := 0;
     if Supports(AMark.MainInfo, IMarkInternalORM, VMarkInternal) then begin
       VId := VMarkInternal.Id;
+      if VMarkInternal.Visible = AVisible then begin
+        Exit;
+      end;
       VMarkInternal.Visible := AVisible;
     end;
     if VId > 0 then begin
       LockWrite;
       try
-        if _SetMarkVisibleByID(VId, AVisible) then begin
+        if SetMarkVisibleSQL(VId, FUserID, AVisible, FClient, True) then begin
           SetChanged;
         end;
       finally
@@ -1174,12 +1131,15 @@ begin
     VId := 0;
     if Supports(AMark, IMarkInternalORM, VMarkInternal) then begin
       VId := VMarkInternal.Id;
+      if VMarkInternal.Visible = AVisible then begin
+        Exit;
+      end;
       VMarkInternal.Visible := AVisible;
     end;
     if VId > 0 then begin
       LockWrite;
       try
-        if _SetMarkVisibleByID(VId, AVisible) then begin
+        if SetMarkVisibleSQL(VId, FUserID, AVisible, FClient, True) then begin
           SetChanged;
         end;
       finally
@@ -1210,10 +1170,13 @@ begin
           VId := 0;
           if Supports(AMarkList.Items[I], IMarkInternalORM, VMarkInternal) then begin
             VId := VMarkInternal.Id;
+            if VMarkInternal.Visible = AVisible then begin
+              Continue;
+            end;
             VMarkInternal.Visible := AVisible;
           end;
           if VId > 0 then begin
-            if _SetMarkVisibleByID(VId, AVisible, False) then begin
+            if SetMarkVisibleSQL(VId, FUserID, AVisible, FClient, False) then begin
               VIsChanged := True;
             end;
           end;
