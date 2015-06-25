@@ -902,14 +902,19 @@
 			<DCCReference Include="Src\MarksDB\mORMot\i_MarkCategoryFactoryDbInternalORM.pas"/>
 			<DCCReference Include="Src\MarksDB\mORMot\i_MarkCategoryInternalORM.pas"/>
 			<DCCReference Include="Src\MarksDB\mORMot\i_MarkDbInternalORM.pas"/>
+			<DCCReference Include="Src\MarksDB\mORMot\i_MarkFactoryDbInternalORM.pas"/>
 			<DCCReference Include="Src\MarksDB\mORMot\t_MarkSystemModelORM.pas"/>
 			<DCCReference Include="Src\MarksDB\mORMot\t_MarkSystemORM.pas"/>
 			<DCCReference Include="Src\MarksDB\mORMot\u_MarkCategoryDbImplORM.pas"/>
 			<DCCReference Include="Src\MarksDB\mORMot\u_MarkCategoryDbInternalORM.pas"/>
 			<DCCReference Include="Src\MarksDB\mORMot\u_MarkCategoryFactoryDbInternalORM.pas"/>
+			<DCCReference Include="Src\MarksDB\mORMot\u_MarkDbImplHelperORM.pas"/>
 			<DCCReference Include="Src\MarksDB\mORMot\u_MarkDbImplORM.pas"/>
+			<DCCReference Include="Src\MarksDB\mORMot\u_MarkFactoryDbInternalORM.pas"/>
+			<DCCReference Include="Src\MarksDB\mORMot\u_MarkIdORM.pas"/>
 			<DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemImplFactoryORM.pas"/>
 			<DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemImplORM.pas"/>
+			<DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemORMTools.pas"/>
 			<DCCReference Include="Src\MarksDB\u_MarkCategory.pas"/>
 			<DCCReference Include="Src\MarksDB\u_MarkCategoryDbByImpl.pas"/>
 			<DCCReference Include="Src\MarksDB\u_MarkCategoryFactory.pas"/>
@@ -1630,11 +1635,6 @@
 			<DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
 			<DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
 			<DCCReference Include="Src\u_WindowPositionConfig.pas"/>
-			<DCCReference Include="Src\MarksDB\mORMot\i_MarkFactoryDbInternalORM.pas"/>
-			<DCCReference Include="Src\MarksDB\mORMot\u_MarkFactoryDbInternalORM.pas"/>
-			<DCCReference Include="Src\MarksDB\mORMot\u_MarkIdORM.pas"/>
-			<DCCReference Include="Src\MarksDB\mORMot\u_MarkDbImplHelperORM.pas"/>
-			<DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemORMTools.pas"/>
 			<BuildConfiguration Include="Debug">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
