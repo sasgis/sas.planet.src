@@ -313,17 +313,18 @@ procedure WritePolygon(
   const APolygon: IGeometryLonLatPolygon
 );
 var
-  VEnum: IEnumDoublePoint;
   i: Integer;
-  VPoint: TDoublePoint;
+  VMultiPolygon: IGeometryLonLatMultiPolygon;
+  VSinglePolygon: IGeometryLonLatSinglePolygon;
 begin
-  if APolygon <> nil then begin
-    VEnum := APolygon.GetEnum;
-    i := 1;
-    while VEnum.Next(VPoint) do begin
-      AConfigProvider.WriteFloat('PointLon_' + IntToStr(i), VPoint.x);
-      AConfigProvider.WriteFloat('PointLat_' + IntToStr(i), VPoint.y);
-      Inc(i);
+  if Assigned(APolygon) then begin
+    i := 0;
+    if Supports(APolygon, IGeometryLonLatSinglePolygon, VSinglePolygon) then begin
+      WriteSinglePolygon(AConfigProvider, VSinglePolygon, i);
+    end else if Supports(APolygon, IGeometryLonLatMultiPolygon, VMultiPolygon) then begin
+      WriteMultiPolygon(AConfigProvider, VMultiPolygon, i);
+    end else begin
+      Assert(False);
     end;
   end;
 end;
