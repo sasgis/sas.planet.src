@@ -146,8 +146,8 @@ begin
   end;
 end;
 
-function GetGeometryLonLatPolygonNearestPoint(
-  const AGeometry: IGeometryLonLatSinglePolygon;
+function GetGeometryLonLatContourNearestPoint(
+  const AGeometry: IGeometryLonLatContour;
   const AProjection: IProjectionInfo;
   const ACurrMapPixel: TDoublePoint;
   out APoint: TDoublePoint;
@@ -180,6 +180,54 @@ begin
       VMapPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
       VDist := Sqr(VMapPoint.X - ACurrMapPixel.X) + Sqr(VMapPoint.Y - ACurrMapPixel.Y);
       if VDist < ADist then begin
+        ADist := VDist;
+        APoint := VLonLatPoint;
+      end;
+    end;
+  end;
+end;
+
+function GetGeometryLonLatPolygonNearestPoint(
+  const AGeometry: IGeometryLonLatSinglePolygon;
+  const AProjection: IProjectionInfo;
+  const ACurrMapPixel: TDoublePoint;
+  out APoint: TDoublePoint;
+  out ADist: Double
+): Boolean;
+var
+  VLonLatPoint: TDoublePoint;
+  VDist: Double;
+  VResult: Boolean;
+  i:  Integer;
+begin
+  APoint := CEmptyDoublePoint;
+  ADist := NaN;
+
+  Result :=
+    GetGeometryLonLatContourNearestPoint(
+      AGeometry.OuterBorder,
+      AProjection,
+      ACurrMapPixel,
+      APoint,
+      ADist
+    );
+  for i := 0 to AGeometry.HoleCount - 1 do begin
+    VResult :=
+      GetGeometryLonLatContourNearestPoint(
+        AGeometry.HoleBorder[i],
+        AProjection,
+        ACurrMapPixel,
+        VLonLatPoint,
+        VDist
+      );
+    if VResult then begin
+      if Result then begin
+        if ADist > VDist then begin
+          ADist := VDist;
+          APoint := VLonLatPoint;
+        end;
+      end else begin
+        Result := True;
         ADist := VDist;
         APoint := VLonLatPoint;
       end;
