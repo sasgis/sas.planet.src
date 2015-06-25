@@ -36,6 +36,14 @@ type
 
   TID = mORMot.TID;
 
+  TSQLCategoryRec = record
+    FCategoryId: TID;
+    FName: string;
+    FVisible: Boolean;
+    FMinZoom: Byte;
+    FMaxZoom: Byte;
+  end;
+
   TSQLMarkRec = record
     FMarkId: TID;
     FCategoryId: TID;
@@ -62,6 +70,14 @@ type
 
 const
   cEmptyTID = 0;
+
+  cEmptySQLCategoryRec: TSQLCategoryRec = (
+    FCategoryId : 0;
+    FName       : '';
+    FVisible    : True;
+    FMinZoom    : 3;
+    FMaxZoom    : 23;
+  );
 
   cEmptySQLMarkRec: TSQLMarkRec = (
     FMarkId     : 0;
