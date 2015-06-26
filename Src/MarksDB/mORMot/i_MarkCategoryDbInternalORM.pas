@@ -25,8 +25,7 @@ interface
 uses
   t_MarkSystemORM,
   i_Category,
-  i_MarkCategory,
-  i_NotifierOperation;
+  i_MarkCategory;
 
 type
   IMarkCategoryDbInternalORM = interface

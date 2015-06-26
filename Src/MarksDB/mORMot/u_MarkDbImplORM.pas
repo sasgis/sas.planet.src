@@ -22,27 +22,20 @@ unit u_MarkDbImplORM;
 
 interface
 
-{.$HINTS OFF}
-
 uses
   Windows,
   SysUtils,
-  Classes,
   mORMot,
   SynCommons,
   t_MarkSystemORM,
   t_GeoTypes,
-  i_IDList,
-  i_SimpleFlag,
   i_GeometryLonLat,
   i_GeometryToStream,
   i_GeometryFromStream,
   i_VectorItemSubsetBuilder,
-  i_InternalPerformanceCounter,
   i_InterfaceListStatic,
   i_InterfaceListSimple,
   i_Category,
-  i_NotifierOperation,
   i_VectorDataItemSimple,
   i_MarkId,
   i_VectorItemSubset,
@@ -51,7 +44,6 @@ uses
   i_MarkDbInternalORM,
   i_MarkCategoryInternalORM,
   i_MarkFactoryDbInternalORM,
-  i_ReadWriteStateInternal,
   u_ConfigDataElementBase;
 
 type
@@ -68,10 +60,6 @@ type
     FGeometryReader: IGeometryFromStream;
     FGeometryWriter: IGeometryToStream;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-
-    //FStateInternal: IReadWriteStateInternal;
-    //FLoadDbCounter: IInternalPerformanceCounter;
-    //FSaveDbCounter: IInternalPerformanceCounter;
   private
     function _GetMarkSQL(
       const ID: TID = 0;
@@ -199,11 +187,6 @@ type
       const AGeometryReader: IGeometryFromStream;
       const AGeometryWriter: IGeometryToStream;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory
-  {
-      const AStateInternal: IReadWriteStateInternal;
-      const ALoadDbCounter: IInternalPerformanceCounter;
-      const ASaveDbCounter: IInternalPerformanceCounter;
-  }
     );
     destructor Destroy; override;
   end;
@@ -211,17 +194,10 @@ type
 implementation
 
 uses
-  ActiveX,
-  StrUtils,
   t_Bitmap32,
   t_MarkSystemModelORM,
-  t_CommonTypes,
   i_AppearanceOfVectorItem,
-  i_MarkCategoryFactoryDbInternal,
-  u_IDInterfaceList,
   u_InterfaceListSimple,
-  u_GeoFunc,
-  u_SimpleFlagWithInterlock,
   u_MarkSystemORMTools,
   u_MarkDbImplHelperORM;
 
@@ -250,10 +226,6 @@ begin
   FGeometryReader := AGeometryReader;
   FGeometryWriter := AGeometryWriter;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
-
-//  FStateInternal := AStateInternal;
-//  FLoadDbCounter := ALoadDbCounter;
-//  FSaveDbCounter := ASaveDbCounter;
 end;
 
 destructor TMarkDbImplORM.Destroy;

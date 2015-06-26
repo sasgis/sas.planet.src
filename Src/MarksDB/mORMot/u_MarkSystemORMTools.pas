@@ -27,7 +27,6 @@ uses
   SysUtils,
   mORMot,
   t_MarkSystemORM,
-  t_MarkSystemModelORM,
   i_GeometryLonLat;
 
 procedure CheckID(const AID: TID); inline;

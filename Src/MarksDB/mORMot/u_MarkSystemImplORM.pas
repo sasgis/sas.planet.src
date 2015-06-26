@@ -205,12 +205,6 @@ begin
       AVectorItemSubsetBuilderFactory
     );
 
-    {
-      VState,
-      ALoadDbCounter,
-      ASaveDbCounter,
-    }
-
   FMarkDbImpl := VMarkDb;
   FMarkDbInternal := VMarkDb;
 end;

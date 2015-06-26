@@ -24,20 +24,14 @@ interface
 
 uses
   Windows,
-  Classes,
   SysUtils,
   mORMot,
   SynCommons,
-  i_IDList,
-  i_SimpleFlag,
-  i_NotifierOperation,
   i_Category,
   i_MarkCategory,
   i_MarkCategoryList,
-  i_MarkCategoryFactory,
   i_MarkCategoryFactoryDbInternalORM,
   i_MarkCategoryDbInternalORM,
-  i_ReadWriteStateInternal,
   i_MarkCategoryDBImpl,
   u_ConfigDataElementBase;
 
@@ -92,19 +86,12 @@ uses
   StrUtils,
   t_MarkSystemORM,
   t_MarkSystemModelORM,
-  t_CommonTypes,
-  i_EnumID,
   i_InterfaceListSimple,
   i_MarkCategoryInternalORM,
-  u_IDInterfaceList,
   u_InterfaceListSimple,
-  u_SimpleFlagWithInterlock,
   u_MarkCategoryList,
   u_MarkSystemORMTools,
   u_MarkCategoryFactoryDbInternalORM;
-
-type
-  TCategoryUpdateOperType = (uoUnk, uoUpdate, uoInsert, uoDelete);
 
 constructor TMarkCategoryDbImplORM.Create(
   const ADbId: Integer;
@@ -274,7 +261,6 @@ function TMarkCategoryDbImplORM._UpdateCategory(
   const AUseTransactions: Boolean
 ): IMarkCategory;
 var
-  VOperation: TCategoryUpdateOperType;
   VCategoryID: TID;
   VNewCategory: IMarkCategory;
   VOldCategory: IMarkCategory;

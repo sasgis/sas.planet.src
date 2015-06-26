@@ -24,7 +24,6 @@ interface
 
 uses
   t_MarkSystemORM,
-  i_NotifierOperation,
   i_VectorDataItemSimple;
 
 type
