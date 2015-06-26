@@ -165,7 +165,14 @@ begin
   FUser := TSQLUser.Create(FClientDB, 'Name=?', [VUserName]);
   if FUser.ID = 0 then begin
     FUser.Name := VUserName;
-    CheckID( FClientDB.Add(FUser, True) );
+    StartTransaction(FClientDB, VTransaction, TSQLUser);
+    try
+      CheckID( FClientDB.Add(FUser, True) );
+      CommitTransaction(FClientDB, VTransaction);
+    except
+      RollBackTransaction(FClientDB, VTransaction);
+      raise;
+    end;
   end;
 
   VCategoryDb :=

@@ -208,7 +208,7 @@ begin
         VSQLCategoryView.Visible := ACategoryRecNew.FVisible;
         VSQLCategoryView.MinZoom := ACategoryRecNew.FMinZoom;
         VSQLCategoryView.MaxZoom := ACategoryRecNew.FMaxZoom;
-        AClient.Update(VSQLCategoryView);
+        CheckUpdateResult( AClient.Update(VSQLCategoryView) );
       end else begin
         VSQLCategoryView.User := Pointer(AUserID);
         VSQLCategoryView.Category := Pointer(ACategoryRecNew.FCategoryId);

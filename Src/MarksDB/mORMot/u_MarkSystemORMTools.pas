@@ -107,6 +107,7 @@ procedure CommitTransaction(
   var ATrans: TTransactionRec
 );
 begin
+  Assert(ATrans.FSessionID > 0);
   if ATrans.FIsInternal and (ATrans.FSessionID > 0) then begin
     AClient.Commit(ATrans.FSessionID, True);
     ATrans.FSessionID := 0;
@@ -118,6 +119,7 @@ procedure RollBackTransaction(
   var ATrans: TTransactionRec
 );
 begin
+  Assert(ATrans.FSessionID > 0);
   if ATrans.FIsInternal and (ATrans.FSessionID > 0) then begin
     AClient.RollBack(ATrans.FSessionID);
     ATrans.FSessionID := 0;
