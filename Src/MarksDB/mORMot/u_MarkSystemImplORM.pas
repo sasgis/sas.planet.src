@@ -105,6 +105,7 @@ uses
   u_ReadWriteStateInternal,
   u_MarkDbImplORM,
   u_MarkCategoryDbImplORM,
+  u_MarkSystemORMTools,
   u_MarkFactoryDbInternalORM;
 
 constructor TMarkSystemImplORM.Create(
@@ -164,9 +165,7 @@ begin
   FUser := TSQLUser.Create(FClientDB, 'Name=?', [VUserName]);
   if FUser.ID = 0 then begin
     FUser.Name := VUserName;
-    if FClientDB.Add(FUser, True) = 0 then begin
-      Assert(False);
-    end;
+    CheckID( FClientDB.Add(FUser, True) );
   end;
 
   VCategoryDb :=
