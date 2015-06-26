@@ -88,14 +88,14 @@ type
       const AIncludeHiddenMarks: Boolean;
       const AResultList: IVectorItemSubsetBuilder
     );
-  private
-    function GetCategoryID(const ACategory: ICategory): TID;
 
     function _UpdateMark(
       const AOldMark: IInterface;
       const ANewMark: IInterface;
       out AIsChanged: Boolean
     ): IVectorDataItem;
+
+    function _GetCategoryID(const ACategory: ICategory): TID;
   private
     { IMarkDbInternalORM }
     function GetById(const AId: TID): IVectorDataItem;
@@ -234,7 +234,7 @@ begin
   inherited;
 end;
 
-function TMarkDbImplORM.GetCategoryID(const ACategory: ICategory): TID;
+function TMarkDbImplORM._GetCategoryID(const ACategory: ICategory): TID;
 var
   VCategoryInternal: IMarkCategoryInternalORM;
 begin
@@ -739,7 +739,7 @@ var
   VCategoryId: TID;
 begin
   Result := nil;
-  VCategoryId := GetCategoryID(ACategory);
+  VCategoryId := _GetCategoryID(ACategory);
   if VCategoryId > 0 then begin
     Result := _GetMarkIdList(VCategoryId);
   end;
@@ -799,7 +799,7 @@ begin
   VResultList := FVectorItemSubsetBuilderFactory.Build;
 
   if ACategory <> nil then begin
-    VCategoryId := GetCategoryID(ACategory);
+    VCategoryId := _GetCategoryID(ACategory);
   end else begin
     VCategoryId := 0;
   end;
@@ -830,7 +830,7 @@ begin
       _GetMarkSubset(0, AIncludeHiddenMarks, VResultList);
     end else begin
       for I := 0 to ACategoryList.Count - 1 do begin
-        VCategoryID := GetCategoryID(ICategory(ACategoryList[I]));
+        VCategoryID := _GetCategoryID(ICategory(ACategoryList[I]));
          _GetMarkSubset(VCategoryId, AIncludeHiddenMarks, VResultList);
       end;
     end;
@@ -945,7 +945,7 @@ begin
 
   SetLength(VIdArray, 1);
   if ACategory <> nil then begin
-    VIdArray[0] := GetCategoryID(ACategory);
+    VIdArray[0] := _GetCategoryID(ACategory);
   end else begin
     VIdArray[0] := 0;
   end;
@@ -977,7 +977,7 @@ begin
     if ACategoryList <> nil then begin
       SetLength(VIdArray, ACategoryList.Count);
       for I := 0 to ACategoryList.Count - 1 do begin
-        VIdArray[I] := GetCategoryID(ICategory(ACategoryList[I]));
+        VIdArray[I] := _GetCategoryID(ICategory(ACategoryList[I]));
       end;
     end;
     if Length(VIdArray) = 0 then begin
@@ -1030,7 +1030,7 @@ var
   VSQLMark: TSQLMark;
   VTransaction: TTransactionRec;
 begin
-  VCategoryId := GetCategoryID(ACategory);
+  VCategoryId := _GetCategoryID(ACategory);
   if VCategoryId > 0 then begin
     LockWrite;
     try
