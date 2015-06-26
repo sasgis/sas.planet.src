@@ -22,6 +22,10 @@ type
       const AGeometry: IGeometryLonLatSingleLine;
       const AStream: TStream
     );
+    procedure SaveContour(
+      const AGeometry: IGeometryLonLatContour;
+      const AStream: TStream
+    );
     procedure SavePolygon(
       const AGeometry: IGeometryLonLatSinglePolygon;
       const AStream: TStream
@@ -250,6 +254,19 @@ begin
   AStream.WriteBuffer(VPoint, SizeOf(TDoublePoint));
 end;
 
+procedure TGeometryToWKB.SaveContour(
+  const AGeometry: IGeometryLonLatContour;
+  const AStream: TStream
+);
+var
+  VCount: Cardinal;
+begin
+  VCount := AGeometry.Count + 1;
+  AStream.WriteBuffer(VCount, SizeOf(VCount));
+  AStream.WriteBuffer(AGeometry.Points^, AGeometry.Count * SizeOf(TDoublePoint));
+  AStream.WriteBuffer(AGeometry.Points[0], SizeOf(TDoublePoint));
+end;
+
 procedure TGeometryToWKB.SavePolygon(
   const AGeometry: IGeometryLonLatSinglePolygon;
   const AStream: TStream
@@ -257,15 +274,16 @@ procedure TGeometryToWKB.SavePolygon(
 var
   VWKBType: Cardinal;
   VCount: Cardinal;
+  i: Integer;
 begin
   VWKBType := wkbGeometryTypePolygon;
   AStream.WriteBuffer(VWKBType, SizeOf(VWKBType));
-  VCount := 1;
+  VCount := 1 + AGeometry.HoleCount;
   AStream.WriteBuffer(VCount, SizeOf(VCount));
-  VCount := AGeometry.Count + 1;
-  AStream.WriteBuffer(VCount, SizeOf(VCount));
-  AStream.WriteBuffer(AGeometry.Points^, AGeometry.Count * SizeOf(TDoublePoint));
-  AStream.WriteBuffer(AGeometry.Points[0], SizeOf(TDoublePoint));
+  SaveContour(AGeometry.OuterBorder, AStream);
+  for i := 0 to AGeometry.HoleCount - 1 do begin
+    SaveContour(AGeometry.HoleBorder[i], AStream);
+  end;
 end;
 
 end.
