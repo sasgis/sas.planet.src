@@ -40,6 +40,11 @@ type
     function CalcContourPerimeter(const ALine: IGeometryLonLatContour): Double;
     function CalcSinglePolygonPerimeter(const ALine: IGeometryLonLatSinglePolygon): Double;
     function CalcMultiPolygonPerimeter(const ALine: IGeometryLonLatMultiPolygon): Double;
+    function CalcContourArea(
+      const ALine: IGeometryLonLatContour;
+      const ANotifier: INotifierOperation = nil;
+      const AOperationID: Integer = 0
+    ): Double;
     function CalcSinglePolygonArea(
       const ALine: IGeometryLonLatSinglePolygon;
       const ANotifier: INotifierOperation = nil;
@@ -183,8 +188,8 @@ begin
   end;
 end;
 
-function TGeoCalc.CalcSinglePolygonArea(
-  const ALine: IGeometryLonLatSinglePolygon;
+function TGeoCalc.CalcContourArea(
+  const ALine: IGeometryLonLatContour;
   const ANotifier: INotifierOperation;
   const AOperationID: Integer
 ): Double;
@@ -196,6 +201,20 @@ begin
     Result := 0;
   end else begin
     Result := FDatum.CalcPolygonArea(ALine.Points, VCount, ANotifier, AOperationID);
+  end;
+end;
+
+function TGeoCalc.CalcSinglePolygonArea(
+  const ALine: IGeometryLonLatSinglePolygon;
+  const ANotifier: INotifierOperation;
+  const AOperationID: Integer
+): Double;
+var
+  i: Integer;
+begin
+  Result := CalcContourArea(ALine.OuterBorder, ANotifier, AOperationID);
+  for i := 0 to ALine.HoleCount - 1 do begin
+    Result := Result - CalcContourArea(ALine.HoleBorder[i], ANotifier, AOperationID);
   end;
 end;
 

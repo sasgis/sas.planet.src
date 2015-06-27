@@ -42,6 +42,11 @@ type
       const ANotifier: INotifierOperation = nil;
       const AOperationID: Integer = 0
     ): Double;
+    function CalcContourArea(
+      const ALine: IGeometryLonLatContour;
+      const ANotifier: INotifierOperation = nil;
+      const AOperationID: Integer = 0
+    ): Double;
     function CalcSinglePolygonArea(
       const ALine: IGeometryLonLatSinglePolygon;
       const ANotifier: INotifierOperation = nil;
