@@ -846,6 +846,27 @@ begin
   end;
 end;
 
+function IsValidLonLatContour(
+  const AGeometry: IGeometryLonLatContour
+): Boolean; inline;
+begin
+  Result := AGeometry.Count > 2;
+end;
+
+function IsValidLonLatSinglePolygon(
+  const AGeometry: IGeometryLonLatSinglePolygon
+): Boolean; inline;
+begin
+  Result := IsValidLonLatContour(AGeometry.OuterBorder);
+end;
+
+function IsValidLonLatMultiPolygon(
+  const AGeometry: IGeometryLonLatMultiPolygon
+): Boolean; inline;
+begin
+  Result := (AGeometry.Count > 1) or ((AGeometry.Count > 0) and IsValidLonLatSinglePolygon(AGeometry.Item[0]));
+end;
+
 function IsValidLonLatPolygon(
   const AGeometry: IGeometryLonLatPolygon
 ): Boolean;
@@ -856,9 +877,9 @@ begin
   Result := False;
   if not AGeometry.IsEmpty then begin
     if Supports(AGeometry, IGeometryLonLatSinglePolygon, VSingleLine) then begin
-      Result := VSingleLine.Count > 2;
+      Result := IsValidLonLatSinglePolygon(VSingleLine);
     end else if Supports(AGeometry, IGeometryLonLatMultiPolygon, VMultiLine) then begin
-      Result := (VMultiLine.Count > 1) or ((VMultiLine.Count > 0) and (VMultiLine.Item[0].Count > 2));
+      Result := IsValidLonLatMultiPolygon(VMultiLine);
     end;
   end;
 end;
