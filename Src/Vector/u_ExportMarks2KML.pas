@@ -31,6 +31,7 @@ uses
   t_Bitmap32,
   i_ArchiveReadWrite,
   i_ArchiveReadWriteFactory,
+  i_GeometryLonLat,
   i_AppearanceOfVectorItem,
   i_VectorDataItemSimple,
   i_VectorItemSubset,
@@ -57,6 +58,23 @@ type
       const AMark: IVectorDataItem;
       const inNode: TALXMLNode
     );
+    procedure AddContour(
+      const AOuter: Boolean;
+      const AGeometry: IGeometryLonLatContour;
+      const inNode: TALXMLNode
+    );
+    procedure AddSinglePolygon(
+      const AGeometry: IGeometryLonLatSinglePolygon;
+      const inNode: TALXMLNode
+    );
+    procedure AddMultiPolygon(
+      const AGeometry: IGeometryLonLatMultiPolygon;
+      const inNode: TALXMLNode
+    );
+    procedure AddPolygon(
+      const AGeometry: IGeometryLonLatPolygon;
+      const inNode: TALXMLNode
+    );
     function SaveMarkIcon(const AAppearanceIcon: IAppearancePointIcon): string;
     function Color32toKMLColor(Color32: TColor32): AnsiString;
     procedure PrepareExportToFile(const AFileName: string);
@@ -76,7 +94,6 @@ uses
   t_GeoTypes,
   i_BinaryData,
   i_EnumDoublePoint,
-  i_GeometryLonLat,
   u_BinaryDataByMemStream,
   u_GeoToStrFunc,
   u_StreamReadOnlyByBinaryData;
@@ -238,6 +255,76 @@ begin
   end;
 end;
 
+procedure TExportMarks2KML.AddContour(
+  const AOuter: Boolean;
+  const AGeometry: IGeometryLonLatContour;
+  const inNode: TALXMLNode
+);
+var
+  currNode: TALXMLNode;
+  VCoordinates: AnsiString;
+begin
+  if AOuter then begin
+    currNode := inNode.AddChild('outerBoundaryIs');
+  end else begin
+    currNode := inNode.AddChild('innerBoundaryIs');
+  end;
+  currNode := currNode.AddChild('LinearRing');
+  VCoordinates := GetKMLCoordinates(AGeometry.GetEnum);
+  currNode.ChildNodes['coordinates'].Text := VCoordinates;
+end;
+
+procedure TExportMarks2KML.AddSinglePolygon(
+  const AGeometry: IGeometryLonLatSinglePolygon;
+  const inNode: TALXMLNode
+);
+var
+  currNode: TALXMLNode;
+  i: Integer;
+begin
+  currNode := inNode.AddChild('Polygon');
+  currNode.ChildNodes['extrude'].Text := '1';
+  AddContour(True, AGeometry.OuterBorder, currNode);
+  for i := 0 to AGeometry.HoleCount - 1 do begin
+    AddContour(False, AGeometry.HoleBorder[i], currNode);
+  end;
+end;
+
+procedure TExportMarks2KML.AddMultiPolygon(
+  const AGeometry: IGeometryLonLatMultiPolygon;
+  const inNode: TALXMLNode
+);
+var
+  currNode: TALXMLNode;
+  i: Integer;
+begin
+  if AGeometry.Count > 1 then begin
+    currNode := inNode.AddChild('MultiGeometry');
+    for i := 0 to AGeometry.Count - 1 do begin
+      AddSinglePolygon(AGeometry.Item[i], currNode);
+    end;
+  end else begin
+    AddSinglePolygon(AGeometry.Item[0], inNode);
+  end;
+end;
+
+procedure TExportMarks2KML.AddPolygon(
+  const AGeometry: IGeometryLonLatPolygon;
+  const inNode: TALXMLNode
+);
+var
+  VMultiPolygon: IGeometryLonLatMultiPolygon;
+  VSinglePolygon: IGeometryLonLatSinglePolygon;
+begin
+  if Supports(AGeometry, IGeometryLonLatSinglePolygon, VSinglePolygon) then begin
+    AddSinglePolygon(VSinglePolygon, inNode);
+  end else if Supports(AGeometry, IGeometryLonLatMultiPolygon, VMultiPolygon) then begin
+    AddMultiPolygon(VMultiPolygon, inNode);
+  end else begin
+    Assert(False);
+  end;
+end;
+
 procedure TExportMarks2KML.AddMark(
   const AMark: IVectorDataItem;
   const inNode: TALXMLNode
@@ -255,8 +342,7 @@ var
   VAppearanceBorder: IAppearancePolygonBorder;
   VAppearanceFill: IAppearancePolygonFill;
   VLonLatPoint: IGeometryLonLatPoint;
-  VLonLatPolygon: IGeometryLonLatMultiPolygon;
-  VLonLatPolygonLine: IGeometryLonLatSinglePolygon;
+  VLonLatPolygon: IGeometryLonLatPolygon;
   VLonLatPath: IGeometryLonLatMultiLine;
   VLonLatPathLine: IGeometryLonLatSingleLine;
 begin
@@ -353,7 +439,7 @@ begin
       VCoordinates := GetKMLCoordinates(VLonLatPathLine.GetEnum);
       currNode.ChildNodes['coordinates'].Text := VCoordinates;
     end;
-  end else if Supports(AMark.Geometry, IGeometryLonLatSinglePolygon, VLonLatPolygonLine) then begin
+  end else if Supports(AMark.Geometry, IGeometryLonLatPolygon, VLonLatPolygon) then begin
     // <Placemark><Polygon><outerBoundaryIs><LinearRing><coordinates>
     if not Supports(AMark.Appearance, IAppearancePolygonBorder, VAppearanceBorder) then begin
       VAppearanceBorder := nil;
@@ -377,58 +463,7 @@ begin
         end;
       end;
     end;
-    // simple object
-    currNode := currNode.AddChild('Polygon').AddChild('outerBoundaryIs').AddChild('LinearRing');
-    currNode.ChildNodes['extrude'].Text := '1';
-    VLonLatPolygonLine := VLonLatPolygon.Item[0];
-    VCoordinates := GetKMLCoordinates(VLonLatPolygonLine.GetEnum);
-    currNode.ChildNodes['coordinates'].Text := VCoordinates;
-  end else if Supports(AMark.Geometry, IGeometryLonLatMultiPolygon, VLonLatPolygon) then begin
-    // <Placemark><MultiGeometry><Polygon><outerBoundaryIs><LinearRing><coordinates>
-    // <Placemark><Polygon><outerBoundaryIs><LinearRing><coordinates>
-    if not Supports(AMark.Appearance, IAppearancePolygonBorder, VAppearanceBorder) then begin
-      VAppearanceBorder := nil;
-    end;
-    if not Supports(AMark.Appearance, IAppearancePolygonFill, VAppearanceFill) then begin
-      VAppearanceFill := nil;
-    end;
-    if (VAppearanceBorder <> nil) or (VAppearanceFill <> nil) then begin
-      with currNode.AddChild('Style') do begin
-        if VAppearanceBorder <> nil then begin
-          with AddChild('LineStyle') do begin
-            ChildNodes['color'].Text := Color32toKMLColor(VAppearanceBorder.LineColor);
-            ChildNodes['width'].Text := R2AnsiStrPoint(VAppearanceBorder.LineWidth);
-          end;
-        end;
-        if VAppearanceFill <> nil then begin
-          with AddChild('PolyStyle') do begin
-            ChildNodes['color'].Text := Color32toKMLColor(VAppearanceFill.FillColor);
-            ChildNodes['fill'].Text := '1';
-          end;
-        end;
-      end;
-    end;
-    if VLonLatPolygon.Count > 1 then begin
-      // MultiGeometry
-      rootNode := currNode.AddChild('MultiGeometry');
-      for i := 0 to VLonLatPolygon.Count - 1 do begin
-        VLonLatPolygonLine := VLonLatPolygon.Item[i];
-        if (VLonLatPolygonLine.Count > 2) then begin
-          // make contour
-          currNode := rootNode.AddChild('Polygon').AddChild('outerBoundaryIs').AddChild('LinearRing');
-          currNode.ChildNodes['extrude'].Text := '1';
-          VCoordinates := GetKMLCoordinates(VLonLatPolygonLine.GetEnum);
-          currNode.ChildNodes['coordinates'].Text := VCoordinates;
-        end;
-      end;
-    end else begin
-      // simple object
-      currNode := currNode.AddChild('Polygon').AddChild('outerBoundaryIs').AddChild('LinearRing');
-      currNode.ChildNodes['extrude'].Text := '1';
-      VLonLatPolygonLine := VLonLatPolygon.Item[0];
-      VCoordinates := GetKMLCoordinates(VLonLatPolygonLine.GetEnum);
-      currNode.ChildNodes['coordinates'].Text := VCoordinates;
-    end;
+    AddPolygon(VLonLatPolygon, currNode);
   end;
 end;
 
