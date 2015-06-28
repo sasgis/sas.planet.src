@@ -43,6 +43,10 @@ type
       const AGeometry: IGeometryLonLatMultiLine;
       const AStream: TStream
     );
+    procedure SaveContour(
+      const AGeometry: IGeometryLonLatContour;
+      const AStream: TStream
+    );
     procedure SaveSinglePolygon(
       const AGeometry: IGeometryLonLatSinglePolygon;
       const AStream: TStream
@@ -64,6 +68,7 @@ implementation
 
 uses
   SysUtils,
+  Math,
   t_GeoTypes,
   t_GeometryPointSML,
   i_EnumDoublePoint,
@@ -189,8 +194,8 @@ begin
   end;
 end;
 
-procedure TGeometryToStreamSML.SaveSinglePolygon(
-  const AGeometry: IGeometryLonLatSinglePolygon;
+procedure TGeometryToStreamSML.SaveContour(
+  const AGeometry: IGeometryLonLatContour;
   const AStream: TStream
 );
 var
@@ -207,31 +212,47 @@ begin
   end;
 end;
 
+procedure TGeometryToStreamSML.SaveSinglePolygon(
+  const AGeometry: IGeometryLonLatSinglePolygon;
+  const AStream: TStream
+);
+var
+  VPoint: TGeometryPointSML;
+  VContour: IGeometryLonLatContour;
+  i: Integer;
+begin
+  VContour := AGeometry.OuterBorder;
+  SaveContour(VContour, AStream);
+  for i := 0 to AGeometry.HoleCount - 1 do begin
+    VPoint.X := NaN;
+    VPoint.Y := -1;
+    AStream.Write(VPoint, SizeOf(VPoint));
+    VContour := AGeometry.HoleBorder[i];
+    SaveContour(VContour, AStream);
+  end;
+end;
+
 procedure TGeometryToStreamSML.SaveMultiPolygon(
   const AGeometry: IGeometryLonLatMultiPolygon;
   const AStream: TStream
 );
 var
+  i: Integer;
+  VPolygon: IGeometryLonLatSinglePolygon;
   VPoint: TGeometryPointSML;
-  VEnum: IEnumLonLatPoint;
-  VCurrPoint: TDoublePoint;
-  VLine: IGeometryLonLatSinglePolygon;
 begin
-  Assert(SizeOf(TGeometryPointSML) = 24);
-  if AGeometry.Count > 0 then begin
-    VEnum := AGeometry.GetEnum;
-    while VEnum.Next(VCurrPoint) do begin
-      VPoint.X := VCurrPoint.X;
-      VPoint.Y := VCurrPoint.Y;
-      AStream.Write(VPoint, SizeOf(VPoint));
-    end;
-    VLine := AGeometry.Item[0];
-    if VLine.Count > 1 then begin
-      VCurrPoint := VLine.Points[0];
-      VPoint.X := VCurrPoint.X;
-      VPoint.Y := VCurrPoint.Y;
-      AStream.Write(VPoint, SizeOf(VPoint));
-    end;
+  Assert(Assigned(AGeometry));
+  Assert(AGeometry.Count > 0);
+
+  VPolygon := AGeometry.Item[0];
+  SaveSinglePolygon(VPolygon, AStream);
+  for i := 1 to AGeometry.Count - 1 do begin
+    VPoint.X := NaN;
+    VPoint.Y := NaN;
+    AStream.Write(VPoint, SizeOf(VPoint));
+
+    VPolygon := AGeometry.Item[i];
+    SaveSinglePolygon(VPolygon, AStream);
   end;
 end;
 

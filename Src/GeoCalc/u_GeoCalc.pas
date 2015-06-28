@@ -37,8 +37,14 @@ type
     function CalcSingleLineLength(const ALine: IGeometryLonLatSingleLine): Double;
     function CalcMultiLineLength(const ALine: IGeometryLonLatMultiLine): Double;
 
+    function CalcContourPerimeter(const ALine: IGeometryLonLatContour): Double;
     function CalcSinglePolygonPerimeter(const ALine: IGeometryLonLatSinglePolygon): Double;
     function CalcMultiPolygonPerimeter(const ALine: IGeometryLonLatMultiPolygon): Double;
+    function CalcContourArea(
+      const ALine: IGeometryLonLatContour;
+      const ANotifier: INotifierOperation = nil;
+      const AOperationID: Integer = 0
+    ): Double;
     function CalcSinglePolygonArea(
       const ALine: IGeometryLonLatSinglePolygon;
       const ANotifier: INotifierOperation = nil;
@@ -182,8 +188,8 @@ begin
   end;
 end;
 
-function TGeoCalc.CalcSinglePolygonArea(
-  const ALine: IGeometryLonLatSinglePolygon;
+function TGeoCalc.CalcContourArea(
+  const ALine: IGeometryLonLatContour;
   const ANotifier: INotifierOperation;
   const AOperationID: Integer
 ): Double;
@@ -198,8 +204,22 @@ begin
   end;
 end;
 
-function TGeoCalc.CalcSinglePolygonPerimeter(
-  const ALine: IGeometryLonLatSinglePolygon
+function TGeoCalc.CalcSinglePolygonArea(
+  const ALine: IGeometryLonLatSinglePolygon;
+  const ANotifier: INotifierOperation;
+  const AOperationID: Integer
+): Double;
+var
+  i: Integer;
+begin
+  Result := CalcContourArea(ALine.OuterBorder, ANotifier, AOperationID);
+  for i := 0 to ALine.HoleCount - 1 do begin
+    Result := Result - CalcContourArea(ALine.HoleBorder[i], ANotifier, AOperationID);
+  end;
+end;
+
+function TGeoCalc.CalcContourPerimeter(
+  const ALine: IGeometryLonLatContour
 ): Double;
 var
   VEnum: IEnumLonLatPoint;
@@ -213,6 +233,18 @@ begin
       Result := Result + FDatum.CalcDist(VPrevPoint, VCurrPoint);
       VPrevPoint := VCurrPoint;
     end;
+  end;
+end;
+
+function TGeoCalc.CalcSinglePolygonPerimeter(
+  const ALine: IGeometryLonLatSinglePolygon
+): Double;
+var
+  i: Integer;
+begin
+  Result := CalcContourPerimeter(ALine.OuterBorder);
+  for i := 0 to ALine.HoleCount - 1 do begin
+    Result := Result + CalcContourPerimeter(ALine.HoleBorder[i]);
   end;
 end;
 

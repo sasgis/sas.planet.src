@@ -279,6 +279,16 @@ begin
   Result := Result + Format(_('Coordinates: %s'), [VConverter.LonLatConvert(APoint.Point)]) + #13#10;
 end;
 
+function CalcPolyPointsCount(const APoly: IGeometryLonLatSinglePolygon): Integer; inline;
+var
+  i: Integer;
+begin
+  Result := APoly.OuterBorder.Count;
+  for i := 0 to APoly.HoleCount - 1 do begin
+    Inc(Result, APoly.HoleBorder[i].Count);
+  end;
+end;
+
 function TfrmMarkInfo.GetTextForPoly(const APoly: IGeometryLonLatSinglePolygon): string;
 var
   VLength: Double;
@@ -287,7 +297,7 @@ var
   VConverter: IValueToStringConverter;
 begin
   VPartsCount := 1;
-  VPointsCount := APoly.Count;
+  VPointsCount := CalcPolyPointsCount(APoly);
   VLength := FGeoCalc.CalcPolygonPerimeter(APoly);
   VConverter := FValueToStringConverter.GetStatic;
   Result := '';
@@ -312,7 +322,7 @@ begin
   VPartsCount := APoly.Count;
   VPointsCount := 0;
   for i := 0 to VPartsCount - 1 do begin
-    Inc(VPointsCount, APoly.Item[i].Count);
+    Inc(VPointsCount, CalcPolyPointsCount(APoly.Item[i]));
   end;
   VLength := FGeoCalc.CalcMultiPolygonPerimeter(APoly);
   VConverter := FValueToStringConverter.GetStatic;

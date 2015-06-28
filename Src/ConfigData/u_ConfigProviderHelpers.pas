@@ -75,6 +75,7 @@ implementation
 uses
   SysUtils,
   Graphics,
+  Math,
   GR32,
   t_GeoTypes,
   i_BinaryData,
@@ -235,22 +236,95 @@ begin
   Result := AVectorGeometryLonLatFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
 end;
 
+procedure WriteContour(
+  const AConfigProvider: IConfigDataWriteProvider;
+  const AContour: IGeometryLonLatContour;
+  var AStartIndex: Integer
+);
+var
+  i: Integer;
+  VPoint: TDoublePoint;
+  VStrIndex: string;
+begin
+  Assert(Assigned(AContour));
+  for i := 0 to AContour.Count - 1 do begin
+    VPoint := AContour.Points[i];
+    VStrIndex := IntToStr(AStartIndex + i);
+    AConfigProvider.WriteFloat('PointLon_' + VStrIndex, VPoint.x);
+    AConfigProvider.WriteFloat('PointLat_' + VStrIndex, VPoint.y);
+  end;
+  Inc(AStartIndex, AContour.Count);
+end;
+
+procedure WriteSinglePolygon(
+  const AConfigProvider: IConfigDataWriteProvider;
+  const APolygon: IGeometryLonLatSinglePolygon;
+  var AStartIndex: Integer
+);
+var
+  i: Integer;
+  VContour: IGeometryLonLatContour;
+  VStrIndex: string;
+begin
+  Assert(Assigned(APolygon));
+  VContour := APolygon.OuterBorder;
+  WriteContour(AConfigProvider, VContour, AStartIndex);
+
+  for i := 0 to APolygon.HoleCount - 1 do begin
+    VStrIndex := IntToStr(AStartIndex + i);
+    AConfigProvider.WriteFloat('PointLon_' + VStrIndex, NaN);
+    AConfigProvider.WriteFloat('PointLat_' + VStrIndex, -1);
+    Inc(AStartIndex);
+
+    VContour := APolygon.HoleBorder[i];
+    WriteContour(AConfigProvider, VContour, AStartIndex);
+  end;
+end;
+
+procedure WriteMultiPolygon(
+  const AConfigProvider: IConfigDataWriteProvider;
+  const APolygon: IGeometryLonLatMultiPolygon;
+  var AStartIndex: Integer
+);
+var
+  i: Integer;
+  VPolygon: IGeometryLonLatSinglePolygon;
+  VStrIndex: string;
+begin
+  Assert(Assigned(APolygon));
+  Assert(APolygon.Count > 0);
+  VPolygon := APolygon.Item[0];
+  WriteSinglePolygon(AConfigProvider, VPolygon, AStartIndex);
+
+  for i := 1 to APolygon.Count - 1 do begin
+    VStrIndex := IntToStr(AStartIndex + i);
+    AConfigProvider.WriteFloat('PointLon_' + VStrIndex, NaN);
+    AConfigProvider.WriteFloat('PointLat_' + VStrIndex, NaN);
+    Inc(AStartIndex);
+
+    VPolygon := APolygon.Item[i];
+    WriteSinglePolygon(AConfigProvider, VPolygon, AStartIndex);
+  end;
+end;
+
+
 procedure WritePolygon(
   const AConfigProvider: IConfigDataWriteProvider;
   const APolygon: IGeometryLonLatPolygon
 );
 var
-  VEnum: IEnumDoublePoint;
   i: Integer;
-  VPoint: TDoublePoint;
+  VMultiPolygon: IGeometryLonLatMultiPolygon;
+  VSinglePolygon: IGeometryLonLatSinglePolygon;
 begin
-  if APolygon <> nil then begin
-    VEnum := APolygon.GetEnum;
-    i := 1;
-    while VEnum.Next(VPoint) do begin
-      AConfigProvider.WriteFloat('PointLon_' + IntToStr(i), VPoint.x);
-      AConfigProvider.WriteFloat('PointLat_' + IntToStr(i), VPoint.y);
-      Inc(i);
+  if Assigned(APolygon) then begin
+    i := 0;
+    if Supports(APolygon, IGeometryLonLatSinglePolygon, VSinglePolygon) then begin
+      WriteSinglePolygon(AConfigProvider, VSinglePolygon, i);
+    end else if Supports(APolygon, IGeometryLonLatMultiPolygon, VMultiPolygon) then begin
+      WriteMultiPolygon(AConfigProvider, VMultiPolygon, i);
+    end else begin
+      Assert(False);
     end;
   end;
 end;

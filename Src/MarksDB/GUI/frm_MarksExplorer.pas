@@ -1109,7 +1109,6 @@ end;
 procedure TfrmMarksExplorer.FormShow(Sender: TObject);
 begin
   UpdateCategoryTree;
-  UpdateMarksList;
   btnNavOnMark.Checked:= FNavToPoint.IsActive;
   FMarkDBGUI.MarksDb.CategoryDB.ChangeNotifier.Add(FCategoryDBListener);
   FMarkDBGUI.MarksDb.MarkDb.ChangeNotifier.Add(FMarksDBListener);

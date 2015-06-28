@@ -139,6 +139,16 @@ begin
   Result := Result + Format(_('Length: %s'), [VConverter.DistConvert(VLength)]) + '<br>'#13#10;
 end;
 
+function CalcPolyPointsCount(const APoly: IGeometryLonLatSinglePolygon): Integer; inline;
+var
+  i: Integer;
+begin
+  Result := APoly.OuterBorder.Count;
+  for i := 0 to APoly.HoleCount - 1 do begin
+    Inc(Result, APoly.HoleBorder[i].Count);
+  end;
+end;
+
 function TTextByVectorItemMarkInfo.GetTextForGeometryMultiPolygon(
   const AGeometry: IGeometryLonLatMultiPolygon
 ): string;
@@ -153,7 +163,7 @@ begin
   VPartsCount := AGeometry.Count;
   VPointsCount := 0;
   for i := 0 to VPartsCount - 1 do begin
-    Inc(VPointsCount, AGeometry.Item[i].Count);
+    Inc(VPointsCount, CalcPolyPointsCount(AGeometry.Item[i]));
   end;
   VLength := FGeoCalc.CalcMultiPolygonPerimeter(AGeometry);
   VArea := FGeoCalc.CalcMultiPolygonArea(AGeometry);
@@ -187,7 +197,7 @@ var
   VConverter: IValueToStringConverter;
 begin
   VPartsCount := 1;
-  VPointsCount := AGeometry.Count;
+  VPointsCount := CalcPolyPointsCount(AGeometry);
   VLength := FGeoCalc.CalcPolygonPerimeter(AGeometry);
   VArea := FGeoCalc.CalcPolygonArea(AGeometry);
   VConverter := FValueToStringConverter.GetStatic;

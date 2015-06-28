@@ -146,8 +146,8 @@ begin
   end;
 end;
 
-function GetGeometryLonLatPolygonNearestPoint(
-  const AGeometry: IGeometryLonLatSinglePolygon;
+function GetGeometryLonLatContourNearestPoint(
+  const AGeometry: IGeometryLonLatContour;
   const AProjection: IProjectionInfo;
   const ACurrMapPixel: TDoublePoint;
   out APoint: TDoublePoint;
@@ -180,6 +180,54 @@ begin
       VMapPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
       VDist := Sqr(VMapPoint.X - ACurrMapPixel.X) + Sqr(VMapPoint.Y - ACurrMapPixel.Y);
       if VDist < ADist then begin
+        ADist := VDist;
+        APoint := VLonLatPoint;
+      end;
+    end;
+  end;
+end;
+
+function GetGeometryLonLatPolygonNearestPoint(
+  const AGeometry: IGeometryLonLatSinglePolygon;
+  const AProjection: IProjectionInfo;
+  const ACurrMapPixel: TDoublePoint;
+  out APoint: TDoublePoint;
+  out ADist: Double
+): Boolean;
+var
+  VLonLatPoint: TDoublePoint;
+  VDist: Double;
+  VResult: Boolean;
+  i:  Integer;
+begin
+  APoint := CEmptyDoublePoint;
+  ADist := NaN;
+
+  Result :=
+    GetGeometryLonLatContourNearestPoint(
+      AGeometry.OuterBorder,
+      AProjection,
+      ACurrMapPixel,
+      APoint,
+      ADist
+    );
+  for i := 0 to AGeometry.HoleCount - 1 do begin
+    VResult :=
+      GetGeometryLonLatContourNearestPoint(
+        AGeometry.HoleBorder[i],
+        AProjection,
+        ACurrMapPixel,
+        VLonLatPoint,
+        VDist
+      );
+    if VResult then begin
+      if Result then begin
+        if ADist > VDist then begin
+          ADist := VDist;
+          APoint := VLonLatPoint;
+        end;
+      end else begin
+        Result := True;
         ADist := VDist;
         APoint := VLonLatPoint;
       end;
@@ -798,6 +846,27 @@ begin
   end;
 end;
 
+function IsValidLonLatContour(
+  const AGeometry: IGeometryLonLatContour
+): Boolean; inline;
+begin
+  Result := AGeometry.Count > 2;
+end;
+
+function IsValidLonLatSinglePolygon(
+  const AGeometry: IGeometryLonLatSinglePolygon
+): Boolean; inline;
+begin
+  Result := IsValidLonLatContour(AGeometry.OuterBorder);
+end;
+
+function IsValidLonLatMultiPolygon(
+  const AGeometry: IGeometryLonLatMultiPolygon
+): Boolean; inline;
+begin
+  Result := (AGeometry.Count > 1) or ((AGeometry.Count > 0) and IsValidLonLatSinglePolygon(AGeometry.Item[0]));
+end;
+
 function IsValidLonLatPolygon(
   const AGeometry: IGeometryLonLatPolygon
 ): Boolean;
@@ -808,9 +877,9 @@ begin
   Result := False;
   if not AGeometry.IsEmpty then begin
     if Supports(AGeometry, IGeometryLonLatSinglePolygon, VSingleLine) then begin
-      Result := VSingleLine.Count > 2;
+      Result := IsValidLonLatSinglePolygon(VSingleLine);
     end else if Supports(AGeometry, IGeometryLonLatMultiPolygon, VMultiLine) then begin
-      Result := (VMultiLine.Count > 1) or ((VMultiLine.Count > 0) and (VMultiLine.Item[0].Count > 2));
+      Result := IsValidLonLatMultiPolygon(VMultiLine);
     end;
   end;
 end;

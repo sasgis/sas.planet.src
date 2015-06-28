@@ -487,9 +487,9 @@ var
   VPath: TPath;
   VPoints: PDoublePointArray;
 begin
-  SetLength(VPath, APolygon.Count);
-  VPoints := APolygon.Points;
-  for I := 0 to APolygon.Count - 1 do begin
+  SetLength(VPath, APolygon.OuterBorder.Count); // TODO: add holes support
+  VPoints := APolygon.OuterBorder.Points;
+  for I := 0 to APolygon.OuterBorder.Count - 1 do begin
     VPath[I].X := Round(VPoints[I].X * FIntToDoubleCoeff);
     VPath[I].Y := Round(VPoints[I].Y * FIntToDoubleCoeff);
   end;

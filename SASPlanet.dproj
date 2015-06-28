@@ -333,6 +333,7 @@
     <DCCReference Include="Src\Geometry\u_EnumDoublePointMapPixelToLocalPixel.pas" />
     <DCCReference Include="Src\Geometry\u_EnumDoublePointsByArray.pas" />
     <DCCReference Include="Src\Geometry\u_EnumDoublePointWithClip.pas" />
+    <DCCReference Include="Src\Geometry\u_GeometryFromWKB.pas" />
     <DCCReference Include="Src\Geometry\u_GeometryFunc.pas" />
     <DCCReference Include="Src\Geometry\u_GeometryLonLat.pas" />
     <DCCReference Include="Src\Geometry\u_GeometryLonLatFactory.pas" />
@@ -342,6 +343,7 @@
     <DCCReference Include="Src\Geometry\u_GeometryProjectedFactory.pas" />
     <DCCReference Include="Src\Geometry\u_GeometryProjectedMulti.pas" />
     <DCCReference Include="Src\Geometry\u_GeometryProjectedProvider.pas" />
+    <DCCReference Include="Src\Geometry\u_GeometryToWKB.pas" />
     <DCCReference Include="Src\Geometry\u_LonLatRect.pas" />
     <DCCReference Include="Src\Geometry\u_LonLatRectByPoint.pas" />
     <DCCReference Include="Src\Geometry\u_ProjectedCalc.pas" />

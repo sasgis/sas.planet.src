@@ -33,11 +33,17 @@ type
     function CalcMultiLineLength(const ALine: IGeometryLonLatMultiLine): Double;
     function CalcLineLength(const ALine: IGeometryLonLatLine): Double;
 
+    function CalcContourPerimeter(const ALine: IGeometryLonLatContour): Double;
     function CalcSinglePolygonPerimeter(const ALine: IGeometryLonLatSinglePolygon): Double;
     function CalcMultiPolygonPerimeter(const ALine: IGeometryLonLatMultiPolygon): Double;
     function CalcPolygonPerimeter(const ALine: IGeometryLonLatPolygon): Double;
     function CalcPolygonArea(
       const ALine: IGeometryLonLatPolygon;
+      const ANotifier: INotifierOperation = nil;
+      const AOperationID: Integer = 0
+    ): Double;
+    function CalcContourArea(
+      const ALine: IGeometryLonLatContour;
       const ANotifier: INotifierOperation = nil;
       const AOperationID: Integer = 0
     ): Double;
