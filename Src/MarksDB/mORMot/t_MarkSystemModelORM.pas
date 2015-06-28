@@ -135,8 +135,8 @@ type
     FName: RawUTF8;
     FDesc: RawUTF8;
   published
-    property name: RawUTF8 read FName write FName; // имя метки в AnsiLowerCase
-    property desc: RawUTF8 read FDesc write FDesc; // описание мекти в AnsiLowerCase
+    property Name: RawUTF8 read FName write FName; // имя метки в AnsiLowerCase
+    property Desc: RawUTF8 read FDesc write FDesc; // описание мекти в AnsiLowerCase
   end;
 
 function CreateModel: TSQLModel;

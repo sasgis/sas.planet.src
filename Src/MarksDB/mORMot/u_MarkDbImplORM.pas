@@ -1231,7 +1231,7 @@ begin
 
     VSearch := StringToUTF8('''' + SysUtils.AnsiLowerCase(ASearch) + '''');
 
-    VSQLWhere := RawUTF8('name MATCH ') + VSearch + VLimit;
+    VSQLWhere := RawUTF8('Name MATCH ') + VSearch + VLimit;
     if FClient.FTSMatch(TSQLMarkTextInfo, VSQLWhere, VNameIDArray) then begin
       VSkipDescSearch := (AMaxCount > 0) and (Length(VNameIDArray) >= AMaxCount);
     end else begin
@@ -1239,7 +1239,7 @@ begin
     end;
 
     if ASearchInDescription and not VSkipDescSearch then begin
-      VSQLWhere := RawUTF8('desc MATCH ') + VSearch + VLimit;
+      VSQLWhere := RawUTF8('Desc MATCH ') + VSearch + VLimit;
       FClient.FTSMatch(TSQLMarkTextInfo, VSQLWhere, VDescIDArray);
     end;
 

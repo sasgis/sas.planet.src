@@ -370,12 +370,12 @@ begin
       VSQLMarkTextInfo.DocID := ANewMarkRec.FMarkId;
 
       if VUpdateName then begin
-        _AddField('name');
-        VSQLMarkTextInfo.name := StringToUTF8(SysUtils.AnsiLowerCase(ANewMarkRec.FName));
+        _AddField('Name');
+        VSQLMarkTextInfo.Name := StringToUTF8(SysUtils.AnsiLowerCase(ANewMarkRec.FName));
       end;
       if VUpdateDesc then begin
-        _AddField('desc');
-        VSQLMarkTextInfo.desc := StringToUTF8(SysUtils.AnsiLowerCase(ANewMarkRec.FDesc));
+        _AddField('Desc');
+        VSQLMarkTextInfo.Desc := StringToUTF8(SysUtils.AnsiLowerCase(ANewMarkRec.FDesc));
       end;
 
       if VFieldsCount > 0 then begin
