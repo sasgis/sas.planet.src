@@ -100,8 +100,8 @@ uses
   t_CommonTypes,
   i_GeometryToStream,
   i_GeometryFromStream,
-  u_GeometryToStreamSML, // ToDo: use WKB
-  u_GeometryFromStreamSML, // ToDo: use WKB
+  u_GeometryToWKB,
+  u_GeometryFromWKB,
   u_ReadWriteStateInternal,
   u_MarkDbImplORM,
   u_MarkCategoryDbImplORM,
@@ -196,9 +196,8 @@ begin
       FCategoryDBInternal
     );
 
-  //ToDo: use WKB
-  VGeometryReader := TGeometryFromStreamSML.Create(AVectorGeometryLonLatFactory);
-  VGeometryWriter := TGeometryToStreamSML.Create;
+  VGeometryReader := TGeometryFromWKB.Create(AVectorGeometryLonLatFactory);
+  VGeometryWriter := TGeometryToWKB.Create;
 
   VMarkDb :=
     TMarkDbImplORM.Create(

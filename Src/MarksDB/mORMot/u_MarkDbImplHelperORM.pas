@@ -165,7 +165,7 @@ begin
       CheckID( AClient.Add(VSQLMark, True) );
       AMarkRec.FMarkId := VSQLMark.ID;
       // add geometry blob
-      CheckUpdateResult( AClient.UpdateBlob(TSQLMark, AMarkRec.FMarkId, 'Geometry', VGeometryBlob) );
+      CheckUpdateResult( AClient.UpdateBlob(TSQLMark, AMarkRec.FMarkId, 'GeoWKB', VGeometryBlob) );
     finally
       VSQLMark.Free;
     end;
@@ -356,7 +356,7 @@ begin
         // update geometry blob
         VGeometryBlob := _GeomertryToBlob(ANewMarkRec.FGeometry, AGeometryWriter);
         CheckUpdateResult(
-          AClient.UpdateBlob(TSQLMark, VSQLMark.ID, 'Geometry', VGeometryBlob)
+          AClient.UpdateBlob(TSQLMark, VSQLMark.ID, 'GeoWKB', VGeometryBlob)
         );
       end;
     finally
@@ -456,7 +456,7 @@ begin
 
   // read geometry blob
   if (mrAll in AOptions) or (mrGeometry in AOptions) then begin
-    CheckRetrieveResult( AClient.RetrieveBlob(TSQLMark, ASQLMark.ID, 'Geometry', VSQLBlobData) );
+    CheckRetrieveResult( AClient.RetrieveBlob(TSQLMark, ASQLMark.ID, 'GeoWKB', VSQLBlobData) );
     AMarkRec.FGeometry := _GeomertryFromBlob(VSQLBlobData, AGeometryReader);
   end;
 
@@ -544,12 +544,12 @@ function _GeomertryFromBlob(
   const AGeometryReader: IGeometryFromStream
 ): IGeometryLonLat;
 var
-  VStream: TStringStream;
+  VStream: TRawByteStringStream;
 begin
   Assert(ABlob <> '');
   Assert(AGeometryReader <> nil);
 
-  VStream := TStringStream.Create(ABlob);
+  VStream := TRawByteStringStream.Create(ABlob);
   try
     Result := AGeometryReader.Parse(VStream);
   finally
@@ -562,19 +562,15 @@ function _GeomertryToBlob(
   const AGeometryWriter: IGeometryToStream
 ): TSQLRawBlob;
 var
-  VSize: Int64;
-  VStream: TMemoryStream;
+  VStream: TRawByteStringStream;
 begin
   Assert(AGeometry <> nil);
   Assert(AGeometryWriter <> nil);
 
-  VStream := TMemoryStream.Create;
+  VStream := TRawByteStringStream.Create;
   try
     AGeometryWriter.Save(AGeometry, VStream);
-    VSize := VStream.Size;
-    SetLength(Result, VSize);
-    VStream.Position := 0;
-    VStream.ReadBuffer(Result[1], VSize);
+    Result := VStream.DataString;
   finally
     VStream.Free;
   end;

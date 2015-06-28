@@ -85,7 +85,7 @@ type
     FGeoLat: Double;
     FGeoType: TSQLGeoType;
     FGeoCount: Integer;
-    FGeometry: TSQLRawBlob;
+    FGeoWKB: TSQLRawBlob;
   published
     property Category: TSQLCategory read FCategory write FCategory;
     property Image: TSQLMarkImage read FImage write FImage;
@@ -99,7 +99,7 @@ type
     property GeoLat: Double read FGeoLat write FGeoLat;
     property GeoType: TSQLGeoType read FGeoType write FGeoType;
     property GeoCount: Integer read FGeoCount write FGeoCount;
-    property Geometry: TSQLRawBlob read FGeometry write FGeometry;
+    property GeoWKB: TSQLRawBlob read FGeoWKB write FGeoWKB;
   end;
 
   // Настройка видимости меток по пользователям
