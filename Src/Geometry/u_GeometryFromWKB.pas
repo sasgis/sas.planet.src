@@ -20,7 +20,7 @@ type
     function LoadLine(
       const AStream: TStream;
       const AOrder: Boolean
-    ): IGeometryLonLatMultiLine;
+    ): IGeometryLonLatLine;
     function LoadSingleLine(
       const AStream: TStream;
       const AOrder: Boolean
@@ -37,15 +37,15 @@ type
     function LoadPolygon(
       const AStream: TStream;
       const AOrder: Boolean
-    ): IGeometryLonLatMultiPolygon;
+    ): IGeometryLonLatPolygon;
     function LoadMultiLine(
       const AStream: TStream;
       const AOrder: Boolean
-    ): IGeometryLonLatMultiLine;
+    ): IGeometryLonLatLine;
     function LoadMultiPolygon(
       const AStream: TStream;
       const AOrder: Boolean
-    ): IGeometryLonLatMultiPolygon;
+    ): IGeometryLonLatPolygon;
   private
     function Parse(
       const AStream: TStream
@@ -80,12 +80,12 @@ const
 function TGeometryFromWKB.LoadLine(
   const AStream: TStream;
   const AOrder: Boolean
-): IGeometryLonLatMultiLine;
+): IGeometryLonLatLine;
 var
   VBuilder: IGeometryLonLatMultiLineBuilder;
 begin
   Result := nil;
-  VBuilder := FFactory.MakeGeometryLonLatMultiLineBuilder;
+  VBuilder := FFactory.MakeMultiLineBuilder;
   VBuilder.Add(LoadSingleLine(AStream, AOrder));
   Result := VBuilder.MakeStaticAndClear;
 end;
@@ -106,13 +106,13 @@ begin
   end;
   SetLength(VPoints, VCount);
   AStream.ReadBuffer(VPoints[0], VCount * SizeOf(TDoublePoint));
-  Result := FFactory.CreateLonLatLine(@VPoints[0], VCount);
+  Result := FFactory.CreateLonLatSingleLine(@VPoints[0], VCount);
 end;
 
 function TGeometryFromWKB.LoadMultiLine(
   const AStream: TStream;
   const AOrder: Boolean
-): IGeometryLonLatMultiLine;
+): IGeometryLonLatLine;
 var
   VBuilder: IGeometryLonLatMultiLineBuilder;
   VCount: Cardinal;
@@ -122,7 +122,7 @@ var
   VOrder: Boolean;
   VLine: IGeometryLonLatSingleLine;
 begin
-  VBuilder := FFactory.MakeGeometryLonLatMultiLineBuilder;
+  VBuilder := FFactory.MakeMultiLineBuilder;
   AStream.ReadBuffer(VCount, SizeOf(VCount));
 
   if VCount >= MaxInt / (1 + 4  + 4 + 2 * SizeOf(Double)) then begin
@@ -151,7 +151,7 @@ end;
 function TGeometryFromWKB.LoadMultiPolygon(
   const AStream: TStream;
   const AOrder: Boolean
-): IGeometryLonLatMultiPolygon;
+): IGeometryLonLatPolygon;
 var
   VBuilder: IGeometryLonLatMultiPolygonBuilder;
   VCount: Cardinal;
@@ -160,7 +160,7 @@ var
   VWKBOrder: Byte;
   VOrder: Boolean;
 begin
-  VBuilder := FFactory.MakeGeometryLonLatMultiPolygonBuilder;
+  VBuilder := FFactory.MakeMultiPolygonBuilder;
   AStream.ReadBuffer(VCount, SizeOf(VCount));
 
   if VCount >= MaxInt / (1 + 4  + 4 + 2 * SizeOf(Double)) then begin
@@ -197,11 +197,11 @@ end;
 function TGeometryFromWKB.LoadPolygon(
   const AStream: TStream;
   const AOrder: Boolean
-): IGeometryLonLatMultiPolygon;
+): IGeometryLonLatPolygon;
 var
   VBuilder: IGeometryLonLatMultiPolygonBuilder;
 begin
-  VBuilder := FFactory.MakeGeometryLonLatMultiPolygonBuilder;
+  VBuilder := FFactory.MakeMultiPolygonBuilder;
   LoadPolygons(VBuilder, AStream, AOrder);
   Result := VBuilder.MakeStaticAndClear;
 end;
@@ -247,7 +247,7 @@ begin
   SetLength(VPoints, VCount);
 
   AStream.ReadBuffer(VPoints[0], VCount * SizeOf(TDoublePoint));
-  Result := FFactory.CreateLonLatPolygon(@VPoints[0], VCount);
+  Result := FFactory.CreateLonLatSinglePolygon(@VPoints[0], VCount);
 end;
 
 function TGeometryFromWKB.Parse(
