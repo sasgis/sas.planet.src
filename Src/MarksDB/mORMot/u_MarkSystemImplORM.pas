@@ -132,6 +132,7 @@ var
   VDatabaseFileName: TFileName;
   VGeometryReader: IGeometryFromStream;
   VGeometryWriter: IGeometryToStream;
+  VTransaction: TTransactionRec;
 begin
   inherited Create;
   FDbId := Integer(Self);
