@@ -51,10 +51,14 @@ procedure RollBackTransaction(
   var ATrans: TTransactionRec
 ); inline;
 
-function CalcMultiGeometryCount(const AGeometry: IGeometryLonLat): Integer;
-procedure CalcGeometrySize(const ARect: TDoubleRect; out ALonSize, ALatSize: Cardinal);
+function CalcMultiGeometryCount(const AGeometry: IGeometryLonLat): Integer; inline;
+procedure CalcGeometrySize(const ARect: TDoubleRect; out ALonSize, ALatSize: Cardinal); inline;
+procedure LonLatSizeToInternalSize(const ALonLatSize: TDoublePoint; out ALonSize, ALatSize: Cardinal); inline;
 
 function MergeSortRemoveDuplicates(var Vals: TIDDynArray): Integer;
+
+const
+  cCoordToSize: Cardinal = MAXLONG div 360;
 
 implementation
 
@@ -143,19 +147,23 @@ begin
 end;
 
 procedure CalcGeometrySize(const ARect: TDoubleRect; out ALonSize, ALatSize: Cardinal);
-const
-  cCoordToSize: Cardinal = MAXLONG div 360;
+var
+  VLonLatSize: TDoublePoint;
 begin
-  if ARect.Right = ARect.Left then begin
-    ALonSize := 360 * cCoordToSize;
+  if (ARect.Right = ARect.Left) and (ARect.Top = ARect.Bottom) then begin
+    ALonSize := 0;
+    ALatSize := 0;
   end else begin
-    ALonSize := Round(Abs(ARect.Right - ARect.Left) * cCoordToSize);
+    VLonLatSize.X := ARect.Right - ARect.Left;
+    VLonLatSize.Y := ARect.Top - ARect.Bottom;
+    LonLatSizeToInternalSize(VLonLatSize, ALonSize, ALatSize);
   end;
-  if ARect.Top = ARect.Bottom then begin
-    ALatSize := 180 * cCoordToSize;
-  end else begin
-    ALatSize := Round(Abs(ARect.Top - ARect.Bottom) * cCoordToSize);
-  end;
+end;
+
+procedure LonLatSizeToInternalSize(const ALonLatSize: TDoublePoint; out ALonSize, ALatSize: Cardinal);
+begin
+  ALonSize := Round(ALonLatSize.X * cCoordToSize);
+  ALatSize := Round(ALonLatSize.Y * cCoordToSize);
 end;
 
 function MergeSortRemoveDuplicates(var Vals: TIDDynArray): Integer;

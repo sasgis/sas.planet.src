@@ -86,6 +86,7 @@ type
       const ACategoryIDArray: TIDDynArray;
       const ARect: TDoubleRect;
       const AIncludeHiddenMarks: Boolean;
+      const ALonLatSize: TDoublePoint;
       const AResultList: IVectorItemSubsetBuilder
     );
 
@@ -163,13 +164,15 @@ type
     function GetMarkSubsetByCategoryListInRect(
       const ARect: TDoubleRect;
       const ACategoryList: IMarkCategoryList;
-      const AIncludeHiddenMarks: Boolean
+      const AIncludeHiddenMarks: Boolean;
+      const ALonLatSize: TDoublePoint
     ): IVectorItemSubset;
 
     function GetMarkSubsetByCategoryInRect(
       const ARect: TDoubleRect;
       const ACategory: ICategory;
-      const AIncludeHiddenMarks: Boolean
+      const AIncludeHiddenMarks: Boolean;
+      const ALonLatSize: TDoublePoint
     ): IVectorItemSubset;
 
     function FindMarks(
@@ -845,6 +848,7 @@ procedure TMarkDbImplORM._GetMarkSubsetByRect(
   const ACategoryIDArray: TIDDynArray;
   const ARect: TDoubleRect;
   const AIncludeHiddenMarks: Boolean;
+  const ALonLatSize: TDoublePoint;
   const AResultList: IVectorItemSubsetBuilder
 );
 var
@@ -859,9 +863,12 @@ var
   VIDList: TSQLTableJSON;
   VFilterByCategories: Boolean;
   VFilterByOneCategory: Boolean;
+  VLonSize, VLatSize: Cardinal;
 begin
   VLen := Length(ACategoryIDArray);
   Assert(VLen > 0);
+
+  LonLatSizeToInternalSize(ALonLatSize, VLonSize, VLatSize);
 
   VFilterByCategories := (VLen > 1);
   VFilterByOneCategory := (VLen = 1) and (ACategoryIDArray[0] > 0);
@@ -870,22 +877,30 @@ begin
     VSQLSelect := FormatUTF8(
       'SELECT Mark.ID FROM Mark, MarkRTree ' +
       'WHERE Mark.RowID = MarkRTree.RowID AND Mark.Category = ? ' +
-      'AND Left <= ? AND Right >= ? AND Bottom <= ? AND Top >= ?;',
-      [], [ACategoryIDArray[0], ARect.Right, ARect.Left, ARect.Top, ARect.Bottom]
+      'AND Left <= ? AND Right >= ? AND Bottom <= ? AND Top >= ? ' +
+      'AND (Mark.GeoType = ? OR Mark.GeoLonSize >= ? OR Mark.GeoLatSize >= ?);',
+      [],
+      [
+        ACategoryIDArray[0],
+        ARect.Right, ARect.Left, ARect.Top, ARect.Bottom,
+        Integer(gtPoint), VLonSize, VLatSize
+      ]
     );
   end else if VFilterByCategories then begin
     VSQLSelect := FormatUTF8(
       'SELECT Mark.ID, Mark.Category FROM Mark, MarkRTree ' +
       'WHERE Mark.RowID = MarkRTree.RowID ' +
-      'AND Left <= ? AND Right >= ? AND Bottom <= ? AND Top >= ?;',
-      [], [ARect.Right, ARect.Left, ARect.Top, ARect.Bottom]
+      'AND Left <= ? AND Right >= ? AND Bottom <= ? AND Top >= ? ' +
+      'AND (Mark.GeoType = ? OR Mark.GeoLonSize >= ? OR Mark.GeoLatSize >= ?);',
+      [], [ARect.Right, ARect.Left, ARect.Top, ARect.Bottom, Integer(gtPoint), VLonSize, VLatSize]
     );
   end else begin
     VSQLSelect := FormatUTF8(
       'SELECT Mark.ID FROM Mark, MarkRTree ' +
       'WHERE Mark.RowID = MarkRTree.RowID ' +
-      'AND Left <= ? AND Right >= ? AND Bottom <= ? AND Top >= ?;',
-      [], [ARect.Right, ARect.Left, ARect.Top, ARect.Bottom]
+      'AND Left <= ? AND Right >= ? AND Bottom <= ? AND Top >= ? ' +
+      'AND (Mark.GeoType = ? OR Mark.GeoLonSize >= ? OR Mark.GeoLatSize >= ?);',
+      [], [ARect.Right, ARect.Left, ARect.Top, ARect.Bottom, Integer(gtPoint), VLonSize, VLatSize]
     );
   end;
 
@@ -937,7 +952,8 @@ end;
 function TMarkDbImplORM.GetMarkSubsetByCategoryInRect(
   const ARect: TDoubleRect;
   const ACategory: ICategory;
-  const AIncludeHiddenMarks: Boolean
+  const AIncludeHiddenMarks: Boolean;
+  const ALonLatSize: TDoublePoint
 ): IVectorItemSubset;
 var
   VIdArray: TIDDynArray;
@@ -954,7 +970,7 @@ begin
 
   LockRead;
   try
-    _GetMarkSubsetByRect(VIdArray, ARect, AIncludeHiddenMarks, VResultList);
+    _GetMarkSubsetByRect(VIdArray, ARect, AIncludeHiddenMarks, ALonLatSize, VResultList);
   finally
     UnlockRead;
   end;
@@ -965,7 +981,8 @@ end;
 function TMarkDbImplORM.GetMarkSubsetByCategoryListInRect(
   const ARect: TDoubleRect;
   const ACategoryList: IMarkCategoryList;
-  const AIncludeHiddenMarks: Boolean
+  const AIncludeHiddenMarks: Boolean;
+  const ALonLatSize: TDoublePoint
 ): IVectorItemSubset;
 var
   I: Integer;
@@ -986,7 +1003,7 @@ begin
       SetLength(VIdArray, 1);
       VIdArray[0] := 0;
     end;
-    _GetMarkSubsetByRect(VIdArray, ARect, AIncludeHiddenMarks, VResultList);
+    _GetMarkSubsetByRect(VIdArray, ARect, AIncludeHiddenMarks, ALonLatSize, VResultList);
   finally
     UnlockRead;
   end;
