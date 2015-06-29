@@ -257,27 +257,29 @@ function TMarkDbImplORM._GetMarkSQL(
 var
   VSQLWhere: RawUTF8;
   VSQLMark: TSQLMark;
-  VSQLMarkRec: TSQLMarkRec;
+  VMarkRec: TSQLMarkRec;
 begin
   Assert((ID > 0) or (AName <> ''));
   Result := nil;
 
   if ID > 0 then begin
-    VSQLWhere := FormatUTF8('ID=?', [], [ID]);
+    VSQLWhere := FormatUTF8('Mark.RowID=?', [], [ID]);
   end else if AName <> '' then begin
     if ACategoryID > 0 then begin
-      VSQLWhere := FormatUTF8('Name=? AND Category=?', [], [AName, ACategoryID]);
+      VSQLWhere := FormatUTF8('Mark.Name=? AND Mark.Category=?', [], [AName, ACategoryID]);
     end else begin
-      VSQLWhere := FormatUTF8('Name=?', [], [AName]);
+      VSQLWhere := FormatUTF8('Mark.Name=?', [], [AName]);
     end;
   end else begin
     Exit;
   end;
 
-  VSQLMark := TSQLMark.Create(FClient, VSQLWhere);
+  VSQLMark := TSQLMark.CreateAndFillPrepareJoined(FClient, VSQLWhere, [], []);
   try
-    if GetSQLMarkRec(VSQLMarkRec, FUserID, VSQLMark, FClient, [mrAll], FGeometryReader) then begin
-      Result := FFactoryDbInternal.CreateMark(VSQLMarkRec);
+    if VSQLMark.FillOne then begin
+      if GetSQLMarkRec(VMarkRec, FUserID, VSQLMark, FClient, [mrAll], FGeometryReader, True) then begin
+        Result := FFactoryDbInternal.CreateMark(VMarkRec);
+      end;
     end;
   finally
     VSQLMark.Free;
@@ -431,8 +433,7 @@ begin
     AMarkRec.FScale2 := VMarkerSize;
 
     AMarkRec.FGeoType := gtPoint;
-    AMarkRec.FGeoLon := VPoint.Point.X;
-    AMarkRec.FGeoLat := VPoint.Point.Y;
+    AMarkRec.FGeoCount := 1;
 
   end else if Supports(AMark.Geometry, IGeometryLonLatLine, VLine) then begin
     VLineColor := 0;
@@ -449,8 +450,6 @@ begin
     AMarkRec.FScale2 := 0;
 
     AMarkRec.FGeoType := gtLine;
-    AMarkRec.FGeoLon := VLine.GetGoToPoint.X;
-    AMarkRec.FGeoLat := VLine.GetGoToPoint.Y;
     AMarkRec.FGeoCount := CalcMultiGeometryCount(VLine);
 
   end else if Supports(AMark.Geometry, IGeometryLonLatPolygon, VPoly) then begin
@@ -473,8 +472,6 @@ begin
     AMarkRec.FScale2 := 0;
 
     AMarkRec.FGeoType := gtPoly;
-    AMarkRec.FGeoLon := VPoly.GetGoToPoint.X;
-    AMarkRec.FGeoLat := VPoly.GetGoToPoint.Y;
     AMarkRec.FGeoCount := CalcMultiGeometryCount(VPoly);
   end else begin
     raise EMarkSystemORMError.Create('MarkSystemORM: Unknown geometry type!');
@@ -714,7 +711,7 @@ begin
     VSQLMark := TSQLMark.CreateAndFillPrepare(FClient, VSQLWhere);
     try
       while VSQLMark.FillOne do begin
-        if GetSQLMarkRec(VSQLMarkRec, FUserID, VSQLMark, FClient, [mrView], FGeometryReader) then begin
+        if GetSQLMarkRec(VSQLMarkRec, FUserID, VSQLMark, FClient, [mrView], FGeometryReader, False) then begin
           VMarkId := FFactoryDbInternal.CreateMarkId(VSQLMarkRec);
           VTemp.Add(VMarkId);
         end;
@@ -767,10 +764,10 @@ begin
     VSQLWhere := ''; // all marks in all categories
   end;
 
-  VSQLMark := TSQLMark.CreateAndFillPrepare(FClient, VSQLWhere);
+  VSQLMark := TSQLMark.CreateAndFillPrepareJoined(FClient, VSQLWhere, [], []);
   try
     while VSQLMark.FillOne do begin
-      if GetSQLMarkRec(VSQLMarkRec, FUserID, VSQLMark, FClient, [mrAll], FGeometryReader) then begin
+      if GetSQLMarkRec(VSQLMarkRec, FUserID, VSQLMark, FClient, [mrAll], FGeometryReader, True) then begin
         VItem := FFactoryDbInternal.CreateMark(VSQLMarkRec);
         if not AIncludeHiddenMarks then begin
           if Supports(VItem.MainInfo, IMarkInternalORM, VMark) then begin
@@ -871,28 +868,28 @@ begin
 
   if VFilterByOneCategory then begin
     VSQLSelect := FormatUTF8(
-      'SELECT Mark.ID FROM Mark, MarkGeometryRect ' +
-      'WHERE Mark.RowID = MarkGeometryRect.RowID AND Mark.Category = ? ' +
+      'SELECT Mark.ID FROM Mark, MarkRTree ' +
+      'WHERE Mark.RowID = MarkRTree.RowID AND Mark.Category = ? ' +
       'AND Left <= ? AND Right >= ? AND Bottom <= ? AND Top >= ?;',
       [], [ACategoryIDArray[0], ARect.Right, ARect.Left, ARect.Top, ARect.Bottom]
     );
   end else if VFilterByCategories then begin
     VSQLSelect := FormatUTF8(
-      'SELECT Mark.ID, Mark.Category FROM Mark, MarkGeometryRect ' +
-      'WHERE Mark.RowID = MarkGeometryRect.RowID ' +
+      'SELECT Mark.ID, Mark.Category FROM Mark, MarkRTree ' +
+      'WHERE Mark.RowID = MarkRTree.RowID ' +
       'AND Left <= ? AND Right >= ? AND Bottom <= ? AND Top >= ?;',
       [], [ARect.Right, ARect.Left, ARect.Top, ARect.Bottom]
     );
   end else begin
     VSQLSelect := FormatUTF8(
-      'SELECT Mark.ID FROM Mark, MarkGeometryRect ' +
-      'WHERE Mark.RowID = MarkGeometryRect.RowID ' +
+      'SELECT Mark.ID FROM Mark, MarkRTree ' +
+      'WHERE Mark.RowID = MarkRTree.RowID ' +
       'AND Left <= ? AND Right >= ? AND Bottom <= ? AND Top >= ?;',
       [], [ARect.Right, ARect.Left, ARect.Top, ARect.Bottom]
     );
   end;
 
-  VIDList := FClient.ExecuteList([TSQLMark, TSQLMarkGeometryRect], VSQLSelect);
+  VIDList := FClient.ExecuteList([TSQLMark, TSQLMarkRTree], VSQLSelect);
   if Assigned(VIDList) then
   try
     if VFilterByCategories then begin
@@ -914,6 +911,11 @@ begin
 
       if VMarkId > 0 then begin
         VItem := _GetMarkSQL(VMarkId);
+
+        if not Assigned(VItem) then begin
+          Continue;
+        end;
+
         if Assigned(VItem.Geometry.Bounds) and VItem.Geometry.Bounds.IsIntersecWithRect(ARect) then begin
           if AIncludeHiddenMarks then begin
             AResultList.Add(VItem);
@@ -1232,7 +1234,7 @@ begin
     VSearch := StringToUTF8('''' + SysUtils.AnsiLowerCase(ASearch) + '''');
 
     VSQLWhere := RawUTF8('Name MATCH ') + VSearch + VLimit;
-    if FClient.FTSMatch(TSQLMarkTextInfo, VSQLWhere, VNameIDArray) then begin
+    if FClient.FTSMatch(TSQLMarkFTS, VSQLWhere, VNameIDArray) then begin
       VSkipDescSearch := (AMaxCount > 0) and (Length(VNameIDArray) >= AMaxCount);
     end else begin
       VSkipDescSearch := False;
@@ -1240,7 +1242,7 @@ begin
 
     if ASearchInDescription and not VSkipDescSearch then begin
       VSQLWhere := RawUTF8('Desc MATCH ') + VSearch + VLimit;
-      FClient.FTSMatch(TSQLMarkTextInfo, VSQLWhere, VDescIDArray);
+      FClient.FTSMatch(TSQLMarkFTS, VSQLWhere, VDescIDArray);
     end;
 
     I := Length(VNameIDArray);
@@ -1264,7 +1266,7 @@ begin
     end;
 
     for I := Low(VIDArray) to High(VIDArray) do begin
-      VMark := _GetMarkSQL(VNameIDArray[I]);
+      VMark := _GetMarkSQL(VIDArray[I]);
       if Assigned(VMark) then begin
         if AIncludeHiddenMarks then begin
           VResultList.Add(VMark);

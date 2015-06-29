@@ -26,6 +26,7 @@ uses
   Windows,
   SysUtils,
   mORMot,
+  t_GeoTypes,
   t_MarkSystemORM,
   i_GeometryLonLat;
 
@@ -51,6 +52,7 @@ procedure RollBackTransaction(
 ); inline;
 
 function CalcMultiGeometryCount(const AGeometry: IGeometryLonLat): Integer;
+procedure CalcGeometrySize(const ARect: TDoubleRect; out ALonSize, ALatSize: Cardinal);
 
 function MergeSortRemoveDuplicates(var Vals: TIDDynArray): Integer;
 
@@ -136,7 +138,23 @@ begin
   end else if Supports(AGeometry, IGeometryLonLatMultiPolygon, VPoly) then begin
     Result := VPoly.Count;
   end else begin
-    Result := 0;
+    Result := 1;
+  end;
+end;
+
+procedure CalcGeometrySize(const ARect: TDoubleRect; out ALonSize, ALatSize: Cardinal);
+const
+  cCoordToSize: Cardinal = MAXLONG div 360;
+begin
+  if ARect.Right = ARect.Left then begin
+    ALonSize := 360 * cCoordToSize;
+  end else begin
+    ALonSize := Round(Abs(ARect.Right - ARect.Left) * cCoordToSize);
+  end;
+  if ARect.Top = ARect.Bottom then begin
+    ALatSize := 180 * cCoordToSize;
+  end else begin
+    ALatSize := Round(Abs(ARect.Top - ARect.Bottom) * cCoordToSize);
   end;
 end;
 

@@ -31,7 +31,7 @@ uses
 type
   EMarkSystemORMError = class(Exception);
 
-  TSQLMarkRecOption = (mrAll, mrGeometry, mrView, mrPic);
+  TSQLMarkRecOption = (mrAll, mrGeometry, mrView, mrPic, mrAppearance);
   TSQLMarkRecOptions = set of TSQLMarkRecOption;
 
   TID = mORMot.TID;
@@ -49,6 +49,7 @@ type
     FCategoryId: TID;
     FPicId: TID;
     FPicName: string;
+    FAppearanceId: TID;
     FColor1: Cardinal;
     FColor2: Cardinal;
     FScale1: Integer;
@@ -56,8 +57,8 @@ type
     FName: string;
     FDesc: string;
     FVisible: Boolean;
-    FGeoLon: Double;
-    FGeoLat: Double;
+    FGeoLonSize: Cardinal;
+    FGeoLatSize: Cardinal;
     FGeoType: TSQLGeoType;
     FGeoCount: Integer;
     FGeometry: IGeometryLonLat;
@@ -84,6 +85,7 @@ const
     FCategoryId : 0;
     FPicId      : 0;
     FPicName    : '';
+    FAppearanceId : 0;
     FColor1     : 0;
     FColor2     : 0;
     FScale1     : 0;
@@ -91,8 +93,8 @@ const
     FName       : '';
     FDesc       : '';
     FVisible    : True; // !
-    FGeoLon     : 0;
-    FGeoLat     : 0;
+    FGeoLonSize : 0;
+    FGeoLatSize : 0;
     FGeoType    : gtUndef;
     FGeoCount   : 0;
     FGeometry   : nil;

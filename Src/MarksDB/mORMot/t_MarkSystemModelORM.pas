@@ -70,35 +70,42 @@ type
     property Name: RawUTF8 read FName write FName;
   end;
 
+  TSQLMarkAppearance = class(TSQLRecord)
+  private
+    FColor1: Cardinal;
+    FColor2: Cardinal;
+    FScale1: Integer;
+    FScale2: Integer;
+  published
+    property Color1: Cardinal read FColor1 write FColor1;
+    property Color2: Cardinal read FColor2 write FColor2;
+    property Scale1: Integer read FScale1 write FScale1;
+    property Scale2: Integer read FScale2 write FScale2;
+  end;
+
   // Метки
   TSQLMark = class(TSQLRecord)
   private
     FCategory: TSQLCategory;
     FImage: TSQLMarkImage;
-    FColor1: Cardinal;
-    FColor2: Cardinal;
-    FScale1: Integer;
-    FScale2: Integer;
+    FAppearance: TSQLMarkAppearance;
     FName: RawUTF8;
     FDesc: RawUTF8;
-    FGeoLon: Double;
-    FGeoLat: Double;
     FGeoType: TSQLGeoType;
-    FGeoCount: Integer;
+    FGeoCount: Cardinal;
+    FGeoLonSize: Cardinal;
+    FGeoLatSize: Cardinal;
     FGeoWKB: TSQLRawBlob;
   published
     property Category: TSQLCategory read FCategory write FCategory;
     property Image: TSQLMarkImage read FImage write FImage;
-    property Color1: Cardinal read FColor1 write FColor1;
-    property Color2: Cardinal read FColor2 write FColor2;
-    property Scale1: Integer read FScale1 write FScale1;
-    property Scale2: Integer read FScale2 write FScale2;
+    property Appearance: TSQLMarkAppearance read FAppearance write FAppearance;
     property Name: RawUTF8 read FName write FName;
     property Desc: RawUTF8 read FDesc write FDesc;
-    property GeoLon: Double read FGeoLon write FGeoLon;
-    property GeoLat: Double read FGeoLat write FGeoLat;
     property GeoType: TSQLGeoType read FGeoType write FGeoType;
-    property GeoCount: Integer read FGeoCount write FGeoCount;
+    property GeoCount: Cardinal read FGeoCount write FGeoCount;
+    property GeoLonSize: Cardinal read FGeoLonSize write FGeoLonSize;
+    property GeoLatSize: Cardinal read FGeoLatSize write FGeoLatSize;
     property GeoWKB: TSQLRawBlob read FGeoWKB write FGeoWKB;
   end;
 
@@ -115,7 +122,7 @@ type
   end;
 
   // Индекс по ограничивающему прямоугольнику, для быстрого поиска геометрий
-  TSQLMarkGeometryRect = class(TSQLRecordRTree)
+  TSQLMarkRTree = class(TSQLRecordRTree)
   private
     FLeft, FRight, FBottom, FTop: Double;
   published
@@ -130,7 +137,7 @@ type
   // Индекс по имени и описания меток, для быстрого текстового поиска
   // - для нелатинских символов чувствителен к регистру, поэтому пишем сюда
   //   всё в LowerCase
-  TSQLMarkTextInfo = class(TSQLRecordFTS4)
+  TSQLMarkFTS = class(TSQLRecordFTS4)
   private
     FName: RawUTF8;
     FDesc: RawUTF8;
@@ -154,8 +161,9 @@ begin
         TSQLMarkImage,
         TSQLMark,
         TSQLMarkView,
-        TSQLMarkTextInfo,
-        TSQLMarkGeometryRect
+        TSQLMarkAppearance,
+        TSQLMarkFTS,
+        TSQLMarkRTree
       ]
     );
 end;

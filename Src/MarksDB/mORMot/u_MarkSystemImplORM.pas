@@ -161,7 +161,7 @@ begin
 
   FClientDB.Server.CreateMissingTables;
 
-  VUserName := StringToUTF8('sasgis');
+  VUserName := StringToUTF8(AnsiLowerCase('sasgis'));
 
   FUser := TSQLUser.Create(FClientDB, 'Name=?', [VUserName]);
   if FUser.ID = 0 then begin

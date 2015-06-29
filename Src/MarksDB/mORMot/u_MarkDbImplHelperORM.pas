@@ -40,7 +40,8 @@ function GetSQLMarkRec(
   const ASQLMark: TSQLMark;
   const AClient: TSQLRestClient;
   const AOptions: TSQLMarkRecOptions;
-  const AGeometryReader: IGeometryFromStream
+  const AGeometryReader: IGeometryFromStream;
+  const AIsJoined: Boolean
 ): Boolean;
 
 function SetMarkVisibleSQL(
@@ -67,12 +68,60 @@ function _GeomertryToBlob(
   const AGeometryWriter: IGeometryToStream
 ): TSQLRawBlob; forward;
 
+function _AddMarkImage(
+  const AClient: TSQLRestClient;
+  const APicName: string
+): TID;
+var
+  VPicName: RawUTF8;
+  VSQLMarkImage: TSQLMarkImage;
+begin
+  Result := 0;
+  VPicName := StringToUTF8(APicName);
+  VSQLMarkImage := TSQLMarkImage.Create(AClient, 'Name=?', [VPicName]);
+  try
+    if VSQLMarkImage.ID = 0 then begin
+      VSQLMarkImage.Name := VPicName;
+      CheckID( AClient.Add(VSQLMarkImage, True) );
+    end;
+    Result := VSQLMarkImage.ID;
+  finally
+    VSQLMarkImage.Free;
+  end;
+end;
+
+function _AddMarkAppearance(
+  const AClient: TSQLRestClient;
+  const AColor1, AColor2: Cardinal;
+  const AScale1, AScale2: Integer
+): TID;
+var
+  VSQLMarkAppearance: TSQLMarkAppearance;
+begin
+  Result := 0;
+  VSQLMarkAppearance := TSQLMarkAppearance.Create(
+    AClient, 'Color1=? AND Color2=? AND Scale1=? AND Scale2=?',
+    [AColor1, AColor2, AScale1, AScale2]
+  );
+  try
+    if VSQLMarkAppearance.ID = 0 then begin
+      VSQLMarkAppearance.Color1 := AColor1;
+      VSQLMarkAppearance.Color2 := AColor2;
+      VSQLMarkAppearance.Scale1 := AScale1;
+      VSQLMarkAppearance.Scale2 := AScale2;
+      CheckID( AClient.Add(VSQLMarkAppearance, True) );
+    end;
+    Result := VSQLMarkAppearance.ID;
+  finally
+    VSQLMarkAppearance.Free;
+  end;
+end;
+
 procedure DeleteMarkSQL(
   const AMarkID: TID;
   const AClient: TSQLRestClient
 );
 var
-  VSQLWhere: RawUTF8;
   VTransaction: TTransactionRec;
 begin
   Assert(AMarkID > 0);
@@ -80,18 +129,19 @@ begin
 
   StartTransaction(AClient, VTransaction, TSQLMark);
   try
-    // delete view
-    VSQLWhere := FormatUTF8('Mark=?', [], [AMarkID]); // for all Users
-    CheckDeleteResult( AClient.Delete(TSQLMarkView, VSQLWhere) );
+    // delete view for all Users if exists
+    AClient.Delete(TSQLMarkView, FormatUTF8('Mark=?', [], [AMarkID]));
 
     // delete rect
-    CheckDeleteResult( AClient.Delete(TSQLMarkGeometryRect, AMarkID) );
+    CheckDeleteResult( AClient.Delete(TSQLMarkRTree, AMarkID) );
 
     // delete name and desc
-    CheckDeleteResult( AClient.Delete(TSQLMarkTextInfo, AMarkID) );
+    CheckDeleteResult( AClient.Delete(TSQLMarkFTS, AMarkID) );
 
     // delete mark
     CheckDeleteResult( AClient.Delete(TSQLMark, AMarkID) );
+
+    // pic name and appearance are never deleted...
 
     CommitTransaction(AClient, VTransaction);
   except
@@ -108,56 +158,43 @@ procedure InsertMarkSQL(
 );
 var
   VRect: TDoubleRect;
-  VPicName: RawUTF8;
   VGeometryBlob: TSQLRawBlob;
   VSQLMark: TSQLMark;
   VSQLMarkView: TSQLMarkView;
-  VSQLMarkImage: TSQLMarkImage;
-  VSQLMarkTextInfo: TSQLMarkTextInfo;
-  VSQLMarkGeometryRect: TSQLMarkGeometryRect;
+  VSQLMarkFTS: TSQLMarkFTS;
+  VSQLMarkRTree: TSQLMarkRTree;
   VTransaction: TTransactionRec;
 begin
   Assert(AClient <> nil);
   Assert(AGeometryWriter <> nil);
 
   VRect := AMarkRec.FGeometry.Bounds.Rect;
+  VGeometryBlob := _GeomertryToBlob(AMarkRec.FGeometry, AGeometryWriter);
+  CalcGeometrySize(VRect, AMarkRec.FGeoLonSize, AMarkRec.FGeoLatSize);
 
   StartTransaction(AClient, VTransaction, TSQLMark);
   try
     if AMarkRec.FPicName <> '' then begin
-      VPicName := StringToUTF8(AMarkRec.FPicName);
-      VSQLMarkImage := TSQLMarkImage.Create(AClient, 'Name=?', [VPicName]);
-      try
-        if VSQLMarkImage.ID = 0 then begin
-          VSQLMarkImage.Name := VPicName;
-          // add pic
-          CheckID( AClient.Add(VSQLMarkImage, True) );
-        end;
-        AMarkRec.FPicId := VSQLMarkImage.ID;
-      finally
-        VSQLMarkImage.Free;
-      end;
+      AMarkRec.FPicId := _AddMarkImage(AClient, AMarkRec.FPicName);
     end else begin
       AMarkRec.FPicId := 0;
     end;
 
+    AMarkRec.FAppearanceId := _AddMarkAppearance(
+      AClient, AMarkRec.FColor1, AMarkRec.FColor2, AMarkRec.FScale1, AMarkRec.FScale2
+    );
+
     VSQLMark := TSQLMark.Create;
     try
-      VGeometryBlob := _GeomertryToBlob(AMarkRec.FGeometry, AGeometryWriter);
       VSQLMark.Category := Pointer(AMarkRec.FCategoryId);
       VSQLMark.Image := Pointer(AMarkRec.FPicId);
-
-      VSQLMark.Color1 := AMarkRec.FColor1;
-      VSQLMark.Color2 := AMarkRec.FColor2;
-
-      VSQLMark.Scale1 := AMarkRec.FScale1;
-      VSQLMark.Scale2 := AMarkRec.FScale2;
+      VSQLMark.Appearance := Pointer(AMarkRec.FAppearanceId);
 
       VSQLMark.Name := StringToUTF8(AMarkRec.FName);
       VSQLMark.Desc := StringToUTF8(AMarkRec.FDesc);
 
-      VSQLMark.GeoLon := AMarkRec.FGeoLon;
-      VSQLMark.GeoLat := AMarkRec.FGeoLat;
+      VSQLMark.GeoLonSize := AMarkRec.FGeoLonSize;
+      VSQLMark.GeoLatSize := AMarkRec.FGeoLatSize;
       VSQLMark.GeoType := AMarkRec.FGeoType;
       VSQLMark.GeoCount := AMarkRec.FGeoCount;
 
@@ -170,39 +207,41 @@ begin
       VSQLMark.Free;
     end;
 
-    VSQLMarkTextInfo := TSQLMarkTextInfo.Create;
+    VSQLMarkFTS := TSQLMarkFTS.Create;
     try
-      VSQLMarkTextInfo.DocID := AMarkRec.FMarkId;
-      VSQLMarkTextInfo.Name := StringToUTF8(SysUtils.AnsiLowerCase(AMarkRec.FName));
-      VSQLMarkTextInfo.Desc := StringToUTF8(SysUtils.AnsiLowerCase(AMarkRec.FDesc));
+      VSQLMarkFTS.DocID := AMarkRec.FMarkId;
+      VSQLMarkFTS.Name := StringToUTF8(SysUtils.AnsiLowerCase(AMarkRec.FName));
+      VSQLMarkFTS.Desc := StringToUTF8(SysUtils.AnsiLowerCase(AMarkRec.FDesc));
       // add name and desc
-      CheckID( AClient.Add(VSQLMarkTextInfo, True) );
+      CheckID( AClient.Add(VSQLMarkFTS, True) );
     finally
-      VSQLMarkTextInfo.Free;
+      VSQLMarkFTS.Free;
     end;
 
-    VSQLMarkGeometryRect := TSQLMarkGeometryRect.Create;
+    VSQLMarkRTree := TSQLMarkRTree.Create;
     try
-      VSQLMarkGeometryRect.IDValue := AMarkRec.FMarkId;
-      VSQLMarkGeometryRect.Left := VRect.Left;
-      VSQLMarkGeometryRect.Right := VRect.Right;
-      VSQLMarkGeometryRect.Top := VRect.Top;
-      VSQLMarkGeometryRect.Bottom := VRect.Bottom;
+      VSQLMarkRTree.IDValue := AMarkRec.FMarkId;
+      VSQLMarkRTree.Left := VRect.Left;
+      VSQLMarkRTree.Right := VRect.Right;
+      VSQLMarkRTree.Top := VRect.Top;
+      VSQLMarkRTree.Bottom := VRect.Bottom;
       // add rect
-      CheckID( AClient.Add(VSQLMarkGeometryRect, True) );
+      CheckID( AClient.Add(VSQLMarkRTree, True) );
     finally
-      VSQLMarkGeometryRect.Free;
+      VSQLMarkRTree.Free;
     end;
 
-    VSQLMarkView := TSQLMarkView.Create;
-    try
-      VSQLMarkView.User := Pointer(AUserID);
-      VSQLMarkView.Mark := Pointer(AMarkRec.FMarkId);
-      VSQLMarkView.Visible := AMarkRec.FVisible;
-      // add view
-      CheckID( AClient.Add(VSQLMarkView, True) );
-    finally
-      VSQLMarkView.Free;
+    if not AMarkRec.FVisible then begin
+      VSQLMarkView := TSQLMarkView.Create;
+      try
+        VSQLMarkView.User := Pointer(AUserID);
+        VSQLMarkView.Mark := Pointer(AMarkRec.FMarkId);
+        VSQLMarkView.Visible := AMarkRec.FVisible;
+        // add view
+        CheckID( AClient.Add(VSQLMarkView, True) );
+      finally
+        VSQLMarkView.Free;
+      end;
     end;
 
     CommitTransaction(AClient, VTransaction);
@@ -256,14 +295,14 @@ var
   VPicName: RawUTF8;
   VGeometryBlob: TSQLRawBlob;
   VSQLMark: TSQLMark;
-  VSQLMarkImage: TSQLMarkImage;
-  VSQLMarkTextInfo: TSQLMarkTextInfo;
-  VSQLMarkGeometryRect: TSQLMarkGeometryRect;
+  VSQLMarkFTS: TSQLMarkFTS;
+  VSQLMarkRTree: TSQLMarkRTree;
   VTransaction: TTransactionRec;
   VUpdatePic: Boolean;
   VUpdateGeo: Boolean;
   VUpdateName: Boolean;
   VUpdateDesc: Boolean;
+  VUpdateAppearance: Boolean;
 begin
   Assert(AClient <> nil);
 
@@ -276,25 +315,34 @@ begin
   VUpdateName := (AOldMarkRec.FName <> ANewMarkRec.FName);
   VUpdateDesc := (AOldMarkRec.FDesc <> ANewMarkRec.FDesc);
 
+  VUpdateAppearance :=
+    (AOldMarkRec.FColor1 <> ANewMarkRec.FColor1) or
+    (AOldMarkRec.FColor2 <> ANewMarkRec.FColor2) or
+    (AOldMarkRec.FScale1 <> ANewMarkRec.FScale1) or
+    (AOldMarkRec.FScale2 <> ANewMarkRec.FScale2);
+
+  if VUpdateGeo then begin
+    VRect := ANewMarkRec.FGeometry.Bounds.Rect;
+    VGeometryBlob := _GeomertryToBlob(ANewMarkRec.FGeometry, AGeometryWriter);
+    CalcGeometrySize(VRect, ANewMarkRec.FGeoLonSize, ANewMarkRec.FGeoLatSize);
+  end;
+
   StartTransaction(AClient, VTransaction, TSQLMark);
   try
     if VUpdatePic then begin
       if ANewMarkRec.FPicName <> '' then begin
-        VPicName := StringToUTF8(ANewMarkRec.FPicName);
-        VSQLMarkImage := TSQLMarkImage.Create(AClient, 'Name=?', [VPicName]);
-        try
-          if VSQLMarkImage.ID = 0 then begin
-            VSQLMarkImage.Name := VPicName;
-            // add pic
-            CheckID( AClient.Add(VSQLMarkImage, True) );
-          end;
-          ANewMarkRec.FPicId := VSQLMarkImage.ID;
-        finally
-          VSQLMarkImage.Free;
-        end;
+        ANewMarkRec.FPicId := _AddMarkImage(AClient, ANewMarkRec.FPicName);
       end else begin
         ANewMarkRec.FPicId := 0;
       end;
+    end;
+
+    if VUpdateAppearance then begin
+      ANewMarkRec.FAppearanceId := _AddMarkAppearance(
+        AClient,
+        ANewMarkRec.FColor1, ANewMarkRec.FColor2,
+        ANewMarkRec.FScale1, ANewMarkRec.FScale2
+      );
     end;
 
     VSQLMark := TSQLMark.Create;
@@ -311,21 +359,9 @@ begin
         _AddField('Image');
         VSQLMark.Image := Pointer(ANewMarkRec.FPicId);
       end;
-      if AOldMarkRec.FColor1 <> ANewMarkRec.FColor1 then begin
-        _AddField('Color1');
-        VSQLMark.Color1 := ANewMarkRec.FColor1;
-      end;
-      if AOldMarkRec.FColor2 <> ANewMarkRec.FColor2 then begin
-        _AddField('Color2');
-        VSQLMark.Color2 := ANewMarkRec.FColor2;
-      end;
-      if AOldMarkRec.FScale1 <> ANewMarkRec.FScale1 then begin
-        _AddField('Scale1');
-        VSQLMark.Scale1 := ANewMarkRec.FScale1;
-      end;
-      if AOldMarkRec.FScale2 <> ANewMarkRec.FScale2 then begin
-        _AddField('Scale2');
-        VSQLMark.Scale2 := ANewMarkRec.FScale2;
+      if VUpdateAppearance then begin
+        _AddField('Appearance');
+        VSQLMark.Appearance := Pointer(ANewMarkRec.FAppearanceId);
       end;
       if VUpdateName then begin
         _AddField('Name');
@@ -337,12 +373,12 @@ begin
       end;
 
       if VUpdateGeo then begin
-        _AddField('GeoLon');
-        _AddField('GeoLat');
+        _AddField('GeoLonSize');
+        _AddField('GeoLatSize');
         _AddField('GeoType');
         _AddField('GeoCount');
-        VSQLMark.GeoLon := ANewMarkRec.FGeoLon;
-        VSQLMark.GeoLat := ANewMarkRec.FGeoLat;
+        VSQLMark.GeoLonSize := ANewMarkRec.FGeoLonSize;
+        VSQLMark.GeoLatSize := ANewMarkRec.FGeoLatSize;
         VSQLMark.GeoType := ANewMarkRec.FGeoType;
         VSQLMark.GeoCount := ANewMarkRec.FGeoCount;
       end;
@@ -354,7 +390,6 @@ begin
 
       if VUpdateGeo then begin
         // update geometry blob
-        VGeometryBlob := _GeomertryToBlob(ANewMarkRec.FGeometry, AGeometryWriter);
         CheckUpdateResult(
           AClient.UpdateBlob(TSQLMark, VSQLMark.ID, 'GeoWKB', VGeometryBlob)
         );
@@ -363,42 +398,41 @@ begin
       VSQLMark.Free;
     end;
 
-    VSQLMarkTextInfo := TSQLMarkTextInfo.Create;
+    VSQLMarkFTS := TSQLMarkFTS.Create;
     try
       _ClearFields;
 
-      VSQLMarkTextInfo.DocID := ANewMarkRec.FMarkId;
+      VSQLMarkFTS.DocID := ANewMarkRec.FMarkId;
 
       if VUpdateName then begin
         _AddField('Name');
-        VSQLMarkTextInfo.Name := StringToUTF8(SysUtils.AnsiLowerCase(ANewMarkRec.FName));
+        VSQLMarkFTS.Name := StringToUTF8(SysUtils.AnsiLowerCase(ANewMarkRec.FName));
       end;
       if VUpdateDesc then begin
         _AddField('Desc');
-        VSQLMarkTextInfo.Desc := StringToUTF8(SysUtils.AnsiLowerCase(ANewMarkRec.FDesc));
+        VSQLMarkFTS.Desc := StringToUTF8(SysUtils.AnsiLowerCase(ANewMarkRec.FDesc));
       end;
 
       if VFieldsCount > 0 then begin
         // update name / desc
-        CheckUpdateResult( AClient.Update(VSQLMarkTextInfo, _FieldsNamesStr) );
+        CheckUpdateResult( AClient.Update(VSQLMarkFTS, _FieldsNamesStr) );
       end;
     finally
-      VSQLMarkTextInfo.Free;
+      VSQLMarkFTS.Free;
     end;
 
     if VUpdateGeo then begin
-      VSQLMarkGeometryRect := TSQLMarkGeometryRect.Create;
+      VSQLMarkRTree := TSQLMarkRTree.Create;
       try
-        VRect := ANewMarkRec.FGeometry.Bounds.Rect;
-        VSQLMarkGeometryRect.IDValue := ANewMarkRec.FMarkId;
-        VSQLMarkGeometryRect.Left := VRect.Left;
-        VSQLMarkGeometryRect.Right := VRect.Right;
-        VSQLMarkGeometryRect.Top := VRect.Top;
-        VSQLMarkGeometryRect.Bottom := VRect.Bottom;
+        VSQLMarkRTree.IDValue := ANewMarkRec.FMarkId;
+        VSQLMarkRTree.Left := VRect.Left;
+        VSQLMarkRTree.Right := VRect.Right;
+        VSQLMarkRTree.Top := VRect.Top;
+        VSQLMarkRTree.Bottom := VRect.Bottom;
         // update rect
-        CheckUpdateResult( AClient.Update(VSQLMarkGeometryRect) );
+        CheckUpdateResult( AClient.Update(VSQLMarkRTree) );
       finally
-        VSQLMarkGeometryRect.Free;
+        VSQLMarkRTree.Free;
       end;
     end;
 
@@ -422,32 +456,35 @@ function GetSQLMarkRec(
   const ASQLMark: TSQLMark;
   const AClient: TSQLRestClient;
   const AOptions: TSQLMarkRecOptions;
-  const AGeometryReader: IGeometryFromStream
+  const AGeometryReader: IGeometryFromStream;
+  const AIsJoined: Boolean
 ): Boolean;
 var
   VSQLMarkView: TSQLMarkView;
   VSQLMarkImage: TSQLMarkImage;
+  VSQLMarkAppearance: TSQLMarkAppearance;
   VSQLBlobData: TSQLRawBlob;
 begin
   Result := False;
 
+  AMarkRec := cEmptySQLMarkRec;
+
   AMarkRec.FMarkId := ASQLMark.ID;
 
   if AMarkRec.FMarkId > 0 then begin
-    AMarkRec.FCategoryId := TID(ASQLMark.Category);
-    AMarkRec.FPicId := TID(ASQLMark.Image);
+    AMarkRec.FCategoryId := TID(ASQLMark.Category.AsTSQLRecord);
+    CheckID(AMarkRec.FCategoryId);
 
-    AMarkRec.FColor1 := ASQLMark.Color1;
-    AMarkRec.FColor2 := ASQLMark.Color2;
+    AMarkRec.FPicId := TID(ASQLMark.Image.AsTSQLRecord); // = 0 is OK
 
-    AMarkRec.FScale1 := ASQLMark.Scale1;
-    AMarkRec.FScale2 := ASQLMark.Scale2;
+    AMarkRec.FAppearanceId := TID(ASQLMark.Appearance.AsTSQLRecord);
+    CheckID(AMarkRec.FAppearanceId);
 
     AMarkRec.FName := UTF8ToString(ASQLMark.Name);
     AMarkRec.FDesc := UTF8ToString(ASQLMark.Desc);
 
-    AMarkRec.FGeoLon := ASQLMark.GeoLon;
-    AMarkRec.FGeoLat := ASQLMark.GeoLat;
+    AMarkRec.FGeoLonSize := ASQLMark.GeoLonSize;
+    AMarkRec.FGeoLatSize := ASQLMark.GeoLatSize;
     AMarkRec.FGeoType := ASQLMark.GeoType;
     AMarkRec.FGeoCount := ASQLMark.GeoCount;
   end else begin
@@ -477,15 +514,41 @@ begin
   // read pic name
   if (AMarkRec.FGeoType = gtPoint) and ( (mrAll in AOptions) or (mrPic in AOptions) ) then begin
     if AMarkRec.FPicId > 0 then begin
-      VSQLMarkImage := TSQLMarkImage.Create(AClient, AMarkRec.FPicId);
+      if AIsJoined then begin
+        VSQLMarkImage := ASQLMark.Image;
+      end else begin
+        VSQLMarkImage := TSQLMarkImage.Create(AClient, AMarkRec.FPicId);
+      end;
       try
         CheckID(VSQLMarkImage.ID);
         AMarkRec.FPicName := UTF8ToString(VSQLMarkImage.Name);
       finally
-        VSQLMarkImage.Free;
+        if not AIsJoined then begin
+          VSQLMarkImage.Free;
+        end;
       end;
     end else begin
       AMarkRec.FPicName := '';
+    end;
+  end;
+
+  // read appearance
+  if (mrAll in AOptions) or (mrAppearance in AOptions) then begin
+    if AIsJoined then begin
+      VSQLMarkAppearance := ASQLMark.Appearance;
+    end else begin
+      VSQLMarkAppearance := TSQLMarkAppearance.Create(AClient, AMarkRec.FAppearanceId);
+    end;
+    try
+      CheckID(VSQLMarkAppearance.ID);
+      AMarkRec.FColor1 := VSQLMarkAppearance.Color1;
+      AMarkRec.FColor2 := VSQLMarkAppearance.Color2;
+      AMarkRec.FScale1 := VSQLMarkAppearance.Scale1;
+      AMarkRec.FScale2 := VSQLMarkAppearance.Scale2;
+    finally
+      if not AIsJoined then begin
+        VSQLMarkAppearance.Free;
+      end;
     end;
   end;
 

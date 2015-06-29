@@ -160,17 +160,19 @@ begin
   finally
     VSQLCategory.Free;
   end;
-  // insert view
-  VSQLCategoryView := TSQLCategoryView.Create;
-  try
-    VSQLCategoryView.User := Pointer(AUserID);
-    VSQLCategoryView.Category := Pointer(ACategoryRec.FCategoryId);
-    VSQLCategoryView.Visible := ACategoryRec.FVisible;
-    VSQLCategoryView.MinZoom := ACategoryRec.FMinZoom;
-    VSQLCategoryView.MaxZoom := ACategoryRec.FMaxZoom;
-    CheckID( AClient.Add(VSQLCategoryView, True) );
-  finally
-    VSQLCategoryView.Free;
+  if not ACategoryRec.FVisible then begin
+    // insert view
+    VSQLCategoryView := TSQLCategoryView.Create;
+    try
+      VSQLCategoryView.User := Pointer(AUserID);
+      VSQLCategoryView.Category := Pointer(ACategoryRec.FCategoryId);
+      VSQLCategoryView.Visible := ACategoryRec.FVisible;
+      VSQLCategoryView.MinZoom := ACategoryRec.FMinZoom;
+      VSQLCategoryView.MaxZoom := ACategoryRec.FMaxZoom;
+      CheckID( AClient.Add(VSQLCategoryView, True) );
+    finally
+      VSQLCategoryView.Free;
+    end;
   end;
 end;
 
@@ -567,7 +569,7 @@ begin
     try
       if ANewVisible then begin
         VSQLCategoryView := TSQLCategoryView.CreateAndFillPrepare(
-          FClient, 'User=?', [FUserID]
+          FClient, 'Visible=:(0): AND User=?', [FUserID]
         );
         try
           while VSQLCategoryView.FillOne do begin
