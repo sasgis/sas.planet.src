@@ -424,7 +424,8 @@ begin
             FMarksDB.MarkDb.GetMarkSubsetByCategoryListInRect(
               VLonLatRect,
               VList,
-              VMarksConfigStatic.IgnoreMarksVisible
+              VMarksConfigStatic.IgnoreMarksVisible,
+              DoublePoint(0, 0) // ToDo
             );
         end;
       finally

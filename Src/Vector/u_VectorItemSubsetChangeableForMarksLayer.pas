@@ -211,6 +211,7 @@ var
   VZoom: Byte;
   VItemSelectPixelRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
+  VLonLatSize: TDoublePoint;
   VGeoConverter: ICoordConverter;
 begin
   VList := nil;
@@ -231,11 +232,15 @@ begin
       VGeoConverter.ValidatePixelRectFloat(VItemSelectPixelRect, VZoom);
       VLonLatRect := VGeoConverter.PixelRectFloat2LonLatRect(VItemSelectPixelRect, VZoom);
 
+      VLonLatSize.X := 2 * (VLonLatRect.Right - VLonLatRect.Left) / (VItemSelectPixelRect.Right - VItemSelectPixelRect.Left);
+      VLonLatSize.Y := 2 * (VLonLatRect.Top - VLonLatRect.Bottom) / (VItemSelectPixelRect.Bottom - VItemSelectPixelRect.Top);
+
       Result :=
         FMarkDB.MarkDb.GetMarkSubsetByCategoryListInRect(
           VLonLatRect,
           VList,
-          AConfig.IgnoreMarksVisible
+          AConfig.IgnoreMarksVisible,
+          VLonLatSize
         );
     end;
   end;

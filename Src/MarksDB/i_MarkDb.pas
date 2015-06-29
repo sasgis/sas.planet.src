@@ -52,12 +52,14 @@ type
     function GetMarkSubsetByCategoryListInRect(
       const ARect: TDoubleRect;
       const ACategoryList: IMarkCategoryList;
-      const AIncludeHiddenMarks: Boolean
+      const AIncludeHiddenMarks: Boolean;
+      const ALonLatSize: TDoublePoint
     ): IVectorItemSubset;
     function GetMarkSubsetByCategoryInRect(
       const ARect: TDoubleRect;
       const ACategory: ICategory;
-      const AIncludeHiddenMarks: Boolean
+      const AIncludeHiddenMarks: Boolean;
+      const ALonLatSize: TDoublePoint
     ): IVectorItemSubset;
     function FindMarks(
       const ASearch: string;
