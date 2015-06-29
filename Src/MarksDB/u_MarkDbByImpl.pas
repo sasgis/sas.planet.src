@@ -68,12 +68,14 @@ type
     function GetMarkSubsetByCategoryListInRect(
       const ARect: TDoubleRect;
       const ACategoryList: IMarkCategoryList;
-      const AIncludeHiddenMarks: Boolean
+      const AIncludeHiddenMarks: Boolean;
+      const ALonLatSize: TDoublePoint
     ): IVectorItemSubset;
     function GetMarkSubsetByCategoryInRect(
       const ARect: TDoubleRect;
       const ACategory: ICategory;
-      const AIncludeHiddenMarks: Boolean
+      const AIncludeHiddenMarks: Boolean;
+      const ALonLatSize: TDoublePoint
     ): IVectorItemSubset;
     function FindMarks(
       const ASearch: string;
@@ -246,7 +248,8 @@ end;
 function TMarkDbByImpl.GetMarkSubsetByCategoryInRect(
   const ARect: TDoubleRect;
   const ACategory: ICategory;
-  const AIncludeHiddenMarks: Boolean
+  const AIncludeHiddenMarks: Boolean;
+  const ALonLatSize: TDoublePoint
 ): IVectorItemSubset;
 var
   VImpl: IMarkSystemImpl;
@@ -254,7 +257,7 @@ begin
   Result := nil;
   VImpl := FMarkSystemImpl.GetStatic;
   if VImpl <> nil then begin
-    Result := VImpl.MarkDb.GetMarkSubsetByCategoryInRect(ARect, ACategory, AIncludeHiddenMarks);
+    Result := VImpl.MarkDb.GetMarkSubsetByCategoryInRect(ARect, ACategory, AIncludeHiddenMarks, ALonLatSize);
   end;
 end;
 
@@ -275,7 +278,8 @@ end;
 function TMarkDbByImpl.GetMarkSubsetByCategoryListInRect(
   const ARect: TDoubleRect;
   const ACategoryList: IMarkCategoryList;
-  const AIncludeHiddenMarks: Boolean
+  const AIncludeHiddenMarks: Boolean;
+  const ALonLatSize: TDoublePoint
 ): IVectorItemSubset;
 var
   VImpl: IMarkSystemImpl;
@@ -283,7 +287,7 @@ begin
   Result := nil;
   VImpl := FMarkSystemImpl.GetStatic;
   if VImpl <> nil then begin
-    Result := VImpl.MarkDb.GetMarkSubsetByCategoryListInRect(ARect, ACategoryList, AIncludeHiddenMarks);
+    Result := VImpl.MarkDb.GetMarkSubsetByCategoryListInRect(ARect, ACategoryList, AIncludeHiddenMarks, ALonLatSize);
   end;
 end;
 

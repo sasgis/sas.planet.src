@@ -119,7 +119,7 @@ var
   VEnum: IEnumLonLatPoint;
 begin
   inherited;
-  VVectorItems := FMarkSystem.MarkDb.GetMarkSubsetByCategoryListInRect(FpolyLL.Bounds.Rect, nil, FDelHiddenMarks);
+  VVectorItems := FMarkSystem.MarkDb.GetMarkSubsetByCategoryListInRect(FpolyLL.Bounds.Rect, nil, FDelHiddenMarks, DoublePoint(0, 0));
   VProcessed := 0;
   if VVectorItems <> nil then begin
     VTemp := TInterfaceListSimple.Create;
