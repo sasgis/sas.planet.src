@@ -292,7 +292,6 @@ var
 
 var
   VRect: TDoubleRect;
-  VPicName: RawUTF8;
   VGeometryBlob: TSQLRawBlob;
   VSQLMark: TSQLMark;
   VSQLMarkFTS: TSQLMarkFTS;
