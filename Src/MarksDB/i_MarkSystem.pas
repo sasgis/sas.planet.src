@@ -32,6 +32,7 @@ uses
   i_MarkCategoryList,
   i_MarkCategoryTree,
   i_MarkDb,
+  i_MarkSystemImplFactory,
   i_MarkCategoryDB;
 
 type
@@ -62,6 +63,9 @@ type
       const ACategoryTree: IMarkCategoryTree;
       const AIncludeHiddenMarks: Boolean
     ): IVectorItemTree;
+
+    function GetImplFactoryList: IMarkSystemImplFactoryListStatic;
+    property ImplFactoryList: IMarkSystemImplFactoryListStatic read GetImplFactoryList;
   end;
 
 implementation

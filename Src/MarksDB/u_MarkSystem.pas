@@ -47,6 +47,8 @@ uses
   i_MarkFactory,
   i_MarkCategoryList,
   i_MarkCategoryFactory,
+  i_MarkSystemConfig,
+  i_MarkSystemImplFactory,
   u_BaseInterfacedObject;
 
 type
@@ -57,10 +59,12 @@ type
     FMarkDb: IMarkDb;
     FCategoryDB: IMarkCategoryDB;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+    FImplFactoryList: IMarkSystemImplFactoryListStatic;
   private
     function GetState: IReadWriteStateChangeble;
     function GetMarkDb: IMarkDb;
     function GetCategoryDB: IMarkCategoryDB;
+    function GetImplFactoryList: IMarkSystemImplFactoryListStatic;
 
     function GetStringIdByMark(const AMark: IVectorDataItem): string;
     function GetMarkByStringId(const AId: string): IVectorDataItem;
@@ -81,6 +85,7 @@ type
   public
     constructor Create(
       const ABasePath: IPathConfig;
+      const AConfig: IMarkSystemConfigListChangeable;
       const AMarkPictureList: IMarkPictureList;
       const AMarkFactory: IMarkFactory;
       const AMarkCategoryFactory: IMarkCategoryFactory;
@@ -99,9 +104,7 @@ implementation
 
 uses
   i_MarkSystemImpl,
-  i_MarkSystemImplFactory,
   u_InterfaceListSimple,
-  u_MarkSystemImplFactorySML,
   u_MarkSystemImplFactoryChangeable,
   u_MarkDbByImpl,
   u_MarkCategoryList,
@@ -113,6 +116,7 @@ uses
 
 constructor TMarkSystem.Create(
   const ABasePath: IPathConfig;
+  const AConfig: IMarkSystemConfigListChangeable;
   const AMarkPictureList: IMarkPictureList;
   const AMarkFactory: IMarkFactory;
   const AMarkCategoryFactory: IMarkCategoryFactory;
@@ -129,7 +133,6 @@ var
   VPerfCounterList: IInternalPerformanceCounterList;
   VLoadDbCounter: IInternalPerformanceCounter;
   VSaveDbCounter: IInternalPerformanceCounter;
-  VImplFactory: IMarkSystemImplFactory;
 begin
   inherited Create;
   FMarkPictureList := AMarkPictureList;
@@ -141,8 +144,8 @@ begin
     VSaveDbCounter := VPerfCounterList.CreateAndAddNewCounter('SaveDb');
   end;
 
-  VImplFactory :=
-    TMarkSystemImplFactorySML.Create(
+  FImplFactoryList :=
+    TMarkSystemImplFactoryListStatic.Create(
       AMarkPictureList,
       AHashFunction,
       AAppearanceOfMarkFactory,
@@ -153,13 +156,16 @@ begin
       VSaveDbCounter,
       AHintConverter
     );
+
   FSystemImpl :=
     TMarkSystemImplChangeable.Create(
       ABasePath,
-      TMarkSystemImplFactoryChangeableFaked.Create(VImplFactory),
+      AConfig,
+      FImplFactoryList,
       AAppStartedNotifier,
       AAppClosingNotifier
     );
+
   FMarkDb := TMarkDbByImpl.Create(FSystemImpl, AMarkFactory);
   FCategoryDB := TMarkCategoryDbByImpl.Create(FSystemImpl, AMarkCategoryFactory);
 end;
@@ -310,6 +316,11 @@ begin
         AIncludeHiddenMarks
       );
   end;
+end;
+
+function TMarkSystem.GetImplFactoryList: IMarkSystemImplFactoryListStatic;
+begin
+  Result := FImplFactoryList;
 end;
 
 end.

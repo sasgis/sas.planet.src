@@ -23,58 +23,167 @@ unit u_MarkSystemImplFactoryChangeable;
 interface
 
 uses
-  i_Notifier,
+  ActiveX,
+  i_HashFunction,
+  i_AppearanceOfMarkFactory,
+  i_VectorItemSubsetBuilder,
+  i_MarkPicture,
+  i_GeometryLonLatFactory,
+  i_InternalPerformanceCounter,
+  i_HtmlToHintTextConverter,
+  i_MarkFactory,
+  i_GUIDSet,
   i_MarkSystemImplFactory,
   u_BaseInterfacedObject;
 
 type
-  TMarkSystemImplFactoryChangeableFaked = class(TBaseInterfacedObject, IMarkSystemImplFactoryChangeable)
+  TMarkSystemImplFactoryListStatic = class(TBaseInterfacedObject, IMarkSystemImplFactoryListStatic)
   private
-    FFactory: IMarkSystemImplFactory;
-    FChangeNotifier: INotifier;
+    FList: IGUIDInterfaceSet;
   private
-    function GetStatic: IMarkSystemImplFactory;
-    function GetBeforeChangeNotifier: INotifier;
-    function GetChangeNotifier: INotifier;
-    function GetAfterChangeNotifier: INotifier;
+    function GetGUIDEnum: IEnumGUID;
+    function Get(const AGUID: TGUID): IMarkSystemImplFactoryListElement;
   public
-    constructor Create(const AFactory: IMarkSystemImplFactory);
+    constructor Create(
+      const AMarkPictureList: IMarkPictureList;
+      const AHashFunction: IHashFunction;
+      const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+      const AMarkFactory: IMarkFactory;
+      const ALoadDbCounter: IInternalPerformanceCounter;
+      const ASaveDbCounter: IInternalPerformanceCounter;
+      const AHintConverter: IHtmlToHintTextConverter
+    );
   end;
 
 implementation
 
 uses
-  u_Notifier;
+  c_MarkSystem,
+  u_GUIDInterfaceSet,
+  u_MarkSystemImplFactorySML,
+  u_MarkSystemImplFactoryORM;
 
-{ TMarkSystemImplFactoryChangeableFaked }
+type
+  TMarkSystemImplFactoryListElement = class(TBaseInterfacedObject, IMarkSystemImplFactoryListElement)
+  private
+    FGUID: TGUID;
+    FCaption: string;
+    FFactory: IMarkSystemImplFactory;
+  private
+    function GetGUID: TGUID;
+    function GetCaption: string;
+    function GetFactory: IMarkSystemImplFactory;
+  public
+    constructor Create(
+      const AGUID: TGUID;
+      const ACaption: string;
+      const AFactory: IMarkSystemImplFactory
+    );
+  end;
 
-constructor TMarkSystemImplFactoryChangeableFaked.Create(
+{ TMarkSystemImplFactoryListElement }
+
+constructor TMarkSystemImplFactoryListElement.Create(
+  const AGUID: TGUID;
+  const ACaption: string;
   const AFactory: IMarkSystemImplFactory
 );
 begin
   inherited Create;
+  FGUID := AGUID;
+  FCaption := ACaption;
   FFactory := AFactory;
-  FChangeNotifier := TNotifierFaked.Create;
 end;
 
-function TMarkSystemImplFactoryChangeableFaked.GetAfterChangeNotifier: INotifier;
+function TMarkSystemImplFactoryListElement.GetCaption: string;
 begin
-  Result := FChangeNotifier;
+  Result := FCaption;
 end;
 
-function TMarkSystemImplFactoryChangeableFaked.GetBeforeChangeNotifier: INotifier;
-begin
-  Result := FChangeNotifier;
-end;
-
-function TMarkSystemImplFactoryChangeableFaked.GetChangeNotifier: INotifier;
-begin
-  Result := FChangeNotifier;
-end;
-
-function TMarkSystemImplFactoryChangeableFaked.GetStatic: IMarkSystemImplFactory;
+function TMarkSystemImplFactoryListElement.GetFactory: IMarkSystemImplFactory;
 begin
   Result := FFactory;
+end;
+
+function TMarkSystemImplFactoryListElement.GetGUID: TGUID;
+begin
+  Result := FGUID;
+end;
+
+{ TMarkSystemImplFactoryListStatic }
+
+constructor TMarkSystemImplFactoryListStatic.Create(
+  const AMarkPictureList: IMarkPictureList;
+  const AHashFunction: IHashFunction;
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+  const AMarkFactory: IMarkFactory;
+  const ALoadDbCounter: IInternalPerformanceCounter;
+  const ASaveDbCounter: IInternalPerformanceCounter;
+  const AHintConverter: IHtmlToHintTextConverter
+);
+var
+  VItem: IMarkSystemImplFactoryListElement;
+  VFactory: IMarkSystemImplFactory;
+begin
+  inherited Create;
+
+  FList := TGUIDInterfaceSet.Create(False);
+
+  // SML
+  VFactory :=
+    TMarkSystemImplFactorySML.Create(
+      AMarkPictureList,
+      AHashFunction,
+      AAppearanceOfMarkFactory,
+      AVectorGeometryLonLatFactory,
+      AVectorItemSubsetBuilderFactory,
+      AMarkFactory,
+      ALoadDbCounter,
+      ASaveDbCounter,
+      AHintConverter
+    );
+  VItem :=
+    TMarkSystemImplFactoryListElement.Create(
+      cSMLMarksDbGUID,
+      rsSMLMarksDbName,
+      VFactory
+    );
+  FList.Add(VItem.GUID, VItem);
+
+  // SQLite
+  VFactory :=
+    TMarkSystemImplFactoryORM.Create(
+      AMarkPictureList,
+      AHashFunction,
+      AAppearanceOfMarkFactory,
+      AVectorGeometryLonLatFactory,
+      AVectorItemSubsetBuilderFactory,
+      AMarkFactory,
+      ALoadDbCounter,
+      ASaveDbCounter,
+      AHintConverter
+    );
+  VItem :=
+    TMarkSystemImplFactoryListElement.Create(
+      cORMSQLiteMarksDbGUID,
+      rsORMSQLiteMarksDbName,
+      VFactory
+    );
+  FList.Add(VItem.GUID, VItem);
+end;
+
+function TMarkSystemImplFactoryListStatic.Get(const AGUID: TGUID): IMarkSystemImplFactoryListElement;
+begin
+  Result := IMarkSystemImplFactoryListElement(FList.GetByGUID(AGUID));
+end;
+
+function TMarkSystemImplFactoryListStatic.GetGUIDEnum: IEnumGUID;
+begin
+  Result := FList.GetGUIDEnum;
 end;
 
 end.

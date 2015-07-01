@@ -33,6 +33,7 @@ uses
   i_HtmlToHintTextConverter,
   i_MarkFactory,
   i_MarkSystemImpl,
+  i_MarkSystemImplConfig,
   i_MarkSystemImplFactory,
   u_BaseInterfacedObject;
 
@@ -54,7 +55,7 @@ type
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const ABasePath: string;
-      const AReadOnly: Boolean = False
+      const AImplConfig: IMarkSystemImplConfigStatic
     ): IMarkSystemImpl;
   public
     constructor Create(
@@ -116,7 +117,7 @@ function TMarkSystemImplFactoryORM.Build(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const ABasePath: string;
-  const AReadOnly: Boolean
+  const AImplConfig: IMarkSystemImplConfigStatic
 ): IMarkSystemImpl;
 begin
   Result :=
@@ -133,7 +134,7 @@ begin
       FLoadDbCounter,
       FSaveDbCounter,
       FHintConverter,
-      AReadOnly
+      AImplConfig.IsReadOnly
     );
 end;
 

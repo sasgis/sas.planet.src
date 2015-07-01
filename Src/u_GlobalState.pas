@@ -62,6 +62,7 @@ uses
   i_InternalPerformanceCounter,
   i_DebugInfoSubSystem,
   i_MarkSystem,
+  i_MarkSystemConfig,
   i_ZmpInfoSet,
   i_Datum,
   i_GeoCalc,
@@ -131,6 +132,7 @@ type
     FMapCalibrationList: IMapCalibrationList;
     FCacheConfig: IGlobalCacheConfig;
     FMarkSystem: IMarkSystem;
+    FMarkSystemConfig: IMarkSystemConfigListChangeable;
     FDatumFactory: IDatumFactory;
     FCoordConverterFactory: ICoordConverterFactory;
     FCoordConverterList: ICoordConverterList;
@@ -216,6 +218,7 @@ type
     property MapType: TMapTypesMainList read FMainMapsList;
     property CacheConfig: IGlobalCacheConfig read FCacheConfig;
     property MarksDb: IMarkSystem read FMarkSystem;
+    property MarkSystemConfig: IMarkSystemConfigListChangeable read FMarkSystemConfig;
     property GpsSystem: IGPSModule read FGpsSystem;
     property GPSDatum: IDatum read FGPSDatum;
     property GeoCalc: IGeoCalc read FGeoCalc;
@@ -327,6 +330,7 @@ uses
   u_AppearanceOfMarkFactory,
   u_ContentTypeManagerSimple,
   u_MarkSystem,
+  u_MarkSystemConfig,
   u_MapCalibrationListBasic,
   u_XmlInfoSimpleParser,
   u_CoordConverterFactorySimple,
@@ -682,9 +686,11 @@ begin
       FAppearanceOfMarkFactory,
       THtmlToHintTextConverterStuped.Create
     );
+  FMarkSystemConfig := TMarkSystemConfig.Create;
   FMarkSystem :=
     TMarkSystem.Create(
       FGlobalConfig.MarksDbPath,
+      FMarkSystemConfig,
       FMarkPictureList,
       FMarkFactory,
       FMarkCategoryFactory,
@@ -1050,6 +1056,7 @@ begin
     VIniFile.Free;
   end;
 
+  FMarkSystemConfig.ReadConfig(FMainConfigProvider);
   FCacheConfig.ReadConfig(FMainConfigProvider);
 
   FMainMapsList.LoadMaps(
@@ -1126,6 +1133,7 @@ begin
 
   FGPSRecorderInternal.Save;
   FGpsTrackRecorderInternal.Save;
+  FMarkSystemConfig.WriteConfig(FMainConfigProvider);
   FCacheConfig.WriteConfig(FMainConfigProvider);
   FGlobalConfig.WriteConfig(MainConfigProvider);
 end;

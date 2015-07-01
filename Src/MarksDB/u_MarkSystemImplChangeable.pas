@@ -28,6 +28,8 @@ uses
   i_NotifierOperation,
   i_BackgroundTask,
   i_ReadWriteState,
+  i_MarkSystemConfig,
+  i_MarkSystemImplConfig,
   i_MarkSystemImplFactory,
   i_MarkSystemImpl,
   i_MarkSystemImplChangeable,
@@ -38,7 +40,8 @@ type
   TMarkSystemImplChangeable = class(TChangeableWithSimpleLockBase, IMarkSystemImplChangeable)
   private
     FBasePath: IPathConfig;
-    FBaseFactory: IMarkSystemImplFactoryChangeable;
+    FConfigList: IMarkSystemConfigListChangeable;
+    FImplFactoryList: IMarkSystemImplFactoryListStatic;
     FAppStartedNotifier: INotifierOneOperation;
     FAppClosingNotifier: INotifierOneOperation;
 
@@ -48,10 +51,10 @@ type
     FState: IReadWriteStateChangeble;
     FStateInternal: IReadWriteStateInternalByOther;
 
-    FPathChangeListener: IListener;
+    FConfigChangeListener: IListener;
     FAppStartedListener: IListener;
   private
-    procedure OnPathChanged;
+    procedure OnConfigChanged;
     procedure OnAppStarted;
     procedure OnInitialization(
       AOperationID: Integer;
@@ -63,7 +66,8 @@ type
   public
     constructor Create(
       const ABasePath: IPathConfig;
-      const ABaseFactory: IMarkSystemImplFactoryChangeable;
+      const AConfig: IMarkSystemConfigListChangeable;
+      const AImplFactoryList: IMarkSystemImplFactoryListStatic;
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation
     );
@@ -82,16 +86,18 @@ uses
 
 constructor TMarkSystemImplChangeable.Create(
   const ABasePath: IPathConfig;
-  const ABaseFactory: IMarkSystemImplFactoryChangeable;
+  const AConfig: IMarkSystemConfigListChangeable;
+  const AImplFactoryList: IMarkSystemImplFactoryListStatic;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation
 );
 begin
   Assert(Assigned(ABasePath));
-  Assert(Assigned(ABaseFactory));
+  Assert(Assigned(AImplFactoryList));
   inherited Create;
   FBasePath := ABasePath;
-  FBaseFactory := ABaseFactory;
+  FConfigList := AConfig;
+  FImplFactoryList := AImplFactoryList;
   FAppStartedNotifier := AAppStartedNotifier;
   FAppClosingNotifier := AAppClosingNotifier;
   FStateInternal := TReadWriteStateInternalByOther.Create;
@@ -105,9 +111,9 @@ begin
       Self.ClassName
     );
 
-  FPathChangeListener := TNotifyNoMmgEventListener.Create(Self.OnPathChanged);
-  FBasePath.ChangeNotifier.Add(FPathChangeListener);
-  FBaseFactory.ChangeNotifier.Add(FPathChangeListener);
+  FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChanged);
+  FBasePath.ChangeNotifier.Add(FConfigChangeListener);
+  FConfigList.ChangeNotifier.Add(FConfigChangeListener);
 
   FAppStartedListener := TNotifyNoMmgEventListener.Create(Self.OnAppStarted);
   FAppStartedNotifier.Add(FAppStartedListener);
@@ -120,13 +126,13 @@ begin
     FBackgroundTask.StopExecute;
     FBackgroundTask.Terminate;
   end;
-  if Assigned(FBasePath) and Assigned(FPathChangeListener) then begin
-    FBasePath.ChangeNotifier.Remove(FPathChangeListener);
+  if Assigned(FBasePath) and Assigned(FConfigChangeListener) then begin
+    FBasePath.ChangeNotifier.Remove(FConfigChangeListener);
     FBasePath := nil;
   end;
-  if Assigned(FBaseFactory) and Assigned(FPathChangeListener) then begin
-    FBaseFactory.ChangeNotifier.Remove(FPathChangeListener);
-    FBaseFactory := nil;
+  if Assigned(FConfigList) and Assigned(FConfigChangeListener) then begin
+    FConfigList.ChangeNotifier.Remove(FConfigChangeListener);
+    FConfigList := nil;
   end;
   if Assigned(FAppStartedNotifier) and Assigned(FAppStartedListener) then begin
     FAppStartedNotifier.Remove(FAppStartedListener);
@@ -140,19 +146,23 @@ procedure TMarkSystemImplChangeable.OnInitialization(
   const ACancelNotifier: INotifierOperation
 );
 var
-  VFactory: IMarkSystemImplFactory;
   VStatic: IMarkSystemImpl;
+  VConfig: IMarkSystemConfigStatic;
+  VFactory: IMarkSystemImplFactory;
 begin
   if FAppStartedNotifier.IsExecuted then begin
-    VFactory := FBaseFactory.GetStatic;
-    if Assigned(VFactory) then begin
-      VStatic :=
-        VFactory.Build(
-          AOperationID,
-          ACancelNotifier,
-          FBasePath.FullPath,
-          False
-        );
+    VConfig := FConfigList.GetActiveConfig;
+    if Assigned(VConfig) then begin
+      VFactory := FImplFactoryList.Get(VConfig.DatabaseUID).Factory;
+      if Assigned(VFactory) then begin
+        VStatic :=
+          VFactory.Build(
+            AOperationID,
+            ACancelNotifier,
+            FBasePath.FullPath,
+            VConfig.ImplConfig
+          );
+      end;
     end;
   end;
   CS.BeginWrite;
@@ -192,7 +202,7 @@ begin
   end;
 end;
 
-procedure TMarkSystemImplChangeable.OnPathChanged;
+procedure TMarkSystemImplChangeable.OnConfigChanged;
 begin
   FBackgroundTask.StopExecute;
   FBackgroundTask.StartExecute;

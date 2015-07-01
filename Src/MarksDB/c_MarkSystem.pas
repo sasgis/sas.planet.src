@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2015, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -18,47 +18,17 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_MarkSystemImplFactory;
+unit c_MarkSystem;
 
 interface
 
-uses
-  ActiveX,
-  i_MarkSystemImpl,
-  i_MarkSystemImplConfig,
-  i_NotifierOperation;
+const
+  cSMLMarksDbGUID: TGUID = '{F5A9FB07-FF9B-4B4A-98D3-AB8C5F24F36B}';
+  cORMSQLiteMarksDbGUID: TGUID = '{776BC34B-7A4B-4237-BE9A-D905228FDA1A}';
 
-type
-  IMarkSystemImplFactory = interface
-    ['{6ADF8D8C-670C-4282-9BC7-A3F9250181C6}']
-    function GetIsInitializationRequired: Boolean;
-    property IsInitializationRequired: Boolean read GetIsInitializationRequired;
-
-    function Build(
-      AOperationID: Integer;
-      const ACancelNotifier: INotifierOperation;
-      const ABasePath: string;
-      const AImplConfig: IMarkSystemImplConfigStatic
-    ): IMarkSystemImpl;
-  end;
-
-  IMarkSystemImplFactoryListElement = interface
-    ['{7227214C-BBDB-4136-A0FF-E2FD95A41EF7}']
-    function GetGUID: TGUID;
-    property GUID: TGUID read GetGUID;
-
-    function GetCaption: string;
-    property Caption: string read GetCaption;
-
-    function GetFactory: IMarkSystemImplFactory;
-    property Factory: IMarkSystemImplFactory read GetFactory;
-  end;
-
-  IMarkSystemImplFactoryListStatic = interface
-    ['{F3DEF1AA-B4CE-4453-ABF0-C4EE81DAB17A}']
-    function GetGUIDEnum: IEnumGUID;
-    function Get(const AGUID: TGUID): IMarkSystemImplFactoryListElement;
-  end;
+resourcestring
+  rsSMLMarksDbName = 'SML';
+  rsORMSQLiteMarksDbName = 'SQLite3';
 
 implementation
 
