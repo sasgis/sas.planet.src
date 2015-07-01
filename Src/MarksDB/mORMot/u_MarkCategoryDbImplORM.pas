@@ -135,9 +135,9 @@ var
   VSQLWhere: RawUTF8;
 begin
   CheckID(ACategoryID);
-  // first delete view for all users
+  // first delete view for all users (if exists)
   VSQLWhere := FormatUTF8('Category=?', [], [ACategoryID]);
-  CheckDeleteResult( AClient.Delete(TSQLCategoryView, VSQLWhere) );
+  AClient.Delete(TSQLCategoryView, VSQLWhere);
   // then delete category
   CheckDeleteResult( AClient.Delete(TSQLCategory, ACategoryID) );
 end;
