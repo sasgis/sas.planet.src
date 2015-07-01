@@ -23,8 +23,11 @@ unit u_MarkSystemConfig;
 interface
 
 uses
+  Windows,
+  i_IDList,
   i_MarkSystemConfig,
   i_MarkSystemImplConfig,
+  i_InterfaceListStatic,
   i_InterfaceListSimple,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
@@ -33,19 +36,21 @@ uses
 type
   TMarkSystemConfig = class (TConfigDataElementBase, IMarkSystemConfigListChangeable)
   private
-    FList: IInterfaceListSimple;
-    FActiveConfigIndex: Integer;
-    FDefaultConfig: IMarkSystemConfigStatic;
+    FID: Integer;
+    FList: IIDInterfaceList;
+    FActiveConfigID: Integer;
+  private
+    function _NewID: Integer;
   private
     { IMarkSystemConfigListChangeable }
     function GetCount: Integer;
-    function Get(const AIndex: Integer): IMarkSystemConfigStatic;
-    function GetActiveConfigIndex: Integer;
-    procedure SetActiveConfigIndex(const AValue: Integer);
+    function GetByID(const AID: Integer): IMarkSystemConfigStatic;
+    function GetActiveConfigID: Integer;
+    procedure SetActiveConfigID(const AID: Integer);
     function GetActiveConfig: IMarkSystemConfigStatic;
-    procedure Delete(const AIndex: Integer);
+    procedure DeleteByID(const AID: Integer);
     function Add(
-      const ADatabaseUID: TGUID;
+      const ADatabaseGUID: TGUID;
       const ADisplayName: string;
       const AImplConfig: IMarkSystemImplConfigStatic;
       const ASetAsActive: Boolean
@@ -54,6 +59,7 @@ type
       const AConfig: IMarkSystemConfigStatic;
       const ASetAsActive: Boolean
     ): Integer; overload;
+    function GetIDListStatic: IInterfaceListStatic;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
@@ -67,6 +73,8 @@ uses
   SysUtils,
   c_ZeroGUID,
   c_MarkSystem,
+  i_EnumID,
+  u_IDInterfaceList,
   u_MarkSystemImplConfigBase,
   u_InterfaceListSimple,
   u_BaseInterfacedObject;
@@ -74,16 +82,19 @@ uses
 type
   TMarkSystemConfigStatic = class(TBaseInterfacedObject, IMarkSystemConfigStatic)
   private
-    FDatabaseUID: TGUID;
+    FID: Integer;
+    FDatabaseGUID: TGUID;
     FDisplayName: string;
     FImplConfig: IMarkSystemImplConfigStatic;
   private
-    function GetDatabaseUID: TGUID;
+    function GetID: Integer;
+    function GetDatabaseGUID: TGUID;
     function GetDisplayName: string;
     function GetImplConfig: IMarkSystemImplConfigStatic;
   public
     constructor Create(
-      const ADatabaseUID: TGUID;
+      const AID: Integer;
+      const ADatabaseGUID: TGUID;
       const ADisplayName: string;
       const AImplConfig: IMarkSystemImplConfigStatic
     );
@@ -92,20 +103,23 @@ type
 { TMarkSystemConfigStatic }
 
 constructor TMarkSystemConfigStatic.Create(
-  const ADatabaseUID: TGUID;
+  const AID: Integer;
+  const ADatabaseGUID: TGUID;
   const ADisplayName: string;
   const AImplConfig: IMarkSystemImplConfigStatic
 );
 begin
+  Assert(AID > 0);
   inherited Create;
-  FDatabaseUID := ADatabaseUID;
+  FID := AID;
+  FDatabaseGUID := ADatabaseGUID;
   FDisplayName := ADisplayName;
   FImplConfig := AImplConfig;
 end;
 
-function TMarkSystemConfigStatic.GetDatabaseUID: TGUID;
+function TMarkSystemConfigStatic.GetDatabaseGUID: TGUID;
 begin
-  Result := FDatabaseUID;
+  Result := FDatabaseGUID;
 end;
 
 function TMarkSystemConfigStatic.GetDisplayName: string;
@@ -118,30 +132,23 @@ begin
   Result := FImplConfig;
 end;
 
-function _GetDefConfigSML: IMarkSystemConfigStatic;
-var
-  VImpl: IMarkSystemImplConfigStatic;
+function TMarkSystemConfigStatic.GetID: Integer;
 begin
-  VImpl := TMarkSystemImplConfigBase.Create('marks.sml', False);
-  Result :=
-    TMarkSystemConfigStatic.Create(
-      cSMLMarksDbGUID,
-      'marks',
-      VImpl
-    );
+  Result := FID;
 end;
 
-function _GetDefConfigSQL: IMarkSystemConfigStatic;
+function _GetDefaultConfig(const AID: Integer; const ADB: TGUID): IMarkSystemConfigStatic;
 var
   VImpl: IMarkSystemImplConfigStatic;
 begin
-  VImpl := TMarkSystemImplConfigBase.Create('Marks.db3', False);
-  Result :=
-    TMarkSystemConfigStatic.Create(
-      cORMSQLiteMarksDbGUID,
-      'Marks',
-      VImpl
-    );
+  if IsEqualGUID(ADB, cSMLMarksDbGUID) then begin
+    VImpl := TMarkSystemImplConfigBase.Create('marks.sml', False);
+  end else if IsEqualGUID(ADB, cORMSQLiteMarksDbGUID) then begin
+    VImpl := TMarkSystemImplConfigBase.Create('Marks.db3', False);
+  end else begin
+    raise Exception.Create('MarkSystemConfig: Unknown Database GUID: ' + GUIDToString(ADB));
+  end;
+  Result := TMarkSystemConfigStatic.Create(AID, ADB, 'My Marks', VImpl);
 end;
 
 { TMarkSystemConfig }
@@ -149,9 +156,14 @@ end;
 constructor TMarkSystemConfig.Create;
 begin
   inherited Create;
-  FList := TInterfaceListSimple.Create;
-  FActiveConfigIndex := -1;
-  FDefaultConfig := _GetDefConfigSML;
+  FID := 0;
+  FList := TIDInterfaceList.Create;
+  FActiveConfigID := 0;
+end;
+
+function TMarkSystemConfig._NewID: Integer;
+begin
+  Result := InterlockedIncrement(FID);
 end;
 
 procedure TMarkSystemConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
@@ -161,7 +173,7 @@ var
   VConfId: string;
   VConfig: IConfigDataProvider;
   VImplGUID: TGUID;
-  VDatabaseUID: TGUID;
+  VDatabaseGUID: TGUID;
   VDisplayName: string;
   VFileName: string;
   VIsReadOnly: Boolean;
@@ -171,31 +183,34 @@ var
   VImpl: IMarkSystemImplConfigStatic;
 begin
   inherited;
+
   if AConfigData <> nil then begin
     VConfig := AConfigData.GetSubItem('MarkSystemConfig');
     if VConfig <> nil then begin
       VCount := VConfig.ReadInteger('Count', 0);
-      FActiveConfigIndex := VConfig.ReadInteger('ActiveIndex', -1);
+      FActiveConfigID := VConfig.ReadInteger('ActiveIndex', -1);
 
       VZeroGUID := GUIDToString(CGUID_Zero);
 
       for I := 0 to VCount - 1 do begin
-        VConfId := 'Item' + IntToStr(I) + '_';
+        VConfId := 'Item' + IntToStr(I+1) + '_';
 
-        VTmp := VConfig.ReadString(VConfId + 'DatabaseUID', VZeroGUID);
-        VDatabaseUID := StringToGUID(VTmp);
+        VTmp := VConfig.ReadString(VConfId + 'Database', VZeroGUID);
+        VDatabaseGUID := StringToGUID(VTmp);
 
-        if IsEqualGUID(VDatabaseUID, CGUID_Zero) then begin
-          raise Exception.Create('MarkSystemConfig: Incorrect DatabaseUID!');
+        if IsEqualGUID(VDatabaseGUID, CGUID_Zero) then begin
+          Continue;
+          //raise Exception.Create('MarkSystemConfig: Incorrect Database GUID!');
         end;
 
         VDisplayName := VConfig.ReadString(VConfId + 'DisplayName', '');
 
-        VTmp := VConfig.ReadString(VConfId + 'GUID', VZeroGUID);
+        VTmp := VConfig.ReadString(VConfId + 'Impl', VZeroGUID);
         VImplGUID := StringToGUID(VTmp);
 
         if IsEqualGUID(VImplGUID, CGUID_Zero) then begin
-          raise Exception.Create('MarkSystemConfig: Incorrect Impl GUID!');
+          Continue;
+          //raise Exception.Create('MarkSystemConfig: Incorrect Impl GUID!');
         end;
 
         VFileName := VConfig.ReadString(VConfId + 'FileName', '');
@@ -204,22 +219,33 @@ begin
         if IsEqualGUID(IMarkSystemImplConfigStatic, VImplGUID) then begin
           VImpl := TMarkSystemImplConfigBase.Create(VFileName, VIsReadOnly);
         end else begin
-          raise Exception.Create('MarkSystemConfig: Unknown Impl GUID: ' + GUIDToString(VImplGUID));
+          Continue;
+          //raise Exception.Create('MarkSystemConfig: Unknown Impl GUID: ' + GUIDToString(VImplGUID));
         end;
 
-        VItem := TMarkSystemConfigStatic.Create(VDatabaseUID, VDisplayName, VImpl);
-        FList.Add(VItem);
+        VItem := TMarkSystemConfigStatic.Create(_NewID, VDatabaseGUID, VDisplayName, VImpl);
+        FList.Add(VItem.ID, VItem);
       end;
     end;
   end;
   if FList.Count = 0 then begin
-    FActiveConfigIndex := FList.Add(FDefaultConfig);
+    VItem := _GetDefaultConfig(_NewID, cSMLMarksDbGUID);
+    FList.Add(VItem.ID, VItem);
+    FActiveConfigID := VItem.ID; // sml as default
+    VItem := _GetDefaultConfig(_NewID, cORMSQLiteMarksDbGUID);
+    FList.Add(VItem.ID, VItem);
+  end;
+  if FActiveConfigID = 0 then begin
+    FActiveConfigID := 1;
   end;
 end;
 
 procedure TMarkSystemConfig.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
 var
-  I: Integer;
+  I: Cardinal;
+  VId: Integer;
+  VCount: Integer;
+  VEnum: IEnumID;
   VConfId: string;
   VConfig: IConfigDataWriteProvider;
   VItem: IMarkSystemConfigStatic;
@@ -232,19 +258,22 @@ begin
   VConfig.DeleteValues; // clear section
 
   VConfig.WriteInteger('Count', FList.Count);
-  VConfig.WriteInteger('ActiveIndex', FActiveConfigIndex);
+  VConfig.WriteInteger('ActiveIndex', FActiveConfigID);
 
-  for I := 0 to FList.Count - 1 do begin
-    VItem := IMarkSystemConfigStatic(FList.Items[I]);
+  VCount := 0;
+  VEnum := FList.GetIDEnum;
+  while VEnum.Next(1, VId, I) = S_OK do begin
+    VItem := IMarkSystemConfigStatic(FList.GetByID(VId));
     VImpl := VItem.ImplConfig;
 
-    VConfId := 'Item' + IntToStr(I) + '_';
+    Inc(VCount);
+    VConfId := 'Item' + IntToStr(VCount) + '_';
 
-    VConfig.WriteString(VConfId + 'DatabaseUID', GUIDToString(VItem.DatabaseUID));
+    VConfig.WriteString(VConfId + 'Database', GUIDToString(VItem.DatabaseGUID));
     VConfig.WriteString(VConfId + 'DisplayName', VItem.DisplayName);
 
     // ToDo: Check extended Impl GUID
-    VConfig.WriteString(VConfId + 'GUID', GUIDToString(IMarkSystemImplConfigStatic));
+    VConfig.WriteString(VConfId + 'Impl', GUIDToString(IMarkSystemImplConfigStatic));
 
     VConfig.WriteString(VConfId + 'FileName', VImpl.FileName);
     VConfig.WriteBool(VConfId + 'IsReadOnly', VImpl.IsReadOnly);
@@ -261,34 +290,38 @@ begin
   end;
 end;
 
-function TMarkSystemConfig.Get(const AIndex: Integer): IMarkSystemConfigStatic;
+function TMarkSystemConfig.GetByID(const AID: Integer): IMarkSystemConfigStatic;
 begin
+  Assert(AID > 0);
   LockRead;
   try
-    Assert( (AIndex >= 0) and (FList.Count > AIndex) );
-    Result := IMarkSystemConfigStatic(FList.Items[AIndex]);
+    if FList.IsExists(AID) then begin
+      Result := IMarkSystemConfigStatic(FList.GetByID(AID));
+    end else begin
+      Result := nil;
+    end;
   finally
     UnlockRead;
   end;
 end;
 
-function TMarkSystemConfig.GetActiveConfigIndex: Integer;
+function TMarkSystemConfig.GetActiveConfigID: Integer;
 begin
   LockRead;
   try
-    Result := FActiveConfigIndex;
+    Result := FActiveConfigID;
   finally
     UnlockRead;
   end;
 end;
 
-procedure TMarkSystemConfig.SetActiveConfigIndex(const AValue: Integer);
+procedure TMarkSystemConfig.SetActiveConfigID(const AID: Integer);
 begin
+  Assert(AID > 0);
   LockWrite;
   try
-    Assert( (AValue >= 0) and (FList.Count > AValue) );
-    if FActiveConfigIndex <> AValue then begin
-      FActiveConfigIndex := AValue;
+    if (FActiveConfigID <> AID) then begin
+      FActiveConfigID := AID;
       SetChanged;
     end;
   finally
@@ -300,8 +333,8 @@ function TMarkSystemConfig.GetActiveConfig: IMarkSystemConfigStatic;
 begin
   LockRead;
   try
-    if FActiveConfigIndex >= 0 then begin
-      Result := IMarkSystemConfigStatic(FList.Items[FActiveConfigIndex]);
+    if FActiveConfigID > 0 then begin
+      Result := IMarkSystemConfigStatic(FList.GetByID(FActiveConfigID));
     end else begin
       Result := nil;
     end;
@@ -310,20 +343,33 @@ begin
   end;
 end;
 
-procedure TMarkSystemConfig.Delete(const AIndex: Integer);
+procedure TMarkSystemConfig.DeleteByID(const AID: Integer);
+var
+  I: Cardinal;
+  VId: Integer;
+  VEnum: IEnumID;
 begin
   LockWrite;
   try
-    Assert( (AIndex >= 0) and (FList.Count > AIndex) );
-    FList.Delete(AIndex);
-    SetChanged;
+    if FList.IsExists(AID) then begin
+      FList.Remove(AID);
+      if FActiveConfigID = AID then begin
+        VEnum := FList.GetIDEnum;
+        if VEnum.Next(1, VId, I) = S_OK then begin
+          FActiveConfigID := VId;
+        end else begin
+          FActiveConfigID := 0;
+        end;
+      end;
+      SetChanged;
+    end;
   finally
     UnlockWrite;
   end;
 end;
 
 function TMarkSystemConfig.Add(
-  const ADatabaseUID: TGUID;
+  const ADatabaseGUID: TGUID;
   const ADisplayName: string;
   const AImplConfig: IMarkSystemImplConfigStatic;
   const ASetAsActive: Boolean
@@ -331,7 +377,7 @@ function TMarkSystemConfig.Add(
 var
   VConfig: IMarkSystemConfigStatic;
 begin
-  VConfig := TMarkSystemConfigStatic.Create(ADatabaseUID, ADisplayName, AImplConfig);
+  VConfig := TMarkSystemConfigStatic.Create(_NewID, ADatabaseGUID, ADisplayName, AImplConfig);
   Result := Self.Add(VConfig, ASetAsActive);
 end;
 
@@ -342,13 +388,36 @@ function TMarkSystemConfig.Add(
 begin
   LockWrite;
   try
-    Result := FList.Add(AConfig);
+    FList.Add(AConfig.ID, AConfig);
+    Result := AConfig.ID;
     if ASetAsActive then begin
-      FActiveConfigIndex := Result;
+      FActiveConfigID := Result;
     end;
     SetChanged;
   finally
     UnlockWrite;
+  end;
+end;
+
+function TMarkSystemConfig.GetIDListStatic: IInterfaceListStatic;
+var
+  I: Cardinal;
+  VId: Integer;
+  VEnum: IEnumID;
+  VItem: IMarkSystemConfigStatic;
+  VResultList: IInterfaceListSimple;
+begin
+  LockRead;
+  try
+    VResultList := TInterfaceListSimple.Create;
+    VEnum := FList.GetIDEnum;
+    while VEnum.Next(1, VId, I) = S_OK do begin
+      VItem := IMarkSystemConfigStatic(FList.GetByID(VId));
+      VResultList.Add(VItem);
+    end;
+    Result := VResultList.MakeStaticAndClear;
+  finally
+    UnlockRead;
   end;
 end;
 

@@ -23,14 +23,18 @@ unit i_MarkSystemConfig;
 interface
 
 uses
+  i_InterfaceListStatic,
   i_ConfigDataElement,
   i_MarkSystemImplConfig;
 
 type
   IMarkSystemConfigStatic = interface
     ['{6AE87F7B-FB72-44B5-81C4-17E1B4024528}']
-    function GetDatabaseUID: TGUID;
-    property DatabaseUID: TGUID read GetDatabaseUID;
+    function GetID: Integer;
+    property ID: Integer read GetID;
+
+    function GetDatabaseGUID: TGUID;
+    property DatabaseGUID: TGUID read GetDatabaseGUID;
 
     function GetDisplayName: string;
     property DisplayName: string read GetDisplayName;
@@ -44,18 +48,18 @@ type
     function GetCount: Integer;
     property Count: Integer read GetCount;
 
-    function Get(const AIndex: Integer): IMarkSystemConfigStatic;
+    function GetByID(const AID: Integer): IMarkSystemConfigStatic;
 
-    function GetActiveConfigIndex: Integer;
-    procedure SetActiveConfigIndex(const AValue: Integer);
-    property ActiveConfigIndex: Integer read GetActiveConfigIndex write SetActiveConfigIndex;
+    function GetActiveConfigID: Integer;
+    procedure SetActiveConfigID(const AID: Integer);
+    property ActiveConfigID: Integer read GetActiveConfigID write SetActiveConfigID;
 
     function GetActiveConfig: IMarkSystemConfigStatic;
 
-    procedure Delete(const AIndex: Integer);
+    procedure DeleteByID(const AID: Integer);
 
     function Add(
-      const ADatabaseUID: TGUID;
+      const ADatabaseGUID: TGUID;
       const ADisplayName: string;
       const AImplConfig: IMarkSystemImplConfigStatic;
       const ASetAsActive: Boolean
@@ -65,6 +69,8 @@ type
       const AConfig: IMarkSystemConfigStatic;
       const ASetAsActive: Boolean
     ): Integer; overload;
+
+    function GetIDListStatic: IInterfaceListStatic;
   end;
 
 implementation

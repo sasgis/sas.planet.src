@@ -153,7 +153,7 @@ begin
   if FAppStartedNotifier.IsExecuted then begin
     VConfig := FConfigList.GetActiveConfig;
     if Assigned(VConfig) then begin
-      VFactory := FImplFactoryList.Get(VConfig.DatabaseUID).Factory;
+      VFactory := FImplFactoryList.Get(VConfig.DatabaseGUID).Factory;
       if Assigned(VFactory) then begin
         VStatic :=
           VFactory.Build(

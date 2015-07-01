@@ -1708,6 +1708,7 @@ begin
         FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig,
         FMergePolygonsPresenter,
         FMarkDBGUI,
+        GState.MarkSystemConfig,
         FMapGoto,
         FFormRegionProcess
       );

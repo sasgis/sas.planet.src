@@ -41,6 +41,7 @@ uses
   TB2Item,
   TBX,
   TBXControls,
+  TBXGraphics,
   i_Listener,
   i_RegionProcess,
   u_CommonFormAndFrameParents,
@@ -56,6 +57,7 @@ uses
   i_VectorDataItemSimple,
   i_MarkCategoryList,
   i_MarkCategory,
+  i_MarkSystemConfig,
   i_MergePolygonsPresenter,
   u_MarkDbGUIHelper;
 
@@ -120,6 +122,13 @@ type
     tbxtmAddToMergePolygons: TTBXItem;
     tbxtmCatAddToMergePolygons: TTBXItem;
     tbxtmUngroup: TTBXItem;
+    TBXToolbar3: TTBXToolbar;
+    tbxConfigList: TTBXSubmenuItem;
+    tbxSep1: TTBXSeparatorItem;
+    tbxAdd: TTBXItem;
+    tbxEdit: TTBXItem;
+    tbxDelete: TTBXItem;
+    TBXImageList1: TTBXImageList;
     procedure BtnAddCategoryClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure BtnDelKatClick(Sender: TObject);
@@ -167,18 +176,24 @@ type
     procedure tbxtmCatAddToMergePolygonsClick(Sender: TObject);
     procedure tbpmnMarksPopup(Sender: TObject);
     procedure tbxtmUngroupClick(Sender: TObject);
+    procedure tbxConfigListItemClick(Sender: TObject);
+    procedure tbxDeleteClick(Sender: TObject);
+    procedure tbxAddClick(Sender: TObject);
+    procedure tbxEditClick(Sender: TObject);
   private
     FUseAsIndepentWindow: Boolean;
     FMapGoto: IMapViewGoto;
     FCategoryList: IMarkCategoryList;
     FMarksList: IInterfaceListStatic;
     FMarkDBGUI: TMarkDbGUIHelper;
+    FMarkSystemConfig: IMarkSystemConfigListChangeable;
     FGeometryLonLatFactory: IGeometryLonLatFactory;
     FMarksShowConfig: IUsedMarksConfig;
     FWindowConfig: IWindowPositionConfig;
     FViewPortState: ILocalCoordConverterChangeable;
     FNavToPoint: INavigationToPoint;
 
+    FMarkSystemConfigListener: IListener;
     FCategoryDBListener: IListener;
     FMarksDBListener: IListener;
     FMarksShowConfigListener: IListener;
@@ -187,6 +202,8 @@ type
     FRegionProcess: IRegionProcess;
     FMergePolygonsPresenter: IMergePolygonsPresenter;
 
+    procedure RefreshConfigListMenu;
+    procedure OnMarkSystemConfigChange;
     procedure OnCategoryDbChanged;
     procedure OnMarksDbChanged;
     procedure OnMarksShowConfigChanged;
@@ -216,6 +233,7 @@ type
       const AMarksShowConfig: IUsedMarksConfig;
       const AMergePolygonsPresenter: IMergePolygonsPresenter;
       AMarkDBGUI: TMarkDbGUIHelper;
+      const AMarkSystemConfig: IMarkSystemConfigListChangeable;
       const AMapGoto: IMapViewGoto;
       const ARegionProcess: IRegionProcess
     ); reintroduce;
@@ -227,6 +245,7 @@ implementation
 uses
   ExplorerSort,
   gnugettext,
+  c_MarkSystem,
   t_CommonTypes,
   t_GeoTypes,
   i_InterfaceListSimple,
@@ -253,6 +272,7 @@ constructor TfrmMarksExplorer.Create(
   const AMarksShowConfig: IUsedMarksConfig;
   const AMergePolygonsPresenter: IMergePolygonsPresenter;
   AMarkDBGUI: TMarkDbGUIHelper;
+  const AMarkSystemConfig: IMarkSystemConfigListChangeable;
   const AMapGoto: IMapViewGoto;
   const ARegionProcess: IRegionProcess
 );
@@ -261,6 +281,7 @@ begin
   FUseAsIndepentWindow := AUseAsIndepentWindow;
   FMergePolygonsPresenter := AMergePolygonsPresenter;
   FMarkDBGUI := AMarkDBGUI;
+  FMarkSystemConfig := AMarkSystemConfig;
   FGeometryLonLatFactory := AGeometryLonLatFactory;
   FMapGoto := AMapGoto;
   FWindowConfig := AWindowConfig;
@@ -269,6 +290,7 @@ begin
   FNavToPoint := ANavToPoint;
   FRegionProcess := ARegionProcess;
   MarksListBox.MultiSelect:=true;
+  FMarkSystemConfigListener := TNotifyNoMmgEventListener.Create(Self.OnMarkSystemConfigChange);
   FCategoryDBListener := TNotifyNoMmgEventListener.Create(Self.OnCategoryDbChanged);
   FMarksDBListener := TNotifyNoMmgEventListener.Create(Self.OnMarksDbChanged);
   FMarksShowConfigListener := TNotifyNoMmgEventListener.Create(Self.OnMarksShowConfigChanged);
@@ -1080,6 +1102,7 @@ end;
 procedure TfrmMarksExplorer.FormHide(Sender: TObject);
 begin
   Self.OnResize := nil;
+  FMarkSystemConfig.ChangeNotifier.Remove(FMarkSystemConfigListener);
   FWindowConfig.ChangeNotifier.Remove(FConfigListener);
   FMarkDBGUI.MarksDb.CategoryDB.ChangeNotifier.Remove(FCategoryDBListener);
   FMarkDBGUI.MarksDb.MarkDb.ChangeNotifier.Remove(FMarksDBListener);
@@ -1108,8 +1131,10 @@ end;
 
 procedure TfrmMarksExplorer.FormShow(Sender: TObject);
 begin
+  RefreshConfigListMenu;
   UpdateCategoryTree;
   btnNavOnMark.Checked:= FNavToPoint.IsActive;
+  FMarkSystemConfig.ChangeNotifier.Add(FMarkSystemConfigListener);
   FMarkDBGUI.MarksDb.CategoryDB.ChangeNotifier.Add(FCategoryDBListener);
   FMarkDBGUI.MarksDb.MarkDb.ChangeNotifier.Add(FMarksDBListener);
   FMarksShowConfig.ChangeNotifier.Add(FMarksShowConfigListener);
@@ -1272,6 +1297,89 @@ begin
   end else begin
     Self.Visible := False;
   end;
+end;
+
+procedure TfrmMarksExplorer.RefreshConfigListMenu;
+
+  function DatabaseToHint(const ADB: TGUID): string;
+  begin
+    if IsEqualGUID(ADB, cSMLMarksDbGUID) then begin
+      Result := ' (SML)';
+    end else if IsEqualGUID(ADB, cORMSQLiteMarksDbGUID) then begin
+      Result := ' (SQLite3)';
+    end else begin
+      Result := '';
+    end;
+  end;
+
+var
+  I: Integer;
+  VList: IInterfaceListStatic;
+  VActiveID: Integer;
+  VMenuItem: TTBXItem;
+  VConfigItem: IMarkSystemConfigStatic;
+begin
+  tbxConfigList.Clear;
+  tbxConfigList.Caption := '';
+
+  VList := FMarkSystemConfig.GetIDListStatic;
+  if Assigned(VList) and (VList.Count > 0) then begin
+    tbxDelete.Enabled := True;
+    tbxConfigList.Enabled := True;
+    tbxConfigList.Options := tbxConfigList.Options + [tboDropdownArrow];
+  end else begin
+    tbxDelete.Enabled := False;
+    tbxConfigList.Enabled := False;
+    tbxConfigList.Options := tbxConfigList.Options - [tboDropdownArrow];
+    Exit;
+  end;
+
+  VActiveID := FMarkSystemConfig.ActiveConfigID;
+
+  for I := 0 to VList.Count - 1 do begin
+    VConfigItem := IMarkSystemConfigStatic(VList.Items[I]);
+    VMenuItem := TTBXItem.Create(tbxConfigList);
+    VMenuItem.Tag := VConfigItem.ID;
+    VMenuItem.Caption := VConfigItem.DisplayName + DatabaseToHint(VConfigItem.DatabaseGUID);
+    VMenuItem.Checked := (VConfigItem.ID = VActiveID);
+    VMenuItem.RadioItem := True;
+    VMenuItem.GroupIndex := 1;
+    VMenuItem.OnClick := Self.tbxConfigListItemClick;
+
+    tbxConfigList.Add(VMenuItem);
+
+    if VMenuItem.Checked then begin
+      tbxConfigList.Caption := VMenuItem.Caption
+    end;
+  end;
+end;
+
+procedure TfrmMarksExplorer.tbxConfigListItemClick(Sender: TObject);
+var
+  VMenuItem: TTBXItem;
+begin
+  VMenuItem := Sender as TTBXItem;
+  FMarkSystemConfig.ActiveConfigID := VMenuItem.Tag;
+end;
+
+procedure TfrmMarksExplorer.tbxDeleteClick(Sender: TObject);
+begin
+  FMarkSystemConfig.DeleteByID(FMarkSystemConfig.ActiveConfigID);
+end;
+
+procedure TfrmMarksExplorer.tbxEditClick(Sender: TObject);
+begin
+  //ToDo
+end;
+
+procedure TfrmMarksExplorer.tbxAddClick(Sender: TObject);
+begin
+  //ToDo
+end;
+
+procedure TfrmMarksExplorer.OnMarkSystemConfigChange;
+begin
+  RefreshConfigListMenu;
 end;
 
 end.
