@@ -63,12 +63,14 @@ type
       const ADisplayName: string;
       const AImplConfig: IMarkSystemImplConfigStatic;
       const ASetAsActive: Boolean
-    ): Integer; overload;
+    ): Integer;
 
-    function Add(
-      const AConfig: IMarkSystemConfigStatic;
-      const ASetAsActive: Boolean
-    ): Integer; overload;
+    procedure Update(
+      const AID: Integer;
+      const ADatabaseGUID: TGUID;
+      const ADisplayName: string;
+      const AImplConfig: IMarkSystemImplConfigStatic
+    );
 
     function GetIDListStatic: IInterfaceListStatic;
   end;

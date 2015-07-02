@@ -649,6 +649,7 @@ uses
   frm_MarkEditPoint in 'Src\MarksDB\GUI\frm_MarkEditPoint.pas' {frmMarkEditPoint},
   frm_MarkEditPoly in 'Src\MarksDB\GUI\frm_MarkEditPoly.pas' {frmMarkEditPoly},
   frm_MarkInfo in 'Src\MarksDB\GUI\frm_MarkInfo.pas' {frmMarkInfo},
+  frm_MarkSystemConfigEdit in 'Src\MarksDB\GUI\frm_MarkSystemConfigEdit.pas' {frmMarkSystemConfigEdit},
   frm_MarksExplorer in 'Src\MarksDB\GUI\frm_MarksExplorer.pas' {frmMarksExplorer},
   frm_MarksMultiEdit in 'Src\MarksDB\GUI\frm_MarksMultiEdit.pas' {frmMarksMultiEdit},
   frm_PointProjecting in 'Src\MarksDB\GUI\frm_PointProjecting.pas' {frmPointProjecting},

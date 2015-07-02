@@ -26,6 +26,13 @@ const
   cSMLMarksDbGUID: TGUID = '{F5A9FB07-FF9B-4B4A-98D3-AB8C5F24F36B}';
   cORMSQLiteMarksDbGUID: TGUID = '{776BC34B-7A4B-4237-BE9A-D905228FDA1A}';
 
+const
+  cSMLMarksDbDefFileName = 'marks';
+  cSMLMarksDbFileExt = '.sml';
+
+  cORMSQLiteMarksDbDefFileName = 'Marks';
+  cORMSQLiteMarksDbFileExt = '.db3';
+
 resourcestring
   rsSMLMarksDbName = 'SML';
   rsORMSQLiteMarksDbName = 'SQLite3';

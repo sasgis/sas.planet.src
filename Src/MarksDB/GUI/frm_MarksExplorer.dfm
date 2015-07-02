@@ -421,14 +421,12 @@ object frmMarksExplorer: TfrmMarksExplorer
       Hint = ''
     end
     object tbxAdd: TTBXItem
-      Enabled = False
       ImageIndex = 1
       OnClick = tbxAddClick
       Caption = 'Add a database'
       Hint = ''
     end
     object tbxEdit: TTBXItem
-      Enabled = False
       ImageIndex = 3
       OnClick = tbxEditClick
       Caption = 'Edit the database'

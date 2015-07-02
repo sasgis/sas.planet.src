@@ -54,11 +54,13 @@ type
       const ADisplayName: string;
       const AImplConfig: IMarkSystemImplConfigStatic;
       const ASetAsActive: Boolean
-    ): Integer; overload;
-    function Add(
-      const AConfig: IMarkSystemConfigStatic;
-      const ASetAsActive: Boolean
-    ): Integer; overload;
+    ): Integer;
+    procedure Update(
+      const AID: Integer;
+      const ADatabaseGUID: TGUID;
+      const ADisplayName: string;
+      const AImplConfig: IMarkSystemImplConfigStatic
+    );
     function GetIDListStatic: IInterfaceListStatic;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
@@ -409,23 +411,42 @@ function TMarkSystemConfig.Add(
 var
   VConfig: IMarkSystemConfigStatic;
 begin
-  VConfig := TMarkSystemConfigStatic.Create(_NewID, ADatabaseGUID, ADisplayName, AImplConfig);
-  Result := Self.Add(VConfig, ASetAsActive);
-end;
-
-function TMarkSystemConfig.Add(
-  const AConfig: IMarkSystemConfigStatic;
-  const ASetAsActive: Boolean
-): Integer;
-begin
   LockWrite;
   try
-    FList.Add(AConfig.ID, AConfig);
-    Result := AConfig.ID;
+    VConfig := TMarkSystemConfigStatic.Create(_NewID, ADatabaseGUID, ADisplayName, AImplConfig);
+    FList.Add(VConfig.ID, VConfig);
+    Result := VConfig.ID;
     if ASetAsActive then begin
       FActiveConfigID := Result;
     end;
     SetChanged;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TMarkSystemConfig.Update(
+  const AID: Integer;
+  const ADatabaseGUID: TGUID;
+  const ADisplayName: string;
+  const AImplConfig: IMarkSystemImplConfigStatic
+);
+var
+  VConfig: IMarkSystemConfigStatic;
+begin
+  LockWrite;
+  try
+    if FList.IsExists(AID) then begin
+      VConfig :=
+        TMarkSystemConfigStatic.Create(
+          AID,
+          ADatabaseGUID,
+          ADisplayName,
+          AImplConfig
+        );
+      FList.Replace(VConfig.ID, VConfig);
+      SetChanged;
+    end;
   finally
     UnlockWrite;
   end;

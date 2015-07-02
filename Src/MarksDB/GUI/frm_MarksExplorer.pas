@@ -42,9 +42,9 @@ uses
   TBX,
   TBXControls,
   TBXGraphics,
+  frm_MarkSystemConfigEdit,
   i_Listener,
   i_RegionProcess,
-  u_CommonFormAndFrameParents,
   i_LanguageManager,
   i_InterfaceListStatic,
   i_GeometryLonLatFactory,
@@ -58,8 +58,10 @@ uses
   i_MarkCategoryList,
   i_MarkCategory,
   i_MarkSystemConfig,
+  i_MarkSystemImplFactory,
   i_MergePolygonsPresenter,
-  u_MarkDbGUIHelper;
+  u_MarkDbGUIHelper,
+  u_CommonFormAndFrameParents;
 
 type
   TfrmMarksExplorer = class(TFormWitghLanguageManager)
@@ -181,6 +183,7 @@ type
     procedure tbxAddClick(Sender: TObject);
     procedure tbxEditClick(Sender: TObject);
   private
+    FfrmMarkSystemConfigEdit: TfrmMarkSystemConfigEdit;
     FUseAsIndepentWindow: Boolean;
     FMapGoto: IMapViewGoto;
     FCategoryList: IMarkCategoryList;
@@ -233,6 +236,7 @@ type
       const AMarksShowConfig: IUsedMarksConfig;
       const AMergePolygonsPresenter: IMergePolygonsPresenter;
       AMarkDBGUI: TMarkDbGUIHelper;
+      const AMarkSystemFactoryList: IMarkSystemImplFactoryListStatic;
       const AMarkSystemConfig: IMarkSystemConfigListChangeable;
       const AMapGoto: IMapViewGoto;
       const ARegionProcess: IRegionProcess
@@ -272,6 +276,7 @@ constructor TfrmMarksExplorer.Create(
   const AMarksShowConfig: IUsedMarksConfig;
   const AMergePolygonsPresenter: IMergePolygonsPresenter;
   AMarkDBGUI: TMarkDbGUIHelper;
+  const AMarkSystemFactoryList: IMarkSystemImplFactoryListStatic;
   const AMarkSystemConfig: IMarkSystemConfigListChangeable;
   const AMapGoto: IMapViewGoto;
   const ARegionProcess: IRegionProcess
@@ -296,6 +301,13 @@ begin
   FMarksShowConfigListener := TNotifyNoMmgEventListener.Create(Self.OnMarksShowConfigChanged);
   FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FMarksSystemStateListener := TNotifyNoMmgEventListener.Create(Self.OnMarkSystemStateChanged);
+
+  FfrmMarkSystemConfigEdit :=
+    TfrmMarkSystemConfigEdit.Create(
+      Self,
+      AMarkSystemFactoryList,
+      FMarkSystemConfig
+    );
 end;
 
 procedure TfrmMarksExplorer.CreateParams(var Params: TCreateParams);
@@ -322,6 +334,7 @@ begin
     FWindowConfig.ChangeNotifier.Remove(FConfigListener);
     FConfigListener := nil;
   end;
+  FreeAndNil(FfrmMarkSystemConfigEdit);
   inherited;
 end;
 
@@ -1324,10 +1337,12 @@ begin
 
   VList := FMarkSystemConfig.GetIDListStatic;
   if Assigned(VList) and (VList.Count > 0) then begin
+    tbxEdit.Enabled := True;
     tbxDelete.Enabled := True;
     tbxConfigList.Enabled := True;
     tbxConfigList.Options := tbxConfigList.Options + [tboDropdownArrow];
   end else begin
+    tbxEdit.Enabled := False;
     tbxDelete.Enabled := False;
     tbxConfigList.Enabled := False;
     tbxConfigList.Options := tbxConfigList.Options - [tboDropdownArrow];
@@ -1369,12 +1384,12 @@ end;
 
 procedure TfrmMarksExplorer.tbxEditClick(Sender: TObject);
 begin
-  //ToDo
+  FfrmMarkSystemConfigEdit.EditActiveDatabaseConfig;
 end;
 
 procedure TfrmMarksExplorer.tbxAddClick(Sender: TObject);
 begin
-  //ToDo
+  FfrmMarkSystemConfigEdit.AddNewDatabaseConfig;
 end;
 
 procedure TfrmMarksExplorer.OnMarkSystemConfigChange;
