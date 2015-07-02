@@ -79,6 +79,8 @@ uses
   SysUtils,
   t_CommonTypes,
   i_MarkCategoryList,
+  i_MarkSystemImplConfigSML,
+  u_MarkSystemImplConfigSML,
   u_MarkSystemSml,
   u_MarkSystemHelpers;
 
@@ -116,9 +118,12 @@ function TVectorItemTreeImporterSmlMarks.ProcessImport(
 ): IVectorItemTree;
 var
   VSml: IMarkSystemImpl;
+  VImpl: IMarkSystemImplConfigSML;
   VCategoiesList: IMarkCategoryList;
 begin
   Result := nil;
+
+  VImpl := TMarkSystemImplConfigSML.Create(AFileName, True);
 
   VSml := TMarkSystemSml.Create(
     AOperationID,
@@ -133,7 +138,7 @@ begin
     FLoadDbCounter,
     FSaveDbCounter,
     FHintConverter,
-    True {ReadOnly}
+    VImpl
   );
 
   if VSml.State.GetStatic.ReadAccess = asEnabled then begin

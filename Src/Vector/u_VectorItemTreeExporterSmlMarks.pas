@@ -86,6 +86,8 @@ uses
   t_CommonTypes,
   i_InterfaceListSimple,
   i_InterfaceListStatic,
+  i_MarkSystemImplConfigSML,
+  u_MarkSystemImplConfigSML,
   u_InterfaceListSimple,
   u_Category,
   u_ImportConfig,
@@ -153,8 +155,11 @@ procedure TVectorItemTreeExporterSmlMarks.ProcessExport(
 );
 var
   VSml: IMarkSystemImpl;
+  VImpl: IMarkSystemImplConfigSML;
   VMarkList: IInterfaceListSimple;
 begin
+  VImpl := TMarkSystemImplConfigSML.Create(AFileName, False);
+
   VSml := TMarkSystemSml.Create(
     AOperationID,
     ACancelNotifier,
@@ -167,7 +172,8 @@ begin
     FMarkFactory,
     FLoadDbCounter,
     FSaveDbCounter,
-    FHintConverter
+    FHintConverter,
+    VImpl
   );
 
   if VSml.State.GetStatic.WriteAccess = asEnabled then begin

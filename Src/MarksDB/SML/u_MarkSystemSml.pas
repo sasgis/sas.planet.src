@@ -40,6 +40,7 @@ uses
   i_MarkDbImpl,
   i_MarkCategoryDBImpl,
   i_MarkSystemImpl,
+  i_MarkSystemImplConfig,
   i_MarkCategoryDBSmlInternal,
   i_ReadWriteStateInternal,
   i_MarkDbSmlInternal,
@@ -85,7 +86,7 @@ type
       const ALoadDbCounter: IInternalPerformanceCounter;
       const ASaveDbCounter: IInternalPerformanceCounter;
       const AHintConverter: IHtmlToHintTextConverter;
-      const AReadOnly: Boolean = False
+      const AImplConfig: IMarkSystemImplConfigStatic
     );
   end;
 
@@ -94,6 +95,7 @@ implementation
 
 uses
   SysUtils,
+  ShLwApi,
   t_CommonTypes,
   i_GeometryToStream,
   i_GeometryFromStream,
@@ -123,6 +125,14 @@ begin
     Result := -1;
 end;
 
+function GetFullPath(const ABasePath, ARelativePathName: string): string;
+begin
+  SetLength(Result, MAX_PATH);
+  PathCombine(@Result[1], PChar(ExtractFilePath(ABasePath)), PChar(ARelativePathName));
+  SetLength(Result, LStrLen(PChar(Result)));
+  Result := IncludeTrailingPathDelimiter(Result);
+end;
+
 { TMarkSystemSml }
 
 constructor TMarkSystemSml.Create(
@@ -138,7 +148,7 @@ constructor TMarkSystemSml.Create(
   const ALoadDbCounter: IInternalPerformanceCounter;
   const ASaveDbCounter: IInternalPerformanceCounter;
   const AHintConverter: IHtmlToHintTextConverter;
-  const AReadOnly: Boolean
+  const AImplConfig: IMarkSystemImplConfigStatic
 );
 var
   VCategoryDb: TMarkCategoryDBSml;
@@ -156,6 +166,7 @@ var
   VUseUnicodeSchema: Boolean;
   VStoreInBinaryFormat: Boolean;
   VUseIndex: Boolean;
+  VName, VPath: string;
 begin
   inherited Create;
   FDbId := Integer(Self);
@@ -165,16 +176,36 @@ begin
 
   VUseUnicodeSchema := False; // ToDo
   VStoreInBinaryFormat := False; // ToDo
-  VUseIndex := not AReadOnly;
 
-  if AReadOnly then begin
+  VUseIndex := not AImplConfig.IsReadOnly;
+
+  if AImplConfig.IsReadOnly then begin
     VStateInternal.WriteAccess := asDisabled;
   end;
 
-  VCategoryFileName := IncludeTrailingPathDelimiter(ABasePath) + 'Categorymarks.sml';
+  if AImplConfig.FileName <> '' then begin
+    VName := ExtractFileName(AImplConfig.FileName);
+    if VName = '' then begin
+      VName := 'marks.sml';
+    end;
+
+    VPath := ExtractFilePath(AImplConfig.FileName);
+    if VPath = '' then begin
+      VPath := IncludeTrailingPathDelimiter(ABasePath);
+    end else begin
+      if IsRelativePath(VPath) then begin
+        VPath := GetFullPath(ABasePath, VPath);
+      end;
+    end;
+  end else begin
+    VName := 'marks.sml';
+    VPath := IncludeTrailingPathDelimiter(ABasePath);
+  end;
+
+  VCategoryFileName := VPath + 'Category' + VName;
   VCategoryStream := PrepareStream(VCategoryFileName, VState);
 
-  VMarkFileName := IncludeTrailingPathDelimiter(ABasePath) + 'marks.sml';
+  VMarkFileName := VPath + VName;
   VMarkStream := PrepareStream(VMarkFileName, VState);
 
   if VStateInternal.WriteAccess <> asDisabled then begin

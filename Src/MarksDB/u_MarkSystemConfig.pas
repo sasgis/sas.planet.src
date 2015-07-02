@@ -71,11 +71,16 @@ implementation
 
 uses
   SysUtils,
+  Dialogs,
+  gnugettext,
   c_ZeroGUID,
   c_MarkSystem,
   i_EnumID,
+  i_MarkSystemImplConfigSML,
+  i_MarkSystemImplConfigORM,
   u_IDInterfaceList,
-  u_MarkSystemImplConfigBase,
+  u_MarkSystemImplConfigSML,
+  u_MarkSystemImplConfigORM,
   u_InterfaceListSimple,
   u_BaseInterfacedObject;
 
@@ -142,13 +147,21 @@ var
   VImpl: IMarkSystemImplConfigStatic;
 begin
   if IsEqualGUID(ADB, cSMLMarksDbGUID) then begin
-    VImpl := TMarkSystemImplConfigBase.Create('marks.sml', False);
+    VImpl := TMarkSystemImplConfigSML.Create('marks.sml', False);
   end else if IsEqualGUID(ADB, cORMSQLiteMarksDbGUID) then begin
-    VImpl := TMarkSystemImplConfigBase.Create('Marks.db3', False);
+    VImpl := TMarkSystemImplConfigORM.Create('Marks.db3', False, '');
   end else begin
-    raise Exception.Create('MarkSystemConfig: Unknown Database GUID: ' + GUIDToString(ADB));
+    raise Exception.CreateFmt('MarkSystemConfig: Unknown Database GUID: %s', [GUIDToString(ADB)]);
   end;
-  Result := TMarkSystemConfigStatic.Create(AID, ADB, 'My Marks', VImpl);
+  Result := TMarkSystemConfigStatic.Create(AID, ADB, _('My Marks'), VImpl);
+end;
+
+procedure _ShowConfigErrorFmt(const AMessageFmt: string; const AArgs: array of const);
+var
+  VMsg: string;
+begin
+  VMsg := Format(AMessageFmt, AArgs);
+  MessageDlg(VMsg, mtError, [mbOK], 0);
 end;
 
 { TMarkSystemConfig }
@@ -177,6 +190,7 @@ var
   VDisplayName: string;
   VFileName: string;
   VIsReadOnly: Boolean;
+  VUserName: string;
   VTmp: string;
   VZeroGUID: string;
   VItem: IMarkSystemConfigStatic;
@@ -199,8 +213,8 @@ begin
         VDatabaseGUID := StringToGUID(VTmp);
 
         if IsEqualGUID(VDatabaseGUID, CGUID_Zero) then begin
+          _ShowConfigErrorFmt(_('MarkSystemConfig: Item #%d Database GUID read error!'), [I+1]);
           Continue;
-          //raise Exception.Create('MarkSystemConfig: Incorrect Database GUID!');
         end;
 
         VDisplayName := VConfig.ReadString(VConfId + 'DisplayName', '');
@@ -209,18 +223,26 @@ begin
         VImplGUID := StringToGUID(VTmp);
 
         if IsEqualGUID(VImplGUID, CGUID_Zero) then begin
+          _ShowConfigErrorFmt(_('MarkSystemConfig: Item #%d Impl GUID read error!'), [I+1]);
           Continue;
-          //raise Exception.Create('MarkSystemConfig: Incorrect Impl GUID!');
         end;
 
         VFileName := VConfig.ReadString(VConfId + 'FileName', '');
         VIsReadOnly := VConfig.ReadBool(VConfId + 'IsReadOnly', False);
 
-        if IsEqualGUID(IMarkSystemImplConfigStatic, VImplGUID) then begin
-          VImpl := TMarkSystemImplConfigBase.Create(VFileName, VIsReadOnly);
+        if IsEqualGUID(IMarkSystemImplConfigSML, VImplGUID) then begin
+          // SML
+          VImpl := TMarkSystemImplConfigSML.Create(VFileName, VIsReadOnly);
+        end else if IsEqualGUID(IMarkSystemImplConfigORM, VImplGUID) then begin
+          // ORM
+          VUserName := VConfig.ReadString(VConfId + 'UserName', '');
+          VImpl := TMarkSystemImplConfigORM.Create(VFileName, VIsReadOnly, VUserName);
         end else begin
+          _ShowConfigErrorFmt(
+            _('MarkSystemConfig: Item #%d has unknown Impl GUID: %s'),
+            [I+1, GUIDToString(VImplGUID)]
+          );
           Continue;
-          //raise Exception.Create('MarkSystemConfig: Unknown Impl GUID: ' + GUIDToString(VImplGUID));
         end;
 
         VItem := TMarkSystemConfigStatic.Create(_NewID, VDatabaseGUID, VDisplayName, VImpl);
@@ -250,6 +272,7 @@ var
   VConfig: IConfigDataWriteProvider;
   VItem: IMarkSystemConfigStatic;
   VImpl: IMarkSystemImplConfigStatic;
+  VImplORM: IMarkSystemImplConfigORM;
 begin
   inherited;
 
@@ -272,11 +295,20 @@ begin
     VConfig.WriteString(VConfId + 'Database', GUIDToString(VItem.DatabaseGUID));
     VConfig.WriteString(VConfId + 'DisplayName', VItem.DisplayName);
 
-    // ToDo: Check extended Impl GUID
-    VConfig.WriteString(VConfId + 'Impl', GUIDToString(IMarkSystemImplConfigStatic));
-
     VConfig.WriteString(VConfId + 'FileName', VImpl.FileName);
     VConfig.WriteBool(VConfId + 'IsReadOnly', VImpl.IsReadOnly);
+
+    if Supports(VImpl, IMarkSystemImplConfigSML) then begin
+      // SML
+      VConfig.WriteString(VConfId + 'Impl', GUIDToString(IMarkSystemImplConfigSML));
+    end else if Supports(VImpl, IMarkSystemImplConfigORM, VImplORM) then begin
+      // ORM
+      VConfig.WriteString(VConfId + 'Impl', GUIDToString(IMarkSystemImplConfigSML));
+      VConfig.WriteString(VConfId + 'UserName', VImplORM.UserName);
+    end else begin
+      _ShowConfigErrorFmt(_('MarkSystemConfig: Item #%d has unknown Impl interface!'), [VCount]);
+      Continue;
+    end;
   end;
 end;
 
