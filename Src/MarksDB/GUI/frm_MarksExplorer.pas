@@ -1371,15 +1371,31 @@ end;
 
 procedure TfrmMarksExplorer.tbxConfigListItemClick(Sender: TObject);
 var
+  VMsg: string;
   VMenuItem: TTBXItem;
+  VConfig: IMarkSystemConfigStatic;
 begin
   VMenuItem := Sender as TTBXItem;
-  FMarkSystemConfig.ActiveConfigID := VMenuItem.Tag;
+  if VMenuItem.Checked then begin
+    Exit;
+  end;
+  VConfig := FMarkSystemConfig.GetByID(VMenuItem.Tag);
+  VMsg := Format(_('Are you sure you want switch to database "%s"?'), [VConfig.DisplayName]);
+  if MessageDlg(VMsg, mtConfirmation, mbYesNo, 0) = mrYes then begin
+    FMarkSystemConfig.ActiveConfigID := VConfig.ID;
+  end;
 end;
 
 procedure TfrmMarksExplorer.tbxDeleteClick(Sender: TObject);
+var
+  VMsg: string;
+  VConfig: IMarkSystemConfigStatic;
 begin
-  FMarkSystemConfig.DeleteByID(FMarkSystemConfig.ActiveConfigID);
+  VConfig := FMarkSystemConfig.GetActiveConfig;
+  VMsg := Format(_('Are you sure you want to delete database "%s"?'), [VConfig.DisplayName]);
+  if MessageDlg(VMsg, mtConfirmation, mbYesNo, 0) = mrYes then begin
+    FMarkSystemConfig.DeleteByID(VConfig.ID);
+  end;
 end;
 
 procedure TfrmMarksExplorer.tbxEditClick(Sender: TObject);

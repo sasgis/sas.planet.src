@@ -3,7 +3,7 @@ object frmMarkSystemConfigEdit: TfrmMarkSystemConfigEdit
   Top = 0
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
-  Caption = 'Database'
+  Caption = 'Add Marks Database'
   ClientHeight = 296
   ClientWidth = 377
   Color = clBtnFace
@@ -139,18 +139,18 @@ object frmMarkSystemConfigEdit: TfrmMarkSystemConfigEdit
     end
   end
   object btnOk: TButton
-    Left = 213
+    Left = 163
     Top = 263
-    Width = 75
+    Width = 100
     Height = 25
-    Caption = 'Ok'
+    Caption = 'Apply'
     TabOrder = 4
     OnClick = btnOkClick
   end
   object btnCancel: TButton
-    Left = 294
+    Left = 269
     Top = 263
-    Width = 75
+    Width = 100
     Height = 25
     Caption = 'Cancel'
     TabOrder = 5

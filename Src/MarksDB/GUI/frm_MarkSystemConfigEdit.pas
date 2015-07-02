@@ -70,6 +70,7 @@ implementation
 
 uses
   ActiveX,
+  gnugettext,
   c_MarkSystem,
   u_MarkSystemImplConfigSML,
   U_MarkSystemImplConfigORM;
@@ -173,6 +174,8 @@ begin
     btnOpenFile.Enabled := False;
 
     chkReadOnly.Checked := FImpl.IsReadOnly;
+
+    Self.Caption := _('Edit Marks Database');
   end else begin
     cbbDbType.Enabled := True;
 
@@ -185,6 +188,8 @@ begin
     edtUserName.Text := '';
 
     chkReadOnly.Checked := False;
+
+    Self.Caption := _('Add Marks Database');
   end;
 
   UpdateControlsStateByActiveDB;
