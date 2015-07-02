@@ -303,7 +303,7 @@ begin
       VConfig.WriteString(VConfId + 'Impl', GUIDToString(IMarkSystemImplConfigSML));
     end else if Supports(VImpl, IMarkSystemImplConfigORM, VImplORM) then begin
       // ORM
-      VConfig.WriteString(VConfId + 'Impl', GUIDToString(IMarkSystemImplConfigSML));
+      VConfig.WriteString(VConfId + 'Impl', GUIDToString(IMarkSystemImplConfigORM));
       VConfig.WriteString(VConfId + 'UserName', VImplORM.UserName);
     end else begin
       _ShowConfigErrorFmt(_('MarkSystemConfig: Item #%d has unknown Impl interface!'), [VCount]);

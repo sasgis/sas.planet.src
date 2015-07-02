@@ -49,6 +49,7 @@ uses
   i_MarkDbInternalORM,
   i_MarkFactoryDbInternalORM,
   i_MarkCategoryDbInternalORM,
+  i_MarkSystemImplConfig,
   i_ReadWriteStateInternal,
   u_BaseInterfacedObject;
 
@@ -65,6 +66,7 @@ type
     FCategoryDBImpl: IMarkCategoryDBImpl;
     FCategoryDBInternal: IMarkCategoryDbInternalORM;
     FFactoryDbInternal: IMarkFactoryDbInternalORM;
+    function GetDatabaseFileName(const ABasePath, AFileName: string): string;
   private
     { IMarkSystemImpl }
     function GetMarkDb: IMarkDbImpl;
@@ -87,7 +89,7 @@ type
       const ALoadDbCounter: IInternalPerformanceCounter;
       const ASaveDbCounter: IInternalPerformanceCounter;
       const AHintConverter: IHtmlToHintTextConverter;
-      const AReadOnly: Boolean = False
+      const AImplConfig: IMarkSystemImplConfigStatic
     );
     destructor Destroy; override;
   end;
@@ -97,9 +99,11 @@ implementation
 
 uses
   SysUtils,
+  ShLwApi,
   t_CommonTypes,
   i_GeometryToStream,
   i_GeometryFromStream,
+  i_MarkSystemImplConfigORM,
   u_GeometryToWKB,
   u_GeometryFromWKB,
   u_ReadWriteStateInternal,
@@ -121,7 +125,7 @@ constructor TMarkSystemImplORM.Create(
   const ALoadDbCounter: IInternalPerformanceCounter;
   const ASaveDbCounter: IInternalPerformanceCounter;
   const AHintConverter: IHtmlToHintTextConverter;
-  const AReadOnly: Boolean
+  const AImplConfig: IMarkSystemImplConfigStatic
 );
 var
   VUserName: RawUTF8;
@@ -133,6 +137,7 @@ var
   VGeometryReader: IGeometryFromStream;
   VGeometryWriter: IGeometryToStream;
   VTransaction: TTransactionRec;
+  VImplConfig: IMarkSystemImplConfigORM;
 begin
   inherited Create;
   FDbId := Integer(Self);
@@ -140,11 +145,15 @@ begin
   FState := VState;
   VStateInternal := VState;
 
-  if AReadOnly then begin
+  if not Supports(AImplConfig, IMarkSystemImplConfigORM, VImplConfig) then begin
+    raise Exception.Create('MarkSystemImplORM: Unknown Impl config interface!');
+  end;
+
+  if VImplConfig.IsReadOnly then begin
     VStateInternal.WriteAccess := asDisabled;
   end;
 
-  VDatabaseFileName := IncludeTrailingPathDelimiter(ABasePath) + 'Marks.db3';
+  VDatabaseFileName := GetDatabaseFileName(ABasePath, VImplConfig.FileName);
 
   FModel := CreateModel;
 
@@ -161,7 +170,11 @@ begin
 
   FClientDB.Server.CreateMissingTables;
 
-  VUserName := StringToUTF8(AnsiLowerCase('sasgis'));
+  if VImplConfig.UserName = '' then begin
+    VUserName := StringToUTF8('sasgis');
+  end else begin
+    VUserName := StringToUTF8(VImplConfig.UserName);
+  end;
 
   FUser := TSQLUser.Create(FClientDB, 'Name=?', [VUserName]);
   if FUser.ID = 0 then begin
@@ -274,6 +287,40 @@ begin
   if Assigned(AMark) and Supports(AMark.MainInfo, IMarkInternalORM, VMark) then begin
     Result := IntToStr(VMark.Id);
   end;
+end;
+
+function GetFullPath(const ABasePath, ARelativePathName: string): string;
+begin
+  SetLength(Result, MAX_PATH);
+  PathCombine(@Result[1], PChar(ExtractFilePath(ABasePath)), PChar(ARelativePathName));
+  SetLength(Result, LStrLen(PChar(Result)));
+  Result := IncludeTrailingPathDelimiter(Result);
+end;
+
+function TMarkSystemImplORM.GetDatabaseFileName(const ABasePath, AFileName: string): string;
+const
+  cDefName = 'Marks.db3';
+var
+  VName, VPath: string;
+begin
+  if AFileName <> '' then begin
+    VName := ExtractFileName(AFileName);
+    if VName = '' then begin
+      VName := cDefName;
+    end;
+    VPath := ExtractFilePath(AFileName);
+    if VPath = '' then begin
+      VPath := IncludeTrailingPathDelimiter(ABasePath);
+    end else begin
+      if IsRelativePath(VPath) then begin
+        VPath := GetFullPath(ABasePath, VPath);
+      end;
+    end;
+  end else begin
+    VName := cDefName;
+    VPath := IncludeTrailingPathDelimiter(ABasePath);
+  end;
+  Result := VPath + VName;
 end;
 
 end.

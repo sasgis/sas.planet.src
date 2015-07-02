@@ -134,7 +134,7 @@ begin
       FLoadDbCounter,
       FSaveDbCounter,
       FHintConverter,
-      AImplConfig.IsReadOnly
+      AImplConfig
     );
 end;
 
