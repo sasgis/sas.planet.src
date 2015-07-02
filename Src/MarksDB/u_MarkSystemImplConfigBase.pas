@@ -31,7 +31,7 @@ type
   protected
     FFileName: string;
     FIsReadOnly: Boolean;
-  private
+  protected
     function GetFileName: string;
     function GetIsReadOnly: Boolean;
   public

@@ -744,6 +744,7 @@
     <DCCReference Include="Src\Marker\u_MarkerSimpleConfig.pas" />
     <DCCReference Include="Src\Marker\u_MarkerSimpleConfigStatic.pas" />
     <DCCReference Include="Src\MarksDB\c_MarkFlag.pas" />
+    <DCCReference Include="Src\MarksDB\c_MarkSystem.pas" />
     <DCCReference Include="Src\MarksDB\GUI\frm_ImportConfigEdit.pas">
       <Form>frmImportConfigEdit</Form>
     </DCCReference>
@@ -770,6 +771,9 @@
     </DCCReference>
     <DCCReference Include="Src\MarksDB\GUI\frm_MarksMultiEdit.pas">
       <Form>frmMarksMultiEdit</Form>
+    </DCCReference>
+    <DCCReference Include="Src\MarksDB\GUI\frm_MarkSystemConfigEdit.pas">
+      <Form>frmMarkSystemConfigEdit</Form>
     </DCCReference>
     <DCCReference Include="Src\MarksDB\GUI\frm_PointProjecting.pas">
       <Form>frmPointProjecting</Form>
@@ -816,8 +820,10 @@
     <DCCReference Include="Src\MarksDB\i_MarkNameGenerator.pas" />
     <DCCReference Include="Src\MarksDB\i_MarkPicture.pas" />
     <DCCReference Include="Src\MarksDB\i_MarkSystem.pas" />
+    <DCCReference Include="Src\MarksDB\i_MarkSystemConfig.pas" />
     <DCCReference Include="Src\MarksDB\i_MarkSystemImpl.pas" />
     <DCCReference Include="Src\MarksDB\i_MarkSystemImplChangeable.pas" />
+    <DCCReference Include="Src\MarksDB\i_MarkSystemImplConfig.pas" />
     <DCCReference Include="Src\MarksDB\i_MarkSystemImplFactory.pas" />
     <DCCReference Include="Src\MarksDB\i_MarkTemplate.pas" />
     <DCCReference Include="Src\MarksDB\mORMot\i_MarkCategoryDbInternalORM.pas" />
@@ -825,6 +831,7 @@
     <DCCReference Include="Src\MarksDB\mORMot\i_MarkCategoryInternalORM.pas" />
     <DCCReference Include="Src\MarksDB\mORMot\i_MarkDbInternalORM.pas" />
     <DCCReference Include="Src\MarksDB\mORMot\i_MarkFactoryDbInternalORM.pas" />
+    <DCCReference Include="Src\MarksDB\mORMot\i_MarkSystemImplConfigORM.pas" />
     <DCCReference Include="Src\MarksDB\mORMot\t_MarkSystemModelORM.pas" />
     <DCCReference Include="Src\MarksDB\mORMot\t_MarkSystemORM.pas" />
     <DCCReference Include="Src\MarksDB\mORMot\u_MarkCategoryDbImplORM.pas" />
@@ -834,6 +841,7 @@
     <DCCReference Include="Src\MarksDB\mORMot\u_MarkDbImplORM.pas" />
     <DCCReference Include="Src\MarksDB\mORMot\u_MarkFactoryDbInternalORM.pas" />
     <DCCReference Include="Src\MarksDB\mORMot\u_MarkIdORM.pas" />
+    <DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemImplConfigORM.pas" />
     <DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemImplFactoryORM.pas" />
     <DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemImplORM.pas" />
     <DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemORMTools.pas" />
@@ -841,6 +849,7 @@
     <DCCReference Include="Src\MarksDB\SML\i_MarkCategoryFactoryDbInternal.pas" />
     <DCCReference Include="Src\MarksDB\SML\i_MarkDbSmlInternal.pas" />
     <DCCReference Include="Src\MarksDB\SML\i_MarkFactorySmlInternal.pas" />
+    <DCCReference Include="Src\MarksDB\SML\i_MarkSystemImplConfigSML.pas" />
     <DCCReference Include="Src\MarksDB\SML\t_GeometryPointSML.pas" />
     <DCCReference Include="Src\MarksDB\SML\u_GeometryFromStreamSML.pas" />
     <DCCReference Include="Src\MarksDB\SML\u_GeometryToStreamSML.pas" />
@@ -850,6 +859,7 @@
     <DCCReference Include="Src\MarksDB\SML\u_MarkDbSml.pas" />
     <DCCReference Include="Src\MarksDB\SML\u_MarkFactorySmlDbInternal.pas" />
     <DCCReference Include="Src\MarksDB\SML\u_MarkId.pas" />
+    <DCCReference Include="Src\MarksDB\SML\u_MarkSystemImplConfigSML.pas" />
     <DCCReference Include="Src\MarksDB\SML\u_MarkSystemImplFactorySML.pas" />
     <DCCReference Include="Src\MarksDB\SML\u_MarkSystemSml.pas" />
     <DCCReference Include="Src\MarksDB\u_MarkCategory.pas" />
@@ -869,8 +879,10 @@
     <DCCReference Include="Src\MarksDB\u_MarkPointTemplateConfig.pas" />
     <DCCReference Include="Src\MarksDB\u_MarkPolyTemplateConfig.pas" />
     <DCCReference Include="Src\MarksDB\u_MarkSystem.pas" />
+    <DCCReference Include="Src\MarksDB\u_MarkSystemConfig.pas" />
     <DCCReference Include="Src\MarksDB\u_MarkSystemHelpers.pas" />
     <DCCReference Include="Src\MarksDB\u_MarkSystemImplChangeable.pas" />
+    <DCCReference Include="Src\MarksDB\u_MarkSystemImplConfigBase.pas" />
     <DCCReference Include="Src\MarksDB\u_MarkSystemImplFactoryChangeable.pas" />
     <DCCReference Include="Src\MarksDB\u_MarkTemplateConfigBase.pas" />
     <DCCReference Include="Src\MarksDB\u_MarkTemplates.pas" />

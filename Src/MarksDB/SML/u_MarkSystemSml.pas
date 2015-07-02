@@ -133,6 +133,17 @@ begin
   Result := IncludeTrailingPathDelimiter(Result);
 end;
 
+{$IF CompilerVersion < 23}
+function IsRelativePath(const Path: string): Boolean; inline;
+var
+  L: Integer;
+begin
+  L := Length(Path);
+  Result := (L > 0) and (Path[1] <> PathDelim)
+    {$IFDEF MSWINDOWS}and (L > 1) and (Path[2] <> ':'){$ENDIF MSWINDOWS};
+end;
+{$IFEND}
+
 { TMarkSystemSml }
 
 constructor TMarkSystemSml.Create(
