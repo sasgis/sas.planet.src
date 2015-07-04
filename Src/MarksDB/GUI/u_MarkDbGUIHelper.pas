@@ -207,7 +207,7 @@ uses
   u_EnumDoublePointLine2Poly,
   u_VectorItemTree,
   u_NotifierOperation,
-  u_FileNameFunc,
+  u_FileSystemFunc,
   u_GeoToStrFunc;
 
 { TMarksDbGUIHelper }
@@ -501,7 +501,7 @@ var
   VNotifier: INotifierOperation;
 begin
   if AMarkCategory <> nil then begin
-    VFileName := PrepareFileName(AMarkCategory.Name);
+    VFileName := ReplaceIllegalFileNameChars(AMarkCategory.Name);
     VExporterList := FExporterList.GetStatic;
     PrepareExportDialog(VExporterList);
     FExportDialog.FileName := VFileName;
@@ -564,7 +564,7 @@ var
   VNotifier: INotifierOperation;
 begin
   if AMark <> nil then begin
-    VFileName := PrepareFileName(AMark.Name);
+    VFileName := ReplaceIllegalFileNameChars(AMark.Name);
     VExporterList := FExporterList.GetStatic;
     PrepareExportDialog(VExporterList);
     FExportDialog.FileName := VFileName;

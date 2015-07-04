@@ -99,11 +99,11 @@ implementation
 
 uses
   SysUtils,
-  ShLwApi,
   t_CommonTypes,
   i_GeometryToStream,
   i_GeometryFromStream,
   i_MarkSystemImplConfigORM,
+  u_FileSystemFunc,
   u_GeometryToWKB,
   u_GeometryFromWKB,
   u_ReadWriteStateInternal,
@@ -288,25 +288,6 @@ begin
     Result := IntToStr(VMark.Id);
   end;
 end;
-
-function GetFullPath(const ABasePath, ARelativePathName: string): string;
-begin
-  SetLength(Result, MAX_PATH);
-  PathCombine(@Result[1], PChar(ExtractFilePath(ABasePath)), PChar(ARelativePathName));
-  SetLength(Result, LStrLen(PChar(Result)));
-  Result := IncludeTrailingPathDelimiter(Result);
-end;
-
-{$IF CompilerVersion < 23}
-function IsRelativePath(const Path: string): Boolean; inline;
-var
-  L: Integer;
-begin
-  L := Length(Path);
-  Result := (L > 0) and (Path[1] <> PathDelim)
-    {$IFDEF MSWINDOWS}and (L > 1) and (Path[2] <> ':'){$ENDIF MSWINDOWS};
-end;
-{$IFEND}
 
 function TMarkSystemImplORM.GetDatabaseFileName(const ABasePath, AFileName: string): string;
 const

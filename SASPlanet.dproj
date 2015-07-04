@@ -1256,7 +1256,6 @@
     <DCCReference Include="Src\System\u_BatteryStatus.pas" />
     <DCCReference Include="Src\System\u_BuildInfo.pas" />
     <DCCReference Include="Src\System\u_ClipboardFunc.pas" />
-    <DCCReference Include="Src\System\u_FileNameFunc.pas" />
     <DCCReference Include="Src\System\u_GarbageCollectorThread.pas" />
     <DCCReference Include="Src\System\u_LanguageManager.pas" />
     <DCCReference Include="Src\System\u_LanguagesEx.pas" />
@@ -1428,6 +1427,7 @@
     <DCCReference Include="Src\UpdateChecker\u_UpdateDownloader.pas" />
     <DCCReference Include="Src\u_BitmapFunc.pas" />
     <DCCReference Include="Src\u_CommonFormAndFrameParents.pas" />
+    <DCCReference Include="Src\u_FileSystemFunc.pas" />
     <DCCReference Include="Src\u_GeoFunc.pas" />
     <DCCReference Include="Src\u_GeoToStrFunc.pas" />
     <DCCReference Include="Src\u_GlobalAppConfig.pas" />

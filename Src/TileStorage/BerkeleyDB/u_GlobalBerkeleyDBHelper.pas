@@ -48,7 +48,6 @@ type
     FEnvCS: TCriticalSection;
     FLogCS: TCriticalSection;
     FFormatSettings: TFormatSettings;
-    function GetFullPathName(const ARelativePathName: string): string;
     procedure LogMsg(const AMsg: string);
     procedure OnCacheConfigChange;
   private
@@ -76,7 +75,7 @@ uses
   {$IFDEF EUREKALOG}
   ExceptionLog,
   {$ENDIF}
-  ShLwApi,
+  u_FileSystemFunc,
   u_InterfaceListSimple,
   u_ListenerByEvent,
   u_BerkeleyDBEnv;
@@ -134,14 +133,6 @@ begin
   end;
 end;
 
-function TGlobalBerkeleyDBHelper.GetFullPathName(const ARelativePathName: string): string;
-begin
-  SetLength(Result, MAX_PATH);
-  PathCombine(@Result[1], PChar(ExtractFilePath(FFullBaseCachePath)), PChar(ARelativePathName));
-  SetLength(Result, LStrLen(PChar(Result)));
-  Result := LowerCase(IncludeTrailingPathDelimiter(Result));
-end;
-
 function TGlobalBerkeleyDBHelper.AllocateEnvironment(
   const AIsReadOnly: Boolean;
   const AStorageConfig: ITileStorageBerkeleyDBConfigStatic;
@@ -160,7 +151,7 @@ begin
   {$ENDIF}
   FEnvCS.Acquire;
   try
-    VPath := GetFullPathName(AEnvRootPath);
+    VPath := LowerCase(GetFullPath(FFullBaseCachePath, AEnvRootPath));
     for I := 0 to FEnvList.Count - 1 do begin
       VEnv := FEnvList.Items[I] as IBerkeleyDBEnvironment;
       if Assigned(VEnv) then begin

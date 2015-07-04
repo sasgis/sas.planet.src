@@ -74,19 +74,11 @@ type
 implementation
 
 uses
-  c_TerrainProvider,
   Math,
-  ShLwApi,
   StrUtils,
-  SysUtils;
-
-function GetFullPathName(const AFullPath, ARelativePath: string): string;
-begin
-  SetLength(Result, MAX_PATH);
-  PathCombine(@Result[1], PChar(ExtractFilePath(AFullPath)), PChar(ARelativePath));
-  SetLength(Result, LStrLen(PChar(Result)));
-  Result := LowerCase(IncludeTrailingPathDelimiter(Result));
-end;
+  SysUtils,
+  c_TerrainProvider,
+  u_FileSystemFunc;
 
 { TTerrainProviderByExternal }
 
@@ -123,7 +115,7 @@ begin
   end else if StartsText('.\TerrainData', FBaseFolder) then begin
     FBaseFolder := StringReplace(FBaseFolder, '.\TerrainData', FDefaultPath, [rfIgnoreCase]);
   end else if StartsText('.', FBaseFolder) then begin
-    FBaseFolder := GetFullPathName(IncludeTrailingPathDelimiter(FDefaultPath), FBaseFolder);
+    FBaseFolder := LowerCase(GetFullPath(IncludeTrailingPathDelimiter(FDefaultPath), FBaseFolder));
   end else begin
     // it's absolute path
   end;
