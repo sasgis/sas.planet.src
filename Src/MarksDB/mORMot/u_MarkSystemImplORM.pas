@@ -180,7 +180,6 @@ begin
     );
 
   FClientDB.DB.WALMode := True;
-  //FClientDB.DB.Synchronous := smNormal;
 
   FClientDB.Server.CreateMissingTables;
 
