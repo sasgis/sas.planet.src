@@ -202,7 +202,7 @@ uses
   u_InterfaceListSimple,
   u_MarkSystemORMTools,
   u_MarkSystemORMModel,
-  u_MarkDbImplHelperORM;
+  u_MarkDbImplORMHelper;
 
 constructor TMarkDbImplORM.Create(
   const ADbId: Integer;
