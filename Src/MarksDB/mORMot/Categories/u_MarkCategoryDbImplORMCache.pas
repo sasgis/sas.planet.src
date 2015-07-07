@@ -330,8 +330,8 @@ begin
           FRows[J].ViewId := VList.GetAsInt64(I, 0);
           FRows[J].CategoryId := VList.GetAsInt64(I, 1);
           FRows[J].Visible := VList.GetAsInteger(I, 2) <> 0;
-          FRows[J].MaxZoom := VList.GetAsInteger(I, 3);
-          FRows[J].MinZoom := VList.GetAsInteger(I, 4);
+          FRows[J].MinZoom := VList.GetAsInteger(I, 3);
+          FRows[J].MaxZoom := VList.GetAsInteger(I, 4);
         end;
         Sort;
       end;
