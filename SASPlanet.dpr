@@ -705,6 +705,8 @@ uses
   t_MarkSystemModelORM in 'Src\MarksDB\mORMot\t_MarkSystemModelORM.pas',
   t_MarkSystemORM in 'Src\MarksDB\mORMot\t_MarkSystemORM.pas',
   u_MarkCategoryDbImplORM in 'Src\MarksDB\mORMot\u_MarkCategoryDbImplORM.pas',
+  u_MarkCategoryDbImplORMCache in 'Src\MarksDB\mORMot\u_MarkCategoryDbImplORMCache.pas',
+  u_MarkCategoryDbImplORMHelper in 'Src\MarksDB\mORMot\u_MarkCategoryDbImplORMHelper.pas',
   u_MarkCategoryDbInternalORM in 'Src\MarksDB\mORMot\u_MarkCategoryDbInternalORM.pas',
   u_MarkCategoryFactoryDbInternalORM in 'Src\MarksDB\mORMot\u_MarkCategoryFactoryDbInternalORM.pas',
   u_MarkDbImplHelperORM in 'Src\MarksDB\mORMot\u_MarkDbImplHelperORM.pas',

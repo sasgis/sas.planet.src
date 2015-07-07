@@ -32,10 +32,14 @@ type
     function CreateCategory(
       const AId: TID;
       const AName: string;
-      const AVisible: Boolean = True;
-      const AAfterScale: Byte = 3;
-      const ABeforeScale: Byte = 23
-    ): IMarkCategory;
+      const AVisible: Boolean;
+      const AAfterScale: Byte;
+      const ABeforeScale: Byte
+    ): IMarkCategory; overload;
+
+    function CreateCategory(
+      const ACategoryRec: TSQLCategoryRec
+    ): IMarkCategory; overload;
   end;
 
 implementation

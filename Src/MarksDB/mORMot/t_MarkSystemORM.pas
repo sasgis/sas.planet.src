@@ -39,6 +39,7 @@ type
   TSQLCategoryRec = record
     FCategoryId: TID;
     FName: string;
+    FViewId: TID;
     FVisible: Boolean;
     FMinZoom: Byte;
     FMaxZoom: Byte;
@@ -75,6 +76,7 @@ const
   cEmptySQLCategoryRec: TSQLCategoryRec = (
     FCategoryId : 0;
     FName       : '';
+    FViewId     : 0;
     FVisible    : True;
     FMinZoom    : 3;
     FMaxZoom    : 23;

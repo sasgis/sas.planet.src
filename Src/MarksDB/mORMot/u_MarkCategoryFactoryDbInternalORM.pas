@@ -36,10 +36,14 @@ type
     function CreateCategory(
       const AId: TID;
       const AName: string;
-      const AVisible: Boolean = True;
-      const AAfterScale: Byte = 3;
-      const ABeforeScale: Byte = 23
-    ): IMarkCategory;
+      const AVisible: Boolean;
+      const AAfterScale: Byte;
+      const ABeforeScale: Byte
+    ): IMarkCategory; overload;
+
+    function CreateCategory(
+      const ACategoryRec: TSQLCategoryRec
+    ): IMarkCategory; overload;
   public
     constructor Create(const ADbId: Integer);
   end;
@@ -74,6 +78,21 @@ begin
       AAfterScale,
       ABeforeScale
     );
+end;
+
+function TMarkCategoryFactoryDbInternalORM.CreateCategory(
+  const ACategoryRec: TSQLCategoryRec
+): IMarkCategory;
+begin
+  Result :=
+    TMarkCategoryDbInternalORM.Create(
+      ACategoryRec.FCategoryId,
+      FDbId,
+      ACategoryRec.FName,
+      ACategoryRec.FVisible,
+      ACategoryRec.FMinZoom,
+      ACategoryRec.FMaxZoom
+    )
 end;
 
 end.

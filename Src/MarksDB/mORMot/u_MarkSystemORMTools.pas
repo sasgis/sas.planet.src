@@ -34,6 +34,7 @@ procedure CheckID(const AID: TID); inline;
 procedure CheckDeleteResult(const AResult: Boolean); inline;
 procedure CheckUpdateResult(const AResult: Boolean); inline;
 procedure CheckRetrieveResult(const AResult: Boolean); inline;
+procedure CheckExecuteResult(const AResult: Boolean); inline;
 
 procedure StartTransaction(
   const AClient: TSQLRestClient;
@@ -87,6 +88,13 @@ procedure CheckRetrieveResult(const AResult: Boolean);
 begin
   if not AResult then begin
     raise EMarkSystemORMError.Create('MarkSystemORM: Retrieve operarion is failed!');
+  end;
+end;
+
+procedure CheckExecuteResult(const AResult: Boolean);
+begin
+  if not AResult then begin
+    raise EMarkSystemORMError.Create('MarkSystemORM: Execute operarion is failed!');
   end;
 end;
 
