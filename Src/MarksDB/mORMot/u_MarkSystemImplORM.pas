@@ -97,8 +97,13 @@ type
 
 implementation
 
+{.$DEFINE LOG_ENABLE}
+
 uses
   SysUtils,
+  {$IFDEF LOG_ENABLE}
+  SynLog,
+  {$ENDIF}
   t_CommonTypes,
   i_GeometryToStream,
   i_GeometryFromStream,
@@ -152,6 +157,15 @@ begin
   if VImplConfig.IsReadOnly then begin
     VStateInternal.WriteAccess := asDisabled;
   end;
+
+  {$IFDEF LOG_ENABLE}
+  with TSQLLog.Family do begin
+    Level := [sllSQL];
+    //Level := LOG_VERBOSE;
+    HighResolutionTimeStamp := true;
+    PerThreadLog := ptIdentifiedInOnFile;
+  end;
+  {$ENDIF}
 
   VDatabaseFileName := GetDatabaseFileName(ABasePath, VImplConfig.FileName);
 
