@@ -30,7 +30,6 @@ uses
   SynCommons,
   SynSQLite3Static,
   t_MarkSystemORM,
-  t_MarkSystemModelORM,
   i_HashFunction,
   i_GeometryLonLatFactory,
   i_VectorItemSubsetBuilder,
@@ -51,6 +50,7 @@ uses
   i_MarkCategoryDbInternalORM,
   i_MarkSystemImplConfig,
   i_ReadWriteStateInternal,
+  u_MarkSystemORMModel,
   u_BaseInterfacedObject;
 
 type

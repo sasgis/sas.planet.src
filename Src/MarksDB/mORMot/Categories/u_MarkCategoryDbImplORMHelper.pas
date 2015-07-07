@@ -25,7 +25,7 @@ interface
 uses
   mORMot,
   t_MarkSystemORM,
-  t_MarkSystemModelORM,
+  u_MarkSystemORMModel,
   u_MarkSystemORMTools,
   u_MarkCategoryDbImplORMCache;
 

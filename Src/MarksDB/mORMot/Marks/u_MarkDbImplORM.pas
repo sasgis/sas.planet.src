@@ -198,10 +198,10 @@ implementation
 
 uses
   t_Bitmap32,
-  t_MarkSystemModelORM,
   i_AppearanceOfVectorItem,
   u_InterfaceListSimple,
   u_MarkSystemORMTools,
+  u_MarkSystemORMModel,
   u_MarkDbImplHelperORM;
 
 constructor TMarkDbImplORM.Create(

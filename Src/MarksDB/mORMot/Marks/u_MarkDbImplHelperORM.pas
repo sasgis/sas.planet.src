@@ -9,7 +9,7 @@ uses
   mORMot,
   SynCommons,
   t_MarkSystemORM,
-  t_MarkSystemModelORM,
+  u_MarkSystemORMModel,
   i_GeometryLonLat,
   i_GeometryToStream,
   i_GeometryFromStream;

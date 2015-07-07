@@ -25,8 +25,8 @@ interface
 uses
   SysUtils,
   mORMot,
-  t_MarkSystemModelORM,
-  i_GeometryLonLat;
+  i_GeometryLonLat,
+  u_MarkSystemORMModel;
 
 type
   EMarkSystemORMError = class(Exception);

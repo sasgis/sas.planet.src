@@ -24,7 +24,6 @@ interface
 
 uses
   t_MarkSystemORM,
-  t_MarkSystemModelORM,
   t_Bitmap32,
   i_HashFunction,
   i_AppearanceOfMarkFactory,
@@ -37,6 +36,7 @@ uses
   i_MarkCategoryDbInternalORM,
   i_VectorDataItemSimple,
   i_HtmlToHintTextConverter,
+  u_MarkSystemORMModel,
   u_BaseInterfacedObject;
 
 type
