@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  t_GeoTypes,
   i_GeometryLonLat,
   i_GeometryToStream,
   u_BaseInterfacedObject;
@@ -43,16 +44,27 @@ type
       const AGeometry: IGeometryLonLatMultiLine;
       const AStream: TStream
     );
+    procedure SaveLine(
+      const AGeometry: IGeometryLonLatLine;
+      const AStream: TStream
+    );
     procedure SaveContour(
       const AGeometry: IGeometryLonLatContour;
-      const AStream: TStream
+      const AStream: TStream;
+      var AFirstPoint: TDoublePoint
     );
     procedure SaveSinglePolygon(
       const AGeometry: IGeometryLonLatSinglePolygon;
-      const AStream: TStream
+      const AStream: TStream;
+      var AFirstPoint: TDoublePoint
     );
     procedure SaveMultiPolygon(
       const AGeometry: IGeometryLonLatMultiPolygon;
+      const AStream: TStream;
+      var AFirstPoint: TDoublePoint
+    );
+    procedure SavePolygon(
+      const AGeometry: IGeometryLonLatPolygon;
       const AStream: TStream
     );
   private
@@ -69,7 +81,6 @@ implementation
 uses
   SysUtils,
   Math,
-  t_GeoTypes,
   t_GeometryPointSML,
   i_EnumDoublePoint,
   u_GeoFunc;
@@ -87,21 +98,15 @@ procedure TGeometryToStreamSML.Save(
 );
 var
   VPoint: IGeometryLonLatPoint;
-  VSingleLine: IGeometryLonLatSingleLine;
-  VSinglePolygon: IGeometryLonLatSinglePolygon;
-  VMultiLine: IGeometryLonLatMultiLine;
-  VMultiPolygon: IGeometryLonLatMultiPolygon;
+  VLine: IGeometryLonLatLine;
+  VPolygon: IGeometryLonLatPolygon;
 begin
   if Supports(AGeometry, IGeometryLonLatPoint, VPoint) then begin
     SavePoint(VPoint, AStream);
-  end else if Supports(AGeometry, IGeometryLonLatSingleLine, VSingleLine) then begin
-    SaveSingleLine(VSingleLine, AStream);
-  end else if Supports(AGeometry, IGeometryLonLatSinglePolygon, VSinglePolygon) then begin
-    SaveSinglePolygon(VSinglePolygon, AStream);
-  end else if Supports(AGeometry, IGeometryLonLatMultiLine, VMultiLine) then begin
-    SaveMultiLine(VMultiLine, AStream);
-  end else if Supports(AGeometry, IGeometryLonLatMultiPolygon, VMultiPolygon) then begin
-    SaveMultiPolygon(VMultiPolygon, AStream);
+  end else if Supports(AGeometry, IGeometryLonLatLine, VLine) then begin
+    SaveLine(VLine, AStream);
+  end else if Supports(AGeometry, IGeometryLonLatPolygon, VPolygon) then begin
+    SavePolygon(VPolygon, AStream);
   end else begin
     Assert(False);
   end;
@@ -120,82 +125,31 @@ begin
   AStream.Write(VPoint, SizeOf(VPoint));
 end;
 
+procedure TGeometryToStreamSML.SaveLine(
+  const AGeometry: IGeometryLonLatLine;
+  const AStream: TStream
+);
+var
+  VSingleLine: IGeometryLonLatSingleLine;
+  VMultiLine: IGeometryLonLatMultiLine;
+  VPoint: TGeometryPointSML;
+begin
+  if Supports(AGeometry, IGeometryLonLatSingleLine, VSingleLine) then begin
+    SaveSingleLine(VSingleLine, AStream);
+  end else if Supports(AGeometry, IGeometryLonLatMultiLine, VMultiLine) then begin
+    SaveMultiLine(VMultiLine, AStream);
+  end else begin
+    Assert(False);
+  end;
+  if AStream.Size > 0 then begin
+    VPoint.X := CEmptyDoublePoint.X;
+    VPoint.Y := CEmptyDoublePoint.Y;
+    AStream.Write(VPoint, SizeOf(VPoint));
+  end;
+end;
+
 procedure TGeometryToStreamSML.SaveSingleLine(
   const AGeometry: IGeometryLonLatSingleLine;
-  const AStream: TStream
-);
-var
-  i: Integer;
-  VPoint: TGeometryPointSML;
-  VEnum: IEnumLonLatPoint;
-  VFirstPoint: TDoublePoint;
-  VCurrPoint: TDoublePoint;
-  VPrevPoint: TDoublePoint;
-begin
-  Assert(SizeOf(TGeometryPointSML) = 24);
-  VEnum := AGeometry.GetEnum;
-  i := 0;
-  if VEnum.Next(VFirstPoint) then begin
-    VCurrPoint := VFirstPoint;
-    VPrevPoint := VCurrPoint;
-    VPoint.X := VCurrPoint.X;
-    VPoint.Y := VCurrPoint.Y;
-    AStream.Write(VPoint, SizeOf(VPoint));
-    Inc(i);
-    while VEnum.Next(VCurrPoint) do begin
-      VPoint.X := VCurrPoint.X;
-      VPoint.Y := VCurrPoint.Y;
-      AStream.Write(VPoint, SizeOf(VPoint));
-      VPrevPoint := VCurrPoint;
-      Inc(i);
-    end;
-  end;
-  if (i = 1) or ((i > 1) and DoublePointsEqual(VFirstPoint, VPrevPoint)) then begin
-    VPoint.X := CEmptyDoublePoint.X;
-    VPoint.Y := CEmptyDoublePoint.Y;
-    AStream.Write(VPoint, SizeOf(VPoint));
-  end;
-end;
-
-procedure TGeometryToStreamSML.SaveMultiLine(
-  const AGeometry: IGeometryLonLatMultiLine;
-  const AStream: TStream
-);
-var
-  i: Integer;
-  VPoint: TGeometryPointSML;
-  VEnum: IEnumLonLatPoint;
-  VFirstPoint: TDoublePoint;
-  VCurrPoint: TDoublePoint;
-  VPrevPoint: TDoublePoint;
-begin
-  Assert(SizeOf(TGeometryPointSML) = 24);
-  VEnum := AGeometry.GetEnum;
-  i := 0;
-  if VEnum.Next(VFirstPoint) then begin
-    VCurrPoint := VFirstPoint;
-    VPrevPoint := VCurrPoint;
-    VPoint.X := VCurrPoint.X;
-    VPoint.Y := VCurrPoint.Y;
-    AStream.Write(VPoint, SizeOf(VPoint));
-    Inc(i);
-    while VEnum.Next(VCurrPoint) do begin
-      VPoint.X := VCurrPoint.X;
-      VPoint.Y := VCurrPoint.Y;
-      AStream.Write(VPoint, SizeOf(VPoint));
-      VPrevPoint := VCurrPoint;
-      Inc(i);
-    end;
-  end;
-  if (i = 1) or ((i > 1) and DoublePointsEqual(VFirstPoint, VPrevPoint)) then begin
-    VPoint.X := CEmptyDoublePoint.X;
-    VPoint.Y := CEmptyDoublePoint.Y;
-    AStream.Write(VPoint, SizeOf(VPoint));
-  end;
-end;
-
-procedure TGeometryToStreamSML.SaveContour(
-  const AGeometry: IGeometryLonLatContour;
   const AStream: TStream
 );
 var
@@ -212,47 +166,119 @@ begin
   end;
 end;
 
-procedure TGeometryToStreamSML.SaveSinglePolygon(
-  const AGeometry: IGeometryLonLatSinglePolygon;
+procedure TGeometryToStreamSML.SaveMultiLine(
+  const AGeometry: IGeometryLonLatMultiLine;
+  const AStream: TStream
+);
+var
+  i: Integer;
+  VPoint: TGeometryPointSML;
+begin
+  Assert(SizeOf(TGeometryPointSML) = 24);
+  Assert(AGeometry.Count > 0);
+  SaveSingleLine(AGeometry.Item[0], AStream);
+  for i := 1 to AGeometry.Count - 1 do begin
+    VPoint.X := CEmptyDoublePoint.X;
+    VPoint.Y := CEmptyDoublePoint.Y;
+    AStream.Write(VPoint, SizeOf(VPoint));
+    SaveSingleLine(AGeometry.Item[0], AStream);
+  end;
+end;
+
+procedure TGeometryToStreamSML.SavePolygon(
+  const AGeometry: IGeometryLonLatPolygon;
   const AStream: TStream
 );
 var
   VPoint: TGeometryPointSML;
+  VFirstPoint: TDoublePoint;
+  VSinglePolygon: IGeometryLonLatSinglePolygon;
+  VMultiPolygon: IGeometryLonLatMultiPolygon;
+begin
+  if Supports(AGeometry, IGeometryLonLatSinglePolygon, VSinglePolygon) then begin
+    SaveSinglePolygon(VSinglePolygon, AStream, VFirstPoint);
+  end else if Supports(AGeometry, IGeometryLonLatMultiPolygon, VMultiPolygon) then begin
+    SaveMultiPolygon(VMultiPolygon, AStream, VFirstPoint);
+  end else begin
+    Assert(False);
+  end;
+  if AStream.Size > 0 then begin
+    VPoint.X := VFirstPoint.X;
+    VPoint.Y := VFirstPoint.Y;
+    AStream.Write(VPoint, SizeOf(VPoint));
+  end;
+end;
+
+procedure TGeometryToStreamSML.SaveContour(
+  const AGeometry: IGeometryLonLatContour;
+  const AStream: TStream;
+  var AFirstPoint: TDoublePoint
+);
+var
+  VPoint: TGeometryPointSML;
+  VEnum: IEnumLonLatPoint;
+  VCurrPoint: TDoublePoint;
+begin
+  Assert(SizeOf(TGeometryPointSML) = 24);
+  Assert(AGeometry.Count > 0);
+  VEnum := AGeometry.GetEnum;
+  if VEnum.Next(AFirstPoint) then begin
+    VPoint.X := AFirstPoint.X;
+    VPoint.Y := AFirstPoint.Y;
+    AStream.Write(VPoint, SizeOf(VPoint));
+    while VEnum.Next(VCurrPoint) do begin
+      VPoint.X := VCurrPoint.X;
+      VPoint.Y := VCurrPoint.Y;
+      AStream.Write(VPoint, SizeOf(VPoint));
+    end;
+  end;
+end;
+
+procedure TGeometryToStreamSML.SaveSinglePolygon(
+  const AGeometry: IGeometryLonLatSinglePolygon;
+  const AStream: TStream;
+  var AFirstPoint: TDoublePoint
+);
+var
+  VPoint: TGeometryPointSML;
   VContour: IGeometryLonLatContour;
+  VFirstPoint: TDoublePoint;
   i: Integer;
 begin
   VContour := AGeometry.OuterBorder;
-  SaveContour(VContour, AStream);
+  SaveContour(VContour, AStream, AFirstPoint);
   for i := 0 to AGeometry.HoleCount - 1 do begin
     VPoint.X := NaN;
     VPoint.Y := -1;
     AStream.Write(VPoint, SizeOf(VPoint));
     VContour := AGeometry.HoleBorder[i];
-    SaveContour(VContour, AStream);
+    SaveContour(VContour, AStream, VFirstPoint);
   end;
 end;
 
 procedure TGeometryToStreamSML.SaveMultiPolygon(
   const AGeometry: IGeometryLonLatMultiPolygon;
-  const AStream: TStream
+  const AStream: TStream;
+  var AFirstPoint: TDoublePoint
 );
 var
   i: Integer;
   VPolygon: IGeometryLonLatSinglePolygon;
   VPoint: TGeometryPointSML;
+  VFirstPoint: TDoublePoint;
 begin
   Assert(Assigned(AGeometry));
   Assert(AGeometry.Count > 0);
 
   VPolygon := AGeometry.Item[0];
-  SaveSinglePolygon(VPolygon, AStream);
+  SaveSinglePolygon(VPolygon, AStream, AFirstPoint);
   for i := 1 to AGeometry.Count - 1 do begin
     VPoint.X := NaN;
     VPoint.Y := NaN;
     AStream.Write(VPoint, SizeOf(VPoint));
 
     VPolygon := AGeometry.Item[i];
-    SaveSinglePolygon(VPolygon, AStream);
+    SaveSinglePolygon(VPolygon, AStream, VFirstPoint);
   end;
 end;
 
