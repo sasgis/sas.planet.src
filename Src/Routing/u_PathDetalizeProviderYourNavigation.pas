@@ -68,10 +68,12 @@ uses
   i_DownloadRequest,
   i_DownloadResult,
   i_EnumDoublePoint,
+  i_VectorDataItemSimple,
   i_VectorItemSubset,
   i_DoublePointsAggregator,
   u_DoublePointsAggregator,
   u_DownloadRequest,
+  u_GeoFunc,
   u_GeoToStrFunc;
 
 { TPathDetalizeProviderYourNavigation }
@@ -94,6 +96,68 @@ begin
   FKmlLoader := AKmlLoader;
 end;
 
+function ProcessSinglePath(
+  const ACancelNotifier: INotifierOperation;
+  AOperationID: Integer;
+  const ASource: IGeometryLonLatSingleLine;
+  const APointsAggregator: IDoublePointsAggregator;
+  const ABaseUrl: AnsiString;
+  const ADownloader: IDownloader;
+  const AInetConfig: IInetConfig;
+  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
+  const AKmlLoader: IVectorDataLoader
+): Boolean;
+var
+  url: AnsiString;
+  kml: IVectorItemSubset;
+  VCurrPoint: TDoublePoint;
+  VPrevPoint: TDoublePoint;
+  VEnum: IEnumLonLatPoint;
+  VRequest: IDownloadRequest;
+  VResult: IDownloadResult;
+  VResultOk: IDownloadResultOk;
+  VItem: IVectorDataItem;
+  VSingleLine: IGeometryLonLatSingleLine;
+  VMultiLine: IGeometryLonLatMultiLine;
+begin
+  Result := True;
+  VEnum := ASource.GetEnum;
+  if VEnum.Next(VPrevPoint) then begin
+    while VEnum.Next(VCurrPoint) do begin
+      if Result then begin
+        Continue;
+      end;
+      url := ABaseUrl + '&flat=' + R2AnsiStrPoint(VPrevPoint.y) + '&flon=' + R2AnsiStrPoint(VPrevPoint.x) +
+        '&tlat=' + R2AnsiStrPoint(VCurrPoint.y) + '&tlon=' + R2AnsiStrPoint(VCurrPoint.x);
+      VRequest := TDownloadRequest.Create(url, '', AInetConfig.GetStatic);
+      VResult := ADownloader.DoRequest(VRequest, ACancelNotifier, AOperationID);
+      if Supports(VResult, IDownloadResultOk, VResultOk) then begin
+        kml := AKmlLoader.Load(VResultOk.Data, nil, AVectorDataItemMainInfoFactory);
+        if kml <> nil then begin
+          if kml.Count > 0 then begin
+            VItem := kml.GetItem(0);
+            if not Supports(VItem.Geometry, IGeometryLonLatSingleLine, VSingleLine) then begin
+              VSingleLine := nil;
+              if Supports(VItem.Geometry, IGeometryLonLatMultiLine, VMultiLine) then begin
+                if VMultiLine.Count > 0 then begin
+                  VSingleLine := VMultiLine.Item[0];
+                end;
+              end;
+            end;
+            if Assigned(VSingleLine) and (VSingleLine.Count > 0) then begin
+              APointsAggregator.AddPoints(VSingleLine.Points, VSingleLine.Count);
+            end;
+          end;
+        end;
+      end else begin
+        Result := False;
+        exit;
+      end;
+      VPrevPoint := VCurrPoint;
+    end;
+  end;
+end;
+
 function TPathDetalizeProviderYourNavigation.GetPath(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
@@ -101,54 +165,52 @@ function TPathDetalizeProviderYourNavigation.GetPath(
   var AComment: string
 ): IGeometryLonLatLine;
 var
-  url: AnsiString;
-  kml: IVectorItemSubset;
   conerr: boolean;
   VPointsAggregator: IDoublePointsAggregator;
+  VSingleLine: IGeometryLonLatSingleLine;
   VMultiLine: IGeometryLonLatMultiLine;
-  VCurrPoint: TDoublePoint;
-  VPrevPoint: TDoublePoint;
-  VEnum: IEnumLonLatPoint;
-  VLine: IGeometryLonLatSingleLine;
-  VRequest: IDownloadRequest;
-  VResult: IDownloadResult;
-  VResultOk: IDownloadResultOk;
+  i: Integer;
 begin
   Result := nil;
   AComment := '';
-  url := FBaseUrl;
   conerr := false;
   VPointsAggregator := TDoublePointsAggregator.Create;
-  VEnum := ASource.GetEnum;
-  if VEnum.Next(VPrevPoint) then begin
-    while VEnum.Next(VCurrPoint) do begin
-      if conerr then begin
-        Continue;
-      end;
-      url := url + '&flat=' + R2AnsiStrPoint(VPrevPoint.y) + '&flon=' + R2AnsiStrPoint(VPrevPoint.x) +
-        '&tlat=' + R2AnsiStrPoint(VCurrPoint.y) + '&tlon=' + R2AnsiStrPoint(VCurrPoint.x);
-      VRequest := TDownloadRequest.Create(url, '', FInetConfig.GetStatic);
-      VResult := FDownloader.DoRequest(VRequest, ACancelNotifier, AOperationID);
-      if Supports(VResult, IDownloadResultOk, VResultOk) then begin
-        kml := FKmlLoader.Load(VResultOk.Data, nil, FVectorDataItemMainInfoFactory);
-        if kml <> nil then begin
-          if kml.Count > 0 then begin
-            if Supports(kml.GetItem(0).Geometry, IGeometryLonLatMultiLine, VMultiLine) then begin
-              if VMultiLine.Count > 0 then begin
-                VLine := VMultiLine.Item[0];
-                if VLine.Count > 0 then begin
-                  VPointsAggregator.AddPoints(VLine.Points, VLine.Count);
-                end;
-              end;
-            end;
-          end;
-        end;
-      end else begin
-        conerr := true;
-      end;
-      VPrevPoint := VCurrPoint;
+  if Supports(ASource, IGeometryLonLatSingleLine, VSingleLine) then begin
+    conerr :=
+      not ProcessSinglePath(
+        ACancelNotifier,
+        AOperationID,
+        VSingleLine,
+        VPointsAggregator,
+        FBaseUrl,
+        FDownloader,
+        FInetConfig,
+        FVectorDataItemMainInfoFactory,
+        FKmlLoader
+      );
+  end else if Supports(ASource, IGeometryLonLatMultiLine, VMultiLine) then begin
+    for i := 0 to VMultiLine.Count - 1 do begin
+      VSingleLine := VMultiLine.Item[i];
+      conerr :=
+        not ProcessSinglePath(
+          ACancelNotifier,
+          AOperationID,
+          VSingleLine,
+          VPointsAggregator,
+          FBaseUrl,
+          FDownloader,
+          FInetConfig,
+          FVectorDataItemMainInfoFactory,
+          FKmlLoader
+        );
+      if conerr then break;
+
+      VPointsAggregator.Add(CEmptyDoublePoint);
     end;
+  end else begin
+    Assert(false);
   end;
+
   if not conerr then begin
     Result := FVectorGeometryLonLatFactory.CreateLonLatLine(VPointsAggregator.Points, VPointsAggregator.Count);
   end;

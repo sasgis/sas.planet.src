@@ -107,14 +107,17 @@ var
   VRequest: IDownloadRequest;
   VResult: IDownloadResult;
   VResultOk: IDownloadResultOk;
+  VSingleLine: IGeometryLonLatSingleLine;
   VMultiLine: IGeometryLonLatMultiLine;
 begin
   Result := nil;
   url := FBaseUrl;
-  if Supports(ASource, IGeometryLonLatMultiLine, VMultiLine) and (VMultiLine.Count > 1) then begin
+  if Supports(ASource, IGeometryLonLatSingleLine, VSingleLine) then begin
+    VEnum := VSingleLine.GetEnum;
+  end else if Supports(ASource, IGeometryLonLatMultiLine, VMultiLine) then begin
     VEnum := VMultiLine.Item[0].GetEnum;
   end else begin
-    VEnum := ASource.GetEnum;
+    Assert(False);
   end;
   i := 0;
   while VEnum.Next(VPoint) do begin
