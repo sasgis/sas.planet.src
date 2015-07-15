@@ -31,10 +31,8 @@ uses
 type
   EMarkSystemORMError = class(Exception);
 
-  TSQLMarkRecOption = (mrAll, mrGeometry, mrView, mrPic, mrAppearance);
-  TSQLMarkRecOptions = set of TSQLMarkRecOption;
-
   TID = mORMot.TID;
+  TIDDynArray = mORMot.TIDDynArray;
 
   TSQLCategoryRec = record
     FCategoryId: TID;
@@ -44,6 +42,7 @@ type
     FMinZoom: Byte;
     FMaxZoom: Byte;
   end;
+  PSQLCategoryRec = ^TSQLCategoryRec;
 
   TSQLMarkRec = record
     FMarkId: TID;
@@ -57,6 +56,7 @@ type
     FScale2: Integer;
     FName: string;
     FDesc: string;
+    FViewId: TID;
     FVisible: Boolean;
     FGeoLonSize: Cardinal;
     FGeoLatSize: Cardinal;
@@ -64,6 +64,8 @@ type
     FGeoCount: Integer;
     FGeometry: IGeometryLonLat;
   end;
+  PSQLMarkRec = ^TSQLMarkRec;
+  TSQLMarkRecDynArray = array of TSQLMarkRec;
 
   TTransactionRec = record
     FSessionID: Cardinal;
@@ -71,7 +73,7 @@ type
   end;
 
 const
-  cEmptyTID = 0;
+  cEmptyID = 0;
 
   cEmptySQLCategoryRec: TSQLCategoryRec = (
     FCategoryId : 0;
@@ -94,7 +96,8 @@ const
     FScale2     : 0;
     FName       : '';
     FDesc       : '';
-    FVisible    : True; // !
+    FViewId     : 0;
+    FVisible    : True;
     FGeoLonSize : 0;
     FGeoLatSize : 0;
     FGeoType    : gtUndef;

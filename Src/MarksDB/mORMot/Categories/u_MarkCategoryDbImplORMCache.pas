@@ -23,31 +23,14 @@ unit u_MarkCategoryDbImplORMCache;
 interface
 
 uses
-  mORMot,
   SynCommons,
-  t_MarkSystemORM;
+  t_MarkSystemORM,
+  u_MarkSystemORMCacheBase;
 
 type
-  TSQLCacheBase = class
-  protected
-    FCount: Integer;
-    FRow: TDynArray;
-    FAutoSort: Boolean;
-    FIsPrepared: Boolean;
-    FIndex: TIntegerDynArray;
-    FCompare: TDynArraySortCompare;
-    function GetCount: Integer;
-    procedure SetAutoSort(const AValue: Boolean);
-  public
-    procedure Sort;
-    procedure Delete(const AID: TID);
-    property Count: Integer read GetCount;
-    property IsPrepared: Boolean read FIsPrepared;
-    property AutoSort: Boolean read FAutoSort write SetAutoSort;
-  public
-    constructor Create;
-    destructor Destroy; override;
-  end;
+  (****************************************************************************)
+  (*                         TSQLCategoryCache                                *)
+  (****************************************************************************)
 
   TSQLCategoryRow = packed record
     CategoryId: TID;
@@ -60,17 +43,19 @@ type
   private
     FRows: TSQLCategoryRowDynArray;
   public
-    function FillPrepare(
-      const AClient: TSQLRestClient;
-      const AForceUpdate: Boolean = False
-    ): Integer;
     function Find(const AID: TID; out AItem: PSQLCategoryRow): Boolean; overload;
     function Find(const AName: string; out AItem: PSQLCategoryRow): Boolean; overload;
     procedure AddOrUpdate(const ARec: TSQLCategoryRec);
+    procedure AddPrepared(const AArr: TSQLCategoryRowDynArray);
+  public
     property Rows: TSQLCategoryRowDynArray read FRows;
   public
     constructor Create;
   end;
+
+  (****************************************************************************)
+  (*                         TSQLCategoryViewCache                            *)
+  (****************************************************************************)
 
   TSQLCategoryViewRow = packed record
     CategoryId: TID;
@@ -86,16 +71,24 @@ type
   private
     FRows: TSQLCategoryViewRowDynArray;
   public
-    constructor Create;
-  public
-    function FillPrepare(
-      const AClient: TSQLRestClient;
-      const AUserID: TID;
-      const AForceUpdate: Boolean = False
-    ): Integer;
     function Find(const AID: TID; out AItem: PSQLCategoryViewRow): Boolean;
     procedure AddOrUpdate(const ARec: TSQLCategoryRec);
+    procedure AddPrepared(const AArr: TSQLCategoryViewRowDynArray);
+  public
     property Rows: TSQLCategoryViewRowDynArray read FRows;
+  public
+    constructor Create;
+  end;
+
+  (****************************************************************************)
+  (*                         TSQLCategoryDbCache                              *)
+  (****************************************************************************)
+
+  TSQLCategoryDbCache = record
+    FCategoryCache: TSQLCategoryCache;
+    FCategoryViewCache: TSQLCategoryViewCache;
+    procedure Init;
+    procedure Done;
   end;
 
 implementation
@@ -104,90 +97,63 @@ uses
   SysUtils,
   u_MarkSystemORMModel;
 
-{ TSQLCacheBase }
+{ TSQLCategoryDbCache }
 
-constructor TSQLCacheBase.Create;
+procedure TSQLCategoryDbCache.Init;
 begin
-  inherited Create;
-  FAutoSort := True;
-  FIsPrepared := False;
-  FCount := 0;
-  FCompare := @SortDynArrayInt64;
-  SetLength(FIndex, 0);
+  FCategoryCache := TSQLCategoryCache.Create;
+  FCategoryViewCache := TSQLCategoryViewCache.Create;
 end;
 
-destructor TSQLCacheBase.Destroy;
+procedure TSQLCategoryDbCache.Done;
 begin
-  FRow.Clear;
-  inherited Destroy;
-end;
-
-function TSQLCacheBase.GetCount: Integer;
-begin
-  Result := FRow.Count;
-end;
-
-procedure TSQLCacheBase.Sort;
-var
-  VCount: Integer;
-begin
-  VCount := FRow.Count;
-  SetLength(FIndex, VCount);
-  FillIncreasing(Pointer(FIndex), 0, VCount);
-  FRow.CreateOrderedIndex(FIndex, FCompare);
-end;
-
-procedure TSQLCacheBase.Delete(const AID: TID);
-var
-  I: Integer;
-begin
-  I := FRow.Find(AID, FIndex, FCompare);
-  if I >= 0 then begin
-    FRow.Delete(I);
-    if FAutoSort then begin
-      Sort;
-    end;
-  end;
-end;
-
-procedure TSQLCacheBase.SetAutoSort(const AValue: Boolean);
-begin
-  if FAutoSort <> AValue then begin
-    FAutoSort := AValue;
-    if FAutoSort then begin
-      Sort;
-    end;
-  end;
+  FreeAndNil(FCategoryViewCache);
+  FreeAndNil(FCategoryCache);
 end;
 
 { TSQLCategoryCache }
 
 constructor TSQLCategoryCache.Create;
 begin
-  inherited Create;
-  SetLength(FRows, 0);
-  FRow.InitSpecific(TypeInfo(TSQLCategoryRowDynArray), FRows, djInt64, @FCount);
+  inherited Create(TypeInfo(TSQLCategoryRowDynArray), FRows, djInt64, 0);
 end;
 
 procedure TSQLCategoryCache.AddOrUpdate(const ARec: TSQLCategoryRec);
 var
   I: Integer;
-  VAdd: Boolean;
+  VSize: Integer;
+  VRow: PSQLCategoryRow;
 begin
-  VAdd := False;
-  I := FRow.Find(ARec.FCategoryId, FIndex, FCompare);
-
-  if I < 0 then begin
-    VAdd := True;
-    I := FRow.New;
-    FRows[I].CategoryId := ARec.FCategoryId;
+  VSize := Length(ARec.FName) * SizeOf(Char);
+  if FRow.FastLocateSorted(ARec.FCategoryId, I) then begin
+    // update
+    VSize := VSize - Length(FRows[I].Name) * SizeOf(Char);
+    FRows[I].Name := ARec.FName;
+    Inc(FDataSize, VSize);
+  end else if I >= 0 then begin
+    // add
+    CheckCacheSize;
+    New(VRow);
+    try
+      VRow.CategoryId := ARec.FCategoryId;
+      VRow.Name := ARec.FName;
+      FRow.Insert(I, VRow^);
+      FRow.Sorted := True;
+      Inc(FDataSize, VSize);
+    finally
+      Dispose(VRow);
+    end;
+  end else begin
+    Assert(False);
   end;
+end;
 
-  FRows[I].Name := ARec.FName;
-
-  if VAdd and FAutoSort then begin
-    Sort;
-  end;
+procedure TSQLCategoryCache.AddPrepared(const AArr: TSQLCategoryRowDynArray);
+begin
+  Reset;
+  FRow.AddArray(AArr);
+  FRow.Sort;
+  FIsPrepared := True;
 end;
 
 function TSQLCategoryCache.Find(const AID: TID; out AItem: PSQLCategoryRow): Boolean;
@@ -195,8 +161,8 @@ var
   I: Integer;
 begin
   Result := False;
-  I := FRow.Find(AID, FIndex, FCompare);
-  if I >= 0 then begin
+  I := FRow.Find(AID);
+  if I >=0 then begin
     AItem := @FRows[I];
     Result := True;
   end;
@@ -207,7 +173,7 @@ var
   I: Integer;
 begin
   Result := False;
-  for I := 0 to FRow.Count - 1 do begin
+  for I := 0 to FCount - 1 do begin
     if SameText(AName, FRows[I].Name) then begin
       AItem := @FRows[I];
       Result := True;
@@ -216,75 +182,41 @@ begin
   end;
 end;
 
-function TSQLCategoryCache.FillPrepare(
-  const AClient: TSQLRestClient;
-  const AForceUpdate: Boolean
-): Integer;
-var
-  I, J: Integer;
-  VCount: Integer;
-  VList: TSQLTableJSON;
-begin
-  if not FIsPrepared or AForceUpdate then begin
-    FIsPrepared := False;
-    FRow.Clear;
-
-    VList := AClient.ExecuteList(
-      [TSQLCategory],
-      'SELECT ID,Name FROM Category'
-    );
-
-    if Assigned(VList) then
-    try
-      FIsPrepared := True;
-      VCount := VList.RowCount;
-      if VCount > 0 then begin
-        FRow.Capacity := VCount;
-        for I := 1 to VCount do begin
-          J := FRow.New;
-          FRows[J].CategoryId := VList.GetAsInt64(I, 0);
-          FRows[J].Name := VList.GetString(I, 1);
-        end;
-        Sort;
-      end;
-    finally
-      VList.Free;
-    end;
-  end;
-
-  Result := FRow.Count;
-end;
-
 { TSQLCategoryViewCache }
 
 constructor TSQLCategoryViewCache.Create;
 begin
-  inherited Create;
-  SetLength(FRows, 0);
-  FRow.InitSpecific(TypeInfo(TSQLCategoryViewRowDynArray), FRows, djInt64, @FCount);
+  inherited Create(TypeInfo(TSQLCategoryViewRowDynArray), FRows, djInt64, 0);
 end;
 
 procedure TSQLCategoryViewCache.AddOrUpdate(const ARec: TSQLCategoryRec);
 var
   I: Integer;
-  VAdd: Boolean;
+  VRow: PSQLCategoryViewRow;
 begin
-  VAdd := False;
-  I := FRow.Find(ARec.FCategoryId, FIndex, FCompare);
+  if FRow.FastLocateSorted(ARec.FCategoryId, I) then begin
+    // update
+    FRows[I].Visible := ARec.FVisible;
+    FRows[I].MinZoom := ARec.FMinZoom;
+    FRows[I].MaxZoom := ARec.FMaxZoom;
+  end else if I >= 0 then begin
+    // add
+    CheckCacheSize;
+    New(VRow);
+    try
+      VRow.ViewId := ARec.FViewId;
+      VRow.CategoryId := ARec.FCategoryId;
+      VRow.Visible := ARec.FVisible;
+      VRow.MinZoom := ARec.FMinZoom;
+      VRow.MaxZoom := ARec.FMaxZoom;
 
-  if I < 0 then begin
-    VAdd := True;
-    I := FRow.New;
-    FRows[I].ViewId := ARec.FViewId;
-    FRows[I].CategoryId := ARec.FCategoryId;
-  end;
-
-  FRows[I].Visible := ARec.FVisible;
-  FRows[I].MinZoom := ARec.FMinZoom;
-  FRows[I].MaxZoom := ARec.FMaxZoom;
-
-  if VAdd and FAutoSort then begin
-    Sort;
+      FRow.Insert(I, VRow^);
+      FRow.Sorted := True;
+    finally
+      Dispose(VRow);
+    end;
+  end else begin
+    Assert(False);
   end;
 end;
 
@@ -293,54 +225,19 @@ var
   I: Integer;
 begin
   Result := False;
-  I := FRow.Find(AID, FIndex, FCompare);
-  if I >= 0 then begin
+  I := FRow.Find(AID);
+  if I >=0 then begin
     AItem := @FRows[I];
     Result := True;
   end;
 end;
 
-function TSQLCategoryViewCache.FillPrepare(
-  const AClient: TSQLRestClient;
-  const AUserID: TID;
-  const AForceUpdate: Boolean
-): Integer;
-var
-  I, J: Integer;
-  VCount: Integer;
-  VList: TSQLTableJSON;
+procedure TSQLCategoryViewCache.AddPrepared(const AArr: TSQLCategoryViewRowDynArray);
 begin
-  if not FIsPrepared or AForceUpdate then begin
-    FIsPrepared := False;
-    FRow.Clear;
-
-    VList := AClient.ExecuteList(
-      [TSQLCategoryView],
-      FormatUTF8('SELECT ID,Category,Visible,MinZoom,MaxZoom FROM CategoryView WHERE User=?', [], [AUserID])
-    );
-
-    if Assigned(VList) then
-    try
-      FIsPrepared := True;
-      VCount := VList.RowCount;
-      if VCount > 0 then begin
-        FRow.Capacity := VCount;
-        for I := 1 to VCount do begin
-          J := FRow.New;
-          FRows[J].ViewId := VList.GetAsInt64(I, 0);
-          FRows[J].CategoryId := VList.GetAsInt64(I, 1);
-          FRows[J].Visible := VList.GetAsInteger(I, 2) <> 0;
-          FRows[J].MinZoom := VList.GetAsInteger(I, 3);
-          FRows[J].MaxZoom := VList.GetAsInteger(I, 4);
-        end;
-        Sort;
-      end;
-    finally
-      VList.Free;
-    end;
-  end;
-
-  Result := FRow.Count;
+  Reset;
+  FRow.AddArray(AArr);
+  FRow.Sort;
+  FIsPrepared := True;
 end;
 
 end.

@@ -67,7 +67,7 @@ type
   private
     FName: RawUTF8;
   published
-    property Name: RawUTF8 read FName write FName;
+    property Name: RawUTF8 read FName write FName stored AS_UNIQUE;
   end;
 
   TSQLMarkAppearance = class(TSQLRecord)

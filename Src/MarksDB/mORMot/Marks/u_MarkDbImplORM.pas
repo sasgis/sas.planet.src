@@ -44,6 +44,7 @@ uses
   i_MarkDbInternalORM,
   i_MarkCategoryInternalORM,
   i_MarkFactoryDbInternalORM,
+  u_MarkDbImplORMCache,
   u_ConfigDataElementBase;
 
 type
@@ -56,6 +57,7 @@ type
     FDbId: Integer;
     FUserID: TID;
     FClient: TSQLRestClient;
+    FCache: TSQLMarkDbCache;
     FFactoryDbInternal: IMarkFactoryDbInternalORM;
     FGeometryReader: IGeometryFromStream;
     FGeometryWriter: IGeometryToStream;
@@ -229,10 +231,13 @@ begin
   FGeometryReader := AGeometryReader;
   FGeometryWriter := AGeometryWriter;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
+
+  FCache.Init;
 end;
 
 destructor TMarkDbImplORM.Destroy;
 begin
+  FCache.Done;
   FFactoryDbInternal := nil;
   inherited;
 end;
@@ -258,34 +263,12 @@ function TMarkDbImplORM._GetMarkSQL(
   const ACategoryID: TID
 ): IVectorDataItem;
 var
-  VSQLWhere: RawUTF8;
-  VSQLMark: TSQLMark;
   VMarkRec: TSQLMarkRec;
 begin
-  Assert((ID > 0) or (AName <> ''));
-  Result := nil;
-
-  if ID > 0 then begin
-    VSQLWhere := FormatUTF8('Mark.RowID=?', [], [ID]);
-  end else if AName <> '' then begin
-    if ACategoryID > 0 then begin
-      VSQLWhere := FormatUTF8('Mark.Name=? AND Mark.Category=?', [], [AName, ACategoryID]);
-    end else begin
-      VSQLWhere := FormatUTF8('Mark.Name=?', [], [AName]);
-    end;
+  if ReadMarkSQL(VMarkRec, FUserID, ID, ACategoryID, AName, FClient, FCache, FGeometryReader) then begin
+    Result := FFactoryDbInternal.CreateMark(VMarkRec);
   end else begin
-    Exit;
-  end;
-
-  VSQLMark := TSQLMark.CreateAndFillPrepareJoined(FClient, VSQLWhere, [], []);
-  try
-    if VSQLMark.FillOne then begin
-      if GetSQLMarkRec(VMarkRec, FUserID, VSQLMark, FClient, [mrAll], FGeometryReader, True) then begin
-        Result := FFactoryDbInternal.CreateMark(VMarkRec);
-      end;
-    end;
-  finally
-    VSQLMark.Free;
+    Result := nil;
   end;
 end;
 
@@ -552,19 +535,19 @@ begin
       // UPDATE
       _SQLMarkRecFromMark(VOldMark, VSQLMarkRecOld);
       _SQLMarkRecFromMark(VNewMark, VSQLMarkRecNew);
-      UpdateMarkSQL(VSQLMarkRecOld, VSQLMarkRecNew, FUserID, FClient, FGeometryWriter);
+      UpdateMarkSQL(VSQLMarkRecOld, VSQLMarkRecNew, FUserID, FClient, FCache, FGeometryWriter);
       Result := FFactoryDbInternal.CreateMark(VSQLMarkRecNew);
       AIsChanged := True;
     end else begin
       // DELETE
-      DeleteMarkSQL(VIdOld, FClient);
+      DeleteMarkSQL(VIdOld, FClient, FCache);
       AIsChanged := True;
     end;
   end else begin
     // INSERT
     if VNewMark <> nil then begin
       _SQLMarkRecFromMark(VNewMark, VSQLMarkRecNew);
-      InsertMarkSQL(VSQLMarkRecNew, FUserID, FClient, FGeometryWriter);
+      InsertMarkSQL(VSQLMarkRecNew, FUserID, FClient, FCache, FGeometryWriter);
       Result := FFactoryDbInternal.CreateMark(VSQLMarkRecNew);
       AIsChanged := True;
     end;
@@ -689,43 +672,47 @@ end;
 
 // =============================================================================
 
-// Get Lite Marks list by Categories
+// Get Lite MarkId list by Categories
 
 function TMarkDbImplORM._GetMarkIdList(
   const ACategoryId: TID
 ): IInterfaceListStatic;
 var
+  I: Integer;
+  VCount: Integer;
   VMarkId: IMarkId;
   VTemp: IInterfaceListSimple;
-  VSQLWhere: RawUTF8;
-  VSQLMark: TSQLMark;
-  VSQLMarkRec: TSQLMarkRec;
+  VArray: TSQLMarkRecDynArray;
 begin
   VTemp := TInterfaceListSimple.Create;
-
-  if ACategoryId > 0 then begin
-    VSQLWhere := FormatUTF8('Category=?', [], [ACategoryId]);
-  end else begin
-    VSQLWhere := ''; // all marks in all categories
-  end;
-
-  LockRead;
+  LockWrite;
   try
-    VSQLMark := TSQLMark.CreateAndFillPrepare(FClient, VSQLWhere);
+    VCount :=
+      GetMarkRecArray(
+        FUserID,
+        ACategoryId,
+        FClient,
+        FGeometryReader,
+        FCache,
+        True, // include hidden marks
+        False, // without geometry
+        VArray
+      );
+  finally
+    UnlockWrite;
+  end;
+  if VCount > 0 then begin
+    VTemp.Capacity := VCount;
+    LockRead;
     try
-      while VSQLMark.FillOne do begin
-        if GetSQLMarkRec(VSQLMarkRec, FUserID, VSQLMark, FClient, [mrView], FGeometryReader, False) then begin
-          VMarkId := FFactoryDbInternal.CreateMarkId(VSQLMarkRec);
-          VTemp.Add(VMarkId);
-        end;
+      for I := 0 to VCount - 1 do begin
+        VMarkId := FFactoryDbInternal.CreateMarkId(VArray[I]);
+        VTemp.Add(VMarkId);
       end;
     finally
-      VSQLMark.Free;
+      UnlockRead;
     end;
-  finally
-    UnlockRead;
   end;
-
   Result := VTemp.MakeStaticAndClear;
 end;
 
@@ -755,36 +742,38 @@ procedure TMarkDbImplORM._GetMarkSubset(
   const AResultList: IVectorItemSubsetBuilder
 );
 var
+  I: Integer;
+  VCount: Integer;
   VItem: IVectorDataItem;
-  VMark: IMarkInternalORM;
-  VSQLWhere: RawUTF8;
-  VSQLMark: TSQLMark;
-  VSQLMarkRec: TSQLMarkRec;
+  VArray: TSQLMarkRecDynArray;
 begin
-  if ACategoryId > 0 then begin
-    VSQLWhere := FormatUTF8('Category=?', [], [ACategoryId]);
-  end else begin
-    VSQLWhere := ''; // all marks in all categories
-  end;
-
-  VSQLMark := TSQLMark.CreateAndFillPrepareJoined(FClient, VSQLWhere, [], []);
+  LockWrite;
   try
-    while VSQLMark.FillOne do begin
-      if GetSQLMarkRec(VSQLMarkRec, FUserID, VSQLMark, FClient, [mrAll], FGeometryReader, True) then begin
-        VItem := FFactoryDbInternal.CreateMark(VSQLMarkRec);
-        if not AIncludeHiddenMarks then begin
-          if Supports(VItem.MainInfo, IMarkInternalORM, VMark) then begin
-            if VMark.Visible then begin
-              AResultList.Add(VItem);
-            end;
-          end;
-        end else begin
-          AResultList.Add(VItem);
-        end;
-      end;
-    end;
+    VCount :=
+      GetMarkRecArray(
+        FUserID,
+        ACategoryId,
+        FClient,
+        FGeometryReader,
+        FCache,
+        AIncludeHiddenMarks,
+        True, // read geometry
+        VArray
+      );
   finally
-    VSQLMark.Free;
+    UnlockWrite;
+  end;
+  if VCount > 0 then begin
+    AResultList.Capacity := VCount;
+    LockRead;
+    try
+      for I := 0 to VCount - 1 do begin
+        VItem := FFactoryDbInternal.CreateMark(VArray[I]);
+        AResultList.Add(VItem);
+      end;
+    finally
+      UnlockRead;
+    end;
   end;
 end;
 
@@ -797,20 +786,12 @@ var
   VResultList: IVectorItemSubsetBuilder;
 begin
   VResultList := FVectorItemSubsetBuilderFactory.Build;
-
   if ACategory <> nil then begin
     VCategoryId := _GetCategoryID(ACategory);
   end else begin
     VCategoryId := 0;
   end;
-
-  LockRead;
-  try
-    _GetMarkSubset(VCategoryId, AIncludeHiddenMarks, VResultList);
-  finally
-    UnlockRead;
-  end;
-
+  _GetMarkSubset(VCategoryId, AIncludeHiddenMarks, VResultList);
   Result := VResultList.MakeStaticAndClear;
 end;
 
@@ -824,18 +805,13 @@ var
   VResultList: IVectorItemSubsetBuilder;
 begin
   VResultList := FVectorItemSubsetBuilderFactory.Build;
-  LockRead;
-  try
-    if (ACategoryList = nil) then begin
-      _GetMarkSubset(0, AIncludeHiddenMarks, VResultList);
-    end else begin
-      for I := 0 to ACategoryList.Count - 1 do begin
-        VCategoryID := _GetCategoryID(ICategory(ACategoryList[I]));
-         _GetMarkSubset(VCategoryId, AIncludeHiddenMarks, VResultList);
-      end;
+  if (ACategoryList = nil) then begin
+    _GetMarkSubset(0, AIncludeHiddenMarks, VResultList);
+  end else begin
+    for I := 0 to ACategoryList.Count - 1 do begin
+      VCategoryID := _GetCategoryID(ICategory(ACategoryList[I]));
+      _GetMarkSubset(VCategoryId, AIncludeHiddenMarks, VResultList);
     end;
-  finally
-    UnlockRead;
   end;
   Result := VResultList.MakeStaticAndClear;
 end;
@@ -1044,34 +1020,13 @@ procedure TMarkDbImplORM.SetAllMarksInCategoryVisible(
   ANewVisible: Boolean
 );
 var
-  VIsChanged: Boolean;
   VCategoryId: TID;
-  VSQLMark: TSQLMark;
-  VTransaction: TTransactionRec;
 begin
   VCategoryId := _GetCategoryID(ACategory);
   if VCategoryId > 0 then begin
     LockWrite;
     try
-      VIsChanged := False;
-      StartTransaction(FClient, VTransaction, TSQLMarkView);
-      try
-        VSQLMark := TSQLMark.CreateAndFillPrepare(FClient, 'Category=?', [VCategoryId]);
-        try
-          while VSQLMark.FillOne do begin
-            if SetMarkVisibleSQL(VSQLMark.ID, FUserID, ANewVisible, FClient, False) then begin
-              VIsChanged := True;
-            end;
-          end;
-        finally
-          VSQLMark.Free;
-        end;
-        CommitTransaction(FClient, VTransaction);
-      except
-        RollBackTransaction(FClient, VTransaction);
-        raise;
-      end;
-      if VIsChanged then begin
+      if SetMarksInCategoryVisibleSQL(FUserID, VCategoryId, ANewVisible, FClient, FCache) then begin
         SetChanged;
       end;
     finally
@@ -1100,7 +1055,7 @@ begin
     if VId > 0 then begin
       LockWrite;
       try
-        if SetMarkVisibleSQL(VId, FUserID, AVisible, FClient, True) then begin
+        if SetMarkVisibleSQL(VId, FUserID, AVisible, FClient, FCache, True) then begin
           SetChanged;
         end;
       finally
@@ -1130,7 +1085,7 @@ begin
     if VId > 0 then begin
       LockWrite;
       try
-        if SetMarkVisibleSQL(VId, FUserID, AVisible, FClient, True) then begin
+        if SetMarkVisibleSQL(VId, FUserID, AVisible, FClient, FCache, True) then begin
           SetChanged;
         end;
       finally
@@ -1167,7 +1122,7 @@ begin
             VMarkInternal.Visible := AVisible;
           end;
           if VId > 0 then begin
-            if SetMarkVisibleSQL(VId, FUserID, AVisible, FClient, False) then begin
+            if SetMarkVisibleSQL(VId, FUserID, AVisible, FClient, FCache, False) then begin
               VIsChanged := True;
             end;
           end;

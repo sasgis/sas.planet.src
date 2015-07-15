@@ -32,16 +32,14 @@ uses
 procedure DeleteCategorySQL(
   const ACategoryID: TID;
   const AClient: TSQLRestClient;
-  const ACategoryCache: TSQLCategoryCache;
-  const ACategoryViewCache: TSQLCategoryViewCache
+  const ACache: TSQLCategoryDbCache
 );
 
 procedure InsertCategorySQL(
   var ACategoryRec: TSQLCategoryRec;
   const AUserID: TID;
   const AClient: TSQLRestClient;
-  const ACategoryCache: TSQLCategoryCache;
-  const ACategoryViewCache: TSQLCategoryViewCache
+  const ACache: TSQLCategoryDbCache
 );
 
 procedure UpdateCategorySQL(
@@ -49,8 +47,7 @@ procedure UpdateCategorySQL(
   var ACategoryRecNew: TSQLCategoryRec;
   const AUserID: TID;
   const AClient: TSQLRestClient;
-  const ACategoryCache: TSQLCategoryCache;
-  const ACategoryViewCache: TSQLCategoryViewCache
+  const ACache: TSQLCategoryDbCache
 );
 
 function ReadCategorySQL(
@@ -59,9 +56,19 @@ function ReadCategorySQL(
   const AName: string;
   const AUserID: TID;
   const AClient: TSQLRestClient;
-  const ACategoryCache: TSQLCategoryCache;
-  const ACategoryViewCache: TSQLCategoryViewCache
+  const ACache: TSQLCategoryDbCache
 ): Boolean;
+
+function FillPrepareCategoryCache(
+  const AClient: TSQLRestClient;
+  const ACache: TSQLCategoryDbCache
+): Integer;
+
+function FillPrepareCategoryViewCache(
+  const AClient: TSQLRestClient;
+  const AUserID: TID;
+  const ACache: TSQLCategoryDbCache
+): Integer;
 
 implementation
 
@@ -73,8 +80,7 @@ uses
 procedure DeleteCategorySQL(
   const ACategoryID: TID;
   const AClient: TSQLRestClient;
-  const ACategoryCache: TSQLCategoryCache;
-  const ACategoryViewCache: TSQLCategoryViewCache
+  const ACache: TSQLCategoryDbCache
 );
 begin
   CheckID(ACategoryID);
@@ -86,16 +92,15 @@ begin
   CheckDeleteResult( AClient.Delete(TSQLCategory, ACategoryID) );
 
   // delete from cache
-  ACategoryCache.Delete(ACategoryID);
-  ACategoryViewCache.Delete(ACategoryID);
+  ACache.FCategoryCache.Delete(ACategoryID);
+  ACache.FCategoryViewCache.Delete(ACategoryID);
 end;
 
 procedure InsertCategorySQL(
   var ACategoryRec: TSQLCategoryRec;
   const AUserID: TID;
   const AClient: TSQLRestClient;
-  const ACategoryCache: TSQLCategoryCache;
-  const ACategoryViewCache: TSQLCategoryViewCache
+  const ACache: TSQLCategoryDbCache
 );
 var
   VSQLCategory: TSQLCategory;
@@ -109,7 +114,7 @@ begin
     CheckID( AClient.Add(VSQLCategory, True) );
     ACategoryRec.FCategoryId := VSQLCategory.ID;
     // add to cache
-    ACategoryCache.AddOrUpdate(ACategoryRec);
+    ACache.FCategoryCache.AddOrUpdate(ACategoryRec);
   finally
     VSQLCategory.Free;
   end;
@@ -126,7 +131,7 @@ begin
       CheckID( AClient.Add(VSQLCategoryView, True) );
       ACategoryRec.FViewId := VSQLCategoryView.ID;
       // add to cache
-      ACategoryViewCache.AddOrUpdate(ACategoryRec);
+      ACache.FCategoryViewCache.AddOrUpdate(ACategoryRec);
     finally
       VSQLCategoryView.Free;
     end;
@@ -138,8 +143,7 @@ procedure UpdateCategorySQL(
   var ACategoryRecNew: TSQLCategoryRec;
   const AUserID: TID;
   const AClient: TSQLRestClient;
-  const ACategoryCache: TSQLCategoryCache;
-  const ACategoryViewCache: TSQLCategoryViewCache
+  const ACache: TSQLCategoryDbCache
 );
 
 var
@@ -199,9 +203,9 @@ begin
     // update view
     VSQLCategoryView := TSQLCategoryView.Create;
     try
-      if ACategoryViewCache.IsPrepared then begin
+      if ACache.FCategoryViewCache.IsPrepared then begin
         // init from cache
-        if ACategoryViewCache.Find(ACategoryRecNew.FCategoryId, VItem) then begin
+        if ACache.FCategoryViewCache.Find(ACategoryRecNew.FCategoryId, VItem) then begin
           VSQLCategoryView.IDValue := VItem.ViewId;
           VSQLCategoryView.Category := Pointer(VItem.CategoryId);
           VSQLCategoryView.Visible := VItem.Visible;
@@ -211,7 +215,7 @@ begin
       end else begin
         // init from db
         VSQLWhere := FormatUTF8('Category=? AND User=?', [], [ACategoryRecNew.FCategoryId, AUserID]);
-        CheckRetrieveResult( AClient.Retrieve(VSQLWhere, VSQLCategoryView) );
+        AClient.Retrieve(VSQLWhere, VSQLCategoryView);
       end;
       if VSQLCategoryView.ID > 0 then begin
         _ClearFields;
@@ -232,7 +236,7 @@ begin
         CheckUpdateResult( AClient.Update(VSQLCategoryView, _FieldsNamesStr) );
         ACategoryRecNew.FViewId := VSQLCategoryView.ID;
         // update cache
-        ACategoryViewCache.AddOrUpdate(ACategoryRecNew);
+        ACache.FCategoryViewCache.AddOrUpdate(ACategoryRecNew);
       end else begin
         // add new
         VSQLCategoryView.User := Pointer(AUserID);
@@ -244,7 +248,7 @@ begin
         CheckID( AClient.Add(VSQLCategoryView, True) );
         ACategoryRecNew.FViewId := VSQLCategoryView.ID;
         // add to cache
-        ACategoryViewCache.AddOrUpdate(ACategoryRecNew);
+        ACache.FCategoryViewCache.AddOrUpdate(ACategoryRecNew);
       end;
     finally
       VSQLCategoryView.Free;
@@ -258,15 +262,15 @@ begin
       AClient.UpdateField(TSQLCategory, ACategoryRecNew.FCategoryId, 'Name', [VName])
     );
     // update cache
-    ACategoryCache.AddOrUpdate(ACategoryRecNew);
+    ACache.FCategoryCache.AddOrUpdate(ACategoryRecNew);
 
     // update sub categories names
     VSearchName := ACategoryRecOld.FName + '\';
     VUpdateName := ACategoryRecNew.FName + '\';
 
-    if ACategoryCache.FillPrepare(AClient) > 0 then begin
-      VCategories := ACategoryCache.Rows;
-      for I := 0 to ACategoryCache.Count - 1 do begin
+    if FillPrepareCategoryCache(AClient, ACache) > 0 then begin
+      VCategories := ACache.FCategoryCache.Rows;
+      for I := 0 to ACache.FCategoryCache.Count - 1 do begin
         VOldName := VCategories[I].Name;
         if StartsText(VSearchName, VOldName) then begin
           // update cache
@@ -288,8 +292,7 @@ function ReadCategorySQL(
   const AName: string;
   const AUserID: TID;
   const AClient: TSQLRestClient;
-  const ACategoryCache: TSQLCategoryCache;
-  const ACategoryViewCache: TSQLCategoryViewCache
+  const ACache: TSQLCategoryDbCache
 ): Boolean;
 var
   VName: RawUTF8;
@@ -305,16 +308,16 @@ begin
 
   ACategoryRec := cEmptySQLCategoryRec;
 
+  VFound := False;
   VSQLCategory := TSQLCategory.Create;
   try
     // get category
-    if ACategoryCache.IsPrepared then begin
+    if ACache.FCategoryCache.IsPrepared then begin
       // from cache
-      VFound := False;
       if ID > 0 then begin
-        VFound := ACategoryCache.Find(ID, VCategoryItem);
+        VFound := ACache.FCategoryCache.Find(ID, VCategoryItem);
       end else if AName <> '' then begin
-        VFound := ACategoryCache.Find(AName, VCategoryItem);
+        VFound := ACache.FCategoryCache.Find(AName, VCategoryItem);
       end;
       if VFound then begin
         VSQLCategory.IDValue := VCategoryItem.CategoryId;
@@ -323,14 +326,14 @@ begin
     end else begin
       // from db
       if ID > 0 then begin
-        CheckRetrieveResult( AClient.Retrieve(ID, VSQLCategory) );
+        VFound := AClient.Retrieve(ID, VSQLCategory);
       end else if AName <> '' then begin
         VName := StringToUTF8(AName);
-        CheckRetrieveResult( AClient.Retrieve('Name=?', [], [VName], VSQLCategory) );
+        VFound := AClient.Retrieve('Name=?', [], [VName], VSQLCategory);
       end;
     end;
 
-    if VSQLCategory.ID > 0 then begin
+    if VFound and (VSQLCategory.ID > 0) then begin
       Result := True;
       ACategoryRec.FCategoryId := VSQLCategory.ID;
       ACategoryRec.FName := UTF8ToString(VSQLCategory.Name);
@@ -338,9 +341,10 @@ begin
       VSQLCategoryView := TSQLCategoryView.Create;
       try
         // get view
-        if ACategoryViewCache.IsPrepared then begin
+        if ACache.FCategoryViewCache.IsPrepared then begin
           // from cache
-          if ACategoryViewCache.Find(VSQLCategory.ID, VViewItem) then begin
+          VFound := ACache.FCategoryViewCache.Find(VSQLCategory.ID, VViewItem);
+          if VFound then begin
             VSQLCategoryView.IDValue := VViewItem.ViewId;
             VSQLCategoryView.Category := Pointer(VViewItem.CategoryId);
             VSQLCategoryView.Visible := VViewItem.Visible;
@@ -349,12 +353,13 @@ begin
           end;
         end else begin
           // from db
-          CheckRetrieveResult(
-            AClient.Retrieve('Category=? AND User=?', [], [VSQLCategory.ID, AUserID], VSQLCategoryView)
+          VFound := AClient.Retrieve(
+            'Category=? AND User=?',
+            [], [VSQLCategory.ID, AUserID],
+            VSQLCategoryView
           );
         end;
-
-        if VSQLCategoryView.ID > 0 then begin
+        if VFound and (VSQLCategoryView.ID > 0) then begin
           ACategoryRec.FViewId := VSQLCategoryView.ID;
           ACategoryRec.FVisible := VSQLCategoryView.Visible;
           ACategoryRec.FMinZoom := VSQLCategoryView.MinZoom;
@@ -367,6 +372,81 @@ begin
   finally
     VSQLCategory.Free;
   end;
+end;
+
+function FillPrepareCategoryCache(
+  const AClient: TSQLRestClient;
+  const ACache: TSQLCategoryDbCache
+): Integer;
+var
+  I, J: Integer;
+  VCount: Integer;
+  VList: TSQLTableJSON;
+  VArray: TSQLCategoryRowDynArray;
+begin
+  if not ACache.FCategoryCache.IsPrepared then begin
+    VList := AClient.ExecuteList(
+      [TSQLCategory],
+      'SELECT ID,Name FROM Category'
+    );
+    if Assigned(VList) then
+    try
+      VCount := VList.RowCount;
+      if VCount > 0 then begin
+        SetLength(VArray, VCount);
+        for I := 0 to VCount - 1 do begin
+          J := I + 1;
+          VArray[I].CategoryId := VList.GetAsInt64(J, 0);
+          VArray[I].Name := VList.GetString(J, 1);
+        end;
+        ACache.FCategoryCache.AddPrepared(VArray);
+      end;
+    finally
+      VList.Free;
+    end;
+  end;
+  Result := ACache.FCategoryCache.Count;
+end;
+
+function FillPrepareCategoryViewCache(
+  const AClient: TSQLRestClient;
+  const AUserID: TID;
+  const ACache: TSQLCategoryDbCache
+): Integer;
+var
+  I, J: Integer;
+  VCount: Integer;
+  VList: TSQLTableJSON;
+  VArray: TSQLCategoryViewRowDynArray;
+begin
+  if not ACache.FCategoryViewCache.IsPrepared then begin
+    VList := AClient.ExecuteList(
+      [TSQLCategoryView],
+      FormatUTF8(
+        'SELECT ID,Category,Visible,MinZoom,MaxZoom FROM CategoryView WHERE User=?',
+        [], [AUserID]
+      )
+    );
+    if Assigned(VList) then
+    try
+      VCount := VList.RowCount;
+      if VCount > 0 then begin
+        SetLength(VArray, VCount);
+        for I := 0 to VCount - 1 do begin
+          J := I + 1;
+          VArray[I].ViewId := VList.GetAsInt64(J, 0);
+          VArray[I].CategoryId := VList.GetAsInt64(J, 1);
+          VArray[I].Visible := VList.GetAsInteger(J, 2) <> 0;
+          VArray[I].MinZoom := VList.GetAsInteger(J, 3);
+          VArray[I].MaxZoom := VList.GetAsInteger(J, 4);
+        end;
+        ACache.FCategoryViewCache.AddPrepared(VArray);
+      end;
+    finally
+      VList.Free;
+    end;
+  end;
+  Result := ACache.FCategoryViewCache.Count;
 end;
 
 end.

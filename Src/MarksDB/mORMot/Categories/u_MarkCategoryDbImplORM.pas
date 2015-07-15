@@ -47,8 +47,7 @@ type
     FUserID: TID;
     FClient: TSQLRestClient;
     FFactoryDbInternal: IMarkCategoryFactoryDbInternalORM;
-    FSQLCategoryCache: TSQLCategoryCache;
-    FSQLCategoryViewCache: TSQLCategoryViewCache;
+    FCache: TSQLCategoryDbCache;
   private
     function _UpdateCategory(
       const AOldCategory: IInterface;
@@ -114,14 +113,12 @@ begin
   FClient := AClient;
   FFactoryDbInternal := TMarkCategoryFactoryDbInternalORM.Create(FDbId);
 
-  FSQLCategoryCache := TSQLCategoryCache.Create;
-  FSQLCategoryViewCache := TSQLCategoryViewCache.Create;
+  FCache.Init;
 end;
 
 destructor TMarkCategoryDbImplORM.Destroy;
 begin
-  FreeAndNil(FSQLCategoryViewCache);
-  FreeAndNil(FSQLCategoryCache);
+  FCache.Done;
   FFactoryDbInternal := nil;
   inherited;
 end;
@@ -177,7 +174,7 @@ begin
     if Assigned(AOldCategory) and not Assigned(ANewCategory) then
     begin // DELETE
       if Assigned(VCategoryInternal) and (VCategoryID > 0) then begin
-        DeleteCategorySQL(VCategoryID, FClient, FSQLCategoryCache, FSQLCategoryViewCache);
+        DeleteCategorySQL(VCategoryID, FClient, FCache);
         AIsChanged := True;
       end;
     end
@@ -186,7 +183,7 @@ begin
     begin // INSERT
       if Supports(ANewCategory, IMarkCategory, VNewCategory) then begin
         _SQLCategoryRecFromCategory(0, VNewCategory, VSQLCategoryRecNew);
-        InsertCategorySQL(VSQLCategoryRecNew, FUserID, FClient, FSQLCategoryCache, FSQLCategoryViewCache);
+        InsertCategorySQL(VSQLCategoryRecNew, FUserID, FClient, FCache);
         Result := FFactoryDbInternal.CreateCategory(VSQLCategoryRecNew);
         AIsChanged := True;
       end else begin
@@ -217,8 +214,7 @@ begin
             VSQLCategoryRecNew,
             FUserID,
             FClient,
-            FSQLCategoryCache,
-            FSQLCategoryViewCache
+            FCache
           );
           Result := FFactoryDbInternal.CreateCategory(VSQLCategoryRecNew);
           AIsChanged := True;
@@ -363,7 +359,7 @@ function TMarkCategoryDbImplORM._GetCategory(const ID: TID; const AName: string)
 var
   VRec: TSQLCategoryRec;
 begin
-  if ReadCategorySQL(VRec, ID, AName, FUserID, FClient, FSQLCategoryCache, FSQLCategoryViewCache) then begin
+  if ReadCategorySQL(VRec, ID, AName, FUserID, FClient, FCache) then begin
     Result := FFactoryDbInternal.CreateCategory(VRec);
   end else begin
     Result := nil;
@@ -404,6 +400,7 @@ var
   VCategoryID: TID;
   VSQLCategoryView: TSQLCategoryView;
   VTransaction: TTransactionRec;
+  VViewCache: TSQLCategoryViewCache;
 begin
   LockWrite;
   try
@@ -415,25 +412,25 @@ begin
           FormatUTF8('UPDATE CategoryView SET Visible=? WHERE User=?', [], [ANewVisible, FUserID])
         )
       );
-
-      VViewCount := FSQLCategoryViewCache.FillPrepare(FClient, FUserID);
+      VViewCount := FillPrepareCategoryViewCache(FClient, FUserID, FCache);
+      VViewCache := FCache.FCategoryViewCache;
 
       // update cache
-      VViews := FSQLCategoryViewCache.Rows;
+      VViews := VViewCache.Rows;
       for I := 0 to VViewCount - 1 do begin
         VViews[I].Visible := ANewVisible;
       end;
 
       if not ANewVisible then begin
-        VCategoryCount := FSQLCategoryCache.FillPrepare(FClient);
+        VCategoryCount := FillPrepareCategoryCache(FClient, FCache);
         if VCategoryCount > 0 then begin
-          VCategories := FSQLCategoryCache.Rows;
+          VCategories := FCache.FCategoryCache.Rows;
           VSQLCategoryView := TSQLCategoryView.Create;
           try
             VRec := cEmptySQLCategoryRec;
             for I := 0 to VCategoryCount - 1 do begin
               VCategoryID := VCategories[I].CategoryId;
-              if (VViewCount <= 0) or not FSQLCategoryViewCache.Find(VCategoryID, VItem)  then begin
+              if (VViewCount <= 0) or not VViewCache.Find(VCategoryID, VItem)  then begin
 
                 VRec.FCategoryId := VCategoryID;
                 VRec.FVisible := ANewVisible;
@@ -448,7 +445,7 @@ begin
                 CheckID( FClient.Add(VSQLCategoryView, True) );
                 VRec.FViewId := VSQLCategoryView.ID;
                 // add to cache
-                FSQLCategoryViewCache.AddOrUpdate(VRec);
+                VViewCache.AddOrUpdate(VRec); // ToDo: VViewCache.AddArray()
               end;
             end;
           finally
@@ -477,14 +474,15 @@ var
   VCount: Integer;
   VViewCount: Integer;
   VItem: PSQLCategoryViewRow;
-  VSQLCategoryRows: TSQLCategoryRowDynArray;
-  VSQLCategoryViewRows: TSQLCategoryViewRowDynArray;
+  VViewCache: TSQLCategoryViewCache;
+  VRows: TSQLCategoryRowDynArray;
+  VViewRows: TSQLCategoryViewRowDynArray;
 begin
   LockWrite;
   try
-    VCount := FSQLCategoryCache.FillPrepare(FClient);
+    VCount := FillPrepareCategoryCache(FClient, FCache);
     if VCount > 0 then begin
-      VViewCount := FSQLCategoryViewCache.FillPrepare(FClient, FUserID);
+      VViewCount := FillPrepareCategoryViewCache(FClient, FUserID, FCache);
     end else begin
       VViewCount := 0;
     end;
@@ -498,18 +496,19 @@ begin
 
     LockRead;
     try
-      VSQLCategoryRows := FSQLCategoryCache.Rows;
-      VSQLCategoryViewRows := FSQLCategoryViewCache.Rows;
+      VViewCache := FCache.FCategoryViewCache;
+      VRows := FCache.FCategoryCache.Rows;
+      VViewRows := VViewCache.Rows;
 
-      for I := 0 to FSQLCategoryCache.Count - 1 do begin
+      for I := 0 to FCache.FCategoryCache.Count - 1 do begin
 
         VRec := cEmptySQLCategoryRec;
 
-        VRec.FCategoryId := VSQLCategoryRows[I].CategoryId;
-        VRec.FName := VSQLCategoryRows[I].Name;
+        VRec.FCategoryId := VRows[I].CategoryId;
+        VRec.FName := VRows[I].Name;
 
         if VViewCount > 0 then begin
-          if FSQLCategoryViewCache.Find(VRec.FCategoryId, VItem) then begin
+          if VViewCache.Find(VRec.FCategoryId, VItem) then begin
             VRec.FVisible := VItem.Visible;
             VRec.FMinZoom := VItem.MinZoom;
             VRec.FMaxZoom := VItem.MaxZoom;

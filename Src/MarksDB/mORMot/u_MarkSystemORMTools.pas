@@ -87,7 +87,7 @@ end;
 procedure CheckRetrieveResult(const AResult: Boolean);
 begin
   if not AResult then begin
-    raise EMarkSystemORMError.Create('MarkSystemORM: Retrieve operarion is failed!');
+    raise EMarkSystemORMError.Create('MarkSystemORM: Nothing to Retrieve!');
   end;
 end;
 
