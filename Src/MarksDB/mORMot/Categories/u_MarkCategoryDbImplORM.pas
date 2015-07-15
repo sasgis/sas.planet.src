@@ -369,22 +369,22 @@ end;
 function TMarkCategoryDbImplORM.GetCategoryByID(const ID: TID): IMarkCategory;
 begin
   Assert(ID > 0);
-  LockRead;
+  LockWrite;
   try
     Result := _GetCategory(ID, '');
   finally
-    UnlockRead;
+    UnlockWrite;
   end;
 end;
 
 function TMarkCategoryDbImplORM.GetCategoryByName(const AName: string): IMarkCategory;
 begin
   Assert(AName <> '');
-  LockRead;
+  LockWrite;
   try
     Result := _GetCategory(0, AName);
   finally
-    UnlockRead;
+    UnlockWrite;
   end;
 end;
 

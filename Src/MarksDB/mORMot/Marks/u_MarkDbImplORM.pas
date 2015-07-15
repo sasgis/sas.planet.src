@@ -98,7 +98,7 @@ type
       out AIsChanged: Boolean
     ): IVectorDataItem;
 
-    function _GetCategoryID(const ACategory: ICategory): TID;
+    function _GetCategoryID(const ACategory: ICategory): TID; inline;
   private
     { IMarkDbInternalORM }
     function GetById(const AId: TID): IVectorDataItem;
@@ -276,11 +276,11 @@ function TMarkDbImplORM.GetById(const AId: TID): IVectorDataItem;
 begin
   Result := nil;
   if AId > 0 then begin
-    LockRead;
+    LockWrite;
     try
       Result := _GetMarkSQL(AId);
     finally
-      UnlockRead;
+      UnlockWrite;
     end;
   end;
 end;
@@ -297,11 +297,11 @@ begin
       VId := VMarkInternal.Id;
     end;
     if VId > 0 then begin
-      LockRead;
+      LockWrite;
       try
         Result := _GetMarkSQL(VId);
       finally
-        UnlockRead;
+        UnlockWrite;
       end;
     end;
   end;
@@ -326,7 +326,7 @@ begin
     end;
   end;
 
-  LockRead;
+  LockWrite;
   try
     if VCategory <> nil then begin
       Result := _GetMarkSQL(0, AName, VCategory.Id);
@@ -334,7 +334,7 @@ begin
       Result := _GetMarkSQL(0, AName, 0);
     end;
   finally
-    UnlockRead;
+    UnlockWrite;
   end;
 end;
 
@@ -944,11 +944,11 @@ begin
     VIdArray[0] := 0;
   end;
 
-  LockRead;
+  LockWrite;
   try
     _GetMarkSubsetByRect(VIdArray, ARect, AIncludeHiddenMarks, ALonLatSize, VResultList);
   finally
-    UnlockRead;
+    UnlockWrite;
   end;
 
   Result := VResultList.MakeStaticAndClear;
@@ -967,7 +967,7 @@ var
 begin
   VResultList := FVectorItemSubsetBuilderFactory.Build;
 
-  LockRead;
+  LockWrite;
   try
     if ACategoryList <> nil then begin
       SetLength(VIdArray, ACategoryList.Count);
@@ -981,7 +981,7 @@ begin
     end;
     _GetMarkSubsetByRect(VIdArray, ARect, AIncludeHiddenMarks, ALonLatSize, VResultList);
   finally
-    UnlockRead;
+    UnlockWrite;
   end;
 
   Result := VResultList.MakeStaticAndClear;
