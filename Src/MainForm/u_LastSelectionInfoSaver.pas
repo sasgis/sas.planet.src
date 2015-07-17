@@ -24,10 +24,12 @@ interface
 
 uses
   Classes,
+  SysUtils,
   i_NotifierOperation,
   i_Listener,
   i_PathConfig,
   i_SimpleFlag,
+  i_GeometryLonLat,
   i_GeometryLonLatFactory,
   i_LastSelectionInfo,
   u_BackgroundTask;
@@ -42,6 +44,30 @@ type
     FListener: IListener;
     FNeedReadFlag: ISimpleFlag;
     FNeedWriteFlag: ISimpleFlag;
+    procedure _SaveContour(
+      const AGeometry: IGeometryLonLatContour;
+      const AStringList: TStringList;
+      const AFormatSettings: TFormatSettings;
+      var AStartIndex: Integer
+    );
+    procedure _SaveSinglePolygon(
+      const AGeometry: IGeometryLonLatSinglePolygon;
+      const AStringList: TStringList;
+      const AFormatSettings: TFormatSettings;
+      var AStartIndex: Integer
+    );
+    procedure _SaveMultiPolygon(
+      const AGeometry: IGeometryLonLatMultiPolygon;
+      const AStringList: TStringList;
+      const AFormatSettings: TFormatSettings;
+      var AStartIndex: Integer
+    );
+    procedure _SavePolygon(
+      const AGeometry: IGeometryLonLatPolygon;
+      const AStringList: TStringList;
+      const AFormatSettings: TFormatSettings
+    );
+
     procedure OnNeedSave;
     procedure ProcessSave(
       AOperationID: Integer;
@@ -61,10 +87,8 @@ implementation
 
 uses
   t_GeoTypes,
-  SysUtils,
   IniFiles,
   i_ThreadConfig,
-  i_GeometryLonLat,
   i_ConfigDataWriteProvider,
   i_EnumDoublePoint,
   u_ThreadConfig,
@@ -143,9 +167,6 @@ var
   VProvider: IConfigDataWriteProvider;
   VStringList: TStringList;
   VFormatSettings: TFormatSettings;
-  VEnum: IEnumDoublePoint;
-  i: Integer;
-  VPoint: TDoublePoint;
 begin
   if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
     Exit;
@@ -202,19 +223,88 @@ begin
       try
         VStringList.Add('[HIGHLIGHTING]');
         VStringList.Add('Zoom=' + IntToStr(VZoom));
-        VEnum := VPolygon.GetEnum;
-        i := 1;
-        while VEnum.Next(VPoint) do begin
-          VStringList.Add('PointLon_' + IntToStr(i) + '=' + FloatToStr(VPoint.X, VFormatSettings));
-          VStringList.Add('PointLat_' + IntToStr(i) + '=' + FloatToStr(VPoint.Y, VFormatSettings));
-          Inc(i);
-        end;
+        _SavePolygon(VPolygon, VStringList, VFormatSettings);
         VStringList.SaveToFile(VFileName);
       finally
         VStringList.Free;
       end;
     except
     end;
+  end;
+end;
+
+procedure TLastSelectionInfoSaver._SaveContour(
+  const AGeometry: IGeometryLonLatContour;
+  const AStringList: TStringList;
+  const AFormatSettings: TFormatSettings;
+  var AStartIndex: Integer
+);
+var
+  VEnum: IEnumDoublePoint;
+  VPoint: TDoublePoint;
+begin
+  VEnum := AGeometry.GetEnum;
+  while VEnum.Next(VPoint) do begin
+    AStringList.Add('PointLon_' + IntToStr(AStartIndex) + '=' + FloatToStr(VPoint.X, AFormatSettings));
+    AStringList.Add('PointLat_' + IntToStr(AStartIndex) + '=' + FloatToStr(VPoint.Y, AFormatSettings));
+    Inc(AStartIndex);
+  end;
+end;
+
+procedure TLastSelectionInfoSaver._SaveSinglePolygon(
+  const AGeometry: IGeometryLonLatSinglePolygon;
+  const AStringList: TStringList;
+  const AFormatSettings: TFormatSettings;
+  var AStartIndex: Integer
+);
+var
+  i: Integer;
+begin
+  _SaveContour(AGeometry.OuterBorder, AStringList, AFormatSettings, AStartIndex);
+  for i := 0 to AGeometry.HoleCount - 1 do begin
+    AStringList.Add('PointLon_' + IntToStr(AStartIndex) + '=NaN');
+    AStringList.Add('PointLat_' + IntToStr(AStartIndex) + '=-1');
+    Inc(AStartIndex);
+    _SaveContour(AGeometry.HoleBorder[i], AStringList, AFormatSettings, AStartIndex);
+  end;
+end;
+
+procedure TLastSelectionInfoSaver._SaveMultiPolygon(
+  const AGeometry: IGeometryLonLatMultiPolygon;
+  const AStringList: TStringList;
+  const AFormatSettings: TFormatSettings;
+  var AStartIndex: Integer
+);
+var
+  i: Integer;
+begin
+  Assert(AGeometry.Count > 0);
+  _SaveSinglePolygon(AGeometry.Item[0], AStringList, AFormatSettings, AStartIndex);
+  for i := 1 to AGeometry.Count - 1 do begin
+    AStringList.Add('PointLon_' + IntToStr(AStartIndex) + '=NaN');
+    AStringList.Add('PointLat_' + IntToStr(AStartIndex) + '=NaN');
+    Inc(AStartIndex);
+    _SaveSinglePolygon(AGeometry.Item[i], AStringList, AFormatSettings, AStartIndex);
+  end;
+end;
+
+procedure TLastSelectionInfoSaver._SavePolygon(
+  const AGeometry: IGeometryLonLatPolygon;
+  const AStringList: TStringList;
+  const AFormatSettings: TFormatSettings
+);
+var
+  VStartIndex: Integer;
+  VSinglePolygon: IGeometryLonLatSinglePolygon;
+  VMultiPolygon: IGeometryLonLatMultiPolygon;
+begin
+  VStartIndex := 1;
+  if Supports(AGeometry, IGeometryLonLatSinglePolygon, VSinglePolygon) then begin
+    _SaveSinglePolygon(VSinglePolygon, AStringList, AFormatSettings, VStartIndex);
+  end else if Supports(AGeometry, IGeometryLonLatMultiPolygon, VMultiPolygon) then begin
+    _SaveMultiPolygon(VMultiPolygon, AStringList, AFormatSettings, VStartIndex);
+  end else begin
+    Assert(False);
   end;
 end;
 
