@@ -404,7 +404,6 @@ begin
     // simple object
     currNode := currNode.AddChild('LineString');
     currNode.ChildNodes['extrude'].Text := '1';
-    VLonLatPathLine := VLonLatPath.Item[0];
     VCoordinates := GetKMLCoordinates(VLonLatPathLine.GetEnum);
     currNode.ChildNodes['coordinates'].Text := VCoordinates;
   end else if Supports(AMark.Geometry, IGeometryLonLatMultiLine, VLonLatPath) then begin
