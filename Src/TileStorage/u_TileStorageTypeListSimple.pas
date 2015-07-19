@@ -56,6 +56,7 @@ uses
   u_TileFileNameES,
   u_TileFileNameGM1,
   u_TileFileNameGM2,
+  u_TileFileNameGM3,
   u_TileFileNameMOBAC,
   u_TileStorageTypeConfig,
   u_TileStorageTypeGE,
@@ -78,6 +79,7 @@ const
   CTileStorageTypeFileSystemES: TGUID = '{F6056405-C25C-4573-AFAC-BC4F8DF52283}';
   CTileStorageTypeFileSystemGM1: TGUID = '{E6F98BC5-8684-42C9-92DE-3D994DA8C925}';
   CTileStorageTypeFileSystemGM2: TGUID = '{4EF99AD6-D05E-4175-805C-DBBE08AC43B3}';
+  CTileStorageTypeFileSystemGM3: TGUID = '{A65E31AC-7561-47FA-87B6-CE7F5603D5D1}';
   CTileStorageTypeFileSystemMA: TGUID = '{033B64B5-008B-4BAF-9EA9-B8176EA35433}';
   CTileStorageTypeInRAM: TGUID = '{717034B7-B49E-4C89-BC75-002D0523E548}';
 
@@ -89,6 +91,7 @@ resourcestring
   rsGlobalMapperAuxCacheName = 'GlobalMapper Aux';
   rsGlobalMapperBingCacheName = 'GlobalMapper Bing';
   rsGoogleEarthCacheName = 'GoogleEarth';
+  rsGoogleEarthTerrainCacheName = 'GoogleEarth Terrain';
   rsGeoCacherCacheName = 'GeoCacher';
   rsBerkeleyDBCacheName = 'BerkeleyDB';
   rsBerkeleyDBVersionedCacheName = 'BerkeleyDB (Versioned)';
@@ -204,7 +207,26 @@ begin
       rsGlobalMapperAuxCacheName,
       VStorageType,
       True,
-      False
+      True
+    );
+  VList.Add(VItem);
+
+  VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.GMTilesPath);
+  VStorageType :=
+    TTileStorageTypeFileSystemSimple.Create(
+      TTileFileNameGM3.Create,
+      TTileFileNameGM3.Create,
+      AMapVersionFactoryList.GetSimpleVersionFactory,
+      VStorageTypeConfig
+    );
+  VItem :=
+    TTileStorageTypeListItem.Create(
+      CTileStorageTypeFileSystemGM3,
+      c_File_Cache_Id_GM_Bing,
+      rsGlobalMapperBingCacheName,
+      VStorageType,
+      True,
+      True
     );
   VList.Add(VItem);
 
@@ -316,7 +338,7 @@ begin
     TTileStorageTypeListItem.Create(
       CTileStorageTypeGETerrain,
       c_File_Cache_Id_GEt,
-      'Google Earth Cache Terrain (Read Only)',
+      rsGoogleEarthTerrainCacheName,
       VStorageType,
       False,
       False
