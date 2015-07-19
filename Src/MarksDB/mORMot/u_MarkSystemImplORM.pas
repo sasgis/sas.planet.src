@@ -25,11 +25,6 @@ interface
 uses
   Windows,
   Classes,
-  mORMot,
-  mORMotSQLite3,
-  SynCommons,
-  SynSQLite3Static,
-  t_MarkSystemORM,
   i_HashFunction,
   i_GeometryLonLatFactory,
   i_VectorItemSubsetBuilder,
@@ -50,7 +45,7 @@ uses
   i_MarkCategoryDbInternalORM,
   i_MarkSystemImplConfig,
   i_ReadWriteStateInternal,
-  u_MarkSystemORMModel,
+  i_MarkSystemImplORMClientProvider,
   u_BaseInterfacedObject;
 
 type
@@ -58,15 +53,12 @@ type
   private
     FState: IReadWriteStateChangeble;
     FDbId: Integer;
-    FUser: TSQLUser;
-    FModel: TSQLModel;
-    FClientDB: TSQLRestClientDB;
     FMarkDbImpl: IMarkDbImpl;
     FMarkDbInternal: IMarkDbInternalORM;
     FCategoryDBImpl: IMarkCategoryDBImpl;
     FCategoryDBInternal: IMarkCategoryDbInternalORM;
     FFactoryDbInternal: IMarkFactoryDbInternalORM;
-    function GetDatabaseFileName(const ABasePath, AFileName: string): string;
+    FClientProvider: IMarkSystemImplORMClientProvider;
   private
     { IMarkSystemImpl }
     function GetMarkDb: IMarkDbImpl;
@@ -107,15 +99,13 @@ uses
   t_CommonTypes,
   i_GeometryToStream,
   i_GeometryFromStream,
-  i_MarkSystemImplConfigORM,
-  u_FileSystemFunc,
   u_GeometryToWKB,
   u_GeometryFromWKB,
   u_ReadWriteStateInternal,
   u_MarkDbImplORM,
   u_MarkCategoryDbImplORM,
-  u_MarkSystemORMTools,
-  u_MarkFactoryDbInternalORM;
+  u_MarkFactoryDbInternalORM,
+  u_MarkSystemImplORMClientProvider;
 
 constructor TMarkSystemImplORM.Create(
   AOperationID: Integer;
@@ -133,16 +123,12 @@ constructor TMarkSystemImplORM.Create(
   const AImplConfig: IMarkSystemImplConfigStatic
 );
 var
-  VUserName: RawUTF8;
   VCategoryDb: TMarkCategoryDbImplORM;
   VMarkDb: TMarkDbImplORM;
   VState: TReadWriteStateInternal;
   VStateInternal: IReadWriteStateInternal;
-  VDatabaseFileName: TFileName;
   VGeometryReader: IGeometryFromStream;
   VGeometryWriter: IGeometryToStream;
-  VTransaction: TTransactionRec;
-  VImplConfig: IMarkSystemImplConfigORM;
 begin
   inherited Create;
   FDbId := Integer(Self);
@@ -150,11 +136,7 @@ begin
   FState := VState;
   VStateInternal := VState;
 
-  if not Supports(AImplConfig, IMarkSystemImplConfigORM, VImplConfig) then begin
-    raise Exception.Create('MarkSystemImplORM: Unknown Impl config interface!');
-  end;
-
-  if VImplConfig.IsReadOnly then begin
+  if AImplConfig.IsReadOnly then begin
     VStateInternal.WriteAccess := asDisabled;
   end;
 
@@ -167,46 +149,23 @@ begin
   end;
   {$ENDIF}
 
-  VDatabaseFileName := GetDatabaseFileName(ABasePath, VImplConfig.FileName);
-
-  FModel := CreateModel;
-
-  FClientDB :=
-    TSQLRestClientDB.Create(
-      FModel,
-      nil,
-      VDatabaseFileName,
-      TSQLRestServerDB
-    );
-
-  FClientDB.DB.WALMode := True;
-
-  FClientDB.Server.CreateMissingTables;
-
-  if VImplConfig.UserName = '' then begin
-    VUserName := StringToUTF8('sasgis');
-  end else begin
-    VUserName := StringToUTF8(VImplConfig.UserName);
-  end;
-
-  FUser := TSQLUser.Create(FClientDB, 'Name=?', [VUserName]);
-  if FUser.ID = 0 then begin
-    FUser.Name := VUserName;
-    StartTransaction(FClientDB, VTransaction, TSQLUser);
-    try
-      CheckID( FClientDB.Add(FUser, True) );
-      CommitTransaction(FClientDB, VTransaction);
-    except
-      RollBackTransaction(FClientDB, VTransaction);
-      raise;
-    end;
+  try
+    FClientProvider :=
+      TMarkSystemImplORMClientProvider.Create(
+        ABasePath,
+        AImplConfig,
+        ctSQLite3
+      );
+  except
+    VStateInternal.ReadAccess := asDisabled;
+    VStateInternal.WriteAccess := asDisabled;
+    raise;
   end;
 
   VCategoryDb :=
     TMarkCategoryDbImplORM.Create(
       FDbId,
-      FUser.ID,
-      FClientDB
+      FClientProvider
     );
 
   FCategoryDBImpl := VCategoryDb;
@@ -229,8 +188,7 @@ begin
   VMarkDb :=
     TMarkDbImplORM.Create(
       FDbId,
-      FUser.ID,
-      FClientDB,
+      FClientProvider,
       FFactoryDbInternal,
       VGeometryReader,
       VGeometryWriter,
@@ -243,10 +201,13 @@ end;
 
 destructor TMarkSystemImplORM.Destroy;
 begin
-  FreeAndNil(FUser);
-  FreeAndNil(FClientDB);
-  FreeAndNil(FModel);
-  inherited;
+  FMarkDbImpl := nil;
+  FMarkDbInternal := nil;
+  FCategoryDBImpl := nil;
+  FCategoryDBInternal := nil;
+  FFactoryDbInternal := nil;
+  FClientProvider := nil;
+  inherited Destroy;
 end;
 
 function TMarkSystemImplORM.GetCategoryDB: IMarkCategoryDBImpl;
@@ -259,7 +220,7 @@ var
   VId: Integer; // ! TID
 begin
   Result := nil;
-  if AId <> '' then begin
+  if (AId <> '') and Assigned(FMarkDbInternal) then begin
     if TryStrToInt(AId, VId) then begin
       if not Supports(FMarkDbInternal.GetById(VId), IVectorDataItem, Result) then begin
         Result := nil;
@@ -273,7 +234,7 @@ var
   VId: Integer; // ! TID
 begin
   Result := nil;
-  if AId <> '' then begin
+  if (AId <> '') and Assigned(FCategoryDBInternal) then begin
     if TryStrToInt(AId, VId) then begin
       if not Supports(FCategoryDBInternal.GetCategoryByID(VId), IMarkCategory, Result) then begin
         Result := nil;
@@ -300,32 +261,6 @@ begin
   if Assigned(AMark) and Supports(AMark.MainInfo, IMarkInternalORM, VMark) then begin
     Result := IntToStr(VMark.Id);
   end;
-end;
-
-function TMarkSystemImplORM.GetDatabaseFileName(const ABasePath, AFileName: string): string;
-const
-  cDefName = 'Marks.db3';
-var
-  VName, VPath: string;
-begin
-  if AFileName <> '' then begin
-    VName := ExtractFileName(AFileName);
-    if VName = '' then begin
-      VName := cDefName;
-    end;
-    VPath := ExtractFilePath(AFileName);
-    if VPath = '' then begin
-      VPath := IncludeTrailingPathDelimiter(ABasePath);
-    end else begin
-      if IsRelativePath(VPath) then begin
-        VPath := GetFullPath(ABasePath, VPath);
-      end;
-    end;
-  end else begin
-    VName := cDefName;
-    VPath := IncludeTrailingPathDelimiter(ABasePath);
-  end;
-  Result := VPath + VName;
 end;
 
 end.

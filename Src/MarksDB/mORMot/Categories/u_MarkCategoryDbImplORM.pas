@@ -33,6 +33,7 @@ uses
   i_MarkCategoryFactoryDbInternalORM,
   i_MarkCategoryDbInternalORM,
   i_MarkCategoryDBImpl,
+  i_MarkSystemImplORMClientProvider,
   u_MarkCategoryDbImplORMCache,
   u_ConfigDataElementBase;
 
@@ -76,8 +77,7 @@ type
   public
     constructor Create(
       const ADbId: Integer;
-      const AUserID: TID;
-      const AClient: TSQLRestClient
+      const AClientProvider: IMarkSystemImplORMClientProvider
     );
     destructor Destroy; override;
   end;
@@ -98,19 +98,17 @@ uses
 
 constructor TMarkCategoryDbImplORM.Create(
   const ADbId: Integer;
-  const AUserID: TID;
-  const AClient: TSQLRestClient
+  const AClientProvider: IMarkSystemImplORMClientProvider
 );
 begin
   Assert(ADbId <> 0);
-  Assert(AUserID > 0);
-  Assert(Assigned(AClient));
+  Assert(Assigned(AClientProvider));
 
   inherited Create;
 
   FDbId := ADbId;
-  FUserID := AUserID;
-  FClient := AClient;
+  FUserID := AClientProvider.UserID;
+  FClient := AClientProvider.RestClient;
   FFactoryDbInternal := TMarkCategoryFactoryDbInternalORM.Create(FDbId);
 
   FCache.Init;

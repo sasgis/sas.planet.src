@@ -835,6 +835,7 @@
     <DCCReference Include="Src\MarksDB\mORMot\Categories\u_MarkCategoryDbInternalORM.pas" />
     <DCCReference Include="Src\MarksDB\mORMot\Categories\u_MarkCategoryFactoryDbInternalORM.pas" />
     <DCCReference Include="Src\MarksDB\mORMot\i_MarkSystemImplConfigORM.pas" />
+    <DCCReference Include="Src\MarksDB\mORMot\i_MarkSystemImplORMClientProvider.pas" />
     <DCCReference Include="Src\MarksDB\mORMot\Marks\i_MarkDbInternalORM.pas" />
     <DCCReference Include="Src\MarksDB\mORMot\Marks\i_MarkFactoryDbInternalORM.pas" />
     <DCCReference Include="Src\MarksDB\mORMot\Marks\u_MarkDbImplORM.pas" />
@@ -846,6 +847,7 @@
     <DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemImplConfigORM.pas" />
     <DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemImplFactoryORM.pas" />
     <DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemImplORM.pas" />
+    <DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemImplORMClientProvider.pas" />
     <DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemORMCacheBase.pas" />
     <DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemORMModel.pas" />
     <DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemORMTools.pas" />

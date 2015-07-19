@@ -44,6 +44,7 @@ uses
   i_MarkDbInternalORM,
   i_MarkCategoryInternalORM,
   i_MarkFactoryDbInternalORM,
+  i_MarkSystemImplORMClientProvider,
   u_MarkDbImplORMCache,
   u_ConfigDataElementBase;
 
@@ -58,6 +59,7 @@ type
     FUserID: TID;
     FClient: TSQLRestClient;
     FCache: TSQLMarkDbCache;
+    FClientProvider: IMarkSystemImplORMClientProvider;
     FFactoryDbInternal: IMarkFactoryDbInternalORM;
     FGeometryReader: IGeometryFromStream;
     FGeometryWriter: IGeometryToStream;
@@ -98,7 +100,7 @@ type
       out AIsChanged: Boolean
     ): IVectorDataItem;
 
-    function _GetCategoryID(const ACategory: ICategory): TID; inline;
+    class function _GetCategoryID(const ACategory: ICategory): TID; inline;
   private
     { IMarkDbInternalORM }
     function GetById(const AId: TID): IVectorDataItem;
@@ -186,8 +188,7 @@ type
   public
     constructor Create(
       const ADbId: Integer;
-      const AUserID: TID;
-      const AClient: TSQLRestClient;
+      const AClientProvider: IMarkSystemImplORMClientProvider;
       const AFactoryDbInternal: IMarkFactoryDbInternalORM;
       const AGeometryReader: IGeometryFromStream;
       const AGeometryWriter: IGeometryToStream;
@@ -208,8 +209,7 @@ uses
 
 constructor TMarkDbImplORM.Create(
   const ADbId: Integer;
-  const AUserID: TID;
-  const AClient: TSQLRestClient;
+  const AClientProvider: IMarkSystemImplORMClientProvider;
   const AFactoryDbInternal: IMarkFactoryDbInternalORM;
   const AGeometryReader: IGeometryFromStream;
   const AGeometryWriter: IGeometryToStream;
@@ -217,16 +217,16 @@ constructor TMarkDbImplORM.Create(
 );
 begin
   Assert(ADbId <> 0);
-  Assert(AUserID > 0);
-  Assert(Assigned(AClient));
+  Assert(Assigned(AClientProvider));
   Assert(Assigned(AGeometryReader));
   Assert(Assigned(AGeometryWriter));
 
   inherited Create;
 
   FDbId := ADbId;
-  FUserID := AUserID;
-  FClient := AClient;
+  FClientProvider := AClientProvider;
+  FUserID := FClientProvider.UserID;
+  FClient := FClientProvider.RestClient;
   FFactoryDbInternal := AFactoryDbInternal;
   FGeometryReader := AGeometryReader;
   FGeometryWriter := AGeometryWriter;
@@ -239,10 +239,11 @@ destructor TMarkDbImplORM.Destroy;
 begin
   FCache.Done;
   FFactoryDbInternal := nil;
+  FClientProvider := nil;
   inherited;
 end;
 
-function TMarkDbImplORM._GetCategoryID(const ACategory: ICategory): TID;
+class function TMarkDbImplORM._GetCategoryID(const ACategory: ICategory): TID;
 var
   VCategoryInternal: IMarkCategoryInternalORM;
 begin

@@ -920,6 +920,7 @@
 			<DCCReference Include="Src\MarksDB\mORMot\Marks\i_MarkDbInternalORM.pas"/>
 			<DCCReference Include="Src\MarksDB\mORMot\Marks\i_MarkFactoryDbInternalORM.pas"/>
 			<DCCReference Include="Src\MarksDB\mORMot\Marks\u_MarkDbImplORM.pas"/>
+			<DCCReference Include="Src\MarksDB\mORMot\Marks\u_MarkDbImplORMCache.pas"/>
 			<DCCReference Include="Src\MarksDB\mORMot\Marks\u_MarkDbImplORMHelper.pas"/>
 			<DCCReference Include="Src\MarksDB\mORMot\Marks\u_MarkFactoryDbInternalORM.pas"/>
 			<DCCReference Include="Src\MarksDB\mORMot\Marks\u_MarkIdORM.pas"/>
@@ -928,6 +929,7 @@
 			<DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemImplConfigORM.pas"/>
 			<DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemImplFactoryORM.pas"/>
 			<DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemImplORM.pas"/>
+			<DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemORMCacheBase.pas"/>
 			<DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemORMModel.pas"/>
 			<DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemORMTools.pas"/>
 			<DCCReference Include="Src\MarksDB\u_MarkCategory.pas"/>
@@ -1652,8 +1654,8 @@
 			<DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
 			<DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
 			<DCCReference Include="Src\u_WindowPositionConfig.pas"/>
-			<DCCReference Include="Src\MarksDB\mORMot\Marks\u_MarkDbImplORMCache.pas"/>
-			<DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemORMCacheBase.pas"/>
+			<DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemImplORMClientProvider.pas"/>
+			<DCCReference Include="Src\MarksDB\mORMot\i_MarkSystemImplORMClientProvider.pas"/>
 			<BuildConfiguration Include="Debug">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
