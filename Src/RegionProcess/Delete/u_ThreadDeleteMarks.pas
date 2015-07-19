@@ -103,6 +103,179 @@ begin
   FDelHiddenMarks := ADelHiddenMarks;
 end;
 
+function IsLonLatPointInProjectedPolygon(
+  const AGeometry: IGeometryLonLatPoint;
+  const AProjectedPolygon: IGeometryProjectedPolygon;
+  const AProjection: IProjectionInfo
+): Boolean;
+var
+  VProjectedPoint: TDoublePoint;
+begin
+  VProjectedPoint := AProjection.GeoConverter.LonLat2PixelPosFloat(AGeometry.Point, AProjection.Zoom);
+  Result := AProjectedPolygon.IsPointInPolygon(VProjectedPoint);
+end;
+
+function IsLonLatSingleLineInProjectedPolygon(
+  const AGeometry: IGeometryLonLatSingleLine;
+  const AProjectedPolygon: IGeometryProjectedPolygon;
+  const AProjection: IProjectionInfo
+): Boolean; inline;
+var
+  VLonlatPoint: TDoublePoint;
+  VProjectedPoint: TDoublePoint;
+  VEnum: IEnumLonLatPoint;
+begin
+  Result := True;
+
+  VEnum := AGeometry.GetEnum;
+  while VEnum.Next(VLonlatPoint) do begin
+    VProjectedPoint := AProjection.GeoConverter.LonLat2PixelPosFloat(VLonlatPoint, AProjection.Zoom);
+    if not AProjectedPolygon.IsPointInPolygon(VProjectedPoint) then begin
+      Result := False;
+      Break;
+    end;
+  end;
+end;
+
+function IsLonLatMultiLineInProjectedPolygon(
+  const AGeometry: IGeometryLonLatMultiLine;
+  const AProjectedPolygon: IGeometryProjectedPolygon;
+  const AProjection: IProjectionInfo
+): Boolean; inline;
+var
+  i: Integer;
+begin
+  Result := True;
+  for i := 0 to AGeometry.Count - 1 do begin
+    if not IsLonLatSingleLineInProjectedPolygon(AGeometry.Item[i], AProjectedPolygon, AProjection) then begin
+      Result := False;
+      Break;
+    end;
+  end;
+end;
+
+function IsLonLatLineInProjectedPolygon(
+  const AGeometry: IGeometryLonLatLine;
+  const AProjectedPolygon: IGeometryProjectedPolygon;
+  const AProjection: IProjectionInfo
+): Boolean; inline;
+var
+  VProjectedBounds: TDoubleRect;
+  VSingleLine: IGeometryLonLatSingleLine;
+  VMultiLine: IGeometryLonLatMultiLine;
+begin
+  Result := False;
+  VProjectedBounds := AProjection.GeoConverter.LonLatRect2PixelRectFloat(AGeometry.Bounds.Rect, AProjection.Zoom);
+  if not IsIntersecProjectedRect(AProjectedPolygon.Bounds, VProjectedBounds) then begin
+    Exit;
+  end;
+  if Supports(AGeometry, IGeometryLonLatSingleLine, VSingleLine) then begin
+    Result := IsLonLatSingleLineInProjectedPolygon(VSingleLine, AProjectedPolygon, AProjection);
+  end else if Supports(AGeometry, IGeometryLonLatMultiLine, VMultiLine) then begin
+    Result := IsLonLatMultiLineInProjectedPolygon(VMultiLine, AProjectedPolygon, AProjection);
+  end else begin
+    Assert(False);
+  end;
+end;
+
+function IsLonLatContourInProjectedPolygon(
+  const AGeometry: IGeometryLonLatContour;
+  const AProjectedPolygon: IGeometryProjectedPolygon;
+  const AProjection: IProjectionInfo
+): Boolean; inline;
+var
+  VLonlatPoint: TDoublePoint;
+  VProjectedPoint: TDoublePoint;
+  VEnum: IEnumLonLatPoint;
+begin
+  Result := True;
+  VEnum := AGeometry.GetEnum;
+  while VEnum.Next(VLonlatPoint) do begin
+    VProjectedPoint := AProjection.GeoConverter.LonLat2PixelPosFloat(VLonlatPoint, AProjection.Zoom);
+    if not AProjectedPolygon.IsPointInPolygon(VProjectedPoint) then begin
+      Result := False;
+      Break;
+    end;
+  end;
+end;
+
+function IsLonLatSinglePolygonInProjectedPolygon(
+  const AGeometry: IGeometryLonLatSinglePolygon;
+  const AProjectedPolygon: IGeometryProjectedPolygon;
+  const AProjection: IProjectionInfo
+): Boolean; inline;
+begin
+  Result :=
+    IsLonLatContourInProjectedPolygon(
+      AGeometry.OuterBorder,
+      AProjectedPolygon,
+      AProjection
+    );
+end;
+
+function IsLonLatMultiPolygonInProjectedPolygon(
+  const AGeometry: IGeometryLonLatMultiPolygon;
+  const AProjectedPolygon: IGeometryProjectedPolygon;
+  const AProjection: IProjectionInfo
+): Boolean; inline;
+var
+  i: Integer;
+begin
+  Result := True;
+  for i := 0 to AGeometry.Count - 1 do begin
+    if IsLonLatSinglePolygonInProjectedPolygon(AGeometry.Item[i], AProjectedPolygon, AProjection) then begin
+      Result := False;
+      Break;
+    end;
+  end;
+end;
+
+function IsLonLatPolygonInProjectedPolygon(
+  const AGeometry: IGeometryLonLatPolygon;
+  const AProjectedPolygon: IGeometryProjectedPolygon;
+  const AProjection: IProjectionInfo
+): Boolean; inline;
+var
+  VProjectedBounds: TDoubleRect;
+  VSinglePolygon: IGeometryLonLatSinglePolygon;
+  VMultiPolygon: IGeometryLonLatMultiPolygon;
+begin
+  Result := False;
+  VProjectedBounds := AProjection.GeoConverter.LonLatRect2PixelRectFloat(AGeometry.Bounds.Rect, AProjection.Zoom);
+  if not IsIntersecProjectedRect(AProjectedPolygon.Bounds, VProjectedBounds) then begin
+    Exit;
+  end;
+  if Supports(AGeometry, IGeometryLonLatSinglePolygon, VSinglePolygon) then begin
+    Result := IsLonLatSinglePolygonInProjectedPolygon(VSinglePolygon, AProjectedPolygon, AProjection);
+  end else if Supports(AGeometry, IGeometryLonLatMultiPolygon, VMultiPolygon) then begin
+    Result := IsLonLatMultiPolygonInProjectedPolygon(VMultiPolygon, AProjectedPolygon, AProjection);
+  end else begin
+    Assert(False);
+  end;
+end;
+
+function IsLonLatGeometryInProjectedPolygon(
+  const AGeometry: IGeometryLonLat;
+  const AProjectedPolygon: IGeometryProjectedPolygon;
+  const AProjection: IProjectionInfo
+): Boolean;
+var
+  VPoint: IGeometryLonLatPoint;
+  VLine: IGeometryLonLatLine;
+  VPolygon: IGeometryLonLatPolygon;
+begin
+  Result := False;
+  if Supports(AGeometry, IGeometryLonLatPoint, VPoint) then begin
+    Result := IsLonLatPointInProjectedPolygon(VPoint, AProjectedPolygon, AProjection);
+  end else if Supports(AGeometry, IGeometryLonLatLine, VLine) then begin
+    Result := IsLonLatLineInProjectedPolygon(VLine, AProjectedPolygon, AProjection);
+  end else if Supports(AGeometry, IGeometryLonLatPolygon, VPolygon) then begin
+    Result := IsLonLatPolygonInProjectedPolygon(VPolygon, AProjectedPolygon, AProjection);
+  end else begin
+    Assert(False);
+  end;
+end;
+
 procedure TThreadDeleteMarks.ProcessRegion;
 var
   VTilesToProcess: Int64;
@@ -112,11 +285,6 @@ var
   VTemp: IInterfaceListSimple;
   VMarksListToDelete: IInterfaceListStatic;
   VDoAdd: Boolean;
-  VDoublePoint: TDoublePoint;
-  VPoint: IGeometryLonLatPoint;
-  VLine: IGeometryLonLatLine;
-  VPoly: IGeometryLonLatPolygon;
-  VEnum: IEnumLonLatPoint;
 begin
   inherited;
   VVectorItems := FMarkSystem.MarkDb.GetMarkSubsetByCategoryListInRect(FpolyLL.Bounds.Rect, nil, FDelHiddenMarks, DoublePoint(0, 0));
@@ -141,27 +309,12 @@ begin
       if VDoAdd then VDoAdd := FpolyLL.Bounds.IsContainRect(VVectorItems.Items[i].Geometry.Bounds);
 
       if VDoAdd then begin
-        if Supports(VVectorItems.Items[i].Geometry, IGeometryLonLatPoint, VPoint) then begin
-          VDoublePoint := FProjection.GeoConverter.LonLat2PixelPosFloat(VPoint.Point, FProjection.Zoom);
-          VDoAdd := FProjectedPolygon.IsPointInPolygon(VDoublePoint);
-        end else if Supports(VVectorItems.Items[i].Geometry, IGeometryLonLatLine, VLine) then begin
-          VEnum := VLine.GetEnum;
-          while VEnum.Next(VDoublePoint) and VDoAdd do begin
-            if not PointIsEmpty(VDoublePoint) then begin
-              VDoublePoint := FProjection.GeoConverter.LonLat2PixelPosFloat(VDoublePoint, FProjection.Zoom);
-              VDoAdd := FProjectedPolygon.IsPointInPolygon(VDoublePoint);
-            end;
-          end;
-        end else if Supports(VVectorItems.Items[i].Geometry, IGeometryLonLatPolygon, VPoly) then begin
-          VEnum := VPoly.GetEnum;
-          while VEnum.Next(VDoublePoint) and VDoAdd do begin
-            if not PointIsEmpty(VDoublePoint) then begin
-              VDoublePoint := FProjection.GeoConverter.LonLat2PixelPosFloat(VDoublePoint, FProjection.Zoom);
-              VDoAdd := FProjectedPolygon.IsPointInPolygon(VDoublePoint);
-            end;
-          end;
-        end;
-
+        VDoAdd :=
+          IsLonLatGeometryInProjectedPolygon(
+            VVectorItems.Items[i].Geometry,
+            FProjectedPolygon,
+            FProjection
+          );
         if VDoAdd then begin
           VTemp.Add(IMarkId(VVectorItems.Items[i].MainInfo));
         end;
