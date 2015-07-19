@@ -67,6 +67,7 @@ type
     FLineWithSelected: ILonLatPathWithSelected;
     procedure _UpdateLineObject; override;
     procedure _UpdateLineWithSelected; override;
+    procedure _SetPath(const AValue: IGeometryLonLatLine);
   private
     function IsEmpty: Boolean; override;
     function IsReady: Boolean; override;
@@ -81,6 +82,9 @@ type
     FLineWithSelected: ILonLatPolygonWithSelected;
     procedure _UpdateLineObject; override;
     procedure _UpdateLineWithSelected; override;
+    procedure _SetPolygon(const AValue: IGeometryLonLatPolygon);
+    procedure _AddContour(const AValue: IGeometryLonLatContour);
+    procedure _AddSinglePolygon(const AValue: IGeometryLonLatSinglePolygon);
   private
     function IsEmpty: Boolean; override;
     function IsReady: Boolean; override;
@@ -100,17 +104,11 @@ uses
 type
   TLonLatLineWithSelectedBase = class(TBaseInterfacedObject)
   private
-    FSelectedPoint: TDoublePoint;
-    FSelectedSegmentIndex: Integer;
     FSelectedPointIndex: Integer;
   private
-    function GetSelectedPoint: TDoublePoint;
-    function GetSelectedSegmentIndex: Integer;
     function GetSelectedPointIndex: Integer;
   public
     constructor Create(
-      const ASelectedPoint: TDoublePoint;
-      ASelectedSegmentIndex: Integer;
       ASelectedPointIndex: Integer
     );
   end;
@@ -470,55 +468,19 @@ begin
 end;
 
 procedure TPathOnMapEdit.SetPath(const AValue: ILonLatPathWithSelected);
-var
-  i: Integer;
-  VLine: IGeometryLonLatSingleLine;
-  VMulitLine: IGeometryLonLatMultiLine;
 begin
   CS.BeginWrite;
   try
-    FSelectedPointIndex := -1;
-    FPointsCount := 0;
-    if Supports(AValue, IGeometryLonLatSingleLine, VLine) then begin
-      i := 0;
-      _GrowPoints(VLine.Count + 1);
-      Move(VLine.Points[0], FPoints[FPointsCount], VLine.Count * SizeOf(TDoublePoint));
-      if AValue.GetSelectedSegmentIndex = i then begin
-        if AValue.GetSelectedPointIndex <= VLine.Count then begin
-          FSelectedPointIndex := FPointsCount + AValue.GetSelectedPointIndex;
-        end else begin
-          FSelectedPointIndex := FPointsCount + VLine.Count - 1;
-        end;
-      end;
-      Inc(FPointsCount, VLine.Count);
-      FPoints[FPointsCount] := CEmptyDoublePoint;
-      Inc(FPointsCount);
-    end else if Supports(AValue, IGeometryLonLatMultiLine, VMulitLine) then begin
-      for i := 0 to VMulitLine.Count - 1 do begin
-        VLine := VMulitLine.Item[i];
-        _GrowPoints(VLine.Count + 1);
-        Move(VLine.Points[0], FPoints[FPointsCount], VLine.Count * SizeOf(TDoublePoint));
-        if AValue.GetSelectedSegmentIndex = i then begin
-          if AValue.GetSelectedPointIndex <= VLine.Count then begin
-            FSelectedPointIndex := FPointsCount + AValue.GetSelectedPointIndex;
-          end else begin
-            FSelectedPointIndex := FPointsCount + VLine.Count - 1;
-          end;
-        end;
-        Inc(FPointsCount, VLine.Count);
-        FPoints[FPointsCount] := CEmptyDoublePoint;
-        Inc(FPointsCount);
-      end;
-    end;
-    if FPointsCount > 0 then begin
-      Dec(FPointsCount);
-    end;
+    _SetPath(AValue.Geometry);
+    FSelectedPointIndex := AValue.GetSelectedPointIndex;
     if FSelectedPointIndex < 0 then begin
       if FPointsCount > 0 then begin
         FSelectedPointIndex := FPointsCount - 1;
       end else begin
         FSelectedPointIndex := 0;
       end;
+    end else if FSelectedPointIndex >= FPointsCount then begin
+      FSelectedPointIndex := 0;
     end;
     _UpdateLineObject;
   finally
@@ -551,44 +513,49 @@ begin
 end;
 
 procedure TPathOnMapEdit.SetPath(const AValue: IGeometryLonLatLine);
-var
-  i: Integer;
-  VLine: IGeometryLonLatSingleLine;
-  VMultiLine: IGeometryLonLatMultiLine;
 begin
   CS.BeginWrite;
   try
-    FPointsCount := 0;
-    if Supports(AValue, IGeometryLonLatSingleLine, VLine) then begin
-      _GrowPoints(VLine.Count + 1);
-      Move(VLine.Points[0], FPoints[FPointsCount], VLine.Count * SizeOf(TDoublePoint));
-      Inc(FPointsCount, VLine.Count);
-      FPoints[FPointsCount] := CEmptyDoublePoint;
-      Inc(FPointsCount);
-    end else if Supports(AValue, IGeometryLonLatMultiLine, VMultiLine) then begin
-      for i := 0 to VMultiLine.Count - 1 do begin
-        VLine := VMultiLine.Item[i];
-        _GrowPoints(VLine.Count + 1);
-        Move(VLine.Points[0], FPoints[FPointsCount], VLine.Count * SizeOf(TDoublePoint));
-        Inc(FPointsCount, VLine.Count);
-        FPoints[FPointsCount] := CEmptyDoublePoint;
-        Inc(FPointsCount);
-      end;
-    end;
-    if FPointsCount > 0 then begin
-      Dec(FPointsCount);
-    end;
-
-    if FPointsCount > 0 then begin
-      FSelectedPointIndex := FPointsCount - 1;
-    end else begin
-      FSelectedPointIndex := 0;
-    end;
+    _SetPath(AValue);
     _UpdateLineObject;
   finally
     CS.EndWrite;
   end;
   DoChangeNotify;
+end;
+
+procedure TPathOnMapEdit._SetPath(const AValue: IGeometryLonLatLine);
+var
+  i: Integer;
+  VLine: IGeometryLonLatSingleLine;
+  VMultiLine: IGeometryLonLatMultiLine;
+begin
+  FPointsCount := 0;
+  if Supports(AValue, IGeometryLonLatSingleLine, VLine) then begin
+    _GrowPoints(VLine.Count + 1);
+    Move(VLine.Points[0], FPoints[FPointsCount], VLine.Count * SizeOf(TDoublePoint));
+    Inc(FPointsCount, VLine.Count);
+    FPoints[FPointsCount] := CEmptyDoublePoint;
+    Inc(FPointsCount);
+  end else if Supports(AValue, IGeometryLonLatMultiLine, VMultiLine) then begin
+    for i := 0 to VMultiLine.Count - 1 do begin
+      VLine := VMultiLine.Item[i];
+      _GrowPoints(VLine.Count + 1);
+      Move(VLine.Points[0], FPoints[FPointsCount], VLine.Count * SizeOf(TDoublePoint));
+      Inc(FPointsCount, VLine.Count);
+      FPoints[FPointsCount] := CEmptyDoublePoint;
+      Inc(FPointsCount);
+    end;
+  end;
+  if FPointsCount > 0 then begin
+    Dec(FPointsCount);
+  end;
+
+  if FPointsCount > 0 then begin
+    FSelectedPointIndex := FPointsCount - 1;
+  end else begin
+    FSelectedPointIndex := 0;
+  end;
 end;
 
 procedure TPathOnMapEdit._UpdateLineObject;
@@ -615,49 +582,11 @@ begin
 end;
 
 procedure TPolygonOnMapEdit.SetPolygon(const AValue: ILonLatPolygonWithSelected);
-var
-  i: Integer;
-  VLine: IGeometryLonLatSinglePolygon;
-  VMultiLine: IGeometryLonLatMultiPolygon;
 begin
   CS.BeginWrite;
   try
-    FSelectedPointIndex := -1;
-    FPointsCount := 0;
-    if Supports(AValue, IGeometryLonLatSinglePolygon, VLine) then begin
-      i := 0;
-      _GrowPoints(VLine.Count + 1);
-      Move(VLine.Points[0], FPoints[FPointsCount], VLine.Count * SizeOf(TDoublePoint));
-      if AValue.GetSelectedSegmentIndex = i then begin
-        if AValue.GetSelectedPointIndex <= VLine.Count then begin
-          FSelectedPointIndex := FPointsCount + AValue.GetSelectedPointIndex;
-        end else begin
-          FSelectedPointIndex := FPointsCount + VLine.Count - 1;
-        end;
-      end;
-      Inc(FPointsCount, VLine.Count);
-      FPoints[FPointsCount] := CEmptyDoublePoint;
-      Inc(FPointsCount);
-    end else if Supports(AValue, IGeometryLonLatMultiPolygon, VMultiLine) then begin
-      for i := 0 to VMultiLine.Count - 1 do begin
-        VLine := VMultiLine.Item[i];
-        _GrowPoints(VLine.Count + 1);
-        Move(VLine.Points[0], FPoints[FPointsCount], VLine.Count * SizeOf(TDoublePoint));
-        if AValue.GetSelectedSegmentIndex = i then begin
-          if AValue.GetSelectedPointIndex <= VLine.Count then begin
-            FSelectedPointIndex := FPointsCount + AValue.GetSelectedPointIndex;
-          end else begin
-            FSelectedPointIndex := FPointsCount + VLine.Count - 1;
-          end;
-        end;
-        Inc(FPointsCount, VLine.Count);
-        FPoints[FPointsCount] := CEmptyDoublePoint;
-        Inc(FPointsCount);
-      end;
-    end;
-    if FPointsCount > 0 then begin
-      Dec(FPointsCount);
-    end;
+    _SetPolygon(AValue.Geometry);
+    FSelectedPointIndex := AValue.GetSelectedPointIndex;
     if FSelectedPointIndex < 0 then begin
       if FPointsCount > 0 then begin
         FSelectedPointIndex := FPointsCount - 1;
@@ -696,43 +625,62 @@ begin
 end;
 
 procedure TPolygonOnMapEdit.SetPolygon(const AValue: IGeometryLonLatPolygon);
-var
-  i: Integer;
-  VLine: IGeometryLonLatSinglePolygon;
-  VMultiLine: IGeometryLonLatMultiPolygon;
 begin
   CS.BeginWrite;
   try
-    FPointsCount := 0;
-    if Supports(AValue, IGeometryLonLatSinglePolygon, VLine) then begin
-      _GrowPoints(VLine.Count + 1);
-      Move(VLine.Points[0], FPoints[FPointsCount], VLine.Count * SizeOf(TDoublePoint));
-      Inc(FPointsCount, VLine.Count);
-      FPoints[FPointsCount] := CEmptyDoublePoint;
-      Inc(FPointsCount);
-    end else if Supports(AValue, IGeometryLonLatMultiPolygon, VMultiLine) then begin
-      for i := 0 to VMultiLine.Count - 1 do begin
-        VLine := VMultiLine.Item[i];
-        _GrowPoints(VLine.Count + 1);
-        Move(VLine.Points[0], FPoints[FPointsCount], VLine.Count * SizeOf(TDoublePoint));
-        Inc(FPointsCount, VLine.Count);
-        FPoints[FPointsCount] := CEmptyDoublePoint;
-        Inc(FPointsCount);
-      end;
-    end;
-    if FPointsCount > 0 then begin
-      Dec(FPointsCount);
-    end;
-    if FPointsCount > 0 then begin
-      FSelectedPointIndex := FPointsCount - 1;
-    end else begin
-      FSelectedPointIndex := 0;
-    end;
+    _SetPolygon(AValue);
     _UpdateLineObject;
   finally
     CS.EndWrite;
   end;
   DoChangeNotify;
+end;
+
+procedure TPolygonOnMapEdit._AddContour(const AValue: IGeometryLonLatContour);
+begin
+  _GrowPoints(AValue.Count + 1);
+  Move(AValue.Points[0], FPoints[FPointsCount], AValue.Count * SizeOf(TDoublePoint));
+  Inc(FPointsCount, AValue.Count);
+  FPoints[FPointsCount] := CEmptyDoublePoint;
+  Inc(FPointsCount);
+end;
+
+procedure TPolygonOnMapEdit._AddSinglePolygon(
+  const AValue: IGeometryLonLatSinglePolygon
+);
+var
+  i: Integer;
+begin
+  _AddContour(AValue.OuterBorder);
+  for i := 0 to AValue.HoleCount - 1 do begin
+    FPoints[FPointsCount - 1].Y := -1;
+    _AddContour(AValue.HoleBorder[i]);
+  end;
+end;
+
+procedure TPolygonOnMapEdit._SetPolygon(const AValue: IGeometryLonLatPolygon);
+var
+  i: Integer;
+  VLine: IGeometryLonLatSinglePolygon;
+  VMultiLine: IGeometryLonLatMultiPolygon;
+begin
+  FPointsCount := 0;
+  if Supports(AValue, IGeometryLonLatSinglePolygon, VLine) then begin
+    _AddSinglePolygon(VLine);
+  end else if Supports(AValue, IGeometryLonLatMultiPolygon, VMultiLine) then begin
+    for i := 0 to VMultiLine.Count - 1 do begin
+      VLine := VMultiLine.Item[i];
+      _AddSinglePolygon(VLine);
+    end;
+  end;
+  if FPointsCount > 0 then begin
+    Dec(FPointsCount);
+  end;
+  if FPointsCount > 0 then begin
+    FSelectedPointIndex := FPointsCount - 1;
+  end else begin
+    FSelectedPointIndex := 0;
+  end;
 end;
 
 procedure TPolygonOnMapEdit._UpdateLineObject;
@@ -749,29 +697,16 @@ end;
 { TLonLatLineWithSelectedBase }
 
 constructor TLonLatLineWithSelectedBase.Create(
-  const ASelectedPoint: TDoublePoint;
-  ASelectedSegmentIndex, ASelectedPointIndex: Integer
+  ASelectedPointIndex: Integer
 );
 begin
   inherited Create;
-  FSelectedPoint := ASelectedPoint;
-  FSelectedSegmentIndex := ASelectedSegmentIndex;
   FSelectedPointIndex := ASelectedPointIndex;
-end;
-
-function TLonLatLineWithSelectedBase.GetSelectedPoint: TDoublePoint;
-begin
-  Result := FSelectedPoint;
 end;
 
 function TLonLatLineWithSelectedBase.GetSelectedPointIndex: Integer;
 begin
   Result := FSelectedPointIndex;
-end;
-
-function TLonLatLineWithSelectedBase.GetSelectedSegmentIndex: Integer;
-begin
-  Result := FSelectedSegmentIndex;
 end;
 
 { TLonLatPathWithSelected }
@@ -780,67 +715,8 @@ constructor TLonLatPathWithSelected.Create(
   const ALine: IGeometryLonLatLine;
   ASelectedPointIndex: Integer
 );
-var
-  VSelectedSegmentIndex: Integer;
-  VSelectedPointIndex: Integer;
-  VSelectedPoint: TDoublePoint;
-  VLine: IGeometryLonLatSingleLine;
-  VMultiLine: IGeometryLonLatMultiLine;
-  i: Integer;
-  VPointExists: Boolean;
 begin
-  VSelectedSegmentIndex := 0;
-  VSelectedPointIndex := ASelectedPointIndex;
-  if Supports(ALine, IGeometryLonLatSingleLine, VLine) then begin
-    if VSelectedPointIndex <= VLine.Count then begin
-      if VSelectedPointIndex = VLine.Count then begin
-        VSelectedPoint := CEmptyDoublePoint;
-      end else begin
-        VSelectedPoint := VLine.Points[VSelectedPointIndex];
-      end;
-    end else begin
-      VSelectedPointIndex := VLine.Count - 1;
-      if VSelectedPointIndex >= 0 then begin
-        VSelectedPoint := VLine.Points[VSelectedPointIndex];
-      end else begin
-        VSelectedPoint := CEmptyDoublePoint;
-      end;
-    end;
-  end else if Supports(ALine, IGeometryLonLatMultiLine, VMultiLine) then begin
-    VPointExists := False;
-    for i := 0 to VMultiLine.Count - 1 do begin
-      VLine := VMultiLine.Item[i];
-      if VSelectedPointIndex <= VLine.Count then begin
-        VSelectedSegmentIndex := i;
-        if VSelectedPointIndex = VLine.Count then begin
-          VSelectedPoint := CEmptyDoublePoint;
-        end else begin
-          VSelectedPoint := VLine.Points[VSelectedPointIndex];
-        end;
-        VPointExists := True;
-        Break;
-      end else begin
-        Dec(VSelectedPointIndex, VLine.Count);
-        Dec(VSelectedPointIndex);
-      end;
-    end;
-    if not VPointExists then begin
-      VSelectedSegmentIndex := VMultiLine.Count - 1;
-      if VSelectedSegmentIndex >= 0 then begin
-        VLine := VMultiLine.Item[VSelectedSegmentIndex];
-        VSelectedPointIndex := VLine.Count - 1;
-        if VSelectedPointIndex >= 0 then begin
-          VSelectedPoint := VLine.Points[VSelectedPointIndex];
-        end else begin
-          VSelectedPoint := CEmptyDoublePoint;
-        end;
-      end else begin
-        VSelectedPointIndex := -1;
-        VSelectedPoint := CEmptyDoublePoint;
-      end;
-    end;
-  end;
-  inherited Create(VSelectedPoint, VSelectedSegmentIndex, VSelectedPointIndex);
+  inherited Create(ASelectedPointIndex);
   FLine := ALine;
 end;
 
@@ -855,67 +731,8 @@ constructor TLonLatPolygonWithSelected.Create(
   const ALine: IGeometryLonLatPolygon;
   ASelectedPointIndex: Integer
 );
-var
-  VSelectedSegmentIndex: Integer;
-  VSelectedPointIndex: Integer;
-  VSelectedPoint: TDoublePoint;
-  VLine: IGeometryLonLatSinglePolygon;
-  VMultiLine: IGeometryLonLatMultiPolygon;
-  i: Integer;
-  VPointExists: Boolean;
 begin
-  VSelectedSegmentIndex := 0;
-  VSelectedPointIndex := ASelectedPointIndex;
-  if Supports(ALine, IGeometryLonLatSinglePolygon, VLine) then begin
-    if VSelectedPointIndex <= VLine.Count then begin
-      if VSelectedPointIndex = VLine.Count then begin
-        VSelectedPoint := CEmptyDoublePoint;
-      end else begin
-        VSelectedPoint := VLine.Points[VSelectedPointIndex];
-      end;
-    end else begin
-      VSelectedPointIndex := VLine.Count - 1;
-      if VSelectedPointIndex >= 0 then begin
-        VSelectedPoint := VLine.Points[VSelectedPointIndex];
-      end else begin
-        VSelectedPoint := CEmptyDoublePoint;
-      end;
-    end;
-  end else if Supports(ALine, IGeometryLonLatMultiPolygon, VMultiLine) then begin
-    VPointExists := False;
-    for i := 0 to VMultiLine.Count - 1 do begin
-      VLine := VMultiLine.Item[i];
-      if VSelectedPointIndex <= VLine.Count then begin
-        VSelectedSegmentIndex := i;
-        if VSelectedPointIndex = VLine.Count then begin
-          VSelectedPoint := CEmptyDoublePoint;
-        end else begin
-          VSelectedPoint := VLine.Points[VSelectedPointIndex];
-        end;
-        VPointExists := True;
-        Break;
-      end else begin
-        Dec(VSelectedPointIndex, VLine.Count);
-        Dec(VSelectedPointIndex);
-      end;
-    end;
-    if not VPointExists then begin
-      VSelectedSegmentIndex := VMultiLine.Count - 1;
-      if VSelectedSegmentIndex >= 0 then begin
-        VLine := VMultiLine.Item[VSelectedSegmentIndex];
-        VSelectedPointIndex := VLine.Count - 1;
-        if VSelectedPointIndex >= 0 then begin
-          VSelectedPoint := VLine.Points[VSelectedPointIndex];
-        end else begin
-          VSelectedPoint := CEmptyDoublePoint;
-        end;
-      end else begin
-        VSelectedPointIndex := -1;
-        VSelectedPoint := CEmptyDoublePoint;
-      end;
-    end;
-  end;
-  inherited Create(VSelectedPoint, VSelectedSegmentIndex, VSelectedPointIndex);
+  inherited Create(ASelectedPointIndex);
   FLine := ALine;
 end;
 

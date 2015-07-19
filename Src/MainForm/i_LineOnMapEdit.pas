@@ -33,8 +33,6 @@ type
     function GetGeometry: IGeometryLonLatLine;
     property Geometry: IGeometryLonLatLine read GetGeometry;
 
-    function GetSelectedPoint: TDoublePoint;
-    function GetSelectedSegmentIndex: Integer;
     function GetSelectedPointIndex: Integer;
   end;
 
@@ -43,8 +41,6 @@ type
     function GetGeometry: IGeometryLonLatPolygon;
     property Geometry: IGeometryLonLatPolygon read GetGeometry;
 
-    function GetSelectedPoint: TDoublePoint;
-    function GetSelectedSegmentIndex: Integer;
     function GetSelectedPointIndex: Integer;
   end;
 

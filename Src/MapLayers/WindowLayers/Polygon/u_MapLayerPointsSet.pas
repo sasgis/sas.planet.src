@@ -324,6 +324,239 @@ begin
   end;
 end;
 
+procedure PrepareSingleLine(
+  const AProjection: IProjectionInfo;
+  const AGeometry: IGeometryLonLatSingleLine;
+  const ASourceActivePointIndex: Integer;
+  const AProjectedPoints: IDoublePointsAggregator;
+  var AIndex: Integer;
+  var AActivePointIndex: Integer
+);
+var
+  VConverter: ICoordConverter;
+  VZoom: Byte;
+  i: Integer;
+  VLonLatPoint: TDoublePoint;
+  VPrevPoint: TDoublePoint;
+  VProjectedPoint: TDoublePoint;
+begin
+  VConverter := AProjection.GeoConverter;
+  VZoom := AProjection.Zoom;
+  if AProjectedPoints.Count > 0 then begin
+    VPrevPoint := AProjectedPoints.Points[AProjectedPoints.Count - 1];
+  end;
+  for i := 0 to AGeometry.Count - 1 do begin
+    VLonLatPoint := AGeometry.Points[i];
+    VConverter.ValidateLonLatPos(VLonLatPoint);
+    VProjectedPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
+    if (ASourceActivePointIndex = AIndex) then begin
+      AActivePointIndex := AProjectedPoints.Count;
+      AProjectedPoints.Add(VProjectedPoint);
+      VPrevPoint := VProjectedPoint;
+    end else begin
+      if AProjectedPoints.Count = 0 then begin
+        AProjectedPoints.Add(VProjectedPoint);
+        VPrevPoint := VProjectedPoint;
+      end else begin
+        if (abs(VProjectedPoint.X - VPrevPoint.X) > 1) or (abs(VProjectedPoint.Y - VPrevPoint.Y) > 1) then begin
+          AProjectedPoints.Add(VProjectedPoint);
+          VPrevPoint := VProjectedPoint;
+        end;
+      end;
+    end;
+    Inc(AIndex);
+  end;
+  Inc(AIndex);
+end;
+
+procedure PrepareMultiLine(
+  const AProjection: IProjectionInfo;
+  const AGeometry: IGeometryLonLatMultiLine;
+  const ASourceActivePointIndex: Integer;
+  const AProjectedPoints: IDoublePointsAggregator;
+  var AIndex: Integer;
+  var AActivePointIndex: Integer
+);
+var
+  i: Integer;
+begin
+  for i := 0 to AGeometry.Count - 1 do begin
+    PrepareSingleLine(
+      AProjection,
+      AGeometry.Item[i],
+      ASourceActivePointIndex,
+      AProjectedPoints,
+      AIndex,
+      AActivePointIndex
+    );
+  end;
+end;
+
+procedure PrepareLine(
+  const AProjection: IProjectionInfo;
+  const AGeometry: IGeometryLonLatLine;
+  const ASourceActivePointIndex: Integer;
+  const AProjectedPoints: IDoublePointsAggregator;
+  var AIndex: Integer;
+  var AActivePointIndex: Integer
+);
+var
+  VSigleLine: IGeometryLonLatSingleLine;
+  VMultiLine: IGeometryLonLatMultiLine;
+begin
+  if Supports(AGeometry, IGeometryLonLatSingleLine, VSigleLine) then begin
+    PrepareSingleLine(
+      AProjection,
+      VSigleLine,
+      ASourceActivePointIndex,
+      AProjectedPoints,
+      AIndex,
+      AActivePointIndex
+    );
+  end else if Supports(AGeometry, IGeometryLonLatMultiLine, VMultiLine) then begin
+    PrepareMultiLine(
+      AProjection,
+      VMultiLine,
+      ASourceActivePointIndex,
+      AProjectedPoints,
+      AIndex,
+      AActivePointIndex
+    );
+  end;
+end;
+
+procedure PrepareContour(
+  const AProjection: IProjectionInfo;
+  const AGeometry: IGeometryLonLatContour;
+  const ASourceActivePointIndex: Integer;
+  const AProjectedPoints: IDoublePointsAggregator;
+  var AIndex: Integer;
+  var AActivePointIndex: Integer
+);
+var
+  VConverter: ICoordConverter;
+  VZoom: Byte;
+  i: Integer;
+  VLonLatPoint: TDoublePoint;
+  VPrevPoint: TDoublePoint;
+  VProjectedPoint: TDoublePoint;
+begin
+  VConverter := AProjection.GeoConverter;
+  VZoom := AProjection.Zoom;
+  if AProjectedPoints.Count > 0 then begin
+    VPrevPoint := AProjectedPoints.Points[AProjectedPoints.Count - 1];
+  end;
+  for i := 0 to AGeometry.Count - 1 do begin
+    VLonLatPoint := AGeometry.Points[i];
+    VConverter.ValidateLonLatPos(VLonLatPoint);
+    VProjectedPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
+    if (ASourceActivePointIndex = AIndex) then begin
+      AActivePointIndex := AProjectedPoints.Count;
+      AProjectedPoints.Add(VProjectedPoint);
+      VPrevPoint := VProjectedPoint;
+    end else begin
+      if AProjectedPoints.Count = 0 then begin
+        AProjectedPoints.Add(VProjectedPoint);
+        VPrevPoint := VProjectedPoint;
+      end else begin
+        if (abs(VProjectedPoint.X - VPrevPoint.X) > 1) or (abs(VProjectedPoint.Y - VPrevPoint.Y) > 1) then begin
+          AProjectedPoints.Add(VProjectedPoint);
+          VPrevPoint := VProjectedPoint;
+        end;
+      end;
+    end;
+    Inc(AIndex);
+  end;
+  Inc(AIndex);
+end;
+
+procedure PrepareSinglePolygon(
+  const AProjection: IProjectionInfo;
+  const AGeometry: IGeometryLonLatSinglePolygon;
+  const ASourceActivePointIndex: Integer;
+  const AProjectedPoints: IDoublePointsAggregator;
+  var AIndex: Integer;
+  var AActivePointIndex: Integer
+);
+var
+  i: Integer;
+begin
+  PrepareContour(
+    AProjection,
+    AGeometry.OuterBorder,
+    ASourceActivePointIndex,
+    AProjectedPoints,
+    AIndex,
+    AActivePointIndex
+  );
+  for i := 0 to AGeometry.HoleCount - 1 do begin
+    PrepareContour(
+      AProjection,
+      AGeometry.HoleBorder[i],
+      ASourceActivePointIndex,
+      AProjectedPoints,
+      AIndex,
+      AActivePointIndex
+    );
+  end;
+end;
+
+procedure PrepareMultiPolygon(
+  const AProjection: IProjectionInfo;
+  const AGeometry: IGeometryLonLatMultiPolygon;
+  const ASourceActivePointIndex: Integer;
+  const AProjectedPoints: IDoublePointsAggregator;
+  var AIndex: Integer;
+  var AActivePointIndex: Integer
+);
+var
+  i: Integer;
+begin
+  for i := 0 to AGeometry.Count - 1 do begin
+    PrepareSinglePolygon(
+      AProjection,
+      AGeometry.Item[i],
+      ASourceActivePointIndex,
+      AProjectedPoints,
+      AIndex,
+      AActivePointIndex
+    );
+  end;
+end;
+
+procedure PreparePolygon(
+  const AProjection: IProjectionInfo;
+  const AGeometry: IGeometryLonLatPolygon;
+  const ASourceActivePointIndex: Integer;
+  const AProjectedPoints: IDoublePointsAggregator;
+  var AIndex: Integer;
+  var AActivePointIndex: Integer
+);
+var
+  VSiglePolygon: IGeometryLonLatSinglePolygon;
+  VMultiPolygon: IGeometryLonLatMultiPolygon;
+begin
+  if Supports(AGeometry, IGeometryLonLatSinglePolygon, VSiglePolygon) then begin
+    PrepareSinglePolygon(
+      AProjection,
+      VSiglePolygon,
+      ASourceActivePointIndex,
+      AProjectedPoints,
+      AIndex,
+      AActivePointIndex
+    );
+  end else if Supports(AGeometry, IGeometryLonLatMultiPolygon, VMultiPolygon) then begin
+    PrepareMultiPolygon(
+      AProjection,
+      VMultiPolygon,
+      ASourceActivePointIndex,
+      AProjectedPoints,
+      AIndex,
+      AActivePointIndex
+    );
+  end;
+end;
+
 procedure TMapLayerPointsSetByPathEdit.PreparePoints(
   const AProjection: IProjectionInfo;
   out AProjectedPoints: IDoublePointsAggregator;
@@ -331,83 +564,22 @@ procedure TMapLayerPointsSetByPathEdit.PreparePoints(
 );
 var
   VLine: ILonLatPathWithSelected;
-  VConverter: ICoordConverter;
-  VZoom: Byte;
-  VLonLatPoint: TDoublePoint;
-  VPrevPoint: TDoublePoint;
-  VProjectedPoint: TDoublePoint;
-  i, j: Integer;
-  VSigleLine: IGeometryLonLatSingleLine;
-  VMultiLine: IGeometryLonLatMultiLine;
   VIndex: Integer;
-  VSegmentIndex: Integer;
-  VPointIndex: Integer;
 begin
   AProjectedPoints := nil;
   AActivePointIndex := -1;
   VLine := FLine;
-  if VLine <> nil then begin
-    if not VLine.Geometry.IsEmpty then begin
-      AProjectedPoints := TDoublePointsAggregator.Create;
-      VConverter := AProjection.GeoConverter;
-      VZoom := AProjection.Zoom;
-      VSegmentIndex := VLine.GetSelectedSegmentIndex;
-      VPointIndex := VLine.GetSelectedPointIndex;
-      VIndex := 0;
-      if Supports(VLine.Geometry, IGeometryLonLatSingleLine, VSigleLine) then begin
-        i := 0;
-        for j := 0 to VSigleLine.Count - 1 do begin
-          VLonLatPoint := VSigleLine.Points[j];
-          VConverter.ValidateLonLatPos(VLonLatPoint);
-          VProjectedPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
-          if (VSegmentIndex = i) and (VPointIndex = j) then begin
-            AProjectedPoints.Add(VProjectedPoint);
-            VPrevPoint := VProjectedPoint;
-            AActivePointIndex := VIndex;
-            Inc(VIndex);
-          end else begin
-            if VIndex = 0 then begin
-              AProjectedPoints.Add(VProjectedPoint);
-              VPrevPoint := VProjectedPoint;
-              Inc(VIndex);
-            end else begin
-              if (abs(VProjectedPoint.X - VPrevPoint.X) > 1) or (abs(VProjectedPoint.Y - VPrevPoint.Y) > 1) then begin
-                AProjectedPoints.Add(VProjectedPoint);
-                VPrevPoint := VProjectedPoint;
-                Inc(VIndex);
-              end;
-            end;
-          end;
-        end;
-      end else if Supports(VLine.Geometry, IGeometryLonLatMultiLine, VMultiLine) then begin
-        for i := 0 to VMultiLine.Count - 1 do begin
-          VSigleLine := VMultiLine.Item[i];
-          for j := 0 to VSigleLine.Count - 1 do begin
-            VLonLatPoint := VSigleLine.Points[j];
-            VConverter.ValidateLonLatPos(VLonLatPoint);
-            VProjectedPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
-            if (VSegmentIndex = i) and (VPointIndex = j) then begin
-              AProjectedPoints.Add(VProjectedPoint);
-              VPrevPoint := VProjectedPoint;
-              AActivePointIndex := VIndex;
-              Inc(VIndex);
-            end else begin
-              if VIndex = 0 then begin
-                AProjectedPoints.Add(VProjectedPoint);
-                VPrevPoint := VProjectedPoint;
-                Inc(VIndex);
-              end else begin
-                if (abs(VProjectedPoint.X - VPrevPoint.X) > 1) or (abs(VProjectedPoint.Y - VPrevPoint.Y) > 1) then begin
-                  AProjectedPoints.Add(VProjectedPoint);
-                  VPrevPoint := VProjectedPoint;
-                  Inc(VIndex);
-                end;
-              end;
-            end;
-          end;
-        end;
-      end;
-    end;
+  if Assigned(VLine) and not VLine.Geometry.IsEmpty then begin
+    AProjectedPoints := TDoublePointsAggregator.Create;
+    VIndex := 0;
+    PrepareLine(
+      AProjection,
+      VLine.Geometry,
+      VLine.GetSelectedPointIndex,
+      AProjectedPoints,
+      VIndex,
+      AActivePointIndex
+    );
   end;
 end;
 
@@ -469,83 +641,22 @@ procedure TMapLayerPointsSetByPolygonEdit.PreparePoints(
 );
 var
   VLine: ILonLatPolygonWithSelected;
-  VConverter: ICoordConverter;
-  VZoom: Byte;
-  VLonLatPoint: TDoublePoint;
-  VPrevPoint: TDoublePoint;
-  VProjectedPoint: TDoublePoint;
-  i, j: Integer;
-  VMultiLine: IGeometryLonLatMultiPolygon;
-  VSigleLine: IGeometryLonLatSinglePolygon;
   VIndex: Integer;
-  VSegmentIndex: Integer;
-  VPointIndex: Integer;
 begin
   AProjectedPoints := nil;
   AActivePointIndex := -1;
   VLine := FLine;
-  if VLine <> nil then begin
-    if not VLine.Geometry.IsEmpty then begin
-      AProjectedPoints := TDoublePointsAggregator.Create;
-      VConverter := AProjection.GeoConverter;
-      VZoom := AProjection.Zoom;
-      VSegmentIndex := VLine.GetSelectedSegmentIndex;
-      VPointIndex := VLine.GetSelectedPointIndex;
-      VIndex := 0;
-      if Supports(VLine.Geometry, IGeometryLonLatSinglePolygon, VSigleLine) then begin
-        i := 0;
-        for j := 0 to VSigleLine.Count - 1 do begin
-          VLonLatPoint := VSigleLine.Points[j];
-          VConverter.ValidateLonLatPos(VLonLatPoint);
-          VProjectedPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
-          if (VSegmentIndex = i) and (VPointIndex = j) then begin
-            AProjectedPoints.Add(VProjectedPoint);
-            VPrevPoint := VProjectedPoint;
-            AActivePointIndex := VIndex;
-            Inc(VIndex);
-          end else begin
-            if VIndex = 0 then begin
-              AProjectedPoints.Add(VProjectedPoint);
-              VPrevPoint := VProjectedPoint;
-              Inc(VIndex);
-            end else begin
-              if (abs(VProjectedPoint.X - VPrevPoint.X) > 1) or (abs(VProjectedPoint.Y - VPrevPoint.Y) > 1) then begin
-                AProjectedPoints.Add(VProjectedPoint);
-                VPrevPoint := VProjectedPoint;
-                Inc(VIndex);
-              end;
-            end;
-          end;
-        end;
-      end else if Supports(VLine.Geometry, IGeometryLonLatMultiPolygon, VMultiLine) then begin
-        for i := 0 to VMultiLine.Count - 1 do begin
-          VSigleLine := VMultiLine.Item[i];
-          for j := 0 to VSigleLine.Count - 1 do begin
-            VLonLatPoint := VSigleLine.Points[j];
-            VConverter.ValidateLonLatPos(VLonLatPoint);
-            VProjectedPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
-            if (VSegmentIndex = i) and (VPointIndex = j) then begin
-              AProjectedPoints.Add(VProjectedPoint);
-              VPrevPoint := VProjectedPoint;
-              AActivePointIndex := VIndex;
-              Inc(VIndex);
-            end else begin
-              if VIndex = 0 then begin
-                AProjectedPoints.Add(VProjectedPoint);
-                VPrevPoint := VProjectedPoint;
-                Inc(VIndex);
-              end else begin
-                if (abs(VProjectedPoint.X - VPrevPoint.X) > 1) or (abs(VProjectedPoint.Y - VPrevPoint.Y) > 1) then begin
-                  AProjectedPoints.Add(VProjectedPoint);
-                  VPrevPoint := VProjectedPoint;
-                  Inc(VIndex);
-                end;
-              end;
-            end;
-          end;
-        end;
-      end;
-    end;
+  if Assigned(VLine) and not VLine.Geometry.IsEmpty then begin
+    AProjectedPoints := TDoublePointsAggregator.Create;
+    VIndex := 0;
+    PreparePolygon(
+      AProjection,
+      VLine.Geometry,
+      VLine.GetSelectedPointIndex,
+      AProjectedPoints,
+      VIndex,
+      AActivePointIndex
+    );
   end;
 end;
 
