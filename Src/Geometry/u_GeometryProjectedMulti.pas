@@ -27,7 +27,6 @@ type
 
   TGeometryProjectedMultiLine = class(TGeometryProjectedMultiBase, IGeometryProjectedLine, IGeometryProjectedMultiLine)
   private
-    function GetEnum: IEnumProjectedPoint;
     function IsPointOnPath(
       const APoint: TDoublePoint;
       const ADist: Double
@@ -55,7 +54,6 @@ type
   private
     function IsEmpty: Boolean;
     function GetCount: Integer;
-    function GetEnum: IEnumProjectedPoint;
     function IsPointOnPath(
       const APoint: TDoublePoint;
       const ADist: Double
@@ -95,7 +93,6 @@ type
   private
     function IsEmpty: Boolean;
     function GetCount: Integer;
-    function GetEnum: IEnumProjectedPoint;
     function GetBounds: TDoubleRect;
   private
     function GetItemLine(AIndex: Integer): IGeometryProjectedSingleLine;
@@ -158,11 +155,6 @@ begin
 end;
 
 { TProjectedPath }
-
-function TGeometryProjectedMultiLine.GetEnum: IEnumProjectedPoint;
-begin
-  Result := TEnumProjectedPointByPath.Create(Self);
-end;
 
 function TGeometryProjectedMultiLine.GetItem(AIndex: Integer): IGeometryProjectedSingleLine;
 begin
@@ -316,11 +308,6 @@ begin
   Result := 1;
 end;
 
-function TGeometryProjectedMultiLineOneLine.GetEnum: IEnumProjectedPoint;
-begin
-  Result := FLine.GetEnum;
-end;
-
 function TGeometryProjectedMultiLineOneLine.GetItem(AIndex: Integer): IGeometryProjectedSingleLine;
 begin
   if AIndex = 0 then begin
@@ -430,11 +417,6 @@ end;
 function TProjectedLineSetEmpty.GetCount: Integer;
 begin
   Result := 0;
-end;
-
-function TProjectedLineSetEmpty.GetEnum: IEnumProjectedPoint;
-begin
-  Result := Self;
 end;
 
 function TProjectedLineSetEmpty.Next(out APoint: TDoublePoint): Boolean;

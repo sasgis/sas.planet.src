@@ -37,8 +37,6 @@ type
 
   IGeometryProjectedLine = interface(IGeometryProjected)
     ['{C2726CC7-0661-4116-9D08-B7DBE1D54612}']
-    function GetEnum: IEnumProjectedPoint;
-
     function IsPointOnPath(
       const APoint: TDoublePoint;
       const ADist: Double
@@ -48,6 +46,8 @@ type
 
   IGeometryProjectedSingleLine = interface(IGeometryProjectedLine)
     ['{0D9B7321-DBA0-494F-959C-5026DB27C681}']
+    function GetEnum: IEnumProjectedPoint;
+
     function GetCount: Integer;
     property Count: Integer read GetCount;
 
