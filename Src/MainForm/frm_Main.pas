@@ -3685,13 +3685,13 @@ begin
   if VLineOnMapEdit <> nil then begin
     VSaveAviable := False;
     if Supports(VLineOnMapEdit, IPathOnMapEdit, VPathOnMapEdit) then begin
-      VPath := VPathOnMapEdit.Path.Geometry;
-      if not VPath.IsEmpty then begin
+      if Assigned(VPathOnMapEdit.Path) then begin
+        VPath := VPathOnMapEdit.Path.Geometry;
         VSaveAviable := IsValidLonLatLine(VPath);
       end;
     end else if Supports(VLineOnMapEdit, IPolygonOnMapEdit, VPolygonOnMapEdit) then begin
-      VPoly := VPolygonOnMapEdit.Polygon.Geometry;
-      if not VPoly.IsEmpty then begin
+      if Assigned(VPolygonOnMapEdit.Polygon) then begin
+        VPoly := VPolygonOnMapEdit.Polygon.Geometry;
         VSaveAviable := IsValidLonLatPolygon(VPoly);
       end;
     end;

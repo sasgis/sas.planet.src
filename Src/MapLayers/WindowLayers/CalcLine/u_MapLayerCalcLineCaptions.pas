@@ -248,7 +248,7 @@ begin
   ViewUpdateLock;
   try
     FLine := FLineOnMapEdit.Path;
-    if not FLine.Geometry.IsEmpty then begin
+    if Assigned(FLine) and not FLine.Geometry.IsEmpty then begin
       SetNeedRedraw;
       Visible := FConfig.Visible;
     end else begin

@@ -566,7 +566,11 @@ end;
 
 procedure TPathOnMapEdit._UpdateLineWithSelected;
 begin
-  FLineWithSelected := TLonLatPathWithSelected.Create(FLine, FSelectedPointIndex);
+  if Assigned(FLine) then begin
+    FLineWithSelected := TLonLatPathWithSelected.Create(FLine, FSelectedPointIndex);
+  end else begin
+    FLineWithSelected := nil;
+  end;
 end;
 
 { TPolygonOnMapEdit }
@@ -691,7 +695,11 @@ end;
 
 procedure TPolygonOnMapEdit._UpdateLineWithSelected;
 begin
-  FLineWithSelected := TLonLatPolygonWithSelected.Create(FLine, FSelectedPointIndex);
+  if Assigned(FLine) then begin
+    FLineWithSelected := TLonLatPolygonWithSelected.Create(FLine, FSelectedPointIndex);
+  end else begin
+    FLineWithSelected := nil;
+  end;
 end;
 
 { TLonLatLineWithSelectedBase }
@@ -716,6 +724,7 @@ constructor TLonLatPathWithSelected.Create(
   ASelectedPointIndex: Integer
 );
 begin
+  Assert(Assigned(ALine));
   inherited Create(ASelectedPointIndex);
   FLine := ALine;
 end;
@@ -732,6 +741,7 @@ constructor TLonLatPolygonWithSelected.Create(
   ASelectedPointIndex: Integer
 );
 begin
+  Assert(Assigned(ALine));
   inherited Create(ASelectedPointIndex);
   FLine := ALine;
 end;

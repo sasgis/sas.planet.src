@@ -338,7 +338,6 @@
     <DCCReference Include="Src\Geometry\u_GeometryLonLat.pas" />
     <DCCReference Include="Src\Geometry\u_GeometryLonLatFactory.pas" />
     <DCCReference Include="Src\Geometry\u_GeometryLonLatMulti.pas" />
-    <DCCReference Include="Src\Geometry\u_GeometryLonLatMultiEmpty.pas" />
     <DCCReference Include="Src\Geometry\u_GeometryProjected.pas" />
     <DCCReference Include="Src\Geometry\u_GeometryProjectedFactory.pas" />
     <DCCReference Include="Src\Geometry\u_GeometryProjectedMulti.pas" />

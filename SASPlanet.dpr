@@ -309,7 +309,6 @@ uses
   u_GeometryLonLat in 'Src\Geometry\u_GeometryLonLat.pas',
   u_GeometryLonLatFactory in 'Src\Geometry\u_GeometryLonLatFactory.pas',
   u_GeometryLonLatMulti in 'Src\Geometry\u_GeometryLonLatMulti.pas',
-  u_GeometryLonLatMultiEmpty in 'Src\Geometry\u_GeometryLonLatMultiEmpty.pas',
   u_GeometryProjected in 'Src\Geometry\u_GeometryProjected.pas',
   u_GeometryProjectedFactory in 'Src\Geometry\u_GeometryProjectedFactory.pas',
   u_GeometryProjectedMulti in 'Src\Geometry\u_GeometryProjectedMulti.pas',
