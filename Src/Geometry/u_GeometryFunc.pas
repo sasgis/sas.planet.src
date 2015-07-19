@@ -837,7 +837,7 @@ var
   VMultiLine: IGeometryLonLatMultiLine;
 begin
   Result := False;
-  if not AGeometry.IsEmpty then begin
+  if Assigned(AGeometry) and not AGeometry.IsEmpty then begin
     if Supports(AGeometry, IGeometryLonLatSingleLine, VSingleLine) then begin
       Result := VSingleLine.Count > 1;
     end else if Supports(AGeometry, IGeometryLonLatMultiLine, VMultiLine) then begin
@@ -875,7 +875,7 @@ var
   VMultiLine: IGeometryLonLatMultiPolygon;
 begin
   Result := False;
-  if not AGeometry.IsEmpty then begin
+  if Assigned(AGeometry) and not AGeometry.IsEmpty then begin
     if Supports(AGeometry, IGeometryLonLatSinglePolygon, VSingleLine) then begin
       Result := IsValidLonLatSinglePolygon(VSingleLine);
     end else if Supports(AGeometry, IGeometryLonLatMultiPolygon, VMultiLine) then begin
