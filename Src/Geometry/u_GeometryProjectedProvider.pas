@@ -113,7 +113,7 @@ begin
           VData^.Path
         );
     end else begin
-      VResultPath := FVectorGeometryProjectedFactory.CreateProjectedLineEmpty;
+      VResultPath := nil;
     end;
     Result := VResultPath;
   end else if Assigned(VData^.Polygon) then begin
@@ -132,7 +132,7 @@ begin
           VData^.Polygon
         );
     end else begin
-      VResultPolygon := FVectorGeometryProjectedFactory.CreateProjectedPolygonEmpty;
+      VResultPolygon := nil;
     end;
     Result := VResultPolygon;
   end;

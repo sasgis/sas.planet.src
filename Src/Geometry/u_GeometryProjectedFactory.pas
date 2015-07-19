@@ -16,8 +16,6 @@ uses
 type
   TGeometryProjectedFactory = class(TBaseInterfacedObject, IGeometryProjectedFactory)
   private
-    FEmptyPath: IGeometryProjectedMultiLine;
-    FEmptyPolygon: IGeometryProjectedMultiPolygon;
     function CreateProjectedLineInternal(
       const ARect: TDoubleRect;
       const APoints: PDoublePointArray;
@@ -31,9 +29,6 @@ type
   private
     function MakeMultiLineBuilder(): IGeometryProjectedMultiLineBuilder;
     function MakeMultiPolygonBuilder(): IGeometryProjectedMultiPolygonBuilder;
-
-    function CreateProjectedLineEmpty: IGeometryProjectedLine;
-    function CreateProjectedPolygonEmpty: IGeometryProjectedPolygon;
 
     function CreateProjectedLineByEnum(
       const AEnum: IEnumProjectedPoint;
@@ -72,11 +67,13 @@ type
 implementation
 
 uses
+  SysUtils,
   i_InterfaceListSimple,
   u_GeoFunc,
   u_InterfaceListSimple,
   u_DoublePointsAggregator,
   u_GeometryProjected,
+  u_EnumDoublePointByLineSet,
   u_EnumDoublePointLonLatToMapPixel,
   u_EnumDoublePointWithClip,
   u_EnumDoublePointFilterEqual,
@@ -85,7 +82,6 @@ uses
 type
   TGeometryProjectedMultiLineBuilder = class(TBaseInterfacedObject, IGeometryProjectedMultiLineBuilder)
   private
-    FEmpty: IGeometryProjectedLine;
     FBounds: TDoubleRect;
     FLine: IGeometryProjectedSingleLine;
     FList: IInterfaceListSimple;
@@ -95,19 +91,14 @@ type
     function MakeStaticAndClear: IGeometryProjectedLine;
     function MakeStaticCopy: IGeometryProjectedLine;
   public
-    constructor Create(
-      const AEmpty: IGeometryProjectedLine
-    );
+    constructor Create;
   end;
 
 { TGeometryProjectedMultiLineBuilder }
 
-constructor TGeometryProjectedMultiLineBuilder.Create(
-  const AEmpty: IGeometryProjectedLine
-);
+constructor TGeometryProjectedMultiLineBuilder.Create;
 begin
   inherited Create;
-  FEmpty := AEmpty;
 end;
 
 procedure TGeometryProjectedMultiLineBuilder.Add(
@@ -132,7 +123,7 @@ end;
 
 function TGeometryProjectedMultiLineBuilder.MakeStaticAndClear: IGeometryProjectedLine;
 begin
-  Result := FEmpty;
+  Result := nil;
   if Assigned(FLine) then begin
     if Assigned(FList) and (FList.Count > 0) then begin
       Result := TGeometryProjectedMultiLine.Create(FBounds, FList.MakeStaticAndClear);
@@ -145,7 +136,7 @@ end;
 
 function TGeometryProjectedMultiLineBuilder.MakeStaticCopy: IGeometryProjectedLine;
 begin
-  Result := FEmpty;
+  Result := nil;
   if Assigned(FLine) then begin
     if Assigned(FList) and (FList.Count > 0) then begin
        Result := TGeometryProjectedMultiLine.Create(FBounds, FList.MakeStaticCopy);
@@ -158,7 +149,6 @@ end;
 type
   TGeometryProjectedMultiPolygonBuilder = class(TBaseInterfacedObject, IGeometryProjectedMultiPolygonBuilder)
   private
-    FEmpty: IGeometryProjectedPolygon;
     FBounds: TDoubleRect;
     FLine: IGeometryProjectedSinglePolygon;
     FList: IInterfaceListSimple;
@@ -168,19 +158,14 @@ type
     function MakeStaticAndClear: IGeometryProjectedPolygon;
     function MakeStaticCopy: IGeometryProjectedPolygon;
   public
-    constructor Create(
-      const AEmpty: IGeometryProjectedPolygon
-    );
+    constructor Create;
   end;
 
 { TGeometryProjectedMultiPolygonBuilder }
 
-constructor TGeometryProjectedMultiPolygonBuilder.Create(
-  const AEmpty: IGeometryProjectedPolygon
-);
+constructor TGeometryProjectedMultiPolygonBuilder.Create;
 begin
   inherited Create;
-  FEmpty := AEmpty;
 end;
 
 procedure TGeometryProjectedMultiPolygonBuilder.Add(
@@ -205,7 +190,7 @@ end;
 
 function TGeometryProjectedMultiPolygonBuilder.MakeStaticAndClear: IGeometryProjectedPolygon;
 begin
-  Result := FEmpty;
+  Result := nil;
   if Assigned(FLine) then begin
     if Assigned(FList) and (FList.Count > 0) then begin
       Result := TGeometryProjectedMultiPolygon.Create(FBounds, FList.MakeStaticAndClear);
@@ -218,7 +203,7 @@ end;
 
 function TGeometryProjectedMultiPolygonBuilder.MakeStaticCopy: IGeometryProjectedPolygon;
 begin
-  Result := FEmpty;
+  Result := nil;
   if Assigned(FLine) then begin
     if Assigned(FList) and (FList.Count > 0) then begin
       Result := TGeometryProjectedMultiPolygon.Create(FBounds, FList.MakeStaticCopy);
@@ -231,18 +216,8 @@ end;
 { TGeometryProjectedFactory }
 
 constructor TGeometryProjectedFactory.Create;
-var
-  VEmpty: TProjectedLineSetEmpty;
 begin
   inherited Create;
-  VEmpty := TProjectedLineSetEmpty.Create;
-  FEmptyPath := VEmpty;
-  FEmptyPolygon := VEmpty;
-end;
-
-function TGeometryProjectedFactory.CreateProjectedLineEmpty: IGeometryProjectedLine;
-begin
-  Result := FEmptyPath;
 end;
 
 function TGeometryProjectedFactory.CreateProjectedLineInternal(
@@ -344,11 +319,6 @@ begin
     );
 end;
 
-function TGeometryProjectedFactory.CreateProjectedPolygonEmpty: IGeometryProjectedPolygon;
-begin
-  Result := FEmptyPolygon;
-end;
-
 function TGeometryProjectedFactory.CreateProjectedPolygonInternal(
   const ARect: TDoubleRect;
   const APoints: PDoublePointArray;
@@ -360,12 +330,12 @@ end;
 
 function TGeometryProjectedFactory.MakeMultiLineBuilder: IGeometryProjectedMultiLineBuilder;
 begin
-  Result := TGeometryProjectedMultiLineBuilder.Create(FEmptyPath);
+  Result := TGeometryProjectedMultiLineBuilder.Create;
 end;
 
 function TGeometryProjectedFactory.MakeMultiPolygonBuilder: IGeometryProjectedMultiPolygonBuilder;
 begin
-  Result := TGeometryProjectedMultiPolygonBuilder.Create(FEmptyPolygon);
+  Result := TGeometryProjectedMultiPolygonBuilder.Create;
 end;
 
 function TGeometryProjectedFactory.CreateProjectedPolygonByEnum(

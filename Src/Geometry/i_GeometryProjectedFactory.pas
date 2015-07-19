@@ -53,9 +53,6 @@ type
     function MakeMultiLineBuilder(): IGeometryProjectedMultiLineBuilder;
     function MakeMultiPolygonBuilder(): IGeometryProjectedMultiPolygonBuilder;
 
-    function CreateProjectedLineEmpty: IGeometryProjectedLine;
-    function CreateProjectedPolygonEmpty: IGeometryProjectedPolygon;
-
     function CreateProjectedLineByLonLatPath(
       const AProjection: IProjectionInfo;
       const ASource: IGeometryLonLatLine;
