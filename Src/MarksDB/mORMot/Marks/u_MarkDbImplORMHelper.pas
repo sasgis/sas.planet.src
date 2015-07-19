@@ -627,7 +627,7 @@ begin
         if not ACache.FMarkCache.Find(VIndexItem.MarkId, VCacheItem) then begin
           // get main params from db
           VFieldsCSV := 'Name,Desc,GeoType,GeoCount';
-          VSQLWhere := FormatUTF8('ID=?', [], [VMarkID]);
+          VSQLWhere := FormatUTF8('RowID=?', [], [VMarkID]);
           if AClient.Retrieve(VSQLWhere, VSQLMark, VFieldsCSV) then begin
             // fill main params from db
             AMarkRec.FName := UTF8ToString(VSQLMark.Name);
@@ -648,7 +648,7 @@ begin
           AMarkRec.FGeoCount := VCacheItem.GeoCount;
         end;
       end else begin
-        VSQLWhere := FormatUTF8('ID=?', [], [VMarkID]);
+        VSQLWhere := FormatUTF8('RowID=?', [], [VMarkID]);
       end;
     end else if AMarkName <> '' then begin
       if ACategoryID > 0 then begin
@@ -661,7 +661,7 @@ begin
     end;
     if VSQLWhere <> '' then begin
       // get all from db
-      VFieldsCSV := 'ID,Category,Image,Appearance,Name,Desc,GeoType,GeoCount';
+      VFieldsCSV := 'RowID,Category,Image,Appearance,Name,Desc,GeoType,GeoCount';
       if AClient.Retrieve(VSQLWhere, VSQLMark, VFieldsCSV) then begin
         // fill id's from db
         VMarkID := VSQLMark.ID;
@@ -854,7 +854,7 @@ begin
     VList := AClient.ExecuteList(
       [TSQLMark],
       FormatUTF8(
-        'SELECT ID,Image,Appearance FROM Mark WHERE Category=?',
+        'SELECT RowID,Image,Appearance FROM Mark WHERE Category=?',
         [], [ACategoryID]
       )
     );
@@ -865,7 +865,7 @@ begin
     end;
     VList := AClient.ExecuteList(
       [TSQLMark],
-      RawUTF8('SELECT ID,Image,Appearance,Category FROM Mark ORDER BY Category')
+      RawUTF8('SELECT RowID,Image,Appearance,Category FROM Mark ORDER BY Category')
     );
   end;
   if Assigned(VList) then
@@ -931,7 +931,7 @@ begin
     VList := AClient.ExecuteList(
       [TSQLMark],
       FormatUTF8(
-        'SELECT ID,Name,Desc,GeoType,GeoCount FROM Mark WHERE Category=?',
+        'SELECT RowID,Name,Desc,GeoType,GeoCount FROM Mark WHERE Category=?',
         [], [ACategoryID]
       )
     );
@@ -941,7 +941,7 @@ begin
     end;
     VList := AClient.ExecuteList(
       [TSQLMark],
-      RawUTF8('SELECT ID,Name,Desc,GeoType,GeoCount FROM Mark')
+      RawUTF8('SELECT RowID,Name,Desc,GeoType,GeoCount FROM Mark')
     );
   end;
   if Assigned(VList) then
@@ -981,7 +981,7 @@ begin
     end;
     VList := AClient.ExecuteList(
       [TSQLMark],
-      FormatUTF8('SELECT ID,GeoWKB FROM Mark WHERE Category=?', [], [ACategoryID])
+      FormatUTF8('SELECT RowID,GeoWKB FROM Mark WHERE Category=?', [], [ACategoryID])
     );
   end else begin
     if ACache.FMarkGeometryCache.IsPrepared then begin
@@ -989,7 +989,7 @@ begin
     end;
     VList := AClient.ExecuteList(
       [TSQLMark],
-      RawUTF8('SELECT ID,GeoWKB FROM Mark')
+      RawUTF8('SELECT RowID,GeoWKB FROM Mark')
     );
   end;
   if Assigned(VList) then
@@ -1028,9 +1028,9 @@ begin
     VList := AClient.ExecuteList(
       [TSQLMarkView, TSQLMark],
       FormatUTF8(
-        'SELECT MarkView.ID,MarkView.Mark,MarkView.Visible' + ' '+
+        'SELECT MarkView.RowID,MarkView.Mark,MarkView.Visible' + ' '+
         'FROM MarkView,Mark' + ' ' +
-        'WHERE MarkView.Mark=Mark.ID AND MarkView.User=? AND Mark.Category=?',
+        'WHERE MarkView.Mark=Mark.RowID AND MarkView.User=? AND Mark.Category=?',
         [], [AUserID, ACategoryID]
       )
     );
@@ -1040,7 +1040,7 @@ begin
     end;
     VList := AClient.ExecuteList(
       [TSQLMarkView],
-      RawUTF8('SELECT ID,Mark,Visible FROM MarkView')
+      RawUTF8('SELECT RowID,Mark,Visible FROM MarkView')
     );
   end;
   if Assigned(VList) then

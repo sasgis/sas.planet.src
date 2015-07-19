@@ -851,10 +851,10 @@ begin
 
   if VFilterByOneCategory then begin
     VSQLSelect := FormatUTF8(
-      'SELECT Mark.ID FROM Mark, MarkRTree ' +
-      'WHERE Mark.RowID = MarkRTree.RowID AND Mark.Category = ? ' +
-      'AND Left <= ? AND Right >= ? AND Bottom <= ? AND Top >= ? ' +
-      'AND (Mark.GeoType = ? OR Mark.GeoLonSize >= ? OR Mark.GeoLatSize >= ?);',
+      'SELECT Mark.RowID FROM Mark,MarkRTree ' +
+      'WHERE Mark.RowID=MarkRTree.RowID AND Mark.Category=? ' +
+      'AND Left<=? AND Right>=? AND Bottom<=? AND Top>=? ' +
+      'AND (Mark.GeoType=? OR Mark.GeoLonSize>=? OR Mark.GeoLatSize>=?);',
       [],
       [
         ACategoryIDArray[0],
@@ -864,18 +864,18 @@ begin
     );
   end else if VFilterByCategories then begin
     VSQLSelect := FormatUTF8(
-      'SELECT Mark.ID, Mark.Category FROM Mark, MarkRTree ' +
-      'WHERE Mark.RowID = MarkRTree.RowID ' +
-      'AND Left <= ? AND Right >= ? AND Bottom <= ? AND Top >= ? ' +
-      'AND (Mark.GeoType = ? OR Mark.GeoLonSize >= ? OR Mark.GeoLatSize >= ?);',
+      'SELECT Mark.RowID,Mark.Category FROM Mark,MarkRTree ' +
+      'WHERE Mark.RowID=MarkRTree.RowID ' +
+      'AND Left<=? AND Right>=? AND Bottom<=? AND Top>=? ' +
+      'AND (Mark.GeoType=? OR Mark.GeoLonSize>=? OR Mark.GeoLatSize>=?);',
       [], [ARect.Right, ARect.Left, ARect.Top, ARect.Bottom, Integer(gtPoint), VLonSize, VLatSize]
     );
   end else begin
     VSQLSelect := FormatUTF8(
-      'SELECT Mark.ID FROM Mark, MarkRTree ' +
-      'WHERE Mark.RowID = MarkRTree.RowID ' +
-      'AND Left <= ? AND Right >= ? AND Bottom <= ? AND Top >= ? ' +
-      'AND (Mark.GeoType = ? OR Mark.GeoLonSize >= ? OR Mark.GeoLatSize >= ?);',
+      'SELECT Mark.RowID FROM Mark,MarkRTree ' +
+      'WHERE Mark.RowID=MarkRTree.RowID ' +
+      'AND Left<=? AND Right>=? AND Bottom<=? AND Top>=? ' +
+      'AND (Mark.GeoType=? OR Mark.GeoLonSize>=? OR Mark.GeoLatSize>=?);',
       [], [ARect.Right, ARect.Left, ARect.Top, ARect.Bottom, Integer(gtPoint), VLonSize, VLatSize]
     );
   end;

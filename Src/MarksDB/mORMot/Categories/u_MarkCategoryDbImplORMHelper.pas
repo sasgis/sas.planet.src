@@ -387,7 +387,7 @@ begin
   if not ACache.FCategoryCache.IsPrepared then begin
     VList := AClient.ExecuteList(
       [TSQLCategory],
-      'SELECT ID,Name FROM Category'
+      'SELECT RowID,Name FROM Category'
     );
     if Assigned(VList) then
     try
@@ -423,7 +423,7 @@ begin
     VList := AClient.ExecuteList(
       [TSQLCategoryView],
       FormatUTF8(
-        'SELECT ID,Category,Visible,MinZoom,MaxZoom FROM CategoryView WHERE User=?',
+        'SELECT RowID,Category,Visible,MinZoom,MaxZoom FROM CategoryView WHERE User=?',
         [], [AUserID]
       )
     );
