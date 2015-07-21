@@ -327,7 +327,9 @@ begin
       AContentTypeManager,
       AProjectionFactory,
       AVectorGeometryProjectedFactory,
-      ATileStorageTypeList
+      ATileStorageTypeList,
+      ABitmapFactory,
+      ABitmapTileSaveLoadFactory
     );
   FProviderTilesDownload :=
     TProviderTilesDownload.Create(
