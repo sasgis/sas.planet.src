@@ -1328,7 +1328,10 @@ uses
   u_ValueToStringConverter in 'Src\u_ValueToStringConverter.pas',
   u_ValueToStringConverterChangeable in 'Src\u_ValueToStringConverterChangeable.pas',
   u_ValueToStringConverterConfig in 'Src\u_ValueToStringConverterConfig.pas',
-  u_WindowPositionConfig in 'Src\u_WindowPositionConfig.pas';
+  u_WindowPositionConfig in 'Src\u_WindowPositionConfig.pas',
+  u_ThreadCopyWithModification in 'Src\RegionProcess\Copy\u_ThreadCopyWithModification.pas',
+  u_TileFileNameOsmAnd in 'Src\TileStorage\FileSystem\u_TileFileNameOsmAnd.pas',
+  u_TileFileNameBase in 'Src\TileStorage\FileSystem\u_TileFileNameBase.pas';
 
 {$R .\Resources\VersionInfo.res}
 {$R .\Resources\MainIcon.res}
