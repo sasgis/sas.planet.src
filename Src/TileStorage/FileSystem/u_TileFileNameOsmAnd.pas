@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  Windows,
   i_TileFileNameParser,
   i_TileFileNameGenerator,
   u_TileFileNameBase;
