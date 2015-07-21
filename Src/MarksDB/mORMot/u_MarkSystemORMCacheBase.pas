@@ -476,9 +476,12 @@ procedure TDynArrayByRecWithPointer.AddArray(const AArray: TRecWithPointerDynArr
   begin
     FDynArray.AddArray(AArray);
     FDynArray.Sort;
-    for I := 0 to FCount - 1 do begin
-      if FArray[I].Data <> nil then begin
-        Inc(FDataSize, FArray[I].Size);
+    for I := 0 to Length(AArray) - 1 do begin
+      if AArray[I].Data <> nil then begin
+        if FDataType = dpIntf then begin
+          IInterface(AArray[I].Data)._AddRef;
+        end;
+        Inc(FDataSize, AArray[I].Size);
       end;
     end;
   end;
@@ -516,6 +519,9 @@ begin
             J := FDynArray.New;
             FArray[J] := AArray[I];
             if FArray[J].Data <> nil then begin
+              if FDataType = dpIntf then begin
+                IInterface(FArray[J].Data)._AddRef;
+              end;
               Inc(FDataSize, FArray[J].Size);
             end;
           end;
