@@ -194,6 +194,7 @@ implementation
 uses
   IniFiles,
   RegExprUtils,
+  gnugettext,
   i_ConfigDataProvider,
   i_PathConfig,
   u_ConfigDataProviderByIniFile,
@@ -706,6 +707,13 @@ end;
 
 function TfrExportToJNX.Validate: Boolean;
 begin
+  Result := (edtTargetFile.Text <> '');
+  if not Result then
+  begin
+    ShowMessage(_('Please, select output file first!'));
+    Exit;
+  end;
+
   Result := ChMap1.Checked;
 end;
 

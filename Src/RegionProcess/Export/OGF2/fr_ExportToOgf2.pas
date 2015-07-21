@@ -128,6 +128,7 @@ type
 implementation
 
 uses
+  gnugettext,
   t_GeoTypes,
   i_MapVersionRequest,
   i_GeometryProjected,
@@ -356,7 +357,12 @@ end;
 
 function TfrExportToOgf2.Validate: Boolean;
 begin
-  Result := True;
+  Result := (edtTargetFile.Text <> '');
+  if not Result then
+  begin
+    ShowMessage(_('Please, select output file first!'));
+    Exit;
+  end;
 end;
 
 end.

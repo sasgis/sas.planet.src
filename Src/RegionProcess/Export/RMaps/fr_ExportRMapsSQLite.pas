@@ -425,6 +425,13 @@ var
   VMap: IMapType;
   VLayer: IMapType;
 begin
+  Result := (edtTargetFile.Text <> '');
+  if not Result then
+  begin
+    ShowMessage(_('Please, select output file first!'));
+    Exit;
+  end;
+
   Result := FfrZoomsSelect.Validate;
   if not Result then begin
     ShowMessage(_('Please select at least one zoom'));

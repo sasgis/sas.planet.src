@@ -81,6 +81,9 @@ type
 
 implementation
 
+uses
+  gnugettext;
+
 {$R *.dfm}
 
 { TfrExportAUX }
@@ -154,7 +157,12 @@ end;
 
 function TfrExportAUX.Validate: Boolean;
 begin
-  Result := True;
+  Result := (edtTargetFile.Text <> '');
+  if not Result then
+  begin
+    ShowMessage(_('Please, select output file first!'));
+    Exit;
+  end;
 end;
 
 end.

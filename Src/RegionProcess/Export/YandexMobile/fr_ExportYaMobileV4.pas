@@ -200,6 +200,13 @@ end;
 
 function TfrExportYaMobileV4.Validate: Boolean;
 begin
+  Result := (edtTargetPath.Text <> '');
+  if not Result then
+  begin
+    ShowMessage(_('Please select output folder'));
+    Exit;
+  end;
+
   Result := FfrZoomsSelect.Validate;
   if not Result then begin
     ShowMessage(_('Please select at least one zoom'));

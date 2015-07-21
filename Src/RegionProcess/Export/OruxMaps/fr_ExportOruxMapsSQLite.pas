@@ -351,14 +351,16 @@ var
   VMap: IMapType;
   VLayer: IMapType;
 begin
+  Result := (edtTargetPath.Text <> '');
+  if not Result then
+  begin
+    ShowMessage(_('Please select output folder'));
+    Exit;
+  end;
+
   Result := FfrZoomsSelect.Validate;
   if not Result then begin
     ShowMessage(_('Please select at least one zoom'));
-  end;
-
-  Result := (Self.GetPath <> '');
-  if not Result then begin
-    ShowMessage(_('Please set target path'));
   end;
 
   if Result then begin

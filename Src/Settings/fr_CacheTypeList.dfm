@@ -10,6 +10,7 @@ object frCacheTypeList: TfrCacheTypeList
     Width = 350
     Height = 21
     Align = alTop
+    Style = csDropDownList
     ItemHeight = 13
     TabOrder = 0
     OnChange = cbbCacheTypeChange
