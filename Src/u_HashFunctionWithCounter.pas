@@ -525,7 +525,7 @@ begin
   end;
   VContext := VCounter.StartOperation;
   try
-    Result := FFunction.CalcHash(@AValue[1], VSize);
+    Result := FFunction.CalcHash(Pointer(AValue), VSize);
   finally
     VCounter.FinishOperation(VContext);
   end;

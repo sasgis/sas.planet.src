@@ -25,9 +25,9 @@ interface
 uses
   SysUtils;
 
-{$IF CompilerVersion < 23}
+{$IFNDEF UNICODE}
 function CharInSet(AChar: AnsiChar; const ASet: TSysCharSet): Boolean; inline;
-{$IFEND}
+{$ENDIF}
 
 function GetAfter(const SubStr, Str: AnsiString): AnsiString;
 function GetBefore(const SubStr, Str: AnsiString): AnsiString;
@@ -42,12 +42,12 @@ uses
   ALString,
   RegExpr;
 
-{$IF CompilerVersion < 23}
+{$IFNDEF UNICODE}
 function CharInSet(AChar: AnsiChar; const ASet: TSysCharSet): Boolean; inline;
 begin
   Result := AChar in ASet;
 end;
-{$IFEND}
+{$ENDIF}
 
 function GetAfter(const SubStr, Str: AnsiString): AnsiString;
 begin

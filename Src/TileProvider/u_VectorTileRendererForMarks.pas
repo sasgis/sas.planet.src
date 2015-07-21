@@ -24,7 +24,6 @@ interface
 
 uses
   GR32,
-  WinTypes,
   Types,
   t_GeoTypes,
   i_MarkerProviderForVectorItem,

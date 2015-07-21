@@ -56,12 +56,12 @@ function CompareStringOrdinal(const S1, S2: string): Integer;
  
   // Функция CharInSet появилась начиная с Delphi 2009,
   // для более старых версий реализуем ее аналог
-{$IF CompilerVersion < 23}
+{$IFNDEF UNICODE}
   function CharInSet(AChar: Char; ASet: TSysCharSet): Boolean;
   begin
     Result := AChar in ASet;
   end;
-{$IFEND}
+{$ENDIF}
 var
   S1IsInt, S2IsInt: Boolean;
   S1Cursor, S2Cursor: PChar;
