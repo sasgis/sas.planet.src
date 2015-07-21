@@ -198,18 +198,16 @@ function TTileStorageFileSystem.DeleteTile(
   const AVersionInfo: IMapVersionInfo
 ): Boolean;
 var
-  VPath: string;
+  VBaseFN: string;
   VFileName: string;
   VTneName: string;
 begin
   Result := false;
   if GetState.GetStatic.DeleteAccess <> asDisabled then begin
     try
-      VPath :=
-        StoragePath +
-        FFileNameGenerator.GetTileFileName(AXY, AZoom);
-      VFileName := VPath + FFileExt;
-      VTneName := VPath + CTneFileExt;
+      VBaseFN := FFileNameGenerator.GetTileFileName(AXY, AZoom);
+      VFileName := StoragePath + FFileNameGenerator.AddExt(VBaseFN, FFileExt);
+      VTneName := StoragePath + FFileNameGenerator.AddExt(VBaseFN, CTneFileExt);
 
       FFsLock.BeginWrite;
       try
@@ -242,8 +240,7 @@ function TTileStorageFileSystem.GetTileFileName(
 begin
   Result :=
     StoragePath +
-    FFileNameGenerator.GetTileFileName(AXY, AZoom) +
-    FFileExt;
+    FFileNameGenerator.AddExt(FFileNameGenerator.GetTileFileName(AXY, AZoom), FFileExt);
 end;
 
 function _GetFileDateTime(var AInfo: WIN32_FILE_ATTRIBUTE_DATA): TDateTime;
@@ -424,14 +421,14 @@ begin
             VPrevFolderExist := VFolderExists;
           end;
           if VFolderExists then begin
-            UpdateTileInfoByFile(False, False, VFileName + FFileExt, VTileInfo);
+            UpdateTileInfoByFile(False, False, FFileNameGenerator.AddExt(VFileName, FFileExt), VTileInfo);
             if VTileInfo.FInfoType = titExists then begin
               // tile exists
               VItems[VIndex].FInfoType := titExists;
               VItems[VIndex].FLoadDate := VTileInfo.FLoadDate;
               VItems[VIndex].FSize := VTileInfo.FSize;
             end else begin
-              UpdateTileInfoByFile(True, False, VFileName + CTneFileExt, VTileInfo);
+              UpdateTileInfoByFile(True, False, FFileNameGenerator.AddExt(VFileName, CTneFileExt), VTileInfo);
               if VTileInfo.FInfoType = titTneExists then begin
                 // tne exists
                 VItems[VIndex].FInfoType := titTneExists;
@@ -484,8 +481,9 @@ begin
   if GetState.GetStatic.ReadAccess <> asDisabled then begin
     VPath :=
       StoragePath +
-      FFileNameGenerator.GetTileFileName(AXY, AZoom) +
-      FFileExt;
+      FFileNameGenerator.AddExt(
+	  FFileNameGenerator.GetTileFileName(AXY, AZoom),
+      FFileExt);
     Result := GetTileInfoByPath(VPath, nil, AMode = gtimWithData);
     if Assigned(FTileInfoMemCache) then begin
       FTileInfoMemCache.Add(AXY, AZoom, nil, Result);
@@ -503,7 +501,7 @@ function TTileStorageFileSystem.SaveTile(
   const AIsOverwrite: Boolean
 ): Boolean;
 var
-  VPath: String;
+  VBaseFN: String;
   VFileName: string;
   VTneName: string;
   VHandle: THandle;
@@ -517,11 +515,11 @@ begin
         raise Exception.Create('Bad content type for this tile storage');
       end;
     end;
-    VPath :=
-      StoragePath +
-      FFileNameGenerator.GetTileFileName(AXY, AZoom);
-    VFileName := VPath + FFileExt;
-    VTneName := VPath + CTneFileExt;
+
+    VBaseFN := FFileNameGenerator.GetTileFileName(AXY, AZoom);
+    VFileName := StoragePath + FFileNameGenerator.AddExt(VBaseFN, FFileExt);
+    VTneName := StoragePath + FFileNameGenerator.AddExt(VBaseFN, CTneFileExt);
+
     FFsLock.BeginWrite;
     try
       if not AIsOverwrite then begin

@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_TileFileNameES;
+unit u_TileFileNameOsmAnd;
 
 interface
 
@@ -29,12 +29,7 @@ uses
   u_TileFileNameBase;
 
 type
-  TTileFileNameES = class(TTileFileNameBase)
-  private
-    class function FullInt(
-      I: Integer;
-      AZoom: Byte
-    ): string;
+  TTileFileNameOsmAnd = class(TTileFileNameBase)
   protected
     function GetTileFileName(
       AXY: TPoint;
@@ -46,69 +41,34 @@ type
       out ATileXY: TPoint;
       out ATileZoom: Byte
     ): Boolean; override;
+
+    function AddExt(const AFileName, AExt: String): String; override;
   end;
 
 implementation
 
 uses
   RegExpr,
-  StrUtils,
   SysUtils;
 
 const
-  c_ES_Expr = '^(.+\\)?(\d+)-(\d+)-(\d+)(\..+)?$';
+  c_OsmAnd_Expr  = '^(.+\\)?(\d\d?)\\(\d+)\\(\d+)(\..+)?$';
 
-{ TTileFileNameES }
+{ TTileFileNameOsmAnd }
 
-class function TTileFileNameES.FullInt(
-  I: Integer;
-  AZoom: Byte
-): string;
-begin
-  Result := IntToStr(I);
-  if AZoom < 4 then begin
-  end else if AZoom < 7 then begin
-    Result := RightStr('0' + Result, 2);
-  end else if AZoom < 10 then begin
-    Result := RightStr('00' + Result, 3);
-  end else if AZoom < 14 then begin
-    Result := RightStr('000' + Result, 4);
-  end else if AZoom < 17 then begin
-    Result := RightStr('0000' + Result, 5);
-  end else if AZoom < 20 then begin
-    Result := RightStr('00000' + Result, 6);
-  end else begin
-    Result := RightStr('000000' + Result, 7);
-  end;
-end;
-
-function TTileFileNameES.GetTileFileName(
+function TTileFileNameOsmAnd.GetTileFileName(
   AXY: TPoint;
   AZoom: Byte
 ): string;
-var
-  VZoomStr: string;
-  VFileName: string;
 begin
-  inherited;
-  if (AZoom >= 9) then begin
-    VZoomStr := IntToStr(AZoom + 1);
-  end else begin
-    VZoomStr := '0' + IntToStr(AZoom + 1);
-  end;
-  VFileName := VZoomStr + '-' + FullInt(AXY.X, AZoom) + '-' + FullInt(AXY.Y, AZoom);
-  if AZoom < 6 then begin
-    Result := VZoomStr + PathDelim;
-  end else if AZoom < 10 then begin
-    Result := VZoomStr + PathDelim +
-      Chr(60 + AZoom) + FullInt(AXY.X shr 5, AZoom - 5) + FullInt(AXY.Y shr 5, AZoom - 5) + PathDelim;
-  end else begin
-    Result := '10' + '-' + FullInt(AXY.X shr (AZoom - 9), 9) + '-' + FullInt(AXY.Y shr (AZoom - 9), 9) + PathDelim + VZoomStr + PathDelim + Chr(60 + AZoom) + FullInt(AXY.X shr 5, AZoom - 5) + FullInt(AXY.Y shr 5, AZoom - 5) + PathDelim;
-  end;
-  Result := Result + VFileName;
+  Result := Format('%d' + PathDelim + '%d' + PathDelim + '%d', [
+    AZoom,
+    AXY.X,
+    AXY.Y
+    ]);
 end;
 
-function TTileFileNameES.GetTilePoint(
+function TTileFileNameOsmAnd.GetTilePoint(
   const ATileFileName: string;
   out ATileXY: TPoint;
   out ATileZoom: Byte
@@ -118,10 +78,10 @@ var
 begin
   VRegExpr := TRegExpr.Create;
   try
-    VRegExpr.Expression := c_ES_Expr;
+    VRegExpr.Expression := c_OsmAnd_Expr;
     if VRegExpr.Exec(ATileFileName) then begin
-      ATileZoom := StrToInt(VRegExpr.Match[2]) - 1;
-      ATileXY.X := StrToInt(VRegExpr.Match[3]);
+      ATileZoom := StrToInt(VRegExpr.Match[2]);
+      ATileXY.X := StrToInt(VRegExpr.Match[3]); // (!) X - first, Y - last
       ATileXY.Y := StrToInt(VRegExpr.Match[4]);
       Result := True;
     end else begin
@@ -130,6 +90,19 @@ begin
   finally
     VRegExpr.Free;
   end;
+end;
+
+function TTileFileNameOsmAnd.AddExt(const AFileName, AExt: String): String;
+const
+  CTneFileExt = '.tne';
+var
+  Ext: String;
+begin
+  if SameFileName(AExt, CTneFileExt) then
+    Ext := AExt
+  else
+    Ext := AExt + '.tile';
+  Result := inherited AddExt(AFileName, Ext);
 end;
 
 end.

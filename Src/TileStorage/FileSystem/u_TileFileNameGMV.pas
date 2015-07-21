@@ -26,25 +26,21 @@ uses
   Types,
   i_TileFileNameParser,
   i_TileFileNameGenerator,
-  u_BaseInterfacedObject;
+  u_TileFileNameBase;
 
 type
-  TTileFileNameGMV = class(
-    TBaseInterfacedObject,
-    ITileFileNameParser,
-    ITileFileNameGenerator
-    )
-  private
+  TTileFileNameGMV = class(TTileFileNameBase)
+  protected
     function GetTileFileName(
       AXY: TPoint;
       AZoom: Byte
-    ): string;
+    ): string; override;
 
     function GetTilePoint(
       const ATileFileName: string;
       out ATileXY: TPoint;
       out ATileZoom: Byte
-    ): Boolean;
+    ): Boolean; override;
   end;
 
 implementation

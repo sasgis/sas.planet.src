@@ -32,6 +32,7 @@ type
       AXY: TPoint;
       AZoom: byte
     ): string;
+    function AddExt(const AFileName, AExt: String): String;
   end;
 
 implementation

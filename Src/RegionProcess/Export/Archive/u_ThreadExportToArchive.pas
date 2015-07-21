@@ -149,7 +149,7 @@ begin
           VExt := VTileInfo.ContentType.GetDefaultExt;
           FArchive.AddFile(
             VTileInfo.TileData,
-            FTileNameGen.GetTileFileName(VTile, VZoom) + VExt,
+            FTileNameGen.AddExt(FTileNameGen.GetTileFileName(VTile, VZoom), VExt),
             VTileInfo.GetLoadDate
           );
         end;

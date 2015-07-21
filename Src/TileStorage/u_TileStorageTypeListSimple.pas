@@ -58,6 +58,7 @@ uses
   u_TileFileNameGM2,
   u_TileFileNameGM3,
   u_TileFileNameMOBAC,
+  u_TileFileNameOsmAnd,
   u_TileStorageTypeConfig,
   u_TileStorageTypeGE,
   u_TileStorageTypeGoogleEarth,
@@ -81,6 +82,7 @@ const
   CTileStorageTypeFileSystemGM2: TGUID = '{4EF99AD6-D05E-4175-805C-DBBE08AC43B3}';
   CTileStorageTypeFileSystemGM3: TGUID = '{A65E31AC-7561-47FA-87B6-CE7F5603D5D1}';
   CTileStorageTypeFileSystemMA: TGUID = '{033B64B5-008B-4BAF-9EA9-B8176EA35433}';
+  CTileStorageTypeFileSystemOsmAnd: TGUID = '{A12465C1-2DB9-4309-8B48-A01E3BBDDE44}';
   CTileStorageTypeInRAM: TGUID = '{717034B7-B49E-4C89-BC75-002D0523E548}';
 
 resourcestring
@@ -90,6 +92,7 @@ resourcestring
   rsGlobalMapperCacheName = 'GlobalMapper Tiles';
   rsGlobalMapperAuxCacheName = 'GlobalMapper Aux';
   rsGlobalMapperBingCacheName = 'GlobalMapper Bing';
+  rsOsmAndCacheName = 'OsmAnd+ Tiles';
   rsGoogleEarthCacheName = 'GoogleEarth';
   rsGoogleEarthTerrainCacheName = 'GoogleEarth Terrain';
   rsGeoCacherCacheName = 'GeoCacher';
@@ -224,6 +227,25 @@ begin
       CTileStorageTypeFileSystemGM3,
       c_File_Cache_Id_GM_Bing,
       rsGlobalMapperBingCacheName,
+      VStorageType,
+      True,
+      True
+    );
+  VList.Add(VItem);
+
+  VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.GMTilesPath);
+  VStorageType :=
+    TTileStorageTypeFileSystemSimple.Create(
+      TTileFileNameOsmAnd.Create,
+      TTileFileNameOsmAnd.Create,
+      AMapVersionFactoryList.GetSimpleVersionFactory,
+      VStorageTypeConfig
+    );
+  VItem :=
+    TTileStorageTypeListItem.Create(
+      CTileStorageTypeFileSystemOsmAnd,
+      c_File_Cache_Id_OsmAnd,
+      rsOsmAndCacheName,
       VStorageType,
       True,
       True
