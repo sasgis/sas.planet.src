@@ -787,18 +787,15 @@ begin
       Assert(FItems.GetItemByIndex(VCurrIndex) = VCurrItem);
       case VCurrItem.QueueType of
         qtMulti: begin
-          Assert(VCurrItem.Value <> nil);
           Result := VCurrItem.Value;
           FQueueMulti.MoveItemToHead(VCurrIndex, VCurrItem);
         end;
         qtFirstIn: begin
           Assert(FQueueFirstInMaxCount > 0);
-          Assert(VCurrItem.Value <> nil);
           Result := VCurrItem.Value;
         end;
         qtFirstOut: begin
           Assert(FQueueFirstOutMaxCount > 0);
-          Assert(VCurrItem.Value = nil);
           FQueueFirstOut.MoveItemToHead(VCurrIndex, VCurrItem);
         end;
       end;
@@ -824,7 +821,6 @@ begin
           end;
           qtFirstOut: begin
             Assert(FQueueFirstOutMaxCount > 0);
-            Assert(VCurrItem.Value = nil);
             FQueueFirstOut.ExcludeItem(VCurrIndex, VCurrItem);
             VCurrItem.Value := Result;
             if FQueueMulti.Count + 1 > FQueueMultiMaxCount then begin
