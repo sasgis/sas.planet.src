@@ -875,6 +875,7 @@ uses
   fr_TilesCopy in 'Src\RegionProcess\Copy\fr_TilesCopy.pas' {frTilesCopy: TFrame},
   u_ProviderTilesCopy in 'Src\RegionProcess\Copy\u_ProviderTilesCopy.pas',
   u_ThreadCopyFromStorageToStorage in 'Src\RegionProcess\Copy\u_ThreadCopyFromStorageToStorage.pas',
+  u_ThreadCopyWithModification in 'Src\RegionProcess\Copy\u_ThreadCopyWithModification.pas',
   fr_Delete in 'Src\RegionProcess\Delete\fr_Delete.pas' {frDelete: TFrame},
   fr_DeleteMarks in 'Src\RegionProcess\Delete\fr_DeleteMarks.pas' {frDeleteMarks: TFrame},
   fr_DeleteTiles in 'Src\RegionProcess\Delete\fr_DeleteTiles.pas' {frDeleteTiles: TFrame},
@@ -1116,12 +1117,14 @@ uses
   u_TileStorageGE in 'Src\TileStorage\DLL\u_TileStorageGE.pas',
   u_TileStorageGETerrain in 'Src\TileStorage\DLL\u_TileStorageGETerrain.pas',
   u_TileStorageTypeGE in 'Src\TileStorage\DLL\u_TileStorageTypeGE.pas',
+  u_TileFileNameBase in 'Src\TileStorage\FileSystem\u_TileFileNameBase.pas',
   u_TileFileNameES in 'Src\TileStorage\FileSystem\u_TileFileNameES.pas',
   u_TileFileNameGM1 in 'Src\TileStorage\FileSystem\u_TileFileNameGM1.pas',
   u_TileFileNameGM2 in 'Src\TileStorage\FileSystem\u_TileFileNameGM2.pas',
   u_TileFileNameGM3 in 'Src\TileStorage\FileSystem\u_TileFileNameGM3.pas',
   u_TileFileNameGMV in 'Src\TileStorage\FileSystem\u_TileFileNameGMV.pas',
   u_TileFileNameMOBAC in 'Src\TileStorage\FileSystem\u_TileFileNameMOBAC.pas',
+  u_TileFileNameOsmAnd in 'Src\TileStorage\FileSystem\u_TileFileNameOsmAnd.pas',
   u_TileFileNameSAS in 'Src\TileStorage\FileSystem\u_TileFileNameSAS.pas',
   u_TileStorageFileSystem in 'Src\TileStorage\FileSystem\u_TileStorageFileSystem.pas',
   u_TileStorageTypeFileSystemSimple in 'Src\TileStorage\FileSystem\u_TileStorageTypeFileSystemSimple.pas',
@@ -1328,10 +1331,7 @@ uses
   u_ValueToStringConverter in 'Src\u_ValueToStringConverter.pas',
   u_ValueToStringConverterChangeable in 'Src\u_ValueToStringConverterChangeable.pas',
   u_ValueToStringConverterConfig in 'Src\u_ValueToStringConverterConfig.pas',
-  u_WindowPositionConfig in 'Src\u_WindowPositionConfig.pas',
-  u_ThreadCopyWithModification in 'Src\RegionProcess\Copy\u_ThreadCopyWithModification.pas',
-  u_TileFileNameOsmAnd in 'Src\TileStorage\FileSystem\u_TileFileNameOsmAnd.pas',
-  u_TileFileNameBase in 'Src\TileStorage\FileSystem\u_TileFileNameBase.pas';
+  u_WindowPositionConfig in 'Src\u_WindowPositionConfig.pas';
 
 {$R .\Resources\VersionInfo.res}
 {$R .\Resources\MainIcon.res}
