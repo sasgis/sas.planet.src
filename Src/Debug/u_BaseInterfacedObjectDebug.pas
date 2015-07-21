@@ -203,4 +203,25 @@ begin
   end;
 end;
 
+procedure Init;
+{$IF COMPILERVERSION >= 22}
+var
+  O: TInterfacedObject;
+  I: IInterface;
+begin
+  // Force linker to include SafeIntAsClass (Delphi XE+ only)
+  // SafeIntAsClass allows to inspect implementation object
+  // Use TObj(IntfVar) in Evaluate/Modify window
+  O := TInterfacedObject.Create;
+  I := O;
+  O := TInterfacedObject(I);
+  FillChar(O, SizeOf(0), 0); // supress "never used" warning -> include TInterfacedObject cast in code
+{$ELSE}
+begin
+{$IFEND}
+end;
+
+initialization
+  Init;
+
 end.

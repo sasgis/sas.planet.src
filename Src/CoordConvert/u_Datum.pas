@@ -122,7 +122,7 @@ begin
 
   FAreaCalc := TPolygonAreaCalculator.Create(FRadiusA, FRadiusB);
   try
-    FDistCalc := TDistanceCalculatorByGeodesicLib.Create(FRadiusA, FRadiusB)
+    FDistCalc := TDistanceCalculatorByGeodesicLib.Create(FRadiusA, FRadiusB, True);
   except
     FDistCalc := TDistanceCalculatorByVincentyAlgorithm.Create(FRadiusA, FRadiusB);
   end;

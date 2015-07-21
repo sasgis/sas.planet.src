@@ -112,7 +112,7 @@ begin
   inherited Create;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   try
-    FBitmap32To8Converter := TBitmap32To8ConverterByLibImageQuant.Create;
+    FBitmap32To8Converter := TBitmap32To8ConverterByLibImageQuant.Create(True);
   except
     FBitmap32To8Converter := TBitmap32To8ConverterByFreeImage.Create;
   end;

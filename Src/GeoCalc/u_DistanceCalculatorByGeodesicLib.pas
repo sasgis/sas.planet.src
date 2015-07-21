@@ -80,7 +80,8 @@ type
   public
     constructor Create(
       const ARadiusA: Double;
-      const ARadiusB: Double
+      const ARadiusB: Double;
+      const AQuietErrors: Boolean = False
     );
     destructor Destroy; override;
   end;
@@ -97,8 +98,17 @@ const
 
 constructor TDistanceCalculatorByGeodesicLib.Create(
   const ARadiusA: Double;
-  const ARadiusB: Double
-);
+  const ARadiusB: Double;
+  const AQuietErrors: Boolean);
+
+  procedure RaiseLastOSError;
+  begin
+    if AQuietErrors then
+      Abort
+    else
+      SysUtils.RaiseLastOSError;
+  end;
+
 begin
   inherited Create;
   geodesic_dll := LoadLibrary(PChar(geodesic_lib));

@@ -173,7 +173,7 @@ type
     { IBitmap32To8Converter }
     function Convert(const ABitmap32: IBitmap32Static): IBitmap8Static;
   public
-    constructor Create;
+    constructor Create(const AQuietErrors: Boolean = False);
     destructor Destroy; override;
   end;
 
@@ -224,9 +224,18 @@ end;
 
 { TBitmap32To8ConverterByLibImageQuant }
 
-constructor TBitmap32To8ConverterByLibImageQuant.Create;
+constructor TBitmap32To8ConverterByLibImageQuant.Create(const AQuietErrors: Boolean);
+
+  procedure RaiseLastOSError;
+  begin
+    if AQuietErrors then
+      Abort
+    else
+      SysUtils.RaiseLastOSError;
+  end;
+
 begin
-  inherited;
+  inherited Create;
   libimagequant_dll := LoadLibrary(PChar(libimagequant_lib));
   if (libimagequant_dll <> 0) then begin
     try
