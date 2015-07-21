@@ -1074,7 +1074,7 @@ function GetMarkRecArray(
   var
     VCacheItem: PSQLMarkRow;
     VViewItem: PSQLMarkViewRow;
-    VGeomatry: IGeometryLonLat;
+    VGeometry: IGeometryLonLat;
   begin
     Result := False;
     
@@ -1104,8 +1104,8 @@ function GetMarkRecArray(
     end;
 
     if AIncludeGeometry then begin
-      if ACache.FMarkGeometryCache.Find(AIndexRec.MarkId, VGeomatry) then begin
-        AMarkRec.FGeometry := VGeomatry;
+      if ACache.FMarkGeometryCache.Find(AIndexRec.MarkId, VGeometry) then begin
+        AMarkRec.FGeometry := VGeometry;
       end else begin
         Assert(False);
         Exit;
