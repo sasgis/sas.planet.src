@@ -57,14 +57,10 @@ type
   )
   private
     FDbId: Integer;
-    FUserID: TID;
     FClient: TSQLRestClient;
     FCache: TSQLMarkDbCache;
-    FClientProvider: IMarkSystemImplORMClientProvider;
     FHelper: TMarkDbImplORMHelper;
     FFactoryDbInternal: IMarkFactoryDbInternalORM;
-    FGeometryReader: IGeometryFromStream;
-    FGeometryWriter: IGeometryToStream;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   private
     function _GetMarkSQL(
@@ -225,12 +221,8 @@ begin
   inherited Create;
 
   FDbId := ADbId;
-  FClientProvider := AClientProvider;
-  FUserID := FClientProvider.UserID;
-  FClient := FClientProvider.RestClient;
+  FClient := AClientProvider.RestClient;
   FFactoryDbInternal := AFactoryDbInternal;
-  FGeometryReader := AGeometryReader;
-  FGeometryWriter := AGeometryWriter;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
 
   FCache.Init;
@@ -238,9 +230,9 @@ begin
   FHelper :=
     TMarkDbImplORMHelper.Create(
       FCache,
-      FGeometryWriter,
-      FGeometryReader,
-      FClientProvider
+      AGeometryWriter,
+      AGeometryReader,
+      AClientProvider
     );
 end;
 
@@ -249,7 +241,6 @@ begin
   FreeAndNil(FHelper);
   FCache.Done;
   FFactoryDbInternal := nil;
-  FClientProvider := nil;
   inherited;
 end;
 
@@ -831,100 +822,19 @@ procedure TMarkDbImplORM._GetMarkSubsetByRect(
   const AResultList: IVectorItemSubsetBuilder
 );
 var
+  I: Integer;
+  VCount: Integer;
   VItem: IVectorDataItem;
-  VMarkInternal: IMarkInternalORM;
-  VLen: Integer;
-  VMarkId: TID;
-  VCategoryId: TID;
-  VCategoris: TDynArray;
-  VCategoryIDArray: TIDDynArray;
-  VSQLSelect: RawUTF8;
-  VIDList: TSQLTableJSON;
-  VFilterByCategories: Boolean;
-  VFilterByOneCategory: Boolean;
-  VLonSize, VLatSize: Cardinal;
+  VMarkRecArray: TSQLMarkRecDynArray;
 begin
-  VLen := Length(ACategoryIDArray);
-  Assert(VLen > 0);
-
-  LonLatSizeToInternalSize(ALonLatSize, VLonSize, VLatSize);
-
-  VFilterByCategories := (VLen > 1);
-  VFilterByOneCategory := (VLen = 1) and (ACategoryIDArray[0] > 0);
-
-  if VFilterByOneCategory then begin
-    VSQLSelect := FormatUTF8(
-      'SELECT Mark.RowID FROM Mark,MarkRTree ' +
-      'WHERE Mark.RowID=MarkRTree.RowID AND Mark.Category=? ' +
-      'AND Left<=? AND Right>=? AND Bottom<=? AND Top>=? ' +
-      'AND (Mark.GeoType=? OR Mark.GeoLonSize>=? OR Mark.GeoLatSize>=?);',
-      [],
-      [
-        ACategoryIDArray[0],
-        ARect.Right, ARect.Left, ARect.Top, ARect.Bottom,
-        Integer(gtPoint), VLonSize, VLatSize
-      ]
-    );
-  end else if VFilterByCategories then begin
-    VSQLSelect := FormatUTF8(
-      'SELECT Mark.RowID,Mark.Category FROM Mark,MarkRTree ' +
-      'WHERE Mark.RowID=MarkRTree.RowID ' +
-      'AND Left<=? AND Right>=? AND Bottom<=? AND Top>=? ' +
-      'AND (Mark.GeoType=? OR Mark.GeoLonSize>=? OR Mark.GeoLatSize>=?);',
-      [], [ARect.Right, ARect.Left, ARect.Top, ARect.Bottom, Integer(gtPoint), VLonSize, VLatSize]
-    );
-  end else begin
-    VSQLSelect := FormatUTF8(
-      'SELECT Mark.RowID FROM Mark,MarkRTree ' +
-      'WHERE Mark.RowID=MarkRTree.RowID ' +
-      'AND Left<=? AND Right>=? AND Bottom<=? AND Top>=? ' +
-      'AND (Mark.GeoType=? OR Mark.GeoLonSize>=? OR Mark.GeoLatSize>=?);',
-      [], [ARect.Right, ARect.Left, ARect.Top, ARect.Bottom, Integer(gtPoint), VLonSize, VLatSize]
-    );
-  end;
-
-  VIDList := FClient.ExecuteList([TSQLMark, TSQLMarkRTree], VSQLSelect);
-  if Assigned(VIDList) then
-  try
-    if VFilterByCategories then begin
-      VCategoris.Init(TypeInfo(TIDDynArray), VCategoryIDArray);
-      VCategoris.CopyFrom(ACategoryIDArray, VLen);
-      VCategoris.Compare := SortDynArrayInt64;
-      VCategoris.Sort;
-    end;
-
-    while VIDList.Step do begin
-      VMarkId := VIDList.Field(0);
-
-      if VFilterByCategories then begin
-        VCategoryId := VIDList.Field(1);
-        if VCategoris.Find(VCategoryId) = -1 then begin
-          Continue;
-        end;
-      end;
-
-      if VMarkId > 0 then begin
-        VItem := _GetMarkSQL(VMarkId);
-
-        if not Assigned(VItem) then begin
-          Continue;
-        end;
-
-        if Assigned(VItem.Geometry.Bounds) and VItem.Geometry.Bounds.IsIntersecWithRect(ARect) then begin
-          if AIncludeHiddenMarks then begin
-            AResultList.Add(VItem);
-          end else begin
-            if Supports(VItem.MainInfo, IMarkInternalORM, VMarkInternal) then begin
-              if VMarkInternal.Visible then begin
-                AResultList.Add(VItem);
-              end;
-            end;
-          end;
-        end;
-      end;
-    end;
-  finally
-    VIDList.Free;
+  SetLength(VMarkRecArray, 0);
+  VCount := FHelper.GetMarkRecArrayByRect(
+    ACategoryIDArray, ARect, AIncludeHiddenMarks, ALonLatSize, VMarkRecArray
+  );
+  Assert(Length(VMarkRecArray) >= VCount);
+  for I := 0 to VCount - 1 do begin
+    VItem := FFactoryDbInternal.CreateMark(VMarkRecArray[I]);
+    AResultList.Add(VItem);
   end;
 end;
 
@@ -1183,76 +1093,24 @@ function TMarkDbImplORM.FindMarks(
   const ASearchInDescription: Boolean
 ): IVectorItemSubset;
 var
-  I, J: Integer;
-  VLen: Integer;
-  VLimit: RawUTF8;
-  VSearch: RawUTF8;
-  VMark: IVectorDataItem;
-  VMarkInternal: IMarkInternalORM;
-  VSQLWhere: RawUTF8;
-  VIDArray: TIDDynArray;
-  VNameIDArray: TIDDynArray;
-  VDescIDArray: TIDDynArray;
-  VSkipDescSearch: Boolean;
+  I: Integer;
+  VCount: Integer;
+  VItem: IVectorDataItem;
+  VMarkRecArray: TSQLMarkRecDynArray;
   VResultList: IVectorItemSubsetBuilder;
 begin
   VResultList := FVectorItemSubsetBuilderFactory.Build;
 
   LockRead;
   try
-    if AMaxCount > 0 then begin
-      VLimit := StringToUTF8(' LIMIT ' + IntToStr(AMaxCount));
-    end else begin
-      VLimit := '';
-    end;
-
-    VSearch := StringToUTF8('''' + SysUtils.AnsiLowerCase(ASearch) + '''');
-
-    VSQLWhere := RawUTF8('Name MATCH ') + VSearch + VLimit;
-    if FClient.FTSMatch(TSQLMarkFTS, VSQLWhere, VNameIDArray) then begin
-      VSkipDescSearch := (AMaxCount > 0) and (Length(VNameIDArray) >= AMaxCount);
-    end else begin
-      VSkipDescSearch := False;
-    end;
-
-    if ASearchInDescription and not VSkipDescSearch then begin
-      VSQLWhere := RawUTF8('Desc MATCH ') + VSearch + VLimit;
-      FClient.FTSMatch(TSQLMarkFTS, VSQLWhere, VDescIDArray);
-    end;
-
-    I := Length(VNameIDArray);
-    J := Length(VDescIDArray);
-
-    if (I > 0) and (J > 0) then begin
-      VLen := I + J;
-      SetLength(VIDArray, VLen);
-      Move(VNameIDArray[0], VIDArray[0], I);
-      Move(VDescIDArray[0], VIDArray[I], J);
-      VLen := MergeSortRemoveDuplicates(VIDArray);
-      SetLength(VIDArray, VLen);
-    end else if I > 0 then begin
-      VIDArray := VNameIDArray;
-    end else if J > 0 then begin
-      VIDArray := VDescIDArray;
-    end;
-
-    if (AMaxCount > 0) and (Length(VIDArray) > AMaxCount) then begin
-      SetLength(VIDArray, AMaxCount);
-    end;
-
-    for I := Low(VIDArray) to High(VIDArray) do begin
-      VMark := _GetMarkSQL(VIDArray[I]);
-      if Assigned(VMark) then begin
-        if AIncludeHiddenMarks then begin
-          VResultList.Add(VMark);
-        end else begin
-          if Supports(VMark.MainInfo, IMarkInternalORM, VMarkInternal) then begin
-            if VMarkInternal.Visible then begin
-              VResultList.Add(VMark);
-            end;
-          end;
-        end;
-      end;
+    SetLength(VMarkRecArray, 0);
+    VCount := FHelper.GetMarkRecArrayByText(
+      ASearch, AMaxCount, AIncludeHiddenMarks, ASearchInDescription, VMarkRecArray
+    );
+    Assert(Length(VMarkRecArray) >= VCount);
+    for I := 0 to VCount - 1 do begin
+      VItem := FFactoryDbInternal.CreateMark(VMarkRecArray[I]);
+      VResultList.Add(VItem);
     end;
   finally
     UnlockRead;
