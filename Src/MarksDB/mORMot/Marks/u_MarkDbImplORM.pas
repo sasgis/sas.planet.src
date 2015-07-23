@@ -46,6 +46,7 @@ uses
   i_MarkFactoryDbInternalORM,
   i_MarkSystemImplORMClientProvider,
   u_MarkDbImplORMCache,
+  u_MarkDbImplORMHelper,
   u_ConfigDataElementBase;
 
 type
@@ -60,6 +61,7 @@ type
     FClient: TSQLRestClient;
     FCache: TSQLMarkDbCache;
     FClientProvider: IMarkSystemImplORMClientProvider;
+    FHelper: TMarkDbImplORMHelper;
     FFactoryDbInternal: IMarkFactoryDbInternalORM;
     FGeometryReader: IGeometryFromStream;
     FGeometryWriter: IGeometryToStream;
@@ -204,8 +206,7 @@ uses
   i_AppearanceOfVectorItem,
   u_InterfaceListSimple,
   u_MarkSystemORMTools,
-  u_MarkSystemORMModel,
-  u_MarkDbImplORMHelper;
+  u_MarkSystemORMModel;
 
 constructor TMarkDbImplORM.Create(
   const ADbId: Integer;
@@ -233,10 +234,19 @@ begin
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
 
   FCache.Init;
+
+  FHelper :=
+    TMarkDbImplORMHelper.Create(
+      FCache,
+      FGeometryWriter,
+      FGeometryReader,
+      FClientProvider
+    );
 end;
 
 destructor TMarkDbImplORM.Destroy;
 begin
+  FreeAndNil(FHelper);
   FCache.Done;
   FFactoryDbInternal := nil;
   FClientProvider := nil;
@@ -266,7 +276,7 @@ function TMarkDbImplORM._GetMarkSQL(
 var
   VMarkRec: TSQLMarkRec;
 begin
-  if ReadMarkSQL(VMarkRec, FUserID, ID, ACategoryID, AName, FClient, FCache, FGeometryReader) then begin
+  if FHelper.ReadMarkSQL(VMarkRec, ID, ACategoryID, AName) then begin
     Result := FFactoryDbInternal.CreateMark(VMarkRec);
   end else begin
     Result := nil;
@@ -536,19 +546,19 @@ begin
       // UPDATE
       _SQLMarkRecFromMark(VOldMark, VSQLMarkRecOld);
       _SQLMarkRecFromMark(VNewMark, VSQLMarkRecNew);
-      UpdateMarkSQL(VSQLMarkRecOld, VSQLMarkRecNew, FUserID, FClient, FCache, FGeometryWriter);
+      FHelper.UpdateMarkSQL(VSQLMarkRecOld, VSQLMarkRecNew);
       Result := FFactoryDbInternal.CreateMark(VSQLMarkRecNew);
       AIsChanged := True;
     end else begin
       // DELETE
-      DeleteMarkSQL(VIdOld, FClient, FCache);
+      FHelper.DeleteMarkSQL(VIdOld);
       AIsChanged := True;
     end;
   end else begin
     // INSERT
     if VNewMark <> nil then begin
       _SQLMarkRecFromMark(VNewMark, VSQLMarkRecNew);
-      InsertMarkSQL(VSQLMarkRecNew, FUserID, FClient, FCache, FGeometryWriter);
+      FHelper.InsertMarkSQL(VSQLMarkRecNew);
       Result := FFactoryDbInternal.CreateMark(VSQLMarkRecNew);
       AIsChanged := True;
     end;
@@ -689,12 +699,8 @@ begin
   LockWrite;
   try
     VCount :=
-      GetMarkRecArray(
-        FUserID,
+      FHelper.GetMarkRecArray(
         ACategoryId,
-        FClient,
-        FGeometryReader,
-        FCache,
         True, // include hidden marks
         False, // without geometry
         VArray
@@ -751,12 +757,8 @@ begin
   LockWrite;
   try
     VCount :=
-      GetMarkRecArray(
-        FUserID,
+      FHelper.GetMarkRecArray(
         ACategoryId,
-        FClient,
-        FGeometryReader,
-        FCache,
         AIncludeHiddenMarks,
         True, // read geometry
         VArray
@@ -1027,7 +1029,7 @@ begin
   if VCategoryId > 0 then begin
     LockWrite;
     try
-      if SetMarksInCategoryVisibleSQL(FUserID, VCategoryId, ANewVisible, FClient, FCache) then begin
+      if FHelper.SetMarksInCategoryVisibleSQL(VCategoryId, ANewVisible) then begin
         SetChanged;
       end;
     finally
@@ -1056,7 +1058,7 @@ begin
     if VId > 0 then begin
       LockWrite;
       try
-        if SetMarkVisibleSQL(VId, FUserID, AVisible, FClient, FCache, True) then begin
+        if FHelper.SetMarkVisibleSQL(VId, AVisible, True) then begin
           SetChanged;
         end;
       finally
@@ -1086,7 +1088,7 @@ begin
     if VId > 0 then begin
       LockWrite;
       try
-        if SetMarkVisibleSQL(VId, FUserID, AVisible, FClient, FCache, True) then begin
+        if FHelper.SetMarkVisibleSQL(VId, AVisible, True) then begin
           SetChanged;
         end;
       finally
@@ -1123,7 +1125,7 @@ begin
             VMarkInternal.Visible := AVisible;
           end;
           if VId > 0 then begin
-            if SetMarkVisibleSQL(VId, FUserID, AVisible, FClient, FCache, False) then begin
+            if FHelper.SetMarkVisibleSQL(VId, AVisible, False) then begin
               VIsChanged := True;
             end;
           end;
