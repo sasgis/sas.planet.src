@@ -24,15 +24,17 @@ interface
 
 uses
   t_GeoTypes,
+  i_DoublePoints,
   i_DoublePointsAggregator,
   u_BaseInterfacedObject;
 
 type
   TDoublePointsAggregator = class(TBaseInterfacedObject, IDoublePointsAggregator)
   private
-    FPoints: array of TDoublePoint;
+    FPoints: PDoublePointArray;
     FCount: Integer;
     FCapacity: Integer;
+    procedure Grow(const AAddCount: Integer);
   private
     procedure Add(const APoint: TDoublePoint);
     procedure AddPoints(
@@ -43,6 +45,8 @@ type
 
     function GetCount: Integer;
     function GetPoints: PDoublePointArray;
+    function MakeStaticAndClear: IDoublePoints;
+    function MakeStaticCopy: IDoublePoints;
   public
     constructor Create(const ACapacity: Integer = 0);
     destructor Destroy; override;
@@ -50,6 +54,9 @@ type
 
 implementation
 
+uses
+  u_DoublePoints;
+  
 { TDoublePointsAggregator }
 
 constructor TDoublePointsAggregator.Create(const ACapacity: Integer = 0);
@@ -58,32 +65,52 @@ begin
   inherited Create;
   FCount := 0;
   FCapacity := ACapacity;
-  SetLength(FPoints, FCapacity);
+  GetMem(FPoints, FCapacity * SizeOf(TDoublePoint));
 end;
 
 destructor TDoublePointsAggregator.Destroy;
 begin
+  FreeMem(FPoints);
   FPoints := nil;
   FCount := 0;
   FCapacity := 0;
   inherited;
 end;
 
-procedure TDoublePointsAggregator.Add(const APoint: TDoublePoint);
+procedure TDoublePointsAggregator.Grow(const AAddCount: Integer);
 var
-  VSize: Integer;
+  VNewCount: Integer;
+  VNewCapacity: Integer;
+  VPoints: PDoublePointArray;
 begin
-  if FCount >= FCapacity then begin
-    if FCapacity < 256 then begin
-      VSize := 256;
-    end else if FCapacity < 4 * 1024 then begin
-      VSize := FCapacity * 2;
-    end else begin
-      VSize := FCapacity + 4 * 1024;
+  Assert(AAddCount >=0);
+  VNewCount := FCount + AAddCount;
+  if VNewCount > FCapacity then begin
+    VNewCapacity := FCapacity;
+    while VNewCount > VNewCapacity do begin
+      if VNewCapacity < 256 then begin
+        VNewCapacity := 256;
+      end else if VNewCapacity < 4 * 1024 then begin
+        VNewCapacity := VNewCapacity * 2;
+      end else begin
+        VNewCapacity := VNewCapacity + 4 * 1024;
+      end;
     end;
-    SetLength(FPoints, VSize);
-    FCapacity := VSize;
+    if FCount > 0 then begin
+      GetMem(VPoints, VNewCapacity * SizeOf(TDoublePoint));
+      Move(FPoints[0], VPoints[0], FCount * SizeOf(TDoublePoint));
+      FreeMem(FPoints);
+      FPoints := VPoints;
+    end else begin
+      GetMem(FPoints, VNewCapacity * SizeOf(TDoublePoint));
+    end;
+    FCapacity := VNewCapacity;
   end;
+end;
+
+procedure TDoublePointsAggregator.Add(const APoint: TDoublePoint);
+begin
+  Grow(1);
   FPoints[FCount] := APoint;
   Inc(FCount);
 end;
@@ -92,28 +119,11 @@ procedure TDoublePointsAggregator.AddPoints(
   const APoints: PDoublePointArray;
   ACount: Integer
 );
-var
-  VNewCount: Integer;
-  VSize: Integer;
 begin
   if ACount > 0 then begin
-    VNewCount := FCount + ACount;
-    if VNewCount > FCapacity then begin
-      VSize := FCapacity;
-      while VNewCount > VSize do begin
-        if VSize < 256 then begin
-          VSize := 256;
-        end else if VSize < 4 * 1024 then begin
-          VSize := VSize * 2;
-        end else begin
-          VSize := VSize + 4 * 1024;
-        end;
-      end;
-      SetLength(FPoints, VSize);
-      FCapacity := VSize;
-    end;
+    Grow(ACount);
     Move(APoints[0], FPoints[FCount], ACount * SizeOf(TDoublePoint));
-    FCount := VNewCount;
+    FCount := FCount + ACount;
   end;
 end;
 
@@ -129,7 +139,26 @@ end;
 
 function TDoublePointsAggregator.GetPoints: PDoublePointArray;
 begin
-  Result := @FPoints[0];
+  Result := FPoints;
+end;
+
+function TDoublePointsAggregator.MakeStaticAndClear: IDoublePoints;
+begin
+  Result := nil;
+  if FCount > 0 then begin
+    Result := TDoublePoints.CreateWithOwn(FPoints, FCount);
+    FPoints := nil;
+    FCount := 0;
+    FCapacity := 0;
+  end;
+end;
+
+function TDoublePointsAggregator.MakeStaticCopy: IDoublePoints;
+begin
+  Result := nil;
+  if FCount > 0 then begin
+    Result := TDoublePoints.Create(FPoints, FCount);
+  end;
 end;
 
 end.

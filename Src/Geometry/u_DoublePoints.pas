@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2015, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -18,34 +18,87 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_DoublePointsAggregator;
+unit u_DoublePoints;
 
 interface
 
 uses
   t_GeoTypes,
-  i_DoublePoints;
+  i_DoublePoints,
+  u_BaseInterfacedObject;
 
 type
-  IDoublePointsAggregator = interface
-    ['{2B653087-1769-4C76-A880-17A2E27BD282}']
-    procedure Add(const APoint: TDoublePoint);
-    procedure AddPoints(
-      const APoints: PDoublePointArray;
-      ACount: Integer
-    );
-    procedure Clear;
-
+  TDoublePoints = class(TBaseInterfacedObject, IDoublePoints)
+  private
+    FCount: Integer;
+    FPoints: PDoublePointArray;
+  private
     function GetCount: Integer;
-    property Count: Integer read GetCount;
-
     function GetPoints: PDoublePointArray;
-    property Points: PDoublePointArray read GetPoints;
-
-    function MakeStaticAndClear: IDoublePoints;
-    function MakeStaticCopy: IDoublePoints;
+  public
+    constructor CreateWithOwn(
+      const APoints: PDoublePointArray;
+      const ACount: Integer
+    );
+    constructor Create(
+      const APoints: PDoublePointArray;
+      const ACount: Integer
+    );
+    destructor Destroy; override;
   end;
 
 implementation
+
+{ TDoublePoints }
+
+constructor TDoublePoints.Create(
+  const APoints: PDoublePointArray;
+  const ACount: Integer
+);
+var
+  VSize: Integer;
+begin
+  Assert(Assigned(APoints));
+  Assert(ACount > 0);
+  FCount := ACount;
+  if FCount > 0 then begin
+    VSize := FCount * SizeOf(TDoublePoint);
+    GetMem(FPoints, VSize);
+    Move(APoints[0], FPoints[0], VSize);
+  end else begin
+    FPoints := nil;
+  end;
+end;
+
+constructor TDoublePoints.CreateWithOwn(
+  const APoints: PDoublePointArray;
+  const ACount: Integer
+);
+begin
+  Assert(Assigned(APoints));
+  Assert(ACount > 0);
+  FCount := ACount;
+  if FCount > 0 then begin
+    FPoints := APoints;
+  end else begin
+    FPoints := nil;
+  end;
+end;
+
+destructor TDoublePoints.Destroy;
+begin
+  FreeMem(FPoints);
+  inherited;
+end;
+
+function TDoublePoints.GetCount: Integer;
+begin
+  Result := FCount;
+end;
+
+function TDoublePoints.GetPoints: PDoublePointArray;
+begin
+  Result := FPoints;
+end;
 
 end.

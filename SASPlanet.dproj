@@ -309,6 +309,7 @@
     <DCCReference Include="Src\GeoCoder\u_GeoCoderListSimple.pas" />
     <DCCReference Include="Src\GeoCoder\u_GeoCoderLocalBasic.pas" />
     <DCCReference Include="Src\Geometry\i_DoublePointFilter.pas" />
+    <DCCReference Include="Src\Geometry\i_DoublePoints.pas" />
     <DCCReference Include="Src\Geometry\i_DoublePointsAggregator.pas" />
     <DCCReference Include="Src\Geometry\i_EnumDoublePoint.pas" />
     <DCCReference Include="Src\Geometry\i_GeometryFromStream.pas" />
@@ -321,6 +322,7 @@
     <DCCReference Include="Src\Geometry\i_GeometryToStream.pas" />
     <DCCReference Include="Src\Geometry\i_LonLatRect.pas" />
     <DCCReference Include="Src\Geometry\i_ProjectedCalc.pas" />
+    <DCCReference Include="Src\Geometry\u_DoublePoints.pas" />
     <DCCReference Include="Src\Geometry\u_DoublePointsAggregator.pas" />
     <DCCReference Include="Src\Geometry\u_EnumDoublePointByLineSet.pas" />
     <DCCReference Include="Src\Geometry\u_EnumDoublePointBySingleLine.pas" />
