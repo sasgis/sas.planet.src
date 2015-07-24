@@ -2,10 +2,10 @@ object frmRegionProcess: TfrmRegionProcess
   Left = 234
   Top = 298
   Caption = 'Selection Manager'
-  ClientHeight = 323
+  ClientHeight = 400
   ClientWidth = 572
   Color = clBtnFace
-  Constraints.MinHeight = 343
+  Constraints.MinHeight = 400
   Constraints.MinWidth = 580
   ParentFont = True
   OldCreateOrder = False
