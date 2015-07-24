@@ -63,6 +63,7 @@ implementation
 
 uses
   Types,
+  Math,
   i_CoordConverter,
   u_GeoFunc;
 

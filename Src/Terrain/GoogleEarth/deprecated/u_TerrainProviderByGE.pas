@@ -78,6 +78,7 @@ implementation
 
 uses
   SysUtils,
+  Math,
   c_CoordConverter,
   c_TerrainProvider,
   i_TileInfoBasic,

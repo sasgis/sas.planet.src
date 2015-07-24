@@ -81,6 +81,7 @@ type
 implementation
 
 uses
+  Math,
   SysUtils,
   t_Hash,
   i_LonLatRect,

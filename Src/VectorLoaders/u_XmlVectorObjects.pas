@@ -143,6 +143,7 @@ type
 implementation
 
 uses
+  Math,
   vsagps_public_base,
   vsagps_public_sysutils,
   vsagps_public_kml,

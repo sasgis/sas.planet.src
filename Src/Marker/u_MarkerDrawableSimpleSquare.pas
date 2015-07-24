@@ -41,6 +41,7 @@ implementation
 
 uses
   Types,
+  Math,
   u_GeoFunc;
 
 

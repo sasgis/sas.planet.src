@@ -51,6 +51,7 @@ type
 implementation
 
 uses
+  Math,
   u_BitmapFunc,
   u_GeoFunc;
 

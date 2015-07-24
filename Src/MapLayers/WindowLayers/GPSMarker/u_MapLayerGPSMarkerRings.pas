@@ -95,6 +95,7 @@ type
 implementation
 
 uses
+  Math,
   GR32_Polygons,
   i_GPS,
   i_DoublePointsAggregator,

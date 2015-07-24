@@ -104,6 +104,7 @@ implementation
 uses
   SysUtils,
   Types,
+  Math,
   i_CoordConverter,
   u_Bitmap32ByStaticBitmap,
   u_GeoFunc;

@@ -64,6 +64,8 @@ type
 implementation
 
 uses
+  Types,
+  Math,
   u_ListenerByEvent,
   u_GeoFunc;
 

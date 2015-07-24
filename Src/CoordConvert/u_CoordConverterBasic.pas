@@ -384,6 +384,7 @@ const
 implementation
 
 uses
+  Math,
   SysUtils,
   c_CoordConverter,
   u_GeoFunc;

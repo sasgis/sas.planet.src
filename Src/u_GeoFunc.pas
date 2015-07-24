@@ -27,17 +27,17 @@ uses
   Math,
   t_GeoTypes;
 
-  function CalcAngleDelta(const ADerg1, ADegr2: Double): Double;
+  function CalcAngleDelta(const ADerg1, ADegr2: Double): Double; inline;
 
-  function PointFromDoublePoint(const APoint: TDoublePoint; ARounding: TPointRounding): TPoint;
-  function RectFromDoubleRect(const ARect: TDoubleRect; ARounding: TRectRounding): TRect;
-  function DoublePoint(const APoint: TPoint): TDoublePoint; overload;
+  function PointFromDoublePoint(const APoint: TDoublePoint; ARounding: TPointRounding): TPoint; inline;
+  function RectFromDoubleRect(const ARect: TDoubleRect; ARounding: TRectRounding): TRect; inline;
+  function DoublePoint(const APoint: TPoint): TDoublePoint; overload; inline;
   function DoublePoint(const X, Y: Double): TDoublePoint; overload; inline;
-  function DoubleRect(const ARect: TRect): TDoubleRect; overload;
-  function DoubleRect(const ATopLeft, ABottomRight: TDoublePoint): TDoubleRect; overload;
-  function DoubleRect(const ALeft, ATop, ARight, ABottom: Double): TDoubleRect; overload;
-  function RectCenter(const ARect: TRect): TDoublePoint; overload;
-  function RectCenter(const ARect: TDoubleRect): TDoublePoint; overload;
+  function DoubleRect(const ARect: TRect): TDoubleRect; overload; inline;
+  function DoubleRect(const ATopLeft, ABottomRight: TDoublePoint): TDoubleRect; overload; inline;
+  function DoubleRect(const ALeft, ATop, ARight, ABottom: Double): TDoubleRect; overload; inline;
+  function RectCenter(const ARect: TRect): TDoublePoint; overload; inline;
+  function RectCenter(const ARect: TDoubleRect): TDoublePoint; overload; inline;
   function RectSize(const ARect: TRect): TPoint; overload; inline;
   function RectSize(const ARect: TDoubleRect): TDoublePoint; overload; inline;
 
@@ -49,25 +49,25 @@ uses
   function RectMove(const ARect: TDoubleRect; const APointDelta: TPoint): TDoubleRect; overload; inline;
   function RectMove(const ARect: TDoubleRect; const APointDelta: TDoublePoint): TDoubleRect; overload; inline;
 
-  function LonLatPointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean;
-  function PixelPointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean;
-  function UnionLonLatRects(const ARect1, ARect2: TDoubleRect): TDoubleRect;
-  function UnionProjectedRects(const ARect1, ARect2: TDoubleRect): TDoubleRect;
-  function IsDoubleRectEmpty(const Rect: TDoubleRect): Boolean;
-  function IsLonLatRectEmpty(const Rect: TDoubleRect): Boolean;
-  function IsProjectedRectEmpty(const Rect: TDoubleRect): Boolean;
-  function IntersecLonLatRect(out Rect: TDoubleRect; const R1, R2: TDoubleRect): Boolean;
-  function IntersecProjectedRect(out Rect: TDoubleRect; const R1, R2: TDoubleRect): Boolean;
-  function IsIntersecLonLatRect(const R1, R2: TDoubleRect): Boolean;
-  function IsIntersecProjectedRect(const R1, R2: TDoubleRect): Boolean;
+  function LonLatPointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean; inline;
+  function PixelPointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean; inline;
+  function UnionLonLatRects(const ARect1, ARect2: TDoubleRect): TDoubleRect; inline;
+  function UnionProjectedRects(const ARect1, ARect2: TDoubleRect): TDoubleRect; inline;
+  function IsDoubleRectEmpty(const Rect: TDoubleRect): Boolean; inline;
+  function IsLonLatRectEmpty(const Rect: TDoubleRect): Boolean; inline;
+  function IsProjectedRectEmpty(const Rect: TDoubleRect): Boolean; inline;
+  function IntersecLonLatRect(out Rect: TDoubleRect; const R1, R2: TDoubleRect): Boolean; inline;
+  function IntersecProjectedRect(out Rect: TDoubleRect; const R1, R2: TDoubleRect): Boolean; inline;
+  function IsIntersecLonLatRect(const R1, R2: TDoubleRect): Boolean; inline;
+  function IsIntersecProjectedRect(const R1, R2: TDoubleRect): Boolean; inline;
 
-  function DoublePointsEqual(const p1,p2: TDoublePoint): Boolean;
-  function DoubleRectsEqual(const ARect1, ARect2: TDoubleRect): Boolean;
+  function DoublePointsEqual(const p1,p2: TDoublePoint): Boolean; inline;
+  function DoubleRectsEqual(const ARect1, ARect2: TDoubleRect): Boolean; inline;
   function IsPointsEqual(const P1, P2: TPoint): Boolean; inline;
 
   function GetGhBordersStepByScale(AScale: Integer; AZoom: Byte): TDoublePoint;
   function GetDegBordersStepByScale(const AScale: Double; AZoom: Byte): TDoublePoint;
-  function PointIsEmpty(const APoint: TDoublePoint): Boolean;
+  function PointIsEmpty(const APoint: TDoublePoint): Boolean; inline;
   function GetActualGshSCale(AScale: Integer; AZoom:Byte): Integer;
 const
   CEmptyDoublePoint: TDoublePoint = (X: NAN; Y: NAN);

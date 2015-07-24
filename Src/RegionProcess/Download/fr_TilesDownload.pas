@@ -135,6 +135,7 @@ type
 implementation
 
 uses
+  Math,
   Dialogs,
   t_GeoTypes,
   i_GeometryProjected,

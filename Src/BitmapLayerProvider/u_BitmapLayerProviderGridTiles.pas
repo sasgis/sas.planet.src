@@ -82,6 +82,7 @@ type
 implementation
 
 uses
+  Math,
   t_GeoTypes,
   i_CoordConverter,
   u_SimpleFlagWithInterlock,

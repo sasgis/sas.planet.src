@@ -85,6 +85,8 @@ type
 implementation
 
 uses
+  Types,
+  Math,
   i_LocalCoordConverter,
   u_GeoFunc,
   u_GeoToStrFunc,

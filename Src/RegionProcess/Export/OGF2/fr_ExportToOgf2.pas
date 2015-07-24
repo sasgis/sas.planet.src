@@ -128,6 +128,7 @@ type
 implementation
 
 uses
+  Math,
   gnugettext,
   t_GeoTypes,
   i_MapVersionRequest,

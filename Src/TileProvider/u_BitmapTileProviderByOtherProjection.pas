@@ -91,6 +91,7 @@ type
 implementation
 
 uses
+  Math,
   GR32,
   t_GeoTypes,
   i_CoordConverter,

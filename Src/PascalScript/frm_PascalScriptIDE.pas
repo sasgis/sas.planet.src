@@ -194,6 +194,7 @@ type
 implementation
 
 uses
+  Math,
   {$WARN UNIT_PLATFORM OFF}
   FileCtrl,
   {$WARN UNIT_PLATFORM ON}

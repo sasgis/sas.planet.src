@@ -62,6 +62,7 @@ implementation
 
 uses
   Types,
+  Math,
   t_GeoTypes,
   i_ProjectionInfo,
   u_GeoFunc,

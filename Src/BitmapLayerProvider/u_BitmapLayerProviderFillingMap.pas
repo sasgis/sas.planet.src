@@ -100,6 +100,7 @@ type
 implementation
 
 uses
+  Math,
   GR32,
   i_TileRect,
   i_TileIterator,

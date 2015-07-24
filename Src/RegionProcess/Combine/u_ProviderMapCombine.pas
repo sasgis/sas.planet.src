@@ -137,6 +137,8 @@ implementation
 uses
   Classes,
   SysUtils,
+  Types,
+  Math,
   gnugettext,
   t_Bitmap32,
   i_LonLatRect,

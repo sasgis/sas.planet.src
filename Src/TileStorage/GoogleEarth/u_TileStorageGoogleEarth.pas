@@ -143,6 +143,7 @@ implementation
 
 uses
   Types,
+  Math,
   t_GeoTypes,
   t_CommonTypes,
   i_InterfaceListSimple,

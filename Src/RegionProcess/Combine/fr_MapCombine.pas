@@ -207,6 +207,7 @@ implementation
 
 uses
   Types,
+  Math,
   GR32,
   gnugettext,
   t_GeoTypes,

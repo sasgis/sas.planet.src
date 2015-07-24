@@ -60,6 +60,7 @@ implementation
 
 uses
   SysUtils,
+  Math,
   t_GeoTypes,
   i_CoordConverter,
   i_VectorTileMatrix,

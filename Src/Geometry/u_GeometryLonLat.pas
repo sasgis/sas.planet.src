@@ -99,6 +99,7 @@ type
 implementation
 
 uses
+  Math,
   SysUtils,
   u_GeoFunc,
   u_EnumDoublePointBySingleLine;

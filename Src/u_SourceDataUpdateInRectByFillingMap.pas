@@ -77,6 +77,7 @@ implementation
 
 uses
   Types,
+  Math,
   t_GeoTypes,
   i_LonLatRect,
   i_CoordConverter,

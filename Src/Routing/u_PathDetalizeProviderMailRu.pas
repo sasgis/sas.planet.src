@@ -60,6 +60,7 @@ type
 implementation
 
 uses
+  Math,
   SysUtils,
   StrUtils,
   DateUtils,

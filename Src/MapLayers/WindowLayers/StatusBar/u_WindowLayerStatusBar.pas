@@ -110,6 +110,7 @@ implementation
 
 uses
   SysUtils,
+  Math,
   StrUtils,
   Graphics,
   GR32_Layers,

@@ -99,6 +99,7 @@ type
 implementation
 
 uses
+  Math,
   u_GeoFunc;
 
 { TLocalCoordConverterFactorySimpe }

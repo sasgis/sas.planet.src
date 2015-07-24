@@ -110,6 +110,7 @@ type
 implementation
 
 uses
+  Math,
   ALString,
   cUnicodeCodecs,
   i_GeometryLonLat,

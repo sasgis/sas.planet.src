@@ -81,6 +81,7 @@ type
 implementation
 
 uses
+  Math,
   i_GPS,
   u_GeoFunc,
   u_Synchronizer,

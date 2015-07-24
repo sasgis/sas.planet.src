@@ -88,6 +88,7 @@ type
 implementation
 
 uses
+  Math,
   GR32_Resamplers,
   t_GeoTypes,
   t_Hash,

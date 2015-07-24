@@ -73,6 +73,8 @@ function FindExifInJpeg(const AJpegBuffer: Pointer;
 implementation
 
 uses
+  Types,
+  Math,
   xmldom,
   t_GeoTypes,
   u_GeoToStrFunc,

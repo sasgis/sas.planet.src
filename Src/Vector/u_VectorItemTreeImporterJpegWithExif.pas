@@ -75,6 +75,7 @@ type
 implementation
 
 uses
+  Math,
   SysUtils,
   StrUtils,
   Jpeg,

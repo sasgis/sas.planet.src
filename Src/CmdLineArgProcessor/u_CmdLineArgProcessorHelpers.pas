@@ -78,6 +78,7 @@ implementation
 uses
   SysUtils,
   StrUtils,
+  Math,
   RegExpr,
   i_NotifierOperation,
   i_ImportConfig,

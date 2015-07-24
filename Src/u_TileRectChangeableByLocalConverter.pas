@@ -84,6 +84,7 @@ implementation
 
 uses
   Types,
+  Math,
   t_GeoTypes,
   i_CoordConverter,
   i_ProjectionInfo,

@@ -283,6 +283,7 @@ type
 implementation
 
 uses
+  Math,
   i_ImportConfig,
   i_VectorDataItemSimple,
   i_GeometryLonLat,

@@ -56,6 +56,7 @@ type
 implementation
 
 uses
+  Math,
   u_GeoFunc;
 
 { TNavigationToPoint }

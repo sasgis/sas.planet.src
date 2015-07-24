@@ -91,6 +91,7 @@ type
 implementation
 
 uses
+  Math,
   ALString,
   ALSqlite3Wrapper,
   c_CoordConverter,

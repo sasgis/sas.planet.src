@@ -67,6 +67,7 @@ type
 implementation
 
 uses
+  Math,
   SysUtils,
   i_InterfaceListSimple,
   u_GeoFunc,

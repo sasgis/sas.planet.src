@@ -62,6 +62,7 @@ type
 implementation
 
 uses
+  Math,
   c_CoordConverter,
   c_TerrainProvider,
   u_GeoFunc,

@@ -59,6 +59,7 @@ type
 implementation
 
 uses
+  Math,
   SysUtils,
   StrUtils,
   Classes,

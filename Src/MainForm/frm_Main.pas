@@ -881,6 +881,7 @@ implementation
 
 uses
   StrUtils,
+  Math,
   gnugettext,
   t_CommonTypes,
   t_FillingMapModes,

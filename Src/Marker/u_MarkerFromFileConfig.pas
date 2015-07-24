@@ -59,6 +59,7 @@ type
 implementation
 
 uses
+  Math,
   u_MarkerFromFileConfigStatic,
   u_GeoFunc;
 

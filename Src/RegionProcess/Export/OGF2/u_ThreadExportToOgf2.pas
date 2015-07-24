@@ -86,6 +86,7 @@ type
 implementation
 
 uses
+  Math,
   GR32,
   Ogf2Writer,
   t_GeoTypes,

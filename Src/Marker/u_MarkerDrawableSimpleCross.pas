@@ -41,6 +41,7 @@ implementation
 
 uses
   Types,
+  Math,
   GR32_Polygons,
   u_GeoFunc;
 

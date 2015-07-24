@@ -73,6 +73,7 @@ implementation
 
 uses
   Types,
+  Math,
   t_GeoTypes,
   i_InterfaceListSimple,
   i_LonLatRect,

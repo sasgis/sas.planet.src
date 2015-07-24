@@ -61,6 +61,7 @@ type
 implementation
 
 uses
+  Math,
   GR32_Layers,
   i_Listener,
   i_CoordConverter,

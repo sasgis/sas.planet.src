@@ -44,6 +44,7 @@ type
 implementation
 
 uses
+  Math,
   u_GeoFunc;
 
 { TPointOnMapEdit }

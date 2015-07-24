@@ -69,6 +69,7 @@ type
 implementation
 
 uses
+  Math,
   u_LocalCoordConverter,
   u_HashInterfaceCache2Q,
   u_Synchronizer,

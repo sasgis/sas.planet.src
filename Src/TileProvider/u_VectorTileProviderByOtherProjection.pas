@@ -90,6 +90,7 @@ type
 implementation
 
 uses
+  Math,
   t_GeoTypes,
   i_CoordConverter,
   i_VectorDataItemSimple,

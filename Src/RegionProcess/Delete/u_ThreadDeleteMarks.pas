@@ -66,6 +66,7 @@ type
 implementation
 
 uses
+  Math,
   t_GeoTypes,
   i_MarkId,
   i_EnumDoublePoint,

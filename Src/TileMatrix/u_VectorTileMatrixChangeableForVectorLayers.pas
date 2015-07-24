@@ -111,6 +111,7 @@ type
 implementation
 
 uses
+  Math,
   t_Hash,
   t_GeoTypes,
   i_TileIterator,

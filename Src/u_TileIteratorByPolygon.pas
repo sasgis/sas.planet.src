@@ -64,6 +64,7 @@ implementation
 
 uses
   SysUtils,
+  Math,
   u_TileRect,
   u_GeoFunc;
 

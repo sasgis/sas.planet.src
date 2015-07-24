@@ -73,6 +73,7 @@ type
 implementation
 
 uses
+  Math,
   i_GeometryProjected,
   i_CoordConverter,
   i_ProjectionInfo,

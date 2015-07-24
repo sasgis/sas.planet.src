@@ -108,6 +108,7 @@ type
 implementation
 
 uses
+  Math,
   i_CoordConverter,
   u_ListenerByEvent,
   u_SimpleFlagWithInterlock,

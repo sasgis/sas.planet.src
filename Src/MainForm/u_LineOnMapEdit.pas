@@ -97,6 +97,7 @@ implementation
 
 uses
   SysUtils,
+  Math,
   u_GeoFunc,
   u_GeometryFunc,
   u_BaseInterfacedObject;

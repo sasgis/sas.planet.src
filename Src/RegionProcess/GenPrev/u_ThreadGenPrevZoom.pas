@@ -84,6 +84,7 @@ type
 implementation
 
 uses
+  Math,
   GR32,
   i_CoordConverter,
   i_Bitmap32Static,

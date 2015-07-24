@@ -231,6 +231,7 @@ type
 implementation
 
 uses
+  Math,
   GR32,
   c_InternalBrowser,
   i_TileInfoBasic,
