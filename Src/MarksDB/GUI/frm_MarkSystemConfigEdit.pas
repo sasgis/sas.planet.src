@@ -104,12 +104,17 @@ var
   VEnum: IEnumGUID;
   VGUID: TGUID;
   VCount: Integer;
+  VDefItem: Integer;
   VItem: IMarkSystemImplFactoryListElement;
 begin
   VCount := 0;
+  VDefItem := 0;
   SetLength(FGUIDList, VCount);
   VEnum := FMarkSystemFactoryList.GetGUIDEnum;
   while VEnum.Next(1, VGUID, I) = S_OK do begin
+    if IsEqualGUID(VGUID, cORMSQLiteMarksDbGUID) then begin
+      VDefItem := VCount;
+    end;
     VItem := FMarkSystemFactoryList.Get(VGUID);
     SetLength(FGUIDList, VCount+1);
     FGUIDList[VCount] := VGUID;
@@ -117,7 +122,7 @@ begin
     cbbDbType.Items.Add(VItem.Caption);
   end;
   if VCount > 0 then begin
-    cbbDbType.ItemIndex := 0;
+    cbbDbType.ItemIndex := VDefItem;
   end;
 end;
 
@@ -269,7 +274,10 @@ begin
 
   VIsReadOnly := chkReadOnly.Checked;
 
-  if IsEqualGUID(VDatabase, cORMSQLiteMarksDbGUID) then begin
+  if IsEqualGUID(VDatabase, cORMSQLiteMarksDbGUID) or
+    IsEqualGUID(VDatabase, cORMMongoDbMarksDbGUID) or
+    IsEqualGUID(VDatabase, cORMODBCMarksDbGUID) or
+    IsEqualGUID(VDatabase, cORMZDBCMarksDbGUID) then begin
     VImpl :=
       TMarkSystemImplConfigORM.Create(
         VFileName,

@@ -35,11 +35,13 @@ uses
   i_MarkSystemImpl,
   i_MarkSystemImplConfig,
   i_MarkSystemImplFactory,
+  i_MarkSystemImplORMClientProvider,
   u_BaseInterfacedObject;
 
 type
   TMarkSystemImplFactoryORM = class(TBaseInterfacedObject, IMarkSystemImplFactory)
   private
+    FClientType: TMarkSystemImplORMClientType;
     FMarkPictureList: IMarkPictureList;
     FHashFunction: IHashFunction;
     FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
@@ -59,6 +61,7 @@ type
     ): IMarkSystemImpl;
   public
     constructor Create(
+      const AClientType: TMarkSystemImplORMClientType;
       const AMarkPictureList: IMarkPictureList;
       const AHashFunction: IHashFunction;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
@@ -79,6 +82,7 @@ uses
 { TMarkSystemImplFactoryORM }
 
 constructor TMarkSystemImplFactoryORM.Create(
+  const AClientType: TMarkSystemImplORMClientType;
   const AMarkPictureList: IMarkPictureList;
   const AHashFunction: IHashFunction;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
@@ -97,6 +101,7 @@ begin
   Assert(Assigned(AMarkFactory));
   Assert(Assigned(AHintConverter));
   inherited Create;
+  FClientType := AClientType;
   FMarkPictureList := AMarkPictureList;
   FHashFunction := AHashFunction;
   FAppearanceOfMarkFactory := AAppearanceOfMarkFactory;
@@ -124,6 +129,7 @@ begin
     TMarkSystemImplORM.Create(
       AOperationID,
       ACancelNotifier,
+      FClientType,
       ABasePath,
       FMarkPictureList,
       FHashFunction,

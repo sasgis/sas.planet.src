@@ -27,7 +27,10 @@ uses
   Classes,
   SysUtils,
   mORMot,
+  mORMotMongoDB,
+  mORMotSQLite3,
   SynCommons,
+  SynMongoDB,
   t_GeoTypes,
   t_MarkSystemORM,
   i_GeometryLonLat,
@@ -41,13 +44,15 @@ type
   TMarkDbImplORMHelper = class
   private
     FUserID: TID;
-    FClient: TSQLRestClient;
+    FClient: TSQLRestClientDB;
     FCache: TSQLMarkDbCache;
     FGeometryWriter: IGeometryToStream;
     FGeometryReader: IGeometryFromStream;
     FClientType: TMarkSystemImplORMClientType;
     FClientProvider: IMarkSystemImplORMClientProvider;
   private
+    function _RectToGeoJson(const ARect: TDoubleRect): Variant;
+    function _PointToGeoJson(const APoint: TDoublePoint): Variant;
     function _GeomertryFromBlob(const ABlob: TSQLRawBlob): IGeometryLonLat;
     function _GeomertryToBlob(const AGeometry: IGeometryLonLat): TSQLRawBlob;
     function _AddMarkImage(const APicName: string): TID;
@@ -62,30 +67,30 @@ type
     function _GetMarkRecArrayByRectSQL(
       const ACategoryIDArray: TIDDynArray;
       const ARect: TDoubleRect;
-      const AIncludeHiddenMarks: Boolean;
-      const ALonLatSize: TDoublePoint;
-      out AMarkRecArray: TSQLMarkRecDynArray
+      const ALonSize: Cardinal;
+      const ALatSize: Cardinal;
+      out AMarkIDArray: TIDDynArray
     ): Integer;
     function _GetMarkRecArrayByRectMongoDB(
       const ACategoryIDArray: TIDDynArray;
-      const ARect: TDoubleRect;
-      const AIncludeHiddenMarks: Boolean;
-      const ALonLatSize: TDoublePoint;
-      out AMarkRecArray: TSQLMarkRecDynArray
+      const AGeoJsonRect: Variant;
+      const ALonSize: Cardinal;
+      const ALatSize: Cardinal;
+      out AMarkIDArray: TIDDynArray
     ): Integer;
     function _GetMarkRecArrayByTextSQLite3(
-      const ASearchText: string;
+      const ASearch: RawUTF8;
       const AMaxCount: Integer;
-      const AIncludeHiddenMarks: Boolean;
       const ASearchInDescription: Boolean;
-      out AIDArray: TIDDynArray
+      out ANameIDArray: TIDDynArray;
+      out ADescIDArray: TIDDynArray
     ): Integer;
     function _GetMarkRecArrayByTextSQL(
-      const ASearchText: string;
+      const ASearch: RawUTF8;
       const AMaxCount: Integer;
-      const AIncludeHiddenMarks: Boolean;
       const ASearchInDescription: Boolean;
-      out AIDArray: TIDDynArray
+      out ANameIDArray: TIDDynArray;
+      out ADescIDArray: TIDDynArray
     ): Integer;
   public
     procedure DeleteMarkSQL(
@@ -120,7 +125,7 @@ type
       out AMarkRecArray: TSQLMarkRecDynArray
     ): Integer;
     function GetMarkRecArrayByRect(
-      const ACategoryIDArray: TIDDynArray;
+      const ACategoryIDArray: TDynArray;
       const ARect: TDoubleRect;
       const AIncludeHiddenMarks: Boolean;
       const ALonLatSize: TDoublePoint;
@@ -135,7 +140,6 @@ type
     ): Integer;
   public
     constructor Create(
-      const ACache: TSQLMarkDbCache;
       const AGeometryWriter: IGeometryToStream;
       const AGeometryReader: IGeometryFromStream;
       const AClientProvider: IMarkSystemImplORMClientProvider
@@ -151,7 +155,6 @@ uses
 { TMarkDbImplORMHelper }
 
 constructor TMarkDbImplORMHelper.Create(
-  const ACache: TSQLMarkDbCache;
   const AGeometryWriter: IGeometryToStream;
   const AGeometryReader: IGeometryFromStream;
   const AClientProvider: IMarkSystemImplORMClientProvider
@@ -160,7 +163,7 @@ begin
   Assert(AGeometryWriter <> nil);
   Assert(AGeometryReader <> nil);
   inherited Create;
-  FCache := ACache;
+  FCache.Init;
   FGeometryWriter := AGeometryWriter;
   FGeometryReader := AGeometryReader;
   FClientProvider := AClientProvider;
@@ -172,7 +175,28 @@ end;
 destructor TMarkDbImplORMHelper.Destroy;
 begin
   FClientProvider := nil;
+  FCache.Done;
   inherited Destroy;
+end;
+
+function TMarkDbImplORMHelper._RectToGeoJson(const ARect: TDoubleRect): Variant;
+begin
+  Result :=
+    _ObjFast([
+      'type','Polygon',
+      'coordinates',_Arr([_Arr([
+        _Arr([ARect.Left,ARect.Top]),
+        _Arr([ARect.Right,ARect.Top]),
+        _Arr([ARect.Right,ARect.Bottom]),
+        _Arr([ARect.Left,ARect.Bottom]),
+        _Arr([ARect.Left,ARect.Top])
+      ])])
+    ]);
+end;
+
+function TMarkDbImplORMHelper._PointToGeoJson(const APoint: TDoublePoint): Variant;
+begin
+  Result := _ObjFast(['type','Point','coordinates',_Arr([APoint.X,APoint.Y])]);
 end;
 
 function TMarkDbImplORMHelper._GeomertryFromBlob(
@@ -353,6 +377,14 @@ begin
       VSQLMark.GeoType := AMarkRec.FGeoType;
       VSQLMark.GeoCount := AMarkRec.FGeoCount;
 
+      if FClientType = ctMongoDB then begin
+        if VSQLMark.GeoType = gtPoint then begin
+          VSQLMark.GeoJsonIdx := _PointToGeoJson(VRect.TopLeft);
+        end else begin
+          VSQLMark.GeoJsonIdx := _RectToGeoJson(VRect);
+        end;
+      end;
+
       // add mark to db
       CheckID( FClient.Add(VSQLMark, True) );
       AMarkRec.FMarkId := VSQLMark.ID;
@@ -378,17 +410,19 @@ begin
       VSQLMarkFTS.Free;
     end;
 
-    VSQLMarkRTree := TSQLMarkRTree.Create;
-    try
-      VSQLMarkRTree.IDValue := AMarkRec.FMarkId;
-      VSQLMarkRTree.Left := VRect.Left;
-      VSQLMarkRTree.Right := VRect.Right;
-      VSQLMarkRTree.Top := VRect.Top;
-      VSQLMarkRTree.Bottom := VRect.Bottom;
-      // add rect to db (rtree index)
-      CheckID( FClient.Add(VSQLMarkRTree, True, True) );
-    finally
-      VSQLMarkRTree.Free;
+    if FClientType <> ctMongoDB then begin
+      VSQLMarkRTree := TSQLMarkRTree.Create;
+      try
+        VSQLMarkRTree.IDValue := AMarkRec.FMarkId;
+        VSQLMarkRTree.Left := VRect.Left;
+        VSQLMarkRTree.Right := VRect.Right;
+        VSQLMarkRTree.Top := VRect.Top;
+        VSQLMarkRTree.Bottom := VRect.Bottom;
+        // add rect to db (rtree index)
+        CheckID( FClient.Add(VSQLMarkRTree, True, True) );
+      finally
+        VSQLMarkRTree.Free;
+      end;
     end;
 
     if not AMarkRec.FVisible then begin
@@ -400,12 +434,12 @@ begin
         // add view to db
         CheckID( FClient.Add(VSQLMarkView, True) );
         AMarkRec.FViewId := VSQLMarkView.ID;
-        // add view to cache
-        FCache.FMarkViewCache.AddOrUpdate(AMarkRec);
       finally
         VSQLMarkView.Free;
       end;
     end;
+    // add view to cache
+    FCache.FMarkViewCache.AddOrUpdate(AMarkRec);
 
     CommitTransaction(FClient, VTransaction);
   except
@@ -540,6 +574,14 @@ begin
         VSQLMark.GeoLatSize := ANewMarkRec.FGeoLatSize;
         VSQLMark.GeoType := ANewMarkRec.FGeoType;
         VSQLMark.GeoCount := ANewMarkRec.FGeoCount;
+        if FClientType = ctMongoDB then begin
+          _AddField('GeoJsonIdx');
+          if VSQLMark.GeoType = gtPoint then begin
+            VSQLMark.GeoJsonIdx := _PointToGeoJson(VRect.TopLeft);
+          end else begin
+            VSQLMark.GeoJsonIdx := _RectToGeoJson(VRect);
+          end;
+        end;
       end;
 
       if VFieldsCount > 0 then begin
@@ -595,7 +637,7 @@ begin
       VSQLMarkFTS.Free;
     end;
 
-    if VUpdateGeo then begin
+    if VUpdateGeo and (FClientType <> ctMongoDB) then begin
       VSQLMarkRTree := TSQLMarkRTree.Create;
       try
         VSQLMarkRTree.IDValue := ANewMarkRec.FMarkId;
@@ -745,19 +787,21 @@ begin
     AMarkRec.FViewId := VViewItem.ViewId;
     AMarkRec.FVisible := VViewItem.Visible;
   end else begin
-    // read from db
-    VSQLMarkView := TSQLMarkView.Create(FClient, 'Mark=? AND User=?', [VMarkID, FUserID]);
-    try
-      if VSQLMarkView.ID > 0 then begin
-        AMarkRec.FVisible := VSQLMarkView.Visible;
-      end else begin
-        AMarkRec.FVisible := True;
+    if not FCache.FMarkViewCache.IsPrepared then begin
+      // read from db
+      VSQLMarkView := TSQLMarkView.Create(FClient, 'Mark=? AND User=?', [VMarkID, FUserID]);
+      try
+        if VSQLMarkView.ID > 0 then begin
+          AMarkRec.FVisible := VSQLMarkView.Visible;
+        end else begin
+          AMarkRec.FVisible := True;
+        end;
+      finally
+        VSQLMarkView.Free;
       end;
-      // add to cache
-      FCache.FMarkViewCache.AddOrUpdate(AMarkRec);
-    finally
-      VSQLMarkView.Free;
     end;
+    // add to cache
+    FCache.FMarkViewCache.AddOrUpdate(AMarkRec);
   end;
 
   // read pic name
@@ -834,8 +878,6 @@ begin
           Result := FClient.UpdateField(TSQLMarkView, VSQLMarkView.ID, 'Visible', [AVisible]);
           CheckUpdateResult(Result);
         end;
-        // update cache
-        FCache.FMarkViewCache.AddOrUpdate(AMarkID, VSQLMarkView.ID, AVisible);
       end else if not AVisible then begin
         VSQLMarkView.User := Pointer(FUserID);
         VSQLMarkView.Mark := Pointer(AMarkID);
@@ -843,9 +885,9 @@ begin
         // add to db
         CheckID( FClient.Add(VSQLMarkView, True) );
         Result := True;
-        // add to cache
-        FCache.FMarkViewCache.AddOrUpdate(AMarkID, VSQLMarkView.ID, AVisible);
       end;
+      // update cache
+      FCache.FMarkViewCache.AddOrUpdate(AMarkID, VSQLMarkView.ID, AVisible);
     finally
       VSQLMarkView.Free;
     end;
@@ -1067,9 +1109,16 @@ var
   VCount: Integer;
   VList: TSQLTableJSON;
   VRows: TSQLMarkViewRowDynArray;
+  VCategoryID: TID;
 begin
-  if (ACategoryID > 0) and (FClientType <> ctMongoDB) then begin
-    if FCache.FMarkViewCache.IsCategoryPrepared(ACategoryID) then begin
+  if FClientType = ctMongoDB then begin
+    VCategoryID := 0;
+  end else begin
+    VCategoryID := ACategoryID;
+  end;
+
+  if VCategoryID > 0 then begin
+    if FCache.FMarkViewCache.IsCategoryPrepared(VCategoryID) then begin
       Exit;
     end;
     VList := FClient.ExecuteList(
@@ -1078,7 +1127,7 @@ begin
         'SELECT MarkView.RowID,MarkView.Mark,MarkView.Visible' + ' '+
         'FROM MarkView,Mark' + ' ' +
         'WHERE MarkView.Mark=Mark.RowID AND MarkView.User=? AND Mark.Category=?',
-        [], [FUserID, ACategoryID]
+        [], [FUserID, VCategoryID]
       )
     );
   end else begin
@@ -1100,7 +1149,7 @@ begin
       VRows[I].MarkId := VList.GetAsInt64(J, 1);
       VRows[I].Visible := (VList.GetAsInteger(J, 2) <> 0);
     end;
-    FCache.FMarkViewCache.AddPrepared(ACategoryID, VRows);
+    FCache.FMarkViewCache.AddPrepared(VCategoryID, VRows);
   finally
     VList.Free;
   end;
@@ -1210,249 +1259,274 @@ end;
 function TMarkDbImplORMHelper._GetMarkRecArrayByRectSQL(
   const ACategoryIDArray: TIDDynArray;
   const ARect: TDoubleRect;
-  const AIncludeHiddenMarks: Boolean;
-  const ALonLatSize: TDoublePoint;
-  out AMarkRecArray: TSQLMarkRecDynArray
+  const ALonSize: Cardinal;
+  const ALatSize: Cardinal;
+  out AMarkIDArray: TIDDynArray
 ): Integer;
 var
-  I: Integer;
   VLen: Integer;
-  VMarkId: TID;
-  VCategoryId: TID;
-  VCategoris: TDynArray;
-  VCategoryIDArray: TIDDynArray;
   VSQLSelect: RawUTF8;
+  VCategory: RawUTF8;
   VList: TSQLTableJSON;
-  VFilterByCategories: Boolean;
-  VFilterByOneCategory: Boolean;
-  VLonSize, VLatSize: Cardinal;
 begin
-  I := 0;
+  Result := 0;
 
   VLen := Length(ACategoryIDArray);
-  Assert(VLen > 0);
 
-  LonLatSizeToInternalSize(ALonLatSize, VLonSize, VLatSize);
+  if VLen = 1 then begin
+    if ACategoryIDArray[0] <= 0 then begin
+      VCategory := '';
+      Assert(False);
+    end else begin
+      VCategory := FormatUTF8('AND Mark.Category=? ',[],[ACategoryIDArray[0]]);
+    end;
+  end else if VLen > 1 then begin
+    VCategory :=
+      Int64DynArrayToCSV(
+        TInt64DynArray(ACategoryIDArray),
+        VLen,
+        'AND Mark.Category IN (',') '
+      );
+  end else begin
+    VCategory := '';
+  end;
 
-  VFilterByCategories := (VLen > 1);
-  VFilterByOneCategory := (VLen = 1) and (ACategoryIDArray[0] > 0);
-
-  if VFilterByOneCategory then begin
-    VSQLSelect := FormatUTF8(
+  VSQLSelect :=
+    FormatUTF8(
       'SELECT Mark.RowID FROM Mark,MarkRTree ' +
-      'WHERE Mark.RowID=MarkRTree.RowID AND Mark.Category=? ' +
+      'WHERE Mark.RowID=MarkRTree.RowID ' + VCategory +
       'AND Left<=? AND Right>=? AND Bottom<=? AND Top>=? ' +
       'AND (Mark.GeoType=? OR Mark.GeoLonSize>=? OR Mark.GeoLatSize>=?);',
       [],
-      [
-        ACategoryIDArray[0],
-        ARect.Right, ARect.Left, ARect.Top, ARect.Bottom,
-        Integer(gtPoint), VLonSize, VLatSize
-      ]
+      [ARect.Right,ARect.Left,ARect.Top,ARect.Bottom,Integer(gtPoint),ALonSize,ALatSize]
     );
-  end else if VFilterByCategories then begin
-    VSQLSelect := FormatUTF8(
-      'SELECT Mark.RowID,Mark.Category FROM Mark,MarkRTree ' +
-      'WHERE Mark.RowID=MarkRTree.RowID ' +
-      'AND Left<=? AND Right>=? AND Bottom<=? AND Top>=? ' +
-      'AND (Mark.GeoType=? OR Mark.GeoLonSize>=? OR Mark.GeoLatSize>=?);',
-      [], [ARect.Right, ARect.Left, ARect.Top, ARect.Bottom, Integer(gtPoint), VLonSize, VLatSize]
-    );
-  end else begin
-    VSQLSelect := FormatUTF8(
-      'SELECT Mark.RowID FROM Mark,MarkRTree ' +
-      'WHERE Mark.RowID=MarkRTree.RowID ' +
-      'AND Left<=? AND Right>=? AND Bottom<=? AND Top>=? ' +
-      'AND (Mark.GeoType=? OR Mark.GeoLonSize>=? OR Mark.GeoLatSize>=?);',
-      [], [ARect.Right, ARect.Left, ARect.Top, ARect.Bottom, Integer(gtPoint), VLonSize, VLatSize]
-    );
-  end;
 
   VList := FClient.ExecuteList([TSQLMark, TSQLMarkRTree], VSQLSelect);
   if Assigned(VList) then
   try
-    SetLength(AMarkRecArray, VList.RowCount);
-
-    if VFilterByCategories then begin
-      VCategoris.Init(TypeInfo(TIDDynArray), VCategoryIDArray);
-      VCategoris.CopyFrom(ACategoryIDArray, VLen);
-      VCategoris.Compare := SortDynArrayInt64;
-      VCategoris.Sort;
-    end;
-
-    while VList.Step do begin
-      VMarkId := VList.Field(0);
-
-      if VFilterByCategories then begin
-        VCategoryId := VList.Field(1);
-        if VCategoris.Find(VCategoryId) = -1 then begin
-          Continue;
-        end;
-      end;
-
-      if VMarkId > 0 then begin
-        if ReadMarkSQL(AMarkRecArray[I], VMarkId, 0, '') then begin
-          if not AIncludeHiddenMarks then begin
-            if not AMarkRecArray[I].FVisible then begin
-              Continue;
-            end;
-          end;
-          Inc(I);
-        end;
-      end;
-    end;
-
-    SetLength(AMarkRecArray, I);
+    VList.GetRowValues(0, TInt64DynArray(AMarkIDArray));
+    Result := Length(AMarkIDArray);
   finally
     VList.Free;
   end;
-
-  Result := I;
 end;
 
 function TMarkDbImplORMHelper._GetMarkRecArrayByRectMongoDB(
   const ACategoryIDArray: TIDDynArray;
-  const ARect: TDoubleRect;
-  const AIncludeHiddenMarks: Boolean;
-  const ALonLatSize: TDoublePoint;
-  out AMarkRecArray: TSQLMarkRecDynArray
-): Integer;
-begin
-  Result := 0;
-  //ToDo
-end;
-
-function TMarkDbImplORMHelper.GetMarkRecArrayByRect(
-  const ACategoryIDArray: TIDDynArray;
-  const ARect: TDoubleRect;
-  const AIncludeHiddenMarks: Boolean;
-  const ALonLatSize: TDoublePoint;
-  out AMarkRecArray: TSQLMarkRecDynArray
-): Integer;
-begin
-  Result := 0;
-  case FClientType of
-    ctSQLite3, ctZeosDBMS: begin
-      Result :=
-        _GetMarkRecArrayByRectSQL(
-          ACategoryIDArray,
-          ARect,
-          AIncludeHiddenMarks,
-          ALonLatSize,
-          AMarkRecArray
-        );
-    end;
-    ctMongoDB: begin
-      Result :=
-        _GetMarkRecArrayByRectMongoDB(
-          ACategoryIDArray,
-          ARect,
-          AIncludeHiddenMarks,
-          ALonLatSize,
-          AMarkRecArray
-        );
-    end;
-  else
-    Assert(False);
-  end;
-end;
-
-function TMarkDbImplORMHelper._GetMarkRecArrayByTextSQLite3(
-  const ASearchText: string;
-  const AMaxCount: Integer;
-  const AIncludeHiddenMarks: Boolean;
-  const ASearchInDescription: Boolean;
-  out AIDArray: TIDDynArray
+  const AGeoJsonRect: Variant;
+  const ALonSize: Cardinal;
+  const ALatSize: Cardinal;
+  out AMarkIDArray: TIDDynArray
 ): Integer;
 var
   I, J: Integer;
   VLen: Integer;
-  VLimit: RawUTF8;
-  VSearch: RawUTF8;
-  VSQLWhere: RawUTF8;
-  VNameIDArray: TIDDynArray;
-  VDescIDArray: TIDDynArray;
-  VSkipDescSearch: Boolean;
+  VCategory: RawUTF8;
+  VCollection: TMongoCollection;
+  VArray: TVariantDynArray;
 begin
+  VLen := Length(ACategoryIDArray);
+
+  if VLen = 1 then begin
+    if ACategoryIDArray[0] <= 0 then begin
+      VCategory := '';
+      Assert(False);
+    end else begin
+      VCategory := '{Category:' + Int64ToUtf8(ACategoryIDArray[0]) + '},';
+    end;
+  end else if VLen > 1 then begin
+    VCategory :=
+      Int64DynArrayToCSV(
+        TInt64DynArray(ACategoryIDArray), VLen, '{Category:{$in:[',']}},'
+      );
+  end else begin
+    VCategory := '';
+  end;
+
+  VCollection :=
+    (FClient.Server.StaticDataServer[TSQLMark] as TSQLRestStorageMongoDB).Collection;
+
+  VCollection.FindDocs(
+    PUTF8Char('{$and:[' +
+      '{GeoJsonIdx:{$geoIntersects:{$geometry:?}}},' + VCategory +
+      '{$or:[{GeoType:?},{GeoLonSize:{$gte:?}},{GeoLatSize:{$gte:?}}]}' +
+    ']}'),
+    [AGeoJsonRect, Integer(gtPoint), ALonSize, ALatSize], VArray, '_id'
+  );
+
+  J := 0;
+  SetLength(AMarkIDArray, Length(VArray));
+  for I := 0 to Length(VArray) - 1 do begin
+    AMarkIDArray[J] := DocVariantData(VArray[I]).I['_id'];
+    if AMarkIDArray[J] > 0 then begin
+      Inc(J);
+    end;
+  end;
+  SetLength(AMarkIDArray, J);
+  Result := J;
+end;
+
+function TMarkDbImplORMHelper.GetMarkRecArrayByRect(
+  const ACategoryIDArray: TDynArray;
+  const ARect: TDoubleRect;
+  const AIncludeHiddenMarks: Boolean;
+  const ALonLatSize: TDoublePoint;
+  out AMarkRecArray: TSQLMarkRecDynArray
+): Integer;
+const
+  cMaxArrayLen = 128;
+var
+  I, J: Integer;
+  VCount: Integer;
+  VId: TID;
+  VMarksCount: Integer;
+  VGeoJsonRect: Variant;
+  VLonSize, VLatSize: Cardinal;
+  VMarkIDArray: array of TIDDynArray;
+  VCategoryIDArray: array of TIDDynArray;
+begin
+  VMarksCount := 0;
+  LonLatSizeToInternalSize(ALonLatSize, VLonSize, VLatSize);
+
+  VCount := (ACategoryIDArray.Count div cMaxArrayLen) + 1;
+
+  SetLength(VMarkIDArray, VCount);
+  SetLength(VCategoryIDArray, VCount);
+
+  if FClientType = ctMongoDB then begin
+    VGeoJsonRect := _RectToGeoJson(ARect);
+  end;
+
+  // search mark id's
+  for I := 0 to VCount - 1 do begin
+    ACategoryIDArray.Slice(VCategoryIDArray[I], cMaxArrayLen, I*cMaxArrayLen);
+    case FClientType of
+      ctMongoDB: begin
+        J := _GetMarkRecArrayByRectMongoDB(
+          VCategoryIDArray[I],
+          VGeoJsonRect,
+          VLonSize,
+          VLatSize,
+          VMarkIDArray[I]
+        );
+      end;
+    else
+      J := _GetMarkRecArrayByRectSQL(
+        VCategoryIDArray[I],
+        ARect,
+        VLonSize,
+        VLatSize,
+        VMarkIDArray[I]
+      );
+    end;
+    Assert(Length(VMarkIDArray[I]) >= J);
+    Inc(VMarksCount, J);
+  end;
+
+  // read marks data
+  SetLength(AMarkRecArray, VMarksCount);
+  VMarksCount := 0;
+  for I := 0 to VCount - 1 do begin
+    for J := 0 to Length(VMarkIDArray[I]) - 1 do begin
+      VId := VMarkIDArray[I][J];
+      if VId > 0 then begin
+        if ReadMarkSQL(AMarkRecArray[VMarksCount], VId, 0, '') then begin
+          if not AIncludeHiddenMarks then begin
+            if not AMarkRecArray[VMarksCount].FVisible then begin
+              Continue;
+            end;
+          end;
+          Inc(VMarksCount);
+        end;
+      end;
+    end;
+  end;
+  SetLength(AMarkRecArray, VMarksCount);
+  Result := VMarksCount;
+end;
+
+function TMarkDbImplORMHelper._GetMarkRecArrayByTextSQLite3(
+  const ASearch: RawUTF8;
+  const AMaxCount: Integer;
+  const ASearchInDescription: Boolean;
+  out ANameIDArray: TIDDynArray;
+  out ADescIDArray: TIDDynArray
+): Integer;
+var
+  VLimit: RawUTF8;
+  VSQLWhere: RawUTF8;
+begin
+  Result := 0;
+
+  VLimit := '';
+
   if AMaxCount > 0 then begin
     VLimit := StringToUTF8(' LIMIT ' + IntToStr(AMaxCount));
-  end else begin
-    VLimit := '';
   end;
 
-  VSearch := StringToUTF8('''' + SysUtils.AnsiLowerCase(ASearchText) + '''');
+  VSQLWhere := RawUTF8('Name MATCH ') + ASearch + VLimit;
 
-  VSQLWhere := RawUTF8('Name MATCH ') + VSearch + VLimit;
-  if FClient.FTSMatch(TSQLMarkFTS, VSQLWhere, VNameIDArray) then begin
-    VSkipDescSearch := (AMaxCount > 0) and (Length(VNameIDArray) >= AMaxCount);
-  end else begin
-    VSkipDescSearch := False;
+  if FClient.FTSMatch(TSQLMarkFTS, VSQLWhere, ANameIDArray) then begin
+    Inc(Result, Length(ANameIDArray));
   end;
 
-  if ASearchInDescription and not VSkipDescSearch then begin
-    VSQLWhere := RawUTF8('Desc MATCH ') + VSearch + VLimit;
-    FClient.FTSMatch(TSQLMarkFTS, VSQLWhere, VDescIDArray);
+  if not ASearchInDescription or ( (AMaxCount > 0) and (Result >= AMaxCount) ) then begin
+    Exit;
   end;
 
-  I := Length(VNameIDArray);
-  J := Length(VDescIDArray);
+  VSQLWhere := RawUTF8('Desc MATCH ') + ASearch + VLimit;
 
-  if (I > 0) and (J > 0) then begin
-    VLen := I + J;
-    SetLength(AIDArray, VLen);
-    Move(VNameIDArray[0], AIDArray[0], I);
-    Move(VDescIDArray[0], AIDArray[I], J);
-    VLen := MergeSortRemoveDuplicates(AIDArray);
-    SetLength(AIDArray, VLen);
-  end else if I > 0 then begin
-    AIDArray := VNameIDArray;
-  end else if J > 0 then begin
-    AIDArray := VDescIDArray;
+  if FClient.FTSMatch(TSQLMarkFTS, VSQLWhere, ADescIDArray) then begin
+    Inc(Result, Length(ADescIDArray));
   end;
-
-  if (AMaxCount > 0) and (Length(AIDArray) > AMaxCount) then begin
-    SetLength(AIDArray, AMaxCount);
-  end;
-
-  Result := Length(AIDArray);
 end;
 
 function TMarkDbImplORMHelper._GetMarkRecArrayByTextSQL(
-  const ASearchText: string;
+  const ASearch: RawUTF8;
   const AMaxCount: Integer;
-  const AIncludeHiddenMarks: Boolean;
   const ASearchInDescription: Boolean;
-  out AIDArray: TIDDynArray
+  out ANameIDArray: TIDDynArray;
+  out ADescIDArray: TIDDynArray
 ): Integer;
 var
-  I: Integer;
   VLimit: RawUTF8;
-  VSearch: RawUTF8;
   VSQLSelect: RawUTF8;
   VList: TSQLTableJSON;
 begin
   Result := 0;
-  VLimit := '';
 
-  VSearch := StringToUTF8('''' + SysUtils.AnsiLowerCase(ASearchText) + '''');
+  VLimit := '';
 
   if AMaxCount > 0 then begin
     VLimit := StringToUTF8(' LIMIT ' + IntToStr(AMaxCount));
   end;
 
-  VSQLSelect := RawUTF8('SELECT RowID WHERE Name or Desc LIKE ') + VSearch + VLimit;
+  VSQLSelect := RawUTF8('SELECT RowID FROM MarkFTS WHERE Name LIKE ') + ASearch + VLimit;
 
   VList := FClient.ExecuteList([TSQLMarkFTS], VSQLSelect);
   if Assigned(VList) then
   try
-    I := 0;
-    SetLength(AIDArray, VList.RowCount);
-    while VList.Step do begin
-      AIDArray[I] := VList.Field(0);
-      Inc(I);
-    end;
-    SetLength(AIDArray, I);
-    Result := I;
+    VList.GetRowValues(0, TInt64DynArray(ANameIDArray));
+    Inc(Result, Length(ANameIDArray));
+  finally
+    VList.Free;
+  end;
+
+  if not ASearchInDescription or ( (AMaxCount > 0) and (Result >= AMaxCount) ) then begin
+    Exit;
+  end;
+
+  if AMaxCount > 0 then begin
+    VLimit := StringToUTF8(' LIMIT ' + IntToStr(AMaxCount - Result));
+  end;
+
+  VSQLSelect := RawUTF8('SELECT RowID FROM MarkFTS WHERE Desc LIKE ') + ASearch + VLimit;
+
+  VList := FClient.ExecuteList([TSQLMarkFTS], VSQLSelect);
+  if Assigned(VList) then
+  try
+    VList.GetRowValues(0, TInt64DynArray(ADescIDArray));
+    Inc(Result, Length(ADescIDArray));
   finally
     VList.Free;
   end;
@@ -1465,43 +1539,95 @@ function TMarkDbImplORMHelper.GetMarkRecArrayByText(
   const ASearchInDescription: Boolean;
   out AMarkRecArray: TSQLMarkRecDynArray
 ): Integer;
+
+  function MergeArrUnic(const A, B: TIDDynArray; out C: TIDDynArray): Integer;
+  var
+    I, J, R: Integer;
+    P: PInt64Array;
+    VArr1, VArr2: TIDDynArray;
+  begin
+    I := Length(A);
+    J := Length(B);
+    SetLength(C, I+J);
+    if I >= J then begin
+      VArr1 := A;
+      VArr2 := B;
+    end else begin
+      VArr1 := B;
+      VArr2 := A;
+    end;
+    J := Length(VArr1);
+    R := J - 1;
+    P := PInt64Array(VArr1);
+    QuickSortInt64(P, 0, R);
+    MoveFast(VArr1[0], C[0], J);
+    for I := 0 to Length(VArr2) - 1 do begin
+      if FastFindInt64Sorted(P, R, VArr2[I]) < 0 then begin
+        C[J] := VArr2[I];
+        Inc(J);
+      end;
+    end;
+    SetLength(C, J);
+    P := PInt64Array(C);
+    QuickSortInt64(P, 0, J-1);
+    Result := J;
+  end;
+
 var
-  I, J: Integer;
+  I, J, K: Integer;
+  VSearch: RawUTF8;
   VIDArray: TIDDynArray;
+  VNameIDArray: TIDDynArray;
+  VDescIDArray: TIDDynArray;
 begin
   Result := 0;
-  SetLength(VIDArray, 0);
 
+  SetLength(VNameIDArray, 0);
+  SetLength(VDescIDArray, 0);
+
+  VSearch := StringToUTF8('''' + SysUtils.AnsiLowerCase(ASearchText) + '''');
+
+  // search mark id's
   case FClientType of
     ctSQLite3: begin
-      // db specific text search (by FTS index)
-      Result :=
-        _GetMarkRecArrayByTextSQLite3(
-          ASearchText,
-          AMaxCount,
-          AIncludeHiddenMarks,
-          ASearchInDescription,
-          VIDArray
-        );
-    end;
-    ctMongoDB, ctZeosDBMS: begin
-      Result :=
-        _GetMarkRecArrayByTextSQL(
-          ASearchText,
-          AMaxCount,
-          AIncludeHiddenMarks,
-          ASearchInDescription,
-          VIDArray
-        );
+      J := _GetMarkRecArrayByTextSQLite3(
+        VSearch,
+        AMaxCount,
+        ASearchInDescription,
+        VNameIDArray,
+        VDescIDArray
+      );
     end;
   else
-    Assert(False);
+    J := _GetMarkRecArrayByTextSQL(
+      VSearch,
+      AMaxCount,
+      ASearchInDescription,
+      VNameIDArray,
+      VDescIDArray
+    );
   end;
-  if Result > 0 then begin
-    Assert(Length(VIDArray) >= Result);
+
+  // read marks data
+  if J > 0 then begin
+    I := Length(VNameIDArray);
+    J := Length(VDescIDArray);
+
+    if (I > 0) and (J > 0) then begin
+      K := MergeArrUnic(VNameIDArray, VDescIDArray, VIDArray);
+    end else if I > 0 then begin
+      K := I;
+      VIDArray := VNameIDArray;
+    end else if J > 0 then begin
+      K := J;
+      VIDArray := VDescIDArray;
+    end else begin
+      K := 0;
+    end;
+
     J := 0;
-    SetLength(AMarkRecArray, Result);
-    for I := 0 to Result - 1 do begin
+    SetLength(AMarkRecArray, K);
+    for I := 0 to K - 1 do begin
       if VIDArray[I] > 0 then begin
         if ReadMarkSQL(AMarkRecArray[J], VIDArray[I], 0, '') then begin
           if not AIncludeHiddenMarks then begin

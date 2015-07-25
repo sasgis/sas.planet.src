@@ -151,8 +151,10 @@ end;
 procedure TSQLCategoryCache.AddPrepared(const AArr: TSQLCategoryRowDynArray);
 begin
   Reset;
-  FRow.AddArray(AArr);
-  FRow.Sort;
+  if Length(AArr) > 0 then begin
+    FRow.AddArray(AArr);
+    FRow.Sort;
+  end;
   FIsPrepared := True;
 end;
 
@@ -235,8 +237,10 @@ end;
 procedure TSQLCategoryViewCache.AddPrepared(const AArr: TSQLCategoryViewRowDynArray);
 begin
   Reset;
-  FRow.AddArray(AArr);
-  FRow.Sort;
+  if Length(AArr) > 0 then begin
+    FRow.AddArray(AArr);
+    FRow.Sort;
+  end;
   FIsPrepared := True;
 end;
 

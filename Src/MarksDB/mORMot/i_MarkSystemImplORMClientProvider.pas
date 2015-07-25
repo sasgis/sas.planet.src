@@ -23,13 +23,11 @@ unit i_MarkSystemImplORMClientProvider;
 interface
 
 uses
-  SynDB,
-  SynMongoDB,
   mORMotSQLite3,
   t_MarkSystemORM;
 
 type
-  TMarkSystemImplORMClientType = (ctSQLite3, ctMongoDB, ctZeosDBMS);
+  TMarkSystemImplORMClientType = (ctSQLite3, ctMongoDB, ctZDBC, ctODBC);
 
   IMarkSystemImplORMClientProvider = interface
     ['{0A4FAB10-FA04-4C52-8E3A-9CD1FCA99727}']
@@ -41,12 +39,6 @@ type
 
     function GetRestClient: TSQLRestClientDB;
     property RestClient: TSQLRestClientDB read GetRestClient;
-
-    function GetMongoDatabase: TMongoDatabase;
-    property MongoDatabase: TMongoDatabase read GetMongoDatabase;
-
-    function GetDBMSProps: TSQLDBConnectionPropertiesThreadSafe;
-    property DBMSProperties: TSQLDBConnectionPropertiesThreadSafe read GetDBMSProps;
   end;
 
 implementation

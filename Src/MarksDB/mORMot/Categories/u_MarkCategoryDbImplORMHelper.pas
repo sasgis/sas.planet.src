@@ -118,8 +118,9 @@ begin
   finally
     VSQLCategory.Free;
   end;
+
+  // insert view
   if not ACategoryRec.FVisible then begin
-    // insert view
     VSQLCategoryView := TSQLCategoryView.Create;
     try
       VSQLCategoryView.User := Pointer(AUserID);
@@ -130,12 +131,12 @@ begin
       // add to db
       CheckID( AClient.Add(VSQLCategoryView, True) );
       ACategoryRec.FViewId := VSQLCategoryView.ID;
-      // add to cache
-      ACache.FCategoryViewCache.AddOrUpdate(ACategoryRec);
     finally
       VSQLCategoryView.Free;
     end;
   end;
+  // add to cache
+  ACache.FCategoryViewCache.AddOrUpdate(ACategoryRec);
 end;
 
 procedure UpdateCategorySQL(
@@ -189,6 +190,7 @@ var
   VSQLCategoryView: TSQLCategoryView;
   VUpdateView: Boolean;
   VSQLWhere: RawUTF8;
+  VFound: Boolean;
 begin
   CheckID(ACategoryRecOld.FCategoryId);
 
@@ -203,21 +205,20 @@ begin
     // update view
     VSQLCategoryView := TSQLCategoryView.Create;
     try
-      if ACache.FCategoryViewCache.IsPrepared then begin
+      VFound := ACache.FCategoryViewCache.Find(ACategoryRecNew.FCategoryId, VItem);
+      if VFound then begin
         // init from cache
-        if ACache.FCategoryViewCache.Find(ACategoryRecNew.FCategoryId, VItem) then begin
-          VSQLCategoryView.IDValue := VItem.ViewId;
-          VSQLCategoryView.Category := Pointer(VItem.CategoryId);
-          VSQLCategoryView.Visible := VItem.Visible;
-          VSQLCategoryView.MinZoom := VItem.MinZoom;
-          VSQLCategoryView.MaxZoom := VItem.MaxZoom;
-        end;
-      end else begin
+        VSQLCategoryView.IDValue := VItem.ViewId;
+        VSQLCategoryView.Category := Pointer(VItem.CategoryId);
+        VSQLCategoryView.Visible := VItem.Visible;
+        VSQLCategoryView.MinZoom := VItem.MinZoom;
+        VSQLCategoryView.MaxZoom := VItem.MaxZoom;
+      end else if not ACache.FCategoryViewCache.IsPrepared then begin
         // init from db
         VSQLWhere := FormatUTF8('Category=? AND User=?', [], [ACategoryRecNew.FCategoryId, AUserID]);
-        AClient.Retrieve(VSQLWhere, VSQLCategoryView);
+        VFound := AClient.Retrieve(VSQLWhere, VSQLCategoryView);
       end;
-      if VSQLCategoryView.ID > 0 then begin
+      if VFound and (VSQLCategoryView.ID > 0) then begin
         _ClearFields;
         // update existing
         if ACategoryRecNew.FVisible <> ACategoryRecOld.FVisible then begin
@@ -235,8 +236,6 @@ begin
         // update db
         CheckUpdateResult( AClient.Update(VSQLCategoryView, _FieldsNamesStr) );
         ACategoryRecNew.FViewId := VSQLCategoryView.ID;
-        // update cache
-        ACache.FCategoryViewCache.AddOrUpdate(ACategoryRecNew);
       end else begin
         // add new
         VSQLCategoryView.User := Pointer(AUserID);
@@ -247,9 +246,9 @@ begin
         // add to db
         CheckID( AClient.Add(VSQLCategoryView, True) );
         ACategoryRecNew.FViewId := VSQLCategoryView.ID;
-        // add to cache
-        ACache.FCategoryViewCache.AddOrUpdate(ACategoryRecNew);
       end;
+      // update cache
+      ACache.FCategoryViewCache.AddOrUpdate(ACategoryRecNew);
     finally
       VSQLCategoryView.Free;
     end;
@@ -308,23 +307,22 @@ begin
 
   ACategoryRec := cEmptySQLCategoryRec;
 
-  VFound := False;
   VSQLCategory := TSQLCategory.Create;
   try
-    // get category
-    if ACache.FCategoryCache.IsPrepared then begin
-      // from cache
-      if ID > 0 then begin
-        VFound := ACache.FCategoryCache.Find(ID, VCategoryItem);
-      end else if AName <> '' then begin
-        VFound := ACache.FCategoryCache.Find(AName, VCategoryItem);
-      end;
-      if VFound then begin
-        VSQLCategory.IDValue := VCategoryItem.CategoryId;
-        VSQLCategory.Name := StringToUTF8(VCategoryItem.Name);
-      end;
+    // try get category from cache
+    if ID > 0 then begin
+      VFound := ACache.FCategoryCache.Find(ID, VCategoryItem);
+    end else if AName <> '' then begin
+      VFound := ACache.FCategoryCache.Find(AName, VCategoryItem);
     end else begin
-      // from db
+      VFound := False;
+    end;
+
+    if VFound then begin
+      VSQLCategory.IDValue := VCategoryItem.CategoryId;
+      VSQLCategory.Name := StringToUTF8(VCategoryItem.Name);
+    end else if not ACache.FCategoryCache.IsPrepared then begin
+      // not found in cache -> get from db
       if ID > 0 then begin
         VFound := AClient.Retrieve(ID, VSQLCategory);
       end else if AName <> '' then begin
@@ -337,22 +335,20 @@ begin
       Result := True;
       ACategoryRec.FCategoryId := VSQLCategory.ID;
       ACategoryRec.FName := UTF8ToString(VSQLCategory.Name);
+      ACache.FCategoryCache.AddOrUpdate(ACategoryRec);
 
       VSQLCategoryView := TSQLCategoryView.Create;
       try
-        // get view
-        if ACache.FCategoryViewCache.IsPrepared then begin
-          // from cache
-          VFound := ACache.FCategoryViewCache.Find(VSQLCategory.ID, VViewItem);
-          if VFound then begin
-            VSQLCategoryView.IDValue := VViewItem.ViewId;
-            VSQLCategoryView.Category := Pointer(VViewItem.CategoryId);
-            VSQLCategoryView.Visible := VViewItem.Visible;
-            VSQLCategoryView.MinZoom := VViewItem.MinZoom;
-            VSQLCategoryView.MaxZoom := VViewItem.MaxZoom;
-          end;
-        end else begin
-          // from db
+        // try get view from cache
+        VFound := ACache.FCategoryViewCache.Find(VSQLCategory.ID, VViewItem);
+        if VFound then begin
+          VSQLCategoryView.IDValue := VViewItem.ViewId;
+          VSQLCategoryView.Category := Pointer(VViewItem.CategoryId);
+          VSQLCategoryView.Visible := VViewItem.Visible;
+          VSQLCategoryView.MinZoom := VViewItem.MinZoom;
+          VSQLCategoryView.MaxZoom := VViewItem.MaxZoom;
+        end else if not ACache.FCategoryViewCache.IsPrepared then begin
+          // view not in cache -> get from db
           VFound := AClient.Retrieve(
             'Category=? AND User=?',
             [], [VSQLCategory.ID, AUserID],
@@ -365,6 +361,7 @@ begin
           ACategoryRec.FMinZoom := VSQLCategoryView.MinZoom;
           ACategoryRec.FMaxZoom := VSQLCategoryView.MaxZoom;
         end;
+        ACache.FCategoryViewCache.AddOrUpdate(ACategoryRec);
       finally
         VSQLCategoryView.Free;
       end;
@@ -392,15 +389,13 @@ begin
     if Assigned(VList) then
     try
       VCount := VList.RowCount;
-      if VCount > 0 then begin
-        SetLength(VArray, VCount);
-        for I := 0 to VCount - 1 do begin
-          J := I + 1;
-          VArray[I].CategoryId := VList.GetAsInt64(J, 0);
-          VArray[I].Name := VList.GetString(J, 1);
-        end;
-        ACache.FCategoryCache.AddPrepared(VArray);
+      SetLength(VArray, VCount);
+      for I := 0 to VCount - 1 do begin
+        J := I + 1;
+        VArray[I].CategoryId := VList.GetAsInt64(J, 0);
+        VArray[I].Name := VList.GetString(J, 1);
       end;
+      ACache.FCategoryCache.AddPrepared(VArray);
     finally
       VList.Free;
     end;
@@ -430,18 +425,16 @@ begin
     if Assigned(VList) then
     try
       VCount := VList.RowCount;
-      if VCount > 0 then begin
-        SetLength(VArray, VCount);
-        for I := 0 to VCount - 1 do begin
-          J := I + 1;
-          VArray[I].ViewId := VList.GetAsInt64(J, 0);
-          VArray[I].CategoryId := VList.GetAsInt64(J, 1);
-          VArray[I].Visible := VList.GetAsInteger(J, 2) <> 0;
-          VArray[I].MinZoom := VList.GetAsInteger(J, 3);
-          VArray[I].MaxZoom := VList.GetAsInteger(J, 4);
-        end;
-        ACache.FCategoryViewCache.AddPrepared(VArray);
+      SetLength(VArray, VCount);
+      for I := 0 to VCount - 1 do begin
+        J := I + 1;
+        VArray[I].ViewId := VList.GetAsInt64(J, 0);
+        VArray[I].CategoryId := VList.GetAsInt64(J, 1);
+        VArray[I].Visible := VList.GetAsInteger(J, 2) <> 0;
+        VArray[I].MinZoom := VList.GetAsInteger(J, 3);
+        VArray[I].MaxZoom := VList.GetAsInteger(J, 4);
       end;
+      ACache.FCategoryViewCache.AddPrepared(VArray);
     finally
       VList.Free;
     end;

@@ -1317,12 +1317,20 @@ procedure TfrmMarksExplorer.RefreshConfigListMenu;
   function DatabaseToHint(const ADB: TGUID): string;
   begin
     if IsEqualGUID(ADB, cSMLMarksDbGUID) then begin
-      Result := ' (SML)';
+      Result := rsSMLMarksDbName;
     end else if IsEqualGUID(ADB, cORMSQLiteMarksDbGUID) then begin
-      Result := ' (SQLite3)';
+      Result := rsORMSQLiteMarksDbName;
+    end else if IsEqualGUID(ADB, cORMMongoDbMarksDbGUID) then begin
+      Result := rsORMMongoDbMarksDbName;
+    end else if IsEqualGUID(ADB, cORMODBCMarksDbGUID) then begin
+      Result := rsORMODBCMarksDbName;
+    end else if IsEqualGUID(ADB, cORMZDBCMarksDbGUID) then begin
+      Result := rsORMZDBCMarksDbName;
     end else begin
       Result := '';
+      Exit;
     end;
+    Result := Format(' (%s)', [Result]);
   end;
 
 var

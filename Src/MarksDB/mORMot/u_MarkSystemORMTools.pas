@@ -56,8 +56,6 @@ function CalcMultiGeometryCount(const AGeometry: IGeometryLonLat): Integer; inli
 procedure CalcGeometrySize(const ARect: TDoubleRect; out ALonSize, ALatSize: Cardinal); inline;
 procedure LonLatSizeToInternalSize(const ALonLatSize: TDoublePoint; out ALonSize, ALatSize: Cardinal); inline;
 
-function MergeSortRemoveDuplicates(var Vals: TIDDynArray): Integer;
-
 const
   cCoordToSize: Cardinal = MAXLONG div 360;
 
@@ -172,79 +170,6 @@ procedure LonLatSizeToInternalSize(const ALonLatSize: TDoublePoint; out ALonSize
 begin
   ALonSize := Round(ALonLatSize.X * cCoordToSize);
   ALatSize := Round(ALonLatSize.Y * cCoordToSize);
-end;
-
-function MergeSortRemoveDuplicates(var Vals: TIDDynArray): Integer;
-// Mergesort modification with duplicate deleting.
-// returns new valid length
-var
-  AVals: TIDDynArray;
-
-   //returns index of the last valid element
-  function Merge(I0, I1, J0, J1: Integer): Integer;
-  var
-    i, j, k, LC: Integer;
-  begin
-    LC := I1 - I0;
-    for i := 0 to LC do
-      AVals[i]:=Vals[i + I0];
-      //copy lower half or Vals into temporary array AVals
-
-    k := I0;
-    i := 0;
-    j := J0;
-    while ((i <= LC) and (j <= J1)) do
-    if (AVals[i] < Vals[j]) then begin
-      Vals[k] := AVals[i];
-      inc(i);
-      inc(k);
-    end else  if (AVals[i] > Vals[j]) then begin
-      Vals[k]:=Vals[j];
-      inc(k);
-      inc(j);
-    end else begin //duplicate
-      Vals[k] := AVals[i];
-      inc(i);
-      inc(j);
-      inc(k);
-    end;
-
-    //copy the rest
-    while i <= LC do begin
-      Vals[k] := AVals[i];
-      inc(i);
-      inc(k);
-    end;
-
-    if k <> j then
-      while j <= J1 do begin
-        Vals[k]:=Vals[j];
-        inc(k);
-        inc(j);
-      end;
-
-    Result := k - 1;
-  end;
-
-  //returns index of the last valid element
-  function PerformMergeSort(ALo, AHi: Integer): Integer;
-  var
-    AMid, I1, J1: Integer;
-  begin
-    //It would be wise to use Insertion Sort when (AHi - ALo) is small (about 32-100)
-    if ALo < AHi then begin
-      AMid:=(ALo + AHi) shr 1;
-      I1 := PerformMergeSort(ALo, AMid);
-      J1 := PerformMergeSort(AMid + 1, AHi);
-      Result := Merge(ALo, I1, AMid + 1, J1);
-    end else begin
-      Result := ALo;
-    end;
-  end;
-
-begin
-  SetLength(AVals, Length(Vals) div 2 + 1);
-  Result := 1 + PerformMergeSort(0, High(Vals));
 end;
 
 end.

@@ -71,6 +71,7 @@ type
     constructor Create(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
+      const AClientType: TMarkSystemImplORMClientType;
       const ABasePath: string;
       const AMarkPictureList: IMarkPictureList;
       const AHashFunction: IHashFunction;
@@ -94,7 +95,9 @@ implementation
 uses
   SysUtils,
   {$IFDEF LOG_ENABLE}
+  mORMot,
   SynLog,
+  SynCommons,
   {$ENDIF}
   t_CommonTypes,
   i_GeometryToStream,
@@ -110,6 +113,7 @@ uses
 constructor TMarkSystemImplORM.Create(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
+  const AClientType: TMarkSystemImplORMClientType;
   const ABasePath: string;
   const AMarkPictureList: IMarkPictureList;
   const AHashFunction: IHashFunction;
@@ -142,7 +146,7 @@ begin
 
   {$IFDEF LOG_ENABLE}
   with TSQLLog.Family do begin
-    Level := [sllSQL];
+    Level := [sllSQL] + LOG_STACKTRACE;
     //Level := LOG_VERBOSE;
     HighResolutionTimeStamp := true;
     PerThreadLog := ptIdentifiedInOnFile;
@@ -154,7 +158,7 @@ begin
       TMarkSystemImplORMClientProvider.Create(
         ABasePath,
         AImplConfig,
-        ctSQLite3
+        AClientType
       );
   except
     VStateInternal.ReadAccess := asDisabled;

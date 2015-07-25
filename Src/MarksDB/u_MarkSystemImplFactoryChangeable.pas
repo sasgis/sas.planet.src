@@ -61,6 +61,7 @@ implementation
 
 uses
   c_MarkSystem,
+  i_MarkSystemImplORMClientProvider,
   u_GUIDInterfaceSet,
   u_MarkSystemImplFactorySML,
   u_MarkSystemImplFactoryORM;
@@ -154,9 +155,10 @@ begin
     );
   FList.Add(VItem.GUID, VItem);
 
-  // SQLite
+  // SQLite3
   VFactory :=
     TMarkSystemImplFactoryORM.Create(
+      ctSQLite3,
       AMarkPictureList,
       AHashFunction,
       AAppearanceOfMarkFactory,
@@ -171,6 +173,74 @@ begin
     TMarkSystemImplFactoryListElement.Create(
       cORMSQLiteMarksDbGUID,
       rsORMSQLiteMarksDbName,
+      VFactory
+    );
+  FList.Add(VItem.GUID, VItem);
+
+  // MongoDB
+  VFactory :=
+    TMarkSystemImplFactoryORM.Create(
+      ctMongoDB,
+      AMarkPictureList,
+      AHashFunction,
+      AAppearanceOfMarkFactory,
+      AVectorGeometryLonLatFactory,
+      AVectorItemSubsetBuilderFactory,
+      AMarkFactory,
+      ALoadDbCounter,
+      ASaveDbCounter,
+      AHintConverter
+    );
+  VItem :=
+    TMarkSystemImplFactoryListElement.Create(
+      cORMMongoDbMarksDbGUID,
+      rsORMMongoDbMarksDbName,
+      VFactory
+    );
+  FList.Add(VItem.GUID, VItem);
+
+  Exit; // ToDo: СУБД ещё надо тестировать
+
+  // DBMS (ODBC)
+  VFactory :=
+    TMarkSystemImplFactoryORM.Create(
+      ctODBC,
+      AMarkPictureList,
+      AHashFunction,
+      AAppearanceOfMarkFactory,
+      AVectorGeometryLonLatFactory,
+      AVectorItemSubsetBuilderFactory,
+      AMarkFactory,
+      ALoadDbCounter,
+      ASaveDbCounter,
+      AHintConverter
+    );
+  VItem :=
+    TMarkSystemImplFactoryListElement.Create(
+      cORMODBCMarksDbGUID,
+      rsORMODBCMarksDbName,
+      VFactory
+    );
+  FList.Add(VItem.GUID, VItem);
+
+  // DBMS (ZeosLib)
+  VFactory :=
+    TMarkSystemImplFactoryORM.Create(
+      ctZDBC,
+      AMarkPictureList,
+      AHashFunction,
+      AAppearanceOfMarkFactory,
+      AVectorGeometryLonLatFactory,
+      AVectorItemSubsetBuilderFactory,
+      AMarkFactory,
+      ALoadDbCounter,
+      ASaveDbCounter,
+      AHintConverter
+    );
+  VItem :=
+    TMarkSystemImplFactoryListElement.Create(
+      cORMZDBCMarksDbGUID,
+      rsORMZDBCMarksDbName,
       VFactory
     );
   FList.Add(VItem.GUID, VItem);

@@ -95,6 +95,7 @@ type
     FGeoCount: Cardinal;
     FGeoLonSize: Cardinal;
     FGeoLatSize: Cardinal;
+    FGeoJsonIdx: Variant; // simple GeoJSON geometry for MongoDB spatial index
     FGeoWKB: TSQLRawBlob;
   published
     property Category: TSQLCategory read FCategory write FCategory;
@@ -106,6 +107,7 @@ type
     property GeoCount: Cardinal read FGeoCount write FGeoCount;
     property GeoLonSize: Cardinal read FGeoLonSize write FGeoLonSize;
     property GeoLatSize: Cardinal read FGeoLatSize write FGeoLatSize;
+    property GeoJsonIdx: Variant read FGeoJsonIdx write FGeoJsonIdx;
     property GeoWKB: TSQLRawBlob read FGeoWKB write FGeoWKB;
   end;
 

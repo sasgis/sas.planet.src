@@ -34,6 +34,7 @@ uses
   {$IFDEF ENABLE_ZEOS_DBMS}
   SynDBZEOS,
   {$ENDIF}
+  SynDBODBC,
   SynMongoDB,
   SynSQLite3Static,
   SynCommons,
@@ -52,13 +53,12 @@ type
     FModel: TSQLModel;
     FClientDB: TSQLRestClientDB;
     FClientType: TMarkSystemImplORMClientType;
-    FDBMSProps: TSQLDBConnectionPropertiesThreadSafe;
+    FDBMSProps: TSQLDBConnectionProperties;
     FMongoClient: TMongoClient;
-    FMongoDatabase: TMongoDatabase;
   private
     procedure Build;
     procedure BuildSQLite3Client;
-    procedure BuildZeosDBMSClient;
+    procedure BuildDBMSClient;
     procedure BuildMongoDBClient;
     procedure InitUserID;
   private
@@ -66,8 +66,6 @@ type
     function GetUserID: TID;
     function GetRestClientType: TMarkSystemImplORMClientType;
     function GetRestClient: TSQLRestClientDB;
-    function GetMongoDatabase: TMongoDatabase;
-    function GetDBMSProps: TSQLDBConnectionPropertiesThreadSafe;
   public
     constructor Create(
       const ABasePath: string;
@@ -81,6 +79,7 @@ implementation
 
 uses
   SysUtils,
+  StrUtils,
   i_MarkSystemImplConfigORM,
   u_FileSystemFunc,
   u_MarkSystemORMTools;
@@ -107,16 +106,12 @@ begin
   FClientDB := nil;
   FDBMSProps := nil;
   FMongoClient := nil;
-  FMongoDatabase := nil;
 
   Build;
 end;
 
 destructor TMarkSystemImplORMClientProvider.Destroy;
 begin
-  if Assigned(FMongoDatabase) then begin
-    FreeAndNil(FMongoDatabase);
-  end;
   if Assigned(FMongoClient) then begin
     FreeAndNil(FMongoClient);
   end;
@@ -164,50 +159,146 @@ begin
   VFileName := GetSQLite3DatabaseFileName(FBasePath, FImplConfig.FileName);
   FClientDB := TSQLRestClientDB.Create(FModel, nil, VFileName, TSQLRestServerDB);
   FClientDB.DB.WALMode := True; // for multi-user access
+  if not FImplConfig.IsReadOnly then begin
+    FClientDB.Server.CreateMissingTables;
+  end;
 end;
 
 procedure TMarkSystemImplORMClientProvider.BuildMongoDBClient;
+const
+  cPrefix = 'mongodb';
+  cDefPort = 27017;
 var
+  I: Integer;
   VHost: RawUTF8;
   VPort: Integer;
   VDB, VUser, VPass: RawUTF8;
+  VDatabase: TMongoDatabase;
+  VCollection: TMongoCollection;
+  VText, VTmp: string;
 begin
-  //ToDo: parse params from FImplConfig.FileName
-  VHost := 'localhost';
-  VPort := 2707;
-  VDB := 'sasgis_marks';
+  // 'mongodb://server:port/db'
+  // 'mongodb://<user>:<pass>@server:port/db'
+
+  VHost := '';
+  VPort := cDefPort;
+  VDB := '';
   VUser := '';
   VPass := '';
 
+  VText := FImplConfig.FileName;
+  if StartsText(cPrefix+'://', VText) then begin
+    VText := StringReplace(VText, cPrefix+'://', '', [rfIgnoreCase]);
+
+    // user/pass
+    I := Pos('@', VText);
+    if I > 0 then begin
+      VTmp := Copy(VText, 1, I-1);
+      Delete(VText, 1, I);
+      I := Pos(':', VTmp);
+      if I > 0 then begin
+        VUser := StringToUTF8(Copy(VTmp, 1, I-1));
+        Delete(VTmp, 1, I);
+        VPass := StringToUTF8(VTmp);
+        if VPass = '' then begin
+          raise EMarkSystemORMError.Create('MongoDB URI: "Pass" param is missing');
+        end;
+      end else begin
+        VUser := StringToUTF8(VTmp);
+      end;
+      if VUser = '' then begin
+        raise EMarkSystemORMError.Create('MongoDB URI: "User" param is missing');
+      end;
+    end;
+
+    // server/port
+    I := Pos('/', VText);
+    if I > 0 then begin
+      VTmp := Copy(VText, 1, I-1);
+      Delete(VText, 1, I);
+      I := Pos(':', VTmp);
+      if I > 0 then begin
+        VHost := StringToUTF8(Copy(VTmp, 1, I-1));
+        Delete(VTmp, 1, I);
+        VPort := StrToInt(VTmp);
+      end else begin
+        VHost := StringToUTF8(VTmp);
+        VPort := cDefPort;
+      end;
+    end;
+
+    // db
+    VDB := VText;
+  end else begin
+    raise EMarkSystemORMError.Create('MongoDB URI: Prefix is missing');
+  end;
+
+  if VHost = '' then begin
+    raise EMarkSystemORMError.Create('MongoDB URI: "Server" param is missing');
+  end;
+  if VDB = '' then begin
+    raise EMarkSystemORMError.Create('MongoDB URI: "DB Name" param is missing');
+  end;
+  
   FMongoClient := TMongoClient.Create(VHost, VPort);
   if VUser <> '' then begin
-    FMongoDatabase := FMongoClient.OpenAuth(VDB, VUser, VPass);
+    VDatabase := FMongoClient.OpenAuth(VDB, VUser, VPass);
   end else begin
-    FMongoDatabase := FMongoClient.Open(VDB);
+    VDatabase := FMongoClient.Open(VDB);
   end;
 
   FClientDB := TSQLRestClientDB.Create(FModel, nil, ':memory:', TSQLRestServerDB);
-  if not StaticMongoDBRegisterAll(FClientDB.Server, FMongoDatabase) then begin
+  if not StaticMongoDBRegisterAll(FClientDB.Server, VDatabase) then begin
     raise EMarkSystemORMError.Create('MarkSystemORM: StaticMongoDBRegisterAll failed');
+  end;
+
+  if not FImplConfig.IsReadOnly then begin
+    FClientDB.Server.CreateMissingTables;
+
+    VCollection :=
+      (FClientDB.Server.StaticDataServer[TSQLMark] as TSQLRestStorageMongoDB).Collection;
+
+    VCollection.EnsureIndex(
+      _ObjFast(['GeoJsonIdx','2dsphere']),
+      _ObjFast(['name','GeoJsonIdx_','2dsphereIndexVersion',2])
+    );
   end;
 end;
 
-procedure TMarkSystemImplORMClientProvider.BuildZeosDBMSClient;
+procedure TMarkSystemImplORMClientProvider.BuildDBMSClient;
 begin
-  {$IFDEF ENABLE_ZEOS_DBMS}
-  // zdbc:postgresql://127.0.0.1:5439/sasgis_marks?username=postgres
-  FDBMSProps := TSQLDBZEOSConnectionProperties.Create(FImplConfig.FileName, '', '', '');
+  case FClientType of
+    ctODBC: begin
+      // 'Driver=PostgreSQL Unicode;Database=sasgis_marks;Server=localhost;Port=5439;UID=postgres;Pwd=1'
+      FDBMSProps := TODBCConnectionProperties.Create('', FImplConfig.FileName, '', '');
+    end;
+    ctZDBC: begin
+      {$IFDEF ENABLE_ZEOS_DBMS}
+      // [zdbc:]PROTOCOL://HOST:PORT[/DATABASE][?paramname=value]
+      // zdbc:postgresql://127.0.0.1:5439/sasgis_marks?username=postgres;password=1
+      FDBMSProps := TSQLDBZEOSConnectionProperties.Create(FImplConfig.FileName, '', '', '');
+      {$ELSE}
+      raise EMarkSystemORMError.Create('MarkSystemORM: ZEOS disabled');
+      {$ENDIF}
+    end;
+  else
+    Assert(False);
+  end;
+
   VirtualTableExternalRegisterAll(FModel, FDBMSProps);
+
   // map conflict field names
   FModel.Props[TSQLCategoryView].ExternalDB.MapField('User', 'User_').MapAutoKeywordFields;
   FModel.Props[TSQLMarkView].ExternalDB.MapField('User', 'User_').MapAutoKeywordFields;
   FModel.Props[TSQLMark].ExternalDB.MapField('Desc', 'Desc_').MapAutoKeywordFields;
   FModel.Props[TSQLMarkFTS].ExternalDB.MapField('Desc', 'Desc_').MapAutoKeywordFields;
   FModel.Props[TSQLMarkRTree].ExternalDB.MapField('Left', 'Left_').MapAutoKeywordFields;
+
   FClientDB := TSQLRestClientDB.Create(FModel, nil, ':memory:', TSQLRestServerDB);
-  {$ELSE}
-  raise EMarkSystemORMError.Create('MarkSystemORM: ZEOS disabled');
-  {$ENDIF}
+
+  if not FImplConfig.IsReadOnly then begin
+    FClientDB.Server.CreateMissingTables;
+  end;
 end;
 
 procedure TMarkSystemImplORMClientProvider.InitUserID;
@@ -256,12 +347,9 @@ begin
   case FClientType of
     ctSQLite3: BuildSQLite3Client;
     ctMongoDB: BuildMongoDBClient;
-    ctZeosDBMS: BuildZeosDBMSClient;
+    ctZDBC, ctODBC: BuildDBMSClient;
   else
     raise EMarkSystemORMError.Create('MarkSystemORM: Unknown Client type!');
-  end;
-  if not FImplConfig.IsReadOnly then begin
-    FClientDB.Server.CreateMissingTables;
   end;
   InitUserID;
 end;
@@ -279,16 +367,6 @@ end;
 function TMarkSystemImplORMClientProvider.GetRestClientType: TMarkSystemImplORMClientType;
 begin
   Result := FClientType;
-end;
-
-function TMarkSystemImplORMClientProvider.GetMongoDatabase: TMongoDatabase;
-begin
-  Result := FMongoDatabase;
-end;
-
-function TMarkSystemImplORMClientProvider.GetDBMSProps: TSQLDBConnectionPropertiesThreadSafe;
-begin
-  Result := FDBMSProps;
 end;
 
 end.

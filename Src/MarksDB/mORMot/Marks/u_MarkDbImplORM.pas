@@ -45,7 +45,6 @@ uses
   i_MarkCategoryInternalORM,
   i_MarkFactoryDbInternalORM,
   i_MarkSystemImplORMClientProvider,
-  u_MarkDbImplORMCache,
   u_MarkDbImplORMHelper,
   u_ConfigDataElementBase;
 
@@ -58,7 +57,6 @@ type
   private
     FDbId: Integer;
     FClient: TSQLRestClient;
-    FCache: TSQLMarkDbCache;
     FHelper: TMarkDbImplORMHelper;
     FFactoryDbInternal: IMarkFactoryDbInternalORM;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
@@ -85,7 +83,7 @@ type
     );
 
     procedure _GetMarkSubsetByRect(
-      const ACategoryIDArray: TIDDynArray;
+      const ACategoryIDArray: TDynArray;
       const ARect: TDoubleRect;
       const AIncludeHiddenMarks: Boolean;
       const ALonLatSize: TDoublePoint;
@@ -225,11 +223,8 @@ begin
   FFactoryDbInternal := AFactoryDbInternal;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
 
-  FCache.Init;
-
   FHelper :=
     TMarkDbImplORMHelper.Create(
-      FCache,
       AGeometryWriter,
       AGeometryReader,
       AClientProvider
@@ -239,7 +234,6 @@ end;
 destructor TMarkDbImplORM.Destroy;
 begin
   FreeAndNil(FHelper);
-  FCache.Done;
   FFactoryDbInternal := nil;
   inherited;
 end;
@@ -249,9 +243,11 @@ var
   VCategoryInternal: IMarkCategoryInternalORM;
 begin
   Assert(ACategory <> nil);
-  Result := 0;
   if Supports(ACategory, IMarkCategoryInternalORM, VCategoryInternal) then begin
     Result := VCategoryInternal.Id;
+    Assert(Result > 0);
+  end else begin
+    Result := 0;
   end;
 end;
 
@@ -782,6 +778,7 @@ begin
   VResultList := FVectorItemSubsetBuilderFactory.Build;
   if ACategory <> nil then begin
     VCategoryId := _GetCategoryID(ACategory);
+    Assert(VCategoryId > 0);
   end else begin
     VCategoryId := 0;
   end;
@@ -804,7 +801,11 @@ begin
   end else begin
     for I := 0 to ACategoryList.Count - 1 do begin
       VCategoryID := _GetCategoryID(ICategory(ACategoryList[I]));
-      _GetMarkSubset(VCategoryId, AIncludeHiddenMarks, VResultList);
+      if VCategoryID > 0 then begin
+        _GetMarkSubset(VCategoryId, AIncludeHiddenMarks, VResultList);
+      end else begin
+        Assert(False);
+      end;
     end;
   end;
   Result := VResultList.MakeStaticAndClear;
@@ -815,7 +816,7 @@ end;
 // Get Marks list by Rect
 
 procedure TMarkDbImplORM._GetMarkSubsetByRect(
-  const ACategoryIDArray: TIDDynArray;
+  const ACategoryIDArray: TDynArray;
   const ARect: TDoubleRect;
   const AIncludeHiddenMarks: Boolean;
   const ALonLatSize: TDoublePoint;
@@ -845,21 +846,26 @@ function TMarkDbImplORM.GetMarkSubsetByCategoryInRect(
   const ALonLatSize: TDoublePoint
 ): IVectorItemSubset;
 var
+  VId: TID;
+  VArray: TDynArray;
   VIdArray: TIDDynArray;
   VResultList: IVectorItemSubsetBuilder;
 begin
   VResultList := FVectorItemSubsetBuilderFactory.Build;
 
-  SetLength(VIdArray, 1);
+  VArray.Init(TypeInfo(TIDDynArray), VIdArray);
   if ACategory <> nil then begin
-    VIdArray[0] := _GetCategoryID(ACategory);
-  end else begin
-    VIdArray[0] := 0;
+    VId := _GetCategoryID(ACategory);
+    if VId > 0 then begin
+      VArray.Add(VId);
+    end else begin
+      Assert(False);
+    end;
   end;
 
   LockWrite;
   try
-    _GetMarkSubsetByRect(VIdArray, ARect, AIncludeHiddenMarks, ALonLatSize, VResultList);
+    _GetMarkSubsetByRect(VArray, ARect, AIncludeHiddenMarks, ALonLatSize, VResultList);
   finally
     UnlockWrite;
   end;
@@ -875,24 +881,30 @@ function TMarkDbImplORM.GetMarkSubsetByCategoryListInRect(
 ): IVectorItemSubset;
 var
   I: Integer;
+  VId: TID;
+  VCount: Integer;
+  VArray: TDynArray;
   VIdArray: TIDDynArray;
   VResultList: IVectorItemSubsetBuilder;
 begin
   VResultList := FVectorItemSubsetBuilderFactory.Build;
 
+  VArray.Init(TypeInfo(TIDDynArray), VIdArray, @VCount);
+
   LockWrite;
   try
     if ACategoryList <> nil then begin
-      SetLength(VIdArray, ACategoryList.Count);
+      VArray.Capacity := ACategoryList.Count;
       for I := 0 to ACategoryList.Count - 1 do begin
-        VIdArray[I] := _GetCategoryID(ICategory(ACategoryList[I]));
+        VId := _GetCategoryID(ICategory(ACategoryList[I]));
+        if VId > 0 then begin
+          VArray.Add(VId);
+        end else begin
+          Assert(False);
+        end;
       end;
     end;
-    if Length(VIdArray) = 0 then begin
-      SetLength(VIdArray, 1);
-      VIdArray[0] := 0;
-    end;
-    _GetMarkSubsetByRect(VIdArray, ARect, AIncludeHiddenMarks, ALonLatSize, VResultList);
+    _GetMarkSubsetByRect(VArray, ARect, AIncludeHiddenMarks, ALonLatSize, VResultList);
   finally
     UnlockWrite;
   end;
