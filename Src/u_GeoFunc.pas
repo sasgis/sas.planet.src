@@ -53,6 +53,9 @@ uses
   function PixelPointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean; inline;
   function UnionLonLatRects(const ARect1, ARect2: TDoubleRect): TDoubleRect; inline;
   function UnionProjectedRects(const ARect1, ARect2: TDoubleRect): TDoubleRect; inline;
+  procedure UpdateLonLatMBRByPoint(var ARect: TDoubleRect; const APoint: TDoublePoint); inline;
+  procedure UpdateProjectedMBRByPoint(var ARect: TDoubleRect; const APoint: TDoublePoint); inline;
+
   function IsDoubleRectEmpty(const Rect: TDoubleRect): Boolean; inline;
   function IsLonLatRectEmpty(const Rect: TDoubleRect): Boolean; inline;
   function IsProjectedRectEmpty(const Rect: TDoubleRect): Boolean; inline;
@@ -60,6 +63,7 @@ uses
   function IntersecProjectedRect(out Rect: TDoubleRect; const R1, R2: TDoubleRect): Boolean; inline;
   function IsIntersecLonLatRect(const R1, R2: TDoubleRect): Boolean; inline;
   function IsIntersecProjectedRect(const R1, R2: TDoubleRect): Boolean; inline;
+
 
   function DoublePointsEqual(const p1,p2: TDoublePoint): Boolean; inline;
   function DoubleRectsEqual(const ARect1, ARect2: TDoubleRect): Boolean; inline;
@@ -299,6 +303,38 @@ begin
   end;
   if Result.Bottom < ARect2.Bottom then begin
     Result.Bottom := ARect2.Bottom;
+  end;
+end;
+
+procedure UpdateLonLatMBRByPoint(var ARect: TDoubleRect; const APoint: TDoublePoint);
+begin
+  if ARect.Left > APoint.X then begin
+    ARect.Left := APoint.X;
+  end;
+  if ARect.Right < APoint.X then begin
+    ARect.Right := APoint.X;
+  end;
+  if ARect.Top < APoint.Y then begin
+    ARect.Top := APoint.Y;
+  end;
+  if ARect.Bottom > APoint.Y then begin
+    ARect.Bottom := APoint.Y;
+  end;
+end;
+
+procedure UpdateProjectedMBRByPoint(var ARect: TDoubleRect; const APoint: TDoublePoint);
+begin
+  if ARect.Left > APoint.X then begin
+    ARect.Left := APoint.X;
+  end;
+  if ARect.Right < APoint.X then begin
+    ARect.Right := APoint.X;
+  end;
+  if ARect.Top > APoint.Y then begin
+    ARect.Top := APoint.Y;
+  end;
+  if ARect.Bottom < APoint.Y then begin
+    ARect.Bottom := APoint.Y;
   end;
 end;
 
