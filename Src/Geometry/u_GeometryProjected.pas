@@ -4,6 +4,7 @@ interface
 
 uses
   t_GeoTypes,
+  i_DoublePoints,
   i_EnumDoublePoint,
   i_GeometryProjected,
   u_BaseInterfacedObject;
@@ -13,7 +14,7 @@ type
   private
     FCount: Integer;
     FBounds: TDoubleRect;
-    FPoints: array of TDoublePoint;
+    FPoints: IDoublePoints;
   private
     function IsEmpty: Boolean;
     function GetBounds: TDoubleRect;
@@ -23,13 +24,7 @@ type
     constructor Create(
       AClosed: Boolean;
       const ABounds: TDoubleRect;
-      const APoints: PDoublePointArray;
-      ACount: Integer
-    ); overload;
-    constructor Create(
-      AClosed: Boolean;
-      const APoints: PDoublePointArray;
-      ACount: Integer
+      const APoints: IDoublePoints
     ); overload;
   end;
 
@@ -43,8 +38,8 @@ type
     function IsRectIntersectPath(const ARect: TDoubleRect): Boolean;
   public
     constructor Create(
-      const APoints: PDoublePointArray;
-      ACount: Integer
+      const ABounds: TDoubleRect;
+      const APoints: IDoublePoints
     );
   end;
 
@@ -61,8 +56,8 @@ type
     function CalcArea: Double;
   public
     constructor Create(
-      const APoints: PDoublePointArray;
-      ACount: Integer
+      const ABounds: TDoubleRect;
+      const APoints: IDoublePoints
     );
   end;
 
@@ -73,14 +68,15 @@ type
     function GetHoleBorder(const AIndex: Integer): IGeometryProjectedContour;
   public
     constructor Create(
-      const APoints: PDoublePointArray;
-      ACount: Integer
+      const ABounds: TDoubleRect;
+      const APoints: IDoublePoints
     );
   end;
 
 implementation
 
 uses
+  Math,
   u_GeoFunc,
   u_EnumDoublePointBySingleLine;
 
@@ -88,50 +84,19 @@ uses
 
 constructor TGeometryProjectedBase.Create(
   AClosed: Boolean;
-  const APoints: PDoublePointArray;
-  ACount: Integer
-);
-var
-  VBounds: TDoubleRect;
-  i: Integer;
-begin
-  inherited Create;
-  VBounds.TopLeft := APoints[0];
-  VBounds.BottomRight := APoints[0];
-  for i := 1 to ACount - 1 do begin
-    if VBounds.Left > APoints[i].X then begin
-      VBounds.Left := APoints[i].X;
-    end;
-    if VBounds.Top > APoints[i].Y then begin
-      VBounds.Top := APoints[i].Y;
-    end;
-    if VBounds.Right < APoints[i].X then begin
-      VBounds.Right := APoints[i].X;
-    end;
-    if VBounds.Bottom < APoints[i].Y then begin
-      VBounds.Bottom := APoints[i].Y;
-    end;
-  end;
-  Create(AClosed, VBounds, APoints, ACount);
-end;
-
-constructor TGeometryProjectedBase.Create(
-  AClosed: Boolean;
   const ABounds: TDoubleRect;
-  const APoints: PDoublePointArray;
-  ACount: Integer
+  const APoints: IDoublePoints
 );
 begin
+  Assert(Assigned(APoints));
+  Assert(APoints.Count > 0, 'Empty line');
   inherited Create;
+  FPoints := APoints;
   FBounds := ABounds;
-  FCount := ACount;
-  Assert(FCount > 0, 'Empty line');
-  if AClosed and (FCount > 1) and DoublePointsEqual(APoints[0], APoints[ACount - 1]) then begin
+  FCount := FPoints.Count;
+  if AClosed and (FCount > 1) and DoublePointsEqual(FPoints.Points[0], FPoints.Points[FCount - 1]) then begin
     Dec(FCount);
   end;
-
-  SetLength(FPoints, FCount);
-  Move(APoints^, FPoints[0], FCount * SizeOf(TDoublePoint));
 end;
 
 function TGeometryProjectedBase.GetBounds: TDoubleRect;
@@ -146,7 +111,7 @@ end;
 
 function TGeometryProjectedBase.GetPoints: PDoublePointArray;
 begin
-  Result := @FPoints[0];
+  Result := FPoints.Points;
 end;
 
 function TGeometryProjectedBase.IsEmpty: Boolean;
@@ -157,16 +122,16 @@ end;
 { TGeometryProjectedLine }
 
 constructor TGeometryProjectedLine.Create(
-  const APoints: PDoublePointArray;
-  ACount: Integer
+  const ABounds: TDoubleRect;
+  const APoints: IDoublePoints
 );
 begin
-  inherited Create(False, APoints, ACount);
+  inherited Create(False, ABounds, APoints);
 end;
 
 function TGeometryProjectedLine.GetEnum: IEnumProjectedPoint;
 begin
-  Result := TEnumDoublePointBySingleProjectedLine.Create(Self, False, @FPoints[0], FCount);
+  Result := TEnumDoublePointBySingleProjectedLine.Create(FPoints, False, FPoints.Points, FCount);
 end;
 
 function TGeometryProjectedLine.IsPointOnPath(
@@ -300,6 +265,14 @@ end;
 
 { TGeometryProjectedContour }
 
+constructor TGeometryProjectedContour.Create(
+  const ABounds: TDoubleRect;
+  const APoints: IDoublePoints
+);
+begin
+  inherited Create(True, ABounds, APoints);
+end;
+
 function TGeometryProjectedContour.CalcArea: Double;
 var
   VEnum: IEnumProjectedPoint;
@@ -317,17 +290,9 @@ begin
   end;
 end;
 
-constructor TGeometryProjectedContour.Create(
-  const APoints: PDoublePointArray;
-  ACount: Integer
-);
-begin
-  inherited Create(True, APoints, ACount);
-end;
-
 function TGeometryProjectedContour.GetEnum: IEnumProjectedPoint;
 begin
-  Result := TEnumDoublePointBySingleProjectedLine.Create(Self, True, @FPoints[0], FCount);
+  Result := TEnumDoublePointBySingleProjectedLine.Create(FPoints, True, FPoints.Points, FCount);
 end;
 
 function TGeometryProjectedContour.IsPointInPolygon(
@@ -497,7 +462,7 @@ begin
   if not IsIntersecProjectedRect(FBounds, ARect) then begin
     Result := False;
   end else begin
-    if PixelPointInRect(FPoints[0], ARect) then begin
+    if PixelPointInRect(FPoints.Points[0], ARect) then begin
       Result := True;
     end else begin
       VRectIn := False;
@@ -590,11 +555,11 @@ end;
 { TGeometryProjectedPolygon }
 
 constructor TGeometryProjectedPolygon.Create(
-  const APoints: PDoublePointArray;
-  ACount: Integer
+  const ABounds: TDoubleRect;
+  const APoints: IDoublePoints
 );
 begin
-  inherited Create(APoints, ACount);
+  inherited Create(ABounds, APoints);
 end;
 
 function TGeometryProjectedPolygon.GetHoleBorder(

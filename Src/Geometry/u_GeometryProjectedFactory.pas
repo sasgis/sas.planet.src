@@ -6,6 +6,7 @@ uses
   t_GeoTypes,
   i_ProjectionInfo,
   i_EnumDoublePoint,
+  i_DoublePoints,
   i_DoublePointFilter,
   i_DoublePointsAggregator,
   i_GeometryLonLat,
@@ -18,13 +19,11 @@ type
   private
     function CreateProjectedLineInternal(
       const ARect: TDoubleRect;
-      const APoints: PDoublePointArray;
-      ACount: Integer
+      const APoints: IDoublePoints
     ): IGeometryProjectedSingleLine;
     function CreateProjectedPolygonInternal(
       const ARect: TDoubleRect;
-      const APoints: PDoublePointArray;
-      ACount: Integer
+      const APoints: IDoublePoints
     ): IGeometryProjectedSinglePolygon;
   private
     function MakeMultiLineBuilder(): IGeometryProjectedMultiLineBuilder;
@@ -223,11 +222,10 @@ end;
 
 function TGeometryProjectedFactory.CreateProjectedLineInternal(
   const ARect: TDoubleRect;
-  const APoints: PDoublePointArray;
-  ACount: Integer
+  const APoints: IDoublePoints
 ): IGeometryProjectedSingleLine;
 begin
-  Result := TGeometryProjectedLine.Create(APoints, ACount);
+  Result := TGeometryProjectedLine.Create(ARect, APoints);
 end;
 
 function TGeometryProjectedFactory.CreateProjectedLineByEnum(
@@ -251,7 +249,7 @@ begin
   while AEnum.Next(VPoint) do begin
     if PointIsEmpty(VPoint) then begin
       if VTemp.Count > 0 then begin
-        VLine := CreateProjectedLineInternal(VBounds, VTemp.Points, VTemp.Count);
+        VLine := CreateProjectedLineInternal(VBounds, VTemp.MakeStaticCopy);
         VBuilder.Add(VLine);
         VTemp.Clear;
       end;
@@ -260,24 +258,13 @@ begin
         VBounds.TopLeft := VPoint;
         VBounds.BottomRight := VPoint;
       end else begin
-        if VBounds.Left > VPoint.X then begin
-          VBounds.Left := VPoint.X;
-        end;
-        if VBounds.Top < VPoint.Y then begin
-          VBounds.Top := VPoint.Y;
-        end;
-        if VBounds.Right < VPoint.X then begin
-          VBounds.Right := VPoint.X;
-        end;
-        if VBounds.Bottom > VPoint.Y then begin
-          VBounds.Bottom := VPoint.Y;
-        end;
+        UpdateProjectedMBRByPoint(VBounds, VPoint);
       end;
       VTemp.Add(VPoint);
     end;
   end;
   if VTemp.Count > 0 then begin
-    VLine := CreateProjectedLineInternal(VBounds, VTemp.Points, VTemp.Count);
+    VLine := CreateProjectedLineInternal(VBounds, VTemp.MakeStaticCopy);
     VBuilder.Add(VLine);
     VTemp.Clear;
   end;
@@ -322,11 +309,10 @@ end;
 
 function TGeometryProjectedFactory.CreateProjectedPolygonInternal(
   const ARect: TDoubleRect;
-  const APoints: PDoublePointArray;
-  ACount: Integer
+  const APoints: IDoublePoints
 ): IGeometryProjectedSinglePolygon;
 begin
-  Result := TGeometryProjectedPolygon.Create(APoints, ACount);
+  Result := TGeometryProjectedPolygon.Create(ARect, APoints);
 end;
 
 function TGeometryProjectedFactory.MakeMultiLineBuilder: IGeometryProjectedMultiLineBuilder;
@@ -360,7 +346,7 @@ begin
   while AEnum.Next(VPoint) do begin
     if PointIsEmpty(VPoint) then begin
       if VTemp.Count > 0 then begin
-        VLine := CreateProjectedPolygonInternal(VBounds, VTemp.Points, VTemp.Count);
+        VLine := CreateProjectedPolygonInternal(VBounds, VTemp.MakeStaticCopy);
         VBuilder.Add(VLine);
         VTemp.Clear;
       end;
@@ -369,24 +355,13 @@ begin
         VBounds.TopLeft := VPoint;
         VBounds.BottomRight := VPoint;
       end else begin
-        if VBounds.Left > VPoint.X then begin
-          VBounds.Left := VPoint.X;
-        end;
-        if VBounds.Top < VPoint.Y then begin
-          VBounds.Top := VPoint.Y;
-        end;
-        if VBounds.Right < VPoint.X then begin
-          VBounds.Right := VPoint.X;
-        end;
-        if VBounds.Bottom > VPoint.Y then begin
-          VBounds.Bottom := VPoint.Y;
-        end;
+        UpdateProjectedMBRByPoint(VBounds, VPoint);
       end;
       VTemp.Add(VPoint);
     end;
   end;
   if VTemp.Count > 0 then begin
-    VLine := CreateProjectedPolygonInternal(VBounds, VTemp.Points, VTemp.Count);
+    VLine := CreateProjectedPolygonInternal(VBounds, VTemp.MakeStaticCopy);
     VBuilder.Add(VLine);
     VTemp.Clear;
   end;
