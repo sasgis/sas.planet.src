@@ -122,7 +122,7 @@ procedure TSQLCategoryCache.AddOrUpdate(const ARec: TSQLCategoryRec);
 var
   I: Integer;
   VSize: Integer;
-  VRow: PSQLCategoryRow;
+  VRow: TSQLCategoryRow;
 begin
   VSize := Length(ARec.FName) * SizeOf(Char);
   if FRow.FastLocateSorted(ARec.FCategoryId, I) then begin
@@ -133,16 +133,14 @@ begin
   end else if I >= 0 then begin
     // add
     CheckCacheSize;
-    New(VRow);
-    try
-      VRow.CategoryId := ARec.FCategoryId;
-      VRow.Name := ARec.FName;
-      FRow.Insert(I, VRow^);
-      FRow.Sorted := True;
-      Inc(FDataSize, VSize);
-    finally
-      Dispose(VRow);
-    end;
+
+    VRow.CategoryId := ARec.FCategoryId;
+    VRow.Name := ARec.FName;
+
+    FRow.Insert(I, VRow);
+    FRow.Sorted := True;
+
+    Inc(FDataSize, VSize);
   end else begin
     Assert(False);
   end;
@@ -194,7 +192,7 @@ end;
 procedure TSQLCategoryViewCache.AddOrUpdate(const ARec: TSQLCategoryRec);
 var
   I: Integer;
-  VRow: PSQLCategoryViewRow;
+  VRow: TSQLCategoryViewRow;
 begin
   if FRow.FastLocateSorted(ARec.FCategoryId, I) then begin
     // update
@@ -204,19 +202,15 @@ begin
   end else if I >= 0 then begin
     // add
     CheckCacheSize;
-    New(VRow);
-    try
-      VRow.ViewId := ARec.FViewId;
-      VRow.CategoryId := ARec.FCategoryId;
-      VRow.Visible := ARec.FVisible;
-      VRow.MinZoom := ARec.FMinZoom;
-      VRow.MaxZoom := ARec.FMaxZoom;
 
-      FRow.Insert(I, VRow^);
-      FRow.Sorted := True;
-    finally
-      Dispose(VRow);
-    end;
+    VRow.ViewId := ARec.FViewId;
+    VRow.CategoryId := ARec.FCategoryId;
+    VRow.Visible := ARec.FVisible;
+    VRow.MinZoom := ARec.FMinZoom;
+    VRow.MaxZoom := ARec.FMaxZoom;
+
+    FRow.Insert(I, VRow);
+    FRow.Sorted := True;
   end else begin
     Assert(False);
   end;

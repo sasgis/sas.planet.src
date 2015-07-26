@@ -129,6 +129,7 @@ procedure _SQLCategoryRecFromCategory(
 begin
   ACategoryRec.FCategoryId := ACategoryID;
   ACategoryRec.FName := ACategory.Name;
+  ACategoryRec.FViewId := 0;
   ACategoryRec.FVisible := ACategory.Visible;
   ACategoryRec.FMinZoom := ACategory.AfterScale;
   ACategoryRec.FMaxZoom := ACategory.BeforeScale;
