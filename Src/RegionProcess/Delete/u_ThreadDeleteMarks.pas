@@ -34,6 +34,7 @@ uses
   i_GeometryLonLat,
   i_GeometryProjected,
   i_InterfaceListStatic,
+  u_GeoFunc,
   u_ThreadRegionProcessAbstract;
 
 type
@@ -72,7 +73,6 @@ uses
   i_EnumDoublePoint,
   i_VectorItemSubset,
   u_InterfaceListSimple,
-  u_GeoFunc,
   u_ResStrings;
 
 constructor TThreadDeleteMarks.Create(

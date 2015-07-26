@@ -30,6 +30,7 @@ uses
   i_BitmapTileProvider,
   i_Bitmap32BufferFactory,
   i_ImageResamplerFactory,
+  u_GeoFunc,
   u_BaseInterfacedObject;
 
 type
@@ -97,8 +98,7 @@ uses
   i_CoordConverter,
   u_TileIteratorByRect,
   u_BitmapFunc,
-  u_Bitmap32ByStaticBitmap,
-  u_GeoFunc;
+  u_Bitmap32ByStaticBitmap;
 
 { TBitmapTileProviderByOtherBase }
 
