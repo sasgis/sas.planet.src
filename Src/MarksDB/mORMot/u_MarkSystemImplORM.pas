@@ -94,6 +94,7 @@ implementation
 
 uses
   SysUtils,
+  Dialogs,
   {$IFDEF LOG_ENABLE}
   mORMot,
   SynLog,
@@ -161,9 +162,12 @@ begin
         AClientType
       );
   except
-    VStateInternal.ReadAccess := asDisabled;
-    VStateInternal.WriteAccess := asDisabled;
-    raise;
+    on E: Exception do begin
+      VStateInternal.ReadAccess := asDisabled;
+      VStateInternal.WriteAccess := asDisabled;
+      MessageDlg(E.ClassName + ': ' + E.Message, mtError, [mbOK], 0);
+      raise;
+    end;
   end;
 
   VCategoryDb :=
