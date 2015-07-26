@@ -1330,7 +1330,7 @@ procedure TfrmMarksExplorer.RefreshConfigListMenu;
       Result := '';
       Exit;
     end;
-    Result := Format(' (%s)', [Result]);
+    Result := Format(' [%s]', [Result]);
   end;
 
 var
