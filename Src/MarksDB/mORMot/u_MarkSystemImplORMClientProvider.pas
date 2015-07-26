@@ -23,18 +23,27 @@ unit u_MarkSystemImplORMClientProvider;
 interface
 
 {.$DEFINE ENABLE_ZEOS_DBMS}
+{.$DEFINE ENABLE_ODBC_DBMS}
+
+{$IF DEFINED(ENABLE_ZEOS_DBMS) OR DEFINED(ENABLE_ODBC_DBMS)}
+  {$DEFINE ENABLE_DBMS}
+{$IFEND}
 
 uses
   Windows,
   mORMot,
-  mORMotDB,
   mORMotSQLite3,
   mORMotMongoDB,
+  {$IFDEF ENABLE_DBMS}
+  mORMotDB,
   SynDB,
+  {$ENDIF}
   {$IFDEF ENABLE_ZEOS_DBMS}
   SynDBZEOS,
   {$ENDIF}
+  {$IFDEF ENABLE_ODBC_DBMS}
   SynDBODBC,
+  {$ENDIF}
   SynMongoDB,
   SynSQLite3Static,
   SynCommons,
@@ -53,12 +62,16 @@ type
     FModel: TSQLModel;
     FClientDB: TSQLRestClientDB;
     FClientType: TMarkSystemImplORMClientType;
+    {$IFDEF ENABLE_DBMS}
     FDBMSProps: TSQLDBConnectionProperties;
+    {$ENDIF}
     FMongoClient: TMongoClient;
   private
     procedure Build;
     procedure BuildSQLite3Client;
+    {$IFDEF ENABLE_DBMS}
     procedure BuildDBMSClient;
+    {$ENDIF}
     procedure BuildMongoDBClient;
     procedure InitUserID;
   private
@@ -104,7 +117,9 @@ begin
   FUserID := 0;
   FModel := nil;
   FClientDB := nil;
+  {$IFDEF ENABLE_DBMS}
   FDBMSProps := nil;
+  {$ENDIF}
   FMongoClient := nil;
 
   Build;
@@ -115,9 +130,11 @@ begin
   if Assigned(FMongoClient) then begin
     FreeAndNil(FMongoClient);
   end;
+  {$IFDEF ENABLE_DBMS}
   if Assigned(FDBMSProps) then begin
     FreeAndNil(FDBMSProps);
   end;
+  {$ENDIF}
   if Assigned(FClientDB) then begin
     FreeAndNil(FClientDB);
   end;
@@ -265,20 +282,33 @@ begin
   end;
 end;
 
+{$IFDEF ENABLE_DBMS}
 procedure TMarkSystemImplORMClientProvider.BuildDBMSClient;
+var
+  VConnectionStr: RawUTF8;
 begin
+  VConnectionStr := StringToUTF8(FImplConfig.FileName);
   case FClientType of
     ctODBC: begin
+      {$IFDEF ENABLE_ODBC_DBMS}
       // 'Driver=PostgreSQL Unicode;Database=sasgis_marks;Server=localhost;Port=5439;UID=postgres;Pwd=1'
-      FDBMSProps := TODBCConnectionProperties.Create('', FImplConfig.FileName, '', '');
+      if StartsText('Driver=', FImplConfig.FileName) then begin
+        FDBMSProps := TODBCConnectionProperties.Create('', VConnectionStr, '', '');
+      end else begin
+        FDBMSProps := TODBCConnectionProperties.Create(VConnectionStr, '', '', '');
+      end;
+      {$ELSE}
+      raise EMarkSystemORMError.Create('MarkSystemORM: ODBC driver is disabled');
+      {$ENDIF}
     end;
+
     ctZDBC: begin
       {$IFDEF ENABLE_ZEOS_DBMS}
       // [zdbc:]PROTOCOL://HOST:PORT[/DATABASE][?paramname=value]
       // zdbc:postgresql://127.0.0.1:5439/sasgis_marks?username=postgres;password=1
-      FDBMSProps := TSQLDBZEOSConnectionProperties.Create(FImplConfig.FileName, '', '', '');
+      FDBMSProps := TSQLDBZEOSConnectionProperties.Create(VConnectionStr, '', '', '');
       {$ELSE}
-      raise EMarkSystemORMError.Create('MarkSystemORM: ZEOS disabled');
+      raise EMarkSystemORMError.Create('MarkSystemORM: ZDBC driver is disabled');
       {$ENDIF}
     end;
   else
@@ -299,7 +329,11 @@ begin
   if not FImplConfig.IsReadOnly then begin
     FClientDB.Server.CreateMissingTables;
   end;
+
+  //FClientDB.Server.AcquireExecutionMode[execORMWrite] := amBackgroundThread;
+  //FClientDB.Server.AcquireExecutionMode[execORMGet] := amBackgroundThread;
 end;
+{$ENDIF}
 
 procedure TMarkSystemImplORMClientProvider.InitUserID;
 var
@@ -347,7 +381,9 @@ begin
   case FClientType of
     ctSQLite3: BuildSQLite3Client;
     ctMongoDB: BuildMongoDBClient;
+    {$IFDEF ENABLE_DBMS}
     ctZDBC, ctODBC: BuildDBMSClient;
+    {$ENDIF}
   else
     raise EMarkSystemORMError.Create('MarkSystemORM: Unknown Client type!');
   end;
