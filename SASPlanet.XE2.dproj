@@ -438,6 +438,7 @@
 			<DCCReference Include="Src\GeoCoder\u_GeoCoderListSimple.pas"/>
 			<DCCReference Include="Src\GeoCoder\u_GeoCoderLocalBasic.pas"/>
 			<DCCReference Include="Src\Geometry\i_DoublePointFilter.pas"/>
+			<DCCReference Include="Src\Geometry\i_DoublePoints.pas"/>
 			<DCCReference Include="Src\Geometry\i_DoublePointsAggregator.pas"/>
 			<DCCReference Include="Src\Geometry\i_EnumDoublePoint.pas"/>
 			<DCCReference Include="Src\Geometry\i_GeometryFromStream.pas"/>
@@ -450,6 +451,7 @@
 			<DCCReference Include="Src\Geometry\i_GeometryToStream.pas"/>
 			<DCCReference Include="Src\Geometry\i_LonLatRect.pas"/>
 			<DCCReference Include="Src\Geometry\i_ProjectedCalc.pas"/>
+			<DCCReference Include="Src\Geometry\u_DoublePoints.pas"/>
 			<DCCReference Include="Src\Geometry\u_DoublePointsAggregator.pas"/>
 			<DCCReference Include="Src\Geometry\u_EnumDoublePointByLineSet.pas"/>
 			<DCCReference Include="Src\Geometry\u_EnumDoublePointBySingleLine.pas"/>
@@ -467,7 +469,6 @@
 			<DCCReference Include="Src\Geometry\u_GeometryLonLat.pas"/>
 			<DCCReference Include="Src\Geometry\u_GeometryLonLatFactory.pas"/>
 			<DCCReference Include="Src\Geometry\u_GeometryLonLatMulti.pas"/>
-			<DCCReference Include="Src\Geometry\u_GeometryLonLatMultiEmpty.pas"/>
 			<DCCReference Include="Src\Geometry\u_GeometryProjected.pas"/>
 			<DCCReference Include="Src\Geometry\u_GeometryProjectedFactory.pas"/>
 			<DCCReference Include="Src\Geometry\u_GeometryProjectedMulti.pas"/>
@@ -925,10 +926,12 @@
 			<DCCReference Include="Src\MarksDB\mORMot\Marks\u_MarkFactoryDbInternalORM.pas"/>
 			<DCCReference Include="Src\MarksDB\mORMot\Marks\u_MarkIdORM.pas"/>
 			<DCCReference Include="Src\MarksDB\mORMot\i_MarkSystemImplConfigORM.pas"/>
+			<DCCReference Include="Src\MarksDB\mORMot\i_MarkSystemImplORMClientProvider.pas"/>
 			<DCCReference Include="Src\MarksDB\mORMot\t_MarkSystemORM.pas"/>
 			<DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemImplConfigORM.pas"/>
 			<DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemImplFactoryORM.pas"/>
 			<DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemImplORM.pas"/>
+			<DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemImplORMClientProvider.pas"/>
 			<DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemORMCacheBase.pas"/>
 			<DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemORMModel.pas"/>
 			<DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemORMTools.pas"/>
@@ -1100,6 +1103,7 @@
 			</DCCReference>
 			<DCCReference Include="Src\RegionProcess\Copy\u_ProviderTilesCopy.pas"/>
 			<DCCReference Include="Src\RegionProcess\Copy\u_ThreadCopyFromStorageToStorage.pas"/>
+			<DCCReference Include="Src\RegionProcess\Copy\u_ThreadCopyWithModification.pas"/>
 			<DCCReference Include="Src\RegionProcess\Delete\fr_Delete.pas">
 				<Form>frDelete</Form>
 				<DesignClass>TFrame</DesignClass>
@@ -1439,12 +1443,14 @@
 			<DCCReference Include="Src\TileStorage\DLL\u_TileStorageGE.pas"/>
 			<DCCReference Include="Src\TileStorage\DLL\u_TileStorageGETerrain.pas"/>
 			<DCCReference Include="Src\TileStorage\DLL\u_TileStorageTypeGE.pas"/>
+			<DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameBase.pas"/>
 			<DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameES.pas"/>
 			<DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameGM1.pas"/>
 			<DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameGM2.pas"/>
 			<DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameGM3.pas"/>
 			<DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameGMV.pas"/>
 			<DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameMOBAC.pas"/>
+			<DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameOsmAnd.pas"/>
 			<DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameSAS.pas"/>
 			<DCCReference Include="Src\TileStorage\FileSystem\u_TileStorageFileSystem.pas"/>
 			<DCCReference Include="Src\TileStorage\FileSystem\u_TileStorageTypeFileSystemSimple.pas"/>
@@ -1654,8 +1660,6 @@
 			<DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
 			<DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
 			<DCCReference Include="Src\u_WindowPositionConfig.pas"/>
-			<DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemImplORMClientProvider.pas"/>
-			<DCCReference Include="Src\MarksDB\mORMot\i_MarkSystemImplORMClientProvider.pas"/>
 			<BuildConfiguration Include="Debug">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>

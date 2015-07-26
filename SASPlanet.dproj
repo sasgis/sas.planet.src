@@ -1037,6 +1037,7 @@
     </DCCReference>
     <DCCReference Include="Src\RegionProcess\Copy\u_ProviderTilesCopy.pas" />
     <DCCReference Include="Src\RegionProcess\Copy\u_ThreadCopyFromStorageToStorage.pas" />
+    <DCCReference Include="Src\RegionProcess\Copy\u_ThreadCopyWithModification.pas" />
     <DCCReference Include="Src\RegionProcess\Delete\fr_Delete.pas">
       <Form>frDelete</Form>
       <DesignClass>TFrame</DesignClass>
@@ -1378,12 +1379,14 @@
     <DCCReference Include="Src\TileStorage\DLL\u_TileStorageGE.pas" />
     <DCCReference Include="Src\TileStorage\DLL\u_TileStorageGETerrain.pas" />
     <DCCReference Include="Src\TileStorage\DLL\u_TileStorageTypeGE.pas" />
+    <DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameBase.pas" />
     <DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameES.pas" />
     <DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameGM1.pas" />
     <DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameGM2.pas" />
     <DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameGM3.pas" />
     <DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameGMV.pas" />
     <DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameMOBAC.pas" />
+    <DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameOsmAnd.pas" />
     <DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameSAS.pas" />
     <DCCReference Include="Src\TileStorage\FileSystem\u_TileStorageFileSystem.pas" />
     <DCCReference Include="Src\TileStorage\FileSystem\u_TileStorageTypeFileSystemSimple.pas" />
