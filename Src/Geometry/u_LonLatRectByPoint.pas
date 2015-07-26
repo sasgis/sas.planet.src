@@ -212,18 +212,7 @@ begin
     Result.BottomRight := FPoint;
   end else begin
     Result := ARect.Rect;
-    if Result.Left > FPoint.X then begin
-      Result.Left := FPoint.X;
-    end;
-    if Result.Right < FPoint.X then begin
-      Result.Right := FPoint.X;
-    end;
-    if Result.Top < FPoint.Y then begin
-      Result.Top := FPoint.Y;
-    end;
-    if Result.Bottom > FPoint.Y then begin
-      Result.Bottom := FPoint.Y;
-    end;
+    UpdateLonLatMBRByPoint(Result, FPoint);
   end;
 end;
 
@@ -231,18 +220,7 @@ function TLonLatRectByPoint.UnionWithRect(
   const ARect: TDoubleRect): TDoubleRect;
 begin
   Result := ARect;
-  if Result.Left > FPoint.X then begin
-    Result.Left := FPoint.X;
-  end;
-  if Result.Right < FPoint.X then begin
-    Result.Right := FPoint.X;
-  end;
-  if Result.Top < FPoint.Y then begin
-    Result.Top := FPoint.Y;
-  end;
-  if Result.Bottom > FPoint.Y then begin
-    Result.Bottom := FPoint.Y;
-  end;
+  UpdateLonLatMBRByPoint(Result, FPoint);
 end;
 
 function TLonLatRectByPoint.IsContainRect(const ARect: ILonLatRect): Boolean;

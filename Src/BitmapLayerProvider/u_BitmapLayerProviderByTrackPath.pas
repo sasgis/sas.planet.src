@@ -346,18 +346,7 @@ begin
         FLonLatRect.BottomRight := VPoint.Point;
         FRectIsEmpty := False;
       end else begin
-        if FLonLatRect.Left > VPoint.Point.X then begin
-          FLonLatRect.Left := VPoint.Point.X;
-        end;
-        if FLonLatRect.Top < VPoint.Point.Y then begin
-          FLonLatRect.Top := VPoint.Point.Y;
-        end;
-        if FLonLatRect.Right < VPoint.Point.X then begin
-          FLonLatRect.Right := VPoint.Point.X;
-        end;
-        if FLonLatRect.Bottom > VPoint.Point.Y then begin
-          FLonLatRect.Bottom := VPoint.Point.Y;
-        end;
+        UpdateLonLatMBRByPoint(FLonLatRect, VPoint.Point);
       end;
     end;
     FPointsLonLat[i] := VPoint;
@@ -397,18 +386,7 @@ begin
         FLonLatRect.BottomRight := VPoint.Point;
         FRectIsEmpty := False;
       end else begin
-        if FLonLatRect.Left > VPoint.Point.X then begin
-          FLonLatRect.Left := VPoint.Point.X;
-        end;
-        if FLonLatRect.Top < VPoint.Point.Y then begin
-          FLonLatRect.Top := VPoint.Point.Y;
-        end;
-        if FLonLatRect.Right < VPoint.Point.X then begin
-          FLonLatRect.Right := VPoint.Point.X;
-        end;
-        if FLonLatRect.Bottom > VPoint.Point.Y then begin
-          FLonLatRect.Bottom := VPoint.Point.Y;
-        end;
+        UpdateLonLatMBRByPoint(FLonLatRect, VPoint.Point);
       end;
       VPoint.Point := VGeoConverter.LonLat2PixelPosFloat(VPoint.Point, VZoom);
     end;
