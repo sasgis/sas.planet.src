@@ -5,6 +5,7 @@ interface
 uses
   t_GeoTypes,
   t_Hash,
+  i_DoublePoints,
   i_EnumDoublePoint,
   i_LonLatRect,
   i_GeometryLonLat,
@@ -34,7 +35,7 @@ type
     FCount: Integer;
     FBounds: ILonLatRect;
     FHash: THashValue;
-    FPoints: array of TDoublePoint;
+    FPoints: IDoublePoints;
   private
     function IsEmpty: Boolean;
     function GetBounds: ILonLatRect;
@@ -46,8 +47,7 @@ type
       AClosed: Boolean;
       const ABounds: ILonLatRect;
       const AHash: THashValue;
-      const APoints: PDoublePointArray;
-      ACount: Integer
+      const APoints: IDoublePoints
     ); overload;
   end;
 
@@ -61,8 +61,7 @@ type
     constructor Create(
       const ABounds: ILonLatRect;
       const AHash: THashValue;
-      const APoints: PDoublePointArray;
-      ACount: Integer
+      const APoints: IDoublePoints
     );
   end;
 
@@ -76,8 +75,7 @@ type
     constructor Create(
       const ABounds: ILonLatRect;
       const AHash: THashValue;
-      const APoints: PDoublePointArray;
-      ACount: Integer
+      const APoints: IDoublePoints
     );
   end;
 
@@ -91,8 +89,7 @@ type
     constructor Create(
       const ABounds: ILonLatRect;
       const AHash: THashValue;
-      const APoints: PDoublePointArray;
-      ACount: Integer
+      const APoints: IDoublePoints
     );
   end;
 
@@ -110,22 +107,20 @@ constructor TGeometryLonLatBase.Create(
   AClosed: Boolean;
   const ABounds: ILonLatRect;
   const AHash: THashValue;
-  const APoints: PDoublePointArray;
-  ACount: Integer
+  const APoints: IDoublePoints
 );
 begin
+  Assert(Assigned(APoints));
+  Assert(APoints.Count > 0, 'Empty line');
   inherited Create;
   FBounds := ABounds;
   FHash := AHash;
-  FCount := ACount;
-  Assert(FCount > 0, 'Empty line');
+  FPoints := APoints;
+  FCount := FPoints.Count;
 
-  if AClosed and (FCount > 1) and DoublePointsEqual(APoints[0], APoints[ACount - 1]) then begin
+  if AClosed and (FCount > 1) and DoublePointsEqual(FPoints.Points[0], FPoints.Points[FCount - 1]) then begin
     Dec(FCount);
   end;
-
-  SetLength(FPoints, FCount);
-  Move(APoints^, FPoints[0], FCount * SizeOf(TDoublePoint));
 end;
 
 function TGeometryLonLatBase.GetBounds: ILonLatRect;
@@ -145,7 +140,7 @@ end;
 
 function TGeometryLonLatBase.GetPoints: PDoublePointArray;
 begin
-  Result := @FPoints[0];
+  Result := FPoints.Points;
 end;
 
 function TGeometryLonLatBase.IsEmpty: Boolean;
@@ -158,16 +153,15 @@ end;
 constructor TGeometryLonLatSingleLine.Create(
   const ABounds: ILonLatRect;
   const AHash: THashValue;
-  const APoints: PDoublePointArray;
-  ACount: Integer
+  const APoints: IDoublePoints
 );
 begin
-  inherited Create(False, ABounds, AHash, APoints, ACount);
+  inherited Create(False, ABounds, AHash, APoints);
 end;
 
 function TGeometryLonLatSingleLine.GetEnum: IEnumLonLatPoint;
 begin
-  Result := TEnumDoublePointBySingleLonLatLine.Create(Self, False, @FPoints[0], FCount);
+  Result := TEnumDoublePointBySingleLonLatLine.Create(FPoints, False, FPoints.Points, FCount);
 end;
 
 function TGeometryLonLatSingleLine.GetGoToPoint: TDoublePoint;
@@ -180,9 +174,6 @@ begin
 end;
 
 function TGeometryLonLatSingleLine.IsSame(const ALine: IGeometryLonLatSingleLine): Boolean;
-var
-  i: Integer;
-  VPoints: PDoublePointArray;
 begin
   if ALine = IGeometryLonLatSingleLine(Self) then begin
     Result := True;
@@ -202,16 +193,7 @@ begin
       Exit;
     end;
 
-    VPoints := ALine.Points;
-
-    for i := 0 to FCount - 1 do begin
-      if not DoublePointsEqual(FPoints[i], VPoints[i]) then begin
-        Result := False;
-        Exit;
-      end;
-    end;
-
-    Result := True;
+    Result := CompareMem(FPoints.Points, ALine.Points, FCount * SizeOf(TDoublePoint))
   end;
 end;
 
@@ -243,16 +225,15 @@ end;
 constructor TGeometryLonLatContour.Create(
   const ABounds: ILonLatRect;
   const AHash: THashValue;
-  const APoints: PDoublePointArray;
-  ACount: Integer
+  const APoints: IDoublePoints
 );
 begin
-  inherited Create(True, ABounds, AHash, APoints, ACount);
+  inherited Create(True, ABounds, AHash, APoints);
 end;
 
 function TGeometryLonLatContour.GetEnum: IEnumLonLatPoint;
 begin
-  Result := TEnumDoublePointBySingleLonLatLine.Create(Self, True, @FPoints[0], FCount);
+  Result := TEnumDoublePointBySingleLonLatLine.Create(FPoints, True, FPoints.Points, FCount);
 end;
 
 function TGeometryLonLatContour.GetGoToPoint: TDoublePoint;
@@ -261,9 +242,6 @@ begin
 end;
 
 function TGeometryLonLatContour.IsSame(const ALine: IGeometryLonLatContour): Boolean;
-var
-  i: Integer;
-  VPoints: PDoublePointArray;
 begin
   if ALine = IGeometryLonLatContour(Self) then begin
     Result := True;
@@ -282,17 +260,7 @@ begin
       Result := False;
       Exit;
     end;
-
-    VPoints := ALine.Points;
-
-    for i := 0 to FCount - 1 do begin
-      if not DoublePointsEqual(FPoints[i], VPoints[i]) then begin
-        Result := False;
-        Exit;
-      end;
-    end;
-
-    Result := True;
+    Result := CompareMem(FPoints.Points, ALine.Points, FCount * SizeOf(TDoublePoint))
   end;
 end;
 
@@ -326,11 +294,10 @@ end;
 constructor TGeometryLonLatSinglePolygon.Create(
   const ABounds: ILonLatRect;
   const AHash: THashValue;
-  const APoints: PDoublePointArray;
-  ACount: Integer
+  const APoints: IDoublePoints
 );
 begin
-  inherited Create(ABounds, AHash, APoints, ACount);
+  inherited Create(ABounds, AHash, APoints);
 end;
 
 function TGeometryLonLatSinglePolygon.GetHoleBorder(

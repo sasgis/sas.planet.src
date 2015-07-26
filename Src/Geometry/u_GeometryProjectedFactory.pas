@@ -225,7 +225,10 @@ function TGeometryProjectedFactory.CreateProjectedLineInternal(
   const APoints: IDoublePoints
 ): IGeometryProjectedSingleLine;
 begin
-  Result := TGeometryProjectedLine.Create(ARect, APoints);
+  Result := nil;
+  if Assigned(APoints) then begin
+    Result := TGeometryProjectedLine.Create(ARect, APoints);
+  end;
 end;
 
 function TGeometryProjectedFactory.CreateProjectedLineByEnum(
@@ -312,7 +315,10 @@ function TGeometryProjectedFactory.CreateProjectedPolygonInternal(
   const APoints: IDoublePoints
 ): IGeometryProjectedSinglePolygon;
 begin
-  Result := TGeometryProjectedPolygon.Create(ARect, APoints);
+  Result := nil;
+  if Assigned(APoints) then begin
+    Result := TGeometryProjectedPolygon.Create(ARect, APoints);
+  end;
 end;
 
 function TGeometryProjectedFactory.MakeMultiLineBuilder: IGeometryProjectedMultiLineBuilder;

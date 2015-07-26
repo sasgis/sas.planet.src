@@ -26,6 +26,7 @@ uses
   t_GeoTypes,
   i_ProjectionInfo,
   i_EnumDoublePoint,
+  i_DoublePoints,
   i_DoublePointFilter,
   i_DoublePointsAggregator,
   i_GeometryLonLat;
@@ -53,12 +54,10 @@ type
       const APoint: TDoublePoint
     ): IGeometryLonLatPoint;
     function CreateLonLatSingleLine(
-      const APoints: PDoublePointArray;
-      ACount: Integer
+      const APoints: IDoublePoints
     ): IGeometryLonLatSingleLine;
     function CreateLonLatSinglePolygon(
-      const APoints: PDoublePointArray;
-      ACount: Integer
+      const APoints: IDoublePoints
     ): IGeometryLonLatSinglePolygon;
 
     function MakeMultiLineBuilder(): IGeometryLonLatMultiLineBuilder;

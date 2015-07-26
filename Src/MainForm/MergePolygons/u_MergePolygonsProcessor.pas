@@ -112,6 +112,8 @@ uses
   SysUtils,
   t_GeoTypes,
   i_ThreadConfig,
+  i_DoublePoints,
+  u_DoublePoints,
   u_ListenerByEvent,
   u_TimerByQueryPerformanceCounter,
   u_ThreadConfig,
@@ -510,15 +512,17 @@ function TMergePolygonsProcessor.ClipperPathToSinglePolygon(
 var
   I: Integer;
   VCount: Integer;
-  VPoints: array of TDoublePoint;
+  VPointsArray: PDoublePointArray;
+  VPoints: IDoublePoints;
 begin
   VCount := Length(APath);
-  SetLength(VPoints, VCount);
+  GetMem(VPointsArray, VCount * SizeOf(TDoublePoint));
   for I := 0 to VCount - 1 do begin
-    VPoints[I].X := APath[I].X / FIntToDoubleCoeff;
-    VPoints[I].Y := APath[I].Y / FIntToDoubleCoeff;
+    VPointsArray[I].X := APath[I].X / FIntToDoubleCoeff;
+    VPointsArray[I].Y := APath[I].Y / FIntToDoubleCoeff;
   end;
-  Result := FVectorGeometryLonLatFactory.CreateLonLatSinglePolygon(@VPoints[0], VCount);
+  VPoints := TDoublePoints.CreateWithOwn(VPointsArray, VCount);
+  Result := FVectorGeometryLonLatFactory.CreateLonLatSinglePolygon(VPoints);
 end;
 
 function TMergePolygonsProcessor.GetCurTime: Int64;

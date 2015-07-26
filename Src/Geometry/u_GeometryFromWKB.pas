@@ -60,7 +60,9 @@ implementation
 
 uses
   SysUtils,
-  t_GeoTypes;
+  t_GeoTypes,
+  i_DoublePoints,
+  u_DoublePoints;
 
 { TGeometryFromWKB }
 
@@ -96,7 +98,8 @@ function TGeometryFromWKB.LoadSingleLine(
 ): IGeometryLonLatSingleLine;
 var
   VCount: Cardinal;
-  VPoints: array of TDoublePoint;
+  VBuffer: PDoublePointArray;
+  VPoints: IDoublePoints;
 begin
   Result := nil;
   AStream.ReadBuffer(VCount, SizeOf(VCount));
@@ -104,9 +107,10 @@ begin
   if VCount >= MaxInt / 2 / SizeOf(Double) then begin
     Abort;
   end;
-  SetLength(VPoints, VCount);
-  AStream.ReadBuffer(VPoints[0], VCount * SizeOf(TDoublePoint));
-  Result := FFactory.CreateLonLatSingleLine(@VPoints[0], VCount);
+  GetMem(VBuffer, VCount * SizeOf(TDoublePoint));
+  AStream.ReadBuffer(VBuffer[0], VCount * SizeOf(TDoublePoint));
+  VPoints := TDoublePoints.CreateWithOwn(VBuffer, VCount);
+  Result := FFactory.CreateLonLatSingleLine(VPoints);
 end;
 
 function TGeometryFromWKB.LoadMultiLine(
@@ -236,7 +240,8 @@ function TGeometryFromWKB.LoadSinglePolygon(
 ): IGeometryLonLatSinglePolygon;
 var
   VCount: Cardinal;
-  VPoints: array of TDoublePoint;
+  VBuffer: PDoublePointArray;
+  VPoints: IDoublePoints;
 begin
   Result := nil;
   AStream.ReadBuffer(VCount, SizeOf(VCount));
@@ -244,10 +249,10 @@ begin
   if VCount >= MaxInt / 2 / SizeOf(Double) then begin
     Abort;
   end;
-  SetLength(VPoints, VCount);
-
-  AStream.ReadBuffer(VPoints[0], VCount * SizeOf(TDoublePoint));
-  Result := FFactory.CreateLonLatSinglePolygon(@VPoints[0], VCount);
+  GetMem(VBuffer, VCount * SizeOf(TDoublePoint));
+  AStream.ReadBuffer(VBuffer[0], VCount * SizeOf(TDoublePoint));
+  VPoints := TDoublePoints.CreateWithOwn(VBuffer, VCount);
+  Result := FFactory.CreateLonLatSinglePolygon(VPoints);
 end;
 
 function TGeometryFromWKB.Parse(
