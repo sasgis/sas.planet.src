@@ -91,15 +91,26 @@ var
   VProjectedMultiLine: IGeometryProjectedMultiPolygon;
   VProjectedSingleLine: IGeometryProjectedSinglePolygon;
 begin
-
-  if not FSource.IsEmpty then begin
-    VDrawRect := ALocalConverter.LocalRect2MapRectFloat(ABitmap.ClipRect);
-    if IntersecProjectedRect(VIntersectRect, VDrawRect, FSource.Bounds) then begin
-      if DoubleRectsEqual(VIntersectRect, FSource.Bounds) or FSource.IsRectIntersectBorder(VDrawRect) then begin
-        VPolygon := TPolygon32.Create;
-        try
-          VPolygon.Closed := True;
-          if Supports(FSource, IGeometryProjectedSinglePolygon, VProjectedSingleLine) then begin
+  VDrawRect := ALocalConverter.LocalRect2MapRectFloat(ABitmap.ClipRect);
+  if IntersecProjectedRect(VIntersectRect, VDrawRect, FSource.Bounds) then begin
+    if DoubleRectsEqual(VIntersectRect, FSource.Bounds) or FSource.IsRectIntersectBorder(VDrawRect) then begin
+      VPolygon := TPolygon32.Create;
+      try
+        VPolygon.Closed := True;
+        if Supports(FSource, IGeometryProjectedSinglePolygon, VProjectedSingleLine) then begin
+          ProjectedPolygon2GR32Polygon(
+            VProjectedSingleLine,
+            ALocalConverter,
+            am4times,
+            VPathFixedPoints,
+            VPolygon
+          );
+          if Assigned(VPolygon) then begin
+            VPolygon.DrawEdge(ABitmap, FColor);
+          end;
+        end else if Supports(FSource, IGeometryProjectedMultiPolygon, VProjectedMultiLine) then begin
+          for i := 0 to VProjectedMultiLine.Count - 1 do begin
+            VProjectedSingleLine := VProjectedMultiLine.Item[i];
             ProjectedPolygon2GR32Polygon(
               VProjectedSingleLine,
               ALocalConverter,
@@ -110,26 +121,12 @@ begin
             if Assigned(VPolygon) then begin
               VPolygon.DrawEdge(ABitmap, FColor);
             end;
-          end else if Supports(FSource, IGeometryProjectedMultiPolygon, VProjectedMultiLine) then begin
-            for i := 0 to VProjectedMultiLine.Count - 1 do begin
-              VProjectedSingleLine := VProjectedMultiLine.Item[i];
-              ProjectedPolygon2GR32Polygon(
-                VProjectedSingleLine,
-                ALocalConverter,
-                am4times,
-                VPathFixedPoints,
-                VPolygon
-              );
-              if Assigned(VPolygon) then begin
-                VPolygon.DrawEdge(ABitmap, FColor);
-              end;
-            end;
           end;
-
-          VPathFixedPoints := nil;
-        finally
-          VPolygon.Free;
         end;
+
+        VPathFixedPoints := nil;
+      finally
+        VPolygon.Free;
       end;
     end;
   end;

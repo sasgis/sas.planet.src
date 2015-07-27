@@ -151,40 +151,38 @@ var
   VPolygon: TPolygon32;
 begin
   Result := False;
-  if not ALine.IsEmpty then begin
-    VPolygon := nil;
-    VProjected := FProjectedCache.GetProjectedPath(AProjectionInfo, ALine);
-    ProjectedLine2GR32Polygon(
-      VProjected,
-      AMapRect,
-      am4times,
-      AFixedPointArray,
-      VPolygon
-    );
-    try
-      if VPolygon <> nil then begin
-        if not ABitmapInited then begin
-          InitBitmap(ATargetBmp, Types.Point(AMapRect.Right - AMapRect.Left, AMapRect.Bottom - AMapRect.Top));
-          ABitmapInited := True;
-        end;
+  VPolygon := nil;
+  VProjected := FProjectedCache.GetProjectedPath(AProjectionInfo, ALine);
+  ProjectedLine2GR32Polygon(
+    VProjected,
+    AMapRect,
+    am4times,
+    AFixedPointArray,
+    VPolygon
+  );
+  try
+    if VPolygon <> nil then begin
+      if not ABitmapInited then begin
+        InitBitmap(ATargetBmp, Types.Point(AMapRect.Right - AMapRect.Left, AMapRect.Bottom - AMapRect.Top));
+        ABitmapInited := True;
+      end;
 
-        with VPolygon.Outline do try
-          with Grow(GR32.Fixed(0.5), 0.5) do try
-            FillMode := pfWinding;
-            DrawFill(ATargetBmp, FColorBG);
-          finally
-            free;
-          end;
+      with VPolygon.Outline do try
+        with Grow(GR32.Fixed(0.5), 0.5) do try
+          FillMode := pfWinding;
+          DrawFill(ATargetBmp, FColorBG);
         finally
           free;
         end;
-        VPolygon.DrawEdge(ATargetBmp, FColorMain);
-
-        Result := True;
+      finally
+        free;
       end;
-    finally
-      VPolygon.Free;
+      VPolygon.DrawEdge(ATargetBmp, FColorMain);
+
+      Result := True;
     end;
+  finally
+    VPolygon.Free;
   end;
 end;
 

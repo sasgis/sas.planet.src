@@ -15,7 +15,6 @@ type
     FList: IInterfaceListStatic;
     FBounds: TDoubleRect;
   private
-    function IsEmpty: Boolean;
     function GetCount: Integer;
     function GetBounds: TDoubleRect;
   public
@@ -76,11 +75,6 @@ end;
 function TGeometryProjectedMultiBase.GetCount: Integer;
 begin
   Result := FList.Count;
-end;
-
-function TGeometryProjectedMultiBase.IsEmpty: Boolean;
-begin
-  Result := False;
 end;
 
 { TProjectedPath }

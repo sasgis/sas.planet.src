@@ -51,7 +51,6 @@ type
 
   IGeometryLonLatLine = interface(IGeometryLonLat)
     ['{05412527-06DC-43F9-8902-97D7112E1FFD}']
-    function IsEmpty: Boolean;
     function GetEnum: IEnumLonLatPoint;
   end;
 
@@ -79,7 +78,6 @@ type
 
   IGeometryLonLatPolygon = interface(IGeometryLonLat)
     ['{0D3F41A0-4170-40E1-9A01-939824A6CF34}']
-    function IsEmpty: Boolean;
     function GetEnum: IEnumLonLatPoint;
   end;
 

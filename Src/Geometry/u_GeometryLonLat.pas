@@ -37,7 +37,6 @@ type
     FHash: THashValue;
     FPoints: IDoublePoints;
   private
-    function IsEmpty: Boolean;
     function GetBounds: ILonLatRect;
     function GetHash: THashValue;
     function GetCount: Integer;
@@ -141,11 +140,6 @@ end;
 function TGeometryLonLatBase.GetPoints: PDoublePointArray;
 begin
   Result := FPoints.Points;
-end;
-
-function TGeometryLonLatBase.IsEmpty: Boolean;
-begin
-  Result := False;
 end;
 
 { TGeometryLonLatSingleLine }

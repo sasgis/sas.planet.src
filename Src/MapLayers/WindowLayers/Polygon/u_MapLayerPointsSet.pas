@@ -312,7 +312,7 @@ begin
   ViewUpdateLock;
   try
     FLine := FLineOnMapEdit.Path;
-    if Assigned(FLine) and not FLine.Geometry.IsEmpty then begin
+    if Assigned(FLine) then begin
       SetNeedRedraw;
       Show;
     end else begin
@@ -569,7 +569,7 @@ begin
   AProjectedPoints := nil;
   AActivePointIndex := -1;
   VLine := FLine;
-  if Assigned(VLine) and not VLine.Geometry.IsEmpty then begin
+  if Assigned(VLine) then begin
     AProjectedPoints := TDoublePointsAggregator.Create;
     VIndex := 0;
     PrepareLine(
@@ -622,7 +622,7 @@ begin
   ViewUpdateLock;
   try
     FLine := FLineOnMapEdit.Polygon;
-    if Assigned(FLine) and not FLine.Geometry.IsEmpty then begin
+    if Assigned(FLine) then begin
       SetNeedRedraw;
       Show;
     end else begin
@@ -646,7 +646,7 @@ begin
   AProjectedPoints := nil;
   AActivePointIndex := -1;
   VLine := FLine;
-  if Assigned(VLine) and not VLine.Geometry.IsEmpty then begin
+  if Assigned(VLine) then begin
     AProjectedPoints := TDoublePointsAggregator.Create;
     VIndex := 0;
     PreparePolygon(

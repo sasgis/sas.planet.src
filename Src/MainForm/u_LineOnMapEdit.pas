@@ -494,7 +494,7 @@ function TPathOnMapEdit.IsEmpty: Boolean;
 begin
   CS.BeginRead;
   try
-    Result := FLine.IsEmpty;
+    Result := not Assigned(FLine);
   finally
     CS.EndRead;
   end;
@@ -504,10 +504,7 @@ function TPathOnMapEdit.IsReady: Boolean;
 begin
   CS.BeginRead;
   try
-    Result := False;
-    if not FLine.IsEmpty then begin
-      Result := IsValidLonLatLine(FLine);
-    end;
+    Result := IsValidLonLatLine(FLine);
   finally
     CS.EndRead;
   end;
@@ -610,7 +607,7 @@ function TPolygonOnMapEdit.IsEmpty: Boolean;
 begin
   CS.BeginRead;
   try
-    Result := not FLine.IsEmpty;
+    Result := not Assigned(FLine);
   finally
     CS.EndRead;
   end;
@@ -620,10 +617,7 @@ function TPolygonOnMapEdit.IsReady: Boolean;
 begin
   CS.BeginRead;
   try
-    Result := False;
-    if not FLine.IsEmpty then begin
-      Result := IsValidLonLatPolygon(FLine);
-    end;
+    Result := IsValidLonLatPolygon(FLine);
   finally
     CS.EndRead;
   end;

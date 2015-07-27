@@ -243,13 +243,8 @@ begin
     Terminate;
     Exit;
   end;
-  if FPolygon = nil then begin
+  if not Assigned(FPolygon) then begin
     FProgressInfo.Log.WriteText('Polygon does not exist', 10);
-    Terminate;
-    Exit;
-  end;
-  if FPolygon.IsEmpty then begin
-    FProgressInfo.Log.WriteText('Empty Polygon', 10);
     Terminate;
     Exit;
   end;

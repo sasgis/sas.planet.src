@@ -167,7 +167,7 @@ begin
           FProjectionFactory.GetByConverterAndZoom(AMapType.GeoConvert, VZoom),
           VPolyLL
         );
-      if not VProjected.IsEmpty then begin
+      if Assigned(VProjected) then begin
         VBounds := VProjected.Bounds;
         APixelRect := RectFromDoubleRect(VBounds, rrOutside);
         ATileRect := AMapType.GeoConvert.PixelRect2TileRect(APixelRect, VZoom);

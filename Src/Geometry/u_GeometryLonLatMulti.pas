@@ -18,7 +18,6 @@ type
     FHash: THashValue;
     FBounds: ILonLatRect;
   private
-    function IsEmpty: Boolean;
     function GetCount: Integer;
     function GetHash: THashValue;
     function GetBounds: ILonLatRect;
@@ -84,11 +83,6 @@ end;
 function TGeometryLonLatMultiBase.GetHash: THashValue;
 begin
   Result := FHash;
-end;
-
-function TGeometryLonLatMultiBase.IsEmpty: Boolean;
-begin
-  Result := False;
 end;
 
 { TLonLatPath }

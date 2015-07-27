@@ -67,7 +67,6 @@ var
 begin
   Assert(ASourceProvider <> nil);
   Assert(APolyProjected <> nil);
-  Assert(not APolyProjected.IsEmpty);
   inherited Create;
   FSourceProvider := ASourceProvider;
   if not Supports(APolyProjected, IGeometryProjectedSinglePolygon, FLine) then begin

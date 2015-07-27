@@ -508,16 +508,27 @@ begin
     APolygon.Clear;
   end;
 
-  if ALine <> nil then begin
-    if not ALine.IsEmpty then begin
-      VMapRect := ALocalConverter.GetRectInMapPixelFloat;
-      if IsIntersecProjectedRect(VMapRect, ALine.Bounds) then begin
-        VLocalRect := DoubleRect(ALocalConverter.GetLocalRect);
-        VRectWithDelta.Left := VLocalRect.Left - 10;
-        VRectWithDelta.Top := VLocalRect.Top - 10;
-        VRectWithDelta.Right := VLocalRect.Right + 10;
-        VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
-        if Supports(ALine, IGeometryProjectedSingleLine, VSingleLine) then begin
+  if Assigned(ALine) then begin
+    VMapRect := ALocalConverter.GetRectInMapPixelFloat;
+    if IsIntersecProjectedRect(VMapRect, ALine.Bounds) then begin
+      VLocalRect := DoubleRect(ALocalConverter.GetLocalRect);
+      VRectWithDelta.Left := VLocalRect.Left - 10;
+      VRectWithDelta.Top := VLocalRect.Top - 10;
+      VRectWithDelta.Right := VLocalRect.Right + 10;
+      VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
+      if Supports(ALine, IGeometryProjectedSingleLine, VSingleLine) then begin
+        SingleLine2GR32Polygon(
+          VSingleLine,
+          ALocalConverter,
+          VRectWithDelta,
+          VMapRect,
+          AAntialiasMode,
+          AFixedPointArray,
+          APolygon
+        );
+      end else if Supports(ALine, IGeometryProjectedMultiLine, VMultiLine) then begin
+        for VLineIndex := 0 to VMultiLine.Count - 1 do begin
+          VSingleLine := VMultiLine.Item[VLineIndex];
           SingleLine2GR32Polygon(
             VSingleLine,
             ALocalConverter,
@@ -527,19 +538,6 @@ begin
             AFixedPointArray,
             APolygon
           );
-        end else if Supports(ALine, IGeometryProjectedMultiLine, VMultiLine) then begin
-          for VLineIndex := 0 to VMultiLine.Count - 1 do begin
-            VSingleLine := VMultiLine.Item[VLineIndex];
-            SingleLine2GR32Polygon(
-              VSingleLine,
-              ALocalConverter,
-              VRectWithDelta,
-              VMapRect,
-              AAntialiasMode,
-              AFixedPointArray,
-              APolygon
-            );
-          end;
         end;
       end;
     end;
@@ -565,16 +563,26 @@ begin
     APolygon.Clear;
   end;
 
-  if ALine <> nil then begin
-    if not ALine.IsEmpty then begin
-      VMapRect := DoubleRect(AMapRect);
-      if IsIntersecProjectedRect(VMapRect, ALine.Bounds) then begin
-        VLocalRect := DoubleRect(0, 0, VMapRect.Right - VMapRect.Left, VMapRect.Bottom - VMapRect.Top);
-        VRectWithDelta.Left := VLocalRect.Left - 10;
-        VRectWithDelta.Top := VLocalRect.Top - 10;
-        VRectWithDelta.Right := VLocalRect.Right + 10;
-        VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
-        if Supports(ALine, IGeometryProjectedSingleLine, VSingleLine) then begin
+  if Assigned(ALine) then begin
+    VMapRect := DoubleRect(AMapRect);
+    if IsIntersecProjectedRect(VMapRect, ALine.Bounds) then begin
+      VLocalRect := DoubleRect(0, 0, VMapRect.Right - VMapRect.Left, VMapRect.Bottom - VMapRect.Top);
+      VRectWithDelta.Left := VLocalRect.Left - 10;
+      VRectWithDelta.Top := VLocalRect.Top - 10;
+      VRectWithDelta.Right := VLocalRect.Right + 10;
+      VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
+      if Supports(ALine, IGeometryProjectedSingleLine, VSingleLine) then begin
+        SingleLine2GR32Polygon(
+          VSingleLine,
+          VRectWithDelta,
+          VMapRect,
+          AAntialiasMode,
+          AFixedPointArray,
+          APolygon
+        );
+      end else if Supports(ALine, IGeometryProjectedMultiLine, VMultiLine) then begin
+        for VLineIndex := 0 to VMultiLine.Count - 1 do begin
+          VSingleLine := VMultiLine.Item[VLineIndex];
           SingleLine2GR32Polygon(
             VSingleLine,
             VRectWithDelta,
@@ -583,18 +591,6 @@ begin
             AFixedPointArray,
             APolygon
           );
-        end else if Supports(ALine, IGeometryProjectedMultiLine, VMultiLine) then begin
-          for VLineIndex := 0 to VMultiLine.Count - 1 do begin
-            VSingleLine := VMultiLine.Item[VLineIndex];
-            SingleLine2GR32Polygon(
-              VSingleLine,
-              VRectWithDelta,
-              VMapRect,
-              AAntialiasMode,
-              AFixedPointArray,
-              APolygon
-            );
-          end;
         end;
       end;
     end;
@@ -747,17 +743,26 @@ begin
     APolygon.Clear;
   end;
 
-  if ALine <> nil then begin
-    if not ALine.IsEmpty then begin
-      VMapRect := ALocalConverter.GetRectInMapPixelFloat;
-      if IsIntersecProjectedRect(VMapRect, ALine.Bounds) then begin
-        VLocalRect := DoubleRect(ALocalConverter.GetLocalRect);
-        VRectWithDelta.Left := VLocalRect.Left - 10;
-        VRectWithDelta.Top := VLocalRect.Top - 10;
-        VRectWithDelta.Right := VLocalRect.Right + 10;
-        VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
+  if Assigned(ALine) then begin
+    VMapRect := ALocalConverter.GetRectInMapPixelFloat;
+    if IsIntersecProjectedRect(VMapRect, ALine.Bounds) then begin
+      VLocalRect := DoubleRect(ALocalConverter.GetLocalRect);
+      VRectWithDelta.Left := VLocalRect.Left - 10;
+      VRectWithDelta.Top := VLocalRect.Top - 10;
+      VRectWithDelta.Right := VLocalRect.Right + 10;
+      VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
+      SingleContour2GR32Polygon(
+        ALine.OuterBorder,
+        ALocalConverter,
+        VRectWithDelta,
+        VMapRect,
+        AAntialiasMode,
+        AFixedPointArray,
+        APolygon
+      );
+      for VLineIndex := 0 to ALine.HoleCount - 1 do begin
         SingleContour2GR32Polygon(
-          ALine.OuterBorder,
+          ALine.HoleBorder[VLineIndex],
           ALocalConverter,
           VRectWithDelta,
           VMapRect,
@@ -765,17 +770,6 @@ begin
           AFixedPointArray,
           APolygon
         );
-        for VLineIndex := 0 to ALine.HoleCount - 1 do begin
-          SingleContour2GR32Polygon(
-            ALine.HoleBorder[VLineIndex],
-            ALocalConverter,
-            VRectWithDelta,
-            VMapRect,
-            AAntialiasMode,
-            AFixedPointArray,
-            APolygon
-          );
-        end;
       end;
     end;
   end;
@@ -798,33 +792,31 @@ begin
     APolygon.Clear;
   end;
 
-  if ALine <> nil then begin
-    if not ALine.IsEmpty then begin
-      VMapRect := DoubleRect(AMapRect);
-      if IsIntersecProjectedRect(VMapRect, ALine.Bounds) then begin
-        VLocalRect := DoubleRect(0, 0, VMapRect.Right - VMapRect.Left, VMapRect.Bottom - VMapRect.Top);
-        VRectWithDelta.Left := VLocalRect.Left - 10;
-        VRectWithDelta.Top := VLocalRect.Top - 10;
-        VRectWithDelta.Right := VLocalRect.Right + 10;
-        VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
+  if Assigned(ALine) then begin
+    VMapRect := DoubleRect(AMapRect);
+    if IsIntersecProjectedRect(VMapRect, ALine.Bounds) then begin
+      VLocalRect := DoubleRect(0, 0, VMapRect.Right - VMapRect.Left, VMapRect.Bottom - VMapRect.Top);
+      VRectWithDelta.Left := VLocalRect.Left - 10;
+      VRectWithDelta.Top := VLocalRect.Top - 10;
+      VRectWithDelta.Right := VLocalRect.Right + 10;
+      VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
+      SingleContour2GR32Polygon(
+        ALine.OuterBorder,
+        VRectWithDelta,
+        VMapRect,
+        AAntialiasMode,
+        AFixedPointArray,
+        APolygon
+      );
+      for VLineIndex := 0 to ALine.HoleCount - 1 do begin
         SingleContour2GR32Polygon(
-          ALine.OuterBorder,
+          ALine.HoleBorder[VLineIndex],
           VRectWithDelta,
           VMapRect,
           AAntialiasMode,
           AFixedPointArray,
           APolygon
         );
-        for VLineIndex := 0 to ALine.HoleCount - 1 do begin
-          SingleContour2GR32Polygon(
-            ALine.HoleBorder[VLineIndex],
-            VRectWithDelta,
-            VMapRect,
-            AAntialiasMode,
-            AFixedPointArray,
-            APolygon
-          );
-        end;
       end;
     end;
   end;
@@ -838,7 +830,7 @@ var
   VMultiLine: IGeometryLonLatMultiLine;
 begin
   Result := False;
-  if Assigned(AGeometry) and not AGeometry.IsEmpty then begin
+  if Assigned(AGeometry) then begin
     if Supports(AGeometry, IGeometryLonLatSingleLine, VSingleLine) then begin
       Result := VSingleLine.Count > 1;
     end else if Supports(AGeometry, IGeometryLonLatMultiLine, VMultiLine) then begin
@@ -876,7 +868,7 @@ var
   VMultiLine: IGeometryLonLatMultiPolygon;
 begin
   Result := False;
-  if Assigned(AGeometry) and not AGeometry.IsEmpty then begin
+  if Assigned(AGeometry) then begin
     if Supports(AGeometry, IGeometryLonLatSinglePolygon, VSingleLine) then begin
       Result := IsValidLonLatSinglePolygon(VSingleLine);
     end else if Supports(AGeometry, IGeometryLonLatMultiPolygon, VMultiLine) then begin

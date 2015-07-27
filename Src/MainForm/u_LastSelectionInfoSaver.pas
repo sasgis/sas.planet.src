@@ -188,7 +188,7 @@ begin
         end;
         VProvider := VProvider.GetOrCreateSubItem('HIGHLIGHTING');
         VPolygon := ReadPolygon(VProvider, FVectorGeometryLonLatFactory);
-        if not VPolygon.IsEmpty then begin
+        if Assigned(VPolygon) then begin
           VZoom := VProvider.Readinteger('Zoom', VZoom);
         end;
       except

@@ -476,7 +476,7 @@ begin
         Exit;
       end else if LowerCase(ExtractFileExt(VFileName)) = '.hlg' then begin
         ARegionProcess.LoadSelFromFile(VFileName, VPolygon);
-        if Assigned(VPolygon) and (not VPolygon.IsEmpty) then begin
+        if Assigned(VPolygon) then begin
           AMapGoto.FitRectToScreen(VPolygon.Bounds.Rect);
         end;
         Exit;

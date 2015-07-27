@@ -5198,7 +5198,7 @@ var
 begin
   VZoom := GState.LastSelectionInfo.Zoom;
   VPolygon := GState.LastSelectionInfo.Polygon;
-  if (VPolygon <> nil) and (not VPolygon.IsEmpty) then begin
+  if Assigned(VPolygon) then begin
     FState.State := ao_movemap;
     FRegionProcess.ProcessPolygonWithZoom(VZoom, VPolygon);
   end else begin
@@ -5547,7 +5547,7 @@ begin
     );
   Try
     VPolygon := GState.LastSelectionInfo.Polygon;
-    if (VPolygon <> nil) and (not VPolygon.IsEmpty) then begin
+    if Assigned(VPolygon) then begin
       VLonLatRect := VPolygon.Bounds.Rect;
     end else begin
       VLonLatRect.TopLeft := FViewPortState.View.GetStatic.GetCenterLonLat;
@@ -5596,7 +5596,7 @@ var
   VAllPoints: IGeometryLonLatLine;
 begin
   VAllPoints := GState.GpsTrackRecorder.GetAllPoints;
-  if not VAllPoints.IsEmpty then begin
+  if Assigned(VAllPoints) then begin
     if FMarkDBGUI.SaveMarkModal(nil, VAllPoints) then begin
       FState.State := ao_movemap;
     end;
@@ -6944,20 +6944,18 @@ begin
       end;
       ao_select_line: begin
         VPath := (VLineOnMapEdit as IPathOnMapEdit).Path.Geometry;
-        if not VPath.IsEmpty then begin
-          VFilter :=
-            TLonLatPointFilterLine2Poly.Create(
-              FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig.Radius,
-              FViewPortState.View.GetStatic.ProjectionInfo
-            );
-          VPoly :=
-            GState.VectorGeometryLonLatFactory.CreateLonLatPolygonByLonLatPathAndFilter(
-              VPath,
-              VFilter
-            );
-          FState.State := ao_movemap;
-          FRegionProcess.ProcessPolygon(VPoly);
-        end;
+        VFilter :=
+          TLonLatPointFilterLine2Poly.Create(
+            FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig.Radius,
+            FViewPortState.View.GetStatic.ProjectionInfo
+          );
+        VPoly :=
+          GState.VectorGeometryLonLatFactory.CreateLonLatPolygonByLonLatPathAndFilter(
+            VPath,
+            VFilter
+          );
+        FState.State := ao_movemap;
+        FRegionProcess.ProcessPolygon(VPoly);
       end;
     end;
   end;
@@ -7756,9 +7754,7 @@ begin
         end;
       end;
       if not VIsError then begin
-        if not VResult.IsEmpty then begin
-          VPathOnMapEdit.SetPath(VResult);
-        end;
+        VPathOnMapEdit.SetPath(VResult);
       end else begin
         FMarshrutComment := '';
       end;
@@ -7952,12 +7948,10 @@ begin
   VPolygon := GState.LastSelectionInfo.Polygon;
   FState.State := ao_select_poly;
   TBRectSave.ImageIndex := 13;
-  if VPolygon <> nil then begin
-    if not VPolygon.IsEmpty then begin
-      VLineOnMapEdit := FLineOnMapEdit;
-      if Supports(VLineOnMapEdit, IPolygonOnMapEdit, VPolygonOnMapEdit) then begin
-        VPolygonOnMapEdit.SetPolygon(VPolygon);
-      end;
+  if Assigned(VPolygon) then begin
+    VLineOnMapEdit := FLineOnMapEdit;
+    if Supports(VLineOnMapEdit, IPolygonOnMapEdit, VPolygonOnMapEdit) then begin
+      VPolygonOnMapEdit.SetPolygon(VPolygon);
     end;
   end;
 end;

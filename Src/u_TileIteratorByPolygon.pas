@@ -81,7 +81,7 @@ begin
   inherited Create;
   FZoom := AProjection.Zoom;
   FGeoConverter := AProjection.GeoConverter;
-  if AProjected.IsEmpty then begin
+  if not Assigned(AProjected) then begin
     FTilesTotal := 0;
     FTilesRect := Rect(0, 0, 0, 0);
     Assert(False);

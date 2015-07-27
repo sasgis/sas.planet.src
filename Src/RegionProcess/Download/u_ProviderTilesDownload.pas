@@ -333,7 +333,7 @@ begin
   end;
 
   VPolygon := ReadPolygon(VSessionSection, FVectorGeometryLonLatFactory);
-  if VPolygon.IsEmpty then begin
+  if not Assigned(VPolygon) then begin
     raise Exception.Create('Empty polygon');
   end;
 

@@ -523,7 +523,7 @@ begin
           if (VPointsAggregator.Count>0) then begin
             // create lonlats
             VPolygon := AVectorGeometryLonLatFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
-            if (VPolygon <> nil) and (not VPolygon.IsEmpty) then begin
+            if Assigned(VPolygon) then begin
               // make polygon
               if (nil=VAllNewMarks) then begin
                 // make result object

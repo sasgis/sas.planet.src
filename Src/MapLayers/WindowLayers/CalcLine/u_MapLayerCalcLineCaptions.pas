@@ -236,7 +236,7 @@ begin
     VConfig := FConfig.GetStatic;
     FTempBitmap.Font.Size := VConfig.FontSize;
     FTempLastPointBitmap.Font.Size := VConfig.LastPointFontSize;
-    Visible := VConfig.Visible and (FLine <> nil) and (not FLine.Geometry.IsEmpty);
+    Visible := VConfig.Visible and Assigned(FLine);
     SetNeedRedraw;
   finally
     ViewUpdateUnlock;
@@ -248,7 +248,7 @@ begin
   ViewUpdateLock;
   try
     FLine := FLineOnMapEdit.Path;
-    if Assigned(FLine) and not FLine.Geometry.IsEmpty then begin
+    if Assigned(FLine) then begin
       SetNeedRedraw;
       Visible := FConfig.Visible;
     end else begin

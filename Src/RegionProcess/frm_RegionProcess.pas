@@ -408,7 +408,7 @@ begin
     VPolygonSection := VHLGData.GetSubItem('HIGHLIGHTING');
     if VPolygonSection <> nil then begin
       APolygon := ReadPolygon(VPolygonSection, FVectorGeometryLonLatFactory);
-      if (APolygon <> nil) and (not APolygon.IsEmpty) then begin
+      if Assigned(APolygon) then begin
         VZoom := VPolygonSection.ReadInteger('zoom', 1) - 1;
         Self.ProcessPolygonWithZoom(VZoom, APolygon);
       end;
