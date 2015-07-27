@@ -753,6 +753,10 @@ begin
     FOwnMem := False;
   end;
 
+  if not FOwnMem then begin
+    ValueToData;
+  end;
+
   Result := True;
 end;
 
