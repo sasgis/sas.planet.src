@@ -405,7 +405,7 @@ begin
       VSQLMarkFTS.Name := StringToUTF8(SysUtils.AnsiLowerCase(AMarkRec.FName));
       VSQLMarkFTS.Desc := StringToUTF8(SysUtils.AnsiLowerCase(AMarkRec.FDesc));
       // add name and desc to db (fts index)
-      CheckID( FClient.Add(VSQLMarkFTS, True) );
+      CheckID( FClient.Add(VSQLMarkFTS, True, True) );
     finally
       VSQLMarkFTS.Free;
     end;
