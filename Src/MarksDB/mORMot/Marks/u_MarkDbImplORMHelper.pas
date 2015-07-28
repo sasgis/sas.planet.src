@@ -875,7 +875,8 @@ begin
       if VSQLMarkView.ID > 0 then begin
         // update db
         if VSQLMarkView.Visible <> AVisible then begin
-          Result := FClient.UpdateField(TSQLMarkView, VSQLMarkView.ID, 'Visible', [AVisible]);
+          VSQLMarkView.Visible := AVisible;
+          Result := FClient.Update(VSQLMarkView, 'Visible');
           CheckUpdateResult(Result);
         end;
       end else if not AVisible then begin
