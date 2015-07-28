@@ -196,6 +196,7 @@ var
 begin
   if FRow.FastLocateSorted(ARec.FCategoryId, I) then begin
     // update
+    FRows[I].ViewId := ARec.FViewId;
     FRows[I].Visible := ARec.FVisible;
     FRows[I].MinZoom := ARec.FMinZoom;
     FRows[I].MaxZoom := ARec.FMaxZoom;
