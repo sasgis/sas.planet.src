@@ -717,6 +717,7 @@ begin
             AMarkRec.FGeoCount := VSQLMark.GeoCount;
             // add to cache
             FCache.FMarkCache.AddOrUpdate(AMarkRec);
+            VSQLWhere := '';
           end else begin
             DeleteMarkSQL(VMarkID);
             Exit;
