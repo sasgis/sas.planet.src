@@ -1136,7 +1136,10 @@ begin
     end;
     VList := FClient.ExecuteList(
       [TSQLMarkView],
-      RawUTF8('SELECT RowID,Mark,Visible FROM MarkView')
+      FormatUTF8(
+        'SELECT RowID,Mark,Visible FROM MarkView WHERE User=?',
+        [], [FUserID]
+      )
     );
   end;
   if Assigned(VList) then
