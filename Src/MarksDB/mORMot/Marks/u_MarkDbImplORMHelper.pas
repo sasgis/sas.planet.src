@@ -406,6 +406,7 @@ begin
       VSQLMarkFTS.Desc := StringToUTF8(SysUtils.AnsiLowerCase(AMarkRec.FDesc));
       // add name and desc to db (fts index)
       CheckID( FClient.Add(VSQLMarkFTS, True, True) );
+      Assert(VSQLMarkFTS.ID = AMarkRec.FMarkId);
     finally
       VSQLMarkFTS.Free;
     end;
@@ -420,6 +421,7 @@ begin
         VSQLMarkRTree.Bottom := VRect.Bottom;
         // add rect to db (rtree index)
         CheckID( FClient.Add(VSQLMarkRTree, True, True) );
+        Assert(VSQLMarkRTree.ID = AMarkRec.FMarkId);
       finally
         VSQLMarkRTree.Free;
       end;
