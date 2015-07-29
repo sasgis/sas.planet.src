@@ -6,6 +6,7 @@ uses
   t_GeoTypes,
   i_DoublePoints,
   i_EnumDoublePoint,
+  i_InterfaceListStatic,
   i_GeometryProjected,
   u_BaseInterfacedObject;
 
@@ -69,6 +70,34 @@ type
     constructor Create(
       const ABounds: TDoubleRect;
       const APoints: IDoublePoints
+    );
+  end;
+
+  TGeometryProjectedPolygonWithHoles = class(TBaseInterfacedObject, IGeometryProjected, IGeometryProjectedPolygon, IGeometryProjectedSinglePolygon)
+  private
+    FBounds: TDoubleRect;
+    FOuterBorder: IGeometryProjectedContour;
+    FHoleList: IInterfaceListStatic;
+  private
+    function GetBounds: TDoubleRect;
+
+    function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
+    function IsPointOnBorder(
+      const APoint: TDoublePoint;
+      const ADist: Double
+    ): Boolean;
+    function IsRectIntersectPolygon(const ARect: TDoubleRect): Boolean;
+    function IsRectIntersectBorder(const ARect: TDoubleRect): Boolean;
+    function CalcArea: Double;
+
+    function GetOuterBorder: IGeometryProjectedContour;
+    function GetHoleCount: Integer;
+    function GetHoleBorder(const AIndex: Integer): IGeometryProjectedContour;
+  public
+    constructor Create(
+      const ABounds: TDoubleRect;
+      const AOuterBorder: IGeometryProjectedContour;
+      const AHoleList: IInterfaceListStatic
     );
   end;
 
@@ -572,6 +601,143 @@ end;
 function TGeometryProjectedPolygon.GetOuterBorder: IGeometryProjectedContour;
 begin
   Result := Self;
+end;
+
+
+{ TGeometryProjectedPolygonWithHoles }
+
+constructor TGeometryProjectedPolygonWithHoles.Create(
+  const ABounds: TDoubleRect;
+  const AOuterBorder: IGeometryProjectedContour;
+  const AHoleList: IInterfaceListStatic
+);
+begin
+  Assert(Assigned(AOuterBorder));
+  Assert(Assigned(AHoleList));
+  Assert(AHoleList.Count > 0);
+  FBounds := ABounds;
+  FOuterBorder := AOuterBorder;
+  FHoleList := AHoleList;
+end;
+
+function TGeometryProjectedPolygonWithHoles.CalcArea: Double;
+var
+  i: Integer;
+  VContour: IGeometryProjectedContour;
+begin
+  Result := FOuterBorder.CalcArea;
+  for i := 0 to FHoleList.Count - 1 do begin
+    VContour := IGeometryProjectedContour(FHoleList.Items[i]);
+    Result := Result - VContour.CalcArea;
+  end;
+end;
+
+function TGeometryProjectedPolygonWithHoles.GetBounds: TDoubleRect;
+begin
+  Result := FBounds;
+end;
+
+function TGeometryProjectedPolygonWithHoles.GetHoleBorder(
+  const AIndex: Integer
+): IGeometryProjectedContour;
+begin
+  Result := IGeometryProjectedContour(FHoleList.Items[AIndex]);
+end;
+
+function TGeometryProjectedPolygonWithHoles.GetHoleCount: Integer;
+begin
+  Result := FHoleList.Count;
+end;
+
+function TGeometryProjectedPolygonWithHoles.GetOuterBorder: IGeometryProjectedContour;
+begin
+  Result := FOuterBorder;
+end;
+
+function TGeometryProjectedPolygonWithHoles.IsPointInPolygon(
+  const APoint: TDoublePoint
+): Boolean;
+var
+  i: Integer;
+  VContour: IGeometryProjectedContour;
+begin
+  Result := False;
+  if FOuterBorder.IsPointInPolygon(APoint) then begin
+    Result := True;
+    for i := 0 to FHoleList.Count - 1 do begin
+      VContour := IGeometryProjectedContour(FHoleList.Items[i]);
+      if VContour.IsPointInPolygon(APoint) then begin
+        Result := False;
+        Break;
+      end;
+    end;
+  end;
+end;
+
+function TGeometryProjectedPolygonWithHoles.IsPointOnBorder(
+  const APoint: TDoublePoint;
+  const ADist: Double
+): Boolean;
+var
+  i: Integer;
+  VContour: IGeometryProjectedContour;
+begin
+  Result := false;
+  if FOuterBorder.IsPointOnBorder(APoint, ADist) then begin
+    Result := True;
+  end else begin
+    for i := 0 to FHoleList.Count - 1 do begin
+      VContour := IGeometryProjectedContour(FHoleList.Items[i]);
+      if VContour.IsPointOnBorder(APoint, ADist) then begin
+        Result := True;
+        Break;
+      end;
+    end;
+  end;
+end;
+
+function TGeometryProjectedPolygonWithHoles.IsRectIntersectBorder(
+  const ARect: TDoubleRect
+): Boolean;
+var
+  i: Integer;
+  VContour: IGeometryProjectedContour;
+begin
+  Result := false;
+  if FOuterBorder.IsRectIntersectBorder(ARect) then begin
+    Result := False;
+    for i := 0 to FHoleList.Count - 1 do begin
+      VContour := IGeometryProjectedContour(FHoleList.Items[i]);
+      if VContour.IsPointInPolygon(ARect.TopLeft) then begin
+        if not VContour.IsRectIntersectBorder(ARect) then begin
+          Result := False;
+          Break;
+        end;
+      end;
+    end;
+  end;
+end;
+
+function TGeometryProjectedPolygonWithHoles.IsRectIntersectPolygon(
+  const ARect: TDoubleRect
+): Boolean;
+var
+  i: Integer;
+  VContour: IGeometryProjectedContour;
+begin
+  Result := false;
+  if FOuterBorder.IsRectIntersectPolygon(ARect) then begin
+    Result := True;
+    for i := 0 to FHoleList.Count - 1 do begin
+      VContour := IGeometryProjectedContour(FHoleList.Items[i]);
+      if VContour.IsPointInPolygon(ARect.TopLeft) then begin
+        if not VContour.IsRectIntersectBorder(ARect) then begin
+          Result := False;
+          Break;
+        end;
+      end;
+    end;
+  end;
 end;
 
 end.
