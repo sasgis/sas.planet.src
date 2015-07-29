@@ -795,6 +795,7 @@ begin
       VSQLMarkView := TSQLMarkView.Create(FClient, 'Mark=? AND User=?', [VMarkID, FUserID]);
       try
         if VSQLMarkView.ID > 0 then begin
+          AMarkRec.FViewId := VSQLMarkView.ID;
           AMarkRec.FVisible := VSQLMarkView.Visible;
         end else begin
           AMarkRec.FVisible := True;
