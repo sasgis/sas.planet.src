@@ -36,11 +36,15 @@ type
     btnOk: TButton;
     btnCancel: TButton;
     dlgOpenDb: TOpenDialog;
+    lblPass: TLabel;
+    edtPass: TEdit;
+    chkShowPass: TCheckBox;
     procedure btnCancelClick(Sender: TObject);
     procedure cbbDbTypeChange(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btnOpenFileClick(Sender: TObject);
     procedure btnOkClick(Sender: TObject);
+    procedure chkShowPassClick(Sender: TObject);
   private
     FGUIDList: array of TGUID;
     FConfig: IMarkSystemConfigStatic;
@@ -168,29 +172,28 @@ begin
 
     if Assigned(FImplORM) then begin
       edtUserName.Text := FImplORM.UserName;
+      edtPass.Text := FImplORM.PasswordPlain;
     end else begin
       edtUserName.Text := '';
+      edtPass.Text := '';
     end;
 
     edtDisplayName.Text := FConfig.DisplayName;
-
     edtFileName.Text := FImpl.FileName;
-    edtFileName.Enabled := False;
-    btnOpenFile.Enabled := False;
-
     chkReadOnly.Checked := FImpl.IsReadOnly;
 
     Self.Caption := _('Edit Marks Database');
   end else begin
     cbbDbType.Enabled := True;
 
-    edtDisplayName.Text := '';
+    edtDisplayName.Text := _('My Marks');
 
     edtFileName.Text := '';
     edtFileName.Enabled := True;
     btnOpenFile.Enabled := True;
 
     edtUserName.Text := '';
+    edtPass.Text := '';
 
     chkReadOnly.Checked := False;
 
@@ -203,15 +206,33 @@ end;
 procedure TfrmMarkSystemConfigEdit.UpdateControlsStateByActiveDB;
 var
   VSelectedGUID: TGUID;
-  VEnabled: Boolean;
+  VUserEnabled: Boolean;
+  VPassEnabled: Boolean;
+  VIsSML, VIsSQLite: Boolean;
 begin
   if cbbDbType.ItemIndex >= 0 then begin
     VSelectedGUID := FGUIDList[cbbDbType.ItemIndex];
 
-    VEnabled := IsEqualGUID(VSelectedGUID, cORMSQLiteMarksDbGUID);
+    VIsSML := IsEqualGUID(VSelectedGUID, cSMLMarksDbGUID);
+    VIsSQLite := IsEqualGUID(VSelectedGUID, cORMSQLiteMarksDbGUID);
 
-    edtUserName.Enabled := VEnabled;
-    lblUserName.Enabled := VEnabled;
+    VUserEnabled := not VIsSML;
+    VPassEnabled := VUserEnabled and not VIsSQLite;
+
+    edtUserName.Enabled := VUserEnabled;
+    lblUserName.Enabled := VUserEnabled;
+
+    edtPass.Enabled := VPassEnabled;
+    lblPass.Enabled := VPassEnabled;
+    chkShowPass.Enabled := VPassEnabled;
+
+    if VIsSML or VIsSQLite then begin
+      grpFile.Caption := _('File name');
+      btnOpenFile.Enabled := True;
+    end else begin
+      grpFile.Caption := _('Connection string');
+      btnOpenFile.Enabled := False;
+    end;
   end;
 end;
 
@@ -242,6 +263,15 @@ begin
   edtFileName.Text := '';
 end;
 
+procedure TfrmMarkSystemConfigEdit.chkShowPassClick(Sender: TObject);
+begin
+  if chkShowPass.Checked then begin
+    edtPass.PasswordChar := #0;
+  end else begin
+    edtPass.PasswordChar := '*';
+  end;
+end;
+
 procedure TfrmMarkSystemConfigEdit.btnCancelClick(Sender: TObject);
 begin
   Close;
@@ -250,45 +280,57 @@ end;
 procedure TfrmMarkSystemConfigEdit.btnOkClick(Sender: TObject);
 var
   VDatabase: TGUID;
+  VMsgText: string;
   VFileName: string;
   VDisplayName: string;
-  VUserName: string;
   VIsReadOnly: Boolean;
+  VIsSML, VIsSQLite: Boolean;
   VImpl: IMarkSystemImplConfigStatic;
 begin
   VDatabase := FGUIDList[cbbDbType.ItemIndex];
 
+  VIsSML := IsEqualGUID(VDatabase, cSMLMarksDbGUID);
+  VIsSQLite := IsEqualGUID(VDatabase, cORMSQLiteMarksDbGUID);
+
   VFileName := edtFileName.Text;
   if VFileName = '' then begin
-    MessageDlg('Set File name first!', mtError, [mbOK], 0);
+    if VIsSML or VIsSQLite then begin
+      VMsgText := _('Set File name first!');
+    end else begin
+      VMsgText := _('Set Connection string first!');
+    end;
+    MessageDlg(VMsgText, mtError, [mbOK], 0);
     Exit;
   end;
 
   VDisplayName := edtDisplayName.Text;
   if VDisplayName = '' then begin
-    VDisplayName := ExtractFileName(VFileName);
-    VDisplayName := ChangeFileExt(VDisplayName, '');
+    VDisplayName := _('My Marks');
   end;
-
-  VUserName := edtUserName.Text;
 
   VIsReadOnly := chkReadOnly.Checked;
 
-  if IsEqualGUID(VDatabase, cORMSQLiteMarksDbGUID) or
-    IsEqualGUID(VDatabase, cORMMongoDbMarksDbGUID) or
-    IsEqualGUID(VDatabase, cORMODBCMarksDbGUID) or
-    IsEqualGUID(VDatabase, cORMZDBCMarksDbGUID) then begin
-    VImpl :=
-      TMarkSystemImplConfigORM.Create(
-        VFileName,
-        VIsReadOnly,
-        VUserName
-      );
-  end else if IsEqualGUID(VDatabase, cSMLMarksDbGUID) then begin
+  if VIsSML then begin
     VImpl :=
       TMarkSystemImplConfigSML.Create(
         VFileName,
         VIsReadOnly
+      );
+  end
+  else
+  if
+    VIsSQLite or
+    IsEqualGUID(VDatabase, cORMMongoDbMarksDbGUID) or
+    IsEqualGUID(VDatabase, cORMODBCMarksDbGUID) or
+    IsEqualGUID(VDatabase, cORMZDBCMarksDbGUID) then
+  begin
+    VImpl :=
+      TMarkSystemImplConfigORM.Create(
+        VFileName,
+        VIsReadOnly,
+        edtUserName.Text,
+        edtPass.Text,
+        ''
       );
   end else begin
     Assert(False);

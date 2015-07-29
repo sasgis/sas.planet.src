@@ -48,6 +48,7 @@ uses
   SynSQLite3Static,
   SynCommons,
   i_MarkSystemImplConfig,
+  i_MarkSystemImplConfigORM,
   i_MarkSystemImplORMClientProvider,
   t_MarkSystemORM,
   u_MarkSystemORMModel,
@@ -56,8 +57,10 @@ uses
 type
   TMarkSystemImplORMClientProvider = class(TBaseInterfacedObject, IMarkSystemImplORMClientProvider)
   private
+    FUserName: string;
+    FPassword: string;
     FBasePath: string;
-    FImplConfig: IMarkSystemImplConfigStatic;
+    FImplConfig: IMarkSystemImplConfigORM;
     FUserID: TID;
     FModel: TSQLModel;
     FClientDB: TSQLRestClientDB;
@@ -93,12 +96,11 @@ implementation
 uses
   SysUtils,
   StrUtils,
-  i_MarkSystemImplConfigORM,
   u_FileSystemFunc,
   u_MarkSystemORMTools;
 
 const
-  cDefUserName: RawUTF8 = 'sasgis';
+  cDefUserName = 'sasgis';
   cDefSQLite3DbFileName = 'Marks.db3';
 
 { TMarkSystemImplORMClientProvider }
@@ -111,8 +113,14 @@ constructor TMarkSystemImplORMClientProvider.Create(
 begin
   inherited Create;
   FBasePath := ABasePath;
-  FImplConfig := AImplConfig;
   FClientType := AClientType;
+
+  if not Supports(AImplConfig, IMarkSystemImplConfigORM, FImplConfig) then begin
+    raise EMarkSystemORMError.Create('MarkSystemORM: Unknown Impl config interface!');
+  end;
+
+  FUserName := FImplConfig.UserName;
+  FPassword := FImplConfig.PasswordPlain;
 
   FUserID := 0;
   FModel := nil;
@@ -187,12 +195,13 @@ const
   cDefPort = 27017;
 var
   I: Integer;
+  VDB: RawUTF8;
   VHost: RawUTF8;
   VPort: Integer;
-  VDB, VUser, VPass: RawUTF8;
+  VText, VTmp: string;
+  VUser, VPass: string;
   VDatabase: TMongoDatabase;
   VCollection: TMongoCollection;
-  VText, VTmp: string;
 begin
   // 'mongodb://server:port/db'
   // 'mongodb://<user>:<pass>@server:port/db'
@@ -200,8 +209,8 @@ begin
   VHost := '';
   VPort := cDefPort;
   VDB := '';
-  VUser := '';
-  VPass := '';
+  VUser := FUserName;
+  VPass := FPassword;
 
   VText := FImplConfig.FileName;
   if StartsText(cPrefix+'://', VText) then begin
@@ -214,17 +223,19 @@ begin
       Delete(VText, 1, I);
       I := Pos(':', VTmp);
       if I > 0 then begin
-        VUser := StringToUTF8(Copy(VTmp, 1, I-1));
+        VUser := Copy(VTmp, 1, I-1);
         Delete(VTmp, 1, I);
-        VPass := StringToUTF8(VTmp);
+        VPass := VTmp;
         if VPass = '' then begin
           raise EMarkSystemORMError.Create('MongoDB URI: "Pass" param is missing');
         end;
       end else begin
-        VUser := StringToUTF8(VTmp);
+        VUser := VTmp;
       end;
       if VUser = '' then begin
         raise EMarkSystemORMError.Create('MongoDB URI: "User" param is missing');
+      end else if FUserName = '' then begin
+        FUserName := VUser;
       end;
     end;
 
@@ -245,7 +256,7 @@ begin
     end;
 
     // db
-    VDB := VText;
+    VDB := StringToUTF8(VText);
   end else begin
     raise EMarkSystemORMError.Create('MongoDB URI: Prefix is missing');
   end;
@@ -259,7 +270,7 @@ begin
   
   FMongoClient := TMongoClient.Create(VHost, VPort);
   if VUser <> '' then begin
-    VDatabase := FMongoClient.OpenAuth(VDB, VUser, VPass);
+    VDatabase := FMongoClient.OpenAuth(VDB, StringToUTF8(VUser), StringToUTF8(VPass));
   end else begin
     VDatabase := FMongoClient.Open(VDB);
   end;
@@ -285,14 +296,40 @@ end;
 {$IFDEF ENABLE_DBMS}
 procedure TMarkSystemImplORMClientProvider.BuildDBMSClient;
 var
+  I, J: Integer;
+  VText, VUser: string;
   VConnectionStr: RawUTF8;
 begin
-  VConnectionStr := StringToUTF8(FImplConfig.FileName);
+  VText := FImplConfig.FileName;
+  VConnectionStr := StringToUTF8(VText);
   case FClientType of
     ctODBC: begin
       {$IFDEF ENABLE_ODBC_DBMS}
       // 'Driver=PostgreSQL Unicode;Database=sasgis_marks;Server=localhost;Port=5439;UID=postgres;Pwd=1'
-      if StartsText('Driver=', FImplConfig.FileName) then begin
+      if StartsText('Driver=', VText) then begin
+        I := Pos('uid=', AnsiLowerCase(VText));
+        if I > 0 then begin
+          if FUserName = '' then begin
+            J := I + 4;
+            VUser := Copy(VText, J, Length(VText) - (J-1));
+            if VUser <> '' then begin
+              I := Pos(';', VUser);
+              if I > 0 then begin
+                VUser := Copy(VUser, 1, I-1);
+              end;
+              if VUser <> '' then begin
+                FUserName := VUser;
+              end;
+            end;
+            Assert((VUser <> ''), 'UID is empty!');
+          end;
+        end else if FUserName <> '' then begin
+          VText := VText + ';UID=' + FUserName;
+        end;
+        if (FPassword <> '') and not (Pos('pwd=', AnsiLowerCase(VText)) > 0) then begin
+          VText := VText + ';Pwd=' + FPassword;
+        end;
+        VConnectionStr := StringToUTF8(VText);
         FDBMSProps := TODBCConnectionProperties.Create('', VConnectionStr, '', '');
       end else begin
         FDBMSProps := TODBCConnectionProperties.Create(VConnectionStr, '', '', '');
@@ -340,22 +377,15 @@ var
   VSQLUser: TSQLUser;
   VUserName: RawUTF8;
   VTransaction: TTransactionRec;
-  VImplConfig: IMarkSystemImplConfigORM;
 begin
-  if not Supports(FImplConfig, IMarkSystemImplConfigORM, VImplConfig) then begin
-    raise EMarkSystemORMError.Create('MarkSystemORM: Unknown Impl config interface!');
+  if FUserName = '' then begin
+    FUserName := cDefUserName;
   end;
-
-  if VImplConfig.UserName = '' then begin
-    VUserName := cDefUserName;
-  end else begin
-    VUserName := StringToUTF8(VImplConfig.UserName);
-  end;
-
+  VUserName := StringToUTF8(FUserName);
   VSQLUser := TSQLUser.Create(FClientDB, 'Name=?', [VUserName]);
   try
     if VSQLUser.ID = 0 then begin
-      if VImplConfig.IsReadOnly then begin
+      if FImplConfig.IsReadOnly then begin
         raise EMarkSystemORMError.Create('MarkSystemORM: Can''t init User in read-only mode!');
       end else begin
         VSQLUser.Name := VUserName;

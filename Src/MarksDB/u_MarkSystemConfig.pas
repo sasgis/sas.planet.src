@@ -151,7 +151,7 @@ begin
   if IsEqualGUID(ADB, cSMLMarksDbGUID) then begin
     VImpl := TMarkSystemImplConfigSML.Create('marks.sml', False);
   end else if IsEqualGUID(ADB, cORMSQLiteMarksDbGUID) then begin
-    VImpl := TMarkSystemImplConfigORM.Create('Marks.db3', False, '');
+    VImpl := TMarkSystemImplConfigORM.Create('Marks.db3', False, '', '', '');
   end else begin
     raise Exception.CreateFmt('MarkSystemConfig: Unknown Database GUID: %s', [GUIDToString(ADB)]);
   end;
@@ -193,6 +193,7 @@ var
   VFileName: string;
   VIsReadOnly: Boolean;
   VUserName: string;
+  VPass: string;
   VTmp: string;
   VZeroGUID: string;
   VItem: IMarkSystemConfigStatic;
@@ -238,7 +239,8 @@ begin
         end else if IsEqualGUID(IMarkSystemImplConfigORM, VImplGUID) then begin
           // ORM
           VUserName := VConfig.ReadString(VConfId + 'UserName', '');
-          VImpl := TMarkSystemImplConfigORM.Create(VFileName, VIsReadOnly, VUserName);
+          VPass := VConfig.ReadString(VConfId + 'Password', '');
+          VImpl := TMarkSystemImplConfigORM.Create(VFileName, VIsReadOnly, VUserName, '', VPass);
         end else begin
           _ShowConfigErrorFmt(
             _('MarkSystemConfig: Item #%d has unknown Impl GUID: %s'),
@@ -307,6 +309,7 @@ begin
       // ORM
       VConfig.WriteString(VConfId + 'Impl', GUIDToString(IMarkSystemImplConfigORM));
       VConfig.WriteString(VConfId + 'UserName', VImplORM.UserName);
+      VConfig.WriteString(VConfId + 'Password', VImplORM.Password);
     end else begin
       _ShowConfigErrorFmt(_('MarkSystemConfig: Item #%d has unknown Impl interface!'), [VCount]);
       Continue;

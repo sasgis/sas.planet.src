@@ -23,40 +23,74 @@ unit u_MarkSystemImplConfigORM;
 interface
 
 uses
+  SynCommons,
   i_MarkSystemImplConfigORM,
   u_MarkSystemImplConfigBase;
 
 type
   TMarkSystemImplConfigORM = class(TMarkSystemImplConfigBase, IMarkSystemImplConfigORM)
   private
-    FUserName: string;
+    FSynUser: TSynUserPassword;
   private
+    { IMarkSystemImplConfigORM }
     function GetUserName: string;
+    function GetPassword: string;
+    function GetPasswordPlain: string;
   public
     constructor Create(
       const AFileName: string;
       const AIsReadOnly: Boolean;
-      const AUserName: string
+      const AUserName: string;
+      const APasswordPlain: string;
+      const APassword: string
     );
+    destructor Destroy; override;
   end;
 
 implementation
+
+uses
+  SysUtils;
 
 { TMarkSystemImplConfigORM }
 
 constructor TMarkSystemImplConfigORM.Create(
   const AFileName: string;
   const AIsReadOnly: Boolean;
-  const AUserName: string
+  const AUserName: string;
+  const APasswordPlain: string;
+  const APassword: string
 );
 begin
   inherited Create(AFileName, AIsReadOnly);
-  FUserName := AUserName
+  FSynUser := TSynUserPassword.Create;
+  FSynUser.UserName := StringToUTF8(AUserName);
+  if APasswordPlain <> '' then begin
+    FSynUser.PasswordPlain := StringToUTF8(APasswordPlain);
+  end else begin
+    FSynUser.Password := StringToUTF8(APassword);
+  end;
+end;
+
+destructor TMarkSystemImplConfigORM.Destroy;
+begin
+  FreeAndNil(FSynUser);
+  inherited Destroy;
 end;
 
 function TMarkSystemImplConfigORM.GetUserName: string;
 begin
-  Result := FUserName;
+  Result := UTF8ToString(FSynUser.UserName);
+end;
+
+function TMarkSystemImplConfigORM.GetPassword: string;
+begin
+  Result := UTF8ToString(FSynUser.Password);
+end;
+
+function TMarkSystemImplConfigORM.GetPasswordPlain: string;
+begin
+  Result := UTF8ToString(FSynUser.PasswordPlain);
 end;
 
 end.

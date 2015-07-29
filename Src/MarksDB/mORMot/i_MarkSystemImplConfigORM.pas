@@ -30,6 +30,12 @@ type
     ['{4922B216-1197-4BB0-93E1-CC2CC1B68787}']
     function GetUserName: string;
     property UserName: string read GetUserName;
+
+    function GetPassword: string;
+    property Password: string read GetPassword;
+
+    function GetPasswordPlain: string;
+    property PasswordPlain: string read GetPasswordPlain;
   end;
 
 implementation
