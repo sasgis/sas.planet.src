@@ -299,6 +299,7 @@ var
   VViewItem: PSQLCategoryViewRow;
   VSQLCategory: TSQLCategory;
   VSQLCategoryView: TSQLCategoryView;
+  VFound: Boolean;
 begin
   Assert( (ID > 0) or (AName <> '') );
 
@@ -345,8 +346,8 @@ begin
   VSQLCategoryView := TSQLCategoryView.Create;
   try
     // try get view from cache
-    Result := ACache.FCategoryViewCache.Find(ACategoryRec.FCategoryId, VViewItem);
-    if Result then begin
+    VFound := ACache.FCategoryViewCache.Find(ACategoryRec.FCategoryId, VViewItem);
+    if VFound then begin
       // view found in cache
       ACategoryRec.FViewId := VViewItem.ViewId;
       ACategoryRec.FVisible := VViewItem.Visible;
@@ -355,11 +356,11 @@ begin
       Exit;
     end else if not ACache.FCategoryViewCache.IsPrepared then begin
       // view not in cache -> get it from db
-      Result := AClient.Retrieve(
+      VFound := AClient.Retrieve(
         'Category=? AND User=?', [], [ACategoryRec.FCategoryId, AUserID],
         VSQLCategoryView
       );
-      if Result then begin
+      if VFound then begin
         CheckID(VSQLCategoryView.ID);
         ACategoryRec.FViewId := VSQLCategoryView.ID;
         ACategoryRec.FVisible := VSQLCategoryView.Visible;

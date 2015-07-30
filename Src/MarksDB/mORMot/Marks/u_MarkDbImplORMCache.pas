@@ -329,7 +329,7 @@ begin
   Result := False;
   for I := 0 to FCount - 1 do begin
     AItem := @FRows[I];
-    if SameText(AItem.Name, AName) then begin
+    if AnsiSameText(AItem.Name, AName) then begin
       Result := True;
       Break;
     end;

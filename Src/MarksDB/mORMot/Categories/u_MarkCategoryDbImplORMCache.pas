@@ -174,7 +174,7 @@ var
 begin
   Result := False;
   for I := 0 to FCount - 1 do begin
-    if SameText(AName, FRows[I].Name) then begin
+    if AnsiSameText(AName, FRows[I].Name) then begin
       AItem := @FRows[I];
       Result := True;
       Break;

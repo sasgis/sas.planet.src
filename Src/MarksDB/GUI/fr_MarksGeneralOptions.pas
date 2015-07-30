@@ -282,7 +282,6 @@ begin
     VLineParams := TImportLineParams.Create(VAppearance, FIsForceSet, FIsForceSet);
   end;
   if not chkPolyIgnore.Checked then begin
-    VCategory := frMarkCategory.GetCategory;
     VAppearance :=
       FAppearanceOfMarkFactory.CreatePolygonAppearance(
         SetAlpha(Color32(clrbxPolyLineColor.Selected),round(((100-sePolyLineTransp.Value)/100)*256)),
