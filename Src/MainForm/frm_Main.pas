@@ -58,6 +58,8 @@ uses
   c_CoordConverter,
   t_GeoTypes,
   i_GUIDSet,
+  i_Listener,
+  i_Notifier,
   i_InterfaceListStatic,
   i_ListenerNotifierLinksList,
   i_ConfigDataWriteProvider,
@@ -111,6 +113,9 @@ uses
   frm_UpdateChecker,
   frm_PascalScriptIDE,
   u_CommonFormAndFrameParents;
+
+const
+  WM_INTERNAL_ERROR = WM_USER + 999;
 
 type
   TfrmMain = class(TCommonFormParent)
@@ -763,6 +768,9 @@ type
     FFillingMapPolygon: IFillingMapPolygon;
     FSelectedPolygon: IGeometryLonLatPolygon;
 
+    FInternalErrorListener: IListener;
+    FInternalErrorNotifier: INotifier;
+
     procedure InitSearchers;
     procedure InitMergepolygons;
     procedure InitLayers;
@@ -807,6 +815,7 @@ type
     Procedure WMCopyData(Var Msg: TMessage); Message WM_COPYDATA;
     procedure WMDropFiles(var Msg: TWMDropFiles); message WM_DROPFILES;
     procedure WMFriendOrFoeMessage(var Msg: TMessage); message u_CmdLineArgProcessorAPI.WM_FRIEND_OR_FOE;
+    procedure WMInternalError(var Msg: TMessage); message WM_INTERNAL_ERROR;
 
     procedure zooming(
       ANewZoom: byte;
@@ -864,6 +873,8 @@ type
 
     procedure ProcessOpenFiles(AFiles: TStrings);
     procedure MakeRosreestrPolygon(const APoint: TPoint);
+
+    procedure OnInternalErrorNotify(const AMsg: IInterface);
   protected
     procedure CreateWnd; override;
     procedure DestroyWnd; override;
@@ -887,11 +898,11 @@ uses
   t_FillingMapModes,
   c_ZeroGUID,
   c_InternalBrowser,
-  i_Listener,
   i_NotifierOperation,
   i_Bitmap32Static,
   i_InterfaceListSimple,
   i_InternalPerformanceCounter,
+  i_MarkSystemErrorMsg,
   i_MarkId,
   i_MapType,
   i_MapTypeSet,
@@ -1391,6 +1402,12 @@ begin
 
   VProvider := GState.MainConfigProvider.GetSubItem('PANEL');
 
+  FInternalErrorListener := TNotifyEventListener.Create(Self.OnInternalErrorNotify);
+  FInternalErrorNotifier := GState.MarksDb.ErrorNotifier;
+  if Assigned(FInternalErrorNotifier) then begin
+    FInternalErrorNotifier.Add(FInternalErrorListener);
+  end;
+
   TBEditPath.Floating := True;
   TBEditPath.MoveOnScreen(True);
   TBEditPath.FloatingPosition := Point(Left + map.Left + 30, Top + map.Top + 70);
@@ -1445,6 +1462,9 @@ end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
+  if Assigned(FInternalErrorNotifier) and Assigned(FInternalErrorListener) then begin
+    FInternalErrorNotifier.Remove(FInternalErrorListener);
+  end;
   if tbxpmnSearchResult.Tag <> 0 then begin
     IInterface(tbxpmnSearchResult.Tag)._Release;
     tbxpmnSearchResult.Tag := 0;
@@ -1952,7 +1972,7 @@ begin
         FConfig.LayersConfig.KmlLayerConfig.PointMarkerConfig
       );
   end;
-  
+
   VVectorTileProvider :=
     TVectorTileProviderChangeableForVectorLayers.Create(
       FMainMapState.ActiveKmlLayersSet,
@@ -2274,7 +2294,7 @@ begin
       GState.GPSRecorder
     );
   VLayersList.Add(VLayer);
-  
+
   // Layer with rings around GPS marker
   VDebugName := 'GPSMarkerRings';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
@@ -2292,7 +2312,7 @@ begin
       GState.GPSRecorder
     );
   VLayersList.Add(VLayer);
-  
+
   // Last selection visualisation layer
   VDebugName := 'LastSelection';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
@@ -2542,7 +2562,7 @@ begin
       VPolygonChangeable
     );
   VLayersList.Add(VLayer);
-    
+
   // SelectionByLyne line visualisation layer
   VDebugName := 'SelectionByLine';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
@@ -2562,7 +2582,7 @@ begin
       VLineChangeable
     );
   VLayersList.Add(VLayer);
-    
+
   // SelectionByLyne points visualisation layer
   VDebugName := 'SelectionByLinePoints';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
@@ -2580,7 +2600,7 @@ begin
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolylineLayerConfig.PointsConfig.NormalPointMarker)
     );
   VLayersList.Add(VLayer);
-    
+
   // SelectionByRect visualisation layer
   VDebugName := 'SelectionByRect';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
@@ -2595,7 +2615,7 @@ begin
       FConfig.LayersConfig.SelectionRectLayerConfig
     );
   VLayersList.Add(VLayer);
-    
+
   // Goto marker visualisation layer
   VBitmap :=
     ReadBitmapByFileRef(
@@ -2626,7 +2646,7 @@ begin
       FConfig.LayersConfig.GotoLayerConfig
     );
   VLayersList.Add(VLayer);
-    
+
   // Navigation to mark marker visualisation layer
   VMarkerChangeable :=
     TMarkerDrawableChangeableSimple.Create(
@@ -2700,7 +2720,7 @@ begin
       FPointOnMapEdit
     );
   VLayersList.Add(VLayer);
-    
+
   // Full map cursor layer
   VDebugName := 'FullMapMouseCursor';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
@@ -2717,7 +2737,7 @@ begin
       FConfig.LayersConfig.FullMapMouseCursorLayerConfig
     );
   VLayersList.Add(VLayer);
-    
+
   // Center scale layer
   VMarkerChangeable :=
     TMarkerDrawableChangeableFaked.Create(
@@ -2760,7 +2780,7 @@ begin
       FConfig.LayersConfig.ScaleLineConfig
     );
   VLayersList.Add(VLayer);
-    
+
   // Vertical scale line layer
   VDebugName := 'ScaleLineVertical';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
@@ -2776,7 +2796,7 @@ begin
       FConfig.LayersConfig.ScaleLineConfig
     );
   VLayersList.Add(VLayer);
-    
+
   // Map licenses visualisation layer
   VDebugName := 'LicenseList';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
@@ -2794,7 +2814,7 @@ begin
       VLicensList
     );
   VLayersList.Add(VLayer);
-    
+
   // Status bar layer
   VPopupMenu :=
     TLayerStatBarPopupMenu.Create(
@@ -2827,7 +2847,7 @@ begin
       FMainMapState.ActiveMap
     );
   VLayersList.Add(VLayer);
-    
+
   VMiniMapConverterChangeable :=
     TLocalConverterChangeableOfMiniMap.Create(
       GState.PerfCounterList.CreateAndAddNewCounter('MiniMapConverter'),
@@ -2842,7 +2862,7 @@ begin
       GSync.SyncVariable.Make('TileRectMiniMapForShowMain'),
       GSync.SyncVariable.Make('TileRectMiniMapForShowResult')
     );
-    
+
   // MiniMap bitmap layer
   VDebugName := 'MiniMap';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
@@ -2893,7 +2913,7 @@ begin
       GState.MapType.GUIConfigList,
       FMapTypeIcons18List
     );
-    
+
   // View rect in MiniMap visualisation layer
   VDebugName := 'MiniMapViewRect';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
@@ -2910,7 +2930,7 @@ begin
       FConfig.LayersConfig.MiniMapLayerConfig.LocationConfig
     );
   VLayersList.Add(VLayer);
-    
+
   // Mini Map top border
   VDebugName := 'MiniMapTopBorder';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
@@ -2990,7 +3010,7 @@ begin
       FConfig.LayersConfig.MiniMapLayerConfig
     );
   VLayersList.Add(VLayer);
-    
+
   FLayersList := VLayersList.MakeStaticAndClear;
 end;
 
@@ -4575,6 +4595,28 @@ end;
 procedure TfrmMain.WMFriendOrFoeMessage(var Msg: TMessage);
 begin
   Msg.Result := u_CmdLineArgProcessorAPI.WM_FRIEND_OR_FOE;
+end;
+
+procedure TfrmMain.WMInternalError(var Msg: TMessage);
+var
+  VMsg: IInterface;
+  VMarkSystemError: IMarkSystemErrorMsg;
+begin
+  VMsg := IInterface(Msg.WParam);
+  if Supports(VMsg, IMarkSystemErrorMsg, VMarkSystemError) then begin
+    MessageDlg(VMarkSystemError.ErrorText, mtError, [mbOK], 0);
+  end;
+  if Assigned(VMsg) then begin
+    VMsg._Release;
+  end;
+end;
+
+procedure TfrmMain.OnInternalErrorNotify(const AMsg: IInterface);
+begin
+  if Assigned(AMsg) then begin
+    AMsg._AddRef;
+    PostMessage(Self.Handle, WM_INTERNAL_ERROR, WPARAM(Pointer(AMsg)), 0);
+  end;
 end;
 
 procedure TfrmMain.TBFullSizeClick(Sender: TObject);

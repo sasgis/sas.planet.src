@@ -94,7 +94,6 @@ implementation
 
 uses
   SysUtils,
-  Dialogs,
   {$IFDEF LOG_ENABLE}
   mORMot,
   SynLog,
@@ -154,21 +153,12 @@ begin
   end;
   {$ENDIF}
 
-  try
-    FClientProvider :=
-      TMarkSystemImplORMClientProvider.Create(
-        ABasePath,
-        AImplConfig,
-        AClientType
-      );
-  except
-    on E: Exception do begin
-      VStateInternal.ReadAccess := asDisabled;
-      VStateInternal.WriteAccess := asDisabled;
-      MessageDlg(E.ClassName + ': ' + E.Message, mtError, [mbOK], 0);
-      raise;
-    end;
-  end;
+  FClientProvider :=
+    TMarkSystemImplORMClientProvider.Create(
+      ABasePath,
+      AImplConfig,
+      AClientType
+    );
 
   VCategoryDb :=
     TMarkCategoryDbImplORM.Create(

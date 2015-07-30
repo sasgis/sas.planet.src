@@ -905,6 +905,7 @@
 			<DCCReference Include="Src\MarksDB\i_MarkPicture.pas"/>
 			<DCCReference Include="Src\MarksDB\i_MarkSystem.pas"/>
 			<DCCReference Include="Src\MarksDB\i_MarkSystemConfig.pas"/>
+			<DCCReference Include="Src\MarksDB\i_MarkSystemErrorMsg.pas"/>
 			<DCCReference Include="Src\MarksDB\i_MarkSystemImpl.pas"/>
 			<DCCReference Include="Src\MarksDB\i_MarkSystemImplChangeable.pas"/>
 			<DCCReference Include="Src\MarksDB\i_MarkSystemImplConfig.pas"/>
@@ -953,6 +954,7 @@
 			<DCCReference Include="Src\MarksDB\u_MarkPolyTemplateConfig.pas"/>
 			<DCCReference Include="Src\MarksDB\u_MarkSystem.pas"/>
 			<DCCReference Include="Src\MarksDB\u_MarkSystemConfig.pas"/>
+			<DCCReference Include="Src\MarksDB\u_MarkSystemErrorMsg.pas"/>
 			<DCCReference Include="Src\MarksDB\u_MarkSystemHelpers.pas"/>
 			<DCCReference Include="Src\MarksDB\u_MarkSystemImplChangeable.pas"/>
 			<DCCReference Include="Src\MarksDB\u_MarkSystemImplConfigBase.pas"/>

@@ -23,6 +23,7 @@ unit u_MarkSystem;
 interface
 
 uses
+  i_Notifier,
   i_VectorDataItemSimple,
   i_MarkCategory,
   i_MarkCategoryTree,
@@ -54,6 +55,7 @@ uses
 type
   TMarkSystem = class(TBaseInterfacedObject, IMarkSystem)
   private
+    FNotifierInternal: INotifierInternal;
     FMarkPictureList: IMarkPictureList;
     FSystemImpl: IMarkSystemImplChangeable;
     FMarkDb: IMarkDb;
@@ -61,6 +63,7 @@ type
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FImplFactoryList: IMarkSystemImplFactoryListStatic;
   private
+    function GetErrorNotifier: INotifier;
     function GetState: IReadWriteStateChangeble;
     function GetMarkDb: IMarkDb;
     function GetCategoryDB: IMarkCategoryDB;
@@ -104,6 +107,8 @@ implementation
 
 uses
   i_MarkSystemImpl,
+  u_Notifier,
+  u_Synchronizer,
   u_InterfaceListSimple,
   u_MarkSystemImplFactoryChangeable,
   u_MarkDbByImpl,
@@ -138,6 +143,8 @@ begin
   FMarkPictureList := AMarkPictureList;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
 
+  FNotifierInternal := TNotifierBase.Create(GSync.SyncStd.Make('MarkSystemErrorNotifier'));
+
   if APerfCounterList <> nil then begin
     VPerfCounterList := APerfCounterList.CreateAndAddNewSubList('MarksDb');
     VLoadDbCounter := VPerfCounterList.CreateAndAddNewCounter('LoadDb');
@@ -162,6 +169,7 @@ begin
       ABasePath,
       AConfig,
       FImplFactoryList,
+      FNotifierInternal,
       AAppStartedNotifier,
       AAppClosingNotifier
     );
@@ -321,6 +329,11 @@ end;
 function TMarkSystem.GetImplFactoryList: IMarkSystemImplFactoryListStatic;
 begin
   Result := FImplFactoryList;
+end;
+
+function TMarkSystem.GetErrorNotifier: INotifier;
+begin
+  Result := FNotifierInternal as INotifier;
 end;
 
 end.

@@ -25,6 +25,7 @@ interface
 uses
   i_PathConfig,
   i_Listener,
+  i_Notifier,
   i_NotifierOperation,
   i_BackgroundTask,
   i_ReadWriteState,
@@ -42,6 +43,7 @@ type
     FBasePath: IPathConfig;
     FConfigList: IMarkSystemConfigListChangeable;
     FImplFactoryList: IMarkSystemImplFactoryListStatic;
+    FErrorNotifierInternal: INotifierInternal;
     FAppStartedNotifier: INotifierOneOperation;
     FAppClosingNotifier: INotifierOneOperation;
 
@@ -68,6 +70,7 @@ type
       const ABasePath: IPathConfig;
       const AConfig: IMarkSystemConfigListChangeable;
       const AImplFactoryList: IMarkSystemImplFactoryListStatic;
+      const AErrorNotifierInternal: INotifierInternal;
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation
     );
@@ -78,6 +81,9 @@ implementation
 
 uses
   Classes,
+  SysUtils,
+  i_MarkSystemErrorMsg,
+  u_MarkSystemErrorMsg,
   u_BackgroundTask,
   u_ThreadConfig,
   u_ListenerByEvent;
@@ -88,16 +94,19 @@ constructor TMarkSystemImplChangeable.Create(
   const ABasePath: IPathConfig;
   const AConfig: IMarkSystemConfigListChangeable;
   const AImplFactoryList: IMarkSystemImplFactoryListStatic;
+  const AErrorNotifierInternal: INotifierInternal;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation
 );
 begin
   Assert(Assigned(ABasePath));
   Assert(Assigned(AImplFactoryList));
+  Assert(Assigned(AErrorNotifierInternal));
   inherited Create;
   FBasePath := ABasePath;
   FConfigList := AConfig;
   FImplFactoryList := AImplFactoryList;
+  FErrorNotifierInternal := AErrorNotifierInternal;
   FAppStartedNotifier := AAppStartedNotifier;
   FAppClosingNotifier := AAppClosingNotifier;
   FStateInternal := TReadWriteStateInternalByOther.Create;
@@ -149,19 +158,39 @@ var
   VStatic: IMarkSystemImpl;
   VConfig: IMarkSystemConfigStatic;
   VFactory: IMarkSystemImplFactory;
+  VErrorMsg: IMarkSystemErrorMsg;
 begin
   if FAppStartedNotifier.IsExecuted then begin
+
+    CS.BeginWrite;
+    try
+      FStatic := nil;
+      FStateInternal.SetOther(nil);
+    finally
+      CS.EndWrite;
+    end;
+    DoChangeNotify;
+
     VConfig := FConfigList.GetActiveConfig;
     if Assigned(VConfig) then begin
       VFactory := FImplFactoryList.Get(VConfig.DatabaseGUID).Factory;
       if Assigned(VFactory) then begin
-        VStatic :=
-          VFactory.Build(
-            AOperationID,
-            ACancelNotifier,
-            FBasePath.FullPath,
-            VConfig.ImplConfig
-          );
+        try
+          VStatic :=
+            VFactory.Build(
+              AOperationID,
+              ACancelNotifier,
+              FBasePath.FullPath,
+              VConfig.ImplConfig
+            );
+        except
+          on E: Exception do begin
+            VStatic := nil;
+            VErrorMsg := TMarkSystemErrorMsg.Create(E.ClassName + ': ' + E.Message);
+            FErrorNotifierInternal.Notify(VErrorMsg);
+            //ToDo: LogError
+          end;
+        end;
       end;
     end;
   end;

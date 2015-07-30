@@ -23,6 +23,7 @@ unit i_MarkSystem;
 interface
 
 uses
+  i_Notifier,
   i_ReadWriteState,
   i_ImportConfig,
   i_InterfaceListStatic,
@@ -38,6 +39,9 @@ uses
 type
   IMarkSystem = interface
     ['{E974C3C0-499C-4BB0-B82E-34D39AFCBA9F}']
+    function GetErrorNotifier: INotifier;
+    property ErrorNotifier: INotifier read GetErrorNotifier;
+
     function GetState: IReadWriteStateChangeble;
     property State: IReadWriteStateChangeble read GetState;
 
