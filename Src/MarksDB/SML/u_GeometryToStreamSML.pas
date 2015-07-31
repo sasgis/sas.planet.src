@@ -181,7 +181,7 @@ begin
     VPoint.X := CEmptyDoublePoint.X;
     VPoint.Y := CEmptyDoublePoint.Y;
     AStream.Write(VPoint, SizeOf(VPoint));
-    SaveSingleLine(AGeometry.Item[0], AStream);
+    SaveSingleLine(AGeometry.Item[i], AStream);
   end;
 end;
 
