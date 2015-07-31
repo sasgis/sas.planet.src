@@ -124,6 +124,7 @@ var
   VSize: Integer;
   VRow: TSQLCategoryRow;
 begin
+  CheckCacheSize;
   VSize := Length(ARec.FName) * SizeOf(Char);
   if FRow.FastLocateSorted(ARec.FCategoryId, I) then begin
     // update
@@ -132,14 +133,9 @@ begin
     Inc(FDataSize, VSize);
   end else if I >= 0 then begin
     // add
-    CheckCacheSize;
-
     VRow.CategoryId := ARec.FCategoryId;
     VRow.Name := ARec.FName;
-
-    FRow.Insert(I, VRow);
-    FRow.Sorted := True;
-
+    FRow.FastAddSorted(I, VRow);
     Inc(FDataSize, VSize);
   end else begin
     Assert(False);
@@ -194,6 +190,7 @@ var
   I: Integer;
   VRow: TSQLCategoryViewRow;
 begin
+  CheckCacheSize;
   if FRow.FastLocateSorted(ARec.FCategoryId, I) then begin
     // update
     FRows[I].ViewId := ARec.FViewId;
@@ -202,16 +199,12 @@ begin
     FRows[I].MaxZoom := ARec.FMaxZoom;
   end else if I >= 0 then begin
     // add
-    CheckCacheSize;
-
     VRow.ViewId := ARec.FViewId;
     VRow.CategoryId := ARec.FCategoryId;
     VRow.Visible := ARec.FVisible;
     VRow.MinZoom := ARec.FMinZoom;
     VRow.MaxZoom := ARec.FMaxZoom;
-
-    FRow.Insert(I, VRow);
-    FRow.Sorted := True;
+    FRow.FastAddSorted(I, VRow);
   end else begin
     Assert(False);
   end;

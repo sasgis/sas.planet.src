@@ -203,7 +203,7 @@ type
     procedure AddPrepared(const ACategoryID: TID; const AArr: TSQLMarkRowDynArray);
     class procedure MarkRecToMarkRow(
       const AMarkRec: TSQLMarkRec;
-      const AMarkRow: PSQLMarkRow
+      out AMarkRow: TSQLMarkRow
     ); inline;
   public
     property Rows: TSQLMarkRowDynArray read FRows;
@@ -346,16 +346,13 @@ var
   I: Integer;
   VRec: TSQLMarkImageRow;
 begin
+  CheckCacheSize;
   if not FRow.FastLocateSorted(AImageID, I) then begin
+    // add
     if I >= 0 then begin
-      CheckCacheSize;
-
       VRec.ImageId := AImageID;
       VRec.Name := AName;
-
-      FRow.Insert(I, VRec);
-      FRow.Sorted := True;
-
+      FRow.FastAddSorted(I, VRec);
       Inc(FDataSize, Length(VRec.Name)*SizeOf(Char));
     end else begin
       Assert(False);
@@ -434,18 +431,16 @@ var
   I: Integer;
   VRec: TSQLMarkAppearanceRow;
 begin
+  CheckCacheSize;
   if not FRow.FastLocateSorted(AID, I) then begin
+    // add
     if I >= 0 then begin
-      CheckCacheSize;
-
       VRec.AppearanceId := AID;
       VRec.Color1 := AColor1;
       VRec.Color2 := AColor2;
       VRec.Scale1 := AScale1;
       VRec.Scale2 := AScale2;
-
-      FRow.Insert(I, VRec);
-      FRow.Sorted := True;
+      FRow.FastAddSorted(I, VRec);
     end else begin
       Assert(False);
     end;
@@ -476,16 +471,17 @@ var
   I: Integer;
   VRec: TSQLMarkIdIndexRec;
 begin
+  CheckCacheSize;
   if not FRow.FastLocateSorted(ARec.FMarkId, I) then begin
+    // add
     if I >= 0 then begin
-      CheckCacheSize;
       MarkRecToIndexRec(ARec, @VRec);
-      FRow.Insert(I, VRec);
-      FRow.Sorted := True;
+      FRow.FastAddSorted(I, VRec);
     end else begin
       Assert(False);
     end;
   end else begin
+    // update
     FRows[I].CategoryId := ARec.FCategoryId;
     FRows[I].ImageId := ARec.FPicId;
     FRows[I].AppearanceId := ARec.FAppearanceId;
@@ -495,8 +491,10 @@ end;
 procedure TSQLMarkIdIndex.AddPrepared(const AArr: TSQLMarkIdIndexRecDynArray);
 begin
   Reset;
-  FRow.AddArray(AArr);
-  FRow.Sort;
+  if Length(AArr) > 0 then begin
+    FRow.AddArray(AArr);
+    FRow.Sort;
+  end;
   FIsPrepared := True;
 end;
 
@@ -670,27 +668,20 @@ procedure TSQLMarkCache.AddOrUpdate(const ARec: TSQLMarkRec);
 var
   I: Integer;
   VSize: Integer;
-  VRow: PSQLMarkRow;
+  VRow: TSQLMarkRow;
 begin
+  CheckCacheSize;
   VSize := (Length(ARec.FName) + Length(ARec.FDesc)) * SizeOf(Char);
   if FRow.FastLocateSorted(ARec.FMarkId, I) then begin
     // update
-    VRow := @FRows[I];
-    VSize := VSize - (Length(VRow.Name) + Length(VRow.Desc)) * SizeOf(Char);
-    MarkRecToMarkRow(ARec, VRow);
+    VSize := VSize - (Length(FRows[I].Name) + Length(FRows[I].Desc)) * SizeOf(Char);
+    MarkRecToMarkRow(ARec, FRows[I]);
     Inc(FDataSize, VSize);
   end else if I >= 0 then begin
     // add
-    CheckCacheSize;
-    New(VRow);
-    try
-      MarkRecToMarkRow(ARec, VRow);
-      FRow.Insert(I, VRow^);
-      FRow.Sorted := True;
-      Inc(FDataSize, VSize);
-    finally
-      Dispose(VRow);
-    end;
+    MarkRecToMarkRow(ARec, VRow);
+    FRow.FastAddSorted(I, VRow);
+    Inc(FDataSize, VSize);
   end else begin
     Assert(False);
   end;
@@ -709,8 +700,7 @@ begin
     try
       if not FPreparedCategoriesDynArr.FastLocateSorted(ACategoryID, I) then begin
         if I >= 0 then begin
-          FPreparedCategoriesDynArr.Insert(I, ACategoryID);
-          FPreparedCategoriesDynArr.Sorted := True;
+          FPreparedCategoriesDynArr.FastAddSorted(I, ACategoryID);
         end else begin
           Assert(False);
           Exit;
@@ -748,8 +738,10 @@ begin
     end;
   end else begin
     Reset;
-    FRow.AddArray(AArr);
-    FRow.Sort;
+    if Length(AArr) > 0 then begin
+      FRow.AddArray(AArr);
+      FRow.Sort;
+    end;
     FIsPrepared := True;
     for I := 0 to Length(AArr) - 1 do begin
       VSize := (Length(AArr[I].Name) + Length(AArr[I].Desc)) * SizeOf(Char);
@@ -760,7 +752,7 @@ end;
 
 class procedure TSQLMarkCache.MarkRecToMarkRow(
   const AMarkRec: TSQLMarkRec;
-  const AMarkRow: PSQLMarkRow
+  out AMarkRow: TSQLMarkRow
 );
 begin
   AMarkRow.MarkId := AMarkRec.FMarkId;
@@ -804,18 +796,17 @@ var
   I: Integer;
   VRow: TSQLMarkViewRow;
 begin
+  CheckCacheSize;
   if FRow.FastLocateSorted(AMarkID, I) then begin
     // update
     FRows[I].ViewId := AViewID;
     FRows[I].Visible := AVisible;
   end else if I >= 0 then begin
     // add
-    CheckCacheSize;
     VRow.MarkId := AMarkID;
     VRow.ViewId := AViewID;
     VRow.Visible := AVisible;
-    FRow.Insert(I, VRow);
-    FRow.Sorted := True;
+    FRow.FastAddSorted(I, VRow);
   end else begin
     Assert(False);
   end;
@@ -833,8 +824,7 @@ begin
     try
       if not FPreparedCategoriesDynArr.FastLocateSorted(ACategoryID, I) then begin
         if I >= 0 then begin
-          FPreparedCategoriesDynArr.Insert(I, ACategoryID);
-          FPreparedCategoriesDynArr.Sorted := True;
+          FPreparedCategoriesDynArr.FastAddSorted(I, ACategoryID);
         end else begin
           Assert(False);
           Exit;
@@ -866,8 +856,10 @@ begin
     end;
   end else begin
     Reset;
-    FRow.AddArray(AArr);
-    FRow.Sort;
+    if Length(AArr) > 0 then begin
+      FRow.AddArray(AArr);
+      FRow.Sort;
+    end;
     FIsPrepared := True;
   end;
 end;

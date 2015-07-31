@@ -235,8 +235,7 @@ begin
   Assert(AIndex >= 0);
   Assert(AIndex < FCount);
   Assert(FRow.Sorted);
-  FRow.Delete(AIndex);
-  FRow.Sorted := True;
+  FRow.FastDeleteSorted(AIndex);
 end;
 
 procedure TSQLCacheBase.Delete(const AID: TID);
@@ -420,9 +419,9 @@ var
   I: Integer;
   VRec: TRecWithPointer;
 begin
+  CheckCacheSize;
   if not FDynArray.FastLocateSorted(AID, I) then begin
     if I >= 0 then begin
-      CheckCacheSize;
       VRec.ID := AID;
       VRec.Size := ASize;
       VRec.Data := AData;
