@@ -22,7 +22,10 @@ unit u_MarkCategoryDbImplORMCache;
 
 interface
 
+{$I ..\MarkSystemORM.inc}
+
 uses
+  Windows,
   SynCommons,
   t_MarkSystemORM,
   u_MarkSystemORMCacheBase;
@@ -95,6 +98,7 @@ implementation
 
 uses
   SysUtils,
+  u_MarkSystemORMLog,
   u_MarkSystemORMModel;
 
 { TSQLCategoryDbCache }
@@ -124,6 +128,9 @@ var
   VSize: Integer;
   VRow: TSQLCategoryRow;
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'AddOrUpdate');
+  {$ENDIF}
   CheckCacheSize;
   VSize := Length(ARec.FName) * SizeOf(Char);
   if FRow.FastLocateSorted(ARec.FCategoryId, I) then begin
@@ -131,12 +138,18 @@ begin
     VSize := VSize - Length(FRows[I].Name) * SizeOf(Char);
     FRows[I].Name := ARec.FName;
     Inc(FDataSize, VSize);
+    {$IFDEF SQL_LOG_CACHE_RESULT}
+    SQLLogCache('Update ID=%, Name=%, Count=%', [ARec.FCategoryId, ARec.FName, FCount], Self);
+    {$ENDIF}
   end else if I >= 0 then begin
     // add
     VRow.CategoryId := ARec.FCategoryId;
     VRow.Name := ARec.FName;
     FRow.FastAddSorted(I, VRow);
     Inc(FDataSize, VSize);
+    {$IFDEF SQL_LOG_CACHE_RESULT}
+    SQLLogCache('Add ID=%, Name=%, NewCount=%', [ARec.FCategoryId, ARec.FName, FCount], Self);
+    {$ENDIF}
   end else begin
     Assert(False);
   end;
@@ -144,30 +157,45 @@ end;
 
 procedure TSQLCategoryCache.AddPrepared(const AArr: TSQLCategoryRowDynArray);
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'AddPrepared');
+  {$ENDIF}
   Reset;
   if Length(AArr) > 0 then begin
     FRow.AddArray(AArr);
     FRow.Sort;
   end;
   FIsPrepared := True;
+  {$IFDEF SQL_LOG_CACHE_RESULT}
+  SQLLogCache('AddPrepared ArrCount=%, NewCount=%', [Length(AArr), FCount], Self);
+  {$ENDIF}
 end;
 
 function TSQLCategoryCache.Find(const AID: TID; out AItem: PSQLCategoryRow): Boolean;
 var
   I: Integer;
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'Find');
+  {$ENDIF}
   Result := False;
   I := FRow.Find(AID);
   if I >=0 then begin
     AItem := @FRows[I];
     Result := True;
   end;
+  {$IFDEF SQL_LOG_CACHE_RESULT}
+  SQLLogCache('Find ID=%, Result=%, Count=%', [AID, Result, FCount], Self);
+  {$ENDIF}
 end;
 
 function TSQLCategoryCache.Find(const AName: string; out AItem: PSQLCategoryRow): Boolean;
 var
   I: Integer;
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'Find');
+  {$ENDIF}
   Result := False;
   for I := 0 to FCount - 1 do begin
     if AnsiSameText(AName, FRows[I].Name) then begin
@@ -176,6 +204,9 @@ begin
       Break;
     end;
   end;
+  {$IFDEF SQL_LOG_CACHE_RESULT}
+  SQLLogCache('Find Name=%, Result=%, Count=%', [AName, Result, FCount], Self);
+  {$ENDIF}
 end;
 
 { TSQLCategoryViewCache }
@@ -190,6 +221,9 @@ var
   I: Integer;
   VRow: TSQLCategoryViewRow;
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'AddOrUpdate');
+  {$ENDIF}
   CheckCacheSize;
   if FRow.FastLocateSorted(ARec.FCategoryId, I) then begin
     // update
@@ -197,6 +231,9 @@ begin
     FRows[I].Visible := ARec.FVisible;
     FRows[I].MinZoom := ARec.FMinZoom;
     FRows[I].MaxZoom := ARec.FMaxZoom;
+    {$IFDEF SQL_LOG_CACHE_RESULT}
+    SQLLogCache('Update CategoryID=%, ViewID=%, Count=%', [ARec.FCategoryId, ARec.FViewId, FCount], Self);
+    {$ENDIF}
   end else if I >= 0 then begin
     // add
     VRow.ViewId := ARec.FViewId;
@@ -205,6 +242,9 @@ begin
     VRow.MinZoom := ARec.FMinZoom;
     VRow.MaxZoom := ARec.FMaxZoom;
     FRow.FastAddSorted(I, VRow);
+    {$IFDEF SQL_LOG_CACHE_RESULT}
+    SQLLogCache('Add CategoryID=%, ViewID=%, NewCount=%', [ARec.FCategoryId, ARec.FViewId, FCount], Self);
+    {$ENDIF}
   end else begin
     Assert(False);
   end;
@@ -214,22 +254,34 @@ function TSQLCategoryViewCache.Find(const AID: TID; out AItem: PSQLCategoryViewR
 var
   I: Integer;
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'Find');
+  {$ENDIF}
   Result := False;
   I := FRow.Find(AID);
   if I >=0 then begin
     AItem := @FRows[I];
     Result := True;
   end;
+  {$IFDEF SQL_LOG_CACHE_RESULT}
+  SQLLogCache('Find ID=%, Result=%, Count=%', [AID, Result, FCount], Self);
+  {$ENDIF}
 end;
 
 procedure TSQLCategoryViewCache.AddPrepared(const AArr: TSQLCategoryViewRowDynArray);
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'AddPrepared');
+  {$ENDIF}
   Reset;
   if Length(AArr) > 0 then begin
     FRow.AddArray(AArr);
     FRow.Sort;
   end;
   FIsPrepared := True;
+  {$IFDEF SQL_LOG_CACHE_RESULT}
+  SQLLogCache('AddPrepared ArrCount=%, NewCount=%', [Length(AArr), FCount], Self);
+  {$ENDIF}
 end;
 
 end.

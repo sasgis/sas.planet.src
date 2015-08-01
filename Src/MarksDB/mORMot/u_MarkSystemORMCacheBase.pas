@@ -22,12 +22,9 @@ unit u_MarkSystemORMCacheBase;
 
 interface
 
-{.$DEFINE DEBUG_RESET_CACHE}
+{$I MarkSystemORM.inc}
 
 uses
-  {$IFDEF DEBUG_RESET_CACHE}
-  Windows,
-  {$ENDIF}
   SysUtils,
   SynCommons,
   t_MarkSystemORM;
@@ -46,7 +43,7 @@ type
     FMaxCacheRamUsed: Int64;
     function GetSize: Int64;
     function GetIsSorted: Boolean; inline;
-    procedure CheckCacheSize; {$IFNDEF DEBUG_RESET_CACHE} inline; {$ENDIF}
+    procedure CheckCacheSize; inline;
     procedure DeleteByIndex(const AIndex: Integer); inline;
   public
     procedure Sort;
@@ -169,7 +166,8 @@ type
 implementation
 
 uses
-  Classes;
+  Classes,
+  u_MarkSystemORMLog;
 
 { TSQLCacheBase }
 
@@ -202,6 +200,9 @@ end;
 
 procedure TSQLCacheBase.Reset;
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'Reset');
+  {$ENDIF}
   FRow.Clear;
   FRow.Sorted := True;
   FDataSize := 0;
@@ -210,14 +211,20 @@ end;
 
 procedure TSQLCacheBase.CheckCacheSize;
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'CheckCacheSize');
+  {$ENDIF}
   if FMaxCacheRamUsed > 0 then begin
     if Self.Size > FMaxCacheRamUsed then begin
-      Reset;
-      {$IFDEF DEBUG_RESET_CACHE}
-      OutputDebugString(PChar(UTF8ToString(NowToString) + ' Reset cache ' + Self.ClassName));
+      {$IFDEF SQL_LOG_CACHE_SIZE}
+      SQLLogInfo('Init auto-reset: CurSize=%, MaxSize=%', [Self.Size, FMaxCacheRamUsed], Self);
       {$ENDIF}
+      Reset;
     end;
   end;
+  {$IFDEF SQL_LOG_CACHE_SIZE}
+  SQLLogDebug('CurSize=%, MaxSize=%', [Self.Size, FMaxCacheRamUsed], Self);
+  {$ENDIF}
 end;
 
 function TSQLCacheBase.GetIsSorted: Boolean;
@@ -567,6 +574,9 @@ procedure TDynArrayByRecWithPointer.Reset;
 var
   I: Integer;
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'Reset');
+  {$ENDIF}
   if Assigned(FOnDelete) then begin
     for I := 0 to FCount - 1 do begin
       if Assigned(FArray[I].Data) then begin
@@ -607,14 +617,20 @@ end;
 
 procedure TDynArrayByRecWithPointer.CheckCacheSize;
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'CheckCacheSize');
+  {$ENDIF}
   if FMaxCacheRamUsed > 0 then begin
     if Self.Size > FMaxCacheRamUsed then begin
-      Reset;
-      {$IFDEF DEBUG_RESET_CACHE}
-      OutputDebugString(PChar(UTF8ToString(NowToString) + ' Reset cache ' + Self.ClassName));
+      {$IFDEF SQL_LOG_CACHE_SIZE}
+      SQLLogInfo('Init auto-reset: CurSize=%, MaxSize=%', [Self.Size, FMaxCacheRamUsed], Self);
       {$ENDIF}
+      Reset;
     end;
   end;
+  {$IFDEF SQL_LOG_CACHE_SIZE}
+  SQLLogDebug('CurSize=%, MaxSize=%', [Self.Size, FMaxCacheRamUsed], Self);
+  {$ENDIF}
 end;
 
 end.

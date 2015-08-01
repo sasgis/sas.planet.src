@@ -22,7 +22,10 @@ unit u_MarkDbImplORMCache;
 
 interface
 
+{$I ..\MarkSystemORM.inc}
+
 uses
+  Windows,
   SynCommons,
   t_MarkSystemORM,
   i_GeometryLonLat,
@@ -269,7 +272,8 @@ implementation
 
 uses
   Classes,
-  SysUtils;
+  SysUtils,
+  u_MarkSystemORMLog;
 
 { TSQLMarkDbCache }
 
@@ -314,18 +318,27 @@ function TSQLMarkImageCache.Find(const AID: TID; out AItem: PSQLMarkImageRow): B
 var
   I: Integer;
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'Find');
+  {$ENDIF}
   Result := False;
   I := FRow.Find(AID);
   if I >=0 then begin
     AItem := @FRows[I];
     Result := True;
   end;
+  {$IFDEF SQL_LOG_CACHE_RESULT}
+  SQLLogCache('Find ID=%, Result=%, Count=%', [AID, Result, FCount], Self);
+  {$ENDIF}
 end;
 
 function TSQLMarkImageCache.Find(const AName: string; out AItem: PSQLMarkImageRow): Boolean;
 var
   I: Integer;
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'Find');
+  {$ENDIF}
   Result := False;
   for I := 0 to FCount - 1 do begin
     AItem := @FRows[I];
@@ -334,6 +347,9 @@ begin
       Break;
     end;
   end;
+  {$IFDEF SQL_LOG_CACHE_RESULT}
+  SQLLogCache('Find Name=%, Result=%, Count=%', [AName, Result, FCount], Self);
+  {$ENDIF}
 end;
 
 procedure TSQLMarkImageCache.AddOrIgnore(const ARec: TSQLMarkRec);
@@ -346,6 +362,9 @@ var
   I: Integer;
   VRec: TSQLMarkImageRow;
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'AddOrIgnore');
+  {$ENDIF}
   CheckCacheSize;
   if not FRow.FastLocateSorted(AImageID, I) then begin
     // add
@@ -354,6 +373,9 @@ begin
       VRec.Name := AName;
       FRow.FastAddSorted(I, VRec);
       Inc(FDataSize, Length(VRec.Name)*SizeOf(Char));
+      {$IFDEF SQL_LOG_CACHE_RESULT}
+      SQLLogCache('Add ID=%, Name=%, NewCount=%', [AImageID, AName, FCount], Self);
+      {$ENDIF}
     end else begin
       Assert(False);
     end;
@@ -365,11 +387,17 @@ var
   I: Integer;
   VItemDataSize: Integer;
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'Delete');
+  {$ENDIF}
   I := FRow.Find(AID);
   if I >= 0 then begin
     VItemDataSize := Length(FRows[I].Name)*SizeOf(Char);
     DeleteByIndex(I);
     Dec(FDataSize, VItemDataSize);
+    {$IFDEF SQL_LOG_CACHE_RESULT}
+    SQLLogCache('Del ID=%, NewCount=%', [AID, FCount], Self);
+    {$ENDIF}
   end;
 end;
 
@@ -389,12 +417,18 @@ function TSQLMarkAppearanceCache.Find(
 var
   I: Integer;
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'Find');
+  {$ENDIF}
   Result := False;
   I := FRow.Find(AID);
   if I >=0 then begin
     AItem := @FRows[I];
     Result := True;
   end;
+  {$IFDEF SQL_LOG_CACHE_RESULT}
+  SQLLogCache('Find ID=%, Result=%, Count=%', [AID, Result, FCount], Self);
+  {$ENDIF}
 end;
 
 function TSQLMarkAppearanceCache.Find(
@@ -405,6 +439,9 @@ function TSQLMarkAppearanceCache.Find(
 var
   I: Integer;
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'Find');
+  {$ENDIF}
   Result := False;
   for I := 0 to FCount - 1 do begin
     AItem := @FRows[I];
@@ -415,6 +452,9 @@ begin
       Break;
     end;
   end;
+  {$IFDEF SQL_LOG_CACHE_RESULT}
+  SQLLogCache('Find Result=%, Count=%', [Result, FCount], Self);
+  {$ENDIF}
 end;
 
 procedure TSQLMarkAppearanceCache.AddOrIgnore(const ARec: TSQLMarkRec);
@@ -431,6 +471,9 @@ var
   I: Integer;
   VRec: TSQLMarkAppearanceRow;
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'AddOrIgnore');
+  {$ENDIF}
   CheckCacheSize;
   if not FRow.FastLocateSorted(AID, I) then begin
     // add
@@ -441,6 +484,9 @@ begin
       VRec.Scale1 := AScale1;
       VRec.Scale2 := AScale2;
       FRow.FastAddSorted(I, VRec);
+      {$IFDEF SQL_LOG_CACHE_RESULT}
+      SQLLogCache('Add ID=%, NewCount=%', [AID, FCount], Self);
+      {$ENDIF}
     end else begin
       Assert(False);
     end;
@@ -458,12 +504,18 @@ function TSQLMarkIdIndex.Find(const AID: TID; out AItem: PSQLMarkIdIndexRec): Bo
 var
   I: Integer;
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'Find');
+  {$ENDIF}
   Result := False;
   I := FRow.Find(AID);
   if I >=0 then begin
     AItem := @FRows[I];
     Result := True;
   end;
+  {$IFDEF SQL_LOG_CACHE_RESULT}
+  SQLLogCache('Find ID=%, Result=%, Count=%', [AID, Result, FCount], Self);
+  {$ENDIF}
 end;
 
 procedure TSQLMarkIdIndex.AddOrUpdate(const ARec: TSQLMarkRec);
@@ -471,12 +523,18 @@ var
   I: Integer;
   VRec: TSQLMarkIdIndexRec;
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'AddOrUpdate');
+  {$ENDIF}
   CheckCacheSize;
   if not FRow.FastLocateSorted(ARec.FMarkId, I) then begin
     // add
     if I >= 0 then begin
       MarkRecToIndexRec(ARec, @VRec);
       FRow.FastAddSorted(I, VRec);
+      {$IFDEF SQL_LOG_CACHE_RESULT}
+      SQLLogCache('Add ID=%, NewCount=%', [ARec.FMarkId, FCount], Self);
+      {$ENDIF}
     end else begin
       Assert(False);
     end;
@@ -485,11 +543,17 @@ begin
     FRows[I].CategoryId := ARec.FCategoryId;
     FRows[I].ImageId := ARec.FPicId;
     FRows[I].AppearanceId := ARec.FAppearanceId;
+    {$IFDEF SQL_LOG_CACHE_RESULT}
+    SQLLogCache('Update ID=%, Count=%', [ARec.FMarkId, FCount], Self);
+    {$ENDIF}
   end;
 end;
 
 procedure TSQLMarkIdIndex.AddPrepared(const AArr: TSQLMarkIdIndexRecDynArray);
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'AddPrepared');
+  {$ENDIF}
   Reset;
   if Length(AArr) > 0 then begin
     FRow.AddArray(AArr);
@@ -509,6 +573,9 @@ var
   VCount: Integer;
   VBits: TBits;
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'AddArray');
+  {$ENDIF}
   if ACount < 0 then begin
     VSize := Length(AArray) - AStartIndex;
   end else begin
@@ -584,6 +651,9 @@ var
   VItem: PRecWithPointer;
   VArray: TIDDynArrayObject;
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'Find');
+  {$ENDIF}
   Result := False;
   if FDynArray.Find(ACategoryID, VItem) then begin
     Assert(VItem.Data <> nil);
@@ -592,6 +662,9 @@ begin
     AMarkIDArrayCount := VArray.Count;
     Result := True;
   end;
+  {$IFDEF SQL_LOG_CACHE_RESULT}
+  SQLLogCache('Find CategoryID=%, Result=%, OutArrCount=%', [ACategoryID, Result, AMarkIDArrayCount], Self);
+  {$ENDIF}
 end;
 
 procedure TSQLMarkIdByCategoryIndex.AddPrepared(
@@ -603,22 +676,37 @@ procedure TSQLMarkIdByCategoryIndex.AddPrepared(
 var
   VItem: PRecWithPointer;
   VArray: TIDDynArrayObject;
+  {$IFDEF SQL_LOG_CACHE_RESULT}
+  VArrayCount: Integer;
+  {$ENDIF}
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'AddPrepared');
+  {$ENDIF}
   if FDynArray.Find(ACategoryID, VItem) then begin
     Assert(VItem.Data <> nil);
     VArray := TIDDynArrayObject(VItem.Data);
     VArray.Reset;
     VArray.AddArray(AMarkIDArray);
+    {$IFDEF SQL_LOG_CACHE_RESULT}
+    VArrayCount := VArray.Count;
+    {$ENDIF}
   end else begin
     VArray := TIDDynArrayObject.Create;
     try
       VArray.AddArray(AMarkIDArray);
+      {$IFDEF SQL_LOG_CACHE_RESULT}
+      VArrayCount := VArray.Count;
+      {$ENDIF}
       FDynArray.Add(ACategoryID, Pointer(VArray), 0, True);
       VArray := nil;
     finally
       VArray.Free;
     end;
   end;
+  {$IFDEF SQL_LOG_CACHE_RESULT}
+  SQLLogCache('AddPrepared CategoryID=%, MarksCountNew=%, Count=%', [ACategoryID, VArrayCount, FDynArray.Count], Self);
+  {$ENDIF}
 end;
 
 procedure TSQLMarkIdByCategoryIndex.Add(const ACategoryID: TID; const AMarkID: TID);
@@ -626,10 +714,16 @@ var
   VItem: PRecWithPointer;
   VArray: TIDDynArrayObject;
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'Add');
+  {$ENDIF}
   if FDynArray.Find(ACategoryID, VItem) then begin
     Assert(VItem.Data <> nil);
     VArray := TIDDynArrayObject(VItem.Data);
     VArray.Add(AMarkID);
+    {$IFDEF SQL_LOG_CACHE_RESULT}
+    SQLLogCache('Add CategoryID=%, MarkID=%, MarksCountNew=%', [ACategoryID, AMarkID, VArray.Count], Self);
+    {$ENDIF}
   end;
 end;
 
@@ -638,10 +732,16 @@ var
   VItem: PRecWithPointer;
   VArray: TIDDynArrayObject;
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'Delete');
+  {$ENDIF}
   if FDynArray.Find(ACategoryID, VItem) then begin
     Assert(VItem.Data <> nil);
     VArray := TIDDynArrayObject(VItem.Data);
     VArray.Delete(AMarkID);
+    {$IFDEF SQL_LOG_CACHE_RESULT}
+    SQLLogCache('Del CategoryID=%, MarkID=%, MarksCountNew=%', [ACategoryID, AMarkID, VArray.Count], Self);
+    {$ENDIF}
   end;
 end;
 
@@ -656,12 +756,18 @@ function TSQLMarkCache.Find(const AID: TID; out AItem: PSQLMarkRow): Boolean;
 var
   I: Integer;
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'Find');
+  {$ENDIF}
   Result := False;
   I := FRow.Find(AID);
   if I >=0 then begin
     AItem := @FRows[I];
     Result := True;
   end;
+  {$IFDEF SQL_LOG_CACHE_RESULT}
+  SQLLogCache('Find ID=%, Result=%, Count=%', [AID, Result, FCount], Self);
+  {$ENDIF}
 end;
 
 procedure TSQLMarkCache.AddOrUpdate(const ARec: TSQLMarkRec);
@@ -670,6 +776,9 @@ var
   VSize: Integer;
   VRow: TSQLMarkRow;
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'AddOrUpdate');
+  {$ENDIF}
   CheckCacheSize;
   VSize := (Length(ARec.FName) + Length(ARec.FDesc)) * SizeOf(Char);
   if FRow.FastLocateSorted(ARec.FMarkId, I) then begin
@@ -677,11 +786,17 @@ begin
     VSize := VSize - (Length(FRows[I].Name) + Length(FRows[I].Desc)) * SizeOf(Char);
     MarkRecToMarkRow(ARec, FRows[I]);
     Inc(FDataSize, VSize);
+    {$IFDEF SQL_LOG_CACHE_RESULT}
+    SQLLogCache('Update ID=%, SizeDiff=%, Count=%', [ARec.FMarkId, VSize, FCount], Self);
+    {$ENDIF}
   end else if I >= 0 then begin
     // add
     MarkRecToMarkRow(ARec, VRow);
     FRow.FastAddSorted(I, VRow);
     Inc(FDataSize, VSize);
+    {$IFDEF SQL_LOG_CACHE_RESULT}
+    SQLLogCache('Add ID=%, Size=%, NewCount=%', [ARec.FMarkId, VSize, FCount], Self);
+    {$ENDIF}
   end else begin
     Assert(False);
   end;
@@ -694,20 +809,26 @@ var
   VCount: Integer;
   VBits: TBits;
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'AddPrepared');
+  {$ENDIF}
   CheckCacheSize;
+  VCount := Length(AArr);
   if ACategoryID > 0 then begin
     VBits := TBits.Create;
     try
       if not FPreparedCategoriesDynArr.FastLocateSorted(ACategoryID, I) then begin
         if I >= 0 then begin
           FPreparedCategoriesDynArr.FastAddSorted(I, ACategoryID);
+          {$IFDEF SQL_LOG_CACHE_RESULT}
+          SQLLogCache('PreparedCategoryID=%, PreparedCount=%', [ACategoryID, FPreparedCategoriesDynArr.Count], Self);
+          {$ENDIF}
         end else begin
           Assert(False);
           Exit;
         end;
       end;
       J := 0;
-      VCount := Length(AArr);
       VBits.Size := VCount;
       for I := 0 to VCount - 1 do begin
         if FRow.Find(AArr[I].MarkId) < 0 then begin
@@ -738,16 +859,19 @@ begin
     end;
   end else begin
     Reset;
-    if Length(AArr) > 0 then begin
+    if VCount > 0 then begin
       FRow.AddArray(AArr);
       FRow.Sort;
     end;
     FIsPrepared := True;
-    for I := 0 to Length(AArr) - 1 do begin
+    for I := 0 to VCount - 1 do begin
       VSize := (Length(AArr[I].Name) + Length(AArr[I].Desc)) * SizeOf(Char);
       Inc(FDataSize, VSize);
     end;
   end;
+  {$IFDEF SQL_LOG_CACHE_RESULT}
+  SQLLogCache('AddPrepared CategoryID=%, IsPrepared=%, InArrCount=%, Count=%', [ACategoryID, FIsPrepared, VCount, FCount], Self);
+  {$ENDIF}
 end;
 
 class procedure TSQLMarkCache.MarkRecToMarkRow(
@@ -775,12 +899,18 @@ function TSQLMarkViewCache.Find(const AMarkID: TID; out AItem: PSQLMarkViewRow):
 var
   I: Integer;
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'Find');
+  {$ENDIF}
   Result := False;
   I := FRow.Find(AMarkID);
   if I >=0 then begin
     AItem := @FRows[I];
     Result := True;
   end;
+  {$IFDEF SQL_LOG_CACHE_RESULT}
+  SQLLogCache('Find ID=%, Result=%, Count=%', [AMarkID, Result, FCount], Self);
+  {$ENDIF}
 end;
 
 procedure TSQLMarkViewCache.AddOrUpdate(const ARec: TSQLMarkRec);
@@ -796,17 +926,26 @@ var
   I: Integer;
   VRow: TSQLMarkViewRow;
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'AddOrUpdate');
+  {$ENDIF}
   CheckCacheSize;
   if FRow.FastLocateSorted(AMarkID, I) then begin
     // update
     FRows[I].ViewId := AViewID;
     FRows[I].Visible := AVisible;
+    {$IFDEF SQL_LOG_CACHE_RESULT}
+    SQLLogCache('Update AMarkID=%, Count=%', [AMarkID, FCount], Self);
+    {$ENDIF}
   end else if I >= 0 then begin
     // add
     VRow.MarkId := AMarkID;
     VRow.ViewId := AViewID;
     VRow.Visible := AVisible;
     FRow.FastAddSorted(I, VRow);
+    {$IFDEF SQL_LOG_CACHE_RESULT}
+    SQLLogCache('Add AMarkID=%, NewCount=%', [AMarkID, FCount], Self);
+    {$ENDIF}
   end else begin
     Assert(False);
   end;
@@ -818,20 +957,26 @@ var
   VCount: Integer;
   VBits: TBits;
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'AddPrepared');
+  {$ENDIF}
   CheckCacheSize;
+  VCount := Length(AArr);
   if ACategoryID > 0 then begin
     VBits := TBits.Create;
     try
       if not FPreparedCategoriesDynArr.FastLocateSorted(ACategoryID, I) then begin
         if I >= 0 then begin
           FPreparedCategoriesDynArr.FastAddSorted(I, ACategoryID);
+          {$IFDEF SQL_LOG_CACHE_RESULT}
+          SQLLogCache('PreparedCategoryID=%, PreparedCount=%', [ACategoryID, FPreparedCategoriesDynArr.Count], Self);
+          {$ENDIF}
         end else begin
           Assert(False);
           Exit;
         end;
       end;
       J := 0;
-      VCount := Length(AArr);
       VBits.Size := VCount;
       for I := 0 to VCount - 1 do begin
         if FRow.Find(AArr[I].MarkId) < 0 then begin
@@ -856,12 +1001,15 @@ begin
     end;
   end else begin
     Reset;
-    if Length(AArr) > 0 then begin
+    if VCount > 0 then begin
       FRow.AddArray(AArr);
       FRow.Sort;
     end;
     FIsPrepared := True;
   end;
+  {$IFDEF SQL_LOG_CACHE_RESULT}
+  SQLLogCache('AddPrepared CategoryID=%, IsPrepared=%, InArrCount=%, Count=%', [ACategoryID, FIsPrepared, VCount, FCount], Self);
+  {$ENDIF}
 end;
 
 class procedure TSQLMarkViewCache.MarkRecToViewRow(
@@ -903,10 +1051,16 @@ function TSQLMarkGeometryCache.Find(
 var
   VItem: PRecWithPointer;
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'Find');
+  {$ENDIF}
   Result := FGeometryArray.Find(AMarkID, VItem);
   if Result then begin
     AGeometry := IGeometryLonLat(VItem.Data);
   end;
+  {$IFDEF SQL_LOG_CACHE_RESULT}
+  SQLLogCache('Find ID=%, Result=%, Count=%', [AMarkID, Result, FGeometryArray.Count], Self);
+  {$ENDIF}
 end;
 
 procedure TSQLMarkGeometryCache.AddOrUpdate(
@@ -915,7 +1069,13 @@ procedure TSQLMarkGeometryCache.AddOrUpdate(
   const AGeometry: IGeometryLonLat
 );
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'AddOrUpdate');
+  {$ENDIF}
   FGeometryArray.Add(AMarkID, Pointer(AGeometry), ASize, True);
+  {$IFDEF SQL_LOG_CACHE_RESULT}
+  SQLLogCache('Add/Update ID=%, Size=%, (New)Count=%', [AMarkID, ASize, FGeometryArray.Count], Self);
+  {$ENDIF}
 end;
 
 procedure TSQLMarkGeometryCache.AddPrepared(
@@ -927,6 +1087,9 @@ var
   VCount: Integer;
   VArray: TRecWithPointerDynArray;
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'AddPrepared');
+  {$ENDIF}
   VCount := Length(AArr);
   SetLength(VArray, VCount);
   for I := 0 to VCount - 1 do begin
@@ -940,15 +1103,27 @@ begin
   end else begin
     FIsPrepared := True;
   end;
+  {$IFDEF SQL_LOG_CACHE_RESULT}
+  SQLLogCache('AddPrepared CategoryID=%, IsPrepared=%, InArrCount=%, Count=%', [ACategoryID, FIsPrepared, VCount, FGeometryArray.Count], Self);
+  {$ENDIF}
 end;
 
 procedure TSQLMarkGeometryCache.Delete(const AMarkID: TID);
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'Delete');
+  {$ENDIF}
   FGeometryArray.Delete(AMarkID);
+  {$IFDEF SQL_LOG_CACHE_RESULT}
+  SQLLogCache('Del ID=%, NewCount=%', [AMarkID, FGeometryArray.Count], Self);
+  {$ENDIF}
 end;
 
 procedure TSQLMarkGeometryCache.Reset;
 begin
+  {$IFDEF SQL_LOG_CACHE_ENTER}
+  SQLLogEnter(Self, 'Reset');
+  {$ENDIF}
   FGeometryArray.Reset;
   FPreparedCategories.Reset;
 end;

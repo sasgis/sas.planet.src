@@ -90,15 +90,8 @@ type
 
 implementation
 
-{.$DEFINE LOG_ENABLE}
-
 uses
   SysUtils,
-  {$IFDEF LOG_ENABLE}
-  mORMot,
-  SynLog,
-  SynCommons,
-  {$ENDIF}
   t_CommonTypes,
   i_GeometryToStream,
   i_GeometryFromStream,
@@ -106,6 +99,7 @@ uses
   u_GeometryFromWKB,
   u_ReadWriteStateInternal,
   u_MarkDbImplORM,
+  u_MarkSystemORMLog,
   u_MarkCategoryDbImplORM,
   u_MarkFactoryDbInternalORM,
   u_MarkSystemImplORMClientProvider;
@@ -143,15 +137,6 @@ begin
   if AImplConfig.IsReadOnly then begin
     VStateInternal.WriteAccess := asDisabled;
   end;
-
-  {$IFDEF LOG_ENABLE}
-  with TSQLLog.Family do begin
-    Level := [sllSQL] + LOG_STACKTRACE;
-    //Level := LOG_VERBOSE;
-    HighResolutionTimeStamp := true;
-    PerThreadLog := ptIdentifiedInOnFile;
-  end;
-  {$ENDIF}
 
   FClientProvider :=
     TMarkSystemImplORMClientProvider.Create(
@@ -260,5 +245,8 @@ begin
     Result := IntToStr(VMark.Id);
   end;
 end;
+
+initialization
+  InitSQLLog;
 
 end.

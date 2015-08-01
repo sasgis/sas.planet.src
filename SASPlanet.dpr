@@ -721,6 +721,7 @@ uses
   u_MarkSystemImplORM in 'Src\MarksDB\mORMot\u_MarkSystemImplORM.pas',
   u_MarkSystemImplORMClientProvider in 'Src\MarksDB\mORMot\u_MarkSystemImplORMClientProvider.pas',
   u_MarkSystemORMCacheBase in 'Src\MarksDB\mORMot\u_MarkSystemORMCacheBase.pas',
+  u_MarkSystemORMLog in 'Src\MarksDB\mORMot\u_MarkSystemORMLog.pas',
   u_MarkSystemORMModel in 'Src\MarksDB\mORMot\u_MarkSystemORMModel.pas',
   u_MarkSystemORMTools in 'Src\MarksDB\mORMot\u_MarkSystemORMTools.pas',
   u_MarkCategory in 'Src\MarksDB\u_MarkCategory.pas',
