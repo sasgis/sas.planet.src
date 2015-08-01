@@ -863,6 +863,9 @@ function TMarkDbImplORMHelper.SetMarkVisibleSQL(
   const AUseTransaction: Boolean
 ): Boolean;
 var
+  VFind: Boolean;
+  VItem: PSQLMarkViewRow;
+  VSQLWhere: RawUTF8;
   VSQLMarkView: TSQLMarkView;
   VTransaction: TTransactionRec;
 begin
@@ -874,16 +877,26 @@ begin
     StartTransaction(FClient, VTransaction, TSQLMarkView);
   end;
   try
-    VSQLMarkView := TSQLMarkView.Create(FClient, 'Mark=? AND User=?', [AMarkID, FUserID]);
+    VSQLMarkView := TSQLMarkView.Create;
     try
-      if VSQLMarkView.ID > 0 then begin
+      VFind := FCache.FMarkViewCache.Find(AMarkID, VItem);
+      if VFind then begin
+        VSQLMarkView.IDValue := VItem.ViewId;
+        VSQLMarkView.User := Pointer(FUserID);
+        VSQLMarkView.Mark := Pointer(VItem.MarkId);
+        VSQLMarkView.Visible := VItem.Visible;
+      end else if not FCache.FMarkViewCache.IsPrepared then begin
+        VSQLWhere := FormatUTF8('Mark=? AND User=?', [], [AMarkID, FUserID]);
+        VFind := FClient.Retrieve(VSQLWhere, VSQLMarkView, 'RowID,Visible');
+      end;
+      if VFind  and (VSQLMarkView.ID > 0) then begin
         // update db
         if VSQLMarkView.Visible <> AVisible then begin
           VSQLMarkView.Visible := AVisible;
           Result := FClient.Update(VSQLMarkView, 'Visible');
           CheckUpdateResult(Result);
         end;
-      end else if not AVisible then begin
+      end else begin
         VSQLMarkView.User := Pointer(FUserID);
         VSQLMarkView.Mark := Pointer(AMarkID);
         VSQLMarkView.Visible := AVisible;
@@ -1289,12 +1302,8 @@ begin
       VCategory := FormatUTF8('AND Mark.Category=? ',[],[ACategoryIDArray[0]]);
     end;
   end else if VLen > 1 then begin
-    VCategory :=
-      Int64DynArrayToCSV(
-        TInt64DynArray(ACategoryIDArray),
-        VLen,
-        'AND Mark.Category IN (',') '
-      );
+    VCategory := Int64DynArrayToCSV(TInt64DynArray(ACategoryIDArray), VLen);
+    VCategory := FormatUTF8('AND Mark.Category IN (%) ', [VCategory]);
   end else begin
     VCategory := '';
   end;
