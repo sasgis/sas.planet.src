@@ -232,8 +232,8 @@ begin
       VGeoConverter.ValidatePixelRectFloat(VItemSelectPixelRect, VZoom);
       VLonLatRect := VGeoConverter.PixelRectFloat2LonLatRect(VItemSelectPixelRect, VZoom);
 
-      VLonLatSize.X := 10 * (VLonLatRect.Right - VLonLatRect.Left) / (VItemSelectPixelRect.Right - VItemSelectPixelRect.Left);
-      VLonLatSize.Y := 10 * (VLonLatRect.Top - VLonLatRect.Bottom) / (VItemSelectPixelRect.Bottom - VItemSelectPixelRect.Top);
+      VLonLatSize.X := (VLonLatRect.Right - VLonLatRect.Left) / (VItemSelectPixelRect.Right - VItemSelectPixelRect.Left);
+      VLonLatSize.Y := (VLonLatRect.Top - VLonLatRect.Bottom) / (VItemSelectPixelRect.Bottom - VItemSelectPixelRect.Top);
 
       Result :=
         FMarkDB.MarkDb.GetMarkSubsetByCategoryListInRect(

@@ -61,7 +61,8 @@ type
 { TProjectedGeometryProvider }
 
 const
-  CMinProjectedSize = 10;
+  CMinProjectedLineSize = 1;
+  CMinProjectedPolygonSize = 10;
 
 constructor TGeometryProjectedProvider.Create(
   const AHashFunction: IHashFunction;
@@ -105,8 +106,8 @@ begin
         VTestArrLenLonLatRect,
         VData^.ProjectionInfo.Zoom
       );
-    if (abs(VTestArrLenPixelRect.Left - VTestArrLenPixelRect.Right) > CMinProjectedSize) or
-      (abs(VTestArrLenPixelRect.Top - VTestArrLenPixelRect.Bottom) > CMinProjectedSize) then begin
+    if (abs(VTestArrLenPixelRect.Left - VTestArrLenPixelRect.Right) > CMinProjectedLineSize) or
+      (abs(VTestArrLenPixelRect.Top - VTestArrLenPixelRect.Bottom) > CMinProjectedLineSize) then begin
       VResultPath :=
         FVectorGeometryProjectedFactory.CreateProjectedLineByLonLatPath(
           VData^.ProjectionInfo,
@@ -124,8 +125,8 @@ begin
         VTestArrLenLonLatRect,
         VData^.ProjectionInfo.Zoom
       );
-    if (abs(VTestArrLenPixelRect.Left - VTestArrLenPixelRect.Right) > CMinProjectedSize) or
-      (abs(VTestArrLenPixelRect.Top - VTestArrLenPixelRect.Bottom) > CMinProjectedSize) then begin
+    if (abs(VTestArrLenPixelRect.Left - VTestArrLenPixelRect.Right) > CMinProjectedPolygonSize) or
+      (abs(VTestArrLenPixelRect.Top - VTestArrLenPixelRect.Bottom) > CMinProjectedPolygonSize) then begin
       VResultPolygon :=
         FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
           VData^.ProjectionInfo,
