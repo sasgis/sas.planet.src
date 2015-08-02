@@ -136,6 +136,8 @@ begin
 
   if AImplConfig.IsReadOnly then begin
     VStateInternal.WriteAccess := asDisabled;
+  end else begin
+    VStateInternal.WriteAccess := asEnabled;
   end;
 
   FClientProvider :=
@@ -148,6 +150,7 @@ begin
   VCategoryDb :=
     TMarkCategoryDbImplORM.Create(
       FDbId,
+      VStateInternal,
       FClientProvider
     );
 
@@ -171,6 +174,7 @@ begin
   VMarkDb :=
     TMarkDbImplORM.Create(
       FDbId,
+      VStateInternal,
       FClientProvider,
       FFactoryDbInternal,
       VGeometryReader,

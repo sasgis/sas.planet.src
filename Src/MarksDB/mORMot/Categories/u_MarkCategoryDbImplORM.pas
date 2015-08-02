@@ -27,6 +27,9 @@ uses
   SysUtils,
   mORMot,
   SynCommons,
+  i_Notifier,
+  i_Listener,
+  i_ReadWriteStateInternal,
   i_Category,
   i_MarkCategory,
   i_MarkCategoryList,
@@ -49,7 +52,11 @@ type
     FClient: TSQLRestClient;
     FFactoryDbInternal: IMarkCategoryFactoryDbInternalORM;
     FHelper: TMarkCategoryDbImplORMHelper;
+    FStateInternal: IReadWriteStateInternal;
+    FStateChangeNotifier: INotifier;
+    FStateChangeListener: IListener;
   private
+    procedure _OnStateChange;
     function _UpdateCategory(
       const AOldCategory: IInterface;
       const ANewCategory: IInterface;
@@ -77,6 +84,7 @@ type
   public
     constructor Create(
       const ADbId: Integer;
+      const AStateInternal: IReadWriteStateInternal;
       const AClientProvider: IMarkSystemImplORMClientProvider
     );
     destructor Destroy; override;
@@ -86,10 +94,12 @@ implementation
 
 uses
   StrUtils,
+  t_CommonTypes,
   t_MarkSystemORM,
   i_InterfaceListSimple,
   i_MarkCategoryInternalORM,
   u_InterfaceListSimple,
+  u_ListenerByEvent,
   u_MarkCategoryList,
   u_MarkSystemORMTools,
   u_MarkSystemORMModel,
@@ -97,8 +107,11 @@ uses
 
 constructor TMarkCategoryDbImplORM.Create(
   const ADbId: Integer;
+  const AStateInternal: IReadWriteStateInternal;
   const AClientProvider: IMarkSystemImplORMClientProvider
 );
+var
+  VIsReadOnly: Boolean;
 begin
   Assert(ADbId <> 0);
   Assert(Assigned(AClientProvider));
@@ -107,15 +120,39 @@ begin
 
   FDbId := ADbId;
   FClient := AClientProvider.RestClient;
-  FHelper := TMarkCategoryDbImplORMHelper.Create(AClientProvider);
   FFactoryDbInternal := TMarkCategoryFactoryDbInternalORM.Create(FDbId);
+
+  FStateInternal := AStateInternal;
+  VIsReadOnly := (FStateInternal.WriteAccess <> asEnabled);
+  FHelper := TMarkCategoryDbImplORMHelper.Create(VIsReadOnly, AClientProvider);
+
+  FStateChangeNotifier := FStateInternal.ChangeNotifier;
+  if Assigned(FStateChangeNotifier) then begin
+    FStateChangeListener := TNotifyNoMmgEventListener.Create(Self._OnStateChange);
+    FStateChangeNotifier.Add(FStateChangeListener);
+  end else begin
+    FStateChangeListener := nil;
+  end;
 end;
 
 destructor TMarkCategoryDbImplORM.Destroy;
 begin
+  if Assigned(FStateChangeNotifier) and Assigned(FStateChangeListener) then begin
+    FStateChangeNotifier.Remove(FStateChangeListener);
+  end;
   FreeAndNil(FHelper);
   FFactoryDbInternal := nil;
   inherited;
+end;
+
+procedure TMarkCategoryDbImplORM._OnStateChange;
+begin
+  LockWrite;
+  try
+    FHelper.IsReadOnly := (FStateInternal.WriteAccess <> asEnabled); 
+  finally
+    UnlockWrite;
+  end;
 end;
 
 procedure _SQLCategoryRecFromCategory(
@@ -170,8 +207,7 @@ begin
     if Assigned(AOldCategory) and not Assigned(ANewCategory) then
     begin // DELETE
       if Assigned(VCategoryInternal) and (VCategoryID > 0) then begin
-        FHelper.DeleteCategorySQL(VCategoryID);
-        AIsChanged := True;
+        AIsChanged := FHelper.DeleteCategorySQL(VCategoryID);
       end;
     end
     else
@@ -179,9 +215,10 @@ begin
     begin // INSERT
       if Supports(ANewCategory, IMarkCategory, VNewCategory) then begin
         _SQLCategoryRecFromCategory(0, VNewCategory, VSQLCategoryRecNew);
-        FHelper.InsertCategorySQL(VSQLCategoryRecNew);
-        Result := FFactoryDbInternal.CreateCategory(VSQLCategoryRecNew);
-        AIsChanged := True;
+        if FHelper.InsertCategorySQL(VSQLCategoryRecNew) then begin
+          Result := FFactoryDbInternal.CreateCategory(VSQLCategoryRecNew);
+          AIsChanged := True;
+        end;
       end else begin
         raise EMarkSystemORMError.Create('MarkSystemORM: Unknown category interface!');
       end;
@@ -205,9 +242,10 @@ begin
         if Supports(ANewCategory, IMarkCategory, VNewCategory) then begin
           _SQLCategoryRecFromCategory(0, VNewCategory, VSQLCategoryRecNew);
           _SQLCategoryRecFromCategory(VCategoryID, VOldCategory, VSQLCategoryRecOld);
-          FHelper.UpdateCategorySQL(VSQLCategoryRecOld, VSQLCategoryRecNew);
-          Result := FFactoryDbInternal.CreateCategory(VSQLCategoryRecNew);
-          AIsChanged := True;
+          if FHelper.UpdateCategorySQL(VSQLCategoryRecOld, VSQLCategoryRecNew) then begin
+            Result := FFactoryDbInternal.CreateCategory(VSQLCategoryRecNew);
+            AIsChanged := True;
+          end;
         end;
       end;
     end;

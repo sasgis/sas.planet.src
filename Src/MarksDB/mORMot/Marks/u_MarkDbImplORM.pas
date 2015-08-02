@@ -29,6 +29,8 @@ uses
   SynCommons,
   t_MarkSystemORM,
   t_GeoTypes,
+  i_Notifier,
+  i_Listener,
   i_GeometryLonLat,
   i_GeometryToStream,
   i_GeometryFromStream,
@@ -37,6 +39,7 @@ uses
   i_InterfaceListSimple,
   i_Category,
   i_VectorDataItemSimple,
+  i_ReadWriteStateInternal,
   i_MarkId,
   i_VectorItemSubset,
   i_MarkCategoryList,
@@ -58,9 +61,14 @@ type
     FDbId: Integer;
     FClient: TSQLRestClient;
     FHelper: TMarkDbImplORMHelper;
+    FStateInternal: IReadWriteStateInternal;
+    FStateChangeNotifier: INotifier;
+    FStateChangeListener: IListener;
     FFactoryDbInternal: IMarkFactoryDbInternalORM;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   private
+    procedure _OnStateChange;
+
     function _GetMarkSQL(
       const ID: TID = 0;
       const AName: string = '';
@@ -184,6 +192,7 @@ type
   public
     constructor Create(
       const ADbId: Integer;
+      const AStateInternal: IReadWriteStateInternal;
       const AClientProvider: IMarkSystemImplORMClientProvider;
       const AFactoryDbInternal: IMarkFactoryDbInternalORM;
       const AGeometryReader: IGeometryFromStream;
@@ -197,19 +206,24 @@ implementation
 
 uses
   t_Bitmap32,
+  t_CommonTypes,
   i_AppearanceOfVectorItem,
+  u_ListenerByEvent,
   u_InterfaceListSimple,
   u_MarkSystemORMTools,
   u_MarkSystemORMModel;
 
 constructor TMarkDbImplORM.Create(
   const ADbId: Integer;
+  const AStateInternal: IReadWriteStateInternal;
   const AClientProvider: IMarkSystemImplORMClientProvider;
   const AFactoryDbInternal: IMarkFactoryDbInternalORM;
   const AGeometryReader: IGeometryFromStream;
   const AGeometryWriter: IGeometryToStream;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory
 );
+var
+  VIsReadOnly: Boolean;
 begin
   Assert(ADbId <> 0);
   Assert(Assigned(AClientProvider));
@@ -223,19 +237,44 @@ begin
   FFactoryDbInternal := AFactoryDbInternal;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
 
+  FStateInternal := AStateInternal;
+  VIsReadOnly := (FStateInternal.WriteAccess <> asEnabled);
+
   FHelper :=
     TMarkDbImplORMHelper.Create(
+      VIsReadOnly,
       AGeometryWriter,
       AGeometryReader,
       AClientProvider
     );
+
+  FStateChangeNotifier := FStateInternal.ChangeNotifier;
+  if Assigned(FStateChangeNotifier) then begin
+    FStateChangeListener := TNotifyNoMmgEventListener.Create(_OnStateChange);
+    FStateChangeNotifier.Add(FStateChangeListener);
+  end else begin
+    FStateChangeListener := nil;
+  end;
 end;
 
 destructor TMarkDbImplORM.Destroy;
 begin
+  if Assigned(FStateChangeNotifier) and Assigned(FStateChangeListener) then begin
+    FStateChangeNotifier.Remove(FStateChangeListener);
+  end;
   FreeAndNil(FHelper);
   FFactoryDbInternal := nil;
   inherited;
+end;
+
+procedure TMarkDbImplORM._OnStateChange;
+begin
+  LockWrite;
+  try
+    FHelper.IsReadOnly := (FStateInternal.WriteAccess <> asEnabled); 
+  finally
+    UnlockWrite;
+  end;
 end;
 
 class function TMarkDbImplORM._GetCategoryID(const ACategory: ICategory): TID;
@@ -504,6 +543,9 @@ begin
   end;
 
   if Supports(ANewMark, IVectorDataItem, VNewMark) then begin
+    if FStateInternal.WriteAccess <> asEnabled then begin
+      Exit;
+    end;
     VNewMark := FFactoryDbInternal.CreateInternalMark(VNewMark);
     Assert(Assigned(VNewMark));
     if not Assigned(VNewMark) then begin
@@ -533,21 +575,22 @@ begin
       // UPDATE
       _SQLMarkRecFromMark(VOldMark, VSQLMarkRecOld);
       _SQLMarkRecFromMark(VNewMark, VSQLMarkRecNew);
-      FHelper.UpdateMarkSQL(VSQLMarkRecOld, VSQLMarkRecNew);
-      Result := FFactoryDbInternal.CreateMark(VSQLMarkRecNew);
-      AIsChanged := True;
+      if FHelper.UpdateMarkSQL(VSQLMarkRecOld, VSQLMarkRecNew) then begin
+        Result := FFactoryDbInternal.CreateMark(VSQLMarkRecNew);
+        AIsChanged := True;
+      end;
     end else begin
       // DELETE
-      FHelper.DeleteMarkSQL(VIdOld);
-      AIsChanged := True;
+      AIsChanged := FHelper.DeleteMarkSQL(VIdOld);
     end;
   end else begin
     // INSERT
     if VNewMark <> nil then begin
       _SQLMarkRecFromMark(VNewMark, VSQLMarkRecNew);
-      FHelper.InsertMarkSQL(VSQLMarkRecNew);
-      Result := FFactoryDbInternal.CreateMark(VSQLMarkRecNew);
-      AIsChanged := True;
+      if FHelper.InsertMarkSQL(VSQLMarkRecNew) then begin
+        Result := FFactoryDbInternal.CreateMark(VSQLMarkRecNew);
+        AIsChanged := True;
+      end;
     end;
   end;
 end;
