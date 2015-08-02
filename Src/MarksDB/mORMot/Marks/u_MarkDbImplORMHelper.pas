@@ -142,6 +142,7 @@ type
   public
     constructor Create(
       const AIsReadOnly: Boolean;
+      const ACacheSizeMb: Cardinal;
       const AGeometryWriter: IGeometryToStream;
       const AGeometryReader: IGeometryFromStream;
       const AClientProvider: IMarkSystemImplORMClientProvider
@@ -160,6 +161,7 @@ uses
 
 constructor TMarkDbImplORMHelper.Create(
   const AIsReadOnly: Boolean;
+  const ACacheSizeMb: Cardinal;
   const AGeometryWriter: IGeometryToStream;
   const AGeometryReader: IGeometryFromStream;
   const AClientProvider: IMarkSystemImplORMClientProvider
@@ -169,7 +171,11 @@ begin
   Assert(AGeometryReader <> nil);
   inherited Create;
   FIsReadOnly := AIsReadOnly;
-  FCache.Init;
+  if ACacheSizeMb > 0 then begin
+    FCache.Init(ACacheSizeMb*1024*1024);
+  end else begin
+    FCache.Init(1024*1024*1024); // 1 Gb
+  end;
   FGeometryWriter := AGeometryWriter;
   FGeometryReader := AGeometryReader;
   FClientProvider := AClientProvider;

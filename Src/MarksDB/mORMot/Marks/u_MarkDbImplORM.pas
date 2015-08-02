@@ -192,6 +192,7 @@ type
   public
     constructor Create(
       const ADbId: Integer;
+      const ACacheSizeMb: Cardinal;
       const AStateInternal: IReadWriteStateInternal;
       const AClientProvider: IMarkSystemImplORMClientProvider;
       const AFactoryDbInternal: IMarkFactoryDbInternalORM;
@@ -215,6 +216,7 @@ uses
 
 constructor TMarkDbImplORM.Create(
   const ADbId: Integer;
+  const ACacheSizeMb: Cardinal;
   const AStateInternal: IReadWriteStateInternal;
   const AClientProvider: IMarkSystemImplORMClientProvider;
   const AFactoryDbInternal: IMarkFactoryDbInternalORM;
@@ -243,6 +245,7 @@ begin
   FHelper :=
     TMarkDbImplORMHelper.Create(
       VIsReadOnly,
+      ACacheSizeMb,
       AGeometryWriter,
       AGeometryReader,
       AClientProvider

@@ -36,6 +36,9 @@ type
 
     function GetPasswordPlain: string;
     property PasswordPlain: string read GetPasswordPlain;
+
+    function GetCacheSizeMb: Cardinal;
+    property CacheSizeMb: Cardinal read GetCacheSizeMb;
   end;
 
 implementation

@@ -194,6 +194,7 @@ var
   VIsReadOnly: Boolean;
   VUserName: string;
   VPass: string;
+  VCacheSize: Cardinal;
   VTmp: string;
   VZeroGUID: string;
   VItem: IMarkSystemConfigStatic;
@@ -240,7 +241,8 @@ begin
           // ORM
           VUserName := VConfig.ReadString(VConfId + 'UserName', '');
           VPass := VConfig.ReadString(VConfId + 'Password', '');
-          VImpl := TMarkSystemImplConfigORM.Create(VFileName, VIsReadOnly, VUserName, '', VPass);
+          VCacheSize := VConfig.ReadInteger(VConfId + 'CacheSizeMb', 100);
+          VImpl := TMarkSystemImplConfigORM.Create(VFileName, VIsReadOnly, VUserName, '', VPass, VCacheSize);
         end else begin
           _ShowConfigErrorFmt(
             _('MarkSystemConfig: Item #%d has unknown Impl GUID: %s'),
@@ -310,6 +312,7 @@ begin
       VConfig.WriteString(VConfId + 'Impl', GUIDToString(IMarkSystemImplConfigORM));
       VConfig.WriteString(VConfId + 'UserName', VImplORM.UserName);
       VConfig.WriteString(VConfId + 'Password', VImplORM.Password);
+      VConfig.WriteInteger(VConfId + 'CacheSizeMb', VImplORM.CacheSizeMb);
     end else begin
       _ShowConfigErrorFmt(_('MarkSystemConfig: Item #%d has unknown Impl interface!'), [VCount]);
       Continue;

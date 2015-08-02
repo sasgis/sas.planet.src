@@ -31,18 +31,21 @@ type
   TMarkSystemImplConfigORM = class(TMarkSystemImplConfigBase, IMarkSystemImplConfigORM)
   private
     FSynUser: TSynUserPassword;
+    FCacheSizeMb: Cardinal;
   private
     { IMarkSystemImplConfigORM }
     function GetUserName: string;
     function GetPassword: string;
     function GetPasswordPlain: string;
+    function GetCacheSizeMb: Cardinal;
   public
     constructor Create(
       const AFileName: string;
       const AIsReadOnly: Boolean;
       const AUserName: string;
       const APasswordPlain: string;
-      const APassword: string
+      const APassword: string;
+      const ACacheSizeMb: Cardinal = 100
     );
     destructor Destroy; override;
   end;
@@ -59,10 +62,12 @@ constructor TMarkSystemImplConfigORM.Create(
   const AIsReadOnly: Boolean;
   const AUserName: string;
   const APasswordPlain: string;
-  const APassword: string
+  const APassword: string;
+  const ACacheSizeMb: Cardinal
 );
 begin
   inherited Create(AFileName, AIsReadOnly);
+  FCacheSizeMb := ACacheSizeMb;
   FSynUser := TSynUserPassword.Create;
   FSynUser.UserName := StringToUTF8(AUserName);
   if APasswordPlain <> '' then begin
@@ -91,6 +96,11 @@ end;
 function TMarkSystemImplConfigORM.GetPasswordPlain: string;
 begin
   Result := UTF8ToString(FSynUser.PasswordPlain);
+end;
+
+function TMarkSystemImplConfigORM.GetCacheSizeMb: Cardinal;
+begin
+  Result := FCacheSizeMb;
 end;
 
 end.

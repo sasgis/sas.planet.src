@@ -93,8 +93,10 @@ implementation
 uses
   SysUtils,
   t_CommonTypes,
+  t_MarkSystemORM,
   i_GeometryToStream,
   i_GeometryFromStream,
+  i_MarkSystemImplConfigORM,
   u_GeometryToWKB,
   u_GeometryFromWKB,
   u_ReadWriteStateInternal,
@@ -127,6 +129,7 @@ var
   VStateInternal: IReadWriteStateInternal;
   VGeometryReader: IGeometryFromStream;
   VGeometryWriter: IGeometryToStream;
+  VImplConfig: IMarkSystemImplConfigORM;
 begin
   inherited Create;
   FDbId := Integer(Self);
@@ -134,7 +137,11 @@ begin
   FState := VState;
   VStateInternal := VState;
 
-  if AImplConfig.IsReadOnly then begin
+  if not Supports(AImplConfig, IMarkSystemImplConfigORM, VImplConfig) then begin
+    raise EMarkSystemORMError.Create('MarkSystemORM: Unknown Impl config interface!');
+  end;
+
+  if VImplConfig.IsReadOnly then begin
     VStateInternal.WriteAccess := asDisabled;
   end else begin
     VStateInternal.WriteAccess := asEnabled;
@@ -143,7 +150,7 @@ begin
   FClientProvider :=
     TMarkSystemImplORMClientProvider.Create(
       ABasePath,
-      AImplConfig,
+      VImplConfig,
       AClientType
     );
 
@@ -174,6 +181,7 @@ begin
   VMarkDb :=
     TMarkDbImplORM.Create(
       FDbId,
+      VImplConfig.CacheSizeMb,
       VStateInternal,
       FClientProvider,
       FFactoryDbInternal,

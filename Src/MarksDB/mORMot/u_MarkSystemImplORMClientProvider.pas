@@ -85,7 +85,7 @@ type
   public
     constructor Create(
       const ABasePath: string;
-      const AImplConfig: IMarkSystemImplConfigStatic;
+      const AImplConfig: IMarkSystemImplConfigORM;
       const AClientType: TMarkSystemImplORMClientType
     );
     destructor Destroy; override;
@@ -107,18 +107,14 @@ const
 
 constructor TMarkSystemImplORMClientProvider.Create(
   const ABasePath: string;
-  const AImplConfig: IMarkSystemImplConfigStatic;
+  const AImplConfig: IMarkSystemImplConfigORM;
   const AClientType: TMarkSystemImplORMClientType
 );
 begin
   inherited Create;
   FBasePath := ABasePath;
   FClientType := AClientType;
-
-  if not Supports(AImplConfig, IMarkSystemImplConfigORM, FImplConfig) then begin
-    raise EMarkSystemORMError.Create('MarkSystemORM: Unknown Impl config interface!');
-  end;
-
+  FImplConfig := AImplConfig;
   FUserName := FImplConfig.UserName;
   FPassword := FImplConfig.PasswordPlain;
 
