@@ -26,23 +26,34 @@ uses
   t_GeoTypes,
   i_ProjectionInfo,
   i_EnumDoublePoint,
+  i_DoublePoints,
   i_DoublePointsAggregator,
   i_DoublePointFilter,
   i_GeometryLonLat,
   i_GeometryProjected;
 
 type
-  IGeometryProjectedMultiLineBuilder = interface
+  IGeometryProjectedLineBuilder = interface
     ['{95459DF2-C324-452F-A738-7C7D3D4EA533}']
-    procedure Add(const AElement: IGeometryProjectedSingleLine);
+    procedure AddLine(
+      const ABounds: TDoubleRect;
+      const APoints: IDoublePoints
+    );
 
     function MakeStaticAndClear: IGeometryProjectedLine;
     function MakeStaticCopy: IGeometryProjectedLine;
   end;
 
-  IGeometryProjectedMultiPolygonBuilder = interface
+  IGeometryProjectedPolygonBuilder = interface
     ['{6057514C-8A8F-40A4-A865-E92AFA4373A6}']
-    procedure Add(const AElement: IGeometryProjectedSinglePolygon);
+    procedure AddOuter(
+      const ABounds: TDoubleRect;
+      const APoints: IDoublePoints
+    );
+    procedure AddHole(
+      const ABounds: TDoubleRect;
+      const APoints: IDoublePoints
+    );
 
     function MakeStaticAndClear: IGeometryProjectedPolygon;
     function MakeStaticCopy: IGeometryProjectedPolygon;
@@ -50,8 +61,8 @@ type
 
   IGeometryProjectedFactory = interface
     ['{06CC36BA-1833-4AE8-953F-D003B6D81BB7}']
-    function MakeMultiLineBuilder(): IGeometryProjectedMultiLineBuilder;
-    function MakeMultiPolygonBuilder(): IGeometryProjectedMultiPolygonBuilder;
+    function MakeLineBuilder(): IGeometryProjectedLineBuilder;
+    function MakePolygonBuilder(): IGeometryProjectedPolygonBuilder;
 
     function CreateProjectedLineByLonLatPath(
       const AProjection: IProjectionInfo;

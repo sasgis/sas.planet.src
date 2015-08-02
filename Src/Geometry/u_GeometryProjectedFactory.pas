@@ -17,17 +17,8 @@ uses
 type
   TGeometryProjectedFactory = class(TBaseInterfacedObject, IGeometryProjectedFactory)
   private
-    function CreateProjectedLineInternal(
-      const ARect: TDoubleRect;
-      const APoints: IDoublePoints
-    ): IGeometryProjectedSingleLine;
-    function CreateProjectedPolygonInternal(
-      const ARect: TDoubleRect;
-      const APoints: IDoublePoints
-    ): IGeometryProjectedSinglePolygon;
-  private
-    function MakeMultiLineBuilder(): IGeometryProjectedMultiLineBuilder;
-    function MakeMultiPolygonBuilder(): IGeometryProjectedMultiPolygonBuilder;
+    function MakeLineBuilder(): IGeometryProjectedLineBuilder;
+    function MakePolygonBuilder(): IGeometryProjectedPolygonBuilder;
 
     function CreateProjectedLineByEnum(
       const AEnum: IEnumProjectedPoint;
@@ -35,17 +26,6 @@ type
     ): IGeometryProjectedLine;
     function CreateProjectedPolygonByEnum(
       const AEnum: IEnumProjectedPoint;
-      const ATemp: IDoublePointsAggregator = nil
-    ): IGeometryProjectedPolygon;
-
-    function CreateProjectedLineByLonLatEnum(
-      const AProjection: IProjectionInfo;
-      const AEnum: IEnumLonLatPoint;
-      const ATemp: IDoublePointsAggregator = nil
-    ): IGeometryProjectedLine;
-    function CreateProjectedPolygonByLonLatEnum(
-      const AProjection: IProjectionInfo;
-      const AEnum: IEnumLonLatPoint;
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryProjectedPolygon;
 
@@ -80,13 +60,16 @@ uses
   u_GeometryProjectedMulti;
 
 type
-  TGeometryProjectedMultiLineBuilder = class(TBaseInterfacedObject, IGeometryProjectedMultiLineBuilder)
+  TGeometryProjectedLineBuilder = class(TBaseInterfacedObject, IGeometryProjectedLineBuilder)
   private
     FBounds: TDoubleRect;
     FLine: IGeometryProjectedSingleLine;
     FList: IInterfaceListSimple;
   private
-    procedure Add(const AElement: IGeometryProjectedSingleLine);
+    procedure AddLine(
+      const ABounds: TDoubleRect;
+      const APoints: IDoublePoints
+    );
 
     function MakeStaticAndClear: IGeometryProjectedLine;
     function MakeStaticCopy: IGeometryProjectedLine;
@@ -94,34 +77,40 @@ type
     constructor Create;
   end;
 
-{ TGeometryProjectedMultiLineBuilder }
+{ TGeometryProjectedLineBuilder }
 
-constructor TGeometryProjectedMultiLineBuilder.Create;
+constructor TGeometryProjectedLineBuilder.Create;
 begin
   inherited Create;
 end;
 
-procedure TGeometryProjectedMultiLineBuilder.Add(
-  const AElement: IGeometryProjectedSingleLine
+procedure TGeometryProjectedLineBuilder.AddLine(
+  const ABounds: TDoubleRect;
+  const APoints: IDoublePoints
 );
+var
+  VLine: IGeometryProjectedSingleLine;
 begin
-  Assert(Assigned(AElement));
+  Assert(Assigned(APoints));
+  VLine := TGeometryProjectedLine.Create(ABounds, APoints);
   if not Assigned(FLine) then begin
-    FLine := AElement;
-    FBounds := FLine.Bounds;
+    FLine := VLine;
+    FBounds := ABounds;
   end else begin
     if not Assigned(FList) then begin
       FList := TInterfaceListSimple.Create;
       FList.Add(FLine);
+      FLine := nil;
     end else if FList.Count = 0 then begin
       FList.Add(FLine);
+      FLine := nil;
     end;
-    FList.Add(AElement);
-    FBounds := UnionProjectedRects(FBounds, AElement.Bounds);
+    FList.Add(VLine);
+    FBounds := UnionProjectedRects(FBounds, ABounds);
   end;
 end;
 
-function TGeometryProjectedMultiLineBuilder.MakeStaticAndClear: IGeometryProjectedLine;
+function TGeometryProjectedLineBuilder.MakeStaticAndClear: IGeometryProjectedLine;
 begin
   Result := nil;
   if Assigned(FLine) then begin
@@ -134,7 +123,7 @@ begin
   end;
 end;
 
-function TGeometryProjectedMultiLineBuilder.MakeStaticCopy: IGeometryProjectedLine;
+function TGeometryProjectedLineBuilder.MakeStaticCopy: IGeometryProjectedLine;
 begin
   Result := nil;
   if Assigned(FLine) then begin
@@ -147,13 +136,23 @@ begin
 end;
 
 type
-  TGeometryProjectedMultiPolygonBuilder = class(TBaseInterfacedObject, IGeometryProjectedMultiPolygonBuilder)
+  TGeometryProjectedPolygonBuilder = class(TBaseInterfacedObject, IGeometryProjectedPolygonBuilder)
   private
-    FBounds: TDoubleRect;
-    FLine: IGeometryProjectedSinglePolygon;
-    FList: IInterfaceListSimple;
+    FPolygonBounds: TDoubleRect;
+    FMultiPolygonBounds: TDoubleRect;
+    FPoints: IDoublePoints;
+    FPolygonList: IInterfaceListSimple;
+    FHoleList: IInterfaceListSimple;
+    function MakeCurrentSinglePolygon(const AIsClear: Boolean): IGeometryProjectedSinglePolygon;
   private
-    procedure Add(const AElement: IGeometryProjectedSinglePolygon);
+    procedure AddOuter(
+      const ABounds: TDoubleRect;
+      const APoints: IDoublePoints
+    );
+    procedure AddHole(
+      const ABounds: TDoubleRect;
+      const APoints: IDoublePoints
+    );
 
     function MakeStaticAndClear: IGeometryProjectedPolygon;
     function MakeStaticCopy: IGeometryProjectedPolygon;
@@ -161,54 +160,92 @@ type
     constructor Create;
   end;
 
-{ TGeometryProjectedMultiPolygonBuilder }
+{ TGeometryProjectedPolygonBuilder }
 
-constructor TGeometryProjectedMultiPolygonBuilder.Create;
+constructor TGeometryProjectedPolygonBuilder.Create;
 begin
   inherited Create;
 end;
 
-procedure TGeometryProjectedMultiPolygonBuilder.Add(
-  const AElement: IGeometryProjectedSinglePolygon
+procedure TGeometryProjectedPolygonBuilder.AddHole(const ABounds: TDoubleRect;
+  const APoints: IDoublePoints);
+begin
+
+end;
+
+procedure TGeometryProjectedPolygonBuilder.AddOuter(
+  const ABounds: TDoubleRect;
+  const APoints: IDoublePoints
 );
+var
+  VPolygon: IGeometryProjectedSinglePolygon;
 begin
-  Assert(Assigned(AElement));
-  if not Assigned(FLine) then begin
-    FLine := AElement;
-    FBounds := FLine.Bounds;
+  Assert(Assigned(APoints));
+  if Assigned(FPoints) then begin
+    VPolygon := MakeCurrentSinglePolygon(True);
+    if not Assigned(FPolygonList) then begin
+      FPolygonList := TInterfaceListSimple.Create;
+    end;
+    if FPolygonList.Count > 0 then begin
+      FMultiPolygonBounds := UnionProjectedRects(FMultiPolygonBounds, FPolygonBounds);
+    end else begin
+      FMultiPolygonBounds := FPolygonBounds;
+    end;
+    FPolygonList.Add(VPolygon);
+  end;
+  FPoints := APoints;
+  FPolygonBounds := ABounds;
+end;
+
+function TGeometryProjectedPolygonBuilder.MakeCurrentSinglePolygon(const AIsClear: Boolean): IGeometryProjectedSinglePolygon;
+begin
+  Assert(Assigned(FPoints));
+  if Assigned(FHoleList) and (FHoleList.Count > 0) then begin
+    Result :=
+      TGeometryProjectedPolygonWithHoles.Create(
+        FPolygonBounds,
+        TGeometryProjectedContour.Create(FPolygonBounds, FPoints),
+        FHoleList.MakeStaticAndClear
+      );
+    if AIsClear then begin
+      FPoints := nil;
+      FHoleList.Clear;
+    end;
   end else begin
-    if not Assigned(FList) then begin
-      FList := TInterfaceListSimple.Create;
-      FList.Add(FLine);
-    end else if FList.Count = 0 then begin
-      FList.Add(FLine);
+    Result := TGeometryProjectedPolygon.Create(FPolygonBounds, FPoints);
+    if AIsClear then begin
+      FPoints := nil;
     end;
-    FList.Add(AElement);
-    FBounds := UnionProjectedRects(FBounds, AElement.Bounds);
   end;
 end;
 
-function TGeometryProjectedMultiPolygonBuilder.MakeStaticAndClear: IGeometryProjectedPolygon;
+function TGeometryProjectedPolygonBuilder.MakeStaticAndClear: IGeometryProjectedPolygon;
 begin
   Result := nil;
-  if Assigned(FLine) then begin
-    if Assigned(FList) and (FList.Count > 0) then begin
-      Result := TGeometryProjectedMultiPolygon.Create(FBounds, FList.MakeStaticAndClear);
+  if Assigned(FPoints) then begin
+    if Assigned(FPolygonList) and (FPolygonList.Count > 0) then begin
+      FPolygonList.Add(MakeCurrentSinglePolygon(True));
+      FMultiPolygonBounds := UnionProjectedRects(FMultiPolygonBounds, FPolygonBounds);
+
+      Result := TGeometryProjectedMultiPolygon.Create(FMultiPolygonBounds, FPolygonList.MakeStaticAndClear);
     end else begin
-      Result := FLine;
+      Result := MakeCurrentSinglePolygon(True);
     end;
-    FLine := nil;
+    FPoints := nil;
   end;
 end;
 
-function TGeometryProjectedMultiPolygonBuilder.MakeStaticCopy: IGeometryProjectedPolygon;
+function TGeometryProjectedPolygonBuilder.MakeStaticCopy: IGeometryProjectedPolygon;
 begin
   Result := nil;
-  if Assigned(FLine) then begin
-    if Assigned(FList) and (FList.Count > 0) then begin
-      Result := TGeometryProjectedMultiPolygon.Create(FBounds, FList.MakeStaticCopy);
+  if Assigned(FPoints) then begin
+    if Assigned(FPolygonList) and (FPolygonList.Count > 0) then begin
+      FPolygonList.Add(MakeCurrentSinglePolygon(False));
+      FMultiPolygonBounds := UnionProjectedRects(FMultiPolygonBounds, FPolygonBounds);
+
+      Result := TGeometryProjectedMultiPolygon.Create(FMultiPolygonBounds, FPolygonList.MakeStaticCopy);
     end else begin
-      Result := FLine;
+      Result := MakeCurrentSinglePolygon(False);
     end;
   end;
 end;
@@ -220,29 +257,17 @@ begin
   inherited Create;
 end;
 
-function TGeometryProjectedFactory.CreateProjectedLineInternal(
-  const ARect: TDoubleRect;
-  const APoints: IDoublePoints
-): IGeometryProjectedSingleLine;
-begin
-  Result := nil;
-  if Assigned(APoints) then begin
-    Result := TGeometryProjectedLine.Create(ARect, APoints);
-  end;
-end;
-
 function TGeometryProjectedFactory.CreateProjectedLineByEnum(
   const AEnum: IEnumProjectedPoint;
   const ATemp: IDoublePointsAggregator
 ): IGeometryProjectedLine;
 var
   VPoint: TDoublePoint;
-  VLine: IGeometryProjectedSingleLine;
   VTemp: IDoublePointsAggregator;
   VBounds: TDoubleRect;
-  VBuilder: IGeometryProjectedMultiLineBuilder;
+  VBuilder: IGeometryProjectedLineBuilder;
 begin
-  VBuilder := MakeMultiLineBuilder;
+  VBuilder := MakeLineBuilder;
 
   VTemp := ATemp;
   if VTemp = nil then begin
@@ -252,8 +277,7 @@ begin
   while AEnum.Next(VPoint) do begin
     if PointIsEmpty(VPoint) then begin
       if VTemp.Count > 0 then begin
-        VLine := CreateProjectedLineInternal(VBounds, VTemp.MakeStaticCopy);
-        VBuilder.Add(VLine);
+        VBuilder.AddLine(VBounds, VTemp.MakeStaticCopy);
         VTemp.Clear;
       end;
     end else begin
@@ -267,16 +291,15 @@ begin
     end;
   end;
   if VTemp.Count > 0 then begin
-    VLine := CreateProjectedLineInternal(VBounds, VTemp.MakeStaticCopy);
-    VBuilder.Add(VLine);
+    VBuilder.AddLine(VBounds, VTemp.MakeStaticCopy);
     VTemp.Clear;
   end;
   Result := VBuilder.MakeStaticAndClear;
 end;
 
-function TGeometryProjectedFactory.CreateProjectedLineByLonLatEnum(
+function TGeometryProjectedFactory.CreateProjectedLineByLonLatPath(
   const AProjection: IProjectionInfo;
-  const AEnum: IEnumLonLatPoint;
+  const ASource: IGeometryLonLatLine;
   const ATemp: IDoublePointsAggregator
 ): IGeometryProjectedLine;
 var
@@ -286,7 +309,7 @@ begin
     TEnumDoublePointLonLatToMapPixel.Create(
       AProjection.Zoom,
       AProjection.GeoConverter,
-      AEnum
+      ASource.GetEnum
     );
   VEnum := TEnumProjectedPointFilterEqual.Create(VEnum);
   Result :=
@@ -296,39 +319,14 @@ begin
     );
 end;
 
-function TGeometryProjectedFactory.CreateProjectedLineByLonLatPath(
-  const AProjection: IProjectionInfo;
-  const ASource: IGeometryLonLatLine;
-  const ATemp: IDoublePointsAggregator
-): IGeometryProjectedLine;
+function TGeometryProjectedFactory.MakeLineBuilder: IGeometryProjectedLineBuilder;
 begin
-  Result :=
-    CreateProjectedLineByLonLatEnum(
-      AProjection,
-      ASource.GetEnum,
-      ATemp
-    );
+  Result := TGeometryProjectedLineBuilder.Create;
 end;
 
-function TGeometryProjectedFactory.CreateProjectedPolygonInternal(
-  const ARect: TDoubleRect;
-  const APoints: IDoublePoints
-): IGeometryProjectedSinglePolygon;
+function TGeometryProjectedFactory.MakePolygonBuilder: IGeometryProjectedPolygonBuilder;
 begin
-  Result := nil;
-  if Assigned(APoints) then begin
-    Result := TGeometryProjectedPolygon.Create(ARect, APoints);
-  end;
-end;
-
-function TGeometryProjectedFactory.MakeMultiLineBuilder: IGeometryProjectedMultiLineBuilder;
-begin
-  Result := TGeometryProjectedMultiLineBuilder.Create;
-end;
-
-function TGeometryProjectedFactory.MakeMultiPolygonBuilder: IGeometryProjectedMultiPolygonBuilder;
-begin
-  Result := TGeometryProjectedMultiPolygonBuilder.Create;
+  Result := TGeometryProjectedPolygonBuilder.Create;
 end;
 
 function TGeometryProjectedFactory.CreateProjectedPolygonByEnum(
@@ -337,12 +335,11 @@ function TGeometryProjectedFactory.CreateProjectedPolygonByEnum(
 ): IGeometryProjectedPolygon;
 var
   VPoint: TDoublePoint;
-  VLine: IGeometryProjectedSinglePolygon;
   VTemp: IDoublePointsAggregator;
   VBounds: TDoubleRect;
-  VBuilder: IGeometryProjectedMultiPolygonBuilder;
+  VBuilder: IGeometryProjectedPolygonBuilder;
 begin
-  VBuilder := MakeMultiPolygonBuilder;
+  VBuilder := MakePolygonBuilder;
 
   VTemp := ATemp;
   if VTemp = nil then begin
@@ -352,8 +349,7 @@ begin
   while AEnum.Next(VPoint) do begin
     if PointIsEmpty(VPoint) then begin
       if VTemp.Count > 0 then begin
-        VLine := CreateProjectedPolygonInternal(VBounds, VTemp.MakeStaticCopy);
-        VBuilder.Add(VLine);
+        VBuilder.AddOuter(VBounds, VTemp.MakeStaticCopy);
         VTemp.Clear;
       end;
     end else begin
@@ -367,16 +363,15 @@ begin
     end;
   end;
   if VTemp.Count > 0 then begin
-    VLine := CreateProjectedPolygonInternal(VBounds, VTemp.MakeStaticCopy);
-    VBuilder.Add(VLine);
+    VBuilder.AddOuter(VBounds, VTemp.MakeStaticCopy);
     VTemp.Clear;
   end;
   Result := VBuilder.MakeStaticAndClear;
 end;
 
-function TGeometryProjectedFactory.CreateProjectedPolygonByLonLatEnum(
+function TGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
   const AProjection: IProjectionInfo;
-  const AEnum: IEnumLonLatPoint;
+  const ASource: IGeometryLonLatPolygon;
   const ATemp: IDoublePointsAggregator
 ): IGeometryProjectedPolygon;
 var
@@ -386,27 +381,13 @@ begin
     TEnumDoublePointLonLatToMapPixel.Create(
       AProjection.Zoom,
       AProjection.GeoConverter,
-      AEnum
+      ASource.GetEnum
     );
   VEnum :=
     TEnumProjectedPointFilterEqual.Create(VEnum);
   Result :=
     CreateProjectedPolygonByEnum(
       VEnum,
-      ATemp
-    );
-end;
-
-function TGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-  const AProjection: IProjectionInfo;
-  const ASource: IGeometryLonLatPolygon;
-  const ATemp: IDoublePointsAggregator
-): IGeometryProjectedPolygon;
-begin
-  Result :=
-    CreateProjectedPolygonByLonLatEnum(
-      AProjection,
-      ASource.GetEnum,
       ATemp
     );
 end;
