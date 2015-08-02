@@ -43,6 +43,7 @@ type
     FMaxZoom: Byte;
   end;
   PSQLCategoryRec = ^TSQLCategoryRec;
+  TSQLCategoryRecDynArray = array of TSQLCategoryRec;
 
   TSQLMarkRec = record
     FMarkId: TID;
