@@ -199,8 +199,6 @@ begin
     );
   FList.Add(VItem.GUID, VItem);
 
-  Exit; // ToDo: СУБД ещё надо тестировать
-
   // DBMS (ODBC)
   VFactory :=
     TMarkSystemImplFactoryORM.Create(
@@ -222,6 +220,8 @@ begin
       VFactory
     );
   FList.Add(VItem.GUID, VItem);
+
+  Exit;
 
   // DBMS (ZeosLib)
   VFactory :=

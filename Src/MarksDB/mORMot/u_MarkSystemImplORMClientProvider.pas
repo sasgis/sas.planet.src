@@ -23,7 +23,7 @@ unit u_MarkSystemImplORMClientProvider;
 interface
 
 {.$DEFINE ENABLE_ZEOS_DBMS}
-{.$DEFINE ENABLE_ODBC_DBMS}
+{$DEFINE ENABLE_ODBC_DBMS}
 
 {$IF DEFINED(ENABLE_ZEOS_DBMS) OR DEFINED(ENABLE_ODBC_DBMS)}
   {$DEFINE ENABLE_DBMS}
@@ -358,10 +358,7 @@ begin
   FModel.Props[TSQLMarkRTree].ExternalDB.MapField('Left', 'Left_').MapAutoKeywordFields;
 
   FClientDB := TSQLRestClientDB.Create(FModel, nil, ':memory:', TSQLRestServerDB);
-
-  if not FImplConfig.IsReadOnly then begin
-    FClientDB.Server.CreateMissingTables;
-  end;
+  FClientDB.Server.CreateMissingTables;
 
   //FClientDB.Server.AcquireExecutionMode[execORMWrite] := amBackgroundThread;
   //FClientDB.Server.AcquireExecutionMode[execORMGet] := amBackgroundThread;
