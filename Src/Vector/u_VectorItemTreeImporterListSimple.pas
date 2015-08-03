@@ -37,6 +37,8 @@ uses
   i_HashFunction,
   i_AppearanceOfMarkFactory,
   i_MarkFactory,
+  i_MarkCategoryFactory,
+  i_MarkSystemImplFactory,
   i_HtmlToHintTextConverter,
   i_PathConfig,
   i_ContentTypeManager,
@@ -64,6 +66,8 @@ type
       const AHashFunction: IHashFunction;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AMarkFactory: IMarkFactory;
+      const ACategoryFactory: IMarkCategoryFactory;
+      const AMarkSystemImplFactoryListStatic: IMarkSystemImplFactoryListStatic;
       const AHintConverter: IHtmlToHintTextConverter;
       const AMediaDataPath: IPathConfig;
       const AContentTypeManager: IContentTypeManager;
@@ -74,13 +78,14 @@ type
 implementation
 
 uses
+  c_MarkSystem,
   i_InterfaceListSimple,
   u_Notifier,
   u_InterfaceListSimple,
   u_VectorItemTreeImporterList,
   u_VectorItemTreeImporterByVectorLoader,
   u_VectorItemTreeImporterJpegWithExif,
-  u_VectorItemTreeImporterSmlMarks,
+  u_VectorItemTreeMarksDb,
   u_VectorDataLoaderWithCounter,
   u_XmlInfoSimpleParser,
   u_KmzInfoSimpleParser,
@@ -104,6 +109,8 @@ constructor TVectorItemTreeImporterListSimple.Create(
   const AHashFunction: IHashFunction;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AMarkFactory: IMarkFactory;
+  const ACategoryFactory: IMarkCategoryFactory;
+  const AMarkSystemImplFactoryListStatic: IMarkSystemImplFactoryListStatic;
   const AHintConverter: IHtmlToHintTextConverter;
   const AMediaDataPath: IPathConfig;
   const AContentTypeManager: IContentTypeManager;
@@ -332,22 +339,34 @@ begin
   VList.Add(VItem);
 
   VImporter :=
-    TVectorItemTreeImporterSmlMarks.Create(
-      AMarkPictureList,
-      AHashFunction,
-      AAppearanceOfMarkFactory,
-      AVectorGeometryLonLatFactory,
-      AVectorItemSubsetBuilderFactory,
+    TVectorItemTreeMarksDb.Create(
+      cSMLMarksDbGUID,
       AMarkFactory,
-      APerfCounterList.CreateAndAddNewCounter('ImportSMLLoader'),
-      APerfCounterList.CreateAndAddNewCounter('ImportSMLSaver'),
-      AHintConverter
+      ACategoryFactory,
+      AAppearanceOfMarkFactory,
+      AMarkSystemImplFactoryListStatic
     );
   VItem :=
     TVectorItemTreeImporterListItem.Create(
       VImporter,
       'sml',
       'SAS.Planet Marks Database in XML format'
+    );
+  VList.Add(VItem);
+
+  VImporter :=
+    TVectorItemTreeMarksDb.Create(
+      cORMSQLiteMarksDbGUID,
+      AMarkFactory,
+      ACategoryFactory,
+      AAppearanceOfMarkFactory,
+      AMarkSystemImplFactoryListStatic
+    );
+  VItem :=
+    TVectorItemTreeImporterListItem.Create(
+      VImporter,
+      'db3',
+      'SAS.Planet Marks Database in SQLite3 format'
     );
   VList.Add(VItem);
 

@@ -36,6 +36,7 @@ uses
   i_HtmlToHintTextConverter,
   i_MarkFactory,
   i_MarkCategoryFactory,
+  i_MarkSystemImplFactory,
   u_BaseInterfacedObject;
 
 type
@@ -51,41 +52,32 @@ type
   public
     constructor Create(
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
-      const AMarkPictureList: IMarkPictureList;
-      const AHashFunction: IHashFunction;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
-      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
-      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AMarkFactory: IMarkFactory;
       const ACategoryFactory: IMarkCategoryFactory;
-      const AHintConverter: IHtmlToHintTextConverter;
-      const APerfCounterList: IInternalPerformanceCounterList
+      const AMarkSystemImplFactoryListStatic: IMarkSystemImplFactoryListStatic
     );
   end;
 
 implementation
 
 uses
+  c_MarkSystem,
   i_InterfaceListSimple,
   u_Notifier,
   u_InterfaceListSimple,
+  u_VectorItemTreeMarksDb,
   u_VectorItemTreeExporterList,
-  u_VectorItemTreeExporterSmlMarks,
   u_VectorItemTreeExporterKmlKmz;
 
 { TVectorItemTreeExporterListSimple }
 
 constructor TVectorItemTreeExporterListSimple.Create(
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
-  const AMarkPictureList: IMarkPictureList;
-  const AHashFunction: IHashFunction;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
-  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
-  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AMarkFactory: IMarkFactory;
   const ACategoryFactory: IMarkCategoryFactory;
-  const AHintConverter: IHtmlToHintTextConverter;
-  const APerfCounterList: IInternalPerformanceCounterList
+  const AMarkSystemImplFactoryListStatic: IMarkSystemImplFactoryListStatic
 );
 var
   VList: IInterfaceListSimple;
@@ -101,34 +93,44 @@ begin
     TVectorItemTreeExporterListItem.Create(
       VExporter,
       'kmz',
-      'Compressed Keyhole Markup Language'
+      'Google KMZ file'
     );
   VList.Add(VItem);
   VItem :=
     TVectorItemTreeExporterListItem.Create(
       VExporter,
       'kml',
-      'Keyhole Markup Language'
+      'Google KML file'
     );
   VList.Add(VItem);
 
-  VExporter := TVectorItemTreeExporterSmlMarks.Create(
-    AMarkPictureList,
-    AHashFunction,
-    AAppearanceOfMarkFactory,
-    AVectorGeometryLonLatFactory,
-    AVectorItemSubsetBuilderFactory,
+  VExporter := TVectorItemTreeMarksDb.Create(
+    cSMLMarksDbGUID,
     AMarkFactory,
     ACategoryFactory,
-    APerfCounterList.CreateAndAddNewCounter('ExportSMLLoader'),
-    APerfCounterList.CreateAndAddNewCounter('ExportSMLSaver'),
-    AHintConverter
+    AAppearanceOfMarkFactory,
+    AMarkSystemImplFactoryListStatic
   );
   VItem :=
     TVectorItemTreeExporterListItem.Create(
       VExporter,
       'sml',
-      'SAS.Planet Marker Database in XML format'
+      'SAS.Planet Marks Database in XML format'
+    );
+  VList.Add(VItem);
+
+  VExporter := TVectorItemTreeMarksDb.Create(
+    cORMSQLiteMarksDbGUID,
+    AMarkFactory,
+    ACategoryFactory,
+    AAppearanceOfMarkFactory,
+    AMarkSystemImplFactoryListStatic
+  );
+  VItem :=
+    TVectorItemTreeExporterListItem.Create(
+      VExporter,
+      'db3',
+      'SAS.Planet Marks Database in SQLite3 format'
     );
   VList.Add(VItem);
 

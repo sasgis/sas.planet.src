@@ -716,6 +716,8 @@ begin
       FHashFunction,
       FAppearanceOfMarkFactory,
       FMarkFactory,
+      FMarkCategoryFactory,
+      FMarkSystem.ImplFactoryList,
       THtmlToHintTextConverterStuped.Create,
       FGlobalConfig.MediaDataPath,
       FContentTypeManager,
@@ -725,15 +727,10 @@ begin
   FExporterList :=
     TVectorItemTreeExporterListSimple.Create(
       FArchiveReadWriteFactory,
-      FMarkPictureList,
-      FHashFunction,
       FAppearanceOfMarkFactory,
-      FVectorGeometryLonLatFactory,
-      FVectorItemSubsetBuilderFactory,
       FMarkFactory,
       FMarkCategoryFactory,
-      THtmlToHintTextConverterStuped.Create,
-      FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('Export')
+      FMarkSystem.ImplFactoryList
     );
 
   FGeoCoderList :=

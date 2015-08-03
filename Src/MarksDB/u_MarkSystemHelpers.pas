@@ -34,25 +34,14 @@ uses
   i_InterfaceListSimple,
   i_ImportConfig;
 
-procedure PrepareFromTreeForImport(
-  const AMarkList: IInterfaceListSimple;
+function ImportItemsTree(
   const ADataItemTree: IVectorItemTree;
   const AImportConfig: IImportConfig;
   const AMarkDB: IMarkDBImpl;
   const AMarkFactory: IMarkFactory;
   const ACategoryDB: IMarkCategoryDBImpl;
-  const ACategoryFactory: IMarkCategoryFactory;
-  const AParentCategoryName: string = ''
-);
-
-procedure PrepareCategoriesFromTreeForImport(
-  const ACategoryList: IInterfaceListSimple;
-  const ADataItemTree: IVectorItemTree;
-  const AImportConfig: IImportConfig;
-  const ACategoryDB: IMarkCategoryDBImpl;
-  const ACategoryFactory: IMarkCategoryFactory;
-  const AParentCategoryName: string = ''
-);
+  const ACategoryFactory: IMarkCategoryFactory
+): IInterfaceListStatic;
 
 function CategoryTreeToMarkTreeHelper(
   const AMarkDB: IMarkDBImpl;
@@ -60,7 +49,9 @@ function CategoryTreeToMarkTreeHelper(
   const AIncludeHiddenMarks: Boolean
 ): IVectorItemTree;
 
-function CategoryListToCategoryTree(const AList: IMarkCategoryList): IMarkCategoryTree;
+function CategoryListToCategoryTree(
+  const AList: IMarkCategoryList
+): IMarkCategoryTree;
 
 implementation
 
@@ -73,6 +64,7 @@ uses
   i_VectorItemSubset,
   i_GeometryLonLat,
   u_VectorItemTree,
+  u_MarkCategoryList,
   u_MarkCategoryTree,
   u_InterfaceListSimple;
 
@@ -82,7 +74,7 @@ procedure PrepareCategoriesFromTreeForImport(
   const AImportConfig: IImportConfig;
   const ACategoryDB: IMarkCategoryDBImpl;
   const ACategoryFactory: IMarkCategoryFactory;
-  const AParentCategoryName: string
+  const AParentCategoryName: string = ''
 );
 var
   I: Integer;
@@ -126,7 +118,7 @@ procedure PrepareFromTreeForImport( // ToDo: придумать более внятное название
   const AMarkFactory: IMarkFactory;
   const ACategoryDB: IMarkCategoryDBImpl;
   const ACategoryFactory: IMarkCategoryFactory;
-  const AParentCategoryName: string
+  const AParentCategoryName: string = ''
 );
 var
   I: Integer;
@@ -206,6 +198,50 @@ begin
       ACategoryFactory,
       VCategoryName
     );
+  end;
+end;
+
+function ImportItemsTree(
+  const ADataItemTree: IVectorItemTree;
+  const AImportConfig: IImportConfig;
+  const AMarkDB: IMarkDBImpl;
+  const AMarkFactory: IMarkFactory;
+  const ACategoryDB: IMarkCategoryDBImpl;
+  const ACategoryFactory: IMarkCategoryFactory
+): IInterfaceListStatic;
+var
+  VList: IInterfaceListSimple;
+  VCategoryList: IMarkCategoryList;
+begin
+  VList := TInterfaceListSimple.Create;
+
+  PrepareCategoriesFromTreeForImport(
+    VList,
+    ADataItemTree,
+    AImportConfig,
+    ACategoryDB,
+    ACategoryFactory
+  );
+
+  if VList.Count > 0 then begin
+    VCategoryList := TMarkCategoryList.Build(VList.MakeStaticAndClear);
+    ACategoryDB.UpdateCategoryList(nil, VCategoryList)
+  end;
+
+  VList.Clear;
+
+  PrepareFromTreeForImport(
+    VList,
+    ADataItemTree,
+    AImportConfig,
+    AMarkDb,
+    AMarkFactory,
+    ACategoryDB,
+    ACategoryFactory
+  );
+
+  if VList.Count > 0 then begin
+    Result := AMarkDb.UpdateMarkList(nil, VList.MakeStaticAndClear);
   end;
 end;
 

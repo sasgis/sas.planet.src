@@ -851,6 +851,7 @@
     <DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemImplORM.pas" />
     <DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemImplORMClientProvider.pas" />
     <DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemORMCacheBase.pas" />
+    <DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemORMLog.pas" />
     <DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemORMModel.pas" />
     <DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemORMTools.pas" />
     <DCCReference Include="Src\MarksDB\SML\i_MarkCategoryDBSmlInternal.pas" />
@@ -1552,11 +1553,10 @@
     <DCCReference Include="Src\Vector\u_VectorItemTreeExporterKmlKmz.pas" />
     <DCCReference Include="Src\Vector\u_VectorItemTreeExporterList.pas" />
     <DCCReference Include="Src\Vector\u_VectorItemTreeExporterListSimple.pas" />
-    <DCCReference Include="Src\Vector\u_VectorItemTreeExporterSmlMarks.pas" />
     <DCCReference Include="Src\Vector\u_VectorItemTreeImporterByVectorLoader.pas" />
     <DCCReference Include="Src\Vector\u_VectorItemTreeImporterJpegWithExif.pas" />
     <DCCReference Include="Src\Vector\u_VectorItemTreeImporterList.pas" />
     <DCCReference Include="Src\Vector\u_VectorItemTreeImporterListSimple.pas" />
-    <DCCReference Include="Src\Vector\u_VectorItemTreeImporterSmlMarks.pas" />
+    <DCCReference Include="Src\Vector\u_VectorItemTreeMarksDb.pas" />
   </ItemGroup>
 </Project>
