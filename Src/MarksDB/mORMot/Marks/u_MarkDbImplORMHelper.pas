@@ -57,10 +57,12 @@ type
     function _GeomertryFromBlob(const ABlob: TSQLRawBlob): IGeometryLonLat;
     function _GeomertryToBlob(const AGeometry: IGeometryLonLat): TSQLRawBlob;
     function _AddMarkImage(const APicName: string): TID;
+    procedure _ReadMarkImage(var AMarkRec: TSQLMarkRec);
     function _AddMarkAppearance(
       const AColor1, AColor2: Cardinal;
       const AScale1, AScale2: Integer
     ): TID;
+    procedure _ReadMarkAppearance(var AMarkRec: TSQLMarkRec);
     function _FillPrepareMarkIdIndex(const ACategoryID: TID): Integer;
     procedure _FillPrepareMarkIdCache(const ACategoryID: TID);
     procedure _FillPrepareMarkGeometryCache(const ACategoryID: TID);
@@ -270,6 +272,34 @@ begin
   end;
 end;
 
+procedure TMarkDbImplORMHelper._ReadMarkImage(var AMarkRec: TSQLMarkRec);
+var
+  VItem: PSQLMarkImageRow;
+  VSQLMarkImage: TSQLMarkImage;
+begin
+  if AMarkRec.FGeoType = gtPoint then begin
+    if AMarkRec.FPicId > 0 then begin
+      if FCache.FMarkImage.Find(AMarkRec.FPicId, VItem) then begin
+        // found in cache
+        AMarkRec.FPicName := VItem.Name;
+      end else begin
+        // read from db
+        VSQLMarkImage := TSQLMarkImage.Create(FClient, AMarkRec.FPicId);
+        try
+          CheckID(VSQLMarkImage.ID);
+          AMarkRec.FPicName := UTF8ToString(VSQLMarkImage.Name);
+          // add to cache
+          FCache.FMarkImage.AddOrIgnore(AMarkRec);
+        finally
+          VSQLMarkImage.Free;
+        end;
+      end;
+    end else begin
+      AMarkRec.FPicName := '';
+    end;
+  end;
+end;
+
 function TMarkDbImplORMHelper._AddMarkAppearance(
   const AColor1, AColor2: Cardinal;
   const AScale1, AScale2: Integer
@@ -299,6 +329,34 @@ begin
       Result := VSQLMarkAppearance.ID;
       // add to cache
       FCache.FMarkAppearance.AddOrIgnore(Result, AColor1, AColor2, AScale1, AScale2);
+    finally
+      VSQLMarkAppearance.Free;
+    end;
+  end;
+end;
+
+procedure TMarkDbImplORMHelper._ReadMarkAppearance(var AMarkRec: TSQLMarkRec);
+var
+  VItem: PSQLMarkAppearanceRow;
+  VSQLMarkAppearance: TSQLMarkAppearance;
+begin
+  if FCache.FMarkAppearance.Find(AMarkRec.FAppearanceId, VItem) then begin
+    // found in cache
+    AMarkRec.FColor1 := VItem.Color1;
+    AMarkRec.FColor2 := VItem.Color2;
+    AMarkRec.FScale1 := VItem.Scale1;
+    AMarkRec.FScale2 := VItem.Scale2;
+  end else begin
+    // read from db
+    VSQLMarkAppearance := TSQLMarkAppearance.Create(FClient, AMarkRec.FAppearanceId);
+    try
+      CheckID(VSQLMarkAppearance.ID);
+      AMarkRec.FColor1 := VSQLMarkAppearance.Color1;
+      AMarkRec.FColor2 := VSQLMarkAppearance.Color2;
+      AMarkRec.FScale1 := VSQLMarkAppearance.Scale1;
+      AMarkRec.FScale2 := VSQLMarkAppearance.Scale2;
+      // add to cache
+      FCache.FMarkAppearance.AddOrIgnore(AMarkRec);
     finally
       VSQLMarkAppearance.Free;
     end;
@@ -720,14 +778,10 @@ var
   VFieldsCSV: RawUTF8;
   VSQLMark: TSQLMark;
   VSQLMarkView: TSQLMarkView;
-  VSQLMarkImage: TSQLMarkImage;
-  VSQLMarkAppearance: TSQLMarkAppearance;
   VSQLBlobData: TSQLRawBlob;
   VIndexItem: PSQLMarkIdIndexRec;
   VCacheItem: PSQLMarkRow;
   VViewItem: PSQLMarkViewRow;
-  VPicItem: PSQLMarkImageRow;
-  VAppearanceItem: PSQLMarkAppearanceRow;
   VGeometry: IGeometryLonLat;
 begin
   Assert( (AMarkID > 0) or (AMarkName <> '') );
@@ -851,50 +905,10 @@ begin
   end;
 
   // read pic name
-  if AMarkRec.FGeoType = gtPoint then begin
-    if AMarkRec.FPicId > 0 then begin
-      if FCache.FMarkImage.Find(AMarkRec.FPicId, VPicItem) then begin
-        // found in cache
-        AMarkRec.FPicName := VPicItem.Name;
-      end else begin
-        // read from db
-        VSQLMarkImage := TSQLMarkImage.Create(FClient, AMarkRec.FPicId);
-        try
-          CheckID(VSQLMarkImage.ID);
-          AMarkRec.FPicName := UTF8ToString(VSQLMarkImage.Name);
-          // add to cache
-          FCache.FMarkImage.AddOrIgnore(AMarkRec);
-        finally
-          VSQLMarkImage.Free;
-        end;
-      end;
-    end else begin
-      AMarkRec.FPicName := '';
-    end;
-  end;
+  _ReadMarkImage(AMarkRec);
 
   // read appearance
-  if FCache.FMarkAppearance.Find(AMarkRec.FAppearanceId, VAppearanceItem) then begin
-    // found in cache
-    AMarkRec.FColor1 := VAppearanceItem.Color1;
-    AMarkRec.FColor2 := VAppearanceItem.Color2;
-    AMarkRec.FScale1 := VAppearanceItem.Scale1;
-    AMarkRec.FScale2 := VAppearanceItem.Scale2;
-  end else begin
-    // read from db
-    VSQLMarkAppearance := TSQLMarkAppearance.Create(FClient, AMarkRec.FAppearanceId);
-    try
-      CheckID(VSQLMarkAppearance.ID);
-      AMarkRec.FColor1 := VSQLMarkAppearance.Color1;
-      AMarkRec.FColor2 := VSQLMarkAppearance.Color2;
-      AMarkRec.FScale1 := VSQLMarkAppearance.Scale1;
-      AMarkRec.FScale2 := VSQLMarkAppearance.Scale2;
-      // add to cache
-      FCache.FMarkAppearance.AddOrIgnore(AMarkRec);
-    finally
-      VSQLMarkAppearance.Free;
-    end;
-  end;
+  _ReadMarkAppearance(AMarkRec);
 
   Result := True;
 end;
@@ -1229,7 +1243,7 @@ function TMarkDbImplORMHelper.GetMarkRecArray(
   out AMarkRecArray: TSQLMarkRecDynArray
 ): Integer;
 
-  function FillMarkRec(const AMarkRec: PSQLMarkRec; const AIndexRec: PSQLMarkIdIndexRec): Boolean;
+  function FillMarkRec(var AMarkRec: TSQLMarkRec; const AIndexRec: PSQLMarkIdIndexRec): Boolean;
   var
     VCacheItem: PSQLMarkRow;
     VViewItem: PSQLMarkViewRow;
@@ -1271,6 +1285,9 @@ function TMarkDbImplORMHelper.GetMarkRecArray(
       end;
     end;
 
+    _ReadMarkImage(AMarkRec);
+    _ReadMarkAppearance(AMarkRec);
+
     Result := True;
   end;
 
@@ -1300,7 +1317,7 @@ begin
         for I := 0 to VIdCount - 1 do begin
           if FCache.FMarkIdIndex.Find(VArray[I], VIndexRec) then begin
             AMarkRecArray[J] := cEmptySQLMarkRec;
-            if FillMarkRec(@AMarkRecArray[J], VIndexRec) then begin
+            if FillMarkRec(AMarkRecArray[J], VIndexRec) then begin
               Inc(J);
             end;
           end;
@@ -1312,7 +1329,7 @@ begin
       VRows := FCache.FMarkIdIndex.Rows;
       for I := 0 to FCache.FMarkIdIndex.Count - 1 do begin
         AMarkRecArray[J] := cEmptySQLMarkRec;
-        if FillMarkRec(@AMarkRecArray[J], @VRows[I]) then begin
+        if FillMarkRec(AMarkRecArray[J], @VRows[I]) then begin
           Inc(J);
         end;
       end;
