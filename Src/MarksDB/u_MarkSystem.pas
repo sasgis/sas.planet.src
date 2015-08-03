@@ -40,7 +40,6 @@ uses
   i_PathConfig,
   i_MarkPicture,
   i_GeometryLonLatFactory,
-  i_InterfaceListSimple,
   i_InternalPerformanceCounter,
   i_NotifierOperation,
   i_HtmlToHintTextConverter,
@@ -109,10 +108,8 @@ uses
   i_MarkSystemImpl,
   u_Notifier,
   u_Synchronizer,
-  u_InterfaceListSimple,
   u_MarkSystemImplFactoryChangeable,
   u_MarkDbByImpl,
-  u_MarkCategoryList,
   u_MarkCategoryDbByImpl,
   u_MarkSystemHelpers,
   u_MarkSystemImplChangeable;
