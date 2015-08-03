@@ -216,12 +216,12 @@ var
 
 var
   I: Integer;
-  VName: RawUTF8;
   VUpdateName: string;
   VSearchName: string;
   VOldName: string;
   VItem: PSQLCategoryViewRow;
   VCategories: TSQLCategoryRowDynArray;
+  VSQLCategory: TSQLCategory;
   VSQLCategoryView: TSQLCategoryView;
   VUpdateView: Boolean;
   VSQLWhere: RawUTF8;
@@ -298,34 +298,37 @@ begin
   end;
 
   if ACategoryRecNew.FName <> ACategoryRecOld.FName then begin
-    VName := StringToUTF8(ACategoryRecNew.FName);
-    // update name
-    CheckUpdateResult(
-      FClient.UpdateField(TSQLCategory, ACategoryRecNew.FCategoryId, 'Name', [VName])
-    );
-    // update cache
-    FCache.FCategoryCache.AddOrUpdate(ACategoryRecNew);
+    VSQLCategory := TSQLCategory.Create;
+    try
+      VSQLCategory.IDValue := ACategoryRecNew.FCategoryId;
+      VSQLCategory.Name := StringToUTF8(ACategoryRecNew.FName);
+      // update name
+      CheckUpdateResult( FClient.Update(VSQLCategory, 'Name') );
+      // update cache
+      FCache.FCategoryCache.AddOrUpdate(ACategoryRecNew);
 
-    // update sub categories names
-    VSearchName := ACategoryRecOld.FName + '\';
-    VUpdateName := ACategoryRecNew.FName + '\';
+      // update sub categories names
+      VSearchName := ACategoryRecOld.FName + '\';
+      VUpdateName := ACategoryRecNew.FName + '\';
 
-    if _FillPrepareCategoryCache > 0 then begin
-      VCategories := FCache.FCategoryCache.Rows;
-      for I := 0 to FCache.FCategoryCache.Count - 1 do begin
-        VOldName := VCategories[I].Name;
-        if StartsText(VSearchName, VOldName) then begin
-          // update cache
-          VCategories[I].Name := StringReplace(VOldName, VSearchName, VUpdateName, [rfIgnoreCase]);
-          VName := StringToUTF8(VCategories[I].Name);
-          // update db
-          CheckUpdateResult(
-            FClient.UpdateField(TSQLCategory, VCategories[I].CategoryId, 'Name', [VName])
-          );
+      if _FillPrepareCategoryCache > 0 then begin
+        VCategories := FCache.FCategoryCache.Rows;
+        for I := 0 to FCache.FCategoryCache.Count - 1 do begin
+          VOldName := VCategories[I].Name;
+          if StartsText(VSearchName, VOldName) then begin
+            // update cache
+            VCategories[I].Name := StringReplace(VOldName, VSearchName, VUpdateName, [rfIgnoreCase]);
+            VSQLCategory.IDValue := VCategories[I].CategoryId;
+            VSQLCategory.Name := StringToUTF8(VCategories[I].Name);
+            // update db
+            CheckUpdateResult( FClient.Update(VSQLCategory, 'Name') );
+          end;
         end;
       end;
+      Result := True;
+    finally
+      VSQLCategory.Free;
     end;
-    Result := True;
   end;
 end;
 
