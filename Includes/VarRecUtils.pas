@@ -88,6 +88,13 @@ begin
         Result.VWideString := nil;
         WideString(Result.VWideString) := WideString(Item.VWideString);
       end;
+    {$IFDEF UNICODE}
+    vtUnicodeString:
+      begin
+        Result.VUnicodeString := nil;
+        UnicodeString(Result.VUnicodeString) := UnicodeString(Item.VUnicodeString);
+      end;
+    {$ENDIF}
     vtInt64:
       begin
         New(Result.VInt64);
