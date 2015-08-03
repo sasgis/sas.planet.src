@@ -52,8 +52,10 @@ type
     FClientType: TMarkSystemImplORMClientType;
     FClientProvider: IMarkSystemImplORMClientProvider;
   private
-    function _RectToGeoJson(const ARect: TDoubleRect): Variant;
-    function _PointToGeoJson(const APoint: TDoublePoint): Variant;
+    function _RectToGeoJson(
+      const ARect: TDoubleRect;
+      const AGeoType: TSQLGeoType
+    ): Variant;
     function _GeomertryFromBlob(const ABlob: TSQLRawBlob): IGeometryLonLat;
     function _GeomertryToBlob(const AGeometry: IGeometryLonLat): TSQLRawBlob;
     function _AddMarkImage(const APicName: string): TID;
@@ -157,6 +159,7 @@ type
 implementation
 
 uses
+  Math,
   u_MarkSystemORMTools;
 
 { TMarkDbImplORMHelper }
@@ -193,24 +196,43 @@ begin
   inherited Destroy;
 end;
 
-function TMarkDbImplORMHelper._RectToGeoJson(const ARect: TDoubleRect): Variant;
+function TMarkDbImplORMHelper._RectToGeoJson(
+  const ARect: TDoubleRect;
+  const AGeoType: TSQLGeoType
+): Variant;
+var
+  VIsLeftRightSame, VIsTopBottomSame: Boolean;
 begin
-  Result :=
-    _ObjFast([
-      'type','Polygon',
-      'coordinates',_Arr([_Arr([
-        _Arr([ARect.Left,ARect.Top]),
-        _Arr([ARect.Right,ARect.Top]),
-        _Arr([ARect.Right,ARect.Bottom]),
-        _Arr([ARect.Left,ARect.Bottom]),
-        _Arr([ARect.Left,ARect.Top])
-      ])])
-    ]);
-end;
-
-function TMarkDbImplORMHelper._PointToGeoJson(const APoint: TDoublePoint): Variant;
-begin
-  Result := _ObjFast(['type','Point','coordinates',_Arr([APoint.X,APoint.Y])]);
+  VIsLeftRightSame := SameValue(ARect.Left, ARect.Right);
+  VIsTopBottomSame := SameValue(ARect.Top, ARect.Bottom);
+  if (AGeoType = gtPoint) or (VIsLeftRightSame and VIsTopBottomSame) then begin
+    Result :=
+      _ObjFast([
+        'type','Point',
+        'coordinates',_Arr([ARect.Left,ARect.Top])
+      ]);
+  end else if (VIsLeftRightSame or VIsTopBottomSame) then begin
+    Result :=
+      _ObjFast([
+        'type','LineString',
+        'coordinates',_Arr([
+          _Arr([ARect.Left,ARect.Top]),
+          _Arr([ARect.Right,ARect.Bottom])
+        ])
+      ]);
+  end else begin
+    Result :=
+      _ObjFast([
+        'type','Polygon',
+        'coordinates',_Arr([_Arr([
+          _Arr([ARect.Left,ARect.Top]),
+          _Arr([ARect.Right,ARect.Top]),
+          _Arr([ARect.Right,ARect.Bottom]),
+          _Arr([ARect.Left,ARect.Bottom]),
+          _Arr([ARect.Left,ARect.Top])
+        ])])
+      ]);
+  end;
 end;
 
 function TMarkDbImplORMHelper._GeomertryFromBlob(
@@ -464,11 +486,7 @@ begin
       VSQLMark.GeoCount := AMarkRec.FGeoCount;
 
       if FClientType = ctMongoDB then begin
-        if VSQLMark.GeoType = gtPoint then begin
-          VSQLMark.GeoJsonIdx := _PointToGeoJson(VRect.TopLeft);
-        end else begin
-          VSQLMark.GeoJsonIdx := _RectToGeoJson(VRect);
-        end;
+        VSQLMark.GeoJsonIdx := _RectToGeoJson(VRect, VSQLMark.GeoType);
       end;
 
       // add mark to db
@@ -676,11 +694,7 @@ begin
         VSQLMark.GeoCount := ANewMarkRec.FGeoCount;
         if FClientType = ctMongoDB then begin
           _AddField('GeoJsonIdx');
-          if VSQLMark.GeoType = gtPoint then begin
-            VSQLMark.GeoJsonIdx := _PointToGeoJson(VRect.TopLeft);
-          end else begin
-            VSQLMark.GeoJsonIdx := _RectToGeoJson(VRect);
-          end;
+          VSQLMark.GeoJsonIdx := _RectToGeoJson(VRect, VSQLMark.GeoType);
         end;
       end;
 
@@ -1474,7 +1488,7 @@ begin
   SetLength(VCategoryIDArray, VCount);
 
   if FClientType = ctMongoDB then begin
-    VGeoJsonRect := _RectToGeoJson(ARect);
+    VGeoJsonRect := _RectToGeoJson(ARect, gtPoly);
   end;
 
   // search mark id's
