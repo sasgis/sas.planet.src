@@ -52,7 +52,8 @@ type
     function _GetImpl(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AFileName: string
+      const AFileName: string;
+      const AIsReadOnly: Boolean
     ): IMarkSystemImpl;
     function _GetConfigForExporter: IImportConfig;
   private
@@ -140,7 +141,8 @@ end;
 function TVectorItemTreeMarksDb._GetImpl(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const AFileName: string
+  const AFileName: string;
+  const AIsReadOnly: Boolean
 ): IMarkSystemImpl;
 var
   VConfig: IMarkSystemImplConfigStatic;
@@ -149,9 +151,9 @@ begin
   Result := nil;
 
   if IsEqualGUID(FDatabase, cSMLMarksDbGUID) then begin
-    VConfig := TMarkSystemImplConfigSML.Create(AFileName, False);
+    VConfig := TMarkSystemImplConfigSML.Create(AFileName, AIsReadOnly);
   end else if IsEqualGUID(FDatabase, cORMSQLiteMarksDbGUID) then begin
-    VConfig := TMarkSystemImplConfigORM.Create(AFileName, False, '', '', '');
+    VConfig := TMarkSystemImplConfigORM.Create(AFileName, AIsReadOnly, '', '', '');
   end else begin
     Assert(False);
     Exit;
@@ -181,7 +183,7 @@ procedure TVectorItemTreeMarksDb.ProcessExport(
 var
   VImpl: IMarkSystemImpl;
 begin
-  VImpl := _GetImpl(AOperationID, ACancelNotifier, AFileName);
+  VImpl := _GetImpl(AOperationID, ACancelNotifier, AFileName, False);
   if Assigned(VImpl) and (VImpl.State.GetStatic.WriteAccess = asEnabled) then begin
     ImportItemsTree(
       ATree,
@@ -205,7 +207,7 @@ var
   VCategoiesList: IMarkCategoryList;
 begin
   Result := nil;
-  VImpl := _GetImpl(AOperationID, ACancelNotifier, AFileName);
+  VImpl := _GetImpl(AOperationID, ACancelNotifier, AFileName, True);
   if Assigned(VImpl) and (VImpl.State.GetStatic.ReadAccess = asEnabled) then begin
     VCategoiesList := VImpl.CategoryDB.GetCategoriesList;
     if Assigned(VCategoiesList) then begin
