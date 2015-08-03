@@ -494,7 +494,7 @@ begin
     if VData <> nil then begin
       VStream := TStreamReadOnlyByBinaryData.Create(VData);
       try
-        VPicName := AAppearanceIcon.Pic.GetName;
+        VPicName := ExtractFileName(AAppearanceIcon.Pic.GetName);
         VTargetPath := 'files' + PathDelim;
         Result := VTargetPath + VPicName;
         if Assigned(FZip) then begin
