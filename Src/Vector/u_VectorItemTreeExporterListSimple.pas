@@ -62,7 +62,8 @@ uses
   u_InterfaceListSimple,
   u_VectorItemTreeMarksDb,
   u_VectorItemTreeExporterList,
-  u_VectorItemTreeExporterKmlKmz;
+  u_VectorItemTreeExporterKmlKmz,
+  u_VectorItemTreeExporterGPX;
 
 { TVectorItemTreeExporterListSimple }
 
@@ -95,6 +96,15 @@ begin
       VExporter,
       'kml',
       'Google KML file'
+    );
+  VList.Add(VItem);
+
+  VExporter := TVectorItemTreeExporterGPX.Create(AArchiveReadWriteFactory);
+  VItem :=
+    TVectorItemTreeExporterListItem.Create(
+      VExporter,
+      'gpx',
+      'GPS Exchange files'
     );
   VList.Add(VItem);
 
