@@ -348,7 +348,7 @@ begin
     end;
   end;
   {$IFDEF SQL_LOG_CACHE_RESULT}
-  SQLLogCache('Find Name=%, Result=%, Count=%', [AName, Result, FCount], Self);
+  SQLLogCache('Find Name=%, Result=%, Count=%', [StringToUTF8(AName), Result, FCount], Self);
   {$ENDIF}
 end;
 
@@ -374,7 +374,7 @@ begin
       FRow.FastAddSorted(I, VRec);
       Inc(FDataSize, Length(VRec.Name)*SizeOf(Char));
       {$IFDEF SQL_LOG_CACHE_RESULT}
-      SQLLogCache('Add ID=%, Name=%, NewCount=%', [AImageID, AName, FCount], Self);
+      SQLLogCache('Add ID=%, Name=%, NewCount=%', [AImageID, StringToUTF8(AName), FCount], Self);
       {$ENDIF}
     end else begin
       Assert(False);

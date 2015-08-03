@@ -139,7 +139,7 @@ begin
     FRows[I].Name := ARec.FName;
     Inc(FDataSize, VSize);
     {$IFDEF SQL_LOG_CACHE_RESULT}
-    SQLLogCache('Update ID=%, Name=%, Count=%', [ARec.FCategoryId, ARec.FName, FCount], Self);
+    SQLLogCache('Update ID=%, Name=%, Count=%', [ARec.FCategoryId, StringToUTF8(ARec.FName), FCount], Self);
     {$ENDIF}
   end else if I >= 0 then begin
     // add
@@ -148,7 +148,7 @@ begin
     FRow.FastAddSorted(I, VRow);
     Inc(FDataSize, VSize);
     {$IFDEF SQL_LOG_CACHE_RESULT}
-    SQLLogCache('Add ID=%, Name=%, NewCount=%', [ARec.FCategoryId, ARec.FName, FCount], Self);
+    SQLLogCache('Add ID=%, Name=%, NewCount=%', [ARec.FCategoryId, StringToUTF8(ARec.FName), FCount], Self);
     {$ENDIF}
   end else begin
     Assert(False);
@@ -205,7 +205,7 @@ begin
     end;
   end;
   {$IFDEF SQL_LOG_CACHE_RESULT}
-  SQLLogCache('Find Name=%, Result=%, Count=%', [AName, Result, FCount], Self);
+  SQLLogCache('Find Name=%, Result=%, Count=%', [StringToUTF8(AName), Result, FCount], Self);
   {$ENDIF}
 end;
 
