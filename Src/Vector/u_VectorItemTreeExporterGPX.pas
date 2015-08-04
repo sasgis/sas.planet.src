@@ -26,13 +26,10 @@ uses
   i_NotifierOperation,
   i_VectorItemTree,
   i_VectorItemTreeExporter,
-  i_ArchiveReadWriteFactory,
   u_BaseInterfacedObject;
 
 type
   TVectorItemTreeExporterGPX = class(TBaseInterfacedObject, IVectorItemTreeExporter)
-  private
-    FArchiveReadWriteFactory: IArchiveReadWriteFactory;
   private
     procedure ProcessExport(
       AOperationID: Integer;
@@ -40,8 +37,6 @@ type
       const AFileName: string;
       const ATree: IVectorItemTree
     );
-  public
-    constructor Create(const AArchiveReadWriteFactory: IArchiveReadWriteFactory);
   end;
 
 implementation
@@ -52,14 +47,6 @@ uses
 
 { TVectorItemTreeExporterGPX }
 
-constructor TVectorItemTreeExporterGPX.Create(
-  const AArchiveReadWriteFactory: IArchiveReadWriteFactory
-);
-begin
-  inherited Create;
-  FArchiveReadWriteFactory := AArchiveReadWriteFactory;
-end;
-
 procedure TVectorItemTreeExporterGPX.ProcessExport(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
@@ -69,7 +56,7 @@ procedure TVectorItemTreeExporterGPX.ProcessExport(
 var
   VExport: TExportMarks2GPX;
 begin
-  VExport := TExportMarks2GPX.Create(FArchiveReadWriteFactory);
+  VExport := TExportMarks2GPX.Create;
   try
     VExport.ExportTreeToGPX(GState.GeoCalc, ATree, AFileName);
   finally

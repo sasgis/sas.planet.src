@@ -99,7 +99,7 @@ begin
     );
   VList.Add(VItem);
 
-  VExporter := TVectorItemTreeExporterGPX.Create(AArchiveReadWriteFactory);
+  VExporter := TVectorItemTreeExporterGPX.Create;
   VItem :=
     TVectorItemTreeExporterListItem.Create(
       VExporter,

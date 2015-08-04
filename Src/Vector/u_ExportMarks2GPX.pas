@@ -23,15 +23,13 @@ unit u_ExportMarks2GPX;
 interface
 
 uses
-  Classes,
-  SysUtils,
   Windows,
-  ALXmlDoc,
+  SysUtils,
+  Classes,
   ActiveX,
+  ALXmlDoc,
   t_Bitmap32,
   i_GeoCalc,
-  i_ArchiveReadWrite,
-  i_ArchiveReadWriteFactory,
   i_GeometryLonLat,
   i_AppearanceOfVectorItem,
   i_VectorDataItemSimple,
@@ -48,7 +46,6 @@ type
     FGPXMetaNode: TALXMLNode;
     FNameNode: TALXMLNode;
     FDescNode: TALXMLNode;
-    FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FTrackNumber: Integer;
     function AddTree(
       const ACategory: String;
@@ -69,7 +66,6 @@ type
     function XMLDateTime(const ADateTime: TDateTime; const ADetailed: Boolean = False): AnsiString;
     function XMLText(const AStr: String): AnsiString;
   public
-    constructor Create(const AArchiveReadWriteFactory: IArchiveReadWriteFactory);
     procedure ExportTreeToGPX(
       const AGeoCalc: IGeoCalc;
       const ATree: IVectorItemTree;
@@ -81,14 +77,12 @@ implementation
 
 uses
   DateUtils,
-  ALString,
   t_GeoTypes,
   i_BinaryData,
   i_LonLatRect,
   i_EnumDoublePoint,
-  u_BinaryDataByMemStream,
   u_GeoToStrFunc,
-  u_LonLatRect,
+  u_GeoFunc,
   u_StreamReadOnlyByBinaryData;
 
 const
@@ -234,25 +228,142 @@ const
     'Wrecker',
     'Zoo');
 
-function GetKMLCoordinates(const APointEnum: IEnumLonLatPoint): AnsiString;
-var
-  VPoint: TDoublePoint;
-begin
-  Result := '';
-  while APointEnum.Next(VPoint) do begin
-    Result := Result + R2AnsiStrPoint(VPoint.X) + ',' + R2AnsiStrPoint(VPoint.Y) + ',0 ';
+function FindSymByImage(const AImageName: String): String;
+type
+  TWords = array of String;
+  TIndexRec = record Similarity: Double; Sym: Integer; end;
+  TIndex = array of TIndexRec;
+
+  procedure SplitIntoWords(const AImageName: String; out AWords: TWords);
+  var
+    ImageName: String;
+    StartInd: Integer;
+    X: Integer;
+    IsCapital: Boolean;
+    IsLetter: Boolean;
+    NextIsSmall: Boolean;
+    IsDigit: Boolean;
+    IsNewWord: Boolean;
+    CopyDigit: Boolean;
+  begin
+    AWords := nil;
+    ImageName := Trim(AImageName);
+    StartInd := 1;
+    CopyDigit := CharInSet(ImageName[1], ['0'..'9']);
+    for X := 1 to Length(ImageName) do begin
+      IsCapital := CharInSet(ImageName[X], ['A'..'Z']);
+      IsLetter := IsCapital or CharInSet(ImageName[X], ['a'..'z']);
+      IsDigit := CharInSet(ImageName[X], ['0'..'9']);
+      NextIsSmall := (X < Length(ImageName)) and CharInSet(ImageName[X + 1], ['a'..'z']);
+      if CopyDigit then
+        IsNewWord := not IsDigit
+      else
+        IsNewWord := (not IsLetter) or
+                     (
+                       IsCapital and
+                       NextIsSmall
+                     );
+
+      if IsNewWord then begin
+        if X - 1 > StartInd then
+        begin
+          SetLength(AWords, Length(AWords) + 1);
+          AWords[High(AWords)] := AnsiLowerCase(Copy(ImageName, StartInd, X - StartInd));
+          CopyDigit := IsDigit;
+        end;
+        if CopyDigit or IsLetter then // 'word80' or 'wordWord'
+          StartInd := X
+        else
+          StartInd := X + 1;          // 'word 80' or 'word word'
+      end;
+    end;
+
+    if StartInd < Length(ImageName) then
+    begin
+      SetLength(AWords, Length(AWords) + 1);
+      AWords[High(AWords)] := AnsiLowerCase(Copy(ImageName, StartInd, MaxInt));
+    end;
   end;
+
+  procedure BuildIndex(const AWords: TWords; out AIndex: TIndex);
+
+    function FindSimilarity(const AGarminName: String; const AWords: TWords): Double;
+    var
+      GarminNames: TWords;
+      X: Integer;
+      Y: Integer;
+    begin
+      Result := 0;
+
+      SplitIntoWords(AGarminName, GarminNames);
+
+      for X := 0 to High(GarminNames) do
+        for Y := 0 to High(AWords) do
+          if AWords[Y] = GarminNames[X] then
+            Result := Result + 1 + (1/100 * Length(AWords[Y])) // +1.0 for every matched word, +0.x for length (e.g. prefer longer words)
+          else
+            Result := Result - 0.05; // penalty for not matched words; prefer fully matched
+    end;
+
+  var
+    X: Integer;
+  begin
+    SetLength(AIndex, Length(GarminSymNames));
+
+    for X := 0 to High(AIndex) do
+    begin
+      AIndex[X].Sym := X;
+      AIndex[X].Similarity := FindSimilarity(GarminSymNames[X], AWords);
+    end;
+  end;
+
+  procedure SortIndex(var AIndex: TIndex; L, R: Integer);
+  var
+    I, J: Integer;
+    P, T: TIndexRec;
+  begin
+    repeat
+      I := L;
+      J := R;
+      P := AIndex[(L + R) shr 1];
+      repeat
+        while AIndex[I].Similarity > P.Similarity do
+          Inc(I);
+        while AIndex[J].Similarity < P.Similarity do
+          Dec(J);
+        if I <= J then
+        begin
+          if I <> J then
+          begin
+            T := AIndex[I];
+            AIndex[I] := AIndex[J];
+            AIndex[J] := T;
+          end;
+          Inc(I);
+          Dec(J);
+        end;
+      until I > J;
+      if L < J then
+        SortIndex(AIndex, L, J);
+      L := I;
+    until I >= R;
+  end;
+
+var
+  Words: TWords;
+  Index: TIndex;
+begin
+  SplitIntoWords(AImageName, Words);
+  BuildIndex(Words, Index);
+  SortIndex(Index, 0, High(Index));
+
+  if Index[0].Similarity > 0 then
+    Result := GarminSymNames[Index[0].Sym];
+  if Result = '' then
+    Result := 'Flag, Blue';
 end;
 
 { TExportMarks2GPX }
-
-constructor TExportMarks2GPX.Create(
-  const AArchiveReadWriteFactory: IArchiveReadWriteFactory
-);
-begin
-  inherited Create;
-  FArchiveReadWriteFactory := AArchiveReadWriteFactory;
-end;
 
 procedure TExportMarks2GPX.PrepareExportToFile(const AFileName: string; const ATree: IVectorItemTree);
 
@@ -371,9 +482,9 @@ procedure TExportMarks2GPX.PrepareExportToFile(const AFileName: string; const AT
     end;
   end;
 
-  procedure ScanBounds(var ABounds: ILonLatRect; const ATree: IVectorItemTree);
+  procedure ScanBounds(var ABounds: TDoubleRect; const ATree: IVectorItemTree);
 
-    procedure ScanMarksBounds(var ABounds: ILonLatRect; const AMarksSubset: IVectorItemSubset);
+    procedure ScanMarksBounds(var ABounds: TDoubleRect; const AMarksSubset: IVectorItemSubset);
     var
       VMark: IVectorDataItem;
       VEnumMarks: IEnumUnknown;
@@ -385,20 +496,25 @@ procedure TExportMarks2GPX.PrepareExportToFile(const AFileName: string; const AT
         VEnumMarks := AMarksSubset.GetEnum;
         while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
           if Assigned(VMark) then begin
-            if Assigned(VMark.Geometry) then
-              if ABounds = nil then
-                ABounds := VMark.Geometry.Bounds
+
+            if Assigned(VMark.Geometry) then begin
+              if (ABounds.Left = 0) and (ABounds.Right = 0) or
+                 (ABounds.Top = 0) and (ABounds.Bottom = 0) then
+                ABounds := VMark.Geometry.Bounds.Rect
               else
-                ABounds := TLonLatRect.Create(ABounds.UnionWithRect(VMark.Geometry.Bounds))
-            else
-            if Supports(VMark, IGeometryLonLat, VLonLat) then
-              if ABounds = nil then
-                ABounds := VLonLat.Bounds
+                ABounds := UnionLonLatRects(ABounds, VMark.Geometry.Bounds.Rect);
+            end
+            else if Supports(VMark, IGeometryLonLat, VLonLat) then begin
+              if (ABounds.Left = 0) and (ABounds.Right = 0) or
+                 (ABounds.Top = 0) and (ABounds.Bottom = 0) then
+                ABounds := VLonLat.Bounds.Rect
               else
-                ABounds := TLonLatRect.Create(ABounds.UnionWithRect(VLonLat.Bounds));
-          end;
-        end;
-      end;
+                ABounds := UnionLonLatRects(ABounds, VLonLat.Bounds.Rect);
+            end;
+
+          end; // if Assigned(VMark) then
+        end; // while (VEnumMarks.Next
+      end; // if Assigned(AMarksSubset) then
     end;
 
   var
@@ -422,7 +538,7 @@ var
   VUserEMail: String;
   VEMailNode: TALXMLNode;
   VMark: IVectorDataItem;
-  VBounds: ILonLatRect;
+  VBounds: TDoubleRect;
   VBoundsNode: TALXMLNode;
 begin
   // Windows 8+ - this is e-mail from Windows Live/Passport
@@ -491,13 +607,10 @@ begin
   end;
 
   // Determinate bounds of all marks
-  VBounds := nil;
+  FillChar(VBounds, SizeOf(VBounds), 0);
   ScanBounds(VBounds, ATree);
-  if (VBounds <> nil) and
-     (
-       (VBounds.Left <> 0) or (VBounds.Right <> 0) or
-       (VBounds.Top <> 0) or (VBounds.Bottom <> 0)
-     ) then begin
+  if (VBounds.Left <> 0) or (VBounds.Right <> 0) or
+     (VBounds.Top <> 0) or (VBounds.Bottom <> 0) then begin
     VBoundsNode := FGPXMetaNode.AddChild('bounds'); // Minimum and maximum coordinates which describe the extent of the coordinates in the file. <bounds minlat="56.717302" minlon="35.900255" maxlat="56.787633" maxlon="35.980514" />
     VBoundsNode.Attributes['maxlat'] := R2AnsiStrPoint(VBounds.Bottom);
     VBoundsNode.Attributes['maxlon'] := R2AnsiStrPoint(VBounds.Right);
@@ -820,7 +933,6 @@ const
   var
     VCurrentNode: TALXMLNode;
     VAppearanceIcon: IAppearancePointIcon;
-    VDateTime: TDateTime;
     VExtensionsNode: TALXMLNode;
     VExtensionNode: TALXMLNode;
     VDesc: String;
@@ -875,8 +987,8 @@ const
           VType := 'photo';
         if VSym = '' then
           VSym := 'Scenic Area';
-        VCurrentNode.ChildNodes['type'].Text := VType; // Type (classification) of the waypoint.
-        VCurrentNode.ChildNodes['sym'].Text := VSym; // Text of GPS symbol name. For interchange with other programs, use the exact spelling of the symbol as displayed on the GPS. If the GPS abbreviates words, spell them out.
+        VCurrentNode.ChildNodes['type'].Text := XMLText(VType); // Type (classification) of the waypoint.
+        VCurrentNode.ChildNodes['sym'].Text := XMLText(VSym); // Text of GPS symbol name. For interchange with other programs, use the exact spelling of the symbol as displayed on the GPS. If the GPS abbreviates words, spell them out.
         VCurrentNode.ChildNodes['link'].Attributes['href'] := XMLText(SaveMarkIcon(VAppearanceIcon)); // Link to additional information about the waypoint.
         VExtensionsNode := VCurrentNode.AddChild('extensions'); // You can add extend GPX by adding your own elements from another schema here.
         VExtensionNode := VExtensionsNode.AddChild('gpxx:WaypointExtension');
@@ -891,9 +1003,9 @@ const
         if VType = '' then
           VType := 'user';
         if VSym = '' then
-          VSym := 'Flag, Blue';
-        VCurrentNode.ChildNodes['type'].Text := VType; // Type (classification) of the waypoint.
-        VCurrentNode.ChildNodes['sym'].Text := VSym; // Text of GPS symbol name. For interchange with other programs, use the exact spelling of the symbol as displayed on the GPS. If the GPS abbreviates words, spell them out.
+          VSym := FindSymByImage(ChangeFileExt(ExtractFileName(VAppearanceIcon.Pic.GetName), ''));
+        VCurrentNode.ChildNodes['type'].Text := XMLText(VType); // Type (classification) of the waypoint.
+        VCurrentNode.ChildNodes['sym'].Text := XMLText(VSym); // Text of GPS symbol name. For interchange with other programs, use the exact spelling of the symbol as displayed on the GPS. If the GPS abbreviates words, spell them out.
         VCurrentNode.ChildNodes['link'].Attributes['href'] := XMLText(SaveMarkIcon(VAppearanceIcon)); // Link to additional information about the waypoint.
         VExtensionsNode := VCurrentNode.AddChild('extensions'); // You can add extend GPX by adding your own elements from another schema here.
         VExtensionNode := VExtensionsNode.AddChild('gpxx:WaypointExtension');
@@ -905,10 +1017,14 @@ const
       end
     end
     else begin
+      VCurrentNode.ChildNodes['type'].Text := ''; // Type (classification) of the waypoint.
+      VCurrentNode.ChildNodes['sym'].Text := ''; // Text of GPS symbol name. For interchange with other programs, use the exact spelling of the symbol as displayed on the GPS. If the GPS abbreviates words, spell them out.
       VExtensionsNode := VCurrentNode.AddChild('extensions'); // You can add extend GPX by adding your own elements from another schema here.
       VExtensionNode := VExtensionsNode.AddChild('gpxx:WaypointExtension');
+      VExtensionNode.AddChild('gpxx:DisplayMode').Text := 'SymbolAndName'; // Other possible values: 'SymbolOnly' 'SymbolAndDescription'
       AddCategories(VExtensionNode.AddChild('gpxx:Categories'), 'gpxx');
       VExtensionNode := VExtensionsNode.AddChild('wptx1:WaypointExtension');
+      VExtensionNode.AddChild('wptx1:DisplayMode').Text := 'SymbolAndName'; // Other possible values: 'SymbolOnly' 'SymbolAndDescription'
       AddCategories(VExtensionNode.AddChild('wptx1:Categories'), 'wptx1');
     end;
   end;
@@ -928,7 +1044,6 @@ const
     VPoints: IEnumLonLatPoint;
     VPoint: TDoublePoint;
     VPointNode: TALXMLNode;
-    VDateTime: TDateTime;
     VExtensionsNode: TALXMLNode;
     VExtensionNode: TALXMLNode;
     VPointInd: Integer;
@@ -1057,7 +1172,6 @@ const
     VCurrentNode: TALXMLNode;
     VAppearanceLine: IAppearanceLine;
     VLonLatPathLine: IGeometryLonLatSingleLine;
-    VDateTime: TDateTime;
     VRootNode: TALXMLNode;
     VPoints: IEnumLonLatPoint;
     VPoint: TDoublePoint;
