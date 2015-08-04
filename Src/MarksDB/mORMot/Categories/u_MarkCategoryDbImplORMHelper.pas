@@ -583,6 +583,7 @@ begin
       VRec.FName := VRows[I].Name;
       if VViewCount > 0 then begin
         if VViewCache.Find(VRec.FCategoryId, VItem) then begin
+          VRec.FViewId := VItem.ViewId;
           VRec.FVisible := VItem.Visible;
           VRec.FMinZoom := VItem.MinZoom;
           VRec.FMaxZoom := VItem.MaxZoom;

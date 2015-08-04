@@ -736,6 +736,7 @@ begin
         ACategoryId,
         True, // include hidden marks
         False, // without geometry
+        False, // without appearance
         VArray
       );
   finally
@@ -794,6 +795,7 @@ begin
         ACategoryId,
         AIncludeHiddenMarks,
         True, // read geometry
+        True, // read appearance
         VArray
       );
   finally

@@ -127,6 +127,7 @@ type
       const ACategoryId: TID;
       const AIncludeHiddenMarks: Boolean;
       const AIncludeGeometry: Boolean;
+      const AIncludeAppearance: Boolean;
       out AMarkRecArray: TSQLMarkRecDynArray
     ): Integer;
     function GetMarkRecArrayByRect(
@@ -1254,6 +1255,7 @@ function TMarkDbImplORMHelper.GetMarkRecArray(
   const ACategoryId: TID;
   const AIncludeHiddenMarks: Boolean;
   const AIncludeGeometry: Boolean;
+  const AIncludeAppearance: Boolean;
   out AMarkRecArray: TSQLMarkRecDynArray
 ): Integer;
 
@@ -1299,8 +1301,10 @@ function TMarkDbImplORMHelper.GetMarkRecArray(
       end;
     end;
 
-    _ReadMarkImage(AMarkRec);
-    _ReadMarkAppearance(AMarkRec);
+    if AIncludeAppearance then begin
+      _ReadMarkImage(AMarkRec);
+      _ReadMarkAppearance(AMarkRec);
+    end;
 
     Result := True;
   end;
