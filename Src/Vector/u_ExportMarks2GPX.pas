@@ -83,6 +83,7 @@ uses
   i_EnumDoublePoint,
   u_GeoToStrFunc,
   u_GeoFunc,
+  u_StrFunc,
   u_StreamReadOnlyByBinaryData;
 
 const
