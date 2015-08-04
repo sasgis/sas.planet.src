@@ -167,10 +167,24 @@ begin
   inherited Create;
 end;
 
-procedure TGeometryProjectedPolygonBuilder.AddHole(const ABounds: TDoubleRect;
-  const APoints: IDoublePoints);
+procedure TGeometryProjectedPolygonBuilder.AddHole(
+  const ABounds: TDoubleRect;
+  const APoints: IDoublePoints
+);
+var
+  VHole: IGeometryProjectedContour;
 begin
-
+  Assert(Assigned(APoints));
+  if Assigned(FPoints) then begin
+    if not Assigned(FHoleList) then begin
+      FHoleList := TInterfaceListSimple.Create;
+    end;
+    VHole := TGeometryProjectedContour.Create(ABounds, APoints);
+    FHoleList.Add(VHole);
+  end else begin
+    FPoints := APoints;
+    FPolygonBounds := ABounds;
+  end;
 end;
 
 procedure TGeometryProjectedPolygonBuilder.AddOuter(
