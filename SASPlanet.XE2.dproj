@@ -955,6 +955,7 @@
 			<DCCReference Include="Src\MarksDB\u_MarkPolyTemplateConfig.pas"/>
 			<DCCReference Include="Src\MarksDB\u_MarkSystem.pas"/>
 			<DCCReference Include="Src\MarksDB\u_MarkSystemConfig.pas"/>
+			<DCCReference Include="Src\MarksDB\u_MarkSystemErrorHandler.pas"/>
 			<DCCReference Include="Src\MarksDB\u_MarkSystemErrorMsg.pas"/>
 			<DCCReference Include="Src\MarksDB\u_MarkSystemHelpers.pas"/>
 			<DCCReference Include="Src\MarksDB\u_MarkSystemImplChangeable.pas"/>
@@ -1534,6 +1535,7 @@
 			<DCCReference Include="Src\Vector\u_AppearanceOfMarkPoint.pas"/>
 			<DCCReference Include="Src\Vector\u_AppearanceOfMarkPolygon.pas"/>
 			<DCCReference Include="Src\Vector\u_Category.pas"/>
+			<DCCReference Include="Src\Vector\u_ExportMarks2GPX.pas"/>
 			<DCCReference Include="Src\Vector\u_ExportMarks2KML.pas"/>
 			<DCCReference Include="Src\Vector\u_ImportConfig.pas"/>
 			<DCCReference Include="Src\Vector\u_JpegWithExifImportConfig.pas"/>
@@ -1545,6 +1547,7 @@
 			<DCCReference Include="Src\Vector\u_VectorItemSubsetChangeableBySearchResult.pas"/>
 			<DCCReference Include="Src\Vector\u_VectorItemSubsetChangeableForMarksLayer.pas"/>
 			<DCCReference Include="Src\Vector\u_VectorItemTree.pas"/>
+			<DCCReference Include="Src\Vector\u_VectorItemTreeExporterGPX.pas"/>
 			<DCCReference Include="Src\Vector\u_VectorItemTreeExporterKmlKmz.pas"/>
 			<DCCReference Include="Src\Vector\u_VectorItemTreeExporterList.pas"/>
 			<DCCReference Include="Src\Vector\u_VectorItemTreeExporterListSimple.pas"/>

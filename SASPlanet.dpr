@@ -742,6 +742,7 @@ uses
   u_MarkPolyTemplateConfig in 'Src\MarksDB\u_MarkPolyTemplateConfig.pas',
   u_MarkSystem in 'Src\MarksDB\u_MarkSystem.pas',
   u_MarkSystemConfig in 'Src\MarksDB\u_MarkSystemConfig.pas',
+  u_MarkSystemErrorHandler in 'Src\MarksDB\u_MarkSystemErrorHandler.pas',
   u_MarkSystemErrorMsg in 'Src\MarksDB\u_MarkSystemErrorMsg.pas',
   u_MarkSystemHelpers in 'Src\MarksDB\u_MarkSystemHelpers.pas',
   u_MarkSystemImplChangeable in 'Src\MarksDB\u_MarkSystemImplChangeable.pas',

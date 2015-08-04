@@ -82,8 +82,7 @@ implementation
 uses
   Classes,
   SysUtils,
-  i_MarkSystemErrorMsg,
-  u_MarkSystemErrorMsg,
+  u_MarkSystemErrorHandler,
   u_BackgroundTask,
   u_ThreadConfig,
   u_ListenerByEvent;
@@ -158,7 +157,6 @@ var
   VStatic: IMarkSystemImpl;
   VConfig: IMarkSystemConfigStatic;
   VFactory: IMarkSystemImplFactory;
-  VErrorMsg: IMarkSystemErrorMsg;
 begin
   if FAppStartedNotifier.IsExecuted then begin
 
@@ -186,9 +184,7 @@ begin
         except
           on E: Exception do begin
             VStatic := nil;
-            VErrorMsg := TMarkSystemErrorMsg.Create(E.ClassName + ': ' + E.Message);
-            FErrorNotifierInternal.Notify(VErrorMsg);
-            //ToDo: LogError
+            CatchException(E, FErrorNotifierInternal);
           end;
         end;
       end;
