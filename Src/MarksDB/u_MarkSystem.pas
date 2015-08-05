@@ -171,7 +171,12 @@ begin
       AAppClosingNotifier
     );
 
-  FMarkDb := TMarkDbByImpl.Create(FSystemImpl, AMarkFactory);
+  FMarkDb :=
+    TMarkDbByImpl.Create(
+      FSystemImpl,
+      AMarkFactory,
+      FNotifierInternal
+    );
   
   FCategoryDB :=
     TMarkCategoryDbByImpl.Create(

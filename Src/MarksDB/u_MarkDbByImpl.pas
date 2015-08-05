@@ -46,6 +46,7 @@ type
     FMarkFactory: IMarkFactory;
     FChangeNotifier: INotifier;
     FChangeNotifierInternal: INotifierInternal;
+    FErrorNotifierInternal: INotifierInternal;
     FImplChangeListener: IListener;
     FDbImplChangeListener: IListener;
   private
@@ -125,7 +126,8 @@ type
   public
     constructor Create(
       const AMarkSystemImpl: IMarkSystemImplChangeable;
-      const AMarkFactory: IMarkFactory
+      const AMarkFactory: IMarkFactory;
+      const AErrorNotifierInternal: INotifierInternal
     );
     destructor Destroy; override;
   end;
@@ -133,7 +135,9 @@ type
 implementation
 
 uses
+  SysUtils,
   i_MarkSystemImpl,
+  u_MarkSystemErrorHandler,
   u_Notifier,
   u_Synchronizer,
   u_ListenerByEvent;
@@ -142,12 +146,14 @@ uses
 
 constructor TMarkDbByImpl.Create(
   const AMarkSystemImpl: IMarkSystemImplChangeable;
-  const AMarkFactory: IMarkFactory
+  const AMarkFactory: IMarkFactory;
+  const AErrorNotifierInternal: INotifierInternal
 );
 begin
   inherited Create;
   FMarkSystemImpl := AMarkSystemImpl;
   FMarkFactory := AMarkFactory;
+  FErrorNotifierInternal := AErrorNotifierInternal;
   FChangeNotifierInternal :=
     TNotifierBase.Create(
       GSync.SyncVariable.Make(Self.ClassName + 'Notifier')
@@ -178,9 +184,16 @@ var
   VImpl: IMarkSystemImpl;
 begin
   Result := nil;
-  VImpl := FMarkSystemImpl.GetStatic;
-  if VImpl <> nil then begin
-    Result := VImpl.MarkDb.GetAllMarkIdList;
+  try
+    VImpl := FMarkSystemImpl.GetStatic;
+    if VImpl <> nil then begin
+      Result := VImpl.MarkDb.GetAllMarkIdList;
+    end;
+  except
+    on E: Exception do begin
+      Result := nil;
+      CatchException(E, FErrorNotifierInternal);
+    end;
   end;
 end;
 
@@ -199,9 +212,16 @@ var
   VImpl: IMarkSystemImpl;
 begin
   Result := nil;
-  VImpl := FMarkSystemImpl.GetStatic;
-  if VImpl <> nil then begin
-    Result := VImpl.MarkDb.GetMarkByID(AMarkId);
+  try
+    VImpl := FMarkSystemImpl.GetStatic;
+    if VImpl <> nil then begin
+      Result := VImpl.MarkDb.GetMarkByID(AMarkId);
+    end;
+  except
+    on E: Exception do begin
+      Result := nil;
+      CatchException(E, FErrorNotifierInternal);
+    end;
   end;
 end;
 
@@ -213,21 +233,36 @@ var
   VImpl: IMarkSystemImpl;
 begin
   Result := nil;
-  VImpl := FMarkSystemImpl.GetStatic;
-  if VImpl <> nil then begin
-    Result := VImpl.MarkDb.GetMarkByName(AName, ACategory);
+  try
+    VImpl := FMarkSystemImpl.GetStatic;
+    if VImpl <> nil then begin
+      Result := VImpl.MarkDb.GetMarkByName(AName, ACategory);
+    end;
+  except
+    on E: Exception do begin
+      Result := nil;
+      CatchException(E, FErrorNotifierInternal);
+    end;
   end;
 end;
 
 function TMarkDbByImpl.GetMarkIdListByCategory(
-  const ACategory: ICategory): IInterfaceListStatic;
+  const ACategory: ICategory
+): IInterfaceListStatic;
 var
   VImpl: IMarkSystemImpl;
 begin
   Result := nil;
-  VImpl := FMarkSystemImpl.GetStatic;
-  if VImpl <> nil then begin
-    Result := VImpl.MarkDb.GetMarkIdListByCategory(ACategory);
+  try
+    VImpl := FMarkSystemImpl.GetStatic;
+    if VImpl <> nil then begin
+      Result := VImpl.MarkDb.GetMarkIdListByCategory(ACategory);
+    end;
+  except
+    on E: Exception do begin
+      Result := nil;
+      CatchException(E, FErrorNotifierInternal);
+    end;
   end;
 end;
 
@@ -239,9 +274,16 @@ var
   VImpl: IMarkSystemImpl;
 begin
   Result := nil;
-  VImpl := FMarkSystemImpl.GetStatic;
-  if VImpl <> nil then begin
-    Result := VImpl.MarkDb.GetMarkSubsetByCategory(ACategory, AIncludeHiddenMarks);
+  try
+    VImpl := FMarkSystemImpl.GetStatic;
+    if VImpl <> nil then begin
+      Result := VImpl.MarkDb.GetMarkSubsetByCategory(ACategory, AIncludeHiddenMarks);
+    end;
+  except
+    on E: Exception do begin
+      Result := nil;
+      CatchException(E, FErrorNotifierInternal);
+    end;
   end;
 end;
 
@@ -255,9 +297,16 @@ var
   VImpl: IMarkSystemImpl;
 begin
   Result := nil;
-  VImpl := FMarkSystemImpl.GetStatic;
-  if VImpl <> nil then begin
-    Result := VImpl.MarkDb.GetMarkSubsetByCategoryInRect(ARect, ACategory, AIncludeHiddenMarks, ALonLatSize);
+  try
+    VImpl := FMarkSystemImpl.GetStatic;
+    if VImpl <> nil then begin
+      Result := VImpl.MarkDb.GetMarkSubsetByCategoryInRect(ARect, ACategory, AIncludeHiddenMarks, ALonLatSize);
+    end;
+  except
+    on E: Exception do begin
+      Result := nil;
+      CatchException(E, FErrorNotifierInternal);
+    end;
   end;
 end;
 
@@ -269,9 +318,16 @@ var
   VImpl: IMarkSystemImpl;
 begin
   Result := nil;
-  VImpl := FMarkSystemImpl.GetStatic;
-  if VImpl <> nil then begin
-    Result := VImpl.MarkDb.GetMarkSubsetByCategoryList(ACategoryList, AIncludeHiddenMarks);
+  try
+    VImpl := FMarkSystemImpl.GetStatic;
+    if VImpl <> nil then begin
+      Result := VImpl.MarkDb.GetMarkSubsetByCategoryList(ACategoryList, AIncludeHiddenMarks);
+    end;
+  except
+    on E: Exception do begin
+      Result := nil;
+      CatchException(E, FErrorNotifierInternal);
+    end;
   end;
 end;
 
@@ -285,9 +341,16 @@ var
   VImpl: IMarkSystemImpl;
 begin
   Result := nil;
-  VImpl := FMarkSystemImpl.GetStatic;
-  if VImpl <> nil then begin
-    Result := VImpl.MarkDb.GetMarkSubsetByCategoryListInRect(ARect, ACategoryList, AIncludeHiddenMarks, ALonLatSize);
+  try
+    VImpl := FMarkSystemImpl.GetStatic;
+    if VImpl <> nil then begin
+      Result := VImpl.MarkDb.GetMarkSubsetByCategoryListInRect(ARect, ACategoryList, AIncludeHiddenMarks, ALonLatSize);
+    end;
+  except
+    on E: Exception do begin
+      Result := nil;
+      CatchException(E, FErrorNotifierInternal);
+    end;
   end;
 end;
 
@@ -301,9 +364,16 @@ var
   VImpl: IMarkSystemImpl;
 begin
   Result := nil;
-  VImpl := FMarkSystemImpl.GetStatic;
-  if VImpl <> nil then begin
-    Result := VImpl.MarkDb.FindMarks(ASearch, AMaxCount, AIncludeHiddenMarks, ASearchInDescription);
+  try
+    VImpl := FMarkSystemImpl.GetStatic;
+    if VImpl <> nil then begin
+      Result := VImpl.MarkDb.FindMarks(ASearch, AMaxCount, AIncludeHiddenMarks, ASearchInDescription);
+    end;
+  except
+    on E: Exception do begin
+      Result := nil;
+      CatchException(E, FErrorNotifierInternal);
+    end;
   end;
 end;
 
@@ -312,9 +382,16 @@ var
   VImpl: IMarkSystemImpl;
 begin
   Result := True;
-  VImpl := FMarkSystemImpl.GetStatic;
-  if VImpl <> nil then begin
-    Result := VImpl.MarkDb.GetMarkVisible(AMark);
+  try
+    VImpl := FMarkSystemImpl.GetStatic;
+    if VImpl <> nil then begin
+      Result := VImpl.MarkDb.GetMarkVisible(AMark);
+    end;
+  except
+    on E: Exception do begin
+      Result := True;
+      CatchException(E, FErrorNotifierInternal);
+    end;
   end;
 end;
 
@@ -323,9 +400,16 @@ var
   VImpl: IMarkSystemImpl;
 begin
   Result := True;
-  VImpl := FMarkSystemImpl.GetStatic;
-  if VImpl <> nil then begin
-    Result := VImpl.MarkDb.GetMarkVisibleByID(AMark);
+  try
+    VImpl := FMarkSystemImpl.GetStatic;
+    if VImpl <> nil then begin
+      Result := VImpl.MarkDb.GetMarkVisibleByID(AMark);
+    end;
+  except
+    on E: Exception do begin
+      Result := True;
+      CatchException(E, FErrorNotifierInternal);
+    end;
   end;
 end;
 
@@ -333,14 +417,20 @@ procedure TMarkDbByImpl.OnImplChange;
 var
   VImpl: IMarkSystemImpl;
 begin
-  if FNotifier <> nil then begin
-    FNotifier.Remove(FDbImplChangeListener);
-    FNotifier := nil;
-  end;
-  VImpl := FMarkSystemImpl.GetStatic;
-  if VImpl <> nil then begin
-    FNotifier := VImpl.MarkDb.ChangeNotifier;
-    FNotifier.Add(FDbImplChangeListener);
+  try
+    if FNotifier <> nil then begin
+      FNotifier.Remove(FDbImplChangeListener);
+      FNotifier := nil;
+    end;
+    VImpl := FMarkSystemImpl.GetStatic;
+    if VImpl <> nil then begin
+      FNotifier := VImpl.MarkDb.ChangeNotifier;
+      FNotifier.Add(FDbImplChangeListener);
+    end;
+  except
+    on E: Exception do begin
+      CatchException(E, FErrorNotifierInternal);
+    end;
   end;
 end;
 
@@ -356,9 +446,15 @@ procedure TMarkDbByImpl.SetAllMarksInCategoryVisible(
 var
   VImpl: IMarkSystemImpl;
 begin
-  VImpl := FMarkSystemImpl.GetStatic;
-  if VImpl <> nil then begin
-    VImpl.MarkDb.SetAllMarksInCategoryVisible(ACategory, ANewVisible);
+  try
+    VImpl := FMarkSystemImpl.GetStatic;
+    if VImpl <> nil then begin
+      VImpl.MarkDb.SetAllMarksInCategoryVisible(ACategory, ANewVisible);
+    end;
+  except
+    on E: Exception do begin
+      CatchException(E, FErrorNotifierInternal);
+    end;
   end;
 end;
 
@@ -369,9 +465,15 @@ procedure TMarkDbByImpl.SetMarkVisible(
 var
   VImpl: IMarkSystemImpl;
 begin
-  VImpl := FMarkSystemImpl.GetStatic;
-  if VImpl <> nil then begin
-    VImpl.MarkDb.SetMarkVisible(AMark, AVisible);
+  try
+    VImpl := FMarkSystemImpl.GetStatic;
+    if VImpl <> nil then begin
+      VImpl.MarkDb.SetMarkVisible(AMark, AVisible);
+    end;
+  except
+    on E: Exception do begin
+      CatchException(E, FErrorNotifierInternal);
+    end;
   end;
 end;
 
@@ -382,9 +484,15 @@ procedure TMarkDbByImpl.SetMarkVisibleByID(
 var
   VImpl: IMarkSystemImpl;
 begin
-  VImpl := FMarkSystemImpl.GetStatic;
-  if VImpl <> nil then begin
-    VImpl.MarkDb.SetMarkVisibleByID(AMark, AVisible);
+  try
+    VImpl := FMarkSystemImpl.GetStatic;
+    if VImpl <> nil then begin
+      VImpl.MarkDb.SetMarkVisibleByID(AMark, AVisible);
+    end;
+  except
+    on E: Exception do begin
+      CatchException(E, FErrorNotifierInternal);
+    end;
   end;
 end;
 
@@ -395,9 +503,15 @@ procedure TMarkDbByImpl.SetMarkVisibleByIDList(
 var
   VImpl: IMarkSystemImpl;
 begin
-  VImpl := FMarkSystemImpl.GetStatic;
-  if VImpl <> nil then begin
-    VImpl.MarkDb.SetMarkVisibleByIDList(AMarkList, AVisible);
+  try
+    VImpl := FMarkSystemImpl.GetStatic;
+    if VImpl <> nil then begin
+      VImpl.MarkDb.SetMarkVisibleByIDList(AMarkList, AVisible);
+    end;
+  except
+    on E: Exception do begin
+      CatchException(E, FErrorNotifierInternal);
+    end;
   end;
 end;
 
@@ -407,9 +521,15 @@ procedure TMarkDbByImpl.ToggleMarkVisibleByIDList(
 var
   VImpl: IMarkSystemImpl;
 begin
-  VImpl := FMarkSystemImpl.GetStatic;
-  if VImpl <> nil then begin
-    VImpl.MarkDb.ToggleMarkVisibleByIDList(AMarkList);
+  try
+    VImpl := FMarkSystemImpl.GetStatic;
+    if VImpl <> nil then begin
+      VImpl.MarkDb.ToggleMarkVisibleByIDList(AMarkList);
+    end;
+  except
+    on E: Exception do begin
+      CatchException(E, FErrorNotifierInternal);
+    end;
   end;
 end;
 
@@ -418,9 +538,16 @@ var
   VImpl: IMarkSystemImpl;
 begin
   Result := nil;
-  VImpl := FMarkSystemImpl.GetStatic;
-  if VImpl <> nil then begin
-    Result := VImpl.MarkDb.UpdateMark(AOldMark, ANewMark);
+  try
+    VImpl := FMarkSystemImpl.GetStatic;
+    if VImpl <> nil then begin
+      Result := VImpl.MarkDb.UpdateMark(AOldMark, ANewMark);
+    end;
+  except
+    on E: Exception do begin
+      Result := nil;
+      CatchException(E, FErrorNotifierInternal);
+    end;
   end;
 end;
 
@@ -431,9 +558,16 @@ var
   VImpl: IMarkSystemImpl;
 begin
   Result := nil;
-  VImpl := FMarkSystemImpl.GetStatic;
-  if VImpl <> nil then begin
-    Result := VImpl.MarkDb.UpdateMarkList(AOldMarkList, ANewMarkList);
+  try
+    VImpl := FMarkSystemImpl.GetStatic;
+    if VImpl <> nil then begin
+      Result := VImpl.MarkDb.UpdateMarkList(AOldMarkList, ANewMarkList);
+    end;
+  except
+    on E: Exception do begin
+      Result := nil;
+      CatchException(E, FErrorNotifierInternal);
+    end;
   end;
 end;
 
