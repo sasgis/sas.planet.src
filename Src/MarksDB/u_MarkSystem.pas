@@ -172,7 +172,13 @@ begin
     );
 
   FMarkDb := TMarkDbByImpl.Create(FSystemImpl, AMarkFactory);
-  FCategoryDB := TMarkCategoryDbByImpl.Create(FSystemImpl, AMarkCategoryFactory);
+  
+  FCategoryDB :=
+    TMarkCategoryDbByImpl.Create(
+      FSystemImpl,
+      AMarkCategoryFactory,
+      FNotifierInternal
+    );
 end;
 
 procedure TMarkSystem.DeleteCategoryWithMarks(const ACategory: IMarkCategory);

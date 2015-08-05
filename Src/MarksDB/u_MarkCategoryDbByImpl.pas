@@ -42,6 +42,7 @@ type
     FMarkCategoryFactory: IMarkCategoryFactory;
     FChangeNotifier: INotifier;
     FChangeNotifierInternal: INotifierInternal;
+    FErrorNotifierInternal: INotifierInternal;
     FImplChangeListener: IListener;
     FDbImplChangeListener: IListener;
   private
@@ -73,7 +74,8 @@ type
   public
     constructor Create(
       const AMarkSystemImpl: IMarkSystemImplChangeable;
-      const AMarkCategoryFactory: IMarkCategoryFactory
+      const AMarkCategoryFactory: IMarkCategoryFactory;
+      const AErrorNotifierInternal: INotifierInternal
     );
     destructor Destroy; override;
   end;
@@ -89,6 +91,7 @@ uses
   u_InterfaceListSimple,
   u_MarkCategoryList,
   u_MarkSystemHelpers,
+  u_MarkSystemErrorHandler,
   u_Synchronizer,
   u_ListenerByEvent;
 
@@ -96,12 +99,14 @@ uses
 
 constructor TMarkCategoryDbByImpl.Create(
   const AMarkSystemImpl: IMarkSystemImplChangeable;
-  const AMarkCategoryFactory: IMarkCategoryFactory
+  const AMarkCategoryFactory: IMarkCategoryFactory;
+  const AErrorNotifierInternal: INotifierInternal
 );
 begin
   inherited Create;
   FMarkSystemImpl := AMarkSystemImpl;
   FMarkCategoryFactory := AMarkCategoryFactory;
+  FErrorNotifierInternal := AErrorNotifierInternal;
   FChangeNotifierInternal :=
     TNotifierBase.Create(
       GSync.SyncVariable.Make(Self.ClassName + 'Notifier')
@@ -150,11 +155,19 @@ begin
 end;
 
 function TMarkCategoryDbByImpl.CategoryListToStaticTree(
-  const AList: IMarkCategoryList): IMarkCategoryTree;
+  const AList: IMarkCategoryList
+): IMarkCategoryTree;
 begin
   Result := nil;
-  if Assigned(AList) then begin
-    Result := CategoryListToCategoryTree(AList);
+  try
+    if Assigned(AList) then begin
+      Result := CategoryListToCategoryTree(AList);
+    end;
+  except
+    on E: Exception do begin
+      Result := nil;
+      CatchException(E, FErrorNotifierInternal);
+    end;
   end;
 end;
 
@@ -163,21 +176,36 @@ var
   VImpl: IMarkSystemImpl;
 begin
   Result := nil;
-  VImpl := FMarkSystemImpl.GetStatic;
-  if VImpl <> nil then begin
-    Result := VImpl.CategoryDB.GetCategoriesList;
+  try
+    VImpl := FMarkSystemImpl.GetStatic;
+    if VImpl <> nil then begin
+      Result := VImpl.CategoryDB.GetCategoriesList;
+    end;
+  except
+    on E: Exception do begin
+      Result := nil;
+      CatchException(E, FErrorNotifierInternal);
+    end;
   end;
 end;
 
 function TMarkCategoryDbByImpl.GetCategoryByName(
-  const AName: string): IMarkCategory;
+  const AName: string
+): IMarkCategory;
 var
   VImpl: IMarkSystemImpl;
 begin
   Result := nil;
-  VImpl := FMarkSystemImpl.GetStatic;
-  if VImpl <> nil then begin
-    Result := VImpl.CategoryDB.GetCategoryByName(AName);
+  try
+    VImpl := FMarkSystemImpl.GetStatic;
+    if VImpl <> nil then begin
+      Result := VImpl.CategoryDB.GetCategoryByName(AName);
+    end;
+  except
+    on E: Exception do begin
+      Result := nil;
+      CatchException(E, FErrorNotifierInternal);
+    end;
   end;
 end;
 
@@ -203,24 +231,31 @@ var
   VImpl: IMarkSystemImpl;
 begin
   Result := nil;
-  VImpl := FMarkSystemImpl.GetStatic;
-  if VImpl <> nil then begin
-    VList := VImpl.CategoryDB.GetCategoriesList;
-    if not Assigned(ACategory) then begin
-      Result := VList;
-      Exit;
-    end;
-    if Assigned(VList) and (VList.Count > 0) then begin
-      VNameStart := ACategory.Name + '\';
-      VTmp := TInterfaceListSimple.Create;
-      VTmp.Add(ACategory);
-      for i := 0 to VList.Count - 1 do begin
-        VCategory := VList.Items[i];
-        if StartsStr(VNameStart, VCategory.Name) then begin
-          VTmp.Add(VCategory);
-        end;
+  try
+    VImpl := FMarkSystemImpl.GetStatic;
+    if VImpl <> nil then begin
+      VList := VImpl.CategoryDB.GetCategoriesList;
+      if not Assigned(ACategory) then begin
+        Result := VList;
+        Exit;
       end;
-      Result := TMarkCategoryList.Build(VTmp.MakeStaticAndClear);
+      if Assigned(VList) and (VList.Count > 0) then begin
+        VNameStart := ACategory.Name + '\';
+        VTmp := TInterfaceListSimple.Create;
+        VTmp.Add(ACategory);
+        for i := 0 to VList.Count - 1 do begin
+          VCategory := VList.Items[i];
+          if StartsStr(VNameStart, VCategory.Name) then begin
+            VTmp.Add(VCategory);
+          end;
+        end;
+        Result := TMarkCategoryList.Build(VTmp.MakeStaticAndClear);
+      end;
+    end;
+  except
+    on E: Exception do begin
+      Result := nil;
+      CatchException(E, FErrorNotifierInternal);
     end;
   end;
 end;
@@ -237,23 +272,30 @@ var
   VImpl: IMarkSystemImpl;
 begin
   Result := nil;
-  VImpl := FMarkSystemImpl.GetStatic;
-  if VImpl <> nil then begin
-    VList := VImpl.CategoryDB.GetCategoriesList;
-    if not Assigned(ACategory) then begin
-      Result := VList;
-      Exit;
-    end;
-    if Assigned(VList) and (VList.Count > 0) then begin
-      VNameStart := ACategory.Name + '\';
-      VTmp := TInterfaceListSimple.Create;
-      for i := 0 to VList.Count - 1 do begin
-        VCategory := IMarkCategory(VList[i]);
-        if StartsStr(VNameStart, VCategory.Name) then begin
-          VTmp.Add(VCategory);
-        end;
+  try
+    VImpl := FMarkSystemImpl.GetStatic;
+    if VImpl <> nil then begin
+      VList := VImpl.CategoryDB.GetCategoriesList;
+      if not Assigned(ACategory) then begin
+        Result := VList;
+        Exit;
       end;
-      Result := TMarkCategoryList.Build(VTmp.MakeStaticAndClear);
+      if Assigned(VList) and (VList.Count > 0) then begin
+        VNameStart := ACategory.Name + '\';
+        VTmp := TInterfaceListSimple.Create;
+        for i := 0 to VList.Count - 1 do begin
+          VCategory := IMarkCategory(VList[i]);
+          if StartsStr(VNameStart, VCategory.Name) then begin
+            VTmp.Add(VCategory);
+          end;
+        end;
+        Result := TMarkCategoryList.Build(VTmp.MakeStaticAndClear);
+      end;
+    end;
+  except
+    on E: Exception do begin
+      Result := nil;
+      CatchException(E, FErrorNotifierInternal);
     end;
   end;
 end;
@@ -269,20 +311,27 @@ var
   VImpl: IMarkSystemImpl;
 begin
   Result := nil;
-  VImpl := FMarkSystemImpl.GetStatic;
-  if VImpl <> nil then begin
-    VList := VImpl.CategoryDB.GetCategoriesList;
-    if Assigned(VList) and (VList.Count > 0) then begin
-      VTmp := TInterfaceListSimple.Create;
-      for i := 0 to VList.Count - 1 do begin
-        VCategory := IMarkCategory(VList[i]);
-        if (VCategory.Visible) and
-          (VCategory.AfterScale <= AZoom + 1) and
-          (VCategory.BeforeScale >= AZoom + 1) then begin
-          VTmp.Add(VCategory);
+  try
+    VImpl := FMarkSystemImpl.GetStatic;
+    if VImpl <> nil then begin
+      VList := VImpl.CategoryDB.GetCategoriesList;
+      if Assigned(VList) and (VList.Count > 0) then begin
+        VTmp := TInterfaceListSimple.Create;
+        for i := 0 to VList.Count - 1 do begin
+          VCategory := IMarkCategory(VList[i]);
+          if (VCategory.Visible) and
+            (VCategory.AfterScale <= AZoom + 1) and
+            (VCategory.BeforeScale >= AZoom + 1) then begin
+            VTmp.Add(VCategory);
+          end;
         end;
+        Result := TMarkCategoryList.Build(VTmp.MakeStaticAndClear);
       end;
-      Result := TMarkCategoryList.Build(VTmp.MakeStaticAndClear);
+    end;
+  except
+    on E: Exception do begin
+      Result := nil;
+      CatchException(E, FErrorNotifierInternal);
     end;
   end;
 end;
@@ -296,18 +345,25 @@ var
   VImpl: IMarkSystemImpl;
 begin
   Result := nil;
-  VImpl := FMarkSystemImpl.GetStatic;
-  if VImpl <> nil then begin
-    VList := VImpl.CategoryDB.GetCategoriesList;
-    if Assigned(VList) and (VList.Count > 0) then begin
-      VTmp := TInterfaceListSimple.Create;
-      for i := 0 to VList.Count - 1 do begin
-        VCategory := IMarkCategory(VList[i]);
-        if VCategory.Visible then begin
-          VTmp.Add(VCategory);
+  try
+    VImpl := FMarkSystemImpl.GetStatic;
+    if VImpl <> nil then begin
+      VList := VImpl.CategoryDB.GetCategoriesList;
+      if Assigned(VList) and (VList.Count > 0) then begin
+        VTmp := TInterfaceListSimple.Create;
+        for i := 0 to VList.Count - 1 do begin
+          VCategory := IMarkCategory(VList[i]);
+          if VCategory.Visible then begin
+            VTmp.Add(VCategory);
+          end;
         end;
+        Result := TMarkCategoryList.Build(VTmp.MakeStaticAndClear);
       end;
-      Result := TMarkCategoryList.Build(VTmp.MakeStaticAndClear);
+    end;
+  except
+    on E: Exception do begin
+      Result := nil;
+      CatchException(E, FErrorNotifierInternal);
     end;
   end;
 end;
@@ -316,16 +372,22 @@ procedure TMarkCategoryDbByImpl.OnImplChange;
 var
   VImpl: IMarkSystemImpl;
 begin
-  if FNotifier <> nil then begin
-    FNotifier.Remove(FDbImplChangeListener);
-    FNotifier := nil;
+  try
+    if FNotifier <> nil then begin
+      FNotifier.Remove(FDbImplChangeListener);
+      FNotifier := nil;
+    end;
+    VImpl := FMarkSystemImpl.GetStatic;
+    if VImpl <> nil then begin
+      FNotifier := VImpl.CategoryDB.ChangeNotifier;
+      FNotifier.Add(FDbImplChangeListener);
+    end;
+    OnDbImplChange;
+  except
+    on E: Exception do begin
+      CatchException(E, FErrorNotifierInternal);
+    end;
   end;
-  VImpl := FMarkSystemImpl.GetStatic;
-  if VImpl <> nil then begin
-    FNotifier := VImpl.CategoryDB.ChangeNotifier;
-    FNotifier.Add(FDbImplChangeListener);
-  end;
-  OnDbImplChange;
 end;
 
 procedure TMarkCategoryDbByImpl.OnDbImplChange;
@@ -337,21 +399,35 @@ procedure TMarkCategoryDbByImpl.SetAllCategoriesVisible(ANewVisible: Boolean);
 var
   VImpl: IMarkSystemImpl;
 begin
-  VImpl := FMarkSystemImpl.GetStatic;
-  if VImpl <> nil then begin
-    VImpl.CategoryDB.SetAllCategoriesVisible(ANewVisible);
+  try
+    VImpl := FMarkSystemImpl.GetStatic;
+    if VImpl <> nil then begin
+      VImpl.CategoryDB.SetAllCategoriesVisible(ANewVisible);
+    end;
+  except
+    on E: Exception do begin
+      CatchException(E, FErrorNotifierInternal);
+    end;
   end;
 end;
 
 function TMarkCategoryDbByImpl.UpdateCategory(const AOldCategory,
-  ANewCategory: IMarkCategory): IMarkCategory;
+  ANewCategory: IMarkCategory
+): IMarkCategory;
 var
   VImpl: IMarkSystemImpl;
 begin
   Result := nil;
-  VImpl := FMarkSystemImpl.GetStatic;
-  if VImpl <> nil then begin
-    Result := VImpl.CategoryDB.UpdateCategory(AOldCategory, ANewCategory);
+  try
+    VImpl := FMarkSystemImpl.GetStatic;
+    if VImpl <> nil then begin
+      Result := VImpl.CategoryDB.UpdateCategory(AOldCategory, ANewCategory);
+    end;
+  except
+    on E: Exception do begin
+      Result := nil;
+      CatchException(E, FErrorNotifierInternal);
+    end;
   end;
 end;
 
@@ -362,9 +438,16 @@ var
   VImpl: IMarkSystemImpl;
 begin
   Result := nil;
-  VImpl := FMarkSystemImpl.GetStatic;
-  if VImpl <> nil then begin
-    Result := VImpl.CategoryDB.UpdateCategoryList(AOldCategory, ANewCategory);
+  try
+    VImpl := FMarkSystemImpl.GetStatic;
+    if VImpl <> nil then begin
+      Result := VImpl.CategoryDB.UpdateCategoryList(AOldCategory, ANewCategory);
+    end;
+  except
+    on E: Exception do begin
+      Result := nil;
+      CatchException(E, FErrorNotifierInternal);
+    end;
   end;
 end;
 
