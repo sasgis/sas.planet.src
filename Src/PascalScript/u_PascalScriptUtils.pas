@@ -36,6 +36,7 @@ uses
   Classes,
   ALString,
   DateUtils,
+  MD5,
   u_GeoToStrFunc,
   u_StrFunc;
 
@@ -49,6 +50,9 @@ begin
   APSComp.AddTypeS('TReplaceFlag', '(rfReplaceAll, rfIgnoreCase)');
   APSComp.AddTypeS('TReplaceFlags', 'set of TReplaceFlag');
   APSComp.AddDelphiFunction('function StringReplace(const S, OldPattern, NewPattern: AnsiString; Flags: TReplaceFlags): AnsiString');
+
+  // MD5
+  APSComp.AddDelphiFunction('function MD5String(const AStr: AnsiString): String');
 
   // u_GeoToStrFunc
   APSComp.AddDelphiFunction('function RoundEx(const chislo: Double; const Precision: Integer): String');
@@ -69,7 +73,6 @@ begin
 
   APSComp.AddDelphiFunction('function GetUnixTime: Int64');
   APSComp.AddDelphiFunction('function SaveToLocalFile(const AFullLocalFilename: string; const AData: AnsiString): Integer');
-
 end;
 
 function SubStrPos_P(const Str, SubStr: AnsiString; FromPos: Integer): Integer; assembler;
@@ -193,6 +196,11 @@ begin
   end;
 end;
 
+function MD5String_P(const AStr: AnsiString): string;
+begin
+  Result := MD5DigestToStr(MD5Buffer(PAnsiChar(AStr)^, Length(AStr)));
+end;
+
 procedure ExecTimeReg_Utils(const APSExec: TPSExec);
 begin
   // SysUtils
@@ -202,6 +210,9 @@ begin
   // ALString
   APSExec.RegisterDelphiFunction(@ALStringReplace, 'StringReplace', cdRegister);
 
+  // MD5
+  APSExec.RegisterDelphiFunction(@MD5String_P, 'MD5String', cdRegister);
+
   // u_GeoToStrFunc
   APSExec.RegisterDelphiFunction(@RoundEx, 'RoundEx', cdRegister);
 
@@ -210,7 +221,7 @@ begin
   APSExec.RegisterDelphiFunction(@GetBefore, 'GetBefore', cdRegister);
   APSExec.RegisterDelphiFunction(@GetBetween, 'GetBetween', cdRegister);
 
-    APSExec.RegisterDelphiFunction(@SetHeaderValue, 'SetHeaderValue', cdRegister);
+  APSExec.RegisterDelphiFunction(@SetHeaderValue, 'SetHeaderValue', cdRegister);
   APSExec.RegisterDelphiFunction(@GetHeaderValue, 'GetHeaderValue', cdRegister);
 
   // internal routines
@@ -221,7 +232,6 @@ begin
 
   APSExec.RegisterDelphiFunction(@GetUnixTime_P, 'GetUnixTime', cdRegister);
   APSExec.RegisterDelphiFunction(@SaveToLocalFile_P, 'SaveToLocalFile', cdRegister);
-  
 end;
 
 end.
