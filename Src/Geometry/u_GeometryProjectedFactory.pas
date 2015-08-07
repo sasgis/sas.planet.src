@@ -17,17 +17,27 @@ uses
 type
   TGeometryProjectedFactory = class(TBaseInterfacedObject, IGeometryProjectedFactory)
   private
+    procedure LonLatSinglePolygonToBuilder(
+      const ABuilder: IGeometryProjectedPolygonBuilder;
+      const AProjection: IProjectionInfo;
+      const ASource: IGeometryLonLatSinglePolygon;
+      const ATemp: IDoublePointsAggregator = nil
+    );
+    procedure LonLatSingleLineToBuilder(
+      const ABuilder: IGeometryProjectedLineBuilder;
+      const AProjection: IProjectionInfo;
+      const ASource: IGeometryLonLatSingleLine;
+      const ATemp: IDoublePointsAggregator = nil
+    );
+    function EnumToPoints(
+      const AEnum: IEnumProjectedPoint;
+      const ATemp: IDoublePointsAggregator;
+      var ABounds: TDoubleRect
+    ): IDoublePoints;
+
+  private
     function MakeLineBuilder(): IGeometryProjectedLineBuilder;
     function MakePolygonBuilder(): IGeometryProjectedPolygonBuilder;
-
-    function CreateProjectedLineByEnum(
-      const AEnum: IEnumProjectedPoint;
-      const ATemp: IDoublePointsAggregator = nil
-    ): IGeometryProjectedLine;
-    function CreateProjectedPolygonByEnum(
-      const AEnum: IEnumProjectedPoint;
-      const ATemp: IDoublePointsAggregator = nil
-    ): IGeometryProjectedPolygon;
 
     function CreateProjectedLineByLonLatPath(
       const AProjection: IProjectionInfo;
@@ -271,53 +281,38 @@ begin
   inherited Create;
 end;
 
-function TGeometryProjectedFactory.CreateProjectedLineByEnum(
+function TGeometryProjectedFactory.EnumToPoints(
   const AEnum: IEnumProjectedPoint;
-  const ATemp: IDoublePointsAggregator
-): IGeometryProjectedLine;
+  const ATemp: IDoublePointsAggregator;
+  var ABounds: TDoubleRect
+): IDoublePoints;
 var
   VPoint: TDoublePoint;
-  VTemp: IDoublePointsAggregator;
-  VBounds: TDoubleRect;
-  VBuilder: IGeometryProjectedLineBuilder;
 begin
-  VBuilder := MakeLineBuilder;
-
-  VTemp := ATemp;
-  if VTemp = nil then begin
-    VTemp := TDoublePointsAggregator.Create;
-  end;
-  VTemp.Clear;
-  while AEnum.Next(VPoint) do begin
-    if PointIsEmpty(VPoint) then begin
-      if VTemp.Count > 0 then begin
-        VBuilder.AddLine(VBounds, VTemp.MakeStaticCopy);
-        VTemp.Clear;
-      end;
-    end else begin
-      if VTemp.Count = 0 then begin
-        VBounds.TopLeft := VPoint;
-        VBounds.BottomRight := VPoint;
-      end else begin
-        UpdateProjectedMBRByPoint(VBounds, VPoint);
-      end;
-      VTemp.Add(VPoint);
+  Result := nil;
+  if AEnum.Next(VPoint) then begin
+    ABounds.TopLeft := VPoint;
+    ABounds.BottomRight := VPoint;
+    ATemp.Add(VPoint);
+    while AEnum.Next(VPoint) do begin
+      UpdateProjectedMBRByPoint(ABounds, VPoint);
+      ATemp.Add(VPoint);
     end;
+    Result := ATemp.MakeStaticCopy;
+    ATemp.Clear;
   end;
-  if VTemp.Count > 0 then begin
-    VBuilder.AddLine(VBounds, VTemp.MakeStaticCopy);
-    VTemp.Clear;
-  end;
-  Result := VBuilder.MakeStaticAndClear;
 end;
 
-function TGeometryProjectedFactory.CreateProjectedLineByLonLatPath(
+procedure TGeometryProjectedFactory.LonLatSingleLineToBuilder(
+  const ABuilder: IGeometryProjectedLineBuilder;
   const AProjection: IProjectionInfo;
-  const ASource: IGeometryLonLatLine;
+  const ASource: IGeometryLonLatSingleLine;
   const ATemp: IDoublePointsAggregator
-): IGeometryProjectedLine;
+);
 var
   VEnum: IEnumProjectedPoint;
+  VBounds: TDoubleRect;
+  VPoints: IDoublePoints;
 begin
   VEnum :=
     TEnumDoublePointLonLatToMapPixel.Create(
@@ -326,11 +321,41 @@ begin
       ASource.GetEnum
     );
   VEnum := TEnumProjectedPointFilterEqual.Create(VEnum);
-  Result :=
-    CreateProjectedLineByEnum(
-      VEnum,
-      ATemp
-    );
+  VPoints := EnumToPoints(VEnum, ATemp, VBounds);
+  if Assigned(VPoints) then begin
+    ABuilder.AddLine(VBounds, VPoints);
+  end;
+end;
+
+function TGeometryProjectedFactory.CreateProjectedLineByLonLatPath(
+  const AProjection: IProjectionInfo;
+  const ASource: IGeometryLonLatLine;
+  const ATemp: IDoublePointsAggregator
+): IGeometryProjectedLine;
+var
+  VTemp: IDoublePointsAggregator;
+  VBuilder: IGeometryProjectedLineBuilder;
+  VSingleLine: IGeometryLonLatSingleLine;
+  VMultiLine: IGeometryLonLatMultiLine;
+  i: Integer;
+begin
+  VBuilder := MakeLineBuilder;
+
+  VTemp := ATemp;
+  if VTemp = nil then begin
+    VTemp := TDoublePointsAggregator.Create;
+  end;
+  if Supports(ASource, IGeometryLonLatSingleLine, VSingleLine) then begin
+    LonLatSingleLineToBuilder(VBuilder, AProjection, VSingleLine, VTemp);
+  end else if Supports(ASource, IGeometryLonLatMultiLine, VMultiLine) then begin
+    for i := 0 to VMultiLine.Count - 1 do begin
+      VSingleLine := VMultiLine.Item[i];
+      LonLatSingleLineToBuilder(VBuilder, AProjection, VSingleLine, VTemp);
+    end;
+  end else begin
+    Assert(False);
+  end;
+  Result := VBuilder.MakeStaticAndClear;
 end;
 
 function TGeometryProjectedFactory.MakeLineBuilder: IGeometryProjectedLineBuilder;
@@ -343,44 +368,42 @@ begin
   Result := TGeometryProjectedPolygonBuilder.Create;
 end;
 
-function TGeometryProjectedFactory.CreateProjectedPolygonByEnum(
-  const AEnum: IEnumProjectedPoint;
+procedure TGeometryProjectedFactory.LonLatSinglePolygonToBuilder(
+  const ABuilder: IGeometryProjectedPolygonBuilder;
+  const AProjection: IProjectionInfo;
+  const ASource: IGeometryLonLatSinglePolygon;
   const ATemp: IDoublePointsAggregator
-): IGeometryProjectedPolygon;
+);
 var
-  VPoint: TDoublePoint;
-  VTemp: IDoublePointsAggregator;
+  VEnum: IEnumProjectedPoint;
   VBounds: TDoubleRect;
-  VBuilder: IGeometryProjectedPolygonBuilder;
+  VPoints: IDoublePoints;
+  i: Integer;
 begin
-  VBuilder := MakePolygonBuilder;
-
-  VTemp := ATemp;
-  if VTemp = nil then begin
-    VTemp := TDoublePointsAggregator.Create;
-  end;
-  VTemp.Clear;
-  while AEnum.Next(VPoint) do begin
-    if PointIsEmpty(VPoint) then begin
-      if VTemp.Count > 0 then begin
-        VBuilder.AddOuter(VBounds, VTemp.MakeStaticCopy);
-        VTemp.Clear;
+  VEnum :=
+    TEnumDoublePointLonLatToMapPixel.Create(
+      AProjection.Zoom,
+      AProjection.GeoConverter,
+      ASource.OuterBorder.GetEnum
+    );
+  VEnum := TEnumProjectedPointFilterEqual.Create(VEnum);
+  VPoints := EnumToPoints(VEnum, ATemp, VBounds);
+  if Assigned(VPoints) then begin
+    ABuilder.AddOuter(VBounds, VPoints);
+    for i := 0 to ASource.HoleCount - 1 do begin
+      VEnum :=
+        TEnumDoublePointLonLatToMapPixel.Create(
+          AProjection.Zoom,
+          AProjection.GeoConverter,
+          ASource.HoleBorder[i].GetEnum
+        );
+      VEnum := TEnumProjectedPointFilterEqual.Create(VEnum);
+      VPoints := EnumToPoints(VEnum, ATemp, VBounds);
+      if Assigned(VPoints) then begin
+        ABuilder.AddHole(VBounds, VPoints);
       end;
-    end else begin
-      if VTemp.Count = 0 then begin
-        VBounds.TopLeft := VPoint;
-        VBounds.BottomRight := VPoint;
-      end else begin
-        UpdateProjectedMBRByPoint(VBounds, VPoint);
-      end;
-      VTemp.Add(VPoint);
     end;
   end;
-  if VTemp.Count > 0 then begin
-    VBuilder.AddOuter(VBounds, VTemp.MakeStaticCopy);
-    VTemp.Clear;
-  end;
-  Result := VBuilder.MakeStaticAndClear;
 end;
 
 function TGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
@@ -389,21 +412,29 @@ function TGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
   const ATemp: IDoublePointsAggregator
 ): IGeometryProjectedPolygon;
 var
-  VEnum: IEnumProjectedPoint;
+  VTemp: IDoublePointsAggregator;
+  VBuilder: IGeometryProjectedPolygonBuilder;
+  VSinglePolygon: IGeometryLonLatSinglePolygon;
+  VMultiPolygon: IGeometryLonLatMultiPolygon;
+  i: Integer;
 begin
-  VEnum :=
-    TEnumDoublePointLonLatToMapPixel.Create(
-      AProjection.Zoom,
-      AProjection.GeoConverter,
-      ASource.GetEnum
-    );
-  VEnum :=
-    TEnumProjectedPointFilterEqual.Create(VEnum);
-  Result :=
-    CreateProjectedPolygonByEnum(
-      VEnum,
-      ATemp
-    );
+  VBuilder := MakePolygonBuilder;
+
+  VTemp := ATemp;
+  if VTemp = nil then begin
+    VTemp := TDoublePointsAggregator.Create;
+  end;
+  if Supports(ASource, IGeometryLonLatSinglePolygon, VSinglePolygon) then begin
+    LonLatSinglePolygonToBuilder(VBuilder, AProjection, VSinglePolygon, VTemp);
+  end else if Supports(ASource, IGeometryLonLatMultiPolygon, VMultiPolygon) then begin
+    for i := 0 to VMultiPolygon.Count - 1 do begin
+      VSinglePolygon := VMultiPolygon.Item[i];
+      LonLatSinglePolygonToBuilder(VBuilder, AProjection, VSinglePolygon, VTemp);
+    end;
+  end else begin
+    Assert(False);
+  end;
+  Result := VBuilder.MakeStaticAndClear;
 end;
 
 end.
