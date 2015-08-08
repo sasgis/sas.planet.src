@@ -55,6 +55,8 @@ uses
   function UnionProjectedRects(const ARect1, ARect2: TDoubleRect): TDoubleRect; inline;
   procedure UpdateLonLatMBRByPoint(var ARect: TDoubleRect; const APoint: TDoublePoint); inline;
   procedure UpdateProjectedMBRByPoint(var ARect: TDoubleRect; const APoint: TDoublePoint); inline;
+  function LonLatMBRByPoints(const APoints: PDoublePointArray; const ACount: Integer): TDoubleRect; inline;
+  function ProjectedMBRByPoints(const APoints: PDoublePointArray; const ACount: Integer): TDoubleRect; inline;
 
   function IsDoubleRectEmpty(const Rect: TDoubleRect): Boolean; inline;
   function IsLonLatRectEmpty(const Rect: TDoubleRect): Boolean; inline;
@@ -335,6 +337,36 @@ begin
   end;
   if ARect.Bottom < APoint.Y then begin
     ARect.Bottom := APoint.Y;
+  end;
+end;
+
+function LonLatMBRByPoints(const APoints: PDoublePointArray; const ACount: Integer): TDoubleRect;
+var
+  i: Integer;
+begin
+  Assert(Assigned(APoints));
+  Assert(ACount > 0);
+  if ACount > 0 then begin
+    Result.TopLeft := APoints[0];
+    Result.BottomRight := Result.TopLeft;
+    for i := 1 to ACount - 1 do begin
+      UpdateLonLatMBRByPoint(Result, APoints[i]);
+    end;
+  end;
+end;
+
+function ProjectedMBRByPoints(const APoints: PDoublePointArray; const ACount: Integer): TDoubleRect;
+var
+  i: Integer;
+begin
+  Assert(Assigned(APoints));
+  Assert(ACount > 0);
+  if ACount > 0 then begin
+    Result.TopLeft := APoints[0];
+    Result.BottomRight := Result.TopLeft;
+    for i := 1 to ACount - 1 do begin
+      UpdateProjectedMBRByPoint(Result, APoints[i]);
+    end;
   end;
 end;
 
