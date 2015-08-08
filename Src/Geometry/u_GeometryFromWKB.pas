@@ -4,6 +4,7 @@ interface
 
 uses
   Classes,
+  i_DoublePoints,
   i_GeometryLonLat,
   i_GeometryFromStream,
   i_GeometryLonLatFactory,
@@ -24,7 +25,7 @@ type
     function LoadSingleLine(
       const AStream: TStream;
       const AOrder: Boolean
-    ): IGeometryLonLatSingleLine;
+    ): IDoublePoints;
     function LoadSinglePolygon(
       const AStream: TStream;
       const AOrder: Boolean
@@ -61,7 +62,6 @@ implementation
 uses
   SysUtils,
   t_GeoTypes,
-  i_DoublePoints,
   u_DoublePoints;
 
 { TGeometryFromWKB }
@@ -88,18 +88,17 @@ var
 begin
   Result := nil;
   VBuilder := FFactory.MakeMultiLineBuilder;
-  VBuilder.Add(LoadSingleLine(AStream, AOrder));
+  VBuilder.AddLine(LoadSingleLine(AStream, AOrder));
   Result := VBuilder.MakeStaticAndClear;
 end;
 
 function TGeometryFromWKB.LoadSingleLine(
   const AStream: TStream;
   const AOrder: Boolean
-): IGeometryLonLatSingleLine;
+): IDoublePoints;
 var
   VCount: Cardinal;
   VBuffer: PDoublePointArray;
-  VPoints: IDoublePoints;
 begin
   Result := nil;
   AStream.ReadBuffer(VCount, SizeOf(VCount));
@@ -109,8 +108,7 @@ begin
   end;
   GetMem(VBuffer, VCount * SizeOf(TDoublePoint));
   AStream.ReadBuffer(VBuffer[0], VCount * SizeOf(TDoublePoint));
-  VPoints := TDoublePoints.CreateWithOwn(VBuffer, VCount);
-  Result := FFactory.CreateLonLatSingleLine(VPoints);
+  Result := TDoublePoints.CreateWithOwn(VBuffer, VCount);
 end;
 
 function TGeometryFromWKB.LoadMultiLine(
@@ -124,7 +122,7 @@ var
   VWKBType: Cardinal;
   VWKBOrder: Byte;
   VOrder: Boolean;
-  VLine: IGeometryLonLatSingleLine;
+  VLine: IDoublePoints;
 begin
   VBuilder := FFactory.MakeMultiLineBuilder;
   AStream.ReadBuffer(VCount, SizeOf(VCount));
@@ -146,7 +144,7 @@ begin
     end;
     VLine := LoadSingleLine(AStream, VOrder);
     if Assigned(VLine) then begin
-      VBuilder.Add(VLine);
+      VBuilder.AddLine(VLine);
     end;
   end;
   Result := VBuilder.MakeStaticAndClear;

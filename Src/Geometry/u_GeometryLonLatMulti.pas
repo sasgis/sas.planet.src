@@ -31,7 +31,6 @@ type
 
   TGeometryLonLatMultiLine = class(TGeometryLonLatMultiBase, IGeometryLonLat, IGeometryLonLatLine, IGeometryLonLatMultiLine)
   private
-    function GetEnum: IEnumLonLatPoint;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
     function IsSame(const APath: IGeometryLonLatMultiLine): Boolean;
     function GetGoToPoint: TDoublePoint;
@@ -40,7 +39,6 @@ type
 
   TGeometryLonLatMultiPolygon = class(TGeometryLonLatMultiBase, IGeometryLonLat, IGeometryLonLatPolygon, IGeometryLonLatMultiPolygon)
   private
-    function GetEnum: IEnumLonLatPoint;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
     function IsSame(const APolygon: IGeometryLonLatMultiPolygon): Boolean;
     function GetGoToPoint: TDoublePoint;
@@ -86,11 +84,6 @@ begin
 end;
 
 { TLonLatPath }
-
-function TGeometryLonLatMultiLine.GetEnum: IEnumLonLatPoint;
-begin
-  Result := TEnumLonLatPointByPath.Create(Self);
-end;
 
 function TGeometryLonLatMultiLine.GetGoToPoint: TDoublePoint;
 begin
@@ -161,11 +154,6 @@ begin
 end;
 
 { TLonLatPolygon }
-
-function TGeometryLonLatMultiPolygon.GetEnum: IEnumLonLatPoint;
-begin
-  Result := TEnumLonLatPointByPolygon.Create(Self);
-end;
 
 function TGeometryLonLatMultiPolygon.GetGoToPoint: TDoublePoint;
 begin

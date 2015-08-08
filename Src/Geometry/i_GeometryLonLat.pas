@@ -51,12 +51,12 @@ type
 
   IGeometryLonLatLine = interface(IGeometryLonLat)
     ['{05412527-06DC-43F9-8902-97D7112E1FFD}']
-    function GetEnum: IEnumLonLatPoint;
   end;
 
   IGeometryLonLatSingleLine = interface(IGeometryLonLatLine)
     ['{F309D486-2E2A-4526-8BB8-A38A47E3C8FF}']
     function IsSame(const ALine: IGeometryLonLatSingleLine): Boolean;
+    function GetEnum: IEnumLonLatPoint;
 
     function GetCount: Integer;
     property Count: Integer read GetCount;
@@ -78,12 +78,12 @@ type
 
   IGeometryLonLatPolygon = interface(IGeometryLonLat)
     ['{0D3F41A0-4170-40E1-9A01-939824A6CF34}']
-    function GetEnum: IEnumLonLatPoint;
   end;
 
   IGeometryLonLatContour = interface(IGeometryLonLatPolygon)
     ['{4729DBB2-3537-42F7-BA7E-C37669D89811}']
     function IsSame(const ALine: IGeometryLonLatContour): Boolean;
+    function GetEnum: IEnumLonLatPoint;
 
     function GetCount: Integer;
     property Count: Integer read GetCount;
@@ -95,12 +95,6 @@ type
   IGeometryLonLatSinglePolygon = interface(IGeometryLonLatPolygon)
     ['{C9FF5A32-B90D-43D2-9394-9E54A4F29905}']
     function IsSame(const ALine: IGeometryLonLatSinglePolygon): Boolean;
-
-    function GetCount: Integer;
-    property Count: Integer read GetCount;
-
-    function GetPoints: PDoublePointArray;
-    property Points: PDoublePointArray read GetPoints;
 
     function GetOuterBorder: IGeometryLonLatContour;
     property OuterBorder: IGeometryLonLatContour read GetOuterBorder;

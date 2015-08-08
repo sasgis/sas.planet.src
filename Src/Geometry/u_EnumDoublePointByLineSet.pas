@@ -59,20 +59,6 @@ type
     constructor Create(const ALineSet: IGeometryLonLatMultiLine);
   end;
 
-  TEnumLonLatPointByPolygon = class(TEnumDoublePointByLineSetBase, IEnumLonLatPoint)
-  private
-    function GetNextEnum: IEnumDoublePoint; override;
-  public
-    constructor Create(const ALineSet: IGeometryLonLatMultiPolygon);
-  end;
-
-  TEnumProjectedPointByPath = class(TEnumDoublePointByLineSetBase, IEnumProjectedPoint)
-  private
-    function GetNextEnum: IEnumDoublePoint; override;
-  public
-    constructor Create(const ALineSet: IGeometryProjectedMultiLine);
-  end;
-
 implementation
 
 uses
@@ -146,30 +132,6 @@ end;
 function TEnumLonLatPointByPath.GetNextEnum: IEnumDoublePoint;
 begin
   Result := IGeometryLonLatMultiLine(FSourceLineSet).Item[FIndex].GetEnum;
-end;
-
-{ TEnumLonLatPointByPolygon }
-
-constructor TEnumLonLatPointByPolygon.Create(const ALineSet: IGeometryLonLatMultiPolygon);
-begin
-  inherited CreateInternal(ALineSet, ALineSet.Count, True);
-end;
-
-function TEnumLonLatPointByPolygon.GetNextEnum: IEnumDoublePoint;
-begin
-  Result := IGeometryLonLatMultiPolygon(FSourceLineSet).Item[FIndex].GetEnum;
-end;
-
-{ TEnumProjectedPointByPath }
-
-constructor TEnumProjectedPointByPath.Create(const ALineSet: IGeometryProjectedMultiLine);
-begin
-  inherited CreateInternal(ALineSet, ALineSet.Count, False);
-end;
-
-function TEnumProjectedPointByPath.GetNextEnum: IEnumDoublePoint;
-begin
-  Result := IGeometryProjectedMultiLine(FSourceLineSet).Item[FIndex].GetEnum;
 end;
 
 end.

@@ -5,6 +5,7 @@ interface
 uses
   t_GeoTypes,
   t_Hash,
+  i_InterfaceListStatic,
   i_DoublePoints,
   i_EnumDoublePoint,
   i_LonLatRect,
@@ -89,6 +90,31 @@ type
       const ABounds: ILonLatRect;
       const AHash: THashValue;
       const APoints: IDoublePoints
+    );
+  end;
+
+  TGeometryLonLatSinglePolygonWithHoles = class(TBaseInterfacedObject, IGeometryLonLat, IGeometryLonLatPolygon, IGeometryLonLatSinglePolygon)
+  private
+    FBounds: ILonLatRect;
+    FHash: THashValue;
+    FOuterBorder: IGeometryLonLatContour;
+    FHoleList: IInterfaceListStatic;
+  private
+    function GetBounds: ILonLatRect;
+    function GetHash: THashValue;
+    function GetGoToPoint: TDoublePoint;
+    function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
+  private
+    function IsSame(const ALine: IGeometryLonLatSinglePolygon): Boolean;
+    function GetOuterBorder: IGeometryLonLatContour;
+    function GetHoleCount: Integer;
+    function GetHoleBorder(const AIndex: Integer): IGeometryLonLatContour;
+  public
+    constructor Create(
+      const ABounds: ILonLatRect;
+      const AHash: THashValue;
+      const AOuterBorder: IGeometryLonLatContour;
+      const AHoleList: IInterfaceListStatic
     );
   end;
 
@@ -393,6 +419,121 @@ begin
   Result := False;
   if Supports(AGeometry, IGeometryLonLatPoint, VPoint) then begin
     Result := FBounds.IsEqual(VPoint.Bounds);
+  end;
+end;
+
+{ TGeometryLonLatSinglePolygonWithHoles }
+
+constructor TGeometryLonLatSinglePolygonWithHoles.Create(
+  const ABounds: ILonLatRect;
+  const AHash: THashValue;
+  const AOuterBorder: IGeometryLonLatContour;
+  const AHoleList: IInterfaceListStatic
+);
+begin
+  Assert(Assigned(ABounds));
+  Assert(Assigned(AOuterBorder));
+  Assert(Assigned(AHoleList));
+  Assert(AHoleList.Count > 0);
+  inherited Create;
+  FBounds := ABounds;
+  FHash := AHash;
+  FOuterBorder := AOuterBorder;
+  FHoleList := AHoleList;
+end;
+
+function TGeometryLonLatSinglePolygonWithHoles.GetBounds: ILonLatRect;
+begin
+  Result := FBounds;
+end;
+
+function TGeometryLonLatSinglePolygonWithHoles.GetGoToPoint: TDoublePoint;
+begin
+  Result := FOuterBorder.GetGoToPoint;
+end;
+
+function TGeometryLonLatSinglePolygonWithHoles.GetHash: THashValue;
+begin
+  Result := FHash;
+end;
+
+function TGeometryLonLatSinglePolygonWithHoles.GetHoleBorder(
+  const AIndex: Integer
+): IGeometryLonLatContour;
+begin
+  Result := IGeometryLonLatContour(FHoleList.Items[AIndex]);
+end;
+
+function TGeometryLonLatSinglePolygonWithHoles.GetHoleCount: Integer;
+begin
+  Result := FHoleList.Count;
+end;
+
+function TGeometryLonLatSinglePolygonWithHoles.GetOuterBorder: IGeometryLonLatContour;
+begin
+  Result := FOuterBorder;
+end;
+
+function TGeometryLonLatSinglePolygonWithHoles.IsSame(
+  const ALine: IGeometryLonLatSinglePolygon
+): Boolean;
+var
+  i: Integer;
+begin
+  if ALine = nil then begin
+    Result := False;
+    Exit;
+  end;
+
+  if ALine = IGeometryLonLatSinglePolygon(Self) then begin
+    Result := True;
+    Exit;
+  end;
+
+  if (FHash <> 0) and (ALine.Hash <> 0) then begin
+    Result := FHash = ALine.Hash;
+  end else begin
+    if FHoleList.Count <> ALine.HoleCount then begin
+      Result := False;
+      Exit;
+    end;
+    if not FOuterBorder.IsSame(ALine.OuterBorder) then begin
+      Result := False;
+      Exit;
+    end;
+
+    for i := 0 to FHoleList.Count - 1 do begin
+      if not GetHoleBorder(i).IsSame(ALine.HoleBorder[i]) then begin
+        Result := False;
+        Exit;
+      end;
+    end;
+    Result := True;
+  end;
+end;
+
+function TGeometryLonLatSinglePolygonWithHoles.IsSameGeometry(
+  const AGeometry: IGeometryLonLat
+): Boolean;
+var
+  VLine: IGeometryLonLatSinglePolygon;
+begin
+  if AGeometry = nil then begin
+    Result := False;
+    Exit;
+  end;
+  if AGeometry = IGeometryLonLat(Self) then begin
+    Result := True;
+    Exit;
+  end;
+  if (FHash <> 0) and (AGeometry.Hash <> 0) and (FHash <> AGeometry.Hash) then begin
+    Result := False;
+    Exit;
+  end;
+
+  Result := False;
+  if Supports(AGeometry, IGeometryLonLatSinglePolygon, VLine) then begin
+    Result := IsSame(VLine);
   end;
 end;
 

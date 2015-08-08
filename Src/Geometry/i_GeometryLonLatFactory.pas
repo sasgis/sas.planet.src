@@ -34,7 +34,13 @@ uses
 type
   IGeometryLonLatMultiLineBuilder = interface
     ['{19605EB8-E09C-4E69-A86E-B8701F1FB9C9}']
-    procedure Add(const AElement: IGeometryLonLatSingleLine);
+    procedure AddLine(
+      const ABounds: TDoubleRect;
+      const APoints: IDoublePoints
+    ); overload;
+    procedure AddLine(
+      const APoints: IDoublePoints
+    ); overload;
 
     function MakeStaticAndClear: IGeometryLonLatLine;
     function MakeStaticCopy: IGeometryLonLatLine;
@@ -42,6 +48,14 @@ type
 
   IGeometryLonLatMultiPolygonBuilder = interface
     ['{993D049C-A360-4185-94CF-E1828503F7F4}']
+//    procedure AddOuter(
+//      const ABounds: TDoubleRect;
+//      const APoints: IDoublePoints
+//    );
+//    procedure AddHole(
+//      const ABounds: TDoubleRect;
+//      const APoints: IDoublePoints
+//    );
     procedure Add(const AElement: IGeometryLonLatSinglePolygon);
 
     function MakeStaticAndClear: IGeometryLonLatPolygon;

@@ -103,7 +103,13 @@ type
     FLine: IGeometryLonLatSingleLine;
     FList: IInterfaceListSimple;
   private
-    procedure Add(const AElement: IGeometryLonLatSingleLine);
+    procedure AddLine(
+      const ABounds: TDoubleRect;
+      const APoints: IDoublePoints
+    ); overload;
+    procedure AddLine(
+      const APoints: IDoublePoints
+    ); overload;
 
     function MakeStaticAndClear: IGeometryLonLatLine;
     function MakeStaticCopy: IGeometryLonLatLine;
@@ -123,15 +129,28 @@ begin
   FHashFunction := AHashFunction;
 end;
 
-procedure TGeometryLonLatMultiLineBuilder.Add(
-  const AElement: IGeometryLonLatSingleLine
+procedure TGeometryLonLatMultiLineBuilder.AddLine(
+  const ABounds: TDoubleRect;
+  const APoints: IDoublePoints
 );
+var
+  VLine: IGeometryLonLatSingleLine;
+  VHash: THashValue;
+  VRect: ILonLatRect;
 begin
-  Assert(Assigned(AElement));
+  Assert(Assigned(APoints));
+  if APoints.Count > 1 then begin
+    VRect := TLonLatRect.Create(ABounds);
+  end else begin
+    VRect := TLonLatRectByPoint.Create(ABounds.TopLeft);
+  end;
+  VHash := FHashFunction.CalcHashByBuffer(APoints.Points, APoints.Count * SizeOf(TDoublePoint));
+  VLine := TGeometryLonLatSingleLine.Create(VRect, VHash, APoints);
+
   if not Assigned(FLine) then begin
-    FLine := AElement;
-    FHash := FLine.Hash;
-    FBounds := FLine.Bounds.Rect;
+    FLine := VLine;
+    FHash := VHash;
+    FBounds := ABounds;
   end else begin
     if not Assigned(FList) then begin
       FList := TInterfaceListSimple.Create;
@@ -139,10 +158,18 @@ begin
     end else if FList.Count = 0 then begin
       FList.Add(FLine);
     end;
-    FList.Add(AElement);
-    FHashFunction.UpdateHashByHash(FHash, AElement.Hash);
-    FBounds := AElement.Bounds.UnionWithRect(FBounds);
+    FList.Add(VLine);
+    FHashFunction.UpdateHashByHash(FHash, VHash);
+    FBounds := VRect.UnionWithRect(ABounds);
   end;
+end;
+
+procedure TGeometryLonLatMultiLineBuilder.AddLine(
+  const APoints: IDoublePoints
+);
+begin
+  Assert(Assigned(APoints));
+  AddLine(LonLatMBRByPoints(APoints.Points, APoints.Count), APoints);
 end;
 
 function TGeometryLonLatMultiLineBuilder.MakeStaticAndClear: IGeometryLonLatLine;
@@ -410,7 +437,6 @@ function TGeometryLonLatFactory.CreateLonLatLine(
   ACount: Integer
 ): IGeometryLonLatLine;
 var
-  VLine: IGeometryLonLatSingleLine;
   i: Integer;
   VStart: PDoublePointArray;
   VLineLen: Integer;
@@ -427,8 +453,7 @@ begin
     if PointIsEmpty(VPoint) then begin
       if VLineLen > 0 then begin
         VPoints := TDoublePoints.Create(VStart, VLineLen);
-        VLine := CreateLonLatLineInternal(VLineBounds, VPoints);
-        VBuilder.Add(VLine);
+        VBuilder.AddLine(VLineBounds, VPoints);
         VLineLen := 0;
       end;
     end else begin
@@ -444,8 +469,7 @@ begin
   end;
   if VLineLen > 0 then begin
     VPoints := TDoublePoints.Create(VStart, VLineLen);
-    VLine := CreateLonLatLineInternal(VLineBounds, VPoints);
-    VBuilder.Add(VLine);
+    VBuilder.AddLine(VLineBounds, VPoints);
   end;
   Result := VBuilder.MakeStaticAndClear;
 end;
@@ -456,7 +480,6 @@ function TGeometryLonLatFactory.CreateLonLatLineByEnum(
 ): IGeometryLonLatLine;
 var
   VPoint: TDoublePoint;
-  VLine: IGeometryLonLatSingleLine;
   VTemp: IDoublePointsAggregator;
   VLineBounds: TDoubleRect;
   VBuilder: IGeometryLonLatMultiLineBuilder;
@@ -470,8 +493,7 @@ begin
   while AEnum.Next(VPoint) do begin
     if PointIsEmpty(VPoint) then begin
       if VTemp.Count > 0 then begin
-        VLine := CreateLonLatLineInternal(VLineBounds, VTemp.MakeStaticCopy);
-        VBuilder.Add(VLine);
+        VBuilder.AddLine(VLineBounds, VTemp.MakeStaticCopy);
         VTemp.Clear;
       end;
     end else begin
@@ -485,8 +507,7 @@ begin
     end;
   end;
   if VTemp.Count > 0 then begin
-    VLine := CreateLonLatLineInternal(VLineBounds, VTemp.MakeStaticCopy);
-    VBuilder.Add(VLine);
+    VBuilder.AddLine(VLineBounds, ATemp.MakeStaticCopy);
     VTemp.Clear;
   end;
   Result := VBuilder.MakeStaticAndClear;
@@ -602,11 +623,18 @@ var
   VPoint: TDoublePoint;
   VLineBounds: TDoubleRect;
   VBuilder: IGeometryLonLatMultiPolygonBuilder;
+  VLineSingle: IGeometryLonLatSingleLine;
+  VLineMulti: IGeometryLonLatMultiLine;
 begin
   VBuilder := MakeMultiPolygonBuilder;
 
   VTemp := TDoublePointsAggregator.Create;
-  VEnum := AFilter.CreateFilteredEnum(ASource.GetEnum);
+  if Supports(ASource, IGeometryLonLatSingleLine, VLineSingle) then begin
+    VEnum := VLineSingle.GetEnum;
+  end else if Supports(ASource, IGeometryLonLatMultiLine, VLineMulti) then begin
+    VEnum := TEnumLonLatPointByPath.Create(VLineMulti);
+  end;
+  VEnum := AFilter.CreateFilteredEnum(VEnum);
   while VEnum.Next(VPoint) do begin
     if PointIsEmpty(VPoint) then begin
       if VTemp.Count > 0 then begin
