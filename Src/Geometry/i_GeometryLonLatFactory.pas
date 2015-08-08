@@ -32,7 +32,7 @@ uses
   i_GeometryLonLat;
 
 type
-  IGeometryLonLatMultiLineBuilder = interface
+  IGeometryLonLatLineBuilder = interface
     ['{19605EB8-E09C-4E69-A86E-B8701F1FB9C9}']
     procedure AddLine(
       const ABounds: TDoubleRect;
@@ -46,16 +46,22 @@ type
     function MakeStaticCopy: IGeometryLonLatLine;
   end;
 
-  IGeometryLonLatMultiPolygonBuilder = interface
+  IGeometryLonLatPolygonBuilder = interface
     ['{993D049C-A360-4185-94CF-E1828503F7F4}']
-//    procedure AddOuter(
-//      const ABounds: TDoubleRect;
-//      const APoints: IDoublePoints
-//    );
-//    procedure AddHole(
-//      const ABounds: TDoubleRect;
-//      const APoints: IDoublePoints
-//    );
+    procedure AddOuter(
+      const ABounds: TDoubleRect;
+      const APoints: IDoublePoints
+    ); overload;
+    procedure AddOuter(
+      const APoints: IDoublePoints
+    ); overload;
+    procedure AddHole(
+      const ABounds: TDoubleRect;
+      const APoints: IDoublePoints
+    ); overload;
+    procedure AddHole(
+      const APoints: IDoublePoints
+    ); overload;
     procedure Add(const AElement: IGeometryLonLatSinglePolygon);
 
     function MakeStaticAndClear: IGeometryLonLatPolygon;
@@ -74,8 +80,8 @@ type
       const APoints: IDoublePoints
     ): IGeometryLonLatSinglePolygon;
 
-    function MakeMultiLineBuilder(): IGeometryLonLatMultiLineBuilder;
-    function MakeMultiPolygonBuilder(): IGeometryLonLatMultiPolygonBuilder;
+    function MakeLineBuilder(): IGeometryLonLatLineBuilder;
+    function MakePolygonBuilder(): IGeometryLonLatPolygonBuilder;
 
     function CreateLonLatLine(
       const APoints: PDoublePointArray;

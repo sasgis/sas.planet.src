@@ -31,7 +31,7 @@ type
       const AOrder: Boolean
     ): IGeometryLonLatSinglePolygon;
     procedure LoadPolygons(
-      const ABuilder: IGeometryLonLatMultiPolygonBuilder;
+      const ABuilder: IGeometryLonLatPolygonBuilder;
       const AStream: TStream;
       const AOrder: Boolean
     );
@@ -84,10 +84,10 @@ function TGeometryFromWKB.LoadLine(
   const AOrder: Boolean
 ): IGeometryLonLatLine;
 var
-  VBuilder: IGeometryLonLatMultiLineBuilder;
+  VBuilder: IGeometryLonLatLineBuilder;
 begin
   Result := nil;
-  VBuilder := FFactory.MakeMultiLineBuilder;
+  VBuilder := FFactory.MakeLineBuilder;
   VBuilder.AddLine(LoadSingleLine(AStream, AOrder));
   Result := VBuilder.MakeStaticAndClear;
 end;
@@ -116,7 +116,7 @@ function TGeometryFromWKB.LoadMultiLine(
   const AOrder: Boolean
 ): IGeometryLonLatLine;
 var
-  VBuilder: IGeometryLonLatMultiLineBuilder;
+  VBuilder: IGeometryLonLatLineBuilder;
   VCount: Cardinal;
   i: Integer;
   VWKBType: Cardinal;
@@ -124,7 +124,7 @@ var
   VOrder: Boolean;
   VLine: IDoublePoints;
 begin
-  VBuilder := FFactory.MakeMultiLineBuilder;
+  VBuilder := FFactory.MakeLineBuilder;
   AStream.ReadBuffer(VCount, SizeOf(VCount));
 
   if VCount >= MaxInt / (1 + 4  + 4 + 2 * SizeOf(Double)) then begin
@@ -155,14 +155,14 @@ function TGeometryFromWKB.LoadMultiPolygon(
   const AOrder: Boolean
 ): IGeometryLonLatPolygon;
 var
-  VBuilder: IGeometryLonLatMultiPolygonBuilder;
+  VBuilder: IGeometryLonLatPolygonBuilder;
   VCount: Cardinal;
   i: Integer;
   VWKBType: Cardinal;
   VWKBOrder: Byte;
   VOrder: Boolean;
 begin
-  VBuilder := FFactory.MakeMultiPolygonBuilder;
+  VBuilder := FFactory.MakePolygonBuilder;
   AStream.ReadBuffer(VCount, SizeOf(VCount));
 
   if VCount >= MaxInt / (1 + 4  + 4 + 2 * SizeOf(Double)) then begin
@@ -201,15 +201,15 @@ function TGeometryFromWKB.LoadPolygon(
   const AOrder: Boolean
 ): IGeometryLonLatPolygon;
 var
-  VBuilder: IGeometryLonLatMultiPolygonBuilder;
+  VBuilder: IGeometryLonLatPolygonBuilder;
 begin
-  VBuilder := FFactory.MakeMultiPolygonBuilder;
+  VBuilder := FFactory.MakePolygonBuilder;
   LoadPolygons(VBuilder, AStream, AOrder);
   Result := VBuilder.MakeStaticAndClear;
 end;
 
 procedure TGeometryFromWKB.LoadPolygons(
-  const ABuilder: IGeometryLonLatMultiPolygonBuilder;
+  const ABuilder: IGeometryLonLatPolygonBuilder;
   const AStream: TStream;
   const AOrder: Boolean
 );

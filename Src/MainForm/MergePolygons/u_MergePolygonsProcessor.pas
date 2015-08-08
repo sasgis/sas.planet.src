@@ -72,7 +72,7 @@ type
     function GetClipPoly: TPaths;
     procedure ProcessClipperNode(
       const ANode: TPolyNode;
-      const AMultiPolygonBuilder: IGeometryLonLatMultiPolygonBuilder
+      const AMultiPolygonBuilder: IGeometryLonLatPolygonBuilder
     );
     function MultiPolygonToClipperPaths(
       const APolygon: IGeometryLonLatMultiPolygon
@@ -287,10 +287,10 @@ function TMergePolygonsProcessor.ProcessGroupOperation(
 ): IGeometryLonLatPolygon;
 var
   I, J: Integer;
-  VMultiPolygonBuilder: IGeometryLonLatMultiPolygonBuilder;
+  VMultiPolygonBuilder: IGeometryLonLatPolygonBuilder;
 begin
   Result := nil;
-  VMultiPolygonBuilder := FVectorGeometryLonLatFactory.MakeMultiPolygonBuilder;
+  VMultiPolygonBuilder := FVectorGeometryLonLatFactory.MakePolygonBuilder;
 
   for I := 0 to Length(FItems) - 1 do begin
     if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
@@ -320,7 +320,7 @@ var
   I: Integer;
   VClipper: TClipper;
   VPolyTree: TPolyTree;
-  VMultiPolygonBuilder: IGeometryLonLatMultiPolygonBuilder;
+  VMultiPolygonBuilder: IGeometryLonLatPolygonBuilder;
 begin
   Result := nil;
 
@@ -349,7 +349,7 @@ begin
           Exit;
         end;
 
-        VMultiPolygonBuilder := FVectorGeometryLonLatFactory.MakeMultiPolygonBuilder;
+        VMultiPolygonBuilder := FVectorGeometryLonLatFactory.MakePolygonBuilder;
         for I := 0 to VPolyTree.ChildCount - 1 do begin
           ProcessClipperNode(VPolyTree.Childs[I], VMultiPolygonBuilder);
         end;
@@ -413,7 +413,7 @@ end;
 
 procedure TMergePolygonsProcessor.ProcessClipperNode(
   const ANode: TPolyNode;
-  const AMultiPolygonBuilder: IGeometryLonLatMultiPolygonBuilder
+  const AMultiPolygonBuilder: IGeometryLonLatPolygonBuilder
 );
 var
   I: Integer;
