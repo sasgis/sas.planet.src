@@ -286,7 +286,7 @@ function TMergePolygonsProcessor.ProcessGroupOperation(
   const ACancelNotifier: INotifierOperation
 ): IGeometryLonLatPolygon;
 var
-  I: Integer;
+  I, J: Integer;
   VMultiPolygonBuilder: IGeometryLonLatPolygonBuilder;
 begin
   Result := nil;
@@ -299,9 +299,13 @@ begin
     if Assigned(FItems[I].SinglePolygon) then begin
       VMultiPolygonBuilder.AddPolygon(FItems[I].SinglePolygon);
       Inc(FPolyCount);
+      Inc(FHolesCount, FItems[I].SinglePolygon.HoleCount);
     end else begin
       VMultiPolygonBuilder.AddPolygon(FItems[I].MultiPolygon);
       Inc(FPolyCount, FItems[I].MultiPolygon.Count);
+      for J := 0 to FItems[I].MultiPolygon.Count - 1 do begin
+        Inc(FHolesCount, FItems[I].MultiPolygon.Item[J].HoleCount);
+      end;
     end;
   end;
   Result := VMultiPolygonBuilder.MakeStaticAndClear;
