@@ -29,7 +29,7 @@ type
     function LoadSinglePolygon(
       const AStream: TStream;
       const AOrder: Boolean
-    ): IGeometryLonLatSinglePolygon;
+    ): IDoublePoints;
     procedure LoadPolygons(
       const ABuilder: IGeometryLonLatPolygonBuilder;
       const AStream: TStream;
@@ -216,7 +216,7 @@ procedure TGeometryFromWKB.LoadPolygons(
 var
   VCount: Cardinal;
   i: Integer;
-  VLine: IGeometryLonLatSinglePolygon;
+  VLine: IDoublePoints;
 begin
   AStream.ReadBuffer(VCount, SizeOf(VCount));
 
@@ -227,7 +227,7 @@ begin
   for i := 0 to VCount - 1 do begin
     VLine := LoadSinglePolygon(AStream, AOrder);
     if Assigned(VLine) then begin
-      ABuilder.Add(VLine);
+      ABuilder.AddOuter(VLine);
     end;
   end;
 end;
@@ -235,11 +235,10 @@ end;
 function TGeometryFromWKB.LoadSinglePolygon(
   const AStream: TStream;
   const AOrder: Boolean
-): IGeometryLonLatSinglePolygon;
+): IDoublePoints;
 var
   VCount: Cardinal;
   VBuffer: PDoublePointArray;
-  VPoints: IDoublePoints;
 begin
   Result := nil;
   AStream.ReadBuffer(VCount, SizeOf(VCount));
@@ -249,8 +248,7 @@ begin
   end;
   GetMem(VBuffer, VCount * SizeOf(TDoublePoint));
   AStream.ReadBuffer(VBuffer[0], VCount * SizeOf(TDoublePoint));
-  VPoints := TDoublePoints.CreateWithOwn(VBuffer, VCount);
-  Result := FFactory.CreateLonLatSinglePolygon(VPoints);
+  Result := TDoublePoints.CreateWithOwn(VBuffer, VCount);
 end;
 
 function TGeometryFromWKB.Parse(

@@ -48,12 +48,24 @@ type
 
   IGeometryLonLatPolygonBuilder = interface
     ['{993D049C-A360-4185-94CF-E1828503F7F4}']
+    procedure AddPolygon(
+      const APolygon: IGeometryLonLatSinglePolygon
+    ); overload;
+    procedure AddPolygon(
+      const APolygon: IGeometryLonLatMultiPolygon
+    ); overload;
+    procedure AddPolygon(
+      const APolygon: IGeometryLonLatPolygon
+    ); overload;
     procedure AddOuter(
       const ABounds: TDoubleRect;
       const APoints: IDoublePoints
     ); overload;
     procedure AddOuter(
       const APoints: IDoublePoints
+    ); overload;
+    procedure AddOuter(
+      const AContour: IGeometryLonLatContour
     ); overload;
     procedure AddHole(
       const ABounds: TDoubleRect;
@@ -62,7 +74,9 @@ type
     procedure AddHole(
       const APoints: IDoublePoints
     ); overload;
-    procedure Add(const AElement: IGeometryLonLatSinglePolygon);
+    procedure AddHole(
+      const AContour: IGeometryLonLatContour
+    ); overload;
 
     function MakeStaticAndClear: IGeometryLonLatPolygon;
     function MakeStaticCopy: IGeometryLonLatPolygon;

@@ -28,6 +28,7 @@ uses
   i_MergePolygonsProgress,
   i_Timer,
   i_Listener,
+  i_DoublePoints,
   i_BackgroundTask,
   i_VectorDataFactory,
   i_VectorDataItemSimple,
@@ -82,7 +83,7 @@ type
     ): TPaths;
     function ClipperPathToSinglePolygon(
       const APath: TPath
-    ): IGeometryLonLatSinglePolygon;
+    ): IDoublePoints;
     function GetClipType(
       const AMergeOperation: TMergeOperation
     ): TClipType;
@@ -112,7 +113,6 @@ uses
   SysUtils,
   t_GeoTypes,
   i_ThreadConfig,
-  i_DoublePoints,
   u_DoublePoints,
   u_ListenerByEvent,
   u_TimerByQueryPerformanceCounter,
@@ -286,7 +286,7 @@ function TMergePolygonsProcessor.ProcessGroupOperation(
   const ACancelNotifier: INotifierOperation
 ): IGeometryLonLatPolygon;
 var
-  I, J: Integer;
+  I: Integer;
   VMultiPolygonBuilder: IGeometryLonLatPolygonBuilder;
 begin
   Result := nil;
@@ -297,16 +297,11 @@ begin
       Exit;
     end;
     if Assigned(FItems[I].SinglePolygon) then begin
-      VMultiPolygonBuilder.Add(FItems[I].SinglePolygon);
+      VMultiPolygonBuilder.AddPolygon(FItems[I].SinglePolygon);
       Inc(FPolyCount);
     end else begin
-      for J := 0 to FItems[I].MultiPolygon.Count - 1 do begin
-        VMultiPolygonBuilder.Add(FItems[I].MultiPolygon.Item[J]);
-        Inc(FPolyCount);
-        if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-          Exit;
-        end;
-      end;
+      VMultiPolygonBuilder.AddPolygon(FItems[I].MultiPolygon);
+      Inc(FPolyCount, FItems[I].MultiPolygon.Count);
     end;
   end;
   Result := VMultiPolygonBuilder.MakeStaticAndClear;
@@ -417,15 +412,18 @@ procedure TMergePolygonsProcessor.ProcessClipperNode(
 );
 var
   I: Integer;
-  VSinglePoly: IGeometryLonLatSinglePolygon;
+  VSinglePoly: IDoublePoints;
 begin
   if ANode.IsHole then begin
-    //ToDo
-    Inc(FHolesCount);
+    VSinglePoly := ClipperPathToSinglePolygon(ANode.Contour);
+    if Assigned(VSinglePoly) then begin
+      AMultiPolygonBuilder.AddHole(VSinglePoly);
+      Inc(FHolesCount);
+    end;
   end else begin
     VSinglePoly := ClipperPathToSinglePolygon(ANode.Contour);
     if Assigned(VSinglePoly) then begin
-      AMultiPolygonBuilder.Add(VSinglePoly);
+      AMultiPolygonBuilder.AddOuter(VSinglePoly);
       Inc(FPolyCount);
     end;
   end;
@@ -508,12 +506,11 @@ end;
 
 function TMergePolygonsProcessor.ClipperPathToSinglePolygon(
   const APath: TPath
-): IGeometryLonLatSinglePolygon;
+): IDoublePoints;
 var
   I: Integer;
   VCount: Integer;
   VPointsArray: PDoublePointArray;
-  VPoints: IDoublePoints;
 begin
   VCount := Length(APath);
   GetMem(VPointsArray, VCount * SizeOf(TDoublePoint));
@@ -521,8 +518,7 @@ begin
     VPointsArray[I].X := APath[I].X / FIntToDoubleCoeff;
     VPointsArray[I].Y := APath[I].Y / FIntToDoubleCoeff;
   end;
-  VPoints := TDoublePoints.CreateWithOwn(VPointsArray, VCount);
-  Result := FVectorGeometryLonLatFactory.CreateLonLatSinglePolygon(VPoints);
+  Result := TDoublePoints.CreateWithOwn(VPointsArray, VCount);
 end;
 
 function TMergePolygonsProcessor.GetCurTime: Int64;
