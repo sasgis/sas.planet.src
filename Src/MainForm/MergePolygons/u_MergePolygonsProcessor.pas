@@ -483,19 +483,46 @@ function TMergePolygonsProcessor.SinglePolygonToClipperPaths(
   const APolygon: IGeometryLonLatSinglePolygon
 ): TPaths;
 var
-  I: Integer;
+  I, J, K: Integer;
   VPath: TPath;
+  VPaths: TPaths;
   VPoints: PDoublePointArray;
+  VBorder: IGeometryLonLatContour;
 begin
-  SetLength(VPath, APolygon.OuterBorder.Count); // TODO: add holes support
-  VPoints := APolygon.OuterBorder.Points;
-  for I := 0 to APolygon.OuterBorder.Count - 1 do begin
+  SetLength(VPaths, 1 + APolygon.HoleCount);
+
+  // outer border
+  K := 0;
+  VBorder := APolygon.OuterBorder;
+  SetLength(VPaths[K], VBorder.Count);
+  VPath := VPaths[K];
+  VPoints := VBorder.Points;
+  for I := 0 to VBorder.Count - 1 do begin
     VPath[I].X := Round(VPoints[I].X * FIntToDoubleCoeff);
     VPath[I].Y := Round(VPoints[I].Y * FIntToDoubleCoeff);
   end;
+  if not Orientation(VPath) then begin
+    VPaths[K] := ReversePath(VPath);
+  end;
+
+  // holes
+  for J := 0 to APolygon.HoleCount - 1 do begin
+    K := J + 1;
+    VBorder := APolygon.HoleBorder[J];
+    SetLength(VPaths[K], VBorder.Count);
+    VPath := VPaths[K];
+    VPoints := VBorder.Points;
+    for I := 0 to VBorder.Count - 1 do begin
+      VPath[I].X := Round(VPoints[I].X * FIntToDoubleCoeff);
+      VPath[I].Y := Round(VPoints[I].Y * FIntToDoubleCoeff);
+    end;
+    if Orientation(VPath) then begin
+      VPaths[K] := ReversePath(VPath);
+    end;
+  end;
 
   // Convert a self-intersecting polygon into a simple polygon
-  Result := SimplifyPolygon(VPath);
+  Result := SimplifyPolygons(VPaths);
 
   if Length(Result) = 0 then begin
     raise EMergePolygonsProcessorError.Create(
