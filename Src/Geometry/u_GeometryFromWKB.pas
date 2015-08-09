@@ -223,11 +223,16 @@ begin
   if VCount >= MaxInt / (1 + 4  + 4 + 2 * SizeOf(Double)) then begin
     Abort;
   end;
-
-  for i := 0 to VCount - 1 do begin
+  if VCount > 0 then begin
     VLine := LoadSinglePolygon(AStream, AOrder);
     if Assigned(VLine) then begin
       ABuilder.AddOuter(VLine);
+    end;
+    for i := 1 to VCount - 1 do begin
+      VLine := LoadSinglePolygon(AStream, AOrder);
+      if Assigned(VLine) then begin
+        ABuilder.AddHole(VLine);
+      end;
     end;
   end;
 end;
