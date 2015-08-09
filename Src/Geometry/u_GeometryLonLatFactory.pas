@@ -225,6 +225,7 @@ type
     FMultiPolygonHash: THashValue;
 
     FPoints: IDoublePoints;
+    FOuterContourHash: THashValue;
     FPolygonList: IInterfaceListSimple;
     FHoleList: IInterfaceListSimple;
     procedure AddSinglePolygonToList(const APolygon: IGeometryLonLatSinglePolygon);
@@ -409,6 +410,8 @@ begin
     end;
     if Assigned(FReadySinglePolygon) then begin
       FReadyOuterContour := FReadySinglePolygon.OuterBorder;
+      FOuterContourHash := FReadyOuterContour.Hash;
+      FPolygonHash := FOuterContourHash;
       for i := 0 to FReadySinglePolygon.HoleCount - 1 do begin
         AddHoleContourToList(FReadySinglePolygon.HoleBorder[i]);
       end;
@@ -417,6 +420,8 @@ begin
     AddHoleContourToList(AContour);
   end else begin
     FReadyOuterContour := AContour;
+    FOuterContourHash := FReadyOuterContour.Hash;
+    FPolygonHash := FOuterContourHash;
     FOuterDataExists := True;
   end;
 end;
@@ -448,7 +453,8 @@ begin
     FOuterDataExists := True;
     FPoints := APoints;
     FPolygonBounds := ABounds;
-    FPolygonHash := FHashFunction.CalcHashByBuffer(APoints.Points, APoints.Count * SizeOf(TDoublePoint));
+    FOuterContourHash := FHashFunction.CalcHashByBuffer(APoints.Points, APoints.Count * SizeOf(TDoublePoint));
+    FPolygonHash := FOuterContourHash;
   end;
 end;
 
@@ -480,6 +486,8 @@ begin
   end;
   FOuterDataExists := True;
   FReadyOuterContour := AContour;
+  FOuterContourHash := FReadyOuterContour.Hash;
+  FPolygonHash := FOuterContourHash;
 end;
 
 procedure TGeometryLonLatPolygonBuilder.AddOuter(
@@ -520,7 +528,8 @@ begin
   FOuterDataExists := True;
   FPoints := APoints;
   FPolygonBounds := ABounds;
-  FPolygonHash := FHashFunction.CalcHashByBuffer(APoints.Points, APoints.Count * SizeOf(TDoublePoint));
+  FOuterContourHash := FHashFunction.CalcHashByBuffer(APoints.Points, APoints.Count * SizeOf(TDoublePoint));
+  FPolygonHash := FOuterContourHash;
 end;
 
 function TGeometryLonLatPolygonBuilder.MakeCurrentSinglePolygon(const AIsClear: Boolean): IGeometryLonLatSinglePolygon;
@@ -535,14 +544,14 @@ begin
       VContour :=
         TGeometryLonLatContour.Create(
           MakeLonLatRectByRect(FPolygonBounds),
-          FPolygonHash,
+          FOuterContourHash,
           FPoints
         );
     end;
     Result :=
       TGeometryLonLatSinglePolygonWithHoles.Create(
-        MakeLonLatRectByRect(FMultiPolygonBounds),
-        FMultiPolygonHash,
+        MakeLonLatRectByRect(FPolygonBounds),
+        FPolygonHash,
         VContour,
         FHoleList.MakeStaticAndClear
       );
