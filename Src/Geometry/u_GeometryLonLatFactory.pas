@@ -559,6 +559,7 @@ begin
       FPoints := nil;
       FHoleList.Clear;
       FReadyOuterContour := nil;
+      FOuterDataExists := false;
     end;
   end else begin
     if Assigned(FReadyOuterContour) then begin
@@ -579,6 +580,7 @@ begin
     if AIsClear then begin
       FPoints := nil;
       FReadyOuterContour := nil;
+      FOuterDataExists := false;
     end;
   end;
 end;
