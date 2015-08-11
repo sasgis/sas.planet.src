@@ -424,6 +424,9 @@ begin
   FPolygonLL := APolygon;
   FLastSelectionInfo.SetPolygon(APolygon, FZoom_rect);
   Self.Show;
+  if Self.WindowState = wsMinimized then begin
+    Self.WindowState := wsNormal;
+  end;
 end;
 
 procedure TfrmRegionProcess.ProcessPolygonWithZoom(
@@ -435,6 +438,9 @@ begin
   FPolygonLL := APolygon;
   FLastSelectionInfo.SetPolygon(APolygon, FZoom_rect);
   Self.Show;
+  if Self.WindowState = wsMinimized then begin
+    Self.WindowState := wsNormal;
+  end;
 end;
 
 function TfrmRegionProcess.DelRegion(const APolyLL: IGeometryLonLatPolygon): Boolean;
