@@ -80,6 +80,11 @@ type
   private
     FLine: IGeometryLonLatPolygon;
     FLineWithSelected: ILonLatPolygonWithSelected;
+    FBuilder: IGeometryLonLatPolygonBuilder;
+    function _MakePolygon(
+      const APoints: PDoublePointArray;
+      ACount: Integer
+    ): IGeometryLonLatPolygon;
     procedure _UpdateLineObject; override;
     procedure _UpdateLineWithSelected; override;
     procedure _SetPolygon(const AValue: IGeometryLonLatPolygon);
@@ -91,6 +96,10 @@ type
     function GetPolygon: ILonLatPolygonWithSelected;
     procedure SetPolygon(const AValue: ILonLatPolygonWithSelected); overload;
     procedure SetPolygon(const AValue: IGeometryLonLatPolygon); overload;
+  public
+    constructor Create(
+      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory
+    );
   end;
 
 implementation
@@ -98,6 +107,8 @@ implementation
 uses
   SysUtils,
   Math,
+  i_DoublePoints,
+  u_DoublePoints,
   u_GeoFunc,
   u_GeometryFunc,
   u_BaseInterfacedObject;
@@ -573,6 +584,14 @@ end;
 
 { TPolygonOnMapEdit }
 
+constructor TPolygonOnMapEdit.Create(
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory
+);
+begin
+  inherited Create(AVectorGeometryLonLatFactory);
+  FBuilder := FVectorGeometryLonLatFactory.MakePolygonBuilder;
+end;
+
 function TPolygonOnMapEdit.GetPolygon: ILonLatPolygonWithSelected;
 begin
   CS.BeginRead;
@@ -682,9 +701,61 @@ begin
   end;
 end;
 
+
+function TPolygonOnMapEdit._MakePolygon(
+  const APoints: PDoublePointArray;
+  ACount: Integer
+): IGeometryLonLatPolygon;
+var
+  i: Integer;
+  VStart: PDoublePointArray;
+  VLineLen: Integer;
+  VPoint: TDoublePoint;
+  VPoints: IDoublePoints;
+  VLineBounds: TDoubleRect;
+  VIsOuter: Boolean;
+begin
+  VIsOuter := True;
+  VStart := APoints;
+  VLineLen := 0;
+  for i := 0 to ACount - 1 do begin
+    VPoint := APoints[i];
+    if IsNan(VPoint.X) then begin
+      if VLineLen > 0 then begin
+        VPoints := TDoublePoints.Create(VStart, VLineLen);
+        if VIsOuter then begin
+          FBuilder.AddOuter(VLineBounds, VPoints);
+        end else begin
+          FBuilder.AddHole(VLineBounds, VPoints);
+        end;
+        VIsOuter := IsNan(VPoint.Y);
+        VLineLen := 0;
+      end;
+    end else begin
+      if VLineLen = 0 then begin
+        VStart := @APoints[i];
+        VLineBounds.TopLeft := VPoint;
+        VLineBounds.BottomRight := VPoint;
+      end else begin
+        UpdateLonLatMBRByPoint(VLineBounds, VPoint);
+      end;
+      Inc(VLineLen);
+    end;
+  end;
+  if VLineLen > 0 then begin
+    VPoints := TDoublePoints.Create(VStart, VLineLen);
+    if VIsOuter then begin
+      FBuilder.AddOuter(VLineBounds, VPoints);
+    end else begin
+      FBuilder.AddHole(VLineBounds, VPoints);
+    end;
+  end;
+  Result := FBuilder.MakeStaticAndClear;
+end;
+
 procedure TPolygonOnMapEdit._UpdateLineObject;
 begin
-  FLine := FVectorGeometryLonLatFactory.CreateLonLatPolygon(@FPoints[0], FPointsCount);
+  FLine := _MakePolygon(@FPoints[0], FPointsCount);
   _UpdateLineWithSelected;
 end;
 
