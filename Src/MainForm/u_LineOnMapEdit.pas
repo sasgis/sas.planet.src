@@ -58,13 +58,17 @@ type
     constructor Create(
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory
     );
-    procedure AfterConstruction; override;
   end;
 
   TPathOnMapEdit = class(TLineOnMapEdit, IPathOnMapEdit)
   private
+    FBuilder: IGeometryLonLatLineBuilder;
     FLine: IGeometryLonLatLine;
     FLineWithSelected: ILonLatPathWithSelected;
+    function _MakeLine(
+      const APoints: PDoublePointArray;
+      ACount: Integer
+    ): IGeometryLonLatLine;
     procedure _UpdateLineObject; override;
     procedure _UpdateLineWithSelected; override;
     procedure _SetPath(const AValue: IGeometryLonLatLine);
@@ -74,13 +78,17 @@ type
     function GetPath: ILonLatPathWithSelected;
     procedure SetPath(const AValue: ILonLatPathWithSelected); overload;
     procedure SetPath(const AValue: IGeometryLonLatLine); overload;
+  public
+    constructor Create(
+      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory
+    );
   end;
 
   TPolygonOnMapEdit = class(TLineOnMapEdit, IPolygonOnMapEdit)
   private
+    FBuilder: IGeometryLonLatPolygonBuilder;
     FLine: IGeometryLonLatPolygon;
     FLineWithSelected: ILonLatPolygonWithSelected;
-    FBuilder: IGeometryLonLatPolygonBuilder;
     function _MakePolygon(
       const APoints: PDoublePointArray;
       ACount: Integer
@@ -158,12 +166,6 @@ begin
   FPointsCount := 0;
   FSelectedPointIndex := 0;
   SetLength(FPoints, 0);
-end;
-
-procedure TLineOnMapEdit.AfterConstruction;
-begin
-  inherited;
-  _UpdateLineObject;
 end;
 
 procedure TLineOnMapEdit.Clear;
@@ -469,6 +471,14 @@ end;
 
 { TPathOnMapEdit }
 
+constructor TPathOnMapEdit.Create(
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory
+);
+begin
+  inherited Create(AVectorGeometryLonLatFactory);
+  FBuilder := FVectorGeometryLonLatFactory.MakeLineBuilder;
+end;
+
 function TPathOnMapEdit.GetPath: ILonLatPathWithSelected;
 begin
   CS.BeginRead;
@@ -567,9 +577,49 @@ begin
   end;
 end;
 
+function TPathOnMapEdit._MakeLine(
+  const APoints: PDoublePointArray;
+  ACount: Integer
+): IGeometryLonLatLine;
+var
+  i: Integer;
+  VStart: PDoublePointArray;
+  VLineLen: Integer;
+  VPoint: TDoublePoint;
+  VPoints: IDoublePoints;
+  VLineBounds: TDoubleRect;
+begin
+  VStart := APoints;
+  VLineLen := 0;
+  for i := 0 to ACount - 1 do begin
+    VPoint := APoints[i];
+    if PointIsEmpty(VPoint) then begin
+      if VLineLen > 0 then begin
+        VPoints := TDoublePoints.Create(VStart, VLineLen);
+        FBuilder.AddLine(VLineBounds, VPoints);
+        VLineLen := 0;
+      end;
+    end else begin
+      if VLineLen = 0 then begin
+        VStart := @APoints[i];
+        VLineBounds.TopLeft := VPoint;
+        VLineBounds.BottomRight := VPoint;
+      end else begin
+        UpdateLonLatMBRByPoint(VLineBounds, VPoint);
+      end;
+      Inc(VLineLen);
+    end;
+  end;
+  if VLineLen > 0 then begin
+    VPoints := TDoublePoints.Create(VStart, VLineLen);
+    FBuilder.AddLine(VLineBounds, VPoints);
+  end;
+  Result := FBuilder.MakeStaticAndClear;
+end;
+
 procedure TPathOnMapEdit._UpdateLineObject;
 begin
-  FLine := FVectorGeometryLonLatFactory.CreateLonLatLine(@FPoints[0], FPointsCount);
+  FLine := _MakeLine(@FPoints[0], FPointsCount);
   _UpdateLineWithSelected;
 end;
 
