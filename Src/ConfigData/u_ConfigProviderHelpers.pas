@@ -214,7 +214,7 @@ begin
           if not CheckIsValidPoint(AConfigProvider, VIdentLon, VIdentLat, i) then begin
             i := 1;
             if not CheckIsValidPoint(AConfigProvider, VIdentLon, VIdentLat, i) then begin
-              Result := AVectorGeometryLonLatFactory.CreateLonLatPolygon(nil, 0);
+              Result := nil;
               Exit;
             end;
           end;
