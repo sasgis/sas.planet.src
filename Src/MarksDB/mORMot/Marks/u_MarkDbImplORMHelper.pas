@@ -1266,7 +1266,7 @@ var
   VRows: TSQLMarkViewRowDynArray;
   VCategoryID: TID;
 begin
-  if FClientType = ctMongoDB then begin
+  if FClientType <> ctSQLite3 then begin
     VCategoryID := 0;
   end else begin
     VCategoryID := ACategoryID;
