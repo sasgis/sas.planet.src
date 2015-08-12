@@ -95,7 +95,6 @@ type
     FGeoCount: Cardinal;
     FGeoLonSize: Cardinal;
     FGeoLatSize: Cardinal;
-    FGeoJsonIdx: Variant; // simple GeoJSON geometry for MongoDB spatial index
     FGeoWKB: TSQLRawBlob;
   published
     property Category: TSQLCategory read FCategory write FCategory;
@@ -107,8 +106,26 @@ type
     property GeoCount: Cardinal read FGeoCount write FGeoCount;
     property GeoLonSize: Cardinal read FGeoLonSize write FGeoLonSize;
     property GeoLatSize: Cardinal read FGeoLatSize write FGeoLatSize;
-    property GeoJsonIdx: Variant read FGeoJsonIdx write FGeoJsonIdx;
     property GeoWKB: TSQLRawBlob read FGeoWKB write FGeoWKB;
+  end;
+
+  TSQLMarkClass = class of TSQLMark;
+
+  TSQLMarkDBMS = class(TSQLMark)
+  private
+    FLeft, FRight, FBottom, FTop: Cardinal;
+  published
+    property Left: Cardinal read FLeft write FLeft;
+    property Right: Cardinal read FRight write FRight;
+    property Bottom: Cardinal read FBottom write FBottom;
+    property Top: Cardinal read FTop write FTop;
+  end;
+
+  TSQLMarkMongoDB = class(TSQLMark)
+  private
+    FGeoJsonIdx: Variant;
+  published
+    property GeoJsonIdx: Variant read FGeoJsonIdx write FGeoJsonIdx;
   end;
 
   // Настройка видимости меток по пользователям
@@ -148,11 +165,13 @@ type
     property Desc: RawUTF8 read FDesc write FDesc; // описание мекти в AnsiLowerCase
   end;
 
-function CreateModel: TSQLModel;
+function CreateModelSQLite3: TSQLModel;
+function CreateModelDBMS: TSQLModel;
+function CreateModelMongoDB: TSQLModel;
 
 implementation
 
-function CreateModel: TSQLModel;
+function CreateModelSQLite3: TSQLModel;
 begin
   Result :=
     TSQLModel.Create(
@@ -166,6 +185,40 @@ begin
         TSQLMarkAppearance,
         TSQLMarkFTS,
         TSQLMarkRTree
+      ]
+    );
+end;
+
+function CreateModelDBMS: TSQLModel;
+begin
+  Result :=
+    TSQLModel.Create(
+      [
+        TSQLUser,
+        TSQLCategory,
+        TSQLCategoryView,
+        TSQLMarkImage,
+        TSQLMarkDBMS,
+        TSQLMarkView,
+        TSQLMarkAppearance,
+        TSQLMarkFTS
+      ]
+    );
+end;
+
+function CreateModelMongoDB: TSQLModel;
+begin
+  Result :=
+    TSQLModel.Create(
+      [
+        TSQLUser,
+        TSQLCategory,
+        TSQLCategoryView,
+        TSQLMarkImage,
+        TSQLMarkMongoDB,
+        TSQLMarkView,
+        TSQLMarkAppearance,
+        TSQLMarkFTS
       ]
     );
 end;

@@ -55,8 +55,10 @@ procedure RollBackTransaction(
 function CalcMultiGeometryCount(const AGeometry: IGeometryLonLat): Integer; inline;
 procedure CalcGeometrySize(const ARect: TDoubleRect; out ALonSize, ALatSize: Cardinal); inline;
 procedure LonLatSizeToInternalSize(const ALonLatSize: TDoublePoint; out ALonSize, ALatSize: Cardinal); inline;
+procedure LonLatDoubleRectToRect(const ADoubleRect: TDoubleRect; out ARect: TRect); inline;
 
 const
+  cCoordToInt: Cardinal = MAXLONG div 180;
   cCoordToSize: Cardinal = MAXLONG div 360;
 
 implementation
@@ -170,6 +172,14 @@ procedure LonLatSizeToInternalSize(const ALonLatSize: TDoublePoint; out ALonSize
 begin
   ALonSize := Round(ALonLatSize.X * cCoordToSize);
   ALatSize := Round(ALonLatSize.Y * cCoordToSize);
+end;
+
+procedure LonLatDoubleRectToRect(const ADoubleRect: TDoubleRect; out ARect: TRect);
+begin
+  ARect.Left := Round(ADoubleRect.Left * cCoordToInt);
+  ARect.Top := Round(ADoubleRect.Top * cCoordToInt);
+  ARect.Right := Round(ADoubleRect.Right * cCoordToInt);
+  ARect.Bottom := Round(ADoubleRect.Bottom * cCoordToInt);
 end;
 
 end.

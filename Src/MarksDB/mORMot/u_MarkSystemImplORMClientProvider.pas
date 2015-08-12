@@ -178,6 +178,7 @@ var
   VFileName: string;
 begin
   VFileName := GetSQLite3DatabaseFileName(FBasePath, FImplConfig.FileName);
+  FModel := CreateModelSQLite3;
   FClientDB := TSQLRestClientDB.Create(FModel, nil, VFileName, TSQLRestServerDB);
   FClientDB.DB.WALMode := True; // for multi-user access
   if not FImplConfig.IsReadOnly then begin
@@ -196,6 +197,9 @@ var
   VPort: Integer;
   VText, VTmp: string;
   VUser, VPass: string;
+  VServer: TSQLRestServerDB;
+  VTable: TSQLRecordClass;
+  VTableName: RawUTF8;
   VDatabase: TMongoDatabase;
   VCollection: TMongoCollection;
 begin
@@ -271,16 +275,29 @@ begin
     VDatabase := FMongoClient.Open(VDB);
   end;
 
+  FModel := CreateModelMongoDB;
   FClientDB := TSQLRestClientDB.Create(FModel, nil, ':memory:', TSQLRestServerDB);
-  if not StaticMongoDBRegisterAll(FClientDB.Server, VDatabase) then begin
-    raise EMarkSystemORMError.Create('MarkSystemORM: StaticMongoDBRegisterAll failed');
+  VServer := FClientDB.Server;
+
+  for I := 0 to High(FModel.Tables) do begin
+    VTable := FModel.Tables[I];
+    if VTable.InheritsFrom(TSQLMark) then begin
+      VTableName := 'Mark';
+    end else begin
+      VTableName := '';
+    end;
+    if StaticMongoDBRegister(VTable, VServer, VDatabase, VTableName) = nil then begin
+      raise EMarkSystemORMError.Create('StaticMongoDBRegister failed');
+    end;
   end;
+  
+  VServer.InitializeTables([]);
 
   if not FImplConfig.IsReadOnly then begin
     FClientDB.Server.CreateMissingTables;
 
     VCollection :=
-      (FClientDB.Server.StaticDataServer[TSQLMark] as TSQLRestStorageMongoDB).Collection;
+      (FClientDB.Server.StaticDataServer[TSQLMarkMongoDB] as TSQLRestStorageMongoDB).Collection;
 
     VCollection.EnsureIndex(
       _ObjFast(['GeoJsonIdx','2dsphere']),
@@ -295,7 +312,10 @@ var
   I, J: Integer;
   VText, VUser: string;
   VConnectionStr: RawUTF8;
+  VTable: TSQLRecordClass;
+  VTableName: RawUTF8;
 begin
+  FModel := CreateModelDBMS;
   VText := FImplConfig.FileName;
   VConnectionStr := StringToUTF8(VText);
   case FClientType of
@@ -348,14 +368,25 @@ begin
     Assert(False);
   end;
 
-  VirtualTableExternalRegisterAll(FModel, FDBMSProps);
+  for I := 0 to High(FModel.Tables) do begin
+    VTable := FModel.Tables[I];
+    if VTable.InheritsFrom(TSQLMark) then begin
+      VTableName := 'Mark'
+    end else begin
+      VTableName := '';
+    end;
+    if not VirtualTableExternalRegister(FModel, VTable, FDBMSProps, VTableName) then begin
+      raise EMarkSystemORMError.Create('VirtualTableExternalRegister failed');
+    end;
+  end;
 
   // map conflict field names
   FModel.Props[TSQLCategoryView].ExternalDB.MapField('User', 'User_').MapAutoKeywordFields;
   FModel.Props[TSQLMarkView].ExternalDB.MapField('User', 'User_').MapAutoKeywordFields;
-  FModel.Props[TSQLMark].ExternalDB.MapField('Desc', 'Desc_').MapAutoKeywordFields;
+  FModel.Props[TSQLMarkDBMS].ExternalDB.MapField('Desc', 'Desc_').MapAutoKeywordFields;
+  FModel.Props[TSQLMarkDBMS].ExternalDB.MapField('Left', 'Left_').MapAutoKeywordFields;
+  FModel.Props[TSQLMarkDBMS].ExternalDB.MapField('Right', 'Right_').MapAutoKeywordFields;
   FModel.Props[TSQLMarkFTS].ExternalDB.MapField('Desc', 'Desc_').MapAutoKeywordFields;
-  FModel.Props[TSQLMarkRTree].ExternalDB.MapField('Left', 'Left_').MapAutoKeywordFields;
 
   FClientDB := TSQLRestClientDB.Create(FModel, nil, ':memory:', TSQLRestServerDB);
   FClientDB.Server.CreateMissingTables;
@@ -400,7 +431,6 @@ end;
 
 procedure TMarkSystemImplORMClientProvider.Build;
 begin
-  FModel := CreateModel;
   case FClientType of
     ctSQLite3: BuildSQLite3Client;
     ctMongoDB: BuildMongoDBClient;
