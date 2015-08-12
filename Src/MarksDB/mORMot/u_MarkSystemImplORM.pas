@@ -141,6 +141,7 @@ begin
     raise EMarkSystemORMError.Create('MarkSystemORM: Unknown Impl config interface!');
   end;
 
+  VStateInternal.ReadAccess := asEnabled;
   if VImplConfig.IsReadOnly then begin
     VStateInternal.WriteAccess := asDisabled;
   end else begin
