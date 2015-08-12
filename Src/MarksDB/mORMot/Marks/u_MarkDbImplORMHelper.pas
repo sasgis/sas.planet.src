@@ -22,6 +22,8 @@ unit u_MarkDbImplORMHelper;
 
 interface
 
+{$I ..\MarkSystemORM.inc}
+
 uses
   Types,
   Windows,
@@ -32,6 +34,9 @@ uses
   mORMotSQLite3,
   SynCommons,
   SynMongoDB,
+  {$IFDEF ENABLE_DBMS}
+  SynDB,
+  {$ENDIF}
   t_GeoTypes,
   t_MarkSystemORM,
   i_GeometryLonLat,
@@ -43,6 +48,13 @@ uses
 
 type
   TMarkDbImplORMHelper = class
+  private
+    type
+      TMarkWithCategoryID = record
+        MarkID: TID;
+        CategoryID: TID;
+      end;
+      TMarkWithCategoryIDDynArray = array of TMarkWithCategoryID;
   private
     FUserID: TID;
     FClient: TSQLRestClientDB;
@@ -77,21 +89,26 @@ type
       const ARect: TDoubleRect;
       const ALonSize: Cardinal;
       const ALatSize: Cardinal;
-      out AMarkIDArray: TIDDynArray
+      const AReciveCategoryID: Boolean;
+      out AIDArray: TMarkWithCategoryIDDynArray
     ): Integer;
+    {$IFDEF ENABLE_DBMS}
     function _GetMarkRecArrayByRectDBMS(
       const ACategoryIDArray: TIDDynArray;
       const ARect: TDoubleRect;
       const ALonSize: Cardinal;
       const ALatSize: Cardinal;
-      out AMarkIDArray: TIDDynArray
+      const AReciveCategoryID: Boolean;
+      out AIDArray: TMarkWithCategoryIDDynArray
     ): Integer;
+    {$ENDIF}
     function _GetMarkRecArrayByRectMongoDB(
       const ACategoryIDArray: TIDDynArray;
       const AGeoJsonRect: Variant;
       const ALonSize: Cardinal;
       const ALatSize: Cardinal;
-      out AMarkIDArray: TIDDynArray
+      const AReciveCategoryID: Boolean;
+      out AIDArray: TMarkWithCategoryIDDynArray
     ): Integer;
     function _GetMarkRecArrayByTextSQLite3(
       const ASearch: RawUTF8;
@@ -1409,136 +1426,185 @@ function TMarkDbImplORMHelper._GetMarkRecArrayByRectSQL(
   const ARect: TDoubleRect;
   const ALonSize: Cardinal;
   const ALatSize: Cardinal;
-  out AMarkIDArray: TIDDynArray
+  const AReciveCategoryID: Boolean;
+  out AIDArray: TMarkWithCategoryIDDynArray
 ): Integer;
 var
+  I: Integer;
   VLen: Integer;
   VSQLSelect: RawUTF8;
-  VCategory: RawUTF8;
+  VSelectedRows: RawUTF8;
+  VCategoryWhere: RawUTF8;
   VList: TSQLTableJSON;
 begin
   Result := 0;
 
   VLen := Length(ACategoryIDArray);
 
+  if AReciveCategoryID then begin
+    VSelectedRows := FormatUTF8('%.RowID,%.Category', [FSQLMarkName,FSQLMarkName], []);
+  end else begin
+    VSelectedRows := FormatUTF8('%.RowID', [FSQLMarkName], []);
+  end;
+
   if VLen = 1 then begin
     if ACategoryIDArray[0] <= 0 then begin
-      VCategory := '';
+      VCategoryWhere := '';
       Assert(False);
     end else begin
-      VCategory := FormatUTF8('AND %.Category=? ',[FSQLMarkName],[ACategoryIDArray[0]]);
+      VCategoryWhere := FormatUTF8('AND %.Category=? ',[FSQLMarkName],[ACategoryIDArray[0]]);
     end;
   end else if VLen > 1 then begin
-    VCategory := Int64DynArrayToCSV(TInt64DynArray(ACategoryIDArray), VLen);
-    VCategory := FormatUTF8('AND %.Category IN (%) ', [FSQLMarkName, VCategory]);
+    VCategoryWhere := Int64DynArrayToCSV(TInt64DynArray(ACategoryIDArray), VLen);
+    VCategoryWhere := FormatUTF8('AND %.Category IN (%) ', [FSQLMarkName, VCategoryWhere]);
   end else begin
-    VCategory := '';
+    VCategoryWhere := '';
   end;
 
   VSQLSelect :=
     FormatUTF8(
-      'SELECT %.RowID FROM %,MarkRTree ' +
-      'WHERE %.RowID=MarkRTree.RowID ' + VCategory +
+      'SELECT % FROM %,MarkRTree ' +
+      'WHERE %.RowID=MarkRTree.RowID ' + VCategoryWhere +
       'AND Left<=? AND Right>=? AND Bottom<=? AND Top>=? ' +
       'AND (%.GeoType=? OR %.GeoLonSize>=? OR %.GeoLatSize>=?);',
-      [FSQLMarkName,FSQLMarkName,FSQLMarkName,FSQLMarkName,FSQLMarkName,FSQLMarkName],
+      [VSelectedRows,FSQLMarkName,FSQLMarkName,FSQLMarkName,FSQLMarkName,FSQLMarkName],
       [ARect.Right,ARect.Left,ARect.Top,ARect.Bottom,Integer(gtPoint),ALonSize,ALatSize]
     );
 
   VList := FClient.ExecuteList([FSQLMarkClass, TSQLMarkRTree], VSQLSelect);
   if Assigned(VList) then
   try
-    VList.GetRowValues(0, TInt64DynArray(AMarkIDArray));
-    Result := Length(AMarkIDArray);
+    VLen := VList.RowCount;
+    SetLength(AIDArray, VLen);
+    for I := 0 to VLen - 1 do begin
+      AIDArray[I].MarkID := VList.GetAsInt64(I+1, 0);
+      if AReciveCategoryID then begin
+        AIDArray[I].CategoryID := VList.GetAsInt64(I+1, 1);
+      end;
+    end;
+    Result := VLen;
   finally
     VList.Free;
   end;
 end;
 
+{$IFDEF ENABLE_DBMS}
 function TMarkDbImplORMHelper._GetMarkRecArrayByRectDBMS(
   const ACategoryIDArray: TIDDynArray;
   const ARect: TDoubleRect;
   const ALonSize: Cardinal;
   const ALatSize: Cardinal;
-  out AMarkIDArray: TIDDynArray
+  const AReciveCategoryID: Boolean;
+  out AIDArray: TMarkWithCategoryIDDynArray
 ): Integer;
 var
+  I: Integer;
   VLen: Integer;
   VIntRect: TRect;
   VSQLSelect: RawUTF8;
-  VCategory: RawUTF8;
+  VSelectedRows: RawUTF8;
+  VCategoryWhere: RawUTF8;
   VList: TSQLTableJSON;
+  VRows: ISQLDBRows;
+  VJsonBuffer: RawUTF8;
+  VProps: TSQLDBConnectionProperties;
 begin
-  Result := 0;
-
   LonLatDoubleRectToRect(ARect, VIntRect);
 
   VLen := Length(ACategoryIDArray);
 
+  if AReciveCategoryID then begin
+    VSelectedRows := RawUTF8('ID,Category');
+  end else begin
+    VSelectedRows := RawUTF8('ID');
+  end;
+
   if VLen = 1 then begin
     if ACategoryIDArray[0] <= 0 then begin
-      VCategory := '';
+      VCategoryWhere := '';
       Assert(False);
     end else begin
-      VCategory := FormatUTF8('Category=? AND ',[],[ACategoryIDArray[0]]);
+      VCategoryWhere := FormatUTF8('Category=? AND ',[],[ACategoryIDArray[0]]);
     end;
   end else if VLen > 1 then begin
-    VCategory := Int64DynArrayToCSV(TInt64DynArray(ACategoryIDArray), VLen);
-    VCategory := FormatUTF8('Category IN (%) AND ', [VCategory]);
+    VCategoryWhere := Int64DynArrayToCSV(TInt64DynArray(ACategoryIDArray), VLen);
+    VCategoryWhere := FormatUTF8('Category IN (%) AND ', [VCategoryWhere]);
   end else begin
-    VCategory := '';
+    VCategoryWhere := '';
   end;
 
   VSQLSelect :=
     FormatUTF8(
-      'SELECT RowID FROM % ' +
-      'WHERE ' + VCategory +
-      'Left<=? AND Right>=? AND Bottom<=? AND Top>=? ' +
+      'SELECT % FROM Mark ' +
+      'WHERE ' + VCategoryWhere +
+      'Left_<=? AND Right_>=? AND Bottom<=? AND Top>=? ' +
       'AND (GeoType=? OR GeoLonSize>=? OR GeoLatSize>=?);',
-      [FSQLMarkName],
+      [VSelectedRows],
       [VIntRect.Right,VIntRect.Left,VIntRect.Top,VIntRect.Bottom,Integer(gtPoint),ALonSize,ALatSize]
     );
 
-  VList := FClient.ExecuteList([FSQLMarkClass, TSQLMarkRTree], VSQLSelect);
-  if Assigned(VList) then
+  VProps :=
+    FClient.Server.Model.Props[FSQLMarkClass].ExternalDB.ConnectionProperties as TSQLDBConnectionProperties;
+
+  VRows := VProps.ExecuteInlined(VSQLSelect, True);
+
+  VJsonBuffer := VRows.FetchAllAsJSON(False); // ToDo: use VRows.Step
+
+  VList := TSQLTableJSON.Create('', Pointer(VJsonBuffer), Length(VJsonBuffer));
   try
-    VList.GetRowValues(0, TInt64DynArray(AMarkIDArray));
-    Result := Length(AMarkIDArray);
+    VLen := VList.RowCount;
+    SetLength(AIDArray, VLen);
+    for I := 0 to VLen - 1 do begin
+      AIDArray[I].MarkID := VList.GetAsInt64(I+1, 0);
+      if AReciveCategoryID then begin
+        AIDArray[I].CategoryID := VList.GetAsInt64(I+1, 1);
+      end;
+    end;
+    Result := VLen;
   finally
     VList.Free;
   end;
 end;
+{$ENDIF}
 
 function TMarkDbImplORMHelper._GetMarkRecArrayByRectMongoDB(
   const ACategoryIDArray: TIDDynArray;
   const AGeoJsonRect: Variant;
   const ALonSize: Cardinal;
   const ALatSize: Cardinal;
-  out AMarkIDArray: TIDDynArray
+  const AReciveCategoryID: Boolean;
+  out AIDArray: TMarkWithCategoryIDDynArray
 ): Integer;
 var
   I, J: Integer;
   VLen: Integer;
-  VCategory: RawUTF8;
+  VSelectedRows: RawUTF8;
+  VCategoryWhere: RawUTF8;
   VCollection: TMongoCollection;
   VArray: TVariantDynArray;
 begin
   VLen := Length(ACategoryIDArray);
 
+  if AReciveCategoryID then begin
+    VSelectedRows := RawUTF8('_id,Category');
+  end else begin
+    VSelectedRows := RawUTF8('_id');
+  end;
+
   if VLen = 1 then begin
     if ACategoryIDArray[0] <= 0 then begin
-      VCategory := '';
+      VCategoryWhere := '';
       Assert(False);
     end else begin
-      VCategory := '{Category:' + Int64ToUtf8(ACategoryIDArray[0]) + '},';
+      VCategoryWhere := '{Category:' + Int64ToUtf8(ACategoryIDArray[0]) + '},';
     end;
   end else if VLen > 1 then begin
-    VCategory :=
+    VCategoryWhere :=
       Int64DynArrayToCSV(
         TInt64DynArray(ACategoryIDArray), VLen, '{Category:{$in:[',']}},'
       );
   end else begin
-    VCategory := '';
+    VCategoryWhere := '';
   end;
 
   VCollection :=
@@ -1546,21 +1612,25 @@ begin
 
   VCollection.FindDocs(
     PUTF8Char('{$and:[' +
-      '{GeoJsonIdx:{$geoIntersects:{$geometry:?}}},' + VCategory +
+      '{GeoJsonIdx:{$geoIntersects:{$geometry:?}}},' + VCategoryWhere +
       '{$or:[{GeoType:?},{GeoLonSize:{$gte:?}},{GeoLatSize:{$gte:?}}]}' +
     ']}'),
-    [AGeoJsonRect, Integer(gtPoint), ALonSize, ALatSize], VArray, '_id'
+    [AGeoJsonRect, Integer(gtPoint), ALonSize, ALatSize], VArray, VSelectedRows
   );
 
   J := 0;
-  SetLength(AMarkIDArray, Length(VArray));
+  SetLength(AIDArray, Length(VArray));
   for I := 0 to Length(VArray) - 1 do begin
-    AMarkIDArray[J] := DocVariantData(VArray[I]).I['_id'];
-    if AMarkIDArray[J] > 0 then begin
+    AIDArray[J].MarkID := DocVariantData(VArray[I]).I['_id'];
+    if AIDArray[J].MarkID > 0 then begin
+      if AReciveCategoryID then begin
+        AIDArray[J].CategoryID := DocVariantData(VArray[I]).I['Category'];
+        CheckID(AIDArray[J].CategoryID);
+      end;
       Inc(J);
     end;
   end;
-  SetLength(AMarkIDArray, J);
+  SetLength(AIDArray, J);
   Result := J;
 end;
 
@@ -1574,85 +1644,95 @@ function TMarkDbImplORMHelper.GetMarkRecArrayByRect(
 const
   cMaxArrayLen = 128;
 var
-  I, J: Integer;
+  I: Integer;
   VCount: Integer;
   VId: TID;
   VMarksCount: Integer;
   VGeoJsonRect: Variant;
   VLonSize, VLatSize: Cardinal;
-  VMarkIDArray: array of TIDDynArray;
-  VCategoryIDArray: array of TIDDynArray;
+  VFilterByCategory: Boolean;
+  VIDArray: TMarkWithCategoryIDDynArray;
+  VCategoryIDArray: TIDDynArray;
 begin
-  J := 0;
-  VMarksCount := 0;
   LonLatSizeToInternalSize(ALonLatSize, VLonSize, VLatSize);
 
-  VCount := (ACategoryIDArray.Count div cMaxArrayLen) + 1;
+  VFilterByCategory := (ACategoryIDArray.Count >= cMaxArrayLen);
 
-  SetLength(VMarkIDArray, VCount);
-  SetLength(VCategoryIDArray, VCount);
-
-  if FClientType = ctMongoDB then begin
-    VGeoJsonRect := _RectToGeoJson(ARect, gtPoly);
+  if VFilterByCategory then begin
+    Finalize(VCategoryIDArray);
+    if not ACategoryIDArray.Sorted then begin
+      ACategoryIDArray.Compare := SortDynArrayInt64;
+      ACategoryIDArray.Sort;
+    end;
+  end else begin
+    ACategoryIDArray.Slice(VCategoryIDArray, cMaxArrayLen);
   end;
 
   // search mark id's
-  for I := 0 to VCount - 1 do begin
-    ACategoryIDArray.Slice(VCategoryIDArray[I], cMaxArrayLen, I*cMaxArrayLen);
-    case FClientType of
-      ctMongoDB: begin
-        J := _GetMarkRecArrayByRectMongoDB(
-          VCategoryIDArray[I],
-          VGeoJsonRect,
-          VLonSize,
-          VLatSize,
-          VMarkIDArray[I]
-        );
-      end;
-      ctSQLite3: begin
-        J := _GetMarkRecArrayByRectSQL(
-          VCategoryIDArray[I],
-          ARect,
-          VLonSize,
-          VLatSize,
-          VMarkIDArray[I]
-        );
-      end;
-      ctZDBC, ctODBC: begin
-        J := _GetMarkRecArrayByRectDBMS(
-          VCategoryIDArray[I],
-          ARect,
-          VLonSize,
-          VLatSize,
-          VMarkIDArray[I]
-        );
-      end;
-    else
-      begin
-        Assert(False);
-        Result := 0;
-        Exit;
-      end;
+  case FClientType of
+    ctMongoDB: begin
+      VGeoJsonRect := _RectToGeoJson(ARect, gtPoly);
+      VCount := _GetMarkRecArrayByRectMongoDB(
+        VCategoryIDArray,
+        VGeoJsonRect,
+        VLonSize,
+        VLatSize,
+        VFilterByCategory,
+        VIDArray
+      );
     end;
-    Assert(Length(VMarkIDArray[I]) >= J);
-    Inc(VMarksCount, J);
+    ctSQLite3: begin
+      VCount := _GetMarkRecArrayByRectSQL(
+        VCategoryIDArray,
+        ARect,
+        VLonSize,
+        VLatSize,
+        VFilterByCategory,
+        VIDArray
+      );
+    end;
+    {$IFDEF ENABLE_DBMS}
+    ctZDBC, ctODBC: begin
+      VCount := _GetMarkRecArrayByRectDBMS(
+        VCategoryIDArray,
+        ARect,
+        VLonSize,
+        VLatSize,
+        VFilterByCategory,
+        VIDArray
+      );
+    end;
+    {$ENDIF}
+  else
+    begin
+      Assert(False);
+      Result := 0;
+      Exit;
+    end;
   end;
 
+  Assert(Length(VIDArray) >= VCount);
+
   // read marks data
-  SetLength(AMarkRecArray, VMarksCount);
   VMarksCount := 0;
+  SetLength(AMarkRecArray, VCount);
   for I := 0 to VCount - 1 do begin
-    for J := 0 to Length(VMarkIDArray[I]) - 1 do begin
-      VId := VMarkIDArray[I][J];
-      if VId > 0 then begin
-        if ReadMarkSQL(AMarkRecArray[VMarksCount], VId, 0, '') then begin
-          if not AIncludeHiddenMarks then begin
-            if not AMarkRecArray[VMarksCount].FVisible then begin
-              Continue;
-            end;
+    if VFilterByCategory then begin
+      VId := VIDArray[I].CategoryID;
+      Assert(VId > 0);
+      if not (ACategoryIDArray.Find(VId) >= 0) then begin
+        Continue;
+      end;
+    end;
+    VId := VIDArray[I].MarkID;
+    if VId > 0 then begin
+      if ReadMarkSQL(AMarkRecArray[VMarksCount], VId, 0, '') then begin
+        if not AIncludeHiddenMarks then begin
+          if not AMarkRecArray[VMarksCount].FVisible then begin
+            Continue;
           end;
-          Inc(VMarksCount);
         end;
+        Inc(VMarksCount);
       end;
     end;
   end;

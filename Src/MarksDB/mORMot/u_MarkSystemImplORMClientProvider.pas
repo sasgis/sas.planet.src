@@ -22,12 +22,7 @@ unit u_MarkSystemImplORMClientProvider;
 
 interface
 
-{.$DEFINE ENABLE_ZEOS_DBMS}
-{$DEFINE ENABLE_ODBC_DBMS}
-
-{$IF DEFINED(ENABLE_ZEOS_DBMS) OR DEFINED(ENABLE_ODBC_DBMS)}
-  {$DEFINE ENABLE_DBMS}
-{$IFEND}
+{$I MarkSystemORM.inc}
 
 uses
   Windows,
