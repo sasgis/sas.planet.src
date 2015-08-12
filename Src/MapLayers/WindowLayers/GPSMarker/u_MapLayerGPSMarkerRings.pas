@@ -52,6 +52,7 @@ type
     FGPSRecorder: IGPSRecorder;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+    FPolygonBuilder: IGeometryLonLatPolygonBuilder; 
 
     FGpsPosChangeFlag: ISimpleFlag;
 
@@ -132,6 +133,7 @@ begin
   FGPSRecorder := AGPSRecorder;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
+  FPolygonBuilder := FVectorGeometryLonLatFactory.MakePolygonBuilder;
 
   FGpsPosChangeFlag := TSimpleFlagWithInterlock.Create;
   FGPSPosCS := GSync.SyncVariable.Make(Self.ClassName);
@@ -162,7 +164,7 @@ var
   VAngle: Double;
   VPoint: TDoublePoint;
 begin
-  VAggreagator := TDoublePointsAggregator.Create;
+  VAggreagator := TDoublePointsAggregator.Create(64);
   for i := 1 to AConfig.Count do begin
     VDist := AConfig.StepDistance * i;
     for j := 0 to 64 do begin
@@ -170,9 +172,10 @@ begin
       VPoint := ADatum.CalcFinishPosition(APos, VAngle, VDist);
       VAggreagator.Add(VPoint);
     end;
-    VAggreagator.Add(CEmptyDoublePoint);
+    FPolygonBuilder.AddOuter(VAggreagator.MakeStaticCopy);
+    VAggreagator.Clear;
   end;
-  Result := FVectorGeometryLonLatFactory.CreateLonLatPolygon(VAggreagator.Points, VAggreagator.Count);
+  Result := FPolygonBuilder.MakeStaticAndClear;
 end;
 
 function TMapLayerGPSMarkerRings.GetProjectedCirclesByLonLat(
