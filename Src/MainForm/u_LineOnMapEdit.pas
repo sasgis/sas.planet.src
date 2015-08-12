@@ -713,6 +713,8 @@ var
   VPoint: TDoublePoint;
   VPoints: IDoublePoints;
   VLineBounds: TDoubleRect;
+  VIsValidX: Boolean;
+  VIsValidY: Boolean;
   VIsOuter: Boolean;
 begin
   VIsOuter := True;
@@ -720,18 +722,9 @@ begin
   VLineLen := 0;
   for i := 0 to ACount - 1 do begin
     VPoint := APoints[i];
-    if IsNan(VPoint.X) then begin
-      if VLineLen > 0 then begin
-        VPoints := TDoublePoints.Create(VStart, VLineLen);
-        if VIsOuter then begin
-          FBuilder.AddOuter(VLineBounds, VPoints);
-        end else begin
-          FBuilder.AddHole(VLineBounds, VPoints);
-        end;
-        VIsOuter := IsNan(VPoint.Y);
-        VLineLen := 0;
-      end;
-    end else begin
+    VIsValidX := IsNan(VPoint.X);
+    VIsValidY := IsNan(VPoint.Y);
+    if VIsValidX and VIsValidY then begin
       if VLineLen = 0 then begin
         VStart := @APoints[i];
         VLineBounds.TopLeft := VPoint;
@@ -740,6 +733,17 @@ begin
         UpdateLonLatMBRByPoint(VLineBounds, VPoint);
       end;
       Inc(VLineLen);
+    end else begin
+      if VLineLen > 0 then begin
+        VPoints := TDoublePoints.Create(VStart, VLineLen);
+        if VIsOuter then begin
+          FBuilder.AddOuter(VLineBounds, VPoints);
+        end else begin
+          FBuilder.AddHole(VLineBounds, VPoints);
+        end;
+        VIsOuter := not VIsValidY;
+        VLineLen := 0;
+      end;
     end;
   end;
   if VLineLen > 0 then begin
