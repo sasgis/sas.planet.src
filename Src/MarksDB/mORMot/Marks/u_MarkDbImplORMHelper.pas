@@ -84,7 +84,7 @@ type
     procedure _FillPrepareMarkIdCache(const ACategoryID: TID);
     procedure _FillPrepareMarkGeometryCache(const ACategoryID: TID);
     procedure _FillPrepareMarkViewCache(const ACategoryID: TID);
-    function _GetMarkRecArrayByRectSQL(
+    function _GetMarkIDArrayByRectSQL(
       const ACategoryIDArray: TIDDynArray;
       const ARect: TDoubleRect;
       const ALonSize: Cardinal;
@@ -93,7 +93,7 @@ type
       out AIDArray: TMarkWithCategoryIDDynArray
     ): Integer;
     {$IFDEF ENABLE_DBMS}
-    function _GetMarkRecArrayByRectDBMS(
+    function _GetMarkIDArrayByRectDBMS(
       const ACategoryIDArray: TIDDynArray;
       const ARect: TDoubleRect;
       const ALonSize: Cardinal;
@@ -102,7 +102,7 @@ type
       out AIDArray: TMarkWithCategoryIDDynArray
     ): Integer;
     {$ENDIF}
-    function _GetMarkRecArrayByRectMongoDB(
+    function _GetMarkIDArrayByRectMongoDB(
       const ACategoryIDArray: TIDDynArray;
       const AGeoJsonRect: Variant;
       const ALonSize: Cardinal;
@@ -1421,7 +1421,7 @@ begin
   Result := J;
 end;
 
-function TMarkDbImplORMHelper._GetMarkRecArrayByRectSQL(
+function TMarkDbImplORMHelper._GetMarkIDArrayByRectSQL(
   const ACategoryIDArray: TIDDynArray;
   const ARect: TDoubleRect;
   const ALonSize: Cardinal;
@@ -1489,7 +1489,7 @@ begin
 end;
 
 {$IFDEF ENABLE_DBMS}
-function TMarkDbImplORMHelper._GetMarkRecArrayByRectDBMS(
+function TMarkDbImplORMHelper._GetMarkIDArrayByRectDBMS(
   const ACategoryIDArray: TIDDynArray;
   const ARect: TDoubleRect;
   const ALonSize: Cardinal;
@@ -1567,7 +1567,7 @@ begin
 end;
 {$ENDIF}
 
-function TMarkDbImplORMHelper._GetMarkRecArrayByRectMongoDB(
+function TMarkDbImplORMHelper._GetMarkIDArrayByRectMongoDB(
   const ACategoryIDArray: TIDDynArray;
   const AGeoJsonRect: Variant;
   const ALonSize: Cardinal;
@@ -1672,7 +1672,7 @@ begin
   case FClientType of
     ctMongoDB: begin
       VGeoJsonRect := _RectToGeoJson(ARect, gtPoly);
-      VCount := _GetMarkRecArrayByRectMongoDB(
+      VCount := _GetMarkIDArrayByRectMongoDB(
         VCategoryIDArray,
         VGeoJsonRect,
         VLonSize,
@@ -1682,7 +1682,7 @@ begin
       );
     end;
     ctSQLite3: begin
-      VCount := _GetMarkRecArrayByRectSQL(
+      VCount := _GetMarkIDArrayByRectSQL(
         VCategoryIDArray,
         ARect,
         VLonSize,
@@ -1693,7 +1693,7 @@ begin
     end;
     {$IFDEF ENABLE_DBMS}
     ctZDBC, ctODBC: begin
-      VCount := _GetMarkRecArrayByRectDBMS(
+      VCount := _GetMarkIDArrayByRectDBMS(
         VCategoryIDArray,
         ARect,
         VLonSize,
@@ -1835,7 +1835,7 @@ function TMarkDbImplORMHelper.GetMarkRecArrayByText(
   out AMarkRecArray: TSQLMarkRecDynArray
 ): Integer;
 
-  function MergeArrUnic(const A, B: TIDDynArray; out C: TIDDynArray): Integer;
+  function MergeArrUnique(const A, B: TIDDynArray; out C: TIDDynArray): Integer;
   var
     I, J, R: Integer;
     P: PInt64Array;
@@ -1909,7 +1909,7 @@ begin
     J := Length(VDescIDArray);
 
     if (I > 0) and (J > 0) then begin
-      K := MergeArrUnic(VNameIDArray, VDescIDArray, VIDArray);
+      K := MergeArrUnique(VNameIDArray, VDescIDArray, VIDArray);
     end else if I > 0 then begin
       K := I;
       VIDArray := VNameIDArray;
