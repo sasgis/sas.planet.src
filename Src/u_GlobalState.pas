@@ -718,7 +718,6 @@ begin
       FMarkFactory,
       FMarkCategoryFactory,
       FMarkSystem.ImplFactoryList,
-      THtmlToHintTextConverterStuped.Create,
       FGlobalConfig.MediaDataPath,
       FContentTypeManager,
       FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('Import')

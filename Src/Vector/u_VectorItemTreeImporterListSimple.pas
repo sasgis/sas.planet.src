@@ -39,7 +39,6 @@ uses
   i_MarkFactory,
   i_MarkCategoryFactory,
   i_MarkSystemImplFactory,
-  i_HtmlToHintTextConverter,
   i_PathConfig,
   i_ContentTypeManager,
   u_BaseInterfacedObject;
@@ -68,7 +67,6 @@ type
       const AMarkFactory: IMarkFactory;
       const ACategoryFactory: IMarkCategoryFactory;
       const AMarkSystemImplFactoryListStatic: IMarkSystemImplFactoryListStatic;
-      const AHintConverter: IHtmlToHintTextConverter;
       const AMediaDataPath: IPathConfig;
       const AContentTypeManager: IContentTypeManager;
       const APerfCounterList: IInternalPerformanceCounterList
@@ -111,7 +109,6 @@ constructor TVectorItemTreeImporterListSimple.Create(
   const AMarkFactory: IMarkFactory;
   const ACategoryFactory: IMarkCategoryFactory;
   const AMarkSystemImplFactoryListStatic: IMarkSystemImplFactoryListStatic;
-  const AHintConverter: IHtmlToHintTextConverter;
   const AMediaDataPath: IPathConfig;
   const AContentTypeManager: IContentTypeManager;
   const APerfCounterList: IInternalPerformanceCounterList
