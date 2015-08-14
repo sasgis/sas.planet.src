@@ -772,8 +772,8 @@ begin
   VLineLen := 0;
   for i := 0 to ACount - 1 do begin
     VPoint := APoints[i];
-    VIsValidX := IsNan(VPoint.X);
-    VIsValidY := IsNan(VPoint.Y);
+    VIsValidX := not IsNan(VPoint.X);
+    VIsValidY := not IsNan(VPoint.Y);
     if VIsValidX and VIsValidY then begin
       if VLineLen = 0 then begin
         VStart := @APoints[i];
