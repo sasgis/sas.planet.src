@@ -29,34 +29,34 @@ uses
 type
   // Список пользователей
   TSQLUser = class(TSQLRecord)
-  private
+  public
     FName: RawUTF8;
   published
-    property Name: RawUTF8 read FName write FName stored AS_UNIQUE;
+    property uName: RawUTF8 read FName write FName;
   end;
 
   // Категории
   TSQLCategory = class(TSQLRecord)
-  private
+  public
     FName: RawUTF8;
   published
-    property Name: RawUTF8 read FName write FName;
+    property cName: RawUTF8 read FName write FName;
   end;
 
   // Настройка видимости категорий по пользователям
   TSQLCategoryView = class(TSQLRecord)
-  private
+  public
     FUser: TSQLUser;
     FCategory: TSQLCategory;
     FVisible: Boolean;
     FMinZoom: Byte;
     FMaxZoom: Byte;
   published
-    property User: TSQLUser read FUser write FUser;
-    property Category: TSQLCategory read FCategory write FCategory;
-    property Visible: Boolean read FVisible write FVisible;
-    property MinZoom: Byte read FMinZoom write FMinZoom;
-    property MaxZoom: Byte read FMaxZoom write FMaxZoom;
+    property cvUser: TSQLUser read FUser write FUser;
+    property cvCategory: TSQLCategory read FCategory write FCategory;
+    property cvVisible: Boolean read FVisible write FVisible;
+    property cvMinZoom: Byte read FMinZoom write FMinZoom;
+    property cvMaxZoom: Byte read FMaxZoom write FMaxZoom;
   end;
 
   // Типы геометрий для меток
@@ -64,28 +64,28 @@ type
 
   // Пути к картинкам для меток
   TSQLMarkImage = class(TSQLRecord)
-  private
+  public
     FName: RawUTF8;
   published
-    property Name: RawUTF8 read FName write FName stored AS_UNIQUE;
+    property miName: RawUTF8 read FName write FName;
   end;
 
   TSQLMarkAppearance = class(TSQLRecord)
-  private
+  public
     FColor1: Cardinal;
     FColor2: Cardinal;
     FScale1: Integer;
     FScale2: Integer;
   published
-    property Color1: Cardinal read FColor1 write FColor1;
-    property Color2: Cardinal read FColor2 write FColor2;
-    property Scale1: Integer read FScale1 write FScale1;
-    property Scale2: Integer read FScale2 write FScale2;
+    property maColor1: Cardinal read FColor1 write FColor1;
+    property maColor2: Cardinal read FColor2 write FColor2;
+    property maScale1: Integer read FScale1 write FScale1;
+    property maScale2: Integer read FScale2 write FScale2;
   end;
 
   // Метки
   TSQLMark = class(TSQLRecord)
-  private
+  public
     FCategory: TSQLCategory;
     FImage: TSQLMarkImage;
     FAppearance: TSQLMarkAppearance;
@@ -97,72 +97,74 @@ type
     FGeoLatSize: Cardinal;
     FGeoWKB: TSQLRawBlob;
   published
-    property Category: TSQLCategory read FCategory write FCategory;
-    property Image: TSQLMarkImage read FImage write FImage;
-    property Appearance: TSQLMarkAppearance read FAppearance write FAppearance;
-    property Name: RawUTF8 read FName write FName;
-    property Desc: RawUTF8 read FDesc write FDesc;
-    property GeoType: TSQLGeoType read FGeoType write FGeoType;
-    property GeoCount: Cardinal read FGeoCount write FGeoCount;
-    property GeoLonSize: Cardinal read FGeoLonSize write FGeoLonSize;
-    property GeoLatSize: Cardinal read FGeoLatSize write FGeoLatSize;
-    property GeoWKB: TSQLRawBlob read FGeoWKB write FGeoWKB;
+    property mCategory: TSQLCategory read FCategory write FCategory;
+    property mImage: TSQLMarkImage read FImage write FImage;
+    property mAppearance: TSQLMarkAppearance read FAppearance write FAppearance;
+    property mName: RawUTF8 read FName write FName;
+    property mDesc: RawUTF8 read FDesc write FDesc;
+    property mGeoType: TSQLGeoType read FGeoType write FGeoType;
+    property mGeoCount: Cardinal read FGeoCount write FGeoCount;
+    property mGeoLonSize: Cardinal read FGeoLonSize write FGeoLonSize;
+    property mGeoLatSize: Cardinal read FGeoLatSize write FGeoLatSize;
+    property mGeoWKB: TSQLRawBlob read FGeoWKB write FGeoWKB;
   end;
 
   TSQLMarkClass = class of TSQLMark;
 
   TSQLMarkDBMS = class(TSQLMark)
-  private
+  public
     FLeft, FRight, FBottom, FTop: Cardinal;
   published
-    property Left: Cardinal read FLeft write FLeft;
-    property Right: Cardinal read FRight write FRight;
-    property Bottom: Cardinal read FBottom write FBottom;
-    property Top: Cardinal read FTop write FTop;
+    property mLeft: Cardinal read FLeft write FLeft;
+    property mRight: Cardinal read FRight write FRight;
+    property mBottom: Cardinal read FBottom write FBottom;
+    property mTop: Cardinal read FTop write FTop;
   end;
 
   TSQLMarkMongoDB = class(TSQLMark)
-  private
+  public
     FGeoJsonIdx: Variant;
   published
-    property GeoJsonIdx: Variant read FGeoJsonIdx write FGeoJsonIdx;
+    property mGeoJsonIdx: Variant read FGeoJsonIdx write FGeoJsonIdx;
   end;
 
   // Настройка видимости меток по пользователям
   TSQLMarkView = class(TSQLRecord)
-  private
+  public
     FUser: TSQLUser;
     FMark: TSQLMark;
+    FCategory: TSQLCategory;
     FVisible: Boolean;
   published
-    property User: TSQLUser read FUser write FUser;
-    property Mark: TSQLMark read FMark write FMark;
-    property Visible: Boolean read FVisible write FVisible;
+    property mvUser: TSQLUser read FUser write FUser;
+    property mvMark: TSQLMark read FMark write FMark;
+    property mvCategory: TSQLCategory read FCategory write FCategory;
+    property mvVisible: Boolean read FVisible write FVisible;
   end;
 
   // Индекс по ограничивающему прямоугольнику, для быстрого поиска геометрий
   TSQLMarkRTree = class(TSQLRecordRTree)
-  private
+  public
     FLeft, FRight, FBottom, FTop: Double;
   published
     // X or Longitude coordinates in range [-180..180]
-    property Left: Double read FLeft write FLeft;         // min_dimension1
-    property Right: Double read FRight write FRight;      // max_dimension1
+    property mLeft: Double read FLeft write FLeft;         // min_dimension1
+    property mRight: Double read FRight write FRight;      // max_dimension1
     // Y or Latitude coordinates in range [-90..90]
-    property Bottom: Double read FBottom write FBottom;   // min_dimension2
-    property Top: Double read FTop write FTop;            // max_dimension2
+    property mBottom: Double read FBottom write FBottom;   // min_dimension2
+    property mTop: Double read FTop write FTop;            // max_dimension2
   end;
 
   // Индекс по имени и описания меток, для быстрого текстового поиска
   // - для нелатинских символов чувствителен к регистру, поэтому пишем сюда
   //   всё в LowerCase
   TSQLMarkFTS = class(TSQLRecordFTS4)
-  private
+  public
     FName: RawUTF8;
     FDesc: RawUTF8;
   published
-    property Name: RawUTF8 read FName write FName; // имя метки в AnsiLowerCase
-    property Desc: RawUTF8 read FDesc write FDesc; // описание мекти в AnsiLowerCase
+    property mName: RawUTF8 read FName write FName; // имя метки в AnsiLowerCase
+    property mDesc: RawUTF8 read FDesc write FDesc; // описание мекти в AnsiLowerCase
   end;
 
 function CreateModelSQLite3: TSQLModel;

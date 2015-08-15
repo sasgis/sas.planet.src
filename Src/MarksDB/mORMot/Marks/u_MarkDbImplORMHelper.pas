@@ -141,8 +141,9 @@ type
       const ACategoryID: TID;
       const AMarkName: string
     ): Boolean;
-    function SetMarkVisibleSQL(
+    function UpdateMarkView(
       const AMarkID: TID;
+      const ACategoryID: TID;
       const AVisible: Boolean;
       const AUseTransaction: Boolean
     ): Boolean;
@@ -315,10 +316,10 @@ begin
     Result := VItem.ImageId;
   end else begin
     VPicName := StringToUTF8(APicName);
-    VSQLMarkImage := TSQLMarkImage.Create(FClient, 'Name=?', [VPicName]);
+    VSQLMarkImage := TSQLMarkImage.Create(FClient, 'miName=?', [VPicName]);
     try
       if VSQLMarkImage.ID = 0 then begin
-        VSQLMarkImage.Name := VPicName;
+        VSQLMarkImage.FName := VPicName;
         // add to db
         CheckID( FClient.Add(VSQLMarkImage, True) );
       end;
@@ -346,7 +347,7 @@ begin
         VSQLMarkImage := TSQLMarkImage.Create(FClient, AMarkRec.FPicId);
         try
           CheckID(VSQLMarkImage.ID);
-          AMarkRec.FPicName := UTF8ToString(VSQLMarkImage.Name);
+          AMarkRec.FPicName := UTF8ToString(VSQLMarkImage.FName);
           // add to cache
           FCache.FMarkImage.AddOrIgnore(AMarkRec);
         finally
@@ -373,15 +374,15 @@ begin
     Result := VItem.AppearanceId;
   end else begin
     VSQLMarkAppearance := TSQLMarkAppearance.Create(
-      FClient, 'Color1=? AND Color2=? AND Scale1=? AND Scale2=?',
+      FClient, 'maColor1=? AND maColor2=? AND maScale1=? AND maScale2=?',
       [AColor1, AColor2, AScale1, AScale2]
     );
     try
       if VSQLMarkAppearance.ID = 0 then begin
-        VSQLMarkAppearance.Color1 := AColor1;
-        VSQLMarkAppearance.Color2 := AColor2;
-        VSQLMarkAppearance.Scale1 := AScale1;
-        VSQLMarkAppearance.Scale2 := AScale2;
+        VSQLMarkAppearance.FColor1 := AColor1;
+        VSQLMarkAppearance.FColor2 := AColor2;
+        VSQLMarkAppearance.FScale1 := AScale1;
+        VSQLMarkAppearance.FScale2 := AScale2;
         // add to db
         CheckID( FClient.Add(VSQLMarkAppearance, True) );
       end;
@@ -410,10 +411,10 @@ begin
     VSQLMarkAppearance := TSQLMarkAppearance.Create(FClient, AMarkRec.FAppearanceId);
     try
       CheckID(VSQLMarkAppearance.ID);
-      AMarkRec.FColor1 := VSQLMarkAppearance.Color1;
-      AMarkRec.FColor2 := VSQLMarkAppearance.Color2;
-      AMarkRec.FScale1 := VSQLMarkAppearance.Scale1;
-      AMarkRec.FScale2 := VSQLMarkAppearance.Scale2;
+      AMarkRec.FColor1 := VSQLMarkAppearance.FColor1;
+      AMarkRec.FColor2 := VSQLMarkAppearance.FColor2;
+      AMarkRec.FScale1 := VSQLMarkAppearance.FScale1;
+      AMarkRec.FScale2 := VSQLMarkAppearance.FScale2;
       // add to cache
       FCache.FMarkAppearance.AddOrIgnore(AMarkRec);
     finally
@@ -441,7 +442,7 @@ begin
   StartTransaction(FClient, VTransaction, FSQLMarkClass);
   try
     // delete view for all Users if exists
-    FClient.Delete(TSQLMarkView, FormatUTF8('Mark=?', [], [AMarkID]));
+    FClient.Delete(TSQLMarkView, FormatUTF8('mvMark=?', [], [AMarkID]));
 
     // delete rect
     if FClientType = ctSQLite3 then begin
@@ -513,34 +514,34 @@ begin
 
     VSQLMark := FSQLMarkClass.Create;
     try
-      VSQLMark.Category := Pointer(AMarkRec.FCategoryId);
-      VSQLMark.Image := Pointer(AMarkRec.FPicId);
-      VSQLMark.Appearance := Pointer(AMarkRec.FAppearanceId);
+      VSQLMark.FCategory := Pointer(AMarkRec.FCategoryId);
+      VSQLMark.FImage := Pointer(AMarkRec.FPicId);
+      VSQLMark.FAppearance := Pointer(AMarkRec.FAppearanceId);
 
-      VSQLMark.Name := StringToUTF8(AMarkRec.FName);
-      VSQLMark.Desc := StringToUTF8(AMarkRec.FDesc);
+      VSQLMark.FName := StringToUTF8(AMarkRec.FName);
+      VSQLMark.FDesc := StringToUTF8(AMarkRec.FDesc);
 
-      VSQLMark.GeoLonSize := AMarkRec.FGeoLonSize;
-      VSQLMark.GeoLatSize := AMarkRec.FGeoLatSize;
-      VSQLMark.GeoType := AMarkRec.FGeoType;
-      VSQLMark.GeoCount := AMarkRec.FGeoCount;
+      VSQLMark.FGeoLonSize := AMarkRec.FGeoLonSize;
+      VSQLMark.FGeoLatSize := AMarkRec.FGeoLatSize;
+      VSQLMark.FGeoType := AMarkRec.FGeoType;
+      VSQLMark.FGeoCount := AMarkRec.FGeoCount;
 
       if FClientType = ctMongoDB then begin
-        (VSQLMark as TSQLMarkMongoDB).GeoJsonIdx := _RectToGeoJson(VRect, VSQLMark.GeoType);
+        (VSQLMark as TSQLMarkMongoDB).FGeoJsonIdx := _RectToGeoJson(VRect, VSQLMark.FGeoType);
       end else if (FClientType = ctZDBC) or (FClientType = ctODBC) then begin
         LonLatDoubleRectToRect(VRect, VIntRect);
         VSQLMarkDBMS := VSQLMark as TSQLMarkDBMS;
-        VSQLMarkDBMS.Left := VIntRect.Left;
-        VSQLMarkDBMS.Right := VIntRect.Right;
-        VSQLMarkDBMS.Top := VIntRect.Top;
-        VSQLMarkDBMS.Bottom := VIntRect.Bottom;
+        VSQLMarkDBMS.FLeft := VIntRect.Left;
+        VSQLMarkDBMS.FRight := VIntRect.Right;
+        VSQLMarkDBMS.FTop := VIntRect.Top;
+        VSQLMarkDBMS.FBottom := VIntRect.Bottom;
       end;
 
       // add mark to db
       CheckID( FClient.Add(VSQLMark, True) );
       AMarkRec.FMarkId := VSQLMark.ID;
       // add geometry blob to db
-      CheckUpdateResult( FClient.UpdateBlob(FSQLMarkClass, AMarkRec.FMarkId, 'GeoWKB', VGeometryBlob) );
+      CheckUpdateResult( FClient.UpdateBlob(FSQLMarkClass, AMarkRec.FMarkId, 'mGeoWKB', VGeometryBlob) );
       // add to cache
       FCache.FMarkCache.AddOrUpdate(AMarkRec);
       FCache.FMarkGeometryCache.AddOrUpdate(AMarkRec.FMarkId, Length(VGeometryBlob), AMarkRec.FGeometry);
@@ -553,8 +554,8 @@ begin
     VSQLMarkFTS := TSQLMarkFTS.Create;
     try
       VSQLMarkFTS.DocID := AMarkRec.FMarkId;
-      VSQLMarkFTS.Name := StringToUTF8(SysUtils.AnsiLowerCase(AMarkRec.FName));
-      VSQLMarkFTS.Desc := StringToUTF8(SysUtils.AnsiLowerCase(AMarkRec.FDesc));
+      VSQLMarkFTS.FName := StringToUTF8(SysUtils.AnsiLowerCase(AMarkRec.FName));
+      VSQLMarkFTS.FDesc := StringToUTF8(SysUtils.AnsiLowerCase(AMarkRec.FDesc));
       // add name and desc to db (fts index)
       CheckID( FClient.Add(VSQLMarkFTS, True, True) );
       Assert(VSQLMarkFTS.ID = AMarkRec.FMarkId);
@@ -566,10 +567,10 @@ begin
       VSQLMarkRTree := TSQLMarkRTree.Create;
       try
         VSQLMarkRTree.IDValue := AMarkRec.FMarkId;
-        VSQLMarkRTree.Left := VRect.Left;
-        VSQLMarkRTree.Right := VRect.Right;
-        VSQLMarkRTree.Top := VRect.Top;
-        VSQLMarkRTree.Bottom := VRect.Bottom;
+        VSQLMarkRTree.FLeft := VRect.Left;
+        VSQLMarkRTree.FRight := VRect.Right;
+        VSQLMarkRTree.FTop := VRect.Top;
+        VSQLMarkRTree.FBottom := VRect.Bottom;
         // add rect to db (rtree index)
         CheckID( FClient.Add(VSQLMarkRTree, True, True) );
         Assert(VSQLMarkRTree.ID = AMarkRec.FMarkId);
@@ -581,9 +582,10 @@ begin
     if not AMarkRec.FVisible then begin
       VSQLMarkView := TSQLMarkView.Create;
       try
-        VSQLMarkView.User := Pointer(FUserID);
-        VSQLMarkView.Mark := Pointer(AMarkRec.FMarkId);
-        VSQLMarkView.Visible := AMarkRec.FVisible;
+        VSQLMarkView.FUser := Pointer(FUserID);
+        VSQLMarkView.FMark := Pointer(AMarkRec.FMarkId);
+        VSQLMarkView.FCategory := Pointer(AMarkRec.FCategoryId);
+        VSQLMarkView.FVisible := AMarkRec.FVisible;
         // add view to db
         CheckID( FClient.Add(VSQLMarkView, True) );
         AMarkRec.FViewId := VSQLMarkView.ID;
@@ -608,38 +610,6 @@ function TMarkDbImplORMHelper.UpdateMarkSQL(
   var ANewMarkRec: TSQLMarkRec
 ): Boolean;
 var
-  VFieldsCount: Integer;
-  VFieldsNames: array of RawUTF8;
-
-  procedure _ClearFields;
-  begin
-    VFieldsCount := 0;
-    SetLength(VFieldsNames, VFieldsCount);
-  end;
-
-  procedure _AddField(const AName: string);
-  begin
-    SetLength(VFieldsNames, VFieldsCount + 1);
-    VFieldsNames[VFieldsCount] := StringToUTF8(AName);
-    Inc(VFieldsCount);
-  end;
-
-  function _FieldsNamesStr: RawUTF8;
-  var
-    I: Integer;
-    VSep: RawUTF8;
-  begin
-    VSep := '';
-    Result := '';
-    for I := 0 to Length(VFieldsNames) - 1 do begin
-      if I = 1 then begin
-        VSep := RawUTF8(',');
-      end;
-      Result := Result + VSep + VFieldsNames[I];
-    end;
-  end;
-
-var
   VRect: TDoubleRect;
   VIntRect: TRect;
   VGeometryBlob: TSQLRawBlob;
@@ -655,6 +625,7 @@ var
   VUpdateCategory: Boolean;
   VUpdateAppearance: Boolean;
   VUpdateIdIndex: Boolean;
+  VFieldsBuilder: TCSVFieldsBuilder;
 begin
   Result := False;
 
@@ -665,7 +636,7 @@ begin
   if FIsReadOnly then begin
     if AOldMarkRec.FVisible <> ANewMarkRec.FVisible then begin
       // update view
-      Result := SetMarkVisibleSQL(ANewMarkRec.FMarkId, ANewMarkRec.FVisible, False);
+      Result := UpdateMarkView(ANewMarkRec.FMarkId, ANewMarkRec.FCategoryId, ANewMarkRec.FVisible, False);
     end;
     Exit;
   end;
@@ -707,60 +678,60 @@ begin
 
     VSQLMark := FSQLMarkClass.Create;
     try
-      _ClearFields;
+      VFieldsBuilder.Clear;
 
       VSQLMark.IDValue := ANewMarkRec.FMarkId;
 
       if VUpdateCategory then begin
-        _AddField('Category');
-        VSQLMark.Category := Pointer(ANewMarkRec.FCategoryId);
+        VFieldsBuilder.Add('mCategory');
+        VSQLMark.FCategory := Pointer(ANewMarkRec.FCategoryId);
       end;
       if VUpdatePic then begin
-        _AddField('Image');
-        VSQLMark.Image := Pointer(ANewMarkRec.FPicId);
+        VFieldsBuilder.Add('mImage');
+        VSQLMark.FImage := Pointer(ANewMarkRec.FPicId);
       end;
       if VUpdateAppearance then begin
-        _AddField('Appearance');
-        VSQLMark.Appearance := Pointer(ANewMarkRec.FAppearanceId);
+        VFieldsBuilder.Add('mAppearance');
+        VSQLMark.FAppearance := Pointer(ANewMarkRec.FAppearanceId);
       end;
       if VUpdateName then begin
-        _AddField('Name');
-        VSQLMark.Name := StringToUTF8(ANewMarkRec.FName);
+        VFieldsBuilder.Add('mName');
+        VSQLMark.FName := StringToUTF8(ANewMarkRec.FName);
       end;
       if VUpdateDesc then begin
-        _AddField('Desc');
-        VSQLMark.Desc := StringToUTF8(ANewMarkRec.FDesc);
+        VFieldsBuilder.Add('mDesc');
+        VSQLMark.FDesc := StringToUTF8(ANewMarkRec.FDesc);
       end;
 
       if VUpdateGeo then begin
-        _AddField('GeoLonSize');
-        _AddField('GeoLatSize');
-        _AddField('GeoType');
-        _AddField('GeoCount');
-        VSQLMark.GeoLonSize := ANewMarkRec.FGeoLonSize;
-        VSQLMark.GeoLatSize := ANewMarkRec.FGeoLatSize;
-        VSQLMark.GeoType := ANewMarkRec.FGeoType;
-        VSQLMark.GeoCount := ANewMarkRec.FGeoCount;
+        VFieldsBuilder.Add('mGeoLonSize');
+        VFieldsBuilder.Add('mGeoLatSize');
+        VFieldsBuilder.Add('mGeoType');
+        VFieldsBuilder.Add('mGeoCount');
+        VSQLMark.FGeoLonSize := ANewMarkRec.FGeoLonSize;
+        VSQLMark.FGeoLatSize := ANewMarkRec.FGeoLatSize;
+        VSQLMark.FGeoType := ANewMarkRec.FGeoType;
+        VSQLMark.FGeoCount := ANewMarkRec.FGeoCount;
         if FClientType = ctMongoDB then begin
-          _AddField('GeoJsonIdx');
-          (VSQLMark as TSQLMarkMongoDB).GeoJsonIdx := _RectToGeoJson(VRect, VSQLMark.GeoType);
+          VFieldsBuilder.Add('mGeoJsonIdx');
+          (VSQLMark as TSQLMarkMongoDB).FGeoJsonIdx := _RectToGeoJson(VRect, VSQLMark.FGeoType);
         end else if (FClientType = ctZDBC) or (FClientType = ctODBC) then begin
-          _AddField('Left');
-          _AddField('Right');
-          _AddField('Top');
-          _AddField('Bottom');
+          VFieldsBuilder.Add('mLeft');
+          VFieldsBuilder.Add('mRight');
+          VFieldsBuilder.Add('mTop');
+          VFieldsBuilder.Add('mBottom');
           LonLatDoubleRectToRect(VRect, VIntRect);
           VSQLMarkDBMS := VSQLMark as TSQLMarkDBMS;
-          VSQLMarkDBMS.Left := VIntRect.Left;
-          VSQLMarkDBMS.Right := VIntRect.Right;
-          VSQLMarkDBMS.Top := VIntRect.Top;
-          VSQLMarkDBMS.Bottom := VIntRect.Bottom;
+          VSQLMarkDBMS.FLeft := VIntRect.Left;
+          VSQLMarkDBMS.FRight := VIntRect.Right;
+          VSQLMarkDBMS.FTop := VIntRect.Top;
+          VSQLMarkDBMS.FBottom := VIntRect.Bottom;
         end;
       end;
 
-      if VFieldsCount > 0 then begin
+      if VFieldsBuilder.Count > 0 then begin
         // update mark
-        CheckUpdateResult( FClient.Update(VSQLMark, _FieldsNamesStr) );
+        CheckUpdateResult( FClient.Update(VSQLMark, VFieldsBuilder.Build) );
         // update cache
         if VUpdateName or VUpdateDesc or VUpdateGeo then begin
           FCache.FMarkCache.AddOrUpdate(ANewMarkRec);
@@ -778,7 +749,7 @@ begin
       if VUpdateGeo then begin
         // update geometry blob
         CheckUpdateResult(
-          FClient.UpdateBlob(FSQLMarkClass, VSQLMark.ID, 'GeoWKB', VGeometryBlob)
+          FClient.UpdateBlob(FSQLMarkClass, VSQLMark.ID, 'mGeoWKB', VGeometryBlob)
         );
         // update cache
         FCache.FMarkGeometryCache.AddOrUpdate(
@@ -792,22 +763,22 @@ begin
 
     VSQLMarkFTS := TSQLMarkFTS.Create;
     try
-      _ClearFields;
+      VFieldsBuilder.Clear;
 
       VSQLMarkFTS.DocID := ANewMarkRec.FMarkId;
 
       if VUpdateName then begin
-        _AddField('Name');
-        VSQLMarkFTS.Name := StringToUTF8(SysUtils.AnsiLowerCase(ANewMarkRec.FName));
+        VFieldsBuilder.Add('mName');
+        VSQLMarkFTS.FName := StringToUTF8(SysUtils.AnsiLowerCase(ANewMarkRec.FName));
       end;
       if VUpdateDesc then begin
-        _AddField('Desc');
-        VSQLMarkFTS.Desc := StringToUTF8(SysUtils.AnsiLowerCase(ANewMarkRec.FDesc));
+        VFieldsBuilder.Add('mDesc');
+        VSQLMarkFTS.FDesc := StringToUTF8(SysUtils.AnsiLowerCase(ANewMarkRec.FDesc));
       end;
 
-      if VFieldsCount > 0 then begin
+      if VFieldsBuilder.Count > 0 then begin
         // update name / desc (fts index)
-        CheckUpdateResult( FClient.Update(VSQLMarkFTS, _FieldsNamesStr) );
+        CheckUpdateResult( FClient.Update(VSQLMarkFTS, VFieldsBuilder.Build) );
       end;
     finally
       VSQLMarkFTS.Free;
@@ -817,10 +788,10 @@ begin
       VSQLMarkRTree := TSQLMarkRTree.Create;
       try
         VSQLMarkRTree.IDValue := ANewMarkRec.FMarkId;
-        VSQLMarkRTree.Left := VRect.Left;
-        VSQLMarkRTree.Right := VRect.Right;
-        VSQLMarkRTree.Top := VRect.Top;
-        VSQLMarkRTree.Bottom := VRect.Bottom;
+        VSQLMarkRTree.FLeft := VRect.Left;
+        VSQLMarkRTree.FRight := VRect.Right;
+        VSQLMarkRTree.FTop := VRect.Top;
+        VSQLMarkRTree.FBottom := VRect.Bottom;
         // update rect (rtree index)
         CheckUpdateResult( FClient.Update(VSQLMarkRTree) );
       finally
@@ -828,9 +799,11 @@ begin
       end;
     end;
 
-    if AOldMarkRec.FVisible <> ANewMarkRec.FVisible then begin
+    if (AOldMarkRec.FVisible <> ANewMarkRec.FVisible) or VUpdateCategory then begin
       // update view
-      Result := Result or SetMarkVisibleSQL(ANewMarkRec.FMarkId, ANewMarkRec.FVisible, False);
+      if UpdateMarkView(ANewMarkRec.FMarkId, ANewMarkRec.FCategoryId, ANewMarkRec.FVisible, False) then begin
+        Result := True;
+      end;
     end;
 
     CommitTransaction(FClient, VTransaction);
@@ -877,14 +850,14 @@ begin
         AMarkRec.FAppearanceId := VIndexItem.AppearanceId;
         if not FCache.FMarkCache.Find(VIndexItem.MarkId, VCacheItem) then begin
           // get main params from db
-          VFieldsCSV := 'Name,Desc,GeoType,GeoCount';
+          VFieldsCSV := 'mName,mDesc,mGeoType,mGeoCount';
           VSQLWhere := FormatUTF8('RowID=?', [], [VMarkID]);
           if FClient.Retrieve(VSQLWhere, VSQLMark, VFieldsCSV) then begin
             // fill main params from db
-            AMarkRec.FName := UTF8ToString(VSQLMark.Name);
-            AMarkRec.FDesc := UTF8ToString(VSQLMark.Desc);
-            AMarkRec.FGeoType := VSQLMark.GeoType;
-            AMarkRec.FGeoCount := VSQLMark.GeoCount;
+            AMarkRec.FName := UTF8ToString(VSQLMark.FName);
+            AMarkRec.FDesc := UTF8ToString(VSQLMark.FDesc);
+            AMarkRec.FGeoType := VSQLMark.FGeoType;
+            AMarkRec.FGeoCount := VSQLMark.FGeoCount;
             // add to cache
             FCache.FMarkCache.AddOrUpdate(AMarkRec);
             VSQLWhere := '';
@@ -904,30 +877,30 @@ begin
       end;
     end else if AMarkName <> '' then begin
       if ACategoryID > 0 then begin
-        VSQLWhere := FormatUTF8('Name=? AND Category=?', [], [AMarkName, ACategoryID]);
+        VSQLWhere := FormatUTF8('mName=? AND mCategory=?', [], [AMarkName, ACategoryID]);
       end else begin
-        VSQLWhere := FormatUTF8('Name=?', [], [AMarkName]);
+        VSQLWhere := FormatUTF8('mName=?', [], [AMarkName]);
       end;
     end else begin
       Exit;
     end;
     if VSQLWhere <> '' then begin
       // get all from db
-      VFieldsCSV := 'RowID,Category,Image,Appearance,Name,Desc,GeoType,GeoCount';
+      VFieldsCSV := 'RowID,mCategory,mImage,mAppearance,mName,mDesc,mGeoType,mGeoCount';
       if FClient.Retrieve(VSQLWhere, VSQLMark, VFieldsCSV) then begin
         // fill id's from db
         VMarkID := VSQLMark.ID;
         AMarkRec.FMarkId := VMarkID;
-        AMarkRec.FCategoryId := TID(VSQLMark.Category.AsTSQLRecord);
+        AMarkRec.FCategoryId := TID(VSQLMark.FCategory.AsTSQLRecord);
         CheckID(AMarkRec.FCategoryId);
-        AMarkRec.FPicId := TID(VSQLMark.Image.AsTSQLRecord); // = 0 is OK
-        AMarkRec.FAppearanceId := TID(VSQLMark.Appearance.AsTSQLRecord);
+        AMarkRec.FPicId := TID(VSQLMark.FImage.AsTSQLRecord); // = 0 is OK
+        AMarkRec.FAppearanceId := TID(VSQLMark.FAppearance.AsTSQLRecord);
         CheckID(AMarkRec.FAppearanceId);
         // fill main params from db
-        AMarkRec.FName := UTF8ToString(VSQLMark.Name);
-        AMarkRec.FDesc := UTF8ToString(VSQLMark.Desc);
-        AMarkRec.FGeoType := VSQLMark.GeoType;
-        AMarkRec.FGeoCount := VSQLMark.GeoCount;
+        AMarkRec.FName := UTF8ToString(VSQLMark.FName);
+        AMarkRec.FDesc := UTF8ToString(VSQLMark.FDesc);
+        AMarkRec.FGeoType := VSQLMark.FGeoType;
+        AMarkRec.FGeoCount := VSQLMark.FGeoCount;
         // add to cache
         FCache.FMarkCache.AddOrUpdate(AMarkRec);
         FCache.FMarkIdIndex.AddOrUpdate(AMarkRec);
@@ -948,7 +921,7 @@ begin
     AMarkRec.FGeometry := VGeometry;
   end else begin
     // read from db
-    CheckRetrieveResult( FClient.RetrieveBlob(FSQLMarkClass, VMarkID, 'GeoWKB', VSQLBlobData) );
+    CheckRetrieveResult( FClient.RetrieveBlob(FSQLMarkClass, VMarkID, 'mGeoWKB', VSQLBlobData) );
     AMarkRec.FGeometry := _GeomertryFromBlob(VSQLBlobData);
     // add to cache
     FCache.FMarkGeometryCache.AddOrUpdate(VMarkID, Length(VSQLBlobData), AMarkRec.FGeometry);
@@ -962,11 +935,11 @@ begin
   end else begin
     if not FCache.FMarkViewCache.IsPrepared then begin
       // read from db
-      VSQLMarkView := TSQLMarkView.Create(FClient, 'Mark=? AND User=?', [VMarkID, FUserID]);
+      VSQLMarkView := TSQLMarkView.Create(FClient, 'mvMark=? AND mvUser=?', [VMarkID, FUserID]);
       try
         if VSQLMarkView.ID > 0 then begin
           AMarkRec.FViewId := VSQLMarkView.ID;
-          AMarkRec.FVisible := VSQLMarkView.Visible;
+          AMarkRec.FVisible := VSQLMarkView.FVisible;
         end else begin
           AMarkRec.FVisible := True;
         end;
@@ -987,17 +960,21 @@ begin
   Result := True;
 end;
 
-function TMarkDbImplORMHelper.SetMarkVisibleSQL(
+function TMarkDbImplORMHelper.UpdateMarkView(
   const AMarkID: TID;
+  const ACategoryID: TID;
   const AVisible: Boolean;
   const AUseTransaction: Boolean
 ): Boolean;
 var
   VFind: Boolean;
   VItem: PSQLMarkViewRow;
+  VCategory: TID;
+  VUpdateCache: Boolean;
   VSQLWhere: RawUTF8;
   VSQLMarkView: TSQLMarkView;
   VTransaction: TTransactionRec;
+  VFieldsBuilder: TCSVFieldsBuilder;
 begin
   Assert(AMarkID > 0);
 
@@ -1009,28 +986,42 @@ begin
   try
     VSQLMarkView := TSQLMarkView.Create;
     try
+      VUpdateCache := True;
       VFind := FCache.FMarkViewCache.Find(AMarkID, VItem);
       if VFind then begin
         VSQLMarkView.IDValue := VItem.ViewId;
-        VSQLMarkView.User := Pointer(FUserID);
-        VSQLMarkView.Mark := Pointer(VItem.MarkId);
-        VSQLMarkView.Visible := VItem.Visible;
-      end else if not FCache.FMarkViewCache.IsPrepared then begin
-        VSQLWhere := FormatUTF8('Mark=? AND User=?', [], [AMarkID, FUserID]);
-        VFind := FClient.Retrieve(VSQLWhere, VSQLMarkView, 'RowID,Visible');
+        VSQLMarkView.FUser := Pointer(FUserID);
+        VSQLMarkView.FMark := Pointer(VItem.MarkId);
+        VSQLMarkView.FCategory := Pointer(VItem.CategoryID);
+        VSQLMarkView.FVisible := VItem.Visible;
+        VUpdateCache := (VItem.CategoryID <> ACategoryID) or (VItem.Visible <> AVisible);
+      end else if not (FCache.FMarkViewCache.IsPrepared or FCache.FMarkViewCache.IsCategoryPrepared(ACategoryID)) then begin
+        VSQLWhere := FormatUTF8('mvMark=? AND mvUser=?', [], [AMarkID, FUserID]);
+        VFind := FClient.Retrieve(VSQLWhere, VSQLMarkView, 'RowID,mvCategory,mvVisible');
       end;
       if not FIsReadOnly then begin
-        if VFind  and (VSQLMarkView.ID > 0) then begin
-          // update db
-          if VSQLMarkView.Visible <> AVisible then begin
-            VSQLMarkView.Visible := AVisible;
-            Result := FClient.Update(VSQLMarkView, 'Visible');
+        if VFind and (VSQLMarkView.ID > 0) then begin
+          VFieldsBuilder.Clear;
+          if VSQLMarkView.FVisible <> AVisible then begin
+            VFieldsBuilder.Add('mvVisible');
+            VSQLMarkView.FVisible := AVisible;
+          end;
+          VCategory := TID(VSQLMarkView.FCategory.AsTSQLRecord);
+          CheckID(VCategory);
+          if (ACategoryID > 0) and (VCategory <> ACategoryID) then begin
+            VFieldsBuilder.Add('mvCategory');
+            VSQLMarkView.FCategory := Pointer(ACategoryID);
+          end;
+          if VFieldsBuilder.Count > 0 then begin
+            // update db
+            Result := FClient.Update(VSQLMarkView, VFieldsBuilder.Build);
             CheckUpdateResult(Result);
           end;
-        end else begin
-          VSQLMarkView.User := Pointer(FUserID);
-          VSQLMarkView.Mark := Pointer(AMarkID);
-          VSQLMarkView.Visible := AVisible;
+        end else if not AVisible then begin
+          VSQLMarkView.FUser := Pointer(FUserID);
+          VSQLMarkView.FMark := Pointer(AMarkID);
+          VSQLMarkView.FCategory := Pointer(ACategoryID);
+          VSQLMarkView.FVisible := AVisible;
           // add to db
           CheckID( FClient.Add(VSQLMarkView, True) );
           Result := True;
@@ -1038,8 +1029,10 @@ begin
       end else begin
         Result := True;
       end;
-      // update cache
-      FCache.FMarkViewCache.AddOrUpdate(AMarkID, VSQLMarkView.ID, AVisible);
+      if VUpdateCache then begin
+        // update cache
+        FCache.FMarkViewCache.AddOrUpdate(AMarkID, VSQLMarkView.ID, ACategoryID, AVisible);
+      end;
     finally
       VSQLMarkView.Free;
     end;
@@ -1065,16 +1058,18 @@ var
   VTransaction: TTransactionRec;
 begin
   Result := False;
+  CheckID(ACategoryID);
   if _FillPrepareMarkIdIndex(ACategoryID) > 0 then begin
+    _FillPrepareMarkViewCache(ACategoryID);
     if FCache.FMarkIdByCategoryIndex.Find(ACategoryID, VArray, VCount) then begin
       StartTransaction(FClient, VTransaction, TSQLMarkView);
       try
+        // ToDo: 'UPDATE MarkView SET mvVisible=? WHERE mvCategory=? AND mvUser=?'
         for I := 0 to VCount - 1 do begin
-          if SetMarkVisibleSQL(VArray[I], AVisible, False) then begin
-            Result := True;
-          end;
+          UpdateMarkView(VArray[I], ACategoryID, AVisible, False);
         end;
         CommitTransaction(FClient, VTransaction);
+        Result := True;
       except
         RollBackTransaction(FClient, VTransaction);
         raise;
@@ -1109,7 +1104,7 @@ begin
     VList := FClient.ExecuteList(
       [FSQLMarkClass],
       FormatUTF8(
-        'SELECT RowID,Image,Appearance FROM % WHERE Category=?',
+        'SELECT RowID,mImage,mAppearance FROM % WHERE mCategory=?',
         [FSQLMarkName], [ACategoryID]
       )
     );
@@ -1121,7 +1116,7 @@ begin
     VList := FClient.ExecuteList(
       [FSQLMarkClass],
       FormatUTF8(
-        'SELECT RowID,Image,Appearance,Category FROM % ORDER BY Category',
+        'SELECT RowID,mImage,mAppearance,mCategory FROM % ORDER BY mCategory',
         [FSQLMarkName], []
       )
     );
@@ -1185,7 +1180,7 @@ begin
     VList := FClient.ExecuteList(
       [FSQLMarkClass],
       FormatUTF8(
-        'SELECT RowID,Name,Desc,GeoType,GeoCount FROM % WHERE Category=?',
+        'SELECT RowID,mName,mDesc,mGeoType,mGeoCount FROM % WHERE mCategory=?',
         [FSQLMarkName], [ACategoryID]
       )
     );
@@ -1195,7 +1190,7 @@ begin
     end;
     VList := FClient.ExecuteList(
       [FSQLMarkClass],
-      RawUTF8('SELECT RowID,Name,Desc,GeoType,GeoCount FROM ') + FSQLMarkName
+      RawUTF8('SELECT RowID,mName,mDesc,mGeoType,mGeoCount FROM ') + FSQLMarkName
     );
   end;
   if Assigned(VList) then
@@ -1230,7 +1225,7 @@ begin
     end;
     VList := FClient.ExecuteList(
       [FSQLMarkClass],
-      FormatUTF8('SELECT RowID,GeoWKB FROM % WHERE Category=?', [FSQLMarkName], [ACategoryID])
+      FormatUTF8('SELECT RowID,mGeoWKB FROM % WHERE mCategory=?', [FSQLMarkName], [ACategoryID])
     );
   end else begin
     if FCache.FMarkGeometryCache.IsPrepared then begin
@@ -1238,7 +1233,7 @@ begin
     end;
     VList := FClient.ExecuteList(
       [FSQLMarkClass],
-      RawUTF8('SELECT RowID,GeoWKB FROM ') + FSQLMarkName
+      RawUTF8('SELECT RowID,mGeoWKB FROM ') + FSQLMarkName
     );
   end;
   if Assigned(VList) then
@@ -1264,26 +1259,18 @@ var
   VCount: Integer;
   VList: TSQLTableJSON;
   VRows: TSQLMarkViewRowDynArray;
-  VCategoryID: TID;
 begin
-  if FClientType <> ctSQLite3 then begin
-    VCategoryID := 0;
-  end else begin
-    VCategoryID := ACategoryID;
-  end;
-
-  if VCategoryID > 0 then begin
-    if FCache.FMarkViewCache.IsCategoryPrepared(VCategoryID) then begin
+  if ACategoryID > 0 then begin
+    if FCache.FMarkViewCache.IsCategoryPrepared(ACategoryID) then begin
       Exit;
     end;
-
     VList := FClient.ExecuteList(
       [TSQLMarkView, FSQLMarkClass],
       FormatUTF8(
-        'SELECT MarkView.RowID,MarkView.Mark,MarkView.Visible' + ' '+
-        'FROM MarkView,%' + ' ' +
-        'WHERE MarkView.Mark=%.RowID AND MarkView.User=? AND %.Category=?',
-        [FSQLMarkName,FSQLMarkName,FSQLMarkName], [FUserID, VCategoryID]
+        'SELECT RowID,mvMark,mvVisible ' +
+        'FROM MarkView ' +
+        'WHERE mvCategory=? AND mvUser=?',
+        [], [FUserID, ACategoryID]
       )
     );
   end else begin
@@ -1293,7 +1280,7 @@ begin
     VList := FClient.ExecuteList(
       [TSQLMarkView],
       FormatUTF8(
-        'SELECT RowID,Mark,Visible FROM MarkView WHERE User=?',
+        'SELECT RowID,mvMark,mvVisible,mvCategory FROM MarkView WHERE mvUser=?',
         [], [FUserID]
       )
     );
@@ -1307,8 +1294,13 @@ begin
       VRows[I].ViewId := VList.GetAsInt64(J, 0);
       VRows[I].MarkId := VList.GetAsInt64(J, 1);
       VRows[I].Visible := (VList.GetAsInteger(J, 2) <> 0);
+      if ACategoryID > 0 then begin
+        VRows[I].CategoryId := ACategoryID;
+      end else begin
+        VRows[I].CategoryId := VList.GetAsInt64(J, 3);
+      end;
     end;
-    FCache.FMarkViewCache.AddPrepared(VCategoryID, VRows);
+    FCache.FMarkViewCache.AddPrepared(ACategoryID, VRows);
   finally
     VList.Free;
   end;
@@ -1442,7 +1434,7 @@ begin
   VLen := Length(ACategoryIDArray);
 
   if AReciveCategoryID then begin
-    VSelectedRows := FormatUTF8('%.RowID,%.Category', [FSQLMarkName,FSQLMarkName], []);
+    VSelectedRows := FormatUTF8('%.RowID,%.mCategory', [FSQLMarkName,FSQLMarkName], []);
   end else begin
     VSelectedRows := FormatUTF8('%.RowID', [FSQLMarkName], []);
   end;
@@ -1452,11 +1444,11 @@ begin
       VCategoryWhere := '';
       Assert(False);
     end else begin
-      VCategoryWhere := FormatUTF8('AND %.Category=? ',[FSQLMarkName],[ACategoryIDArray[0]]);
+      VCategoryWhere := FormatUTF8('AND %.mCategory=? ',[FSQLMarkName],[ACategoryIDArray[0]]);
     end;
   end else if VLen > 1 then begin
     VCategoryWhere := Int64DynArrayToCSV(TInt64DynArray(ACategoryIDArray), VLen);
-    VCategoryWhere := FormatUTF8('AND %.Category IN (%) ', [FSQLMarkName, VCategoryWhere]);
+    VCategoryWhere := FormatUTF8('AND %.mCategory IN (%) ', [FSQLMarkName, VCategoryWhere]);
   end else begin
     VCategoryWhere := '';
   end;
@@ -1465,8 +1457,8 @@ begin
     FormatUTF8(
       'SELECT % FROM %,MarkRTree ' +
       'WHERE %.RowID=MarkRTree.RowID ' + VCategoryWhere +
-      'AND Left<=? AND Right>=? AND Bottom<=? AND Top>=? ' +
-      'AND (%.GeoType=? OR %.GeoLonSize>=? OR %.GeoLatSize>=?);',
+      'AND mLeft<=? AND mRight>=? AND mBottom<=? AND mTop>=? ' +
+      'AND (%.mGeoType=? OR %.mGeoLonSize>=? OR %.mGeoLatSize>=?);',
       [VSelectedRows,FSQLMarkName,FSQLMarkName,FSQLMarkName,FSQLMarkName,FSQLMarkName],
       [ARect.Right,ARect.Left,ARect.Top,ARect.Bottom,Integer(gtPoint),ALonSize,ALatSize]
     );
@@ -1514,7 +1506,7 @@ begin
   VLen := Length(ACategoryIDArray);
 
   if AReciveCategoryID then begin
-    VSelectedRows := RawUTF8('ID,Category');
+    VSelectedRows := RawUTF8('ID,mCategory');
   end else begin
     VSelectedRows := RawUTF8('ID');
   end;
@@ -1524,11 +1516,11 @@ begin
       VCategoryWhere := '';
       Assert(False);
     end else begin
-      VCategoryWhere := FormatUTF8('Category=? AND ',[],[ACategoryIDArray[0]]);
+      VCategoryWhere := FormatUTF8('mCategory=? AND ',[],[ACategoryIDArray[0]]);
     end;
   end else if VLen > 1 then begin
     VCategoryWhere := Int64DynArrayToCSV(TInt64DynArray(ACategoryIDArray), VLen);
-    VCategoryWhere := FormatUTF8('Category IN (%) AND ', [VCategoryWhere]);
+    VCategoryWhere := FormatUTF8('mCategory IN (%) AND ', [VCategoryWhere]);
   end else begin
     VCategoryWhere := '';
   end;
@@ -1537,8 +1529,8 @@ begin
     FormatUTF8(
       'SELECT % FROM Mark ' +
       'WHERE ' + VCategoryWhere +
-      'Left_<=? AND Right_>=? AND Bottom<=? AND Top>=? ' +
-      'AND (GeoType=? OR GeoLonSize>=? OR GeoLatSize>=?);',
+      'mLeft<=? AND mRight>=? AND mBottom<=? AND mTop>=? ' +
+      'AND (mGeoType=? OR mGeoLonSize>=? OR mGeoLatSize>=?);',
       [VSelectedRows],
       [VIntRect.Right,VIntRect.Left,VIntRect.Top,VIntRect.Bottom,Integer(gtPoint),ALonSize,ALatSize]
     );
@@ -1586,7 +1578,7 @@ begin
   VLen := Length(ACategoryIDArray);
 
   if AReciveCategoryID then begin
-    VSelectedRows := RawUTF8('_id,Category');
+    VSelectedRows := RawUTF8('_id,mCategory');
   end else begin
     VSelectedRows := RawUTF8('_id');
   end;
@@ -1596,12 +1588,12 @@ begin
       VCategoryWhere := '';
       Assert(False);
     end else begin
-      VCategoryWhere := '{Category:' + Int64ToUtf8(ACategoryIDArray[0]) + '},';
+      VCategoryWhere := '{mCategory:' + Int64ToUtf8(ACategoryIDArray[0]) + '},';
     end;
   end else if VLen > 1 then begin
     VCategoryWhere :=
       Int64DynArrayToCSV(
-        TInt64DynArray(ACategoryIDArray), VLen, '{Category:{$in:[',']}},'
+        TInt64DynArray(ACategoryIDArray), VLen, '{mCategory:{$in:[',']}},'
       );
   end else begin
     VCategoryWhere := '';
@@ -1612,8 +1604,8 @@ begin
 
   VCollection.FindDocs(
     PUTF8Char('{$and:[' +
-      '{GeoJsonIdx:{$geoIntersects:{$geometry:?}}},' + VCategoryWhere +
-      '{$or:[{GeoType:?},{GeoLonSize:{$gte:?}},{GeoLatSize:{$gte:?}}]}' +
+      '{mGeoJsonIdx:{$geoIntersects:{$geometry:?}}},' + VCategoryWhere +
+      '{$or:[{mGeoType:?},{mGeoLonSize:{$gte:?}},{mGeoLatSize:{$gte:?}}]}' +
     ']}'),
     [AGeoJsonRect, Integer(gtPoint), ALonSize, ALatSize], VArray, VSelectedRows
   );
@@ -1624,7 +1616,7 @@ begin
     AIDArray[J].MarkID := DocVariantData(VArray[I]).I['_id'];
     if AIDArray[J].MarkID > 0 then begin
       if AReciveCategoryID then begin
-        AIDArray[J].CategoryID := DocVariantData(VArray[I]).I['Category'];
+        AIDArray[J].CategoryID := DocVariantData(VArray[I]).I['mCategory'];
         CheckID(AIDArray[J].CategoryID);
       end;
       Inc(J);
@@ -1759,7 +1751,7 @@ begin
     VLimit := StringToUTF8(' LIMIT ' + IntToStr(AMaxCount));
   end;
 
-  VSQLWhere := RawUTF8('Name MATCH ') + ASearch + VLimit;
+  VSQLWhere := RawUTF8('mName MATCH ') + ASearch + VLimit;
 
   if FClient.FTSMatch(TSQLMarkFTS, VSQLWhere, ANameIDArray) then begin
     Inc(Result, Length(ANameIDArray));
@@ -1769,7 +1761,7 @@ begin
     Exit;
   end;
 
-  VSQLWhere := RawUTF8('Desc MATCH ') + ASearch + VLimit;
+  VSQLWhere := RawUTF8('mDesc MATCH ') + ASearch + VLimit;
 
   if FClient.FTSMatch(TSQLMarkFTS, VSQLWhere, ADescIDArray) then begin
     Inc(Result, Length(ADescIDArray));
@@ -1796,7 +1788,7 @@ begin
     VLimit := StringToUTF8(' LIMIT ' + IntToStr(AMaxCount));
   end;
 
-  VSQLSelect := RawUTF8('SELECT RowID FROM MarkFTS WHERE Name LIKE ') + ASearch + VLimit;
+  VSQLSelect := RawUTF8('SELECT RowID FROM MarkFTS WHERE mName LIKE ') + ASearch + VLimit;
 
   VList := FClient.ExecuteList([TSQLMarkFTS], VSQLSelect);
   if Assigned(VList) then
@@ -1815,7 +1807,7 @@ begin
     VLimit := StringToUTF8(' LIMIT ' + IntToStr(AMaxCount - Result));
   end;
 
-  VSQLSelect := RawUTF8('SELECT RowID FROM MarkFTS WHERE Desc LIKE ') + ASearch + VLimit;
+  VSQLSelect := RawUTF8('SELECT RowID FROM MarkFTS WHERE mDesc LIKE ') + ASearch + VLimit;
 
   VList := FClient.ExecuteList([TSQLMarkFTS], VSQLSelect);
   if Assigned(VList) then

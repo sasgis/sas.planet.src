@@ -99,6 +99,7 @@ type
   TSQLMarkViewRow = packed record
     MarkId: TID;
     ViewId: TID;
+    CategoryID: TID;
     Visible: Boolean;
   end;
   PSQLMarkViewRow = ^TSQLMarkViewRow;
@@ -110,12 +111,8 @@ type
   public
     function Find(const AMarkID: TID; out AItem: PSQLMarkViewRow): Boolean;
     procedure AddOrUpdate(const ARec: TSQLMarkRec); overload;
-    procedure AddOrUpdate(const AMarkID, AViewID: TID; const AVisible: Boolean); overload;
+    procedure AddOrUpdate(const AMarkID, AViewID, ACategoryID: TID; const AVisible: Boolean); overload;
     procedure AddPrepared(const ACategoryID: TID; const AArr: TSQLMarkViewRowDynArray);
-    class procedure MarkRecToViewRow(
-      const AMarkRec: TSQLMarkRec;
-      const AViewRow: PSQLMarkViewRow
-    ); inline;
   public
     property Rows: TSQLMarkViewRowDynArray read FRows;
   public
@@ -915,11 +912,11 @@ end;
 
 procedure TSQLMarkViewCache.AddOrUpdate(const ARec: TSQLMarkRec);
 begin
-  AddOrUpdate(ARec.FMarkId, ARec.FViewId, ARec.FVisible);
+  AddOrUpdate(ARec.FMarkId, ARec.FViewId, ARec.FCategoryId, ARec.FVisible);
 end;
 
 procedure TSQLMarkViewCache.AddOrUpdate(
-  const AMarkID, AViewID: TID;
+  const AMarkID, AViewID, ACategoryID: TID;
   const AVisible: Boolean
 );
 var
@@ -933,6 +930,7 @@ begin
   if FRow.FastLocateSorted(AMarkID, I) then begin
     // update
     FRows[I].ViewId := AViewID;
+    FRows[I].CategoryID := ACategoryID;
     FRows[I].Visible := AVisible;
     {$IFDEF SQL_LOG_CACHE_RESULT}
     SQLLogCache('Update AMarkID=%, Count=%', [AMarkID, FCount], Self);
@@ -941,6 +939,7 @@ begin
     // add
     VRow.MarkId := AMarkID;
     VRow.ViewId := AViewID;
+    VRow.CategoryID := ACategoryID;
     VRow.Visible := AVisible;
     FRow.FastAddSorted(I, VRow);
     {$IFDEF SQL_LOG_CACHE_RESULT}
@@ -1010,16 +1009,6 @@ begin
   {$IFDEF SQL_LOG_CACHE_RESULT}
   SQLLogCache('AddPrepared CategoryID=%, IsPrepared=%, InArrCount=%, Count=%', [ACategoryID, FIsPrepared, VCount, FCount], Self);
   {$ENDIF}
-end;
-
-class procedure TSQLMarkViewCache.MarkRecToViewRow(
-  const AMarkRec: TSQLMarkRec;
-  const AViewRow: PSQLMarkViewRow
-);
-begin
-  AViewRow.MarkId := AMarkRec.FMarkId;
-  AViewRow.Visible := AMarkRec.FVisible;
-  AViewRow.ViewId := AMarkRec.FViewId;
 end;
 
 { TSQLMarkGeometryCache }

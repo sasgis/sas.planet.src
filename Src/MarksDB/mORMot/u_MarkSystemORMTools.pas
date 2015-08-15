@@ -26,9 +26,19 @@ uses
   Windows,
   SysUtils,
   mORMot,
+  SynCommons,
   t_GeoTypes,
   t_MarkSystemORM,
   i_GeometryLonLat;
+
+type
+  TCSVFieldsBuilder = record
+    Count: Integer;
+    Fields: array of RawUTF8;
+    procedure Clear;
+    procedure Add(const AFieldName: string);
+    function Build: RawUTF8;
+  end;
 
 procedure CheckID(const AID: TID); inline;
 procedure CheckDeleteResult(const AResult: Boolean); inline;
@@ -62,6 +72,34 @@ const
   cCoordToSize: Cardinal = MAXLONG div 360;
 
 implementation
+
+procedure TCSVFieldsBuilder.Clear;
+begin
+  Finalize(Fields);
+  Count := 0;
+end;
+
+procedure TCSVFieldsBuilder.Add(const AFieldName: string);
+begin
+  SetLength(Fields, Count + 1);
+  Fields[Count] := StringToUTF8(AFieldName);
+  Inc(Count);
+end;
+
+function TCSVFieldsBuilder.Build: RawUTF8;
+var
+  I: Integer;
+  VSep: RawUTF8;
+begin
+  VSep := '';
+  Result := '';
+  for I := 0 to Length(Fields) - 1 do begin
+    if I = 1 then begin
+      VSep := RawUTF8(',');
+    end;
+    Result := Result + VSep + Fields[I];
+  end;
+end;
 
 procedure CheckID(const AID: TID);
 begin

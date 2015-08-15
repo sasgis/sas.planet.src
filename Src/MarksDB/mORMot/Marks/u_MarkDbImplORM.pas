@@ -1014,21 +1014,24 @@ procedure TMarkDbImplORM.SetMarkVisible(
 );
 var
   VId: TID;
+  VCategoryId: TID;
   VMarkInternal: IMarkInternalORM;
 begin
   if AMark <> nil then begin
     VId := 0;
+    VCategoryId := 0;
     if Supports(AMark.MainInfo, IMarkInternalORM, VMarkInternal) then begin
       VId := VMarkInternal.Id;
+      VCategoryId := VMarkInternal.CategoryId;
       if VMarkInternal.Visible = AVisible then begin
         Exit;
       end;
       VMarkInternal.Visible := AVisible;
     end;
-    if VId > 0 then begin
+    if (VId > 0) and (VCategoryId > 0) then begin
       LockWrite;
       try
-        if FHelper.SetMarkVisibleSQL(VId, AVisible, True) then begin
+        if FHelper.UpdateMarkView(VId, VCategoryId, AVisible, True) then begin
           SetChanged;
         end;
       finally
@@ -1044,21 +1047,24 @@ procedure TMarkDbImplORM.SetMarkVisibleByID(
 );
 var
   VId: TID;
+  VCategoryId: TID;
   VMarkInternal: IMarkInternalORM;
 begin
   if AMark <> nil then begin
     VId := 0;
+    VCategoryId := 0;
     if Supports(AMark, IMarkInternalORM, VMarkInternal) then begin
       VId := VMarkInternal.Id;
+      VCategoryId := VMarkInternal.CategoryId;
       if VMarkInternal.Visible = AVisible then begin
         Exit;
       end;
       VMarkInternal.Visible := AVisible;
     end;
-    if VId > 0 then begin
+    if (VId > 0) and (VCategoryId > 0) then begin
       LockWrite;
       try
-        if FHelper.SetMarkVisibleSQL(VId, AVisible, True) then begin
+        if FHelper.UpdateMarkView(VId, VCategoryId, AVisible, True) then begin
           SetChanged;
         end;
       finally
@@ -1075,6 +1081,7 @@ procedure TMarkDbImplORM.SetMarkVisibleByIDList(
 var
   I: Integer;
   VId: TID;
+  VCategoryId: TID;
   VIsChanged: Boolean;
   VMarkInternal: IMarkInternalORM;
   VTransaction: TTransactionRec;
@@ -1087,15 +1094,17 @@ begin
         VIsChanged := False;
         for I := 0 to AMarkList.Count - 1 do begin
           VId := 0;
+          VCategoryId := 0;
           if Supports(AMarkList.Items[I], IMarkInternalORM, VMarkInternal) then begin
             VId := VMarkInternal.Id;
+            VCategoryId := VMarkInternal.CategoryId;
             if VMarkInternal.Visible = AVisible then begin
               Continue;
             end;
             VMarkInternal.Visible := AVisible;
           end;
-          if VId > 0 then begin
-            if FHelper.SetMarkVisibleSQL(VId, AVisible, False) then begin
+          if (VId > 0) and (VCategoryId > 0) then begin
+            if FHelper.UpdateMarkView(VId, VCategoryId, AVisible, False) then begin
               VIsChanged := True;
             end;
           end;

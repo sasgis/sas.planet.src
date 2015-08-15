@@ -289,14 +289,14 @@ begin
   VServer.InitializeTables([]);
 
   if not FImplConfig.IsReadOnly then begin
-    FClientDB.Server.CreateMissingTables;
+    VServer.CreateMissingTables;
 
     VCollection :=
-      (FClientDB.Server.StaticDataServer[TSQLMarkMongoDB] as TSQLRestStorageMongoDB).Collection;
+      (VServer.StaticDataServer[TSQLMarkMongoDB] as TSQLRestStorageMongoDB).Collection;
 
     VCollection.EnsureIndex(
-      _ObjFast(['GeoJsonIdx','2dsphere']),
-      _ObjFast(['name','GeoJsonIdx_','2dsphereIndexVersion',2])
+      _ObjFast(['mGeoJsonIdx','2dsphere']),
+      _ObjFast(['name','mGeoJsonIdx_','2dsphereIndexVersion',2])
     );
   end;
 end;
@@ -375,14 +375,6 @@ begin
     end;
   end;
 
-  // map conflict field names
-  FModel.Props[TSQLCategoryView].ExternalDB.MapField('User', 'User_').MapAutoKeywordFields;
-  FModel.Props[TSQLMarkView].ExternalDB.MapField('User', 'User_').MapAutoKeywordFields;
-  FModel.Props[TSQLMarkDBMS].ExternalDB.MapField('Desc', 'Desc_').MapAutoKeywordFields;
-  FModel.Props[TSQLMarkDBMS].ExternalDB.MapField('Left', 'Left_').MapAutoKeywordFields;
-  FModel.Props[TSQLMarkDBMS].ExternalDB.MapField('Right', 'Right_').MapAutoKeywordFields;
-  FModel.Props[TSQLMarkFTS].ExternalDB.MapField('Desc', 'Desc_').MapAutoKeywordFields;
-
   FClientDB := TSQLRestClientDB.Create(FModel, nil, ':memory:', TSQLRestServerDB);
   FClientDB.Server.CreateMissingTables;
 
@@ -401,13 +393,13 @@ begin
     FUserName := cDefUserName;
   end;
   VUserName := StringToUTF8(FUserName);
-  VSQLUser := TSQLUser.Create(FClientDB, 'Name=?', [VUserName]);
+  VSQLUser := TSQLUser.Create(FClientDB, 'uName=?', [VUserName]);
   try
     if VSQLUser.ID = 0 then begin
       if FImplConfig.IsReadOnly then begin
         raise EMarkSystemORMError.Create('MarkSystemORM: Can''t init User in read-only mode!');
       end else begin
-        VSQLUser.Name := VUserName;
+        VSQLUser.FName := VUserName;
         StartTransaction(FClientDB, VTransaction, TSQLUser);
         try
           CheckID( FClientDB.Add(VSQLUser, True) );
