@@ -5,6 +5,7 @@ interface
 uses
   t_GeoTypes,
   i_HashFunction,
+  i_Datum,
   i_ProjectionInfo,
   i_EnumDoublePoint,
   i_DoublePoints,
@@ -18,10 +19,6 @@ type
   TGeometryLonLatFactory = class(TBaseInterfacedObject, IGeometryLonLatFactory)
   private
     FHashFunction: IHashFunction;
-    function CreateLonLatLineInternal(
-      const ARect: TDoubleRect;
-      const APoints: IDoublePoints
-    ): IGeometryLonLatSingleLine;
     function CreateLonLatPolygonInternal(
       const ARect: TDoubleRect;
       const APoints: IDoublePoints
@@ -30,12 +27,6 @@ type
     function CreateLonLatPoint(
       const APoint: TDoublePoint
     ): IGeometryLonLatPoint;
-    function CreateLonLatSingleLine(
-      const APoints: IDoublePoints
-    ): IGeometryLonLatSingleLine;
-    function CreateLonLatSinglePolygon(
-      const APoints: IDoublePoints
-    ): IGeometryLonLatSinglePolygon;
 
     function MakeLineBuilder(): IGeometryLonLatLineBuilder;
     function MakePolygonBuilder(): IGeometryLonLatPolygonBuilder;
@@ -52,20 +43,16 @@ type
       const AEnum: IEnumLonLatPoint;
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryLonLatLine;
-    function CreateLonLatPolygonByEnum(
-      const AEnum: IEnumLonLatPoint;
-      const ATemp: IDoublePointsAggregator = nil
-    ): IGeometryLonLatPolygon;
 
     function CreateLonLatPolygonByRect(
       const ARect: TDoubleRect
-    ): IGeometryLonLatPolygon;
+    ): IGeometryLonLatSinglePolygon;
 
     function CreateLonLatPolygonCircleByPoint(
-      const AProjection: IProjectionInfo;
+      const ADatum: IDatum;
       const APos: TDoublePoint;
       const ARadius: double
-    ): IGeometryLonLatPolygon;
+    ): IGeometryLonLatSinglePolygon;
 
     function CreateLonLatPolygonByLonLatPathAndFilter(
       const ASource: IGeometryLonLatLine;
@@ -82,7 +69,6 @@ uses
   SysUtils,
   t_Hash,
   i_LonLatRect,
-  i_Datum,
   i_InterfaceListSimple,
   u_GeoFunc,
   u_InterfaceListSimple,
@@ -674,16 +660,15 @@ begin
 end;
 
 function TGeometryLonLatFactory.CreateLonLatPolygonCircleByPoint(
-  const AProjection: IProjectionInfo;
+  const ADatum: IDatum;
   const APos: TDoublePoint;
   const ARadius: double
-): IGeometryLonLatPolygon;
+): IGeometryLonLatSinglePolygon;
 const
   CPointCount = 64;
 var
   VAggreagator: IDoublePointsAggregator;
   j: Integer;
-  VDatum: IDatum;
   VAngle: Double;
   VPoint: TDoublePoint;
   VBounds: TDoubleRect;
@@ -692,102 +677,13 @@ begin
   VAggreagator := TDoublePointsAggregator.Create(CPointCount);
   VBounds.TopLeft := APos;
   VBounds.BottomRight := APos;
-  VDatum := AProjection.GeoConverter.Datum;
   for j := 0 to CPointCount - 1 do begin
     VAngle := j * 360 / CPointCount;
-    VPoint := VDatum.CalcFinishPosition(APos, VAngle, ARadius);
+    VPoint := ADatum.CalcFinishPosition(APos, VAngle, ARadius);
     VAggreagator.Add(VPoint);
     UpdateLonLatMBRByPoint(VBounds, VPoint);
   end;
   Result := CreateLonLatPolygonInternal(VBounds, VAggreagator.MakeStaticCopy);
-end;
-
-function TGeometryLonLatFactory.CreateLonLatSingleLine(
-  const APoints: IDoublePoints
-): IGeometryLonLatSingleLine;
-var
-  i: Integer;
-  VPoints: PDoublePointArray;
-  VCount: Integer;
-  VPoint: TDoublePoint;
-  VBounds: TDoubleRect;
-begin
-  Result := nil;
-  Assert(Assigned(APoints));
-  if Assigned(APoints) then begin
-    VPoints := APoints.Points;
-    VCount := APoints.Count;
-    VPoint := VPoints[0];
-    Assert(not PointIsEmpty(VPoint));
-    if PointIsEmpty(VPoint) then begin
-      Exit;
-    end;
-    VBounds.TopLeft := VPoint;
-    VBounds.BottomRight := VPoint;
-    for i := 1 to VCount - 1 do begin
-      VPoint := VPoints[i];
-      Assert(not PointIsEmpty(VPoint));
-      if PointIsEmpty(VPoint) then begin
-        Exit;
-      end;
-      UpdateLonLatMBRByPoint(VBounds, VPoint);
-    end;
-    Result := CreateLonLatLineInternal(VBounds, APoints);
-  end;
-end;
-
-function TGeometryLonLatFactory.CreateLonLatSinglePolygon(
-  const APoints: IDoublePoints
-): IGeometryLonLatSinglePolygon;
-var
-  i: Integer;
-  VPoints: PDoublePointArray;
-  VCount: Integer;
-  VPoint: TDoublePoint;
-  VBounds: TDoubleRect;
-begin
-  Result := nil;
-  Assert(Assigned(APoints));
-  if Assigned(APoints) then begin
-    VPoints := APoints.Points;
-    VCount := APoints.Count;
-    VPoint := VPoints[0];
-    Assert(not PointIsEmpty(VPoint));
-    if PointIsEmpty(VPoint) then begin
-      Exit;
-    end;
-    VBounds.TopLeft := VPoint;
-    VBounds.BottomRight := VPoint;
-    for i := 1 to VCount - 1 do begin
-      VPoint := VPoints[i];
-      Assert(not PointIsEmpty(VPoint));
-      if PointIsEmpty(VPoint) then begin
-        Exit;
-      end;
-      UpdateLonLatMBRByPoint(VBounds, VPoint);
-    end;
-    Result := CreateLonLatPolygonInternal(VBounds, APoints);
-  end;
-end;
-
-function TGeometryLonLatFactory.CreateLonLatLineInternal(
-  const ARect: TDoubleRect;
-  const APoints: IDoublePoints
-): IGeometryLonLatSingleLine;
-var
-  VHash: THashValue;
-  VRect: ILonLatRect;
-begin
-  Result := nil;
-  if Assigned(APoints) then begin
-    if APoints.Count > 1 then begin
-      VRect := TLonLatRect.Create(ARect);
-    end else begin
-      VRect := TLonLatRectByPoint.Create(ARect.TopLeft);
-    end;
-    VHash := FHashFunction.CalcHashByBuffer(APoints.Points, APoints.Count * SizeOf(TDoublePoint));
-    Result := TGeometryLonLatSingleLine.Create(VRect, VHash, APoints);
-  end;
 end;
 
 function TGeometryLonLatFactory.CreateLonLatPolygonInternal(
@@ -945,48 +841,6 @@ begin
   Result := VBuilder.MakeStaticAndClear;
 end;
 
-function TGeometryLonLatFactory.CreateLonLatPolygonByEnum(
-  const AEnum: IEnumLonLatPoint;
-  const ATemp: IDoublePointsAggregator
-): IGeometryLonLatPolygon;
-var
-  VPoint: TDoublePoint;
-  VLine: IDoublePoints;
-  VTemp: IDoublePointsAggregator;
-  VLineBounds: TDoubleRect;
-  VBuilder: IGeometryLonLatPolygonBuilder;
-begin
-  VBuilder := MakePolygonBuilder;
-  VTemp := ATemp;
-  if VTemp = nil then begin
-    VTemp := TDoublePointsAggregator.Create;
-  end;
-  VTemp.Clear;
-  while AEnum.Next(VPoint) do begin
-    if PointIsEmpty(VPoint) then begin
-      if VTemp.Count > 0 then begin
-        VLine := VTemp.MakeStaticCopy;
-        VBuilder.AddOuter(VLineBounds, VLine);
-        VTemp.Clear;
-      end;
-    end else begin
-      if VTemp.Count = 0 then begin
-        VLineBounds.TopLeft := VPoint;
-        VLineBounds.BottomRight := VPoint;
-      end else begin
-        UpdateLonLatMBRByPoint(VLineBounds, VPoint);
-      end;
-      VTemp.Add(VPoint);
-    end;
-  end;
-  if VTemp.Count > 0 then begin
-    VLine := VTemp.MakeStaticCopy;
-    VBuilder.AddOuter(VLineBounds, VLine);
-    VTemp.Clear;
-  end;
-  Result := VBuilder.MakeStaticAndClear;
-end;
-
 function TGeometryLonLatFactory.CreateLonLatPolygonByLonLatPathAndFilter(
   const ASource: IGeometryLonLatLine;
   const AFilter: ILonLatPointFilter
@@ -1037,7 +891,7 @@ end;
 
 function TGeometryLonLatFactory.CreateLonLatPolygonByRect(
   const ARect: TDoubleRect
-): IGeometryLonLatPolygon;
+): IGeometryLonLatSinglePolygon;
 var
   VPointsArray: array [0..4] of TDoublePoint;
   VPoints: IDoublePoints;

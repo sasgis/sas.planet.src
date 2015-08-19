@@ -158,22 +158,21 @@ function TMapLayerGPSMarkerRings.GetLonLatCirclesByPoint(
   const AConfig: IMarkerRingsConfigStatic
 ): IGeometryLonLatPolygon;
 var
-  VAggreagator: IDoublePointsAggregator;
-  i, j: Integer;
+  i: Integer;
   VDist: Double;
-  VAngle: Double;
-  VPoint: TDoublePoint;
+  VPolygon: IGeometryLonLatSinglePolygon;
+  VStep: Double;
 begin
-  VAggreagator := TDoublePointsAggregator.Create(64);
+  VStep := AConfig.StepDistance;
   for i := 1 to AConfig.Count do begin
-    VDist := AConfig.StepDistance * i;
-    for j := 0 to 64 do begin
-      VAngle := j * 360 / 64;
-      VPoint := ADatum.CalcFinishPosition(APos, VAngle, VDist);
-      VAggreagator.Add(VPoint);
-    end;
-    FPolygonBuilder.AddOuter(VAggreagator.MakeStaticCopy);
-    VAggreagator.Clear;
+    VDist := VStep * i;
+    VPolygon :=
+      FVectorGeometryLonLatFactory.CreateLonLatPolygonCircleByPoint(
+        ADatum,
+        APos,
+        VDist
+      );
+    FPolygonBuilder.AddPolygon(VPolygon);
   end;
   Result := FPolygonBuilder.MakeStaticAndClear;
 end;

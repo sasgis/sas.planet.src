@@ -836,7 +836,7 @@ begin
         end;
         Result :=
           FVectorGeometryLonLatFactory.CreateLonLatPolygonCircleByPoint(
-            AProjection,
+            AProjection.GeoConverter.Datum,
             VPoint.Point,
             VRadius
           );

@@ -24,6 +24,7 @@ interface
 
 uses
   t_GeoTypes,
+  i_Datum,
   i_ProjectionInfo,
   i_EnumDoublePoint,
   i_DoublePoints,
@@ -87,12 +88,6 @@ type
     function CreateLonLatPoint(
       const APoint: TDoublePoint
     ): IGeometryLonLatPoint;
-    function CreateLonLatSingleLine(
-      const APoints: IDoublePoints
-    ): IGeometryLonLatSingleLine;
-    function CreateLonLatSinglePolygon(
-      const APoints: IDoublePoints
-    ): IGeometryLonLatSinglePolygon;
 
     function MakeLineBuilder(): IGeometryLonLatLineBuilder;
     function MakePolygonBuilder(): IGeometryLonLatPolygonBuilder;
@@ -109,19 +104,15 @@ type
       const AEnum: IEnumLonLatPoint;
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryLonLatLine;
-    function CreateLonLatPolygonByEnum(
-      const AEnum: IEnumLonLatPoint;
-      const ATemp: IDoublePointsAggregator = nil
-    ): IGeometryLonLatPolygon;
 
     function CreateLonLatPolygonByRect(
       const ARect: TDoubleRect
-    ): IGeometryLonLatPolygon;
+    ): IGeometryLonLatSinglePolygon;
     function CreateLonLatPolygonCircleByPoint(
-      const AProjection: IProjectionInfo;
+      const ADatum: IDatum;
       const APos: TDoublePoint;
       const ARadius: double
-    ): IGeometryLonLatPolygon;
+    ): IGeometryLonLatSinglePolygon;
     function CreateLonLatPolygonByLonLatPathAndFilter(
       const ASource: IGeometryLonLatLine;
       const AFilter: ILonLatPointFilter
