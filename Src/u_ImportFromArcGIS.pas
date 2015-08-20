@@ -239,6 +239,7 @@ procedure _ParseSingleJSON(
   const AInetConfig: IInetConfig;
   const AText, AGeometry: String;
   const APointsAggregator: IDoublePointsAggregator;
+  const ABuilder: IGeometryLonLatPolygonBuilder;
   const ADownloader: IDownloader;
   const AHeaders: AnsiString;
   const AConverter: ICoordConverter;
@@ -362,12 +363,13 @@ begin
   APointsAggregator.Clear;
 
   // parse geometry
-  ParsePointsToAggregator(
-    APointsAggregator,
+  ParsePointsToPolygonBuilder(
+    ABuilder,
     AGeometry,
     AConverter,
     True,
     False,
+    APointsAggregator,
     True
   );
 end;
@@ -403,6 +405,7 @@ var
   VMarkName, VMarkDesc: String;
   VPos: Integer;
   VPointsAggregator: IDoublePointsAggregator;
+  VBuilder: IGeometryLonLatPolygonBuilder;
   VPolygon: IGeometryLonLatPolygon;
   VAllNewMarks: IVectorItemSubsetBuilder;
 begin
@@ -502,7 +505,8 @@ begin
           VText := StringReplace(VText, '[', '', [rfReplaceAll]);
 
           if (nil=VPointsAggregator) then begin
-            VPointsAggregator := TDoublePointsAggregator.Create;;
+            VBuilder := AVectorGeometryLonLatFactory.MakePolygonBuilder;
+            VPointsAggregator := TDoublePointsAggregator.Create;
           end;
 
           _ParseSingleJSON(
@@ -510,6 +514,7 @@ begin
             VText,
             VGeometry,
             VPointsAggregator,
+            VBuilder,
             VDownloader,
             VHead,
             VConverter,
@@ -519,18 +524,15 @@ begin
             VMarkName,
             VMarkDesc
           );
+          VPolygon := VBuilder.MakeStaticAndClear;
 
-          if (VPointsAggregator.Count>0) then begin
-            // create lonlats
-            VPolygon := AVectorGeometryLonLatFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
-            if Assigned(VPolygon) then begin
-              // make polygon
-              if (nil=VAllNewMarks) then begin
-                // make result object
-                VAllNewMarks := AVectorItemSubsetBuilderFactory.Build;
-              end;
-              VAllNewMarks.Add(AVectorDataFactory.BuildItem(AVectorDataItemMainInfoFactory.BuildMainInfo(nil, VMarkName, VMarkDesc), nil, VPolygon));
+          if Assigned(VPolygon) then begin
+            // make polygon
+            if (nil=VAllNewMarks) then begin
+              // make result object
+              VAllNewMarks := AVectorItemSubsetBuilderFactory.Build;
             end;
+            VAllNewMarks.Add(AVectorDataFactory.BuildItem(AVectorDataItemMainInfoFactory.BuildMainInfo(nil, VMarkName, VMarkDesc), nil, VPolygon));
           end;
         end;
       end;

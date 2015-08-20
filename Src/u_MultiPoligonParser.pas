@@ -24,16 +24,18 @@ interface
 
 uses
   t_GeoTypes,
+  i_GeometryLonLatFactory,
   i_DoublePointsAggregator,
   i_CoordConverter;
 
 // parse POLYGON and MULTIPOLYGON coordinates
 // and from JSON geometry
-function ParsePointsToAggregator(
-  const ADoublePointsAggregator: IDoublePointsAggregator;
+function ParsePointsToPolygonBuilder(
+  const ABuilder: IGeometryLonLatPolygonBuilder;
   const ASourceText: String;
   const AGeoConverter: ICoordConverter;
   const AInMetr, AMakeHoles: Boolean;
+  const APointsAggregator: IDoublePointsAggregator = nil;
   const AFromJSON: Boolean = FALSE
 ): Integer;
 
@@ -107,6 +109,7 @@ implementation
 
 uses
   SysUtils,
+  u_DoublePointsAggregator,
   u_StrFunc,
   u_GeoFunc,
   u_GeoToStrFunc;
@@ -116,11 +119,12 @@ begin
   Result := CharInSet(ASym, ['0','1'..'9','.','-']);
 end;
 
-function ParsePointsToAggregator(
-  const ADoublePointsAggregator: IDoublePointsAggregator;
+function ParsePointsToPolygonBuilder(
+  const ABuilder: IGeometryLonLatPolygonBuilder;
   const ASourceText: String;
   const AGeoConverter: ICoordConverter;
   const AInMetr, AMakeHoles: Boolean;
+  const APointsAggregator: IDoublePointsAggregator;
   const AFromJSON: Boolean
 ): Integer;
 const
@@ -131,10 +135,16 @@ var
   VOk: Byte;
   VPoint: TDoublePoint;
   VXYDelimiters: TSysCharSet;
+  VDoublePointsAggregator: IDoublePointsAggregator;
 begin
   Result := 0;
   if (0=Length(ASourceText)) then
     Exit;
+  if Assigned(APointsAggregator) then begin
+    VDoublePointsAggregator := APointsAggregator;
+  end else begin
+    VDoublePointsAggregator := TDoublePointsAggregator.Create;
+  end;
 
   if AFromJSON then begin
     VXYDelimiters := [','];
@@ -149,6 +159,7 @@ begin
   while (VPos<=L) and (not _IsCoord(ASourceText[VPos])) do
     Inc(VPos);
 
+  try
   // run main loop
   while (VPos<=L) do begin
     // init
@@ -189,7 +200,7 @@ begin
       if AInMetr then begin
         VPoint := AGeoConverter.Metr2LonLat(VPoint);
       end;
-      ADoublePointsAggregator.Add(VPoint);
+      VDoublePointsAggregator.Add(VPoint);
       Inc(Result);
     end;
 
@@ -208,8 +219,10 @@ begin
       if System.Copy(ASourceText, VEnd, VPos - VEnd)=c_JSON_NewSegment then begin
         // start new segment
         // TODO: make new holes when available
-        ADoublePointsAggregator.Add(CEmptyDoublePoint);
-        Inc(Result);
+        if VDoublePointsAggregator.Count > 0 then begin
+          ABuilder.AddOuter(VDoublePointsAggregator.MakeStaticAndClear);
+          Inc(Result);
+        end;
       end;
     end else begin
       if (ASourceText[VEnd]=',') then begin
@@ -218,9 +231,16 @@ begin
         // if '),(' - start new hole
         // if ')),((' - start new part
         // TODO: make new holes when available
-        ADoublePointsAggregator.Add(CEmptyDoublePoint);
-        Inc(Result);
+        if VDoublePointsAggregator.Count > 0 then begin
+          ABuilder.AddOuter(VDoublePointsAggregator.MakeStaticAndClear);
+          Inc(Result);
+        end;
       end;
+    end;
+  end;
+  finally
+    if VDoublePointsAggregator.Count > 0 then begin
+      ABuilder.AddOuter(VDoublePointsAggregator.MakeStaticAndClear);
     end;
   end;
 end;

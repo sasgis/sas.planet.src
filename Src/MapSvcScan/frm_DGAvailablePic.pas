@@ -910,6 +910,7 @@ var
   VName, VDesc, VGeometry, VDate: String;
   VImportConfig: IImportConfig;
   VPointsAggregator: IDoublePointsAggregator;
+  VBuilder: IGeometryLonLatPolygonBuilder;
   VPoint: TDoublePoint;
   VValidPoint: Boolean;
   VPolygon: IGeometryLonLatPolygon;
@@ -1061,6 +1062,7 @@ begin
         if (nil=VImportConfig) then
           Exit;
         VPointsAggregator := TDoublePointsAggregator.Create;
+        VBuilder := FVectorGeometryLonLatFactory.MakePolygonBuilder;
         if (nil=VImportConfig.PolyParams) then
           Exit;
       end;
@@ -1068,12 +1070,13 @@ begin
       if VUseMultiPoligonParser then begin
         // use common multipolygon parser
         VPointsAggregator.Clear;
-        ParsePointsToAggregator(
-          VPointsAggregator,
+        ParsePointsToPolygonBuilder(
+          VBuilder,
           VGeometry,
           FLocalConverter.GeoConverter,
           VInMetr,
-          FALSE
+          FALSE,
+          VPointsAggregator
         );
       end else begin
         // fill with coords
@@ -1092,27 +1095,28 @@ begin
             VPointsAggregator.Add(VPoint);
           end;
         until (0=Length(VGeometry));
+        if (VPointsAggregator.Count>0) then begin
+          VBuilder.AddOuter(VPointsAggregator.MakeStaticAndClear);
+        end;
       end;
 
-      if (VPointsAggregator.Count>0) then begin
-        // create lonlats
-        VPolygon := FVectorGeometryLonLatFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
-        if Assigned(VPolygon) then begin
-          // make polygon
-          VMark :=
-            FMarkDBGUI.MarksDb.MarkDb.Factory.CreateNewMark(
-              VPolygon,
-              Vname,
-              VDesc
-            );
 
-          if (nil<>VMark) then begin
-            // apply to database
-            // VImportConfig.MarkDB.UpdateMark(nil, VMark);
-            if (nil=VAllNewMarks) then
-              VAllNewMarks := FVectorItemSubsetBuilderFactory.Build;
-            VAllNewMarks.Add(VMark);
-          end;
+      VPolygon := VBuilder.MakeStaticAndClear;
+      if Assigned(VPolygon) then begin
+        // make polygon
+        VMark :=
+          FMarkDBGUI.MarksDb.MarkDb.Factory.CreateNewMark(
+            VPolygon,
+            Vname,
+            VDesc
+          );
+
+        if (nil<>VMark) then begin
+          // apply to database
+          // VImportConfig.MarkDB.UpdateMark(nil, VMark);
+          if (nil=VAllNewMarks) then
+            VAllNewMarks := FVectorItemSubsetBuilderFactory.Build;
+          VAllNewMarks.Add(VMark);
         end;
       end;
 
