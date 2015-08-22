@@ -262,7 +262,7 @@ var
 begin
   _SaveContour(AGeometry.OuterBorder, AStringList, AFormatSettings, AStartIndex);
   for i := 0 to AGeometry.HoleCount - 1 do begin
-    AStringList.Add('PointLon_' + IntToStr(AStartIndex) + '=NaN');
+    AStringList.Add('PointLon_' + IntToStr(AStartIndex) + '=NAN');
     AStringList.Add('PointLat_' + IntToStr(AStartIndex) + '=-1');
     Inc(AStartIndex);
     _SaveContour(AGeometry.HoleBorder[i], AStringList, AFormatSettings, AStartIndex);
