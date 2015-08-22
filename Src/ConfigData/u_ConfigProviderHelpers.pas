@@ -194,7 +194,11 @@ var
   VPointsAggregator: IDoublePointsAggregator;
   VIdentLon: string;
   VIdentLat: string;
-  VValidPoint: Boolean;
+  VIsValidX: Boolean;
+  VIsValidY: Boolean;
+  VIsFinish: Boolean;
+  VBuilder: IGeometryLonLatPolygonBuilder;
+  VIsOuter: Boolean;
 begin
   VIdentLon := 'PointLon_';
   VIdentLat := 'PointLat_';
@@ -224,16 +228,34 @@ begin
   end;
 
   VPointsAggregator := TDoublePointsAggregator.Create;
+  VBuilder := AVectorGeometryLonLatFactory.MakePolygonBuilder;
+  VIsOuter := True;
+  VIsFinish := False;
   repeat
     VPoint.X := AConfigProvider.ReadFloat(VIdentLon + inttostr(i), -10000);
     VPoint.Y := AConfigProvider.ReadFloat(VIdentLat + inttostr(i), -10000);
-    VValidPoint := PointIsEmpty(VPoint) or ((Abs(VPoint.X) < 360) and (Abs(VPoint.Y) < 360));
-    if VValidPoint then begin
-      VPointsAggregator.Add(VPoint);
-      Inc(i);
+    Inc(i);
+    VIsValidX := not IsNan(VPoint.X);
+    VIsValidY := not IsNan(VPoint.Y);
+    if (VIsValidX and (Abs(VPoint.X) > 360)) or (VIsValidY and (Abs(VPoint.Y) > 360)) then begin
+      VIsFinish := True;
     end;
-  until not VValidPoint;
-  Result := AVectorGeometryLonLatFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
+    if not VIsFinish and VIsValidX and VIsValidY then begin
+      VPointsAggregator.Add(VPoint);
+    end else begin
+      if VPointsAggregator.Count > 0 then begin
+        if VIsOuter then begin
+          VBuilder.AddOuter(VPointsAggregator.MakeStaticCopy);
+        end else begin
+          VBuilder.AddHole(VPointsAggregator.MakeStaticCopy);
+        end;
+        VPointsAggregator.Clear;
+        VIsOuter := not VIsValidY;
+      end;
+    end;
+  until VIsFinish;
+
+  Result := VBuilder.MakeStaticAndClear;
 end;
 
 procedure WriteContour(
