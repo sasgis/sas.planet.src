@@ -42,6 +42,8 @@ type
 
   TXmlVectorObjects = class(TBaseInterfacedObject, IXmlVectorObjects)
   private
+    FLineBuilder: IGeometryLonLatLineBuilder;
+    FPolygonBuilder: IGeometryLonLatPolygonBuilder;
     FList: IInterfaceListSimple;
     FAllowMultiParts: Boolean;
     FCheckLineIsClosed: Boolean;
@@ -69,18 +71,12 @@ type
     FClosedSegments: Integer;
     FOpenedSegments: Integer;
   private
-    procedure SafeMakeResultList;
     procedure SafeAddToResult(const AItem: IVectorDataItem);
-    procedure InternalAddPoint(const APoint: TDoublePoint);
-    procedure InternalMakeTrackObject(const AForMultiTrack: Boolean);
-    procedure InternalMakePolygonObject(const AForMultiObject, AInner: Boolean);
+    procedure InternalMakeTrackObject;
     procedure InternalCloseArrayPoints;
-    function LastSegmentIsClosed(const AFirstIndexOfLastSegment: Integer): Boolean;
     function ParseKmlCoordinatesToArray(
-      const ACoordinates: WideString;
-      const AForceClose: Boolean
+      const ACoordinates: WideString
     ): Integer;
-    function PrepareArrayOfPoints: Integer;
     function ParseCloseMarkObjectData(
       const AData: Pointer;
       const AMode: TCloseMarkObjectMode;
@@ -174,7 +170,7 @@ end;
 
 procedure TXmlVectorObjects.AddTrackPoint(const APoint: TDoublePoint);
 begin
-  InternalAddPoint(APoint);
+  FDoublePointsAggregator.Add(APoint);
 end;
 
 procedure TXmlVectorObjects.CloseGPXPoint(const APoint: TDoublePoint);
@@ -194,84 +190,37 @@ procedure TXmlVectorObjects.CloseKmlLinearRing(
   const ACoordinates: WideString;
   const AInner: Boolean
 );
-var
-  VOldCount: Integer;
-  VAdded: Integer;
-  VClosed: Boolean;
 begin
   // check
   if (0 = Length(ACoordinates)) then begin
     Exit;
   end;
 
-  // count of existing points
-  VOldCount := PrepareArrayOfPoints;
-
   // parse coordinates and add it to array
-  VAdded := ParseKmlCoordinatesToArray(ACoordinates, True);
+  ParseKmlCoordinatesToArray(ACoordinates);
 
-  // check segment closure
-  if (VAdded > 1) then begin
-    VClosed := LastSegmentIsClosed(VOldCount);
-    if FAllowMultiParts then begin
-      // prepare for multigeometry or placemark
-      if VClosed then begin
-        Inc(FClosedSegments);
-      end else begin
-        // Inc(FOpenedSegments);
-        raise EXmlVectorObjectsUnclosedPolygon.Create('');
-      end;
+  if FDoublePointsAggregator.Count > 0 then begin
+    if AInner then begin
+      FPolygonBuilder.AddHole(FDoublePointsAggregator.MakeStaticAndClear);
     end else begin
-      // make object here
-      if VClosed then begin
-        // make polygon
-        InternalMakePolygonObject(False, AInner);
-      end else begin
-        // make polyline
-        // InternalMakeTrackObject(False);
-        raise EXmlVectorObjectsUnclosedPolygon.Create('');
-      end;
+      FPolygonBuilder.AddOuter(FDoublePointsAggregator.MakeStaticAndClear);
     end;
+    Inc(FClosedSegments);
   end;
 end;
 
 procedure TXmlVectorObjects.CloseKmlLineString(const ACoordinates: WideString);
-var
-  VOldCount: Integer;
-  VAdded: Integer;
-  VClosed: Boolean;
 begin
   // check
   if (0 = Length(ACoordinates)) then begin
     Exit;
   end;
 
-  // count of existing points
-  VOldCount := PrepareArrayOfPoints;
-
   // parse coordinates and add it to array
-  VAdded := ParseKmlCoordinatesToArray(ACoordinates, False);
-
-  // check segment closure
-  if (VAdded > 1) then begin
-    VClosed := LastSegmentIsClosed(VOldCount);
-    if FAllowMultiParts then begin
-      // prepare for multigeometry or placemark
-      if VClosed then begin
-        Inc(FClosedSegments);
-      end else begin
-        Inc(FOpenedSegments);
-      end;
-    end else begin
-      // make object here
-      if VClosed and FCheckLineIsClosed then begin
-        // make polygon
-        InternalMakePolygonObject(False, False);
-      end else begin
-        // make polyline
-        InternalMakeTrackObject(False);
-      end;
-    end;
+  ParseKmlCoordinatesToArray(ACoordinates);
+  if FDoublePointsAggregator.Count > 0 then begin
+    FLineBuilder.AddLine(FDoublePointsAggregator.MakeStaticAndClear);
+    Inc(FOpenedSegments);
   end;
 end;
 
@@ -294,8 +243,21 @@ begin
 end;
 
 procedure TXmlVectorObjects.CloseKmlPolygon;
+var
+  VLonLatPolygon: IGeometryLonLat;
 begin
-  InternalMakePolygonObject(False, False);
+  // dont create polygons for every Polygon in MultiGeometry
+  // if allow to create multisegment polygons
+  if FAllowMultiParts and FInMultiGeometry then begin
+    Exit;
+  end;
+
+  // make polygon object
+  VLonLatPolygon := FPolygonBuilder.MakeStaticAndClear;
+
+  if Assigned(VLonLatPolygon) then begin
+    FList.Add(VLonLatPolygon);
+  end;
 end;
 
 procedure TXmlVectorObjects.CloseMarkObject(
@@ -355,12 +317,16 @@ begin
   end;
   FInMultiTrack := False;
   // convert array to polyline object
-  InternalMakeTrackObject(True);
+  InternalMakeTrackObject;
 end;
 
 procedure TXmlVectorObjects.CloseTrackSegment;
 begin
-  InternalMakeTrackObject(False);
+  if FDoublePointsAggregator.Count > 0 then begin
+    FLineBuilder.AddLine(FDoublePointsAggregator.MakeStaticAndClear);
+    Inc(FOpenedSegments);
+  end;
+  InternalMakeTrackObject;
 end;
 
 constructor TXmlVectorObjects.Create(
@@ -379,6 +345,8 @@ begin
   Assert(ADataFactory <> nil);
   inherited Create;
   FList := TInterfaceListSimple.Create;
+  FLineBuilder := AGeometryFactory.MakeLineBuilder;
+  FPolygonBuilder := AGeometryFactory.MakePolygonBuilder;
   FAllowMultiParts := AAllowMultiParts;
   FCheckLineIsClosed := ACheckLineIsClosed;
   FSkipPointInMultiObject := ASkipPointInMultiObject;
@@ -411,105 +379,37 @@ begin
   end;
 end;
 
-procedure TXmlVectorObjects.InternalAddPoint(const APoint: TDoublePoint);
-begin
-  FDoublePointsAggregator.Add(APoint);
-end;
-
 procedure TXmlVectorObjects.InternalCloseArrayPoints;
-begin
-  if (0 = FDoublePointsAggregator.Count) then begin
-    Exit;
-  end;
-  if (FOpenedSegments > 0) then begin
-    // have unclosed segments
-    InternalMakeTrackObject(True);
-  end else if (FClosedSegments > 0) then begin
-    // have only closed segments
-    InternalMakePolygonObject(True, False);
-  end else begin
-    // no segments at all
-    Assert(False);
-    if LastSegmentIsClosed(0) then begin
-      // array is closed
-      InternalMakePolygonObject(True, False);
-    end else begin
-      // unclosed
-      InternalMakeTrackObject(True);
-    end;
-  end;
-end;
-
-procedure TXmlVectorObjects.InternalMakePolygonObject(
-  const AForMultiObject, AInner: Boolean);
 var
-  VLonLatPolygon: IGeometryLonLat;
+  VPolygon: IGeometryLonLatPolygon;
+  VLine: IGeometryLonLatLine;
 begin
-  // dont create polygons for every Polygon in MultiGeometry
-  // if allow to create multisegment polygons
-  if FAllowMultiParts and FInMultiGeometry and (not AForMultiObject) then begin
-    Exit;
+  VPolygon := FPolygonBuilder.MakeStaticAndClear;
+  if Assigned(VPolygon) then begin
+    FList.Add(VPolygon);
   end;
-
-  // convert array to polygon object
-  if (0 = FDoublePointsAggregator.Count) then begin
-    Exit;
+  VLine := FLineBuilder.MakeStaticAndClear;
+  if Assigned(VLine) then begin
+    FList.Add(VLine);
   end;
-
-  // make polygon object
-  VLonLatPolygon := FGeometryFactory.CreateLonLatPolygon(
-    FDoublePointsAggregator.Points,
-    FDoublePointsAggregator.Count
-  );
-
-  if Assigned(VLonLatPolygon) then begin
-    FList.Add(VLonLatPolygon);
-  end;
-
-  // init
-  FDoublePointsAggregator.Clear;
 end;
 
-procedure TXmlVectorObjects.InternalMakeTrackObject(
-  const AForMultiTrack: Boolean);
+procedure TXmlVectorObjects.InternalMakeTrackObject;
 var
   VLonLatPath: IGeometryLonLat;
 begin
   // dont create tracks for every gx:Track in gx:MultiTrack
   // if allow to create multisegment polylines
-  if FAllowMultiParts and FInMultiTrack and (not AForMultiTrack) then begin
-    Exit;
-  end;
-
-  // convert array to object
-  if (0 = FDoublePointsAggregator.Count) then begin
+  if FAllowMultiParts and FInMultiTrack then begin
     Exit;
   end;
 
   // make polyline object
-  VLonLatPath := FGeometryFactory.CreateLonLatLine(
-    FDoublePointsAggregator.Points,
-    FDoublePointsAggregator.Count
-  );
+  VLonLatPath := FLineBuilder.MakeStaticAndClear;
 
   if Assigned(VLonLatPath) then begin
     FList.Add(VLonLatPath);
   end;
-
-  // init
-  FDoublePointsAggregator.Clear;
-end;
-
-function TXmlVectorObjects.LastSegmentIsClosed(
-  const AFirstIndexOfLastSegment: Integer): Boolean;
-var
-  VArray: PDoublePointArray;
-begin
-  VArray := FDoublePointsAggregator.Points;
-  Result := DoublePointsEqual(
-    VArray^[AFirstIndexOfLastSegment],
-    VArray^[FDoublePointsAggregator.Count - 1]
-  );
 end;
 
 procedure TXmlVectorObjects.OpenMarkObject;
@@ -518,6 +418,8 @@ begin
     raise EXmlVectorObjectsMarkInMark.Create('');
   end;
   FInMarkObject := True;
+  FOpenedSegments := 0;
+  FClosedSegments := 0;
 end;
 
 procedure TXmlVectorObjects.OpenMultiGeometry;
@@ -538,9 +440,7 @@ end;
 
 procedure TXmlVectorObjects.OpenTrackSegment;
 begin
-  // add delimiter if array is not empty
-  PrepareArrayOfPoints;
-  Inc(FOpenedSegments);
+  CloseTrackSegment;
 end;
 
 function TXmlVectorObjects.ParseCloseMarkObjectData(
@@ -715,20 +615,16 @@ begin
 end;
 
 function TXmlVectorObjects.ParseKmlCoordinatesToArray(
-  const ACoordinates: WideString;
-  const AForceClose: Boolean
+  const ACoordinates: WideString
 ): Integer;
 var
   VPosPrev, VPosCur: Integer;
   VCoordLine: WideString;
   VData: TCoordLineData;
   VPoint: TDoublePoint;
-  VFirstPos: Integer;
 begin
   Result := 0;
   VPosPrev := 0;
-  VFirstPos := -1;
-  //VPosCur := 0;
   // loop through points
   repeat
     if (VPosPrev >= Length(ACoordinates)) then begin
@@ -748,14 +644,8 @@ begin
       if parse_kml_coordinate(VCoordLine, @VData, FFormatPtr^) then begin
         VPoint.X := VData.lon1;
         VPoint.Y := VData.lat0;
-        // check closure
-        if AForceClose then begin
-          if (VFirstPos < 0) then begin
-            VFirstPos := FDoublePointsAggregator.Count;
-          end;
-        end;
         // add to array
-        InternalAddPoint(VPoint);
+        FDoublePointsAggregator.Add(VPoint);
         Inc(Result);
       end;
     end;
@@ -763,48 +653,17 @@ begin
     // next
     VPosPrev := VPosCur;
   until False;
-
-  // check closure
-  if AForceClose then begin
-    if (Result > 0) then begin
-      if (VFirstPos >= 0) then begin
-        if (not LastSegmentIsClosed(VFirstPos)) then begin
-          VPoint := FDoublePointsAggregator.Points^[VFirstPos];
-          InternalAddPoint(VPoint);
-        end;
-      end;
-    end;
-  end;
-end;
-
-function TXmlVectorObjects.PrepareArrayOfPoints: Integer;
-begin
-  Result := FDoublePointsAggregator.Count;
-  if (0 = Result) then begin
-    // very first item
-    FClosedSegments := 0;
-    FOpenedSegments := 0;
-  end else begin
-    // has some points
-    InternalAddPoint(CEmptyDoublePoint);
-    Inc(Result);
-  end;
 end;
 
 procedure TXmlVectorObjects.SafeAddToResult(
   const AItem: IVectorDataItem
 );
 begin
-  if (AItem <> nil) then begin
-    SafeMakeResultList;
+  if Assigned(AItem) then begin
+    if not Assigned(FVectorDataItemsResultBuilder) then begin
+      FVectorDataItemsResultBuilder := FVectorItemSubsetBuilderFactory.Build;
+    end;
     FVectorDataItemsResultBuilder.Add(AItem);
-  end;
-end;
-
-procedure TXmlVectorObjects.SafeMakeResultList;
-begin
-  if (nil = FVectorDataItemsResultBuilder) then begin
-    FVectorDataItemsResultBuilder := FVectorItemSubsetBuilderFactory.Build;
   end;
 end;
 
