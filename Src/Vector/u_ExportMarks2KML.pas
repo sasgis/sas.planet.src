@@ -58,6 +58,18 @@ type
       const AMark: IVectorDataItem;
       const inNode: TALXMLNode
     );
+    procedure AddSingleLine(
+      const AGeometry: IGeometryLonLatSingleLine;
+      const inNode: TALXMLNode
+    );
+    procedure AddMultiLine(
+      const AGeometry: IGeometryLonLatMultiLine;
+      const inNode: TALXMLNode
+    );
+    procedure AddLine(
+      const AGeometry: IGeometryLonLatLine;
+      const inNode: TALXMLNode
+    );
     procedure AddContour(
       const AOuter: Boolean;
       const AGeometry: IGeometryLonLatContour;
@@ -255,6 +267,55 @@ begin
   end;
 end;
 
+procedure TExportMarks2KML.AddSingleLine(
+  const AGeometry: IGeometryLonLatSingleLine;
+  const inNode: TALXMLNode
+);
+var
+  currNode: TALXMLNode;
+  VCoordinates: AnsiString;
+begin
+  currNode := inNode.AddChild('LineString');
+  currNode.ChildNodes['extrude'].Text := '1';
+  VCoordinates := GetKMLCoordinates(AGeometry.GetEnum);
+  currNode.ChildNodes['coordinates'].Text := VCoordinates;
+end;
+
+procedure TExportMarks2KML.AddMultiLine(
+  const AGeometry: IGeometryLonLatMultiLine;
+  const inNode: TALXMLNode
+);
+var
+  currNode: TALXMLNode;
+  i: Integer;
+begin
+  if AGeometry.Count > 1 then begin
+    currNode := inNode.AddChild('MultiGeometry');
+    for i := 0 to AGeometry.Count - 1 do begin
+      AddSingleLine(AGeometry.Item[i], currNode);
+    end;
+  end else begin
+    AddSingleLine(AGeometry.Item[0], inNode);
+  end;
+end;
+
+procedure TExportMarks2KML.AddLine(
+  const AGeometry: IGeometryLonLatLine;
+  const inNode: TALXMLNode
+);
+var
+  VMultiLine: IGeometryLonLatMultiLine;
+  VSingleLine: IGeometryLonLatSingleLine;
+begin
+  if Supports(AGeometry, IGeometryLonLatSingleLine, VSingleLine) then begin
+    AddSingleLine(VSingleLine, inNode);
+  end else if Supports(AGeometry, IGeometryLonLatMultiLine, VMultiLine) then begin
+    AddMultiLine(VMultiLine, inNode);
+  end else begin
+    Assert(False);
+  end;
+end;
+
 procedure TExportMarks2KML.AddContour(
   const AOuter: Boolean;
   const AGeometry: IGeometryLonLatContour;
@@ -343,8 +404,7 @@ var
   VAppearanceFill: IAppearancePolygonFill;
   VLonLatPoint: IGeometryLonLatPoint;
   VLonLatPolygon: IGeometryLonLatPolygon;
-  VLonLatPath: IGeometryLonLatMultiLine;
-  VLonLatPathLine: IGeometryLonLatSingleLine;
+  VLonLatLine: IGeometryLonLatLine;
 begin
   currNode := inNode.AddChild('Placemark');
   currNode.ChildNodes['name'].Text := UTF8Encode(XMLTextPrepare(AMark.Name));
@@ -391,8 +451,7 @@ begin
       VCoordinates := R2AnsiStrPoint(X) + ',' + R2AnsiStrPoint(Y) + ',0 ';
     end;
     currNode.ChildNodes['coordinates'].Text := VCoordinates;
-  end else if Supports(AMark.Geometry, IGeometryLonLatSingleLine, VLonLatPathLine) then begin
-    // <Placemark><LineString><coordinates>
+  end else if Supports(AMark.Geometry, IGeometryLonLatLine, VLonLatLine) then begin
     if Supports(AMark.Appearance, IAppearanceLine, VAppearanceLine) then begin
       with currNode.AddChild('Style') do begin
         with AddChild('LineStyle') do begin
@@ -401,45 +460,8 @@ begin
         end;
       end;
     end;
-    // simple object
-    currNode := currNode.AddChild('LineString');
-    currNode.ChildNodes['extrude'].Text := '1';
-    VCoordinates := GetKMLCoordinates(VLonLatPathLine.GetEnum);
-    currNode.ChildNodes['coordinates'].Text := VCoordinates;
-  end else if Supports(AMark.Geometry, IGeometryLonLatMultiLine, VLonLatPath) then begin
-    // <Placemark><MultiGeometry><LineString></LineString><LineString>...
-    // <Placemark><LineString><coordinates>
-    if Supports(AMark.Appearance, IAppearanceLine, VAppearanceLine) then begin
-      with currNode.AddChild('Style') do begin
-        with AddChild('LineStyle') do begin
-          ChildNodes['color'].Text := Color32toKMLColor(VAppearanceLine.LineColor);
-          ChildNodes['width'].Text := R2AnsiStrPoint(VAppearanceLine.LineWidth);
-        end;
-      end;
-    end;
-    if VLonLatPath.Count > 1 then begin
-      // MultiGeometry
-      rootNode := currNode.AddChild('MultiGeometry');
-      for i := 0 to VLonLatPath.Count - 1 do begin
-        VLonLatPathLine := VLonLatPath.Item[i];
-        if (VLonLatPathLine.Count > 1) then begin
-          // make path
-          currNode := rootNode.AddChild('LineString');
-          currNode.ChildNodes['extrude'].Text := '1';
-          VCoordinates := GetKMLCoordinates(VLonLatPathLine.GetEnum);
-          currNode.ChildNodes['coordinates'].Text := VCoordinates;
-        end;
-      end;
-    end else begin
-      // simple object
-      currNode := currNode.AddChild('LineString');
-      currNode.ChildNodes['extrude'].Text := '1';
-      VLonLatPathLine := VLonLatPath.Item[0];
-      VCoordinates := GetKMLCoordinates(VLonLatPathLine.GetEnum);
-      currNode.ChildNodes['coordinates'].Text := VCoordinates;
-    end;
+    AddLine(VLonLatLine, currNode);
   end else if Supports(AMark.Geometry, IGeometryLonLatPolygon, VLonLatPolygon) then begin
-    // <Placemark><Polygon><outerBoundaryIs><LinearRing><coordinates>
     if not Supports(AMark.Appearance, IAppearancePolygonBorder, VAppearanceBorder) then begin
       VAppearanceBorder := nil;
     end;
