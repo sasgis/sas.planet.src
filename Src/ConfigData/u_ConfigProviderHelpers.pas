@@ -245,11 +245,10 @@ begin
     end else begin
       if VPointsAggregator.Count > 0 then begin
         if VIsOuter then begin
-          VBuilder.AddOuter(VPointsAggregator.MakeStaticCopy);
+          VBuilder.AddOuter(VPointsAggregator.MakeStaticAndClear);
         end else begin
-          VBuilder.AddHole(VPointsAggregator.MakeStaticCopy);
+          VBuilder.AddHole(VPointsAggregator.MakeStaticAndClear);
         end;
-        VPointsAggregator.Clear;
         VIsOuter := not VIsValidY;
       end;
     end;

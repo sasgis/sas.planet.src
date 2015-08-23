@@ -146,10 +146,8 @@ function TDoublePointsAggregator.MakeStaticAndClear: IDoublePoints;
 begin
   Result := nil;
   if FCount > 0 then begin
-    Result := TDoublePoints.CreateWithOwn(FPoints, FCount);
-    FPoints := nil;
+    Result := TDoublePoints.Create(FPoints, FCount);
     FCount := 0;
-    FCapacity := 0;
   end;
 end;
 

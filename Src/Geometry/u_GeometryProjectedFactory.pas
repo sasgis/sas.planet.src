@@ -298,8 +298,7 @@ begin
       UpdateProjectedMBRByPoint(ABounds, VPoint);
       ATemp.Add(VPoint);
     end;
-    Result := ATemp.MakeStaticCopy;
-    ATemp.Clear;
+    Result := ATemp.MakeStaticAndClear;
   end;
 end;
 

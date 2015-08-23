@@ -683,7 +683,7 @@ begin
     VAggreagator.Add(VPoint);
     UpdateLonLatMBRByPoint(VBounds, VPoint);
   end;
-  Result := CreateLonLatPolygonInternal(VBounds, VAggreagator.MakeStaticCopy);
+  Result := CreateLonLatPolygonInternal(VBounds, VAggreagator.MakeStaticAndClear);
 end;
 
 function TGeometryLonLatFactory.CreateLonLatPolygonInternal(
@@ -767,8 +767,7 @@ begin
   while AEnum.Next(VPoint) do begin
     if PointIsEmpty(VPoint) then begin
       if VTemp.Count > 0 then begin
-        VBuilder.AddLine(VLineBounds, VTemp.MakeStaticCopy);
-        VTemp.Clear;
+        VBuilder.AddLine(VLineBounds, VTemp.MakeStaticAndClear);
       end;
     end else begin
       if VTemp.Count = 0 then begin
@@ -781,8 +780,7 @@ begin
     end;
   end;
   if VTemp.Count > 0 then begin
-    VBuilder.AddLine(VLineBounds, ATemp.MakeStaticCopy);
-    VTemp.Clear;
+    VBuilder.AddLine(VLineBounds, ATemp.MakeStaticAndClear);
   end;
   Result := VBuilder.MakeStaticAndClear;
 end;
@@ -867,9 +865,8 @@ begin
   while VEnum.Next(VPoint) do begin
     if PointIsEmpty(VPoint) then begin
       if VTemp.Count > 0 then begin
-        VLine := VTemp.MakeStaticCopy;
+        VLine := VTemp.MakeStaticAndClear;
         VBuilder.AddOuter(VLineBounds, VLine);
-        VTemp.Clear;
       end;
     end else begin
       if VTemp.Count = 0 then begin
@@ -882,9 +879,8 @@ begin
     end;
   end;
   if VTemp.Count > 0 then begin
-    VLine := VTemp.MakeStaticCopy;
+    VLine := VTemp.MakeStaticAndClear;
     VBuilder.AddOuter(VLineBounds, VLine);
-    VTemp.Clear;
   end;
   Result := VBuilder.MakeStaticAndClear;
 end;

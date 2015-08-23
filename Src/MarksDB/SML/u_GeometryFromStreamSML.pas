@@ -222,15 +222,13 @@ begin
         VTemp.Add(VDoublePoint);
       end else begin
         if VTemp.Count > 0 then begin
-          VBuilder.AddLine(VTemp.MakeStaticCopy);
-          VTemp.Clear;
+          VBuilder.AddLine(VTemp.MakeStaticAndClear);
         end;
       end;
       Inc(VSmlPoint);
     end;
     if VTemp.Count > 0 then begin
-      VBuilder.AddLine(VTemp.MakeStaticCopy);
-      VTemp.Clear;
+      VBuilder.AddLine(VTemp.MakeStaticAndClear);
     end;
     Result := VBuilder.MakeStaticAndClear;
   end else begin
@@ -264,11 +262,10 @@ begin
       end else begin
         if VTemp.Count > 0 then begin
           if VIsOuter then begin
-            VBuilder.AddOuter(VTemp.MakeStaticCopy);
+            VBuilder.AddOuter(VTemp.MakeStaticAndClear);
           end else begin
-            VBuilder.AddHole(VTemp.MakeStaticCopy);
+            VBuilder.AddHole(VTemp.MakeStaticAndClear);
           end;
-          VTemp.Clear;
           VIsOuter := not VYIsValid;
         end;
       end;
@@ -276,11 +273,10 @@ begin
     end;
     if VTemp.Count > 0 then begin
       if VIsOuter then begin
-        VBuilder.AddOuter(VTemp.MakeStaticCopy);
+        VBuilder.AddOuter(VTemp.MakeStaticAndClear);
       end else begin
-        VBuilder.AddHole(VTemp.MakeStaticCopy);
+        VBuilder.AddHole(VTemp.MakeStaticAndClear);
       end;
-      VTemp.Clear;
     end;
     Result := VBuilder.MakeStaticAndClear;
   end else begin
