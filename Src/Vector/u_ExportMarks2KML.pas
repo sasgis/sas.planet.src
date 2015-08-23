@@ -32,6 +32,7 @@ uses
   i_ArchiveReadWrite,
   i_ArchiveReadWriteFactory,
   i_GeometryLonLat,
+  i_Appearance,
   i_AppearanceOfVectorItem,
   i_VectorDataItemSimple,
   i_VectorItemSubset,
@@ -56,6 +57,22 @@ type
     ): Boolean;
     procedure AddMark(
       const AMark: IVectorDataItem;
+      const inNode: TALXMLNode
+    );
+    procedure AddPointAppearence(
+      const AAppearence: IAppearance;
+      const inNode: TALXMLNode
+    );
+    procedure AddLineAppearence(
+      const AAppearance: IAppearance;
+      const inNode: TALXMLNode
+    );
+    procedure AddPolygonAppearence(
+      const AAppearance: IAppearance;
+      const inNode: TALXMLNode
+    );
+    procedure AddPoint(
+      const AGeometry: IGeometryLonLatPoint;
       const inNode: TALXMLNode
     );
     procedure AddSingleLine(
@@ -267,6 +284,22 @@ begin
   end;
 end;
 
+procedure TExportMarks2KML.AddPoint(
+  const AGeometry: IGeometryLonLatPoint;
+  const inNode: TALXMLNode
+);
+var
+  currNode: TALXMLNode;
+  VCoordinates: AnsiString;
+begin
+  currNode := inNode.AddChild('Point');
+  currNode.ChildNodes['extrude'].Text := '1';
+  with AGeometry.Point do begin
+    VCoordinates := R2AnsiStrPoint(X) + ',' + R2AnsiStrPoint(Y) + ',0 ';
+  end;
+  currNode.ChildNodes['coordinates'].Text := VCoordinates;
+end;
+
 procedure TExportMarks2KML.AddSingleLine(
   const AGeometry: IGeometryLonLatSingleLine;
   const inNode: TALXMLNode
@@ -386,22 +419,107 @@ begin
   end;
 end;
 
+procedure TExportMarks2KML.AddPointAppearence(
+  const AAppearence: IAppearance;
+  const inNode: TALXMLNode
+);
+var
+  VAppearanceIcon: IAppearancePointIcon;
+  VAppearanceCaption: IAppearancePointCaption;
+  width: integer;
+  VFileName: string;
+begin
+  if not Supports(AAppearence, IAppearancePointIcon, VAppearanceIcon) then begin
+    VAppearanceIcon := nil;
+  end;
+  if not Supports(AAppearence, IAppearancePointCaption, VAppearanceCaption) then begin
+    VAppearanceCaption := nil;
+  end;
+  if (VAppearanceCaption <> nil) or (VAppearanceIcon <> nil) then begin
+    with inNode.AddChild('Style') do begin
+      if VAppearanceCaption <> nil then begin
+        with AddChild('LabelStyle') do begin
+          ChildNodes['color'].Text := Color32toKMLColor(VAppearanceCaption.TextColor);
+          ChildNodes['scale'].Text := R2AnsiStrPoint(VAppearanceCaption.FontSize / 14);
+        end;
+      end;
+      if VAppearanceIcon <> nil then begin
+        if VAppearanceIcon.Pic <> nil then begin
+          with AddChild('IconStyle') do begin
+            VFileName := SaveMarkIcon(VAppearanceIcon);
+            width := VAppearanceIcon.Pic.GetMarker.Size.X;
+            ChildNodes['scale'].Text := R2AnsiStrPoint(VAppearanceIcon.MarkerSize / width);
+            with AddChild('Icon') do begin
+              ChildNodes['href'].Text := UTF8Encode(VFileName);
+            end;
+            with AddChild('hotSpot') do begin
+              Attributes['x'] := '0.5';
+              Attributes['y'] := '0';
+              Attributes['xunits'] := 'fraction';
+              Attributes['yunits'] := 'fraction';
+            end;
+          end;
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure TExportMarks2KML.AddLineAppearence(
+  const AAppearance: IAppearance;
+  const inNode: TALXMLNode
+);
+var
+  VAppearanceLine: IAppearanceLine;
+begin
+  if Supports(AAppearance, IAppearanceLine, VAppearanceLine) then begin
+    with inNode.AddChild('Style') do begin
+      with AddChild('LineStyle') do begin
+        ChildNodes['color'].Text := Color32toKMLColor(VAppearanceLine.LineColor);
+        ChildNodes['width'].Text := R2AnsiStrPoint(VAppearanceLine.LineWidth);
+      end;
+    end;
+  end;
+end;
+
+procedure TExportMarks2KML.AddPolygonAppearence(
+  const AAppearance: IAppearance;
+  const inNode: TALXMLNode
+);
+var
+  VAppearanceBorder: IAppearancePolygonBorder;
+  VAppearanceFill: IAppearancePolygonFill;
+begin
+  if not Supports(AAppearance, IAppearancePolygonBorder, VAppearanceBorder) then begin
+    VAppearanceBorder := nil;
+  end;
+  if not Supports(AAppearance, IAppearancePolygonFill, VAppearanceFill) then begin
+    VAppearanceFill := nil;
+  end;
+  if (VAppearanceBorder <> nil) or (VAppearanceFill <> nil) then begin
+    with inNode.AddChild('Style') do begin
+      if VAppearanceBorder <> nil then begin
+        with AddChild('LineStyle') do begin
+          ChildNodes['color'].Text := Color32toKMLColor(VAppearanceBorder.LineColor);
+          ChildNodes['width'].Text := R2AnsiStrPoint(VAppearanceBorder.LineWidth);
+        end;
+      end;
+      if VAppearanceFill <> nil then begin
+        with AddChild('PolyStyle') do begin
+          ChildNodes['color'].Text := Color32toKMLColor(VAppearanceFill.FillColor);
+          ChildNodes['fill'].Text := '1';
+        end;
+      end;
+    end;
+  end;
+end;
+
 procedure TExportMarks2KML.AddMark(
   const AMark: IVectorDataItem;
   const inNode: TALXMLNode
 );
 var
-  i: integer;
-  width: integer;
   currNode: TALXMLNode;
-  rootNode: TALXMLNode;
-  VCoordinates: AnsiString;
-  VFileName: string;
-  VAppearanceIcon: IAppearancePointIcon;
-  VAppearanceCaption: IAppearancePointCaption;
-  VAppearanceLine: IAppearanceLine;
-  VAppearanceBorder: IAppearancePolygonBorder;
-  VAppearanceFill: IAppearancePolygonFill;
   VLonLatPoint: IGeometryLonLatPoint;
   VLonLatPolygon: IGeometryLonLatPolygon;
   VLonLatLine: IGeometryLonLatLine;
@@ -411,79 +529,13 @@ begin
   currNode.ChildNodes['description'].Text := UTF8Encode(XMLTextPrepare(AMark.Desc));
   if Supports(AMark.Geometry, IGeometryLonLatPoint, VLonLatPoint) then begin
     // Placemark
-    if not Supports(AMark.Appearance, IAppearancePointIcon, VAppearanceIcon) then begin
-      VAppearanceIcon := nil;
-    end;
-    if not Supports(AMark.Appearance, IAppearancePointCaption, VAppearanceCaption) then begin
-      VAppearanceCaption := nil;
-    end;
-    if (VAppearanceCaption <> nil) or (VAppearanceIcon <> nil) then begin
-      with currNode.AddChild('Style') do begin
-        if VAppearanceCaption <> nil then begin
-          with AddChild('LabelStyle') do begin
-            ChildNodes['color'].Text := Color32toKMLColor(VAppearanceCaption.TextColor);
-            ChildNodes['scale'].Text := R2AnsiStrPoint(VAppearanceCaption.FontSize / 14);
-          end;
-        end;
-        if VAppearanceIcon <> nil then begin
-          if VAppearanceIcon.Pic <> nil then begin
-            with AddChild('IconStyle') do begin
-              VFileName := SaveMarkIcon(VAppearanceIcon);
-              width := VAppearanceIcon.Pic.GetMarker.Size.X;
-              ChildNodes['scale'].Text := R2AnsiStrPoint(VAppearanceIcon.MarkerSize / width);
-              with AddChild('Icon') do begin
-                ChildNodes['href'].Text := UTF8Encode(VFileName);
-              end;
-              with AddChild('hotSpot') do begin
-                Attributes['x'] := '0.5';
-                Attributes['y'] := '0';
-                Attributes['xunits'] := 'fraction';
-                Attributes['yunits'] := 'fraction';
-              end;
-            end;
-          end;
-        end;
-      end;
-    end;
-    currNode := currNode.AddChild('Point');
-    currNode.ChildNodes['extrude'].Text := '1';
-    with VLonLatPoint.Point do begin
-      VCoordinates := R2AnsiStrPoint(X) + ',' + R2AnsiStrPoint(Y) + ',0 ';
-    end;
-    currNode.ChildNodes['coordinates'].Text := VCoordinates;
+    AddPointAppearence(AMark.Appearance, currNode);
+    AddPoint(VLonLatPoint, currNode);
   end else if Supports(AMark.Geometry, IGeometryLonLatLine, VLonLatLine) then begin
-    if Supports(AMark.Appearance, IAppearanceLine, VAppearanceLine) then begin
-      with currNode.AddChild('Style') do begin
-        with AddChild('LineStyle') do begin
-          ChildNodes['color'].Text := Color32toKMLColor(VAppearanceLine.LineColor);
-          ChildNodes['width'].Text := R2AnsiStrPoint(VAppearanceLine.LineWidth);
-        end;
-      end;
-    end;
+    AddLineAppearence(AMark.Appearance, currNode);
     AddLine(VLonLatLine, currNode);
   end else if Supports(AMark.Geometry, IGeometryLonLatPolygon, VLonLatPolygon) then begin
-    if not Supports(AMark.Appearance, IAppearancePolygonBorder, VAppearanceBorder) then begin
-      VAppearanceBorder := nil;
-    end;
-    if not Supports(AMark.Appearance, IAppearancePolygonFill, VAppearanceFill) then begin
-      VAppearanceFill := nil;
-    end;
-    if (VAppearanceBorder <> nil) or (VAppearanceFill <> nil) then begin
-      with currNode.AddChild('Style') do begin
-        if VAppearanceBorder <> nil then begin
-          with AddChild('LineStyle') do begin
-            ChildNodes['color'].Text := Color32toKMLColor(VAppearanceBorder.LineColor);
-            ChildNodes['width'].Text := R2AnsiStrPoint(VAppearanceBorder.LineWidth);
-          end;
-        end;
-        if VAppearanceFill <> nil then begin
-          with AddChild('PolyStyle') do begin
-            ChildNodes['color'].Text := Color32toKMLColor(VAppearanceFill.FillColor);
-            ChildNodes['fill'].Text := '1';
-          end;
-        end;
-      end;
-    end;
+    AddPolygonAppearence(AMark.Appearance, currNode);
     AddPolygon(VLonLatPolygon, currNode);
   end;
 end;
