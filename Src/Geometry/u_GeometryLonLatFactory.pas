@@ -287,11 +287,11 @@ begin
   end;
   if FPolygonList.Count = 0 then begin
     FMultiPolygonBounds := APolygon.Bounds.Rect;
-    FMultiPolygonHash := APolygon.Hash;
+    FMultiPolygonHash := $db1267d24f3f3f36;
   end else begin
     FMultiPolygonBounds := APolygon.Bounds.UnionWithRect(FMultiPolygonBounds);
-    FHashFunction.UpdateHashByHash(FMultiPolygonHash, APolygon.Hash);
   end;
+  FHashFunction.UpdateHashByHash(FMultiPolygonHash, APolygon.Hash);
   FPolygonList.Add(APolygon);
 end;
 
