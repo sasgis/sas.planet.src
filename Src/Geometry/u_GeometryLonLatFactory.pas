@@ -151,7 +151,7 @@ begin
     end;
     FList.Add(VLine);
     FHashFunction.UpdateHashByHash(FHash, VHash);
-    FBounds := VRect.UnionWithRect(ABounds);
+    FBounds := VRect.UnionWithRect(FBounds);
   end;
 end;
 
