@@ -46,6 +46,7 @@ type
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     procedure ParseStringList(
       AStringList: TALStringList;
+      const ABuilder: IGeometryLonLatLineBuilder;
       const APointsAggregator: IDoublePointsAggregator
     );
     function GetWord(
@@ -122,6 +123,7 @@ var
   VItem: IVectorDataItem;
   VPointsAggregator: IDoublePointsAggregator;
   VPath: IGeometryLonLat;
+  VBuilder: IGeometryLonLatLineBuilder;
 begin
   Result := nil;
   pltstr := TALStringList.Create;
@@ -129,23 +131,22 @@ begin
     pltstr.LoadFromStream(AStream);
     if pltstr.Count > 7 then begin
       VPointsAggregator := TDoublePointsAggregator.Create;
-      ParseStringList(pltstr, VPointsAggregator);
-      if VPointsAggregator.Count > 0 then begin
-        VPath := FVectorGeometryLonLatFactory.CreateLonLatLine(VPointsAggregator.Points, VPointsAggregator.Count);
-        if Assigned(VPath) then begin
-          trackname := string(GetWord(pltstr[4], ',', 4));
-          VItem :=
-            FVectorDataFactory.BuildItem(
-              AVectorDataItemMainInfoFactory.BuildMainInfo(AIdData, trackname, ''),
-              nil,
-              VPath
-            );
-        end;
-        VList := FVectorItemSubsetBuilderFactory.Build;
+      VBuilder := FVectorGeometryLonLatFactory.MakeLineBuilder;
+      ParseStringList(pltstr, VBuilder, VPointsAggregator);
+      VPath := VBuilder.MakeStaticAndClear;
+      if Assigned(VPath) then begin
+        trackname := string(GetWord(pltstr[4], ',', 4));
+        VItem :=
+          FVectorDataFactory.BuildItem(
+            AVectorDataItemMainInfoFactory.BuildMainInfo(AIdData, trackname, ''),
+            nil,
+            VPath
+          );
         if Assigned(VItem) then begin
+          VList := FVectorItemSubsetBuilderFactory.Build;
           VList.Add(VItem);
+          Result := VList.MakeStaticAndClear;
         end;
-        Result := VList.MakeStaticAndClear;
       end;
     end;
   finally
@@ -155,6 +156,7 @@ end;
 
 procedure TPLTSimpleParser.ParseStringList(
   AStringList: TALStringList;
+  const ABuilder: IGeometryLonLatLineBuilder;
   const APointsAggregator: IDoublePointsAggregator
 );
 var
@@ -167,8 +169,9 @@ begin
     try
       VStr := AStringList[i];
       if (GetWord(VStr, ',', 3) = '1') and (i > 6) then begin
-        VPoint := CEmptyDoublePoint;
-        APointsAggregator.Add(VPoint);
+        if APointsAggregator.Count > 0 then begin
+          ABuilder.AddLine(APointsAggregator.MakeStaticAndClear);
+        end;
       end;
       VValidPoint := True;
       try
@@ -182,6 +185,9 @@ begin
       end;
     except
     end;
+  end;
+  if APointsAggregator.Count > 0 then begin
+    ABuilder.AddLine(APointsAggregator.MakeStaticAndClear);
   end;
 end;
 
