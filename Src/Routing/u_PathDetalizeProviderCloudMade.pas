@@ -51,7 +51,8 @@ type
     FInetConfig: IInetConfig;
     function ProcessSinglePath(
       const ASource: IGeometryLonLatSingleLine;
-      const VPointsAggregator: IDoublePointsAggregator;
+      const APointsAggregator: IDoublePointsAggregator;
+      const ABuilder: IGeometryLonLatLineBuilder;
       const ACancelNotifier: INotifierOperation;
       const AOperationID: Integer;
       var seconds: Integer;
@@ -109,7 +110,8 @@ end;
 
 function TPathDetalizeProviderCloudMade.ProcessSinglePath(
   const ASource: IGeometryLonLatSingleLine;
-  const VPointsAggregator: IDoublePointsAggregator;
+  const APointsAggregator: IDoublePointsAggregator;
+  const ABuilder: IGeometryLonLatLineBuilder;
   const ACancelNotifier: INotifierOperation;
   const AOperationID: Integer;
   var seconds: Integer;
@@ -181,7 +183,7 @@ begin
               VPoint.Y := str2r(copy(pathstr, posit + 1, posit2 - (posit + 1)));
               posit := PosEx(']', pathstr, posit2);
               VPoint.X := str2r(copy(pathstr, posit2 + 1, posit - (posit2 + 1)));
-              VPointsAggregator.Add(VPoint);
+              APointsAggregator.Add(VPoint);
               if pathstr[posit + 1] = ']' then
               begin
                 posit := -1;
@@ -209,6 +211,9 @@ begin
       VPrevPoint := VCurrPoint;
     end;
   end;
+  if APointsAggregator.Count > 0 then begin
+    ABuilder.AddLine(APointsAggregator.MakeStaticAndClear);
+  end;
 end;
 
 function TPathDetalizeProviderCloudMade.GetPath(
@@ -225,6 +230,7 @@ var
   VDateT1: TDateTime;
   VSingleLine: IGeometryLonLatSingleLine;
   VMultiLine: IGeometryLonLatMultiLine;
+  VBuilder: IGeometryLonLatLineBuilder;
   i: integer;
 begin
   Result := nil;
@@ -232,11 +238,13 @@ begin
   meters := 0;
   seconds := 0;
   VPointsAggregator := TDoublePointsAggregator.Create;
+  VBuilder := FVectorGeometryLonLatFactory.MakeLineBuilder;
   if Supports(ASource, IGeometryLonLatSingleLine, VSingleLine) then begin
     conerr :=
       ProcessSinglePath(
         VSingleLine,
         VPointsAggregator,
+        VBuilder,
         ACancelNotifier,
         AOperationID,
         seconds,
@@ -255,6 +263,7 @@ begin
         ProcessSinglePath(
           VSingleLine,
           VPointsAggregator,
+          VBuilder,
           ACancelNotifier,
           AOperationID,
           seconds,
@@ -266,11 +275,10 @@ begin
       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         Exit;
       end;
-      VPointsAggregator.Add(CEmptyDoublePoint);
     end;
   end;
   if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-    Result := FVectorGeometryLonLatFactory.CreateLonLatLine(VPointsAggregator.Points, VPointsAggregator.Count);
+    Result := VBuilder.MakeStaticAndClear;
     if meters > 1000 then begin
       AComment := SAS_STR_MarshLen + ' ' + RoundEx(meters / 1000, 2) + ' ' + SAS_UNITS_km;
     end else begin

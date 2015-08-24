@@ -101,6 +101,7 @@ function ProcessSinglePath(
   AOperationID: Integer;
   const ASource: IGeometryLonLatSingleLine;
   const APointsAggregator: IDoublePointsAggregator;
+  const ABuilder: IGeometryLonLatLineBuilder;
   const ABaseUrl: AnsiString;
   const ADownloader: IDownloader;
   const AInetConfig: IInetConfig;
@@ -124,13 +125,18 @@ begin
   VEnum := ASource.GetEnum;
   if VEnum.Next(VPrevPoint) then begin
     while VEnum.Next(VCurrPoint) do begin
-      if Result then begin
-        Continue;
+      if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+        Result := false;
+        exit;
       end;
       url := ABaseUrl + '&flat=' + R2AnsiStrPoint(VPrevPoint.y) + '&flon=' + R2AnsiStrPoint(VPrevPoint.x) +
         '&tlat=' + R2AnsiStrPoint(VCurrPoint.y) + '&tlon=' + R2AnsiStrPoint(VCurrPoint.x);
       VRequest := TDownloadRequest.Create(url, '', AInetConfig.GetStatic);
       VResult := ADownloader.DoRequest(VRequest, ACancelNotifier, AOperationID);
+      if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+        Result := false;
+        exit;
+      end;
       if Supports(VResult, IDownloadResultOk, VResultOk) then begin
         kml := AKmlLoader.Load(VResultOk.Data, nil, AVectorDataItemMainInfoFactory);
         if kml <> nil then begin
@@ -156,6 +162,9 @@ begin
       VPrevPoint := VCurrPoint;
     end;
   end;
+  if APointsAggregator.Count > 0 then begin
+    ABuilder.AddLine(APointsAggregator.MakeStaticAndClear);
+  end;
 end;
 
 function TPathDetalizeProviderYourNavigation.GetPath(
@@ -169,12 +178,14 @@ var
   VPointsAggregator: IDoublePointsAggregator;
   VSingleLine: IGeometryLonLatSingleLine;
   VMultiLine: IGeometryLonLatMultiLine;
+  VBuilder: IGeometryLonLatLineBuilder;
   i: Integer;
 begin
   Result := nil;
   AComment := '';
   conerr := false;
   VPointsAggregator := TDoublePointsAggregator.Create;
+  VBuilder := FVectorGeometryLonLatFactory.MakeLineBuilder;
   if Supports(ASource, IGeometryLonLatSingleLine, VSingleLine) then begin
     conerr :=
       not ProcessSinglePath(
@@ -182,6 +193,7 @@ begin
         AOperationID,
         VSingleLine,
         VPointsAggregator,
+        VBuilder,
         FBaseUrl,
         FDownloader,
         FInetConfig,
@@ -197,6 +209,7 @@ begin
           AOperationID,
           VSingleLine,
           VPointsAggregator,
+          VBuilder,
           FBaseUrl,
           FDownloader,
           FInetConfig,
@@ -212,7 +225,7 @@ begin
   end;
 
   if not conerr then begin
-    Result := FVectorGeometryLonLatFactory.CreateLonLatLine(VPointsAggregator.Points, VPointsAggregator.Count);
+    Result := VBuilder.MakeStaticAndClear;
   end;
 end;
 
