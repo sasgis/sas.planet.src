@@ -153,6 +153,10 @@ begin
     FreeMem(Buf);
   end;
 end;
+function PointToKml(const APoint: TDoublePoint): AnsiString; inline;
+begin
+  Result := R2AnsiStrPoint(APoint.X) + ',' + R2AnsiStrPoint(APoint.Y) + ',0 ';
+end;
 
 function GetKMLCoordinates(const APointEnum: IEnumLonLatPoint): AnsiString;
 var
@@ -160,7 +164,7 @@ var
 begin
   Result := '';
   while APointEnum.Next(VPoint) do begin
-    Result := Result + R2AnsiStrPoint(VPoint.X) + ',' + R2AnsiStrPoint(VPoint.Y) + ',0 ';
+    Result := Result + PointToKml(VPoint);
   end;
 end;
 
@@ -294,9 +298,7 @@ var
 begin
   currNode := inNode.AddChild('Point');
   currNode.ChildNodes['extrude'].Text := '1';
-  with AGeometry.Point do begin
-    VCoordinates := R2AnsiStrPoint(X) + ',' + R2AnsiStrPoint(Y) + ',0 ';
-  end;
+  VCoordinates := PointToKml(AGeometry.Point);
   currNode.ChildNodes['coordinates'].Text := VCoordinates;
 end;
 
@@ -310,7 +312,12 @@ var
 begin
   currNode := inNode.AddChild('LineString');
   currNode.ChildNodes['extrude'].Text := '1';
-  VCoordinates := GetKMLCoordinates(AGeometry.GetEnum);
+  if AGeometry.Count > 1 then begin
+    VCoordinates := GetKMLCoordinates(AGeometry.GetEnum);
+  end else begin
+    VCoordinates := PointToKml(AGeometry.Points[0]);
+    VCoordinates := VCoordinates + VCoordinates;
+  end;
   currNode.ChildNodes['coordinates'].Text := VCoordinates;
 end;
 
@@ -357,6 +364,8 @@ procedure TExportMarks2KML.AddContour(
 var
   currNode: TALXMLNode;
   VCoordinates: AnsiString;
+  VFirst: PDoublePoint;
+  VSecond: PDoublePoint;
 begin
   if AOuter then begin
     currNode := inNode.AddChild('outerBoundaryIs');
@@ -364,7 +373,21 @@ begin
     currNode := inNode.AddChild('innerBoundaryIs');
   end;
   currNode := currNode.AddChild('LinearRing');
-  VCoordinates := GetKMLCoordinates(AGeometry.GetEnum);
+  if AGeometry.Count > 2 then begin
+    VCoordinates := GetKMLCoordinates(AGeometry.GetEnum);
+  end else if AGeometry.Count > 1 then begin
+    VFirst := Addr(AGeometry.Points[0]);
+    VSecond := VFirst;
+    Inc(VSecond);
+    VCoordinates :=
+      PointToKml(VFirst^) +
+      PointToKml(VSecond^) +
+      PointToKml(VSecond^) +
+      PointToKml(VFirst^);
+  end else begin
+    VCoordinates := PointToKml(AGeometry.Points[0]);
+    VCoordinates := VCoordinates + VCoordinates + VCoordinates + VCoordinates;
+  end;
   currNode.ChildNodes['coordinates'].Text := VCoordinates;
 end;
 
