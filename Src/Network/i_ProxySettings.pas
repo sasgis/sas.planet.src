@@ -40,11 +40,11 @@ type
     function GetUseLogin: boolean;
     property UseLogin: boolean read GetUseLogin;
 
-    function GetLogin: AnsiString;
-    property Login: AnsiString read GetLogin;
+    function GetLogin: string;
+    property Login: string read GetLogin;
 
-    function GetPassword: AnsiString;
-    property Password: AnsiString read GetPassword;
+    function GetPassword: string;
+    property Password: string read GetPassword;
   end;
 
   IProxyConfig = interface(IConfigDataElement)
@@ -65,13 +65,13 @@ type
     procedure SetUseLogin(AValue: Boolean);
     property UseLogin: boolean read GetUseLogin write SetUseLogin;
 
-    function GetLogin: AnsiString; safecall;
-    procedure SetLogin(const AValue: AnsiString);
-    property Login: AnsiString read GetLogin write SetLogin;
+    function GetLogin: string; safecall;
+    procedure SetLogin(const AValue: string);
+    property Login: string read GetLogin write SetLogin;
 
-    function GetPassword: AnsiString; safecall;
-    procedure SetPassword(const AValue: AnsiString);
-    property Password: AnsiString read GetPassword write SetPassword;
+    function GetPassword: string; safecall;
+    procedure SetPassword(const AValue: string);
+    property Password: string read GetPassword write SetPassword;
 
     function GetStatic: IProxyConfigStatic;
   end;

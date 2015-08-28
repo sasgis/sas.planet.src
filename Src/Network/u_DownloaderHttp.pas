@@ -55,8 +55,8 @@ type
     ProxyUseCustomSettings: Boolean;
     ProxyHost: AnsiString;
     ProxyUseLogin: Boolean;
-    ProxyUserName: AnsiString;
-    ProxyPassword: AnsiString;
+    ProxyUserName: string;
+    ProxyPassword: string;
   end;
 
   TDownloaderHttp = class(TBaseInterfacedObject, IDownloader, IDownloaderAsync)
