@@ -880,9 +880,8 @@ begin
   VLocalConverter := FViewPortState.GetStatic;
 
   VScreenCenter :=
-    VLocalConverter.GeoConverter.LonLat2TilePosFloat(
-      VLocalConverter.GetCenterLonLat,
-      VLocalConverter.Zoom
+    VLocalConverter.ProjectionInfo.LonLat2TilePosFloat(
+      VLocalConverter.GetCenterLonLat
     );
 
   VPoint := PointFromDoublePoint(VScreenCenter, prToTopLeft);
