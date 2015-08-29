@@ -94,6 +94,7 @@ uses
   t_Hash,
   i_TileIterator,
   i_CoordConverter,
+  i_ProjectionInfo,
   i_Bitmap32Static,
   u_SimpleFlagWithInterlock,
   u_ListenerByEvent,
@@ -233,10 +234,7 @@ begin
               end;
               if VReadyId <> VShownId then begin
                 VMapRect :=
-                  VLocalConverter.GeoConverter.TilePos2PixelRect(
-                    VTile,
-                    VLocalConverter.Zoom
-                  );
+                  VLocalConverter.ProjectionInfo.TilePos2PixelRect(VTile);
                 VDstRect := VLocalConverter.MapRect2LocalRect(VMapRect, rrClosest);
                 FShownIdMatrix.Tiles[VTile] := VReadyId;
                 FLayer.Changed(VDstRect);
@@ -261,9 +259,9 @@ procedure TTiledMapLayer.PaintLayerFromTileMatrix(
 );
 var
   VTileRectInClipRect: TRect;
-  VConverter: ICoordConverter;
-  VZoomDst: Byte;
-  VZoomSrc: Byte;
+  VProjectionDst: IProjectionInfo;
+  VProjectionSrc: IProjectionInfo;
+  VSameProjection: Boolean;
   VTileIterator: TTileIteratorByRectRecord;
   VTile: TPoint;
   VBitmap: IBitmap32Static;
@@ -276,21 +274,21 @@ var
   VRelativeRect: TDoubleRect;
 begin
   inherited;
-  VConverter := ALocalConverter.GeoConverter;
-  if not VConverter.IsSameConverter(ATileMatrix.TileRect.ProjectionInfo.GeoConverter) then begin
-    Exit;
-  end;
-  VZoomDst := ALocalConverter.Zoom;
-  VZoomSrc := ATileMatrix.TileRect.ProjectionInfo.Zoom;
-  if VZoomDst <> VZoomSrc then begin
+  VProjectionDst := ALocalConverter.ProjectionInfo;
+  VProjectionSrc := ATileMatrix.TileRect.ProjectionInfo;
+  VSameProjection := VProjectionDst.GetIsSameProjectionInfo(VProjectionSrc);
+  if not VSameProjection then begin
     VMapPixelRect := ALocalConverter.LocalRect2MapRectFloat(ABuffer.ClipRect);
-    VConverter.ValidatePixelRectFloat(VMapPixelRect, VZoomDst);
-    VRelativeRect := VConverter.PixelRectFloat2RelativeRect(VMapPixelRect, VZoomDst);
-    VTileRectInClipRect := RectFromDoubleRect(VConverter.RelativeRect2TileRectFloat(VRelativeRect, VZoomSrc), rrOutside);
+    VProjectionDst.ValidatePixelRectFloat(VMapPixelRect);
+    VRelativeRect := VProjectionDst.PixelRectFloat2RelativeRect(VMapPixelRect);
+    VTileRectInClipRect := RectFromDoubleRect(VProjectionSrc.RelativeRect2TileRectFloat(VRelativeRect), rrOutside);
   end else begin
+    if not VProjectionDst.ProjectionType.IsSame(VProjectionSrc.ProjectionType) then begin
+      Exit;
+    end;
     VMapPixelRect := ALocalConverter.LocalRect2MapRectFloat(ABuffer.ClipRect);
-    VConverter.ValidatePixelRectFloat(VMapPixelRect, VZoomDst);
-    VTileRectInClipRect := RectFromDoubleRect(VConverter.PixelRectFloat2TileRectFloat(VMapPixelRect, VZoomSrc), rrOutside);
+    VProjectionDst.ValidatePixelRectFloat(VMapPixelRect);
+    VTileRectInClipRect := RectFromDoubleRect(VProjectionSrc.PixelRectFloat2TileRectFloat(VMapPixelRect), rrOutside);
   end;
   if Types.IntersectRect(VTileRectInClipRect, VTileRectInClipRect, ATileMatrix.TileRect.Rect) then begin
     VResampler := nil;
@@ -299,17 +297,17 @@ begin
       while VTileIterator.Next(VTile) do begin
         VBitmap := ATileMatrix.GetElementByTile(VTile);
         if Assigned(VBitmap) then begin
-          if VZoomDst <> VZoomSrc then begin
-            VRelativeRect := VConverter.TilePos2RelativeRect(VTile, VZoomSrc);
+          if not VSameProjection then begin
+            VRelativeRect := VProjectionSrc.TilePos2RelativeRect(VTile);
             VDstRect :=
               RectFromDoubleRect(
-                ALocalConverter.MapRectFloat2LocalRectFloat(VConverter.RelativeRect2PixelRectFloat(VRelativeRect, VZoomDst)),
+                ALocalConverter.MapRectFloat2LocalRectFloat(VProjectionDst.RelativeRect2PixelRectFloat(VRelativeRect)),
                 rrClosest
               );
           end else begin
             VDstRect :=
               ALocalConverter.MapRect2LocalRect(
-                VConverter.TilePos2PixelRect(VTile, VZoomSrc),
+                VProjectionSrc.TilePos2PixelRect(VTile),
                 rrClosest
               );
           end;
