@@ -43,6 +43,7 @@ implementation
 
 uses
   SysUtils,
+  Math,
   u_GeoFunc;
 
 const CPointsCount = 1000;
