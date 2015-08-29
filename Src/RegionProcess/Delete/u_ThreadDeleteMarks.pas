@@ -242,7 +242,7 @@ var
   VMultiPolygon: IGeometryLonLatMultiPolygon;
 begin
   Result := False;
-  VProjectedBounds := AProjection.GeoConverter.LonLatRect2PixelRectFloat(AGeometry.Bounds.Rect, AProjection.Zoom);
+  VProjectedBounds := AProjection.LonLatRect2PixelRectFloat(AGeometry.Bounds.Rect);
   if not IsIntersecProjectedRect(AProjectedPolygon.Bounds, VProjectedBounds) then begin
     Exit;
   end;

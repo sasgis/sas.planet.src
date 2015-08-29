@@ -272,7 +272,7 @@ begin
     end;
   end;
   if VCirclesLonLat = nil then begin
-    VCirclesLonLat := GetLonLatCirclesByPoint(VLonLat, ALocalConverter.ProjectionInfo.GeoConverter.Datum, VConfig);
+    VCirclesLonLat := GetLonLatCirclesByPoint(VLonLat, ALocalConverter.ProjectionInfo.ProjectionType.Datum, VConfig);
   end;
   if VCirclesLonLat = nil then begin
     Exit;

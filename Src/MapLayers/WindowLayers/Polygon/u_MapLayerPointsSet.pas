@@ -333,22 +333,18 @@ procedure PrepareSingleLine(
   var AActivePointIndex: Integer
 );
 var
-  VConverter: ICoordConverter;
-  VZoom: Byte;
   i: Integer;
   VLonLatPoint: TDoublePoint;
   VPrevPoint: TDoublePoint;
   VProjectedPoint: TDoublePoint;
 begin
-  VConverter := AProjection.GeoConverter;
-  VZoom := AProjection.Zoom;
   if AProjectedPoints.Count > 0 then begin
     VPrevPoint := AProjectedPoints.Points[AProjectedPoints.Count - 1];
   end;
   for i := 0 to AGeometry.Count - 1 do begin
     VLonLatPoint := AGeometry.Points[i];
-    VConverter.ValidateLonLatPos(VLonLatPoint);
-    VProjectedPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
+    AProjection.ProjectionType.ValidateLonLatPos(VLonLatPoint);
+    VProjectedPoint := AProjection.LonLat2PixelPosFloat(VLonLatPoint);
     if (ASourceActivePointIndex = AIndex) then begin
       AActivePointIndex := AProjectedPoints.Count;
       AProjectedPoints.Add(VProjectedPoint);
@@ -434,22 +430,18 @@ procedure PrepareContour(
   var AActivePointIndex: Integer
 );
 var
-  VConverter: ICoordConverter;
-  VZoom: Byte;
   i: Integer;
   VLonLatPoint: TDoublePoint;
   VPrevPoint: TDoublePoint;
   VProjectedPoint: TDoublePoint;
 begin
-  VConverter := AProjection.GeoConverter;
-  VZoom := AProjection.Zoom;
   if AProjectedPoints.Count > 0 then begin
     VPrevPoint := AProjectedPoints.Points[AProjectedPoints.Count - 1];
   end;
   for i := 0 to AGeometry.Count - 1 do begin
     VLonLatPoint := AGeometry.Points[i];
-    VConverter.ValidateLonLatPos(VLonLatPoint);
-    VProjectedPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
+    AProjection.ProjectionType.ValidateLonLatPos(VLonLatPoint);
+    VProjectedPoint := AProjection.LonLat2PixelPosFloat(VLonLatPoint);
     if (ASourceActivePointIndex = AIndex) then begin
       AActivePointIndex := AProjectedPoints.Count;
       AProjectedPoints.Add(VProjectedPoint);

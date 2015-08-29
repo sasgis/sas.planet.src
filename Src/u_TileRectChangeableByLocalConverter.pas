@@ -234,6 +234,7 @@ var
   VScale: Double;
   VProjection: IProjectionInfo;
   VProjectionPrev: IProjectionInfo;
+  VConverter: ICoordConverter;
 begin
   Assert(Assigned(AConverter));
   VProjection := AConverter.ProjectionInfo;
@@ -241,8 +242,9 @@ begin
   VProjection.ValidatePixelRectFloat(VPixelRect);
   VScale := AConverter.GetScale;
   VProjectionPrev := nil;
-  if VProjection.GeoConverter.CheckZoom(VProjection.Zoom - 1) then begin
-    VProjectionPrev := FProjectionInfoFactory.GetByConverterAndZoom(VProjection.GeoConverter, VProjection.Zoom - 1);
+  VConverter := AConverter.GeoConverter;
+  if VConverter.CheckZoom(VProjection.Zoom - 1) then begin
+    VProjectionPrev := FProjectionInfoFactory.GetByConverterAndZoom(VConverter, VProjection.Zoom - 1);
   end;
   if (VScale > 0.9) or (not Assigned(VProjectionPrev)) then begin
     VTileRectFloat := VProjection.PixelRectFloat2TileRectFloat(VPixelRect);

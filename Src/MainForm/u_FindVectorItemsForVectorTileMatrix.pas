@@ -137,7 +137,7 @@ begin
       VPixelPos := AVisualConverter.LocalPixel2MapPixelFloat(ALocalPoint);
       VConverter.ValidatePixelPosFloatStrict(VPixelPos, VZoom, False);
       VLonLatPos := VConverter.PixelPosFloat2LonLat(VPixelPos, VZoom);
-      VTile := PointFromDoublePoint(VMatrix.TileRect.ProjectionInfo.GeoConverter.LonLat2TilePosFloat(VLonLatPos, VMatrix.TileRect.ProjectionInfo.Zoom), prToTopLeft);
+      VTile := PointFromDoublePoint(VMatrix.TileRect.ProjectionInfo.LonLat2TilePosFloat(VLonLatPos), prToTopLeft);
       VItems := VMatrix.GetElementByTile(VTile);
       if Assigned(VItems) then begin
         // check element

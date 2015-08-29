@@ -74,9 +74,7 @@ type
     procedure _PrepareSingleLine(
       const AValueConverter: IValueToStringConverter;
       const ALine: IGeometryLonLatSingleLine;
-      const ADatum: IDatum;
-      const AConverter: ICoordConverter;
-      const AZoom: Byte;
+      const AProjection: IProjectionInfo;
       var ATextSizeArray: TArrayOfPoint;
       var AProjectedPoints: IDoublePointsAggregator;
       var ALastStartAzimuth: Double;
@@ -86,9 +84,7 @@ type
     procedure _PrepareMultiLine(
       const AValueConverter: IValueToStringConverter;
       const ALine: IGeometryLonLatMultiLine;
-      const ADatum: IDatum;
-      const AConverter: ICoordConverter;
-      const AZoom: Byte;
+      const AProjection: IProjectionInfo;
       var ATextSizeArray: TArrayOfPoint;
       var AProjectedPoints: IDoublePointsAggregator;
       var ALastStartAzimuth: Double;
@@ -98,9 +94,7 @@ type
     procedure _PrepareGeometry(
       const AValueConverter: IValueToStringConverter;
       const ALine: IGeometryLonLatLine;
-      const ADatum: IDatum;
-      const AConverter: ICoordConverter;
-      const AZoom: Byte;
+      const AProjection: IProjectionInfo;
       var ATextSizeArray: TArrayOfPoint;
       var AProjectedPoints: IDoublePointsAggregator;
       var ALastStartAzimuth: Double;
@@ -140,6 +134,7 @@ implementation
 uses
   SysUtils,
   i_EnumDoublePoint,
+  i_ProjectionType,
   u_ListenerByEvent,
   u_GeoFunc,
   u_DoublePointsAggregator,
@@ -357,9 +352,7 @@ end;
 procedure TMapLayerCalcLineCaptions._PrepareSingleLine(
   const AValueConverter: IValueToStringConverter;
   const ALine: IGeometryLonLatSingleLine;
-  const ADatum: IDatum;
-  const AConverter: ICoordConverter;
-  const AZoom: Byte;
+  const AProjection: IProjectionInfo;
   var ATextSizeArray: TArrayOfPoint;
   var AProjectedPoints: IDoublePointsAggregator;
   var ALastStartAzimuth, ATotalDist: Double;
@@ -377,19 +370,23 @@ var
   VPrevProjected: TDoublePoint;
   VText: string;
   VTextSize: tagSIZE;
+  VProjectionType: IProjectionType;
+  VDatum: IDatum;
 begin
   VEnum := ALine.GetEnum;
   if VEnum.Next(VPrevLonLat) then begin
     VSkipPoint := False;
     VLonLat := VPrevLonLat;
-    AConverter.ValidateLonLatPos(VLonLat);
-    VPrevProjected := AConverter.LonLat2PixelPosFloat(VLonLat, AZoom);
+    VProjectionType := AProjection.ProjectionType;
+    VDatum := VProjectionType.Datum;
+    VProjectionType.ValidateLonLatPos(VLonLat);
+    VPrevProjected := AProjection.LonLat2PixelPosFloat(VLonLat);
     while VEnum.Next(VCurrLonLat) do begin
-      VDist := ADatum.CalcDist(VPrevLonLat, VCurrLonLat, ALastStartAzimuth, VFinishAzimuth);
+      VDist := VDatum.CalcDist(VPrevLonLat, VCurrLonLat, ALastStartAzimuth, VFinishAzimuth);
       ATotalDist := ATotalDist + VDist;
       VLonLat := VCurrLonLat;
-      AConverter.ValidateLonLatPos(VLonLat);
-      VCurrProjected := AConverter.LonLat2PixelPosFloat(VLonLat, AZoom);
+      VProjectionType.ValidateLonLatPos(VLonLat);
+      VCurrProjected := AProjection.LonLat2PixelPosFloat(VLonLat);
       VSkipPoint := ((abs(VPrevProjected.X - VCurrProjected.X) < 60) and (abs(VPrevProjected.Y - VCurrProjected.Y) < 15));
       if not VSkipPoint then begin
         AProjectedPoints.Add(VCurrProjected);
@@ -423,9 +420,7 @@ end;
 procedure TMapLayerCalcLineCaptions._PrepareMultiLine(
   const AValueConverter: IValueToStringConverter;
   const ALine: IGeometryLonLatMultiLine;
-  const ADatum: IDatum;
-  const AConverter: ICoordConverter;
-  const AZoom: Byte;
+  const AProjection: IProjectionInfo;
   var ATextSizeArray: TArrayOfPoint;
   var AProjectedPoints: IDoublePointsAggregator;
   var ALastStartAzimuth, ATotalDist: Double;
@@ -438,9 +433,7 @@ begin
     _PrepareSingleLine(
       AValueConverter,
       ALine.Item[i],
-      ADatum,
-      AConverter,
-      AZoom,
+      AProjection,
       ATextSizeArray,
       AProjectedPoints,
       ALastStartAzimuth,
@@ -453,9 +446,7 @@ end;
 procedure TMapLayerCalcLineCaptions._PrepareGeometry(
   const AValueConverter: IValueToStringConverter;
   const ALine: IGeometryLonLatLine;
-  const ADatum: IDatum;
-  const AConverter: ICoordConverter;
-  const AZoom: Byte;
+  const AProjection: IProjectionInfo;
   var ATextSizeArray: TArrayOfPoint;
   var AProjectedPoints: IDoublePointsAggregator;
   var ALastStartAzimuth: Double;
@@ -470,9 +461,7 @@ begin
     _PrepareSingleLine(
       AValueConverter,
       VSingleLine,
-      ADatum,
-      AConverter,
-      AZoom,
+      AProjection,
       ATextSizeArray,
       AProjectedPoints,
       ALastStartAzimuth,
@@ -483,9 +472,7 @@ begin
     _PrepareMultiLine(
       AValueConverter,
       VMultiLine,
-      ADatum,
-      AConverter,
-      AZoom,
+      AProjection,
       ATextSizeArray,
       AProjectedPoints,
       ALastStartAzimuth,
@@ -505,9 +492,6 @@ procedure TMapLayerCalcLineCaptions.PreparePoints(
 );
 var
   VLine: ILonLatPathWithSelected;
-  VConverter: ICoordConverter;
-  VDatum: IDatum;
-  VZoom: Byte;
   VTotalDist: Double;
   VText: string;
   VTextSize: TSize;
@@ -522,17 +506,12 @@ begin
   if VLine <> nil then begin
     VTotalDist := 0;
     VValueConverter := FValueToStringConverter.GetStatic;
-    VConverter := AProjection.GeoConverter;
-    VZoom := AProjection.Zoom;
-    VDatum := VConverter.Datum;
     ADistStrings := TStringList.Create;
     AProjectedPoints := TDoublePointsAggregator.Create;
     _PrepareGeometry(
       VValueConverter,
       VLine.Geometry,
-      VDatum,
-      VConverter,
-      VZoom,
+      AProjection,
       ATextSizeArray,
       AProjectedPoints,
       VStartAzimuth,

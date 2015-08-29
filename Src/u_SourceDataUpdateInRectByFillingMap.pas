@@ -81,6 +81,7 @@ uses
   t_GeoTypes,
   i_LonLatRect,
   i_CoordConverter,
+  i_ProjectionInfo,
   i_NotifierTilePyramidUpdate,
   u_ListenerByEvent,
   u_TileUpdateListenerToLonLat,
@@ -250,10 +251,10 @@ procedure TSourceDataUpdateInRectByFillingMap._SetListener(
   const ATileRect: ITileRect
 );
 var
-  VZoom: Byte;
   VSourceZoom: Byte;
   VTileRect: TRect;
   VLonLatRect: TDoubleRect;
+  VProjection: IProjectionInfo;
   VConverter: ICoordConverter;
   VMapLonLatRect: TDoubleRect;
   VNotifier: INotifierTilePyramidUpdate;
@@ -262,9 +263,8 @@ begin
     if not Assigned(FMapListener) then begin
       FMapListener := TTileUpdateListenerToLonLat.Create(AMapListened.GeoConvert, Self.OnTileUpdate);
     end;
-    VZoom := ATileRect.ProjectionInfo.Zoom;
-    VConverter := ATileRect.ProjectionInfo.GeoConverter;
-    VLonLatRect := VConverter.TileRect2LonLatRect(ATileRect.Rect, VZoom);
+    VProjection := ATileRect.ProjectionInfo;
+    VLonLatRect := VProjection.TileRect2LonLatRect(ATileRect.Rect);
     VNotifier := AMapListened.TileStorage.TileNotifier;
     if VNotifier <> nil then begin
       VConverter := AMapListened.GeoConvert;
