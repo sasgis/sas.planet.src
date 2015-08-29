@@ -223,8 +223,8 @@ begin
   Assert(abs(ARectInMapPixelFloat.Top - ARectInMapPixel.Top) < 2);
   Assert(abs(ARectInMapPixelFloat.Right - ARectInMapPixel.Right) < 2);
   Assert(abs(ARectInMapPixelFloat.Bottom - ARectInMapPixel.Bottom) < 2);
-  Assert(AProjection.GeoConverter.CheckPixelRect(ARectInMapPixel, AProjection.Zoom));
-  Assert(AProjection.GeoConverter.CheckPixelRectFloat(ARectInMapPixelFloat, AProjection.Zoom));
+  Assert(AProjection.CheckPixelRect(ARectInMapPixel));
+  Assert(AProjection.CheckPixelRectFloat(ARectInMapPixelFloat));
   inherited Create;
   FHash := AHash;
   FLocalRect := ALocalRect;
