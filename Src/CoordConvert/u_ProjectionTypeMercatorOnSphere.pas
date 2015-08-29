@@ -34,6 +34,7 @@ constructor TProjectionTypeMercatorOnSphere.Create(
   const AProjEPSG: integer
 );
 begin
+  Assert(Abs(ADatum.GetSpheroidRadiusA - ADatum.GetSpheroidRadiusB) < 1);
   inherited Create(AHash, ADatum, AProjEPSG);
 end;
 
