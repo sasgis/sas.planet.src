@@ -28,6 +28,7 @@ uses
   i_Notifier,
   i_Listener,
   i_CoordConverter,
+  i_CoordConverterFactory,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_ConfigDataProvider,
@@ -41,6 +42,7 @@ uses
 type
   TMapViewPortState = class(TConfigDataElementBase, IViewPortState)
   private
+    FProjectionFactory: IProjectionInfoFactory;
     FVisibleCoordConverterFactory: ILocalCoordConverterFactorySimpe;
     FMainMap: IMapTypeChangeable;
     FBaseScale: Double;
@@ -89,6 +91,7 @@ type
     );
   public
     constructor Create(
+      const AProjectionFactory: IProjectionInfoFactory;
       const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
       const AMainMap: IMapTypeChangeable;
       const APerfCounterList: IInternalPerformanceCounterList
@@ -100,6 +103,7 @@ implementation
 
 uses
   SysUtils,
+  i_ProjectionInfo,
   u_ListenerByEvent,
   u_LocalCoordConverterChangeable,
   u_GeoFunc;
@@ -107,12 +111,14 @@ uses
 { TMapViewPortStateNew }
 
 constructor TMapViewPortState.Create(
+  const AProjectionFactory: IProjectionInfoFactory;
   const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
   const AMainMap: IMapTypeChangeable;
   const APerfCounterList: IInternalPerformanceCounterList
 );
 var
   VGeoConverter: ICoordConverter;
+  VProjection: IProjectionInfo;
   VLocalConverter: ILocalCoordConverter;
   VCenterPoint: TDoublePoint;
   VLocalRect: TRect;
@@ -121,6 +127,7 @@ var
 begin
   inherited Create;
 
+  FProjectionFactory := AProjectionFactory;
   FVisibleCoordConverterFactory := ACoordConverterFactory;
   FMainMap := AMainMap;
   FMainCoordConverter := nil;
@@ -131,6 +138,8 @@ begin
   VGeoConverter := _GetActiveCoordConverter;
   VZoom := 0;
   VGeoConverter.ValidateZoom(VZoom);
+  VProjection := FProjectionFactory.GetByConverterAndZoom(VGeoConverter, VZoom);
+
   VCenterPoint := RectCenter(VGeoConverter.PixelRectAtZoom(VZoom));
   VLocalRect := Rect(0, 0, 1024, 768);
   VLocalCenter := RectCenter(VLocalRect);
@@ -138,8 +147,7 @@ begin
   VLocalConverter :=
     FVisibleCoordConverterFactory.CreateConverter(
       VLocalRect,
-      VZoom,
-      VGeoConverter,
+      VProjection,
       FBaseScale,
       DoublePoint(VCenterPoint.X - VLocalCenter.X / FBaseScale, VCenterPoint.Y - VLocalCenter.Y / FBaseScale)
     );
@@ -190,6 +198,7 @@ var
   VLocalConverterNew: ILocalCoordConverter;
   VConverter: ICoordConverter;
   VZoom: Byte;
+  VProjection: IProjectionInfo;
   VLonLat: TDoublePoint;
   VMapPixelCenter: TDoublePoint;
   VMapTopLeft: TDoublePoint;
@@ -202,9 +211,10 @@ begin
     VConverter := VLocalConverter.GeoConverter;
     VZoom := AZoom;
     VConverter.ValidateZoom(VZoom);
+    VProjection := FProjectionFactory.GetByConverterAndZoom(VConverter, VZoom);
     VLonLat := ALonLat;
     VConverter.ValidateLonLatPos(VLonLat);
-    VMapPixelCenter := VConverter.LonLat2PixelPosFloat(VLonLat, VZoom);
+    VMapPixelCenter := VProjection.LonLat2PixelPosFloat(VLonLat);
     VLocalRect := VLocalConverter.GetLocalRect;
     VLocalCenter := RectCenter(VLocalRect);
     VMapTopLeft.X := VMapPixelCenter.X - VLocalCenter.X;
@@ -212,8 +222,7 @@ begin
     VLocalConverterNew :=
       FVisibleCoordConverterFactory.CreateConverter(
         VLocalConverter.GetLocalRect,
-        VZoom,
-        VConverter,
+        VProjection,
         FBaseScale,
         VMapTopLeft
       );
@@ -268,7 +277,6 @@ end;
 procedure TMapViewPortState.ChangeViewSize(const ANewSize: TPoint);
 var
   VLocalConverter: ILocalCoordConverter;
-  VGeoConverter: ICoordConverter;
   VLocalConverterNew: ILocalCoordConverter;
   VLocalRectNew: TRect;
   VLocalRectOld: TRect;
@@ -289,7 +297,6 @@ begin
     VLocalConverter := FView.GetStatic;
     VLocalRectOld := VLocalConverter.GetLocalRect;
     if not EqualRect(VLocalRectOld, VLocalRectNew) then begin
-      VGeoConverter := VLocalConverter.GeoConverter;
       VLocalCenterOld := RectCenter(VLocalRectOld);
       VLocalCenterNew := RectCenter(VLocalRectNew);
       VTopLeftMapPixel := VLocalConverter.GetRectInMapPixelFloat.TopLeft;
@@ -299,8 +306,7 @@ begin
       VLocalConverterNew :=
         FVisibleCoordConverterFactory.CreateConverter(
           VLocalRectNew,
-          VLocalConverter.Zoom,
-          VGeoConverter,
+          VLocalConverter.ProjectionInfo,
           VScale,
           VTopLeftMapPixel
         );
@@ -371,10 +377,13 @@ var
   VFreezeMapPoint: TDoublePoint;
   VRelativeFreezePoint: TDoublePoint;
   VMapFreezPointAtNewZoom: TDoublePoint;
+  VProjectionNew: IProjectionInfo;
+  VProjectionOld: IProjectionInfo;
 begin
   LockWrite;
   try
     VLocalConverter := FView.GetStatic;
+    VProjectionOld := VLocalConverter.ProjectionInfo;
     VZoomOld := VLocalConverter.Zoom;
     VZoomNew := AZoom;
     VConverter := VLocalConverter.GeoConverter;
@@ -382,23 +391,24 @@ begin
     if VZoomOld = VZoomNew then begin
       Exit;
     end;
+    VProjectionNew := FProjectionFactory.GetByConverterAndZoom(VConverter, VZoomNew);
+    
     VFreezeMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(AFreezePoint);
-    VConverter.ValidatePixelPosFloatStrict(VFreezeMapPoint, VZoomOld, False);
+    VProjectionOld.ValidatePixelPosFloatStrict(VFreezeMapPoint, False);
     VFreezePoint := VLocalConverter.MapPixelFloat2LocalPixelFloat(VFreezeMapPoint);
-    VRelativeFreezePoint := VConverter.PixelPosFloat2Relative(VFreezeMapPoint, VZoomOld);
-    VMapFreezPointAtNewZoom := VConverter.Relative2PixelPosFloat(VRelativeFreezePoint, VZoomNew);
+    VRelativeFreezePoint := VProjectionOld.PixelPosFloat2Relative(VFreezeMapPoint);
+    VMapFreezPointAtNewZoom := VProjectionNew.Relative2PixelPosFloat(VRelativeFreezePoint);
 
     VLocalRect := VLocalConverter.GetLocalRect;
     VScaleOld := VLocalConverter.GetScale;
 
-    VScaleNew := VScaleOld * (VConverter.PixelsAtZoomFloat(VZoomOld) / VConverter.PixelsAtZoomFloat(VZoomNew));
+    VScaleNew := VScaleOld * (VProjectionOld.GetPixelsFloat / VProjectionNew.GetPixelsFloat);
     VTopLefAtMapView.X := VMapFreezPointAtNewZoom.X - VFreezePoint.X / VScaleNew;
     VTopLefAtMapView.Y := VMapFreezPointAtNewZoom.Y - VFreezePoint.Y / VScaleNew;
     VLocalViewConverterNew :=
       FVisibleCoordConverterFactory.CreateConverter(
         VLocalRect,
-        VZoomNew,
-        VConverter,
+        VProjectionNew,
         VScaleNew,
         VTopLefAtMapView
       );
@@ -538,8 +548,7 @@ begin
     VLocalConverterNew :=
       FVisibleCoordConverterFactory.CreateConverter(
         VLocalRect,
-        VZoom,
-        VGeoConverter,
+        VLocalConverter.ProjectionInfo,
         VNewMapScale,
         VTopLeftMapPosNew
       );

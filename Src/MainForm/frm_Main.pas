@@ -1105,6 +1105,7 @@ begin
   FMapSvcScanStorage := TMapSvcScanStorage.Create(GState.Config.MapSvcScanConfig);
   FViewPortState :=
     TMapViewPortState.Create(
+      GState.ProjectionFactory,
       GState.LocalConverterFactory,
       FMainMapState.ActiveMap,
       GState.DebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('ViewState')
@@ -2853,6 +2854,7 @@ begin
   VMiniMapConverterChangeable :=
     TLocalConverterChangeableOfMiniMap.Create(
       GState.PerfCounterList.CreateAndAddNewCounter('MiniMapConverter'),
+      GState.ProjectionFactory,
       GState.LocalConverterFactory,
       FViewPortState.View,
       FConfig.LayersConfig.MiniMapLayerConfig.LocationConfig

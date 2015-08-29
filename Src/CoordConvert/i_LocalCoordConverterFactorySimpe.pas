@@ -25,6 +25,7 @@ interface
 uses
   Types,
   t_GeoTypes,
+  i_ProjectionInfo,
   i_CoordConverter,
   i_LocalCoordConverter;
 
@@ -33,15 +34,13 @@ type
     ['{102D5E00-4F2C-4425-9EB9-ED4DD77141FB}']
     function CreateConverter(
       const ALocalRect: TRect;
-      const AZoom: Byte;
-      const AGeoConverter: ICoordConverter;
+      const AProjection: IProjectionInfo;
       const AMapScale: Double;
       const AMapPixelAtLocalZero: TDoublePoint
     ): ILocalCoordConverter;
     function CreateConverterNoScale(
       const ALocalRect: TRect;
-      const AZoom: Byte;
-      const AGeoConverter: ICoordConverter;
+      const AProjection: IProjectionInfo;
       const AMapPixelAtLocalZero: TPoint
     ): ILocalCoordConverter;
 
@@ -77,9 +76,8 @@ type
     ): ILocalCoordConverter;
 
     function CreateForTile(
-      const ATile: TPoint;
-      const AZoom: Byte;
-      const AGeoConverter: ICoordConverter
+      const AProjection: IProjectionInfo;
+      const ATile: TPoint
     ): ILocalCoordConverter;
   end;
 
