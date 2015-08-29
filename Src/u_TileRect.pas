@@ -76,7 +76,7 @@ constructor TTileRect.Create(
 );
 begin
   Assert(Assigned(AProjectionInfo));
-  Assert(AProjectionInfo.GeoConverter.CheckTileRect(ARect, AProjectionInfo.Zoom));
+  Assert(AProjectionInfo.CheckTileRect(ARect));
   inherited Create;
   FRect := ARect;
   FProjectionInfo := AProjectionInfo;
