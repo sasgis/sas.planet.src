@@ -109,6 +109,7 @@ implementation
 
 uses
   Math,
+  i_ProjectionInfo,
   i_CoordConverter,
   u_ListenerByEvent,
   u_SimpleFlagWithInterlock,
@@ -175,24 +176,22 @@ procedure TMiniMapLayerViewRect.DrawMainViewRect(
 );
 var
   VViewMapSourceRect: TDoubleRect;
-  VZoomSource: Byte;
+  VProjectionSource: IProjectionInfo;
   VMiniMapRect: TDoubleRect;
   VBitmapRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
-  VGeoConvertSource: ICoordConverter;
-  VGeoConvertMiniMap: ICoordConverter;
+  VProjectionMiniMap: IProjectionInfo;
   VZoomDelta: Integer;
   VFillColor: TColor32;
   VBorderColor: TColor32;
   VDrawRect: TRect;
 begin
   VViewMapSourceRect := AViewConverter.GetRectInMapPixelFloat;
-  VZoomSource := AViewConverter.GetZoom;
-  VGeoConvertSource := AViewConverter.GetGeoConverter;
-  VGeoConvertSource.ValidatePixelRectFloat(VViewMapSourceRect, VZoomSource);
-  VLonLatRect := VGeoConvertSource.PixelRectFloat2LonLatRect(VViewMapSourceRect, VZoomSource);
-  VGeoConvertMiniMap := AMiniMapConverter.GeoConverter;
-  VGeoConvertMiniMap.ValidateLonLatRect(VLonLatRect);
+  VProjectionSource := AViewConverter.ProjectionInfo;
+  VProjectionSource.ValidatePixelRectFloat(VViewMapSourceRect);
+  VLonLatRect := VProjectionSource.PixelRectFloat2LonLatRect(VViewMapSourceRect);
+  VProjectionMiniMap := AMiniMapConverter.ProjectionInfo;
+  VProjectionMiniMap.ProjectionType.ValidateLonLatRect(VLonLatRect);
   VBitmapRect := AMiniMapConverter.LonLatRect2LocalRectFloat(VLonLatRect);
 
   VBitmapRect.Left := VBitmapRect.Left + FViewRectMoveDelta.X;
@@ -208,7 +207,7 @@ begin
       (VMiniMapRect.Right > VBitmapRect.Right) or
       (VMiniMapRect.Bottom > VBitmapRect.Bottom)
     then begin
-      VZoomDelta := VZoomSource - AMiniMapConverter.Zoom;
+      VZoomDelta := VProjectionSource.Zoom - AMiniMapConverter.Zoom;
       VFillColor := SetAlpha(clWhite32, (VZoomDelta) * 35);
       VBorderColor := SetAlpha(clNavy32, (VZoomDelta) * 43);
       VDrawRect := RectFromDoubleRect(VBitmapRect, rrClosest);

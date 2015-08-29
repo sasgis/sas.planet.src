@@ -196,21 +196,19 @@ function TTileRectChangeableByLocalConverterSimple.BuildTileRect(
   const AConverter: ILocalCoordConverter
 ): ITileRect;
 var
-  VZoom: Byte;
   VPixelRect: TDoubleRect;
   VTileRectFloat: TDoubleRect;
   VTileRect: TRect;
-  VConverter: ICoordConverter;
+  VProjection: IProjectionInfo;
 begin
   Assert(Assigned(AConverter));
-  VZoom := AConverter.Zoom;
-  VConverter := AConverter.GeoConverter;
+  VProjection := AConverter.ProjectionInfo;
   VPixelRect := AConverter.GetRectInMapPixelFloat;
-  VConverter.ValidatePixelRectFloat(VPixelRect, VZoom);
-  VTileRectFloat := VConverter.PixelRectFloat2TileRectFloat(VPixelRect, VZoom);
+  VProjection.ValidatePixelRectFloat(VPixelRect);
+  VTileRectFloat := VProjection.PixelRectFloat2TileRectFloat(VPixelRect);
   VTileRect := RectFromDoubleRect(VTileRectFloat, rrOutside);
-  Assert(VConverter.CheckTileRect(VTileRect, VZoom));
-  Result := TTileRect.Create(AConverter.ProjectionInfo, VTileRect);
+  Assert(VProjection.CheckTileRect(VTileRect));
+  Result := TTileRect.Create(VProjection, VTileRect);
 end;
 
 { TTileRectChangeableByLocalConverterSmart }
@@ -229,36 +227,35 @@ function TTileRectChangeableByLocalConverterSmart.BuildTileRect(
   const AConverter: ILocalCoordConverter
 ): ITileRect;
 var
-  VZoom: Byte;
   VPixelRect: TDoubleRect;
   VRelativeRect: TDoubleRect;
   VTileRectFloat: TDoubleRect;
   VTileRect: TRect;
-  VConverter: ICoordConverter;
   VScale: Double;
   VProjection: IProjectionInfo;
-  VZoomMinus: Byte;
+  VProjectionPrev: IProjectionInfo;
 begin
   Assert(Assigned(AConverter));
-  VZoom := AConverter.Zoom;
-  VConverter := AConverter.GeoConverter;
+  VProjection := AConverter.ProjectionInfo;
   VPixelRect := AConverter.GetRectInMapPixelFloat;
-  VConverter.ValidatePixelRectFloat(VPixelRect, VZoom);
+  VProjection.ValidatePixelRectFloat(VPixelRect);
   VScale := AConverter.GetScale;
-  VZoomMinus := VZoom - 1;
-  if (VScale > 0.9) or (not VConverter.CheckZoom(VZoomMinus)) then begin
-    VProjection := AConverter.ProjectionInfo;
-    VTileRectFloat := VConverter.PixelRectFloat2TileRectFloat(VPixelRect, VZoom);
-    VTileRect := RectFromDoubleRect(VTileRectFloat, rrOutside);
-    Assert(VConverter.CheckTileRect(VTileRect, VZoom));
-  end else begin
-    VRelativeRect := VConverter.PixelRectFloat2RelativeRect(VPixelRect, VZoom);
-    VProjection := FProjectionInfoFactory.GetByConverterAndZoom(VConverter, VZoomMinus);
-    VTileRectFloat := VConverter.RelativeRect2TileRectFloat(VRelativeRect, VZoomMinus);
-    VTileRect := RectFromDoubleRect(VTileRectFloat, rrOutside);
-    Assert(VConverter.CheckTileRect(VTileRect, VZoomMinus));
+  VProjectionPrev := nil;
+  if VProjection.GeoConverter.CheckZoom(VProjection.Zoom - 1) then begin
+    VProjectionPrev := FProjectionInfoFactory.GetByConverterAndZoom(VProjection.GeoConverter, VProjection.Zoom - 1);
   end;
-  Result := TTileRect.Create(VProjection, VTileRect);
+  if (VScale > 0.9) or (not Assigned(VProjectionPrev)) then begin
+    VTileRectFloat := VProjection.PixelRectFloat2TileRectFloat(VPixelRect);
+    VTileRect := RectFromDoubleRect(VTileRectFloat, rrOutside);
+    Assert(VProjection.CheckTileRect(VTileRect));
+    Result := TTileRect.Create(VProjection, VTileRect);
+  end else begin
+    VRelativeRect := VProjection.PixelRectFloat2RelativeRect(VPixelRect);
+    VTileRectFloat := VProjectionPrev.RelativeRect2TileRectFloat(VRelativeRect);
+    VTileRect := RectFromDoubleRect(VTileRectFloat, rrOutside);
+    Assert(VProjectionPrev.CheckTileRect(VTileRect));
+    Result := TTileRect.Create(VProjectionPrev, VTileRect);
+  end;
 end;
 
 end.

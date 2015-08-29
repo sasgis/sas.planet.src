@@ -55,6 +55,7 @@ uses
   Math,
   t_GeoTypes,
   i_CoordConverter,
+  i_ProjectionType,
   i_LocalCoordConverter,
   u_ListenerByEvent,
   u_Notifier,
@@ -90,7 +91,7 @@ end;
 function TSensorTextFromNavToPoint.GetCurrentValue: Double;
 var
   VVisualConverter: ILocalCoordConverter;
-  VGeoConverter: ICoordConverter;
+  VProjectionType: IProjectionType;
   VNavActive: Boolean;
   VNavLonLat: TDoublePoint;
   VCenterLonLat: TDoublePoint;
@@ -106,12 +107,12 @@ begin
       FNavigationToPoint.UnlockRead;
     end;
     if VNavActive then begin
-      VGeoConverter := VVisualConverter.GeoConverter;
+      VProjectionType := VVisualConverter.ProjectionInfo.ProjectionType;
 
       VCenterLonLat := VVisualConverter.GetCenterLonLat;
-      VGeoConverter.ValidateLonLatPos(VNavLonLat);
-      VGeoConverter.ValidateLonLatPos(VCenterLonLat);
-      Result := VGeoConverter.Datum.CalcDist(VNavLonLat, VCenterLonLat);
+      VProjectionType.ValidateLonLatPos(VNavLonLat);
+      VProjectionType.ValidateLonLatPos(VCenterLonLat);
+      Result := VProjectionType.Datum.CalcDist(VNavLonLat, VCenterLonLat);
     end;
   end;
 end;
