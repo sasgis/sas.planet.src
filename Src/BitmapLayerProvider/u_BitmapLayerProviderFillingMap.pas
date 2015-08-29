@@ -227,7 +227,6 @@ var
   I, J: Integer;
   VTmpRect: TDoubleRect;
   VMultiPolygonGeo: IGeometryLonLatMultiPolygon;
-  VMultiPolygonProj: IGeometryProjectedMultiPolygon;
 begin
   Result := False;
 
@@ -248,24 +247,13 @@ begin
   end;
 
   if Result then begin
-    Result := False;
-
     Assert(AIntersectedLonLatRect.Left >= ALonLatRect.Left);
     Assert(AIntersectedLonLatRect.Right <= ALonLatRect.Right);
     Assert(AIntersectedLonLatRect.Top <= ALonLatRect.Top);
     Assert(AIntersectedLonLatRect.Bottom >= ALonLatRect.Bottom);
 
     VTmpRect := AProjection.LonLatRect2PixelRectFloat(AIntersectedLonLatRect);
-    if Supports(AProjectedPolygon, IGeometryProjectedMultiPolygon, VMultiPolygonProj) then begin
-      for I := 0 to VMultiPolygonProj.Count - 1 do begin
-        if VMultiPolygonProj.Item[I].IsRectIntersectPolygon(VTmpRect) then begin
-          Result := True;
-          Break;
-        end;
-      end;
-    end else begin
-      Result := AProjectedPolygon.IsRectIntersectPolygon(VTmpRect);
-    end;
+    Result := AProjectedPolygon.IsRectIntersectPolygon(VTmpRect);
   end;
 end;
 
