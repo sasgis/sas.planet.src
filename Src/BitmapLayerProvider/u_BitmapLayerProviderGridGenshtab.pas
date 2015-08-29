@@ -81,7 +81,7 @@ implementation
 uses
   Math,
   t_GeoTypes,
-  i_CoordConverter,
+  i_ProjectionType,
   u_SimpleFlagWithInterlock,
   u_GeoFunc,
   u_GeoToStrFunc,
@@ -131,7 +131,7 @@ var
   VLonLatRectOfCell: TDoubleRect;
   VMapRectOfCell: TDoubleRect;
   VLocalRectOfCell: TDoubleRect;
-  VGeoConvert: ICoordConverter;
+  VProjectionType: IProjectionType;
   VGridRect: TRect;
   i, j: Integer;
   VTextSize: TSize;
@@ -140,12 +140,12 @@ var
   VLocalCellCenter: TDoublePoint;
   VOutPoint: TPoint;
 begin
-  VGeoConvert := AProjection.GeoConverter;
+  VProjectionType := AProjection.ProjectionType;
   VZoom := AProjection.Zoom;
   z := GetGhBordersStepByScale(FScale, VZoom);
   VLocalRect := Rect(0, 0, AMapRect.Right - AMapRect.Left, AMapRect.Bottom - AMapRect.Top);
 
-  VLoadedLonLatRect := VGeoConvert.PixelRect2LonLatRect(AMapRect, VZoom);
+  VLoadedLonLatRect := AProjection.PixelRect2LonLatRect(AMapRect);
   if VLoadedLonLatRect.Top > 90 then begin
     VLoadedLonLatRect.Top := 90;
   end;
@@ -164,8 +164,8 @@ begin
 
   VLonLatRectOfCell.TopLeft := VGridLonLatRect.TopLeft;
   VLonLatRectOfCell.BottomRight := DoublePoint(VGridLonLatRect.Left + z.X, VGridLonLatRect.Top - z.Y);
-  VGeoConvert.ValidateLonLatRect(VLonLatRectOfCell);
-  VMapRectOfCell := VGeoConvert.LonLatRect2PixelRectFloat(VLonLatRectOfCell, VZoom);
+  VProjectionType.ValidateLonLatRect(VLonLatRectOfCell);
+  VMapRectOfCell := AProjection.LonLatRect2PixelRectFloat(VLonLatRectOfCell);
   VLocalRectOfCell := RectMove(VMapRectOfCell, AMapRect.TopLeft);
   if abs(VLocalRectOfCell.Right - VLocalRectOfCell.Left) < 30 then begin
     exit;
@@ -178,14 +178,14 @@ begin
     for j := VGridRect.Bottom + 1 to VGridRect.Top do begin
       VLonLatRectOfCell.Bottom := VLonLatRectOfCell.Top;
       VLonLatRectOfCell.Top := j * z.Y;
-      VGeoConvert.ValidateLonLatRect(VLonLatRectOfCell);
+      VProjectionType.ValidateLonLatRect(VLonLatRectOfCell);
 
       VLonLatCenter := RectCenter(VLonLatRectOfCell);
       VListName := LonLat2GShListName(VLonLatCenter, GetActualGshSCale(FScale, VZoom), 100000000);
 
       VTextSize := FBitmap.TextExtent(VListName);
 
-      VMapRectOfCell := VGeoConvert.LonLatRect2PixelRectFloat(VLonLatRectOfCell, VZoom);
+      VMapRectOfCell := AProjection.LonLatRect2PixelRectFloat(VLonLatRectOfCell);
       VLocalRectOfCell := RectMove(VMapRectOfCell, AMapRect.TopLeft);
       VLocalCellCenter := RectCenter(VLocalRectOfCell);
       VOutPoint := Types.Point(Trunc(VLocalCellCenter.X - VTextSize.cx / 2), Trunc(VLocalCellCenter.Y - VTextSize.cy));
@@ -201,22 +201,20 @@ procedure TBitmapLayerProviderGridGenshtab.DrawLines(
 var
   VLocalRect: TRect;
   z: TDoublePoint;
-  VZoom: Byte;
   VLoadedLonLatRect: TDoubleRect;
   VGridLonLatRect: TDoubleRect;
   VLonLatRectOfCellsLine: TDoubleRect;
   VMapRectOfCellsLine: TDoubleRect;
   VLocalRectOfCellsLine: TRect;
-  VGeoConvert: ICoordConverter;
+  VProjectionType: IProjectionType;
   VGridRect: TRect;
   i: Integer;
 begin
-  VGeoConvert := AProjection.GeoConverter;
-  VZoom := AProjection.Zoom;
-  z := GetGhBordersStepByScale(FScale, VZoom);
+  VProjectionType := AProjection.ProjectionType;
+  z := GetGhBordersStepByScale(FScale, AProjection.Zoom);
   VLocalRect := Rect(0, 0, AMapRect.Right - AMapRect.Left, AMapRect.Bottom - AMapRect.Top);
 
-  VLoadedLonLatRect := VGeoConvert.PixelRect2LonLatRect(AMapRect, VZoom);
+  VLoadedLonLatRect := AProjection.PixelRect2LonLatRect(AMapRect);
   if VLoadedLonLatRect.Top > 90 then begin
     VLoadedLonLatRect.Top := 90;
   end;
@@ -235,8 +233,8 @@ begin
 
   VLonLatRectOfCellsLine.TopLeft := VGridLonLatRect.TopLeft;
   VLonLatRectOfCellsLine.BottomRight := DoublePoint(VGridLonLatRect.Left + z.X, VGridLonLatRect.Top - z.Y);
-  VGeoConvert.ValidateLonLatRect(VLonLatRectOfCellsLine);
-  VMapRectOfCellsLine := VGeoConvert.LonLatRect2PixelRectFloat(VLonLatRectOfCellsLine, VZoom);
+  VProjectionType.ValidateLonLatRect(VLonLatRectOfCellsLine);
+  VMapRectOfCellsLine := AProjection.LonLatRect2PixelRectFloat(VLonLatRectOfCellsLine);
   VLocalRectOfCellsLine :=
     RectFromDoubleRect(
       RectMove(VMapRectOfCellsLine, AMapRect.TopLeft),
@@ -251,8 +249,8 @@ begin
     VLonLatRectOfCellsLine.Top := VGridLonLatRect.Top;
     VLonLatRectOfCellsLine.Right := VLonLatRectOfCellsLine.Left;
     VLonLatRectOfCellsLine.Bottom := VGridLonLatRect.Bottom;
-    VGeoConvert.ValidateLonLatRect(VLonLatRectOfCellsLine);
-    VMapRectOfCellsLine := VGeoConvert.LonLatRect2PixelRectFloat(VLonLatRectOfCellsLine, VZoom);
+    VProjectionType.ValidateLonLatRect(VLonLatRectOfCellsLine);
+    VMapRectOfCellsLine := AProjection.LonLatRect2PixelRectFloat(VLonLatRectOfCellsLine);
     VLocalRectOfCellsLine :=
       RectFromDoubleRect(
         RectMove(VMapRectOfCellsLine, AMapRect.TopLeft),
@@ -278,8 +276,8 @@ begin
     VLonLatRectOfCellsLine.Right := VGridLonLatRect.Right;
     VLonLatRectOfCellsLine.Bottom := VLonLatRectOfCellsLine.Top;
 
-    VGeoConvert.ValidateLonLatRect(VLonLatRectOfCellsLine);
-    VMapRectOfCellsLine := VGeoConvert.LonLatRect2PixelRectFloat(VLonLatRectOfCellsLine, VZoom);
+    VProjectionType.ValidateLonLatRect(VLonLatRectOfCellsLine);
+    VMapRectOfCellsLine := AProjection.LonLatRect2PixelRectFloat(VLonLatRectOfCellsLine);
     VLocalRectOfCellsLine :=
       RectFromDoubleRect(
         RectMove(VMapRectOfCellsLine, AMapRect.TopLeft),
@@ -312,7 +310,7 @@ begin
   Result := nil;
   FCS.BeginWrite;
   try
-    VMapRect := AProjectionInfo.GeoConverter.TilePos2PixelRect(ATile, AProjectionInfo.Zoom);
+    VMapRect := AProjectionInfo.TilePos2PixelRect(ATile);
     InitBitmap(RectSize(VMapRect));
     FBitmapChangeFlag.CheckFlagAndReset;
     if FShowLines then begin
