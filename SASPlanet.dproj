@@ -249,6 +249,7 @@
     <DCCReference Include="Src\CoordConvert\i_LocalCoordConverterFactorySimpe.pas" />
     <DCCReference Include="Src\CoordConvert\i_ProjConverter.pas" />
     <DCCReference Include="Src\CoordConvert\i_ProjectionInfo.pas" />
+    <DCCReference Include="Src\CoordConvert\i_ProjectionType.pas" />
     <DCCReference Include="Src\CoordConvert\u_CoordConverterAbstract.pas" />
     <DCCReference Include="Src\CoordConvert\u_CoordConverterBasic.pas" />
     <DCCReference Include="Src\CoordConvert\u_CoordConverterFactorySimple.pas" />
@@ -267,6 +268,10 @@
     <DCCReference Include="Src\CoordConvert\u_ProjConverterFactory.pas" />
     <DCCReference Include="Src\CoordConvert\u_ProjectionInfo.pas" />
     <DCCReference Include="Src\CoordConvert\u_ProjectionInfoFactory.pas" />
+    <DCCReference Include="Src\CoordConvert\u_ProjectionTypeBase.pas" />
+    <DCCReference Include="Src\CoordConvert\u_ProjectionTypeGELonLat.pas" />
+    <DCCReference Include="Src\CoordConvert\u_ProjectionTypeMercatorOnEllipsoid.pas" />
+    <DCCReference Include="Src\CoordConvert\u_ProjectionTypeMercatorOnSphere.pas" />
     <DCCReference Include="Src\Debug\frm_DebugInfo.pas">
       <Form>frmDebugInfo</Form>
     </DCCReference>
