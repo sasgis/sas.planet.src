@@ -91,20 +91,19 @@ var
   VData: PDataRecord;
   VResultPath: IGeometryProjectedLine;
   VResultPolygon: IGeometryProjectedPolygon;
-  VGeoConverter: ICoordConverter;
+  VProjection: IProjectionInfo;
   VTestArrLenLonLatRect: TDoubleRect;
   VTestArrLenPixelRect: TDoubleRect;
 begin
   Result := nil;
   VData := PDataRecord(AData);
-  VGeoConverter := VData^.ProjectionInfo.GeoConverter;
+  VProjection := VData^.ProjectionInfo;
   if Assigned(VData^.Path) then begin
     VTestArrLenLonLatRect := VData^.Path.Bounds.Rect;
-    VGeoConverter.ValidateLonLatRect(VTestArrLenLonLatRect);
+    VProjection.ProjectionType.ValidateLonLatRect(VTestArrLenLonLatRect);
     VTestArrLenPixelRect :=
-      VGeoConverter.LonLatRect2PixelRectFloat(
-        VTestArrLenLonLatRect,
-        VData^.ProjectionInfo.Zoom
+      VProjection.LonLatRect2PixelRectFloat(
+        VTestArrLenLonLatRect
       );
     if (abs(VTestArrLenPixelRect.Left - VTestArrLenPixelRect.Right) > CMinProjectedLineSize) or
       (abs(VTestArrLenPixelRect.Top - VTestArrLenPixelRect.Bottom) > CMinProjectedLineSize) then begin
@@ -119,11 +118,10 @@ begin
     Result := VResultPath;
   end else if Assigned(VData^.Polygon) then begin
     VTestArrLenLonLatRect := VData^.Polygon.Bounds.Rect;
-    VGeoConverter.ValidateLonLatRect(VTestArrLenLonLatRect);
+    VProjection.ProjectionType.ValidateLonLatRect(VTestArrLenLonLatRect);
     VTestArrLenPixelRect :=
-      VGeoConverter.LonLatRect2PixelRectFloat(
-        VTestArrLenLonLatRect,
-        VData^.ProjectionInfo.Zoom
+      VProjection.LonLatRect2PixelRectFloat(
+        VTestArrLenLonLatRect
       );
     if (abs(VTestArrLenPixelRect.Left - VTestArrLenPixelRect.Right) > CMinProjectedPolygonSize) or
       (abs(VTestArrLenPixelRect.Top - VTestArrLenPixelRect.Bottom) > CMinProjectedPolygonSize) then begin

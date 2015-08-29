@@ -56,7 +56,7 @@ constructor TTileKey.Create(
 );
 begin
   Assert(Assigned(AProjectionInfo));
-  Assert(AProjectionInfo.GeoConverter.CheckTilePosStrict(ATile, AProjectionInfo.Zoom));
+  Assert(AProjectionInfo.CheckTilePosStrict(ATile));
   inherited Create;
   FTile := ATile;
   FProjectionInfo := AProjectionInfo;

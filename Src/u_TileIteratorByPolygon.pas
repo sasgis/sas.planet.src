@@ -44,8 +44,7 @@ type
     FMultiProjected: IGeometryProjectedMultiPolygon;
     // кэш куска
     FLastUsedLine: IGeometryProjectedSinglePolygon;
-    FZoom: Byte;
-    FGeoConverter: ICoordConverter;
+    FProjection: IProjectionInfo;
   private
     function GetTilesTotal: Int64;
     function GetTilesRect: ITileRect;
@@ -79,8 +78,7 @@ var
   VTile: TPoint;
 begin
   inherited Create;
-  FZoom := AProjection.Zoom;
-  FGeoConverter := AProjection.GeoConverter;
+  FProjection := AProjection;
   if not Assigned(AProjected) then begin
     FTilesTotal := 0;
     FTilesRect := Rect(0, 0, 0, 0);
@@ -111,7 +109,7 @@ begin
 
     FTilesRect :=
       RectFromDoubleRect(
-        FGeoConverter.PixelRectFloat2TileRectFloat(VBounds, FZoom),
+        FProjection.PixelRectFloat2TileRectFloat(VBounds),
         rrOutside
       );
     FRect := TTileRect.Create(AProjection, FTilesRect);
@@ -181,7 +179,7 @@ begin
   Result := False;
   while FCurrent.X < FTilesRect.Right do begin
     while FCurrent.Y < FTilesRect.Bottom do begin
-      VRect := FGeoConverter.TilePos2PixelRectFloat(FCurrent, FZoom);
+      VRect := FProjection.TilePos2PixelRectFloat(FCurrent);
       if InternalIntersectPolygon(VRect) then begin
         ATile := FCurrent;
         Result := True;

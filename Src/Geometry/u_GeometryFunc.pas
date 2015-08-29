@@ -69,6 +69,7 @@ uses
   Math,
   SysUtils,
   i_CoordConverter,
+  i_ProjectionType,
   i_EnumDoublePoint,
   u_EnumDoublePointClosePoly,
   u_EnumDoublePointMapPixelToLocalPixel,
@@ -84,8 +85,6 @@ function GetGeometryLonLatPointNearestPoint(
   out ADist: Double
 ): Boolean;
 var
-  VConverter: ICoordConverter;
-  VZoom: byte;
   VLonLatPoint: TDoublePoint;
   VMapPoint: TDoublePoint;
   VDist: Double;
@@ -93,12 +92,10 @@ begin
   Result := False;
   APoint := CEmptyDoublePoint;
   ADist := NaN;
-  VZoom := AProjection.Zoom;
-  VConverter := AProjection.GeoConverter;
   VLonLatPoint := AGeometry.Point;
   if not PointIsEmpty(VLonLatPoint) then begin
-    VConverter.ValidateLonLatPos(VLonLatPoint);
-    VMapPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
+    AProjection.ProjectionType.ValidateLonLatPos(VLonLatPoint);
+    VMapPoint := AProjection.LonLat2PixelPosFloat(VLonLatPoint);
     VDist := Sqr(VMapPoint.X - ACurrMapPixel.X) + Sqr(VMapPoint.Y - ACurrMapPixel.Y);
     Result := True;
     APoint := VLonLatPoint;
@@ -114,8 +111,7 @@ function GetGeometryLonLatLineNearestPoint(
   out ADist: Double
 ): Boolean;
 var
-  VConverter: ICoordConverter;
-  VZoom: byte;
+  VProjectionType: IProjectionType;
   VEnum: IEnumLonLatPoint;
   VLonLatPoint: TDoublePoint;
   VMapPoint: TDoublePoint;
@@ -124,20 +120,19 @@ begin
   Result := False;
   APoint := CEmptyDoublePoint;
   ADist := NaN;
-  VZoom := AProjection.Zoom;
-  VConverter := AProjection.GeoConverter;
+  VProjectionType := AProjection.ProjectionType;
   VEnum := AGeometry.GetEnum;
   if VEnum.Next(VLonLatPoint) then begin
-    VConverter.ValidateLonLatPos(VLonLatPoint);
-    VMapPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
+    VProjectionType.ValidateLonLatPos(VLonLatPoint);
+    VMapPoint := AProjection.LonLat2PixelPosFloat(VLonLatPoint);
     VDist := Sqr(VMapPoint.X - ACurrMapPixel.X) + Sqr(VMapPoint.Y - ACurrMapPixel.Y);
     APoint := VLonLatPoint;
     ADist := VDist;
     Result := True;
 
     while VEnum.Next(VLonLatPoint) do begin
-      VConverter.ValidateLonLatPos(VLonLatPoint);
-      VMapPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
+      VProjectionType.ValidateLonLatPos(VLonLatPoint);
+      VMapPoint := AProjection.LonLat2PixelPosFloat(VLonLatPoint);
       VDist := Sqr(VMapPoint.X - ACurrMapPixel.X) + Sqr(VMapPoint.Y - ACurrMapPixel.Y);
       if VDist < ADist then begin
         ADist := VDist;
@@ -155,8 +150,7 @@ function GetGeometryLonLatContourNearestPoint(
   out ADist: Double
 ): Boolean;
 var
-  VConverter: ICoordConverter;
-  VZoom: byte;
+  VProjectionType: IProjectionType;
   VEnum: IEnumLonLatPoint;
   VLonLatPoint: TDoublePoint;
   VMapPoint: TDoublePoint;
@@ -165,20 +159,19 @@ begin
   Result := False;
   APoint := CEmptyDoublePoint;
   ADist := NaN;
-  VZoom := AProjection.Zoom;
-  VConverter := AProjection.GeoConverter;
+  VProjectionType := AProjection.ProjectionType;
   VEnum := AGeometry.GetEnum;
   if VEnum.Next(VLonLatPoint) then begin
-    VConverter.ValidateLonLatPos(VLonLatPoint);
-    VMapPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
+    VProjectionType.ValidateLonLatPos(VLonLatPoint);
+    VMapPoint := AProjection.LonLat2PixelPosFloat(VLonLatPoint);
     VDist := Sqr(VMapPoint.X - ACurrMapPixel.X) + Sqr(VMapPoint.Y - ACurrMapPixel.Y);
     APoint := VLonLatPoint;
     ADist := VDist;
     Result := True;
 
     while VEnum.Next(VLonLatPoint) do begin
-      VConverter.ValidateLonLatPos(VLonLatPoint);
-      VMapPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
+      VProjectionType.ValidateLonLatPos(VLonLatPoint);
+      VMapPoint := AProjection.LonLat2PixelPosFloat(VLonLatPoint);
       VDist := Sqr(VMapPoint.X - ACurrMapPixel.X) + Sqr(VMapPoint.Y - ACurrMapPixel.Y);
       if VDist < ADist then begin
         ADist := VDist;

@@ -4,7 +4,8 @@ interface
 
 uses
   t_GeoTypes,
-  i_CoordConverter,
+  i_ProjectionType,
+  i_ProjectionInfo,
   i_DoublePointFilter,
   i_EnumDoublePoint,
   u_BaseInterfacedObject;
@@ -13,15 +14,14 @@ type
   TEnumDoublePointLonLatToMapPixel = class(TBaseInterfacedObject, IEnumProjectedPoint)
   private
     FSourceEnum: IEnumLonLatPoint;
-    FZoom: Byte;
-    FConverter: ICoordConverter;
+    FProjection: IProjectionInfo;
+    FProjectionType: IProjectionType;
     FFinished: Boolean;
   private
     function Next(out APoint: TDoublePoint): Boolean;
   public
     constructor Create(
-      AZoom: Byte;
-      const AConverter: ICoordConverter;
+      const AProjection: IProjectionInfo;
       const ASourceEnum: IEnumLonLatPoint
     );
   end;
@@ -29,14 +29,12 @@ type
 type
   TLonLatPointConverter = class(TBaseInterfacedObject, ILonLatPointConverter)
   private
-    FZoom: Byte;
-    FConverter: ICoordConverter;
+    FProjection: IProjectionInfo;
   private
     function CreateFilteredEnum(const ASource: IEnumLonLatPoint): IEnumProjectedPoint;
   public
     constructor Create(
-      AZoom: Byte;
-      const AConverter: ICoordConverter
+      const AProjection: IProjectionInfo
     );
   end;
 
@@ -49,15 +47,16 @@ uses
 { TEnumDoublePointLonLatToMapPixels }
 
 constructor TEnumDoublePointLonLatToMapPixel.Create(
-  AZoom: Byte;
-  const AConverter: ICoordConverter;
+  const AProjection: IProjectionInfo;
   const ASourceEnum: IEnumLonLatPoint
 );
 begin
+  Assert(Assigned(AProjection));
+  Assert(Assigned(ASourceEnum));
   inherited Create;
   FSourceEnum := ASourceEnum;
-  FZoom := AZoom;
-  FConverter := AConverter;
+  FProjection := AProjection;
+  FProjectionType := FProjection.ProjectionType;
   FFinished := False;
 end;
 
@@ -74,8 +73,8 @@ begin
       if PointIsEmpty(VPoint) then begin
         APoint := VPoint;
       end else begin
-        FConverter.ValidateLonLatPos(VPoint);
-        APoint := FConverter.LonLat2PixelPosFloat(VPoint, FZoom);
+        FProjectionType.ValidateLonLatPos(VPoint);
+        APoint := FProjection.LonLat2PixelPosFloat(VPoint);
       end;
       Result := True;
     end else begin
@@ -89,20 +88,19 @@ end;
 { TLonLatPointConverter }
 
 constructor TLonLatPointConverter.Create(
-  AZoom: Byte;
-  const AConverter: ICoordConverter
+  const AProjection: IProjectionInfo
 );
 begin
+  Assert(Assigned(AProjection));
   inherited Create;
-  FZoom := AZoom;
-  FConverter := AConverter;
+  FProjection := AProjection;
 end;
 
 function TLonLatPointConverter.CreateFilteredEnum(
   const ASource: IEnumLonLatPoint
 ): IEnumProjectedPoint;
 begin
-  Result := TEnumDoublePointLonLatToMapPixel.Create(FZoom, FConverter, ASource);
+  Result := TEnumDoublePointLonLatToMapPixel.Create(FProjection, ASource);
 end;
 
 end.

@@ -384,7 +384,7 @@ begin
     end;
     Result := False;
     if FZoom = AProjection.Zoom then begin
-      if FGeoConverter.IsSameConverter(AProjection.GeoConverter) then begin
+      if FProjectionType.IsSame(AProjection.ProjectionType) then begin
         Result := True;
       end;
     end;

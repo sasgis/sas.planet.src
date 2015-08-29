@@ -315,8 +315,7 @@ var
 begin
   VEnum :=
     TEnumDoublePointLonLatToMapPixel.Create(
-      AProjection.Zoom,
-      AProjection.GeoConverter,
+      AProjection,
       ASource.GetEnum
     );
   VEnum := TEnumProjectedPointFilterEqual.Create(VEnum);
@@ -381,8 +380,7 @@ var
 begin
   VEnum :=
     TEnumDoublePointLonLatToMapPixel.Create(
-      AProjection.Zoom,
-      AProjection.GeoConverter,
+      AProjection,
       ASource.OuterBorder.GetEnum
     );
   VEnum := TEnumProjectedPointFilterEqual.Create(VEnum);
@@ -392,8 +390,7 @@ begin
     for i := 0 to ASource.HoleCount - 1 do begin
       VEnum :=
         TEnumDoublePointLonLatToMapPixel.Create(
-          AProjection.Zoom,
-          AProjection.GeoConverter,
+          AProjection,
           ASource.HoleBorder[i].GetEnum
         );
       VEnum := TEnumProjectedPointFilterEqual.Create(VEnum);
