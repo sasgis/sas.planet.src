@@ -62,14 +62,13 @@ type
     function GetIntersectedRect(
       out AIntersectedLonLatRect: TDoubleRect;
       const ALonLatRect: TDoubleRect;
-      const AZoom: Byte;
-      const AProjectedPolygon: IGeometryProjectedPolygon;
-      const ACoordConverter: ICoordConverter
+      const AProjection: IProjectionInfo;
+      const AProjectedPolygon: IGeometryProjectedPolygon
     ): Boolean;
     function GetFillingMapBitmap(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AProjection: IProjectionInfo;
+      const ATargetProjection: IProjectionInfo;
       const AMapRect: TRect;
       const ASourceProjection: IProjectionInfo;
       const AProjectedPolygon: IGeometryProjectedPolygon;
@@ -102,6 +101,7 @@ implementation
 uses
   Math,
   GR32,
+  i_ProjectionType,
   i_TileRect,
   i_TileIterator,
   i_TileInfoBasic,
@@ -151,7 +151,7 @@ var
   VZoom: Integer;
   VResultZoom: Byte;
 begin
-  VConverter := AProjection.GeoConverter;
+  VConverter := FStorage.CoordConverter;
   VZoom := FZoom;
   if FUseRelativeZoom then begin
     VZoom := VZoom + AProjection.Zoom;
@@ -208,7 +208,7 @@ begin
         AOperationID,
         ACancelNotifier,
         AProjectionInfo,
-        AProjectionInfo.GeoConverter.TilePos2PixelRect(ATile, AProjectionInfo.Zoom),
+        AProjectionInfo.TilePos2PixelRect(ATile),
         VSourceProjection,
         FProjectedPolygon,
         FVersion,
@@ -220,9 +220,8 @@ end;
 function TBitmapLayerProviderFillingMap.GetIntersectedRect(
   out AIntersectedLonLatRect: TDoubleRect;
   const ALonLatRect: TDoubleRect;
-  const AZoom: Byte;
-  const AProjectedPolygon: IGeometryProjectedPolygon;
-  const ACoordConverter: ICoordConverter
+  const AProjection: IProjectionInfo;
+  const AProjectedPolygon: IGeometryProjectedPolygon
 ): Boolean;
 var
   I, J: Integer;
@@ -256,7 +255,7 @@ begin
     Assert(AIntersectedLonLatRect.Top <= ALonLatRect.Top);
     Assert(AIntersectedLonLatRect.Bottom >= ALonLatRect.Bottom);
 
-    VTmpRect := ACoordConverter.LonLatRect2PixelRectFloat(AIntersectedLonLatRect, AZoom);
+    VTmpRect := AProjection.LonLatRect2PixelRectFloat(AIntersectedLonLatRect);
     if Supports(AProjectedPolygon, IGeometryProjectedMultiPolygon, VMultiPolygonProj) then begin
       for I := 0 to VMultiPolygonProj.Count - 1 do begin
         if VMultiPolygonProj.Item[I].IsRectIntersectPolygon(VTmpRect) then begin
@@ -273,7 +272,7 @@ end;
 function TBitmapLayerProviderFillingMap.GetFillingMapBitmap(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const AProjection: IProjectionInfo;
+  const ATargetProjection: IProjectionInfo;
   const AMapRect: TRect;
   const ASourceProjection: IProjectionInfo;
   const AProjectedPolygon: IGeometryProjectedPolygon;
@@ -286,11 +285,9 @@ var
   VSourceTileRect: TRect;
   VSourceLonLatRect: TDoubleRect;
   VSourceRelativeRect: TDoubleRect;
-  VSourceConverter: ICoordConverter;
-  VTargetConverter: ICoordConverter;
+  VSourceProjectionType: IProjectionType;
+  VTargetProjectionType: IProjectionType;
   VSameSourceAndTarget: Boolean;
-  VSourceZoom: Byte;
-  VTargetZoom: Byte;
   VLonLatRect: TDoubleRect;
   VIterator: ITileIterator;
   VRelativeRectOfTile: TDoubleRect;
@@ -311,22 +308,20 @@ begin
     VBitmap.SetSize(VSize.X, VSize.Y);
     VBitmap.Clear(0);
 
-    VSourceConverter := FStorage.CoordConverter;
-    VTargetConverter := AProjection.GeoConverter;
-    VTargetZoom := AProjection.Zoom;
-    VSourceZoom := ASourceProjection.Zoom;
+    VSourceProjectionType := ASourceProjection.ProjectionType;
+    VTargetProjectionType := ATargetProjection.ProjectionType;
 
-    VSameSourceAndTarget := VSourceConverter.IsSameConverter(VTargetConverter);
+    VSameSourceAndTarget := VSourceProjectionType.IsSame(VTargetProjectionType);
     if VSameSourceAndTarget then begin
-      VSourceRelativeRect := VSourceConverter.PixelRect2RelativeRect(AMapRect, VTargetZoom);
+      VSourceRelativeRect := ATargetProjection.PixelRect2RelativeRect(AMapRect);
     end else begin
-      VLonLatRect := VTargetConverter.PixelRect2LonLatRect(AMapRect, VTargetZoom);
-      VSourceConverter.ValidateLonLatRect(VLonLatRect);
-      VSourceRelativeRect := VSourceConverter.LonLatRect2RelativeRect(VLonLatRect);
+      VLonLatRect := ATargetProjection.PixelRect2LonLatRect(AMapRect);
+      VSourceProjectionType.ValidateLonLatRect(VLonLatRect);
+      VSourceRelativeRect := VSourceProjectionType.LonLatRect2RelativeRect(VLonLatRect);
     end;
     VSourceTileRect :=
       RectFromDoubleRect(
-        VSourceConverter.RelativeRect2TileRectFloat(VSourceRelativeRect, VSourceZoom),
+        ASourceProjection.RelativeRect2TileRectFloat(VSourceRelativeRect),
         t_GeoTypes.rrOutside
       );
     VSolidDrow :=
@@ -334,11 +329,11 @@ begin
       (VSize.Y <= (VSourceTileRect.Bottom - VSourceTileRect.Top) * 2);
 
     if Assigned(FPolygon) then begin
-      VSourceLonLatRect := VSourceConverter.TileRect2LonLatRect(VSourceTileRect, VSourceZoom);
-      if GetIntersectedRect(VLonLatRect, VSourceLonLatRect, VSourceZoom, AProjectedPolygon, VSourceConverter) then begin
+      VSourceLonLatRect := ASourceProjection.TileRect2LonLatRect(VSourceTileRect);
+      if GetIntersectedRect(VLonLatRect, VSourceLonLatRect, ASourceProjection, AProjectedPolygon) then begin
         VSourceTileRect :=
           RectFromDoubleRect(
-            VSourceConverter.LonLatRect2TileRectFloat(VLonLatRect, VSourceZoom),
+            ASourceProjection.LonLatRect2TileRectFloat(VLonLatRect),
             t_GeoTypes.rrOutside
           );
       end else begin
@@ -346,7 +341,7 @@ begin
       end;
     end;
 
-    VTileRectInfo := FStorage.GetTileRectInfo(AOperationID, ACancelNotifier, VSourceTileRect, VSourceZoom, AVersion);
+    VTileRectInfo := FStorage.GetTileRectInfo(AOperationID, ACancelNotifier, VSourceTileRect, ASourceProjection.Zoom, AVersion);
 
     if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
       Exit;
@@ -360,13 +355,13 @@ begin
         VTileColor := AColorer.GetColor(VTileInfo);
         if VTileColor <> 0 then begin
           if VSameSourceAndTarget then begin
-            VRelativeRectOfTile := VSourceConverter.TilePos2RelativeRect(VTileInfo.FTile, VSourceZoom);
+            VRelativeRectOfTile := ASourceProjection.TilePos2RelativeRect(VTileInfo.FTile);
           end else begin
-            VLonLatRectOfTile := VSourceConverter.TilePos2LonLatRect(VTileInfo.FTile, VSourceZoom);
-            VTargetConverter.ValidateLonLatRect(VLonLatRectOfTile);
-            VRelativeRectOfTile := VTargetConverter.LonLatRect2RelativeRect(VLonLatRectOfTile);
+            VLonLatRectOfTile := ASourceProjection.TilePos2LonLatRect(VTileInfo.FTile);
+            VTargetProjectionType.ValidateLonLatRect(VLonLatRectOfTile);
+            VRelativeRectOfTile := VTargetProjectionType.LonLatRect2RelativeRect(VLonLatRectOfTile);
           end;
-          VMapPixelRectOfTile := VTargetConverter.RelativeRect2PixelRectFloat(VRelativeRectOfTile, VTargetZoom);
+          VMapPixelRectOfTile := ATargetProjection.RelativeRect2PixelRectFloat(VRelativeRectOfTile);
           VLocalPixelRectOfTile.Left := Trunc(VMapPixelRectOfTile.Left - AMapRect.Left);
           VLocalPixelRectOfTile.Top := Trunc(VMapPixelRectOfTile.Top - AMapRect.Top);
           VLocalPixelRectOfTile.Right := Trunc(VMapPixelRectOfTile.Right - AMapRect.Left);
