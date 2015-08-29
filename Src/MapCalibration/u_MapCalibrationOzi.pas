@@ -25,7 +25,7 @@ interface
 uses
   Types,
   ALString,
-  i_CoordConverter,
+  i_ProjectionInfo,
   i_MapCalibration,
   u_BaseInterfacedObject;
 
@@ -41,8 +41,7 @@ type
       const AFileName: WideString;
       const ATopLeft: TPoint;
       const ABottomRight: TPoint;
-      const AZoom: Byte;
-      const AConverter: ICoordConverter
+      const AProjection: IProjectionInfo
     ); safecall;
   public
     constructor Create;
@@ -86,8 +85,7 @@ procedure TMapCalibrationOzi.SaveCalibrationInfo(
   const AFileName: WideString;
   const ATopLeft: TPoint;
   const ABottomRight: TPoint;
-  const AZoom: Byte;
-  const AConverter: ICoordConverter
+  const AProjection: IProjectionInfo
 );
 
   function GetDegrees(const ACoord: Double): AnsiString;
@@ -140,19 +138,19 @@ var
   VMapName: AnsiString;
   VProjection: AnsiString;
 begin
-  VLL1 := AConverter.PixelPos2LonLat(ATopLeft, AZoom);
-  VLL2 := AConverter.PixelPos2LonLat(ABottomRight, AZoom);
+  VLL1 := AProjection.PixelPos2LonLat(ATopLeft);
+  VLL2 := AProjection.PixelPos2LonLat(ABottomRight);
 
   VCenter.Y := (ABottomRight.Y - ((ABottomRight.Y - ATopLeft.Y) div 2));
   VCenter.X := (ABottomRight.X - ((ABottomRight.X - ATopLeft.X) div 2));
-  VLL := AConverter.PixelPos2LonLat(VCenter, AZoom);
+  VLL := AProjection.PixelPos2LonLat(VCenter);
 
   VLocalRect.TopLeft := Point(0, 0);
   VLocalRect.BottomRight := Point(ABottomRight.X - ATopLeft.X, ABottomRight.Y - ATopLeft.Y);
 
-  VRadius := AConverter.Datum.GetSpheroidRadiusA;
+  VRadius := AProjection.ProjectionType.Datum.GetSpheroidRadiusA;
 
-  if AConverter.ProjectionEPSG = CGELonLatProjectionEPSG then begin
+  if AProjection.ProjectionType.ProjectionEPSG = CGELonLatProjectionEPSG then begin
     VProjection := 'Latitude/Longitude';
   end else begin
     VProjection := 'Mercator';
@@ -202,7 +200,7 @@ begin
       'MMPLL,2, ' + DoubleToAnsiStr(VLL2.X) + ', ' + DoubleToAnsiStr(VLL1.Y) + #13#10 +
       'MMPLL,3, ' + DoubleToAnsiStr(VLL2.X) + ', ' + DoubleToAnsiStr(VLL2.Y) + #13#10 +
       'MMPLL,4, ' + DoubleToAnsiStr(VLL1.X) + ', ' + DoubleToAnsiStr(VLL2.Y) + #13#10 +
-      'MM1B,' + DoubleToAnsiStr(1 / ((AConverter.PixelsAtZoomFloat(AZoom) / (2 * PI)) / (VRadius * Cos(VLL.Y * cDegreeToRadCoeff)))) + #13#10 +
+      'MM1B,' + DoubleToAnsiStr(1 / ((AProjection.GetPixelsFloat / (2 * PI)) / (VRadius * Cos(VLL.Y * cDegreeToRadCoeff)))) + #13#10 +
       'MOP,Map Open Position,0,0' + #13#10 +
       'IWH,Map Image Width/Height,' + ALIntToStr(VLocalRect.Right) + ',' + ALIntToStr(VLocalRect.Bottom) + #13#10;
 

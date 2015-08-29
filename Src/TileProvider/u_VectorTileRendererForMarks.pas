@@ -295,8 +295,8 @@ begin
   VMarker := FMarkerProviderForVectorItem.GetMarker(FCaptionDrawConfigStatic, APoint);
   if VMarker <> nil then begin
     VLonLat := AGeometry.Point;
-    AProjection.GeoConverter.ValidateLonLatPos(VLonLat);
-    VMapPoint := AProjection.GeoConverter.LonLat2PixelPosFloat(VLonLat, AProjection.Zoom);
+    AProjection.ProjectionType.ValidateLonLatPos(VLonLat);
+    VMapPoint := AProjection.LonLat2PixelPosFloat(VLonLat);
     VLocalPoint.X := VMapPoint.X - AMapRect.Left;
     VLocalPoint.Y := VMapPoint.Y - AMapRect.Top;
     if not ABitmapInited then begin
@@ -371,8 +371,6 @@ function TVectorTileRendererForMarks.RenderVectorTile(
 ): IBitmap32Static;
 var
   VMapRect: TRect;
-  VConverter: ICoordConverter;
-  VZoom: Byte;
   VBitmap: TBitmap32ByStaticBitmap;
   VFixedPointArray: TArrayOfFixedPoint;
 begin
@@ -380,9 +378,7 @@ begin
   if Assigned(ASource) and not ASource.IsEmpty then begin
     VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
     try
-      VZoom := AProjectionInfo.Zoom;
-      VConverter := AProjectionInfo.GeoConverter;
-      VMapRect := VConverter.TilePos2PixelRect(ATile, VZoom);
+      VMapRect := AProjectionInfo.TilePos2PixelRect(ATile);
       if DrawSubset(AOperationID, ACancelNotifier, ASource, VBitmap, AProjectionInfo, VMapRect, VFixedPointArray) then begin
         Result := VBitmap.MakeAndClear;
       end;

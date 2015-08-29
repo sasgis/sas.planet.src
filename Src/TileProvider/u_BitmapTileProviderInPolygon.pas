@@ -94,7 +94,7 @@ function TBitmapTileProviderInPolygon.GetTile(
 var
   VMapRect: TDoubleRect;
 begin
-  VMapRect := FSourceProvider.ProjectionInfo.GeoConverter.TilePos2PixelRectFloat(ATile, FSourceProvider.ProjectionInfo.Zoom);
+  VMapRect := FSourceProvider.ProjectionInfo.TilePos2PixelRectFloat(ATile);
   if FLine.IsRectIntersectPolygon(VMapRect) then begin
     Result :=
       FSourceProvider.GetTile(

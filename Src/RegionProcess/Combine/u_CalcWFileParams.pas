@@ -25,13 +25,13 @@ interface
 uses
   t_GeoTypes,
   t_ECW,
-  i_CoordConverter;
+  i_ProjectionType;
 
   function GetUnitsByProjectionEPSG(const AEPSG: Integer): TCellSizeUnits;
   procedure CalculateWFileParams(
     const LL1,LL2:TDoublePoint;
     ImageWidth,ImageHeight:integer;
-    const AConverter: ICoordConverter;
+    const AProjectionType: IProjectionType;
     var CellIncrementX,CellIncrementY,OriginX,OriginY:Double
   );
 
@@ -55,17 +55,17 @@ end;
 procedure CalculateWFileParams(
   const LL1, LL2: TDoublePoint;
   ImageWidth, ImageHeight: integer;
-  const AConverter: ICoordConverter;
+  const AProjectionType: IProjectionType;
   var CellIncrementX, CellIncrementY, OriginX, OriginY: Double
 );
 var
   VM1: TDoublePoint;
   VM2: TDoublePoint;
 begin
-  case GetUnitsByProjectionEPSG(AConverter.ProjectionEPSG) of
+  case GetUnitsByProjectionEPSG(AProjectionType.ProjectionEPSG) of
     CELL_UNITS_METERS: begin
-      VM1 := AConverter.LonLat2Metr(LL1);
-      VM2 := AConverter.LonLat2Metr(LL2);
+      VM1 := AProjectionType.LonLat2Metr(LL1);
+      VM2 := AProjectionType.LonLat2Metr(LL2);
 
       OriginX := VM1.X;
       OriginY := VM1.Y;

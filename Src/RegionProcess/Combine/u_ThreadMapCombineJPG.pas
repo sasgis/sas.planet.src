@@ -125,13 +125,13 @@ var
   VJpegWriter: TJpegWriter;
   VStream: TFileStream;
   VCurrentPieceRect: TRect;
-  VGeoConverter: ICoordConverter;
+  VProjection: IProjectionInfo;
   VMapPieceSize: TPoint;
   VExif: TExifSimple;
   VCenterLonLat: TDoublePoint;
   VUseBGRAColorSpace: Boolean;
 begin
-  VGeoConverter := AImageProvider.ProjectionInfo.GeoConverter;
+  VProjection := AImageProvider.ProjectionInfo;
   VCurrentPieceRect := AMapRect;
   VMapPieceSize := RectSize(VCurrentPieceRect);
 
@@ -165,7 +165,7 @@ begin
       VJpegWriter.Quality := FQuality;
       VJpegWriter.AddCommentMarker('Created with SAS.Planet' + #0);
       if FSaveGeoRefInfoToExif then begin
-        VCenterLonLat := VGeoConverter.PixelPos2LonLat(CenterPoint(AMapRect), AImageProvider.ProjectionInfo.Zoom);
+        VCenterLonLat := VProjection.PixelPos2LonLat(CenterPoint(AMapRect));
         VExif := TExifSimple.Create(VCenterLonLat.Y, VCenterLonLat.X);
         try
           VJpegWriter.AddExifMarker(VExif.Stream);

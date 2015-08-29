@@ -97,6 +97,7 @@ uses
   c_CoordConverter,
   t_GeoTypes,
   i_GeometryProjected,
+  i_ProjectionType,
   i_CoordConverter,
   i_ProjectionInfo,
   i_Bitmap32Static,
@@ -310,10 +311,9 @@ const
 var
   I: Integer;
   VRect: TRect;
-  VZoom: Byte;
   VTileRect: ITileRect;
   VLonLatRect: TDoubleRect;
-  VConverter: ICoordConverter;
+  VProjectionInfo: IProjectionInfo;
   VText: string;
   VMapName: string;
   VLayerFormat: string;
@@ -349,28 +349,27 @@ begin
 
   for I := 0 to Length(ATileIterators) - 1 do begin
     VTileRect := ATileIterators[I].TilesRect;
-    VConverter := VTileRect.ProjectionInfo.GeoConverter;
+    VProjectionInfo := VTileRect.ProjectionInfo;
     VRect := VTileRect.Rect;
-    VZoom := VTileRect.Zoom;
 
-    VLonLatRect := VConverter.TileRect2LonLatRect(VRect, VZoom);
+    VLonLatRect := VProjectionInfo.TileRect2LonLatRect(VRect);
 
     xMax := VRect.Right - VRect.Left;
     yMax := VRect.Bottom - VRect.Top;
 
     if VProjection = '' then begin
-      case VConverter.ProjectionEPSG of
+      case VProjectionInfo.ProjectionType.ProjectionEPSG of
         CGoogleProjectionEPSG: VProjection := 'Mercator';
         CYandexProjectionEPSG: VProjection := 'Mercator Ellipsoidal';
         CGELonLatProjectionEPSG: VProjection := 'Latitude/Longitude';
       else
-        raise Exception.CreateFmt('Unknown projection EPSG: %d', [VConverter.ProjectionEPSG]);
+        raise Exception.CreateFmt('Unknown projection EPSG: %d', [VProjectionInfo.ProjectionType.ProjectionEPSG]);
       end;
     end;
 
     VText := VText +
       Format(VLayerFormat, [
-        VZoom,
+        VProjectionInfo.Zoom,
         VMapName,
         xMax, yMax, VProjection, VMapName,
         yMax*256, xMax*256,

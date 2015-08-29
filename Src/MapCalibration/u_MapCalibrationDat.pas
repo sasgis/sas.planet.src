@@ -24,7 +24,7 @@ interface
 
 uses
   Types,
-  i_CoordConverter,
+  i_ProjectionInfo,
   i_MapCalibration,
   u_BaseInterfacedObject;
 
@@ -38,8 +38,7 @@ type
       const AFileName: WideString;
       const ATopLeft: TPoint;
       const ABottomRight: TPoint;
-      const AZoom: Byte;
-      const AConverter: ICoordConverter
+      const AProjection: IProjectionInfo
     ); safecall;
   end;
 
@@ -67,8 +66,7 @@ procedure TMapCalibrationDat.SaveCalibrationInfo(
   const AFileName: WideString;
   const ATopLeft: TPoint;
   const ABottomRight: TPoint;
-  const AZoom: Byte;
-  const AConverter: ICoordConverter
+  const AProjection: IProjectionInfo
 );
 var
   LL1, LL2: TDoublePoint;
@@ -81,8 +79,8 @@ begin
   try
     VText := '';
     VText := VText + '2' + #13#10;
-    LL1 := AConverter.PixelPos2LonLat(ATopLeft, AZoom);
-    LL2 := AConverter.PixelPos2LonLat(ABottomRight, AZoom);
+    LL1 := AProjection.PixelPos2LonLat(ATopLeft);
+    LL2 := AProjection.PixelPos2LonLat(ABottomRight);
     VText := VText + R2AnsiStrPoint(LL1.x) + ',' + R2AnsiStrPoint(LL1.y) + #13#10;
     VText := VText + R2AnsiStrPoint(LL2.x) + ',' + R2AnsiStrPoint(LL1.y) + #13#10;
     VText := VText + R2AnsiStrPoint(LL2.x) + ',' + R2AnsiStrPoint(LL2.y) + #13#10;

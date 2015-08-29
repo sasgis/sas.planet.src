@@ -24,7 +24,7 @@ interface
 
 uses
   Types,
-  i_CoordConverter;
+  i_ProjectionInfo;
 
 type
   IMapCalibration = interface
@@ -38,8 +38,7 @@ type
       const AFileName: WideString;
       const ATopLeft: TPoint;
       const ABottomRight: TPoint;
-      const AZoom: Byte;
-      const AConverter: ICoordConverter
+      const AProjection: IProjectionInfo
     ); safecall;
   end;
 

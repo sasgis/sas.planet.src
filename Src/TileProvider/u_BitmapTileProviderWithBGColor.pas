@@ -80,7 +80,7 @@ begin
   FBackGroundColor := ABackGroundColor;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
 
-  VTileSize := ASourceProvider.ProjectionInfo.GeoConverter.GetTileSize(Types.Point(0, 0), ASourceProvider.ProjectionInfo.Zoom);
+  VTileSize := ASourceProvider.ProjectionInfo.GetTileSize(Types.Point(0, 0));
   VTargetBmp := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
   try
     VTargetBmp.SetSize(VTileSize.X, VTileSize.Y);
@@ -116,7 +116,7 @@ begin
   if Result <> nil then begin
     VTargetBmp := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
     try
-      VTileSize :=  FSourceProvider.ProjectionInfo.GeoConverter.GetTileSize(ATile, FSourceProvider.ProjectionInfo.Zoom);
+      VTileSize :=  FSourceProvider.ProjectionInfo.GetTileSize(ATile);
       VTargetBmp.SetSize(VTileSize.X, VTileSize.Y);
       VTargetBmp.Clear(FBackGroundColor);
       BlockTransferFull(
@@ -131,7 +131,7 @@ begin
       VTargetBmp.Free;
     end;
   end else begin
-    VTileSize :=  FSourceProvider.ProjectionInfo.GeoConverter.GetTileSize(ATile, FSourceProvider.ProjectionInfo.Zoom);
+    VTileSize :=  FSourceProvider.ProjectionInfo.GetTileSize(ATile);
     if IsPointsEqual(VTileSize, FEmptyTile.Size) then begin
       Result := FEmptyTile;
     end else begin

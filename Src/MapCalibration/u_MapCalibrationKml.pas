@@ -24,7 +24,7 @@ interface
 
 uses
   Types,
-  i_CoordConverter,
+  i_ProjectionInfo,
   i_MapCalibration,
   u_BaseInterfacedObject;
 
@@ -38,8 +38,7 @@ type
       const AFileName: WideString;
       const ATopLeft: TPoint;
       const ABottomRight: TPoint;
-      const AZoom: Byte;
-      const AConverter: ICoordConverter
+      const AProjection: IProjectionInfo
     ); safecall;
   end;
 
@@ -67,8 +66,7 @@ procedure TMapCalibrationKml.SaveCalibrationInfo(
   const AFileName: WideString;
   const ATopLeft: TPoint;
   const ABottomRight: TPoint;
-  const AZoom: Byte;
-  const AConverter: ICoordConverter
+  const AProjection: IProjectionInfo
 );
 var
   LL1, LL2: TDoublePoint;
@@ -77,8 +75,8 @@ var
   VFileNameOnly: string;
   VFileStream: TFileStream;
 begin
-  LL1 := AConverter.PixelPos2LonLat(ATopLeft, AZoom);
-  LL2 := AConverter.PixelPos2LonLat(ABottomRight, AZoom);
+  LL1 := AProjection.PixelPos2LonLat(ATopLeft);
+  LL2 := AProjection.PixelPos2LonLat(ABottomRight);
 
   VFileNameOnly := ExtractFileName(AFileName);
 

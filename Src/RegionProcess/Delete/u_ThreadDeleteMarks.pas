@@ -112,7 +112,7 @@ function IsLonLatPointInProjectedPolygon(
 var
   VProjectedPoint: TDoublePoint;
 begin
-  VProjectedPoint := AProjection.GeoConverter.LonLat2PixelPosFloat(AGeometry.Point, AProjection.Zoom);
+  VProjectedPoint := AProjection.LonLat2PixelPosFloat(AGeometry.Point);
   Result := AProjectedPolygon.IsPointInPolygon(VProjectedPoint);
 end;
 
@@ -130,7 +130,7 @@ begin
 
   VEnum := AGeometry.GetEnum;
   while VEnum.Next(VLonlatPoint) do begin
-    VProjectedPoint := AProjection.GeoConverter.LonLat2PixelPosFloat(VLonlatPoint, AProjection.Zoom);
+    VProjectedPoint := AProjection.LonLat2PixelPosFloat(VLonlatPoint);
     if not AProjectedPolygon.IsPointInPolygon(VProjectedPoint) then begin
       Result := False;
       Break;
@@ -166,7 +166,7 @@ var
   VMultiLine: IGeometryLonLatMultiLine;
 begin
   Result := False;
-  VProjectedBounds := AProjection.GeoConverter.LonLatRect2PixelRectFloat(AGeometry.Bounds.Rect, AProjection.Zoom);
+  VProjectedBounds := AProjection.LonLatRect2PixelRectFloat(AGeometry.Bounds.Rect);
   if not IsIntersecProjectedRect(AProjectedPolygon.Bounds, VProjectedBounds) then begin
     Exit;
   end;
@@ -192,7 +192,7 @@ begin
   Result := True;
   VEnum := AGeometry.GetEnum;
   while VEnum.Next(VLonlatPoint) do begin
-    VProjectedPoint := AProjection.GeoConverter.LonLat2PixelPosFloat(VLonlatPoint, AProjection.Zoom);
+    VProjectedPoint := AProjection.LonLat2PixelPosFloat(VLonlatPoint);
     if not AProjectedPolygon.IsPointInPolygon(VProjectedPoint) then begin
       Result := False;
       Break;

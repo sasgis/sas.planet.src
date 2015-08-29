@@ -2,7 +2,7 @@ object frMapCombine: TfrMapCombine
   Left = 0
   Top = 0
   Width = 540
-  Height = 290
+  Height = 304
   Align = alClient
   Constraints.MinHeight = 290
   Constraints.MinWidth = 540
@@ -24,7 +24,7 @@ object frMapCombine: TfrMapCombine
       Left = 3
       Top = 3
       Width = 41
-      Height = 19
+      Height = 13
       Margins.Left = 0
       Margins.Top = 0
       Align = alLeft
@@ -54,7 +54,7 @@ object frMapCombine: TfrMapCombine
     Left = 0
     Top = 153
     Width = 540
-    Height = 137
+    Height = 151
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
@@ -62,7 +62,7 @@ object frMapCombine: TfrMapCombine
       Left = 0
       Top = 0
       Width = 215
-      Height = 137
+      Height = 151
       Align = alClient
       BevelOuter = bvNone
       BorderWidth = 3
@@ -166,7 +166,7 @@ object frMapCombine: TfrMapCombine
       Left = 215
       Top = 0
       Width = 157
-      Height = 137
+      Height = 151
       Align = alRight
       BevelOuter = bvNone
       BorderWidth = 3
@@ -186,7 +186,7 @@ object frMapCombine: TfrMapCombine
         Left = 3
         Top = 18
         Width = 151
-        Height = 116
+        Height = 130
         Align = alClient
         ItemHeight = 13
         Items.Strings = (
@@ -202,7 +202,7 @@ object frMapCombine: TfrMapCombine
       Left = 372
       Top = 0
       Width = 168
-      Height = 137
+      Height = 151
       Align = alRight
       BevelOuter = bvNone
       BorderWidth = 3
@@ -293,7 +293,7 @@ object frMapCombine: TfrMapCombine
         Width = 67
         Height = 21
         Style = csDropDownList
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 0
         OnChange = cbbZoomChange
       end
@@ -310,7 +310,7 @@ object frMapCombine: TfrMapCombine
         AlignWithMargins = True
         Left = 3
         Top = 113
-        Width = 463
+        Width = 6
         Height = 13
         Align = alBottom
         Caption = '_'
@@ -328,7 +328,7 @@ object frMapCombine: TfrMapCombine
         object lblMapCaption: TLabel
           Left = 0
           Top = 0
-          Width = 469
+          Width = 24
           Height = 13
           Margins.Left = 0
           Margins.Top = 0
@@ -348,7 +348,7 @@ object frMapCombine: TfrMapCombine
         object lblLayerCaption: TLabel
           Left = 0
           Top = 0
-          Width = 469
+          Width = 69
           Height = 13
           Margins.Left = 0
           Margins.Top = 0
@@ -369,7 +369,7 @@ object frMapCombine: TfrMapCombine
           Left = 3
           Top = 0
           Width = 52
-          Height = 19
+          Height = 13
           Margins.Top = 0
           Margins.Right = 5
           Margins.Bottom = 2
@@ -385,7 +385,7 @@ object frMapCombine: TfrMapCombine
           Align = alCustom
           Style = csDropDownList
           Anchors = [akLeft, akTop, akRight]
-          ItemHeight = 13
+          ItemHeight = 0
           TabOrder = 0
         end
       end

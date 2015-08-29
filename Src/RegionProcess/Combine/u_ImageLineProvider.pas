@@ -40,9 +40,7 @@ type
     FImageProvider: IBitmapTileProvider;
     FBytesPerPixel: Integer;
 
-    FZoom: byte;
-    FMainGeoConverter: ICoordConverter;
-
+    FProjection: IProjectionInfo;
     FPreparedTileRect: TRect;
     FPreparedMapRect: TRect;
     FPreparedData: array of Pointer;
@@ -156,8 +154,7 @@ begin
   FMapRect := AMapRect;
   FBytesPerPixel := ABytesPerPixel;
 
-  FZoom := FImageProvider.ProjectionInfo.Zoom;
-  FMainGeoConverter := FImageProvider.ProjectionInfo.GeoConverter;
+  FProjection := FImageProvider.ProjectionInfo;
 end;
 
 destructor TImageLineProviderAbstract.Destroy;
@@ -182,7 +179,7 @@ var
 begin
   Assert(Assigned(ABitmap));
   Assert(PtInRect(FPreparedTileRect, ATile));
-  VTileMapRect := FMainGeoConverter.TilePos2PixelRect(ATile, FZoom);
+  VTileMapRect := FProjection.TilePos2PixelRect(ATile);
   VTileSize := ABitmap.Size;
   Assert(IsPointsEqual(VTileSize, RectSize(VTileMapRect)));
   IntersectRect(VCopyMapRect, VTileMapRect, FPreparedMapRect);
@@ -272,7 +269,7 @@ var
   VIterator: TTileIteratorByRectRecord;
 begin
   PrepareBufferMem(AMapRect);
-  FPreparedTileRect := FMainGeoConverter.PixelRect2TileRect(AMapRect, FZoom);
+  FPreparedTileRect := FProjection.PixelRect2TileRect(AMapRect);
   VIterator.Init(FPreparedTileRect);
   while VIterator.Next(VTile) do begin
     AddTile(
@@ -309,8 +306,8 @@ begin
   Assert(ALine >= 0);
   VMapLine := FMapRect.Top + ALine;
   Assert(VMapLine < FMapRect.Bottom);
-  VTilePos := FMainGeoConverter.PixelPos2TilePos(Point(FMapRect.Left, VMapLine), FZoom, prToTopLeft);
-  VPixelRect := FMainGeoConverter.TilePos2PixelRect(VTilePos, FZoom);
+  VTilePos := FProjection.PixelPos2TilePos(Point(FMapRect.Left, VMapLine), prToTopLeft);
+  VPixelRect := FProjection.TilePos2PixelRect(VTilePos);
   Result := Rect(FMapRect.Left, VPixelRect.Top, FMapRect.Right, VPixelRect.Bottom);
 end;
 

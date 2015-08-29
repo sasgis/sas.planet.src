@@ -111,8 +111,7 @@ end;
 
 procedure TThreadMapCombineBase.ProcessRegion;
 var
-  VGeoConverter: ICoordConverter;
-  VZoom: Byte;
+  VProjection: IProjectionInfo;
   i, j, pti: integer;
   VProcessTiles: Int64;
   VTileRect: TRect;
@@ -125,11 +124,10 @@ var
   VStr: string;
 begin
   inherited;
-  VGeoConverter := FImageProvider.ProjectionInfo.GeoConverter;
-  VZoom := FImageProvider.ProjectionInfo.Zoom;
+  VProjection := FImageProvider.ProjectionInfo;
   VMapRect := FMapRect;
   VMapSize := RectSize(VMapRect);
-  VTileRect := VGeoConverter.PixelRect2TileRect(VMapRect, VZoom);
+  VTileRect := VProjection.PixelRect2TileRect(VMapRect);
   VSizeInTile.X := VTileRect.Right - VTileRect.Left;
   VSizeInTile.Y := VTileRect.Bottom - VTileRect.Top;
   VProcessTiles := VSizeInTile.X;
@@ -171,8 +169,7 @@ begin
               VCurrentFileName,
               VCurrentPieceRect.TopLeft,
               VCurrentPieceRect.BottomRight,
-              VZoom,
-              VGeoConverter
+              VProjection
             );
           except
             //TODO: ƒобавить сюда нормальную обработку ошибок.

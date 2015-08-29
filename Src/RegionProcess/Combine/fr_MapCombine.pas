@@ -626,10 +626,10 @@ begin
   end;
   VProjection := GetProjection;
   VLonLatRect := FPolygLL.Bounds.Rect;
-  VProjection.GeoConverter.ValidateLonLatRect(VLonLatRect);
+  VProjection.ProjectionType.ValidateLonLatRect(VLonLatRect);
   VPixelRect :=
     RectFromDoubleRect(
-      VProjection.GeoConverter.LonLatRect2PixelRectFloat(VLonLatRect, VProjection.Zoom),
+      VProjection.LonLatRect2PixelRectFloat(VLonLatRect),
       rrOutside
     );
   VSplitCount := GetSplitCount;

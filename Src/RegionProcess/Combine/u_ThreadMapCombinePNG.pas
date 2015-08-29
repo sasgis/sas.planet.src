@@ -121,14 +121,12 @@ var
   VDest: TFileStream;
   VBitsPerPix: Integer;
   VCurrentPieceRect: TRect;
-  VGeoConverter: ICoordConverter;
   VMapPieceSize: TPoint;
   VPngWriter: TLibPngWriter;
 begin
   FOperationID := AOperationID;
   FCancelNotifier := ACancelNotifier;
 
-  VGeoConverter := AImageProvider.ProjectionInfo.GeoConverter;
   VCurrentPieceRect := AMapRect;
   VMapPieceSize := RectSize(VCurrentPieceRect);
 

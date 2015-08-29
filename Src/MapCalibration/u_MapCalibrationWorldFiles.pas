@@ -24,7 +24,7 @@ interface
 
 uses
   Types,
-  i_CoordConverter,
+  i_ProjectionInfo,
   i_MapCalibration,
   u_BaseInterfacedObject;
 
@@ -35,17 +35,16 @@ type
   private
     procedure SavePrjFile(
       const AFileName: WideString;
-      const AConverter: ICoordConverter
+      const AProjection: IProjectionInfo
     );
     procedure SaveAuxXmlFile(
       const AFileName: WideString;
-      const AConverter: ICoordConverter
+      const AProjection: IProjectionInfo
     );
     procedure SaveWFile(
       const AFileName: WideString;
       const xy1, xy2: TPoint;
-      AZoom: byte;
-      const AConverter: ICoordConverter
+      const AProjection: IProjectionInfo
     );
     function GetWorldFileExt(const AFileName: WideString): string;
   private
@@ -56,8 +55,7 @@ type
       const AFileName: WideString;
       const ATopLeft: TPoint;
       const ABottomRight: TPoint;
-      const AZoom: Byte;
-      const AConverter: ICoordConverter
+      const AProjection: IProjectionInfo
     ); safecall;
   public
     constructor Create(const AUseShortExt: Boolean = False);
@@ -72,9 +70,11 @@ uses
   u_CalcWFileParams,
   u_GeoToStrFunc;
 
-function GetProj(const AConverter: ICoordConverter): UTF8String;
+function GetProj(
+  const AProjection: IProjectionInfo
+): UTF8String;
 begin
-  case AConverter.GetProjectionEPSG of
+  case AProjection.ProjectionType.GetProjectionEPSG of
     3785: begin
       Result :=
         'PROJCS["Popular Visualisation CRS / Mercator",' + #13#10 +
@@ -183,7 +183,7 @@ end;
 
 procedure TMapCalibrationWorldFiles.SaveAuxXmlFile(
   const AFileName: WideString;
-  const AConverter: ICoordConverter
+  const AProjection: IProjectionInfo
 );
 var
   AuxXmkfile: TMemoryStream;
@@ -192,7 +192,7 @@ begin
   AuxXmkfile := TMemoryStream.create;
   try
     VStr := AnsiToUtf8('<PAMDataset>' + #13#10 + '<SRS>');
-    VStr := VStr + GetProj(AConverter);
+    VStr := VStr + GetProj(AProjection);
     VStr := VStr + AnsiToUtf8('</SRS>' + #13#10 + '<Metadata>' + #13#10 + '<MDI key="PyramidResamplingType">NEAREST</MDI>' + #13#10 + '</Metadata>' + #13#10 + '</PAMDataset>');
     AuxXmkfile.Write(VStr[1], length(VStr));
     AuxXmkfile.SaveToFile(AFileName + '.aux.xml');
@@ -205,18 +205,17 @@ procedure TMapCalibrationWorldFiles.SaveCalibrationInfo(
   const AFileName: WideString;
   const ATopLeft: TPoint;
   const ABottomRight: TPoint;
-  const AZoom: Byte;
-  const AConverter: ICoordConverter
+  const AProjection: IProjectionInfo
 );
 begin
-  SaveWFile(AFileName, ATopLeft, ABottomRight, AZoom, AConverter);
-  SavePrjFile(AFileName, AConverter);
-  SaveAuxXmlFile(AFileName, AConverter);
+  SaveWFile(AFileName, ATopLeft, ABottomRight, AProjection);
+  SavePrjFile(AFileName, AProjection);
+  SaveAuxXmlFile(AFileName, AProjection);
 end;
 
 procedure TMapCalibrationWorldFiles.SavePrjFile(
   const AFileName: WideString;
-  const AConverter: ICoordConverter
+  const AProjection: IProjectionInfo
 );
 var
   VprojInfo: UTF8String;
@@ -226,7 +225,7 @@ begin
   VFileName := ChangeFileExt(AFileName, '.prj');
   VFileStream := TFileStream.Create(VFileName, fmCreate);
   try
-    VprojInfo := GetProj(AConverter);
+    VprojInfo := GetProj(AProjection);
     VFileStream.WriteBuffer(VprojInfo[1], Length(VprojInfo));
   finally
     VFileStream.Free;
@@ -252,8 +251,7 @@ end;
 procedure TMapCalibrationWorldFiles.SaveWFile(
   const AFileName: WideString;
   const xy1, xy2: TPoint;
-  AZoom: byte;
-  const AConverter: ICoordConverter
+  const AProjection: IProjectionInfo
 );
 const
   cCoordFmtStr = '%.16f';
@@ -267,9 +265,9 @@ begin
   VFileName := ChangeFileExt(AFileName, GetWorldFileExt(AFileName));
   VFileStream := TFileStream.Create(VFileName, fmCreate);
   try
-    ll1 := AConverter.PixelPos2LonLat(xy1, AZoom);
-    ll2 := AConverter.PixelPos2LonLat(xy2, AZoom);
-    CalculateWFileParams(ll1, ll2, xy2.X - xy1.X, xy2.Y - xy1.Y, AConverter, CellX, CellY, OrigX, OrigY);
+    ll1 := AProjection.PixelPos2LonLat(xy1);
+    ll2 := AProjection.PixelPos2LonLat(xy2);
+    CalculateWFileParams(ll1, ll2, xy2.X - xy1.X, xy2.Y - xy1.Y, AProjection.ProjectionType, CellX, CellY, OrigX, OrigY);
     VText := '';
     VText := VText + R2AnsiStrPointF(CellX, cCoordFmtStr) + #13#10;
     VText := VText + '0' + #13#10;

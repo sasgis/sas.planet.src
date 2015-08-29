@@ -129,8 +129,7 @@ function TThreadMapCombineKMZ.GetBitmapRect(
 ): IBitmap32Static;
 var
   VTileRect: TRect;
-  VGeoConverter: ICoordConverter;
-  VZoom: Byte;
+  VProjection: IProjectionInfo;
   VIterator: TTileIteratorByRectRecord;
   VTile: TPoint;
   VBitmap: TBitmap32ByStaticBitmap;
@@ -142,10 +141,9 @@ var
 begin
   Result := nil;
   if not Types.IsRectEmpty(AMapRect) then begin
-    VZoom := AImageProvider.ProjectionInfo.Zoom;
-    VGeoConverter := AImageProvider.ProjectionInfo.GeoConverter;
+    VProjection := AImageProvider.ProjectionInfo;
     VMapSize := RectSize(AMapRect);
-    VTileRect := VGeoConverter.PixelRect2TileRect(AMapRect, VZoom);
+    VTileRect := VProjection.PixelRect2TileRect(AMapRect);
 
     VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
     try
@@ -162,7 +160,7 @@ begin
             VBitmap.SetSize(VMapSize.X, VMapSize.Y);
             VBitmap.Clear(0);
           end;
-          VTileMapPixelRect := VGeoConverter.TilePos2PixelRect(VTile, VZoom);
+          VTileMapPixelRect := VProjection.TilePos2PixelRect(VTile);
           Types.IntersectRect(VCopyRect, AMapRect, VTileMapPixelRect);
           VCopyPos := PointMove(VCopyRect.TopLeft, AMapRect.TopLeft);
           BlockTransfer(
@@ -203,14 +201,14 @@ var
   JPGSaver: IBitmapTileSaver;
   VKmzFileNameOnly: string;
   VCurrentPieceRect: TRect;
-  VGeoConverter: ICoordConverter;
+  VProjection: IProjectionInfo;
   VMapPieceSize: TPoint;
   VTilesProcessed: Integer;
   VTilesToProcess: Integer;
   VBitmapTile: IBitmap32Static;
   VData: IBinaryData;
 begin
-  VGeoConverter := AImageProvider.ProjectionInfo.GeoConverter;
+  VProjection := AImageProvider.ProjectionInfo;
   VCurrentPieceRect := AMapRect;
   VMapPieceSize := RectSize(VCurrentPieceRect);
   nim.X := ((VMapPieceSize.X - 1) div 1024) + 1;
@@ -253,7 +251,7 @@ begin
             VNameInKmz := 'files/' + VFileName;
             VStr := VStr + ansiToUTF8('<GroundOverlay>' + #13#10 + '<name>' + VFileName + '</name>' + #13#10 + '<drawOrder>75</drawOrder>' + #13#10);
             VStr := VStr + ansiToUTF8('<Icon><href>' + VNameInKmz + '</href>' + '<viewBoundScale>0.75</viewBoundScale></Icon>' + #13#10);
-            VLLRect := VGeoConverter.PixelRect2LonLatRect(VPixelRect, AImageProvider.ProjectionInfo.Zoom);
+            VLLRect := VProjection.PixelRect2LonLatRect(VPixelRect);
             VStr := VStr + ansiToUTF8('<LatLonBox>' + #13#10);
             VStr := VStr + ansiToUTF8('<north>' + R2StrPoint(VLLRect.Top) + '</north>' + #13#10);
             VStr := VStr + ansiToUTF8('<south>' + R2StrPoint(VLLRect.Bottom) + '</south>' + #13#10);

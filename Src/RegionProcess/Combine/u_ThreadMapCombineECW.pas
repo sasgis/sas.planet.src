@@ -148,8 +148,7 @@ var
   errecw: integer;
   VECWWriter: TECWWrite;
   VCurrentPieceRect: TRect;
-  VZoom: Byte;
-  VGeoConverter: ICoordConverter;
+  VProjection: IProjectionInfo;
   VMapPieceSize: TPoint;
 begin
   VECWWriter := TECWWrite.Create;
@@ -159,18 +158,17 @@ begin
         AImageProvider,
         AMapRect
       );
-    VGeoConverter := AImageProvider.ProjectionInfo.GeoConverter;
-    VZoom := AImageProvider.ProjectionInfo.Zoom;
+    VProjection := AImageProvider.ProjectionInfo;
     VCurrentPieceRect := AMapRect;
     VMapPieceSize := RectSize(AMapRect);
     FLinesCount := VMapPieceSize.Y;
-    Datum := 'EPSG:' + IntToStr(VGeoConverter.Datum.EPSG);
-    Proj := 'EPSG:' + IntToStr(VGeoConverter.GetProjectionEPSG);
-    Units := GetUnitsByProjectionEPSG(VGeoConverter.ProjectionEPSG);
+    Datum := 'EPSG:' + IntToStr(VProjection.ProjectionType.Datum.EPSG);
+    Proj := 'EPSG:' + IntToStr(VProjection.ProjectionType.ProjectionEPSG);
+    Units := GetUnitsByProjectionEPSG(VProjection.ProjectionType.ProjectionEPSG);
     CalculateWFileParams(
-      VGeoConverter.PixelPos2LonLat(VCurrentPieceRect.TopLeft, VZoom),
-      VGeoConverter.PixelPos2LonLat(VCurrentPieceRect.BottomRight, VZoom),
-      VMapPieceSize.X, VMapPieceSize.Y, VGeoConverter,
+      VProjection.PixelPos2LonLat(VCurrentPieceRect.TopLeft),
+      VProjection.PixelPos2LonLat(VCurrentPieceRect.BottomRight),
+      VMapPieceSize.X, VMapPieceSize.Y, VProjection.ProjectionType,
       CellIncrementX, CellIncrementY, OriginX, OriginY
     );
     errecw :=

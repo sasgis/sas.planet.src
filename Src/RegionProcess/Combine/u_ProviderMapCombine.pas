@@ -372,8 +372,6 @@ function TProviderMapCombineBase.PrepareImageProvider(
 var
   VRect: ILonLatRect;
   VLonLatRect: TDoubleRect;
-  VZoom: Byte;
-  VGeoConverter: ICoordConverter;
   VMarksSubset: IVectorItemSubset;
   VMarksConfigStatic: IUsedMarksConfigStatic;
   VList: IMarkCategoryList;
@@ -406,9 +404,7 @@ begin
 
   VRect := APolygon.Bounds;
   VLonLatRect := VRect.Rect;
-  VGeoConverter := AProjection.GeoConverter;
-  VZoom := AProjection.Zoom;
-  VGeoConverter.ValidateLonLatRect(VLonLatRect);
+  AProjection.ProjectionType.ValidateLonLatRect(VLonLatRect);
 
   VUseMarks := (ParamsFrame as IRegionProcessParamsFrameMapCombine).UseMarks;
   if VUseMarks then begin
@@ -417,7 +413,7 @@ begin
     if VMarksConfigStatic.IsUseMarks then begin
       VList := nil;
       if not VMarksConfigStatic.IgnoreCategoriesVisible then begin
-        VList := FMarksDB.CategoryDB.GetVisibleCategories(VZoom);
+        VList := FMarksDB.CategoryDB.GetVisibleCategories(AProjection.Zoom);
       end;
       try
         if (VList <> nil) and (VList.Count = 0) then begin

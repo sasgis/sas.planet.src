@@ -33,6 +33,7 @@ uses
   i_Bitmap32BufferFactory,
   i_RegionProcessProgressInfo,
   i_GeometryLonLat,
+  i_ProjectionInfo,
   i_CoordConverter,
   i_CoordConverterFactory,
   i_GeometryProjectedFactory,
@@ -61,9 +62,8 @@ type
       const ABitmapSaver: IBitmapTileSaver
     ): IBinaryData;
     procedure SaveOziCalibrationMap(
-      const AGeoConvert: ICoordConverter;
-      const APixelRect: TRect;
-      const AZoom: Byte
+      const AProjection: IProjectionInfo;
+      const APixelRect: TRect
     );
   protected
     procedure ProcessRegion; override;
@@ -93,7 +93,6 @@ uses
   c_CoordConverter,
   i_MapCalibration,
   i_Bitmap32Static,
-  i_ProjectionInfo,
   i_GeometryProjected,
   u_TileIteratorByRect,
   u_MapCalibrationOzi,
@@ -138,9 +137,8 @@ begin
 end;
 
 procedure TThreadExportToOgf2.SaveOziCalibrationMap(
-  const AGeoConvert: ICoordConverter;
-  const APixelRect: TRect;
-  const AZoom: Byte
+  const AProjection: IProjectionInfo;
+  const APixelRect: TRect
 );
 var
   VOziCalibrationMap: IMapCalibration;
@@ -150,8 +148,7 @@ begin
     FTargetFile,
     APixelRect.TopLeft,
     APixelRect.BottomRight,
-    AZoom,
-    AGeoConvert
+    AProjection
   );
 end;
 
@@ -244,9 +241,8 @@ begin
   VTileRect := VGeoConvert.PixelRect2TileRect(VPixelRect, VZoom);
 
   SaveOziCalibrationMap(
-    VGeoConvert,
-    VGeoConvert.TileRect2PixelRect(VTileRect, VZoom),
-    VZoom
+    VProjection,
+    VProjection.TileRect2PixelRect(VTileRect)
   );
 
   VTileIterator.Init(VTileRect);

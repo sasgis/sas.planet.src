@@ -25,7 +25,7 @@ interface
 uses
   Types,
   ALString,
-  i_CoordConverter,
+  i_ProjectionInfo,
   i_MapCalibration,
   u_BaseInterfacedObject;
 
@@ -38,7 +38,7 @@ type
       const ALon, ALat: Double;
       const X, Y: Integer
     ): AnsiString;
-    function GetCoordSysStr(const AConverter: ICoordConverter): AnsiString;
+    function GetCoordSysStr(const AProjection: IProjectionInfo): AnsiString;
   private
     { IMapCalibration }
     function GetName: WideString; safecall;
@@ -47,8 +47,7 @@ type
       const AFileName: WideString;
       const ATopLeft: TPoint;
       const ABottomRight: TPoint;
-      const AZoom: Byte;
-      const AConverter: ICoordConverter
+      const AProjection: IProjectionInfo
     ); safecall;
   public
     constructor Create;
@@ -101,9 +100,11 @@ begin
   Result := ALFormat(cPointFmtStr, [VLon, VLat, X, Y, ANumber], FFormatSettings);
 end;
 
-function TMapCalibrationTab.GetCoordSysStr(const AConverter: ICoordConverter): AnsiString;
+function TMapCalibrationTab.GetCoordSysStr(
+  const AProjection: IProjectionInfo
+): AnsiString;
 begin
-  case AConverter.ProjectionEPSG of
+  case AProjection.ProjectionType.ProjectionEPSG of
     CGoogleProjectionEPSG: begin
       Result := '10, 157, 7, 0';
     end;
@@ -114,7 +115,7 @@ begin
       Result := '1, 104, 7, 0';
     end;
   else begin
-    Assert(False, 'Unexpected projection EPSG code: ' + IntToStr(AConverter.ProjectionEPSG));
+    Assert(False, 'Unexpected projection EPSG code: ' + IntToStr(AProjection.ProjectionType.ProjectionEPSG));
     Result := '1, 104, 7, 0';
       // For more projections see page 403 of UserGuide:
       // http://reference.mapinfo.com/software/mapinfo_pro/english/10/MapInfoProfessionalUserGuide.pdf
@@ -126,8 +127,7 @@ procedure TMapCalibrationTab.SaveCalibrationInfo(
   const AFileName: WideString;
   const ATopLeft: TPoint;
   const ABottomRight: TPoint;
-  const AZoom: Byte;
-  const AConverter: ICoordConverter
+  const AProjection: IProjectionInfo
 );
 var
   VCenter: TPoint;
@@ -140,9 +140,9 @@ begin
   VCenter.Y := (ABottomRight.Y - ((ABottomRight.Y - ATopLeft.Y) div 2));
   VCenter.X := (ABottomRight.X - ((ABottomRight.X - ATopLeft.X) div 2));
 
-  VLL1 := AConverter.PixelPos2LonLat(ATopLeft, AZoom);
-  VLL2 := AConverter.PixelPos2LonLat(ABottomRight, AZoom);
-  VLL := AConverter.PixelPos2LonLat(VCenter, AZoom);
+  VLL1 := AProjection.PixelPos2LonLat(ATopLeft);
+  VLL2 := AProjection.PixelPos2LonLat(ABottomRight);
+  VLL := AProjection.PixelPos2LonLat(VCenter);
 
   VLocalRect.TopLeft := Point(0, 0);
   VLocalRect.BottomRight := Point(ABottomRight.X - ATopLeft.X, ABottomRight.Y - ATopLeft.Y);
@@ -169,7 +169,7 @@ begin
       PointToStr(7, VLL1.X, VLL.Y, VLocalRect.Left, ((VLocalRect.Bottom - VLocalRect.Top) div 2)) + ',' + #13#10 +
       PointToStr(8, VLL2.X, VLL.Y, VLocalRect.Right, ((VLocalRect.Bottom - VLocalRect.Top) div 2)) + ',' + #13#10 +
       PointToStr(9, VLL.X, VLL2.Y, ((VLocalRect.Right - VLocalRect.Left) div 2), VLocalRect.Bottom) + #13#10 +
-      ' CoordSys Earth Projection ' + GetCoordSysStr(AConverter) + #13#10 +
+      ' CoordSys Earth Projection ' + GetCoordSysStr(AProjection) + #13#10 +
       ' Units "degree"' + #13#10;
 
     VFileStream.WriteBuffer(VText[1], Length(VText));
