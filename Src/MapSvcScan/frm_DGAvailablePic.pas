@@ -1073,7 +1073,7 @@ begin
         ParsePointsToPolygonBuilder(
           VBuilder,
           VGeometry,
-          FLocalConverter.GeoConverter,
+          FLocalConverter.ProjectionInfo.ProjectionType,
           VInMetr,
           FALSE,
           VPointsAggregator

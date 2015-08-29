@@ -26,14 +26,14 @@ uses
   t_GeoTypes,
   i_GeometryLonLatFactory,
   i_DoublePointsAggregator,
-  i_CoordConverter;
+  i_ProjectionType;
 
 // parse POLYGON and MULTIPOLYGON coordinates
 // and from JSON geometry
 function ParsePointsToPolygonBuilder(
   const ABuilder: IGeometryLonLatPolygonBuilder;
   const ASourceText: String;
-  const AGeoConverter: ICoordConverter;
+  const AProjectionType: IProjectionType;
   const AInMetr, AMakeHoles: Boolean;
   const APointsAggregator: IDoublePointsAggregator = nil;
   const AFromJSON: Boolean = FALSE
@@ -122,7 +122,7 @@ end;
 function ParsePointsToPolygonBuilder(
   const ABuilder: IGeometryLonLatPolygonBuilder;
   const ASourceText: String;
-  const AGeoConverter: ICoordConverter;
+  const AProjectionType: IProjectionType;
   const AInMetr, AMakeHoles: Boolean;
   const APointsAggregator: IDoublePointsAggregator;
   const AFromJSON: Boolean
@@ -198,7 +198,7 @@ begin
     if (VOk=$03) then begin
       // convert
       if AInMetr then begin
-        VPoint := AGeoConverter.Metr2LonLat(VPoint);
+        VPoint := AProjectionType.Metr2LonLat(VPoint);
       end;
       VDoublePointsAggregator.Add(VPoint);
       Inc(Result);

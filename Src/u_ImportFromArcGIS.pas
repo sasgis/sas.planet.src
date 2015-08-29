@@ -61,6 +61,7 @@ uses
   i_Downloader,
   i_NotifierOperation,
   i_DoublePointsAggregator,
+  i_ProjectionType,
   i_CoordConverter,
   i_GeometryLonLat,
   u_DownloadResultFactory,
@@ -242,7 +243,7 @@ procedure _ParseSingleJSON(
   const ABuilder: IGeometryLonLatPolygonBuilder;
   const ADownloader: IDownloader;
   const AHeaders: AnsiString;
-  const AConverter: ICoordConverter;
+  const AProjectionType: IProjectionType;
   const ACancelNotifier: INotifierOperation;
   const AOperationID: Integer;
   var AJSONParams: TStringList;
@@ -366,7 +367,7 @@ begin
   ParsePointsToPolygonBuilder(
     ABuilder,
     AGeometry,
-    AConverter,
+    AProjectionType,
     True,
     False,
     APointsAggregator,
@@ -392,6 +393,7 @@ const
 
 var
   VConverter: ICoordConverter;
+  VProjectionType: IProjectionType;
   VHead: AnsiString;
   VDownloader: IDownloader;
   VCancelNotifier: INotifierOperation;
@@ -411,6 +413,7 @@ var
 begin
   Result := nil;
   VConverter := ACoordConverterFactory.GetCoordConverterByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256);
+  VProjectionType := VConverter.ProjectionType;
   VResultFactory := TDownloadResultFactory.Create;
   VDownloader:=TDownloaderHttp.Create(VResultFactory);
 
@@ -517,7 +520,7 @@ begin
             VBuilder,
             VDownloader,
             VHead,
-            VConverter,
+            VProjectionType,
             VCancelNotifier,
             VCancelNotifier.CurrentOperation,
             VJSONParams,
