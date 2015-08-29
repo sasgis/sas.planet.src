@@ -148,12 +148,11 @@ var
   bmp_ex: TCustomBitmap32;
   i, VSubTileCount: integer;
   VSubTilesSavedCount: integer;
-  VZoomPrev: Byte;
-  VZoom: Byte;
   VTile: TPoint;
   VSubTile: TPoint;
   VGeoConvert: ICoordConverter;
   VProjection: IProjectionInfo;
+  VProjectionPrev: IProjectionInfo;
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
   VZoomDelta: Integer;
@@ -179,8 +178,7 @@ begin
   VGeoConvert := FMapType.GeoConvert;
   SetLength(VTileIterators, Length(FZooms) - 1);
   for i := 1 to Length(FZooms) - 1 do begin
-    VZoom := FZooms[i];
-    VProjection := FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom);
+    VProjection := FProjectionFactory.GetByConverterAndZoom(VGeoConvert, FZooms[i]);
     VProjectedPolygon :=
       FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
         VProjection,
@@ -189,9 +187,9 @@ begin
     VTileIterator := TTileIteratorByPolygon.Create(VProjection, VProjectedPolygon);
     VTileIterators[i - 1] := VTileIterator;
     if FGenFormFirstZoom then begin
-      VZoomDelta := FZooms[0] - VZoom;
+      VZoomDelta := FZooms[0] - FZooms[i];
     end else begin
-      VZoomDelta := FZooms[i - 1] - VZoom;
+      VZoomDelta := FZooms[i - 1] - FZooms[i];
     end;
     VTilesToProcess := VTilesToProcess + VTileIterator.TilesTotal * (1 shl (2 * VZoomDelta));
   end;
@@ -207,26 +205,26 @@ begin
       VTilesProcessed := 0;
       for i := 1 to Length(FZooms) - 1 do begin
         if FGenFormFirstZoom then begin
-          VZoomPrev := FZooms[0];
+          VProjectionPrev := FProjectionFactory.GetByConverterAndZoom(VGeoConvert, FZooms[0]);
         end else begin
-          VZoomPrev := FZooms[i - 1];
+          VProjectionPrev := FProjectionFactory.GetByConverterAndZoom(VGeoConvert, FZooms[i - 1]);
         end;
-        VZoom := FZooms[i];
         VTileIterator := VTileIterators[i - 1];
+        VProjection := VTileIterator.TilesRect.ProjectionInfo;
         while VTileIterator.Next(VTile) do begin
           if CancelNotifier.IsOperationCanceled(OperationID) then begin
             exit;
           end;
-          VCurrentTilePixelRect := VGeoConvert.TilePos2PixelRect(VTile, VZoom);
+          VCurrentTilePixelRect := VProjection.TilePos2PixelRect(VTile);
           if not (FIsReplace) then begin
-            VTileInfo := FMapType.TileStorage.GetTileInfoEx(VTile, VZoom, FVersion, gtimAsIs);
+            VTileInfo := FMapType.TileStorage.GetTileInfoEx(VTile, VProjection.Zoom, FVersion, gtimAsIs);
             if VTileInfo.GetIsExists then begin
               continue;
             end;
           end;
           VBitmapSourceTile := nil;
           if FUsePrevTiles then begin
-            VBitmapSourceTile := FMapType.LoadTileUni(VTile, VZoom, FVersion, VGeoConvert, True, True, True);
+            VBitmapSourceTile := FMapType.LoadTileUni(VTile, VProjection, FVersion, True, True, True);
           end;
             if VBitmapSourceTile = nil then begin
               bmp_ex.SetSize(
@@ -238,27 +236,27 @@ begin
               AssignStaticToBitmap32(bmp_ex, VBitmapSourceTile);
             end;
 
-            VRelativeRect := VGeoConvert.TilePos2RelativeRect(VTile, VZoom);
+            VRelativeRect := VProjection.TilePos2RelativeRect(VTile);
             VRectOfSubTiles :=
               RectFromDoubleRect(
-                VGeoConvert.RelativeRect2TileRectFloat(VRelativeRect, VZoomPrev),
+                VProjectionPrev.RelativeRect2TileRectFloat(VRelativeRect),
                 rrToTopLeft
               );
             VSubTileIterator.Init(VRectOfSubTiles);
             VSubTileCount := VSubTileIterator.TilesTotal;
             VSubTilesSavedCount := 0;
             while VSubTileIterator.Next(VSubTile) do begin
-              VBitmapSourceTile := FMapType.LoadTile(VSubTile, VZoomPrev, FVersion, True);
+              VBitmapSourceTile := FMapType.LoadTile(VSubTile, VProjectionPrev.Zoom, FVersion, True);
               if VBitmapSourceTile <> nil then begin
-                VSubTileBounds := VGeoConvert.TilePos2PixelRect(VSubTile, VZoomPrev);
+                VSubTileBounds := VProjectionPrev.TilePos2PixelRect(VSubTile);
                 VSubTileBounds.Right := VSubTileBounds.Right - VSubTileBounds.Left;
                 VSubTileBounds.Bottom := VSubTileBounds.Bottom - VSubTileBounds.Top;
                 VSubTileBounds.Left := 0;
                 VSubTileBounds.Top := 0;
-                VRelativeRect := VGeoConvert.TilePos2RelativeRect(VSubTile, VZoomPrev);
+                VRelativeRect := VProjectionPrev.TilePos2RelativeRect(VSubTile);
                 VSubTileInTargetBounds :=
                   RectFromDoubleRect(
-                    VGeoConvert.RelativeRect2PixelRectFloat(VRelativeRect, VZoom),
+                    VProjection.RelativeRect2PixelRectFloat(VRelativeRect),
                     rrToTopLeft
                   );
                 VSubTileInTargetBounds.Left := VSubTileInTargetBounds.Left - VCurrentTilePixelRect.Left;
@@ -297,7 +295,7 @@ begin
             if Assigned(VResultData) then begin
               FMapType.TileStorage.SaveTile(
                 VTile,
-                VZoom,
+                VProjection.Zoom,
                 FVersion.BaseVersion,
                 Now,
                 FContentType,

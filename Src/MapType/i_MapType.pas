@@ -30,6 +30,7 @@ uses
   i_TileObjCache,
   i_Bitmap32Static,
   i_VectorItemSubset,
+  i_ProjectionInfo,
   i_CoordConverter,
   i_ZmpInfo,
   i_MapVersionRequestConfig,
@@ -74,9 +75,8 @@ type
     ): IVectorItemSubset;
     function LoadTileUni(
       const AXY: TPoint;
-      const AZoom: byte;
+      const AProjection: IProjectionInfo;
       const AVersion: IMapVersionRequest;
-      const ACoordConverterTarget: ICoordConverter;
       AUsePre, AAllowPartial, IgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
     ): IBitmap32Static;
@@ -89,9 +89,8 @@ type
     ): IBitmap32Static;
     function LoadBitmapUni(
       const APixelRectTarget: TRect;
-      const AZoom: byte;
+      const AProjection: IProjectionInfo;
       const AVersion: IMapVersionRequest;
-      const ACoordConverterTarget: ICoordConverter;
       AUsePre, AAllowPartial, IgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
     ): IBitmap32Static;

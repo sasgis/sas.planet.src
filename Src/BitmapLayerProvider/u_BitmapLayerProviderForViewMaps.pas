@@ -52,8 +52,7 @@ type
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const ATile: TPoint;
-      AZoom: byte;
-      const ACoordConverterTarget: ICoordConverter;
+      const AProjection: IProjectionInfo;
       const ASource: IBitmap32Static;
       AUsePrevZoom: Boolean;
       const AMapType: IMapType
@@ -116,8 +115,7 @@ function TBitmapLayerProviderForViewMaps.GetBitmapByMapType(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const ATile: TPoint;
-  AZoom: byte;
-  const ACoordConverterTarget: ICoordConverter;
+  const AProjection: IProjectionInfo;
   const ASource: IBitmap32Static;
   AUsePrevZoom: Boolean;
   const AMapType: IMapType
@@ -138,9 +136,8 @@ begin
     VLayer :=
       AMapType.LoadTileUni(
         ATile,
-        AZoom,
+        AProjection,
         AMapType.VersionRequestConfig.GetStatic,
-        ACoordConverterTarget,
         AUsePrevZoom,
         True,
         False,
@@ -152,7 +149,7 @@ begin
         VError :=
           TTileErrorInfo.Create(
             AMapType.Zmp.GUID,
-            AZoom,
+            AProjection.Zoom,
             ATile,
             E.Message
           );
@@ -165,7 +162,7 @@ begin
         FErrorLogger.LogError(
           TTileErrorInfo.Create(
           AMapType.Zmp.GUID,
-          AZoom,
+          AProjection.Zoom,
           ATile,
           'Unexpected read tile error'
           )
@@ -204,24 +201,19 @@ function TBitmapLayerProviderForViewMaps.GetTile(
 ): IBitmap32Static;
 var
   VTile: TPoint;
-  Vzoom: byte;
-  VCoordConverterTarget: ICoordConverter;
   VPixelRect: TRect;
   i: Integer;
 begin
-  Vzoom := AProjectionInfo.Zoom;
-  VCoordConverterTarget := AProjectionInfo.GeoConverter;
-  VPixelRect := VCoordConverterTarget.TilePos2PixelRect(ATile, Vzoom);
-  VTile := VCoordConverterTarget.PixelRect2TileRect(VPixelRect, Vzoom).TopLeft;
-  Assert(Types.EqualRect(VPixelRect, VCoordConverterTarget.TilePos2PixelRect(VTile, Vzoom)));
+  VPixelRect := AProjectionInfo.TilePos2PixelRect(ATile);
+  VTile := AProjectionInfo.PixelRect2TileRect(VPixelRect).TopLeft;
+  Assert(Types.EqualRect(VPixelRect, AProjectionInfo.TilePos2PixelRect(VTile)));
 
   Result :=
     GetBitmapByMapType(
       AOperationID,
       ACancelNotifier,
       VTile,
-      Vzoom,
-      VCoordConverterTarget,
+      AProjectionInfo,
       nil,
       FUsePrevZoomAtMap,
       FMainMap
@@ -233,8 +225,7 @@ begin
           AOperationID,
           ACancelNotifier,
           VTile,
-          Vzoom,
-          VCoordConverterTarget,
+          AProjectionInfo,
           Result,
           FUsePrevZoomAtLayer,
           FLayersList.Items[i]

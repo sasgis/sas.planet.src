@@ -37,6 +37,7 @@ uses
   i_TileObjCache,
   i_TileDownloaderConfig,
   i_LanguageManager,
+  i_ProjectionInfo,
   i_CoordConverter,
   i_MapVersionRequest,
   i_MapVersionRequestConfig,
@@ -154,9 +155,8 @@ type
     ): IVectorItemSubset;
     function LoadTileUni(
       const AXY: TPoint;
-      const AZoom: byte;
+      const AProjection: IProjectionInfo;
       const AVersion: IMapVersionRequest;
-      const ACoordConverterTarget: ICoordConverter;
       AUsePre, AAllowPartial, IgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
     ): IBitmap32Static;
@@ -169,9 +169,8 @@ type
     ): IBitmap32Static;
     function LoadBitmapUni(
       const APixelRectTarget: TRect;
-      const AZoom: byte;
+      const AProjection: IProjectionInfo;
       const AVersion: IMapVersionRequest;
-      const ACoordConverterTarget: ICoordConverter;
       AUsePre, AAllowPartial, IgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
     ): IBitmap32Static;
@@ -941,9 +940,8 @@ end;
 
 function TMapType.LoadBitmapUni(
   const APixelRectTarget: TRect;
-  const AZoom: byte;
+  const AProjection: IProjectionInfo;
   const AVersion: IMapVersionRequest;
-  const ACoordConverterTarget: ICoordConverter;
   AUsePre, AAllowPartial, IgnoreError: Boolean;
   const ACache: ITileObjCacheBitmap
 ): IBitmap32Static;
@@ -960,16 +958,16 @@ var
 begin
   Result := nil;
 
-  if FCoordConverter.IsSameConverter(ACoordConverterTarget) then begin
-    Result := LoadBitmap(APixelRectTarget, AZoom, AVersion, AUsePre, AAllowPartial, IgnoreError, ACache);
+  if FCoordConverter.ProjectionType.IsSame(AProjection.ProjectionType) then begin
+    Result := LoadBitmap(APixelRectTarget, AProjection.Zoom, AVersion, AUsePre, AAllowPartial, IgnoreError, ACache);
   end else begin
-    VZoom := AZoom;
+    VZoom := AProjection.Zoom;
     VTargetImageSize.X := APixelRectTarget.Right - APixelRectTarget.Left;
     VTargetImageSize.Y := APixelRectTarget.Bottom - APixelRectTarget.Top;
 
     VPixelRectTarget := APixelRectTarget;
-    ACoordConverterTarget.ValidatePixelRect(VPixelRectTarget, VZoom);
-    VLonLatRectTarget := ACoordConverterTarget.PixelRect2LonLatRect(VPixelRectTarget, VZoom);
+    AProjection.ValidatePixelRect(VPixelRectTarget);
+    VLonLatRectTarget := AProjection.PixelRect2LonLatRect(VPixelRectTarget);
     FCoordConverter.ValidateLonLatRect(VLonLatRectTarget);
     VPixelRectOfTargetPixelRectInSource :=
       RectFromDoubleRect(
@@ -1005,17 +1003,16 @@ end;
 
 function TMapType.LoadTileUni(
   const AXY: TPoint;
-  const AZoom: byte;
+  const AProjection: IProjectionInfo;
   const AVersion: IMapVersionRequest;
-  const ACoordConverterTarget: ICoordConverter;
   AUsePre, AAllowPartial, IgnoreError: Boolean;
   const ACache: ITileObjCacheBitmap
 ): IBitmap32Static;
 var
   VPixelRect: TRect;
 begin
-  VPixelRect := ACoordConverterTarget.TilePos2PixelRect(AXY, AZoom);
-  Result := LoadBitmapUni(VPixelRect, AZoom, AVersion, ACoordConverterTarget, AUsePre, AAllowPartial, IgnoreError, ACache);
+  VPixelRect := AProjection.TilePos2PixelRect(AXY);
+  Result := LoadBitmapUni(VPixelRect, AProjection, AVersion, AUsePre, AAllowPartial, IgnoreError, ACache);
 end;
 
 end.

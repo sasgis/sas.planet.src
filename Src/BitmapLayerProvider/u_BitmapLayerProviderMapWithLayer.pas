@@ -156,9 +156,8 @@ begin
       VResult :=
         FMapTypeArray[I].FMapType.LoadTileUni(
           ATile,
-          AProjectionInfo.Zoom,
+          AProjectionInfo,
           FMapTypeArray[I].FVersion,
-          AProjectionInfo.GeoConverter,
           VUsePrevZoom,
           True,
           True

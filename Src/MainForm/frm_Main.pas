@@ -908,6 +908,7 @@ uses
   i_MapTypeSet,
   i_GeoCoderList,
   i_CoordConverter,
+  i_ProjectionInfo,
   i_GeometryProjected,
   i_LocalCoordConverterChangeable,
   i_GUIDListStatic,
@@ -4723,8 +4724,7 @@ end;
 procedure TfrmMain.tbitmCopyToClipboardMainMapTileClick(Sender: TObject);
 var
   VMouseMapPoint: TDoublePoint;
-  VZoomCurr: Byte;
-  VConverter: ICoordConverter;
+  VProjection: IProjectionInfo;
   VMapType: IMapType;
   VLocalConverter: ILocalCoordConverter;
   VTile: TPoint;
@@ -4732,17 +4732,17 @@ var
 begin
   VLocalConverter := FViewPortState.View.GetStatic;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-  VZoomCurr := VLocalConverter.GetZoom;
-  VConverter := VLocalConverter.GetGeoConverter;
+
+  VProjection := VLocalConverter.ProjectionInfo;
   VMapType := FMainMapState.ActiveMap.GetStatic;
 
-  VConverter.ValidatePixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
+  VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, True);
   VTile :=
     PointFromDoublePoint(
-      VConverter.PixelPosFloat2TilePosFloat(VMouseMapPoint, VZoomCurr),
+      VProjection.PixelPosFloat2TilePosFloat(VMouseMapPoint),
       prToTopLeft
     );
-  VBitmapTile := VMapType.LoadTileUni(VTile, VZoomCurr, VMapType.VersionRequestConfig.GetStatic, VConverter, True, True, False);
+  VBitmapTile := VMapType.LoadTileUni(VTile, VProjection, VMapType.VersionRequestConfig.GetStatic, True, True, False);
   if VBitmapTile <> nil then begin
     CopyBitmapToClipboard(Handle, VBitmapTile);
   end;
