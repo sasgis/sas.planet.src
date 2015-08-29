@@ -34,6 +34,7 @@ uses
   StdCtrls,
   t_GeoTypes,
   i_LanguageManager,
+  i_CoordConverterFactory,
   i_ValueToStringConverter,
   i_LocalCoordConverterChangeable,
   u_CommonFormAndFrameParents;
@@ -61,6 +62,7 @@ type
     procedure cbbCoordTypeSelect(Sender: TObject);
   private
     FCoordinates: TDoublePoint;
+    FProjectionFactory: IProjectionInfoFactory;
     FViewPortState: ILocalCoordConverterChangeable;
     FValueToStringConverter: IValueToStringConverterChangeable;
     FTileSelectStyle: TTileSelectStyle;
@@ -74,6 +76,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
+      const AProjectionFactory: IProjectionInfoFactory;
       const AViewPortState: ILocalCoordConverterChangeable;
       const AValueToStringConverter: IValueToStringConverterChangeable;
       ATileSelectStyle: TTileSelectStyle
@@ -87,6 +90,7 @@ implementation
 uses
   Types,
   Math,
+  i_ProjectionInfo,
   i_LocalCoordConverter,
   u_GeoFunc,
   u_GeoToStrFunc,
@@ -114,12 +118,14 @@ end;
 
 constructor TfrLonLat.Create(
   const ALanguageManager: ILanguageManager;
+  const AProjectionFactory: IProjectionInfoFactory;
   const AViewPortState: ILocalCoordConverterChangeable;
   const AValueToStringConverter: IValueToStringConverterChangeable;
   ATileSelectStyle: TTileSelectStyle
 );
 begin
   inherited Create(ALanguageManager);
+  FProjectionFactory := AProjectionFactory;
   FViewPortState := AViewPortState;
   FValueToStringConverter := AValueToStringConverter;
   FTileSelectStyle := ATileSelectStyle;
@@ -256,6 +262,7 @@ var
   XYPoint: TDoublePoint;
   VZoom: Byte;
   VLonLat: TDoublePoint;
+  VProjection: IProjectionInfo;
 begin
   VLonLat := CEmptyDoublePoint;
   Result := True;
@@ -267,7 +274,7 @@ begin
       end;
       if Result then begin
         VLocalConverter := FViewPortState.GetStatic;
-        VLocalConverter.GeoConverter.ValidateLonLatPos(VLonLat);
+        VLocalConverter.ProjectionInfo.ProjectionType.ValidateLonLatPos(VLonLat);
       end;
     end;
     1: begin
@@ -281,8 +288,9 @@ begin
       if Result then begin
         VLocalConverter := FViewPortState.GetStatic;
         VZoom := cbbZoom.ItemIndex;
-        VLocalConverter.GeoConverter.ValidatePixelPosFloat(XYPoint, VZoom, False);
-        VLonLat := VLocalConverter.GetGeoConverter.PixelPosFloat2LonLat(XYPoint, VZoom);
+        VProjection := FProjectionFactory.GetByConverterAndZoom(VLocalConverter.GetGeoConverter, VZoom);
+        VProjection.ValidatePixelPosFloat(XYPoint, False);
+        VLonLat := VProjection.PixelPosFloat2LonLat(XYPoint);
       end;
     end;
     2: begin
@@ -308,9 +316,9 @@ begin
             XYPoint := DoublePoint(VTile.X + 1, VTile.Y + 1);
           end;
         end;
-
-        VLocalConverter.GeoConverter.ValidateTilePos(VTile, VZoom, False);
-        VLonLat := VLocalConverter.GeoConverter.TilePosFloat2LonLat(XYPoint, VZoom);
+        VProjection := FProjectionFactory.GetByConverterAndZoom(VLocalConverter.GetGeoConverter, VZoom);
+        VProjection.ValidateTilePos(VTile, False);
+        VLonLat := VProjection.TilePosFloat2LonLat(XYPoint);
       end;
     end;
   end;

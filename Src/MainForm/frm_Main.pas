@@ -1118,6 +1118,7 @@ begin
   FMarkDBGUI :=
     TMarkDbGUIHelper.Create(
       GState.Config.LanguageManager,
+      GState.ProjectionFactory,
       GState.Config.MediaDataPath,
       GState.Config.MarksFactoryConfig,
       GState.Config.MarksGUIConfig,
@@ -1183,6 +1184,7 @@ begin
   FfrmGoTo :=
     TfrmGoTo.Create(
       GState.Config.LanguageManager,
+      GState.ProjectionFactory,
       GState.VectorItemSubsetBuilderFactory,
       GState.GeoCodePlacemarkFactory,
       GState.MarksDb.MarkDb,
@@ -5587,6 +5589,7 @@ begin
   VSelLonLat :=
     TfrmLonLatRectEdit.Create(
       GState.Config.LanguageManager,
+      GState.ProjectionFactory,
       FViewPortState.View,
       GState.ValueToStringConverter
     );

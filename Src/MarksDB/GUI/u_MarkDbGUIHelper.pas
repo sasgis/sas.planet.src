@@ -26,7 +26,7 @@ uses
   Windows,
   Dialogs,
   Controls,
-  Classes,  
+  Classes,
   i_PathConfig,
   i_LanguageManager,
   i_InterfaceListStatic,
@@ -36,6 +36,7 @@ uses
   i_ValueToStringConverter,
   i_GeoCalc,
   i_GeometryLonLat,
+  i_CoordConverterFactory,
   i_LocalCoordConverterChangeable,
   i_VectorDataFactory,
   i_VectorDataItemSimple,
@@ -172,6 +173,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
+      const AProjectionFactory: IProjectionInfoFactory;
       const AMediaPath: IPathConfig;
       const AMarkFactoryConfig: IMarkFactoryConfig;
       const AMarksGUIConfig: IMarksGUIConfig;
@@ -214,6 +216,7 @@ uses
 
 constructor TMarkDbGUIHelper.Create(
   const ALanguageManager: ILanguageManager;
+  const AProjectionFactory: IProjectionInfoFactory;
   const AMediaPath: IPathConfig;
   const AMarkFactoryConfig: IMarkFactoryConfig;
   const AMarksGUIConfig: IMarksGUIConfig;
@@ -247,6 +250,7 @@ begin
     TfrmMarkEditPoint.Create(
       ALanguageManager,
       AMediaPath,
+      AProjectionFactory,
       AVectorGeometryLonLatFactory,
       AAppearanceOfMarkFactory,
       FMarkSystem.MarkDb.Factory,

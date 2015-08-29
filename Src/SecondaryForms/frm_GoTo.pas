@@ -37,6 +37,7 @@ uses
   i_StringHistory,
   i_GeoCoderList,
   i_MainGeoCoderConfig,
+  i_CoordConverterFactory,
   i_LocalCoordConverterChangeable,
   i_VectorDataItemSimple,
   i_VectorItemSubsetBuilder,
@@ -92,6 +93,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
+      const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AGeoCodePlacemarkFactory: IGeoCodePlacemarkFactory;
       const AMarksDb: IMarkDb;
@@ -300,6 +302,7 @@ end;
 
 constructor TfrmGoTo.Create(
   const ALanguageManager: ILanguageManager;
+  const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AGeoCodePlacemarkFactory: IGeoCodePlacemarkFactory;
   const AMarksDb: IMarkDb;
@@ -319,7 +322,7 @@ begin
   FMainGeoCoderConfig := AMainGeoCoderConfig;
   FViewPortState := AViewPortState;
   FValueToStringConverter := AValueToStringConverter;
-  frLonLatPoint := TfrLonLat.Create(ALanguageManager, FViewPortState, FValueToStringConverter, tssCenter);
+  frLonLatPoint := TfrLonLat.Create(ALanguageManager, AProjectionFactory, FViewPortState, FValueToStringConverter, tssCenter);
   frLonLatPoint.Width := tsCoordinates.Width;
   frLonLatPoint.Height := tsCoordinates.Height;
 end;

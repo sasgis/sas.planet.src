@@ -36,6 +36,7 @@ uses
   u_CommonFormAndFrameParents,
   i_LanguageManager,
   i_PathConfig,
+  i_CoordConverterFactory,
   i_LocalCoordConverterChangeable,
   i_ValueToStringConverter,
   i_MarkPicture,
@@ -114,6 +115,7 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AMediaPath: IPathConfig;
+      const AProjectionFactory: IProjectionInfoFactory;
       const AGeometryFactory: IGeometryLonLatFactory;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AMarkFactory: IMarkFactory;
@@ -147,6 +149,7 @@ uses
 constructor TfrmMarkEditPoint.Create(
   const ALanguageManager: ILanguageManager;
   const AMediaPath: IPathConfig;
+  const AProjectionFactory: IProjectionInfoFactory;
   const AGeometryFactory: IGeometryLonLatFactory;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AMarkFactory: IMarkFactory;
@@ -167,6 +170,7 @@ begin
   frLonLatPoint :=
     TfrLonLat.Create(
       ALanguageManager,
+      AProjectionFactory,
       AViewPortState,
       AValueToStringConverter,
       tssCenter
