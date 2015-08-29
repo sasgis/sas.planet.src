@@ -27,6 +27,7 @@ uses
   t_Hash,
   t_GeoTypes,
   i_Datum,
+  i_ProjectionType,
   i_CoordConverter,
   u_BaseInterfacedObject;
 
@@ -36,6 +37,7 @@ type
     FHash: THashValue;
     FDatum: IDatum;
     FProjEPSG: integer;
+    FProjectionType: IProjectionType;
   protected
     procedure ValidateZoomInternal(var AZoom: Byte); virtual; stdcall; abstract;
 
@@ -275,6 +277,7 @@ type
   protected
     function GetHash: THashValue;
     function GetDatum: IDatum; stdcall;
+    function GetProjectionType: IProjectionType;
 
     function GetMinZoom: Byte; stdcall;
     function GetMaxZoom: Byte; stdcall;
@@ -566,6 +569,7 @@ type
     constructor Create(
       const AHash: THashValue;
       const ADatum: IDatum;
+      const AProjectionType: IProjectionType;
       const AProjEPSG: integer
     );
   end;
@@ -1255,15 +1259,22 @@ begin
   Result := FProjEPSG;
 end;
 
+function TCoordConverterAbstract.GetProjectionType: IProjectionType;
+begin
+  Result := FProjectionType;
+end;
+
 constructor TCoordConverterAbstract.Create(
   const AHash: THashValue;
   const ADatum: IDatum;
+  const AProjectionType: IProjectionType;
   const AProjEPSG: integer
 );
 begin
   inherited Create;
   FHash := AHash;
   FDatum := ADatum;
+  FProjectionType := AProjectionType;
   FProjEPSG := AProjEPSG;
 end;
 

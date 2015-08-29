@@ -26,6 +26,7 @@ uses
   Types,
   t_Hash,
   t_GeoTypes,
+  i_ProjectionType,
   i_Datum;
 
 type
@@ -71,6 +72,9 @@ type
 
     function GetDatum: IDatum; stdcall;
     property Datum: IDatum read GetDatum;
+
+    function GetProjectionType: IProjectionType;
+    property ProjectionType: IProjectionType read GetProjectionType;
 
     // ћинимальный и максимальный зумы обычно с 0 до 23
     function GetMinZoom: Byte; stdcall;

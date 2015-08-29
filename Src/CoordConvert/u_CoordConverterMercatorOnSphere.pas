@@ -43,6 +43,10 @@ type
 
 implementation
 
+uses
+  i_ProjectionType,
+  u_ProjectionTypeMercatorOnSphere;
+
 { TCoordConverterMercatorOnSphere }
 
 constructor TCoordConverterMercatorOnSphere.Create(
@@ -50,10 +54,13 @@ constructor TCoordConverterMercatorOnSphere.Create(
   const ADatum: IDatum;
   const AProjEPSG: integer
 );
+var
+  VProjectionType: IProjectionType;
 begin
   Assert(ADatum <> nil);
   Assert(Abs(ADatum.GetSpheroidRadiusA - ADatum.GetSpheroidRadiusB) < 1);
-  inherited;
+  VProjectionType := TProjectionTypeMercatorOnSphere.Create(AHash, ADatum, AProjEPSG);
+  inherited Create(AHash, ADatum, VProjectionType, AProjEPSG);
 end;
 
 function TCoordConverterMercatorOnSphere.LonLat2RelativeInternal(const XY: TDoublePoint): TDoublePoint;

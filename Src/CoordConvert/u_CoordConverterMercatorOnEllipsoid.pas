@@ -46,7 +46,9 @@ type
 implementation
 
 uses
-  Math;
+  Math,
+  i_ProjectionType,
+  u_ProjectionTypeMercatorOnEllipsoid;
 
 const
   MerkElipsK = 0.000000001;
@@ -59,10 +61,12 @@ constructor TCoordConverterMercatorOnEllipsoid.Create(
   const AProjEPSG: integer
 );
 var
+  VProjectionType: IProjectionType;
   VRadiusA, VRadiusB: Double;
 begin
   Assert(ADatum <> nil);
-  inherited Create(AHash, ADatum, AProjEPSG);
+  VProjectionType := TProjectionTypeMercatorOnEllipsoid.Create(AHash, ADatum, AProjEPSG);
+  inherited Create(AHash, ADatum, VProjectionType, AProjEPSG);
   VRadiusA := ADatum.GetSpheroidRadiusA;
   VRadiusB := ADatum.GetSpheroidRadiusB;
   FExct := sqrt(VRadiusA * VRadiusA - VRadiusB * VRadiusB) / VRadiusA;

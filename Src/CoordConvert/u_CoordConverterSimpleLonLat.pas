@@ -30,8 +30,6 @@ uses
 
 type
   TCoordConverterSimpleLonLat = class(TCoordConverterBasic)
-  private
-    FExct: Double;
   protected
     function LonLat2RelativeInternal(const XY: TDoublePoint): TDoublePoint; override; stdcall;
     function Relative2LonLatInternal(const XY: TDoublePoint): TDoublePoint; override; stdcall;
@@ -45,6 +43,10 @@ type
 
 implementation
 
+uses
+  i_ProjectionType,
+  u_ProjectionTypeGELonLat;
+
 { TCoordConverterSimpleLonLat }
 
 constructor TCoordConverterSimpleLonLat.Create(
@@ -53,13 +55,11 @@ constructor TCoordConverterSimpleLonLat.Create(
   const AProjEPSG: integer
 );
 var
-  VRadiusA, VRadiusB: Double;
+  VProjectionType: IProjectionType;
 begin
   Assert(ADatum <> nil);
-  inherited;
-  VRadiusA := ADatum.GetSpheroidRadiusA;
-  VRadiusB := ADatum.GetSpheroidRadiusB;
-  FExct := sqrt(VRadiusA * VRadiusA - VRadiusB * VRadiusB) / VRadiusA;
+  VProjectionType := TProjectionTypeGELonLat.Create(AHash, ADatum, AProjEPSG);
+  inherited Create(AHash, ADatum, VProjectionType, AProjEPSG);
 end;
 
 function TCoordConverterSimpleLonLat.LonLat2RelativeInternal(
