@@ -105,7 +105,7 @@ uses
   SysUtils,
   Types,
   Math,
-  i_CoordConverter,
+  i_ProjectionType,
   u_Bitmap32ByStaticBitmap,
   u_GeoFunc;
 
@@ -194,11 +194,9 @@ var
   VPointCurrCode: Byte;
   VPointCurrLocal: TDoublePoint;
 
-  VGeoConvert: ICoordConverter;
   VMapPixelRect: TDoubleRect;
 begin
   Result := False;
-  VGeoConvert := AProjection.GeoConverter;
   VMapPixelRect := DoubleRect(AMapRect);
 
   VPointCurrCode := 0;
@@ -280,17 +278,13 @@ function TBitmapLayerProviderByTrackPath.GetTile(
 var
   VTargetRect: TRect;
   VLonLatRect: TDoubleRect;
-  VConverter: ICoordConverter;
-  VZoom: Byte;
   VBitmap: TBitmap32ByStaticBitmap;
 begin
   Result := nil;
   if not FRectIsEmpty then begin
-    VZoom := AProjectionInfo.Zoom;
-    VConverter := AProjectionInfo.GeoConverter;
-    VTargetRect := VConverter.TilePos2PixelRect(ATile, VZoom);
-    VConverter.ValidatePixelRect(VTargetRect, VZoom);
-    VLonLatRect := VConverter.PixelRect2LonLatRect(VTargetRect, VZoom);
+    VTargetRect := AProjectionInfo.TilePos2PixelRect(ATile);
+    AProjectionInfo.ValidatePixelRect(VTargetRect);
+    VLonLatRect := AProjectionInfo.PixelRect2LonLatRect(VTargetRect);
     if IsIntersecLonLatRect(FLonLatRect, VLonLatRect) then begin
       VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
       try
@@ -362,8 +356,7 @@ var
   i: Integer;
   VIndex: Integer;
   VPoint: TGPSTrackPoint;
-  VGeoConverter: ICoordConverter;
-  VZoom: Byte;
+  VProjectionType: IProjectionType;
   VCurrPointIsEmpty: Boolean;
   VPrevPointIsEmpty: Boolean;
   VCurrPoint: TDoublePoint;
@@ -371,8 +364,7 @@ var
 begin
   FPointsProjectedCount := 0;
   FPreparedProjection := AProjection;
-  VGeoConverter := AProjection.GeoConverter;
-  VZoom := AProjection.Zoom;
+  VProjectionType := AProjection.ProjectionType;
   i := 0;
   VIndex := 0;
   VPrevPointIsEmpty := True;
@@ -380,7 +372,7 @@ begin
     VPoint := FPointsLonLat[i];
     VCurrPointIsEmpty := PointIsEmpty(VPoint.Point);
     if not VCurrPointIsEmpty then begin
-      VGeoConverter.ValidateLonLatPos(VPoint.Point);
+      VProjectionType.ValidateLonLatPos(VPoint.Point);
       if FRectIsEmpty then begin
         FLonLatRect.TopLeft := VPoint.Point;
         FLonLatRect.BottomRight := VPoint.Point;
@@ -388,7 +380,7 @@ begin
       end else begin
         UpdateLonLatMBRByPoint(FLonLatRect, VPoint.Point);
       end;
-      VPoint.Point := VGeoConverter.LonLat2PixelPosFloat(VPoint.Point, VZoom);
+      VPoint.Point := AProjection.LonLat2PixelPosFloat(VPoint.Point);
     end;
 
     VCurrPoint := VPoint.Point;
