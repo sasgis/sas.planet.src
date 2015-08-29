@@ -26,6 +26,7 @@ uses
   Types,
   t_Hash,
   t_GeoTypes,
+  i_ProjectionType,
   i_CoordConverter,
   i_ProjectionInfo,
   u_BaseInterfacedObject;
@@ -37,6 +38,7 @@ type
     FGeoConverter: ICoordConverter;
     FZoom: Byte;
 
+    FProjectionType: IProjectionType;
     FTileRect: TRect;
     FPixelRect: TRect;
     FPixelsFloat: Double;
@@ -45,6 +47,7 @@ type
     function GetHash: THashValue;
     function GetZoom: Byte;
     function GetGeoConverter: ICoordConverter;
+    function GetProjectionType: IProjectionType;
     function GetIsSameProjectionInfo(const AProjection: IProjectionInfo): Boolean;
 
     // Возвращает прямоугольник тайлов допустимый в заданном зуме
@@ -298,6 +301,7 @@ begin
   FGeoConverter := AGeoConverter;
   FZoom := AZoom;
 
+  FProjectionType := FGeoConverter.ProjectionType;
   FTileRect := FGeoConverter.TileRectAtZoom(FZoom);
   FPixelRect := FGeoConverter.PixelRectAtZoom(FZoom);
   FPixelsFloat := FGeoConverter.PixelsAtZoomFloat(FZoom);
@@ -395,6 +399,11 @@ end;
 function TProjectionInfo.GetPixelsFloat: Double;
 begin
   Result := FPixelsFloat;
+end;
+
+function TProjectionInfo.GetProjectionType: IProjectionType;
+begin
+  Result := FProjectionType;
 end;
 
 function TProjectionInfo.GetTileRect: TRect;

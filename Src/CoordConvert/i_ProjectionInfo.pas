@@ -26,6 +26,7 @@ uses
   Types,
   t_Hash,
   t_GeoTypes,
+  i_ProjectionType,
   i_CoordConverter;
 
 type
@@ -39,6 +40,9 @@ type
 
     function GetGeoConverter: ICoordConverter;
     property GeoConverter: ICoordConverter read GetGeoConverter;
+
+    function GetProjectionType: IProjectionType;
+    property ProjectionType: IProjectionType read GetProjectionType;
 
     function GetIsSameProjectionInfo(const AProjection: IProjectionInfo): Boolean;
 
