@@ -1927,6 +1927,7 @@ begin
   VProvider :=
     TBitmapLayerProviderChangeableForGrids.Create(
       GState.Bitmap32StaticFactory,
+      GState.ProjectionFactory,
       GState.ValueToStringConverter,
       FConfig.LayersConfig.MapLayerGridsConfig
     );

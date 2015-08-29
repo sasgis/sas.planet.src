@@ -29,6 +29,7 @@ uses
   i_SimpleFlag,
   i_NotifierOperation,
   i_ProjectionInfo,
+  i_CoordConverterFactory,
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
   i_BitmapLayerProvider,
@@ -42,21 +43,25 @@ type
     FZoom: Integer;
     FShowText: Boolean;
     FShowLines: Boolean;
+    FProjectionFactory: IProjectionInfoFactory;
     FBitmapFactory: IBitmap32StaticFactory;
     FCS: IReadWriteSync;
     FBitmap: TBitmap32;
     FBitmapChangeFlag: ISimpleFlag;
     procedure OnBitmapChange(Sender: TObject);
     procedure InitBitmap(const ASize: TPoint);
+    function GetActualProjection(
+      const AProjection: IProjectionInfo
+    ): IProjectionInfo;
     procedure DrawLines(
-      AGridZoom: Byte;
+      const AGridProjection: IProjectionInfo;
       const AProjection: IProjectionInfo;
       const AMapRect: TRect
     );
     procedure DrawCaptions(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      AGridZoom: Byte;
+      const AGridProjection: IProjectionInfo;
       const AProjection: IProjectionInfo;
       const AMapRect: TRect
     );
@@ -70,6 +75,7 @@ type
   public
     constructor Create(
       const ABitmapFactory: IBitmap32StaticFactory;
+      const AProjectionFactory: IProjectionInfoFactory;
       AColor: TColor32;
       AUseRelativeZoom: Boolean;
       AZoom: Integer;
@@ -94,6 +100,7 @@ uses
 
 constructor TBitmapLayerProviderGridTiles.Create(
   const ABitmapFactory: IBitmap32StaticFactory;
+  const AProjectionFactory: IProjectionInfoFactory;
   AColor: TColor32;
   AUseRelativeZoom: Boolean;
   AZoom: Integer;
@@ -102,6 +109,7 @@ constructor TBitmapLayerProviderGridTiles.Create(
 begin
   inherited Create;
   FBitmapFactory := ABitmapFactory;
+  FProjectionFactory := AProjectionFactory;
   FColor := AColor;
   FUseRelativeZoom := AUseRelativeZoom;
   FZoom := AZoom;
@@ -124,13 +132,11 @@ end;
 procedure TBitmapLayerProviderGridTiles.DrawCaptions(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  AGridZoom: Byte;
+  const AGridProjection: IProjectionInfo;
   const AProjection: IProjectionInfo;
   const AMapRect: TRect
 );
 var
-  VGeoConvert: ICoordConverter;
-  VCurrentZoom: Byte;
   VLoadedRelativeRect: TDoubleRect;
   VTilesRect: TRect;
   VIterator: TTileIteratorByRectRecord;
@@ -145,19 +151,16 @@ var
   Sz1, Sz2: TSize;
   VOutPoint: TPoint;
 begin
-  VGeoConvert := AProjection.GeoConverter;
-  VCurrentZoom := AProjection.Zoom;
-
-  VLoadedRelativeRect := VGeoConvert.PixelRect2RelativeRect(AMapRect, VCurrentZoom);
+  VLoadedRelativeRect := AProjection.PixelRect2RelativeRect(AMapRect);
   VTilesRect :=
     RectFromDoubleRect(
-      VGeoConvert.RelativeRect2TileRectFloat(VLoadedRelativeRect, AGridZoom),
+      AGridProjection.RelativeRect2TileRectFloat(VLoadedRelativeRect),
       rrOutside
     );
   VIterator.Init(VTilesRect);
   while VIterator.Next(VTileIndex) do begin
-      VTileRelativeRect := VGeoConvert.TilePos2RelativeRect(VTileIndex, AGridZoom);
-      VPixelRectOfTile := VGeoConvert.RelativeRect2PixelRectFloat(VTileRelativeRect, VCurrentZoom);
+      VTileRelativeRect := AGridProjection.TilePos2RelativeRect(VTileIndex);
+      VPixelRectOfTile := AProjection.RelativeRect2PixelRectFloat(VTileRelativeRect);
       VLocalRectOfTile.Left := VPixelRectOfTile.Left - AMapRect.Left;
       VLocalRectOfTile.Top := VPixelRectOfTile.Top - AMapRect.Top;
       VLocalRectOfTile.Right := VPixelRectOfTile.Right - AMapRect.Left;
@@ -180,13 +183,11 @@ begin
 end;
 
 procedure TBitmapLayerProviderGridTiles.DrawLines(
-  AGridZoom: Byte;
+  const AGridProjection: IProjectionInfo;
   const AProjection: IProjectionInfo;
   const AMapRect: TRect
 );
 var
-  VGeoConvert: ICoordConverter;
-  VCurrentZoom: Byte;
   VLocalRect: TRect;
   VRelativeRect: TDoubleRect;
   VTilesRect: TRect;
@@ -196,14 +197,12 @@ var
   VMapPixelRectOfTilesLine: TDoubleRect;
   VLocalRectOfTilesLine: TRect;
 begin
-  VGeoConvert := AProjection.GeoConverter;
-  VCurrentZoom := AProjection.Zoom;
   VLocalRect := Rect(0, 0, AMapRect.Right - AMapRect.Left, AMapRect.Bottom - AMapRect.Top);
 
-  VRelativeRect := VGeoConvert.PixelRect2RelativeRect(AMapRect, VCurrentZoom);
+  VRelativeRect := AProjection.PixelRect2RelativeRect(AMapRect);
   VTilesRect :=
     RectFromDoubleRect(
-      VGeoConvert.RelativeRect2TileRectFloat(VRelativeRect, AGridZoom),
+      AGridProjection.RelativeRect2TileRectFloat(VRelativeRect),
       rrOutside
     );
 
@@ -213,8 +212,8 @@ begin
     VTilesLineRect.Top := i;
     VTilesLineRect.Bottom := i;
 
-    VRelativeRectOfTilesLine := VGeoConvert.TileRect2RelativeRect(VTilesLineRect, AGridZoom);
-    VMapPixelRectOfTilesLine := VGeoConvert.RelativeRect2PixelRectFloat(VRelativeRectOfTilesLine, VCurrentZoom);
+    VRelativeRectOfTilesLine := AGridProjection.TileRect2RelativeRect(VTilesLineRect);
+    VMapPixelRectOfTilesLine := AProjection.RelativeRect2PixelRectFloat(VRelativeRectOfTilesLine);
 
     VLocalRectOfTilesLine.Left := VLocalRect.Left;
     VLocalRectOfTilesLine.Top := Trunc(VMapPixelRectOfTilesLine.Top - AMapRect.Top);
@@ -239,8 +238,8 @@ begin
     VTilesLineRect.Left := j;
     VTilesLineRect.Right := j;
 
-    VRelativeRectOfTilesLine := VGeoConvert.TileRect2RelativeRect(VTilesLineRect, AGridZoom);
-    VMapPixelRectOfTilesLine := VGeoConvert.RelativeRect2PixelRectFloat(VRelativeRectOfTilesLine, VCurrentZoom);
+    VRelativeRectOfTilesLine := AGridProjection.TileRect2RelativeRect(VTilesLineRect);
+    VMapPixelRectOfTilesLine := AProjection.RelativeRect2PixelRectFloat(VRelativeRectOfTilesLine);
 
     VLocalRectOfTilesLine.Left := Trunc(VMapPixelRectOfTilesLine.Left - AMapRect.Left);
     VLocalRectOfTilesLine.Top := VLocalRect.Top;
@@ -260,6 +259,33 @@ begin
   end;
 end;
 
+function TBitmapLayerProviderGridTiles.GetActualProjection(
+  const AProjection: IProjectionInfo
+): IProjectionInfo;
+var
+  VConverter: ICoordConverter;
+  VZoom: Integer;
+  VResultZoom: Byte;
+  VCurrentZoom: Byte;
+begin
+  Result := nil;
+  VCurrentZoom := AProjection.Zoom;
+  VConverter := AProjection.GetGeoConverter;
+  VZoom := FZoom;
+  if FUseRelativeZoom then begin
+    VZoom := VZoom + VCurrentZoom;
+  end;
+  if VZoom < 0 then begin
+    VResultZoom := 0;
+  end else begin
+    VResultZoom := VZoom;
+    VConverter.ValidateZoom(VResultZoom);
+  end;
+  if VResultZoom <= VCurrentZoom + 5 then begin
+    Result := FProjectionFactory.GetByConverterAndZoom(VConverter, VResultZoom);
+  end;
+end;
+
 function TBitmapLayerProviderGridTiles.GetTile(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
@@ -267,38 +293,27 @@ function TBitmapLayerProviderGridTiles.GetTile(
   const ATile: TPoint
 ): IBitmap32Static;
 var
-  VCurrentZoom: Byte;
-  VGridZoom: Byte;
-  VGeoConvert: ICoordConverter;
   VMapRect: TRect;
+  VGridProjection: IProjectionInfo;
 begin
   Result := nil;
-  VCurrentZoom := AProjectionInfo.Zoom;
-  if FUseRelativeZoom then begin
-    VGridZoom := VCurrentZoom + FZoom;
-  end else begin
-    VGridZoom := FZoom;
-  end;
-  VGeoConvert := AProjectionInfo.GeoConverter;
-  if not VGeoConvert.CheckZoom(VGridZoom) then begin
+  VGridProjection := GetActualProjection(AProjectionInfo);
+  if not Assigned(VGridProjection) then begin
     Exit;
   end;
-  if VGridZoom > VCurrentZoom + 5 then begin
-    Exit;
-  end;
-  VMapRect := VGeoConvert.TilePos2PixelRect(ATile, VCurrentZoom);
+  VMapRect := AProjectionInfo.TilePos2PixelRect(ATile);
 
   FCS.BeginWrite;
   try
     InitBitmap(RectSize(VMapRect));
     FBitmapChangeFlag.CheckFlagAndReset;
     if FShowLines then begin
-      DrawLines(VGridZoom, AProjectionInfo, VMapRect);
+      DrawLines(VGridProjection, AProjectionInfo, VMapRect);
     end;
 
     if FShowText then begin
-      if (VGridZoom >= VCurrentZoom - 2) and (VGridZoom <= VCurrentZoom + 3) then begin
-        DrawCaptions(AOperationID, ACancelNotifier, VGridZoom, AProjectionInfo, VMapRect);
+      if (VGridProjection.Zoom >= AProjectionInfo.Zoom - 2) and (VGridProjection.Zoom <= AProjectionInfo.Zoom + 3) then begin
+        DrawCaptions(AOperationID, ACancelNotifier, VGridProjection, AProjectionInfo, VMapRect);
       end;
     end;
     if FBitmapChangeFlag.CheckFlagAndReset then begin

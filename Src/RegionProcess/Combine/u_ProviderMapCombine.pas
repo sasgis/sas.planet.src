@@ -291,6 +291,7 @@ begin
     VResult :=
       TBitmapLayerProviderGridTiles.Create(
         FBitmapFactory,
+        FProjectionFactory,
         VColor,
         VUseRelativeZoom,
         VZoom,

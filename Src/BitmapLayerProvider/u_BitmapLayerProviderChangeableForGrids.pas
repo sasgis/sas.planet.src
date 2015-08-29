@@ -26,6 +26,7 @@ uses
   i_MapLayerGridsConfig,
   i_Bitmap32BufferFactory,
   i_ValueToStringConverter,
+  i_CoordConverterFactory,
   i_BitmapLayerProvider,
   i_ListenerNotifierLinksList,
   u_BitmapLayerProviderChangeableBase;
@@ -34,6 +35,7 @@ type
   TBitmapLayerProviderChangeableForGrids = class(TBitmapLayerProviderChangeableBase)
   private
     FBitmap32StaticFactory: IBitmap32StaticFactory;
+    FProjectionFactory: IProjectionInfoFactory;
     FConfig: IMapLayerGridsConfig;
     FValueToStringConverter: IValueToStringConverterChangeable;
 
@@ -43,6 +45,7 @@ type
   public
     constructor Create(
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
+      const AProjectionFactory: IProjectionInfoFactory;
       const AValueToStringConverter: IValueToStringConverterChangeable;
       const AConfig: IMapLayerGridsConfig
     );
@@ -62,6 +65,7 @@ uses
 
 constructor TBitmapLayerProviderChangeableForGrids.Create(
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
+  const AProjectionFactory: IProjectionInfoFactory;
   const AValueToStringConverter: IValueToStringConverterChangeable;
   const AConfig: IMapLayerGridsConfig
 );
@@ -69,8 +73,10 @@ begin
   Assert(Assigned(AValueToStringConverter));
   Assert(Assigned(AConfig));
   Assert(Assigned(ABitmap32StaticFactory));
+  Assert(Assigned(AProjectionFactory));
   inherited Create;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
+  FProjectionFactory := AProjectionFactory;
   FConfig := AConfig;
   FValueToStringConverter := AValueToStringConverter;
 
@@ -121,6 +127,7 @@ begin
     VResult :=
       TBitmapLayerProviderGridTiles.Create(
         FBitmap32StaticFactory,
+        FProjectionFactory,
         VColor,
         VUseRelativeZoom,
         VZoom,
