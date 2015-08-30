@@ -116,6 +116,7 @@ uses
   u_Synchronizer,
   i_DownloadResult,
   i_CoordConverter,
+  i_ProjectionInfo,
   i_TileInfoBasic,
   i_TileStorage,
   i_TileRequest,
@@ -339,7 +340,7 @@ procedure TUiTileDownload.DoProcessDownloadRequests(
 var
   VTile: TPoint;
   VTileRect: ITileRect;
-  VGeoConverter: ICoordConverter;
+  VProjection: IProjectionInfo;
   VMapTileRect: TRect;
   VDownloadTileRect: ITileRect;
   VZoom: Byte;
@@ -362,8 +363,8 @@ begin
     FSoftCancelNotifier := TNotifierOneOperationByNotifier.Create(ACancelNotifier, AOperationID);
     VCurrentOperation := FHardCancelNotifierInternal.CurrentOperation;
     try
-      VGeoConverter := FMapType.GeoConvert;
-      Assert(FMapType.GeoConvert.IsSameConverter(VTileRect.ProjectionInfo.GeoConverter));
+      VProjection := VTileRect.ProjectionInfo;
+      Assert(FMapType.GeoConvert.ProjectionType.IsSame(VProjection.ProjectionType));
       VZoom := VTileRect.GetZoom;
 
       VMapTileRect := VTileRect.Rect;
@@ -371,7 +372,7 @@ begin
       Dec(VMapTileRect.Top, FTilesOut);
       Inc(VMapTileRect.Right, FTilesOut);
       Inc(VMapTileRect.Bottom, FTilesOut);
-      VGeoConverter.ValidateTileRect(VMapTileRect, VZoom);
+      VProjection.ValidateTileRect(VMapTileRect);
       VDownloadTileRect := TTileRect.Create(VTileRect.ProjectionInfo, VMapTileRect);
 
       FRequestManager.InitSession(VDownloadTileRect, VVersionInfo.BaseVersion);

@@ -136,17 +136,16 @@ constructor TBitmapTileProviderByOtherProjection.Create(
 );
 begin
   inherited Create(ABitmap32StaticFactory, AImageResamplerFactory, AProvider, AProjectionInfo);
-  Assert(not AProjectionInfo.GeoConverter.IsSameConverter(AProvider.ProjectionInfo.GeoConverter));
+  Assert(not AProjectionInfo.ProjectionType.IsSame(AProvider.ProjectionInfo.ProjectionType));
 end;
 
 procedure TileToBufferSameProjType(
   const AResultMapRect: TRect;
-  const AResultZoom: Byte;
+  const AResultProjection: IProjectionInfo;
   const AResult: TCustomBitmap32;
   const ASourceTile: TPoint;
-  const ASourceZoom: Byte;
+  const ASourceProjection: IProjectionInfo;
   const ASourceImage: IBitmap32Static;
-  const ACoordConverter: ICoordConverter;
   AResampler: TCustomResampler
 ); inline;
 var
@@ -157,13 +156,15 @@ var
 begin
   Assert(Assigned(AResult));
   Assert(Assigned(ASourceImage));
-  Assert(Assigned(ACoordConverter));
-  Assert(AResultZoom <> ASourceZoom);
+  Assert(Assigned(AResultProjection));
+  Assert(Assigned(ASourceProjection));
+  Assert(ASourceProjection.ProjectionType.IsSame(AResultProjection.ProjectionType));
+  Assert(not ASourceProjection.GetIsSameProjectionInfo(AResultProjection));
 
-  VSourcePixelRect := ACoordConverter.TilePos2PixelRect(ASourceTile, ASourceZoom);
+  VSourcePixelRect := ASourceProjection.TilePos2PixelRect(ASourceTile);
 
-  VSourceRelativeRect := ACoordConverter.TilePos2RelativeRect(ASourceTile, ASourceZoom);
-  VTargetRectFloat := ACoordConverter.RelativeRect2PixelRectFloat(VSourceRelativeRect, AResultZoom);
+  VSourceRelativeRect := ASourceProjection.TilePos2RelativeRect(ASourceTile);
+  VTargetRectFloat := AResultProjection.RelativeRect2PixelRectFloat(VSourceRelativeRect);
   VTargetRect := RectFromDoubleRect(VTargetRectFloat, rrClosest);
   Dec(VTargetRect.Left, AResultMapRect.Left);
   Dec(VTargetRect.Top, AResultMapRect.Top);
@@ -180,12 +181,10 @@ end;
 
 procedure TileToBufferOtherProjType(
   const AResultMapRect: TRect;
-  const AResultZoom: Byte;
-  const AResultCoordConverter: ICoordConverter;
+  const AResultProjection: IProjectionInfo;
   const AResult: TCustomBitmap32;
   const ASourceTile: TPoint;
-  const ASourceZoom: Byte;
-  const ASourceCoordConverter: ICoordConverter;
+  const ASourceProjection: IProjectionInfo;
   const ASourceImage: IBitmap32Static;
   AResampler: TCustomResampler
 ); inline;
@@ -197,15 +196,15 @@ var
 begin
   Assert(Assigned(AResult));
   Assert(Assigned(ASourceImage));
-  Assert(Assigned(AResultCoordConverter));
-  Assert(Assigned(ASourceCoordConverter));
-  Assert(not AResultCoordConverter.IsSameConverter(ASourceCoordConverter));
+  Assert(Assigned(AResultProjection));
+  Assert(Assigned(ASourceProjection));
+  Assert(not AResultProjection.ProjectionType.IsSame(ASourceProjection.ProjectionType));
 
-  VSourcePixelRect := ASourceCoordConverter.TilePos2PixelRect(ASourceTile, ASourceZoom);
+  VSourcePixelRect := ASourceProjection.TilePos2PixelRect(ASourceTile);
 
-  VSourceLonLatRect := ASourceCoordConverter.TilePos2LonLatRect(ASourceTile, ASourceZoom);
-  AResultCoordConverter.ValidateLonLatRect(VSourceLonLatRect);
-  VTargetRectFloat := AResultCoordConverter.LonLatRect2PixelRectFloat(VSourceLonLatRect, AResultZoom);
+  VSourceLonLatRect := ASourceProjection.TilePos2LonLatRect(ASourceTile);
+  AResultProjection.ProjectionType.ValidateLonLatRect(VSourceLonLatRect);
+  VTargetRectFloat := AResultProjection.LonLatRect2PixelRectFloat(VSourceLonLatRect);
   VTargetRect := RectFromDoubleRect(VTargetRectFloat, rrClosest);
   Dec(VTargetRect.Left, AResultMapRect.Left);
   Dec(VTargetRect.Top, AResultMapRect.Top);
@@ -229,10 +228,8 @@ var
   VTile: TPoint;
   VTargetPixelRect: TRect;
   VTargetTileSize: TPoint;
-  VSourceConverter: ICoordConverter;
-  VSourceZoom: Byte;
-  VTargetConverter: ICoordConverter;
-  VTargetZoom: Byte;
+  VProjectionSource: IProjectionInfo;
+  VProjectionTarget: IProjectionInfo;
   VLonLatRect: TDoubleRect;
   VTargetPixelRectAtSource: TDoubleRect;
   VSourceTileRect: TRect;
@@ -244,20 +241,18 @@ var
 begin
   Result := nil;
   VTile := ATile;
-  VSourceConverter := FProvider.ProjectionInfo.GeoConverter;
-  VSourceZoom := FProvider.ProjectionInfo.Zoom;
-  VTargetConverter := FProjectionInfo.GeoConverter;
-  VTargetZoom := FProjectionInfo.Zoom;
+  VProjectionSource := FProvider.ProjectionInfo;
+  VProjectionTarget := FProjectionInfo;
 
-  if not VTargetConverter.CheckTilePosStrict(VTile, VTargetZoom) then begin
+  if not VProjectionTarget.CheckTilePosStrict(VTile) then begin
     Exit;
   end;
-  VTargetPixelRect := VTargetConverter.TilePos2PixelRect(VTile, VTargetZoom);
+  VTargetPixelRect := VProjectionTarget.TilePos2PixelRect(VTile);
   VTargetTileSize := Types.Point(VTargetPixelRect.Right - VTargetPixelRect.Left, VTargetPixelRect.Bottom - VTargetPixelRect.Top);
-  VLonLatRect := VTargetConverter.PixelRect2LonLatRect(VTargetPixelRect, VTargetZoom);
-  VSourceConverter.ValidateLonLatRect(VLonLatRect);
-  VTargetPixelRectAtSource := VSourceConverter.LonLatRect2PixelRectFloat(VLonLatRect, VSourceZoom);
-  VSourceTileRect := RectFromDoubleRect(VSourceConverter.PixelRectFloat2TileRectFloat(VTargetPixelRectAtSource, VSourceZoom), rrOutside);
+  VLonLatRect := VProjectionTarget.PixelRect2LonLatRect(VTargetPixelRect);
+  VProjectionSource.ProjectionType.ValidateLonLatRect(VLonLatRect);
+  VTargetPixelRectAtSource := VProjectionSource.LonLatRect2PixelRectFloat(VLonLatRect);
+  VSourceTileRect := RectFromDoubleRect(VProjectionSource.PixelRectFloat2TileRectFloat(VTargetPixelRectAtSource), rrOutside);
   Assert(VSourceTileRect.Right > VSourceTileRect.Left);
   Assert(VSourceTileRect.Bottom > VSourceTileRect.Top);
   VBitmap := nil;
@@ -272,12 +267,10 @@ begin
         VBitmap.Clear(0);
         TileToBufferOtherProjType(
           VTargetPixelRect,
-          VTargetZoom,
-          VTargetConverter,
+          VProjectionTarget,
           VBitmap,
           VSourceTile,
-          VSourceZoom,
-          VSourceConverter,
+          VProjectionSource,
           VSourceImage,
           VResampler
         );
@@ -295,12 +288,10 @@ begin
           end;
           TileToBufferOtherProjType(
             VTargetPixelRect,
-            VTargetZoom,
-            VTargetConverter,
+            VProjectionTarget,
             VBitmap,
             VSourceTile,
-            VSourceZoom,
-            VSourceConverter,
+            VProjectionSource,
             VSourceImage,
             VResampler
           );
@@ -326,7 +317,7 @@ constructor TBitmapTileProviderBySameProjection.Create(
 );
 begin
   inherited Create(ABitmap32StaticFactory, AImageResamplerFactory, AProvider, AProjectionInfo);
-  Assert(AProjectionInfo.GeoConverter.IsSameConverter(AProvider.ProjectionInfo.GeoConverter));
+  Assert(AProjectionInfo.ProjectionType.IsSame(AProvider.ProjectionInfo.ProjectionType));
 end;
 
 function TBitmapTileProviderBySameProjection.GetTile(
@@ -338,9 +329,8 @@ var
   VTile: TPoint;
   VTargetPixelRect: TRect;
   VTargetTileSize: TPoint;
-  VConverter: ICoordConverter;
-  VSourceZoom: Byte;
-  VTargetZoom: Byte;
+  VProjectionSource: IProjectionInfo;
+  VProjectionTarget: IProjectionInfo;
   VRelativeRect: TDoubleRect;
   VTargetPixelRectAtSource: TDoubleRect;
   VSourceTileRect: TRect;
@@ -352,18 +342,17 @@ var
 begin
   Result := nil;
   VTile := ATile;
-  VConverter := FProjectionInfo.GeoConverter;
-  VTargetZoom := FProjectionInfo.Zoom;
-  VSourceZoom := FProvider.ProjectionInfo.Zoom;
+  VProjectionTarget := FProjectionInfo;
+  VProjectionSource := FProvider.ProjectionInfo;
 
-  if not VConverter.CheckTilePosStrict(VTile, VTargetZoom) then begin
+  if not VProjectionTarget.CheckTilePosStrict(VTile) then begin
     Exit;
   end;
-  VTargetPixelRect := VConverter.TilePos2PixelRect(VTile, VTargetZoom);
+  VTargetPixelRect := VProjectionTarget.TilePos2PixelRect(VTile);
   VTargetTileSize := Types.Point(VTargetPixelRect.Right - VTargetPixelRect.Left, VTargetPixelRect.Bottom - VTargetPixelRect.Top);
-  VRelativeRect := VConverter.PixelRect2RelativeRect(VTargetPixelRect, VTargetZoom);
-  VTargetPixelRectAtSource := VConverter.RelativeRect2PixelRectFloat(VRelativeRect, VSourceZoom);
-  VSourceTileRect := RectFromDoubleRect(VConverter.PixelRectFloat2TileRectFloat(VTargetPixelRectAtSource, VSourceZoom), rrOutside);
+  VRelativeRect := VProjectionTarget.PixelRect2RelativeRect(VTargetPixelRect);
+  VTargetPixelRectAtSource := VProjectionSource.RelativeRect2PixelRectFloat(VRelativeRect);
+  VSourceTileRect := RectFromDoubleRect(VProjectionSource.PixelRectFloat2TileRectFloat(VTargetPixelRectAtSource), rrOutside);
   Assert(VSourceTileRect.Right > VSourceTileRect.Left);
   Assert(VSourceTileRect.Bottom > VSourceTileRect.Top);
   VBitmap := nil;
@@ -378,12 +367,11 @@ begin
         VBitmap.Clear(0);
         TileToBufferSameProjType(
           VTargetPixelRect,
-          VTargetZoom,
+          VProjectionTarget,
           VBitmap,
           VSourceTile,
-          VSourceZoom,
+          VProjectionSource,
           VSourceImage,
-          VConverter,
           VResampler
         );
         Result := VBitmap.MakeAndClear;
@@ -400,12 +388,11 @@ begin
           end;
           TileToBufferSameProjType(
             VTargetPixelRect,
-            VTargetZoom,
+            VProjectionTarget,
             VBitmap,
             VSourceTile,
-            VSourceZoom,
+            VProjectionSource,
             VSourceImage,
-            VConverter,
             VResampler
           );
         end;

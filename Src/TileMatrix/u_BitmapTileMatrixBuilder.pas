@@ -206,7 +206,7 @@ begin
   Assert(Assigned(ATileRect));
   VZoom := ATileRect.Zoom;
   VTileRect := ATileRect.Rect;
-  Assert(ATileRect.ProjectionInfo.GeoConverter.CheckTileRect(VTileRect, VZoom));
+  Assert(ATileRect.ProjectionInfo.CheckTileRect(VTileRect));
   if Assigned(FTileRect) then begin
     if not FTileRect.ProjectionInfo.GetIsSameProjectionInfo(ATileRect.ProjectionInfo) then begin
       VConverter := ATileRect.ProjectionInfo.GeoConverter;

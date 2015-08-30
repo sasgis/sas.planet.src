@@ -125,9 +125,7 @@ var
   VSource: ITileRect;
   VResult: ITileRect;
   VChanged: Boolean;
-  VZoom: Byte;
   VSourceProjection: IProjectionInfo;
-  VSourceConverter: ICoordConverter;
   VLonLatRect: TDoubleRect;
   VTileRectFloat: TDoubleRect;
   VTileRect: TRect;
@@ -140,19 +138,16 @@ begin
     if Assigned(VSource) then begin
       if not VSource.IsEqual(FPrevSource) then begin
         VSourceProjection := VSource.ProjectionInfo;
-        VSourceConverter := VSourceProjection.GeoConverter;
-        if FResultProjectionType.IsSameConverter(VSourceConverter) then begin
+        if FResultProjectionType.ProjectionType.IsSame(VSourceProjection.ProjectionType) then begin
           VResult := VSource;
         end else begin
-          VZoom := VSourceProjection.Zoom;
-          Assert(VSourceConverter.CheckTileRect(VSource.Rect, VZoom));
-          VLonLatRect := VSourceConverter.TileRect2LonLatRect(VSource.Rect, VZoom);
-          FResultProjectionType.ValidateZoom(VZoom);
+          VProjection := FProjectionInfoFactory.GetByConverterAndZoom(FResultProjectionType, VSourceProjection.Zoom);
+          Assert(VSourceProjection.CheckTileRect(VSource.Rect));
+          VLonLatRect := VSourceProjection.TileRect2LonLatRect(VSource.Rect);
           FResultProjectionType.ValidateLonLatRect(VLonLatRect);
-          VTileRectFloat := FResultProjectionType.LonLatRect2TileRectFloat(VLonLatRect, VZoom);
+          VTileRectFloat := VProjection.LonLatRect2TileRectFloat(VLonLatRect);
           VTileRect := RectFromDoubleRect(VTileRectFloat, rrOutside);
-          Assert(FResultProjectionType.CheckTileRect(VTileRect, VZoom));
-          VProjection := FProjectionInfoFactory.GetByConverterAndZoom(FResultProjectionType, VZoom);
+          Assert(VProjection.CheckTileRect(VTileRect));
           VResult := TTileRect.Create(VProjection, VTileRect);
           Assert(Assigned(VResult));
         end;
