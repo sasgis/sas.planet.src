@@ -256,7 +256,6 @@ var
   VSourceMatrix: IVectorTileMatrix;
   VTile: TPoint;
   VProjection: IProjectionInfo;
-  VConverter: ICoordConverter;
   VCounterContext: TInternalPerformanceCounterContext;
   VBitmap: IBitmap32Static;
   VSourceItem: IVectorItemSubset;
@@ -293,7 +292,6 @@ begin
         end;
       end;
       VProjection := VTileRect.ProjectionInfo;
-      VConverter := VProjection.GeoConverter;
       VTileIterator := TTileIteratorSpiralByRect.Create(VTileRect);
       while VTileIterator.Next(VTile) do begin
         VSourceItem := VSourceMatrix.GetElementByTile(VTile);

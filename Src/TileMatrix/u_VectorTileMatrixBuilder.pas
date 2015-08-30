@@ -67,6 +67,7 @@ uses
   t_GeoTypes,
   i_VectorTileProvider,
   i_CoordConverter,
+  i_ProjectionInfo,
   i_InterfaceListStatic,
   u_TileIteratorByRect,
   u_InterfaceListSimple,
@@ -194,7 +195,6 @@ procedure TVectorTileMatrixBuilder.SetRect(
   const ATileRect: ITileRect
 );
 var
-  VZoom: Byte;
   VTileRect: TRect;
   VIntersectRect: TRect;
   VOldItems: IInterfaceListStatic;
@@ -203,28 +203,25 @@ var
   VTile: TPoint;
   VRelativeRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
-  VZoomSource: Byte;
-  VConverter: ICoordConverter;
-  VConverterSource: ICoordConverter;
+  VProjectionNew: IProjectionInfo;
+  VProjectionOld: IProjectionInfo;
   VSourceAtTarget: TRect;
   VTileProvider: IVectorTileProvider;
   VSourceTileMatrix: IVectorTileMatrix;
 begin
   Assert(Assigned(ATileRect));
-  VZoom := ATileRect.Zoom;
+  VProjectionNew := ATileRect.ProjectionInfo;
   VTileRect := ATileRect.Rect;
-  Assert(ATileRect.ProjectionInfo.GeoConverter.CheckTileRect(VTileRect, VZoom));
+  Assert(VProjectionNew.CheckTileRect(VTileRect));
   if Assigned(FTileRect) then begin
-    if not FTileRect.ProjectionInfo.GetIsSameProjectionInfo(ATileRect.ProjectionInfo) then begin
-      VConverter := ATileRect.ProjectionInfo.GeoConverter;
-      VConverterSource := FTileRect.ProjectionInfo.GeoConverter;
-      if VConverter.IsSameConverter(VConverterSource) then begin
-        VZoomSource := FTileRect.Zoom;
+    VProjectionOld := FTileRect.ProjectionInfo;
+    if not VProjectionOld.GetIsSameProjectionInfo(VProjectionNew) then begin
+      if VProjectionNew.ProjectionType.IsSame(VProjectionOld.ProjectionType) then begin
         VOldRect := FTileRect.Rect;
-        VRelativeRect := VConverter.TileRect2RelativeRect(VOldRect, VZoomSource);
+        VRelativeRect := VProjectionOld.TileRect2RelativeRect(VOldRect);
         VSourceAtTarget :=
           RectFromDoubleRect(
-            VConverter.RelativeRect2TileRectFloat(VRelativeRect, VZoom),
+            VProjectionNew.RelativeRect2TileRectFloat(VRelativeRect),
             rrOutside
           );
         if not IntersectRect(VIntersectRect, ATileRect.Rect, VSourceAtTarget) then begin
@@ -248,13 +245,12 @@ begin
           end;
         end;
       end else begin
-        VZoomSource := FTileRect.Zoom;
         VOldRect := FTileRect.Rect;
-        VLonLatRect := VConverterSource.TileRect2LonLatRect(VOldRect, VZoomSource);
-        VConverter.ValidateLonLatRect(VLonLatRect);
+        VLonLatRect := VProjectionOld.TileRect2LonLatRect(VOldRect);
+        VProjectionNew.ProjectionType.ValidateLonLatRect(VLonLatRect);
         VSourceAtTarget :=
           RectFromDoubleRect(
-            VConverter.LonLatRect2TileRectFloat(VLonLatRect, VZoom),
+            VProjectionNew.LonLatRect2TileRectFloat(VLonLatRect),
             rrOutside
           );
         if not IntersectRect(VIntersectRect, ATileRect.Rect, VSourceAtTarget) then begin

@@ -117,6 +117,7 @@ uses
   i_TileIterator,
   i_Bitmap32Static,
   i_CoordConverter,
+  i_ProjectionInfo,
   i_LonLatRect,
   u_SimpleFlagWithInterlock,
   u_ListenerByEvent,
@@ -283,7 +284,6 @@ var
   VTileIterator: ITileIterator;
   VSourceHashMatrix: IHashTileMatrix;
   VTile: TPoint;
-  VConverter: ICoordConverter;
   VCounterContext: TInternalPerformanceCounterContext;
   VBitmap: IBitmap32Static;
   VSourceHash: THashValue;
@@ -343,7 +343,6 @@ begin
       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         Exit;
       end;
-      VConverter := VTileRect.ProjectionInfo.GeoConverter;
       VTileIterator := TTileIteratorSpiralByRect.Create(VTileRect);
       while VTileIterator.Next(VTile) do begin
         VSourceHash := FSourceHashMatrix.Tiles[VTile];
@@ -377,8 +376,7 @@ var
   VTileRectUpdated: TRect;
   VLonLatRectUpdated: ILonLatRect;
   VLonLatRectAtMap: TDoubleRect;
-  VConverter: ICoordConverter;
-  VZoom: Byte;
+  VProjection: IProjectionInfo;
   VTileRectToUpdate: TRect;
   VTileRect: ITileRect;
   VCounter: Integer;
@@ -393,10 +391,9 @@ begin
     if Assigned(VTileRect) then begin
       if Supports(AMsg, ILonLatRect, VLonLatRectUpdated) then begin
         VLonLatRectAtMap := VLonLatRectUpdated.Rect;
-        VConverter := VTileRect.ProjectionInfo.GeoConverter;
-        VZoom := VTileRect.ProjectionInfo.Zoom;
-        VConverter.ValidateLonLatRect(VLonLatRectAtMap);
-        VTileRectUpdated := RectFromDoubleRect(VConverter.LonLatRect2TileRectFloat(VLonLatRectAtMap, VZoom), rrOutside);
+        VProjection := VTileRect.ProjectionInfo;
+        VProjection.ProjectionType.ValidateLonLatRect(VLonLatRectAtMap);
+        VTileRectUpdated := RectFromDoubleRect(VProjection.LonLatRect2TileRectFloat(VLonLatRectAtMap), rrOutside);
 
         if Types.IntersectRect(VTileRectToUpdate, VTileRectUpdated, VTileRect.Rect) then begin
           VCounter := FSourceCounter.Inc;
