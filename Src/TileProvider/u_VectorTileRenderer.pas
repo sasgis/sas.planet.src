@@ -194,17 +194,15 @@ function TVectorTileRenderer.DrawPoint(
   const AMapRect: TRect
 ): Boolean;
 var
-  VConverter: ICoordConverter;
   VPointLL: TDoublePoint;
   VMapPixelPos: TDoublePoint;
   VLocalPos: TDoublePoint;
   VRect: TRect;
 begin
   Result := False;
-  VConverter := AProjectionInfo.GeoConverter;
   VPointLL := APoint.Point;
-  VConverter.ValidateLonLatPos(VPointLL);
-  VMapPixelPos := VConverter.LonLat2PixelPosFloat(VPointLL, AProjectionInfo.Zoom);
+  AProjectionInfo.ProjectionType.ValidateLonLatPos(VPointLL);
+  VMapPixelPos := AProjectionInfo.LonLat2PixelPosFloat(VPointLL);
   VLocalPos.X := VMapPixelPos.X - AMapRect.Left;
   VLocalPos.Y := VMapPixelPos.Y - AMapRect.Top;
   VRect := FPointMarker.GetBoundsForPosition(VLocalPos);
@@ -336,8 +334,6 @@ function TVectorTileRenderer.RenderVectorTile(
 var
   i: Integer;
   VItem: IVectorDataItem;
-  VZoom: Byte;
-  VGeoConvert: ICoordConverter;
   VMapPixelRect: TRect;
   VBitmapInited: Boolean;
   VBitmap: TBitmap32ByStaticBitmap;
@@ -345,12 +341,10 @@ var
   VFixedPointArray: TArrayOfFixedPoint;
 begin
   Result := nil;
-  VGeoConvert := AProjectionInfo.GeoConverter;
-  VZoom := AProjectionInfo.Zoom;
-  if not VGeoConvert.CheckTilePosStrict(ATile, VZoom) then begin
+  if not AProjectionInfo.CheckTilePosStrict(ATile) then begin
     Exit;
   end;
-  VMapPixelRect := VGeoConvert.TilePos2PixelRect(ATile, VZoom);
+  VMapPixelRect := AProjectionInfo.TilePos2PixelRect(ATile);
 
   VBitmapInited := False;
   if (ASource <> nil) and (ASource.Count > 0) then begin

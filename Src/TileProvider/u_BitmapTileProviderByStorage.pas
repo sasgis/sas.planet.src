@@ -91,7 +91,7 @@ begin
   Assert(Assigned(ALoaderFromStorage));
   Assert(Assigned(AStorage));
   Assert(Assigned(AProjectionInfo));
-  Assert(AStorage.CoordConverter.IsSameConverter(AProjectionInfo.GeoConverter));
+  Assert(AStorage.CoordConverter.ProjectionType.IsSame(AProjectionInfo.ProjectionType));
   inherited Create;
   FIsIgnoreError := AIsIgnoreError;
   FImageResampler := AImageResampler;
@@ -127,7 +127,7 @@ begin
       Result := FLoaderFromStorage.Load(VTileInfo.TileData);
     end;
     if Result <> nil then begin
-      VRect := FProjectionInfo.GeoConverter.TilePos2PixelRect(ATile, VZoom);
+      VRect := FProjectionInfo.TilePos2PixelRect(ATile);
       VSize := Types.Point(VRect.Right - VRect.Left, VRect.Bottom - VRect.Top);
       if (Result.Size.X <> VSize.X) or
         (Result.Size.Y <> VSize.Y) then begin

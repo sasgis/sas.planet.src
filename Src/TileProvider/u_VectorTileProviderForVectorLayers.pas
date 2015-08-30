@@ -210,7 +210,6 @@ var
   i: Integer;
   VMapType: IMapType;
   VZoom: Byte;
-  VConverter: ICoordConverter;
   VTileSelectPixelRect: TDoubleRect;
   VItemSelectPixelRect: TDoubleRect;
   VTileSelectLonLatRect: TDoubleRect;
@@ -218,10 +217,8 @@ var
 begin
   Result := nil;
   if FLayersSet <> nil then begin
-    VZoom := AProjectionInfo.Zoom;
-    VConverter := AProjectionInfo.GeoConverter;
-    Assert(VConverter.CheckTilePosStrict(ATile, VZoom));
-    VTileSelectPixelRect := VConverter.TilePos2PixelRectFloat(ATile, VZoom);
+    Assert(AProjectionInfo.CheckTilePosStrict(ATile));
+    VTileSelectPixelRect := AProjectionInfo.TilePos2PixelRectFloat(ATile);
     VItemSelectPixelRect := VTileSelectPixelRect;
 
     VTileSelectPixelRect.Left := VTileSelectPixelRect.Left - FTileSelectOversize.Left;
@@ -229,17 +226,17 @@ begin
     VTileSelectPixelRect.Right := VTileSelectPixelRect.Right + FTileSelectOversize.Right;
     VTileSelectPixelRect.Bottom := VTileSelectPixelRect.Bottom + FTileSelectOversize.Bottom;
 
-    VConverter.ValidatePixelRectFloat(VTileSelectPixelRect, VZoom);
-    VTileSelectLonLatRect := VConverter.PixelRectFloat2LonLatRect(VTileSelectPixelRect, VZoom);
+    AProjectionInfo.ValidatePixelRectFloat(VTileSelectPixelRect);
+    VTileSelectLonLatRect := AProjectionInfo.PixelRectFloat2LonLatRect(VTileSelectPixelRect);
 
     VItemSelectPixelRect.Left := VItemSelectPixelRect.Left - FItemSelectOversize.Left;
     VItemSelectPixelRect.Top := VItemSelectPixelRect.Top - FItemSelectOversize.Top;
     VItemSelectPixelRect.Right := VItemSelectPixelRect.Right + FItemSelectOversize.Right;
     VItemSelectPixelRect.Bottom := VItemSelectPixelRect.Bottom + FItemSelectOversize.Bottom;
 
-    VConverter.ValidatePixelRectFloat(VItemSelectPixelRect, VZoom);
-    VItemSelectLonLatRect := VConverter.PixelRectFloat2LonLatRect(VItemSelectPixelRect, VZoom);
-
+    AProjectionInfo.ValidatePixelRectFloat(VItemSelectPixelRect);
+    VItemSelectLonLatRect := AProjectionInfo.PixelRectFloat2LonLatRect(VItemSelectPixelRect);
+    VZoom := AProjectionInfo.Zoom;
     VElements := FSubsetBuilderFactory.Build;
     for i := 0 to FLayersSet.Count - 1 do begin
       VMapType := FLayersSet.Items[i];

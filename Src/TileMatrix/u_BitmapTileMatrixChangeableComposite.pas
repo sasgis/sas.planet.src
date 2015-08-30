@@ -355,7 +355,6 @@ var
   VTileIterator: ITileIterator;
   VTile: TPoint;
   VProjection: IProjectionInfo;
-  VConverter: ICoordConverter;
   VCounterContext: TInternalPerformanceCounterContext;
   VBitmap: IBitmap32Static;
   VSourceHash: THashValue;
@@ -402,7 +401,6 @@ begin
     end;
 
     if VSourceMatrixList.Count > 0 then begin
-      VConverter := VProjection.GeoConverter;
       VTileIterator := TTileIteratorSpiralByRect.Create(VTileRect);
       if not VAllSourceReady then begin
         while VTileIterator.Next(VTile) do begin
