@@ -72,7 +72,7 @@ uses
   ALZLibExGZ,
   t_GeoTypes,
   i_BinaryData,
-  i_CoordConverter,
+  i_ProjectionType,
   i_Downloader,
   i_NotifierOperation,
   u_DownloaderHttp,
@@ -136,33 +136,33 @@ function TAvailPicsRC.LonLatToMeterRosCosmos: string;
 const
   c_Roscosmos_Precision = 6;
 var
-  VGeoConverter: ICoordConverter;
+  VProjectionType: IProjectionType;
   VLonLatPoint: TDoublePoint;
   VLonLatMetr: TDoublePoint;
   VStartingPoint: String;
 begin
   // Переводим BBox из LonLat в метры и сразу формируем нужный формат для запроса
-  VGeoConverter := FLocalConverter.GeoConverter;
+  VProjectionType := FLocalConverter.ProjectionInfo.ProjectionType;
 
   // TopLeft
   VLonLatPoint := FTileInfoPtr^.TileRect.TopLeft;
-  VLonLatMetr := VGeoConverter.LonLat2Metr(VLonLatPoint);
+  VLonLatMetr := VProjectionType.LonLat2Metr(VLonLatPoint);
   Result := RoundEx(VLonLatMetr.X, c_Roscosmos_Precision) + ' '+RoundEx(VLonLatMetr.Y, c_Roscosmos_Precision);
   VStartingPoint := Result;
 
   // TopRight
   VLonLatPoint.X := FTileInfoPtr.TileRect.Right;
-  VLonLatMetr := VGeoConverter.LonLat2Metr(VLonLatPoint);
+  VLonLatMetr := VProjectionType.LonLat2Metr(VLonLatPoint);
   Result := Result + ',' + RoundEx(VLonLatMetr.X, c_Roscosmos_Precision) + ' '+RoundEx(VLonLatMetr.Y, c_Roscosmos_Precision);
 
   // BottomRight
   VLonLatPoint.Y := FTileInfoPtr.TileRect.Bottom;
-  VLonLatMetr := VGeoConverter.LonLat2Metr(VLonLatPoint);
+  VLonLatMetr := VProjectionType.LonLat2Metr(VLonLatPoint);
   Result := Result + ',' + RoundEx(VLonLatMetr.X, c_Roscosmos_Precision) + ' '+RoundEx(VLonLatMetr.Y, c_Roscosmos_Precision);
 
   // BottomLeft
   VLonLatPoint.X := FTileInfoPtr.TileRect.Left;
-  VLonLatMetr := VGeoConverter.LonLat2Metr(VLonLatPoint);
+  VLonLatMetr := VProjectionType.LonLat2Metr(VLonLatPoint);
   Result := Result + ',' + RoundEx(VLonLatMetr.X, c_Roscosmos_Precision) + ' '+RoundEx(VLonLatMetr.Y, c_Roscosmos_Precision);
 
   // TopLeft
