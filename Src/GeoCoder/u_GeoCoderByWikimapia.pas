@@ -58,6 +58,7 @@ uses
   i_GeoCoder,
   i_VectorDataItemSimple,
   i_CoordConverter,
+  i_ProjectionInfo,
   i_BinaryData,
   u_BinaryData,
   u_DownloadRequest,
@@ -162,20 +163,18 @@ var
   VSearch: AnsiString;
   VHeaders: AnsiString;
   VPostData: AnsiString;
-  VConverter: ICoordConverter;
-  VZoom: Byte;
+  VProjection: IProjectionInfo;
   VMapCenter: TDoublePoint;
 begin
-  VConverter := ALocalConverter.GetGeoConverter;
-  VZoom := ALocalConverter.GetZoom;
-  VMapCenter := VConverter.LonLat2TilePosFloat(ALocalConverter.GetCenterLonLat, VZoom);
+  VProjection := ALocalConverter.ProjectionInfo;
+  VMapCenter := VProjection.LonLat2TilePosFloat(ALocalConverter.GetCenterLonLat);
 
   VSearch := URLEncode(AnsiToUtf8(ASearch));
 
   VPostData :=
     'y=' + ALIntToStr(Round(VMapCenter.Y)) + '&' +
     'x=' + ALIntToStr(Round(VMapCenter.X)) + '&' +
-    'z=' + ALIntToStr(VZoom) + '&' +
+    'z=' + ALIntToStr(VProjection.Zoom) + '&' +
     'qu=' + VSearch + '&' +
     'jtype=simple' + '&' +
     'start=0' + '&' +

@@ -297,20 +297,18 @@ procedure TMiniMapLayerViewRect.LayerMouseUP(
 );
 var
   VLocalConverter: ILocalCoordConverter;
-  VConverter: ICoordConverter;
-  VZoom: Byte;
+  VProjection: IProjectionInfo;
   VMapPoint: TDoublePoint;
   VLonLat: TDoublePoint;
 begin
   if FPosMoved then begin
     if FLayer.HitTest(X, Y) then begin
       VLocalConverter := FPosition.GetStatic;
-      VConverter := VLocalConverter.GetGeoConverter;
-      VZoom := VLocalConverter.GetZoom;
+      VProjection := VLocalConverter.ProjectionInfo;
 
       VMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(Point(X, Y));
-      VConverter.ValidatePixelPosFloatStrict(VMapPoint, VZoom, False);
-      VLonLat := VConverter.PixelPosFloat2LonLat(VMapPoint, VZoom);
+      VProjection.ValidatePixelPosFloatStrict(VMapPoint, False);
+      VLonLat := VProjection.PixelPosFloat2LonLat(VMapPoint);
       FViewRectMoveDelta := DoublePoint(0, 0);
 
       FViewPortState.ChangeLonLat(VLonLat);

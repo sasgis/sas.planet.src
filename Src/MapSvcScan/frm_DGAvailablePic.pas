@@ -288,6 +288,7 @@ uses
   i_VectorDataItemSimple,
   i_GeometryLonLat,
   i_CoordConverter,
+  i_ProjectionInfo,
   i_DoublePointsAggregator,
   u_ClipboardFunc,
   u_Synchronizer,
@@ -543,7 +544,7 @@ var
   VSize: TPoint;
   VRad: Extended;
   VPixelsAtZoom: Double;
-  VConverter: ICoordConverter;
+  VProjection: IProjectionInfo;
   VMapPixel: TDoublePoint;
   VTilePosFloat: TDoublePoint;
   VTilePos: TPoint;
@@ -559,19 +560,19 @@ begin
 
   // update position info
   VSize := FLocalConverter.GetLocalRectSize;
-  VConverter := FLocalConverter.GetGeoConverter;
+  VProjection := FLocalConverter.ProjectionInfo;
   FAvailPicsTileInfo.Zoom := FLocalConverter.GetZoom;
   VMapPixel := FLocalConverter.LocalPixel2MapPixelFloat(AVisualPoint);
-  VConverter.ValidatePixelPosFloatStrict(VMapPixel, FAvailPicsTileInfo.Zoom, True);
-  FAvailPicsTileInfo.LonLat := VConverter.PixelPosFloat2LonLat(VMapPixel, FAvailPicsTileInfo.Zoom);
+  VProjection.ValidatePixelPosFloatStrict(VMapPixel, True);
+  FAvailPicsTileInfo.LonLat := VProjection.PixelPosFloat2LonLat(VMapPixel);
   // full tile rect
-  VTilePosFloat := VConverter.PixelPosFloat2TilePosFloat(VMapPixel, FAvailPicsTileInfo.Zoom);
+  VTilePosFloat := VProjection.PixelPosFloat2TilePosFloat(VMapPixel);
   VTilePos.X := Trunc(VTilePosFloat.X);
   VTilePos.Y := Trunc(VTilePosFloat.Y);
-  FAvailPicsTileInfo.TileRect := VConverter.TilePos2LonLatRect(VTilePos, FAvailPicsTileInfo.Zoom);
+  FAvailPicsTileInfo.TileRect := VProjection.TilePos2LonLatRect(VTilePos);
 
-  VRad := VConverter.Datum.GetSpheroidRadiusA;
-  VPixelsAtZoom := VConverter.PixelsAtZoomFloat(FAvailPicsTileInfo.Zoom);
+  VRad := VProjection.ProjectionType.Datum.GetSpheroidRadiusA;
+  VPixelsAtZoom := VProjection.GetPixelsFloat;
 
   FAvailPicsTileInfo.mpp := 1/((VPixelsAtZoom/(2*PI))/(VRad*cos(FAvailPicsTileInfo.LonLat.y*D2R)));
   FAvailPicsTileInfo.hi := round(FAvailPicsTileInfo.mpp*15);

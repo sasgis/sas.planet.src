@@ -75,6 +75,7 @@ uses
   t_GeoTypes,
   i_VectorDataItemSimple,
   i_CoordConverter,
+  i_ProjectionInfo,
   u_InterfaceListSimple,
   u_ResStrings;
 
@@ -241,8 +242,7 @@ function TGeoCoderByRosreestr.PrepareRequest(
 ): IDownloadRequest;
 var
   VSearch: AnsiString;
-  VConverter: ICoordConverter;
-  VZoom: Byte;
+  VProjection: IProjectionInfo;
   VMapRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
   i: integer;
@@ -250,11 +250,10 @@ var
   i1, i2, i3, i4: integer;
 begin
   VSearch := AnsiString(ASearch);
-  VConverter := ALocalConverter.GetGeoConverter;
-  VZoom := ALocalConverter.GetZoom;
+  VProjection := ALocalConverter.ProjectionInfo;
   VMapRect := ALocalConverter.GetRectInMapPixelFloat;
-  VConverter.ValidatePixelRectFloat(VMapRect, VZoom);
-  VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
+  VProjection.ValidatePixelRectFloat(VMapRect);
+  VLonLatRect := VProjection.PixelRectFloat2LonLatRect(VMapRect);
   VSearch := ALStringReplace(ALStringReplace(VSearch, '*', '', [rfReplaceAll]), ':', '', [rfReplaceAll]);// убираем * и : из строки кадастрового номера
 
   if '' = RegExprReplaceMatchSubStr(VSearch, '[0-9]', '') then begin //cadastre number

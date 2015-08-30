@@ -552,9 +552,9 @@ begin
     VXYPoint.X := ViLon;
     VXYPoint.Y := ViLat;
     VSDesc := 'z=' + IntToStr(VZoom) + ' x=' + IntToStr(Vilon) + ' y=' + IntToStr(Vilat) + #$D#$A;
-    VXYRect := ALocalConverter.GetGeoConverter.TilePos2PixelRect(VXYPoint, VZoom - 1);
+    VXYRect := ALocalConverter.GeoConverter.TilePos2PixelRect(VXYPoint, VZoom - 1);
     VXYPoint := Point((VXYRect.Right + VXYRect.Left) div 2, (VXYRect.Bottom + VXYRect.top) div 2);
-    VPoint := ALocalConverter.GetGeoConverter.PixelPos2LonLat(VXYPoint, VZoom - 1);
+    VPoint := ALocalConverter.GeoConverter.PixelPos2LonLat(VXYPoint, VZoom - 1);
     VSLat := ALFloatToStr(VPoint.Y, VFormatSettings);
     VSLon := ALFloatToStr(VPoint.X, VFormatSettings);
   end;
@@ -577,9 +577,9 @@ begin
     VXYPoint.X := ViLon;
     VXYPoint.Y := ViLat;
     VSDesc := 'z=' + IntToStr(VZoom) + ' x=' + IntToStr(Vilon) + ' y=' + IntToStr(Vilat) + #$D#$A;
-    VXYRect := ALocalConverter.GetGeoConverter.TilePos2PixelRect(VXYPoint, VZoom - 1);
+    VXYRect := ALocalConverter.GeoConverter.TilePos2PixelRect(VXYPoint, VZoom - 1);
     VXYPoint := Point((VXYRect.Right + VXYRect.Left) div 2, (VXYRect.Bottom + VXYRect.top) div 2);
-    VPoint := ALocalConverter.GetGeoConverter.PixelPos2LonLat(VXYPoint, VZoom - 1);
+    VPoint := ALocalConverter.GeoConverter.PixelPos2LonLat(VXYPoint, VZoom - 1);
     VSLat := ALFloatToStr(VPoint.Y, VFormatSettings);
     VSLon := ALFloatToStr(VPoint.X, VFormatSettings);
   end;
@@ -609,9 +609,9 @@ begin
         VXYPoint.X := ViLon;
         VXYPoint.Y := ViLat;
         VSDesc := 'z=' + IntToStr(VZoom) + ' x=' + IntToStr(Vilon) + ' y=' + IntToStr(Vilat) + #$D#$A;
-        VXYRect := ALocalConverter.GetGeoConverter.TilePos2PixelRect(VXYPoint, VZoom - 1);
+        VXYRect := ALocalConverter.GeoConverter.TilePos2PixelRect(VXYPoint, VZoom - 1);
         VXYPoint := Point((VXYRect.Right + VXYRect.Left) div 2, (VXYRect.Bottom + VXYRect.top) div 2);
-        VPoint := ALocalConverter.GetGeoConverter.PixelPos2LonLat(VXYPoint, VZoom - 1);
+        VPoint := ALocalConverter.GeoConverter.PixelPos2LonLat(VXYPoint, VZoom - 1);
         VSLat := ALFloatToStr(VPoint.Y, VFormatSettings);
         VSLon := ALFloatToStr(VPoint.X, VFormatSettings);
       end;
