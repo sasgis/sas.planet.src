@@ -95,7 +95,7 @@ type
 implementation
 
 uses
-  i_CoordConverter,
+  i_ProjectionInfo,
   i_MarkCategoryList,
   u_ListenerNotifierLinksList,
   u_BackgroundTask,
@@ -208,29 +208,27 @@ function TVectorItemSubsetChangeableForMarksLayer.GetMarksSubset(
 ): IVectorItemSubset;
 var
   VList: IMarkCategoryList;
-  VZoom: Byte;
   VItemSelectPixelRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
   VLonLatSize: TDoublePoint;
-  VGeoConverter: ICoordConverter;
+  VProjection: IProjectionInfo;
 begin
   VList := nil;
   Result := nil;
   if AConfig.IsUseMarks then begin
-    VZoom := ATileRect.ProjectionInfo.Zoom;
+    VProjection := ATileRect.ProjectionInfo;
     if not AConfig.IgnoreCategoriesVisible then begin
-      VList := FMarkDB.CategoryDB.GetVisibleCategories(VZoom);
+      VList := FMarkDB.CategoryDB.GetVisibleCategories(VProjection.Zoom);
     end;
     if AConfig.IgnoreCategoriesVisible or (Assigned(VList) and (VList.Count > 0)) then begin
-      VGeoConverter := ATileRect.ProjectionInfo.GetGeoConverter;
-      VItemSelectPixelRect := VGeoConverter.TileRectFloat2PixelRectFloat(DoubleRect(ATileRect.Rect), VZoom);
+      VItemSelectPixelRect := VProjection.TileRectFloat2PixelRectFloat(DoubleRect(ATileRect.Rect));
       VItemSelectPixelRect.Left := VItemSelectPixelRect.Left - FItemSelectOversize.Left;
       VItemSelectPixelRect.Top := VItemSelectPixelRect.Top - FItemSelectOversize.Top;
       VItemSelectPixelRect.Right := VItemSelectPixelRect.Right + FItemSelectOversize.Right;
       VItemSelectPixelRect.Bottom := VItemSelectPixelRect.Bottom + FItemSelectOversize.Bottom;
 
-      VGeoConverter.ValidatePixelRectFloat(VItemSelectPixelRect, VZoom);
-      VLonLatRect := VGeoConverter.PixelRectFloat2LonLatRect(VItemSelectPixelRect, VZoom);
+      VProjection.ValidatePixelRectFloat(VItemSelectPixelRect);
+      VLonLatRect := VProjection.PixelRectFloat2LonLatRect(VItemSelectPixelRect);
 
       VLonLatSize.X := (VLonLatRect.Right - VLonLatRect.Left) / (VItemSelectPixelRect.Right - VItemSelectPixelRect.Left);
       VLonLatSize.Y := (VLonLatRect.Top - VLonLatRect.Bottom) / (VItemSelectPixelRect.Bottom - VItemSelectPixelRect.Top);

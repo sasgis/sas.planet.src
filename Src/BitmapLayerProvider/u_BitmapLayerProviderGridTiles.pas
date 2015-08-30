@@ -270,7 +270,7 @@ var
 begin
   Result := nil;
   VCurrentZoom := AProjection.Zoom;
-  VConverter := AProjection.GetGeoConverter;
+  VConverter := AProjection.GeoConverter;
   VZoom := FZoom;
   if FUseRelativeZoom then begin
     VZoom := VZoom + VCurrentZoom;
