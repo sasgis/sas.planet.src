@@ -542,7 +542,7 @@ const
             // convert to lonlat
             VMM.X := StrToFloat(Vc1);
             VMM.Y := StrToFloat(Vc2);
-            VLonLat := FLocalConverter.GeoConverter.Metr2LonLat(VMM);
+            VLonLat := FLocalConverter.ProjectionInfo.ProjectionType.Metr2LonLat(VMM);
 
             // add to list
             VSLCoords.Append(RoundEx(VLonLat.X, 8) + ',' + RoundEx(VLonLat.Y, 8));
