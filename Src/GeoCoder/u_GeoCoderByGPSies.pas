@@ -58,6 +58,7 @@ uses
   i_GeoCoder,
   i_VectorDataItemSimple,
   i_CoordConverter,
+  i_ProjectionInfo,
   u_GeoToStrFunc,
   u_InterfaceListSimple,
   u_ResStrings;
@@ -144,19 +145,15 @@ function TGeoCoderByGPSies.PrepareRequest(
 ): IDownloadRequest;
 var
   VSearch: String;
-  VConverter: ICoordConverter;
-  VZoom: Byte;
+  VProjection: IProjectionInfo;
   VMapRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
-
 begin
-
   VSearch := ASearch;
-  VConverter := ALocalConverter.GetGeoConverter;
-  VZoom := ALocalConverter.GetZoom;
+  VProjection := ALocalConverter.ProjectionInfo;
   VMapRect := ALocalConverter.GetRectInMapPixelFloat;
-  VConverter.ValidatePixelRectFloat(VMapRect, VZoom);
-  VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
+  VProjection.ValidatePixelRectFloat(VMapRect);
+  VLonLatRect := VProjection.PixelRectFloat2LonLatRect(VMapRect);
 
   Result :=
     PrepareRequestByURL(

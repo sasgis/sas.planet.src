@@ -918,9 +918,9 @@ begin
         VXYPoint.X := ViLon;
         VXYPoint.Y := ViLat;
         VSDesc := 'z=' + inttostr(VZoom) + ' x=' + inttostr(Vilon) + ' y='+ inttostr(Vilat) + #10#13;
-        VXYRect := ALocalConverter.GetGeoConverter.TilePos2PixelRect(VXYPoint, VZoom - 1);
+        VXYRect := ALocalConverter.GeoConverter.TilePos2PixelRect(VXYPoint, VZoom - 1);
         VXYPoint := Point((VXYRect.Right + VXYRect.Left) div 2, (VXYRect.Bottom + VXYRect.top)div 2);
-        VPoint := ALocalConverter.GetGeoConverter.PixelPos2LonLat(VXYPoint, VZoom - 1);
+        VPoint := ALocalConverter.GeoConverter.PixelPos2LonLat(VXYPoint, VZoom - 1);
         if (abs(VPoint.y) <= 90) and (abs(VPoint.x) <= 180) then begin
           VSname := ASearch;
           VSDesc := '[ ' + VValueConverter.LonLatConvert(VPoint) + ' ]';

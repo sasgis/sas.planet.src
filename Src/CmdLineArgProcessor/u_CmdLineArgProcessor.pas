@@ -169,7 +169,7 @@ var
   function _GetCoordConverter: ICoordConverter;
   begin
     if not Assigned(VGeoConverter) then begin
-      VGeoConverter := FViewPortState.View.GetStatic.GetGeoConverter;
+      VGeoConverter := FViewPortState.View.GetStatic.GeoConverter;
     end;
     Result := VGeoConverter;
   end;

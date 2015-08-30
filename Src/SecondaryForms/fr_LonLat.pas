@@ -237,7 +237,7 @@ begin
     1: begin
       XYPoint :=
         PointFromDoublePoint(
-          VLocalConverter.GetGeoConverter.LonLat2PixelPosFloat(Value, CurrZoom),
+          VLocalConverter.ProjectionInfo.LonLat2PixelPosFloat(Value),
           prToTopLeft
         );
       edtX.Text := inttostr(XYPoint.x);
@@ -246,7 +246,7 @@ begin
     2: begin
       XYPoint :=
         PointFromDoublePoint(
-          VLocalConverter.GetGeoConverter.LonLat2TilePosFloat(Value, CurrZoom),
+          VLocalConverter.ProjectionInfo.LonLat2TilePosFloat(Value),
           prToTopLeft
         );
       edtX.Text := inttostr(XYPoint.x);
@@ -288,7 +288,7 @@ begin
       if Result then begin
         VLocalConverter := FViewPortState.GetStatic;
         VZoom := cbbZoom.ItemIndex;
-        VProjection := FProjectionFactory.GetByConverterAndZoom(VLocalConverter.GetGeoConverter, VZoom);
+        VProjection := FProjectionFactory.GetByConverterAndZoom(VLocalConverter.GeoConverter, VZoom);
         VProjection.ValidatePixelPosFloat(XYPoint, False);
         VLonLat := VProjection.PixelPosFloat2LonLat(XYPoint);
       end;
@@ -316,7 +316,7 @@ begin
             XYPoint := DoublePoint(VTile.X + 1, VTile.Y + 1);
           end;
         end;
-        VProjection := FProjectionFactory.GetByConverterAndZoom(VLocalConverter.GetGeoConverter, VZoom);
+        VProjection := FProjectionFactory.GetByConverterAndZoom(VLocalConverter.GeoConverter, VZoom);
         VProjection.ValidateTilePos(VTile, False);
         VLonLat := VProjection.TilePosFloat2LonLat(XYPoint);
       end;

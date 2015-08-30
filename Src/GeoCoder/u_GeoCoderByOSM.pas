@@ -58,6 +58,7 @@ uses
   i_GeoCoder,
   i_VectorDataItemSimple,
   i_CoordConverter,
+  i_ProjectionInfo,
   u_InterfaceListSimple,
   u_ResStrings;
 
@@ -166,18 +167,15 @@ function TGeoCoderByOSM.PrepareRequest(
 ): IDownloadRequest;
 var
   VSearch: String;
-  VConverter: ICoordConverter;
-  VZoom: Byte;
+  VProjection: IProjectionInfo;
   VMapRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
 begin
-
   VSearch := ASearch;
-  VConverter := ALocalConverter.GetGeoConverter;
-  VZoom := ALocalConverter.GetZoom;
+  VProjection := ALocalConverter.ProjectionInfo;
   VMapRect := ALocalConverter.GetRectInMapPixelFloat;
-  VConverter.ValidatePixelRectFloat(VMapRect, VZoom);
-  VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
+  VProjection.ValidatePixelRectFloat(VMapRect);
+  VLonLatRect := VProjection.PixelRectFloat2LonLatRect(VMapRect);
 
   //http://nominatim.openstreetmap.org/search?q=%D0%A2%D1%8E%D0%BC%D0%B5%D0%BD%D1%8C&format=xml
   Result :=

@@ -57,6 +57,7 @@ uses
   ALString,
   t_GeoTypes,
   i_CoordConverter,
+  i_ProjectionInfo,
   i_GeoCoder,
   i_VectorDataItemSimple,
   u_InterfaceListSimple,
@@ -131,20 +132,18 @@ function TGeoCoderBy2GIS.PrepareRequest(
 ): IDownloadRequest;
 var
   VSearch: String;
-  VConverter: ICoordConverter;
-  VZoom: Byte;
+  VProjection: IProjectionInfo;
   VMapRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
   VRadius: integer;
 begin
   VSearch := ASearch;
-  VConverter := ALocalConverter.GetGeoConverter;
-  VZoom := ALocalConverter.GetZoom;
+  VProjection := ALocalConverter.ProjectionInfo;
   VMapRect := ALocalConverter.GetRectInMapPixelFloat;
-  VConverter.ValidatePixelRectFloat(VMapRect, VZoom);
-  VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
+  VProjection.ValidatePixelRectFloat(VMapRect);
+  VLonLatRect := VProjection.PixelRectFloat2LonLatRect(VMapRect);
 
-  VRadius := round(ALocalConverter.GetGeoConverter.Datum.CalcDist(VLonLatRect.TopLeft, VLonLatRect.BottomRight));
+  VRadius := Round(VProjection.ProjectionType.Datum.CalcDist(VLonLatRect.TopLeft, VLonLatRect.BottomRight));
   if VRadius > 40000 then begin
     VRadius := 40000;
   end;

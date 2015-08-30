@@ -58,6 +58,7 @@ uses
   i_GeoCoder,
   i_VectorDataItemSimple,
   i_CoordConverter,
+  i_ProjectionInfo,
   u_InterfaceListSimple,
   u_ResStrings,
   u_GeoToStrFunc;
@@ -628,18 +629,15 @@ function TGeoCoderByNavitel.PrepareRequest(
 ): IDownloadRequest;
 var
   VSearch: String;
-  VConverter: ICoordConverter;
-  VZoom: Byte;
+  VProjection: IProjectionInfo;
   VMapRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
 begin
-
   VSearch := ASearch;
-  VConverter := ALocalConverter.GetGeoConverter;
-  VZoom := ALocalConverter.GetZoom;
+  VProjection := ALocalConverter.ProjectionInfo;
   VMapRect := ALocalConverter.GetRectInMapPixelFloat;
-  VConverter.ValidatePixelRectFloat(VMapRect, VZoom);
-  VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
+  VProjection.ValidatePixelRectFloat(VMapRect);
+  VLonLatRect := VProjection.PixelRectFloat2LonLatRect(VMapRect);
 
   //http://maps.navitel.su/webmaps/searchTwoStep?s=%D0%BD%D0%BE%D0%B2%D0%BE%D1%82%D0%B8%D1%82%D0%B0%D1%80%D0%BE%D0%B2%D1%81%D0%BA%D0%B0%D1%8F&lon=38.9739197086479&lat=45.2394838066316&z=11
   //http://maps.navitel.su/webmaps/searchTwoStepInfo?id=842798
@@ -649,7 +647,7 @@ begin
   Result := PrepareRequestByURL(
    'http://maps.navitel.su/webmaps/searchTwoStep?s=' + URLEncode(AnsiToUtf8(VSearch)) +
    '&lon=' + R2AnsiStrPoint(ALocalConverter.GetCenterLonLat.x) + '&lat=' + R2AnsiStrPoint(ALocalConverter.GetCenterLonLat.y) +
-   '&z=' + ALIntToStr(VZoom));
+   '&z=' + ALIntToStr(VProjection.Zoom));
 end;
 end.
 

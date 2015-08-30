@@ -90,6 +90,7 @@ implementation
 
 uses
   i_VectorDataItemSimple,
+  i_Datum,
   u_DownloaderHttpWithTTL,
   u_DownloadRequest,
   u_SortFunc,
@@ -119,16 +120,18 @@ function TGeoCoderBasic.BuildSortedSubset(
 var
   i: integer;
   VMark: IVectorDataItem;
+  VDatum: IDatum;
   VDistArr: array of Double;
   VSubsetBuilder: IVectorItemSubsetBuilder;
 begin
   Result := nil;
   if Assigned(AList) then begin
     if AList.Count > 1 then begin
+      VDatum := ALocalConverter.ProjectionInfo.ProjectionType.Datum;
       SetLength(VDistArr, AList.Count);
       for i := 0 to AList.GetCount - 1 do begin
         VMark := IVectorDataItem(AList.Items[i]);
-        VDistArr[i] := ALocalConverter.GetGeoConverter.Datum.CalcDist(ALocalConverter.GetCenterLonLat, VMark.Geometry.Bounds.CalcRectCenter);
+        VDistArr[i] := VDatum.CalcDist(ALocalConverter.GetCenterLonLat, VMark.Geometry.Bounds.CalcRectCenter);
       end;
       SortInterfaceListByDoubleMeasure(AList, VDistArr);
     end;

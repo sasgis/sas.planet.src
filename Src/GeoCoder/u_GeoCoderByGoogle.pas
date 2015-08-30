@@ -58,6 +58,7 @@ uses
   i_GeoCoder,
   i_VectorDataItemSimple,
   i_CoordConverter,
+  i_ProjectionInfo,
   u_InterfaceListSimple,
   u_ResStrings,
   u_GeoToStrFunc;
@@ -168,17 +169,15 @@ function TGeoCoderByGoogle.PrepareRequest(
 ): IDownloadRequest;
 var
   VSearch: string;
-  VConverter: ICoordConverter;
-  VZoom: Byte;
+  VProjection: IProjectionInfo;
   VMapRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
 begin
   VSearch := StringReplace(ASearch, ' ', '+', [rfReplaceAll]);
-  VConverter := ALocalConverter.GetGeoConverter;
-  VZoom := ALocalConverter.GetZoom;
+  VProjection := ALocalConverter.ProjectionInfo;
   VMapRect := ALocalConverter.GetRectInMapPixelFloat;
-  VConverter.ValidatePixelRectFloat(VMapRect, VZoom);
-  VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
+  VProjection.ValidatePixelRectFloat(VMapRect);
+  VLonLatRect := VProjection.PixelRectFloat2LonLatRect(VMapRect);
 
   // https://developers.google.com/maps/documentation/geocoding/index
   Result :=
