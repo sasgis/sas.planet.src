@@ -63,6 +63,7 @@ uses
   Math,
   t_GeoTypes,
   i_CoordConverter,
+  i_ProjectionInfo,
   i_VectorTileMatrix,
   i_GeometryLonLat,
   i_VectorDataItemSimple,
@@ -101,8 +102,7 @@ var
   VCounterContext: TInternalPerformanceCounterContext;
   VMatrix: IVectorTileMatrix;
   VRect: TDoubleRect;
-  VConverter: ICoordConverter;
-  VZoom: Byte;
+  VProjection: IProjectionInfo;
   VMapRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
   VPixelPos: TDoublePoint;
@@ -129,14 +129,13 @@ begin
       VRect.Right := ALocalPoint.X + FRectHalfSize;
       VRect.Bottom := ALocalPoint.Y + FRectHalfSize;
 
-      VConverter := AVisualConverter.GetGeoConverter;
-      VZoom := AVisualConverter.GetZoom;
+      VProjection := AVisualConverter.ProjectionInfo;
       VMapRect := AVisualConverter.LocalRectFloat2MapRectFloat(VRect);
-      VConverter.ValidatePixelRectFloat(VMapRect, VZoom);
-      VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
+      VProjection.ValidatePixelRectFloat(VMapRect);
+      VLonLatRect := VProjection.PixelRectFloat2LonLatRect(VMapRect);
       VPixelPos := AVisualConverter.LocalPixel2MapPixelFloat(ALocalPoint);
-      VConverter.ValidatePixelPosFloatStrict(VPixelPos, VZoom, False);
-      VLonLatPos := VConverter.PixelPosFloat2LonLat(VPixelPos, VZoom);
+      VProjection.ValidatePixelPosFloatStrict(VPixelPos, False);
+      VLonLatPos := VProjection.PixelPosFloat2LonLat(VPixelPos);
       VTile := PointFromDoublePoint(VMatrix.TileRect.ProjectionInfo.LonLat2TilePosFloat(VLonLatPos), prToTopLeft);
       VItems := VMatrix.GetElementByTile(VTile);
       if Assigned(VItems) then begin
@@ -148,14 +147,14 @@ begin
             if Supports(VGeometry, IGeometryLonLatPoint) then begin
               Vtmp.add(VItem);
             end else if Supports(VGeometry, IGeometryLonLatLine, VGeometryLine) then begin
-              VProjectdPath := FProjectedProvider.GetProjectedPath(AVisualConverter.ProjectionInfo, VGeometryLine);
+              VProjectdPath := FProjectedProvider.GetProjectedPath(VProjection, VGeometryLine);
               if Assigned(VProjectdPath) then begin
                 if VProjectdPath.IsPointOnPath(VPixelPos, 2) then begin
                   Vtmp.add(VItem);
                 end;
               end;
             end else if Supports(VGeometry, IGeometryLonLatPolygon, VGeometryPoly) then begin
-              VProjectdPolygon := FProjectedProvider.GetProjectedPolygon(AVisualConverter.ProjectionInfo, VGeometryPoly);
+              VProjectdPolygon := FProjectedProvider.GetProjectedPolygon(VProjection, VGeometryPoly);
               if Assigned(VProjectdPolygon) then begin
                 if VProjectdPolygon.IsPointInPolygon(VPixelPos) or
                   VProjectdPolygon.IsPointOnBorder(VPixelPos, 3) then begin

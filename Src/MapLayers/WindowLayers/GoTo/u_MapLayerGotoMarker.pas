@@ -74,6 +74,7 @@ uses
   GR32_Layers,
   i_Listener,
   i_CoordConverter,
+  i_ProjectionType,
   u_ListenerTime,
   u_ListenerByEvent,
   u_GeoFunc;
@@ -198,11 +199,11 @@ procedure TMapLayerGotoMarker.PaintLayer(
 );
 var
   VLocalConverter: ILocalCoordConverter;
-  VConverter: ICoordConverter;
   VGotoPos: IGotoPosStatic;
   VMarker: IMarkerDrawable;
   VGotoLonLat: TDoublePoint;
   VFixedOnView: TDoublePoint;
+  VProjectionType: IProjectionType;
 begin
   inherited;
   VLocalConverter := FLocalConverter.GetStatic;
@@ -215,7 +216,8 @@ begin
 
   VGotoLonLat := VGotoPos.LonLat;
   if not PointIsEmpty(VGotoLonLat) then begin
-    VConverter := VLocalConverter.GetGeoConverter;
+    VProjectionType := VLocalConverter.ProjectionInfo.ProjectionType;
+    VProjectionType.ValidateLonLatPos(VGotoLonLat);
     VMarker := FMarkerChangeable.GetStatic;
     VFixedOnView := VLocalConverter.LonLat2LocalPixelFloat(VGotoLonLat);
     VMarker.DrawToBitmap(ABuffer, VFixedOnView);

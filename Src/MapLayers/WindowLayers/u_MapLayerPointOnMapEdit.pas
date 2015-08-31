@@ -65,6 +65,7 @@ uses
   GR32_Layers,
   i_Listener,
   i_CoordConverter,
+  i_ProjectionType,
   u_ListenerByEvent,
   u_GeoFunc;
 
@@ -135,7 +136,7 @@ end;
 procedure TMapLayerPointOnMapEdit.PaintLayer(ABuffer: TBitmap32);
 var
   VLocalConverter: ILocalCoordConverter;
-  VConverter: ICoordConverter;
+  VProjectionType: IProjectionType;
   VMarker: IMarkerDrawable;
   VLonLat: TDoublePoint;
   VFixedOnView: TDoublePoint;
@@ -144,8 +145,8 @@ begin
   VLocalConverter := FLocalConverter.GetStatic;
   VLonLat := FPointOnMap.Point;
   if not PointIsEmpty(VLonLat) then begin
-    VConverter := VLocalConverter.GetGeoConverter;
-    VConverter.ValidateLonLatPos(VLonLat);
+    VProjectionType := VLocalConverter.ProjectionInfo.ProjectionType;
+    VProjectionType.ValidateLonLatPos(VLonLat);
     VMarker := FMarker.GetStatic;
     VFixedOnView := VLocalConverter.LonLat2LocalPixelFloat(VLonLat);
     VMarker.DrawToBitmap(ABuffer, VFixedOnView);
