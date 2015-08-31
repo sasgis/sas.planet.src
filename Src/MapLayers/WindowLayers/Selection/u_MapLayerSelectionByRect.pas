@@ -162,7 +162,7 @@ var
   VGeoConvert: ICoordConverter;
   VZoom: Byte;
 begin
-  VGeoConvert := ALocalConverter.GetGeoConverter;
+  VGeoConvert := ALocalConverter.GeoConverter;
   VZoom := ALocalConverter.GetZoom;
   VSelectedLonLat := FSelectedLonLat;
   VGeoConvert.ValidateLonLatRect(VSelectedLonLat);

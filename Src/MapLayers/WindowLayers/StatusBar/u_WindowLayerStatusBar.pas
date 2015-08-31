@@ -115,6 +115,7 @@ uses
   Graphics,
   GR32_Layers,
   i_CoordConverter,
+  i_ProjectionInfo,
   u_ListenerTime,
   u_ListenerByEvent,
   u_ResStrings,
@@ -322,12 +323,11 @@ var
   VLonLat: TDoublePoint;
   VString: string;
   VMapPoint: TDoublePoint;
-  VZoomCurr: Byte;
   VSize: TPoint;
   VRad: Extended;
   VTile: TPoint;
   VMapType: IMapType;
-  VConverter: ICoordConverter;
+  VProjection: IProjectionInfo;
   VPixelsAtZoom: Double;
   VCurrentTick: DWORD;
   VMousePos: TPoint;
@@ -346,14 +346,13 @@ begin
     VValueConverter := FValueToStringConverter.GetStatic;
     VVisualCoordConverter := FView.GetStatic;
     VMousePos := FMouseState.CurentPos;
-    VZoomCurr := VVisualCoordConverter.GetZoom;
-    VConverter := VVisualCoordConverter.GetGeoConverter;
+    VProjection := VVisualCoordConverter.ProjectionInfo;
     VSize := Types.Point(Layer.Bitmap.Width, Layer.Bitmap.Height);
     VMapType := FMainMap.GetStatic;
 
     VMapPoint := VVisualCoordConverter.LocalPixel2MapPixelFloat(VMousePos);
-    VConverter.ValidatePixelPosFloatStrict(VMapPoint, VZoomCurr, True);
-    VLonLat := VConverter.PixelPosFloat2LonLat(VMapPoint, VZoomCurr);
+    VProjection.ValidatePixelPosFloatStrict(VMapPoint, True);
+    VLonLat := VProjection.PixelPosFloat2LonLat(VMapPoint);
 
     Layer.Bitmap.Clear(FBgColor);
     Layer.Bitmap.LineS(0, 0, VSize.X, 0, SetAlpha(clBlack32, 255));
@@ -365,7 +364,7 @@ begin
 
     if FConfig.ViewZoomInfo then begin
       VOffset.X := VOffset.X + 20;
-      VString := 'z' + inttostr(VZoomCurr + 1);
+      VString := 'z' + inttostr(VProjection.Zoom + 1);
       RenderText(VOffset, VString, VNeedSeparator);
       VNeedSeparator := True;
     end;
@@ -379,8 +378,8 @@ begin
 
     if FConfig.ViewMetrPerPixInfo then begin
       VOffset.X := VOffset.X + Layer.Bitmap.TextWidth(VString) + 20;
-      VRad := VConverter.Datum.GetSpheroidRadiusA;
-      VPixelsAtZoom := VConverter.PixelsAtZoomFloat(VZoomCurr);
+      VRad := VProjection.ProjectionType.Datum.GetSpheroidRadiusA;
+      VPixelsAtZoom := VProjection.GetPixelsFloat;
       VString := VValueConverter.DistPerPixelConvert(1 / ((VPixelsAtZoom / (2 * PI)) / (VRad * cos(VLonLat.y * D2R))));
       RenderText(VOffset, VString, VNeedSeparator);
       VNeedSeparator := True;
@@ -388,7 +387,7 @@ begin
 
     if FTerrainConfig.ShowInStatusBar and FTerrainConfig.ElevationInfoAvailable then begin
       VOffset.X := VOffset.X + Layer.Bitmap.TextWidth(VString) + 20;
-      VString := FTerrainInfo.GetElevationInfoStr(VLonLat, VZoomCurr);
+      VString := FTerrainInfo.GetElevationInfoStr(VLonLat, VProjection.Zoom);
       RenderText(VOffset, VString, VNeedSeparator);
       VNeedSeparator := True;
     end;
@@ -423,11 +422,11 @@ begin
       if VMapType.GeoConvert.CheckLonLatPos(VLonLat) then begin
         VTile :=
           PointFromDoublePoint(
-            VMapType.GeoConvert.LonLat2TilePosFloat(VLonLat, VZoomCurr),
+            VMapType.GeoConvert.LonLat2TilePosFloat(VLonLat, VProjection.Zoom),
             prToTopLeft
           );
 
-        VTileName := VMapType.GetTileShowName(VTile, VZoomCurr, VMapType.VersionRequestConfig.GetStatic.BaseVersion);
+        VTileName := VMapType.GetTileShowName(VTile, VProjection.Zoom, VMapType.VersionRequestConfig.GetStatic.BaseVersion);
         if Length(VTileName) > 0 then begin
           if VTileNameWidthAviable > 30 then begin
             VTileNameWidth := Layer.Bitmap.TextWidth(VTileName);

@@ -72,6 +72,7 @@ implementation
 uses
   Math,
   i_CoordConverter,
+  i_ProjectionInfo,
   u_ListenerByEvent;
 
 { TMapLayerNavToMark }
@@ -150,19 +151,17 @@ var
   VScreenCenterMapPos: TDoublePoint;
   VDelta: TDoublePoint;
   VDeltaNormed: TDoublePoint;
-  VZoom: Byte;
-  VConverter: ICoordConverter;
+  VProjection: IProjectionInfo;
   VCrossDist: Double;
   VDistInPixel: Double;
   VAngle: Double;
   VFixedOnView: TDoublePoint;
 begin
-  VConverter := ALocalConverter.GetGeoConverter;
-  VZoom := ALocalConverter.GetZoom;
+  VProjection := ALocalConverter.ProjectionInfo;
   VScreenCenterMapPos := ALocalConverter.GetCenterMapPixelFloat;
   VLonLat := FMarkPoint;
-  VConverter.ValidateLonLatPos(VLonLat);
-  VMarkMapPos := VConverter.LonLat2PixelPosFloat(VLonLat, VZoom);
+  VProjection.ProjectionType.ValidateLonLatPos(VLonLat);
+  VMarkMapPos := VProjection.LonLat2PixelPosFloat(VLonLat);
   VDelta.X := VMarkMapPos.X - VScreenCenterMapPos.X;
   VDelta.Y := VMarkMapPos.Y - VScreenCenterMapPos.Y;
   VDistInPixel := Sqrt(Sqr(VDelta.X) + Sqr(VDelta.Y));

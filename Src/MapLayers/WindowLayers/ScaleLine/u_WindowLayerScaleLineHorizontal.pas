@@ -70,6 +70,7 @@ uses
   SysUtils,
   t_GeoTypes,
   i_CoordConverter,
+  i_ProjectionInfo,
   u_ResStrings,
   u_GeoFunc;
 
@@ -235,18 +236,16 @@ function TWindowLayerScaleLineHorizontal.GetMetersPerLine(
 var
   VStartLonLat, VFinishLonLat: TDoublePoint;
   VStartPixel, VFinishPixel: TDoublePoint;
-  VConverter: ICoordConverter;
-  VZoom: Byte;
+  VProjection: IProjectionInfo;
 begin
-  VZoom := AVisualCoordConverter.GetZoom;
-  VConverter := AVisualCoordConverter.GetGeoConverter;
+  VProjection := AVisualCoordConverter.ProjectionInfo;
   VStartPixel := AVisualCoordConverter.GetCenterMapPixelFloat;
-  VConverter.ValidatePixelPosFloatStrict(VStartPixel, VZoom, True);
+  VProjection.ValidatePixelPosFloatStrict(VStartPixel, True);
   VFinishPixel := DoublePoint(VStartPixel.X + 1, VStartPixel.Y);
-  VConverter.ValidatePixelPosFloat(VFinishPixel, VZoom, True);
-  VStartLonLat := VConverter.PixelPosFloat2LonLat(VStartPixel, VZoom);
-  VFinishLonLat := VConverter.PixelPosFloat2LonLat(VFinishPixel, VZoom);
-  Result := VConverter.Datum.CalcDist(VStartLonLat, VFinishLonLat) * ALineWidth;
+  VProjection.ValidatePixelPosFloat(VFinishPixel, True);
+  VStartLonLat := VProjection.PixelPosFloat2LonLat(VStartPixel);
+  VFinishLonLat := VProjection.PixelPosFloat2LonLat(VFinishPixel);
+  Result := VProjection.ProjectionType.Datum.CalcDist(VStartLonLat, VFinishLonLat) * ALineWidth;
 end;
 
 procedure TWindowLayerScaleLineHorizontal.ModifyLenAndWidth(
