@@ -26,7 +26,6 @@ uses
   t_GeoTypes,
   i_EnumDoublePoint,
   i_GeometryLonLat,
-  i_GeometryProjected,
   u_BaseInterfacedObject;
 
 type

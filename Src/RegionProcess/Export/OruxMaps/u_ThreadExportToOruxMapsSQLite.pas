@@ -97,7 +97,6 @@ uses
   c_CoordConverter,
   t_GeoTypes,
   i_GeometryProjected,
-  i_ProjectionType,
   i_CoordConverter,
   i_ProjectionInfo,
   i_Bitmap32Static,

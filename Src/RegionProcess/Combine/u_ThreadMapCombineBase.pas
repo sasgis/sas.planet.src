@@ -30,7 +30,6 @@ uses
   i_BitmapTileProvider,
   i_RegionProcessProgressInfo,
   i_GeometryLonLat,
-  i_CoordConverter,
   i_MapCalibration,
   u_ThreadRegionProcessAbstract;
 

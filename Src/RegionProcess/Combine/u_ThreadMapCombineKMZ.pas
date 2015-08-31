@@ -81,7 +81,6 @@ uses
   GR32,
   t_GeoTypes,
   i_BinaryData,
-  i_CoordConverter,
   i_BitmapTileSaveLoad,
   i_ArchiveReadWrite,
   u_TileIteratorByRect,

@@ -134,7 +134,6 @@ implementation
 uses
   SysUtils,
   i_Listener,
-  i_CoordConverter,
   u_DoublePointsAggregator,
   u_ListenerByEvent;
 

@@ -6,7 +6,6 @@ uses
   t_Hash,
   t_GeoTypes,
   i_LonLatRect,
-  i_EnumDoublePoint,
   i_InterfaceListStatic,
   i_GeometryLonLat,
   u_BaseInterfacedObject;
@@ -48,8 +47,7 @@ type
 implementation
 
 uses
-  SysUtils,
-  u_EnumDoublePointByLineSet;
+  SysUtils;
 
 { TLonLatLineSet }
 

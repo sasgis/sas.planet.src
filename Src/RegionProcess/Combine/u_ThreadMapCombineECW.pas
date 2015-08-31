@@ -73,7 +73,6 @@ implementation
 uses
   LibECW,
   t_ECW,
-  i_CoordConverter,
   u_CalcWFileParams,
   u_ImageLineProvider,
   u_GeoFunc,

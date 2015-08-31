@@ -131,7 +131,6 @@ uses
   gnugettext,
   Graphics,
   t_Bitmap32,
-  c_CoordConverter,
   i_Bitmap32Static,
   i_MapVersionRequest,
   i_ContentTypeInfo,

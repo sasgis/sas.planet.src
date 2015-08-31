@@ -55,7 +55,6 @@ uses
   superobject,
   t_GeoTypes,
   i_GeoCoder,
-  i_CoordConverter,
   i_ProjectionInfo,
   i_VectorDataItemSimple,
   u_InterfaceListSimple,

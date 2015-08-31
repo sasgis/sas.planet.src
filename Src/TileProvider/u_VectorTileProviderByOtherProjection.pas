@@ -92,7 +92,6 @@ implementation
 uses
   Math,
   t_GeoTypes,
-  i_CoordConverter,
   i_VectorDataItemSimple,
   i_LonLatRect,
   u_TileIteratorByRect,

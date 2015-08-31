@@ -78,7 +78,6 @@ implementation
 uses
   Exif,
   t_GeoTypes,
-  i_CoordConverter,
   u_ImageLineProvider,
   u_GeoFunc,
   u_ResStrings;

@@ -69,7 +69,6 @@ implementation
 uses
   SysUtils,
   t_GeoTypes,
-  i_CoordConverter,
   i_ProjectionInfo,
   u_ResStrings,
   u_GeoFunc;

@@ -32,7 +32,6 @@ uses
   i_RegionProcessProgressInfo,
   i_BitmapTileProvider,
   i_MapCalibration,
-  i_ProjectionInfo,
   i_GeometryLonLat,
   u_ThreadMapCombineBase;
 
@@ -76,7 +75,6 @@ implementation
 
 uses
   LibPngWriter,
-  i_CoordConverter,
   u_ImageLineProvider,
   u_GeoFunc,
   u_ResStrings;

@@ -25,7 +25,6 @@ interface
 uses
   t_GeoTypes,
   i_Datum,
-  i_ProjectionInfo,
   i_EnumDoublePoint,
   i_DoublePoints,
   i_DoublePointFilter,

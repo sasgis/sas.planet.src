@@ -121,7 +121,6 @@ uses
   GR32_Polygons,
   i_MarkerDrawable,
   i_AppearanceOfVectorItem,
-  i_CoordConverter,
   u_Bitmap32ByStaticBitmap,
   u_GeometryFunc;
 

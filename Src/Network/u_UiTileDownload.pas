@@ -115,7 +115,6 @@ uses
   Types,
   u_Synchronizer,
   i_DownloadResult,
-  i_CoordConverter,
   i_ProjectionInfo,
   i_TileInfoBasic,
   i_TileStorage,

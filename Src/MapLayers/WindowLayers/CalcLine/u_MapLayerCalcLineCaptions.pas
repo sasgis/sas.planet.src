@@ -34,7 +34,6 @@ uses
   i_LocalCoordConverterChangeable,
   i_LineOnMapEdit,
   i_Datum,
-  i_CoordConverter,
   i_GeometryLonLat,
   i_ProjectionInfo,
   i_DoublePointsAggregator,

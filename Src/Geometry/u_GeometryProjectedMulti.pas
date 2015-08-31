@@ -4,7 +4,6 @@ interface
 
 uses
   t_GeoTypes,
-  i_EnumDoublePoint,
   i_InterfaceListStatic,
   i_GeometryProjected,
   u_BaseInterfacedObject;
@@ -51,8 +50,7 @@ implementation
 
 uses
   SysUtils,
-  u_GeoFunc,
-  u_EnumDoublePointByLineSet;
+  u_GeoFunc;
 
 { TProjectedLineSet }
 

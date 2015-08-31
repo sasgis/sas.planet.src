@@ -25,7 +25,6 @@ interface
 uses
   Types,
   t_GeoTypes,
-  i_CoordConverter,
   i_ProjectionInfo,
   i_TileRect,
   i_TileIterator,

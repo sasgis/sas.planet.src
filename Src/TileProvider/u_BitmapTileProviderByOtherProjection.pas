@@ -95,7 +95,6 @@ uses
   Math,
   GR32,
   t_GeoTypes,
-  i_CoordConverter,
   u_TileIteratorByRect,
   u_BitmapFunc,
   u_Bitmap32ByStaticBitmap;

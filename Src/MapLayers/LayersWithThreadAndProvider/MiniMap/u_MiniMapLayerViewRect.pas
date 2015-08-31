@@ -110,7 +110,6 @@ implementation
 uses
   Math,
   i_ProjectionInfo,
-  i_CoordConverter,
   u_ListenerByEvent,
   u_SimpleFlagWithInterlock,
   u_ListenerTime,

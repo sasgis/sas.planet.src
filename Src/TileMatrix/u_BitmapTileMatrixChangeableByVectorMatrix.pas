@@ -103,7 +103,6 @@ uses
   t_Hash,
   i_TileIterator,
   i_Bitmap32Static,
-  i_CoordConverter,
   i_ProjectionInfo,
   i_VectorTileRenderer,
   i_VectorTileMatrix,

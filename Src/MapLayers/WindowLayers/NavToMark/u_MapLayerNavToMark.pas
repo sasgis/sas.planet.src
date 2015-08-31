@@ -71,7 +71,6 @@ implementation
 
 uses
   Math,
-  i_CoordConverter,
   i_ProjectionInfo,
   u_ListenerByEvent;
 

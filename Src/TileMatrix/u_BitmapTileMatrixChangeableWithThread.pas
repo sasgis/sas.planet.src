@@ -116,7 +116,6 @@ uses
   t_GeoTypes,
   i_TileIterator,
   i_Bitmap32Static,
-  i_CoordConverter,
   i_ProjectionInfo,
   i_LonLatRect,
   u_SimpleFlagWithInterlock,

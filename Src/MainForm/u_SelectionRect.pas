@@ -68,7 +68,6 @@ implementation
 
 uses
   i_ProjectionInfo,
-  i_CoordConverter,
   u_GeoFunc;
 
 { TSelectionRect }

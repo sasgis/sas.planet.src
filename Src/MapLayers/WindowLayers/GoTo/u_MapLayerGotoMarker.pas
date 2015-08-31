@@ -73,7 +73,6 @@ uses
   SysUtils,
   GR32_Layers,
   i_Listener,
-  i_CoordConverter,
   i_ProjectionType,
   u_ListenerTime,
   u_ListenerByEvent,

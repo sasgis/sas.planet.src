@@ -99,11 +99,9 @@ uses
   Math,
   GR32_Polygons,
   i_GPS,
-  i_DoublePointsAggregator,
   u_GeoFunc,
   u_Synchronizer,
   u_SimpleFlagWithInterlock,
-  u_DoublePointsAggregator,
   u_ListenerTime,
   u_ListenerByEvent,
   u_ProjectedDrawableElementByPolygon;

@@ -56,7 +56,6 @@ implementation
 
 uses
   t_GeoTypes,
-  i_CoordConverter,
   i_LonLatRect,
   i_VectorDataItemSimple;
 

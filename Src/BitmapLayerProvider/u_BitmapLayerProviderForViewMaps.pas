@@ -25,7 +25,6 @@ interface
 uses
   Types,
   i_NotifierOperation,
-  i_CoordConverter,
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
   i_ProjectionInfo,

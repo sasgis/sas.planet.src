@@ -75,9 +75,7 @@ type
 implementation
 
 uses
-  SysUtils,
-  i_GeometryLonLat,
-  i_VectorDataItemSimple;
+  SysUtils;
 
 { TMergePolygonsPresenterOnPanel }
 

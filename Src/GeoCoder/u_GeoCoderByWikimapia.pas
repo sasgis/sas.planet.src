@@ -57,7 +57,6 @@ uses
   t_GeoTypes,
   i_GeoCoder,
   i_VectorDataItemSimple,
-  i_CoordConverter,
   i_ProjectionInfo,
   i_BinaryData,
   u_BinaryData,

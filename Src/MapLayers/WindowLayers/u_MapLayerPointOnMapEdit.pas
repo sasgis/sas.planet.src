@@ -64,7 +64,6 @@ uses
   Math,
   GR32_Layers,
   i_Listener,
-  i_CoordConverter,
   i_ProjectionType,
   u_ListenerByEvent,
   u_GeoFunc;

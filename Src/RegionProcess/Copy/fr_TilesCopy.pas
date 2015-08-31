@@ -30,13 +30,14 @@ uses
   Forms,
   StdCtrls,
   CheckLst,
+  ComCtrls,
+  Spin,
   ExtCtrls,
   fr_MapSelect,
   fr_ZoomsSelect,
   fr_CacheTypeList,
   i_LanguageManager,
   i_MapType,
-  i_MapVersionInfo,
   i_MapVersionRequest,
   i_MapTypeSet,
   i_MapTypeListStatic,
@@ -52,7 +53,7 @@ uses
   i_BitmapTileSaveLoadFactory,
   i_TileStorageTypeList,
   i_RegionProcessParamsFrame,
-  u_CommonFormAndFrameParents, ComCtrls, Spin;
+  u_CommonFormAndFrameParents;
 
 type
   IRegionProcessParamsFrameTilesCopy = interface(IRegionProcessParamsFrameBase)

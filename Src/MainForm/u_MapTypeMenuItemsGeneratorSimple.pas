@@ -28,9 +28,7 @@ uses
   TBX,
   i_MapTypeSet,
   i_MapType,
-  i_ActiveMapsConfig,
-  i_MapTypeGUIConfigList,
-  i_MapTypeIconsList;
+  i_MapTypeGUIConfigList;
 
 type
   TMapMenuGeneratorSimple = class

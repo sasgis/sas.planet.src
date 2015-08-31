@@ -7,7 +7,6 @@ uses
   i_ProjectionInfo,
   i_EnumDoublePoint,
   i_DoublePoints,
-  i_DoublePointFilter,
   i_DoublePointsAggregator,
   i_GeometryLonLat,
   i_GeometryProjected,
@@ -56,16 +55,13 @@ type
 implementation
 
 uses
-  Math,
   SysUtils,
   i_InterfaceListSimple,
   u_GeoFunc,
   u_InterfaceListSimple,
   u_DoublePointsAggregator,
   u_GeometryProjected,
-  u_EnumDoublePointByLineSet,
   u_EnumDoublePointLonLatToMapPixel,
-  u_EnumDoublePointWithClip,
   u_EnumDoublePointFilterEqual,
   u_GeometryProjectedMulti;
 

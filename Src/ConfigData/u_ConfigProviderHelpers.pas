@@ -79,7 +79,6 @@ uses
   GR32,
   t_GeoTypes,
   i_BinaryData,
-  i_EnumDoublePoint,
   i_DoublePointsAggregator,
   i_ContentTypeInfo,
   u_GeoFunc,

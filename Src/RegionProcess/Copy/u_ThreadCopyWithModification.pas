@@ -25,7 +25,6 @@ interface
 uses
   Types,
   i_MapVersionInfo,
-  i_MapVersionRequest,
   i_CoordConverterFactory,
   i_TileStorage,
   i_GeometryLonLat,
@@ -83,8 +82,6 @@ uses
   i_ProjectionInfo,
   i_GeometryProjected,
   u_TileIteratorByPolygon,
-  i_MapVersionListStatic,
-  i_TileInfoBasic,
   u_ResStrings;
 
 { TThreadCopyWithModification }

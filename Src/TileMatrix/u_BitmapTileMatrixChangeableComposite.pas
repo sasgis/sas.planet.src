@@ -116,7 +116,6 @@ implementation
 uses
   GR32,
   i_TileIterator,
-  i_CoordConverter,
   i_ProjectionInfo,
   u_InterfaceListSimple,
   u_SimpleFlagWithInterlock,

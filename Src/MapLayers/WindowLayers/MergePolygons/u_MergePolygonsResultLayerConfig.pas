@@ -23,8 +23,6 @@ unit u_MergePolygonsResultLayerConfig;
 interface
 
 uses
-  i_ConfigDataProvider,
-  i_ConfigDataWriteProvider,
   i_MergePolygonsResultLayerConfig,
   u_PolygonLayerConfig;
 

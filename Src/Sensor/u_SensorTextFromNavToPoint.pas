@@ -54,7 +54,6 @@ implementation
 uses
   Math,
   t_GeoTypes,
-  i_CoordConverter,
   i_ProjectionType,
   i_LocalCoordConverter,
   u_ListenerByEvent,

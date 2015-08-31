@@ -68,7 +68,6 @@ uses
   Types,
   Math,
   SysUtils,
-  i_CoordConverter,
   i_ProjectionType,
   i_EnumDoublePoint,
   u_EnumDoublePointClosePoly,

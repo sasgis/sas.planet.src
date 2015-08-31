@@ -30,7 +30,6 @@ uses
   i_NotifierOperation,
   i_BitmapTileProvider,
   i_RegionProcessProgressInfo,
-  i_ProjectionInfo,
   i_GeometryLonLat,
   i_MapCalibration,
   u_ThreadMapCombineBase,

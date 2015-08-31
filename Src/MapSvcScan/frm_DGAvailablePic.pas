@@ -287,7 +287,6 @@ uses
   i_ImportConfig,
   i_VectorDataItemSimple,
   i_GeometryLonLat,
-  i_CoordConverter,
   i_ProjectionInfo,
   i_DoublePointsAggregator,
   u_ClipboardFunc,

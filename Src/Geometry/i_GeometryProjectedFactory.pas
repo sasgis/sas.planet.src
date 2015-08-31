@@ -25,10 +25,8 @@ interface
 uses
   t_GeoTypes,
   i_ProjectionInfo,
-  i_EnumDoublePoint,
   i_DoublePoints,
   i_DoublePointsAggregator,
-  i_DoublePointFilter,
   i_GeometryLonLat,
   i_GeometryProjected;
 
