@@ -38,10 +38,10 @@ type
     FMapTypeSet: IMapTypeSetChangeable;
 
     FMapTypeSetListener: IListener;
+    FMapListener: IListener;
     FCS: IReadWriteSync;
 
     FMapsListened: IMapTypeSet;
-    FMapListeners: IInterfaceListStatic;
 
     FListener: IListener;
     FListenTileRect: ITileRect;
@@ -96,6 +96,7 @@ begin
   FMapTypeSet := AMapTypeSet;
   FMapTypeSetListener := TNotifyNoMmgEventListener.Create(Self.OnMapSetChange);
   FCS := GSync.SyncVariable.Make(Self.ClassName);
+  FMapListener := TTileUpdateListenerToLonLat.Create(Self.OnTileUpdate);
   FMapTypeSet.ChangeNotifier.Add(FMapTypeSetListener);
   OnMapSetChange;
 end;
@@ -107,7 +108,7 @@ begin
     FMapTypeSet := nil;
     FMapTypeSetListener := nil;
   end;
-  if Assigned(FMapsListened) and Assigned(FMapListeners) then begin
+  if Assigned(FMapsListened) and Assigned(FMapListener) then begin
     _RemoveListeners(FMapsListened);
   end;
   inherited;
@@ -124,7 +125,6 @@ begin
       if Assigned(FListener) and Assigned(FListenTileRect) then begin
         _RemoveListeners(FMapsListened);
       end;
-      FMapListeners := nil;
     end;
     if Assigned(VMapSet) and not VMapSet.IsEqual(FMapsListened) then begin
       if Assigned(FListener) and Assigned(FListenTileRect) then begin
@@ -177,19 +177,16 @@ procedure TSourceDataUpdateInRectByMapsSet._RemoveListeners(
 var
   i: Integer;
   VMap: IMapType;
-  VListener: IListener;
   VNotifier: INotifierTilePyramidUpdate;
 begin
-  Assert(Assigned(FMapListeners));
-  if Assigned(AMapsListened) and Assigned(FMapListeners) then begin
-    Assert(AMapsListened.Count = FMapListeners.Count);
+  Assert(Assigned(FMapListener));
+  if Assigned(AMapsListened) and Assigned(FMapListener) then begin
     for i := 0 to AMapsListened.Count - 1 do begin
       VMap := AMapsListened.Items[i];
-      VListener := IListener(FMapListeners.Items[i]);
-      if Assigned(VMap) and Assigned(VListener) then begin
+      if Assigned(VMap) then begin
         VNotifier := VMap.TileStorage.TileNotifier;
         if VNotifier <> nil then begin
-          VNotifier.Remove(VListener);
+          VNotifier.Remove(FMapListener);
         end;
       end;
     end;
@@ -231,10 +228,8 @@ procedure TSourceDataUpdateInRectByMapsSet._SetListeners(
   const ATileRect: ITileRect
 );
 var
-  VListeners: IInterfaceListSimple;
   i: Integer;
   VMap: IMapType;
-  VListener: IListener;
   VZoom: Byte;
   VTileRect: TRect;
   VLonLatRect: TDoubleRect;
@@ -242,18 +237,6 @@ var
   VMapLonLatRect: TDoubleRect;
   VNotifier: INotifierTilePyramidUpdate;
 begin
-  if not Assigned(FMapListeners) then begin
-    VListeners := TInterfaceListSimple.Create;
-    VListeners.Capacity := AMapsListened.Count;
-    for i := 0 to AMapsListened.Count - 1 do begin
-      VMap := AMapsListened.Items[i];
-      if VMap <> nil then begin
-        VListener := TTileUpdateListenerToLonLat.Create(VMap.GeoConvert, Self.OnTileUpdate);
-        VListeners.Add(VListener);
-      end;
-    end;
-    FMapListeners := VListeners.MakeStaticAndClear;
-  end;
   VZoom := ATileRect.ProjectionInfo.Zoom;
   VConverter := ATileRect.ProjectionInfo.GeoConverter;
   VLonLatRect := VConverter.TileRect2LonLatRect(ATileRect.Rect, VZoom);
@@ -270,8 +253,7 @@ begin
             VConverter.LonLatRect2TileRectFloat(VMapLonLatRect, VZoom),
             rrOutside
           );
-        VListener := IListener(FMapListeners[i]);
-        VNotifier.AddListenerByRect(VListener, VZoom, VTileRect);
+        VNotifier.AddListenerByRect(FMapListener, VZoom, VTileRect);
       end;
     end;
   end;

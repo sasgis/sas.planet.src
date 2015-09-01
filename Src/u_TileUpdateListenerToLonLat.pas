@@ -26,7 +26,6 @@ uses
   t_Listener,
   i_Listener,
   i_SimpleFlag,
-  i_CoordConverter,
   u_BaseInterfacedObject;
 
 type
@@ -34,14 +33,12 @@ type
   private
     FDisconnectFlag: ISimpleFlag;
     FEvent: TNotifyListenerEvent;
-    FCoordConverter: ICoordConverter;
   private
     procedure Notification(const AMsg: IInterface);
   private
     procedure Disconnect;
   public
     constructor Create(
-      const ACoordConverter: ICoordConverter;
       AEvent: TNotifyListenerEvent
     );
   end;
@@ -60,16 +57,13 @@ uses
 { TTileUpdateListenerToLonLat }
 
 constructor TTileUpdateListenerToLonLat.Create(
-  const ACoordConverter: ICoordConverter;
   AEvent: TNotifyListenerEvent
 );
 begin
-  Assert(ACoordConverter <> nil);
   inherited Create;
   FEvent := AEvent;
   FDisconnectFlag := TSimpleFlagWithInterlock.Create;
   Assert(Assigned(FEvent));
-  FCoordConverter := ACoordConverter;
 end;
 
 procedure TTileUpdateListenerToLonLat.Disconnect;
@@ -83,21 +77,18 @@ var
   VTileRect: ITileRect;
   VLonLatRect: ILonLatRect;
   VTile: TPoint;
-  VZoom: Byte;
   VRect: TRect;
 begin
   if not FDisconnectFlag.CheckFlag then begin
     if Supports(AMsg, ITileKey, VTileKey) then begin
       VTile := VTileKey.Tile;
-      VZoom := VTileKey.Zoom;
-      FCoordConverter.ValidateTilePosStrict(VTile, VZoom, True);
-      VLonLatRect := TLonLatRect.Create(FCoordConverter.TilePos2LonLatRect(VTile, VZoom));
+      VTileKey.ProjectionInfo.ValidateTilePosStrict(VTile, True);
+      VLonLatRect := TLonLatRect.Create(VTileKey.ProjectionInfo.TilePos2LonLatRect(VTile));
       FEvent(VLonLatRect);
     end else if Supports(AMsg, ITileRect, VTileRect) then begin
-      VZoom := VTileRect.Zoom;
       VRect := VTileRect.Rect;
-      FCoordConverter.ValidateTileRect(VRect, VZoom);
-      VLonLatRect := TLonLatRect.Create(FCoordConverter.TileRect2LonLatRect(VRect, VZoom));
+      VTileRect.ProjectionInfo.ValidateTileRect(VRect);
+      VLonLatRect := TLonLatRect.Create(VTileRect.ProjectionInfo.TileRect2LonLatRect(VRect));
       FEvent(VLonLatRect);
     end else begin
       FEvent(nil);

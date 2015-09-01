@@ -26,7 +26,7 @@ uses
   Classes,
   sysutils,
   t_GeoTypes,
-  i_CoordConverter,
+  i_ProjectionType,
   i_InterfaceListSimple,
   i_CoordConverterFactory,
   i_VectorDataItemSimple,
@@ -41,9 +41,9 @@ type
   TGeoCoderByCoord = class(TGeoCoderLocalBasic)
   private
     FValueToStringConverter: IValueToStringConverterChangeable;
-    FGeoConvert3785: ICoordConverter;
-    FGeoConvert3395: ICoordConverter;
-    FGeoConvert4326: ICoordConverter;
+    FProjectionType3785: IProjectionType;
+    FProjectionType3395: IProjectionType;
+    FProjectionType4326: IProjectionType;
     Procedure PosStr2List(
       const APos1,APos2: string;
       const Alist: IInterfaceListSimple
@@ -61,7 +61,7 @@ type
     procedure TestMetersCoord(
       const APos1, Apos2: string;
       const APoint: TDoublePoint;
-      const AGeoConvert: ICoordConverter;
+      const AProjectionType: IProjectionType;
       const Alist: IInterfaceListSimple
     );
     Procedure AddItem2List(
@@ -375,7 +375,7 @@ end;
 procedure TGeoCoderByCoord.TestMetersCoord(
   const APos1, Apos2: string;
   const APoint: TDoublePoint;
-  const AGeoConvert: ICoordConverter;
+  const AProjectionType: IProjectionType;
   const Alist: IInterfaceListSimple
   );
 var
@@ -383,13 +383,13 @@ var
   VinPoint: TDoublePoint;
 begin
   VinPoint := APoint;
-  VPoint := AGeoConvert.Metr2LonLat(VinPoint);
-  Test2Coord(APos1, Apos2, VPoint, ' ESPG:'+IntToStr(AGeoConvert.ProjectionEPSG) , Alist);
+  VPoint := AProjectionType.Metr2LonLat(VinPoint);
+  Test2Coord(APos1, Apos2, VPoint, ' ESPG:'+IntToStr(AProjectionType.ProjectionEPSG) , Alist);
 
   VinPoint.X := APoint.Y;
   VinPoint.Y := APoint.X;
-  VPoint := AGeoConvert.Metr2LonLat(VinPoint);
-  Test2Coord(APos1, Apos2, VPoint, ' ESPG:'+IntToStr(AGeoConvert.ProjectionEPSG) , Alist);
+  VPoint := AProjectionType.Metr2LonLat(VinPoint);
+  Test2Coord(APos1, Apos2, VPoint, ' ESPG:'+IntToStr(AProjectionType.ProjectionEPSG) , Alist);
 end;
 
 procedure TGeoCoderByCoord.PosStr2List(
@@ -495,9 +495,9 @@ begin
     VPoint.Y := VDLat;
     Test2Coord(APos1, Apos2, VPoint, '', Alist);
 
-    TestMetersCoord(APos1, Apos2, VPoint, FGeoConvert3785, Alist);
-    TestMetersCoord(APos1, Apos2, VPoint, FGeoConvert3395, Alist);
-    TestMetersCoord(APos1, Apos2, VPoint, FGeoConvert4326, Alist);
+    TestMetersCoord(APos1, Apos2, VPoint, FProjectionType3785, Alist);
+    TestMetersCoord(APos1, Apos2, VPoint, FProjectionType3395, Alist);
+    TestMetersCoord(APos1, Apos2, VPoint, FProjectionType4326, Alist);
   end;
 end;
 
@@ -510,15 +510,15 @@ constructor TGeoCoderByCoord.Create(
 begin
   inherited Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory);
   FValueToStringConverter := AValueToStringConverter;
-  FGeoConvert3785 := ACoordConverterFactory.GetCoordConverterByCode(
+  FProjectionType3785 := ACoordConverterFactory.GetCoordConverterByCode(
     3785, 1
-  );
-  FGeoConvert3395 := ACoordConverterFactory.GetCoordConverterByCode(
+  ).ProjectionType;
+  FProjectionType3395 := ACoordConverterFactory.GetCoordConverterByCode(
     3395, 1
-  );
-  FGeoConvert4326 := ACoordConverterFactory.GetCoordConverterByCode(
+  ).ProjectionType;
+  FProjectionType4326 := ACoordConverterFactory.GetCoordConverterByCode(
     4326, 1
-  );
+  ).ProjectionType;
 end;
 
 Procedure TGeoCoderByCoord.AddItem2List(

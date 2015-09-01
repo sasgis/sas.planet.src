@@ -39,9 +39,9 @@ type
 
     FMapTypeListener: IListener;
     FCS: IReadWriteSync;
+    FMapListener: IListener;
 
     FMapListened: IMapType;
-    FMapListener: IListener;
 
     FListener: IListener;
     FListenTileRect: ITileRect;
@@ -101,6 +101,7 @@ begin
   FMapType := AMapType;
   FConfig := AConfig;
   FCS := GSync.SyncVariable.Make(Self.ClassName);
+  FMapListener := TTileUpdateListenerToLonLat.Create(Self.OnTileUpdate);
 
   FMapTypeListener := TNotifyNoMmgEventListener.Create(Self.OnMapChange);
   FConfig.ChangeNotifier.Add(FMapTypeListener);
@@ -154,7 +155,6 @@ begin
       if Assigned(FListener) and Assigned(FListenTileRect) then begin
         _RemoveListener(FMapListened);
       end;
-      FMapListener := nil;
     end;
     if Assigned(VMap) and not (VMap = FMapListened) then begin
       if Assigned(FListener) and Assigned(FListenTileRect) then begin
@@ -260,9 +260,6 @@ var
   VNotifier: INotifierTilePyramidUpdate;
 begin
   if AMapListened <> nil then begin
-    if not Assigned(FMapListener) then begin
-      FMapListener := TTileUpdateListenerToLonLat.Create(AMapListened.GeoConvert, Self.OnTileUpdate);
-    end;
     VProjection := ATileRect.ProjectionInfo;
     VLonLatRect := VProjection.TileRect2LonLatRect(ATileRect.Rect);
     VNotifier := AMapListened.TileStorage.TileNotifier;
