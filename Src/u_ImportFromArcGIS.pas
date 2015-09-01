@@ -96,34 +96,34 @@ begin
     SetLength(Result,(Length(Result)-1));
 end;
 
-function _refererxy(const AConverter: ICoordConverter; const ALonLat: TDoublePoint): AnsiString;
+function _refererxy(const AProjectionType: IProjectionType; const ALonLat: TDoublePoint): AnsiString;
 var
   VMetrPoint: TDoublePoint;
 begin
-  VMetrPoint := AConverter.LonLat2Metr(ALonLat);
+  VMetrPoint := AProjectionType.LonLat2Metr(ALonLat);
   Result := '&x=' + RoundExAnsi(VMetrPoint.X, 4) + '&y=' + RoundExAnsi(VMetrPoint.Y, 4);
 end;
 
-function _geometry(const AConverter: ICoordConverter; const ALonLat: TDoublePoint): AnsiString;
+function _geometry(const AProjectionType: IProjectionType; const ALonLat: TDoublePoint): AnsiString;
 var
   VMetrPoint: TDoublePoint;
 begin
-  VMetrPoint := AConverter.LonLat2Metr(ALonLat);
+  VMetrPoint := AProjectionType.LonLat2Metr(ALonLat);
   Result := '{"x":' + RoundExAnsi(VMetrPoint.X, 9) +
             ',"y":' + RoundExAnsi(VMetrPoint.Y, 9) +
             ',"spatialReference":{"wkid":102100}}';
 end;
 
-function _mapExtent(const AConverter: ICoordConverter; const ALonLatRect: TDoubleRect): AnsiString;
+function _mapExtent(const AProjectionType: IProjectionType; const ALonLatRect: TDoubleRect): AnsiString;
 var
   VMetrPointMin, VMetrPointMax: TDoublePoint;
 begin
   VMetrPointMin.X := ALonLatRect.Left;
   VMetrPointMin.Y := ALonLatRect.Bottom;
-  VMetrPointMin := AConverter.LonLat2Metr(VMetrPointMin);
+  VMetrPointMin := AProjectionType.LonLat2Metr(VMetrPointMin);
   VMetrPointMax.X := ALonLatRect.Right;
   VMetrPointMax.Y := ALonLatRect.Top;
-  VMetrPointMax := AConverter.LonLat2Metr(VMetrPointMax);
+  VMetrPointMax := AProjectionType.LonLat2Metr(VMetrPointMax);
   Result := '{"xmin":' + RoundExAnsi(VMetrPointMin.X, 9) +
             ',"ymin":' + RoundExAnsi(VMetrPointMin.Y, 9) +
             ',"xmax":' + RoundExAnsi(VMetrPointMax.X, 9) +
@@ -392,7 +392,6 @@ const
   c_JSON_Delimiter = '},{';
 
 var
-  VConverter: ICoordConverter;
   VProjectionType: IProjectionType;
   VHead: AnsiString;
   VDownloader: IDownloader;
@@ -412,8 +411,7 @@ var
   VAllNewMarks: IVectorItemSubsetBuilder;
 begin
   Result := nil;
-  VConverter := ACoordConverterFactory.GetCoordConverterByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256);
-  VProjectionType := VConverter.ProjectionType;
+  VProjectionType := ACoordConverterFactory.GetCoordConverterByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256).ProjectionType;
   VResultFactory := TDownloadResultFactory.Create;
   VDownloader:=TDownloaderHttp.Create(VResultFactory);
 
@@ -422,7 +420,7 @@ begin
       'Host: maps.rosreestr.ru'+#$D#$A+
       'Accept: */*'+#$D#$A+
       'Accept-Language: ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4'+#$D#$A+
-      'Referer: http://maps.rosreestr.ru/PortalOnline/?l=' + ALIntToStr(AZoom) + _refererxy(VConverter, ALonLat)+'&mls=map|anno&cls=cadastre'+#$D#$A+
+      'Referer: http://maps.rosreestr.ru/PortalOnline/?l=' + ALIntToStr(AZoom) + _refererxy(VProjectionType, ALonLat)+'&mls=map|anno&cls=cadastre'+#$D#$A+
       'Connection: Keep-Alive'+#$D#$A+
       'Accept-Charset: windows-1251,utf-8;q=0.7,*;q=0.3'+#$D#$A+
       'Accept-Encoding: gzip, deflate';
@@ -430,10 +428,10 @@ begin
   // identify object
   VLink := 'http://maps.rosreestr.ru/arcgis/rest/services/Cadastre/'+
            'CadastreSelected/MapServer/identify?f=json'+
-           '&geometry='+_geometry(VConverter, ALonLat)+
+           '&geometry='+_geometry(VProjectionType, ALonLat)+
            '&tolerance=0'+
            '&returnGeometry=true'+
-           '&mapExtent='+_mapExtent(VConverter, ALonLatRect)+
+           '&mapExtent='+_mapExtent(VProjectionType, ALonLatRect)+
            '&imageDisplay='+_imageDisplay(AMapSize)+
            '&geometryType=esriGeometryPoint'+
            '&sr=102100'+
