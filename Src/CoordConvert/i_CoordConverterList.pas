@@ -23,6 +23,7 @@ unit i_CoordConverterList;
 interface
 
 uses
+  i_ProjectionSet,
   i_CoordConverter;
 
 type
@@ -32,6 +33,17 @@ type
 
     function Get(AIndex: Integer): ICoordConverter;
     property Items[Index: Integer]: ICoordConverter read Get; default;
+
+    function GetCaption(AIndex: Integer): string;
+    property Captions[Index: Integer]: string read GetCaption;
+  end;
+
+  IProjectionSetList = interface
+    ['{0E60087D-7B38-4612-A21E-DC64C73FF4E6}']
+    function Count: Integer;
+
+    function Get(AIndex: Integer): IProjectionSet;
+    property Items[Index: Integer]: IProjectionSet read Get; default;
 
     function GetCaption(AIndex: Integer): string;
     property Captions[Index: Integer]: string read GetCaption;

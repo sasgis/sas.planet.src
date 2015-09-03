@@ -26,6 +26,7 @@ uses
   i_Datum,
   i_CoordConverter,
   i_ProjectionInfo,
+  i_ProjectionSet,
   i_ConfigDataProvider;
 
 type
@@ -42,6 +43,15 @@ type
       AProjectionEPSG: Integer;
       ATileSplitCode: Integer
     ): ICoordConverter;
+  end;
+
+  IProjectionSetFactory = interface
+    ['{F7D31D52-79A1-4764-95E5-9653F4EDBD26}']
+    function GetProjectionSetByConfig(const AConfig: IConfigDataProvider): IProjectionSet;
+    function GetProjectionSetByCode(
+      AProjectionEPSG: Integer;
+      ATileSplitCode: Integer
+    ): IProjectionSet;
   end;
 
   IProjectionInfoFactory = interface

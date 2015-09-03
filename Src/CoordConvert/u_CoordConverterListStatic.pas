@@ -26,22 +26,26 @@ uses
   SysUtils,
   Classes,
   i_CoordConverter,
+  i_ProjectionSet,
   i_CoordConverterList,
   u_BaseInterfacedObject;
 
 type
-  TCoordConverterListStatic = class(TBaseInterfacedObject, ICoordConverterList)
+  TCoordConverterListStatic = class(TBaseInterfacedObject, ICoordConverterList, IProjectionSetList)
   private
     FList: TStringList;
     FCS: IReadWriteSync;
   protected
     procedure Add(
-      const AItem: ICoordConverter;
+      const AItem: IProjectionSet;
       const ACaption: string
     );
   private
     function Count: Integer;
-    function Get(AIndex: Integer): ICoordConverter;
+    function GetProjectionSet(AIndex: Integer): IProjectionSet;
+    function GetCoordConverter(AIndex: Integer): ICoordConverter;
+    function IProjectionSetList.Get = GetProjectionSet;
+    function ICoordConverterList.Get = GetCoordConverter;
     function GetCaption(AIndex: Integer): string;
   public
     constructor Create;
@@ -80,7 +84,7 @@ begin
 end;
 
 procedure TCoordConverterListStatic.Add(
-  const AItem: ICoordConverter;
+  const AItem: IProjectionSet;
   const ACaption: string
 );
 begin
@@ -103,11 +107,23 @@ begin
   end;
 end;
 
-function TCoordConverterListStatic.Get(AIndex: Integer): ICoordConverter;
+function TCoordConverterListStatic.GetCoordConverter(AIndex: Integer): ICoordConverter;
 begin
   FCS.BeginRead;
   try
-    Result := ICoordConverter(Pointer(FList.Objects[AIndex]));
+    Result := IProjectionSet(Pointer(FList.Objects[AIndex])).GeoConvert;
+  finally
+    FCS.EndRead;
+  end;
+end;
+
+function TCoordConverterListStatic.GetProjectionSet(
+  AIndex: Integer
+): IProjectionSet;
+begin
+  FCS.BeginRead;
+  try
+    Result := IProjectionSet(Pointer(FList.Objects[AIndex]));
   finally
     FCS.EndRead;
   end;

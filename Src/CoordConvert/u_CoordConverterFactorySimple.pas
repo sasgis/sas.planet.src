@@ -26,12 +26,13 @@ uses
   i_Datum,
   i_HashFunction,
   i_CoordConverter,
+  i_ProjectionSet,
   i_ConfigDataProvider,
   i_CoordConverterFactory,
   u_BaseInterfacedObject;
 
 type
-  TCoordConverterFactorySimple = class(TBaseInterfacedObject, ICoordConverterFactory)
+  TCoordConverterFactorySimple = class(TBaseInterfacedObject, ICoordConverterFactory, IProjectionSetFactory)
   private
     FHashFunction: IHashFunction;
     FDatumFactory: IDatumFactory;
@@ -40,12 +41,22 @@ type
     FYandex: ICoordConverter;
     FLonLat: ICoordConverter;
     FEPSG53004: ICoordConverter;
+
+    FProjectionSetGoogle: IProjectionSet;
+    FProjectionSetYandex: IProjectionSet;
+    FProjectionSetLonLat: IProjectionSet;
   private
     function GetCoordConverterByConfig(const AConfig: IConfigDataProvider): ICoordConverter;
     function GetCoordConverterByCode(
       AProjectionEPSG: Integer;
       ATileSplitCode: Integer
     ): ICoordConverter;
+  private
+    function GetProjectionSetByConfig(const AConfig: IConfigDataProvider): IProjectionSet;
+    function GetProjectionSetByCode(
+      AProjectionEPSG: Integer;
+      ATileSplitCode: Integer
+    ): IProjectionSet;
   public
     constructor Create(
       const AHashFunction: IHashFunction;
@@ -62,6 +73,7 @@ uses
   u_CoordConverterMercatorOnSphere,
   u_CoordConverterMercatorOnEllipsoid,
   u_CoordConverterSimpleLonLat,
+  u_ProjectionSetSimple,
   u_ResStrings;
 
 { TCoordConverterFactorySimple }
@@ -83,6 +95,7 @@ begin
   FHashFunction.UpdateHashByHash(VHash, VDatum.Hash);
   FHashFunction.UpdateHashByInteger(VHash, CGoogleProjectionEPSG);
   FGoogle := TCoordConverterMercatorOnSphere.Create(VHash, VDatum, CGoogleProjectionEPSG);
+  FProjectionSetGoogle := TProjectionSetSimple.Create(FHashFunction, FGoogle);
 
   VHash := FHashFunction.CalcHashByInteger(1);
   VDatum := FDatumFactory.GetByCode(53004);
@@ -95,12 +108,14 @@ begin
   FHashFunction.UpdateHashByHash(VHash, VDatum.Hash);
   FHashFunction.UpdateHashByInteger(VHash, CYandexProjectionEPSG);
   FYandex := TCoordConverterMercatorOnEllipsoid.Create(VHash, VDatum, CYandexProjectionEPSG);
+  FProjectionSetYandex := TProjectionSetSimple.Create(FHashFunction, FYandex);
 
   VHash := FHashFunction.CalcHashByInteger(3);
   VDatum := FDatumFactory.GetByCode(CYandexDatumEPSG);
   FHashFunction.UpdateHashByHash(VHash, VDatum.Hash);
   FHashFunction.UpdateHashByInteger(VHash, CGELonLatProjectionEPSG);
   FLonLat := TCoordConverterSimpleLonLat.Create(VHash, VDatum, CGELonLatProjectionEPSG);
+  FProjectionSetLonLat := TProjectionSetSimple.Create(FHashFunction, FLonLat);
 end;
 
 function TCoordConverterFactorySimple.GetCoordConverterByCode(
@@ -230,6 +245,52 @@ begin
       raise Exception.CreateFmt(SAS_ERR_MapProjectionUnexpectedType, [IntToStr(VProjection)]);
     end;
     end;
+  end;
+end;
+
+function TCoordConverterFactorySimple.GetProjectionSetByCode(
+  AProjectionEPSG, ATileSplitCode: Integer
+): IProjectionSet;
+var
+  VConverter: ICoordConverter;
+begin
+  VConverter := GetCoordConverterByCode(AProjectionEPSG, ATileSplitCode);
+  case VConverter.ProjectionType.ProjectionEPSG of
+    CGoogleProjectionEPSG: begin
+      Result := FProjectionSetGoogle;
+    end;
+    CYandexProjectionEPSG: begin
+      Result := FProjectionSetYandex;
+    end;
+    CGELonLatProjectionEPSG: begin
+      Result := FProjectionSetLonLat;
+    end;
+  else begin
+    Result := TProjectionSetSimple.Create(FHashFunction, VConverter);
+  end;
+  end;
+end;
+
+function TCoordConverterFactorySimple.GetProjectionSetByConfig(
+  const AConfig: IConfigDataProvider
+): IProjectionSet;
+var
+  VConverter: ICoordConverter;
+begin
+  VConverter := GetCoordConverterByConfig(AConfig);
+  case VConverter.ProjectionType.ProjectionEPSG of
+    CGoogleProjectionEPSG: begin
+      Result := FProjectionSetGoogle;
+    end;
+    CYandexProjectionEPSG: begin
+      Result := FProjectionSetYandex;
+    end;
+    CGELonLatProjectionEPSG: begin
+      Result := FProjectionSetLonLat;
+    end;
+  else begin
+    Result := TProjectionSetSimple.Create(FHashFunction, VConverter);
+  end;
   end;
 end;
 

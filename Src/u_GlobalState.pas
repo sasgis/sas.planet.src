@@ -136,6 +136,8 @@ type
     FDatumFactory: IDatumFactory;
     FCoordConverterFactory: ICoordConverterFactory;
     FCoordConverterList: ICoordConverterList;
+    FProjectionSetFactory: IProjectionSetFactory;
+    FProjectionSetList: IProjectionSetList;
     FProjConverterFactory: IProjConverterFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -230,6 +232,8 @@ type
     property DatumFactory: IDatumFactory read FDatumFactory;
     property CoordConverterFactory: ICoordConverterFactory read FCoordConverterFactory;
     property CoordConverterList: ICoordConverterList read FCoordConverterList;
+    property ProjectionSetFactory: IProjectionSetFactory read FProjectionSetFactory;
+    property ProjectionSetList: IProjectionSetList read FProjectionSetList;
     property ProjectionFactory: IProjectionInfoFactory read FProjectionFactory;
     property ProjConverterFactory: IProjConverterFactory read FProjConverterFactory;
     property LocalConverterFactory: ILocalCoordConverterFactorySimpe read FLocalConverterFactory;
@@ -550,8 +554,10 @@ begin
 
   FDatumFactory := TDatumFactory.Create(FHashFunction);
   FCoordConverterFactory := TCoordConverterFactorySimple.Create(FHashFunction, FDatumFactory);
+  FProjectionSetFactory := FCoordConverterFactory as IProjectionSetFactory;
   FProjectionFactory := TProjectionInfoFactory.Create(FHashFunction, GSync.SyncVariable.Make(Self.ClassName));
-  FCoordConverterList := TCoordConverterListStaticSimple.Create(FCoordConverterFactory);
+  FCoordConverterList := TCoordConverterListStaticSimple.Create(FProjectionSetFactory);
+  FProjectionSetList := FCoordConverterList as IProjectionSetList;
   FLocalConverterFactory :=
     TLocalCoordConverterFactorySimpe.Create(
       TLocalCoordConverterFactory.Create(FHashFunction),

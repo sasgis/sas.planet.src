@@ -29,7 +29,7 @@ uses
 type
   TCoordConverterListStaticSimple = class(TCoordConverterListStatic)
   public
-    constructor Create(const AFactory: ICoordConverterFactory);
+    constructor Create(const AFactory: IProjectionSetFactory);
   end;
 
 implementation
@@ -37,23 +37,24 @@ implementation
 uses
   gnugettext,
   c_CoordConverter,
+  i_ProjectionSet,
   i_CoordConverter;
 
 { TCoordConverterListStaticSimple }
 
 constructor TCoordConverterListStaticSimple.Create;
 var
-  VConverter: ICoordConverter;
+  VProjectionSet: IProjectionSet;
 begin
   inherited Create;
-  VConverter := AFactory.GetCoordConverterByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256);
-  Add(VConverter, gettext_NoOp('Mercator / Google Maps (Sphere Radius 6378137) / EPSG:3785'));
+  VProjectionSet := AFactory.GetProjectionSetByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256);
+  Add(VProjectionSet, gettext_NoOp('Mercator / Google Maps (Sphere Radius 6378137) / EPSG:3785'));
 
-  VConverter := AFactory.GetCoordConverterByCode(CYandexProjectionEPSG, CTileSplitQuadrate256x256);
-  Add(VConverter, gettext_NoOp('Mercator / WGS84 / EPSG:3395'));
+  VProjectionSet := AFactory.GetProjectionSetByCode(CYandexProjectionEPSG, CTileSplitQuadrate256x256);
+  Add(VProjectionSet, gettext_NoOp('Mercator / WGS84 / EPSG:3395'));
 
-  VConverter := AFactory.GetCoordConverterByCode(CGELonLatProjectionEPSG, CTileSplitQuadrate256x256);
-  Add(VConverter, gettext_NoOp('Geographic (Latitude/Longitude) / WGS84 / EPSG:4326'));
+  VProjectionSet := AFactory.GetProjectionSetByCode(CGELonLatProjectionEPSG, CTileSplitQuadrate256x256);
+  Add(VProjectionSet, gettext_NoOp('Geographic (Latitude/Longitude) / WGS84 / EPSG:4326'));
 end;
 
 end.
