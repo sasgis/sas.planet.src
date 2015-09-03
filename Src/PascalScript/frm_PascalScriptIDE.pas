@@ -139,7 +139,7 @@ type
     FZmp: IZmpInfo;
     FZmpConfig: IZmpConfig;
     FGUIConfigList: IMapTypeGUIConfigList;
-    FCoordConverterFactory: ICoordConverterFactory;
+    FProjectionSetFactory: IProjectionSetFactory;
     FContentTypeManager: IContentTypeManager;
     FVersionFactory: IMapVersionFactory;
     FBufferFactory: IBitmap32BufferFactory;
@@ -176,7 +176,7 @@ type
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AMainMapState: IMainMapsState;
       const AZmpConfig: IZmpConfig;
-      const ACoordConverterFactory: ICoordConverterFactory;
+      const AProjectionSetFactory: IProjectionSetFactory;
       const AContentTypeManager: IContentTypeManager;
       const AVersionFactory: IMapVersionFactory;
       const ABufferFactory: IBitmap32BufferFactory;
@@ -262,7 +262,7 @@ constructor TfrmPascalScriptIDE.Create(
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AMainMapState: IMainMapsState;
   const AZmpConfig: IZmpConfig;
-  const ACoordConverterFactory: ICoordConverterFactory;
+  const AProjectionSetFactory: IProjectionSetFactory;
   const AContentTypeManager: IContentTypeManager;
   const AVersionFactory: IMapVersionFactory;
   const ABufferFactory: IBitmap32BufferFactory;
@@ -280,7 +280,7 @@ begin
   FGUIConfigList := AGUIConfigList;
   FMainMapState := AMainMapState;
   FZmpConfig := AZmpConfig;
-  FCoordConverterFactory := ACoordConverterFactory;
+  FProjectionSetFactory := AProjectionSetFactory;
   FContentTypeManager := AContentTypeManager;
   FVersionFactory := AVersionFactory;
   FBufferFactory := ABufferFactory;
@@ -491,7 +491,7 @@ begin
     TZmpInfo.Create(
       FZmpConfig,
       FLanguageManager,
-      FCoordConverterFactory,
+      FProjectionSetFactory,
       FContentTypeManager,
       FVersionFactory,
       FBitmapFactory,
@@ -514,7 +514,7 @@ begin
     TZmpInfo.Create(
       FZmpConfig,
       FLanguageManager,
-      FCoordConverterFactory,
+      FProjectionSetFactory,
       FContentTypeManager,
       FVersionFactory,
       FBitmapFactory,
@@ -560,7 +560,7 @@ begin
     TZmpInfo.Create(
       FZmpConfig,
       FLanguageManager,
-      FCoordConverterFactory,
+      FProjectionSetFactory,
       FContentTypeManager,
       FVersionFactory,
       FBitmapFactory,
@@ -626,7 +626,7 @@ begin
     VRequestHeader,
     FScriptBuffer,
     FLanguageManager.GetCurrentLanguageCode,
-    FZmp.GeoConvert as ICoordConverterSimple,
+    FZmp.ProjectionSet.GeoConvert as ICoordConverterSimple,
     VSimpleDownloader,
     nil,  // LastResponseInfo
     VSource,

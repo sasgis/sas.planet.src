@@ -941,6 +941,7 @@ uses
   i_MarkerProviderForVectorItem,
   i_FillingMapLayerConfig,
   i_PopUp,
+  i_ProjectionSet,
   i_CoordConverterList,
   i_BitmapLayerProviderChangeable,
   i_ObjectWithListener,
@@ -1164,7 +1165,7 @@ begin
       GState.MarksDb,
       GState.BitmapPostProcessing,
       GState.ProjectionFactory,
-      GState.CoordConverterList,
+      GState.ProjectionSetList,
       GState.VectorGeometryLonLatFactory,
       GState.VectorGeometryProjectedFactory,
       GState.ProjectedGeometryProvider,
@@ -1229,7 +1230,7 @@ begin
       GState.MapType.GUIConfigList,
       FMainMapState,
       GState.Config.ZmpConfig,
-      GState.CoordConverterFactory,
+      GState.ProjectionSetFactory,
       GState.ContentTypeManager,
       GState.MapVersionFactoryList.GetSimpleVersionFactory,
       GState.BufferFactory,
@@ -3105,25 +3106,25 @@ procedure TfrmMain.CreateProjectionMenu;
 
 var
   I: Integer;
-  VProjList: ICoordConverterList;
+  VProjList: IProjectionSetList;
   VViewPortState: IViewPortState;
-  VCoordConverter: ICoordConverter;
+  VProjectionSet: IProjectionSet;
 begin
-  VCoordConverter := nil;
+  VProjectionSet := nil;
 
-  VProjList := GState.CoordConverterList;
+  VProjList := GState.ProjectionSetList;
   Assert(VProjList <> nil);
 
   VViewPortState := FViewPortState;
   if Assigned(VViewPortState) then begin
-    VCoordConverter := VViewPortState.MainCoordConverter;
+    VProjectionSet := VViewPortState.MainProjectionSet;
   end;
 
   for I := 0 to VProjList.Count - 1 do begin
-    _AddItem(VProjList.Captions[I], I, (VProjList.Items[I].IsSameConverter(VCoordConverter)));
+    _AddItem(VProjList.Captions[I], I, (VProjList.Items[I].IsSame(VProjectionSet)));
   end;
 
-  _AddItem(_('Map Original Projection (from zmp)'), (VProjList.Count + 1), (VCoordConverter = nil));
+  _AddItem(_('Map Original Projection (from zmp)'), (VProjList.Count + 1), (VProjectionSet = nil));
 
   tbxsbmProjection.OnClick := Self.OnProjectionMenuShow;
 end;
@@ -3132,32 +3133,32 @@ procedure TfrmMain.OnProjectionMenuItemClick(Sender: TObject);
 var
   VIndex: Integer;
   VMenuItem: TTBXItem;
-  VProjList: ICoordConverterList;
+  VProjList: IProjectionSetList;
   VViewPortState: IViewPortState;
-  VNewCoordConverter: ICoordConverter;
-  VMainCoordConverter: ICoordConverter;
+  VNewProjectionSet: IProjectionSet;
+  VMainProjectionSet: IProjectionSet;
 begin
   VMenuItem := Sender as TTBXItem;
   if Assigned(VMenuItem) then begin
     VViewPortState := FViewPortState;
     if Assigned(VViewPortState) then begin
       VIndex := VMenuItem.Tag;
-      VProjList := GState.CoordConverterList;
+      VProjList := GState.ProjectionSetList;
       Assert(VProjList <> nil);
       if (VIndex >= 0) and (VProjList.Count > VIndex) then begin
-        VNewCoordConverter := VProjList.Items[VIndex];
-        if Assigned(VNewCoordConverter) then begin
-          VMainCoordConverter := VViewPortState.MainCoordConverter;
-          if Assigned(VMainCoordConverter) then begin
-            if not VMainCoordConverter.IsSameConverter(VNewCoordConverter) then begin
-              VViewPortState.MainCoordConverter := VNewCoordConverter;
+        VNewProjectionSet := VProjList.Items[VIndex];
+        if Assigned(VNewProjectionSet) then begin
+          VMainProjectionSet := VViewPortState.MainProjectionSet;
+          if Assigned(VMainProjectionSet) then begin
+            if not VMainProjectionSet.IsSame(VNewProjectionSet) then begin
+              VViewPortState.MainProjectionSet := VNewProjectionSet;
             end;
           end else begin
-            VViewPortState.MainCoordConverter := VNewCoordConverter;
+            VViewPortState.MainProjectionSet := VNewProjectionSet;
           end;
         end;
       end else begin
-        VViewPortState.MainCoordConverter := nil; // reset to default
+        VViewPortState.MainProjectionSet := nil; // reset to default
       end;
     end;
   end;
@@ -3166,23 +3167,23 @@ end;
 procedure TfrmMain.OnProjectionMenuShow(Sender: TObject);
 var
   I: Integer;
-  VProjList: ICoordConverterList;
+  VProjList: IProjectionSetList;
   VViewPortState: IViewPortState;
-  VCoordConverter: ICoordConverter;
+  VProjectionSet: IProjectionSet;
 begin
-  VCoordConverter := nil;
+  VProjectionSet := nil;
 
-  VProjList := GState.CoordConverterList;
+  VProjList := GState.ProjectionSetList;
   Assert(VProjList <> nil);
 
   VViewPortState := FViewPortState;
   if Assigned(VViewPortState) then begin
-    VCoordConverter := VViewPortState.MainCoordConverter;
+    VProjectionSet := VViewPortState.MainProjectionSet;
   end;
 
-  if Assigned(VCoordConverter) then begin
+  if Assigned(VProjectionSet) then begin
     for I := 0 to VProjList.Count - 1 do begin
-      if VProjList.Items[I].IsSameConverter(VCoordConverter) then begin
+      if VProjList.Items[I].IsSame(VProjectionSet) then begin
         tbxsbmProjection.Items[I].Checked := True;
       end;
     end;
@@ -4245,7 +4246,8 @@ end;
 procedure TfrmMain.NextMapWithTile(AStep: integer);
 var
   VMapType: IMapType;
-  VZoomCurr: Byte;
+  VProjection: IProjectionInfo;
+  VMapProjection: IProjectionInfo;
   VLocalConverter: ILocalCoordConverter;
   VMapTile: Tpoint;
   VVersion: IMapVersionRequest;
@@ -4260,7 +4262,7 @@ var
 begin
   VActiveMapGUID := FMainMapState.ActiveMap.GetStatic.GUID;
   VLocalConverter := FViewPortState.View.GetStatic;
-  VZoomCurr := VLocalConverter.GetZoom;
+  VProjection := VLocalConverter.ProjectionInfo;
   VLonLat := VLocalConverter.GetCenterLonLat;
   VGUIDList := GState.MapType.GUIConfigList.OrderedMapGUIDList;
   VNextMapGuid := VActiveMapGUID;
@@ -4277,13 +4279,14 @@ begin
     VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID);
     if VMapType <> nil  then begin
       if (not VMapType.Zmp.IsLayer) and (VMapType.GUIConfig.Enabled)then begin
+        VMapProjection := VMapType.ProjectionSet.GetSuitableProjection(VProjection);
         VMapTile :=
-        PointFromDoublePoint(
-            VMapType.GeoConvert.LonLat2TilePosFloat(VLonLat, VZoomCurr),
+          PointFromDoublePoint(
+            VMapProjection.LonLat2TilePosFloat(VLonLat),
             prToTopLeft
           );
         VVersion := VMapType.VersionRequestConfig.GetStatic;
-        VTileInfo := VMapType.TileStorage.GetTileInfoEx(VMapTile, VZoomCurr, VVersion, gtimAsIs);
+        VTileInfo := VMapType.TileStorage.GetTileInfoEx(VMapTile, VMapProjection.Zoom, VVersion, gtimAsIs);
         if Assigned(VTileInfo) and VTileInfo.GetIsExists then begin
           VNextMapGuid := VGUID;
           break;
@@ -4301,7 +4304,8 @@ var
   I: Integer;
   VMapType: IMapType;
   VLocalConverter: ILocalCoordConverter;
-  VZoomCurr: Byte;
+  VProjection: IProjectionInfo;
+  VMapProjection: IProjectionInfo;
   VList: IMapVersionListStatic;
   VMapTile: Tpoint;
   VLonLat: TDoublePoint;
@@ -4311,15 +4315,16 @@ begin
   if VMapType.TileStorage.StorageTypeAbilities.IsVersioned then begin
     VLocalConverter := FViewPortState.View.GetStatic;
     VIndex := -1;
-    VZoomCurr := VLocalConverter.GetZoom;
+    VProjection := VLocalConverter.ProjectionInfo;
     VLonLat := VLocalConverter.GetCenterLonLat;
-    if VMapType.GeoConvert.CheckLonLatPos(VLonLat) then begin
+    VMapProjection := VMapType.ProjectionSet.GetSuitableProjection(VProjection);
+    if VMapProjection.ProjectionType.CheckLonLatPos(VLonLat) then begin
       VMapTile :=
         PointFromDoublePoint(
-          VMapType.GeoConvert.LonLat2TilePosFloat(VLonLat, VZoomCurr),
+          VMapProjection.LonLat2TilePosFloat(VLonLat),
           prToTopLeft
         );
-      VList := VMapType.TileStorage.GetListOfTileVersions(VMapTile, VZoomCurr, nil);
+      VList := VMapType.TileStorage.GetListOfTileVersions(VMapTile, VMapProjection.Zoom, nil);
       if Vlist <> nil then begin
         for I := 0 to VList.Count - 1 do begin
           if VMapType.VersionRequestConfig.Version.IsSame(VList.Item[i]) then begin
@@ -4352,7 +4357,7 @@ var
   VMouseMapPoint: TDoublePoint;
   VLonLat: TDoublePoint;
   VMapTile: Tpoint;
-  VMapZoom: Byte;
+  VMapProjection: IProjectionInfo;
   I: Integer;
   VMenuItem: TTBXItemSelectMapVersion;
   VCurrentVersion: String;
@@ -4387,18 +4392,18 @@ begin
     VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, False);
     VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
 
-    VMapZoom := VProjection.Zoom; // TODO: Calc Zoom for map projection set
+    VMapProjection := VMapType.ProjectionSet.GetSuitableProjection(VProjection);
     // to map
     VMapTile :=
       PointFromDoublePoint(
-        VMapType.GeoConvert.LonLat2TilePosFloat(VLonLat, VMapZoom),
+        VMapProjection.LonLat2TilePosFloat(VLonLat),
         prToTopLeft
       );
     // get current version
     VVersion := VMapType.VersionRequestConfig.GetStatic;
     VCurrentVersion := VVersion.BaseVersion.StoreString;
     tbpmiShowPrevVersion.Checked := VVersion.ShowPrevVersion;
-    VList := VMapType.TileStorage.GetListOfTileVersions(VMapTile, VMapZoom, VVersion);
+    VList := VMapType.TileStorage.GetListOfTileVersions(VMapTile, VMapProjection.Zoom, VVersion);
     VVersion := nil;
     // parse list
     if Assigned(VList) then begin
@@ -4767,20 +4772,17 @@ end;
 
 procedure TfrmMain.tbitmCopyToClipboardGenshtabNameClick(Sender: TObject);
 var
-  VMapType: IMapType;
   VLocalConverter: ILocalCoordConverter;
   VProjection: IProjectionInfo;
   VMouseMapPoint: TDoublePoint;
   VMouseLonLat: TDoublePoint;
   VListName: Widestring;
 begin
-  VMapType := FMainMapState.ActiveMap.GetStatic;
   VLocalConverter := FViewPortState.View.GetStatic;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VProjection := VLocalConverter.ProjectionInfo;
   VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, True);
   VMouseLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
-  VMapType.GeoConvert.ValidateLonLatPos(VMouseLonLat);
   if FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible then begin
     VListName := LonLat2GShListName(VMouseLonLat, GetActualGshSCale(FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale, VProjection.Zoom), 100000000);
   end else begin
@@ -4791,7 +4793,7 @@ end;
 
 procedure TfrmMain.tbitmCopyToClipboardMainMapTileFileNameClick(Sender: TObject);
 var
-  VMapZoom: Byte;
+  VMapProjection: IProjectionInfo;
   VMapType: IMapType;
   VLocalConverter: ILocalCoordConverter;
   VProjection: IProjectionInfo;
@@ -4805,23 +4807,23 @@ begin
   VProjection := VLocalConverter.ProjectionInfo;
   VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, True);
   VMouseLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
-  VMapType.GeoConvert.ValidateLonLatPos(VMouseLonLat);
-  VMapZoom := VProjection.Zoom; // TODO: Calc Zoom for map projection set
+  VMapProjection := VMapType.ProjectionSet.GetSuitableProjection(VProjection);
+  VMapProjection.ProjectionType.ValidateLonLatPos(VMouseLonLat);
 
   VTile :=
     PointFromDoublePoint(
-      VMapType.GeoConvert.LonLat2TilePosFloat(VMouseLonLat, VMapZoom),
+      VMapProjection.LonLat2TilePosFloat(VMouseLonLat),
       prToTopLeft
     );
 
-  CopyStringToClipboard(Handle, VMapType.TileStorage.GetTileFileName(VTile, VMapZoom, VMapType.VersionRequestConfig.GetStatic.BaseVersion));
+  CopyStringToClipboard(Handle, VMapType.TileStorage.GetTileFileName(VTile, VMapProjection.Zoom, VMapType.VersionRequestConfig.GetStatic.BaseVersion));
 end;
 
 procedure TfrmMain.tbitmDownloadMainMapTileClick(Sender: TObject);
 var
   path: string;
   VMapType: IMapType;
-  VMapZoom: Byte;
+  VMapProjection: IProjectionInfo;
   VLocalConverter: ILocalCoordConverter;
   VProjection: IProjectionInfo;
   VMouseMapPoint: TDoublePoint;
@@ -4841,24 +4843,24 @@ begin
   VProjection := VLocalConverter.ProjectionInfo;
   if VProjection.CheckPixelPosFloatStrict(VMouseMapPoint) then begin
     VMouseLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
-    if VMapType.GeoConvert.CheckLonLatPos(VMouseLonLat) then begin
-      VMapZoom := VProjection.Zoom; // TODO: Calc Zoom for map projection set
+    VMapProjection := VMapType.ProjectionSet.GetSuitableProjection(VProjection);
+    if VMapProjection.ProjectionType.CheckLonLatPos(VMouseLonLat) then begin
       VTile :=
         PointFromDoublePoint(
-          VMapType.GeoConvert.LonLat2TilePosFloat(VMouseLonLat, VMapZoom),
+          VMapProjection.LonLat2TilePosFloat(VMouseLonLat),
           prToTopLeft
         );
 
       VVersion := VMapType.VersionRequestConfig.GetStatic.BaseVersion;
-      path := VMapType.GetTileShowName(VTile, VMapZoom, VVersion);
-      VTileInfo := VMapType.TileStorage.GetTileInfo(VTile, VMapZoom, VVersion, gtimAsIs);
+      path := VMapType.GetTileShowName(VTile, VMapProjection.Zoom, VVersion);
+      VTileInfo := VMapType.TileStorage.GetTileInfo(VTile, VMapProjection.Zoom, VVersion, gtimAsIs);
       if not VTileInfo.GetIsExists or
         (MessageBox(handle, pchar(Format(SAS_MSG_TileExists, [path])), pchar(SAS_MSG_coution), 36) = IDYES) then begin
         TTileDownloaderUIOneTile.Create(
           GState.Config.DownloaderThreadConfig,
           GState.AppClosingNotifier,
           VTile,
-          VMapZoom,
+          VMapProjection.Zoom,
           VMapType,
           VVersion,
           GState.DownloadInfo,
@@ -4909,7 +4911,7 @@ end;
 
 procedure TfrmMain.NopendirClick(Sender: TObject);
 var
-  VMapZoom: Byte;
+  VMapProjection: IProjectionInfo;
   VLocalConverter: ILocalCoordConverter;
   VProjection: IProjectionInfo;
   VMouseMapPoint: TDoublePoint;
@@ -4925,14 +4927,14 @@ begin
     VProjection := VLocalConverter.ProjectionInfo;
     VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, True);
     VMouseLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
-    VMapType.GeoConvert.ValidateLonLatPos(VMouseLonLat);
-    VMapZoom := VProjection.Zoom; // TODO: Calc Zoom for map projection set
+    VMapProjection := VMapType.ProjectionSet.GetSuitableProjection(VProjection);
+    VMapProjection.ProjectionType.ValidateLonLatPos(VMouseLonLat);
     VTile :=
       PointFromDoublePoint(
-        VMapType.GeoConvert.LonLat2TilePosFloat(VMouseLonLat, VMapZoom),
+        VMapProjection.LonLat2TilePosFloat(VMouseLonLat),
         prToTopLeft
       );
-    VFileName := VMapType.TileStorage.GetTileFileName(VTile, VMapZoom, VMapType.VersionRequestConfig.GetStatic.BaseVersion);
+    VFileName := VMapType.TileStorage.GetTileFileName(VTile, VMapProjection.Zoom, VMapType.VersionRequestConfig.GetStatic.BaseVersion);
     if FileExists(VFileName) then begin
       OpenFileInDefaultProgram(VFileName);
     end else begin
@@ -4947,7 +4949,7 @@ procedure TfrmMain.tbitmOpenFolderMainMapTileClick(Sender: TObject);
 var
   VTilePath: string;
   VTileFileName: string;
-  VMapZoom: Byte;
+  VMapProjection: IProjectionInfo;
   VLocalConverter: ILocalCoordConverter;
   VProjection: IProjectionInfo;
   VMouseMapPoint: TDoublePoint;
@@ -4966,14 +4968,14 @@ begin
   VProjection := VLocalConverter.ProjectionInfo;
   VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, True);
   VMouseLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
-  VMapType.GeoConvert.ValidateLonLatPos(VMouseLonLat);
-  VMapZoom := VProjection.Zoom; // TODO: Calc Zoom for map projection set
+  VMapProjection := VMapType.ProjectionSet.GetSuitableProjection(VProjection);
+  VMapProjection.ProjectionType.ValidateLonLatPos(VMouseLonLat);
   VTile :=
     PointFromDoublePoint(
-      VMapType.GeoConvert.LonLat2TilePosFloat(VMouseLonLat, VMapZoom),
+      VMapProjection.LonLat2TilePosFloat(VMouseLonLat),
       prToTopLeft
     );
-  VTileFileName := VMapType.TileStorage.GetTileFileName(VTile, VMapZoom, VMapType.VersionRequestConfig.GetStatic.BaseVersion);
+  VTileFileName := VMapType.TileStorage.GetTileFileName(VTile, VMapProjection.Zoom, VMapType.VersionRequestConfig.GetStatic.BaseVersion);
   VTilePath := ExtractFilePath(VTileFileName);
   if DirectoryExists(VTilePath) then begin
     if FileExists(VTileFileName) then begin
@@ -5125,7 +5127,7 @@ procedure TfrmMain.NDelClick(Sender: TObject);
 var
   s: string;
   VMapType: IMapType;
-  VMapZoom: Byte;
+  VMapProjection: IProjectionInfo;
   VLocalConverter: ILocalCoordConverter;
   VProjection: IProjectionInfo;
   VMouseMapPoint: TDoublePoint;
@@ -5145,18 +5147,18 @@ begin
   VProjection := VLocalConverter.ProjectionInfo;
   if VProjection.CheckPixelPosFloatStrict(VMouseMapPoint) then begin
     VMouseLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
-    if VMapType.GeoConvert.CheckLonLatPos(VMouseLonLat) then begin
-      VMapZoom := VProjection.Zoom; // TODO: Calc Zoom for map projection set
+    VMapProjection := VMapType.ProjectionSet.GetSuitableProjection(VProjection);
+    if VMapProjection.ProjectionType.CheckLonLatPos(VMouseLonLat) then begin
       VTile :=
         PointFromDoublePoint(
-          VMapType.GeoConvert.LonLat2TilePosFloat(VMouseLonLat, VMapZoom),
+          VMapProjection.LonLat2TilePosFloat(VMouseLonLat),
           prToTopLeft
         );
       VVersion := VMapType.VersionRequestConfig.GetStatic.BaseVersion;
-      s := VMapType.GetTileShowName(VTile, VMapZoom, VVersion);
+      s := VMapType.GetTileShowName(VTile, VMapProjection.Zoom, VVersion);
       VMessage := Format(SAS_MSG_DeleteTileOneTileAsk, [s]);
       if (MessageBox(handle, pchar(VMessage), pchar(SAS_MSG_coution), 36) = IDYES) then begin
-        VMapType.TileStorage.DeleteTile(VTile, VMapZoom, VVersion);
+        VMapType.TileStorage.DeleteTile(VTile, VMapProjection.Zoom, VVersion);
       end;
     end;
   end;
@@ -5831,7 +5833,7 @@ end;
 
 procedure TfrmMain.tbitmCopyToClipboardMainMapUrlClick(Sender: TObject);
 var
-  VMapZoom: Byte;
+  VMapProjection: IProjectionInfo;
   VMapType: IMapType;
   VLocalConverter: ILocalCoordConverter;
   VProjection: IProjectionInfo;
@@ -5850,14 +5852,14 @@ begin
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
     VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, True);
     VMouseLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
-    VMapType.GeoConvert.ValidateLonLatPos(VMouseLonLat);
-    VMapZoom := VProjection.Zoom; // TODO: Calc Zoom for map projection set
+    VMapProjection := VMapType.ProjectionSet.GetSuitableProjection(VProjection);
+    VMapProjection.ProjectionType.ValidateLonLatPos(VMouseLonLat);
     VTile :=
       PointFromDoublePoint(
-        VMapType.GeoConvert.LonLat2TilePosFloat(VMouseLonLat, VMapZoom),
+        VMapProjection.LonLat2TilePosFloat(VMouseLonLat),
         prToTopLeft
       );
-    CopyStringToClipboard(Handle, VMapType.TileDownloadSubsystem.GetLink(VTile, VMapZoom, VMapType.VersionRequestConfig.GetStatic.BaseVersion));
+    CopyStringToClipboard(Handle, VMapType.TileDownloadSubsystem.GetLink(VTile, VMapProjection.Zoom, VMapType.VersionRequestConfig.GetStatic.BaseVersion));
   end;
 end;
 
@@ -6208,7 +6210,7 @@ procedure TfrmMain.mapMouseUp(
   Layer: TCustomLayer
 );
 var
-  VMapZoom: Byte;
+  VMapProjection: IProjectionInfo;
   VSelectionRect: TDoubleRect;
   VSelectionFinished: Boolean;
   VPoly: IGeometryLonLatPolygon;
@@ -6262,15 +6264,15 @@ begin
     if VValidPoint then begin
       VMapType := FMainMapState.ActiveMap.GetStatic;
       VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
-      if VMapType.GeoConvert.CheckLonLatPos(VLonLat) then begin
-        VMapZoom := VProjection.Zoom; // TODO: Calc Zoom for map projection set
+      VMapProjection := VMapType.ProjectionSet.GetSuitableProjection(VProjection);
+      if VMapProjection.ProjectionType.CheckLonLatPos(VLonLat) then begin
         VTile :=
           PointFromDoublePoint(
-            VMapType.GeoConvert.LonLat2TilePosFloat(VLonLat, VMapZoom),
+            VMapProjection.LonLat2TilePosFloat(VLonLat),
             prToTopLeft
           );
         if HiWord(GetKeyState(VK_DELETE)) <> 0 then begin
-          VMapType.TileStorage.DeleteTile(VTile, VMapZoom, VMapType.VersionRequestConfig.GetStatic.BaseVersion);
+          VMapType.TileStorage.DeleteTile(VTile, VMapProjection.Zoom, VMapType.VersionRequestConfig.GetStatic.BaseVersion);
           Exit;
         end;
         if HiWord(GetKeyState(VK_INSERT)) <> 0 then begin
@@ -6278,7 +6280,7 @@ begin
             GState.Config.DownloaderThreadConfig,
             GState.AppClosingNotifier,
             VTile,
-            VMapZoom,
+            VMapProjection.Zoom,
             VMapType,
             VMapType.VersionRequestConfig.GetStatic.BaseVersion,
             GState.DownloadInfo,

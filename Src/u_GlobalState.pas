@@ -755,7 +755,7 @@ begin
   FZmpInfoSet :=
     TZmpInfoSet.Create(
       FGlobalConfig.ZmpConfig,
-      FCoordConverterFactory,
+      FProjectionSetFactory,
       FArchiveReadWriteFactory,
       FContentTypeManager,
       FMapVersionFactoryList.GetSimpleVersionFactory,
@@ -1075,7 +1075,7 @@ begin
     FGlobalConfig.DownloaderThreadConfig,
     FBitmap32StaticFactory,
     FContentTypeManager,
-    FCoordConverterFactory,
+    FProjectionSetFactory,
     FProjectionFactory,
     FInvisibleBrowser,
     FProjConverterFactory,

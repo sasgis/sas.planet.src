@@ -132,6 +132,7 @@ uses
   gnugettext,
   t_GeoTypes,
   i_MapVersionRequest,
+  i_ProjectionInfo,
   i_GeometryProjected,
   u_GeoFunc,
   u_GeometryFunc,
@@ -161,6 +162,7 @@ var
   VTilesCountTotal: Int64;
   VMapType: IMapType;
   VZoom: byte;
+  VProjection: IProjectionInfo;
   VPolyLL: IGeometryLonLatPolygon;
   VProjected: IGeometryProjectedPolygon;
   VLine: IGeometryProjectedSinglePolygon;
@@ -179,19 +181,20 @@ begin
 
   if VMapType <> nil then begin
     VZoom := cbbZoom.ItemIndex;
-    VMapType.GeoConvert.ValidateZoom(VZoom);
+    VMapType.ProjectionSet.ValidateZoom(VZoom);
+    VProjection := VMapType.ProjectionSet[VZoom];
     VPolyLL := FPolygLL;
     if VPolyLL <> nil then begin
       VProjected :=
         FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-          FProjectionFactory.GetByConverterAndZoom(VMapType.GeoConvert, VZoom),
+          VProjection,
           VPolyLL
         );
       VLine := GetProjectedSinglePolygonByProjectedPolygon(VProjected);
       if Assigned(VLine) then begin
         VBounds := VLine.Bounds;
         VPixelRect := RectFromDoubleRect(VBounds, rrOutside);
-        VTileRect := VMapType.GeoConvert.PixelRect2TileRect(VPixelRect, VZoom);
+        VTileRect := VProjection.PixelRect2TileRect(VPixelRect);
 
         VTilesCountRow := (VTileRect.Right - VTileRect.Left) * (256 div VTileSize);
         VTilesCountCol := (VTileRect.Bottom - VTileRect.Top) * (256 div VTileSize);

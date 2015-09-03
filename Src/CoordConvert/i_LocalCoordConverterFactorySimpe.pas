@@ -72,7 +72,7 @@ type
     ): ILocalCoordConverter;
     function ChangeConverter(
       const ASource: ILocalCoordConverter;
-      const AConverter: ICoordConverter
+      const AProjection: IProjectionInfo
     ): ILocalCoordConverter;
 
     function CreateForTile(

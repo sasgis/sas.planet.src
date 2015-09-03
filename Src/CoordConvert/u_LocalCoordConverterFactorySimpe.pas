@@ -79,7 +79,7 @@ type
     ): ILocalCoordConverter;
     function ChangeConverter(
       const ASource: ILocalCoordConverter;
-      const AConverter: ICoordConverter
+      const AProjection: IProjectionInfo
     ): ILocalCoordConverter;
 
     function CreateForTile(
@@ -252,10 +252,9 @@ end;
 
 function TLocalCoordConverterFactorySimpe.ChangeConverter(
   const ASource: ILocalCoordConverter;
-  const AConverter: ICoordConverter
+  const AProjection: IProjectionInfo
 ): ILocalCoordConverter;
 var
-  VProjection: IProjectionInfo;
   VLocalRect: TRect;
   VLocalCenter: TDoublePoint;
   VScale: Double;
@@ -263,22 +262,21 @@ var
   VCenterMapPixelNew: TDoublePoint;
   VTopLefAtMap: TDoublePoint;
 begin
-  if AConverter = nil then begin
+  if AProjection = nil then begin
     Result := ASource;
     Exit;
   end;
 
-  if ASource.GeoConverter.IsSameConverter(AConverter) then begin
+  if ASource.ProjectionInfo.GetIsSameProjectionInfo(AProjection) then begin
     Result := ASource;
     Exit;
   end;
   VCenterLonLat := ASource.GetCenterLonLat;
-  AConverter.ValidateLonLatPos(VCenterLonLat);
-  VProjection := FProjectionFactory.GetByConverterAndZoom(AConverter, ASource.Zoom);
+  AProjection.ProjectionType.ValidateLonLatPos(VCenterLonLat);
   VScale := ASource.GetScale;
   VLocalRect := ASource.GetLocalRect;
 
-  VCenterMapPixelNew := VProjection.LonLat2PixelPosFloat(VCenterLonLat);
+  VCenterMapPixelNew := AProjection.LonLat2PixelPosFloat(VCenterLonLat);
   VLocalCenter := RectCenter(VLocalRect);
   VTopLefAtMap.X := VCenterMapPixelNew.X - VLocalCenter.X / VScale;
   VTopLefAtMap.Y := VCenterMapPixelNew.Y - VLocalCenter.Y / VScale;
@@ -286,7 +284,7 @@ begin
   Result :=
     CreateConverter(
       VLocalRect,
-      VProjection,
+      AProjection,
       VScale,
       VTopLefAtMap
     );

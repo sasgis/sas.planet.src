@@ -50,7 +50,7 @@ type
       const ACancelNotifier: INotifierOperation;
       const AElements: IVectorItemSubsetBuilder;
       const AAlayer: IMapType;
-      const AZoom: Byte;
+      const AProjection: IProjectionInfo;
       const ATileSelectLonLatRect: TDoubleRect;
       const AItemSelectLonLatRect: TDoubleRect
     );
@@ -130,12 +130,12 @@ procedure TVectorTileProviderForVectorLayers.AddElementsFromMap(
   const ACancelNotifier: INotifierOperation;
   const AElements: IVectorItemSubsetBuilder;
   const AAlayer: IMapType;
-  const AZoom: Byte;
+  const AProjection: IProjectionInfo;
   const ATileSelectLonLatRect: TDoubleRect;
   const AItemSelectLonLatRect: TDoubleRect
 );
 var
-  VSourceGeoConvert: ICoordConverter;
+  VSourceProjection: IProjectionInfo;
   VTileSelectLonLatRect: TDoubleRect;
   VTileSourceRect: TRect;
   VTileIterator: TTileIteratorByRectRecord;
@@ -148,13 +148,13 @@ var
   VItem: IVectorDataItem;
   VBounds: ILonLatRect;
 begin
-  VSourceGeoConvert := AAlayer.GeoConvert;
+  VSourceProjection := AAlayer.ProjectionSet.GetSuitableProjection(AProjection);
   VVersion := AAlayer.VersionRequestConfig.GetStatic;
   VTileSelectLonLatRect := ATileSelectLonLatRect;
-  VSourceGeoConvert.ValidateLonLatRect(VTileSelectLonLatRect);
+  VSourceProjection.ProjectionType.ValidateLonLatRect(VTileSelectLonLatRect);
   VTileSourceRect :=
     RectFromDoubleRect(
-      VSourceGeoConvert.LonLatRect2TileRectFloat(VTileSelectLonLatRect, AZoom),
+      VSourceProjection.LonLatRect2TileRectFloat(VTileSelectLonLatRect),
       rrOutside
     );
   VTileIterator.Init(VTileSourceRect);
@@ -162,7 +162,7 @@ begin
   while VTileIterator.Next(VTile) do begin
     VErrorString := '';
     try
-      VItems := AAlayer.LoadTileVector(VTile, AZoom, VVersion, False, AAlayer.CacheVector);
+      VItems := AAlayer.LoadTileVector(VTile, VSourceProjection.Zoom, VVersion, False, AAlayer.CacheVector);
       if VItems <> nil then begin
         if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
           Break;
@@ -189,7 +189,7 @@ begin
       VError :=
         TTileErrorInfo.Create(
           AAlayer.Zmp.GUID,
-          AZoom,
+          VSourceProjection.Zoom,
           VTile,
           VErrorString
         );
@@ -209,7 +209,6 @@ var
   VElements: IVectorItemSubsetBuilder;
   i: Integer;
   VMapType: IMapType;
-  VZoom: Byte;
   VTileSelectPixelRect: TDoubleRect;
   VItemSelectPixelRect: TDoubleRect;
   VTileSelectLonLatRect: TDoubleRect;
@@ -236,7 +235,6 @@ begin
 
     AProjectionInfo.ValidatePixelRectFloat(VItemSelectPixelRect);
     VItemSelectLonLatRect := AProjectionInfo.PixelRectFloat2LonLatRect(VItemSelectPixelRect);
-    VZoom := AProjectionInfo.Zoom;
     VElements := FSubsetBuilderFactory.Build;
     for i := 0 to FLayersSet.Count - 1 do begin
       VMapType := FLayersSet.Items[i];
@@ -246,7 +244,7 @@ begin
           ACancelNotifier,
           VElements,
           VMapType,
-          VZoom,
+          AProjectionInfo,
           VTileSelectLonLatRect,
           VItemSelectLonLatRect
         );

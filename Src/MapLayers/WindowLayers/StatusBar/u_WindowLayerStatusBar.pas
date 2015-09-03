@@ -328,6 +328,7 @@ var
   VTile: TPoint;
   VMapType: IMapType;
   VProjection: IProjectionInfo;
+  VMapProjection: IProjectionInfo;
   VPixelsAtZoom: Double;
   VCurrentTick: DWORD;
   VMousePos: TPoint;
@@ -419,10 +420,11 @@ begin
       VOffset.X := VOffset.X + Layer.Bitmap.TextWidth(VString) + 20;
       VTileNameWidthAviable := Layer.Bitmap.Width - VOffset.X;
 
-      if VMapType.GeoConvert.CheckLonLatPos(VLonLat) then begin
+      VMapProjection := VMapType.ProjectionSet.GetSuitableProjection(VProjection);
+      if VMapProjection.ProjectionType.CheckLonLatPos(VLonLat) then begin
         VTile :=
           PointFromDoublePoint(
-            VMapType.GeoConvert.LonLat2TilePosFloat(VLonLat, VProjection.Zoom),
+            VMapProjection.LonLat2TilePosFloat(VLonLat),
             prToTopLeft
           );
 

@@ -118,7 +118,7 @@ begin
   VZoom := (ParamsFrame as IRegionProcessParamsFrameOneZoom).Zoom;
   VPath := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
 
-  VProjection := FProjectionFactory.GetByConverterAndZoom(VMapType.GeoConvert, VZoom);
+  VProjection := VMapType.ProjectionSet[VZoom];
   VProjectedPolygon :=
     FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
       VProjection,

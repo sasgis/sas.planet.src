@@ -27,6 +27,8 @@ uses
   i_ObjectWithListener,
   i_Listener,
   i_FillingMapLayerConfig,
+  i_ProjectionInfo,
+  i_ProjectionSet,
   i_MapType,
   i_TileRect,
   u_BaseInterfacedObject;
@@ -45,9 +47,10 @@ type
 
     FListener: IListener;
     FListenTileRect: ITileRect;
-    function GetActualZoom(
+    function GetActualProjection(
+      const AProjectionSet: IProjectionSet;
       const ATileRect: ITileRect
-    ): Byte;
+    ): IProjectionInfo;
     procedure OnTileUpdate(const AMsg: IInterface);
     procedure OnMapChange;
 
@@ -81,7 +84,6 @@ uses
   t_GeoTypes,
   i_LonLatRect,
   i_CoordConverter,
-  i_ProjectionInfo,
   i_NotifierTilePyramidUpdate,
   u_ListenerByEvent,
   u_TileUpdateListenerToLonLat,
@@ -126,21 +128,24 @@ begin
   inherited;
 end;
 
-function TSourceDataUpdateInRectByFillingMap.GetActualZoom(
+function TSourceDataUpdateInRectByFillingMap.GetActualProjection(
+  const AProjectionSet: IProjectionSet;
   const ATileRect: ITileRect
-): Byte;
+): IProjectionInfo;
 var
   VZoom: Integer;
+  VResult: Byte;
 begin
   VZoom := FConfig.GetStatic.Zoom;
   if FConfig.GetStatic.UseRelativeZoom then begin
     VZoom := VZoom + ATileRect.ProjectionInfo.GetZoom;
   end;
   if VZoom < 0 then begin
-    Result := 0;
+    Result := AProjectionSet.Zooms[0];
   end else begin
-    Result := VZoom;
-    ATileRect.ProjectionInfo.GeoConverter.ValidateZoom(Result);
+    VResult := VZoom;
+    AProjectionSet.ValidateZoom(VResult);
+    Result := AProjectionSet.Zooms[VResult];
   end;
 end;
 
@@ -251,11 +256,10 @@ procedure TSourceDataUpdateInRectByFillingMap._SetListener(
   const ATileRect: ITileRect
 );
 var
-  VSourceZoom: Byte;
+  VSourceProjection: IProjectionInfo;
   VTileRect: TRect;
   VLonLatRect: TDoubleRect;
   VProjection: IProjectionInfo;
-  VConverter: ICoordConverter;
   VMapLonLatRect: TDoubleRect;
   VNotifier: INotifierTilePyramidUpdate;
 begin
@@ -264,16 +268,15 @@ begin
     VLonLatRect := VProjection.TileRect2LonLatRect(ATileRect.Rect);
     VNotifier := AMapListened.TileStorage.TileNotifier;
     if VNotifier <> nil then begin
-      VConverter := AMapListened.GeoConvert;
       VMapLonLatRect := VLonLatRect;
-      VConverter.ValidateLonLatRect(VMapLonLatRect);
-      VSourceZoom := GetActualZoom(ATileRect);
+      VSourceProjection := GetActualProjection(AMapListened.ProjectionSet, ATileRect);
+      VSourceProjection.ProjectionType.ValidateLonLatRect(VMapLonLatRect);
       VTileRect :=
         RectFromDoubleRect(
-          VConverter.LonLatRect2TileRectFloat(VMapLonLatRect, VSourceZoom),
+          VSourceProjection.LonLatRect2TileRectFloat(VMapLonLatRect),
           rrOutside
         );
-      VNotifier.AddListenerByRect(FMapListener, VSourceZoom, VTileRect);
+      VNotifier.AddListenerByRect(FMapListener, VSourceProjection.Zoom, VTileRect);
     end;
   end;
 end;

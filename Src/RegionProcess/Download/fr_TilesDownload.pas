@@ -138,6 +138,7 @@ uses
   Math,
   Dialogs,
   t_GeoTypes,
+  i_ProjectionInfo,
   i_GeometryProjected,
   u_GeoFunc,
   u_ResStrings;
@@ -152,6 +153,7 @@ function TfrTilesDownload.GetZoomInfo(
 ): Boolean;
 var
   VZoom: Byte;
+  VProjection: IProjectionInfo;
   VBounds: TDoubleRect;
   VPolyLL: IGeometryLonLatPolygon;
   VProjected: IGeometryProjectedPolygon;
@@ -159,18 +161,19 @@ begin
   Result := False;
   if AMapType <> nil then begin
     VZoom := AZoom;
-    AMapType.GeoConvert.ValidateZoom(VZoom);
+    AMapType.ProjectionSet.ValidateZoom(VZoom);
+    VProjection := AMapType.ProjectionSet[VZoom];
     VPolyLL := FPolygLL;
     if VPolyLL <> nil then begin
       VProjected :=
         FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-          FProjectionFactory.GetByConverterAndZoom(AMapType.GeoConvert, VZoom),
+          VProjection,
           VPolyLL
         );
       if Assigned(VProjected) then begin
         VBounds := VProjected.Bounds;
         APixelRect := RectFromDoubleRect(VBounds, rrOutside);
-        ATileRect := AMapType.GeoConvert.PixelRect2TileRect(APixelRect, VZoom);
+        ATileRect := VProjection.PixelRect2TileRect(APixelRect);
         ATilesCount :=
           (ATileRect.Right - ATileRect.Left) * (ATileRect.Bottom - ATileRect.Top);
         Result := True;

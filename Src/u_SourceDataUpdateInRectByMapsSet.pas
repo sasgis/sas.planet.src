@@ -77,7 +77,7 @@ uses
   t_GeoTypes,
   i_InterfaceListSimple,
   i_LonLatRect,
-  i_CoordConverter,
+  i_ProjectionInfo,
   i_NotifierTilePyramidUpdate,
   i_MapType,
   u_InterfaceListSimple,
@@ -230,30 +230,29 @@ procedure TSourceDataUpdateInRectByMapsSet._SetListeners(
 var
   i: Integer;
   VMap: IMapType;
-  VZoom: Byte;
+  VProjection: IProjectionInfo;
   VTileRect: TRect;
   VLonLatRect: TDoubleRect;
-  VConverter: ICoordConverter;
+  VMapProjection: IProjectionInfo;
   VMapLonLatRect: TDoubleRect;
   VNotifier: INotifierTilePyramidUpdate;
 begin
-  VZoom := ATileRect.ProjectionInfo.Zoom;
-  VConverter := ATileRect.ProjectionInfo.GeoConverter;
-  VLonLatRect := VConverter.TileRect2LonLatRect(ATileRect.Rect, VZoom);
+  VProjection := ATileRect.ProjectionInfo;
+  VLonLatRect := VProjection.TileRect2LonLatRect(ATileRect.Rect);
   for i := 0 to AMapsListened.Count - 1 do begin
     VMap := AMapsListened.Items[i];
     if VMap <> nil then begin
       VNotifier := VMap.TileStorage.TileNotifier;
       if VNotifier <> nil then begin
-        VConverter := VMap.GeoConvert;
+        VMapProjection := VMap.ProjectionSet.GetSuitableProjection(VProjection);
         VMapLonLatRect := VLonLatRect;
-        VConverter.ValidateLonLatRect(VMapLonLatRect);
+        VMapProjection.ProjectionType.ValidateLonLatRect(VMapLonLatRect);
         VTileRect :=
           RectFromDoubleRect(
-            VConverter.LonLatRect2TileRectFloat(VMapLonLatRect, VZoom),
+            VMapProjection.LonLatRect2TileRectFloat(VMapLonLatRect),
             rrOutside
           );
-        VNotifier.AddListenerByRect(FMapListener, VZoom, VTileRect);
+        VNotifier.AddListenerByRect(FMapListener, VMapProjection.Zoom, VTileRect);
       end;
     end;
   end;

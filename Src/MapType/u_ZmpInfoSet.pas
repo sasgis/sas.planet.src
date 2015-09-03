@@ -47,7 +47,7 @@ type
   public
     constructor Create(
       const AZmpConfig: IZmpConfig;
-      const ACoordConverterFactory: ICoordConverterFactory;
+      const AProjectionSetFactory: IProjectionSetFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const AContentTypeManager: IContentTypeManager;
       const AVersionFactory: IMapVersionFactory;
@@ -74,7 +74,7 @@ uses
 
 constructor TZmpInfoSet.Create(
   const AZmpConfig: IZmpConfig;
-  const ACoordConverterFactory: ICoordConverterFactory;
+  const AProjectionSetFactory: IProjectionSetFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const AContentTypeManager: IContentTypeManager;
   const AVersionFactory: IMapVersionFactory;
@@ -109,7 +109,7 @@ begin
         VZmp := TZmpInfo.Create(
           AZmpConfig,
           ALanguageManager,
-          ACoordConverterFactory,
+          AProjectionSetFactory,
           AContentTypeManager,
           AVersionFactory,
           ABitmapFactory,

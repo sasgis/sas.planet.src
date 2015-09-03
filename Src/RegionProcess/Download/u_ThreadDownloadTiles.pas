@@ -483,7 +483,7 @@ begin
     for I := VStartZoomIndex to High(FZoomArray) do begin
       VZoom := FZoomArray[I];
 
-      VProjection := FProjectionFactory.GetByConverterAndZoom(FMapType.GeoConvert, VZoom);
+      VProjection := FMapType.ProjectionSet[VZoom];
 
       VProjectedPolygon :=
         FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(

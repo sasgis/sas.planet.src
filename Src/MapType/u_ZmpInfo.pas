@@ -26,7 +26,7 @@ uses
   SysUtils,
   Classes,
   i_Bitmap32Static,
-  i_CoordConverter,
+  i_ProjectionSet,
   i_ConfigDataProvider,
   i_LanguageListStatic,
   i_MapVersionInfo,
@@ -127,8 +127,8 @@ type
     FTileDownloaderConfig: ITileDownloaderConfigStatic;
     FTilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
     FContentTypeSubst: IContentTypeSubst;
-    FGeoConvert: ICoordConverter;
-    FViewGeoConvert: ICoordConverter;
+    FProjectionSet: IProjectionSet;
+    FViewProjectionSet: IProjectionSet;
     FGUI: IZmpInfoGUI;
     FAbilities: IMapAbilitiesConfigStatic;
     FEmptyTileSamples: IBinaryDataListStatic;
@@ -141,7 +141,7 @@ type
     FConfigIniParams: IConfigDataProvider;
   private
     procedure LoadConfig(
-      const ACoordConverterFactory: ICoordConverterFactory;
+      const AProjectionSetFactory: IProjectionSetFactory;
       const AVersionFactory: IMapVersionFactory;
       const ALanguageManager: ILanguageManager
     );
@@ -157,7 +157,7 @@ type
     procedure LoadSamples(const AConfig: IConfigDataProvider);
     procedure LoadProjectionInfo(
       const AConfig: IConfigDataProvider;
-      const ACoordConverterFactory: ICoordConverterFactory
+      const AProjectionSetFactory: IProjectionSetFactory
     );
     procedure LoadTileRequestBuilderConfig(
       const AConfig: IConfigDataProvider
@@ -176,8 +176,8 @@ type
     function GetTileDownloaderConfig: ITileDownloaderConfigStatic;
     function GetTilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
     function GetContentTypeSubst: IContentTypeSubst;
-    function GetGeoConvert: ICoordConverter;
-    function GetViewGeoConvert: ICoordConverter;
+    function GetProjectionSet: IProjectionSet;
+    function GetViewProjectionSet: IProjectionSet;
     function GetAbilities: IMapAbilitiesConfigStatic;
     function GetEmptyTileSamples: IBinaryDataListStatic;
     function GetBanTileSamples: IBinaryDataListStatic;
@@ -187,7 +187,7 @@ type
     constructor Create(
       const AZmpConfig: IZmpConfig;
       const ALanguageManager: ILanguageManager;
-      const ACoordConverterFactory: ICoordConverterFactory;
+      const AProjectionSetFactory: IProjectionSetFactory;
       const AContentTypeManager: IContentTypeManager;
       const AVersionFactory: IMapVersionFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
@@ -569,7 +569,7 @@ end;
 constructor TZmpInfo.Create(
   const AZmpConfig: IZmpConfig;
   const ALanguageManager: ILanguageManager;
-  const ACoordConverterFactory: ICoordConverterFactory;
+  const AProjectionSetFactory: IProjectionSetFactory;
   const AContentTypeManager: IContentTypeManager;
   const AVersionFactory: IMapVersionFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
@@ -590,7 +590,7 @@ begin
   if FConfigIniParams = nil then begin
     raise EZmpParamsNotFound.Create(_('Not found PARAMS section in zmp'));
   end;
-  LoadConfig(ACoordConverterFactory, AVersionFactory, ALanguageManager);
+  LoadConfig(AProjectionSetFactory, AVersionFactory, ALanguageManager);
   FGUI :=
     TZmpInfoGUI.Create(
       FGUID,
@@ -665,9 +665,9 @@ begin
   Result := FFileName;
 end;
 
-function TZmpInfo.GetGeoConvert: ICoordConverter;
+function TZmpInfo.GetProjectionSet: IProjectionSet;
 begin
-  Result := FGeoConvert;
+  Result := FProjectionSet;
 end;
 
 function TZmpInfo.GetGUI: IZmpInfoGUI;
@@ -700,9 +700,9 @@ begin
   Result := FStorageConfig;
 end;
 
-function TZmpInfo.GetViewGeoConvert: ICoordConverter;
+function TZmpInfo.GetViewProjectionSet: IProjectionSet;
 begin
-  Result := FViewGeoConvert;
+  Result := FViewProjectionSet;
 end;
 
 function TZmpInfo.GetTileDownloaderConfig: ITileDownloaderConfigStatic;
@@ -741,7 +741,7 @@ begin
 end;
 
 procedure TZmpInfo.LoadConfig(
-  const ACoordConverterFactory: ICoordConverterFactory;
+  const AProjectionSetFactory: IProjectionSetFactory;
   const AVersionFactory: IMapVersionFactory;
   const ALanguageManager: ILanguageManager
 );
@@ -749,7 +749,7 @@ begin
   FGUID := LoadGUID(FConfigIniParams);
   FIsLayer := FConfigIniParams.ReadBool('asLayer', False);
   LoadVersion(AVersionFactory, FConfigIniParams);
-  LoadProjectionInfo(FConfigIni, ACoordConverterFactory);
+  LoadProjectionInfo(FConfigIni, AProjectionSetFactory);
   LoadTileRequestBuilderConfig(FConfigIniParams);
   LoadTileDownloaderConfig(FConfigIniParams);
   LoadCropConfig(FConfigIniParams);
@@ -804,18 +804,18 @@ end;
 
 procedure TZmpInfo.LoadProjectionInfo(
   const AConfig: IConfigDataProvider;
-  const ACoordConverterFactory: ICoordConverterFactory
+  const AProjectionSetFactory: IProjectionSetFactory
 );
 var
   VParams: IConfigDataProvider;
 begin
   VParams := AConfig.GetSubItem('ViewInfo');
   if VParams <> nil then begin
-    FViewGeoConvert := ACoordConverterFactory.GetCoordConverterByConfig(VParams);
+    FViewProjectionSet := AProjectionSetFactory.GetProjectionSetByConfig(VParams);
   end;
-  FGeoConvert := ACoordConverterFactory.GetCoordConverterByConfig(FConfigIniParams);
-  if FViewGeoConvert = nil then begin
-    FViewGeoConvert := FGeoConvert;
+  FProjectionSet := AProjectionSetFactory.GetProjectionSetByConfig(FConfigIniParams);
+  if FViewProjectionSet = nil then begin
+    FViewProjectionSet := FProjectionSet;
   end;
 end;
 

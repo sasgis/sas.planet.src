@@ -65,7 +65,7 @@ type
     FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
     FBitmapFactory: IBitmap32StaticFactory;
     FProjectionFactory: IProjectionInfoFactory;
-    FCoordConverterList: ICoordConverterList;
+    FProjectionSetList: IProjectionSetList;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FProjectedGeometryProvider: IGeometryProjectedProvider;
     FVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
@@ -109,7 +109,7 @@ type
       const AViewConfig: IGlobalViewMainConfig;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
       const AProjectionFactory: IProjectionInfoFactory;
-      const ACoordConverterList: ICoordConverterList;
+      const AProjectionSetList: IProjectionSetList;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const AProjectedGeometryProvider: IGeometryProjectedProvider;
       const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
@@ -172,7 +172,7 @@ constructor TProviderMapCombineBase.Create(
   const AViewConfig: IGlobalViewMainConfig;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
   const AProjectionFactory: IProjectionInfoFactory;
-  const ACoordConverterList: ICoordConverterList;
+  const AProjectionSetList: IProjectionSetList;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const AProjectedGeometryProvider: IGeometryProjectedProvider;
   const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
@@ -210,7 +210,7 @@ begin
   FBitmapPostProcessing := ABitmapPostProcessing;
   FBitmapFactory := ABitmapFactory;
   FProjectionFactory := AProjectionFactory;
-  FCoordConverterList := ACoordConverterList;
+  FProjectionSetList := AProjectionSetList;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FProjectedGeometryProvider := AProjectedGeometryProvider;
   FVectorSubsetBuilderFactory := AVectorSubsetBuilderFactory;
@@ -231,7 +231,7 @@ begin
     TfrMapCombine.Create(
       Self.LanguageManager,
       FProjectionFactory,
-      FCoordConverterList,
+      FProjectionSetList,
       FVectorGeometryProjectedFactory,
       FBitmapFactory,
       Self.MapSelectFrameBuilder,

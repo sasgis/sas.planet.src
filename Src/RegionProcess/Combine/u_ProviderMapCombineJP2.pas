@@ -62,7 +62,7 @@ type
       const AViewConfig: IGlobalViewMainConfig;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
       const AProjectionFactory: IProjectionInfoFactory;
-      const ACoordConverterList: ICoordConverterList;
+      const AProjectionSetList: IProjectionSetList;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const AProjectedGeometryProvider: IGeometryProjectedProvider;
       const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
@@ -101,7 +101,7 @@ constructor TProviderMapCombineJP2.Create(
   const AViewConfig: IGlobalViewMainConfig;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
   const AProjectionFactory: IProjectionInfoFactory;
-  const ACoordConverterList: ICoordConverterList;
+  const AProjectionSetList: IProjectionSetList;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const AProjectedGeometryProvider: IGeometryProjectedProvider;
   const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
@@ -133,7 +133,7 @@ begin
     AViewConfig,
     AUseTilePrevZoomConfig,
     AProjectionFactory,
-    ACoordConverterList,
+    AProjectionSetList,
     AVectorGeometryProjectedFactory,
     AProjectedGeometryProvider,
     AVectorSubsetBuilderFactory,

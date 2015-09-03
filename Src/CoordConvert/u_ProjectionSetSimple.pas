@@ -25,6 +25,9 @@ type
 
     function GetZoom(const AIndex: Byte): IProjectionInfo;
 
+    procedure ValidateZoom(var AZoom: Byte);
+    function CheckZoom(const AZoom: Byte): Boolean;
+
     function GetSuitableProjection(const AProjection: IProjectionInfo): IProjectionInfo;
     function GetSuitableZoom(const AProjection: IProjectionInfo): Byte;
 
@@ -126,6 +129,18 @@ begin
         end;
       end;
     end;
+  end;
+end;
+
+function TProjectionSetSimple.CheckZoom(const AZoom: Byte): Boolean;
+begin
+  Result := AZoom < FZoomCount;
+end;
+
+procedure TProjectionSetSimple.ValidateZoom(var AZoom: Byte);
+begin
+  if AZoom >= FZoomCount then begin
+    AZoom := FZoomCount - 1;
   end;
 end;
 

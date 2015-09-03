@@ -86,7 +86,7 @@ implementation
 uses
   Math,
   GR32,
-  i_CoordConverter,
+  i_ProjectionSet,
   i_Bitmap32Static,
   i_ProjectionInfo,
   i_GeometryProjected,
@@ -150,7 +150,7 @@ var
   VSubTilesSavedCount: integer;
   VTile: TPoint;
   VSubTile: TPoint;
-  VGeoConvert: ICoordConverter;
+  VProjectionSet: IProjectionSet;
   VProjection: IProjectionInfo;
   VProjectionPrev: IProjectionInfo;
   VTileIterators: array of ITileIterator;
@@ -175,10 +175,10 @@ begin
   inherited;
   VTilesToProcess := 0;
   VTileSaver := FContentType.GetSaver;
-  VGeoConvert := FMapType.GeoConvert;
+  VProjectionSet := FMapType.ProjectionSet;
   SetLength(VTileIterators, Length(FZooms) - 1);
   for i := 1 to Length(FZooms) - 1 do begin
-    VProjection := FProjectionFactory.GetByConverterAndZoom(VGeoConvert, FZooms[i]);
+    VProjection := VProjectionSet.Zooms[FZooms[i]];
     VProjectedPolygon :=
       FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
         VProjection,
@@ -205,9 +205,9 @@ begin
       VTilesProcessed := 0;
       for i := 1 to Length(FZooms) - 1 do begin
         if FGenFormFirstZoom then begin
-          VProjectionPrev := FProjectionFactory.GetByConverterAndZoom(VGeoConvert, FZooms[0]);
+          VProjectionPrev := VProjectionSet.Zooms[FZooms[0]];
         end else begin
-          VProjectionPrev := FProjectionFactory.GetByConverterAndZoom(VGeoConvert, FZooms[i - 1]);
+          VProjectionPrev := VProjectionSet.Zooms[FZooms[i - 1]];
         end;
         VTileIterator := VTileIterators[i - 1];
         VProjection := VTileIterator.TilesRect.ProjectionInfo;

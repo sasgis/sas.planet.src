@@ -38,7 +38,7 @@ uses
   i_TileDownloaderConfig,
   i_LanguageManager,
   i_ProjectionInfo,
-  i_CoordConverter,
+  i_ProjectionSet,
   i_MapVersionRequest,
   i_MapVersionRequestConfig,
   i_MapVersionFactoryList,
@@ -85,8 +85,8 @@ type
     FBitmapSaverToStorage: IBitmapTileSaver;
     FKmlLoaderFromStorage: IVectorDataLoader;
     FVectorDataFactory: IVectorDataItemMainInfoFactory;
-    FCoordConverter: ICoordConverter;
-    FViewCoordConverter: ICoordConverter;
+    FProjectionSet: IProjectionSet;
+    FViewProjectionSet: IProjectionSet;
     FLoadPrevMaxZoomDelta: Integer;
     FContentType: IContentTypeInfoBasic;
     FVersionRequestConfig: IMapVersionRequestConfig;
@@ -180,8 +180,8 @@ type
     function GetGUID: TGUID;
 
     function GetZmp: IZmpInfo;
-    function GetGeoConvert: ICoordConverter;
-    function GetViewGeoConvert: ICoordConverter;
+    function GetProjectionSet: IProjectionSet;
+    function GetViewProjectionSet: IProjectionSet;
     function GetVersionRequestConfig: IMapVersionRequestConfig;
     function GetContentType: IContentTypeInfoBasic;
 
@@ -217,7 +217,7 @@ type
       const ADownloadConfig: IGlobalDownloadConfig;
       const ADownloaderThreadConfig: IThreadConfig;
       const AContentTypeManager: IContentTypeManager;
-      const ACoordConverterFactory: ICoordConverterFactory;
+      const AProjectionSetFactory: IProjectionSetFactory;
       const AProjectionInfoFactory: IProjectionInfoFactory;
       const AInvisibleBrowser: IInvisibleBrowser;
       const AProjFactory: IProjConverterFactory;
@@ -290,7 +290,7 @@ constructor TMapType.Create(
   const ADownloadConfig: IGlobalDownloadConfig;
   const ADownloaderThreadConfig: IThreadConfig;
   const AContentTypeManager: IContentTypeManager;
-  const ACoordConverterFactory: ICoordConverterFactory;
+  const AProjectionSetFactory: IProjectionSetFactory;
   const AProjectionInfoFactory: IProjectionInfoFactory;
   const AInvisibleBrowser: IInvisibleBrowser;
   const AProjFactory: IProjConverterFactory;
@@ -343,8 +343,8 @@ begin
   FTileDownloaderConfig.ReadConfig(AConfig);
   FTileDownloadRequestBuilderConfig.ReadConfig(AConfig);
   FContentType := AContentTypeManager.GetInfoByExt(FStorageConfig.TileFileExt);
-  FCoordConverter := FZmp.GeoConvert;
-  FViewCoordConverter := FZmp.ViewGeoConvert;
+  FProjectionSet := FZmp.ProjectionSet;
+  FViewProjectionSet := FZmp.ViewProjectionSet;
 
   if FStorageConfig.UseMemCache then begin
     FCacheTileInfo :=
@@ -362,7 +362,7 @@ begin
   FStorage :=
     TTileStorageOfMapType.Create(
       AGlobalCacheConfig,
-      FCoordConverter,
+      FProjectionSet.GeoConvert,
       AProjectionInfoFactory,
       ATileStorageTypeList,
       FStorageConfig,
@@ -377,7 +377,7 @@ begin
       TMemTileCacheBitmap.Create(
         AGCNotifier,
         FStorage,
-        FCoordConverter,
+        FProjectionSet.GeoConvert,
         AMainMemCacheConfig,
         VPerfCounterList.CreateAndAddNewSubList('BmpInMem')
       );
@@ -387,7 +387,7 @@ begin
       TMemTileCacheVector.Create(
         AGCNotifier,
         FStorage,
-        FCoordConverter,
+        FProjectionSet.GeoConvert,
         AMainMemCacheConfig,
         VPerfCounterList.CreateAndAddNewSubList('VectorInMem')
       );
@@ -404,8 +404,8 @@ begin
     TTileDownloadSubsystem.Create(
       AGCNotifier,
       AAppClosingNotifier,
-      FCoordConverter,
-      ACoordConverterFactory,
+      FProjectionSet,
+      AProjectionSetFactory,
       ALanguageManager,
       ADownloadConfig,
       AInvisibleBrowser,
@@ -561,9 +561,9 @@ begin
   Result := FContentType;
 end;
 
-function TMapType.GetGeoConvert: ICoordConverter;
+function TMapType.GetProjectionSet: IProjectionSet;
 begin
-  Result := FCoordConverter;
+  Result := FProjectionSet;
 end;
 
 function TMapType.GetGUIConfig: IMapTypeGUIConfig;
@@ -586,9 +586,9 @@ begin
   Result := FVersionRequestConfig;
 end;
 
-function TMapType.GetViewGeoConvert: ICoordConverter;
+function TMapType.GetViewProjectionSet: IProjectionSet;
 begin
-  Result := FViewCoordConverter;
+  Result := FViewProjectionSet;
 end;
 
 function TMapType.GetZmp: IZmpInfo;
@@ -638,7 +638,7 @@ begin
       end;
     end;
     if Result <> nil then begin
-      VRect := FCoordConverter.TilePos2PixelRect(AXY, AZoom);
+      VRect := FProjectionSet.Zooms[AZoom].TilePos2PixelRect(AXY);
       VSize := Types.Point(VRect.Right - VRect.Left, VRect.Bottom - VRect.Top);
       if (Result.Size.X <> VSize.X) or
         (Result.Size.Y <> VSize.Y) then begin
@@ -739,34 +739,36 @@ var
   VSourceTilePixelRect: TRect;
   VRelative: TDoublePoint;
   VRelativeRect: TDoubleRect;
-  VParentZoom: Byte;
+  VProjection: IProjectionInfo;
+  VParentProjection: IProjectionInfo;
   VMinZoom: Integer;
   VBitmap: TBitmap32ByStaticBitmap;
   VResampler: TCustomResampler;
 begin
   Result := nil;
-  VRelative := FCoordConverter.TilePos2Relative(AXY, AZoom);
+  VProjection := FProjectionSet.Zooms[AZoom];
+  VRelative := VProjection.TilePos2Relative(AXY);
   VMinZoom := AZoom - FLoadPrevMaxZoomDelta;
   if VMinZoom < 0 then begin
     VMinZoom := 0;
   end;
   if AZoom - 1 > VMinZoom then begin
     for i := AZoom - 1 downto VMinZoom do begin
-      VParentZoom := i;
-      VTileParent := PointFromDoublePoint(FCoordConverter.Relative2TilePosFloat(VRelative, i), prToTopLeft);
-      VBmp := LoadTile(VTileParent, VParentZoom, AVersion, IgnoreError, ACache);
+      VParentProjection := FProjectionSet.Zooms[i];
+      VTileParent := PointFromDoublePoint(VParentProjection.Relative2TilePosFloat(VRelative), prToTopLeft);
+      VBmp := LoadTile(VTileParent, VParentProjection.Zoom, AVersion, IgnoreError, ACache);
       if VBmp <> nil then begin
-        VTargetTilePixelRect := FCoordConverter.TilePos2PixelRect(AXY, AZoom);
-        VRelativeRect := FCoordConverter.PixelRect2RelativeRect(VTargetTilePixelRect, AZoom);
+        VTargetTilePixelRect := VProjection.TilePos2PixelRect(AXY);
+        VRelativeRect := VProjection.PixelRect2RelativeRect(VTargetTilePixelRect);
         VTileTargetBounds.Left := 0;
         VTileTargetBounds.Top := 0;
         VTileTargetBounds.Right := VTargetTilePixelRect.Right - VTargetTilePixelRect.Left;
         VTileTargetBounds.Bottom := VTargetTilePixelRect.Bottom - VTargetTilePixelRect.Top;
 
-        VSourceTilePixelRect := FCoordConverter.TilePos2PixelRect(VTileParent, VParentZoom);
+        VSourceTilePixelRect := VParentProjection.TilePos2PixelRect(VTileParent);
         VTargetTilePixelRect :=
           RectFromDoubleRect(
-            FCoordConverter.RelativeRect2PixelRectFloat(VRelativeRect, VParentZoom),
+            VParentProjection.RelativeRect2PixelRectFloat(VRelativeRect),
             rrToTopLeft
           );
         VTileSourceBounds.Left := VTargetTilePixelRect.Left - VSourceTilePixelRect.Left;
@@ -830,7 +832,7 @@ function TMapType.LoadBitmap(
   const ACache: ITileObjCacheBitmap
 ): IBitmap32Static;
 var
-  VZoom: Byte;
+  VProjection: IProjectionInfo;
   VPixelRectTarget: TRect;
   VTileRect: TRect;
   VTargetImageSize: TPoint;
@@ -848,14 +850,14 @@ begin
   VTargetImageSize.Y := APixelRectTarget.Bottom - APixelRectTarget.Top;
 
   VPixelRectTarget := APixelRectTarget;
-  VZoom := AZoom;
-  FCoordConverter.ValidatePixelRect(VPixelRectTarget, VZoom);
-  VTileRect := FCoordConverter.PixelRect2TileRect(VPixelRectTarget, VZoom);
+  VProjection := FProjectionSet.Zooms[AZoom];
+  VProjection.ValidatePixelRect(VPixelRectTarget);
+  VTileRect := VProjection.PixelRect2TileRect(VPixelRectTarget);
   if (VTileRect.Left = VTileRect.Right - 1) and
     (VTileRect.Top = VTileRect.Bottom - 1) then begin
-    VPixelRectCurrTile := FCoordConverter.TilePos2PixelRect(VTileRect.TopLeft, VZoom);
+    VPixelRectCurrTile := VProjection.TilePos2PixelRect(VTileRect.TopLeft);
     if Types.EqualRect(VPixelRectCurrTile, APixelRectTarget) then begin
-      Result := LoadTileOrPreZ(VTileRect.TopLeft, VZoom, AVersion, IgnoreError, AUsePre, ACache);
+      Result := LoadTileOrPreZ(VTileRect.TopLeft, AZoom, AVersion, IgnoreError, AUsePre, ACache);
       Exit;
     end;
   end;
@@ -866,9 +868,9 @@ begin
 
     VIterator.Init(VTileRect);
     while VIterator.Next(VTile) do begin
-        VSpr := LoadTileOrPreZ(VTile, VZoom, AVersion, IgnoreError, AUsePre, ACache);
+        VSpr := LoadTileOrPreZ(VTile, AZoom, AVersion, IgnoreError, AUsePre, ACache);
         if VSpr <> nil then begin
-          VPixelRectCurrTile := FCoordConverter.TilePos2PixelRect(VTile, VZoom);
+          VPixelRectCurrTile := VProjection.TilePos2PixelRect(VTile);
 
           if VPixelRectCurrTile.Top < APixelRectTarget.Top then begin
             VSourceBounds.Top := APixelRectTarget.Top - VPixelRectCurrTile.Top;
@@ -947,7 +949,7 @@ function TMapType.LoadBitmapUni(
 ): IBitmap32Static;
 var
   VPixelRectTarget: TRect;
-  VZoom: Byte;
+  VProjection: IProjectionInfo;
   VLonLatRectTarget: TDoubleRect;
   VTileRectInSource: TRect;
   VPixelRectOfTargetPixelRectInSource: TRect;
@@ -957,25 +959,25 @@ var
   VBitmap: TBitmap32ByStaticBitmap;
 begin
   Result := nil;
+  VProjection := FProjectionSet.GetSuitableProjection(AProjection);
 
-  if FCoordConverter.ProjectionType.IsSame(AProjection.ProjectionType) then begin
+  if VProjection.ProjectionType.IsSame(AProjection.ProjectionType) then begin
     Result := LoadBitmap(APixelRectTarget, AProjection.Zoom, AVersion, AUsePre, AAllowPartial, IgnoreError, ACache);
   end else begin
-    VZoom := AProjection.Zoom;
     VTargetImageSize.X := APixelRectTarget.Right - APixelRectTarget.Left;
     VTargetImageSize.Y := APixelRectTarget.Bottom - APixelRectTarget.Top;
 
     VPixelRectTarget := APixelRectTarget;
     AProjection.ValidatePixelRect(VPixelRectTarget);
     VLonLatRectTarget := AProjection.PixelRect2LonLatRect(VPixelRectTarget);
-    FCoordConverter.ValidateLonLatRect(VLonLatRectTarget);
+    VProjection.ProjectionType.ValidateLonLatRect(VLonLatRectTarget);
     VPixelRectOfTargetPixelRectInSource :=
       RectFromDoubleRect(
-        FCoordConverter.LonLatRect2PixelRectFloat(VLonLatRectTarget, VZoom),
+        VProjection.LonLatRect2PixelRectFloat(VLonLatRectTarget),
         rrToTopLeft
       );
-    VTileRectInSource := FCoordConverter.PixelRect2TileRect(VPixelRectOfTargetPixelRectInSource, VZoom);
-    VSpr := LoadBitmap(VPixelRectOfTargetPixelRectInSource, VZoom, AVersion, AUsePre, AAllowPartial, IgnoreError, ACache);
+    VTileRectInSource := VProjection.PixelRect2TileRect(VPixelRectOfTargetPixelRectInSource);
+    VSpr := LoadBitmap(VPixelRectOfTargetPixelRectInSource, VProjection.Zoom, AVersion, AUsePre, AAllowPartial, IgnoreError, ACache);
     if VSpr <> nil then begin
       VResampler := FResamplerChangeProjection.GetStatic.CreateResampler;
       try

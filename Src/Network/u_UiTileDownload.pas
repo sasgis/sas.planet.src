@@ -362,8 +362,8 @@ begin
     FSoftCancelNotifier := TNotifierOneOperationByNotifier.Create(ACancelNotifier, AOperationID);
     VCurrentOperation := FHardCancelNotifierInternal.CurrentOperation;
     try
-      VProjection := VTileRect.ProjectionInfo;
-      Assert(FMapType.GeoConvert.ProjectionType.IsSame(VProjection.ProjectionType));
+      VProjection := FMapType.ProjectionSet.GetSuitableProjection(VTileRect.ProjectionInfo);
+      Assert(VProjection.GetIsSameProjectionInfo(VTileRect.ProjectionInfo));
       VZoom := VTileRect.GetZoom;
 
       VMapTileRect := VTileRect.Rect;

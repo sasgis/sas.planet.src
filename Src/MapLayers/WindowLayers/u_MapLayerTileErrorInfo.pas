@@ -86,7 +86,7 @@ implementation
 uses
   Types,
   c_ZeroGUID,
-  i_CoordConverter,
+  i_ProjectionInfo,
   i_Bitmap32Static,
   u_ListenerByEvent,
   u_ListenerTime,
@@ -259,10 +259,9 @@ var
   VMarker: IMarkerDrawable;
   VFixedOnView: TDoublePoint;
   VErrorInfo: ITileErrorInfo;
-  VConverter: ICoordConverter;
+  VProjection: IProjectionInfo;
   VGUID: TGUID;
   VMapType: IMapType;
-  VZoom: Byte;
   VTile: TPoint;
   VFixedLonLat: TDoublePoint;
 begin
@@ -278,11 +277,10 @@ begin
     if not IsEqualGUID(VGUID, CGUID_Zero) then begin
       VMapType := FMapsSet.GetMapTypeByGUID(VGUID);
     end;
-    VConverter := VMapType.GeoConvert;
-    VZoom := VErrorInfo.Zoom;
+    VProjection := VMapType.ProjectionSet.Zooms[VErrorInfo.Zoom];
     VTile := VErrorInfo.Tile;
-    VConverter.ValidateTilePosStrict(VTile, VZoom, True);
-    VFixedLonLat := VConverter.PixelPosFloat2LonLat(RectCenter(VConverter.TilePos2PixelRect(VTile, VZoom)), VZoom);
+    VProjection.ValidateTilePosStrict(VTile, True);
+    VFixedLonLat := VProjection.PixelPosFloat2LonLat(RectCenter(VProjection.TilePos2PixelRect(VTile)));
     ALocalConverter.ProjectionInfo.ProjectionType.ValidateLonLatPos(VFixedLonLat);
     VFixedOnView := ALocalConverter.LonLat2LocalPixelFloat(VFixedLonLat);
     if PixelPointInRect(VFixedOnView, DoubleRect(ALocalConverter.GetLocalRect)) then begin

@@ -31,7 +31,7 @@ uses
   i_Bitmap32Static,
   i_VectorItemSubset,
   i_ProjectionInfo,
-  i_CoordConverter,
+  i_ProjectionSet,
   i_ZmpInfo,
   i_MapVersionRequestConfig,
   i_ContentTypeInfo,
@@ -100,10 +100,10 @@ type
     function GetZmp: IZmpInfo;
     property Zmp: IZmpInfo read GetZmp;
 
-    function GetGeoConvert: ICoordConverter;
-    property GeoConvert: ICoordConverter read GetGeoConvert;
-    function GetViewGeoConvert: ICoordConverter;
-    property ViewGeoConvert: ICoordConverter read GetViewGeoConvert;
+    function GetProjectionSet: IProjectionSet;
+    property ProjectionSet: IProjectionSet read GetProjectionSet;
+    function GetViewProjectionSet: IProjectionSet;
+    property ViewProjectionSet: IProjectionSet read GetViewProjectionSet;
     function GetVersionRequestConfig: IMapVersionRequestConfig;
     property VersionRequestConfig: IMapVersionRequestConfig read GetVersionRequestConfig;
     function GetContentType: IContentTypeInfoBasic;

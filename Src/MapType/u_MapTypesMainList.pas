@@ -107,7 +107,7 @@ type
       const ADownloaderThreadConfig: IThreadConfig;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AContentTypeManager: IContentTypeManager;
-      const ACoordConverterFactory: ICoordConverterFactory;
+      const AProjectionSetFactory: IProjectionSetFactory;
       const AProjectionInfoFactory: IProjectionInfoFactory;
       const AInvisibleBrowser: IInvisibleBrowser;
       const AProjFactory: IProjConverterFactory;
@@ -208,7 +208,7 @@ procedure TMapTypesMainList.LoadMaps(
   const ADownloaderThreadConfig: IThreadConfig;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AContentTypeManager: IContentTypeManager;
-  const ACoordConverterFactory: ICoordConverterFactory;
+  const AProjectionSetFactory: IProjectionSetFactory;
   const AProjectionInfoFactory: IProjectionInfoFactory;
   const AInvisibleBrowser: IInvisibleBrowser;
   const AProjFactory: IProjConverterFactory;
@@ -275,7 +275,7 @@ begin
           ADownloadConfig,
           ADownloaderThreadConfig,
           AContentTypeManager,
-          ACoordConverterFactory,
+          AProjectionSetFactory,
           AProjectionInfoFactory,
           AInvisibleBrowser,
           AProjFactory,

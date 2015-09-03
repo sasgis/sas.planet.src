@@ -142,7 +142,7 @@ type
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FBitmapFactory: IBitmap32StaticFactory;
     FProjectionFactory: IProjectionInfoFactory;
-    FCoordConverterList: ICoordConverterList;
+    FProjectionSetList: IProjectionSetList;
     FActiveMapsList: IMapTypeListChangeable;
     FMapCalibrationList: IMapCalibrationList;
     FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
@@ -183,7 +183,7 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AProjectionFactory: IProjectionInfoFactory;
-      const ACoordConverterList: ICoordConverterList;
+      const AProjectionSetList: IProjectionSetList;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
@@ -215,7 +215,7 @@ uses
   i_MapTypeListStatic,
   i_InterfaceListSimple,
   i_GeometryProjected,
-  i_CoordConverter,
+  i_ProjectionSet,
   u_InterfaceListSimple,
   u_GeoFunc,
   u_GeometryFunc,
@@ -230,7 +230,7 @@ uses
 constructor TfrMapCombine.Create(
   const ALanguageManager: ILanguageManager;
   const AProjectionFactory: IProjectionInfoFactory;
-  const ACoordConverterList: ICoordConverterList;
+  const AProjectionSetList: IProjectionSetList;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
@@ -251,7 +251,7 @@ begin
   Assert(AMinPartSize.Y <= AMaxPartSize.Y);
   inherited Create(ALanguageManager);
   FProjectionFactory := AProjectionFactory;
-  FCoordConverterList := ACoordConverterList;
+  FProjectionSetList := AProjectionSetList;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmapFactory := ABitmapFactory;
   FActiveMapsList := AActiveMapsList;
@@ -311,8 +311,8 @@ end;
 procedure TfrMapCombine.cbbZoomChange(Sender: TObject);
 var
   numd: int64;
-  Vmt: IMapType;
-  VZoom: byte;
+  VMapType: IMapType;
+  VProjection: IProjectionInfo;
   VPolyLL: IGeometryLonLatPolygon;
   VProjected: IGeometryProjectedPolygon;
   VLine: IGeometryProjectedSinglePolygon;
@@ -322,18 +322,17 @@ var
   VPixelSize: TPoint;
   VTileSize: TPoint;
 begin
-  Vmt := FfrMapSelect.GetSelectedMapType;
-  if (Vmt = nil) then begin
-    Vmt := FfrLayerSelect.GetSelectedMapType;
+  VMapType := FfrMapSelect.GetSelectedMapType;
+  if (VMapType = nil) then begin
+    VMapType := FfrLayerSelect.GetSelectedMapType;
   end; //calc for layer if map is not selected
-  if Vmt <> nil then begin
-    VZoom := cbbZoom.ItemIndex;
-    Vmt.GeoConvert.ValidateZoom(VZoom);
+  if VMapType <> nil then begin
+    VProjection := GetProjection;
     VPolyLL := FPolygLL;
     if VPolyLL <> nil then begin
       VProjected :=
         FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-          FProjectionFactory.GetByConverterAndZoom(Vmt.GeoConvert, VZoom),
+          VProjection,
           VPolyLL
         );
       VLine := GetProjectedSinglePolygonByProjectedPolygon(VProjected);
@@ -341,7 +340,7 @@ begin
         VBounds := VLine.Bounds;
         VPixelRect := RectFromDoubleRect(VBounds, rrOutside);
         VPixelSize := RectSize(VPixelRect);
-        VTileRect := Vmt.GeoConvert.PixelRect2TileRect(VPixelRect, VZoom);
+        VTileRect := VProjection.PixelRect2TileRect(VPixelRect);
         VTileSize := RectSize(VTileRect);
 
         numd := VTileSize.X;
@@ -409,23 +408,23 @@ var
   VLayer: IMapType;
   VMainMapType: IMapType;
   VZoom: Byte;
-  VGeoConverter: ICoordConverter;
+  VProjectionSet: IProjectionSet;
   VIndex: Integer;
 begin
   Result := nil;
-  VGeoConverter := nil;
+  VProjectionSet := nil;
   VIndex := cbbProjection.ItemIndex;
   if VIndex < 0 then begin
     VIndex := 0;
   end;
   if VIndex >= 2 then begin
     VIndex := VIndex - 2;
-    if VIndex < FCoordConverterList.Count then begin
-      VGeoConverter := FCoordConverterList.Items[VIndex];
+    if VIndex < FProjectionSetList.Count then begin
+      VProjectionSet := FProjectionSetList.Items[VIndex];
     end;
     VIndex := 0;
   end;
-  if VGeoConverter = nil then begin
+  if VProjectionSet = nil then begin
     VMainMapType := nil;
     VMap := FfrMapSelect.GetSelectedMapType;
     VLayer := FfrLayerSelect.GetSelectedMapType;
@@ -443,12 +442,13 @@ begin
       end;
     end;
     if VMainMapType <> nil then begin
-      VGeoConverter := VMainMapType.GeoConvert;
+      VProjectionSet := VMainMapType.ProjectionSet;
     end;
   end;
   VZoom := cbbZoom.ItemIndex;
-  if VGeoConverter <> nil then begin
-    Result := FProjectionFactory.GetByConverterAndZoom(VGeoConverter, VZoom);
+  if VProjectionSet <> nil then begin
+    VProjectionSet.ValidateZoom(VZoom);
+    Result := VProjectionSet[VZoom];
   end;
 end;
 
@@ -569,14 +569,14 @@ procedure TfrMapCombine.UpdateProjectionsList(Sender: TObject);
   var
     I: Integer;
     VProj: string;
-    VConverter: ICoordConverter;
+    VProjectionSet: IProjectionSet;
   begin
     VProj := ACaption;
     if Assigned(AMapType) then begin
-      VConverter := AMapType.GeoConvert;
-      for I := 0 to FCoordConverterList.Count - 1 do begin
-        if FCoordConverterList.Items[I].IsSameConverter(VConverter) then begin
-          VProj := VProj + ' - ' + FCoordConverterList.Captions[I];
+      VProjectionSet := AMapType.ProjectionSet;
+      for I := 0 to FProjectionSetList.Count - 1 do begin
+        if FProjectionSetList.Items[I].IsSame(VProjectionSet) then begin
+          VProj := VProj + ' - ' + FProjectionSetList.Captions[I];
           Break;
         end;
       end;
@@ -595,8 +595,8 @@ begin
   AddProj(FfrMapSelect.GetSelectedMapType, _('Projection of map'));
   AddProj(FfrLayerSelect.GetSelectedMapType, _('Projection of layer'));
 
-  for I := 0 to FCoordConverterList.Count - 1 do begin
-    cbbProjection.Items.Add(FCoordConverterList.Captions[I]);
+  for I := 0 to FProjectionSetList.Count - 1 do begin
+    cbbProjection.Items.Add(FProjectionSetList.Captions[I]);
   end;
 
   if (VPrevIndex >= 0) and

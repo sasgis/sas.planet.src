@@ -26,7 +26,7 @@ uses
   Classes,
   i_Bitmap32Static,
   i_ConfigDataProvider,
-  i_CoordConverter,
+  i_ProjectionSet,
   i_ContentTypeSubst,
   i_TileDownloaderConfig,
   i_TilePostDownloadCropConfig,
@@ -103,11 +103,11 @@ type
     function GetContentTypeSubst: IContentTypeSubst;
     property ContentTypeSubst: IContentTypeSubst read GetContentTypeSubst;
 
-    function GetGeoConvert: ICoordConverter;
-    property GeoConvert: ICoordConverter read GetGeoConvert;
+    function GetProjectionSet: IProjectionSet;
+    property ProjectionSet: IProjectionSet read GetProjectionSet;
 
-    function GetViewGeoConvert: ICoordConverter;
-    property ViewGeoConvert: ICoordConverter read GetViewGeoConvert;
+    function GetViewProjectionSet: IProjectionSet;
+    property ViewProjectionSet: IProjectionSet read GetViewProjectionSet;
 
     function GetAbilities: IMapAbilitiesConfigStatic;
     property Abilities: IMapAbilitiesConfigStatic read GetAbilities;

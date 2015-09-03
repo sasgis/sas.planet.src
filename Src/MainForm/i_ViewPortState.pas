@@ -25,16 +25,16 @@ interface
 uses
   Types,
   t_GeoTypes,
-  i_CoordConverter,
+  i_ProjectionSet,
   i_LocalCoordConverterChangeable,
   i_ConfigDataElement;
 
 type
   IViewPortState = interface(IConfigDataElement)
     ['{F2F2E282-AA3B-48BC-BC09-73FE9C07B723}']
-    function GetMainCoordConverter: ICoordConverter;
-    procedure SetMainCoordConverter(const AValue: ICoordConverter);
-    property MainCoordConverter: ICoordConverter read GetMainCoordConverter write SetMainCoordConverter;
+    function GetMainProjectionSet: IProjectionSet;
+    procedure SetMainProjectionSet(const AValue: IProjectionSet);
+    property MainProjectionSet: IProjectionSet read GetMainProjectionSet write SetMainProjectionSet;
 
     function GetCurrentZoom: Byte;
 

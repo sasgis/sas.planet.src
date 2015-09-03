@@ -33,7 +33,7 @@ uses
   i_GeometryLonLat,
   i_GeometryLonLatFactory,
   i_GeometryProjectedFactory,
-  i_CoordConverter,
+  i_ProjectionSet,
   i_CoordConverterFactory,
   i_ConfigDataProvider,
   i_LanguageManager,
@@ -76,7 +76,7 @@ type
   private
     procedure StartBySLS(const AFileName: string);
     procedure ReadZoom(
-      const ACoordConverter: ICoordConverter;
+      const AProjectionSet: IProjectionSet;
       const ASessionSection: IConfigDataProvider;
       out AZoom: Byte;
       out AZoomArr: TByteDynArray
@@ -187,7 +187,7 @@ begin
 end;
 
 procedure TProviderTilesDownload.ReadZoom(
-  const ACoordConverter: ICoordConverter;
+  const AProjectionSet: IProjectionSet;
   const ASessionSection: IConfigDataProvider;
   out AZoom: Byte;
   out AZoomArr: TByteDynArray
@@ -199,7 +199,7 @@ procedure TProviderTilesDownload.ReadZoom(
     end else begin
       raise Exception.Create('Unknown zoom: ' + IntToStr(AZoom));
     end;
-    if not ACoordConverter.CheckZoom(AZoom) then begin
+    if AProjectionSet.CheckZoom(AZoom) then begin
       raise Exception.Create('Unknown zoom: ' + IntToStr(AZoom));
     end;
   end;
@@ -311,7 +311,7 @@ begin
       );
   end;
 
-  ReadZoom(VMapType.GeoConvert, VSessionSection, VZoom, VZoomArr);
+  ReadZoom(VMapType.ProjectionSet, VSessionSection, VZoom, VZoomArr);
 
   VReplaceExistTiles := VSessionSection.ReadBool('ReplaceExistTiles', VReplaceExistTiles);
   VCheckExistTileSize := VSessionSection.ReadBool('CheckExistTileSize', VCheckExistTileSize);

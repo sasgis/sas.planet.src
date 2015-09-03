@@ -172,7 +172,7 @@ type
       const AMarksDB: IMarkSystem;
       const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
       const AProjectionFactory: IProjectionInfoFactory;
-      const ACoordConverterList: ICoordConverterList;
+      const AProjectionSetList: IProjectionSetList;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const AProjectedGeometryProvider: IGeometryProjectedProvider;
@@ -233,7 +233,7 @@ constructor TfrmRegionProcess.Create(
   const AMarksDB: IMarkSystem;
   const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
   const AProjectionFactory: IProjectionInfoFactory;
-  const ACoordConverterList: ICoordConverterList;
+  const AProjectionSetList: IProjectionSetList;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const AProjectedGeometryProvider: IGeometryProjectedProvider;
@@ -358,7 +358,7 @@ begin
       AViewConfig,
       AUseTilePrevZoomConfig,
       AProjectionFactory,
-      ACoordConverterList,
+      AProjectionSetList,
       AVectorGeometryProjectedFactory,
       AProjectedGeometryProvider,
       AVectorSubsetBuilderFactory,

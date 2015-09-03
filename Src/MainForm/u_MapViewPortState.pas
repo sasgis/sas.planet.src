@@ -28,6 +28,7 @@ uses
   i_Notifier,
   i_Listener,
   i_CoordConverter,
+  i_ProjectionSet,
   i_CoordConverterFactory,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
@@ -50,17 +51,17 @@ type
     FView: ILocalCoordConverterChangeableInternal;
     FMainMapChangeListener: IListener;
 
-    FMainCoordConverter: ICoordConverter;
+    FMainProjectionSet: IProjectionSet;
 
-    function _GetActiveCoordConverter: ICoordConverter;
-    procedure _SetActiveCoordConverter;
+    function _GetActiveProjectionSet: IProjectionSet;
+    procedure _SetActiveProjectionSet;
     procedure OnMainMapChange;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
-    function GetMainCoordConverter: ICoordConverter;
-    procedure SetMainCoordConverter(const AValue: ICoordConverter);
+    function GetMainProjectionSet: IProjectionSet;
+    procedure SetMainProjectionSet(const AValue: IProjectionSet);
 
     function GetCurrentZoom: Byte;
 
@@ -117,7 +118,7 @@ constructor TMapViewPortState.Create(
   const APerfCounterList: IInternalPerformanceCounterList
 );
 var
-  VGeoConverter: ICoordConverter;
+  VProjectionSet: IProjectionSet;
   VProjection: IProjectionInfo;
   VLocalConverter: ILocalCoordConverter;
   VCenterPoint: TDoublePoint;
@@ -130,17 +131,17 @@ begin
   FProjectionFactory := AProjectionFactory;
   FVisibleCoordConverterFactory := ACoordConverterFactory;
   FMainMap := AMainMap;
-  FMainCoordConverter := nil;
+  FMainProjectionSet := nil;
 
   FMainMapChangeListener := TNotifyNoMmgEventListener.Create(Self.OnMainMapChange);
   FBaseScale := 1;
 
-  VGeoConverter := _GetActiveCoordConverter;
+  VProjectionSet := _GetActiveProjectionSet;
   VZoom := 0;
-  VGeoConverter.ValidateZoom(VZoom);
-  VProjection := FProjectionFactory.GetByConverterAndZoom(VGeoConverter, VZoom);
+  VProjectionSet.ValidateZoom(VZoom);
+  VProjection := VProjectionSet[VZoom];
 
-  VCenterPoint := RectCenter(VGeoConverter.PixelRectAtZoom(VZoom));
+  VCenterPoint := RectCenter(VProjection.GetPixelRect);
   VLocalRect := Rect(0, 0, 1024, 768);
   VLocalCenter := RectCenter(VLocalRect);
 
@@ -462,17 +463,17 @@ begin
   AConfigData.WriteFloat('Y', VLonLat.Y);
 end;
 
-function TMapViewPortState._GetActiveCoordConverter: ICoordConverter;
+function TMapViewPortState._GetActiveProjectionSet: IProjectionSet;
 var
   VMapType: IMapType;
 begin
   Result := nil;
-  if FMainCoordConverter <> nil then begin
-    Result := FMainCoordConverter;
+  if FMainProjectionSet <> nil then begin
+    Result := FMainProjectionSet;
   end else begin
     VMapType := FMainMap.GetStatic;
     if VMapType <> nil then begin
-      Result := VMapType.ViewGeoConvert;
+      Result := VMapType.ViewProjectionSet;
     end;
   end;
 end;
@@ -487,11 +488,11 @@ begin
   end;
 end;
 
-function TMapViewPortState.GetMainCoordConverter: ICoordConverter;
+function TMapViewPortState.GetMainProjectionSet: IProjectionSet;
 begin
   LockRead;
   try
-    Result := FMainCoordConverter;
+    Result := FMainProjectionSet;
   finally
     UnlockRead;
   end;
@@ -506,7 +507,7 @@ procedure TMapViewPortState.OnMainMapChange;
 begin
   LockWrite;
   try
-    _SetActiveCoordConverter;
+    _SetActiveProjectionSet;
   finally
     UnlockWrite
   end;
@@ -558,31 +559,33 @@ begin
   end;
 end;
 
-procedure TMapViewPortState._SetActiveCoordConverter;
+procedure TMapViewPortState._SetActiveProjectionSet;
 var
   VLocalConverter: ILocalCoordConverter;
   VLocalConverterNew: ILocalCoordConverter;
-  VGeoConverter: ICoordConverter;
+  VProjectionSet: IProjectionSet;
+  VProjection: IProjectionInfo;
 begin
   VLocalConverter := FView.GetStatic;
-  VGeoConverter := _GetActiveCoordConverter;
-  if not VLocalConverter.GeoConverter.IsSameConverter(VGeoConverter) then begin
+  VProjectionSet := _GetActiveProjectionSet;
+  VProjection := VProjectionSet.GetSuitableProjection(VLocalConverter.ProjectionInfo);
+  if not VProjection.GetIsSameProjectionInfo(VLocalConverter.ProjectionInfo) then begin
     VLocalConverterNew :=
       FVisibleCoordConverterFactory.ChangeConverter(
         VLocalConverter,
-        VGeoConverter
+        VProjection
       );
     FView.SetConverter(VLocalConverterNew);
   end;
 end;
 
-procedure TMapViewPortState.SetMainCoordConverter(const AValue: ICoordConverter);
+procedure TMapViewPortState.SetMainProjectionSet(const AValue: IProjectionSet);
 begin
   LockWrite;
   try
-    if FMainCoordConverter <> AValue then begin
-      FMainCoordConverter := AValue;
-      _SetActiveCoordConverter;
+    if FMainProjectionSet <> AValue then begin
+      FMainProjectionSet := AValue;
+      _SetActiveProjectionSet;
     end;
   finally
     UnlockWrite;

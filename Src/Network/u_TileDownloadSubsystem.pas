@@ -29,7 +29,7 @@ uses
   i_NotifierOperation,
   i_BinaryDataListStatic,
   i_CoordConverterFactory,
-  i_CoordConverter,
+  i_ProjectionSet,
   i_ThreadConfig,
   i_NotifierTime,
   i_ConfigDataProvider,
@@ -64,7 +64,7 @@ type
   private
     FTileDownloaderConfig: ITileDownloaderConfig;
     FTileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
-    FCoordConverter: ICoordConverter;
+    FProjectionSet: IProjectionSet;
     FAppClosingNotifier: INotifierOneOperation;
 
     FDestroyNotifierInternal: INotifierOperationInternal;
@@ -106,8 +106,8 @@ type
     constructor Create(
       const AGCNotifier: INotifierTime;
       const AAppClosingNotifier: INotifierOneOperation;
-      const ACoordConverter: ICoordConverter;
-      const ACoordConverterFactory: ICoordConverterFactory;
+      const AProjectionSet: IProjectionSet;
+      const AProjectionSetFactory: IProjectionSetFactory;
       const ALanguageManager: ILanguageManager;
       const AGlobalDownloadConfig: IGlobalDownloadConfig;
       const AInvisibleBrowser: IInvisibleBrowser;
@@ -164,8 +164,8 @@ const
 constructor TTileDownloadSubsystem.Create(
   const AGCNotifier: INotifierTime;
   const AAppClosingNotifier: INotifierOneOperation;
-  const ACoordConverter: ICoordConverter;
-  const ACoordConverterFactory: ICoordConverterFactory;
+  const AProjectionSet: IProjectionSet;
+  const AProjectionSetFactory: IProjectionSetFactory;
   const ALanguageManager: ILanguageManager;
   const AGlobalDownloadConfig: IGlobalDownloadConfig;
   const AInvisibleBrowser: IInvisibleBrowser;
@@ -195,7 +195,7 @@ var
   VBanPredicate: IPredicateByBinaryData;
 begin
   inherited Create;
-  FCoordConverter := ACoordConverter;
+  FProjectionSet := AProjectionSet;
   FTileDownloaderConfig := ATileDownloaderConfig;
   FTileDownloadRequestBuilderConfig := ATileDownloadRequestBuilderConfig;
   FAppClosingNotifier := AAppClosingNotifier;
@@ -231,7 +231,7 @@ begin
         GetScriptText(AZmpData),
         FTileDownloadRequestBuilderConfig,
         FTileDownloaderConfig,
-        FCoordConverter,
+        FProjectionSet.GeoConvert,
         VDownloadChecker,
         AProjFactory,
         ALanguageManager
@@ -378,7 +378,7 @@ begin
   Result := nil;
   if FZmpDownloadEnabled then begin
     if FState.GetStatic.Enabled then begin
-      if FCoordConverter.CheckTilePosStrict(ATile, AZoom) then begin
+      if FProjectionSet.Zooms[AZoom].CheckTilePosStrict(ATile) then begin
         if ACheckTileSize then begin
           VRequest :=
             TTileRequestWithSizeCheck.Create(
