@@ -35,7 +35,7 @@ uses
   i_ListenerTime,
   i_NotifierTime,
   i_TileObjCache,
-  i_CoordConverter,
+  i_ProjectionSet,
   i_TileStorage,
   u_BaseInterfacedObject;
 
@@ -46,7 +46,7 @@ type
     FGCNotifier: INotifierTime;
     FConfigListener: IListener;
     FTileStorage: ITileStorage;
-    FCoordConverter: ICoordConverter;
+    FProjectionSet: IProjectionSet;
     FStorageChangeListener: IListener;
     FTTLListener: IListenerTimeWithUsedFlag;
 
@@ -93,7 +93,7 @@ type
     constructor Create(
       const AGCNotifier: INotifierTime;
       const ATileStorage: ITileStorage;
-      const ACoordConverter: ICoordConverter;
+      const AProjectionSet: IProjectionSet;
       const AConfig: IMainMemCacheConfig;
       const APerfList: IInternalPerformanceCounterList
     );
@@ -142,7 +142,7 @@ uses
 constructor TMemTileCacheBase.Create(
   const AGCNotifier: INotifierTime;
   const ATileStorage: ITileStorage;
-  const ACoordConverter: ICoordConverter;
+  const AProjectionSet: IProjectionSet;
   const AConfig: IMainMemCacheConfig;
   const APerfList: IInternalPerformanceCounterList
 );
@@ -157,7 +157,7 @@ begin
 
   if ATileStorage <> nil then begin
     FTileStorage := ATileStorage;
-    FCoordConverter := ACoordConverter;
+    FProjectionSet := AProjectionSet;
     FStorageChangeListener := TNotifyEventListener.Create(Self.OnTileStorageChange);
     VNotifier := FTileStorage.TileNotifier;
     if VNotifier <> nil then begin
@@ -201,7 +201,7 @@ begin
     FTileStorage := nil;
   end;
   FStorageChangeListener := nil;
-  FCoordConverter := nil;
+  FProjectionSet := nil;
 
   Clear;
   FreeAndNil(FCacheList);

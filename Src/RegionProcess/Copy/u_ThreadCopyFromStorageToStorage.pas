@@ -76,7 +76,7 @@ implementation
 uses
   SysUtils,
   i_TileIterator,
-  i_CoordConverter,
+  i_ProjectionSet,
   i_ProjectionInfo,
   i_GeometryProjected,
   u_TileIteratorByPolygon,
@@ -118,7 +118,7 @@ var
   VTileIterators: array of array of ITileIterator;
   I, J: Integer;
   VZoom: Byte;
-  VGeoConvert: ICoordConverter;
+  VProjectionSet: IProjectionSet;
   VProjection: IProjectionInfo;
   VProjectedPolygon: IGeometryProjectedPolygon;
   VTileIterator: ITileIterator;
@@ -131,12 +131,8 @@ begin
   for I := 0 to Length(FTasks) - 1 do begin
     for J := 0 to Length(FZooms) - 1 do begin
       VZoom := FZooms[J];
-      VGeoConvert := FTasks[I].FSource.CoordConverter;
-      VProjection :=
-        FProjectionFactory.GetByConverterAndZoom(
-          VGeoConvert,
-          VZoom
-        );
+      VProjectionSet := FTasks[I].FSource.ProjectionSet;
+      VProjection := VProjectionSet.Zooms[VZoom];
       VProjectedPolygon :=
         FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
           VProjection,

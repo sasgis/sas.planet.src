@@ -27,7 +27,7 @@ uses
   Classes,
   SysUtils,
   i_BinaryData,
-  i_CoordConverter,
+  i_ProjectionSet,
   i_MapVersionInfo,
   i_MapVersionFactory,
   i_MapVersionRequest,
@@ -109,7 +109,7 @@ type
     constructor Create(
       const AStorageTypeAbilities: ITileStorageTypeAbilities;
       const AStorageForceAbilities: ITileStorageAbilities;
-      const AGeoConverter: ICoordConverter;
+      const AProjectionSet: IProjectionSet;
       const ATileNotifier: INotifierTilePyramidUpdateInternal;
       const AStoragePath: string;
       const AMainContentType: IContentTypeInfoBasic;
@@ -147,7 +147,7 @@ const
 constructor TTileStorageFileSystem.Create(
   const AStorageTypeAbilities: ITileStorageTypeAbilities;
   const AStorageForceAbilities: ITileStorageAbilities;
-  const AGeoConverter: ICoordConverter;
+  const AProjectionSet: IProjectionSet;
   const ATileNotifier: INotifierTilePyramidUpdateInternal;
   const AStoragePath: string;
   const AMainContentType: IContentTypeInfoBasic;
@@ -157,7 +157,7 @@ constructor TTileStorageFileSystem.Create(
   const ATileNameParser: ITileFileNameParser
 );
 begin
-  Assert(AGeoConverter <> nil);
+  Assert(AProjectionSet <> nil);
   Assert(AStoragePath <> '');
   Assert(AMainContentType <> nil);
   Assert(ATileNameGenerator <> nil);
@@ -166,7 +166,7 @@ begin
     AStorageTypeAbilities,
     AStorageForceAbilities,
     AMapVersionFactory,
-    AGeoConverter,
+    AProjectionSet,
     ATileNotifier,
     AStoragePath
   );
@@ -394,7 +394,7 @@ begin
   if GetState.GetStatic.ReadAccess <> asDisabled then begin
     VRect := ARect;
     VZoom := AZoom;
-    GeoConverter.ValidateTileRect(VRect, VZoom);
+    ProjectionSet.Zooms[VZoom].ValidateTileRect(VRect);
     VCount.X := VRect.Right - VRect.Left;
     VCount.Y := VRect.Bottom - VRect.Top;
     if (VCount.X > 0) and (VCount.Y > 0) and (VCount.X <= 2048) and (VCount.Y <= 2048) then begin

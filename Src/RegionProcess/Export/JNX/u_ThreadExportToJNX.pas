@@ -75,7 +75,7 @@ uses
   i_TileStorage,
   i_TileInfoBasic,
   i_ContentTypeInfo,
-  i_CoordConverter,
+  i_ProjectionSet,
   i_ProjectionInfo,
   i_Bitmap32Static,
   i_TileIterator,
@@ -134,7 +134,7 @@ var
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
   VSaver: IBitmapTileSaver;
-  VGeoConvert: ICoordConverter;
+  VProjectionSet: IProjectionSet;
   VStringStream: TALStringStream;
   VWriter: TMultiVolumeJNXWriter;
   VTileBounds: TJNXRect;
@@ -156,8 +156,8 @@ begin
   SetLength(VTileIterators, Length(FTasks));
   for i := 0 to Length(FTasks) - 1 do begin
     VZoom := FTasks[i].FZoom;
-    VGeoConvert := FTasks[i].FTileStorage.CoordConverter;
-    VProjection := FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom);
+    VProjectionSet := FTasks[i].FTileStorage.ProjectionSet;
+    VProjection := VProjectionSet.Zooms[VZoom];
     VProjectedPolygon :=
       FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
         VProjection,
@@ -198,7 +198,7 @@ begin
           VTileStorage := FTasks[i].FTileStorage;
           VVersion := FTasks[i].FMapVersion;
           VZoom := FTasks[i].FZoom;
-          VGeoConvert := VTileStorage.CoordConverter;
+          VProjectionSet := VTileStorage.ProjectionSet;
           VTileIterator := VTileIterators[i];
           while VTileIterator.Next(VTile) do begin
             if CancelNotifier.IsOperationCanceled(OperationID) then begin
@@ -222,8 +222,8 @@ begin
               end;
 
               if Assigned(VData) then begin
-                VTopLeft := VGeoConvert.TilePos2LonLat(Point(VTile.X, VTile.Y + 1), VZoom);
-                VBottomRight := VGeoConvert.TilePos2LonLat(Point(VTile.X + 1, VTile.Y), VZoom);
+                VTopLeft := VProjectionSet.Zooms[VZoom].TilePos2LonLat(Point(VTile.X, VTile.Y + 1));
+                VBottomRight := VProjectionSet.Zooms[VZoom].TilePos2LonLat(Point(VTile.X + 1, VTile.Y));
 
                 VTileBounds := JNXRect(
                   WGS84CoordToJNX(VBottomRight.Y),

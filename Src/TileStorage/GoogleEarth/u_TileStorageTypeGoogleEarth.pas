@@ -23,7 +23,7 @@ unit u_TileStorageTypeGoogleEarth;
 interface
 
 uses
-  i_CoordConverter,
+  i_ProjectionSet,
   i_ContentTypeInfo,
   i_MapVersionFactory,
   i_ConfigDataProvider,
@@ -42,7 +42,7 @@ type
     function BuildStorageInternal(
       const AStorageConfigData: IConfigDataProvider;
       const AForceAbilities: ITileStorageAbilities;
-      const AGeoConverter: ICoordConverter;
+      const AProjectionSet: IProjectionSet;
       const AMainContentType: IContentTypeInfoBasic;
       const ATileNotifier: INotifierTilePyramidUpdateInternal;
       const APath: string;
@@ -91,7 +91,7 @@ end;
 function TTileStorageTypeGoogleEarth.BuildStorageInternal(
   const AStorageConfigData: IConfigDataProvider;
   const AForceAbilities: ITileStorageAbilities;
-  const AGeoConverter: ICoordConverter;
+  const AProjectionSet: IProjectionSet;
   const AMainContentType: IContentTypeInfoBasic;
   const ATileNotifier: INotifierTilePyramidUpdateInternal;
   const APath: string;
@@ -102,8 +102,8 @@ var
 begin
   Result := nil;
   if
-    (AGeoConverter.GetProjectionEPSG = CGELonLatProjectionEPSG) and
-    (AGeoConverter.GetTileSplitCode = CTileSplitQuadrate256x256)
+    (AProjectionSet.GeoConvert.GetProjectionEPSG = CGELonLatProjectionEPSG) and
+    (AProjectionSet.GeoConvert.GetTileSplitCode = CTileSplitQuadrate256x256)
   then begin
     VNameInCache := ExtractFileName(APath);
     if SameText(VNameInCache, 'earth')  then begin
@@ -122,7 +122,7 @@ begin
       TTileStorageGoogleEarth.Create(
         GetAbilities,
         AForceAbilities,
-        AGeoConverter,
+        AProjectionSet,
         ATileNotifier,
         GetConfig.BasePath.FullPath,
         VNameInCache,

@@ -46,7 +46,7 @@ type
   private
     FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-    FCoordConverterFactory: ICoordConverterFactory;
+    FProjectionSetFactory: IProjectionSetFactory;
     FExportPath: string;
     FTileStorage: ITileStorage;
     FMapVersion: IMapVersionRequest;
@@ -74,7 +74,7 @@ type
       const AExportPath: string;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const ACoordConverterFactory: ICoordConverterFactory;
+      const AProjectionSetFactory: IProjectionSetFactory;
       const APolygon: IGeometryLonLatPolygon;
       const AZoomArr: TByteDynArray;
       const ATileStorage: ITileStorage;
@@ -94,7 +94,7 @@ uses
   ALSqlite3Wrapper,
   c_CoordConverter,
   i_GeometryProjected,
-  i_CoordConverter,
+  i_ProjectionSet,
   i_ProjectionInfo,
   i_TileIterator,
   i_Bitmap32Static,
@@ -108,7 +108,7 @@ constructor TThreadExportToRMapsSQLite.Create(
   const AExportPath: string;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const ACoordConverterFactory: ICoordConverterFactory;
+  const AProjectionSetFactory: IProjectionSetFactory;
   const APolygon: IGeometryLonLatPolygon;
   const AZoomArr: TByteDynArray;
   const ATileStorage: ITileStorage;
@@ -128,7 +128,7 @@ begin
   );
   FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
-  FCoordConverterFactory := ACoordConverterFactory;
+  FProjectionSetFactory := AProjectionSetFactory;
   FExportPath := AExportPath;
   FTileStorage := ATileStorage;
   FMapVersion := AMapVersion;
@@ -148,7 +148,7 @@ var
   VDoDirectCopy: Boolean;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
-  VGeoConvert: ICoordConverter;
+  VProjectionSet: IProjectionSet;
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
   VProjectedPolygon: IGeometryProjectedPolygon;
@@ -171,14 +171,14 @@ begin
 
   for I := 0 to Length(FZooms) - 1 do begin
     if VDoDirectCopy then begin
-      VGeoConvert := FTileStorage.CoordConverter;
+      VProjectionSet := FTileStorage.ProjectionSet;
     end else begin
-      VGeoConvert := FCoordConverterFactory.GetCoordConverterByCode(
+      VProjectionSet := FProjectionSetFactory.GetProjectionSetByCode(
         CGoogleProjectionEPSG,
         CTileSplitQuadrate256x256
       );
     end;
-    VProjection := FProjectionFactory.GetByConverterAndZoom(VGeoConvert, FZooms[I]);
+    VProjection := VProjectionSet.Zooms[FZooms[I]];
     VProjectedPolygon :=
       FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
         VProjection,

@@ -37,7 +37,7 @@ uses
   i_TileStorage,
   i_TileStorageAbilities,
   i_InternalDomainOptions,
-  i_CoordConverter,
+  i_ProjectionSet,
   i_ContentTypeManager,
   i_NotifierTime,
   i_ListenerTime,
@@ -231,7 +231,7 @@ type
     constructor Create(
       const AStorageTypeAbilities: ITileStorageTypeAbilities;
       const AStorageForceAbilities: ITileStorageAbilities;
-      const AGeoConverter: ICoordConverter;
+      const AProjectionSet: IProjectionSet;
       const ATileNotifier: INotifierTilePyramidUpdateInternal;
       const AGlobalStorageIdentifier, AStoragePath: String;
       const AGCNotifier: INotifierTime;
@@ -589,7 +589,7 @@ end;
 constructor TTileStorageETS.Create(
   const AStorageTypeAbilities: ITileStorageTypeAbilities;
   const AStorageForceAbilities: ITileStorageAbilities;
-  const AGeoConverter: ICoordConverter;
+  const AProjectionSet: IProjectionSet;
   const ATileNotifier: INotifierTilePyramidUpdateInternal;
   const AGlobalStorageIdentifier, AStoragePath: String;
   const AGCNotifier: INotifierTime;
@@ -611,7 +611,7 @@ begin
     AStorageTypeAbilities,
     AStorageForceAbilities,
     AMapVersionFactory,
-    AGeoConverter,
+    AProjectionSet,
     ATileNotifier,
     VCorrectPath
   );

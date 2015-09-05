@@ -212,7 +212,7 @@ var
         VTasks[i].FTarget :=
           VStorageType.StorageType.BuildStorage(
             nil,
-            VTasks[i].FSource.CoordConverter,
+            VTasks[i].FSource.ProjectionSet,
             VMapType.ContentType,
             nil,
             VTargetStoragePath,
@@ -258,7 +258,7 @@ var
       ATarget :=
         VStorageType.StorageType.BuildStorage(
           nil,
-          VMapType.TileStorage.CoordConverter,
+          VMapType.TileStorage.ProjectionSet,
           VContentType,
           nil,
           VTargetStoragePath,

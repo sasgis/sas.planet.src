@@ -160,7 +160,7 @@ type
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AContentTypeManager: IContentTypeManager;
-      const ACoordConverterFactory: ICoordConverterFactory;
+      const AProjectionSetFactory: IProjectionSetFactory;
       const ATileStorageTypeList: ITileStorageTypeListStatic;
       const ATileNameGenerator: ITileFileNameGeneratorsList;
       const AViewConfig: IGlobalViewMainConfig;
@@ -221,7 +221,7 @@ constructor TfrmRegionProcess.Create(
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AContentTypeManager: IContentTypeManager;
-  const ACoordConverterFactory: ICoordConverterFactory;
+  const AProjectionSetFactory: IProjectionSetFactory;
   const ATileStorageTypeList: ITileStorageTypeListStatic;
   const ATileNameGenerator: ITileFileNameGeneratorsList;
   const AViewConfig: IGlobalViewMainConfig;
@@ -280,7 +280,7 @@ begin
       VProgressFactory,
       ALanguageManager,
       VMapSelectFrameBuilder,
-      ACoordConverterFactory,
+      AProjectionSetFactory,
       AProjectionFactory,
       AVectorGeometryProjectedFactory,
       ABitmapFactory,

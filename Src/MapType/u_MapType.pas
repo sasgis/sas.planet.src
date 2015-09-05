@@ -362,7 +362,7 @@ begin
   FStorage :=
     TTileStorageOfMapType.Create(
       AGlobalCacheConfig,
-      FProjectionSet.GeoConvert,
+      FProjectionSet,
       AProjectionInfoFactory,
       ATileStorageTypeList,
       FStorageConfig,
@@ -377,7 +377,7 @@ begin
       TMemTileCacheBitmap.Create(
         AGCNotifier,
         FStorage,
-        FProjectionSet.GeoConvert,
+        FProjectionSet,
         AMainMemCacheConfig,
         VPerfCounterList.CreateAndAddNewSubList('BmpInMem')
       );
@@ -387,7 +387,7 @@ begin
       TMemTileCacheVector.Create(
         AGCNotifier,
         FStorage,
-        FProjectionSet.GeoConvert,
+        FProjectionSet,
         AMainMemCacheConfig,
         VPerfCounterList.CreateAndAddNewSubList('VectorInMem')
       );

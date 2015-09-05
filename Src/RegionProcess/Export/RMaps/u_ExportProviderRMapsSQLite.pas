@@ -42,7 +42,7 @@ type
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
-    FCoordConverterFactory: ICoordConverterFactory;
+    FProjectionSetFactory: IProjectionSetFactory;
   protected
     function CreateFrame: TFrame; override;
   protected
@@ -57,7 +57,7 @@ type
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
-      const ACoordConverterFactory: ICoordConverterFactory
+      const AProjectionSetFactory: IProjectionSetFactory
     );
   end;
 
@@ -88,7 +88,7 @@ constructor TExportProviderRMapsSQLite.Create(
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
-  const ACoordConverterFactory: ICoordConverterFactory
+  const AProjectionSetFactory: IProjectionSetFactory
 );
 begin
   Assert(Assigned(ABitmap32StaticFactory));
@@ -101,7 +101,7 @@ begin
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
-  FCoordConverterFactory := ACoordConverterFactory;
+  FProjectionSetFactory := AProjectionSetFactory;
 end;
 
 function TExportProviderRMapsSQLite.CreateFrame: TFrame;
@@ -170,7 +170,7 @@ begin
       VPath,
       FProjectionFactory,
       FVectorGeometryProjectedFactory,
-      FCoordConverterFactory,
+      FProjectionSetFactory,
       APolygon,
       VZoomArr,
       VTileStorage,

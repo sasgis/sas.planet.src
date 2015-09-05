@@ -48,7 +48,7 @@ type
     FFormatSettings: TFormatSettings;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-    FCoordConverterFactory: ICoordConverterFactory;
+    FProjectionSetFactory: IProjectionSetFactory;
     FExportPath: string;
     FTileStorage: ITileStorage;
     FMapVersion: IMapVersionRequest;
@@ -76,7 +76,7 @@ type
       const AExportPath: string;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const ACoordConverterFactory: ICoordConverterFactory;
+      const AProjectionSetFactory: IProjectionSetFactory;
       const APolygon: IGeometryLonLatPolygon;
       const AZoomArr: TByteDynArray;
       const ATileStorage: ITileStorage;
@@ -97,7 +97,7 @@ uses
   c_CoordConverter,
   t_GeoTypes,
   i_GeometryProjected,
-  i_CoordConverter,
+  i_ProjectionSet,
   i_ProjectionInfo,
   i_Bitmap32Static,
   i_TileRect,
@@ -121,7 +121,7 @@ constructor TThreadExportToOruxMapsSQLite.Create(
   const AExportPath: string;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const ACoordConverterFactory: ICoordConverterFactory;
+  const AProjectionSetFactory: IProjectionSetFactory;
   const APolygon: IGeometryLonLatPolygon;
   const AZoomArr: TByteDynArray;
   const ATileStorage: ITileStorage;
@@ -141,7 +141,7 @@ begin
   FFormatSettings.DecimalSeparator := '.';
   FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
-  FCoordConverterFactory := ACoordConverterFactory;
+  FProjectionSetFactory := AProjectionSetFactory;
   FExportPath := AExportPath;
   FTileStorage := ATileStorage;
   FMapVersion := AMapVersion;
@@ -161,7 +161,7 @@ var
   VDoDirectCopy: Boolean;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
-  VGeoConvert: ICoordConverter;
+  VProjectionSet: IProjectionSet;
   VRect: TRect;
   VTileRect: ITileRect;
   VTileIterators: array of ITileIterator;
@@ -197,10 +197,10 @@ begin
 
   VTilesToProcess := 0;
 
-  VGeoConvert := FTileStorage.CoordConverter;
+  VProjectionSet := FTileStorage.ProjectionSet;
 
   for I := 0 to Length(FZooms) - 1 do begin
-    VProjection := FProjectionFactory.GetByConverterAndZoom(VGeoConvert, FZooms[I]);
+    VProjection := VProjectionSet.Zooms[FZooms[I]];
     VProjectedPolygons[I] :=
       FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
         VProjection,
@@ -209,7 +209,7 @@ begin
     if VIterByRect then begin
       VRect :=
         RectFromDoubleRect(
-          VGeoConvert.PixelRectFloat2TileRectFloat(VProjectedPolygons[I].Bounds, FZooms[I]),
+          VProjection.PixelRectFloat2TileRectFloat(VProjectedPolygons[I].Bounds),
           rrOutside
         );
       VTileRect := TTileRect.Create(VProjection, VRect);
@@ -250,7 +250,7 @@ begin
           VDoSaveBlank := False;
 
           if VIterByRect then begin
-            VDoubleRect := VGeoConvert.TilePos2PixelRectFloat(VTile, VZoom);
+            VDoubleRect := VProjection.TilePos2PixelRectFloat(VTile);
             VDoSaveBlank := not VProjectedPolygon.IsRectIntersectPolygon(VDoubleRect);
           end;
 

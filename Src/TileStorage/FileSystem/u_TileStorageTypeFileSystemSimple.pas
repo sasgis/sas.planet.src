@@ -23,7 +23,7 @@ unit u_TileStorageTypeFileSystemSimple;
 interface
 
 uses
-  i_CoordConverter,
+  i_ProjectionSet,
   i_ContentTypeInfo,
   i_TileFileNameGenerator,
   i_TileFileNameParser,
@@ -45,7 +45,7 @@ type
     function BuildStorageInternal(
       const AStorageConfigData: IConfigDataProvider;
       const AForceAbilities: ITileStorageAbilities;
-      const AGeoConverter: ICoordConverter;
+      const AProjectionSet: IProjectionSet;
       const AMainContentType: IContentTypeInfoBasic;
       const ATileNotifier: INotifierTilePyramidUpdateInternal;
       const APath: string;
@@ -95,7 +95,7 @@ end;
 function TTileStorageTypeFileSystemSimple.BuildStorageInternal(
   const AStorageConfigData: IConfigDataProvider;
   const AForceAbilities: ITileStorageAbilities;
-  const AGeoConverter: ICoordConverter;
+  const AProjectionSet: IProjectionSet;
   const AMainContentType: IContentTypeInfoBasic;
   const ATileNotifier: INotifierTilePyramidUpdateInternal;
   const APath: string;
@@ -106,7 +106,7 @@ begin
     TTileStorageFileSystem.Create(
       GetAbilities,
       AForceAbilities,
-      AGeoConverter,
+      AProjectionSet,
       ATileNotifier,
       APath,
       AMainContentType,

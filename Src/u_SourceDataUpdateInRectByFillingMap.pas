@@ -83,7 +83,6 @@ uses
   Math,
   t_GeoTypes,
   i_LonLatRect,
-  i_CoordConverter,
   i_NotifierTilePyramidUpdate,
   u_ListenerByEvent,
   u_TileUpdateListenerToLonLat,

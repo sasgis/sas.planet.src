@@ -25,7 +25,7 @@ interface
 uses
   Types,
   i_BinaryData,
-  i_CoordConverter,
+  i_ProjectionSet,
   i_NotifierOperation,
   i_NotifierTilePyramidUpdate,
   i_ContentTypeInfo,
@@ -50,8 +50,8 @@ type
     function GetState: IStorageStateChangeble;
     property State: IStorageStateChangeble read GetState;
 
-    function GetCoordConverter: ICoordConverter;
-    property CoordConverter: ICoordConverter read GetCoordConverter;
+    function GetProjectionSet: IProjectionSet;
+    property ProjectionSet: IProjectionSet read GetProjectionSet;
 
     function GetTileFileName(
       const AXY: TPoint;

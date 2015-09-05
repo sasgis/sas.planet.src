@@ -25,7 +25,7 @@ interface
 uses
   Types,
   i_BinaryData,
-  i_CoordConverter,
+  i_ProjectionSet,
   i_MapVersionInfo,
   i_MapVersionFactory,
   i_MapVersionRequest,
@@ -44,7 +44,7 @@ type
   TTileStorageAbstract = class(TBaseInterfacedObject, ITileStorage)
   private
     FStorageTypeAbilities: ITileStorageTypeAbilities;
-    FGeoConverter: ICoordConverter;
+    FProjectionSet: IProjectionSet;
     FMapVersionFactory: IMapVersionFactory;
     FTileNotifier: INotifierTilePyramidUpdate;
     FStoragePath: string;
@@ -59,13 +59,13 @@ type
     );
     property StorageStateInternal: IStorageStateInternal read FStorageStateInternal;
     property StoragePath: string read FStoragePath;
-    property GeoConverter: ICoordConverter read FGeoConverter;
+    property ProjectionSet: IProjectionSet read FProjectionSet;
     property MapVersionFactory: IMapVersionFactory read FMapVersionFactory;
   protected
     function GetStorageTypeAbilities: ITileStorageTypeAbilities;
     function GetTileNotifier: INotifierTilePyramidUpdate;
     function GetState: IStorageStateChangeble;
-    function GetCoordConverter: ICoordConverter;
+    function GetProjectionSet: IProjectionSet;
 
     function GetTileFileName(
       const AXY: TPoint;
@@ -121,7 +121,7 @@ type
       const AStorageTypeAbilities: ITileStorageTypeAbilities;
       const AStorageForceAbilities: ITileStorageAbilities;
       const AMapVersionFactory: IMapVersionFactory;
-      const AGeoConverter: ICoordConverter;
+      const AProjectionSet: IProjectionSet;
       const ATileNotifier: INotifierTilePyramidUpdateInternal;
       const AStoragePath: string
     );
@@ -138,7 +138,7 @@ constructor TTileStorageAbstract.Create(
   const AStorageTypeAbilities: ITileStorageTypeAbilities;
   const AStorageForceAbilities: ITileStorageAbilities;
   const AMapVersionFactory: IMapVersionFactory;
-  const AGeoConverter: ICoordConverter;
+  const AProjectionSet: IProjectionSet;
   const ATileNotifier: INotifierTilePyramidUpdateInternal;
   const AStoragePath: string
 );
@@ -149,7 +149,7 @@ begin
   FStorageTypeAbilities := AStorageTypeAbilities;
   FMapVersionFactory := AMapVersionFactory;
   FStoragePath := AStoragePath;
-  FGeoConverter := AGeoConverter;
+  FProjectionSet := AProjectionSet;
 
   VState := TStorageStateInternal.Create(AStorageForceAbilities);
   FStorageStateInternal := VState;
@@ -159,9 +159,9 @@ begin
   FTileNotifierInternal := ATileNotifier;
 end;
 
-function TTileStorageAbstract.GetCoordConverter: ICoordConverter;
+function TTileStorageAbstract.GetProjectionSet: IProjectionSet;
 begin
-  Result := FGeoConverter;
+  Result := FProjectionSet;
 end;
 
 function TTileStorageAbstract.GetListOfTileVersions(

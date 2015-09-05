@@ -26,7 +26,7 @@ uses
   SysUtils,
   i_TileRect,
   i_TileRectChangeable,
-  i_CoordConverter,
+  i_ProjectionSet,
   i_CoordConverterFactory,
   i_Listener,
   u_ChangeableBase;
@@ -36,7 +36,7 @@ type
   private
     FProjectionInfoFactory: IProjectionInfoFactory;
     FSource: ITileRectChangeable;
-    FResultProjectionType: ICoordConverter;
+    FResultProjectionSet: IProjectionSet;
     FMainLock: IReadWriteSync;
     FResultLock: IReadWriteSync;
     FListener: IListener;
@@ -50,7 +50,7 @@ type
     constructor Create(
       const AProjectionInfoFactory: IProjectionInfoFactory;
       const ASource: ITileRectChangeable;
-      const AResultProjectionType: ICoordConverter;
+      const AResultProjectionSet: IProjectionSet;
       const AMainLock: IReadWriteSync;
       const AResultLock: IReadWriteSync
     );
@@ -74,19 +74,19 @@ uses
 constructor TTileRectChangeableByOtherTileRect.Create(
   const AProjectionInfoFactory: IProjectionInfoFactory;
   const ASource: ITileRectChangeable;
-  const AResultProjectionType: ICoordConverter;
+  const AResultProjectionSet: IProjectionSet;
   const AMainLock, AResultLock: IReadWriteSync
 );
 begin
   Assert(Assigned(AProjectionInfoFactory));
   Assert(Assigned(ASource));
-  Assert(Assigned(AResultProjectionType));
+  Assert(Assigned(AResultProjectionSet));
   Assert(Assigned(AMainLock));
   Assert(Assigned(AResultLock));
   inherited Create(AMainLock);
   FProjectionInfoFactory := AProjectionInfoFactory;
   FSource := ASource;
-  FResultProjectionType := AResultProjectionType;
+  FResultProjectionSet := AResultProjectionSet;
   FMainLock := AMainLock;
   FResultLock := AResultLock;
   FPrevSource := nil;
@@ -138,13 +138,13 @@ begin
     if Assigned(VSource) then begin
       if not VSource.IsEqual(FPrevSource) then begin
         VSourceProjection := VSource.ProjectionInfo;
-        if FResultProjectionType.ProjectionType.IsSame(VSourceProjection.ProjectionType) then begin
+        if FResultProjectionSet.IsProjectionFromThisSet(VSourceProjection) then begin
           VResult := VSource;
         end else begin
-          VProjection := FProjectionInfoFactory.GetByConverterAndZoom(FResultProjectionType, VSourceProjection.Zoom);
+          VProjection := FResultProjectionSet.GetSuitableProjection(VSourceProjection);
           Assert(VSourceProjection.CheckTileRect(VSource.Rect));
           VLonLatRect := VSourceProjection.TileRect2LonLatRect(VSource.Rect);
-          FResultProjectionType.ValidateLonLatRect(VLonLatRect);
+          VProjection.ProjectionType.ValidateLonLatRect(VLonLatRect);
           VTileRectFloat := VProjection.LonLatRect2TileRectFloat(VLonLatRect);
           VTileRect := RectFromDoubleRect(VTileRectFloat, rrOutside);
           Assert(VProjection.CheckTileRect(VTileRect));

@@ -75,7 +75,6 @@ implementation
 uses
   Math,
   i_GeometryProjected,
-  i_CoordConverter,
   i_ProjectionInfo,
   i_TileInfoBasic,
   i_TileIterator,
@@ -139,7 +138,7 @@ begin
   if FRelativePath then begin
     savepath := ExtractRelativePath(ExtractFilePath(FPathExport), savepath);
   end;
-  VExtRect := FTileStorage.CoordConverter.TilePos2LonLatRect(ATile, AZoom);
+  VExtRect := FTileStorage.ProjectionSet.Zooms[AZoom].TilePos2LonLatRect(ATile);
 
   north := R2StrPoint(VExtRect.Top);
   south := R2StrPoint(VExtRect.Bottom);
@@ -184,7 +183,7 @@ begin
     VZoom := FZooms[level];
     VTileRect :=
       RectFromDoubleRect(
-        FTileStorage.CoordConverter.RelativeRect2TileRectFloat(FTileStorage.CoordConverter.TilePos2RelativeRect(ATile, AZoom), VZoom),
+        FTileStorage.ProjectionSet.Zooms[VZoom].RelativeRect2TileRectFloat(FTileStorage.ProjectionSet.Zooms[AZoom].TilePos2RelativeRect(ATile)),
         rrClosest
       );
     VIterator.Init(VTileRect);
@@ -213,11 +212,7 @@ begin
   FTilesToProcess := 0;
   if Length(FZooms) > 0 then begin
     VZoom := FZooms[0];
-    VProjection :=
-      FProjectionFactory.GetByConverterAndZoom(
-        FTileStorage.CoordConverter,
-        VZoom
-      );
+    VProjection := FTileStorage.ProjectionSet.Zooms[VZoom];
     VProjectedPolygon :=
       FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
         VProjection,
@@ -227,11 +222,7 @@ begin
     FTilesToProcess := FTilesToProcess + VIterator.TilesTotal;
     for i := 0 to Length(FZooms) - 1 do begin
       VZoom := FZooms[i];
-      VProjection :=
-        FProjectionFactory.GetByConverterAndZoom(
-          FTileStorage.CoordConverter,
-          VZoom
-        );
+      VProjection := FTileStorage.ProjectionSet.Zooms[VZoom];
       VProjectedPolygon :=
         FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
           VProjection,

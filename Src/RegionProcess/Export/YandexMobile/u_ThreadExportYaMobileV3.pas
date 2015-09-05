@@ -54,7 +54,7 @@ type
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FIsReplace: boolean;
     FExportPath: string;
-    FCoordConverterFactory: ICoordConverterFactory;
+    FProjectionSetFactory: IProjectionSetFactory;
     function GetMobileFile(
       X, Y: Integer;
       Z: Byte;
@@ -77,7 +77,7 @@ type
   public
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
-      const ACoordConverterFactory: ICoordConverterFactory;
+      const AProjectionSetFactory: IProjectionSetFactory;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
@@ -95,7 +95,7 @@ implementation
 uses
   GR32,
   c_CoordConverter,
-  i_CoordConverter,
+  i_ProjectionSet,
   i_Bitmap32Static,
   i_ProjectionInfo,
   i_GeometryProjected,
@@ -109,7 +109,7 @@ const
 
 constructor TThreadExportYaMobileV3.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
-  const ACoordConverterFactory: ICoordConverterFactory;
+  const AProjectionSetFactory: IProjectionSetFactory;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
@@ -126,7 +126,7 @@ begin
     AZoomArr,
     Self.ClassName
   );
-  FCoordConverterFactory := ACoordConverterFactory;
+  FProjectionSetFactory := AProjectionSetFactory;
   FProjectionFactory := AProjectionFactory;
   FBitmapFactory := ABitmapFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
@@ -288,7 +288,7 @@ var
   VBitmapTile: IBitmap32Static;
   bmp32crop: TCustomBitmap32;
   tc: cardinal;
-  VGeoConvert: ICoordConverter;
+  VProjectionSet: IProjectionSet;
   VTile: TPoint;
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
@@ -306,13 +306,13 @@ begin
     sizeim := 128;
     bmp32crop.Width := sizeim;
     bmp32crop.Height := sizeim;
-    VGeoConvert := FCoordConverterFactory.GetCoordConverterByCode(CYandexProjectionEPSG, CTileSplitQuadrate256x256);
+    VProjectionSet := FProjectionSetFactory.GetProjectionSetByCode(CYandexProjectionEPSG, CTileSplitQuadrate256x256);
     VTilesToProcess := 0;
     SetLength(VTileIterators, Length(FZooms));
 
     for i := 0 to Length(FZooms) - 1 do begin
       VZoom := FZooms[i];
-      VProjection := FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom);
+      VProjection := VProjectionSet.Zooms[VZoom];
       VProjectedPolygon :=
         FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
           VProjection,

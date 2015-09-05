@@ -39,7 +39,7 @@ type
   TExportProviderYaMobileV4 = class(TExportProviderAbstract)
   private
     FFrame: TfrExportYaMobileV4;
-    FCoordConverterFactory: ICoordConverterFactory;
+    FProjectionSetFactory: IProjectionSetFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
@@ -58,7 +58,7 @@ type
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
-      const ACoordConverterFactory: ICoordConverterFactory
+      const AProjectionSetFactory: IProjectionSetFactory
     );
   end;
 
@@ -85,7 +85,7 @@ constructor TExportProviderYaMobileV4.Create(
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
-  const ACoordConverterFactory: ICoordConverterFactory
+  const AProjectionSetFactory: IProjectionSetFactory
 );
 begin
   Assert(Assigned(ABitmap32StaticFactory));
@@ -94,7 +94,7 @@ begin
     ALanguageManager,
     AMapSelectFrameBuilder
   );
-  FCoordConverterFactory := ACoordConverterFactory;
+  FProjectionSetFactory := AProjectionSetFactory;
   FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
@@ -192,7 +192,7 @@ begin
   VThread :=
     TThreadExportYaMobileV4.Create(
       VProgressInfo,
-      FCoordConverterFactory,
+      FProjectionSetFactory,
       FProjectionFactory,
       FVectorGeometryProjectedFactory,
       FBitmap32StaticFactory,

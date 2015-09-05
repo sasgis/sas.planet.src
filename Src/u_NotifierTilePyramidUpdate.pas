@@ -29,7 +29,7 @@ uses
   i_Listener,
   i_TileKey,
   i_TileRect,
-  i_CoordConverter,
+  i_ProjectionSet,
   i_CoordConverterFactory,
   i_NotifierTilePyramidUpdate,
   u_BaseInterfacedObject;
@@ -73,7 +73,7 @@ type
 
   TNotifierTilePyramidUpdate = class(TBaseInterfacedObject, INotifierTilePyramidUpdate, INotifierTilePyramidUpdateInternal)
   private
-    FGeoCoder: ICoordConverter;
+    FProjectionSet: IProjectionSet;
     FProjectionInfoFactory: IProjectionInfoFactory;
     FMinValidZoom: Byte;
     FMaxValidZoom: Byte;
@@ -81,7 +81,7 @@ type
     FListeners: TList;
     FListenersByZoom: array of TNotifierTileRectUpdateOneZoomSimple;
   private
-    function GetGeoCoder: ICoordConverter;
+    function GetProjectionSet: IProjectionSet;
 
     procedure AddListenerByRect(
       const AListener: IListener;
@@ -111,7 +111,7 @@ type
   public
     constructor Create(
       const AProjectionInfoFactory: IProjectionInfoFactory;
-      const AGeoCoder: ICoordConverter
+      const AGeoCoder: IProjectionSet
     );
     destructor Destroy; override;
   end;
@@ -316,7 +316,7 @@ end;
 
 constructor TNotifierTilePyramidUpdate.Create(
   const AProjectionInfoFactory: IProjectionInfoFactory;
-  const AGeoCoder: ICoordConverter
+  const AGeoCoder: IProjectionSet
 );
 var
   VCount: Integer;
@@ -325,10 +325,10 @@ begin
   Assert(AGeoCoder <> nil);
   Assert(Assigned(AProjectionInfoFactory));
   inherited Create;
-  FGeoCoder := AGeoCoder;
+  FProjectionSet := AGeoCoder;
   FProjectionInfoFactory := AProjectionInfoFactory;
-  FMinValidZoom := FGeoCoder.MinZoom;
-  FMaxValidZoom := FGeoCoder.MaxZoom;
+  FMinValidZoom := 0;
+  FMaxValidZoom := FProjectionSet.ZoomCount - 1;
   FSynchronizer := GSync.SyncBig.Make(Self.ClassName);
   FListeners := TList.Create;
   VCount := FMaxValidZoom - FMinValidZoom + 1;
@@ -437,9 +437,9 @@ begin
   end;
 end;
 
-function TNotifierTilePyramidUpdate.GetGeoCoder: ICoordConverter;
+function TNotifierTilePyramidUpdate.GetProjectionSet: IProjectionSet;
 begin
-  Result := FGeoCoder;
+  Result := FProjectionSet;
 end;
 
 procedure TNotifierTilePyramidUpdate.Remove(const AListener: IListener);
@@ -616,7 +616,7 @@ begin
     if VList.Count > 0 then begin
       VTileRect :=
         TTileRect.Create(
-          FProjectionInfoFactory.GetByConverterAndZoom(FGeoCoder, AZoom),
+          FProjectionSet.Zooms[AZoom],
           ATileRect
         );
       for i := 0 to VList.Count - 1 do begin
@@ -662,7 +662,7 @@ begin
     if VList.Count > 0 then begin
       VKey :=
         TTileKey.Create(
-          FProjectionInfoFactory.GetByConverterAndZoom(FGeoCoder, AZoom),
+          FProjectionSet[AZoom],
           ATile
         );
       for i := 0 to VList.Count - 1 do begin

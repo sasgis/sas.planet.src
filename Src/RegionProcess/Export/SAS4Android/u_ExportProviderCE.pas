@@ -36,7 +36,7 @@ uses
 type
   TExportProviderCE = class(TExportProviderAbstract)
   private
-    FCoordConverterFactory: ICoordConverterFactory;
+    FProjectionSetFactory: IProjectionSetFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   protected
@@ -51,7 +51,7 @@ type
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const ACoordConverterFactory: ICoordConverterFactory
+      const AProjectionSetFactory: IProjectionSetFactory
     );
   end;
 
@@ -75,7 +75,7 @@ constructor TExportProviderCE.Create(
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const ACoordConverterFactory: ICoordConverterFactory
+  const AProjectionSetFactory: IProjectionSetFactory
 );
 begin
   inherited Create(
@@ -85,7 +85,7 @@ begin
   );
   FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
-  FCoordConverterFactory := ACoordConverterFactory;
+  FProjectionSetFactory := AProjectionSetFactory;
 end;
 
 function TExportProviderCE.CreateFrame: TFrame;
@@ -133,7 +133,7 @@ begin
   VThread :=
     TThreadExportToCE.Create(
       VProgressInfo,
-      FCoordConverterFactory,
+      FProjectionSetFactory,
       FProjectionFactory,
       FVectorGeometryProjectedFactory,
       VPath,

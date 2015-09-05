@@ -33,7 +33,7 @@ uses
   i_ContentTypeInfo,
   i_TileInfoBasic,
   i_ContentTypeManager,
-  i_CoordConverter,
+  i_ProjectionSet,
   i_TileStorage,
   i_NotifierTime,
   i_ListenerTime,
@@ -135,7 +135,7 @@ type
       const AStorageTypeAbilities: ITileStorageTypeAbilities;
       const AStorageForceAbilities: ITileStorageAbilities;
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
-      const AGeoConverter: ICoordConverter;
+      const AProjectionSet: IProjectionSet;
       const ATileNotifier: INotifierTilePyramidUpdateInternal;
       const AStoragePath: string;
       const AStorageConfig: ITileStorageBerkeleyDBConfigStatic;
@@ -182,7 +182,7 @@ constructor TTileStorageBerkeleyDB.Create(
   const AStorageTypeAbilities: ITileStorageTypeAbilities;
   const AStorageForceAbilities: ITileStorageAbilities;
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
-  const AGeoConverter: ICoordConverter;
+  const AProjectionSet: IProjectionSet;
   const ATileNotifier: INotifierTilePyramidUpdateInternal;
   const AStoragePath: string;
   const AStorageConfig: ITileStorageBerkeleyDBConfigStatic;
@@ -200,7 +200,7 @@ begin
     AStorageTypeAbilities,
     AStorageForceAbilities,
     AMapVersionFactory,
-    AGeoConverter,
+    AProjectionSet,
     ATileNotifier,
     AStoragePath
   );
@@ -719,7 +719,7 @@ begin
       VHelper := nil;
       VRect := ARect;
       VZoom := AZoom;
-      GeoConverter.ValidateTileRect(VRect, VZoom);
+      ProjectionSet.Zooms[VZoom].ValidateTileRect(VRect);
       VCount.X := VRect.Right - VRect.Left;
       VCount.Y := VRect.Bottom - VRect.Top;
       if (VCount.X > 0) and (VCount.Y > 0) and (VCount.X <= 2048) and (VCount.Y <= 2048) then begin
@@ -1117,7 +1117,7 @@ begin
           FStorageConfig,
           StoragePath,
           FVersioned,
-          GeoConverter.ProjectionEPSG
+          ProjectionSet.GeoConvert.ProjectionEPSG
         );
       end;
       Result := FStorageHelper;

@@ -30,7 +30,6 @@ uses
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
   i_ProjectionInfo,
-  i_CoordConverter,
   i_GeometryProjected,
   i_GeometryProjectedFactory,
   i_CoordConverterFactory,
@@ -102,6 +101,7 @@ uses
   Math,
   GR32,
   i_ProjectionType,
+  i_ProjectionSet,
   i_TileRect,
   i_TileIterator,
   i_TileInfoBasic,
@@ -147,21 +147,21 @@ function TBitmapLayerProviderFillingMap.GetActualProjection(
   const AProjection: IProjectionInfo
 ): IProjectionInfo;
 var
-  VConverter: ICoordConverter;
+  VProjectionSet: IProjectionSet;
   VZoom: Integer;
   VResultZoom: Byte;
 begin
-  VConverter := FStorage.CoordConverter;
+  VProjectionSet := FStorage.ProjectionSet;
   VZoom := FZoom;
   if FUseRelativeZoom then begin
     VZoom := VZoom + AProjection.Zoom;
   end;
   if VZoom < 0 then begin
-    Result := FProjectionFactory.GetByConverterAndZoom(VConverter, 0);
+    Result := VProjectionSet.Zooms[0];
   end else begin
     VResultZoom := VZoom;
-    VConverter.ValidateZoom(VResultZoom);
-    Result := FProjectionFactory.GetByConverterAndZoom(VConverter, VResultZoom);
+    VProjectionSet.ValidateZoom(VResultZoom);
+    Result := VProjectionSet.Zooms[VResultZoom];
   end;
 end;
 

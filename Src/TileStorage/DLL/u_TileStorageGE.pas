@@ -34,7 +34,7 @@ uses
   i_MapVersionFactory,
   i_MapVersionListStatic,
   i_MapVersionRequest,
-  i_CoordConverter,
+  i_ProjectionSet,
   i_NotifierOperation,
   i_NotifierTilePyramidUpdate,
   i_TileInfoBasic,
@@ -135,7 +135,7 @@ type
     constructor Create(
       const AStorageTypeAbilities: ITileStorageTypeAbilities;
       const AStorageForceAbilities: ITileStorageAbilities;
-      const AGeoConverter: ICoordConverter;
+      const AProjectionSet: IProjectionSet;
       const ATileNotifier: INotifierTilePyramidUpdateInternal;
       const AStoragePath: string;
       const AMapVersionFactory: IMapVersionFactory;
@@ -361,7 +361,7 @@ end;
 constructor TTileStorageDLL.Create(
   const AStorageTypeAbilities: ITileStorageTypeAbilities;
   const AStorageForceAbilities: ITileStorageAbilities;
-  const AGeoConverter: ICoordConverter;
+  const AProjectionSet: IProjectionSet;
   const ATileNotifier: INotifierTilePyramidUpdateInternal;
   const AStoragePath: string;
   const AMapVersionFactory: IMapVersionFactory;
@@ -374,7 +374,7 @@ begin
     AStorageTypeAbilities,
     AStorageForceAbilities,
     AMapVersionFactory,
-    AGeoConverter,
+    AProjectionSet,
     ATileNotifier,
     AStoragePath
   );

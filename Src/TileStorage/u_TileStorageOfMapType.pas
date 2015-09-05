@@ -32,7 +32,7 @@ uses
   i_NotifierOperation,
   i_NotifierTilePyramidUpdate,
   i_StorageState,
-  i_CoordConverter,
+  i_ProjectionSet,
   i_CoordConverterFactory,
   i_ContentTypeInfo,
   i_Listener,
@@ -54,7 +54,7 @@ type
   TTileStorageOfMapType = class(TBaseInterfacedObject, ITileStorage)
   private
     FGlobalCacheConfig: IGlobalCacheConfig;
-    FCoordConverter: ICoordConverter;
+    FProjectionSet: IProjectionSet;
     FTileStorageTypeList: ITileStorageTypeListStatic;
     FConfig: ISimpleTileStorageConfig;
     FContentTypeManager: IContentTypeManager;
@@ -101,7 +101,7 @@ type
     function GetTileNotifier: INotifierTilePyramidUpdate;
     function GetStorageTypeAbilities: ITileStorageTypeAbilities;
     function GetState: IStorageStateChangeble;
-    function GetCoordConverter: ICoordConverter;
+    function GetProjectionSet: IProjectionSet;
 
     function GetTileFileName(
       const AXY: TPoint;
@@ -155,7 +155,7 @@ type
   public
     constructor Create(
       const AGlobalCacheConfig: IGlobalCacheConfig;
-      const ACoordConverter: ICoordConverter;
+      const AProjectionSet: IProjectionSet;
       const AProjectionInfoFactory: IProjectionInfoFactory;
       const ATileStorageTypeList: ITileStorageTypeListStatic;
       const AConfig: ISimpleTileStorageConfig;
@@ -183,7 +183,7 @@ uses
 
 constructor TTileStorageOfMapType.Create(
   const AGlobalCacheConfig: IGlobalCacheConfig;
-  const ACoordConverter: ICoordConverter;
+  const AProjectionSet: IProjectionSet;
   const AProjectionInfoFactory: IProjectionInfoFactory;
   const ATileStorageTypeList: ITileStorageTypeListStatic;
   const AConfig: ISimpleTileStorageConfig;
@@ -196,7 +196,7 @@ var
 begin
   inherited Create;
   FGlobalCacheConfig := AGlobalCacheConfig;
-  FCoordConverter := ACoordConverter;
+  FProjectionSet := AProjectionSet;
   FTileStorageTypeList := ATileStorageTypeList;
   FConfig := AConfig;
   FCacheTileInfo := ACacheTileInfo;
@@ -209,7 +209,7 @@ begin
   FStorageStateProxy := VState;
   FStorageLock := TCounterInterlock.Create;
   FStorageNeedUpdate := TSimpleFlagWithInterlock.Create;
-  FTileNotifier := TNotifierTilePyramidUpdate.Create(AProjectionInfoFactory, FCoordConverter);
+  FTileNotifier := TNotifierTilePyramidUpdate.Create(AProjectionInfoFactory, FProjectionSet);
 
   FPerfCounterList := APerfCounterList.CreateAndAddNewSubList('TileStorage');
   FGetTileInfoCounter := FPerfCounterList.CreateAndAddNewCounter('GetTileInfo');
@@ -261,14 +261,14 @@ procedure TTileStorageOfMapType.BuildStorage(
 );
 var
   VMainContentType: IContentTypeInfoBasic;
-  VCoordConverter: ICoordConverter;
+  VCoordConverter: IProjectionSet;
   VStroageType: ITileStorageTypeListItem;
 begin
   FStorage := nil;
   try
     FCurrentTypeCode := ATypeCode;
     FCurrentPath := APath;
-    VCoordConverter := FCoordConverter;
+    VCoordConverter := FProjectionSet;
     VMainContentType := FContentTypeManager.GetInfoByExt(AConfig.TileFileExt);
     if VMainContentType <> nil then begin
       VStroageType := FTileStorageTypeList.GetItemByCode(ATypeCode);
@@ -447,9 +447,9 @@ begin
   end;
 end;
 
-function TTileStorageOfMapType.GetCoordConverter: ICoordConverter;
+function TTileStorageOfMapType.GetProjectionSet: IProjectionSet;
 begin
-  Result := FCoordConverter;
+  Result := FProjectionSet;
 end;
 
 function TTileStorageOfMapType.GetListOfTileVersions(

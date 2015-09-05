@@ -41,7 +41,7 @@ type
     FTileStorage: ITileStorage;
     FVersion: IMapVersionRequest;
     FTargetFile: string;
-    FCoordConverterFactory: ICoordConverterFactory;
+    FProjectionSetFactory: IProjectionSetFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FMaxSize: Integer;
@@ -52,7 +52,7 @@ type
   public
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
-      const ACoordConverterFactory: ICoordConverterFactory;
+      const AProjectionSetFactory: IProjectionSetFactory;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ATargetFile: string;
@@ -82,7 +82,7 @@ uses
 
 constructor TThreadExportToCE.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
-  const ACoordConverterFactory: ICoordConverterFactory;
+  const AProjectionSetFactory: IProjectionSetFactory;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ATargetFile: string;
@@ -104,7 +104,7 @@ begin
   FTargetFile := ATargetFile;
   FTileStorage := ATileStorage;
   FVersion := AVersion;
-  FCoordConverterFactory := ACoordConverterFactory;
+  FProjectionSetFactory := AProjectionSetFactory;
   FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FMaxSize := AMaxSize;
@@ -134,7 +134,7 @@ begin
   SetLength(VTileIterators, Length(FZooms));
   for i := 0 to Length(FZooms) - 1 do begin
     VZoom := FZooms[i];
-    VProjection := FProjectionFactory.GetByConverterAndZoom(FTileStorage.CoordConverter, VZoom);
+    VProjection := FTileStorage.ProjectionSet.Zooms[VZoom];
     VProjectedPolygon :=
       FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
         VProjection,

@@ -23,7 +23,7 @@ unit i_TileStorageType;
 interface
 
 uses
-  i_CoordConverter,
+  i_ProjectionSet,
   i_ContentTypeInfo,
   i_TileStorageAbilities,
   i_MapVersionFactory,
@@ -46,7 +46,7 @@ type
 
     function BuildStorage(
       const AForceAbilities: ITileStorageAbilities;
-      const AGeoConverter: ICoordConverter;
+      const AProjectionSet: IProjectionSet;
       const AMainContentType: IContentTypeInfoBasic;
       const ATileNotifier: INotifierTilePyramidUpdateInternal;
       const APath: string;

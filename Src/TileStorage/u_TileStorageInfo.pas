@@ -23,7 +23,7 @@ unit u_TileStorageInfo;
 interface
 
 uses
-  i_CoordConverter,
+  i_ProjectionSet,
   i_ContentTypeInfo,
   i_TileStorageAbilities,
   i_TileStorageInfo,
@@ -36,20 +36,20 @@ type
     FForceAbilities: ITileStorageAbilities;
     FMainContentType: IContentTypeInfoBasic;
     FAllowDifferentContentTypes: Boolean;
-    FCoordConverter: ICoordConverter;
+    FProjectionSet: IProjectionSet;
   private
     function GetTypeAbilities: ITileStorageAbilities;
     function GetForceAbilities: ITileStorageAbilities;
     function GetMainContentType: IContentTypeInfoBasic;
     function GetAllowDifferentContentTypes: Boolean;
-    function GetCoordConverter: ICoordConverter;
+    function GetProjectionSet: IProjectionSet;
   public
     constructor Create(
       const ATypeAbilities: ITileStorageAbilities;
       const AForceAbilities: ITileStorageAbilities;
       const AMainContentType: IContentTypeInfoBasic;
       AAllowDifferentContentTypes: Boolean;
-      const ACoordConverter: ICoordConverter
+      const AProjectionSet: IProjectionSet
     );
   end;
 
@@ -62,13 +62,13 @@ constructor TTileStorageInfo.Create(
   const AForceAbilities: ITileStorageAbilities;
   const AMainContentType: IContentTypeInfoBasic;
   AAllowDifferentContentTypes: Boolean;
-  const ACoordConverter: ICoordConverter
+  const AProjectionSet: IProjectionSet
 );
 begin
   inherited Create;
   FTypeAbilities := ATypeAbilities;
   FForceAbilities := AForceAbilities;
-  FCoordConverter := ACoordConverter;
+  FProjectionSet := AProjectionSet;
   FMainContentType := AMainContentType;
   FAllowDifferentContentTypes := AAllowDifferentContentTypes;
 end;
@@ -78,9 +78,9 @@ begin
   Result := FAllowDifferentContentTypes;
 end;
 
-function TTileStorageInfo.GetCoordConverter: ICoordConverter;
+function TTileStorageInfo.GetProjectionSet: IProjectionSet;
 begin
-  Result := FCoordConverter;
+  Result := FProjectionSet;
 end;
 
 function TTileStorageInfo.GetForceAbilities: ITileStorageAbilities;

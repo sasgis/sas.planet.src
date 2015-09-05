@@ -23,7 +23,7 @@ unit i_TileStorageInfo;
 interface
 
 uses
-  i_CoordConverter,
+  i_ProjectionSet,
   i_ContentTypeInfo,
   i_TileStorageAbilities;
 
@@ -33,7 +33,7 @@ type
     function GetForceAbilities: ITileStorageAbilities;
     function GetMainContentType: IContentTypeInfoBasic;
     function GetAllowDifferentContentTypes: Boolean;
-    function GetCoordConverter: ICoordConverter;
+    function GetProjectionSet: IProjectionSet;
   end;
 
 implementation

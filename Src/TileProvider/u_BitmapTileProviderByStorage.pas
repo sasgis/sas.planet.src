@@ -91,7 +91,7 @@ begin
   Assert(Assigned(ALoaderFromStorage));
   Assert(Assigned(AStorage));
   Assert(Assigned(AProjectionInfo));
-  Assert(AStorage.CoordConverter.ProjectionType.IsSame(AProjectionInfo.ProjectionType));
+  Assert(AStorage.ProjectionSet.IsProjectionFromThisSet(AProjectionInfo));
   inherited Create;
   FIsIgnoreError := AIsIgnoreError;
   FImageResampler := AImageResampler;

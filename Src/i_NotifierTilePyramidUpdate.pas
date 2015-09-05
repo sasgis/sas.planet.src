@@ -27,13 +27,13 @@ uses
   i_Listener,
   i_TileKey,
   i_TileRect,
-  i_CoordConverter;
+  i_ProjectionSet;
 
 type
   INotifierTilePyramidUpdate = interface
     ['{67415555-955C-4BC7-BC8F-2F9BCDD0F065}']
-    function GetGeoCoder: ICoordConverter;
-    property GeoCoder: ICoordConverter read GetGeoCoder;
+    function GetProjectionSet: IProjectionSet;
+    property ProjectionSet: IProjectionSet read GetProjectionSet;
 
     procedure AddListenerByRect(
       const AListener: IListener;

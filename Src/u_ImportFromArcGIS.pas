@@ -62,7 +62,6 @@ uses
   i_NotifierOperation,
   i_DoublePointsAggregator,
   i_ProjectionType,
-  i_CoordConverter,
   i_GeometryLonLat,
   u_DownloadResultFactory,
   u_DownloadRequest,

@@ -60,7 +60,7 @@ type
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
-      const ACoordConverterFactory: ICoordConverterFactory;
+      const AProjectionSetFactory: IProjectionSetFactory;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
@@ -108,7 +108,7 @@ constructor TfrExport.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
-  const ACoordConverterFactory: ICoordConverterFactory;
+  const AProjectionSetFactory: IProjectionSetFactory;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
@@ -131,7 +131,7 @@ begin
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,
-      ACoordConverterFactory,
+      AProjectionSetFactory,
       AProjectionFactory,
       AVectorGeometryProjectedFactory,
       ABitmap32StaticFactory,
@@ -146,7 +146,7 @@ begin
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,
-      ACoordConverterFactory,
+      AProjectionSetFactory,
       AProjectionFactory,
       AVectorGeometryProjectedFactory,
       ABitmap32StaticFactory,
@@ -176,7 +176,7 @@ begin
       AVectorGeometryProjectedFactory,
       ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
-      ACoordConverterFactory
+      AProjectionSetFactory
     );
   VList.Add(VExportProvider);
   CBFormat.Items.Add(VExportProvider.GetCaption);
@@ -190,7 +190,7 @@ begin
       AVectorGeometryProjectedFactory,
       ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
-      ACoordConverterFactory
+      AProjectionSetFactory
     );
   VList.Add(VExportProvider);
   CBFormat.Items.Add(VExportProvider.GetCaption);
@@ -242,8 +242,7 @@ begin
       AProjectionFactory,
       AVectorGeometryProjectedFactory,
       ABitmapTileSaveLoadFactory,
-      ABitmapPostProcessing,
-      ACoordConverterFactory
+      ABitmapPostProcessing
     );
   VList.Add(VExportProvider);
   CBFormat.Items.Add(VExportProvider.GetCaption);
@@ -257,7 +256,7 @@ begin
       AVectorGeometryProjectedFactory,
       ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
-      ACoordConverterFactory
+      AProjectionSetFactory
     );
   VList.Add(VExportProvider);
   CBFormat.Items.Add(VExportProvider.GetCaption);
@@ -269,7 +268,7 @@ begin
       AMapSelectFrameBuilder,
       AProjectionFactory,
       AVectorGeometryProjectedFactory,
-      ACoordConverterFactory
+      AProjectionSetFactory
     );
   VList.Add(VExportProvider);
   CBFormat.Items.Add(VExportProvider.GetCaption);
@@ -283,7 +282,7 @@ begin
       AVectorGeometryProjectedFactory,
       ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
-      ACoordConverterFactory
+      AProjectionSetFactory
     );
   VList.Add(VExportProvider);
   CBFormat.Items.Add(VExportProvider.GetCaption);
@@ -297,7 +296,7 @@ begin
       AVectorGeometryProjectedFactory,
       ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
-      ACoordConverterFactory
+      AProjectionSetFactory
     );
   VList.Add(VExportProvider);
   CBFormat.Items.Add(VExportProvider.GetCaption);

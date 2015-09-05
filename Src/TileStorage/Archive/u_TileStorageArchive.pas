@@ -29,7 +29,7 @@ uses
   i_TileStorage,
   i_StorageState,
   i_TileInfoBasic,
-  i_CoordConverter,
+  i_ProjectionSet,
   i_MapVersionInfo,
   i_MapVersionRequest,
   i_MapVersionListStatic,
@@ -55,7 +55,7 @@ type
     FContentTypeManager: IContentTypeManager;
     FTileNotifier: INotifierTilePyramidUpdate;
     FState: IStorageStateChangeble;
-    FCoordConverter: ICoordConverter;
+    FProjectionSet: IProjectionSet;
     FTileNameParser: ITileFileNameParser;
     FTileNameGenerator: ITileFileNameGenerator;
     function GetArchiveWriter: IArchiveWriter;
@@ -64,7 +64,7 @@ type
     function GetStorageTypeAbilities: ITileStorageTypeAbilities;
     function GetTileNotifier: INotifierTilePyramidUpdate;
     function GetState: IStorageStateChangeble;
-    function GetCoordConverter: ICoordConverter;
+    function GetProjectionSet: IProjectionSet;
     function GetTileFileName(
       const AXY: TPoint;
       const AZoom: byte;
@@ -118,7 +118,7 @@ type
       const AArchiveFileName: string;
       const AContentType: IContentTypeInfoBasic;
       const AContentTypeManager: IContentTypeManager;
-      const ACoordConverter: ICoordConverter;
+      const AProjectionSet: IProjectionSet;
       const AArchiveFactory: IArchiveWriterFactory;
       const ATileNameParser: ITileFileNameParser;
       const ATileNameGenerator: ITileFileNameGenerator
@@ -137,7 +137,7 @@ constructor TTileStorageArchive.Create(
   const AArchiveFileName: string;
   const AContentType: IContentTypeInfoBasic;
   const AContentTypeManager: IContentTypeManager;
-  const ACoordConverter: ICoordConverter;
+  const AProjectionSet: IProjectionSet;
   const AArchiveFactory: IArchiveWriterFactory;
   const ATileNameParser: ITileFileNameParser;
   const ATileNameGenerator: ITileFileNameGenerator
@@ -150,7 +150,7 @@ begin
   FContentTypeManager := AContentTypeManager;
   FTileNotifier := nil;
   FState := nil;
-  FCoordConverter := ACoordConverter;
+  FProjectionSet := AProjectionSet;
   FArchiveFactory := AArchiveFactory;
   FTileNameParser := ATileNameParser;
   FTileNameGenerator := ATileNameGenerator;
@@ -183,9 +183,9 @@ begin
   Result := nil;
 end;
 
-function TTileStorageArchive.GetCoordConverter: ICoordConverter;
+function TTileStorageArchive.GetProjectionSet: IProjectionSet;
 begin
-  Result := FCoordConverter;
+  Result := FProjectionSet;
 end;
 
 function TTileStorageArchive.GetTileFileName(

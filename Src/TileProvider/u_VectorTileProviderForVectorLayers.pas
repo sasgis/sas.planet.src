@@ -78,7 +78,6 @@ implementation
 uses
   SysUtils,
   Math,
-  i_CoordConverter,
   i_VectorDataItemSimple,
   i_LonLatRect,
   i_MapVersionRequest,

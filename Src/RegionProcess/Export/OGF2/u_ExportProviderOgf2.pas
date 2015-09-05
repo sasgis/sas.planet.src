@@ -38,7 +38,7 @@ uses
 type
   TExportProviderOgf2 = class(TExportProviderAbstract)
   private
-    FCoordConverterFactory: ICoordConverterFactory;
+    FProjectionSetFactory: IProjectionSetFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -57,7 +57,7 @@ type
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
-      const ACoordConverterFactory: ICoordConverterFactory
+      const AProjectionSetFactory: IProjectionSetFactory
     );
   end;
 
@@ -84,7 +84,7 @@ constructor TExportProviderOgf2.Create(
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
-  const ACoordConverterFactory: ICoordConverterFactory
+  const AProjectionSetFactory: IProjectionSetFactory
 );
 begin
   Assert(Assigned(ABitmap32StaticFactory));
@@ -97,7 +97,7 @@ begin
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
-  FCoordConverterFactory := ACoordConverterFactory;
+  FProjectionSetFactory := AProjectionSetFactory;
 end;
 
 function TExportProviderOgf2.CreateFrame: TFrame;
@@ -147,7 +147,7 @@ begin
   VThread :=
     TThreadExportToOgf2.Create(
       VProgressInfo,
-      FCoordConverterFactory,
+      FProjectionSetFactory,
       FProjectionFactory,
       FBitmap32StaticFactory,
       FVectorGeometryProjectedFactory,

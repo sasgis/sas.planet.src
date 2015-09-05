@@ -63,7 +63,7 @@ implementation
 uses
   Classes,
   ALString,
-  i_CoordConverter,
+  i_ProjectionSet,
   i_TileInfoBasic,
   u_ResStrings,
   i_TileIterator,
@@ -97,7 +97,6 @@ end;
 procedure TThreadExportToAUX.ProcessRegion;
 var
   VTileIterator: ITileIterator;
-  VGeoConvert: ICoordConverter;
   VTile: TPoint;
   VFileStream: TFileStream;
   VPixelRect: TRect;
@@ -110,7 +109,6 @@ var
   VTileInfo: ITileInfoBasic;
 begin
   inherited;
-  VGeoConvert := FTileStorage.CoordConverter;
   VTileIterator := TTileIteratorByPolygon.Create(FProjection, FPolyProjected);
   try
     VTilesToProcess := VTileIterator.TilesTotal;
@@ -120,7 +118,7 @@ begin
     );
     VTilesProcessed := 0;
     ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
-    VPixelRect := VGeoConvert.TileRect2PixelRect(VTileIterator.TilesRect.Rect, FZoom);
+    VPixelRect := FProjection.TileRect2PixelRect(VTileIterator.TilesRect.Rect);
     VFileStream := TFileStream.Create(FFileName, fmCreate);
     try
       while VTileIterator.Next(VTile) do begin
@@ -129,7 +127,7 @@ begin
         end;
         VTileInfo := FTileStorage.GetTileInfo(VTile, FZoom, FVersion, gtimAsIs);
         if VTileInfo.GetIsExists then begin
-          VRectOfTilePixels := VGeoConvert.TilePos2PixelRect(VTile, FZoom);
+          VRectOfTilePixels := FProjection.TilePos2PixelRect(VTile);
           VOutPos.X := VRectOfTilePixels.Left - VPixelRect.Left;
           VOutPos.Y := VPixelRect.Bottom - VRectOfTilePixels.Bottom;
           VFileName := FTileStorage.GetTileFileName(VTile, FZoom, FVersion);

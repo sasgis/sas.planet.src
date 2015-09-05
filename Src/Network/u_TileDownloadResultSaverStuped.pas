@@ -118,7 +118,8 @@ uses
   GR32,
   t_CommonTypes,
   i_ContentConverter,
-  i_CoordConverter,
+  i_ProjectionInfo,
+  i_ProjectionSet,
   i_TileRequest,
   i_TileDownloadRequest,
   u_ListenerByEvent,
@@ -327,7 +328,8 @@ procedure TTileDownloadResultSaverStuped.CutDownloadedBitmap(
   const ABtm: IBitmap32Static
 );
 var
-  VCoordConverter: ICoordConverter;
+  VProjectionSet: IProjectionSet;
+  VProjection: IProjectionInfo;
   // cut images
   VCutCount, VCutSize, VCutTile: TPoint;
   i, j: Integer;
@@ -335,7 +337,8 @@ var
   VCutBitmapStatic: IBitmap32Static;
   VData: IBinaryData;
 begin
-  VCoordConverter := FStorage.CoordConverter;
+  VProjectionSet := FStorage.ProjectionSet;
+  VProjection := VProjectionSet.Zooms[AZoom];
   // cut into multiple tiles
   // define parts
   VCutCount := FTilePostDownloadCropConfig.CutCount;
@@ -343,7 +346,7 @@ begin
   VCutTile := FTilePostDownloadCropConfig.CutTile;
 
   if (0 = VCutSize.X) or (0 = VCutSize.Y) then begin
-    VCutSize := VCoordConverter.GetTileSize(AXY, AZoom);
+    VCutSize := VProjection.GetTileSize(AXY);
   end;
 
   // define counts
@@ -381,7 +384,7 @@ begin
             CropOnDownload(
               ABtm,
               Rect(VCutSize.X * i, VCutSize.Y * j, VCutSize.X * (i + 1), VCutSize.Y * (j + 1)),
-              VCoordConverter.GetTileSize(VPos, AZoom)
+              VProjection.GetTileSize(VPos)
             );
 
           // save
@@ -412,7 +415,7 @@ var
   VTargetContentTypeBitmap: IContentTypeInfoBitmap;
   VBitmapStatic: IBitmap32Static;
   VData: IBinaryData;
-  VCoordConverter: ICoordConverter;
+  VProjectionSet: IProjectionSet;
 begin
   Result := ADownloadResult;
   VContentType := ADownloadResult.ContentType;
@@ -422,7 +425,7 @@ begin
   end else begin
     raise Exception.Create('This was not tile request');
   end;
-  VCoordConverter := FStorage.CoordConverter;
+  VProjectionSet := FStorage.ProjectionSet;
   if Supports(FContentType, IContentTypeInfoBitmap, VTargetContentTypeBitmap) and
     (FTilePostDownloadCropConfig.IsCropOnDownload or FTilePostDownloadCropConfig.IsCutOnDownload) then begin
     VContentTypeInfo := FContentTypeManager.GetInfo(VContentType);
@@ -447,7 +450,7 @@ begin
               CropOnDownload(
                 VBitmapStatic,
                 FTilePostDownloadCropConfig.CropRect,
-                VCoordConverter.GetTileSize(VTileRequest.Tile, VTileRequest.Zoom)
+                VProjectionSet.Zooms[VTileRequest.Zoom].GetTileSize(VTileRequest.Tile)
               );
             VData := VTargetContentTypeBitmap.GetSaver.Save(VBitmapStatic);
             if Assigned(FEmptyTilePredicate) then begin

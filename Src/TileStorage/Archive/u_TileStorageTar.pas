@@ -27,7 +27,7 @@ uses
   i_TileInfoBasic,
   i_ContentTypeInfo,
   i_ContentTypeManager,
-  i_CoordConverter,
+  i_ProjectionSet,
   i_TileFileNameParser,
   i_TileFileNameGenerator,
   i_ArchiveReadWriteFactory,
@@ -45,7 +45,7 @@ type
       const AArchiveFileName: string;
       const AContentType: IContentTypeInfoBasic;
       const AContentTypeManager: IContentTypeManager;
-      const ACoordConverter: ICoordConverter;
+      const AProjectionSet: IProjectionSet;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const ATileNameParser: ITileFileNameParser;
       const ATileNameGenerator: ITileFileNameGenerator
@@ -162,7 +162,7 @@ constructor TTileStorageTar.Create(
   const AArchiveFileName: string;
   const AContentType: IContentTypeInfoBasic;
   const AContentTypeManager: IContentTypeManager;
-  const ACoordConverter: ICoordConverter;
+  const AProjectionSet: IProjectionSet;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const ATileNameParser: ITileFileNameParser;
   const ATileNameGenerator: ITileFileNameGenerator
@@ -172,7 +172,7 @@ begin
     AArchiveFileName,
     AContentType,
     AContentTypeManager,
-    ACoordConverter,
+    AProjectionSet,
     AArchiveReadWriteFactory.Tar.WriterFactory,
     ATileNameParser,
     ATileNameGenerator

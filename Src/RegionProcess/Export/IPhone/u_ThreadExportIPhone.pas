@@ -37,7 +37,8 @@ uses
   i_BitmapLayerProvider,
   i_CoordConverterFactory,
   i_GeometryProjectedFactory,
-  i_CoordConverter,
+  i_ProjectionInfo,
+  i_ProjectionSet,
   i_GeometryLonLat,
   u_ThreadExportAbstract;
 
@@ -60,10 +61,10 @@ type
     FExportPath: string;
     //FSQLite3Lib: TALSqlite3Library;
     //FSqlite3: PSQLite3;
-    FCoordConverterFactory: ICoordConverterFactory;
+    FProjectionSetFactory: IProjectionSetFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-    procedure WritePListFile(const AGeoConvert: ICoordConverter);
+    procedure WritePListFile(const AProjection: IProjectionInfo);
     procedure WriteTileToSQLite3(
       const ASQLite3DbHandler: PSQLite3DbHandler;
       const AXY: TPoint;
@@ -76,7 +77,7 @@ type
   public
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
-      const ACoordConverterFactory: ICoordConverterFactory;
+      const ACoordConverterFactory: IProjectionSetFactory;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
@@ -98,7 +99,6 @@ uses
   ALString,
   c_CoordConverter,
   i_Bitmap32Static,
-  i_ProjectionInfo,
   i_GeometryProjected,
   i_TileIterator,
   u_GeoToStrFunc,
@@ -109,7 +109,7 @@ uses
 
 constructor TThreadExportIPhone.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
-  const ACoordConverterFactory: ICoordConverterFactory;
+  const ACoordConverterFactory: IProjectionSetFactory;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
@@ -128,7 +128,7 @@ begin
     Azoomarr,
     Self.ClassName
   );
-  FCoordConverterFactory := ACoordConverterFactory;
+  FProjectionSetFactory := ACoordConverterFactory;
   FProjectionFactory := AProjectionFactory;
   FBitmapFactory := ABitmapFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
@@ -174,14 +174,12 @@ begin
   ASQLite3DbHandler^.ExecSQLWithBLOB(s, AData.Buffer, AData.Size);
 end;
 
-procedure TThreadExportIPhone.WritePListFile(const AGeoConvert: ICoordConverter);
+procedure TThreadExportIPhone.WritePListFile(const AProjection: IProjectionInfo);
 var
   PList: Text;
   VLLCenter: TDoublePoint;
-  VZoom: Integer;
 begin
-  VZoom := FZooms[0];
-  VLLCenter := AGeoConvert.PixelPosFloat2LonLat(RectCenter(AGeoConvert.LonLatRect2PixelRectFloat(PolygLL.Bounds.Rect, VZoom)), VZoom);
+  VLLCenter := AProjection.PixelPosFloat2LonLat(RectCenter(AProjection.LonLatRect2PixelRectFloat(PolygLL.Bounds.Rect)));
   AssignFile(Plist, FExportPath + 'com.apple.Maps.plist');
   Rewrite(PList);
   Writeln(PList, '<plist>');
@@ -195,7 +193,7 @@ begin
   Writeln(PList, '<key>LastViewedLongitude</key>');
   Writeln(PList, '<real>' + R2StrPoint(VLLCenter.x) + '</real>');
   Writeln(PList, '<key>LastViewedZoomScale</key>');
-  Writeln(PList, '<real>' + inttostr(VZoom + 1) + '</real>');
+  Writeln(PList, '<real>' + inttostr(AProjection.Zoom + 1) + '</real>');
   Writeln(PList, '</dict>');
   Writeln(PList, '</plist>');
   CloseFile(PList);
@@ -205,7 +203,7 @@ procedure TThreadExportIPhone.ProcessRegion;
 var
   VZoom: byte;
   i, j, xi, yi, hxyi, sizeim: integer;
-  VGeoConvert: ICoordConverter;
+  VProjectionSet: IProjectionSet;
   VProjection: IProjectionInfo;
   VTile: TPoint;
   VBitmapTile: IBitmap32Static;
@@ -221,9 +219,9 @@ var
   VSQLite3DbHandler: TSQLite3DbHandler;
 begin
   inherited;
-  VGeoConvert := FCoordConverterFactory.GetCoordConverterByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256);
+  VProjectionSet := FProjectionSetFactory.GetProjectionSetByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256);
 
-  WritePListFile(VGeoConvert);
+  WritePListFile(VProjectionSet.Zooms[FZooms[0]]);
 
   if FNewFormat then begin
     hxyi := 2;
@@ -241,11 +239,7 @@ begin
     SetLength(VTileIterators, Length(FZooms));
     for i := 0 to Length(FZooms) - 1 do begin
       VZoom := FZooms[i];
-      VProjection :=
-        FProjectionFactory.GetByConverterAndZoom(
-          VGeoConvert,
-          VZoom
-        );
+      VProjection := VProjectionSet.Zooms[VZoom];
       VProjectedPolygon :=
         FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
           VProjection,

@@ -114,11 +114,7 @@ begin
   SetLength(VTileIterators, Length(FZooms));
   for I := 0 to Length(FZooms) - 1 do begin
     VZoom := FZooms[I];
-    VProjection :=
-      FProjectionFactory.GetByConverterAndZoom(
-        FTileStorage.CoordConverter,
-        VZoom
-      );
+    VProjection := FTileStorage.ProjectionSet.Zooms[VZoom];
     VProjectedPolygon :=
       FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
         VProjection,

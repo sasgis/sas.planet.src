@@ -23,7 +23,7 @@ unit u_TileStorageTypeDBMS;
 interface
 
 uses
-  i_CoordConverter,
+  i_ProjectionSet,
   i_ContentTypeInfo,
   i_ContentTypeManager,
   i_NotifierTime,
@@ -45,7 +45,7 @@ type
     function BuildStorageInternal(
       const AStorageConfigData: IConfigDataProvider;
       const AForceAbilities: ITileStorageAbilities;
-      const AGeoConverter: ICoordConverter;
+      const AProjectionSet: IProjectionSet;
       const AMainContentType: IContentTypeInfoBasic;
       const ATileNotifier: INotifierTilePyramidUpdateInternal;
       const APath: string;
@@ -96,7 +96,7 @@ end;
 function TTileStorageTypeDBMS.BuildStorageInternal(
   const AStorageConfigData: IConfigDataProvider;
   const AForceAbilities: ITileStorageAbilities;
-  const AGeoConverter: ICoordConverter;
+  const AProjectionSet: IProjectionSet;
   const AMainContentType: IContentTypeInfoBasic;
   const ATileNotifier: INotifierTilePyramidUpdateInternal;
   const APath: string;
@@ -107,7 +107,7 @@ begin
     TTileStorageDBMS.Create(
       GetAbilities,
       AForceAbilities,
-      AGeoConverter,
+      AProjectionSet,
       ATileNotifier,
       GetConfig.BasePath.Path,
       ExcludeTrailingPathDelimiter(APath),

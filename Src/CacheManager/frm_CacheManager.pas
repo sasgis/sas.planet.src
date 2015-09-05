@@ -37,7 +37,7 @@ uses
   ComCtrls,
   fr_CacheTypeList,
   i_NotifierOperation,
-  i_CoordConverter,
+  i_ProjectionSet,
   i_CoordConverterFactory,
   i_TileStorage,
   i_LanguageManager,
@@ -97,7 +97,7 @@ type
     FMapVersionFactoryList: IMapVersionFactoryList;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FContentTypeManager: IContentTypeManager;
-    FCoordConverterFactory: ICoordConverterFactory;
+    FProjectionSetFactory: IProjectionSetFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FTileStorageTypeList: ITileStorageTypeListStatic;
     FFileNameGeneratorsList: ITileFileNameGeneratorsList;
@@ -110,7 +110,7 @@ type
       const ARootPath: string;
       const ADefExtention: string;
       const AArchiveType: TTileCacheInArchiveType;
-      const ACoordConverter: ICoordConverter;
+      const AProjectionSet: IProjectionSet;
       const AFormatID: Byte
     ): ITileStorage;
   public
@@ -122,7 +122,7 @@ type
       const AMapVersionFactoryList: IMapVersionFactoryList;
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AContentTypeManager: IContentTypeManager;
-      const ACoordConverterFactory: ICoordConverterFactory;
+      const AProjectionSetFactory: IProjectionSetFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const ATileStorageTypeList: ITileStorageTypeListStatic;
       const AFileNameGeneratorsList: ITileFileNameGeneratorsList;
@@ -166,7 +166,7 @@ constructor TfrmCacheManager.Create(
   const AMapVersionFactoryList: IMapVersionFactoryList;
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AContentTypeManager: IContentTypeManager;
-  const ACoordConverterFactory: ICoordConverterFactory;
+  const AProjectionSetFactory: IProjectionSetFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const ATileStorageTypeList: ITileStorageTypeListStatic;
   const AFileNameGeneratorsList: ITileFileNameGeneratorsList;
@@ -185,7 +185,7 @@ begin
   FFileNameGeneratorsList := AFileNameGeneratorsList;
   FFileNameParsersList := AFileNameParsersList;
   FContentTypeManager := AContentTypeManager;
-  FCoordConverterFactory := ACoordConverterFactory;
+  FProjectionSetFactory := AProjectionSetFactory;
   FValueToStringConverter := AValueToStringConverter;
   FTileStorageTypeList := ATileStorageTypeList;
 
@@ -224,7 +224,7 @@ function TfrmCacheManager.CreateSimpleTileStorage(
   const ARootPath: string;
   const ADefExtention: string;
   const AArchiveType: TTileCacheInArchiveType;
-  const ACoordConverter: ICoordConverter;
+  const AProjectionSet: IProjectionSet;
   const AFormatID: Byte
 ): ITileStorage;
 var
@@ -259,7 +259,7 @@ begin
             ARootPath,
             VContentType,
             FContentTypeManager,
-            ACoordConverter,
+            AProjectionSet,
             FArchiveReadWriteFactory,
             VFileNameParser,
             VFileNameGenerator
@@ -279,7 +279,7 @@ begin
       Result :=
         VStorageType.StorageType.BuildStorage(
           nil,
-          ACoordConverter,
+          AProjectionSet,
           VContentType,
           nil,
           ARootPath,
@@ -345,7 +345,7 @@ var
   VCancelNotifierInternal: INotifierOperationInternal;
   VOperationID: Integer;
   VConverterThread: TThreadCacheConverter;
-  VCoordConverter: ICoordConverter;
+  VProjectionSet: IProjectionSet;
   VSourceStorage: ITileStorage;
   VDestStorage: ITileStorage;
   VSourceVersion: IMapVersionInfo;
@@ -364,7 +364,7 @@ begin
     );
   VOperationID := VCancelNotifierInternal.CurrentOperation;
 
-  VCoordConverter := FCoordConverterFactory.GetCoordConverterByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256);
+  VProjectionSet := FProjectionSetFactory.GetProjectionSetByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256);
 
   VDefExtention := Trim(edtDefExtention.Text);
   VDotPos := Pos('.', VDefExtention);
@@ -385,7 +385,7 @@ begin
       VSourcePath,
       VDefExtention,
       VArchType,
-      VCoordConverter,
+      VProjectionSet,
       FfrSrcCacheTypesList.IntCode
     );
 
@@ -402,7 +402,7 @@ begin
       VDestPath,
       VDefExtention,
       VArchType,
-      VCoordConverter,
+      VProjectionSet,
       FfrDestCacheTypesList.IntCode
     );
 

@@ -23,7 +23,7 @@ unit u_TileStorageTypeInRAM;
 interface
 
 uses
-  i_CoordConverter,
+  i_ProjectionSet,
   i_ContentTypeInfo,
   i_TileInfoBasicMemCache,
   i_MapVersionFactory,
@@ -40,7 +40,7 @@ type
     function BuildStorageInternal(
       const AStorageConfigData: IConfigDataProvider;
       const AForceAbilities: ITileStorageAbilities;
-      const AGeoConverter: ICoordConverter;
+      const AProjectionSet: IProjectionSet;
       const AMainContentType: IContentTypeInfoBasic;
       const ATileNotifier: INotifierTilePyramidUpdateInternal;
       const APath: string;
@@ -84,7 +84,7 @@ end;
 function TTileStorageTypeInRAM.BuildStorageInternal(
   const AStorageConfigData: IConfigDataProvider;
   const AForceAbilities: ITileStorageAbilities;
-  const AGeoConverter: ICoordConverter;
+  const AProjectionSet: IProjectionSet;
   const AMainContentType: IContentTypeInfoBasic;
   const ATileNotifier: INotifierTilePyramidUpdateInternal;
   const APath: string;
@@ -96,7 +96,7 @@ begin
       GetAbilities,
       AForceAbilities,
       ACacheTileInfo,
-      AGeoConverter,
+      AProjectionSet,
       ATileNotifier,
       GetMapVersionFactory,
       AMainContentType

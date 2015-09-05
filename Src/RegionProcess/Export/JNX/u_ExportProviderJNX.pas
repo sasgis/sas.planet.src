@@ -38,7 +38,6 @@ uses
 type
   TExportProviderJNX = class(TExportProviderAbstract)
   private
-    FCoordConverterFactory: ICoordConverterFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
@@ -56,8 +55,7 @@ type
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
-      const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
-      const ACoordConverterFactory: ICoordConverterFactory
+      const ABitmapPostProcessing: IBitmapPostProcessingChangeable
     );
   end;
 
@@ -81,8 +79,7 @@ constructor TExportProviderJNX.Create(
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
-  const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
-  const ACoordConverterFactory: ICoordConverterFactory
+  const ABitmapPostProcessing: IBitmapPostProcessingChangeable
 );
 begin
   inherited Create(
@@ -93,7 +90,6 @@ begin
   FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
-  FCoordConverterFactory := ACoordConverterFactory;
   FBitmapPostProcessing := ABitmapPostProcessing;
 end;
 

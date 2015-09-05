@@ -161,7 +161,7 @@ begin
     TTileRectChangeableByOtherTileRect.Create(
       AProjectionInfoFactory,
       ATileRect,
-      FMapType.TileStorage.CoordConverter,
+      FMapType.TileStorage.ProjectionSet,
       GSync.SyncVariable.Make(Self.ClassName + 'TileRectMain'),
       GSync.SyncVariable.Make(Self.ClassName + 'TileRectResult')
     );

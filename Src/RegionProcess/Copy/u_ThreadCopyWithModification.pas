@@ -78,7 +78,7 @@ uses
   i_TileIterator,
   i_Bitmap32Static,
   i_BinaryData,
-  i_CoordConverter,
+  i_ProjectionSet,
   i_ProjectionInfo,
   i_GeometryProjected,
   u_TileIteratorByPolygon,
@@ -162,7 +162,7 @@ var
   VTileProjections: array of IProjectionInfo;
   I: Integer;
   VZoom: Byte;
-  VGeoConvert: ICoordConverter;
+  VProjectionSet: IProjectionSet;
   VProjection: IProjectionInfo;
   VProjectedPolygon: IGeometryProjectedPolygon;
   VTileIterator: ITileIterator;
@@ -176,12 +176,8 @@ begin
   SetLength(VTileProjections, Length(FZooms));
   for I := 0 to High(FZooms) do begin
     VZoom := FZooms[I];
-    VGeoConvert := FTarget.CoordConverter;
-    VProjection :=
-      FProjectionFactory.GetByConverterAndZoom(
-        VGeoConvert,
-        VZoom
-      );
+    VProjectionSet := FTarget.ProjectionSet;
+    VProjection := VProjectionSet.Zooms[VZoom];
     VProjectedPolygon :=
       FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
         VProjection,

@@ -33,7 +33,7 @@ uses
   i_MapVersionRequest,
   i_ContentTypeInfo,
   i_TileInfoBasic,
-  i_CoordConverter,
+  i_ProjectionSet,
   i_NotifierOperation,
   i_NotifierTilePyramidUpdate,
   i_TileStorageAbilities,
@@ -127,7 +127,7 @@ type
     constructor Create(
       const AStorageTypeAbilities: ITileStorageTypeAbilities;
       const AStorageForceAbilities: ITileStorageAbilities;
-      const AGeoConverter: ICoordConverter;
+      const AProjectionSet: IProjectionSet;
       const ATileNotifier: INotifierTilePyramidUpdateInternal;
       const AStoragePath: string;
       const ANameInCache: string;
@@ -160,7 +160,7 @@ uses
 constructor TTileStorageGoogleEarth.Create(
   const AStorageTypeAbilities: ITileStorageTypeAbilities;
   const AStorageForceAbilities: ITileStorageAbilities;
-  const AGeoConverter: ICoordConverter;
+  const AProjectionSet: IProjectionSet;
   const ATileNotifier: INotifierTilePyramidUpdateInternal;
   const AStoragePath: string;
   const ANameInCache: string;
@@ -174,7 +174,7 @@ begin
     AStorageTypeAbilities,
     AStorageForceAbilities,
     AMapVersionFactory,
-    AGeoConverter,
+    AProjectionSet,
     ATileNotifier,
     AStoragePath
   );
@@ -354,7 +354,7 @@ var
   VTileVersionStr: string;
   VTileVersionInfo: IMapVersionInfo;
   VIsOceanTerrain: Boolean;
-  VCoordConverter: ICoordConverter;
+  VProjectionSet: IProjectionSet;
   VTerrainList: IGoogleEarthTerrainTileList;
   VImageTileContentProvider: IGoogleEarthImageTileProvider;
   VTerrainTileContentProvider: IGoogleEarthTerrainTileProvider;
@@ -372,10 +372,10 @@ begin
   if FIsTerrainStorage then begin
     CheckGoogleEarthTerrainTileZoom(VZoom);
     if VZoom <> AZoom then begin
-      VCoordConverter := Self.GeoConverter;
-      VLonLat := VCoordConverter.TilePos2LonLat(AXY, AZoom);
+      VProjectionSet := Self.ProjectionSet;
+      VLonLat := VProjectionSet.Zooms[AZoom].TilePos2LonLat(AXY);
       VXY := PointFromDoublePoint(
-        VCoordConverter.LonLat2TilePosFloat(VLonLat, VZoom),
+        VProjectionSet.Zooms[VZoom].LonLat2TilePosFloat(VLonLat),
         prToTopLeft
       );
     end;
@@ -675,7 +675,7 @@ begin
     end;
     VRect := ARect;
     VZoom := AZoom;
-    GeoConverter.ValidateTileRect(VRect, VZoom);
+    ProjectionSet.Zooms[VZoom].ValidateTileRect(VRect);
     VCount.X := VRect.Right - VRect.Left;
     VCount.Y := VRect.Bottom - VRect.Top;
     if (VCount.X > 0) and (VCount.Y > 0) and (VCount.X <= 2048) and (VCount.Y <= 2048) then begin

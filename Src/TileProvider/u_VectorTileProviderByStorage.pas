@@ -83,7 +83,7 @@ begin
   Assert(ALoaderFromStorage <> nil);
   Assert(AStorage <> nil);
   Assert(AProjectionInfo <> nil);
-  Assert(AStorage.CoordConverter.ProjectionType.IsSame(AProjectionInfo.ProjectionType));
+  Assert(AStorage.ProjectionSet.IsProjectionFromThisSet(AProjectionInfo));
   inherited Create;
   FIsIgnoreError := AIsIgnoreError;
   FVectorDataItemMainInfoFactory := AVectorDataItemMainInfoFactory;

@@ -23,7 +23,7 @@ unit u_TileStorageTypeBerkeleyDB;
 interface
 
 uses
-  i_CoordConverter,
+  i_ProjectionSet,
   i_ContentTypeInfo,
   i_ContentTypeManager,
   i_NotifierTime,
@@ -52,7 +52,7 @@ type
     function BuildStorageInternal(
       const AStorageConfigData: IConfigDataProvider;
       const AForceAbilities: ITileStorageAbilities;
-      const AGeoConverter: ICoordConverter;
+      const AProjectionSet: IProjectionSet;
       const AMainContentType: IContentTypeInfoBasic;
       const ATileNotifier: INotifierTilePyramidUpdateInternal;
       const APath: string;
@@ -153,7 +153,7 @@ end;
 function TTileStorageTypeBerkeleyDB.BuildStorageInternal(
   const AStorageConfigData: IConfigDataProvider;
   const AForceAbilities: ITileStorageAbilities;
-  const AGeoConverter: ICoordConverter;
+  const AProjectionSet: IProjectionSet;
   const AMainContentType: IContentTypeInfoBasic;
   const ATileNotifier: INotifierTilePyramidUpdateInternal;
   const APath: string;
@@ -168,7 +168,7 @@ begin
       GetAbilities,
       AForceAbilities,
       FGlobalBerkeleyDBHelper,
-      AGeoConverter,
+      AProjectionSet,
       ATileNotifier,
       APath,
       VConfig,

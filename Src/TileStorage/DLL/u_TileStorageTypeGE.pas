@@ -23,7 +23,7 @@ unit u_TileStorageTypeGE deprecated;
 interface
 
 uses
-  i_CoordConverter,
+  i_ProjectionSet,
   i_ContentTypeInfo,
   i_ContentTypeManager,
   i_MapVersionFactory,
@@ -43,7 +43,7 @@ type
     function BuildStorageInternal(
       const AStorageConfigData: IConfigDataProvider;
       const AForceAbilities: ITileStorageAbilities;
-      const AGeoConverter: ICoordConverter;
+      const AProjectionSet: IProjectionSet;
       const AMainContentType: IContentTypeInfoBasic;
       const ATileNotifier: INotifierTilePyramidUpdateInternal;
       const APath: string;
@@ -90,7 +90,7 @@ end;
 function TTileStorageTypeGC.BuildStorageInternal(
   const AStorageConfigData: IConfigDataProvider;
   const AForceAbilities: ITileStorageAbilities;
-  const AGeoConverter: ICoordConverter;
+  const AProjectionSet: IProjectionSet;
   const AMainContentType: IContentTypeInfoBasic;
   const ATileNotifier: INotifierTilePyramidUpdateInternal;
   const APath: string;
@@ -101,7 +101,7 @@ begin
     TTileStorageGC.Create(
       GetAbilities,
       AForceAbilities,
-      AGeoConverter,
+      AProjectionSet,
       ATileNotifier,
       APath,
       GetMapVersionFactory,

@@ -114,7 +114,6 @@ uses
   StrUtils,
   Graphics,
   GR32_Layers,
-  i_CoordConverter,
   i_ProjectionInfo,
   u_ListenerTime,
   u_ListenerByEvent,
