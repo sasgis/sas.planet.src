@@ -30,6 +30,7 @@ type
 
     function GetSuitableProjection(const AProjection: IProjectionInfo): IProjectionInfo;
     function GetSuitableZoom(const AProjection: IProjectionInfo): Byte;
+    function IsProjectionFromThisSet(const AProjection: IProjectionInfo): Boolean;
 
     function GetGeoConvert: ICoordConverter; // TODO: Deleate later
   public
@@ -100,6 +101,20 @@ end;
 function TProjectionSetSimple.GetZoomCount: Byte;
 begin
   Result := FZoomCount;
+end;
+
+function TProjectionSetSimple.IsProjectionFromThisSet(
+  const AProjection: IProjectionInfo
+): Boolean;
+begin
+  Assert(Assigned(AProjection));
+  Result := False;
+  if FGeoConverter.ProjectionType.IsSame(AProjection.ProjectionType) then begin
+    if AProjection.Zoom < FZoomCount then begin
+      // TODO: fix search zooms later
+      Result := FZooms[AProjection.Zoom].GetIsSameProjectionInfo(AProjection);
+    end;
+  end;
 end;
 
 function TProjectionSetSimple.IsSame(

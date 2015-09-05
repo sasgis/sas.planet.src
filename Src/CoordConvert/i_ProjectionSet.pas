@@ -26,6 +26,7 @@ type
 
     function GetSuitableProjection(const AProjection: IProjectionInfo): IProjectionInfo;
     function GetSuitableZoom(const AProjection: IProjectionInfo): Byte;
+    function IsProjectionFromThisSet(const AProjection: IProjectionInfo): Boolean;
 
     function GetGeoConvert: ICoordConverter; // TODO: Deleate later
     property GeoConvert: ICoordConverter read GetGeoConvert; // TODO: Deleate later
