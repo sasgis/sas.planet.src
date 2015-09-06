@@ -1886,7 +1886,7 @@ var
 begin
   VTileRectForShow :=
     TTileRectChangeableByLocalConverterSmart.Create(
-      GState.ProjectionFactory,
+      FActiveProjectionSet,
       FViewPortState.View,
       GSync.SyncVariable.Make('TileRectForShowMain'),
       GSync.SyncVariable.Make('TileRectForShowResult')
@@ -2874,7 +2874,7 @@ begin
     );
   VTileRectForShow :=
     TTileRectChangeableByLocalConverterSmart.Create(
-      GState.ProjectionFactory,
+      FActiveProjectionSet,
       VMiniMapConverterChangeable,
       GSync.SyncVariable.Make('TileRectMiniMapForShowMain'),
       GSync.SyncVariable.Make('TileRectMiniMapForShowResult')

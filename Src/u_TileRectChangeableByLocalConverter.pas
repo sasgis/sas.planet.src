@@ -27,6 +27,7 @@ uses
   i_TileRect,
   i_TileRectChangeable,
   i_CoordConverterFactory,
+  i_ProjectionSetChangeable,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_Listener,
@@ -69,15 +70,17 @@ type
 
   TTileRectChangeableByLocalConverterSmart = class(TTileRectChangeableByLocalConverterAbstract)
   private
-    FProjectionInfoFactory: IProjectionInfoFactory;
+    FProjectionSet: IProjectionSetChangeable;
     function BuildTileRect(const AConverter: ILocalCoordConverter): ITileRect; override;
   public
     constructor Create(
-      const AProjectionInfoFactory: IProjectionInfoFactory;
+      const AProjectionSet: IProjectionSetChangeable;
       const ALocalCoordConverter: ILocalCoordConverterChangeable;
       const AMainLock: IReadWriteSync;
       const AResultLock: IReadWriteSync
     );
+    destructor Destroy; override;
+    procedure AfterConstruction; override;
   end;
 
 implementation
@@ -88,6 +91,7 @@ uses
   t_GeoTypes,
   i_CoordConverter,
   i_ProjectionInfo,
+  i_ProjectionSet,
   u_GeoFunc,
   u_ListenerByEvent,
   u_TileRect;
@@ -214,13 +218,28 @@ end;
 { TTileRectChangeableByLocalConverterSmart }
 
 constructor TTileRectChangeableByLocalConverterSmart.Create(
-  const AProjectionInfoFactory: IProjectionInfoFactory;
+  const AProjectionSet: IProjectionSetChangeable;
   const ALocalCoordConverter: ILocalCoordConverterChangeable;
   const AMainLock, AResultLock: IReadWriteSync
 );
 begin
   inherited Create(ALocalCoordConverter, AMainLock, AResultLock);
-  FProjectionInfoFactory := AProjectionInfoFactory;
+  FProjectionSet := AProjectionSet;
+end;
+
+procedure TTileRectChangeableByLocalConverterSmart.AfterConstruction;
+begin
+  FProjectionSet.ChangeNotifier.Add(FListener);
+  inherited;
+end;
+
+destructor TTileRectChangeableByLocalConverterSmart.Destroy;
+begin
+  if Assigned(FProjectionSet) and Assigned(FListener) then begin
+    FProjectionSet.ChangeNotifier.Remove(FListener);
+    FProjectionSet := nil;
+  end;
+  inherited;
 end;
 
 function TTileRectChangeableByLocalConverterSmart.BuildTileRect(
@@ -232,19 +251,32 @@ var
   VTileRectFloat: TDoubleRect;
   VTileRect: TRect;
   VScale: Double;
+  VProjectionSource: IProjectionInfo;
   VProjection: IProjectionInfo;
   VProjectionPrev: IProjectionInfo;
-  VConverter: ICoordConverter;
+  VProjectionSet: IProjectionSet;
+  VLonLatRect: TDoubleRect;
 begin
   Assert(Assigned(AConverter));
-  VProjection := AConverter.ProjectionInfo;
+  VProjectionSet := FProjectionSet.GetStatic;
+  VProjectionSource := AConverter.ProjectionInfo;
+  VProjection := VProjectionSet.GetSuitableProjection(VProjectionSource);
   VPixelRect := AConverter.GetRectInMapPixelFloat;
-  VProjection.ValidatePixelRectFloat(VPixelRect);
+  VProjectionSource.ValidatePixelRectFloat(VPixelRect);
+  if not VProjectionSource.GetIsSameProjectionInfo(VProjection) then begin
+    if VProjectionSource.ProjectionType.IsSame(VProjection.ProjectionType) then begin
+      VRelativeRect := VProjectionSource.PixelRectFloat2RelativeRect(VPixelRect);
+      VPixelRect := VProjection.RelativeRect2PixelRectFloat(VRelativeRect);
+    end else begin
+      VLonLatRect := VProjectionSource.PixelRectFloat2LonLatRect(VPixelRect);
+      VProjection.ProjectionType.ValidateLonLatRect(VLonLatRect);
+      VPixelRect := VProjection.LonLatRect2PixelRectFloat(VLonLatRect);
+    end;
+  end;
   VScale := AConverter.GetScale;
   VProjectionPrev := nil;
-  VConverter := AConverter.GeoConverter;
-  if VConverter.CheckZoom(VProjection.Zoom - 1) then begin
-    VProjectionPrev := FProjectionInfoFactory.GetByConverterAndZoom(VConverter, VProjection.Zoom - 1);
+  if VProjectionSet.CheckZoom(VProjection.Zoom - 1) then begin
+    VProjectionPrev := VProjectionSet.Zooms[VProjection.Zoom - 1];
   end;
   if (VScale > 0.9) or (not Assigned(VProjectionPrev)) then begin
     VTileRectFloat := VProjection.PixelRectFloat2TileRectFloat(VPixelRect);
