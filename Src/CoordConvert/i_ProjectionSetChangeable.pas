@@ -18,48 +18,18 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_ViewPortState;
+unit i_ProjectionSetChangeable;
 
 interface
 
 uses
-  Types,
-  t_GeoTypes,
-  i_ProjectionSet,
-  i_LocalCoordConverterChangeable,
-  i_ConfigDataElement;
+  i_Changeable,
+  i_ProjectionSet;
 
 type
-  IViewPortState = interface(IConfigDataElement)
-    ['{F2F2E282-AA3B-48BC-BC09-73FE9C07B723}']
-    function GetCurrentZoom: Byte;
-
-    function GetView: ILocalCoordConverterChangeable;
-    property View: ILocalCoordConverterChangeable read GetView;
-
-    procedure ChangeViewSize(const ANewSize: TPoint);
-    procedure ChangeMapPixelByLocalDelta(const ADelta: TDoublePoint);
-    procedure ChangeMapPixelToVisualPoint(const AVisualPoint: TPoint);
-    procedure ChangeZoomWithFreezeAtVisualPoint(
-      const AZoom: Byte;
-      const AFreezePoint: TPoint
-    );
-    procedure ChangeZoomWithFreezeAtVisualPointWithScale(
-      const AZoom: Byte;
-      const AFreezePoint: TPoint
-    );
-    procedure ChangeZoomWithFreezeAtCenter(const AZoom: Byte);
-
-    procedure ChangeLonLat(const ALonLat: TDoublePoint);
-    procedure ChangeLonLatAndZoom(
-      const AZoom: Byte;
-      const ALonLat: TDoublePoint
-    );
-
-    procedure ScaleTo(
-      const AScale: Double;
-      const ACenterPoint: TPoint
-    );
+  IProjectionSetChangeable = interface(IChangeable)
+    ['{C4196070-260F-44DC-ADA0-797A6EA074C1}']
+    function GetStatic: IProjectionSet;
   end;
 
 implementation

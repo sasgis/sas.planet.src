@@ -34,6 +34,7 @@ uses
   i_MapMovingConfig,
   i_MapZoomingConfig,
   i_DownloadUIConfig,
+  i_ViewProjectionConfig,
   i_WindowPositionConfig,
   u_ConfigDataElementComplexBase;
 
@@ -54,6 +55,7 @@ type
     FMapZoomingConfig: IMapZoomingConfig;
     FMapMovingConfig: IMapMovingConfig;
     FMarksExplorerWindowConfig: IWindowPositionConfig;
+    FViewProjectionConfig: IViewProjectionConfig;
   private
     function GetMainConfig: IMainFormMainConfig;
     function GetLayersConfig: IMainFormLayersConfig;
@@ -69,6 +71,7 @@ type
     function GetMapZoomingConfig: IMapZoomingConfig;
     function GetMapMovingConfig: IMapMovingConfig;
     function GetMarksExplorerWindowConfig: IWindowPositionConfig;
+    function GetViewProjectionConfig: IViewProjectionConfig;
   public
     constructor Create(
       const ADefaultMapGUID: TGUID
@@ -93,6 +96,7 @@ uses
   u_ActiveMapConfig,
   u_ActiveLayersConfig,
   u_MainFormMainConfig,
+  u_ViewProjectionConfig,
   u_WindowPositionConfig;
 
 { TMainFormConfig }
@@ -130,6 +134,8 @@ begin
   Add(FMapMovingConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MouseMoving'));
   FMarksExplorerWindowConfig := TWindowPositionConfig.Create;
   Add(FMarksExplorerWindowConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarksExplorerWindow'));
+  FViewProjectionConfig := TViewProjectionConfig.Create;
+  Add(FViewProjectionConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('ViewProjection'));
 end;
 
 function TMainFormConfig.GetDownloadUIConfig: IDownloadUIConfig;
@@ -200,6 +206,11 @@ end;
 function TMainFormConfig.GetToolbarsLock: IMainWindowToolbarsLock;
 begin
   Result := FToolbarsLock;
+end;
+
+function TMainFormConfig.GetViewProjectionConfig: IViewProjectionConfig;
+begin
+  Result := FViewProjectionConfig;
 end;
 
 end.

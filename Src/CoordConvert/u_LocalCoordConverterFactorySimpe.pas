@@ -55,11 +55,6 @@ type
       const ASource: ILocalCoordConverter;
       const ALonLat: TDoublePoint
     ): ILocalCoordConverter;
-    function ChangeCenterLonLatAndZoom(
-      const ASource: ILocalCoordConverter;
-      AZoom: Byte;
-      const ALonLat: TDoublePoint
-    ): ILocalCoordConverter;
     function ChangeByLocalDelta(
       const ASource: ILocalCoordConverter;
       const ADelta: TDoublePoint
@@ -68,16 +63,21 @@ type
       const ASource: ILocalCoordConverter;
       const AVisualPoint: TPoint
     ): ILocalCoordConverter;
-    function ChangeZoomWithFreezeAtVisualPoint(
+    function ChangeCenterLonLatAndProjection(
       const ASource: ILocalCoordConverter;
-      const AZoom: Byte;
+      const AProjection: IProjectionInfo;
+      const ALonLat: TDoublePoint
+    ): ILocalCoordConverter;
+    function ChangeProjectionWithFreezeAtVisualPoint(
+      const ASource: ILocalCoordConverter;
+      const AProjection: IProjectionInfo;
       const AFreezePoint: TPoint
     ): ILocalCoordConverter;
-    function ChangeZoomWithFreezeAtCenter(
+    function ChangeProjectionWithFreezeAtCenter(
       const ASource: ILocalCoordConverter;
-      const AZoom: Byte
+      const AProjection: IProjectionInfo
     ): ILocalCoordConverter;
-    function ChangeConverter(
+    function ChangeProjectionWithScaleUpdate(
       const ASource: ILocalCoordConverter;
       const AProjection: IProjectionInfo
     ): ILocalCoordConverter;
@@ -170,16 +170,13 @@ begin
     );
 end;
 
-function TLocalCoordConverterFactorySimpe.ChangeCenterLonLatAndZoom(
+function TLocalCoordConverterFactorySimpe.ChangeCenterLonLatAndProjection(
   const ASource: ILocalCoordConverter;
-  AZoom: Byte;
+  const AProjection: IProjectionInfo;
   const ALonLat: TDoublePoint
 ): ILocalCoordConverter;
 var
-  VZoomNew: Byte;
-  VConverter: ICoordConverter;
   VProjectionOld: IProjectionInfo;
-  VProjectionNew: IProjectionInfo;
   VLocalRect: TRect;
   VLocalCenter: TDoublePoint;
   VScale: Double;
@@ -187,19 +184,15 @@ var
   VCenterMapPixelNew: TDoublePoint;
   VTopLefAtMap: TDoublePoint;
 begin
-  VZoomNew := AZoom;
   VProjectionOld := ASource.ProjectionInfo;
-  VConverter := VProjectionOld.GeoConverter;
-  VConverter.ValidateZoom(VZoomNew);
-  if VZoomNew = VProjectionOld.Zoom then begin
+  if VProjectionOld.GetIsSameProjectionInfo(AProjection) then begin
     Result := ChangeCenterLonLat(ASource, ALonLat);
     Exit;
   end;
 
   VLonLat := ALonLat;
-  VConverter.ValidateLonLatPos(VLonLat);
-  VProjectionNew := FProjectionFactory.GetByConverterAndZoom(VConverter, VZoomNew);
-  VCenterMapPixelNew := VProjectionNew.LonLat2PixelPosFloat(VLonLat);
+  AProjection.ProjectionType.ValidateLonLatPos(VLonLat);
+  VCenterMapPixelNew := AProjection.LonLat2PixelPosFloat(VLonLat);
   VLocalRect := ASource.GetLocalRect;
   VScale := ASource.GetScale;
   VLocalCenter := RectCenter(VLocalRect);
@@ -208,7 +201,7 @@ begin
   Result :=
     CreateConverter(
       VLocalRect,
-      VProjectionNew,
+      AProjection,
       VScale,
       VTopLefAtMap
     );
@@ -250,36 +243,87 @@ begin
     );
 end;
 
-function TLocalCoordConverterFactorySimpe.ChangeConverter(
+function TLocalCoordConverterFactorySimpe.ChangeProjectionWithFreezeAtCenter(
   const ASource: ILocalCoordConverter;
   const AProjection: IProjectionInfo
 ): ILocalCoordConverter;
 var
   VLocalRect: TRect;
-  VLocalCenter: TDoublePoint;
   VScale: Double;
-  VCenterLonLat: TDoublePoint;
+  VCenterMapPixel: TDoublePoint;
   VCenterMapPixelNew: TDoublePoint;
   VTopLefAtMap: TDoublePoint;
+  VRelativePoint: TDoublePoint;
+  VLonLatPoint: TDoublePoint;
+  VProjectionOld: IProjectionInfo;
 begin
-  if AProjection = nil then begin
+  VProjectionOld := ASource.ProjectionInfo;
+  if VProjectionOld.GetIsSameProjectionInfo(AProjection) then begin
     Result := ASource;
     Exit;
   end;
-
-  if ASource.ProjectionInfo.GetIsSameProjectionInfo(AProjection) then begin
-    Result := ASource;
-    Exit;
+  VCenterMapPixel := ASource.GetCenterMapPixelFloat;
+  if VProjectionOld.ProjectionType.IsSame(AProjection.ProjectionType) then begin
+    VRelativePoint := VProjectionOld.PixelPosFloat2Relative(VCenterMapPixel);
+    VCenterMapPixelNew := AProjection.Relative2PixelPosFloat(VRelativePoint);
+  end else begin
+    VLonLatPoint := VProjectionOld.PixelPosFloat2LonLat(VCenterMapPixel);
+    AProjection.ProjectionType.ValidateLonLatPos(VLonLatPoint);
+    VCenterMapPixelNew := AProjection.LonLat2PixelPosFloat(VLonLatPoint);
   end;
-  VCenterLonLat := ASource.GetCenterLonLat;
-  AProjection.ProjectionType.ValidateLonLatPos(VCenterLonLat);
-  VScale := ASource.GetScale;
   VLocalRect := ASource.GetLocalRect;
+  VScale := ASource.GetScale;
+  VTopLefAtMap.X := VCenterMapPixelNew.X - ((VLocalRect.Right - VLocalRect.Left) / 2) / VScale;
+  VTopLefAtMap.Y := VCenterMapPixelNew.Y - ((VLocalRect.Bottom - VLocalRect.Top) / 2) / VScale;
+  Result :=
+    CreateConverter(
+      VLocalRect,
+      AProjection,
+      VScale,
+      VTopLefAtMap
+    );
+end;
 
-  VCenterMapPixelNew := AProjection.LonLat2PixelPosFloat(VCenterLonLat);
-  VLocalCenter := RectCenter(VLocalRect);
-  VTopLefAtMap.X := VCenterMapPixelNew.X - VLocalCenter.X / VScale;
-  VTopLefAtMap.Y := VCenterMapPixelNew.Y - VLocalCenter.Y / VScale;
+function TLocalCoordConverterFactorySimpe.ChangeProjectionWithFreezeAtVisualPoint(
+  const ASource: ILocalCoordConverter;
+  const AProjection: IProjectionInfo;
+  const AFreezePoint: TPoint
+): ILocalCoordConverter;
+var
+  VLocalRect: TRect;
+  VScale: Double;
+  VTopLefAtMap: TDoublePoint;
+  VFreezePoint: TDoublePoint;
+  VFreezeMapPoint: TDoublePoint;
+  VRelativeFreezePoint: TDoublePoint;
+  VLonLatFreezePoint: TDoublePoint;
+  VMapFreezPointAtNew: TDoublePoint;
+  VProjectionOld: IProjectionInfo;
+begin
+  VProjectionOld := ASource.ProjectionInfo;
+  if VProjectionOld.GetIsSameProjectionInfo(AProjection) then begin
+    Result := ASource;
+    Exit;
+  end;
+
+  VFreezeMapPoint := ASource.LocalPixel2MapPixelFloat(AFreezePoint);
+  VProjectionOld.ValidatePixelPosFloatStrict(VFreezeMapPoint, False);
+  VFreezePoint := ASource.MapPixelFloat2LocalPixelFloat(VFreezeMapPoint);
+
+  if VProjectionOld.ProjectionType.IsSame(AProjection.ProjectionType) then begin
+    VRelativeFreezePoint := VProjectionOld.PixelPosFloat2Relative(VFreezeMapPoint);
+    VMapFreezPointAtNew := AProjection.Relative2PixelPosFloat(VRelativeFreezePoint);
+  end else begin
+    VLonLatFreezePoint := VProjectionOld.PixelPosFloat2LonLat(VFreezeMapPoint);
+    AProjection.ProjectionType.ValidateLonLatPos(VLonLatFreezePoint);
+    VMapFreezPointAtNew := AProjection.LonLat2PixelPosFloat(VLonLatFreezePoint);
+  end;
+
+  VLocalRect := ASource.GetLocalRect;
+  VScale := ASource.GetScale;
+
+  VTopLefAtMap.X := VMapFreezPointAtNew.X - VFreezePoint.X / VScale;
+  VTopLefAtMap.Y := VMapFreezPointAtNew.Y - VFreezePoint.Y / VScale;
 
   Result :=
     CreateConverter(
@@ -290,97 +334,51 @@ begin
     );
 end;
 
-function TLocalCoordConverterFactorySimpe.ChangeZoomWithFreezeAtCenter(
+function TLocalCoordConverterFactorySimpe.ChangeProjectionWithScaleUpdate(
   const ASource: ILocalCoordConverter;
-  const AZoom: Byte
+  const AProjection: IProjectionInfo
 ): ILocalCoordConverter;
 var
-  VZoomOld: Byte;
-  VZoomNew: Byte;
-  VConverter: ICoordConverter;
   VLocalRect: TRect;
-  VScale: Double;
-  VCenterMapPixel: TDoublePoint;
-  VCenterMapPixelNew: TDoublePoint;
-  VTopLefAtMap: TDoublePoint;
-  VRelativePoint: TDoublePoint;
-  VProjectionNew: IProjectionInfo;
-  VProjectionOld: IProjectionInfo;
-begin
-  VZoomOld := ASource.Zoom;
-  VProjectionOld := ASource.ProjectionInfo;
-  VZoomNew := AZoom;
-  VConverter := ASource.GeoConverter;
-  VConverter.ValidateZoom(VZoomNew);
-  if VZoomOld = VZoomNew then begin
-    Result := ASource;
-    Exit;
-  end;
-  VProjectionNew := FProjectionFactory.GetByConverterAndZoom(VConverter, VZoomNew);
-
-  VCenterMapPixel := ASource.GetCenterMapPixelFloat;
-  VRelativePoint := VProjectionOld.PixelPosFloat2Relative(VCenterMapPixel);
-  VCenterMapPixelNew := VProjectionNew.Relative2PixelPosFloat(VRelativePoint);
-  VLocalRect := ASource.GetLocalRect;
-  VScale := ASource.GetScale;
-  VTopLefAtMap.X := VCenterMapPixelNew.X - ((VLocalRect.Right - VLocalRect.Left) / 2) / VScale;
-  VTopLefAtMap.Y := VCenterMapPixelNew.Y - ((VLocalRect.Bottom - VLocalRect.Top) / 2) / VScale;
-  Result :=
-    CreateConverter(
-      VLocalRect,
-      VProjectionNew,
-      VScale,
-      VTopLefAtMap
-    );
-end;
-
-function TLocalCoordConverterFactorySimpe.ChangeZoomWithFreezeAtVisualPoint(
-  const ASource: ILocalCoordConverter;
-  const AZoom: Byte;
-  const AFreezePoint: TPoint
-): ILocalCoordConverter;
-var
-  VZoomOld: Byte;
-  VZoomNew: Byte;
-  VConverter: ICoordConverter;
-  VLocalRect: TRect;
-  VScale: Double;
+  VScaleOld: Double;
+  VScaleNew: Double;
   VTopLefAtMap: TDoublePoint;
   VFreezePoint: TDoublePoint;
-  VFreezeMapPoint: TDoublePoint;
-  VRelativeFreezePoint: TDoublePoint;
-  VMapFreezPointAtNewZoom: TDoublePoint;
-  VProjectionNew: IProjectionInfo;
+  VCenterMapPixel: TDoublePoint;
+  VRelativePoint: TDoublePoint;
+  VLonLatPoint: TDoublePoint;
+  VCenterMapPixelAtNew: TDoublePoint;
   VProjectionOld: IProjectionInfo;
 begin
   VProjectionOld := ASource.ProjectionInfo;
-  VZoomOld := ASource.Zoom;
-  VZoomNew := AZoom;
-  VConverter := ASource.GeoConverter;
-  VConverter.ValidateZoom(VZoomNew);
-  if VZoomOld = VZoomNew then begin
+  if VProjectionOld.GetIsSameProjectionInfo(AProjection) then begin
     Result := ASource;
     Exit;
   end;
-  VProjectionNew := FProjectionFactory.GetByConverterAndZoom(VConverter, VZoomNew);
 
-  VFreezeMapPoint := ASource.LocalPixel2MapPixelFloat(AFreezePoint);
-  VProjectionOld.ValidatePixelPosFloatStrict(VFreezeMapPoint, False);
-  VFreezePoint := ASource.MapPixelFloat2LocalPixelFloat(VFreezeMapPoint);
-  VRelativeFreezePoint := VProjectionOld.PixelPosFloat2Relative(VFreezeMapPoint);
-  VMapFreezPointAtNewZoom := VProjectionNew.Relative2PixelPosFloat(VRelativeFreezePoint);
+  VCenterMapPixel := ASource.GetCenterMapPixelFloat;
+
+  if VProjectionOld.ProjectionType.IsSame(AProjection.ProjectionType) then begin
+    VRelativePoint := VProjectionOld.PixelPosFloat2Relative(VCenterMapPixel);
+    VCenterMapPixelAtNew := AProjection.Relative2PixelPosFloat(VRelativePoint);
+  end else begin
+    VLonLatPoint := VProjectionOld.PixelPosFloat2LonLat(VCenterMapPixel);
+    AProjection.ProjectionType.ValidateLonLatPos(VLonLatPoint);
+    VCenterMapPixelAtNew := AProjection.LonLat2PixelPosFloat(VLonLatPoint);
+  end;
 
   VLocalRect := ASource.GetLocalRect;
-  VScale := ASource.GetScale;
+  VFreezePoint := RectCenter(VLocalRect);
+  VScaleOld := ASource.GetScale;
 
-  VTopLefAtMap.X := VMapFreezPointAtNewZoom.X - VFreezePoint.X / VScale;
-  VTopLefAtMap.Y := VMapFreezPointAtNewZoom.Y - VFreezePoint.Y / VScale;
-
+  VScaleNew := VScaleOld * (VProjectionOld.GetPixelsFloat / AProjection.GetPixelsFloat);
+  VTopLefAtMap.X := VCenterMapPixelAtNew.X - VFreezePoint.X / VScaleNew;
+  VTopLefAtMap.Y := VCenterMapPixelAtNew.Y - VFreezePoint.Y / VScaleNew;
   Result :=
     CreateConverter(
       VLocalRect,
-      VProjectionNew,
-      VScale,
+      AProjection,
+      VScaleNew,
       VTopLefAtMap
     );
 end;

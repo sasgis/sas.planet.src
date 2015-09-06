@@ -18,50 +18,78 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_ViewPortState;
+unit u_ViewProjectionConfig;
 
 interface
 
 uses
-  Types,
-  t_GeoTypes,
-  i_ProjectionSet,
-  i_LocalCoordConverterChangeable,
-  i_ConfigDataElement;
+  i_ConfigDataProvider,
+  i_ConfigDataWriteProvider,
+  i_ViewProjectionConfig,
+  u_ConfigDataElementBase;
 
 type
-  IViewPortState = interface(IConfigDataElement)
-    ['{F2F2E282-AA3B-48BC-BC09-73FE9C07B723}']
-    function GetCurrentZoom: Byte;
-
-    function GetView: ILocalCoordConverterChangeable;
-    property View: ILocalCoordConverterChangeable read GetView;
-
-    procedure ChangeViewSize(const ANewSize: TPoint);
-    procedure ChangeMapPixelByLocalDelta(const ADelta: TDoublePoint);
-    procedure ChangeMapPixelToVisualPoint(const AVisualPoint: TPoint);
-    procedure ChangeZoomWithFreezeAtVisualPoint(
-      const AZoom: Byte;
-      const AFreezePoint: TPoint
-    );
-    procedure ChangeZoomWithFreezeAtVisualPointWithScale(
-      const AZoom: Byte;
-      const AFreezePoint: TPoint
-    );
-    procedure ChangeZoomWithFreezeAtCenter(const AZoom: Byte);
-
-    procedure ChangeLonLat(const ALonLat: TDoublePoint);
-    procedure ChangeLonLatAndZoom(
-      const AZoom: Byte;
-      const ALonLat: TDoublePoint
-    );
-
-    procedure ScaleTo(
-      const AScale: Double;
-      const ACenterPoint: TPoint
-    );
+  TViewProjectionConfig = class(TConfigDataElementBase, IViewProjectionConfig)
+  private
+    FEPSG: Integer;
+  protected
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
+  private
+    function GetEPSG: Integer;
+    procedure SetEPSG(AValue: Integer);
+  public
+    constructor Create;
   end;
 
 implementation
+
+{ TViewProjectionConfig }
+
+constructor TViewProjectionConfig.Create;
+begin
+  inherited Create;
+  FEPSG := 0;
+end;
+
+procedure TViewProjectionConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
+begin
+  inherited;
+  if AConfigData <> nil then begin
+    FEPSG := AConfigData.ReadInteger('EPSG', FEPSG);
+    SetChanged;
+  end;
+end;
+
+procedure TViewProjectionConfig.DoWriteConfig(
+  const AConfigData: IConfigDataWriteProvider
+);
+begin
+  inherited;
+  AConfigData.WriteInteger('EPSG', FEPSG);
+end;
+
+function TViewProjectionConfig.GetEPSG: Integer;
+begin
+  LockRead;
+  try
+    Result := FEPSG;
+  finally
+    UnlockRead;
+  end;
+end;
+
+procedure TViewProjectionConfig.SetEPSG(AValue: Integer);
+begin
+  LockWrite;
+  try
+    if FEPSG <> AValue then begin
+      FEPSG := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
 
 end.

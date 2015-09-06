@@ -71,6 +71,7 @@ uses
   i_MapSvcScanStorage,
   i_MainFormConfig,
   i_MainMapsState,
+  i_ProjectionSetChangeable,
   i_ViewPortState,
   i_SensorList,
   i_SearchResultPresenter,
@@ -681,6 +682,7 @@ type
     FConfig: IMainFormConfig;
     FMainMapState: IMainMapsState;
     FTimer: ITimer;
+    FActiveProjectionSet: IProjectionSetChangeable;
     FViewPortState: IViewPortState;
     FSensorList: ISensorList;
     FCenterToGPSDelta: TDoublePoint;
@@ -1023,6 +1025,7 @@ uses
   u_MainFormState,
   u_PosFromGSM,
   u_MapViewPortState,
+  u_ProjectionSetChangeableByConfig,
   u_MainFormConfig,
   u_SensorListStuped,
   u_SearchResultPresenterOnPanel,
@@ -1104,11 +1107,17 @@ begin
       FConfig.LayersConfig.FillingMapLayerConfig.SourceMap
     );
   FMapSvcScanStorage := TMapSvcScanStorage.Create(GState.Config.MapSvcScanConfig);
+  FActiveProjectionSet :=
+    TProjectionSetChangeableByConfig.Create(
+      GState.ProjectionSetFactory,
+      FMainMapState.ActiveMap,
+      FConfig.ViewProjectionConfig
+    );
   FViewPortState :=
     TMapViewPortState.Create(
       GState.ProjectionFactory,
       GState.LocalConverterFactory,
-      FMainMapState.ActiveMap,
+      FActiveProjectionSet,
       GState.DebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('ViewState')
     );
   FViewPortState.ReadConfig(GState.MainConfigProvider.GetSubItem('Position'));
@@ -3106,24 +3115,15 @@ procedure TfrmMain.CreateProjectionMenu;
 var
   I: Integer;
   VProjList: IProjectionSetList;
-  VViewPortState: IViewPortState;
-  VProjectionSet: IProjectionSet;
 begin
-  VProjectionSet := nil;
-
   VProjList := GState.ProjectionSetList;
   Assert(VProjList <> nil);
 
-  VViewPortState := FViewPortState;
-  if Assigned(VViewPortState) then begin
-    VProjectionSet := VViewPortState.MainProjectionSet;
-  end;
-
   for I := 0 to VProjList.Count - 1 do begin
-    _AddItem(VProjList.Captions[I], I, (VProjList.Items[I].IsSame(VProjectionSet)));
+    _AddItem(VProjList.Captions[I], I, False);
   end;
 
-  _AddItem(_('Map Original Projection (from zmp)'), (VProjList.Count + 1), (VProjectionSet = nil));
+  _AddItem(_('Map Original Projection (from zmp)'), (VProjList.Count + 1), False);
 
   tbxsbmProjection.OnClick := Self.OnProjectionMenuShow;
 end;
@@ -3133,33 +3133,22 @@ var
   VIndex: Integer;
   VMenuItem: TTBXItem;
   VProjList: IProjectionSetList;
-  VViewPortState: IViewPortState;
+  VEpsg: Integer;
   VNewProjectionSet: IProjectionSet;
-  VMainProjectionSet: IProjectionSet;
 begin
   VMenuItem := Sender as TTBXItem;
   if Assigned(VMenuItem) then begin
-    VViewPortState := FViewPortState;
-    if Assigned(VViewPortState) then begin
-      VIndex := VMenuItem.Tag;
-      VProjList := GState.ProjectionSetList;
-      Assert(VProjList <> nil);
-      if (VIndex >= 0) and (VProjList.Count > VIndex) then begin
-        VNewProjectionSet := VProjList.Items[VIndex];
-        if Assigned(VNewProjectionSet) then begin
-          VMainProjectionSet := VViewPortState.MainProjectionSet;
-          if Assigned(VMainProjectionSet) then begin
-            if not VMainProjectionSet.IsSame(VNewProjectionSet) then begin
-              VViewPortState.MainProjectionSet := VNewProjectionSet;
-            end;
-          end else begin
-            VViewPortState.MainProjectionSet := VNewProjectionSet;
-          end;
-        end;
-      end else begin
-        VViewPortState.MainProjectionSet := nil; // reset to default
-      end;
+    VIndex := VMenuItem.Tag;
+    VProjList := GState.ProjectionSetList;
+    Assert(VProjList <> nil);
+    if (VIndex >= 0) and (VProjList.Count > VIndex) then begin
+      VNewProjectionSet := VProjList.Items[VIndex];
+      Assert(Assigned(VNewProjectionSet));
+      VEpsg := VNewProjectionSet.GeoConvert.ProjectionType.ProjectionEPSG;
+    end else begin
+      VEpsg := 0; // reset to default
     end;
+    FConfig.ViewProjectionConfig.EPSG := VEpsg;
   end;
 end;
 
@@ -3167,26 +3156,26 @@ procedure TfrmMain.OnProjectionMenuShow(Sender: TObject);
 var
   I: Integer;
   VProjList: IProjectionSetList;
-  VViewPortState: IViewPortState;
-  VProjectionSet: IProjectionSet;
+  VEpsg: Integer;
+  VAsMap: Boolean;
 begin
-  VProjectionSet := nil;
-
   VProjList := GState.ProjectionSetList;
   Assert(VProjList <> nil);
+  VEpsg := FConfig.ViewProjectionConfig.EPSG;
 
-  VViewPortState := FViewPortState;
-  if Assigned(VViewPortState) then begin
-    VProjectionSet := VViewPortState.MainProjectionSet;
-  end;
-
-  if Assigned(VProjectionSet) then begin
+  if VEpsg > 0 then begin
+    VAsMap := True;
     for I := 0 to VProjList.Count - 1 do begin
-      if VProjList.Items[I].IsSame(VProjectionSet) then begin
+      if VProjList.Items[I].GeoConvert.ProjectionType.ProjectionEPSG = VEpsg then begin
         tbxsbmProjection.Items[I].Checked := True;
+        VAsMap := False;
+        break;
       end;
     end;
   end else begin
+    VAsMap := True;
+  end;
+  if VAsMap then begin
     tbxsbmProjection.Items[tbxsbmProjection.Count - 1].Checked := True;
   end;
 end;

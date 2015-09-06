@@ -33,6 +33,7 @@ uses
   i_MapMovingConfig,
   i_MapZoomingConfig,
   i_DownloadUIConfig,
+  i_ViewProjectionConfig,
   i_WindowPositionConfig,
   i_MainFormLayersConfig;
 
@@ -119,6 +120,9 @@ type
 
     function GetMarksExplorerWindowConfig: IWindowPositionConfig;
     property MarksExplorerWindowConfig: IWindowPositionConfig read GetMarksExplorerWindowConfig;
+
+    function GetViewProjectionConfig: IViewProjectionConfig;
+    property ViewProjectionConfig: IViewProjectionConfig read GetViewProjectionConfig;
   end;
 
 implementation

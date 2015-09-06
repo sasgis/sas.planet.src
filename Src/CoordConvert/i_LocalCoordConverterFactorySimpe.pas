@@ -48,11 +48,6 @@ type
       const ASource: ILocalCoordConverter;
       const ALonLat: TDoublePoint
     ): ILocalCoordConverter;
-    function ChangeCenterLonLatAndZoom(
-      const ASource: ILocalCoordConverter;
-      AZoom: Byte;
-      const ALonLat: TDoublePoint
-    ): ILocalCoordConverter;
     function ChangeByLocalDelta(
       const ASource: ILocalCoordConverter;
       const ADelta: TDoublePoint
@@ -61,19 +56,25 @@ type
       const ASource: ILocalCoordConverter;
       const AVisualPoint: TPoint
     ): ILocalCoordConverter;
-    function ChangeZoomWithFreezeAtVisualPoint(
+    function ChangeCenterLonLatAndProjection(
       const ASource: ILocalCoordConverter;
-      const AZoom: Byte;
+      const AProjection: IProjectionInfo;
+      const ALonLat: TDoublePoint
+    ): ILocalCoordConverter;
+    function ChangeProjectionWithFreezeAtVisualPoint(
+      const ASource: ILocalCoordConverter;
+      const AProjection: IProjectionInfo;
       const AFreezePoint: TPoint
     ): ILocalCoordConverter;
-    function ChangeZoomWithFreezeAtCenter(
-      const ASource: ILocalCoordConverter;
-      const AZoom: Byte
-    ): ILocalCoordConverter;
-    function ChangeConverter(
+    function ChangeProjectionWithFreezeAtCenter(
       const ASource: ILocalCoordConverter;
       const AProjection: IProjectionInfo
     ): ILocalCoordConverter;
+    function ChangeProjectionWithScaleUpdate(
+      const ASource: ILocalCoordConverter;
+      const AProjection: IProjectionInfo
+    ): ILocalCoordConverter;
+
 
     function CreateForTile(
       const AProjection: IProjectionInfo;

@@ -250,6 +250,7 @@
     <DCCReference Include="Src\CoordConvert\i_ProjConverter.pas" />
     <DCCReference Include="Src\CoordConvert\i_ProjectionInfo.pas" />
     <DCCReference Include="Src\CoordConvert\i_ProjectionSet.pas" />
+    <DCCReference Include="Src\CoordConvert\i_ProjectionSetChangeable.pas" />
     <DCCReference Include="Src\CoordConvert\i_ProjectionType.pas" />
     <DCCReference Include="Src\CoordConvert\u_CoordConverterAbstract.pas" />
     <DCCReference Include="Src\CoordConvert\u_CoordConverterBasic.pas" />
@@ -486,6 +487,7 @@
     <DCCReference Include="Src\MainForm\i_SearchResultPresenter.pas" />
     <DCCReference Include="Src\MainForm\i_SelectionRect.pas" />
     <DCCReference Include="Src\MainForm\i_ViewPortState.pas" />
+    <DCCReference Include="Src\MainForm\i_ViewProjectionConfig.pas" />
     <DCCReference Include="Src\MainForm\MergePolygons\frm_MergePolygonsProgress.pas">
       <Form>frmMergePolygonsProgress</Form>
     </DCCReference>
@@ -537,11 +539,13 @@
     <DCCReference Include="Src\MainForm\u_MenuGeneratorByStaticTreeSimple.pas" />
     <DCCReference Include="Src\MainForm\u_MouseState.pas" />
     <DCCReference Include="Src\MainForm\u_PointOnMapEdit.pas" />
+    <DCCReference Include="Src\MainForm\u_ProjectionSetChangeableByConfig.pas" />
     <DCCReference Include="Src\MainForm\u_SaveLoadTBConfigByConfigProvider.pas" />
     <DCCReference Include="Src\MainForm\u_SearchResultPresenterOnPanel.pas" />
     <DCCReference Include="Src\MainForm\u_SelectionRect.pas" />
     <DCCReference Include="Src\MainForm\u_TBXSASTheme.pas" />
     <DCCReference Include="Src\MainForm\u_TBXSubmenuItemWithIndicator.pas" />
+    <DCCReference Include="Src\MainForm\u_ViewProjectionConfig.pas" />
     <DCCReference Include="Src\MapCalibration\i_MapCalibration.pas" />
     <DCCReference Include="Src\MapCalibration\u_MapCalibrationDat.pas" />
     <DCCReference Include="Src\MapCalibration\u_MapCalibrationKml.pas" />

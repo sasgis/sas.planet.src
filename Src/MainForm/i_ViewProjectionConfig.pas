@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2015, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -18,48 +18,19 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_ViewPortState;
+unit i_ViewProjectionConfig;
 
 interface
 
 uses
-  Types,
-  t_GeoTypes,
-  i_ProjectionSet,
-  i_LocalCoordConverterChangeable,
   i_ConfigDataElement;
 
 type
-  IViewPortState = interface(IConfigDataElement)
-    ['{F2F2E282-AA3B-48BC-BC09-73FE9C07B723}']
-    function GetCurrentZoom: Byte;
-
-    function GetView: ILocalCoordConverterChangeable;
-    property View: ILocalCoordConverterChangeable read GetView;
-
-    procedure ChangeViewSize(const ANewSize: TPoint);
-    procedure ChangeMapPixelByLocalDelta(const ADelta: TDoublePoint);
-    procedure ChangeMapPixelToVisualPoint(const AVisualPoint: TPoint);
-    procedure ChangeZoomWithFreezeAtVisualPoint(
-      const AZoom: Byte;
-      const AFreezePoint: TPoint
-    );
-    procedure ChangeZoomWithFreezeAtVisualPointWithScale(
-      const AZoom: Byte;
-      const AFreezePoint: TPoint
-    );
-    procedure ChangeZoomWithFreezeAtCenter(const AZoom: Byte);
-
-    procedure ChangeLonLat(const ALonLat: TDoublePoint);
-    procedure ChangeLonLatAndZoom(
-      const AZoom: Byte;
-      const ALonLat: TDoublePoint
-    );
-
-    procedure ScaleTo(
-      const AScale: Double;
-      const ACenterPoint: TPoint
-    );
+  IViewProjectionConfig = interface(IConfigDataElement)
+    ['{A322104E-A247-4EB3-83F6-C897F64E764C}']
+    function GetEPSG: Integer;
+    procedure SetEPSG(AValue: Integer);
+    property EPSG: Integer read GetEPSG write SetEPSG;
   end;
 
 implementation
