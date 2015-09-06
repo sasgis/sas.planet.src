@@ -186,7 +186,7 @@ procedure TMapViewPortState.ChangeLonLatAndZoom(
 var
   VLocalConverter: ILocalCoordConverter;
   VLocalConverterNew: ILocalCoordConverter;
-  VConverter: ICoordConverter;
+  VProjectionSet: IProjectionSet;
   VZoom: Byte;
   VProjection: IProjectionInfo;
   VLonLat: TDoublePoint;
@@ -198,12 +198,12 @@ begin
   LockWrite;
   try
     VLocalConverter := FView.GetStatic;
-    VConverter := VLocalConverter.GeoConverter;
+    VProjectionSet := FProjectionSet.GetStatic;
     VZoom := AZoom;
-    VConverter.ValidateZoom(VZoom);
-    VProjection := FProjectionFactory.GetByConverterAndZoom(VConverter, VZoom);
+    VProjectionSet.ValidateZoom(VZoom);
+    VProjection := VProjectionSet.Zooms[VZoom];
     VLonLat := ALonLat;
-    VConverter.ValidateLonLatPos(VLonLat);
+    VProjection.ProjectionType.ValidateLonLatPos(VLonLat);
     VMapPixelCenter := VProjection.LonLat2PixelPosFloat(VLonLat);
     VLocalRect := VLocalConverter.GetLocalRect;
     VLocalCenter := RectCenter(VLocalRect);
