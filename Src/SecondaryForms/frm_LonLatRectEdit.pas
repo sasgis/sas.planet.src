@@ -33,7 +33,7 @@ uses
   u_CommonFormAndFrameParents,
   t_GeoTypes,
   i_LanguageManager,
-  i_CoordConverterFactory,
+  i_ProjectionSetChangeable,
   i_ValueToStringConverter,
   i_LocalCoordConverterChangeable,
   fr_LonLat;
@@ -57,7 +57,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AProjectionFactory: IProjectionInfoFactory;
+      const AProjectionSet: IProjectionSetChangeable;
       const AViewPortState: ILocalCoordConverterChangeable;
       const AValueToStringConverter: IValueToStringConverterChangeable
     ); reintroduce;
@@ -74,7 +74,7 @@ uses
 
 constructor TfrmLonLatRectEdit.Create(
   const ALanguageManager: ILanguageManager;
-  const AProjectionFactory: IProjectionInfoFactory;
+  const AProjectionSet: IProjectionSetChangeable;
   const AViewPortState: ILocalCoordConverterChangeable;
   const AValueToStringConverter: IValueToStringConverterChangeable
 );
@@ -83,7 +83,7 @@ begin
   FfrLonLatTopLeft :=
     TfrLonLat.Create(
       ALanguageManager,
-      AProjectionFactory,
+      AProjectionSet,
       AViewPortState,
       AValueToStringConverter,
       tssTopLeft
@@ -91,7 +91,7 @@ begin
   FfrLonLatBottomRight :=
     TfrLonLat.Create(
       ALanguageManager,
-      AProjectionFactory,
+      AProjectionSet,
       AViewPortState,
       AValueToStringConverter,
       tssBottomRight
