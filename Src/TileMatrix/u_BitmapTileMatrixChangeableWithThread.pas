@@ -252,6 +252,9 @@ begin
   if Assigned(FLayerProvider) and Assigned(FLayerProviderListener) then begin
     FLayerProvider.ChangeNotifier.Add(FLayerProviderListener);
   end;
+  if Assigned(FTileRect) and Assigned(FPosChangeListener) then begin
+    FTileRect.ChangeNotifier.Add(FPosChangeListener);
+  end;
   FDrawTask.StartExecute;
 end;
 
@@ -291,7 +294,6 @@ begin
   VProvider := FLayerProvider.GetStatic;
   if not Assigned(VProvider) then begin
     if FVisible then begin
-      FTileRect.ChangeNotifier.Remove(FPosChangeListener);
       if Assigned(FSourcUpdateNotyfier) then begin
         FSourcUpdateNotyfier.RemoveListener;
       end;
@@ -322,7 +324,6 @@ begin
         FSourceHashMatrixCS.EndWrite
       end;
       if not FVisible then begin
-        FTileRect.ChangeNotifier.Add(FPosChangeListener);
         FVisible := True;
       end;
       if VTileRectChanged then begin
