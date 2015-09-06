@@ -971,6 +971,11 @@ begin
     AProjection.ValidatePixelRect(VPixelRectTarget);
     VLonLatRectTarget := AProjection.PixelRect2LonLatRect(VPixelRectTarget);
     VProjection.ProjectionType.ValidateLonLatRect(VLonLatRectTarget);
+
+    if (VLonLatRectTarget.Left = VLonLatRectTarget.Right) or (VLonLatRectTarget.Top = VLonLatRectTarget.Bottom) then begin
+      exit;
+    end;
+
     VPixelRectOfTargetPixelRectInSource :=
       RectFromDoubleRect(
         VProjection.LonLatRect2PixelRectFloat(VLonLatRectTarget),
