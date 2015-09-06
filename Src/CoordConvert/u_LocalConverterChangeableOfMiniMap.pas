@@ -23,15 +23,17 @@ unit u_LocalConverterChangeableOfMiniMap;
 interface
 
 uses
-  i_Listener,
   i_Notifier,
   i_InternalPerformanceCounter,
   i_ProjectionInfo,
+  i_ProjectionSet,
+  i_ProjectionSetChangeable,
   i_CoordConverterFactory,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_LocalCoordConverterChangeable,
   i_MiniMapLayerConfig,
+  i_ListenerNotifierLinksList,
   u_BaseInterfacedObject;
 
 type
@@ -40,17 +42,21 @@ type
     FInternal: ILocalCoordConverterChangeableInternal;
     FSoruce: ILocalCoordConverterChangeable;
     FConfig: IMiniMapLayerLocationConfig;
+    FProjectionSet: IProjectionSetChangeable;
     FProjectionFactory: IProjectionInfoFactory;
     FConverterFactory: ILocalCoordConverterFactorySimpe;
-    FSourceListener: IListener;
-    FConfigListener: IListener;
-    procedure OnSourceChange;
+
+    FLinkList: IListenerNotifierLinksList;
+
     procedure OnConfigChange;
     function GetActualProjection(
       AZoomDelta: Integer;
+      const AProjectionSet: IProjectionSet;
       const AProjection: IProjectionInfo
     ): IProjectionInfo;
     function GetConverterForSource(
+      const AConfig: IMiniMapLayerLocationConfigStatic;
+      const AProjectionSet: IProjectionSet;
       const AVisualCoordConverter: ILocalCoordConverter
     ): ILocalCoordConverter;
   private
@@ -63,6 +69,7 @@ type
       const AChangeCounter: IInternalPerformanceCounter;
       const AProjectionFactory: IProjectionInfoFactory;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
+      const AProjectionSet: IProjectionSetChangeable;
       const ASoruce: ILocalCoordConverterChangeable;
       const AConfig: IMiniMapLayerLocationConfig
     );
@@ -75,7 +82,9 @@ uses
   Types,
   t_GeoTypes,
   i_CoordConverter,
+  i_Listener,
   u_ListenerByEvent,
+  u_ListenerNotifierLinksList,
   u_LocalCoordConverterChangeable,
   u_GeoFunc;
 
@@ -85,67 +94,66 @@ constructor TLocalConverterChangeableOfMiniMap.Create(
   const AChangeCounter: IInternalPerformanceCounter;
   const AProjectionFactory: IProjectionInfoFactory;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
+  const AProjectionSet: IProjectionSetChangeable;
   const ASoruce: ILocalCoordConverterChangeable;
   const AConfig: IMiniMapLayerLocationConfig
 );
+var
+  VListener: IListener;
 begin
   inherited Create;
   FSoruce := ASoruce;
+  FProjectionSet := AProjectionSet;
   FProjectionFactory := AProjectionFactory;
   FConfig := AConfig;
   FConverterFactory := AConverterFactory;
 
+  FLinkList := TListenerNotifierLinksList.Create;
   FInternal :=
     TLocalCoordConverterChangeable.Create(
       FSoruce.GetStatic,
       AChangeCounter
     );
-  FSourceListener := TNotifyNoMmgEventListener.Create(Self.OnSourceChange);
-  FSoruce.ChangeNotifier.Add(FSourceListener);
-  FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
-  FConfig.ChangeNotifier.Add(FConfigListener);
+  VListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
+  FLinkList.Add(VListener, FSoruce.ChangeNotifier);
+  FLinkList.Add(VListener, FConfig.ChangeNotifier);
+  FLinkList.Add(VListener, FProjectionSet.ChangeNotifier);
+  FLinkList.ActivateLinks;
   OnConfigChange;
 end;
 
 destructor TLocalConverterChangeableOfMiniMap.Destroy;
 begin
-  if Assigned(FSoruce) and Assigned(FSourceListener) then begin
-    FSoruce.ChangeNotifier.Remove(FSourceListener);
-    FSoruce := nil;
-    FSourceListener := nil;
-  end;
-  if Assigned(FConfig) and Assigned(FConfigListener) then begin
-    FConfig.ChangeNotifier.Remove(FConfigListener);
-    FConfig := nil;
-    FConfigListener := nil;
-  end;
+  FLinkList.DeactivateLinks;
   inherited;
 end;
 
 function TLocalConverterChangeableOfMiniMap.GetActualProjection(
   AZoomDelta: Integer;
+  const AProjectionSet: IProjectionSet;
   const AProjection: IProjectionInfo
 ): IProjectionInfo;
 var
   VZoom: Byte;
-  VGeoConvert: ICoordConverter;
+  VProjection: IProjectionInfo;
   VResultZoom: Byte;
 begin
-  VZoom := AProjection.Zoom;
-  VGeoConvert := AProjection.GeoConverter;
+  VProjection := AProjectionSet.GetSuitableProjection(AProjection);
   if AZoomDelta = 0 then begin
-    Result := AProjection;
+    Result := VProjection;
   end else if AZoomDelta > 0 then begin
+    VZoom := VProjection.Zoom;
     if VZoom > AZoomDelta then begin
       VResultZoom := VZoom - AZoomDelta;
     end else begin
       VResultZoom := 0;
     end;
-    Result := FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VResultZoom);
+    Result := AProjectionSet.Zooms[VResultZoom];
   end else begin
+    VZoom := VProjection.Zoom;
     VResultZoom := VZoom - AZoomDelta;
-    VGeoConvert.ValidateZoom(VResultZoom);
-    Result := FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VResultZoom);
+    AProjectionSet.ValidateZoom(VResultZoom);
+    Result := AProjectionSet.Zooms[VResultZoom];
   end;
 end;
 
@@ -165,10 +173,11 @@ begin
 end;
 
 function TLocalConverterChangeableOfMiniMap.GetConverterForSource(
+  const AConfig: IMiniMapLayerLocationConfigStatic;
+  const AProjectionSet: IProjectionSet;
   const AVisualCoordConverter: ILocalCoordConverter
 ): ILocalCoordConverter;
 var
-  VConfig: IMiniMapLayerLocationConfigStatic;
   VVisualMapCenter: TDoublePoint;
   VProjection: IProjectionInfo;
   VSourceProjection: IProjectionInfo;
@@ -183,10 +192,9 @@ var
   VScale: Double;
 begin
   Result := nil;
-  VConfig := FConfig.GetStatic;
-  if VConfig.Visible then begin
-    VWidth := VConfig.Width;
-    VBottomMargin := VConfig.BottomMargin;
+  if AConfig.Visible then begin
+    VWidth := AConfig.Width;
+    VBottomMargin := AConfig.BottomMargin;
     VVeiwSize := AVisualCoordConverter.GetLocalRectSize;
     VLayerSize := Point(VWidth, VWidth);
     VLocalRect.Right := VVeiwSize.X;
@@ -199,7 +207,7 @@ begin
     VSourceProjection := AVisualCoordConverter.ProjectionInfo;
     VSourceProjection.ValidatePixelPosFloatStrict(VVisualMapCenter, True);
     VVisualMapCenterInRelative := VSourceProjection.PixelPosFloat2Relative(VVisualMapCenter);
-    VProjection := GetActualProjection(VConfig.ZoomDelta, VSourceProjection);
+    VProjection := GetActualProjection(AConfig.ZoomDelta, AProjectionSet, VSourceProjection);
     VVisualMapCenterInLayerMap := VProjection.Relative2PixelPosFloat(VVisualMapCenterInRelative);
     VMapPixelAtLocalZero :=
       DoublePoint(
@@ -223,13 +231,16 @@ begin
 end;
 
 procedure TLocalConverterChangeableOfMiniMap.OnConfigChange;
+var
+  VNewConverter: ILocalCoordConverter;
 begin
-  FInternal.SetConverter(GetConverterForSource(FSoruce.GetStatic));
-end;
-
-procedure TLocalConverterChangeableOfMiniMap.OnSourceChange;
-begin
-  FInternal.SetConverter(GetConverterForSource(FSoruce.GetStatic));
+  VNewConverter :=
+    GetConverterForSource(
+      FConfig.GetStatic,
+      FProjectionSet.GetStatic,
+      FSoruce.GetStatic
+    );
+  FInternal.SetConverter(VNewConverter);
 end;
 
 end.

@@ -2868,6 +2868,7 @@ begin
       GState.PerfCounterList.CreateAndAddNewCounter('MiniMapConverter'),
       GState.ProjectionFactory,
       GState.LocalConverterFactory,
+      FActiveProjectionSet,
       FViewPortState.View,
       FConfig.LayersConfig.MiniMapLayerConfig.LocationConfig
     );
