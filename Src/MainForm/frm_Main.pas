@@ -1158,6 +1158,7 @@ begin
       GState.MapTypeListBuilderFactory,
       GState.GlobalBerkeleyDBHelper,
       FViewPortState.View,
+      FActiveProjectionSet,
       GState.MapType.FullMapsSet,
       GState.MapType.GUIConfigList,
       GState.ContentTypeManager,
@@ -1941,7 +1942,7 @@ begin
   VProvider :=
     TBitmapLayerProviderChangeableForGrids.Create(
       GState.Bitmap32StaticFactory,
-      GState.ProjectionFactory,
+      FActiveProjectionSet,
       GState.ValueToStringConverter,
       FConfig.LayersConfig.MapLayerGridsConfig
     );

@@ -44,6 +44,7 @@ uses
   i_LastSelectionInfo,
   i_CoordConverterFactory,
   i_CoordConverterList,
+  i_ProjectionSetChangeable,
   i_ContentTypeManager,
   i_GlobalViewMainConfig,
   i_GeometryLonLat,
@@ -157,6 +158,7 @@ type
       const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const APosition: ILocalCoordConverterChangeable;
+      const AProjectionSet: IProjectionSetChangeable;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AContentTypeManager: IContentTypeManager;
@@ -218,6 +220,7 @@ constructor TfrmRegionProcess.Create(
   const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const APosition: ILocalCoordConverterChangeable;
+  const AProjectionSet: IProjectionSetChangeable;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AContentTypeManager: IContentTypeManager;
@@ -357,7 +360,7 @@ begin
       AActiveBitmapLayersList,
       AViewConfig,
       AUseTilePrevZoomConfig,
-      AProjectionFactory,
+      AProjectionSet,
       AProjectionSetList,
       AVectorGeometryProjectedFactory,
       AProjectedGeometryProvider,

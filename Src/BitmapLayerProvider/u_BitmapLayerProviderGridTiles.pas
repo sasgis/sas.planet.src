@@ -29,7 +29,7 @@ uses
   i_SimpleFlag,
   i_NotifierOperation,
   i_ProjectionInfo,
-  i_CoordConverterFactory,
+  i_ProjectionSet,
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
   i_BitmapLayerProvider,
@@ -43,7 +43,7 @@ type
     FZoom: Integer;
     FShowText: Boolean;
     FShowLines: Boolean;
-    FProjectionFactory: IProjectionInfoFactory;
+    FProjectionSet: IProjectionSet;
     FBitmapFactory: IBitmap32StaticFactory;
     FCS: IReadWriteSync;
     FBitmap: TBitmap32;
@@ -75,7 +75,7 @@ type
   public
     constructor Create(
       const ABitmapFactory: IBitmap32StaticFactory;
-      const AProjectionFactory: IProjectionInfoFactory;
+      const AProjectionSet: IProjectionSet;
       AColor: TColor32;
       AUseRelativeZoom: Boolean;
       AZoom: Integer;
@@ -100,16 +100,18 @@ uses
 
 constructor TBitmapLayerProviderGridTiles.Create(
   const ABitmapFactory: IBitmap32StaticFactory;
-  const AProjectionFactory: IProjectionInfoFactory;
+  const AProjectionSet: IProjectionSet;
   AColor: TColor32;
   AUseRelativeZoom: Boolean;
   AZoom: Integer;
   AShowText, AShowLines: Boolean
 );
 begin
+  Assert(Assigned(ABitmapFactory));
+  Assert(Assigned(AProjectionSet));
   inherited Create;
   FBitmapFactory := ABitmapFactory;
-  FProjectionFactory := AProjectionFactory;
+  FProjectionSet := AProjectionSet;
   FColor := AColor;
   FUseRelativeZoom := AUseRelativeZoom;
   FZoom := AZoom;
@@ -263,14 +265,14 @@ function TBitmapLayerProviderGridTiles.GetActualProjection(
   const AProjection: IProjectionInfo
 ): IProjectionInfo;
 var
-  VConverter: ICoordConverter;
   VZoom: Integer;
   VResultZoom: Byte;
   VCurrentZoom: Byte;
+  VProjection: IProjectionInfo;
 begin
   Result := nil;
-  VCurrentZoom := AProjection.Zoom;
-  VConverter := AProjection.GeoConverter;
+  VProjection := FProjectionSet.GetSuitableProjection(AProjection);
+  VCurrentZoom := VProjection.Zoom;
   VZoom := FZoom;
   if FUseRelativeZoom then begin
     VZoom := VZoom + VCurrentZoom;
@@ -279,10 +281,10 @@ begin
     VResultZoom := 0;
   end else begin
     VResultZoom := VZoom;
-    VConverter.ValidateZoom(VResultZoom);
+    FProjectionSet.ValidateZoom(VResultZoom);
   end;
   if VResultZoom <= VCurrentZoom + 5 then begin
-    Result := FProjectionFactory.GetByConverterAndZoom(VConverter, VResultZoom);
+    Result := FProjectionSet.Zooms[VResultZoom];
   end;
 end;
 

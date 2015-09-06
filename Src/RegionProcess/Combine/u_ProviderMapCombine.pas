@@ -29,6 +29,7 @@ uses
   i_LanguageManager,
   i_CoordConverterFactory,
   i_CoordConverterList,
+  i_ProjectionSetChangeable,
   i_BitmapLayerProvider,
   i_BitmapTileProvider,
   i_ProjectionInfo,
@@ -64,7 +65,7 @@ type
     FViewConfig: IGlobalViewMainConfig;
     FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
     FBitmapFactory: IBitmap32StaticFactory;
-    FProjectionFactory: IProjectionInfoFactory;
+    FProjectionSet: IProjectionSetChangeable;
     FProjectionSetList: IProjectionSetList;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FProjectedGeometryProvider: IGeometryProjectedProvider;
@@ -108,7 +109,7 @@ type
       const AActiveMapsSet: IMapTypeListChangeable;
       const AViewConfig: IGlobalViewMainConfig;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
-      const AProjectionFactory: IProjectionInfoFactory;
+      const AProjectionSet: IProjectionSetChangeable;
       const AProjectionSetList: IProjectionSetList;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const AProjectedGeometryProvider: IGeometryProjectedProvider;
@@ -171,7 +172,7 @@ constructor TProviderMapCombineBase.Create(
   const AActiveMapsSet: IMapTypeListChangeable;
   const AViewConfig: IGlobalViewMainConfig;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
-  const AProjectionFactory: IProjectionInfoFactory;
+  const AProjectionSet: IProjectionSetChangeable;
   const AProjectionSetList: IProjectionSetList;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const AProjectedGeometryProvider: IGeometryProjectedProvider;
@@ -209,7 +210,7 @@ begin
   FActiveMapsSet := AActiveMapsSet;
   FBitmapPostProcessing := ABitmapPostProcessing;
   FBitmapFactory := ABitmapFactory;
-  FProjectionFactory := AProjectionFactory;
+  FProjectionSet := AProjectionSet;
   FProjectionSetList := AProjectionSetList;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FProjectedGeometryProvider := AProjectedGeometryProvider;
@@ -230,7 +231,6 @@ begin
   Result :=
     TfrMapCombine.Create(
       Self.LanguageManager,
-      FProjectionFactory,
       FProjectionSetList,
       FVectorGeometryProjectedFactory,
       FBitmapFactory,
@@ -290,7 +290,7 @@ begin
     VResult :=
       TBitmapLayerProviderGridTiles.Create(
         FBitmapFactory,
-        FProjectionFactory,
+        FProjectionSet.GetStatic,
         VColor,
         VUseRelativeZoom,
         VZoom,

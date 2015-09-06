@@ -26,6 +26,7 @@ uses
   i_LanguageManager,
   i_CoordConverterFactory,
   i_CoordConverterList,
+  i_ProjectionSetChangeable,
   i_BitmapTileProvider,
   i_GeometryProjected,
   i_GeometryLonLat,
@@ -65,7 +66,7 @@ type
       const AActiveMapsSet: IMapTypeListChangeable;
       const AViewConfig: IGlobalViewMainConfig;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
-      const AProjectionFactory: IProjectionInfoFactory;
+      const AProjectionSet: IProjectionSetChangeable;
       const AProjectionSetList: IProjectionSetList;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const AProjectedGeometryProvider: IGeometryProjectedProvider;
@@ -107,7 +108,7 @@ constructor TProviderMapCombineKMZ.Create(
   const AActiveMapsSet: IMapTypeListChangeable;
   const AViewConfig: IGlobalViewMainConfig;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
-  const AProjectionFactory: IProjectionInfoFactory;
+  const AProjectionSet: IProjectionSetChangeable;
   const AProjectionSetList: IProjectionSetList;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const AProjectedGeometryProvider: IGeometryProjectedProvider;
@@ -131,7 +132,7 @@ begin
     AActiveMapsSet,
     AViewConfig,
     AUseTilePrevZoomConfig,
-    AProjectionFactory,
+    AProjectionSet,
     AProjectionSetList,
     AVectorGeometryProjectedFactory,
     AProjectedGeometryProvider,

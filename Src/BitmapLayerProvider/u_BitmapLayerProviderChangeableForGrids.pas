@@ -26,7 +26,7 @@ uses
   i_MapLayerGridsConfig,
   i_Bitmap32BufferFactory,
   i_ValueToStringConverter,
-  i_CoordConverterFactory,
+  i_ProjectionSetChangeable,
   i_BitmapLayerProvider,
   i_ListenerNotifierLinksList,
   u_BitmapLayerProviderChangeableBase;
@@ -35,7 +35,7 @@ type
   TBitmapLayerProviderChangeableForGrids = class(TBitmapLayerProviderChangeableBase)
   private
     FBitmap32StaticFactory: IBitmap32StaticFactory;
-    FProjectionFactory: IProjectionInfoFactory;
+    FProjectionSet: IProjectionSetChangeable;
     FConfig: IMapLayerGridsConfig;
     FValueToStringConverter: IValueToStringConverterChangeable;
 
@@ -45,7 +45,7 @@ type
   public
     constructor Create(
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
-      const AProjectionFactory: IProjectionInfoFactory;
+      const AProjectionSet: IProjectionSetChangeable;
       const AValueToStringConverter: IValueToStringConverterChangeable;
       const AConfig: IMapLayerGridsConfig
     );
@@ -65,7 +65,7 @@ uses
 
 constructor TBitmapLayerProviderChangeableForGrids.Create(
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
-  const AProjectionFactory: IProjectionInfoFactory;
+  const AProjectionSet: IProjectionSetChangeable;
   const AValueToStringConverter: IValueToStringConverterChangeable;
   const AConfig: IMapLayerGridsConfig
 );
@@ -73,10 +73,10 @@ begin
   Assert(Assigned(AValueToStringConverter));
   Assert(Assigned(AConfig));
   Assert(Assigned(ABitmap32StaticFactory));
-  Assert(Assigned(AProjectionFactory));
+  Assert(Assigned(AProjectionSet));
   inherited Create;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
-  FProjectionFactory := AProjectionFactory;
+  FProjectionSet := AProjectionSet;
   FConfig := AConfig;
   FValueToStringConverter := AValueToStringConverter;
 
@@ -95,6 +95,10 @@ begin
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(OnConfigChange),
     FValueToStringConverter.ChangeNotifier
+  );
+  LinksList.Add(
+    TNotifyNoMmgEventListener.Create(OnConfigChange),
+    FProjectionSet.ChangeNotifier
   );
 end;
 
@@ -127,7 +131,7 @@ begin
     VResult :=
       TBitmapLayerProviderGridTiles.Create(
         FBitmap32StaticFactory,
-        FProjectionFactory,
+        FProjectionSet.GetStatic,
         VColor,
         VUseRelativeZoom,
         VZoom,

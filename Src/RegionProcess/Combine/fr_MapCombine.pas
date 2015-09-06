@@ -141,7 +141,6 @@ type
   private
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FBitmapFactory: IBitmap32StaticFactory;
-    FProjectionFactory: IProjectionInfoFactory;
     FProjectionSetList: IProjectionSetList;
     FActiveMapsList: IMapTypeListChangeable;
     FMapCalibrationList: IMapCalibrationList;
@@ -182,7 +181,6 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AProjectionFactory: IProjectionInfoFactory;
       const AProjectionSetList: IProjectionSetList;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
@@ -229,7 +227,6 @@ uses
 
 constructor TfrMapCombine.Create(
   const ALanguageManager: ILanguageManager;
-  const AProjectionFactory: IProjectionInfoFactory;
   const AProjectionSetList: IProjectionSetList;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
@@ -250,7 +247,6 @@ begin
   Assert(AMinPartSize.X <= AMaxPartSize.X);
   Assert(AMinPartSize.Y <= AMaxPartSize.Y);
   inherited Create(ALanguageManager);
-  FProjectionFactory := AProjectionFactory;
   FProjectionSetList := AProjectionSetList;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmapFactory := ABitmapFactory;
