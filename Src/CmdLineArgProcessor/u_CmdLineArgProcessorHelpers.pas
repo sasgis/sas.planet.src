@@ -28,6 +28,8 @@ uses
   i_MarkSystem,
   i_MapViewGoto,
   i_CoordConverter,
+  i_ProjectionType,
+  i_ProjectionSet,
   i_RegionProcess,
   i_GeometryLonLatFactory,
   i_AppearanceOfMarkFactory,
@@ -36,14 +38,14 @@ uses
 
 function GetCoords(
   const AStr: string;
-  const AGeoConverter: ICoordConverter;
+  const AProjectionType: IProjectionType;
   out ALonLat: TDoublePoint;
   var ECode: Integer
 ): Boolean;
 
 function GetZoom(
   const AStr: string;
-  const AGeoConverter: ICoordConverter;
+  const AProjectionSet: IProjectionSet;
   var AZoom: Byte;
   var ECode: Integer
 ): Boolean;
@@ -120,7 +122,7 @@ end;
 
 function GetCoords(
   const AStr: string;
-  const AGeoConverter: ICoordConverter;
+  const AProjectionType: IProjectionType;
   out ALonLat: TDoublePoint;
   var ECode: Integer
 ): Boolean;
@@ -128,7 +130,7 @@ begin
   ALonLat := StrToCoord(AStr);
   Result := not PointIsEmpty(ALonLat);
   if Result then begin
-    Result := AGeoConverter.CheckLonLatPos(ALonLat);
+    Result := AProjectionType.CheckLonLatPos(ALonLat);
     if not Result then begin
       ALonLat := DoublePoint(0, 0);
       ECode := ECode or cCmdLineArgProcessorLonLatOutOfBounds;
@@ -140,7 +142,7 @@ end;
 
 function GetZoom(
   const AStr: string;
-  const AGeoConverter: ICoordConverter;
+  const AProjectionSet: IProjectionSet;
   var AZoom: Byte;
   var ECode: Integer
 ): Boolean;
@@ -149,7 +151,7 @@ begin
   Result := (AZoom > 0);
   if Result then begin
     AZoom := AZoom - 1;
-    Result := AGeoConverter.CheckZoom(AZoom);
+    Result := AProjectionSet.CheckZoom(AZoom);
     if not Result then begin
       AZoom := 0;
       ECode := ECode or cCmdLineArgProcessorZoomOutOfBounds;

@@ -1464,6 +1464,7 @@ begin
     TCmdLineArgProcessor.Create(
       GState.MarksDb,
       FMapGoto,
+      FActiveProjectionSet,
       FViewPortState,
       FMainMapState.AllMapsSet,
       FConfig,

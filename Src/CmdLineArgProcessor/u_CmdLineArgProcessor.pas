@@ -30,6 +30,8 @@ uses
   i_ViewPortState,
   i_MapTypeSet,
   i_MainFormConfig,
+  i_ProjectionSet,
+  i_ProjectionSetChangeable,
   i_GeometryLonLatFactory,
   i_AppearanceOfMarkFactory,
   i_VectorItemTreeImporterList,
@@ -41,6 +43,7 @@ type
   private
     FMarkSystem: IMarkSystem;
     FMapGoTo: IMapViewGoto;
+    FProjectionSet: IProjectionSetChangeable;
     FViewPortState: IViewPortState;
     FAllMapsSet: IMapTypeSet;
     FMainFormConfig: IMainFormConfig;
@@ -65,6 +68,7 @@ type
     constructor Create(
       const AMarkSystem: IMarkSystem;
       const AMapGoto: IMapViewGoto;
+      const AProjectionSet: IProjectionSetChangeable;
       const AViewPortState: IViewPortState;
       const AAllMapsSet: IMapTypeSet;
       const AMainFormConfig: IMainFormConfig;
@@ -91,6 +95,7 @@ uses
 constructor TCmdLineArgProcessor.Create(
   const AMarkSystem: IMarkSystem;
   const AMapGoto: IMapViewGoto;
+  const AProjectionSet: IProjectionSetChangeable;
   const AViewPortState: IViewPortState;
   const AAllMapsSet: IMapTypeSet;
   const AMainFormConfig: IMainFormConfig;
@@ -102,6 +107,7 @@ begin
   inherited Create;
   FMarkSystem := AMarkSystem;
   FMapGoTo := AMapGoto;
+  FProjectionSet := AProjectionSet;
   FViewPortState := AViewPortState;
   FAllMapsSet := AAllMapsSet;
   FMainFormConfig := AMainFormConfig;
@@ -164,14 +170,14 @@ var
   VStrValue: string;
   VParser: TArgumentParser;
   VParseResult: TParseResult;
-  VGeoConverter: ICoordConverter;
+  VProjectionSet: IProjectionSet;
 
-  function _GetCoordConverter: ICoordConverter;
+  function _GetProjectionSet: IProjectionSet;
   begin
-    if not Assigned(VGeoConverter) then begin
-      VGeoConverter := FViewPortState.View.GetStatic.GeoConverter;
+    if not Assigned(VProjectionSet) then begin
+      VProjectionSet := FProjectionSet.GetStatic;
     end;
-    Result := VGeoConverter;
+    Result := VProjectionSet;
   end;
 
 begin
@@ -206,21 +212,21 @@ begin
 
       if VParseResult.HasArgument('zoom') then begin
         VStrValue := VParseResult.GetValue('zoom');
-        if GetZoom(VStrValue, _GetCoordConverter, VZoom, Result) then begin
+        if GetZoom(VStrValue, _GetProjectionSet, VZoom, Result) then begin
           FViewPortState.ChangeZoomWithFreezeAtCenter(VZoom);
         end;
       end;
 
       if VParseResult.HasArgument('move') then begin
         VStrValue := VParseResult.GetValue('move');
-        if GetCoords(VStrValue, _GetCoordConverter, VLonLat, Result) then begin
+        if GetCoords(VStrValue, _GetProjectionSet.Zooms[0].ProjectionType, VLonLat, Result) then begin
           FViewPortState.ChangeLonLat(VLonLat);
         end;
       end;
 
       if VParseResult.HasArgument('navigate') then begin
         VStrValue := VParseResult.GetValue('navigate');
-        if GetCoords(VStrValue, _GetCoordConverter, VLonLat, Result) then begin
+        if GetCoords(VStrValue, _GetProjectionSet.Zooms[0].ProjectionType, VLonLat, Result) then begin
           FMainFormConfig.NavToPoint.StartNavLonLat(VLonLat);
         end;
       end;
