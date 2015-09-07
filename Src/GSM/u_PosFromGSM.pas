@@ -32,6 +32,7 @@ uses
   CPDrv,
   t_GeoTypes,
   i_MapViewGoto,
+  i_ProjectionInfo,
   i_GSMGeoCodeConfig;
 
 type
@@ -39,7 +40,7 @@ type
   private
     FConfig: IGSMGeoCodeConfig;
     FMapGoto: IMapViewGoto;
-    FZoom: Byte;
+    FProjection: IProjectionInfo;
     CommPortDriver: TCommPortDriver;
     LAC: string;
     CellID: string;
@@ -56,7 +57,7 @@ type
       const AConfig: IGSMGeoCodeConfig;
       const AMapGoto: IMapViewGoto
     );
-    function GetPos(AZoom: Byte): boolean;
+    function GetPos(const AProjection: IProjectionInfo): boolean;
   end;
 
 implementation
@@ -216,7 +217,7 @@ begin
   CommPortDriver.SendString('AT+CREG=1' + #13);
   CommPortDriver.Disconnect;
   if GetCoordFromGoogle(LL) then begin
-    FMapGoto.GotoPos(LL, FZoom, True);
+    FMapGoto.GotoPos(LL, FProjection, True);
   end;
   free;
 end;
@@ -250,7 +251,7 @@ begin
 end;
 
 
-function TPosFromGSM.GetPos(AZoom: Byte): boolean;
+function TPosFromGSM.GetPos(const AProjection: IProjectionInfo): boolean;
 var
   paramss: string;
   LL: TDoublePoint;
@@ -260,7 +261,7 @@ var
   VWait: Cardinal;
 begin
   Result := False;
-  FZoom := AZoom;
+  FProjection := AProjection;
   FConfig.LockRead;
   try
     VUseGSM := FConfig.GetUseGSMByCOM;
@@ -296,7 +297,7 @@ begin
         LAC := IntToHex(strtoint(GetWord(paramss, ',', 3)), 4);
         CellID := IntToHex(strtoint(GetWord(paramss, ',', 4)), 4);
         if GetCoordFromGoogle(LL) then begin
-          FMapGoto.GotoPos(LL, FZoom, True);
+          FMapGoto.GotoPos(LL, FProjection, True);
           Result := true;
         end else begin
           Result := false;

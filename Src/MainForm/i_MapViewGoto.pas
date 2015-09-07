@@ -24,6 +24,7 @@ interface
 
 uses
   t_GeoTypes,
+  i_ProjectionInfo,
   i_Notifier;
 
 type
@@ -32,8 +33,8 @@ type
     function GetLonLat: TDoublePoint;
     property LonLat: TDoublePoint read GetLonLat;
 
-    function GetZoom: Byte;
-    property Zoom: Byte read GetZoom;
+    function GetProjection: IProjectionInfo;
+    property Projection: IProjectionInfo read GetProjection;
 
     function GetGotoTime: TDateTime;
     property GotoTime: TDateTime read GetGotoTime;
@@ -47,7 +48,7 @@ type
     );
     procedure GotoPos(
       const ALonLat: TDoublePoint;
-      const AZoom: Byte;
+      const AProjection: IProjectionInfo;
       const AshowMarker: Boolean
     );
     procedure FitRectToScreen(

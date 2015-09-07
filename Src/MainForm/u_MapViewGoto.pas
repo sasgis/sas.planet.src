@@ -27,6 +27,9 @@ uses
   t_GeoTypes,
   i_Notifier,
   i_ViewPortState,
+  i_ProjectionInfo,
+  i_ProjectionSet,
+  i_ProjectionSetChangeable,
   i_MapViewGoto,
   u_BaseInterfacedObject;
 
@@ -34,16 +37,16 @@ type
   TGotoPosStatic = class(TBaseInterfacedObject, IGotoPosStatic)
   private
     FLonLat: TDoublePoint;
-    FZoom: Byte;
+    FProjection: IProjectionInfo;
     FGotoTime: TDateTime;
   private
     function GetLonLat: TDoublePoint;
-    function GetZoom: Byte;
+    function GetProjection: IProjectionInfo;
     function GetGotoTime: TDateTime;
   public
     constructor Create(
       const ALonLat: TDoublePoint;
-      const AZoom: Byte;
+      const AProjection: IProjectionInfo;
       const AGotoTime: TDateTime
     );
   end;
@@ -60,7 +63,7 @@ type
     );
     procedure GotoPos(
       const ALonLat: TDoublePoint;
-      const AZoom: Byte;
+      const AProjection: IProjectionInfo;
       const AshowMarker: Boolean
     );
     procedure FitRectToScreen(
@@ -96,7 +99,7 @@ begin
     TNotifierBase.Create(
       GSync.SyncVariable.Make(Self.ClassName + 'Notifier')
     );
-  FLastGotoPos := TGotoPosStatic.Create(CEmptyDoublePoint, 0, NaN);
+  FLastGotoPos := TGotoPosStatic.Create(CEmptyDoublePoint, nil, NaN);
 end;
 
 procedure TMapViewGoto.FitRectToScreen(const ALonLatRect: TDoubleRect);
@@ -146,7 +149,7 @@ end;
 
 procedure TMapViewGoto.ShowMarker(const ALonLat: TDoublePoint);
 begin
-  FLastGotoPos := TGotoPosStatic.Create(ALonLat, FViewPortState.GetCurrentZoom, Now);
+  FLastGotoPos := TGotoPosStatic.Create(ALonLat, FViewPortState.View.GetStatic.ProjectionInfo, Now);
   FChangeNotifier.Notify(nil);
 end;
 
@@ -165,7 +168,7 @@ procedure TMapViewGoto.GotoLonLat(
   const AshowMarker: Boolean
 );
 begin
-  FLastGotoPos := TGotoPosStatic.Create(ALonLat, FViewPortState.GetCurrentZoom, Now);
+  FLastGotoPos := TGotoPosStatic.Create(ALonLat, FViewPortState.View.GetStatic.ProjectionInfo, Now);
   FViewPortState.ChangeLonLat(ALonLat);
   if AShowmarker then begin
     FChangeNotifier.Notify(nil);
@@ -174,12 +177,12 @@ end;
 
 procedure TMapViewGoto.GotoPos(
   const ALonLat: TDoublePoint;
-  const AZoom: Byte;
+  const AProjection: IProjectionInfo;
   const AshowMarker: Boolean
 );
 begin
-  FLastGotoPos := TGotoPosStatic.Create(ALonLat, AZoom, Now);
-  FViewPortState.ChangeLonLatAndZoom(AZoom, ALonLat);
+  FLastGotoPos := TGotoPosStatic.Create(ALonLat, AProjection, Now);
+  FViewPortState.ChangeLonLatAndZoom(AProjection.Zoom, ALonLat);
   if AShowmarker then begin
     FChangeNotifier.Notify(nil);
   end;
@@ -189,13 +192,13 @@ end;
 
 constructor TGotoPosStatic.Create(
   const ALonLat: TDoublePoint;
-  const AZoom: Byte;
+  const AProjection: IProjectionInfo;
   const AGotoTime: TDateTime
 );
 begin
   inherited Create;
   FLonLat := ALonLat;
-  FZoom := AZoom;
+  FProjection := AProjection;
   FGotoTime := AGotoTime;
 end;
 
@@ -209,9 +212,9 @@ begin
   Result := FLonLat;
 end;
 
-function TGotoPosStatic.GetZoom: Byte;
+function TGotoPosStatic.GetProjection: IProjectionInfo;
 begin
-  Result := FZoom;
+  Result := FProjection;
 end;
 
 end.

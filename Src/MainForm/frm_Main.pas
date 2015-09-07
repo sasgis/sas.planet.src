@@ -7120,8 +7120,8 @@ var
   PosFromGSM: TPosFromGSM;
 begin
   PosFromGSM := tPosFromGSM.Create(GState.Config.GsmConfig, FMapGoto);
-  try
-    PosFromGSM.GetPos(FViewPortState.GetCurrentZoom);
+  try                                                             
+    PosFromGSM.GetPos(FViewPortState.View.GetStatic.ProjectionInfo);
   except
     PosFromGSM.Free;
   end;
