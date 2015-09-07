@@ -1124,7 +1124,7 @@ begin
 
   LoadMapIconsList;
 
-  FMapGoto := TMapViewGoto.Create(FViewPortState);
+  FMapGoto := TMapViewGoto.Create(FActiveProjectionSet, FViewPortState);
   FMarkDBGUI :=
     TMarkDbGUIHelper.Create(
       GState.Config.LanguageManager,

@@ -54,6 +54,7 @@ type
   TMapViewGoto = class(TBaseInterfacedObject, IMapViewGoto)
   private
     FViewPortState: IViewPortState;
+    FProjectionSet: IProjectionSetChangeable;
     FLastGotoPos: IGotoPosStatic;
     FChangeNotifier: INotifierInternal;
   private
@@ -75,7 +76,10 @@ type
     function GetLastGotoPos: IGotoPosStatic;
     function GetChangeNotifier: INotifier;
   public
-    constructor Create(const AViewPortState: IViewPortState);
+    constructor Create(
+      const AProjectionSet: IProjectionSetChangeable;
+      const AViewPortState: IViewPortState
+    );
   end;
 
 implementation
@@ -91,10 +95,16 @@ uses
 
 { TMapViewGoto }
 
-constructor TMapViewGoto.Create(const AViewPortState: IViewPortState);
+constructor TMapViewGoto.Create(
+  const AProjectionSet: IProjectionSetChangeable;
+  const AViewPortState: IViewPortState
+);
 begin
+  Assert(Assigned(AProjectionSet));
+  Assert(Assigned(AViewPortState));
   inherited Create;
   FViewPortState := AViewPortState;
+  FProjectionSet := AProjectionSet;
   FChangeNotifier :=
     TNotifierBase.Create(
       GSync.SyncVariable.Make(Self.ClassName + 'Notifier')
@@ -106,14 +116,15 @@ procedure TMapViewGoto.FitRectToScreen(const ALonLatRect: TDoubleRect);
 var
   VCenterLonLat: TDoublePoint;
   VLLRect: TDoubleRect;
-  VGeoConverter: ICoordConverter;
-  VScreenSize: TPoint;
+  VProjectionSet: IProjectionSet;
+  VScreenSize: TDoublePoint;
   VRelativeRect: TDoubleRect;
-  VTargetZoom: Byte;
   VZoom: Byte;
   VMarkMapRect: TDoubleRect;
   VMarkMapSize: TDoublePoint;
   VLocalConverter: ILocalCoordConverter;
+  VProjection: IProjectionInfo;
+  VProjectionPrev: IProjectionInfo;
 begin
   if PointIsEmpty(ALonLatRect.TopLeft) or PointIsEmpty(ALonLatRect.BottomRight) then begin
     Exit;
@@ -125,26 +136,26 @@ begin
   VCenterLonLat.X := (ALonLatRect.Left + ALonLatRect.Right) / 2;
   VCenterLonLat.Y := (ALonLatRect.Top + ALonLatRect.Bottom) / 2;
   VLLRect := ALonLatRect;
+  VProjectionSet := FProjectionSet.GetStatic;
+  VProjectionPrev := VProjectionSet.Zooms[0];
+
   VLocalConverter := FViewPortState.View.GetStatic;
-  VGeoConverter := VLocalConverter.GeoConverter;
-  VScreenSize := VLocalConverter.GetLocalRectSize;
+  VScreenSize := RectSize(VLocalConverter.GetRectInMapPixelFloat);
 
-  VGeoConverter.ValidateLonLatRect(VLLRect);
-  VRelativeRect := VGeoConverter.LonLatRect2RelativeRect(VLLRect);
+  VProjectionPrev.ProjectionType.ValidateLonLatRect(VLLRect);
+  VRelativeRect := VProjectionPrev.ProjectionType.LonLatRect2RelativeRect(VLLRect);
 
-  VTargetZoom := 23;
-  for VZoom := 1 to 23 do begin
-    VMarkMapRect := VGeoConverter.RelativeRect2PixelRectFloat(VRelativeRect, VZoom);
-    VMarkMapSize.X := VMarkMapRect.Right - VMarkMapRect.Left;
-    VMarkMapSize.Y := VMarkMapRect.Bottom - VMarkMapRect.Top;
+  for VZoom := 1 to VProjectionSet.ZoomCount - 1 do begin
+    VProjection := VProjectionSet.Zooms[VZoom];
+    VMarkMapRect :=  VProjection.RelativeRect2PixelRectFloat(VRelativeRect);
+    VMarkMapSize := RectSize(VMarkMapRect);
     if (VMarkMapSize.X > VScreenSize.X) or (VMarkMapSize.Y > VScreenSize.Y) then begin
-      VTargetZoom := VZoom - 1;
       Break;
     end;
+    VProjectionPrev := VProjection;
   end;
-  VGeoConverter.ValidateZoom(VTargetZoom);
-  VGeoConverter.ValidateLonLatPos(VCenterLonLat);
-  FViewPortState.ChangeLonLatAndZoom(VTargetZoom, VCenterLonLat);
+  VProjectionPrev.ProjectionType.ValidateLonLatPos(VCenterLonLat);
+  FViewPortState.ChangeLonLatAndZoom(VProjectionPrev.Zoom, VCenterLonLat);
 end;
 
 procedure TMapViewGoto.ShowMarker(const ALonLat: TDoublePoint);
