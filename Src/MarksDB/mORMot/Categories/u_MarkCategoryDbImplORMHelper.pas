@@ -490,6 +490,7 @@ var
   I: Integer;
   VViewCount: Integer;
   VCategoryCount: Integer;
+  VIsFound: Boolean;
   VRec: TSQLCategoryRec;
   VItem: PSQLCategoryViewRow;
   VViews: TSQLCategoryViewRowDynArray;
@@ -522,7 +523,8 @@ begin
         VRec := cEmptySQLCategoryRec;
         for I := 0 to VCategoryCount - 1 do begin
           VCategoryID := VCategories[I].CategoryId;
-          if (VViewCount <= 0) or not VViewCache.Find(VCategoryID, VItem)  then begin
+          VIsFound := (VViewCount > 0) and VViewCache.Find(VCategoryID, VItem);
+          if not VIsFound or ( VIsFound and (VItem.ViewId = 0) ) then begin
 
             VRec.FCategoryId := VCategoryID;
             VRec.FVisible := AVisible;
@@ -541,7 +543,7 @@ begin
               VRec.FViewId := 0;
             end;
             // add to cache
-            VViewCache.AddOrUpdate(VRec); // ToDo: VViewCache.AddArray()
+            VViewCache.AddOrUpdate(VRec);
           end;
         end;
       finally
