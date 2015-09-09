@@ -130,6 +130,7 @@ uses
   {$WARN UNIT_PLATFORM ON}
   gnugettext,
   Graphics,
+  c_CoordConverter,
   t_Bitmap32,
   i_Bitmap32Static,
   i_MapVersionRequest,
@@ -248,6 +249,19 @@ begin
 end;
 
 function TfrExportOruxMapsSQLite.GetDirectTilesCopy: Boolean;
+
+  function _IsValidMap(const AMapType: IMapType): Boolean;
+  begin
+    Result := False;
+    if AMapType.IsBitmapTiles then begin
+      case AMapType.ProjectionSet.GeoConvert.ProjectionEPSG of
+        CGoogleProjectionEPSG,
+        CYandexProjectionEPSG,
+        CGELonLatProjectionEPSG: Result := True;
+      end;
+    end;
+  end;
+
 var
   VMap: IMapType;
   VLayer: IMapType;
@@ -256,9 +270,9 @@ begin
   VMap := FfrMapSelect.GetSelectedMapType;
   VLayer := FfrOverlaySelect.GetSelectedMapType;
   if Assigned(VMap) and not Assigned(VLayer) then begin
-    Result := VMap.IsBitmapTiles;
+    Result := _IsValidMap(VMap);
   end else if not Assigned(VMap) and Assigned(VLayer) then begin
-    Result := VLayer.IsBitmapTiles;
+    Result := _IsValidMap(VLayer);
   end;
   Result := Result and (cbbImageFormat.ItemIndex = 0) and not chkUsePrevZoom.Checked;
 end;

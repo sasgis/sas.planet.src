@@ -196,8 +196,15 @@ begin
   SetLength(VProjectedPolygons, Length(FZooms));
 
   VTilesToProcess := 0;
-
-  VProjectionSet := FTileStorage.ProjectionSet;
+  
+  if VDoDirectCopy then begin
+    VProjectionSet := FTileStorage.ProjectionSet;
+  end else begin
+    VProjectionSet := FProjectionSetFactory.GetProjectionSetByCode(
+      CGoogleProjectionEPSG,
+      CTileSplitQuadrate256x256
+    );
+  end;
 
   for I := 0 to Length(FZooms) - 1 do begin
     VProjection := VProjectionSet.Zooms[FZooms[I]];
