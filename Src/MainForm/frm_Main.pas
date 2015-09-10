@@ -73,6 +73,7 @@ uses
   i_MainMapsState,
   i_ProjectionSetChangeable,
   i_ViewPortState,
+  i_StickToGrid,
   i_SensorList,
   i_SearchResultPresenter,
   i_MergePolygonsPresenter,
@@ -684,6 +685,7 @@ type
     FTimer: ITimer;
     FActiveProjectionSet: IProjectionSetChangeable;
     FViewPortState: IViewPortState;
+    FStickToGrid: IStickToGrid;
     FSensorList: ISensorList;
     FCenterToGPSDelta: TDoublePoint;
     FShowActivHint: boolean;
@@ -953,6 +955,7 @@ uses
   i_GeometryLonLatChangeable,
   u_InterfaceListSimple,
   u_ImportFromArcGIS,
+  u_StickToGrids,
   u_LocalConverterChangeableOfMiniMap,
   u_MarkerProviderForVectorItemWithCache,
   u_MarkerProviderForVectorItemForMarkPoints,
@@ -1330,12 +1333,15 @@ begin
 
   FPointOnMapEdit := TPointOnMapEdit.Create;
 
+  FStickToGrid :=
+    TStickToGrids.Create(
+      FConfig.LayersConfig.MapLayerGridsConfig
+    );
+
   FSelectionRect :=
     TSelectionRect.Create(
       FViewPortState.View,
-      FConfig.LayersConfig.MapLayerGridsConfig.TileGrid,
-      FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid,
-      FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid
+      FStickToGrid
     );
 
   VLineOnMapEditChangeListener := TNotifyNoMmgEventListener.Create(Self.OnLineOnMapEditChange);
@@ -6445,18 +6451,8 @@ begin
   if (FLineOnMapEdit <> nil) and (movepoint) then begin
     VMagnetPoint := CEmptyDoublePoint;
     if FConfig.MainConfig.MagnetDraw then begin
-      if (ssCtrl in Shift) then begin
-        VMagnetPoint := FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.GetPointStickToGrid(VLocalConverter.ProjectionInfo, VLonLat);
-      end;
       if (ssShift in Shift) then begin
-        if FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale <> 0 then begin
-          VMagnetPoint := FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.GetPointStickToGrid(VLocalConverter.ProjectionInfo, VLonLat);
-        end else begin
-          VMagnetPoint := FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.GetPointStickToGrid(VLocalConverter.ProjectionInfo, VLonLat);
-        end;
-      end;
-      if (ssAlt in Shift) then begin
-        VMagnetPoint := FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.GetPointStickToGrid(VLocalConverter.ProjectionInfo, VLonLat);
+        VMagnetPoint := FStickToGrid.PointStick(VLocalConverter.ProjectionInfo, VLonLat);
       end;
 
       VVectorItem := nil;

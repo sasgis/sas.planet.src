@@ -26,6 +26,7 @@ uses
   Classes,
   t_GeoTypes,
   i_SelectionRect,
+  i_StickToGrid,
   i_LocalCoordConverterChangeable,
   i_MapLayerGridsConfig,
   u_ChangeableBase;
@@ -34,9 +35,7 @@ type
   TSelectionRect = class(TChangeableWithSimpleLockBase, ISelectionRect)
   private
     FViewPortState: ILocalCoordConverterChangeable;
-    FTileGridConfig: ITileGridConfig;
-    FGenShtabGridConfig: IGenShtabGridConfig;
-    FDegreeGridConfig: IDegreeGridConfig;
+    FStickToGrid: IStickToGrid;
 
     FIsEmpty: Boolean;
     FFirstPoint: TDoublePoint;
@@ -58,9 +57,7 @@ type
   public
     constructor Create(
       const AViewPortState: ILocalCoordConverterChangeable;
-      const ATileGridConfig: ITileGridConfig;
-      const AGenShtabGridConfig: IGenShtabGridConfig;
-      const ADegreeGridConfig: IDegreeGridConfig
+      const AStickToGrid: IStickToGrid
     );
   end;
 
@@ -74,16 +71,14 @@ uses
 
 constructor TSelectionRect.Create(
   const AViewPortState: ILocalCoordConverterChangeable;
-  const ATileGridConfig: ITileGridConfig;
-  const AGenShtabGridConfig: IGenShtabGridConfig;
-  const ADegreeGridConfig: IDegreeGridConfig
+  const AStickToGrid: IStickToGrid
 );
 begin
+  Assert(Assigned(AViewPortState));
+  Assert(Assigned(AStickToGrid));
   inherited Create;
-  FTileGridConfig := ATileGridConfig;
-  FGenShtabGridConfig := AGenShtabGridConfig;
-  FDegreeGridConfig := ADegreeGridConfig;
   FViewPortState := AViewPortState;
+  FStickToGrid := AStickToGrid;
   FIsEmpty := True;
 end;
 
@@ -131,18 +126,8 @@ begin
     Result.Top := Result.Bottom;
     Result.Bottom := VTemp;
   end;
-  if (ssCtrl in Shift) then begin
-    Result := FTileGridConfig.GetRectStickToGrid(VProjection, Result);
-  end;
   if (ssShift in Shift) then begin
-    if FGenShtabGridConfig.Scale <> 0 then begin
-      Result := FGenShtabGridConfig.GetRectStickToGrid(VProjection, Result);
-    end else begin
-      Result := FDegreeGridConfig.GetRectStickToGrid(VProjection, Result);
-    end;
-  end;
-  if (ssAlt in Shift) then begin
-    Result := FDegreeGridConfig.GetRectStickToGrid(VProjection, Result);
+    Result := FStickToGrid.RectStick(VProjection, Result);
   end;
 end;
 
