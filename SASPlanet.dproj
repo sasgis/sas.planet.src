@@ -486,6 +486,7 @@
     <DCCReference Include="Src\MainForm\i_PopUp.pas" />
     <DCCReference Include="Src\MainForm\i_SearchResultPresenter.pas" />
     <DCCReference Include="Src\MainForm\i_SelectionRect.pas" />
+    <DCCReference Include="Src\MainForm\i_StickToGrid.pas" />
     <DCCReference Include="Src\MainForm\i_ViewPortState.pas" />
     <DCCReference Include="Src\MainForm\i_ViewProjectionConfig.pas" />
     <DCCReference Include="Src\MainForm\MergePolygons\frm_MergePolygonsProgress.pas">
@@ -543,6 +544,10 @@
     <DCCReference Include="Src\MainForm\u_SaveLoadTBConfigByConfigProvider.pas" />
     <DCCReference Include="Src\MainForm\u_SearchResultPresenterOnPanel.pas" />
     <DCCReference Include="Src\MainForm\u_SelectionRect.pas" />
+    <DCCReference Include="Src\MainForm\u_StickToGridDegree.pas" />
+    <DCCReference Include="Src\MainForm\u_StickToGridGenShtab.pas" />
+    <DCCReference Include="Src\MainForm\u_StickToGrids.pas" />
+    <DCCReference Include="Src\MainForm\u_StickToGridTiles.pas" />
     <DCCReference Include="Src\MainForm\u_TBXSASTheme.pas" />
     <DCCReference Include="Src\MainForm\u_TBXSubmenuItemWithIndicator.pas" />
     <DCCReference Include="Src\MainForm\u_ViewProjectionConfig.pas" />
