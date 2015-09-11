@@ -29,6 +29,7 @@ uses
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
+  i_ProjectionSetChangeable,
   i_InternalPerformanceCounter,
   i_SelectionRect,
   i_SelectionRectLayerConfig,
@@ -38,6 +39,7 @@ type
   TMapLayerSelectionByRect = class(TMapLayerBasicNoBitmap)
   private
     FConfig: ISelectionRectLayerConfig;
+    FProjectionSet: IProjectionSetChangeable;
     FSelection: ISelectionRect;
     FSelectedLonLat: TDoubleRect;
 
@@ -60,6 +62,7 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
+      const AProjectionSet: IProjectionSetChangeable;
       const AView: ILocalCoordConverterChangeable;
       const ASelection: ISelectionRect;
       const AConfig: ISelectionRectLayerConfig
@@ -73,7 +76,8 @@ uses
   SysUtils,
   Types,
   Math,
-  i_CoordConverter,
+  i_ProjectionSet,
+  i_ProjectionInfo,
   u_ListenerByEvent,
   u_GeoFunc;
 
@@ -84,11 +88,15 @@ constructor TMapLayerSelectionByRect.Create(
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
+  const AProjectionSet: IProjectionSetChangeable;
   const AView: ILocalCoordConverterChangeable;
   const ASelection: ISelectionRect;
   const AConfig: ISelectionRectLayerConfig
 );
 begin
+  Assert(Assigned(AConfig));
+  Assert(Assigned(AProjectionSet));
+  Assert(Assigned(ASelection));
   inherited Create(
     APerfList,
     AAppStartedNotifier,
@@ -97,6 +105,7 @@ begin
     AView
   );
   FConfig := AConfig;
+  FProjectionSet := AProjectionSet;
   FSelection := ASelection;
 
   LinksList.Add(
@@ -159,15 +168,18 @@ var
   VSelectedTilesFloat: TDoubleRect;
   VSelectedTiles: TRect;
   VMaxZoomDelta: Integer;
-  VGeoConvert: ICoordConverter;
+  VProjectionSet: IProjectionSet;
+  VProjection: IProjectionInfo;
+  VProjectionOther: IProjectionInfo;
   VZoom: Byte;
 begin
-  VGeoConvert := ALocalConverter.GeoConverter;
-  VZoom := ALocalConverter.GetZoom;
+  VProjectionSet := FProjectionSet.GetStatic;
+  VProjection := VProjectionSet.GetSuitableProjection(ALocalConverter.ProjectionInfo);
+  VZoom := VProjection.Zoom;
   VSelectedLonLat := FSelectedLonLat;
-  VGeoConvert.ValidateLonLatRect(VSelectedLonLat);
-  VSelectedRelative := VGeoConvert.LonLatRect2RelativeRect(VSelectedLonLat);
-  VSelectedPixels := VGeoConvert.RelativeRect2PixelRectFloat(VSelectedRelative, VZoom);
+  VProjection.ProjectionType.ValidateLonLatRect(VSelectedLonLat);
+  VSelectedRelative := VProjection.ProjectionType.LonLatRect2RelativeRect(VSelectedLonLat);
+  VSelectedPixels := VProjection.RelativeRect2PixelRectFloat(VSelectedRelative);
   VDrawRect :=
     RectFromDoubleRect(
       ALocalConverter.MapRectFloat2LocalRectFloat(VSelectedPixels),
@@ -198,13 +210,13 @@ begin
   jj := VZoom;
   VZoomDelta := 0;
   VMaxZoomDelta := Length(FZoomDeltaColors) - 1;
-  while (VZoomDelta <= VMaxZoomDelta) and (jj < 24) do begin
-    VSelectedTilesFloat := VGeoConvert.RelativeRect2TileRectFloat(VSelectedRelative, jj);
+  while (VZoomDelta <= VMaxZoomDelta) and (jj < VProjectionSet.ZoomCount) do begin
+    VProjectionOther := VProjectionSet.Zooms[jj];
+    VSelectedTilesFloat := VProjectionOther.RelativeRect2TileRectFloat(VSelectedRelative);
     VSelectedTiles := RectFromDoubleRect(VSelectedTilesFloat, rrOutside);
     VSelectedPixels :=
-      VGeoConvert.RelativeRect2PixelRectFloat(
-        VGeoConvert.TileRect2RelativeRect(VSelectedTiles, jj),
-        VZoom
+      VProjection.RelativeRect2PixelRectFloat(
+        VProjectionOther.TileRect2RelativeRect(VSelectedTiles)
       );
     VDrawRect :=
       RectFromDoubleRect(
