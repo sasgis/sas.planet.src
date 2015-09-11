@@ -37,15 +37,6 @@ type
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
-  protected
-    function GetPointStickToGrid(
-      const AProjection: IProjectionInfo;
-      const ASourceLonLat: TDoublePoint
-    ): TDoublePoint; override;
-    function GetRectStickToGrid(
-      const AProjection: IProjectionInfo;
-      const ASourceRect: TDoubleRect
-    ): TDoubleRect; override;
   private
     function GetScale: Double;
     procedure SetScale(AValue: Double);
@@ -83,78 +74,6 @@ procedure TDegreeGridConfig.DoWriteConfig(
 begin
   inherited;
   AConfigData.WriteFloat('Scale', FScale);
-end;
-
-function TDegreeGridConfig.GetPointStickToGrid(
-  const AProjection: IProjectionInfo;
-  const ASourceLonLat: TDoublePoint
-): TDoublePoint;
-var
-  VScale: Double;
-  VVisible: Boolean;
-  z: TDoublePoint;
-begin
-  LockRead;
-  try
-    VVisible := GetVisible;
-    VScale := FScale;
-  finally
-    UnlockRead;
-  end;
-  Result := ASourceLonLat;
-  if VVisible then begin
-    z := GetDegBordersStepByScale(VScale, AProjection.Zoom);
-    Result.X := Result.X - (round(Result.X * GSHprec) mod round(z.X * GSHprec)) / GSHprec;
-    if Result.X < 0 then begin
-      Result.X := Result.X - z.X;
-    end;
-
-    Result.Y := Result.Y - (round(Result.Y * GSHprec) mod round(z.Y * GSHprec)) / GSHprec;
-    if Result.Y > 0 then begin
-      Result.Y := Result.Y + z.Y;
-    end;
-  end;
-end;
-
-function TDegreeGridConfig.GetRectStickToGrid(
-  const AProjection: IProjectionInfo;
-  const ASourceRect: TDoubleRect
-): TDoubleRect;
-var
-  VScale: Double;
-  VVisible: Boolean;
-  z: TDoublePoint;
-begin
-  LockRead;
-  try
-    VVisible := GetVisible;
-    VScale := FScale;
-  finally
-    UnlockRead;
-  end;
-  Result := ASourceRect;
-  if VVisible then begin
-    z := GetDegBordersStepByScale(VScale, AProjection.Zoom);
-    Result.Left := Result.Left - (round(Result.Left * GSHprec) mod round(z.X * GSHprec)) / GSHprec;
-    if Result.Left < 0 then begin
-      Result.Left := Result.Left - z.X;
-    end;
-
-    Result.Top := Result.Top - (round(Result.Top * GSHprec) mod round(z.Y * GSHprec)) / GSHprec;
-    if Result.Top > 0 then begin
-      Result.Top := Result.Top + z.Y;
-    end;
-
-    Result.Right := Result.Right - (round(Result.Right * GSHprec) mod round(z.X * GSHprec)) / GSHprec;
-    if Result.Right >= 0 then begin
-      Result.Right := Result.Right + z.X;
-    end;
-
-    Result.Bottom := Result.Bottom - (round(Result.Bottom * GSHprec) mod round(z.Y * GSHprec)) / GSHprec;
-    if Result.Bottom <= 0 then begin
-      Result.Bottom := Result.Bottom - z.Y;
-    end;
-  end;
 end;
 
 function TDegreeGridConfig.GetScale: Double;

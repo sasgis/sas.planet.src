@@ -41,15 +41,6 @@ type
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
-    function GetPointStickToGrid(
-      const AProjection: IProjectionInfo;
-      const ASourceLonLat: TDoublePoint
-    ): TDoublePoint; virtual; abstract;
-    function GetRectStickToGrid(
-      const AProjection: IProjectionInfo;
-      const ASourceRect: TDoubleRect
-    ): TDoubleRect; virtual; abstract;
-
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
 

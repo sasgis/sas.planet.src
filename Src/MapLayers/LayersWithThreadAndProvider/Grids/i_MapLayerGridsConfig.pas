@@ -43,15 +43,6 @@ type
     function GetShowText: Boolean;
     procedure SetShowText(AValue: Boolean);
     property ShowText: Boolean read GetShowText write SetShowText;
-
-    function GetPointStickToGrid(
-      const AProjection: IProjectionInfo;
-      const ASourceLonLat: TDoublePoint
-    ): TDoublePoint;
-    function GetRectStickToGrid(
-      const AProjection: IProjectionInfo;
-      const ASourceRect: TDoubleRect
-    ): TDoubleRect;
   end;
 
   ITileGridConfig = interface(IBaseGridConfig)

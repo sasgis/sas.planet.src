@@ -35,20 +35,9 @@ type
   private
     FUseRelativeZoom: Boolean;
     FZoom: Integer;
-
-    function GetActualZoom(const AProjection: IProjectionInfo): Byte;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
-  protected
-    function GetPointStickToGrid(
-      const AProjection: IProjectionInfo;
-      const ASourceLonLat: TDoublePoint
-    ): TDoublePoint; override;
-    function GetRectStickToGrid(
-      const AProjection: IProjectionInfo;
-      const ASourceRect: TDoubleRect
-    ): TDoubleRect; override;
   private
     function GetUseRelativeZoom: Boolean;
     procedure SetUseRelativeZoom(AValue: Boolean);
@@ -64,7 +53,6 @@ implementation
 uses
   Types,
   Math,
-  i_CoordConverter,
   u_GeoFunc;
 
 { TTileGridConfig }
@@ -91,87 +79,6 @@ begin
   inherited;
   AConfigData.WriteBool('UseRelativeZoom', FUseRelativeZoom);
   AConfigData.WriteInteger('Zoom', FZoom);
-end;
-
-function TTileGridConfig.GetActualZoom(
-  const AProjection: IProjectionInfo
-): Byte;
-var
-  VZoom: Integer;
-  VRelative: Boolean;
-begin
-  LockRead;
-  try
-    VZoom := FZoom;
-    VRelative := FUseRelativeZoom;
-  finally
-    UnlockRead;
-  end;
-  if VRelative then begin
-    VZoom := VZoom + AProjection.GetZoom;
-  end;
-  if VZoom < 0 then begin
-    Result := 0;
-  end else begin
-    Result := VZoom;
-    AProjection.GeoConverter.ValidateZoom(Result);
-  end;
-end;
-
-function TTileGridConfig.GetPointStickToGrid(
-  const AProjection: IProjectionInfo;
-  const ASourceLonLat: TDoublePoint
-): TDoublePoint;
-var
-  VZoom: Byte;
-  VZoomCurr: Byte;
-  VSelectedTileFloat: TDoublePoint;
-  VSelectedTile: TPoint;
-  VConverter: ICoordConverter;
-begin
-  VZoomCurr := AProjection.Zoom;
-  VConverter := AProjection.GeoConverter;
-  LockRead;
-  try
-    if GetVisible then begin
-      VZoom := GetActualZoom(AProjection);
-    end else begin
-      VZoom := VZoomCurr;
-    end;
-  finally
-    UnlockRead;
-  end;
-  VSelectedTileFloat := VConverter.LonLat2TilePosFloat(ASourceLonLat, VZoom);
-  VSelectedTile := PointFromDoublePoint(VSelectedTileFloat, prClosest);
-  Result := VConverter.TilePos2LonLat(VSelectedTile, VZoom);
-end;
-
-function TTileGridConfig.GetRectStickToGrid(
-  const AProjection: IProjectionInfo;
-  const ASourceRect: TDoubleRect
-): TDoubleRect;
-var
-  VZoom: Byte;
-  VZoomCurr: Byte;
-  VSelectedTilesFloat: TDoubleRect;
-  VSelectedTiles: TRect;
-  VConverter: ICoordConverter;
-begin
-  VZoomCurr := AProjection.Zoom;
-  VConverter := AProjection.GeoConverter;
-  LockRead;
-  try
-    if GetVisible then begin
-      VZoom := GetActualZoom(AProjection);
-    end else begin
-      VZoom := VZoomCurr;
-    end;
-  finally
-    UnlockRead;
-  end;
-  VSelectedTilesFloat := VConverter.LonLatRect2TileRectFloat(ASourceRect, VZoom);
-  VSelectedTiles := RectFromDoubleRect(VSelectedTilesFloat, rrOutside);
-  Result := VConverter.TileRect2LonLatRect(VSelectedTiles, VZoom);
 end;
 
 function TTileGridConfig.GetUseRelativeZoom: Boolean;
