@@ -3150,7 +3150,7 @@ begin
     if (VIndex >= 0) and (VProjList.Count > VIndex) then begin
       VNewProjectionSet := VProjList.Items[VIndex];
       Assert(Assigned(VNewProjectionSet));
-      VEpsg := VNewProjectionSet.GeoConvert.ProjectionType.ProjectionEPSG;
+      VEpsg := VNewProjectionSet.Zooms[0].ProjectionType.ProjectionEPSG;
     end else begin
       VEpsg := 0; // reset to default
     end;
@@ -3172,7 +3172,7 @@ begin
   if VEpsg > 0 then begin
     VAsMap := True;
     for I := 0 to VProjList.Count - 1 do begin
-      if VProjList.Items[I].GeoConvert.ProjectionType.ProjectionEPSG = VEpsg then begin
+      if VProjList.Items[I].Zooms[0].ProjectionType.ProjectionEPSG = VEpsg then begin
         tbxsbmProjection.Items[I].Checked := True;
         VAsMap := False;
         break;

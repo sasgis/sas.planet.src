@@ -1117,7 +1117,7 @@ begin
           FStorageConfig,
           StoragePath,
           FVersioned,
-          ProjectionSet.GeoConvert.ProjectionEPSG
+          ProjectionSet.Zooms[0].ProjectionType.ProjectionEPSG
         );
       end;
       Result := FStorageHelper;

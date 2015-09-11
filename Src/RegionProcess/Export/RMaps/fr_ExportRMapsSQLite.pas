@@ -321,13 +321,13 @@ begin
     VLayer := FfrOverlaySelect.GetSelectedMapType;
     if Assigned(VMap) and not Assigned(VLayer) then begin
       if VMap.IsBitmapTiles then begin
-        if VMap.ProjectionSet.GeoConvert.ProjectionEPSG = CGoogleProjectionEPSG then begin
+        if VMap.ProjectionSet.Zooms[0].ProjectionType.ProjectionEPSG = CGoogleProjectionEPSG then begin
           Result := True;
         end;
       end;
     end else if not Assigned(VMap) and Assigned(VLayer) then begin
       if VLayer.IsBitmapTiles then begin
-        if VLayer.ProjectionSet.GeoConvert.ProjectionEPSG = CGoogleProjectionEPSG then begin
+        if VLayer.ProjectionSet.Zooms[0].ProjectionType.ProjectionEPSG = CGoogleProjectionEPSG then begin
           Result := True;
         end;
       end;

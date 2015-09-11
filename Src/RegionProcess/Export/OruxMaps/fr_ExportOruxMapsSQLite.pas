@@ -254,7 +254,7 @@ function TfrExportOruxMapsSQLite.GetDirectTilesCopy: Boolean;
   begin
     Result := False;
     if AMapType.IsBitmapTiles then begin
-      case AMapType.ProjectionSet.GeoConvert.ProjectionEPSG of
+      case AMapType.ProjectionSet.Zooms[0].ProjectionType.ProjectionEPSG of
         CGoogleProjectionEPSG,
         CYandexProjectionEPSG,
         CGELonLatProjectionEPSG: Result := True;

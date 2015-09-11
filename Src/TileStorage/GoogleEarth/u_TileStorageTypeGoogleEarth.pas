@@ -102,8 +102,8 @@ var
 begin
   Result := nil;
   if
-    (AProjectionSet.GeoConvert.GetProjectionEPSG = CGELonLatProjectionEPSG) and
-    (AProjectionSet.GeoConvert.GetTileSplitCode = CTileSplitQuadrate256x256)
+    (AProjectionSet.Zooms[0].ProjectionType.ProjectionEPSG = CGELonLatProjectionEPSG) and
+    (AProjectionSet.Zooms[0].GetTileSplitCode = CTileSplitQuadrate256x256)
   then begin
     VNameInCache := ExtractFileName(APath);
     if SameText(VNameInCache, 'earth')  then begin
