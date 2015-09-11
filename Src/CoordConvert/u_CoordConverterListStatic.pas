@@ -31,7 +31,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TCoordConverterListStatic = class(TBaseInterfacedObject, ICoordConverterList, IProjectionSetList)
+  TCoordConverterListStatic = class(TBaseInterfacedObject, IProjectionSetList)
   private
     FList: TStringList;
     FCS: IReadWriteSync;
@@ -42,10 +42,7 @@ type
     );
   private
     function Count: Integer;
-    function GetProjectionSet(AIndex: Integer): IProjectionSet;
-    function GetCoordConverter(AIndex: Integer): ICoordConverter;
-    function IProjectionSetList.Get = GetProjectionSet;
-    function ICoordConverterList.Get = GetCoordConverter;
+    function Get(AIndex: Integer): IProjectionSet;
     function GetCaption(AIndex: Integer): string;
   public
     constructor Create;
@@ -107,17 +104,7 @@ begin
   end;
 end;
 
-function TCoordConverterListStatic.GetCoordConverter(AIndex: Integer): ICoordConverter;
-begin
-  FCS.BeginRead;
-  try
-    Result := IProjectionSet(Pointer(FList.Objects[AIndex])).GeoConvert;
-  finally
-    FCS.EndRead;
-  end;
-end;
-
-function TCoordConverterListStatic.GetProjectionSet(
+function TCoordConverterListStatic.Get(
   AIndex: Integer
 ): IProjectionSet;
 begin
