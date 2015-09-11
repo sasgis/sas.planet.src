@@ -39,7 +39,6 @@ uses
 type
   TExportProviderZip = class(TExportProviderAbstract)
   private
-    FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FTileStorageTypeList: ITileStorageTypeListStatic;
@@ -54,7 +53,6 @@ type
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
-      const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const ATileStorageTypeList: ITileStorageTypeListStatic;
@@ -81,7 +79,6 @@ constructor TExportProviderZip.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
-  const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const ATileStorageTypeList: ITileStorageTypeListStatic;
@@ -93,7 +90,6 @@ begin
     ALanguageManager,
     AMapSelectFrameBuilder
   );
-  FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
   FTileStorageTypeList := ATileStorageTypeList;
@@ -143,7 +139,6 @@ begin
     TThreadExportToArchive.Create(
       VProgressInfo,
       FArchiveReadWriteFactory.Zip.WriterFactory.BuildByFileName(VPath),
-      FProjectionFactory,
       FVectorGeometryProjectedFactory,
       APolygon,
       Zoomarr,

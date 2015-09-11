@@ -94,7 +94,6 @@ type
     procedure cbbZoomChange(Sender: TObject);
   private
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-    FProjectionFactory: IProjectionInfoFactory;
     FPolygLL: IGeometryLonLatPolygon;
     FfrMapSelect: TfrMapSelect;
     FfrZoomsSelect: TfrZoomsSelect;
@@ -125,7 +124,6 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder
     ); reintroduce;
@@ -240,13 +238,11 @@ end;
 
 constructor TfrTilesDownload.Create(
   const ALanguageManager: ILanguageManager;
-  const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder
 );
 begin
   inherited Create(ALanguageManager);
-  FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FfrMapSelect :=
     AMapSelectFrameBuilder.Build(

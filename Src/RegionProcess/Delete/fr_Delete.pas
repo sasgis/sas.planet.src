@@ -60,7 +60,6 @@ type
       const ALanguageManager: ILanguageManager;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const APosition: ILocalCoordConverterChangeable;
-      const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const AMarkSystem: IMarkSystem
     ); reintroduce;
@@ -82,7 +81,6 @@ constructor TfrDelete.Create(
   const ALanguageManager: ILanguageManager;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const APosition: ILocalCoordConverterChangeable;
-  const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const AMarkSystem: IMarkSystem
 );
@@ -93,7 +91,6 @@ begin
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,
-      AProjectionFactory,
       AVectorGeometryProjectedFactory
     );
   FMarks :=

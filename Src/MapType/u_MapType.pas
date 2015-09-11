@@ -218,7 +218,6 @@ type
       const ADownloaderThreadConfig: IThreadConfig;
       const AContentTypeManager: IContentTypeManager;
       const AProjectionSetFactory: IProjectionSetFactory;
-      const AProjectionInfoFactory: IProjectionInfoFactory;
       const AInvisibleBrowser: IInvisibleBrowser;
       const AProjFactory: IProjConverterFactory;
       const AConfig: IConfigDataProvider;
@@ -291,7 +290,6 @@ constructor TMapType.Create(
   const ADownloaderThreadConfig: IThreadConfig;
   const AContentTypeManager: IContentTypeManager;
   const AProjectionSetFactory: IProjectionSetFactory;
-  const AProjectionInfoFactory: IProjectionInfoFactory;
   const AInvisibleBrowser: IInvisibleBrowser;
   const AProjFactory: IProjConverterFactory;
   const AConfig: IConfigDataProvider;
@@ -363,7 +361,6 @@ begin
     TTileStorageOfMapType.Create(
       AGlobalCacheConfig,
       FProjectionSet,
-      AProjectionInfoFactory,
       ATileStorageTypeList,
       FStorageConfig,
       FCacheTileInfo,

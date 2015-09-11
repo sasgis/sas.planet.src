@@ -134,11 +134,9 @@ type
     FMarkSystem: IMarkSystem;
     FMarkSystemConfig: IMarkSystemConfigListChangeable;
     FDatumFactory: IDatumFactory;
-    FCoordConverterFactory: ICoordConverterFactory;
     FProjectionSetFactory: IProjectionSetFactory;
     FProjectionSetList: IProjectionSetList;
     FProjConverterFactory: IProjConverterFactory;
-    FProjectionFactory: IProjectionInfoFactory;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FMainMapsList: TMapTypesMainList;
     FGPSPositionFactory: IGPSPositionFactory;
@@ -229,10 +227,8 @@ type
     property TileNameParser: ITileFileNameParsersList read FTileNameParser;
     property ContentTypeManager: IContentTypeManager read FContentTypeManager;
     property DatumFactory: IDatumFactory read FDatumFactory;
-    property CoordConverterFactory: ICoordConverterFactory read FCoordConverterFactory;
     property ProjectionSetFactory: IProjectionSetFactory read FProjectionSetFactory;
     property ProjectionSetList: IProjectionSetList read FProjectionSetList;
-    property ProjectionFactory: IProjectionInfoFactory read FProjectionFactory;
     property ProjConverterFactory: IProjConverterFactory read FProjConverterFactory;
     property LocalConverterFactory: ILocalCoordConverterFactorySimpe read FLocalConverterFactory;
     property MapTypeSetBuilderFactory: IMapTypeSetBuilderFactory read FMapTypeSetBuilderFactory;
@@ -551,14 +547,11 @@ begin
   FMergePolygonsResult := TMergePolygonsResult.Create;
 
   FDatumFactory := TDatumFactory.Create(FHashFunction);
-  FCoordConverterFactory := TCoordConverterFactorySimple.Create(FHashFunction, FDatumFactory);
-  FProjectionSetFactory := FCoordConverterFactory as IProjectionSetFactory;
-  FProjectionFactory := TProjectionInfoFactory.Create(FHashFunction, GSync.SyncVariable.Make(Self.ClassName));
+  FProjectionSetFactory := TCoordConverterFactorySimple.Create(FHashFunction, FDatumFactory);
   FProjectionSetList := TCoordConverterListStaticSimple.Create(FProjectionSetFactory);
   FLocalConverterFactory :=
     TLocalCoordConverterFactorySimpe.Create(
-      TLocalCoordConverterFactory.Create(FHashFunction),
-      FProjectionFactory
+      TLocalCoordConverterFactory.Create(FHashFunction)
     );
 
   FCacheConfig := TGlobalCacheConfig.Create(FBaseCahcePath);
@@ -864,7 +857,6 @@ begin
   FMarkSystem := nil;
   FGPSRecorder := nil;
   FreeAndNil(FMainMapsList);
-  FCoordConverterFactory := nil;
   FMarkPictureList := nil;
   FSkyMapDraw := nil;
   FreeAndNil(FProtocol);
@@ -1073,7 +1065,6 @@ begin
     FBitmap32StaticFactory,
     FContentTypeManager,
     FProjectionSetFactory,
-    FProjectionFactory,
     FInvisibleBrowser,
     FProjConverterFactory,
     VLocalMapsConfig

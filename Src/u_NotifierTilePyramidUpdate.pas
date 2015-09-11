@@ -74,7 +74,6 @@ type
   TNotifierTilePyramidUpdate = class(TBaseInterfacedObject, INotifierTilePyramidUpdate, INotifierTilePyramidUpdateInternal)
   private
     FProjectionSet: IProjectionSet;
-    FProjectionInfoFactory: IProjectionInfoFactory;
     FMinValidZoom: Byte;
     FMaxValidZoom: Byte;
     FSynchronizer: IReadWriteSync;
@@ -110,7 +109,6 @@ type
     ); overload;
   public
     constructor Create(
-      const AProjectionInfoFactory: IProjectionInfoFactory;
       const AGeoCoder: IProjectionSet
     );
     destructor Destroy; override;
@@ -315,7 +313,6 @@ end;
 { TNotifierTileRectUpdate }
 
 constructor TNotifierTilePyramidUpdate.Create(
-  const AProjectionInfoFactory: IProjectionInfoFactory;
   const AGeoCoder: IProjectionSet
 );
 var
@@ -323,10 +320,8 @@ var
   i: Integer;
 begin
   Assert(AGeoCoder <> nil);
-  Assert(Assigned(AProjectionInfoFactory));
   inherited Create;
   FProjectionSet := AGeoCoder;
-  FProjectionInfoFactory := AProjectionInfoFactory;
   FMinValidZoom := 0;
   FMaxValidZoom := FProjectionSet.ZoomCount - 1;
   FSynchronizer := GSync.SyncBig.Make(Self.ClassName);

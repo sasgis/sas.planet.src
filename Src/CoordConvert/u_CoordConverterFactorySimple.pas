@@ -32,7 +32,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TCoordConverterFactorySimple = class(TBaseInterfacedObject, ICoordConverterFactory, IProjectionSetFactory)
+  TCoordConverterFactorySimple = class(TBaseInterfacedObject, IProjectionSetFactory)
   private
     FHashFunction: IHashFunction;
     FDatumFactory: IDatumFactory;

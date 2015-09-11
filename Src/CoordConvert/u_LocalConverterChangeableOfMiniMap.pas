@@ -43,7 +43,6 @@ type
     FSoruce: ILocalCoordConverterChangeable;
     FConfig: IMiniMapLayerLocationConfig;
     FProjectionSet: IProjectionSetChangeable;
-    FProjectionFactory: IProjectionInfoFactory;
     FConverterFactory: ILocalCoordConverterFactorySimpe;
 
     FLinkList: IListenerNotifierLinksList;
@@ -67,7 +66,6 @@ type
   public
     constructor Create(
       const AChangeCounter: IInternalPerformanceCounter;
-      const AProjectionFactory: IProjectionInfoFactory;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionSet: IProjectionSetChangeable;
       const ASoruce: ILocalCoordConverterChangeable;
@@ -92,7 +90,6 @@ uses
 
 constructor TLocalConverterChangeableOfMiniMap.Create(
   const AChangeCounter: IInternalPerformanceCounter;
-  const AProjectionFactory: IProjectionInfoFactory;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionSet: IProjectionSetChangeable;
   const ASoruce: ILocalCoordConverterChangeable;
@@ -104,7 +101,6 @@ begin
   inherited Create;
   FSoruce := ASoruce;
   FProjectionSet := AProjectionSet;
-  FProjectionFactory := AProjectionFactory;
   FConfig := AConfig;
   FConverterFactory := AConverterFactory;
 

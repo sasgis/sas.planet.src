@@ -36,15 +36,6 @@ type
     function GetByRadius(const ARadiusA, ARadiusB: Double): IDatum;
   end;
 
-  ICoordConverterFactory = interface
-    ['{399F7734-B79E-44E0-9A5A-A6BA38E9125A}']
-    function GetCoordConverterByConfig(const AConfig: IConfigDataProvider): ICoordConverter;
-    function GetCoordConverterByCode(
-      AProjectionEPSG: Integer;
-      ATileSplitCode: Integer
-    ): ICoordConverter;
-  end;
-
   IProjectionSetFactory = interface
     ['{F7D31D52-79A1-4764-95E5-9653F4EDBD26}']
     function GetProjectionSetByConfig(const AConfig: IConfigDataProvider): IProjectionSet;
@@ -52,14 +43,6 @@ type
       AProjectionEPSG: Integer;
       ATileSplitCode: Integer
     ): IProjectionSet;
-  end;
-
-  IProjectionInfoFactory = interface
-    ['{81B33FFE-DD06-4817-8371-E3FC2F5BCAF2}']
-    function GetByConverterAndZoom(
-      const AGeoConverter: ICoordConverter;
-      AZoom: Byte
-    ): IProjectionInfo;
   end;
 
 implementation

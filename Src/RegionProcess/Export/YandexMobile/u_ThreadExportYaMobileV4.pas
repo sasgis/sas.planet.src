@@ -56,7 +56,6 @@ type
     FIsReplace: Boolean;
     FExportPath: string;
     FProjectionSetFactory: IProjectionSetFactory;
-    FProjectionFactory: IProjectionInfoFactory;
     FBitmapFactory: IBitmap32StaticFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FCacheFile: array [0..7] of TYaMobileCacheFile;
@@ -80,7 +79,6 @@ type
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const AProjectionSetFactory: IProjectionSetFactory;
-      const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
       const APath: string;
@@ -112,7 +110,6 @@ uses
 constructor TThreadExportYaMobileV4.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AProjectionSetFactory: IProjectionSetFactory;
-  const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
   const APath: string;
@@ -133,7 +130,6 @@ begin
   );
   FTileSize := ATileSize;
   FProjectionSetFactory := AProjectionSetFactory;
-  FProjectionFactory := AProjectionFactory;
   FBitmapFactory := ABitmapFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FTasks := ATasks;

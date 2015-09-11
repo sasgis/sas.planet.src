@@ -41,7 +41,6 @@ uses
 type
   TProviderTilesGenPrev = class(TExportProviderAbstract)
   private
-    FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FBitmapFactory: IBitmap32StaticFactory;
     FImageResamplerFactoryList: IImageResamplerFactoryList;
@@ -58,7 +57,6 @@ type
       const ALanguageManager: ILanguageManager;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const AViewConfig: IGlobalViewMainConfig;
-      const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AImageResamplerFactoryList: IImageResamplerFactoryList;
@@ -86,7 +84,6 @@ constructor TProviderTilesGenPrev.Create(
   const ALanguageManager: ILanguageManager;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const AViewConfig: IGlobalViewMainConfig;
-  const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AImageResamplerFactoryList: IImageResamplerFactoryList;
@@ -98,7 +95,6 @@ begin
     ALanguageManager,
     AMapSelectFrameBuilder
   );
-  FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmapFactory := ABitmapFactory;
   FViewConfig := AViewConfig;
@@ -149,7 +145,6 @@ begin
   VThread :=
     TThreadGenPrevZoom.Create(
       VProgressInfo,
-      FProjectionFactory,
       FVectorGeometryProjectedFactory,
       FBitmapFactory,
       VInZooms,

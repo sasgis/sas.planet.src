@@ -98,7 +98,6 @@ type
       const AConfig: IDownloadUIConfig;
       const AGCNotifier: INotifierTime;
       const AAppClosingNotifier: INotifierOneOperation;
-      const AProjectionInfoFactory: IProjectionInfoFactory;
       const ATileRect: ITileRectChangeable;
       const AMapType: IMapType;
       const AActiveMaps: IMapTypeSetChangeable;
@@ -137,7 +136,6 @@ constructor TUiTileDownload.Create(
   const AConfig: IDownloadUIConfig;
   const AGCNotifier: INotifierTime;
   const AAppClosingNotifier: INotifierOneOperation;
-  const AProjectionInfoFactory: IProjectionInfoFactory;
   const ATileRect: ITileRectChangeable;
   const AMapType: IMapType;
   const AActiveMaps: IMapTypeSetChangeable;
@@ -159,7 +157,6 @@ begin
 
   FTileRect :=
     TTileRectChangeableByOtherTileRect.Create(
-      AProjectionInfoFactory,
       ATileRect,
       FMapType.TileStorage.ProjectionSet,
       GSync.SyncVariable.Make(Self.ClassName + 'TileRectMain'),

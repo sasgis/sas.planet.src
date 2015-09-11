@@ -40,7 +40,6 @@ type
   private
     FFrame: TfrExportIPhone;
     FProjectionSetFactory: IProjectionSetFactory;
-    FProjectionFactory: IProjectionInfoFactory;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
@@ -56,7 +55,6 @@ type
       const ALanguageManager: ILanguageManager;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const AProjectionSetFactory: IProjectionSetFactory;
-      const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
@@ -85,7 +83,6 @@ constructor TExportProviderIPhone.Create(
   const ALanguageManager: ILanguageManager;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const AProjectionSetFactory: IProjectionSetFactory;
-  const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
@@ -99,7 +96,6 @@ begin
     AMapSelectFrameBuilder
   );
   FProjectionSetFactory := AProjectionSetFactory;
-  FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
@@ -244,7 +240,6 @@ begin
     TThreadExportIPhone.Create(
       VProgressInfo,
       FProjectionSetFactory,
-      FProjectionFactory,
       FVectorGeometryProjectedFactory,
       FBitmap32StaticFactory,
       VPath,

@@ -46,7 +46,6 @@ type
   TThreadExportToOruxMapsSQLite = class(TThreadExportAbstract)
   private
     FFormatSettings: TFormatSettings;
-    FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FProjectionSetFactory: IProjectionSetFactory;
     FExportPath: string;
@@ -74,7 +73,6 @@ type
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const AExportPath: string;
-      const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const AProjectionSetFactory: IProjectionSetFactory;
       const APolygon: IGeometryLonLatPolygon;
@@ -119,7 +117,6 @@ const
 constructor TThreadExportToOruxMapsSQLite.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AExportPath: string;
-  const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const AProjectionSetFactory: IProjectionSetFactory;
   const APolygon: IGeometryLonLatPolygon;
@@ -139,7 +136,6 @@ begin
     Self.ClassName
   );
   FFormatSettings.DecimalSeparator := '.';
-  FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FProjectionSetFactory := AProjectionSetFactory;
   FExportPath := AExportPath;

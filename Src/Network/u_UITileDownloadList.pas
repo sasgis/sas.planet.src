@@ -45,7 +45,6 @@ type
       const AGCNotifier: INotifierTime;
       const AAppClosingNotifier: INotifierOneOperation;
       const AConfig: IDownloadUIConfig;
-      const AProjectionInfoFactory: IProjectionInfoFactory;
       const ATileRect: ITileRectChangeable;
       const AMapsSet: IMapTypeSet;
       const AActiveMaps: IMapTypeSetChangeable;
@@ -69,7 +68,6 @@ constructor TUITileDownloadList.Create(
   const AGCNotifier: INotifierTime;
   const AAppClosingNotifier: INotifierOneOperation;
   const AConfig: IDownloadUIConfig;
-  const AProjectionInfoFactory: IProjectionInfoFactory;
   const ATileRect: ITileRectChangeable;
   const AMapsSet: IMapTypeSet;
   const AActiveMaps: IMapTypeSetChangeable;
@@ -94,7 +92,6 @@ begin
           AConfig,
           AGCNotifier,
           AAppClosingNotifier,
-          AProjectionInfoFactory,
           ATileRect,
           VMapType,
           AActiveMaps,

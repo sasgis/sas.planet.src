@@ -49,7 +49,6 @@ type
   TThreadExportYaMobileV3 = class(TThreadExportAbstract)
   private
     FTasks: TExportTaskYaMobileV3Array;
-    FProjectionFactory: IProjectionInfoFactory;
     FBitmapFactory: IBitmap32StaticFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FIsReplace: boolean;
@@ -78,7 +77,6 @@ type
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const AProjectionSetFactory: IProjectionSetFactory;
-      const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
       const APath: string;
@@ -110,7 +108,6 @@ const
 constructor TThreadExportYaMobileV3.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AProjectionSetFactory: IProjectionSetFactory;
-  const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
   const APath: string;
@@ -127,7 +124,6 @@ begin
     Self.ClassName
   );
   FProjectionSetFactory := AProjectionSetFactory;
-  FProjectionFactory := AProjectionFactory;
   FBitmapFactory := ABitmapFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FExportPath := APath;

@@ -42,7 +42,6 @@ type
     FTileStorage: ITileStorage;
     FArchive: IArchiveWriter;
     FTileNameGen: ITileFileNameGenerator;
-    FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   protected
     procedure ProcessRegion; override;
@@ -50,7 +49,6 @@ type
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const AArchiveWriter: IArchiveWriter;
-      const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const APolygon: IGeometryLonLatPolygon;
       const Azoomarr: TByteDynArray;
@@ -74,7 +72,6 @@ uses
 constructor TThreadExportToArchive.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AArchiveWriter: IArchiveWriter;
-  const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const APolygon: IGeometryLonLatPolygon;
   const Azoomarr: TByteDynArray;
@@ -88,7 +85,6 @@ begin
     Azoomarr,
     Self.ClassName
   );
-  FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FTileNameGen := ATileNameGen;
   FTileStorage := ATileStorage;

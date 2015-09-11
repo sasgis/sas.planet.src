@@ -61,7 +61,6 @@ type
       const ALanguageManager: ILanguageManager;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const AProjectionSetFactory: IProjectionSetFactory;
-      const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
@@ -109,7 +108,6 @@ constructor TfrExport.Create(
   const ALanguageManager: ILanguageManager;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const AProjectionSetFactory: IProjectionSetFactory;
-  const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
@@ -132,7 +130,6 @@ begin
       ALanguageManager,
       AMapSelectFrameBuilder,
       AProjectionSetFactory,
-      AProjectionFactory,
       AVectorGeometryProjectedFactory,
       ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
@@ -147,7 +144,6 @@ begin
       ALanguageManager,
       AMapSelectFrameBuilder,
       AProjectionSetFactory,
-      AProjectionFactory,
       AVectorGeometryProjectedFactory,
       ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
@@ -161,7 +157,6 @@ begin
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,
-      AProjectionFactory,
       AVectorGeometryProjectedFactory
     );
   VList.Add(VExportProvider);
@@ -172,7 +167,6 @@ begin
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,
-      AProjectionFactory,
       AVectorGeometryProjectedFactory,
       ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
@@ -186,7 +180,6 @@ begin
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,
-      AProjectionFactory,
       AVectorGeometryProjectedFactory,
       ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
@@ -200,7 +193,6 @@ begin
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,
-      AProjectionFactory,
       AVectorGeometryProjectedFactory
     );
   VList.Add(VExportProvider);
@@ -211,7 +203,6 @@ begin
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,
-      AProjectionFactory,
       AVectorGeometryProjectedFactory,
       AArchiveReadWriteFactory,
       ATileStorageTypeList,
@@ -225,7 +216,6 @@ begin
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,
-      AProjectionFactory,
       AVectorGeometryProjectedFactory,
       AArchiveReadWriteFactory,
       ATileStorageTypeList,
@@ -239,7 +229,6 @@ begin
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,
-      AProjectionFactory,
       AVectorGeometryProjectedFactory,
       ABitmapTileSaveLoadFactory,
       ABitmapPostProcessing
@@ -252,7 +241,6 @@ begin
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,
-      AProjectionFactory,
       AVectorGeometryProjectedFactory,
       ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
@@ -266,7 +254,6 @@ begin
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,
-      AProjectionFactory,
       AVectorGeometryProjectedFactory,
       AProjectionSetFactory
     );
@@ -278,7 +265,6 @@ begin
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,
-      AProjectionFactory,
       AVectorGeometryProjectedFactory,
       ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
@@ -292,7 +278,6 @@ begin
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,
-      AProjectionFactory,
       AVectorGeometryProjectedFactory,
       ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,

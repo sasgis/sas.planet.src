@@ -37,7 +37,6 @@ type
   private
     FTasks: TExportTaskJnxArray;
     FTargetFile: string;
-    FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FProductName: string; // копирайт
     FMapName: string;  // имя карты
@@ -51,7 +50,6 @@ type
   public
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
-      const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ATargetFile: string;
       const APolygon: IGeometryLonLatPolygon;
@@ -88,7 +86,6 @@ uses
 
 constructor TThreadExportToJnx.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
-  const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ATargetFile: string;
   const APolygon: IGeometryLonLatPolygon;
@@ -107,7 +104,6 @@ begin
     Self.ClassName
   );
   FTargetFile := ATargetFile;
-  FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FTasks := ATasks;
   FProductName := AProductName;

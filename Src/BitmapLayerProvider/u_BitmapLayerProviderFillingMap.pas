@@ -44,7 +44,6 @@ type
   TBitmapLayerProviderFillingMap = class(TBaseInterfacedObject, IBitmapTileUniProvider)
   private
     FBitmap32StaticFactory: IBitmap32StaticFactory;
-    FProjectionFactory: IProjectionInfoFactory;
     FGeometryProjectedFactory: IGeometryProjectedFactory;
     FStorage: ITileStorage;
     FVersion: IMapVersionRequest;
@@ -84,7 +83,6 @@ type
   public
     constructor Create(
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
-      const AProjectionFactory: IProjectionInfoFactory;
       const AGeometryProjectedFactory: IGeometryProjectedFactory;
       const AStorage: ITileStorage;
       const AVersion: IMapVersionRequest;
@@ -114,7 +112,6 @@ uses
 
 constructor TBitmapLayerProviderFillingMap.Create(
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
-  const AProjectionFactory: IProjectionInfoFactory;
   const AGeometryProjectedFactory: IGeometryProjectedFactory;
   const AStorage: ITileStorage;
   const AVersion: IMapVersionRequest;
@@ -125,13 +122,11 @@ constructor TBitmapLayerProviderFillingMap.Create(
 );
 begin
   Assert(Assigned(ABitmap32StaticFactory));
-  Assert(Assigned(AProjectionFactory));
   Assert(Assigned(AStorage));
   Assert(Assigned(AVersion));
   Assert(Assigned(AColorer));
   inherited Create;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
-  FProjectionFactory := AProjectionFactory;
   FGeometryProjectedFactory := AGeometryProjectedFactory;
   FStorage := AStorage;
   FVersion := AVersion;

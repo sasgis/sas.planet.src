@@ -39,7 +39,6 @@ type
   TExportProviderOgf2 = class(TExportProviderAbstract)
   private
     FProjectionSetFactory: IProjectionSetFactory;
-    FProjectionFactory: IProjectionInfoFactory;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
@@ -53,7 +52,6 @@ type
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
-      const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
@@ -80,7 +78,6 @@ constructor TExportProviderOgf2.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
-  const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
@@ -93,7 +90,6 @@ begin
     ALanguageManager,
     AMapSelectFrameBuilder
   );
-  FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
@@ -105,7 +101,6 @@ begin
   Result :=
     TfrExportToOgf2.Create(
       Self.LanguageManager,
-      FProjectionFactory,
       FVectorGeometryProjectedFactory,
       FBitmapTileSaveLoadFactory,
       FBitmap32StaticFactory,
@@ -148,7 +143,6 @@ begin
     TThreadExportToOgf2.Create(
       VProgressInfo,
       FProjectionSetFactory,
-      FProjectionFactory,
       FBitmap32StaticFactory,
       FVectorGeometryProjectedFactory,
       VTargetFile,

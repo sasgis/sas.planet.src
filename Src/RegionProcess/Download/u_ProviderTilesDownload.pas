@@ -59,7 +59,6 @@ type
     FValueToStringConverter: IValueToStringConverterChangeable;
     FDownloadConfig: IGlobalDownloadConfig;
     FDownloadInfo: IDownloadInfoSimple;
-    FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FRegionProcess: IRegionProcess;
@@ -89,7 +88,6 @@ type
       const AValueToStringConverter: IValueToStringConverterChangeable;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const AFullMapsSet: IMapTypeSet;
-      const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ADownloadConfig: IGlobalDownloadConfig;
@@ -137,7 +135,6 @@ constructor TProviderTilesDownload.Create(
   const AValueToStringConverter: IValueToStringConverterChangeable;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const AFullMapsSet: IMapTypeSet;
-  const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ADownloadConfig: IGlobalDownloadConfig;
@@ -155,7 +152,6 @@ begin
   );
   FAppClosingNotifier := AAppClosingNotifier;
   FValueToStringConverter := AValueToStringConverter;
-  FProjectionFactory := AProjectionFactory;
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FFullMapsSet := AFullMapsSet;
@@ -172,7 +168,6 @@ begin
   Result :=
     TfrTilesDownload.Create(
       Self.LanguageManager,
-      FProjectionFactory,
       FVectorGeometryProjectedFactory,
       Self.MapSelectFrameBuilder
     );
@@ -382,7 +377,6 @@ begin
       VVersionForCheck,
       VVersionForDownload,
       VPolygon,
-      FProjectionFactory,
       FVectorGeometryProjectedFactory,
       FDownloadConfig,
       TDownloadInfoSimple.Create(FDownloadInfo, VProcessedTileCount, VProcessedSize),
@@ -475,7 +469,6 @@ begin
         VMapType.VersionRequestConfig.GetStatic,
         VMapType.VersionRequestConfig.GetStatic.BaseVersion,
         APolygon,
-        FProjectionFactory,
         FVectorGeometryProjectedFactory,
         FDownloadConfig,
         TDownloadInfoSimple.Create(FDownloadInfo),

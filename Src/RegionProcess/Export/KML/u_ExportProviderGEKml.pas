@@ -36,7 +36,6 @@ uses
 type
   TExportProviderGEKml = class(TExportProviderAbstract)
   private
-    FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   protected
     function CreateFrame: TFrame; override;
@@ -48,7 +47,6 @@ type
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
-      const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory
     );
   end;
@@ -72,7 +70,6 @@ constructor TExportProviderGEKml.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
-  const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory
 );
 begin
@@ -81,7 +78,6 @@ begin
     ALanguageManager,
     AMapSelectFrameBuilder
   );
-  FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
 end;
 
@@ -126,7 +122,6 @@ begin
     TThreadExportKML.Create(
       VProgressInfo,
       VPath,
-      FProjectionFactory,
       FVectorGeometryProjectedFactory,
       APolygon,
       VZoomArr,

@@ -39,7 +39,6 @@ uses
 type
   TThreadCopyWithModification = class(TThreadExportAbstract)
   private
-    FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FTarget: ITileStorage;
     FTargetVersionInfo: IMapVersionInfo;
@@ -55,7 +54,6 @@ type
   public
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
-      const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const APolygon: IGeometryLonLatPolygon;
       const ATarget: ITileStorage;
@@ -88,7 +86,6 @@ uses
 
 constructor TThreadCopyWithModification.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
-  const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const APolygon: IGeometryLonLatPolygon;
   const ATarget: ITileStorage;
@@ -109,7 +106,6 @@ begin
     AZoomArr,
     Self.ClassName
   );
-  FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FIsProcessTne := AIsProcessTne;
   FTarget := ATarget;

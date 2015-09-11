@@ -62,7 +62,6 @@ type
     //FSQLite3Lib: TALSqlite3Library;
     //FSqlite3: PSQLite3;
     FProjectionSetFactory: IProjectionSetFactory;
-    FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     procedure WritePListFile(const AProjection: IProjectionInfo);
     procedure WriteTileToSQLite3(
@@ -78,7 +77,6 @@ type
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const ACoordConverterFactory: IProjectionSetFactory;
-      const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
       const APath: string;
@@ -110,7 +108,6 @@ uses
 constructor TThreadExportIPhone.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const ACoordConverterFactory: IProjectionSetFactory;
-  const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
   const APath: string;
@@ -129,7 +126,6 @@ begin
     Self.ClassName
   );
   FProjectionSetFactory := ACoordConverterFactory;
-  FProjectionFactory := AProjectionFactory;
   FBitmapFactory := ABitmapFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FExportPath := IncludeTrailingPathDelimiter(APath);

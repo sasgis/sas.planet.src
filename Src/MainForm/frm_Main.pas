@@ -1118,7 +1118,6 @@ begin
     );
   FViewPortState :=
     TMapViewPortState.Create(
-      GState.ProjectionFactory,
       GState.LocalConverterFactory,
       FActiveProjectionSet,
       GState.DebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('ViewState')
@@ -1176,7 +1175,6 @@ begin
       FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig,
       GState.MarksDb,
       GState.BitmapPostProcessing,
-      GState.ProjectionFactory,
       GState.ProjectionSetList,
       GState.VectorGeometryLonLatFactory,
       GState.VectorGeometryProjectedFactory,
@@ -1773,7 +1771,6 @@ begin
         GState.BGTimerNotifier,
         GState.AppClosingNotifier,
         FConfig.DownloadUIConfig,
-        GState.ProjectionFactory,
         VTileRectForDownload,
         FMainMapState.AllMapsSet,
         FMainMapState.AllActiveMapsSet,
@@ -2060,7 +2057,6 @@ begin
   VProvider :=
     TBitmapLayerProviderChangeableForFillingMap.Create(
       GState.Bitmap32StaticFactory,
-      GState.ProjectionFactory,
       GState.VectorGeometryProjectedFactory,
       FMainMapState.FillingMapActiveMap,
       FFillingMapPolygon,
@@ -2876,7 +2872,6 @@ begin
   VMiniMapConverterChangeable :=
     TLocalConverterChangeableOfMiniMap.Create(
       GState.PerfCounterList.CreateAndAddNewCounter('MiniMapConverter'),
-      GState.ProjectionFactory,
       GState.LocalConverterFactory,
       FActiveProjectionSet,
       FViewPortState.View,
@@ -3535,7 +3530,7 @@ begin
   VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
   VProjectionType := VProjection.ProjectionType;
   if VProjectionType.ProjectionEPSG <> CGoogleProjectionEPSG then begin
-    VProjectionType := GState.CoordConverterFactory.GetCoordConverterByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256).ProjectionType;
+    VProjectionType := GState.ProjectionSetFactory.GetProjectionSetByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256).Zooms[0].ProjectionType;
   end;
   VProjectionType.ValidateLonLatPos(VLonLat);
   VLonLat := VProjectionType.LonLat2Metr(VLonLat);

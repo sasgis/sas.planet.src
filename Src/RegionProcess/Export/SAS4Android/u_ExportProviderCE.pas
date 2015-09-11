@@ -37,7 +37,6 @@ type
   TExportProviderCE = class(TExportProviderAbstract)
   private
     FProjectionSetFactory: IProjectionSetFactory;
-    FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   protected
     function CreateFrame: TFrame; override;
@@ -49,7 +48,6 @@ type
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
-      const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const AProjectionSetFactory: IProjectionSetFactory
     );
@@ -73,7 +71,6 @@ constructor TExportProviderCE.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
-  const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const AProjectionSetFactory: IProjectionSetFactory
 );
@@ -83,7 +80,6 @@ begin
     ALanguageManager,
     AMapSelectFrameBuilder
   );
-  FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FProjectionSetFactory := AProjectionSetFactory;
 end;
@@ -134,7 +130,6 @@ begin
     TThreadExportToCE.Create(
       VProgressInfo,
       FProjectionSetFactory,
-      FProjectionFactory,
       FVectorGeometryProjectedFactory,
       VPath,
       APolygon,

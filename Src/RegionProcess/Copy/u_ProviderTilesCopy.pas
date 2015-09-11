@@ -51,7 +51,6 @@ type
     FMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
     FTimerNoifier: INotifierTime;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
-    FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FContentTypeManager: IContentTypeManager;
     FTileStorageTypeList: ITileStorageTypeListStatic;
@@ -77,7 +76,6 @@ type
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
       const AContentTypeManager: IContentTypeManager;
-      const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ATileStorageTypeList: ITileStorageTypeListStatic;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
@@ -114,7 +112,6 @@ constructor TProviderTilesCopy.Create(
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
   const AContentTypeManager: IContentTypeManager;
-  const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ATileStorageTypeList: ITileStorageTypeListStatic;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
@@ -133,7 +130,6 @@ begin
   FTimerNoifier := ATimerNoifier;
   FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
   FContentTypeManager := AContentTypeManager;
-  FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FTileStorageTypeList := ATileStorageTypeList;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
@@ -229,7 +225,6 @@ var
     Result :=
       TThreadCopyFromStorageToStorage.Create(
         VProgressInfo,
-        FProjectionFactory,
         FVectorGeometryProjectedFactory,
         APolygon,
         VTasks,
@@ -282,7 +277,6 @@ var
     Result :=
       TThreadCopyWithModification.Create(
         VProgressInfo,
-        FProjectionFactory,
         FVectorGeometryProjectedFactory,
         APolygon,
         ATarget,

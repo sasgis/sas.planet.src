@@ -52,7 +52,6 @@ type
     FMapType: IMapType;
     FVersion: IMapVersionRequest;
     FResamplerFactory: IImageResamplerFactory;
-    FProjectionFactory: IProjectionInfoFactory;
     FBitmapFactory: IBitmap32StaticFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
 
@@ -64,7 +63,6 @@ type
   public
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
-      const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItemsFactory: IGeometryProjectedFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AZooms: TByteDynArray;
@@ -103,7 +101,6 @@ uses
 
 constructor TThreadGenPrevZoom.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
-  const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItemsFactory: IGeometryProjectedFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AZooms: TByteDynArray;
@@ -127,7 +124,6 @@ begin
   if Length(AZooms) <= 1 then begin
     raise Exception.Create('Не выбрано целевых масштабов');
   end;
-  FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorItemsFactory;
   FBitmapFactory := ABitmapFactory;
   FIsReplace := AReplace;

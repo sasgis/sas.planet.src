@@ -41,7 +41,6 @@ type
   private
     FTileStorage: ITileStorage;
     FVersion: IMapVersionInfo;
-    FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FNotSaveNotExists: boolean;
     FPathExport: string;
@@ -59,7 +58,6 @@ type
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APath: string;
-      const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const APolygon: IGeometryLonLatPolygon;
       const Azoomarr: TByteDynArray;
@@ -87,7 +85,6 @@ uses
 constructor TThreadExportKML.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APath: string;
-  const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const APolygon: IGeometryLonLatPolygon;
   const Azoomarr: TByteDynArray;
@@ -103,7 +100,6 @@ begin
     Azoomarr,
     Self.ClassName
   );
-  FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FPathExport := APath;
   FNotSaveNotExists := ANotSaveNotExists;

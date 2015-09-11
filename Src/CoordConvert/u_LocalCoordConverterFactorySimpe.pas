@@ -25,7 +25,6 @@ interface
 uses
   Types,
   t_GeoTypes,
-  i_CoordConverter,
   i_CoordConverterFactory,
   i_ProjectionInfo,
   i_LocalCoordConverter,
@@ -37,7 +36,6 @@ type
   TLocalCoordConverterFactorySimpe = class(TBaseInterfacedObject, ILocalCoordConverterFactorySimpe)
   private
     FFactory: ILocalCoordConverterFactory;
-    FProjectionFactory: IProjectionInfoFactory;
   private
     function CreateConverter(
       const ALocalRect: TRect;
@@ -88,8 +86,7 @@ type
     ): ILocalCoordConverter;
   public
     constructor Create(
-      const AFactory: ILocalCoordConverterFactory;
-      const AProjectionFactory: IProjectionInfoFactory
+      const AFactory: ILocalCoordConverterFactory
     );
   end;
 
@@ -102,13 +99,11 @@ uses
 { TLocalCoordConverterFactorySimpe }
 
 constructor TLocalCoordConverterFactorySimpe.Create(
-  const AFactory: ILocalCoordConverterFactory;
-  const AProjectionFactory: IProjectionInfoFactory
+  const AFactory: ILocalCoordConverterFactory
 );
 begin
   inherited Create;
   FFactory := AFactory;
-  FProjectionFactory := AProjectionFactory;
 end;
 
 function TLocalCoordConverterFactorySimpe.ChangeByLocalDelta(

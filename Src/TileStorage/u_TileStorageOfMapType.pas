@@ -156,7 +156,6 @@ type
     constructor Create(
       const AGlobalCacheConfig: IGlobalCacheConfig;
       const AProjectionSet: IProjectionSet;
-      const AProjectionInfoFactory: IProjectionInfoFactory;
       const ATileStorageTypeList: ITileStorageTypeListStatic;
       const AConfig: ISimpleTileStorageConfig;
       const ACacheTileInfo: ITileInfoBasicMemCache;
@@ -184,7 +183,6 @@ uses
 constructor TTileStorageOfMapType.Create(
   const AGlobalCacheConfig: IGlobalCacheConfig;
   const AProjectionSet: IProjectionSet;
-  const AProjectionInfoFactory: IProjectionInfoFactory;
   const ATileStorageTypeList: ITileStorageTypeListStatic;
   const AConfig: ISimpleTileStorageConfig;
   const ACacheTileInfo: ITileInfoBasicMemCache;
@@ -209,7 +207,7 @@ begin
   FStorageStateProxy := VState;
   FStorageLock := TCounterInterlock.Create;
   FStorageNeedUpdate := TSimpleFlagWithInterlock.Create;
-  FTileNotifier := TNotifierTilePyramidUpdate.Create(AProjectionInfoFactory, FProjectionSet);
+  FTileNotifier := TNotifierTilePyramidUpdate.Create(FProjectionSet);
 
   FPerfCounterList := APerfCounterList.CreateAndAddNewSubList('TileStorage');
   FGetTileInfoCounter := FPerfCounterList.CreateAndAddNewCounter('GetTileInfo');

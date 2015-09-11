@@ -38,7 +38,6 @@ uses
 type
   TExportProviderJNX = class(TExportProviderAbstract)
   private
-    FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FBitmapPostProcessing: IBitmapPostProcessingChangeable;
@@ -52,7 +51,6 @@ type
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
-      const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const ABitmapPostProcessing: IBitmapPostProcessingChangeable
@@ -76,7 +74,6 @@ constructor TExportProviderJNX.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
-  const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const ABitmapPostProcessing: IBitmapPostProcessingChangeable
@@ -87,7 +84,6 @@ begin
     ALanguageManager,
     AMapSelectFrameBuilder
   );
-  FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FBitmapPostProcessing := ABitmapPostProcessing;
@@ -145,7 +141,6 @@ begin
   VThread :=
     TThreadExportToJnx.Create(
       VProgressInfo,
-      FProjectionFactory,
       FVectorGeometryProjectedFactory,
       VPath,
       APolygon,

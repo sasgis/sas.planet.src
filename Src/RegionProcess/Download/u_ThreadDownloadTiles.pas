@@ -66,7 +66,6 @@ type
     FLastProcessedPoint: TPoint;
 
     FPolygon: IGeometryLonLatPolygon;
-    FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
 
     FPausedSleepTime: Cardinal;
@@ -129,7 +128,6 @@ type
       const AVersionForCheck: IMapVersionRequest;
       const AVersionForDownload: IMapVersionInfo;
       const APolygon: IGeometryLonLatPolygon;
-      const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ADownloadConfig: IGlobalDownloadConfig;
       const ADownloadInfo: IDownloadInfoSimple;
@@ -171,7 +169,6 @@ constructor TThreadDownloadTiles.Create(
   const AVersionForCheck: IMapVersionRequest;
   const AVersionForDownload: IMapVersionInfo;
   const APolygon: IGeometryLonLatPolygon;
-  const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ADownloadConfig: IGlobalDownloadConfig;
   const ADownloadInfo: IDownloadInfoSimple;
@@ -191,7 +188,6 @@ begin
   Assert(AAppClosingNotifier <> nil);
   Assert(AMapType <> nil);
   Assert(APolygon <> nil);
-  Assert(AProjectionFactory <> nil);
   Assert(AVectorGeometryProjectedFactory <> nil);
   Assert(ADownloadConfig <> nil);
   Assert(ADownloadInfo <> nil);
@@ -213,7 +209,6 @@ begin
   Priority := tpLower;
 
   FPolygon := APolygon;
-  FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
 
   FReplaceExistTiles := AReplaceExistTiles;

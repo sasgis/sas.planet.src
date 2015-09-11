@@ -92,7 +92,6 @@ type
   private
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
-    FProjectionFactory: IProjectionInfoFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FPolygLL: IGeometryLonLatPolygon;
     FfrMapSelect: TfrMapSelect;
@@ -114,7 +113,6 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
@@ -215,7 +213,6 @@ end;
 
 constructor TfrExportToOgf2.Create(
   const ALanguageManager: ILanguageManager;
-  const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
@@ -226,7 +223,6 @@ constructor TfrExportToOgf2.Create(
 begin
   Assert(Assigned(ABitmap32StaticFactory));
   inherited Create(ALanguageManager);
-  FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FBitmap32StaticFactory := ABitmap32StaticFactory;

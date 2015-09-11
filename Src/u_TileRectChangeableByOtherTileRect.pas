@@ -34,7 +34,6 @@ uses
 type
   TTileRectChangeableByOtherTileRect = class(TChangeableBase, ITileRectChangeable)
   private
-    FProjectionInfoFactory: IProjectionInfoFactory;
     FSource: ITileRectChangeable;
     FResultProjectionSet: IProjectionSet;
     FMainLock: IReadWriteSync;
@@ -48,7 +47,6 @@ type
     function GetStatic: ITileRect;
   public
     constructor Create(
-      const AProjectionInfoFactory: IProjectionInfoFactory;
       const ASource: ITileRectChangeable;
       const AResultProjectionSet: IProjectionSet;
       const AMainLock: IReadWriteSync;
@@ -72,19 +70,16 @@ uses
 { TTileRectChangeableByOtherTileRect }
 
 constructor TTileRectChangeableByOtherTileRect.Create(
-  const AProjectionInfoFactory: IProjectionInfoFactory;
   const ASource: ITileRectChangeable;
   const AResultProjectionSet: IProjectionSet;
   const AMainLock, AResultLock: IReadWriteSync
 );
 begin
-  Assert(Assigned(AProjectionInfoFactory));
   Assert(Assigned(ASource));
   Assert(Assigned(AResultProjectionSet));
   Assert(Assigned(AMainLock));
   Assert(Assigned(AResultLock));
   inherited Create(AMainLock);
-  FProjectionInfoFactory := AProjectionInfoFactory;
   FSource := ASource;
   FResultProjectionSet := AResultProjectionSet;
   FMainLock := AMainLock;

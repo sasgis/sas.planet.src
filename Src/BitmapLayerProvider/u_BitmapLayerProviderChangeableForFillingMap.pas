@@ -37,7 +37,6 @@ type
   TBitmapLayerProviderChangeableForFillingMap = class(TBitmapLayerProviderChangeableBase)
   private
     FBitmap32StaticFactory: IBitmap32StaticFactory;
-    FProjectionFactory: IProjectionInfoFactory;
     FGeometryProjectedFactory: IGeometryProjectedFactory;
     FConfig: IFillingMapLayerConfig;
     FMapType: IMapTypeChangeable;
@@ -51,7 +50,6 @@ type
   public
     constructor Create(
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
-      const AProjectionFactory: IProjectionInfoFactory;
       const AGeometryProjectedFactory: IGeometryProjectedFactory;
       const AMapType: IMapTypeChangeable;
       const APolygon: IFillingMapPolygon;
@@ -73,7 +71,6 @@ uses
 
 constructor TBitmapLayerProviderChangeableForFillingMap.Create(
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
-  const AProjectionFactory: IProjectionInfoFactory;
   const AGeometryProjectedFactory: IGeometryProjectedFactory;
   const AMapType: IMapTypeChangeable;
   const APolygon: IFillingMapPolygon;
@@ -81,7 +78,6 @@ constructor TBitmapLayerProviderChangeableForFillingMap.Create(
 );
 begin
   Assert(Assigned(ABitmap32StaticFactory));
-  Assert(Assigned(AProjectionFactory));
   Assert(Assigned(AMapType));
   Assert(Assigned(APolygon));
   Assert(Assigned(AConfig));
@@ -89,7 +85,6 @@ begin
   inherited Create;
 
   FBitmap32StaticFactory := ABitmap32StaticFactory;
-  FProjectionFactory := AProjectionFactory;
   FGeometryProjectedFactory := AGeometryProjectedFactory;
   FMapType := AMapType;
   FPolygon := APolygon;
@@ -156,7 +151,6 @@ begin
     VResult :=
       TBitmapLayerProviderFillingMap.Create(
         FBitmap32StaticFactory,
-        FProjectionFactory,
         FGeometryProjectedFactory,
         VMap.TileStorage,
         VVersionRequest,

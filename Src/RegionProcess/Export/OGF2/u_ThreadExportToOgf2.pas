@@ -50,7 +50,6 @@ type
     FTargetFile: string;
     FImageProvider: IBitmapTileUniProvider;
     FProjectionSetFactory: IProjectionSetFactory;
-    FProjectionFactory: IProjectionInfoFactory;
     FBitmapFactory: IBitmap32StaticFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     function GetMapPreview(
@@ -71,7 +70,6 @@ type
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const ACoordConverterFactory: IProjectionSetFactory;
-      const AProjectionFactory: IProjectionInfoFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ATargetFile: string;
@@ -108,7 +106,6 @@ const
 constructor TThreadExportToOgf2.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const ACoordConverterFactory: IProjectionSetFactory;
-  const AProjectionFactory: IProjectionInfoFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ATargetFile: string;
@@ -128,7 +125,6 @@ begin
   FZoom := AZoom;
   FTargetFile := ATargetFile;
   FProjectionSetFactory := ACoordConverterFactory;
-  FProjectionFactory := AProjectionFactory;
   FBitmapFactory := ABitmapFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FTileSaver := ATileSaver;

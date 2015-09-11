@@ -44,7 +44,6 @@ uses
 type
   TMapViewPortState = class(TConfigDataElementBase, IViewPortState)
   private
-    FProjectionFactory: IProjectionInfoFactory;
     FVisibleCoordConverterFactory: ILocalCoordConverterFactorySimpe;
     FProjectionSet: IProjectionSetChangeable;
     FBaseScale: Double;
@@ -86,7 +85,6 @@ type
     );
   public
     constructor Create(
-      const AProjectionFactory: IProjectionInfoFactory;
       const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionSet: IProjectionSetChangeable;
       const APerfCounterList: IInternalPerformanceCounterList
@@ -106,7 +104,6 @@ uses
 { TMapViewPortStateNew }
 
 constructor TMapViewPortState.Create(
-  const AProjectionFactory: IProjectionInfoFactory;
   const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionSet: IProjectionSetChangeable;
   const APerfCounterList: IInternalPerformanceCounterList
@@ -121,7 +118,6 @@ var
 begin
   inherited Create;
 
-  FProjectionFactory := AProjectionFactory;
   FVisibleCoordConverterFactory := ACoordConverterFactory;
   FProjectionSet := AProjectionSet;
 

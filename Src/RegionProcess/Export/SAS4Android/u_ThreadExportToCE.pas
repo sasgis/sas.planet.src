@@ -42,7 +42,6 @@ type
     FVersion: IMapVersionRequest;
     FTargetFile: string;
     FProjectionSetFactory: IProjectionSetFactory;
-    FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FMaxSize: Integer;
     FComment: string;
@@ -53,7 +52,6 @@ type
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const AProjectionSetFactory: IProjectionSetFactory;
-      const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ATargetFile: string;
       const APolygon: IGeometryLonLatPolygon;
@@ -83,7 +81,6 @@ uses
 constructor TThreadExportToCE.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AProjectionSetFactory: IProjectionSetFactory;
-  const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ATargetFile: string;
   const APolygon: IGeometryLonLatPolygon;
@@ -105,7 +102,6 @@ begin
   FTileStorage := ATileStorage;
   FVersion := AVersion;
   FProjectionSetFactory := AProjectionSetFactory;
-  FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FMaxSize := AMaxSize;
   FComment := AComment;

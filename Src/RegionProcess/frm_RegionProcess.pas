@@ -173,7 +173,6 @@ type
       const AMarksDrawConfig: IMarksDrawConfig;
       const AMarksDB: IMarkSystem;
       const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
-      const AProjectionFactory: IProjectionInfoFactory;
       const AProjectionSetList: IProjectionSetList;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -235,7 +234,6 @@ constructor TfrmRegionProcess.Create(
   const AMarksDrawConfig: IMarksDrawConfig;
   const AMarksDB: IMarkSystem;
   const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
-  const AProjectionFactory: IProjectionInfoFactory;
   const AProjectionSetList: IProjectionSetList;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -284,7 +282,6 @@ begin
       ALanguageManager,
       VMapSelectFrameBuilder,
       AProjectionSetFactory,
-      AProjectionFactory,
       AVectorGeometryProjectedFactory,
       ABitmapFactory,
       ABitmapPostProcessing,
@@ -300,7 +297,6 @@ begin
       ALanguageManager,
       VMapSelectFrameBuilder,
       APosition,
-      AProjectionFactory,
       AVectorGeometryProjectedFactory,
       AMarkDBGUI.MarksDb
     );
@@ -310,7 +306,6 @@ begin
       ALanguageManager,
       VMapSelectFrameBuilder,
       AViewConfig,
-      AProjectionFactory,
       AVectorGeometryProjectedFactory,
       ABitmapFactory,
       AImageResamplerFactoryList,
@@ -328,7 +323,6 @@ begin
       AGUIConfigList,
       AMapTypeListBuilderFactory,
       AContentTypeManager,
-      AProjectionFactory,
       AVectorGeometryProjectedFactory,
       ATileStorageTypeList,
       ABitmapFactory,
@@ -342,7 +336,6 @@ begin
       AValueToStringConverter,
       VMapSelectFrameBuilder,
       AFullMapsSet,
-      AProjectionFactory,
       AVectorGeometryLonLatFactory,
       AVectorGeometryProjectedFactory,
       ADownloadConfig,
