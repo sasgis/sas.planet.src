@@ -26,14 +26,16 @@ uses
   t_GeoTypes,
   i_ProjectionInfo,
   i_MapLayerGridsConfig,
+  i_ProjectionSetChangeable,
   i_StickToGrid,
   u_BaseInterfacedObject;
 
 type
   TStickToGridTiles = class(TBaseInterfacedObject, IStickToGrid)
   private
+    FProjectionSet: IProjectionSetChangeable;
     FConfig: ITileGridConfig;
-    function GetActualZoom(const AProjection: IProjectionInfo): Byte;
+    function GetActualProjection(const AProjection: IProjectionInfo): IProjectionInfo;
   private
     function PointStick(
       const AProjection: IProjectionInfo;
@@ -44,7 +46,10 @@ type
       const ASourceRect: TDoubleRect
     ): TDoubleRect;
   public
-    constructor Create(const AConfig: ITileGridConfig);
+    constructor Create(
+      const AProjectionSet: IProjectionSetChangeable;
+      const AConfig: ITileGridConfig
+    );
   end;
 
 implementation
@@ -52,24 +57,32 @@ implementation
 uses
   Types,
   Math,
-  i_CoordConverter,
+  i_ProjectionSet,
   u_GeoFunc;
 
 { TStickToGridTiles }
 
-constructor TStickToGridTiles.Create(const AConfig: ITileGridConfig);
+constructor TStickToGridTiles.Create(
+  const AProjectionSet: IProjectionSetChangeable;
+  const AConfig: ITileGridConfig
+);
 begin
+  Assert(Assigned(AProjectionSet));
   Assert(Assigned(AConfig));
   inherited Create;
+  FProjectionSet := AProjectionSet;
   FConfig := AConfig;
 end;
 
-function TStickToGridTiles.GetActualZoom(
+function TStickToGridTiles.GetActualProjection(
   const AProjection: IProjectionInfo
-): Byte;
+): IProjectionInfo;
 var
   VZoom: Integer;
   VRelative: Boolean;
+  VProjectionSet: IProjectionSet;
+  VProjection: IProjectionInfo;
+  VResultZoom: Byte;
 begin
   FConfig.LockRead;
   try
@@ -78,14 +91,17 @@ begin
   finally
     FConfig.UnlockRead;
   end;
+  VProjectionSet := FProjectionSet.GetStatic;
+  VProjection := VProjectionSet.GetSuitableProjection(AProjection);
   if VRelative then begin
-    VZoom := VZoom + AProjection.GetZoom;
+    VZoom := VZoom + VProjection.Zoom;
   end;
   if VZoom < 0 then begin
-    Result := 0;
+    Result := VProjectionSet.Zooms[0];
   end else begin
-    Result := VZoom;
-    AProjection.GeoConverter.ValidateZoom(Result);
+    VResultZoom := VZoom;
+    VProjectionSet.ValidateZoom(VResultZoom);
+    Result := VProjectionSet.Zooms[VResultZoom];
   end;
 end;
 
@@ -94,16 +110,14 @@ function TStickToGridTiles.PointStick(
   const ASourceLonLat: TDoublePoint
 ): TDoublePoint;
 var
-  VZoom: Byte;
+  VProjection: IProjectionInfo;
   VSelectedTileFloat: TDoublePoint;
   VSelectedTile: TPoint;
-  VConverter: ICoordConverter;
 begin
-  VConverter := AProjection.GeoConverter;
-  VZoom := GetActualZoom(AProjection);
-  VSelectedTileFloat := VConverter.LonLat2TilePosFloat(ASourceLonLat, VZoom);
+  VProjection := GetActualProjection(AProjection);
+  VSelectedTileFloat := VProjection.LonLat2TilePosFloat(ASourceLonLat);
   VSelectedTile := PointFromDoublePoint(VSelectedTileFloat, prClosest);
-  Result := VConverter.TilePos2LonLat(VSelectedTile, VZoom);
+  Result := VProjection.TilePos2LonLat(VSelectedTile);
 end;
 
 function TStickToGridTiles.RectStick(
@@ -111,16 +125,14 @@ function TStickToGridTiles.RectStick(
   const ASourceRect: TDoubleRect
 ): TDoubleRect;
 var
-  VZoom: Byte;
+  VProjection: IProjectionInfo;
   VSelectedTilesFloat: TDoubleRect;
   VSelectedTiles: TRect;
-  VConverter: ICoordConverter;
 begin
-  VConverter := AProjection.GeoConverter;
-  VZoom := GetActualZoom(AProjection);
-  VSelectedTilesFloat := VConverter.LonLatRect2TileRectFloat(ASourceRect, VZoom);
+  VProjection := GetActualProjection(AProjection);
+  VSelectedTilesFloat := VProjection.LonLatRect2TileRectFloat(ASourceRect);
   VSelectedTiles := RectFromDoubleRect(VSelectedTilesFloat, rrOutside);
-  Result := VConverter.TileRect2LonLatRect(VSelectedTiles, VZoom);
+  Result := VProjection.TileRect2LonLatRect(VSelectedTiles);
 end;
 
 end.

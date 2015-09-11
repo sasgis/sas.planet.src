@@ -26,6 +26,7 @@ uses
   t_GeoTypes,
   i_ProjectionInfo,
   i_MapLayerGridsConfig,
+  i_ProjectionSetChangeable,
   i_StickToGrid,
   u_BaseInterfacedObject;
 
@@ -47,7 +48,10 @@ type
       const ASourceRect: TDoubleRect
     ): TDoubleRect;
   public
-    constructor Create(const AConfig: IMapLayerGridsConfig);
+    constructor Create(
+      const AProjectionSet: IProjectionSetChangeable;
+      const AConfig: IMapLayerGridsConfig
+    );
   end;
 
 implementation
@@ -60,13 +64,16 @@ uses
 
 { TStickToGrids }
 
-constructor TStickToGrids.Create(const AConfig: IMapLayerGridsConfig);
+constructor TStickToGrids.Create(
+  const AProjectionSet: IProjectionSetChangeable;
+  const AConfig: IMapLayerGridsConfig
+);
 begin
   Assert(Assigned(AConfig));
   inherited Create;
   FConfig := AConfig;
 
-  FTile := TStickToGridTiles.Create(FConfig.TileGrid);
+  FTile := TStickToGridTiles.Create(AProjectionSet, FConfig.TileGrid);
   FDegres := TStickToGridDegree.Create(FConfig.DegreeGrid);
   FGenShtab := TStickToGridGenShtab.Create(FConfig.GenShtabGrid);
 end;

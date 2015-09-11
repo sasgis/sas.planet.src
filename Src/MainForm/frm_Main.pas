@@ -1335,6 +1335,7 @@ begin
 
   FStickToGrid :=
     TStickToGrids.Create(
+      FActiveProjectionSet,
       FConfig.LayersConfig.MapLayerGridsConfig
     );
 
