@@ -36,7 +36,7 @@ uses
 // если ещё надо будет использовать - вынести импортилку в отдельный класс
 function ImportFromArcGIS(
   const AInetConfig: IInetConfig;
-  const ACoordConverterFactory: ICoordConverterFactory;
+  const AProjectionSetFactory: IProjectionSetFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const AVectorDataFactory: IVectorDataFactory;
@@ -376,7 +376,7 @@ end;
 
 function ImportFromArcGIS(
   const AInetConfig: IInetConfig;
-  const ACoordConverterFactory: ICoordConverterFactory;
+  const AProjectionSetFactory: IProjectionSetFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const AVectorDataFactory: IVectorDataFactory;
@@ -410,7 +410,7 @@ var
   VAllNewMarks: IVectorItemSubsetBuilder;
 begin
   Result := nil;
-  VProjectionType := ACoordConverterFactory.GetCoordConverterByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256).ProjectionType;
+  VProjectionType := AProjectionSetFactory.GetProjectionSetByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256).Zooms[0].ProjectionType;
   VResultFactory := TDownloadResultFactory.Create;
   VDownloader:=TDownloaderHttp.Create(VResultFactory);
 

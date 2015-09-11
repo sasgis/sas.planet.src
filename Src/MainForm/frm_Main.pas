@@ -7332,7 +7332,7 @@ begin
 
   VMarksList := ImportFromArcGIS(
     GState.Config.InetConfig,
-    GState.CoordConverterFactory,
+    GState.ProjectionSetFactory,
     GState.VectorGeometryLonLatFactory,
     GState.VectorDataItemMainInfoFactory,
     GState.VectorDataFactory,
