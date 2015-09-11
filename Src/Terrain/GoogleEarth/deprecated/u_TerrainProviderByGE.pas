@@ -28,7 +28,7 @@ uses
   i_Listener,
   i_Notifier,
   i_PathConfig,
-  i_CoordConverter,
+  i_ProjectionSet,
   i_CoordConverterFactory,
   i_TerrainStorage,
   i_TerrainProvider,
@@ -41,7 +41,7 @@ type
   private
     FAvailable: Boolean;
     FStorage: ITerrainStorage;
-    FCoordConverter: ICoordConverter;
+    FProjectionSet: IProjectionSet;
     FGoogleEarthLib: TGoogleEarthLibrary;
     FMemCache: TTerrainProviderByGEMemCache;
     FCacheStateChangeListner: IListener;
@@ -61,7 +61,7 @@ type
     constructor Create(
       const APathConfig: IPathConfig;
       const AStorage: ITerrainStorage;
-      const ACoordConverter: ICoordConverter
+      const AProjectionSet: IProjectionSet
     );
     destructor Destroy; override;
   end;
@@ -69,7 +69,7 @@ type
   TTerrainProviderByGeoCacher = class(TTerrainProviderByDLL)
   public
     constructor Create(
-      const ACoordConverterFactory: ICoordConverterFactory;
+      const AProjectionSetFactory: IProjectionSetFactory;
       const ACachePath: IPathConfig
     );
   end;
@@ -81,6 +81,7 @@ uses
   Math,
   c_CoordConverter,
   c_TerrainProvider,
+  i_ProjectionInfo,
   i_TileInfoBasic,
   i_GoogleEarthTerrain,
   u_GeoFunc,
@@ -97,13 +98,13 @@ const
 constructor TTerrainProviderByDLL.Create(
   const APathConfig: IPathConfig;
   const AStorage: ITerrainStorage;
-  const ACoordConverter: ICoordConverter
+  const AProjectionSet: IProjectionSet
 );
 begin
   inherited Create;
   FPathConfig := APathConfig;
   FStorage := AStorage;
-  FCoordConverter := ACoordConverter;
+  FProjectionSet := AProjectionSet;
 
   FGoogleEarthLib := TGoogleEarthLibrary.Create;
   FMemCache := TTerrainProviderByGEMemCache.Create(cMemCacheCapacity);
@@ -133,7 +134,7 @@ begin
   if Assigned(FStorage) and Assigned(FCacheStateChangeListner) then begin
     FStorage.Notifier.Remove(FCacheStateChangeListner);
   end;
-  FCoordConverter := nil;
+  FProjectionSet := nil;
   FStorage := nil;
   FStateChangeNotifier := nil;
   FStateChangeNotifierInternal := nil;
@@ -217,6 +218,7 @@ var
   VLonLat: TDoublePoint;
   VTilePoint: TPoint;
   VZoom: Byte;
+  VProjection: IProjectionInfo;
   VTerrain: PTerrainTile;
   VFound: Boolean;
   VElevation: Single;
@@ -229,9 +231,9 @@ begin
     VZoom := AZoom;
     repeat
       CheckTileZoom(VZoom);
-
+      VProjection := FProjectionSet.Zooms[VZoom];
       VTilePoint := PointFromDoublePoint(
-        FCoordConverter.LonLat2TilePosFloat(VLonLat, VZoom),
+        VProjection.LonLat2TilePosFloat(VLonLat),
         prToTopLeft
       );
 
@@ -265,23 +267,23 @@ end;
 { TTerrainProviderByGeoCacher }
 
 constructor TTerrainProviderByGeoCacher.Create(
-  const ACoordConverterFactory: ICoordConverterFactory;
+  const AProjectionSetFactory: IProjectionSetFactory;
   const ACachePath: IPathConfig
 );
 var
   VStrorage: ITerrainStorage;
-  VConverter: ICoordConverter;
+  VProjectionSet: IProjectionSet;
 begin
   VStrorage :=
     TTileStorageGCTerrain.Create(ACachePath.FullPath) as ITerrainStorage;
 
-  VConverter :=
-    ACoordConverterFactory.GetCoordConverterByCode(
+  VProjectionSet :=
+    AProjectionSetFactory.GetProjectionSetByCode(
       CGELonLatProjectionEPSG,
       CTileSplitQuadrate256x256
     );
 
-  inherited Create(ACachePath, VStrorage, VConverter);
+  inherited Create(ACachePath, VStrorage, VProjectionSet);
 end;
 
 end.

@@ -585,7 +585,7 @@ begin
   FTerrainProviderList :=
     TTerrainProviderListSimple.Create(
       FProjConverterFactory,
-      FCoordConverterFactory,
+      FProjectionSetFactory,
       FGlobalConfig.TerrainDataPath,
       FCacheConfig.GECachePath,
       FCacheConfig.GCCachePath

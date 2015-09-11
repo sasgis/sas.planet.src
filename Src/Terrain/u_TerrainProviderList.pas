@@ -59,7 +59,7 @@ type
   public
     constructor Create(
       const AProjConverterFactory: IProjConverterFactory;
-      const ACoordConverterFactory: ICoordConverterFactory;
+      const AProjectionSetFactory: IProjectionSetFactory;
       const ATerrainDataPath: IPathConfig;
       const AGECachePath: IPathConfig;
       const AGCCachePath: IPathConfig
@@ -84,7 +84,7 @@ uses
 
 constructor TTerrainProviderListSimple.Create(
   const AProjConverterFactory: IProjConverterFactory;
-  const ACoordConverterFactory: ICoordConverterFactory;
+  const AProjectionSetFactory: IProjectionSetFactory;
   const ATerrainDataPath: IPathConfig;
   const AGECachePath: IPathConfig;
   const AGCCachePath: IPathConfig
@@ -101,7 +101,7 @@ begin
     TTerrainProviderListElement.Create(
       cTerrainProviderGoogleEarthGUID,
       'GoogleEarth',
-      TTerrainProviderByGoogleEarth.Create(ACoordConverterFactory, AGECachePath)
+      TTerrainProviderByGoogleEarth.Create(AProjectionSetFactory, AGECachePath)
     );
   Add(VItem);
 
@@ -109,7 +109,7 @@ begin
     TTerrainProviderListElement.Create(
       cTerrainProviderGeoCacherGUID,
       'GeoCacher',
-      TTerrainProviderByGeoCacher.Create(ACoordConverterFactory, AGCCachePath)
+      TTerrainProviderByGeoCacher.Create(AProjectionSetFactory, AGCCachePath)
     );
   Add(VItem);
 

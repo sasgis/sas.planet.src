@@ -29,7 +29,7 @@ uses
   i_Listener,
   i_Notifier,
   i_PathConfig,
-  i_CoordConverter,
+  i_ProjectionSet,
   i_TerrainProvider,
   i_CoordConverterFactory,
   i_GoogleEarthTerrainTileStorage,
@@ -39,7 +39,7 @@ type
   TTerrainProviderByGoogleEarth = class(TBaseInterfacedObject, ITerrainProvider)
   private
     FStorage: IGoogleEarthTerrainTileStorage;
-    FCoordConverter: ICoordConverter;
+    FProjectionSet: IProjectionSet;
     FCacheStateChangeListner: IListener;
     FCacheConfigChangeListener: IListener;
     FPathConfig: IPathConfig;
@@ -53,7 +53,7 @@ type
     function GetStateChangeNotifier: INotifier;
   public
     constructor Create(
-      const ACoordConverterFactory: ICoordConverterFactory;
+      const AProjectionSetFactory: IProjectionSetFactory;
       const APathConfig: IPathConfig
     );
     destructor Destroy; override;
@@ -65,6 +65,7 @@ uses
   Math,
   c_CoordConverter,
   c_TerrainProvider,
+  i_ProjectionInfo,
   u_GeoFunc,
   u_Notifier,
   u_ListenerByEvent,
@@ -74,7 +75,7 @@ uses
 { TTerrainProviderByGoogleEarth }
 
 constructor TTerrainProviderByGoogleEarth.Create(
-  const ACoordConverterFactory: ICoordConverterFactory;
+  const AProjectionSetFactory: IProjectionSetFactory;
   const APathConfig: IPathConfig
 );
 begin
@@ -83,8 +84,8 @@ begin
 
   FStorage := TGoogleEarthTerrainTileStorage.Create(FPathConfig.FullPath);
 
-  FCoordConverter :=
-    ACoordConverterFactory.GetCoordConverterByCode(
+  FProjectionSet :=
+    AProjectionSetFactory.GetProjectionSetByCode(
       CGELonLatProjectionEPSG,
       CTileSplitQuadrate256x256
     );
@@ -112,7 +113,7 @@ begin
   if Assigned(FStorage) and Assigned(FCacheStateChangeListner) then begin
     FStorage.Notifier.Remove(FCacheStateChangeListner);
   end;
-  FCoordConverter := nil;
+  FProjectionSet := nil;
   FStorage := nil;
   FStateChangeNotifier := nil;
   FStateChangeNotifierInternal := nil;
@@ -148,6 +149,7 @@ var
   VLonLat: TDoublePoint;
   VTilePoint: TPoint;
   VZoom: Byte;
+  VProjection: IProjectionInfo;
   VElevation: Single;
   VTerrainProvider: IGoogleEarthTerrainTileProvider;
 begin
@@ -160,9 +162,9 @@ begin
 
     repeat
       CheckGoogleEarthTerrainTileZoom(VZoom);
-
+      VProjection := FProjectionSet.Zooms[VZoom];
       VTilePoint := PointFromDoublePoint(
-        FCoordConverter.LonLat2TilePosFloat(VLonLat, VZoom),
+        VProjection.LonLat2TilePosFloat(VLonLat),
         prToTopLeft
       );
 
