@@ -80,7 +80,7 @@ type
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
       const AValueToStringConverter: IValueToStringConverterChangeable;
-      const ACoordConverterFactory: ICoordConverterFactory
+      const AProjectionSetFactory: IProjectionSetFactory
     );
 end;
 
@@ -505,20 +505,20 @@ constructor TGeoCoderByCoord.Create(
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APlacemarkFactory: IGeoCodePlacemarkFactory;
   const AValueToStringConverter: IValueToStringConverterChangeable;
-  const ACoordConverterFactory: ICoordConverterFactory
+  const AProjectionSetFactory: IProjectionSetFactory
 );
 begin
   inherited Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory);
   FValueToStringConverter := AValueToStringConverter;
-  FProjectionType3785 := ACoordConverterFactory.GetCoordConverterByCode(
+  FProjectionType3785 := AProjectionSetFactory.GetProjectionSetByCode(
     3785, 1
-  ).ProjectionType;
-  FProjectionType3395 := ACoordConverterFactory.GetCoordConverterByCode(
+  ).Zooms[0].ProjectionType;
+  FProjectionType3395 := AProjectionSetFactory.GetProjectionSetByCode(
     3395, 1
-  ).ProjectionType;
-  FProjectionType4326 := ACoordConverterFactory.GetCoordConverterByCode(
+  ).Zooms[0].ProjectionType;
+  FProjectionType4326 := AProjectionSetFactory.GetProjectionSetByCode(
     4326, 1
-  ).ProjectionType;
+  ).Zooms[0].ProjectionType;
 end;
 
 Procedure TGeoCoderByCoord.AddItem2List(

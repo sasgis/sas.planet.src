@@ -45,7 +45,7 @@ type
       const AResultFactory: IDownloadResultFactory;
       const AValueToStringConverter: IValueToStringConverterChangeable;
       const AMarksDb: IMarkDb;
-      const ACoordConverterFactory: ICoordConverterFactory
+      const AProjectionSetFactory: IProjectionSetFactory
     );
   end;
 
@@ -84,7 +84,7 @@ constructor TGeoCoderListSimple.Create(
   const AResultFactory: IDownloadResultFactory;
   const AValueToStringConverter: IValueToStringConverterChangeable;
   const AMarksDb: IMarkDb;
-  const ACoordConverterFactory: ICoordConverterFactory
+  const AProjectionSetFactory: IProjectionSetFactory
 );
 var
   VItem: IGeoCoderListEntity;
@@ -193,7 +193,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderCoordGUID,
       'Coordinates',
-      TGeoCoderByCoord.Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory, AValueToStringConverter, ACoordConverterFactory)
+      TGeoCoderByCoord.Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory, AValueToStringConverter, AProjectionSetFactory)
     );
   VList.Add(VItem);
 
