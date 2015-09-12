@@ -135,6 +135,7 @@ type
 implementation
 
 uses
+  Math,
   t_GeoTypes,
   u_GeoFunc,
   u_TileIteratorByRect;
@@ -305,7 +306,7 @@ begin
   Assert(ALine >= 0);
   VMapLine := FMapRect.Top + ALine;
   Assert(VMapLine < FMapRect.Bottom);
-  VTilePos := FProjection.PixelPos2TilePos(Point(FMapRect.Left, VMapLine), prToTopLeft);
+  VTilePos := PointFromDoublePoint(FProjection.PixelPos2TilePosFloat(Point(FMapRect.Left, VMapLine)), prToTopLeft);
   VPixelRect := FProjection.TilePos2PixelRect(VTilePos);
   Result := Rect(FMapRect.Left, VPixelRect.Top, FMapRect.Right, VPixelRect.Bottom);
 end;

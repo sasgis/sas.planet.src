@@ -60,11 +60,6 @@ type
     // Возвращает код типа нарезки на тайлы (на будущее, вдруг реализую произвольный размер тайлов)
     function GetTileSplitCode: Integer;
 
-    // Преобразует координаты пиксела в  координаты тайда cодержащего пиксель
-    function PixelPos2TilePos(
-      const APoint: TPoint;
-      ARounding: TPointRounding
-    ): TPoint;
     // Преобразует координаты пиксела в относительные координаты на карте (x/PixelsAtZoom)
     function PixelPos2Relative(
       const APoint: TPoint
@@ -456,14 +451,6 @@ end;
 function TProjectionInfo.PixelPos2Relative(const APoint: TPoint): TDoublePoint;
 begin
   Result := FGeoConverter.PixelPos2Relative(APoint, FZoom);
-end;
-
-function TProjectionInfo.PixelPos2TilePos(
-  const APoint: TPoint;
-  ARounding: TPointRounding
-): TPoint;
-begin
-  Result := FGeoConverter.PixelPos2TilePos(APoint, FZoom, ARounding);
 end;
 
 function TProjectionInfo.PixelPos2TilePosFloat(

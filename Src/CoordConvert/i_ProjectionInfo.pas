@@ -54,11 +54,6 @@ type
     // Возвращает код типа нарезки на тайлы (на будущее, вдруг реализую произвольный размер тайлов)
     function GetTileSplitCode: Integer;
 
-    // Преобразует координаты пиксела в  координаты тайда cодержащего пиксель
-    function PixelPos2TilePos(
-      const APoint: TPoint;
-      ARounding: TPointRounding
-    ): TPoint;
     // Преобразует координаты пиксела в относительные координаты на карте (x/PixelsAtZoom)
     function PixelPos2Relative(
       const APoint: TPoint
