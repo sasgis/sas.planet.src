@@ -85,7 +85,7 @@ type
       const ACompiledData: TbtString;
       const AConfig: ITileDownloadRequestBuilderConfig;
       const ATileDownloaderConfig: ITileDownloaderConfig;
-      const ACoordConverter: ICoordConverter;
+      const ACoordConverter: ICoordConverterSimple;
       const ADownloader: IDownloader;
       const ACheker: IDownloadChecker;
       const ADefProjConverter: IProjConverter;
@@ -115,7 +115,7 @@ constructor TTileDownloadRequestBuilderPascalScript.Create(
   const ACompiledData: TbtString;
   const AConfig: ITileDownloadRequestBuilderConfig;
   const ATileDownloaderConfig: ITileDownloaderConfig;
-  const ACoordConverter: ICoordConverter;
+  const ACoordConverter: ICoordConverterSimple;
   const ADownloader: IDownloader;
   const ACheker: IDownloadChecker;
   const ADefProjConverter: IProjConverter;

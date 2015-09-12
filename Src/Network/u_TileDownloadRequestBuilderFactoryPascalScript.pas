@@ -182,7 +182,7 @@ begin
           FCompiledData,
           FConfig,
           FTileDownloaderConfig,
-          FCoordConverter,
+          FCoordConverter as ICoordConverterSimple,
           ADownloader,
           FCheker,
           FDefProjConverter,
