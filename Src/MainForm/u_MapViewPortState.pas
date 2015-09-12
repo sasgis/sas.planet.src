@@ -402,7 +402,7 @@ begin
   if AConfigData <> nil then begin
     VLocalConverter := FView.GetStatic;
     VProjectionSet := FProjectionSet.GetStatic;
-    VZoom := AConfigData.ReadInteger('Zoom', VLocalConverter.Zoom);
+    VZoom := AConfigData.ReadInteger('Zoom', VLocalConverter.ProjectionInfo.Zoom);
     VProjectionSet.ValidateZoom(VZoom);
     VProjection := VProjectionSet.Zooms[VZoom];
     VLonLat := VLocalConverter.GetCenterLonLat;
@@ -430,7 +430,7 @@ begin
   inherited;
   VLocalConverter := FView.GetStatic;
   VLonLat := VLocalConverter.GetCenterLonLat;
-  AConfigData.WriteInteger('Zoom', VLocalConverter.Zoom);
+  AConfigData.WriteInteger('Zoom', VLocalConverter.ProjectionInfo.Zoom);
   AConfigData.WriteFloat('X', VLonLat.X);
   AConfigData.WriteFloat('Y', VLonLat.Y);
 end;
@@ -439,7 +439,7 @@ function TMapViewPortState.GetCurrentZoom: Byte;
 begin
   LockRead;
   try
-    Result := FView.GetStatic.Zoom;
+    Result := FView.GetStatic.ProjectionInfo.Zoom;
   finally
     UnlockRead;
   end;

@@ -565,7 +565,7 @@ begin
   // update position info
   VSize := FLocalConverter.GetLocalRectSize;
   VProjection := FLocalConverter.ProjectionInfo;
-  FAvailPicsTileInfo.Zoom := FLocalConverter.GetZoom;
+  FAvailPicsTileInfo.Zoom := VProjection.Zoom;
   VMapPixel := FLocalConverter.LocalPixel2MapPixelFloat(AVisualPoint);
   VProjection.ValidatePixelPosFloatStrict(VMapPixel, True);
   FAvailPicsTileInfo.LonLat := VProjection.PixelPosFloat2LonLat(VMapPixel);
@@ -1591,7 +1591,7 @@ var
 begin
   // Bing minimal zoom
   if Assigned(FLocalConverter) then begin
-    VActualZoom := FLocalConverter.Zoom;
+    VActualZoom := FLocalConverter.ProjectionInfo.Zoom;
     AdjustMinimalBingHiResZoom(VActualZoom);
     Inc(VActualZoom);
     VZoomStr := IntToStr(VActualZoom);

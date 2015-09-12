@@ -888,7 +888,7 @@ begin
 
   edtGetX.Text := IntToStr(VPoint.X);
   edtGetY.Text := IntToStr(VPoint.Y);
-  edtGetZ.Text := IntToStr(VLocalConverter.Zoom + 1);
+  edtGetZ.Text := IntToStr(VLocalConverter.ProjectionInfo.Zoom + 1);
 end;
 
 end.

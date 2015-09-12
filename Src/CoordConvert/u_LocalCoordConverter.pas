@@ -42,7 +42,6 @@ type
     FRectInMapPixelFloat: TDoubleRect;
     FMapPixelCenter: TDoublePoint;
     FProjection: IProjectionInfo;
-    FZoom: Byte;
   protected
     function GetHash: THashValue;
     function GetIsSameConverter(const AConverter: ILocalCoordConverter): Boolean; virtual;
@@ -52,7 +51,6 @@ type
     function GetLocalRectSize: TPoint;
 
     function GetProjectionInfo: IProjectionInfo;
-    function GetZoom: Byte;
 
     function LocalPixel2MapPixel(
       const APoint: TPoint;
@@ -234,7 +232,6 @@ begin
   FRectInMapPixelFloat := ARectInMapPixelFloat;
   FMapPixelCenter := AMapPixelCenter;
   FProjection := AProjection;
-  FZoom := FProjection.Zoom;
 end;
 
 function TLocalCoordConverterBase.GetCenterLonLat: TDoublePoint;
@@ -295,11 +292,6 @@ end;
 function TLocalCoordConverterBase.GetRectInMapPixelFloat: TDoubleRect;
 begin
   Result := FRectInMapPixelFloat;
-end;
-
-function TLocalCoordConverterBase.GetZoom: Byte;
-begin
-  Result := FZoom;
 end;
 
 function TLocalCoordConverterBase.LocalRect2MapRect(

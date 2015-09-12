@@ -48,9 +48,6 @@ type
     function GetCenterMapPixelFloat: TDoublePoint;
     function GetCenterLonLat: TDoublePoint;
 
-    function GetZoom: Byte;
-    property Zoom: Byte read GetZoom;
-
     function LocalPixel2MapPixel(
       const APoint: TPoint;
       ARounding: TPointRounding

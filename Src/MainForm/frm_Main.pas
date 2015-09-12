@@ -3486,7 +3486,7 @@ var
   VPosition: IGPSPosition;
 begin
   VConverter := FViewPortState.View.GetStatic;
-  VZoomCurr := VConverter.GetZoom;
+  VZoomCurr := VConverter.ProjectionInfo.Zoom;
 
   VPosition := GState.GPSRecorder.CurrentPosition;
   if (not VPosition.PositionOK) then begin
@@ -4198,7 +4198,7 @@ begin
   VLocalConverter := FViewPortState.View.GetStatic;
   VFreezePos := CenterPoint(VLocalConverter.GetLocalRect);
   zooming(
-    VLocalConverter.Zoom + 1,
+    VLocalConverter.ProjectionInfo.Zoom + 1,
     VFreezePos
   );
 end;
@@ -4211,7 +4211,7 @@ begin
   VLocalConverter := FViewPortState.View.GetStatic;
   VFreezePos := CenterPoint(VLocalConverter.GetLocalRect);
   zooming(
-    VLocalConverter.Zoom - 1,
+    VLocalConverter.ProjectionInfo.Zoom - 1,
     VFreezePos
   );
 end;
@@ -6617,7 +6617,7 @@ begin
   if SaveLink.Execute then begin
     VMapType := FMainMapState.ActiveMap.GetStatic;
     VLocalConverter := FViewPortState.View.GetStatic;
-    VZoomCurr := VLocalConverter.GetZoom;
+    VZoomCurr := VLocalConverter.ProjectionInfo.Zoom;
     VLonLat := VLocalConverter.GetCenterLonLat;
     VArgStr :=
       '--map=' + GUIDToString(VMapType.Zmp.GUID) + ' ' +
@@ -6886,7 +6886,7 @@ begin
             z := 1;
           end;
           VLocalConverter := FViewPortState.View.GetStatic;
-          VZoom := VLocalConverter.Zoom;
+          VZoom := VLocalConverter.ProjectionInfo.Zoom;
           if WheelDelta < 0 then begin
             VNewZoom := VZoom - z;
           end else begin

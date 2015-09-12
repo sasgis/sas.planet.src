@@ -416,7 +416,7 @@ end;
 
 procedure TfrmRegionProcess.ProcessPolygon(const APolygon: IGeometryLonLatPolygon);
 begin
-  FZoom_rect := FPosition.GetStatic.Zoom;
+  FZoom_rect := FPosition.GetStatic.ProjectionInfo.Zoom;
   FPolygonLL := APolygon;
   FLastSelectionInfo.SetPolygon(APolygon, FZoom_rect);
   Self.Show;

@@ -224,7 +224,7 @@ begin
   FCoordinates := Value;
   VValueConverter := FValueToStringConverter.GetStatic;
   VLocalConverter := FViewPortState.GetStatic;
-  CurrZoom := VLocalConverter.Zoom;
+  CurrZoom := VLocalConverter.ProjectionInfo.Zoom;
   cbbZoom.ItemIndex := CurrZoom;
   if cbbCoordType.ItemIndex = -1 then begin
     cbbCoordType.ItemIndex := 0;

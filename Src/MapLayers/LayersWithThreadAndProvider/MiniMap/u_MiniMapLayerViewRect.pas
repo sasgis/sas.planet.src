@@ -206,7 +206,7 @@ begin
       (VMiniMapRect.Right > VBitmapRect.Right) or
       (VMiniMapRect.Bottom > VBitmapRect.Bottom)
     then begin
-      VZoomDelta := VProjectionSource.Zoom - AMiniMapConverter.Zoom;
+      VZoomDelta := VProjectionSource.Zoom - AMiniMapConverter.ProjectionInfo.Zoom;
       VFillColor := SetAlpha(clWhite32, (VZoomDelta) * 35);
       VBorderColor := SetAlpha(clNavy32, (VZoomDelta) * 43);
       VDrawRect := RectFromDoubleRect(VBitmapRect, rrClosest);
@@ -337,7 +337,7 @@ var
 begin
   VMiniMapConverter := FPosition.GetStatic;
   VViewConverter := FViewPortState.View.GetStatic;
-  if (VMiniMapConverter <> nil) and (VViewConverter <> nil) and (VMiniMapConverter.Zoom < VViewConverter.Zoom) then begin
+  if (VMiniMapConverter <> nil) and (VViewConverter <> nil) and (VMiniMapConverter.ProjectionInfo.Zoom < VViewConverter.ProjectionInfo.Zoom) then begin
     VCounterContext := FOnPaintCounter.StartOperation;
     try
       VOldClipRect := Buffer.ClipRect;
