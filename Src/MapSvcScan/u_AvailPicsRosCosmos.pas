@@ -28,6 +28,7 @@ uses
   XMLIntf,
   XMLDoc,
   i_InetConfig,
+  i_ProjectionSet,
   i_DownloadResult,
   i_DownloadRequest,
   i_MapSvcScanConfig,
@@ -60,6 +61,7 @@ procedure GenerateAvailPicsRC(
   var ARCs: TAvailPicsRosCosmos;
   const AResultFactory: IDownloadResultFactory;
   const ATileInfoPtr: PAvailPicsTileInfo;
+  const AProjectionSet: IProjectionSet;
   const AMapSvcScanConfig: IMapSvcScanConfig;
   const AMapSvcScanStorage: IMapSvcScanStorage
 );
@@ -83,6 +85,7 @@ procedure GenerateAvailPicsRC(
   var ARCs: TAvailPicsRosCosmos;
   const AResultFactory: IDownloadResultFactory;
   const ATileInfoPtr: PAvailPicsTileInfo;
+  const AProjectionSet: IProjectionSet;
   const AMapSvcScanConfig: IMapSvcScanConfig;
   const AMapSvcScanStorage: IMapSvcScanStorage
 );
@@ -93,7 +96,7 @@ begin
 
   for j := Low(TAvailPicsRosCosmosID) to High(TAvailPicsRosCosmosID) do begin
     if (nil=ARCs[j]) then begin
-      ARCs[j] := TAvailPicsRC.Create(ATileInfoPtr, AMapSvcScanStorage);
+      ARCs[j] := TAvailPicsRC.Create(AProjectionSet, ATileInfoPtr, AMapSvcScanStorage);
       ARCs[j].FResultFactory := AResultFactory;
       ARCs[j].FMapSvcScanConfig := AMapSvcScanConfig;
       // switch by repository

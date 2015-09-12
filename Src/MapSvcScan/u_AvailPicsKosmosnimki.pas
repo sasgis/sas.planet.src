@@ -26,6 +26,7 @@ uses
   SysUtils,
   Classes,
   i_InetConfig,
+  i_ProjectionSet,
   i_DownloadResult,
   i_DownloadResultFactory,
   i_DownloadRequest,
@@ -87,6 +88,7 @@ procedure GenerateAvailPicsKS(
   var AKSs: TAvailPicsKosmosnimki;
   const AResultFactory: IDownloadResultFactory;
   const ATileInfoPtr: PAvailPicsTileInfo;
+  const AProjectionSet: IProjectionSet;
   const AMapSvcScanStorage: IMapSvcScanStorage
 );
 
@@ -106,6 +108,7 @@ procedure GenerateAvailPicsKS(
   var AKSs: TAvailPicsKosmosnimki;
   const AResultFactory: IDownloadResultFactory;
   const ATileInfoPtr: PAvailPicsTileInfo;
+  const AProjectionSet: IProjectionSet;
   const AMapSvcScanStorage: IMapSvcScanStorage
 );
 var
@@ -117,6 +120,7 @@ begin
   for j := Low(TAvailPicsKosmosnimkiID) to High(TAvailPicsKosmosnimkiID) do begin
     if (nil=AKSs[j]) then begin
       AKSs[j] := TAvailPicsKS.Create(
+        AProjectionSet,
         ATileInfoPtr,
         AMapSvcScanStorage
       );

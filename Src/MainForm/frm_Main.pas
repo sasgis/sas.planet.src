@@ -7018,6 +7018,7 @@ begin
       FMarkDBGUI,
       GState.Config.MapSvcScanConfig,
       GState.Config.LanguageManager,
+      GState.ProjectionSetFactory,
       GState.VectorGeometryLonLatFactory,
       GState.VectorItemSubsetBuilderFactory,
       GState.Config.InetConfig,

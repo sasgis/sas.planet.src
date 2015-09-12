@@ -27,6 +27,7 @@ uses
   SysUtils,
   Classes,
   i_InetConfig,
+  i_ProjectionSet,
   i_DownloadResult,
   i_DownloadRequest,
   i_MapSvcScanStorage,
@@ -60,6 +61,7 @@ type
 procedure GenerateAvailPicsNMC(
   var ADGs: TAvailPicsNMCs;
   const ATileInfoPtr: PAvailPicsTileInfo;
+  const AProjectionSet: IProjectionSet;
   const AMapSvcScanStorage: IMapSvcScanStorage
 );
 
@@ -386,6 +388,7 @@ end;
 procedure GenerateAvailPicsNMC(
   var ADGs: TAvailPicsNMCs;
   const ATileInfoPtr: PAvailPicsTileInfo;
+  const AProjectionSet: IProjectionSet;
   const AMapSvcScanStorage: IMapSvcScanStorage
 );
 var
@@ -394,6 +397,7 @@ begin
   for j := Low(TAvailPicsNMCZoom) to High(TAvailPicsNMCZoom) do begin
     if (nil=ADGs[j, FALSE]) then begin
       ADGs[j, FALSE] := TAvailPicsNMC.Create(
+        AProjectionSet,
         ATileInfoPtr,
         AMapSvcScanStorage
       );
@@ -402,6 +406,7 @@ begin
     end;
     if (nil=ADGs[j, TRUE]) then begin
       ADGs[j, TRUE] := TAvailPicsNMC.Create(
+        AProjectionSet,
         ATileInfoPtr,
         AMapSvcScanStorage
       );
@@ -442,7 +447,7 @@ begin
   // get tile coords (use decremented zoom)
   VTilePos :=
     PointFromDoublePoint(
-      FLocalConverter.GeoConverter.LonLat2TilePosFloat(FTileInfoPtr.LonLat, VZoom),
+      FProjectionSet.Zooms[VZoom].LonLat2TilePosFloat(FTileInfoPtr.LonLat),
       prToTopLeft
     );
 

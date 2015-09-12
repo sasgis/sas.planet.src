@@ -28,6 +28,7 @@ uses
   i_InetConfig,
   i_DownloadResult,
   i_DownloadRequest,
+  i_ProjectionSet,
   i_LocalCoordConverter,
   i_MapSvcScanStorage,
   t_GeoTypes;
@@ -58,11 +59,13 @@ type
   TAvailPicsAbstract = class(TObject)
   protected
     FTileInfoPtr: PAvailPicsTileInfo;
+    FProjectionSet: IProjectionSet;
     FLocalConverter: ILocalCoordConverter;
     FMapSvcScanStorage: IMapSvcScanStorage;
     FBaseStorageName: String;
   public
     constructor Create(
+      const AProjectionSet: IProjectionSet;
       const ATileInfoPtr: PAvailPicsTileInfo;
       const AMapSvcScanStorage: IMapSvcScanStorage
     );
@@ -156,11 +159,13 @@ end;
 { TAvailPicsAbstract }
 
 constructor TAvailPicsAbstract.Create(
+  const AProjectionSet: IProjectionSet;
   const ATileInfoPtr: PAvailPicsTileInfo;
   const AMapSvcScanStorage: IMapSvcScanStorage
 );
 begin
   inherited Create;
+  FProjectionSet := AProjectionSet;
   FMapSvcScanStorage := AMapSvcScanStorage;
   FTileInfoPtr := ATileInfoPtr;
   FLocalConverter := nil;
@@ -196,7 +201,7 @@ function TAvailPicsAbstract.StoreImageDate(
 var
   VxyPos: TDoublePoint;
 begin
-  VxyPos := FLocalConverter.GeoConverter.LonLat2TilePosFloat(FTileInfoPtr.TileRect.TopLeft, FTileInfoPtr.Zoom);
+  VxyPos := FProjectionSet.Zooms[FTileInfoPtr.Zoom].LonLat2TilePosFloat(FTileInfoPtr.TileRect.TopLeft);
   Result := FMapSvcScanStorage.AddImageDate(AItemName, ADate, VxyPos.X, VxyPos.Y, FTileInfoPtr.Zoom);
 end;
 

@@ -29,6 +29,7 @@ uses
   XMLDoc,
   strutils,
   i_InetConfig,
+  i_ProjectionSet,
   i_DownloadResult,
   i_DownloadResultFactory,
   i_DownloadRequest,
@@ -59,6 +60,7 @@ procedure GenerateAvailPicsDD(
   var ADDs: TAvailPicsDataDoors;
   const AResultFactory: IDownloadResultFactory;
   const ATileInfoPtr: PAvailPicsTileInfo;
+  const AProjectionSet: IProjectionSet;
   const AMapSvcScanStorage: IMapSvcScanStorage
 );
 
@@ -82,6 +84,7 @@ procedure GenerateAvailPicsDD(
   var ADDs: TAvailPicsDataDoors;
   const AResultFactory: IDownloadResultFactory;
   const ATileInfoPtr: PAvailPicsTileInfo;
+  const AProjectionSet: IProjectionSet;
   const AMapSvcScanStorage: IMapSvcScanStorage
 );
 var
@@ -90,7 +93,7 @@ begin
   Assert(AResultFactory<>nil);
   for j := Low(TAvailPicsDataDoorsID) to High(TAvailPicsDataDoorsID) do begin
     if (nil=ADDs[j]) then begin
-      ADDs[j] := TAvailPicsDD.Create(ATileInfoPtr, AMapSvcScanStorage);
+      ADDs[j] := TAvailPicsDD.Create(AProjectionSet, ATileInfoPtr, AMapSvcScanStorage);
       ADDs[j].FResultFactory := AResultFactory;
       case Ord(j) of
       1: begin

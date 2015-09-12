@@ -44,6 +44,7 @@ uses
   i_VectorItemSubsetBuilder,
   i_InetConfig,
   i_LocalCoordConverter,
+  i_CoordConverterFactory,
   i_NotifierOperation,
   i_DownloadRequest,
   i_DownloadResult,
@@ -198,6 +199,7 @@ type
     FMarkDBGUI: TMarkDbGUIHelper;
     FMapSvcScanConfig: IMapSvcScanConfig;
     FMapSvcScanStorage: IMapSvcScanStorage;
+    FProjectionSetFactory: IProjectionSetFactory;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   private
@@ -269,6 +271,7 @@ type
       const AMarkDBGUI: TMarkDbGUIHelper;
       const AMapSvcScanConfig: IMapSvcScanConfig;
       const ALanguageManager: ILanguageManager;
+      const AProjectionSetFactory: IProjectionSetFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AInetConfig: IInetConfig;
@@ -284,10 +287,12 @@ implementation
 
 uses
   Math,
+  c_CoordConverter,
   i_ImportConfig,
   i_VectorDataItemSimple,
   i_GeometryLonLat,
   i_ProjectionInfo,
+  i_ProjectionSet,
   i_DoublePointsAggregator,
   u_ClipboardFunc,
   u_Synchronizer,
@@ -1331,43 +1336,50 @@ begin
 end;
 
 procedure TfrmDGAvailablePic.MakePicsVendors;
-var i, k: Integer;
+var
+  i, k: Integer;
+  VProjectionSet: IProjectionSet;
 begin
+  VProjectionSet :=
+    FProjectionSetFactory.GetProjectionSetByCode(
+      CGoogleProjectionEPSG,
+      CTileSplitQuadrate256x256
+    );
   // make for bing
   if (nil=FBing) then
-    FBing := TAvailPicsBing.Create(@FAvailPicsTileInfo, FMapSvcScanStorage);
+    FBing := TAvailPicsBing.Create(VProjectionSet, @FAvailPicsTileInfo, FMapSvcScanStorage);
 
   // make for DigitalGlobe2
   if (nil=FDG2) then
-    FDG2 := TAvailPicsDG2.Create(@FAvailPicsTileInfo, FMapSvcScanStorage);
+    FDG2 := TAvailPicsDG2.Create(VProjectionSet, @FAvailPicsTileInfo, FMapSvcScanStorage);
 
   // make for nokia map creator
-  GenerateAvailPicsNMC(FNMCs, @FAvailPicsTileInfo, FMapSvcScanStorage);
+  GenerateAvailPicsNMC(FNMCs, @FAvailPicsTileInfo, VProjectionSet, FMapSvcScanStorage);
 
   // make for datadoors
-  GenerateAvailPicsDD(FDDs, FResultFactory, @FAvailPicsTileInfo, FMapSvcScanStorage);
+  GenerateAvailPicsDD(FDDs, FResultFactory, @FAvailPicsTileInfo, VProjectionSet, FMapSvcScanStorage);
 
   // make for roscosmos
-  GenerateAvailPicsRC(FRCs, FResultFactory, @FAvailPicsTileInfo,  FMapSvcScanConfig, FMapSvcScanStorage);
+  GenerateAvailPicsRC(FRCs, FResultFactory, @FAvailPicsTileInfo,  VProjectionSet, FMapSvcScanConfig, FMapSvcScanStorage);
 
   // make for terraserver
   if (nil=FTerraserver) then
-    FTerraserver := TAvailPicsTerraserver.Create(@FAvailPicsTileInfo, FMapSvcScanStorage);
+    FTerraserver := TAvailPicsTerraserver.Create(VProjectionSet, @FAvailPicsTileInfo, FMapSvcScanStorage);
 
   // make for kosmosnimki
-  GenerateAvailPicsKS(FKSs, FResultFactory, @FAvailPicsTileInfo, FMapSvcScanStorage);
+  GenerateAvailPicsKS(FKSs, FResultFactory, @FAvailPicsTileInfo, VProjectionSet, FMapSvcScanStorage);
 
   // make for ESRI
   if (nil=FESRI) then
-    FESRI := TAvailPicsESRI.Create(@FAvailPicsTileInfo, FMapSvcScanStorage);
+    FESRI := TAvailPicsESRI.Create(VProjectionSet, @FAvailPicsTileInfo, FMapSvcScanStorage);
 
   // make for GeoFuse.GeoEye
   if (nil=FGeoFuse) then
-    FGeoFuse := TAvailPicsGeoFuse.Create(@FAvailPicsTileInfo, FMapSvcScanStorage);
+    FGeoFuse := TAvailPicsGeoFuse.Create(VProjectionSet, @FAvailPicsTileInfo, FMapSvcScanStorage);
 
   // make for digital globe
   if (0=Length(FDGStacks)) then
-    GenerateAvailPicsDG(FDGStacks, @FAvailPicsTileInfo, FMapSvcScanStorage);
+    GenerateAvailPicsDG(FDGStacks, @FAvailPicsTileInfo, VProjectionSet, FMapSvcScanStorage);
 
   // fill cbDGstacks
   cbDGstacks.Items.Clear;
@@ -1617,6 +1629,7 @@ constructor TfrmDGAvailablePic.Create(
   const AMarkDBGUI: TMarkDbGUIHelper;
   const AMapSvcScanConfig: IMapSvcScanConfig;
   const ALanguageManager: ILanguageManager;
+  const AProjectionSetFactory: IProjectionSetFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AInetConfig: IInetConfig;
@@ -1624,6 +1637,7 @@ constructor TfrmDGAvailablePic.Create(
 );
 begin
   FMarkDBGUI := AMarkDBGUI;
+  FProjectionSetFactory := AProjectionSetFactory;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FMapSvcScanConfig := AMapSvcScanConfig;
   FALLClicking := FALSE;

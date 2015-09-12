@@ -26,6 +26,7 @@ uses
   SysUtils,
   Classes,
   i_InetConfig,
+  i_ProjectionSet,
   i_DownloadResult,
   i_DownloadRequest,
   i_MapSvcScanStorage,
@@ -55,6 +56,7 @@ type
 procedure GenerateAvailPicsDG(
   var ADGs: TAvailPicsDGs;
   const ATileInfoPtr: PAvailPicsTileInfo;
+  const AProjectionSet: IProjectionSet;
   const AMapSvcScanStorage: IMapSvcScanStorage
 );
 
@@ -178,6 +180,7 @@ var
 procedure GenerateAvailPicsDG(
   var ADGs: TAvailPicsDGs;
   const ATileInfoPtr: PAvailPicsTileInfo;
+  const AProjectionSet: IProjectionSet;
   const AMapSvcScanStorage: IMapSvcScanStorage
 );
 var i, k: Integer;
@@ -190,6 +193,7 @@ begin
   // create objects
   for i := 0 to k - 1 do begin
     ADGs[i] := TAvailPicsDG.Create(
+      AProjectionSet,
       ATileInfoPtr,
       AMapSvcScanStorage
     );
