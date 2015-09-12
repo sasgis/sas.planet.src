@@ -220,6 +220,7 @@ uses
   u_NotifierOperation,
   u_ListenerByEvent,
   u_Synchronizer,
+  u_CoordConverterSimpleByProjectionSet,
   u_ConfigDataProviderByZip,
   u_ConfigDataProviderByFolder,
   u_DownloaderHttp,
@@ -587,6 +588,7 @@ var
   VProjArgs: AnsiString;
   VDefProjConverter: IProjConverter;
   VSimpleDownloader: ISimpleHttpDownloader;
+  VConverter: ICoordConverterSimple;
 begin
   FPSVars.ExecTimeInit(APSExec);
 
@@ -621,12 +623,14 @@ begin
       FZmp.VersionConfig
     );
 
+  VConverter := TCoordConverterSimpleByProjectionSet.Create(FZmp.ProjectionSet);
+
   FPSVars.ExecTimeSet(
     VUrlBase,
     VRequestHeader,
     FScriptBuffer,
     FLanguageManager.GetCurrentLanguageCode,
-    FZmp.ProjectionSet.GeoConvert as ICoordConverterSimple,
+    VConverter,
     VSimpleDownloader,
     nil,  // LastResponseInfo
     VSource,

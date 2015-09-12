@@ -27,6 +27,7 @@ uses
   i_LanguageManager,
   i_Downloader,
   i_CoordConverter,
+  i_ProjectionSet,
   i_DownloadChecker,
   i_ProjConverter,
   i_TileDownloaderConfig,
@@ -43,7 +44,7 @@ type
     FState: ITileDownloaderStateChangeble;
     FStateInternal: ITileDownloaderStateInternal;
     FConfig: ITileDownloadRequestBuilderConfig;
-    FCoordConverter: ICoordConverter;
+    FCoordConverter: ICoordConverterSimple;
     FTileDownloaderConfig: ITileDownloaderConfig;
     FCheker: IDownloadChecker;
     FLangManager: ILanguageManager;
@@ -62,7 +63,7 @@ type
       const AScriptText: AnsiString;
       const AConfig: ITileDownloadRequestBuilderConfig;
       const ATileDownloaderConfig: ITileDownloaderConfig;
-      const ACoordConverter: ICoordConverter;
+      const AProjectionSet: IProjectionSet;
       const ACheker: IDownloadChecker;
       const AProjFactory: IProjConverterFactory;
       const ALangManager: ILanguageManager
@@ -74,6 +75,7 @@ implementation
 uses
   t_PascalScript,
   u_Synchronizer,
+  u_CoordConverterSimpleByProjectionSet,
   u_PascalScriptTypes,
   u_PascalScriptCompiler,
   u_TileDownloadRequestBuilderPascalScript,
@@ -85,7 +87,7 @@ constructor TTileDownloadRequestBuilderFactoryPascalScript.Create(
   const AScriptText: AnsiString;
   const AConfig: ITileDownloadRequestBuilderConfig;
   const ATileDownloaderConfig: ITileDownloaderConfig;
-  const ACoordConverter: ICoordConverter;
+  const AProjectionSet: IProjectionSet;
   const ACheker: IDownloadChecker;
   const AProjFactory: IProjConverterFactory;
   const ALangManager: ILanguageManager
@@ -99,9 +101,9 @@ begin
   FCheker := ACheker;
   FLangManager := ALangManager;
   FTileDownloaderConfig := ATileDownloaderConfig;
-  FCoordConverter := ACoordConverter;
   FProjFactory := AProjFactory;
 
+  FCoordConverter := TCoordConverterSimpleByProjectionSet.Create(AProjectionSet);
   FCS := GSync.SyncStd.Make(Self.ClassName);
   VState := TTileDownloaderStateInternal.Create;
   FStateInternal := VState;

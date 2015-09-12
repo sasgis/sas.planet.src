@@ -231,7 +231,7 @@ begin
         GetScriptText(AZmpData),
         FTileDownloadRequestBuilderConfig,
         FTileDownloaderConfig,
-        FProjectionSet.GeoConvert,
+        FProjectionSet,
         VDownloadChecker,
         AProjFactory,
         ALanguageManager

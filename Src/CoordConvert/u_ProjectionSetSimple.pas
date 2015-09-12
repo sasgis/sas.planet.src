@@ -51,8 +51,6 @@ type
     function GetSuitableProjection(const AProjection: IProjectionInfo): IProjectionInfo;
     function GetSuitableZoom(const AProjection: IProjectionInfo): Byte;
     function IsProjectionFromThisSet(const AProjection: IProjectionInfo): Boolean;
-
-    function GetGeoConvert: ICoordConverter; // TODO: Deleate later
   public
     constructor Create(
       const AHashFunction: IHashFunction;
@@ -87,11 +85,6 @@ begin
     AHashFunction.UpdateHashByInteger(VHash, i);
     FZooms[i] := TProjectionInfo.Create(VHash, FGeoConverter, i);
   end;
-end;
-
-function TProjectionSetSimple.GetGeoConvert: ICoordConverter;
-begin
-  Result := FGeoConverter;
 end;
 
 function TProjectionSetSimple.GetHash: THashValue;
