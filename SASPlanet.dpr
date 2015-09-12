@@ -207,6 +207,7 @@ uses
   u_CoordConverterListStaticSimple in 'Src\CoordConvert\u_CoordConverterListStaticSimple.pas',
   u_CoordConverterMercatorOnEllipsoid in 'Src\CoordConvert\u_CoordConverterMercatorOnEllipsoid.pas',
   u_CoordConverterMercatorOnSphere in 'Src\CoordConvert\u_CoordConverterMercatorOnSphere.pas',
+  u_CoordConverterSimpleByProjectionSet in 'Src\CoordConvert\u_CoordConverterSimpleByProjectionSet.pas',
   u_CoordConverterSimpleLonLat in 'Src\CoordConvert\u_CoordConverterSimpleLonLat.pas',
   u_Datum in 'Src\CoordConvert\u_Datum.pas',
   u_DatumFactory in 'Src\CoordConvert\u_DatumFactory.pas',

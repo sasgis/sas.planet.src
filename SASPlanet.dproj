@@ -259,6 +259,7 @@
     <DCCReference Include="Src\CoordConvert\u_CoordConverterListStaticSimple.pas" />
     <DCCReference Include="Src\CoordConvert\u_CoordConverterMercatorOnEllipsoid.pas" />
     <DCCReference Include="Src\CoordConvert\u_CoordConverterMercatorOnSphere.pas" />
+    <DCCReference Include="Src\CoordConvert\u_CoordConverterSimpleByProjectionSet.pas" />
     <DCCReference Include="Src\CoordConvert\u_CoordConverterSimpleLonLat.pas" />
     <DCCReference Include="Src\CoordConvert\u_Datum.pas" />
     <DCCReference Include="Src\CoordConvert\u_DatumFactory.pas" />
