@@ -56,8 +56,6 @@ type
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
-    function GetCurrentZoom: Byte;
-
     function GetView: ILocalCoordConverterChangeable;
 
     procedure ChangeViewSize(const ANewSize: TPoint);
@@ -433,16 +431,6 @@ begin
   AConfigData.WriteInteger('Zoom', VLocalConverter.ProjectionInfo.Zoom);
   AConfigData.WriteFloat('X', VLonLat.X);
   AConfigData.WriteFloat('Y', VLonLat.Y);
-end;
-
-function TMapViewPortState.GetCurrentZoom: Byte;
-begin
-  LockRead;
-  try
-    Result := FView.GetStatic.ProjectionInfo.Zoom;
-  finally
-    UnlockRead;
-  end;
 end;
 
 function TMapViewPortState.GetView: ILocalCoordConverterChangeable;

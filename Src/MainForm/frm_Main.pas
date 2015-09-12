@@ -1789,7 +1789,7 @@ begin
     OnPathProvidesChange;
     OnNavToMarkChange;
 
-    PaintZSlider(FViewPortState.GetCurrentZoom);
+    PaintZSlider(FViewPortState.View.GetStatic.ProjectionInfo.Zoom);
     Application.OnMessage := DoMessageEvent;
     map.OnMouseDown := Self.mapMouseDown;
     map.OnMouseUp := Self.mapMouseUp;
@@ -4091,7 +4091,7 @@ begin
   end;
   FMapZoomAnimtion := True;
   try
-    VZoom := FViewPortState.GetCurrentZoom;
+    VZoom := FViewPortState.View.GetStatic.ProjectionInfo.Zoom;
     if VZoom <> ANewZoom then begin
       VMaxTime := FConfig.MapZoomingConfig.AnimateZoomTime;
       VUseAnimation :=
@@ -4181,7 +4181,7 @@ begin
         VLastDrawTime := (ts2 - ts1) / fr;
         VTime := VTime + VLastDrawTime;
         VLastTime := VLastTime + 0.3 * (VLastDrawTime - VLastTime); //время последней итерации сглаженное с предыдущими (чтоб поменьше было рывков во время движения)
-      until (VTime >= VMaxTime) or (AZoom <> FViewPortState.GetCurrentZoom) or
+      until (VTime >= VMaxTime) or (AZoom <> FViewPortState.View.GetStatic.ProjectionInfo.Zoom) or
         (AMousePos.X <> FMouseState.GetLastUpPos(FMapMovingButton).X) or
         (AMousePos.Y <> FMouseState.GetLastUpPos(FMapMovingButton).Y);
     end;
@@ -4657,7 +4657,7 @@ begin
     ZoomToolBar.Items.Move(ZoomToolBar.Items.IndexOf(TBZoom_out), 0);
     ZoomToolBar.Items.Move(ZoomToolBar.Items.IndexOf(TBZoomin), 4);
   end;
-  PaintZSlider(FViewPortState.GetCurrentZoom);
+  PaintZSlider(FViewPortState.View.GetStatic.ProjectionInfo.Zoom);
 end;
 
 procedure TfrmMain.NCalcRastClick(Sender: TObject);
@@ -5529,7 +5529,7 @@ begin
       end;
     end;
   end;
-  VZoomCurr := FViewPortState.GetCurrentZoom;
+  VZoomCurr := FViewPortState.View.GetStatic.ProjectionInfo.Zoom;
   NShowGran.Items[1].Caption := SAS_STR_activescale + ' (z' + inttostr(VZoomCurr + 1) + ')';
   for i := 2 to 7 do begin
     VZoom := VZoomCurr + i - 2;
@@ -6342,7 +6342,7 @@ begin
   if (VMapMoving) and ((VMouseMoveDelta.X <> 0) or (VMouseMoveDelta.Y <> 0)) then begin
     MapMoveAnimate(
       FMouseState.CurentSpeed,
-      FViewPortState.GetCurrentZoom,
+      FViewPortState.View.GetStatic.ProjectionInfo.Zoom,
       FMouseState.GetLastUpPos(Button)
     );
   end;

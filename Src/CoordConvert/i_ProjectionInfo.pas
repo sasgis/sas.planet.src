@@ -38,9 +38,6 @@ type
     function GetZoom: Byte;
     property Zoom: Byte read GetZoom;
 
-    function GetGeoConverter: ICoordConverter;
-    property GeoConverter: ICoordConverter read GetGeoConverter;
-
     function GetProjectionType: IProjectionType;
     property ProjectionType: IProjectionType read GetProjectionType;
 

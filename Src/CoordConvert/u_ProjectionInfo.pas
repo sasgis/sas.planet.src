@@ -46,7 +46,6 @@ type
   private
     function GetHash: THashValue;
     function GetZoom: Byte;
-    function GetGeoConverter: ICoordConverter;
     function GetProjectionType: IProjectionType;
     function GetIsSameProjectionInfo(const AProjection: IProjectionInfo): Boolean;
 
@@ -355,11 +354,6 @@ end;
 function TProjectionInfo.CheckTileRect(const ARect: TRect): boolean;
 begin
   Result := FGeoConverter.CheckTileRect(ARect, FZoom);
-end;
-
-function TProjectionInfo.GetGeoConverter: ICoordConverter;
-begin
-  Result := FGeoConverter;
 end;
 
 function TProjectionInfo.GetHash: THashValue;

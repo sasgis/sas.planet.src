@@ -32,8 +32,6 @@ uses
 type
   IViewPortState = interface(IConfigDataElement)
     ['{F2F2E282-AA3B-48BC-BC09-73FE9C07B723}']
-    function GetCurrentZoom: Byte;
-
     function GetView: ILocalCoordConverterChangeable;
     property View: ILocalCoordConverterChangeable read GetView;
 
