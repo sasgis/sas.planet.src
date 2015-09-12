@@ -34,7 +34,6 @@ type
   TProjectionSetSimple = class(TBaseInterfacedObject, IProjectionSet)
   private
     FHash: THashValue;
-    FGeoConverter: ICoordConverter;
     FZoomCount: Byte;
     FZooms: array of IProjectionInfo;
   private
@@ -77,13 +76,12 @@ begin
   Assert(Assigned(AGeoConverter));
   inherited Create;
   FHash := AGeoConverter.Hash;
-  FGeoConverter := AGeoConverter;
   FZoomCount := 24;
   SetLength(FZooms, FZoomCount);
   for i := 0 to FZoomCount - 1 do begin
     VHash := AGeoConverter.Hash;
     AHashFunction.UpdateHashByInteger(VHash, i);
-    FZooms[i] := TProjectionInfo.Create(VHash, FGeoConverter, i);
+    FZooms[i] := TProjectionInfo.Create(VHash, AGeoConverter, i);
   end;
 end;
 
@@ -119,14 +117,15 @@ end;
 function TProjectionSetSimple.IsProjectionFromThisSet(
   const AProjection: IProjectionInfo
 ): Boolean;
+var
+  VZoom: Byte;
 begin
   Assert(Assigned(AProjection));
   Result := False;
-  if FGeoConverter.ProjectionType.IsSame(AProjection.ProjectionType) then begin
-    if AProjection.Zoom < FZoomCount then begin
-      // TODO: fix search zooms later
-      Result := FZooms[AProjection.Zoom].GetIsSameProjectionInfo(AProjection);
-    end;
+  VZoom := AProjection.Zoom;
+  if VZoom < FZoomCount then begin
+    // TODO: fix search zooms later
+    Result := FZooms[VZoom].GetIsSameProjectionInfo(AProjection);
   end;
 end;
 
