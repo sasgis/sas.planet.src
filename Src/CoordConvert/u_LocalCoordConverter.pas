@@ -43,7 +43,6 @@ type
     FMapPixelCenter: TDoublePoint;
     FProjection: IProjectionInfo;
     FZoom: Byte;
-    FGeoConverter: ICoordConverter;
   protected
     function GetHash: THashValue;
     function GetIsSameConverter(const AConverter: ILocalCoordConverter): Boolean; virtual;
@@ -54,7 +53,6 @@ type
 
     function GetProjectionInfo: IProjectionInfo;
     function GetZoom: Byte;
-    function GetGeoConverter: ICoordConverter;
 
     function LocalPixel2MapPixel(
       const APoint: TPoint;
@@ -237,22 +235,16 @@ begin
   FMapPixelCenter := AMapPixelCenter;
   FProjection := AProjection;
   FZoom := FProjection.Zoom;
-  FGeoConverter := FProjection.GeoConverter;
 end;
 
 function TLocalCoordConverterBase.GetCenterLonLat: TDoublePoint;
 begin
-  Result := FGeoConverter.PixelPosFloat2LonLat(GetCenterMapPixelFloat, FZoom);
+  Result := FProjection.PixelPosFloat2LonLat(GetCenterMapPixelFloat);
 end;
 
 function TLocalCoordConverterBase.GetCenterMapPixelFloat: TDoublePoint;
 begin
   Result := FMapPixelCenter;
-end;
-
-function TLocalCoordConverterBase.GetGeoConverter: ICoordConverter;
-begin
-  Result := FGeoConverter;
 end;
 
 function TLocalCoordConverterBase.GetHash: THashValue;
@@ -372,7 +364,7 @@ function TLocalCoordConverterBase.LonLat2LocalPixelFloat(
 begin
   Result :=
     MapPixelFloat2LocalPixelFloat(
-      FGeoConverter.LonLat2PixelPosFloat(APoint, FZoom)
+      FProjection.LonLat2PixelPosFloat(APoint)
     );
 end;
 
@@ -381,7 +373,7 @@ function TLocalCoordConverterBase.LonLatRect2LocalRectFloat(
 begin
   Result :=
     MapRectFloat2LocalRectFloat(
-      FGeoConverter.LonLatRect2PixelRectFloat(ARect, FZoom)
+      FProjection.LonLatRect2PixelRectFloat(ARect)
     );
 end;
 
