@@ -25,6 +25,7 @@ interface
 uses
   i_Datum,
   i_CoordConverter,
+  i_ProjectionType,
   i_ProjectionInfo,
   i_ProjectionSet,
   i_ConfigDataProvider;
@@ -34,6 +35,14 @@ type
     ['{6F33BA85-B340-44BE-BCCE-049216B2C472}']
     function GetByCode(ADatumEPSG: Integer): IDatum;
     function GetByRadius(const ARadiusA, ARadiusB: Double): IDatum;
+  end;
+
+  IProjectionTypeFactory = interface
+    ['{B7FCF190-0A79-493D-9A39-A87DE2676236}']
+    function GetByConfig(const AConfig: IConfigDataProvider): IProjectionType;
+    function GetByCode(
+      AProjectionEPSG: Integer
+    ): IProjectionType;
   end;
 
   IProjectionSetFactory = interface
