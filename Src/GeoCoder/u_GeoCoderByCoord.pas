@@ -27,6 +27,7 @@ uses
   sysutils,
   t_GeoTypes,
   i_ProjectionType,
+  i_ProjectionSet,
   i_InterfaceListSimple,
   i_CoordConverterFactory,
   i_VectorDataItemSimple,
@@ -41,6 +42,7 @@ type
   TGeoCoderByCoord = class(TGeoCoderLocalBasic)
   private
     FValueToStringConverter: IValueToStringConverterChangeable;
+    FProjectionSet: IProjectionSet;
     FProjectionType3785: IProjectionType;
     FProjectionType3395: IProjectionType;
     FProjectionType4326: IProjectionType;
@@ -91,6 +93,8 @@ uses
   windows,
   StrUtils,
   RegExprUtils,
+  c_CoordConverter,
+  i_ProjectionInfo,
   u_InterfaceListSimple,
   u_GeoToStrFunc;
 
@@ -510,6 +514,8 @@ constructor TGeoCoderByCoord.Create(
 begin
   inherited Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory);
   FValueToStringConverter := AValueToStringConverter;
+  FProjectionSet := AProjectionSetFactory.GetProjectionSetByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256);
+
   FProjectionType3785 := AProjectionSetFactory.GetProjectionSetByCode(
     3785, 1
   ).Zooms[0].ProjectionType;
@@ -793,6 +799,9 @@ var
   VSname, VSDesc, VFullDesc: string;
   VLatStr, VLonStr: string;
   VZoom: Integer;
+  VZoomUsed: Byte;
+  FProjectionSet: IProjectionSet;
+  VProjection: IProjectionInfo;
   VXYPoint:TPoint;
   VXYRect:TRect;
   ViLat, ViLon: Integer;
@@ -917,16 +926,20 @@ begin
       if not VcoordError then begin
         VXYPoint.X := ViLon;
         VXYPoint.Y := ViLat;
-        VSDesc := 'z=' + inttostr(VZoom) + ' x=' + inttostr(Vilon) + ' y='+ inttostr(Vilat) + #10#13;
-        VXYRect := ALocalConverter.GeoConverter.TilePos2PixelRect(VXYPoint, VZoom - 1);
-        VXYPoint := Point((VXYRect.Right + VXYRect.Left) div 2, (VXYRect.Bottom + VXYRect.top)div 2);
-        VPoint := ALocalConverter.GeoConverter.PixelPos2LonLat(VXYPoint, VZoom - 1);
-        if (abs(VPoint.y) <= 90) and (abs(VPoint.x) <= 180) then begin
-          VSname := ASearch;
-          VSDesc := '[ ' + VValueConverter.LonLatConvert(VPoint) + ' ]';
-          VFullDesc :=  ReplaceStr(VSname + #$D#$A + VSDesc, #$D#$A, '<br>');
-          VPlace := PlacemarkFactory.Build(VPoint, VSname, VSDesc, VFullDesc, 4);
-          AddItem2List(VPlace, VList);
+        VZoomUsed := VZoom - 1;
+        if FProjectionSet.CheckZoom(VZoomUsed) then begin
+          VProjection := FProjectionSet.Zooms[VZoomUsed];
+          VSDesc := 'z=' + inttostr(VZoom) + ' x=' + inttostr(Vilon) + ' y='+ inttostr(Vilat) + #10#13;
+          VXYRect := VProjection.TilePos2PixelRect(VXYPoint);
+          VXYPoint := Point((VXYRect.Right + VXYRect.Left) div 2, (VXYRect.Bottom + VXYRect.top)div 2);
+          VPoint := VProjection.PixelPos2LonLat(VXYPoint);
+          if (abs(VPoint.y) <= 90) and (abs(VPoint.x) <= 180) then begin
+            VSname := ASearch;
+            VSDesc := '[ ' + VValueConverter.LonLatConvert(VPoint) + ' ]';
+            VFullDesc :=  ReplaceStr(VSname + #$D#$A + VSDesc, #$D#$A, '<br>');
+            VPlace := PlacemarkFactory.Build(VPoint, VSname, VSDesc, VFullDesc, 4);
+            AddItem2List(VPlace, VList);
+          end;
         end;
       end;
     end else begin

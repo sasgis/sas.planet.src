@@ -152,7 +152,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderURLGUID,
       'URL',
-      TGeoCoderByURL.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory, AValueToStringConverter)
+      TGeoCoderByURL.Create(AInetConfig, AGCNotifier, AProjectionSetFactory, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory, AValueToStringConverter)
     );
   VList.Add(VItem);
 

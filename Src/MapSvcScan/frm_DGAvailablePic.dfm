@@ -239,7 +239,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
             Width = 204
             Height = 21
             Style = csDropDownList
-            ItemHeight = 13
+            ItemHeight = 0
             TabOrder = 0
           end
           object chkBing: TCheckBox
@@ -347,11 +347,10 @@ object frmDGAvailablePic: TfrmDGAvailablePic
             Left = 0
             Top = 0
             Width = 26
-            Height = 17
+            Height = 13
             Align = alLeft
             Caption = 'Nokia'
             Layout = tlCenter
-            ExplicitHeight = 13
           end
           object chkMNCasColorOnly: TCheckBox
             Left = 79
@@ -374,13 +373,12 @@ object frmDGAvailablePic: TfrmDGAvailablePic
             Left = 0
             Top = 0
             Width = 26
-            Height = 17
+            Height = 13
             Align = alLeft
             Caption = 'Zoom'
             ParentShowHint = False
             ShowHint = False
             Layout = tlCenter
-            ExplicitHeight = 13
           end
           object chkNMC13: TCheckBox
             Left = 79
@@ -432,10 +430,6 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       object tsDDandRC: TTabSheet
         Caption = 'DD+RC'
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object grpbxDatadoors: TGroupBox
           Left = 0
           Top = 0

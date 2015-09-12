@@ -26,6 +26,8 @@ uses
   Classes,
   i_InterfaceListSimple,
   i_NotifierOperation,
+  i_ProjectionSet,
+  i_CoordConverterFactory,
   i_LocalCoordConverter,
   i_DownloadRequest,
   i_DownloadResult,
@@ -42,6 +44,7 @@ type
   TGeoCoderByURL = class(TGeoCoderBasic)
   private
     FValueToStringConverter: IValueToStringConverterChangeable;
+    FProjectionSet: IProjectionSet;
     function GetPointFromFullLink(
       const Astr: AnsiString;
       const ALocalConverter: ILocalCoordConverter
@@ -67,6 +70,7 @@ type
     constructor Create(
       const AInetSettings: IInetConfig;
       const AGCNotifier: INotifierTime;
+      const AProjectionSetFactory: IProjectionSetFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
       const AResultFactory: IDownloadResultFactory;
@@ -83,6 +87,8 @@ uses
   ALString,
   RegExprUtils,
   t_GeoTypes,
+  c_CoordConverter,
+  i_ProjectionInfo,
   u_InterfaceListSimple,
   u_ResStrings,
   u_DownloadRequest;
@@ -103,6 +109,7 @@ end;
 constructor TGeoCoderByURL.Create(
   const AInetSettings: IInetConfig;
   const AGCNotifier: INotifierTime;
+  const AProjectionSetFactory: IProjectionSetFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APlacemarkFactory: IGeoCodePlacemarkFactory;
   const AResultFactory: IDownloadResultFactory;
@@ -117,6 +124,7 @@ begin
     AResultFactory
   );
   FValueToStringConverter := AValueToStringConverter;
+  FProjectionSet := AProjectionSetFactory.GetProjectionSetByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256);
 end;
 
 function TGeoCoderByURL.GetPointFromShortLink(
@@ -335,6 +343,7 @@ var
   VZoom, Vilon, Vilat: Integer;
   VXYPoint: TPoint;
   VXYRect: TRect;
+  VProjection: IProjectionInfo;
   VValueConverter: IValueToStringConverter;
 begin
   VValueConverter := FValueToStringConverter.GetStatic;
@@ -551,12 +560,15 @@ begin
 
     VXYPoint.X := ViLon;
     VXYPoint.Y := ViLat;
-    VSDesc := 'z=' + IntToStr(VZoom) + ' x=' + IntToStr(Vilon) + ' y=' + IntToStr(Vilat) + #$D#$A;
-    VXYRect := ALocalConverter.GeoConverter.TilePos2PixelRect(VXYPoint, VZoom - 1);
-    VXYPoint := Point((VXYRect.Right + VXYRect.Left) div 2, (VXYRect.Bottom + VXYRect.top) div 2);
-    VPoint := ALocalConverter.GeoConverter.PixelPos2LonLat(VXYPoint, VZoom - 1);
-    VSLat := ALFloatToStr(VPoint.Y, VFormatSettings);
-    VSLon := ALFloatToStr(VPoint.X, VFormatSettings);
+    if FProjectionSet.CheckZoom(VZoom - 1) then begin
+      VProjection := FProjectionSet.Zooms[VZoom - 1];
+      VSDesc := 'z=' + IntToStr(VZoom) + ' x=' + IntToStr(Vilon) + ' y=' + IntToStr(Vilat) + #$D#$A;
+      VXYRect := VProjection.TilePos2PixelRect(VXYPoint);
+      VXYPoint := Point((VXYRect.Right + VXYRect.Left) div 2, (VXYRect.Bottom + VXYRect.top) div 2);
+      VPoint := VProjection.PixelPos2LonLat(VXYPoint);
+      VSLat := ALFloatToStr(VPoint.Y, VFormatSettings);
+      VSLon := ALFloatToStr(VPoint.X, VFormatSettings);
+    end;
   end;
 
   // http://c.tile.openstreetmap.org/10/622/367.png
@@ -576,12 +588,15 @@ begin
     Vilat := ALStrToInt(VSLat);
     VXYPoint.X := ViLon;
     VXYPoint.Y := ViLat;
-    VSDesc := 'z=' + IntToStr(VZoom) + ' x=' + IntToStr(Vilon) + ' y=' + IntToStr(Vilat) + #$D#$A;
-    VXYRect := ALocalConverter.GeoConverter.TilePos2PixelRect(VXYPoint, VZoom - 1);
-    VXYPoint := Point((VXYRect.Right + VXYRect.Left) div 2, (VXYRect.Bottom + VXYRect.top) div 2);
-    VPoint := ALocalConverter.GeoConverter.PixelPos2LonLat(VXYPoint, VZoom - 1);
-    VSLat := ALFloatToStr(VPoint.Y, VFormatSettings);
-    VSLon := ALFloatToStr(VPoint.X, VFormatSettings);
+    if FProjectionSet.CheckZoom(VZoom - 1) then begin
+      VProjection := FProjectionSet.Zooms[VZoom - 1];
+      VSDesc := 'z=' + IntToStr(VZoom) + ' x=' + IntToStr(Vilon) + ' y=' + IntToStr(Vilat) + #$D#$A;
+      VXYRect := VProjection.TilePos2PixelRect(VXYPoint);
+      VXYPoint := Point((VXYRect.Right + VXYRect.Left) div 2, (VXYRect.Bottom + VXYRect.top) div 2);
+      VPoint := VProjection.PixelPos2LonLat(VXYPoint);
+      VSLat := ALFloatToStr(VPoint.Y, VFormatSettings);
+      VSLon := ALFloatToStr(VPoint.X, VFormatSettings);
+    end;
   end;
 
   // http://188.95.188.28/cgi-bin/webfile_mgr.cgi?cmd=cgi_download&path=/mnt/HD/HD_a2/pub/genshtab250m/z12/1302/2506.jpg&path1=/mnt/HD/HD_a2/pub/genshtab250m/z12/1302/2506.jpg&name=2506.jpg&type=JPEG+Image&browser=iee)
@@ -608,12 +623,15 @@ begin
         Inc(VZoom); // зум отличается на 1
         VXYPoint.X := ViLon;
         VXYPoint.Y := ViLat;
-        VSDesc := 'z=' + IntToStr(VZoom) + ' x=' + IntToStr(Vilon) + ' y=' + IntToStr(Vilat) + #$D#$A;
-        VXYRect := ALocalConverter.GeoConverter.TilePos2PixelRect(VXYPoint, VZoom - 1);
-        VXYPoint := Point((VXYRect.Right + VXYRect.Left) div 2, (VXYRect.Bottom + VXYRect.top) div 2);
-        VPoint := ALocalConverter.GeoConverter.PixelPos2LonLat(VXYPoint, VZoom - 1);
-        VSLat := ALFloatToStr(VPoint.Y, VFormatSettings);
-        VSLon := ALFloatToStr(VPoint.X, VFormatSettings);
+        if FProjectionSet.CheckZoom(VZoom - 1) then begin
+          VProjection := FProjectionSet.Zooms[VZoom - 1];
+          VSDesc := 'z=' + IntToStr(VZoom) + ' x=' + IntToStr(Vilon) + ' y=' + IntToStr(Vilat) + #$D#$A;
+          VXYRect := VProjection.TilePos2PixelRect(VXYPoint);
+          VXYPoint := Point((VXYRect.Right + VXYRect.Left) div 2, (VXYRect.Bottom + VXYRect.top) div 2);
+          VPoint := VProjection.PixelPos2LonLat(VXYPoint);
+          VSLat := ALFloatToStr(VPoint.Y, VFormatSettings);
+          VSLon := ALFloatToStr(VPoint.X, VFormatSettings);
+        end;
       end;
     end;
   end;
