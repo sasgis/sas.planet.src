@@ -68,6 +68,7 @@ type
     FProjectionSetGoogle: IProjectionSet;
     FProjectionSetYandex: IProjectionSet;
     FProjectionSetLonLat: IProjectionSet;
+    function CreateProjectionSet(const AConverter: ICoordConverter): IProjectionSet;
   private
     function GetCoordConverterByConfig(const AConfig: IConfigDataProvider): ICoordConverter;
     function GetCoordConverterByCode(
@@ -93,12 +94,16 @@ uses
   SysUtils,
   t_Hash,
   c_CoordConverter,
+  i_InterfaceListSimple,
+  i_ProjectionInfo,
+  u_InterfaceListSimple,
   u_CoordConverterMercatorOnSphere,
   u_CoordConverterMercatorOnEllipsoid,
   u_CoordConverterSimpleLonLat,
   u_ProjectionTypeMercatorOnSphere,
   u_ProjectionTypeMercatorOnEllipsoid,
   u_ProjectionTypeGELonLat,
+  u_ProjectionInfo,
   u_ProjectionSetSimple,
   u_ResStrings;
 
@@ -121,7 +126,7 @@ begin
   FHashFunction.UpdateHashByHash(VHash, VDatum.Hash);
   FHashFunction.UpdateHashByInteger(VHash, CGoogleProjectionEPSG);
   FGoogle := TCoordConverterMercatorOnSphere.Create(VHash, VDatum, CGoogleProjectionEPSG);
-  FProjectionSetGoogle := TProjectionSetSimple.Create(FHashFunction, FGoogle);
+  FProjectionSetGoogle := CreateProjectionSet(FGoogle);
 
   VHash := FHashFunction.CalcHashByInteger(1);
   VDatum := FDatumFactory.GetByCode(53004);
@@ -134,14 +139,39 @@ begin
   FHashFunction.UpdateHashByHash(VHash, VDatum.Hash);
   FHashFunction.UpdateHashByInteger(VHash, CYandexProjectionEPSG);
   FYandex := TCoordConverterMercatorOnEllipsoid.Create(VHash, VDatum, CYandexProjectionEPSG);
-  FProjectionSetYandex := TProjectionSetSimple.Create(FHashFunction, FYandex);
+  FProjectionSetYandex := CreateProjectionSet(FYandex);
 
   VHash := FHashFunction.CalcHashByInteger(3);
   VDatum := FDatumFactory.GetByCode(CYandexDatumEPSG);
   FHashFunction.UpdateHashByHash(VHash, VDatum.Hash);
   FHashFunction.UpdateHashByInteger(VHash, CGELonLatProjectionEPSG);
   FLonLat := TCoordConverterSimpleLonLat.Create(VHash, VDatum, CGELonLatProjectionEPSG);
-  FProjectionSetLonLat := TProjectionSetSimple.Create(FHashFunction, FLonLat);
+  FProjectionSetLonLat := CreateProjectionSet(FLonLat);
+end;
+
+function TCoordConverterFactorySimple.CreateProjectionSet(
+  const AConverter: ICoordConverter
+): IProjectionSet;
+var
+  VZooms: IInterfaceListSimple;
+  i: Integer;
+  VHash: THashValue;
+  VProjection: IProjectionInfo;
+begin
+  VZooms := TInterfaceListSimple.Create;
+  VZooms.Capacity := 24;
+
+  for i := 0 to 24 - 1 do begin
+    VHash := AConverter.Hash;
+    FHashFunction.UpdateHashByInteger(VHash, i);
+    VProjection := TProjectionInfo.Create(VHash, AConverter, i);
+    VZooms.Add(VProjection);
+  end;
+  Result :=
+    TProjectionSetSimple.Create(
+      AConverter.Hash,
+      VZooms.MakeStaticAndClear
+    );
 end;
 
 function TCoordConverterFactorySimple.GetCoordConverterByCode(
@@ -292,7 +322,7 @@ begin
       Result := FProjectionSetLonLat;
     end;
   else begin
-    Result := TProjectionSetSimple.Create(FHashFunction, VConverter);
+    Result := CreateProjectionSet(VConverter);
   end;
   end;
 end;
@@ -315,7 +345,7 @@ begin
       Result := FProjectionSetLonLat;
     end;
   else begin
-    Result := TProjectionSetSimple.Create(FHashFunction, VConverter);
+    Result := CreateProjectionSet(VConverter);
   end;
   end;
 end;

@@ -27,6 +27,7 @@ uses
   i_HashFunction,
   i_ProjectionInfo,
   i_ProjectionSet,
+  i_InterfaceListStatic,
   i_CoordConverter,
   u_BaseInterfacedObject;
 
@@ -35,7 +36,7 @@ type
   private
     FHash: THashValue;
     FZoomCount: Byte;
-    FZooms: array of IProjectionInfo;
+    FZooms: IInterfaceListStatic;
   private
     function GetHash: THashValue;
     function IsSame(const AProjectionSet: IProjectionSet): Boolean;
@@ -52,8 +53,8 @@ type
     function IsProjectionFromThisSet(const AProjection: IProjectionInfo): Boolean;
   public
     constructor Create(
-      const AHashFunction: IHashFunction;
-      const AGeoConverter: ICoordConverter
+      const AHash: THashValue;
+      const AZooms: IInterfaceListStatic
     );
   end;
 
@@ -65,24 +66,22 @@ uses
 { TProjectionSetSimple }
 
 constructor TProjectionSetSimple.Create(
-  const AHashFunction: IHashFunction;
-  const AGeoConverter: ICoordConverter
+  const AHash: THashValue;
+  const AZooms: IInterfaceListStatic
 );
-var
-  i: Integer;
-  VHash: THashValue;
 begin
-  Assert(Assigned(AHashFunction));
-  Assert(Assigned(AGeoConverter));
+  Assert(Assigned(AZooms));
+  Assert(AZooms.Count > 0);
   inherited Create;
-  FHash := AGeoConverter.Hash;
-  FZoomCount := 24;
-  SetLength(FZooms, FZoomCount);
-  for i := 0 to FZoomCount - 1 do begin
-    VHash := AGeoConverter.Hash;
-    AHashFunction.UpdateHashByInteger(VHash, i);
-    FZooms[i] := TProjectionInfo.Create(VHash, AGeoConverter, i);
-  end;
+  FHash := AHash;
+  FZooms := AZooms;
+  FZoomCount := FZooms.Count;
+//  SetLength(FZooms, FZoomCount);
+//  for i := 0 to FZoomCount - 1 do begin
+//    VHash := AGeoConverter.Hash;
+//    AHashFunction.UpdateHashByInteger(VHash, i);
+//    FZooms[i] := TProjectionInfo.Create(VHash, AGeoConverter, i);
+//  end;
 end;
 
 function TProjectionSetSimple.GetHash: THashValue;
@@ -94,7 +93,7 @@ function TProjectionSetSimple.GetSuitableProjection(
   const AProjection: IProjectionInfo
 ): IProjectionInfo;
 begin
-  Result := FZooms[AProjection.Zoom]; // TODO: fix later
+  Result := IProjectionInfo(FZooms[AProjection.Zoom]); // TODO: fix later
 end;
 
 function TProjectionSetSimple.GetSuitableZoom(
@@ -106,7 +105,7 @@ end;
 
 function TProjectionSetSimple.GetZoom(const AIndex: Byte): IProjectionInfo;
 begin
-  Result := FZooms[AIndex];
+  Result := IProjectionInfo(FZooms[AIndex]);
 end;
 
 function TProjectionSetSimple.GetZoomCount: Byte;
@@ -125,7 +124,7 @@ begin
   VZoom := AProjection.Zoom;
   if VZoom < FZoomCount then begin
     // TODO: fix search zooms later
-    Result := FZooms[VZoom].GetIsSameProjectionInfo(AProjection);
+    Result := GetZoom(VZoom).GetIsSameProjectionInfo(AProjection);
   end;
 end;
 
@@ -150,7 +149,7 @@ begin
     if FZoomCount = AProjectionSet.ZoomCount then begin
       Result := True;
       for i := 0 to FZoomCount - 1 do begin
-        if not FZooms[i].GetIsSameProjectionInfo(AProjectionSet.Zooms[i]) then begin
+        if not GetZoom(i).GetIsSameProjectionInfo(AProjectionSet.Zooms[i]) then begin
           Result := False;
           Break;
         end;
