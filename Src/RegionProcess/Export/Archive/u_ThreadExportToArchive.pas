@@ -29,7 +29,6 @@ uses
   i_TileFileNameGenerator,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
-  i_CoordConverterFactory,
   i_GeometryProjectedFactory,
   i_GeometryLonLat,
   i_ArchiveReadWrite,

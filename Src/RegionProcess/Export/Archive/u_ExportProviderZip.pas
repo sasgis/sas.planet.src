@@ -26,7 +26,6 @@ uses
   Forms,
   i_LanguageManager,
   i_GeometryLonLat,
-  i_CoordConverterFactory,
   i_GeometryProjectedFactory,
   i_ArchiveReadWriteFactory,
   i_TileStorageTypeList,

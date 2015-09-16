@@ -26,7 +26,6 @@ uses
   t_GeoTypes,
   i_RegionProcessProgressInfo,
   i_GeometryLonLat,
-  i_CoordConverterFactory,
   i_GeometryProjectedFactory,
   i_BitmapPostProcessing,
   u_ExportToJnxTask,

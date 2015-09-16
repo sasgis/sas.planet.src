@@ -28,7 +28,6 @@ uses
   i_SelectionRect,
   i_StickToGrid,
   i_LocalCoordConverterChangeable,
-  i_MapLayerGridsConfig,
   u_ChangeableBase;
 
 type

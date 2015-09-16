@@ -78,8 +78,7 @@ implementation
 uses
   i_GeometryLonLat,
   u_StreamReadOnlyByBinaryData,
-  u_DoublePointsAggregator,
-  u_GeoFunc;
+  u_DoublePointsAggregator;
 
 constructor TPLTSimpleParser.Create(
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;

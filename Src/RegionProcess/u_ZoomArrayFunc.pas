@@ -36,8 +36,7 @@ implementation
 
 uses
   Classes,
-  SysUtils,
-  u_SortFunc;
+  SysUtils;
 
 const
   cUndefRangeValue = MaxInt;

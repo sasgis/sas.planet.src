@@ -24,7 +24,6 @@ interface
 
 uses
   t_Hash,
-  i_CoordConverter,
   i_ProjectionInfo;
 
 type

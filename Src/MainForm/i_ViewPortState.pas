@@ -25,7 +25,6 @@ interface
 uses
   Types,
   t_GeoTypes,
-  i_ProjectionSet,
   i_LocalCoordConverterChangeable,
   i_ConfigDataElement;
 

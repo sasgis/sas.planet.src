@@ -27,7 +27,6 @@ uses
   i_TileRect,
   i_TileRectChangeable,
   i_ProjectionSet,
-  i_CoordConverterFactory,
   i_Listener,
   u_ChangeableBase;
 

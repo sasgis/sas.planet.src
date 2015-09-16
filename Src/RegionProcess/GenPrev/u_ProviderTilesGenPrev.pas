@@ -29,7 +29,6 @@ uses
   i_GeometryLonLat,
   i_ImageResamplerFactory,
   i_ImageResamplerConfig,
-  i_CoordConverterFactory,
   i_GeometryProjectedFactory,
   i_Bitmap32BufferFactory,
   i_GlobalViewMainConfig,

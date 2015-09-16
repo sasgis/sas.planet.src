@@ -23,8 +23,6 @@ unit u_TileGridConfig;
 interface
 
 uses
-  t_GeoTypes,
-  i_ProjectionInfo,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_MapLayerGridsConfig,
@@ -51,9 +49,7 @@ type
 implementation
 
 uses
-  Types,
-  Math,
-  u_GeoFunc;
+  Types;
 
 { TTileGridConfig }
 

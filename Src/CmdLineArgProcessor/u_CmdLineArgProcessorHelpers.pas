@@ -27,7 +27,6 @@ uses
   t_GeoTypes,
   i_MarkSystem,
   i_MapViewGoto,
-  i_CoordConverter,
   i_ProjectionType,
   i_ProjectionSet,
   i_RegionProcess,

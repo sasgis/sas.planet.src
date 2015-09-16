@@ -30,7 +30,6 @@ uses
   t_GeoTypes,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
-  i_CoordConverterFactory,
   i_ContentTypeInfo,
   i_Bitmap32BufferFactory,
   i_GeometryProjectedFactory,

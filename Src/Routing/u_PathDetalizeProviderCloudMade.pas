@@ -84,7 +84,6 @@ uses
   i_DownloadResult,
   i_EnumDoublePoint,
   u_DoublePointsAggregator,
-  u_GeoFunc,
   u_GeoToStrFunc,
   u_DownloadRequest,
   u_ResStrings;

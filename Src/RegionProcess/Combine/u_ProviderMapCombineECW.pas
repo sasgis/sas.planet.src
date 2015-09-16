@@ -24,7 +24,6 @@ interface
 
 uses
   i_LanguageManager,
-  i_CoordConverterFactory,
   i_CoordConverterList,
   i_ProjectionSetChangeable,
   i_BitmapTileProvider,
@@ -84,7 +83,6 @@ uses
   Classes,
   Types,
   gnugettext,
-  t_Bitmap32,
   i_RegionProcessParamsFrame,
   i_ProjectionInfo,
   u_ThreadMapCombineECW,

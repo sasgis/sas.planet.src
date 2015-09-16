@@ -26,7 +26,6 @@ uses
   Types,
   i_MapVersionInfo,
   i_MapVersionRequest,
-  i_CoordConverterFactory,
   i_TileStorage,
   i_GeometryLonLat,
   i_GeometryProjectedFactory,

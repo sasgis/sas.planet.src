@@ -32,7 +32,6 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_ContentTypeManager,
-  i_CoordConverterFactory,
   i_GeometryProjectedFactory,
   i_TileStorage,
   i_TileStorageTypeList,

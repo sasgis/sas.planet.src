@@ -33,7 +33,6 @@ uses
   StdCtrls,
   Windows,
   i_MapType,
-  i_CoordConverterFactory,
   i_LanguageManager,
   i_GeometryLonLat,
   i_GeometryProjectedFactory,

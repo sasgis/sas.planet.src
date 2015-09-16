@@ -29,7 +29,6 @@ uses
   i_TileRect,
   i_MapTypeSet,
   i_MapTypeSetChangeable,
-  i_InterfaceListStatic,
   u_BaseInterfacedObject;
 
 type
@@ -75,12 +74,10 @@ uses
   Types,
   Math,
   t_GeoTypes,
-  i_InterfaceListSimple,
   i_LonLatRect,
   i_ProjectionInfo,
   i_NotifierTilePyramidUpdate,
   i_MapType,
-  u_InterfaceListSimple,
   u_ListenerByEvent,
   u_TileUpdateListenerToLonLat,
   u_GeoFunc,

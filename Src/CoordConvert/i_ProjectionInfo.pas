@@ -26,8 +26,7 @@ uses
   Types,
   t_Hash,
   t_GeoTypes,
-  i_ProjectionType,
-  i_CoordConverter;
+  i_ProjectionType;
 
 type
   IProjectionInfo = interface

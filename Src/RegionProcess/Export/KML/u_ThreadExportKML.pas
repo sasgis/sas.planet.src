@@ -29,7 +29,6 @@ uses
   t_GeoTypes,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
-  i_CoordConverterFactory,
   i_GeometryProjectedFactory,
   i_GeometryLonLat,
   i_MapVersionInfo,

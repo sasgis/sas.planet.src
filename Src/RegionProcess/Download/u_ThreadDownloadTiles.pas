@@ -39,7 +39,6 @@ uses
   i_GeometryLonLat,
   i_GeometryProjected,
   i_GeometryProjectedFactory,
-  i_CoordConverterFactory,
   i_DownloadInfoSimple,
   i_MapType,
   i_TileIterator,

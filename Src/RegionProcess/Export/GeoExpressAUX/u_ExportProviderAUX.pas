@@ -25,7 +25,6 @@ interface
 uses
   Forms,
   i_LanguageManager,
-  i_CoordConverterFactory,
   i_GeometryProjectedFactory,
   i_GeometryLonLat,
   i_RegionProcessProgressInfoInternalFactory,

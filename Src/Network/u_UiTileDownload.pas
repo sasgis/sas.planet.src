@@ -37,7 +37,6 @@ uses
   i_TileError,
   i_TileRequestTask,
   i_TileRequestResult,
-  i_CoordConverterFactory,
   i_TileDownloaderState,
   i_GlobalInternetState,
   i_TileRect,

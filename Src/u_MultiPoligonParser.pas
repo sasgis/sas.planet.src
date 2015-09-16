@@ -111,7 +111,6 @@ uses
   SysUtils,
   u_DoublePointsAggregator,
   u_StrFunc,
-  u_GeoFunc,
   u_GeoToStrFunc;
 
 function _IsCoord(const ASym: Char): Boolean;

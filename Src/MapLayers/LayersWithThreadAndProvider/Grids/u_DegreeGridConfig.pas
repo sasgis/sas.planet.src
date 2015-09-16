@@ -23,8 +23,6 @@ unit u_DegreeGridConfig;
 interface
 
 uses
-  t_GeoTypes,
-  i_ProjectionInfo,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_MapLayerGridsConfig,
@@ -46,8 +44,7 @@ type
 
 implementation
 
-uses
-  u_GeoFunc;
+
 
 const
   GSHprec = 100000000;

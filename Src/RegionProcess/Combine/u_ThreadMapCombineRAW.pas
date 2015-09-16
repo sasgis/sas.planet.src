@@ -68,8 +68,7 @@ uses
   ALString,
   i_ImageLineProvider,
   u_ImageLineProvider,
-  u_GeoFunc,
-  u_ResStrings;
+  u_GeoFunc;
 
 constructor TThreadMapCombineRAW.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;

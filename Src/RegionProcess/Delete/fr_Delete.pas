@@ -29,7 +29,6 @@ uses
   ComCtrls,
   i_LanguageManager,
   i_GeometryLonLat,
-  i_CoordConverterFactory,
   i_LocalCoordConverterChangeable,
   i_GeometryProjectedFactory,
   i_MarkSystem,

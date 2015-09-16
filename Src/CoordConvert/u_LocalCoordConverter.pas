@@ -26,7 +26,6 @@ uses
   Types,
   t_Hash,
   t_GeoTypes,
-  i_CoordConverter,
   i_ProjectionInfo,
   i_LocalCoordConverter,
   u_BaseInterfacedObject;

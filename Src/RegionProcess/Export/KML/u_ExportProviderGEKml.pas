@@ -27,7 +27,6 @@ uses
   i_GeometryLonLat,
   i_GeometryProjectedFactory,
   i_LanguageManager,
-  i_CoordConverterFactory,
   i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
   fr_MapSelect,

@@ -63,7 +63,6 @@ implementation
 uses
   Classes,
   ALString,
-  i_ProjectionSet,
   i_TileInfoBasic,
   u_ResStrings,
   i_TileIterator,

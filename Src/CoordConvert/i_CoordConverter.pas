@@ -24,10 +24,7 @@ interface
 
 uses
   Types,
-  t_Hash,
-  t_GeoTypes,
-  i_ProjectionType,
-  i_Datum;
+  t_GeoTypes;
 
 type
   ICoordConverterSimple = interface

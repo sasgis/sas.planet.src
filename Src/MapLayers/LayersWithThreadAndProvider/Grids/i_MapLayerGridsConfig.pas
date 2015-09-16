@@ -24,8 +24,6 @@ interface
 
 uses
   t_Bitmap32,
-  t_GeoTypes,
-  i_ProjectionInfo,
   i_ThreadConfig,
   i_ConfigDataElement;
 

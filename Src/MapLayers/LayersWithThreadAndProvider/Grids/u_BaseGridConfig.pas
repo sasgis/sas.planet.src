@@ -24,10 +24,8 @@ interface
 
 uses
   t_Bitmap32,
-  t_GeoTypes,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_ProjectionInfo,
   i_MapLayerGridsConfig,
   u_ConfigDataElementBase;
 

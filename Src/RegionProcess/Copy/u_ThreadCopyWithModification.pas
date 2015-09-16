@@ -25,7 +25,6 @@ interface
 uses
   Types,
   i_MapVersionInfo,
-  i_CoordConverterFactory,
   i_TileStorage,
   i_GeometryLonLat,
   i_GeometryProjectedFactory,

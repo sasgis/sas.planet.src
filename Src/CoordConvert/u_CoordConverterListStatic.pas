@@ -25,7 +25,6 @@ interface
 uses
   SysUtils,
   Classes,
-  i_CoordConverter,
   i_ProjectionSet,
   i_CoordConverterList,
   u_BaseInterfacedObject;

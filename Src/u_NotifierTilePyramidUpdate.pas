@@ -30,7 +30,6 @@ uses
   i_TileKey,
   i_TileRect,
   i_ProjectionSet,
-  i_CoordConverterFactory,
   i_NotifierTilePyramidUpdate,
   u_BaseInterfacedObject;
 

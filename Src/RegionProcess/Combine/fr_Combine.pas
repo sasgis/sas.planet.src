@@ -29,7 +29,6 @@ uses
   StdCtrls,
   ExtCtrls,
   i_LanguageManager,
-  i_CoordConverterFactory,
   i_CoordConverterList,
   i_ProjectionSetChangeable,
   i_GeometryLonLat,

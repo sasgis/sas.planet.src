@@ -27,9 +27,7 @@ uses
   t_GeoTypes,
   i_Notifier,
   i_Listener,
-  i_CoordConverter,
   i_ProjectionSet,
-  i_CoordConverterFactory,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_ConfigDataProvider,
@@ -37,7 +35,6 @@ uses
   i_InternalPerformanceCounter,
   i_ProjectionSetChangeable,
   i_ViewPortState,
-  i_MapType,
   i_LocalCoordConverterFactorySimpe,
   u_ConfigDataElementBase;
 

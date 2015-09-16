@@ -29,7 +29,6 @@ uses
   i_NotifierTime,
   i_MapTypeSet,
   i_MapTypeSetChangeable,
-  i_CoordConverterFactory,
   i_DownloadInfoSimple,
   i_GlobalInternetState,
   i_InterfaceListStatic,

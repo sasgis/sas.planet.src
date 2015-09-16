@@ -28,7 +28,6 @@ uses
   i_ProjectionInfo,
   i_ProjectionSet,
   i_ProjectionSetChangeable,
-  i_CoordConverterFactory,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_LocalCoordConverterChangeable,
@@ -79,7 +78,6 @@ implementation
 uses
   Types,
   t_GeoTypes,
-  i_CoordConverter,
   i_Listener,
   u_ListenerByEvent,
   u_ListenerNotifierLinksList,

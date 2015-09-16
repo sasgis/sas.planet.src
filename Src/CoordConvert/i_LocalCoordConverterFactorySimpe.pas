@@ -26,7 +26,6 @@ uses
   Types,
   t_GeoTypes,
   i_ProjectionInfo,
-  i_CoordConverter,
   i_LocalCoordConverter;
 
 type

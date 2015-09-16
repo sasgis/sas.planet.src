@@ -87,7 +87,6 @@ implementation
 uses
   Math,
   SysUtils,
-  i_CoordConverter,
   i_LocalCoordConverter,
   u_Notifier,
   u_Synchronizer,

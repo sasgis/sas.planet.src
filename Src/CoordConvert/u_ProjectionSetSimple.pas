@@ -24,11 +24,9 @@ interface
 
 uses
   t_Hash,
-  i_HashFunction,
   i_ProjectionInfo,
   i_ProjectionSet,
   i_InterfaceListStatic,
-  i_CoordConverter,
   u_BaseInterfacedObject;
 
 type

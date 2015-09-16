@@ -135,7 +135,6 @@ uses
   i_EnumDoublePoint,
   i_ProjectionType,
   u_ListenerByEvent,
-  u_GeoFunc,
   u_DoublePointsAggregator,
   u_ResStrings;
 

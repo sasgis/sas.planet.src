@@ -37,8 +37,7 @@ implementation
 uses
   gnugettext,
   c_CoordConverter,
-  i_ProjectionSet,
-  i_CoordConverter;
+  i_ProjectionSet;
 
 { TCoordConverterListStaticSimple }
 

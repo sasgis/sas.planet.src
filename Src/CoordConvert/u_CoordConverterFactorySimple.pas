@@ -25,7 +25,6 @@ interface
 uses
   i_Datum,
   i_HashFunction,
-  i_CoordConverter,
   i_ProjectionType,
   i_ProjectionSet,
   i_ConfigDataProvider,

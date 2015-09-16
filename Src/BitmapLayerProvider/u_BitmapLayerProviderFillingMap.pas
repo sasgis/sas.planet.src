@@ -32,7 +32,6 @@ uses
   i_ProjectionInfo,
   i_GeometryProjected,
   i_GeometryProjectedFactory,
-  i_CoordConverterFactory,
   i_TileStorage,
   i_MapVersionRequest,
   i_BitmapLayerProvider,

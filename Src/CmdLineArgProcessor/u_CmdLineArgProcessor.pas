@@ -86,7 +86,6 @@ uses
   ArgumentParser,
   t_GeoTypes,
   i_MapType,
-  i_CoordConverter,
   u_CmdLineArgProcessorAPI,
   u_CmdLineArgProcessorHelpers;
 

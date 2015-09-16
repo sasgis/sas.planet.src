@@ -33,7 +33,6 @@ uses
   i_NotifierTilePyramidUpdate,
   i_StorageState,
   i_ProjectionSet,
-  i_CoordConverterFactory,
   i_ContentTypeInfo,
   i_Listener,
   i_MapVersionInfo,

@@ -24,7 +24,6 @@ interface
 
 uses
   i_Listener,
-  i_CoordConverterFactory,
   i_FillingMapPolygon,
   i_FillingMapLayerConfig,
   i_MapType,

@@ -90,7 +90,6 @@ implementation
 uses
   Math,
   t_GeoTypes,
-  i_CoordConverter,
   u_SimpleFlagWithInterlock,
   u_TileIteratorByRect,
   u_GeoFunc,

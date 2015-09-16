@@ -34,7 +34,6 @@ uses
   i_GeometryLonLatFactory,
   i_GeometryProjectedFactory,
   i_ProjectionSet,
-  i_CoordConverterFactory,
   i_ConfigDataProvider,
   i_LanguageManager,
   i_ValueToStringConverter,

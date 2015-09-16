@@ -27,7 +27,6 @@ uses
   Forms,
   t_GeoTypes,
   i_LanguageManager,
-  i_CoordConverterFactory,
   i_CoordConverterList,
   i_ProjectionSetChangeable,
   i_BitmapLayerProvider,
