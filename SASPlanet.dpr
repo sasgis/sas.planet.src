@@ -217,6 +217,7 @@ uses
   u_LocalCoordConverterFactory in 'Src\CoordConvert\u_LocalCoordConverterFactory.pas',
   u_LocalCoordConverterFactorySimpe in 'Src\CoordConvert\u_LocalCoordConverterFactorySimpe.pas',
   u_ProjConverterFactory in 'Src\CoordConvert\u_ProjConverterFactory.pas',
+  u_ProjectionBasic256x256 in 'Src\CoordConvert\u_ProjectionBasic256x256.pas',
   u_ProjectionInfo in 'Src\CoordConvert\u_ProjectionInfo.pas',
   u_ProjectionInfoFactory in 'Src\CoordConvert\u_ProjectionInfoFactory.pas',
   u_ProjectionSetSimple in 'Src\CoordConvert\u_ProjectionSetSimple.pas',
