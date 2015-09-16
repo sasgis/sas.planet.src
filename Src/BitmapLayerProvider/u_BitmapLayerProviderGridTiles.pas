@@ -69,7 +69,7 @@ type
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AProjectionInfo: IProjection;
+      const AProjection: IProjection;
       const ATile: TPoint
     ): IBitmap32Static;
   public
@@ -290,7 +290,7 @@ end;
 function TBitmapLayerProviderGridTiles.GetTile(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const AProjectionInfo: IProjection;
+  const AProjection: IProjection;
   const ATile: TPoint
 ): IBitmap32Static;
 var
@@ -298,23 +298,23 @@ var
   VGridProjection: IProjection;
 begin
   Result := nil;
-  VGridProjection := GetActualProjection(AProjectionInfo);
+  VGridProjection := GetActualProjection(AProjection);
   if not Assigned(VGridProjection) then begin
     Exit;
   end;
-  VMapRect := AProjectionInfo.TilePos2PixelRect(ATile);
+  VMapRect := AProjection.TilePos2PixelRect(ATile);
 
   FCS.BeginWrite;
   try
     InitBitmap(RectSize(VMapRect));
     FBitmapChangeFlag.CheckFlagAndReset;
     if FShowLines then begin
-      DrawLines(VGridProjection, AProjectionInfo, VMapRect);
+      DrawLines(VGridProjection, AProjection, VMapRect);
     end;
 
     if FShowText then begin
-      if (VGridProjection.Zoom >= AProjectionInfo.Zoom - 2) and (VGridProjection.Zoom <= AProjectionInfo.Zoom + 3) then begin
-        DrawCaptions(AOperationID, ACancelNotifier, VGridProjection, AProjectionInfo, VMapRect);
+      if (VGridProjection.Zoom >= AProjection.Zoom - 2) and (VGridProjection.Zoom <= AProjection.Zoom + 3) then begin
+        DrawCaptions(AOperationID, ACancelNotifier, VGridProjection, AProjection, VMapRect);
       end;
     end;
     if FBitmapChangeFlag.CheckFlagAndReset then begin

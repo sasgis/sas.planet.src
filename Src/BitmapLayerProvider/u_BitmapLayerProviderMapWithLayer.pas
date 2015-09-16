@@ -51,7 +51,7 @@ type
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AProjectionInfo: IProjection;
+      const AProjection: IProjection;
       const ATile: TPoint
     ): IBitmap32Static;
   public
@@ -131,7 +131,7 @@ end;
 function TBitmapLayerProviderMapWithLayer.GetTile(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const AProjectionInfo: IProjection;
+  const AProjection: IProjection;
   const ATile: TPoint
 ): IBitmap32Static;
 var
@@ -156,7 +156,7 @@ begin
       VResult :=
         FMapTypeArray[I].FMapType.LoadTileUni(
           ATile,
-          AProjectionInfo,
+          AProjection,
           FMapTypeArray[I].FVersion,
           VUsePrevZoom,
           True,

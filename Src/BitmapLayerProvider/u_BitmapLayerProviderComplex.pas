@@ -41,7 +41,7 @@ type
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AProjectionInfo: IProjection;
+      const AProjection: IProjection;
       const ATile: TPoint
     ): IBitmap32Static;
   public
@@ -78,7 +78,7 @@ end;
 function TBitmapLayerProviderComplex.GetTile(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const AProjectionInfo: IProjection;
+  const AProjection: IProjection;
   const ATile: TPoint
 ): IBitmap32Static;
 var
@@ -86,8 +86,8 @@ var
   VResultSecond: IBitmap32Static;
   VBitmap: TBitmap32ByStaticBitmap;
 begin
-  VResultFirst := FProviderFrist.GetTile(AOperationID, ACancelNotifier, AProjectionInfo, ATile);
-  VResultSecond := FProviderSecond.GetTile(AOperationID, ACancelNotifier, AProjectionInfo, ATile);
+  VResultFirst := FProviderFrist.GetTile(AOperationID, ACancelNotifier, AProjection, ATile);
+  VResultSecond := FProviderSecond.GetTile(AOperationID, ACancelNotifier, AProjection, ATile);
   if VResultFirst = nil then begin
     Result := VResultSecond;
   end else begin

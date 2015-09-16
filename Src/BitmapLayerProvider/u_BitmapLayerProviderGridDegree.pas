@@ -64,7 +64,7 @@ type
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AProjectionInfo: IProjection;
+      const AProjection: IProjection;
       const ATile: TPoint
     ): IBitmap32Static;
   public
@@ -311,7 +311,7 @@ end;
 function TBitmapLayerProviderGridDegree.GetTile(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const AProjectionInfo: IProjection;
+  const AProjection: IProjection;
   const ATile: TPoint
 ): IBitmap32Static;
 var
@@ -320,15 +320,15 @@ begin
   Result := nil;
   FCS.BeginWrite;
   try
-    VMapRect := AProjectionInfo.TilePos2PixelRect(ATile);
+    VMapRect := AProjection.TilePos2PixelRect(ATile);
     InitBitmap(RectSize(VMapRect));
     FBitmapChangeFlag.CheckFlagAndReset;
     if FShowLines then begin
-      DrawLines(AProjectionInfo, VMapRect);
+      DrawLines(AProjection, VMapRect);
     end;
 
     if FShowText then begin
-      DrawCaptions(AOperationID, ACancelNotifier, AProjectionInfo, VMapRect);
+      DrawCaptions(AOperationID, ACancelNotifier, AProjection, VMapRect);
     end;
     if FBitmapChangeFlag.CheckFlagAndReset then begin
       Result := FBitmapFactory.Build(Types.Point(FBitmap.Width, FBitmap.Height), FBitmap.Bits);

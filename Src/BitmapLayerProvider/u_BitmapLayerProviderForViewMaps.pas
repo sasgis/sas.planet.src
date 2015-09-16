@@ -60,7 +60,7 @@ type
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AProjectionInfo: IProjection;
+      const AProjection: IProjection;
       const ATile: TPoint
     ): IBitmap32Static;
   public
@@ -195,7 +195,7 @@ end;
 function TBitmapLayerProviderForViewMaps.GetTile(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const AProjectionInfo: IProjection;
+  const AProjection: IProjection;
   const ATile: TPoint
 ): IBitmap32Static;
 var
@@ -203,16 +203,16 @@ var
   VPixelRect: TRect;
   i: Integer;
 begin
-  VPixelRect := AProjectionInfo.TilePos2PixelRect(ATile);
-  VTile := AProjectionInfo.PixelRect2TileRect(VPixelRect).TopLeft;
-  Assert(Types.EqualRect(VPixelRect, AProjectionInfo.TilePos2PixelRect(VTile)));
+  VPixelRect := AProjection.TilePos2PixelRect(ATile);
+  VTile := AProjection.PixelRect2TileRect(VPixelRect).TopLeft;
+  Assert(Types.EqualRect(VPixelRect, AProjection.TilePos2PixelRect(VTile)));
 
   Result :=
     GetBitmapByMapType(
       AOperationID,
       ACancelNotifier,
       VTile,
-      AProjectionInfo,
+      AProjection,
       nil,
       FUsePrevZoomAtMap,
       FMainMap
@@ -224,7 +224,7 @@ begin
           AOperationID,
           ACancelNotifier,
           VTile,
-          AProjectionInfo,
+          AProjection,
           Result,
           FUsePrevZoomAtLayer,
           FLayersList.Items[i]

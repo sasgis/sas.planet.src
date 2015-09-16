@@ -48,7 +48,7 @@ type
     FVersion: IMapVersionRequest;
     FUseRelativeZoom: Boolean;
     FZoom: Byte;
-    FProjectionInfo: IProjection;
+    FProjection: IProjection;
     FPolygon: IGeometryLonLatPolygon;
     FProjectedPolygon: IGeometryProjectedPolygon;
     FColorer: IFillingMapColorer;
@@ -76,7 +76,7 @@ type
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AProjectionInfo: IProjection;
+      const AProjection: IProjection;
       const ATile: TPoint
     ): IBitmap32Static;
   public
@@ -134,7 +134,7 @@ begin
   FPolygon := APolygon;
   FColorer := AColorer;
   FProjectedPolygon := nil;
-  FProjectionInfo := nil;
+  FProjection := nil;
 end;
 
 function TBitmapLayerProviderFillingMap.GetActualProjection(
@@ -162,34 +162,34 @@ end;
 function TBitmapLayerProviderFillingMap.GetTile(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const AProjectionInfo: IProjection;
+  const AProjection: IProjection;
   const ATile: TPoint
 ): IBitmap32Static;
 var
   VSourceProjection: IProjection;
   VReprojectPolygon: Boolean;
 begin
-  VSourceProjection := GetActualProjection(AProjectionInfo);
-  if AProjectionInfo.Zoom > VSourceProjection.Zoom then begin
+  VSourceProjection := GetActualProjection(AProjection);
+  if AProjection.Zoom > VSourceProjection.Zoom then begin
     Result := nil;
   end else begin
 
     // prepare projected polygon
     if Assigned(FPolygon) then begin
       VReprojectPolygon := False;
-      if Assigned(FProjectionInfo) then begin
-        if not FProjectionInfo.GetIsSameProjectionInfo(VSourceProjection) then begin
-          FProjectionInfo := VSourceProjection;
+      if Assigned(FProjection) then begin
+        if not FProjection.GetIsSameProjectionInfo(VSourceProjection) then begin
+          FProjection := VSourceProjection;
           VReprojectPolygon := True;
         end;
       end else begin
-        FProjectionInfo := VSourceProjection;
+        FProjection := VSourceProjection;
         VReprojectPolygon := True;
       end;
       if VReprojectPolygon or not Assigned(FProjectedPolygon) then begin
         FProjectedPolygon :=
           FGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-            FProjectionInfo,
+            FProjection,
             FPolygon
           );
       end;
@@ -201,8 +201,8 @@ begin
       GetFillingMapBitmap(
         AOperationID,
         ACancelNotifier,
-        AProjectionInfo,
-        AProjectionInfo.TilePos2PixelRect(ATile),
+        AProjection,
+        AProjection.TilePos2PixelRect(ATile),
         VSourceProjection,
         FProjectedPolygon,
         FVersion,

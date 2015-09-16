@@ -85,7 +85,7 @@ type
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AProjectionInfo: IProjection;
+      const AProjection: IProjection;
       const ATile: TPoint
     ): IBitmap32Static;
   public
@@ -272,7 +272,7 @@ end;
 function TBitmapLayerProviderByTrackPath.GetTile(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const AProjectionInfo: IProjection;
+  const AProjection: IProjection;
   const ATile: TPoint
 ): IBitmap32Static;
 var
@@ -282,21 +282,21 @@ var
 begin
   Result := nil;
   if not FRectIsEmpty then begin
-    VTargetRect := AProjectionInfo.TilePos2PixelRect(ATile);
-    AProjectionInfo.ValidatePixelRect(VTargetRect);
-    VLonLatRect := AProjectionInfo.PixelRect2LonLatRect(VTargetRect);
+    VTargetRect := AProjection.TilePos2PixelRect(ATile);
+    AProjection.ValidatePixelRect(VTargetRect);
+    VLonLatRect := AProjection.PixelRect2LonLatRect(VTargetRect);
     if IsIntersecLonLatRect(FLonLatRect, VLonLatRect) then begin
       VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
       try
-        if not AProjectionInfo.GetIsSameProjectionInfo(FPreparedProjection) then begin
-          PrepareProjectedPoints(AProjectionInfo);
+        if not AProjection.GetIsSameProjectionInfo(FPreparedProjection) then begin
+          PrepareProjectedPoints(AProjection);
         end;
         if
           DrawPath(
             AOperationID,
             ACancelNotifier,
             VBitmap,
-            AProjectionInfo,
+            AProjection,
             VTargetRect,
             FTrackColorer,
             FLineWidth,
