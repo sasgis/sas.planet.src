@@ -60,9 +60,6 @@ type
 
 implementation
 
-uses
-  u_ProjectionInfo;
-
 { TProjectionSetSimple }
 
 constructor TProjectionSetSimple.Create(
@@ -76,12 +73,6 @@ begin
   FHash := AHash;
   FZooms := AZooms;
   FZoomCount := FZooms.Count;
-//  SetLength(FZooms, FZoomCount);
-//  for i := 0 to FZoomCount - 1 do begin
-//    VHash := AGeoConverter.Hash;
-//    AHashFunction.UpdateHashByInteger(VHash, i);
-//    FZooms[i] := TProjectionInfo.Create(VHash, AGeoConverter, i);
-//  end;
 end;
 
 function TProjectionSetSimple.GetHash: THashValue;

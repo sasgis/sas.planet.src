@@ -348,7 +348,6 @@ uses
   u_SatellitesInViewMapDrawSimple,
   u_GPSModuleFactoryByVSAGPS,
   u_GPSPositionFactory,
-  u_ProjectionInfoFactory,
   u_GeoCodePlacemark,
   u_LocalCoordConverterFactorySimpe,
   u_TerrainProviderList,

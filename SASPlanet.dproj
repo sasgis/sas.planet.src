@@ -252,15 +252,10 @@
     <DCCReference Include="Src\CoordConvert\i_ProjectionSet.pas" />
     <DCCReference Include="Src\CoordConvert\i_ProjectionSetChangeable.pas" />
     <DCCReference Include="Src\CoordConvert\i_ProjectionType.pas" />
-    <DCCReference Include="Src\CoordConvert\u_CoordConverterAbstract.pas" />
-    <DCCReference Include="Src\CoordConvert\u_CoordConverterBasic.pas" />
     <DCCReference Include="Src\CoordConvert\u_CoordConverterFactorySimple.pas" />
     <DCCReference Include="Src\CoordConvert\u_CoordConverterListStatic.pas" />
     <DCCReference Include="Src\CoordConvert\u_CoordConverterListStaticSimple.pas" />
-    <DCCReference Include="Src\CoordConvert\u_CoordConverterMercatorOnEllipsoid.pas" />
-    <DCCReference Include="Src\CoordConvert\u_CoordConverterMercatorOnSphere.pas" />
     <DCCReference Include="Src\CoordConvert\u_CoordConverterSimpleByProjectionSet.pas" />
-    <DCCReference Include="Src\CoordConvert\u_CoordConverterSimpleLonLat.pas" />
     <DCCReference Include="Src\CoordConvert\u_Datum.pas" />
     <DCCReference Include="Src\CoordConvert\u_DatumFactory.pas" />
     <DCCReference Include="Src\CoordConvert\u_LocalConverterChangeableOfMiniMap.pas" />
@@ -270,8 +265,6 @@
     <DCCReference Include="Src\CoordConvert\u_LocalCoordConverterFactorySimpe.pas" />
     <DCCReference Include="Src\CoordConvert\u_ProjConverterFactory.pas" />
     <DCCReference Include="Src\CoordConvert\u_ProjectionBasic256x256.pas" />
-    <DCCReference Include="Src\CoordConvert\u_ProjectionInfo.pas" />
-    <DCCReference Include="Src\CoordConvert\u_ProjectionInfoFactory.pas" />
     <DCCReference Include="Src\CoordConvert\u_ProjectionSetSimple.pas" />
     <DCCReference Include="Src\CoordConvert\u_ProjectionTypeBase.pas" />
     <DCCReference Include="Src\CoordConvert\u_ProjectionTypeGELonLat.pas" />
