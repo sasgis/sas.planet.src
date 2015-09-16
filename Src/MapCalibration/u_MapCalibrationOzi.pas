@@ -41,7 +41,7 @@ type
       const AFileName: WideString;
       const ATopLeft: TPoint;
       const ABottomRight: TPoint;
-      const AProjection: IProjectionInfo
+      const AProjection: IProjection
     ); safecall;
   public
     constructor Create;
@@ -85,7 +85,7 @@ procedure TMapCalibrationOzi.SaveCalibrationInfo(
   const AFileName: WideString;
   const ATopLeft: TPoint;
   const ABottomRight: TPoint;
-  const AProjection: IProjectionInfo
+  const AProjection: IProjection
 );
 
   function GetDegrees(const ACoord: Double): AnsiString;

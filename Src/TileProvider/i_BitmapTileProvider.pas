@@ -31,8 +31,8 @@ uses
 type
   IBitmapTileProvider = interface
     ['{88ACB3F9-FDEE-4451-89A0-EA24133E2DB5}']
-    function GetProjectionInfo: IProjectionInfo;
-    property ProjectionInfo: IProjectionInfo read GetProjectionInfo;
+    function GetProjectionInfo: IProjection;
+    property ProjectionInfo: IProjection read GetProjectionInfo;
 
     function GetTile(
       AOperationID: Integer;

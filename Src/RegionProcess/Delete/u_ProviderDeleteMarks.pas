@@ -103,7 +103,7 @@ end;
 
 procedure TProviderDeleteMarks.StartProcess(const APolygon: IGeometryLonLatPolygon);
 var
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VProjectedPolygon: IGeometryProjectedPolygon;
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VThread: TThread;

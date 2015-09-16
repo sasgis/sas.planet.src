@@ -258,8 +258,8 @@ procedure TTiledMapLayer.PaintLayerFromTileMatrix(
 );
 var
   VTileRectInClipRect: TRect;
-  VProjectionDst: IProjectionInfo;
-  VProjectionSrc: IProjectionInfo;
+  VProjectionDst: IProjection;
+  VProjectionSrc: IProjection;
   VSameProjection: Boolean;
   VTileIterator: TTileIteratorByRectRecord;
   VTile: TPoint;

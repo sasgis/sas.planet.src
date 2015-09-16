@@ -39,7 +39,7 @@ type
   private
     FTileStorage: ITileStorage;
     FVersion: IMapVersionInfo;
-    FProjection: IProjectionInfo;
+    FProjection: IProjection;
     FPolyProjected: IGeometryProjectedPolygon;
     FFileName: string;
     FZoom: Byte;
@@ -51,7 +51,7 @@ type
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: IGeometryLonLatPolygon;
       const AProjectedPolygon: IGeometryProjectedPolygon;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const ATileStorage: ITileStorage;
       const AVersion: IMapVersionInfo;
       const AFileName: string
@@ -74,7 +74,7 @@ constructor TThreadExportToAUX.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: IGeometryLonLatPolygon;
   const AProjectedPolygon: IGeometryProjectedPolygon;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const ATileStorage: ITileStorage;
   const AVersion: IMapVersionInfo;
   const AFileName: string

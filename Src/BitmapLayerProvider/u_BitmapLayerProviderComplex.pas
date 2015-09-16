@@ -41,7 +41,7 @@ type
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AProjectionInfo: IProjectionInfo;
+      const AProjectionInfo: IProjection;
       const ATile: TPoint
     ): IBitmap32Static;
   public
@@ -78,7 +78,7 @@ end;
 function TBitmapLayerProviderComplex.GetTile(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const AProjectionInfo: IProjectionInfo;
+  const AProjectionInfo: IProjection;
   const ATile: TPoint
 ): IBitmap32Static;
 var

@@ -32,16 +32,16 @@ type
   TTileKey = class(TBaseInterfacedObject, ITileKey)
   private
     FTile: TPoint;
-    FProjectionInfo: IProjectionInfo;
+    FProjectionInfo: IProjection;
   private
     function GetTile: TPoint;
     function GetZoom: Byte;
-    function GetProjectionInfo: IProjectionInfo;
+    function GetProjectionInfo: IProjection;
 
     function IsSame(const AValue: ITileKey): Boolean;
   public
     constructor Create(
-      const AProjectionInfo: IProjectionInfo;
+      const AProjectionInfo: IProjection;
       const ATile: TPoint
     );
   end;
@@ -51,7 +51,7 @@ implementation
 { TTileKey }
 
 constructor TTileKey.Create(
-  const AProjectionInfo: IProjectionInfo;
+  const AProjectionInfo: IProjection;
   const ATile: TPoint
 );
 begin
@@ -62,7 +62,7 @@ begin
   FProjectionInfo := AProjectionInfo;
 end;
 
-function TTileKey.GetProjectionInfo: IProjectionInfo;
+function TTileKey.GetProjectionInfo: IProjection;
 begin
   Result := FProjectionInfo;
 end;

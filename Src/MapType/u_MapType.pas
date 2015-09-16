@@ -155,7 +155,7 @@ type
     ): IVectorItemSubset;
     function LoadTileUni(
       const AXY: TPoint;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const AVersion: IMapVersionRequest;
       AUsePre, AAllowPartial, IgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
@@ -169,7 +169,7 @@ type
     ): IBitmap32Static;
     function LoadBitmapUni(
       const APixelRectTarget: TRect;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const AVersion: IMapVersionRequest;
       AUsePre, AAllowPartial, IgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
@@ -736,8 +736,8 @@ var
   VSourceTilePixelRect: TRect;
   VRelative: TDoublePoint;
   VRelativeRect: TDoubleRect;
-  VProjection: IProjectionInfo;
-  VParentProjection: IProjectionInfo;
+  VProjection: IProjection;
+  VParentProjection: IProjection;
   VMinZoom: Integer;
   VBitmap: TBitmap32ByStaticBitmap;
   VResampler: TCustomResampler;
@@ -829,7 +829,7 @@ function TMapType.LoadBitmap(
   const ACache: ITileObjCacheBitmap
 ): IBitmap32Static;
 var
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VPixelRectTarget: TRect;
   VTileRect: TRect;
   VTargetImageSize: TPoint;
@@ -939,14 +939,14 @@ end;
 
 function TMapType.LoadBitmapUni(
   const APixelRectTarget: TRect;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const AVersion: IMapVersionRequest;
   AUsePre, AAllowPartial, IgnoreError: Boolean;
   const ACache: ITileObjCacheBitmap
 ): IBitmap32Static;
 var
   VPixelRectTarget: TRect;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VLonLatRectTarget: TDoubleRect;
   VTileRectInSource: TRect;
   VPixelRectOfTargetPixelRectInSource: TRect;
@@ -1007,7 +1007,7 @@ end;
 
 function TMapType.LoadTileUni(
   const AXY: TPoint;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const AVersion: IMapVersionRequest;
   AUsePre, AAllowPartial, IgnoreError: Boolean;
   const ACache: ITileObjCacheBitmap

@@ -63,7 +63,7 @@ type
     //FSqlite3: PSQLite3;
     FProjectionSetFactory: IProjectionSetFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-    procedure WritePListFile(const AProjection: IProjectionInfo);
+    procedure WritePListFile(const AProjection: IProjection);
     procedure WriteTileToSQLite3(
       const ASQLite3DbHandler: PSQLite3DbHandler;
       const AXY: TPoint;
@@ -170,7 +170,7 @@ begin
   ASQLite3DbHandler^.ExecSQLWithBLOB(s, AData.Buffer, AData.Size);
 end;
 
-procedure TThreadExportIPhone.WritePListFile(const AProjection: IProjectionInfo);
+procedure TThreadExportIPhone.WritePListFile(const AProjection: IProjection);
 var
   PList: Text;
   VLLCenter: TDoublePoint;
@@ -200,7 +200,7 @@ var
   VZoom: byte;
   i, j, xi, yi, hxyi, sizeim: integer;
   VProjectionSet: IProjectionSet;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VTile: TPoint;
   VBitmapTile: IBitmap32Static;
   Vbmp32crop: TCustomBitmap32;

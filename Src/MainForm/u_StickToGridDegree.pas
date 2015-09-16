@@ -35,11 +35,11 @@ type
     FConfig: IDegreeGridConfig;
   private
     function PointStick(
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const ASourceLonLat: TDoublePoint
     ): TDoublePoint;
     function RectStick(
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const ASourceRect: TDoubleRect
     ): TDoubleRect; 
   public
@@ -64,7 +64,7 @@ begin
 end;
 
 function TStickToGridDegree.PointStick(
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const ASourceLonLat: TDoublePoint
 ): TDoublePoint;
 var
@@ -95,7 +95,7 @@ begin
 end;
 
 function TStickToGridDegree.RectStick(
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const ASourceRect: TDoubleRect
 ): TDoubleRect;
 var

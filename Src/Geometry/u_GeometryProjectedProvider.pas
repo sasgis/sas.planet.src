@@ -26,11 +26,11 @@ type
     ): IInterface;
   private
     function GetProjectedPath(
-      const AProjectionInfo: IProjectionInfo;
+      const AProjectionInfo: IProjection;
       const ALine: IGeometryLonLatLine
     ): IGeometryProjectedLine;
     function GetProjectedPolygon(
-      const AProjectionInfo: IProjectionInfo;
+      const AProjectionInfo: IProjection;
       const ALine: IGeometryLonLatPolygon
     ): IGeometryProjectedPolygon;
   public
@@ -53,7 +53,7 @@ type
   TDataRecord = record
     Path: IGeometryLonLatLine;
     Polygon: IGeometryLonLatPolygon;
-    ProjectionInfo: IProjectionInfo;
+    ProjectionInfo: IProjection;
   end;
 
 
@@ -90,7 +90,7 @@ var
   VData: PDataRecord;
   VResultPath: IGeometryProjectedLine;
   VResultPolygon: IGeometryProjectedPolygon;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VTestArrLenLonLatRect: TDoubleRect;
   VTestArrLenPixelRect: TDoubleRect;
 begin
@@ -137,7 +137,7 @@ begin
 end;
 
 function TGeometryProjectedProvider.GetProjectedPath(
-  const AProjectionInfo: IProjectionInfo;
+  const AProjectionInfo: IProjection;
   const ALine: IGeometryLonLatLine
 ): IGeometryProjectedLine;
 var
@@ -155,7 +155,7 @@ begin
 end;
 
 function TGeometryProjectedProvider.GetProjectedPolygon(
-  const AProjectionInfo: IProjectionInfo;
+  const AProjectionInfo: IProjection;
   const ALine: IGeometryLonLatPolygon
 ): IGeometryProjectedPolygon;
 var

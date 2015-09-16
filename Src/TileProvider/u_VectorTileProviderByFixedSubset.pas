@@ -41,7 +41,7 @@ type
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AProjectionInfo: IProjectionInfo;
+      const AProjectionInfo: IProjection;
       const ATile: TPoint
     ): IVectorItemSubset;
   public
@@ -86,7 +86,7 @@ end;
 function TVectorTileProviderByFixedSubset.GetTile(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const AProjectionInfo: IProjectionInfo;
+  const AProjectionInfo: IProjection;
   const ATile: TPoint
 ): IVectorItemSubset;
 var

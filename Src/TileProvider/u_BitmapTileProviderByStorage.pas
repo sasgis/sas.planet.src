@@ -39,7 +39,7 @@ uses
 type
   TBitmapTileProviderByStorage = class(TBaseInterfacedObject, IBitmapTileProvider)
   private
-    FProjectionInfo: IProjectionInfo;
+    FProjectionInfo: IProjection;
     FVersion: IMapVersionRequest;
     FLoaderFromStorage: IBitmapTileLoader;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
@@ -47,7 +47,7 @@ type
     FIsIgnoreError: Boolean;
     FImageResampler: IImageResamplerFactoryChangeable;
   private
-    function GetProjectionInfo: IProjectionInfo;
+    function GetProjectionInfo: IProjection;
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
@@ -60,7 +60,7 @@ type
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AVersionConfig: IMapVersionRequest;
       const ALoaderFromStorage: IBitmapTileLoader;
-      const AProjectionInfo: IProjectionInfo;
+      const AProjectionInfo: IProjection;
       const AStorage: ITileStorage
     );
   end;
@@ -81,7 +81,7 @@ constructor TBitmapTileProviderByStorage.Create(
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AVersionConfig: IMapVersionRequest;
   const ALoaderFromStorage: IBitmapTileLoader;
-  const AProjectionInfo: IProjectionInfo;
+  const AProjectionInfo: IProjection;
   const AStorage: ITileStorage
 );
 begin
@@ -102,7 +102,7 @@ begin
   FLoaderFromStorage := ALoaderFromStorage;
 end;
 
-function TBitmapTileProviderByStorage.GetProjectionInfo: IProjectionInfo;
+function TBitmapTileProviderByStorage.GetProjectionInfo: IProjection;
 begin
   Result := FProjectionInfo;
 end;

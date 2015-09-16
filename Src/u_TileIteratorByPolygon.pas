@@ -43,7 +43,7 @@ type
     FMultiProjected: IGeometryProjectedMultiPolygon;
     // кэш куска
     FLastUsedLine: IGeometryProjectedSinglePolygon;
-    FProjection: IProjectionInfo;
+    FProjection: IProjection;
   private
     function GetTilesTotal: Int64;
     function GetTilesRect: ITileRect;
@@ -53,7 +53,7 @@ type
     function InternalIntersectPolygon(const ARect: TDoubleRect): Boolean;
   public
     constructor Create(
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const AProjected: IGeometryProjectedPolygon
     );
   end;
@@ -69,7 +69,7 @@ uses
 { TTileIteratorByPolygon }
 
 constructor TTileIteratorByPolygon.Create(
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const AProjected: IGeometryProjectedPolygon
 );
 var

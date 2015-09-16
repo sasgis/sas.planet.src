@@ -75,7 +75,7 @@ type
     ): IVectorItemSubset;
     function LoadTileUni(
       const AXY: TPoint;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const AVersion: IMapVersionRequest;
       AUsePre, AAllowPartial, IgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
@@ -89,7 +89,7 @@ type
     ): IBitmap32Static;
     function LoadBitmapUni(
       const APixelRectTarget: TRect;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const AVersion: IMapVersionRequest;
       AUsePre, AAllowPartial, IgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil

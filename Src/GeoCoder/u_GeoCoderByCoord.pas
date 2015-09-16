@@ -801,7 +801,7 @@ var
   VZoom: Integer;
   VZoomUsed: Byte;
   FProjectionSet: IProjectionSet;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VXYPoint:TPoint;
   VXYRect:TRect;
   ViLat, ViLon: Integer;

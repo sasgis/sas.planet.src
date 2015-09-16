@@ -241,7 +241,7 @@ procedure TWindowLayerScaleLineVertical.GetMetersPerLine(
 var
   VStartLonLat, VFinishLonLat: TDoublePoint;
   VCenterPixelXY, VFinishPixelXY: TDoublePoint;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
 begin
   VProjection := AVisualCoordConverter.ProjectionInfo;
 
@@ -275,7 +275,7 @@ var
   VStartLonLat, VFinishLonLat: TDoublePoint;
   VCenterPixelXY: TPoint;
   VFinishPixelXY: TDoublePoint;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VHeight: Integer;
   VFullLenght: Double;
 begin

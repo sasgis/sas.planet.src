@@ -110,7 +110,7 @@ end;
 
 procedure TThreadMapCombineBase.ProcessRegion;
 var
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   i, j, pti: integer;
   VProcessTiles: Int64;
   VTileRect: TRect;

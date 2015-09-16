@@ -36,7 +36,7 @@ type
   private
     FMatrix: IVectorTileMatrix;
   private
-    function GetProjectionInfo: IProjectionInfo;
+    function GetProjectionInfo: IProjection;
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
@@ -61,7 +61,7 @@ begin
   FMatrix := AMatrix;
 end;
 
-function TVectorTileProviderByMatrix.GetProjectionInfo: IProjectionInfo;
+function TVectorTileProviderByMatrix.GetProjectionInfo: IProjection;
 begin
   Result := FMatrix.TileRect.ProjectionInfo;
 end;

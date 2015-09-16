@@ -40,7 +40,7 @@ type
     FEmptyTile: IBitmap32Static;
     FBackGroundColor: TColor32;
   private
-    function GetProjectionInfo: IProjectionInfo;
+    function GetProjectionInfo: IProjection;
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
@@ -93,7 +93,7 @@ begin
   Assert(FSourceProvider <> nil);
 end;
 
-function TBitmapTileProviderWithBGColor.GetProjectionInfo: IProjectionInfo;
+function TBitmapTileProviderWithBGColor.GetProjectionInfo: IProjection;
 begin
   Result := FSourceProvider.ProjectionInfo;
 end;

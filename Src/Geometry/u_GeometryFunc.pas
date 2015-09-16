@@ -13,7 +13,7 @@ uses
 
 function GetGeometryLonLatNearestPoint(
   const AGeometry: IGeometryLonLat;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const ACurrMapPixel: TDoublePoint;
   const AMaxDistInMapPixel: Double
 ): TDoublePoint;
@@ -78,7 +78,7 @@ uses
 
 function GetGeometryLonLatPointNearestPoint(
   const AGeometry: IGeometryLonLatPoint;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const ACurrMapPixel: TDoublePoint;
   out APoint: TDoublePoint;
   out ADist: Double
@@ -104,7 +104,7 @@ end;
 
 function GetGeometryLonLatLineNearestPoint(
   const AGeometry: IGeometryLonLatSingleLine;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const ACurrMapPixel: TDoublePoint;
   out APoint: TDoublePoint;
   out ADist: Double
@@ -143,7 +143,7 @@ end;
 
 function GetGeometryLonLatContourNearestPoint(
   const AGeometry: IGeometryLonLatContour;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const ACurrMapPixel: TDoublePoint;
   out APoint: TDoublePoint;
   out ADist: Double
@@ -182,7 +182,7 @@ end;
 
 function GetGeometryLonLatPolygonNearestPoint(
   const AGeometry: IGeometryLonLatSinglePolygon;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const ACurrMapPixel: TDoublePoint;
   out APoint: TDoublePoint;
   out ADist: Double
@@ -230,7 +230,7 @@ end;
 
 function GetGeometryLonLatMultiLineNearestPoint(
   const AGeometry: IGeometryLonLatMultiLine;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const ACurrMapPixel: TDoublePoint;
   out APoint: TDoublePoint;
   out ADist: Double
@@ -261,7 +261,7 @@ end;
 
 function GetGeometryLonLatMultiPolygonNearestPoint(
   const AGeometry: IGeometryLonLatMultiPolygon;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const ACurrMapPixel: TDoublePoint;
   out APoint: TDoublePoint;
   out ADist: Double
@@ -292,7 +292,7 @@ end;
 
 function GetGeometryLonLatNearestPoint(
   const AGeometry: IGeometryLonLat;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const ACurrMapPixel: TDoublePoint;
   const AMaxDistInMapPixel: Double
 ): TDoublePoint;

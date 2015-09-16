@@ -33,8 +33,8 @@ type
     function GetLonLat: TDoublePoint;
     property LonLat: TDoublePoint read GetLonLat;
 
-    function GetProjection: IProjectionInfo;
-    property Projection: IProjectionInfo read GetProjection;
+    function GetProjection: IProjection;
+    property Projection: IProjection read GetProjection;
 
     function GetGotoTime: TDateTime;
     property GotoTime: TDateTime read GetGotoTime;
@@ -48,7 +48,7 @@ type
     );
     procedure GotoPos(
       const ALonLat: TDoublePoint;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const AshowMarker: Boolean
     );
     procedure FitRectToScreen(

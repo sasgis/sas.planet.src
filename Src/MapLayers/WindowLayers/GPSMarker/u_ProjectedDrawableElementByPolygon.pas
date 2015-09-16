@@ -34,19 +34,19 @@ uses
 type
   TProjectedDrawableElementByPolygonSimpleEdge = class(TBaseInterfacedObject, IProjectedDrawableElement)
   private
-    FProjection: IProjectionInfo;
+    FProjection: IProjection;
     FSource: IGeometryProjectedPolygon;
     FColor: TColor32;
     FAntialiasMode: TAntialiasMode;
   private
-    function GetProjectionInfo: IProjectionInfo;
+    function GetProjectionInfo: IProjection;
     procedure Draw(
       ABitmap: TCustomBitmap32;
       const ALocalConverter: ILocalCoordConverter
     );
   public
     constructor Create(
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const ASource: IGeometryProjectedPolygon;
       const AAntialiasMode: TAntialiasMode;
       const AColor: TColor32
@@ -64,7 +64,7 @@ uses
 { TProjectedDrawableElementByPolygonSimpleEdge }
 
 constructor TProjectedDrawableElementByPolygonSimpleEdge.Create(
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const ASource: IGeometryProjectedPolygon;
   const AAntialiasMode: TAntialiasMode;
   const AColor: TColor32
@@ -132,7 +132,7 @@ begin
   end;
 end;
 
-function TProjectedDrawableElementByPolygonSimpleEdge.GetProjectionInfo: IProjectionInfo;
+function TProjectedDrawableElementByPolygonSimpleEdge.GetProjectionInfo: IProjection;
 begin
   Result := FProjection;
 end;

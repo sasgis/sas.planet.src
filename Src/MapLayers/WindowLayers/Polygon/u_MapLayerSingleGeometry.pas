@@ -125,7 +125,7 @@ type
   private
     FSource: IGeometryLonLatLineChangeable;
     FPrevLine: IGeometryLonLatLine;
-    FProjection: IProjectionInfo;
+    FProjection: IProjection;
     FProjectedLine: IGeometryProjectedLine;
     FLocalConverter: ILocalCoordConverter;
     FPolygon: IDrawablePolygon;
@@ -157,7 +157,7 @@ type
     FFillVisible: Boolean;
 
     FPrevLine: IGeometryLonLatPolygon;
-    FProjection: IProjectionInfo;
+    FProjection: IProjection;
     FProjectedLine: IGeometryProjectedPolygon;
     FLocalConverter: ILocalCoordConverter;
     FPolygonBorder: IDrawablePolygon;
@@ -329,7 +329,7 @@ procedure TMapLayerSingleLine.PaintLayer(
 );
 var
   VLonLatLine: IGeometryLonLatLine;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VProjectedLine: IGeometryProjectedLine;
   VLocalConverter: ILocalCoordConverter;
   VDrawablePolygon: IDrawablePolygon;
@@ -617,7 +617,7 @@ procedure TMapLayerSinglePolygon.PaintLayer(
 );
 var
   VLonLatLine: IGeometryLonLatPolygon;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VProjectedLine: IGeometryProjectedPolygon;
   VDrawablePolygonFill: IDrawablePolygon;
   VDrawablePolygonBorder: IDrawablePolygon;

@@ -376,7 +376,7 @@ var
   VTileRectUpdated: TRect;
   VLonLatRectUpdated: ILonLatRect;
   VLonLatRectAtMap: TDoubleRect;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VTileRectToUpdate: TRect;
   VTileRect: ITileRect;
   VCounter: Integer;

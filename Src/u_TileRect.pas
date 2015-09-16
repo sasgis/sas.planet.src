@@ -32,7 +32,7 @@ type
   TTileRect = class(TBaseInterfacedObject, ITileRect)
   private
     FRect: TRect;
-    FProjectionInfo: IProjectionInfo;
+    FProjectionInfo: IProjection;
   private
     function GetLeft: Integer;
     function GetTop: Integer;
@@ -42,7 +42,7 @@ type
     function GetBottomRight: TPoint;
     function GetRect: TRect;
     function GetZoom: Byte;
-    function GetProjectionInfo: IProjectionInfo;
+    function GetProjectionInfo: IProjection;
 
     function IsEqual(const ARect: TRect): Boolean; overload;
     function IsEqual(const ARect: ITileRect): Boolean; overload;
@@ -61,7 +61,7 @@ type
     function IsIntersecWithRect(const ARect: ITileRect): Boolean; overload;
   public
     constructor Create(
-      const AProjectionInfo: IProjectionInfo;
+      const AProjectionInfo: IProjection;
       const ARect: TRect
     );
   end;
@@ -71,7 +71,7 @@ implementation
 { TTileRect }
 
 constructor TTileRect.Create(
-  const AProjectionInfo: IProjectionInfo;
+  const AProjectionInfo: IProjection;
   const ARect: TRect
 );
 begin
@@ -97,7 +97,7 @@ begin
   Result := FRect.Left;
 end;
 
-function TTileRect.GetProjectionInfo: IProjectionInfo;
+function TTileRect.GetProjectionInfo: IProjection;
 begin
   Result := FProjectionInfo;
 end;

@@ -37,7 +37,7 @@ type
     FRecolorConfig: IBitmapPostProcessing;
     FSourceProvider: IBitmapTileProvider;
   private
-    function GetProjectionInfo: IProjectionInfo;
+    function GetProjectionInfo: IProjection;
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
@@ -66,7 +66,7 @@ begin
   FRecolorConfig := ARecolorConfig;
 end;
 
-function TBitmapTileProviderWithRecolor.GetProjectionInfo: IProjectionInfo;
+function TBitmapTileProviderWithRecolor.GetProjectionInfo: IProjection;
 begin
   Result := FSourceProvider.ProjectionInfo;
 end;

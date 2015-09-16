@@ -40,7 +40,7 @@ type
   TThreadDeleteTiles = class(TThreadRegionProcessAbstract)
   private
     FZoom: byte;
-    FProjection: IProjectionInfo;
+    FProjection: IProjection;
     FTileStorage: ITileStorage;
     FVersion: IMapVersionRequest;
     FPolyProjected: IGeometryProjectedPolygon;
@@ -55,7 +55,7 @@ type
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolyLL: IGeometryLonLatPolygon;
       const AProjectedPolygon: IGeometryProjectedPolygon;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const ATileStorage: ITileStorage;
       const AVersion: IMapVersionRequest;
       const APredicate: IPredicateByTileInfo
@@ -74,7 +74,7 @@ constructor TThreadDeleteTiles.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolyLL: IGeometryLonLatPolygon;
   const AProjectedPolygon: IGeometryProjectedPolygon;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const ATileStorage: ITileStorage;
   const AVersion: IMapVersionRequest;
   const APredicate: IPredicateByTileInfo

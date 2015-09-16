@@ -30,11 +30,11 @@ type
   IStickToGrid = interface
     ['{D6564C11-A30F-4A17-9391-54699060FF04}']
     function PointStick(
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const ASourceLonLat: TDoublePoint
     ): TDoublePoint;
     function RectStick(
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const ASourceRect: TDoubleRect
     ): TDoubleRect;
   end;

@@ -548,7 +548,7 @@ var
   VSize: TPoint;
   VRad: Extended;
   VPixelsAtZoom: Double;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMapPixel: TDoublePoint;
   VTilePosFloat: TDoublePoint;
   VTilePos: TPoint;

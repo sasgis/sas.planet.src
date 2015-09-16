@@ -51,7 +51,7 @@ type
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const ATile: TPoint;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const ASource: IBitmap32Static;
       AUsePrevZoom: Boolean;
       const AMapType: IMapType
@@ -60,7 +60,7 @@ type
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AProjectionInfo: IProjectionInfo;
+      const AProjectionInfo: IProjection;
       const ATile: TPoint
     ): IBitmap32Static;
   public
@@ -114,7 +114,7 @@ function TBitmapLayerProviderForViewMaps.GetBitmapByMapType(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const ATile: TPoint;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const ASource: IBitmap32Static;
   AUsePrevZoom: Boolean;
   const AMapType: IMapType
@@ -195,7 +195,7 @@ end;
 function TBitmapLayerProviderForViewMaps.GetTile(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const AProjectionInfo: IProjectionInfo;
+  const AProjectionInfo: IProjection;
   const ATile: TPoint
 ): IBitmap32Static;
 var

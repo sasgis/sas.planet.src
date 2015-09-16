@@ -39,7 +39,7 @@ type
     FImageProvider: IBitmapTileProvider;
     FBytesPerPixel: Integer;
 
-    FProjection: IProjectionInfo;
+    FProjection: IProjection;
     FPreparedTileRect: TRect;
     FPreparedMapRect: TRect;
     FPreparedData: array of Pointer;

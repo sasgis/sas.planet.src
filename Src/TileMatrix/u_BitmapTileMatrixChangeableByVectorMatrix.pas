@@ -254,7 +254,7 @@ var
   VTileIterator: ITileIterator;
   VSourceMatrix: IVectorTileMatrix;
   VTile: TPoint;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VCounterContext: TInternalPerformanceCounterContext;
   VBitmap: IBitmap32Static;
   VSourceItem: IVectorItemSubset;

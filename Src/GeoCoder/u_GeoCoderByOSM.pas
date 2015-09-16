@@ -166,7 +166,7 @@ function TGeoCoderByOSM.PrepareRequest(
 ): IDownloadRequest;
 var
   VSearch: String;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMapRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
 begin

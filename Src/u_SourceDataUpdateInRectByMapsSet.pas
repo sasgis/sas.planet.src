@@ -227,10 +227,10 @@ procedure TSourceDataUpdateInRectByMapsSet._SetListeners(
 var
   i: Integer;
   VMap: IMapType;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VTileRect: TRect;
   VLonLatRect: TDoubleRect;
-  VMapProjection: IProjectionInfo;
+  VMapProjection: IProjection;
   VMapLonLatRect: TDoubleRect;
   VNotifier: INotifierTilePyramidUpdate;
 begin

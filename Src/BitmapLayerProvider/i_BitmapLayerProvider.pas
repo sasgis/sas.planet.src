@@ -34,7 +34,7 @@ type
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AProjectionInfo: IProjectionInfo;
+      const AProjection: IProjection;
       const ATile: TPoint
     ): IBitmap32Static;
   end;

@@ -335,7 +335,7 @@ procedure TUiTileDownload.DoProcessDownloadRequests(
 var
   VTile: TPoint;
   VTileRect: ITileRect;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMapTileRect: TRect;
   VDownloadTileRect: ITileRect;
   VZoom: Byte;

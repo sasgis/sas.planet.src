@@ -61,7 +61,7 @@ type
       const ABitmapSaver: IBitmapTileSaver
     ): IBinaryData;
     procedure SaveOziCalibrationMap(
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const APixelRect: TRect
     );
   protected
@@ -133,7 +133,7 @@ begin
 end;
 
 procedure TThreadExportToOgf2.SaveOziCalibrationMap(
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const APixelRect: TRect
 );
 var
@@ -203,7 +203,7 @@ var
   VWriter: TOgf2Writer;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VProjected: IGeometryProjectedPolygon;
   VLine: IGeometryProjectedSinglePolygon;
   VBounds: TDoubleRect;

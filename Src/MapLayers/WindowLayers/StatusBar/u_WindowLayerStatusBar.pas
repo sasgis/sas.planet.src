@@ -326,8 +326,8 @@ var
   VRad: Extended;
   VTile: TPoint;
   VMapType: IMapType;
-  VProjection: IProjectionInfo;
-  VMapProjection: IProjectionInfo;
+  VProjection: IProjection;
+  VMapProjection: IProjection;
   VPixelsAtZoom: Double;
   VCurrentTick: DWORD;
   VMousePos: TPoint;

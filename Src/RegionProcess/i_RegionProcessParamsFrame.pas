@@ -70,8 +70,8 @@ type
 
   IRegionProcessParamsFrameTargetProjection = interface(IRegionProcessParamsFrameBase)
     ['{F0FACC2E-C686-4282-99A1-E5E2F1F5CE2D}']
-    function GetProjection: IProjectionInfo;
-    property Projection: IProjectionInfo read GetProjection;
+    function GetProjection: IProjection;
+    property Projection: IProjection read GetProjection;
   end;
 
   IRegionProcessParamsFrameMapCalibrationList = interface(IRegionProcessParamsFrameBase)

@@ -162,7 +162,7 @@ var
   VMapCalibrations: IMapCalibrationList;
   VFileName: string;
   VSplitCount: TPoint;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VProjectedPolygon: IGeometryProjectedPolygon;
   VImageProvider: IBitmapTileProvider;
   VProgressInfo: IRegionProcessProgressInfoInternal;

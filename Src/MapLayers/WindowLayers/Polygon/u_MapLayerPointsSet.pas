@@ -46,14 +46,14 @@ type
     FNormalPointMarker: IMarkerDrawableChangeable;
 
     FNeedUpdatePoints: Boolean;
-    FProjection: IProjectionInfo;
+    FProjection: IProjection;
     FProjectedPoints: IDoublePointsAggregator;
     FActivePointIndex: Integer;
     procedure OnConfigChange;
   protected
     procedure ChangedSource;
     procedure PreparePoints(
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       out AProjectedPoints: IDoublePointsAggregator;
       out AActivePointIndex: Integer
     ); virtual; abstract;
@@ -84,7 +84,7 @@ type
     procedure OnLineChange;
   protected
     procedure PreparePoints(
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       out AProjectedPoints: IDoublePointsAggregator;
       out AActivePointIndex: Integer
     ); override;
@@ -110,7 +110,7 @@ type
     procedure OnLineChange;
   protected
     procedure PreparePoints(
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       out AProjectedPoints: IDoublePointsAggregator;
       out AActivePointIndex: Integer
     ); override;
@@ -199,7 +199,7 @@ procedure TMapLayerPointsSetBase.PaintLayer(
   const ALocalConverter: ILocalCoordConverter
 );
 var
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VPoints: IDoublePointsAggregator;
   VActiveIndex: Integer;
   VNeedUpdatePoints: Boolean;
@@ -324,7 +324,7 @@ begin
 end;
 
 procedure PrepareSingleLine(
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const AGeometry: IGeometryLonLatSingleLine;
   const ASourceActivePointIndex: Integer;
   const AProjectedPoints: IDoublePointsAggregator;
@@ -365,7 +365,7 @@ begin
 end;
 
 procedure PrepareMultiLine(
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const AGeometry: IGeometryLonLatMultiLine;
   const ASourceActivePointIndex: Integer;
   const AProjectedPoints: IDoublePointsAggregator;
@@ -388,7 +388,7 @@ begin
 end;
 
 procedure PrepareLine(
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const AGeometry: IGeometryLonLatLine;
   const ASourceActivePointIndex: Integer;
   const AProjectedPoints: IDoublePointsAggregator;
@@ -421,7 +421,7 @@ begin
 end;
 
 procedure PrepareContour(
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const AGeometry: IGeometryLonLatContour;
   const ASourceActivePointIndex: Integer;
   const AProjectedPoints: IDoublePointsAggregator;
@@ -462,7 +462,7 @@ begin
 end;
 
 procedure PrepareSinglePolygon(
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const AGeometry: IGeometryLonLatSinglePolygon;
   const ASourceActivePointIndex: Integer;
   const AProjectedPoints: IDoublePointsAggregator;
@@ -493,7 +493,7 @@ begin
 end;
 
 procedure PrepareMultiPolygon(
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const AGeometry: IGeometryLonLatMultiPolygon;
   const ASourceActivePointIndex: Integer;
   const AProjectedPoints: IDoublePointsAggregator;
@@ -516,7 +516,7 @@ begin
 end;
 
 procedure PreparePolygon(
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const AGeometry: IGeometryLonLatPolygon;
   const ASourceActivePointIndex: Integer;
   const AProjectedPoints: IDoublePointsAggregator;
@@ -549,7 +549,7 @@ begin
 end;
 
 procedure TMapLayerPointsSetByPathEdit.PreparePoints(
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   out AProjectedPoints: IDoublePointsAggregator;
   out AActivePointIndex: Integer
 );
@@ -626,7 +626,7 @@ begin
 end;
 
 procedure TMapLayerPointsSetByPolygonEdit.PreparePoints(
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   out AProjectedPoints: IDoublePointsAggregator;
   out AActivePointIndex: Integer
 );

@@ -187,8 +187,8 @@ procedure TBitmapTileMatrixBuilder.SetRect(
   const ATileRect: ITileRect
 );
 var
-  VProjectionNew: IProjectionInfo;
-  VProjectionOld: IProjectionInfo;
+  VProjectionNew: IProjection;
+  VProjectionOld: IProjection;
   VTileRect: TRect;
   VIntersectRect: TRect;
   VOldItems: IInterfaceListStatic;

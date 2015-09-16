@@ -141,7 +141,7 @@ function TGeoCoderByYandex.PrepareRequest(
 ): IDownloadRequest;
 var
   VSearch: string;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMapRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
 begin

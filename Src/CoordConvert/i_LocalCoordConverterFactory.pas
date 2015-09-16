@@ -33,17 +33,17 @@ type
     ['{7CD24832-CA4B-4C8D-AE33-C7B647695629}']
     function CreateNoScaleIntDelta(
       const ALocalRect: TRect;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const AMapPixelAtLocalZero: TPoint
     ): ILocalCoordConverter;
     function CreateNoScale(
       const ALocalRect: TRect;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const AMapPixelAtLocalZero: TDoublePoint
     ): ILocalCoordConverter;
     function CreateScaled(
       const ALocalRect: TRect;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const AMapScale: Double;
       const AMapPixelAtLocalZero: TDoublePoint
     ): ILocalCoordConverter;

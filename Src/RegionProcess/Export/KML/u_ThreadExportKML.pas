@@ -196,7 +196,7 @@ var
   i: integer;
   VZoom: Byte;
   VText: UTF8String;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VProjectedPolygon: IGeometryProjectedPolygon;
   VTempIterator: ITileIterator;
   VIterator: ITileIterator;

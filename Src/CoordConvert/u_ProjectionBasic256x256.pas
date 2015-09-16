@@ -32,7 +32,7 @@ uses
   u_GeoFunc;
 
 type
-  TProjectionBasic256x256 = class(TBaseInterfacedObject, IProjectionInfo)
+  TProjectionBasic256x256 = class(TBaseInterfacedObject, IProjection)
   private
     FHash: THashValue;
     FZoom: Byte;
@@ -119,7 +119,7 @@ type
     function GetHash: THashValue;
     function GetZoom: Byte;
     function GetProjectionType: IProjectionType;
-    function GetIsSameProjectionInfo(const AProjection: IProjectionInfo): Boolean;
+    function GetIsSameProjectionInfo(const AProjection: IProjection): Boolean;
 
     // Возвращает прямоугольник тайлов допустимый в заданном зуме
     function GetTileRect: TRect;
@@ -1165,9 +1165,9 @@ begin
 end;
 
 function TProjectionBasic256x256.GetIsSameProjectionInfo(
-  const AProjection: IProjectionInfo): Boolean;
+  const AProjection: IProjection): Boolean;
 var
-  VSelf: IProjectionInfo;
+  VSelf: IProjection;
 begin
   VSelf := Self;
   if VSelf = AProjection then begin

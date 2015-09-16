@@ -40,7 +40,7 @@ type
   private
     FConfig: IGSMGeoCodeConfig;
     FMapGoto: IMapViewGoto;
-    FProjection: IProjectionInfo;
+    FProjection: IProjection;
     CommPortDriver: TCommPortDriver;
     LAC: string;
     CellID: string;
@@ -57,7 +57,7 @@ type
       const AConfig: IGSMGeoCodeConfig;
       const AMapGoto: IMapViewGoto
     );
-    function GetPos(const AProjection: IProjectionInfo): boolean;
+    function GetPos(const AProjection: IProjection): boolean;
   end;
 
 implementation
@@ -251,7 +251,7 @@ begin
 end;
 
 
-function TPosFromGSM.GetPos(const AProjection: IProjectionInfo): boolean;
+function TPosFromGSM.GetPos(const AProjection: IProjection): boolean;
 var
   paramss: string;
   LL: TDoublePoint;

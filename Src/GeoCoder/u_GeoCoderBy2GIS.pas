@@ -131,7 +131,7 @@ function TGeoCoderBy2GIS.PrepareRequest(
 ): IDownloadRequest;
 var
   VSearch: String;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMapRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
   VRadius: integer;

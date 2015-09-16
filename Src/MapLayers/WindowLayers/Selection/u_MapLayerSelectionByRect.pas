@@ -169,8 +169,8 @@ var
   VSelectedTiles: TRect;
   VMaxZoomDelta: Integer;
   VProjectionSet: IProjectionSet;
-  VProjection: IProjectionInfo;
-  VProjectionOther: IProjectionInfo;
+  VProjection: IProjection;
+  VProjectionOther: IProjection;
   VZoom: Byte;
 begin
   VProjectionSet := FProjectionSet.GetStatic;

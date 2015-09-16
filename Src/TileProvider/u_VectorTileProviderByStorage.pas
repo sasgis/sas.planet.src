@@ -38,14 +38,14 @@ uses
 type
   TVectorTileProviderByStorage = class(TBaseInterfacedObject, IVectorTileProvider)
   private
-    FProjectionInfo: IProjectionInfo;
+    FProjectionInfo: IProjection;
     FVersion: IMapVersionRequest;
     FLoaderFromStorage: IVectorDataLoader;
     FStorage: ITileStorage;
     FVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
     FIsIgnoreError: Boolean;
   private
-    function GetProjectionInfo: IProjectionInfo;
+    function GetProjectionInfo: IProjection;
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
@@ -57,7 +57,7 @@ type
       const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
       const AVersionConfig: IMapVersionRequest;
       const ALoaderFromStorage: IVectorDataLoader;
-      const AProjectionInfo: IProjectionInfo;
+      const AProjectionInfo: IProjection;
       const AStorage: ITileStorage
     );
   end;
@@ -74,7 +74,7 @@ constructor TVectorTileProviderByStorage.Create(
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const AVersionConfig: IMapVersionRequest;
   const ALoaderFromStorage: IVectorDataLoader;
-  const AProjectionInfo: IProjectionInfo;
+  const AProjectionInfo: IProjection;
   const AStorage: ITileStorage
 );
 begin
@@ -93,7 +93,7 @@ begin
   FLoaderFromStorage := ALoaderFromStorage;
 end;
 
-function TVectorTileProviderByStorage.GetProjectionInfo: IProjectionInfo;
+function TVectorTileProviderByStorage.GetProjectionInfo: IProjection;
 begin
   Result := FProjectionInfo;
 end;

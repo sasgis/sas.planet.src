@@ -38,7 +38,7 @@ type
       const AFileName: WideString;
       const ATopLeft: TPoint;
       const ABottomRight: TPoint;
-      const AProjection: IProjectionInfo
+      const AProjection: IProjection
     ); safecall;
   end;
 
@@ -66,7 +66,7 @@ procedure TMapCalibrationKml.SaveCalibrationInfo(
   const AFileName: WideString;
   const ATopLeft: TPoint;
   const ABottomRight: TPoint;
-  const AProjection: IProjectionInfo
+  const AProjection: IProjection
 );
 var
   LL1, LL2: TDoublePoint;

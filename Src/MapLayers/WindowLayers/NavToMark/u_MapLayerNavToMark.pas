@@ -150,7 +150,7 @@ var
   VScreenCenterMapPos: TDoublePoint;
   VDelta: TDoublePoint;
   VDeltaNormed: TDoublePoint;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VCrossDist: Double;
   VDistInPixel: Double;
   VAngle: Double;

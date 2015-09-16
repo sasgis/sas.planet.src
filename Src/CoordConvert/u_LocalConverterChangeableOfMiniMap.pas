@@ -50,8 +50,8 @@ type
     function GetActualProjection(
       AZoomDelta: Integer;
       const AProjectionSet: IProjectionSet;
-      const AProjection: IProjectionInfo
-    ): IProjectionInfo;
+      const AProjection: IProjection
+    ): IProjection;
     function GetConverterForSource(
       const AConfig: IMiniMapLayerLocationConfigStatic;
       const AProjectionSet: IProjectionSet;
@@ -125,11 +125,11 @@ end;
 function TLocalConverterChangeableOfMiniMap.GetActualProjection(
   AZoomDelta: Integer;
   const AProjectionSet: IProjectionSet;
-  const AProjection: IProjectionInfo
-): IProjectionInfo;
+  const AProjection: IProjection
+): IProjection;
 var
   VZoom: Byte;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VResultZoom: Byte;
 begin
   VProjection := AProjectionSet.GetSuitableProjection(AProjection);
@@ -173,8 +173,8 @@ function TLocalConverterChangeableOfMiniMap.GetConverterForSource(
 ): ILocalCoordConverter;
 var
   VVisualMapCenter: TDoublePoint;
-  VProjection: IProjectionInfo;
-  VSourceProjection: IProjectionInfo;
+  VProjection: IProjection;
+  VSourceProjection: IProjection;
   VVisualMapCenterInRelative: TDoublePoint;
   VVisualMapCenterInLayerMap: TDoublePoint;
   VMapPixelAtLocalZero: TDoublePoint;

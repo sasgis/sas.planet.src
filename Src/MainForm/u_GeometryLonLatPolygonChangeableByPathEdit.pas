@@ -44,13 +44,13 @@ type
     FSourceListener: IListener;
 
     FLastLine: IGeometryLonLatLine;
-    FLastProjection: IProjectionInfo;
+    FLastProjection: IProjection;
     FLastRadius: Double;
     FResult: IGeometryLonLatPolygon;
     procedure OnSourceChange;
     function PolygonByLine(
       const ALine: IGeometryLonLatLine;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const ARadius: Double
     ): IGeometryLonLatPolygon;
   private
@@ -134,7 +134,7 @@ var
   VLine: IGeometryLonLatLine;
   VRadius: Double;
   VConverter: ILocalCoordConverter;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VResult: IGeometryLonLatPolygon;
   VChanged: Boolean;
 begin
@@ -202,7 +202,7 @@ end;
 
 function TGeometryLonLatPolygonChangeableByPathEdit.PolygonByLine(
   const ALine: IGeometryLonLatLine;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const ARadius: Double
 ): IGeometryLonLatPolygon;
 var

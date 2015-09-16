@@ -201,7 +201,7 @@ var
   VPixelRect: TDoubleRect;
   VTileRectFloat: TDoubleRect;
   VTileRect: TRect;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
 begin
   Assert(Assigned(AConverter));
   VProjection := AConverter.ProjectionInfo;
@@ -249,9 +249,9 @@ var
   VTileRectFloat: TDoubleRect;
   VTileRect: TRect;
   VScale: Double;
-  VProjectionSource: IProjectionInfo;
-  VProjection: IProjectionInfo;
-  VProjectionPrev: IProjectionInfo;
+  VProjectionSource: IProjection;
+  VProjection: IProjection;
+  VProjectionPrev: IProjection;
   VProjectionSet: IProjectionSet;
   VLonLatRect: TDoubleRect;
 begin

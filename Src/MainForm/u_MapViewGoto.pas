@@ -37,16 +37,16 @@ type
   TGotoPosStatic = class(TBaseInterfacedObject, IGotoPosStatic)
   private
     FLonLat: TDoublePoint;
-    FProjection: IProjectionInfo;
+    FProjection: IProjection;
     FGotoTime: TDateTime;
   private
     function GetLonLat: TDoublePoint;
-    function GetProjection: IProjectionInfo;
+    function GetProjection: IProjection;
     function GetGotoTime: TDateTime;
   public
     constructor Create(
       const ALonLat: TDoublePoint;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const AGotoTime: TDateTime
     );
   end;
@@ -64,7 +64,7 @@ type
     );
     procedure GotoPos(
       const ALonLat: TDoublePoint;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const AshowMarker: Boolean
     );
     procedure FitRectToScreen(
@@ -122,8 +122,8 @@ var
   VMarkMapRect: TDoubleRect;
   VMarkMapSize: TDoublePoint;
   VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjectionInfo;
-  VProjectionPrev: IProjectionInfo;
+  VProjection: IProjection;
+  VProjectionPrev: IProjection;
 begin
   if PointIsEmpty(ALonLatRect.TopLeft) or PointIsEmpty(ALonLatRect.BottomRight) then begin
     Exit;
@@ -187,7 +187,7 @@ end;
 
 procedure TMapViewGoto.GotoPos(
   const ALonLat: TDoublePoint;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const AshowMarker: Boolean
 );
 begin
@@ -202,7 +202,7 @@ end;
 
 constructor TGotoPosStatic.Create(
   const ALonLat: TDoublePoint;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const AGotoTime: TDateTime
 );
 begin
@@ -222,7 +222,7 @@ begin
   Result := FLonLat;
 end;
 
-function TGotoPosStatic.GetProjection: IProjectionInfo;
+function TGotoPosStatic.GetProjection: IProjection;
 begin
   Result := FProjection;
 end;

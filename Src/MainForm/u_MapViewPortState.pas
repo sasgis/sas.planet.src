@@ -105,7 +105,7 @@ constructor TMapViewPortState.Create(
 );
 var
   VProjectionSet: IProjectionSet;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VLocalConverter: ILocalCoordConverter;
   VCenterPoint: TDoublePoint;
   VLocalRect: TRect;
@@ -179,7 +179,7 @@ var
   VLocalConverterNew: ILocalCoordConverter;
   VProjectionSet: IProjectionSet;
   VZoom: Byte;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VLonLat: TDoublePoint;
   VMapPixelCenter: TDoublePoint;
   VMapTopLeft: TDoublePoint;
@@ -303,7 +303,7 @@ var
   VLocalConverter: ILocalCoordConverter;
   VProjectionSet: IProjectionSet;
   VZoom: Byte;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VLocalConverterNew: ILocalCoordConverter;
 begin
   LockWrite;
@@ -333,7 +333,7 @@ var
   VLocalConverter: ILocalCoordConverter;
   VProjectionSet: IProjectionSet;
   VZoom: Byte;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VLocalConverterNew: ILocalCoordConverter;
 begin
   LockWrite;
@@ -363,7 +363,7 @@ var
   VLocalConverter: ILocalCoordConverter;
   VProjectionSet: IProjectionSet;
   VZoom: Byte;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VLocalConverterNew: ILocalCoordConverter;
 begin
   LockWrite;
@@ -389,7 +389,7 @@ var
   VLonLat: TDoublePoint;
   VProjectionSet: IProjectionSet;
   VZoom: Byte;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VLocalConverter: ILocalCoordConverter;
   VLocalConverterNew: ILocalCoordConverter;
 begin
@@ -439,7 +439,7 @@ procedure TMapViewPortState.OnProjectionSetChange;
 var
   VLocalConverter: ILocalCoordConverter;
   VProjectionSet: IProjectionSet;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VLocalConverterNew: ILocalCoordConverter;
 begin
   LockWrite;
@@ -468,7 +468,7 @@ var
   VNewMapScale: Double;
   VLocalConverter: ILocalCoordConverter;
   VLocalConverterNew: ILocalCoordConverter;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VTopLeftMapPosNew: TDoublePoint;
   VLocalRect: TRect;
 begin

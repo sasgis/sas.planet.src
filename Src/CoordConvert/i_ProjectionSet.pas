@@ -37,15 +37,15 @@ type
     function GetZoomCount: Byte;
     property ZoomCount: Byte read GetZoomCount;
 
-    function GetZoom(const AIndex: Byte): IProjectionInfo;
-    property Zooms[const AIndex: Byte]: IProjectionInfo read GetZoom; default;
+    function GetZoom(const AIndex: Byte): IProjection;
+    property Zooms[const AIndex: Byte]: IProjection read GetZoom; default;
 
     procedure ValidateZoom(var AZoom: Byte);
     function CheckZoom(const AZoom: Byte): Boolean;
 
-    function GetSuitableProjection(const AProjection: IProjectionInfo): IProjectionInfo;
-    function GetSuitableZoom(const AProjection: IProjectionInfo): Byte;
-    function IsProjectionFromThisSet(const AProjection: IProjectionInfo): Boolean;
+    function GetSuitableProjection(const AProjection: IProjection): IProjection;
+    function GetSuitableZoom(const AProjection: IProjection): Byte;
+    function IsProjectionFromThisSet(const AProjection: IProjection): Boolean;
   end;
 
 implementation

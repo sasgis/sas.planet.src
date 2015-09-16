@@ -146,7 +146,7 @@ var
   errecw: integer;
   VECWWriter: TECWWrite;
   VCurrentPieceRect: TRect;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMapPieceSize: TPoint;
 begin
   VECWWriter := TECWWrite.Create;

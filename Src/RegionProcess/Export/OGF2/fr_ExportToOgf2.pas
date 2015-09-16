@@ -159,7 +159,7 @@ var
   VTilesCountTotal: Int64;
   VMapType: IMapType;
   VZoom: byte;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VPolyLL: IGeometryLonLatPolygon;
   VProjected: IGeometryProjectedPolygon;
   VLine: IGeometryProjectedSinglePolygon;

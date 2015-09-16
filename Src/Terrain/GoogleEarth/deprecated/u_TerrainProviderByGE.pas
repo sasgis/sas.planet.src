@@ -218,7 +218,7 @@ var
   VLonLat: TDoublePoint;
   VTilePoint: TPoint;
   VZoom: Byte;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VTerrain: PTerrainTile;
   VFound: Boolean;
   VElevation: Single;

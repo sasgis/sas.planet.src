@@ -35,11 +35,11 @@ type
   TVectorTileProviderByOtherBase = class(TBaseInterfacedObject, IVectorTileProvider)
   private
     FProvider: IVectorTileProvider;
-    FProjectionInfo: IProjectionInfo;
+    FProjectionInfo: IProjection;
     FOversize: TRect;
     FVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   private
-    function GetProjectionInfo: IProjectionInfo;
+    function GetProjectionInfo: IProjection;
   protected
     function GetTile(
       AOperationID: Integer;
@@ -51,7 +51,7 @@ type
       const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AOversize: TRect;
       const AProvider: IVectorTileProvider;
-      const AProjectionInfo: IProjectionInfo
+      const AProjectionInfo: IProjection
     );
   end;
 
@@ -67,7 +67,7 @@ type
       const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AOversize: TRect;
       const AProvider: IVectorTileProvider;
-      const AProjectionInfo: IProjectionInfo
+      const AProjectionInfo: IProjection
     );
   end;
 
@@ -83,7 +83,7 @@ type
       const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AOversize: TRect;
       const AProvider: IVectorTileProvider;
-      const AProjectionInfo: IProjectionInfo
+      const AProjectionInfo: IProjection
     );
   end;
 
@@ -103,7 +103,7 @@ constructor TVectorTileProviderByOtherBase.Create(
   const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AOversize: TRect;
   const AProvider: IVectorTileProvider;
-  const AProjectionInfo: IProjectionInfo
+  const AProjectionInfo: IProjection
 );
 begin
   Assert(Assigned(AVectorSubsetBuilderFactory));
@@ -125,7 +125,7 @@ begin
   FProjectionInfo := AProjectionInfo;
 end;
 
-function TVectorTileProviderByOtherBase.GetProjectionInfo: IProjectionInfo;
+function TVectorTileProviderByOtherBase.GetProjectionInfo: IProjection;
 begin
   Result := FProjectionInfo;
 end;
@@ -136,7 +136,7 @@ constructor TVectorTileProviderByOtherProjection.Create(
   const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AOversize: TRect;
   const AProvider: IVectorTileProvider;
-  const AProjectionInfo: IProjectionInfo
+  const AProjectionInfo: IProjection
 );
 begin
   inherited Create(AVectorSubsetBuilderFactory, AOversize, AProvider, AProjectionInfo);
@@ -177,8 +177,8 @@ function TVectorTileProviderByOtherProjection.GetTile(
 var
   VTile: TPoint;
   VTargetPixelRect: TRect;
-  VProjectionSource: IProjectionInfo;
-  VProjectionTarget: IProjectionInfo;
+  VProjectionSource: IProjection;
+  VProjectionTarget: IProjection;
   VLonLatRectSource: TDoubleRect;
   VLonLatRectTarget: TDoubleRect;
   VSourceTileRect: TRect;
@@ -235,7 +235,7 @@ constructor TVectorTileProviderBySameProjection.Create(
   const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AOversize: TRect;
   const AProvider: IVectorTileProvider;
-  const AProjectionInfo: IProjectionInfo
+  const AProjectionInfo: IProjection
 );
 begin
   inherited Create(AVectorSubsetBuilderFactory, AOversize, AProvider, AProjectionInfo);
@@ -250,8 +250,8 @@ function TVectorTileProviderBySameProjection.GetTile(
 var
   VTile: TPoint;
   VTargetPixelRect: TRect;
-  VProjectionSource: IProjectionInfo;
-  VProjectionTarget: IProjectionInfo;
+  VProjectionSource: IProjection;
+  VProjectionTarget: IProjection;
   VRelativeRect: TDoubleRect;
   VSourceTileRect: TRect;
   VTileIterator: TTileIteratorByRectRecord;

@@ -42,7 +42,7 @@ type
   private
     FpolyLL: IGeometryLonLatPolygon;
     FProjectedPolygon: IGeometryProjectedPolygon;
-    FProjection: IProjectionInfo;
+    FProjection: IProjection;
     FMarkSystem: IMarkSystem;
     FMarksState: Byte;
     FDelHiddenMarks: Boolean;
@@ -57,7 +57,7 @@ type
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolyLL: IGeometryLonLatPolygon;
       const AProjectedPolygon: IGeometryProjectedPolygon;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const AMarkSystem: IMarkSystem;
       const AMarksState: Byte;
       const ADelHiddenMarks: Boolean
@@ -79,7 +79,7 @@ constructor TThreadDeleteMarks.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolyLL: IGeometryLonLatPolygon;
   const AProjectedPolygon: IGeometryProjectedPolygon;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const AMarkSystem: IMarkSystem;
   const AMarksState: Byte;
   const ADelHiddenMarks: Boolean
@@ -107,7 +107,7 @@ end;
 function IsLonLatPointInProjectedPolygon(
   const AGeometry: IGeometryLonLatPoint;
   const AProjectedPolygon: IGeometryProjectedPolygon;
-  const AProjection: IProjectionInfo
+  const AProjection: IProjection
 ): Boolean;
 var
   VProjectedPoint: TDoublePoint;
@@ -119,7 +119,7 @@ end;
 function IsLonLatSingleLineInProjectedPolygon(
   const AGeometry: IGeometryLonLatSingleLine;
   const AProjectedPolygon: IGeometryProjectedPolygon;
-  const AProjection: IProjectionInfo
+  const AProjection: IProjection
 ): Boolean; inline;
 var
   VLonlatPoint: TDoublePoint;
@@ -141,7 +141,7 @@ end;
 function IsLonLatMultiLineInProjectedPolygon(
   const AGeometry: IGeometryLonLatMultiLine;
   const AProjectedPolygon: IGeometryProjectedPolygon;
-  const AProjection: IProjectionInfo
+  const AProjection: IProjection
 ): Boolean; inline;
 var
   i: Integer;
@@ -158,7 +158,7 @@ end;
 function IsLonLatLineInProjectedPolygon(
   const AGeometry: IGeometryLonLatLine;
   const AProjectedPolygon: IGeometryProjectedPolygon;
-  const AProjection: IProjectionInfo
+  const AProjection: IProjection
 ): Boolean; inline;
 var
   VProjectedBounds: TDoubleRect;
@@ -182,7 +182,7 @@ end;
 function IsLonLatContourInProjectedPolygon(
   const AGeometry: IGeometryLonLatContour;
   const AProjectedPolygon: IGeometryProjectedPolygon;
-  const AProjection: IProjectionInfo
+  const AProjection: IProjection
 ): Boolean; inline;
 var
   VLonlatPoint: TDoublePoint;
@@ -203,7 +203,7 @@ end;
 function IsLonLatSinglePolygonInProjectedPolygon(
   const AGeometry: IGeometryLonLatSinglePolygon;
   const AProjectedPolygon: IGeometryProjectedPolygon;
-  const AProjection: IProjectionInfo
+  const AProjection: IProjection
 ): Boolean; inline;
 begin
   Result :=
@@ -217,7 +217,7 @@ end;
 function IsLonLatMultiPolygonInProjectedPolygon(
   const AGeometry: IGeometryLonLatMultiPolygon;
   const AProjectedPolygon: IGeometryProjectedPolygon;
-  const AProjection: IProjectionInfo
+  const AProjection: IProjection
 ): Boolean; inline;
 var
   i: Integer;
@@ -234,7 +234,7 @@ end;
 function IsLonLatPolygonInProjectedPolygon(
   const AGeometry: IGeometryLonLatPolygon;
   const AProjectedPolygon: IGeometryProjectedPolygon;
-  const AProjection: IProjectionInfo
+  const AProjection: IProjection
 ): Boolean; inline;
 var
   VProjectedBounds: TDoubleRect;
@@ -258,7 +258,7 @@ end;
 function IsLonLatGeometryInProjectedPolygon(
   const AGeometry: IGeometryLonLat;
   const AProjectedPolygon: IGeometryProjectedPolygon;
-  const AProjection: IProjectionInfo
+  const AProjection: IProjection
 ): Boolean;
 var
   VPoint: IGeometryLonLatPoint;

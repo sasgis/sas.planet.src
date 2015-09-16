@@ -35,14 +35,14 @@ type
   private
     FProjectionSet: IProjectionSetChangeable;
     FConfig: ITileGridConfig;
-    function GetActualProjection(const AProjection: IProjectionInfo): IProjectionInfo;
+    function GetActualProjection(const AProjection: IProjection): IProjection;
   private
     function PointStick(
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const ASourceLonLat: TDoublePoint
     ): TDoublePoint;
     function RectStick(
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const ASourceRect: TDoubleRect
     ): TDoubleRect;
   public
@@ -75,13 +75,13 @@ begin
 end;
 
 function TStickToGridTiles.GetActualProjection(
-  const AProjection: IProjectionInfo
-): IProjectionInfo;
+  const AProjection: IProjection
+): IProjection;
 var
   VZoom: Integer;
   VRelative: Boolean;
   VProjectionSet: IProjectionSet;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VResultZoom: Byte;
 begin
   FConfig.LockRead;
@@ -106,11 +106,11 @@ begin
 end;
 
 function TStickToGridTiles.PointStick(
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const ASourceLonLat: TDoublePoint
 ): TDoublePoint;
 var
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VSelectedTileFloat: TDoublePoint;
   VSelectedTile: TPoint;
 begin
@@ -121,11 +121,11 @@ begin
 end;
 
 function TStickToGridTiles.RectStick(
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const ASourceRect: TDoubleRect
 ): TDoubleRect;
 var
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VSelectedTilesFloat: TDoubleRect;
   VSelectedTiles: TRect;
 begin

@@ -175,11 +175,11 @@ procedure TMiniMapLayerViewRect.DrawMainViewRect(
 );
 var
   VViewMapSourceRect: TDoubleRect;
-  VProjectionSource: IProjectionInfo;
+  VProjectionSource: IProjection;
   VMiniMapRect: TDoubleRect;
   VBitmapRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
-  VProjectionMiniMap: IProjectionInfo;
+  VProjectionMiniMap: IProjection;
   VZoomDelta: Integer;
   VFillColor: TColor32;
   VBorderColor: TColor32;
@@ -296,7 +296,7 @@ procedure TMiniMapLayerViewRect.LayerMouseUP(
 );
 var
   VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMapPoint: TDoublePoint;
   VLonLat: TDoublePoint;
 begin

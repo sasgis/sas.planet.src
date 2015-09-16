@@ -282,7 +282,7 @@ var
   VTile: TPoint;
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VProjectedPolygon: IGeometryProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;

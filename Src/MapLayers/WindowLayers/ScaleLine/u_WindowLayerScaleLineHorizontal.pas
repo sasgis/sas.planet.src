@@ -235,7 +235,7 @@ function TWindowLayerScaleLineHorizontal.GetMetersPerLine(
 var
   VStartLonLat, VFinishLonLat: TDoublePoint;
   VStartPixel, VFinishPixel: TDoublePoint;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
 begin
   VProjection := AVisualCoordConverter.ProjectionInfo;
   VStartPixel := AVisualCoordConverter.GetCenterMapPixelFloat;

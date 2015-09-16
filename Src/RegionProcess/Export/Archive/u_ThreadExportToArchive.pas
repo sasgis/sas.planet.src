@@ -99,7 +99,7 @@ var
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
   VTileInfo: ITileInfoWithData;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VProjectedPolygon: IGeometryProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;

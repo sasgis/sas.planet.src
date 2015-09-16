@@ -49,20 +49,20 @@ type
     procedure OnBitmapChange(Sender: TObject);
     procedure InitBitmap(const ASize: TPoint);
     procedure DrawLines(
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const AMapRect: TRect
     );
     procedure DrawCaptions(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const AMapRect: TRect
     );
   private
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AProjectionInfo: IProjectionInfo;
+      const AProjectionInfo: IProjection;
       const ATile: TPoint
     ): IBitmap32Static;
   public
@@ -119,7 +119,7 @@ end;
 procedure TBitmapLayerProviderGridGenshtab.DrawCaptions(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const AMapRect: TRect
 );
 var
@@ -195,7 +195,7 @@ begin
 end;
 
 procedure TBitmapLayerProviderGridGenshtab.DrawLines(
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const AMapRect: TRect
 );
 var
@@ -301,7 +301,7 @@ end;
 function TBitmapLayerProviderGridGenshtab.GetTile(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const AProjectionInfo: IProjectionInfo;
+  const AProjectionInfo: IProjection;
   const ATile: TPoint
 ): IBitmap32Static;
 var

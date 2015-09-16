@@ -46,17 +46,17 @@ type
   private
     function CreateNoScaleIntDelta(
       const ALocalRect: TRect;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const AMapPixelAtLocalZero: TPoint
     ): ILocalCoordConverter;
     function CreateNoScale(
       const ALocalRect: TRect;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const AMapPixelAtLocalZero: TDoublePoint
     ): ILocalCoordConverter;
     function CreateScaled(
       const ALocalRect: TRect;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const AMapScale: Double;
       const AMapPixelAtLocalZero: TDoublePoint
     ): ILocalCoordConverter;
@@ -83,7 +83,7 @@ type
     LocalRect: TRect;
     RectInMapPixel: TRect;
     RectInMapPixelFloat: TDoubleRect;
-    Projection: IProjectionInfo;
+    Projection: IProjection;
     MapPixelAtLocalZeroDouble: TDoublePoint;
     MapPixelAtLocalZeroInteger: TPoint;
     MapPixelCenter: TDoublePoint;
@@ -166,7 +166,7 @@ end;
 
 function TLocalCoordConverterFactory.CreateNoScale(
   const ALocalRect: TRect;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const AMapPixelAtLocalZero: TDoublePoint
 ): ILocalCoordConverter;
 var
@@ -202,7 +202,7 @@ end;
 
 function TLocalCoordConverterFactory.CreateNoScaleIntDelta(
   const ALocalRect: TRect;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const AMapPixelAtLocalZero: TPoint
 ): ILocalCoordConverter;
 var
@@ -240,7 +240,7 @@ end;
 
 function TLocalCoordConverterFactory.CreateScaled(
   const ALocalRect: TRect;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const AMapScale: Double;
   const AMapPixelAtLocalZero: TDoublePoint
 ): ILocalCoordConverter;

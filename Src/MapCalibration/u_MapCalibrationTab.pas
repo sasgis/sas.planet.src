@@ -38,7 +38,7 @@ type
       const ALon, ALat: Double;
       const X, Y: Integer
     ): AnsiString;
-    function GetCoordSysStr(const AProjection: IProjectionInfo): AnsiString;
+    function GetCoordSysStr(const AProjection: IProjection): AnsiString;
   private
     { IMapCalibration }
     function GetName: WideString; safecall;
@@ -47,7 +47,7 @@ type
       const AFileName: WideString;
       const ATopLeft: TPoint;
       const ABottomRight: TPoint;
-      const AProjection: IProjectionInfo
+      const AProjection: IProjection
     ); safecall;
   public
     constructor Create;
@@ -101,7 +101,7 @@ begin
 end;
 
 function TMapCalibrationTab.GetCoordSysStr(
-  const AProjection: IProjectionInfo
+  const AProjection: IProjection
 ): AnsiString;
 begin
   case AProjection.ProjectionType.ProjectionEPSG of
@@ -127,7 +127,7 @@ procedure TMapCalibrationTab.SaveCalibrationInfo(
   const AFileName: WideString;
   const ATopLeft: TPoint;
   const ABottomRight: TPoint;
-  const AProjection: IProjectionInfo
+  const AProjection: IProjection
 );
 var
   VCenter: TPoint;

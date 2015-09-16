@@ -15,7 +15,7 @@ type
   private
     FSourceEnum: IEnumLonLatPoint;
     FRadius: Double;
-    FProjection: IProjectionInfo;
+    FProjection: IProjection;
     FTemp: IDoublePointsAggregator;
 
     FLineStarted: Boolean;
@@ -32,7 +32,7 @@ type
     constructor Create(
       const ASourceEnum: IEnumLonLatPoint;
       const ARadius: Double;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const ATemp: IDoublePointsAggregator = nil
     );
   end;
@@ -40,14 +40,14 @@ type
   TLonLatPointFilterLine2Poly = class(TBaseInterfacedObject, ILonLatPointFilter)
   private
     FRadius: Double;
-    FProjection: IProjectionInfo;
+    FProjection: IProjection;
     FTemp: IDoublePointsAggregator;
   private
     function CreateFilteredEnum(const ASource: IEnumLonLatPoint): IEnumLonLatPoint;
   public
     constructor Create(
       const ARadius: Double;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const ATemp: IDoublePointsAggregator = nil
     );
   end;
@@ -65,7 +65,7 @@ uses
 constructor TEnumDoublePointLine2Poly.Create(
   const ASourceEnum: IEnumLonLatPoint;
   const ARadius: Double;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const ATemp: IDoublePointsAggregator
 );
 begin
@@ -243,7 +243,7 @@ end;
 
 constructor TLonLatPointFilterLine2Poly.Create(
   const ARadius: Double;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const ATemp: IDoublePointsAggregator
 );
 begin

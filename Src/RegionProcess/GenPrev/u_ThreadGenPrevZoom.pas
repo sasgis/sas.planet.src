@@ -146,8 +146,8 @@ var
   VTile: TPoint;
   VSubTile: TPoint;
   VProjectionSet: IProjectionSet;
-  VProjection: IProjectionInfo;
-  VProjectionPrev: IProjectionInfo;
+  VProjection: IProjection;
+  VProjectionPrev: IProjection;
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
   VZoomDelta: Integer;

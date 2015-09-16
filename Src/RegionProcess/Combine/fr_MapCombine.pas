@@ -165,7 +165,7 @@ type
   private
     function GetProvider: IBitmapTileUniProvider;
     function GetPath: string;
-    function GetProjection: IProjectionInfo;
+    function GetProjection: IProjection;
     function GetMapCalibrationList: IMapCalibrationList;
   private
     function GetUseMarks: Boolean;
@@ -307,7 +307,7 @@ procedure TfrMapCombine.cbbZoomChange(Sender: TObject);
 var
   numd: int64;
   VMapType: IMapType;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VPolyLL: IGeometryLonLatPolygon;
   VProjected: IGeometryProjectedPolygon;
   VLine: IGeometryProjectedSinglePolygon;
@@ -397,7 +397,7 @@ begin
   Result := edtTargetFile.Text;
 end;
 
-function TfrMapCombine.GetProjection: IProjectionInfo;
+function TfrMapCombine.GetProjection: IProjection;
 var
   VMap: IMapType;
   VLayer: IMapType;
@@ -608,7 +608,7 @@ function TfrMapCombine.Validate: Boolean;
 var
   VPath: string;
   VMsg: string;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VLonLatRect: TDoubleRect;
   VPixelRect: TRect;
   VSplitCount: TPoint;

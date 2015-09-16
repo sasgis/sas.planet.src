@@ -202,8 +202,8 @@ var
   VTile: TPoint;
   VRelativeRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
-  VProjectionNew: IProjectionInfo;
-  VProjectionOld: IProjectionInfo;
+  VProjectionNew: IProjection;
+  VProjectionOld: IProjection;
   VSourceAtTarget: TRect;
   VTileProvider: IVectorTileProvider;
   VSourceTileMatrix: IVectorTileMatrix;

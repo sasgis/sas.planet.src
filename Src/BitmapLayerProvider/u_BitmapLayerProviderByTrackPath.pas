@@ -48,7 +48,7 @@ type
     FPointsLonLat: array of TGPSTrackPoint;
     FPointsLonLatCount: Integer;
 
-    FPreparedProjection: IProjectionInfo;
+    FPreparedProjection: IProjection;
     FPointsProjected: array of TGPSTrackPoint;
     FPointsProjectedCount: Integer;
 
@@ -58,7 +58,7 @@ type
       const AEnum: IEnumGPSTrackPoint
     );
     procedure PrepareProjectedPoints(
-      const AProjection: IProjectionInfo
+      const AProjection: IProjection
     );
     procedure InitBitmap(
       ATargetBmp: TCustomBitmap32;
@@ -75,7 +75,7 @@ type
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       ATargetBmp: TCustomBitmap32;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const AMapRect: TRect;
       const ATrackColorer: ITrackColorerStatic;
       const ALineWidth: Double;
@@ -85,7 +85,7 @@ type
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AProjectionInfo: IProjectionInfo;
+      const AProjectionInfo: IProjection;
       const ATile: TPoint
     ): IBitmap32Static;
   public
@@ -149,7 +149,7 @@ function TBitmapLayerProviderByTrackPath.DrawPath(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   ATargetBmp: TCustomBitmap32;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const AMapRect: TRect;
   const ATrackColorer: ITrackColorerStatic;
   const ALineWidth: Double;
@@ -272,7 +272,7 @@ end;
 function TBitmapLayerProviderByTrackPath.GetTile(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const AProjectionInfo: IProjectionInfo;
+  const AProjectionInfo: IProjection;
   const ATile: TPoint
 ): IBitmap32Static;
 var
@@ -350,7 +350,7 @@ begin
 end;
 
 procedure TBitmapLayerProviderByTrackPath.PrepareProjectedPoints(
-  const AProjection: IProjectionInfo
+  const AProjection: IProjection
 );
 var
   i: Integer;

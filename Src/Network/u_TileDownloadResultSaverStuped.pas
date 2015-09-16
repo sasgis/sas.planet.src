@@ -329,7 +329,7 @@ procedure TTileDownloadResultSaverStuped.CutDownloadedBitmap(
 );
 var
   VProjectionSet: IProjectionSet;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   // cut images
   VCutCount, VCutSize, VCutTile: TPoint;
   i, j: Integer;

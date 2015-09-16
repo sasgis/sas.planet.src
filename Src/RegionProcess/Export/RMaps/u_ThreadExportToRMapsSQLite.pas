@@ -151,7 +151,7 @@ var
   VTileInfo: ITileInfoWithData;
   VBitmapTile: IBitmap32Static;
   VTileData: IBinaryData;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
 begin
   inherited;
 

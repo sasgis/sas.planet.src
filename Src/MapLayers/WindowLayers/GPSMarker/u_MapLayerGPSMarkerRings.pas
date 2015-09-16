@@ -68,7 +68,7 @@ type
     ): IGeometryLonLatPolygon;
     function GetProjectedCirclesByLonLat(
       const ASource: IGeometryLonLatPolygon;
-      const AProjectionInfo: IProjectionInfo
+      const AProjectionInfo: IProjection
     ): IGeometryProjectedPolygon;
     procedure GPSReceiverReceive;
     procedure OnConfigChange;
@@ -177,7 +177,7 @@ end;
 
 function TMapLayerGPSMarkerRings.GetProjectedCirclesByLonLat(
   const ASource: IGeometryLonLatPolygon;
-  const AProjectionInfo: IProjectionInfo
+  const AProjectionInfo: IProjection
 ): IGeometryProjectedPolygon;
 begin
   Result := FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(AProjectionInfo, ASource);

@@ -128,7 +128,7 @@ function TThreadMapCombineKMZ.GetBitmapRect(
 ): IBitmap32Static;
 var
   VTileRect: TRect;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VIterator: TTileIteratorByRectRecord;
   VTile: TPoint;
   VBitmap: TBitmap32ByStaticBitmap;
@@ -200,7 +200,7 @@ var
   JPGSaver: IBitmapTileSaver;
   VKmzFileNameOnly: string;
   VCurrentPieceRect: TRect;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMapPieceSize: TPoint;
   VTilesProcessed: Integer;
   VTilesToProcess: Integer;

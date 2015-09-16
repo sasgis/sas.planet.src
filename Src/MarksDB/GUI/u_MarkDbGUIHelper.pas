@@ -112,7 +112,7 @@ type
     ): Boolean;
     function PolygonForOperation(
       const AGeometry: IGeometryLonLat;
-      const AProjection: IProjectionInfo
+      const AProjection: IProjection
     ): IGeometryLonLatPolygon;
     function AddKategory(const Name: string): IMarkCategory;
     procedure ShowMarkInfo(
@@ -795,7 +795,7 @@ end;
 
 function TMarkDbGUIHelper.PolygonForOperation(
   const AGeometry: IGeometryLonLat;
-  const AProjection: IProjectionInfo
+  const AProjection: IProjection
   ): IGeometryLonLatPolygon;
 var
   VPoint: IGeometryLonLatPoint;

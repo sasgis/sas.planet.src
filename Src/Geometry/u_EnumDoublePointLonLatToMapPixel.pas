@@ -14,14 +14,14 @@ type
   TEnumDoublePointLonLatToMapPixel = class(TBaseInterfacedObject, IEnumProjectedPoint)
   private
     FSourceEnum: IEnumLonLatPoint;
-    FProjection: IProjectionInfo;
+    FProjection: IProjection;
     FProjectionType: IProjectionType;
     FFinished: Boolean;
   private
     function Next(out APoint: TDoublePoint): Boolean;
   public
     constructor Create(
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const ASourceEnum: IEnumLonLatPoint
     );
   end;
@@ -29,12 +29,12 @@ type
 type
   TLonLatPointConverter = class(TBaseInterfacedObject, ILonLatPointConverter)
   private
-    FProjection: IProjectionInfo;
+    FProjection: IProjection;
   private
     function CreateFilteredEnum(const ASource: IEnumLonLatPoint): IEnumProjectedPoint;
   public
     constructor Create(
-      const AProjection: IProjectionInfo
+      const AProjection: IProjection
     );
   end;
 
@@ -47,7 +47,7 @@ uses
 { TEnumDoublePointLonLatToMapPixels }
 
 constructor TEnumDoublePointLonLatToMapPixel.Create(
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const ASourceEnum: IEnumLonLatPoint
 );
 begin
@@ -88,7 +88,7 @@ end;
 { TLonLatPointConverter }
 
 constructor TLonLatPointConverter.Create(
-  const AProjection: IProjectionInfo
+  const AProjection: IProjection
 );
 begin
   Assert(Assigned(AProjection));

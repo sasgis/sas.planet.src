@@ -51,25 +51,25 @@ type
     procedure OnBitmapChange(Sender: TObject);
     procedure InitBitmap(const ASize: TPoint);
     function GetActualProjection(
-      const AProjection: IProjectionInfo
-    ): IProjectionInfo;
+      const AProjection: IProjection
+    ): IProjection;
     procedure DrawLines(
-      const AGridProjection: IProjectionInfo;
-      const AProjection: IProjectionInfo;
+      const AGridProjection: IProjection;
+      const AProjection: IProjection;
       const AMapRect: TRect
     );
     procedure DrawCaptions(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AGridProjection: IProjectionInfo;
-      const AProjection: IProjectionInfo;
+      const AGridProjection: IProjection;
+      const AProjection: IProjection;
       const AMapRect: TRect
     );
   private
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AProjectionInfo: IProjectionInfo;
+      const AProjectionInfo: IProjection;
       const ATile: TPoint
     ): IBitmap32Static;
   public
@@ -133,8 +133,8 @@ end;
 procedure TBitmapLayerProviderGridTiles.DrawCaptions(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const AGridProjection: IProjectionInfo;
-  const AProjection: IProjectionInfo;
+  const AGridProjection: IProjection;
+  const AProjection: IProjection;
   const AMapRect: TRect
 );
 var
@@ -184,8 +184,8 @@ begin
 end;
 
 procedure TBitmapLayerProviderGridTiles.DrawLines(
-  const AGridProjection: IProjectionInfo;
-  const AProjection: IProjectionInfo;
+  const AGridProjection: IProjection;
+  const AProjection: IProjection;
   const AMapRect: TRect
 );
 var
@@ -261,13 +261,13 @@ begin
 end;
 
 function TBitmapLayerProviderGridTiles.GetActualProjection(
-  const AProjection: IProjectionInfo
-): IProjectionInfo;
+  const AProjection: IProjection
+): IProjection;
 var
   VZoom: Integer;
   VResultZoom: Byte;
   VCurrentZoom: Byte;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
 begin
   Result := nil;
   VProjection := FProjectionSet.GetSuitableProjection(AProjection);
@@ -290,12 +290,12 @@ end;
 function TBitmapLayerProviderGridTiles.GetTile(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const AProjectionInfo: IProjectionInfo;
+  const AProjectionInfo: IProjection;
   const ATile: TPoint
 ): IBitmap32Static;
 var
   VMapRect: TRect;
-  VGridProjection: IProjectionInfo;
+  VGridProjection: IProjection;
 begin
   Result := nil;
   VGridProjection := GetActualProjection(AProjectionInfo);

@@ -35,11 +35,11 @@ type
     FConfig: IGenShtabGridConfig;
   private
     function PointStick(
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const ASourceLonLat: TDoublePoint
     ): TDoublePoint;
     function RectStick(
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const ASourceRect: TDoubleRect
     ): TDoubleRect;
   public
@@ -64,7 +64,7 @@ begin
 end;
 
 function TStickToGridGenShtab.PointStick(
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const ASourceLonLat: TDoublePoint
 ): TDoublePoint;
 var
@@ -96,7 +96,7 @@ begin
 end;
 
 function TStickToGridGenShtab.RectStick(
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const ASourceRect: TDoubleRect
 ): TDoubleRect;
 var

@@ -48,26 +48,26 @@ type
     FVersion: IMapVersionRequest;
     FUseRelativeZoom: Boolean;
     FZoom: Byte;
-    FProjectionInfo: IProjectionInfo;
+    FProjectionInfo: IProjection;
     FPolygon: IGeometryLonLatPolygon;
     FProjectedPolygon: IGeometryProjectedPolygon;
     FColorer: IFillingMapColorer;
 
     function GetActualProjection(
-      const AProjection: IProjectionInfo
-    ): IProjectionInfo;
+      const AProjection: IProjection
+    ): IProjection;
     function GetIntersectedRect(
       out AIntersectedLonLatRect: TDoubleRect;
       const ALonLatRect: TDoubleRect;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const AProjectedPolygon: IGeometryProjectedPolygon
     ): Boolean;
     function GetFillingMapBitmap(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const ATargetProjection: IProjectionInfo;
+      const ATargetProjection: IProjection;
       const AMapRect: TRect;
-      const ASourceProjection: IProjectionInfo;
+      const ASourceProjection: IProjection;
       const AProjectedPolygon: IGeometryProjectedPolygon;
       const AVersion: IMapVersionRequest;
       const AColorer: IFillingMapColorer
@@ -76,7 +76,7 @@ type
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AProjectionInfo: IProjectionInfo;
+      const AProjectionInfo: IProjection;
       const ATile: TPoint
     ): IBitmap32Static;
   public
@@ -138,8 +138,8 @@ begin
 end;
 
 function TBitmapLayerProviderFillingMap.GetActualProjection(
-  const AProjection: IProjectionInfo
-): IProjectionInfo;
+  const AProjection: IProjection
+): IProjection;
 var
   VProjectionSet: IProjectionSet;
   VZoom: Integer;
@@ -162,11 +162,11 @@ end;
 function TBitmapLayerProviderFillingMap.GetTile(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const AProjectionInfo: IProjectionInfo;
+  const AProjectionInfo: IProjection;
   const ATile: TPoint
 ): IBitmap32Static;
 var
-  VSourceProjection: IProjectionInfo;
+  VSourceProjection: IProjection;
   VReprojectPolygon: Boolean;
 begin
   VSourceProjection := GetActualProjection(AProjectionInfo);
@@ -214,7 +214,7 @@ end;
 function TBitmapLayerProviderFillingMap.GetIntersectedRect(
   out AIntersectedLonLatRect: TDoubleRect;
   const ALonLatRect: TDoubleRect;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const AProjectedPolygon: IGeometryProjectedPolygon
 ): Boolean;
 var
@@ -254,9 +254,9 @@ end;
 function TBitmapLayerProviderFillingMap.GetFillingMapBitmap(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const ATargetProjection: IProjectionInfo;
+  const ATargetProjection: IProjection;
   const AMapRect: TRect;
-  const ASourceProjection: IProjectionInfo;
+  const ASourceProjection: IProjection;
   const AProjectedPolygon: IGeometryProjectedPolygon;
   const AVersion: IMapVersionRequest;
   const AColorer: IFillingMapColorer

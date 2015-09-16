@@ -211,7 +211,7 @@ var
   VItemSelectPixelRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
   VLonLatSize: TDoublePoint;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
 begin
   VList := nil;
   Result := nil;

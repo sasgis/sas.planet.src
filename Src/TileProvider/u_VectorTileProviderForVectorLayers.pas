@@ -50,7 +50,7 @@ type
       const ACancelNotifier: INotifierOperation;
       const AElements: IVectorItemSubsetBuilder;
       const AAlayer: IMapType;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const ATileSelectLonLatRect: TDoubleRect;
       const AItemSelectLonLatRect: TDoubleRect
     );
@@ -59,7 +59,7 @@ type
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AProjectionInfo: IProjectionInfo;
+      const AProjectionInfo: IProjection;
       const ATile: TPoint
     ): IVectorItemSubset;
   public
@@ -129,12 +129,12 @@ procedure TVectorTileProviderForVectorLayers.AddElementsFromMap(
   const ACancelNotifier: INotifierOperation;
   const AElements: IVectorItemSubsetBuilder;
   const AAlayer: IMapType;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const ATileSelectLonLatRect: TDoubleRect;
   const AItemSelectLonLatRect: TDoubleRect
 );
 var
-  VSourceProjection: IProjectionInfo;
+  VSourceProjection: IProjection;
   VTileSelectLonLatRect: TDoubleRect;
   VTileSourceRect: TRect;
   VTileIterator: TTileIteratorByRectRecord;
@@ -201,7 +201,7 @@ end;
 function TVectorTileProviderForVectorLayers.GetTile(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const AProjectionInfo: IProjectionInfo;
+  const AProjectionInfo: IProjection;
   const ATile: TPoint
 ): IVectorItemSubset;
 var

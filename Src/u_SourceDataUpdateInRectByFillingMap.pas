@@ -50,7 +50,7 @@ type
     function GetActualProjection(
       const AProjectionSet: IProjectionSet;
       const ATileRect: ITileRect
-    ): IProjectionInfo;
+    ): IProjection;
     procedure OnTileUpdate(const AMsg: IInterface);
     procedure OnMapChange;
 
@@ -130,7 +130,7 @@ end;
 function TSourceDataUpdateInRectByFillingMap.GetActualProjection(
   const AProjectionSet: IProjectionSet;
   const ATileRect: ITileRect
-): IProjectionInfo;
+): IProjection;
 var
   VZoom: Integer;
   VResult: Byte;
@@ -255,10 +255,10 @@ procedure TSourceDataUpdateInRectByFillingMap._SetListener(
   const ATileRect: ITileRect
 );
 var
-  VSourceProjection: IProjectionInfo;
+  VSourceProjection: IProjection;
   VTileRect: TRect;
   VLonLatRect: TDoubleRect;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMapLonLatRect: TDoubleRect;
   VNotifier: INotifierTilePyramidUpdate;
 begin

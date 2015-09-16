@@ -53,7 +53,7 @@ type
 
     FLine: ILonLatPathWithSelected;
     FNeedUpdatePoints: Boolean;
-    FProjection: IProjectionInfo;
+    FProjection: IProjection;
     FProjectedPoints: IDoublePointsAggregator;
     FDistStrings: TStringList;
     FTextSizeArray: TArrayOfPoint;
@@ -73,7 +73,7 @@ type
     procedure _PrepareSingleLine(
       const AValueConverter: IValueToStringConverter;
       const ALine: IGeometryLonLatSingleLine;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       var ATextSizeArray: TArrayOfPoint;
       var AProjectedPoints: IDoublePointsAggregator;
       var ALastStartAzimuth: Double;
@@ -83,7 +83,7 @@ type
     procedure _PrepareMultiLine(
       const AValueConverter: IValueToStringConverter;
       const ALine: IGeometryLonLatMultiLine;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       var ATextSizeArray: TArrayOfPoint;
       var AProjectedPoints: IDoublePointsAggregator;
       var ALastStartAzimuth: Double;
@@ -93,7 +93,7 @@ type
     procedure _PrepareGeometry(
       const AValueConverter: IValueToStringConverter;
       const ALine: IGeometryLonLatLine;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       var ATextSizeArray: TArrayOfPoint;
       var AProjectedPoints: IDoublePointsAggregator;
       var ALastStartAzimuth: Double;
@@ -103,7 +103,7 @@ type
   protected
     procedure ChangedSource;
     procedure PreparePoints(
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       out AProjectedPoints: IDoublePointsAggregator;
       out ADistStrings: TStringList;
       out ATextSizeArray: TArrayOfPoint
@@ -259,7 +259,7 @@ procedure TMapLayerCalcLineCaptions.PaintLayer(
 );
 var
   VConfig: IPointCaptionsLayerConfigStatic;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VPoints: IDoublePointsAggregator;
   VDistStrings: TStringList;
   VDistStringsNew: TStringList;
@@ -350,7 +350,7 @@ end;
 procedure TMapLayerCalcLineCaptions._PrepareSingleLine(
   const AValueConverter: IValueToStringConverter;
   const ALine: IGeometryLonLatSingleLine;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   var ATextSizeArray: TArrayOfPoint;
   var AProjectedPoints: IDoublePointsAggregator;
   var ALastStartAzimuth, ATotalDist: Double;
@@ -418,7 +418,7 @@ end;
 procedure TMapLayerCalcLineCaptions._PrepareMultiLine(
   const AValueConverter: IValueToStringConverter;
   const ALine: IGeometryLonLatMultiLine;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   var ATextSizeArray: TArrayOfPoint;
   var AProjectedPoints: IDoublePointsAggregator;
   var ALastStartAzimuth, ATotalDist: Double;
@@ -444,7 +444,7 @@ end;
 procedure TMapLayerCalcLineCaptions._PrepareGeometry(
   const AValueConverter: IValueToStringConverter;
   const ALine: IGeometryLonLatLine;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   var ATextSizeArray: TArrayOfPoint;
   var AProjectedPoints: IDoublePointsAggregator;
   var ALastStartAzimuth: Double;
@@ -483,7 +483,7 @@ begin
 end;
 
 procedure TMapLayerCalcLineCaptions.PreparePoints(
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   out AProjectedPoints: IDoublePointsAggregator;
   out ADistStrings: TStringList;
   out ATextSizeArray: TArrayOfPoint

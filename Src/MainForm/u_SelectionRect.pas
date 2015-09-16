@@ -107,7 +107,7 @@ function TSelectionRect.PrepareSelectionRect(
 ): TDoubleRect;
 var
   VTemp: Double;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
 begin
   VProjection := FViewPortState.GetStatic.ProjectionInfo;
 

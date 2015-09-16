@@ -37,11 +37,11 @@ type
   TBitmapTileProviderByOtherBase = class(TBaseInterfacedObject, IBitmapTileProvider)
   private
     FProvider: IBitmapTileProvider;
-    FProjectionInfo: IProjectionInfo;
+    FProjectionInfo: IProjection;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FImageResamplerFactory: IImageResamplerFactory;
   private
-    function GetProjectionInfo: IProjectionInfo;
+    function GetProjectionInfo: IProjection;
   protected
     function GetTile(
       AOperationID: Integer;
@@ -53,7 +53,7 @@ type
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AImageResamplerFactory: IImageResamplerFactory;
       const AProvider: IBitmapTileProvider;
-      const AProjectionInfo: IProjectionInfo
+      const AProjectionInfo: IProjection
     );
   end;
 
@@ -69,7 +69,7 @@ type
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AImageResamplerFactory: IImageResamplerFactory;
       const AProvider: IBitmapTileProvider;
-      const AProjectionInfo: IProjectionInfo
+      const AProjectionInfo: IProjection
     );
   end;
 
@@ -85,7 +85,7 @@ type
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AImageResamplerFactory: IImageResamplerFactory;
       const AProvider: IBitmapTileProvider;
-      const AProjectionInfo: IProjectionInfo
+      const AProjectionInfo: IProjection
     );
   end;
 
@@ -105,7 +105,7 @@ constructor TBitmapTileProviderByOtherBase.Create(
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AImageResamplerFactory: IImageResamplerFactory;
   const AProvider: IBitmapTileProvider;
-  const AProjectionInfo: IProjectionInfo
+  const AProjectionInfo: IProjection
 );
 begin
   Assert(Assigned(ABitmap32StaticFactory));
@@ -120,7 +120,7 @@ begin
   FProjectionInfo := AProjectionInfo;
 end;
 
-function TBitmapTileProviderByOtherBase.GetProjectionInfo: IProjectionInfo;
+function TBitmapTileProviderByOtherBase.GetProjectionInfo: IProjection;
 begin
   Result := FProjectionInfo;
 end;
@@ -131,7 +131,7 @@ constructor TBitmapTileProviderByOtherProjection.Create(
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AImageResamplerFactory: IImageResamplerFactory;
   const AProvider: IBitmapTileProvider;
-  const AProjectionInfo: IProjectionInfo
+  const AProjectionInfo: IProjection
 );
 begin
   inherited Create(ABitmap32StaticFactory, AImageResamplerFactory, AProvider, AProjectionInfo);
@@ -140,10 +140,10 @@ end;
 
 procedure TileToBufferSameProjType(
   const AResultMapRect: TRect;
-  const AResultProjection: IProjectionInfo;
+  const AResultProjection: IProjection;
   const AResult: TCustomBitmap32;
   const ASourceTile: TPoint;
-  const ASourceProjection: IProjectionInfo;
+  const ASourceProjection: IProjection;
   const ASourceImage: IBitmap32Static;
   AResampler: TCustomResampler
 ); inline;
@@ -180,10 +180,10 @@ end;
 
 procedure TileToBufferOtherProjType(
   const AResultMapRect: TRect;
-  const AResultProjection: IProjectionInfo;
+  const AResultProjection: IProjection;
   const AResult: TCustomBitmap32;
   const ASourceTile: TPoint;
-  const ASourceProjection: IProjectionInfo;
+  const ASourceProjection: IProjection;
   const ASourceImage: IBitmap32Static;
   AResampler: TCustomResampler
 ); inline;
@@ -227,8 +227,8 @@ var
   VTile: TPoint;
   VTargetPixelRect: TRect;
   VTargetTileSize: TPoint;
-  VProjectionSource: IProjectionInfo;
-  VProjectionTarget: IProjectionInfo;
+  VProjectionSource: IProjection;
+  VProjectionTarget: IProjection;
   VLonLatRect: TDoubleRect;
   VTargetPixelRectAtSource: TDoubleRect;
   VSourceTileRect: TRect;
@@ -312,7 +312,7 @@ constructor TBitmapTileProviderBySameProjection.Create(
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AImageResamplerFactory: IImageResamplerFactory;
   const AProvider: IBitmapTileProvider;
-  const AProjectionInfo: IProjectionInfo
+  const AProjectionInfo: IProjection
 );
 begin
   inherited Create(ABitmap32StaticFactory, AImageResamplerFactory, AProvider, AProjectionInfo);
@@ -328,8 +328,8 @@ var
   VTile: TPoint;
   VTargetPixelRect: TRect;
   VTargetTileSize: TPoint;
-  VProjectionSource: IProjectionInfo;
-  VProjectionTarget: IProjectionInfo;
+  VProjectionSource: IProjection;
+  VProjectionTarget: IProjection;
   VRelativeRect: TDoubleRect;
   VTargetPixelRectAtSource: TDoubleRect;
   VSourceTileRect: TRect;

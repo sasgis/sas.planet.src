@@ -12,8 +12,8 @@ type
     function GetTile: TPoint;
     property Tile: TPoint read GetTile;
 
-    function GetProjectionInfo: IProjectionInfo;
-    property ProjectionInfo: IProjectionInfo read GetProjectionInfo;
+    function GetProjectionInfo: IProjection;
+    property ProjectionInfo: IProjection read GetProjectionInfo;
 
     function GetZoom: Byte;
     property Zoom: Byte read GetZoom;

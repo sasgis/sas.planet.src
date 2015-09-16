@@ -29,7 +29,7 @@ uses
   i_ProjectionType;
 
 type
-  IProjectionInfo = interface
+  IProjection = interface
     ['{1BAC7D2B-21F1-4DA7-AE3B-F9D91548E440}']
     function GetHash: THashValue;
     property Hash: THashValue read GetHash;
@@ -40,7 +40,7 @@ type
     function GetProjectionType: IProjectionType;
     property ProjectionType: IProjectionType read GetProjectionType;
 
-    function GetIsSameProjectionInfo(const AProjection: IProjectionInfo): Boolean;
+    function GetIsSameProjectionInfo(const AProjection: IProjection): Boolean;
 
     // Возвращает прямоугольник тайлов допустимый в заданном зуме
     function GetTileRect: TRect;

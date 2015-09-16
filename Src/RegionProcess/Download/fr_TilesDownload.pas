@@ -150,7 +150,7 @@ function TfrTilesDownload.GetZoomInfo(
 ): Boolean;
 var
   VZoom: Byte;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VBounds: TDoubleRect;
   VPolyLL: IGeometryLonLatPolygon;
   VProjected: IGeometryProjectedPolygon;

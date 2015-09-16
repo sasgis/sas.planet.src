@@ -36,18 +36,18 @@ uses
 type
   TBitmapTileProviderByVectorTileProvider = class(TBaseInterfacedObject, IBitmapTileProvider)
   private
-    FProjection: IProjectionInfo;
+    FProjection: IProjection;
     FProvider: IVectorTileUniProvider;
     FRenderer: IVectorTileRenderer;
   private
-    function GetProjectionInfo: IProjectionInfo;
+    function GetProjectionInfo: IProjection;
     function GetTile(AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const ATile: TPoint
     ): IBitmap32Static;
   public
     constructor Create(
-      const AProjectionInfo: IProjectionInfo;
+      const AProjectionInfo: IProjection;
       const AProvider: IVectorTileUniProvider;
       const ARenderer: IVectorTileRenderer
     );
@@ -58,7 +58,7 @@ implementation
 { TBitmapTileProviderByVectorTileProvider }
 
 constructor TBitmapTileProviderByVectorTileProvider.Create(
-  const AProjectionInfo: IProjectionInfo;
+  const AProjectionInfo: IProjection;
   const AProvider: IVectorTileUniProvider;
   const ARenderer: IVectorTileRenderer
 );
@@ -72,7 +72,7 @@ begin
   FRenderer := ARenderer;
 end;
 
-function TBitmapTileProviderByVectorTileProvider.GetProjectionInfo: IProjectionInfo;
+function TBitmapTileProviderByVectorTileProvider.GetProjectionInfo: IProjection;
 begin
   Result := FProjection;
 end;

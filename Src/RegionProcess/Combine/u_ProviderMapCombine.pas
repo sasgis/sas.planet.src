@@ -83,17 +83,17 @@ type
   protected
     function PrepareTargetFileName: string;
     function PrepareTargetRect(
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const APolygon: IGeometryProjectedPolygon
     ): TRect;
     function PrepareImageProvider(
       const APolygon: IGeometryLonLatPolygon;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const AProjectedPolygon: IGeometryProjectedPolygon
     ): IBitmapTileProvider;
-    function PrepareProjection: IProjectionInfo;
+    function PrepareProjection: IProjection;
     function PreparePolygon(
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const APolygon: IGeometryLonLatPolygon
     ): IGeometryProjectedPolygon;
   protected
@@ -364,7 +364,7 @@ end;
 
 function TProviderMapCombineBase.PrepareImageProvider(
   const APolygon: IGeometryLonLatPolygon;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const AProjectedPolygon: IGeometryProjectedPolygon
 ): IBitmapTileProvider;
 var
@@ -492,7 +492,7 @@ begin
 end;
 
 function TProviderMapCombineBase.PreparePolygon(
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const APolygon: IGeometryLonLatPolygon
 ): IGeometryProjectedPolygon;
 begin
@@ -503,13 +503,13 @@ begin
     );
 end;
 
-function TProviderMapCombineBase.PrepareProjection: IProjectionInfo;
+function TProviderMapCombineBase.PrepareProjection: IProjection;
 begin
   Result := (ParamsFrame as IRegionProcessParamsFrameTargetProjection).Projection;
 end;
 
 function TProviderMapCombineBase.PrepareTargetRect(
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const APolygon: IGeometryProjectedPolygon
 ): TRect;
 begin

@@ -38,13 +38,13 @@ type
   private
     function CreateConverter(
       const ALocalRect: TRect;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const AMapScale: Double;
       const AMapPixelAtLocalZero: TDoublePoint
     ): ILocalCoordConverter;
     function CreateConverterNoScale(
       const ALocalRect: TRect;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const AMapPixelAtLocalZero: TPoint
     ): ILocalCoordConverter;
 
@@ -62,25 +62,25 @@ type
     ): ILocalCoordConverter;
     function ChangeCenterLonLatAndProjection(
       const ASource: ILocalCoordConverter;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const ALonLat: TDoublePoint
     ): ILocalCoordConverter;
     function ChangeProjectionWithFreezeAtVisualPoint(
       const ASource: ILocalCoordConverter;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const AFreezePoint: TPoint
     ): ILocalCoordConverter;
     function ChangeProjectionWithFreezeAtCenter(
       const ASource: ILocalCoordConverter;
-      const AProjection: IProjectionInfo
+      const AProjection: IProjection
     ): ILocalCoordConverter;
     function ChangeProjectionWithScaleUpdate(
       const ASource: ILocalCoordConverter;
-      const AProjection: IProjectionInfo
+      const AProjection: IProjection
     ): ILocalCoordConverter;
 
     function CreateForTile(
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const ATile: TPoint
     ): ILocalCoordConverter;
   public
@@ -131,7 +131,7 @@ function TLocalCoordConverterFactorySimpe.ChangeCenterLonLat(
   const ALonLat: TDoublePoint
 ): ILocalCoordConverter;
 var
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VLocalRect: TRect;
   VLocalCenter: TDoublePoint;
   VScale: Double;
@@ -166,11 +166,11 @@ end;
 
 function TLocalCoordConverterFactorySimpe.ChangeCenterLonLatAndProjection(
   const ASource: ILocalCoordConverter;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const ALonLat: TDoublePoint
 ): ILocalCoordConverter;
 var
-  VProjectionOld: IProjectionInfo;
+  VProjectionOld: IProjection;
   VLocalRect: TRect;
   VLocalCenter: TDoublePoint;
   VScale: Double;
@@ -206,7 +206,7 @@ function TLocalCoordConverterFactorySimpe.ChangeCenterToLocalPoint(
   const AVisualPoint: TPoint
 ): ILocalCoordConverter;
 var
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VLocalRect: TRect;
   VLocalCenter: TDoublePoint;
   VScale: Double;
@@ -239,7 +239,7 @@ end;
 
 function TLocalCoordConverterFactorySimpe.ChangeProjectionWithFreezeAtCenter(
   const ASource: ILocalCoordConverter;
-  const AProjection: IProjectionInfo
+  const AProjection: IProjection
 ): ILocalCoordConverter;
 var
   VLocalRect: TRect;
@@ -249,7 +249,7 @@ var
   VTopLefAtMap: TDoublePoint;
   VRelativePoint: TDoublePoint;
   VLonLatPoint: TDoublePoint;
-  VProjectionOld: IProjectionInfo;
+  VProjectionOld: IProjection;
 begin
   VProjectionOld := ASource.ProjectionInfo;
   if VProjectionOld.GetIsSameProjectionInfo(AProjection) then begin
@@ -280,7 +280,7 @@ end;
 
 function TLocalCoordConverterFactorySimpe.ChangeProjectionWithFreezeAtVisualPoint(
   const ASource: ILocalCoordConverter;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const AFreezePoint: TPoint
 ): ILocalCoordConverter;
 var
@@ -292,7 +292,7 @@ var
   VRelativeFreezePoint: TDoublePoint;
   VLonLatFreezePoint: TDoublePoint;
   VMapFreezPointAtNew: TDoublePoint;
-  VProjectionOld: IProjectionInfo;
+  VProjectionOld: IProjection;
 begin
   VProjectionOld := ASource.ProjectionInfo;
   if VProjectionOld.GetIsSameProjectionInfo(AProjection) then begin
@@ -330,7 +330,7 @@ end;
 
 function TLocalCoordConverterFactorySimpe.ChangeProjectionWithScaleUpdate(
   const ASource: ILocalCoordConverter;
-  const AProjection: IProjectionInfo
+  const AProjection: IProjection
 ): ILocalCoordConverter;
 var
   VLocalRect: TRect;
@@ -342,7 +342,7 @@ var
   VRelativePoint: TDoublePoint;
   VLonLatPoint: TDoublePoint;
   VCenterMapPixelAtNew: TDoublePoint;
-  VProjectionOld: IProjectionInfo;
+  VProjectionOld: IProjection;
 begin
   VProjectionOld := ASource.ProjectionInfo;
   if VProjectionOld.GetIsSameProjectionInfo(AProjection) then begin
@@ -379,7 +379,7 @@ end;
 
 function TLocalCoordConverterFactorySimpe.CreateConverter(
   const ALocalRect: TRect;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const AMapScale: Double;
   const AMapPixelAtLocalZero: TDoublePoint
 ): ILocalCoordConverter;
@@ -444,7 +444,7 @@ end;
 
 function TLocalCoordConverterFactorySimpe.CreateConverterNoScale(
   const ALocalRect: TRect;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const AMapPixelAtLocalZero: TPoint
 ): ILocalCoordConverter;
 begin
@@ -456,7 +456,7 @@ begin
 end;
 
 function TLocalCoordConverterFactorySimpe.CreateForTile(
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const ATile: TPoint
 ): ILocalCoordConverter;
 var

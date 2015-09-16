@@ -41,14 +41,14 @@ type
 
     function GetZoomCount: Byte;
 
-    function GetZoom(const AIndex: Byte): IProjectionInfo;
+    function GetZoom(const AIndex: Byte): IProjection;
 
     procedure ValidateZoom(var AZoom: Byte);
     function CheckZoom(const AZoom: Byte): Boolean;
 
-    function GetSuitableProjection(const AProjection: IProjectionInfo): IProjectionInfo;
-    function GetSuitableZoom(const AProjection: IProjectionInfo): Byte;
-    function IsProjectionFromThisSet(const AProjection: IProjectionInfo): Boolean;
+    function GetSuitableProjection(const AProjection: IProjection): IProjection;
+    function GetSuitableZoom(const AProjection: IProjection): Byte;
+    function IsProjectionFromThisSet(const AProjection: IProjection): Boolean;
   public
     constructor Create(
       const AHash: THashValue;
@@ -79,22 +79,22 @@ begin
 end;
 
 function TProjectionSetSimple.GetSuitableProjection(
-  const AProjection: IProjectionInfo
-): IProjectionInfo;
+  const AProjection: IProjection
+): IProjection;
 begin
-  Result := IProjectionInfo(FZooms[AProjection.Zoom]); // TODO: fix later
+  Result := IProjection(FZooms[AProjection.Zoom]); // TODO: fix later
 end;
 
 function TProjectionSetSimple.GetSuitableZoom(
-  const AProjection: IProjectionInfo
+  const AProjection: IProjection
 ): Byte;
 begin
   Result := AProjection.Zoom; // TODO: fix later
 end;
 
-function TProjectionSetSimple.GetZoom(const AIndex: Byte): IProjectionInfo;
+function TProjectionSetSimple.GetZoom(const AIndex: Byte): IProjection;
 begin
-  Result := IProjectionInfo(FZooms[AIndex]);
+  Result := IProjection(FZooms[AIndex]);
 end;
 
 function TProjectionSetSimple.GetZoomCount: Byte;
@@ -103,7 +103,7 @@ begin
 end;
 
 function TProjectionSetSimple.IsProjectionFromThisSet(
-  const AProjection: IProjectionInfo
+  const AProjection: IProjection
 ): Boolean;
 var
   VZoom: Byte;

@@ -54,14 +54,14 @@ type
       const ACancelNotifier: INotifierOperation;
       const AMarksSubset: IVectorItemSubset;
       ATargetBmp: TCustomBitmap32;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const AMapRect: TRect;
       var AFixedPointArray: TArrayOfFixedPoint
     ): Boolean;
     function DrawPath(
       var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const AMapRect: TRect;
       const AAppearance: IAppearance;
       const ALine: IGeometryLonLatLine;
@@ -78,7 +78,7 @@ type
     function DrawPoly(
       var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const AMapRect: TRect;
       const AAppearance: IAppearance;
       const APoly: IGeometryLonLatPolygon;
@@ -87,7 +87,7 @@ type
     function DrawPoint(
       var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const AMapRect: TRect;
       const AGeometry: IGeometryLonLatPoint;
       const APoint: IVectorDataItem
@@ -100,7 +100,7 @@ type
     function RenderVectorTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AProjectionInfo: IProjectionInfo;
+      const AProjectionInfo: IProjection;
       const ATile: TPoint;
       const ASource: IVectorItemSubset
     ): IBitmap32Static;
@@ -147,7 +147,7 @@ end;
 function TVectorTileRendererForMarks.DrawPath(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const AMapRect: TRect;
   const AAppearance: IAppearance;
   const ALine: IGeometryLonLatLine;
@@ -246,7 +246,7 @@ end;
 function TVectorTileRendererForMarks.DrawPoly(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const AMapRect: TRect;
   const AAppearance: IAppearance;
   const APoly: IGeometryLonLatPolygon;
@@ -279,7 +279,7 @@ end;
 function TVectorTileRendererForMarks.DrawPoint(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const AMapRect: TRect;
   const AGeometry: IGeometryLonLatPoint;
   const APoint: IVectorDataItem
@@ -311,7 +311,7 @@ function TVectorTileRendererForMarks.DrawSubset(
   const ACancelNotifier: INotifierOperation;
   const AMarksSubset: IVectorItemSubset;
   ATargetBmp: TCustomBitmap32;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const AMapRect: TRect;
   var AFixedPointArray: TArrayOfFixedPoint
 ): Boolean;
@@ -364,7 +364,7 @@ end;
 function TVectorTileRendererForMarks.RenderVectorTile(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const AProjectionInfo: IProjectionInfo;
+  const AProjectionInfo: IProjection;
   const ATile: TPoint;
   const ASource: IVectorItemSubset
 ): IBitmap32Static;

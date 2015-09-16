@@ -101,7 +101,7 @@ var
   VCounterContext: TInternalPerformanceCounterContext;
   VMatrix: IVectorTileMatrix;
   VRect: TDoubleRect;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMapRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
   VPixelPos: TDoublePoint;

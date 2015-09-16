@@ -284,7 +284,7 @@ var
   VTileIterator: ITileIterator;
   VSourceHashMatrix: IHashTileMatrix;
   VTile: TPoint;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VCounterContext: TInternalPerformanceCounterContext;
   VVectorTile: IVectorItemSubset;
   VSourceHash: THashValue;
@@ -381,7 +381,7 @@ var
   VTileRectUpdated: TRect;
   VLonLatRectUpdated: ILonLatRect;
   VLonLatRectAtMap: TDoubleRect;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VTileRectToUpdate: TRect;
   VTileRect: ITileRect;
   VCounter: Integer;

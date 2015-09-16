@@ -162,7 +162,7 @@ var
   VSearch: AnsiString;
   VHeaders: AnsiString;
   VPostData: AnsiString;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMapCenter: TDoublePoint;
 begin
   VProjection := ALocalConverter.ProjectionInfo;

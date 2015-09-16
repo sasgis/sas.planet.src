@@ -343,7 +343,7 @@ var
   VZoom, Vilon, Vilat: Integer;
   VXYPoint: TPoint;
   VXYRect: TRect;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VValueConverter: IValueToStringConverter;
 begin
   VValueConverter := FValueToStringConverter.GetStatic;

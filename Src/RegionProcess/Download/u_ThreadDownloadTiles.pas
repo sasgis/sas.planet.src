@@ -450,7 +450,7 @@ var
   VIterTaskArray: array of TIterTask;
   VTileIterator: ITileIterator;
   VSoftCancelNotifier: INotifierOneOperation;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VProjectedPolygon: IGeometryProjectedPolygon;
 begin
   try

@@ -63,12 +63,12 @@ type
     function MakePolygonBuilder(): IGeometryProjectedPolygonBuilder;
 
     function CreateProjectedLineByLonLatPath(
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const ASource: IGeometryLonLatLine;
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryProjectedLine;
     function CreateProjectedPolygonByLonLatPolygon(
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const ASource: IGeometryLonLatPolygon;
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryProjectedPolygon;

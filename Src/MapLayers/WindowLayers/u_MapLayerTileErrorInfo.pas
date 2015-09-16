@@ -259,7 +259,7 @@ var
   VMarker: IMarkerDrawable;
   VFixedOnView: TDoublePoint;
   VErrorInfo: ITileErrorInfo;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VGUID: TGUID;
   VMapType: IMapType;
   VTile: TPoint;

@@ -39,7 +39,7 @@ type
     FSource: IBitmapTileProvider;
     FCache: ITileObjCacheBitmap;
   private
-    function GetProjectionInfo: IProjectionInfo;
+    function GetProjectionInfo: IProjection;
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
@@ -57,7 +57,7 @@ type
     FSource: IVectorTileProvider;
     FCache: ITileObjCacheVector;
   private
-    function GetProjectionInfo: IProjectionInfo;
+    function GetProjectionInfo: IProjection;
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
@@ -86,7 +86,7 @@ begin
   FCache := ACache;
 end;
 
-function TBitmapTileProviderWithCache.GetProjectionInfo: IProjectionInfo;
+function TBitmapTileProviderWithCache.GetProjectionInfo: IProjection;
 begin
   Result := FSource.ProjectionInfo;
 end;
@@ -123,7 +123,7 @@ begin
   FCache := ACache;
 end;
 
-function TVectorTileProviderWithCache.GetProjectionInfo: IProjectionInfo;
+function TVectorTileProviderWithCache.GetProjectionInfo: IProjection;
 begin
   Result := FSource.ProjectionInfo;
 end;

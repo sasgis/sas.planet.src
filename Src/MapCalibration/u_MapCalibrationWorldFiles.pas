@@ -35,16 +35,16 @@ type
   private
     procedure SavePrjFile(
       const AFileName: WideString;
-      const AProjection: IProjectionInfo
+      const AProjection: IProjection
     );
     procedure SaveAuxXmlFile(
       const AFileName: WideString;
-      const AProjection: IProjectionInfo
+      const AProjection: IProjection
     );
     procedure SaveWFile(
       const AFileName: WideString;
       const xy1, xy2: TPoint;
-      const AProjection: IProjectionInfo
+      const AProjection: IProjection
     );
     function GetWorldFileExt(const AFileName: WideString): string;
   private
@@ -55,7 +55,7 @@ type
       const AFileName: WideString;
       const ATopLeft: TPoint;
       const ABottomRight: TPoint;
-      const AProjection: IProjectionInfo
+      const AProjection: IProjection
     ); safecall;
   public
     constructor Create(const AUseShortExt: Boolean = False);
@@ -71,7 +71,7 @@ uses
   u_GeoToStrFunc;
 
 function GetProj(
-  const AProjection: IProjectionInfo
+  const AProjection: IProjection
 ): UTF8String;
 begin
   case AProjection.ProjectionType.GetProjectionEPSG of
@@ -183,7 +183,7 @@ end;
 
 procedure TMapCalibrationWorldFiles.SaveAuxXmlFile(
   const AFileName: WideString;
-  const AProjection: IProjectionInfo
+  const AProjection: IProjection
 );
 var
   AuxXmkfile: TMemoryStream;
@@ -205,7 +205,7 @@ procedure TMapCalibrationWorldFiles.SaveCalibrationInfo(
   const AFileName: WideString;
   const ATopLeft: TPoint;
   const ABottomRight: TPoint;
-  const AProjection: IProjectionInfo
+  const AProjection: IProjection
 );
 begin
   SaveWFile(AFileName, ATopLeft, ABottomRight, AProjection);
@@ -215,7 +215,7 @@ end;
 
 procedure TMapCalibrationWorldFiles.SavePrjFile(
   const AFileName: WideString;
-  const AProjection: IProjectionInfo
+  const AProjection: IProjection
 );
 var
   VprojInfo: UTF8String;
@@ -251,7 +251,7 @@ end;
 procedure TMapCalibrationWorldFiles.SaveWFile(
   const AFileName: WideString;
   const xy1, xy2: TPoint;
-  const AProjection: IProjectionInfo
+  const AProjection: IProjection
 );
 const
   cCoordFmtStr = '%.16f';

@@ -241,7 +241,7 @@ function TGeoCoderByRosreestr.PrepareRequest(
 ): IDownloadRequest;
 var
   VSearch: AnsiString;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMapRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
   i: integer;

@@ -29,8 +29,8 @@ type
     function GetZoom: Byte;
     property Zoom: Byte read GetZoom;
 
-    function GetProjectionInfo: IProjectionInfo;
-    property ProjectionInfo: IProjectionInfo read GetProjectionInfo;
+    function GetProjectionInfo: IProjection;
+    property ProjectionInfo: IProjection read GetProjectionInfo;
 
     function IsEqual(const ARect: TRect): Boolean; overload;
     function IsEqual(const ARect: ITileRect): Boolean; overload;

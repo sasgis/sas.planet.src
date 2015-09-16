@@ -167,7 +167,7 @@ var
   VTileInfo: ITileInfoWithData;
   VBitmapTile: IBitmap32Static;
   VTileData: IBinaryData;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VIterByRect: Boolean;
   VDoSaveBlank: Boolean;
 begin
@@ -315,7 +315,7 @@ var
   VRect: TRect;
   VTileRect: ITileRect;
   VLonLatRect: TDoubleRect;
-  VProjectionInfo: IProjectionInfo;
+  VProjectionInfo: IProjection;
   VText: string;
   VMapName: string;
   VLayerFormat: string;

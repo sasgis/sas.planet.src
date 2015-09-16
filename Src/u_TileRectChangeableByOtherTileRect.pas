@@ -119,11 +119,11 @@ var
   VSource: ITileRect;
   VResult: ITileRect;
   VChanged: Boolean;
-  VSourceProjection: IProjectionInfo;
+  VSourceProjection: IProjection;
   VLonLatRect: TDoubleRect;
   VTileRectFloat: TDoubleRect;
   VTileRect: TRect;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
 begin
   VChanged := False;
   FMainLock.BeginWrite;

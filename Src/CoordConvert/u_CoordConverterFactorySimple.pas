@@ -126,7 +126,7 @@ var
   VZooms: IInterfaceListSimple;
   i: Integer;
   VHash: THashValue;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
 begin
   VZooms := TInterfaceListSimple.Create;
   VZooms.Capacity := 24;

@@ -123,7 +123,7 @@ var
   VJpegWriter: TJpegWriter;
   VStream: TFileStream;
   VCurrentPieceRect: TRect;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMapPieceSize: TPoint;
   VExif: TExifSimple;
   VCenterLonLat: TDoublePoint;

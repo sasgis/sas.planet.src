@@ -37,7 +37,7 @@ type
     FSourceProvider: IBitmapTileProvider;
     FLine: IGeometryProjectedSinglePolygon;
   private
-    function GetProjectionInfo: IProjectionInfo;
+    function GetProjectionInfo: IProjection;
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
@@ -81,7 +81,7 @@ begin
   end;
 end;
 
-function TBitmapTileProviderInPolygon.GetProjectionInfo: IProjectionInfo;
+function TBitmapTileProviderInPolygon.GetProjectionInfo: IProjection;
 begin
   Result := FSourceProvider.ProjectionInfo;
 end;

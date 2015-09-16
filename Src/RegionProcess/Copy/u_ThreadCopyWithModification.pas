@@ -120,7 +120,7 @@ end;
 procedure TThreadCopyWithModification.ProcessRegion;
 
   procedure ProcessTile(
-    const AProjection: IProjectionInfo;
+    const AProjection: IProjection;
     const ATile: TPoint;
     const AZoom: Byte;
     const ALoadDate: TDateTime
@@ -154,11 +154,11 @@ var
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
   VTileIterators: array of ITileIterator;
-  VTileProjections: array of IProjectionInfo;
+  VTileProjections: array of IProjection;
   I: Integer;
   VZoom: Byte;
   VProjectionSet: IProjectionSet;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VProjectedPolygon: IGeometryProjectedPolygon;
   VTileIterator: ITileIterator;
   VTile: TPoint;

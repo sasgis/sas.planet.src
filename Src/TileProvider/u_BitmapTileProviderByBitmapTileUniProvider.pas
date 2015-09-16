@@ -34,10 +34,10 @@ uses
 type
   TBitmapTileProviderByBitmapTileUniProvider = class(TBaseInterfacedObject, IBitmapTileProvider)
   private
-    FProjection: IProjectionInfo;
+    FProjection: IProjection;
     FSource: IBitmapTileUniProvider;
   private
-    function GetProjectionInfo: IProjectionInfo;
+    function GetProjectionInfo: IProjection;
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
@@ -45,7 +45,7 @@ type
     ): IBitmap32Static;
   public
     constructor Create(
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const ASource: IBitmapTileUniProvider
     );
   end;
@@ -55,7 +55,7 @@ implementation
 { TBitmapTileProviderByBitmapUniTileProvider }
 
 constructor TBitmapTileProviderByBitmapTileUniProvider.Create(
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const ASource: IBitmapTileUniProvider
 );
 begin
@@ -66,7 +66,7 @@ begin
   FSource := ASource;
 end;
 
-function TBitmapTileProviderByBitmapTileUniProvider.GetProjectionInfo: IProjectionInfo;
+function TBitmapTileProviderByBitmapTileUniProvider.GetProjectionInfo: IProjection;
 begin
   Result := FProjection;
 end;

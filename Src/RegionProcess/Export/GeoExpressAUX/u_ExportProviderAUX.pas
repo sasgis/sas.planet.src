@@ -103,7 +103,7 @@ var
   VPath: string;
   VMapType: IMapType;
   VZoom: byte;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VProjectedPolygon: IGeometryProjectedPolygon;
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VThread: TThread;

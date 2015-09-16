@@ -114,7 +114,7 @@ var
   I, J: Integer;
   VZoom: Byte;
   VProjectionSet: IProjectionSet;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VProjectedPolygon: IGeometryProjectedPolygon;
   VTileIterator: ITileIterator;
   VTile: TPoint;

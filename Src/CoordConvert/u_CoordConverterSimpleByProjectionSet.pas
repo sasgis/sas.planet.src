@@ -81,7 +81,7 @@ function TCoordConverterSimpleByProjectionSet.LonLat2Pos(
   AZoom: byte
 ): Tpoint;
 var
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
 begin
   if AZoom > 23 then begin
     VProjection := FProjectionSet.Zooms[AZoom - 8];
@@ -117,7 +117,7 @@ function TCoordConverterSimpleByProjectionSet.Pos2LonLat(
   AZoom: byte
 ): TDoublePoint;
 var
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
 begin
   if AZoom > 23 then begin
     VProjection := FProjectionSet.Zooms[AZoom - 8];

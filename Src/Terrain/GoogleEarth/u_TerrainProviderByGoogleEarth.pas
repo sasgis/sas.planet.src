@@ -149,7 +149,7 @@ var
   VLonLat: TDoublePoint;
   VTilePoint: TPoint;
   VZoom: Byte;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VElevation: Single;
   VTerrainProvider: IGoogleEarthTerrainTileProvider;
 begin

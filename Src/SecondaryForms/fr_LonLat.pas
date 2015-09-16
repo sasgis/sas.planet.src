@@ -263,7 +263,7 @@ var
   XYPoint: TDoublePoint;
   VZoom: Byte;
   VLonLat: TDoublePoint;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VLocalConverter: ILocalCoordConverter;
 begin
   VLonLat := CEmptyDoublePoint;

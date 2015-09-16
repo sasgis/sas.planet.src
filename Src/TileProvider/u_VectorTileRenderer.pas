@@ -57,14 +57,14 @@ type
       var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
       const APoint: IGeometryLonLatPoint;
-      const AProjectionInfo: IProjectionInfo;
+      const AProjectionInfo: IProjection;
       const AMapRect: TRect
     ): Boolean;
     function DrawPath(
       var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
       const ALine: IGeometryLonLatLine;
-      const AProjectionInfo: IProjectionInfo;
+      const AProjectionInfo: IProjection;
       const AMapRect: TRect;
       var AFixedPointArray: TArrayOfFixedPoint
     ): Boolean;
@@ -79,7 +79,7 @@ type
       var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
       const APoly: IGeometryLonLatPolygon;
-      const AProjectionInfo: IProjectionInfo;
+      const AProjectionInfo: IProjection;
       const AMapRect: TRect;
       var AFixedPointArray: TArrayOfFixedPoint
     ): Boolean;
@@ -87,7 +87,7 @@ type
       var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
       const AData: IGeometryLonLat;
-      const AProjectionInfo: IProjectionInfo;
+      const AProjectionInfo: IProjection;
       const AMapRect: TRect;
       var AFixedPointArray: TArrayOfFixedPoint
     ): Boolean;
@@ -95,7 +95,7 @@ type
     function RenderVectorTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AProjectionInfo: IProjectionInfo;
+      const AProjectionInfo: IProjection;
       const ATile: TPoint;
       const ASource: IVectorItemSubset
     ): IBitmap32Static;
@@ -141,7 +141,7 @@ function TVectorTileRenderer.DrawPath(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
   const ALine: IGeometryLonLatLine;
-  const AProjectionInfo: IProjectionInfo;
+  const AProjectionInfo: IProjection;
   const AMapRect: TRect;
   var AFixedPointArray: TArrayOfFixedPoint
 ): Boolean;
@@ -189,7 +189,7 @@ function TVectorTileRenderer.DrawPoint(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
   const APoint: IGeometryLonLatPoint;
-  const AProjectionInfo: IProjectionInfo;
+  const AProjectionInfo: IProjection;
   const AMapRect: TRect
 ): Boolean;
 var
@@ -218,7 +218,7 @@ function TVectorTileRenderer.DrawPoly(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
   const APoly: IGeometryLonLatPolygon;
-  const AProjectionInfo: IProjectionInfo;
+  const AProjectionInfo: IProjection;
   const AMapRect: TRect;
   var AFixedPointArray: TArrayOfFixedPoint
 ): Boolean;
@@ -293,7 +293,7 @@ function TVectorTileRenderer.DrawWikiElement(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
   const AData: IGeometryLonLat;
-  const AProjectionInfo: IProjectionInfo;
+  const AProjectionInfo: IProjection;
   const AMapRect: TRect;
   var AFixedPointArray: TArrayOfFixedPoint
 ): Boolean;
@@ -326,7 +326,7 @@ end;
 function TVectorTileRenderer.RenderVectorTile(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const AProjectionInfo: IProjectionInfo;
+  const AProjectionInfo: IProjection;
   const ATile: TPoint;
   const ASource: IVectorItemSubset
 ): IBitmap32Static;

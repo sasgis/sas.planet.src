@@ -262,7 +262,7 @@ var
   VTileRect: ITileRect;
   VTileIterator: ITileIterator;
   VTile: TPoint;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VCounterContext: TInternalPerformanceCounterContext;
   VVectorTile: IVectorItemSubset;
   VSourceHash: THashValue;

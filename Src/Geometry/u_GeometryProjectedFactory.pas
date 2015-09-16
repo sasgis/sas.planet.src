@@ -18,13 +18,13 @@ type
   private
     procedure LonLatSinglePolygonToBuilder(
       const ABuilder: IGeometryProjectedPolygonBuilder;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const ASource: IGeometryLonLatSinglePolygon;
       const ATemp: IDoublePointsAggregator = nil
     );
     procedure LonLatSingleLineToBuilder(
       const ABuilder: IGeometryProjectedLineBuilder;
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const ASource: IGeometryLonLatSingleLine;
       const ATemp: IDoublePointsAggregator = nil
     );
@@ -39,12 +39,12 @@ type
     function MakePolygonBuilder(): IGeometryProjectedPolygonBuilder;
 
     function CreateProjectedLineByLonLatPath(
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const ASource: IGeometryLonLatLine;
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryProjectedLine;
     function CreateProjectedPolygonByLonLatPolygon(
-      const AProjection: IProjectionInfo;
+      const AProjection: IProjection;
       const ASource: IGeometryLonLatPolygon;
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryProjectedPolygon;
@@ -300,7 +300,7 @@ end;
 
 procedure TGeometryProjectedFactory.LonLatSingleLineToBuilder(
   const ABuilder: IGeometryProjectedLineBuilder;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const ASource: IGeometryLonLatSingleLine;
   const ATemp: IDoublePointsAggregator
 );
@@ -322,7 +322,7 @@ begin
 end;
 
 function TGeometryProjectedFactory.CreateProjectedLineByLonLatPath(
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const ASource: IGeometryLonLatLine;
   const ATemp: IDoublePointsAggregator
 ): IGeometryProjectedLine;
@@ -364,7 +364,7 @@ end;
 
 procedure TGeometryProjectedFactory.LonLatSinglePolygonToBuilder(
   const ABuilder: IGeometryProjectedPolygonBuilder;
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const ASource: IGeometryLonLatSinglePolygon;
   const ATemp: IDoublePointsAggregator
 );
@@ -399,7 +399,7 @@ begin
 end;
 
 function TGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-  const AProjection: IProjectionInfo;
+  const AProjection: IProjection;
   const ASource: IGeometryLonLatPolygon;
   const ATemp: IDoublePointsAggregator
 ): IGeometryProjectedPolygon;

@@ -3518,7 +3518,7 @@ end;
 procedure TfrmMain.RosreestrClick(Sender: TObject);
 var
   VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VProjectionType: IProjectionType;
   VMouseMapPoint: TDoublePoint;
   VLonLat: TDoublePoint;
@@ -4240,8 +4240,8 @@ end;
 procedure TfrmMain.NextMapWithTile(AStep: integer);
 var
   VMapType: IMapType;
-  VProjection: IProjectionInfo;
-  VMapProjection: IProjectionInfo;
+  VProjection: IProjection;
+  VMapProjection: IProjection;
   VLocalConverter: ILocalCoordConverter;
   VMapTile: Tpoint;
   VVersion: IMapVersionRequest;
@@ -4298,8 +4298,8 @@ var
   I: Integer;
   VMapType: IMapType;
   VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjectionInfo;
-  VMapProjection: IProjectionInfo;
+  VProjection: IProjection;
+  VMapProjection: IProjection;
   VList: IMapVersionListStatic;
   VMapTile: Tpoint;
   VLonLat: TDoublePoint;
@@ -4346,12 +4346,12 @@ procedure TfrmMain.tbpmiVersionsPopup(
 var
   VMapType: IMapType;
   VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMousePos: TPoint;
   VMouseMapPoint: TDoublePoint;
   VLonLat: TDoublePoint;
   VMapTile: Tpoint;
-  VMapProjection: IProjectionInfo;
+  VMapProjection: IProjection;
   I: Integer;
   VMenuItem: TTBXItemSelectMapVersion;
   VCurrentVersion: String;
@@ -4444,7 +4444,7 @@ end;
 procedure TfrmMain.terraserver1Click(Sender: TObject);
 var
   VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMouseMapPoint: TDoublePoint;
   VLonLat: TDoublePoint;
 begin
@@ -4705,7 +4705,7 @@ procedure TfrmMain.NaddPointClick(Sender: TObject);
 var
   VLocalConverter: ILocalCoordConverter;
   VMouseMapPoint: TDoublePoint;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMouseLonLat: TDoublePoint;
   VPoint: IGeometryLonLatPoint;
 begin
@@ -4723,7 +4723,7 @@ end;
 procedure TfrmMain.tbitmCopyToClipboardMainMapTileClick(Sender: TObject);
 var
   VMouseMapPoint: TDoublePoint;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMapType: IMapType;
   VLocalConverter: ILocalCoordConverter;
   VTile: TPoint;
@@ -4752,7 +4752,7 @@ var
   VMouseLonLat: TDoublePoint;
   VStr: string;
   VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMouseMapPoint: TDoublePoint;
 begin
   VLocalConverter := FViewPortState.View.GetStatic;
@@ -4767,7 +4767,7 @@ end;
 procedure TfrmMain.tbitmCopyToClipboardGenshtabNameClick(Sender: TObject);
 var
   VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMouseMapPoint: TDoublePoint;
   VMouseLonLat: TDoublePoint;
   VListName: Widestring;
@@ -4787,10 +4787,10 @@ end;
 
 procedure TfrmMain.tbitmCopyToClipboardMainMapTileFileNameClick(Sender: TObject);
 var
-  VMapProjection: IProjectionInfo;
+  VMapProjection: IProjection;
   VMapType: IMapType;
   VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMouseMapPoint: TDoublePoint;
   VMouseLonLat: TDoublePoint;
   VTile: TPoint;
@@ -4817,9 +4817,9 @@ procedure TfrmMain.tbitmDownloadMainMapTileClick(Sender: TObject);
 var
   path: string;
   VMapType: IMapType;
-  VMapProjection: IProjectionInfo;
+  VMapProjection: IProjection;
   VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMouseMapPoint: TDoublePoint;
   VMouseLonLat: TDoublePoint;
   VTile: TPoint;
@@ -4905,9 +4905,9 @@ end;
 
 procedure TfrmMain.NopendirClick(Sender: TObject);
 var
-  VMapProjection: IProjectionInfo;
+  VMapProjection: IProjection;
   VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMouseMapPoint: TDoublePoint;
   VMouseLonLat: TDoublePoint;
   VTile: TPoint;
@@ -4943,9 +4943,9 @@ procedure TfrmMain.tbitmOpenFolderMainMapTileClick(Sender: TObject);
 var
   VTilePath: string;
   VTileFileName: string;
-  VMapProjection: IProjectionInfo;
+  VMapProjection: IProjection;
   VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMouseMapPoint: TDoublePoint;
   VMouseLonLat: TDoublePoint;
   VTile: TPoint;
@@ -5121,9 +5121,9 @@ procedure TfrmMain.NDelClick(Sender: TObject);
 var
   s: string;
   VMapType: IMapType;
-  VMapProjection: IProjectionInfo;
+  VMapProjection: IProjection;
   VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMouseMapPoint: TDoublePoint;
   VMouseLonLat: TDoublePoint;
   VTile: TPoint;
@@ -5808,7 +5808,7 @@ end;
 procedure TfrmMain.NoaaForecastMeteorology1Click(Sender: TObject);
 var
   VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMouseMapPoint: TDoublePoint;
   VLonLat: TDoublePoint;
 begin
@@ -5827,10 +5827,10 @@ end;
 
 procedure TfrmMain.tbitmCopyToClipboardMainMapUrlClick(Sender: TObject);
 var
-  VMapProjection: IProjectionInfo;
+  VMapProjection: IProjection;
   VMapType: IMapType;
   VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMouseMapPoint: TDoublePoint;
   VMouseLonLat: TDoublePoint;
   VTile: TPoint;
@@ -5890,7 +5890,7 @@ var
   VGPSMapPoint: TDoublePoint;
   VPosition: IGPSPosition;
   VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMapMove: Boolean;
   VMapMoveCentred: Boolean;
   VMinDelta: Double;
@@ -6025,7 +6025,7 @@ var
   VClickRect: TRect;
   VClickLonLatRect: TDoubleRect;
   VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMouseMapPoint: TDoublePoint;
   VClickMapRect: TDoubleRect;
   VIsClickInMap: Boolean;
@@ -6204,7 +6204,7 @@ procedure TfrmMain.mapMouseUp(
   Layer: TCustomLayer
 );
 var
-  VMapProjection: IProjectionInfo;
+  VMapProjection: IProjection;
   VSelectionRect: TDoubleRect;
   VSelectionFinished: Boolean;
   VPoly: IGeometryLonLatPolygon;
@@ -6212,7 +6212,7 @@ var
   VMapMoving: Boolean;
   VMapType: IMapType;
   VValidPoint: Boolean;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VTile: TPoint;
   VLonLat: TDoublePoint;
   VLocalConverter: ILocalCoordConverter;
@@ -6395,7 +6395,7 @@ procedure TfrmMain.mapMouseMove(
 );
 var
   hintrect: TRect;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VLonLat: TDoublePoint;
   VItemFound: IVectorDataItem;
   VItemHint: string;
@@ -6930,7 +6930,7 @@ end;
 procedure TfrmMain.nokiamapcreator1Click(Sender: TObject);
 var
   VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMouseMapPoint: TDoublePoint;
   VLonLat: TDoublePoint;
 begin
@@ -7154,7 +7154,7 @@ end;
 procedure TfrmMain.osmorg1Click(Sender: TObject);
 var
   VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMouseMapPoint: TDoublePoint;
   VLonLat: TDoublePoint;
 begin
@@ -7224,7 +7224,7 @@ end;
 procedure TfrmMain.TBScreenSelectClick(Sender: TObject);
 var
   VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMapRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
   VPolygon: IGeometryLonLatPolygon;
@@ -7302,7 +7302,7 @@ end;
 procedure TfrmMain.MakeRosreestrPolygon(const APoint: TPoint);
 var
   VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMouseMapPoint: TDoublePoint;
   VLonLat: TDoublePoint;
   VMapRect: TDoubleRect;
@@ -7421,7 +7421,7 @@ end;
 procedure TfrmMain.NSRTM3Click(Sender: TObject);
 var
   VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMouseMapPoint: TDoublePoint;
   VLonLat: TDoublePoint;
 begin
@@ -7442,7 +7442,7 @@ end;
 procedure TfrmMain.NGTOPO30Click(Sender: TObject);
 var
   VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMouseMapPoint: TDoublePoint;
   VLonLat: TDoublePoint;
 begin
@@ -7463,7 +7463,7 @@ end;
 procedure TfrmMain.Google1Click(Sender: TObject);
 var
   VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMouseMapPoint: TDoublePoint;
   VLonLat: TDoublePoint;
 begin
@@ -7484,7 +7484,7 @@ end;
 procedure TfrmMain.YaLinkClick(Sender: TObject);
 var
   VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMouseMapPoint: TDoublePoint;
   VLonLat: TDoublePoint;
 begin
@@ -7506,7 +7506,7 @@ end;
 procedure TfrmMain.kosmosnimkiru1Click(Sender: TObject);
 var
   VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMouseMapPoint: TDoublePoint;
   VLonLat: TDoublePoint;
 begin
@@ -7528,7 +7528,7 @@ end;
 procedure TfrmMain.livecom1Click(Sender: TObject);
 var
   VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjectionInfo;
+  VProjection: IProjection;
   VMouseMapPoint: TDoublePoint;
   VLonLat: TDoublePoint;
 begin
