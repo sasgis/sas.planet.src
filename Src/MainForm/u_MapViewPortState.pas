@@ -287,7 +287,7 @@ begin
       VLocalConverterNew :=
         FVisibleCoordConverterFactory.CreateConverter(
           VLocalRectNew,
-          VLocalConverter.ProjectionInfo,
+          VLocalConverter.Projection,
           VScale,
           VTopLeftMapPixel
         );
@@ -397,7 +397,7 @@ begin
   if AConfigData <> nil then begin
     VLocalConverter := FView.GetStatic;
     VProjectionSet := FProjectionSet.GetStatic;
-    VZoom := AConfigData.ReadInteger('Zoom', VLocalConverter.ProjectionInfo.Zoom);
+    VZoom := AConfigData.ReadInteger('Zoom', VLocalConverter.Projection.Zoom);
     VProjectionSet.ValidateZoom(VZoom);
     VProjection := VProjectionSet.Zooms[VZoom];
     VLonLat := VLocalConverter.GetCenterLonLat;
@@ -425,7 +425,7 @@ begin
   inherited;
   VLocalConverter := FView.GetStatic;
   VLonLat := VLocalConverter.GetCenterLonLat;
-  AConfigData.WriteInteger('Zoom', VLocalConverter.ProjectionInfo.Zoom);
+  AConfigData.WriteInteger('Zoom', VLocalConverter.Projection.Zoom);
   AConfigData.WriteFloat('X', VLonLat.X);
   AConfigData.WriteFloat('Y', VLonLat.Y);
 end;
@@ -446,7 +446,7 @@ begin
   try
     VLocalConverter := FView.GetStatic;
     VProjectionSet := FProjectionSet.GetStatic;
-    VProjection := VProjectionSet.GetSuitableProjection(VLocalConverter.ProjectionInfo);
+    VProjection := VProjectionSet.GetSuitableProjection(VLocalConverter.Projection);
     VLocalConverterNew :=
       FVisibleCoordConverterFactory.ChangeProjectionWithFreezeAtCenter(
         VLocalConverter,
@@ -480,7 +480,7 @@ begin
     end else begin
       VNewMapScale := FBaseScale * AScale;
     end;
-    VProjection := VLocalConverter.ProjectionInfo;
+    VProjection := VLocalConverter.Projection;
     VMapPointFixed := VLocalConverter.LocalPixel2MapPixelFloat(AFreezePoint);
     VProjection.ValidatePixelPosFloatStrict(VMapPointFixed, False);
     VVisiblePointFixed := VLocalConverter.MapPixelFloat2LocalPixelFloat(VMapPointFixed);

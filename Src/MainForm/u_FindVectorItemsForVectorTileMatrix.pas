@@ -128,14 +128,14 @@ begin
       VRect.Right := ALocalPoint.X + FRectHalfSize;
       VRect.Bottom := ALocalPoint.Y + FRectHalfSize;
 
-      VProjection := AVisualConverter.ProjectionInfo;
+      VProjection := AVisualConverter.Projection;
       VMapRect := AVisualConverter.LocalRectFloat2MapRectFloat(VRect);
       VProjection.ValidatePixelRectFloat(VMapRect);
       VLonLatRect := VProjection.PixelRectFloat2LonLatRect(VMapRect);
       VPixelPos := AVisualConverter.LocalPixel2MapPixelFloat(ALocalPoint);
       VProjection.ValidatePixelPosFloatStrict(VPixelPos, False);
       VLonLatPos := VProjection.PixelPosFloat2LonLat(VPixelPos);
-      VTile := PointFromDoublePoint(VMatrix.TileRect.ProjectionInfo.LonLat2TilePosFloat(VLonLatPos), prToTopLeft);
+      VTile := PointFromDoublePoint(VMatrix.TileRect.Projection.LonLat2TilePosFloat(VLonLatPos), prToTopLeft);
       VItems := VMatrix.GetElementByTile(VTile);
       if Assigned(VItems) then begin
         // check element

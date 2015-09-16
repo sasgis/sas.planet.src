@@ -216,7 +216,7 @@ begin
   VList := nil;
   Result := nil;
   if AConfig.IsUseMarks then begin
-    VProjection := ATileRect.ProjectionInfo;
+    VProjection := ATileRect.Projection;
     if not AConfig.IgnoreCategoriesVisible then begin
       VList := FMarkDB.CategoryDB.GetVisibleCategories(VProjection.Zoom);
     end;

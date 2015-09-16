@@ -37,11 +37,11 @@ type
   TBitmapTileProviderByOtherBase = class(TBaseInterfacedObject, IBitmapTileProvider)
   private
     FProvider: IBitmapTileProvider;
-    FProjectionInfo: IProjection;
+    FProjection: IProjection;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FImageResamplerFactory: IImageResamplerFactory;
   private
-    function GetProjectionInfo: IProjection;
+    function GetProjection: IProjection;
   protected
     function GetTile(
       AOperationID: Integer;
@@ -53,7 +53,7 @@ type
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AImageResamplerFactory: IImageResamplerFactory;
       const AProvider: IBitmapTileProvider;
-      const AProjectionInfo: IProjection
+      const AProjection: IProjection
     );
   end;
 
@@ -69,7 +69,7 @@ type
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AImageResamplerFactory: IImageResamplerFactory;
       const AProvider: IBitmapTileProvider;
-      const AProjectionInfo: IProjection
+      const AProjection: IProjection
     );
   end;
 
@@ -85,7 +85,7 @@ type
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AImageResamplerFactory: IImageResamplerFactory;
       const AProvider: IBitmapTileProvider;
-      const AProjectionInfo: IProjection
+      const AProjection: IProjection
     );
   end;
 
@@ -105,24 +105,24 @@ constructor TBitmapTileProviderByOtherBase.Create(
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AImageResamplerFactory: IImageResamplerFactory;
   const AProvider: IBitmapTileProvider;
-  const AProjectionInfo: IProjection
+  const AProjection: IProjection
 );
 begin
   Assert(Assigned(ABitmap32StaticFactory));
   Assert(Assigned(AImageResamplerFactory));
   Assert(Assigned(AProvider));
-  Assert(Assigned(AProjectionInfo));
-  Assert(not AProvider.ProjectionInfo.GetIsSameProjectionInfo(AProjectionInfo));
+  Assert(Assigned(AProjection));
+  Assert(not AProvider.Projection.GetIsSameProjectionInfo(AProjection));
   inherited Create;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FImageResamplerFactory := AImageResamplerFactory;
   FProvider := AProvider;
-  FProjectionInfo := AProjectionInfo;
+  FProjection := AProjection;
 end;
 
-function TBitmapTileProviderByOtherBase.GetProjectionInfo: IProjection;
+function TBitmapTileProviderByOtherBase.GetProjection: IProjection;
 begin
-  Result := FProjectionInfo;
+  Result := FProjection;
 end;
 
 { TBitmapTileProviderByOtherProjection }
@@ -131,11 +131,11 @@ constructor TBitmapTileProviderByOtherProjection.Create(
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AImageResamplerFactory: IImageResamplerFactory;
   const AProvider: IBitmapTileProvider;
-  const AProjectionInfo: IProjection
+  const AProjection: IProjection
 );
 begin
-  inherited Create(ABitmap32StaticFactory, AImageResamplerFactory, AProvider, AProjectionInfo);
-  Assert(not AProjectionInfo.ProjectionType.IsSame(AProvider.ProjectionInfo.ProjectionType));
+  inherited Create(ABitmap32StaticFactory, AImageResamplerFactory, AProvider, AProjection);
+  Assert(not AProjection.ProjectionType.IsSame(AProvider.Projection.ProjectionType));
 end;
 
 procedure TileToBufferSameProjType(
@@ -240,8 +240,8 @@ var
 begin
   Result := nil;
   VTile := ATile;
-  VProjectionSource := FProvider.ProjectionInfo;
-  VProjectionTarget := FProjectionInfo;
+  VProjectionSource := FProvider.Projection;
+  VProjectionTarget := FProjection;
 
   if not VProjectionTarget.CheckTilePosStrict(VTile) then begin
     Exit;
@@ -312,11 +312,11 @@ constructor TBitmapTileProviderBySameProjection.Create(
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AImageResamplerFactory: IImageResamplerFactory;
   const AProvider: IBitmapTileProvider;
-  const AProjectionInfo: IProjection
+  const AProjection: IProjection
 );
 begin
-  inherited Create(ABitmap32StaticFactory, AImageResamplerFactory, AProvider, AProjectionInfo);
-  Assert(AProjectionInfo.ProjectionType.IsSame(AProvider.ProjectionInfo.ProjectionType));
+  inherited Create(ABitmap32StaticFactory, AImageResamplerFactory, AProvider, AProjection);
+  Assert(AProjection.ProjectionType.IsSame(AProvider.Projection.ProjectionType));
 end;
 
 function TBitmapTileProviderBySameProjection.GetTile(
@@ -341,8 +341,8 @@ var
 begin
   Result := nil;
   VTile := ATile;
-  VProjectionTarget := FProjectionInfo;
-  VProjectionSource := FProvider.ProjectionInfo;
+  VProjectionTarget := FProjection;
+  VProjectionSource := FProvider.Projection;
 
   if not VProjectionTarget.CheckTilePosStrict(VTile) then begin
     Exit;

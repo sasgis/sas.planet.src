@@ -40,14 +40,14 @@ type
     FProvider: IVectorTileUniProvider;
     FRenderer: IVectorTileRenderer;
   private
-    function GetProjectionInfo: IProjection;
+    function GetProjection: IProjection;
     function GetTile(AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const ATile: TPoint
     ): IBitmap32Static;
   public
     constructor Create(
-      const AProjectionInfo: IProjection;
+      const AProjection: IProjection;
       const AProvider: IVectorTileUniProvider;
       const ARenderer: IVectorTileRenderer
     );
@@ -58,21 +58,21 @@ implementation
 { TBitmapTileProviderByVectorTileProvider }
 
 constructor TBitmapTileProviderByVectorTileProvider.Create(
-  const AProjectionInfo: IProjection;
+  const AProjection: IProjection;
   const AProvider: IVectorTileUniProvider;
   const ARenderer: IVectorTileRenderer
 );
 begin
-  Assert(Assigned(AProjectionInfo));
+  Assert(Assigned(AProjection));
   Assert(Assigned(AProvider));
   Assert(Assigned(ARenderer));
   inherited Create;
-  FProjection :=  AProjectionInfo;
+  FProjection :=  AProjection;
   FProvider := AProvider;
   FRenderer := ARenderer;
 end;
 
-function TBitmapTileProviderByVectorTileProvider.GetProjectionInfo: IProjection;
+function TBitmapTileProviderByVectorTileProvider.GetProjection: IProjection;
 begin
   Result := FProjection;
 end;

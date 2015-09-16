@@ -39,7 +39,7 @@ type
     FColor: TColor32;
     FAntialiasMode: TAntialiasMode;
   private
-    function GetProjectionInfo: IProjection;
+    function GetProjection: IProjection;
     procedure Draw(
       ABitmap: TCustomBitmap32;
       const ALocalConverter: ILocalCoordConverter
@@ -132,7 +132,7 @@ begin
   end;
 end;
 
-function TProjectedDrawableElementByPolygonSimpleEdge.GetProjectionInfo: IProjection;
+function TProjectedDrawableElementByPolygonSimpleEdge.GetProjection: IProjection;
 begin
   Result := FProjection;
 end;

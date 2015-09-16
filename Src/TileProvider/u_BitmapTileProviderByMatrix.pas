@@ -36,7 +36,7 @@ type
   private
     FMatrix: IBitmapTileMatrix;
   private
-    function GetProjectionInfo: IProjection;
+    function GetProjection: IProjection;
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
@@ -61,9 +61,9 @@ begin
   FMatrix := AMatrix;
 end;
 
-function TBitmapTileProviderByMatrix.GetProjectionInfo: IProjection;
+function TBitmapTileProviderByMatrix.GetProjection: IProjection;
 begin
-  Result := FMatrix.TileRect.ProjectionInfo;
+  Result := FMatrix.TileRect.Projection;
 end;
 
 function TBitmapTileProviderByMatrix.GetTile(

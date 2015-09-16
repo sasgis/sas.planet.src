@@ -37,7 +37,7 @@ type
     FProjection: IProjection;
     FSource: IBitmapTileUniProvider;
   private
-    function GetProjectionInfo: IProjection;
+    function GetProjection: IProjection;
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
@@ -66,7 +66,7 @@ begin
   FSource := ASource;
 end;
 
-function TBitmapTileProviderByBitmapTileUniProvider.GetProjectionInfo: IProjection;
+function TBitmapTileProviderByBitmapTileUniProvider.GetProjection: IProjection;
 begin
   Result := FProjection;
 end;

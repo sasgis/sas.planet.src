@@ -159,7 +159,7 @@ end;
 
 procedure TMapViewGoto.ShowMarker(const ALonLat: TDoublePoint);
 begin
-  FLastGotoPos := TGotoPosStatic.Create(ALonLat, FViewPortState.View.GetStatic.ProjectionInfo, Now);
+  FLastGotoPos := TGotoPosStatic.Create(ALonLat, FViewPortState.View.GetStatic.Projection, Now);
   FChangeNotifier.Notify(nil);
 end;
 
@@ -178,7 +178,7 @@ procedure TMapViewGoto.GotoLonLat(
   const AshowMarker: Boolean
 );
 begin
-  FLastGotoPos := TGotoPosStatic.Create(ALonLat, FViewPortState.View.GetStatic.ProjectionInfo, Now);
+  FLastGotoPos := TGotoPosStatic.Create(ALonLat, FViewPortState.View.GetStatic.Projection, Now);
   FViewPortState.ChangeLonLat(ALonLat);
   if AShowmarker then begin
     FChangeNotifier.Notify(nil);

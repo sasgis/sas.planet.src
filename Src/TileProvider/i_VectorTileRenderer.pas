@@ -35,7 +35,7 @@ type
     function RenderVectorTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AProjectionInfo: IProjection;
+      const AProjection: IProjection;
       const ATile: TPoint;
       const ASource: IVectorItemSubset
     ): IBitmap32Static;

@@ -26,11 +26,11 @@ type
     ): IInterface;
   private
     function GetProjectedPath(
-      const AProjectionInfo: IProjection;
+      const AProjection: IProjection;
       const ALine: IGeometryLonLatLine
     ): IGeometryProjectedLine;
     function GetProjectedPolygon(
-      const AProjectionInfo: IProjection;
+      const AProjection: IProjection;
       const ALine: IGeometryLonLatPolygon
     ): IGeometryProjectedPolygon;
   public
@@ -53,7 +53,7 @@ type
   TDataRecord = record
     Path: IGeometryLonLatLine;
     Polygon: IGeometryLonLatPolygon;
-    ProjectionInfo: IProjection;
+    Projection: IProjection;
   end;
 
 
@@ -96,7 +96,7 @@ var
 begin
   Result := nil;
   VData := PDataRecord(AData);
-  VProjection := VData^.ProjectionInfo;
+  VProjection := VData^.Projection;
   if Assigned(VData^.Path) then begin
     VTestArrLenLonLatRect := VData^.Path.Bounds.Rect;
     VProjection.ProjectionType.ValidateLonLatRect(VTestArrLenLonLatRect);
@@ -108,7 +108,7 @@ begin
       (abs(VTestArrLenPixelRect.Top - VTestArrLenPixelRect.Bottom) > CMinProjectedLineSize) then begin
       VResultPath :=
         FVectorGeometryProjectedFactory.CreateProjectedLineByLonLatPath(
-          VData^.ProjectionInfo,
+          VData^.Projection,
           VData^.Path
         );
     end else begin
@@ -126,7 +126,7 @@ begin
       (abs(VTestArrLenPixelRect.Top - VTestArrLenPixelRect.Bottom) > CMinProjectedPolygonSize) then begin
       VResultPolygon :=
         FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-          VData^.ProjectionInfo,
+          VData^.Projection,
           VData^.Polygon
         );
     end else begin
@@ -137,7 +137,7 @@ begin
 end;
 
 function TGeometryProjectedProvider.GetProjectedPath(
-  const AProjectionInfo: IProjection;
+  const AProjection: IProjection;
   const ALine: IGeometryLonLatLine
 ): IGeometryProjectedLine;
 var
@@ -146,16 +146,16 @@ var
 begin
   VHash := $fbcb5f3e1bef5742;
   FHashFunction.UpdateHashByHash(VHash, ALine.Hash);
-  FHashFunction.UpdateHashByHash(VHash, AProjectionInfo.Hash);
+  FHashFunction.UpdateHashByHash(VHash, AProjection.Hash);
   VData.Path := ALine;
   VData.Polygon := nil;
-  VData.ProjectionInfo := AProjectionInfo;
+  VData.Projection := AProjection;
 
   Result := IGeometryProjectedMultiLine(FCache.GetOrCreateItem(VHash, @VData));
 end;
 
 function TGeometryProjectedProvider.GetProjectedPolygon(
-  const AProjectionInfo: IProjection;
+  const AProjection: IProjection;
   const ALine: IGeometryLonLatPolygon
 ): IGeometryProjectedPolygon;
 var
@@ -164,10 +164,10 @@ var
 begin
   VHash := $5af2a0463bf6e921;
   FHashFunction.UpdateHashByHash(VHash, ALine.Hash);
-  FHashFunction.UpdateHashByHash(VHash, AProjectionInfo.Hash);
+  FHashFunction.UpdateHashByHash(VHash, AProjection.Hash);
   VData.Path := nil;
   VData.Polygon := ALine;
-  VData.ProjectionInfo := AProjectionInfo;
+  VData.Projection := AProjection;
 
   Result := IGeometryProjectedMultiPolygon(FCache.GetOrCreateItem(VHash, @VData));
 end;

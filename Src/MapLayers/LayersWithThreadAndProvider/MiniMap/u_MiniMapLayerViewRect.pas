@@ -186,10 +186,10 @@ var
   VDrawRect: TRect;
 begin
   VViewMapSourceRect := AViewConverter.GetRectInMapPixelFloat;
-  VProjectionSource := AViewConverter.ProjectionInfo;
+  VProjectionSource := AViewConverter.Projection;
   VProjectionSource.ValidatePixelRectFloat(VViewMapSourceRect);
   VLonLatRect := VProjectionSource.PixelRectFloat2LonLatRect(VViewMapSourceRect);
-  VProjectionMiniMap := AMiniMapConverter.ProjectionInfo;
+  VProjectionMiniMap := AMiniMapConverter.Projection;
   VProjectionMiniMap.ProjectionType.ValidateLonLatRect(VLonLatRect);
   VBitmapRect := AMiniMapConverter.LonLatRect2LocalRectFloat(VLonLatRect);
 
@@ -206,7 +206,7 @@ begin
       (VMiniMapRect.Right > VBitmapRect.Right) or
       (VMiniMapRect.Bottom > VBitmapRect.Bottom)
     then begin
-      VZoomDelta := VProjectionSource.Zoom - AMiniMapConverter.ProjectionInfo.Zoom;
+      VZoomDelta := VProjectionSource.Zoom - AMiniMapConverter.Projection.Zoom;
       VFillColor := SetAlpha(clWhite32, (VZoomDelta) * 35);
       VBorderColor := SetAlpha(clNavy32, (VZoomDelta) * 43);
       VDrawRect := RectFromDoubleRect(VBitmapRect, rrClosest);
@@ -303,7 +303,7 @@ begin
   if FPosMoved then begin
     if FLayer.HitTest(X, Y) then begin
       VLocalConverter := FPosition.GetStatic;
-      VProjection := VLocalConverter.ProjectionInfo;
+      VProjection := VLocalConverter.Projection;
 
       VMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(Point(X, Y));
       VProjection.ValidatePixelPosFloatStrict(VMapPoint, False);
@@ -337,7 +337,7 @@ var
 begin
   VMiniMapConverter := FPosition.GetStatic;
   VViewConverter := FViewPortState.View.GetStatic;
-  if (VMiniMapConverter <> nil) and (VViewConverter <> nil) and (VMiniMapConverter.ProjectionInfo.Zoom < VViewConverter.ProjectionInfo.Zoom) then begin
+  if (VMiniMapConverter <> nil) and (VViewConverter <> nil) and (VMiniMapConverter.Projection.Zoom < VViewConverter.Projection.Zoom) then begin
     VCounterContext := FOnPaintCounter.StartOperation;
     try
       VOldClipRect := Buffer.ClipRect;

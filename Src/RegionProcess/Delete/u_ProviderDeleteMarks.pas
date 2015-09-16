@@ -119,7 +119,7 @@ begin
     end;
   end;
 
-  VProjection := FPosition.GetStatic.ProjectionInfo;
+  VProjection := FPosition.GetStatic.Projection;
   VProjectedPolygon :=
     FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
       VProjection,

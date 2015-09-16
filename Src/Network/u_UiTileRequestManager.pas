@@ -280,7 +280,7 @@ begin
   Result := False;
 
   while IsValidSession(ASessionID) and AIterator.Next(ATile) do begin
-    VZoom := AIterator.TilesRect.ProjectionInfo.Zoom;
+    VZoom := AIterator.TilesRect.Projection.Zoom;
     VState := tsNone;
     VEmptyItemIndex := -1;
 
@@ -441,7 +441,7 @@ begin
       if Assigned(VIterator) and IsValidSession(VSessionID) then begin
         Result := AcquireByIterator(ATile, VVersion, VIterator, VSessionID);
         if not Result then begin
-          Result := AcquireByMissedTasks(ATile, VIterator.TilesRect.ProjectionInfo.Zoom, VVersion, VSessionID);
+          Result := AcquireByMissedTasks(ATile, VIterator.TilesRect.Projection.Zoom, VVersion, VSessionID);
         end;
       end;
     finally

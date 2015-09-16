@@ -131,7 +131,7 @@ begin
     VSource := FSource.GetStatic;
     if Assigned(VSource) then begin
       if not VSource.IsEqual(FPrevSource) then begin
-        VSourceProjection := VSource.ProjectionInfo;
+        VSourceProjection := VSource.Projection;
         if FResultProjectionSet.IsProjectionFromThisSet(VSourceProjection) then begin
           VResult := VSource;
         end else begin

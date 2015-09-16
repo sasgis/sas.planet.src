@@ -344,7 +344,7 @@ begin
       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         Exit;
       end;
-      VProjection := VTileRect.ProjectionInfo;
+      VProjection := VTileRect.Projection;
       VTileIterator := TTileIteratorSpiralByRect.Create(VTileRect);
       while VTileIterator.Next(VTile) do begin
         VSourceHash := FSourceHashMatrix.Tiles[VTile];
@@ -396,7 +396,7 @@ begin
     if Assigned(VTileRect) then begin
       if Supports(AMsg, ILonLatRect, VLonLatRectUpdated) then begin
         VLonLatRectAtMap := VLonLatRectUpdated.Rect;
-        VProjection := VTileRect.ProjectionInfo;
+        VProjection := VTileRect.Projection;
         VProjection.ProjectionType.ValidateLonLatRect(VLonLatRectAtMap);
         VTileRectUpdated := RectFromDoubleRect(VProjection.LonLatRect2TileRectFloat(VLonLatRectAtMap), rrOutside);
 

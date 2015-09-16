@@ -32,7 +32,7 @@ type
   TTileRect = class(TBaseInterfacedObject, ITileRect)
   private
     FRect: TRect;
-    FProjectionInfo: IProjection;
+    FProjection: IProjection;
   private
     function GetLeft: Integer;
     function GetTop: Integer;
@@ -42,7 +42,7 @@ type
     function GetBottomRight: TPoint;
     function GetRect: TRect;
     function GetZoom: Byte;
-    function GetProjectionInfo: IProjection;
+    function GetProjection: IProjection;
 
     function IsEqual(const ARect: TRect): Boolean; overload;
     function IsEqual(const ARect: ITileRect): Boolean; overload;
@@ -61,7 +61,7 @@ type
     function IsIntersecWithRect(const ARect: ITileRect): Boolean; overload;
   public
     constructor Create(
-      const AProjectionInfo: IProjection;
+      const AProjection: IProjection;
       const ARect: TRect
     );
   end;
@@ -71,15 +71,15 @@ implementation
 { TTileRect }
 
 constructor TTileRect.Create(
-  const AProjectionInfo: IProjection;
+  const AProjection: IProjection;
   const ARect: TRect
 );
 begin
-  Assert(Assigned(AProjectionInfo));
-  Assert(AProjectionInfo.CheckTileRect(ARect));
+  Assert(Assigned(AProjection));
+  Assert(AProjection.CheckTileRect(ARect));
   inherited Create;
   FRect := ARect;
-  FProjectionInfo := AProjectionInfo;
+  FProjection := AProjection;
 end;
 
 function TTileRect.GetBottom: Integer;
@@ -97,9 +97,9 @@ begin
   Result := FRect.Left;
 end;
 
-function TTileRect.GetProjectionInfo: IProjection;
+function TTileRect.GetProjection: IProjection;
 begin
-  Result := FProjectionInfo;
+  Result := FProjection;
 end;
 
 function TTileRect.GetRect: TRect;
@@ -124,7 +124,7 @@ end;
 
 function TTileRect.GetZoom: Byte;
 begin
-  Result := FProjectionInfo.Zoom;
+  Result := FProjection.Zoom;
 end;
 
 function TTileRect.IntersecWithRect(
@@ -157,7 +157,7 @@ begin
   end else if ARect = nil then begin
     Result := False;
   end else begin
-    if FProjectionInfo.GetIsSameProjectionInfo(ARect.ProjectionInfo) then begin
+    if FProjection.GetIsSameProjectionInfo(ARect.Projection) then begin
       Result := EqualRect(FRect, ARect.Rect);
     end else begin
       Result := False;

@@ -123,7 +123,7 @@ var
   VStr: string;
 begin
   inherited;
-  VProjection := FImageProvider.ProjectionInfo;
+  VProjection := FImageProvider.Projection;
   VMapRect := FMapRect;
   VMapSize := RectSize(VMapRect);
   VTileRect := VProjection.PixelRect2TileRect(VMapRect);

@@ -41,7 +41,7 @@ type
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AProjectionInfo: IProjection;
+      const AProjection: IProjection;
       const ATile: TPoint
     ): IVectorItemSubset;
   public
@@ -86,7 +86,7 @@ end;
 function TVectorTileProviderByFixedSubset.GetTile(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const AProjectionInfo: IProjection;
+  const AProjection: IProjection;
   const ATile: TPoint
 ): IVectorItemSubset;
 var
@@ -97,16 +97,16 @@ var
   VItem: IVectorDataItem;
   VBounds: ILonLatRect;
 begin
-  Assert(Assigned(AProjectionInfo));
-  Assert(AProjectionInfo.CheckTilePosStrict(ATile));
-  VItemSelectPixelRect := AProjectionInfo.TilePos2PixelRectFloat(ATile);
+  Assert(Assigned(AProjection));
+  Assert(AProjection.CheckTilePosStrict(ATile));
+  VItemSelectPixelRect := AProjection.TilePos2PixelRectFloat(ATile);
   VItemSelectPixelRect.Left := VItemSelectPixelRect.Left - FItemSelectOversize.Left;
   VItemSelectPixelRect.Top := VItemSelectPixelRect.Top - FItemSelectOversize.Top;
   VItemSelectPixelRect.Right := VItemSelectPixelRect.Right + FItemSelectOversize.Right;
   VItemSelectPixelRect.Bottom := VItemSelectPixelRect.Bottom + FItemSelectOversize.Bottom;
 
-  AProjectionInfo.ValidatePixelRectFloat(VItemSelectPixelRect);
-  VItemSelectLonLatRect := AProjectionInfo.PixelRectFloat2LonLatRect(VItemSelectPixelRect);
+  AProjection.ValidatePixelRectFloat(VItemSelectPixelRect);
+  VItemSelectLonLatRect := AProjection.PixelRectFloat2LonLatRect(VItemSelectPixelRect);
   VElements := FSubsetBuilderFactory.Build;
   for i := 0 to FSource.Count - 1 do begin
     VItem := FSource.Items[i];

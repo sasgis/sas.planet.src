@@ -174,7 +174,7 @@ var
   VZoom: Byte;
 begin
   VProjectionSet := FProjectionSet.GetStatic;
-  VProjection := VProjectionSet.GetSuitableProjection(ALocalConverter.ProjectionInfo);
+  VProjection := VProjectionSet.GetSuitableProjection(ALocalConverter.Projection);
   VZoom := VProjection.Zoom;
   VSelectedLonLat := FSelectedLonLat;
   VProjection.ProjectionType.ValidateLonLatRect(VSelectedLonLat);

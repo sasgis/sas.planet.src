@@ -225,13 +225,13 @@ begin
     if (VProjection = nil) or (VPoints = nil) then begin
       VNeedUpdatePoints := True;
     end else begin
-      if not ALocalConverter.ProjectionInfo.GetIsSameProjectionInfo(VProjection) then begin
+      if not ALocalConverter.Projection.GetIsSameProjectionInfo(VProjection) then begin
         VNeedUpdatePoints := True;
       end;
     end;
   end;
   if VNeedUpdatePoints then begin
-    VProjection := ALocalConverter.ProjectionInfo;
+    VProjection := ALocalConverter.Projection;
     PreparePoints(VProjection, VPoints, VActiveIndex);
     FProjectedPoints := VPoints;
     FProjection := VProjection;

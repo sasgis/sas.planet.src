@@ -326,7 +326,7 @@ begin
           GenUserXml(IntToStr(FTasks[j].FMapId), FTasks[j].FMapName);
           for i := 0 to Length(FZooms) - 1 do begin
             VTileIterator := VTileIterators[i];
-            VProjection := VTileIterator.TilesRect.ProjectionInfo;
+            VProjection := VTileIterator.TilesRect.Projection;
             VZoom := VProjection.Zoom;
             VTileIterator.Reset;
             while VTileIterator.Next(VTile) do begin

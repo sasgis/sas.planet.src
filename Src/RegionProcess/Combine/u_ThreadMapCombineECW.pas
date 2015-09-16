@@ -156,7 +156,7 @@ begin
         AImageProvider,
         AMapRect
       );
-    VProjection := AImageProvider.ProjectionInfo;
+    VProjection := AImageProvider.Projection;
     VCurrentPieceRect := AMapRect;
     VMapPieceSize := RectSize(AMapRect);
     FLinesCount := VMapPieceSize.Y;

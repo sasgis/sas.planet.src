@@ -204,7 +204,7 @@ var
   VProjection: IProjection;
 begin
   Assert(Assigned(AConverter));
-  VProjection := AConverter.ProjectionInfo;
+  VProjection := AConverter.Projection;
   VPixelRect := AConverter.GetRectInMapPixelFloat;
   VProjection.ValidatePixelRectFloat(VPixelRect);
   VTileRectFloat := VProjection.PixelRectFloat2TileRectFloat(VPixelRect);
@@ -257,7 +257,7 @@ var
 begin
   Assert(Assigned(AConverter));
   VProjectionSet := FProjectionSet.GetStatic;
-  VProjectionSource := AConverter.ProjectionInfo;
+  VProjectionSource := AConverter.Projection;
   VProjection := VProjectionSet.GetSuitableProjection(VProjectionSource);
   VPixelRect := AConverter.GetRectInMapPixelFloat;
   VProjectionSource.ValidatePixelRectFloat(VPixelRect);

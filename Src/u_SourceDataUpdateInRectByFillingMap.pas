@@ -137,7 +137,7 @@ var
 begin
   VZoom := FConfig.GetStatic.Zoom;
   if FConfig.GetStatic.UseRelativeZoom then begin
-    VZoom := VZoom + ATileRect.ProjectionInfo.GetZoom;
+    VZoom := VZoom + ATileRect.Projection.GetZoom;
   end;
   if VZoom < 0 then begin
     Result := AProjectionSet.Zooms[0];
@@ -263,7 +263,7 @@ var
   VNotifier: INotifierTilePyramidUpdate;
 begin
   if AMapListened <> nil then begin
-    VProjection := ATileRect.ProjectionInfo;
+    VProjection := ATileRect.Projection;
     VLonLatRect := VProjection.TileRect2LonLatRect(ATileRect.Rect);
     VNotifier := AMapListened.TileStorage.TileNotifier;
     if VNotifier <> nil then begin

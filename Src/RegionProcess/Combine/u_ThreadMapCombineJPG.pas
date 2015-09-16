@@ -129,7 +129,7 @@ var
   VCenterLonLat: TDoublePoint;
   VUseBGRAColorSpace: Boolean;
 begin
-  VProjection := AImageProvider.ProjectionInfo;
+  VProjection := AImageProvider.Projection;
   VCurrentPieceRect := AMapRect;
   VMapPieceSize := RectSize(VCurrentPieceRect);
 

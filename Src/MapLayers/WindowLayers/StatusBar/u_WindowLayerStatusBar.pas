@@ -346,7 +346,7 @@ begin
     VValueConverter := FValueToStringConverter.GetStatic;
     VVisualCoordConverter := FView.GetStatic;
     VMousePos := FMouseState.CurentPos;
-    VProjection := VVisualCoordConverter.ProjectionInfo;
+    VProjection := VVisualCoordConverter.Projection;
     VSize := Types.Point(Layer.Bitmap.Width, Layer.Bitmap.Height);
     VMapType := FMainMap.GetStatic;
 

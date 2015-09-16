@@ -96,7 +96,7 @@ begin
   Result := nil;
   if Assigned(AList) then begin
     if AList.Count > 1 then begin
-      VDatum := ALocalConverter.ProjectionInfo.ProjectionType.Datum;
+      VDatum := ALocalConverter.Projection.ProjectionType.Datum;
       SetLength(VDistArr, AList.Count);
       for i := 0 to AList.GetCount - 1 do begin
         VMark := IVectorDataItem(AList.Items[i]);

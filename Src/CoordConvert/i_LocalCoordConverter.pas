@@ -36,8 +36,8 @@ type
 
     function GetIsSameConverter(const AConverter: ILocalCoordConverter): Boolean;
 
-    function GetProjectionInfo: IProjection;
-    property ProjectionInfo: IProjection read GetProjectionInfo;
+    function GetProjection: IProjection;
+    property Projection: IProjection read GetProjection;
 
     function GetScale: Double;
     function GetLocalRect: TRect;

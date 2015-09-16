@@ -35,11 +35,11 @@ type
   TVectorTileProviderByOtherBase = class(TBaseInterfacedObject, IVectorTileProvider)
   private
     FProvider: IVectorTileProvider;
-    FProjectionInfo: IProjection;
+    FProjection: IProjection;
     FOversize: TRect;
     FVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   private
-    function GetProjectionInfo: IProjection;
+    function GetProjection: IProjection;
   protected
     function GetTile(
       AOperationID: Integer;
@@ -51,7 +51,7 @@ type
       const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AOversize: TRect;
       const AProvider: IVectorTileProvider;
-      const AProjectionInfo: IProjection
+      const AProjection: IProjection
     );
   end;
 
@@ -67,7 +67,7 @@ type
       const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AOversize: TRect;
       const AProvider: IVectorTileProvider;
-      const AProjectionInfo: IProjection
+      const AProjection: IProjection
     );
   end;
 
@@ -83,7 +83,7 @@ type
       const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AOversize: TRect;
       const AProvider: IVectorTileProvider;
-      const AProjectionInfo: IProjection
+      const AProjection: IProjection
     );
   end;
 
@@ -103,7 +103,7 @@ constructor TVectorTileProviderByOtherBase.Create(
   const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AOversize: TRect;
   const AProvider: IVectorTileProvider;
-  const AProjectionInfo: IProjection
+  const AProjection: IProjection
 );
 begin
   Assert(Assigned(AVectorSubsetBuilderFactory));
@@ -116,18 +116,18 @@ begin
   Assert(AOversize.Bottom >= 0);
   Assert(AOversize.Bottom < 4096);
   Assert(Assigned(AProvider));
-  Assert(Assigned(AProjectionInfo));
-  Assert(not AProvider.ProjectionInfo.GetIsSameProjectionInfo(AProjectionInfo));
+  Assert(Assigned(AProjection));
+  Assert(not AProvider.Projection.GetIsSameProjectionInfo(AProjection));
   inherited Create;
   FVectorSubsetBuilderFactory := AVectorSubsetBuilderFactory;
   FOversize := AOversize;
   FProvider := AProvider;
-  FProjectionInfo := AProjectionInfo;
+  FProjection := AProjection;
 end;
 
-function TVectorTileProviderByOtherBase.GetProjectionInfo: IProjection;
+function TVectorTileProviderByOtherBase.GetProjection: IProjection;
 begin
-  Result := FProjectionInfo;
+  Result := FProjection;
 end;
 
 { TVectorTileProviderByOtherProjection }
@@ -136,11 +136,11 @@ constructor TVectorTileProviderByOtherProjection.Create(
   const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AOversize: TRect;
   const AProvider: IVectorTileProvider;
-  const AProjectionInfo: IProjection
+  const AProjection: IProjection
 );
 begin
-  inherited Create(AVectorSubsetBuilderFactory, AOversize, AProvider, AProjectionInfo);
-  Assert(not AProjectionInfo.ProjectionType.IsSame(AProvider.ProjectionInfo.ProjectionType));
+  inherited Create(AVectorSubsetBuilderFactory, AOversize, AProvider, AProjection);
+  Assert(not AProjection.ProjectionType.IsSame(AProvider.Projection.ProjectionType));
 end;
 
 procedure TileToBuilder(
@@ -189,8 +189,8 @@ var
 begin
   Result := nil;
   VTile := ATile;
-  VProjectionSource := FProvider.ProjectionInfo;
-  VProjectionTarget := FProjectionInfo;
+  VProjectionSource := FProvider.Projection;
+  VProjectionTarget := FProjection;
 
   if not VProjectionTarget.CheckTilePosStrict(VTile) then begin
     Exit;
@@ -235,11 +235,11 @@ constructor TVectorTileProviderBySameProjection.Create(
   const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AOversize: TRect;
   const AProvider: IVectorTileProvider;
-  const AProjectionInfo: IProjection
+  const AProjection: IProjection
 );
 begin
-  inherited Create(AVectorSubsetBuilderFactory, AOversize, AProvider, AProjectionInfo);
-  Assert(AProjectionInfo.ProjectionType.IsSame(AProvider.ProjectionInfo.ProjectionType));
+  inherited Create(AVectorSubsetBuilderFactory, AOversize, AProvider, AProjection);
+  Assert(AProjection.ProjectionType.IsSame(AProvider.Projection.ProjectionType));
 end;
 
 function TVectorTileProviderBySameProjection.GetTile(
@@ -262,8 +262,8 @@ var
 begin
   Result := nil;
   VTile := ATile;
-  VProjectionTarget := FProjectionInfo;
-  VProjectionSource := FProvider.ProjectionInfo;
+  VProjectionTarget := FProjection;
+  VProjectionSource := FProvider.Projection;
 
   if not VProjectionTarget.CheckTilePosStrict(VTile) then begin
     Exit;

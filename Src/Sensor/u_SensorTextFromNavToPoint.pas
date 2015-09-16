@@ -106,7 +106,7 @@ begin
       FNavigationToPoint.UnlockRead;
     end;
     if VNavActive then begin
-      VProjectionType := VVisualConverter.ProjectionInfo.ProjectionType;
+      VProjectionType := VVisualConverter.Projection.ProjectionType;
 
       VCenterLonLat := VVisualConverter.GetCenterLonLat;
       VProjectionType.ValidateLonLatPos(VNavLonLat);

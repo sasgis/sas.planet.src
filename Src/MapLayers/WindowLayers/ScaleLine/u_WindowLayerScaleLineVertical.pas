@@ -243,7 +243,7 @@ var
   VCenterPixelXY, VFinishPixelXY: TDoublePoint;
   VProjection: IProjection;
 begin
-  VProjection := AVisualCoordConverter.ProjectionInfo;
+  VProjection := AVisualCoordConverter.Projection;
 
   VCenterPixelXY := AVisualCoordConverter.GetCenterMapPixelFloat;
   VProjection.ValidatePixelPosFloatStrict(VCenterPixelXY, False);
@@ -281,7 +281,7 @@ var
 begin
   VFullLenght := GetNiceLen(AFullLenght);
 
-  VProjection := AVisualCoordConverter.ProjectionInfo;
+  VProjection := AVisualCoordConverter.Projection;
 
   VCenterPixelXY := AVisualCoordConverter.LocalPixel2MapPixel(
     AVisualCoordConverter.LonLat2LocalPixel(

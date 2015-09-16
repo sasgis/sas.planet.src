@@ -308,7 +308,7 @@ begin
           FItemSelectOversize,
           VSource
         );
-      VProjection := VTileRect.ProjectionInfo;
+      VProjection := VTileRect.Projection;
       VTileIterator := TTileIteratorSpiralByRect.Create(VTileRect);
       while VTileIterator.Next(VTile) do begin
         if FPreparedHashMatrix.Tiles[VTile] <> VSourceHash then begin

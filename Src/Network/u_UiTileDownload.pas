@@ -358,8 +358,8 @@ begin
     FSoftCancelNotifier := TNotifierOneOperationByNotifier.Create(ACancelNotifier, AOperationID);
     VCurrentOperation := FHardCancelNotifierInternal.CurrentOperation;
     try
-      VProjection := FMapType.ProjectionSet.GetSuitableProjection(VTileRect.ProjectionInfo);
-      Assert(VProjection.GetIsSameProjectionInfo(VTileRect.ProjectionInfo));
+      VProjection := FMapType.ProjectionSet.GetSuitableProjection(VTileRect.Projection);
+      Assert(VProjection.GetIsSameProjectionInfo(VTileRect.Projection));
       VZoom := VTileRect.GetZoom;
 
       VMapTileRect := VTileRect.Rect;
@@ -368,7 +368,7 @@ begin
       Inc(VMapTileRect.Right, FTilesOut);
       Inc(VMapTileRect.Bottom, FTilesOut);
       VProjection.ValidateTileRect(VMapTileRect);
-      VDownloadTileRect := TTileRect.Create(VTileRect.ProjectionInfo, VMapTileRect);
+      VDownloadTileRect := TTileRect.Create(VTileRect.Projection, VMapTileRect);
 
       FRequestManager.InitSession(VDownloadTileRect, VVersionInfo.BaseVersion);
 

@@ -37,7 +37,7 @@ type
     FSourceProvider: IBitmapTileProvider;
     FLine: IGeometryProjectedSinglePolygon;
   private
-    function GetProjectionInfo: IProjection;
+    function GetProjection: IProjection;
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
@@ -81,9 +81,9 @@ begin
   end;
 end;
 
-function TBitmapTileProviderInPolygon.GetProjectionInfo: IProjection;
+function TBitmapTileProviderInPolygon.GetProjection: IProjection;
 begin
-  Result := FSourceProvider.ProjectionInfo;
+  Result := FSourceProvider.Projection;
 end;
 
 function TBitmapTileProviderInPolygon.GetTile(
@@ -94,7 +94,7 @@ function TBitmapTileProviderInPolygon.GetTile(
 var
   VMapRect: TDoubleRect;
 begin
-  VMapRect := FSourceProvider.ProjectionInfo.TilePos2PixelRectFloat(ATile);
+  VMapRect := FSourceProvider.Projection.TilePos2PixelRectFloat(ATile);
   if FLine.IsRectIntersectPolygon(VMapRect) then begin
     Result :=
       FSourceProvider.GetTile(

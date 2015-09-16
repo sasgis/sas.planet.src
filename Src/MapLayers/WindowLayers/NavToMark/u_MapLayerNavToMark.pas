@@ -156,7 +156,7 @@ var
   VAngle: Double;
   VFixedOnView: TDoublePoint;
 begin
-  VProjection := ALocalConverter.ProjectionInfo;
+  VProjection := ALocalConverter.Projection;
   VScreenCenterMapPos := ALocalConverter.GetCenterMapPixelFloat;
   VLonLat := FMarkPoint;
   VProjection.ProjectionType.ValidateLonLatPos(VLonLat);

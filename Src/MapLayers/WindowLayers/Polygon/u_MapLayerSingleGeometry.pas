@@ -359,7 +359,7 @@ begin
     Exit;
   end;
   if Assigned(VProjectedLine) then begin
-    if not ALocalConverter.ProjectionInfo.GetIsSameProjectionInfo(VProjection) then begin
+    if not ALocalConverter.Projection.GetIsSameProjectionInfo(VProjection) then begin
       VProjectedLine := nil;
     end;
   end;
@@ -367,7 +367,7 @@ begin
   if not Assigned(VProjectedLine) then begin
     VDrawablePolygon := nil;
     VLocalConverter := nil;
-    VProjection := ALocalConverter.ProjectionInfo;
+    VProjection := ALocalConverter.Projection;
     VProjectedLine :=
       FVectorGeometryProjectedFactory.CreateProjectedLineByLonLatPath(
         VProjection,
@@ -643,7 +643,7 @@ begin
   end;
 
   if Assigned(VProjectedLine) then begin
-    if not ALocalConverter.ProjectionInfo.GetIsSameProjectionInfo(VProjection) then begin
+    if not ALocalConverter.Projection.GetIsSameProjectionInfo(VProjection) then begin
       VProjection := nil;
       VProjectedLine := nil;
     end;
@@ -652,7 +652,7 @@ begin
   if not Assigned(VProjectedLine) then begin
     VDrawablePolygonFill := nil;
     VDrawablePolygonBorder := nil;
-    VProjection := ALocalConverter.ProjectionInfo;
+    VProjection := ALocalConverter.Projection;
     VProjectedLine :=
       FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
         VProjection,

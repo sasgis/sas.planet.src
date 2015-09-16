@@ -39,7 +39,7 @@ uses
 type
   TBitmapTileProviderByStorage = class(TBaseInterfacedObject, IBitmapTileProvider)
   private
-    FProjectionInfo: IProjection;
+    FProjection: IProjection;
     FVersion: IMapVersionRequest;
     FLoaderFromStorage: IBitmapTileLoader;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
@@ -47,7 +47,7 @@ type
     FIsIgnoreError: Boolean;
     FImageResampler: IImageResamplerFactoryChangeable;
   private
-    function GetProjectionInfo: IProjection;
+    function GetProjection: IProjection;
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
@@ -60,7 +60,7 @@ type
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AVersionConfig: IMapVersionRequest;
       const ALoaderFromStorage: IBitmapTileLoader;
-      const AProjectionInfo: IProjection;
+      const AProjection: IProjection;
       const AStorage: ITileStorage
     );
   end;
@@ -81,7 +81,7 @@ constructor TBitmapTileProviderByStorage.Create(
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AVersionConfig: IMapVersionRequest;
   const ALoaderFromStorage: IBitmapTileLoader;
-  const AProjectionInfo: IProjection;
+  const AProjection: IProjection;
   const AStorage: ITileStorage
 );
 begin
@@ -90,21 +90,21 @@ begin
   Assert(Assigned(AVersionConfig));
   Assert(Assigned(ALoaderFromStorage));
   Assert(Assigned(AStorage));
-  Assert(Assigned(AProjectionInfo));
-  Assert(AStorage.ProjectionSet.IsProjectionFromThisSet(AProjectionInfo));
+  Assert(Assigned(AProjection));
+  Assert(AStorage.ProjectionSet.IsProjectionFromThisSet(AProjection));
   inherited Create;
   FIsIgnoreError := AIsIgnoreError;
   FImageResampler := AImageResampler;
   FStorage := AStorage;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
-  FProjectionInfo := AProjectionInfo;
+  FProjection := AProjection;
   FVersion := AVersionConfig;
   FLoaderFromStorage := ALoaderFromStorage;
 end;
 
-function TBitmapTileProviderByStorage.GetProjectionInfo: IProjection;
+function TBitmapTileProviderByStorage.GetProjection: IProjection;
 begin
-  Result := FProjectionInfo;
+  Result := FProjection;
 end;
 
 function TBitmapTileProviderByStorage.GetTile(
@@ -122,12 +122,12 @@ var
 begin
   Result := nil;
   try
-    VZoom := FProjectionInfo.Zoom;
+    VZoom := FProjection.Zoom;
     if Supports(FStorage.GetTileInfoEx(ATile, VZoom, FVersion, gtimWithData), ITileInfoWithData, VTileInfo) then begin
       Result := FLoaderFromStorage.Load(VTileInfo.TileData);
     end;
     if Result <> nil then begin
-      VRect := FProjectionInfo.TilePos2PixelRect(ATile);
+      VRect := FProjection.TilePos2PixelRect(ATile);
       VSize := Types.Point(VRect.Right - VRect.Left, VRect.Bottom - VRect.Top);
       if (Result.Size.X <> VSize.X) or
         (Result.Size.Y <> VSize.Y) then begin

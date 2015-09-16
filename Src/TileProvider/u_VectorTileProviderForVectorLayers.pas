@@ -59,7 +59,7 @@ type
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AProjectionInfo: IProjection;
+      const AProjection: IProjection;
       const ATile: TPoint
     ): IVectorItemSubset;
   public
@@ -201,7 +201,7 @@ end;
 function TVectorTileProviderForVectorLayers.GetTile(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const AProjectionInfo: IProjection;
+  const AProjection: IProjection;
   const ATile: TPoint
 ): IVectorItemSubset;
 var
@@ -215,8 +215,8 @@ var
 begin
   Result := nil;
   if FLayersSet <> nil then begin
-    Assert(AProjectionInfo.CheckTilePosStrict(ATile));
-    VTileSelectPixelRect := AProjectionInfo.TilePos2PixelRectFloat(ATile);
+    Assert(AProjection.CheckTilePosStrict(ATile));
+    VTileSelectPixelRect := AProjection.TilePos2PixelRectFloat(ATile);
     VItemSelectPixelRect := VTileSelectPixelRect;
 
     VTileSelectPixelRect.Left := VTileSelectPixelRect.Left - FTileSelectOversize.Left;
@@ -224,16 +224,16 @@ begin
     VTileSelectPixelRect.Right := VTileSelectPixelRect.Right + FTileSelectOversize.Right;
     VTileSelectPixelRect.Bottom := VTileSelectPixelRect.Bottom + FTileSelectOversize.Bottom;
 
-    AProjectionInfo.ValidatePixelRectFloat(VTileSelectPixelRect);
-    VTileSelectLonLatRect := AProjectionInfo.PixelRectFloat2LonLatRect(VTileSelectPixelRect);
+    AProjection.ValidatePixelRectFloat(VTileSelectPixelRect);
+    VTileSelectLonLatRect := AProjection.PixelRectFloat2LonLatRect(VTileSelectPixelRect);
 
     VItemSelectPixelRect.Left := VItemSelectPixelRect.Left - FItemSelectOversize.Left;
     VItemSelectPixelRect.Top := VItemSelectPixelRect.Top - FItemSelectOversize.Top;
     VItemSelectPixelRect.Right := VItemSelectPixelRect.Right + FItemSelectOversize.Right;
     VItemSelectPixelRect.Bottom := VItemSelectPixelRect.Bottom + FItemSelectOversize.Bottom;
 
-    AProjectionInfo.ValidatePixelRectFloat(VItemSelectPixelRect);
-    VItemSelectLonLatRect := AProjectionInfo.PixelRectFloat2LonLatRect(VItemSelectPixelRect);
+    AProjection.ValidatePixelRectFloat(VItemSelectPixelRect);
+    VItemSelectLonLatRect := AProjection.PixelRectFloat2LonLatRect(VItemSelectPixelRect);
     VElements := FSubsetBuilderFactory.Build;
     for i := 0 to FLayersSet.Count - 1 do begin
       VMapType := FLayersSet.Items[i];
@@ -243,7 +243,7 @@ begin
           ACancelNotifier,
           VElements,
           VMapType,
-          AProjectionInfo,
+          AProjection,
           VTileSelectLonLatRect,
           VItemSelectLonLatRect
         );

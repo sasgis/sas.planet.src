@@ -100,7 +100,7 @@ type
     function RenderVectorTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AProjectionInfo: IProjection;
+      const AProjection: IProjection;
       const ATile: TPoint;
       const ASource: IVectorItemSubset
     ): IBitmap32Static;
@@ -364,7 +364,7 @@ end;
 function TVectorTileRendererForMarks.RenderVectorTile(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const AProjectionInfo: IProjection;
+  const AProjection: IProjection;
   const ATile: TPoint;
   const ASource: IVectorItemSubset
 ): IBitmap32Static;
@@ -377,8 +377,8 @@ begin
   if Assigned(ASource) and not ASource.IsEmpty then begin
     VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
     try
-      VMapRect := AProjectionInfo.TilePos2PixelRect(ATile);
-      if DrawSubset(AOperationID, ACancelNotifier, ASource, VBitmap, AProjectionInfo, VMapRect, VFixedPointArray) then begin
+      VMapRect := AProjection.TilePos2PixelRect(ATile);
+      if DrawSubset(AOperationID, ACancelNotifier, ASource, VBitmap, AProjection, VMapRect, VFixedPointArray) then begin
         Result := VBitmap.MakeAndClear;
       end;
     finally

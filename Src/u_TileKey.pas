@@ -32,16 +32,16 @@ type
   TTileKey = class(TBaseInterfacedObject, ITileKey)
   private
     FTile: TPoint;
-    FProjectionInfo: IProjection;
+    FProjection: IProjection;
   private
     function GetTile: TPoint;
     function GetZoom: Byte;
-    function GetProjectionInfo: IProjection;
+    function GetProjection: IProjection;
 
     function IsSame(const AValue: ITileKey): Boolean;
   public
     constructor Create(
-      const AProjectionInfo: IProjection;
+      const AProjection: IProjection;
       const ATile: TPoint
     );
   end;
@@ -51,20 +51,20 @@ implementation
 { TTileKey }
 
 constructor TTileKey.Create(
-  const AProjectionInfo: IProjection;
+  const AProjection: IProjection;
   const ATile: TPoint
 );
 begin
-  Assert(Assigned(AProjectionInfo));
-  Assert(AProjectionInfo.CheckTilePosStrict(ATile));
+  Assert(Assigned(AProjection));
+  Assert(AProjection.CheckTilePosStrict(ATile));
   inherited Create;
   FTile := ATile;
-  FProjectionInfo := AProjectionInfo;
+  FProjection := AProjection;
 end;
 
-function TTileKey.GetProjectionInfo: IProjection;
+function TTileKey.GetProjection: IProjection;
 begin
-  Result := FProjectionInfo;
+  Result := FProjection;
 end;
 
 function TTileKey.GetTile: TPoint;
@@ -74,7 +74,7 @@ end;
 
 function TTileKey.GetZoom: Byte;
 begin
-  Result := FProjectionInfo.Zoom;
+  Result := FProjection.Zoom;
 end;
 
 function TTileKey.IsSame(const AValue: ITileKey): Boolean;
@@ -84,7 +84,7 @@ begin
   if AValue = nil then begin
     Result := False;
   end else begin
-    if not FProjectionInfo.GetIsSameProjectionInfo(AValue.ProjectionInfo) then begin
+    if not FProjection.GetIsSameProjectionInfo(AValue.Projection) then begin
       Result := False;
     end else begin
       VTile := AValue.Tile;

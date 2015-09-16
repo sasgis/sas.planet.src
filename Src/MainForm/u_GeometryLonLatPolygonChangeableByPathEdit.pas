@@ -149,7 +149,7 @@ begin
     VRadius := FConfig.Radius;
     VChanged := False;
     if Assigned(VLine) and Assigned(VConverter) then begin
-      VProjection := VConverter.ProjectionInfo;
+      VProjection := VConverter.Projection;
       Assert(Assigned(VProjection));
       if VLine.IsSameGeometry(FLastLine) then begin
         if VProjection.GetIsSameProjectionInfo(FLastProjection) then begin

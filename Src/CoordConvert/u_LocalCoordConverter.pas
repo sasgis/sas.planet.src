@@ -49,7 +49,7 @@ type
     function GetLocalRect: TRect;
     function GetLocalRectSize: TPoint;
 
-    function GetProjectionInfo: IProjection;
+    function GetProjection: IProjection;
 
     function LocalPixel2MapPixel(
       const APoint: TPoint;
@@ -260,7 +260,7 @@ begin
     Result := False;
   end else begin
     Result := False;
-    if FProjection.GetIsSameProjectionInfo(AConverter.ProjectionInfo) then begin
+    if FProjection.GetIsSameProjectionInfo(AConverter.Projection) then begin
       if EqualRect(FLocalRect, AConverter.GetLocalRect) then begin
         Result := True;
       end;
@@ -278,7 +278,7 @@ begin
   Result := FLocalSize;
 end;
 
-function TLocalCoordConverterBase.GetProjectionInfo: IProjection;
+function TLocalCoordConverterBase.GetProjection: IProjection;
 begin
   Result := FProjection;
 end;

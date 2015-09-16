@@ -40,7 +40,7 @@ type
     FEmptyTile: IBitmap32Static;
     FBackGroundColor: TColor32;
   private
-    function GetProjectionInfo: IProjection;
+    function GetProjection: IProjection;
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
@@ -80,7 +80,7 @@ begin
   FBackGroundColor := ABackGroundColor;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
 
-  VTileSize := ASourceProvider.ProjectionInfo.GetTileSize(Types.Point(0, 0));
+  VTileSize := ASourceProvider.Projection.GetTileSize(Types.Point(0, 0));
   VTargetBmp := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
   try
     VTargetBmp.SetSize(VTileSize.X, VTileSize.Y);
@@ -93,9 +93,9 @@ begin
   Assert(FSourceProvider <> nil);
 end;
 
-function TBitmapTileProviderWithBGColor.GetProjectionInfo: IProjection;
+function TBitmapTileProviderWithBGColor.GetProjection: IProjection;
 begin
-  Result := FSourceProvider.ProjectionInfo;
+  Result := FSourceProvider.Projection;
 end;
 
 function TBitmapTileProviderWithBGColor.GetTile(
@@ -116,7 +116,7 @@ begin
   if Result <> nil then begin
     VTargetBmp := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
     try
-      VTileSize :=  FSourceProvider.ProjectionInfo.GetTileSize(ATile);
+      VTileSize :=  FSourceProvider.Projection.GetTileSize(ATile);
       VTargetBmp.SetSize(VTileSize.X, VTileSize.Y);
       VTargetBmp.Clear(FBackGroundColor);
       BlockTransferFull(
@@ -131,7 +131,7 @@ begin
       VTargetBmp.Free;
     end;
   end else begin
-    VTileSize :=  FSourceProvider.ProjectionInfo.GetTileSize(ATile);
+    VTileSize :=  FSourceProvider.Projection.GetTileSize(ATile);
     if IsPointsEqual(VTileSize, FEmptyTile.Size) then begin
       Result := FEmptyTile;
     end else begin

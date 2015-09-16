@@ -185,7 +185,7 @@ begin
     if not Assigned(FTileRect) then begin
       SetRectWithReset(ATileRect, AValue);
     end else begin
-      if not FTileRect.ProjectionInfo.GetIsSameProjectionInfo(ATileRect.ProjectionInfo) then begin
+      if not FTileRect.Projection.GetIsSameProjectionInfo(ATileRect.Projection) then begin
         SetRectWithReset(ATileRect, AValue);
       end else begin
         if not FTileRect.IsEqual(ATileRect) then begin

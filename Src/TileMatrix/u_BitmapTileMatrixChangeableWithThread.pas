@@ -349,7 +349,7 @@ begin
         if FPreparedHashMatrix.Tiles[VTile] <> VSourceHash then begin
           VCounterContext := FOneTilePrepareCounter.StartOperation;
           try
-            VBitmap := VProvider.GetTile(AOperationID, ACancelNotifier, VTileRect.ProjectionInfo, VTile);
+            VBitmap := VProvider.GetTile(AOperationID, ACancelNotifier, VTileRect.Projection, VTile);
           finally
             FOneTilePrepareCounter.FinishOperation(VCounterContext);
           end;
@@ -391,7 +391,7 @@ begin
     if Assigned(VTileRect) then begin
       if Supports(AMsg, ILonLatRect, VLonLatRectUpdated) then begin
         VLonLatRectAtMap := VLonLatRectUpdated.Rect;
-        VProjection := VTileRect.ProjectionInfo;
+        VProjection := VTileRect.Projection;
         VProjection.ProjectionType.ValidateLonLatRect(VLonLatRectAtMap);
         VTileRectUpdated := RectFromDoubleRect(VProjection.LonLatRect2TileRectFloat(VLonLatRectAtMap), rrOutside);
 

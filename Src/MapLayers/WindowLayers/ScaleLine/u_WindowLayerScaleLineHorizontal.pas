@@ -237,7 +237,7 @@ var
   VStartPixel, VFinishPixel: TDoublePoint;
   VProjection: IProjection;
 begin
-  VProjection := AVisualCoordConverter.ProjectionInfo;
+  VProjection := AVisualCoordConverter.Projection;
   VStartPixel := AVisualCoordConverter.GetCenterMapPixelFloat;
   VProjection.ValidatePixelPosFloatStrict(VStartPixel, True);
   VFinishPixel := DoublePoint(VStartPixel.X + 1, VStartPixel.Y);

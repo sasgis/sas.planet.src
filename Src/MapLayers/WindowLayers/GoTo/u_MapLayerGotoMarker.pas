@@ -215,7 +215,7 @@ begin
 
   VGotoLonLat := VGotoPos.LonLat;
   if not PointIsEmpty(VGotoLonLat) then begin
-    VProjectionType := VLocalConverter.ProjectionInfo.ProjectionType;
+    VProjectionType := VLocalConverter.Projection.ProjectionType;
     VProjectionType.ValidateLonLatPos(VGotoLonLat);
     VMarker := FMarkerChangeable.GetStatic;
     VFixedOnView := VLocalConverter.LonLat2LocalPixelFloat(VGotoLonLat);

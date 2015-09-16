@@ -38,14 +38,14 @@ uses
 type
   TVectorTileProviderByStorage = class(TBaseInterfacedObject, IVectorTileProvider)
   private
-    FProjectionInfo: IProjection;
+    FProjection: IProjection;
     FVersion: IMapVersionRequest;
     FLoaderFromStorage: IVectorDataLoader;
     FStorage: ITileStorage;
     FVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
     FIsIgnoreError: Boolean;
   private
-    function GetProjectionInfo: IProjection;
+    function GetProjection: IProjection;
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
@@ -57,7 +57,7 @@ type
       const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
       const AVersionConfig: IMapVersionRequest;
       const ALoaderFromStorage: IVectorDataLoader;
-      const AProjectionInfo: IProjection;
+      const AProjection: IProjection;
       const AStorage: ITileStorage
     );
   end;
@@ -74,7 +74,7 @@ constructor TVectorTileProviderByStorage.Create(
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const AVersionConfig: IMapVersionRequest;
   const ALoaderFromStorage: IVectorDataLoader;
-  const AProjectionInfo: IProjection;
+  const AProjection: IProjection;
   const AStorage: ITileStorage
 );
 begin
@@ -82,20 +82,20 @@ begin
   Assert(AVersionConfig <> nil);
   Assert(ALoaderFromStorage <> nil);
   Assert(AStorage <> nil);
-  Assert(AProjectionInfo <> nil);
-  Assert(AStorage.ProjectionSet.IsProjectionFromThisSet(AProjectionInfo));
+  Assert(AProjection <> nil);
+  Assert(AStorage.ProjectionSet.IsProjectionFromThisSet(AProjection));
   inherited Create;
   FIsIgnoreError := AIsIgnoreError;
   FVectorDataItemMainInfoFactory := AVectorDataItemMainInfoFactory;
   FStorage := AStorage;
-  FProjectionInfo := AProjectionInfo;
+  FProjection := AProjection;
   FVersion := AVersionConfig;
   FLoaderFromStorage := ALoaderFromStorage;
 end;
 
-function TVectorTileProviderByStorage.GetProjectionInfo: IProjection;
+function TVectorTileProviderByStorage.GetProjection: IProjection;
 begin
-  Result := FProjectionInfo;
+  Result := FProjection;
 end;
 
 function TVectorTileProviderByStorage.GetTile(
@@ -109,7 +109,7 @@ var
 begin
   Result := nil;
   try
-    VZoom := FProjectionInfo.Zoom;
+    VZoom := FProjection.Zoom;
     if Supports(FStorage.GetTileInfoEx(ATile, VZoom, FVersion, gtimWithData), ITileInfoWithData, VTileInfo) then begin
       Result := FLoaderFromStorage.Load(VTileInfo.TileData, nil, FVectorDataItemMainInfoFactory);
     end;

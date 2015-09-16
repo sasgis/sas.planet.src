@@ -109,7 +109,7 @@ var
   VTemp: Double;
   VProjection: IProjection;
 begin
-  VProjection := FViewPortState.GetStatic.ProjectionInfo;
+  VProjection := FViewPortState.GetStatic.Projection;
 
   Result.TopLeft := APoint1;
   Result.BottomRight := APoint2;

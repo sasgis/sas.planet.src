@@ -234,7 +234,7 @@ var
   VMapLonLatRect: TDoubleRect;
   VNotifier: INotifierTilePyramidUpdate;
 begin
-  VProjection := ATileRect.ProjectionInfo;
+  VProjection := ATileRect.Projection;
   VLonLatRect := VProjection.TileRect2LonLatRect(ATileRect.Rect);
   for i := 0 to AMapsListened.Count - 1 do begin
     VMap := AMapsListened.Items[i];

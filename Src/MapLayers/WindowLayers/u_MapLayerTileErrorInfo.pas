@@ -281,7 +281,7 @@ begin
     VTile := VErrorInfo.Tile;
     VProjection.ValidateTilePosStrict(VTile, True);
     VFixedLonLat := VProjection.PixelPosFloat2LonLat(RectCenter(VProjection.TilePos2PixelRect(VTile)));
-    ALocalConverter.ProjectionInfo.ProjectionType.ValidateLonLatPos(VFixedLonLat);
+    ALocalConverter.Projection.ProjectionType.ValidateLonLatPos(VFixedLonLat);
     VFixedOnView := ALocalConverter.LonLat2LocalPixelFloat(VFixedLonLat);
     if PixelPointInRect(VFixedOnView, DoubleRect(ALocalConverter.GetLocalRect)) then begin
       VMarker := FMarker;

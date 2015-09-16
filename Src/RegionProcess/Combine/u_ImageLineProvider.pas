@@ -154,7 +154,7 @@ begin
   FMapRect := AMapRect;
   FBytesPerPixel := ABytesPerPixel;
 
-  FProjection := FImageProvider.ProjectionInfo;
+  FProjection := FImageProvider.Projection;
 end;
 
 destructor TImageLineProviderAbstract.Destroy;

@@ -224,7 +224,7 @@ begin
   FCoordinates := Value;
   VValueConverter := FValueToStringConverter.GetStatic;
   VLocalConverter := FViewPortState.GetStatic;
-  CurrZoom := VLocalConverter.ProjectionInfo.Zoom;
+  CurrZoom := VLocalConverter.Projection.Zoom;
   cbbZoom.ItemIndex := CurrZoom;
   if cbbCoordType.ItemIndex = -1 then begin
     cbbCoordType.ItemIndex := 0;
@@ -238,7 +238,7 @@ begin
     1: begin
       XYPoint :=
         PointFromDoublePoint(
-          VLocalConverter.ProjectionInfo.LonLat2PixelPosFloat(Value),
+          VLocalConverter.Projection.LonLat2PixelPosFloat(Value),
           prToTopLeft
         );
       edtX.Text := inttostr(XYPoint.x);
@@ -247,7 +247,7 @@ begin
     2: begin
       XYPoint :=
         PointFromDoublePoint(
-          VLocalConverter.ProjectionInfo.LonLat2TilePosFloat(Value),
+          VLocalConverter.Projection.LonLat2TilePosFloat(Value),
           prToTopLeft
         );
       edtX.Text := inttostr(XYPoint.x);
@@ -276,7 +276,7 @@ begin
       end;
       if Result then begin
         VLocalConverter := FViewPortState.GetStatic;
-        VProjection := VLocalConverter.ProjectionInfo;
+        VProjection := VLocalConverter.Projection;
         VProjection.ProjectionType.ValidateLonLatPos(VLonLat);
       end;
     end;

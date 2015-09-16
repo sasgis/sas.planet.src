@@ -884,7 +884,7 @@ begin
   VLocalConverter := FViewPortState.GetStatic;
 
   VScreenCenter :=
-    VLocalConverter.ProjectionInfo.LonLat2TilePosFloat(
+    VLocalConverter.Projection.LonLat2TilePosFloat(
       VLocalConverter.GetCenterLonLat
     );
 
@@ -892,7 +892,7 @@ begin
 
   edtGetX.Text := IntToStr(VPoint.X);
   edtGetY.Text := IntToStr(VPoint.Y);
-  edtGetZ.Text := IntToStr(VLocalConverter.ProjectionInfo.Zoom + 1);
+  edtGetZ.Text := IntToStr(VLocalConverter.Projection.Zoom + 1);
 end;
 
 end.

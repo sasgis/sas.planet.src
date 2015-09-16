@@ -30,8 +30,8 @@ uses
 type
   IProjectedDrawableElement = interface
     ['{999BACCC-135B-439A-A646-A827398B316E}']
-    function GetProjectionInfo: IProjection;
-    property ProjectionInfo: IProjection read GetProjectionInfo;
+    function GetProjection: IProjection;
+    property Projection: IProjection read GetProjection;
 
     procedure Draw(
       ABitmap: TCustomBitmap32;

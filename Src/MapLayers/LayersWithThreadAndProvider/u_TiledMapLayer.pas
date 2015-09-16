@@ -221,7 +221,7 @@ begin
           FLayer.Changed(VLocalConverter.GetLocalRect);
           FShownIdMatrix.SetRectWithReset(VTileMatrix.TileRect, 0);
         end else begin
-          if VLocalConverter.ProjectionInfo.GetIsSameProjectionInfo(VTileMatrix.TileRect.ProjectionInfo) then begin
+          if VLocalConverter.Projection.GetIsSameProjectionInfo(VTileMatrix.TileRect.Projection) then begin
             VTileIterator := TTileIteratorByRect.Create(VTileMatrix.TileRect);
             while VTileIterator.Next(VTile) do begin
               VShownId := FShownIdMatrix.Tiles[VTile];
@@ -233,7 +233,7 @@ begin
               end;
               if VReadyId <> VShownId then begin
                 VMapRect :=
-                  VLocalConverter.ProjectionInfo.TilePos2PixelRect(VTile);
+                  VLocalConverter.Projection.TilePos2PixelRect(VTile);
                 VDstRect := VLocalConverter.MapRect2LocalRect(VMapRect, rrClosest);
                 FShownIdMatrix.Tiles[VTile] := VReadyId;
                 FLayer.Changed(VDstRect);
@@ -273,8 +273,8 @@ var
   VRelativeRect: TDoubleRect;
 begin
   inherited;
-  VProjectionDst := ALocalConverter.ProjectionInfo;
-  VProjectionSrc := ATileMatrix.TileRect.ProjectionInfo;
+  VProjectionDst := ALocalConverter.Projection;
+  VProjectionSrc := ATileMatrix.TileRect.Projection;
   VSameProjection := VProjectionDst.GetIsSameProjectionInfo(VProjectionSrc);
   if not VSameProjection then begin
     VMapPixelRect := ALocalConverter.LocalRect2MapRectFloat(ABuffer.ClipRect);

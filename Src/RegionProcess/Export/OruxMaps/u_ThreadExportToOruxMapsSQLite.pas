@@ -243,7 +243,7 @@ begin
       VTileIterator := VTileIterators[I];
       VProjectedPolygon := VProjectedPolygons[I];
       if Assigned(VTileIterator) then begin
-        VProjection := VTileIterator.TilesRect.ProjectionInfo;
+        VProjection := VTileIterator.TilesRect.Projection;
         FBasePoint := VTileIterator.TilesRect.TopLeft;
         while VTileIterator.Next(VTile) do begin
           if CancelNotifier.IsOperationCanceled(OperationID) then begin
@@ -315,11 +315,11 @@ var
   VRect: TRect;
   VTileRect: ITileRect;
   VLonLatRect: TDoubleRect;
-  VProjectionInfo: IProjection;
+  VProjection: IProjection;
   VText: string;
   VMapName: string;
   VLayerFormat: string;
-  VProjection: string;
+  VProjectionStr: string;
   xMax, yMax: Integer;
   VUtf8Text: UTF8String;
   VMemStream: TMemoryStream;
@@ -351,29 +351,29 @@ begin
 
   for I := 0 to Length(ATileIterators) - 1 do begin
     VTileRect := ATileIterators[I].TilesRect;
-    VProjectionInfo := VTileRect.ProjectionInfo;
+    VProjection := VTileRect.Projection;
     VRect := VTileRect.Rect;
 
-    VLonLatRect := VProjectionInfo.TileRect2LonLatRect(VRect);
+    VLonLatRect := VProjection.TileRect2LonLatRect(VRect);
 
     xMax := VRect.Right - VRect.Left;
     yMax := VRect.Bottom - VRect.Top;
 
-    if VProjection = '' then begin
-      case VProjectionInfo.ProjectionType.ProjectionEPSG of
-        CGoogleProjectionEPSG: VProjection := 'Mercator';
-        CYandexProjectionEPSG: VProjection := 'Mercator Ellipsoidal';
-        CGELonLatProjectionEPSG: VProjection := 'Latitude/Longitude';
+    if VProjectionStr = '' then begin
+      case VProjection.ProjectionType.ProjectionEPSG of
+        CGoogleProjectionEPSG: VProjectionStr := 'Mercator';
+        CYandexProjectionEPSG: VProjectionStr := 'Mercator Ellipsoidal';
+        CGELonLatProjectionEPSG: VProjectionStr := 'Latitude/Longitude';
       else
-        raise Exception.CreateFmt('Unknown projection EPSG: %d', [VProjectionInfo.ProjectionType.ProjectionEPSG]);
+        raise Exception.CreateFmt('Unknown projection EPSG: %d', [VProjection.ProjectionType.ProjectionEPSG]);
       end;
     end;
 
     VText := VText +
       Format(VLayerFormat, [
-        VProjectionInfo.Zoom,
+        VProjection.Zoom,
         VMapName,
-        xMax, yMax, VProjection, VMapName,
+        xMax, yMax, VProjectionStr, VMapName,
         yMax*256, xMax*256,
         VLonLatRect.Bottom, VLonLatRect.Top, VLonLatRect.Left, VLonLatRect.Right,
         VLonLatRect.TopLeft.X, VLonLatRect.TopLeft.Y,

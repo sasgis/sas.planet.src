@@ -39,7 +39,7 @@ type
     FSource: IBitmapTileProvider;
     FCache: ITileObjCacheBitmap;
   private
-    function GetProjectionInfo: IProjection;
+    function GetProjection: IProjection;
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
@@ -57,7 +57,7 @@ type
     FSource: IVectorTileProvider;
     FCache: ITileObjCacheVector;
   private
-    function GetProjectionInfo: IProjection;
+    function GetProjection: IProjection;
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
@@ -86,9 +86,9 @@ begin
   FCache := ACache;
 end;
 
-function TBitmapTileProviderWithCache.GetProjectionInfo: IProjection;
+function TBitmapTileProviderWithCache.GetProjection: IProjection;
 begin
-  Result := FSource.ProjectionInfo;
+  Result := FSource.Projection;
 end;
 
 function TBitmapTileProviderWithCache.GetTile(
@@ -99,7 +99,7 @@ function TBitmapTileProviderWithCache.GetTile(
 var
   VZoom: Byte;
 begin
-  VZoom := FSource.ProjectionInfo.Zoom;
+  VZoom := FSource.Projection.Zoom;
   Result := FCache.TryLoadTileFromCache(ATile, VZoom);
   if Result = nil then begin
     Result := FSource.GetTile(AOperationID, ACancelNotifier, ATile);
@@ -123,9 +123,9 @@ begin
   FCache := ACache;
 end;
 
-function TVectorTileProviderWithCache.GetProjectionInfo: IProjection;
+function TVectorTileProviderWithCache.GetProjection: IProjection;
 begin
-  Result := FSource.ProjectionInfo;
+  Result := FSource.Projection;
 end;
 
 function TVectorTileProviderWithCache.GetTile(
@@ -136,7 +136,7 @@ function TVectorTileProviderWithCache.GetTile(
 var
   VZoom: Byte;
 begin
-  VZoom := FSource.ProjectionInfo.Zoom;
+  VZoom := FSource.Projection.Zoom;
   Result := FCache.TryLoadTileFromCache(ATile, VZoom);
   if Result = nil then begin
     Result := FSource.GetTile(AOperationID, ACancelNotifier, ATile);

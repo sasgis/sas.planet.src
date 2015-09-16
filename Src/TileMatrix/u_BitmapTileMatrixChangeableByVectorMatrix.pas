@@ -290,7 +290,7 @@ begin
           FPreparedHashMatrix.SetRectWithReset(VTileRect, 0);
         end;
       end;
-      VProjection := VTileRect.ProjectionInfo;
+      VProjection := VTileRect.Projection;
       VTileIterator := TTileIteratorSpiralByRect.Create(VTileRect);
       while VTileIterator.Next(VTile) do begin
         VSourceItem := VSourceMatrix.GetElementByTile(VTile);

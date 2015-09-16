@@ -202,11 +202,11 @@ var
   VSourceTileMatrix: IBitmapTileMatrix;
 begin
   Assert(Assigned(ATileRect));
-  VProjectionNew := ATileRect.ProjectionInfo;
+  VProjectionNew := ATileRect.Projection;
   VTileRect := ATileRect.Rect;
   Assert(VProjectionNew.CheckTileRect(VTileRect));
   if Assigned(FTileRect) then begin
-    VProjectionOld := FTileRect.ProjectionInfo;
+    VProjectionOld := FTileRect.Projection;
     if not VProjectionOld.GetIsSameProjectionInfo(VProjectionNew) then begin
       if VProjectionNew.ProjectionType.IsSame(VProjectionOld.ProjectionType) then begin
         VOldRect := FTileRect.Rect;

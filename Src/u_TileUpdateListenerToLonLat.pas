@@ -82,13 +82,13 @@ begin
   if not FDisconnectFlag.CheckFlag then begin
     if Supports(AMsg, ITileKey, VTileKey) then begin
       VTile := VTileKey.Tile;
-      VTileKey.ProjectionInfo.ValidateTilePosStrict(VTile, True);
-      VLonLatRect := TLonLatRect.Create(VTileKey.ProjectionInfo.TilePos2LonLatRect(VTile));
+      VTileKey.Projection.ValidateTilePosStrict(VTile, True);
+      VLonLatRect := TLonLatRect.Create(VTileKey.Projection.TilePos2LonLatRect(VTile));
       FEvent(VLonLatRect);
     end else if Supports(AMsg, ITileRect, VTileRect) then begin
       VRect := VTileRect.Rect;
-      VTileRect.ProjectionInfo.ValidateTileRect(VRect);
-      VLonLatRect := TLonLatRect.Create(VTileRect.ProjectionInfo.TileRect2LonLatRect(VRect));
+      VTileRect.Projection.ValidateTileRect(VRect);
+      VLonLatRect := TLonLatRect.Create(VTileRect.Projection.TileRect2LonLatRect(VRect));
       FEvent(VLonLatRect);
     end else begin
       FEvent(nil);

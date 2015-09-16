@@ -140,7 +140,7 @@ var
 begin
   Result := nil;
   if not Types.IsRectEmpty(AMapRect) then begin
-    VProjection := AImageProvider.ProjectionInfo;
+    VProjection := AImageProvider.Projection;
     VMapSize := RectSize(AMapRect);
     VTileRect := VProjection.PixelRect2TileRect(AMapRect);
 
@@ -207,7 +207,7 @@ var
   VBitmapTile: IBitmap32Static;
   VData: IBinaryData;
 begin
-  VProjection := AImageProvider.ProjectionInfo;
+  VProjection := AImageProvider.Projection;
   VCurrentPieceRect := AMapRect;
   VMapPieceSize := RectSize(VCurrentPieceRect);
   nim.X := ((VMapPieceSize.X - 1) div 1024) + 1;

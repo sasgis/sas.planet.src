@@ -146,7 +146,7 @@ var
   VLonLatRect: TDoubleRect;
 begin
   VSearch := StringReplace(ASearch, ' ', '+', [rfReplaceAll]);
-  VProjection := ALocalConverter.ProjectionInfo;
+  VProjection := ALocalConverter.Projection;
   VMapRect := ALocalConverter.GetRectInMapPixelFloat;
   VProjection.ValidatePixelRectFloat(VMapRect);
   VLonLatRect := VProjection.PixelRectFloat2LonLatRect(VMapRect);

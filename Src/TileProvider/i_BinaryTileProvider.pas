@@ -31,8 +31,8 @@ uses
 type
   IBinaryTileProvider = interface
     ['{B2D016DA-FE20-489C-BF72-3DC12107D782}']
-    function GetProjectionInfo: IProjection;
-    property ProjectionInfo: IProjection read GetProjectionInfo;
+    function GetProjection: IProjection;
+    property Projection: IProjection read GetProjection;
 
     function GetTile(
       AOperationID: Integer;

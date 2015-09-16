@@ -1789,7 +1789,7 @@ begin
     OnPathProvidesChange;
     OnNavToMarkChange;
 
-    PaintZSlider(FViewPortState.View.GetStatic.ProjectionInfo.Zoom);
+    PaintZSlider(FViewPortState.View.GetStatic.Projection.Zoom);
     Application.OnMessage := DoMessageEvent;
     map.OnMouseDown := Self.mapMouseDown;
     map.OnMouseUp := Self.mapMouseUp;
@@ -3486,7 +3486,7 @@ var
   VPosition: IGPSPosition;
 begin
   VConverter := FViewPortState.View.GetStatic;
-  VZoomCurr := VConverter.ProjectionInfo.Zoom;
+  VZoomCurr := VConverter.Projection.Zoom;
 
   VPosition := GState.GPSRecorder.CurrentPosition;
   if (not VPosition.PositionOK) then begin
@@ -3496,7 +3496,7 @@ begin
     // ok
     VGPSLonLat := VPosition.LonLat;
 
-    VGPSMapPoint := VConverter.ProjectionInfo.LonLat2PixelPosFloat(VGPSLonLat);
+    VGPSMapPoint := VConverter.Projection.LonLat2PixelPosFloat(VGPSLonLat);
 
     VCenterMapPoint := VConverter.GetCenterMapPixelFloat;
     FCenterToGPSDelta.X := VGPSMapPoint.X - VCenterMapPoint.X;
@@ -3524,7 +3524,7 @@ var
   VLonLat: TDoublePoint;
 begin
   VLocalConverter := FViewPortState.View.GetStatic;
-  VProjection := VLocalConverter.ProjectionInfo;
+  VProjection := VLocalConverter.Projection;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, False);
   VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
@@ -4091,7 +4091,7 @@ begin
   end;
   FMapZoomAnimtion := True;
   try
-    VZoom := FViewPortState.View.GetStatic.ProjectionInfo.Zoom;
+    VZoom := FViewPortState.View.GetStatic.Projection.Zoom;
     if VZoom <> ANewZoom then begin
       VMaxTime := FConfig.MapZoomingConfig.AnimateZoomTime;
       VUseAnimation :=
@@ -4181,7 +4181,7 @@ begin
         VLastDrawTime := (ts2 - ts1) / fr;
         VTime := VTime + VLastDrawTime;
         VLastTime := VLastTime + 0.3 * (VLastDrawTime - VLastTime); //время последней итерации сглаженное с предыдущими (чтоб поменьше было рывков во время движения)
-      until (VTime >= VMaxTime) or (AZoom <> FViewPortState.View.GetStatic.ProjectionInfo.Zoom) or
+      until (VTime >= VMaxTime) or (AZoom <> FViewPortState.View.GetStatic.Projection.Zoom) or
         (AMousePos.X <> FMouseState.GetLastUpPos(FMapMovingButton).X) or
         (AMousePos.Y <> FMouseState.GetLastUpPos(FMapMovingButton).Y);
     end;
@@ -4198,7 +4198,7 @@ begin
   VLocalConverter := FViewPortState.View.GetStatic;
   VFreezePos := CenterPoint(VLocalConverter.GetLocalRect);
   zooming(
-    VLocalConverter.ProjectionInfo.Zoom + 1,
+    VLocalConverter.Projection.Zoom + 1,
     VFreezePos
   );
 end;
@@ -4211,7 +4211,7 @@ begin
   VLocalConverter := FViewPortState.View.GetStatic;
   VFreezePos := CenterPoint(VLocalConverter.GetLocalRect);
   zooming(
-    VLocalConverter.ProjectionInfo.Zoom - 1,
+    VLocalConverter.Projection.Zoom - 1,
     VFreezePos
   );
 end;
@@ -4256,7 +4256,7 @@ var
 begin
   VActiveMapGUID := FMainMapState.ActiveMap.GetStatic.GUID;
   VLocalConverter := FViewPortState.View.GetStatic;
-  VProjection := VLocalConverter.ProjectionInfo;
+  VProjection := VLocalConverter.Projection;
   VLonLat := VLocalConverter.GetCenterLonLat;
   VGUIDList := GState.MapType.GUIConfigList.OrderedMapGUIDList;
   VNextMapGuid := VActiveMapGUID;
@@ -4309,7 +4309,7 @@ begin
   if VMapType.TileStorage.StorageTypeAbilities.IsVersioned then begin
     VLocalConverter := FViewPortState.View.GetStatic;
     VIndex := -1;
-    VProjection := VLocalConverter.ProjectionInfo;
+    VProjection := VLocalConverter.Projection;
     VLonLat := VLocalConverter.GetCenterLonLat;
     VMapProjection := VMapType.ProjectionSet.GetSuitableProjection(VProjection);
     if VMapProjection.ProjectionType.CheckLonLatPos(VLonLat) then begin
@@ -4380,7 +4380,7 @@ begin
   if VAllowListOfTileVersions then begin
     // to lonlat
     VLocalConverter := FViewPortState.View.GetStatic;
-    VProjection := VLocalConverter.ProjectionInfo;
+    VProjection := VLocalConverter.Projection;
     VMousePos := FMouseState.GetLastDownPos(mbRight);
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(VMousePos);
     VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, False);
@@ -4449,7 +4449,7 @@ var
   VLonLat: TDoublePoint;
 begin
   VLocalConverter := FViewPortState.View.GetStatic;
-  VProjection := VLocalConverter.ProjectionInfo;
+  VProjection := VLocalConverter.Projection;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, False);
   VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
@@ -4657,7 +4657,7 @@ begin
     ZoomToolBar.Items.Move(ZoomToolBar.Items.IndexOf(TBZoom_out), 0);
     ZoomToolBar.Items.Move(ZoomToolBar.Items.IndexOf(TBZoomin), 4);
   end;
-  PaintZSlider(FViewPortState.View.GetStatic.ProjectionInfo.Zoom);
+  PaintZSlider(FViewPortState.View.GetStatic.Projection.Zoom);
 end;
 
 procedure TfrmMain.NCalcRastClick(Sender: TObject);
@@ -4710,7 +4710,7 @@ var
   VPoint: IGeometryLonLatPoint;
 begin
   VLocalConverter := FViewPortState.View.GetStatic;
-  VProjection := VLocalConverter.ProjectionInfo;
+  VProjection := VLocalConverter.Projection;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, True);
   VMouseLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
@@ -4732,7 +4732,7 @@ begin
   VLocalConverter := FViewPortState.View.GetStatic;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
 
-  VProjection := VLocalConverter.ProjectionInfo;
+  VProjection := VLocalConverter.Projection;
   VMapType := FMainMapState.ActiveMap.GetStatic;
 
   VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, True);
@@ -4756,7 +4756,7 @@ var
   VMouseMapPoint: TDoublePoint;
 begin
   VLocalConverter := FViewPortState.View.GetStatic;
-  VProjection := VLocalConverter.ProjectionInfo;
+  VProjection := VLocalConverter.Projection;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, True);
   VMouseLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
@@ -4774,7 +4774,7 @@ var
 begin
   VLocalConverter := FViewPortState.View.GetStatic;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-  VProjection := VLocalConverter.ProjectionInfo;
+  VProjection := VLocalConverter.Projection;
   VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, True);
   VMouseLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
   if FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible then begin
@@ -4798,7 +4798,7 @@ begin
   VMapType := FMainMapState.ActiveMap.GetStatic;
   VLocalConverter := FViewPortState.View.GetStatic;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-  VProjection := VLocalConverter.ProjectionInfo;
+  VProjection := VLocalConverter.Projection;
   VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, True);
   VMouseLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
   VMapProjection := VMapType.ProjectionSet.GetSuitableProjection(VProjection);
@@ -4834,7 +4834,7 @@ begin
 
   VLocalConverter := FViewPortState.View.GetStatic;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-  VProjection := VLocalConverter.ProjectionInfo;
+  VProjection := VLocalConverter.Projection;
   if VProjection.CheckPixelPosFloatStrict(VMouseMapPoint) then begin
     VMouseLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
     VMapProjection := VMapType.ProjectionSet.GetSuitableProjection(VProjection);
@@ -4918,7 +4918,7 @@ begin
   if VMapType.TileStorage.StorageTypeAbilities.IsFileCache then begin
     VLocalConverter := FViewPortState.View.GetStatic;
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-    VProjection := VLocalConverter.ProjectionInfo;
+    VProjection := VLocalConverter.Projection;
     VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, True);
     VMouseLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
     VMapProjection := VMapType.ProjectionSet.GetSuitableProjection(VProjection);
@@ -4959,7 +4959,7 @@ begin
 
   VLocalConverter := FViewPortState.View.GetStatic;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-  VProjection := VLocalConverter.ProjectionInfo;
+  VProjection := VLocalConverter.Projection;
   VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, True);
   VMouseLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
   VMapProjection := VMapType.ProjectionSet.GetSuitableProjection(VProjection);
@@ -5138,7 +5138,7 @@ begin
 
   VLocalConverter := FViewPortState.View.GetStatic;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-  VProjection := VLocalConverter.ProjectionInfo;
+  VProjection := VLocalConverter.Projection;
   if VProjection.CheckPixelPosFloatStrict(VMouseMapPoint) then begin
     VMouseLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
     VMapProjection := VMapType.ProjectionSet.GetSuitableProjection(VProjection);
@@ -5529,7 +5529,7 @@ begin
       end;
     end;
   end;
-  VZoomCurr := FViewPortState.View.GetStatic.ProjectionInfo.Zoom;
+  VZoomCurr := FViewPortState.View.GetStatic.Projection.Zoom;
   NShowGran.Items[1].Caption := SAS_STR_activescale + ' (z' + inttostr(VZoomCurr + 1) + ')';
   for i := 2 to 7 do begin
     VZoom := VZoomCurr + i - 2;
@@ -5778,7 +5778,7 @@ var
 begin
   VMark := FSelectedMark;
   if VMark <> nil then begin
-    Vpolygon := FMarkDBGUI.PolygonForOperation(VMark.Geometry, FViewPortState.View.GetStatic.ProjectionInfo);
+    Vpolygon := FMarkDBGUI.PolygonForOperation(VMark.Geometry, FViewPortState.View.GetStatic.Projection);
     if Vpolygon <> nil then begin
       FRegionProcess.ProcessPolygon(Vpolygon);
     end;
@@ -5786,7 +5786,7 @@ begin
     // no mark - try to select wiki
     VSelectedWiki := FSelectedWiki;
     if (VSelectedWiki <> nil) then begin
-      Vpolygon := FMarkDBGUI.PolygonForOperation(VSelectedWiki.Geometry, FViewPortState.View.GetStatic.ProjectionInfo);
+      Vpolygon := FMarkDBGUI.PolygonForOperation(VSelectedWiki.Geometry, FViewPortState.View.GetStatic.Projection);
       if Vpolygon <> nil then begin
         FRegionProcess.ProcessPolygon(Vpolygon);
       end;
@@ -5813,7 +5813,7 @@ var
   VLonLat: TDoublePoint;
 begin
   VLocalConverter := FViewPortState.View.GetStatic;
-  VProjection := VLocalConverter.ProjectionInfo;
+  VProjection := VLocalConverter.Projection;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, False);
   VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
@@ -5842,7 +5842,7 @@ begin
   end;
   if VMapType.Zmp.TileDownloaderConfig.Enabled then begin
     VLocalConverter := FViewPortState.View.GetStatic;
-    VProjection := VLocalConverter.ProjectionInfo;
+    VProjection := VLocalConverter.Projection;
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
     VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, True);
     VMouseLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
@@ -5919,7 +5919,7 @@ begin
         VGPSNewPos := VPosition.LonLat;
         if VMapMoveCentred then begin
           VLocalConverter := FViewPortState.View.GetStatic;
-          VProjection := VLocalConverter.ProjectionInfo;
+          VProjection := VLocalConverter.Projection;
           VCenterMapPoint := VLocalConverter.GetCenterMapPixelFloat;
           VGPSMapPoint := VProjection.LonLat2PixelPosFloat(VGPSNewPos);
           VPointDelta.X := VCenterMapPoint.X - VGPSMapPoint.X;
@@ -5930,7 +5930,7 @@ begin
           end;
         end else begin
           VLocalConverter := FViewPortState.View.GetStatic;
-          VProjection := VLocalConverter.ProjectionInfo;
+          VProjection := VLocalConverter.Projection;
           VGPSMapPoint := VProjection.LonLat2PixelPosFloat(VGPSNewPos);
           if PixelPointInRect(VGPSMapPoint, VLocalConverter.GetRectInMapPixelFloat) then begin
             VCenterMapPoint := VLocalConverter.GetCenterMapPixelFloat;
@@ -6054,7 +6054,7 @@ begin
   end;
   Screen.ActiveForm.SetFocusedControl(map);
   VLocalConverter := FViewPortState.View.GetStatic;
-  VProjection := VLocalConverter.ProjectionInfo;
+  VProjection := VLocalConverter.Projection;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(Point(x, y));
   VIsClickInMap := VProjection.CheckPixelPosFloat(VMouseMapPoint);
   if (Button = mbLeft) and (FState.State <> ao_movemap) then begin
@@ -6081,7 +6081,7 @@ begin
             VMagnetPoint :=
               GetGeometryLonLatNearestPoint(
                 VVectorItem.Geometry,
-                VLocalConverter.ProjectionInfo,
+                VLocalConverter.Projection,
                 VMouseMapPoint,
                 FConfig.MainConfig.MagnetDrawSize
               );
@@ -6183,7 +6183,7 @@ begin
   while VMarksEnum.Next(1, VMark, @i) = S_OK do begin
     if Supports(VMark.Geometry, IGeometryLonLatPolygon, VPoly) then begin
       VProjectedPolygon := VVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-          ALocalConverter.ProjectionInfo,
+          ALocalConverter.Projection,
           VPoly,
           nil
         );
@@ -6251,7 +6251,7 @@ begin
 
   VLocalConverter := FViewPortState.View.GetStatic;
   if not VMapMoving and (Button = mbLeft) then begin
-    VProjection := VLocalConverter.ProjectionInfo;
+    VProjection := VLocalConverter.Projection;
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(Point(x, y));
     VValidPoint := VProjection.CheckPixelPosFloat(VMouseMapPoint);
 
@@ -6342,7 +6342,7 @@ begin
   if (VMapMoving) and ((VMouseMoveDelta.X <> 0) or (VMouseMoveDelta.Y <> 0)) then begin
     MapMoveAnimate(
       FMouseState.CurentSpeed,
-      FViewPortState.View.GetStatic.ProjectionInfo.Zoom,
+      FViewPortState.View.GetStatic.Projection.Zoom,
       FMouseState.GetLastUpPos(Button)
     );
   end;
@@ -6441,7 +6441,7 @@ begin
     exit;
   end;
   VLocalConverter := FViewPortState.View.GetStatic;
-  VProjection := VLocalConverter.ProjectionInfo;
+  VProjection := VLocalConverter.Projection;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(VMousePos);
   VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, False);
   VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
@@ -6449,7 +6449,7 @@ begin
     VMagnetPoint := CEmptyDoublePoint;
     if FConfig.MainConfig.MagnetDraw then begin
       if (ssShift in Shift) then begin
-        VMagnetPoint := FStickToGrid.PointStick(VLocalConverter.ProjectionInfo, VLonLat);
+        VMagnetPoint := FStickToGrid.PointStick(VLocalConverter.Projection, VLonLat);
       end;
 
       VVectorItem := nil;
@@ -6461,7 +6461,7 @@ begin
         VMagnetPoint :=
           GetGeometryLonLatNearestPoint(
             VVectorItem.Geometry,
-            VLocalConverter.ProjectionInfo,
+            VLocalConverter.Projection,
             VMouseMapPoint,
             FConfig.MainConfig.MagnetDrawSize
           );
@@ -6617,7 +6617,7 @@ begin
   if SaveLink.Execute then begin
     VMapType := FMainMapState.ActiveMap.GetStatic;
     VLocalConverter := FViewPortState.View.GetStatic;
-    VZoomCurr := VLocalConverter.ProjectionInfo.Zoom;
+    VZoomCurr := VLocalConverter.Projection.Zoom;
     VLonLat := VLocalConverter.GetCenterLonLat;
     VArgStr :=
       '--map=' + GUIDToString(VMapType.Zmp.GUID) + ' ' +
@@ -6886,7 +6886,7 @@ begin
             z := 1;
           end;
           VLocalConverter := FViewPortState.View.GetStatic;
-          VZoom := VLocalConverter.ProjectionInfo.Zoom;
+          VZoom := VLocalConverter.Projection.Zoom;
           if WheelDelta < 0 then begin
             VNewZoom := VZoom - z;
           end else begin
@@ -6935,7 +6935,7 @@ var
   VLonLat: TDoublePoint;
 begin
   VLocalConverter := FViewPortState.View.GetStatic;
-  VProjection := VLocalConverter.ProjectionInfo;
+  VProjection := VLocalConverter.Projection;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, False);
   VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
@@ -6969,7 +6969,7 @@ begin
         VFilter :=
           TLonLatPointFilterLine2Poly.Create(
             FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig.Radius,
-            FViewPortState.View.GetStatic.ProjectionInfo
+            FViewPortState.View.GetStatic.Projection
           );
         VPoly :=
           GState.VectorGeometryLonLatFactory.CreateLonLatPolygonByLonLatPathAndFilter(
@@ -7115,7 +7115,7 @@ var
 begin
   PosFromGSM := tPosFromGSM.Create(GState.Config.GsmConfig, FMapGoto);
   try                                                             
-    PosFromGSM.GetPos(FViewPortState.View.GetStatic.ProjectionInfo);
+    PosFromGSM.GetPos(FViewPortState.View.GetStatic.Projection);
   except
     PosFromGSM.Free;
   end;
@@ -7159,7 +7159,7 @@ var
   VLonLat: TDoublePoint;
 begin
   VLocalConverter := FViewPortState.View.GetStatic;
-  VProjection := VLocalConverter.ProjectionInfo;
+  VProjection := VLocalConverter.Projection;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, False);
   VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
@@ -7231,7 +7231,7 @@ var
 begin
   TBRectSave.ImageIndex := 20;
   VLocalConverter := FViewPortState.View.GetStatic;
-  VProjection := VLocalConverter.ProjectionInfo;
+  VProjection := VLocalConverter.Projection;
   VMapRect := VLocalConverter.GetRectInMapPixelFloat;
   VProjection.ValidatePixelRectFloat(VMapRect);
   VLonLatRect := VProjection.PixelRectFloat2LonLatRect(VMapRect);
@@ -7311,7 +7311,7 @@ var
   VImportConfig: IImportConfig;
 begin
   VLocalConverter := FViewPortState.View.GetStatic;
-  VProjection := VLocalConverter.ProjectionInfo;
+  VProjection := VLocalConverter.Projection;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(APoint);
   VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, False);
   VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
@@ -7426,7 +7426,7 @@ var
   VLonLat: TDoublePoint;
 begin
   VLocalConverter := FViewPortState.View.GetStatic;
-  VProjection := VLocalConverter.ProjectionInfo;
+  VProjection := VLocalConverter.Projection;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, False);
   VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
@@ -7447,7 +7447,7 @@ var
   VLonLat: TDoublePoint;
 begin
   VLocalConverter := FViewPortState.View.GetStatic;
-  VProjection := VLocalConverter.ProjectionInfo;
+  VProjection := VLocalConverter.Projection;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, False);
   VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
@@ -7468,7 +7468,7 @@ var
   VLonLat: TDoublePoint;
 begin
   VLocalConverter := FViewPortState.View.GetStatic;
-  VProjection := VLocalConverter.ProjectionInfo;
+  VProjection := VLocalConverter.Projection;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, False);
   VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
@@ -7489,7 +7489,7 @@ var
   VLonLat: TDoublePoint;
 begin
   VLocalConverter := FViewPortState.View.GetStatic;
-  VProjection := VLocalConverter.ProjectionInfo;
+  VProjection := VLocalConverter.Projection;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, False);
   VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
@@ -7511,7 +7511,7 @@ var
   VLonLat: TDoublePoint;
 begin
   VLocalConverter := FViewPortState.View.GetStatic;
-  VProjection := VLocalConverter.ProjectionInfo;
+  VProjection := VLocalConverter.Projection;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, False);
   VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
@@ -7533,7 +7533,7 @@ var
   VLonLat: TDoublePoint;
 begin
   VLocalConverter := FViewPortState.View.GetStatic;
-  VProjection := VLocalConverter.ProjectionInfo;
+  VProjection := VLocalConverter.Projection;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, False);
   VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);

@@ -564,7 +564,7 @@ begin
 
   // update position info
   VSize := FLocalConverter.GetLocalRectSize;
-  VProjection := FLocalConverter.ProjectionInfo;
+  VProjection := FLocalConverter.Projection;
   FAvailPicsTileInfo.Zoom := VProjection.Zoom;
   VMapPixel := FLocalConverter.LocalPixel2MapPixelFloat(AVisualPoint);
   VProjection.ValidatePixelPosFloatStrict(VMapPixel, True);
@@ -1078,7 +1078,7 @@ begin
         ParsePointsToPolygonBuilder(
           VBuilder,
           VGeometry,
-          FLocalConverter.ProjectionInfo.ProjectionType,
+          FLocalConverter.Projection.ProjectionType,
           VInMetr,
           FALSE,
           VPointsAggregator
@@ -1591,7 +1591,7 @@ var
 begin
   // Bing minimal zoom
   if Assigned(FLocalConverter) then begin
-    VActualZoom := FLocalConverter.ProjectionInfo.Zoom;
+    VActualZoom := FLocalConverter.Projection.Zoom;
     AdjustMinimalBingHiResZoom(VActualZoom);
     Inc(VActualZoom);
     VZoomStr := IntToStr(VActualZoom);

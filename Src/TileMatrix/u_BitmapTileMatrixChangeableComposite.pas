@@ -365,7 +365,7 @@ var
 begin
   VTileRect := FTileRect.GetStatic;
   if Assigned(VTileRect) then begin
-    VProjection := VTileRect.ProjectionInfo;
+    VProjection := VTileRect.Projection;
     VTileRectChanged := not VTileRect.IsEqual(FPreparedBitmapMatrix.TileRect);
     if VTileRectChanged then begin
       VCounterContext := FMatrixChangeRectCounter.StartOperation;
@@ -388,7 +388,7 @@ begin
       for i := 0 to FSourceTileMatrixList.Count - 1 do begin
         VSourceMatrix := IBitmapTileMatrixChangeable(FSourceTileMatrixList.Items[i]).GetStatic;
         if Assigned(VSourceMatrix) then begin
-          if VProjection.GetIsSameProjectionInfo(VSourceMatrix.TileRect.ProjectionInfo) then begin
+          if VProjection.GetIsSameProjectionInfo(VSourceMatrix.TileRect.Projection) then begin
             VSourceMatrixList.Add(VSourceMatrix);
           end else begin
             VAllSourceReady := False;

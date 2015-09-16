@@ -38,7 +38,7 @@ type
     FProviderFrist: IBitmapTileProvider;
     FProviderSecond: IBitmapTileProvider;
   private
-    function GetProjectionInfo: IProjection;
+    function GetProjection: IProjection;
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
@@ -69,16 +69,16 @@ begin
   Assert(Assigned(ABitmap32StaticFactory));
   Assert(Assigned(AProviderFrist));
   Assert(Assigned(AProviderSecond));
-  Assert(AProviderFrist.ProjectionInfo.GetIsSameProjectionInfo(AProviderSecond.ProjectionInfo));
+  Assert(AProviderFrist.Projection.GetIsSameProjectionInfo(AProviderSecond.Projection));
   inherited Create;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FProviderFrist := AProviderFrist;
   FProviderSecond := AProviderSecond;
 end;
 
-function TBitmapTileProviderComplex.GetProjectionInfo: IProjection;
+function TBitmapTileProviderComplex.GetProjection: IProjection;
 begin
-  Result := FProviderFrist.ProjectionInfo;
+  Result := FProviderFrist.Projection;
 end;
 
 function TBitmapTileProviderComplex.GetTile(

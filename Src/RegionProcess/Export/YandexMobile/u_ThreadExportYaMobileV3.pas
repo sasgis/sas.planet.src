@@ -329,7 +329,7 @@ begin
       tc := GetTickCount;
       for i := 0 to Length(FZooms) - 1 do begin
         VTileIterator := VTileIterators[i];
-        VProjection := VTileIterator.TilesRect.ProjectionInfo;
+        VProjection := VTileIterator.TilesRect.Projection;
         VZoom := VProjection.Zoom;
         while VTileIterator.Next(VTile) do begin
           if CancelNotifier.IsOperationCanceled(OperationID) then begin

@@ -165,7 +165,7 @@ var
   VProjection: IProjection;
   VMapCenter: TDoublePoint;
 begin
-  VProjection := ALocalConverter.ProjectionInfo;
+  VProjection := ALocalConverter.Projection;
   VMapCenter := VProjection.LonLat2TilePosFloat(ALocalConverter.GetCenterLonLat);
 
   VSearch := URLEncode(AnsiToUtf8(ASearch));

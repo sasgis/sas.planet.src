@@ -68,7 +68,7 @@ type
     ): IGeometryLonLatPolygon;
     function GetProjectedCirclesByLonLat(
       const ASource: IGeometryLonLatPolygon;
-      const AProjectionInfo: IProjection
+      const AProjection: IProjection
     ): IGeometryProjectedPolygon;
     procedure GPSReceiverReceive;
     procedure OnConfigChange;
@@ -177,10 +177,10 @@ end;
 
 function TMapLayerGPSMarkerRings.GetProjectedCirclesByLonLat(
   const ASource: IGeometryLonLatPolygon;
-  const AProjectionInfo: IProjection
+  const AProjection: IProjection
 ): IGeometryProjectedPolygon;
 begin
-  Result := FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(AProjectionInfo, ASource);
+  Result := FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(AProjection, ASource);
 end;
 
 procedure TMapLayerGPSMarkerRings.GPSReceiverReceive;
@@ -265,12 +265,12 @@ begin
     FGPSPosCS.EndRead;
   end;
   if VDrawable <> nil then begin
-    if not VDrawable.ProjectionInfo.GetIsSameProjectionInfo(ALocalConverter.ProjectionInfo) then begin
+    if not VDrawable.Projection.GetIsSameProjectionInfo(ALocalConverter.Projection) then begin
       VDrawable := nil;
     end;
   end;
   if VCirclesLonLat = nil then begin
-    VCirclesLonLat := GetLonLatCirclesByPoint(VLonLat, ALocalConverter.ProjectionInfo.ProjectionType.Datum, VConfig);
+    VCirclesLonLat := GetLonLatCirclesByPoint(VLonLat, ALocalConverter.Projection.ProjectionType.Datum, VConfig);
   end;
   if VCirclesLonLat = nil then begin
     Exit;
@@ -284,10 +284,10 @@ begin
     FGPSPosCS.EndWrite
   end;
   if VDrawable = nil then begin
-    VCirclesProjected := GetProjectedCirclesByLonLat(VCirclesLonLat, ALocalConverter.ProjectionInfo);
+    VCirclesProjected := GetProjectedCirclesByLonLat(VCirclesLonLat, ALocalConverter.Projection);
     VDrawable :=
       TProjectedDrawableElementByPolygonSimpleEdge.Create(
-        ALocalConverter.ProjectionInfo,
+        ALocalConverter.Projection,
         VCirclesProjected,
         amNone,
         clRed32

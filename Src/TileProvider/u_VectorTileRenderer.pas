@@ -57,14 +57,14 @@ type
       var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
       const APoint: IGeometryLonLatPoint;
-      const AProjectionInfo: IProjection;
+      const AProjection: IProjection;
       const AMapRect: TRect
     ): Boolean;
     function DrawPath(
       var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
       const ALine: IGeometryLonLatLine;
-      const AProjectionInfo: IProjection;
+      const AProjection: IProjection;
       const AMapRect: TRect;
       var AFixedPointArray: TArrayOfFixedPoint
     ): Boolean;
@@ -79,7 +79,7 @@ type
       var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
       const APoly: IGeometryLonLatPolygon;
-      const AProjectionInfo: IProjection;
+      const AProjection: IProjection;
       const AMapRect: TRect;
       var AFixedPointArray: TArrayOfFixedPoint
     ): Boolean;
@@ -87,7 +87,7 @@ type
       var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
       const AData: IGeometryLonLat;
-      const AProjectionInfo: IProjection;
+      const AProjection: IProjection;
       const AMapRect: TRect;
       var AFixedPointArray: TArrayOfFixedPoint
     ): Boolean;
@@ -95,7 +95,7 @@ type
     function RenderVectorTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AProjectionInfo: IProjection;
+      const AProjection: IProjection;
       const ATile: TPoint;
       const ASource: IVectorItemSubset
     ): IBitmap32Static;
@@ -141,7 +141,7 @@ function TVectorTileRenderer.DrawPath(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
   const ALine: IGeometryLonLatLine;
-  const AProjectionInfo: IProjection;
+  const AProjection: IProjection;
   const AMapRect: TRect;
   var AFixedPointArray: TArrayOfFixedPoint
 ): Boolean;
@@ -151,7 +151,7 @@ var
 begin
   Result := False;
   VPolygon := nil;
-  VProjected := FProjectedCache.GetProjectedPath(AProjectionInfo, ALine);
+  VProjected := FProjectedCache.GetProjectedPath(AProjection, ALine);
   ProjectedLine2GR32Polygon(
     VProjected,
     AMapRect,
@@ -189,7 +189,7 @@ function TVectorTileRenderer.DrawPoint(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
   const APoint: IGeometryLonLatPoint;
-  const AProjectionInfo: IProjection;
+  const AProjection: IProjection;
   const AMapRect: TRect
 ): Boolean;
 var
@@ -200,8 +200,8 @@ var
 begin
   Result := False;
   VPointLL := APoint.Point;
-  AProjectionInfo.ProjectionType.ValidateLonLatPos(VPointLL);
-  VMapPixelPos := AProjectionInfo.LonLat2PixelPosFloat(VPointLL);
+  AProjection.ProjectionType.ValidateLonLatPos(VPointLL);
+  VMapPixelPos := AProjection.LonLat2PixelPosFloat(VPointLL);
   VLocalPos.X := VMapPixelPos.X - AMapRect.Left;
   VLocalPos.Y := VMapPixelPos.Y - AMapRect.Top;
   VRect := FPointMarker.GetBoundsForPosition(VLocalPos);
@@ -218,7 +218,7 @@ function TVectorTileRenderer.DrawPoly(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
   const APoly: IGeometryLonLatPolygon;
-  const AProjectionInfo: IProjection;
+  const AProjection: IProjection;
   const AMapRect: TRect;
   var AFixedPointArray: TArrayOfFixedPoint
 ): Boolean;
@@ -229,7 +229,7 @@ var
   i: Integer;
 begin
   Result := False;
-  VProjected := FProjectedCache.GetProjectedPolygon(AProjectionInfo, APoly);
+  VProjected := FProjectedCache.GetProjectedPolygon(AProjection, APoly);
   if Assigned(VProjected) then begin
     if Supports(VProjected, IGeometryProjectedSinglePolygon, VProjectedSingle) then begin
       Result := DrawSinglePolygon(ABitmapInited, ATargetBmp, VProjectedSingle, AMapRect, AFixedPointArray);
@@ -293,7 +293,7 @@ function TVectorTileRenderer.DrawWikiElement(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
   const AData: IGeometryLonLat;
-  const AProjectionInfo: IProjection;
+  const AProjection: IProjection;
   const AMapRect: TRect;
   var AFixedPointArray: TArrayOfFixedPoint
 ): Boolean;
@@ -303,11 +303,11 @@ var
   VItemPoly: IGeometryLonLatPolygon;
 begin
   if Supports(AData, IGeometryLonLatPoint, VItemPoint) then begin
-    Result := DrawPoint(ABitmapInited, ATargetBmp, VItemPoint, AProjectionInfo, AMapRect);
+    Result := DrawPoint(ABitmapInited, ATargetBmp, VItemPoint, AProjection, AMapRect);
   end else if Supports(AData, IGeometryLonLatLine, VItemLine) then begin
-    Result := DrawPath(ABitmapInited, ATargetBmp, VItemLine, AProjectionInfo, AMapRect, AFixedPointArray);
+    Result := DrawPath(ABitmapInited, ATargetBmp, VItemLine, AProjection, AMapRect, AFixedPointArray);
   end else if Supports(AData, IGeometryLonLatPolygon, VItemPoly) then begin
-    Result := DrawPoly(ABitmapInited, ATargetBmp, VItemPoly, AProjectionInfo, AMapRect, AFixedPointArray);
+    Result := DrawPoly(ABitmapInited, ATargetBmp, VItemPoly, AProjection, AMapRect, AFixedPointArray);
   end else begin
     Result := False;
   end;
@@ -326,7 +326,7 @@ end;
 function TVectorTileRenderer.RenderVectorTile(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const AProjectionInfo: IProjection;
+  const AProjection: IProjection;
   const ATile: TPoint;
   const ASource: IVectorItemSubset
 ): IBitmap32Static;
@@ -340,10 +340,10 @@ var
   VFixedPointArray: TArrayOfFixedPoint;
 begin
   Result := nil;
-  if not AProjectionInfo.CheckTilePosStrict(ATile) then begin
+  if not AProjection.CheckTilePosStrict(ATile) then begin
     Exit;
   end;
-  VMapPixelRect := AProjectionInfo.TilePos2PixelRect(ATile);
+  VMapPixelRect := AProjection.TilePos2PixelRect(ATile);
 
   VBitmapInited := False;
   if (ASource <> nil) and (ASource.Count > 0) then begin
@@ -352,7 +352,7 @@ begin
       VIsEmpty := True;
       for i := 0 to ASource.Count - 1 do begin
         VItem := ASource.Items[i];
-        if DrawWikiElement(VBitmapInited, VBitmap, VItem.Geometry, AProjectionInfo, VMapPixelRect, VFixedPointArray) then begin
+        if DrawWikiElement(VBitmapInited, VBitmap, VItem.Geometry, AProjection, VMapPixelRect, VFixedPointArray) then begin
           VIsEmpty := False;
         end;
         if ACancelNotifier.IsOperationCanceled(AOperationID) then begin

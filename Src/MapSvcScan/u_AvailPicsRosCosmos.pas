@@ -145,7 +145,7 @@ var
   VStartingPoint: String;
 begin
   // Переводим BBox из LonLat в метры и сразу формируем нужный формат для запроса
-  VProjectionType := FLocalConverter.ProjectionInfo.ProjectionType;
+  VProjectionType := FLocalConverter.Projection.ProjectionType;
 
   // TopLeft
   VLonLatPoint := FTileInfoPtr^.TileRect.TopLeft;

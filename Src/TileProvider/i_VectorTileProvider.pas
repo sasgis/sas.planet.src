@@ -31,8 +31,8 @@ uses
 type
   IVectorTileProvider = interface
     ['{00ADB9F4-D421-4F71-A9B6-3F8A6E8FFCB9}']
-    function GetProjectionInfo: IProjection;
-    property ProjectionInfo: IProjection read GetProjectionInfo;
+    function GetProjection: IProjection;
+    property Projection: IProjection read GetProjection;
 
     function GetTile(
       AOperationID: Integer;
@@ -46,7 +46,7 @@ type
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AProjectionInfo: IProjection;
+      const AProjection: IProjection;
       const ATile: TPoint
     ): IVectorItemSubset;
   end;

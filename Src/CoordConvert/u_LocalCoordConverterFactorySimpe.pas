@@ -120,7 +120,7 @@ begin
   Result :=
     CreateConverter(
       VLocalRect,
-      ASource.ProjectionInfo,
+      ASource.Projection,
       VScale,
       VTopLefAtMap
     );
@@ -140,7 +140,7 @@ var
   VCenterMapPixelNew: TDoublePoint;
   VTopLefAtMap: TDoublePoint;
 begin
-  VProjection := ASource.ProjectionInfo;
+  VProjection := ASource.Projection;
   VLonLat := ALonLat;
   VProjection.ProjectionType.ValidateLonLatPos(VLonLat);
   VCenterMapPixel := ASource.GetCenterMapPixelFloat;
@@ -178,7 +178,7 @@ var
   VCenterMapPixelNew: TDoublePoint;
   VTopLefAtMap: TDoublePoint;
 begin
-  VProjectionOld := ASource.ProjectionInfo;
+  VProjectionOld := ASource.Projection;
   if VProjectionOld.GetIsSameProjectionInfo(AProjection) then begin
     Result := ChangeCenterLonLat(ASource, ALonLat);
     Exit;
@@ -214,7 +214,7 @@ var
   VCenterMapPixelNew: TDoublePoint;
   VTopLefAtMap: TDoublePoint;
 begin
-  VProjection := ASource.ProjectionInfo;
+  VProjection := ASource.Projection;
   VCenterMapPixel := ASource.GetCenterMapPixelFloat;
   VCenterMapPixelNew := ASource.LocalPixel2MapPixelFloat(AVisualPoint);
   VProjection.ValidatePixelPosFloatStrict(VCenterMapPixelNew, True);
@@ -251,7 +251,7 @@ var
   VLonLatPoint: TDoublePoint;
   VProjectionOld: IProjection;
 begin
-  VProjectionOld := ASource.ProjectionInfo;
+  VProjectionOld := ASource.Projection;
   if VProjectionOld.GetIsSameProjectionInfo(AProjection) then begin
     Result := ASource;
     Exit;
@@ -294,7 +294,7 @@ var
   VMapFreezPointAtNew: TDoublePoint;
   VProjectionOld: IProjection;
 begin
-  VProjectionOld := ASource.ProjectionInfo;
+  VProjectionOld := ASource.Projection;
   if VProjectionOld.GetIsSameProjectionInfo(AProjection) then begin
     Result := ASource;
     Exit;
@@ -344,7 +344,7 @@ var
   VCenterMapPixelAtNew: TDoublePoint;
   VProjectionOld: IProjection;
 begin
-  VProjectionOld := ASource.ProjectionInfo;
+  VProjectionOld := ASource.Projection;
   if VProjectionOld.GetIsSameProjectionInfo(AProjection) then begin
     Result := ASource;
     Exit;

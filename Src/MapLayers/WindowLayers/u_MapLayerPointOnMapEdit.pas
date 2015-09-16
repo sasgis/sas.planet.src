@@ -144,7 +144,7 @@ begin
   VLocalConverter := FLocalConverter.GetStatic;
   VLonLat := FPointOnMap.Point;
   if not PointIsEmpty(VLonLat) then begin
-    VProjectionType := VLocalConverter.ProjectionInfo.ProjectionType;
+    VProjectionType := VLocalConverter.Projection.ProjectionType;
     VProjectionType.ValidateLonLatPos(VLonLat);
     VMarker := FMarker.GetStatic;
     VFixedOnView := VLocalConverter.LonLat2LocalPixelFloat(VLonLat);

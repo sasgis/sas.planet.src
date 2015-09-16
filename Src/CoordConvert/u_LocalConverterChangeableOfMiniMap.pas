@@ -198,7 +198,7 @@ begin
 
     VScale := AVisualCoordConverter.GetScale;
     VVisualMapCenter := AVisualCoordConverter.GetCenterMapPixelFloat;
-    VSourceProjection := AVisualCoordConverter.ProjectionInfo;
+    VSourceProjection := AVisualCoordConverter.Projection;
     VSourceProjection.ValidatePixelPosFloatStrict(VVisualMapCenter, True);
     VVisualMapCenterInRelative := VSourceProjection.PixelPosFloat2Relative(VVisualMapCenter);
     VProjection := GetActualProjection(AConfig.ZoomDelta, AProjectionSet, VSourceProjection);

@@ -201,7 +201,7 @@ begin
       VZoom := FZooms[I];
       VTileIterator := VTileIterators[I];
       if Assigned(VTileIterator) then begin
-        VProjection := VTileIterator.TilesRect.ProjectionInfo;
+        VProjection := VTileIterator.TilesRect.Projection;
         while VTileIterator.Next(VTile) do begin
           if CancelNotifier.IsOperationCanceled(OperationID) then begin
             Exit;
