@@ -117,7 +117,7 @@ begin
   Assert(AOversize.Bottom < 4096);
   Assert(Assigned(AProvider));
   Assert(Assigned(AProjection));
-  Assert(not AProvider.Projection.GetIsSameProjectionInfo(AProjection));
+  Assert(not AProvider.Projection.IsSame(AProjection));
   inherited Create;
   FVectorSubsetBuilderFactory := AVectorSubsetBuilderFactory;
   FOversize := AOversize;

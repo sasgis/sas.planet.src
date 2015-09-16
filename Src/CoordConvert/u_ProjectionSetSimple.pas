@@ -113,7 +113,7 @@ begin
   VZoom := AProjection.Zoom;
   if VZoom < FZoomCount then begin
     // TODO: fix search zooms later
-    Result := GetZoom(VZoom).GetIsSameProjectionInfo(AProjection);
+    Result := GetZoom(VZoom).IsSame(AProjection);
   end;
 end;
 
@@ -138,7 +138,7 @@ begin
     if FZoomCount = AProjectionSet.ZoomCount then begin
       Result := True;
       for i := 0 to FZoomCount - 1 do begin
-        if not GetZoom(i).GetIsSameProjectionInfo(AProjectionSet.Zooms[i]) then begin
+        if not GetZoom(i).IsSame(AProjectionSet.Zooms[i]) then begin
           Result := False;
           Break;
         end;

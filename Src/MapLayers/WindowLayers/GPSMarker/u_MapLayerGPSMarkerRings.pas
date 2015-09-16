@@ -265,7 +265,7 @@ begin
     FGPSPosCS.EndRead;
   end;
   if VDrawable <> nil then begin
-    if not VDrawable.Projection.GetIsSameProjectionInfo(ALocalConverter.Projection) then begin
+    if not VDrawable.Projection.IsSame(ALocalConverter.Projection) then begin
       VDrawable := nil;
     end;
   end;

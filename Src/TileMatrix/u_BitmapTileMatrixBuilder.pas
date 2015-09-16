@@ -207,7 +207,7 @@ begin
   Assert(VProjectionNew.CheckTileRect(VTileRect));
   if Assigned(FTileRect) then begin
     VProjectionOld := FTileRect.Projection;
-    if not VProjectionOld.GetIsSameProjectionInfo(VProjectionNew) then begin
+    if not VProjectionOld.IsSame(VProjectionNew) then begin
       if VProjectionNew.ProjectionType.IsSame(VProjectionOld.ProjectionType) then begin
         VOldRect := FTileRect.Rect;
         VRelativeRect := VProjectionOld.TileRect2RelativeRect(VOldRect);

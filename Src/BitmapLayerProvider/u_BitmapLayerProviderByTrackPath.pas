@@ -288,7 +288,7 @@ begin
     if IsIntersecLonLatRect(FLonLatRect, VLonLatRect) then begin
       VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
       try
-        if not AProjection.GetIsSameProjectionInfo(FPreparedProjection) then begin
+        if not AProjection.IsSame(FPreparedProjection) then begin
           PrepareProjectedPoints(AProjection);
         end;
         if

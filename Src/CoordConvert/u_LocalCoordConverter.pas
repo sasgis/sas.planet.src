@@ -260,7 +260,7 @@ begin
     Result := False;
   end else begin
     Result := False;
-    if FProjection.GetIsSameProjectionInfo(AConverter.Projection) then begin
+    if FProjection.IsSame(AConverter.Projection) then begin
       if EqualRect(FLocalRect, AConverter.GetLocalRect) then begin
         Result := True;
       end;

@@ -388,7 +388,7 @@ begin
       for i := 0 to FSourceTileMatrixList.Count - 1 do begin
         VSourceMatrix := IBitmapTileMatrixChangeable(FSourceTileMatrixList.Items[i]).GetStatic;
         if Assigned(VSourceMatrix) then begin
-          if VProjection.GetIsSameProjectionInfo(VSourceMatrix.TileRect.Projection) then begin
+          if VProjection.IsSame(VSourceMatrix.TileRect.Projection) then begin
             VSourceMatrixList.Add(VSourceMatrix);
           end else begin
             VAllSourceReady := False;

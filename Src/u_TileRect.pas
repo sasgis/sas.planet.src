@@ -157,7 +157,7 @@ begin
   end else if ARect = nil then begin
     Result := False;
   end else begin
-    if FProjection.GetIsSameProjectionInfo(ARect.Projection) then begin
+    if FProjection.IsSame(ARect.Projection) then begin
       Result := EqualRect(FRect, ARect.Rect);
     end else begin
       Result := False;

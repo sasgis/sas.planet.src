@@ -284,7 +284,7 @@ begin
     if (VProjection = nil) or (VPoints = nil) then begin
       VNeedUpdatePoints := True;
     end else begin
-      if not VProjection.GetIsSameProjectionInfo(ALocalConverter.Projection) then begin
+      if not VProjection.IsSame(ALocalConverter.Projection) then begin
         VNeedUpdatePoints := True;
       end;
     end;

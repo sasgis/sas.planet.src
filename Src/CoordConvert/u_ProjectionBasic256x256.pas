@@ -119,7 +119,7 @@ type
     function GetHash: THashValue;
     function GetZoom: Byte;
     function GetProjectionType: IProjectionType;
-    function GetIsSameProjectionInfo(const AProjection: IProjection): Boolean;
+    function IsSame(const AProjection: IProjection): Boolean;
 
     // Возвращает прямоугольник тайлов допустимый в заданном зуме
     function GetTileRect: TRect;
@@ -1164,7 +1164,7 @@ begin
   Result := FHash;
 end;
 
-function TProjectionBasic256x256.GetIsSameProjectionInfo(
+function TProjectionBasic256x256.IsSame(
   const AProjection: IProjection): Boolean;
 var
   VSelf: IProjection;

@@ -359,7 +359,7 @@ begin
     Exit;
   end;
   if Assigned(VProjectedLine) then begin
-    if not ALocalConverter.Projection.GetIsSameProjectionInfo(VProjection) then begin
+    if not ALocalConverter.Projection.IsSame(VProjection) then begin
       VProjectedLine := nil;
     end;
   end;
@@ -643,7 +643,7 @@ begin
   end;
 
   if Assigned(VProjectedLine) then begin
-    if not ALocalConverter.Projection.GetIsSameProjectionInfo(VProjection) then begin
+    if not ALocalConverter.Projection.IsSame(VProjection) then begin
       VProjection := nil;
       VProjectedLine := nil;
     end;

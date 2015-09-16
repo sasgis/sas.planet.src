@@ -152,7 +152,7 @@ begin
       VProjection := VConverter.Projection;
       Assert(Assigned(VProjection));
       if VLine.IsSameGeometry(FLastLine) then begin
-        if VProjection.GetIsSameProjectionInfo(FLastProjection) then begin
+        if VProjection.IsSame(FLastProjection) then begin
           if Abs(FLastRadius - VRadius) > 1 then begin
             VResult := PolygonByLine(VLine, VProjection, VRadius);
             FLastRadius := VRadius;

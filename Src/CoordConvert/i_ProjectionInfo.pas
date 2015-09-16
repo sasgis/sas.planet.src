@@ -40,7 +40,7 @@ type
     function GetProjectionType: IProjectionType;
     property ProjectionType: IProjectionType read GetProjectionType;
 
-    function GetIsSameProjectionInfo(const AProjection: IProjection): Boolean;
+    function IsSame(const AProjection: IProjection): Boolean;
 
     // Возвращает прямоугольник тайлов допустимый в заданном зуме
     function GetTileRect: TRect;

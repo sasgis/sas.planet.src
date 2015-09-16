@@ -178,7 +178,7 @@ begin
     if Assigned(FPolygon) then begin
       VReprojectPolygon := False;
       if Assigned(FProjection) then begin
-        if not FProjection.GetIsSameProjectionInfo(VSourceProjection) then begin
+        if not FProjection.IsSame(VSourceProjection) then begin
           FProjection := VSourceProjection;
           VReprojectPolygon := True;
         end;

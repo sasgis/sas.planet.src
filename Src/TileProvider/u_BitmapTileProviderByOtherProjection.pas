@@ -112,7 +112,7 @@ begin
   Assert(Assigned(AImageResamplerFactory));
   Assert(Assigned(AProvider));
   Assert(Assigned(AProjection));
-  Assert(not AProvider.Projection.GetIsSameProjectionInfo(AProjection));
+  Assert(not AProvider.Projection.IsSame(AProjection));
   inherited Create;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FImageResamplerFactory := AImageResamplerFactory;
@@ -158,7 +158,7 @@ begin
   Assert(Assigned(AResultProjection));
   Assert(Assigned(ASourceProjection));
   Assert(ASourceProjection.ProjectionType.IsSame(AResultProjection.ProjectionType));
-  Assert(not ASourceProjection.GetIsSameProjectionInfo(AResultProjection));
+  Assert(not ASourceProjection.IsSame(AResultProjection));
 
   VSourcePixelRect := ASourceProjection.TilePos2PixelRect(ASourceTile);
 

@@ -84,7 +84,7 @@ begin
   if AValue = nil then begin
     Result := False;
   end else begin
-    if not FProjection.GetIsSameProjectionInfo(AValue.Projection) then begin
+    if not FProjection.IsSame(AValue.Projection) then begin
       Result := False;
     end else begin
       VTile := AValue.Tile;

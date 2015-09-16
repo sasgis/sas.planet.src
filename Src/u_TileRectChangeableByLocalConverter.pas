@@ -261,7 +261,7 @@ begin
   VProjection := VProjectionSet.GetSuitableProjection(VProjectionSource);
   VPixelRect := AConverter.GetRectInMapPixelFloat;
   VProjectionSource.ValidatePixelRectFloat(VPixelRect);
-  if not VProjectionSource.GetIsSameProjectionInfo(VProjection) then begin
+  if not VProjectionSource.IsSame(VProjection) then begin
     if VProjectionSource.ProjectionType.IsSame(VProjection.ProjectionType) then begin
       VRelativeRect := VProjectionSource.PixelRectFloat2RelativeRect(VPixelRect);
       VPixelRect := VProjection.RelativeRect2PixelRectFloat(VRelativeRect);

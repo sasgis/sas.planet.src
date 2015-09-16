@@ -179,7 +179,7 @@ var
   VTopLefAtMap: TDoublePoint;
 begin
   VProjectionOld := ASource.Projection;
-  if VProjectionOld.GetIsSameProjectionInfo(AProjection) then begin
+  if VProjectionOld.IsSame(AProjection) then begin
     Result := ChangeCenterLonLat(ASource, ALonLat);
     Exit;
   end;
@@ -252,7 +252,7 @@ var
   VProjectionOld: IProjection;
 begin
   VProjectionOld := ASource.Projection;
-  if VProjectionOld.GetIsSameProjectionInfo(AProjection) then begin
+  if VProjectionOld.IsSame(AProjection) then begin
     Result := ASource;
     Exit;
   end;
@@ -295,7 +295,7 @@ var
   VProjectionOld: IProjection;
 begin
   VProjectionOld := ASource.Projection;
-  if VProjectionOld.GetIsSameProjectionInfo(AProjection) then begin
+  if VProjectionOld.IsSame(AProjection) then begin
     Result := ASource;
     Exit;
   end;
@@ -345,7 +345,7 @@ var
   VProjectionOld: IProjection;
 begin
   VProjectionOld := ASource.Projection;
-  if VProjectionOld.GetIsSameProjectionInfo(AProjection) then begin
+  if VProjectionOld.IsSame(AProjection) then begin
     Result := ASource;
     Exit;
   end;

@@ -69,7 +69,7 @@ begin
   Assert(Assigned(ABitmap32StaticFactory));
   Assert(Assigned(AProviderFrist));
   Assert(Assigned(AProviderSecond));
-  Assert(AProviderFrist.Projection.GetIsSameProjectionInfo(AProviderSecond.Projection));
+  Assert(AProviderFrist.Projection.IsSame(AProviderSecond.Projection));
   inherited Create;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FProviderFrist := AProviderFrist;

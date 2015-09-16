@@ -359,7 +359,7 @@ begin
     VCurrentOperation := FHardCancelNotifierInternal.CurrentOperation;
     try
       VProjection := FMapType.ProjectionSet.GetSuitableProjection(VTileRect.Projection);
-      Assert(VProjection.GetIsSameProjectionInfo(VTileRect.Projection));
+      Assert(VProjection.IsSame(VTileRect.Projection));
       VZoom := VTileRect.GetZoom;
 
       VMapTileRect := VTileRect.Rect;
