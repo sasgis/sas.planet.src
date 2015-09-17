@@ -29,6 +29,7 @@ uses
   i_ProjectionType,
   i_ProjectionSet,
   i_ConfigDataProvider,
+  i_ProjectionTypeFactory,
   i_CoordConverterFactory,
   u_BaseInterfacedObject;
 

@@ -201,6 +201,7 @@ uses
   i_ProjectionSet in 'Src\CoordConvert\i_ProjectionSet.pas',
   i_ProjectionSetChangeable in 'Src\CoordConvert\i_ProjectionSetChangeable.pas',
   i_ProjectionType in 'Src\CoordConvert\i_ProjectionType.pas',
+  i_ProjectionTypeFactory in 'Src\CoordConvert\i_ProjectionTypeFactory.pas',
   u_CoordConverterFactorySimple in 'Src\CoordConvert\u_CoordConverterFactorySimple.pas',
   u_CoordConverterListStatic in 'Src\CoordConvert\u_CoordConverterListStatic.pas',
   u_CoordConverterListStaticSimple in 'Src\CoordConvert\u_CoordConverterListStaticSimple.pas',

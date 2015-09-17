@@ -18,22 +18,21 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_CoordConverterFactory;
+unit i_ProjectionTypeFactory;
 
 interface
 
 uses
-  i_ProjectionSet,
+  i_ProjectionType,
   i_ConfigDataProvider;
 
 type
-  IProjectionSetFactory = interface
-    ['{F7D31D52-79A1-4764-95E5-9653F4EDBD26}']
-    function GetProjectionSetByConfig(const AConfig: IConfigDataProvider): IProjectionSet;
-    function GetProjectionSetByCode(
-      AProjectionEPSG: Integer;
-      ATileSplitCode: Integer
-    ): IProjectionSet;
+  IProjectionTypeFactory = interface
+    ['{B7FCF190-0A79-493D-9A39-A87DE2676236}']
+    function GetByConfig(const AConfig: IConfigDataProvider): IProjectionType;
+    function GetByCode(
+      AProjectionEPSG: Integer
+    ): IProjectionType;
   end;
 
 implementation
