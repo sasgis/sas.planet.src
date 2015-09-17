@@ -37,6 +37,7 @@ type
   TVectorTileMatrixBuilder = class(TBaseInterfacedObject, IVectorTileMatrixBuilder)
   private
     FVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+    FIsReprojectTiles: Boolean;
     FOversize: TRect;
     FHashFunction: IHashFunction;
     FTileRect: ITileRect;
@@ -54,6 +55,7 @@ type
   public
     constructor Create(
       const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+      const AIsReprojectTiles: Boolean;
       const AOversize: TRect;
       const AHashFunction: IHashFunction
     );
@@ -84,6 +86,7 @@ end;
 
 constructor TVectorTileMatrixBuilder.Create(
   const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+  const AIsReprojectTiles: Boolean;
   const AOversize: TRect;
   const AHashFunction: IHashFunction
 );
@@ -100,6 +103,7 @@ begin
   Assert(Assigned(AHashFunction));
   inherited Create;
   FOversize := AOversize;
+  FIsReprojectTiles := AIsReprojectTiles;
   FVectorSubsetBuilderFactory := AVectorSubsetBuilderFactory;
   FHashFunction := AHashFunction;
   FTileRect := nil;
@@ -226,7 +230,11 @@ begin
         if not IntersectRect(VIntersectRect, ATileRect.Rect, VSourceAtTarget) then begin
           SetRectWithReset(ATileRect);
         end else begin
-          VSourceTileMatrix := nil;// MakeStatic;
+          if FIsReprojectTiles then begin
+            VSourceTileMatrix := MakeStatic;
+          end else begin
+            VSourceTileMatrix := nil;
+          end;
           SetRectWithReset(ATileRect);
 
           if Assigned(VSourceTileMatrix) then begin
@@ -255,7 +263,11 @@ begin
         if not IntersectRect(VIntersectRect, ATileRect.Rect, VSourceAtTarget) then begin
           SetRectWithReset(ATileRect);
         end else begin
-          VSourceTileMatrix := nil;// MakeStatic;
+          if FIsReprojectTiles then begin
+            VSourceTileMatrix := MakeStatic;
+          end else begin
+            VSourceTileMatrix := nil;
+          end;
           SetRectWithReset(ATileRect);
 
           if Assigned(VSourceTileMatrix) then begin

@@ -103,6 +103,7 @@ type
       const ATileRect: ITileRectChangeable;
       const ASourceTileMatrixList: IInterfaceListStatic;
       const AImageResampler: IImageResamplerFactoryChangeable;
+      const AIsReprojectTiles: Boolean;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AHashFunction: IHashFunction;
       const AThreadConfig: IThreadConfig;
@@ -136,6 +137,7 @@ constructor TBitmapTileMatrixChangeableComposite.Create(
   const ATileRect: ITileRectChangeable;
   const ASourceTileMatrixList: IInterfaceListStatic;
   const AImageResampler: IImageResamplerFactoryChangeable;
+  const AIsReprojectTiles: Boolean;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AHashFunction: IHashFunction;
   const AThreadConfig: IThreadConfig;
@@ -178,6 +180,7 @@ begin
   FPreparedBitmapMatrix :=
     TBitmapTileMatrixBuilder.Create(
       AImageResampler,
+      AIsReprojectTiles,
       ABitmapFactory,
       AHashFunction
     );

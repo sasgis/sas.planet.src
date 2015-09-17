@@ -88,6 +88,7 @@ type
       const ASourceTileMatrix: IVectorTileMatrixChangeable;
       const ATileRenderer: IVectorTileRendererChangeable;
       const AImageResampler: IImageResamplerFactoryChangeable;
+      const AIsReprojectTiles: Boolean;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AHashFunction: IHashFunction;
       const AThreadConfig: IThreadConfig;
@@ -123,6 +124,7 @@ constructor TBitmapTileMatrixChangeableByVectorMatrix.Create(
   const ASourceTileMatrix: IVectorTileMatrixChangeable;
   const ATileRenderer: IVectorTileRendererChangeable;
   const AImageResampler: IImageResamplerFactoryChangeable;
+  const AIsReprojectTiles: Boolean;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AHashFunction: IHashFunction;
   const AThreadConfig: IThreadConfig;
@@ -159,6 +161,7 @@ begin
   FPreparedBitmapMatrix :=
     TBitmapTileMatrixBuilder.Create(
       AImageResampler,
+      AIsReprojectTiles,
       ABitmapFactory,
       AHashFunction
     );

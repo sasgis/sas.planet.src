@@ -97,6 +97,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       const ATileRect: ITileRectChangeable;
       const AImageResampler: IImageResamplerFactoryChangeable;
+      const AIsReprojectTiles: Boolean;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AHashFunction: IHashFunction;
       const ALayerProvider: IBitmapLayerProviderChangeable;
@@ -135,6 +136,7 @@ constructor TBitmapTileMatrixChangeableWithThread.Create(
   const AAppStartedNotifier, AAppClosingNotifier: INotifierOneOperation;
   const ATileRect: ITileRectChangeable;
   const AImageResampler: IImageResamplerFactoryChangeable;
+  const AIsReprojectTiles: Boolean;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AHashFunction: IHashFunction;
   const ALayerProvider: IBitmapLayerProviderChangeable;
@@ -181,6 +183,7 @@ begin
   FPreparedBitmapMatrix :=
     TBitmapTileMatrixBuilder.Create(
       AImageResampler,
+      AIsReprojectTiles,
       ABitmapFactory,
       AHashFunction
     );

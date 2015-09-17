@@ -18,9 +18,6 @@ object frmMapTypeEdit: TfrmMapTypeEdit
     Left = 153
     Top = 0
     Height = 389
-    ExplicitLeft = 184
-    ExplicitTop = 160
-    ExplicitHeight = 100
   end
   object PageControl1: TPageControl
     Left = 156
@@ -48,12 +45,11 @@ object frmMapTypeEdit: TfrmMapTypeEdit
           AlignWithMargins = True
           Left = 6
           Top = 6
-          Width = 385
+          Width = 79
           Height = 13
           Align = alTop
           Caption = 'Download state:'
           Layout = tlCenter
-          ExplicitWidth = 79
         end
         object mmoDownloadState: TMemo
           AlignWithMargins = True
@@ -82,13 +78,11 @@ object frmMapTypeEdit: TfrmMapTypeEdit
           AlignWithMargins = True
           Left = 6
           Top = 3
-          Width = 385
+          Width = 111
           Height = 13
           Margins.Top = 0
-          Margins.Bottom = 0
           Align = alTop
           Caption = 'Custom HTTP Headers:'
-          ExplicitWidth = 111
         end
         object pnlHeaderReset: TPanel
           Left = 367
@@ -137,13 +131,12 @@ object frmMapTypeEdit: TfrmMapTypeEdit
           AlignWithMargins = True
           Left = 6
           Top = 3
-          Width = 385
+          Width = 125
           Height = 13
           Margins.Top = 0
           Margins.Bottom = 1
           Align = alTop
           Caption = 'Base part of request URL:'
-          ExplicitWidth = 125
         end
         object pnlUrlRight: TPanel
           Left = 367
@@ -194,14 +187,12 @@ object frmMapTypeEdit: TfrmMapTypeEdit
           AlignWithMargins = True
           Left = 6
           Top = 3
-          Width = 385
+          Width = 62
           Height = 13
           Margins.Top = 0
-          Margins.Bottom = 0
           Align = alTop
           Caption = 'Map Version:'
           Layout = tlCenter
-          ExplicitWidth = 62
         end
         object btnResetVersion: TButton
           AlignWithMargins = True
@@ -225,7 +216,6 @@ object frmMapTypeEdit: TfrmMapTypeEdit
           Height = 23
           Align = alClient
           TabOrder = 0
-          ExplicitHeight = 21
         end
       end
       object pnlSleep: TPanel
@@ -242,10 +232,9 @@ object frmMapTypeEdit: TfrmMapTypeEdit
           Left = 6
           Top = 6
           Width = 29
-          Height = 19
+          Height = 13
           Align = alLeft
           Caption = 'Pause'
-          ExplicitHeight = 13
         end
         object btnResetPause: TButton
           AlignWithMargins = True
@@ -287,7 +276,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
     object tsOthers: TTabSheet
       Caption = 'Cache and Other'
       ImageIndex = 5
-      TabVisible = False      
+      TabVisible = False
       object pnlCacheName: TPanel
         Left = 0
         Top = 0
@@ -357,11 +346,10 @@ object frmMapTypeEdit: TfrmMapTypeEdit
           Left = 6
           Top = 6
           Width = 55
-          Height = 21
+          Height = 13
           Align = alLeft
           Caption = 'Cache type'
           Layout = tlCenter
-          ExplicitHeight = 13
         end
         object btnResetCacheType: TButton
           AlignWithMargins = True
@@ -386,10 +374,6 @@ object frmMapTypeEdit: TfrmMapTypeEdit
           Align = alClient
           BevelOuter = bvNone
           TabOrder = 1
-          ExplicitLeft = 128
-          ExplicitTop = 8
-          ExplicitWidth = 185
-          ExplicitHeight = 41
         end
       end
       object pnlParentItem: TPanel
@@ -505,13 +489,12 @@ object frmMapTypeEdit: TfrmMapTypeEdit
         object lblHotKey: TLabel
           AlignWithMargins = True
           Left = 6
-          Top = 6
+          Top = 7
           Width = 34
           Height = 13
           Margins.Left = 6
           Anchors = [akLeft]
           Caption = 'Hotkey'
-          ExplicitTop = 7
         end
       end
       object chkBoxSeparator: TCheckBox
@@ -528,7 +511,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       object CheckEnabled: TCheckBox
         AlignWithMargins = True
         Left = 6
-        Top = 341
+        Top = 359
         Width = 388
         Height = 17
         Margins.Left = 6
@@ -646,10 +629,9 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       Left = 3
       Top = 3
       Width = 24
-      Height = 14
+      Height = 13
       Align = alLeft
       Caption = 'ZMP:'
-      ExplicitHeight = 13
     end
     object edtZmp: TEdit
       AlignWithMargins = True

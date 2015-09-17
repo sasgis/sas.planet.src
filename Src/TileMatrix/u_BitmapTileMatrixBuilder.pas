@@ -40,6 +40,7 @@ type
     FHashFunction: IHashFunction;
     FImageResampler: IImageResamplerFactoryChangeable;
     FBitmapFactory: IBitmap32StaticFactory;
+    FIsReprojectTiles: Boolean;
     FTileRect: ITileRect;
     FItems: IInterfaceListSimple;
   private
@@ -55,6 +56,7 @@ type
   public
     constructor Create(
       const AImageResampler: IImageResamplerFactoryChangeable;
+      const AIsReprojectTiles: Boolean;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AHashFunction: IHashFunction
     );
@@ -85,6 +87,7 @@ end;
 
 constructor TBitmapTileMatrixBuilder.Create(
   const AImageResampler: IImageResamplerFactoryChangeable;
+  const AIsReprojectTiles: Boolean;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AHashFunction: IHashFunction
 );
@@ -94,6 +97,7 @@ begin
   Assert(Assigned(AHashFunction));
   inherited Create;
   FImageResampler := AImageResampler;
+  FIsReprojectTiles := AIsReprojectTiles;
   FBitmapFactory := ABitmapFactory;
   FHashFunction := AHashFunction;
   FTileRect := nil;
@@ -219,7 +223,11 @@ begin
         if not IntersectRect(VIntersectRect, ATileRect.Rect, VSourceAtTarget) then begin
           SetRectWithReset(ATileRect);
         end else begin
-          VSourceTileMatrix := MakeStatic;
+          if FIsReprojectTiles then begin
+            VSourceTileMatrix := MakeStatic;
+          end else begin
+            VSourceTileMatrix := nil;
+          end;
           SetRectWithReset(ATileRect);
           if Assigned(VSourceTileMatrix) then begin
             VTileProvider :=
@@ -247,7 +255,11 @@ begin
         if not IntersectRect(VIntersectRect, ATileRect.Rect, VSourceAtTarget) then begin
           SetRectWithReset(ATileRect);
         end else begin
-          VSourceTileMatrix := MakeStatic;
+          if FIsReprojectTiles then begin
+            VSourceTileMatrix := MakeStatic;
+          end else begin
+            VSourceTileMatrix := nil;
+          end;
           SetRectWithReset(ATileRect);
           if Assigned(VSourceTileMatrix) then begin
             VTileProvider :=

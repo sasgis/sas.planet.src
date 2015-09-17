@@ -99,6 +99,7 @@ type
       const ATileRect: ITileRectChangeable;
       const AHashFunction: IHashFunction;
       const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+      const AIsReprojectTiles: Boolean;
       const ATileProvider: IVectorTileUniProviderChangeable;
       const ASourcUpdateNotyfier: IObjectWithListener;
       const AThreadConfig: IThreadConfig;
@@ -136,6 +137,7 @@ constructor TVectorTileMatrixChangeableForVectorLayers.Create(
   const ATileRect: ITileRectChangeable;
   const AHashFunction: IHashFunction;
   const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+  const AIsReprojectTiles: Boolean;
   const ATileProvider: IVectorTileUniProviderChangeable;
   const ASourcUpdateNotyfier: IObjectWithListener;
   const AThreadConfig: IThreadConfig;
@@ -182,6 +184,7 @@ begin
   FPreparedVectorMatrix :=
     TVectorTileMatrixBuilder.Create(
       AVectorSubsetBuilderFactory,
+      AIsReprojectTiles,
       AOversize,
       AHashFunction
     );
