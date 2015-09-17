@@ -31,10 +31,6 @@ uses
   ComCtrls,
   Spin,
   SynEdit,
-  SynEditHighlighter,
-  SynHighlighterIni,
-  SynHighlighterPas,
-  SynHighlighterHtml,
   i_MapType,
   i_LanguageManager,
   i_TileStorageTypeList,
@@ -152,6 +148,7 @@ uses
   t_CommonTypes,
   c_CacheTypeCodes,
   i_TileDownloaderState,
+  u_SynEditExt,
   u_SafeStrUtil,
   u_ResStrings;
 
@@ -421,24 +418,12 @@ end;
 
 procedure TfrmMapTypeEdit.CreateSynEditTextHighlighters;
 
-const
-  cNumber = $000080FF;
-  cString = $00808080;
-  cComment = $00008000;
-  cSection = $00FF0080;
-  cInstructionWord = $00FF0000;
-
-  function NewSynEdit(
-    AHighlighter: TSynCustomHighlighter;
-    AParent: TWinControl
-  ): TSynEdit;
+  procedure SetProps(ASynEdit: TSynEdit; AParent: TWinControl);
   begin
-    Result := TSynEdit.Create(Self);
-    with Result do begin
+    with ASynEdit do begin
       Parent := AParent;
       Align := alClient;
       Gutter.Visible := False;
-      Highlighter := AHighlighter;
       ReadOnly := True;
       ScrollBars := ssVertical;
       FontSmoothing := fsmNone;
@@ -447,35 +432,15 @@ const
     end;
   end;
 
-  function BuildSynPas: TSynPasSyn;
-  begin
-    Result := TSynPasSyn.Create(Self);
-    with Result do begin
-      CommentAttri.Foreground := cComment;
-      KeyAttri.Foreground := cInstructionWord;
-      NumberAttri.Foreground := cNumber;
-      FloatAttri.Foreground := cNumber;
-      HexAttri.Foreground := cNumber;
-      StringAttri.Foreground := cString;
-      CharAttri.Foreground := cString;
-    end;
-  end;
-
-  function BuildSynIni: TSynIniSyn;
-  begin
-    Result := TSynIniSyn.Create(Self);
-    with Result do begin
-      CommentAttri.Foreground := cComment;
-      SectionAttri.Foreground := cSection;
-      NumberAttri.Foreground := cNumber;
-      StringAttri.Foreground := cString;
-    end;
-  end;
-
 begin
-  synedtParams := NewSynEdit(BuildSynIni, tsParams);
-  synedtScript := NewSynEdit(BuildSynPas, tsGetURLScript);
-  synedtInfo := NewSynEdit(TSynHTMLSyn.Create(Self), tsInfo);
+  synedtParams := TSynEditBuilder.SynEditWithIniHighlighter(Self);
+  SetProps(synedtParams, tsParams);
+
+  synedtScript := TSynEditBuilder.SynEditWithPasHighlighter(Self);
+  SetProps(synedtScript, tsGetURLScript);
+
+  synedtInfo := TSynEditBuilder.SynEditWithHtmlHighlighter(Self);
+  SetProps(synedtInfo, tsInfo);
 end;
 
 end.

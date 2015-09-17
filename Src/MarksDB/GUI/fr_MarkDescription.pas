@@ -81,8 +81,8 @@ implementation
 uses
   StrUtils,
   SysUtils,
-  SynHighlighterHtml,
-  c_InternalBrowser;
+  c_InternalBrowser,
+  u_SynEditExt;
 
 {$R *.dfm}
 
@@ -96,14 +96,13 @@ constructor TfrMarkDescription.Create(
 begin
   inherited Create(ALanguageManager);
   FMediaPath := AMediaPath;
-  EditComment := TSynEdit.Create(Self);
+  EditComment := TSynEditBuilder.SynEditWithHtmlHighlighter(Self);
   with EditComment do begin
     Parent := Self;
     AlignWithMargins := True;
     Align := alClient;
     ScrollBars := ssVertical;
     OnKeyDown := EditCommentKeyDown;
-    Highlighter := TSynHTMLSyn.Create(Self);
     Gutter.Visible := False;
     FontSmoothing := fsmNone;
     WordWrap := True;

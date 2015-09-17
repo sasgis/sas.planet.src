@@ -38,9 +38,6 @@ uses
   TB2Item,
   TBX,
   SynEdit,
-  SynHighlighterPas,
-  SynHighlighterIni,
-  SynEditHighlighter,
   frm_PascalScriptDbgOut,
   i_Listener,
   i_NotifierOperation,
@@ -219,6 +216,7 @@ uses
   u_Notifier,
   u_NotifierOperation,
   u_ListenerByEvent,
+  u_SynEditExt,
   u_Synchronizer,
   u_CoordConverterSimpleByProjectionSet,
   u_ConfigDataProviderByZip,
@@ -756,20 +754,9 @@ end;
 
 procedure TfrmPascalScriptIDE.CreateSynEditTextHighlighters;
 
-const
-  cNumber = $000080FF;
-  cString = $00808080;
-  cComment = $00008000;
-  cSection = $00FF0080;
-  cInstructionWord = $00FF0000;
-
-  function NewSynEdit(
-    AHighlighter: TSynCustomHighlighter;
-    AParent: TWinControl
-  ): TSynEdit;
+  procedure SetProps(ASynEdit: TSynEdit; AParent: TWinControl; ATag: Integer);
   begin
-    Result := TSynEdit.Create(Self);
-    with Result do begin
+    with ASynEdit do begin
       Parent := AParent;
       Align := alClient;
       Gutter.Visible := True;
@@ -778,48 +765,22 @@ const
       Gutter.UseFontStyle := False;
       Gutter.DigitCount := 2;
       Gutter.GradientStartColor := clBtnFace;
-      Highlighter := AHighlighter;
       ReadOnly := False;
       ScrollBars := ssBoth;
       FontSmoothing := fsmNone;
       WordWrap := True;
       DoubleBuffered := True;
-    end;
-  end;
-
-  function BuildSynPas: TSynPasSyn;
-  begin
-    Result := TSynPasSyn.Create(Self);
-    with Result do begin
-      CommentAttri.Foreground := cComment;
-      KeyAttri.Foreground := cInstructionWord;
-      NumberAttri.Foreground := cNumber;
-      FloatAttri.Foreground := cNumber;
-      HexAttri.Foreground := cNumber;
-      StringAttri.Foreground := cString;
-      CharAttri.Foreground := cString;
-    end;
-  end;
-
-  function BuildSynIni: TSynIniSyn;
-  begin
-    Result := TSynIniSyn.Create(Self);
-    with Result do begin
-      CommentAttri.Foreground := cComment;
-      SectionAttri.Foreground := cSection;
-      NumberAttri.Foreground := cNumber;
-      StringAttri.Foreground := cString;
+      Tag := ATag;
+      OnStatusChange := Self.OnSynEditStatusChange;
     end;
   end;
 
 begin
-  synedtScript := NewSynEdit(BuildSynPas, pnlScriptEditor);
-  synedtScript.Tag := 1;
-  synedtScript.OnStatusChange := Self.OnSynEditStatusChange;
+  synedtScript := TSynEditBuilder.SynEditWithPasHighlighter(Self);
+  SetProps(synedtScript, pnlScriptEditor, 1);
 
-  synedtParams := NewSynEdit(BuildSynIni, pnlParamsTxt);
-  synedtParams.Tag := 2;
-  synedtParams.OnStatusChange := Self.OnSynEditStatusChange;
+  synedtParams := TSynEditBuilder.SynEditWithIniHighlighter(Self);
+  SetProps(synedtParams, pnlParamsTxt, 2);
 end;
 
 procedure TfrmPascalScriptIDE.OnSynEditStatusChange(Sender: TObject;
