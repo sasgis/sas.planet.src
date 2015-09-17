@@ -24,7 +24,7 @@ interface
 
 uses
   i_ProjectionSetFactory,
-  u_CoordConverterListStatic;
+  u_ProjectionSetListStatic;
 
 type
   TProjectionSetListStaticSimple = class(TProjectionSetListStatic)
