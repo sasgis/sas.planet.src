@@ -243,6 +243,7 @@
     <DCCReference Include="Src\CoordConvert\i_CoordConverterList.pas" />
     <DCCReference Include="Src\CoordConvert\i_CoordConverterSimple.pas" />
     <DCCReference Include="Src\CoordConvert\i_Datum.pas" />
+    <DCCReference Include="Src\CoordConvert\i_DatumFactory.pas" />
     <DCCReference Include="Src\CoordConvert\i_LocalCoordConverter.pas" />
     <DCCReference Include="Src\CoordConvert\i_LocalCoordConverterChangeable.pas" />
     <DCCReference Include="Src\CoordConvert\i_LocalCoordConverterFactory.pas" />

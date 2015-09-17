@@ -24,6 +24,7 @@ interface
 
 uses
   i_Datum,
+  i_DatumFactory,
   i_HashFunction,
   i_CoordConverterFactory,
   u_BaseInterfacedObject;

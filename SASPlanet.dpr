@@ -191,6 +191,7 @@ uses
   i_CoordConverterList in 'Src\CoordConvert\i_CoordConverterList.pas',
   i_CoordConverterSimple in 'Src\CoordConvert\i_CoordConverterSimple.pas',
   i_Datum in 'Src\CoordConvert\i_Datum.pas',
+  i_DatumFactory in 'Src\CoordConvert\i_DatumFactory.pas',
   i_LocalCoordConverter in 'Src\CoordConvert\i_LocalCoordConverter.pas',
   i_LocalCoordConverterChangeable in 'Src\CoordConvert\i_LocalCoordConverterChangeable.pas',
   i_LocalCoordConverterFactory in 'Src\CoordConvert\i_LocalCoordConverterFactory.pas',

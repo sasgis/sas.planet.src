@@ -65,6 +65,7 @@ uses
   i_MarkSystemConfig,
   i_ZmpInfoSet,
   i_Datum,
+  i_DatumFactory,
   i_GeoCalc,
   i_PathConfig,
   i_NotifierTime,

@@ -18,31 +18,18 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_CoordConverterFactory;
+unit i_DatumFactory;
 
 interface
 
 uses
-  i_ProjectionType,
-  i_ProjectionSet,
-  i_ConfigDataProvider;
+  i_Datum;
 
 type
-  IProjectionTypeFactory = interface
-    ['{B7FCF190-0A79-493D-9A39-A87DE2676236}']
-    function GetByConfig(const AConfig: IConfigDataProvider): IProjectionType;
-    function GetByCode(
-      AProjectionEPSG: Integer
-    ): IProjectionType;
-  end;
-
-  IProjectionSetFactory = interface
-    ['{F7D31D52-79A1-4764-95E5-9653F4EDBD26}']
-    function GetProjectionSetByConfig(const AConfig: IConfigDataProvider): IProjectionSet;
-    function GetProjectionSetByCode(
-      AProjectionEPSG: Integer;
-      ATileSplitCode: Integer
-    ): IProjectionSet;
+  IDatumFactory = interface
+    ['{6F33BA85-B340-44BE-BCCE-049216B2C472}']
+    function GetByCode(ADatumEPSG: Integer): IDatum;
+    function GetByRadius(const ARadiusA, ARadiusB: Double): IDatum;
   end;
 
 implementation
