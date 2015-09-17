@@ -333,7 +333,7 @@ uses
   u_MapCalibrationListBasic,
   u_XmlInfoSimpleParser,
   u_CoordConverterFactorySimple,
-  u_CoordConverterListStaticSimple,
+  u_ProjectionSetListStaticSimple,
   u_DownloadInfoSimple,
   u_DatumFactory,
   u_GeoCalc,
