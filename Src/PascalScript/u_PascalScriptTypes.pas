@@ -35,7 +35,7 @@ implementation
 
 uses
   i_ProjConverter,
-  i_CoordConverter,
+  i_CoordConverterSimple,
   i_SimpleHttpDownloader;
 
 procedure CompileTimeReg_CommonTypes(const APSComp: TPSPascalCompiler);

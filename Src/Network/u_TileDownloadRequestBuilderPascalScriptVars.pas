@@ -26,7 +26,7 @@ uses
   Types,
   uPSRuntime,
   uPSCompiler,
-  i_CoordConverter,
+  i_CoordConverterSimple,
   i_TileRequest,
   i_LastResponseInfo,
   i_ProjConverter,

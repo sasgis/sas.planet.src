@@ -239,9 +239,9 @@
     <DCCReference Include="Src\ContentType\u_ContentTypeManagerSimple.pas" />
     <DCCReference Include="Src\ContentType\u_ContentTypeSubstByList.pas" />
     <DCCReference Include="Src\CoordConvert\c_CoordConverter.pas" />
-    <DCCReference Include="Src\CoordConvert\i_CoordConverter.pas" />
     <DCCReference Include="Src\CoordConvert\i_CoordConverterFactory.pas" />
     <DCCReference Include="Src\CoordConvert\i_CoordConverterList.pas" />
+    <DCCReference Include="Src\CoordConvert\i_CoordConverterSimple.pas" />
     <DCCReference Include="Src\CoordConvert\i_Datum.pas" />
     <DCCReference Include="Src\CoordConvert\i_LocalCoordConverter.pas" />
     <DCCReference Include="Src\CoordConvert\i_LocalCoordConverterChangeable.pas" />

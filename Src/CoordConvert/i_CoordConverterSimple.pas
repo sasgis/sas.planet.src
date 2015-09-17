@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_CoordConverter;
+unit i_CoordConverterSimple;
 
 interface
 

@@ -203,7 +203,7 @@ uses
   i_TileRequest,
   i_ArchiveReadWrite,
   i_ConfigDataProvider,
-  i_CoordConverter,
+  i_CoordConverterSimple,
   i_LastResponseInfo,
   i_MapVersionInfo,
   i_SimpleHttpDownloader,

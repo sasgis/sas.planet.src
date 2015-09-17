@@ -5,7 +5,7 @@ interface
 uses
   Types,
   t_GeoTypes,
-  i_CoordConverter,
+  i_CoordConverterSimple,
   i_ProjectionSet,
   i_ProjectionType,
   u_BaseInterfacedObject;

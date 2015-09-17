@@ -26,7 +26,7 @@ uses
   SysUtils,
   i_LanguageManager,
   i_Downloader,
-  i_CoordConverter,
+  i_CoordConverterSimple,
   i_ProjectionSet,
   i_DownloadChecker,
   i_ProjConverter,
