@@ -217,6 +217,7 @@ uses
   u_ProjectionSetListStaticSimple in 'Src\CoordConvert\u_ProjectionSetListStaticSimple.pas',
   u_ProjectionSetSimple in 'Src\CoordConvert\u_ProjectionSetSimple.pas',
   u_ProjectionTypeBase in 'Src\CoordConvert\u_ProjectionTypeBase.pas',
+  u_ProjectionTypeFactorySimple in 'Src\CoordConvert\u_ProjectionTypeFactorySimple.pas',
   u_ProjectionTypeMercatorOnSphere in 'Src\CoordConvert\u_ProjectionTypeMercatorOnSphere.pas',
   u_ProjectionTypeMercatorOnEllipsoid in 'Src\CoordConvert\u_ProjectionTypeMercatorOnEllipsoid.pas',
   u_ProjectionTypeGELonLat in 'Src\CoordConvert\u_ProjectionTypeGELonLat.pas',
