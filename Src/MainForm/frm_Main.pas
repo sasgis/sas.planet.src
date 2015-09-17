@@ -945,7 +945,7 @@ uses
   i_FillingMapLayerConfig,
   i_PopUp,
   i_ProjectionSet,
-  i_CoordConverterList,
+  i_ProjectionSetList,
   i_BitmapLayerProviderChangeable,
   i_ObjectWithListener,
   i_BitmapTileMatrixChangeable,

@@ -37,7 +37,7 @@ uses
   i_LanguageManager,
   i_MapType,
   i_MapTypeListChangeable,
-  i_CoordConverterList,
+  i_ProjectionSetList,
   i_GeometryLonLat,
   i_GeometryProjectedFactory,
   i_MapCalibration,

@@ -24,7 +24,7 @@ interface
 
 uses
   i_LanguageManager,
-  i_CoordConverterList,
+  i_ProjectionSetList,
   i_ProjectionSetChangeable,
   i_BitmapTileProvider,
   i_GeometryProjected,

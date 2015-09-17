@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_CoordConverterList;
+unit i_ProjectionSetList;
 
 interface
 

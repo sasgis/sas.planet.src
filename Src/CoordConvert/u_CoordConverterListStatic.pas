@@ -26,7 +26,7 @@ uses
   SysUtils,
   Classes,
   i_ProjectionSet,
-  i_CoordConverterList,
+  i_ProjectionSetList,
   u_BaseInterfacedObject;
 
 type

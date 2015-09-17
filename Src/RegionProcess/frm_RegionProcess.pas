@@ -43,7 +43,7 @@ uses
   i_LanguageManager,
   i_LastSelectionInfo,
   i_ProjectionSetFactory,
-  i_CoordConverterList,
+  i_ProjectionSetList,
   i_ProjectionSetChangeable,
   i_ContentTypeManager,
   i_GlobalViewMainConfig,

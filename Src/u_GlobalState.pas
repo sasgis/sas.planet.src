@@ -46,7 +46,7 @@ uses
   i_ContentTypeManager,
   i_VectorDataLoader,
   i_ProjectionSetFactory,
-  i_CoordConverterList,
+  i_ProjectionSetList,
   i_ProjConverter,
   i_BatteryStatus,
   i_InternalBrowserLastContent,
