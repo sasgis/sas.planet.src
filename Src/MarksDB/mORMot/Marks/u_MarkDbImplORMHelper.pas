@@ -1270,7 +1270,7 @@ begin
         'SELECT RowID,mvMark,mvVisible ' +
         'FROM MarkView ' +
         'WHERE mvCategory=? AND mvUser=?',
-        [], [FUserID, ACategoryID]
+        [], [ACategoryID, FUserID]
       )
     );
   end else begin
