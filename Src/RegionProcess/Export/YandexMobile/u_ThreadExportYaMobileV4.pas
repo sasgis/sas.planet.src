@@ -35,7 +35,7 @@ uses
   i_BitmapTileSaveLoad,
   i_RegionProcessProgressInfo,
   i_BitmapLayerProvider,
-  i_CoordConverterFactory,
+  i_ProjectionSetFactory,
   i_GeometryProjectedFactory,
   u_ThreadExportAbstract;
 

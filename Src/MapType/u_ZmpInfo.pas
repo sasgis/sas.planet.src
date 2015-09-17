@@ -39,7 +39,7 @@ uses
   i_TilePostDownloadCropConfig,
   i_LanguageManager,
   i_StringByLanguage,
-  i_CoordConverterFactory,
+  i_ProjectionSetFactory,
   i_ContentTypeManager,
   i_MapAbilitiesConfig,
   i_SimpleTileStorageConfig,

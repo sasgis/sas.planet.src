@@ -31,7 +31,7 @@ uses
   i_BinaryData,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
-  i_CoordConverterFactory,
+  i_ProjectionSetFactory,
   i_GeometryProjectedFactory,
   i_GeometryLonLat,
   i_TileInfoBasic,

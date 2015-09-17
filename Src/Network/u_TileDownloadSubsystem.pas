@@ -28,7 +28,7 @@ uses
   i_Listener,
   i_NotifierOperation,
   i_BinaryDataListStatic,
-  i_CoordConverterFactory,
+  i_ProjectionSetFactory,
   i_ProjectionSet,
   i_ThreadConfig,
   i_NotifierTime,

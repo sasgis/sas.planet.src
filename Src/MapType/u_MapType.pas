@@ -58,7 +58,7 @@ uses
   i_ZmpInfo,
   i_InvisibleBrowser,
   i_MapTypeGUIConfig,
-  i_CoordConverterFactory,
+  i_ProjectionSetFactory,
   i_MainMemCacheConfig,
   i_VectorItemSubset,
   i_VectorDataFactory,

@@ -31,7 +31,7 @@ uses
   i_PathConfig,
   i_ProjectionSet,
   i_TerrainProvider,
-  i_CoordConverterFactory,
+  i_ProjectionSetFactory,
   i_GoogleEarthTerrainTileStorage,
   u_BaseInterfacedObject;
 

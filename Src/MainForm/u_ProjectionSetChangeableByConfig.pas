@@ -29,7 +29,7 @@ uses
   i_ProjectionSetChangeable,
   i_Listener,
   i_ListenerNotifierLinksList,
-  i_CoordConverterFactory,
+  i_ProjectionSetFactory,
   u_ChangeableBase;
 
 type

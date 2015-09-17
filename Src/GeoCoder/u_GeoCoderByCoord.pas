@@ -29,7 +29,7 @@ uses
   i_ProjectionType,
   i_ProjectionSet,
   i_InterfaceListSimple,
-  i_CoordConverterFactory,
+  i_ProjectionSetFactory,
   i_VectorDataItemSimple,
   i_GeoCoder,
   i_NotifierOperation,

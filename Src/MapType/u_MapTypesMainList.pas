@@ -32,7 +32,7 @@ uses
   i_LanguageManager,
   i_HashFunction,
   i_ThreadConfig,
-  i_CoordConverterFactory,
+  i_ProjectionSetFactory,
   i_ZmpInfoSet,
   i_NotifierTime,
   i_InetConfig,

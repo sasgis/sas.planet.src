@@ -47,7 +47,7 @@ uses
   i_ZmpInfo,
   i_InetConfig,
   i_ProjConverter,
-  i_CoordConverterFactory,
+  i_ProjectionSetFactory,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_ArchiveReadWriteFactory,

@@ -26,7 +26,7 @@ uses
   Classes,
   Forms,
   i_GeometryLonLat,
-  i_CoordConverterFactory,
+  i_ProjectionSetFactory,
   i_GeometryProjectedFactory,
   i_LanguageManager,
   i_RegionProcessProgressInfoInternalFactory,

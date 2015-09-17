@@ -42,7 +42,7 @@ uses
   i_MapViewGoto,
   i_LanguageManager,
   i_LastSelectionInfo,
-  i_CoordConverterFactory,
+  i_ProjectionSetFactory,
   i_CoordConverterList,
   i_ProjectionSetChangeable,
   i_ContentTypeManager,

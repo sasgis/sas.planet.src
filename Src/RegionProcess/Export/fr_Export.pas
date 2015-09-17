@@ -29,7 +29,7 @@ uses
   ExtCtrls,
   StdCtrls,
   i_LanguageManager,
-  i_CoordConverterFactory,
+  i_ProjectionSetFactory,
   i_GeometryLonLat,
   i_GeometryProjectedFactory,
   i_BitmapTileSaveLoadFactory,

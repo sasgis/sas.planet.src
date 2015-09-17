@@ -45,7 +45,7 @@ uses
   i_TileFileNameParsersList,
   i_ContentTypeManager,
   i_VectorDataLoader,
-  i_CoordConverterFactory,
+  i_ProjectionSetFactory,
   i_CoordConverterList,
   i_ProjConverter,
   i_BatteryStatus,

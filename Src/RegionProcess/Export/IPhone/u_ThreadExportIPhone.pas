@@ -35,7 +35,7 @@ uses
   i_Bitmap32BufferFactory,
   i_BitmapTileSaveLoad,
   i_BitmapLayerProvider,
-  i_CoordConverterFactory,
+  i_ProjectionSetFactory,
   i_GeometryProjectedFactory,
   i_ProjectionInfo,
   i_ProjectionSet,

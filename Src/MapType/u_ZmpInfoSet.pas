@@ -26,7 +26,7 @@ uses
   ActiveX,
   i_GUIDSet,
   i_ZmpInfo,
-  i_CoordConverterFactory,
+  i_ProjectionSetFactory,
   i_ArchiveReadWriteFactory,
   i_LanguageManager,
   i_MapVersionFactory,

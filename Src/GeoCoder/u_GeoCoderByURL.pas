@@ -27,7 +27,7 @@ uses
   i_InterfaceListSimple,
   i_NotifierOperation,
   i_ProjectionSet,
-  i_CoordConverterFactory,
+  i_ProjectionSetFactory,
   i_LocalCoordConverter,
   i_DownloadRequest,
   i_DownloadResult,

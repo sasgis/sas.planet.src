@@ -35,7 +35,7 @@ uses
   i_GeometryLonLat,
   i_ProjectionInfo,
   i_ProjectionSet,
-  i_CoordConverterFactory,
+  i_ProjectionSetFactory,
   i_GeometryProjectedFactory,
   u_ResStrings,
   u_ThreadRegionProcessAbstract;

@@ -38,7 +38,7 @@ uses
   fr_CacheTypeList,
   i_NotifierOperation,
   i_ProjectionSet,
-  i_CoordConverterFactory,
+  i_ProjectionSetFactory,
   i_TileStorage,
   i_LanguageManager,
   i_NotifierTime,

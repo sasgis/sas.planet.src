@@ -30,7 +30,7 @@ uses
   i_ProjectionSet,
   i_ConfigDataProvider,
   i_ProjectionTypeFactory,
-  i_CoordConverterFactory,
+  i_ProjectionSetFactory,
   u_BaseInterfacedObject;
 
 type

@@ -28,7 +28,7 @@ uses
   i_GeometryLonLat,
   i_Bitmap32BufferFactory,
   i_GeometryProjectedFactory,
-  i_CoordConverterFactory,
+  i_ProjectionSetFactory,
   i_BitmapTileSaveLoadFactory,
   i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,

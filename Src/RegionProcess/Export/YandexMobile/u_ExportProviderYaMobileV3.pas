@@ -25,7 +25,7 @@ interface
 uses
   Forms,
   i_LanguageManager,
-  i_CoordConverterFactory,
+  i_ProjectionSetFactory,
   i_Bitmap32BufferFactory,
   i_GeometryProjectedFactory,
   i_GeometryLonLat,

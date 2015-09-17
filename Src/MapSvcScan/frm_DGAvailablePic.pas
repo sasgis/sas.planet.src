@@ -44,7 +44,7 @@ uses
   i_VectorItemSubsetBuilder,
   i_InetConfig,
   i_LocalCoordConverter,
-  i_CoordConverterFactory,
+  i_ProjectionSetFactory,
   i_NotifierOperation,
   i_DownloadRequest,
   i_DownloadResult,

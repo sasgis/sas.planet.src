@@ -28,7 +28,7 @@ uses
   i_GeoCoder,
   i_MarkDb,
   i_VectorItemSubsetBuilder,
-  i_CoordConverterFactory,
+  i_ProjectionSetFactory,
   i_DownloadResultFactory,
   i_ValueToStringConverter,
   u_GeoCoderListBase;

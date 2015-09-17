@@ -27,7 +27,7 @@ uses
   Types,
   t_GeoTypes,
   i_InetConfig,
-  i_CoordConverterFactory,
+  i_ProjectionSetFactory,
   i_GeometryLonLatFactory,
   i_VectorItemSubset,
   i_VectorItemSubsetBuilder,

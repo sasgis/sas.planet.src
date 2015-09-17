@@ -27,7 +27,7 @@ uses
   ActiveX,
   i_GUIDSet,
   i_Notifier,
-  i_CoordConverterFactory,
+  i_ProjectionSetFactory,
   i_TerrainProviderList,
   i_TerrainProviderListElement,
   i_PathConfig,

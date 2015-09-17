@@ -23,7 +23,7 @@ unit u_CoordConverterListStaticSimple;
 interface
 
 uses
-  i_CoordConverterFactory,
+  i_ProjectionSetFactory,
   u_CoordConverterListStatic;
 
 type

@@ -29,7 +29,7 @@ uses
   i_Notifier,
   i_PathConfig,
   i_ProjectionSet,
-  i_CoordConverterFactory,
+  i_ProjectionSetFactory,
   i_TerrainStorage,
   i_TerrainProvider,
   u_GoogleEarthLibrary,
