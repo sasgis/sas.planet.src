@@ -30,7 +30,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TCoordConverterListStatic = class(TBaseInterfacedObject, IProjectionSetList)
+  TProjectionSetListStatic = class(TBaseInterfacedObject, IProjectionSetList)
   private
     FList: TStringList;
     FCS: IReadWriteSync;
@@ -53,16 +53,16 @@ implementation
 uses
   u_Synchronizer;
 
-{ TCoordConverterListStatic }
+{ TProjectionSetListStatic }
 
-constructor TCoordConverterListStatic.Create;
+constructor TProjectionSetListStatic.Create;
 begin
   inherited;
   FCS := GSync.SyncVariable.Make(Self.ClassName);
   FList := TStringList.Create;
 end;
 
-destructor TCoordConverterListStatic.Destroy;
+destructor TProjectionSetListStatic.Destroy;
 var
   i: Integer;
 begin
@@ -79,7 +79,7 @@ begin
   inherited;
 end;
 
-procedure TCoordConverterListStatic.Add(
+procedure TProjectionSetListStatic.Add(
   const AItem: IProjectionSet;
   const ACaption: string
 );
@@ -93,7 +93,7 @@ begin
   end;
 end;
 
-function TCoordConverterListStatic.Count: Integer;
+function TProjectionSetListStatic.Count: Integer;
 begin
   FCS.BeginRead;
   try
@@ -103,7 +103,7 @@ begin
   end;
 end;
 
-function TCoordConverterListStatic.Get(
+function TProjectionSetListStatic.Get(
   AIndex: Integer
 ): IProjectionSet;
 begin
@@ -115,7 +115,7 @@ begin
   end;
 end;
 
-function TCoordConverterListStatic.GetCaption(AIndex: Integer): string;
+function TProjectionSetListStatic.GetCaption(AIndex: Integer): string;
 begin
   FCS.BeginRead;
   try

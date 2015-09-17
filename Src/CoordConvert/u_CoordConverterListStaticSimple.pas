@@ -27,7 +27,7 @@ uses
   u_CoordConverterListStatic;
 
 type
-  TCoordConverterListStaticSimple = class(TCoordConverterListStatic)
+  TCoordConverterListStaticSimple = class(TProjectionSetListStatic)
   public
     constructor Create(const AFactory: IProjectionSetFactory);
   end;
