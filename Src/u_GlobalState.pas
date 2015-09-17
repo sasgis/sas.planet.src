@@ -547,7 +547,7 @@ begin
   FMergePolygonsResult := TMergePolygonsResult.Create;
 
   FDatumFactory := TDatumFactory.Create(FHashFunction);
-  FProjectionSetFactory := TCoordConverterFactorySimple.Create(FHashFunction, FDatumFactory);
+  FProjectionSetFactory := TProjectionSetFactorySimple.Create(FHashFunction, FDatumFactory);
   FProjectionSetList := TProjectionSetListStaticSimple.Create(FProjectionSetFactory);
   FLocalConverterFactory :=
     TLocalCoordConverterFactorySimpe.Create(

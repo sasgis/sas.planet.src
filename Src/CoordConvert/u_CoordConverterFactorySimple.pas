@@ -33,7 +33,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TCoordConverterFactorySimple = class(TBaseInterfacedObject, IProjectionSetFactory)
+  TProjectionSetFactorySimple = class(TBaseInterfacedObject, IProjectionSetFactory)
   private
     FHashFunction: IHashFunction;
     FProjectionTypeFactory: IProjectionTypeFactory;
@@ -68,9 +68,9 @@ uses
   u_ProjectionSetSimple,
   u_ProjectionTypeFactorySimple;
 
-{ TCoordConverterFactorySimple }
+{ TProjectionSetFactorySimple }
 
-constructor TCoordConverterFactorySimple.Create(
+constructor TProjectionSetFactorySimple.Create(
   const AHashFunction: IHashFunction;
   const ADatumFactory: IDatumFactory
 );
@@ -94,7 +94,7 @@ begin
   FProjectionSetLonLat := CreateProjectionSet(VProjectionType);
 end;
 
-function TCoordConverterFactorySimple.CreateProjectionSet(
+function TProjectionSetFactorySimple.CreateProjectionSet(
   const AProjectionType: IProjectionType
 ): IProjectionSet;
 var
@@ -119,7 +119,7 @@ begin
     );
 end;
 
-function TCoordConverterFactorySimple.GetProjectionSetByCode(
+function TProjectionSetFactorySimple.GetProjectionSetByCode(
   AProjectionEPSG, ATileSplitCode: Integer
 ): IProjectionSet;
 var
@@ -146,7 +146,7 @@ begin
   end;
 end;
 
-function TCoordConverterFactorySimple.GetProjectionSetByConfig(
+function TProjectionSetFactorySimple.GetProjectionSetByConfig(
   const AConfig: IConfigDataProvider
 ): IProjectionSet;
 var
