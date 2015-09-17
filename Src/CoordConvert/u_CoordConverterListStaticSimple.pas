@@ -27,7 +27,7 @@ uses
   u_CoordConverterListStatic;
 
 type
-  TCoordConverterListStaticSimple = class(TProjectionSetListStatic)
+  TProjectionSetListStaticSimple = class(TProjectionSetListStatic)
   public
     constructor Create(const AFactory: IProjectionSetFactory);
   end;
@@ -39,9 +39,9 @@ uses
   c_CoordConverter,
   i_ProjectionSet;
 
-{ TCoordConverterListStaticSimple }
+{ TProjectionSetListStaticSimple }
 
-constructor TCoordConverterListStaticSimple.Create;
+constructor TProjectionSetListStaticSimple.Create;
 var
   VProjectionSet: IProjectionSet;
 begin

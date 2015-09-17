@@ -548,7 +548,7 @@ begin
 
   FDatumFactory := TDatumFactory.Create(FHashFunction);
   FProjectionSetFactory := TCoordConverterFactorySimple.Create(FHashFunction, FDatumFactory);
-  FProjectionSetList := TCoordConverterListStaticSimple.Create(FProjectionSetFactory);
+  FProjectionSetList := TProjectionSetListStaticSimple.Create(FProjectionSetFactory);
   FLocalConverterFactory :=
     TLocalCoordConverterFactorySimpe.Create(
       TLocalCoordConverterFactory.Create(FHashFunction)
