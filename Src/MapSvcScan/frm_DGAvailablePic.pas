@@ -291,7 +291,7 @@ uses
   i_ImportConfig,
   i_VectorDataItemSimple,
   i_GeometryLonLat,
-  i_ProjectionInfo,
+  i_Projection,
   i_ProjectionSet,
   i_DoublePointsAggregator,
   u_ClipboardFunc,

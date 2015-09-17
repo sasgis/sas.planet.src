@@ -30,7 +30,7 @@ uses
   i_TileObjCache,
   i_Bitmap32Static,
   i_VectorItemSubset,
-  i_ProjectionInfo,
+  i_Projection,
   i_ProjectionSet,
   i_ZmpInfo,
   i_MapVersionRequestConfig,

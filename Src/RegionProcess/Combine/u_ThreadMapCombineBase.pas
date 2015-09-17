@@ -26,7 +26,7 @@ uses
   Classes,
   Types,
   i_NotifierOperation,
-  i_ProjectionInfo,
+  i_Projection,
   i_BitmapTileProvider,
   i_RegionProcessProgressInfo,
   i_GeometryLonLat,

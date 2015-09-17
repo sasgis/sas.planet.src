@@ -27,7 +27,7 @@ uses
   t_GeoTypes,
   i_Notifier,
   i_ViewPortState,
-  i_ProjectionInfo,
+  i_Projection,
   i_ProjectionSet,
   i_ProjectionSetChangeable,
   i_MapViewGoto,

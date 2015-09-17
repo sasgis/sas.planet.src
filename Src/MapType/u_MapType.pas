@@ -37,7 +37,7 @@ uses
   i_TileObjCache,
   i_TileDownloaderConfig,
   i_LanguageManager,
-  i_ProjectionInfo,
+  i_Projection,
   i_ProjectionSet,
   i_MapVersionRequest,
   i_MapVersionRequestConfig,

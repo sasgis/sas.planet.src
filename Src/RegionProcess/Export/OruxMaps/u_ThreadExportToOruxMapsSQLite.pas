@@ -96,7 +96,7 @@ uses
   t_GeoTypes,
   i_GeometryProjected,
   i_ProjectionSet,
-  i_ProjectionInfo,
+  i_Projection,
   i_Bitmap32Static,
   i_TileRect,
   u_TileRect,

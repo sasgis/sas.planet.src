@@ -86,7 +86,7 @@ implementation
 uses
   Types,
   c_ZeroGUID,
-  i_ProjectionInfo,
+  i_Projection,
   i_Bitmap32Static,
   u_ListenerByEvent,
   u_ListenerTime,

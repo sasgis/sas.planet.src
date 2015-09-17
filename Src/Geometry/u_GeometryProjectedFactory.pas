@@ -4,7 +4,7 @@ interface
 
 uses
   t_GeoTypes,
-  i_ProjectionInfo,
+  i_Projection,
   i_EnumDoublePoint,
   i_DoublePoints,
   i_DoublePointsAggregator,

@@ -65,7 +65,7 @@ uses
   Math,
   c_CoordConverter,
   c_TerrainProvider,
-  i_ProjectionInfo,
+  i_Projection,
   u_GeoFunc,
   u_Notifier,
   u_ListenerByEvent,

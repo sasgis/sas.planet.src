@@ -129,7 +129,7 @@ uses
   gnugettext,
   t_GeoTypes,
   i_MapVersionRequest,
-  i_ProjectionInfo,
+  i_Projection,
   i_GeometryProjected,
   u_GeoFunc,
   u_GeometryFunc,

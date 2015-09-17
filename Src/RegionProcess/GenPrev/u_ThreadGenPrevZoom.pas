@@ -85,7 +85,7 @@ uses
   GR32,
   i_ProjectionSet,
   i_Bitmap32Static,
-  i_ProjectionInfo,
+  i_Projection,
   i_GeometryProjected,
   i_BinaryData,
   i_BitmapTileSaveLoad,

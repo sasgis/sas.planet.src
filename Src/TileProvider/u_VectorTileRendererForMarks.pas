@@ -30,7 +30,7 @@ uses
   i_GeometryLonLat,
   i_GeometryProjectedProvider,
   i_Appearance,
-  i_ProjectionInfo,
+  i_Projection,
   i_NotifierOperation,
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,

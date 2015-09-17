@@ -36,7 +36,7 @@ uses
   i_NotifierOperation,
   i_MarkerDrawable,
   i_GeometryProjected,
-  i_ProjectionInfo,
+  i_Projection,
   i_VectorTileRenderer,
   u_BaseInterfacedObject;
 

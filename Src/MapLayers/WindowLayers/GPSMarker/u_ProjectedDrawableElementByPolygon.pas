@@ -25,7 +25,7 @@ interface
 uses
   GR32,
   GR32_Polygons,
-  i_ProjectionInfo,
+  i_Projection,
   i_LocalCoordConverter,
   i_GeometryProjected,
   i_ProjectedDrawableElement,

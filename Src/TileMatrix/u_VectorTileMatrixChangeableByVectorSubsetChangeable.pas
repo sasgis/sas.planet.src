@@ -107,7 +107,7 @@ uses
   t_Hash,
   i_TileIterator,
   i_VectorItemSubset,
-  i_ProjectionInfo,
+  i_Projection,
   i_VectorTileProvider,
   u_SimpleFlagWithInterlock,
   u_ListenerByEvent,

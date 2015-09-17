@@ -95,7 +95,7 @@ type
 implementation
 
 uses
-  i_ProjectionInfo,
+  i_Projection,
   i_MarkCategoryList,
   u_ListenerNotifierLinksList,
   u_BackgroundTask,

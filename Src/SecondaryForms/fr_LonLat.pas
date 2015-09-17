@@ -90,7 +90,7 @@ implementation
 uses
   Types,
   Math,
-  i_ProjectionInfo,
+  i_Projection,
   i_ProjectionSet,
   i_LocalCoordConverter,
   u_GeoFunc,

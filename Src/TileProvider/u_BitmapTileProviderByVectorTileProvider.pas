@@ -24,7 +24,7 @@ interface
 
 uses
   Types,
-  i_ProjectionInfo,
+  i_Projection,
   i_NotifierOperation,
   i_Bitmap32Static,
   i_VectorItemSubset,

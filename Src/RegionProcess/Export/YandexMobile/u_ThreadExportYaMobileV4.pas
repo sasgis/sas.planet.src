@@ -98,7 +98,7 @@ uses
   c_CoordConverter,
   i_ProjectionSet,
   i_Bitmap32Static,
-  i_ProjectionInfo,
+  i_Projection,
   i_GeometryProjected,
   i_TileIterator,
   u_BitmapFunc,

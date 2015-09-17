@@ -84,7 +84,7 @@ uses
   Types,
   gnugettext,
   i_RegionProcessParamsFrame,
-  i_ProjectionInfo,
+  i_Projection,
   u_ThreadMapCombineRAW,
   fr_MapCombine;
 

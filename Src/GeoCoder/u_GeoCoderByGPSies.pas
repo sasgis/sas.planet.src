@@ -57,7 +57,7 @@ uses
   t_GeoTypes,
   i_GeoCoder,
   i_VectorDataItemSimple,
-  i_ProjectionInfo,
+  i_Projection,
   u_GeoToStrFunc,
   u_InterfaceListSimple,
   u_ResStrings;

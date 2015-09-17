@@ -62,7 +62,7 @@ uses
   t_Hash,
   c_CoordConverter,
   i_InterfaceListSimple,
-  i_ProjectionInfo,
+  i_Projection,
   u_InterfaceListSimple,
   u_ProjectionBasic256x256,
   u_ProjectionSetSimple,

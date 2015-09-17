@@ -73,7 +73,7 @@ uses
   i_TileInfoBasic,
   i_ContentTypeInfo,
   i_ProjectionSet,
-  i_ProjectionInfo,
+  i_Projection,
   i_Bitmap32Static,
   i_TileIterator,
   i_BinaryData,

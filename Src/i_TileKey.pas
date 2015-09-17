@@ -4,7 +4,7 @@ interface
 
 uses
   Types,
-  i_ProjectionInfo;
+  i_Projection;
 
 type
   ITileKey = interface

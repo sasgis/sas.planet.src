@@ -29,7 +29,7 @@ uses
   LibJpegWrite,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
-  i_ProjectionInfo,
+  i_Projection,
   i_BitmapTileProvider,
   i_MapCalibration,
   i_GeometryLonLat,

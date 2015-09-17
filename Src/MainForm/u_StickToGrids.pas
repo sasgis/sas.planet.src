@@ -24,7 +24,7 @@ interface
 
 uses
   t_GeoTypes,
-  i_ProjectionInfo,
+  i_Projection,
   i_MapLayerGridsConfig,
   i_ProjectionSetChangeable,
   i_StickToGrid,

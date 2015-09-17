@@ -59,7 +59,7 @@ uses
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
   i_PredicateByTileInfo,
-  i_ProjectionInfo,
+  i_Projection,
   i_GeometryProjected,
   u_ThreadDeleteTiles,
   u_ResStrings,

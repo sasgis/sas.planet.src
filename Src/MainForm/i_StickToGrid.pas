@@ -24,7 +24,7 @@ interface
 
 uses
   t_GeoTypes,
-  i_ProjectionInfo;
+  i_Projection;
 
 type
   IStickToGrid = interface

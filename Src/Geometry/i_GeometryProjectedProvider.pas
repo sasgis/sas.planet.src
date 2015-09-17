@@ -23,7 +23,7 @@ unit i_GeometryProjectedProvider;
 interface
 
 uses
-  i_ProjectionInfo,
+  i_Projection,
   i_GeometryLonLat,
   i_GeometryProjected;
 

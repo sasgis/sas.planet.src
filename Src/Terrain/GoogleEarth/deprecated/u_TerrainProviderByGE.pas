@@ -81,7 +81,7 @@ uses
   Math,
   c_CoordConverter,
   c_TerrainProvider,
-  i_ProjectionInfo,
+  i_Projection,
   i_TileInfoBasic,
   i_GoogleEarthTerrain,
   u_GeoFunc,

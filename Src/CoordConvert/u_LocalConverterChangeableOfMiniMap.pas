@@ -25,7 +25,7 @@ interface
 uses
   i_Notifier,
   i_InternalPerformanceCounter,
-  i_ProjectionInfo,
+  i_Projection,
   i_ProjectionSet,
   i_ProjectionSetChangeable,
   i_LocalCoordConverter,

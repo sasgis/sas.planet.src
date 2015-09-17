@@ -27,7 +27,7 @@ uses
   i_ObjectWithListener,
   i_Listener,
   i_FillingMapLayerConfig,
-  i_ProjectionInfo,
+  i_Projection,
   i_ProjectionSet,
   i_MapType,
   i_TileRect,

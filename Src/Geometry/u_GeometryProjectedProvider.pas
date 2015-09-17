@@ -4,7 +4,7 @@ interface
 
 uses
   t_Hash,
-  i_ProjectionInfo,
+  i_Projection,
   i_GeometryLonLat,
   i_GeometryProjected,
   i_GeometryProjectedProvider,

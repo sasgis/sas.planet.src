@@ -27,7 +27,7 @@ uses
   t_Hash,
   t_GeoTypes,
   i_HashFunction,
-  i_ProjectionInfo,
+  i_Projection,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactory,
   i_HashInterfaceCache,

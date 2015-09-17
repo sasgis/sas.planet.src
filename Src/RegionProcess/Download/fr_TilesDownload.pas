@@ -135,7 +135,7 @@ uses
   Math,
   Dialogs,
   t_GeoTypes,
-  i_ProjectionInfo,
+  i_Projection,
   i_GeometryProjected,
   u_GeoFunc,
   u_ResStrings;

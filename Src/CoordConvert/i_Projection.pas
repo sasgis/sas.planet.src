@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_ProjectionInfo;
+unit i_Projection;
 
 interface
 

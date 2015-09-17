@@ -28,7 +28,7 @@ uses
   GR32,
   i_SimpleFlag,
   i_NotifierOperation,
-  i_ProjectionInfo,
+  i_Projection,
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
   i_ValueToStringConverter,

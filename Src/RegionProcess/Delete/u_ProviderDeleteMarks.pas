@@ -63,7 +63,7 @@ uses
   SysUtils,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
-  i_ProjectionInfo,
+  i_Projection,
   i_GeometryProjected,
   u_ThreadDeleteMarks,
   u_ResStrings,

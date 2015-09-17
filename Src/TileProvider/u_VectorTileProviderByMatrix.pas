@@ -26,7 +26,7 @@ uses
   Types,
   i_NotifierOperation,
   i_VectorItemSubset,
-  i_ProjectionInfo,
+  i_Projection,
   i_VectorTileProvider,
   i_VectorTileMatrix,
   u_BaseInterfacedObject;

@@ -71,7 +71,7 @@ uses
   i_TileIterator,
   i_TileInfoBasic,
   i_BinaryData,
-  i_ProjectionInfo,
+  i_Projection,
   i_GeometryProjected,
   u_TileIteratorByPolygon,
   u_ResStrings;

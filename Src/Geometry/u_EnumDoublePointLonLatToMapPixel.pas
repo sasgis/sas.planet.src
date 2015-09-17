@@ -5,7 +5,7 @@ interface
 uses
   t_GeoTypes,
   i_ProjectionType,
-  i_ProjectionInfo,
+  i_Projection,
   i_DoublePointFilter,
   i_EnumDoublePoint,
   u_BaseInterfacedObject;

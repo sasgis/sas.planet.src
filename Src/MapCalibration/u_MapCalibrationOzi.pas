@@ -25,7 +25,7 @@ interface
 uses
   Types,
   ALString,
-  i_ProjectionInfo,
+  i_Projection,
   i_MapCalibration,
   u_BaseInterfacedObject;
 

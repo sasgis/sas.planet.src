@@ -33,7 +33,7 @@ uses
   i_Bitmap32BufferFactory,
   i_RegionProcessProgressInfo,
   i_GeometryLonLat,
-  i_ProjectionInfo,
+  i_Projection,
   i_ProjectionSet,
   i_ProjectionSetFactory,
   i_GeometryProjectedFactory,

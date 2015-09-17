@@ -24,7 +24,7 @@ interface
 
 uses
   GR32,
-  i_ProjectionInfo,
+  i_Projection,
   i_LocalCoordConverter;
 
 type

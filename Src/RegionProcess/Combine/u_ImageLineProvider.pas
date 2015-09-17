@@ -27,7 +27,7 @@ uses
   t_Bitmap32,
   i_NotifierOperation,
   i_Bitmap32Static,
-  i_ProjectionInfo,
+  i_Projection,
   i_ImageLineProvider,
   i_BitmapTileProvider,
   u_BaseInterfacedObject;

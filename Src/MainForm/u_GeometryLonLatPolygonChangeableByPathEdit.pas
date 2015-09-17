@@ -27,7 +27,7 @@ uses
   i_Listener,
   i_LineOnMapEdit,
   i_SelectionPolylineLayerConfig,
-  i_ProjectionInfo,
+  i_Projection,
   i_LocalCoordConverterChangeable,
   i_GeometryLonLatFactory,
   i_GeometryLonLat,

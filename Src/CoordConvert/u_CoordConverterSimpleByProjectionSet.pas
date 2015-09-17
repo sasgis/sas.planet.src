@@ -54,7 +54,7 @@ implementation
 
 uses
   Math,
-  i_ProjectionInfo,
+  i_Projection,
   u_GeoFunc;
 
 { TCoordConverterSimpleByProjectionSet }

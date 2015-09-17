@@ -92,7 +92,7 @@ uses
   Types,
   gnugettext,
   i_RegionProcessParamsFrame,
-  i_ProjectionInfo,
+  i_Projection,
   u_ThreadMapCombineKMZ,
   u_GeoFunc,
   u_ResStrings,

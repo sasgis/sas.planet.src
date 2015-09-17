@@ -24,7 +24,7 @@ interface
 
 uses
   t_Hash,
-  i_ProjectionInfo,
+  i_Projection,
   i_ProjectionSet,
   i_InterfaceListStatic,
   u_BaseInterfacedObject;

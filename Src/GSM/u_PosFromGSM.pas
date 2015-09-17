@@ -32,7 +32,7 @@ uses
   CPDrv,
   t_GeoTypes,
   i_MapViewGoto,
-  i_ProjectionInfo,
+  i_Projection,
   i_GSMGeoCodeConfig;
 
 type

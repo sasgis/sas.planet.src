@@ -74,7 +74,7 @@ uses
   RegExprUtils,
   t_GeoTypes,
   i_VectorDataItemSimple,
-  i_ProjectionInfo,
+  i_Projection,
   u_InterfaceListSimple,
   u_ResStrings;
 

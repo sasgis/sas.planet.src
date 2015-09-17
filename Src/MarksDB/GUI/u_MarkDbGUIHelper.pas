@@ -30,7 +30,7 @@ uses
   i_PathConfig,
   i_LanguageManager,
   i_InterfaceListStatic,
-  i_ProjectionInfo,
+  i_Projection,
   i_GeometryLonLatFactory,
   i_ArchiveReadWriteFactory,
   i_ValueToStringConverter,

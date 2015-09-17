@@ -24,7 +24,7 @@ interface
 
 uses
   t_Hash,
-  i_ProjectionInfo;
+  i_Projection;
 
 type
   IProjectionSet = interface

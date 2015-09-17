@@ -9,7 +9,7 @@ uses
   i_GeometryLonLat,
   i_GeometryProjected,
   i_LocalCoordConverter,
-  i_ProjectionInfo;
+  i_Projection;
 
 function GetGeometryLonLatNearestPoint(
   const AGeometry: IGeometryLonLat;

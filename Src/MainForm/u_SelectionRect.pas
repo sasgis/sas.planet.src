@@ -63,7 +63,7 @@ type
 implementation
 
 uses
-  i_ProjectionInfo,
+  i_Projection,
   u_GeoFunc;
 
 { TSelectionRect }

@@ -118,7 +118,7 @@ uses
   GR32,
   t_CommonTypes,
   i_ContentConverter,
-  i_ProjectionInfo,
+  i_Projection,
   i_ProjectionSet,
   i_TileRequest,
   i_TileDownloadRequest,

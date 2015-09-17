@@ -117,7 +117,7 @@ uses
   t_GeoTypes,
   i_TileIterator,
   i_VectorItemSubset,
-  i_ProjectionInfo,
+  i_Projection,
   i_LonLatRect,
   u_SimpleFlagWithInterlock,
   u_ListenerByEvent,

@@ -26,7 +26,7 @@ uses
   Types,
   i_NotifierOperation,
   i_Bitmap32Static,
-  i_ProjectionInfo,
+  i_Projection,
   i_GeometryProjected,
   i_BitmapTileProvider,
   u_BaseInterfacedObject;

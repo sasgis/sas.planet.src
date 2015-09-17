@@ -69,7 +69,7 @@ uses
   t_Hash,
   t_GeoTypes,
   i_BitmapTileProvider,
-  i_ProjectionInfo,
+  i_Projection,
   i_InterfaceListStatic,
   u_TileIteratorByRect,
   u_InterfaceListSimple,

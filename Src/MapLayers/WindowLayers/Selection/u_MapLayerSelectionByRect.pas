@@ -77,7 +77,7 @@ uses
   Types,
   Math,
   i_ProjectionSet,
-  i_ProjectionInfo,
+  i_Projection,
   u_ListenerByEvent,
   u_GeoFunc;
 

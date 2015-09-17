@@ -6,7 +6,7 @@ uses
   t_GeoTypes,
   i_EnumDoublePoint,
   i_DoublePointFilter,
-  i_ProjectionInfo,
+  i_Projection,
   i_DoublePointsAggregator,
   u_BaseInterfacedObject;
 

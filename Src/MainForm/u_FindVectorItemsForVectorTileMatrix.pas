@@ -62,7 +62,7 @@ uses
   SysUtils,
   Math,
   t_GeoTypes,
-  i_ProjectionInfo,
+  i_Projection,
   i_VectorTileMatrix,
   i_GeometryLonLat,
   i_VectorDataItemSimple,

@@ -912,7 +912,7 @@ uses
   i_MapTypeSet,
   i_GeoCoderList,
   i_ProjectionType,
-  i_ProjectionInfo,
+  i_Projection,
   i_GeometryProjected,
   i_LocalCoordConverterChangeable,
   i_GUIDListStatic,

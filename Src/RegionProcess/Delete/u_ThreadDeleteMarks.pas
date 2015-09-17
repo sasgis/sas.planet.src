@@ -30,7 +30,7 @@ uses
   i_MarkSystem,
   i_RegionProcessProgressInfo,
   i_InterfaceListSimple,
-  i_ProjectionInfo,
+  i_Projection,
   i_GeometryLonLat,
   i_GeometryProjected,
   i_InterfaceListStatic,

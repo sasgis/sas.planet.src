@@ -31,7 +31,7 @@ uses
   i_NotifierTime,
   i_NotifierOperation,
   i_Datum,
-  i_ProjectionInfo,
+  i_Projection,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,

@@ -94,7 +94,7 @@ uses
   StrUtils,
   RegExprUtils,
   c_CoordConverter,
-  i_ProjectionInfo,
+  i_Projection,
   u_InterfaceListSimple,
   u_GeoToStrFunc;
 

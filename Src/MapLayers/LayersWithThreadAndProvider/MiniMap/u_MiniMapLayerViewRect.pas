@@ -109,7 +109,7 @@ implementation
 
 uses
   Math,
-  i_ProjectionInfo,
+  i_Projection,
   u_ListenerByEvent,
   u_SimpleFlagWithInterlock,
   u_ListenerTime,

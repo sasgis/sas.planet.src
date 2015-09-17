@@ -30,7 +30,7 @@ uses
   i_Bitmap32BufferFactory,
   i_MapVersionRequest,
   i_BitmapTileSaveLoad,
-  i_ProjectionInfo,
+  i_Projection,
   i_BitmapTileProvider,
   i_ImageResamplerFactoryChangeable,
   i_TileStorage,

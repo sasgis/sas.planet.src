@@ -75,7 +75,7 @@ uses
   Math,
   t_GeoTypes,
   i_LonLatRect,
-  i_ProjectionInfo,
+  i_Projection,
   i_NotifierTilePyramidUpdate,
   i_MapType,
   u_ListenerByEvent,

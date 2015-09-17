@@ -56,7 +56,7 @@ uses
   SysUtils,
   ALString,
   t_GeoTypes,
-  i_ProjectionInfo,
+  i_Projection,
   i_GeoCoder,
   i_VectorDataItemSimple,
   u_InterfaceListSimple,

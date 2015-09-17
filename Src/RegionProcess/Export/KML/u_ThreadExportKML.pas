@@ -72,7 +72,7 @@ implementation
 uses
   Math,
   i_GeometryProjected,
-  i_ProjectionInfo,
+  i_Projection,
   i_TileInfoBasic,
   i_TileIterator,
   u_TileIteratorByRect,

@@ -28,7 +28,7 @@ uses
   Classes,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
-  i_ProjectionInfo,
+  i_Projection,
   i_GeometryLonLat,
   i_GeometryProjected,
   i_MapVersionRequest,

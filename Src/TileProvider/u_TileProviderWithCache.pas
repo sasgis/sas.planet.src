@@ -27,7 +27,7 @@ uses
   i_NotifierOperation,
   i_Bitmap32Static,
   i_VectorItemSubset,
-  i_ProjectionInfo,
+  i_Projection,
   i_BitmapTileProvider,
   i_VectorTileProvider,
   i_TileObjCache,

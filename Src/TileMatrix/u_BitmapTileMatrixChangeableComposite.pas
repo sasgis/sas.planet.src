@@ -117,7 +117,7 @@ implementation
 uses
   GR32,
   i_TileIterator,
-  i_ProjectionInfo,
+  i_Projection,
   u_InterfaceListSimple,
   u_SimpleFlagWithInterlock,
   u_ListenerByEvent,

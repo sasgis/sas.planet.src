@@ -29,7 +29,7 @@ uses
   i_NotifierOperation,
   i_BitmapTileProvider,
   i_RegionProcessProgressInfo,
-  i_ProjectionInfo,
+  i_Projection,
   i_GeometryLonLat,
   i_ImageLineProvider,
   i_MapCalibration,

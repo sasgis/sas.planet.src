@@ -25,7 +25,7 @@ interface
 uses
   Types,
   i_NotifierOperation,
-  i_ProjectionInfo,
+  i_Projection,
   i_BinaryData;
 
 type

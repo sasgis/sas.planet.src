@@ -31,7 +31,7 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
-  i_ProjectionInfo,
+  i_Projection,
   i_DoublePointsAggregator,
   i_GeometryProjectedFactory,
   i_GeometryLonLat,

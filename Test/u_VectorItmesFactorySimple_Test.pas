@@ -51,7 +51,7 @@ implementation
 
 uses
   i_GeometryLonLat,
-  i_ProjectionInfo,
+  i_Projection,
   i_HashFunction,
   i_GeometryProjected,
   i_EnumDoublePoint,

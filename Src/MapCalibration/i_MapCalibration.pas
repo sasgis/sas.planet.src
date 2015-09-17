@@ -24,7 +24,7 @@ interface
 
 uses
   Types,
-  i_ProjectionInfo;
+  i_Projection;
 
 type
   IMapCalibration = interface

@@ -29,7 +29,7 @@ uses
   Classes,
   i_Listener,
   i_LogSimple,
-  i_ProjectionInfo,
+  i_Projection,
   i_MapVersionInfo,
   i_MapVersionRequest,
   i_NotifierOperation,

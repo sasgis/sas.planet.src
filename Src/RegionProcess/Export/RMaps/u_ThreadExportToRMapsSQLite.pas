@@ -93,7 +93,7 @@ uses
   c_CoordConverter,
   i_GeometryProjected,
   i_ProjectionSet,
-  i_ProjectionInfo,
+  i_Projection,
   i_TileIterator,
   i_Bitmap32Static,
   u_TileIteratorByPolygon,

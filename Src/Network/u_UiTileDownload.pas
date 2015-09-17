@@ -113,7 +113,7 @@ uses
   Types,
   u_Synchronizer,
   i_DownloadResult,
-  i_ProjectionInfo,
+  i_Projection,
   i_TileInfoBasic,
   i_TileStorage,
   i_TileRequest,

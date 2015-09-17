@@ -28,7 +28,7 @@ uses
   i_NotifierOperation,
   i_MapVersionRequest,
   i_VectorItemSubset,
-  i_ProjectionInfo,
+  i_Projection,
   i_VectorTileProvider,
   i_VectorDataLoader,
   i_VectorDataFactory,

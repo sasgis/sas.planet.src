@@ -93,7 +93,7 @@ uses
   t_GeoTypes,
   t_Hash,
   i_TileIterator,
-  i_ProjectionInfo,
+  i_Projection,
   i_Bitmap32Static,
   u_SimpleFlagWithInterlock,
   u_ListenerByEvent,

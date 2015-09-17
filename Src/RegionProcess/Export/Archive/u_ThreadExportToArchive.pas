@@ -59,7 +59,7 @@ type
 implementation
 
 uses
-  i_ProjectionInfo,
+  i_Projection,
   i_GeometryProjected,
   i_TileIterator,
   i_TileInfoBasic,

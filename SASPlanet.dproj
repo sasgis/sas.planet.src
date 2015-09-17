@@ -247,7 +247,7 @@
     <DCCReference Include="Src\CoordConvert\i_LocalCoordConverterFactory.pas" />
     <DCCReference Include="Src\CoordConvert\i_LocalCoordConverterFactorySimpe.pas" />
     <DCCReference Include="Src\CoordConvert\i_ProjConverter.pas" />
-    <DCCReference Include="Src\CoordConvert\i_ProjectionInfo.pas" />
+    <DCCReference Include="Src\CoordConvert\i_Projection.pas" />
     <DCCReference Include="Src\CoordConvert\i_ProjectionSet.pas" />
     <DCCReference Include="Src\CoordConvert\i_ProjectionSetChangeable.pas" />
     <DCCReference Include="Src\CoordConvert\i_ProjectionSetFactory.pas" />

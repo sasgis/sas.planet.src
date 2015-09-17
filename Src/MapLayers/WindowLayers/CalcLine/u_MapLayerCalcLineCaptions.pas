@@ -35,7 +35,7 @@ uses
   i_LineOnMapEdit,
   i_Datum,
   i_GeometryLonLat,
-  i_ProjectionInfo,
+  i_Projection,
   i_DoublePointsAggregator,
   i_ValueToStringConverter,
   i_PointCaptionsLayerConfig,

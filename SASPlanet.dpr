@@ -195,7 +195,7 @@ uses
   i_LocalCoordConverterFactory in 'Src\CoordConvert\i_LocalCoordConverterFactory.pas',
   i_LocalCoordConverterFactorySimpe in 'Src\CoordConvert\i_LocalCoordConverterFactorySimpe.pas',
   i_ProjConverter in 'Src\CoordConvert\i_ProjConverter.pas',
-  i_ProjectionInfo in 'Src\CoordConvert\i_ProjectionInfo.pas',
+  i_Projection in 'Src\CoordConvert\i_Projection.pas',
   i_ProjectionSet in 'Src\CoordConvert\i_ProjectionSet.pas',
   i_ProjectionSetChangeable in 'Src\CoordConvert\i_ProjectionSetChangeable.pas',
   i_ProjectionSetFactory in 'Src\CoordConvert\i_ProjectionSetFactory.pas',

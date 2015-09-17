@@ -26,7 +26,7 @@ uses
   Windows,
   SysUtils,
   i_TileStorage,
-  i_ProjectionInfo,
+  i_Projection,
   i_MapVersionInfo,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,

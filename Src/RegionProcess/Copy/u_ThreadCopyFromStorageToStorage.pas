@@ -74,7 +74,7 @@ uses
   SysUtils,
   i_TileIterator,
   i_ProjectionSet,
-  i_ProjectionInfo,
+  i_Projection,
   i_GeometryProjected,
   u_TileIteratorByPolygon,
   i_MapVersionListStatic,

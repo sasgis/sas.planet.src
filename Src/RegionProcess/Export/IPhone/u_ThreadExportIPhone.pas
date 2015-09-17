@@ -37,7 +37,7 @@ uses
   i_BitmapLayerProvider,
   i_ProjectionSetFactory,
   i_GeometryProjectedFactory,
-  i_ProjectionInfo,
+  i_Projection,
   i_ProjectionSet,
   i_GeometryLonLat,
   u_ThreadExportAbstract;

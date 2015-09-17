@@ -44,7 +44,7 @@ uses
   i_UseTilePrevZoomConfig,
   i_GlobalViewMainConfig,
   i_RegionProcessParamsFrame,
-  i_ProjectionInfo,
+  i_Projection,
   i_BitmapLayerProvider,
   i_Bitmap32BufferFactory,
   fr_MapSelect,

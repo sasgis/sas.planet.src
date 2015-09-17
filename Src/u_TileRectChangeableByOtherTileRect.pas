@@ -61,7 +61,7 @@ uses
   Types,
   Math,
   t_GeoTypes,
-  i_ProjectionInfo,
+  i_Projection,
   u_GeoFunc,
   u_ListenerByEvent,
   u_TileRect;

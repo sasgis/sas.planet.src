@@ -58,7 +58,7 @@ uses
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
   i_MapType,
-  i_ProjectionInfo,
+  i_Projection,
   i_GeometryProjected,
   u_ThreadExportToAUX,
   u_ResStrings,

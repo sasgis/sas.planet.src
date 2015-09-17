@@ -29,7 +29,7 @@ uses
   i_MapType,
   i_MapTypeSet,
   i_TileError,
-  i_ProjectionInfo,
+  i_Projection,
   i_VectorItemSubset,
   i_VectorItemSubsetBuilder,
   i_VectorTileProvider,

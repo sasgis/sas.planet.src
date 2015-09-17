@@ -91,7 +91,7 @@ implementation
 
 uses
   SysUtils,
-  i_ProjectionInfo,
+  i_Projection,
   u_ListenerByEvent,
   u_LocalCoordConverterChangeable,
   u_GeoFunc;

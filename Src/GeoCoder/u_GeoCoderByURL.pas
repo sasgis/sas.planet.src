@@ -88,7 +88,7 @@ uses
   RegExprUtils,
   t_GeoTypes,
   c_CoordConverter,
-  i_ProjectionInfo,
+  i_Projection,
   u_InterfaceListSimple,
   u_ResStrings,
   u_DownloadRequest;

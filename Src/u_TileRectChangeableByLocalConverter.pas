@@ -88,7 +88,7 @@ uses
   Types,
   Math,
   t_GeoTypes,
-  i_ProjectionInfo,
+  i_Projection,
   i_ProjectionSet,
   u_GeoFunc,
   u_ListenerByEvent,

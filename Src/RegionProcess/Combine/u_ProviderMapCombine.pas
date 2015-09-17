@@ -31,7 +31,7 @@ uses
   i_ProjectionSetChangeable,
   i_BitmapLayerProvider,
   i_BitmapTileProvider,
-  i_ProjectionInfo,
+  i_Projection,
   i_GeometryProjected,
   i_GeometryLonLat,
   i_GeometryProjectedProvider,

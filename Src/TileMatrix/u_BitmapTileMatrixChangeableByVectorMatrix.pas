@@ -104,7 +104,7 @@ uses
   t_Hash,
   i_TileIterator,
   i_Bitmap32Static,
-  i_ProjectionInfo,
+  i_Projection,
   i_VectorTileRenderer,
   i_VectorTileMatrix,
   i_VectorItemSubset,
