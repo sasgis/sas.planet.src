@@ -254,7 +254,6 @@
     <DCCReference Include="Src\CoordConvert\i_ProjectionSetList.pas" />
     <DCCReference Include="Src\CoordConvert\i_ProjectionType.pas" />
     <DCCReference Include="Src\CoordConvert\i_ProjectionTypeFactory.pas" />
-    <DCCReference Include="Src\CoordConvert\u_CoordConverterFactorySimple.pas" />
     <DCCReference Include="Src\CoordConvert\u_CoordConverterSimpleByProjectionSet.pas" />
     <DCCReference Include="Src\CoordConvert\u_Datum.pas" />
     <DCCReference Include="Src\CoordConvert\u_DatumFactory.pas" />
@@ -265,6 +264,7 @@
     <DCCReference Include="Src\CoordConvert\u_LocalCoordConverterFactorySimpe.pas" />
     <DCCReference Include="Src\CoordConvert\u_ProjConverterFactory.pas" />
     <DCCReference Include="Src\CoordConvert\u_ProjectionBasic256x256.pas" />
+    <DCCReference Include="Src\CoordConvert\u_ProjectionSetFactorySimple.pas" />
     <DCCReference Include="Src\CoordConvert\u_ProjectionSetListStatic.pas" />
     <DCCReference Include="Src\CoordConvert\u_ProjectionSetListStaticSimple.pas" />
     <DCCReference Include="Src\CoordConvert\u_ProjectionSetSimple.pas" />

@@ -332,7 +332,7 @@ uses
   u_MarkSystemConfig,
   u_MapCalibrationListBasic,
   u_XmlInfoSimpleParser,
-  u_CoordConverterFactorySimple,
+  u_ProjectionSetFactorySimple,
   u_ProjectionSetListStaticSimple,
   u_DownloadInfoSimple,
   u_DatumFactory,
