@@ -442,6 +442,7 @@ var
   VNode: TTreeNode;
   VNodeToDelete: TTreeNode;
   VName: string;
+  VVisibleCount: Integer;
   VSortedMarksList: TStringList;
 begin
   FMarksList := nil;
@@ -464,6 +465,7 @@ begin
       finally
         VSortedMarksList.EndUpdate;
       end;
+      VVisibleCount := 0;
       MarksListBox.Items.BeginUpdate;
       try
         VNode := MarksListBox.Items.GetFirstNode;
@@ -478,6 +480,7 @@ begin
           VNode.Data := Pointer(VMarkId);
           if FMarkDBGUI.MarksDb.MarkDb.GetMarkVisibleByID(VMarkId) then begin
             VNode.StateIndex := 1;
+            Inc(VVisibleCount);
           end else begin
             VNode.StateIndex := 2;
           end;
@@ -488,7 +491,7 @@ begin
           VNode := VNode.getNextSibling;
           VNodeToDelete.Delete;
         end;
-        lblMarksCount.Caption:='('+inttostr(MarksListBox.Items.Count)+')';
+        lblMarksCount.Caption := Format('(%d/%d)', [VVisibleCount, MarksListBox.Items.Count]);
       finally
         MarksListBox.Items.EndUpdate;
       end;
