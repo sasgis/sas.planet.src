@@ -1,11 +1,11 @@
 object frExportToCE: TfrExportToCE
   Left = 0
   Top = 0
-  Width = 480
-  Height = 261
+  Width = 451
+  Height = 304
   Align = alClient
   Constraints.MinHeight = 260
-  Constraints.MinWidth = 480
+  Constraints.MinWidth = 451
   ParentShowHint = False
   ShowHint = True
   TabOrder = 0
@@ -13,16 +13,16 @@ object frExportToCE: TfrExportToCE
   object pnlCenter: TPanel
     Left = 0
     Top = 27
-    Width = 480
-    Height = 234
+    Width = 451
+    Height = 277
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
     object pnlZoom: TPanel
-      Left = 405
+      Left = 376
       Top = 0
       Width = 75
-      Height = 234
+      Height = 277
       Align = alRight
       BevelOuter = bvNone
       BorderWidth = 3
@@ -31,16 +31,16 @@ object frExportToCE: TfrExportToCE
     object pnlMain: TPanel
       Left = 0
       Top = 0
-      Width = 405
-      Height = 234
+      Width = 376
+      Height = 277
       Align = alClient
       AutoSize = True
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 1
       DesignSize = (
-        405
-        234)
+        376
+        277)
       object lblMap: TLabel
         AlignWithMargins = True
         Left = 3
@@ -54,17 +54,18 @@ object frExportToCE: TfrExportToCE
         Caption = 'Map'
       end
       object lVolSize: TLabel
-        Left = 300
+        Left = 271
         Top = 3
         Width = 99
         Height = 13
         Anchors = [akTop, akRight]
         Caption = 'Max volume size, Mb'
+        ExplicitLeft = 300
       end
       object EMapName: TEdit
         Left = 111
         Top = 47
-        Width = 288
+        Width = 259
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 1
@@ -72,7 +73,7 @@ object frExportToCE: TfrExportToCE
       object EComent: TEdit
         Left = 111
         Top = 74
-        Width = 288
+        Width = 259
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 0
@@ -105,15 +106,8 @@ object frExportToCE: TfrExportToCE
         TabOrder = 4
         OnClick = CMapNameClick
       end
-      object TempPath: TEdit
-        Left = 271
-        Top = 204
-        Width = 99
-        Height = 21
-        TabOrder = 5
-      end
       object cbbMaxVolSize: TSpinEdit
-        Left = 300
+        Left = 271
         Top = 19
         Width = 99
         Height = 22
@@ -126,18 +120,18 @@ object frExportToCE: TfrExportToCE
       object pnlMap: TPanel
         Left = 3
         Top = 18
-        Width = 291
+        Width = 262
         Height = 23
         Anchors = [akLeft, akTop, akRight]
         BevelOuter = bvNone
-        TabOrder = 7
+        TabOrder = 5
       end
     end
   end
   object pnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 480
+    Width = 451
     Height = 27
     Align = alTop
     BevelOuter = bvNone
@@ -148,24 +142,25 @@ object frExportToCE: TfrExportToCE
       Left = 3
       Top = 3
       Width = 41
-      Height = 21
+      Height = 18
       Margins.Left = 0
       Margins.Top = 0
       Align = alLeft
       Alignment = taRightJustify
       Caption = 'Save to:'
       Layout = tlCenter
+      ExplicitHeight = 13
     end
     object edtTargetFile: TEdit
       Left = 47
       Top = 3
-      Width = 409
+      Width = 380
       Height = 21
       Align = alClient
       TabOrder = 0
     end
     object btnSelectTargetFile: TButton
-      Left = 456
+      Left = 427
       Top = 3
       Width = 21
       Height = 21

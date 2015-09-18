@@ -74,7 +74,6 @@ type
     dlgSaveTargetFile: TSaveDialog;
     CComment: TCheckBox;
     CMapName: TCheckBox;
-    TempPath: TEdit;
     cbbMaxVolSize: TSpinEdit;
     pnlMap: TPanel;
     procedure btnSelectTargetFileClick(Sender: TObject);
@@ -84,6 +83,7 @@ type
   private
     FfrMapSelect: TfrMapSelect;
     FfrZoomsSelect: TfrZoomsSelect;
+    TempPath: string;
   private
     procedure Init(
       const AZoom: byte;
@@ -160,8 +160,8 @@ var
 begin
   if FfrMapSelect.GetSelectedMapType <> nil then begin
     if SelectDirectory('', '', TempString) then begin
-      TempPath.text := TempString;
-      edtTargetFile.Text := IncludeTrailingPathDelimiter(TempPath.text) + FfrMapSelect.GetSelectedMapType.GetShortFolderName;
+      TempPath := TempString;
+      edtTargetFile.Text := IncludeTrailingPathDelimiter(TempPath) + FfrMapSelect.GetSelectedMapType.GetShortFolderName;
     end;
   end;
 end;
@@ -199,12 +199,12 @@ end;
 procedure TfrExportToCE.MapChange(Sender: TObject);
 begin
   SetMapName();
-  if (TempPath.text = '') and (edtTargetFile.Text <> '') then begin
-    TempPath.text := edtTargetFile.Text;
+  if (TempPath = '') and (edtTargetFile.Text <> '') then begin
+    TempPath := edtTargetFile.Text;
   end;
-  if (TempPath.text <> '') then begin
+  if (TempPath <> '') then begin
     if FfrMapSelect.GetSelectedMapType <> nil then begin
-      edtTargetFile.Text := IncludeTrailingPathDelimiter(TempPath.text) + FfrMapSelect.GetSelectedMapType.GetShortFolderName;
+      edtTargetFile.Text := IncludeTrailingPathDelimiter(TempPath) + FfrMapSelect.GetSelectedMapType.GetShortFolderName;
     end else begin
       edtTargetFile.Text := '';
     end;
@@ -263,7 +263,7 @@ var
   VMapType: IMapType;
 begin
   Result := '';
-  if TempPath.Text <> '' then begin
+  if TempPath <> '' then begin
     Result := edtTargetFile.Text;
   end else if copy(edtTargetFile.Text, length(edtTargetFile.Text), 1) <> '\' then begin
     Result := edtTargetFile.Text;
@@ -291,6 +291,8 @@ begin
   FfrMapSelect.Show(pnlMap);
   SetMapName();
   FfrZoomsSelect.Show(pnlZoom);
+  if TempPath <> '' then
+    edtTargetFile.Text := IncludeTrailingPathDelimiter(TempPath) + FfrMapSelect.GetSelectedMapType.GetShortFolderName;
 end;
 
 end.
