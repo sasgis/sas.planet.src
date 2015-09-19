@@ -87,7 +87,7 @@ procedure TSensorViewListGeneratorStuped.AddSensor(
   const AResult: IGUIDInterfaceSet
 );
 var
-  VSensorView: ISensorView;
+  VSensorView: IInterface;
   VGUID: TGUID;
 begin
   if ASensor <> nil then begin

@@ -90,11 +90,6 @@ type
     property Info: IGPSSatellitesInView read GetInfo;
   end;
 
-  ISensorView = interface
-    ['{3D7823AF-17D9-495E-901C-BF6435E5C0E1}']
-    function GetSensor: ISensor;
-  end;
-
 implementation
 
 end.

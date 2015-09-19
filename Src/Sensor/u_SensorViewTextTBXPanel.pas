@@ -43,7 +43,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TSensorViewTBXPanelBase = class(TBaseInterfacedObject, ISensorView)
+  TSensorViewTBXPanelBase = class(TBaseInterfacedObject)
   private
     FListEntity: ISensorListEntity;
     FSensor: ISensor;
