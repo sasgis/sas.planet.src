@@ -78,8 +78,7 @@ uses
   c_SensorsGUIDSimple,
   i_Sensor,
   u_SatellitesInViewMapDrawSimple,
-  u_SensorViewTextTBXPanel,
-  u_SensorViewConfigSimple;
+  u_SensorViewTextTBXPanel;
 
 { TSensorViewListGeneratorStuped }
 
@@ -88,7 +87,6 @@ procedure TSensorViewListGeneratorStuped.AddSensor(
   const AResult: IGUIDInterfaceSet
 );
 var
-  VSensorViewConfig: ISensorViewConfig;
   VSensorView: ISensorView;
   VGUID: TGUID;
 begin
@@ -96,11 +94,9 @@ begin
     if IsEqualGUID(ASensor.GetSensorTypeIID, ISensorText) then begin
       VGUID := ASensor.GUID;
       if not AResult.IsExists(VGUID) then begin
-        VSensorViewConfig := TSensorViewConfigSimple.Create;
         VSensorView :=
           TSensorViewTextTBXPanel.Create(
             ASensor,
-            VSensorViewConfig,
             FTimerNoifier,
             FOwner,
             FDefaultDoc,
@@ -113,11 +109,9 @@ begin
     end else if IsEqualGUID(ASensor.GetSensorTypeIID, ISensorSpeed) then begin
       VGUID := ASensor.GUID;
       if not AResult.IsExists(VGUID) then begin
-        VSensorViewConfig := TSensorViewConfigSimple.Create;
         VSensorView :=
           TSensorViewSpeedTBXPanel.Create(
             ASensor,
-            VSensorViewConfig,
             FTimerNoifier,
             FValueConverter,
             FOwner,
@@ -131,11 +125,9 @@ begin
     end else if IsEqualGUID(ASensor.GetSensorTypeIID, ISensorDistance) then begin
       VGUID := ASensor.GUID;
       if not AResult.IsExists(VGUID) then begin
-        VSensorViewConfig := TSensorViewConfigSimple.Create;
         VSensorView :=
           TSensorViewLengthTBXPanel.Create(
             ASensor,
-            VSensorViewConfig,
             FTimerNoifier,
             FValueConverter,
             FOwner,
@@ -149,11 +141,9 @@ begin
     end else if IsEqualGUID(ASensor.GetSensorTypeIID, ISensorBatteryLifePercent) then begin
       VGUID := ASensor.GUID;
       if not AResult.IsExists(VGUID) then begin
-        VSensorViewConfig := TSensorViewConfigSimple.Create;
         VSensorView :=
           TSensorViewBatteryLifePercentTBXPanel.Create(
             ASensor,
-            VSensorViewConfig,
             FTimerNoifier,
             FLanguageManager,
             FOwner,
@@ -167,11 +157,9 @@ begin
     end else if IsEqualGUID(ASensor.GetSensorTypeIID, ISensorDegrees) then begin
       VGUID := ASensor.GUID;
       if not AResult.IsExists(VGUID) then begin
-        VSensorViewConfig := TSensorViewConfigSimple.Create;
         VSensorView :=
           TSensorViewDegreesTBXPanel.Create(
             ASensor,
-            VSensorViewConfig,
             FTimerNoifier,
             FOwner,
             FDefaultDoc,
@@ -184,11 +172,9 @@ begin
     end else if IsEqualGUID(ASensor.GetSensorTypeIID, ISensorDouble) then begin
       VGUID := ASensor.GUID;
       if not AResult.IsExists(VGUID) then begin
-        VSensorViewConfig := TSensorViewConfigSimple.Create;
         VSensorView :=
           TSensorViewDoubleTBXPanel.Create(
             ASensor,
-            VSensorViewConfig,
             FTimerNoifier,
             FOwner,
             FDefaultDoc,
@@ -201,11 +187,9 @@ begin
     end else if IsEqualGUID(ASensor.GetSensorTypeIID, ISensorTime) then begin
       VGUID := ASensor.GUID;
       if not AResult.IsExists(VGUID) then begin
-        VSensorViewConfig := TSensorViewConfigSimple.Create;
         VSensorView :=
           TSensorViewTimeTBXPanel.Create(
             ASensor,
-            VSensorViewConfig,
             FTimerNoifier,
             FValueConverter,
             FOwner,
@@ -219,11 +203,9 @@ begin
     end else if IsEqualGUID(ASensor.GetSensorTypeIID, ISensorPosition) then begin
       VGUID := ASensor.GUID;
       if not AResult.IsExists(VGUID) then begin
-        VSensorViewConfig := TSensorViewConfigSimple.Create;
         VSensorView :=
           TSensorViewPositionTBXPanel.Create(
             ASensor,
-            VSensorViewConfig,
             FTimerNoifier,
             FValueConverter,
             FOwner,
@@ -237,11 +219,9 @@ begin
     end else if IsEqualGUID(ASensor.GetSensorTypeIID, ISensorGPSSatellites) then begin
       VGUID := ASensor.GUID;
       if not AResult.IsExists(VGUID) then begin
-        VSensorViewConfig := TSensorViewConfigSimple.Create;
         VSensorView :=
           TSensorViewGPSSatellitesTBXPanel.Create(
             ASensor,
-            VSensorViewConfig,
             FTimerNoifier,
             TSatellitesInViewMapDrawSimple.Create,
             FOwner,

@@ -26,14 +26,29 @@ uses
   i_StringConfigDataElement,
   i_Sensor,
   i_SensorList,
-  u_UserInterfaceItemBase;
+  i_ListenerNotifierLinksList,
+  u_ChangeableBase;
 
 type
-  TSensorListEntity = class(TUserInterfaceItemBase, ISensorListEntity)
+  TSensorListEntity = class(TChangeableWithSimpleLockBase, ISensorListEntity)
   private
+    FGUID: TGUID;
+    FCaption: IStringConfigDataElement;
+    FDescription: IStringConfigDataElement;
+    FMenuItemName: IStringConfigDataElement;
+
     FSensor: ISensor;
     FSensorTypeIID: TGUID;
+
+    FLinksList: IListenerNotifierLinksList;
+
+    procedure OnTextChange;
   private
+    function GetGUID: TGUID;
+    function GetCaption: string;
+    function GetDescription: string;
+    function GetMenuItemName: string;
+
     function GetSensor: ISensor;
     function GetSensorTypeIID: TGUID;
   public
@@ -49,6 +64,11 @@ type
 
 implementation
 
+uses
+  i_Listener,
+  u_ListenerNotifierLinksList,
+  u_ListenerByEvent;
+
 { TSensorListEntity }
 
 constructor TSensorListEntity.Create(
@@ -57,10 +77,32 @@ constructor TSensorListEntity.Create(
   const ASensor: ISensor;
   const ASensorTypeIID: TGUID
 );
+var
+  VListener: IListener;
 begin
-  inherited Create(AGUID, ACaption, ADescription, AMenuItemName);
+  inherited Create;
+  FGUID := AGUID;
+  FCaption := ACaption;
+  FDescription := ADescription;
+  FMenuItemName := AMenuItemName;
   FSensor := ASensor;
   FSensorTypeIID := ASensorTypeIID;
+  FLinksList := TListenerNotifierLinksList.Create;
+  VListener := TNotifyNoMmgEventListener.Create(Self.OnTextChange);
+  FLinksList.Add(
+    VListener,
+    FCaption.ChangeNotifier
+  );
+  FLinksList.Add(
+    VListener,
+    FDescription.ChangeNotifier
+  );
+  FLinksList.Add(
+    VListener,
+    FMenuItemName.ChangeNotifier
+  );
+
+  FLinksList.ActivateLinks;
 end;
 
 function TSensorListEntity.GetSensor: ISensor;
@@ -71,6 +113,31 @@ end;
 function TSensorListEntity.GetSensorTypeIID: TGUID;
 begin
   Result := FSensorTypeIID;
+end;
+
+function TSensorListEntity.GetCaption: string;
+begin
+  Result := FCaption.Value;
+end;
+
+function TSensorListEntity.GetDescription: string;
+begin
+  Result := FDescription.Value;
+end;
+
+function TSensorListEntity.GetGUID: TGUID;
+begin
+  Result := FGUID;
+end;
+
+function TSensorListEntity.GetMenuItemName: string;
+begin
+  Result := FMenuItemName.Value;
+end;
+
+procedure TSensorListEntity.OnTextChange;
+begin
+  DoChangeNotify;
 end;
 
 end.

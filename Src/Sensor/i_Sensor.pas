@@ -90,16 +90,8 @@ type
     property Info: IGPSSatellitesInView read GetInfo;
   end;
 
-  ISensorViewConfig = interface(IConfigDataElement)
-    ['{ABA124E3-376F-495E-982C-F3D27F48F610}']
-    function GetVisible: Boolean;
-    procedure SetVisible(AValue: Boolean);
-    property Visible: Boolean read GetVisible write SetVisible;
-  end;
-
   ISensorView = interface
     ['{3D7823AF-17D9-495E-901C-BF6435E5C0E1}']
-    function GetConfig: ISensorViewConfig;
     function GetSensor: ISensor;
   end;
 

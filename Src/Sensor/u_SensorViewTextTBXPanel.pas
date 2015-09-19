@@ -47,7 +47,6 @@ type
   private
     FListEntity: ISensorListEntity;
     FSensor: ISensor;
-    FConfig: ISensorViewConfig;
     FOwner: TComponent;
     FDefaultDoc: TTBDock;
     FParentMenu: TTBCustomItem;
@@ -78,19 +77,16 @@ type
     procedure OnVisibleItemClick(Sender: TObject);
     procedure OnResetClick(Sender: TObject);
     procedure OnTimer;
-    procedure OnConfigChange;
     procedure OnSensorChange;
     procedure OnSensorDataUpdate;
   protected
     procedure CreatePanel; virtual;
     procedure UpdateDataView; virtual; abstract;
   protected
-    function GetConfig: ISensorViewConfig;
     function GetSensor: ISensor;
   public
     constructor Create(
       const AListEntity: ISensorListEntity;
-      const AConfig: ISensorViewConfig;
       const ATimerNoifier: INotifierTime;
       AOwner: TComponent;
       ADefaultDoc: TTBDock;
@@ -112,7 +108,6 @@ type
   public
     constructor Create(
       const AListEntity: ISensorListEntity;
-      const AConfig: ISensorViewConfig;
       const ATimerNoifier: INotifierTime;
       AOwner: TComponent;
       ADefaultDoc: TTBDock;
@@ -133,7 +128,6 @@ type
   public
     constructor Create(
       const AListEntity: ISensorListEntity;
-      const AConfig: ISensorViewConfig;
       const ATimerNoifier: INotifierTime;
       const AValueConverter: IValueToStringConverterChangeable;
       AOwner: TComponent;
@@ -154,7 +148,6 @@ type
   public
     constructor Create(
       const AListEntity: ISensorListEntity;
-      const AConfig: ISensorViewConfig;
       const ATimerNoifier: INotifierTime;
       const ALanguageManager: ILanguageManager;
       AOwner: TComponent;
@@ -176,7 +169,6 @@ type
   public
     constructor Create(
       const AListEntity: ISensorListEntity;
-      const AConfig: ISensorViewConfig;
       const ATimerNoifier: INotifierTime;
       const AValueConverter: IValueToStringConverterChangeable;
       AOwner: TComponent;
@@ -197,7 +189,6 @@ type
   public
     constructor Create(
       const AListEntity: ISensorListEntity;
-      const AConfig: ISensorViewConfig;
       const ATimerNoifier: INotifierTime;
       AOwner: TComponent;
       ADefaultDoc: TTBDock;
@@ -217,7 +208,6 @@ type
   public
     constructor Create(
       const AListEntity: ISensorListEntity;
-      const AConfig: ISensorViewConfig;
       const ATimerNoifier: INotifierTime;
       AOwner: TComponent;
       ADefaultDoc: TTBDock;
@@ -238,7 +228,6 @@ type
   public
     constructor Create(
       const AListEntity: ISensorListEntity;
-      const AConfig: ISensorViewConfig;
       const ATimerNoifier: INotifierTime;
       const AValueConverter: IValueToStringConverterChangeable;
       AOwner: TComponent;
@@ -260,7 +249,6 @@ type
   public
     constructor Create(
       const AListEntity: ISensorListEntity;
-      const AConfig: ISensorViewConfig;
       const ATimerNoifier: INotifierTime;
       const AValueConverter: IValueToStringConverterChangeable;
       AOwner: TComponent;
@@ -283,7 +271,6 @@ type
   public
     constructor Create(
       const AListEntity: ISensorListEntity;
-      const AConfig: ISensorViewConfig;
       const ATimerNoifier: INotifierTime;
       const AMapDraw: ISatellitesInViewMapDraw;
       AOwner: TComponent;
@@ -315,7 +302,6 @@ uses
 
 constructor TSensorViewTBXPanelBase.Create(
   const AListEntity: ISensorListEntity;
-  const AConfig: ISensorViewConfig;
   const ATimerNoifier: INotifierTime;
   AOwner: TComponent;
   ADefaultDoc: TTBDock;
@@ -327,7 +313,6 @@ begin
   inherited Create;
   FListEntity := AListEntity;
   FSensor := FListEntity.GetSensor;
-  FConfig := AConfig;
   FOwner := AOwner;
   FValueChangeCounter := TCounterInterlock.Create;
   FValueShowId := 0;
@@ -338,11 +323,6 @@ begin
   FImageIndexReset := AImageIndexReset;
 
   FLinksList := TListenerNotifierLinksList.Create;
-
-  FLinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FConfig.GetChangeNotifier
-  );
 
   FLinksList.Add(
     TListenerTimeCheck.Create(Self.OnTimer, 1000),
@@ -364,8 +344,8 @@ begin
   UpdateControls;
 
   FLinksList.ActivateLinks;
-  OnConfigChange;
   OnSensorDataUpdate;
+  OnBarVisibleChanged(nil);
 end;
 
 destructor TSensorViewTBXPanelBase.Destroy;
@@ -375,7 +355,6 @@ begin
     FLinksList := nil;
   end;
   FreeAndNil(FBar);
-  FConfig := nil;
   FSensor := nil;
   inherited;
 end;
@@ -458,11 +437,6 @@ begin
   FlblCaption.Wrapping := twEndEllipsis;
 end;
 
-function TSensorViewTBXPanelBase.GetConfig: ISensorViewConfig;
-begin
-  Result := FConfig;
-end;
-
 function TSensorViewTBXPanelBase.GetSensor: ISensor;
 begin
   Result := FSensor;
@@ -484,16 +458,7 @@ end;
 
 procedure TSensorViewTBXPanelBase.OnBarVisibleChanged(Sender: TObject);
 begin
-  FConfig.Visible := FBar.Visible;
-end;
-
-procedure TSensorViewTBXPanelBase.OnConfigChange;
-var
-  VVisible: Boolean;
-begin
-  VVisible := FConfig.Visible;
-  FBar.Visible := VVisible;
-  FVisibleItem.Checked := VVisible;
+  FVisibleItem.Checked := FBar.Visible;
 end;
 
 procedure TSensorViewTBXPanelBase.OnResetClick(Sender: TObject);
@@ -522,7 +487,7 @@ procedure TSensorViewTBXPanelBase.OnTimer;
 var
   VId: Integer;
 begin
-  if FConfig.Visible then begin
+  if FBar.Visible then begin
     VId := FValueChangeCounter.GetValue;
     if VId <> FValueShowId then begin
       UpdateDataView;
@@ -533,7 +498,7 @@ end;
 
 procedure TSensorViewTBXPanelBase.OnVisibleItemClick(Sender: TObject);
 begin
-  FConfig.Visible := FVisibleItem.Checked;
+  FBar.Visible := FVisibleItem.Checked;
 end;
 
 procedure TSensorViewTBXPanelBase.UpdateControls;
@@ -554,7 +519,6 @@ end;
 
 constructor TSensorViewTextTBXPanel.Create(
   const AListEntity: ISensorListEntity;
-  const AConfig: ISensorViewConfig;
   const ATimerNoifier: INotifierTime;
   AOwner: TComponent;
   ADefaultDoc: TTBDock;
@@ -606,7 +570,6 @@ end;
 
 constructor TSensorViewGPSSatellitesTBXPanel.Create(
   const AListEntity: ISensorListEntity;
-  const AConfig: ISensorViewConfig;
   const ATimerNoifier: INotifierTime;
   const AMapDraw: ISatellitesInViewMapDraw;
   AOwner: TComponent;
@@ -616,7 +579,7 @@ constructor TSensorViewGPSSatellitesTBXPanel.Create(
   AImageIndexReset: TImageIndex
 );
 begin
-  inherited Create(AListEntity, AConfig, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
+  inherited Create(AListEntity, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
   FMapDraw := AMapDraw;
   if not Supports(FListEntity.GetSensor, ISensorGPSSatellites, FSensor) then begin
     raise Exception.Create('Неподдерживаемый тип сенсора');
@@ -670,7 +633,6 @@ end;
 
 constructor TSensorViewSpeedTBXPanel.Create(
   const AListEntity: ISensorListEntity;
-  const AConfig: ISensorViewConfig;
   const ATimerNoifier: INotifierTime;
   const AValueConverter: IValueToStringConverterChangeable;
   AOwner: TComponent;
@@ -680,7 +642,7 @@ constructor TSensorViewSpeedTBXPanel.Create(
   AImageIndexReset: TImageIndex
 );
 begin
-  inherited Create(AListEntity, AConfig, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
+  inherited Create(AListEntity, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
   FValueConverter := AValueConverter;
   if not Supports(FListEntity.GetSensor, ISensorSpeed, FSensor) then begin
     raise Exception.Create('Неподдерживаемый тип сенсора');
@@ -731,7 +693,6 @@ end;
 
 constructor TSensorViewLengthTBXPanel.Create(
   const AListEntity: ISensorListEntity;
-  const AConfig: ISensorViewConfig;
   const ATimerNoifier: INotifierTime;
   const AValueConverter: IValueToStringConverterChangeable;
   AOwner: TComponent;
@@ -741,7 +702,7 @@ constructor TSensorViewLengthTBXPanel.Create(
   AImageIndexReset: TImageIndex
 );
 begin
-  inherited Create(AListEntity, AConfig, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
+  inherited Create(AListEntity, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
   FValueConverter := AValueConverter;
   if not Supports(FListEntity.GetSensor, ISensorDistance, FSensor) then begin
     raise Exception.Create('Неподдерживаемый тип сенсора');
@@ -792,7 +753,6 @@ end;
 
 constructor TSensorViewDegreesTBXPanel.Create(
   const AListEntity: ISensorListEntity;
-  const AConfig: ISensorViewConfig;
   const ATimerNoifier: INotifierTime;
   AOwner: TComponent;
   ADefaultDoc: TTBDock;
@@ -801,7 +761,7 @@ constructor TSensorViewDegreesTBXPanel.Create(
   AImageIndexReset: TImageIndex
 );
 begin
-  inherited Create(AListEntity, AConfig, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
+  inherited Create(AListEntity, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
   if not Supports(FListEntity.GetSensor, ISensorDegrees, FSensor) then begin
     raise Exception.Create('Неподдерживаемый тип сенсора');
   end;
@@ -847,7 +807,6 @@ end;
 
 constructor TSensorViewTimeTBXPanel.Create(
   const AListEntity: ISensorListEntity;
-  const AConfig: ISensorViewConfig;
   const ATimerNoifier: INotifierTime;
   const AValueConverter: IValueToStringConverterChangeable;
   AOwner: TComponent;
@@ -857,7 +816,7 @@ constructor TSensorViewTimeTBXPanel.Create(
   AImageIndexReset: TImageIndex
 );
 begin
-  inherited Create(AListEntity, AConfig, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
+  inherited Create(AListEntity, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
   FValueConverter := AValueConverter;
   if not Supports(FListEntity.GetSensor, ISensorTime, FSensor) then begin
     raise Exception.Create('Неподдерживаемый тип сенсора');
@@ -908,7 +867,6 @@ end;
 
 constructor TSensorViewPositionTBXPanel.Create(
   const AListEntity: ISensorListEntity;
-  const AConfig: ISensorViewConfig;
   const ATimerNoifier: INotifierTime;
   const AValueConverter: IValueToStringConverterChangeable;
   AOwner: TComponent;
@@ -918,7 +876,7 @@ constructor TSensorViewPositionTBXPanel.Create(
   AImageIndexReset: TImageIndex
 );
 begin
-  inherited Create(AListEntity, AConfig, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
+  inherited Create(AListEntity, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
   FValueConverter := AValueConverter;
   if not Supports(FListEntity.GetSensor, ISensorPosition, FSensor) then begin
     raise Exception.Create('Неподдерживаемый тип сенсора');
@@ -969,7 +927,6 @@ end;
 
 constructor TSensorViewDoubleTBXPanel.Create(
   const AListEntity: ISensorListEntity;
-  const AConfig: ISensorViewConfig;
   const ATimerNoifier: INotifierTime;
   AOwner: TComponent;
   ADefaultDoc: TTBDock;
@@ -978,7 +935,7 @@ constructor TSensorViewDoubleTBXPanel.Create(
   AImageIndexReset: TImageIndex
 );
 begin
-  inherited Create(AListEntity, AConfig, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
+  inherited Create(AListEntity, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
   if not Supports(FListEntity.GetSensor, ISensorDouble, FSensor) then begin
     raise Exception.Create('Неподдерживаемый тип сенсора');
   end;
@@ -1024,7 +981,6 @@ end;
 
 constructor TSensorViewBatteryLifePercentTBXPanel.Create(
   const AListEntity: ISensorListEntity;
-  const AConfig: ISensorViewConfig;
   const ATimerNoifier: INotifierTime;
   const ALanguageManager: ILanguageManager;
   AOwner: TComponent;
@@ -1034,7 +990,7 @@ constructor TSensorViewBatteryLifePercentTBXPanel.Create(
   AImageIndexReset: TImageIndex
 );
 begin
-  inherited Create(AListEntity, AConfig, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
+  inherited Create(AListEntity, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
   if not Supports(FListEntity.GetSensor, ISensorBatteryLifePercent, FSensor) then begin
     raise Exception.Create('Неподдерживаемый тип сенсора');
   end;

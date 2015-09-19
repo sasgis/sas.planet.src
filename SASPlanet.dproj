@@ -1229,7 +1229,6 @@
     <DCCReference Include="Src\Sensor\u_SensorListStuped.pas" />
     <DCCReference Include="Src\Sensor\u_SensorsFromGPSRecorder.pas" />
     <DCCReference Include="Src\Sensor\u_SensorTextFromNavToPoint.pas" />
-    <DCCReference Include="Src\Sensor\u_SensorViewConfigSimple.pas" />
     <DCCReference Include="Src\Sensor\u_SensorViewListGeneratorStuped.pas" />
     <DCCReference Include="Src\Sensor\u_SensorViewTextTBXPanel.pas" />
     <DCCReference Include="Src\Settings\frm_MapLayersOptions.pas">
@@ -1516,7 +1515,6 @@
     <DCCReference Include="Src\u_TreeChangeableBase.pas" />
     <DCCReference Include="Src\u_UsedMarksConfig.pas" />
     <DCCReference Include="Src\u_UsedMarksConfigStatic.pas" />
-    <DCCReference Include="Src\u_UserInterfaceItemBase.pas" />
     <DCCReference Include="Src\u_ValueToStringConverter.pas" />
     <DCCReference Include="Src\u_ValueToStringConverterChangeable.pas" />
     <DCCReference Include="Src\u_ValueToStringConverterConfig.pas" />
