@@ -7052,7 +7052,6 @@ end;
 
 procedure TfrmMain.SaveWindowConfigToIni(const AProvider: IConfigDataWriteProvider);
 var
-  lock_tb_b: boolean;
   VProvider: IConfigDataWriteProvider;
 begin
   VProvider := AProvider.GetOrCreateSubItem('HOTKEY');
@@ -7066,10 +7065,7 @@ begin
 
   FConfig.WriteConfig(GState.MainConfigProvider);
 
-  lock_tb_b := FConfig.ToolbarsLock.GetIsLock;
-  SetToolbarsLock(False);
   FPanelPositionSaveLoad.Save(Self);
-  SetToolbarsLock(lock_tb_b);
 end;
 
 procedure TfrmMain.TBXSensorsBarVisibleChanged(Sender: TObject);
