@@ -2641,7 +2641,6 @@ begin
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
-      FActiveProjectionSet,
       FViewPortState.View,
       FSelectionRect,
       FConfig.LayersConfig.SelectionRectLayerConfig

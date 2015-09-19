@@ -39,14 +39,10 @@ type
   TMapLayerSelectionByRect = class(TMapLayerBasicNoBitmap)
   private
     FConfig: ISelectionRectLayerConfig;
-    FProjectionSet: IProjectionSetChangeable;
     FSelection: ISelectionRect;
-    FSelectedLonLat: TDoubleRect;
 
     FFillColor: TColor32;
     FBorderColor: TColor32;
-    FFontSize: Integer;
-    FZoomDeltaColors: TArrayOfColor32;
 
     procedure OnSelectionChange;
     procedure OnConfigChange;
@@ -62,7 +58,6 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
-      const AProjectionSet: IProjectionSetChangeable;
       const AView: ILocalCoordConverterChangeable;
       const ASelection: ISelectionRect;
       const AConfig: ISelectionRectLayerConfig
@@ -88,14 +83,12 @@ constructor TMapLayerSelectionByRect.Create(
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
-  const AProjectionSet: IProjectionSetChangeable;
   const AView: ILocalCoordConverterChangeable;
   const ASelection: ISelectionRect;
   const AConfig: ISelectionRectLayerConfig
 );
 begin
   Assert(Assigned(AConfig));
-  Assert(Assigned(AProjectionSet));
   Assert(Assigned(ASelection));
   inherited Create(
     APerfList,
@@ -105,7 +98,6 @@ begin
     AView
   );
   FConfig := AConfig;
-  FProjectionSet := AProjectionSet;
   FSelection := ASelection;
 
   LinksList.Add(
@@ -126,8 +118,6 @@ begin
     try
       FFillColor := FConfig.FillColor;
       FBorderColor := FConfig.BorderColor;
-      FFontSize := FConfig.FontSize;
-      FZoomDeltaColors := FConfig.ZoomDeltaColors;
     finally
       FConfig.UnlockRead;
     end;
@@ -144,7 +134,6 @@ begin
     if FSelection.IsEmpty then begin
       Hide;
     end else begin
-      FSelectedLonLat := FSelection.GetRect;
       SetNeedRedraw;
       Show;
     end;
@@ -158,28 +147,15 @@ procedure TMapLayerSelectionByRect.PaintLayer(
   const ALocalConverter: ILocalCoordConverter
 );
 var
-  jj: integer;
   VDrawRect: TRect;
   VSelectedLonLat: TDoubleRect;
   VSelectedPixels: TDoubleRect;
-  VZoomDelta: Byte;
-  VColor: TColor32;
-  VSelectedRelative: TDoubleRect;
-  VSelectedTilesFloat: TDoubleRect;
-  VSelectedTiles: TRect;
-  VMaxZoomDelta: Integer;
-  VProjectionSet: IProjectionSet;
   VProjection: IProjection;
-  VProjectionOther: IProjection;
-  VZoom: Byte;
 begin
-  VProjectionSet := FProjectionSet.GetStatic;
-  VProjection := VProjectionSet.GetSuitableProjection(ALocalConverter.Projection);
-  VZoom := VProjection.Zoom;
-  VSelectedLonLat := FSelectedLonLat;
+  VProjection := ALocalConverter.Projection;
+  VSelectedLonLat := FSelection.GetRect;
   VProjection.ProjectionType.ValidateLonLatRect(VSelectedLonLat);
-  VSelectedRelative := VProjection.ProjectionType.LonLatRect2RelativeRect(VSelectedLonLat);
-  VSelectedPixels := VProjection.RelativeRect2PixelRectFloat(VSelectedRelative);
+  VSelectedPixels := VProjection.LonLatRect2PixelRectFloat(VSelectedLonLat);
   VDrawRect :=
     RectFromDoubleRect(
       ALocalConverter.MapRectFloat2LocalRectFloat(VSelectedPixels),
@@ -206,42 +182,6 @@ begin
     VDrawRect.Bottom + 1,
     FBorderColor
   );
-
-  jj := VZoom;
-  VZoomDelta := 0;
-  VMaxZoomDelta := Length(FZoomDeltaColors) - 1;
-  while (VZoomDelta <= VMaxZoomDelta) and (jj < VProjectionSet.ZoomCount) do begin
-    VProjectionOther := VProjectionSet.Zooms[jj];
-    VSelectedTilesFloat := VProjectionOther.RelativeRect2TileRectFloat(VSelectedRelative);
-    VSelectedTiles := RectFromDoubleRect(VSelectedTilesFloat, rrOutside);
-    VSelectedPixels :=
-      VProjection.RelativeRect2PixelRectFloat(
-        VProjectionOther.TileRect2RelativeRect(VSelectedTiles)
-      );
-    VDrawRect :=
-      RectFromDoubleRect(
-        ALocalConverter.MapRectFloat2LocalRectFloat(VSelectedPixels),
-        rrToTopLeft
-      );
-    VColor := FZoomDeltaColors[VZoomDelta];
-
-    ABuffer.FrameRectTS(
-      VDrawRect.Left - (VZoomDelta + 1),
-      VDrawRect.Top - (VZoomDelta + 1),
-      VDrawRect.Right + (VZoomDelta + 1),
-      VDrawRect.Bottom + (VZoomDelta + 1),
-      VColor
-    );
-
-    ABuffer.Font.Size := FFontSize;
-    ABuffer.RenderText(
-      VDrawRect.Right - ((VDrawRect.Right - VDrawRect.Left) div 2) - 42 + VZoomDelta * 26,
-      VDrawRect.Bottom - ((VDrawRect.Bottom - VDrawRect.Top) div 2) - 6,
-      'z' + inttostr(jj + 1), 3, VColor
-    );
-    Inc(jj);
-    Inc(VZoomDelta);
-  end;
 end;
 
 procedure TMapLayerSelectionByRect.StartThreads;

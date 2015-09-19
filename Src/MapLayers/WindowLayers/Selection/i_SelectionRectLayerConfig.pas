@@ -23,7 +23,7 @@ unit i_SelectionRectLayerConfig;
 interface
 
 uses
-  GR32,
+  t_Bitmap32,
   i_ConfigDataElement;
 
 type
@@ -36,24 +36,6 @@ type
     function GetBorderColor: TColor32;
     procedure SetBorderColor(AValue: TColor32);
     property BorderColor: TColor32 read GetBorderColor write SetBorderColor;
-
-    function GetZoomDeltaCount: Integer;
-    procedure SetZoomDeltaCount(AValue: Integer);
-    property ZoomDeltaCount: Integer read GetZoomDeltaCount write SetZoomDeltaCount;
-
-    function GetFontSize: Integer;
-    procedure SetFontSize(AValue: Integer);
-    property FontSize: Integer read GetFontSize write SetFontSize;
-
-    function GetZoomDeltaColor(AIndex: Integer): TColor32;
-    procedure SetZoomDeltaColor(
-      AIndex: Integer;
-      AValue: TColor32
-    );
-    property ZoomDeltaColor[AIndex: Integer]: TColor32 read GetZoomDeltaColor write SetZoomDeltaColor;
-
-    function GetZoomDeltaColors: TArrayOfColor32;
-    property ZoomDeltaColors: TArrayOfColor32 read GetZoomDeltaColors;
   end;
 
 implementation
