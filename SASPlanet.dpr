@@ -393,6 +393,7 @@ uses
   i_MessageHandler in 'Src\MainForm\i_MessageHandler.pas',
   i_MouseHandler in 'Src\MainForm\i_MouseHandler.pas',
   i_MouseState in 'Src\MainForm\i_MouseState.pas',
+  i_PanelsPositionsSaveLoad in 'Src\MainForm\i_PanelsPositionsSaveLoad.pas',
   i_PointOnMapEdit in 'Src\MainForm\i_PointOnMapEdit.pas',
   i_PopUp in 'Src\MainForm\i_PopUp.pas',
   i_SearchResultPresenter in 'Src\MainForm\i_SearchResultPresenter.pas',

@@ -24,18 +24,28 @@ interface
 
 uses
   Classes,
+  i_PanelsPositionsSaveLoad,
   i_ConfigDataProvider,
-  i_ConfigDataWriteProvider;
+  i_ConfigDataWriteProvider,
+  u_BaseInterfacedObject;
 
-procedure TBConfigProviderLoadPositions(
-    const OwnerComponent: TComponent;
-    const AConfigProvider: IConfigDataProvider
-  );
+type
+  TPanelsPositionsSaveLoad = class(TBaseInterfacedObject, IPanelsPositionsSaveLoad)
+  private
+    FConfigProvider: IConfigDataWriteProvider;
+  private
+    procedure Load(
+      const AOwnerComponent: TComponent
+    );
 
-procedure TBConfigProviderSavePositions(
-    const OwnerComponent: TComponent;
-    const AConfigProvider: IConfigDataWriteProvider
-  );
+    procedure Save(
+      const AOwnerComponent: TComponent
+    );
+  public
+    constructor Create(
+      const AConfigProvider: IConfigDataWriteProvider
+    );
+  end;
 
 implementation
 
@@ -104,22 +114,48 @@ begin
   VConfigProvider.WriteString(Value, Data);
 end;
 
-procedure TBConfigProviderLoadPositions(
-  const OwnerComponent: TComponent;
-  const AConfigProvider: IConfigDataProvider
-);
-begin
-  if AConfigProvider <> nil then begin
-    TBCustomLoadPositions(OwnerComponent, ConfigProviderReadInt, ConfigProviderReadString, Pointer(AConfigProvider));
-  end;
-end;
+{ TPanelsPositionsSaveLoad }
 
-procedure TBConfigProviderSavePositions(
-  const OwnerComponent: TComponent;
+constructor TPanelsPositionsSaveLoad.Create(
   const AConfigProvider: IConfigDataWriteProvider
 );
 begin
-  TBCustomSavePositions(OwnerComponent, ConfigProviderWriteInt, ConfigProviderWriteString, Pointer(AConfigProvider));
+  Assert(Assigned(AConfigProvider));
+  inherited Create;
+  FConfigProvider := AConfigProvider;
+end;
+
+procedure TPanelsPositionsSaveLoad.Load(
+  const AOwnerComponent: TComponent
+);
+var
+  VProvider: IConfigDataProvider;
+begin
+  VProvider := FConfigProvider.GetSubItem('PANEL');
+  if Assigned(VProvider) then begin
+    TBCustomLoadPositions(
+      AOwnerComponent,
+      ConfigProviderReadInt,
+      ConfigProviderReadString,
+      Pointer(VProvider)
+    );
+  end;
+end;
+
+procedure TPanelsPositionsSaveLoad.Save(
+  const AOwnerComponent: TComponent
+);
+var
+  VProvider: IConfigDataWriteProvider;
+begin
+  VProvider := FConfigProvider.GetOrCreateSubItem('PANEL');
+
+  TBCustomSavePositions(
+    AOwnerComponent,
+    ConfigProviderWriteInt,
+    ConfigProviderWriteString,
+    Pointer(VProvider)
+  );
 end;
 
 end.

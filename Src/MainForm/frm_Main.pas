@@ -98,6 +98,7 @@ uses
   i_PlayerPlugin,
   i_VectorItemSubset,
   i_ImportConfig,
+  i_PanelsPositionsSaveLoad,
   i_FillingMapPolygon,
   i_CmdLineArgProcessor,
   u_CmdLineArgProcessorAPI,
@@ -732,6 +733,7 @@ type
     FState: IMainFormState;
 
     FWinPosition: IMainWindowPosition;
+    FPanelPositionSaveLoad: IPanelsPositionsSaveLoad;
 
     FLineOnMapEdit: ILineOnMapEdit;
     FLineOnMapByOperation: array [TStateEnum] of ILineOnMapEdit;
@@ -1420,7 +1422,7 @@ begin
   VProvider := GState.MainConfigProvider.GetSubItem('MainForm');
   FWinPosition.ReadConfig(VProvider);
 
-  VProvider := GState.MainConfigProvider.GetSubItem('PANEL');
+  FPanelPositionSaveLoad := TPanelsPositionsSaveLoad.Create(GState.MainConfigProvider);
 
   FInternalErrorListener := TNotifyEventListener.Create(Self.OnInternalErrorNotify);
   FInternalErrorNotifier := GState.MarksDb.ErrorNotifier;
@@ -1455,7 +1457,7 @@ begin
       40
     );
   FSensorViewList := VSensorViewGenerator.CreateSensorViewList(FSensorList);
-  TBConfigProviderLoadPositions(Self, VProvider);
+  FPanelPositionSaveLoad.Load(Self);
   OnToolbarsLockChange;
   TBEditPath.Visible := False;
   TrayIcon.Icon.LoadFromResourceName(Hinstance, 'MAINICON');
@@ -7064,10 +7066,9 @@ begin
 
   FConfig.WriteConfig(GState.MainConfigProvider);
 
-  VProvider := AProvider.GetOrCreateSubItem('PANEL');
   lock_tb_b := FConfig.ToolbarsLock.GetIsLock;
   SetToolbarsLock(False);
-  TBConfigProviderSavePositions(Self, VProvider);
+  FPanelPositionSaveLoad.Save(Self);
   SetToolbarsLock(lock_tb_b);
 end;
 

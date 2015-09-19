@@ -480,6 +480,7 @@
     <DCCReference Include="Src\MainForm\i_MessageHandler.pas" />
     <DCCReference Include="Src\MainForm\i_MouseHandler.pas" />
     <DCCReference Include="Src\MainForm\i_MouseState.pas" />
+    <DCCReference Include="Src\MainForm\i_PanelsPositionsSaveLoad.pas" />
     <DCCReference Include="Src\MainForm\i_PointOnMapEdit.pas" />
     <DCCReference Include="Src\MainForm\i_PopUp.pas" />
     <DCCReference Include="Src\MainForm\i_SearchResultPresenter.pas" />
