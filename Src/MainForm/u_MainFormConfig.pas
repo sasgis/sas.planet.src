@@ -35,7 +35,7 @@ uses
   i_MapZoomingConfig,
   i_DownloadUIConfig,
   i_ViewProjectionConfig,
-  i_WindowPositionConfig,
+  i_MarksExplorerConfig,
   u_ConfigDataElementComplexBase;
 
 type
@@ -54,7 +54,7 @@ type
     FKeyMovingConfig: IKeyMovingConfig;
     FMapZoomingConfig: IMapZoomingConfig;
     FMapMovingConfig: IMapMovingConfig;
-    FMarksExplorerWindowConfig: IWindowPositionConfig;
+    FMarksExplorerConfig: IMarksExplorerConfig;
     FViewProjectionConfig: IViewProjectionConfig;
   private
     function GetMainConfig: IMainFormMainConfig;
@@ -70,7 +70,7 @@ type
     function GetKeyMovingConfig: IKeyMovingConfig;
     function GetMapZoomingConfig: IMapZoomingConfig;
     function GetMapMovingConfig: IMapMovingConfig;
-    function GetMarksExplorerWindowConfig: IWindowPositionConfig;
+    function GetMarksExplorerConfig: IMarksExplorerConfig;
     function GetViewProjectionConfig: IViewProjectionConfig;
   public
     constructor Create(
@@ -97,7 +97,7 @@ uses
   u_ActiveLayersConfig,
   u_MainFormMainConfig,
   u_ViewProjectionConfig,
-  u_WindowPositionConfig;
+  u_MarksExplorerConfig;
 
 { TMainFormConfig }
 
@@ -132,8 +132,8 @@ begin
   Add(FMapZoomingConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Zooming'));
   FMapMovingConfig := TMapMovingConfig.Create;
   Add(FMapMovingConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MouseMoving'));
-  FMarksExplorerWindowConfig := TWindowPositionConfig.Create;
-  Add(FMarksExplorerWindowConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarksExplorerWindow'));
+  FMarksExplorerConfig := TMarksExplorerConfig.Create;
+  Add(FMarksExplorerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarksExplorer'));
   FViewProjectionConfig := TViewProjectionConfig.Create;
   Add(FViewProjectionConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('ViewProjection'));
 end;
@@ -178,9 +178,9 @@ begin
   Result := FMapZoomingConfig;
 end;
 
-function TMainFormConfig.GetMarksExplorerWindowConfig: IWindowPositionConfig;
+function TMainFormConfig.GetMarksExplorerConfig: IMarksExplorerConfig;
 begin
-  Result := FMarksExplorerWindowConfig;
+  Result := FMarksExplorerConfig;
 end;
 
 function TMainFormConfig.GetMapLayersConfig: IActiveLayersConfig;

@@ -818,8 +818,10 @@
       <Form>frSelectedPicture</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
+    <DCCReference Include="Src\MarksDB\GUI\i_MarksExplorerConfig.pas" />
     <DCCReference Include="Src\MarksDB\GUI\i_MarksGUIConfig.pas" />
     <DCCReference Include="Src\MarksDB\GUI\u_MarkDbGUIHelper.pas" />
+    <DCCReference Include="Src\MarksDB\GUI\u_MarksExplorerConfig.pas" />
     <DCCReference Include="Src\MarksDB\GUI\u_MarksGUIConfig.pas" />
     <DCCReference Include="Src\MarksDB\i_MarkCategory.pas" />
     <DCCReference Include="Src\MarksDB\i_MarkCategoryDB.pas" />

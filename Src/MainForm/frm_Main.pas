@@ -1748,7 +1748,7 @@ begin
         GState.VectorGeometryLonLatFactory,
         FViewPortState.View,
         FConfig.NavToPoint,
-        FConfig.MarksExplorerWindowConfig,
+        FConfig.MarksExplorerConfig,
         FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig,
         FMergePolygonsPresenter,
         FMarkDBGUI,

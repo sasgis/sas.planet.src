@@ -55,6 +55,7 @@ uses
   i_WindowPositionConfig,
   i_MarkId,
   i_VectorDataItemSimple,
+  i_MarksExplorerConfig,
   i_MarkCategoryList,
   i_MarkCategory,
   i_MarkSystemConfig,
@@ -192,6 +193,7 @@ type
     FMarkSystemConfig: IMarkSystemConfigListChangeable;
     FGeometryLonLatFactory: IGeometryLonLatFactory;
     FMarksShowConfig: IUsedMarksConfig;
+    FMarksExplorerConfig: IMarksExplorerConfig;
     FWindowConfig: IWindowPositionConfig;
     FViewPortState: ILocalCoordConverterChangeable;
     FNavToPoint: INavigationToPoint;
@@ -232,7 +234,7 @@ type
       const AGeometryLonLatFactory: IGeometryLonLatFactory;
       const AViewPortState: ILocalCoordConverterChangeable;
       const ANavToPoint: INavigationToPoint;
-      const AWindowConfig: IWindowPositionConfig;
+      const AMarksExplorerConfig: IMarksExplorerConfig;
       const AMarksShowConfig: IUsedMarksConfig;
       const AMergePolygonsPresenter: IMergePolygonsPresenter;
       AMarkDBGUI: TMarkDbGUIHelper;
@@ -272,7 +274,7 @@ constructor TfrmMarksExplorer.Create(
   const AGeometryLonLatFactory: IGeometryLonLatFactory;
   const AViewPortState: ILocalCoordConverterChangeable;
   const ANavToPoint: INavigationToPoint;
-  const AWindowConfig: IWindowPositionConfig;
+  const AMarksExplorerConfig: IMarksExplorerConfig;
   const AMarksShowConfig: IUsedMarksConfig;
   const AMergePolygonsPresenter: IMergePolygonsPresenter;
   AMarkDBGUI: TMarkDbGUIHelper;
@@ -289,7 +291,8 @@ begin
   FMarkSystemConfig := AMarkSystemConfig;
   FGeometryLonLatFactory := AGeometryLonLatFactory;
   FMapGoto := AMapGoto;
-  FWindowConfig := AWindowConfig;
+  FMarksExplorerConfig := AMarksExplorerConfig;
+  FWindowConfig := FMarksExplorerConfig.WindowPositionConfig;
   FMarksShowConfig := AMarksShowConfig;
   FViewPortState := AViewPortState;
   FNavToPoint := ANavToPoint;
@@ -1119,6 +1122,7 @@ procedure TfrmMarksExplorer.FormHide(Sender: TObject);
 begin
   Self.OnResize := nil;
   FMarkSystemConfig.ChangeNotifier.Remove(FMarkSystemConfigListener);
+  FMarksExplorerConfig.CategoriesWidth := grpCategory.Width;
   FWindowConfig.ChangeNotifier.Remove(FConfigListener);
   FMarkDBGUI.MarksDb.CategoryDB.ChangeNotifier.Remove(FCategoryDBListener);
   FMarkDBGUI.MarksDb.MarkDb.ChangeNotifier.Remove(FMarksDBListener);
@@ -1146,6 +1150,8 @@ begin
 end;
 
 procedure TfrmMarksExplorer.FormShow(Sender: TObject);
+var
+  VWidth: Integer;
 begin
   RefreshConfigListMenu;
   UpdateCategoryTree;
@@ -1159,6 +1165,10 @@ begin
   OnConfigChange;
   OnMarkSystemStateChanged;
   Self.OnResize := FormResize;
+  VWidth := FMarksExplorerConfig.CategoriesWidth;
+  if VWidth > 0 then begin
+    grpCategory.Width := VWidth;
+  end;
 end;
 
 procedure TfrmMarksExplorer.MarksListBoxContextPopup(Sender: TObject; MousePos:

@@ -33,8 +33,8 @@ uses
   i_MapMovingConfig,
   i_MapZoomingConfig,
   i_DownloadUIConfig,
+  i_MarksExplorerConfig,
   i_ViewProjectionConfig,
-  i_WindowPositionConfig,
   i_MainFormLayersConfig;
 
 type
@@ -118,8 +118,8 @@ type
     function GetMapMovingConfig: IMapMovingConfig;
     property MapMovingConfig: IMapMovingConfig read GetMapMovingConfig;
 
-    function GetMarksExplorerWindowConfig: IWindowPositionConfig;
-    property MarksExplorerWindowConfig: IWindowPositionConfig read GetMarksExplorerWindowConfig;
+    function GetMarksExplorerConfig: IMarksExplorerConfig;
+    property MarksExplorerConfig: IMarksExplorerConfig read GetMarksExplorerConfig;
 
     function GetViewProjectionConfig: IViewProjectionConfig;
     property ViewProjectionConfig: IViewProjectionConfig read GetViewProjectionConfig;
