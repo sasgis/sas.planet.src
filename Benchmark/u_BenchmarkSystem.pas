@@ -65,7 +65,7 @@ uses
   i_BinaryData,
   i_ReadWriteSyncFactory,
   i_Datum,
-  i_CoordConverter,
+  i_ProjectionType,
   i_BenchmarkItem,
   u_InterfaceListSimple,
   u_TimerByNtQueryPerformanceCounter,
@@ -74,9 +74,9 @@ uses
   u_HashFunctionCityHash,
   u_HashFunctionCRC64,
   u_Datum,
-  u_CoordConverterMercatorOnSphere,
-  u_CoordConverterMercatorOnEllipsoid,
-  u_CoordConverterSimpleLonLat,
+  u_ProjectionTypeMercatorOnSphere,
+  u_ProjectionTypeMercatorOnEllipsoid,
+  u_ProjectionTypeGELonLat,
   u_ReadWriteSyncAbstract,
   u_ReadWriteSyncSRW,
   u_ReadWriteSyncRtlResource,
@@ -130,7 +130,7 @@ var
   VTimer: ITimer;
   VHash: IHashFunctionImpl;
   VDatum: IDatum;
-  VCoordConverter: ICoordConverter;
+  VProjectionType: IProjectionType;
 begin
   VList := TInterfaceListSimple.Create;
 
@@ -347,22 +347,22 @@ begin
       0,
       6378137
     );
-  VCoordConverter :=
-    TCoordConverterMercatorOnSphere.Create(
+  VProjectionType :=
+    TProjectionTypeMercatorOnSphere.Create(
       0,
       VDatum,
       0
     );
   VItem :=
-    TBenchmarkItemCoordConverterForvard.Create(
+    TBenchmarkItemProjectionTypeForvard.Create(
       'MercatorOnSphere',
-      VCoordConverter
+      VProjectionType
     );
   VList.Add(VItem);
   VItem :=
-    TBenchmarkItemCoordConverterBackvard.Create(
+    TBenchmarkItemProjectionTypeBackvard.Create(
       'MercatorOnSphere',
-      VCoordConverter
+      VProjectionType
     );
   VList.Add(VItem);
 
@@ -373,22 +373,22 @@ begin
       6378137,
       6356752
     );
-  VCoordConverter :=
-    TCoordConverterMercatorOnEllipsoid.Create(
+  VProjectionType :=
+    TProjectionTypeMercatorOnEllipsoid.Create(
       0,
       VDatum,
       0
     );
   VItem :=
-    TBenchmarkItemCoordConverterForvard.Create(
+    TBenchmarkItemProjectionTypeForvard.Create(
       'MercatorOnEllipsoid',
-      VCoordConverter
+      VProjectionType
     );
   VList.Add(VItem);
   VItem :=
-    TBenchmarkItemCoordConverterBackvard.Create(
+    TBenchmarkItemProjectionTypeBackvard.Create(
       'MercatorOnEllipsoid',
-      VCoordConverter
+      VProjectionType
     );
   VList.Add(VItem);
 
@@ -399,22 +399,22 @@ begin
       6378137,
       6356752
     );
-  VCoordConverter :=
-    TCoordConverterSimpleLonLat.Create(
+  VProjectionType :=
+    TProjectionTypeGELonLat.Create(
       0,
       VDatum,
       0
     );
   VItem :=
-    TBenchmarkItemCoordConverterForvard.Create(
+    TBenchmarkItemProjectionTypeForvard.Create(
       'SimpleLonLat',
-      VCoordConverter
+      VProjectionType
     );
   VList.Add(VItem);
   VItem :=
-    TBenchmarkItemCoordConverterBackvard.Create(
+    TBenchmarkItemProjectionTypeBackvard.Create(
       'SimpleLonLat',
-      VCoordConverter
+      VProjectionType
     );
   VList.Add(VItem);
 

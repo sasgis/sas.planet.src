@@ -23,31 +23,31 @@ unit u_BenchmarkItemCoordConverter;
 interface
 
 uses
-  i_CoordConverter,
+  i_ProjectionType,
   u_BenchmarkItemDoublePointBaseTest;
 
 type
-  TBenchmarkItemCoordConverterForvard = class(TBenchmarkItemDoublePointBaseTest)
+  TBenchmarkItemProjectionTypeForvard = class(TBenchmarkItemDoublePointBaseTest)
   private
-    FCoordConverter: ICoordConverter;
+    FProjectionType: IProjectionType;
   protected
     function RunOneStep: Integer; override;
   public
     constructor Create(
-      const ACoordConverterName: string;
-      const ACoordConverter: ICoordConverter
+      const AProjectionTypeName: string;
+      const AProjectionType: IProjectionType
     );
   end;
 
-  TBenchmarkItemCoordConverterBackvard = class(TBenchmarkItemDoublePointBaseTest)
+  TBenchmarkItemProjectionTypeBackvard = class(TBenchmarkItemDoublePointBaseTest)
   private
-    FCoordConverter: ICoordConverter;
+    FProjectionType: IProjectionType;
   protected
     function RunOneStep: Integer; override;
   public
     constructor Create(
-      const ACoordConverterName: string;
-      const ACoordConverter: ICoordConverter
+      const AProjectionTypeName: string;
+      const AProjectionType: IProjectionType
     );
   end;
 
@@ -59,57 +59,57 @@ uses
 
 const CPointsCount = 1000;
 
-{ TBenchmarkItemCoordConverterForvard }
+{ TBenchmarkItemProjectionTypeForvard }
 
-constructor TBenchmarkItemCoordConverterForvard.Create(
-  const ACoordConverterName: string;
-  const ACoordConverter: ICoordConverter
+constructor TBenchmarkItemProjectionTypeForvard.Create(
+  const AProjectionTypeName: string;
+  const AProjectionType: IProjectionType
 );
 begin
   inherited Create(
-    Assigned(ACoordConverter),
-    'CoordConverter LlToRel ' + ACoordConverterName,
+    Assigned(AProjectionType),
+    'CoordConverter LlToRel ' + AProjectionTypeName,
     CPointsCount,
     DoubleRect(-170, -75, 170, 75)
   );
-  FCoordConverter := ACoordConverter;
+  FProjectionType := AProjectionType;
 end;
 
-function TBenchmarkItemCoordConverterForvard.RunOneStep: Integer;
+function TBenchmarkItemProjectionTypeForvard.RunOneStep: Integer;
 var
   i: Integer;
   VResult: TDoublePoint;
 begin
   Result := 0;
   for i := 0 to FCount - 1 do begin
-    VResult := FCoordConverter.LonLat2Relative(FPoints[i]);
+    VResult := FProjectionType.LonLat2Relative(FPoints[i]);
     Inc(Result);
   end;
 end;
 
-{ TBenchmarkItemCoordConverterBackvard }
+{ TBenchmarkItemProjectionTypeBackvard }
 
-constructor TBenchmarkItemCoordConverterBackvard.Create(
-  const ACoordConverterName: string;
-  const ACoordConverter: ICoordConverter
+constructor TBenchmarkItemProjectionTypeBackvard.Create(
+  const AProjectionTypeName: string;
+  const AProjectionType: IProjectionType
 );
 begin
   inherited Create(
-    Assigned(ACoordConverter),
-    'CoordConverter RelToLl ' + ACoordConverterName,
+    Assigned(AProjectionType),
+    'CoordConverter RelToLl ' + AProjectionTypeName,
     CPointsCount,
     DoubleRect(0, 0, 1, 1)
   );
-  FCoordConverter := ACoordConverter;
+  FProjectionType := AProjectionType;
 end;
 
-function TBenchmarkItemCoordConverterBackvard.RunOneStep: Integer;
+function TBenchmarkItemProjectionTypeBackvard.RunOneStep: Integer;
 var
   i: Integer;
 begin
   Result := 0;
   for i := 0 to FCount - 1 do begin
-    FDst[i] := FCoordConverter.Relative2LonLat(FPoints[i]);
+    FDst[i] := FProjectionType.Relative2LonLat(FPoints[i]);
     Inc(Result);
   end;
 end;
