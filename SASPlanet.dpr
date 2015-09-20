@@ -673,6 +673,7 @@ uses
   i_MarksGUIConfig in 'Src\MarksDB\GUI\i_MarksGUIConfig.pas',
   u_MarkDbGUIHelper in 'Src\MarksDB\GUI\u_MarkDbGUIHelper.pas',
   u_MarksExplorerConfig in 'Src\MarksDB\GUI\u_MarksExplorerConfig.pas',
+  u_MarksExplorerHelper in 'Src\MarksDB\GUI\u_MarksExplorerHelper.pas',
   u_MarksGUIConfig in 'Src\MarksDB\GUI\u_MarksGUIConfig.pas',
   i_MarkCategoryDBSmlInternal in 'Src\MarksDB\SML\i_MarkCategoryDBSmlInternal.pas',
   i_MarkCategoryFactoryDbInternal in 'Src\MarksDB\SML\i_MarkCategoryFactoryDbInternal.pas',

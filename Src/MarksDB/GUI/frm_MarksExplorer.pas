@@ -62,6 +62,7 @@ uses
   i_MarkSystemImplFactory,
   i_MergePolygonsPresenter,
   u_MarkDbGUIHelper,
+  u_MarksExplorerHelper,
   u_CommonFormAndFrameParents;
 
 type
@@ -206,6 +207,8 @@ type
     FMarksSystemStateListener: IListener;
     FRegionProcess: IRegionProcess;
     FMergePolygonsPresenter: IMergePolygonsPresenter;
+    FSelectedCategoryInfo: TExpandInfo;
+    FExpandedCategoriesInfo: TExpandInfo;
 
     procedure RefreshConfigListMenu;
     procedure OnMarkSystemConfigChange;
@@ -329,6 +332,8 @@ begin
   if IsRectEmpty(FWindowConfig.BoundsRect) then begin
     FWindowConfig.SetWindowPosition(Self.BoundsRect);
   end;
+  FSelectedCategoryInfo := ExpandInfoFromString(FMarksExplorerConfig.SelectedCategory);
+  FExpandedCategoriesInfo := ExpandInfoFromString(FMarksExplorerConfig.ExpandedCategories);
 end;
 
 destructor TfrmMarksExplorer.Destroy;
@@ -408,28 +413,42 @@ procedure TfrmMarksExplorer.UpdateCategoryTree;
     end;
   end;
 var
+  I: Integer;
   VTree: IMarkCategoryTree;
   VSelectedCategory: ICategory;
   VNode: TTreeNode;
+  VItems: TTreeNodes;
 begin
   VSelectedCategory := GetSelectedCategory;
   FCategoryList := FMarkDBGUI.MarksDb.CategoryDB.GetCategoriesList;
   VTree := FMarkDBGUI.MarksDb.CategoryDB.CategoryListToStaticTree(FCategoryList);
   CategoryTreeView.OnChange:=nil;
   try
-    CategoryTreeView.Items.BeginUpdate;
+    VItems := CategoryTreeView.Items;
+    VItems.BeginUpdate;
     try
-      UpdateTreeSubItems(VTree, VSelectedCategory, nil, CategoryTreeView.Items);
+      UpdateTreeSubItems(VTree, VSelectedCategory, nil, VItems);
       CategoryTreeView.CustomSort(TreeViewCompare, 0);
+      DoExpandNodes(VItems, FExpandedCategoriesInfo);
       VSelectedCategory := GetSelectedCategory;
       if not Assigned(VSelectedCategory) then begin
-        VNode := CategoryTreeView.Items.GetFirstNode;
-        if Assigned(VNode) then begin
-          VNode.Selected := True;
+        if Length(FSelectedCategoryInfo) >= 1 then begin
+          I := FSelectedCategoryInfo[0].Index;
+          if (I < VItems.Count) and (GetNodeUID(VItems[I]) = FSelectedCategoryInfo[0].UID) then begin
+            VItems[I].Selected := True;
+            VItems[I].MakeVisible;
+            VSelectedCategory := GetSelectedCategory;
+          end;
+        end;
+        if not Assigned(VSelectedCategory) then begin
+          VNode := VItems.GetFirstNode;
+          if Assigned(VNode) then begin
+            VNode.Selected := True;
+          end;
         end;
       end;
     finally
-      CategoryTreeView.Items.EndUpdate;
+      VItems.EndUpdate;
     end;
   finally
     CategoryTreeView.OnChange := Self.CategoryTreeViewChange;
@@ -733,6 +752,7 @@ end;
 procedure TfrmMarksExplorer.CategoryTreeViewChange(Sender: TObject; Node: TTreeNode);
 begin
   UpdateMarksList;
+  FExpandedCategoriesInfo := GetExpandInfo(CategoryTreeView.Items);
 end;
 
 procedure TfrmMarksExplorer.CategoryTreeViewVisible(Node: TTreeNode);
@@ -1128,6 +1148,10 @@ begin
   FMarkDBGUI.MarksDb.MarkDb.ChangeNotifier.Remove(FMarksDBListener);
   FMarksShowConfig.ChangeNotifier.Remove(FMarksShowConfigListener);
   FMarkDBGUI.MarksDb.State.ChangeNotifier.Remove(FMarksSystemStateListener);
+  FSelectedCategoryInfo := GetSelectedNodeInfo(CategoryTreeView);
+  FExpandedCategoriesInfo := GetExpandInfo(CategoryTreeView.Items);
+  FMarksExplorerConfig.SelectedCategory := ExpandInfoToString(FSelectedCategoryInfo);
+  FMarksExplorerConfig.ExpandedCategories := ExpandInfoToString(FExpandedCategoriesInfo);
   CategoryTreeView.OnChange:=nil;
   CategoryTreeView.Items.Clear;
   MarksListBox.Items.Clear;

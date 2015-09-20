@@ -33,6 +33,8 @@ type
   TMarksExplorerConfig = class(TConfigDataElementBase, IMarksExplorerConfig)
   private
     FCategoriesWidth: Integer;
+    FSelectedCategory: AnsiString;
+    FExpandedCategories: AnsiString;
     FWindowPositionConfig: IWindowPositionConfig;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
@@ -41,6 +43,10 @@ type
     { IMarksExplorerConfig }
     function GetCategoriesWidth: Integer;
     procedure SetCategoriesWidth(const AValue: Integer);
+    function GetExpandedCategories: AnsiString;
+    procedure SetExpandedCategories(const AValue: AnsiString);
+    function GetSelectedCategory: AnsiString;
+    procedure SetSelectedCategory(const AValue: AnsiString);
     function GetWindowPositionConfig: IWindowPositionConfig;
   public
     constructor Create;
@@ -57,6 +63,8 @@ constructor TMarksExplorerConfig.Create;
 begin
   inherited Create;
   FCategoriesWidth := 0;
+  FSelectedCategory := '';
+  FExpandedCategories := '';
   FWindowPositionConfig := TWindowPositionConfig.Create;
 end;
 
@@ -68,6 +76,8 @@ begin
   if AConfigData <> nil then begin
     FWindowPositionConfig.ReadConfig(AConfigData);
     FCategoriesWidth := AConfigData.ReadInteger('CategoriesWidth', 0);
+    FExpandedCategories := AConfigData.ReadAnsiString('ExpandedCategories', '');
+    FSelectedCategory := AConfigData.ReadAnsiString('SelectedCategory', '');
     SetChanged;
   end;
 end;
@@ -80,6 +90,8 @@ begin
   if AConfigData <> nil then begin
     FWindowPositionConfig.WriteConfig(AConfigData);
     AConfigData.WriteInteger('CategoriesWidth', FCategoriesWidth);
+    AConfigData.WriteAnsiString('ExpandedCategories', FExpandedCategories);
+    AConfigData.WriteAnsiString('SelectedCategory', FSelectedCategory);
   end;
 end;
 
@@ -109,6 +121,52 @@ begin
   try
     if FCategoriesWidth <> AValue then begin
       FCategoriesWidth := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+function TMarksExplorerConfig.GetExpandedCategories: AnsiString;
+begin
+  LockRead;
+  try
+    Result := FExpandedCategories;
+  finally
+    UnlockRead;
+  end;
+end;
+
+procedure TMarksExplorerConfig.SetExpandedCategories(const AValue: AnsiString);
+begin
+  LockWrite;
+  try
+    if FExpandedCategories <> AValue then begin
+      FExpandedCategories := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+function TMarksExplorerConfig.GetSelectedCategory: AnsiString;
+begin
+  LockRead;
+  try
+    Result := FSelectedCategory;
+  finally
+    UnlockRead;
+  end;
+end;
+
+procedure TMarksExplorerConfig.SetSelectedCategory(const AValue: AnsiString);
+begin
+  LockWrite;
+  try
+    if FSelectedCategory <> AValue then begin
+      FSelectedCategory := AValue;
       SetChanged;
     end;
   finally

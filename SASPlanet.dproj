@@ -822,6 +822,7 @@
     <DCCReference Include="Src\MarksDB\GUI\i_MarksGUIConfig.pas" />
     <DCCReference Include="Src\MarksDB\GUI\u_MarkDbGUIHelper.pas" />
     <DCCReference Include="Src\MarksDB\GUI\u_MarksExplorerConfig.pas" />
+    <DCCReference Include="Src\MarksDB\GUI\u_MarksExplorerHelper.pas" />
     <DCCReference Include="Src\MarksDB\GUI\u_MarksGUIConfig.pas" />
     <DCCReference Include="Src\MarksDB\i_MarkCategory.pas" />
     <DCCReference Include="Src\MarksDB\i_MarkCategoryDB.pas" />

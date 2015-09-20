@@ -23,6 +23,7 @@ unit i_MarksExplorerConfig;
 interface
 
 uses
+  Classes,
   i_ConfigDataElement,
   i_WindowPositionConfig;
 
@@ -35,6 +36,14 @@ type
     function GetCategoriesWidth: Integer;
     procedure SetCategoriesWidth(const AValue: Integer);
     property CategoriesWidth: Integer read GetCategoriesWidth write SetCategoriesWidth;
+
+    function GetExpandedCategories: AnsiString;
+    procedure SetExpandedCategories(const AValue: AnsiString);
+    property ExpandedCategories: AnsiString read GetExpandedCategories write SetExpandedCategories;
+
+    function GetSelectedCategory: AnsiString;
+    procedure SetSelectedCategory(const AValue: AnsiString);
+    property SelectedCategory: AnsiString read GetSelectedCategory write SetSelectedCategory;
   end;
 
 implementation
