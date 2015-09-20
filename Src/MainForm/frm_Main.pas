@@ -1029,7 +1029,7 @@ uses
   u_NotifierOperation,
   u_MainFormState,
   u_PosFromGSM,
-  u_MapViewPortState,
+  u_ViewPortState,
   u_ProjectionSetChangeableByConfig,
   u_MainFormConfig,
   u_SensorListStuped,

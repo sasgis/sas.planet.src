@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_MapViewPortState;
+unit u_ViewPortState;
 
 interface
 

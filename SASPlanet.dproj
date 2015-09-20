@@ -534,7 +534,6 @@
     <DCCReference Include="Src\MainForm\u_MapTypeMenuItemsGeneratorBasic.pas" />
     <DCCReference Include="Src\MainForm\u_MapTypeMenuItemsGeneratorSimple.pas" />
     <DCCReference Include="Src\MainForm\u_MapViewGoto.pas" />
-    <DCCReference Include="Src\MainForm\u_MapViewPortState.pas" />
     <DCCReference Include="Src\MainForm\u_MapZoomingConfig.pas" />
     <DCCReference Include="Src\MainForm\u_MenuGeneratorByStaticTreeSimple.pas" />
     <DCCReference Include="Src\MainForm\u_MouseState.pas" />
@@ -549,6 +548,7 @@
     <DCCReference Include="Src\MainForm\u_StickToGridTiles.pas" />
     <DCCReference Include="Src\MainForm\u_TBXSASTheme.pas" />
     <DCCReference Include="Src\MainForm\u_TBXSubmenuItemWithIndicator.pas" />
+    <DCCReference Include="Src\MainForm\u_ViewPortState.pas" />
     <DCCReference Include="Src\MainForm\u_ViewProjectionConfig.pas" />
     <DCCReference Include="Src\MapCalibration\i_MapCalibration.pas" />
     <DCCReference Include="Src\MapCalibration\u_MapCalibrationDat.pas" />
