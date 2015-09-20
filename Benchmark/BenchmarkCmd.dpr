@@ -22,7 +22,7 @@ uses
   u_BenchmarkItemHashFunction in 'u_BenchmarkItemHashFunction.pas',
   u_BenchmarkItemDoubleInc in 'u_BenchmarkItemDoubleInc.pas',
   u_BenchmarkItemDoublePointBaseTest in 'u_BenchmarkItemDoublePointBaseTest.pas',
-  u_BenchmarkItemCoordConverter in 'u_BenchmarkItemCoordConverter.pas',
+  u_BenchmarkItemProjectionType in 'u_BenchmarkItemProjectionType.pas',
   u_BenchmarkItemDoublePointIncrement in 'u_BenchmarkItemDoublePointIncrement.pas',
   u_BenchmarkItemDoublePointIncrementWithEmpty in 'u_BenchmarkItemDoublePointIncrementWithEmpty.pas',
   u_BenchmarkItemBitmap32BlockTransferFull in 'u_BenchmarkItemBitmap32BlockTransferFull.pas',

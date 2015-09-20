@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_BenchmarkItemCoordConverter;
+unit u_BenchmarkItemProjectionType;
 
 interface
 

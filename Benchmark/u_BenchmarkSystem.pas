@@ -96,7 +96,7 @@ uses
   u_BenchmarkItemBitmap32LineVertical,
   u_BenchmarkItemBitmap32LineHorizontal,
   u_BenchmarkItemBitmap32Line,
-  u_BenchmarkItemCoordConverter,
+  u_BenchmarkItemProjectionType,
   u_BenchmarkItemDoublePointIncrement,
   u_BenchmarkItemDoublePointIncrementWithEmpty,
   u_BenchmarkResultListSaverToCsv,
