@@ -39,7 +39,7 @@ uses
   u_ConfigDataElementBase;
 
 type
-  TMapViewPortState = class(TConfigDataElementBase, IViewPortState)
+  TViewPortState = class(TConfigDataElementBase, IViewPortState)
   private
     FVisibleCoordConverterFactory: ILocalCoordConverterFactorySimpe;
     FProjectionSet: IProjectionSetChangeable;
@@ -96,9 +96,9 @@ uses
   u_LocalCoordConverterChangeable,
   u_GeoFunc;
 
-{ TMapViewPortStateNew }
+{ TViewPortStateNew }
 
-constructor TMapViewPortState.Create(
+constructor TViewPortState.Create(
   const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionSet: IProjectionSetChangeable;
   const APerfCounterList: IInternalPerformanceCounterList
@@ -141,7 +141,7 @@ begin
   FProjectionSet.ChangeNotifier.Add(FProjectionSetListener);
 end;
 
-destructor TMapViewPortState.Destroy;
+destructor TViewPortState.Destroy;
 begin
   if Assigned(FProjectionSet) and Assigned(FProjectionSetListener) then begin
     FProjectionSet.ChangeNotifier.Remove(FProjectionSetListener);
@@ -151,7 +151,7 @@ begin
   inherited;
 end;
 
-procedure TMapViewPortState.ChangeLonLat(const ALonLat: TDoublePoint);
+procedure TViewPortState.ChangeLonLat(const ALonLat: TDoublePoint);
 var
   VLocalConverter: ILocalCoordConverter;
   VLocalConverterNew: ILocalCoordConverter;
@@ -170,7 +170,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortState.ChangeLonLatAndZoom(
+procedure TViewPortState.ChangeLonLatAndZoom(
   const AZoom: Byte;
   const ALonLat: TDoublePoint
 );
@@ -213,7 +213,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortState.ChangeMapPixelByLocalDelta(const ADelta: TDoublePoint);
+procedure TViewPortState.ChangeMapPixelByLocalDelta(const ADelta: TDoublePoint);
 var
   VLocalConverter: ILocalCoordConverter;
   VLocalConverterNew: ILocalCoordConverter;
@@ -234,7 +234,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortState.ChangeMapPixelToVisualPoint(
+procedure TViewPortState.ChangeMapPixelToVisualPoint(
   const AVisualPoint: TPoint
 );
 var
@@ -255,7 +255,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortState.ChangeViewSize(const ANewSize: TPoint);
+procedure TViewPortState.ChangeViewSize(const ANewSize: TPoint);
 var
   VLocalConverter: ILocalCoordConverter;
   VLocalConverterNew: ILocalCoordConverter;
@@ -298,7 +298,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortState.ChangeZoomWithFreezeAtCenter(const AZoom: Byte);
+procedure TViewPortState.ChangeZoomWithFreezeAtCenter(const AZoom: Byte);
 var
   VLocalConverter: ILocalCoordConverter;
   VProjectionSet: IProjectionSet;
@@ -325,7 +325,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortState.ChangeZoomWithFreezeAtVisualPoint(
+procedure TViewPortState.ChangeZoomWithFreezeAtVisualPoint(
   const AZoom: Byte;
   const AFreezePoint: TPoint
 );
@@ -355,7 +355,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortState.ChangeZoomWithFreezeAtVisualPointWithScale(
+procedure TViewPortState.ChangeZoomWithFreezeAtVisualPointWithScale(
   const AZoom: Byte;
   const AFreezePoint: TPoint
 );
@@ -384,7 +384,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortState.DoReadConfig(const AConfigData: IConfigDataProvider);
+procedure TViewPortState.DoReadConfig(const AConfigData: IConfigDataProvider);
 var
   VLonLat: TDoublePoint;
   VProjectionSet: IProjectionSet;
@@ -415,7 +415,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortState.DoWriteConfig(
+procedure TViewPortState.DoWriteConfig(
   const AConfigData: IConfigDataWriteProvider
 );
 var
@@ -430,12 +430,12 @@ begin
   AConfigData.WriteFloat('Y', VLonLat.Y);
 end;
 
-function TMapViewPortState.GetView: ILocalCoordConverterChangeable;
+function TViewPortState.GetView: ILocalCoordConverterChangeable;
 begin
   Result := FView;
 end;
 
-procedure TMapViewPortState.OnProjectionSetChange;
+procedure TViewPortState.OnProjectionSetChange;
 var
   VLocalConverter: ILocalCoordConverter;
   VProjectionSet: IProjectionSet;
@@ -458,7 +458,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortState.ScaleTo(
+procedure TViewPortState.ScaleTo(
   const AScale: Double;
   const AFreezePoint: TPoint
 );

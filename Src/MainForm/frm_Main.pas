@@ -1119,7 +1119,7 @@ begin
       FConfig.ViewProjectionConfig
     );
   FViewPortState :=
-    TMapViewPortState.Create(
+    TViewPortState.Create(
       GState.LocalConverterFactory,
       FActiveProjectionSet,
       GState.DebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('ViewState')
