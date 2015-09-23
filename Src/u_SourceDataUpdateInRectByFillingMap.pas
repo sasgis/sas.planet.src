@@ -39,6 +39,7 @@ type
     FConfig: IFillingMapLayerConfig;
     FMapType: IMapTypeChangeable;
 
+    FConfigListener: IListener;
     FMapTypeListener: IListener;
     FCS: IReadWriteSync;
     FMapListener: IListener;
@@ -53,6 +54,7 @@ type
     ): IProjection;
     procedure OnTileUpdate(const AMsg: IInterface);
     procedure OnMapChange;
+    procedure OnConfigChange;
 
     procedure _RemoveListener(
       const AMapListened: IMapType
@@ -105,8 +107,11 @@ begin
   FMapListener := TTileUpdateListenerToLonLat.Create(Self.OnTileUpdate);
 
   FMapTypeListener := TNotifyNoMmgEventListener.Create(Self.OnMapChange);
-  FConfig.ChangeNotifier.Add(FMapTypeListener);
   FMapType.ChangeNotifier.Add(FMapTypeListener);
+
+  FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
+  FConfig.ChangeNotifier.Add(FConfigListener);
+
   OnMapChange;
 end;
 
@@ -115,12 +120,13 @@ begin
   if Assigned(FMapType) and Assigned(FMapTypeListener) then begin
     FMapType.ChangeNotifier.Remove(FMapTypeListener);
     FMapType := nil;
+    FMapTypeListener := nil;
   end;
-  if Assigned(FConfig) and Assigned(FMapTypeListener) then begin
-    FConfig.ChangeNotifier.Remove(FMapTypeListener);
+  if Assigned(FConfig) and Assigned(FConfigListener) then begin
+    FConfig.ChangeNotifier.Remove(FConfigListener);
     FConfig := nil;
+    FConfigListener := nil;
   end;
-  FMapTypeListener := nil;
   if Assigned(FMapListened) and Assigned(FMapListener) then begin
     _RemoveListener(FMapListened);
   end;
@@ -134,17 +140,38 @@ function TSourceDataUpdateInRectByFillingMap.GetActualProjection(
 var
   VZoom: Integer;
   VResult: Byte;
+  VConfig: IFillingMapLayerConfigStatic;
 begin
-  VZoom := FConfig.GetStatic.Zoom;
-  if FConfig.GetStatic.UseRelativeZoom then begin
-    VZoom := VZoom + ATileRect.Projection.GetZoom;
+  Result := nil;
+  VConfig := FConfig.GetStatic;
+  if VConfig.Visible then begin
+    VZoom := VConfig.Zoom;
+    if VConfig.UseRelativeZoom then begin
+      VZoom := VZoom + AProjectionSet.GetSuitableZoom(ATileRect.Projection);
+    end;
+    if VZoom < 0 then begin
+      Result := AProjectionSet.Zooms[0];
+    end else begin
+      VResult := VZoom;
+      AProjectionSet.ValidateZoom(VResult);
+      Result := AProjectionSet.Zooms[VResult];
+    end;
   end;
-  if VZoom < 0 then begin
-    Result := AProjectionSet.Zooms[0];
-  end else begin
-    VResult := VZoom;
-    AProjectionSet.ValidateZoom(VResult);
-    Result := AProjectionSet.Zooms[VResult];
+end;
+
+procedure TSourceDataUpdateInRectByFillingMap.OnConfigChange;
+var
+  VConfig: IFillingMapLayerConfigStatic;
+begin
+  VConfig := FConfig.GetStatic;
+  FCS.BeginWrite;
+  try
+    if Assigned(FMapListened) and Assigned(FListenTileRect) then begin
+      _RemoveListener(FMapListened);
+      _SetListener(FMapListened, FListenTileRect);
+    end;
+  finally
+    FCS.EndWrite;
   end;
 end;
 
@@ -269,13 +296,15 @@ begin
     if VNotifier <> nil then begin
       VMapLonLatRect := VLonLatRect;
       VSourceProjection := GetActualProjection(AMapListened.ProjectionSet, ATileRect);
-      VSourceProjection.ProjectionType.ValidateLonLatRect(VMapLonLatRect);
-      VTileRect :=
-        RectFromDoubleRect(
-          VSourceProjection.LonLatRect2TileRectFloat(VMapLonLatRect),
-          rrOutside
-        );
-      VNotifier.AddListenerByRect(FMapListener, VSourceProjection.Zoom, VTileRect);
+      if Assigned(VSourceProjection) then begin
+        VSourceProjection.ProjectionType.ValidateLonLatRect(VMapLonLatRect);
+        VTileRect :=
+          RectFromDoubleRect(
+            VSourceProjection.LonLatRect2TileRectFloat(VMapLonLatRect),
+            rrOutside
+          );
+        VNotifier.AddListenerByRect(FMapListener, VSourceProjection.Zoom, VTileRect);
+      end;
     end;
   end;
 end;
