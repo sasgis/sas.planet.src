@@ -97,9 +97,9 @@ uses
 
 const
   cNightlyChannel = 'http://sasgis.org/programs/sasplanet/nightly.php';
-  cStableChannel = 'http://sasgis.org/programs/sasplanet/stable.php';
+  cStableChannel = 'http://sasgis.org/programs/sasplanet/release.php';
 
-  cSearchVersionInfoRegExpr = 'SAS\.Planet\.(Stable|Release|Nightly)\.(\d\d)(\d\d)(\d\d)\.(\d+)\.(zip|rar|7z)';
+  cSearchVersionInfoRegExpr = 'SAS\.Planet\.(Stable|Release|Nightly)\.(\d\d)(\d\d)(\d\d)(\.(\d+))?\.(zip|rar|7z)';
   cSearchAvailableVersionUrlRegExpr = '<a href="(.*?)">' + cSearchVersionInfoRegExpr + '</a>';
 
 { TUpdateDownloader }
@@ -199,11 +199,10 @@ procedure TUpdateDownloader.SearchVersionInfoCallBack(
         m := StrToIntDef(VRegExpr.Match[3], 0);
         d := StrToIntDef(VRegExpr.Match[4], 0);
         ADate := EncodeDate(y, m, d);
-        ARevision := StrToIntDef(VRegExpr.Match[5], 0);
-        if (y = 0) or (m = 0) or (d = 0) or (ADate = 0) or (ARevision = 0) then begin
-          Result := 'Unexpected Date or Revision value: ' +
-            VRegExpr.Match[2] + VRegExpr.Match[3] + VRegExpr.Match[4] + '.' +
-            VRegExpr.Match[5] + ' (' + VRegExpr.Match[0] + ')';
+        ARevision := StrToIntDef(VRegExpr.Match[6], 0);
+        if (y = 0) or (m = 0) or (d = 0) or (ADate = 0) then begin
+          Result := 'Unexpected Date value: ' +
+            VRegExpr.Match[2] + VRegExpr.Match[3] + VRegExpr.Match[4];
         end;
       end else begin
         Result := 'HTML parser failue';

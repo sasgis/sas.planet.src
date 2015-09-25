@@ -35,16 +35,14 @@ object frmUpdateChecker: TfrmUpdateChecker
   object lblCurVerValue: TLabel
     Left = 144
     Top = 12
-    Width = 69
+    Width = 3
     Height = 13
-    Caption = 'lblCurVerValue'
   end
   object lblNewVerValue: TLabel
     Left = 144
     Top = 34
-    Width = 73
+    Width = 3
     Height = 13
-    Caption = 'lblNewVerValue'
   end
   object lblProgressInfo: TLabel
     Left = 16
@@ -64,7 +62,6 @@ object frmUpdateChecker: TfrmUpdateChecker
     Smooth = True
     Step = 1
     TabOrder = 0
-    ExplicitWidth = 402
   end
   object btnDownload: TButton
     Left = 174
@@ -76,7 +73,6 @@ object frmUpdateChecker: TfrmUpdateChecker
     Caption = 'Download'
     TabOrder = 1
     OnClick = btnDownloadClick
-    ExplicitLeft = 200
   end
   object btnClose: TButton
     Left = 286
@@ -88,14 +84,12 @@ object frmUpdateChecker: TfrmUpdateChecker
     Caption = 'Close'
     TabOrder = 2
     OnClick = btnCloseClick
-    ExplicitLeft = 312
   end
   object cbbChannel: TComboBox
     Left = 16
     Top = 100
     Width = 152
     Height = 21
-    ItemHeight = 13
     TabOrder = 3
     Text = 'Nightly (testing)'
     OnChange = cbbChannelChange

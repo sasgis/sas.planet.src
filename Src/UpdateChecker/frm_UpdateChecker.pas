@@ -65,6 +65,7 @@ type
   private
     FCurDate: TDateTime;
     FCurRevision: Integer;
+    FCurBuildType: string;
     FNewDate: TDateTime;
     FNewRevision: Integer;
     FNewBuildType: string;
@@ -77,11 +78,14 @@ type
     FCancelNotifierInternal: INotifierOperationInternal;
     FDownloadProgressDefCaption: string;
     FNewVerValueDefColor: TColor;
+    FBuildInfo: IBuildInfo;
     procedure OnAppClosing;
     procedure CancelOperation;
     procedure CheckAvailableVersion;
     procedure OnVersionCheckError(const AMsg: string);
     procedure ShowError(const AMsg: string);
+  protected
+    procedure RefreshTranslation; override;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -132,6 +136,7 @@ begin
 
   inherited Create(ALanguageManager);
   FAppClosingNotifier := AAppClosingNotifier;
+  FBuildInfo := ABuildInfo;
 
   FCancelNotifierInternal :=
     TNotifierOperation.Create(
@@ -144,11 +149,12 @@ begin
     Self.OnAppClosing;
   end;
 
-  FCurDate := ABuildInfo.GetBuildDate;
-  if not ABuildInfo.GetBuildSrcInfo(FCurRevision, VTmp) then begin
+  FCurDate := FBuildInfo.GetBuildDate;
+  FCurBuildType := FBuildInfo.GetBuildType;
+  if not FBuildInfo.GetBuildSrcInfo(FCurRevision, VTmp) then begin
     FCurRevision := 0;
   end;
-  lblCurVerValue.Caption := ABuildInfo.GetVersion + ' ' + ABuildInfo.GetBuildType;
+  lblCurVerValue.Caption := FBuildInfo.GetVersion + ' ' + FCurBuildType;
 
   cbbChannel.ItemIndex := 0; // Nightly channel
 
@@ -283,6 +289,7 @@ var
   VPercent: Single;
   VDots: string;
   I: Integer;
+  VIsNewRevision: Boolean;
 begin
   case FState of
 
@@ -291,9 +298,15 @@ begin
       case FState of
         udsIdle: begin
           if FUpdateDownloader.GetAvailableVersionInfo(FNewDate, FNewRevision, FNewBuildType) then begin
-            lblNewVerValue.Caption :=
-              FormatDateTime('yymmdd', FNewDate) + '.' + IntToStr(FNewRevision) + ' ' + FNewBuildType;
-            if (FNewDate > FCurDate) or (FNewRevision > FCurRevision) then begin
+            if FNewRevision > 0 then begin
+              lblNewVerValue.Caption :=
+                FormatDateTime('yymmdd', FNewDate) + '.' + IntToStr(FNewRevision) + ' ' + FNewBuildType;
+            end else begin
+              lblNewVerValue.Caption :=
+                FormatDateTime('yymmdd', FNewDate) + ' ' + FNewBuildType;
+            end;
+            VIsNewRevision := (FNewRevision > 0) and (FCurRevision > 0) and (FNewRevision > FCurRevision);
+            if (FNewDate > FCurDate) or VIsNewRevision or (FNewBuildType <> FCurBuildType) then begin
               btnDownload.Enabled := True;
               lblNewVerValue.Font.Color := clGreen;
               lblNewVerValue.Font.Style := [fsBold];
@@ -392,6 +405,12 @@ end;
 procedure TfrmUpdateChecker.ShowError(const AMsg: string);
 begin
   MessageDlg(AMsg, mtError, [mbOK], 0);
+end;
+
+procedure TfrmUpdateChecker.RefreshTranslation;
+begin
+  inherited;
+  lblCurVerValue.Caption := FBuildInfo.GetVersion + ' ' + FBuildInfo.GetBuildType;
 end;
 
 end.
