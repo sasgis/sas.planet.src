@@ -783,6 +783,7 @@ type
     procedure InitGridsMenus;
     procedure InitMouseCursors;
     procedure LoadParams;
+    procedure LoadPosition;
     procedure LoadMapIconsList;
     procedure CreateMapUIMapsList;
     procedure CreateMapUILayersList;
@@ -851,6 +852,7 @@ type
 
     procedure OnBeforeViewChange;
     procedure OnAfterViewChange;
+    procedure SavePosition(const AProvider: IConfigDataWriteProvider);
     procedure SaveWindowConfigToIni(const AProvider: IConfigDataWriteProvider);
     procedure DoSelectSpecialVersion(Sender: TObject);
     procedure TBEditPathMarshClick(Sender: TObject);
@@ -1124,7 +1126,7 @@ begin
       FActiveProjectionSet,
       GState.DebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('ViewState')
     );
-  FViewPortState.ReadConfig(GState.MainConfigProvider.GetSubItem('Position'));
+  LoadPosition;
 
   LoadMapIconsList;
 
@@ -7055,6 +7057,19 @@ begin
   end;
 end;
 
+procedure TfrmMain.SavePosition(const AProvider: IConfigDataWriteProvider);
+var
+  VLonLat: TDoublePoint;
+  VLocalConverter: ILocalCoordConverter;
+begin
+  inherited;
+  VLocalConverter := FViewPortState.View.GetStatic;
+  VLonLat := VLocalConverter.GetCenterLonLat;
+  AProvider.WriteInteger('Zoom', VLocalConverter.Projection.Zoom);
+  AProvider.WriteFloat('X', VLonLat.X);
+  AProvider.WriteFloat('Y', VLonLat.Y);
+end;
+
 procedure TfrmMain.SaveWindowConfigToIni(const AProvider: IConfigDataWriteProvider);
 var
   VProvider: IConfigDataWriteProvider;
@@ -7065,10 +7080,10 @@ begin
   VProvider := AProvider.GetOrCreateSubItem('MainForm');
   FWinPosition.WriteConfig(VProvider);
 
-  VProvider := GState.MainConfigProvider.GetOrCreateSubItem('Position');
-  FViewPortState.WriteConfig(VProvider);
+  VProvider := AProvider.GetOrCreateSubItem('Position');
+  SavePosition(VProvider);
 
-  FConfig.WriteConfig(GState.MainConfigProvider);
+  FConfig.WriteConfig(AProvider);
 
   FPanelPositionSaveLoad.Save(Self);
 end;
@@ -7595,6 +7610,32 @@ begin
   except
     on E: Exception do
       MessageDlg(E.ClassName + ': ' + E.Message, mtError, [mbOK], 0);
+  end;
+end;
+
+procedure TfrmMain.LoadPosition;
+var
+  VConfigData: IConfigDataProvider;
+  VLonLat: TDoublePoint;
+  VProjectionSet: IProjectionSet;
+  VZoom: Byte;
+  VProjection: IProjection;
+  VLocalConverter: ILocalCoordConverter;
+begin
+  inherited;
+  VConfigData := GState.MainConfigProvider.GetSubItem('Position');
+  if VConfigData <> nil then begin
+    VLocalConverter := FViewPortState.View.GetStatic;
+    VProjectionSet := FActiveProjectionSet.GetStatic;
+    VZoom := VConfigData.ReadInteger('Zoom', VLocalConverter.Projection.Zoom);
+    VProjectionSet.ValidateZoom(VZoom);
+    VProjection := VProjectionSet.Zooms[VZoom];
+    VLonLat := VLocalConverter.GetCenterLonLat;
+    VLonLat.X := VConfigData.ReadFloat('X', VLonLat.X);
+    VLonLat.Y := VConfigData.ReadFloat('Y', VLonLat.Y);
+    VProjection.ProjectionType.ValidateLonLatPos(VLonLat);
+
+    FViewPortState.ChangeLonLatAndZoom(VZoom, VLonLat);
   end;
 end;
 
