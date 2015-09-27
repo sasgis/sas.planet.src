@@ -24,17 +24,19 @@ interface
 
 uses
   Classes,
+  SysUtils,
   i_HashFunction,
   i_PathConfig,
   i_ContentTypeManager,
   i_MarkPicture,
   i_BitmapTileSaveLoad,
-  u_ConfigDataElementBase;
+  u_BaseInterfacedObject;
 
 type
-  TMarkPictureListSimple = class(TConfigDataElementBaseEmptySaveLoad, IMarkPictureList)
+  TMarkPictureListSimple = class(TBaseInterfacedObject, IMarkPictureList, IMarkPictureListInternal)
   private
     FHashFunction: IHashFunction;
+    FCS: IReadWriteSync;
     FBaseList: TStringList;
     FRuntimeList: TStringList;
     FRuntimeFailList: TStringList;
@@ -43,8 +45,8 @@ type
     FContentTypeManager: IContentTypeManager;
     procedure Clear;
     function GetLoaderByExt(const AExt: string): IBitmapTileLoader;
-    function GetFromRuntimeList(AIndex: Integer): IMarkPicture;
-    function TryAddToRuntimeList(const AValue: string): Integer;
+    function _GetFromRuntimeList(AIndex: Integer): IMarkPicture;
+    function _TryAddToRuntimeList(const AValue: string): Integer;
   private
     { IMarkPictureList }
     procedure LoadList;
@@ -70,11 +72,11 @@ type
 implementation
 
 uses
-  SysUtils,
   StrUtils,
   t_Hash,
   c_InternalBrowser,
   i_ContentTypeInfo,
+  u_Synchronizer,
   u_MarkPictureSimple;
 
 procedure GetFilesList(
@@ -134,6 +136,7 @@ begin
   FMediaDataPath := AMediaDataPath;
   FContentTypeManager := AContentTypeManager;
 
+  FCS := GSync.SyncStd.Make(Self.ClassName);
   FBaseList := TStringList.Create;
   FRuntimeList := TStringList.Create;
   FRuntimeFailList := TStringList.Create;
@@ -251,16 +254,16 @@ begin
   Result := nil;
   VTryLoadPictureInRuntime := False;
 
-  LockRead;
-  try
-    if AValue <> '' then begin
-      VIndex := FBaseList.IndexOf(AValue);
-      if VIndex >= 0 then begin
-        Result := Get(VIndex);
-      end else begin
+  if AValue <> '' then begin
+    VIndex := FBaseList.IndexOf(AValue);
+    if VIndex >= 0 then begin
+      Result := IMarkPicture(Pointer(FBaseList.Objects[VIndex]));
+    end else begin
+      FCS.BeginRead;
+      try
         VIndex := FRuntimeList.IndexOf(AValue);
         if VIndex >= 0 then begin
-          Result := GetFromRuntimeList(VIndex);
+          Result := _GetFromRuntimeList(VIndex);
         end else begin
           VIndex := FRuntimeFailList.IndexOf(AValue);
           if VIndex >= 0 then begin
@@ -269,112 +272,107 @@ begin
             VTryLoadPictureInRuntime := True;
           end;
         end;
+      finally
+        FCS.EndRead;
       end;
-    end else begin
-      Result := GetDefaultPicture;
     end;
-  finally
-    UnlockRead;
+  end else begin
+    Result := GetDefaultPicture;
   end;
 
   if VTryLoadPictureInRuntime then begin
-    VIndex := TryAddToRuntimeList(AValue);
-    if VIndex >= 0 then begin
-      Result := GetFromRuntimeList(VIndex);
-    end else begin
-      Result := GetDefaultPicture;
+    FCS.BeginWrite;
+    try
+      VIndex := _TryAddToRuntimeList(AValue);
+      if VIndex >= 0 then begin
+        Result := _GetFromRuntimeList(VIndex);
+      end else begin
+        Result := GetDefaultPicture;
+      end;
+    finally
+      FCS.EndWrite;
     end;
   end;
 end;
 
 function TMarkPictureListSimple.Get(AIndex: Integer): IMarkPicture;
 begin
-  LockRead;
-  try
-    if AIndex < FBaseList.Count then begin
-      Result := IMarkPicture(Pointer(FBaseList.Objects[AIndex]));
-    end else begin
-      Dec(AIndex, FBaseList.Count);
+  if AIndex < FBaseList.Count then begin
+    Result := IMarkPicture(Pointer(FBaseList.Objects[AIndex]));
+  end else begin
+    Dec(AIndex, FBaseList.Count);
+    FCS.BeginRead;
+    try
       Assert(AIndex < FRuntimeList.Count);
-      Result := GetFromRuntimeList(AIndex);
+      Result := _GetFromRuntimeList(AIndex);
+    finally
+      FCS.EndRead;
     end;
-  finally
-    UnlockRead;
   end;
 end;
 
 function TMarkPictureListSimple.GetCount: Integer;
 begin
-  LockRead;
-  try
-    Result := FBaseList.Count;
-  finally
-    UnlockRead;
-  end;
+  Result := FBaseList.Count;
 end;
 
 function TMarkPictureListSimple.GetDefaultPicture: IMarkPicture;
 begin
   Result := nil;
-  LockRead;
-  try
-    if GetCount > 0 then begin
-      Result := Get(0);
-    end;
-  finally
-    UnlockRead;
+  if FBaseList.Count > 0 then begin
+    Result := IMarkPicture(Pointer(FBaseList.Objects[0]));
   end;
 end;
 
 function TMarkPictureListSimple.GetIndexByName(const AValue: string): Integer;
 begin
-  LockRead;
-  try
-    Result := FBaseList.IndexOf(AValue);
-    if Result < 0 then begin
+  Result := FBaseList.IndexOf(AValue);
+  if Result < 0 then begin
+    FCS.BeginRead;
+    try
       Result := FRuntimeList.IndexOf(AValue);
-      if Result >= 0 then begin
-        Inc(Result, FBaseList.Count);
-      end;
+    finally
+      FCS.EndRead;
     end;
-  finally
-    UnlockRead;
+    if Result >= 0 then begin
+      Inc(Result, FBaseList.Count);
+    end;
   end;
   if Result < 0 then begin
-    Result := TryAddToRuntimeList(AValue);
+    FCS.BeginWrite;
+    try
+      Result := _TryAddToRuntimeList(AValue);
+    finally
+      FCS.EndWrite;
+    end;
     if Result >= 0 then begin
-      Inc(Result, GetCount);
+      Inc(Result, FBaseList.Count);
     end;
   end;
 end;
 
 function TMarkPictureListSimple.GetName(AIndex: Integer): string;
 begin
-  LockRead;
-  try
-    if AIndex < FBaseList.Count then begin
-      Result := FBaseList.Strings[AIndex];
-    end else begin
-      Dec(AIndex, FBaseList.Count);
+  if AIndex < FBaseList.Count then begin
+    Result := FBaseList.Strings[AIndex];
+  end else begin
+    Dec(AIndex, FBaseList.Count);
+    FCS.BeginRead;
+    try
       Assert(AIndex < FRuntimeList.Count);
       Result := FRuntimeList.Strings[AIndex];
+    finally
+      FCS.EndRead;
     end;
-  finally
-    UnlockRead;
   end;
 end;
 
-function TMarkPictureListSimple.GetFromRuntimeList(AIndex: Integer): IMarkPicture;
+function TMarkPictureListSimple._GetFromRuntimeList(AIndex: Integer): IMarkPicture;
 begin
-  LockRead;
-  try
-    Result := IMarkPicture(Pointer(FRuntimeList.Objects[AIndex]));
-  finally
-    UnlockRead;
-  end;
+  Result := IMarkPicture(Pointer(FRuntimeList.Objects[AIndex]));
 end;
 
-function TMarkPictureListSimple.TryAddToRuntimeList(const AValue: string): Integer;
+function TMarkPictureListSimple._TryAddToRuntimeList(const AValue: string): Integer;
 var
   VLoader: IBitmapTileLoader;
   VPicture: IMarkPicture;
@@ -384,61 +382,56 @@ var
 begin
   Result := -1;
 
-  LockWrite;
-  try
-    if FRuntimeFailList.IndexOf(AValue) >= 0 then begin
-      Exit;
-    end;
+  if FRuntimeFailList.IndexOf(AValue) >= 0 then begin
+    Exit;
+  end;
 
-    if StartsText(CMediaDataInternalURL, AValue) then begin
-      VFullName := StringReplace(
-        AValue,
-        CMediaDataInternalURL,
-        IncludeTrailingPathDelimiter(FMediaDataPath.FullPath),
-        [rfIgnoreCase]
-      );
-      if not FileExists(VFullName) then begin
-        VFullName := '';
-      end;
-      VShortName := AValue;
-    end else if FileExists(AValue) then begin
-      VFullName := AValue;
-      VShortName := VFullName;
-    end else begin
+  if StartsText(CMediaDataInternalURL, AValue) then begin
+    VFullName := StringReplace(
+      AValue,
+      CMediaDataInternalURL,
+      IncludeTrailingPathDelimiter(FMediaDataPath.FullPath),
+      [rfIgnoreCase]
+    );
+    if not FileExists(VFullName) then begin
       VFullName := '';
     end;
+    VShortName := AValue;
+  end else if FileExists(AValue) then begin
+    VFullName := AValue;
+    VShortName := VFullName;
+  end else begin
+    VFullName := '';
+  end;
 
-    if VFullName <> '' then begin
-      try
-        VLoader := GetLoaderByExt(ExtractFileExt(VFullName));
+  if VFullName <> '' then begin
+    try
+      VLoader := GetLoaderByExt(ExtractFileExt(VFullName));
 
-        if not Assigned(VLoader) then begin
-          FRuntimeFailList.Add(AValue);
-          Assert(False, 'GetLoaderByExt failed for file: ' + VFullName);
-          Exit;
-        end;
-
-        VHash := FHashFunction.CalcHashByString(VFullName);
-        VPicture := TMarkPictureSimple.Create(
-          VHash,
-          VFullName,
-          VShortName,
-          VLoader,
-          paCenter // ToDO: Add config for PicAnchor
-        );
-        VPicture._AddRef;
-        Result := FRuntimeList.AddObject(VShortName, TObject(Pointer(VPicture)));
-      except
-        on E: Exception do begin
-          FRuntimeFailList.Add(AValue);
-          Assert(False, E.ClassName + ': ' + E.Message);
-        end;
+      if not Assigned(VLoader) then begin
+        FRuntimeFailList.Add(AValue);
+        Assert(False, 'GetLoaderByExt failed for file: ' + VFullName);
+        Exit;
       end;
-    end else begin
-      FRuntimeFailList.Add(AValue);
+
+      VHash := FHashFunction.CalcHashByString(VFullName);
+      VPicture := TMarkPictureSimple.Create(
+        VHash,
+        VFullName,
+        VShortName,
+        VLoader,
+        paCenter // ToDO: Add config for PicAnchor
+      );
+      VPicture._AddRef;
+      Result := FRuntimeList.AddObject(VShortName, TObject(Pointer(VPicture)));
+    except
+      on E: Exception do begin
+        FRuntimeFailList.Add(AValue);
+        Assert(False, E.ClassName + ': ' + E.Message);
+      end;
     end;
-  finally
-    UnlockWrite;
+  end else begin
+    FRuntimeFailList.Add(AValue);
   end;
 end;
 

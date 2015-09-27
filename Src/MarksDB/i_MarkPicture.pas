@@ -47,8 +47,6 @@ type
 
   IMarkPictureList = interface
     ['{C080A087-C571-4654-8B3E-63D6E6A5542F}']
-    procedure LoadList;
-
     function GetCount: Integer;
     property Count: Integer read GetCount;
 
@@ -58,6 +56,11 @@ type
 
     function GetDefaultPicture: IMarkPicture;
     function FindByNameOrDefault(const AValue: string): IMarkPicture;
+  end;
+
+  IMarkPictureListInternal = interface(IMarkPictureList)
+    ['{97E01615-372D-4FCD-A7D8-99272D820D15}']
+    procedure LoadList;
   end;
 
 implementation

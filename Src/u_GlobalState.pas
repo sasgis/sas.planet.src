@@ -147,6 +147,7 @@ type
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FGeoCoderList: IGeoCoderListStatic;
     FMarkPictureList: IMarkPictureList;
+    FMarkPictureListInternal: IMarkPictureListInternal;
     FGpsSystem: IGPSModule;
     FImporterList: IVectorItemTreeImporterListChangeable;
     FExporterList: IVectorItemTreeExporterListChangeable;
@@ -663,13 +664,14 @@ begin
       FVectorGeometryLonLatFactory,
       FHashFunction
     );
-  FMarkPictureList :=
+  FMarkPictureListInternal :=
     TMarkPictureListSimple.Create(
       FHashFunction,
       FGlobalConfig.MarksIconsPath,
       FGlobalConfig.MediaDataPath,
       FContentTypeManager
     );
+  FMarkPictureList := FMarkPictureListInternal;
   FMarkCategoryFactory :=
     TMarkCategoryFactory.Create(
       FGlobalConfig.MarksCategoryFactoryConfig
@@ -1073,7 +1075,7 @@ begin
   FGpsTrackRecorderInternal.Load;
 
   if (not ModuleIsLib) then begin
-    FMarkPictureList.LoadList;
+    FMarkPictureListInternal.LoadList;
   end;
 end;
 
