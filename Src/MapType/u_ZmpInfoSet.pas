@@ -29,7 +29,6 @@ uses
   i_ProjectionSetFactory,
   i_ArchiveReadWriteFactory,
   i_LanguageManager,
-  i_MapVersionFactory,
   i_Bitmap32BufferFactory,
   i_ContentTypeManager,
   i_FileNameIterator,

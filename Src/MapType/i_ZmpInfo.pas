@@ -34,7 +34,6 @@ uses
   i_MapAbilitiesConfig,
   i_BinaryDataListStatic,
   i_StringByLanguage,
-  i_MapVersionInfo,
   i_TileDownloadRequestBuilderConfig;
 
 type

@@ -26,7 +26,6 @@ uses
   i_Datum,
   i_DatumFactory,
   i_HashFunction,
-  i_ProjectionSetFactory,
   u_BaseInterfacedObject;
 
 type

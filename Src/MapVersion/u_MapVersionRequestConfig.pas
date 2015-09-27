@@ -25,10 +25,6 @@ interface
 uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_Listener,
-  i_MapVersionInfo,
-  i_MapVersionFactory,
-  i_MapVersionRequest,
   i_MapVersionRequestConfig,
   u_ConfigDataElementBase;
 
@@ -61,8 +57,6 @@ type
 implementation
 
 uses
-  u_ListenerByEvent,
-  u_MapVersionRequest,
   u_BaseInterfacedObject;
 
 type

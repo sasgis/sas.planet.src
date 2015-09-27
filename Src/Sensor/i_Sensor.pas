@@ -25,8 +25,7 @@ interface
 uses
   t_GeoTypes,
   i_GPS,
-  i_Changeable,
-  i_ConfigDataElement;
+  i_Changeable;
 
 type
   ISensor = interface(IChangeable)

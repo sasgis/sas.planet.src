@@ -29,8 +29,6 @@ uses
   i_ProjectionSet,
   i_ConfigDataProvider,
   i_LanguageListStatic,
-  i_MapVersionInfo,
-  i_MapVersionFactory,
   i_BinaryDataListStatic,
   i_Bitmap32BufferFactory,
   i_ContentTypeSubst,

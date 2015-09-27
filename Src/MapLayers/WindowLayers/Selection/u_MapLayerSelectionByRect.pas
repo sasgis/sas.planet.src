@@ -29,7 +29,6 @@ uses
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
-  i_ProjectionSetChangeable,
   i_InternalPerformanceCounter,
   i_SelectionRect,
   i_SelectionRectLayerConfig,
@@ -71,7 +70,6 @@ uses
   SysUtils,
   Types,
   Math,
-  i_ProjectionSet,
   i_Projection,
   u_ListenerByEvent,
   u_GeoFunc;

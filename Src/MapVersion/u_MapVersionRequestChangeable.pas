@@ -23,8 +23,6 @@ unit u_MapVersionRequestChangeable;
 interface
 
 uses
-  i_ConfigDataProvider,
-  i_ConfigDataWriteProvider,
   i_Listener,
   i_MapVersionInfo,
   i_MapVersionFactory,
