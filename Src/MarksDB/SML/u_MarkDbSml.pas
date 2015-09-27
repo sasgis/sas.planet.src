@@ -1479,7 +1479,7 @@ begin
     try
       try
         if FStateInternal.WriteAccess = asEnabled then begin
-          LockRead;
+          LockWrite;
           try
             if FStream <> nil then begin
               FStream.Size := 0;
@@ -1494,7 +1494,7 @@ begin
               FNeedSaveFlag.SetFlag;
             end;
           finally
-            UnlockRead;
+            UnlockWrite;
           end;
         end else begin
           FNeedSaveFlag.SetFlag;

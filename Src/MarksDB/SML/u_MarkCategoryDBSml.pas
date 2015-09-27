@@ -296,10 +296,10 @@ begin
   LockWrite;
   try
     Result := _UpdateCategory(AOldCategory, ANewCategory);
-    Save;
   finally
     UnlockWrite;
   end;
+  Save;
 end;
 
 function TMarkCategoryDBSml.UpdateCategoryList(
@@ -438,13 +438,8 @@ var
 begin
   Assert(Assigned(ACategory));
   Result := False;
-  LockWrite;
-  try
-    if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
-      Result := VCategoryInternal.DbId = FDbId;
-    end;
-  finally
-    UnlockWrite;
+  if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
+    Result := VCategoryInternal.DbId = FDbId;
   end;
 end;
 
@@ -578,7 +573,7 @@ begin
   if FNeedSaveFlag.CheckFlagAndReset then begin
     try
       if FStateInternal.WriteAccess = asEnabled then begin
-        LockRead;
+        LockWrite;
         try
           if FStream <> nil then begin
             FStream.Size := 0;
@@ -593,7 +588,7 @@ begin
             FNeedSaveFlag.SetFlag;
           end;
         finally
-          UnlockRead;
+          UnlockWrite;
         end;
       end else begin
         FNeedSaveFlag.SetFlag;
