@@ -41,7 +41,7 @@ type
 
     procedure OnConfigChange;
   protected
-    function CreateStatic: IInterface; override;
+    function CreateStatic: IBitmapTileUniProvider; override;
   public
     constructor Create(
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
@@ -102,7 +102,7 @@ begin
   );
 end;
 
-function TBitmapLayerProviderChangeableForGrids.CreateStatic: IInterface;
+function TBitmapLayerProviderChangeableForGrids.CreateStatic: IBitmapTileUniProvider;
 var
   VVisible: Boolean;
   VColor: TColor32;

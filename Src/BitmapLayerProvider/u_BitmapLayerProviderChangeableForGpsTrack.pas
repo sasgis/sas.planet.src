@@ -47,7 +47,7 @@ type
     procedure OnGPSRecorderChange;
     procedure OnTimer;
   protected
-    function CreateStatic: IInterface; override;
+    function CreateStatic: IBitmapTileUniProvider; override;
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
@@ -103,7 +103,7 @@ begin
   );
 end;
 
-function TBitmapLayerProviderChangeableForGpsTrack.CreateStatic: IInterface;
+function TBitmapLayerProviderChangeableForGpsTrack.CreateStatic: IBitmapTileUniProvider;
 var
   VResult: IBitmapTileUniProvider;
   VTrackColorer: ITrackColorerStatic;

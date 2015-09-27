@@ -54,7 +54,7 @@ type
     procedure OnConfigChange;
     procedure OnMapVersionChange;
   protected
-    function CreateStatic: IInterface; override;
+    function CreateStatic: IBitmapTileUniProvider; override;
   public
     constructor Create(
       const AMainMap: IMapTypeChangeable;
@@ -117,7 +117,7 @@ begin
 
 end;
 
-function TBitmapLayerProviderChangeableForMainLayer.CreateStatic: IInterface;
+function TBitmapLayerProviderChangeableForMainLayer.CreateStatic: IBitmapTileUniProvider;
 var
   i: Integer;
   VMap: IMapType;

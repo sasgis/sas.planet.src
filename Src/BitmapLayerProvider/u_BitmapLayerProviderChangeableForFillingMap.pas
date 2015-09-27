@@ -45,7 +45,7 @@ type
     procedure OnMapVersionChange;
     procedure OnConfigChange;
   protected
-    function CreateStatic: IInterface; override;
+    function CreateStatic: IBitmapTileUniProvider; override;
   public
     constructor Create(
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
@@ -115,7 +115,7 @@ begin
   inherited;
 end;
 
-function TBitmapLayerProviderChangeableForFillingMap.CreateStatic: IInterface;
+function TBitmapLayerProviderChangeableForFillingMap.CreateStatic: IBitmapTileUniProvider;
 var
   VConfig: IFillingMapLayerConfigStatic;
   VResult: IBitmapTileUniProvider;

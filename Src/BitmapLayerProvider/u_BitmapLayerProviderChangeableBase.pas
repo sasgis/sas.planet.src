@@ -23,20 +23,32 @@ unit u_BitmapLayerProviderChangeableBase;
 interface
 
 uses
+  SysUtils,
+  i_SimpleFlag,
   i_BitmapLayerProvider,
   i_BitmapLayerProviderChangeable,
   i_ListenerNotifierLinksList,
-  u_ConfigDataElementBase;
+  u_ChangeableBase;
 
 type
-  TBitmapLayerProviderChangeableBase = class(TConfigDataElementWithStaticBaseEmptySaveLoad, IBitmapLayerProviderChangeable)
+  TBitmapLayerProviderChangeableBase = class(TChangeableBase, IBitmapLayerProviderChangeable)
   private
+    FLock: IReadWriteSync;
+    FChangedFlag: ISimpleFlag;
     FLinksList: IListenerNotifierLinksList;
+    FStatic: IBitmapTileUniProvider;
+    FLockCounter: Integer;
   private
     function GetStatic: IBitmapTileUniProvider;
 
   protected
     property LinksList: IListenerNotifierLinksList read FLinksList;
+    procedure SetChanged;
+    procedure LockRead;
+    procedure LockWrite;
+    procedure UnlockRead;
+    procedure UnlockWrite;
+    function CreateStatic: IBitmapTileUniProvider; virtual; abstract;
   public
     procedure AfterConstruction; override;
     procedure BeforeDestruction; override;
@@ -47,20 +59,26 @@ type
 implementation
 
 uses
-  u_ListenerNotifierLinksList;
+  u_SimpleFlagWithInterlock,
+  u_ListenerNotifierLinksList,
+  u_Synchronizer;
 
 { TBitmapLayerProviderChangeableBase }
 
 constructor TBitmapLayerProviderChangeableBase.Create;
 begin
-  inherited Create;
+  inherited Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifiers'));
+  FLock := GSync.SyncVariable.Make(Self.ClassName);
+  FChangedFlag := TSimpleFlagWithInterlock.Create;
 
   FLinksList := TListenerNotifierLinksList.Create;
+  FLockCounter := 0;
 end;
 
 procedure TBitmapLayerProviderChangeableBase.AfterConstruction;
 begin
   inherited;
+  FStatic := CreateStatic;
   FLinksList.ActivateLinks;
 end;
 
@@ -72,7 +90,48 @@ end;
 
 function TBitmapLayerProviderChangeableBase.GetStatic: IBitmapTileUniProvider;
 begin
-  Result := IBitmapTileUniProvider(GetStaticInternal);
+  FLock.BeginRead;
+  try
+    Result := FStatic;
+  finally
+    FLock.EndRead;
+  end;
+end;
+
+procedure TBitmapLayerProviderChangeableBase.LockRead;
+begin
+  FLock.BeginRead;
+end;
+
+procedure TBitmapLayerProviderChangeableBase.LockWrite;
+begin
+  FLock.BeginRead;
+  Inc(FLockCounter);
+end;
+
+procedure TBitmapLayerProviderChangeableBase.SetChanged;
+begin
+  FChangedFlag.SetFlag;
+end;
+
+procedure TBitmapLayerProviderChangeableBase.UnlockRead;
+begin
+  FLock.EndRead;
+end;
+
+procedure TBitmapLayerProviderChangeableBase.UnlockWrite;
+var
+  VNeedNotify: Boolean;
+begin
+  Dec(FLockCounter);
+  VNeedNotify := FChangedFlag.CheckFlagAndReset;
+  if VNeedNotify then begin
+    FStatic := CreateStatic;
+  end;
+  FLock.EndWrite;
+  if VNeedNotify then begin
+    DoChangeNotify;
+  end;
 end;
 
 end.
