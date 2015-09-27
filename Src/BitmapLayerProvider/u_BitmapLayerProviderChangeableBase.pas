@@ -68,7 +68,7 @@ uses
 constructor TBitmapLayerProviderChangeableBase.Create;
 begin
   inherited Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifiers'));
-  FLock := GSync.SyncVariable.Make(Self.ClassName);
+  FLock := GSync.SyncVariableRecursive.Make(Self.ClassName);
   FChangedFlag := TSimpleFlagWithInterlock.Create;
 
   FLinksList := TListenerNotifierLinksList.Create;
@@ -124,10 +124,15 @@ var
   VNeedNotify: Boolean;
 begin
   Dec(FLockCounter);
-  VNeedNotify := FChangedFlag.CheckFlagAndReset;
-  if VNeedNotify then begin
-    FStatic := CreateStatic;
+
+  VNeedNotify := False;
+  if FLockCounter = 0 then begin
+    VNeedNotify := FChangedFlag.CheckFlagAndReset;
+    if VNeedNotify then begin
+      FStatic := CreateStatic;
+    end;
   end;
+  Assert(FLockCounter >= 0);
   FLock.EndWrite;
   if VNeedNotify then begin
     DoChangeNotify;
