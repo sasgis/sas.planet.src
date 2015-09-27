@@ -728,6 +728,7 @@
     <DCCReference Include="Src\MapVersion\i_MapVersionRequest.pas" />
     <DCCReference Include="Src\MapVersion\i_MapVersionRequestChangeable.pas" />
     <DCCReference Include="Src\MapVersion\i_MapVersionRequestConfig.pas" />
+    <DCCReference Include="Src\MapVersion\u_MapVersionChangeable.pas" />
     <DCCReference Include="Src\MapVersion\u_MapVersionConfig.pas" />
     <DCCReference Include="Src\MapVersion\u_MapVersionFactoryChangeable.pas" />
     <DCCReference Include="Src\MapVersion\u_MapVersionFactoryGE.pas" />

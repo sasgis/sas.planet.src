@@ -621,6 +621,7 @@ uses
   i_MapVersionRequest in 'Src\MapVersion\i_MapVersionRequest.pas',
   i_MapVersionRequestChangeable in 'Src\MapVersion\i_MapVersionRequestChangeable.pas',
   i_MapVersionRequestConfig in 'Src\MapVersion\i_MapVersionRequestConfig.pas',
+  u_MapVersionChangeable in 'Src\MapVersion\u_MapVersionChangeable.pas',
   u_MapVersionConfig in 'Src\MapVersion\u_MapVersionConfig.pas',
   u_MapVersionFactoryChangeable in 'Src\MapVersion\u_MapVersionFactoryChangeable.pas',
   u_MapVersionFactoryGE in 'Src\MapVersion\u_MapVersionFactoryGE.pas',

@@ -23,19 +23,14 @@ unit i_MapVersionConfig;
 interface
 
 uses
-  i_MapVersionInfo,
-  i_MapVersionFactory,
   i_ConfigDataElement;
 
 type
   IMapVersionConfig = interface(IConfigDataElement)
     ['{0D710534-C49F-43BC-8092-A0F5ABB5E107}']
-    function GetVersionFactory: IMapVersionFactoryChangeable;
-    property VersionFactory: IMapVersionFactoryChangeable read GetVersionFactory;
-
-    function GetVersion: IMapVersionInfo;
-    procedure SetVersion(const AValue: IMapVersionInfo);
-    property Version: IMapVersionInfo read GetVersion write SetVersion;
+    function GetVersion: string;
+    procedure SetVersion(const AValue: string);
+    property Version: string read GetVersion write SetVersion;
   end;
 
 implementation
