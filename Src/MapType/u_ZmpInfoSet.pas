@@ -50,7 +50,6 @@ type
       const AProjectionSetFactory: IProjectionSetFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const AContentTypeManager: IContentTypeManager;
-      const AVersionFactory: IMapVersionFactory;
       const ABufferFactory: IBitmap32BufferFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
       const ALanguageManager: ILanguageManager;
@@ -77,7 +76,6 @@ constructor TZmpInfoSet.Create(
   const AProjectionSetFactory: IProjectionSetFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const AContentTypeManager: IContentTypeManager;
-  const AVersionFactory: IMapVersionFactory;
   const ABufferFactory: IBitmap32BufferFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
   const ALanguageManager: ILanguageManager;
@@ -111,7 +109,6 @@ begin
           ALanguageManager,
           AProjectionSetFactory,
           AContentTypeManager,
-          AVersionFactory,
           ABitmapFactory,
           VFileName,
           VZmpMapConfig,

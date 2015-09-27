@@ -129,7 +129,7 @@ begin
       VProjectedPolygon,
       VProjection,
       VMapType.TileStorage,
-      VMapType.VersionRequestConfig.GetStatic.BaseVersion,
+      VMapType.VersionRequest.GetStatic.BaseVersion,
       VPath
     );
   VThread.Resume;

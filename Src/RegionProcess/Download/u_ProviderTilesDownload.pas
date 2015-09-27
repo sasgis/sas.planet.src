@@ -283,18 +283,18 @@ begin
   VVersionString := VSessionSection.ReadString('VersionDownload', '');
   if VVersionString <> '' then begin
     VVersionForDownload :=
-      VMapType.VersionRequestConfig.VersionFactory.GetStatic.CreateByStoreString(
+      VMapType.VersionFactory.GetStatic.CreateByStoreString(
         VVersionString
       );
   end else begin
-    VVersionForDownload := VMapType.VersionRequestConfig.GetStatic.BaseVersion;
+    VVersionForDownload := VMapType.VersionRequest.GetStatic.BaseVersion;
   end;
   VVersionCheckShowPrev := VSessionSection.ReadBool('VersionCheckPrev', False);
   VVersionString := VSessionSection.ReadString('VersionCheck', '');
   if VVersionString <> '' then begin
     VVersionForCheck :=
       TMapVersionRequest.Create(
-        VMapType.VersionRequestConfig.VersionFactory.GetStatic.CreateByStoreString(VVersionString),
+        VMapType.VersionFactory.GetStatic.CreateByStoreString(VVersionString),
         VVersionCheckShowPrev
       );
   end else begin
@@ -425,8 +425,8 @@ begin
       VLogSimple,
       VLogProvider,
       VMapType.Zmp.GUID,
-      VMapType.VersionRequestConfig.GetStatic,
-      VMapType.VersionRequestConfig.GetStatic.BaseVersion,
+      VMapType.VersionRequest.GetStatic,
+      VMapType.VersionRequest.GetStatic.BaseVersion,
       VZoom,
       VZoomArr,
       APolygon,
@@ -465,8 +465,8 @@ begin
         VProgressInfo,
         FAppClosingNotifier,
         VMapType,
-        VMapType.VersionRequestConfig.GetStatic,
-        VMapType.VersionRequestConfig.GetStatic.BaseVersion,
+        VMapType.VersionRequest.GetStatic,
+        VMapType.VersionRequest.GetStatic.BaseVersion,
         APolygon,
         FVectorGeometryProjectedFactory,
         FDownloadConfig,

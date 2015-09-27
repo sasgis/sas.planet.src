@@ -122,7 +122,7 @@ type
     FLayerZOrder: Integer;
     FLicense: IStringByLanguage;
     FFileName: string;
-    FVersionConfig: IMapVersionInfo;
+    FVersion: string;
     FTileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfigStatic;
     FTileDownloaderConfig: ITileDownloaderConfigStatic;
     FTilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
@@ -142,7 +142,6 @@ type
   private
     procedure LoadConfig(
       const AProjectionSetFactory: IProjectionSetFactory;
-      const AVersionFactory: IMapVersionFactory;
       const ALanguageManager: ILanguageManager
     );
     procedure LoadCropConfig(const AConfig: IConfigDataProvider);
@@ -150,7 +149,6 @@ type
     procedure LoadStorageConfig(const AConfig: IConfigDataProvider);
     function LoadGUID(const AConfig: IConfigDataProvider): TGUID;
     procedure LoadVersion(
-      const AFactory: IMapVersionFactory;
       const AConfig: IConfigDataProvider
     );
     function GetBinaryListByConfig(const AConfig: IConfigDataProvider): IBinaryDataListStatic;
@@ -171,7 +169,7 @@ type
     function GetLayerZOrder: Integer;
     function GetLicense: IStringByLanguage;
     function GetFileName: string;
-    function GetVersionConfig: IMapVersionInfo;
+    function GetVersion: string;
     function GetTileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfigStatic;
     function GetTileDownloaderConfig: ITileDownloaderConfigStatic;
     function GetTilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
@@ -189,7 +187,6 @@ type
       const ALanguageManager: ILanguageManager;
       const AProjectionSetFactory: IProjectionSetFactory;
       const AContentTypeManager: IContentTypeManager;
-      const AVersionFactory: IMapVersionFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AFileName: string;
       const AConfig: IConfigDataProvider;
@@ -571,7 +568,6 @@ constructor TZmpInfo.Create(
   const ALanguageManager: ILanguageManager;
   const AProjectionSetFactory: IProjectionSetFactory;
   const AContentTypeManager: IContentTypeManager;
-  const AVersionFactory: IMapVersionFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AFileName: string;
   const AConfig: IConfigDataProvider;
@@ -590,7 +586,7 @@ begin
   if FConfigIniParams = nil then begin
     raise EZmpParamsNotFound.Create(_('Not found PARAMS section in zmp'));
   end;
-  LoadConfig(AProjectionSetFactory, AVersionFactory, ALanguageManager);
+  LoadConfig(AProjectionSetFactory, ALanguageManager);
   FGUI :=
     TZmpInfoGUI.Create(
       FGUID,
@@ -720,9 +716,9 @@ begin
   Result := FTileDownloadRequestBuilderConfig;
 end;
 
-function TZmpInfo.GetVersionConfig: IMapVersionInfo;
+function TZmpInfo.GetVersion: string;
 begin
-  Result := FVersionConfig;
+  Result := FVersion;
 end;
 
 procedure TZmpInfo.LoadAbilities(const AConfig: IConfigDataProvider);
@@ -742,13 +738,12 @@ end;
 
 procedure TZmpInfo.LoadConfig(
   const AProjectionSetFactory: IProjectionSetFactory;
-  const AVersionFactory: IMapVersionFactory;
   const ALanguageManager: ILanguageManager
 );
 begin
   FGUID := LoadGUID(FConfigIniParams);
   FIsLayer := FConfigIniParams.ReadBool('asLayer', False);
-  LoadVersion(AVersionFactory, FConfigIniParams);
+  LoadVersion(FConfigIniParams);
   LoadProjectionInfo(FConfigIni, AProjectionSetFactory);
   LoadTileRequestBuilderConfig(FConfigIniParams);
   LoadTileDownloaderConfig(FConfigIniParams);
@@ -954,14 +949,10 @@ begin
 end;
 
 procedure TZmpInfo.LoadVersion(
-  const AFactory: IMapVersionFactory;
   const AConfig: IConfigDataProvider
 );
-var
-  VVersion: String;
 begin
-  VVersion := AConfig.ReadString('Version', '');
-  FVersionConfig := AFactory.CreateByStoreString(VVersion);
+  FVersion := AConfig.ReadString('Version', '');
 end;
 
 end.

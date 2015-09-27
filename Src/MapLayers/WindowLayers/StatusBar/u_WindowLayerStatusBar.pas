@@ -427,7 +427,7 @@ begin
             prToTopLeft
           );
 
-        VTileName := VMapType.GetTileShowName(VTile, VProjection.Zoom, VMapType.VersionRequestConfig.GetStatic.BaseVersion);
+        VTileName := VMapType.GetTileShowName(VTile, VProjection.Zoom, VMapType.VersionRequest.GetStatic.BaseVersion);
         if Length(VTileName) > 0 then begin
           if VTileNameWidthAviable > 30 then begin
             VTileNameWidth := Layer.Bitmap.TextWidth(VTileName);

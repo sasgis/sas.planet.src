@@ -147,7 +147,7 @@ begin
   VTileStorage := nil;
   VMapVersion := nil;
   if Assigned(VMapType) then begin
-    VMapVersion := VMapType.VersionRequestConfig.GetStatic;
+    VMapVersion := VMapType.VersionRequest.GetStatic;
     VTileStorage := VMapType.TileStorage;
   end;
 

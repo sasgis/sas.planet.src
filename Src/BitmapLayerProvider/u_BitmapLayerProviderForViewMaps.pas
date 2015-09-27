@@ -136,7 +136,7 @@ begin
       AMapType.LoadTileUni(
         ATile,
         AProjection,
-        AMapType.VersionRequestConfig.GetStatic,
+        AMapType.VersionRequest.GetStatic,
         AUsePrevZoom,
         True,
         False,

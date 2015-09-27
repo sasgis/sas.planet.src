@@ -748,7 +748,6 @@ begin
       FProjectionSetFactory,
       FArchiveReadWriteFactory,
       FContentTypeManager,
-      FMapVersionFactoryList.GetSimpleVersionFactory,
       FBufferFactory,
       FBitmap32StaticFactory,
       FGlobalConfig.LanguageManager,

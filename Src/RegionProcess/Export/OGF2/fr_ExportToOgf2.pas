@@ -271,12 +271,12 @@ begin
   VMap := FfrMapSelect.GetSelectedMapType;
   VMapVersion := nil;
   if Assigned(VMap) then begin
-    VMapVersion := VMap.VersionRequestConfig.GetStatic;
+    VMapVersion := VMap.VersionRequest.GetStatic;
   end;
   VLayer := FfrHybSelect.GetSelectedMapType;
   VLayerVersion := nil;
   if Assigned(VLayer) then begin
-    VLayerVersion := VLayer.VersionRequestConfig.GetStatic;
+    VLayerVersion := VLayer.VersionRequest.GetStatic;
   end;
   VUsePrevZoom := chkUsePrevZoom.Checked;
 

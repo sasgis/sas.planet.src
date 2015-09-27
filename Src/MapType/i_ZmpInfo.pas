@@ -88,8 +88,8 @@ type
     function GetLayerZOrder: Integer;
     property LayerZOrder: Integer read GetLayerZOrder;
 
-    function GetVersionConfig: IMapVersionInfo;
-    property VersionConfig: IMapVersionInfo read GetVersionConfig;
+    function GetVersion: string;
+    property Version: string read GetVersion;
 
     function GetTileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfigStatic;
     property TileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfigStatic read GetTileDownloadRequestBuilderConfig;

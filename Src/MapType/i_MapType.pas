@@ -26,6 +26,7 @@ uses
   Types,
   i_Changeable,
   i_MapVersionInfo,
+  i_MapVersionFactory,
   i_MapVersionRequest,
   i_TileObjCache,
   i_Bitmap32Static,
@@ -34,6 +35,7 @@ uses
   i_ProjectionSet,
   i_ZmpInfo,
   i_MapVersionRequestConfig,
+  i_MapVersionRequestChangeable,
   i_ContentTypeInfo,
   i_MapAbilitiesConfig,
   i_SimpleTileStorageConfig,
@@ -104,8 +106,12 @@ type
     property ProjectionSet: IProjectionSet read GetProjectionSet;
     function GetViewProjectionSet: IProjectionSet;
     property ViewProjectionSet: IProjectionSet read GetViewProjectionSet;
+    function GetVersionFactory: IMapVersionFactoryChangeable;
+    property VersionFactory: IMapVersionFactoryChangeable read GetVersionFactory;
     function GetVersionRequestConfig: IMapVersionRequestConfig;
     property VersionRequestConfig: IMapVersionRequestConfig read GetVersionRequestConfig;
+    function GetVersionRequest: IMapVersionRequestChangeable;
+    property VersionRequest: IMapVersionRequestChangeable read GetVersionRequest;
     function GetContentType: IContentTypeInfoBasic;
     property ContentType: IContentTypeInfoBasic read GetContentType;
 

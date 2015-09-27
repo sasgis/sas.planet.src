@@ -136,7 +136,7 @@ begin
         FSourceMapLast.VersionRequestConfig.ChangeNotifier.Add(FVersionListener);
       end;
     end;
-    VVersionRequest := VMap.VersionRequestConfig.GetStatic;
+    VVersionRequest := VMap.VersionRequest.GetStatic;
     VColorer :=
       TFillingMapColorerSimple.Create(
         VConfig.NoTileColor,

@@ -150,7 +150,7 @@ begin
       APolygon,
       VMapType.ContentType as IContentTypeInfoBitmap,
       VMapType,
-      VMapType.VersionRequestConfig.GetStatic,
+      VMapType.VersionRequest.GetStatic,
       (ParamsFrame as IRegionProcessParamsFrameTilesGenPrev).IsReplace,
       (ParamsFrame as IRegionProcessParamsFrameTilesGenPrev).IsSaveFullOnly,
       (ParamsFrame as IRegionProcessParamsFrameTilesGenPrev).IsCreateAllFromFirstZoom,

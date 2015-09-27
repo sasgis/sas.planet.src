@@ -36,6 +36,7 @@ uses
   i_ContentTypeInfo,
   i_Listener,
   i_MapVersionInfo,
+  i_MapVersionFactory,
   i_MapVersionRequest,
   i_MapVersionListStatic,
   i_TileInfoBasic,
@@ -55,6 +56,7 @@ type
     FGlobalCacheConfig: IGlobalCacheConfig;
     FProjectionSet: IProjectionSet;
     FTileStorageTypeList: ITileStorageTypeListStatic;
+    FVersionFactory: IMapVersionFactoryChangeableInternal;
     FConfig: ISimpleTileStorageConfig;
     FContentTypeManager: IContentTypeManager;
     FCacheTileInfo: ITileInfoBasicMemCache;
@@ -156,6 +158,7 @@ type
       const AGlobalCacheConfig: IGlobalCacheConfig;
       const AProjectionSet: IProjectionSet;
       const ATileStorageTypeList: ITileStorageTypeListStatic;
+      const AVersionFactory: IMapVersionFactoryChangeableInternal;
       const AConfig: ISimpleTileStorageConfig;
       const ACacheTileInfo: ITileInfoBasicMemCache;
       const AContentTypeManager: IContentTypeManager;
@@ -183,6 +186,7 @@ constructor TTileStorageOfMapType.Create(
   const AGlobalCacheConfig: IGlobalCacheConfig;
   const AProjectionSet: IProjectionSet;
   const ATileStorageTypeList: ITileStorageTypeListStatic;
+  const AVersionFactory: IMapVersionFactoryChangeableInternal;
   const AConfig: ISimpleTileStorageConfig;
   const ACacheTileInfo: ITileInfoBasicMemCache;
   const AContentTypeManager: IContentTypeManager;
@@ -195,6 +199,7 @@ begin
   FGlobalCacheConfig := AGlobalCacheConfig;
   FProjectionSet := AProjectionSet;
   FTileStorageTypeList := ATileStorageTypeList;
+  FVersionFactory := AVersionFactory;
   FConfig := AConfig;
   FCacheTileInfo := ACacheTileInfo;
   FContentTypeManager := AContentTypeManager;
@@ -282,6 +287,7 @@ begin
             FCurrentPath,
             FCacheTileInfo
           );
+        FVersionFactory.SetFactory(VStroageType.StorageType.MapVersionFactory);
       end;
     end;
   except

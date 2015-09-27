@@ -131,7 +131,7 @@ begin
       VProjectedPolygon,
       VProjection,
       VMapType.TileStorage,
-      VMapType.VersionRequestConfig.GetStatic,
+      VMapType.VersionRequest.GetStatic,
       VPredicate
     );
   VThread.Resume;

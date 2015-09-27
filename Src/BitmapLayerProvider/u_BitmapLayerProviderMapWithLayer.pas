@@ -119,7 +119,7 @@ begin
   if Assigned(AMapTypeActiveMapsSet) then begin
     for J := 0 to AMapTypeActiveMapsSet.Count - 1 do begin
       FMapTypeArray[I].FMapType := AMapTypeActiveMapsSet.Items[J];
-      FMapTypeArray[I].FVersion := AMapTypeActiveMapsSet.Items[J].VersionRequestConfig.GetStatic;
+      FMapTypeArray[I].FVersion := AMapTypeActiveMapsSet.Items[J].VersionRequest.GetStatic;
       Inc(I);
     end;
   end;

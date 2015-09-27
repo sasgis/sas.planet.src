@@ -457,14 +457,14 @@ var
 begin
   VMap := FfrMapSelect.GetSelectedMapType;
   if Assigned(VMap) then begin
-    VMapVersion := VMap.VersionRequestConfig.GetStatic;
+    VMapVersion := VMap.VersionRequest.GetStatic;
   end else begin
     VMapVersion := nil;
   end;
 
   VLayer := FfrLayerSelect.GetSelectedMapType;
   if Assigned(VLayer) then begin
-    VLayerVersion := VLayer.VersionRequestConfig.GetStatic;
+    VLayerVersion := VLayer.VersionRequest.GetStatic;
   end else begin
     VLayerVersion := nil;
   end;

@@ -39,8 +39,10 @@ uses
   i_LanguageManager,
   i_Projection,
   i_ProjectionSet,
+  i_MapVersionFactory,
   i_MapVersionRequest,
   i_MapVersionRequestConfig,
+  i_MapVersionRequestChangeable,
   i_MapVersionFactoryList,
   i_TileDownloadRequestBuilderConfig,
   i_HashFunction,
@@ -89,7 +91,9 @@ type
     FViewProjectionSet: IProjectionSet;
     FLoadPrevMaxZoomDelta: Integer;
     FContentType: IContentTypeInfoBasic;
+    FVersionFactory: IMapVersionFactoryChangeable;
     FVersionRequestConfig: IMapVersionRequestConfig;
+    FVersionRequest: IMapVersionRequestChangeable;
     FTileDownloaderConfig: ITileDownloaderConfig;
     FTileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
     FResamplerLoad: IImageResamplerFactoryChangeable;
@@ -182,7 +186,9 @@ type
     function GetZmp: IZmpInfo;
     function GetProjectionSet: IProjectionSet;
     function GetViewProjectionSet: IProjectionSet;
+    function GetVersionFactory: IMapVersionFactoryChangeable;
     function GetVersionRequestConfig: IMapVersionRequestConfig;
+    function GetVersionRequest: IMapVersionRequestChangeable;
     function GetContentType: IContentTypeInfoBasic;
 
     function GetAbilities: IMapAbilitiesConfig;
@@ -233,7 +239,6 @@ uses
   GR32,
   c_InternalBrowser,
   i_TileInfoBasic,
-  i_MapVersionFactory,
   i_DownloadResultFactory,
   u_StringProviderForMapTileItem,
   u_LayerDrawConfig,
@@ -249,6 +254,7 @@ uses
   u_MapTypeGUIConfig,
   u_MapVersionFactoryChangeable,
   u_MapVersionRequestConfig,
+  u_MapVersionRequestChangeable,
   u_TileDownloadSubsystem,
   u_Bitmap32ByStaticBitmap,
   u_GeoFunc,
@@ -322,11 +328,17 @@ begin
     TMapVersionFactoryChangeable.Create(
       AMapVersionFactoryList.GetSimpleVersionFactory
     );
+  FVersionFactory := VVersionFactory;
   FVersionRequestConfig :=
     TMapVersionRequestConfig.Create(
-      FZmp.VersionConfig,
-      VVersionFactory
+      FZmp.Version
     );
+  FVersionRequest :=
+    TMapVersionRequestChangeable.Create(
+      FVersionRequestConfig,
+      FVersionFactory
+    );
+
   FVersionChangeListener := TNotifyNoMmgEventListener.Create(Self.OnVersionChange);
   FVersionRequestConfig.ChangeNotifier.Add(FVersionChangeListener);
 
@@ -362,6 +374,7 @@ begin
       AGlobalCacheConfig,
       FProjectionSet,
       ATileStorageTypeList,
+      VVersionFactory,
       FStorageConfig,
       FCacheTileInfo,
       AContentTypeManager,
@@ -576,6 +589,16 @@ end;
 function TMapType.GetTileStorage: ITileStorage;
 begin
   Result := FStorage;
+end;
+
+function TMapType.GetVersionFactory: IMapVersionFactoryChangeable;
+begin
+  Result := FVersionFactory;
+end;
+
+function TMapType.GetVersionRequest: IMapVersionRequestChangeable;
+begin
+  Result := FVersionRequest;
 end;
 
 function TMapType.GetVersionRequestConfig: IMapVersionRequestConfig;

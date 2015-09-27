@@ -492,7 +492,6 @@ begin
       FLanguageManager,
       FProjectionSetFactory,
       FContentTypeManager,
-      FVersionFactory,
       FBitmapFactory,
       VFileName,
       VZmpMapConfig,
@@ -515,7 +514,6 @@ begin
       FLanguageManager,
       FProjectionSetFactory,
       FContentTypeManager,
-      FVersionFactory,
       FBitmapFactory,
       AFileName,
       VZmpMapConfig,
@@ -561,7 +559,6 @@ begin
       FLanguageManager,
       FProjectionSetFactory,
       FContentTypeManager,
-      FVersionFactory,
       FBitmapFactory,
       'ram.zmp',
       VZmpMapConfig,
@@ -618,7 +615,7 @@ begin
     TTileRequest.Create(
       Point(SysUtils.StrToInt(edtGetX.Text), SysUtils.StrToInt(edtGetY.Text)),
       SysUtils.StrToInt(edtGetZ.Text) - 1,
-      FZmp.VersionConfig
+      FVersionFactory.CreateByStoreString(FZmp.Version)
     );
 
   VConverter := TCoordConverterSimpleByProjectionSet.Create(FZmp.ProjectionSet);

@@ -35,33 +35,26 @@ uses
 type
   TMapVersionRequestConfig = class(TConfigDataElementWithStaticBase, IMapVersionRequestConfig)
   private
-    FDefConfig: IMapVersionInfo;
+    FVersionDef: string;
+    FVersion: string;
     FShowPrevVersion: Boolean;
-    FVersionFactory: IMapVersionFactoryChangeable;
-    FVersion: IMapVersionInfo;
-    FFactoryListener: IListener;
-    procedure OnFactoryChange;
   protected
     function CreateStatic: IInterface; override;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
-    function GetVersionFactory: IMapVersionFactoryChangeable;
-
-    function GetVersion: IMapVersionInfo;
-    procedure SetVersion(const AValue: IMapVersionInfo);
+    function GetVersion: string;
+    procedure SetVersion(const AValue: string);
 
     function GetShowPrevVersion: Boolean;
     procedure SetShowPrevVersion(const AValue: Boolean);
 
-    function GetStatic: IMapVersionRequest;
+    function GetStatic: IMapVersionRequestConfigStatic;
   public
     constructor Create(
-      const ADefConfig: IMapVersionInfo;
-      const AMapVersionFactory: IMapVersionFactoryChangeable
+      const AVersion: string
     );
-    destructor Destroy; override;
   end;
 
 
@@ -69,52 +62,70 @@ implementation
 
 uses
   u_ListenerByEvent,
-  u_MapVersionRequest;
+  u_MapVersionRequest,
+  u_BaseInterfacedObject;
+
+type
+  TMapVersionRequestConfigStatic = class(TBaseInterfacedObject, IMapVersionRequestConfigStatic)
+  private
+    FVersion: string;
+    FShowPrevVersion: Boolean;
+  private
+    function GetVersion: string;
+    function GetShowPrevVersion: Boolean;
+  public
+    constructor Create(
+      const AVersion: string;
+      const AShowPrevVersion: Boolean
+    );
+  end;
+
+{ TMapVersionRequestConfigStatic }
+
+constructor TMapVersionRequestConfigStatic.Create(
+  const AVersion: string;
+  const AShowPrevVersion: Boolean
+);
+begin
+  inherited Create;
+  FVersion := AVersion;
+  FShowPrevVersion := AShowPrevVersion;
+end;
+
+function TMapVersionRequestConfigStatic.GetShowPrevVersion: Boolean;
+begin
+  Result := FShowPrevVersion;
+end;
+
+function TMapVersionRequestConfigStatic.GetVersion: string;
+begin
+  Result := FVersion;
+end;
 
 { TMapVersionRequestConfig }
 
 constructor TMapVersionRequestConfig.Create(
-  const ADefConfig: IMapVersionInfo;
-  const AMapVersionFactory: IMapVersionFactoryChangeable
+  const AVersion: string
 );
 begin
   inherited Create;
-  FDefConfig := ADefConfig;
+  FVersionDef := AVersion;
+  FVersion := AVersion;
   FShowPrevVersion := True;
-  FVersion := ADefConfig;
-  FVersionFactory := AMapVersionFactory;
-
-  FFactoryListener := TNotifyNoMmgEventListener.Create(Self.OnFactoryChange);
-  FVersionFactory.ChangeNotifier.Add(FFactoryListener);
-  OnFactoryChange;
 end;
 
 function TMapVersionRequestConfig.CreateStatic: IInterface;
 begin
-  Result := IMapVersionRequest(TMapVersionRequest.Create(FVersion, FShowPrevVersion));
-end;
-
-destructor TMapVersionRequestConfig.Destroy;
-begin
-  if Assigned(FVersionFactory) and Assigned(FFactoryListener) then begin
-    FVersionFactory.ChangeNotifier.Remove(FFactoryListener);
-    FVersionFactory := nil;
-    FFactoryListener := nil;
-  end;
-  inherited;
+  Result := IMapVersionRequestConfigStatic(TMapVersionRequestConfigStatic.Create(FVersion, FShowPrevVersion));
 end;
 
 procedure TMapVersionRequestConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
-var
-  VStoreString: string;
-  VShowPrevVersion: Boolean;
 begin
   inherited;
   if AConfigData <> nil then begin
-    VStoreString := AConfigData.ReadString('Version', FVersion.StoreString);
-    SetVersion(FVersionFactory.GetStatic.CreateByStoreString(VStoreString));
-    VShowPrevVersion := AConfigData.ReadBool('ShowPrevVersion', FShowPrevVersion);
-    SetShowPrevVersion(VShowPrevVersion);
+    FVersion := AConfigData.ReadString('Version', FVersion);
+    FShowPrevVersion := AConfigData.ReadBool('ShowPrevVersion', FShowPrevVersion);
+    SetChanged;
   end;
 end;
 
@@ -125,8 +136,8 @@ var
   VStoreString: string;
 begin
   inherited;
-  VStoreString := FVersion.StoreString;
-  if VStoreString <> FDefConfig.StoreString then begin
+  VStoreString := FVersion;
+  if VStoreString <> FVersionDef then begin
     AConfigData.WriteString('Version', VStoreString);
   end else begin
     AConfigData.DeleteValue('Version');
@@ -144,12 +155,12 @@ begin
   end;
 end;
 
-function TMapVersionRequestConfig.GetStatic: IMapVersionRequest;
+function TMapVersionRequestConfig.GetStatic: IMapVersionRequestConfigStatic;
 begin
-  Result := IMapVersionRequest(GetStaticInternal);
+  Result := IMapVersionRequestConfigStatic(GetStaticInternal);
 end;
 
-function TMapVersionRequestConfig.GetVersion: IMapVersionInfo;
+function TMapVersionRequestConfig.GetVersion: string;
 begin
   LockRead;
   try
@@ -157,21 +168,6 @@ begin
   finally
     UnlockRead;
   end;
-end;
-
-function TMapVersionRequestConfig.GetVersionFactory: IMapVersionFactoryChangeable;
-begin
-  LockRead;
-  try
-    Result := FVersionFactory;
-  finally
-    UnlockRead;
-  end;
-end;
-
-procedure TMapVersionRequestConfig.OnFactoryChange;
-begin
-
 end;
 
 procedure TMapVersionRequestConfig.SetShowPrevVersion(const AValue: Boolean);
@@ -187,15 +183,12 @@ begin
   end;
 end;
 
-procedure TMapVersionRequestConfig.SetVersion(const AValue: IMapVersionInfo);
-var
-  VValue: IMapVersionInfo;
+procedure TMapVersionRequestConfig.SetVersion(const AValue: string);
 begin
   LockWrite;
   try
-    VValue := FVersionFactory.GetStatic.CreateByMapVersion(AValue);
-    if not FVersion.IsSame(VValue) then begin
-      FVersion := VValue;
+    if FVersion <> AValue then begin
+      FVersion := AValue;
       SetChanged;
     end;
   finally

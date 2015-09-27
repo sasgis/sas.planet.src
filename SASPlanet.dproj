@@ -718,6 +718,7 @@
     <DCCReference Include="Src\MapType\u_ZmpFileNamesIteratorFactory.pas" />
     <DCCReference Include="Src\MapType\u_ZmpInfo.pas" />
     <DCCReference Include="Src\MapType\u_ZmpInfoSet.pas" />
+    <DCCReference Include="Src\MapVersion\i_MapVersionChangeable.pas" />
     <DCCReference Include="Src\MapVersion\i_MapVersionConfig.pas" />
     <DCCReference Include="Src\MapVersion\i_MapVersionFactory.pas" />
     <DCCReference Include="Src\MapVersion\i_MapVersionFactoryList.pas" />
@@ -725,6 +726,7 @@
     <DCCReference Include="Src\MapVersion\i_MapVersionInfoGE.pas" />
     <DCCReference Include="Src\MapVersion\i_MapVersionListStatic.pas" />
     <DCCReference Include="Src\MapVersion\i_MapVersionRequest.pas" />
+    <DCCReference Include="Src\MapVersion\i_MapVersionRequestChangeable.pas" />
     <DCCReference Include="Src\MapVersion\i_MapVersionRequestConfig.pas" />
     <DCCReference Include="Src\MapVersion\u_MapVersionConfig.pas" />
     <DCCReference Include="Src\MapVersion\u_MapVersionFactoryChangeable.pas" />
@@ -734,6 +736,7 @@
     <DCCReference Include="Src\MapVersion\u_MapVersionInfo.pas" />
     <DCCReference Include="Src\MapVersion\u_MapVersionListStatic.pas" />
     <DCCReference Include="Src\MapVersion\u_MapVersionRequest.pas" />
+    <DCCReference Include="Src\MapVersion\u_MapVersionRequestChangeable.pas" />
     <DCCReference Include="Src\MapVersion\u_MapVersionRequestConfig.pas" />
     <DCCReference Include="Src\Marker\i_BitmapMarker.pas" />
     <DCCReference Include="Src\Marker\i_MarkerDrawable.pas" />

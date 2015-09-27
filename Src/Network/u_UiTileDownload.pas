@@ -349,7 +349,7 @@ begin
   FTTLListener.UpdateUseTime;
 
   VStorage := FMapType.TileStorage;
-  VVersionInfo := FMapType.VersionRequestConfig.GetStatic;
+  VVersionInfo := FMapType.VersionRequest.GetStatic;
 
   VTileRect := FTileRect.GetStatic;
 

@@ -180,7 +180,7 @@ begin
       TBitmapLayerProviderMapWithLayer.Create(
         FBitmap32StaticFactory,
         FFrame.GetSat,
-        FFrame.GetSat.VersionRequestConfig.GetStatic,
+        FFrame.GetSat.VersionRequest.GetStatic,
         nil,
         nil,
         nil,
@@ -200,7 +200,7 @@ begin
       TBitmapLayerProviderMapWithLayer.Create(
         FBitmap32StaticFactory,
         FFrame.GetMap,
-        FFrame.GetMap.VersionRequestConfig.GetStatic,
+        FFrame.GetMap.VersionRequest.GetStatic,
         nil,
         nil,
         nil,
@@ -218,11 +218,11 @@ begin
     VTasks[VTaskIndex].FSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(comprHyb);
     VMapVersion := nil;
     if FFrame.GetSat <> nil then begin
-      VMapVersion := FFrame.GetSat.VersionRequestConfig.GetStatic;
+      VMapVersion := FFrame.GetSat.VersionRequest.GetStatic;
     end;
     VLayerVersion := nil;
     if FFrame.GetHyb <> nil then begin
-      VLayerVersion := FFrame.GetHyb.VersionRequestConfig.GetStatic;
+      VLayerVersion := FFrame.GetHyb.VersionRequest.GetStatic;
     end;
     VTasks[VTaskIndex].FImageProvider :=
       TBitmapLayerProviderMapWithLayer.Create(

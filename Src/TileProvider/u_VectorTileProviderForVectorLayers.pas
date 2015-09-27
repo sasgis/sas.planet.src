@@ -148,7 +148,7 @@ var
   VBounds: ILonLatRect;
 begin
   VSourceProjection := AAlayer.ProjectionSet.GetSuitableProjection(AProjection);
-  VVersion := AAlayer.VersionRequestConfig.GetStatic;
+  VVersion := AAlayer.VersionRequest.GetStatic;
   VTileSelectLonLatRect := ATileSelectLonLatRect;
   VSourceProjection.ProjectionType.ValidateLonLatRect(VTileSelectLonLatRect);
   VTileSourceRect :=

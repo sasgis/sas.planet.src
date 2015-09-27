@@ -197,7 +197,7 @@ var
     for i := 0 to VMaps.Count - 1 do begin
       VMapType := VMaps.Items[i];
       VTasks[i].FSource := VMapType.TileStorage;
-      VTasks[i].FSourceVersion := VMapType.VersionRequestConfig.GetStatic;
+      VTasks[i].FSourceVersion := VMapType.VersionRequest.GetStatic;
       if VPlaceInSubFolder then
         VTargetStoragePath := IncludeTrailingPathDelimiter(APath + VMapType.GetShortFolderName)
       else
@@ -215,7 +215,7 @@ var
           );
       end;
       if VSetTargetVersionEnabled then begin
-        VTasks[i].FTargetVersionForce := VMapType.VersionRequestConfig.VersionFactory.GetStatic.CreateByStoreString(VSetTargetVersionValue);
+        VTasks[i].FTargetVersionForce := VMapType.VersionFactory.GetStatic.CreateByStoreString(VSetTargetVersionValue);
       end else begin
         VTasks[i].FTargetVersionForce := nil;
       end;
@@ -269,7 +269,7 @@ var
     end;
 
     if VSetTargetVersionEnabled then
-      ATargetVersionForce := VMapType.VersionRequestConfig.VersionFactory.GetStatic.CreateByStoreString(VSetTargetVersionValue)
+      ATargetVersionForce := VMapType.VersionFactory.GetStatic.CreateByStoreString(VSetTargetVersionValue)
     else
       ATargetVersionForce := nil;
 

@@ -763,7 +763,7 @@ begin
     VMap := FfrMapSelect.GetSelectedMapType;
     if Assigned(VMap) then begin
       VTask.FTileStorage := VMap.TileStorage;
-      VTask.FMapVersion := VMap.VersionRequestConfig.GetStatic;
+      VTask.FMapVersion := VMap.VersionRequest.GetStatic;
       VTask.FScale := cbbscale.ItemIndex;
       VTask.FZoom := CbbZoom.ItemIndex;
       VTask.FRecompress := ChRecompress1.Checked;
@@ -780,7 +780,7 @@ begin
     VMap := FfrMap2Select.GetSelectedMapType;
     if Assigned(VMap) then begin
       VTask.FTileStorage := VMap.TileStorage;
-      VTask.FMapVersion := VMap.VersionRequestConfig.GetStatic;
+      VTask.FMapVersion := VMap.VersionRequest.GetStatic;
       VTask.FScale := cbbscale2.ItemIndex;
       VTask.FZoom := CbbZoom2.ItemIndex;
       VTask.FRecompress := ChRecompress2.Checked;
@@ -797,7 +797,7 @@ begin
     VMap := FfrMap3Select.GetSelectedMapType;
     if Assigned(VMap) then begin
       VTask.FTileStorage := VMap.TileStorage;
-      VTask.FMapVersion := VMap.VersionRequestConfig.GetStatic;
+      VTask.FMapVersion := VMap.VersionRequest.GetStatic;
       VTask.FScale := cbbscale3.ItemIndex;
       VTask.FZoom := CbbZoom3.ItemIndex;
       VTask.FRecompress := ChRecompress3.Checked;
@@ -814,7 +814,7 @@ begin
     VMap := FfrMap4Select.GetSelectedMapType;
     if Assigned(VMap) then begin
       VTask.FTileStorage := VMap.TileStorage;
-      VTask.FMapVersion := VMap.VersionRequestConfig.GetStatic;
+      VTask.FMapVersion := VMap.VersionRequest.GetStatic;
       VTask.FScale := cbbscale4.ItemIndex;
       VTask.FZoom := CbbZoom4.ItemIndex;
       VTask.FRecompress := ChRecompress4.Checked;
@@ -831,7 +831,7 @@ begin
     VMap := FfrMap5Select.GetSelectedMapType;
     if Assigned(VMap) then begin
       VTask.FTileStorage := VMap.TileStorage;
-      VTask.FMapVersion := VMap.VersionRequestConfig.GetStatic;
+      VTask.FMapVersion := VMap.VersionRequest.GetStatic;
       VTask.FScale := cbbscale5.ItemIndex;
       VTask.FZoom := CbbZoom5.ItemIndex;
       VTask.FRecompress := ChRecompress5.Checked;

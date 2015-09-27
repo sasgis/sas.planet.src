@@ -148,11 +148,11 @@ begin
     VTasks[VTaskIndex].FSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(comprSat);
     VMapVersion := nil;
     if FFrame.GetSat.GetSelectedMapType <> nil then begin
-      VMapVersion := FFrame.GetSat.GetSelectedMapType.VersionRequestConfig.GetStatic;
+      VMapVersion := FFrame.GetSat.GetSelectedMapType.VersionRequest.GetStatic;
     end;
     VLayerVersion := nil;
     if FFrame.GetHyb.GetSelectedMapType <> nil then begin
-      VLayerVersion := FFrame.GetHyb.GetSelectedMapType.VersionRequestConfig.GetStatic;
+      VLayerVersion := FFrame.GetHyb.GetSelectedMapType.VersionRequest.GetStatic;
     end;
     VTasks[VTaskIndex].FImageProvider :=
       TBitmapLayerProviderMapWithLayer.Create(
@@ -176,7 +176,7 @@ begin
       TBitmapLayerProviderMapWithLayer.Create(
         FBitmap32StaticFactory,
         FFrame.GetMap.GetSelectedMapType,
-        FFrame.GetMap.GetSelectedMapType.VersionRequestConfig.GetStatic,
+        FFrame.GetMap.GetSelectedMapType.VersionRequest.GetStatic,
         nil,
         nil,
         nil,

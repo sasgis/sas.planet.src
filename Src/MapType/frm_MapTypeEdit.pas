@@ -219,7 +219,7 @@ begin
   finally
     FMapType.StorageConfig.UnlockWrite;
   end;
-  FMapType.VersionRequestConfig.Version := FMapType.VersionRequestConfig.VersionFactory.GetStatic.CreateByStoreString(edtVersion.Text);
+  FMapType.VersionRequestConfig.Version := edtVersion.Text;
   FMapType.Abilities.UseDownload := chkDownloadEnabled.Checked;
 
   ModalResult := mrOk;
@@ -227,7 +227,7 @@ end;
 
 procedure TfrmMapTypeEdit.btnResetVersionClick(Sender: TObject);
 begin
-  edtVersion.Text := FMapType.Zmp.VersionConfig.StoreString;
+  edtVersion.Text := FMapType.Zmp.Version;
 end;
 
 procedure TfrmMapTypeEdit.BtnSelectPathClick(Sender: TObject);
@@ -264,7 +264,7 @@ begin
   EditParSubMenu.Text := FMapType.GUIConfig.ParentSubMenu.GetDefaultValue;
   chkBoxSeparator.Checked := FMapType.Zmp.GUI.Separator;
   CheckEnabled.Checked := FMapType.Zmp.GUI.Enabled;
-  edtVersion.Text := FMapType.Zmp.VersionConfig.StoreString;
+  edtVersion.Text := FMapType.Zmp.Version;
 end;
 
 procedure TfrmMapTypeEdit.btnResetUrlClick(Sender: TObject);
@@ -343,7 +343,7 @@ begin
   end;
   chkBoxSeparator.Checked := FMapType.GUIConfig.Separator;
   CheckEnabled.Checked := FMapType.GUIConfig.Enabled;
-  edtVersion.Text := FMapType.VersionRequestConfig.Version.StoreString;
+  edtVersion.Text := FMapType.VersionRequestConfig.Version;
   VDownloadState := FMapType.TileDownloadSubsystem.State.GetStatic;
 
   // download availability

@@ -18,34 +18,18 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_MapVersionRequestConfig;
+unit i_MapVersionChangeable;
 
 interface
 
 uses
-  i_ConfigDataElement;
+  i_MapVersionInfo,
+  i_Changeable;
 
 type
-  IMapVersionRequestConfigStatic = interface
-    ['{296D487B-53A6-4715-B024-88BFECC14C76}']
-    function GetVersion: string;
-    property Version: string read GetVersion;
-
-    function GetShowPrevVersion: Boolean;
-    property ShowPrevVersion: Boolean read GetShowPrevVersion;
-  end;
-
-  IMapVersionRequestConfig = interface(IConfigDataElement)
-    ['{0D710534-C49F-43BC-8092-A0F5ABB5E107}']
-    function GetVersion: string;
-    procedure SetVersion(const AValue: string);
-    property Version: string read GetVersion write SetVersion;
-
-    function GetShowPrevVersion: Boolean;
-    procedure SetShowPrevVersion(const AValue: Boolean);
-    property ShowPrevVersion: Boolean read GetShowPrevVersion write SetShowPrevVersion;
-
-    function GetStatic: IMapVersionRequestConfigStatic;
+  IMapVersionChangeable = interface(IChangeable)
+    ['{83EE6BD4-D568-4686-BC61-0BEF508BF199}']
+    function GetStatic: IMapVersionInfo;
   end;
 
 implementation

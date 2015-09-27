@@ -3907,6 +3907,7 @@ end;
 procedure TfrmMain.DoSelectSpecialVersion(Sender: TObject);
 var
   VVersion: IMapVersionInfo;
+  VVersionString: string;
   VMapType: IMapType;
 begin
   if (nil <> Sender) and (Sender is TTBXItemSelectMapVersion) then begin
@@ -3923,8 +3924,13 @@ begin
   // for current map
   VMapType := FMainMapState.ActiveMap.GetStatic;
 
+  if Assigned(VVersion) then begin
+    VVersionString := VVersion.StoreString;
+  end else begin
+    VVersionString := '';
+  end;
   // apply this version or clear (uncheck) version
-  VMapType.VersionRequestConfig.Version := VVersion;
+  VMapType.VersionRequestConfig.Version := VVersionString;
 end;
 
 procedure TfrmMain.FormShortCut(
@@ -4292,7 +4298,7 @@ begin
             VMapProjection.LonLat2TilePosFloat(VLonLat),
             prToTopLeft
           );
-        VVersion := VMapType.VersionRequestConfig.GetStatic;
+        VVersion := VMapType.VersionRequest.GetStatic;
         VTileInfo := VMapType.TileStorage.GetTileInfoEx(VMapTile, VMapProjection.Zoom, VVersion, gtimAsIs);
         if Assigned(VTileInfo) and VTileInfo.GetIsExists then begin
           VNextMapGuid := VGUID;
@@ -4334,7 +4340,7 @@ begin
       VList := VMapType.TileStorage.GetListOfTileVersions(VMapTile, VMapProjection.Zoom, nil);
       if Vlist <> nil then begin
         for I := 0 to VList.Count - 1 do begin
-          if VMapType.VersionRequestConfig.Version.IsSame(VList.Item[i]) then begin
+          if VMapType.VersionRequest.GetStatic.BaseVersion.IsSame(VList.Item[i]) then begin
             VIndex := i;
             Break;
           end;
@@ -4346,7 +4352,7 @@ begin
         if (VIndex < 0) then begin
           VIndex := VList.Count - 1;
         end;
-        VMapType.VersionRequestConfig.Version := VList.item[VIndex];
+        VMapType.VersionRequestConfig.Version := VList.Item[VIndex].StoreString;
       end;
     end;
   end;
@@ -4407,7 +4413,7 @@ begin
         prToTopLeft
       );
     // get current version
-    VVersion := VMapType.VersionRequestConfig.GetStatic;
+    VVersion := VMapType.VersionRequest.GetStatic;
     VCurrentVersion := VVersion.BaseVersion.StoreString;
     tbpmiShowPrevVersion.Checked := VVersion.ShowPrevVersion;
     VList := VMapType.TileStorage.GetListOfTileVersions(VMapTile, VMapProjection.Zoom, VVersion);
@@ -4754,7 +4760,7 @@ begin
       VProjection.PixelPosFloat2TilePosFloat(VMouseMapPoint),
       prToTopLeft
     );
-  VBitmapTile := VMapType.LoadTileUni(VTile, VProjection, VMapType.VersionRequestConfig.GetStatic, True, True, False);
+  VBitmapTile := VMapType.LoadTileUni(VTile, VProjection, VMapType.VersionRequest.GetStatic, True, True, False);
   if VBitmapTile <> nil then begin
     CopyBitmapToClipboard(Handle, VBitmapTile);
   end;
@@ -4823,7 +4829,7 @@ begin
       prToTopLeft
     );
 
-  CopyStringToClipboard(Handle, VMapType.TileStorage.GetTileFileName(VTile, VMapProjection.Zoom, VMapType.VersionRequestConfig.GetStatic.BaseVersion));
+  CopyStringToClipboard(Handle, VMapType.TileStorage.GetTileFileName(VTile, VMapProjection.Zoom, VMapType.VersionRequest.GetStatic.BaseVersion));
 end;
 
 procedure TfrmMain.tbitmDownloadMainMapTileClick(Sender: TObject);
@@ -4858,7 +4864,7 @@ begin
           prToTopLeft
         );
 
-      VVersion := VMapType.VersionRequestConfig.GetStatic.BaseVersion;
+      VVersion := VMapType.VersionRequest.GetStatic.BaseVersion;
       path := VMapType.GetTileShowName(VTile, VMapProjection.Zoom, VVersion);
       VTileInfo := VMapType.TileStorage.GetTileInfo(VTile, VMapProjection.Zoom, VVersion, gtimAsIs);
       if not VTileInfo.GetIsExists or
@@ -4941,7 +4947,7 @@ begin
         VMapProjection.LonLat2TilePosFloat(VMouseLonLat),
         prToTopLeft
       );
-    VFileName := VMapType.TileStorage.GetTileFileName(VTile, VMapProjection.Zoom, VMapType.VersionRequestConfig.GetStatic.BaseVersion);
+    VFileName := VMapType.TileStorage.GetTileFileName(VTile, VMapProjection.Zoom, VMapType.VersionRequest.GetStatic.BaseVersion);
     if FileExists(VFileName) then begin
       OpenFileInDefaultProgram(VFileName);
     end else begin
@@ -4982,7 +4988,7 @@ begin
       VMapProjection.LonLat2TilePosFloat(VMouseLonLat),
       prToTopLeft
     );
-  VTileFileName := VMapType.TileStorage.GetTileFileName(VTile, VMapProjection.Zoom, VMapType.VersionRequestConfig.GetStatic.BaseVersion);
+  VTileFileName := VMapType.TileStorage.GetTileFileName(VTile, VMapProjection.Zoom, VMapType.VersionRequest.GetStatic.BaseVersion);
   VTilePath := ExtractFilePath(VTileFileName);
   if DirectoryExists(VTilePath) then begin
     if FileExists(VTileFileName) then begin
@@ -5161,7 +5167,7 @@ begin
           VMapProjection.LonLat2TilePosFloat(VMouseLonLat),
           prToTopLeft
         );
-      VVersion := VMapType.VersionRequestConfig.GetStatic.BaseVersion;
+      VVersion := VMapType.VersionRequest.GetStatic.BaseVersion;
       s := VMapType.GetTileShowName(VTile, VMapProjection.Zoom, VVersion);
       VMessage := Format(SAS_MSG_DeleteTileOneTileAsk, [s]);
       if (MessageBox(handle, pchar(VMessage), pchar(SAS_MSG_coution), 36) = IDYES) then begin
@@ -5866,7 +5872,7 @@ begin
         VMapProjection.LonLat2TilePosFloat(VMouseLonLat),
         prToTopLeft
       );
-    CopyStringToClipboard(Handle, VMapType.TileDownloadSubsystem.GetLink(VTile, VMapProjection.Zoom, VMapType.VersionRequestConfig.GetStatic.BaseVersion));
+    CopyStringToClipboard(Handle, VMapType.TileDownloadSubsystem.GetLink(VTile, VMapProjection.Zoom, VMapType.VersionRequest.GetStatic.BaseVersion));
   end;
 end;
 
@@ -6279,7 +6285,7 @@ begin
             prToTopLeft
           );
         if HiWord(GetKeyState(VK_DELETE)) <> 0 then begin
-          VMapType.TileStorage.DeleteTile(VTile, VMapProjection.Zoom, VMapType.VersionRequestConfig.GetStatic.BaseVersion);
+          VMapType.TileStorage.DeleteTile(VTile, VMapProjection.Zoom, VMapType.VersionRequest.GetStatic.BaseVersion);
           Exit;
         end;
         if HiWord(GetKeyState(VK_INSERT)) <> 0 then begin
@@ -6289,7 +6295,7 @@ begin
             VTile,
             VMapProjection.Zoom,
             VMapType,
-            VMapType.VersionRequestConfig.GetStatic.BaseVersion,
+            VMapType.VersionRequest.GetStatic.BaseVersion,
             GState.DownloadInfo,
             GState.GlobalInternetState,
             FTileErrorLogger
@@ -6810,8 +6816,7 @@ begin
             if VInternalDomainOptions.DomainHtmlOptions(VBase, VDesc, VVersionStr, VFlags, c_IDO_RT_SelectVersionByDescription) then begin
               if (0 < Length(VVersionStr)) then begin
         // switch to given VVersionStr
-                VMapType.VersionRequestConfig.Version :=
-                  VMapType.VersionRequestConfig.VersionFactory.GetStatic.CreateByStoreString(VVersionStr);
+                VMapType.VersionRequestConfig.Version := VVersionStr;
               end;
             end;
           end;
@@ -7685,7 +7690,7 @@ begin
   NMapStorageInfo.Enabled := NMapStorageInfo.Visible;
 
   // allow to clear or select versions
-  tbpmiClearVersion.Visible := (0 < Length(VMapType.VersionRequestConfig.GetStatic.BaseVersion.StoreString));
+  tbpmiClearVersion.Visible := (0 < Length(VMapType.VersionRequest.GetStatic.BaseVersion.StoreString));
   // make and select version by placemark
   tbitmMakeVersionByMark.Visible := (VMark <> nil) and (VInternalDomainOptions <> nil);
   tbitmSelectVersionByMark.Visible := tbitmMakeVersionByMark.Visible;

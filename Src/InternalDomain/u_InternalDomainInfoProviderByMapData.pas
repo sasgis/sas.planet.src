@@ -128,7 +128,7 @@ begin
       VMapType.TileStorage.GetTileInfoEx(
         VTile,
         VZoom,
-        VMapType.VersionRequestConfig.GetStatic,
+        VMapType.VersionRequest.GetStatic,
         gtimWithData
       );
     if not Supports(VTileInfo, ITileInfoWithData, VTileInfoWithData) then begin
@@ -143,7 +143,7 @@ begin
           VMapType.LoadTileVector(
             VTile,
             VZoom,
-            VMapType.VersionRequestConfig.GetStatic,
+            VMapType.VersionRequest.GetStatic,
             True,
             VMapType.CacheVector
           );
