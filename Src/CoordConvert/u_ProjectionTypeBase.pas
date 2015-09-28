@@ -23,6 +23,7 @@ unit u_ProjectionTypeBase;
 interface
 
 uses
+  SysUtils,
   t_Hash,
   t_GeoTypes,
   i_Datum,
@@ -83,7 +84,6 @@ type
 implementation
 
 uses
-  SysUtils,
   u_GeoFunc;
 
 { TProjectionTypeBase }

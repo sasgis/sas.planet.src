@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  SysUtils,
   t_Hash,
   t_GeoTypes,
   i_ProjectionType,
@@ -353,7 +354,6 @@ type
 implementation
 
 uses
-  SysUtils,
   c_CoordConverter;
 
 { TProjectionInfo }
