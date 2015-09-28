@@ -56,6 +56,7 @@ type
       const ACaption: string;
       const APathConfig: IPathConfig
     ); reintroduce;
+    procedure RefreshTranslation; override;
     procedure CancelChanges;
     procedure ApplyChanges;
     procedure Show(AParent: TWinControl);
@@ -63,6 +64,9 @@ type
 
 implementation
 
+uses
+  gnugettext;
+  
 {$R *.dfm}
 
 { TfrPathSelect }
@@ -80,6 +84,14 @@ begin
   inherited Create(ALanguageManager);
   FCaption := ACaption;
   FPathConfig := APathConfig;
+
+  LCaption.Caption := _(FCaption);
+end;
+
+procedure TfrPathSelect.RefreshTranslation;
+begin
+  inherited;
+  LCaption.Caption := _(FCaption);
 end;
 
 procedure TfrPathSelect.ApplyChanges;
@@ -106,7 +118,6 @@ procedure TfrPathSelect.Show(AParent: TWinControl);
 begin
   EPath.Text := IncludeTrailingPathDelimiter(FPathConfig.path);
   Parent := AParent;
-  LCaption.Caption := FCaption;
 end;
 
 end.
