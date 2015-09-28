@@ -373,13 +373,8 @@ var
 begin
   Assert(Assigned(ACategory));
   Result := False;
-  LockRead;
-  try
-    if Supports(ACategory, IMarkCategoryInternalORM, VCategoryInternal) then begin
-      Result := (VCategoryInternal.DbId = FDbId);
-    end;
-  finally
-    UnlockRead;
+  if Supports(ACategory, IMarkCategoryInternalORM, VCategoryInternal) then begin
+    Result := (VCategoryInternal.DbId = FDbId);
   end;
 end;
 
@@ -453,15 +448,10 @@ begin
   if VCount > 0 then begin
     Assert(Length(VCategoryRecArray) >= VCount);
     VTemp := TInterfaceListSimple.Create;
-    LockRead;
-    try
-      VTemp.Capacity := VCount;
-      for I := 0 to VCount - 1 do begin
-        VCategory := FFactoryDbInternal.CreateCategory(VCategoryRecArray[I]);
-        VTemp.Add(VCategory);
-      end;
-    finally
-      UnlockRead;
+    VTemp.Capacity := VCount;
+    for I := 0 to VCount - 1 do begin
+      VCategory := FFactoryDbInternal.CreateCategory(VCategoryRecArray[I]);
+      VTemp.Add(VCategory);
     end;
     Result := TMarkCategoryList.Build(VTemp.MakeStaticAndClear);
   end;

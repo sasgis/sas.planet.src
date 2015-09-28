@@ -744,14 +744,9 @@ begin
   end;
   if VCount > 0 then begin
     VTemp.Capacity := VCount;
-    LockRead;
-    try
-      for I := 0 to VCount - 1 do begin
-        VMarkId := FFactoryDbInternal.CreateMarkId(VArray[I]);
-        VTemp.Add(VMarkId);
-      end;
-    finally
-      UnlockRead;
+    for I := 0 to VCount - 1 do begin
+      VMarkId := FFactoryDbInternal.CreateMarkId(VArray[I]);
+      VTemp.Add(VMarkId);
     end;
   end;
   Result := VTemp.MakeStaticAndClear;
@@ -803,14 +798,9 @@ begin
   end;
   if VCount > 0 then begin
     AResultList.Capacity := VCount;
-    LockRead;
-    try
-      for I := 0 to VCount - 1 do begin
-        VItem := FFactoryDbInternal.CreateMark(VArray[I]);
-        AResultList.Add(VItem);
-      end;
-    finally
-      UnlockRead;
+    for I := 0 to VCount - 1 do begin
+      VItem := FFactoryDbInternal.CreateMark(VArray[I]);
+      AResultList.Add(VItem);
     end;
   end;
 end;
@@ -1169,20 +1159,22 @@ var
   VResultList: IVectorItemSubsetBuilder;
 begin
   VResultList := FVectorItemSubsetBuilderFactory.Build;
+  SetLength(VMarkRecArray, 0);
 
-  LockRead;
+  LockWrite;
   try
-    SetLength(VMarkRecArray, 0);
     VCount := FHelper.GetMarkRecArrayByText(
       ASearch, AMaxCount, AIncludeHiddenMarks, ASearchInDescription, VMarkRecArray
     );
-    Assert(Length(VMarkRecArray) >= VCount);
-    for I := 0 to VCount - 1 do begin
-      VItem := FFactoryDbInternal.CreateMark(VMarkRecArray[I]);
-      VResultList.Add(VItem);
-    end;
   finally
-    UnlockRead;
+    UnlockWrite;
+  end;
+
+  Assert(Length(VMarkRecArray) >= VCount);
+
+  for I := 0 to VCount - 1 do begin
+    VItem := FFactoryDbInternal.CreateMark(VMarkRecArray[I]);
+    VResultList.Add(VItem);
   end;
 
   Result := VResultList.MakeStaticAndClear;
