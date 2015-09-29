@@ -208,9 +208,11 @@ begin
   AStrings.BeginUpdate;
   try
     AStrings.Clear;
-    for i := 0 to AList.Count - 1 do begin
-      VMarkId := IMarkId(AList[i]);
-      AStrings.AddObject(VMarkId.Name, Pointer(VMarkId));
+    if Assigned(AList) then begin
+      for i := 0 to AList.Count - 1 do begin
+        VMarkId := IMarkId(AList[i]);
+        AStrings.AddObject(VMarkId.Name, Pointer(VMarkId));
+      end;
     end;
   finally
     AStrings.EndUpdate;
