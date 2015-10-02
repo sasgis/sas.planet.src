@@ -3706,6 +3706,7 @@ begin
   end else begin
     TBMapZap.Caption := '';
   end;
+  FillDates.Visible := VConfig.FilterMode;
   tbitmFillingMapAsMain.Checked := IsEqualGUID(VConfig.SelectedMap, CGUID_Zero);
 end;
 
