@@ -800,7 +800,6 @@ var
   VLatStr, VLonStr: string;
   VZoom: Integer;
   VZoomUsed: Byte;
-  FProjectionSet: IProjectionSet;
   VProjection: IProjection;
   VXYPoint:TPoint;
   VXYRect:TRect;
