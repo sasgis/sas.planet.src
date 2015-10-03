@@ -106,10 +106,8 @@ begin
     if not Assigned(FList) then begin
       FList := TInterfaceListSimple.Create;
       FList.Add(FLine);
-      FLine := nil;
     end else if FList.Count = 0 then begin
       FList.Add(FLine);
-      FLine := nil;
     end;
     FList.Add(VLine);
     FBounds := UnionProjectedRects(FBounds, ABounds);
