@@ -59,8 +59,7 @@ implementation
 uses
   u_StickToGridTiles,
   u_StickToGridDegree,
-  u_StickToGridGenShtab,
-  u_GeoFunc;
+  u_StickToGridGenShtab;
 
 { TStickToGrids }
 

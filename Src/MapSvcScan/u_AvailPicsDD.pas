@@ -67,9 +67,8 @@ procedure GenerateAvailPicsDD(
 implementation
 
 uses
-  forms,
-  windows,
-  ALString,
+  Forms,
+  Windows,
   i_BinaryData,
   i_Downloader,
   i_NotifierOperation,
