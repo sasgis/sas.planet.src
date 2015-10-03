@@ -239,7 +239,7 @@ begin
     ACategoryDB,
     ACategoryFactory
   );
-
+  Result := nil;
   if VList.Count > 0 then begin
     Result := AMarkDb.UpdateMarkList(nil, VList.MakeStaticAndClear);
   end;

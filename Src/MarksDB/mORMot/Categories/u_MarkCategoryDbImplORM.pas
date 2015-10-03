@@ -439,6 +439,7 @@ var
   VCategory: IMarkCategory;
   VCategoryRecArray: TSQLCategoryRecDynArray;
 begin
+  Result := nil;
   LockWrite;
   try
     VCount := FHelper.GetCategoriesRecArray(VCategoryRecArray);
