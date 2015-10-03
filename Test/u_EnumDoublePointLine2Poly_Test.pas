@@ -6,16 +6,13 @@ uses
   TestFramework,
   u_SASTestCase,
   t_GeoTypes,
-  i_CoordConverter,
-  i_ProjectionInfo,
+  i_Projection,
   i_EnumDoublePoint;
 
 type
   TestTEnumDoublePointLine2Poly = class(TSASTestCase)
   private
-    FConverter: ICoordConverter;
-    FZoom: Byte;
-    FProjection: IProjectionInfo;
+    FProjection: IProjection;
     FRadius: Double;
     function PrepareEnumByArray(
       const APoints: PDoublePointArray;
@@ -33,12 +30,17 @@ implementation
 uses
   u_GeoFunc,
   c_CoordConverter,
-  i_CoordConverterFactory,
+  i_ProjectionSetFactory,
   i_HashFunction,
+  i_DatumFactory,
+  i_ProjectionTypeFactory,
+  i_ProjectionType,
   u_HashFunctionCityHash,
   u_HashFunctionWithCounter,
-  u_CoordConverterFactorySimple,
-  u_ProjectionInfo,
+  u_ProjectionSetFactorySimple,
+  u_ProjectionBasic256x256,
+  u_ProjectionTypeFactorySimple,
+  u_ProjectionTypeMercatorOnSphere,
   u_InternalPerformanceCounterFake,
   u_DatumFactory,
   u_EnumDoublePointsByArray,
@@ -60,7 +62,8 @@ end;
 procedure TestTEnumDoublePointLine2Poly.SetUp;
 var
   VHashFunction: IHashFunction;
-  VConveterFactory: ICoordConverterFactory;
+  VProjectionTypeFactory: IProjectionTypeFactory;
+  VProjectionType: IProjectionType;
   VDatumFactory: IDatumFactory;
 begin
   inherited;
@@ -69,16 +72,15 @@ begin
       THashFunctionCityHash.Create,
       TInternalPerformanceCounterFake.Create
     );
-  FZoom := 18;
   FRadius := 1000;
   VDatumFactory := TDatumFactory.Create(VHashFunction);
-  VConveterFactory :=
-    TCoordConverterFactorySimple.Create(
+  VProjectionTypeFactory :=
+    TProjectionTypeFactorySimple.Create(
       VHashFunction,
       VDatumFactory
     );
-  FConverter := VConveterFactory.GetCoordConverterByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256);
-  FProjection := TProjectionInfo.Create(0, FConverter, FZoom);
+  VProjectionType := VProjectionTypeFactory.GetByCode(CGoogleProjectionEPSG);
+  FProjection := TProjectionBasic256x256.Create(0, VProjectionType, 10);
 end;
 
 procedure TestTEnumDoublePointLine2Poly.TestFivePoints;

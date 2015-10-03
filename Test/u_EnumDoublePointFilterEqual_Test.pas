@@ -34,6 +34,7 @@ type
 implementation
 
 uses
+  Math,
   u_GeoFunc,
   u_EnumDoublePointFilterEqual,
   u_EnumDoublePointsByArray;

@@ -5,13 +5,13 @@ interface
 uses
   Types,
   TestFramework,
-  i_HashMatrix;
+  i_HashTileMatrixBuilder;
 
 type
   TestTHashMatrix = class(TTestCase)
   protected
     FCheckRect: TRect;
-    FMatrix: IHashMatrix;
+    FMatrix: IHashTileMatrixBuilder;
     procedure SetUp; override;
     procedure SetMatrixRect(
       const ARect: TRect
@@ -44,14 +44,14 @@ implementation
 uses
   i_TileIterator,
   u_TileIteratorByRect,
-  u_HashMatrix;
+  u_HashTileMatrixBuilder;
 
 { TestTHashMatrix }
 
 procedure TestTHashMatrix.SetUp;
 begin
   inherited;
-  FMatrix := THashMatrix.Create;
+  FMatrix := THashTileMatrixBuilder.Create;
   FCheckRect := Rect(0, 0, 10, 10);
 end;
 
@@ -64,7 +64,7 @@ var
 begin
   VIterator := TTileIteratorByRect.Create(ARect);
   while VIterator.Next(VPos) do begin
-    FMatrix.SetHash(VPos, VPos.X * 10 + VPos.Y);
+    FMatrix.Tiles[VPos] := VPos.X * 10 + VPos.Y;
   end;
 end;
 
@@ -78,9 +78,9 @@ begin
   VIterator := TTileIteratorByRect.Create(FCheckRect);
   while VIterator.Next(VPos) do begin
     if PtInRect(ARect, VPos) then begin
-      CheckEquals(VPos.X * 10 + VPos.Y, FMatrix.GetHash(VPos));
+      CheckEquals(VPos.X * 10 + VPos.Y, FMatrix.Tiles[VPos]);
     end else begin
-      CheckEquals(0, FMatrix.GetHash(VPos));
+      CheckEquals(0, FMatrix.Tiles[VPos]);
     end;
   end;
 end;
@@ -97,7 +97,7 @@ begin
   SetMatrixRect(VSourceRect);
   CheckMatrixRect(VSourceRect);
   VTargetRect := Rect(3, 4, 4, 8);
-  FMatrix.ChangeRect(VTargetRect);
+  FMatrix.SetRect(VTargetRect);
   IntersectRect(VValidRect, VSourceRect, VTargetRect);
   CheckMatrixRect(VValidRect);
 end;
@@ -114,7 +114,7 @@ begin
   SetMatrixRect(VSourceRect);
   CheckMatrixRect(VSourceRect);
   VTargetRect := Rect(1, 4, 3, 7);
-  FMatrix.ChangeRect(VTargetRect);
+  FMatrix.SetRect(VTargetRect);
   IntersectRect(VValidRect, VSourceRect, VTargetRect);
   CheckMatrixRect(VValidRect);
 end;
@@ -131,7 +131,7 @@ begin
   SetMatrixRect(VSourceRect);
   CheckMatrixRect(VSourceRect);
   VTargetRect := Rect(3, 4, 5, 8);
-  FMatrix.ChangeRect(VTargetRect);
+  FMatrix.SetRect(VTargetRect);
   IntersectRect(VValidRect, VSourceRect, VTargetRect);
   CheckMatrixRect(VValidRect);
 end;
@@ -148,7 +148,7 @@ begin
   SetMatrixRect(VSourceRect);
   CheckMatrixRect(VSourceRect);
   VTargetRect := Rect(4, 4, 5, 8);
-  FMatrix.ChangeRect(VTargetRect);
+  FMatrix.SetRect(VTargetRect);
   IntersectRect(VValidRect, VSourceRect, VTargetRect);
   CheckMatrixRect(VValidRect);
 end;
@@ -165,7 +165,7 @@ begin
   SetMatrixRect(VSourceRect);
   CheckMatrixRect(VSourceRect);
   VTargetRect := Rect(3, 1, 5, 8);
-  FMatrix.ChangeRect(VTargetRect);
+  FMatrix.SetRect(VTargetRect);
   IntersectRect(VValidRect, VSourceRect, VTargetRect);
   CheckMatrixRect(VValidRect);
 end;
@@ -199,7 +199,7 @@ begin
   SetMatrixRect(VSourceRect);
   CheckMatrixRect(VSourceRect);
   VTargetRect := Rect(1, 3, 3, 5);
-  FMatrix.ChangeRect(VTargetRect);
+  FMatrix.SetRect(VTargetRect);
   IntersectRect(VValidRect, VSourceRect, VTargetRect);
   CheckMatrixRect(VValidRect);
 end;

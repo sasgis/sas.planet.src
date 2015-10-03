@@ -11,37 +11,54 @@ interface
 uses
   TestFramework,
   t_GeoTypes,
+  i_DoublePointsAggregator,
   i_GeometryProjectedFactory,
   i_GeometryLonLatFactory;
 
 type
-  TestTVectorItmesLonLatFactorySimple = class(TTestCase)
+  TestGeometryLonLatLineBuilderSimple = class(TTestCase)
   private
-    FFactory: IGeometryLonLatFactory;
-    FPoints: array of TDoublePoint;
+    FBuilder: IGeometryLonLatLineBuilder;
+    FPoints: IDoublePointsAggregator;
   protected
     procedure SetUp; override;
   published
     procedure CreateLonLatPathSimple;
     procedure CreateLonLatPathTwoLines;
     procedure CreateLonLatPathNoLines;
+  end;
 
+  TestGeometryLonLatPolygonBuilderSimple = class(TTestCase)
+  private
+    FBuilder: IGeometryLonLatPolygonBuilder;
+    FPoints: IDoublePointsAggregator;
+  protected
+    procedure SetUp; override;
+  published
     procedure CreateLonLatPolygonSimple;
     procedure CreateLonLatPolygonTwoLines;
     procedure CreateLonLatPolygonNoLines;
   end;
 
-  TestTVectorItmesProjectedFactorySimple = class(TTestCase)
+  TestGeometryProjectedLineBuilderSimple = class(TTestCase)
   private
-    FFactory: IGeometryProjectedFactory;
-    FPoints: array of TDoublePoint;
+    FBuilder: IGeometryProjectedLineBuilder;
+    FPoints: IDoublePointsAggregator;
   protected
     procedure SetUp; override;
   published
     procedure CreateProjectedPathSimple;
     procedure CreateProjectedPathTwoLines;
     procedure CreateProjectedPathNoLines;
+  end;
 
+  TestGeometryProjectedPolygonBuilderSimple = class(TTestCase)
+  private
+    FBuilder: IGeometryProjectedPolygonBuilder;
+    FPoints: IDoublePointsAggregator;
+  protected
+    procedure SetUp; override;
+  published
     procedure CreateProjectedPolygonSimple;
     procedure CreateProjectedPolygonTwoLines;
     procedure CreateProjectedPolygonNoLines;
@@ -50,501 +67,423 @@ type
 implementation
 
 uses
+  Math,
   i_GeometryLonLat,
   i_Projection,
   i_HashFunction,
   i_GeometryProjected,
   i_EnumDoublePoint,
   u_GeoFunc,
-  u_ProjectionInfo,
   u_HashFunctionCityHash,
   u_HashFunctionWithCounter,
+  u_DoublePointsAggregator,
   u_InternalPerformanceCounterFake,
   u_GeometryProjectedFactory,
   u_GeometryLonLatFactory;
 
-{ TestTVectorItmesFactorySimple }
+{ TestGeometryLonLatLineBuilderSimple }
 
-procedure TestTVectorItmesLonLatFactorySimple.SetUp;
+procedure TestGeometryLonLatLineBuilderSimple.SetUp;
 var
   VHashFunction: IHashFunction;
+  VFactory: IGeometryLonLatFactory;
 begin
+  FPoints := TDoublePointsAggregator.Create;
   VHashFunction :=
     THashFunctionWithCounter.Create(
       THashFunctionCityHash.Create,
       TInternalPerformanceCounterFake.Create
     );
-  FFactory := TGeometryLonLatFactory.Create(VHashFunction);
+  VFactory := TGeometryLonLatFactory.Create(VHashFunction);
+  FBuilder := VFactory.MakeLineBuilder;
 end;
 
-procedure TestTVectorItmesLonLatFactorySimple.CreateLonLatPathNoLines;
+procedure TestGeometryLonLatLineBuilderSimple.CreateLonLatPathNoLines;
 var
-  VResult: IGeometryLonLatMultiLine;
+  VResult: IGeometryLonLatLine;
 begin
-  VResult := FFactory.CreateLonLatMultiLine(nil, 0);
-  CheckNotNull(VResult);
-  CheckEquals(0, VResult.Count);
-  CheckNotNull(VResult.GetEnum);
-  SetLength(FPoints, 0);
-  VResult := FFactory.CreateLonLatMultiLine(@FPoints[0], Length(FPoints));
-  CheckNotNull(VResult);
-  CheckEquals(0, VResult.Count);
-  CheckNotNull(VResult.GetEnum);
-  SetLength(FPoints, 1);
-  FPoints[0] := CEmptyDoublePoint;
-  VResult := FFactory.CreateLonLatMultiLine(@FPoints[0], Length(FPoints));
-  CheckNotNull(VResult);
-  CheckEquals(0, VResult.Count);
-  CheckNotNull(VResult.GetEnum);
-  SetLength(FPoints, 2);
-  FPoints[0] := CEmptyDoublePoint;
-  FPoints[1] := CEmptyDoublePoint;
-  VResult := FFactory.CreateLonLatMultiLine(@FPoints[0], Length(FPoints));
-  CheckNotNull(VResult);
-  CheckEquals(0, VResult.Count);
-  CheckNotNull(VResult.GetEnum);
+  VResult := FBuilder.MakeStaticAndClear;
+  CheckNull(VResult);
 end;
 
-procedure TestTVectorItmesLonLatFactorySimple.CreateLonLatPathSimple;
+procedure TestGeometryLonLatLineBuilderSimple.CreateLonLatPathSimple;
 var
-  VResult: IGeometryLonLatMultiLine;
-  VLine: IGeometryLonLatSingleLine;
+  VResult: IGeometryLonLatSingleLine;
   VPoint: TDoublePoint;
   VEnum: IEnumDoublePoint;
+  i: integer;
 begin
-  SetLength(FPoints, 3);
-  FPoints[0] := DoublePoint(0, 1);
-  FPoints[1] := DoublePoint(1, 1);
-  FPoints[2] := DoublePoint(1, 0);
-  VResult := FFactory.CreateLonLatMultiLine(@FPoints[0], Length(FPoints));
+  FPoints.Clear;
+  FPoints.Add(DoublePoint(0, 1));
+  FPoints.Add(DoublePoint(1, 1));
+  FPoints.Add(DoublePoint(1, 0));
+  FBuilder.AddLine(FPoints.MakeStaticCopy);
+  VResult := FBuilder.MakeStaticAndClear as IGeometryLonLatSingleLine;
   CheckNotNull(VResult);
-  CheckEquals(1, VResult.Count);
+  CheckEquals(3, VResult.Count);
   VEnum := VResult.GetEnum;
   CheckNotNull(VEnum);
+  i := 0;
   CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[0]));
+  CheckTrue(DoublePointsEqual(VPoint, FPoints.Points[i]));
+  Inc(i);
   CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[1]));
+  CheckTrue(DoublePointsEqual(VPoint, FPoints.Points[i]));
+  Inc(i);
   CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[2]));
-  CheckFalse(VEnum.Next(VPoint));
-  VLine := VResult.Item[0];
-  CheckNotNull(VLine);
-  CheckEquals(3, VLine.Count);
-  VEnum := VLine.GetEnum;
-  CheckNotNull(VEnum);
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[0]));
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[1]));
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[2]));
+  CheckTrue(DoublePointsEqual(VPoint, FPoints.Points[i]));
   CheckFalse(VEnum.Next(VPoint));
 end;
 
-procedure TestTVectorItmesLonLatFactorySimple.CreateLonLatPathTwoLines;
+procedure TestGeometryLonLatLineBuilderSimple.CreateLonLatPathTwoLines;
 var
   VResult: IGeometryLonLatMultiLine;
   VLine: IGeometryLonLatSingleLine;
   VPoint: TDoublePoint;
   VEnum: IEnumDoublePoint;
+  i: integer;
 begin
-  SetLength(FPoints, 4);
-  FPoints[0] := DoublePoint(0, 1);
-  FPoints[1] := CEmptyDoublePoint;
-  FPoints[2] := DoublePoint(1, 1);
-  FPoints[3] := DoublePoint(1, 0);
-  VResult := FFactory.CreateLonLatMultiLine(@FPoints[0], Length(FPoints));
+  FPoints.Clear;
+  FPoints.Add(DoublePoint(0, 1));
+  FBuilder.AddLine(FPoints.MakeStaticAndClear);
+  FPoints.Add(DoublePoint(1, 1));
+  FPoints.Add(DoublePoint(1, 0));
+  FBuilder.AddLine(FPoints.MakeStaticCopy);
+
+  VResult := FBuilder.MakeStaticAndClear as IGeometryLonLatMultiLine;
   CheckNotNull(VResult);
   CheckEquals(2, VResult.Count);
-  VEnum := VResult.GetEnum;
-  CheckNotNull(VEnum);
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[0]));
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[1]));
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[2]));
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[3]));
-  CheckFalse(VEnum.Next(VPoint));
+
   VLine := VResult.Item[0];
   CheckNotNull(VLine);
   CheckEquals(1, VLine.Count);
   VEnum := VLine.GetEnum;
   CheckNotNull(VEnum);
   CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[0]));
+  CheckTrue(DoublePointsEqual(VPoint, DoublePoint(0, 1)));
   CheckFalse(VEnum.Next(VPoint));
   VLine := VResult.Item[1];
   CheckNotNull(VLine);
   CheckEquals(2, VLine.Count);
   VEnum := VLine.GetEnum;
+  i := 0;
   CheckNotNull(VEnum);
   CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[2]));
+  CheckTrue(DoublePointsEqual(VPoint, FPoints.Points[i]));
+  Inc(i);
   CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[3]));
+  CheckTrue(DoublePointsEqual(VPoint, FPoints.Points[i]));
   CheckFalse(VEnum.Next(VPoint));
 end;
 
-procedure TestTVectorItmesLonLatFactorySimple.CreateLonLatPolygonNoLines;
+procedure TestGeometryLonLatPolygonBuilderSimple.SetUp;
 var
-  VResult: IGeometryLonLatMultiPolygon;
+  VHashFunction: IHashFunction;
+  VFactory: IGeometryLonLatFactory;
 begin
-  VResult := FFactory.CreateLonLatMultiPolygon(nil, 0);
-  CheckNotNull(VResult);
-  CheckEquals(0, VResult.Count);
-  CheckNotNull(VResult.GetEnum);
-  SetLength(FPoints, 0);
-  VResult := FFactory.CreateLonLatMultiPolygon(@FPoints[0], Length(FPoints));
-  CheckNotNull(VResult);
-  CheckEquals(0, VResult.Count);
-  CheckNotNull(VResult.GetEnum);
-  SetLength(FPoints, 1);
-  FPoints[0] := CEmptyDoublePoint;
-  VResult := FFactory.CreateLonLatMultiPolygon(@FPoints[0], Length(FPoints));
-  CheckNotNull(VResult);
-  CheckEquals(0, VResult.Count);
-  CheckNotNull(VResult.GetEnum);
-  SetLength(FPoints, 2);
-  FPoints[0] := CEmptyDoublePoint;
-  FPoints[1] := CEmptyDoublePoint;
-  VResult := FFactory.CreateLonLatMultiPolygon(@FPoints[0], Length(FPoints));
-  CheckNotNull(VResult);
-  CheckEquals(0, VResult.Count);
-  CheckNotNull(VResult.GetEnum);
+  FPoints := TDoublePointsAggregator.Create;
+  VHashFunction :=
+    THashFunctionWithCounter.Create(
+      THashFunctionCityHash.Create,
+      TInternalPerformanceCounterFake.Create
+    );
+  VFactory := TGeometryLonLatFactory.Create(VHashFunction);
+  FBuilder := VFactory.MakePolygonBuilder;
 end;
 
-procedure TestTVectorItmesLonLatFactorySimple.CreateLonLatPolygonSimple;
+procedure TestGeometryLonLatPolygonBuilderSimple.CreateLonLatPolygonNoLines;
 var
-  VResult: IGeometryLonLatMultiPolygon;
-  VLine: IGeometryLonLatSinglePolygon;
+  VResult: IGeometryLonLatPolygon;
+begin
+  VResult := FBuilder.MakeStaticAndClear;
+  CheckNull(VResult);
+end;
+
+procedure TestGeometryLonLatPolygonBuilderSimple.CreateLonLatPolygonSimple;
+var
+  VResult: IGeometryLonLatSinglePolygon;
+  VLine: IGeometryLonLatContour;
   VPoint: TDoublePoint;
   VEnum: IEnumDoublePoint;
+  i: integer;
 begin
-  SetLength(FPoints, 3);
-  FPoints[0] := DoublePoint(0, 1);
-  FPoints[1] := DoublePoint(1, 1);
-  FPoints[2] := DoublePoint(1, 0);
-  VResult := FFactory.CreateLonLatMultiPolygon(@FPoints[0], Length(FPoints));
+  FPoints.Clear;
+  FPoints.Add(DoublePoint(0, 1));
+  FPoints.Add(DoublePoint(1, 1));
+  FPoints.Add(DoublePoint(1, 0));
+  FBuilder.AddOuter(FPoints.MakeStaticCopy);
+  VResult := FBuilder.MakeStaticAndClear as IGeometryLonLatSinglePolygon;
   CheckNotNull(VResult);
-  CheckEquals(1, VResult.Count);
-  VEnum := VResult.GetEnum;
-  CheckNotNull(VEnum);
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[0]));
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[1]));
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[2]));
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[0]));
-  CheckFalse(VEnum.Next(VPoint));
-  VLine := VResult.Item[0];
+  CheckEquals(0, VResult.HoleCount);
+  VLine := VResult.OuterBorder;
   CheckNotNull(VLine);
   CheckEquals(3, VLine.Count);
   VEnum := VLine.GetEnum;
   CheckNotNull(VEnum);
+  i := 0;
   CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[0]));
+  CheckTrue(DoublePointsEqual(VPoint, FPoints.Points[i]));
+  Inc(i);
   CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[1]));
+  CheckTrue(DoublePointsEqual(VPoint, FPoints.Points[i]));
+  Inc(i);
   CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[2]));
+  CheckTrue(DoublePointsEqual(VPoint, FPoints.Points[i]));
   CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[0]));
+  CheckTrue(DoublePointsEqual(VPoint, FPoints.Points[0]));
   CheckFalse(VEnum.Next(VPoint));
 end;
 
-procedure TestTVectorItmesLonLatFactorySimple.CreateLonLatPolygonTwoLines;
+procedure TestGeometryLonLatPolygonBuilderSimple.CreateLonLatPolygonTwoLines;
 var
   VResult: IGeometryLonLatMultiPolygon;
   VLine: IGeometryLonLatSinglePolygon;
+  VContour: IGeometryLonLatContour;
   VPoint: TDoublePoint;
   VEnum: IEnumDoublePoint;
+  i: integer;
 begin
-  SetLength(FPoints, 4);
-  FPoints[0] := DoublePoint(0, 1);
-  FPoints[1] := CEmptyDoublePoint;
-  FPoints[2] := DoublePoint(1, 1);
-  FPoints[3] := DoublePoint(1, 0);
-  VResult := FFactory.CreateLonLatMultiPolygon(@FPoints[0], Length(FPoints));
+  FPoints.Clear;
+  FPoints.Add(DoublePoint(0, 1));
+  FBuilder.AddOuter(FPoints.MakeStaticAndClear);
+  FPoints.Add(DoublePoint(1, 1));
+  FPoints.Add(DoublePoint(1, 0));
+  FBuilder.AddOuter(FPoints.MakeStaticCopy);
+  VResult := FBuilder.MakeStaticAndClear as IGeometryLonLatMultiPolygon;
   CheckNotNull(VResult);
   CheckEquals(2, VResult.Count);
-  VEnum := VResult.GetEnum;
-  CheckNotNull(VEnum);
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[0]));
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[1]));
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[2]));
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[3]));
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[2]));
-  CheckFalse(VEnum.Next(VPoint));
+
   VLine := VResult.Item[0];
   CheckNotNull(VLine);
-  CheckEquals(1, VLine.Count);
-  VEnum := VLine.GetEnum;
+  CheckEquals(0, VLine.HoleCount);
+  VContour := VLine.OuterBorder;
+  CheckNotNull(VContour);
+  CheckEquals(1, VContour.Count);
+
+  VEnum := VContour.GetEnum;
   CheckNotNull(VEnum);
   CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[0]));
+  CheckTrue(DoublePointsEqual(VPoint, DoublePoint(0, 1)));
   CheckFalse(VEnum.Next(VPoint));
+
   VLine := VResult.Item[1];
   CheckNotNull(VLine);
-  CheckEquals(2, VLine.Count);
-  VEnum := VLine.GetEnum;
+  CheckEquals(0, VLine.HoleCount);
+  VContour := VLine.OuterBorder;
+  CheckNotNull(VContour);
+  CheckEquals(2, VContour.Count);
+
+  VEnum := VContour.GetEnum;
   CheckNotNull(VEnum);
+  i := 0;
   CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[2]));
+  CheckTrue(DoublePointsEqual(VPoint, FPoints.Points[i]));
+  Inc(i);
   CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[3]));
+  CheckTrue(DoublePointsEqual(VPoint, FPoints.Points[i]));
+  i := 0;
   CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[2]));
+  CheckTrue(DoublePointsEqual(VPoint, FPoints.Points[i]));
   CheckFalse(VEnum.Next(VPoint));
 end;
 
-procedure TestTVectorItmesProjectedFactorySimple.SetUp;
+procedure TestGeometryProjectedLineBuilderSimple.SetUp;
+var
+  VFactory: IGeometryProjectedFactory;
 begin
   inherited;
-  FFactory := TGeometryProjectedFactory.Create;
+  FPoints := TDoublePointsAggregator.Create;
+  VFactory := TGeometryProjectedFactory.Create;
+  FBuilder := VFactory.MakeLineBuilder;
 end;
 
-procedure TestTVectorItmesProjectedFactorySimple.CreateProjectedPathNoLines;
+procedure TestGeometryProjectedLineBuilderSimple.CreateProjectedPathNoLines;
 var
-  VResult: IGeometryProjectedMultiLine;
+  VResult: IGeometryProjectedLine;
 begin
-  VResult := FFactory.CreateProjectedPath(nil, 0);
-  CheckNotNull(VResult);
-  CheckEquals(0, VResult.Count);
-  CheckNotNull(VResult.GetEnum);
-  SetLength(FPoints, 0);
-  VResult := FFactory.CreateProjectedPath(@FPoints[0], Length(FPoints));
-  CheckNotNull(VResult);
-  CheckEquals(0, VResult.Count);
-  CheckNotNull(VResult.GetEnum);
-  SetLength(FPoints, 1);
-  FPoints[0] := CEmptyDoublePoint;
-  VResult := FFactory.CreateProjectedPath(@FPoints[0], Length(FPoints));
-  CheckNotNull(VResult);
-  CheckEquals(0, VResult.Count);
-  CheckNotNull(VResult.GetEnum);
-  SetLength(FPoints, 2);
-  FPoints[0] := CEmptyDoublePoint;
-  FPoints[1] := CEmptyDoublePoint;
-  VResult := FFactory.CreateProjectedPath(@FPoints[0], Length(FPoints));
-  CheckNotNull(VResult);
-  CheckEquals(0, VResult.Count);
-  CheckNotNull(VResult.GetEnum);
+  VResult := FBuilder.MakeStaticAndClear;
+  CheckNull(VResult);
 end;
 
-procedure TestTVectorItmesProjectedFactorySimple.CreateProjectedPathSimple;
+procedure TestGeometryProjectedLineBuilderSimple.CreateProjectedPathSimple;
 var
-  VResult: IGeometryProjectedMultiLine;
-  VLine: IGeometryProjectedSingleLine;
+  VResult: IGeometryProjectedSingleLine;
   VPoint: TDoublePoint;
   VEnum: IEnumDoublePoint;
+  i: Integer;
 begin
-  SetLength(FPoints, 3);
-  FPoints[0] := DoublePoint(0, 1);
-  FPoints[1] := DoublePoint(1, 1);
-  FPoints[2] := DoublePoint(1, 0);
-  VResult := FFactory.CreateProjectedPath(@FPoints[0], Length(FPoints));
+  FPoints.Clear;
+  FPoints.Add(DoublePoint(0, 1));
+  FPoints.Add(DoublePoint(1, 1));
+  FPoints.Add(DoublePoint(1, 0));
+  FBuilder.AddLine(DoubleRect(0, 0, 1, 1), FPoints.MakeStaticCopy);
+  VResult := FBuilder.MakeStaticAndClear as IGeometryProjectedSingleLine;
   CheckNotNull(VResult);
-  CheckEquals(1, VResult.Count);
+  CheckEquals(3, VResult.Count);
   VEnum := VResult.GetEnum;
   CheckNotNull(VEnum);
+  i := 0;
   CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[0]));
+  CheckTrue(DoublePointsEqual(VPoint, FPoints.Points[i]));
+  Inc(i);
   CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[1]));
+  CheckTrue(DoublePointsEqual(VPoint, FPoints.Points[i]));
+  Inc(i);
   CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[2]));
-  CheckFalse(VEnum.Next(VPoint));
-  VLine := VResult.Item[0];
-  CheckNotNull(VLine);
-  CheckEquals(3, VLine.Count);
-  VEnum := VLine.GetEnum;
-  CheckNotNull(VEnum);
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[0]));
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[1]));
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[2]));
+  CheckTrue(DoublePointsEqual(VPoint, FPoints.Points[i]));
   CheckFalse(VEnum.Next(VPoint));
 end;
 
-procedure TestTVectorItmesProjectedFactorySimple.CreateProjectedPathTwoLines;
+procedure TestGeometryProjectedLineBuilderSimple.CreateProjectedPathTwoLines;
 var
   VResult: IGeometryProjectedMultiLine;
   VLine: IGeometryProjectedSingleLine;
   VPoint: TDoublePoint;
   VEnum: IEnumDoublePoint;
+  i: Integer;
 begin
-  SetLength(FPoints, 4);
-  FPoints[0] := DoublePoint(0, 1);
-  FPoints[1] := CEmptyDoublePoint;
-  FPoints[2] := DoublePoint(1, 1);
-  FPoints[3] := DoublePoint(1, 0);
-  VResult := FFactory.CreateProjectedPath(@FPoints[0], Length(FPoints));
+  FPoints.Clear;
+
+  FPoints.Add(DoublePoint(0, 1));
+  FBuilder.AddLine(DoubleRect(0, 0, 1, 1), FPoints.MakeStaticAndClear);
+
+  FPoints.Add(DoublePoint(1, 1));
+  FPoints.Add(DoublePoint(1, 0));
+  FBuilder.AddLine(DoubleRect(0, 0, 1, 1), FPoints.MakeStaticCopy);
+  VResult := FBuilder.MakeStaticAndClear as IGeometryProjectedMultiLine;
+
   CheckNotNull(VResult);
   CheckEquals(2, VResult.Count);
-  VEnum := VResult.GetEnum;
-  CheckNotNull(VEnum);
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[0]));
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[1]));
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[2]));
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[3]));
-  CheckFalse(VEnum.Next(VPoint));
+
   VLine := VResult.Item[0];
-  CheckNotNull(VLine);
   CheckEquals(1, VLine.Count);
   VEnum := VLine.GetEnum;
   CheckNotNull(VEnum);
   CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[0]));
+  CheckTrue(DoublePointsEqual(VPoint, DoublePoint(0, 1)));
   CheckFalse(VEnum.Next(VPoint));
+
   VLine := VResult.Item[1];
   CheckNotNull(VLine);
   CheckEquals(2, VLine.Count);
   VEnum := VLine.GetEnum;
   CheckNotNull(VEnum);
+  i := 0;
   CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[2]));
+  CheckTrue(DoublePointsEqual(VPoint, FPoints.Points[i]));
+  Inc(i);
   CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[3]));
+  CheckTrue(DoublePointsEqual(VPoint, FPoints.Points[i]));
   CheckFalse(VEnum.Next(VPoint));
 end;
 
-procedure TestTVectorItmesProjectedFactorySimple.CreateProjectedPolygonNoLines;
+procedure TestGeometryProjectedPolygonBuilderSimple.SetUp;
 var
-  VResult: IGeometryProjectedMultiPolygon;
+  VFactory: IGeometryProjectedFactory;
 begin
-  VResult := FFactory.CreateProjectedPolygon(nil, 0);
-  CheckNotNull(VResult);
-  CheckEquals(0, VResult.Count);
-  CheckNotNull(VResult.GetEnum);
-  SetLength(FPoints, 0);
-  VResult := FFactory.CreateProjectedPolygon(@FPoints[0], Length(FPoints));
-  CheckNotNull(VResult);
-  CheckEquals(0, VResult.Count);
-  CheckNotNull(VResult.GetEnum);
-  SetLength(FPoints, 1);
-  FPoints[0] := CEmptyDoublePoint;
-  VResult := FFactory.CreateProjectedPolygon(@FPoints[0], Length(FPoints));
-  CheckNotNull(VResult);
-  CheckEquals(0, VResult.Count);
-  CheckNotNull(VResult.GetEnum);
-  SetLength(FPoints, 2);
-  FPoints[0] := CEmptyDoublePoint;
-  FPoints[1] := CEmptyDoublePoint;
-  VResult := FFactory.CreateProjectedPolygon(@FPoints[0], Length(FPoints));
-  CheckNotNull(VResult);
-  CheckEquals(0, VResult.Count);
-  CheckNotNull(VResult.GetEnum);
+  inherited;
+  FPoints := TDoublePointsAggregator.Create;
+  VFactory := TGeometryProjectedFactory.Create;
+  FBuilder := VFactory.MakePolygonBuilder;
 end;
 
-procedure TestTVectorItmesProjectedFactorySimple.CreateProjectedPolygonSimple;
+procedure TestGeometryProjectedPolygonBuilderSimple.CreateProjectedPolygonNoLines;
+var
+  VResult: IGeometryProjectedPolygon;
+begin
+  VResult := FBuilder.MakeStaticAndClear;
+  CheckNull(VResult);
+end;
+
+procedure TestGeometryProjectedPolygonBuilderSimple.CreateProjectedPolygonSimple;
+var
+  VResult: IGeometryProjectedSinglePolygon;
+  VPoint: TDoublePoint;
+  VEnum: IEnumDoublePoint;
+  i: Integer;
+begin
+  FPoints.Clear;
+  FPoints.Add(DoublePoint(0, 1));
+  FPoints.Add(DoublePoint(1, 1));
+  FPoints.Add(DoublePoint(1, 0));
+  FBuilder.AddOuter(DoubleRect(0, 0, 1, 1), FPoints.MakeStaticCopy);
+  VResult := FBuilder.MakeStaticAndClear as IGeometryProjectedSinglePolygon;
+  CheckNotNull(VResult);
+  CheckEquals(3, VResult.OuterBorder.Count);
+  VEnum := VResult.OuterBorder.GetEnum;
+  CheckNotNull(VEnum);
+  i := 0;
+  CheckTrue(VEnum.Next(VPoint));
+  CheckTrue(DoublePointsEqual(VPoint, FPoints.Points[i]));
+  Inc(i);
+  CheckTrue(VEnum.Next(VPoint));
+  CheckTrue(DoublePointsEqual(VPoint, FPoints.Points[i]));
+  Inc(i);
+  CheckTrue(VEnum.Next(VPoint));
+  CheckTrue(DoublePointsEqual(VPoint, FPoints.Points[i]));
+  i := 0;
+  CheckTrue(VEnum.Next(VPoint));
+  CheckTrue(DoublePointsEqual(VPoint, FPoints.Points[i]));
+  CheckFalse(VEnum.Next(VPoint));
+end;
+
+procedure TestGeometryProjectedPolygonBuilderSimple.CreateProjectedPolygonTwoLines;
 var
   VResult: IGeometryProjectedMultiPolygon;
   VLine: IGeometryProjectedSinglePolygon;
+  VContour: IGeometryProjectedContour;
   VPoint: TDoublePoint;
   VEnum: IEnumDoublePoint;
+  i: integer;
 begin
-  SetLength(FPoints, 3);
-  FPoints[0] := DoublePoint(0, 1);
-  FPoints[1] := DoublePoint(1, 1);
-  FPoints[2] := DoublePoint(1, 0);
-  VResult := FFactory.CreateProjectedPolygon(@FPoints[0], Length(FPoints));
-  CheckNotNull(VResult);
-  CheckEquals(1, VResult.Count);
-  VEnum := VResult.GetEnum;
-  CheckNotNull(VEnum);
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[0]));
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[1]));
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[2]));
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[0]));
-  CheckFalse(VEnum.Next(VPoint));
-  VLine := VResult.Item[0];
-  CheckNotNull(VLine);
-  CheckEquals(3, VLine.Count);
-  VEnum := VLine.GetEnum;
-  CheckNotNull(VEnum);
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[0]));
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[1]));
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[2]));
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[0]));
-  CheckFalse(VEnum.Next(VPoint));
-end;
-
-procedure TestTVectorItmesProjectedFactorySimple.CreateProjectedPolygonTwoLines;
-var
-  VResult: IGeometryProjectedMultiPolygon;
-  VLine: IGeometryProjectedSinglePolygon;
-  VPoint: TDoublePoint;
-  VEnum: IEnumDoublePoint;
-begin
-  SetLength(FPoints, 4);
-  FPoints[0] := DoublePoint(0, 1);
-  FPoints[1] := CEmptyDoublePoint;
-  FPoints[2] := DoublePoint(1, 1);
-  FPoints[3] := DoublePoint(1, 0);
-  VResult := FFactory.CreateProjectedPolygon(@FPoints[0], Length(FPoints));
+  FPoints.Clear;
+  FPoints.Add(DoublePoint(0, 1));
+  FBuilder.AddOuter(DoubleRect(0, 1, 0, 1), FPoints.MakeStaticAndClear);
+  FPoints.Add(DoublePoint(1, 1));
+  FPoints.Add(DoublePoint(1, 0));
+  FBuilder.AddOuter(DoubleRect(0, 1, 0, 1), FPoints.MakeStaticCopy);
+  VResult := FBuilder.MakeStaticAndClear as IGeometryProjectedMultiPolygon;
   CheckNotNull(VResult);
   CheckEquals(2, VResult.Count);
-  VEnum := VResult.GetEnum;
-  CheckNotNull(VEnum);
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[0]));
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[1]));
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[2]));
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[3]));
-  CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[2]));
-  CheckFalse(VEnum.Next(VPoint));
+
   VLine := VResult.Item[0];
   CheckNotNull(VLine);
-  CheckEquals(1, VLine.Count);
-  VEnum := VLine.GetEnum;
+  CheckEquals(0, VLine.HoleCount);
+  VContour := VLine.OuterBorder;
+  CheckNotNull(VContour);
+  CheckEquals(1, VContour.Count);
+
+  VEnum := VContour.GetEnum;
   CheckNotNull(VEnum);
   CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[0]));
+  CheckTrue(DoublePointsEqual(VPoint, DoublePoint(0, 1)));
   CheckFalse(VEnum.Next(VPoint));
+
   VLine := VResult.Item[1];
   CheckNotNull(VLine);
-  CheckEquals(2, VLine.Count);
-  VEnum := VLine.GetEnum;
+  CheckEquals(0, VLine.HoleCount);
+  VContour := VLine.OuterBorder;
+  CheckNotNull(VContour);
+  CheckEquals(2, VContour.Count);
+
+  VEnum := VContour.GetEnum;
   CheckNotNull(VEnum);
+  i := 0;
   CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[2]));
+  CheckTrue(DoublePointsEqual(VPoint, FPoints.Points[i]));
+  Inc(i);
   CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[3]));
+  CheckTrue(DoublePointsEqual(VPoint, FPoints.Points[i]));
+  i := 0;
   CheckTrue(VEnum.Next(VPoint));
-  CheckTrue(DoublePointsEqual(VPoint, FPoints[2]));
+  CheckTrue(DoublePointsEqual(VPoint, FPoints.Points[i]));
   CheckFalse(VEnum.Next(VPoint));
 end;
 
 initialization
   // Register any test cases with the test runner
-  RegisterTest(TestTVectorItmesLonLatFactorySimple.Suite);
-  RegisterTest(TestTVectorItmesProjectedFactorySimple.Suite);
+  RegisterTest(TestGeometryLonLatLineBuilderSimple.Suite);
+  RegisterTest(TestGeometryLonLatPolygonBuilderSimple.Suite);
+  RegisterTest(TestGeometryProjectedLineBuilderSimple.Suite);
+  RegisterTest(TestGeometryProjectedPolygonBuilderSimple.Suite);
 end.

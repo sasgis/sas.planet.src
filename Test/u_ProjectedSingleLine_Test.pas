@@ -29,6 +29,8 @@ implementation
 
 uses
   t_GeoTypes,
+  i_DoublePointsAggregator,
+  u_DoublePointsAggregator,
   u_ProjectedCalc,
   u_GeoFunc;
 
@@ -36,28 +38,28 @@ uses
 
 procedure TestTProjectedPolygonLine.SetUp;
 var
-  VPoints: array of TDoublePoint;
+  VPoints: IDoublePointsAggregator;
 begin
   inherited;
   FCalc := TProjectedCalc.Create;
-  SetLength(VPoints, 12);
-  VPoints[0] := DoublePoint(1, 8);
-  VPoints[1] := DoublePoint(1, 4);
-  VPoints[2] := DoublePoint(4, 1);
-  VPoints[3] := DoublePoint(6, 1);
-  VPoints[4] := DoublePoint(3, 4);
-  VPoints[5] := DoublePoint(3, 7);
-  VPoints[6] := DoublePoint(10, 7);
-  VPoints[7] := DoublePoint(10, 4);
-  VPoints[8] := DoublePoint(7, 1);
-  VPoints[9] := DoublePoint(10, 1);
-  VPoints[10] := DoublePoint(13, 4);
-  VPoints[11] := DoublePoint(13, 8);
+  VPoints := TDoublePointsAggregator.Create(12);
+  VPoints.Add(DoublePoint(1, 8));
+  VPoints.Add(DoublePoint(1, 4));
+  VPoints.Add(DoublePoint(4, 1));
+  VPoints.Add(DoublePoint(6, 1));
+  VPoints.Add(DoublePoint(3, 4));
+  VPoints.Add(DoublePoint(3, 7));
+  VPoints.Add(DoublePoint(10, 7));
+  VPoints.Add(DoublePoint(10, 4));
+  VPoints.Add(DoublePoint(7, 1));
+  VPoints.Add(DoublePoint(10, 1));
+  VPoints.Add(DoublePoint(13, 4));
+  VPoints.Add(DoublePoint(13, 8));
 
   FPolygon :=
     TGeometryProjectedPolygon.Create(
-      Addr(VPoints[0]),
-      Length(VPoints)
+      DoubleRect(1, 1, 13, 8),
+      VPoints.MakeStaticAndClear
     );
 end;
 

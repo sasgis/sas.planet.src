@@ -123,7 +123,7 @@ begin
     FPoints.Add(DoublePoint(10, 10));
     FPoints.Add(DoublePoint(20, 25));
     FPoints.Add(DoublePoint(50, 60));
-    FGeomerty := FFactory.CreateLonLatMultiLine(FPoints.Points, FPoints.Count);
+    FGeomerty := FFactory.CreateLonLatLine(FPoints.Points, FPoints.Count);
 
     CheckTrue(FGeomerty.IsSameGeometry(VGeometry));
     CheckTrue(VGeometry.IsSameGeometry(FGeomerty));
@@ -152,7 +152,8 @@ begin
     FPoints.Add(DoublePoint(10, 0));
     FPoints.Add(DoublePoint(10, 10));
     FPoints.Add(DoublePoint(0, 10));
-    FGeomerty := FFactory.CreateLonLatMultiPolygon(FPoints.Points, FPoints.Count);
+    FPoints.Add(DoublePoint(0, 0));
+    FGeomerty := FFactory.CreateLonLatPolygon(FPoints.Points, FPoints.Count);
 
     CheckTrue(FGeomerty.IsSameGeometry(VGeometry));
     CheckTrue(VGeometry.IsSameGeometry(FGeomerty));
@@ -172,7 +173,7 @@ begin
   FPoints.Add(DoublePoint(2, 2));
   FPoints.Add(DoublePoint(3, 3));
   FPoints.Add(DoublePoint(4, 4));
-  FGeomerty := FFactory.CreateLonLatMultiLine(FPoints.Points, FPoints.Count);
+  FGeomerty := FFactory.CreateLonLatLine(FPoints.Points, FPoints.Count);
   FSaver.Save(FGeomerty, FStream);
   FStream.Position := 0;
   VGeometry := FLoader.Parse(FStream);
@@ -188,11 +189,13 @@ begin
   FPoints.Add(DoublePoint(0, 1));
   FPoints.Add(DoublePoint(1, 1));
   FPoints.Add(DoublePoint(1, 0));
+  FPoints.Add(DoublePoint(0, 1));
   FPoints.Add(CEmptyDoublePoint);
   FPoints.Add(DoublePoint(2, 2));
   FPoints.Add(DoublePoint(3, 3));
   FPoints.Add(DoublePoint(4, 2));
-  FGeomerty := FFactory.CreateLonLatMultiPolygon(FPoints.Points, FPoints.Count);
+  FPoints.Add(DoublePoint(2, 2));
+  FGeomerty := FFactory.CreateLonLatPolygon(FPoints.Points, FPoints.Count);
   FSaver.Save(FGeomerty, FStream);
   FStream.Position := 0;
   VGeometry := FLoader.Parse(FStream);
@@ -221,7 +224,7 @@ begin
   FPoints.Add(DoublePoint(0, 1));
   FPoints.Add(DoublePoint(1, 1));
   FPoints.Add(DoublePoint(1, 0));
-  FGeomerty := FFactory.CreateLonLatMultiLine(FPoints.Points, FPoints.Count);
+  FGeomerty := FFactory.CreateLonLatLine(FPoints.Points, FPoints.Count);
   FSaver.Save(FGeomerty, FStream);
   FStream.Position := 0;
   VGeometry := FLoader.Parse(FStream);
@@ -237,7 +240,8 @@ begin
   FPoints.Add(DoublePoint(0, 1));
   FPoints.Add(DoublePoint(1, 1));
   FPoints.Add(DoublePoint(1, 0));
-  FGeomerty := FFactory.CreateLonLatMultiPolygon(FPoints.Points, FPoints.Count);
+  FPoints.Add(DoublePoint(0, 1));
+  FGeomerty := FFactory.CreateLonLatPolygon(FPoints.Points, FPoints.Count);
   FSaver.Save(FGeomerty, FStream);
   FStream.Position := 0;
   VGeometry := FLoader.Parse(FStream);
