@@ -486,6 +486,7 @@ begin
   Result :=
     TBitmapTileProviderWithBGColor.Create(
       (ParamsFrame as IRegionProcessParamsFrameMapCombine).BGColor,
+      (ParamsFrame as IRegionProcessParamsFrameMapCombine).BGColor,
       FBitmapFactory,
       Result
     );

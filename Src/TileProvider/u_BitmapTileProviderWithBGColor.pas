@@ -39,6 +39,7 @@ type
     FSourceProvider: IBitmapTileProvider;
     FEmptyTile: IBitmap32Static;
     FBackGroundColor: TColor32;
+    FEmptyColor: TColor32;
   private
     function GetProjection: IProjection;
     function GetTile(
@@ -49,6 +50,7 @@ type
   public
     constructor Create(
       ABackGroundColor: TColor32;
+      AEmptyColor: TColor32;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ASourceProvider: IBitmapTileProvider
     );
@@ -66,6 +68,7 @@ uses
 
 constructor TBitmapTileProviderWithBGColor.Create(
   ABackGroundColor: TColor32;
+  AEmptyColor: TColor32;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ASourceProvider: IBitmapTileProvider
 );
@@ -78,13 +81,14 @@ begin
   inherited Create;
   FSourceProvider := ASourceProvider;
   FBackGroundColor := ABackGroundColor;
+  FEmptyColor := AEmptyColor;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
 
   VTileSize := ASourceProvider.Projection.GetTileSize(Types.Point(0, 0));
   VTargetBmp := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
   try
     VTargetBmp.SetSize(VTileSize.X, VTileSize.Y);
-    VTargetBmp.Clear(FBackGroundColor);
+    VTargetBmp.Clear(FEmptyColor);
     FEmptyTile := VTargetBmp.MakeAndClear;
   finally
     VTargetBmp.Free;
@@ -138,7 +142,7 @@ begin
       VTargetBmp := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
       try
         VTargetBmp.SetSize(VTileSize.X, VTileSize.Y);
-        VTargetBmp.Clear(FBackGroundColor);
+        VTargetBmp.Clear(FEmptyColor);
         Result := VTargetBmp.MakeAndClear;
       finally
         VTargetBmp.Free;
