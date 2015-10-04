@@ -397,18 +397,32 @@ begin
 end;
 
 function CategoryListToCategoryTree(const AList: IMarkCategoryList): IMarkCategoryTree;
+const
+  CSeparatorChar: Char = ' ';
+  CReplacementChar: Char = #1;
 var
   VItems: TStringList;
   i: Integer;
   VItem: IMarkCategory;
+  VName: string;
 begin
   VItems := TStringList.Create;
   try
+    VItems.CaseSensitive := True;
     for i := 0 to AList.Count - 1 do begin
       VItem := IMarkCategory(AList.Items[i]);
-      VItems.AddObject(VItem.Name, Pointer(VItem));
+      VName := VItem.Name;
+      VName := StringReplace(VName, ' ', CReplacementChar, [rfReplaceAll]);
+      VName := StringReplace(VName, '\', CSeparatorChar, [rfReplaceAll]);
+      VItems.AddObject(VName, Pointer(VItem));
     end;
     VItems.Sort;
+    for i := 0 to VItems.Count - 1 do begin
+      VName := VItems.Strings[i];
+      VName := StringReplace(VName, CSeparatorChar, '\', [rfReplaceAll]);
+      VName := StringReplace(VName, CReplacementChar, ' ', [rfReplaceAll]);
+      VItems.Strings[i] := VName;
+    end;
     Result := TreeFromSortedStringList('', nil, VItems);
   finally
     FreeAndNil(VItems);
