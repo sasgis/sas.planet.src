@@ -34,35 +34,34 @@ uses
   i_ImageLineProvider,
   i_MapCalibration,
   u_ECWWrite,
+  u_BaseInterfacedObject,
   u_ThreadMapCombineBase;
 
 type
-  TThreadMapCombineECW = class(TThreadMapCombineBase)
+  TBitmapMapCombinerECW = class(TBaseInterfacedObject, IBitmapMapCombiner)
   private
+    FProgressUpdate: IBitmapCombineProgressUpdate;
     FImageLineProvider: IImageLineProvider;
     FLinesCount: Integer;
     FQuality: Integer;
+    FOperationID: Integer;
+    FCancelNotifier: INotifierOperation;
+
     function ReadLine(
       ALine: Integer;
       var LineR, LineG, LineB: PLineRGB
     ): Boolean;
-  protected
+  private
     procedure SaveRect(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
       const AImageProvider: IBitmapTileProvider;
       const AMapRect: TRect
-    ); override;
+    );
   public
     constructor Create(
-      const AProgressInfo: IRegionProcessProgressInfoInternal;
-      const APolygon: IGeometryLonLatPolygon;
-      const AMapRect: TRect;
-      const AImageProvider: IBitmapTileProvider;
-      const AMapCalibrationList: IMapCalibrationList;
-      const AFileName: string;
-      const ASplitCount: TPoint;
+      const AProgressUpdate: IBitmapCombineProgressUpdate;
       AQuality: Integer
     );
   end;
@@ -77,31 +76,17 @@ uses
   u_GeoFunc,
   u_ResStrings;
 
-constructor TThreadMapCombineECW.Create(
-  const AProgressInfo: IRegionProcessProgressInfoInternal;
-  const APolygon: IGeometryLonLatPolygon;
-  const AMapRect: TRect;
-  const AImageProvider: IBitmapTileProvider;
-  const AMapCalibrationList: IMapCalibrationList;
-  const AFileName: string;
-  const ASplitCount: TPoint;
+constructor TBitmapMapCombinerECW.Create(
+  const AProgressUpdate: IBitmapCombineProgressUpdate;
   AQuality: Integer
 );
 begin
-  inherited Create(
-    AProgressInfo,
-    APolygon,
-    AMapRect,
-    AImageProvider,
-    AMapCalibrationList,
-    AFileName,
-    ASplitCount,
-    Self.ClassName
-  );
+  inherited Create;
+  FProgressUpdate := AProgressUpdate;
   FQuality := AQuality;
 end;
 
-function TThreadMapCombineECW.ReadLine(
+function TBitmapMapCombinerECW.ReadLine(
   ALine: Integer;
   var LineR, LineG,
   LineB: PLineRGB
@@ -120,19 +105,19 @@ var
   VWidth: Integer;
 begin
   VWidth := FImageLineProvider.ImageSize.X;
-  VRGB := FImageLineProvider.GetLine(OperationID, CancelNotifier, ALine);
+  VRGB := FImageLineProvider.GetLine(FOperationID, FCancelNotifier, ALine);
   for i := 0 to VWidth - 1 do begin
     LineR[i] := VRGB[i].R;
     LineG[i] := VRGB[i].G;
     LineB[i] := VRGB[i].B;
   end;
   if ALine mod 256 = 0 then begin
-    ProgressFormUpdateOnProgress(ALine / FLinesCount);
+    FProgressUpdate.Update(ALine / FLinesCount);
   end;
   Result := True;
 end;
 
-procedure TThreadMapCombineECW.SaveRect(
+procedure TBitmapMapCombinerECW.SaveRect(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const AFileName: string;
@@ -149,6 +134,9 @@ var
   VProjection: IProjection;
   VMapPieceSize: TPoint;
 begin
+  FOperationID := AOperationID;
+  FCancelNotifier := ACancelNotifier;
+  
   VECWWriter := TECWWrite.Create;
   try
     FImageLineProvider :=
@@ -171,8 +159,8 @@ begin
     );
     errecw :=
       VECWWriter.Encode(
-        OperationID,
-        CancelNotifier,
+        FOperationID,
+        FCancelNotifier,
         AFileName,
         VMapPieceSize.X,
         VMapPieceSize.Y,

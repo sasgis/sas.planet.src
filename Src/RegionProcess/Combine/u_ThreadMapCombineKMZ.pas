@@ -36,39 +36,37 @@ uses
   i_Bitmap32BufferFactory,
   i_BitmapTileSaveLoadFactory,
   i_ArchiveReadWriteFactory,
+  u_BaseInterfacedObject,
   u_ThreadMapCombineBase;
 
 type
-  TThreadMapCombineKMZ = class(TThreadMapCombineBase)
+  TBitmapMapCombinerKMZ = class(TBaseInterfacedObject, IBitmapMapCombiner)
   private
+    FProgressUpdate: IBitmapCombineProgressUpdate;
     FQuality: Integer;
     FBitmapFactory: IBitmap32StaticFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
+    FOperationID: Integer;
+    FCancelNotifier: INotifierOperation;
     function GetBitmapRect(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const AImageProvider: IBitmapTileProvider;
       const AMapRect: TRect
     ): IBitmap32Static;
-  protected
+  private
     procedure SaveRect(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
       const AImageProvider: IBitmapTileProvider;
       const AMapRect: TRect
-    ); override;
+    );
   public
     constructor Create(
-      const AProgressInfo: IRegionProcessProgressInfoInternal;
-      const APolygon: IGeometryLonLatPolygon;
-      const AMapRect: TRect;
-      const AImageProvider: IBitmapTileProvider;
+      const AProgressUpdate: IBitmapCombineProgressUpdate;
       const ABitmapFactory: IBitmap32StaticFactory;
-      const AMapCalibrationList: IMapCalibrationList;
-      const AFileName: string;
-      const ASplitCount: TPoint;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       AQuality: Integer
@@ -90,37 +88,23 @@ uses
   u_GeoFunc,
   u_GeoToStrFunc;
 
-constructor TThreadMapCombineKMZ.Create(
-  const AProgressInfo: IRegionProcessProgressInfoInternal;
-  const APolygon: IGeometryLonLatPolygon;
-  const AMapRect: TRect;
-  const AImageProvider: IBitmapTileProvider;
+constructor TBitmapMapCombinerKMZ.Create(
+  const AProgressUpdate: IBitmapCombineProgressUpdate;
   const ABitmapFactory: IBitmap32StaticFactory;
-  const AMapCalibrationList: IMapCalibrationList;
-  const AFileName: string;
-  const ASplitCount: TPoint;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   AQuality: Integer
 );
 begin
-  inherited Create(
-    AProgressInfo,
-    APolygon,
-    AMapRect,
-    AImageProvider,
-    AMapCalibrationList,
-    AFileName,
-    ASplitCount,
-    Self.ClassName
-  );
+  inherited Create;
+  FProgressUpdate := AProgressUpdate;
   FQuality := AQuality;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FBitmapFactory := ABitmapFactory;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
 end;
 
-function TThreadMapCombineKMZ.GetBitmapRect(
+function TBitmapMapCombinerKMZ.GetBitmapRect(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const AImageProvider: IBitmapTileProvider;
@@ -179,7 +163,7 @@ begin
   end;
 end;
 
-procedure TThreadMapCombineKMZ.SaveRect(
+procedure TBitmapMapCombinerKMZ.SaveRect(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const AFileName: string;
@@ -207,6 +191,9 @@ var
   VBitmapTile: IBitmap32Static;
   VData: IBinaryData;
 begin
+  FOperationID := AOperationID;
+  FCancelNotifier := ACancelNotifier;
+  
   VProjection := AImageProvider.Projection;
   VCurrentPieceRect := AMapRect;
   VMapPieceSize := RectSize(VCurrentPieceRect);
@@ -225,7 +212,7 @@ begin
     VStr := ansiToUTF8('<?xml version="1.0" encoding="UTF-8"?>' + #13#10 + '<kml xmlns="http://earth.google.com/kml/2.2">' + #13#10 + '<Folder>' + #13#10 + '<name>' + VKmzFileNameOnly + '</name>' + #13#10);
     for i := 1 to nim.X do begin
       for j := 1 to nim.Y do begin
-        if CancelNotifier.IsOperationCanceled(OperationID) then begin
+        if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
           break;
         end;
         VPixelRect.Left := VCurrentPieceRect.Left + iWidth * (i - 1);
@@ -240,7 +227,7 @@ begin
             VPixelRect
           );
         if VBitmapTile <> nil then begin
-          if CancelNotifier.IsOperationCanceled(OperationID) then begin
+          if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
             break;
           end;
           VData := JPGSaver.Save(VBitmapTile);
@@ -261,7 +248,7 @@ begin
             VZip.AddFile(VData, VNameInKmz, Now);
           end;
         end;
-        ProgressFormUpdateOnProgress(VTilesProcessed / VTilesToProcess);
+        FProgressUpdate.Update(VTilesProcessed / VTilesToProcess);
       end;
     end;
     VStr := VStr + ansiToUTF8('</Folder>' + #13#10 + '</kml>');

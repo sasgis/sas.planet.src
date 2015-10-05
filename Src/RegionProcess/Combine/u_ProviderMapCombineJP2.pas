@@ -87,6 +87,7 @@ uses
   gnugettext,
   i_RegionProcessParamsFrame,
   i_Projection,
+  u_ThreadMapCombineBase,
   u_ThreadMapCombineECW,
   fr_MapCombine;
 
@@ -165,6 +166,8 @@ var
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VThread: TThread;
   VQuality: Integer;
+  VProgressUpdate: IBitmapCombineProgressUpdate;
+  VCombiner: IBitmapMapCombiner;
 begin
   VProjection := PrepareProjection;
   VProjectedPolygon := PreparePolygon(VProjection, APolygon);
@@ -180,16 +183,19 @@ begin
   end;
 
   VProgressInfo := ProgressFactory.Build(APolygon);
+  VProgressUpdate := TBitmapCombineProgressUpdate.Create(VProgressInfo);
+  VCombiner := TBitmapMapCombinerECW.Create(VProgressUpdate, VQuality);
   VThread :=
-    TThreadMapCombineECW.Create(
+    TThreadMapCombineBase.Create(
       VProgressInfo,
       APolygon,
       PrepareTargetRect(VProjection, VProjectedPolygon),
+      VCombiner,
       VImageProvider,
       VMapCalibrations,
       VFileName,
       VSplitCount,
-      VQuality
+      Self.ClassName + 'Thread'
     );
   VThread.Resume;
 end;

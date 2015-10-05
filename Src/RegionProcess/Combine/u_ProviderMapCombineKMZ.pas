@@ -93,6 +93,7 @@ uses
   gnugettext,
   i_RegionProcessParamsFrame,
   i_Projection,
+  u_ThreadMapCombineBase,
   u_ThreadMapCombineKMZ,
   u_GeoFunc,
   u_ResStrings,
@@ -171,6 +172,8 @@ var
   VMapPieceSize: TPoint;
   VKmzImgesCount: TPoint;
   VThread: TThread;
+  VProgressUpdate: IBitmapCombineProgressUpdate;
+  VCombiner: IBitmapMapCombiner;
 begin
   VProjection := PrepareProjection;
   VProjectedPolygon := PreparePolygon(VProjection, APolygon);
@@ -190,19 +193,26 @@ begin
   end;
 
   VProgressInfo := ProgressFactory.Build(APolygon);
-  VThread :=
-    TThreadMapCombineKMZ.Create(
-      VProgressInfo,
-      APolygon,
-      VMapRect,
-      VImageProvider,
+  VProgressUpdate := TBitmapCombineProgressUpdate.Create(VProgressInfo);
+  VCombiner :=
+    TBitmapMapCombinerKMZ.Create(
+      VProgressUpdate,
       FBitmapFactory,
-      VMapCalibrations,
-      VFileName,
-      VSplitCount,
       FBitmapTileSaveLoadFactory,
       FArchiveReadWriteFactory,
       (ParamsFrame as IRegionProcessParamsFrameMapCombineJpg).Quality
+    );
+  VThread :=
+    TThreadMapCombineBase.Create(
+      VProgressInfo,
+      APolygon,
+      VMapRect,
+      VCombiner,
+      VImageProvider,
+      VMapCalibrations,
+      VFileName,
+      VSplitCount,
+      Self.ClassName + 'Thread'
     );
   VThread.Resume;
 end;

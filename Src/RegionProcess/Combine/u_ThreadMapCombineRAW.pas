@@ -32,30 +32,28 @@ uses
   i_RegionProcessProgressInfo,
   i_GeometryLonLat,
   i_MapCalibration,
+  u_BaseInterfacedObject,
   u_ThreadMapCombineBase;
 
 type
-  TThreadMapCombineRAW = class(TThreadMapCombineBase)
+  TBitmapMapCombinerRAW = class(TBaseInterfacedObject, IBitmapMapCombiner)
   private
+    FProgressUpdate: IBitmapCombineProgressUpdate;
     FBgColor: TColor32;
     FWithAlpha: Boolean;
-  protected
+    FOperationID: Integer;
+    FCancelNotifier: INotifierOperation;
+  private
     procedure SaveRect(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
       const AImageProvider: IBitmapTileProvider;
       const AMapRect: TRect
-    ); override;
+    );
   public
     constructor Create(
-      const AProgressInfo: IRegionProcessProgressInfoInternal;
-      const APolygon: IGeometryLonLatPolygon;
-      const AMapRect: TRect;
-      const AImageProvider: IBitmapTileProvider;
-      const AMapCalibrationList: IMapCalibrationList;
-      const AFileName: string;
-      const ASplitCount: TPoint;
+      const AProgressUpdate: IBitmapCombineProgressUpdate;
       const ABgColor: TColor32;
       AWithAlpha: Boolean
     );
@@ -70,33 +68,19 @@ uses
   u_ImageLineProvider,
   u_GeoFunc;
 
-constructor TThreadMapCombineRAW.Create(
-  const AProgressInfo: IRegionProcessProgressInfoInternal;
-  const APolygon: IGeometryLonLatPolygon;
-  const AMapRect: TRect;
-  const AImageProvider: IBitmapTileProvider;
-  const AMapCalibrationList: IMapCalibrationList;
-  const AFileName: string;
-  const ASplitCount: TPoint;
+constructor TBitmapMapCombinerRAW.Create(
+  const AProgressUpdate: IBitmapCombineProgressUpdate;
   const ABgColor: TColor32;
   AWithAlpha: Boolean
 );
 begin
-  inherited Create(
-    AProgressInfo,
-    APolygon,
-    AMapRect,
-    AImageProvider,
-    AMapCalibrationList,
-    AFileName,
-    ASplitCount,
-    Self.ClassName
-  );
+  inherited Create;
+  FProgressUpdate := AProgressUpdate;
   FBgColor := ABgColor;
   FWithAlpha := AWithAlpha;
 end;
 
-procedure TThreadMapCombineRAW.SaveRect(
+procedure TBitmapMapCombinerRAW.SaveRect(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const AFileName: string;
@@ -114,6 +98,9 @@ var
   VMetaInfo: AnsiString;
   VBgColor: TColor32Entry;
 begin
+  FOperationID := AOperationID;
+  FCancelNotifier := ACancelNotifier;
+  
   VSize := RectSize(AMapRect);
 
   VRawFile := TFileStream.Create(AFileName, fmCreate);
@@ -162,11 +149,11 @@ begin
         raise Exception.Create(_('RAW: Fill line failure!'));
       end;
 
-      if CancelNotifier.IsOperationCanceled(OperationID) then begin
+      if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
         Break;
       end;
       if i mod 256 = 0 then begin
-        ProgressFormUpdateOnProgress(i / VSize.Y);
+        FProgressUpdate.Update(i / VSize.Y);
       end;
     end;
   finally

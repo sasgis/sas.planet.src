@@ -34,39 +34,37 @@ uses
   i_MapCalibration,
   i_GeometryLonLat,
   i_ImageLineProvider,
+  u_BaseInterfacedObject,
   u_ThreadMapCombineBase;
 
 type
-  TThreadMapCombineJPG = class(TThreadMapCombineBase)
+  TBitmapMapCombinerJPG = class(TBaseInterfacedObject, IBitmapMapCombiner)
   private
+    FProgressUpdate: IBitmapCombineProgressUpdate;
     FWidth: Integer;
     FHeight: Integer;
     FQuality: Integer;
     FLineProvider: IImageLineProvider;
     FSaveGeoRefInfoToExif: Boolean;
+    FOperationID: Integer;
+    FCancelNotifier: INotifierOperation;
     function GetLine(
       Sender: TObject;
       ALineNumber: Integer;
       ALineSize: Cardinal;
       out Abort: Boolean
     ): PByte;
-  protected
+  private
     procedure SaveRect(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
       const AImageProvider: IBitmapTileProvider;
       const AMapRect: TRect
-    ); override;
+    );
   public
     constructor Create(
-      const AProgressInfo: IRegionProcessProgressInfoInternal;
-      const APolygon: IGeometryLonLatPolygon;
-      const AMapRect: TRect;
-      const AImageProvider: IBitmapTileProvider;
-      const AMapCalibrationList: IMapCalibrationList;
-      const AFileName: string;
-      const ASplitCount: TPoint;
+      const AProgressUpdate: IBitmapCombineProgressUpdate;
       const AQuality: Integer;
       const ASaveGeoRefInfoToExif: Boolean
     );
@@ -83,33 +81,19 @@ uses
 
 { TThreadMapCombineJPG }
 
-constructor TThreadMapCombineJPG.Create(
-  const AProgressInfo: IRegionProcessProgressInfoInternal;
-  const APolygon: IGeometryLonLatPolygon;
-  const AMapRect: TRect;
-  const AImageProvider: IBitmapTileProvider;
-  const AMapCalibrationList: IMapCalibrationList;
-  const AFileName: string;
-  const ASplitCount: TPoint;
+constructor TBitmapMapCombinerJPG.Create(
+  const AProgressUpdate: IBitmapCombineProgressUpdate;
   const AQuality: Integer;
   const ASaveGeoRefInfoToExif: Boolean
 );
 begin
-  inherited Create(
-    AProgressInfo,
-    APolygon,
-    AMapRect,
-    AImageProvider,
-    AMapCalibrationList,
-    AFileName,
-    ASplitCount,
-    Self.ClassName
-  );
+  inherited Create;
+  FProgressUpdate := AProgressUpdate;
   FQuality := AQuality;
   FSaveGeoRefInfoToExif := ASaveGeoRefInfoToExif;
 end;
 
-procedure TThreadMapCombineJPG.SaveRect(
+procedure TBitmapMapCombinerJPG.SaveRect(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const AFileName: string;
@@ -129,6 +113,9 @@ var
   VCenterLonLat: TDoublePoint;
   VUseBGRAColorSpace: Boolean;
 begin
+  FOperationID := AOperationID;
+  FCancelNotifier := ACancelNotifier;
+
   VProjection := AImageProvider.Projection;
   VCurrentPieceRect := AMapRect;
   VMapPieceSize := RectSize(VCurrentPieceRect);
@@ -180,7 +167,7 @@ begin
   end;
 end;
 
-function TThreadMapCombineJPG.GetLine(
+function TBitmapMapCombinerJPG.GetLine(
   Sender: TObject;
   ALineNumber: Integer;
   ALineSize: Cardinal;
@@ -188,10 +175,10 @@ function TThreadMapCombineJPG.GetLine(
 ): PByte;
 begin
   if ALineNumber mod 256 = 0 then begin
-    ProgressFormUpdateOnProgress(ALineNumber / FHeight);
+    FProgressUpdate.Update(ALineNumber / FHeight);
   end;
-  Result := FLineProvider.GetLine(OperationID, CancelNotifier, ALineNumber);
-  Abort := (Result = nil) or CancelNotifier.IsOperationCanceled(OperationID);
+  Result := FLineProvider.GetLine(FOperationID, FCancelNotifier, ALineNumber);
+  Abort := (Result = nil) or FCancelNotifier.IsOperationCanceled(FOperationID);
 end;
 
 end.

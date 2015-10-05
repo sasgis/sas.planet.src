@@ -31,28 +31,25 @@ uses
   i_RegionProcessProgressInfo,
   i_GeometryLonLat,
   i_MapCalibration,
+  u_BaseInterfacedObject,
   u_ThreadMapCombineBase,
   LibBMP;
 
 type
-  TThreadMapCombineBMP = class(TThreadMapCombineBase)
-  protected
+  TBitmapMapCombinerBMP = class(TBaseInterfacedObject, IBitmapMapCombiner)
+  private
+    FProgressUpdate: IBitmapCombineProgressUpdate;
+  private
     procedure SaveRect(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
       const AImageProvider: IBitmapTileProvider;
       const AMapRect: TRect
-    ); override;
+    );
   public
     constructor Create(
-      const AProgressInfo: IRegionProcessProgressInfoInternal;
-      const APolygon: IGeometryLonLatPolygon;
-      const AMapRect: TRect;
-      const AImageProvider: IBitmapTileProvider;
-      const AMapCalibrationList: IMapCalibrationList;
-      const AFileName: string;
-      const ASplitCount: TPoint
+      const AProgressUpdate: IBitmapCombineProgressUpdate
     );
   end;
 
@@ -65,29 +62,15 @@ uses
   u_GeoFunc,
   u_ResStrings;
 
-constructor TThreadMapCombineBMP.Create(
-  const AProgressInfo: IRegionProcessProgressInfoInternal;
-  const APolygon: IGeometryLonLatPolygon;
-  const AMapRect: TRect;
-  const AImageProvider: IBitmapTileProvider;
-  const AMapCalibrationList: IMapCalibrationList;
-  const AFileName: string;
-  const ASplitCount: TPoint
+constructor TBitmapMapCombinerBMP.Create(
+  const AProgressUpdate: IBitmapCombineProgressUpdate
 );
 begin
-  inherited Create(
-    AProgressInfo,
-    APolygon,
-    AMapRect,
-    AImageProvider,
-    AMapCalibrationList,
-    AFileName,
-    ASplitCount,
-    Self.ClassName
-  );
+  inherited Create;
+  FProgressUpdate := AProgressUpdate;
 end;
 
-procedure TThreadMapCombineBMP.SaveRect(
+procedure TBitmapMapCombinerBMP.SaveRect(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const AFileName: string;
@@ -127,11 +110,11 @@ begin
         raise Exception.Create(_('BMP: Fill line failure!'));
       end;
 
-      if CancelNotifier.IsOperationCanceled(OperationID) then begin
+      if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         Break;
       end;
       if i mod 256 = 0 then begin
-        ProgressFormUpdateOnProgress(i / VSize.Y);
+        FProgressUpdate.Update(i / VSize.Y);
       end;
     end;
   finally

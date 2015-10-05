@@ -32,11 +32,13 @@ uses
   i_BitmapTileProvider,
   i_MapCalibration,
   i_GeometryLonLat,
+  u_BaseInterfacedObject,
   u_ThreadMapCombineBase;
 
 type
-  TThreadMapCombinePNG = class(TThreadMapCombineBase)
+  TBitmapMapCombinerPNG = class(TBaseInterfacedObject, IBitmapMapCombiner)
   private
+    FProgressUpdate: IBitmapCombineProgressUpdate;
     FWidth: Integer;
     FHeight: Integer;
     FWithAlpha: Boolean;
@@ -49,23 +51,17 @@ type
       const ALineSize: Integer;
       const AUserInfo: Pointer
     ): Pointer;
-  protected
+  private
     procedure SaveRect(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
       const AImageProvider: IBitmapTileProvider;
       const AMapRect: TRect
-    ); override;
+    );
   public
     constructor Create(
-      const AProgressInfo: IRegionProcessProgressInfoInternal;
-      const APolygon: IGeometryLonLatPolygon;
-      const AMapRect: TRect;
-      const AImageProvider: IBitmapTileProvider;
-      const AMapCalibrationList: IMapCalibrationList;
-      const AFileName: string;
-      const ASplitCount: TPoint;
+      const AProgressUpdate: IBitmapCombineProgressUpdate;
       AWithAlpha: Boolean
     );
   end;
@@ -80,31 +76,17 @@ uses
 
 { TThreadMapCombinePNG }
 
-constructor TThreadMapCombinePNG.Create(
-  const AProgressInfo: IRegionProcessProgressInfoInternal;
-  const APolygon: IGeometryLonLatPolygon;
-  const AMapRect: TRect;
-  const AImageProvider: IBitmapTileProvider;
-  const AMapCalibrationList: IMapCalibrationList;
-  const AFileName: string;
-  const ASplitCount: TPoint;
+constructor TBitmapMapCombinerPNG.Create(
+  const AProgressUpdate: IBitmapCombineProgressUpdate;
   AWithAlpha: Boolean
 );
 begin
-  inherited Create(
-    AProgressInfo,
-    APolygon,
-    AMapRect,
-    AImageProvider,
-    AMapCalibrationList,
-    AFileName,
-    ASplitCount,
-    Self.ClassName
-  );
+  inherited Create;
+  FProgressUpdate := AProgressUpdate;
   FWithAlpha := AWithAlpha;
 end;
 
-procedure TThreadMapCombinePNG.SaveRect(
+procedure TBitmapMapCombinerPNG.SaveRect(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const AFileName: string;
@@ -172,16 +154,16 @@ begin
   end;
 end;
 
-function TThreadMapCombinePNG.GetLineCallBack(
+function TBitmapMapCombinerPNG.GetLineCallBack(
   const ARowNumber: Integer;
   const ALineSize: Integer;
   const AUserInfo: Pointer
 ): Pointer;
 begin
   if ARowNumber mod 256 = 0 then begin
-    ProgressFormUpdateOnProgress(ARowNumber / FHeight);
+    FProgressUpdate.Update(ARowNumber / FHeight);
   end;
-  if not CancelNotifier.IsOperationCanceled(OperationID) then begin
+  if not FCancelNotifier.IsOperationCanceled(FOperationID) then begin
     Result := FLineProvider.GetLine(FOperationID, FCancelNotifier, ARowNumber);
   end else begin
     Result := nil;
