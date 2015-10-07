@@ -43,6 +43,7 @@ type
     FESCPath: IPathConfig;
     FGMTilesPath: IPathConfig;
     FMOBACPath: IPathConfig;
+    FTMSPath: IPathConfig;
     FGECachePath: IPathConfig;
     FGCCachePath: IPathConfig;
     FBDBCachePath: IPathConfig;
@@ -57,6 +58,7 @@ type
     function GetESCPath: IPathConfig;
     function GetGMTilesPath: IPathConfig;
     function GetMOBACTilesPath: IPathConfig;
+    function GetTMSTilesPath: IPathConfig;
     function GetGECachePath: IPathConfig;
     function GetGCCachePath: IPathConfig;
     function GetBDBCachePath: IPathConfig;
@@ -102,6 +104,9 @@ begin
 
   FMOBACPath := TPathConfig.Create('MOBACTiles', c_File_Cache_Default_MA, FCacheGlobalPath);
   Add(FMOBACPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
+
+  FTMSPath := TPathConfig.Create('TMSTiles', c_File_Cache_Default_TMS, FCacheGlobalPath);
+  Add(FTMSPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
 
   FGECachePath := TPathConfig.Create('GECache', c_File_Cache_Default_GE, FCacheGlobalPath);
   Add(FGECachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
@@ -193,6 +198,11 @@ begin
   Result := FMOBACPath;
 end;
 
+function TGlobalCacheConfig.GetTMSTilesPath: IPathConfig;
+begin
+  Result := FTMSPath;
+end;
+
 function TGlobalCacheConfig.GetNewCPath: IPathConfig;
 begin
   Result := FNewCPath;
@@ -214,6 +224,7 @@ begin
         c_File_Cache_Id_GM,
         c_File_Cache_Id_GM_Aux,
         c_File_Cache_Id_MOBAC,
+        c_File_Cache_Id_TMS,
         c_File_Cache_Id_DBMS,
         c_File_Cache_Id_RAM,
         c_File_Cache_Id_BDB,

@@ -599,7 +599,6 @@
 			<DCCReference Include="Src\MainForm\u_MapTypeMenuItemsGeneratorBasic.pas"/>
 			<DCCReference Include="Src\MainForm\u_MapTypeMenuItemsGeneratorSimple.pas"/>
 			<DCCReference Include="Src\MainForm\u_MapViewGoto.pas"/>
-			<DCCReference Include="Src\MainForm\u_MapViewPortState.pas"/>
 			<DCCReference Include="Src\MainForm\u_MapZoomingConfig.pas"/>
 			<DCCReference Include="Src\MainForm\u_MenuGeneratorByStaticTreeSimple.pas"/>
 			<DCCReference Include="Src\MainForm\u_MouseState.pas"/>
@@ -614,6 +613,7 @@
 			<DCCReference Include="Src\MainForm\u_StickToGrids.pas"/>
 			<DCCReference Include="Src\MainForm\u_TBXSASTheme.pas"/>
 			<DCCReference Include="Src\MainForm\u_TBXSubmenuItemWithIndicator.pas"/>
+			<DCCReference Include="Src\MainForm\u_ViewPortState.pas"/>
 			<DCCReference Include="Src\MainForm\u_ViewProjectionConfig.pas"/>
 			<DCCReference Include="Src\MapCalibration\i_MapCalibration.pas"/>
 			<DCCReference Include="Src\MapCalibration\u_MapCalibrationDat.pas"/>
@@ -783,6 +783,7 @@
 			<DCCReference Include="Src\MapType\u_ZmpFileNamesIteratorFactory.pas"/>
 			<DCCReference Include="Src\MapType\u_ZmpInfo.pas"/>
 			<DCCReference Include="Src\MapType\u_ZmpInfoSet.pas"/>
+			<DCCReference Include="Src\MapVersion\i_MapVersionChangeable.pas"/>
 			<DCCReference Include="Src\MapVersion\i_MapVersionConfig.pas"/>
 			<DCCReference Include="Src\MapVersion\i_MapVersionFactory.pas"/>
 			<DCCReference Include="Src\MapVersion\i_MapVersionFactoryList.pas"/>
@@ -790,7 +791,9 @@
 			<DCCReference Include="Src\MapVersion\i_MapVersionInfoGE.pas"/>
 			<DCCReference Include="Src\MapVersion\i_MapVersionListStatic.pas"/>
 			<DCCReference Include="Src\MapVersion\i_MapVersionRequest.pas"/>
+			<DCCReference Include="Src\MapVersion\i_MapVersionRequestChangeable.pas"/>
 			<DCCReference Include="Src\MapVersion\i_MapVersionRequestConfig.pas"/>
+			<DCCReference Include="Src\MapVersion\u_MapVersionChangeable.pas"/>
 			<DCCReference Include="Src\MapVersion\u_MapVersionConfig.pas"/>
 			<DCCReference Include="Src\MapVersion\u_MapVersionFactoryChangeable.pas"/>
 			<DCCReference Include="Src\MapVersion\u_MapVersionFactoryGE.pas"/>
@@ -799,6 +802,7 @@
 			<DCCReference Include="Src\MapVersion\u_MapVersionInfo.pas"/>
 			<DCCReference Include="Src\MapVersion\u_MapVersionListStatic.pas"/>
 			<DCCReference Include="Src\MapVersion\u_MapVersionRequest.pas"/>
+			<DCCReference Include="Src\MapVersion\u_MapVersionRequestChangeable.pas"/>
 			<DCCReference Include="Src\MapVersion\u_MapVersionRequestConfig.pas"/>
 			<DCCReference Include="Src\Marker\i_BitmapMarker.pas"/>
 			<DCCReference Include="Src\Marker\i_MarkerDrawable.pas"/>
@@ -886,6 +890,7 @@
 			<DCCReference Include="Src\MarksDB\GUI\i_MarksGUIConfig.pas"/>
 			<DCCReference Include="Src\MarksDB\GUI\u_MarkDbGUIHelper.pas"/>
 			<DCCReference Include="Src\MarksDB\GUI\u_MarksExplorerConfig.pas"/>
+			<DCCReference Include="Src\MarksDB\GUI\u_MarksExplorerHelper.pas"/>
 			<DCCReference Include="Src\MarksDB\GUI\u_MarksGUIConfig.pas"/>
 			<DCCReference Include="Src\MarksDB\SML\i_MarkCategoryDBSmlInternal.pas"/>
 			<DCCReference Include="Src\MarksDB\SML\i_MarkCategoryFactoryDbInternal.pas"/>
@@ -1680,7 +1685,7 @@
 			<DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
 			<DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
 			<DCCReference Include="Src\u_WindowPositionConfig.pas"/>
-			<DCCReference Include="Src\MarksDB\GUI\u_MarksExplorerHelper.pas"/>
+			<DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameTMS.pas"/>
 			<BuildConfiguration Include="Debug">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>

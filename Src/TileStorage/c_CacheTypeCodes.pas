@@ -32,6 +32,7 @@ const
   c_File_Cache_Id_GM_Bing = 42; // "Bing Maps (Virtual Earth) Tiles" <ZOOM>\<Y>\<X>.<ext>
   c_File_Cache_Id_MOBAC = 43; // "Mobile Atlas Creator" <ZOOM>\<X>\<Y>.<ext>
   c_File_Cache_Id_OsmAnd = 44; // OsmAnd+ <ZOOM>\<X>\<Y>.<ext>.tile
+  c_File_Cache_Id_TMS = 45; // "TileMapService" <ZOOM>\<X>\<Yb>.<ext> (<Yb> - starts from bottom)
   c_File_Cache_Id_GE = 5;  // GE imagery cache direct access
   c_File_Cache_Id_GEt = 51;  // GE terrain cache direct access
   c_File_Cache_Id_BDB = 6;
@@ -45,6 +46,7 @@ const
   c_File_Cache_Default_ES   = 'cache_es';      // for 3
   c_File_Cache_Default_GM   = 'cache_gmt';     // for 4, 41, 42
   c_File_Cache_Default_MA   = 'cache_ma';      // for 43
+  c_File_Cache_Default_TMS  = 'cache_tms';     // for 45
   c_File_Cache_Default_GE   = 'cache_ge';      // for 5
   c_File_Cache_Default_BDB  = 'cache_db';      // for 6
   c_File_Cache_Default_BDBv = 'cache_dbv';     // for 61

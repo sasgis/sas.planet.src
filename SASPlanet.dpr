@@ -1153,6 +1153,7 @@ uses
   u_TileFileNameMOBAC in 'Src\TileStorage\FileSystem\u_TileFileNameMOBAC.pas',
   u_TileFileNameOsmAnd in 'Src\TileStorage\FileSystem\u_TileFileNameOsmAnd.pas',
   u_TileFileNameSAS in 'Src\TileStorage\FileSystem\u_TileFileNameSAS.pas',
+  u_TileFileNameTMS in 'Src\TileStorage\FileSystem\u_TileFileNameTMS.pas',
   u_TileStorageFileSystem in 'Src\TileStorage\FileSystem\u_TileStorageFileSystem.pas',
   u_TileStorageTypeFileSystemSimple in 'Src\TileStorage\FileSystem\u_TileStorageTypeFileSystemSimple.pas',
   u_TileStorageGoogleEarth in 'Src\TileStorage\GoogleEarth\u_TileStorageGoogleEarth.pas',

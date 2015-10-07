@@ -35,12 +35,13 @@ object frmSettings: TfrmSettings
       object flwpnlMemCache: TFlowPanel
         AlignWithMargins = True
         Left = 3
-        Top = 305
+        Top = 333
         Width = 638
         Height = 25
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 0
+        ExplicitTop = 305
         object Label30: TLabel
           AlignWithMargins = True
           Left = 0
@@ -74,22 +75,24 @@ object frmSettings: TfrmSettings
       end
       object pnlDBMSPath: TPanel
         Left = 0
-        Top = 252
+        Top = 280
         Width = 644
         Height = 22
         Align = alTop
         BevelEdges = []
         BevelOuter = bvNone
         TabOrder = 2
+        ExplicitTop = 252
         object lbDBMSCachePath: TLabel
           AlignWithMargins = True
           Left = 3
           Top = 3
           Width = 54
-          Height = 13
+          Height = 16
           Align = alLeft
           Caption = 'DBMS root:'
           Layout = tlCenter
+          ExplicitHeight = 13
         end
         object edtDBMSCachePath: TEdit
           Left = 200
@@ -103,6 +106,7 @@ object frmSettings: TfrmSettings
           ParentBiDiMode = False
           ParentCtl3D = False
           TabOrder = 0
+          ExplicitHeight = 21
         end
         object pnlButtnos: TPanel
           Left = 595
@@ -158,25 +162,16 @@ object frmSettings: TfrmSettings
       end
       object pnlGECachePath: TPanel
         Left = 0
-        Top = 140
-        Width = 644
-        Height = 28
-        Align = alTop
-        BevelEdges = []
-        BevelOuter = bvNone
-        TabOrder = 6
-      end
-      object pnledtBDBCachePath: TPanel
-        Left = 0
         Top = 168
         Width = 644
         Height = 28
         Align = alTop
         BevelEdges = []
         BevelOuter = bvNone
-        TabOrder = 8
+        TabOrder = 6
+        ExplicitTop = 140
       end
-      object pnledtBDBVerCachePath: TPanel
+      object pnledtBDBCachePath: TPanel
         Left = 0
         Top = 196
         Width = 644
@@ -184,10 +179,10 @@ object frmSettings: TfrmSettings
         Align = alTop
         BevelEdges = []
         BevelOuter = bvNone
-        TabOrder = 8
+        TabOrder = 7
         ExplicitTop = 168
       end
-      object pnledtGCCachePath: TPanel
+      object pnledtBDBVerCachePath: TPanel
         Left = 0
         Top = 224
         Width = 644
@@ -195,17 +190,30 @@ object frmSettings: TfrmSettings
         Align = alTop
         BevelEdges = []
         BevelOuter = bvNone
+        TabOrder = 8
+        ExplicitTop = 196
+      end
+      object pnledtGCCachePath: TPanel
+        Left = 0
+        Top = 252
+        Width = 644
+        Height = 28
+        Align = alTop
+        BevelEdges = []
+        BevelOuter = bvNone
         TabOrder = 9
+        ExplicitTop = 224
       end
       object pnlDefCache: TPanel
         Left = 0
-        Top = 274
+        Top = 302
         Width = 644
         Height = 28
         Align = alTop
         BevelEdges = []
         BevelOuter = bvNone
         TabOrder = 10
+        ExplicitTop = 274
         object lbl: TLabel
           Left = 3
           Top = 12
@@ -233,7 +241,18 @@ object frmSettings: TfrmSettings
         BevelEdges = []
         BevelOuter = bvNone
         TabOrder = 11
-        ExplicitTop = 121
+      end
+      object pnlTMSPath: TPanel
+        Left = 0
+        Top = 140
+        Width = 644
+        Height = 28
+        Align = alTop
+        BevelEdges = []
+        BevelOuter = bvNone
+        TabOrder = 12
+        ExplicitLeft = -3
+        ExplicitTop = 162
       end
     end
     object tsInternet: TTabSheet
@@ -244,7 +263,7 @@ object frmSettings: TfrmSettings
         Left = 0
         Top = 0
         Width = 638
-        Height = 376
+        Height = 481
         Align = alClient
         BevelOuter = bvNone
         BorderWidth = 3

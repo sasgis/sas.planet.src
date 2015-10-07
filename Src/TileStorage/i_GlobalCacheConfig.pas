@@ -50,6 +50,9 @@ type
     function GetMOBACTilesPath: IPathConfig;
     property MOBACTilesPath: IPathConfig read GetMOBACTilesPath;
 
+    function GetTMSTilesPath: IPathConfig;
+    property TMSTilesPath: IPathConfig read GetTMSTilesPath;
+
     function GetGECachePath: IPathConfig;
     property GECachePath: IPathConfig read GetGECachePath;
 

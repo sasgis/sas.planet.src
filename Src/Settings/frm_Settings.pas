@@ -234,6 +234,7 @@ type
     lbl: TLabel;
     pnlMATilesPath: TPanel;
     pnlCacheTypesList: TPanel;
+    pnlTMSPath: TPanel;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -275,6 +276,7 @@ type
     FfrEScPath: TfrPathSelect;
     FfrGMTilesPath: TfrPathSelect;
     FfrMobileAtlasTilesPath: TfrPathSelect;
+    FfrTMSTilesPath: TfrPathSelect;
     FfrGECachePath: TfrPathSelect;
     FfrBDBCachePath: TfrPathSelect;
     FfrBDBVerCachePath: TfrPathSelect;
@@ -443,6 +445,12 @@ begin
       ALanguageManager,
       gettext_NoOp('MOBAC cache folder:'),
       GState.CacheConfig.MOBACTilesPath
+    );
+  FfrTMSTilesPath :=
+    TfrPathSelect.Create(
+      ALanguageManager,
+      gettext_NoOp('Tile Map Service (TMS) cache folder:'),
+      GState.CacheConfig.TMSTilesPath
     );
   FfrGECachePath :=
     TfrPathSelect.Create(
@@ -674,6 +682,7 @@ begin
   FfrESCPath.ApplyChanges;
   FfrGMTilesPath.ApplyChanges;
   FfrMobileAtlasTilesPath.ApplyChanges;
+  FfrTMSTilesPath.ApplyChanges;
   FfrGECachePath.ApplyChanges;
   FfrBDBCachePath.ApplyChanges;
   FfrBDBVerCachePath.ApplyChanges;
@@ -790,6 +799,7 @@ begin
   FreeAndNil(FfrEScPath);
   FreeAndNil(FfrGMTilesPath);
   FreeAndNil(FfrMobileAtlasTilesPath);
+  FreeAndNil(FfrTMSTilesPath);
   FreeAndNil(FfrGECachePath);
   FreeAndNil(FfrBDBCachePath);
   FreeAndNil(FfrBDBVerCachePath);
@@ -824,6 +834,7 @@ begin
   FfrEScPath.Show(pnlEScPath);
   FfrGMTilesPath.Show(pnlGMTilesPath);
   FfrMobileAtlasTilesPath.Show(pnlMATilesPath);
+  FfrTMSTilesPath.Show(pnlTMSPath);
   FfrGECachePath.Show(pnlGECachePath);
   FfrBDBCachePath.Show(pnledtBDBCachePath);
   FfrBDBVerCachePath.Show(pnledtBDBVerCachePath);
