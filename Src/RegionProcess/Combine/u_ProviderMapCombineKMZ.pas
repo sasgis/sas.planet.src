@@ -47,6 +47,7 @@ uses
   i_VectorItemSubsetBuilder,
   i_GlobalViewMainConfig,
   i_RegionProcessProgressInfoInternalFactory,
+  i_BitmapMapCombiner,
   u_ExportProviderAbstract,
   fr_MapSelect,
   u_ProviderMapCombine;
@@ -57,6 +58,11 @@ type
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FBitmapFactory: IBitmap32StaticFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
+  protected
+    function PrepareMapCombiner(
+      const AProgressInfo: IRegionProcessProgressInfoInternal
+    ): IBitmapMapCombiner; override;
+    function Validate(const APolygon: IGeometryLonLatPolygon): Boolean; override;
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
@@ -81,7 +87,6 @@ type
       const AValueToStringConverter: IValueToStringConverterChangeable;
       const AMapCalibrationList: IMapCalibrationList
     );
-    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
   end;
 
 implementation
@@ -90,7 +95,9 @@ uses
   Classes,
   Dialogs,
   Types,
+  Math,
   gnugettext,
+  t_GeoTypes,
   i_RegionProcessParamsFrame,
   i_Projection,
   u_ThreadMapCombineBase,
@@ -158,43 +165,14 @@ begin
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
 end;
 
-procedure TProviderMapCombineKMZ.StartProcess(const APolygon: IGeometryLonLatPolygon);
+function TProviderMapCombineKMZ.PrepareMapCombiner(
+  const AProgressInfo: IRegionProcessProgressInfoInternal
+): IBitmapMapCombiner;
 var
-  VMapCalibrations: IMapCalibrationList;
-  VFileName: string;
-  VSplitCount: TPoint;
-  VProjection: IProjection;
-  VProjectedPolygon: IGeometryProjectedPolygon;
-  VImageProvider: IBitmapTileProvider;
-  VProgressInfo: IRegionProcessProgressInfoInternal;
-  VMapRect: TRect;
-  VMapSize: TPoint;
-  VMapPieceSize: TPoint;
-  VKmzImgesCount: TPoint;
-  VThread: TThread;
   VProgressUpdate: IBitmapCombineProgressUpdate;
-  VCombiner: IBitmapMapCombiner;
 begin
-  VProjection := PrepareProjection;
-  VProjectedPolygon := PreparePolygon(VProjection, APolygon);
-  VImageProvider := PrepareImageProvider(APolygon, VProjection, VProjectedPolygon);
-  VMapCalibrations := (ParamsFrame as IRegionProcessParamsFrameMapCalibrationList).MapCalibrationList;
-  VFileName := PrepareTargetFileName;
-  VSplitCount := (ParamsFrame as IRegionProcessParamsFrameMapCombine).SplitCount;
-
-  VMapRect := PrepareTargetRect(VProjection, VProjectedPolygon);
-  VMapSize := RectSize(VMapRect);
-  VMapPieceSize.X := VMapSize.X div VSplitCount.X;
-  VMapPieceSize.Y := VMapSize.Y div VSplitCount.Y;
-  VKmzImgesCount.X := ((VMapPieceSize.X - 1) div 1024) + 1;
-  VKmzImgesCount.Y := ((VMapPieceSize.Y - 1) div 1024) + 1;
-  if ((VKmzImgesCount.X * VKmzImgesCount.Y) > 100) then begin
-    ShowMessage(SAS_MSG_GarminMax1Mp);
-  end;
-
-  VProgressInfo := ProgressFactory.Build(APolygon);
-  VProgressUpdate := TBitmapCombineProgressUpdate.Create(VProgressInfo);
-  VCombiner :=
+  VProgressUpdate := TBitmapCombineProgressUpdate.Create(AProgressInfo);
+  Result :=
     TBitmapMapCombinerKMZ.Create(
       VProgressUpdate,
       FBitmapFactory,
@@ -202,19 +180,54 @@ begin
       FArchiveReadWriteFactory,
       (ParamsFrame as IRegionProcessParamsFrameMapCombineJpg).Quality
     );
-  VThread :=
-    TThreadMapCombineBase.Create(
-      VProgressInfo,
-      APolygon,
-      VMapRect,
-      VCombiner,
-      VImageProvider,
-      VMapCalibrations,
-      VFileName,
-      VSplitCount,
-      Self.ClassName + 'Thread'
+end;
+
+function TProviderMapCombineKMZ.Validate(
+  const APolygon: IGeometryLonLatPolygon
+): Boolean;
+var
+  VSplitCount: TPoint;
+  VProjection: IProjection;
+  VLonLatRect: TDoubleRect;
+  VPixelRect: TRect;
+  VPixelSize: TPoint;
+  VKmzImgesCount: TPoint;
+begin
+  Result := inherited Validate(APolygon);
+  if not Result then begin
+    Exit;
+  end;
+  
+  if not Assigned(APolygon) then begin
+    Assert(False, _('Polygon isn''t selected'));
+    Result := False;
+    Exit;
+  end;
+  VSplitCount := (ParamsFrame as IRegionProcessParamsFrameMapCombine).SplitCount;
+  VProjection := PrepareProjection;
+  if not Assigned(VProjection) then begin
+    Assert(False, _('Projection isn''t selected'));
+    Result := False;
+    Exit;
+  end;
+  VLonLatRect := APolygon.Bounds.Rect;
+  VProjection.ProjectionType.ValidateLonLatRect(VLonLatRect);
+  VPixelRect :=
+    RectFromDoubleRect(
+      VProjection.LonLatRect2PixelRectFloat(VLonLatRect),
+      rrOutside
     );
-  VThread.Resume;
+  VPixelSize := RectSize(VPixelRect);
+  VPixelSize.X := Trunc(VPixelSize.X / VSplitCount.X);
+  VPixelSize.Y := Trunc(VPixelSize.Y / VSplitCount.Y);
+
+  VKmzImgesCount.X := ((VPixelSize.X - 1) div 1024) + 1;
+  VKmzImgesCount.Y := ((VPixelSize.Y - 1) div 1024) + 1;
+  if ((VKmzImgesCount.X * VKmzImgesCount.Y) > 100) then begin
+    ShowMessage(SAS_MSG_GarminMax1Mp);
+  end;
+
+  Result := True;
 end;
 
 end.

@@ -1037,6 +1037,7 @@
       <DesignClass>TFrame</DesignClass>
       <Form>frMapCombine</Form>
     </DCCReference>
+    <DCCReference Include="Src\RegionProcess\Combine\i_BitmapMapCombiner.pas" />
     <DCCReference Include="Src\RegionProcess\Combine\i_ImageLineProvider.pas" />
     <DCCReference Include="Src\RegionProcess\Combine\t_ECW.pas" />
     <DCCReference Include="Src\RegionProcess\Combine\u_CalcWFileParams.pas" />

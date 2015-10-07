@@ -52,7 +52,7 @@ type
       AZoom: byte;
       const APolygon: IGeometryLonLatPolygon
     );
-    function Validate: Boolean;
+    function Validate(const APolygon: IGeometryLonLatPolygon): Boolean;
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
@@ -130,12 +130,12 @@ begin
   end;
 end;
 
-function TfrDelete.Validate: Boolean;
+function TfrDelete.Validate(const APolygon: IGeometryLonLatPolygon): Boolean;
 begin
   if PageControl1.ActivePageIndex = 0 then begin
-    Result := FTiles.Validate;
+    Result := FTiles.Validate(APolygon);
   end else begin
-    Result := FMarks.Validate;
+    Result := FMarks.Validate(APolygon);
   end;
 end;
 

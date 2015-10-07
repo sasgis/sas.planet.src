@@ -31,8 +31,8 @@ uses
   i_RegionProcessProgressInfo,
   i_GeometryLonLat,
   i_MapCalibration,
+  i_BitmapMapCombiner,
   u_BaseInterfacedObject,
-  u_ThreadMapCombineBase,
   LibBMP;
 
 type

@@ -45,6 +45,7 @@ uses
   i_VectorItemSubsetBuilder,
   i_GlobalViewMainConfig,
   i_RegionProcessProgressInfoInternalFactory,
+  i_BitmapMapCombiner,
   u_ExportProviderAbstract,
   fr_MapSelect,
   u_ProviderMapCombine;
@@ -53,6 +54,10 @@ type
   TProviderMapCombineJP2 = class(TProviderMapCombineBase)
   private
     FLossless: Boolean;
+  protected
+    function PrepareMapCombiner(
+      const AProgressInfo: IRegionProcessProgressInfoInternal
+    ): IBitmapMapCombiner; override;
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
@@ -76,7 +81,6 @@ type
       const AMapCalibrationList: IMapCalibrationList;
       const ALossless: Boolean
     );
-    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
   end;
 
 implementation
@@ -155,49 +159,20 @@ begin
   );
 end;
 
-procedure TProviderMapCombineJP2.StartProcess(const APolygon: IGeometryLonLatPolygon);
+function TProviderMapCombineJP2.PrepareMapCombiner(
+  const AProgressInfo: IRegionProcessProgressInfoInternal
+): IBitmapMapCombiner;
 var
-  VMapCalibrations: IMapCalibrationList;
-  VFileName: string;
-  VSplitCount: TPoint;
-  VProjection: IProjection;
-  VProjectedPolygon: IGeometryProjectedPolygon;
-  VImageProvider: IBitmapTileProvider;
-  VProgressInfo: IRegionProcessProgressInfoInternal;
-  VThread: TThread;
   VQuality: Integer;
   VProgressUpdate: IBitmapCombineProgressUpdate;
-  VCombiner: IBitmapMapCombiner;
 begin
-  VProjection := PrepareProjection;
-  VProjectedPolygon := PreparePolygon(VProjection, APolygon);
-  VImageProvider := PrepareImageProvider(APolygon, VProjection, VProjectedPolygon);
-  VMapCalibrations := (ParamsFrame as IRegionProcessParamsFrameMapCalibrationList).MapCalibrationList;
-  VFileName := PrepareTargetFileName;
-  VSplitCount := (ParamsFrame as IRegionProcessParamsFrameMapCombine).SplitCount;
-
   if FLossless then begin
     VQuality := 100;
   end else begin
     VQuality := (ParamsFrame as IRegionProcessParamsFrameMapCombineJpg).Quality;
   end;
-
-  VProgressInfo := ProgressFactory.Build(APolygon);
-  VProgressUpdate := TBitmapCombineProgressUpdate.Create(VProgressInfo);
-  VCombiner := TBitmapMapCombinerECW.Create(VProgressUpdate, VQuality);
-  VThread :=
-    TThreadMapCombineBase.Create(
-      VProgressInfo,
-      APolygon,
-      PrepareTargetRect(VProjection, VProjectedPolygon),
-      VCombiner,
-      VImageProvider,
-      VMapCalibrations,
-      VFileName,
-      VSplitCount,
-      Self.ClassName + 'Thread'
-    );
-  VThread.Resume;
+  VProgressUpdate := TBitmapCombineProgressUpdate.Create(AProgressInfo);
+  Result := TBitmapMapCombinerECW.Create(VProgressUpdate, VQuality);
 end;
 
 end.

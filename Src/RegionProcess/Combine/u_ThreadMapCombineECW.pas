@@ -33,9 +33,9 @@ uses
   i_GeometryLonLat,
   i_ImageLineProvider,
   i_MapCalibration,
+  i_BitmapMapCombiner,
   u_ECWWrite,
-  u_BaseInterfacedObject,
-  u_ThreadMapCombineBase;
+  u_BaseInterfacedObject;
 
 type
   TBitmapMapCombinerECW = class(TBaseInterfacedObject, IBitmapMapCombiner)

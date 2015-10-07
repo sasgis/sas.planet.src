@@ -880,6 +880,7 @@ uses
   u_PredicateByTileInfoBase in 'Src\Predicate\u_PredicateByTileInfoBase.pas',
   fr_Combine in 'Src\RegionProcess\Combine\fr_Combine.pas' {frCombine: TFrame},
   fr_MapCombine in 'Src\RegionProcess\Combine\fr_MapCombine.pas' {frMapCombine: TFrame},
+  i_BitmapMapCombiner in 'Src\RegionProcess\Combine\i_BitmapMapCombiner.pas',
   i_ImageLineProvider in 'Src\RegionProcess\Combine\i_ImageLineProvider.pas',
   t_ECW in 'Src\RegionProcess\Combine\t_ECW.pas',
   u_CalcWFileParams in 'Src\RegionProcess\Combine\u_CalcWFileParams.pas',

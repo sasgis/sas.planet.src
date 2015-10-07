@@ -32,8 +32,8 @@ uses
   i_RegionProcessProgressInfo,
   i_GeometryLonLat,
   i_MapCalibration,
-  u_BaseInterfacedObject,
-  u_ThreadMapCombineBase;
+  i_BitmapMapCombiner,
+  u_BaseInterfacedObject;
 
 type
   TBitmapMapCombinerRAW = class(TBaseInterfacedObject, IBitmapMapCombiner)

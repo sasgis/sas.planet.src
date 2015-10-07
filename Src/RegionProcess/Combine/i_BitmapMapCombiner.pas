@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2015, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -18,29 +18,29 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_RegionProcessProvider;
+unit i_BitmapMapCombiner;
 
 interface
 
 uses
-  Controls,
-  i_GeometryLonLat;
+  Types,
+  i_NotifierOperation,
+  i_BitmapTileProvider;
 
 type
-  IRegionProcessProvider = interface
-    ['{14935473-1F97-4BCE-B208-A096B871EDE8}']
-    function GetCaption: string;
-    procedure Show(
-      AParent: TWinControl;
-      AZoom: byte;
-      const APolygon: IGeometryLonLatPolygon
-    );
-    procedure Hide;
-    function Validate(
-      const APolygon: IGeometryLonLatPolygon
-    ): Boolean;
-    procedure StartProcess(
-      const APolygon: IGeometryLonLatPolygon
+  IBitmapCombineProgressUpdate = interface
+    ['{79F63F0C-4B11-44AB-BCA0-E242E58FCE6B}']
+    procedure Update(AProgress: Double);
+  end;
+
+  IBitmapMapCombiner = interface
+    ['{AAE17956-FD14-4426-AD21-BB02A412FF4B}']
+    procedure SaveRect(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
+      const AFileName: string;
+      const AImageProvider: IBitmapTileProvider;
+      const AMapRect: TRect
     );
   end;
 

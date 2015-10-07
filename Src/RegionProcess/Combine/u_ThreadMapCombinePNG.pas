@@ -32,8 +32,8 @@ uses
   i_BitmapTileProvider,
   i_MapCalibration,
   i_GeometryLonLat,
-  u_BaseInterfacedObject,
-  u_ThreadMapCombineBase;
+  i_BitmapMapCombiner,
+  u_BaseInterfacedObject;
 
 type
   TBitmapMapCombinerPNG = class(TBaseInterfacedObject, IBitmapMapCombiner)

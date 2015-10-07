@@ -441,7 +441,7 @@ end;
 
 function TfrmRegionProcess.DelRegion(const APolyLL: IGeometryLonLatPolygon): Boolean;
 begin
-  Result := FfrDelete.Validate;
+  Result := FfrDelete.Validate(APolyLL);
   if Result then begin
     FfrDelete.StartProcess(APolyLL);
   end;
@@ -449,7 +449,7 @@ end;
 
 function TfrmRegionProcess.ExportREG(const APolyLL: IGeometryLonLatPolygon): Boolean;
 begin
-  Result := FfrExport.Validate;
+  Result := FfrExport.Validate(APolyLL);
   if Result then begin
     FfrExport.StartProcess(APolyLL);
   end;
@@ -457,7 +457,7 @@ end;
 
 function TfrmRegionProcess.savefilesREG(const APolyLL: IGeometryLonLatPolygon): Boolean;
 begin
-  Result := FProviderTilesCopy.Validate;
+  Result := FProviderTilesCopy.Validate(APolyLL);
   if Result then begin
     FProviderTilesCopy.StartProcess(APolyLL);
   end;
@@ -465,7 +465,7 @@ end;
 
 function TfrmRegionProcess.LoadRegion(const APolyLL: IGeometryLonLatPolygon): Boolean;
 begin
-  Result := FProviderTilesDownload.Validate;
+  Result := FProviderTilesDownload.Validate(APolyLL);
   if Result then begin
     FProviderTilesDownload.StartProcess(APolyLL);
   end;
@@ -473,7 +473,7 @@ end;
 
 function TfrmRegionProcess.genbacksatREG(const APolyLL: IGeometryLonLatPolygon): Boolean;
 begin
-  Result := FProviderTilesGenPrev.Validate;
+  Result := FProviderTilesGenPrev.Validate(APolyLL);
   if Result then begin
     FProviderTilesGenPrev.StartProcess(APolyLL);
   end;
@@ -481,7 +481,7 @@ end;
 
 function TfrmRegionProcess.scleitRECT(const APolyLL: IGeometryLonLatPolygon): Boolean;
 begin
-  Result := FfrCombine.Validate;
+  Result := FfrCombine.Validate(APolyLL);
   if Result then begin
     FfrCombine.StartProcess(APolyLL);
   end;

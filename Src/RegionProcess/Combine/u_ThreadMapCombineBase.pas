@@ -31,15 +31,11 @@ uses
   i_RegionProcessProgressInfo,
   i_GeometryLonLat,
   i_MapCalibration,
+  i_BitmapMapCombiner,
   u_BaseInterfacedObject,
   u_ThreadRegionProcessAbstract;
 
 type
-  IBitmapCombineProgressUpdate = interface
-    ['{79F63F0C-4B11-44AB-BCA0-E242E58FCE6B}']
-    procedure Update(AProgress: Double);
-  end;
-
   TBitmapCombineProgressUpdate = class(TBaseInterfacedObject, IBitmapCombineProgressUpdate)
   private
     FProgressInfo: IRegionProcessProgressInfoInternal;
@@ -48,17 +44,6 @@ type
   public
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal
-    );
-  end;
-
-  IBitmapMapCombiner = interface
-    ['{AAE17956-FD14-4426-AD21-BB02A412FF4B}']
-    procedure SaveRect(
-      AOperationID: Integer;
-      const ACancelNotifier: INotifierOperation;
-      const AFileName: string;
-      const AImageProvider: IBitmapTileProvider;
-      const AMapRect: TRect
     );
   end;
 

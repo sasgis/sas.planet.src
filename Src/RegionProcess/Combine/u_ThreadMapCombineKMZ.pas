@@ -36,8 +36,8 @@ uses
   i_Bitmap32BufferFactory,
   i_BitmapTileSaveLoadFactory,
   i_ArchiveReadWriteFactory,
-  u_BaseInterfacedObject,
-  u_ThreadMapCombineBase;
+  i_BitmapMapCombiner,
+  u_BaseInterfacedObject;
 
 type
   TBitmapMapCombinerKMZ = class(TBaseInterfacedObject, IBitmapMapCombiner)

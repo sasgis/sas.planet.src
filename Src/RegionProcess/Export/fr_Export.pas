@@ -77,7 +77,7 @@ type
       AZoom: byte;
       const APolygon: IGeometryLonLatPolygon
     );
-    function Validate: Boolean;
+    function Validate(const APolygon: IGeometryLonLatPolygon): Boolean;
   end;
 
 implementation
@@ -362,14 +362,14 @@ begin
   end;
 end;
 
-function TfrExport.Validate: Boolean;
+function TfrExport.Validate(const APolygon: IGeometryLonLatPolygon): Boolean;
 var
   VExportProvider: IRegionProcessProvider;
 begin
   Result := False;
   VExportProvider := IRegionProcessProvider(FProviders.Items[CBFormat.ItemIndex]);
   if VExportProvider <> nil then begin
-    Result := VExportProvider.Validate;
+    Result := VExportProvider.Validate(APolygon);
   end;
 end;
 

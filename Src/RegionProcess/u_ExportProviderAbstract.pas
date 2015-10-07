@@ -49,7 +49,9 @@ type
       const APolygon: IGeometryLonLatPolygon
     );
     procedure Hide;
-    function Validate: Boolean;
+    function Validate(
+      const APolygon: IGeometryLonLatPolygon
+    ): Boolean; virtual;
     procedure StartProcess(
       const APolygon: IGeometryLonLatPolygon
     ); virtual; abstract;
@@ -136,7 +138,9 @@ begin
   end;
 end;
 
-function TExportProviderAbstract.Validate: Boolean;
+function TExportProviderAbstract.Validate(
+  const APolygon: IGeometryLonLatPolygon
+): Boolean;
 begin
   Result := GetParamsFrame.Validate;
 end;
