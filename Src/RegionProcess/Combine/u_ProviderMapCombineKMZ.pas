@@ -26,8 +26,6 @@ uses
   i_LanguageManager,
   i_ProjectionSetList,
   i_ProjectionSetChangeable,
-  i_BitmapTileProvider,
-  i_GeometryProjected,
   i_GeometryLonLat,
   i_RegionProcessProgressInfo,
   i_ArchiveReadWriteFactory,
@@ -92,13 +90,11 @@ type
 implementation
 
 uses
-  Classes,
   Dialogs,
   Types,
   Math,
   gnugettext,
   t_GeoTypes,
-  i_RegionProcessParamsFrame,
   i_Projection,
   u_ThreadMapCombineBase,
   u_ThreadMapCombineKMZ,

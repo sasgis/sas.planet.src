@@ -25,7 +25,6 @@ interface
 uses
   Classes,
   Types,
-  i_NotifierOperation,
   i_Projection,
   i_BitmapTileProvider,
   i_RegionProcessProgressInfo,

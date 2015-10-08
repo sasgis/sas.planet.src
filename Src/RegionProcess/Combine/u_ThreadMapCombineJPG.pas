@@ -28,11 +28,8 @@ uses
   Classes,
   LibJpegWrite,
   i_NotifierOperation,
-  i_RegionProcessProgressInfo,
   i_Projection,
   i_BitmapTileProvider,
-  i_MapCalibration,
-  i_GeometryLonLat,
   i_ImageLineProvider,
   i_BitmapMapCombiner,
   u_BaseInterfacedObject;

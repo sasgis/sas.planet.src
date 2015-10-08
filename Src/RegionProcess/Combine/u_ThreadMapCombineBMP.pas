@@ -24,13 +24,9 @@ interface
 
 uses
   SysUtils,
-  Classes,
   Types,
   i_NotifierOperation,
   i_BitmapTileProvider,
-  i_RegionProcessProgressInfo,
-  i_GeometryLonLat,
-  i_MapCalibration,
   i_BitmapMapCombiner,
   u_BaseInterfacedObject,
   LibBMP;

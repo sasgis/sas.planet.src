@@ -29,9 +29,6 @@ uses
   t_Bitmap32,
   i_NotifierOperation,
   i_BitmapTileProvider,
-  i_RegionProcessProgressInfo,
-  i_GeometryLonLat,
-  i_MapCalibration,
   i_BitmapMapCombiner,
   u_BaseInterfacedObject;
 

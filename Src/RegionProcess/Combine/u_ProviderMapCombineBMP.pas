@@ -26,9 +26,6 @@ uses
   i_LanguageManager,
   i_ProjectionSetList,
   i_ProjectionSetChangeable,
-  i_BitmapTileProvider,
-  i_GeometryProjected,
-  i_GeometryLonLat,
   i_RegionProcessProgressInfo,
   i_UseTilePrevZoomConfig,
   i_BitmapPostProcessing,
@@ -83,14 +80,10 @@ type
 implementation
 
 uses
-  Classes,
   Types,
   gnugettext,
-  i_RegionProcessParamsFrame,
-  i_Projection,
   u_ThreadMapCombineBase,
-  u_ThreadMapCombineBMP,
-  fr_MapCombine;
+  u_ThreadMapCombineBMP;
 
 { TProviderMapCombineBMP }
 

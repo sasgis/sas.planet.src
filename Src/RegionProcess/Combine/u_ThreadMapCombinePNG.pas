@@ -28,10 +28,7 @@ uses
   Types,
   i_ImageLineProvider,
   i_NotifierOperation,
-  i_RegionProcessProgressInfo,
   i_BitmapTileProvider,
-  i_MapCalibration,
-  i_GeometryLonLat,
   i_BitmapMapCombiner,
   u_BaseInterfacedObject;
 
