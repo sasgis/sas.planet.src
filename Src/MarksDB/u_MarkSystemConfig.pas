@@ -34,7 +34,7 @@ uses
   u_ConfigDataElementBase;
 
 type
-  TMarkSystemConfig = class (TConfigDataElementBase, IMarkSystemConfigListChangeable)
+  TMarkSystemConfig = class(TConfigDataElementBase, IMarkSystemConfigListChangeable)
   private
     FID: Integer;
     FList: IIDInterfaceList;
@@ -144,7 +144,10 @@ begin
   Result := FID;
 end;
 
-function _GetDefaultConfig(const AID: Integer; const ADB: TGUID): IMarkSystemConfigStatic;
+function _GetDefaultConfig(
+  const AID: Integer;
+  const ADB: TGUID
+): IMarkSystemConfigStatic;
 var
   VImpl: IMarkSystemImplConfigStatic;
 begin
@@ -158,7 +161,10 @@ begin
   Result := TMarkSystemConfigStatic.Create(AID, ADB, _('My Marks'), VImpl);
 end;
 
-procedure _ShowConfigErrorFmt(const AMessageFmt: string; const AArgs: array of const);
+procedure _ShowConfigErrorFmt(
+  const AMessageFmt: string;
+  const AArgs: array of const
+);
 var
   VMsg: string;
 begin
@@ -211,13 +217,13 @@ begin
       VZeroGUID := GUIDToString(CGUID_Zero);
 
       for I := 0 to VCount - 1 do begin
-        VConfId := 'Item' + IntToStr(I+1) + '_';
+        VConfId := 'Item' + IntToStr(I + 1) + '_';
 
         VTmp := VConfig.ReadString(VConfId + 'Database', VZeroGUID);
         VDatabaseGUID := StringToGUID(VTmp);
 
         if IsEqualGUID(VDatabaseGUID, CGUID_Zero) then begin
-          _ShowConfigErrorFmt(_('MarkSystemConfig: Item #%d Database GUID read error!'), [I+1]);
+          _ShowConfigErrorFmt(_('MarkSystemConfig: Item #%d Database GUID read error!'), [I + 1]);
           Continue;
         end;
 
@@ -227,7 +233,7 @@ begin
         VImplGUID := StringToGUID(VTmp);
 
         if IsEqualGUID(VImplGUID, CGUID_Zero) then begin
-          _ShowConfigErrorFmt(_('MarkSystemConfig: Item #%d Impl GUID read error!'), [I+1]);
+          _ShowConfigErrorFmt(_('MarkSystemConfig: Item #%d Impl GUID read error!'), [I + 1]);
           Continue;
         end;
 
@@ -246,7 +252,7 @@ begin
         end else begin
           _ShowConfigErrorFmt(
             _('MarkSystemConfig: Item #%d has unknown Impl GUID: %s'),
-            [I+1, GUIDToString(VImplGUID)]
+            [I + 1, GUIDToString(VImplGUID)]
           );
           Continue;
         end;

@@ -29,7 +29,7 @@ uses
 
 type
   IGoogleEarthTerrainTileStorage = interface
-   ['{7B442714-32D4-4EA4-9841-85DBE07A1E7A}']
+    ['{7B442714-32D4-4EA4-9841-85DBE07A1E7A}']
     function GetTileInfo(
       const AXY: TPoint;
       const AZoom: Byte

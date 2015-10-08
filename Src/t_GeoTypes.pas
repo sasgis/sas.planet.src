@@ -30,6 +30,7 @@ type
   TRectRounding = (rrClosest, rrOutside, rrInside, rrToTopLeft);
 
   PDoublePoint = ^TDoublePoint;
+
   TDoublePoint = packed record
     X, Y: Double;
   end;

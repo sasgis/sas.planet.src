@@ -46,7 +46,10 @@ type
     mmoInfo: TMemo;
     embdwbDesc: TEmbeddedWB;
     splDesc: TSplitter;
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormClose(
+      Sender: TObject;
+      var Action: TCloseAction
+    );
   private
     FCancelNotifier: INotifierOperationInternal;
     FValueToStringConverter: IValueToStringConverterChangeable;
@@ -166,7 +169,10 @@ begin
     );
 end;
 
-procedure TfrmMarkInfo.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure TfrmMarkInfo.FormClose(
+  Sender: TObject;
+  var Action: TCloseAction
+);
 begin
   FCancelNotifier.NextOperation;
 end;

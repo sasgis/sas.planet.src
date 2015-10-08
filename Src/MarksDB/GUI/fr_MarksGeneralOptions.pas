@@ -207,23 +207,23 @@ begin
 
   clrbxPointTextColor.Selected := WinColor(VPointTemplate.CaptionAppearance.TextColor);
   clrbxPointShadowColor.Selected := WinColor(VPointTemplate.CaptionAppearance.TextBgColor);
-  sePointTextTransp.Value := 100-round(AlphaComponent(VPointTemplate.CaptionAppearance.TextColor)/255*100);
-  sePointShadowAlfa.Value := 100-round(AlphaComponent(VPointTemplate.CaptionAppearance.TextBgColor)/255*100);
+  sePointTextTransp.Value := 100 - round(AlphaComponent(VPointTemplate.CaptionAppearance.TextColor) / 255 * 100);
+  sePointShadowAlfa.Value := 100 - round(AlphaComponent(VPointTemplate.CaptionAppearance.TextBgColor) / 255 * 100);
   sePointFontSize.Value := VPointTemplate.CaptionAppearance.FontSize;
   sePointIconSize.Value := VPointTemplate.IconAppearance.MarkerSize;
 
 
   VPathTemplate := VConfig.LineTemplateConfig.DefaultTemplate;
   clrbxLineColor.Selected := WinColor(VPathTemplate.LineAppearance.LineColor);
-  seLineTransp.Value := 100-round(AlphaComponent(VPathTemplate.LineAppearance.LineColor)/255*100);
+  seLineTransp.Value := 100 - round(AlphaComponent(VPathTemplate.LineAppearance.LineColor) / 255 * 100);
   seLineWidth.Value := VPathTemplate.LineAppearance.LineWidth;
 
   VPolyTemplate := VConfig.PolyTemplateConfig.DefaultTemplate;
 
   clrbxPolyLineColor.Selected := WinColor(VPolyTemplate.BorderAppearance.LineColor);
-  sePolyLineTransp.Value := 100-round(AlphaComponent(VPolyTemplate.BorderAppearance.LineColor)/255*100);
+  sePolyLineTransp.Value := 100 - round(AlphaComponent(VPolyTemplate.BorderAppearance.LineColor) / 255 * 100);
   clrbxPolyFillColor.Selected := WinColor(VPolyTemplate.FillAppearance.FillColor);
-  sePolyFillTransp.Value := 100-round(AlphaComponent(VPolyTemplate.FillAppearance.FillColor)/255*100);
+  sePolyFillTransp.Value := 100 - round(AlphaComponent(VPolyTemplate.FillAppearance.FillColor) / 255 * 100);
   sePolyLineWidth.Value := VPolyTemplate.BorderAppearance.LineWidth;
 
   chkPointIgnore.Checked := FIsIgnoreByDefault;
@@ -264,8 +264,8 @@ begin
     end;
     VAppearance :=
       FAppearanceOfMarkFactory.CreatePointAppearance(
-        SetAlpha(Color32(clrbxPointTextColor.Selected),round(((100-sePointTextTransp.Value)/100)*256)),
-        SetAlpha(Color32(clrbxPointShadowColor.Selected),round(((100-sePointShadowAlfa.Value)/100)*256)),
+        SetAlpha(Color32(clrbxPointTextColor.Selected), round(((100 - sePointTextTransp.Value) / 100) * 256)),
+        SetAlpha(Color32(clrbxPointShadowColor.Selected), round(((100 - sePointShadowAlfa.Value) / 100) * 256)),
         sePointFontSize.Value,
         VPicName,
         VPic,
@@ -276,7 +276,7 @@ begin
   if not chkLineIgnore.Checked then begin
     VAppearance :=
       FAppearanceOfMarkFactory.CreateLineAppearance(
-        SetAlpha(Color32(clrbxLineColor.Selected),round(((100-seLineTransp.Value)/100)*256)),
+        SetAlpha(Color32(clrbxLineColor.Selected), round(((100 - seLineTransp.Value) / 100) * 256)),
         seLineWidth.Value
       );
     VLineParams := TImportLineParams.Create(VAppearance, FIsForceSet, FIsForceSet);
@@ -284,9 +284,9 @@ begin
   if not chkPolyIgnore.Checked then begin
     VAppearance :=
       FAppearanceOfMarkFactory.CreatePolygonAppearance(
-        SetAlpha(Color32(clrbxPolyLineColor.Selected),round(((100-sePolyLineTransp.Value)/100)*256)),
+        SetAlpha(Color32(clrbxPolyLineColor.Selected), round(((100 - sePolyLineTransp.Value) / 100) * 256)),
         sePolyLineWidth.Value,
-        SetAlpha(Color32(clrbxPolyFillColor.Selected),round(((100-sePolyFillTransp.Value)/100)*256))
+        SetAlpha(Color32(clrbxPolyFillColor.Selected), round(((100 - sePolyFillTransp.Value) / 100) * 256))
       );
     VPolyParams := TImportPolyParams.Create(VAppearance, FIsForceSet, FIsForceSet, FIsForceSet);
   end;
@@ -302,27 +302,37 @@ end;
 
 procedure TfrMarksGeneralOptions.btnLineColorClick(Sender: TObject);
 begin
-  if ColorDialog1.Execute then clrbxLineColor.Selected:=ColorDialog1.Color;
+  if ColorDialog1.Execute then begin
+    clrbxLineColor.Selected := ColorDialog1.Color;
+  end;
 end;
 
 procedure TfrMarksGeneralOptions.btnPointShadowColorClick(Sender: TObject);
 begin
-  if ColorDialog1.Execute then clrbxPointShadowColor.Selected:=ColorDialog1.Color;
+  if ColorDialog1.Execute then begin
+    clrbxPointShadowColor.Selected := ColorDialog1.Color;
+  end;
 end;
 
 procedure TfrMarksGeneralOptions.btnPointTextColorClick(Sender: TObject);
 begin
-  if ColorDialog1.Execute then clrbxPointTextColor.Selected:=ColorDialog1.Color;
+  if ColorDialog1.Execute then begin
+    clrbxPointTextColor.Selected := ColorDialog1.Color;
+  end;
 end;
 
 procedure TfrMarksGeneralOptions.btnPolyFillColorClick(Sender: TObject);
 begin
-  if ColorDialog1.Execute then clrbxPolyFillColor.Selected:=ColorDialog1.Color;
+  if ColorDialog1.Execute then begin
+    clrbxPolyFillColor.Selected := ColorDialog1.Color;
+  end;
 end;
 
 procedure TfrMarksGeneralOptions.btnPolyLineColorClick(Sender: TObject);
 begin
-  if ColorDialog1.Execute then clrbxPolyLineColor.Selected:=ColorDialog1.Color;
+  if ColorDialog1.Execute then begin
+    clrbxPolyLineColor.Selected := ColorDialog1.Color;
+  end;
 end;
 
 procedure TfrMarksGeneralOptions.imgIconMouseDown(Sender: TObject);

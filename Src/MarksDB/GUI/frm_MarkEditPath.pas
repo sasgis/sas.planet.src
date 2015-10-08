@@ -148,10 +148,10 @@ begin
   end;
   frMarkCategory.Init(VCategory);
   try
-    edtName.Text:=AMark.Name;
+    edtName.Text := AMark.Name;
     frMarkDescription.Description := AMark.Desc;
     if Supports(AMark.Appearance, IAppearanceLine, VAppearanceLine) then begin
-      SEtransp.Value := 100-round(AlphaComponent(VAppearanceLine.LineColor)/255*100);
+      SEtransp.Value := 100 - round(AlphaComponent(VAppearanceLine.LineColor) / 255 * 100);
       seWidth.Value := VAppearanceLine.LineWidth;
       clrbxLineColor.Selected := WinColor(VAppearanceLine.LineColor);
     end else begin
@@ -159,14 +159,14 @@ begin
       seWidth.Value := 0;
       clrbxLineColor.Selected := WinColor(clBlack32);
     end;
-    chkVisible.Checked:= AVisible;
+    chkVisible.Checked := AVisible;
     if AIsNewMark then begin
       Caption := SAS_STR_AddNewPath;
     end else begin
       Caption := SAS_STR_EditPath;
     end;
     Self.PopupParent := Application.MainForm;
-    if ShowModal=mrOk then begin
+    if ShowModal = mrOk then begin
       Result :=
         FMarkFactory.CreateMark(
           AMark.Geometry,
@@ -195,7 +195,7 @@ function TfrmMarkEditPath.MakeAppearance: IAppearance;
 begin
   Result :=
     FAppearanceOfMarkFactory.CreateLineAppearance(
-      SetAlpha(Color32(clrbxLineColor.Selected),round(((100-SEtransp.Value)/100)*256)),
+      SetAlpha(Color32(clrbxLineColor.Selected), round(((100 - SEtransp.Value) / 100) * 256)),
       seWidth.Value
     );
 end;
@@ -223,7 +223,9 @@ end;
 
 procedure TfrmMarkEditPath.btnLineColorClick(Sender: TObject);
 begin
- if ColorDialog1.Execute then clrbxLineColor.Selected:=ColorDialog1.Color;
+  if ColorDialog1.Execute then begin
+    clrbxLineColor.Selected := ColorDialog1.Color;
+  end;
 end;
 
 end.

@@ -526,7 +526,9 @@ begin
   if R2.Right < R1.Right then Rect.Right := R2.Right;
   if R2.Bottom < R1.Bottom then Rect.Bottom := R2.Bottom;
   Result := not IsProjectedRectEmpty(Rect);
-  if not Result then FillChar(Rect, SizeOf(Rect), 0);
+  if not Result then begin
+    FillChar(Rect, SizeOf(Rect), 0);
+  end;
 end;
 
 function IsIntersecProjectedRect(const R1, R2: TDoubleRect): Boolean;
@@ -544,6 +546,3 @@ begin
 end;
 
 end.
-
-
-

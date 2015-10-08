@@ -184,8 +184,7 @@ end;
 function TfrExportToCE.Validate: Boolean;
 begin
   Result := (edtTargetFile.Text <> '');
-  if not Result then
-  begin
+  if not Result then begin
     ShowMessage(_('Please, select output file first!'));
     Exit;
   end;
@@ -291,8 +290,9 @@ begin
   FfrMapSelect.Show(pnlMap);
   SetMapName();
   FfrZoomsSelect.Show(pnlZoom);
-  if TempPath <> '' then
+  if TempPath <> '' then begin
     edtTargetFile.Text := IncludeTrailingPathDelimiter(TempPath) + FfrMapSelect.GetSelectedMapType.GetShortFolderName;
+  end;
 end;
 
 end.

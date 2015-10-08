@@ -21,6 +21,7 @@
 unit u_PascalScriptMath;
 
 interface
+
 uses
   uPSRuntime,
   uPSCompiler;
@@ -74,7 +75,10 @@ begin
   Result := Min(A, B);
 end;
 
-function IntPower_P(const Base: Extended; const Exponent: Integer): Extended;
+function IntPower_P(
+  const Base: Extended;
+  const Exponent: Integer
+): Extended;
 begin
   Result := IntPower(Base, Exponent);
 end;

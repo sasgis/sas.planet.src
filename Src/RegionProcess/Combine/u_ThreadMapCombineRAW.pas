@@ -100,7 +100,7 @@ var
 begin
   FOperationID := AOperationID;
   FCancelNotifier := ACancelNotifier;
-  
+
   VSize := RectSize(AMapRect);
 
   VRawFile := TFileStream.Create(AFileName, fmCreate);
@@ -130,7 +130,7 @@ begin
       VMetaInfo := VMetaInfo + 'DefaultFill=#' + AlIntToHex(VBgColor.R, 2) + AlIntToHex(VBgColor.G, 2) + AlIntToHex(VBgColor.B, 2) + AlIntToHex(VBgColor.A, 2) + #13#10;
     end else begin
       VMetaInfo := VMetaInfo + 'Bit/pixel=24' + #13#10;
-      VMetaInfo := VMetaInfo + 'ByteOrder=RGB'  + #13#10;
+      VMetaInfo := VMetaInfo + 'ByteOrder=RGB' + #13#10;
       VMetaInfo := VMetaInfo + 'DefaultFill=#' + AlIntToHex(VBgColor.R, 2) + AlIntToHex(VBgColor.G, 2) + AlIntToHex(VBgColor.B, 2) + #13#10;
     end;
 

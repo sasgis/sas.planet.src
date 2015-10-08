@@ -52,7 +52,7 @@ type
     FGPSRecorder: IGPSRecorder;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
-    FPolygonBuilder: IGeometryLonLatPolygonBuilder; 
+    FPolygonBuilder: IGeometryLonLatPolygonBuilder;
 
     FGpsPosChangeFlag: ISimpleFlag;
 

@@ -178,9 +178,12 @@ begin
   end;
 end;
 
-function TTileStorageInRAM.GetTileInfoEx(const AXY: TPoint; const AZoom: Byte;
+function TTileStorageInRAM.GetTileInfoEx(
+  const AXY: TPoint;
+  const AZoom: Byte;
   const AVersionInfo: IMapVersionRequest;
-  const AMode: TGetTileInfoMode): ITileInfoBasic;
+  const AMode: TGetTileInfoMode
+): ITileInfoBasic;
 var
   VVersionInfo: IMapVersionInfo;
 begin
@@ -228,7 +231,7 @@ begin
           Exit;
         end;
         VIndex := TTileRectInfoShort.TileInRectToIndex(VTile, VRect);
-        Assert(VIndex >=0);
+        Assert(VIndex >= 0);
         if VIndex >= 0 then begin
           VTileInfo := GetTileInfoEx(VTile, VZoom, AVersionInfo, gtimWithoutData);
           if VTileInfo.IsExists then begin

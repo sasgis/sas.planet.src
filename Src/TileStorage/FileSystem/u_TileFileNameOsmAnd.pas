@@ -53,7 +53,7 @@ uses
   SysUtils;
 
 const
-  c_OsmAnd_Expr  = '^(.+\\)?(\d\d?)\\(\d+)\\(\d+)(\..+)?$';
+  c_OsmAnd_Expr = '^(.+\\)?(\d\d?)\\(\d+)\\(\d+)(\..+)?$';
 
 { TTileFileNameOsmAnd }
 
@@ -99,10 +99,11 @@ const
 var
   Ext: String;
 begin
-  if SameFileName(AExt, CTneFileExt) then
-    Ext := AExt
-  else
+  if SameFileName(AExt, CTneFileExt) then begin
+    Ext := AExt;
+  end else begin
     Ext := AExt + '.tile';
+  end;
   Result := inherited AddExt(AFileName, Ext);
 end;
 

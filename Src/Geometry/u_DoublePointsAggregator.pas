@@ -56,7 +56,7 @@ implementation
 
 uses
   u_DoublePoints;
-  
+
 { TDoublePointsAggregator }
 
 constructor TDoublePointsAggregator.Create(const ACapacity: Integer = 0);
@@ -83,7 +83,7 @@ var
   VNewCapacity: Integer;
   VPoints: PDoublePointArray;
 begin
-  Assert(AAddCount >=0);
+  Assert(AAddCount >= 0);
   VNewCount := FCount + AAddCount;
   if VNewCount > FCapacity then begin
     VNewCapacity := FCapacity;

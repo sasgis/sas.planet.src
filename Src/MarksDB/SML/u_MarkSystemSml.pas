@@ -63,7 +63,10 @@ type
       const AState: IReadWriteStateInternal
     ): TStream;
     procedure MakeBackUp(const AFileName: string);
-    procedure Initialize(AOperationID: Integer; const ACancelNotifier: INotifierOperation);
+    procedure Initialize(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation
+    );
   private
     function GetMarkDb: IMarkDbImpl;
     function GetCategoryDB: IMarkCategoryDBImpl;

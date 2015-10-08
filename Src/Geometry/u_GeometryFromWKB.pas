@@ -127,7 +127,7 @@ begin
   VBuilder := FFactory.MakeLineBuilder;
   AStream.ReadBuffer(VCount, SizeOf(VCount));
 
-  if VCount >= MaxInt / (1 + 4  + 4 + 2 * SizeOf(Double)) then begin
+  if VCount >= MaxInt / (1 + 4 + 4 + 2 * SizeOf(Double)) then begin
     Abort;
   end;
 
@@ -165,7 +165,7 @@ begin
   VBuilder := FFactory.MakePolygonBuilder;
   AStream.ReadBuffer(VCount, SizeOf(VCount));
 
-  if VCount >= MaxInt / (1 + 4  + 4 + 2 * SizeOf(Double)) then begin
+  if VCount >= MaxInt / (1 + 4 + 4 + 2 * SizeOf(Double)) then begin
     Abort;
   end;
 
@@ -220,7 +220,7 @@ var
 begin
   AStream.ReadBuffer(VCount, SizeOf(VCount));
 
-  if VCount >= MaxInt / (1 + 4  + 4 + 2 * SizeOf(Double)) then begin
+  if VCount >= MaxInt / (1 + 4 + 4 + 2 * SizeOf(Double)) then begin
     Abort;
   end;
   if VCount > 0 then begin
@@ -287,8 +287,9 @@ begin
     wkbGeometryTypeMultiPolygon: begin
       Result := LoadMultiPolygon(AStream, VOrder);
     end;
-    else
-      Abort;
+  else begin
+    Abort;
+  end;
   end;
 end;
 

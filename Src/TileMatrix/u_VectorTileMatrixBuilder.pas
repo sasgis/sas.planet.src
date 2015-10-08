@@ -46,7 +46,10 @@ type
     function GetTileRect: ITileRect;
 
     function GetTile(const ATile: TPoint): IVectorItemSubset;
-    procedure SetTile(const ATile: TPoint; const AValue: IVectorItemSubset);
+    procedure SetTile(
+      const ATile: TPoint;
+      const AValue: IVectorItemSubset
+    );
 
     procedure SetRectWithReset(const ATileRect: ITileRect);
     procedure SetRect(const ATileRect: ITileRect);
@@ -77,7 +80,10 @@ uses
   u_VectorTileProviderByOtherProjection,
   u_VectorTileMatrix;
 
-function IndexByPos(const ARect: TRect; const APos: TPoint): Integer; inline;
+function IndexByPos(
+  const ARect: TRect;
+  const APos: TPoint
+): Integer; inline;
 begin
   Result := APos.X - ARect.Left + (APos.Y - ARect.Top) * (ARect.Right - ARect.Left);
 end;

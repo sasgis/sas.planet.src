@@ -56,7 +56,10 @@ type
   private
     FCategoryDB: IMarkCategoryDB;
   public
-    function EditCategory(const ACategory: IMarkCategory; AIsNewMark: Boolean): IMarkCategory;
+    function EditCategory(
+      const ACategory: IMarkCategory;
+      AIsNewMark: Boolean
+    ): IMarkCategory;
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const ACategoryDB: IMarkCategoryDB
@@ -97,19 +100,22 @@ begin
   FCategoryDB := ACategoryDB;
 end;
 
-function TfrmMarkCategoryEdit.EditCategory(const ACategory: IMarkCategory; AIsNewMark: Boolean): IMarkCategory;
+function TfrmMarkCategoryEdit.EditCategory(
+  const ACategory: IMarkCategory;
+  AIsNewMark: Boolean
+): IMarkCategory;
 begin
-  EditName.Text:=SAS_STR_NewPoly;
+  EditName.Text := SAS_STR_NewPoly;
 
   if AIsNewMark then begin
-    Self.Caption:=SAS_STR_AddNewCategory;
+    Self.Caption := SAS_STR_AddNewCategory;
   end else begin
-    Self.Caption:=SAS_STR_EditCategory;
+    Self.Caption := SAS_STR_EditCategory;
   end;
-  EditName.Text:=ACategory.Name;
-  EditS1.Value:=ACategory.AfterScale;
-  EditS2.Value:=ACategory.BeforeScale;
-  CBShow.Checked:=ACategory.Visible;
+  EditName.Text := ACategory.Name;
+  EditS1.Value := ACategory.AfterScale;
+  EditS2.Value := ACategory.BeforeScale;
+  CBShow.Checked := ACategory.Visible;
   if ShowModal = mrOk then begin
     Result := FCategoryDB.Factory.Modify(
         ACategory,

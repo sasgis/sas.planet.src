@@ -288,7 +288,7 @@ begin
 
   CBFormat.ItemIndex := 0;
   CBFormat.DropDownCount := VList.Count;
-  
+
   FProviders := VList.MakeStaticAndClear;
   Assert(CBFormat.Items.Count = FProviders.Count);
 end;

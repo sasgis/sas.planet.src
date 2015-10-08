@@ -125,7 +125,10 @@ type
 
     function Add(const AItem: IBerkeleyDBVersionedMetaValueElement): Integer;
 
-    procedure Replace(const AIndex: Integer; const AItem: IBerkeleyDBVersionedMetaValueElement);
+    procedure Replace(
+      const AIndex: Integer;
+      const AItem: IBerkeleyDBVersionedMetaValueElement
+    );
 
     procedure Del(const AIndex: Integer);
   end;

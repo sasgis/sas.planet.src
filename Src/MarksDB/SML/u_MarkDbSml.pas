@@ -106,7 +106,10 @@ type
   private
     { IMarkDbSmlInternal }
     function GetById(AId: Integer): IVectorDataItem;
-    procedure Initialize(AOperationID: Integer; const ACancelNotifier: INotifierOperation);
+    procedure Initialize(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation
+    );
   private
     function UpdateMark(
       const AOldMark: IVectorDataItem;
@@ -846,7 +849,10 @@ begin
   end;
 end;
 
-procedure TMarkDbSml.SetMarkVisible(const AMark: IVectorDataItem; AVisible: Boolean);
+procedure TMarkDbSml.SetMarkVisible(
+  const AMark: IVectorDataItem;
+  AVisible: Boolean
+);
 var
   VMarkVisible: IMarkSMLInternal;
   VId: Integer;
@@ -1226,7 +1232,8 @@ end;
 
 function TMarkDbSml.GetMarkSubsetByCategoryList(
   const ACategoryList: IMarkCategoryList;
-  const AIncludeHiddenMarks: Boolean): IVectorItemSubset;
+  const AIncludeHiddenMarks: Boolean
+): IVectorItemSubset;
 var
   VResultList: IVectorItemSubsetBuilder;
   i: Integer;
@@ -1235,22 +1242,22 @@ var
 begin
   Result := nil;
   VResultList := FVectorItemSubsetBuilderFactory.Build;
-    LockRead;
-    try
-      if (ACategoryList = nil) then begin
-        _AddMarksToList(FMarkList, AIncludeHiddenMarks, VResultList);
-      end else begin
-        for i := 0 to ACategoryList.Count - 1 do begin
-          VCategoryID := GetCategoryID(ICategory(ACategoryList[i]));
-          VList := IIDInterfaceList(FByCategoryList.GetByID(VCategoryID));
-          if VList <> nil then begin
-            _AddMarksToList(VList, AIncludeHiddenMarks, VResultList);
-          end;
+  LockRead;
+  try
+    if (ACategoryList = nil) then begin
+      _AddMarksToList(FMarkList, AIncludeHiddenMarks, VResultList);
+    end else begin
+      for i := 0 to ACategoryList.Count - 1 do begin
+        VCategoryID := GetCategoryID(ICategory(ACategoryList[i]));
+        VList := IIDInterfaceList(FByCategoryList.GetByID(VCategoryID));
+        if VList <> nil then begin
+          _AddMarksToList(VList, AIncludeHiddenMarks, VResultList);
         end;
       end;
-    finally
-      UnlockRead;
     end;
+  finally
+    UnlockRead;
+  end;
   Result := VResultList.MakeStaticAndClear;
 end;
 
@@ -1268,22 +1275,22 @@ var
 begin
   Result := nil;
   VResultList := FVectorItemSubsetBuilderFactory.Build;
-    LockRead;
-    try
-      if (ACategoryList = nil) then begin
-        _AddMarksToListByRect(FMarkList, ARect, AIncludeHiddenMarks, VResultList);
-      end else begin
-        for i := 0 to ACategoryList.Count - 1 do begin
-          VCategoryID := GetCategoryID(ICategory(ACategoryList[i]));
-          VList := IIDInterfaceList(FByCategoryList.GetByID(VCategoryID));
-          if VList <> nil then begin
-            _AddMarksToListByRect(VList, ARect, AIncludeHiddenMarks, VResultList);
-          end;
+  LockRead;
+  try
+    if (ACategoryList = nil) then begin
+      _AddMarksToListByRect(FMarkList, ARect, AIncludeHiddenMarks, VResultList);
+    end else begin
+      for i := 0 to ACategoryList.Count - 1 do begin
+        VCategoryID := GetCategoryID(ICategory(ACategoryList[i]));
+        VList := IIDInterfaceList(FByCategoryList.GetByID(VCategoryID));
+        if VList <> nil then begin
+          _AddMarksToListByRect(VList, ARect, AIncludeHiddenMarks, VResultList);
         end;
       end;
-    finally
-      UnlockRead;
     end;
+  finally
+    UnlockRead;
+  end;
   Result := VResultList.MakeStaticAndClear;
 end;
 
@@ -1324,8 +1331,10 @@ begin
   Result := VResultList.MakeStaticAndClear;
 end;
 
-function TMarkDbSml.GetMarkSubsetByCategory(const ACategory: ICategory;
-  const AIncludeHiddenMarks: Boolean): IVectorItemSubset;
+function TMarkDbSml.GetMarkSubsetByCategory(
+  const ACategory: ICategory;
+  const AIncludeHiddenMarks: Boolean
+): IVectorItemSubset;
 var
   VResultList: IVectorItemSubsetBuilder;
   VCategoryId: Integer;
@@ -1333,20 +1342,20 @@ var
 begin
   Result := nil;
   VResultList := FVectorItemSubsetBuilderFactory.Build;
-    if ACategory = nil then begin
-      VList := FMarkList;
-    end else begin
-      VCategoryId := GetCategoryID(ACategory);
-      VList := IIDInterfaceList(FByCategoryList.GetByID(VCategoryId));
+  if ACategory = nil then begin
+    VList := FMarkList;
+  end else begin
+    VCategoryId := GetCategoryID(ACategory);
+    VList := IIDInterfaceList(FByCategoryList.GetByID(VCategoryId));
+  end;
+  if VList <> nil then begin
+    LockRead;
+    try
+      _AddMarksToList(VList, AIncludeHiddenMarks, VResultList);
+    finally
+      UnlockRead;
     end;
-    if VList <> nil then begin
-      LockRead;
-      try
-        _AddMarksToList(VList, AIncludeHiddenMarks, VResultList);
-      finally
-        UnlockRead;
-      end;
-    end;
+  end;
   Result := VResultList.MakeStaticAndClear;
 end;
 
@@ -1363,24 +1372,27 @@ var
 begin
   Result := nil;
   VResultList := FVectorItemSubsetBuilderFactory.Build;
-    if ACategory = nil then begin
-      VList := FMarkList;
-    end else begin
-      VCategoryId := GetCategoryID(ACategory);
-      VList := IIDInterfaceList(FByCategoryList.GetByID(VCategoryId));
+  if ACategory = nil then begin
+    VList := FMarkList;
+  end else begin
+    VCategoryId := GetCategoryID(ACategory);
+    VList := IIDInterfaceList(FByCategoryList.GetByID(VCategoryId));
+  end;
+  if VList <> nil then begin
+    LockRead;
+    try
+      _AddMarksToListByRect(VList, ARect, AIncludeHiddenMarks, VResultList);
+    finally
+      UnlockRead;
     end;
-    if VList <> nil then begin
-      LockRead;
-      try
-        _AddMarksToListByRect(VList, ARect, AIncludeHiddenMarks, VResultList);
-      finally
-        UnlockRead;
-      end;
-    end;
+  end;
   Result := VResultList.MakeStaticAndClear;
 end;
 
-procedure TMarkDbSml.Initialize(AOperationID: Integer; const ACancelNotifier: INotifierOperation);
+procedure TMarkDbSml.Initialize(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation
+);
 
   procedure UpgradeXmlSchema;
   var
@@ -1392,7 +1404,7 @@ procedure TMarkDbSml.Initialize(AOperationID: Integer; const ACancelNotifier: IN
     if I >= 0 then begin
       VPicNameFieldDef := FCdsMarks.FieldDefs.Items[I];
       if (VPicNameFieldDef.DataType = ftString) and (VPicNameFieldDef.Size <> 255) then begin
-        FCdsMarks.XMLData := 
+        FCdsMarks.XMLData :=
           StringReplace(
             FCdsMarks.XMLData,
             '<FIELD attrname="picname" fieldtype="string" WIDTH="20"',

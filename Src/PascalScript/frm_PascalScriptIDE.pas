@@ -117,12 +117,18 @@ type
     procedure tbxtmWordWrapClick(Sender: TObject);
     procedure tbxtmFromZipClick(Sender: TObject);
     procedure tbxtmFromFolderClick(Sender: TObject);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormClose(
+      Sender: TObject;
+      var Action: TCloseAction
+    );
     procedure btnSetXYZClick(Sender: TObject);
     procedure tbxtmToArchiveClick(Sender: TObject);
     procedure tbxtmToFolderClick(Sender: TObject);
     procedure tbxtmHelpClick(Sender: TObject);
-    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure FormCloseQuery(
+      Sender: TObject;
+      var CanClose: Boolean
+    );
   private
     FPrepared: Boolean;
     FNeedSavePrompt: Boolean;
@@ -159,7 +165,10 @@ type
     procedure OnBeforeRunScript(const APSExec: TPSExecEx);
     procedure OnExecSuccess;
     procedure CreateSynEditTextHighlighters;
-    procedure OnSynEditStatusChange(Sender: TObject; Changes: TSynStatusChanges);
+    procedure OnSynEditStatusChange(
+      Sender: TObject;
+      Changes: TSynStatusChanges
+    );
     procedure CreateMapUIMapsList;
     procedure CreateMapUILayersList;
     procedure OnClick(Sender: TObject);
@@ -326,14 +335,20 @@ begin
   inherited Destroy;
 end;
 
-procedure TfrmPascalScriptIDE.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure TfrmPascalScriptIDE.FormClose(
+  Sender: TObject;
+  var Action: TCloseAction
+);
 begin
   Self.CancelOperation;
   Action := caHide;
   Application.MainForm.SetFocus;
 end;
 
-procedure TfrmPascalScriptIDE.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+procedure TfrmPascalScriptIDE.FormCloseQuery(
+  Sender: TObject;
+  var CanClose: Boolean
+);
 begin
   if FNeedSavePrompt then begin
     CanClose := MessageDlg(rsCanCloseQuery, mtInformation, [mbYes, mbNo], 0) = mrYes;
@@ -387,14 +402,14 @@ begin
     FScriptBuffer := VBuff;
     FNeedSavePrompt := True;
   end;
-  
+
   VCode := FZmp.DataProvider.ReadAnsiString('GetUrlScript.txt', '');
 
   VComp := TPSPascalCompilerEx.Create(CompileTime_GetRegProcArray);
   try
     Result := VComp.Compile(VCode);
     lstLog.Clear;
-    for I := 0 to VComp.MsgCount -1 do begin
+    for I := 0 to VComp.MsgCount - 1 do begin
       lstLog.Items.Add(VComp.Msg[I].MessageToString);
     end;
     if Result then begin
@@ -483,7 +498,7 @@ var
 begin
   VFileName := ExcludeTrailingPathDelimiter(APath);
   VFileName := ExtractFileName(VFileName);
-  
+
   VZmpMapConfig := TConfigDataProviderByFolder.Create(APath);
 
   Result :=
@@ -751,7 +766,11 @@ end;
 
 procedure TfrmPascalScriptIDE.CreateSynEditTextHighlighters;
 
-  procedure SetProps(ASynEdit: TSynEdit; AParent: TWinControl; ATag: Integer);
+  procedure SetProps(
+    ASynEdit: TSynEdit;
+    AParent: TWinControl;
+    ATag: Integer
+  );
   begin
     with ASynEdit do begin
       Parent := AParent;
@@ -780,8 +799,10 @@ begin
   SetProps(synedtParams, pnlParamsTxt, 2);
 end;
 
-procedure TfrmPascalScriptIDE.OnSynEditStatusChange(Sender: TObject;
-  Changes: TSynStatusChanges);
+procedure TfrmPascalScriptIDE.OnSynEditStatusChange(
+  Sender: TObject;
+  Changes: TSynStatusChanges
+);
 var
   VEdit: TSynEdit;
 begin

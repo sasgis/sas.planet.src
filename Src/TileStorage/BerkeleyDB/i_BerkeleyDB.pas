@@ -36,10 +36,28 @@ type
     function Exists(const AKey: IBinaryData): Boolean; overload;
     function Del(const AKey: IBinaryData): Boolean; overload;
 
-    function Read(const AKey: IBinaryData;  const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean; const AFlag: Cardinal = 0): IBinaryData; overload;
-    function Write(const AKey, AValue: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean): Boolean; overload;
-    function Exists(const AKey: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean; const AFlag: Cardinal = 0): Boolean; overload;
-    function Del(const AKey: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean): Boolean; overload;
+    function Read(
+      const AKey: IBinaryData;
+      const ATxn: PBerkeleyTxn;
+      out AIsDeadLock: Boolean;
+      const AFlag: Cardinal = 0
+    ): IBinaryData; overload;
+    function Write(
+      const AKey, AValue: IBinaryData;
+      const ATxn: PBerkeleyTxn;
+      out AIsDeadLock: Boolean
+    ): Boolean; overload;
+    function Exists(
+      const AKey: IBinaryData;
+      const ATxn: PBerkeleyTxn;
+      out AIsDeadLock: Boolean;
+      const AFlag: Cardinal = 0
+    ): Boolean; overload;
+    function Del(
+      const AKey: IBinaryData;
+      const ATxn: PBerkeleyTxn;
+      out AIsDeadLock: Boolean
+    ): Boolean; overload;
 
     function CreateExistsKeyArray(out AKeyArray: TExistsKeyArray): Boolean;
     procedure ReleaseExistsKeyArray(var AKeyArray: TExistsKeyArray);

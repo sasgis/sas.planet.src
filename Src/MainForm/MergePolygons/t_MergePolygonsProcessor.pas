@@ -36,7 +36,7 @@ type
     SinglePolygon: IGeometryLonLatSinglePolygon;
   end;
   PMergePolygonsItem = ^TMergePolygonsItem;
-  
+
   TMergePolygonsItemArray = array of TMergePolygonsItem;
 
 implementation

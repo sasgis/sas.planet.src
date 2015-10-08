@@ -888,71 +888,71 @@ begin
 
     VIterator.Init(VTileRect);
     while VIterator.Next(VTile) do begin
-        VSpr := LoadTileOrPreZ(VTile, AZoom, AVersion, IgnoreError, AUsePre, ACache);
-        if VSpr <> nil then begin
-          VPixelRectCurrTile := VProjection.TilePos2PixelRect(VTile);
+      VSpr := LoadTileOrPreZ(VTile, AZoom, AVersion, IgnoreError, AUsePre, ACache);
+      if VSpr <> nil then begin
+        VPixelRectCurrTile := VProjection.TilePos2PixelRect(VTile);
 
-          if VPixelRectCurrTile.Top < APixelRectTarget.Top then begin
-            VSourceBounds.Top := APixelRectTarget.Top - VPixelRectCurrTile.Top;
-          end else begin
-            VSourceBounds.Top := 0;
-          end;
-
-          if VPixelRectCurrTile.Left < APixelRectTarget.Left then begin
-            VSourceBounds.Left := APixelRectTarget.Left - VPixelRectCurrTile.Left;
-          end else begin
-            VSourceBounds.Left := 0;
-          end;
-
-          if VPixelRectCurrTile.Bottom < APixelRectTarget.Bottom then begin
-            VSourceBounds.Bottom := VPixelRectCurrTile.Bottom - VPixelRectCurrTile.Top;
-          end else begin
-            VSourceBounds.Bottom := APixelRectTarget.Bottom - VPixelRectCurrTile.Top;
-          end;
-
-          if VPixelRectCurrTile.Right < APixelRectTarget.Right then begin
-            VSourceBounds.Right := VPixelRectCurrTile.Right - VPixelRectCurrTile.Left;
-          end else begin
-            VSourceBounds.Right := APixelRectTarget.Right - VPixelRectCurrTile.Left;
-          end;
-
-          if VPixelRectCurrTile.Top < APixelRectTarget.Top then begin
-            VTargetBounds.Top := 0;
-          end else begin
-            VTargetBounds.Top := VPixelRectCurrTile.Top - APixelRectTarget.Top;
-          end;
-
-          if VPixelRectCurrTile.Left < APixelRectTarget.Left then begin
-            VTargetBounds.Left := 0;
-          end else begin
-            VTargetBounds.Left := VPixelRectCurrTile.Left - APixelRectTarget.Left;
-          end;
-
-          if VPixelRectCurrTile.Bottom < APixelRectTarget.Bottom then begin
-            VTargetBounds.Bottom := VPixelRectCurrTile.Bottom - APixelRectTarget.Top;
-          end else begin
-            VTargetBounds.Bottom := APixelRectTarget.Bottom - APixelRectTarget.Top;
-          end;
-
-          if VPixelRectCurrTile.Right < APixelRectTarget.Right then begin
-            VTargetBounds.Right := VPixelRectCurrTile.Right - APixelRectTarget.Left;
-          end else begin
-            VTargetBounds.Right := APixelRectTarget.Right - APixelRectTarget.Left;
-          end;
-
-          BlockTransfer(
-            VBitmap,
-            VTargetBounds.Left,
-            VTargetBounds.Top,
-            VSpr,
-            VSourceBounds,
-            dmOpaque
-          );
+        if VPixelRectCurrTile.Top < APixelRectTarget.Top then begin
+          VSourceBounds.Top := APixelRectTarget.Top - VPixelRectCurrTile.Top;
         end else begin
-          if not AAllowPartial then begin
-            Exit;
-          end;
+          VSourceBounds.Top := 0;
         end;
+
+        if VPixelRectCurrTile.Left < APixelRectTarget.Left then begin
+          VSourceBounds.Left := APixelRectTarget.Left - VPixelRectCurrTile.Left;
+        end else begin
+          VSourceBounds.Left := 0;
+        end;
+
+        if VPixelRectCurrTile.Bottom < APixelRectTarget.Bottom then begin
+          VSourceBounds.Bottom := VPixelRectCurrTile.Bottom - VPixelRectCurrTile.Top;
+        end else begin
+          VSourceBounds.Bottom := APixelRectTarget.Bottom - VPixelRectCurrTile.Top;
+        end;
+
+        if VPixelRectCurrTile.Right < APixelRectTarget.Right then begin
+          VSourceBounds.Right := VPixelRectCurrTile.Right - VPixelRectCurrTile.Left;
+        end else begin
+          VSourceBounds.Right := APixelRectTarget.Right - VPixelRectCurrTile.Left;
+        end;
+
+        if VPixelRectCurrTile.Top < APixelRectTarget.Top then begin
+          VTargetBounds.Top := 0;
+        end else begin
+          VTargetBounds.Top := VPixelRectCurrTile.Top - APixelRectTarget.Top;
+        end;
+
+        if VPixelRectCurrTile.Left < APixelRectTarget.Left then begin
+          VTargetBounds.Left := 0;
+        end else begin
+          VTargetBounds.Left := VPixelRectCurrTile.Left - APixelRectTarget.Left;
+        end;
+
+        if VPixelRectCurrTile.Bottom < APixelRectTarget.Bottom then begin
+          VTargetBounds.Bottom := VPixelRectCurrTile.Bottom - APixelRectTarget.Top;
+        end else begin
+          VTargetBounds.Bottom := APixelRectTarget.Bottom - APixelRectTarget.Top;
+        end;
+
+        if VPixelRectCurrTile.Right < APixelRectTarget.Right then begin
+          VTargetBounds.Right := VPixelRectCurrTile.Right - APixelRectTarget.Left;
+        end else begin
+          VTargetBounds.Right := APixelRectTarget.Right - APixelRectTarget.Left;
+        end;
+
+        BlockTransfer(
+          VBitmap,
+          VTargetBounds.Left,
+          VTargetBounds.Top,
+          VSpr,
+          VSourceBounds,
+          dmOpaque
+        );
+      end else begin
+        if not AAllowPartial then begin
+          Exit;
+        end;
+      end;
     end;
     Result := VBitmap.MakeAndClear;
   finally

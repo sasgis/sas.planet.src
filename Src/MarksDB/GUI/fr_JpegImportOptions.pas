@@ -210,8 +210,8 @@ begin
 
   VAppearance :=
     FAppearanceOfMarkFactory.CreatePointAppearance(
-      SetAlpha(Color32(clrbxPointTextColor.Selected),round(((100-sePointTextTransp.Value)/100)*256)),
-      SetAlpha(Color32(clrbxPointShadowColor.Selected),round(((100-sePointShadowAlfa.Value)/100)*256)),
+      SetAlpha(Color32(clrbxPointTextColor.Selected), round(((100 - sePointTextTransp.Value) / 100) * 256)),
+      SetAlpha(Color32(clrbxPointShadowColor.Selected), round(((100 - sePointShadowAlfa.Value) / 100) * 256)),
       sePointFontSize.Value,
       VPicName,
       VPic,
@@ -232,12 +232,16 @@ end;
 
 procedure TfrJpegImportOptions.btnPointShadowColorClick(Sender: TObject);
 begin
-  if ColorDialog1.Execute then clrbxPointShadowColor.Selected:=ColorDialog1.Color;
+  if ColorDialog1.Execute then begin
+    clrbxPointShadowColor.Selected := ColorDialog1.Color;
+  end;
 end;
 
 procedure TfrJpegImportOptions.btnPointTextColorClick(Sender: TObject);
 begin
-  if ColorDialog1.Execute then clrbxPointTextColor.Selected:=ColorDialog1.Color;
+  if ColorDialog1.Execute then begin
+    clrbxPointTextColor.Selected := ColorDialog1.Color;
+  end;
 end;
 
 procedure TfrJpegImportOptions.imgIconMouseDown(Sender: TObject);

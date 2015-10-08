@@ -71,7 +71,7 @@ constructor TfrmImportConfigEdit.Create(
 begin
   inherited Create(ALanguageManager);
 
-  frMarksGeneralOptions:=
+  frMarksGeneralOptions :=
     TfrMarksGeneralOptions.Create(
       ALanguageManager,
       AAppearanceOfMarkFactory,

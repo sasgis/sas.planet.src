@@ -228,10 +228,11 @@ constructor TBitmap32To8ConverterByLibImageQuant.Create(const AQuietErrors: Bool
 
   procedure RaiseLastOSError;
   begin
-    if AQuietErrors then
-      Abort
-    else
+    if AQuietErrors then begin
+      Abort;
+    end else begin
       SysUtils.RaiseLastOSError;
+    end;
   end;
 
 begin

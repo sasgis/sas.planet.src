@@ -45,7 +45,7 @@ implementation
 
 uses
   Math;
-  
+
 { TProjectionTypeMercatorOnSphere }
 
 constructor TProjectionTypeMercatorOnSphere.Create(

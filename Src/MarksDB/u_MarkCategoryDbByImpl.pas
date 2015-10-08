@@ -114,7 +114,7 @@ begin
   FChangeNotifier := FChangeNotifierInternal;
   FImplChangeListener := TNotifyNoMmgEventListener.Create(Self.OnImplChange);
   FDbImplChangeListener := TNotifyNoMmgEventListener.Create(Self.OnDbImplChange);
-  
+
   FMarkSystemImpl.ChangeNotifier.Add(FImplChangeListener);
   OnDBImplChange;
 end;

@@ -56,7 +56,10 @@ uses
   u_PascalScriptTypes,
   u_PascalScriptUtils;
 
-function PascalScriptOnUses(Sender: TPSPascalCompiler; const AName: TbtString): Boolean;
+function PascalScriptOnUses(
+  Sender: TPSPascalCompiler;
+  const AName: TbtString
+): Boolean;
 var
   I: Integer;
   VComp: TPSPascalCompilerEx;

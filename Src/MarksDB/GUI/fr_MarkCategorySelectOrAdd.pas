@@ -41,7 +41,10 @@ type
     FCategoryDB: IMarkCategoryDB;
     FCategoryList: IMarkCategoryList;
     FLastUsedCategoryName: string;
-    procedure CategoryListToStrings(const AList: IMarkCategoryList; AStrings: TStrings);
+    procedure CategoryListToStrings(
+      const AList: IMarkCategoryList;
+      AStrings: TStrings
+    );
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -116,7 +119,7 @@ begin
   VCategoryText := Trim(CBKateg.Text);
   VIndex := CBKateg.ItemIndex;
   if VIndex < 0 then begin
-    VIndex:= CBKateg.Items.IndexOf(VCategoryText);
+    VIndex := CBKateg.Items.IndexOf(VCategoryText);
   end;
   if VIndex >= 0 then begin
     Result := ICategory(Pointer(CBKateg.Items.Objects[VIndex]));

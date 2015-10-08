@@ -177,7 +177,7 @@ begin
       AMarkFactory,
       FNotifierInternal
     );
-  
+
   FCategoryDB :=
     TMarkCategoryDbByImpl.Create(
       FSystemImpl,

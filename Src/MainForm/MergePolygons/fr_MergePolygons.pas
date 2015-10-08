@@ -74,7 +74,10 @@ type
     tbtmXOR: TTBItem;
     tbSep4: TTBSeparatorItem;
     tbtmGroup: TTBItem;
-    procedure tvPolygonsListAddition(Sender: TObject; Node: TTreeNode);
+    procedure tvPolygonsListAddition(
+      Sender: TObject;
+      Node: TTreeNode
+    );
     procedure tbMergeClick(Sender: TObject);
     procedure tbUpClick(Sender: TObject);
     procedure tbDownClick(Sender: TObject);
@@ -83,11 +86,21 @@ type
     procedure tbtmSaveClick(Sender: TObject);
     procedure tbtmSelectClick(Sender: TObject);
     procedure tmrProgressCheckTimer(Sender: TObject);
-    procedure tvPolygonsListKeyDown(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
-    procedure tvPolygonsListDragDrop(Sender, Source: TObject; X, Y: Integer);
-    procedure tvPolygonsListDragOver(Sender, Source: TObject; X, Y: Integer;
-      State: TDragState; var Accept: Boolean);
+    procedure tvPolygonsListKeyDown(
+      Sender: TObject;
+      var Key: Word;
+      Shift: TShiftState
+    );
+    procedure tvPolygonsListDragDrop(
+      Sender, Source: TObject;
+      X, Y: Integer
+    );
+    procedure tvPolygonsListDragOver(
+      Sender, Source: TObject;
+      X, Y: Integer;
+      State: TDragState;
+      var Accept: Boolean
+    );
     procedure tbtmClearClick(Sender: TObject);
     procedure OnOperationClick(Sender: TObject);
   private
@@ -153,7 +166,7 @@ resourcestring
   rsMergeFail = 'Merge failed!';
 
   rsMergeFinish = 'Merge process completed successfully!' + #13#10 +
-                  'Result contains %d polygon(s) with %d hole(s)';
+    'Result contains %d polygon(s) with %d hole(s)';
 
   rsProcessedAt = 'Processed at: %.8f sec.';
 
@@ -175,7 +188,10 @@ begin
   end;
 end;
 
-procedure CopyItem(const ASrc: TMergePolygonsItem; out ADest: TMergePolygonsItem); inline;
+procedure CopyItem(
+  const ASrc: TMergePolygonsItem;
+  out ADest: TMergePolygonsItem
+); inline;
 begin
   ADest.Name := ASrc.Name;
   ADest.VectorData := ASrc.VectorData;
@@ -292,7 +308,7 @@ begin
 
   if not IsDublicate(VItem) then begin
     I := Length(FItems);
-    SetLength(FItems, I+1);
+    SetLength(FItems, I + 1);
 
     CopyItem(VItem, FItems[I]);
 
@@ -470,7 +486,7 @@ begin
   VNode := tvPolygonsList.Selected;
   if Assigned(VNode) then begin
     VDelIndex := Integer(VNode.Data);
-    SetLength(VItems, Length(FItems)-1);
+    SetLength(VItems, Length(FItems) - 1);
     J := 0;
     for I := 0 to Length(FItems) - 1 do begin
       if I <> VDelIndex then begin
@@ -508,7 +524,10 @@ begin
   end;
 end;
 
-procedure TfrMergePolygons.tvPolygonsListAddition(Sender: TObject; Node: TTreeNode);
+procedure TfrMergePolygons.tvPolygonsListAddition(
+  Sender: TObject;
+  Node: TTreeNode
+);
 var
   I: Integer;
 begin
@@ -544,8 +563,11 @@ begin
   end;
 end;
 
-procedure TfrMergePolygons.tvPolygonsListDragDrop(Sender, Source: TObject; X,
-  Y: Integer);
+procedure TfrMergePolygons.tvPolygonsListDragDrop(
+  Sender, Source: TObject;
+  X,
+  Y: Integer
+);
 var
   I, J: Integer;
   VNode, VNext: TTreeNode;
@@ -569,14 +591,22 @@ begin
   end;
 end;
 
-procedure TfrMergePolygons.tvPolygonsListDragOver(Sender, Source: TObject; X,
-  Y: Integer; State: TDragState; var Accept: Boolean);
+procedure TfrMergePolygons.tvPolygonsListDragOver(
+  Sender, Source: TObject;
+  X,
+  Y: Integer;
+  State: TDragState;
+  var Accept: Boolean
+);
 begin
   Accept := Assigned(tvPolygonsList.GetNodeAt(X, Y));
 end;
 
-procedure TfrMergePolygons.tvPolygonsListKeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TfrMergePolygons.tvPolygonsListKeyDown(
+  Sender: TObject;
+  var Key: Word;
+  Shift: TShiftState
+);
 begin
   if Key = VK_RETURN then begin
     tvPolygonsListDblClick(Sender);
@@ -597,7 +627,7 @@ procedure TfrMergePolygons.tmrProgressCheckTimer(Sender: TObject);
 begin
   FNotifierTimeInternal.Notify(GetTickCount);
 
-  if FNeedShowProgress and (SecondsBetween(Now, FMergePolygonsProgress.StartedAt) >= 1)  then begin
+  if FNeedShowProgress and (SecondsBetween(Now, FMergePolygonsProgress.StartedAt) >= 1) then begin
     FNeedShowProgress := False;
     FfrmProgress.Show;
   end;
@@ -671,7 +701,7 @@ procedure TfrMergePolygons.ResetMergeResult;
 begin
   FMergePolygonsResult.Polygon := nil;
   FMergeResultInternal := nil;
-  
+
   tmrProgressCheck.Enabled := False;
   FMergePolygonsProgress.ResetProgress;
 end;

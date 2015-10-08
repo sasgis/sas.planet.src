@@ -35,7 +35,10 @@ type
     property TileRect: ITileRect read GetTileRect;
 
     function GetTile(const ATile: TPoint): IBitmap32Static;
-    procedure SetTile(const ATile: TPoint; const AValue: IBitmap32Static);
+    procedure SetTile(
+      const ATile: TPoint;
+      const AValue: IBitmap32Static
+    );
     property Tiles[const ATile: TPoint]: IBitmap32Static read GetTile write SetTile;
 
     procedure SetRectWithReset(const ATileRect: ITileRect);

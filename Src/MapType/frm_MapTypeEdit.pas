@@ -418,7 +418,10 @@ end;
 
 procedure TfrmMapTypeEdit.CreateSynEditTextHighlighters;
 
-  procedure SetProps(ASynEdit: TSynEdit; AParent: TWinControl);
+  procedure SetProps(
+    ASynEdit: TSynEdit;
+    AParent: TWinControl
+  );
   begin
     with ASynEdit do begin
       Parent := AParent;

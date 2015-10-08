@@ -71,7 +71,10 @@ type
     seCacheSize: TSpinEdit;
     procedure btnCancelClick(Sender: TObject);
     procedure cbbDbTypeChange(Sender: TObject);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormClose(
+      Sender: TObject;
+      var Action: TCloseAction
+    );
     procedure btnOpenFileClick(Sender: TObject);
     procedure btnOkClick(Sender: TObject);
     procedure chkShowPassClick(Sender: TObject);
@@ -150,7 +153,7 @@ begin
       VDefItem := VCount;
     end;
     VItem := FMarkSystemFactoryList.Get(VGUID);
-    SetLength(FGUIDList, VCount+1);
+    SetLength(FGUIDList, VCount + 1);
     FGUIDList[VCount] := VGUID;
     Inc(VCount);
     cbbDbType.Items.Add(VItem.Caption);
@@ -160,7 +163,10 @@ begin
   end;
 end;
 
-procedure TfrmMarkSystemConfigEdit.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure TfrmMarkSystemConfigEdit.FormClose(
+  Sender: TObject;
+  var Action: TCloseAction
+);
 begin
   Clear;
 end;
@@ -351,14 +357,10 @@ begin
         VFileName,
         VIsReadOnly
       );
-  end
-  else
-  if
-    VIsSQLite or
+  end else if VIsSQLite or
     IsEqualGUID(VDatabase, cORMMongoDbMarksDbGUID) or
     IsEqualGUID(VDatabase, cORMODBCMarksDbGUID) or
-    IsEqualGUID(VDatabase, cORMZDBCMarksDbGUID) then
-  begin
+    IsEqualGUID(VDatabase, cORMZDBCMarksDbGUID) then begin
     VImpl :=
       TMarkSystemImplConfigORM.Create(
         VFileName,

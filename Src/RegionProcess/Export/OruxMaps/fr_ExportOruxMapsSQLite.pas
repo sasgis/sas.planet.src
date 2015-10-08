@@ -53,7 +53,7 @@ type
 
     function GetBlankTile: IBinaryData;
     property BlankTile: IBinaryData read GetBlankTile;
-    
+
     function GetBitmapTileSaver: IBitmapTileSaver;
     property BitmapTileSaver: IBitmapTileSaver read GetBitmapTileSaver;
   end;
@@ -169,7 +169,7 @@ begin
       False,           // show disabled map
       GetAllowExport
     );
-  
+
   FfrZoomsSelect :=
     TfrZoomsSelect.Create(
       ALanguageManager
@@ -365,8 +365,7 @@ var
   VLayer: IMapType;
 begin
   Result := (edtTargetPath.Text <> '');
-  if not Result then
-  begin
+  if not Result then begin
     ShowMessage(_('Please select output folder'));
     Exit;
   end;

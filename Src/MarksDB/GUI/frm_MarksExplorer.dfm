@@ -24,8 +24,6 @@ object frmMarksExplorer: TfrmMarksExplorer
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 28
-    ExplicitHeight = 380
     object pnlMain: TPanel
       Left = 0
       Top = 0
@@ -34,14 +32,10 @@ object frmMarksExplorer: TfrmMarksExplorer
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitHeight = 380
       object splCatMarks: TSplitter
         Left = 181
         Top = 0
         Height = 385
-        ExplicitLeft = 185
-        ExplicitTop = -3
-        ExplicitHeight = 380
       end
       object grpMarks: TGroupBox
         Left = 184
@@ -51,7 +45,6 @@ object frmMarksExplorer: TfrmMarksExplorer
         Align = alClient
         Caption = 'Placemarks'
         TabOrder = 0
-        ExplicitHeight = 380
         object TBXDockMark: TTBXDock
           Left = 2
           Top = 15
@@ -140,7 +133,6 @@ object frmMarksExplorer: TfrmMarksExplorer
           Align = alBottom
           BevelOuter = bvNone
           TabOrder = 1
-          ExplicitTop = 358
           object CheckBox1: TCheckBox
             AlignWithMargins = True
             Left = 3
@@ -182,7 +174,6 @@ object frmMarksExplorer: TfrmMarksExplorer
           OnDblClick = MarksListBoxDblClick
           OnKeyDown = MarksListBoxKeyDown
           OnMouseUp = MarksListBoxMouseUp
-          ExplicitHeight = 309
         end
       end
       object grpCategory: TGroupBox
@@ -197,7 +188,6 @@ object frmMarksExplorer: TfrmMarksExplorer
         Align = alLeft
         Caption = 'Placemark Categories'
         TabOrder = 1
-        ExplicitHeight = 380
         object CategoryTreeView: TTreeView
           AlignWithMargins = True
           Left = 5
@@ -218,7 +208,6 @@ object frmMarksExplorer: TfrmMarksExplorer
           OnDragOver = CategoryTreeViewDragOver
           OnKeyUp = CategoryTreeViewKeyUp
           OnMouseUp = CategoryTreeViewMouseUp
-          ExplicitHeight = 309
         end
         object TBXDockCategory: TTBXDock
           Left = 2
@@ -278,7 +267,6 @@ object frmMarksExplorer: TfrmMarksExplorer
           Align = alBottom
           BevelOuter = bvNone
           TabOrder = 2
-          ExplicitTop = 358
           object CheckBox2: TCheckBox
             AlignWithMargins = True
             Left = 3
@@ -405,8 +393,6 @@ object frmMarksExplorer: TfrmMarksExplorer
     ShrinkMode = tbsmWrap
     Stretch = True
     TabOrder = 2
-    ExplicitLeft = 0
-    ExplicitWidth = 614
     Caption = 'TBXToolbar3'
     object tbxConfigList: TTBXSubmenuItem
       DisplayMode = nbdmImageAndText
@@ -459,7 +445,7 @@ object frmMarksExplorer: TfrmMarksExplorer
     Left = 312
     Top = 144
     Bitmap = {
-      494C01010300050004000D000D00FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01010300050008000D000D00FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000340000000D0000000100200000000000900A
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

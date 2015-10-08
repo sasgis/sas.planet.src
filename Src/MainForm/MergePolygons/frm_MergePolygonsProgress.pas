@@ -44,7 +44,10 @@ type
   TfrmMergePolygonsProgress = class(TCommonFormParent)
     btnAbort: TButton;
     lblProgress: TLabel;
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormClose(
+      Sender: TObject;
+      var Action: TCloseAction
+    );
     procedure btnAbortClick(Sender: TObject);
   private
     FLastOnTimer: Cardinal;
@@ -136,8 +139,10 @@ begin
   inherited Destroy;
 end;
 
-procedure TfrmMergePolygonsProgress.FormClose(Sender: TObject;
-  var Action: TCloseAction);
+procedure TfrmMergePolygonsProgress.FormClose(
+  Sender: TObject;
+  var Action: TCloseAction
+);
 begin
   CancelOperation;
   Action := caHide;

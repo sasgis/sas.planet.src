@@ -50,11 +50,14 @@ uses
   SysUtils;
 
 const
-  c_TMS_Expr  = '^(.+\\)?(\d\d?)\\(\d+)\\(\d+)(\..+)?$';
+  c_TMS_Expr = '^(.+\\)?(\d\d?)\\(\d+)\\(\d+)(\..+)?$';
 
 { TTileFileNameTMS }
 
-function GetFlippedY(const AZoom: Byte; const Y: Integer): Integer; inline;
+function GetFlippedY(
+  const AZoom: Byte;
+  const Y: Integer
+): Integer; inline;
 begin
   Result := (1 shl AZoom) - Y - 1;
 end;

@@ -485,7 +485,7 @@ begin
     end else begin
       VFilterStr := VFilterStr + '|';
     end;
-    VFilterStr := VFilterStr + VItem.Name + ' (*.'+ VItem.DefaultExt + ')|*.' + VItem.DefaultExt;
+    VFilterStr := VFilterStr + VItem.Name + ' (*.' + VItem.DefaultExt + ')|*.' + VItem.DefaultExt;
   end;
   FExportDialog.Filter := VFilterStr;
   FExportDialog.FilterIndex := VSelectedFilter;
@@ -645,7 +645,10 @@ type
   end;
   TImportRecArr = array of TImportRec;
 
-  function _RecIndexByFileExt(AExt: string; var ARecArr: TImportRecArr): Integer;
+  function _RecIndexByFileExt(
+    AExt: string;
+    var ARecArr: TImportRecArr
+  ): Integer;
   var
     I: Integer;
     VConfig: IInterface;
@@ -713,7 +716,7 @@ begin
           end;
         end;
       end else begin
-        MessageDlg( Format(_('Can''t open file: %s'), [VFileName]), mtError, [mbOK], 0);
+        MessageDlg(Format(_('Can''t open file: %s'), [VFileName]), mtError, [mbOK], 0);
       end;
     end;
   end;
@@ -745,13 +748,13 @@ begin
   VAllMasks := '';
   for i := 0 to AImporterList.Count - 1 do begin
     VItem := AImporterList.Items[i];
-    VFilterStr := VFilterStr + '|' + VItem.Name + ' (*.'+ VItem.DefaultExt + ')|*.' + VItem.DefaultExt;
+    VFilterStr := VFilterStr + '|' + VItem.Name + ' (*.' + VItem.DefaultExt + ')|*.' + VItem.DefaultExt;
     if i > 0 then begin
-      VAllMasks := VAllMasks + ';'
+      VAllMasks := VAllMasks + ';';
     end;
     VAllMasks := VAllMasks + '*.' + VItem.DefaultExt;
   end;
-  VFilterStr :=  _('All compatible formats') + '(' + VAllMasks + ')|' + VAllMasks + VFilterStr;
+  VFilterStr := _('All compatible formats') + '(' + VAllMasks + ')|' + VAllMasks + VFilterStr;
   FImportDialog.Filter := VFilterStr;
   FImportDialog.FilterIndex := VSelectedFilter;
 end;
@@ -796,7 +799,7 @@ end;
 function TMarkDbGUIHelper.PolygonForOperation(
   const AGeometry: IGeometryLonLat;
   const AProjection: IProjection
-  ): IGeometryLonLatPolygon;
+): IGeometryLonLatPolygon;
 var
   VPoint: IGeometryLonLatPoint;
   VLine: IGeometryLonLatLine;
@@ -878,7 +881,7 @@ begin
     VDescription := ADescription;
     if VDescription = '' then begin
       if FMarksGUIConfig.IsAddTimeToDescription then begin
-        VDescription := DateTimeToStr(Now)
+        VDescription := DateTimeToStr(Now);
       end;
     end;
     VMark := FMarkSystem.MarkDb.Factory.CreateNewMark(AGeometry, '', VDescription, ATemplate);
@@ -946,7 +949,10 @@ begin
   end;
 end;
 
-procedure AddItems(const ATree: IVectorItemTree; const ABuilder: IVectorItemSubsetBuilder);
+procedure AddItems(
+  const ATree: IVectorItemTree;
+  const ABuilder: IVectorItemSubsetBuilder
+);
 var
   I: Integer;
   VItem: IVectorDataItem;
@@ -1017,7 +1023,7 @@ begin
       VInfo :=
         FVectorDataItemMainInfoFactory.BuildMainInfo(
           nil,
-          Format('%s_#%d', [AMultiItem.Name, I+1]),
+          Format('%s_#%d', [AMultiItem.Name, I + 1]),
           AMultiItem.Desc
         );
       VItem :=
@@ -1033,7 +1039,7 @@ begin
       VInfo :=
         FVectorDataItemMainInfoFactory.BuildMainInfo(
           nil,
-          Format('%s_#%d', [AMultiItem.Name, I+1]),
+          Format('%s_#%d', [AMultiItem.Name, I + 1]),
           AMultiItem.Desc
         );
       VItem :=
@@ -1056,5 +1062,3 @@ end;
 
 
 end.
-
-

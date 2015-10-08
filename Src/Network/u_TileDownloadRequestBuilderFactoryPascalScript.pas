@@ -126,7 +126,7 @@ procedure TTileDownloadRequestBuilderFactoryPascalScript.DoCompileScript;
     Result[2] := @CompileTimeReg_CoordConverterSimple;
     Result[3] := @CompileTimeReg_SimpleHttpDownloader;
     Result[4] := @CompileTimeReg_RequestBuilderVars;
-  end; 
+  end;
 
 var
   VCompiler: TPascalScriptCompiler;

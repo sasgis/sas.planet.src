@@ -131,64 +131,55 @@ var
 begin
   Result := true;
   VEnum := ASource.GetEnum;
-  if VEnum.Next(VPrevPoint) then
-  begin
-    while VEnum.Next(VCurrPoint) do
-    begin
-      if ACancelNotifier.IsOperationCanceled(AOperationID) then
-      begin
+  if VEnum.Next(VPrevPoint) then begin
+    while VEnum.Next(VCurrPoint) do begin
+      if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         Break;
       end;
       url := FBaseUrl;
       url := url + R2AnsiStrPoint(VPrevPoint.y) + ',' + R2AnsiStrPoint(VPrevPoint.x) + ',' + R2AnsiStrPoint(VCurrPoint.y) + ',' + R2AnsiStrPoint(VCurrPoint.x);
       case FVehicle of
         car:
-          begin
-            url := url + '/car';
-          end;
+        begin
+          url := url + '/car';
+        end;
         foot:
-          begin
-            url := url + '/foot';
-          end;
+        begin
+          url := url + '/foot';
+        end;
         bicycle:
-          begin
-            url := url + '/bicycle';
-          end;
+        begin
+          url := url + '/bicycle';
+        end;
       end;
       case FRouteCalcType of
         fastest:
-          begin
-            url := url + '.js?units=km&lang=en&callback=getRoute6&translation=common';
-          end;
+        begin
+          url := url + '.js?units=km&lang=en&callback=getRoute6&translation=common';
+        end;
         shortest:
-          begin
-            url := url + '/shortest.js?units=km&lang=en&callback=getRoute6&translation=common';
-          end;
+        begin
+          url := url + '/shortest.js?units=km&lang=en&callback=getRoute6&translation=common';
+        end;
       end;
       VRequest := TDownloadRequest.Create(url, '', FInetConfig.GetStatic);
       VResult := FDownloader.DoRequest(VRequest, ACancelNotifier, AOperationID);
-      if Supports(VResult, IDownloadResultOk, VResultOk) then
-      begin
+      if Supports(VResult, IDownloadResultOk, VResultOk) then begin
         SetLength(pathstr, VResultOk.Data.Size);
         Move(VResultOk.Data.Buffer^, pathstr[1], VResultOk.Data.Size);
         try
           posit := PosEx('[', pathstr, 1);
           posit := PosEx('[', pathstr, posit + 1);
-          if posit > 0 then
-          begin
-            while (posit > 0) do
-            begin
+          if posit > 0 then begin
+            while (posit > 0) do begin
               posit2 := PosEx(',', pathstr, posit);
               VPoint.Y := str2r(copy(pathstr, posit + 1, posit2 - (posit + 1)));
               posit := PosEx(']', pathstr, posit2);
               VPoint.X := str2r(copy(pathstr, posit2 + 1, posit - (posit2 + 1)));
               APointsAggregator.Add(VPoint);
-              if pathstr[posit + 1] = ']' then
-              begin
+              if pathstr[posit + 1] = ']' then begin
                 posit := -1;
-              end
-              else
-              begin
+              end else begin
                 posit := PosEx('[', pathstr, posit + 1);
               end;
             end;
@@ -201,9 +192,7 @@ begin
           end;
         except
         end;
-      end
-      else
-      begin
+      end else begin
         Result := False;
         break;
       end;

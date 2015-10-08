@@ -657,17 +657,18 @@ begin
         VValueConverter := FValueToStringConverter.GetStatic;
         Vsdesc := Vsdesc + '[ ' + VValueConverter.LonLatConvert(VPoint) + ' ]';
         Vsdesc := Vsdesc + #$D#$A + ExtractFileName(AFile);
-        sfulldesc :=  ReplaceStr(Vsname + #$D#$A + Vsdesc, #$D#$A, '<br>');
-        if V_WebPage <> '' then sfulldesc := sfulldesc + '<br><a href=' + String(V_WebPage) + '>' + String(V_WebPage) + '</a>';
+        sfulldesc := ReplaceStr(Vsname + #$D#$A + Vsdesc, #$D#$A, '<br>');
+        if V_WebPage <> '' then begin
+          sfulldesc := sfulldesc + '<br><a href=' + String(V_WebPage) + '>' + String(V_WebPage) + '</a>';
+        end;
         VPlace := PlacemarkFactory.Build(VPoint, Vsname, Vsdesc, sfulldesc, 4);
 
         // если закометировать условие то не будет производитьс€ фильтраци€ одинаковых элементов
         VSkip := ItemExist(Vplace, AList);
-        if not VSkip then
-         begin
+        if not VSkip then begin
           Inc(Acnt);
           AList.Add(VPlace);
-         end;
+        end;
       end;
     end;
   finally
@@ -684,8 +685,9 @@ constructor TGeoCoderByPolishMap.Create(
 begin
   inherited Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory);
   FPath := APath;
-  if not DirectoryExists(FPath) then
+  if not DirectoryExists(FPath) then begin
     raise EDirNotExist.CreateFmt('not found %s! skip GeoCoderByPolishMap', [FPath]);
+  end;
   FValueToStringConverter := AValueToStringConverter;
 end;
 
@@ -704,7 +706,9 @@ var
 begin
   Vcnt := 1;
   VMySearch := ASearch;
-  while PosEx('  ', VMySearch) > 0 do VMySearch := ReplaceStr(VMySearch, '  ', ' ');
+  while PosEx('  ', VMySearch) > 0 do begin
+    VMySearch := ReplaceStr(VMySearch, '  ', ' ');
+  end;
   VList := TInterfaceListSimple.Create;
   if FindFirst(FPath + '*.mp', faAnyFile, VSearchRec) = 0 then begin
     repeat
@@ -714,10 +718,11 @@ begin
       Vpath := FPath + VSearchRec.Name;
       SearchInMapFile(ACancelNotifier, AOperationID, Vpath, VMySearch, Vlist, Vcnt);
       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-       Exit;
+        Exit;
       end;
     until FindNext(VSearchRec) <> 0;
   end;
   Result := VList;
 end;
+
 end.

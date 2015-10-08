@@ -648,5 +648,5 @@ begin
    '&lon=' + R2AnsiStrPoint(ALocalConverter.GetCenterLonLat.x) + '&lat=' + R2AnsiStrPoint(ALocalConverter.GetCenterLonLat.y) +
    '&z=' + ALIntToStr(VProjection.Zoom));
 end;
-end.
 
+end.

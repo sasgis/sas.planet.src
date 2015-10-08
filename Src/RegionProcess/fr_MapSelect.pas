@@ -272,14 +272,22 @@ begin
           ((FMapSelectFilter = mfLayers) and (VCurMapType.Zmp.IsLayer)) // слои и текущий - слой
         then begin
           case VMode of
-            1: VAdd := True;  // all maps
-            2: VAdd := (not VCurMapType.Zmp.IsLayer); // only maps
-            3: VAdd := (VCurMapType.Zmp.IsLayer);// only layers
-            4: if (VCurMapType.Zmp.IsLayer) then begin // only visible items: main map or visible layer
-                 VAdd := Assigned(VLayers) and VLayers.IsExists(VGUID);
-               end else begin
-                 VAdd := IsEqualGUID(VActiveMapGUID, VGUID);
-               end;
+            1: begin
+              VAdd := True;
+            end;  // all maps
+            2: begin
+              VAdd := (not VCurMapType.Zmp.IsLayer);
+            end; // only maps
+            3: begin
+              VAdd := (VCurMapType.Zmp.IsLayer);
+            end;// only layers
+            4: begin
+              if (VCurMapType.Zmp.IsLayer) then begin // only visible items: main map or visible layer
+                VAdd := Assigned(VLayers) and VLayers.IsExists(VGUID);
+              end else begin
+                VAdd := IsEqualGUID(VActiveMapGUID, VGUID);
+              end;
+            end;
             5: begin // Filter by name
               if VFilter <> '' then begin //фильтруем
                 VMapName := AnsiUpperCase(VCurMapType.GUIConfig.Name.Value);
@@ -334,14 +342,26 @@ begin
   end;
 
   case VMode of
-    1: VHint := Format(_('All (%d)'), [VMapCount]);
-    2: VHint := Format(_('Maps (%d)'), [VMapCount]);
-    3: VHint := Format(_('Layers (%d)'), [VMapCount]);
+    1: begin
+      VHint := Format(_('All (%d)'), [VMapCount]);
+    end;
+    2: begin
+      VHint := Format(_('Maps (%d)'), [VMapCount]);
+    end;
+    3: begin
+      VHint := Format(_('Layers (%d)'), [VMapCount]);
+    end;
     4: begin
       case FMapSelectFilter of
-        mfAll: VHint := Format(_('Active Maps + Layers (%d)'), [VMapCount]);
-        mfMaps: VHint := Format(_('Active Maps (%d)'), [VMapCount]);
-        mfLayers: VHint := Format(_('Active Layers (%d)'), [VMapCount]);
+        mfAll: begin
+          VHint := Format(_('Active Maps + Layers (%d)'), [VMapCount]);
+        end;
+        mfMaps: begin
+          VHint := Format(_('Active Maps (%d)'), [VMapCount]);
+        end;
+        mfLayers: begin
+          VHint := Format(_('Active Layers (%d)'), [VMapCount]);
+        end;
       end;
     end;
     5: begin
@@ -372,7 +392,7 @@ begin
   Assert(Assigned(AGUIConfigList));
   Assert(Assigned(AFullMapsSet));
   inherited Create;
-  FLanguageManager :=  ALanguageManager;
+  FLanguageManager := ALanguageManager;
   FMainMapConfig := AMainMapConfig;
   FMainLayersConfig := AMainLayersConfig;
   FGUIConfigList := AGUIConfigList;

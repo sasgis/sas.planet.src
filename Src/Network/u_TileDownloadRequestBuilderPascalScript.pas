@@ -23,7 +23,7 @@ unit u_TileDownloadRequestBuilderPascalScript;
 interface
 
 uses
-  Types,  
+  Types,
   SysUtils,
   uPSRuntime,
   uPSUtils,

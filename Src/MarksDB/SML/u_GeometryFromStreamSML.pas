@@ -136,7 +136,7 @@ begin
   Result := SMLPointToDoublePoint(VPoint);
 end;
 
-function SmlPointsEqual(const p1,p2: TGeometryPointSML): Boolean; inline;
+function SmlPointsEqual(const p1, p2: TGeometryPointSML): Boolean; inline;
 var
   VP1Empty: Boolean;
   VP2Empty: Boolean;
@@ -147,7 +147,7 @@ begin
     Result := True;
   end else begin
     if not VP1Empty and not VP2Empty then begin
-      Result := (p1.x=p2.X)and(p1.y=p2.y);
+      Result := (p1.x = p2.X) and (p1.y = p2.y);
     end else begin
       Result := False;
     end;

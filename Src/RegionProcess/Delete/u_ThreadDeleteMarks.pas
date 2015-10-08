@@ -307,7 +307,9 @@ begin
       else
       end;
 
-      if VDoAdd then VDoAdd := FpolyLL.Bounds.IsContainRect(VVectorItems.Items[i].Geometry.Bounds);
+      if VDoAdd then begin
+        VDoAdd := FpolyLL.Bounds.IsContainRect(VVectorItems.Items[i].Geometry.Bounds);
+      end;
 
       if VDoAdd then begin
         VDoAdd :=

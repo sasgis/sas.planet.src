@@ -101,9 +101,12 @@ const
   cBerkeleyDBEnvSubDir = 'env';
   cBerkeleyDBEnvErrPfx: AnsiString = 'BerkeleyDB Env';
   cBerkeleyDBEnvConfig = 'DB_CONFIG';
-  cVerboseMsgFileName  = 'msg.log';
+  cVerboseMsgFileName = 'msg.log';
 
-procedure BerkeleyDBErrCall(dbenv: PDB_ENV; errpfx, msg: PAnsiChar); cdecl;
+procedure BerkeleyDBErrCall(
+  dbenv: PDB_ENV;
+  errpfx, msg: PAnsiChar
+); cdecl;
 var
   VMsg: string;
   VEnvPrivate: PBerkeleyDBEnvAppPrivate;
@@ -119,7 +122,10 @@ begin
   raise EBerkeleyDBExeption.Create(VMsg);
 end;
 
-procedure BerkeleyDBMsgCall(dbenv: PDB_ENV; msg: PAnsiChar); cdecl;
+procedure BerkeleyDBMsgCall(
+  dbenv: PDB_ENV;
+  msg: PAnsiChar
+); cdecl;
 var
   VEnvPrivate: PBerkeleyDBEnvAppPrivate;
 begin
@@ -269,7 +275,7 @@ begin
     CheckBDB(dbenv.set_flags(dbenv, DB_TXN_WRITE_NOSYNC, 0));
     CheckBDB(dbenv.set_lg_dir(dbenv, '.'));
     CheckBDB(dbenv.set_data_dir(dbenv, '..'));
-    CheckBDB(dbenv.set_cachesize(dbenv, 0, 2*1024*1024, 1));
+    CheckBDB(dbenv.set_cachesize(dbenv, 0, 2 * 1024 * 1024, 1));
 
     if FDatabasePageSize <= 4096 then begin
       CheckBDB(dbenv.set_mp_pagesize(dbenv, FDatabasePageSize));
@@ -277,8 +283,8 @@ begin
       CheckBDB(dbenv.set_mp_pagesize(dbenv, 4096));
     end;
 
-    CheckBDB(dbenv.set_lg_max(dbenv, 10*1024*1024));
-    CheckBDB(dbenv.set_lg_bsize(dbenv, 2*1024*1024));
+    CheckBDB(dbenv.set_lg_max(dbenv, 10 * 1024 * 1024));
+    CheckBDB(dbenv.set_lg_bsize(dbenv, 2 * 1024 * 1024));
     CheckBDB(dbenv.log_set_config(dbenv, DB_LOG_AUTO_REMOVE, 1));
 
     if FIsFullVerboseMode then begin
@@ -467,4 +473,3 @@ begin
 end;
 
 end.
-

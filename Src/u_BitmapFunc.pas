@@ -32,67 +32,67 @@ procedure AssignStaticToBitmap32(
 );
 
 procedure StretchTransferFull(
-  ADst: TCustomBitmap32;
-  const ADstRect: TRect;
-  const ASource: IBitmap32Static;
-  AResampler: TCustomResampler;
-  ACombineOp: TDrawMode;
-  ACombineMode: TCombineMode = cmMerge;
-  AMasterAlpha: Cardinal = 255;
-  AOuterColor: TColor32 = 0
-);
+    ADst: TCustomBitmap32;
+    const ADstRect: TRect;
+    const ASource: IBitmap32Static;
+    AResampler: TCustomResampler;
+    ACombineOp: TDrawMode;
+    ACombineMode: TCombineMode = cmMerge;
+    AMasterAlpha: Cardinal = 255;
+    AOuterColor: TColor32 = 0
+  );
 
 procedure StretchTransfer(
-  ADst: TCustomBitmap32;
-  const ADstRect: TRect;
-  const ASource: IBitmap32Static;
-  const ASrcRect: TRect;
-  AResampler: TCustomResampler;
-  ACombineOp: TDrawMode;
-  ACombineMode: TCombineMode = cmMerge;
-  AMasterAlpha: Cardinal = 255;
-  AOuterColor: TColor32 = 0
-);
+    ADst: TCustomBitmap32;
+    const ADstRect: TRect;
+    const ASource: IBitmap32Static;
+    const ASrcRect: TRect;
+    AResampler: TCustomResampler;
+    ACombineOp: TDrawMode;
+    ACombineMode: TCombineMode = cmMerge;
+    AMasterAlpha: Cardinal = 255;
+    AOuterColor: TColor32 = 0
+  );
 
 procedure BlockTransferFull(
-  ADst: TCustomBitmap32;
-  ADstX: Integer;
-  ADstY: Integer;
-  const ASource: IBitmap32Static;
-  ACombineOp: TDrawMode;
-  ACombineMode: TCombineMode = cmMerge;
-  AMasterAlpha: Cardinal = 255;
-  AOuterColor: TColor32 = 0
-); overload;
+    ADst: TCustomBitmap32;
+    ADstX: Integer;
+    ADstY: Integer;
+    const ASource: IBitmap32Static;
+    ACombineOp: TDrawMode;
+    ACombineMode: TCombineMode = cmMerge;
+    AMasterAlpha: Cardinal = 255;
+    AOuterColor: TColor32 = 0
+  ); overload;
 
 procedure BlockTransferFull(
-  ADst: TCustomBitmap32;
-  ADstX: Integer;
-  ADstY: Integer;
-  const ASourceSize: TPoint;
-  const ASourceData: PColor32Array;
-  ACombineOp: TDrawMode;
-  ACombineMode: TCombineMode = cmMerge;
-  AMasterAlpha: Cardinal = 255;
-  AOuterColor: TColor32 = 0
-); overload;
+    ADst: TCustomBitmap32;
+    ADstX: Integer;
+    ADstY: Integer;
+    const ASourceSize: TPoint;
+    const ASourceData: PColor32Array;
+    ACombineOp: TDrawMode;
+    ACombineMode: TCombineMode = cmMerge;
+    AMasterAlpha: Cardinal = 255;
+    AOuterColor: TColor32 = 0
+  ); overload;
 
 procedure BlockTransfer(
-  ADst: TCustomBitmap32;
-  ADstX: Integer;
-  ADstY: Integer;
-  const ASource: IBitmap32Static;
-  const ASrcRect: TRect;
-  ACombineOp: TDrawMode;
-  ACombineMode: TCombineMode = cmMerge;
-  AMasterAlpha: Cardinal = 255;
-  AOuterColor: TColor32 = 0
-);
+    ADst: TCustomBitmap32;
+    ADstX: Integer;
+    ADstY: Integer;
+    const ASource: IBitmap32Static;
+    const ASrcRect: TRect;
+    ACombineOp: TDrawMode;
+    ACombineMode: TCombineMode = cmMerge;
+    AMasterAlpha: Cardinal = 255;
+    AOuterColor: TColor32 = 0
+  );
 
 procedure CopyBitmap32StaticToBitmap32(
-  const ASourceBitmap: IBitmap32Static;
-  ATarget: TCustomBitmap32
-);
+    const ASourceBitmap: IBitmap32Static;
+    ATarget: TCustomBitmap32
+  );
 
 implementation
 

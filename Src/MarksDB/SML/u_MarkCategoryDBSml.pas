@@ -68,7 +68,10 @@ type
     function Save: boolean;
   private
     { IMarkCategoryDBSmlInternal }
-    procedure Initialize(AOperationID: Integer; const ACancelNotifier: INotifierOperation);
+    procedure Initialize(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation
+    );
     function IsCategoryFromThisDb(const ACategory: ICategory): Boolean;
     function GetCategoryByID(id: integer): IMarkCategory;
     function GetCategoryByName(const AName: string): IMarkCategory;
@@ -312,7 +315,7 @@ var
   VResult: ICategory;
   VMinCount: Integer;
   VMaxCount: Integer;
-  VTemp:  IInterfaceListSimple;
+  VTemp: IInterfaceListSimple;
 begin
   Result := nil;
   if ANewCategoryList <> nil then begin
@@ -531,7 +534,10 @@ begin
   Result := TMarkCategoryList.Build(VTemp.MakeStaticAndClear);
 end;
 
-procedure TMarkCategoryDBSml.Initialize(AOperationID: Integer; const ACancelNotifier: INotifierOperation);
+procedure TMarkCategoryDBSml.Initialize(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation
+);
 var
   VCategory: IMarkCategory;
   VId: Integer;

@@ -256,112 +256,114 @@ begin
       VTilesProcessed := 0;
       ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
 
-      if VSQLite3DbHandler.Init then
-      try
-        VDatabaseName := FExportPath + 'MapTiles' + c_SQLite_Ext;
-        if not FileExists(VDatabaseName) then begin
-          FIsReplace := True;
-        end;
-
-        If FIsReplace then begin
-          // заменяем
-          If FileExists(VDatabaseName) then begin
-            DeleteFile(VDatabaseName);
+      if VSQLite3DbHandler.Init then begin
+        try
+          VDatabaseName := FExportPath + 'MapTiles' + c_SQLite_Ext;
+          if not FileExists(VDatabaseName) then begin
+            FIsReplace := True;
           end;
 
-          VSQLite3DbHandler.Open(VDatabaseName, SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE);
+          If FIsReplace then begin
+          // заменяем
+            If FileExists(VDatabaseName) then begin
+              DeleteFile(VDatabaseName);
+            end;
+
+            VSQLite3DbHandler.Open(VDatabaseName, SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE);
           //VSQLite3DbHandler.OpenW(VDatabaseName);
 
-          VSQLite3DbHandler.ExecSQL('CREATE TABLE version(version int)');
-          VSQLite3DbHandler.ExecSQL('CREATE TABLE images(zoom int, x int, y int, flags int, length int, data blob);');
-          VSQLite3DbHandler.ExecSQL('CREATE INDEX index1 on images (zoom,x,y,flags)');
-        end else begin
+            VSQLite3DbHandler.ExecSQL('CREATE TABLE version(version int)');
+            VSQLite3DbHandler.ExecSQL('CREATE TABLE images(zoom int, x int, y int, flags int, length int, data blob);');
+            VSQLite3DbHandler.ExecSQL('CREATE INDEX index1 on images (zoom,x,y,flags)');
+          end else begin
           // не заменяем - просто открываем и дописываем
-          VSQLite3DbHandler.Open(VDatabaseName, SQLITE_OPEN_READWRITE);
+            VSQLite3DbHandler.Open(VDatabaseName, SQLITE_OPEN_READWRITE);
           //VSQLite3DbHandler.OpenW(VDatabaseName);
-        end;
+          end;
 
         // установим настройки подключения
-        VSQLite3DbHandler.ExecSQL('PRAGMA locking_mode=EXCLUSIVE');
-        VSQLite3DbHandler.ExecSQL('PRAGMA cache_size=100000');
-        VSQLite3DbHandler.ExecSQL('PRAGMA synchronous=OFF');
+          VSQLite3DbHandler.ExecSQL('PRAGMA locking_mode=EXCLUSIVE');
+          VSQLite3DbHandler.ExecSQL('PRAGMA cache_size=100000');
+          VSQLite3DbHandler.ExecSQL('PRAGMA synchronous=OFF');
 
-        If FIsReplace then begin
-          if FNewFormat then begin
-            VSQLite3DbHandler.ExecSQL('INSERT INTO version (version) VALUES ("5")');
-          end else begin
-            VSQLite3DbHandler.ExecSQL('INSERT INTO version (version) VALUES ("4")');
+          If FIsReplace then begin
+            if FNewFormat then begin
+              VSQLite3DbHandler.ExecSQL('INSERT INTO version (version) VALUES ("5")');
+            end else begin
+              VSQLite3DbHandler.ExecSQL('INSERT INTO version (version) VALUES ("4")');
+            end;
+            VSQLite3DbHandler.ExecSQL('INSERT INTO version (version) VALUES ("0")');
           end;
-          VSQLite3DbHandler.ExecSQL('INSERT INTO version (version) VALUES ("0")');
-        end;
 
         // понеслась
-        VSQLite3DbHandler.BeginTran;
-        try
-          for i := 0 to Length(FZooms) - 1 do begin
-            VTileIterator := VTileIterators[i];
-            VProjection := VTileIterator.TilesRect.Projection;
-            VZoom := VProjection.Zoom;
-            while VTileIterator.Next(VTile) do begin
-              if CancelNotifier.IsOperationCanceled(OperationID) then begin
-                exit;
-              end;
-              for j := 0 to Length(FTasks) - 1 do begin
-                VBitmapTile :=
-                  FTasks[j].FImageProvider.GetTile(
-                    OperationID,
-                    CancelNotifier,
-                    VProjection,
-                    VTile
-                  );
+          VSQLite3DbHandler.BeginTran;
+          try
+            for i := 0 to Length(FZooms) - 1 do begin
+              VTileIterator := VTileIterators[i];
+              VProjection := VTileIterator.TilesRect.Projection;
+              VZoom := VProjection.Zoom;
+              while VTileIterator.Next(VTile) do begin
+                if CancelNotifier.IsOperationCanceled(OperationID) then begin
+                  exit;
+                end;
+                for j := 0 to Length(FTasks) - 1 do begin
+                  VBitmapTile :=
+                    FTasks[j].FImageProvider.GetTile(
+                      OperationID,
+                      CancelNotifier,
+                      VProjection,
+                      VTile
+                    );
                 // цикл по тайлам в картинке
-                if VBitmapTile <> nil then
-                for xi := 0 to hxyi - 1 do
-                for yi := 0 to hxyi - 1 do begin
-                  Vbmp32crop.Clear;
-                  BlockTransfer(
-                    Vbmp32crop,
-                    0,
-                    0,
-                    VBitmapTile,
-                    bounds(sizeim * xi, sizeim * yi, sizeim, sizeim),
-                    dmOpaque
-                  );
-                  VStaticBitmapCrop := FBitmapFactory.Build(
-                    Point(sizeim, sizeim),
-                    Vbmp32crop.Bits
-                  );
-                  VDataToSave := FTasks[j].FSaver.Save(VStaticBitmapCrop);
+                  if VBitmapTile <> nil then begin
+                    for xi := 0 to hxyi - 1 do begin
+                      for yi := 0 to hxyi - 1 do begin
+                        Vbmp32crop.Clear;
+                        BlockTransfer(
+                          Vbmp32crop,
+                          0,
+                          0,
+                          VBitmapTile,
+                          bounds(sizeim * xi, sizeim * yi, sizeim, sizeim),
+                          dmOpaque
+                        );
+                        VStaticBitmapCrop := FBitmapFactory.Build(
+                          Point(sizeim, sizeim),
+                          Vbmp32crop.Bits
+                        );
+                        VDataToSave := FTasks[j].FSaver.Save(VStaticBitmapCrop);
                   // пишем тайл в БД (зум начинается от 1)
-                  WriteTileToSQLite3(
-                    @VSQLite3DbHandler,
-                    Point(VTile.X * hxyi + xi, VTile.Y * hxyi + yi),
-                    VZoom + 1,
-                    VDataToSave,
-                    FTasks[j].FFlag
-                  );
-                end;
+                        WriteTileToSQLite3(@VSQLite3DbHandler,
+                          Point(VTile.X * hxyi + xi, VTile.Y * hxyi + yi),
+                          VZoom + 1,
+                          VDataToSave,
+                          FTasks[j].FFlag
+                        );
+                      end;
+                    end;
+                  end;
                 // подсчитываем чего наделали
-                inc(VTilesProcessed);
-                if ((VTilesToProcess < 100) and (VTilesProcessed mod 5 = 0)) or
-                   ((VTilesToProcess >= 100) and (VTilesProcessed mod 50 = 0)) then begin
+                  inc(VTilesProcessed);
+                  if ((VTilesToProcess < 100) and (VTilesProcessed mod 5 = 0)) or
+                    ((VTilesToProcess >= 100) and (VTilesProcessed mod 50 = 0)) then begin
                   // и показываем
-                  ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
-                end;
+                    ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
+                  end;
                 // коммитим крупными кусками
-                if (VTilesProcessed mod 500 = 0) then begin
-                  VSQLite3DbHandler.Commit;
-                  VSQLite3DbHandler.BeginTran;
-                end;
-              end; { for }
-            end; { while }
-          end; { for }
+                  if (VTilesProcessed mod 500 = 0) then begin
+                    VSQLite3DbHandler.Commit;
+                    VSQLite3DbHandler.BeginTran;
+                  end;
+                end; { for }
+              end; { while }
+            end; { for }
+          finally
+            VSQLite3DbHandler.Commit;
+          end;
+          ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
         finally
-          VSQLite3DbHandler.Commit;
+          VSQLite3DbHandler.Close;
         end;
-        ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
-      finally
-        VSQLite3DbHandler.Close;
       end;
     finally
       for i := 0 to Length(VTileIterators) - 1 do begin

@@ -350,10 +350,10 @@ begin
       end;
 
       // notify about current tile
-      VProcessingTileMsg := Format('[z%d/x%d/y%d]' + #13#10 +'%s',
-        [AZoom+1, VTile.X, VTile.Y, FMapType.GetTileShowName(VTile, AZoom, FVersionForDownload)]);
+      VProcessingTileMsg := Format('[z%d/x%d/y%d]' + #13#10 + '%s',
+        [AZoom + 1, VTile.X, VTile.Y, FMapType.GetTileShowName(VTile, AZoom, FVersionForDownload)]);
       FProgressInfo.Log.WriteText(Format(FRES_ProcessedFile, [VProcessingTileMsg]), 0);
-      
+
       // if gtimWithData - tile will be loaded, so we use gtimAsIs
       VTileInfo := FMapType.TileStorage.GetTileInfoEx(VTile, AZoom, FVersionForCheck, gtimAsIs);
 
@@ -491,7 +491,7 @@ begin
           VProjectedPolygon
         );
 
-      SetLength(VIterTaskArray, VIterTaskCount+1);
+      SetLength(VIterTaskArray, VIterTaskCount + 1);
 
       VIterTaskArray[VIterTaskCount].FZoom := FZoomArray[I];
       VIterTaskArray[VIterTaskCount].FTileIterator := VTileIterator;

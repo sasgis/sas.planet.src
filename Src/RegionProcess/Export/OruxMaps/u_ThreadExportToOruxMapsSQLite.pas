@@ -192,7 +192,7 @@ begin
   SetLength(VProjectedPolygons, Length(FZooms));
 
   VTilesToProcess := 0;
-  
+
   if VDoDirectCopy then begin
     VProjectionSet := FTileStorage.ProjectionSet;
   end else begin

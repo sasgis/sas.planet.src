@@ -158,8 +158,7 @@ end;
 function TfrExportAUX.Validate: Boolean;
 begin
   Result := (edtTargetFile.Text <> '');
-  if not Result then
-  begin
+  if not Result then begin
     ShowMessage(_('Please, select output file first!'));
     Exit;
   end;

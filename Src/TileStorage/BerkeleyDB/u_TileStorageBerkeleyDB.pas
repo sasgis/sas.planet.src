@@ -494,7 +494,7 @@ var
 begin
   VVersionInfo := nil;
   VShowPrevVersion := True;
-  if Assigned(AVersionInfo) then  begin
+  if Assigned(AVersionInfo) then begin
     VVersionInfo := AVersionInfo.BaseVersion;
     VShowPrevVersion := AVersionInfo.ShowPrevVersion;
   end;
@@ -734,7 +734,7 @@ begin
             Exit;
           end;
           VIndex := TTileRectInfoShort.TileInRectToIndex(VTile, VRect);
-          Assert(VIndex >=0);
+          Assert(VIndex >= 0);
           if VIndex >= 0 then begin
             VFileInfo.Name :=
               StoragePath +

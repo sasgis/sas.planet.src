@@ -132,7 +132,7 @@ begin
   Result := nil;
   if Assigned(FLine) then begin
     if Assigned(FList) and (FList.Count > 0) then begin
-       Result := TGeometryProjectedMultiLine.Create(FBounds, FList.MakeStaticCopy);
+      Result := TGeometryProjectedMultiLine.Create(FBounds, FList.MakeStaticCopy);
     end else begin
       Result := FLine;
     end;

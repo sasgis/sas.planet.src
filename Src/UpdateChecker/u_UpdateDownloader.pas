@@ -68,7 +68,11 @@ type
   private
     { IUpdateDownloader }
     function SearchAvailableVersionInfoAsync(const AOperationID: Integer): TUpdateDownloaderState;
-    function GetAvailableVersionInfo(out ADate: TDateTime; out ARev: Integer; out ABuildType: string): Boolean;
+    function GetAvailableVersionInfo(
+      out ADate: TDateTime;
+      out ARev: Integer;
+      out ABuildType: string
+    ): Boolean;
     function DownloadAvailableVersionAsync(const AOperationID: Integer): TUpdateDownloaderState;
     function GetDownloadProgress(out ADone, ATotal: Integer): Boolean;
     function GetState: TUpdateDownloaderState;
@@ -275,7 +279,11 @@ begin
   end;
 end;
 
-function TUpdateDownloader.GetAvailableVersionInfo(out ADate: TDateTime; out ARev: Integer; out ABuildType: string): Boolean;
+function TUpdateDownloader.GetAvailableVersionInfo(
+  out ADate: TDateTime;
+  out ARev: Integer;
+  out ABuildType: string
+): Boolean;
 begin
   FSync.BeginRead;
   try

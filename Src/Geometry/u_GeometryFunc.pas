@@ -191,7 +191,7 @@ var
   VLonLatPoint: TDoublePoint;
   VDist: Double;
   VResult: Boolean;
-  i:  Integer;
+  i: Integer;
 begin
   APoint := CEmptyDoublePoint;
   ADist := NaN;

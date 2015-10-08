@@ -203,8 +203,7 @@ end;
 function TfrExportIPhone.Validate: Boolean;
 begin
   Result := (edtTargetPath.Text <> '');
-  if not Result then
-  begin
+  if not Result then begin
     ShowMessage(_('Please select output folder'));
     Exit;
   end;

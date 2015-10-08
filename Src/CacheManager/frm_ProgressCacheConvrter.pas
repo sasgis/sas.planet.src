@@ -59,8 +59,15 @@ type
     lblSkippedValue: TLabel;
     lblProcessedValue: TLabel;
     procedure FormCreate(Sender: TObject);
-    procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormKeyUp(
+      Sender: TObject;
+      var Key: Word;
+      Shift: TShiftState
+    );
+    procedure FormClose(
+      Sender: TObject;
+      var Action: TCloseAction
+    );
     procedure btnMinimizeClick(Sender: TObject);
     procedure btnPauseClick(Sender: TObject);
     procedure btnQuitClick(Sender: TObject);
@@ -153,16 +160,21 @@ begin
   Self.Show;
 end;
 
-procedure TfrmProgressCacheConverter.FormClose(Sender: TObject;
-  var Action: TCloseAction);
+procedure TfrmProgressCacheConverter.FormClose(
+  Sender: TObject;
+  var Action: TCloseAction
+);
 begin
   CancelOperation;
   Action := caFree;
   Application.MainForm.SetFocus;
 end;
 
-procedure TfrmProgressCacheConverter.FormKeyUp(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TfrmProgressCacheConverter.FormKeyUp(
+  Sender: TObject;
+  var Key: Word;
+  Shift: TShiftState
+);
 begin
   if Key = VK_ESCAPE then begin
     Self.Close;
@@ -190,7 +202,7 @@ begin
       FConverterThread.Suspend;
       FThreadPaused := True;
       btnPause.Caption := SAS_STR_Continue;
-    end
+    end;
   end;
 end;
 
@@ -235,6 +247,3 @@ begin
 end;
 
 end.
-
-
-

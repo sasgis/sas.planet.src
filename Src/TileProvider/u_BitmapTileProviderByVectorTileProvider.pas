@@ -41,7 +41,8 @@ type
     FRenderer: IVectorTileRenderer;
   private
     function GetProjection: IProjection;
-    function GetTile(AOperationID: Integer;
+    function GetTile(
+      AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const ATile: TPoint
     ): IBitmap32Static;
@@ -67,7 +68,7 @@ begin
   Assert(Assigned(AProvider));
   Assert(Assigned(ARenderer));
   inherited Create;
-  FProjection :=  AProjection;
+  FProjection := AProjection;
   FProvider := AProvider;
   FRenderer := ARenderer;
 end;
@@ -77,7 +78,8 @@ begin
   Result := FProjection;
 end;
 
-function TBitmapTileProviderByVectorTileProvider.GetTile(AOperationID: Integer;
+function TBitmapTileProviderByVectorTileProvider.GetTile(
+  AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const ATile: TPoint
 ): IBitmap32Static;
@@ -99,4 +101,3 @@ begin
 end;
 
 end.
-

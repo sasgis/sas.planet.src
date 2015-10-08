@@ -136,7 +136,7 @@ var
 begin
   FOperationID := AOperationID;
   FCancelNotifier := ACancelNotifier;
-  
+
   VECWWriter := TECWWrite.Create;
   try
     FImageLineProvider :=

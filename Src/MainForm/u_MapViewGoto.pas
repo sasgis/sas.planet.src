@@ -146,7 +146,7 @@ begin
 
   for VZoom := 1 to VProjectionSet.ZoomCount - 1 do begin
     VProjection := VProjectionSet.Zooms[VZoom];
-    VMarkMapRect :=  VProjection.RelativeRect2PixelRectFloat(VRelativeRect);
+    VMarkMapRect := VProjection.RelativeRect2PixelRectFloat(VRelativeRect);
     VMarkMapSize := RectSize(VMarkMapRect);
     if (VMarkMapSize.X > VScreenSize.X) or (VMarkMapSize.Y > VScreenSize.Y) then begin
       Break;

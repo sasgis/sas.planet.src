@@ -47,7 +47,10 @@ type
     function GetTileRect: ITileRect;
 
     function GetTile(const ATile: TPoint): IBitmap32Static;
-    procedure SetTile(const ATile: TPoint; const AValue: IBitmap32Static);
+    procedure SetTile(
+      const ATile: TPoint;
+      const AValue: IBitmap32Static
+    );
 
     procedure SetRectWithReset(const ATileRect: ITileRect);
     procedure SetRect(const ATileRect: ITileRect);
@@ -78,7 +81,10 @@ uses
   u_BitmapTileProviderByOtherProjection,
   u_BitmapTileMatrix;
 
-function IndexByPos(const ARect: TRect; const APos: TPoint): Integer; inline;
+function IndexByPos(
+  const ARect: TRect;
+  const APos: TPoint
+): Integer; inline;
 begin
   Result := APos.X - ARect.Left + (APos.Y - ARect.Top) * (ARect.Right - ARect.Left);
 end;

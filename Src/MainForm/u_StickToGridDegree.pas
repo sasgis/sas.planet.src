@@ -41,7 +41,7 @@ type
     function RectStick(
       const AProjection: IProjection;
       const ASourceRect: TDoubleRect
-    ): TDoubleRect; 
+    ): TDoubleRect;
   public
     constructor Create(const AConfig: IDegreeGridConfig);
   end;

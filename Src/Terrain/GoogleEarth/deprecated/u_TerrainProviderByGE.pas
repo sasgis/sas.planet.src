@@ -49,10 +49,16 @@ type
     FPathConfig: IPathConfig;
     FStateChangeNotifier: INotifier;
     FStateChangeNotifierInternal: INotifierInternal;
-    procedure TryLoadTileToMemCache(const ATile: TPoint; const AZoom: Byte);
+    procedure TryLoadTileToMemCache(
+      const ATile: TPoint;
+      const AZoom: Byte
+    );
     procedure CheckTileZoom(var AZoom: Byte);
   protected
-    function GetPointElevation(const ALonLat: TDoublePoint; const AZoom: Byte): Single;
+    function GetPointElevation(
+      const ALonLat: TDoublePoint;
+      const AZoom: Byte
+    ): Single;
     procedure OnCacheConfigChange;
     procedure OnCacheStateChange;
     function GetAvailable: Boolean;
@@ -211,8 +217,8 @@ begin
 end;
 
 function TTerrainProviderByDLL.GetPointElevation(
- const ALonLat: TDoublePoint;
- const AZoom: Byte
+  const ALonLat: TDoublePoint;
+  const AZoom: Byte
 ): Single;
 var
   VLonLat: TDoublePoint;

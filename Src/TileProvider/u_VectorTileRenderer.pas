@@ -166,15 +166,19 @@ begin
         ABitmapInited := True;
       end;
 
-      with VPolygon.Outline do try
-        with Grow(GR32.Fixed(0.5), 0.5) do try
-          FillMode := pfWinding;
-          DrawFill(ATargetBmp, FColorBG);
+      with VPolygon.Outline do begin
+        try
+          with Grow(GR32.Fixed(0.5), 0.5) do begin
+            try
+              FillMode := pfWinding;
+              DrawFill(ATargetBmp, FColorBG);
+            finally
+              free;
+            end;
+          end;
         finally
           free;
         end;
-      finally
-        free;
       end;
       VPolygon.DrawEdge(ATargetBmp, FColorMain);
 
@@ -271,15 +275,19 @@ begin
         InitBitmap(ATargetBmp, Types.Point(AMapRect.Right - AMapRect.Left, AMapRect.Bottom - AMapRect.Top));
         ABitmapInited := True;
       end;
-      with VPolygon.Outline do try
-        with Grow(GR32.Fixed(0.5), 0.5) do try
-          FillMode := pfWinding;
-          DrawFill(ATargetBmp, FColorBG);
+      with VPolygon.Outline do begin
+        try
+          with Grow(GR32.Fixed(0.5), 0.5) do begin
+            try
+              FillMode := pfWinding;
+              DrawFill(ATargetBmp, FColorBG);
+            finally
+              free;
+            end;
+          end;
         finally
           free;
         end;
-      finally
-        free;
       end;
       VPolygon.DrawEdge(ATargetBmp, FColorMain);
       Result := True;

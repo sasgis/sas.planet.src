@@ -293,7 +293,7 @@ begin
       FFinishEvent.SetEvent;
     end;
   finally
-   FCS.Release;
+    FCS.Release;
   end;
 
   FFinishEvent.WaitFor(INFINITE);

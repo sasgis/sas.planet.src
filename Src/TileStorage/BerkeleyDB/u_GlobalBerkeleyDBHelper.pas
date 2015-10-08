@@ -101,7 +101,7 @@ begin
   FFormatSettings.DateSeparator := '-';
   FFormatSettings.TimeSeparator := ':';
   FFormatSettings.DecimalSeparator := '.';
-  FSaveErrorsToLog :=True;
+  FSaveErrorsToLog := True;
   FFullBaseCachePath := FBaseCachePath.FullPath;
   FCacheConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnCacheConfigChange);
   Assert(FBaseCachePath.ChangeNotifier <> nil);
@@ -255,11 +255,12 @@ end;
 
 procedure TGlobalBerkeleyDBHelper.LogException(const EMsg: string);
 begin
-  if FSaveErrorsToLog then
-  try
-    LogMsg(EMsg);
-  except
+  if FSaveErrorsToLog then begin
+    try
+      LogMsg(EMsg);
+    except
     // ignore
+    end;
   end;
 end;
 

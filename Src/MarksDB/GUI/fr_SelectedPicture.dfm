@@ -9,8 +9,8 @@ object frSelectedPicture: TfrSelectedPicture
     AlignWithMargins = True
     Left = 3
     Top = 3
-    Width = 47
-    Height = 47
+    Width = 445
+    Height = 298
     Align = alClient
     Bitmap.CombineMode = cmMerge
     Bitmap.ResamplerClassName = 'TLinearResampler'

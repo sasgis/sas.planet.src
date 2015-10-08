@@ -50,7 +50,7 @@ uses
   SysUtils;
 
 const
-  c_MA_Expr  = '^(.+\\)?(\d\d?)\\(\d+)\\(\d+)(\..+)?$';
+  c_MA_Expr = '^(.+\\)?(\d\d?)\\(\d+)\\(\d+)(\..+)?$';
 
 { TTileFileNameMOBAC }
 

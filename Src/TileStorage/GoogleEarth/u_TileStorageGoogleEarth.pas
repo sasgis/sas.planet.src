@@ -231,7 +231,7 @@ begin
         VCacheFactory := libge.CreateGoogleEarthCacheProviderFactory;
 
         if VCacheFactory <> nil then begin
-          if (FDatabaseName = '') or SameText(FDatabaseName, 'earth')  then begin
+          if (FDatabaseName = '') or SameText(FDatabaseName, 'earth') then begin
             if not FIsTerrainStorage then begin
               FCacheProvider := VCacheFactory.CreateEarthProvider(VCachePath, VOpenErrorMsg);
               RaiseGoogleEarthExceptionIfError(VOpenErrorMsg);
@@ -239,19 +239,19 @@ begin
             end else begin
               FCacheProvider := VCacheFactory.CreateEarthTerrainProvider(VCachePath, VOpenErrorMsg);
             end;
-          end else if SameText(FDatabaseName, 'mars')  then begin
+          end else if SameText(FDatabaseName, 'mars') then begin
             if not FIsTerrainStorage then begin
               FCacheProvider := VCacheFactory.CreateMarsProvider(VCachePath, VOpenErrorMsg);
             end else begin
               FCacheProvider := VCacheFactory.CreateMarsTerrainProvider(VCachePath, VOpenErrorMsg);
             end;
-          end else if SameText(FDatabaseName, 'moon')  then begin
+          end else if SameText(FDatabaseName, 'moon') then begin
             if not FIsTerrainStorage then begin
               FCacheProvider := VCacheFactory.CreateMoonProvider(VCachePath, VOpenErrorMsg);
             end else begin
               FCacheProvider := VCacheFactory.CreateMoonTerrainProvider(VCachePath, VOpenErrorMsg);
             end;
-          end else if SameText(FDatabaseName, 'sky')  then begin
+          end else if SameText(FDatabaseName, 'sky') then begin
             if not FIsTerrainStorage then begin
               FCacheProvider := VCacheFactory.CreateSkyProvider(VCachePath, VOpenErrorMsg);
             end;
@@ -687,7 +687,7 @@ begin
           Exit;
         end;
         VIndex := TTileRectInfoShort.TileInRectToIndex(VTile, VRect);
-        Assert(VIndex >=0);
+        Assert(VIndex >= 0);
         if VIndex >= 0 then begin
           VTileInfo := InternalGetTileInfo(VTile, VZoom, VVersion, VShowPrev, gtimWithoutData);
           if Assigned(VTileInfo) then begin

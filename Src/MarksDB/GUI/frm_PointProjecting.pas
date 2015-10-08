@@ -3,8 +3,17 @@ unit frm_PointProjecting;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls,
+  Windows,
+  Messages,
+  SysUtils,
+  Variants,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
+  Dialogs,
+  StdCtrls,
+  ExtCtrls,
   i_LanguageManager,
   i_InterfaceListStatic,
   i_GeometryLonLatFactory,
@@ -145,7 +154,7 @@ end;
 
 procedure TfrmPointProjecting.cbbAllMarksDropDown(Sender: TObject);
 begin
-  if cbbAllMarks.Items.Count=0 then begin
+  if cbbAllMarks.Items.Count = 0 then begin
     FMarksList := FMarkDBGUI.MarksDb.MarkDb.GetAllMarkIdList;
     MarksListToStrings(FMarksList, cbbAllMarks.Items);
   end;

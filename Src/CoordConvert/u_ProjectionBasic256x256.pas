@@ -1282,7 +1282,7 @@ var
 begin
   VPoint := APoint;
   InternalValidatePixelPos(VPoint);
-  Result := InternalPixelPos2Relative(VPoint)
+  Result := InternalPixelPos2Relative(VPoint);
 end;
 
 function TProjectionBasic256x256.PixelPos2TilePosFloat(
@@ -1313,7 +1313,7 @@ var
 begin
   VPoint := APoint;
   InternalValidatePixelPosFloat(VPoint);
-  Result := InternalPixelPosFloat2Relative(VPoint)
+  Result := InternalPixelPosFloat2Relative(VPoint);
 end;
 
 function TProjectionBasic256x256.PixelPosFloat2TilePosFloat(
@@ -1342,7 +1342,7 @@ var
 begin
   VRect := ARect;
   InternalValidatePixelRect(VRect);
-  Result := InternalPixelRect2RelativeRect(VRect)
+  Result := InternalPixelRect2RelativeRect(VRect);
 end;
 
 function TProjectionBasic256x256.PixelRect2TileRect(const ARect: TRect): TRect;

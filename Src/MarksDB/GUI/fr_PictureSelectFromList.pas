@@ -38,14 +38,28 @@ uses
 type
   TfrPictureSelectFromList = class(TFrame)
     drwgrdIcons: TDrawGrid;
-    procedure drwgrdIconsDrawCell(Sender: TObject; ACol, ARow: Integer; Rect:
-        TRect; State: TGridDrawState);
-    procedure drwgrdIconsKeyDown(Sender: TObject; var Key: Word; Shift:
-        TShiftState);
-    procedure drwgrdIconsMouseMove(Sender: TObject; Shift: TShiftState; X, Y:
-        Integer);
-    procedure drwgrdIconsMouseUp(Sender: TObject; Button: TMouseButton; Shift:
-        TShiftState; X, Y: Integer);
+    procedure drwgrdIconsDrawCell(
+      Sender: TObject;
+      ACol, ARow: Integer;
+      Rect: TRect;
+      State: TGridDrawState
+    );
+    procedure drwgrdIconsKeyDown(
+      Sender: TObject;
+      var Key: Word;
+      Shift: TShiftState
+    );
+    procedure drwgrdIconsMouseMove(
+      Sender: TObject;
+      Shift: TShiftState;
+      X, Y: Integer
+    );
+    procedure drwgrdIconsMouseUp(
+      Sender: TObject;
+      Button: TMouseButton;
+      Shift: TShiftState;
+      X, Y: Integer
+    );
     procedure FrameEnter(Sender: TObject);
     procedure FrameResize(Sender: TObject);
   private
@@ -110,9 +124,9 @@ begin
     VMarker := APic.GetMarker;
   end;
   if VMarker <> nil then begin
-    VBitmap:=TBitmap32.Create;
+    VBitmap := TBitmap32.Create;
     try
-      VBitmap.SetSize(bound.Right-bound.Left, bound.Bottom-bound.Top);
+      VBitmap.SetSize(bound.Right - bound.Left, bound.Bottom - bound.Top);
       VBitmap.Clear(clWhite32);
       VSourceSize := VMarker.Size;
       VScale := Min(VBitmap.Width / VSourceSize.X, VBitmap.Height / VSourceSize.Y);
@@ -147,25 +161,33 @@ begin
   end;
 end;
 
-procedure TfrPictureSelectFromList.drwgrdIconsDrawCell(Sender: TObject; ACol, ARow: Integer;
-    Rect: TRect; State: TGridDrawState);
+procedure TfrPictureSelectFromList.drwgrdIconsDrawCell(
+  Sender: TObject;
+  ACol, ARow: Integer;
+  Rect: TRect;
+  State: TGridDrawState
+);
 var
-  i:Integer;
+  i: Integer;
   VPictureList: IMarkPictureList;
 begin
   i := (ARow * drwgrdIcons.ColCount) + ACol;
   VPictureList := FPictureList;
-  if i < VPictureList.Count then
+  if i < VPictureList.Count then begin
     DrawFromMarkIcons(drwgrdIcons.Canvas, VPictureList.Get(i), drwgrdIcons.DefaultColWidth, Rect);
+  end;
 end;
 
-procedure TfrPictureSelectFromList.drwgrdIconsKeyDown(Sender: TObject; var Key:
-    Word; Shift: TShiftState);
+procedure TfrPictureSelectFromList.drwgrdIconsKeyDown(
+  Sender: TObject;
+  var Key: Word;
+  Shift: TShiftState
+);
 var
-  i:integer;
+  i: integer;
 begin
   if Key = VK_SPACE then begin
-    i:=(drwgrdIcons.Row*drwgrdIcons.ColCount)+drwgrdIcons.Col;
+    i := (drwgrdIcons.Row * drwgrdIcons.ColCount) + drwgrdIcons.Col;
     if (i >= 0) and (i < FPictureList.Count) then begin
       FPicture := FPictureList.Get(i);
       FOnSelect(Self);
@@ -173,28 +195,35 @@ begin
   end;
 end;
 
-procedure TfrPictureSelectFromList.drwgrdIconsMouseMove(Sender: TObject; Shift:
-    TShiftState; X, Y: Integer);
+procedure TfrPictureSelectFromList.drwgrdIconsMouseMove(
+  Sender: TObject;
+  Shift: TShiftState;
+  X, Y: Integer
+);
 var
-  i:integer;
-  ACol,ARow: Integer;
+  i: integer;
+  ACol, ARow: Integer;
 begin
   drwgrdIcons.MouseToCell(X, Y, ACol, ARow);
-  i:=(ARow*drwgrdIcons.ColCount)+ACol;
-  if (ARow>-1)and(ACol>-1) and (i < FPictureList.Count) then begin
+  i := (ARow * drwgrdIcons.ColCount) + ACol;
+  if (ARow > -1) and (ACol > -1) and (i < FPictureList.Count) then begin
     drwgrdIcons.Hint := FPictureList.Get(i).GetName;
   end;
 end;
 
-procedure TfrPictureSelectFromList.drwgrdIconsMouseUp(Sender: TObject; Button:
-    TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TfrPictureSelectFromList.drwgrdIconsMouseUp(
+  Sender: TObject;
+  Button: TMouseButton;
+  Shift: TShiftState;
+  X, Y: Integer
+);
 var
-  i:integer;
-  ACol,ARow: Integer;
+  i: integer;
+  ACol, ARow: Integer;
 begin
   drwgrdIcons.MouseToCell(X, Y, ACol, ARow);
-  i:=(ARow*drwgrdIcons.ColCount)+ACol;
-  if (ARow>-1)and(ACol>-1) and (i < FPictureList.Count) then begin
+  i := (ARow * drwgrdIcons.ColCount) + ACol;
+  if (ARow > -1) and (ACol > -1) and (i < FPictureList.Count) then begin
     FPicture := FPictureList.Get(i);
     FOnSelect(Self);
   end;

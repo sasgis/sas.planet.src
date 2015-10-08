@@ -473,7 +473,9 @@ begin
     VSLon := Copy(VLink, I + 3, J - (I + 3));
     I := J;
     J := ALPosEx('&', VLink, I);
-    if J = 0 then J := Length(VLink);
+    if J = 0 then begin
+      J := Length(VLink);
+    end;
     VSLat := Copy(VLink, I + 1, J - (I + 1));
   end;
 
@@ -786,4 +788,3 @@ end;
 // http://harita.yandex.com.tr/-/CFXxAO3m
 
 end.
-

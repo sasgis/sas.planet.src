@@ -85,7 +85,7 @@ begin
 
   FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FConfig.ChangeNotifier.Add(FConfigChangeListener);
-  
+
   OnConfigChange;
 end;
 

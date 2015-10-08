@@ -142,7 +142,10 @@ type
     );
   end;
 
-  TCreateItemFunction = function(const AKey: THashValue; const AData: Pointer): IInterface of object;
+  TCreateItemFunction = function(
+      const AKey: THashValue;
+      const AData: Pointer
+    ): IInterface of object;
 
   THashInterfaceCache2Q = class(TBaseInterfacedObject, IHashInterfaceCache)
   private

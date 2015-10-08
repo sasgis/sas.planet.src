@@ -35,12 +35,21 @@ type
     property TileRect: ITileRect read GetTileRect;
 
     function GetTile(const ATile: TPoint): THashValue;
-    procedure SetTile(const ATile: TPoint; const AValue: THashValue);
+    procedure SetTile(
+      const ATile: TPoint;
+      const AValue: THashValue
+    );
     property Tiles[const ATile: TPoint]: THashValue read GetTile write SetTile;
 
     procedure Reset(const AValue: THashValue);
-    procedure SetRectWithReset(const ATileRect: ITileRect; const AValue: THashValue);
-    procedure SetRect(const ATileRect: ITileRect; const AValue: THashValue);
+    procedure SetRectWithReset(
+      const ATileRect: ITileRect;
+      const AValue: THashValue
+    );
+    procedure SetRect(
+      const ATileRect: ITileRect;
+      const AValue: THashValue
+    );
 
     function MakeStatic: IHashTileMatrix;
   end;

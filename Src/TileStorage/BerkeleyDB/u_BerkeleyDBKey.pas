@@ -138,7 +138,10 @@ asm
    xchg al, ah
 end;
 
-procedure SetBit(var ADest: Cardinal; const ABit: Integer); inline;
+procedure SetBit(
+  var ADest: Cardinal;
+  const ABit: Integer
+); inline;
 begin
   ADest := ADest or (Cardinal(1) shl ABit);
 end;

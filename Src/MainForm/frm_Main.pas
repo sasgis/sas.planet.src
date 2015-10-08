@@ -4283,18 +4283,25 @@ begin
   VGUIDList := GState.MapType.GUIConfigList.OrderedMapGUIDList;
   VNextMapGuid := VActiveMapGUID;
   VLoopCnt := 0;
-  for i := 0 to VGUIDList.Count - 1 do
-    if IsEqualGUID(VActiveMapGUID, VGUIDList.Items[i]) then Break;
+  for i := 0 to VGUIDList.Count - 1 do begin
+    if IsEqualGUID(VActiveMapGUID, VGUIDList.Items[i]) then begin
+      Break;
+    end;
+  end;
 
   while (VLoopCnt < VGUIDList.Count) do begin
     inc(VLoopCnt);
     i := i + AStep;
-    if i < 0 then i := VGUIDList.Count - 1;
-    if i > VGUIDList.Count - 1 then i := 0;
+    if i < 0 then begin
+      i := VGUIDList.Count - 1;
+    end;
+    if i > VGUIDList.Count - 1 then begin
+      i := 0;
+    end;
     VGUID := VGUIDList.Items[i];
     VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID);
-    if VMapType <> nil  then begin
-      if (not VMapType.Zmp.IsLayer) and (VMapType.GUIConfig.Enabled)then begin
+    if VMapType <> nil then begin
+      if (not VMapType.Zmp.IsLayer) and (VMapType.GUIConfig.Enabled) then begin
         VMapProjection := VMapType.ProjectionSet.GetSuitableProjection(VProjection);
         VMapTile :=
           PointFromDoublePoint(
@@ -5485,7 +5492,9 @@ begin
           then begin
             FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := False;
           end;
-        end else FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := True;
+        end else begin
+          FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := True;
+        end;
 
         FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UseRelativeZoom := True;
         FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Zoom := VTag - 100;
@@ -5496,7 +5505,9 @@ begin
           then begin
             FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := False;
           end;
-        end else FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := True;
+        end else begin
+          FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := True;
+        end;
 
         FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UseRelativeZoom := False;
         FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Zoom := VTag - 1;
@@ -7143,7 +7154,7 @@ var
   PosFromGSM: TPosFromGSM;
 begin
   PosFromGSM := tPosFromGSM.Create(GState.Config.GsmConfig, FMapGoto);
-  try                                                             
+  try
     PosFromGSM.GetPos(FViewPortState.View.GetStatic.Projection);
   except
     PosFromGSM.Free;
@@ -7765,7 +7776,7 @@ begin
   NLayerParams.Visible := False;
   VActiveLayersSet := FConfig.MapLayersConfig.LayerGuids;
   VGUIDList := GState.MapType.GUIConfigList.OrderedMapGUIDList;
-  for i := 0 to VGUIDList.Count - 1 do begin 
+  for i := 0 to VGUIDList.Count - 1 do begin
     VGUID := VGUIDList.Items[i];
     VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID);
     if (VMapType.Zmp.IsLayer) then begin

@@ -38,7 +38,13 @@ uses
   SysUtils,
   ALString;
 
-procedure ShellExecute(const AWnd: HWND; const AOperation, AFileName: String; const AParameters: String = ''; const ADirectory: String = ''; const AShowCmd: Integer = SW_SHOWNORMAL);
+procedure ShellExecute(
+  const AWnd: HWND;
+  const AOperation, AFileName: String;
+  const AParameters: String = '';
+  const ADirectory: String = '';
+  const AShowCmd: Integer = SW_SHOWNORMAL
+);
 var
   ExecInfo: TShellExecuteInfo;
   NeedUninitialize: Boolean;
@@ -63,8 +69,9 @@ begin
     Win32Check(ShellExecuteEx(@ExecInfo));
     {$WARN SYMBOL_PLATFORM ON}
   finally
-    if NeedUninitialize then
+    if NeedUninitialize then begin
       CoUninitialize;
+    end;
   end;
 end;
 

@@ -162,32 +162,32 @@ begin
   end;
   frMarkCategory.Init(VCategory);
   try
-    edtName.Text:=AMark.Name;
-    frMarkDescription.Description:=AMark.Desc;
+    edtName.Text := AMark.Name;
+    frMarkDescription.Description := AMark.Desc;
     if Supports(AMark.Appearance, IAppearancePolygonBorder, VAppearanceBorder) then begin
-      seLineTransp.Value := 100-round(AlphaComponent(VAppearanceBorder.LineColor)/255*100);
+      seLineTransp.Value := 100 - round(AlphaComponent(VAppearanceBorder.LineColor) / 255 * 100);
       seLineWidth.Value := VAppearanceBorder.LineWidth;
       clrbxLineColor.Selected := WinColor(VAppearanceBorder.LineColor);
     end else begin
       seLineTransp.Value := 0;
-      seLineWidth.Value :=0;
+      seLineWidth.Value := 0;
       clrbxLineColor.Selected := WinColor(clBlack32);
     end;
     if Supports(AMark.Appearance, IAppearancePolygonFill, VAppearanceFill) then begin
-      seFillTransp.Value := 100-round(AlphaComponent(VAppearanceFill.FillColor)/255*100);
+      seFillTransp.Value := 100 - round(AlphaComponent(VAppearanceFill.FillColor) / 255 * 100);
       clrbxFillColor.Selected := WinColor(VAppearanceFill.FillColor);
     end else begin
       seFillTransp.Value := 0;
       clrbxFillColor.Selected := 0;
     end;
-    chkVisible.Checked:= AVisible;
+    chkVisible.Checked := AVisible;
     if AIsNewMark then begin
-      Caption:=SAS_STR_AddNewPoly;
+      Caption := SAS_STR_AddNewPoly;
     end else begin
-      Caption:=SAS_STR_EditPoly;
+      Caption := SAS_STR_EditPoly;
     end;
     Self.PopupParent := Application.MainForm;
-    if ShowModal=mrOk then begin
+    if ShowModal = mrOk then begin
       Result :=
         FMarkFactory.CreateMark(
           AMark.Geometry,
@@ -216,9 +216,9 @@ function TfrmMarkEditPoly.MakeAppearance: IAppearance;
 begin
   Result :=
     FAppearanceOfMarkFactory.CreatePolygonAppearance(
-      SetAlpha(Color32(clrbxLineColor.Selected),round(((100-seLineTransp.Value)/100)*256)),
+      SetAlpha(Color32(clrbxLineColor.Selected), round(((100 - seLineTransp.Value) / 100) * 256)),
       seLineWidth.Value,
-      SetAlpha(Color32(clrbxFillColor.Selected),round(((100-seFillTransp.Value)/100)*256))
+      SetAlpha(Color32(clrbxFillColor.Selected), round(((100 - seFillTransp.Value) / 100) * 256))
     );
 end;
 
@@ -245,12 +245,16 @@ end;
 
 procedure TfrmMarkEditPoly.btnLineColorClick(Sender: TObject);
 begin
- if ColorDialog1.Execute then clrbxLineColor.Selected:=ColorDialog1.Color;
+  if ColorDialog1.Execute then begin
+    clrbxLineColor.Selected := ColorDialog1.Color;
+  end;
 end;
 
 procedure TfrmMarkEditPoly.btnFillColorClick(Sender: TObject);
 begin
- if ColorDialog1.Execute then clrbxFillColor.Selected:=ColorDialog1.Color;
+  if ColorDialog1.Execute then begin
+    clrbxFillColor.Selected := ColorDialog1.Color;
+  end;
 end;
 
 end.

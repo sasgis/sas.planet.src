@@ -51,10 +51,28 @@ type
     function Write(const AKey, AValue: IBinaryData): Boolean; overload;
     function Exists(const AKey: IBinaryData): Boolean; overload;
     function Del(const AKey: IBinaryData): Boolean; overload;
-    function Read(const AKey: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean; const AFlag: Cardinal = 0): IBinaryData; overload;
-    function Write(const AKey, AValue: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean): Boolean; overload;
-    function Exists(const AKey: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean; const AFlag: Cardinal = 0): Boolean; overload;
-    function Del(const AKey: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean): Boolean; overload;
+    function Read(
+      const AKey: IBinaryData;
+      const ATxn: PBerkeleyTxn;
+      out AIsDeadLock: Boolean;
+      const AFlag: Cardinal = 0
+    ): IBinaryData; overload;
+    function Write(
+      const AKey, AValue: IBinaryData;
+      const ATxn: PBerkeleyTxn;
+      out AIsDeadLock: Boolean
+    ): Boolean; overload;
+    function Exists(
+      const AKey: IBinaryData;
+      const ATxn: PBerkeleyTxn;
+      out AIsDeadLock: Boolean;
+      const AFlag: Cardinal = 0
+    ): Boolean; overload;
+    function Del(
+      const AKey: IBinaryData;
+      const ATxn: PBerkeleyTxn;
+      out AIsDeadLock: Boolean
+    ): Boolean; overload;
     function CreateExistsKeyArray(out AKeyArray: TExistsKeyArray): Boolean;
     procedure ReleaseExistsKeyArray(var AKeyArray: TExistsKeyArray);
     procedure Sync;
@@ -124,6 +142,7 @@ procedure TBerkeleyDB.UnlockRead;
 begin
   FLock.EndRead;
 end;
+
 function TBerkeleyDB.LockWrite: Boolean;
 begin
   Result := FLock.BeginWrite;
@@ -141,39 +160,40 @@ var
   VRelativeFileName: UTF8String;
   VOpenFlags: Cardinal;
 begin
-  if db = nil then
-  try
-    FFileName := ADatabaseFileName;
-    VRelativeFileName := AnsiToUtf8(StringReplace(FFileName, FEnvRootPath, '', [rfIgnoreCase]));
-    CheckBDB(db_create(db, dbenv, 0));
-    Assert(db <> nil);
-    db.set_errpfx(db, PAnsiChar(cBerkeleyDBErrPfx));
-    if not FileExists(FFileName) then begin
-      CheckBDB(db.set_pagesize(db, FPageSize));
-    end;
-    if FIsReadOnly then begin
-      VOpenFlags := DB_RDONLY or DB_THREAD;
-    end else begin
-      VOpenFlags := DB_CREATE_ or DB_AUTO_COMMIT or DB_THREAD;
-    end;
-
-    I := 0;
-    repeat
-      ret := db.open(db, nil, PAnsiChar(VRelativeFileName), '', DB_BTREE, VOpenFlags, 0);
-      if ret = DB_LOCK_DEADLOCK then begin
-        Sleep(50);
-        Inc(I);
-      end else begin
-        Break;
+  if db = nil then begin
+    try
+      FFileName := ADatabaseFileName;
+      VRelativeFileName := AnsiToUtf8(StringReplace(FFileName, FEnvRootPath, '', [rfIgnoreCase]));
+      CheckBDB(db_create(db, dbenv, 0));
+      Assert(db <> nil);
+      db.set_errpfx(db, PAnsiChar(cBerkeleyDBErrPfx));
+      if not FileExists(FFileName) then begin
+        CheckBDB(db.set_pagesize(db, FPageSize));
       end;
-    until I > FOnDeadLockRetryCount;
+      if FIsReadOnly then begin
+        VOpenFlags := DB_RDONLY or DB_THREAD;
+      end else begin
+        VOpenFlags := DB_CREATE_ or DB_AUTO_COMMIT or DB_THREAD;
+      end;
 
-    CheckBDB(ret);
-  except
-    if db <> nil then begin
-      CheckBDBandNil(db.close(db, 0), db);
+      I := 0;
+      repeat
+        ret := db.open(db, nil, PAnsiChar(VRelativeFileName), '', DB_BTREE, VOpenFlags, 0);
+        if ret = DB_LOCK_DEADLOCK then begin
+          Sleep(50);
+          Inc(I);
+        end else begin
+          Break;
+        end;
+      until I > FOnDeadLockRetryCount;
+
+      CheckBDB(ret);
+    except
+      if db <> nil then begin
+        CheckBDBandNil(db.close(db, 0), db);
+      end;
+      raise;
     end;
-    raise;
   end;
 end;
 
@@ -183,6 +203,7 @@ var
 begin
   Result := Read(AKey, nil, b);
 end;
+
 function TBerkeleyDB.Write(const AKey, AValue: IBinaryData): Boolean;
 var
   b: Boolean;
@@ -204,7 +225,12 @@ begin
   Result := Del(AKey, nil, b);
 end;
 
-function TBerkeleyDB.Read(const AKey: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean; const AFlag: Cardinal = 0): IBinaryData;
+function TBerkeleyDB.Read(
+  const AKey: IBinaryData;
+  const ATxn: PBerkeleyTxn;
+  out AIsDeadLock: Boolean;
+  const AFlag: Cardinal = 0
+): IBinaryData;
 var
   I: Integer;
   ret: Integer;
@@ -238,8 +264,9 @@ begin
           Sleep(50);
         end;
       end;
-    else
+    else begin
       AIsDeadLock := False;
+    end;
       VFound := CheckAndFoundBDB(ret);
       Break;
     end;
@@ -261,7 +288,11 @@ begin
   end;
 end;
 
-function TBerkeleyDB.Write(const AKey, AValue: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean): Boolean;
+function TBerkeleyDB.Write(
+  const AKey, AValue: IBinaryData;
+  const ATxn: PBerkeleyTxn;
+  out AIsDeadLock: Boolean
+): Boolean;
 var
   I: Integer;
   ret: Integer;
@@ -297,8 +328,9 @@ begin
           Sleep(50);
         end;
       end;
-    else
+    else begin
       AIsDeadLock := False;
+    end;
       Result := CheckAndNotExistsBDB(ret);
       Break;
     end;
@@ -310,7 +342,12 @@ begin
   end;
 end;
 
-function TBerkeleyDB.Exists(const AKey: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean; const AFlag: Cardinal = 0): Boolean;
+function TBerkeleyDB.Exists(
+  const AKey: IBinaryData;
+  const ATxn: PBerkeleyTxn;
+  out AIsDeadLock: Boolean;
+  const AFlag: Cardinal = 0
+): Boolean;
 var
   I: Integer;
   ret: Integer;
@@ -339,8 +376,9 @@ begin
           Sleep(50);
         end;
       end;
-    else
+    else begin
       AIsDeadLock := False;
+    end;
       Result := CheckAndFoundBDB(ret);
       Break;
     end;
@@ -352,7 +390,11 @@ begin
   end;
 end;
 
-function TBerkeleyDB.Del(const AKey: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean): Boolean;
+function TBerkeleyDB.Del(
+  const AKey: IBinaryData;
+  const ATxn: PBerkeleyTxn;
+  out AIsDeadLock: Boolean
+): Boolean;
 var
   I: Integer;
   ret: Integer;
@@ -382,8 +424,9 @@ begin
           Sleep(50);
         end;
       end;
-    else
+    else begin
       AIsDeadLock := False;
+    end;
       Result := CheckAndFoundBDB(ret);
       Break;
     end;
@@ -475,4 +518,3 @@ begin
 end;
 
 end.
-

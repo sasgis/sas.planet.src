@@ -91,9 +91,7 @@ begin
   VNeedNotify := False;
   CS.BeginWrite;
   try
-    if (Assigned(FConverter) and not FConverter.GetIsSameConverter(AValue))
-      or (Assigned(AValue) and not Assigned(FConverter))
-    then begin
+    if (Assigned(FConverter) and not FConverter.GetIsSameConverter(AValue)) or (Assigned(AValue) and not Assigned(FConverter)) then begin
       FConverter := AValue;
       VNeedNotify := True;
     end;

@@ -37,8 +37,13 @@ uses
 type
   TfrSelectedPicture = class(TFrame)
     imgIcon: TImage32;
-    procedure imgIconMouseDown(Sender: TObject; Button: TMouseButton; Shift:
-        TShiftState; X, Y: Integer; Layer: TCustomLayer);
+    procedure imgIconMouseDown(
+      Sender: TObject;
+      Button: TMouseButton;
+      Shift: TShiftState;
+      X, Y: Integer;
+      Layer: TCustomLayer
+    );
     procedure imgIconResize(Sender: TObject);
   private
     FPicture: IMarkPicture;
@@ -71,7 +76,9 @@ uses
 { TfrSelectedPicture }
 
 procedure TfrSelectedPicture.CopyMarkerToBitmap(
-  const ASourceBitmap: IBitmap32Static; ATarget: TCustomBitmap32);
+  const ASourceBitmap: IBitmap32Static;
+  ATarget: TCustomBitmap32
+);
 var
   VSourceSize: TPoint;
   VScale: Double;
@@ -108,15 +115,22 @@ begin
   end;
 end;
 
-constructor TfrSelectedPicture.Create(const ALanguageManager: ILanguageManager;
-  AOnClick: TNotifyEvent);
+constructor TfrSelectedPicture.Create(
+  const ALanguageManager: ILanguageManager;
+  AOnClick: TNotifyEvent
+);
 begin
   inherited Create(ALanguageManager);
   FOnClick := AOnClick;
 end;
 
-procedure TfrSelectedPicture.imgIconMouseDown(Sender: TObject; Button:
-    TMouseButton; Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
+procedure TfrSelectedPicture.imgIconMouseDown(
+  Sender: TObject;
+  Button: TMouseButton;
+  Shift: TShiftState;
+  X, Y: Integer;
+  Layer: TCustomLayer
+);
 begin
   if Assigned(FOnClick) then begin
     FOnClick(Self);

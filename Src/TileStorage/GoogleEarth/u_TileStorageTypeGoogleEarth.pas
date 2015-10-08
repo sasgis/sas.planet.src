@@ -106,13 +106,13 @@ begin
     (AProjectionSet.Zooms[0].GetTileSplitCode = CTileSplitQuadrate256x256)
   then begin
     VNameInCache := ExtractFileName(APath);
-    if SameText(VNameInCache, 'earth')  then begin
+    if SameText(VNameInCache, 'earth') then begin
       VNameInCache := 'earth';
-    end else if SameText(VNameInCache, 'mars')  then begin
+    end else if SameText(VNameInCache, 'mars') then begin
       VNameInCache := 'mars';
-    end else if SameText(VNameInCache, 'moon')  then begin
+    end else if SameText(VNameInCache, 'moon') then begin
       VNameInCache := 'moon';
-    end else if SameText(VNameInCache, 'sky')  then begin
+    end else if SameText(VNameInCache, 'sky') then begin
       VNameInCache := 'sky';
     end else begin
       VNameInCache := '';

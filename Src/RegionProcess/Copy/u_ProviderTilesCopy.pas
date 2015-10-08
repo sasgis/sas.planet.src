@@ -198,10 +198,11 @@ var
       VMapType := VMaps.Items[i];
       VTasks[i].FSource := VMapType.TileStorage;
       VTasks[i].FSourceVersion := VMapType.VersionRequest.GetStatic;
-      if VPlaceInSubFolder then
-        VTargetStoragePath := IncludeTrailingPathDelimiter(APath + VMapType.GetShortFolderName)
-      else
+      if VPlaceInSubFolder then begin
+        VTargetStoragePath := IncludeTrailingPathDelimiter(APath + VMapType.GetShortFolderName);
+      end else begin
         VTargetStoragePath := APath;
+      end;
       VStorageType := FTileStorageTypeList.GetItemByCode(VCacheType);
       if Assigned(VStorageType) then begin
         VTasks[i].FTarget :=
@@ -268,10 +269,11 @@ var
       VSetTargetVersionValue := '';
     end;
 
-    if VSetTargetVersionEnabled then
-      ATargetVersionForce := VMapType.VersionFactory.GetStatic.CreateByStoreString(VSetTargetVersionValue)
-    else
+    if VSetTargetVersionEnabled then begin
+      ATargetVersionForce := VMapType.VersionFactory.GetStatic.CreateByStoreString(VSetTargetVersionValue);
+    end else begin
       ATargetVersionForce := nil;
+    end;
 
     Result :=
       TThreadCopyWithModification.Create(
@@ -309,10 +311,11 @@ begin
 
   VProgressInfo := ProgressFactory.Build(APolygon);
 
-  if DoDirectCopy then
-    VThread := PrepareDirectCopy(VProgressInfo, VCacheType, VPath, VZoomArr, VDeleteSource, VReplace)
-  else
+  if DoDirectCopy then begin
+    VThread := PrepareDirectCopy(VProgressInfo, VCacheType, VPath, VZoomArr, VDeleteSource, VReplace);
+  end else begin
     VThread := PrepareModification(VProgressInfo, VCacheType, VPath, VZoomArr, VDeleteSource, VReplace);
+  end;
 
   if Assigned(VThread) then begin
     VThread.Resume;

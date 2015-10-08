@@ -38,7 +38,11 @@ type
   IUpdateDownloader = interface
     ['{19488A83-101C-4BBC-A5C3-36DE1EE7B2FA}']
     function SearchAvailableVersionInfoAsync(const AOperationID: Integer): TUpdateDownloaderState;
-    function GetAvailableVersionInfo(out ADate: TDateTime; out ARev: Integer; out ABuildType: string): Boolean;
+    function GetAvailableVersionInfo(
+      out ADate: TDateTime;
+      out ARev: Integer;
+      out ABuildType: string
+    ): Boolean;
 
     function DownloadAvailableVersionAsync(const AOperationID: Integer): TUpdateDownloaderState;
     function GetDownloadProgress(out ADone, ATotal: Integer): Boolean;

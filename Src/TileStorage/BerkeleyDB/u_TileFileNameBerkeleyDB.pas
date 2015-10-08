@@ -50,7 +50,7 @@ uses
   SysUtils;
 
 const
-  cBerkeleyDBRegExpr  = '^(.+\\)?[zZ](\d\d?)\\\d+\\\d+\\(\d+)\.(\d+)(\..+)?$';
+  cBerkeleyDBRegExpr = '^(.+\\)?[zZ](\d\d?)\\\d+\\\d+\\(\d+)\.(\d+)(\..+)?$';
 
 { TTileFileNameBerkeleyDB }
 

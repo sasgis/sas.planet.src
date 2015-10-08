@@ -225,7 +225,7 @@ begin
 
   if VList.Count > 0 then begin
     VCategoryList := TMarkCategoryList.Build(VList.MakeStaticAndClear);
-    ACategoryDB.UpdateCategoryList(nil, VCategoryList)
+    ACategoryDB.UpdateCategoryList(nil, VCategoryList);
   end;
 
   VList.Clear;
@@ -311,8 +311,8 @@ begin
 end;
 
 function TreeFromSortedStringList(
-  const AGroupName: string; 
-  const AGroupCategory: IMarkCategory; 
+  const AGroupName: string;
+  const AGroupCategory: IMarkCategory;
   AStrings: TStringList
 ): IMarkCategoryTree;
 var

@@ -242,117 +242,117 @@ begin
   );
 
   VTileIterator.Init(VTileRect);
-    VTilesToProcess := VTilesToProcess + VTileIterator.TilesTotal;
+  VTilesToProcess := VTilesToProcess + VTileIterator.TilesTotal;
 
-    ProgressInfo.SetCaption(SAS_STR_ExportTiles);
-    ProgressInfo.SetFirstLine(
-      SAS_STR_AllSaves + ' ' +
-      IntToStr(VTilesToProcess) + ' ' +
-      SAS_STR_Files
+  ProgressInfo.SetCaption(SAS_STR_ExportTiles);
+  ProgressInfo.SetFirstLine(
+    SAS_STR_AllSaves + ' ' +
+    IntToStr(VTilesToProcess) + ' ' +
+    SAS_STR_Files
+  );
+
+  ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
+
+  VPreviewImageData :=
+    GetMapPreview(
+      VSaver,
+      VPreviewImageWidth,
+      VPreviewImageHeight
     );
 
-    ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
+  VEmptyTile := GetEmptyTile(VSaver);
 
-    VPreviewImageData :=
-      GetMapPreview(
-        VSaver,
+  if (VPreviewImageData <> nil) and (VEmptyTile <> nil) then begin
+
+    VOfg2FileStream := TFileStream.Create(FTargetFile, fmCreate);
+    try
+      VWriter := TOgf2Writer.Create(
+        VOfg2FileStream,
+        (VTileRect.Right - VTileRect.Left) * 256,
+        (VTileRect.Bottom - VTileRect.Top) * 256,
+        FOgf2TileWidth,
+        FOgf2TileHeight,
         VPreviewImageWidth,
-        VPreviewImageHeight
+        VPreviewImageHeight,
+        VPreviewImageData.Buffer,
+        VPreviewImageData.Size,
+        VEmptyTile.Buffer,
+        VEmptyTile.Size
       );
-
-    VEmptyTile := GetEmptyTile(VSaver);
-
-    if (VPreviewImageData <> nil) and (VEmptyTile <> nil) then begin
-
-      VOfg2FileStream := TFileStream.Create(FTargetFile, fmCreate);
       try
-        VWriter := TOgf2Writer.Create(
-          VOfg2FileStream,
-          (VTileRect.Right - VTileRect.Left) * 256,
-          (VTileRect.Bottom - VTileRect.Top) * 256,
-          FOgf2TileWidth,
-          FOgf2TileHeight,
-          VPreviewImageWidth,
-          VPreviewImageHeight,
-          VPreviewImageData.Buffer,
-          VPreviewImageData.Size,
-          VEmptyTile.Buffer,
-          VEmptyTile.Size
-        );
+        VBitmap := TCustomBitmap32.Create;
         try
-          VBitmap := TCustomBitmap32.Create;
-          try
-            VBitmap.Width := FOgf2TileWidth;
-            VBitmap.Height := FOgf2TileHeight;
+          VBitmap.Width := FOgf2TileWidth;
+          VBitmap.Height := FOgf2TileHeight;
 
-            while VTileIterator.Next(VTile) do begin
-              if CancelNotifier.IsOperationCanceled(OperationID) then begin
-                Exit;
-              end;
+          while VTileIterator.Next(VTile) do begin
+            if CancelNotifier.IsOperationCanceled(OperationID) then begin
+              Exit;
+            end;
 
-              VBitmapTile :=
-                FImageProvider.GetTile(
-                  OperationID,
-                  CancelNotifier,
-                  VProjection,
-                  VTile
-                );
+            VBitmapTile :=
+              FImageProvider.GetTile(
+                OperationID,
+                CancelNotifier,
+                VProjection,
+                VTile
+              );
 
-              for I := 0 to (256 div FOgf2TileWidth) - 1 do begin
-                for J := 0 to (256 div FOgf2TileHeight) - 1 do begin
-                  if VBitmapTile <> nil then begin
-                    VBitmap.Clear(cBackGroundColor);
+            for I := 0 to (256 div FOgf2TileWidth) - 1 do begin
+              for J := 0 to (256 div FOgf2TileHeight) - 1 do begin
+                if VBitmapTile <> nil then begin
+                  VBitmap.Clear(cBackGroundColor);
 
-                    BlockTransfer(
-                      VBitmap,
-                      0,
-                      0,
-                      VBitmapTile,
-                      Bounds(FOgf2TileWidth * I, FOgf2TileHeight * J, FOgf2TileWidth, FOgf2TileHeight),
-                      dmOpaque
+                  BlockTransfer(
+                    VBitmap,
+                    0,
+                    0,
+                    VBitmapTile,
+                    Bounds(FOgf2TileWidth * I, FOgf2TileHeight * J, FOgf2TileWidth, FOgf2TileHeight),
+                    dmOpaque
+                  );
+
+                  VStaticBitmapCrop :=
+                    FBitmapFactory.Build(
+                      Point(FOgf2TileWidth, FOgf2TileHeight),
+                      VBitmap.Bits
                     );
+                  VDataToSave := VSaver.Save(VStaticBitmapCrop);
 
-                    VStaticBitmapCrop :=
-                      FBitmapFactory.Build(
-                        Point(FOgf2TileWidth, FOgf2TileHeight),
-                        VBitmap.Bits
-                      );
-                    VDataToSave := VSaver.Save(VStaticBitmapCrop);
-
-                    VWriter.Add(
-                      (VTile.X * 2) + I,
-                      (VTile.Y * 2) + J,
-                      VDataToSave.Buffer,
-                      VDataToSave.Size
-                    );
-                  end else begin
-                    VWriter.AddEmpty(
-                      (VTile.X * 2) + I,
-                      (VTile.Y * 2) + J
-                    );
-                  end;
+                  VWriter.Add(
+                    (VTile.X * 2) + I,
+                    (VTile.Y * 2) + J,
+                    VDataToSave.Buffer,
+                    VDataToSave.Size
+                  );
+                end else begin
+                  VWriter.AddEmpty(
+                    (VTile.X * 2) + I,
+                    (VTile.Y * 2) + J
+                  );
                 end;
-              end;
-
-              Inc(VTilesProcessed);
-
-              if VTilesProcessed mod 100 = 0 then begin
-                ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
               end;
             end;
 
-            VWriter.SaveAllocationTable; // finalize export
+            Inc(VTilesProcessed);
 
-          finally
-            VBitmap.Free;
+            if VTilesProcessed mod 100 = 0 then begin
+              ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
+            end;
           end;
+
+          VWriter.SaveAllocationTable; // finalize export
+
         finally
-          VWriter.Free;
+          VBitmap.Free;
         end;
       finally
-        VOfg2FileStream.Free;
+        VWriter.Free;
       end;
+    finally
+      VOfg2FileStream.Free;
     end;
+  end;
 end;
 
 end.

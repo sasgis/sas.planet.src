@@ -345,7 +345,7 @@ begin
       tbxStatusBar.Panels.Items[1].Caption := '';
     end;
     if VSize > 0 then begin
-      tbxStatusBar.Panels.Items[2].Caption := VValueConverter.DataSizeConvert(VSize/1024);
+      tbxStatusBar.Panels.Items[2].Caption := VValueConverter.DataSizeConvert(VSize / 1024);
     end else begin
       tbxStatusBar.Panels.Items[2].Caption := '';
     end;
@@ -409,7 +409,7 @@ end;
 
 procedure TfrmProgressDownload.tbtmGotoMapClick(Sender: TObject);
 begin
-  FMainConfig.MainMapGUID :=  FMapType.GUID;
+  FMainConfig.MainMapGUID := FMapType.GUID;
 end;
 
 procedure TfrmProgressDownload.tbtmMarkClick(Sender: TObject);

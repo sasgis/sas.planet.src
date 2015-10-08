@@ -280,7 +280,7 @@ function TBitmapTileMatrixChangeableComposite.PrepareBitmap(
 ): Boolean;
 var
   VCounterContext: TInternalPerformanceCounterContext;
-  i:  Integer;
+  i: Integer;
   VSourceItem: IBitmap32Static;
   VBitmapGR32: TBitmap32ByStaticBitmap;
   VTileCount: Integer;
@@ -312,10 +312,10 @@ begin
   end;
   if VTileCount = 0 then begin
     AResult := nil;
-    Exit
+    Exit;
   end;
   if VTileCount = 1 then begin
-    Exit
+    Exit;
   end;
 
   VCounterContext := FOneTilePrepareCounter.StartOperation;

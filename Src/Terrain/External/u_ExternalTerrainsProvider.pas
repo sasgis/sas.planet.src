@@ -59,7 +59,10 @@ type
     ): String;
   protected
     { ITerrainProvider }
-    function GetPointElevation(const ALonLat: TDoublePoint; const AZoom: Byte): Single;
+    function GetPointElevation(
+      const ALonLat: TDoublePoint;
+      const AZoom: Byte
+    ): Single;
     function GetAvailable: Boolean;
     function GetStateChangeNotifier: INotifier;
   public
@@ -98,10 +101,11 @@ begin
   FFileHandle := 0;
   FFileName := '';
   FBaseFolder := '';
-  FAvailable := (AOptions.Values['Enabled']='1');
+  FAvailable := (AOptions.Values['Enabled'] = '1');
 
-  if (not FAvailable) then
+  if (not FAvailable) then begin
     Exit;
+  end;
 
   // folder - terrain file(s) storage
   FBaseFolder := AOptions.Values['Folder'];
@@ -132,7 +136,7 @@ begin
     FAvailable := FALSE;
     Exit;
   end;
-  if (FSamplesCount<=0) then begin
+  if (FSamplesCount <= 0) then begin
     FAvailable := FALSE;
     Exit;
   end;
@@ -180,14 +184,15 @@ begin
   // 'E056'
   Result := IntToStr(Abs(AValue));
 
-  while (Length(Result)<AWidth) do begin
+  while (Length(Result) < AWidth) do begin
     Result := '0' + Result;
   end;
 
-  if (AValue<0) then
-    Result := APrefIfMinus + Result
-  else
+  if (AValue < 0) then begin
+    Result := APrefIfMinus + Result;
+  end else begin
     Result := APrefIfPlus + Result;
+  end;
 end;
 
 function TTerrainProviderByExternal.GetPointElevation(
@@ -202,7 +207,7 @@ var
   VDone: Boolean;
   VElevationData: SmallInt; // signed 16bit
 begin
-  if (FProjConverter<>nil) then begin
+  if (FProjConverter <> nil) then begin
     // TODO: convert to WGS84/EGM96 geoid
     Result := cUndefinedElevationValue;
   end else begin
@@ -219,27 +224,28 @@ begin
     VFilePoint.Y := Floor(ALonLat.Y);
 
     // StripIndex
-    VIndexInLines  := Round((1-(ALonLat.Y-VFilePoint.Y))*(FLinesCount-1));
+    VIndexInLines := Round((1 - (ALonLat.Y - VFilePoint.Y)) * (FLinesCount - 1));
     // ColumnIndex
-    VIndexInSamples := Round((ALonLat.X-VFilePoint.X)*(FSamplesCount-1));
+    VIndexInSamples := Round((ALonLat.X - VFilePoint.X) * (FSamplesCount - 1));
 
     // make filename
     VFilenameForPoint := FBaseFolder + FPrefix + GetFilenamePart(VFilePoint.Y, 'N', 'S', 2) + GetFilenamePart(VFilePoint.X, 'E', 'W', 3) + FSuffix;
 
     // if file not opened or opened another file - open this
-    if (FFileName<>VFilenameForPoint) or (0=FFileHandle) then begin
+    if (FFileName <> VFilenameForPoint) or (0 = FFileHandle) then begin
       InternalClose;
       FFileName := VFilenameForPoint;
       // open file
       FFileHandle := CreateFile(PChar(FFileName), GENERIC_READ, FILE_SHARE_READ, nil, OPEN_EXISTING, 0, 0);
-      if (INVALID_HANDLE_VALUE = FFileHandle) then
+      if (INVALID_HANDLE_VALUE = FFileHandle) then begin
         FFileHandle := 0;
+      end;
     end;
 
     // if file opened
-    if (FFileHandle<>0) then begin
+    if (FFileHandle <> 0) then begin
       // check format
-      if SameText(ExtractFileExt(FFileName),'.tif') then begin
+      if SameText(ExtractFileExt(FFileName), '.tif') then begin
         // with tiff header
         VDone := FindElevationInTiff(
           FFileHandle,
@@ -262,12 +268,12 @@ begin
       end;
 
       // check byte inversion
-      if VDone and (FByteOrder<>0) then begin
+      if VDone and (FByteOrder <> 0) then begin
         SwapInWord(@VElevationData);
       end;
 
       // check voids and result
-      if (not VDone) or ((FVoidValue<>0) and (FVoidValue=VElevationData)) then begin
+      if (not VDone) or ((FVoidValue <> 0) and (FVoidValue = VElevationData)) then begin
         // void or failed
         Result := cUndefinedElevationValue;
       end else begin

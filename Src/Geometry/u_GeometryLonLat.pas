@@ -213,7 +213,7 @@ begin
       Exit;
     end;
 
-    Result := CompareMem(FPoints.Points, ALine.Points, FCount * SizeOf(TDoublePoint))
+    Result := CompareMem(FPoints.Points, ALine.Points, FCount * SizeOf(TDoublePoint));
   end;
 end;
 
@@ -280,7 +280,7 @@ begin
       Result := False;
       Exit;
     end;
-    Result := CompareMem(FPoints.Points, ALine.Points, FCount * SizeOf(TDoublePoint))
+    Result := CompareMem(FPoints.Points, ALine.Points, FCount * SizeOf(TDoublePoint));
   end;
 end;
 

@@ -251,7 +251,10 @@ end;
 
 { TGUIDSetStatic }
 
-constructor TGUIDSetStatic.Create(const AList: array of TGUID; ACount: Integer);
+constructor TGUIDSetStatic.Create(
+  const AList: array of TGUID;
+  ACount: Integer
+);
 var
   i: Integer;
 begin

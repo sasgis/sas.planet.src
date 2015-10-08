@@ -57,7 +57,10 @@ type
 
   IMarkDbSmlInternal = interface
     ['{54D17191-A56C-4951-8838-7E492906213A}']
-    procedure Initialize(AOperationID: Integer; const ACancelNotifier: INotifierOperation);
+    procedure Initialize(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation
+    );
 
     function GetById(AId: Integer): IVectorDataItem;
   end;

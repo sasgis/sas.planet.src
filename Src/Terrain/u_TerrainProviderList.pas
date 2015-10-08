@@ -130,11 +130,13 @@ var
   i: Integer;
 begin
   // check
-  if (nil=FTerrainDataPath) then
+  if (nil = FTerrainDataPath) then begin
     Exit;
+  end;
   VFileName := FTerrainDataPath.FullPath + '\SASTerrain.ini';
-  if (not FileExists(VFileName)) then
+  if (not FileExists(VFileName)) then begin
     Exit;
+  end;
 
   // load
   VSections := nil;
@@ -144,45 +146,47 @@ begin
     VSections := TStringList.Create;
     VOptions := TStringList.Create;
     VIniFile.ReadSections(VSections);
-    if (0<VSections.Count) then
-    for i := 0 to VSections.Count-1 do
-    try
+    if (0 < VSections.Count) then begin
+      for i := 0 to VSections.Count - 1 do begin
+        try
       // loop through terrains
-      VSection := VSections[i];
+          VSection := VSections[i];
 
       // get guid
-      VCaption := VIniFile.ReadString(VSection, 'GUID', '');
-      VGuid := StringToGUID(VCaption);
+          VCaption := VIniFile.ReadString(VSection, 'GUID', '');
+          VGuid := StringToGUID(VCaption);
 
       // get caption
-      VCaption := VIniFile.ReadString(VSection, 'Caption', VSection);
+          VCaption := VIniFile.ReadString(VSection, 'Caption', VSection);
 
       // get all options
-      VIniFile.ReadSectionValues(VSection, VOptions);
+          VIniFile.ReadSectionValues(VSection, VOptions);
 
       // get proj4 converter
-      VProjInitString := VIniFile.ReadString(VSection, 'Proj', '');
-      if (0<Length(VProjInitString)) then begin
-        VProjConverter := FProjConverterFactory.GetByInitString(VProjInitString);
-      end else begin
+          VProjInitString := VIniFile.ReadString(VSection, 'Proj', '');
+          if (0 < Length(VProjInitString)) then begin
+            VProjConverter := FProjConverterFactory.GetByInitString(VProjInitString);
+          end else begin
         // no proj converter
-        VProjConverter := nil;
-      end;
+            VProjConverter := nil;
+          end;
 
       // make item
-      VItem := TTerrainProviderListElement.Create(
-        VGuid,
-        VCaption,
-        TTerrainProviderByExternal.Create(
-          FTerrainDataPath.FullPath,
-          VProjConverter,
-          VOptions
-        )
-      );
+          VItem := TTerrainProviderListElement.Create(
+            VGuid,
+            VCaption,
+            TTerrainProviderByExternal.Create(
+              FTerrainDataPath.FullPath,
+              VProjConverter,
+              VOptions
+            )
+          );
 
       // append to list
-      Add(VItem);
-    except
+          Add(VItem);
+        except
+        end;
+      end;
     end;
   finally
     VIniFile.Free;

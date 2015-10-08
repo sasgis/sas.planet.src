@@ -340,8 +340,7 @@ function TfrTilesCopy.GetBitmapTileSaver: IBitmapTileSaver;
   end;
 
 begin
-  if pcSource.ActivePageIndex = 0 then
-  begin
+  if pcSource.ActivePageIndex = 0 then begin
     Result := nil;
     Exit;
   end;
@@ -372,13 +371,13 @@ function TfrTilesCopy.GetContentType: IContentTypeInfoBasic;
   function _GetContentType(const AMap: IMapType): IContentTypeInfoBasic;
   begin
     Result := nil;
-    if Assigned(AMap) then
+    if Assigned(AMap) then begin
       Supports(AMap.ContentType, IContentTypeInfoBitmap, Result);
+    end;
   end;
 
 begin
-  if pcSource.ActivePageIndex = 0 then
-  begin
+  if pcSource.ActivePageIndex = 0 then begin
     Result := nil;
     Exit;
   end;
@@ -404,10 +403,11 @@ end;
 
 function TfrTilesCopy.GetDeleteSource: Boolean;
 begin
-  if pcSource.ActivePageIndex = 0 then
-    Result := chkDeleteSource.Checked
-  else
+  if pcSource.ActivePageIndex = 0 then begin
+    Result := chkDeleteSource.Checked;
+  end else begin
     Result := False;
+  end;
 end;
 
 function TfrTilesCopy.GetMapSource: IMapType;
@@ -421,8 +421,7 @@ var
   VMapType: IMapType;
   i: Integer;
 begin
-  if pcSource.ActivePageIndex <> 0 then
-  begin
+  if pcSource.ActivePageIndex <> 0 then begin
     Result := nil;
     Exit;
   end;
@@ -441,10 +440,11 @@ end;
 
 function TfrTilesCopy.GetOverlay: IMapType;
 begin
-  if pcSource.ActivePageIndex = 0 then
-    Result := nil
-  else
+  if pcSource.ActivePageIndex = 0 then begin
+    Result := nil;
+  end else begin
     Result := FfrOverlaySelect.GetSelectedMapType;
+  end;
 end;
 
 function TfrTilesCopy.GetPath: string;
@@ -464,8 +464,7 @@ var
   VLayer: IMapType;
   VLayerVersion: IMapVersionRequest;
 begin
-  if pcSource.ActivePageIndex = 0 then
-  begin
+  if pcSource.ActivePageIndex = 0 then begin
     Result := nil;
   end;
 
@@ -564,8 +563,7 @@ var
   VMaps: IMapTypeListStatic;
 begin
   Result := (edtTargetPath.Text <> '');
-  if not Result then
-  begin
+  if not Result then begin
     ShowMessage(_('Please select output folder'));
     Exit;
   end;
@@ -576,8 +574,7 @@ begin
     Exit;
   end;
 
-  if pcSource.ActivePageIndex = 0 then
-  begin
+  if pcSource.ActivePageIndex = 0 then begin
     VMaps := GetMapTypeList;
     Result := Assigned(VMaps) and (VMaps.Count > 0);
     if not Result then begin

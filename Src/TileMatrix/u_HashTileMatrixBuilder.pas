@@ -43,11 +43,20 @@ type
     function GetTileRect: ITileRect;
 
     function GetTile(const ATile: TPoint): THashValue;
-    procedure SetTile(const ATile: TPoint; const AValue: THashValue);
+    procedure SetTile(
+      const ATile: TPoint;
+      const AValue: THashValue
+    );
 
     procedure Reset(const AValue: THashValue);
-    procedure SetRectWithReset(const ATileRect: ITileRect; const AValue: THashValue);
-    procedure SetRect(const ATileRect: ITileRect; const AValue: THashValue);
+    procedure SetRectWithReset(
+      const ATileRect: ITileRect;
+      const AValue: THashValue
+    );
+    procedure SetRect(
+      const ATileRect: ITileRect;
+      const AValue: THashValue
+    );
 
     function MakeStatic: IHashTileMatrix;
   public
@@ -62,7 +71,10 @@ uses
   u_TileIteratorByRect,
   u_HashTileMatrix;
 
-function IndexByPos(const ARect: TRect; const APos: TPoint): Integer; inline;
+function IndexByPos(
+  const ARect: TRect;
+  const APos: TPoint
+): Integer; inline;
 begin
   Result := APos.X - ARect.Left + (APos.Y - ARect.Top) * (ARect.Right - ARect.Left);
 end;

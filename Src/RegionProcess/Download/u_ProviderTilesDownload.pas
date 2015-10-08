@@ -197,6 +197,7 @@ procedure TProviderTilesDownload.ReadZoom(
       raise Exception.Create('Unknown zoom: ' + IntToStr(AZoom));
     end;
   end;
+
 var
   I: Integer;
 begin
@@ -204,7 +205,7 @@ begin
   CheckZoom(AZoom);
   if not ZoomArrayFromStr(ASessionSection.ReadString('ZoomArr', ''), AZoomArr) then begin
     SetLength(AZoomArr, 1);
-    AZoomArr[0] := AZoom+1;
+    AZoomArr[0] := AZoom + 1;
   end;
   for I := Low(AZoomArr) to High(AZoomArr) do begin
     CheckZoom(AZoomArr[I]);

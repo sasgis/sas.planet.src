@@ -47,7 +47,7 @@ type
     FProjectionType3395: IProjectionType;
     FProjectionType4326: IProjectionType;
     Procedure PosStr2List(
-      const APos1,APos2: string;
+      const APos1, APos2: string;
       const Alist: IInterfaceListSimple
     );
     procedure GenShtab2Pos(
@@ -57,7 +57,7 @@ type
     procedure Test2Coord(
       const APos1, Apos2: string;
       const APoint: TDoublePoint;
-      const AText:string;
+      const AText: string;
       const Alist: IInterfaceListSimple
     );
     procedure TestMetersCoord(
@@ -84,7 +84,7 @@ type
       const AValueToStringConverter: IValueToStringConverterChangeable;
       const AProjectionSetFactory: IProjectionSetFactory
     );
-end;
+  end;
 
 implementation
 
@@ -100,8 +100,12 @@ uses
 
 { TGeoCoderByCoord }
 
-function SubstrCount(const A_Substr,A_String:string; var LastPos:Integer):Integer;
-var I:Integer;
+function SubstrCount(
+  const A_Substr, A_String: string;
+  var LastPos: Integer
+): Integer;
+var
+  I: Integer;
 begin
   Result := 0;
   if (A_substr <> '') and (Length(A_Substr)<Length(A_String)) then
@@ -113,7 +117,7 @@ begin
   end;
 end;
 
-function RomanToDig(const astr:string):Integer;
+function RomanToDig(const astr: string): Integer;
 var
   VFind: string;
   I: Integer;
@@ -124,8 +128,8 @@ begin
   VcurValue := 0;
   VFind := Trim(AnsiUpperCase(Astr));
   VFind := RegExprReplaceMatchSubStr(VFind, '-', '');
-  if ''= RegExprReplaceMatchSubStr(VFind, 'IVX', '') then begin
-    Result := 0
+  if '' = RegExprReplaceMatchSubStr(VFind, 'IVX', '') then begin
+    Result := 0;
   end else begin
     for I := Length(VFind) downto 1 do begin
       case UpCase(VFind[I]) of
@@ -137,14 +141,21 @@ begin
         'V': VcurValue := 5;
         'X': VcurValue := 10;
       end;
-      if VcurValue < VlastValue then Dec(Result, VcurValue)
-      else Inc(Result, VcurValue);
+      if VcurValue < VlastValue then begin
+        Dec(Result, VcurValue);
+      end else begin
+        Inc(Result, VcurValue);
+      end;
       VlastValue := VcurValue;
     end;
   end;
 end;
 
-function Str2Degree(const AStr:string; var VLatBool,VLonBool:Boolean; Var Vres:Double):Boolean;
+function Str2Degree(
+  const AStr: string;
+  var VLatBool, VLonBool: Boolean;
+  Var Vres: Double
+): Boolean;
 var
   I: Integer;
   Vdelitel: single;
@@ -158,23 +169,47 @@ begin
   VLatBool := False;
   VLonBool := False;
 
-  if PosEx('W', VText, 1) > 0 then VLonBool := True;
-  if PosEx('E', VText, 1) > 0 then VLonBool := True;
-  if PosEx('З', VText, 1) > 0 then VLonBool := True;
-  if PosEx('В', VText, 1) > 0 then VLonBool := True;
-  if PosEx('LON', VText, 1) > 0 then VLonBool := True;
-  if PosEx('LN', VText, 1) > 0 then VLonBool := True;
+  if PosEx('W', VText, 1) > 0 then begin
+    VLonBool := True;
+  end;
+  if PosEx('E', VText, 1) > 0 then begin
+    VLonBool := True;
+  end;
+  if PosEx('З', VText, 1) > 0 then begin
+    VLonBool := True;
+  end;
+  if PosEx('В', VText, 1) > 0 then begin
+    VLonBool := True;
+  end;
+  if PosEx('LON', VText, 1) > 0 then begin
+    VLonBool := True;
+  end;
+  if PosEx('LN', VText, 1) > 0 then begin
+    VLonBool := True;
+  end;
   VText := ReplaceStr(VText, 'LON', '');
   VText := ReplaceStr(VText, 'LN', '');
 
-  if PosEx('S', VText, 1) > 0 then VLatBool := True;
-  if PosEx('N', VText, 1) > 0 then VLatBool := True;
-  if PosEx('Ю', VText, 1) > 0 then VLatBool := True;
-  if PosEx('С', VText, 1) > 0 then VLatBool := True;
-  if PosEx('LAT', VText, 1) > 0 then VLatBool := True;
-  if PosEx('LL', VText, 1) > 0 then VLatBool := True;
-  VText := ReplaceStr(VText, 'LAT','');
-  VText := ReplaceStr(VText, 'LL','');
+  if PosEx('S', VText, 1) > 0 then begin
+    VLatBool := True;
+  end;
+  if PosEx('N', VText, 1) > 0 then begin
+    VLatBool := True;
+  end;
+  if PosEx('Ю', VText, 1) > 0 then begin
+    VLatBool := True;
+  end;
+  if PosEx('С', VText, 1) > 0 then begin
+    VLatBool := True;
+  end;
+  if PosEx('LAT', VText, 1) > 0 then begin
+    VLatBool := True;
+  end;
+  if PosEx('LL', VText, 1) > 0 then begin
+    VLatBool := True;
+  end;
+  VText := ReplaceStr(VText, 'LAT', '');
+  VText := ReplaceStr(VText, 'LL', '');
 
   VText := ReplaceStr(VText, 'Ш.', '');
   VText := ReplaceStr(VText, 'Ш', '');
@@ -190,12 +225,20 @@ begin
   VText := StringReplace(VText, 'З', '-', [rfReplaceAll]);
   VText := StringReplace(VText, 'В', '+', [rfReplaceAll]);
   VText := StringReplace(VText, 'С', '+', [rfReplaceAll]);
-  Vminus:= False;
-  if PosEx('-', VText, 1) > 0 then Vminus := True;
+  Vminus := False;
+  if PosEx('-', VText, 1) > 0 then begin
+    Vminus := True;
+  end;
 
-  if (Copy(VText, Length(VText), 1) = '.') then VText := Copy(VText, 1, Length(VText) - 1);
-  if (Copy(VText, Length(VText), 1) = ',') then VText := Copy(VText, 1, Length(VText) - 1);
-  if (Copy(VText, Length(VText), 1) = '+') or (Copy(VText, Length(VText), 1) = '-') then VText := Copy(VText, Length(VText), 1) + Copy(VText, 0, Length(VText) - 1);
+  if (Copy(VText, Length(VText), 1) = '.') then begin
+    VText := Copy(VText, 1, Length(VText) - 1);
+  end;
+  if (Copy(VText, Length(VText), 1) = ',') then begin
+    VText := Copy(VText, 1, Length(VText) - 1);
+  end;
+  if (Copy(VText, Length(VText), 1) = '+') or (Copy(VText, Length(VText), 1) = '-') then begin
+    VText := Copy(VText, Length(VText), 1) + Copy(VText, 0, Length(VText) - 1);
+  end;
 
   if PosEx('+-', VText, 1) > 0 then begin // WE123 NS123
     VLonBool := True;
@@ -213,8 +256,8 @@ begin
 
   I := 1;
   while I <= Length(VText) do begin
-    if (not(AnsiChar(VText[I]) in ['0'..'9', '-', '+', '.', ',', ' '])) then begin
-      VText[I]:=' ';
+    if (not (AnsiChar(VText[I]) in ['0'..'9', '-', '+', '.', ',', ' '])) then begin
+      VText[I] := ' ';
       Dec(I);
     end;
 
@@ -233,7 +276,7 @@ begin
     Vdelitel := 1;
     repeat
       I := PosEx(' ', VText, 1);
-      if I=0 then begin
+      if I = 0 then begin
         Vgms := str2r(VText);
       end else begin
         Vgms := str2r(Copy(VText, 1, I - 1));
@@ -263,7 +306,7 @@ end;
 Procedure TGeoCoderByCoord.Test2Coord(
   const APos1, Apos2: string;
   const APoint: TDoublePoint;
-  const AText:string;
+  const AText: string;
   const Alist: IInterfaceListSimple
 );
 var
@@ -381,19 +424,19 @@ procedure TGeoCoderByCoord.TestMetersCoord(
   const APoint: TDoublePoint;
   const AProjectionType: IProjectionType;
   const Alist: IInterfaceListSimple
-  );
+);
 var
   VPoint: TDoublePoint;
   VinPoint: TDoublePoint;
 begin
   VinPoint := APoint;
   VPoint := AProjectionType.Metr2LonLat(VinPoint);
-  Test2Coord(APos1, Apos2, VPoint, ' ESPG:'+IntToStr(AProjectionType.ProjectionEPSG) , Alist);
+  Test2Coord(APos1, Apos2, VPoint, ' ESPG:' + IntToStr(AProjectionType.ProjectionEPSG), Alist);
 
   VinPoint.X := APoint.Y;
   VinPoint.Y := APoint.X;
   VPoint := AProjectionType.Metr2LonLat(VinPoint);
-  Test2Coord(APos1, Apos2, VPoint, ' ESPG:'+IntToStr(AProjectionType.ProjectionEPSG) , Alist);
+  Test2Coord(APos1, Apos2, VPoint, ' ESPG:' + IntToStr(AProjectionType.ProjectionEPSG), Alist);
 end;
 
 procedure TGeoCoderByCoord.PosStr2List(
@@ -413,17 +456,37 @@ begin
   VValueConverter := FValueToStringConverter.GetStatic;
   VCounter := 0;
   Str2Degree(APos1, VBlat1, VBlon1, VDLat);
-  if VBLat1 and VBLon1 then begin Vblat1 := False; VBLon1 := False end; // если указано 123NE
+  if VBLat1 and VBLon1 then begin
+    Vblat1 := False;
+    VBLon1 := False;
+  end; // если указано 123NE
   Str2Degree(APos2, VBLat2, VBlon2, VDLon);
-  if VBLat2 and VBLon2 then begin Vblat2 := False; VBLon2 := False end;
+  if VBLat2 and VBLon2 then begin
+    Vblat2 := False;
+    VBLon2 := False;
+  end;
 
-  if VBLat1 and VBLat2 then begin Vblat1 := False; VBLat2 := False end;
-  if VBLon1 and VBLon2 then begin Vblon1 := False; VBLon2 := False end;
+  if VBLat1 and VBLat2 then begin
+    Vblat1 := False;
+    VBLat2 := False;
+  end;
+  if VBLon1 and VBLon2 then begin
+    Vblon1 := False;
+    VBLon2 := False;
+  end;
 
-  if VBlat1 then VPoint.Y := VDLat;
-  if VBlon1 then VPoint.X := VDLat;
-  if VBlat2 then VPoint.Y := VDLon;
-  if VBlon2 then VPoint.X := VDLon;
+  if VBlat1 then begin
+    VPoint.Y := VDLat;
+  end;
+  if VBlon1 then begin
+    VPoint.X := VDLat;
+  end;
+  if VBlat2 then begin
+    VPoint.Y := VDLon;
+  end;
+  if VBlon2 then begin
+    VPoint.X := VDLon;
+  end;
 
   if (VBLat1 and VBLon2)or(VBLat2 and VBLon1) then begin // точно определили всего одну пару
     VSname := APos1 + ' ' + APos2;
@@ -479,7 +542,7 @@ begin
         AddItem2List(VPlace, Alist);
       end;
     end;
-    VPoint.Y := - VPoint.Y ;
+    VPoint.Y := -VPoint.Y;
 
     if (abs(VPoint.y) <= 90) and (abs(VPoint.x) <= 180) then begin
       if not(((VDLat < 0) or (VDLon<0)) and (VPoint.y > 0) and (VPoint.X > 0) or
@@ -549,7 +612,9 @@ begin
       end;
     end;
   end;
-  if not VSkip then AList.Add(AValue);
+  if not VSkip then begin
+    AList.Add(AValue);
+  end;
 end;
 
 procedure TGeoCoderByCoord.GenShtab2Pos(
@@ -559,7 +624,7 @@ procedure TGeoCoderByCoord.GenShtab2Pos(
 var
   VcoordError: Boolean;
   VDLat, VDLon: Double;
-  VTempString :string;
+  VTempString: string;
   V2Search: string;
   VSname, VSDesc: string;
   VFullDesc: string;
@@ -595,9 +660,9 @@ begin
   V2Search := ReplaceStr(V2Search, '_', '-');
 
   VTempString := Copy(V2Search, 1, 1); // ПЕРВОЕ ПОЛЕ
-  if VTempString[1]='X' then begin
+  if VTempString[1] = 'X' then begin
     VTempString := Copy(V2Search, 2, 1);
-    VDLon := - 1;
+    VDLon := -1;
     V2Search := Copy(V2Search, 2, Length(V2Search) - 1);
     VSname := VTempString;
   end;
@@ -616,8 +681,8 @@ begin
       else I := Length(v2search)+1;
 
     if not VcoordError then begin
-      VLatStr := Copy(V2Search,1,I-1);
-      VDLat := strtoint(VLatStr)*6 - 180 -3;
+      VLatStr := Copy(V2Search, 1, I - 1);
+      VDLat := strtoint(VLatStr) * 6 - 180 - 3;
       VSname := VSname + '-' + VLatStr;
     end;
     V2Search := Copy(V2Search,I,Length(V2Search)-I + 1);
@@ -658,7 +723,7 @@ begin
 
       if V2Search <> '' then begin
         if not VcoordError then begin
-          if ''= RegExprReplaceMatchSubStr(VTempString, '[0-9]', '') then begin // 1 km
+          if '' = RegExprReplaceMatchSubStr(VTempString, '[0-9]', '') then begin // 1 km
             J := strtoint(VTempString);
             if J<=144 then begin
               VDLon := VDLon + ((((6 - ((J - 1) div 12) - 1)*2) + 1)/12)*2;  //Y
@@ -713,7 +778,7 @@ begin
             end;
           end;
         end;
-        VSname := VSname + '-'+ VTempString;
+        VSname := VSname + '-' + VTempString;
         V2Search := Copy(V2Search, I, Length(V2Search) - I + 1);
         if Length(V2Search) > 0 then begin
           if Copy(V2Search, 1, 1) = '-' then  V2Search := Copy(V2Search, 2, Length(V2Search) - 1);
@@ -778,7 +843,7 @@ begin
     VPoint.X := VDLat;
     if (abs(VPoint.y) <= 90) and (abs(VPoint.x) <= 180) then begin
       VSDesc := '[ ' + VValueConverter.LonLatConvert(VPoint) + ' ]';
-      VFullDesc :=  ReplaceStr(VSname + #$D#$A + VSDesc, #$D#$A, '<br>');
+      VFullDesc := ReplaceStr(VSname + #$D#$A + VSDesc, #$D#$A, '<br>');
       VPlace := PlacemarkFactory.Build(VPoint, VSname, VSDesc, VFullDesc, 4);
       AddItem2List(VPlace, Alist);
     end;
@@ -801,8 +866,8 @@ var
   VZoom: Integer;
   VZoomUsed: Byte;
   VProjection: IProjection;
-  VXYPoint:TPoint;
-  VXYRect:TRect;
+  VXYPoint: TPoint;
+  VXYRect: TRect;
   ViLat, ViLon: Integer;
   VcoordError: Boolean;
   VValueConverter: IValueToStringConverter;
@@ -811,7 +876,9 @@ begin
   Result := nil;
   VValueConverter := FValueToStringConverter.GetStatic;
   VList := TInterfaceListSimple.Create;
-  if ACancelNotifier.IsOperationCanceled(AOperationID) then Exit;
+  if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+    Exit;
+  end;
   VcoordError := True;
   V2Search := Trim(AnsiUpperCase(ASearch));
   V2Search := ReplaceStr(V2Search, ', ', ' '); // разделители
@@ -868,7 +935,7 @@ begin
         I := J + 1;
         J := PosEx('.', V2Search, I);
         VLatStr := Copy(V2Search, I, J - (I));
-        Vilat :=  strtoint(VLatStr) * 256;
+        Vilat := strtoint(VLatStr) * 256;
         VcoordError := False;
       end else
       if PosEx('\X', V2Search, 1) > 0 then begin   //G:\GoogleMV\cache\yamapng\z13\2\x2491\1\y1473.png
@@ -967,4 +1034,5 @@ begin
   end;
   Result := VList;
 end;
+
 end.

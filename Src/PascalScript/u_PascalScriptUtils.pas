@@ -75,7 +75,10 @@ begin
   APSComp.AddDelphiFunction('function SaveToLocalFile(const AFullLocalFilename: string; const AData: AnsiString): Integer');
 end;
 
-function SubStrPos_P(const Str, SubStr: AnsiString; FromPos: Integer): Integer; assembler;
+function SubStrPos_P(
+  const Str, SubStr: AnsiString;
+  FromPos: Integer
+): Integer; assembler;
 asm
   PUSH EDI
   PUSH ESI
@@ -170,7 +173,10 @@ begin
   Result := DateTimeToUnix(now);
 end;
 
-function SaveToLocalFile_P(const AFullLocalFilename: string; const AData: AnsiString): Integer;
+function SaveToLocalFile_P(
+  const AFullLocalFilename: string;
+  const AData: AnsiString
+): Integer;
 var
   VPath: String;
   VStream: TFileStream;

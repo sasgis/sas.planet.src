@@ -50,7 +50,7 @@ uses
   SysUtils;
 
 const
-  c_GM3_Expr  = '^(.+\\)?(\d\d?)\\(\d+)\\(\d+)(\..+)?$';
+  c_GM3_Expr = '^(.+\\)?(\d\d?)\\(\d+)\\(\d+)(\..+)?$';
 
 { TTileFileNameGM3 }
 

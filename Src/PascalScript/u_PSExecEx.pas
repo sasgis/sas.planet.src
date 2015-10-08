@@ -58,7 +58,7 @@ var
   I: Integer;
 begin
   RegisterDLLRuntime(Self);
-  
+
   ExecTimeReg_Math(Self);
   ExecTimeReg_RegExpr(Self);
   ExecTimeReg_Base64(Self);

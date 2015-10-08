@@ -476,12 +476,10 @@ begin
   VPolygon := nil;
   try
     ProjectedPolygon2GR32Polygon(AProjectedLine, ALocalConverter, am4times, VPathFixedPoints, VPolygon);
-    if Assigned(VPolygon) then
-    begin
+    if Assigned(VPolygon) then begin
       ADrawablePolygonFill := TDrawablePolygon32.CreateFromSource(VPolygon);
       ADrawablePolygonBorder := nil;
-      if not ASimpleLineDraw then
-      begin
+      if not ASimpleLineDraw then begin
         VPolygonOutline := VPolygon.Outline;
         try
           VPolygonGrow := VPolygonOutline.Grow(Fixed(ALineWidth / 2), 0.5);

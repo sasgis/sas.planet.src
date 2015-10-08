@@ -159,7 +159,7 @@ begin
     VItem := ASource.Items[i];
     if Assigned(VItem) then begin
       VBounds := VItem.Geometry.Bounds;
-      if  Assigned(VBounds) then begin
+      if Assigned(VBounds) then begin
         if VBounds.IsIntersecWithRect(ALonLatRect) then begin
           AResult.Add(VItem);
         end;
@@ -302,4 +302,3 @@ begin
 end;
 
 end.
-

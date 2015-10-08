@@ -221,70 +221,70 @@ begin
           if FUsePrevTiles then begin
             VBitmapSourceTile := FMapType.LoadTileUni(VTile, VProjection, FVersion, True, True, True);
           end;
-            if VBitmapSourceTile = nil then begin
-              bmp_ex.SetSize(
-                VCurrentTilePixelRect.Right - VCurrentTilePixelRect.Left,
-                VCurrentTilePixelRect.Bottom - VCurrentTilePixelRect.Top
-              );
-              bmp_ex.Clear(FBackGroundColor);
-            end else begin
-              AssignStaticToBitmap32(bmp_ex, VBitmapSourceTile);
-            end;
+          if VBitmapSourceTile = nil then begin
+            bmp_ex.SetSize(
+              VCurrentTilePixelRect.Right - VCurrentTilePixelRect.Left,
+              VCurrentTilePixelRect.Bottom - VCurrentTilePixelRect.Top
+            );
+            bmp_ex.Clear(FBackGroundColor);
+          end else begin
+            AssignStaticToBitmap32(bmp_ex, VBitmapSourceTile);
+          end;
 
-            VRelativeRect := VProjection.TilePos2RelativeRect(VTile);
-            VRectOfSubTiles :=
-              RectFromDoubleRect(
-                VProjectionPrev.RelativeRect2TileRectFloat(VRelativeRect),
-                rrToTopLeft
-              );
-            VSubTileIterator.Init(VRectOfSubTiles);
-            VSubTileCount := VSubTileIterator.TilesTotal;
-            VSubTilesSavedCount := 0;
-            while VSubTileIterator.Next(VSubTile) do begin
-              VBitmapSourceTile := FMapType.LoadTile(VSubTile, VProjectionPrev.Zoom, FVersion, True);
-              if VBitmapSourceTile <> nil then begin
-                VSubTileBounds := VProjectionPrev.TilePos2PixelRect(VSubTile);
-                VSubTileBounds.Right := VSubTileBounds.Right - VSubTileBounds.Left;
-                VSubTileBounds.Bottom := VSubTileBounds.Bottom - VSubTileBounds.Top;
-                VSubTileBounds.Left := 0;
-                VSubTileBounds.Top := 0;
-                VRelativeRect := VProjectionPrev.TilePos2RelativeRect(VSubTile);
-                VSubTileInTargetBounds :=
-                  RectFromDoubleRect(
-                    VProjection.RelativeRect2PixelRectFloat(VRelativeRect),
-                    rrToTopLeft
-                  );
-                VSubTileInTargetBounds.Left := VSubTileInTargetBounds.Left - VCurrentTilePixelRect.Left;
-                VSubTileInTargetBounds.Top := VSubTileInTargetBounds.Top - VCurrentTilePixelRect.Top;
-                VSubTileInTargetBounds.Right := VSubTileInTargetBounds.Right - VCurrentTilePixelRect.Left;
-                VSubTileInTargetBounds.Bottom := VSubTileInTargetBounds.Bottom - VCurrentTilePixelRect.Top;
-                StretchTransfer(
-                  bmp_ex,
-                  VSubTileInTargetBounds,
-                  VBitmapSourceTile,
-                  VSubTileBounds,
-                  VResampler,
-                  dmOpaque
+          VRelativeRect := VProjection.TilePos2RelativeRect(VTile);
+          VRectOfSubTiles :=
+            RectFromDoubleRect(
+              VProjectionPrev.RelativeRect2TileRectFloat(VRelativeRect),
+              rrToTopLeft
+            );
+          VSubTileIterator.Init(VRectOfSubTiles);
+          VSubTileCount := VSubTileIterator.TilesTotal;
+          VSubTilesSavedCount := 0;
+          while VSubTileIterator.Next(VSubTile) do begin
+            VBitmapSourceTile := FMapType.LoadTile(VSubTile, VProjectionPrev.Zoom, FVersion, True);
+            if VBitmapSourceTile <> nil then begin
+              VSubTileBounds := VProjectionPrev.TilePos2PixelRect(VSubTile);
+              VSubTileBounds.Right := VSubTileBounds.Right - VSubTileBounds.Left;
+              VSubTileBounds.Bottom := VSubTileBounds.Bottom - VSubTileBounds.Top;
+              VSubTileBounds.Left := 0;
+              VSubTileBounds.Top := 0;
+              VRelativeRect := VProjectionPrev.TilePos2RelativeRect(VSubTile);
+              VSubTileInTargetBounds :=
+                RectFromDoubleRect(
+                  VProjection.RelativeRect2PixelRectFloat(VRelativeRect),
+                  rrToTopLeft
                 );
-                inc(VSubTilesSavedCount);
-              end else begin
-                if FIsSaveFullOnly then begin
-                  Break;
-                end;
-              end;
-              inc(VTilesProcessed);
-              if (VTilesProcessed mod 30 = 0) then begin
-                ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
-              end;
-            end;
-            VBitmap := nil;
-            if ((not FIsSaveFullOnly) or (VSubTilesSavedCount = VSubTileCount)) and (VSubTilesSavedCount > 0) then begin
-              VBitmap :=
-                FBitmapFactory.Build(
-                  Point(bmp_ex.Width, bmp_ex.Height),
-                  bmp_ex.Bits
+              VSubTileInTargetBounds.Left := VSubTileInTargetBounds.Left - VCurrentTilePixelRect.Left;
+              VSubTileInTargetBounds.Top := VSubTileInTargetBounds.Top - VCurrentTilePixelRect.Top;
+              VSubTileInTargetBounds.Right := VSubTileInTargetBounds.Right - VCurrentTilePixelRect.Left;
+              VSubTileInTargetBounds.Bottom := VSubTileInTargetBounds.Bottom - VCurrentTilePixelRect.Top;
+              StretchTransfer(
+                bmp_ex,
+                VSubTileInTargetBounds,
+                VBitmapSourceTile,
+                VSubTileBounds,
+                VResampler,
+                dmOpaque
               );
+              inc(VSubTilesSavedCount);
+            end else begin
+              if FIsSaveFullOnly then begin
+                Break;
+              end;
             end;
+            inc(VTilesProcessed);
+            if (VTilesProcessed mod 30 = 0) then begin
+              ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
+            end;
+          end;
+          VBitmap := nil;
+          if ((not FIsSaveFullOnly) or (VSubTilesSavedCount = VSubTileCount)) and (VSubTilesSavedCount > 0) then begin
+            VBitmap :=
+              FBitmapFactory.Build(
+                Point(bmp_ex.Width, bmp_ex.Height),
+                bmp_ex.Bits
+              );
+          end;
           if VBitmap <> nil then begin
             VResultData := VTileSaver.Save(VBitmap);
             if Assigned(VResultData) then begin

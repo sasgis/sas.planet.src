@@ -95,7 +95,10 @@ type
     procedure btnShadowColorClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btnSetAsTemplateClick(Sender: TObject);
-    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure FormCloseQuery(
+      Sender: TObject;
+      var CanClose: Boolean
+    );
     procedure imgIconMouseDown(Sender: TObject);
   private
     FGeometryFactory: IGeometryLonLatFactory;
@@ -205,7 +208,7 @@ function TfrmMarkEditPoint.EditMark(
   var AVisible: Boolean
 ): IVectorDataItem;
 var
-  VLonLat:TDoublePoint;
+  VLonLat: TDoublePoint;
   VAppearanceCaption: IAppearancePointCaption;
   VAppearanceIcon: IAppearancePointIcon;
   VPicIndex: Integer;
@@ -215,7 +218,7 @@ var
   VMarkWithCategory: IVectorDataItemWithCategory;
 begin
   FSourceMark := AMark;
-  frMarkDescription.Description:='';
+  frMarkDescription.Description := '';
   frSelectPicture.Visible := False;
   frSelectPicture.Parent := Self;
 
@@ -244,12 +247,12 @@ begin
     seIconSize.Value := 0;
   end;
 
-  edtName.Text:=AMark.Name;
-  frMarkDescription.Description:=AMark.Desc;
+  edtName.Text := AMark.Name;
+  frMarkDescription.Description := AMark.Desc;
 
   if Supports(AMark.Appearance, IAppearancePointCaption, VAppearanceCaption) then begin
     seFontSize.Value := VAppearanceCaption.FontSize;
-    seTransp.Value := 100-round(AlphaComponent(VAppearanceCaption.TextColor)/255*100);
+    seTransp.Value := 100 - round(AlphaComponent(VAppearanceCaption.TextColor) / 255 * 100);
     clrbxTextColor.Selected := WinColor(VAppearanceCaption.TextColor);
     clrbxShadowColor.Selected := WinColor(VAppearanceCaption.TextBgColor);
   end else begin
@@ -258,7 +261,7 @@ begin
     clrbxTextColor.Selected := WinColor(clBlack32);
     clrbxShadowColor.Selected := WinColor(clWhite32);
   end;
-  chkVisible.Checked:= AVisible;
+  chkVisible.Checked := AVisible;
   VCategory := nil;
   if Supports(AMark.MainInfo, IVectorDataItemWithCategory, VMarkWithCategory) then begin
     VCategory := VMarkWithCategory.Category;
@@ -266,13 +269,13 @@ begin
   frMarkCategory.Init(VCategory);
   try
     if AIsNewMark then begin
-      Caption:=SAS_STR_AddNewMark;
+      Caption := SAS_STR_AddNewMark;
     end else begin
-      Caption:=SAS_STR_EditMark;
+      Caption := SAS_STR_EditMark;
     end;
     frLonLatPoint.LonLat := (AMark.Geometry as IGeometryLonLatPoint).Point;
     Self.PopupParent := Application.MainForm;
-    if ShowModal=mrOk then begin
+    if ShowModal = mrOk then begin
       VLonLat := frLonLatPoint.LonLat;
       VPoint := FGeometryFactory.CreateLonLatPoint(VLonLat);
       Result :=
@@ -310,7 +313,9 @@ end;
 
 procedure TfrmMarkEditPoint.btnTextColorClick(Sender: TObject);
 begin
- if ColorDialog1.Execute then clrbxTextColor.Selected:=ColorDialog1.Color;
+  if ColorDialog1.Execute then begin
+    clrbxTextColor.Selected := ColorDialog1.Color;
+  end;
 end;
 
 procedure TfrmMarkEditPoint.btnSetAsTemplateClick(Sender: TObject);
@@ -331,11 +336,16 @@ end;
 
 procedure TfrmMarkEditPoint.btnShadowColorClick(Sender: TObject);
 begin
- if ColorDialog1.Execute then clrbxShadowColor.Selected:=ColorDialog1.Color;
+  if ColorDialog1.Execute then begin
+    clrbxShadowColor.Selected := ColorDialog1.Color;
+  end;
 end;
 
-procedure TfrmMarkEditPoint.FormCloseQuery(Sender: TObject; var CanClose:
-    Boolean);
+procedure TfrmMarkEditPoint.FormCloseQuery(
+  Sender: TObject;
+  var CanClose:
+  Boolean
+);
 begin
   if ModalResult = mrOk then begin
     CanClose := frLonLatPoint.Validate;
@@ -376,8 +386,8 @@ begin
 
   Result :=
     FAppearanceOfMarkFactory.CreatePointAppearance(
-      SetAlpha(Color32(clrbxTextColor.Selected),round(((100-seTransp.Value)/100)*256)),
-      SetAlpha(Color32(clrbxShadowColor.Selected),round(((100-seTransp.Value)/100)*256)),
+      SetAlpha(Color32(clrbxTextColor.Selected), round(((100 - seTransp.Value) / 100) * 256)),
+      SetAlpha(Color32(clrbxShadowColor.Selected), round(((100 - seTransp.Value) / 100) * 256)),
       seFontSize.Value,
       VPicName,
       frSelectPicture.Picture,

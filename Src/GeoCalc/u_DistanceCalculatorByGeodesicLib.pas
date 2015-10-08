@@ -99,14 +99,16 @@ const
 constructor TDistanceCalculatorByGeodesicLib.Create(
   const ARadiusA: Double;
   const ARadiusB: Double;
-  const AQuietErrors: Boolean);
+  const AQuietErrors: Boolean
+);
 
   procedure RaiseLastOSError;
   begin
-    if AQuietErrors then
-      Abort
-    else
+    if AQuietErrors then begin
+      Abort;
+    end else begin
       SysUtils.RaiseLastOSError;
+    end;
   end;
 
 begin

@@ -72,7 +72,7 @@ constructor TfrmMarksMultiEdit.Create(
 begin
   inherited Create(ALanguageManager);
 
-  frMarksGeneralOptions:=
+  frMarksGeneralOptions :=
     TfrMarksGeneralOptions.Create(
       ALanguageManager,
       AAppearanceOfMarkFactory,
@@ -89,7 +89,7 @@ begin
   inherited;
 end;
 
-function TfrmMarksMultiEdit.GetImportConfig(const ACategory:ICategory): IImportConfig;
+function TfrmMarksMultiEdit.GetImportConfig(const ACategory: ICategory): IImportConfig;
 begin
   frMarksGeneralOptions.Init(ACategory);
   try

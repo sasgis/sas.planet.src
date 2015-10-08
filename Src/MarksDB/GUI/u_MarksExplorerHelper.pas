@@ -36,7 +36,10 @@ function ExpandInfoToString(const AInfo: TExpandInfo): AnsiString;
 function ExpandInfoFromString(const AStr: AnsiString): TExpandInfo;
 
 function GetExpandInfo(ANodes: TTreeNodes): TExpandInfo;
-procedure DoExpandNodes(ANodes: TTreeNodes; const AExpandInfo: TExpandInfo);
+procedure DoExpandNodes(
+    ANodes: TTreeNodes;
+    const AExpandInfo: TExpandInfo
+  );
 
 function GetSelectedNodeInfo(ATree: TTreeView): TExpandInfo;
 
@@ -64,7 +67,7 @@ begin
     VStrings.Delimiter := cSep1;
     VStrings.NameValueSeparator := cSep2;
     for I := 0 to Length(AInfo) - 1 do begin
-      VStrings.Values[ALIntToHex(AInfo[I].UID,8)] := ALIntToStr(AInfo[I].Index);
+      VStrings.Values[ALIntToHex(AInfo[I].UID, 8)] := ALIntToStr(AInfo[I].Index);
     end;
     Result := VStrings.DelimitedText;
   finally
@@ -121,7 +124,7 @@ begin
     VNode := ANodes[I];
     if (VNode <> nil) and VNode.Expanded then begin
       if J >= Length(Result) then begin
-        SetLength(Result, Length(Result)*2);
+        SetLength(Result, Length(Result) * 2);
       end;
       Result[J].UID := GetNodeUID(VNode);
       Result[J].Index := I;
@@ -131,7 +134,10 @@ begin
   SetLength(Result, J);
 end;
 
-procedure DoExpandNodes(ANodes: TTreeNodes; const AExpandInfo: TExpandInfo);
+procedure DoExpandNodes(
+  ANodes: TTreeNodes;
+  const AExpandInfo: TExpandInfo
+);
 var
   I, J, K: Integer;
   VUID: Cardinal;
@@ -157,7 +163,7 @@ begin
     VMarkCategory := IMarkCategory(ANode.Data);
     if Assigned(VMarkCategory) then begin
       if VMarkCategory.Name <> '' then begin
-        Result := CRC32Buf(PByte(@VMarkCategory.Name[1]), Length(VMarkCategory.Name)*SizeOf(Char));
+        Result := CRC32Buf(PByte(@VMarkCategory.Name[1]), Length(VMarkCategory.Name) * SizeOf(Char));
       end;
     end;
   end;

@@ -175,15 +175,19 @@ begin
         ABitmapInited := True;
       end;
       if Supports(AAppearance, IAppearanceLine, VAppearanceLine) then begin
-        with VPolygon.Outline do try
-          with Grow(GR32.Fixed(VAppearanceLine.LineWidth / 2), 0.5) do try
-            FillMode := pfWinding;
-            DrawFill(ATargetBmp, VAppearanceLine.LineColor);
+        with VPolygon.Outline do begin
+          try
+            with Grow(GR32.Fixed(VAppearanceLine.LineWidth / 2), 0.5) do begin
+              try
+                FillMode := pfWinding;
+                DrawFill(ATargetBmp, VAppearanceLine.LineColor);
+              finally
+                free;
+              end;
+            end;
           finally
             free;
           end;
-        finally
-          free;
         end;
       end;
       Result := True;
@@ -225,15 +229,19 @@ begin
         VPolygon.DrawFill(ATargetBmp, VAppearanceFill.FillColor);
       end;
       if Supports(AAppearance, IAppearancePolygonBorder, VAppearanceBorder) then begin
-        with VPolygon.Outline do try
-          with Grow(GR32.Fixed(VAppearanceBorder.LineWidth / 2), 0.5) do try
-            FillMode := pfWinding;
-            DrawFill(ATargetBmp, VAppearanceBorder.LineColor);
+        with VPolygon.Outline do begin
+          try
+            with Grow(GR32.Fixed(VAppearanceBorder.LineWidth / 2), 0.5) do begin
+              try
+                FillMode := pfWinding;
+                DrawFill(ATargetBmp, VAppearanceBorder.LineColor);
+              finally
+                free;
+              end;
+            end;
           finally
             free;
           end;
-        finally
-          free;
         end;
       end;
       Result := True;
@@ -398,4 +406,3 @@ begin
 end;
 
 end.
-

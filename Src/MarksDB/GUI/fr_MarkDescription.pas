@@ -60,8 +60,11 @@ type
     imglstToolbar: TTBXImageList;
     OpenPictureDialog: TOpenPictureDialog;
     procedure TBXItem1Click(Sender: TObject);
-    procedure EditCommentKeyDown(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
+    procedure EditCommentKeyDown(
+      Sender: TObject;
+      var Key: Word;
+      Shift: TShiftState
+    );
   private
     FMediaPath: IPathConfig;
     EditComment: TSynEdit;
@@ -87,7 +90,7 @@ uses
 {$R *.dfm}
 
 type
-  TEditBtn = (ebB,ebI,ebU,ebLeft,ebCenter,ebRight,ebImg, ebUrl);
+  TEditBtn = (ebB, ebI, ebU, ebLeft, ebCenter, ebRight, ebImg, ebUrl);
 
 constructor TfrMarkDescription.Create(
   const ALanguageManager: ILanguageManager;
@@ -110,25 +113,30 @@ begin
   end;
 end;
 
-procedure TfrMarkDescription.EditCommentKeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TfrMarkDescription.EditCommentKeyDown(
+  Sender: TObject;
+  var Key: Word;
+  Shift: TShiftState
+);
 var
-  s:string;
-  VSelStart:integer;
+  s: string;
+  VSelStart: integer;
   Form: TCustomForm;
 begin
-  if (Key=VK_RETURN) then begin
+  if (Key = VK_RETURN) then begin
     if (ssCtrl in Shift) then begin
-      Key:=0;
-      s:=EditComment.Text;
-      VSelStart:=EditComment.SelStart;
-      Insert('<BR>', s, VSelStart+1);
+      Key := 0;
+      s := EditComment.Text;
+      VSelStart := EditComment.SelStart;
+      Insert('<BR>', s, VSelStart + 1);
       EditComment.Text := s;
-      EditComment.SelStart := VSelStart+4;
+      EditComment.SelStart := VSelStart + 4;
     end;
   end else if Key = VK_ESCAPE then begin
     Form := GetParentForm(Self);
-    if Form <> nil then Form.ModalResult := mrCancel;
+    if Form <> nil then begin
+      Form.ModalResult := mrCancel;
+    end;
   end else if (Key = $41) and (ssCtrl in Shift) then begin
     EditComment.SelectAll;
   end;
@@ -146,9 +154,9 @@ end;
 
 procedure TfrMarkDescription.TBXItem1Click(Sender: TObject);
 var
-  s:string;
-  VSelStart:integer;
-  VSelLen:integer;
+  s: string;
+  VSelStart: integer;
+  VSelLen: integer;
   VSelectedText: string;
   VTextBeforeSelection: string;
   VTextAfterSelection: string;
@@ -163,61 +171,63 @@ begin
   VTextBeforeSelection := '';
   VTextAfterSelection := '';
   case TEditBtn(TTBXItem(Sender).Tag) of
-  ebB: begin
-        VTextBeforeSelection := '<b>';
-        VTextAfterSelection := '</b>';
-       end;
-  ebI: begin
-        VTextBeforeSelection := '<i>';
-        VTextAfterSelection := '</i>';
-       end;
-  ebU: begin
-        VTextBeforeSelection := '<u>';
-        VTextAfterSelection := '</u>';
-       end;
-  ebUrl: begin
-        if VSelLen = 0 then begin
-          VTextBeforeSelection := '<a href=""></a>';
-          VTextAfterSelection := '';
-        end else begin
-          VTextBeforeSelection := '<a href="'+VSelectedText+'">';
-          VTextAfterSelection := '</a>';
-        end;
-       end;
-  ebImg:
-       if (OpenPictureDialog.Execute)and(OpenPictureDialog.FileName<>'') then begin
-          VImageUrl := OpenPictureDialog.FileName;
-          VMediaPath := IncludeTrailingPathDelimiter(FMediaPath.FullPath);
-          if LeftStr(VImageUrl, Length(VMediaPath)) = VMediaPath then begin
-            VFileName := MidStr(VImageUrl, Length(VMediaPath) + 1, Length(VImageUrl) - Length(VMediaPath));
-            if PathDelim <> '/' then begin
-              VFileName := ReplaceStr(VFileName, PathDelim, '/');
-            end;
-            VImageUrl := CMediaDataInternalURL + VFileName;
+    ebB: begin
+      VTextBeforeSelection := '<b>';
+      VTextAfterSelection := '</b>';
+    end;
+    ebI: begin
+      VTextBeforeSelection := '<i>';
+      VTextAfterSelection := '</i>';
+    end;
+    ebU: begin
+      VTextBeforeSelection := '<u>';
+      VTextAfterSelection := '</u>';
+    end;
+    ebUrl: begin
+      if VSelLen = 0 then begin
+        VTextBeforeSelection := '<a href=""></a>';
+        VTextAfterSelection := '';
+      end else begin
+        VTextBeforeSelection := '<a href="' + VSelectedText + '">';
+        VTextAfterSelection := '</a>';
+      end;
+    end;
+    ebImg:
+    begin
+      if (OpenPictureDialog.Execute) and (OpenPictureDialog.FileName <> '') then begin
+        VImageUrl := OpenPictureDialog.FileName;
+        VMediaPath := IncludeTrailingPathDelimiter(FMediaPath.FullPath);
+        if LeftStr(VImageUrl, Length(VMediaPath)) = VMediaPath then begin
+          VFileName := MidStr(VImageUrl, Length(VMediaPath) + 1, Length(VImageUrl) - Length(VMediaPath));
+          if PathDelim <> '/' then begin
+            VFileName := ReplaceStr(VFileName, PathDelim, '/');
           end;
-          VTextBeforeSelection := '<img src="' + VImageUrl + '"/>';
-          VTextAfterSelection := '';
-       end;
-  ebCenter:
-       begin
-        VTextBeforeSelection := '<CENTER>';
-        VTextAfterSelection := '</CENTER>';
-       end;
-  ebLeft:
-       begin
-        VTextBeforeSelection := '<div ALIGN=LEFT>';
-        VTextAfterSelection := '</div>';
-       end;
-  ebRight:
-       begin
-        VTextBeforeSelection := '<div ALIGN=RIGHT>';
-        VTextAfterSelection := '</div>';
-       end;
+          VImageUrl := CMediaDataInternalURL + VFileName;
+        end;
+        VTextBeforeSelection := '<img src="' + VImageUrl + '"/>';
+        VTextAfterSelection := '';
+      end;
+    end;
+    ebCenter:
+    begin
+      VTextBeforeSelection := '<CENTER>';
+      VTextAfterSelection := '</CENTER>';
+    end;
+    ebLeft:
+    begin
+      VTextBeforeSelection := '<div ALIGN=LEFT>';
+      VTextAfterSelection := '</div>';
+    end;
+    ebRight:
+    begin
+      VTextBeforeSelection := '<div ALIGN=RIGHT>';
+      VTextAfterSelection := '</div>';
+    end;
   end;
   if (VTextBeforeSelection <> '') or (VTextAfterSelection <> '') then begin
-    Insert(VTextBeforeSelection, s, VSelStart+1);
-    Insert(VTextAfterSelection, s, VSelStart + VSelLen+length(VTextBeforeSelection)+1);
-    EditComment.Text:=s;
+    Insert(VTextBeforeSelection, s, VSelStart + 1);
+    Insert(VTextAfterSelection, s, VSelStart + VSelLen + length(VTextBeforeSelection) + 1);
+    EditComment.Text := s;
     EditComment.SelStart :=
       VSelStart +
       VSelLen +

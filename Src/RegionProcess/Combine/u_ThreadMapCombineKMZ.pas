@@ -193,7 +193,7 @@ var
 begin
   FOperationID := AOperationID;
   FCancelNotifier := ACancelNotifier;
-  
+
   VProjection := AImageProvider.Projection;
   VCurrentPieceRect := AMapRect;
   VMapPieceSize := RectSize(VCurrentPieceRect);

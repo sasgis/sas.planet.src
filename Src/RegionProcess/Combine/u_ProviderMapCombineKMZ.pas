@@ -197,7 +197,7 @@ begin
   if not Result then begin
     Exit;
   end;
-  
+
   if not Assigned(APolygon) then begin
     Assert(False, _('Polygon isn''t selected'));
     Result := False;

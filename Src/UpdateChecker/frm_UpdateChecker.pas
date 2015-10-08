@@ -57,7 +57,10 @@ type
     btnClose: TButton;
     cbbChannel: TComboBox;
     procedure btnCloseClick(Sender: TObject);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormClose(
+      Sender: TObject;
+      var Action: TCloseAction
+    );
     procedure FormShow(Sender: TObject);
     procedure tmrCheckStateTimer(Sender: TObject);
     procedure btnDownloadClick(Sender: TObject);
@@ -184,7 +187,10 @@ begin
   inherited;
 end;
 
-procedure TfrmUpdateChecker.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure TfrmUpdateChecker.FormClose(
+  Sender: TObject;
+  var Action: TCloseAction
+);
 begin
   tmrCheckState.Enabled := False;
   Self.CancelOperation;

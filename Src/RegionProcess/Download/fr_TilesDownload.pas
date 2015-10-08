@@ -141,6 +141,7 @@ uses
   u_ResStrings;
 
 {$R *.dfm}
+
 function TfrTilesDownload.GetZoomInfo(
   const AZoom: Byte;
   const AMapType: IMapType;

@@ -70,7 +70,7 @@ constructor TfrmJpegImportConfigEdit.Create(
 begin
   inherited Create(ALanguageManager);
 
-  frOptions:=
+  frOptions :=
     TfrJpegImportOptions.Create(
       ALanguageManager,
       AAppearanceOfMarkFactory,

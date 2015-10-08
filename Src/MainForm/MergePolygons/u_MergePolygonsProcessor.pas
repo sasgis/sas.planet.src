@@ -124,7 +124,10 @@ type
 
 {.$DEFINE MAX_PRECISION}
 
-function MakePathsUnion(AClipper: TClipper; ASubj, AClip: TPaths): TPaths; inline;
+function MakePathsUnion(
+  AClipper: TClipper;
+  ASubj, AClip: TPaths
+): TPaths; inline;
 begin
   if not AClipper.AddPaths(ASubj, ptSubject, True) then begin
     raise EMergePolygonsProcessorError.Create(
@@ -154,7 +157,7 @@ constructor TMergePolygonsProcessor.Create(
 );
 begin
   inherited Create;
-  
+
   FMergePolygonsProgress := AMergePolygonsProgress;
   FAppClosingNotifier := AAppClosingNotifier;
   FCancelNotifier := ACancelNotifier;
@@ -200,7 +203,7 @@ var
   VThreadConfig: IThreadConfig;
 begin
   Assert(Length(AItems) >= 2);
-  
+
   FItems := AItems;
   FOperation := AOperation;
 
@@ -257,7 +260,7 @@ begin
     if FOperation = moGroup then begin
       VResultPolygon := ProcessGroupOperation(AOperationID, ACancelNotifier);
     end else begin
-      VResultPolygon := ProcessLogicOperation(AOperationID, ACancelNotifier)
+      VResultPolygon := ProcessLogicOperation(AOperationID, ACancelNotifier);
     end;
 
     VTimeDiff := GetCurTimeDiff(VTime);

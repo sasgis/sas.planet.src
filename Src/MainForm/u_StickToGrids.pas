@@ -84,7 +84,7 @@ begin
   VDelta.X := APoint1.X - APoint2.X;
   VDelta.Y := APoint1.Y - APoint2.Y;
 
-  Result := VDelta.X * VDelta.X + VDelta.Y *  VDelta.Y;
+  Result := VDelta.X * VDelta.X + VDelta.Y * VDelta.Y;
 end;
 
 function TStickToGrids.PointStick(
@@ -99,6 +99,7 @@ var
   VBestExists: Boolean;
   VBestDist: Double;
   VBestResult: TDoublePoint;
+
   procedure UseStick(
     const AStick: IStickToGrid
   );
@@ -118,6 +119,7 @@ var
       VBestResult := VResult;
     end;
   end;
+
 begin
   VBestExists := False;
   VSourceProjected := AProjection.LonLat2PixelPosFloat(ASourceLonLat);
@@ -151,6 +153,7 @@ var
   VBestDistTopLeft: Double;
   VBestDistBottomRight: Double;
   VBestResult: TDoubleRect;
+
   procedure UseStick(
     const AStick: IStickToGrid
   );
@@ -176,6 +179,7 @@ var
       VBestResult := VResult;
     end;
   end;
+
 begin
   VBestExists := False;
   VSourceProjected := AProjection.LonLatRect2PixelRectFloat(ASourceRect);

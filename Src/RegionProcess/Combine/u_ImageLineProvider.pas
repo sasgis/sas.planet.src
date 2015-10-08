@@ -234,7 +234,7 @@ begin
   Assert(VMapLine < FMapRect.Bottom);
   Assert(VMapLine >= FMapRect.Top);
   Assert(VMapLine < FMapRect.Bottom);
-  if  not IsRectEmpty(FPreparedMapRect) then begin
+  if not IsRectEmpty(FPreparedMapRect) then begin
     if (VMapLine < FPreparedMapRect.Top) or (VMapLine >= FPreparedMapRect.Bottom) then begin
       FPreparedMapRect := Rect(0, 0, 0, 0);
     end;

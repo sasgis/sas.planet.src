@@ -27,12 +27,12 @@ uses
   uPSCompiler;
 
 type
-  TOnCompileTimeRegProc = procedure (const APSComp: TPSPascalCompiler);
+  TOnCompileTimeRegProc = procedure(const APSComp: TPSPascalCompiler);
 
   TOnCompileTimeRegProcArray = array of TOnCompileTimeRegProc;
 
 
-  TOnExecTimeRegProc = procedure (const APSExec: TPSExec);
+  TOnExecTimeRegProc = procedure(const APSExec: TPSExec);
 
   TOnExecTimeRegProcArray = array of TOnExecTimeRegProc;
 

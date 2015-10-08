@@ -153,6 +153,7 @@ begin
     FreeMem(Buf);
   end;
 end;
+
 function PointToKml(const APoint: TDoublePoint): AnsiString; inline;
 begin
   Result := R2AnsiStrPoint(APoint.X) + ',' + R2AnsiStrPoint(APoint.Y) + ',0 ';

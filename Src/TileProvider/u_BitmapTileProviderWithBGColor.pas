@@ -120,7 +120,7 @@ begin
   if Result <> nil then begin
     VTargetBmp := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
     try
-      VTileSize :=  FSourceProvider.Projection.GetTileSize(ATile);
+      VTileSize := FSourceProvider.Projection.GetTileSize(ATile);
       VTargetBmp.SetSize(VTileSize.X, VTileSize.Y);
       VTargetBmp.Clear(FBackGroundColor);
       BlockTransferFull(
@@ -135,7 +135,7 @@ begin
       VTargetBmp.Free;
     end;
   end else begin
-    VTileSize :=  FSourceProvider.Projection.GetTileSize(ATile);
+    VTileSize := FSourceProvider.Projection.GetTileSize(ATile);
     if IsPointsEqual(VTileSize, FEmptyTile.Size) then begin
       Result := FEmptyTile;
     end else begin

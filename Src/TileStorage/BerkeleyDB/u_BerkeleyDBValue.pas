@@ -206,7 +206,10 @@ type
     function GetCount: Integer;
     function GetItem(const AIndex: Integer): IBerkeleyDBVersionedMetaValueElement;
     function Add(const AItem: IBerkeleyDBVersionedMetaValueElement): Integer;
-    procedure Replace(const AIndex: Integer; const AItem: IBerkeleyDBVersionedMetaValueElement);
+    procedure Replace(
+      const AIndex: Integer;
+      const AItem: IBerkeleyDBVersionedMetaValueElement
+    );
     procedure Del(const AIndex: Integer);
   public
     constructor Create; overload;

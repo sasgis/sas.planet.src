@@ -35,7 +35,10 @@ type
     property TileRect: ITileRect read GetTileRect;
 
     function GetTile(const ATile: TPoint): IVectorItemSubset;
-    procedure SetTile(const ATile: TPoint; const AValue: IVectorItemSubset);
+    procedure SetTile(
+      const ATile: TPoint;
+      const AValue: IVectorItemSubset
+    );
     property Tiles[const ATile: TPoint]: IVectorItemSubset read GetTile write SetTile;
 
     procedure SetRectWithReset(const ATileRect: ITileRect);

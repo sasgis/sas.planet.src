@@ -88,7 +88,7 @@ begin
     Result := PointFromDoublePoint(VProjection.LonLat2PixelPosFloat(ll), prToTopLeft);
   end else begin
     VProjection := FProjectionSet.Zooms[AZoom];
-    Result := PointFromDoublePoint(VProjection.LonLat2TilePosFloat(LL), prToTopLeft);;
+    Result := PointFromDoublePoint(VProjection.LonLat2TilePosFloat(LL), prToTopLeft);
   end;
 end;
 

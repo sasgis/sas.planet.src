@@ -361,9 +361,12 @@ begin
   end;
 end;
 
-function TTileStorageFileSystem.GetTileInfoEx(const AXY: TPoint;
-  const AZoom: byte; const AVersionInfo: IMapVersionRequest;
-  const AMode: TGetTileInfoMode): ITileInfoBasic;
+function TTileStorageFileSystem.GetTileInfoEx(
+  const AXY: TPoint;
+  const AZoom: byte;
+  const AVersionInfo: IMapVersionRequest;
+  const AMode: TGetTileInfoMode
+): ITileInfoBasic;
 begin
   Result := GetTileInfo(AXY, AZoom, nil, AMode);
 end;
@@ -408,7 +411,7 @@ begin
           Exit;
         end;
         VIndex := TTileRectInfoShort.TileInRectToIndex(VTile, VRect);
-        Assert(VIndex >=0);
+        Assert(VIndex >= 0);
         if VIndex >= 0 then begin
           VFileName := StoragePath + FFileNameGenerator.GetTileFileName(VTile, VZoom);
           VFolderName := ExtractFilePath(VFileName);
@@ -482,8 +485,8 @@ begin
     VPath :=
       StoragePath +
       FFileNameGenerator.AddExt(
-	  FFileNameGenerator.GetTileFileName(AXY, AZoom),
-      FFileExt);
+        FFileNameGenerator.GetTileFileName(AXY, AZoom),
+        FFileExt);
     Result := GetTileInfoByPath(VPath, nil, AMode = gtimWithData);
     if Assigned(FTileInfoMemCache) then begin
       FTileInfoMemCache.Add(AXY, AZoom, nil, Result);

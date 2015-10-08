@@ -66,7 +66,7 @@ implementation
 
 uses
   gnugettext;
-  
+
 {$R *.dfm}
 
 { TfrPathSelect }
