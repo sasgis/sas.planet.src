@@ -83,7 +83,7 @@ uses
   Types,
   gnugettext,
   u_ThreadMapCombineBase,
-  u_ThreadMapCombineJPG,
+  u_BitmapMapCombinerJPG,
   fr_MapCombine;
 
 { TProviderMapCombineJPG }

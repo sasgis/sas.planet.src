@@ -97,7 +97,7 @@ uses
   t_GeoTypes,
   i_Projection,
   u_ThreadMapCombineBase,
-  u_ThreadMapCombineKMZ,
+  u_BitmapMapCombinerKMZ,
   u_GeoFunc,
   u_ResStrings,
   fr_MapCombine;

@@ -1040,6 +1040,12 @@
     <DCCReference Include="Src\RegionProcess\Combine\i_BitmapMapCombiner.pas" />
     <DCCReference Include="Src\RegionProcess\Combine\i_ImageLineProvider.pas" />
     <DCCReference Include="Src\RegionProcess\Combine\t_ECW.pas" />
+    <DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerBMP.pas" />
+    <DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerECW.pas" />
+    <DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerJPG.pas" />
+    <DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerKMZ.pas" />
+    <DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerPNG.pas" />
+    <DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerRAW.pas" />
     <DCCReference Include="Src\RegionProcess\Combine\u_CalcWFileParams.pas" />
     <DCCReference Include="Src\RegionProcess\Combine\u_ECWWrite.pas" />
     <DCCReference Include="Src\RegionProcess\Combine\u_ImageLineProvider.pas" />
@@ -1052,12 +1058,6 @@
     <DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombinePNG.pas" />
     <DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombineRAW.pas" />
     <DCCReference Include="Src\RegionProcess\Combine\u_ThreadMapCombineBase.pas" />
-    <DCCReference Include="Src\RegionProcess\Combine\u_ThreadMapCombineBMP.pas" />
-    <DCCReference Include="Src\RegionProcess\Combine\u_ThreadMapCombineECW.pas" />
-    <DCCReference Include="Src\RegionProcess\Combine\u_ThreadMapCombineJPG.pas" />
-    <DCCReference Include="Src\RegionProcess\Combine\u_ThreadMapCombineKMZ.pas" />
-    <DCCReference Include="Src\RegionProcess\Combine\u_ThreadMapCombinePNG.pas" />
-    <DCCReference Include="Src\RegionProcess\Combine\u_ThreadMapCombineRAW.pas" />
     <DCCReference Include="Src\RegionProcess\Copy\fr_TilesCopy.pas">
       <DesignClass>TFrame</DesignClass>
       <Form>frTilesCopy</Form>

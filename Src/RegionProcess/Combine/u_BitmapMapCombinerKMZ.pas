@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_ThreadMapCombineKMZ;
+unit u_BitmapMapCombinerKMZ;
 
 interface
 

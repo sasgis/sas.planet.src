@@ -18,36 +18,39 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_ThreadMapCombinePNG;
+unit u_BitmapMapCombinerJPG;
 
 interface
 
 uses
+  Types,
   SysUtils,
   Classes,
-  Types,
-  i_ImageLineProvider,
+  LibJpegWrite,
   i_NotifierOperation,
+  i_Projection,
   i_BitmapTileProvider,
+  i_ImageLineProvider,
   i_BitmapMapCombiner,
   u_BaseInterfacedObject;
 
 type
-  TBitmapMapCombinerPNG = class(TBaseInterfacedObject, IBitmapMapCombiner)
+  TBitmapMapCombinerJPG = class(TBaseInterfacedObject, IBitmapMapCombiner)
   private
     FProgressUpdate: IBitmapCombineProgressUpdate;
     FWidth: Integer;
     FHeight: Integer;
-    FWithAlpha: Boolean;
+    FQuality: Integer;
     FLineProvider: IImageLineProvider;
+    FSaveGeoRefInfoToExif: Boolean;
     FOperationID: Integer;
     FCancelNotifier: INotifierOperation;
-  private
-    function GetLineCallBack(
-      const ARowNumber: Integer;
-      const ALineSize: Integer;
-      const AUserInfo: Pointer
-    ): Pointer;
+    function GetLine(
+      Sender: TObject;
+      ALineNumber: Integer;
+      ALineSize: Cardinal;
+      out Abort: Boolean
+    ): PByte;
   private
     procedure SaveRect(
       AOperationID: Integer;
@@ -59,31 +62,35 @@ type
   public
     constructor Create(
       const AProgressUpdate: IBitmapCombineProgressUpdate;
-      AWithAlpha: Boolean
+      const AQuality: Integer;
+      const ASaveGeoRefInfoToExif: Boolean
     );
   end;
 
 implementation
 
 uses
-  LibPngWriter,
+  Exif,
+  t_GeoTypes,
   u_ImageLineProvider,
   u_GeoFunc,
   u_ResStrings;
 
-{ TThreadMapCombinePNG }
+{ TThreadMapCombineJPG }
 
-constructor TBitmapMapCombinerPNG.Create(
+constructor TBitmapMapCombinerJPG.Create(
   const AProgressUpdate: IBitmapCombineProgressUpdate;
-  AWithAlpha: Boolean
+  const AQuality: Integer;
+  const ASaveGeoRefInfoToExif: Boolean
 );
 begin
   inherited Create;
   FProgressUpdate := AProgressUpdate;
-  FWithAlpha := AWithAlpha;
+  FQuality := AQuality;
+  FSaveGeoRefInfoToExif := ASaveGeoRefInfoToExif;
 end;
 
-procedure TBitmapMapCombinerPNG.SaveRect(
+procedure TBitmapMapCombinerJPG.SaveRect(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const AFileName: string;
@@ -91,40 +98,34 @@ procedure TBitmapMapCombinerPNG.SaveRect(
   const AMapRect: TRect
 );
 const
-  PNG_MAX_HEIGHT = 65536;
-  PNG_MAX_WIDTH = 65536;
+  JPG_MAX_HEIGHT = 65536;
+  JPG_MAX_WIDTH = 65536;
 var
-  VDest: TFileStream;
-  VBitsPerPix: Integer;
+  VJpegWriter: TJpegWriter;
+  VStream: TFileStream;
   VCurrentPieceRect: TRect;
+  VProjection: IProjection;
   VMapPieceSize: TPoint;
-  VPngWriter: TLibPngWriter;
+  VExif: TExifSimple;
+  VCenterLonLat: TDoublePoint;
+  VUseBGRAColorSpace: Boolean;
 begin
   FOperationID := AOperationID;
   FCancelNotifier := ACancelNotifier;
 
+  VProjection := AImageProvider.Projection;
   VCurrentPieceRect := AMapRect;
   VMapPieceSize := RectSize(VCurrentPieceRect);
 
-  FWidth := VMapPieceSize.X;
-  FHeight := VMapPieceSize.Y;
+  VUseBGRAColorSpace := True; // Available for libjpeg-turbo only
 
-  if (FWidth >= PNG_MAX_WIDTH) or (FHeight >= PNG_MAX_HEIGHT) then begin
-    raise Exception.CreateFmt(
-      SAS_ERR_ImageIsTooBig,
-      ['PNG', FWidth, PNG_MAX_WIDTH, FHeight, PNG_MAX_HEIGHT, 'PNG']
-    );
-  end;
-
-  if FWithAlpha then begin
-    VBitsPerPix := 32;
+  if VUseBGRAColorSpace then begin
     FLineProvider :=
-      TImageLineProviderRGBA.Create(
+      TImageLineProviderBGRA.Create(
         AImageProvider,
         AMapRect
       );
   end else begin
-    VBitsPerPix := 24;
     FLineProvider :=
       TImageLineProviderRGB.Create(
         AImageProvider,
@@ -132,39 +133,49 @@ begin
       );
   end;
 
-  VDest := TFileStream.Create(AFileName, fmCreate);
+  FWidth := VMapPieceSize.X;
+  FHeight := VMapPieceSize.Y;
+  if (FWidth >= JPG_MAX_WIDTH) or (FHeight >= JPG_MAX_HEIGHT) then begin
+    raise Exception.CreateFmt(SAS_ERR_ImageIsTooBig, ['JPG', FWidth, JPG_MAX_WIDTH, FHeight, JPG_MAX_HEIGHT, 'JPG']);
+  end;
+  VStream := TFileStream.Create(AFileName, fmCreate);
   try
-    VPngWriter := TLibPngWriter.Create;
+    VJpegWriter := TJpegWriter.Create(VStream, VUseBGRAColorSpace);
     try
-      VPngWriter.Write(
-        VDest,
-        FWidth,
-        FHeight,
-        VBitsPerPix,
-        Self.GetLineCallBack
-      );
+      VJpegWriter.Width := FWidth;
+      VJpegWriter.Height := FHeight;
+      VJpegWriter.Quality := FQuality;
+      VJpegWriter.AddCommentMarker('Created with SAS.Planet' + #0);
+      if FSaveGeoRefInfoToExif then begin
+        VCenterLonLat := VProjection.PixelPos2LonLat(CenterPoint(AMapRect));
+        VExif := TExifSimple.Create(VCenterLonLat.Y, VCenterLonLat.X);
+        try
+          VJpegWriter.AddExifMarker(VExif.Stream);
+        finally
+          VExif.Free;
+        end;
+      end;
+      VJpegWriter.Compress(Self.GetLine);
     finally
-      VPngWriter.Free;
+      VJpegWriter.Free;
     end;
   finally
-    VDest.Free;
+    VStream.Free;
   end;
 end;
 
-function TBitmapMapCombinerPNG.GetLineCallBack(
-  const ARowNumber: Integer;
-  const ALineSize: Integer;
-  const AUserInfo: Pointer
-): Pointer;
+function TBitmapMapCombinerJPG.GetLine(
+  Sender: TObject;
+  ALineNumber: Integer;
+  ALineSize: Cardinal;
+  out Abort: Boolean
+): PByte;
 begin
-  if ARowNumber mod 256 = 0 then begin
-    FProgressUpdate.Update(ARowNumber / FHeight);
+  if ALineNumber mod 256 = 0 then begin
+    FProgressUpdate.Update(ALineNumber / FHeight);
   end;
-  if not FCancelNotifier.IsOperationCanceled(FOperationID) then begin
-    Result := FLineProvider.GetLine(FOperationID, FCancelNotifier, ARowNumber);
-  end else begin
-    Result := nil;
-  end;
+  Result := FLineProvider.GetLine(FOperationID, FCancelNotifier, ALineNumber);
+  Abort := (Result = nil) or FCancelNotifier.IsOperationCanceled(FOperationID);
 end;
 
 end.

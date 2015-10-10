@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_ThreadMapCombineECW;
+unit u_BitmapMapCombinerECW;
 
 interface
 

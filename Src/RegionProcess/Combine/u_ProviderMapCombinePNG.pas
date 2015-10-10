@@ -84,7 +84,7 @@ uses
   Types,
   gnugettext,
   u_ThreadMapCombineBase,
-  u_ThreadMapCombinePNG,
+  u_BitmapMapCombinerPNG,
   fr_MapCombine;
 
 { TProviderMapCombinePNG }

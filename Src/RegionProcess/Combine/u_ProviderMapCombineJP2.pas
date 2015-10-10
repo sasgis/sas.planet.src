@@ -86,7 +86,7 @@ uses
   Types,
   gnugettext,
   u_ThreadMapCombineBase,
-  u_ThreadMapCombineECW,
+  u_BitmapMapCombinerECW,
   fr_MapCombine;
 
 { TProviderMapCombineJP2 }

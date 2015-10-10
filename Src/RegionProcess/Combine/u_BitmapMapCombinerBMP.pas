@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_ThreadMapCombineBMP;
+unit u_BitmapMapCombinerBMP;
 
 interface
 
