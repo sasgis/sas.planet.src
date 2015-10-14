@@ -370,16 +370,30 @@ begin
     end else begin
       VTableName := '';
     end;
+
+    // http://www.sasgis.org/mantis/view.php?id=2854
+    if FDBMSProps.DBMS = dMSSQL then begin
+      if VTable.SQLTableName = 'User' then begin
+        VTableName := 'UserInfo';
+      end;
+    end;
+
     if not VirtualTableExternalRegister(FModel, VTable, FDBMSProps, VTableName) then begin
       raise EMarkSystemORMError.Create('VirtualTableExternalRegister failed');
     end;
   end;
 
   FClientDB := TSQLRestClientDB.Create(FModel, nil, ':memory:', TSQLRestServerDB);
-  FClientDB.Server.CreateMissingTables;
 
-  //FClientDB.Server.AcquireExecutionMode[execORMWrite] := amBackgroundThread;
+  if FDBMSProps.DBMS = dMSSQL then begin
+    // Some database client libraries may not allow transactions to be shared
+    // among several threads - for instance MS SQL
+    // http://synopse.info/files/html/Synopse%20mORMot%20Framework%20SAD%201.18.html#TITLE_196
+    FClientDB.Server.AcquireExecutionMode[execORMWrite] := amBackgroundORMSharedThread;
+  end;
   //FClientDB.Server.AcquireExecutionMode[execORMGet] := amBackgroundThread;
+
+  FClientDB.Server.CreateMissingTables;
 end;
 {$ENDIF}
 
