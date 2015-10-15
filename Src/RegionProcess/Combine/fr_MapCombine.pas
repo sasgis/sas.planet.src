@@ -59,6 +59,9 @@ type
     function GetUseGrids: Boolean;
     property UseGrids: Boolean read GetUseGrids;
 
+    function GetUseFillingMap: Boolean;
+    property UseFillingMap: Boolean read GetUseFillingMap;
+
     function GetUseRecolor: Boolean;
     property UseRecolor: Boolean read GetUseRecolor;
 
@@ -134,6 +137,7 @@ type
     chkUseMapGrids: TCheckBox;
     pnlMaps: TPanel;
     chkAddVisibleLayers: TCheckBox;
+    chkUseFillingMap: TCheckBox;
     procedure cbbZoomChange(Sender: TObject);
     procedure btnSelectTargetFileClick(Sender: TObject);
     procedure chkAddVisibleLayersClick(Sender: TObject);
@@ -170,6 +174,7 @@ type
   private
     function GetUseMarks: Boolean;
     function GetUseGrids: Boolean;
+    function GetUseFillingMap: Boolean;
     function GetUseRecolor: Boolean;
     function GetSplitCount: TPoint;
     function GetQuality: Integer;
@@ -504,6 +509,11 @@ function TfrMapCombine.GetSplitCount: TPoint;
 begin
   Result.X := seSplitHor.Value;
   Result.Y := seSplitVert.Value;
+end;
+
+function TfrMapCombine.GetUseFillingMap: Boolean;
+begin
+  Result := chkUseFillingMap.Checked;
 end;
 
 function TfrMapCombine.GetUseGrids: Boolean;

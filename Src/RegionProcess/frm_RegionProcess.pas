@@ -73,6 +73,9 @@ uses
   i_TileFileNameGeneratorsList,
   i_TileStorageTypeList,
   i_LocalCoordConverterChangeable,
+  i_MapType,
+  i_FillingMapLayerConfig,
+  i_FillingMapPolygon,
   i_MapLayerGridsConfig,
   i_ValueToStringConverter,
   i_MapTypeGUIConfigList,
@@ -184,6 +187,9 @@ type
       const AMapCalibrationList: IMapCalibrationList;
       const ADownloadConfig: IGlobalDownloadConfig;
       const ADownloadInfo: IDownloadInfoSimple;
+      const AFillingMapConfig: IFillingMapLayerConfig;
+      const AFillingMapType: IMapTypeChangeable;
+      const AFillingMapPolygon: IFillingMapPolygon;
       const AGridsConfig: IMapLayerGridsConfig;
       const AValueToStringConverter: IValueToStringConverterChangeable;
       const AMapGoto: IMapViewGoto;
@@ -245,6 +251,9 @@ constructor TfrmRegionProcess.Create(
   const AMapCalibrationList: IMapCalibrationList;
   const ADownloadConfig: IGlobalDownloadConfig;
   const ADownloadInfo: IDownloadInfoSimple;
+  const AFillingMapConfig: IFillingMapLayerConfig;
+  const AFillingMapType: IMapTypeChangeable;
+  const AFillingMapPolygon: IFillingMapPolygon;
   const AGridsConfig: IMapLayerGridsConfig;
   const AValueToStringConverter: IValueToStringConverterChangeable;
   const AMapGoto: IMapViewGoto;
@@ -365,6 +374,9 @@ begin
       AMarksDB,
       ABitmapFactory,
       ABitmapPostProcessing,
+      AFillingMapConfig,
+      AFillingMapType,
+      AFillingMapPolygon,
       AGridsConfig,
       AValueToStringConverter,
       AMapCalibrationList

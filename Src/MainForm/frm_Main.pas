@@ -1098,6 +1098,8 @@ begin
   VMouseState := TMouseState.Create(GState.Timer);
   FMouseHandler := VMouseState;
   FMouseState := VMouseState;
+  FFillingMapPolygon := TFillingMapPolygon.Create;
+
   FConfig := TMainFormConfig.Create(GState.MapType.FirstMainMapGUID);
   FConfig.ReadConfig(GState.MainConfigProvider);
   FMainMapState :=
@@ -1190,6 +1192,9 @@ begin
       GState.MapCalibrationList,
       GState.Config.DownloadConfig,
       GState.DownloadInfo,
+      FConfig.LayersConfig.FillingMapLayerConfig,
+      FMainMapState.FillingMapActiveMap,
+      FFillingMapPolygon,
       FConfig.LayersConfig.MapLayerGridsConfig,
       GState.ValueToStringConverter,
       FMapGoto,
@@ -1464,7 +1469,6 @@ begin
   TBEditPath.Visible := False;
   TrayIcon.Icon.LoadFromResourceName(Hinstance, 'MAINICON');
 
-  FFillingMapPolygon := TFillingMapPolygon.Create;
   FSelectedPolygon := nil;
 
   InitLayers;

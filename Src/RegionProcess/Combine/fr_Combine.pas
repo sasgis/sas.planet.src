@@ -40,6 +40,9 @@ uses
   i_UsedMarksConfig,
   i_MarksDrawConfig,
   i_MarkSystem,
+  i_MapType,
+  i_FillingMapLayerConfig,
+  i_FillingMapPolygon,
   i_MapLayerGridsConfig,
   i_ValueToStringConverter,
   i_MapCalibration,
@@ -86,6 +89,9 @@ type
       const AMarksDB: IMarkSystem;
       const ABitmapFactory: IBitmap32StaticFactory;
       const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
+      const AFillingMapConfig: IFillingMapLayerConfig;
+      const AFillingMapType: IMapTypeChangeable;
+      const AFillingMapPolygon: IFillingMapPolygon;
       const AGridsConfig: IMapLayerGridsConfig;
       const AValueToStringConverter: IValueToStringConverterChangeable;
       const AMapCalibrationList: IMapCalibrationList
@@ -138,6 +144,9 @@ constructor TfrCombine.Create(
   const AMarksDB: IMarkSystem;
   const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
+  const AFillingMapConfig: IFillingMapLayerConfig;
+  const AFillingMapType: IMapTypeChangeable;
+  const AFillingMapPolygon: IFillingMapPolygon;
   const AGridsConfig: IMapLayerGridsConfig;
   const AValueToStringConverter: IValueToStringConverterChangeable;
   const AMapCalibrationList: IMapCalibrationList
@@ -168,6 +177,9 @@ begin
       AMarksDB,
       ABitmapFactory,
       ABitmapPostProcessing,
+      AFillingMapConfig,
+      AFillingMapType,
+      AFillingMapPolygon,
       AGridsConfig,
       AValueToStringConverter,
       AMapCalibrationList
@@ -193,6 +205,9 @@ begin
       AMarksDB,
       ABitmapFactory,
       ABitmapPostProcessing,
+      AFillingMapConfig,
+      AFillingMapType,
+      AFillingMapPolygon,
       AGridsConfig,
       AValueToStringConverter,
       AMapCalibrationList
@@ -218,6 +233,9 @@ begin
       AMarksDB,
       ABitmapFactory,
       ABitmapPostProcessing,
+      AFillingMapConfig,
+      AFillingMapType,
+      AFillingMapPolygon,
       AGridsConfig,
       AValueToStringConverter,
       AMapCalibrationList
@@ -243,6 +261,9 @@ begin
       AMarksDB,
       ABitmapFactory,
       ABitmapPostProcessing,
+      AFillingMapConfig,
+      AFillingMapType,
+      AFillingMapPolygon,
       AGridsConfig,
       AValueToStringConverter,
       AMapCalibrationList
@@ -268,6 +289,9 @@ begin
       AMarksDB,
       ABitmapFactory,
       ABitmapPostProcessing,
+      AFillingMapConfig,
+      AFillingMapType,
+      AFillingMapPolygon,
       AGridsConfig,
       AValueToStringConverter,
       AMapCalibrationList,
@@ -294,6 +318,9 @@ begin
       AMarksDB,
       ABitmapFactory,
       ABitmapPostProcessing,
+      AFillingMapConfig,
+      AFillingMapType,
+      AFillingMapPolygon,
       AGridsConfig,
       AValueToStringConverter,
       AMapCalibrationList,
@@ -322,6 +349,9 @@ begin
       AMarksDB,
       ABitmapFactory,
       ABitmapPostProcessing,
+      AFillingMapConfig,
+      AFillingMapType,
+      AFillingMapPolygon,
       AGridsConfig,
       AValueToStringConverter,
       AMapCalibrationList
@@ -347,6 +377,9 @@ begin
       AMarksDB,
       ABitmapFactory,
       ABitmapPostProcessing,
+      AFillingMapConfig,
+      AFillingMapType,
+      AFillingMapPolygon,
       AGridsConfig,
       AValueToStringConverter,
       AMapCalibrationList
