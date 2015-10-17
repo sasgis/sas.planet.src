@@ -26,6 +26,7 @@ uses
   u_PathConfig_Test in 'u_PathConfig_Test.pas',
   u_Datum_Test in 'u_Datum_Test.pas',
   u_GeometrySaveLoadWKB_Test in 'u_GeometrySaveLoadWKB_Test.pas',
+  u_CalcTilesInPolygon_Test in 'u_CalcTilesInPolygon_Test.pas',
   u_MarkCategoryListToTree_Test in 'u_MarkCategoryListToTree_Test.pas',
   u_BitmapTileLibPng_Test in 'u_BitmapTileLibPng_Test.pas',
   u_BitmapTileSaveLoadFactory_Test in 'u_BitmapTileSaveLoadFactory_Test.pas';

@@ -55,6 +55,7 @@
     <DCCReference Include="i_IGUIDObjectSet_Test.pas" />
     <DCCReference Include="u_BitmapTileLibPng_Test.pas" />
     <DCCReference Include="u_BitmapTileSaveLoadFactory_Test.pas" />
+    <DCCReference Include="u_CalcTilesInPolygon_Test.pas" />
     <DCCReference Include="u_Datum_Test.pas" />
     <DCCReference Include="u_EnumDoublePointClosePoly_Test.pas" />
     <DCCReference Include="u_EnumDoublePointFilterEqual_Test.pas" />
