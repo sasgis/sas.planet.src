@@ -389,7 +389,8 @@ begin
     // Some database client libraries may not allow transactions to be shared
     // among several threads - for instance MS SQL
     // http://synopse.info/files/html/Synopse%20mORMot%20Framework%20SAD%201.18.html#TITLE_196
-    FClientDB.Server.AcquireExecutionMode[execORMWrite] := amBackgroundORMSharedThread;
+    FClientDB.Server.AcquireExecutionMode[execORMWrite] := amBackgroundThread;
+    FClientDB.Server.AcquireExecutionMode[execORMGet] := amBackgroundThread;
   end;
   //FClientDB.Server.AcquireExecutionMode[execORMGet] := amBackgroundThread;
 
