@@ -62,6 +62,21 @@ function IsValidLonLatPolygon(
   const AGeometry: IGeometryLonLatPolygon
 ): Boolean;
 
+function CalcTileCountInProjectedPolygon(
+  const AProjection: IProjection;
+  const AGeometry: IGeometryProjectedPolygon
+): Int64;
+
+function CalcTileCountInProjectedSinglePolygon(
+  const AProjection: IProjection;
+  const AGeometry: IGeometryProjectedSinglePolygon
+): Int64;
+
+function CalcTileCountInProjectedMultiPolygon(
+  const AProjection: IProjection;
+  const AGeometry: IGeometryProjectedMultiPolygon
+): Int64;
+
 implementation
 
 uses
@@ -74,6 +89,7 @@ uses
   u_EnumDoublePointMapPixelToLocalPixel,
   u_EnumDoublePointWithClip,
   u_EnumDoublePointFilterEqual,
+  u_TileIteratorByRect,
   u_GeoFunc;
 
 function GetGeometryLonLatPointNearestPoint(
@@ -869,5 +885,77 @@ begin
   end;
 end;
 
+function CalcTileCountInProjectedSinglePolygon(
+  const AProjection: IProjection;
+  const AGeometry: IGeometryProjectedSinglePolygon
+): Int64;
+var
+  VTileRect: TRect;
+  VIterator: TTileIteratorByRectRecord;
+  VTile: TPoint;
+  VPixelRect: TDoubleRect;
+begin
+  Result := 0;
+  VTileRect :=
+    RectFromDoubleRect(
+      AProjection.PixelRectFloat2TileRectFloat(AGeometry.Bounds),
+      rrOutside
+    );
+  VIterator.Init(VTileRect);
+  while VIterator.Next(VTile) do begin
+    VPixelRect := AProjection.TilePos2PixelRectFloat(VTile);
+    if AGeometry.IsRectIntersectPolygon(VPixelRect) then begin
+      Inc(Result);
+    end;
+  end;
+end;
+
+function CalcTileCountInProjectedMultiPolygon(
+  const AProjection: IProjection;
+  const AGeometry: IGeometryProjectedMultiPolygon
+): Int64;
+var
+  VTileRect: TRect;
+  VIterator: TTileIteratorByRectRecord;
+  VTile: TPoint;
+  VPixelRect: TDoubleRect;
+begin
+  Result := 0;
+  VTileRect :=
+    RectFromDoubleRect(
+      AProjection.PixelRectFloat2TileRectFloat(AGeometry.Bounds),
+      rrOutside
+    );
+  VIterator.Init(VTileRect);
+  while VIterator.Next(VTile) do begin
+    VPixelRect := AProjection.TilePos2PixelRectFloat(VTile);
+    if AGeometry.IsRectIntersectPolygon(VPixelRect) then begin
+      Inc(Result);
+    end;
+  end;
+end;
+
+function CalcTileCountInProjectedPolygon(
+  const AProjection: IProjection;
+  const AGeometry: IGeometryProjectedPolygon
+): Int64;
+var
+  VSingleLine: IGeometryProjectedSinglePolygon;
+  VMultiLine: IGeometryProjectedMultiPolygon;
+begin
+  Result := 0;
+  if Assigned(AGeometry) then begin
+    if Supports(AGeometry, IGeometryProjectedSinglePolygon, VSingleLine) then begin
+      Result := CalcTileCountInProjectedSinglePolygon(AProjection, VSingleLine);
+    end else if Supports(AGeometry, IGeometryProjectedMultiPolygon, VMultiLine) then begin
+      if VMultiLine.Count > 1 then begin
+        Result := CalcTileCountInProjectedMultiPolygon(AProjection, VMultiLine);
+      end else begin
+        VSingleLine := VMultiLine.Item[0];
+        Result := CalcTileCountInProjectedSinglePolygon(AProjection, VSingleLine);
+      end;
+    end;
+  end;
+end;
 
 end.
