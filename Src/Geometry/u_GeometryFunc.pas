@@ -919,6 +919,9 @@ var
   VIterator: TTileIteratorByRectRecord;
   VTile: TPoint;
   VPixelRect: TDoubleRect;
+  i: Integer;
+  VLine: IGeometryProjectedSinglePolygon;
+  VLastUsedLine: IGeometryProjectedSinglePolygon;
 begin
   Result := 0;
   VTileRect :=
@@ -926,11 +929,24 @@ begin
       AProjection.PixelRectFloat2TileRectFloat(AGeometry.Bounds),
       rrOutside
     );
+  VLastUsedLine := nil;
   VIterator.Init(VTileRect);
   while VIterator.Next(VTile) do begin
     VPixelRect := AProjection.TilePos2PixelRectFloat(VTile);
-    if AGeometry.IsRectIntersectPolygon(VPixelRect) then begin
-      Inc(Result);
+    if (VLastUsedLine <> nil) then begin
+      if VLastUsedLine.IsRectIntersectPolygon(VPixelRect) then begin
+        Inc(Result);
+        continue;
+      end;
+    end;
+    for i := 0 to AGeometry.Count - 1 do begin
+      VLine := AGeometry.GetItem(i);
+      if (Pointer(VLine) <> Pointer(VLastUsedLine)) then begin
+        if VLine.IsRectIntersectPolygon(VPixelRect) then begin
+          Inc(Result);
+          continue;
+        end;
+      end;
     end;
   end;
 end;
