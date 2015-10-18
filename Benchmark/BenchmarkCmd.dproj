@@ -61,6 +61,7 @@
     <DCCReference Include="u_BenchmarkItemBitmap32Line.pas" />
     <DCCReference Include="u_BenchmarkItemBitmap32LineHorizontal.pas" />
     <DCCReference Include="u_BenchmarkItemBitmap32LineVertical.pas" />
+    <DCCReference Include="u_BenchmarkItemCalcTilesInPolygon.pas" />
     <DCCReference Include="u_BenchmarkItemDoubleInc.pas" />
     <DCCReference Include="u_BenchmarkItemDoublePointBaseTest.pas" />
     <DCCReference Include="u_BenchmarkItemDoublePointIncrement.pas" />

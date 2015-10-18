@@ -31,6 +31,7 @@ uses
   u_BenchmarkItemBitmap32LineVertical in 'u_BenchmarkItemBitmap32LineVertical.pas',
   u_BenchmarkItemBitmap32LineHorizontal in 'u_BenchmarkItemBitmap32LineHorizontal.pas',
   u_BenchmarkItemBitmap32Line in 'u_BenchmarkItemBitmap32Line.pas',
+  u_BenchmarkItemCalcTilesInPolygon in 'u_BenchmarkItemCalcTilesInPolygon.pas',
   u_BenchmarkResult in 'u_BenchmarkResult.pas',
   u_BenchmarkResultList in 'u_BenchmarkResultList.pas',
   u_BenchmarkTestRunner in 'u_BenchmarkTestRunner.pas',

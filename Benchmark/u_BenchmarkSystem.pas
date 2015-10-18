@@ -47,6 +47,7 @@ type
     procedure AddProjectionType(const AList: IInterfaceListSimple);
     procedure AddDoublePoint(const AList: IInterfaceListSimple);
     procedure AddBasic(const AList: IInterfaceListSimple);
+    procedure AddCalcTileInPolygon(const AList: IInterfaceListSimple);
   private
     procedure InitTestRunner;
     procedure InitTestList;
@@ -67,12 +68,20 @@ uses
   SysUtils,
   GR32,
   t_GeoTypes,
+  c_CoordConverter,
   i_Timer,
   i_HashFunctionImpl,
   i_BinaryData,
   i_ReadWriteSyncFactory,
   i_Datum,
   i_ProjectionType,
+  i_ProjectionTypeFactory,
+  i_DatumFactory,
+  i_GeometryProjected,
+  i_GeometryProjectedFactory,
+  i_Projection,
+  i_HashFunction,
+  i_DoublePointsAggregator,
   i_BenchmarkItem,
   u_InterfaceListSimple,
   u_TimerByNtQueryPerformanceCounter,
@@ -80,10 +89,18 @@ uses
   u_TimerByGetTickCount,
   u_HashFunctionCityHash,
   u_HashFunctionCRC64,
+  u_HashFunctionWithCounter,
   u_Datum,
+  u_DatumFactory,
+  u_GeometryProjectedFactory,
+  u_InternalPerformanceCounterFake,
   u_ProjectionTypeMercatorOnSphere,
   u_ProjectionTypeMercatorOnEllipsoid,
   u_ProjectionTypeGELonLat,
+  u_ProjectionTypeFactorySimple,
+  u_ProjectionBasic256x256,
+  u_DoublePointsAggregator,
+  u_GeoFunc,
   u_ReadWriteSyncAbstract,
   u_ReadWriteSyncSRW,
   u_ReadWriteSyncRtlResource,
@@ -104,6 +121,7 @@ uses
   u_BenchmarkItemBitmap32LineHorizontal,
   u_BenchmarkItemBitmap32Line,
   u_BenchmarkItemProjectionType,
+  u_BenchmarkItemCalcTilesInPolygon,
   u_BenchmarkItemDoublePointIncrement,
   u_BenchmarkItemDoublePointIncrementWithEmpty,
   u_BenchmarkResultListSaverToCsv,
@@ -139,6 +157,100 @@ begin
   AList.Add(VItem);
 
   VItem := TBenchmarkItemIncInterlocked.Create;
+  AList.Add(VItem);
+end;
+
+procedure TBenchmarkSystem.AddCalcTileInPolygon(
+  const AList: IInterfaceListSimple
+);
+var
+  VItem: IBenchmarkItem;
+  VHashFunction: IHashFunction;
+  VProjectionTypeFactory: IProjectionTypeFactory;
+  VProjectionType: IProjectionType;
+  VDatumFactory: IDatumFactory;
+  VFactory: IGeometryProjectedFactory;
+  VProjection: IProjection;
+  VPolygonBuilder: IGeometryProjectedPolygonBuilder;
+  VPoints: IDoublePointsAggregator;
+  VPolygon: IGeometryProjectedPolygon;
+  VLevel: Byte;
+  VName: String;
+  VMultiplier: Double;
+  function PreparePolygon(const AMultiplier: Double): IGeometryProjectedPolygon;
+  begin
+    VPoints.Add(DoublePoint(0, 0));
+    VPoints.Add(DoublePoint(AMultiplier*9.9, 0));
+    VPoints.Add(DoublePoint(AMultiplier*9.9, AMultiplier*49.9));
+    VPoints.Add(DoublePoint(AMultiplier*3, AMultiplier*10));
+    VPoints.Add(DoublePoint(0, AMultiplier*49.9));
+    VPolygonBuilder.AddOuter(DoubleRect(0, 0, AMultiplier*9.9, AMultiplier*49.9), VPoints.MakeStaticAndClear);
+
+    VPoints.Add(DoublePoint(AMultiplier*0.9, AMultiplier*0.9));
+    VPoints.Add(DoublePoint(AMultiplier*2.1, AMultiplier*0.9));
+    VPoints.Add(DoublePoint(AMultiplier*2.1, AMultiplier*2.1));
+    VPoints.Add(DoublePoint(AMultiplier*0.9, AMultiplier*2.1));
+    VPolygonBuilder.AddHole(DoubleRect(AMultiplier*0.9, AMultiplier*0.9, AMultiplier*2.1, AMultiplier*2.1), VPoints.MakeStaticAndClear);
+
+    VPoints.Add(DoublePoint(AMultiplier*20.1, AMultiplier*20.1));
+    VPoints.Add(DoublePoint(AMultiplier*20.9, AMultiplier*20.1));
+    VPoints.Add(DoublePoint(AMultiplier*20.9, AMultiplier*20.9));
+    VPoints.Add(DoublePoint(AMultiplier*20.1, AMultiplier*20.9));
+    VPolygonBuilder.AddOuter(DoubleRect(AMultiplier*20.1, AMultiplier*20.1, AMultiplier*20.9, AMultiplier*20.9), VPoints.MakeStaticAndClear);
+
+    Result := VPolygonBuilder.MakeStaticAndClear;
+  end;
+begin
+  VHashFunction :=
+    THashFunctionWithCounter.Create(
+      THashFunctionCityHash.Create,
+      TInternalPerformanceCounterFake.Create
+    );
+  VDatumFactory := TDatumFactory.Create(VHashFunction);
+  VProjectionTypeFactory :=
+    TProjectionTypeFactorySimple.Create(
+      VHashFunction,
+      VDatumFactory
+    );
+  VProjectionType := VProjectionTypeFactory.GetByCode(CGoogleProjectionEPSG);
+  VProjection := TProjectionBasic256x256.Create(0, VProjectionType, 20);
+  VFactory := TGeometryProjectedFactory.Create;
+  VPolygonBuilder := VFactory.MakePolygonBuilder;
+  VPoints := TDoublePointsAggregator.Create;
+
+  VLevel := 0;
+  VMultiplier := (1 shl 8) shl VLevel;
+  VPolygon := PreparePolygon(VMultiplier);
+  VName := 'CalcTileInPolygon ' + IntToStr(1 shl (2 * VLevel));
+  VItem := TBenchmarkItemCalcTilesInPolygon.Create(VName, VProjection, VPolygon);
+  AList.Add(VItem);
+
+  VLevel := 1;
+  VMultiplier := (1 shl 8) shl VLevel;
+  VPolygon := PreparePolygon(VMultiplier);
+  VName := 'CalcTileInPolygon ' + IntToStr(1 shl (2 * VLevel));
+  VItem := TBenchmarkItemCalcTilesInPolygon.Create(VName, VProjection, VPolygon);
+  AList.Add(VItem);
+
+  VLevel := 2;
+  VMultiplier := (1 shl 8) shl VLevel;
+  VPolygon := PreparePolygon(VMultiplier);
+  VName := 'CalcTileInPolygon ' + IntToStr(1 shl (2 * VLevel));
+  VItem := TBenchmarkItemCalcTilesInPolygon.Create(VName, VProjection, VPolygon);
+  AList.Add(VItem);
+
+  VLevel := 3;
+  VMultiplier := (1 shl 8) shl VLevel;
+  VPolygon := PreparePolygon(VMultiplier);
+  VName := 'CalcTileInPolygon ' + IntToStr(1 shl (2 * VLevel));
+  VItem := TBenchmarkItemCalcTilesInPolygon.Create(VName, VProjection, VPolygon);
+  AList.Add(VItem);
+
+  VLevel := 4;
+  VMultiplier := (1 shl 8) shl VLevel;
+  VPolygon := PreparePolygon(VMultiplier);
+  VName := 'CalcTileInPolygon ' + IntToStr(1 shl (2 * VLevel));
+  VItem := TBenchmarkItemCalcTilesInPolygon.Create(VName, VProjection, VPolygon);
   AList.Add(VItem);
 end;
 
@@ -358,6 +470,7 @@ begin
   AddGr32(VList);
   AddProjectionType(VList);
   AddDoublePoint(VList);
+  AddCalcTileInPolygon(VList);
 
   FBaseTestList := TBenchmarkItemList.Create(VList.MakeStaticAndClear);
 end;
