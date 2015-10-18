@@ -1414,6 +1414,7 @@
     <DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameMOBAC.pas" />
     <DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameOsmAnd.pas" />
     <DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameSAS.pas" />
+    <DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameTMS.pas" />
     <DCCReference Include="Src\TileStorage\FileSystem\u_TileStorageFileSystem.pas" />
     <DCCReference Include="Src\TileStorage\FileSystem\u_TileStorageTypeFileSystemSimple.pas" />
     <DCCReference Include="Src\TileStorage\GoogleEarth\u_TileStorageGoogleEarth.pas" />
