@@ -30,7 +30,6 @@ uses
   u_GeoFunc,
   c_CoordConverter,
   i_GeometryProjected,
-  i_ProjectionSetFactory,
   i_HashFunction,
   i_DatumFactory,
   i_ProjectionTypeFactory,
@@ -38,10 +37,8 @@ uses
   u_HashFunctionCityHash,
   u_HashFunctionWithCounter,
   u_DoublePointsAggregator,
-  u_ProjectionSetFactorySimple,
   u_ProjectionBasic256x256,
   u_ProjectionTypeFactorySimple,
-  u_ProjectionTypeMercatorOnSphere,
   u_GeometryProjectedFactory,
   u_GeometryFunc,
   u_InternalPerformanceCounterFake,
@@ -70,7 +67,7 @@ begin
       VDatumFactory
     );
   VProjectionType := VProjectionTypeFactory.GetByCode(CGoogleProjectionEPSG);
-  FProjection := TProjectionBasic256x256.Create(0, VProjectionType, 10);
+  FProjection := TProjectionBasic256x256.Create(0, VProjectionType, 20);
   VFactory := TGeometryProjectedFactory.Create;
   FPolygonBuilder := VFactory.MakePolygonBuilder;
   FPoints := TDoublePointsAggregator.Create;
