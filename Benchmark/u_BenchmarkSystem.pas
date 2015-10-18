@@ -23,6 +23,7 @@ unit u_BenchmarkSystem;
 interface
 
 uses
+  i_InterfaceListSimple,
   i_BenchmarkTestRunner,
   i_BenchmarkItemList,
   i_BenchmarkResultList,
@@ -39,6 +40,13 @@ type
     FResultListSaver: IBenchmarkResultListSaver;
     FBaseTestList: IBenchmarkItemList;
     FLastResults: IBenchmarkResultList;
+    procedure AddSync(const AList: IInterfaceListSimple);
+    procedure AddTimer(const AList: IInterfaceListSimple);
+    procedure AddHash(const AList: IInterfaceListSimple);
+    procedure AddGr32(const AList: IInterfaceListSimple);
+    procedure AddProjectionType(const AList: IInterfaceListSimple);
+    procedure AddDoublePoint(const AList: IInterfaceListSimple);
+    procedure AddBasic(const AList: IInterfaceListSimple);
   private
     procedure InitTestRunner;
     procedure InitTestList;
@@ -59,7 +67,6 @@ uses
   SysUtils,
   GR32,
   t_GeoTypes,
-  i_InterfaceListSimple,
   i_Timer,
   i_HashFunctionImpl,
   i_BinaryData,
@@ -121,28 +128,171 @@ begin
   FResultListSaver := TBenchmarkResultListSaverToCsv.Create;
 end;
 
-procedure TBenchmarkSystem.InitTestList;
+procedure TBenchmarkSystem.AddBasic(const AList: IInterfaceListSimple);
 var
-  VList: IInterfaceListSimple;
   VItem: IBenchmarkItem;
-  VSyncFactory: IReadWriteSyncFactory;
-  VSync: IReadWriteSync;
-  VTimer: ITimer;
-  VHash: IHashFunctionImpl;
+begin
+  VItem := TBenchmarkItemEmpty.Create;
+  AList.Add(VItem);
+
+  VItem := TBenchmarkItemIncSimple.Create;
+  AList.Add(VItem);
+
+  VItem := TBenchmarkItemIncInterlocked.Create;
+  AList.Add(VItem);
+end;
+
+procedure TBenchmarkSystem.AddDoublePoint(const AList: IInterfaceListSimple);
+var
+  VItem: IBenchmarkItem;
+begin
+  VItem := TBenchmarkItemDoubleInc.Create;
+  AList.Add(VItem);
+
+  VItem := TBenchmarkItemDoublePointIncrement.Create;
+  AList.Add(VItem);
+
+  VItem := TBenchmarkItemDoublePointIncrementInplace.Create;
+  AList.Add(VItem);
+
+  VItem := TBenchmarkItemDoublePointIncrementWithEmpty.Create(10);
+  AList.Add(VItem);
+
+  VItem := TBenchmarkItemDoublePointIncrementWithEmpty.Create(100);
+  AList.Add(VItem);
+end;
+
+procedure TBenchmarkSystem.AddProjectionType(const AList: IInterfaceListSimple);
+var
+  VItem: IBenchmarkItem;
   VDatum: IDatum;
   VProjectionType: IProjectionType;
 begin
-  VList := TInterfaceListSimple.Create;
+  VDatum := TDatum.Create(0, 0, 6378137);
+  VProjectionType := TProjectionTypeMercatorOnSphere.Create(0, VDatum, 0);
 
-  VItem := TBenchmarkItemEmpty.Create;
-  VList.Add(VItem);
+  VItem := TBenchmarkItemProjectionTypeForvard.Create('MercatorOnSphere', VProjectionType);
+  AList.Add(VItem);
 
-  VItem := TBenchmarkItemIncSimple.Create;
-  VList.Add(VItem);
+  VItem := TBenchmarkItemProjectionTypeBackvard.Create('MercatorOnSphere', VProjectionType);
+  AList.Add(VItem);
 
-  VItem := TBenchmarkItemIncInterlocked.Create;
-  VList.Add(VItem);
+  VDatum := TDatum.Create(0, 0, 6378137, 6356752);
+  VProjectionType := TProjectionTypeMercatorOnEllipsoid.Create(0, VDatum, 0);
 
+  VItem := TBenchmarkItemProjectionTypeForvard.Create('MercatorOnEllipsoid', VProjectionType);
+  AList.Add(VItem);
+
+  VItem := TBenchmarkItemProjectionTypeBackvard.Create('MercatorOnEllipsoid', VProjectionType);
+  AList.Add(VItem);
+
+  VDatum := TDatum.Create(0, 0, 6378137, 6356752);
+  VProjectionType := TProjectionTypeGELonLat.Create(0, VDatum, 0);
+
+  VItem := TBenchmarkItemProjectionTypeForvard.Create('SimpleLonLat', VProjectionType);
+  AList.Add(VItem);
+  
+  VItem := TBenchmarkItemProjectionTypeBackvard.Create('SimpleLonLat', VProjectionType);
+  AList.Add(VItem);
+end;
+
+procedure TBenchmarkSystem.AddGr32(const AList: IInterfaceListSimple);
+var
+  VItem: IBenchmarkItem;
+begin
+  VItem := TBenchmarkItemBitmap32BlockTransferFull.Create(256, dmBlend, cmMerge, 255);
+  AList.Add(VItem);
+
+  VItem := TBenchmarkItemBitmap32BlockTransferFull.Create(256, dmBlend, cmMerge, 128);
+  AList.Add(VItem);
+
+  VItem := TBenchmarkItemBitmap32BlockTransferFull.Create(256, dmBlend, cmBlend, 255);
+  AList.Add(VItem);
+
+  VItem := TBenchmarkItemBitmap32BlockTransferFull.Create(256, dmBlend, cmBlend, 128);
+  AList.Add(VItem);
+
+  VItem := TBenchmarkItemBitmap32BlockTransferFull.Create(256, dmOpaque, cmMerge, 255);
+  AList.Add(VItem);
+
+  VItem := TBenchmarkItemBitmap32BlockTransferQuarter.Create(256, dmBlend, cmMerge, 255);
+  AList.Add(VItem);
+
+  VItem := TBenchmarkItemBitmap32FillRect.Create(256, True, False, cmMerge);
+  AList.Add(VItem);
+
+  VItem := TBenchmarkItemBitmap32FillRect.Create(256, False, True, cmMerge);
+  AList.Add(VItem);
+
+  VItem := TBenchmarkItemBitmap32FillRect.Create(256, True, True, cmMerge);
+  AList.Add(VItem);
+
+  VItem := TBenchmarkItemBitmap32LineVertical.Create(256, True, True, cmMerge);
+  AList.Add(VItem);
+
+  VItem := TBenchmarkItemBitmap32LineHorizontal.Create(256, True, True, cmMerge);
+  AList.Add(VItem);
+
+  VItem := TBenchmarkItemBitmap32Line.Create(256, True, True, True, cmMerge);
+  AList.Add(VItem);
+end;
+
+procedure TBenchmarkSystem.AddHash(const AList: IInterfaceListSimple);
+var
+  VHash: IHashFunctionImpl;
+  VItem: IBenchmarkItem;
+begin
+  VHash := THashFunctionCityHash.Create;
+  VItem := TBenchmarkItemHashFunction.Create('CityHash', 1, VHash);
+  AList.Add(VItem);
+
+  VItem := TBenchmarkItemHashFunction.Create('CityHash', 16, VHash);
+  AList.Add(VItem);
+
+  VItem := TBenchmarkItemHashFunction.Create('CityHash', 1024, VHash);
+  AList.Add(VItem);
+
+  VItem := TBenchmarkItemHashFunction.Create('CityHash', 65535, VHash);
+  AList.Add(VItem);
+
+  VItem := TBenchmarkItemHashFunction.Create('CityHash', 1024 * 1024, VHash);
+  AList.Add(VItem);
+
+  VHash := THashFunctionCRC64.Create;
+  VItem := TBenchmarkItemHashFunction.Create('CRC64', 16, VHash);
+  AList.Add(VItem);
+
+  VItem := TBenchmarkItemHashFunction.Create('CRC64', 65535, VHash);
+  AList.Add(VItem);
+
+  VItem := TBenchmarkItemHashFunction.Create('CRC64', 1024 * 1024, VHash);
+  AList.Add(VItem);
+end;
+
+procedure TBenchmarkSystem.AddTimer(const AList: IInterfaceListSimple);
+var
+  VTimer: ITimer;
+  VItem: IBenchmarkItem;
+begin
+  VTimer := MakeTimerByQueryPerformanceCounter;
+  VItem := TBenchmarkItemTimer.Create('QueryPerformanceCounter', VTimer);
+  AList.Add(VItem);
+
+  VTimer := MakeTimerByNtQueryPerformanceCounter;
+  VItem := TBenchmarkItemTimer.Create('NtQueryPerformanceCounter', VTimer);
+  AList.Add(VItem);
+
+  VTimer := MakeTimerByGetTickCount;
+  VItem := TBenchmarkItemTimer.Create('GetTickCount', VTimer);
+  AList.Add(VItem);
+end;
+
+procedure TBenchmarkSystem.AddSync(const AList: IInterfaceListSimple);
+var
+  VSync: IReadWriteSync;
+  VSyncFactory: IReadWriteSyncFactory;
+  VItem: IBenchmarkItem;
+begin
   VSync := nil;
   VSyncFactory := MakeSynchronizerRtlResourceFactory;
   if Assigned(VSyncFactory) then begin
@@ -150,10 +300,10 @@ begin
   end;
 
   VItem := TBenchmarkItemSyncRead.Create('RtlResource', VSync);
-  VList.Add(VItem);
+  AList.Add(VItem);
 
   VItem := TBenchmarkItemSyncWrite.Create('RtlResource', VSync);
-  VList.Add(VItem);
+  AList.Add(VItem);
 
   VSync := nil;
   VSyncFactory := MakeSynchronizerSRWFactory;
@@ -162,276 +312,52 @@ begin
   end;
 
   VItem := TBenchmarkItemSyncRead.Create('SRW', VSync);
-  VList.Add(VItem);
+  AList.Add(VItem);
 
   VItem := TBenchmarkItemSyncWrite.Create('SRW', VSync);
-  VList.Add(VItem);
+  AList.Add(VItem);
 
   VSyncFactory := TSynchronizerCSFactory.Create;
   VSync := VSyncFactory.Make('TestRead');
 
   VItem := TBenchmarkItemSyncRead.Create('CriticalSection', VSync);
-  VList.Add(VItem);
+  AList.Add(VItem);
 
   VItem := TBenchmarkItemSyncWrite.Create('CriticalSection', VSync);
-  VList.Add(VItem);
+  AList.Add(VItem);
 
   VSyncFactory := TSynchronizerCSSCFactory.Create(4096);
   VSync := VSyncFactory.Make('TestRead');
 
   VItem := TBenchmarkItemSyncRead.Create('CriticalSection with spin lcok', VSync);
-  VList.Add(VItem);
+  AList.Add(VItem);
 
   VItem := TBenchmarkItemSyncWrite.Create('CriticalSection with spin lcok', VSync);
-  VList.Add(VItem);
+  AList.Add(VItem);
 
   VSyncFactory := TSynchronizerMREWFactory.Create;
   VSync := VSyncFactory.Make('TestRead');
 
   VItem := TBenchmarkItemSyncRead.Create('MREW', VSync);
-  VList.Add(VItem);
+  AList.Add(VItem);
 
   VItem := TBenchmarkItemSyncWrite.Create('MREW', VSync);
-  VList.Add(VItem);
+  AList.Add(VItem);
+end;
 
-  VTimer := MakeTimerByQueryPerformanceCounter;
-  VItem := TBenchmarkItemTimer.Create('QueryPerformanceCounter', VTimer);
-  VList.Add(VItem);
+procedure TBenchmarkSystem.InitTestList;
+var
+  VList: IInterfaceListSimple;
+begin
+  VList := TInterfaceListSimple.Create;
 
-  VTimer := MakeTimerByNtQueryPerformanceCounter;
-  VItem := TBenchmarkItemTimer.Create('NtQueryPerformanceCounter', VTimer);
-  VList.Add(VItem);
-
-  VTimer := MakeTimerByGetTickCount;
-  VItem := TBenchmarkItemTimer.Create('GetTickCount', VTimer);
-  VList.Add(VItem);
-
-  VHash := THashFunctionCityHash.Create;
-  VItem := TBenchmarkItemHashFunction.Create('CityHash', 1, VHash);
-  VList.Add(VItem);
-
-  VItem := TBenchmarkItemHashFunction.Create('CityHash', 16, VHash);
-  VList.Add(VItem);
-
-  VItem := TBenchmarkItemHashFunction.Create('CityHash', 1024, VHash);
-  VList.Add(VItem);
-
-  VItem := TBenchmarkItemHashFunction.Create('CityHash', 65535, VHash);
-  VList.Add(VItem);
-
-  VItem := TBenchmarkItemHashFunction.Create('CityHash', 1024*1024, VHash);
-  VList.Add(VItem);
-
-  VHash := THashFunctionCRC64.Create;
-  VItem := TBenchmarkItemHashFunction.Create('CRC64', 16, VHash);
-  VList.Add(VItem);
-
-  VItem := TBenchmarkItemHashFunction.Create('CRC64', 65535, VHash);
-  VList.Add(VItem);
-
-  VItem := TBenchmarkItemHashFunction.Create('CRC64', 1024*1024, VHash);
-  VList.Add(VItem);
-
-  VItem :=
-    TBenchmarkItemBitmap32BlockTransferFull.Create(
-      256,
-      dmBlend,
-      cmMerge,
-      255
-    );
-  VList.Add(VItem);
-
-  VItem :=
-    TBenchmarkItemBitmap32BlockTransferFull.Create(
-      256,
-      dmBlend,
-      cmMerge,
-      128
-    );
-  VList.Add(VItem);
-
-  VItem :=
-    TBenchmarkItemBitmap32BlockTransferFull.Create(
-      256,
-      dmBlend,
-      cmBlend,
-      255
-    );
-  VList.Add(VItem);
-
-  VItem :=
-    TBenchmarkItemBitmap32BlockTransferFull.Create(
-      256,
-      dmBlend,
-      cmBlend,
-      128
-    );
-  VList.Add(VItem);
-
-  VItem :=
-    TBenchmarkItemBitmap32BlockTransferFull.Create(
-      256,
-      dmOpaque,
-      cmMerge,
-      255
-    );
-  VList.Add(VItem);
-
-  VItem :=
-    TBenchmarkItemBitmap32BlockTransferQuarter.Create(
-      256,
-      dmBlend,
-      cmMerge,
-      255
-    );
-  VList.Add(VItem);
-
-  VItem :=
-    TBenchmarkItemBitmap32FillRect.Create(
-      256,
-      True,
-      False,
-      cmMerge
-    );
-  VList.Add(VItem);
-
-  VItem :=
-    TBenchmarkItemBitmap32FillRect.Create(
-      256,
-      False,
-      True,
-      cmMerge
-    );
-  VList.Add(VItem);
-
-  VItem :=
-    TBenchmarkItemBitmap32FillRect.Create(
-      256,
-      True,
-      True,
-      cmMerge
-    );
-  VList.Add(VItem);
-
-  VItem :=
-    TBenchmarkItemBitmap32LineVertical.Create(
-      256,
-      True,
-      True,
-      cmMerge
-    );
-  VList.Add(VItem);
-
-  VItem :=
-    TBenchmarkItemBitmap32LineHorizontal.Create(
-      256,
-      True,
-      True,
-      cmMerge
-    );
-  VList.Add(VItem);
-
-  VItem :=
-    TBenchmarkItemBitmap32Line.Create(
-      256,
-      True,
-      True,
-      True,
-      cmMerge
-    );
-  VList.Add(VItem);
-
-  VDatum :=
-    TDatum.Create(
-      0,
-      0,
-      6378137
-    );
-  VProjectionType :=
-    TProjectionTypeMercatorOnSphere.Create(
-      0,
-      VDatum,
-      0
-    );
-  VItem :=
-    TBenchmarkItemProjectionTypeForvard.Create(
-      'MercatorOnSphere',
-      VProjectionType
-    );
-  VList.Add(VItem);
-  VItem :=
-    TBenchmarkItemProjectionTypeBackvard.Create(
-      'MercatorOnSphere',
-      VProjectionType
-    );
-  VList.Add(VItem);
-
-  VDatum :=
-    TDatum.Create(
-      0,
-      0,
-      6378137,
-      6356752
-    );
-  VProjectionType :=
-    TProjectionTypeMercatorOnEllipsoid.Create(
-      0,
-      VDatum,
-      0
-    );
-  VItem :=
-    TBenchmarkItemProjectionTypeForvard.Create(
-      'MercatorOnEllipsoid',
-      VProjectionType
-    );
-  VList.Add(VItem);
-  VItem :=
-    TBenchmarkItemProjectionTypeBackvard.Create(
-      'MercatorOnEllipsoid',
-      VProjectionType
-    );
-  VList.Add(VItem);
-
-  VDatum :=
-    TDatum.Create(
-      0,
-      0,
-      6378137,
-      6356752
-    );
-  VProjectionType :=
-    TProjectionTypeGELonLat.Create(
-      0,
-      VDatum,
-      0
-    );
-  VItem :=
-    TBenchmarkItemProjectionTypeForvard.Create(
-      'SimpleLonLat',
-      VProjectionType
-    );
-  VList.Add(VItem);
-  VItem :=
-    TBenchmarkItemProjectionTypeBackvard.Create(
-      'SimpleLonLat',
-      VProjectionType
-    );
-  VList.Add(VItem);
-
-  VItem := TBenchmarkItemDoubleInc.Create;
-  VList.Add(VItem);
-
-  VItem := TBenchmarkItemDoublePointIncrement.Create;
-  VList.Add(VItem);
-
-  VItem := TBenchmarkItemDoublePointIncrementInplace.Create;
-  VList.Add(VItem);
-
-  VItem := TBenchmarkItemDoublePointIncrementWithEmpty.Create(10);
-  VList.Add(VItem);
-
-  VItem := TBenchmarkItemDoublePointIncrementWithEmpty.Create(100);
-  VList.Add(VItem);
+  AddBasic(VList);
+  AddSync(VList);
+  AddTimer(VList);
+  AddHash(VList);
+  AddGr32(VList);
+  AddProjectionType(VList);
+  AddDoublePoint(VList);
 
   FBaseTestList := TBenchmarkItemList.Create(VList.MakeStaticAndClear);
 end;
