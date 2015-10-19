@@ -252,11 +252,11 @@ ResourceString
   SAS_STR_SensorBatteryStatusMenuItemName = 'Battery';
 
   SAS_STR_SensorGPSRecorderHDOPCaption = 'HDOP:';
-  SAS_STR_SensorGPSRecorderHDOPDescription = 'Shows HDOP';
+  SAS_STR_SensorGPSRecorderHDOPDescription = 'Shows horizontal dilution of precision';
   SAS_STR_SensorGPSRecorderHDOPMenuItemName = 'HDOP'; // Horizontal Dilution of Precision
 
   SAS_STR_SensorGPSRecorderVDOPCaption = 'VDOP:';
-  SAS_STR_SensorGPSRecorderVDOPDescription = 'Shows VDOP';
+  SAS_STR_SensorGPSRecorderVDOPDescription = 'Shows vertical dilution of precision';
   SAS_STR_SensorGPSRecorderVDOPMenuItemName = 'VDOP'; // Vertical Dilution of Precision
 
   SAS_STR_SensorGPSRecorderUTCTimeCaption = 'UTC time:';
@@ -276,8 +276,8 @@ ResourceString
   SAS_STR_SensorGPSRecorderLocalTimeMenuItemName = 'Local time'; // Local time
 
   SAS_STR_SensorGPSRecorderDGPSCaption = 'DGPS:';
-  SAS_STR_SensorGPSRecorderDGPSDescription = 'Shows DGPS';
-  SAS_STR_SensorGPSRecorderDGPSMenuItemName = 'DGPS'; // DGPS
+  SAS_STR_SensorGPSRecorderDGPSDescription = 'Shows differential GPS';
+  SAS_STR_SensorGPSRecorderDGPSMenuItemName = 'DGPS'; // Differential GPS
 
   SAS_STR_SensorGPSRecorderGPSUnitInfoCaption = 'Unit info:';
   SAS_STR_SensorGPSRecorderGPSUnitInfoDescription = 'Shows GPS Unit info';
