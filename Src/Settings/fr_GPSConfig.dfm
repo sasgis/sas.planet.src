@@ -159,7 +159,7 @@ object frGPSConfig: TfrGPSConfig
           Height = 17
           Hint = 'Autodetect COM port on connect'
           Align = alTop
-          Caption = 'Autodetect on conntect'
+          Caption = 'Autodetect on connect'
           TabOrder = 2
         end
         object grpAutoDetect: TGroupBox

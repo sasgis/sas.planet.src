@@ -75,7 +75,7 @@ object frMapCombine: TfrMapCombine
         Width = 209
         Height = 17
         Align = alTop
-        Caption = 'Add visible placemarks'
+        Caption = 'Add visible Placemarks'
         TabOrder = 0
       end
       object chkUseRecolor: TCheckBox
@@ -148,7 +148,7 @@ object frMapCombine: TfrMapCombine
         Width = 209
         Height = 17
         Align = alTop
-        Caption = 'Add visible grids'
+        Caption = 'Add visible Grids'
         TabOrder = 5
       end
       object chkAddVisibleLayers: TCheckBox
@@ -157,7 +157,7 @@ object frMapCombine: TfrMapCombine
         Width = 209
         Height = 17
         Align = alTop
-        Caption = 'Add visible layers'
+        Caption = 'Add visible Layers'
         TabOrder = 6
         OnClick = chkAddVisibleLayersClick
       end
@@ -167,7 +167,7 @@ object frMapCombine: TfrMapCombine
         Width = 209
         Height = 17
         Align = alTop
-        Caption = 'Add visible filling map'
+        Caption = 'Add visible Cached Tiles Map'
         TabOrder = 7
       end
     end

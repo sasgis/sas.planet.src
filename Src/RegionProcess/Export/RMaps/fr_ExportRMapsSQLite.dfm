@@ -37,7 +37,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
         Margins.Right = 0
         Align = alTop
         AutoSize = False
-        Caption = 'Map'
+        Caption = 'Map:'
       end
       object lblOverlay: TLabel
         Left = 3
