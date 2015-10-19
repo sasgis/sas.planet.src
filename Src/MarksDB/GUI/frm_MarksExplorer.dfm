@@ -425,20 +425,6 @@ object frmMarksExplorer: TfrmMarksExplorer
       Hint = ''
     end
   end
-  object OpenDialog1: TOpenDialog
-    DefaultExt = '*.kml'
-    Filter = 
-      'All compatible formats (*.kml,*.plt,*.kmz,*.sls,*.hlg,*.gpx,*.cs' +
-      'v,*.jpg)|*.kml;*.plt;*.kmz;*.sls;*.hlg;*.gpx;*.csv;*.jpg|Google ' +
-      'KML files (*.kml)|*.kml|OziExplorer Track Point File Version 2.1' +
-      ' (*.plt)|*.plt|Google KMZ files (*.kmz)|*.kmz|Download session (' +
-      '*.sls)|*.sls|Selection (*.hlg)|*.hlg|GPS Exchange files (*.gpx)|' +
-      '*.gpx|Universal CSV files (*.csv)|*.csv|JPEG Image whtg GPS Exif' +
-      ' (*.jpg)|*.jpg'
-    Options = [ofAllowMultiSelect, ofEnableSizing]
-    Left = 352
-    Top = 144
-  end
   object imlStates: TImageList
     Height = 13
     Width = 13

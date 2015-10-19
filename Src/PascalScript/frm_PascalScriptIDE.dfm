@@ -38,7 +38,6 @@ object frmPascalScriptIDE: TfrmPascalScriptIDE
     Stretch = True
     TabOrder = 0
     UseThemeColor = False
-    Caption = 'tbtlbrMain'
     object tbxsbmntmOpen: TTBXSubmenuItem
       DisplayMode = nbdmImageAndText
       ImageIndex = 34
@@ -189,7 +188,6 @@ object frmPascalScriptIDE: TfrmPascalScriptIDE
     Style = tsFlatButtons
     TabOrder = 1
     object tsParams: TTabSheet
-      Caption = 'tsParams'
       object splInOut: TSplitter
         Left = 545
         Top = 0
@@ -205,7 +203,6 @@ object frmPascalScriptIDE: TfrmPascalScriptIDE
         Height = 458
         Align = alClient
         BevelOuter = bvNone
-        Caption = 'pnlParamsTxt'
         TabOrder = 0
       end
       object pnlInput: TPanel
@@ -293,7 +290,6 @@ object frmPascalScriptIDE: TfrmPascalScriptIDE
       end
     end
     object tsScript: TTabSheet
-      Caption = 'tsScript'
       ImageIndex = 1
       object splEditLog: TSplitter
         Left = 0
@@ -312,7 +308,6 @@ object frmPascalScriptIDE: TfrmPascalScriptIDE
         Height = 379
         Align = alClient
         BevelOuter = bvNone
-        Caption = 'pnlScriptEditor'
         TabOrder = 0
       end
       object pnlLog: TPanel
@@ -322,7 +317,6 @@ object frmPascalScriptIDE: TfrmPascalScriptIDE
         Height = 76
         Align = alBottom
         BevelOuter = bvNone
-        Caption = 'pnlLog'
         TabOrder = 1
         object lstLog: TListBox
           Left = 0

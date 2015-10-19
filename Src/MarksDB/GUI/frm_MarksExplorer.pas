@@ -70,7 +70,6 @@ type
     grpMarks: TGroupBox;
     grpCategory: TGroupBox;
     CheckBox1: TCheckBox;
-    OpenDialog1: TOpenDialog;
     CategoryTreeView: TTreeView;
     imlStates: TImageList;
     pnlButtons: TPanel;

@@ -635,7 +635,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
           Width = 259
           Height = 130
           Align = alClient
-          Caption = ' Kosmosnimki '
+          Caption = 'Kosmosnimki'
           TabOrder = 1
           object pnlKosmosnimki1: TPanel
             AlignWithMargins = True
