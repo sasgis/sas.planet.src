@@ -37,7 +37,7 @@ object frExportOruxMapsSQLite: TfrExportOruxMapsSQLite
         Margins.Right = 0
         Align = alTop
         AutoSize = False
-        Caption = 'Map'
+        Caption = 'Map:'
       end
       object lblOverlay: TLabel
         Left = 3
@@ -45,8 +45,8 @@ object frExportOruxMapsSQLite: TfrExportOruxMapsSQLite
         Width = 461
         Height = 13
         Align = alTop
-        Caption = 'Overlay layer'
-        ExplicitWidth = 65
+        Caption = 'Overlay layer:'
+        ExplicitWidth = 69
       end
       object pnlMap: TPanel
         Left = 3

@@ -68,8 +68,8 @@ object frExportToFileCont: TfrExportToFileCont
           Margins.Top = 0
           Margins.Right = 0
           Align = alTop
-          Caption = 'Map'
-          ExplicitWidth = 20
+          Caption = 'Map/Overlay layer:'
+          ExplicitWidth = 93
         end
       end
       object pnlCacheTypes: TPanel

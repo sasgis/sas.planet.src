@@ -168,7 +168,7 @@ object frTilesDownload: TfrTilesDownload
         Width = 367
         Height = 13
         Align = alTop
-        Caption = 'Map:'
+        Caption = 'Map/Overlay layer:'
       end
     end
   end

@@ -47,7 +47,8 @@ object frExportGEKml: TfrExportGEKml
         Margins.Right = 0
         Align = alTop
         AutoSize = False
-        Caption = 'Map'
+        Caption = 'Map/Overlay layer:'
+        ExplicitWidth = 319
       end
       object chkNotSaveNotExists: TCheckBox
         Left = 3

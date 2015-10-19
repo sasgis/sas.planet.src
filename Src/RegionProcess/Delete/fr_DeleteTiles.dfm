@@ -69,7 +69,8 @@ object frDeleteTiles: TfrDeleteTiles
         Width = 421
         Height = 13
         Align = alTop
-        Caption = 'Map:'
+        Caption = 'Map/Overlay layer:'
+        ExplicitWidth = 93
       end
     end
   end

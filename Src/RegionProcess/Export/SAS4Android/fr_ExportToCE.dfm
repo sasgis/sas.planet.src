@@ -45,13 +45,13 @@ object frExportToCE: TfrExportToCE
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 20
+        Width = 93
         Height = 13
         Margins.Left = 0
         Margins.Top = 0
         Margins.Right = 0
         Align = alCustom
-        Caption = 'Map'
+        Caption = 'Map/Overlay layer:'
       end
       object lVolSize: TLabel
         Left = 271

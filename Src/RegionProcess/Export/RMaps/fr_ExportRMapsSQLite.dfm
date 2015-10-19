@@ -45,7 +45,8 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
         Width = 461
         Height = 13
         Align = alTop
-        Caption = 'Overlay layer'
+        Caption = 'Overlay layer:'
+        ExplicitWidth = 69
       end
       object chkReplaceExistingTiles: TCheckBox
         Left = 3

@@ -189,7 +189,7 @@ object frTilesCopy: TfrTilesCopy
             Margins.Right = 0
             Align = alTop
             AutoSize = False
-            Caption = 'Map'
+            Caption = 'Map:'
           end
           object pnlOverlay: TPanel
             Left = 0
