@@ -309,6 +309,7 @@ var
   VConnectionStr: RawUTF8;
   VTable: TSQLRecordClass;
   VTableName: RawUTF8;
+  VStorage: TSQLRestStorageExternal;
 begin
   FModel := CreateModelDBMS;
   VText := FImplConfig.FileName;
@@ -363,6 +364,8 @@ begin
     Assert(False);
   end;
 
+  FDBMSProps.UseCache := False;
+
   for I := 0 to High(FModel.Tables) do begin
     VTable := FModel.Tables[I];
     if VTable.InheritsFrom(TSQLMark) then begin
@@ -392,9 +395,16 @@ begin
     FClientDB.Server.AcquireExecutionMode[execORMWrite] := amBackgroundThread;
     FClientDB.Server.AcquireExecutionMode[execORMGet] := amBackgroundThread;
   end;
-  //FClientDB.Server.AcquireExecutionMode[execORMGet] := amBackgroundThread;
 
   FClientDB.Server.CreateMissingTables;
+
+  for I := 0 to High(FModel.Tables) do begin
+    VTable := FModel.Tables[I];
+    VStorage := TSQLRestStorageExternal.Instance(VTable, FClientDB.Server);
+    if Assigned(VStorage) then begin
+      VStorage.EngineAddUseSelectMaxID := True;
+    end;
+  end;
 end;
 {$ENDIF}
 
