@@ -34,6 +34,8 @@ uses
 type
   TTileIteratorByPolygon = class(TBaseInterfacedObject, ITileIterator)
   private
+    FProjection: IProjection;
+    FPolygon: IGeometryProjectedPolygon;
     FCurrent: TPoint;
     FTilesRect: TRect;
     FRect: ITileRect;
@@ -43,7 +45,6 @@ type
     FMultiProjected: IGeometryProjectedMultiPolygon;
     // кэш куска
     FLastUsedLine: IGeometryProjectedSinglePolygon;
-    FProjection: IProjection;
   private
     function GetTilesTotal: Int64;
     function GetTilesRect: ITileRect;
@@ -64,6 +65,7 @@ uses
   SysUtils,
   Math,
   u_TileRect,
+  u_GeometryFunc,
   u_GeoFunc;
 
 { TTileIteratorByPolygon }
@@ -74,7 +76,6 @@ constructor TTileIteratorByPolygon.Create(
 );
 var
   VBounds: TDoubleRect;
-  VTile: TPoint;
 begin
   inherited Create;
   FProjection := AProjection;
@@ -112,12 +113,9 @@ begin
         rrOutside
       );
     FRect := TTileRect.Create(AProjection, FTilesRect);
+    FPolygon := AProjected;
     Reset;
-    FTilesTotal := 0;
-    while Next(VTile) do begin
-      Inc(FTilesTotal);
-    end;
-    Reset;
+    FTilesTotal := -1;
   end;
 end;
 
@@ -128,6 +126,9 @@ end;
 
 function TTileIteratorByPolygon.GetTilesTotal: Int64;
 begin
+  if FTilesTotal < 0 then begin
+    FTilesTotal := CalcTileCountInProjectedPolygon(FProjection, FPolygon);
+  end;
   Result := FTilesTotal;
 end;
 
