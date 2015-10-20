@@ -38,6 +38,7 @@ uses
   i_GeometryLonLat,
   i_ProjectionSetChangeable,
   i_LocalCoordConverterChangeable,
+  i_StringListStatic,
   i_VectorDataFactory,
   i_VectorDataItemSimple,
   i_VectorItemSubsetBuilder,
@@ -92,7 +93,7 @@ type
 
     procedure PrepareImportDialog(const AImporterList: IVectorItemTreeImporterListStatic);
     function ImportFilesModalInternal(
-      AFiles: TStrings;
+      const AFiles: IStringListStatic;
       const AImporterList: IVectorItemTreeImporterListStatic
     ): IInterfaceListStatic;
   public
@@ -151,8 +152,9 @@ type
       AIgnoreMarksVisible: Boolean
     );
     function ImportFilesModal(
-      AFiles: TStrings
+      const AFiles: IStringListStatic
     ): IInterfaceListStatic;
+    function ImportFileDialog(ParentWnd: HWND): IStringListStatic;
     function ImportModal(ParentWnd: HWND): IInterfaceListStatic;
 
     procedure AddMarkIdListToMergePolygons(
@@ -207,6 +209,7 @@ uses
   i_VectorItemTreeImporter,
   u_ResStrings,
   u_EnumDoublePointLine2Poly,
+  u_StringListStatic,
   u_VectorItemTree,
   u_NotifierOperation,
   u_FileSystemFunc,
@@ -633,7 +636,7 @@ begin
 end;
 
 function TMarkDbGUIHelper.ImportFilesModalInternal(
-  AFiles: TStrings;
+  const AFiles: IStringListStatic;
   const AImporterList: IVectorItemTreeImporterListStatic
 ): IInterfaceListStatic;
 
@@ -700,7 +703,7 @@ begin
   if Assigned(AFiles) and (AFiles.Count > 0) then begin
     VNotifier := TNotifierOperationFake.Create;
     for I := 0 to AFiles.Count - 1 do begin
-      VFileName := AFiles[I];
+      VFileName := AFiles.Items[I];
       if FileExists(VFileName) then begin
         J := _RecIndexByFileExt(ExtractFileExt(VFileName), VRecArr);
         if J < 0 then begin
@@ -762,17 +765,34 @@ end;
 function TMarkDbGUIHelper.ImportModal(ParentWnd: HWND): IInterfaceListStatic;
 var
   VList: IVectorItemTreeImporterListStatic;
+  VFiles: IStringListStatic;
+begin
+  Result := nil;
+  VFiles := ImportFileDialog(ParentWnd);
+  if Assigned(VFiles) then begin
+    VList := FImporterList.GetStatic;
+    Result := ImportFilesModalInternal(VFiles, VList);
+  end;
+end;
+
+function TMarkDbGUIHelper.ImportFileDialog(ParentWnd: HWND): IStringListStatic;
+var
+  VList: IVectorItemTreeImporterListStatic;
+  VStrings: TStrings;
 begin
   Result := nil;
   VList := FImporterList.GetStatic;
   PrepareImportDialog(VList);
   if (FImportDialog.Execute(ParentWnd)) then begin
-    Result := ImportFilesModalInternal(FImportDialog.Files, VList);
+    VStrings := FImportDialog.Files;
+    if Assigned(VStrings) and (VStrings.Count > 0) then begin
+      Result := TStringListStatic.CreateByStrings(VStrings);
+    end;
   end;
 end;
 
 function TMarkDbGUIHelper.ImportFilesModal(
-  AFiles: TStrings
+  const AFiles: IStringListStatic
 ): IInterfaceListStatic;
 var
   VList: IVectorItemTreeImporterListStatic;

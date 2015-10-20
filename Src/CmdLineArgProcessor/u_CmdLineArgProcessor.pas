@@ -85,7 +85,9 @@ uses
   StrUtils,
   ArgumentParser,
   t_GeoTypes,
+  i_StringListStatic,
   i_MapType,
+  u_StringListStatic,
   u_CmdLineArgProcessorAPI,
   u_CmdLineArgProcessorHelpers;
 
@@ -166,7 +168,10 @@ var
   VZoom: Byte;
   VLonLat: TDoublePoint;
   VMap: IMapType;
+  i: Integer;
   VStrValue: string;
+  VFilesList: TStringList;
+  VFiles: IStringListStatic;
   VParser: TArgumentParser;
   VParseResult: TParseResult;
   VProjectionSet: IProjectionSet;
@@ -248,8 +253,17 @@ begin
 
       // unnamed arguments -> files: sls/hlg/kml/gpx/sml etc.
       if VParseResult.Args.Count > 0 then begin
+        VFilesList := TStringList.Create;
+        try
+          for i := 0 to VParseResult.Args.Count - 1 do begin
+            VFilesList.Add(GetUnquotedStr(VParseResult.Args[i]));
+          end;
+          VFiles := TStringListStatic.CreateWithOwn(VFilesList);
+        finally
+          FreeAndNil(VFilesList);
+        end;
         ProcessOpenFiles(
-          VParseResult.Args,
+          VFiles,
           FMapGoTo,
           ARegionProcess,
           False, // import in silent mode

@@ -91,6 +91,7 @@ uses
   i_MouseHandler,
   i_Timer,
   i_TreeChangeable,
+  i_StringListStatic,
   i_MapViewGoto,
   i_StaticTreeItem,
   i_MenuGeneratorByTree,
@@ -249,7 +250,6 @@ type
     tbsprtGPS2: TTBXSeparatorItem;
     tbitmPositionByGSM: TTBXItem;
     tbitmOpenFile: TTBXItem;
-    OpenSessionDialog: TOpenDialog;
     NShowSelection: TTBXItem;
     TBRECT: TTBXItem;
     TBREGION: TTBXItem;
@@ -879,7 +879,7 @@ type
       const ALocalPoint: TPoint
     ): IVectorItemSubset;
 
-    procedure ProcessOpenFiles(AFiles: TStrings);
+    procedure ProcessOpenFiles(const AFiles: IStringListStatic);
     procedure MakeRosreestrPolygon(const APoint: TPoint);
 
     procedure OnInternalErrorNotify(const AMsg: IInterface);
@@ -992,6 +992,7 @@ uses
   u_FindVectorItemsForVectorTileMatrix,
   u_MapLayerGotoMarker,
   u_WindowLayerCenterScale,
+  u_StringListStatic,
   u_ResStrings,
   u_SensorViewListGeneratorStuped,
   u_MainWindowPositionConfig,
@@ -4597,6 +4598,7 @@ var
   VImportConfig: IImportConfig;
   VLastMark: IVectorDataItem;
   VFiles: TStringList;
+  VList: IStringListStatic;
 begin
   inherited;
   Msg.Result := 0;
@@ -4613,7 +4615,8 @@ begin
         DragQueryFile(VDropH, I, PChar(VFileName), VFileNameLength + 1);
         VFiles.Add(VFileName);
       end;
-      ProcessOpenFiles(VFiles);
+      VList := TStringListStatic.CreateWithOwn(VFiles);
+      ProcessOpenFiles(VList);
     finally
       FreeAndNil(VFiles);
     end;
@@ -7218,7 +7221,7 @@ begin
   );
 end;
 
-procedure TfrmMain.ProcessOpenFiles(AFiles: TStrings);
+procedure TfrmMain.ProcessOpenFiles(const AFiles: IStringListStatic);
 begin
   if Assigned(AFiles) and (AFiles.Count > 0) then begin
     u_CmdLineArgProcessorHelpers.ProcessOpenFiles(
@@ -7232,17 +7235,23 @@ begin
 end;
 
 procedure TfrmMain.tbitmOpenFileClick(Sender: TObject);
+var
+  VList: IStringListStatic;
 begin
-  if OpenSessionDialog.Execute then begin
-    ProcessOpenFiles(OpenSessionDialog.Files);
+  VList := FMarkDBGUI.ImportFileDialog(Self.Handle);
+  if Assigned(VList) then begin
+    ProcessOpenFiles(VList);
   end;
 end;
 
 procedure TfrmMain.TBLoadSelFromFileClick(Sender: TObject);
+var
+  VList: IStringListStatic;
 begin
   if (OpenDialog1.Execute) then begin
     FState.State := ao_movemap;
-    ProcessOpenFiles(OpenDialog1.Files);
+    VList := TStringListStatic.CreateByStrings(OpenDialog1.Files);
+    ProcessOpenFiles(VList);
   end;
 end;
 

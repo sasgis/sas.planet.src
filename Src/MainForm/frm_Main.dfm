@@ -1811,19 +1811,6 @@ object frmMain: TfrmMain
     Left = 778
     Top = 297
   end
-  object OpenSessionDialog: TOpenDialog
-    DefaultExt = '*.sls'
-    Filter = 
-      'All compatible formats (*.kml,*.plt,*.kmz,*.sls,*.hlg,*.gpx,*.jp' +
-      'g)|*.kml;*.plt;*.kmz;*.sls;*.hlg;*.gpx;*.jpg|Google KML files (*' +
-      '.kml)|*.kml|OziExplorer Track Point File Version 2.1 (*.plt)|*.p' +
-      'lt|Google KMZ files (*.kmz)|*.kmz|Download session (*.sls)|*.sls' +
-      '|Selection (*.hlg)|*.hlg|GPS Exchange files (*.gpx)|*.gpx|JPEG I' +
-      'mage with Exif (*.jpg)|*.jpg'
-    Options = [ofAllowMultiSelect, ofEnableSizing]
-    Left = 208
-    Top = 208
-  end
   object PanelsImageList: TTBXImageList
     Height = 24
     Width = 24

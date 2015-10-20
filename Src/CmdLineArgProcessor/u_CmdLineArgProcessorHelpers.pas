@@ -30,6 +30,7 @@ uses
   i_ProjectionType,
   i_ProjectionSet,
   i_RegionProcess,
+  i_StringListStatic,
   i_GeometryLonLatFactory,
   i_AppearanceOfMarkFactory,
   i_VectorItemTreeImporterList,
@@ -62,7 +63,7 @@ procedure ProcessImportPlacemark(
 );
 
 procedure ProcessOpenFiles(
-  const AFiles: TStrings;
+  const AFiles: IStringListStatic;
   const AMapGoto: IMapViewGoto;
   const ARegionProcess: IRegionProcessFromFile;
   const AShowImportDlg: Boolean = False;
@@ -73,6 +74,7 @@ procedure ProcessOpenFiles(
 );
 
 function GetArgsAsList(const AArgs: string): TStringList;
+function GetUnquotedStr(const AText: string): string;
 
 implementation
 
@@ -367,7 +369,7 @@ begin
 end;
 
 function ImportFiles(
-  const AFiles: TStrings;
+  const AFiles: IStringListStatic;
   const AImporterList: IVectorItemTreeImporterListStatic;
   const AMarkSystem: IMarkSystem;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory
@@ -427,7 +429,7 @@ begin
   SetLength(VRecArr, 0);
   VNotifier := TNotifierOperationFake.Create;
   for I := 0 to AFiles.Count - 1 do begin
-    VFileName := GetUnquotedStr(AFiles[I]);
+    VFileName := AFiles.Items[I];
     if FileExists(VFileName) then begin
       J := _RecIndexByFileExt(ExtractFileExt(VFileName), VRecArr);
       if J < 0 then begin
@@ -454,7 +456,7 @@ begin
 end;
 
 procedure ProcessOpenFiles(
-  const AFiles: TStrings;
+  const AFiles: IStringListStatic;
   const AMapGoto: IMapViewGoto;
   const ARegionProcess: IRegionProcessFromFile;
   const AShowImportDlg: Boolean = False;
@@ -471,7 +473,7 @@ var
 begin
   if Assigned(AFiles) and (AFiles.Count > 0) then begin
     if AFiles.Count = 1 then begin
-      VFileName := GetUnquotedStr(AFiles[0]);
+      VFileName := AFiles.Items[0];
       if LowerCase(ExtractFileExt(VFileName)) = '.sls' then begin
         ARegionProcess.StartSlsFromFile(VFileName);
         Exit;
