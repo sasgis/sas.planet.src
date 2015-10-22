@@ -31,7 +31,7 @@ interface
 /// <param name="AMatchID">Номер совпадения рег. выражения (0,1,2 и т.д.)</param>
 /// <returns>Искомая строка или пустая строка, если совпадений не найдено</returns>
 {$endregion}
-function RegExprGetMatchSubStr(const AStr, AMatchExpr: string; AMatchID: Integer): string;
+function RegExprGetMatchSubStr(const AStr, AMatchExpr: AnsiString; AMatchID: Integer): AnsiString;
 
 {$region 'xmldoc'}
 /// <summary>
@@ -42,7 +42,7 @@ function RegExprGetMatchSubStr(const AStr, AMatchExpr: string; AMatchID: Integer
 /// <param name="AReplace">Строка замены</param>
 /// <returns>Исходная строка (если совпадений не найдено) или изменённая строка</returns>
 {$endregion}
-function RegExprReplaceMatchSubStr(const AStr, AMatchExpr, AReplace: string): string;
+function RegExprReplaceMatchSubStr(const AStr, AMatchExpr, AReplace: AnsiString): AnsiString;
 
 implementation
 
@@ -50,7 +50,7 @@ uses
   SysUtils,
   RegExpr;
 
-function RegExprGetMatchSubStr(const AStr, AMatchExpr: string; AMatchID: Integer): string;
+function RegExprGetMatchSubStr(const AStr, AMatchExpr: AnsiString; AMatchID: Integer): AnsiString;
 var
   VRegExpr: TRegExpr;
 begin
@@ -71,7 +71,7 @@ begin
   end;
 end;
 
-function RegExprReplaceMatchSubStr(const AStr, AMatchExpr, AReplace: string): string;
+function RegExprReplaceMatchSubStr(const AStr, AMatchExpr, AReplace: AnsiString): AnsiString;
 var
   VRegExpr: TRegExpr;
 begin
