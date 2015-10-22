@@ -68,6 +68,7 @@
     <DCCReference Include="u_MarkCategoryListToTree_Test.pas" />
     <DCCReference Include="u_PathConfig_Test.pas" />
     <DCCReference Include="u_ProjectedSingleLine_Test.pas" />
+    <DCCReference Include="u_RegularExpressions_Test.pas" />
     <DCCReference Include="u_SASTestCase.pas" />
     <DCCReference Include="u_VectorItmesFactorySimple_Test.pas" />
     <DCCReference Include="u_WideStrings_Test.pas" />

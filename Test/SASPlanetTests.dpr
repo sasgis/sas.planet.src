@@ -15,6 +15,7 @@ uses
   u_GUIDSet_Test in 'u_GUIDSet_Test.pas',
   i_IGUIDObjectSet_Test in 'i_IGUIDObjectSet_Test.pas',
   u_GUIDSetStatic_Test in 'u_GUIDSetStatic_Test.pas',
+  u_RegularExpressions_Test in 'u_RegularExpressions_Test.pas',
   u_SASTestCase in 'u_SASTestCase.pas',
   u_ProjectedSingleLine_Test in 'u_ProjectedSingleLine_Test.pas',
   u_VectorItmesFactorySimple_Test in 'u_VectorItmesFactorySimple_Test.pas',
