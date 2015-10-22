@@ -193,6 +193,7 @@ implementation
 
 uses
   IniFiles,
+  ALString,
   RegExprUtils,
   gnugettext,
   i_ConfigDataProvider,
@@ -737,11 +738,11 @@ end;
 
 function TfrExportToJNX.GetProductID: Integer;
 var
-  VMatchSubStr: string;
+  VMatchSubStr: AnsiString;
 begin
   try
     VMatchSubStr := RegExprGetMatchSubStr(EProductID.Text, '[0-9]+', 0);
-    Result := StrToIntDef(VMatchSubStr, 0);
+    Result := ALStrToIntDef(VMatchSubStr, 0);
   except
     Result := 0;
   end;
