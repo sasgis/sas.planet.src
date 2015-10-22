@@ -66,6 +66,18 @@ const
 '    <small>'#13#10 +
 '        Minsk, Belarus <span class="small">(city)</span>'#13#10 +
 '    </small>'#13#10 +
+'</li>'#13#10 +
+'<li class="search-result-item"'#13#10 +
+'    data-zoom="11"'#13#10 +
+'    data-latitude="53.99"'#13#10 +
+'    data-longitude="27.59">'#13#10 +
+'    <div>'#13#10 +
+'        <span style="color: #9BBDDE;">&bull;</span> <strong>Kiev (Минск, Мінск)</strong>'#13#10 +
+'        <span class="label label-info">6508&nbsp;km</span>'#13#10 +
+'    </div>'#13#10 +
+'    <small>'#13#10 +
+'        Kiev, Ukraine <span class="small">(city)</span>'#13#10 +
+'    </small>'#13#10 +
 '</li>';
 begin
   FRegExpr.Expression := cSearchResultItemRegEx;
@@ -77,6 +89,12 @@ begin
   CheckEquals('27.55', FRegExpr.Match[2]);
   CheckEquals('Minsk (Минск, Мінск)', FRegExpr.Match[3]);
   CheckEquals(#13#10'        Minsk, Belarus ', FRegExpr.Match[4]);
+  CheckTrue(FRegExpr.ExecNext);
+  CheckEquals('53.99', FRegExpr.Match[1]);
+  CheckEquals('27.59', FRegExpr.Match[2]);
+  CheckEquals('Kiev (Минск, Мінск)', FRegExpr.Match[3]);
+  CheckEquals(#13#10'        Kiev, Ukraine ', FRegExpr.Match[4]);
+  CheckFalse(FRegExpr.ExecNext);
 end;
 
 procedure TestRegularExpressions.TestRegExprReplaceMatchSubStrSimple;
