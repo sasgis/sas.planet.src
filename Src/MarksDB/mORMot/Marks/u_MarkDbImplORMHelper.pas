@@ -514,9 +514,9 @@ begin
 
     VSQLMark := FSQLMarkClass.Create;
     try
-      VSQLMark.FCategory := Pointer(AMarkRec.FCategoryId);
-      VSQLMark.FImage := Pointer(AMarkRec.FPicId);
-      VSQLMark.FAppearance := Pointer(AMarkRec.FAppearanceId);
+      VSQLMark.FCategory := AMarkRec.FCategoryId;
+      VSQLMark.FImage := AMarkRec.FPicId;
+      VSQLMark.FAppearance := AMarkRec.FAppearanceId;
 
       VSQLMark.FName := StringToUTF8(AMarkRec.FName);
       VSQLMark.FDesc := StringToUTF8(AMarkRec.FDesc);
@@ -582,9 +582,9 @@ begin
     if not AMarkRec.FVisible then begin
       VSQLMarkView := TSQLMarkView.Create;
       try
-        VSQLMarkView.FUser := Pointer(FUserID);
-        VSQLMarkView.FMark := Pointer(AMarkRec.FMarkId);
-        VSQLMarkView.FCategory := Pointer(AMarkRec.FCategoryId);
+        VSQLMarkView.FUser := FUserID;
+        VSQLMarkView.FMark := AMarkRec.FMarkId;
+        VSQLMarkView.FCategory := AMarkRec.FCategoryId;
         VSQLMarkView.FVisible := AMarkRec.FVisible;
         // add view to db
         CheckID( FClient.Add(VSQLMarkView, True) );
@@ -684,15 +684,15 @@ begin
 
       if VUpdateCategory then begin
         VFieldsBuilder.Add('mCategory');
-        VSQLMark.FCategory := Pointer(ANewMarkRec.FCategoryId);
+        VSQLMark.FCategory := ANewMarkRec.FCategoryId;
       end;
       if VUpdatePic then begin
         VFieldsBuilder.Add('mImage');
-        VSQLMark.FImage := Pointer(ANewMarkRec.FPicId);
+        VSQLMark.FImage := ANewMarkRec.FPicId;
       end;
       if VUpdateAppearance then begin
         VFieldsBuilder.Add('mAppearance');
-        VSQLMark.FAppearance := Pointer(ANewMarkRec.FAppearanceId);
+        VSQLMark.FAppearance := ANewMarkRec.FAppearanceId;
       end;
       if VUpdateName then begin
         VFieldsBuilder.Add('mName');
@@ -891,10 +891,10 @@ begin
         // fill id's from db
         VMarkID := VSQLMark.ID;
         AMarkRec.FMarkId := VMarkID;
-        AMarkRec.FCategoryId := TID(VSQLMark.FCategory.AsTSQLRecord);
+        AMarkRec.FCategoryId := VSQLMark.FCategory;
         CheckID(AMarkRec.FCategoryId);
-        AMarkRec.FPicId := TID(VSQLMark.FImage.AsTSQLRecord); // = 0 is OK
-        AMarkRec.FAppearanceId := TID(VSQLMark.FAppearance.AsTSQLRecord);
+        AMarkRec.FPicId := VSQLMark.FImage; // = 0 is OK
+        AMarkRec.FAppearanceId := VSQLMark.FAppearance;
         CheckID(AMarkRec.FAppearanceId);
         // fill main params from db
         AMarkRec.FName := UTF8ToString(VSQLMark.FName);
@@ -990,9 +990,9 @@ begin
       VFind := FCache.FMarkViewCache.Find(AMarkID, VItem);
       if VFind then begin
         VSQLMarkView.IDValue := VItem.ViewId;
-        VSQLMarkView.FUser := Pointer(FUserID);
-        VSQLMarkView.FMark := Pointer(VItem.MarkId);
-        VSQLMarkView.FCategory := Pointer(VItem.CategoryID);
+        VSQLMarkView.FUser := FUserID;
+        VSQLMarkView.FMark := VItem.MarkId;
+        VSQLMarkView.FCategory := VItem.CategoryID;
         VSQLMarkView.FVisible := VItem.Visible;
         VUpdateCache := (VItem.CategoryID <> ACategoryID) or (VItem.Visible <> AVisible);
       end else if not (FCache.FMarkViewCache.IsPrepared or FCache.FMarkViewCache.IsCategoryPrepared(ACategoryID)) then begin
@@ -1006,11 +1006,11 @@ begin
             VFieldsBuilder.Add('mvVisible');
             VSQLMarkView.FVisible := AVisible;
           end;
-          VCategory := TID(VSQLMarkView.FCategory.AsTSQLRecord);
+          VCategory := VSQLMarkView.FCategory;
           CheckID(VCategory);
           if (ACategoryID > 0) and (VCategory <> ACategoryID) then begin
             VFieldsBuilder.Add('mvCategory');
-            VSQLMarkView.FCategory := Pointer(ACategoryID);
+            VSQLMarkView.FCategory := ACategoryID;
           end;
           if VFieldsBuilder.Count > 0 then begin
             // update db
@@ -1018,9 +1018,9 @@ begin
             CheckUpdateResult(Result);
           end;
         end else if not AVisible then begin
-          VSQLMarkView.FUser := Pointer(FUserID);
-          VSQLMarkView.FMark := Pointer(AMarkID);
-          VSQLMarkView.FCategory := Pointer(ACategoryID);
+          VSQLMarkView.FUser := FUserID;
+          VSQLMarkView.FMark := AMarkID;
+          VSQLMarkView.FCategory := ACategoryID;
           VSQLMarkView.FVisible := AVisible;
           // add to db
           CheckID( FClient.Add(VSQLMarkView, True) );

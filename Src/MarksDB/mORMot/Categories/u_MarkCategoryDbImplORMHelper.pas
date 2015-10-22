@@ -159,8 +159,8 @@ begin
   if not ACategoryRec.FVisible then begin
     VSQLCategoryView := TSQLCategoryView.Create;
     try
-      VSQLCategoryView.FUser := Pointer(FUserID);
-      VSQLCategoryView.FCategory := Pointer(ACategoryRec.FCategoryId);
+      VSQLCategoryView.FUser := FUserID;
+      VSQLCategoryView.FCategory := ACategoryRec.FCategoryId;
       VSQLCategoryView.FVisible := ACategoryRec.FVisible;
       VSQLCategoryView.FMinZoom := ACategoryRec.FMinZoom;
       VSQLCategoryView.FMaxZoom := ACategoryRec.FMaxZoom;
@@ -246,7 +246,7 @@ begin
       if VFound then begin
         // init from cache
         VSQLCategoryView.IDValue := VItem.ViewId;
-        VSQLCategoryView.FCategory := Pointer(VItem.CategoryId);
+        VSQLCategoryView.FCategory := VItem.CategoryId;
         VSQLCategoryView.FVisible := VItem.Visible;
         VSQLCategoryView.FMinZoom := VItem.MinZoom;
         VSQLCategoryView.FMaxZoom := VItem.MaxZoom;
@@ -275,8 +275,8 @@ begin
           CheckUpdateResult( FClient.Update(VSQLCategoryView, _FieldsNamesStr) );
         end else begin
           // add new
-          VSQLCategoryView.FUser := Pointer(FUserID);
-          VSQLCategoryView.FCategory := Pointer(ACategoryRecNew.FCategoryId);
+          VSQLCategoryView.FUser := FUserID;
+          VSQLCategoryView.FCategory := ACategoryRecNew.FCategoryId;
           VSQLCategoryView.FVisible := ACategoryRecNew.FVisible;
           VSQLCategoryView.FMinZoom := ACategoryRecNew.FMinZoom;
           VSQLCategoryView.FMaxZoom := ACategoryRecNew.FMaxZoom;
@@ -529,8 +529,8 @@ begin
             VRec.FCategoryId := VCategoryID;
             VRec.FVisible := AVisible;
 
-            VSQLCategoryView.FUser := Pointer(FUserID);
-            VSQLCategoryView.FCategory := Pointer(VRec.FCategoryId);
+            VSQLCategoryView.FUser := FUserID;
+            VSQLCategoryView.FCategory := VRec.FCategoryId;
             VSQLCategoryView.FVisible := VRec.FVisible;
             VSQLCategoryView.FMinZoom := VRec.FMinZoom;
             VSQLCategoryView.FMaxZoom := VRec.FMaxZoom;

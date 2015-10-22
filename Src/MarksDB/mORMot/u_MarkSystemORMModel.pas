@@ -46,14 +46,14 @@ type
   // Настройка видимости категорий по пользователям
   TSQLCategoryView = class(TSQLRecord)
   public
-    FUser: TSQLUser;
-    FCategory: TSQLCategory;
+    FUser: TID;
+    FCategory: TID;
     FVisible: Boolean;
     FMinZoom: Byte;
     FMaxZoom: Byte;
   published
-    property cvUser: TSQLUser read FUser write FUser;
-    property cvCategory: TSQLCategory read FCategory write FCategory;
+    property cvUser: TID read FUser write FUser;
+    property cvCategory: TID read FCategory write FCategory;
     property cvVisible: Boolean read FVisible write FVisible;
     property cvMinZoom: Byte read FMinZoom write FMinZoom;
     property cvMaxZoom: Byte read FMaxZoom write FMaxZoom;
@@ -86,9 +86,9 @@ type
   // Метки
   TSQLMark = class(TSQLRecord)
   public
-    FCategory: TSQLCategory;
-    FImage: TSQLMarkImage;
-    FAppearance: TSQLMarkAppearance;
+    FCategory: TID;
+    FImage: TID;
+    FAppearance: TID;
     FName: RawUTF8;
     FDesc: RawUTF8;
     FGeoType: TSQLGeoType;
@@ -97,9 +97,9 @@ type
     FGeoLatSize: Cardinal;
     FGeoWKB: TSQLRawBlob;
   published
-    property mCategory: TSQLCategory read FCategory write FCategory;
-    property mImage: TSQLMarkImage read FImage write FImage;
-    property mAppearance: TSQLMarkAppearance read FAppearance write FAppearance;
+    property mCategory: TID read FCategory write FCategory;
+    property mImage: TID read FImage write FImage;
+    property mAppearance: TID read FAppearance write FAppearance;
     property mName: RawUTF8 read FName write FName;
     property mDesc: RawUTF8 read FDesc write FDesc;
     property mGeoType: TSQLGeoType read FGeoType write FGeoType;
@@ -131,14 +131,14 @@ type
   // Настройка видимости меток по пользователям
   TSQLMarkView = class(TSQLRecord)
   public
-    FUser: TSQLUser;
-    FMark: TSQLMark;
-    FCategory: TSQLCategory;
+    FUser: TID;
+    FMark: TID;
+    FCategory: TID;
     FVisible: Boolean;
   published
-    property mvUser: TSQLUser read FUser write FUser;
-    property mvMark: TSQLMark read FMark write FMark;
-    property mvCategory: TSQLCategory read FCategory write FCategory;
+    property mvUser: TID read FUser write FUser;
+    property mvMark: TID read FMark write FMark;
+    property mvCategory: TID read FCategory write FCategory;
     property mvVisible: Boolean read FVisible write FVisible;
   end;
 
