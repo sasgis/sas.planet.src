@@ -1103,8 +1103,15 @@
 				<Form>frMapCombine</Form>
 				<DesignClass>TFrame</DesignClass>
 			</DCCReference>
+			<DCCReference Include="Src\RegionProcess\Combine\i_BitmapMapCombiner.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\i_ImageLineProvider.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\t_ECW.pas"/>
+			<DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerBMP.pas"/>
+			<DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerECW.pas"/>
+			<DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerJPG.pas"/>
+			<DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerKMZ.pas"/>
+			<DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerPNG.pas"/>
+			<DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerRAW.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_CalcWFileParams.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_ECWWrite.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_ImageLineProvider.pas"/>
@@ -1116,13 +1123,7 @@
 			<DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombineKMZ.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombinePNG.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombineRAW.pas"/>
-			<DCCReference Include="Src\RegionProcess\Combine\u_ThreadMapCombineBMP.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_ThreadMapCombineBase.pas"/>
-			<DCCReference Include="Src\RegionProcess\Combine\u_ThreadMapCombineECW.pas"/>
-			<DCCReference Include="Src\RegionProcess\Combine\u_ThreadMapCombineJPG.pas"/>
-			<DCCReference Include="Src\RegionProcess\Combine\u_ThreadMapCombineKMZ.pas"/>
-			<DCCReference Include="Src\RegionProcess\Combine\u_ThreadMapCombinePNG.pas"/>
-			<DCCReference Include="Src\RegionProcess\Combine\u_ThreadMapCombineRAW.pas"/>
 			<DCCReference Include="Src\RegionProcess\Copy\fr_TilesCopy.pas">
 				<Form>frTilesCopy</Form>
 				<DesignClass>TFrame</DesignClass>
@@ -1187,6 +1188,12 @@
 			</DCCReference>
 			<DCCReference Include="Src\RegionProcess\Export\KML\u_ExportProviderGEKml.pas"/>
 			<DCCReference Include="Src\RegionProcess\Export\KML\u_ThreadExportKML.pas"/>
+			<DCCReference Include="Src\RegionProcess\Export\MBTiles\fr_ExportMBTiles.pas">
+				<Form>frExportMBTiles</Form>
+				<DesignClass>TFrame</DesignClass>
+			</DCCReference>
+			<DCCReference Include="Src\RegionProcess\Export\MBTiles\u_ExportProviderMBTiles.pas"/>
+			<DCCReference Include="Src\RegionProcess\Export\MBTiles\u_ThreadExportToMBTiles.pas"/>
 			<DCCReference Include="Src\RegionProcess\Export\OGF2\fr_ExportToOgf2.pas">
 				<Form>frExportToOgf2</Form>
 				<DesignClass>TFrame</DesignClass>
@@ -1477,6 +1484,7 @@
 			<DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameMOBAC.pas"/>
 			<DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameOsmAnd.pas"/>
 			<DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameSAS.pas"/>
+			<DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameTMS.pas"/>
 			<DCCReference Include="Src\TileStorage\FileSystem\u_TileStorageFileSystem.pas"/>
 			<DCCReference Include="Src\TileStorage\FileSystem\u_TileStorageTypeFileSystemSimple.pas"/>
 			<DCCReference Include="Src\TileStorage\GoogleEarth\u_TileStorageGoogleEarth.pas"/>
@@ -1685,7 +1693,6 @@
 			<DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
 			<DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
 			<DCCReference Include="Src\u_WindowPositionConfig.pas"/>
-			<DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameTMS.pas"/>
 			<BuildConfiguration Include="Debug">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>

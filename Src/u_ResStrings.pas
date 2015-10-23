@@ -185,6 +185,7 @@ ResourceString
   SAS_STR_ExportYaMobileV3Caption = 'Mobile Yandex.Maps (version 3)';
   SAS_STR_ExportYaMobileV4Caption = 'Mobile Yandex.Maps (version 3.91 and above)';
   SAS_STR_ExportGEKmlExportCaption = 'KML (for Google Earth)';
+  SAS_STR_ExportMBTilesExportCaption = 'MBTiles 1.2 (SQLite)';
   SAS_STR_ExportRMapsSQLiteExportCaption = 'RMaps (SQLite)';
   SAS_STR_ExportOruxMapsSQLiteExportCaption = 'OruxMaps (SQLite)';
   SAS_STR_ExportIPhone128Caption = 'iPhone (version 2.2 and above, 128x128)';

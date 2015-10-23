@@ -1126,6 +1126,12 @@
     </DCCReference>
     <DCCReference Include="Src\RegionProcess\Export\KML\u_ExportProviderGEKml.pas" />
     <DCCReference Include="Src\RegionProcess\Export\KML\u_ThreadExportKML.pas" />
+    <DCCReference Include="Src\RegionProcess\Export\MBTiles\fr_ExportMBTiles.pas">
+      <Form>frExportMBTiles</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
+    <DCCReference Include="Src\RegionProcess\Export\MBTiles\u_ExportProviderMBTiles.pas" />
+    <DCCReference Include="Src\RegionProcess\Export\MBTiles\u_ThreadExportToMBTiles.pas" />
     <DCCReference Include="Src\RegionProcess\Export\OGF2\fr_ExportToOgf2.pas">
       <DesignClass>TFrame</DesignClass>
       <Form>frExportToOgf2</Form>
