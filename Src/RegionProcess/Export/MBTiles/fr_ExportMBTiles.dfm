@@ -37,7 +37,7 @@ object frExportMBTiles: TfrExportMBTiles
         Margins.Right = 0
         Align = alTop
         AutoSize = False
-        Caption = 'Map'
+        Caption = 'Map:'
       end
       object lblOverlay: TLabel
         Left = 3
@@ -45,9 +45,8 @@ object frExportMBTiles: TfrExportMBTiles
         Width = 461
         Height = 13
         Align = alTop
-        Caption = 'Overlay layer'
-        ExplicitLeft = 0
-        ExplicitTop = 37
+        Caption = 'Overlay layer:'
+        ExplicitWidth = 69
       end
       object lblDesc: TLabel
         Left = 3
@@ -55,9 +54,8 @@ object frExportMBTiles: TfrExportMBTiles
         Width = 461
         Height = 13
         Align = alTop
-        Caption = 'Description'
-        ExplicitLeft = 0
-        ExplicitTop = 234
+        Caption = 'Description:'
+        ExplicitWidth = 57
       end
       object lblName: TLabel
         Left = 3
@@ -65,9 +63,8 @@ object frExportMBTiles: TfrExportMBTiles
         Width = 461
         Height = 13
         Align = alTop
-        Caption = 'Name'
-        ExplicitLeft = 0
-        ExplicitTop = 229
+        Caption = 'Name:'
+        ExplicitWidth = 31
       end
       object lblAttr: TLabel
         Left = 3
@@ -75,8 +72,8 @@ object frExportMBTiles: TfrExportMBTiles
         Width = 461
         Height = 13
         Align = alTop
-        Caption = 'Attribution'
-        ExplicitWidth = 51
+        Caption = 'Attribution:'
+        ExplicitWidth = 55
       end
       object pnlMap: TPanel
         Left = 3
@@ -192,8 +189,6 @@ object frExportMBTiles: TfrExportMBTiles
         Height = 21
         Align = alTop
         TabOrder = 5
-        ExplicitLeft = 0
-        ExplicitTop = 234
       end
       object edtName: TEdit
         Left = 3
@@ -202,8 +197,6 @@ object frExportMBTiles: TfrExportMBTiles
         Height = 21
         Align = alTop
         TabOrder = 6
-        ExplicitLeft = 0
-        ExplicitTop = 234
       end
       object edtAttr: TEdit
         Left = 3
@@ -212,8 +205,6 @@ object frExportMBTiles: TfrExportMBTiles
         Height = 21
         Align = alTop
         TabOrder = 7
-        ExplicitLeft = 0
-        ExplicitTop = 268
       end
     end
     object PnlZoom: TPanel
