@@ -110,6 +110,8 @@ begin
       Result :=
         TTileStorageAbilities.Create(
           Result.IsReadOnly or VIsReadOnly,
+          Result.AllowRead,
+          Result.AllowScan,
           Result.AllowAdd and VAllowAdd,
           Result.AllowDelete and VAllowDelete,
           Result.AllowReplace and VAllowReplace
@@ -120,6 +122,8 @@ begin
     Result :=
       TTileStorageAbilities.Create(
         Result.IsReadOnly or AForceAbilities.IsReadOnly,
+        Result.AllowRead and AForceAbilities.AllowRead,
+        Result.AllowScan and AForceAbilities.AllowScan,
         Result.AllowAdd and AForceAbilities.AllowAdd,
         Result.AllowDelete and AForceAbilities.AllowDelete,
         Result.AllowReplace and AForceAbilities.AllowReplace

@@ -39,6 +39,9 @@ type
 
     function GetAllowReplace: boolean;
     property AllowReplace: boolean read GetAllowReplace;
+
+    function GetAllowScan: boolean;
+    property AllowScan: boolean read GetAllowScan;
   end;
 
 type

@@ -30,18 +30,23 @@ type
   TTileStorageAbilities = class(TBaseInterfacedObject, ITileStorageAbilities)
   private
     FIsReadOnly: Boolean;
+    FAllowRead: Boolean;
     FAllowAdd: Boolean;
     FAllowDelete: Boolean;
     FAllowReplace: Boolean;
+    FAllowScan: boolean;
   private
     function GetAllowRead: Boolean;
     function GetIsReadOnly: Boolean;
     function GetAllowAdd: Boolean;
     function GetAllowDelete: Boolean;
     function GetAllowReplace: Boolean;
+    function GetAllowScan: boolean;
   public
     constructor Create(
       const AIsReadOnly: Boolean;
+      const AAllowRead: Boolean;
+      const AAllowScan: boolean;
       const AAllowAdd: Boolean;
       const AAllowDelete: Boolean;
       const AAllowReplace: Boolean
@@ -55,6 +60,7 @@ type
     function GetAllowAdd: Boolean;
     function GetAllowDelete: Boolean;
     function GetAllowReplace: Boolean;
+    function GetAllowScan: boolean;
   end;
 
   TTileStorageTypeAbilities = class(TBaseInterfacedObject, ITileStorageTypeAbilities)
@@ -91,12 +97,16 @@ implementation
 
 constructor TTileStorageAbilities.Create(
   const AIsReadOnly: Boolean;
+  const AAllowRead: Boolean;
+  const AAllowScan: boolean;
   const AAllowAdd: Boolean;
   const AAllowDelete: Boolean;
   const AAllowReplace: Boolean
 );
 begin
   inherited Create;
+  FAllowRead := AAllowRead;
+  FAllowScan := AAllowScan;
   FIsReadOnly := AIsReadOnly or not (AAllowAdd or AAllowDelete or AAllowReplace);
   FAllowAdd := AAllowAdd and not FIsReadOnly;
   FAllowDelete := AAllowDelete and not FIsReadOnly;
@@ -115,12 +125,17 @@ end;
 
 function TTileStorageAbilities.GetAllowRead: Boolean;
 begin
-  Result := True;
+  Result := FAllowRead;
 end;
 
 function TTileStorageAbilities.GetAllowReplace: Boolean;
 begin
   Result := FAllowReplace;
+end;
+
+function TTileStorageAbilities.GetAllowScan: boolean;
+begin
+  Result := FAllowScan;
 end;
 
 function TTileStorageAbilities.GetIsReadOnly: Boolean;
@@ -175,6 +190,11 @@ begin
 end;
 
 function TTileStorageAbilitiesNoAccess.GetAllowReplace: Boolean;
+begin
+  Result := False;
+end;
+
+function TTileStorageAbilitiesNoAccess.GetAllowScan: boolean;
 begin
   Result := False;
 end;

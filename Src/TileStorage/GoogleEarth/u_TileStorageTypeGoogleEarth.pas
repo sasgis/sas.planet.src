@@ -76,7 +76,7 @@ var
 begin
   VAbilities :=
     TTileStorageTypeAbilities.Create(
-      TTileStorageAbilities.Create(True, False, False, False),
+      TTileStorageAbilities.Create(True, True, False, False, False, False),
       True,
       tstcOther
     );

@@ -124,6 +124,8 @@ begin
   VStorageAbilities :=
     TTileStorageAbilities.Create(
       FIsReadOnly,
+      True,
+      True,
       FAllowAdd,
       FAllowDelete,
       FAllowReplace

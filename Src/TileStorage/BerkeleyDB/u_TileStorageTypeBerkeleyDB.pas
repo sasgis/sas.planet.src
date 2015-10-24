@@ -91,7 +91,7 @@ var
 begin
   VAbilities :=
     TTileStorageTypeAbilities.Create(
-      TTileStorageAbilities.Create(False, True, True, True),
+      TTileStorageAbilities.Create(False, True, True, True, True, True),
       AIsVersioned,
       tstcOther
     );

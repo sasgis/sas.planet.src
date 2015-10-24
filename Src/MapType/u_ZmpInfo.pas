@@ -850,6 +850,8 @@ begin
   VStorageAbilities :=
     TTileStorageAbilities.Create(
       VIsReadOnly,
+      True,
+      True,
       VAllowAdd,
       VAllowDelete,
       VAllowReplace
