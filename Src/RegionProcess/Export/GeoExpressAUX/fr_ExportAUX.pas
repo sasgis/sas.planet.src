@@ -82,7 +82,8 @@ type
 implementation
 
 uses
-  gnugettext;
+  gnugettext,
+  i_TileStorageAbilities;
 
 {$R *.dfm}
 
@@ -137,7 +138,9 @@ end;
 
 function TfrExportAUX.GetAllowExport(const AMapType: IMapType): boolean;
 begin
-  Result := (AMapType.IsBitmapTiles) and (AMapType.TileStorage.StorageTypeAbilities.IsFileCache);
+  Result :=
+    (AMapType.IsBitmapTiles) and
+    (AMapType.TileStorage.StorageTypeAbilities.StorageClass = tstcInSeparateFiles);
 end;
 
 procedure TfrExportAUX.Init(

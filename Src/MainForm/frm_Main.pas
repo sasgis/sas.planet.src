@@ -939,6 +939,7 @@ uses
   i_InternalDomainOptions,
   i_TileInfoBasic,
   i_TileStorage,
+  i_TileStorageAbilities,
   i_TileRectChangeable,
   i_GPS,
   i_GeoCoder,
@@ -4951,7 +4952,7 @@ var
   VFileName: string;
 begin
   VMapType := FMainMapState.ActiveMap.GetStatic;
-  if VMapType.TileStorage.StorageTypeAbilities.IsFileCache then begin
+  if VMapType.TileStorage.StorageTypeAbilities.StorageClass = tstcInSeparateFiles then begin
     VLocalConverter := FViewPortState.View.GetStatic;
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
     VProjection := VLocalConverter.Projection;

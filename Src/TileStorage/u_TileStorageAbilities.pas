@@ -61,16 +61,16 @@ type
   private
     FBaseStorageAbilities: ITileStorageAbilities;
     FIsVersioned: Boolean;
-    FIsFileCache: Boolean;
+    FStorageClass: TTileStorageTypeClass;
   private
     function GetBaseStorageAbilities: ITileStorageAbilities;
     function GetIsVersioned: Boolean;
-    function GetIsFileCache: Boolean;
+    function GetStorageClass: TTileStorageTypeClass;
   public
     constructor Create(
       const ABaseStorageAbilities: ITileStorageAbilities;
       const AIsVersioned: Boolean;
-      const AIsFileCache: Boolean
+      const AStorageClass: TTileStorageTypeClass
     );
   end;
 
@@ -80,7 +80,7 @@ type
   private
     function GetBaseStorageAbilities: ITileStorageAbilities;
     function GetIsVersioned: Boolean;
-    function GetIsFileCache: Boolean;
+    function GetStorageClass: TTileStorageTypeClass;
   public
     constructor Create;
   end;
@@ -132,13 +132,14 @@ end;
 
 constructor TTileStorageTypeAbilities.Create(
   const ABaseStorageAbilities: ITileStorageAbilities;
-  const AIsVersioned, AIsFileCache: Boolean
+  const AIsVersioned: Boolean;
+  const AStorageClass: TTileStorageTypeClass
 );
 begin
   inherited Create;
   FBaseStorageAbilities := ABaseStorageAbilities;
   FIsVersioned := AIsVersioned;
-  FIsFileCache := AIsFileCache;
+  FStorageClass := AStorageClass;
 end;
 
 function TTileStorageTypeAbilities.GetBaseStorageAbilities: ITileStorageAbilities;
@@ -146,14 +147,14 @@ begin
   Result := FBaseStorageAbilities;
 end;
 
-function TTileStorageTypeAbilities.GetIsFileCache: Boolean;
-begin
-  Result := FIsFileCache;
-end;
-
 function TTileStorageTypeAbilities.GetIsVersioned: Boolean;
 begin
   Result := FIsVersioned;
+end;
+
+function TTileStorageTypeAbilities.GetStorageClass: TTileStorageTypeClass;
+begin
+  Result := FStorageClass;
 end;
 
 { TTileStorageAbilitiesNoAccess }
@@ -196,14 +197,14 @@ begin
   Result := FBaseStorageAbilities;
 end;
 
-function TTileStorageTypeAbilitiesNoAccess.GetIsFileCache: Boolean;
+function TTileStorageTypeAbilitiesNoAccess.GetIsVersioned: Boolean;
 begin
   Result := False;
 end;
 
-function TTileStorageTypeAbilitiesNoAccess.GetIsVersioned: Boolean;
+function TTileStorageTypeAbilitiesNoAccess.GetStorageClass: TTileStorageTypeClass;
 begin
-  Result := False;
+  Result := tstcOther;
 end;
 
 end.

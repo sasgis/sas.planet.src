@@ -113,14 +113,18 @@ begin
 
   if foAllowAll in FOptions then begin
     Result := True;
-  end else if AItem.IntCode in [c_File_Cache_Id_RAM] then begin
-    Result := (foAllowInMemory in FOptions) and not (foDisallowInMemory in FOptions);
   end else begin
     VItemAbilities := AItem.StorageType.Abilities;
-    if VItemAbilities.IsFileCache then begin
-      Result := (foAllowFileSys in FOptions) and not (foDisallowFileSys in FOptions);
-    end else begin
-      Result := (foAllowNoFileSys in FOptions) and not (foDisallowNoFileSys in FOptions);
+    case VItemAbilities.StorageClass of
+      tstcInSeparateFiles: begin
+        Result := (foAllowFileSys in FOptions) and not (foDisallowFileSys in FOptions);
+      end;
+      tstcInMemory: begin
+        Result := (foAllowInMemory in FOptions) and not (foDisallowInMemory in FOptions);
+      end;
+      tstcOther: begin
+        Result := (foAllowNoFileSys in FOptions) and not (foDisallowNoFileSys in FOptions);
+      end;
     end;
   end;
 end;

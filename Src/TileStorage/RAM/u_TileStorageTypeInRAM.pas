@@ -72,7 +72,7 @@ begin
     TTileStorageTypeAbilities.Create(
       TTileStorageAbilities.Create(False, True, True, True),
       False,
-      False
+      tstcInMemory
     );
   inherited Create(
     VAbilities,

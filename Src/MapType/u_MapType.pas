@@ -239,6 +239,7 @@ uses
   GR32,
   c_InternalBrowser,
   i_TileInfoBasic,
+  i_TileStorageAbilities,
   i_DownloadResultFactory,
   u_StringProviderForMapTileItem,
   u_LayerDrawConfig,
@@ -539,7 +540,7 @@ function TMapType.GetTileShowName(
 ): string;
 begin
   Result := FStorage.GetTileFileName(AXY, AZoom, AVersion);
-  if not FStorage.StorageTypeAbilities.IsFileCache then begin
+  if FStorage.StorageTypeAbilities.StorageClass <> tstcInSeparateFiles then begin
     Result :=
       IncludeTrailingPathDelimiter(Result) +
       'z' + IntToStr(AZoom + 1) + PathDelim +

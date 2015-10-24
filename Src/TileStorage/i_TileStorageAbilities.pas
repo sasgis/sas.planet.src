@@ -41,6 +41,13 @@ type
     property AllowReplace: boolean read GetAllowReplace;
   end;
 
+type
+  TTileStorageTypeClass = (
+    tstcInSeparateFiles,
+    tstcInMemory,
+    tstcOther
+  );
+
   ITileStorageTypeAbilities = interface
     ['{EEB09E02-E81A-4566-866F-356008CC808D}']
     function GetBaseStorageAbilities: ITileStorageAbilities;
@@ -49,8 +56,8 @@ type
     function GetIsVersioned: Boolean;
     property IsVersioned: Boolean read GetIsVersioned;
 
-    function GetIsFileCache: Boolean;
-    property IsFileCache: Boolean read GetIsFileCache;
+    function GetStorageClass: TTileStorageTypeClass;
+    property StorageClass: TTileStorageTypeClass read GetStorageClass;
   end;
 
 implementation
