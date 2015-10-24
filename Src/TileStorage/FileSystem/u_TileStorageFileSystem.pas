@@ -666,7 +666,7 @@ end;
 
 function TEnumTileInfoByFileIterator.Next(var ATileInfo: TTileInfo): Boolean;
 var
-  VTileFileName: string;
+  VTileFileName: AnsiString;
   VTileFileNameW: WideString;
   VTileXY: TPoint;
   VTileZoom: Byte;

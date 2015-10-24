@@ -41,7 +41,7 @@ type
     ): string; virtual; abstract;
 
     function GetTilePoint(
-      const ATileFileName: string;
+      const ATileFileName: AnsiString;
       out ATileXY: TPoint;
       out ATileZoom: Byte
     ): Boolean; virtual; abstract;

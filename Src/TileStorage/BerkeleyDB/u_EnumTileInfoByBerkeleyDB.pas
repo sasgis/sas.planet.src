@@ -103,7 +103,8 @@ end;
 
 function TEnumTileInfoByBerkeleyDB.Next(var ATileInfo: TTileInfo): Boolean;
 var
-  VTileFileName: string;
+  VTileFileFullName: string;
+  VTileFileName: AnsiString;
   VTileFileNameW: WideString;
   VTileInfo: ITileInfoBasic;
   VTileInfoWithData: ITileInfoWithData;
@@ -164,10 +165,11 @@ begin
       end else begin
         if FFilesIterator.Next(VTileFileNameW) then begin
           // start process new cache file
-          VTileFileName := FFilesIterator.GetRootFolderName + VTileFileNameW;
+          VTileFileName := VTileFileNameW;
           if FTileFileNameParser.GetTilePoint(VTileFileName, VTileXY, FCurFileZoom) and
             // get new array of tiles
-            FHelper.GetTileExistsArray(VTileFileName, FCurFileZoom, nil, FCurFileTilesArray) then begin
+            VTileFileFullName := FFilesIterator.GetRootFolderName + VTileFileNameW;
+            FHelper.GetTileExistsArray(VTileFileFullName, FCurFileZoom, nil, FCurFileTilesArray) then begin
             FCurFileIndex := 0;
           end else begin
             // skip file - tile name parser error

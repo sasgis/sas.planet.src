@@ -38,7 +38,7 @@ type
     ): string; override;
 
     function GetTilePoint(
-      const ATileFileName: string;
+      const ATileFileName: AnsiString;
       out ATileXY: TPoint;
       out ATileZoom: Byte
     ): Boolean; override;
@@ -70,7 +70,7 @@ begin
 end;
 
 function TTileFileNameOsmAnd.GetTilePoint(
-  const ATileFileName: string;
+  const ATileFileName: AnsiString;
   out ATileXY: TPoint;
   out ATileZoom: Byte
 ): Boolean;

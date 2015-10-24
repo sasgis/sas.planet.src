@@ -57,6 +57,7 @@ implementation
 uses
   Classes,
   SysUtils,
+  ALString,
   LibTar,
   u_BinaryDataByMemStream,
   u_BaseInterfacedObject;
@@ -107,15 +108,15 @@ function TEnumTileInfoByTar.Next(var ATileInfo: TTileInfo): Boolean;
 var
   VZoom: Byte;
   VTileXY: TPoint;
-  VExtLow: string;
-  VTileName: string;
+  VExtLow: AnsiString;
+  VTileName: AnsiString;
   VTarRec: TTarDirRec;
   VStream: TMemoryStream;
 begin
   Result := False;
   while FTarReader.FindNext(VTarRec) do begin
     if VTarRec.FileType = ftNormal then begin // regular file
-      VTileName := StringReplace(string(VTarRec.Name), '/', PathDelim, [rfReplaceAll]);
+      VTileName := ALStringReplace(VTarRec.Name, '/', PathDelim, [rfReplaceAll]);
       if FTileFileNameParser.GetTilePoint(VTileName, VTileXY, VZoom) then begin
         ATileInfo.FTile := VTileXY;
         ATileInfo.FZoom := VZoom;
@@ -123,7 +124,7 @@ begin
         ATileInfo.FSize := VTarRec.Size;
         ATileInfo.FLoadDate := VTarRec.DateTime;
 
-        VExtLow := LowerCase(ExtractFileExt(VTileName));
+        VExtLow := AlLowerCase(alExtractFileExt(VTileName));
         if VExtLow = '.tne' then begin
           if not FIgnoreTNE then begin
             ATileInfo.FInfoType := titTneExists;

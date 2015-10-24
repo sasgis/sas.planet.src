@@ -29,7 +29,7 @@ type
   ITileFileNameParser = interface
     ['{92C64DB6-63B2-478D-A21A-80555EA0A493}']
     function GetTilePoint(
-      const ATileFileName: string;
+      const ATileFileName: AnsiString;
       out ATileXY: TPoint;
       out ATileZoom: Byte
     ): Boolean;
