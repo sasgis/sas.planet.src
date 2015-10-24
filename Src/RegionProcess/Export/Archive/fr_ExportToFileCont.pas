@@ -128,7 +128,8 @@ begin
       ALanguageManager,
       ATileStorageTypeList,
       False,
-      [tstcInSeparateFiles]
+      [tstcInSeparateFiles],
+      [tsacAdd]
     );
   FfrMapSelect :=
     AMapSelectFrameBuilder.Build(

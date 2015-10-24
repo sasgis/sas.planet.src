@@ -164,7 +164,9 @@ begin
     TfrCacheTypeList.Create(
       ALanguageManager,
       ATileStorageTypeList,
-      True
+      True,
+      CTileStorageTypeClassAll,
+      [tsacRead]
     );
   FTileStorageTypeList := ATileStorageTypeList;
   BuildTreeViewMenu;

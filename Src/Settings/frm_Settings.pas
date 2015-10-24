@@ -360,7 +360,10 @@ begin
   FfrCacheTypesList :=
     TfrCacheTypeList.Create(
       ALanguageManager,
-      GState.TileStorageTypeList
+      GState.TileStorageTypeList,
+      False,
+      CTileStorageTypeClassAll,
+      [tsacRead]
     );
   FfrMapPathSelect :=
     TfrPathSelect.Create(

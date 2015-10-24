@@ -195,14 +195,16 @@ begin
       ALanguageManager,
       ATileStorageTypeList,
       False,
-      CTileStorageTypeClassAll - [tstcInMemory]
+      CTileStorageTypeClassAll - [tstcInMemory],
+      [tsacScan]
     );
   FfrDestCacheTypesList :=
     TfrCacheTypeList.Create(
       ALanguageManager,
       ATileStorageTypeList,
       False,
-      CTileStorageTypeClassAll - [tstcInMemory]
+      CTileStorageTypeClassAll - [tstcInMemory],
+      [tsacAdd]
     );
 end;
 

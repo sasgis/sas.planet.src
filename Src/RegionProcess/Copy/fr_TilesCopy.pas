@@ -235,6 +235,7 @@ begin
       ATileStorageTypeList,
       False,
       CTileStorageTypeClassAll - [tstcInMemory],
+      [tsacAdd],
       Self.OnCacheTypeChange
     );
   FfrMapSelect :=

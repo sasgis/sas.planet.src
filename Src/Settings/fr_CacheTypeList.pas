@@ -26,12 +26,17 @@ const
   CTileStorageTypeClassAll = [tstcInSeparateFiles, tstcInMemory, tstcOther];
 
 type
+  TTileStorageAbilitiesClass = (tsacRead, tsacScan, tsacAdd, tsacDelete, tsacReplace);
+  TTileStorageAbilitiesClassSet = set of TTileStorageAbilitiesClass;
+
+type
   TfrCacheTypeList = class(TFrame)
     cbbCacheType: TComboBox;
     procedure cbbCacheTypeChange(Sender: TObject);
   private
     FOnChange: TNotifyEvent;
     FOptions: TTileStorageTypeClassSet;
+    FRequaredAbilities: TTileStorageAbilitiesClassSet;
     function IsItemAllowed(
       const AItem: ITileStorageTypeListItem
     ): Boolean; inline;
@@ -50,6 +55,7 @@ type
       const ATileStorageTypeList: ITileStorageTypeListStatic;
       const AWithDefaultItem: Boolean = False;
       const AFilterOptions: TTileStorageTypeClassSet = CTileStorageTypeClassAll;
+      const ARequaredAbilities: TTileStorageAbilitiesClassSet = [];
       const AOnChange: TNotifyEvent = nil
     );
   end;
@@ -69,6 +75,7 @@ constructor TfrCacheTypeList.Create(
   const ATileStorageTypeList: ITileStorageTypeListStatic;
   const AWithDefaultItem: Boolean;
   const AFilterOptions: TTileStorageTypeClassSet;
+  const ARequaredAbilities: TTileStorageAbilitiesClassSet;
   const AOnChange: TNotifyEvent
 );
 begin
@@ -76,7 +83,8 @@ begin
   inherited Create(ALanguageManager);
   FOnChange := AOnChange;
   FOptions := AFilterOptions;
-
+  FRequaredAbilities := ARequaredAbilities;
+  
   FillItems(ATileStorageTypeList, AWithDefaultItem);
 end;
 
@@ -105,6 +113,38 @@ begin
     end;
     tstcOther: begin
       Result := (tstcOther in FOptions);
+    end;
+  end;
+  if Result then begin
+    if tsacRead in FRequaredAbilities then begin
+      if not VItemAbilities.BaseStorageAbilities.AllowRead then begin
+        Result := False;
+        Exit;
+      end;
+    end;
+    if tsacScan in FRequaredAbilities then begin
+      if not VItemAbilities.BaseStorageAbilities.AllowScan then begin
+        Result := False;
+        Exit;
+      end;
+    end;
+    if tsacAdd in FRequaredAbilities then begin
+      if not VItemAbilities.BaseStorageAbilities.AllowAdd then begin
+        Result := False;
+        Exit;
+      end;
+    end;
+    if tsacDelete in FRequaredAbilities then begin
+      if not VItemAbilities.BaseStorageAbilities.AllowDelete then begin
+        Result := False;
+        Exit;
+      end;
+    end;
+    if tsacReplace in FRequaredAbilities then begin
+      if not VItemAbilities.BaseStorageAbilities.AllowReplace then begin
+        Result := False;
+        Exit;
+      end;
     end;
   end;
 end;
