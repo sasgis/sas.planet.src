@@ -193,7 +193,7 @@ procedure TProviderTilesDownload.ReadZoom(
     end else begin
       raise Exception.Create('Unknown zoom: ' + IntToStr(AZoom));
     end;
-    if AProjectionSet.CheckZoom(AZoom) then begin
+    if not AProjectionSet.CheckZoom(AZoom) then begin
       raise Exception.Create('Unknown zoom: ' + IntToStr(AZoom));
     end;
   end;
