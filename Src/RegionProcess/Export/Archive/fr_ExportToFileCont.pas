@@ -105,7 +105,8 @@ type
 implementation
 
 uses
-  gnugettext;
+  gnugettext,
+  i_TileStorageAbilities;
 
 {$R *.dfm}
 
@@ -127,7 +128,7 @@ begin
       ALanguageManager,
       ATileStorageTypeList,
       False,
-      [foAllowFileSys]
+      [tstcInSeparateFiles]
     );
   FfrMapSelect :=
     AMapSelectFrameBuilder.Build(

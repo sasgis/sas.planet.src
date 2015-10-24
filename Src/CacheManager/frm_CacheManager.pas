@@ -142,6 +142,7 @@ uses
   c_CoordConverter,
   i_MapVersionInfo,
   i_ContentTypeInfo,
+  i_TileStorageAbilities,
   i_TileFileNameGenerator,
   i_TileFileNameParser,
   i_TileStorageTypeListItem,
@@ -194,14 +195,14 @@ begin
       ALanguageManager,
       ATileStorageTypeList,
       False,
-      [foDisallowInMemory]
+      CTileStorageTypeClassAll - [tstcInMemory]
     );
   FfrDestCacheTypesList :=
     TfrCacheTypeList.Create(
       ALanguageManager,
       ATileStorageTypeList,
       False,
-      [foDisallowInMemory]
+      CTileStorageTypeClassAll - [tstcInMemory]
     );
 end;
 

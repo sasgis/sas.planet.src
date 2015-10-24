@@ -202,6 +202,7 @@ uses
   FileCtrl,
   {$WARN UNIT_PLATFORM ON}
   c_CacheTypeCodes, // for cache types
+  i_TileStorageAbilities,
   u_BitmapLayerProviderMapWithLayer,
   i_GUIDListStatic;
 
@@ -233,7 +234,7 @@ begin
       ALanguageManager,
       ATileStorageTypeList,
       False,
-      [foDisallowInMemory],
+      CTileStorageTypeClassAll - [tstcInMemory],
       Self.OnCacheTypeChange
     );
   FfrMapSelect :=

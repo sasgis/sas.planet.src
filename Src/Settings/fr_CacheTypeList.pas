@@ -14,29 +14,24 @@ uses
   Dialogs,
   StdCtrls,
   i_LanguageManager,
+  i_TileStorageAbilities,
   i_TileStorageTypeList,
   i_TileStorageTypeListItem,
   u_CommonFormAndFrameParents;
 
 type
-  TCacheTypeListOption = (
-    foAllowAll,
-    foAllowInMemory,
-    foAllowFileSys,
-    foAllowNoFileSys,
-    foDisallowInMemory,
-    foDisallowFileSys,
-    foDisallowNoFileSys
-  );
+  TTileStorageTypeClassSet = set of TTileStorageTypeClass;
 
-  TCacheTypeListOptions = set of TCacheTypeListOption;
+const
+  CTileStorageTypeClassAll = [tstcInSeparateFiles, tstcInMemory, tstcOther];
 
+type
   TfrCacheTypeList = class(TFrame)
     cbbCacheType: TComboBox;
     procedure cbbCacheTypeChange(Sender: TObject);
   private
     FOnChange: TNotifyEvent;
-    FOptions: TCacheTypeListOptions;
+    FOptions: TTileStorageTypeClassSet;
     function IsItemAllowed(
       const AItem: ITileStorageTypeListItem
     ): Boolean; inline;
@@ -54,7 +49,7 @@ type
       const ALanguageManager: ILanguageManager;
       const ATileStorageTypeList: ITileStorageTypeListStatic;
       const AWithDefaultItem: Boolean = False;
-      const AFilterOptions: TCacheTypeListOptions = [foAllowAll];
+      const AFilterOptions: TTileStorageTypeClassSet = CTileStorageTypeClassAll;
       const AOnChange: TNotifyEvent = nil
     );
   end;
@@ -65,8 +60,7 @@ implementation
 
 uses
   gnugettext,
-  c_CacheTypeCodes,
-  i_TileStorageAbilities;
+  c_CacheTypeCodes;
 
 { TfrCacheTypeList }
 
@@ -74,24 +68,14 @@ constructor TfrCacheTypeList.Create(
   const ALanguageManager: ILanguageManager;
   const ATileStorageTypeList: ITileStorageTypeListStatic;
   const AWithDefaultItem: Boolean;
-  const AFilterOptions: TCacheTypeListOptions;
+  const AFilterOptions: TTileStorageTypeClassSet;
   const AOnChange: TNotifyEvent
 );
 begin
+  Assert(AFilterOptions <> []);
   inherited Create(ALanguageManager);
   FOnChange := AOnChange;
-
   FOptions := AFilterOptions;
-  if
-    not (foAllowAll in FOptions) and
-    not (foAllowInMemory in FOptions) and
-    not (foAllowFileSys in FOptions) and
-    not (foAllowNoFileSys in FOptions) then
-  begin
-    if not (foDisallowInMemory in FOptions) then Include(FOptions, foAllowInMemory);
-    if not (foDisallowFileSys in FOptions) then Include(FOptions, foAllowFileSys);
-    if not (foDisallowNoFileSys in FOptions) then Include(FOptions, foAllowNoFileSys);
-  end;
 
   FillItems(ATileStorageTypeList, AWithDefaultItem);
 end;
@@ -111,20 +95,16 @@ begin
     Exit;
   end;
 
-  if foAllowAll in FOptions then begin
-    Result := True;
-  end else begin
-    VItemAbilities := AItem.StorageType.Abilities;
-    case VItemAbilities.StorageClass of
-      tstcInSeparateFiles: begin
-        Result := (foAllowFileSys in FOptions) and not (foDisallowFileSys in FOptions);
-      end;
-      tstcInMemory: begin
-        Result := (foAllowInMemory in FOptions) and not (foDisallowInMemory in FOptions);
-      end;
-      tstcOther: begin
-        Result := (foAllowNoFileSys in FOptions) and not (foDisallowNoFileSys in FOptions);
-      end;
+  VItemAbilities := AItem.StorageType.Abilities;
+  case VItemAbilities.StorageClass of
+    tstcInSeparateFiles: begin
+      Result := (tstcInSeparateFiles in FOptions);
+    end;
+    tstcInMemory: begin
+      Result := (tstcInMemory in FOptions);
+    end;
+    tstcOther: begin
+      Result := (tstcOther in FOptions);
     end;
   end;
 end;
