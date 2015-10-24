@@ -1111,6 +1111,7 @@ uses
   u_VectorTileRendererForMarks in 'Src\TileProvider\u_VectorTileRendererForMarks.pas',
   u_TileStorageArchive in 'Src\TileStorage\Archive\u_TileStorageArchive.pas',
   u_TileStorageTar in 'Src\TileStorage\Archive\u_TileStorageTar.pas',
+  u_TileStorageTypeArchiveTar in 'Src\TileStorage\Archive\u_TileStorageTypeArchiveTar.pas',
   i_BerkeleyDB in 'Src\TileStorage\BerkeleyDB\i_BerkeleyDB.pas',
   i_BerkeleyDBEnv in 'Src\TileStorage\BerkeleyDB\i_BerkeleyDBEnv.pas',
   i_BerkeleyDBFactory in 'Src\TileStorage\BerkeleyDB\i_BerkeleyDBFactory.pas',
