@@ -166,14 +166,15 @@ begin
         if FFilesIterator.Next(VTileFileNameW) then begin
           // start process new cache file
           VTileFileName := VTileFileNameW;
-          if FTileFileNameParser.GetTilePoint(VTileFileName, VTileXY, FCurFileZoom) and
+          if FTileFileNameParser.GetTilePoint(VTileFileName, VTileXY, FCurFileZoom)  then begin
             // get new array of tiles
             VTileFileFullName := FFilesIterator.GetRootFolderName + VTileFileNameW;
-            FHelper.GetTileExistsArray(VTileFileFullName, FCurFileZoom, nil, FCurFileTilesArray) then begin
-            FCurFileIndex := 0;
-          end else begin
-            // skip file - tile name parser error
-            FCurFileIndex := Length(FCurFileTilesArray);
+            if FHelper.GetTileExistsArray(VTileFileFullName, FCurFileZoom, nil, FCurFileTilesArray) then begin
+              FCurFileIndex := 0;
+            end else begin
+              // skip file - tile name parser error
+              FCurFileIndex := Length(FCurFileTilesArray);
+            end;
           end;
         end else begin
           // fin enum - no any files found
