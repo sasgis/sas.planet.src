@@ -113,7 +113,7 @@ type
     function ScanTiles(
       const AIgnoreTNE: Boolean;
       const AIgnoreMultiVersionTiles: Boolean
-    ): IEnumTileInfo; virtual; abstract;
+    ): IEnumTileInfo; virtual;
   public
     constructor Create(
       const AStorageTypeAbilities: ITileStorageTypeAbilities;
@@ -262,6 +262,13 @@ begin
   finally
     FSync.EndWrite;
   end;
+end;
+
+function TTileStorageArchive.ScanTiles(
+  const AIgnoreTNE, AIgnoreMultiVersionTiles: Boolean
+): IEnumTileInfo;
+begin
+  Result := nil;
 end;
 
 function TTileStorageArchive.GetListOfTileVersions(
