@@ -264,7 +264,7 @@ begin
             VContentType,
             FContentTypeManager,
             AProjectionSet,
-            FArchiveReadWriteFactory,
+            FArchiveReadWriteFactory.Tar.WriterFactory,
             VFileNameParser,
             VFileNameGenerator
           );

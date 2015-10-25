@@ -48,7 +48,7 @@ type
       const AContentType: IContentTypeInfoBasic;
       const AContentTypeManager: IContentTypeManager;
       const AProjectionSet: IProjectionSet;
-      const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+      const AArchiveFactory: IArchiveWriterFactory;
       const ATileNameParser: ITileFileNameParser;
       const ATileNameGenerator: ITileFileNameGenerator
     );
@@ -167,7 +167,7 @@ constructor TTileStorageTar.Create(
   const AContentType: IContentTypeInfoBasic;
   const AContentTypeManager: IContentTypeManager;
   const AProjectionSet: IProjectionSet;
-  const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+  const AArchiveFactory: IArchiveWriterFactory;
   const ATileNameParser: ITileFileNameParser;
   const ATileNameGenerator: ITileFileNameGenerator
 );
@@ -178,7 +178,7 @@ begin
     AContentType,
     AContentTypeManager,
     AProjectionSet,
-    AArchiveReadWriteFactory.Tar.WriterFactory,
+    AArchiveFactory,
     ATileNameParser,
     ATileNameGenerator
   );

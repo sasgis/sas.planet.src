@@ -120,7 +120,7 @@ begin
       AMainContentType,
       FContentTypeManager,
       AProjectionSet,
-      FArchiveReadWriteFactory,
+      FArchiveReadWriteFactory.Tar.WriterFactory,
       FTileNameParser,
       FNameGenerator
     );
