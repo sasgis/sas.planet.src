@@ -1,11 +1,11 @@
 {******************************************************************************}
 {                                                                              }
 {   File name:        cDefines.inc                                             }
-{   File updated:     2011/09/27                                               }
+{   File updated:     2013/01/28                                               }
 {                                                                              }
 {   Library:          Fundamentals 4.00                                        }
 {   Home page:        http://fundementals.sourceforge.net                      }
-{   Copyright:        Copyright © 1998-2011, David J Butler                    }
+{   Copyright:        Copyright (c) 1998-2013, David J Butler                  }
 {                     All rights reserved.                                     }
 {                                                                              }
 { Conditionals defined elsewhere:                                              }
@@ -36,6 +36,7 @@
 {     DELPHI2010      - Delphi 2010.                                           }
 {     DELPHIXE        - Delphi XE.                                             }
 {     DELPHIXE2       - Delphi XE2.                                            }
+{     DELPHIXE3       - Delphi XE3.                                            }
 {                                                                              }
 {     DELPHI3_UP      - Delphi 3 or later.                                     }
 {     DELPHI4_UP      - Delphi 4 or later.                                     }
@@ -50,6 +51,7 @@
 {     DELPHI2010_UP   - Delphi 2010 or later.                                  }
 {     DELPHIXE_UP     - Delphi XE or later.                                    }
 {     DELPHIXE2_UP    - Delphi XE2 or later.                                   }
+{     DELPHIXE3_UP    - Delphi XE3 or later.                                   }
 {                                                                              }
 {     DELPHI3_DOWN    - Delphi 3 or earlier.                                   }
 {     DELPHI4_DOWN    - Delphi 4 or earlier.                                   }
@@ -67,11 +69,13 @@
 {     FREEPASCAL2_0   - FreePascal 2.0                                         }
 {     FREEPASCAL2_2   - FreePascal 2.2                                         }
 {     FREEPASCAL2_4   - FreePascal 2.4                                         }
+{     FREEPASCAL2_6   - FreePascal 2.6                                         }
 {                                                                              }
 {   SupportCardinal            - Compiler supports Cardinal type.              }
 {   SupportDynArray            - Compiler supports dynamic arrays.             }
 {   SupportInt64               - Compiler supports Int64 type.                 }
 {   SupportWideChar            - Compiler supports WideChar type.              }
+{   SupportUCS4Char            - Compiler supports UC4Char type.               }
 {   SupportCurrency            - Compiler supports Currency type.              }
 {   SupportVariant             - Compiler supports Variant type.               }
 {   SupportAssert              - Compiler supports Assert statement.           }
@@ -86,11 +90,14 @@
 {   SupportUnicodeString       - Compiler supports UnicodeString type.         }
 {   SupportRawByteString       - Compiler supports RawByteString type.         }
 {   SupportEnumValue           - Compiler supports enumeration values.         }
+{   SupportNativeInt           - Compiler supports NativeInt type.             }
+{   SupportUInt64              - Compiler supports UInt64 type.                }
 {                                                                              }
-{   CharIsAnsi      - Default Char type is AnsiChar (1 byte).                  }
-{   CharIsWide      - Default Char type is WideChar (2 bytes).                 }
-{   StringIsAnsi    - Default String type is AnsiString.                       }
-{   StringIsUnicode - Default String type is UnicodeString.                    }
+{   CharIsAnsi        - Default Char type is AnsiChar (1 byte).                }
+{   CharIsWide        - Default Char type is WideChar (2 bytes).               }
+{   StringIsAnsi      - Default String type is AnsiString.                     }
+{   StringIsUnicode   - Default String type is UnicodeString.                  }
+{   ExtendedIsDouble  - Extended type is Double.                               }
 {                                                                              }
 {   UseInline         - SupportInline and not PurePascal.                      }
 {                                                                              }
@@ -445,18 +452,36 @@
 
 
 {                                                                              }
+{ Delphi XE3                                                                   }
+{                                                                              }
+{$IFDEF VER240}
+  {$DEFINE DELPHI}
+  {$DEFINE DELPHIXE3}
+  {$DEFINE DELPHI3_UP}
+  {$DEFINE DELPHI4_UP}
+  {$DEFINE DELPHI5_UP}
+  {$DEFINE DELPHI6_UP}
+  {$DEFINE DELPHI7_UP}
+  {$DEFINE DELPHI8_UP}
+  {$DEFINE DELPHI2005_UP}
+  {$DEFINE DELPHI2006_UP}
+  {$DEFINE DELPHI2007_UP}
+  {$DEFINE DELPHI2009_UP}
+  {$DEFINE DELPHI2010_UP}
+  {$DEFINE DELPHIXE_UP}
+  {$DEFINE DELPHIXE2_UP}
+  {$DEFINE DELPHIXE3_UP}
+{$ENDIF}
+
+
+
+{                                                                              }
 { Future Delphi versions                                                       }
 {                                                                              }
-{$IFDEF VER235}
-  {$DEFINE DELPHI_Future}
-{$ENDIF}
-{$IFDEF VER240}
-  {$DEFINE DELPHI_Future}
-{$ENDIF}
-{$IFDEF VER245}
-  {$DEFINE DELPHI_Future}
-{$ENDIF}
 {$IFDEF VER250}
+  {$DEFINE DELPHI_Future}
+{$ENDIF}
+{$IFDEF VER260}
   {$DEFINE DELPHI_Future}
 {$ENDIF}
 
@@ -475,6 +500,7 @@
   {$DEFINE DELPHI2010_UP}
   {$DEFINE DELPHIXE_UP}
   {$DEFINE DELPHIXE2_UP}
+  {$DEFINE DELPHIXE3_UP}
 {$ENDIF}
 
 
@@ -558,8 +584,10 @@
 {$IFDEF DELPHI6_UP}
   {$DEFINE SupportUTF8String}
   {$DEFINE SupportUCS4String}
+  {$DEFINE SupportUCS4Char}
   {$IFDEF DELPHI2009_UP}{$IFDEF ManagedCode}
     {$UNDEF SupportUCS4String}
+    {$UNDEF SupportUCS4Char}
   {$ENDIF}{$ENDIF}
   {$DEFINE SupportEnumValue}
 {$ENDIF}
@@ -590,6 +618,8 @@
     {$UNDEF SupportRawByteString}
     {$UNDEF SupportUTF8String}
   {$ENDIF}
+  {$DEFINE SupportNativeInt}
+  {$DEFINE SupportUInt64}
 {$ENDIF}
 
 {$IFDEF DELPHI}
@@ -601,6 +631,10 @@
     {$DEFINE StringIsAnsi}
   {$ENDIF}
   {$DEFINE SetSizeAlignIsByte}
+{$ENDIF}
+
+{$IFDEF DELPHIXE3_UP}
+  {$DEFINE ExtendedIsDouble}
 {$ENDIF}
 
 
@@ -625,6 +659,9 @@
     {$ENDIF}
     {$IFDEF VER2_4}
       {$DEFINE FREEPASCAL2_4}
+    {$ENDIF}
+    {$IFDEF VER2_6}
+      {$DEFINE FREEPASCAL2_6}
     {$ENDIF}
   {$ENDIF}
   {$MODE DELPHI}
@@ -676,7 +713,17 @@
   {$DEFINE SupportUCS4String}
   {$DEFINE CharIsAnsi}
   {$DEFINE StringIsAnsi}
-  {$DEFINE SetSizeAlignIsLongWord}
+  {$IFDEF FREEPASCAL2_0}
+    {$DEFINE SetSizeAlignIsLongWord}
+  {$ELSE}
+  {$IFDEF FREEPASCAL2_2}
+    {$DEFINE SetSizeAlignIsLongWord}
+  {$ELSE}
+  {$IFDEF FREEPASCAL2_4}
+    {$DEFINE SetSizeAlignIsLongWord}
+  {$ELSE}
+    {$DEFINE SetSizeAlignIsByte}
+  {$ENDIF}{$ENDIF}{$ENDIF}
   {$DEFINE SupportEnumValue}
 {$ENDIF}
 
@@ -763,6 +810,7 @@
 {$ENDIF}
 {$IFDEF DOT_NET}
   {$DEFINE ManagedCode}
+  {$DEFINE ExtendedIsDouble}
 {$ENDIF}
 
 

@@ -2,10 +2,10 @@
 {                                                                              }
 {   Library:          Fundamentals 4.00                                        }
 {   File name:        cUnicodeCodecs.pas                                       }
-{   File version:     4.16                                                     }
+{   File version:     4.19                                                     }
 {   Description:      Unicode codecs                                           }
 {                                                                              }
-{   Copyright:        Copyright © 2002-2011                                    }
+{   Copyright:        Copyright (c) 2002-2012                                  }
 {                     David J Butler and Dieter Köhler                         }
 {                     All rights reserved.                                     }
 {                     See license below.                                       }
@@ -64,37 +64,50 @@
 {                                                                              }
 { Revision history:                                                            }
 {                                                                              }
-{   17/04/2002  0.01  Initial version. ISO8859, Mac, Win1250-1252, UTF.        }
-{   20/04/2002  0.02  EBCDIC-US.                                               }
-{   28/10/2002  3.03  Refactored.                                              }
-{   29/10/2002  3.04  UTF-8 string functions.                                  }
-{   04/11/2002  3.05  Test cases. Fixed bug in UTF-8 encoding function.        }
-{   23/05/2003  3.06  Detection routines.                                      }
-{   28/09/2003  3.07  Renamed ASCII to USASCII for clarity.                    }
-{   30/10/2003  3.08  Moved character mappings to unit cUnicodeMaps.           }
-{   10/01/2004  3.09  Moved generic functions to cUnicodeChar and cUnicode.    }
+{   2002/04/17  0.01  Initial version. ISO8859, Mac, Win1250-1252, UTF.        }
+{   2002/04/20  0.02  EBCDIC-US.                                               }
+{   2002/10/28  3.03  Refactored.                                              }
+{   2002/10/29  3.04  UTF-8 string functions.                                  }
+{   2002/11/04  3.05  Test cases. Fixed bug in UTF-8 encoding function.        }
+{   2003/05/23  3.06  Detection routines.                                      }
+{   2003/09/28  3.07  Renamed ASCII to USASCII for clarity.                    }
+{   2003/10/30  3.08  Moved character mappings to unit cUnicodeMaps.           }
+{   2004/01/10  3.09  Moved generic functions to cUnicodeChar and cUnicode.    }
 {                     Revision of codec classes.                               }
-{   15/03/2004  3.10  Moved character mappings into codec classes.             }
+{   2004/03/15  3.10  Moved character mappings into codec classes.             }
 {                     UCS2 codec.                                              }
-{   11/04/2004  3.11  Improved Read/Write functions.                           }
-{   19/04/2004  3.12  Small revisions.                                         }
-{   11/08/2004  3.13  Minor change to UCS4 functions.                          }
-{   06/11/2004  3.14  Codec alias functions.                                   }
-{   27/08/2005  4.15  Revised for Fundamentals 4.                              }
-{   30/12/2008  4.16  Revision.                                                }
+{   2004/04/11  3.11  Improved Read/Write functions.                           }
+{   2004/04/19  3.12  Small revisions.                                         }
+{   2004/08/11  3.13  Minor change to UCS4 functions.                          }
+{   2004/11/06  3.14  Codec alias functions.                                   }
+{   2005/08/27  4.15  Revised for Fundamentals 4.                              }
+{   2008/12/30  4.16  Revision.                                                }
+{   2011/09/28  4.17  Revision for Delphi 2009 Win32.                          }
+{   2012/05/23  4.18  Fixed bug in TUCS2Codec.Decode reported by brianjford.   }
+{   2012/08/25  4.19  UnicodeString functions.                                 }
 {                                                                              }
 { Supported compilers:                                                         }
 {                                                                              }
-{   Borland Delphi 5/6/7/2005/2006/2007 Win32 i386                             }
+{   Borland Delphi 5/6/7/2005/2006/2007/2009 Win32 i386                        }
 {   FreePascal 2 Win32 i386                                                    }
 {   FreePascal 2 Linux i386                                                    }
 {                                                                              }
 {******************************************************************************}
 
 {$INCLUDE cDefines.inc}
-{$IFDEF FREEPASCAL}{$IFDEF DEBUG}
-  {$WARNINGS OFF}{$HINTS OFF}{$NOTES OFF}
-{$ENDIF}{$ENDIF}
+
+{$IFDEF FREEPASCAL}
+  {$WARNINGS OFF}
+  {$HINTS OFF}
+  {$NOTES OFF}
+{$ENDIF}
+
+{$IFDEF DEBUG}
+{$IFDEF SELFTEST}
+  {$DEFINE UNICODECODECS_SELFTEST}
+{$ENDIF}
+{$ENDIF}
+
 unit cUnicodeCodecs;
 
 interface
@@ -102,6 +115,16 @@ interface
 uses
   { System }
   SysUtils;
+
+
+
+{                                                                              }
+{ UnicodeString                                                                }
+{                                                                              }
+{$IFNDEF SupportUnicodeString}
+type
+  UnicodeString = WideString;
+{$ENDIF}
 
 
 
@@ -130,9 +153,10 @@ const
 {                                                                              }
 { US-ASCII string functions                                                    }
 {                                                                              }
-function  IsUSASCIIString(const S: AnsiString): Boolean;
+function  IsUSASCIIAnsiString(const S: AnsiString): Boolean;
 function  IsUSASCIIWideBuf(const Buf: PWideChar; const Len: Integer): Boolean;
 function  IsUSASCIIWideString(const S: WideString): Boolean;
+function  IsUSASCIIUnicodeString(const S: UnicodeString): Boolean;
 
 
 
@@ -142,10 +166,12 @@ function  IsUSASCIIWideString(const S: WideString): Boolean;
 procedure LongToWide(const Buf: Pointer; const BufSize: Integer;
           const DestBuf: Pointer);
 function  LongStringToWideString(const S: AnsiString): WideString;
+function  LongStringToUnicodeString(const S: AnsiString): UnicodeString;
 procedure WideToLong(const Buf: Pointer; const Len: Integer;
           const DestBuf: Pointer);
 function  WideToLongString(const P: PWideChar; const Len: Integer): AnsiString;
 function  WideStringToLongString(const S: WideString): AnsiString;
+function  UnicodeStringToLongString(const S: UnicodeString): AnsiString;
 
 
 
@@ -194,13 +220,18 @@ function  UTF8CharSize(const P: PAnsiChar; const Size: Integer): Integer;
 function  UTF8BufLength(const P: PAnsiChar; const Size: Integer): Integer;
 function  UTF8StringLength(const S: AnsiString): Integer;
 function  UTF8StringToWideString(const S: AnsiString): WideString;
+function  UTF8StringToUnicodeString(const S: AnsiString): UnicodeString;
 function  UTF8StringToLongString(const S: AnsiString): AnsiString;
 
 function  UCS4CharToUTF8CharSize(const Ch: UCS4Char): Integer;
 function  WideBufToUTF8Size(const Buf: PWideChar; const Len: Integer): Integer;
 function  WideStringToUTF8Size(const S: WideString): Integer;
+function  UnicodeStringToUTF8Size(const S: UnicodeString): Integer;
 function  WideBufToUTF8String(const Buf: PWideChar; const Len: Integer): AnsiString;
 function  WideStringToUTF8String(const S: WideString): AnsiString;
+function  WideStringToUnicodeString(const S: WideString): UnicodeString;
+function  UnicodeStringToUTF8String(const S: UnicodeString): AnsiString;
+function  UnicodeStringToWideString(const S: UnicodeString): WideString;
 function  LongBufToUTF8Size(const Buf: PAnsiChar; const Len: Integer): Integer;
 function  LongStringToUTF8Size(const S: AnsiString): Integer;
 function  LongStringToUTF8String(const S: AnsiString): AnsiString;
@@ -317,9 +348,11 @@ type
 
     class function GetAliasCount: Integer; virtual;
     class function GetAliasList: PString; virtual;
+    class function GetAlias(const Idx: Integer): String;
 
-    class function GetAlias(const Idx: Integer): AnsiString;
-    class function IsAlias(const Alias: AnsiString): Boolean;
+    class function IsAlias(const Alias: String): Boolean;
+    class function IsAliasA(const Alias: AnsiString): Boolean;
+    class function IsAliasU(const Alias: UnicodeString): Boolean;
 
     procedure Decode(const Buf: Pointer; const BufSize: Integer;
               const DestBuf: Pointer; const DestSize: Integer;
@@ -357,14 +390,16 @@ type
 {                                                                              }
 { Codec registration                                                           }
 {                                                                              }
-procedure RegisterCodecs(const Codecs: Array of TUnicodeCodecClass);
+procedure RegisterCodecs(const Codecs: array of TUnicodeCodecClass);
 
 
 
 {                                                                              }
 { Codec aliases                                                                }
 {                                                                              }
-function  GetCodecClassByAlias(const CodecAlias: AnsiString): TUnicodeCodecClass;
+function  GetCodecClassByAlias(const CodecAlias: String): TUnicodeCodecClass;
+function  GetCodecClassByAliasA(const CodecAlias: AnsiString): TUnicodeCodecClass;
+function  GetCodecClassByAliasU(const CodecAlias: UnicodeString): TUnicodeCodecClass;
 
 
 
@@ -372,7 +407,7 @@ function  GetCodecClassByAlias(const CodecAlias: AnsiString): TUnicodeCodecClass
 {                                                                              }
 { Windows system encoding functions                                            }
 {                                                                              }
-function  GetSystemEncodingName: AnsiString; {$IFDEF DELPHI6_UP}platform;{$ENDIF}
+function  GetSystemEncodingName: String; {$IFDEF DELPHI6_UP}platform;{$ENDIF}
 function  GetSystemEncodingCodecClass: TUnicodeCodecClass; {$IFDEF DELPHI6_UP}platform;{$ENDIF}
 {$ENDIF}
 
@@ -382,7 +417,7 @@ function  GetSystemEncodingCodecClass: TUnicodeCodecClass; {$IFDEF DELPHI6_UP}pl
 { Encoding detection                                                           }
 {                                                                              }
 function  DetectUTFEncoding(const Buf: Pointer; const BufSize: Integer;
-          var BOMSize: Integer): TUnicodeCodecClass;
+          out BOMSize: Integer): TUnicodeCodecClass;
 
 
 
@@ -394,13 +429,13 @@ function  EncodingToUTF16(const CodecClass: TUnicodeCodecClass;
 function  EncodingToUTF16(const CodecClass: TUnicodeCodecClass;
           const S: AnsiString): WideString; overload;
 
-function  EncodingToUTF16(const CodecAlias: AnsiString;
+function  EncodingToUTF16(const CodecAlias: String;
           const Buf: Pointer; const BufSize: Integer): WideString; overload;
-function  EncodingToUTF16(const CodecAlias, S: AnsiString): WideString; overload;
+function  EncodingToUTF16(const CodecAlias: String; const S: AnsiString): WideString; overload;
 
 function  UTF16ToEncoding(const CodecClass: TUnicodeCodecClass;
           const S: WideString): AnsiString; overload;
-function  UTF16ToEncoding(const CodecAlias: AnsiString;
+function  UTF16ToEncoding(const CodecAlias: String;
           const S: WideString): AnsiString; overload;
 
 
@@ -1404,9 +1439,9 @@ type
 {                                                                              }
 { Test cases                                                                   }
 {                                                                              }
-{$IFDEF DEBUG}{$IFDEF SELFTEST}
+{$IFDEF UNICODECODECS_SELFTEST}
 procedure SelfTest;
-{$ENDIF}{$ENDIF}
+{$ENDIF}
 
 
 
@@ -1421,17 +1456,17 @@ uses
 
 
 resourcestring
-  SCannotConvert           = 'Unicode code point $%x has no equivalent in %s';
-  SCannotConvertUCS4       = 'Cannot convert $%8.8X to %s';
-  SHighSurrogateNotFound   = 'High surrogate not found';
-  SInvalidCodePoint        = '$%x is not a valid %s code point';
-  SInvalidEncoding         = 'Invalid %s encoding';
-  SLongStringConvertError  = 'Long string conversion error';
-  SLowSurrogateNotFound    = 'Low surrogate not found';
-  SSurrogateNotAllowed     = 'Surrogate value $%x found in %s. Values between $D800 and $DFFF are reserved for use with UTF-16';
-  SEncodingOutOfRange      = '%s encoding out of range';
-  SUTF8Error               = 'UTF-8 error %d';
-  SAliasIndexOutOfRange    = 'Alias index out of range';
+  SCannotConvert          = 'Unicode code point $%x has no equivalent in %s';
+  SCannotConvertUCS4      = 'Cannot convert $%8.8X to %s';
+  SHighSurrogateNotFound  = 'High surrogate not found';
+  SInvalidCodePoint       = '$%x is not a valid %s code point';
+  SInvalidEncoding        = 'Invalid %s encoding';
+  SLongStringConvertError = 'Long string conversion error';
+  SLowSurrogateNotFound   = 'Low surrogate not found';
+  SSurrogateNotAllowed    = 'Surrogate value $%x found in %s. Values between $D800 and $DFFF are reserved for use with UTF-16';
+  SEncodingOutOfRange     = '%s encoding out of range';
+  SUTF8Error              = 'UTF-8 error %d';
+  SAliasIndexOutOfRange   = 'Alias index out of range';
 
 
 
@@ -1450,12 +1485,12 @@ type
 {                                                                              }
 { US-ASCII String functions                                                    }
 {                                                                              }
-function IsUSASCIIString(const S: AnsiString): Boolean;
+function IsUSASCIIAnsiString(const S: AnsiString): Boolean;
 var I : Integer;
     P : PAnsiChar;
 begin
   P := Pointer(S);
-  For I := 1 to Length(S) do
+  for I := 1 to Length(S) do
     if Ord(P^) >= $80 then
       begin
         Result := False;
@@ -1471,7 +1506,7 @@ var I : Integer;
     P : PWideChar;
 begin
   P := Buf;
-  For I := 1 to Len do
+  for I := 1 to Len do
     if Ord(P^) >= $80 then
       begin
         Result := False;
@@ -1483,6 +1518,11 @@ begin
 end;
 
 function IsUSASCIIWideString(const S: WideString): Boolean;
+begin
+  Result := IsUSASCIIWideBuf(Pointer(S), Length(S));
+end;
+
+function IsUSASCIIUnicodeString(const S: UnicodeString): Boolean;
 begin
   Result := IsUSASCIIWideBuf(Pointer(S), Length(S));
 end;
@@ -1503,7 +1543,7 @@ begin
     exit;
   P := Buf;
   Q := DestBuf;
-  For I := 1 to BufSize div 4 do
+  for I := 1 to BufSize div 4 do
     begin
       // convert 4 characters per iteration
       V := PLongWord(P)^;
@@ -1515,7 +1555,7 @@ begin
       Inc(PLongWord(Q));
     end;
   // convert remaining (<4)
-  For I := 1 to BufSize mod 4 do
+  for I := 1 to BufSize mod 4 do
     begin
       PWord(Q)^ := PByte(P)^;
       Inc(PByte(P));
@@ -1524,6 +1564,16 @@ begin
 end;
 
 function LongStringToWideString(const S: AnsiString): WideString;
+var L : Integer;
+begin
+  L := Length(S);
+  SetLength(Result, L);
+  if L = 0 then
+    exit;
+  LongToWide(Pointer(S), L, Pointer(Result));
+end;
+
+function LongStringToUnicodeString(const S: AnsiString): UnicodeString;
 var L : Integer;
 begin
   L := Length(S);
@@ -1545,7 +1595,7 @@ begin
     exit;
   S := Buf;
   Q := DestBuf;
-  For I := 1 to Len div 2 do
+  for I := 1 to Len div 2 do
     begin
       // convert 2 characters per iteration
       V := PLongWord(S)^;
@@ -1581,7 +1631,7 @@ begin
   SetLength(Result, Len);
   S := P;
   Q := Pointer(Result);
-  For I := 1 to Len do
+  for I := 1 to Len do
     begin
       V := S^;
       if Ord(V) > $FF then
@@ -1593,6 +1643,11 @@ begin
 end;
 
 function WideStringToLongString(const S: WideString): AnsiString;
+begin
+  Result := WideToLongString(Pointer(S), Length(S));
+end;
+
+function UnicodeStringToLongString(const S: UnicodeString): AnsiString;
 begin
   Result := WideToLongString(Pointer(S), Length(S));
 end;
@@ -1667,7 +1722,7 @@ begin
       Result := UTF8ErrorIncompleteEncoding;
       exit;
     end;
-  For I := 1 to SeqSize - 1 do
+  for I := 1 to SeqSize - 1 do
     begin
       D := Ord(P[I]);
       if D and $C0 <> $80 then // following byte must start with 10xxxxxx
@@ -1781,7 +1836,7 @@ var P : PByte;
     HighSurrogate, LowSurrogate : Word;
 begin
   P := Dest;
-  Case Ch of
+  case Ch of
   $00000000..$0000D7FF, $0000E000..$0000FFFF :
     begin
       SeqSize := 2;
@@ -1838,7 +1893,7 @@ var P : PByte;
     HighSurrogate, LowSurrogate : Word;
 begin
   P := Dest;
-  Case Ch of
+  case Ch of
   $00000000..$0000D7FF, $0000E000..$0000FFFF :
     begin
       SeqSize := 2;
@@ -1939,7 +1994,7 @@ begin
         exit;
       Q := P;
       Inc(Q);
-      For I := 1 to Result - 1 do
+      for I := 1 to Result - 1 do
         if Ord(Q^) and $C0 <> $80 then
           begin
             Result := 1; // invalid encoding
@@ -1956,7 +2011,7 @@ begin
   Q := P;
   L := Size;
   Result := 0;
-  While L > 0 do
+  while L > 0 do
     begin
       C := UTF8CharSize(Q, L);
       Dec(L, C);
@@ -1991,7 +2046,7 @@ var P : PWideChar;
 begin
   P := Buf;
   Result := 0;
-  For I := 1 to Len do
+  for I := 1 to Len do
     begin
       C := UCS4Char(P^);
       Inc(Result);
@@ -2009,7 +2064,7 @@ var P : PAnsiChar;
 begin
   P := Buf;
   Result := 0;
-  For I := 1 to Len do
+  for I := 1 to Len do
     begin
       Inc(Result);
       if Ord(P^) >= $80 then
@@ -2019,6 +2074,11 @@ begin
 end;
 
 function WideStringToUTF8Size(const S: WideString): Integer;
+begin
+  Result := WideBufToUTF8Size(Pointer(S), Length(S));
+end;
+
+function UnicodeStringToUTF8Size(const S: UnicodeString): Integer;
 begin
   Result := WideBufToUTF8Size(Pointer(S), Length(S));
 end;
@@ -2040,7 +2100,7 @@ begin
       Result := '';
       exit;
     end;
-  if IsUSASCIIString(S) then // optimize for US-ASCII strings
+  if IsUSASCIIAnsiString(S) then // optimize for US-ASCII strings
     begin
       Result := LongStringToWideString(S);
       exit;
@@ -2050,7 +2110,7 @@ begin
   SetLength(Result, L); // maximum size
   Q := Pointer(Result);
   M := 0;
-  Repeat
+  repeat
     UTF8ToWideChar(P, L, I, C);
     Assert(I > 0, 'I > 0');
     Q^ := C;
@@ -2058,7 +2118,41 @@ begin
     Inc(M);
     Inc(P, I);
     Dec(L, I);
-  Until L <= 0;
+  until L <= 0;
+  SetLength(Result, M); // actual size
+end;
+
+function UTF8StringToUnicodeString(const S: AnsiString): UnicodeString;
+var P       : PAnsiChar;
+    Q       : PWideChar;
+    L, M, I : Integer;
+    C       : WideChar;
+begin
+  L := Length(S);
+  if L = 0 then
+    begin
+      Result := '';
+      exit;
+    end;
+  if IsUSASCIIAnsiString(S) then // optimize for US-ASCII strings
+    begin
+      Result := LongStringToUnicodeString(S);
+      exit;
+    end;
+  // Decode UTF-8
+  P := Pointer(S);
+  SetLength(Result, L); // maximum size
+  Q := Pointer(Result);
+  M := 0;
+  repeat
+    UTF8ToWideChar(P, L, I, C);
+    Assert(I > 0, 'I > 0');
+    Q^ := C;
+    Inc(Q);
+    Inc(M);
+    Inc(P, I);
+    Dec(L, I);
+  until L <= 0;
   SetLength(Result, M); // actual size
 end;
 
@@ -2074,7 +2168,7 @@ begin
       Result := '';
       exit;
     end;
-  if IsUSASCIIString(S) then // optimize for US-ASCII strings
+  if IsUSASCIIAnsiString(S) then // optimize for US-ASCII strings
     begin
       Result := S;
       exit;
@@ -2084,7 +2178,7 @@ begin
   SetLength(Result, L); // maximum size
   Q := Pointer(Result);
   M := 0;
-  Repeat
+  repeat
     UTF8ToWideChar(P, L, I, C);
     Assert(I > 0, 'I > 0');
     if Ord(C) > $FF then
@@ -2094,7 +2188,7 @@ begin
     Inc(M);
     Inc(P, I);
     Dec(L, I);
-  Until L <= 0;
+  until L <= 0;
   SetLength(Result, M); // actual size
 end;
 
@@ -2119,7 +2213,7 @@ begin
   P := Buf;
   Q := Pointer(Result);
   M := 0;
-  For I := 1 to Len do
+  for I := 1 to Len do
     begin
       UCS4CharToUTF8(UCS4Char(P^), Q, N, J);
       Inc(P);
@@ -2152,7 +2246,7 @@ begin
   SetLength(Result, N);
   Q := Pointer(Result);
   M := 0;
-  For I := 1 to L do
+  for I := 1 to L do
     begin
       UCS4CharToUTF8(UCS4Char(Ord(P^)), Q, N, J);
       Inc(P);
@@ -2168,11 +2262,26 @@ begin
   Result := WideBufToUTF8String(Pointer(S), Length(S));
 end;
 
+function WideStringToUnicodeString(const S: WideString): UnicodeString;
+begin
+  Result := S;
+end;
+
+function UnicodeStringToUTF8String(const S: UnicodeString): AnsiString;
+begin
+  Result := WideBufToUTF8String(Pointer(S), Length(S));
+end;
+
+function UnicodeStringToWideString(const S: UnicodeString): WideString;
+begin
+  Result := S;
+end;
+
 const
   MaxUTF8SequenceSize = 4;
 
 function UCS4CharToUTF8String(const Ch: UCS4Char): AnsiString;
-var Buf     : Array[0..MaxUTF8SequenceSize - 1] of Byte;
+var Buf     : array[0..MaxUTF8SequenceSize - 1] of Byte;
     Size, I : Integer;
     P, Q    : PAnsiChar;
 begin
@@ -2183,7 +2292,7 @@ begin
     begin
       P := Pointer(Result);
       Q := @Buf;
-      For I := 0 to Size - 1 do
+      for I := 0 to Size - 1 do
         begin
           P^ := Q^;
           Inc(P);
@@ -2206,7 +2315,7 @@ begin
   // Calculate size
   M := L;
   P := Pointer(S);
-  For I := 1 to L do
+  for I := 1 to L do
     begin
       if Ord(P^) >= $80 then
         Inc(M); // 2 bytes required for #$80-#$FF
@@ -2223,7 +2332,7 @@ begin
   SetLength(Result, M);
   Q := Pointer(Result);
   P := Pointer(S);
-  For I := 1 to L do
+  for I := 1 to L do
     begin
       WideCharToUTF8(WideChar(P^), Q, M, J);
       Inc(P);
@@ -2288,7 +2397,7 @@ end;
 { Helper Functions                                                             }
 {                                                                              }
 type
-  AnsiCharMap = Array[AnsiChar] of WideChar;
+  AnsiCharMap = array[AnsiChar] of WideChar;
 
 function CharFromMap(const Ch: WideChar; const Map: AnsiCharMap;
     const Encoding: AnsiString): AnsiChar;
@@ -2310,7 +2419,7 @@ begin
 end;
 
 type
-  AnsiCharHighMap = Array[#$80..#$FF] of WideChar;
+  AnsiCharHighMap = array[#$80..#$FF] of WideChar;
 
 function CharFromHighMap(const Ch: WideChar; const Map: AnsiCharHighMap;
     const Encoding: AnsiString): AnsiChar;
@@ -2337,7 +2446,7 @@ begin
 end;
 
 type
-  AnsiCharISOMap = Array[#$A0..#$FF] of WideChar;
+  AnsiCharISOMap = array[#$A0..#$FF] of WideChar;
 
 function CharFromISOMap(const Ch: WideChar; const Map: AnsiCharISOMap;
     const Encoding: AnsiString): AnsiChar;
@@ -2369,15 +2478,15 @@ end;
 { Codec registration                                                           }
 {                                                                              }
 var
-  CodecList : Array of TUnicodeCodecClass;
+  CodecList : array of TUnicodeCodecClass;
 
-procedure RegisterCodecs(const Codecs: Array of TUnicodeCodecClass);
+procedure RegisterCodecs(const Codecs: array of TUnicodeCodecClass);
 var I, K, L : Integer;
 begin
   L := Length(CodecList);
   K := Length(Codecs);
   SetLength(CodecList, L + K);
-  For I := 0 to K - 1 do
+  for I := 0 to K - 1 do
     CodecList[L + I] := Codecs[I];
 end;
 
@@ -2399,11 +2508,11 @@ end;
 {                                                                              }
 { Codec aliases                                                                }
 {                                                                              }
-function GetCodecClassByAlias(const CodecAlias: AnsiString): TUnicodeCodecClass;
+function GetCodecClassByAlias(const CodecAlias: String): TUnicodeCodecClass;
 var I : Integer;
     C : TUnicodeCodecClass;
 begin
-  For I := 0 to Length(CodecList) - 1 do
+  for I := 0 to Length(CodecList) - 1 do
     begin
       C := CodecList[I];
       if C.IsAlias(CodecAlias) then
@@ -2415,17 +2524,31 @@ begin
   Result := nil;
 end;
 
+function GetCodecClassByAliasA(const CodecAlias: AnsiString): TUnicodeCodecClass;
+var S : String;
+begin
+  S := String(CodecAlias);
+  Result := GetCodecClassByAlias(S);
+end;
+
+function GetCodecClassByAliasU(const CodecAlias: UnicodeString): TUnicodeCodecClass;
+var S : String;
+begin
+  S := String(CodecAlias);
+  Result := GetCodecClassByAlias(S);
+end;
+
 
 
 {$IFDEF MSWIN}
 {                                                                              }
 { MS Windows system encoding functions                                         }
 {                                                                              }
-function GetSystemEncodingName: AnsiString;
+function GetSystemEncodingName: String;
 begin
   // GetACP returns the current ANSI code-page identifier for the system,
   // or a default identifier if no code page is current.
-  Case GetACP of
+  case GetACP of
     874  : Result := 'cp874';            // Thai
     932  : Result := 'cp932';            // Japan
     936  : Result := 'cp936';            // Chinese (PRC, Singapore)
@@ -2447,7 +2570,7 @@ end;
 
 function GetSystemEncodingCodecClass: TUnicodeCodecClass;
 begin
-  Case GetACP of
+  case GetACP of
     874  : Result := TWindows874Codec;   // Thai
     932  : Result := nil;                // Japan  --  Not supported
     936  : Result := nil;                // Chinese (PRC, Singapore) --  Not supported
@@ -2474,7 +2597,7 @@ end;
 { Encoding detection                                                           }
 {                                                                              }
 function DetectUTFEncoding(const Buf: Pointer; const BufSize: Integer;
-    var BOMSize: Integer): TUnicodeCodecClass;
+    out BOMSize: Integer): TUnicodeCodecClass;
 var R : Boolean;
 begin
   if DetectUTF16BOM(Buf, BufSize, R) then
@@ -2537,14 +2660,14 @@ begin
   end;
 end;
 
-function EncodingToUTF16(const CodecAlias: AnsiString;
+function EncodingToUTF16(const CodecAlias: String;
     const Buf: Pointer; const BufSize: Integer): WideString;
 begin
   Result := EncodingToUTF16(GetCodecClassByAlias(CodecAlias),
       Buf, BufSize);
 end;
 
-function EncodingToUTF16(const CodecAlias, S: AnsiString): WideString;
+function EncodingToUTF16(const CodecAlias: String; const S: AnsiString): WideString;
 begin
   Result := EncodingToUTF16(GetCodecClassByAlias(CodecAlias), S);
 end;
@@ -2567,7 +2690,7 @@ begin
   end;
 end;
 
-function UTF16ToEncoding(const CodecAlias: AnsiString; const S: WideString): AnsiString;
+function UTF16ToEncoding(const CodecAlias: String; const S: WideString): AnsiString;
 begin
   Result := UTF16ToEncoding(GetCodecClassByAlias(CodecAlias), S);
 end;
@@ -2577,7 +2700,7 @@ end;
 {                                                                              }
 { EUnicodeCodecException helper functions                                      }
 {                                                                              }
-procedure RaiseUnicodeCodecException(const Msg: AnsiString;
+procedure RaiseUnicodeCodecException(const Msg: String;
     const ProcessedBytes: Integer); overload;
 var E : EUnicodeCodecException;
 begin
@@ -2632,7 +2755,7 @@ begin
   Result := nil;
 end;
 
-class function TCustomUnicodeCodec.GetAlias(const Idx: Integer): AnsiString;
+class function TCustomUnicodeCodec.GetAlias(const Idx: Integer): String;
 var P : PString;
 begin
   if Idx < 0 then
@@ -2644,13 +2767,13 @@ begin
   Result := P^;
 end;
 
-class function TCustomUnicodeCodec.IsAlias(const Alias: AnsiString): Boolean;
+class function TCustomUnicodeCodec.IsAlias(const Alias: String): Boolean;
 var P : PString;
     I : Integer;
 begin
   P := GetAliasList;
-  For I := 0 to GetAliasCount - 1 do
-    if AnsiCompareText(Alias, P^) = 0 then
+  for I := 0 to GetAliasCount - 1 do
+    if SameText(Alias, P^) then
       begin
         Result := True;
         exit;
@@ -2658,6 +2781,20 @@ begin
     else
       Inc(P);
   Result := False;
+end;
+
+class function TCustomUnicodeCodec.IsAliasA(const Alias: AnsiString): Boolean;
+var S : String;
+begin
+  S := String(Alias);
+  Result := IsAlias(S);
+end;
+
+class function TCustomUnicodeCodec.IsAliasU(const Alias: UnicodeString): Boolean;
+var S : String;
+begin
+  S := String(Alias);
+  Result := IsAlias(S);
 end;
 
 procedure TCustomUnicodeCodec.ResetReadAhead;
@@ -2711,7 +2848,7 @@ begin
     end;
   SetLength(Dest, BufSize);
   M := 0;
-  Repeat
+  repeat
     Q := Pointer(Dest);
     Inc(Q, M);
     Decode(P, L, Q, BufSize * Sizeof(WideChar), I, J);
@@ -2721,7 +2858,7 @@ begin
     if (J < BufSize) or (L <= 0) then
       break;
     SetLength(Dest, M + BufSize);
-  Until False;
+  until False;
   if Length(Dest) <> M then
     SetLength(Dest, M);
 end;
@@ -2775,7 +2912,7 @@ var ByteCount2 : Integer;
 begin
   if C = UCS4_LF then
     // Transform LINE FEED character
-    Case WriteLFOption of
+    case WriteLFOption of
       lwLF : InternalWriteUCS4Char(UCS4_LF, ByteCount);
       lwCR : InternalWriteUCS4Char(UCS4_CR, ByteCount);
       lwCRLF :
@@ -2824,7 +2961,7 @@ begin
       exit;
     end;
   L := 0;
-  For I := 1 to BufSize do
+  for I := 1 to BufSize do
     try
       if L >= C then
         break;
@@ -2834,7 +2971,7 @@ begin
       Inc(L);
     except
       on E : Exception do
-        Case FErrorAction of
+        case FErrorAction of
           eaException :
             RaiseUnicodeCodecException(E.Message, P - Buf);
           eaStop :
@@ -2883,7 +3020,7 @@ begin
   L := 0;
   M := 0;
   P := Pointer(Result);
-  For I := 1 to Length do
+  for I := 1 to Length do
     try
       P^ := EncodeChar(Q^);
       Inc(P);
@@ -2892,7 +3029,7 @@ begin
       Inc(M);
     except
       on E : Exception do
-        Case FErrorAction of
+        case FErrorAction of
           eaException :
             RaiseUnicodeCodecException(E.Message, L);
           eaStop :
@@ -2965,7 +3102,7 @@ end;
 {                                                                              }
 const
   UTF8Aliases = 2;
-  UTF8Alias : Array[0..UTF8Aliases - 1] of AnsiString = (
+  UTF8Alias : array[0..UTF8Aliases - 1] of String = (
       'UTF-8', 'utf8');
 
 class function TUTF8Codec.GetAliasCount: Integer;
@@ -2999,12 +3136,12 @@ begin
       exit;
     end;
   M := 0;
-  Repeat
+  repeat
     if M >= N then
       break;
     try
       R := UTF8ToWideChar(P, L, I, C);
-      Case R of
+      case R of
         UTF8ErrorNone :
           begin
             Q^ := C;
@@ -3028,7 +3165,7 @@ begin
       end;
     except
       on E : Exception do
-        Case FErrorAction of
+        case FErrorAction of
           eaException :
             RaiseUnicodeCodecException(E.Message, BufSize - L);
           eaStop :
@@ -3056,7 +3193,7 @@ begin
             end;
         end;
     end;
-  Until L <= 0;
+  until L <= 0;
   ProcessedBytes := BufSize - L;
   DestLength := M;
 end;
@@ -3079,7 +3216,7 @@ begin
   SetLength(Result, L);
   Q := Pointer(Result);
   M := 0;
-  For I := 1 to Length do
+  for I := 1 to Length do
     begin
       WideCharToUTF8(P^, Q, L, J);
       Inc(P);
@@ -3133,7 +3270,7 @@ end;
 
 procedure TUTF8Codec.InternalWriteUCS4Char(const C: UCS4Char;
     out ByteCount: Integer);
-var Buffer : Array[0..3] of Byte;
+var Buffer : array[0..3] of Byte;
 begin
   UCS4CharToUTF8(C, @Buffer, 4, ByteCount);
   WriteBuffer(Buffer, ByteCount);
@@ -3143,10 +3280,10 @@ procedure TUTF8Codec.WriteUCS4Char(const C: UCS4Char; out ByteCount: Integer);
 const
   UTF8_LF   : Byte = $0A;
   UTF8_CR   : Byte = $0D;
-  UTF8_CRLF : Array[0..1] of Byte = ($0D, $0A);
+  UTF8_CRLF : array[0..1] of Byte = ($0D, $0A);
 begin
   if C = UCS4_LF then
-    Case WriteLFOption of
+    case WriteLFOption of
       lwLF:
         begin
           WriteBuffer(UTF8_LF, 1);
@@ -3174,9 +3311,8 @@ end;
 {                                                                              }
 const
   UTF16BEAliases = 2;
-  UTF16BEAlias : Array[0..UTF16BEAliases - 1] of AnsiString = (
+  UTF16BEAlias : array[0..UTF16BEAliases - 1] of String = (
       'UTF-16BE', 'UTF16be');
-
 
 class function TUTF16BECodec.GetAliasCount: Integer;
 begin
@@ -3231,7 +3367,7 @@ end;
 
 procedure TUTF16BECodec.InternalReadUCS4Char(out C: UCS4Char;
     out ByteCount: Integer);
-var LowSurrogate: Array[0..1] of Byte;  // We do not use Word, because the byte order of a Word is CPU dependant
+var LowSurrogate: array[0..1] of Byte;  // We do not use Word, because the byte order of a Word is CPU dependant
 begin
   C := 0;
   // C must be initialized, because the ReadBuffer(C, 2) call below does
@@ -3243,12 +3379,12 @@ begin
       Exit;
     end;
   C := Swap(C);  // UCS4Chars are stored in Little Endian mode; so we need to swap the bytes.
-  Case C of
+  case C of
     $D800..$DBFF: // High surrogate of Unicode character [$10000..$10FFFF]
       begin
         if not ReadBuffer(LowSurrogate, 2) then
           raise EConvertError.CreateFmt(SInvalidEncoding, ['UTF-16BE']);
-        Case LowSurrogate[0] of
+        case LowSurrogate[0] of
           $DC..$DF:
           begin
             C := ((C - $D7C0) shl 10) + ((LowSurrogate[0] xor $DC) shl 8) + LowSurrogate[1];
@@ -3267,7 +3403,7 @@ end;
 
 procedure TUTF16BECodec.InternalWriteUCS4Char(const C: UCS4Char;
     out ByteCount: Integer);
-var Buffer : Array[0..3] of Byte;
+var Buffer : array[0..3] of Byte;
 begin
   UCS4CharToUTF16BE(C, @Buffer, 4, ByteCount);
   WriteBuffer(Buffer[0], ByteCount);
@@ -3276,12 +3412,12 @@ end;
 procedure TUTF16BECodec.WriteUCS4Char(const C: UCS4Char;
     out ByteCount: Integer);
 const
-  UTF16BE_LF   : Array[0..1] of Byte = ($00, $0A);
-  UTF16BE_CR   : Array[0..1] of Byte = ($00, $0D);
-  UTF16BE_CRLF : Array[0..3] of Byte = ($00, $0D, $00, $0A);
+  UTF16BE_LF   : array[0..1] of Byte = ($00, $0A);
+  UTF16BE_CR   : array[0..1] of Byte = ($00, $0D);
+  UTF16BE_CRLF : array[0..3] of Byte = ($00, $0D, $00, $0A);
 begin
   if C = UCS4_LF then
-    Case WriteLFOption of
+    case WriteLFOption of
       lwLF:
         begin
           WriteBuffer(UTF16BE_LF, 2);
@@ -3309,7 +3445,7 @@ end;
 {                                                                              }
 const
   UTF16LEAliases = 2;
-  UTF16LEAlias : Array[0..UTF16LEAliases - 1] of AnsiString = (
+  UTF16LEAlias : array[0..UTF16LEAliases - 1] of String = (
       'UTF-16LE', 'utf16le');
 
 class function TUTF16LECodec.GetAliasCount: Integer;
@@ -3340,7 +3476,7 @@ begin
   M := L div Sizeof(WideChar);
   P := Buf;
   Q := DestBuf;
-  For I := 1 to M do
+  for I := 1 to M do
     begin
       Q^ := SwapUTF16Endian(P^);
       Inc(P);
@@ -3365,7 +3501,7 @@ begin
   SetLength(Result, L);
   P := S;
   Q := Pointer(Result);
-  For I := 1 to Length do
+  for I := 1 to Length do
     begin
       Q^ := SwapUTF16Endian(P^);
       Inc(P);
@@ -3376,7 +3512,7 @@ end;
 
 procedure TUTF16LECodec.InternalReadUCS4Char(out C: UCS4Char;
     out ByteCount: Integer);
-var LowSurrogate : Array[0..1] of Byte;  // We do not use Word, because the byte order of a Word is CPU dependant
+var LowSurrogate : array[0..1] of Byte;  // We do not use Word, because the byte order of a Word is CPU dependant
 begin
   C := 0;
   // C must be initialized, because the ReadBuffer(C, 2) call below does
@@ -3387,12 +3523,12 @@ begin
       ByteCount := 0;
       Exit;
     end;
-  Case C of  // UCS4Chars are stored in Little Endian mode; so we just can go on with it.
+  case C of  // UCS4Chars are stored in Little Endian mode; so we just can go on with it.
     $D800..$DBFF: // High surrogate of Unicode character [$10000..$10FFFF]
       begin
         if not ReadBuffer(LowSurrogate, 2) then
           raise EConvertError.CreateFmt(SInvalidEncoding, ['UTF-16LE']);
-        Case LowSurrogate[1] of
+        case LowSurrogate[1] of
           $DC..$DF:
           begin
             C := ((C - $D7C0) shl 10) + ((LowSurrogate[1] xor $DC) shl 8) + LowSurrogate[0];
@@ -3411,7 +3547,7 @@ end;
 
 procedure TUTF16LECodec.InternalWriteUCS4Char(const C: UCS4Char;
     out ByteCount: Integer);
-var Buffer : Array[0..3] of Byte;
+var Buffer : array[0..3] of Byte;
 begin
   UCS4CharToUTF16LE(C, @Buffer, 4, ByteCount);
   WriteBuffer(Buffer[0], ByteCount);
@@ -3420,12 +3556,12 @@ end;
 procedure TUTF16LECodec.WriteUCS4Char(const C: UCS4Char;
     out ByteCount: Integer);
 const
-  UTF16LE_LF   : Array[0..1] of Byte = ($0A, $00);
-  UTF16LE_CR   : Array[0..1] of Byte = ($0D, $00);
-  UTF16LE_CRLF : Array[0..3] of Byte = ($0D, $00, $0A, $00);
+  UTF16LE_LF   : array[0..1] of Byte = ($0A, $00);
+  UTF16LE_CR   : array[0..1] of Byte = ($0D, $00);
+  UTF16LE_CRLF : array[0..3] of Byte = ($0D, $00, $0A, $00);
 begin
   if C = UCS4_LF then
-    Case WriteLFOption of
+    case WriteLFOption of
       lwLF:
         begin
           WriteBuffer(UTF16LE_LF, 2);
@@ -3469,14 +3605,14 @@ begin
     end;
   L := 0;
   N := P + BufSize - 4;
-  While P <= N do
+  while P <= N do
     begin
       Ch4 := Ord(P^) * $1000000 +
              Ord((P + 1)^) * $10000 +
              Ord((P + 2)^) * $100 +
              Ord((P + 3)^);
     if ((Ch4 >= $D800) and (Ch4 < $E000)) or (Ch4 > $10FFFF) then
-      Case FErrorAction of
+      case FErrorAction of
         eaException :
           if Ch4 > $10FFFF then
             RaiseUnicodeCodecException(SCannotConvertUCS4, [Ch4, 'UTF-16'], P - Buf)
@@ -3558,8 +3694,8 @@ begin
   Q := Pointer(Result);
   M := 0;
   N := P + Length;
-  While P < N do
-    Case Ord(P^) of
+  while P < N do
+    case Ord(P^) of
       $D800..$DBFF: // High surrogate of Unicode character [$10000..$10FFFF]
         begin
           if P = N - 1 then // End of WideString?
@@ -3568,7 +3704,7 @@ begin
           Inc(P);
           Inc(M, 2);
           LowSurrogate := Ord(P^);
-          Case LowSurrogate of  // Low Surrogate following?
+          case LowSurrogate of  // Low Surrogate following?
             $DC00..$DF00:
               begin
                 Q^ := AnsiChar(0);
@@ -3600,12 +3736,12 @@ end;
 
 procedure TUCS4BECodec.InternalReadUCS4Char(out C: UCS4Char;
     out ByteCount: Integer);
-var B : Array[0..3] of Byte;
+var B : array[0..3] of Byte;
 begin
   if ReadBuffer(B, 4) then
     begin
       C := B[0] * $1000000 + B[1] * $10000 + B[2] * $100 + B[3];
-      Case C of
+      case C of
         $D800..$DFFF: // Do not accept surrogates
           raise EConvertError.CreateFmt(SSurrogateNotAllowed, [C, 'UCS-4BE']);
       end;
@@ -3620,7 +3756,7 @@ end;
 
 procedure TUCS4BECodec.InternalWriteUCS4Char(const C: UCS4Char;
     out ByteCount: Integer);
-var Buffer : Array[0..3] of Byte;
+var Buffer : array[0..3] of Byte;
 begin
   Buffer[0] := C shr 24;
   Buffer[1] := (C and $FF0000) shr 16;
@@ -3632,12 +3768,12 @@ end;
 
 procedure TUCS4BECodec.WriteUCS4Char(const C: UCS4Char; out ByteCount: Integer);
 const
-  UCS4BE_LF   : Array[0..3] of Byte = ($0A, $00, $00, $00);
-  UCS4BE_CR   : Array[0..3] of Byte = ($0D, $00, $00, $00);
-  UCS4BE_CRLF : Array[0..7] of Byte = ($0D, $00, $00, $00, $0A, $00, $00, $00);
+  UCS4BE_LF   : array[0..3] of Byte = ($0A, $00, $00, $00);
+  UCS4BE_CR   : array[0..3] of Byte = ($0D, $00, $00, $00);
+  UCS4BE_CRLF : array[0..7] of Byte = ($0D, $00, $00, $00, $0A, $00, $00, $00);
 begin
   if C = UCS4_LF then
-    Case WriteLFOption of
+    case WriteLFOption of
       lwLF:
         begin
           WriteBuffer(UCS4BE_LF, 4);
@@ -3681,14 +3817,14 @@ begin
     end;
   L := 0;
   N := P + BufSize - 4;
-  While P <= N do
+  while P <= N do
     begin
       Ch4 := Ord((P + 3)^) * $1000000 +
              Ord((P + 2)^) * $10000 +
              Ord((P + 1)^) * $100 +
              Ord(P^);
       if ((Ch4 >= $D800) and (Ch4 < $E000)) or (Ch4 > $10FFFF) then
-        Case FErrorAction of
+        case FErrorAction of
           eaException :
             if Ch4 > $10FFFF then
               RaiseUnicodeCodecException(SCannotConvertUCS4, [Ch4, 'UTF-16'], P - Buf)
@@ -3768,8 +3904,8 @@ begin
   Q := Pointer(Result);
   M := 0;
   N := P + Length;
-  While P < N do
-    Case Ord(P^) of
+  while P < N do
+    case Ord(P^) of
       $D800..$DBFF: // High surrogate of Unicode character [$10000..$10FFFF]
         begin
           if P = N - 1 then // End of WideString?
@@ -3778,7 +3914,7 @@ begin
           Inc(P);
           Inc(M, 2);
           LowSurrogate := Ord(P^);
-          Case LowSurrogate of  // Low Surrogate following?
+          case LowSurrogate of  // Low Surrogate following?
             $DC00..$DF00:
               begin
                 Q^ := AnsiChar(Lo(LowSurrogate));
@@ -3810,12 +3946,12 @@ end;
 
 procedure TUCS4LECodec.InternalReadUCS4Char(out C: UCS4Char;
     out ByteCount: Integer);
-var B : Array[0..3] of Byte;
+var B : array[0..3] of Byte;
 begin
   if ReadBuffer(B, 4) then
     begin
       C := B[3] * $1000000 + B[2] * $10000 + B[1] * $100 + B[0];
-      Case C of
+      case C of
         $D800..$DFFF: // Do not accept surrogates
           raise EConvertError.CreateFmt(SSurrogateNotAllowed, [C, 'UCS-4LE']);
       end;
@@ -3830,7 +3966,7 @@ end;
 
 procedure TUCS4LECodec.InternalWriteUCS4Char(const C: UCS4Char;
     out ByteCount: Integer);
-var Buffer : Array[0..3] of Byte;
+var Buffer : array[0..3] of Byte;
 begin
   Buffer[0] := C and $FF;
   Buffer[1] := (C and $FF00) shr 8;
@@ -3842,12 +3978,12 @@ end;
 
 procedure TUCS4LECodec.WriteUCS4Char(const C: UCS4Char; out ByteCount: Integer);
 const
-  UCS4LE_LF   : Array[0..3] of Byte = ($00, $00, $00, $0A);
-  UCS4LE_CR   : Array[0..3] of Byte = ($00, $00, $00, $0D);
-  UCS4LE_CRLF : Array[0..7] of Byte = ($00, $00, $00, $0D, $00, $00, $00, $0A);
+  UCS4LE_LF   : array[0..3] of Byte = ($00, $00, $00, $0A);
+  UCS4LE_CR   : array[0..3] of Byte = ($00, $00, $00, $0D);
+  UCS4LE_CRLF : array[0..7] of Byte = ($00, $00, $00, $0D, $00, $00, $00, $0A);
 begin
   if C = UCS4_LF then
-    Case WriteLFOption of
+    case WriteLFOption of
       lwLF:
         begin
           WriteBuffer(UCS4LE_LF, 4);
@@ -3891,14 +4027,14 @@ begin
     end;
   L := 0;
   N := P + BufSize - 4;
-  While P <= N do
+  while P <= N do
     begin
       Ch4 := Ord((P + 1)^) * $1000000 +
              Ord(P^) * $10000 +
              Ord((P + 3)^) * $100 +
              Ord((P + 2)^);
       if ((Ch4 >= $D800) and (Ch4 < $E000)) or (Ch4 > $10FFFF) then
-        Case FErrorAction of
+        case FErrorAction of
           eaException :
             if Ch4 > $10FFFF
               then RaiseUnicodeCodecException(SCannotConvertUCS4, [Ch4, 'UTF-16'], P - Buf)
@@ -3977,9 +4113,9 @@ begin
   Q := Pointer(Result);
   M := 0;
   N := P + Length;
-  While P < N do
+  while P < N do
     begin
-      Case Ord(P^) of
+      case Ord(P^) of
         $D800..$DBFF: // High surrogate of Unicode character [$10000..$10FFFF]
           begin
             if P = N - 1 then // End of WideString?
@@ -3988,7 +4124,7 @@ begin
             Inc(P);
             Inc(M, 2);
             LowSurrogate := Ord(P^);
-            Case LowSurrogate of  // Low Surrogate following?
+            case LowSurrogate of  // Low Surrogate following?
               $DC00..$DF00:
                 begin
                   Q^ := AnsiChar((HighSurrogate - $D7C0) shr 6);
@@ -4021,12 +4157,12 @@ end;
 
 procedure TUCS4_2143Codec.InternalReadUCS4Char(out C: UCS4Char;
     out ByteCount: Integer);
-var B : Array[0..3] of Byte;
+var B : array[0..3] of Byte;
 begin
   if ReadBuffer(B, 4) then
     begin
       C := B[1] * $1000000 + B[0] * $10000 + B[3] * $100 + B[2];
-      Case C of
+      case C of
         $D800..$DFFF: // Do not accept surrogates
           raise EConvertError.CreateFmt(SSurrogateNotAllowed, [C, 'UCS-4']);
       end;
@@ -4038,7 +4174,7 @@ end;
 
 procedure TUCS4_2143Codec.InternalWriteUCS4Char(const C: UCS4Char;
     out ByteCount: Integer);
-var Buffer : Array[0..3] of Byte;
+var Buffer : array[0..3] of Byte;
 begin
   Buffer[0] := (C and $FF0000) shr 16;
   Buffer[1] := C shr 24;
@@ -4050,12 +4186,12 @@ end;
 
 procedure TUCS4_2143Codec.WriteUCS4Char(const C: UCS4Char; out ByteCount: Integer);
 const
-  UCS4_2143_LF   : Array[0..3] of Byte = ($00, $0A, $00, $00);
-  UCS4_2143_CR   : Array[0..3] of Byte = ($00, $0D, $00, $00);
-  UCS4_2143_CRLF : Array[0..7] of Byte = ($00, $0D, $00, $00, $00, $0A, $00, $00);
+  UCS4_2143_LF   : array[0..3] of Byte = ($00, $0A, $00, $00);
+  UCS4_2143_CR   : array[0..3] of Byte = ($00, $0D, $00, $00);
+  UCS4_2143_CRLF : array[0..7] of Byte = ($00, $0D, $00, $00, $00, $0A, $00, $00);
 begin
   if C = UCS4_LF then
-    Case WriteLFOption of
+    case WriteLFOption of
       lwLF:
         begin
           WriteBuffer(UCS4_2143_LF, 4);
@@ -4099,14 +4235,14 @@ begin
     end;
   L := 0;
   N := P + BufSize - 4;
-  While P <= N do
+  while P <= N do
     begin
       Ch4 := Ord((P + 2)^) * $1000000 +
              Ord((P + 3)^) * $10000 +
              Ord(P^) * $100 +
              Ord((P + 1)^);
       if ((Ch4 >= $D800) and (Ch4 < $E000)) or (Ch4 > $10FFFF) then
-        Case FErrorAction of
+        case FErrorAction of
           eaException :
             if Ch4 > $10FFFF then
               RaiseUnicodeCodecException(SCannotConvertUCS4, [Ch4, 'UTF-16'], P - Buf)
@@ -4186,8 +4322,8 @@ begin
   Q := Pointer(Result);
   M := 0;
   N := P + Length;
-  While P < N do
-    Case Ord(P^) of
+  while P < N do
+    case Ord(P^) of
       $D800..$DBFF: // High surrogate of Unicode character [$10000..$10FFFF]
         begin
           if P = N - 1 then // End of WideString?
@@ -4196,7 +4332,7 @@ begin
           Inc(P);
           Inc(M, 2);
           LowSurrogate := Ord(P^);
-          Case LowSurrogate of  // Low Surrogate following?
+          case LowSurrogate of  // Low Surrogate following?
             $DC00..$DF00:
               begin
                 Q^ := AnsiChar(((HighSurrogate and $3F) shl 2) + ((LowSurrogate - $DC00) shr 8));
@@ -4228,12 +4364,12 @@ end;
 
 procedure TUCS4_3412Codec.InternalReadUCS4Char(out C: UCS4Char;
     out ByteCount: Integer);
-var B : Array[0..3] of Byte;
+var B : array[0..3] of Byte;
 begin
   if ReadBuffer(B, 4) then
     begin
       C := B[2] * $1000000 + B[3] * $10000 + B[0] * $100 + B[1];
-      Case C of
+      case C of
         $D800..$DFFF: // Do not accept surrogates
           raise EConvertError.CreateFmt(SSurrogateNotAllowed, [C, 'UCS-4']);
       end;
@@ -4248,7 +4384,7 @@ end;
 
 procedure TUCS4_3412Codec.InternalWriteUCS4Char(const C: UCS4Char;
     out ByteCount: Integer);
-var Buffer : Array[0..3] of Byte;
+var Buffer : array[0..3] of Byte;
 begin
   Buffer[0] := (C and $FF00) shr 8;
   Buffer[1] := C and $FF;
@@ -4260,12 +4396,12 @@ end;
 
 procedure TUCS4_3412Codec.WriteUCS4Char(const C: UCS4Char; out ByteCount: Integer);
 const
-  UCS4_3412_LF   : Array[0..3] of Byte = ($00, $00, $0A, $00);
-  UCS4_3412_CR   : Array[0..3] of Byte = ($00, $00, $0D, $00);
-  UCS4_3412_CRLF : Array[0..7] of Byte = ($00, $00, $0D, $00, $00, $00, $0A, $00);
+  UCS4_3412_LF   : array[0..3] of Byte = ($00, $00, $0A, $00);
+  UCS4_3412_CR   : array[0..3] of Byte = ($00, $00, $0D, $00);
+  UCS4_3412_CRLF : array[0..7] of Byte = ($00, $00, $0D, $00, $00, $00, $0A, $00);
 begin
   if C = UCS4_LF then
-    Case WriteLFOption of
+    case WriteLFOption of
       lwLF:
         begin
           WriteBuffer(UCS4_3412_LF, 4);
@@ -4308,9 +4444,9 @@ begin
       exit;
     end;
   L := 0;
-  For I := 1 to BufSize do
+  for I := 1 to BufSize div SizeOf(WideChar) do
     if (Ord(P^) >= $D800) and (Ord(P^) < $E000) then // Do not accept surrogates
-      Case FErrorAction of
+      case FErrorAction of
         eaException :
           RaiseUnicodeCodecException(SSurrogateNotAllowed, [Ord(P^), 'UCS-2'], P - Buf);
         eaStop :
@@ -4362,9 +4498,9 @@ begin
   L := 0;
   M := 0;
   P := Pointer(Result);
-  For I := 1 to Length do
+  for I := 1 to Length do
     if (Ord(P^) >= $D800) and (Ord(P^) < $E000) then // Do not accept surrogates
-      Case FErrorAction of
+      case FErrorAction of
         eaException :
           RaiseUnicodeCodecException(SSurrogateNotAllowed, [Ord(P^), 'UCS-2'], L * 2);
         eaStop :
@@ -4418,7 +4554,7 @@ begin
     end;
   C := Swap(C);  // UCS4Chars are stored in Little Endian mode; so we need to swap the bytes.
   ByteCount := 2;
-  Case C of
+  case C of
     $D800..$DFFF: // Do not accept surrogates
       raise EConvertError.CreateFmt(SSurrogateNotAllowed, [C, 'UCS-2']);
   end;
@@ -4444,12 +4580,12 @@ end;
 
 procedure TUCS2Codec.WriteUCS4Char(const C: UCS4Char; out ByteCount: Integer);
 const
-  UCS2_LF   : Array[0..1] of Byte = ($00, $0A);
-  UCS2_CR   : Array[0..1] of Byte = ($00, $0D);
-  UCS2_CRLF : Array[0..3] of Byte = ($00, $0D, $00, $0A);
+  UCS2_LF   : array[0..1] of Byte = ($00, $0A);
+  UCS2_CR   : array[0..1] of Byte = ($00, $0D);
+  UCS2_CRLF : array[0..3] of Byte = ($00, $0D, $00, $0A);
 begin
   if C = UCS4_LF then
-    Case WriteLFOption of
+    case WriteLFOption of
       lwLF:
         begin
           WriteBuffer(UCS2_LF, 2);
@@ -4481,7 +4617,7 @@ end;
 {                                                                              }
 const
   ISO8859_1Aliases = 8;
-  ISO8859_1Alias : Array[0..ISO8859_1Aliases - 1] of AnsiString = (
+  ISO8859_1Alias : array[0..ISO8859_1Aliases - 1] of String = (
       'ISO-8859-1', 'ISO_8859-1:1987', 'ISO_8859-1',
       'iso-ir-100', 'latin1', 'l1', 'IBM819', 'cp819');
 
@@ -4532,7 +4668,7 @@ end;
 {                                                                              }
 const
   ISO8859_2Aliases = 6;
-  ISO8859_2Alias : Array[0..ISO8859_2Aliases - 1] of AnsiString = (
+  ISO8859_2Alias : array[0..ISO8859_2Aliases - 1] of String = (
       'ISO-8859-2', 'ISO_8859-2:1987', 'ISO_8859-2',
       'iso-ir-101', 'latin2', 'l2');
 
@@ -4582,7 +4718,7 @@ end;
 {                                                                              }
 const
   ISO8859_3Aliases = 6;
-  ISO8859_3Alias : Array[0..ISO8859_3Aliases - 1] of AnsiString = (
+  ISO8859_3Alias : array[0..ISO8859_3Aliases - 1] of String = (
       'ISO-8859-3', 'ISO_8859-3:1988', 'ISO_8859-3',
       'iso-ir-109', 'latin3', 'l3');
 
@@ -4633,7 +4769,7 @@ end;
 {                                                                              }
 const
   ISO8859_4Aliases = 6;
-  ISO8859_4Alias : Array[0..ISO8859_4Aliases - 1] of AnsiString = (
+  ISO8859_4Alias : array[0..ISO8859_4Aliases - 1] of String = (
       'ISO-8859-4', 'ISO_8859-4:1988', 'ISO_8859-4',
       'iso-ir-110', 'latin4', 'l4');
 
@@ -4683,7 +4819,7 @@ end;
 {                                                                              }
 const
   ISO8859_5Aliases = 5;
-  ISO8859_5Alias : Array[0..ISO8859_5Aliases - 1] of AnsiString = (
+  ISO8859_5Alias : array[0..ISO8859_5Aliases - 1] of String = (
       'ISO-8859-5', 'ISO_8859-5:1988', 'ISO_8859-5',
       'iso-ir-144', 'cyrillic');
 
@@ -4699,7 +4835,7 @@ end;
 
 function TISO8859_5Codec.DecodeChar(const P: AnsiChar): WideChar;
 begin
-  Case Ord(P) of
+  case Ord(P) of
     $00..$A0, $AD : Result := WideChar(P);
     $F0 : Result := #$2116;
     $FD : Result := #$00A7;
@@ -4713,12 +4849,12 @@ begin
   if Ord(Ch) <= $A0 then
     Result := AnsiChar(Ch)
   else
-    Case Ch of
+    case Ch of
       #$2116 : Result := #$F0;
       #$00A7 : Result := #$FD;
       #$00AD : Result := #$AD;
       #$0401..#$045F :
-        Case Ch of
+        case Ch of
           #$0450, #$045D, #$040D :
             raise EConvertError.CreateFmt(SCannotConvert, [Ord(Ch), 'ISO-8859-5']);
         else
@@ -4737,7 +4873,7 @@ end;
 {                                                                              }
 const
   ISO8859_6Aliases = 7;
-  ISO8859_6Alias : Array[0..ISO8859_6Aliases - 1] of AnsiString = (
+  ISO8859_6Alias : array[0..ISO8859_6Aliases - 1] of String = (
       'ISO-8859-6', 'ISO_8859-6:1987', 'ISO_8859-6',
       'iso-ir-127', 'ECMA-114', 'ASMO-708', 'arabic');
 
@@ -4753,7 +4889,7 @@ end;
 
 function TISO8859_6Codec.DecodeChar(const P: AnsiChar): WideChar;
 begin
-  Case Ord(P) of
+  case Ord(P) of
     $00..$A0, $A4, $AD                : Result := WideChar(P);
     $AC, $BB, $BF, $C1..$DA, $E0..$F2 : Result := WideChar(Ord(P) + $0580);
   else
@@ -4766,7 +4902,7 @@ begin
   if Ord(Ch) <= $A0 then
     Result := AnsiChar(Ch)
   else
-    Case Ch of
+    case Ch of
       #$00A4 : Result := #$A4;
       #$00AD : Result := #$AD;
       #$062C, #$063B, #$063F, #$0641..#$065A, #$0660..#$0672 :
@@ -4784,7 +4920,7 @@ end;
 {                                                                              }
 const
   ISO8859_7Aliases = 8;
-  ISO8859_7Alias : Array[0..ISO8859_7Aliases - 1] of AnsiString = (
+  ISO8859_7Alias : array[0..ISO8859_7Aliases - 1] of String = (
       'ISO-8859-7', 'ISO_8859-7:1987', 'ISO_8859-7',
       'iso-ir-126', 'ELOT_928', 'ECMA-118', 'greek', 'greek8');
 
@@ -4800,7 +4936,7 @@ end;
 
 function TISO8859_7Codec.DecodeChar(const P: AnsiChar): WideChar;
 begin
-  Case Ord(P) of
+  case Ord(P) of
     $00..$A0, $A6..$A9, $AB..$AD, $B0..$B3, $B7, $BB, $BD :
       Result := WideChar(P);
     $A1      : Result := #$2018;
@@ -4817,7 +4953,7 @@ begin
   if Ord(Ch) <= $A0 then
     Result := AnsiChar(Ch)
   else
-    Case Ch of
+    case Ch of
       #$00A6..#$00A9, #$00AB..#$00AD, #$00B0..#$00B3, #$00B7, #$00BB, #$00BD :
         Result := AnsiChar(Ch);
       #$0373..#$03CE : Result := AnsiChar(Ord(Ch) - $02D0);
@@ -4837,7 +4973,7 @@ end;
 {                                                                              }
 const
   ISO8859_8Aliases = 5;
-  ISO8859_8Alias : Array[0..ISO8859_8Aliases - 1] of AnsiString = (
+  ISO8859_8Alias : array[0..ISO8859_8Aliases - 1] of String = (
       'ISO-8859-8', 'ISO_8859-8:1988', 'ISO_8859-8',
       'iso-ir-138', 'hebrew');
 
@@ -4853,7 +4989,7 @@ end;
 
 function TISO8859_8Codec.DecodeChar(const P: AnsiChar): WideChar;
 begin
-  Case Ord(P) of
+  case Ord(P) of
     $00..$A0, $A2..$A9, $AB..$AE, $B0..$B9, $BB..$BE :
       Result := WideChar(P);
     $AA      : Result := #$00D7;
@@ -4871,7 +5007,7 @@ begin
   if Ord(Ch) <= $A0 then
     Result := AnsiChar(Ch)
   else
-    Case Ch of
+    case Ch of
       #$00A2..#$00A9, #$00AB..#$00AE, #$00B0..#$00B9, #$00BB..#$00BE :
         Result := AnsiChar(Ord(Ch));
       #$00D7 : Result := #$AA;
@@ -4893,7 +5029,7 @@ end;
 {                                                                              }
 const
   ISO8859_9Aliases = 6;
-  ISO8859_9Alias : Array[0..ISO8859_9Aliases - 1] of AnsiString = (
+  ISO8859_9Alias : array[0..ISO8859_9Aliases - 1] of String = (
       'ISO-8859-9', 'ISO_8859-9:1989', 'ISO_8859-9',
       'iso-ir-148', 'latin5', 'l5');
 
@@ -4909,7 +5045,7 @@ end;
 
 function TISO8859_9Codec.DecodeChar(const P: AnsiChar): WideChar;
 begin
-  Case Ord(P) of
+  case Ord(P) of
     $D0 : Result := #$011E;
     $DD : Result := #$0130;
     $DE : Result := #$015E;
@@ -4923,7 +5059,7 @@ end;
 
 function TISO8859_9Codec.EncodeChar(const Ch: WideChar): AnsiChar;
 begin
-  Case Ch of
+  case Ch of
     #$011E : Result := #$D0;
     #$0130 : Result := #$DD;
     #$015E : Result := #$DE;
@@ -4948,7 +5084,7 @@ end;
 {                                                                              }
 const
   ISO8859_10Aliases = 6;
-  ISO8859_10Alias : Array[0..ISO8859_10Aliases - 1] of AnsiString = (
+  ISO8859_10Alias : array[0..ISO8859_10Aliases - 1] of String = (
       'ISO-8859-10', 'ISO_8859-10:1992', 'ISO_8859-10',
       'iso-ir-157', 'latin6', 'l6');
 
@@ -4997,7 +5133,7 @@ end;
 {                                                                              }
 const
   ISO8859_13Aliases = 4;
-  ISO8859_13Alias : Array[0..ISO8859_13Aliases - 1] of AnsiString = (
+  ISO8859_13Alias : array[0..ISO8859_13Aliases - 1] of String = (
       'ISO-8859-13', 'ISO_8859-13', 'latin7', 'l7');
 
 class function TISO8859_13Codec.GetAliasCount: Integer;
@@ -5045,7 +5181,7 @@ end;
 {                                                                              }
 const
   ISO8859_14Aliases = 7;
-  ISO8859_14Alias : Array[0..ISO8859_14Aliases - 1] of AnsiString = (
+  ISO8859_14Alias : array[0..ISO8859_14Aliases - 1] of String = (
       'ISO-8859-14', 'ISO_8859-14:1998', 'ISO_8859-14',
       'iso-ir-199', 'latin8', 'l8', 'iso-celtic');
 
@@ -5094,10 +5230,9 @@ end;
 {                                                                              }
 const
   ISO8859_15Aliases = 6;
-  ISO8859_15Alias : Array[0..ISO8859_15Aliases - 1] of AnsiString = (
+  ISO8859_15Alias : array[0..ISO8859_15Aliases - 1] of String = (
       'ISO-8859-15', 'ISO_8859-15',
       'latin9', 'l9', 'latin0', 'l0');
-
 
 class function TISO8859_15Codec.GetAliasCount: Integer;
 begin
@@ -5111,7 +5246,7 @@ end;
 
 function TISO8859_15Codec.DecodeChar(const P: AnsiChar): WideChar;
 begin
-  Case Ord(P) of
+  case Ord(P) of
     $A4 : Result := #$20AC;
     $A6 : Result := #$00A6;
     $A8 : Result := #$0161;
@@ -5127,7 +5262,7 @@ end;
 
 function TISO8859_15Codec.EncodeChar(const Ch: WideChar): AnsiChar;
 begin
-  Case Ch of
+  case Ch of
     #$20AC : Result := #$A4;
     #$00A6 : Result := #$A6;
     #$0161 : Result := #$A8;
@@ -5623,7 +5758,7 @@ end;
 {                                                                              }
 function TIBM281Codec.DecodeChar(const P: AnsiChar): WideChar;
 begin
-  Case Ord(P) of
+  case Ord(P) of
     $4A : Result := #$00A3;
     $4F : Result := #$007C;
     $5A : Result := #$0021;
@@ -5638,7 +5773,7 @@ end;
 
 function TIBM281Codec.EncodeChar(const Ch: WideChar): AnsiChar;
 begin
-  Case Ord(Ch) of
+  case Ord(Ch) of
     $00A3 : Result := #$4A;
     $007C : Result := #$4F;
     $0021 : Result := #$5A;
@@ -5738,7 +5873,7 @@ const
       #$0051, #$0052, #$00B9, #$00FB, #$00FC, #$00F9, #$00FA, #$00FF,
       #$005C, #$00F7, #$0053, #$0054, #$0055, #$0056, #$0057, #$0058, 
       #$0059, #$005A, #$00B2, #$00D4, #$00D6, #$00D2, #$00D3, #$00D5, 
-      #$0030, #$0031, #$0032, #$0033, #$0034, #$0035, #$0036, #$0037, 
+      #$0030, #$0031, #$0032, #$0033, #$0034, #$0035, #$0036, #$0037,
       #$0038, #$0039, #$00B3, #$00DB, #$00DC, #$00D9, #$00DA, #$009F);
 
 function TIBM285Codec.DecodeChar(const P: AnsiChar): WideChar;
@@ -5922,7 +6057,7 @@ const
       #$03A1, #$03A3, #$005D, #$0024, #$002A, #$0029, #$003B, #$005E, 
       #$002D, #$002F, #$03A4, #$03A5, #$03A6, #$03A7, #$03A8, #$03A9,
       #$FFFF, #$FFFF, #$FFFF, #$002C, #$0025, #$005F, #$003E, #$003F,
-      #$FFFF, #$0386, #$0388, #$0389, #$FFFF, #$038A, #$038C, #$038E, 
+      #$FFFF, #$0386, #$0388, #$0389, #$FFFF, #$038A, #$038C, #$038E,
       #$038F, #$0060, #$003A, #$00A3, #$00A7, #$0027, #$003D, #$0022,
       #$00C4, #$0061, #$0062, #$0063, #$0064, #$0065, #$0066, #$0067,
       #$0068, #$0069, #$03B1, #$03B2, #$03B3, #$03B4, #$03B5, #$03B6, 
@@ -6010,7 +6145,7 @@ end;
 {                                                                              }
 const
   CP437Aliases = 3;
-  CP437Alias : Array[0..CP437Aliases - 1] of AnsiString = (
+  CP437Alias : array[0..CP437Aliases - 1] of String = (
       'IBM437', 'cp437', 'DOSLatinUS');
 
 const
@@ -6092,21 +6227,21 @@ const
       #$0018, #$0019, #$0092, #$008F, #$001C, #$001D, #$001E, #$001F,
       #$0080, #$0081, #$0082, #$0083, #$0084, #$000A, #$0017, #$001B,
       #$0088, #$0089, #$008A, #$008B, #$008C, #$0005, #$0006, #$0007,
-      #$0090, #$0091, #$0016, #$0093, #$0094, #$0095, #$0096, #$0004, 
+      #$0090, #$0091, #$0016, #$0093, #$0094, #$0095, #$0096, #$0004,
       #$0098, #$0099, #$009A, #$009B, #$0014, #$0015, #$009E, #$001A,
-      #$0020, #$00A0, #$00E2, #$00E4, #$00E0, #$00E1, #$00E3, #$00E5, 
+      #$0020, #$00A0, #$00E2, #$00E4, #$00E0, #$00E1, #$00E3, #$00E5,
       #$00E7, #$00F1, #$005B, #$002E, #$003C, #$0028, #$002B, #$0021,
       #$0026, #$00E9, #$00EA, #$00EB, #$00E8, #$00ED, #$00EE, #$00EF,
       #$00EC, #$00DF, #$005D, #$0024, #$002A, #$0029, #$003B, #$005E,
       #$002D, #$002F, #$00C2, #$00C4, #$00C0, #$00C1, #$00C3, #$00C5,
-      #$00C7, #$00D1, #$00A6, #$002C, #$0025, #$005F, #$003E, #$003F, 
-      #$00F8, #$00C9, #$00CA, #$00CB, #$00C8, #$00CD, #$00CE, #$00CF, 
-      #$00CC, #$0060, #$003A, #$0023, #$0040, #$0027, #$003D, #$0022, 
+      #$00C7, #$00D1, #$00A6, #$002C, #$0025, #$005F, #$003E, #$003F,
+      #$00F8, #$00C9, #$00CA, #$00CB, #$00C8, #$00CD, #$00CE, #$00CF,
+      #$00CC, #$0060, #$003A, #$0023, #$0040, #$0027, #$003D, #$0022,
       #$00D8, #$0061, #$0062, #$0063, #$0064, #$0065, #$0066, #$0067,
       #$0068, #$0069, #$00AB, #$00BB, #$00F0, #$00FD, #$00FE, #$00B1,
       #$00B0, #$006A, #$006B, #$006C, #$006D, #$006E, #$006F, #$0070, 
       #$0071, #$0072, #$00AA, #$00BA, #$00E6, #$00B8, #$00C6, #$00A4,
-      #$00B5, #$007E, #$0073, #$0074, #$0075, #$0076, #$0077, #$0078, 
+      #$00B5, #$007E, #$0073, #$0074, #$0075, #$0076, #$0077, #$0078,
       #$0079, #$007A, #$00A1, #$00BF, #$00D0, #$00DD, #$00DE, #$00AE, 
       #$00A2, #$00A3, #$00A5, #$00B7, #$00A9, #$00A7, #$00B6, #$00BC,
       #$00BD, #$00BE, #$00AC, #$007C, #$00AF, #$00A8, #$00B4, #$00D7, 
@@ -6530,7 +6665,7 @@ end;
 {                                                                              }
 function TIBM857Codec.DecodeChar(const P: AnsiChar): WideChar;
 begin
-  Case Ord(P) of
+  case Ord(P) of
     $00..$7F      : Result := WideChar(P);
     $D5, $E7, $F2 : Result := #$FFFF;
   else
@@ -6553,7 +6688,7 @@ end;
 {                                                                              }
 function TWindows858Codec.DecodeChar(const P: AnsiChar): WideChar;
 begin
-  Case Ord(P) of
+  case Ord(P) of
     $00..$7F : Result := WideChar(P);
     $D5      : Result := #$20AC;
   else
@@ -6563,7 +6698,7 @@ end;
 
 function TWindows858Codec.EncodeChar(const Ch: WideChar): AnsiChar;
 begin
-  Case Ord(Ch) of
+  case Ord(Ch) of
     $20AC : Result := #$D5;
   else
     Result := CharFromHighMap(Ch, CP850Map, 'Windows-858');
@@ -6833,7 +6968,12 @@ end;
 { IBM864                                                                       }
 {                                                                              }
 const
-  IBM864Map : Array[#$0025..#$00FF] of WideChar = (
+  IBM864Map : AnsiCharMap = (
+      #$0000, #$0000, #$0000, #$0000, #$0000, #$0000, #$0000, #$0000,
+      #$0000, #$0000, #$0000, #$0000, #$0000, #$0000, #$0000, #$0000,
+      #$0000, #$0000, #$0000, #$0000, #$0000, #$0000, #$0000, #$0000,
+      #$0000, #$0000, #$0000, #$0000, #$0000, #$0000, #$0000, #$0000,
+                              #$0000, #$0000, #$0000, #$0000, #$0000,
       #$FFFF, #$0026, #$0027, #$0028, #$0029, #$002A, #$002B, #$002C,
       #$002D, #$002E, #$002F, #$0030, #$0031, #$0032, #$0033, #$0034,
       #$0035, #$0036, #$0037, #$0038, #$0039, #$003A, #$003B, #$003C,
@@ -7079,7 +7219,7 @@ const
 {                                                                              }
 function TWindows869Codec.DecodeChar(const P: AnsiChar): WideChar;
 begin
-  Case Ord(P) of
+  case Ord(P) of
     $00..$7F : Result := WideChar(P);
     $87      : Result := #$0087;
     $93      : Result := #$0093;
@@ -7091,7 +7231,7 @@ end;
 
 function TWindows869Codec.EncodeChar(const Ch: WideChar): AnsiChar;
 begin
-  Case Ord(Ch) of
+  case Ord(Ch) of
     $0087 : Result := #$87;
     $0093 : Result := #$93;
     $0094 : Result := #$94;
@@ -7499,7 +7639,7 @@ end;
 {                                                                              }
 function TIBM904Codec.DecodeChar(const P: AnsiChar): WideChar;
 begin
-  Case Ord(P) of
+  case Ord(P) of
     $00..$7F : Result := WideChar(P);
     $80      : Result := #$00A2;
     $FD      : Result := #$00AC;
@@ -7511,7 +7651,7 @@ end;
 
 function TIBM904Codec.EncodeChar(const Ch: WideChar): AnsiChar;
 begin
-  Case Ord(Ch) of
+  case Ord(Ch) of
     $00..$7F : Result := AnsiChar(Ch);
     $00A2    : Result := #$80;
     $00AC    : Result := #$FD;
@@ -7627,7 +7767,7 @@ end;
 { IBM1004                                                                      }
 {                                                                              }
 const
-  IBM1004Map : Array[$80..$FF] of WideChar = (
+  IBM1004Map : array[$80..$FF] of WideChar = (
       #$FFFF, #$FFFF, #$201A, #$FFFF, #$201E, #$2026, #$2020, #$2021,
       #$02C6, #$2030, #$0160, #$2039, #$0152, #$FFFF, #$FFFF, #$FFFF,
       #$FFFF, #$2018, #$2019, #$201C, #$201D, #$2022, #$2013, #$2014,
@@ -7721,7 +7861,7 @@ const
 {                                                                              }
 function TWindows1026Codec.DecodeChar(const P: AnsiChar): WideChar;
 begin
-  Case Ord(P) of
+  case Ord(P) of
     $9D : Result := #$00B8;
     $BC : Result := #$00AF;
   else
@@ -7731,7 +7871,7 @@ end;
 
 function TWindows1026Codec.EncodeChar(const Ch: WideChar): AnsiChar;
 begin
-  Case Ord(Ch) of
+  case Ord(Ch) of
     $00B8 : Result := #$9D;
     $00AF : Result := #$BC;
   else
@@ -7746,7 +7886,7 @@ end;
 {                                                                              }
 function TIBM1026Codec.DecodeChar(const P: AnsiChar): WideChar;
 begin
-  Case Ord(P) of
+  case Ord(P) of
     $9D : Result := #$02DB;
     $BC : Result := #$2014;
   else
@@ -7756,7 +7896,7 @@ end;
 
 function TIBM1026Codec.EncodeChar(const Ch: WideChar): AnsiChar;
 begin
-  Case Ord(Ch) of
+  case Ord(Ch) of
     $02DB : Result := #$9D;
     $2014 : Result := #$BC;
   else
@@ -7813,7 +7953,7 @@ const
 {                                                                              }
 function TWindows1047Codec.DecodeChar(const P: AnsiChar): WideChar;
 begin
-  Case Ord(P) of
+  case Ord(P) of
     $15 : Result := #$000A;
     $25 : Result := #$0085;
   else
@@ -7823,7 +7963,7 @@ end;
 
 function TWindows1047Codec.EncodeChar(const Ch: WideChar): AnsiChar;
 begin
-  Case Ord(Ch) of
+  case Ord(Ch) of
     $000A : Result := #$15;
     $0085 : Result := #$25;
   else
@@ -7838,7 +7978,7 @@ end;
 {                                                                              }
 function TIBM1047Codec.DecodeChar(const P: AnsiChar): WideChar;
 begin
-  Case Ord(P) of
+  case Ord(P) of
     $15 : Result := #$0085;
     $25 : Result := #$000A;
   else
@@ -7848,7 +7988,7 @@ end;
 
 function TIBM1047Codec.EncodeChar(const Ch: WideChar): AnsiChar;
 begin
-  Case Ord(Ch) of
+  case Ord(Ch) of
     $000A : Result := #$25;
     $0085 : Result := #$15;
   else
@@ -7864,7 +8004,7 @@ end;
 {                                                                              }
 function TWindows1140Codec.DecodeChar(const P: AnsiChar): WideChar;
 begin
-  Case Ord(P) of
+  case Ord(P) of
     $9F : Result := #$20AC;
   else
     Result := CP37Map[P];
@@ -7873,7 +8013,7 @@ end;
 
 function TWindows1140Codec.EncodeChar(const Ch: WideChar): AnsiChar;
 begin
-  Case Ord(Ch) of
+  case Ord(Ch) of
     $20AC : Result := #$9F;
   else
     begin
@@ -8350,7 +8490,7 @@ end;
 {                                                                              }
 const
   Win1250Aliases = 3;
-  Win1250Alias : Array[0..Win1250Aliases - 1] of AnsiString = (
+  Win1250Alias : array[0..Win1250Aliases - 1] of String = (
       'windows-1250', 'cp1250', 'WinLatin2');
 
 class function TWindows1250Codec.GetAliasCount: Integer;
@@ -8402,7 +8542,7 @@ end;
 {                                                                              }
 const
   Win1251Aliases = 3;
-  Win1251Alias : Array[0..Win1251Aliases - 1] of AnsiString = (
+  Win1251Alias : array[0..Win1251Aliases - 1] of String = (
       'windows-1251', 'cp1251', 'WinCyrillic');
 
 class function TWindows1251Codec.GetAliasCount: Integer;
@@ -8454,7 +8594,7 @@ end;
 {                                                                              }
 const
   Win1252Aliases = 3;
-  Win1252Alias : Array[0..Win1252Aliases - 1] of AnsiString = (
+  Win1252Alias : array[0..Win1252Aliases - 1] of String = (
       'windows-1252', 'cp1252', 'WinLatin1');
 
 class function TWindows1252Codec.GetAliasCount: Integer;
@@ -8468,7 +8608,7 @@ begin
 end;
 
 const
-  Windows1252Map : Array[#$80..#$9F] of WideChar = (
+  Windows1252Map : array[#$80..#$9F] of WideChar = (
       #$20AC, #$0081, #$201A, #$0192, #$201E, #$2026, #$2020, #$2021,
       #$02C6, #$2030, #$0160, #$2039, #$0152, #$008D, #$017D, #$008F,
       #$0090, #$2018, #$2019, #$201C, #$201D, #$2022, #$2013, #$2014,
@@ -8491,7 +8631,7 @@ begin
       Result := AnsiChar(Ch);
       exit;
     end;
-  For I := #$80 to #$9F do
+  for I := #$80 to #$9F do
     if Windows1252Map[I] = Ch then
       begin
         Result := I;
@@ -8729,7 +8869,7 @@ end;
 {                                                                              }
 const
   MacLatin2Aliases = 3;
-  MacLatin2Alias : Array[0..MacLatin2Aliases - 1] of AnsiString = (
+  MacLatin2Alias : array[0..MacLatin2Aliases - 1] of String = (
       'MacLatin2', 'Mac', 'Macintosh');
 
 class function TMacLatin2Codec.GetAliasCount: Integer;
@@ -8781,7 +8921,7 @@ end;
 {                                                                              }
 const
   MacRomanAliases = 1;
-  MacRomanAlias : Array[0..MacRomanAliases - 1] of AnsiString = (
+  MacRomanAlias : array[0..MacRomanAliases - 1] of String = (
       'MacRoman');
 
 class function TMacRomanCodec.GetAliasCount: Integer;
@@ -8833,7 +8973,7 @@ end;
 {                                                                              }
 const
   MacCyrillicAliases = 1;
-  MacCyrillicAlias : Array[0..MacCyrillicAliases - 1] of AnsiString = (
+  MacCyrillicAlias : array[0..MacCyrillicAliases - 1] of String = (
       'MacCyrillic');
 
 class function TMacCyrillicCodec.GetAliasCount: Integer;
@@ -8996,7 +9136,7 @@ end;
 {                                                                              }
 const
   USASCIIAliases = 17;
-  USASCIIAlias : Array[0..USASCIIAliases - 1] of AnsiString = (
+  USASCIIAlias : array[0..USASCIIAliases - 1] of String = (
       'ASCII', 'US-ASCII', 'us',
       'ANSI_X3.4-1968', 'ANSI_X3.4-1986', 'iso-ir-6',
       'ISO_646.irv:1991', 'ISO_646.irv', 'ISO_646',
@@ -9036,7 +9176,7 @@ end;
 {                                                                              }
 const
   EBCDIC_USAliases = 2;
-  EBCDIC_USAlias : Array[0..EBCDIC_USAliases - 1] of AnsiString = (
+  EBCDIC_USAlias : array[0..EBCDIC_USAliases - 1] of String = (
       'ebcdic-us', 'ebcdic');
 
 class function TEBCDIC_USCodec.GetAliasCount: Integer;
@@ -9051,7 +9191,7 @@ end;
 
 function TEBCDIC_USCodec.DecodeChar(const P: AnsiChar): WideChar;
 begin
-  Case Ord(P) of
+  case Ord(P) of
     $40      : Result := #$0020;                         // SPACE
     $4A      : Result := #$00A2;                         // CENT SIGN
     $4B      : Result := #$002E;                         // FULL STOP
@@ -9099,7 +9239,7 @@ end;
 
 function TEBCDIC_USCodec.EncodeChar(const Ch: WideChar): AnsiChar;
 begin
-  Case Ord(Ch) of
+  case Ord(Ch) of
     $0020        : Result := #$40;                            // SPACE
     $0021        : Result := #$5A;                            // EXCLAMATION MARK
     $0022        : Result := #$7F;                            // QUOTATION MARK
@@ -9152,7 +9292,7 @@ end;
 {                                                                              }
 const
   KOI8_RAliases = 1;
-  KOI8_RAlias : Array[0..KOI8_RAliases - 1] of AnsiString = (
+  KOI8_RAlias : array[0..KOI8_RAliases - 1] of String = (
       'KOI8-R');
 
 class function TKOI8_RCodec.GetAliasCount: Integer;
@@ -9204,7 +9344,7 @@ end;
 {                                                                              }
 function TJIS_X0201Codec.DecodeChar(const P: AnsiChar): WideChar;
 begin
-  Case Ord(P) of
+  case Ord(P) of
     $20..$5B,
     $5D..$7D  : Result := WideChar(P);
     $5C       : Result := #$00A5;  //  YEN SIGN
@@ -9217,7 +9357,7 @@ end;
 
 function TJIS_X0201Codec.EncodeChar(const Ch: WideChar): AnsiChar;
 begin
-  Case Ord(Ch) of
+  case Ord(Ch) of
     $0020..$005B,
     $005D..$007D  : Result := AnsiChar(Ch);
     $00A5         : Result := #$5C;  //  YEN SIGN
@@ -9375,7 +9515,7 @@ end;
 
 function TNextStepCodec.EncodeChar(const Ch: WideChar): AnsiChar;
 begin
-  Case Ord(Ch) of
+  case Ord(Ch) of
     $0000..$007F,
     $00A1..$00A3,
     $00A5,
@@ -9513,12 +9653,12 @@ end;
 {                                                                              }
 { Test cases                                                                   }
 {                                                                              }
-{$IFDEF DEBUG}{$IFDEF SELFTEST}
+{$IFDEF UNICODECODECS_SELFTEST}
 {$ASSERTIONS ON}
 procedure SelfTest;
-const W1 : Array[0..3] of WideChar = (#$0041, #$2262, #$0391, #$002E);
-      W2 : Array[0..2] of WideChar = (#$D55C, #$AD6D, #$C5B4);
-      W3 : Array[0..2] of WideChar = (#$65E5, #$672C, #$8A9E);
+const W1 : array[0..3] of WideChar = (#$0041, #$2262, #$0391, #$002E);
+      W2 : array[0..2] of WideChar = (#$D55C, #$AD6D, #$C5B4);
+      W3 : array[0..2] of WideChar = (#$65E5, #$672C, #$8A9E);
 begin
   // UTF-8 test cases from RFC 2279
   Assert(WideStringToUTF8String(W1) = #$41#$E2#$89#$A2#$CE#$91#$2E, 'WideStringToUTF8String');
@@ -9532,9 +9672,9 @@ begin
   Assert(UTF8StringLength(#$E6#$97#$A5#$E6#$9C#$AC#$E8#$AA#$9E) = 3, 'UTF8StringLength');
 
   // ASCII
-  Assert(IsUSASCIIString('012XYZabc{}_ '), 'IsUSASCIIString');
-  Assert(not IsUSASCIIString(#$80), 'IsUSASCIIString');
-  Assert(IsUSASCIIString(''), 'IsUSASCIIString');
+  Assert(IsUSASCIIAnsiString('012XYZabc{}_ '), 'IsUSASCIIString');
+  Assert(not IsUSASCIIAnsiString(#$80), 'IsUSASCIIString');
+  Assert(IsUSASCIIAnsiString(''), 'IsUSASCIIString');
   Assert(IsUSASCIIWideString('012XYZabc{}_ '), 'IsUSASCIIWideString');
   Assert(not IsUSASCIIWideString(WideChar(#$0080)), 'IsUSASCIIWideString');
   Assert(not IsUSASCIIWideString(#$2262), 'IsUSASCIIWideString');
@@ -9546,7 +9686,7 @@ begin
   Assert(GetCodecClassByAlias('us-ascii') = TUSASCIICodec, 'GetCodecClassByAlias');
   Assert(GetCodecClassByAlias('ISO-8859-10') = TISO8859_10Codec, 'GetCodecClassByAlias');
 end;
-{$ENDIF}{$ENDIF}
+{$ENDIF}
 
 
 
