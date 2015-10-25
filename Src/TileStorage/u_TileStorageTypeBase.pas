@@ -145,9 +145,18 @@ var
   VConfigData: IConfigDataProvider;
   VIniFile: TMemIniFile;
 begin
-  VConfigFileName := APath + CStorageConfFileName;
+  VConfigFileName := '';
+  case GetAbilities.StorageClass of
+    tstcOneFile: begin
+      VConfigFileName := APath + '.' + CStorageConfFileName;
+    end;
+    tstcFolder, tstcInSeparateFiles: begin
+      VConfigFileName := APath + CStorageConfFileName;
+    end;
+
+  end;
   VConfigData := nil;
-  if FileExists(VConfigFileName) then begin
+  if (VConfigFileName <> '') and FileExists(VConfigFileName) then begin
     VIniFile := TMemIniFile.Create(VConfigFileName);
     try
       VConfigData := TConfigDataProviderByIniFile.CreateWithOwn(VIniFile);
