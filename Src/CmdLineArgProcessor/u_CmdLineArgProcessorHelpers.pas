@@ -37,7 +37,7 @@ uses
   u_MarkDbGUIHelper;
 
 function GetCoords(
-  const AStr: string;
+  const AStr: AnsiString;
   const AProjectionType: IProjectionType;
   out ALonLat: TDoublePoint;
   var ECode: Integer
@@ -103,7 +103,7 @@ uses
   u_NotifierOperation,
   u_CmdLineArgProcessorAPI;
 
-function StrToCoord(const AStr: string): TDoublePoint;
+function StrToCoord(const AStr: AnsiString): TDoublePoint;
 var
   VRegExpr: TRegExpr;
 begin
@@ -122,7 +122,7 @@ begin
 end;
 
 function GetCoords(
-  const AStr: string;
+  const AStr: AnsiString;
   const AProjectionType: IProjectionType;
   out ALonLat: TDoublePoint;
   var ECode: Integer
@@ -218,7 +218,7 @@ const
 var
   I, J: Integer;
   VName: string;
-  VCoords: string;
+  VCoords: AnsiString;
   VDesc: string;
   VLonLat: TDoublePoint;
   VConfig: IMarkFactoryConfig;
@@ -235,7 +235,7 @@ begin
     Inc(I);
     J := PosEx(cSep, AStr, I);
     if J > 0 then begin
-      VCoords := Copy(AStr, I, J-I);
+      VCoords := AnsiString(Copy(AStr, I, J-I));
       VLonLat := StrToCoord(VCoords);
       if not PointIsEmpty(VLonLat) then begin
         Inc(J);

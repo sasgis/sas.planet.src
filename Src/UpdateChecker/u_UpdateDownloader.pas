@@ -41,12 +41,12 @@ type
     FTotal: Integer;
     FDate: TDateTime;
     FRevision: Integer;
-    FBuildType: string;
+    FBuildType: AnsiString;
     FIsFoundAvailableVersion: Boolean;
     FInetConfig: IInetConfig;
     FDownloadResultFactory: IDownloadResultFactory;
-    FSearchVersionInfoUrl: string;
-    FAvailableVersionUrl: string;
+    FSearchVersionInfoUrl: AnsiString;
+    FAvailableVersionUrl: AnsiString;
     FUpdateChannel: TUpdateChannel;
     FFileName: string;
     FSavePath: string;
@@ -93,6 +93,7 @@ implementation
 uses
   Classes,
   RegExpr,
+  ALString,
   i_DownloadRequest,
   u_DownloadRequest,
   u_DownloaderHttp,
@@ -182,11 +183,11 @@ procedure TUpdateDownloader.SearchVersionInfoCallBack(
 );
 
   function ParseVersionInfo(
-    const AText: string;
+    const AText: AnsiString;
     out ADate: TDateTime;
     out ARevision: Integer;
-    out ABuildType: string;
-    out AFullName: string
+    out ABuildType: AnsiString;
+    out AFullName: AnsiString
   ): string;
   var
     VRegExpr: TRegExpr;
@@ -216,7 +217,7 @@ procedure TUpdateDownloader.SearchVersionInfoCallBack(
     end;
   end;
 
-  function ParseDownloadUrl(const AText: string; out AUrl: string): string;
+  function ParseDownloadUrl(const AText: AnsiString; out AUrl: AnsiString): string;
   var
     VRegExpr: TRegExpr;
   begin
@@ -239,11 +240,11 @@ var
   VResponseData: AnsiString;
   VResultOk: IDownloadResultOk;
   VResultError: IDownloadResultError;
-  VUrl: string;
-  VName: string;
+  VUrl: AnsiString;
+  VName: AnsiString;
   VDate: TDateTime;
   VRevision: Integer;
-  VBuildType: string;
+  VBuildType: AnsiString;
 begin
   VError := '';
 
@@ -270,7 +271,7 @@ begin
       FRevision := VRevision;
       FBuildType := VBuildType;
       FAvailableVersionUrl := VUrl;
-      FFileName := VName;
+      FFileName := string(VName);
     end else begin
       FState := udsError;
     end;
@@ -290,7 +291,7 @@ begin
     Result := FIsFoundAvailableVersion;
     ADate := FDate;
     ARev := FRevision;
-    ABuildType := FBuildType;
+    ABuildType := string(FBuildType);
   finally
     FSync.EndRead;
   end;
@@ -300,7 +301,7 @@ function TUpdateDownloader.DownloadAvailableVersionAsync(
   const AOperationID: Integer
 ): TUpdateDownloaderState;
 var
-  VUrl: string;
+  VUrl: AnsiString;
   VRequest: IDownloadRequest;
   VDownloader: IDownloaderAsync;
 begin

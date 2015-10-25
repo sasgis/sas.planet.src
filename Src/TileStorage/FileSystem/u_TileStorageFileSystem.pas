@@ -674,7 +674,7 @@ var
 begin
   Result := False;
   while FFilesIterator.Next(VTileFileNameW) do begin
-    VTileFileName := VTileFileNameW;
+    VTileFileName := AnsiString(VTileFileNameW);
     if FTileFileNameParser.GetTilePoint(VTileFileName, VTileXY, VTileZoom) then begin
       VFullFileName := FFilesIterator.GetRootFolderName + VTileFileNameW;
       if FStorageState.GetStatic.ReadAccess <> asDisabled then begin

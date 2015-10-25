@@ -223,14 +223,14 @@ begin
 
       if VParseResult.HasArgument('move') then begin
         VStrValue := VParseResult.GetValue('move');
-        if GetCoords(VStrValue, _GetProjectionSet.Zooms[0].ProjectionType, VLonLat, Result) then begin
+        if GetCoords(AnsiString(VStrValue), _GetProjectionSet.Zooms[0].ProjectionType, VLonLat, Result) then begin
           FViewPortState.ChangeLonLat(VLonLat);
         end;
       end;
 
       if VParseResult.HasArgument('navigate') then begin
         VStrValue := VParseResult.GetValue('navigate');
-        if GetCoords(VStrValue, _GetProjectionSet.Zooms[0].ProjectionType, VLonLat, Result) then begin
+        if GetCoords(AnsiString(VStrValue), _GetProjectionSet.Zooms[0].ProjectionType, VLonLat, Result) then begin
           FMainFormConfig.NavToPoint.StartNavLonLat(VLonLat);
         end;
       end;

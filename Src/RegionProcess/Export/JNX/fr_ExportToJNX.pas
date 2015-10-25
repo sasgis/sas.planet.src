@@ -741,7 +741,7 @@ var
   VMatchSubStr: AnsiString;
 begin
   try
-    VMatchSubStr := RegExprGetMatchSubStr(EProductID.Text, '[0-9]+', 0);
+    VMatchSubStr := RegExprGetMatchSubStr(AnsiString(EProductID.Text), '[0-9]+', 0);
     Result := ALStrToIntDef(VMatchSubStr, 0);
   except
     Result := 0;

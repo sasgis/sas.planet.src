@@ -541,7 +541,7 @@ type
     // Error method raises exception) and clear internal status
     // into 0 (no errors).
 
-    function ErrorMsg (AErrorID : integer) : RegExprString; virtual;
+    function ErrorMsg (AErrorID : integer) : string; virtual;
     // Returns Error message for error with ID = AErrorID.
 
     property CompilerErrorPos : integer read GetCompilerErrorPos;
@@ -1070,7 +1070,7 @@ const
  reeLoopWithoutEntry = 1015;
  reeBadPCodeImported = 2000;
 
-function TRegExpr.ErrorMsg (AErrorID : integer) : RegExprString;
+function TRegExpr.ErrorMsg (AErrorID : integer) : string;
  begin
   case AErrorID of
     reeOk: Result := 'No errors';
@@ -4024,7 +4024,7 @@ procedure TRegExpr.Error (AErrorID : integer);
   fLastError := AErrorID; // dummy stub - useless because will raise exception
   if AErrorID < 1000 // compilation error ?
    then e := ERegExpr.Create (ErrorMsg (AErrorID) // yes - show error pos
-             + ' (pos ' + ALIntToStr (CompilerErrorPos) + ')')
+             + ' (pos ' + IntToStr (CompilerErrorPos) + ')')
    else e := ERegExpr.Create (ErrorMsg (AErrorID));
   e.ErrorCode := AErrorID;
   e.CompilerErrorPos := CompilerErrorPos;
