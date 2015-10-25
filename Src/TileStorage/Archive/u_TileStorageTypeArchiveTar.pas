@@ -115,6 +115,7 @@ function TTileStorageTypeArchiveTar.BuildStorageInternal(
 begin
   Result :=
     TTileStorageTar.Create(
+      GetAbilities,
       APath,
       AMainContentType,
       FContentTypeManager,

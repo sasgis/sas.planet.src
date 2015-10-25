@@ -259,6 +259,7 @@ begin
       atTar: begin
         Result :=
           TTileStorageTar.Create(
+            nil,
             ARootPath,
             VContentType,
             FContentTypeManager,

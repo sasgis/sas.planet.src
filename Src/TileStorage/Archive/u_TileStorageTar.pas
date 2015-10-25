@@ -28,6 +28,7 @@ uses
   i_ContentTypeInfo,
   i_ContentTypeManager,
   i_ProjectionSet,
+  i_TileStorageAbilities,
   i_TileFileNameParser,
   i_TileFileNameGenerator,
   i_ArchiveReadWriteFactory,
@@ -42,6 +43,7 @@ type
     ): IEnumTileInfo; override;
   public
     constructor Create(
+      const AStorageTypeAbilities: ITileStorageTypeAbilities;
       const AArchiveFileName: string;
       const AContentType: IContentTypeInfoBasic;
       const AContentTypeManager: IContentTypeManager;
@@ -160,6 +162,7 @@ end;
 { TTileStorageTar }
 
 constructor TTileStorageTar.Create(
+  const AStorageTypeAbilities: ITileStorageTypeAbilities;
   const AArchiveFileName: string;
   const AContentType: IContentTypeInfoBasic;
   const AContentTypeManager: IContentTypeManager;
@@ -170,6 +173,7 @@ constructor TTileStorageTar.Create(
 );
 begin
   inherited Create(
+    AStorageTypeAbilities,
     AArchiveFileName,
     AContentType,
     AContentTypeManager,

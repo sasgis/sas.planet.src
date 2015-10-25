@@ -47,6 +47,7 @@ uses
 type
   TTileStorageArchive = class(TBaseInterfacedObject, ITileStorage)
   protected
+    FStorageTypeAbilities: ITileStorageTypeAbilities;
     FSync: IReadWriteSync;
     FArchiveFactory: IArchiveWriterFactory;
     FWriter: IArchiveWriter;
@@ -115,6 +116,7 @@ type
     ): IEnumTileInfo; virtual; abstract;
   public
     constructor Create(
+      const AStorageTypeAbilities: ITileStorageTypeAbilities;
       const AArchiveFileName: string;
       const AContentType: IContentTypeInfoBasic;
       const AContentTypeManager: IContentTypeManager;
@@ -134,6 +136,7 @@ uses
 { TTileStorageArchive }
 
 constructor TTileStorageArchive.Create(
+  const AStorageTypeAbilities: ITileStorageTypeAbilities;
   const AArchiveFileName: string;
   const AContentType: IContentTypeInfoBasic;
   const AContentTypeManager: IContentTypeManager;
@@ -145,6 +148,7 @@ constructor TTileStorageArchive.Create(
 begin
   Assert(AArchiveFileName <> '');
   inherited Create;
+  FStorageTypeAbilities := AStorageTypeAbilities;
   FArchiveFileName := AArchiveFileName;
   FContentType := AContentType;
   FContentTypeManager := AContentTypeManager;
@@ -180,7 +184,7 @@ end;
 
 function TTileStorageArchive.GetStorageTypeAbilities: ITileStorageTypeAbilities;
 begin
-  Result := nil;
+  Result := FStorageTypeAbilities;
 end;
 
 function TTileStorageArchive.GetProjectionSet: IProjectionSet;
