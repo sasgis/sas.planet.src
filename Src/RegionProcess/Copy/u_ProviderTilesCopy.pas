@@ -90,6 +90,7 @@ uses
   SysUtils,
   i_MapType,
   i_MapTypeListStatic,
+  i_TileStorageAbilities,
   i_TileStorageTypeListItem,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
@@ -169,7 +170,7 @@ var
     Result := Assigned(VMaps);
   end;
 
-  function PrepareDirectCopy(const VProgressInfo: IRegionProcessProgressInfoInternal; const VCacheType: Byte; const APath: String; const VZoomArr: TByteDynArray; const VDeleteSource, VReplace: Boolean): TThread;
+  function PrepareDirectCopy(const VProgressInfo: IRegionProcessProgressInfoInternal; const VCacheType: Byte; const VZoomArr: TByteDynArray; const VDeleteSource, VReplace: Boolean): TThread;
   var
     VTasks: TCopyTaskArray;
     VPlaceInSubFolder: Boolean;
@@ -179,10 +180,15 @@ var
     i: Integer;
     VMapType: IMapType;
     VStorageType: ITileStorageTypeListItem;
+    VPath: String;
   begin
     VPlaceInSubFolder := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).PlaceInNameSubFolder;
     if VMaps.Count > 1 then begin
       VPlaceInSubFolder := True;
+    end;
+    VPath := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
+    if VPlaceInSubFolder then begin
+      VPath := IncludeTrailingPathDelimiter(VPath);
     end;
 
     // set version options
@@ -192,6 +198,7 @@ var
     end else begin
       VSetTargetVersionValue := '';
     end;
+    VStorageType := FTileStorageTypeList.GetItemByCode(VCacheType);
 
     SetLength(VTasks, VMaps.Count);
     for i := 0 to VMaps.Count - 1 do begin
@@ -199,11 +206,13 @@ var
       VTasks[i].FSource := VMapType.TileStorage;
       VTasks[i].FSourceVersion := VMapType.VersionRequest.GetStatic;
       if VPlaceInSubFolder then begin
-        VTargetStoragePath := IncludeTrailingPathDelimiter(APath + VMapType.GetShortFolderName);
+        VTargetStoragePath := VPath + VMapType.GetShortFolderName;
       end else begin
-        VTargetStoragePath := APath;
+        VTargetStoragePath := VPath;
       end;
-      VStorageType := FTileStorageTypeList.GetItemByCode(VCacheType);
+      if VStorageType.StorageType.Abilities.StorageClass in [tstcFolder, tstcInSeparateFiles] then begin
+        VTargetStoragePath := IncludeTrailingPathDelimiter(VTargetStoragePath);
+      end;
       if Assigned(VStorageType) then begin
         VTasks[i].FTarget :=
           VStorageType.StorageType.BuildStorage(
@@ -235,7 +244,7 @@ var
       );
   end;
 
-  function PrepareModification(const VProgressInfo: IRegionProcessProgressInfoInternal; const VCacheType: Byte; const VTargetStoragePath: String; const VZoomArr: TByteDynArray; const VDeleteSource, VReplace: Boolean): TThread;
+  function PrepareModification(const VProgressInfo: IRegionProcessProgressInfoInternal; const VCacheType: Byte; const VZoomArr: TByteDynArray; const VDeleteSource, VReplace: Boolean): TThread;
   var
     VSetTargetVersionEnabled: Boolean;
     VSetTargetVersionValue: String;
@@ -244,9 +253,11 @@ var
     ATargetVersionForce: IMapVersionInfo;
     VMapType: IMapType;
     VContentType: IContentTypeInfoBasic;
+    VPath: String;
   begin
     VMapType := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).MapSource;
     VContentType := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).ContentType;
+    VPath := IncludeTrailingPathDelimiter((ParamsFrame as IRegionProcessParamsFrameTargetPath).Path);
 
     VStorageType := FTileStorageTypeList.GetItemByCode(VCacheType);
     if Assigned(VStorageType) then begin
@@ -256,7 +267,7 @@ var
           VMapType.TileStorage.ProjectionSet,
           VContentType,
           nil,
-          VTargetStoragePath,
+          VPath,
           nil
         );
     end;
@@ -295,7 +306,6 @@ var
 
 var
   VCacheType: Byte;
-  VPath: String;
   VZoomArr: TByteDynArray;
   VDeleteSource: Boolean;
   VReplace: Boolean;
@@ -304,7 +314,6 @@ var
 begin
   VMaps := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).MapTypeList;
   VCacheType := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).TargetCacheType;
-  VPath := IncludeTrailingPathDelimiter((ParamsFrame as IRegionProcessParamsFrameTargetPath).Path);
   VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
   VDeleteSource := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).DeleteSource;
   VReplace := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).ReplaseTarget;
@@ -312,9 +321,9 @@ begin
   VProgressInfo := ProgressFactory.Build(APolygon);
 
   if DoDirectCopy then begin
-    VThread := PrepareDirectCopy(VProgressInfo, VCacheType, VPath, VZoomArr, VDeleteSource, VReplace);
+    VThread := PrepareDirectCopy(VProgressInfo, VCacheType, VZoomArr, VDeleteSource, VReplace);
   end else begin
-    VThread := PrepareModification(VProgressInfo, VCacheType, VPath, VZoomArr, VDeleteSource, VReplace);
+    VThread := PrepareModification(VProgressInfo, VCacheType, VZoomArr, VDeleteSource, VReplace);
   end;
 
   if Assigned(VThread) then begin

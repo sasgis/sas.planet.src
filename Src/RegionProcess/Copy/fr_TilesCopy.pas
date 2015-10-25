@@ -451,7 +451,7 @@ end;
 
 function TfrTilesCopy.GetPath: string;
 begin
-  Result := IncludeTrailingPathDelimiter(edtTargetPath.Text);
+  Result := edtTargetPath.Text;
 end;
 
 function TfrTilesCopy.GetPlaceInNameSubFolder: Boolean;
