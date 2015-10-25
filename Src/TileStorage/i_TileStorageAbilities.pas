@@ -53,13 +53,21 @@ type
     tstcOther
   );
 
+type
+  TTileStorageTypeVersionSupport = (
+    tstvsVersionIgnored,
+    tstvsVersionStored,
+    tstvsMultiVersions
+  );
+
+type
   ITileStorageTypeAbilities = interface
     ['{EEB09E02-E81A-4566-866F-356008CC808D}']
     function GetBaseStorageAbilities: ITileStorageAbilities;
     property BaseStorageAbilities: ITileStorageAbilities read GetBaseStorageAbilities;
 
-    function GetIsVersioned: Boolean;
-    property IsVersioned: Boolean read GetIsVersioned;
+    function GetVersionSupport: TTileStorageTypeVersionSupport;
+    property VersionSupport: TTileStorageTypeVersionSupport read GetVersionSupport;
 
     function GetStorageClass: TTileStorageTypeClass;
     property StorageClass: TTileStorageTypeClass read GetStorageClass;

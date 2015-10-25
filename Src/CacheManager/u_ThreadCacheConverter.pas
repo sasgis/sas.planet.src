@@ -72,7 +72,8 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  i_TileStorageAbilities;
 
 { TThreadCacheConverter }
 
@@ -109,13 +110,13 @@ begin
   FCheckSourceVersion := Assigned(FSourceVersionInfo);
   FReplaceDestVersion := Assigned(FDestVersionInfo);
 
-  if FSourceTileStorage.StorageTypeAbilities.IsVersioned then begin
+  if FSourceTileStorage.StorageTypeAbilities.VersionSupport = tstvsMultiVersions then begin
     if FCheckSourceVersion then begin
       // process all versions
       FIgnoreMultiVersionTiles := False;
     end else begin
       // process all versions if dest storage support versioned tiles
-      FIgnoreMultiVersionTiles := not FDestTileStorage.StorageTypeAbilities.IsVersioned;
+      FIgnoreMultiVersionTiles := not (FDestTileStorage.StorageTypeAbilities.VersionSupport = tstvsMultiVersions);
     end;
   end else begin
     // no versioned tiles in source storage

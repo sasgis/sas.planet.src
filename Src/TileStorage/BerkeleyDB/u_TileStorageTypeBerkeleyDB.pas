@@ -88,11 +88,17 @@ constructor TTileStorageTypeBerkeleyDB.Create(
 );
 var
   VAbilities: ITileStorageTypeAbilities;
+  VVersionSupport: TTileStorageTypeVersionSupport;
 begin
+  if AIsVersioned then begin
+    VVersionSupport := tstvsMultiVersions;
+  end else begin
+    VVersionSupport := tstvsVersionStored;
+  end;
   VAbilities :=
     TTileStorageTypeAbilities.Create(
       TTileStorageAbilities.Create(False, True, True, True, True, True),
-      AIsVersioned,
+      VVersionSupport,
       tstcFolder
     );
   inherited Create(

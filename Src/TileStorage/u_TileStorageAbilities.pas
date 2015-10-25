@@ -66,16 +66,16 @@ type
   TTileStorageTypeAbilities = class(TBaseInterfacedObject, ITileStorageTypeAbilities)
   private
     FBaseStorageAbilities: ITileStorageAbilities;
-    FIsVersioned: Boolean;
+    FVersionSupport: TTileStorageTypeVersionSupport;
     FStorageClass: TTileStorageTypeClass;
   private
     function GetBaseStorageAbilities: ITileStorageAbilities;
-    function GetIsVersioned: Boolean;
+    function GetVersionSupport: TTileStorageTypeVersionSupport;
     function GetStorageClass: TTileStorageTypeClass;
   public
     constructor Create(
       const ABaseStorageAbilities: ITileStorageAbilities;
-      const AIsVersioned: Boolean;
+      const AVersionSupport: TTileStorageTypeVersionSupport;
       const AStorageClass: TTileStorageTypeClass
     );
   end;
@@ -85,7 +85,7 @@ type
     FBaseStorageAbilities: ITileStorageAbilities;
   private
     function GetBaseStorageAbilities: ITileStorageAbilities;
-    function GetIsVersioned: Boolean;
+    function GetVersionSupport: TTileStorageTypeVersionSupport;
     function GetStorageClass: TTileStorageTypeClass;
   public
     constructor Create;
@@ -147,13 +147,13 @@ end;
 
 constructor TTileStorageTypeAbilities.Create(
   const ABaseStorageAbilities: ITileStorageAbilities;
-  const AIsVersioned: Boolean;
+  const AVersionSupport: TTileStorageTypeVersionSupport;
   const AStorageClass: TTileStorageTypeClass
 );
 begin
   inherited Create;
   FBaseStorageAbilities := ABaseStorageAbilities;
-  FIsVersioned := AIsVersioned;
+  FVersionSupport := AVersionSupport;
   FStorageClass := AStorageClass;
 end;
 
@@ -162,14 +162,14 @@ begin
   Result := FBaseStorageAbilities;
 end;
 
-function TTileStorageTypeAbilities.GetIsVersioned: Boolean;
-begin
-  Result := FIsVersioned;
-end;
-
 function TTileStorageTypeAbilities.GetStorageClass: TTileStorageTypeClass;
 begin
   Result := FStorageClass;
+end;
+
+function TTileStorageTypeAbilities.GetVersionSupport: TTileStorageTypeVersionSupport;
+begin
+  Result := FVersionSupport;
 end;
 
 { TTileStorageAbilitiesNoAccess }
@@ -217,14 +217,14 @@ begin
   Result := FBaseStorageAbilities;
 end;
 
-function TTileStorageTypeAbilitiesNoAccess.GetIsVersioned: Boolean;
-begin
-  Result := False;
-end;
-
 function TTileStorageTypeAbilitiesNoAccess.GetStorageClass: TTileStorageTypeClass;
 begin
   Result := tstcOther;
+end;
+
+function TTileStorageTypeAbilitiesNoAccess.GetVersionSupport: TTileStorageTypeVersionSupport;
+begin
+  Result := tstvsVersionIgnored;
 end;
 
 end.

@@ -547,7 +547,7 @@ begin
       'x' + IntToStr(AXY.X) + PathDelim +
       'y' + IntToStr(AXY.Y) + FContentType.GetDefaultExt;
   end;
-  if FStorage.StorageTypeAbilities.IsVersioned and (AVersion.StoreString <> '') then begin
+  if (FStorage.StorageTypeAbilities.VersionSupport = tstvsMultiVersions) and (AVersion.StoreString <> '') then begin
     Result := Result + PathDelim + 'v' + AVersion.StoreString;
   end;
 end;

@@ -3801,7 +3801,7 @@ begin
   end else begin
     TBSMB.Caption := '';
   end;
-  TBXSubmnMapVer.Visible := VMapType.TileStorage.StorageTypeAbilities.IsVersioned;
+  TBXSubmnMapVer.Visible := VMapType.TileStorage.StorageTypeAbilities.VersionSupport = tstvsMultiVersions;
 end;
 
 procedure TfrmMain.OnMapGUIChange;
@@ -4341,7 +4341,7 @@ var
   VIndex: integer;
 begin
   VMapType := FMainMapState.ActiveMap.GetStatic;
-  if VMapType.TileStorage.StorageTypeAbilities.IsVersioned then begin
+  if VMapType.TileStorage.StorageTypeAbilities.VersionSupport = tstvsMultiVersions then begin
     VLocalConverter := FViewPortState.View.GetStatic;
     VIndex := -1;
     VProjection := VLocalConverter.Projection;
@@ -4409,7 +4409,7 @@ begin
 
   // and add view items
   VMapType := FMainMapState.ActiveMap.GetStatic;
-  VAllowListOfTileVersions := VMapType.TileStorage.StorageTypeAbilities.IsVersioned;
+  VAllowListOfTileVersions := VMapType.TileStorage.StorageTypeAbilities.VersionSupport = tstvsMultiVersions;
   tbpmiShowPrevVersion.Visible := VAllowListOfTileVersions;
 
   if VAllowListOfTileVersions then begin
@@ -7762,7 +7762,7 @@ begin
   tbitmMakeVersionByMark.Visible := (VMark <> nil) and (VInternalDomainOptions <> nil);
   tbitmSelectVersionByMark.Visible := tbitmMakeVersionByMark.Visible;
   // versions submenu
-  tbpmiVersions.Visible := VMapType.TileStorage.StorageTypeAbilities.IsVersioned or tbpmiClearVersion.Visible or tbitmMakeVersionByMark.Visible;
+  tbpmiVersions.Visible := (VMapType.TileStorage.StorageTypeAbilities.VersionSupport = tstvsMultiVersions) or tbpmiClearVersion.Visible or tbitmMakeVersionByMark.Visible;
 end;
 
 procedure TfrmMain.tbitmOnlineForumClick(Sender: TObject);
