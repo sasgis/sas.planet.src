@@ -66,7 +66,6 @@ type
     FImgFormat: string;
     FBasePoint: TPoint;
   private
-    procedure WriteTileJSONFile(const ATileIterator: ITileIterator);
     procedure OpenSQLiteStorage(const ATileIterator: ITileIterator);
     procedure CloseSQLiteStorage;
     procedure SaveTileToSQLiteStorage(
@@ -117,12 +116,14 @@ uses
 
 const
   // metadata
-  TABLE_METADATA_DDL = 'CREATE TABLE metadata (name text, value text)';
+  TABLE_METADATA_DDL = 'CREATE TABLE IF NOT EXISTS metadata (name text, value text)';
+  INDEX_METADATA_DDL = 'CREATE UNIQUE INDEX IF NOT EXISTS metadata_idx  ON metadata (name)';
   INSERT_METADATA_SQL = 'INSERT INTO metadata (name, value) VALUES (%s,%s)';
+
   // tiles
-  TABLE_TILES_DDL = 'CREATE TABLE tiles (zoom_level integer, tile_column integer, tile_row integer, tile_data blob)';
-  INDEX_TILES_DDL = 'CREATE INDEX IF NOT EXISTS IND on tiles (zoom_level,tile_column,tile_row)';
-  INSERT_TILES_SQL = 'INSERT OR IGNORE INTO tiles (zoom_level, tile_column, tile_row, tile_data) VALUES (%d,%d,%d,?)';
+  TABLE_TILES_DDL = 'CREATE TABLE IF NOT EXISTS tiles (zoom_level integer, tile_column integer, tile_row integer, tile_data blob)';
+  INDEX_TILES_DDL = 'CREATE INDEX IF NOT EXISTS tiles_idx on tiles (zoom_level, tile_column, tile_row)';
+  INSERT_TILES_SQL = 'INSERT OR REPLACE INTO tiles (zoom_level, tile_column, tile_row, tile_data) VALUES (%d,%d,%d,?)';
 
 { TThreadExportToMBTiles }
 
@@ -237,11 +238,7 @@ begin
     VTilesToProcess := VTilesToProcess + VTileIterators[I].TilesTotal;
   end;
 
-  VTileIterator := VTileIterators[0];
-
-  WriteTileJSONFile(VTileIterator);
-
-  OpenSQLiteStorage(VTileIterator);
+  OpenSQLiteStorage(VTileIterators[0]);
   try
     ProgressInfo.SetCaption(SAS_STR_ExportTiles);
     ProgressInfo.SetFirstLine(
@@ -298,99 +295,73 @@ begin
   end;
 end;
 
-procedure TThreadExportToMBTiles.WriteTileJSONFile(
-  const ATileIterator: ITileIterator
-);
-const
-  CR = #13#10;
-  cTemplate =
-    '{' + CR +
-    '    "tilejson": "2.1.0",' + CR +
-    '    "name": "%s",' + CR +
-    '    "description": "%s",' + CR +
-    '    "version": "1.0.0",' + CR +
-    '    "attribution": "%s",' + CR +
-    '    "scheme": "%s",' + CR +
-    '    "tiles": [' + CR +
-    '        "%s"' + CR +
-    '    ],' + CR +
-    '    "minzoom": %d,' + CR +
-    '    "maxzoom": %d,' + CR +
-    '    "bounds": [ %s ],' + CR +
-    '    "center": [ %s ]' + CR +
-    '}';
-  cTilesStr = 'http://localhost:8888/admin/1.0.0/world/{z}/{x}/{y}';
-var
-  VRectCenter: TDoublePoint;
-  VText: string;
-  VScheme, VTiles, VBounds, VCenter: string;
-  VMinZoom, VMaxZoom: Integer;
-  VUtf8Text: UTF8String;
-  VMemStream: TMemoryStream;
-begin
-  // https://github.com/mapbox/tilejson-spec/tree/master/2.1.0
-
-  if FUseXYZScheme then begin
-    VScheme := 'xyz';
-  end else begin
-    VScheme := 'tms';
-  end;
-
-  VTiles := cTilesStr + '.' + FImgFormat;
-
-  VMinZoom := FZooms[Low(FZooms)];
-  VMaxZoom := FZooms[High(FZooms)];
-
-  VRectCenter := RectCenter(GetLonLatRect(ATileIterator));
-  VCenter := Format('%.8f, %.8f, %d', [VRectCenter.X, VRectCenter.Y, VMinZoom], FFormatSettings);
-
-  VBounds := GetBounds(ATileIterator);
-
-  VText := Format(
-    cTemplate,
-    [FName, FDescription, FAttribution, VScheme, VTiles, VMinZoom, VMaxZoom, VBounds, VCenter],
-    FFormatSettings
-  );
-
-  VUtf8Text := AnsiToUtf8(VText);
-
-  VMemStream := TMemoryStream.Create;
-  try
-    VMemStream.WriteBuffer(VUtf8Text[1], Length(VUtf8Text));
-    VMemStream.SaveToFile(FExportPath + ChangeFileExt(FExportFileName, '.json'));
-  finally
-    VMemStream.Free;
-  end;
-end;
-
 procedure TThreadExportToMBTiles.OpenSQLiteStorage(const ATileIterator: ITileIterator);
 
   procedure _DoInsert(const AName, AValue: string);
   begin
     FSQLite3DB.ExecSQL(
-      ALFormat(INSERT_METADATA_SQL, ['''' + AName + '''', '''' + AValue + ''''])
+      ALFormat(
+        INSERT_METADATA_SQL,
+        [ '''' + UTF8Encode(AName) + '''', '''' + UTF8Encode(AValue) + '''']
+      )
     );
   end;
 
   procedure _WriteMetadata;
+  var
+    VRectCenter: TDoublePoint;
+    VScheme, VCenter, VMinZoom, VMaxZoom: string;
   begin
     FSQLite3DB.BeginTran;
     try
-      _DoInsert('name', FName);
+      if FName <> '' then begin
+        _DoInsert('name', FName);
+      end else begin
+        _DoInsert('name', 'Unnamed map');
+      end;
+
       _DoInsert('type', FImgType);
-      _DoInsert('version', '1');
-      _DoInsert('description', FDescription);
+      _DoInsert('version', '1.2');
+
+      if FDescription <> '' then begin
+        _DoInsert('description', FDescription);
+      end else begin
+        _DoInsert('description', 'Created by SAS.Planet');
+      end;
+
       _DoInsert('format', FImgFormat);
       _DoInsert('bounds', GetBounds(ATileIterator));
+
       if FAttribution <> '' then begin
         _DoInsert('attribution', FAttribution);
       end;
+
+      // insert additional fiels from TileJSON standart
+      // https://github.com/mapbox/tilejson-spec/tree/master/2.1.0
+
+      if FUseXYZScheme then begin
+        VScheme := 'xyz';
+      end else begin
+        VScheme := 'tms';
+      end;
+      _DoInsert('scheme', VScheme);
+
+      VMinZoom := IntToStr(FZooms[Low(FZooms)]);
+      VMaxZoom := IntToStr(FZooms[High(FZooms)]);
+      _DoInsert('minzoom', VMinZoom);
+      _DoInsert('maxzoom', VMaxZoom);
+
+      VRectCenter := RectCenter(GetLonLatRect(ATileIterator));
+      VCenter := Format('%.8f, %.8f, %s', [VRectCenter.X, VRectCenter.Y, VMinZoom], FFormatSettings);
+      _DoInsert('center', VCenter);
+
       FSQLite3DB.Commit;
     except
       FSQLite3DB.Rollback;
       raise;
     end;
   end;
+
 var
   VFileName: string;
 begin
@@ -417,6 +388,7 @@ begin
   FSQLite3DB.ExecSQL(INDEX_TILES_DDL);
 
   FSQLite3DB.ExecSQL(TABLE_METADATA_DDL);
+  FSQLite3DB.ExecSQL(INDEX_METADATA_DDL);
 
   _WriteMetadata;
 

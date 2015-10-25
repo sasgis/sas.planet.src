@@ -178,8 +178,6 @@ object frExportMBTiles: TfrExportMBTiles
         Height = 17
         Align = alTop
         Caption = 'Use xyz scheme'
-        Checked = True
-        State = cbChecked
         TabOrder = 4
       end
       object edtDesc: TEdit
