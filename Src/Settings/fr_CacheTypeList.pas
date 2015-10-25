@@ -23,7 +23,7 @@ type
   TTileStorageTypeClassSet = set of TTileStorageTypeClass;
 
 const
-  CTileStorageTypeClassAll = [tstcInSeparateFiles, tstcInMemory, tstcOther];
+  CTileStorageTypeClassAll = [tstcInMemory, tstcOneFile, tstcFolder, tstcInSeparateFiles, tstcOther];
 
 type
   TTileStorageAbilitiesClass = (tsacRead, tsacScan, tsacAdd, tsacDelete, tsacReplace);
@@ -104,17 +104,7 @@ begin
   end;
 
   VItemAbilities := AItem.StorageType.Abilities;
-  case VItemAbilities.StorageClass of
-    tstcInSeparateFiles: begin
-      Result := (tstcInSeparateFiles in FOptions);
-    end;
-    tstcInMemory: begin
-      Result := (tstcInMemory in FOptions);
-    end;
-    tstcOther: begin
-      Result := (tstcOther in FOptions);
-    end;
-  end;
+  Result := VItemAbilities.StorageClass in FOptions;
   if Result then begin
     if tsacRead in FRequaredAbilities then begin
       if not VItemAbilities.BaseStorageAbilities.AllowRead then begin

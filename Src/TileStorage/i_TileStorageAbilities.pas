@@ -46,8 +46,10 @@ type
 
 type
   TTileStorageTypeClass = (
-    tstcInSeparateFiles,
     tstcInMemory,
+    tstcOneFile,
+    tstcFolder,
+    tstcInSeparateFiles,
     tstcOther
   );
 
