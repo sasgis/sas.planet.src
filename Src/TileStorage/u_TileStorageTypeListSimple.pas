@@ -28,6 +28,10 @@ uses
   i_GlobalBerkeleyDBHelper,
   i_GlobalCacheConfig,
   i_MapVersionFactoryList,
+  i_InterfaceListSimple,
+  i_ArchiveReadWriteFactory,
+  i_TileFileNameGenerator,
+  i_TileFileNameParser,
   i_TileStorageTypeConfig,
   i_TileStorageType,
   i_TileStorageTypeListItem,
@@ -35,10 +39,25 @@ uses
 
 type
   TTileStorageTypeListSimple = class(TTileStorageTypeList)
+  private
+    procedure AddFileSystemTileStorageType(
+      const AContentTypeManager: IContentTypeManager;
+      const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+      const AStorageTypeConfig: ITileStorageTypeConfig;
+      const AFileSystemGUID: TGUID;
+      const AArchiveTarGUID: TGUID;
+      const ANumericId: Integer;
+      const ABaseName: string;
+      const ANameGenerator: ITileFileNameGenerator;
+      const ATileNameParser: ITileFileNameParser;
+      const AMapVersionFactoryList: IMapVersionFactoryList;
+      const AList: IInterfaceListSimple
+    );
   public
     constructor Create(
       const AMapVersionFactoryList: IMapVersionFactoryList;
       const AContentTypeManager: IContentTypeManager;
+      const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const AGlobalCacheConfig: IGlobalCacheConfig;
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AGCNotifier: INotifierTime
@@ -49,7 +68,6 @@ implementation
 
 uses
   c_CacheTypeCodes,
-  i_InterfaceListSimple,
   u_InterfaceListSimple,
   u_TileFileNameSAS,
   u_TileFileNameGMV,
@@ -60,6 +78,7 @@ uses
   u_TileFileNameMOBAC,
   u_TileFileNameOsmAnd,
   u_TileFileNameTMS,
+  u_TileStorageTypeArchiveTar,
   u_TileStorageTypeConfig,
   u_TileStorageTypeGE,
   u_TileStorageTypeGoogleEarth,
@@ -85,6 +104,17 @@ const
   CTileStorageTypeFileSystemMA: TGUID = '{033B64B5-008B-4BAF-9EA9-B8176EA35433}';
   CTileStorageTypeFileSystemOsmAnd: TGUID = '{A12465C1-2DB9-4309-8B48-A01E3BBDDE44}';
   CTileStorageTypeFileSystemTMS: TGUID = '{55510DF4-7FAD-4476-93AD-454F8689A109}';
+
+  CTileStorageTypeArchiveTarSAS: TGUID = '{BD540FB0-6518-410E-8C39-3C24D1F69C22}';
+  CTileStorageTypeArchiveTarGMV: TGUID = '{DE7D9EAC-FCE0-40A6-9CE6-CDEAB0FFAE28}';
+  CTileStorageTypeArchiveTarES: TGUID = '{CDFA5927-D3CD-483A-9E4A-6BF1AA67FDD0}';
+  CTileStorageTypeArchiveTarGM1: TGUID = '{6DCAE4E5-5878-4CA1-A789-5E62A499254F}';
+  CTileStorageTypeArchiveTarGM2: TGUID = '{AA85021B-77FB-458B-BBE6-B11B7692C82F}';
+  CTileStorageTypeArchiveTarGM3: TGUID = '{5C096A4C-FFA8-416F-AA14-DAC9C4A27D6B}';
+  CTileStorageTypeArchiveTarMA: TGUID = '{11442EE8-28B7-419B-A402-3ACC56581204}';
+  CTileStorageTypeArchiveTarOsmAnd: TGUID = '{5316452B-5B46-44CA-BF5F-D298240B350F}';
+  CTileStorageTypeArchiveTarTMS: TGUID = '{4D8DE501-B764-4E24-BFB7-C108665849BE}';
+
   CTileStorageTypeInRAM: TGUID = '{717034B7-B49E-4C89-BC75-002D0523E548}';
 
 resourcestring
@@ -110,6 +140,7 @@ resourcestring
 constructor TTileStorageTypeListSimple.Create(
   const AMapVersionFactoryList: IMapVersionFactoryList;
   const AContentTypeManager: IContentTypeManager;
+  const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const AGlobalCacheConfig: IGlobalCacheConfig;
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AGCNotifier: INotifierTime
@@ -122,176 +153,143 @@ var
 begin
   VList := TInterfaceListSimple.Create;
 
-  VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.NewCPath);
-  VStorageType :=
-    TTileStorageTypeFileSystemSimple.Create(
-      TTileFileNameSAS.Create,
-      TTileFileNameSAS.Create,
-      AMapVersionFactoryList.GetSimpleVersionFactory,
-      VStorageTypeConfig
+  VStorageTypeConfig :=
+    TTileStorageTypeConfig.Create(
+      AGlobalCacheConfig.NewCPath
     );
-  VItem :=
-    TTileStorageTypeListItem.Create(
-      CTileStorageTypeFileSystemSAS,
-      c_File_Cache_Id_SAS,
-      rsSASPlanetCacheName,
-      VStorageType,
-      True,
-      True
-    );
-  VList.Add(VItem);
+  AddFileSystemTileStorageType(
+    AContentTypeManager,
+    AArchiveReadWriteFactory,
+    VStorageTypeConfig,
+    CTileStorageTypeFileSystemSAS,
+    CTileStorageTypeArchiveTarSAS,
+    c_File_Cache_Id_SAS,
+    rsSASPlanetCacheName,
+    TTileFileNameSAS.Create,
+    TTileFileNameSAS.Create,
+    AMapVersionFactoryList,
+    VList
+  );
 
   VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.OldCPath);
-  VStorageType :=
-    TTileStorageTypeFileSystemSimple.Create(
-      TTileFileNameGMV.Create,
-      TTileFileNameGMV.Create,
-      AMapVersionFactoryList.GetSimpleVersionFactory,
-      VStorageTypeConfig
-    );
-  VItem :=
-    TTileStorageTypeListItem.Create(
-      CTileStorageTypeFileSystemGMV,
-      c_File_Cache_Id_GMV,
-      rsGoogleMVCacheName,
-      VStorageType,
-      True,
-      True
-    );
-  VList.Add(VItem);
+  AddFileSystemTileStorageType(
+    AContentTypeManager,
+    AArchiveReadWriteFactory,
+    VStorageTypeConfig,
+    CTileStorageTypeFileSystemGMV,
+    CTileStorageTypeArchiveTarGMV,
+    c_File_Cache_Id_GMV,
+    rsGoogleMVCacheName,
+    TTileFileNameGMV.Create,
+    TTileFileNameGMV.Create,
+    AMapVersionFactoryList,
+    VList
+  );
 
   VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.ESCPath);
-  VStorageType :=
-    TTileStorageTypeFileSystemSimple.Create(
-      TTileFileNameES.Create,
-      TTileFileNameES.Create,
-      AMapVersionFactoryList.GetSimpleVersionFactory,
-      VStorageTypeConfig
-    );
-  VItem :=
-    TTileStorageTypeListItem.Create(
-      CTileStorageTypeFileSystemES,
-      c_File_Cache_Id_ES,
-      rsEarthSlicerCacheName,
-      VStorageType,
-      True,
-      True
-    );
-  VList.Add(VItem);
+  AddFileSystemTileStorageType(
+    AContentTypeManager,
+    AArchiveReadWriteFactory,
+    VStorageTypeConfig,
+    CTileStorageTypeFileSystemES,
+    CTileStorageTypeArchiveTarES,
+    c_File_Cache_Id_ES,
+    rsEarthSlicerCacheName,
+    TTileFileNameES.Create,
+    TTileFileNameES.Create,
+    AMapVersionFactoryList,
+    VList
+  );
 
   VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.GMTilesPath);
-  VStorageType :=
-    TTileStorageTypeFileSystemSimple.Create(
-      TTileFileNameGM1.Create,
-      TTileFileNameGM1.Create,
-      AMapVersionFactoryList.GetSimpleVersionFactory,
-      VStorageTypeConfig
-    );
-  VItem :=
-    TTileStorageTypeListItem.Create(
-      CTileStorageTypeFileSystemGM1,
-      c_File_Cache_Id_GM,
-      rsGlobalMapperCacheName,
-      VStorageType,
-      True,
-      True
-    );
-  VList.Add(VItem);
+  AddFileSystemTileStorageType(
+    AContentTypeManager,
+    AArchiveReadWriteFactory,
+    VStorageTypeConfig,
+    CTileStorageTypeFileSystemGM1,
+    CTileStorageTypeArchiveTarGM1,
+    c_File_Cache_Id_GM,
+    rsGlobalMapperCacheName,
+    TTileFileNameGM1.Create,
+    TTileFileNameGM1.Create,
+    AMapVersionFactoryList,
+    VList
+  );
 
   VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.GMTilesPath);
-  VStorageType :=
-    TTileStorageTypeFileSystemSimple.Create(
-      TTileFileNameGM2.Create,
-      TTileFileNameGM2.Create,
-      AMapVersionFactoryList.GetSimpleVersionFactory,
-      VStorageTypeConfig
-    );
-  VItem :=
-    TTileStorageTypeListItem.Create(
-      CTileStorageTypeFileSystemGM2,
-      c_File_Cache_Id_GM_Aux,
-      rsGlobalMapperAuxCacheName,
-      VStorageType,
-      True,
-      True
-    );
-  VList.Add(VItem);
+  AddFileSystemTileStorageType(
+    AContentTypeManager,
+    AArchiveReadWriteFactory,
+    VStorageTypeConfig,
+    CTileStorageTypeFileSystemGM2,
+    CTileStorageTypeArchiveTarGM2,
+    c_File_Cache_Id_GM_Aux,
+    rsGlobalMapperAuxCacheName,
+    TTileFileNameGM2.Create,
+    TTileFileNameGM2.Create,
+    AMapVersionFactoryList,
+    VList
+  );
 
   VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.GMTilesPath);
-  VStorageType :=
-    TTileStorageTypeFileSystemSimple.Create(
-      TTileFileNameGM3.Create,
-      TTileFileNameGM3.Create,
-      AMapVersionFactoryList.GetSimpleVersionFactory,
-      VStorageTypeConfig
-    );
-  VItem :=
-    TTileStorageTypeListItem.Create(
-      CTileStorageTypeFileSystemGM3,
-      c_File_Cache_Id_GM_Bing,
-      rsGlobalMapperBingCacheName,
-      VStorageType,
-      True,
-      True
-    );
-  VList.Add(VItem);
+  AddFileSystemTileStorageType(
+    AContentTypeManager,
+    AArchiveReadWriteFactory,
+    VStorageTypeConfig,
+    CTileStorageTypeFileSystemGM3,
+    CTileStorageTypeArchiveTarGM3,
+    c_File_Cache_Id_GM_Bing,
+    rsGlobalMapperBingCacheName,
+    TTileFileNameGM3.Create,
+    TTileFileNameGM3.Create,
+    AMapVersionFactoryList,
+    VList
+  );
 
   VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.GMTilesPath);
-  VStorageType :=
-    TTileStorageTypeFileSystemSimple.Create(
-      TTileFileNameOsmAnd.Create,
-      TTileFileNameOsmAnd.Create,
-      AMapVersionFactoryList.GetSimpleVersionFactory,
-      VStorageTypeConfig
-    );
-  VItem :=
-    TTileStorageTypeListItem.Create(
-      CTileStorageTypeFileSystemOsmAnd,
-      c_File_Cache_Id_OsmAnd,
-      rsOsmAndCacheName,
-      VStorageType,
-      True,
-      True
-    );
-  VList.Add(VItem);
+  AddFileSystemTileStorageType(
+    AContentTypeManager,
+    AArchiveReadWriteFactory,
+    VStorageTypeConfig,
+    CTileStorageTypeFileSystemOsmAnd,
+    CTileStorageTypeArchiveTarOsmAnd,
+    c_File_Cache_Id_OsmAnd,
+    rsOsmAndCacheName,
+    TTileFileNameOsmAnd.Create,
+    TTileFileNameOsmAnd.Create,
+    AMapVersionFactoryList,
+    VList
+  );
 
   VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.MOBACTilesPath);
-  VStorageType :=
-    TTileStorageTypeFileSystemSimple.Create(
-      TTileFileNameMOBAC.Create,
-      TTileFileNameMOBAC.Create,
-      AMapVersionFactoryList.GetSimpleVersionFactory,
-      VStorageTypeConfig
-    );
-  VItem :=
-    TTileStorageTypeListItem.Create(
-      CTileStorageTypeFileSystemMA,
-      c_File_Cache_Id_MOBAC,
-      rsMobileAtlasCacheName,
-      VStorageType,
-      True,
-      True
-    );
-  VList.Add(VItem);
+  AddFileSystemTileStorageType(
+    AContentTypeManager,
+    AArchiveReadWriteFactory,
+    VStorageTypeConfig,
+    CTileStorageTypeFileSystemMA,
+    CTileStorageTypeArchiveTarMA,
+    c_File_Cache_Id_MOBAC,
+    rsMobileAtlasCacheName,
+    TTileFileNameMOBAC.Create,
+    TTileFileNameMOBAC.Create,
+    AMapVersionFactoryList,
+    VList
+  );
 
   VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.TMSTilesPath);
-  VStorageType :=
-    TTileStorageTypeFileSystemSimple.Create(
-      TTileFileNameTMS.Create,
-      TTileFileNameTMS.Create,
-      AMapVersionFactoryList.GetSimpleVersionFactory,
-      VStorageTypeConfig
-    );
-  VItem :=
-    TTileStorageTypeListItem.Create(
-      CTileStorageTypeFileSystemTMS,
-      c_File_Cache_Id_TMS,
-      rsTMSCacheName,
-      VStorageType,
-      True,
-      True
-    );
-  VList.Add(VItem);
+  AddFileSystemTileStorageType(
+    AContentTypeManager,
+    AArchiveReadWriteFactory,
+    VStorageTypeConfig,
+    CTileStorageTypeFileSystemTMS,
+    CTileStorageTypeArchiveTarTMS,
+    c_File_Cache_Id_TMS,
+    rsTMSCacheName,
+    TTileFileNameTMS.Create,
+    TTileFileNameTMS.Create,
+    AMapVersionFactoryList,
+    VList
+  );
 
   VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.GCCachePath);
   VStorageType :=
@@ -425,6 +423,61 @@ begin
     );
   VList.Add(VItem);
   inherited Create(VList.MakeStaticAndClear);
+end;
+
+procedure TTileStorageTypeListSimple.AddFileSystemTileStorageType(
+  const AContentTypeManager: IContentTypeManager;
+  const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+  const AStorageTypeConfig: ITileStorageTypeConfig;
+  const AFileSystemGUID: TGUID;
+  const AArchiveTarGUID: TGUID;
+  const ANumericId: Integer;
+  const ABaseName: string;
+  const ANameGenerator: ITileFileNameGenerator;
+  const ATileNameParser: ITileFileNameParser;
+  const AMapVersionFactoryList: IMapVersionFactoryList;
+  const AList: IInterfaceListSimple
+);
+var
+  VStorageType: ITileStorageType;
+  VItem: ITileStorageTypeListItem;
+begin
+  VStorageType :=
+    TTileStorageTypeFileSystemSimple.Create(
+      ANameGenerator,
+      ATileNameParser,
+      AMapVersionFactoryList.GetSimpleVersionFactory,
+      AStorageTypeConfig
+    );
+  VItem :=
+    TTileStorageTypeListItem.Create(
+      AFileSystemGUID,
+      ANumericId,
+      ABaseName,
+      VStorageType,
+      True,
+      True
+    );
+  AList.Add(VItem);
+  VStorageType :=
+    TTileStorageTypeArchiveTar.Create(
+      AContentTypeManager,
+      AArchiveReadWriteFactory,
+      ANameGenerator,
+      ATileNameParser,
+      AMapVersionFactoryList.GetSimpleVersionFactory,
+      AStorageTypeConfig
+    );
+  VItem :=
+    TTileStorageTypeListItem.Create(
+      AArchiveTarGUID,
+      ANumericId + 100,
+      'Tar ' + ABaseName,
+      VStorageType,
+      False,
+      True
+    );
+  AList.Add(VItem);
 end;
 
 end.

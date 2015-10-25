@@ -841,6 +841,7 @@ begin
     TTileStorageTypeListSimple.Create(
       FMapVersionFactoryList,
       FContentTypeManager,
+      FArchiveReadWriteFactory,
       FCacheConfig,
       FGlobalBerkeleyDBHelper,
       FBGTimerNotifier
