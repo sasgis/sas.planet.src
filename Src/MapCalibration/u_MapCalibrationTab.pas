@@ -151,7 +151,7 @@ begin
 
   VFileStream := TFileStream.Create(VFileName, fmCreate);
   try
-    VName := ExtractFileName(AFileName);
+    VName := AnsiString(ExtractFileName(AFileName));
 
     VText :=
       '!table' + #13#10 +

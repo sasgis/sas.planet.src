@@ -78,6 +78,7 @@ uses
   Math,
   SysUtils,
   StrUtils,
+  ALString,
   Jpeg,
   CCR.Exif,
   CCR.Exif.IPTC,
@@ -164,7 +165,7 @@ const
     end;
   end;
 
-  function _GetLoaderByExt(const AExt: string): IBitmapTileLoader;
+  function _GetLoaderByExt(const AExt: AnsiString): IBitmapTileLoader;
   var
     VContentType: IContentTypeInfoBasic;
     VContentTypeBitmap: IContentTypeInfoBitmap;
@@ -206,6 +207,7 @@ var
   VPointParams: IImportPointParams;
   VAppearance: IAppearance;
   VMark: IMarkPicture;
+  VExt: AnsiString;
 begin
   Assert(FileExists(AFileName));
 
@@ -362,12 +364,12 @@ begin
           VThumbnail.SaveToFile(VPicFullName);
 
           VPicShortName := _GetInternalFileName(VPicFullName);
-
+          VExt := AlLowerCase(AnsiString(ExtractFileExt(AFileName)));
           VMark := TMarkPictureSimple.Create(
             FHashFunction.CalcHashByString(VPicFullName),
             VPicFullName,
             VPicShortName,
-            _GetLoaderByExt(ExtractFileExt(AFileName))
+            _GetLoaderByExt(VExt)
           );
 
           VAppearance :=

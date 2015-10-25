@@ -108,7 +108,7 @@ type
     procedure ProcessCacheConverter;
     function CreateSimpleTileStorage(
       const ARootPath: string;
-      const ADefExtention: string;
+      const ADefExtention: AnsiString;
       const AArchiveType: TTileCacheInArchiveType;
       const AProjectionSet: IProjectionSet;
       const AFormatID: Byte
@@ -138,6 +138,7 @@ uses
   {$WARN UNIT_PLATFORM OFF}
   FileCtrl,
   {$WARN UNIT_PLATFORM ON}
+  ALString,
   c_CacheTypeCodes,
   c_CoordConverter,
   i_MapVersionInfo,
@@ -225,7 +226,7 @@ end;
 
 function TfrmCacheManager.CreateSimpleTileStorage(
   const ARootPath: string;
-  const ADefExtention: string;
+  const ADefExtention: AnsiString;
   const AArchiveType: TTileCacheInArchiveType;
   const AProjectionSet: IProjectionSet;
   const AFormatID: Byte
@@ -356,7 +357,7 @@ var
   VDestVersion: IMapVersionInfo;
   VSourcePath: string;
   VDestPath: string;
-  VDefExtention: string;
+  VDefExtention: AnsiString;
   VDotPos: Integer;
   VArchType: TTileCacheInArchiveType;
 begin
@@ -370,14 +371,14 @@ begin
 
   VProjectionSet := FProjectionSetFactory.GetProjectionSetByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256);
 
-  VDefExtention := Trim(edtDefExtention.Text);
-  VDotPos := Pos('.', VDefExtention);
+  VDefExtention := AnsiString(Trim(edtDefExtention.Text));
+  VDotPos := ALPos('.', VDefExtention);
   if VDotPos > 0 then begin
-    VDefExtention := Copy(VDefExtention, VDotPos, Length(VDefExtention) - VDotPos + 1);
+    VDefExtention := ALCopyStr(VDefExtention, VDotPos, Length(VDefExtention) - VDotPos + 1);
   end else begin
     VDefExtention := '.' + VDefExtention;
   end;
-  VDefExtention := LowerCase(VDefExtention);
+  VDefExtention := AlLowerCase(VDefExtention);
 
   VSourcePath := Trim(edtPath.Text);
   if not IsTileCacheInArchive(VSourcePath, VArchType) then begin

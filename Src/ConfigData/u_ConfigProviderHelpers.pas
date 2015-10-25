@@ -130,7 +130,7 @@ function ReadBitmapByFileRef(
 var
   VFilePath: string;
   VFileName: string;
-  VFileExt: string;
+  VFileExt: AnsiString;
   VResourceProvider: IConfigDataProvider;
   VInfoBasic: IContentTypeInfoBasic;
   VBitmapContntType: IContentTypeInfoBitmap;
@@ -139,7 +139,7 @@ begin
   Result := ADefault;
   VFilePath := ExcludeTrailingPathDelimiter(ExtractFilePath(AFullFileName));
   VFileName := ExtractFileName(AFullFileName);
-  VFileExt := ExtractFileExt(VFileName);
+  VFileExt := AnsiString(ExtractFileExt(VFileName));
 
   if VFilePath = '' then begin
     VResourceProvider := AConfigProvider;

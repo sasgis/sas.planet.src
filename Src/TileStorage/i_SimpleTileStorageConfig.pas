@@ -35,8 +35,8 @@ type
     function GetNameInCache: string;
     property NameInCache: string read GetNameInCache;
 
-    function GetTileFileExt: string;
-    property TileFileExt: string read GetTileFileExt;
+    function GetTileFileExt: AnsiString;
+    property TileFileExt: AnsiString read GetTileFileExt;
 
     function GetAbilities: ITileStorageAbilities;
     property Abilities: ITileStorageAbilities read GetAbilities;
@@ -64,8 +64,8 @@ type
     procedure SetNameInCache(const AValue: string);
     property NameInCache: string read GetNameInCache write SetNameInCache;
 
-    function GetTileFileExt: string;
-    property TileFileExt: string read GetTileFileExt;
+    function GetTileFileExt: AnsiString;
+    property TileFileExt: AnsiString read GetTileFileExt;
 
     function GetIsReadOnly: boolean;
     procedure SetIsReadOnly(AValue: Boolean);

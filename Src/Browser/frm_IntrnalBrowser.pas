@@ -165,7 +165,8 @@ procedure TfrmIntrnalBrowser.EmbeddedWB1BeforeNavigate2(
   var Cancel: WordBool
 );
 var
-  VURL, VExt: WideString;
+  VURL: WideString;
+  VExt: AnsiString;
 begin
   if Cancel then begin
     Exit;
@@ -180,7 +181,7 @@ begin
 
     // check file exists
     if FileExists(VURL) then begin
-      VExt := ExtractFileExt(VURL);
+      VExt := AnsiString(ExtractFileExt(VURL));
       if FContentTypeManager.GetIsBitmapExt(VExt) then begin
         if OpenLocalImage(VURL) then begin
         // image opened

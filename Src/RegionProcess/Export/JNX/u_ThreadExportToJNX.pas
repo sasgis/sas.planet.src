@@ -202,7 +202,7 @@ begin
 
             if Supports(VTileStorage.GetTileInfoEx(VTile, VZoom, VVersion, gtimWithData), ITileInfoWithData, VTileInfo) then begin
               VData := Nil;
-              if VRecompress or not SameText(VTileInfo.ContentType.GetContentType, 'image/jpg') then begin
+              if VRecompress or not ALSameText(VTileInfo.ContentType.GetContentType, 'image/jpg') then begin
                 if Supports(VTileInfo.ContentType, IContentTypeInfoBitmap, VContentTypeInfoBitmap) then begin
                   VBitmapTile := VContentTypeInfoBitmap.GetLoader.Load(VTileInfo.TileData);
                   if FBitmapPostProcessing <> nil then begin

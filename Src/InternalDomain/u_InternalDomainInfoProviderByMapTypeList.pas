@@ -44,22 +44,22 @@ type
     function LoadDataFromZmp(
       const AZmp: IZmpInfo;
       const AFileName: string;
-      out AContentType: string
+      out AContentType: AnsiString
     ): IBinaryData;
     function LoadDataFromDataProvider(
       const ADataProvider: IConfigDataProvider;
       const AFileName: string;
-      out AContentType: string
+      out AContentType: AnsiString
     ): IBinaryData;
     function LoadDataFromSubDataProvider(
       const ADataProvider: IConfigDataProvider;
       const AFileName: string;
-      out AContentType: string
+      out AContentType: AnsiString
     ): IBinaryData;
   private
     function LoadBinaryByFilePath(
       const AFilePath: string;
-      out AContentType: string
+      out AContentType: AnsiString
     ): IBinaryData;
   public
     constructor Create(
@@ -93,7 +93,7 @@ end;
 
 function TInternalDomainInfoProviderByMapTypeList.LoadBinaryByFilePath(
   const AFilePath: string;
-  out AContentType: string
+  out AContentType: AnsiString
 ): IBinaryData;
 var
   VGuid: TGUID;
@@ -112,11 +112,11 @@ end;
 function TInternalDomainInfoProviderByMapTypeList.LoadDataFromDataProvider(
   const ADataProvider: IConfigDataProvider;
   const AFileName: string;
-  out AContentType: string
+  out AContentType: AnsiString
 ): IBinaryData;
 var
   VFileName: string;
-  VExt: string;
+  VExt: AnsiString;
   VContentType: IContentTypeInfoBasic;
 begin
   AContentType := '';
@@ -125,7 +125,7 @@ begin
     VFileName := 'index.html';
   end;
   if AContentType = '' then begin
-    VExt := ExtractFileExt(VFileName);
+    VExt := AnsiString(ExtractFileExt(VFileName));
     VContentType := FContentTypeManager.GetInfoByExt(VExt);
     if VContentType <> nil then begin
       AContentType := VContentType.GetContentType;
@@ -140,7 +140,7 @@ end;
 function TInternalDomainInfoProviderByMapTypeList.LoadDataFromSubDataProvider(
   const ADataProvider: IConfigDataProvider;
   const AFileName: string;
-  out AContentType: string
+  out AContentType: AnsiString
 ): IBinaryData;
 var
   VSubItemName: string;
@@ -173,7 +173,7 @@ end;
 function TInternalDomainInfoProviderByMapTypeList.LoadDataFromZmp(
   const AZmp: IZmpInfo;
   const AFileName: string;
-  out AContentType: string
+  out AContentType: AnsiString
 ): IBinaryData;
 begin
   Result := LoadDataFromSubDataProvider(AZmp.DataProvider, AFileName, AContentType);

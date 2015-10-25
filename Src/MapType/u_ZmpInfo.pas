@@ -426,7 +426,7 @@ function GetBitmap(
 var
   VImageName: string;
   VData: IBinaryData;
-  VExt: string;
+  VExt: AnsiString;
   VTypeInfo: IContentTypeInfoBasic;
   VBitmapTypeInfo: IContentTypeInfoBitmap;
   VLoader: IBitmapTileLoader;
@@ -436,7 +436,7 @@ begin
   VImageName := AConfigIniParams.ReadString(AIdent, VImageName);
   VData := AConfig.ReadBinary(VImageName);
   if (VData <> nil) and (VData.Size > 0) then begin
-    VExt := LowerCase(ExtractFileExt(VImageName));
+    VExt := AlLowerCase(AnsiString(ExtractFileExt(VImageName)));
     VTypeInfo := AContentTypeManager.GetInfoByExt(VExt);
     if Supports(VTypeInfo, IContentTypeInfoBitmap, VBitmapTypeInfo) then begin
       VLoader := VBitmapTypeInfo.GetLoader;
@@ -824,7 +824,7 @@ procedure TZmpInfo.LoadStorageConfig(
 var
   VCacheTypeCode: Integer;
   VNameInCache: string;
-  VTileFileExt: string;
+  VTileFileExt: AnsiString;
   VIsReadOnly: boolean;
   VAllowDelete: boolean;
   VAllowAdd: boolean;
@@ -841,7 +841,7 @@ begin
   VMemCacheCapacity := AConfig.ReadInteger('MemCacheCapacity', FZmpConfig.MemCacheCapacity);
   VMemCacheTTL := AConfig.ReadInteger('MemCacheTTL', FZmpConfig.MemCacheTTL);
   VMemCacheClearStrategy := AConfig.ReadInteger('MemCacheClearStrategy', FZmpConfig.MemCacheClearStrategy);
-  VTileFileExt := LowerCase(AConfig.ReadString('Ext', '.jpg'));
+  VTileFileExt := AlLowerCase(AConfig.ReadAnsiString('Ext', '.jpg'));
   VIsReadOnly := AConfig.ReadBool('IsReadOnly', False);
   VAllowDelete := not VIsReadOnly;
   VAllowAdd := not VIsReadOnly;

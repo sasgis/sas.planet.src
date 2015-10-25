@@ -44,7 +44,7 @@ type
     FMediaDataPath: IPathConfig;
     FContentTypeManager: IContentTypeManager;
     procedure Clear;
-    function GetLoaderByExt(const AExt: string): IBitmapTileLoader;
+    function GetLoaderByExt(const AExt: AnsiString): IBitmapTileLoader;
     function _GetFromRuntimeList(AIndex: Integer): IMarkPicture;
     function _TryAddToRuntimeList(const AValue: string): Integer;
   private
@@ -73,6 +73,7 @@ implementation
 
 uses
   StrUtils,
+  ALString,
   t_Hash,
   c_InternalBrowser,
   i_ContentTypeInfo,
@@ -174,7 +175,7 @@ begin
   end;
 end;
 
-function TMarkPictureListSimple.GetLoaderByExt(const AExt: string): IBitmapTileLoader;
+function TMarkPictureListSimple.GetLoaderByExt(const AExt: AnsiString): IBitmapTileLoader;
 var
   VContentType: IContentTypeInfoBasic;
   VContentTypeBitmap: IContentTypeInfoBitmap;
@@ -379,6 +380,7 @@ var
   VFullName: string;
   VShortName: string;
   VHash: THashValue;
+  VExt: AnsiString;
 begin
   Result := -1;
 
@@ -406,7 +408,8 @@ begin
 
   if VFullName <> '' then begin
     try
-      VLoader := GetLoaderByExt(ExtractFileExt(VFullName));
+      VExt := AlLowerCase(AnsiString(ExtractFileExt(VFullName)));
+      VLoader := GetLoaderByExt(VExt);
 
       if not Assigned(VLoader) then begin
         FRuntimeFailList.Add(AValue);

@@ -113,7 +113,7 @@ var
   VContentType: IContentTypeInfoBasic;
   VLoader: IBitmapTileLoader;
   VSaver: IBitmapTileSaver;
-  VExt: string;
+  VExt: AnsiString;
   VType: AnsiString;
 begin
   VSaver := ABitmapTileSaveLoadFactory.CreateJpegSaver(85, ASavePerfCounterList);

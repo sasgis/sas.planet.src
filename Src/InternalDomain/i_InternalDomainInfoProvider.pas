@@ -30,7 +30,7 @@ type
     ['{CD84B08E-E84B-4688-9D9A-A9A34F29139D}']
     function LoadBinaryByFilePath(
       const AFilePath: string;
-      out AContentType: string
+      out AContentType: AnsiString
     ): IBinaryData;
   end;
 

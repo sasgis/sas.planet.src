@@ -32,16 +32,16 @@ type
   TContentTypeInfoBase = class(TBaseInterfacedObject, IContentTypeInfoBasic)
   private
     FContentType: AnsiString;
-    FDefaultExt: string;
+    FDefaultExt: AnsiString;
   private
     function GetContentType: AnsiString;
-    function GetDefaultExt: string;
+    function GetDefaultExt: AnsiString;
   protected
     function CheckOtherForSaveCompatible(const AContentType: IContentTypeInfoBasic): Boolean; virtual; abstract;
   public
     constructor Create(
       const AContentType: AnsiString;
-      const ADefaultExt: string
+      const ADefaultExt: AnsiString
     );
   end;
 
@@ -57,7 +57,7 @@ type
   public
     constructor Create(
       const AContentType: AnsiString;
-      const ADefaultExt: string;
+      const ADefaultExt: AnsiString;
       const ALoader: IBitmapTileLoader;
       const ASaver: IBitmapTileSaver
     );
@@ -73,7 +73,7 @@ type
   public
     constructor Create(
       const AContentType: AnsiString;
-      const ADefaultExt: string;
+      const ADefaultExt: AnsiString;
       const ALoader: IVectorDataLoader
     );
   end;
@@ -87,7 +87,7 @@ uses
 
 constructor TContentTypeInfoBase.Create(
   const AContentType: AnsiString;
-  const ADefaultExt: string
+  const ADefaultExt: AnsiString
 );
 begin
   inherited Create;
@@ -100,7 +100,7 @@ begin
   Result := FContentType;
 end;
 
-function TContentTypeInfoBase.GetDefaultExt: string;
+function TContentTypeInfoBase.GetDefaultExt: AnsiString;
 begin
   Result := FDefaultExt;
 end;
@@ -109,7 +109,7 @@ end;
 
 constructor TContentTypeInfoBitmap.Create(
   const AContentType: AnsiString;
-  const ADefaultExt: string;
+  const ADefaultExt: AnsiString;
   const ALoader: IBitmapTileLoader;
   const ASaver: IBitmapTileSaver
 );
@@ -157,7 +157,7 @@ end;
 
 constructor TContentTypeInfoVector.Create(
   const AContentType: AnsiString;
-  const ADefaultExt: string;
+  const ADefaultExt: AnsiString;
   const ALoader: IVectorDataLoader
 );
 begin

@@ -127,7 +127,7 @@ begin
   VlastValue := 0;
   VcurValue := 0;
   VFind := Trim(AnsiUpperCase(Astr));
-  VFind := RegExprReplaceMatchSubStr(VFind, '-', '');
+  VFind := StringReplace(VFind, '-', '', [rfReplaceAll]);
   if '' = RegExprReplaceMatchSubStr(VFind, 'IVX', '') then begin
     Result := 0;
   end else begin
@@ -881,18 +881,20 @@ begin
   end;
   VcoordError := True;
   V2Search := Trim(AnsiUpperCase(ASearch));
-  V2Search := ReplaceStr(V2Search, ', ', ' '); // разделители
-  V2Search := ReplaceStr(V2Search, ' .', ' '); // разделители
-  V2Search := ReplaceStr(V2Search, '%2C', ' '); // разделители
-  V2Search := ReplaceStr(V2Search, '#8243;', '"'); // разделители
-  V2Search := ReplaceStr(V2Search, '#8242;', ''''); // разделители
-  V2Search := ReplaceStr(V2Search, '&', ' '); // разделители
-  V2Search := ReplaceStr(V2Search, '=', ' '); // разделители
-  V2Search := ReplaceStr(V2Search, ';', ' '); // разделители
-  V2Search := ReplaceStr(V2Search, '#', ' '); // разделители
-  V2Search := ReplaceStr(V2Search, '/', ' '); // разделители
-  V2Search := RegExprReplaceMatchSubStr(V2Search, 'ШИРОТ(А|Ы)', 'N ');
-  V2Search := RegExprReplaceMatchSubStr(V2Search, 'ДОЛГОТ(А|Ы)', 'E ');
+  V2Search := StringReplace(V2Search, ', ', ' ', [rfReplaceAll]); // разделители
+  V2Search := StringReplace(V2Search, ' .', ' ', [rfReplaceAll]); // разделители
+  V2Search := StringReplace(V2Search, '%2C', ' ', [rfReplaceAll]); // разделители
+  V2Search := StringReplace(V2Search, '#8243;', '"', [rfReplaceAll]); // разделители
+  V2Search := StringReplace(V2Search, '#8242;', '''', [rfReplaceAll]); // разделители
+  V2Search := StringReplace(V2Search, '&', ' ', [rfReplaceAll]); // разделители
+  V2Search := StringReplace(V2Search, '=', ' ', [rfReplaceAll]); // разделители
+  V2Search := StringReplace(V2Search, ';', ' ', [rfReplaceAll]); // разделители
+  V2Search := StringReplace(V2Search, '#', ' ', [rfReplaceAll]); // разделители
+  V2Search := StringReplace(V2Search, '/', ' ', [rfReplaceAll]); // разделители
+  V2Search := StringReplace(V2Search, 'ШИРОТА', 'N ', [rfReplaceAll]);
+  V2Search := StringReplace(V2Search, 'ШИРОТЫ', 'N ', [rfReplaceAll]);
+  V2Search := StringReplace(V2Search, 'ДОЛГОТА', 'E ', [rfReplaceAll]);
+  V2Search := StringReplace(V2Search, 'ДОЛГОТЫ', 'E ', [rfReplaceAll]);
 
   if SubstrCount(',', V2Search, I) = 1 then V2Search := ReplaceStr(V2Search, ',', ' '); // 11.22,33.44
   while PosEx('  ', V2Search, 1) > 1 do V2Search := ReplaceStr(V2Search, '  ', ' ');// убираем двойные пробелы

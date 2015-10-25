@@ -117,7 +117,7 @@ var
   VDomainName: string;
   VFilePath: string;
   VDomain: IInternalDomainInfoProvider;
-  VContentType: string;
+  VContentType: AnsiString;
   VData: IBinaryData;
 begin
   Result := ParseUrl(AUrl, VDomainName, VFilePath);

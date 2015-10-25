@@ -55,7 +55,7 @@ type
     function GetNameInCache: string;
     procedure SetNameInCache(const AValue: string);
 
-    function GetTileFileExt: string;
+    function GetTileFileExt: AnsiString;
 
     function GetIsReadOnly: Boolean;
     procedure SetIsReadOnly(AValue: Boolean);
@@ -244,7 +244,7 @@ begin
   Result := ISimpleTileStorageConfigStatic(GetStaticInternal);
 end;
 
-function TSimpleTileStorageConfig.GetTileFileExt: string;
+function TSimpleTileStorageConfig.GetTileFileExt: AnsiString;
 begin
   Result := FDefConfig.TileFileExt;
 end;

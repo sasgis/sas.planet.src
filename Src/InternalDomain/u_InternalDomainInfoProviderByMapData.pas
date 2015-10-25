@@ -48,7 +48,7 @@ type
   private
     function LoadBinaryByFilePath(
       const AFilePath: string;
-      out AContentType: string
+      out AContentType: AnsiString
     ): IBinaryData;
   public
     constructor Create(
@@ -99,7 +99,7 @@ end;
 
 function TInternalDomainInfoProviderByMapData.LoadBinaryByFilePath(
   const AFilePath: string;
-  out AContentType: string
+  out AContentType: AnsiString
 ): IBinaryData;
 var
   VMapGUID: TGUID;

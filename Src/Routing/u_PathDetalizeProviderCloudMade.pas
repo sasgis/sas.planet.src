@@ -122,7 +122,7 @@ var
   VPrevPoint: TDoublePoint;
   VResultOk: IDownloadResultOk;
   posit: Integer;
-  url: string;
+  url: AnsiString;
   VCurrPoint: TDoublePoint;
   posit2: Integer;
   VResult: IDownloadResult;

@@ -47,7 +47,7 @@ type
   private
     function LoadBinaryByFilePath(
       const AFilePath: string;
-      out AContentType: string
+      out AContentType: AnsiString
     ): IBinaryData;
   public
     constructor Create(
@@ -121,7 +121,7 @@ end;
 
 function TInternalDomainInfoProviderByLastSearchResults.LoadBinaryByFilePath(
   const AFilePath: string;
-  out AContentType: string
+  out AContentType: AnsiString
 ): IBinaryData;
 var
   VSearchResultIndex: Integer;

@@ -165,7 +165,7 @@ begin
       end else begin
         if FFilesIterator.Next(VTileFileNameW) then begin
           // start process new cache file
-          VTileFileName := VTileFileNameW;
+          VTileFileName := AnsiString(VTileFileNameW);
           if FTileFileNameParser.GetTilePoint(VTileFileName, VTileXY, FCurFileZoom)  then begin
             // get new array of tiles
             VTileFileFullName := FFilesIterator.GetRootFolderName + VTileFileNameW;

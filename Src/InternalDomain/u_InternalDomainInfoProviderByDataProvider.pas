@@ -38,17 +38,17 @@ type
     function LoadDataFromSubDataProvider(
       const ADataProvider: IConfigDataProvider;
       const AFileName: string;
-      out AContentType: string
+      out AContentType: AnsiString
     ): IBinaryData;
     function LoadDataFromDataProvider(
       const ADataProvider: IConfigDataProvider;
       const AFileName: string;
-      out AContentType: string
+      out AContentType: AnsiString
     ): IBinaryData;
   private
     function LoadBinaryByFilePath(
       const AFilePath: string;
-      out AContentType: string
+      out AContentType: AnsiString
     ): IBinaryData;
   public
     constructor Create(
@@ -84,7 +84,7 @@ end;
 
 function TInternalDomainInfoProviderByDataProvider.LoadBinaryByFilePath(
   const AFilePath: string;
-  out AContentType: string
+  out AContentType: AnsiString
 ): IBinaryData;
 begin
   Result := LoadDataFromSubDataProvider(FProvider, AFilePath, AContentType);
@@ -93,11 +93,11 @@ end;
 function TInternalDomainInfoProviderByDataProvider.LoadDataFromDataProvider(
   const ADataProvider: IConfigDataProvider;
   const AFileName: string;
-  out AContentType: string
+  out AContentType: AnsiString
 ): IBinaryData;
 var
   VFileName: string;
-  VExt: string;
+  VExt: AnsiString;
   VContentType: IContentTypeInfoBasic;
   VUrl: WideString;
   VMimeType: PWideChar;
@@ -108,7 +108,7 @@ begin
     VFileName := 'index.html';
   end;
   if AContentType = '' then begin
-    VExt := ExtractFileExt(VFileName);
+    VExt := AnsiString(ExtractFileExt(VFileName));
     VContentType := FContentTypeManager.GetInfoByExt(VExt);
     if VContentType <> nil then begin
       AContentType := VContentType.GetContentType;
@@ -116,7 +116,7 @@ begin
       VUrl := VFileName;
       if Succeeded(FindMimeFromData(nil, PWideChar(VUrl), nil, 0, nil, 0, VMimeType, 0)) then begin
         try
-          AContentType := VMimeType;
+          AContentType := AnsiString(VMimeType);
         finally
           CoTaskMemFree(VMimeType);
         end;
@@ -132,7 +132,7 @@ end;
 function TInternalDomainInfoProviderByDataProvider.LoadDataFromSubDataProvider(
   const ADataProvider: IConfigDataProvider;
   const AFileName: string;
-  out AContentType: string
+  out AContentType: AnsiString
 ): IBinaryData;
 var
   VSubItemName: string;
