@@ -1374,6 +1374,7 @@
     <DCCReference Include="Src\TileStorage\Archive\u_TileStorageArchive.pas" />
     <DCCReference Include="Src\TileStorage\Archive\u_TileStorageTar.pas" />
     <DCCReference Include="Src\TileStorage\Archive\u_TileStorageTypeArchiveTar.pas" />
+    <DCCReference Include="Src\TileStorage\Archive\u_TileStorageTypeArchiveZip.pas" />
     <DCCReference Include="Src\TileStorage\BerkeleyDB\i_BerkeleyDB.pas" />
     <DCCReference Include="Src\TileStorage\BerkeleyDB\i_BerkeleyDBEnv.pas" />
     <DCCReference Include="Src\TileStorage\BerkeleyDB\i_BerkeleyDBFactory.pas" />
