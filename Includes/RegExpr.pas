@@ -68,7 +68,12 @@ interface
 {$ENDIF}
 
 // ======== Define options for TRegExpr engine
+{$DEFINE ForceAnsiStrings}
+
 {.$DEFINE UniCode} // Unicode support
+{$IFDEF ForceAnsiStrings}
+{$UNDEF UniCode}
+{$ENDIF}
 {$DEFINE RegExpPCodeDump} // p-code dumping (see Dump method)
 {$IFNDEF FPC} // the option is not supported in FreePascal
  {$DEFINE reRealExceptionAddr} // exceptions will point to appropriate source line, not to Error procedure
@@ -97,6 +102,9 @@ interface
 
 uses
  Classes,  // TStrings in Split method
+ {$IFDEF ForceAnsiStrings}
+ ALStringList,
+ {$ENDIF}
  SysUtils; // Exception
 
 type
@@ -105,9 +113,14 @@ type
  RegExprString = WideString;
  REChar = WideChar;
  {$ELSE}
- PRegExprChar = PChar;
+ PRegExprChar = PAnsiChar;
  RegExprString = AnsiString; //###0.952 was string
- REChar = Char;
+ REChar = AnsiChar;
+ {$ENDIF}
+ {$IFDEF ForceAnsiStrings}
+ TRegExprStrings = TALStrings;
+ {$ELSE}
+ TRegExprStrings = TStrings;
  {$ENDIF}
  TREOp = REChar; // internal p-code type //###0.933
  PREOp = ^TREOp;
@@ -180,7 +193,7 @@ type
 
  TRegExpr = class;
 
- TRegExprReplaceFunction = function (ARegExpr : TRegExpr): string
+ TRegExprReplaceFunction = function (ARegExpr : TRegExpr): RegExprString
                                of object;
 
  TRegExpr = class
@@ -220,7 +233,7 @@ type
     // work variables for compiler's routines
     regparse : PRegExprChar;  // Input-scan pointer.
     regnpar : integer; // count.
-    regdummy : char;
+    regdummy : REChar;
     regcode : PRegExprChar;   // Code-emit pointer; @regdummy = don't.
     regsize : integer; // Code size.
 
@@ -461,7 +474,7 @@ type
     // Example: 'a$12bc' -> 'a<Match[12]>bc'
     // 'a${1}2bc' -> 'a<Match[1]>2bc'.
 
-    procedure Split (AInputStr : RegExprString; APieces : TStrings);
+    procedure Split (AInputStr : RegExprString; APieces : TRegExprStrings);
     // Split AInputStr into APieces by r.e. occurencies
     // Internally calls Exec[Next]
 
@@ -582,7 +595,7 @@ function ExecRegExpr (const ARegExpr, AInputStr : RegExprString) : boolean;
 // true if string AInputString match regular expression ARegExpr
 // ! will raise exeption if syntax errors in ARegExpr
 
-procedure SplitRegExpr (const ARegExpr, AInputStr : RegExprString; APieces : TStrings);
+procedure SplitRegExpr (const ARegExpr, AInputStr : RegExprString; APieces : TRegExprStrings);
 // Split AInputStr into APieces by r.e. ARegExpr occurencies
 
 function ReplaceRegExpr (const ARegExpr, AInputStr, AReplaceStr : RegExprString;
@@ -604,8 +617,8 @@ function QuoteRegExprMetaChars (const AStr : RegExprString) : RegExprString;
 // This function usefull for r.e. autogeneration from
 // user input
 
-function RegExprSubExpressions (const ARegExpr : string;
- ASubExprs : TStrings; AExtendedSyntax : boolean{$IFDEF DefParam}= False{$ENDIF}) : integer;
+function RegExprSubExpressions (const ARegExpr : RegExprString;
+ ASubExprs : TRegExprStrings; AExtendedSyntax : boolean{$IFDEF DefParam}= False{$ENDIF}) : integer;
 // Makes list of subexpressions found in ARegExpr r.e.
 // In ASubExps every item represent subexpression,
 // from first to last, in format:
@@ -631,6 +644,9 @@ function RegExprSubExpressions (const ARegExpr : string;
 implementation
 
 uses
+ {$IFDEF ForceAnsiStrings}
+ ALString,
+ {$ENDIF}
  Windows; // CharUpper/Lower
 
 const
@@ -740,7 +756,7 @@ function ExecRegExpr (const ARegExpr, AInputStr : RegExprString) : boolean;
  end; { of function ExecRegExpr
 --------------------------------------------------------------}
 
-procedure SplitRegExpr (const ARegExpr, AInputStr : RegExprString; APieces : TStrings);
+procedure SplitRegExpr (const ARegExpr, AInputStr : RegExprString; APieces : TRegExprStrings);
  var r : TRegExpr;
  begin
   APieces.Clear;
@@ -789,8 +805,8 @@ function QuoteRegExprMetaChars (const AStr : RegExprString) : RegExprString;
  end; { of function QuoteRegExprMetaChars
 --------------------------------------------------------------}
 
-function RegExprSubExpressions (const ARegExpr : string;
- ASubExprs : TStrings; AExtendedSyntax : boolean{$IFDEF DefParam}= False{$ENDIF}) : integer;
+function RegExprSubExpressions (const ARegExpr : RegExprString;
+ ASubExprs : TRegExprStrings; AExtendedSyntax : boolean{$IFDEF DefParam}= False{$ENDIF}) : integer;
  type
   TStackItemRec =  record //###0.945
     SubExprIdx : integer;
@@ -838,7 +854,7 @@ function RegExprSubExpressions (const ARegExpr : string;
            if i > Len
             then Result := -1 // unbalansed '('
             else
-             if TRegExpr.ParseModifiersStr (System.Copy (ARegExpr, i, i - i0), Modif)
+             if TRegExpr.ParseModifiersStr (ALCopyStr(ARegExpr, i, i - i0), Modif)
               then AExtendedSyntax := (Modif and MaskModX) <> 0;
           end
          else begin // subexpression starts
@@ -1296,17 +1312,17 @@ var AModifiersInt : integer) : boolean;
    if AModifiers [i] = '-'
     then IsOn := false
     else begin
-      if Pos (AModifiers [i], 'iI') > 0
+      if ALPos (AModifiers [i], 'iI') > 0
        then Mask := MaskModI
-      else if Pos (AModifiers [i], 'rR') > 0
+      else if ALPos (AModifiers [i], 'rR') > 0
        then Mask := MaskModR
-      else if Pos (AModifiers [i], 'sS') > 0
+      else if ALPos (AModifiers [i], 'sS') > 0
        then Mask := MaskModS
-      else if Pos (AModifiers [i], 'gG') > 0
+      else if ALPos (AModifiers [i], 'gG') > 0
        then Mask := MaskModG
-      else if Pos (AModifiers [i], 'mM') > 0
+      else if ALPos (AModifiers [i], 'mM') > 0
        then Mask := MaskModM
-      else if Pos (AModifiers [i], 'xX') > 0
+      else if ALPos (AModifiers [i], 'xX') > 0
        then Mask := MaskModX
       else begin
         Result := false;
@@ -1974,7 +1990,7 @@ function TRegExpr.ParsePiece (var flagp : integer) : PRegExprChar;
       // Filip Jirsak's note - what will happen, when we are at the end of regparse?
       inc (regparse);
       p := regparse;
-      while Pos (regparse^, '0123456789') > 0  // <min> MUST appear
+      while ALPos (regparse^, '0123456789') > 0  // <min> MUST appear
        do inc (regparse);
       if (regparse^ <> '}') and (regparse^ <> ',') or (p = regparse) then begin
         regparse := savedparse;
@@ -1985,7 +2001,7 @@ function TRegExpr.ParsePiece (var flagp : integer) : PRegExprChar;
       if regparse^ = ',' then begin
          inc (regparse);
          p := regparse;
-         while Pos (regparse^, '0123456789') > 0
+         while ALPos (regparse^, '0123456789') > 0
           do inc (regparse);
          if regparse^ <> '}' then begin
            regparse := savedparse;
@@ -3765,7 +3781,7 @@ function TRegExpr.Substitute (const ATemplate : RegExprString) : RegExprString;
  end; { of function TRegExpr.Substitute
 --------------------------------------------------------------}
 
-procedure TRegExpr.Split (AInputStr : RegExprString; APieces : TStrings);
+procedure TRegExpr.Split (AInputStr : RegExprString; APieces : TRegExprStrings);
  var PrevPos : integer;
  begin
   PrevPos := 1;
@@ -3865,9 +3881,9 @@ function TRegExpr.DumpOp (op : TREOp) : RegExprString;
     BSUBEXP:      Result := 'BSUBEXP';
     BSUBEXPCI:    Result := 'BSUBEXP/CI';
     Succ (OPEN) .. TREOp (Ord (OPEN) + NSUBEXP - 1): //###0.929
-                  Result := Format ('OPEN[%d]', [ord (op) - ord (OPEN)]);
+                  Result := ALFormat ('OPEN[%d]', [ord (op) - ord (OPEN)]);
     Succ (CLOSE) .. TREOp (Ord (CLOSE) + NSUBEXP - 1): //###0.929
-                  Result := Format ('CLOSE[%d]', [ord (op) - ord (CLOSE)]);
+                  Result := ALFormat ('CLOSE[%d]', [ord (op) - ord (CLOSE)]);
     STAR:         Result := 'STAR';
     PLUS:         Result := 'PLUS';
     BRACES:       Result := 'BRACES';
@@ -3910,7 +3926,7 @@ function TRegExpr.Dump : RegExprString;
   s := programm + REOpSz;
   while op <> EEND do begin // While that wasn't END last time...
      op := s^;
-     Result := Result + Format ('%2d%s', [s - programm, DumpOp (s^)]); // Where, what.
+     Result := Result + ALFormat ('%2d%s', [s - programm, DumpOp (s^)]); // Where, what.
      next := regnext (s);
      if next = nil // Next ptr.
       then Result := Result + ' (0)'
@@ -3918,7 +3934,7 @@ function TRegExpr.Dump : RegExprString;
         if next > s //###0.948 PWideChar subtraction workaround (see comments in Tail method for details)
          then Diff := next - s
          else Diff := - (s - next);
-        Result := Result + Format (' (%d) ', [(s - programm) + Diff]);
+        Result := Result + ALFormat (' (%d) ', [(s - programm) + Diff]);
        end;
      inc (s, REOpSz + RENextOffSz);
      if (op = ANYOF) or (op = ANYOFCI) or (op = ANYBUT) or (op = ANYBUTCI)
@@ -3937,7 +3953,7 @@ function TRegExpr.Dump : RegExprString;
         end;
       end;
      if (op = BSUBEXP) or (op = BSUBEXPCI) then begin
-       Result := Result + ' \' + IntToStr (Ord (s^));
+       Result := Result + ' \' + ALIntToStr (Ord (s^));
        inc (s);
       end;
      {$IFDEF UseSetOfChar} //###0.929
@@ -3945,19 +3961,19 @@ function TRegExpr.Dump : RegExprString;
        for Ch := #0 to #255 do
         if Ch in PSetOfREChar (s)^ then
          if Ch < ' '
-          then Result := Result + '#' + IntToStr (Ord (Ch)) //###0.936
+          then Result := Result + '#' + ALIntToStr (Ord (Ch)) //###0.936
           else Result := Result + Ch;
        inc (s, SizeOf (TSetOfREChar));
       end;
      {$ENDIF}
      if (op = BRACES) or (op = BRACESNG) then begin //###0.941
        // show min/max argument of BRACES operator
-       Result := Result + Format ('{%d,%d}', [PREBracesArg (s)^, PREBracesArg (s + REBracesArgSz)^]);
+       Result := Result + ALFormat ('{%d,%d}', [PREBracesArg (s)^, PREBracesArg (s + REBracesArgSz)^]);
        inc (s, REBracesArgSz * 2);
       end;
      {$IFDEF ComplexBraces}
      if (op = LOOP) or (op = LOOPNG) then begin //###0.940
-       Result := Result + Format (' -> (%d) {%d,%d}', [
+       Result := Result + ALFormat (' -> (%d) {%d,%d}', [
         (s - programm - (REOpSz + RENextOffSz)) + PRENextOff (s + 2 * REBracesArgSz)^,
         PREBracesArg (s)^, PREBracesArg (s + REBracesArgSz)^]);
        inc (s, 2 * REBracesArgSz + RENextOffSz);
@@ -3980,7 +3996,7 @@ function TRegExpr.Dump : RegExprString;
    if Ch in FirstCharSet
     then begin
       if Ch < ' '
-       then Result := Result + '#' + IntToStr(Ord(Ch)) //###0.948
+       then Result := Result + '#' + ALIntToStr(Ord(Ch)) //###0.948
        else Result := Result + Ch;
     end;
   {$ENDIF}
@@ -4008,7 +4024,7 @@ procedure TRegExpr.Error (AErrorID : integer);
   fLastError := AErrorID; // dummy stub - useless because will raise exception
   if AErrorID < 1000 // compilation error ?
    then e := ERegExpr.Create (ErrorMsg (AErrorID) // yes - show error pos
-             + ' (pos ' + IntToStr (CompilerErrorPos) + ')')
+             + ' (pos ' + ALIntToStr (CompilerErrorPos) + ')')
    else e := ERegExpr.Create (ErrorMsg (AErrorID));
   e.ErrorCode := AErrorID;
   e.CompilerErrorPos := CompilerErrorPos;
