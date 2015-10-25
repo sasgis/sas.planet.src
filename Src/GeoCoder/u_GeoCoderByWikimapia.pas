@@ -129,7 +129,7 @@ begin
     VRegExpr.ModifierI := True;
     VRegExpr.ModifierM := True;
 
-    if VRegExpr.Exec(Utf8ToAnsi(VStr)) then begin
+    if VRegExpr.Exec(VStr) then begin
       repeat
         try
           VPoint.Y := StrToFloat(VRegExpr.Match[1], VFormatSettings);
@@ -138,8 +138,8 @@ begin
           raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [VRegExpr.Match[1], VRegExpr.Match[2]]);
         end;
 
-        VName := StringReplace(VRegExpr.Match[3], '&quot;', '''', [rfReplaceAll]);
-        VDesc := StringReplace(VRegExpr.Match[4], '&quot;', '''', [rfReplaceAll]);
+        VName := UTF8Decode(ALStringReplace(VRegExpr.Match[3], '&quot;', '''', [rfReplaceAll]));
+        VDesc := UTF8Decode(ALStringReplace(VRegExpr.Match[4], '&quot;', '''', [rfReplaceAll]));
 
         VPlace := PlacemarkFactory.Build(VPoint, Trim(VName), Trim(VDesc), '', 4);
         VList.Add(VPlace);
