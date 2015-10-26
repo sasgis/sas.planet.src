@@ -35,14 +35,14 @@ type
   TGeoCoderByWikiMapia = class(TGeoCoderBasic)
   protected
     function PrepareRequest(
-      const ASearch: WideString;
+      const ASearch: string;
       const ALocalConverter: ILocalCoordConverter
     ): IDownloadRequest; override;
     function ParseResultToPlacemarksList(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const AResult: IDownloadResultOk;
-      const ASearch: WideString;
+      const ASearch: string;
       const ALocalConverter: ILocalCoordConverter
     ): IInterfaceListSimple; override;
   public
@@ -99,7 +99,7 @@ function TGeoCoderByWikiMapia.ParseResultToPlacemarksList(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const AResult: IDownloadResultOk;
-  const ASearch: WideString;
+  const ASearch: string;
   const ALocalConverter: ILocalCoordConverter
 ): IInterfaceListSimple;
 var
@@ -155,7 +155,7 @@ begin
 end;
 
 function TGeoCoderByWikiMapia.PrepareRequest(
-  const ASearch: WideString;
+  const ASearch: string;
   const ALocalConverter: ILocalCoordConverter
 ): IDownloadRequest;
 var

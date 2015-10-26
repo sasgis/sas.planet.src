@@ -32,8 +32,8 @@ type
     function GetGUID: TGUID;
     property GUID: TGUID read GetGUID;
 
-    function GetCaption: WideString;
-    property Caption: WideString read GetCaption;
+    function GetCaption: string;
+    property Caption: string read GetCaption;
 
     function GetGeoCoder: IGeoCoder;
     property GeoCoder: IGeoCoder read GetGeoCoder;

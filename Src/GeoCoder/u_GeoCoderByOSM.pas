@@ -35,14 +35,14 @@ type
   TGeoCoderByOSM = class(TGeoCoderBasic)
   protected
     function PrepareRequest(
-      const ASearch: WideString;
+      const ASearch: string;
       const ALocalConverter: ILocalCoordConverter
     ): IDownloadRequest; override;
     function ParseResultToPlacemarksList(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const AResult: IDownloadResultOk;
-      const ASearch: WideString;
+      const ASearch: string;
       const ALocalConverter: ILocalCoordConverter
     ): IInterfaceListSimple; override;
   public
@@ -68,7 +68,7 @@ function TGeoCoderByOSM.ParseResultToPlacemarksList(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const AResult: IDownloadResultOk;
-  const ASearch: WideString;
+  const ASearch: string;
   const ALocalConverter: ILocalCoordConverter
 ): IInterfaceListSimple;
 var
@@ -161,7 +161,7 @@ begin
 end;
 
 function TGeoCoderByOSM.PrepareRequest(
-  const ASearch: WideString;
+  const ASearch: string;
   const ALocalConverter: ILocalCoordConverter
 ): IDownloadRequest;
 var

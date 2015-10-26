@@ -56,14 +56,14 @@ type
     function PrepareRequestByURL(const AUrl: AnsiString): IDownloadRequest;
     function URLEncode(const S: AnsiString): AnsiString;
     function PrepareRequest(
-      const ASearch: WideString;
+      const ASearch: string;
       const ALocalConverter: ILocalCoordConverter
     ): IDownloadRequest; virtual; abstract;
     function ParseResultToPlacemarksList(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const AResult: IDownloadResultOk;
-      const ASearch: WideString;
+      const ASearch: string;
       const ALocalConverter: ILocalCoordConverter
     ): IInterfaceListSimple; virtual; abstract;
   private
@@ -154,7 +154,7 @@ function TGeoCoderBasic.GetLocations(
 var
   VList: IInterfaceListSimple;
   VResultCode: Integer;
-  VMessage: WideString;
+  VMessage: string;
   VRequest: IDownloadRequest;
   VResult: IDownloadResult;
   VResultOk: IDownloadResultOk;

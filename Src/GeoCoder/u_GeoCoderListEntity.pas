@@ -31,16 +31,16 @@ type
   TGeoCoderListEntity = class(TBaseInterfacedObject, IGeoCoderListEntity)
   private
     FGUID: TGUID;
-    FCaption: WideString;
+    FCaption: string;
     FGeoCoder: IGeoCoder;
   private
     function GetGUID: TGUID;
-    function GetCaption: WideString;
+    function GetCaption: string;
     function GetGeoCoder: IGeoCoder;
   public
     constructor Create(
       const AGUID: TGUID;
-      const ACaption: WideString;
+      const ACaption: string;
       const AGeoCoder: IGeoCoder
     );
   end;
@@ -51,7 +51,7 @@ implementation
 
 constructor TGeoCoderListEntity.Create(
   const AGUID: TGUID;
-  const ACaption: WideString;
+  const ACaption: string;
   const AGeoCoder: IGeoCoder
 );
 begin
@@ -61,7 +61,7 @@ begin
   FGeoCoder := AGeoCoder;
 end;
 
-function TGeoCoderListEntity.GetCaption: WideString;
+function TGeoCoderListEntity.GetCaption: string;
 begin
   Result := FCaption;
 end;

@@ -35,14 +35,14 @@ type
   TGeoCoderBy2GIS = class(TGeoCoderBasic)
   protected
     function PrepareRequest(
-      const ASearch: WideString;
+      const ASearch: string;
       const ALocalConverter: ILocalCoordConverter
     ): IDownloadRequest; override;
     function ParseResultToPlacemarksList(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const AResult: IDownloadResultOk;
-      const ASearch: WideString;
+      const ASearch: string;
       const ALocalConverter: ILocalCoordConverter
     ): IInterfaceListSimple; override;
   public
@@ -69,7 +69,7 @@ function TGeoCoderBy2GIS.ParseResultToPlacemarksList(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const AResult: IDownloadResultOk;
-  const ASearch: WideString;
+  const ASearch: string;
   const ALocalConverter: ILocalCoordConverter
 ): IInterfaceListSimple;
 var
@@ -126,7 +126,7 @@ begin
 end;
 
 function TGeoCoderBy2GIS.PrepareRequest(
-  const ASearch: WideString;
+  const ASearch: string;
   const ALocalConverter: ILocalCoordConverter
 ): IDownloadRequest;
 var

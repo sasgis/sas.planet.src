@@ -35,14 +35,14 @@ type
   TGeoCoderByYandex = class(TGeoCoderBasic)
   protected
     function PrepareRequest(
-      const ASearch: WideString;
+      const ASearch: string;
       const ALocalConverter: ILocalCoordConverter
     ): IDownloadRequest; override;
     function ParseResultToPlacemarksList(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const AResult: IDownloadResultOk;
-      const ASearch: WideString;
+      const ASearch: string;
       const ALocalConverter: ILocalCoordConverter
     ): IInterfaceListSimple; override;
   public
@@ -67,7 +67,7 @@ function TGeoCoderByYandex.ParseResultToPlacemarksList(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const AResult: IDownloadResultOk;
-  const ASearch: WideString;
+  const ASearch: string;
   const ALocalConverter: ILocalCoordConverter
 ): IInterfaceListSimple;
 
@@ -136,7 +136,7 @@ begin
 end;
 
 function TGeoCoderByYandex.PrepareRequest(
-  const ASearch: WideString;
+  const ASearch: string;
   const ALocalConverter: ILocalCoordConverter
 ): IDownloadRequest;
 var
