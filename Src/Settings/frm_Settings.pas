@@ -516,7 +516,7 @@ begin
   try
     VUseIEProxy := VProxyConfig.GetUseIESettings;
     VUseProxy := VProxyConfig.GetUseProxy;
-    VHost := AnsiString(VProxyConfig.GetHost);
+    VHost := VProxyConfig.GetHost;
   finally
     VProxyConfig.UnlockRead;
   end;

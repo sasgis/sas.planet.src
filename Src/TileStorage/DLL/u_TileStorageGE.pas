@@ -384,7 +384,7 @@ begin
   FDLLCacheHandle := nil;
   InternalLib_CleanupProc;
   FMainContentType := AContentTypeManager.GetInfo('image/jpeg');
-  VStoragePath := AnsiString(StoragePath);
+  VStoragePath := AnsiString(StoragePath); // TODO: Fix for unicode path
   if not InternalLib_SetPath(PAnsiChar(VStoragePath)) then begin
     StorageStateInternal.ReadAccess := asEnabled;
   end;
@@ -439,7 +439,7 @@ begin
     if StorageStateInternal.ReadAccess <> asDisabled then begin
       VVersionStoreString := '';
       if Assigned(AVersionInfo) then begin
-        VVersionStoreString := AVersionInfo.BaseVersion.StoreString;
+        VVersionStoreString := AnsiString(AVersionInfo.BaseVersion.StoreString);
       end;
       // init
       FillChar(VEnumInfo, sizeof(VEnumInfo), #0);
@@ -575,7 +575,7 @@ begin
       VVersion := nil;
       if Assigned(AVersionInfo) then begin
         VVersion := AVersionInfo.BaseVersion;
-        VVersionStoreString := VVersion.StoreString;
+        VVersionStoreString := AnsiString(VVersion.StoreString);
       end;
       // init
       FillChar(VObj, sizeof(VObj), #0);
@@ -776,7 +776,7 @@ begin
   try
     if StorageStateInternal.ReadAccess <> asDisabled then begin
       VVersionInfo := AVersionInfo;
-      VVersionStoreString := VVersionInfo.StoreString;
+      VVersionStoreString := AnsiString(VVersionInfo.StoreString);
       // init
       FillChar(VQTInfo, SizeOf(VQTInfo), #0);
       VQTInfo.Common.Size := SizeOf(VQTInfo);

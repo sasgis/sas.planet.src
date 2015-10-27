@@ -225,7 +225,7 @@ begin
   FpScriptBuffer.Data := AScriptBuffer;
 
   if ASource.VersionInfo <> nil then begin
-    FpVersion.Data := ASource.VersionInfo.UrlString;
+    FpVersion.Data := AnsiString(ASource.VersionInfo.UrlString);
   end else begin
     FpVersion.Data := '';
   end;

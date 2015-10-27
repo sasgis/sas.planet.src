@@ -540,8 +540,9 @@ var
  V_EndOfLine: String;
  VValueConverter: IValueToStringConverter;
 begin
- VFormatSettings.DecimalSeparator := '.';
- VSearch := AnsiString(AnsiUpperCase(ASearch));
+  VFormatSettings.DecimalSeparator := '.';
+  //TODO: Fix for unicode file
+  VSearch := AnsiString(AnsiUpperCase(ASearch));
   VStream := TFileStream.Create(AFile, fmOpenRead);
    try
     SetLength(VAStr, VStream.Size);

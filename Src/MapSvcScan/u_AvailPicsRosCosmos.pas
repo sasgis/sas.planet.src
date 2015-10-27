@@ -45,9 +45,9 @@ type
     FSatName: string;
     FResultFactory: IDownloadResultFactory;
     FMapSvcScanConfig: IMapSvcScanConfig;
-    function MakeSignInPostString: string; // формирование Post строки для залогинивания на сайт
-    function MakePostString: string;
-    function LonLatToMeterRosCosmos: string;
+    function MakeSignInPostString: AnsiString; // формирование Post строки для залогинивания на сайт
+    function MakePostString: AnsiString;
+    function LonLatToMeterRosCosmos: AnsiString;
   public
     function ContentType: String; override;
     function ParseResponse(const AResultOk: IDownloadResultOk): Integer; override;
@@ -71,6 +71,7 @@ implementation
 uses
   Forms,
   Windows,
+  ALString,
   ALZLibExGZ,
   t_GeoTypes,
   i_BinaryData,
@@ -135,14 +136,14 @@ end;
 
 { TAvailPicsRC }
 
-function TAvailPicsRC.LonLatToMeterRosCosmos: string;
+function TAvailPicsRC.LonLatToMeterRosCosmos: AnsiString;
 const
   c_Roscosmos_Precision = 6;
 var
   VProjectionType: IProjectionType;
   VLonLatPoint: TDoublePoint;
   VLonLatMetr: TDoublePoint;
-  VStartingPoint: String;
+  VStartingPoint: AnsiString;
 begin
   // Переводим BBox из LonLat в метры и сразу формируем нужный формат для запроса
   VProjectionType := FLocalConverter.Projection.ProjectionType;
@@ -150,43 +151,43 @@ begin
   // TopLeft
   VLonLatPoint := FTileInfoPtr^.TileRect.TopLeft;
   VLonLatMetr := VProjectionType.LonLat2Metr(VLonLatPoint);
-  Result := RoundEx(VLonLatMetr.X, c_Roscosmos_Precision) + ' '+RoundEx(VLonLatMetr.Y, c_Roscosmos_Precision);
+  Result := RoundExAnsi(VLonLatMetr.X, c_Roscosmos_Precision) + ' '+RoundExAnsi(VLonLatMetr.Y, c_Roscosmos_Precision);
   VStartingPoint := Result;
 
   // TopRight
   VLonLatPoint.X := FTileInfoPtr.TileRect.Right;
   VLonLatMetr := VProjectionType.LonLat2Metr(VLonLatPoint);
-  Result := Result + ',' + RoundEx(VLonLatMetr.X, c_Roscosmos_Precision) + ' '+RoundEx(VLonLatMetr.Y, c_Roscosmos_Precision);
+  Result := Result + ',' + RoundExAnsi(VLonLatMetr.X, c_Roscosmos_Precision) + ' '+RoundExAnsi(VLonLatMetr.Y, c_Roscosmos_Precision);
 
   // BottomRight
   VLonLatPoint.Y := FTileInfoPtr.TileRect.Bottom;
   VLonLatMetr := VProjectionType.LonLat2Metr(VLonLatPoint);
-  Result := Result + ',' + RoundEx(VLonLatMetr.X, c_Roscosmos_Precision) + ' '+RoundEx(VLonLatMetr.Y, c_Roscosmos_Precision);
+  Result := Result + ',' + RoundExAnsi(VLonLatMetr.X, c_Roscosmos_Precision) + ' '+RoundExAnsi(VLonLatMetr.Y, c_Roscosmos_Precision);
 
   // BottomLeft
   VLonLatPoint.X := FTileInfoPtr.TileRect.Left;
   VLonLatMetr := VProjectionType.LonLat2Metr(VLonLatPoint);
-  Result := Result + ',' + RoundEx(VLonLatMetr.X, c_Roscosmos_Precision) + ' '+RoundEx(VLonLatMetr.Y, c_Roscosmos_Precision);
+  Result := Result + ',' + RoundExAnsi(VLonLatMetr.X, c_Roscosmos_Precision) + ' '+RoundExAnsi(VLonLatMetr.Y, c_Roscosmos_Precision);
 
   // TopLeft
   Result := Result + ',' + VStartingPoint;
 end;
 
 
-function TAvailPicsRC.MakePostString: string;
+function TAvailPicsRC.MakePostString: AnsiString;
 begin
-  Result := 'scaleLevel='+ IntToStr(FTileInfoPtr.Zoom) +
-            '&idRepository=' + IntToStr(FIdRepository) +
+  Result := 'scaleLevel='+ ALIntToStr(FTileInfoPtr.Zoom) +
+            '&idRepository=' + ALIntToStr(FIdRepository) +
             '&screenGeometry=POLYGON((' +
             LonLatToMeterRosCosmos +
             '))&visibleIds=&onlyVisible=0';
 end;
 
 
-function TAvailPicsRC.MakeSignInPostString: string;
+function TAvailPicsRC.MakeSignInPostString: AnsiString;
 begin
-  Result := 'username='+ FMapSvcScanConfig.RosCosmosUserName +
-            '&password='+ FMapSvcScanConfig.RosCosmosPassword +
+  Result := 'username='+ AnsiString(FMapSvcScanConfig.RosCosmosUserName) +
+            '&password='+ AnsiString(FMapSvcScanConfig.RosCosmosPassword) +
             '&login=%D0%92%D0%BE%D0%B9%D1%82%D0%B8';
 end;
 
@@ -370,7 +371,7 @@ begin
     'Accept-Encoding: identity';
 
   // Формируем строку запроса на залогинивание на сайте
-  VPostdataStr := AnsiString(MakeSignInPostString);
+  VPostdataStr := MakeSignInPostString;
 
   VPostData := TBinaryData.CreateByAnsiString(VPostdataStr);
   VPostRequest := TDownloadPostRequest.Create(
@@ -390,7 +391,7 @@ begin
    if not Supports(VResult, IDownloadResultWithServerRespond, VResultWithRespond) then Exit;
 
    // Формируем строку запроса на получение списка снимков
-   VPostDataStr := AnsiString(MakePostString);
+   VPostDataStr := MakePostString;
 
    VPostData := TBinaryData.CreateByAnsiString(VPostdataStr);
 

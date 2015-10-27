@@ -126,7 +126,7 @@ constructor TTileStorageDLLTerrain.Create(
 );
 begin
   inherited Create;
-  FStoragePath := IncludeTrailingPathDelimiter(AStoragePath);
+  FStoragePath := AnsiString(IncludeTrailingPathDelimiter(AStoragePath)); // TODO: Fix for unicode path
   FReadAccess := asUnknown;
   FDLLHandle := 0;
   FDLLCacheHandle := nil;
@@ -266,7 +266,7 @@ function TTileStorageDLLTerrain.SetPath(const APath: string): Boolean;
 var
   VPath: AnsiString;
 begin
-  VPath := IncludeTrailingPathDelimiter(APath);
+  VPath := IncludeTrailingPathDelimiter(APath); // TODO: Fix for unicode path
   Result := InternalLib_SetPath(PAnsiChar(VPath));
 end;
 

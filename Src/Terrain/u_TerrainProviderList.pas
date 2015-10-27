@@ -163,7 +163,7 @@ begin
           VIniFile.ReadSectionValues(VSection, VOptions);
 
       // get proj4 converter
-          VProjInitString := VIniFile.ReadString(VSection, 'Proj', '');
+          VProjInitString := AnsiString(VIniFile.ReadString(VSection, 'Proj', ''));
           if (0 < Length(VProjInitString)) then begin
             VProjConverter := FProjConverterFactory.GetByInitString(VProjInitString);
           end else begin

@@ -789,8 +789,8 @@ end;
 function TAvailPicsNMC.GetRequest(const AInetConfig: IInetConfig): IDownloadRequest;
 begin
   Result := TDownloadRequest.Create(
-    'http://stg.lbsp.navteq.com/satellite/6.0/images/?token=' + AnsiString(FDefaultKey)+
-    '&profile=' + AnsiString(FProfile)+
+    'http://stg.lbsp.navteq.com/satellite/6.0/images/?token=' + FDefaultKey+
+    '&profile=' + FProfile+
     '&quadkey=' + GetQuadKey,
     '',
     AInetConfig.GetStatic

@@ -82,7 +82,7 @@ begin
 
   FMemCache := TGoogleEarthTerrainMemCache.Create;
 
-  FCachePath := AStoragePath;
+  FCachePath := AStoragePath;  // TODO: Fix for unicode path
   FCacheProvider := nil;
   FAvailable := True;
 end;
@@ -184,7 +184,7 @@ begin
   FSync.BeginWrite;
   try
     FMemCache.Clear;
-    FCachePath := APath;
+    FCachePath := APath; // TODO: Fix for unicode path
     FCacheProvider := nil;
     FAvailable := True;
     Result := True;

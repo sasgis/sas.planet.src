@@ -77,6 +77,7 @@ implementation
 
 uses
   DateUtils,
+  ALString,
   t_GeoTypes,
   i_BinaryData,
   i_LonLatRect,
@@ -1411,13 +1412,16 @@ function TExportMarks2GPX.XMLDateTime(const ADateTime: TDateTime; const ADetaile
   end;
 
 var
-  Format: String;
+  Format: AnsiString;
+  FormatSettings: TALFormatSettings;
 begin
+  FormatSettings.DateSeparator := '-';
+  FormatSettings.TimeSeparator := ':';
   if ADetailed then
     Format := 'yyyy"-"mm"-"dd"T"hh":"nn":"ss"."z"Z"'
   else
     Format := 'yyyy"-"mm"-"dd"T"hh":"nn":"ss"Z"';
-  Result := AnsiString(FormatDateTime(Format, LocalDateTimeToDateTime(ADateTime))); // '2015-07-19T07:53:32Z';
+  Result := ALFormatDateTime(Format, LocalDateTimeToDateTime(ADateTime), FormatSettings); // '2015-07-19T07:53:32Z';
 end;
 
 function TExportMarks2GPX.XMLText(const AStr: String): AnsiString;

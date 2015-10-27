@@ -1391,7 +1391,7 @@ begin
         VResponseContentType := AnsiString(PAnsiChar(AContentTypeStr));
       end else begin
         // contenttype is WideString
-        VResponseContentType := WideString(PWideChar(AContentTypeStr));
+        VResponseContentType := AnsiString(PWideChar(AContentTypeStr));
       end;
       // make contenttype
       Result := FContentTypeManager.GetInfo(VResponseContentType);

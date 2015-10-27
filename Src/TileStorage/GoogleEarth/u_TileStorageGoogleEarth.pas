@@ -227,7 +227,7 @@ begin
         FCacheProvider := nil;
         FCacheTmProvider := nil;
 
-        VCachePath := PAnsiChar(AnsiString(FCachePath));
+        VCachePath := PAnsiChar(AnsiString(FCachePath));  // TODO: Fix for unicode path
         VCacheFactory := libge.CreateGoogleEarthCacheProviderFactory;
 
         if VCacheFactory <> nil then begin

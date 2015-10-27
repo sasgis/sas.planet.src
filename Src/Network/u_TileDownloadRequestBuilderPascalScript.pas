@@ -267,7 +267,7 @@ begin
   end;
 
   if FLangChangeFlag.CheckFlagAndReset then begin
-    FLang := FLangManager.GetCurrentLanguageCode;
+    FLang := AnsiString(FLangManager.GetCurrentLanguageCode);
   end;
 
   VSimpleDownloader := nil;

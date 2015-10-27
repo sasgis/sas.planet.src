@@ -639,7 +639,7 @@ begin
     VUrlBase,
     VRequestHeader,
     FScriptBuffer,
-    FLanguageManager.GetCurrentLanguageCode,
+    AnsiString(FLanguageManager.GetCurrentLanguageCode),
     VConverter,
     VSimpleDownloader,
     nil,  // LastResponseInfo

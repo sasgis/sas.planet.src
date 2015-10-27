@@ -140,6 +140,7 @@ var
   Vskip: Boolean;
 begin
   VFormatSettings.DecimalSeparator := '.';
+  //TODO: Fix for unicode file
   VSearch := AnsiString(AnsiUpperCase(ASearch));
   VXMLDocument := TXMLDocument.Create(nil);
   VXMLDocument.LoadFromFile(AFile);

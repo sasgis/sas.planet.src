@@ -249,6 +249,7 @@ begin
   if AIdent = '::FileName' then begin
     Result := FSourceFileName;
   end else begin
+    //TODO: Replace implementation for unicode files
     Result := string(ReadAnsiString(AIdent, AnsiString(ADefault)));
   end;
 end;

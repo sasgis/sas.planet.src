@@ -601,7 +601,7 @@ begin
 
     if (gpsoNMEA = VGPSOrigin) then begin
       // COM for NMEA
-      VGPSPortName := 'COM' + AnsiString(IntToStr(AConfig.Port));
+      VGPSPortName := 'COM' + ALIntToStr(AConfig.Port);
 {$if defined(VSAGPS_AS_DLL)}
       VGPSPortName := VGPSPortName + #0;
       VszGPSPortName := PAnsiChar(VGPSPortName);
