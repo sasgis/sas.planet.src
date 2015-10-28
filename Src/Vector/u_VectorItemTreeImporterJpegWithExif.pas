@@ -164,20 +164,6 @@ const
       Result := AFullFileName;
     end;
   end;
-
-  function _GetLoaderByExt(const AExt: AnsiString): IBitmapTileLoader;
-  var
-    VContentType: IContentTypeInfoBasic;
-    VContentTypeBitmap: IContentTypeInfoBitmap;
-  begin
-    VContentType := FContentTypeManager.GetInfoByExt(AExt);
-    if VContentType <> nil then begin
-      if Supports(VContentType, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
-        Result := VContentTypeBitmap.GetLoader;
-      end;
-    end;
-  end;
-
 var
   VDesc: string;
   VTmpStr: string;
@@ -207,7 +193,7 @@ var
   VPointParams: IImportPointParams;
   VAppearance: IAppearance;
   VMark: IMarkPicture;
-  VExt: AnsiString;
+  VLoader: IBitmapTileLoader;
 begin
   Assert(FileExists(AFileName));
 
@@ -364,23 +350,25 @@ begin
           VThumbnail.SaveToFile(VPicFullName);
 
           VPicShortName := _GetInternalFileName(VPicFullName);
-          VExt := AlLowerCase(AnsiString(ExtractFileExt(AFileName)));
-          VMark := TMarkPictureSimple.Create(
-            FHashFunction.CalcHashByString(VPicFullName),
-            VPicFullName,
-            VPicShortName,
-            _GetLoaderByExt(VExt)
-          );
-
-          VAppearance :=
-            FAppearanceOfMarkFactory.CreatePointAppearance(
-              VCaption.TextColor,
-              VCaption.TextBgColor,
-              VCaption.FontSize,
-              VPicShortName,
-              VMark,
-              VIcon.MarkerSize
-            );
+          VLoader := FContentTypeManager.GetBitmapLoaderByFileName(VPicFullName);
+          if Assigned(VLoader) then begin
+            VMark :=
+              TMarkPictureSimple.Create(
+                FHashFunction.CalcHashByString(VPicFullName),
+                VPicFullName,
+                VPicShortName,
+                VLoader
+              );
+            VAppearance :=
+              FAppearanceOfMarkFactory.CreatePointAppearance(
+                VCaption.TextColor,
+                VCaption.TextBgColor,
+                VCaption.FontSize,
+                VPicShortName,
+                VMark,
+                VIcon.MarkerSize
+              );
+          end;
         end else begin
           Assert(False, 'Can''t create Thumbnail for image: ' + AFileName);
         end;
