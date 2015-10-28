@@ -166,7 +166,6 @@ procedure TfrmIntrnalBrowser.EmbeddedWB1BeforeNavigate2(
 );
 var
   VURL: WideString;
-  VExt: AnsiString;
 begin
   if Cancel then begin
     Exit;
@@ -181,8 +180,7 @@ begin
 
     // check file exists
     if FileExists(VURL) then begin
-      VExt := AnsiString(ExtractFileExt(VURL));
-      if FContentTypeManager.GetIsBitmapExt(VExt) then begin
+      if Assigned(FContentTypeManager.GetBitmapLoaderByFileName(VURL)) then begin
         if OpenLocalImage(VURL) then begin
         // image opened
           Cancel := TRUE;

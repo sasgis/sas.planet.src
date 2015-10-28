@@ -427,8 +427,6 @@ var
   VImageName: string;
   VData: IBinaryData;
   VExt: AnsiString;
-  VTypeInfo: IContentTypeInfoBasic;
-  VBitmapTypeInfo: IContentTypeInfoBitmap;
   VLoader: IBitmapTileLoader;
 begin
   Result := nil;
@@ -436,21 +434,17 @@ begin
   VImageName := AConfigIniParams.ReadString(AIdent, VImageName);
   VData := AConfig.ReadBinary(VImageName);
   if (VData <> nil) and (VData.Size > 0) then begin
-    VExt := AlLowerCase(AnsiString(ExtractFileExt(VImageName)));
-    VTypeInfo := AContentTypeManager.GetInfoByExt(VExt);
-    if Supports(VTypeInfo, IContentTypeInfoBitmap, VBitmapTypeInfo) then begin
-      VLoader := VBitmapTypeInfo.GetLoader;
-      if VLoader <> nil then begin
-        Result := VLoader.Load(VData);
-        if Result <> nil then begin
-          if VExt = '.bmp' then begin
-            Result :=
-              UpdateBMPTransp(
-                ABitmapFactory,
-                Color32(255, 0, 255, 255),
-                Result
-              );
-          end;
+    VLoader :=  AContentTypeManager.GetBitmapLoaderByFileName(VImageName);
+    if VLoader <> nil then begin
+      Result := VLoader.Load(VData);
+      if Result <> nil then begin
+        if VExt = '.bmp' then begin
+          Result :=
+            UpdateBMPTransp(
+              ABitmapFactory,
+              Color32(255, 0, 255, 255),
+              Result
+            );
         end;
       end;
     end;

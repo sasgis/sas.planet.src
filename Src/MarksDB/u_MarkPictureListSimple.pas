@@ -44,7 +44,6 @@ type
     FMediaDataPath: IPathConfig;
     FContentTypeManager: IContentTypeManager;
     procedure Clear;
-    function GetLoaderByExt(const AExt: AnsiString): IBitmapTileLoader;
     function _GetFromRuntimeList(AIndex: Integer): IMarkPicture;
     function _TryAddToRuntimeList(const AValue: string): Integer;
   private
@@ -175,39 +174,21 @@ begin
   end;
 end;
 
-function TMarkPictureListSimple.GetLoaderByExt(const AExt: AnsiString): IBitmapTileLoader;
-var
-  VContentType: IContentTypeInfoBasic;
-  VContentTypeBitmap: IContentTypeInfoBitmap;
-begin
-  VContentType := FContentTypeManager.GetInfoByExt(AExt);
-  if VContentType <> nil then begin
-    if Supports(VContentType, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
-      Result := VContentTypeBitmap.GetLoader;
-    end;
-  end;
-end;
-
 procedure TMarkPictureListSimple.LoadList;
 const
   cExtList: array [0..2] of string = ('.png', '.jpg', '.jpeg');
 var
-  I, J: Integer;
+  I: Integer;
   VFilesList: TStringList;
   VLoader: IBitmapTileLoader;
-  VPngLoader, VJpegLoader: IBitmapTileLoader;
   VPicture: IMarkPicture;
   VFullName: string;
   VShortName: string;
-  VExtention: string;
   VPath: string;
   VHash: THashValue;
 begin
   inherited;
   Clear;
-
-  VPngLoader := GetLoaderByExt('.png');
-  VJpegLoader := GetLoaderByExt('.jpg');
 
   VPath := IncludeTrailingPathDelimiter(FBasePath.FullPath);
   VFilesList := TStringList.Create;
@@ -219,17 +200,7 @@ begin
 
       VFullName := VFilesList.Strings[I];
       VShortName := StringReplace(VFullName, VPath, '', [rfIgnoreCase]);
-      VExtention := ExtractFileExt(VFullName);
-
-      for J := 0 to Length(cExtList) - 1 do begin
-        if SameText(cExtList[J], VExtention) then begin
-          if J = 0 then begin
-            VLoader := VPngLoader;
-          end else begin
-            VLoader := VJpegLoader;
-          end;
-        end;
-      end;
+      VLoader := FContentTypeManager.GetBitmapLoaderByFileName(VFullName);
 
       if not Assigned(VLoader) then begin
         Continue;
@@ -380,7 +351,6 @@ var
   VFullName: string;
   VShortName: string;
   VHash: THashValue;
-  VExt: AnsiString;
 begin
   Result := -1;
 
@@ -408,9 +378,7 @@ begin
 
   if VFullName <> '' then begin
     try
-      VExt := AlLowerCase(AnsiString(ExtractFileExt(VFullName)));
-      VLoader := GetLoaderByExt(VExt);
-
+      VLoader := FContentTypeManager.GetBitmapLoaderByFileName(VFullName);
       if not Assigned(VLoader) then begin
         FRuntimeFailList.Add(AValue);
         Assert(False, 'GetLoaderByExt failed for file: ' + VFullName);
