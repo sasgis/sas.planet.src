@@ -23,6 +23,7 @@ unit u_ContentTypeManagerBase;
 interface
 
 uses
+  i_BitmapTileSaveLoad,
   i_ContentTypeInfo,
   i_ContentConverter,
   i_ContentTypeManager,
@@ -62,6 +63,7 @@ type
     function GetInfoByExt(const AExt: AnsiString): IContentTypeInfoBasic;
     function GetIsBitmapType(const AType: AnsiString): Boolean;
     function GetIsBitmapExt(const AExt: AnsiString): Boolean;
+    function GetBitmapLoaderByFileName(const AFileName: string): IBitmapTileLoader;
     function GetIsKmlType(const AType: AnsiString): Boolean;
     function GetIsKmlExt(const AExt: AnsiString): Boolean;
     function GetConverter(const ATypeSource, ATypeTarget: AnsiString): IContentConverter;
@@ -73,7 +75,8 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  ALString;
 
 procedure TContentTypeManagerBase.AddByExt(
   const AInfo: IContentTypeInfoBasic;
@@ -123,6 +126,25 @@ begin
   FreeAndNil(FKmlTypeList);
   FreeAndNil(FConverterMatrix);
   inherited;
+end;
+
+function TContentTypeManagerBase.GetBitmapLoaderByFileName(
+  const AFileName: string
+): IBitmapTileLoader;
+var
+  VExt: AnsiString;
+  VContentType: IContentTypeInfoBasic;
+  VContentTypeBitmap: IContentTypeInfoBitmap;
+begin
+  Result := nil;
+  VExt := AnsiString(ExtractFileExt(AFileName));
+  VExt := AlLowerCase(VExt);
+  VContentType := GetInfoByExt(VExt);
+  if Assigned(VContentType) then begin
+    if Supports(VContentType, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
+      Result := VContentTypeBitmap.GetLoader;
+    end;
+  end;
 end;
 
 function TContentTypeManagerBase.GetConverter(

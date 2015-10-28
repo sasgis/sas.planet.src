@@ -23,6 +23,7 @@ unit i_ContentTypeManager;
 interface
 
 uses
+  i_BitmapTileSaveLoad,
   i_ContentTypeInfo,
   i_ContentConverter;
 
@@ -32,6 +33,7 @@ type
     function GetInfo(const AType: AnsiString): IContentTypeInfoBasic;
     function GetInfoByExt(const AExt: AnsiString): IContentTypeInfoBasic;
     function GetIsBitmapType(const AType: AnsiString): Boolean;
+    function GetBitmapLoaderByFileName(const AFileName: string): IBitmapTileLoader;
     function GetIsBitmapExt(const AExt: AnsiString): Boolean;
     function GetIsKmlType(const AType: AnsiString): Boolean;
     function GetIsKmlExt(const AExt: AnsiString): Boolean;
