@@ -24,6 +24,7 @@ interface
 
 uses
   i_NotifierOperation,
+  i_GeoCalc,
   i_VectorItemTree,
   i_VectorItemTreeExporter,
   u_BaseInterfacedObject;
@@ -31,21 +32,31 @@ uses
 type
   TVectorItemTreeExporterGPX = class(TBaseInterfacedObject, IVectorItemTreeExporter)
   private
+    FGeoCalc: IGeoCalc;
+  private
     procedure ProcessExport(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
       const ATree: IVectorItemTree
     );
+  public
+    constructor Create(const AGeoCalc: IGeoCalc);
   end;
 
 implementation
 
 uses
-  u_GlobalState,
   u_ExportMarks2GPX;
 
 { TVectorItemTreeExporterGPX }
+
+constructor TVectorItemTreeExporterGPX.Create(const AGeoCalc: IGeoCalc);
+begin
+  Assert(Assigned(AGeoCalc));
+  inherited Create;
+  FGeoCalc := AGeoCalc;
+end;
 
 procedure TVectorItemTreeExporterGPX.ProcessExport(
   AOperationID: Integer;
@@ -58,7 +69,7 @@ var
 begin
   VExport := TExportMarks2GPX.Create;
   try
-    VExport.ExportTreeToGPX(GState.GeoCalc, ATree, AFileName);
+    VExport.ExportTreeToGPX(FGeoCalc, ATree, AFileName);
   finally
     VExport.Free
   end;

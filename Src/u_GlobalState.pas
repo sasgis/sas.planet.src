@@ -723,6 +723,7 @@ begin
 
   FExporterList :=
     TVectorItemTreeExporterListSimple.Create(
+      FGeoCalc,
       FArchiveReadWriteFactory,
       FAppearanceOfMarkFactory,
       FMarkFactory,

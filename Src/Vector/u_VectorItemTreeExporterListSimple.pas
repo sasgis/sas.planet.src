@@ -25,6 +25,7 @@ interface
 uses
   i_Notifier,
   i_ArchiveReadWriteFactory,
+  i_GeoCalc,
   i_VectorItemTreeExporter,
   i_VectorItemTreeExporterList,
   i_AppearanceOfMarkFactory,
@@ -45,6 +46,7 @@ type
     function GetStatic: IVectorItemTreeExporterListStatic;
   public
     constructor Create(
+      const AGeoCalc: IGeoCalc;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AMarkFactory: IMarkFactory;
@@ -68,6 +70,7 @@ uses
 { TVectorItemTreeExporterListSimple }
 
 constructor TVectorItemTreeExporterListSimple.Create(
+  const AGeoCalc: IGeoCalc;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AMarkFactory: IMarkFactory;
@@ -99,7 +102,7 @@ begin
     );
   VList.Add(VItem);
 
-  VExporter := TVectorItemTreeExporterGPX.Create;
+  VExporter := TVectorItemTreeExporterGPX.Create(AGeoCalc);
   VItem :=
     TVectorItemTreeExporterListItem.Create(
       VExporter,
