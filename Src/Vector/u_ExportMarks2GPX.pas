@@ -887,7 +887,7 @@ const
       Result := '';
   end;
 
-  procedure AddCategories(const AExtensionNode: TALXMLNode; const APrefix: String);
+  procedure AddCategories(const AExtensionNode: TALXMLNode; const APrefix: AnsiString);
   var
     X: Integer;
     VCategories: string;
@@ -899,7 +899,7 @@ const
     VCategories := Trim(VCategories);
 
     if VCategories = '' then begin
-      AExtensionNode.AddChild(AnsiString(APrefix + ':Category')).Text := 'default';
+      AExtensionNode.AddChild(APrefix + ':Category').Text := 'default';
       Exit;
     end;
 
@@ -917,7 +917,7 @@ const
       end;
 
       if VCategory <> '' then
-        AExtensionNode.AddChild(AnsiString(APrefix + ':Category')).Text := XMLText(VCategory);
+        AExtensionNode.AddChild(APrefix + ':Category').Text := XMLText(VCategory);
     until VCategories = '';
   end;
 
