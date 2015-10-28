@@ -128,7 +128,7 @@ begin
   VcurValue := 0;
   VFind := Trim(AnsiUpperCase(Astr));
   VFind := StringReplace(VFind, '-', '', [rfReplaceAll]);
-  if '' = RegExprReplaceMatchSubStr(VFind, 'IVX', '') then begin
+  if '' = RegExprReplaceMatchSubStr(AnsiString(VFind), 'IVX', '') then begin
     Result := 0;
   end else begin
     for I := Length(VFind) downto 1 do begin
@@ -723,7 +723,7 @@ begin
 
       if V2Search <> '' then begin
         if not VcoordError then begin
-          if '' = RegExprReplaceMatchSubStr(VTempString, '[0-9]', '') then begin // 1 km
+          if '' = RegExprReplaceMatchSubStr(AnsiString(VTempString), '[0-9]', '') then begin // 1 km
             J := strtoint(VTempString);
             if J<=144 then begin
               VDLon := VDLon + ((((6 - ((J - 1) div 12) - 1)*2) + 1)/12)*2;  //Y
