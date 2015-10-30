@@ -23,29 +23,12 @@ interface
 
 {$INCLUDE LibJpeg.inc}
 
-{$IFDEF FPC}
-  {$MODE Delphi}
-
-  {$IFDEF CPUI386}
-    {$DEFINE CPU386}
-    {$ASMMODE INTEL}
-  {$ENDIF}
-
-  {$IFNDEF WIN32}
-    {$LINKLIB c}
-  {$ENDIF}
-{$ENDIF}
-
 {$EXTENDEDSYNTAX ON}
 {$ALIGN 8}
 {$MINENUMSIZE 4}
 
 const
-  {$ifdef win32}
-    LIB_JPEG_NAME = 'jpeg62.dll';
-  {$else}
-    LIB_JPEG_NAME = 'libjpeg.so.62';
-  {$endif}
+  LIB_JPEG_NAME = 'jpeg62.dll';
 
 type
   UINT8 = byte;
@@ -58,14 +41,7 @@ type
   JOCTET_ptr = ^JOCTET;
   JSAMPLE_ptr = ^JSAMPLE;
 
-{$ifdef LINUX}
-  // Under linux it's looks like that the the booleans are allways 4 byte large.
-  JBOOL = Cardinal;
-{$else}
-  // Under windows they are only 1 byte large.
   JBOOL = Byte;
-{$endif}
-
 
 const
   JPEG_LIB_VERSION = 62;  { Version 6b }
@@ -267,8 +243,9 @@ J_COLOR_SPACE = (
 	JCS_EXT_ABGR,		{ alpha/blue/green/red }
 	JCS_EXT_ARGB		{ alpha/red/green/blue }
     
-  {$ENDIF} // LIB_JPEG_62_TURBO_JCS_ALPHA_EXTENSIONS
-{$ENDIF} // LIB_JPEG_62_TURBO_JCS_EXTENSIONS
+  {$ENDIF LIB_JPEG_62_TURBO_JCS_ALPHA_EXTENSIONS}
+
+{$ENDIF LIB_JPEG_62_TURBO_JCS_EXTENSIONS}
 );
 
 
@@ -1077,77 +1054,47 @@ var
   procedure jpeg_create_decompress(cinfo: j_decompress_ptr);
 
 {$IFNDEF LIB_JPEG_62_STATIC_LINK}
-  function InitLibJpeg62(const LibName: AnsiString = LIB_JPEG_NAME): boolean;
+  function InitLibJpeg62(const LibName: string = LIB_JPEG_NAME): boolean;
   procedure QuitLibJpeg62;
 {$ENDIF}
 
 implementation
 
 {$IFNDEF LIB_JPEG_62_STATIC_LINK}
+uses
+  Windows,
+  SysUtils,
+  SyncObjs;
+
 var
-  libJPEG_RefCount: Integer;
+  gHandle: THandle = 0;
+  gLock: TCriticalSection = nil;
+  gIsInitialized: Boolean = False;
 
-  {$ifdef win32}
-    libJPEG_Handle: cardinal;
-  {$else}
-    libJPEG_Handle: pointer;
-  {$endif}
-
-
-{$ifdef win32}
-const
-  Kernel32 = 'kernel32.dll';
-
-  function LoadLibrary(lpFileName: pAnsiChar): LongWord; stdcall; external Kernel32 name 'LoadLibraryA';
-  function FreeLibrary(hModule: LongWord): LongBool; stdcall; external Kernel32 name 'FreeLibrary';
-  function GetProcAddress(hModule: LongWord; lpProcName: pAnsiChar): Pointer; stdcall; external Kernel32 name 'GetProcAddress';
-{$else}
-const
-  libdl = {$IFDEF Linux} 'libdl.so.2'{$ELSE} 'c'{$ENDIF};
-
-  RTLD_LAZY = $001;
-
-  function dlopen(Name: pAnsiChar; Flags: LongInt): Pointer; cdecl; external libdl name 'dlopen';
-  function dlclose(Lib: Pointer): LongInt; cdecl; external libdl name 'dlclose';
-  function dlsym(Lib: Pointer; Name: pAnsiChar): Pointer; cdecl; external libdl name 'dlsym';
-{$endif}
-
-
-function GetProcAddr(Name: pAnsiChar): Pointer;
+function GetProcAddr(Name: PAnsiChar): Pointer;
 begin
-  {$ifdef win32}
-    GetProcAddr := GetProcAddress(libJPEG_Handle, Name);
-  {$else}
-    GetProcAddr := dlsym(libJPEG_Handle, Name);
-  {$endif}
-end;
-{$ENDIF}
-
-procedure jpeg_create_compress(cinfo: j_compress_ptr);
-begin
-  jpeg_CreateCompress(cinfo, JPEG_LIB_VERSION, sizeof(jpeg_compress_struct));
+  GetProcAddr := GetProcAddress(gHandle, Name);
 end;
 
-
-procedure jpeg_create_decompress(cinfo: j_decompress_ptr);
+function InitLibJpeg62(const LibName: string = LIB_JPEG_NAME): Boolean;
 begin
-  jpeg_CreateDecompress(cinfo, JPEG_LIB_VERSION, sizeof(jpeg_decompress_struct));
-end;
+  if gIsInitialized then begin
+    Result := True;
+    Exit;
+  end;
 
-{$IFNDEF LIB_JPEG_62_STATIC_LINK}
-function InitLibJpeg62(const LibName: AnsiString = LIB_JPEG_NAME): Boolean;
-var
-  Temp: Boolean;
-begin
-  if (libJPEG_RefCount = 0) or (libJPEG_Handle = {$ifdef win32} 0 {$else} nil {$endif}) then begin
-    if libJPEG_Handle = {$ifdef win32} 0 {$else} nil {$endif} then
-      {$ifdef win32}
-        libJPEG_Handle := LoadLibrary(pAnsiChar(LibName));
-      {$else}
-        libJPEG_Handle := dlopen(pAnsiChar(LibName), RTLD_LAZY);
-      {$endif}
+  gLock.Acquire;
+  try
+    if gIsInitialized then begin
+      Result := True;
+      Exit;
+    end;
 
-    if libJPEG_Handle <> {$ifdef win32} 0 {$else} nil {$endif} then begin
+    if gHandle = 0 then begin
+      gHandle := LoadLibrary(PChar(LibName));
+    end;
+
+    if gHandle <> 0 then begin
       jpeg_std_error := GetProcAddr('jpeg_std_error');
       jpeg_CreateCompress := GetProcAddr('jpeg_CreateCompress');
       jpeg_CreateDecompress := GetProcAddr('jpeg_CreateDecompress');
@@ -1195,75 +1142,71 @@ begin
       jpeg_destroy := GetProcAddr('jpeg_destroy');
       jpeg_resync_to_restart := GetProcAddr('jpeg_resync_to_restart');
     end;
-  end;
 
-  Temp :=
-    (Addr(jpeg_std_error) <> nil) or
-    (Addr(jpeg_CreateCompress) <> nil) or
-    (Addr(jpeg_CreateDecompress) <> nil) or
-    (Addr(jpeg_destroy_compress) <> nil) or
-    (Addr(jpeg_destroy_decompress) <> nil) or
-    (Addr(jpeg_set_defaults) <> nil) or
-    (Addr(jpeg_set_colorspace) <> nil) or
-    (Addr(jpeg_default_colorspace) <> nil) or
-    (Addr(jpeg_set_quality) <> nil) or
-    (Addr(jpeg_set_linear_quality) <> nil) or
-    (Addr(jpeg_add_quant_table) <> nil) or
-    (Addr(jpeg_quality_scaling) <> nil) or
-    (Addr(jpeg_simple_progression) <> nil) or
-    (Addr(jpeg_suppress_tables) <> nil) or
-    (Addr(jpeg_alloc_quant_table) <> nil) or
-    (Addr(jpeg_alloc_huff_table) <> nil) or
-    (Addr(jpeg_start_compress) <> nil) or
-    (Addr(jpeg_write_scanlines) <> nil) or
-    (Addr(jpeg_finish_compress) <> nil) or
-    (Addr(jpeg_write_raw_data) <> nil) or
-    (Addr(jpeg_write_marker) <> nil) or
-    (Addr(jpeg_write_m_header) <> nil) or
-    (Addr(jpeg_write_m_byte) <> nil) or
-    (Addr(jpeg_write_tables) <> nil) or
-    (Addr(jpeg_read_header) <> nil) or
-    (Addr(jpeg_start_decompress) <> nil) or
-    (Addr(jpeg_read_scanlines) <> nil) or
-    (Addr(jpeg_finish_decompress) <> nil) or
-    (Addr(jpeg_read_raw_data) <> nil) or
-    (Addr(jpeg_has_multiple_scans) <> nil) or
-    (Addr(jpeg_start_output) <> nil) or
-    (Addr(jpeg_finish_output) <> nil) or
-    (Addr(jpeg_input_complete) <> nil) or
-    (Addr(jpeg_new_colormap) <> nil) or
-    (Addr(jpeg_consume_input) <> nil) or
-    (Addr(jpeg_calc_output_dimensions) <> nil) or
-    (Addr(jpeg_save_markers) <> nil) or
-    (Addr(jpeg_set_marker_processor) <> nil) or
-    (Addr(jpeg_read_coefficients) <> nil) or
-    (Addr(jpeg_write_coefficients) <> nil) or
-    (Addr(jpeg_copy_critical_parameters) <> nil) or
-    (Addr(jpeg_abort_compress) <> nil) or
-    (Addr(jpeg_abort_decompress) <> nil) or
-    (Addr(jpeg_abort) <> nil) or
-    (Addr(jpeg_destroy) <> nil) or
-    (Addr(jpeg_resync_to_restart) <> nil);
-  
-  if Temp then
-    Inc(libJPEG_RefCount);
-  
-  Result := Temp;
+    gIsInitialized :=
+      (gHandle <> 0) and
+      (Addr(jpeg_std_error) <> nil) and
+      (Addr(jpeg_CreateCompress) <> nil) and
+      (Addr(jpeg_CreateDecompress) <> nil) and
+      (Addr(jpeg_destroy_compress) <> nil) and
+      (Addr(jpeg_destroy_decompress) <> nil) and
+      (Addr(jpeg_set_defaults) <> nil) and
+      (Addr(jpeg_set_colorspace) <> nil) and
+      (Addr(jpeg_default_colorspace) <> nil) and
+      (Addr(jpeg_set_quality) <> nil) and
+      (Addr(jpeg_set_linear_quality) <> nil) and
+      (Addr(jpeg_add_quant_table) <> nil) and
+      (Addr(jpeg_quality_scaling) <> nil) and
+      (Addr(jpeg_simple_progression) <> nil) and
+      (Addr(jpeg_suppress_tables) <> nil) and
+      (Addr(jpeg_alloc_quant_table) <> nil) and
+      (Addr(jpeg_alloc_huff_table) <> nil) and
+      (Addr(jpeg_start_compress) <> nil) and
+      (Addr(jpeg_write_scanlines) <> nil) and
+      (Addr(jpeg_finish_compress) <> nil) and
+      (Addr(jpeg_write_raw_data) <> nil) and
+      (Addr(jpeg_write_marker) <> nil) and
+      (Addr(jpeg_write_m_header) <> nil) and
+      (Addr(jpeg_write_m_byte) <> nil) and
+      (Addr(jpeg_write_tables) <> nil) and
+      (Addr(jpeg_read_header) <> nil) and
+      (Addr(jpeg_start_decompress) <> nil) and
+      (Addr(jpeg_read_scanlines) <> nil) and
+      (Addr(jpeg_finish_decompress) <> nil) and
+      (Addr(jpeg_read_raw_data) <> nil) and
+      (Addr(jpeg_has_multiple_scans) <> nil) and
+      (Addr(jpeg_start_output) <> nil) and
+      (Addr(jpeg_finish_output) <> nil) and
+      (Addr(jpeg_input_complete) <> nil) and
+      (Addr(jpeg_new_colormap) <> nil) and
+      (Addr(jpeg_consume_input) <> nil) and
+      (Addr(jpeg_calc_output_dimensions) <> nil) and
+      (Addr(jpeg_save_markers) <> nil) and
+      (Addr(jpeg_set_marker_processor) <> nil) and
+      (Addr(jpeg_read_coefficients) <> nil) and
+      (Addr(jpeg_write_coefficients) <> nil) and
+      (Addr(jpeg_copy_critical_parameters) <> nil) and
+      (Addr(jpeg_abort_compress) <> nil) and
+      (Addr(jpeg_abort_decompress) <> nil) and
+      (Addr(jpeg_abort) <> nil) and
+      (Addr(jpeg_destroy) <> nil) and
+      (Addr(jpeg_resync_to_restart) <> nil);
+
+    Result := gIsInitialized;
+  finally
+    gLock.Release;
+  end;
 end;
 
 procedure QuitLibJpeg62;
 begin
-  Dec(libJPEG_RefCount);
-  
-  if libJPEG_RefCount <= 0 then begin
-    if libJPEG_Handle <> {$ifdef win32} 0 {$else} nil {$endif} then begin
-      {$ifdef win32}
-        FreeLibrary(libJPEG_Handle);
-        libJPEG_Handle := 0;
-      {$else}
-        dlclose(libJPEG_Handle);
-        libJPEG_Handle := nil;
-      {$endif}
+  gLock.Acquire;
+  try
+    gIsInitialized := False;
+
+    if gHandle <> 0 then begin
+      FreeLibrary(gHandle);
+      gHandle := 0;
     end;
 
     jpeg_std_error := nil;
@@ -1312,8 +1255,29 @@ begin
     jpeg_abort := nil;
     jpeg_destroy := nil;
     jpeg_resync_to_restart := nil;
+  finally
+    gLock.Release;
   end;
 end;
+{$ENDIF}
+
+procedure jpeg_create_compress(cinfo: j_compress_ptr);
+begin
+  jpeg_CreateCompress(cinfo, JPEG_LIB_VERSION, sizeof(jpeg_compress_struct));
+end;
+
+procedure jpeg_create_decompress(cinfo: j_decompress_ptr);
+begin
+  jpeg_CreateDecompress(cinfo, JPEG_LIB_VERSION, sizeof(jpeg_decompress_struct));
+end;
+
+{$IFNDEF LIB_JPEG_62_STATIC_LINK}
+initialization
+  gLock := TCriticalSection.Create;
+
+finalization
+  QuitLibJpeg62;
+  FreeAndNil(gLock);
 {$ENDIF}
 
 end.

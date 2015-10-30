@@ -97,7 +97,6 @@ type
   end;
 
 const
-  cUseLibJpeg8 = False;
   cUseBGRAColorSpace = True; // Available for libjpeg-turbo only
 
 { TLibJpegTileLoader }
@@ -126,7 +125,7 @@ begin
     VStream := TStreamReadOnlyByBinaryData.Create(AData);
     try
       VStream.Position := 0;
-      VJpeg := TJpegReader.Create(VStream, cUseBGRAColorSpace, cUseLibJpeg8);
+      VJpeg := TJpegReader.Create(VStream, cUseBGRAColorSpace);
       try
         if VJpeg.ReadHeader() then begin
           VBuffer :=
@@ -218,7 +217,7 @@ begin
       VAppData.Size := ABitmap.Size;
       VAppData.Data := ABitmap.Data;
       VAppData.BGRAColorSpace := cUseBGRAColorSpace;
-      VJpeg := TJpegWriter.Create(VMemStream, VAppData.BGRAColorSpace, cUseLibJpeg8);
+      VJpeg := TJpegWriter.Create(VMemStream, VAppData.BGRAColorSpace);
       try
         if VAppData.BGRAColorSpace then begin
           VAppData.LineSize := VAppData.Size.X * 4;
