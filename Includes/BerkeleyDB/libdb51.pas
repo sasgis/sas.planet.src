@@ -2738,9 +2738,9 @@ const
 
 function InitBerkeleyDB: Boolean;
 
-  procedure LoadProc(var proc; const procName: string);
+  procedure LoadProc(var proc; const procName: AnsiString);
   begin
-    pointer(proc) := GetProcAddress(DllHandle, pchar(procName));
+    pointer(proc) := GetProcAddress(DllHandle, PAnsiChar(procName));
     if pointer(proc) = nil then begin
       raise EBerkeleyDBExeption.Create(
         'Function ''' + procName + ''' not found in ' + DllName

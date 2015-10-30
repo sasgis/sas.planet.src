@@ -249,7 +249,7 @@ var
   gLock: TCriticalSection = nil;
   gIsInitialized: Boolean = False;
 
-function GetProcAddr(const AProcName: PChar): Pointer;
+function GetProcAddr(const AProcName: PAnsiChar): Pointer;
 begin
   GetProcAddr := GetProcAddress(gHandle, AProcName);
 end;
