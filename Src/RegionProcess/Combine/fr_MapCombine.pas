@@ -586,6 +586,9 @@ procedure TfrMapCombine.UpdateProjectionsList(Sender: TObject);
         end;
       end;
     end;
+    if VProj = ACaption then begin
+      VProj := VProj + ' - ' + '<UNKNOWN>';
+    end;
     cbbProjection.Items.Add(VProj);
   end;
 
@@ -618,6 +621,7 @@ function TfrMapCombine.Validate: Boolean;
 var
   VPath: string;
   VMsg: string;
+  VEPSG: Integer;
   VProjection: IProjection;
   VLonLatRect: TDoubleRect;
   VPixelRect: TRect;
@@ -630,6 +634,14 @@ begin
     Exit;
   end;
   VProjection := GetProjection;
+  VEPSG := VProjection.ProjectionType.ProjectionEPSG;
+  if VEPSG <= 0 then begin
+    VMsg := Format(_('Map has unknown projection (EPSG=%d).'#13#10 + 'Do you want to set the projection manually?'), [VEPSG]);
+    if (Application.MessageBox(pchar(VMsg), pchar(SAS_MSG_coution), 36) = IDYES) then begin
+      Result := False;
+      Exit;
+    end;
+  end;
   VLonLatRect := FPolygLL.Bounds.Rect;
   VProjection.ProjectionType.ValidateLonLatRect(VLonLatRect);
   VPixelRect :=
