@@ -72,6 +72,7 @@ begin
     TTileStorageTypeAbilities.Create(
       TTileStorageAbilities.Create(False, True, False, True, True, True),
       tstvsVersionStored,
+      True,
       tstcInMemory
     );
   inherited Create(

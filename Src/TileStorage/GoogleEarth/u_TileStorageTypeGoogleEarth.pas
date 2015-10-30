@@ -78,6 +78,7 @@ begin
     TTileStorageTypeAbilities.Create(
       TTileStorageAbilities.Create(True, True, False, False, False, False),
       tstvsMultiVersions,
+      True,
       tstcFolder
     );
   inherited Create(

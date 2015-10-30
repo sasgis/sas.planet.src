@@ -68,14 +68,17 @@ type
     FBaseStorageAbilities: ITileStorageAbilities;
     FVersionSupport: TTileStorageTypeVersionSupport;
     FStorageClass: TTileStorageTypeClass;
+    FSupportDifferentContentTypes: Boolean;
   private
     function GetBaseStorageAbilities: ITileStorageAbilities;
     function GetVersionSupport: TTileStorageTypeVersionSupport;
     function GetStorageClass: TTileStorageTypeClass;
+    function GetSupportDifferentContentTypes: Boolean;
   public
     constructor Create(
       const ABaseStorageAbilities: ITileStorageAbilities;
       const AVersionSupport: TTileStorageTypeVersionSupport;
+      const ASupportDifferentContentTypes: Boolean;
       const AStorageClass: TTileStorageTypeClass
     );
   end;
@@ -87,6 +90,7 @@ type
     function GetBaseStorageAbilities: ITileStorageAbilities;
     function GetVersionSupport: TTileStorageTypeVersionSupport;
     function GetStorageClass: TTileStorageTypeClass;
+    function GetSupportDifferentContentTypes: Boolean;
   public
     constructor Create;
   end;
@@ -148,6 +152,7 @@ end;
 constructor TTileStorageTypeAbilities.Create(
   const ABaseStorageAbilities: ITileStorageAbilities;
   const AVersionSupport: TTileStorageTypeVersionSupport;
+  const ASupportDifferentContentTypes: Boolean;
   const AStorageClass: TTileStorageTypeClass
 );
 begin
@@ -155,6 +160,7 @@ begin
   FBaseStorageAbilities := ABaseStorageAbilities;
   FVersionSupport := AVersionSupport;
   FStorageClass := AStorageClass;
+  FSupportDifferentContentTypes := ASupportDifferentContentTypes;
 end;
 
 function TTileStorageTypeAbilities.GetBaseStorageAbilities: ITileStorageAbilities;
@@ -165,6 +171,11 @@ end;
 function TTileStorageTypeAbilities.GetStorageClass: TTileStorageTypeClass;
 begin
   Result := FStorageClass;
+end;
+
+function TTileStorageTypeAbilities.GetSupportDifferentContentTypes: Boolean;
+begin
+  Result := FSupportDifferentContentTypes;
 end;
 
 function TTileStorageTypeAbilities.GetVersionSupport: TTileStorageTypeVersionSupport;
@@ -220,6 +231,11 @@ end;
 function TTileStorageTypeAbilitiesNoAccess.GetStorageClass: TTileStorageTypeClass;
 begin
   Result := tstcOther;
+end;
+
+function TTileStorageTypeAbilitiesNoAccess.GetSupportDifferentContentTypes: Boolean;
+begin
+  Result := False;
 end;
 
 function TTileStorageTypeAbilitiesNoAccess.GetVersionSupport: TTileStorageTypeVersionSupport;

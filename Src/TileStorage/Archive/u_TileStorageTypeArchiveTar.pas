@@ -90,6 +90,7 @@ begin
     TTileStorageTypeAbilities.Create(
       TTileStorageAbilities.Create(False, False, True, True, False, False),
       tstvsVersionIgnored,
+      True,
       tstcOneFile
     );
   inherited Create(

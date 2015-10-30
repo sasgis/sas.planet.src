@@ -99,6 +99,7 @@ begin
     TTileStorageTypeAbilities.Create(
       TTileStorageAbilities.Create(False, True, True, True, True, True),
       VVersionSupport,
+      True,
       tstcFolder
     );
   inherited Create(

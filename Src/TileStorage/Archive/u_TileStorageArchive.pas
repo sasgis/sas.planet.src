@@ -252,6 +252,7 @@ begin
       if Assigned(AContentType) and Assigned(AData) then begin
         VData := AData;
         VTileName := FTileNameGenerator.GetTileFileName(AXY, AZoom) + FContentType.GetDefaultExt;
+        VTileName := FTileNameGenerator.AddExt(VTileName, AContentType.GetDefaultExt);
       end else begin
         VData := TBinaryData.Create(0, nil);
         VTileName := FTileNameGenerator.GetTileFileName(AXY, AZoom) + '.tne';
