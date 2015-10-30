@@ -66,6 +66,7 @@ implementation
 
 uses
   LibECW,
+  ALString,
   t_ECW,
   u_CalcWFileParams,
   u_ImageLineProvider,
@@ -121,7 +122,8 @@ procedure TBitmapMapCombinerECW.SaveRect(
   const AMapRect: TRect
 );
 var
-  Datum, Proj: string;
+  VEPSG: Integer;
+  Datum, Proj: AnsiString;
   Units: TCellSizeUnits;
   CellIncrementX, CellIncrementY, OriginX, OriginY: Double;
   errecw: integer;
@@ -144,9 +146,19 @@ begin
     VCurrentPieceRect := AMapRect;
     VMapPieceSize := RectSize(AMapRect);
     FLinesCount := VMapPieceSize.Y;
-    Datum := 'EPSG:' + IntToStr(VProjection.ProjectionType.Datum.EPSG);
-    Proj := 'EPSG:' + IntToStr(VProjection.ProjectionType.ProjectionEPSG);
-    Units := GetUnitsByProjectionEPSG(VProjection.ProjectionType.ProjectionEPSG);
+    VEPSG := VProjection.ProjectionType.Datum.EPSG;
+    if VEPSG > 0 then begin
+      Datum := 'EPSG:' + ALIntToStr(VEPSG);
+    end else begin
+      Datum := 'RAW';
+    end;
+    VEPSG := VProjection.ProjectionType.ProjectionEPSG;
+    if VEPSG > 0 then begin
+      Proj := 'EPSG:' + ALIntToStr(VEPSG);
+    end else begin
+      Proj := 'RAW';
+    end;
+    Units := GetUnitsByProjectionEPSG(VEPSG);
     CalculateWFileParams(
       VProjection.PixelPos2LonLat(VCurrentPieceRect.TopLeft),
       VProjection.PixelPos2LonLat(VCurrentPieceRect.BottomRight),

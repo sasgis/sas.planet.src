@@ -212,9 +212,9 @@ interface
     // World Y origin for top left corner of top left cell, in eCellSizeUnits */
      fOriginY:double;
     // ER Mapper style Datum name string, e.g. "RAW" or "NAD27".  Never NULL */
-     szDatum:PChar;
+     szDatum:PAnsiChar;
     // ER Mapper style Projection name string, e.g. "RAW" or "GEODETIC".  Never NULL */
-     szProjection:PChar;
+     szProjection:PAnsiChar;
   end;
 
   type CompressFormat =
@@ -254,9 +254,9 @@ interface
     */
     /** If this is specified but the output file is not, a default output filename will be created.
      *	Otherwise this field is unused.}
-    szInputFilename:array [0..259] of Char;
+    szInputFilename:array [0..259] of AnsiChar;
     // An output filename must be specified if no input filename is specified */
-    szOutputFilename:array [0..259] of Char;
+    szOutputFilename:array [0..259] of AnsiChar;
     // The target compression ratio - must be specified */
     fTargetCompression:Single;
     //	The compression format to use.  See the related enumerated type definition */
@@ -292,9 +292,9 @@ interface
     // Optional field specifying the units in which world cell sizes are specified, e.g. meters, feet */
     eCellSizeUnits:CellSizeUnits;
     // ER Mapper GDT style datum string */
-    szDatum:array [0..15] of Char;
+    szDatum:array [0..15] of AnsiChar;
     // ER Mapper GDT style projection string */
-    szProjection:array [0..15] of Char;
+    szProjection:array [0..15] of AnsiChar;
     // Callback function used to obtain lines of band data from the input data - must be specified */
     pReadCallback: TReadCallback;
     // Optional status callback function to track the progress of the compression process */
@@ -323,12 +323,12 @@ interface
     fCellIncrementY:Double;	// Increment in CellSizeUnits in Y direction. May be negative. Will never be zero
     fOriginX:Double;			// World X origin for top-left corner of top-left cell, in CellSizeUnits
     fOriginY:Double;			// World Y origin for top-left corner of top-left cell, in CellSizeUnits
-    szDatum:PChar;			// ER Mapper style Datum name string, e.g. "RAW" or "NAD27". Will never be NULL
-    szProjection:PChar;		// ER Mapper style Projection name string, e.g. "RAW" or "WGS84". Will never be NULL
+    szDatum:PAnsiChar;			// ER Mapper style Datum name string, e.g. "RAW" or "NAD27". Will never be NULL
+    szProjection:PAnsiChar;		// ER Mapper style Projection name string, e.g. "RAW" or "WGS84". Will never be NULL
     bCompressedOffsetTable:boolean; // Is the block table compressed
   end;
     
-  NCScbmOpenFileView = function (path:PChar; var NCSFileView:PInteger; Callback:Tobject): NCSError; stdcall;
+  NCScbmOpenFileView = function (path:PAnsiChar; var NCSFileView:PInteger; Callback:Tobject): NCSError; stdcall;
   NCScbmCloseFileView = function (NCSFileView:Pinteger): NCSError; stdcall;
   NCScbmGetViewFileInfo = function (NCSFileView:Pointer; var FileViewFileInfoPtr:pointer): NCSError; stdcall;
   NCScbmSetFileView = function (NCSFileView:Pointer;nBands:cardinal; pBandList:array of cardinal;
@@ -345,35 +345,35 @@ var
 const
   LIB_ECW_NAME = 'NCSEcwC.dll';
 
-function InitLibEcw(const ALibName: AnsiString = LIB_ECW_NAME): Boolean;
+function InitLibEcw(const ALibName: string = LIB_ECW_NAME): Boolean;
 
 implementation
 
 uses
+  Windows,
   SyncObjs;
 
 var
   LibHandle: Cardinal = 0;
   LibCS: TCriticalSection = nil;
-
-const
-  Kernel32 = 'kernel32.dll';
-
-function LoadLibrary(lpFileName: pAnsiChar): LongWord; stdcall; external Kernel32 name 'LoadLibraryA';
-function FreeLibrary(hModule: LongWord): LongBool; stdcall; external Kernel32 name 'FreeLibrary';
-function GetProcAddress(hModule: LongWord; lpProcName: pAnsiChar): Pointer; stdcall; external Kernel32 name 'GetProcAddress';
+  LibInitialized: Boolean = False;
 
 function GetProcAddr(ProcName: PAnsiChar): Pointer;
 begin
   GetProcAddr := GetProcAddress(LibHandle, ProcName);
 end;
 
-function InitLibEcw(const ALibName: AnsiString = LIB_ECW_NAME): Boolean;
+function InitLibEcw(const ALibName: string = LIB_ECW_NAME): Boolean;
 begin
+  if LibInitialized then begin
+    Result := True;
+    Exit;
+  end;
+
   LibCS.Acquire;
   try
     if LibHandle = 0 then begin
-      LibHandle := LoadLibrary(PAnsiChar(ALibName));
+      LibHandle := LoadLibrary(PChar(ALibName));
       if LibHandle <> 0 then begin
         NCSEcwCompressAllocClient := GetProcAddr('NCSEcwCompressAllocClient');
         NCSEcwCompressOpen := GetProcAddr('NCSEcwCompressOpen');
@@ -382,14 +382,14 @@ begin
         NCSEcwCompressFreeClient := GetProcAddr('NCSEcwCompressFreeClient');
       end;
     end;
-    Result :=
+    LibInitialized :=
       (LibHandle <> 0) and
-      ( (Addr(NCSEcwCompressAllocClient) <> nil) or
-        (Addr(NCSEcwCompressOpen) <> nil) or
-        (Addr(NCSEcwCompress) <> nil) or
-        (Addr(NCSEcwCompressClose) <> nil) or
-        (Addr(NCSEcwCompressFreeClient) <> nil)
-      );
+      (Addr(NCSEcwCompressAllocClient) <> nil) and
+      (Addr(NCSEcwCompressOpen) <> nil) and
+      (Addr(NCSEcwCompress) <> nil) and
+      (Addr(NCSEcwCompressClose) <> nil) and
+      (Addr(NCSEcwCompressFreeClient) <> nil);
+    Result := LibInitialized;
   finally
     LibCS.Release;
   end;
@@ -399,6 +399,7 @@ procedure QuitLibEcw;
 begin
   LibCS.Acquire;
   try
+    LibInitialized := False;
     if LibHandle > 0 then begin
       FreeLibrary(LibHandle);
       LibHandle := 0;
@@ -415,7 +416,6 @@ end;
 
 initialization
   LibCS := TCriticalSection.Create;
-  //InitLibEcw
 
 finalization
   QuitLibEcw;

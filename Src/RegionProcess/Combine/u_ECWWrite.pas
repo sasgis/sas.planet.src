@@ -49,12 +49,12 @@ type
     function Encode(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const FileName: string;
+      const FileName: AnsiString;
       Width, Height: cardinal;
       CompressRatio: Single;
       Hint: CompressHint;
       AReadDelegate: TEcwRead;
-      const Datum, Projection: string;
+      const Datum, Projection: AnsiString;
       SizeUnits: TCellSizeUnits;
       CellIncrementX, CellIncrementY, OriginX, OriginY: double
     ): integer;
@@ -101,12 +101,12 @@ end;
 function TECWWrite.Encode(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const FileName: string;
+  const FileName: AnsiString;
   Width, Height: cardinal;
   CompressRatio: Single;
   Hint: CompressHint;
   AReadDelegate: TEcwRead;
-  const Datum, Projection: string;
+  const Datum, Projection: AnsiString;
   SizeUnits: TCellSizeUnits;
   CellIncrementX, CellIncrementY, OriginX, OriginY: double
 ): Integer;
