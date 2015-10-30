@@ -170,10 +170,6 @@ var
   VReprojectPolygon: Boolean;
 begin
   VSourceProjection := GetActualProjection(AProjection);
-  if AProjection.Zoom > VSourceProjection.Zoom then begin
-    Result := nil;
-  end else begin
-
     // prepare projected polygon
     if Assigned(FPolygon) then begin
       VReprojectPolygon := False;
@@ -208,7 +204,6 @@ begin
         FVersion,
         FColorer
       );
-  end;
 end;
 
 function TBitmapLayerProviderFillingMap.GetIntersectedRect(
