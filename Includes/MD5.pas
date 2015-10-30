@@ -39,7 +39,7 @@ type
   end;
 
   // вычисление хеш-суммы для строки
-function MD5String(const S: string): TMD5Digest;
+function MD5String(const S: AnsiString): TMD5Digest;
 
 // вычисление хеш-суммы для файла
 function MD5File(const FileName: string): TMD5Digest;
@@ -378,9 +378,9 @@ begin
     Result := Result + IntToHex(Digest.v[i], 2);
 end;
 
-function MD5String(const S: string): TMD5Digest;
+function MD5String(const S: AnsiString): TMD5Digest;
 begin
-  Result := MD5Buffer(PChar(S)^, Length(S));
+  Result := MD5Buffer(PAnsiChar(S)^, Length(S));
 end;
 
 function MD5File(const FileName: string): TMD5Digest;

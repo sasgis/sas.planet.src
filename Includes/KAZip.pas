@@ -646,7 +646,7 @@ begin
             ZLH           := (FZLHeader.CMF * 256) + FZLHeader.FLG;
             Inc(FZLHeader.FLG, 31 - (ZLH mod 31));
             SetLength(Result,SizeOf(FZLHeader));
-            SetString(Result,PChar(@FZLHeader),SizeOf(FZLHeader));
+            SetString(Result,PAnsiChar(@FZLHeader),SizeOf(FZLHeader));
           End;
        Result := Result + BA.CompressedData;
      End
