@@ -426,7 +426,6 @@ function GetBitmap(
 var
   VImageName: string;
   VData: IBinaryData;
-  VExt: AnsiString;
   VLoader: IBitmapTileLoader;
 begin
   Result := nil;
@@ -438,7 +437,7 @@ begin
     if VLoader <> nil then begin
       Result := VLoader.Load(VData);
       if Result <> nil then begin
-        if VExt = '.bmp' then begin
+        if LowerCase(ExtractFileExt(VImageName)) = '.bmp' then begin
           Result :=
             UpdateBMPTransp(
               ABitmapFactory,
