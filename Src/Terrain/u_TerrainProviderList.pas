@@ -72,6 +72,11 @@ uses
   IniFiles,
   Classes,
   c_TerrainProviderGUID,
+  c_ZeroGUID,
+  i_ConfigDataProvider,
+  i_StringListStatic,
+  u_ConfigDataProviderByIniFile,
+  u_ConfigProviderHelpers,
   u_TerrainProviderListElement,
   u_TerrainProviderByGE,
   u_TerrainProviderByGoogleEarth,
@@ -120,8 +125,10 @@ end;
 procedure TTerrainProviderListSimple.LoadFromIni;
 var
   VFileName: String;
-  VIniFile: TIniFile;
-  VSections, VOptions: TStringList;
+  VIniFile: TMemIniFile;
+  VTerrainConfig: IConfigDataProvider;
+  VSectionData: IConfigDataProvider;
+  VSections: IStringListStatic;
   VSection, VCaption: String;
   VGuid: TGUID;
   VItem: ITerrainProviderListElement;
@@ -139,31 +146,26 @@ begin
   end;
 
   // load
-  VSections := nil;
-  VOptions := nil;
-  VIniFile := TIniFile.Create(VFileName);
+  VIniFile := TMemIniFile.Create(VFileName);
   try
-    VSections := TStringList.Create;
-    VOptions := TStringList.Create;
-    VIniFile.ReadSections(VSections);
-    if (0 < VSections.Count) then begin
+    VTerrainConfig := TConfigDataProviderByIniFile.CreateWithOwn(VIniFile);
+    VIniFile := nil;
+    VSections := VTerrainConfig.ReadSubItemsList;
+    if Assigned(VSections) and (0 < VSections.Count) then begin
       for i := 0 to VSections.Count - 1 do begin
         try
       // loop through terrains
-          VSection := VSections[i];
+          VSection := VSections.Items[i];
+          VSectionData := VTerrainConfig.GetSubItem(VSection);
 
       // get guid
-          VCaption := VIniFile.ReadString(VSection, 'GUID', '');
-          VGuid := StringToGUID(VCaption);
+          VGuid := ReadGUID(VSectionData, 'GUID', CGUID_Zero);
 
       // get caption
-          VCaption := VIniFile.ReadString(VSection, 'Caption', VSection);
-
-      // get all options
-          VIniFile.ReadSectionValues(VSection, VOptions);
+          VCaption := VSectionData.ReadString('Caption', VSection);
 
       // get proj4 converter
-          VProjInitString := AnsiString(VIniFile.ReadString(VSection, 'Proj', ''));
+          VProjInitString := VSectionData.ReadAnsiString('Proj', '');
           if (0 < Length(VProjInitString)) then begin
             VProjConverter := FProjConverterFactory.GetByInitString(VProjInitString);
           end else begin
@@ -178,7 +180,7 @@ begin
             TTerrainProviderByExternal.Create(
               FTerrainDataPath.FullPath,
               VProjConverter,
-              VOptions
+              VSectionData
             )
           );
 
@@ -190,8 +192,6 @@ begin
     end;
   finally
     VIniFile.Free;
-    VOptions.Free;
-    VSections.Free;
   end;
 end;
 

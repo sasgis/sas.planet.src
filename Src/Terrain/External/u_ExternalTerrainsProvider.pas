@@ -29,6 +29,7 @@ uses
   t_GeoTypes,
   u_ExternalTerrainAPI,
   i_Notifier,
+  i_ConfigDataProvider,
   i_ProjConverter,
   i_TerrainProvider,
   u_BaseInterfacedObject;
@@ -69,7 +70,7 @@ type
     constructor Create(
       const ADefaultPath: String;
       const AProjConverter: IProjConverter;
-      const AOptions: TStrings
+      const AOptions: IConfigDataProvider
     );
     destructor Destroy; override;
   end;
@@ -88,7 +89,7 @@ uses
 constructor TTerrainProviderByExternal.Create(
   const ADefaultPath: String;
   const AProjConverter: IProjConverter;
-  const AOptions: TStrings
+  const AOptions: IConfigDataProvider
 );
 begin
   inherited Create;
@@ -101,14 +102,14 @@ begin
   FFileHandle := 0;
   FFileName := '';
   FBaseFolder := '';
-  FAvailable := (AOptions.Values['Enabled'] = '1');
+  FAvailable := AOptions.ReadBool('Enabled', False);
 
   if (not FAvailable) then begin
     Exit;
   end;
 
   // folder - terrain file(s) storage
-  FBaseFolder := AOptions.Values['Folder'];
+  FBaseFolder := AOptions.ReadString('Folder', '');
   if Length(FBaseFolder) = 0 then begin
     FBaseFolder := IncludeTrailingPathDelimiter(FDefaultPath);
   end;
@@ -132,32 +133,22 @@ begin
   end;
 
   // samples count in single file (mandatory)
-  if not TryStrToInt(AOptions.Values['SamplesCount'], FSamplesCount) then begin
-    FAvailable := FALSE;
-    Exit;
-  end;
+  FSamplesCount := AOptions.ReadInteger('SamplesCount', -1);
   if (FSamplesCount <= 0) then begin
     FAvailable := FALSE;
     Exit;
   end;
 
   // lines count in single file (check if defined)
-  if not TryStrToInt(AOptions.Values['LinesCount'], FLinesCount) then begin
-    FLinesCount := 0;
-  end;
+  FLinesCount := AOptions.ReadInteger('LinesCount', 0);
 
   // some optional values
+  FVoidValue := AOptions.ReadInteger('VoidValue', cUndefinedElevationValue);
 
-  if not TryStrToInt(AOptions.Values['VoidValue'], FVoidValue) then begin
-    FVoidValue := cUndefinedElevationValue;
-  end;
+  FByteOrder := AOptions.ReadInteger('ByteOrder', 0);
 
-  if not TryStrToInt(AOptions.Values['ByteOrder'], FByteOrder) then begin
-    FByteOrder := 0;
-  end;
-
-  FPrefix := Trim(AOptions.Values['Prefix']);
-  FSuffix := Trim(AOptions.Values['Suffix']);
+  FPrefix := Trim(AOptions.ReadString('Prefix', ''));
+  FSuffix := Trim(AOptions.ReadString('Suffix', ''));
 end;
 
 destructor TTerrainProviderByExternal.Destroy;
