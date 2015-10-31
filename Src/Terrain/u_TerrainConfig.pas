@@ -62,7 +62,8 @@ implementation
 
 uses
   SysUtils,
-  c_TerrainProviderGUID;
+  c_TerrainProviderGUID,
+  u_ConfigProviderHelpers;
 
 { TTerrainConfig }
 
@@ -81,7 +82,7 @@ begin
   if AConfigData <> nil then begin
     FShowInStatusBar := AConfigData.ReadBool('ShowInStatusBar', FShowInStatusBar);
     FTrySecondaryProviders := AConfigData.ReadBool('TrySecondaryProviders', FTrySecondaryProviders);
-    FPrimaryProvider := StringToGUID(AConfigData.ReadString('PrimaryProvider', GUIDToString(FPrimaryProvider)));
+    FPrimaryProvider := ReadGUID(AConfigData, 'PrimaryProvider', FPrimaryProvider);
     FLastActualProviderWithElevationData := FPrimaryProvider;
     SetChanged;
   end;

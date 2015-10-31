@@ -105,6 +105,7 @@ uses
   Classes,
   SysUtils,
   IniFiles,
+  c_ZeroGUID,
   i_MapType,
   i_RegionProcessParamsFrame,
   i_LogSimple,
@@ -225,7 +226,6 @@ var
   VCancelNotifierInternal: INotifierOperationInternal;
   VOperationID: Integer;
   VProgressInfo: TRegionProcessProgressInfoDownload;
-  VGuids: string;
   VGuid: TGUID;
   VZoom: Byte;
   VZoomArr: TByteDynArray;
@@ -272,14 +272,13 @@ begin
   if VSessionSection = nil then begin
     raise Exception.Create('No SLS data');
   end;
-  VGuids := VSessionSection.ReadString('MapGUID', '');
-  if VGuids = '' then begin
+  VGuid := ReadGUID(VSessionSection, 'MapGUID', CGUID_Zero);
+  if IsEqualGUID(VGuid, CGUID_Zero) then begin
     raise Exception.Create('Map GUID is empty');
   end;
-  VGuid := StringToGUID(VGuids);
   VMapType := FFullMapsSet.GetMapTypeByGUID(VGuid);
   if VMapType = nil then begin
-    raise Exception.CreateFmt('Map with GUID = %s not found', [VGuids]);
+    raise Exception.CreateFmt('Map with GUID = %s not found', [GUIDToString(VGuid)]);
   end;
   VVersionString := VSessionSection.ReadString('VersionDownload', '');
   if VVersionString <> '' then begin

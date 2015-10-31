@@ -84,6 +84,7 @@ uses
   u_MarkSystemImplConfigSML,
   u_MarkSystemImplConfigORM,
   u_InterfaceListSimple,
+  u_ConfigProviderHelpers,
   u_BaseInterfacedObject;
 
 type
@@ -201,8 +202,6 @@ var
   VUserName: string;
   VPass: string;
   VCacheSize: Cardinal;
-  VTmp: string;
-  VZeroGUID: string;
   VItem: IMarkSystemConfigStatic;
   VImpl: IMarkSystemImplConfigStatic;
 begin
@@ -213,15 +212,10 @@ begin
     if VConfig <> nil then begin
       VCount := VConfig.ReadInteger('Count', 0);
       FActiveConfigID := VConfig.ReadInteger('ActiveIndex', -1);
-
-      VZeroGUID := GUIDToString(CGUID_Zero);
-
       for I := 0 to VCount - 1 do begin
         VConfId := 'Item' + IntToStr(I + 1) + '_';
 
-        VTmp := VConfig.ReadString(VConfId + 'Database', VZeroGUID);
-        VDatabaseGUID := StringToGUID(VTmp);
-
+        VDatabaseGUID := ReadGUID(VConfig, VConfId + 'Database', CGUID_Zero);
         if IsEqualGUID(VDatabaseGUID, CGUID_Zero) then begin
           _ShowConfigErrorFmt(_('MarkSystemConfig: Item #%d Database GUID read error!'), [I + 1]);
           Continue;
@@ -229,9 +223,7 @@ begin
 
         VDisplayName := VConfig.ReadString(VConfId + 'DisplayName', '');
 
-        VTmp := VConfig.ReadString(VConfId + 'Impl', VZeroGUID);
-        VImplGUID := StringToGUID(VTmp);
-
+        VImplGUID := ReadGUID(VConfig, VConfId + 'Impl', CGUID_Zero);
         if IsEqualGUID(VImplGUID, CGUID_Zero) then begin
           _ShowConfigErrorFmt(_('MarkSystemConfig: Item #%d Impl GUID read error!'), [I + 1]);
           Continue;

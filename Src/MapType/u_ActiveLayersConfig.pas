@@ -54,6 +54,7 @@ uses
   StrUtils,
   c_ZeroGUID,
   i_StringListStatic,
+  u_ConfigProviderHelpers,
   u_GUIDListStatic;
 
 const
@@ -71,7 +72,6 @@ var
   VList: IStringListStatic;
   i: Integer;
   VKeyName: string;
-  VGUIDString: string;
   VGUID: TGUID;
 begin
   inherited;
@@ -80,16 +80,7 @@ begin
     for i := 0 to VList.Count - 1 do begin
       VKeyName := VList.Items[i];
       if SameText(LeftStr(VKeyName, length(CKeyNameLayer)), CKeyNameLayer) then begin
-        VGUIDString := AConfigData.ReadString(VKeyName, '');
-        if VGUIDString <> '' then begin
-          try
-            VGUID := StringToGUID(VGUIDString);
-          except
-            VGUID := CGUID_Zero;
-          end;
-        end else begin
-          VGUID := CGUID_Zero;
-        end;
+        VGUID := ReadGUID(AConfigData, VKeyName, CGUID_Zero);
         if not IsEqualGUID(VGUID, CGUID_Zero) then begin
           SelectLayerByGUID(VGUID);
         end;

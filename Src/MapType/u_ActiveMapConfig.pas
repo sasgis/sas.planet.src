@@ -50,7 +50,8 @@ implementation
 
 uses
   SysUtils,
-  c_ZeroGUID;
+  c_ZeroGUID,
+  u_ConfigProviderHelpers;
 
 const
   CKeyNameMap = 'Map';
@@ -70,21 +71,10 @@ end;
 
 procedure TActiveMapConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 var
-  VGUIDString: string;
   VGUID: TGUID;
 begin
   inherited;
-  VGUID := CGUID_Zero;
-  if AConfigData <> nil then begin
-    VGUIDString := AConfigData.ReadString(CKeyNameMap, '');
-    if VGUIDString <> '' then begin
-      try
-        VGUID := StringToGUID(VGUIDString);
-      except
-        VGUID := CGUID_Zero;
-      end;
-    end;
-  end;
+  VGUID := ReadGUID(AConfigData, CKeyNameMap, CGUID_Zero);
   if IsEqualGUID(VGUID, CGUID_Zero) then begin
     if FIsAllowZeroGUID then begin
       SetMainMapGUID(VGUID);

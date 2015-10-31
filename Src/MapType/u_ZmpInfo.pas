@@ -218,6 +218,7 @@ uses
   u_ContentTypeSubstByList,
   u_MapAbilitiesConfigStatic,
   u_TileStorageAbilities,
+  u_ConfigProviderHelpers,
   u_SimpleTileStorageConfigStatic,
   u_ResStrings;
 
@@ -769,21 +770,9 @@ begin
 end;
 
 function TZmpInfo.LoadGUID(const AConfig: IConfigDataProvider): TGUID;
-var
-  VGUIDStr: String;
 begin
-  Result := CGUID_Zero;
-  VGUIDStr := AConfig.ReadString('GUID', '');
-  if Length(VGUIDStr) > 0 then begin
-    try
-      Result := StringToGUID(VGUIDStr);
-    except
-      raise EZmpGUIDError.CreateResFmt(@SAS_ERR_MapGUIDBad, [VGUIDStr]);
-    end;
-    if IsEqualGUID(Result, CGUID_Zero) then begin
-      raise EZmpGUIDError.CreateResFmt(@SAS_ERR_MapGUIDBad, [VGUIDStr]);
-    end;
-  end else begin
+  Result := ReadGUID(AConfig, 'GUID', CGUID_Zero);
+  if IsEqualGUID(Result, CGUID_Zero) then begin
     raise EZmpGUIDError.CreateRes(@SAS_ERR_MapGUIDEmpty);
   end;
 end;
