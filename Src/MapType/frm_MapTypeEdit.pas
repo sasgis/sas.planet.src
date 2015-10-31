@@ -320,7 +320,7 @@ begin
 
   synedtParams.Text := FMapType.Zmp.DataProvider.ReadString('params.txt', '');
   synedtInfo.Text := FMapType.Zmp.DataProvider.ReadString('info.txt', '');
-  synedtScript.Text := FMapType.Zmp.DataProvider.ReadString('GetUrlScript.txt', '');
+  synedtScript.Text := FMapType.Zmp.DataProvider.ReadAnsiString('GetUrlScript.txt', '');
 
   SESleep.Value := FMapType.TileDownloaderConfig.WaitInterval;
   EditParSubMenu.Text := FMapType.GUIConfig.ParentSubMenu.Value;

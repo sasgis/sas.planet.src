@@ -379,7 +379,7 @@ procedure TfrmPascalScriptIDE.InitByZmp(const AZmp: IZmpInfo);
 begin
   FZmp := AZmp;
   synedtParams.Text := FZmp.DataProvider.ReadString('params.txt', '');
-  synedtScript.Text := FZmp.DataProvider.ReadString('GetUrlScript.txt', '');
+  synedtScript.Text := FZmp.DataProvider.ReadAnsiString('GetUrlScript.txt', '');
   FScriptBuffer := '';
   ResetModified;
   FNeedSavePrompt := False;
@@ -750,7 +750,7 @@ begin
       VStream.WriteBuffer(VData[1], Length(VData));
       VStream.SaveToFile(FLastPath + 'GetUrlScript.txt');
       VStream.Clear;
-      VData := FZmp.DataProvider.ReadAnsiString('params.txt', '');
+      VData := FZmp.DataProvider.ReadString('params.txt', '');
       VStream.WriteBuffer(VData[1], Length(VData));
       VStream.SaveToFile(FLastPath + 'params.txt');
     finally
