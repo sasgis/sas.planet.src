@@ -81,6 +81,7 @@ implementation
 uses
   SysUtils,
   IniFiles,
+  Encodings,
   u_StringListStatic,
   u_BinaryDataByMemStream,
   u_ConfigDataProviderByFolder,
@@ -102,7 +103,6 @@ var
   VFullName: string;
   VIniFile: TMemIniFile;
   VIniStrings: TStringList;
-  VIniStream: TMemoryStream;
 begin
   Result := nil;
   VFullName := IncludeTrailingPathDelimiter(FSourcePath.FullPath) + AIdent;
@@ -112,26 +112,19 @@ begin
     VExt := UpperCase(ExtractFileExt(AIdent));
     if (VExt = '.INI') or (VExt = '.TXT') then begin
       if FileExists(VFullName) then begin
-        VIniStream := TMemoryStream.Create;
+        VIniStrings := TStringList.Create;
         try
-          VIniStream.LoadFromFile(VFullName);
-          VIniStream.Position := 0;
-          VIniStrings := TStringList.Create;
+          LoadStringsFromFile(VIniStrings, VFullName);
+          VIniFile := TMemIniFile.Create('');
           try
-            VIniStrings.LoadFromStream(VIniStream);
-            VIniFile := TMemIniFile.Create('');
-            try
-              VIniFile.SetStrings(VIniStrings);
-              Result := TConfigDataProviderByIniFile.CreateWithOwn(VIniFile);
-              VIniFile := nil;
-            finally
-              VIniFile.Free;
-            end;
+            VIniFile.SetStrings(VIniStrings);
+            Result := TConfigDataProviderByIniFile.CreateWithOwn(VIniFile);
+            VIniFile := nil;
           finally
-            VIniStrings.Free;
+            VIniFile.Free;
           end;
         finally
-          VIniStream.Free;
+          VIniStrings.Free;
         end;
       end;
     end;
@@ -203,7 +196,6 @@ function TConfigDataProviderByPathConfig.ReadAnsiString(
 ): AnsiString;
 var
   VExt: string;
-  VStream: TMemoryStream;
   VFileName: string;
 begin
   Result := '';
@@ -214,15 +206,7 @@ begin
     if (VExt = '.INI') or (VExt = '.HTML') or (VExt = '.TXT') then begin
       VFileName := IncludeTrailingPathDelimiter(FSourcePath.FullPath) + AIdent;
       if FileExists(VFileName) then begin
-        VStream := TMemoryStream.Create;
-        try
-          VStream.LoadFromFile(VFileName);
-          SetLength(Result, VStream.Size);
-          VStream.Position := 0;
-          VStream.ReadBuffer(Result[1], VStream.Size);
-        finally
-          VStream.Free;
-        end;
+        Result := FileToString(VFileName);
       end else begin
         Result := ADefault;
       end;
@@ -232,11 +216,29 @@ begin
   end;
 end;
 
-function TConfigDataProviderByPathConfig.ReadString(const AIdent,
-  ADefault: string): string;
+function TConfigDataProviderByPathConfig.ReadString(
+  const AIdent, ADefault: string
+): string;
+var
+  VExt: string;
+  VFileName: string;
 begin
-  //TODO: Replace implementation for unicode files
-  Result := string(ReadAnsiString(AIdent, AnsiString(ADefault)));
+  Result := '';
+  if AIdent = '::FileName' then begin
+    Result := FSourcePath.FullPath;
+  end else begin
+    VExt := UpperCase(ExtractFileExt(AIdent));
+    if (VExt = '.INI') or (VExt = '.HTML') or (VExt = '.TXT') then begin
+      VFileName := IncludeTrailingPathDelimiter(FSourcePath.FullPath) + AIdent;
+      if FileExists(VFileName) then begin
+        Result := FileToText(VFileName);
+      end else begin
+        Result := ADefault;
+      end;
+    end else begin
+      Result := ADefault;
+    end;
+  end;
 end;
 
 function TConfigDataProviderByPathConfig.ReadSubItemsList: IStringListStatic;
