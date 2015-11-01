@@ -207,6 +207,7 @@ uses
   uPSUtils,
   uPSRuntime,
   uPSDisassembly,
+  Encodings,
   t_GeoTypes,
   t_PascalScript,
   i_TileRequest,
@@ -547,7 +548,7 @@ begin
     FArchiveReadWriteFactory.Zip.WriterFactory.BuildByStream(FArchiveStream);
 
   VArchiveWriter.AddFile(
-    TBinaryData.CreateByAnsiString(AnsiString(synedtParams.Text)),
+    TBinaryData.CreateByAnsiString(TextToString(synedtParams.Text)),
     'params.txt',
     Now
   );
@@ -732,9 +733,6 @@ begin
 end;
 
 procedure TfrmPascalScriptIDE.tbxtmToFolderClick(Sender: TObject);
-var
-  VData: AnsiString;
-  VStream: TMemoryStream;
 begin
   if SelectDirectory('', '', FLastPath, [sdNewFolder, sdNewUI, sdShowEdit, sdShowShares]) then begin
     FLastPath := IncludeTrailingPathDelimiter(FLastPath);
@@ -744,18 +742,14 @@ begin
     if IsModified then begin
       InitByZmp(GetZmpFromGUI);
     end;
-    VStream := TMemoryStream.Create;
-    try
-      VData := FZmp.DataProvider.ReadAnsiString('GetUrlScript.txt', '');
-      VStream.WriteBuffer(VData[1], Length(VData));
-      VStream.SaveToFile(FLastPath + 'GetUrlScript.txt');
-      VStream.Clear;
-      VData := FZmp.DataProvider.ReadString('params.txt', '');
-      VStream.WriteBuffer(VData[1], Length(VData));
-      VStream.SaveToFile(FLastPath + 'params.txt');
-    finally
-      VStream.Free;
-    end;
+    StringToFile(
+      FLastPath + 'GetUrlScript.txt',
+      FZmp.DataProvider.ReadAnsiString('GetUrlScript.txt', '')
+    );
+    TextToFile(
+      FLastPath + 'params.txt',
+      FZmp.DataProvider.ReadString('params.txt', '')
+    );
   end;
 end;
 
