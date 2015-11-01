@@ -82,6 +82,7 @@ uses
   IniFiles,
   u_StringListStatic,
   u_BinaryDataByMemStream,
+  Encodings,
   u_ConfigDataProviderByIniFile;
 
 { TConfigDataProviderByFolder }
@@ -115,7 +116,7 @@ begin
           VIniStream.Position := 0;
           VIniStrings := TStringList.Create;
           try
-            VIniStrings.LoadFromStream(VIniStream);
+            LoadStringsFromStream(VIniStrings, VIniStream);
             VIniFile := TMemIniFile.Create('');
             try
               VIniFile.SetStrings(VIniStrings);
@@ -200,7 +201,6 @@ function TConfigDataProviderByFolder.ReadAnsiString(
 ): AnsiString;
 var
   VExt: string;
-  VStream: TMemoryStream;
   VFileName: string;
 begin
   Result := '';
@@ -211,15 +211,7 @@ begin
     if (VExt = '.INI') or (VExt = '.HTML') or (VExt = '.TXT') then begin
       VFileName := IncludeTrailingPathDelimiter(FSourceFolderName) + AIdent;
       if FileExists(VFileName) then begin
-        VStream := TMemoryStream.Create;
-        try
-          VStream.LoadFromFile(VFileName);
-          SetLength(Result, VStream.Size);
-          VStream.Position := 0;
-          VStream.ReadBuffer(Result[1], VStream.Size);
-        finally
-          VStream.Free;
-        end;
+        Result := FileToString(VFileName);
       end else begin
         Result := ADefault;
       end;
@@ -229,11 +221,29 @@ begin
   end;
 end;
 
-function TConfigDataProviderByFolder.ReadString(const AIdent,
-  ADefault: string): string;
+function TConfigDataProviderByFolder.ReadString(
+  const AIdent, ADefault: string
+): string;
+var
+  VExt: string;
+  VFileName: string;
 begin
-  //TODO: Replace implementation for unicode files
-  Result := string(ReadAnsiString(AIdent, AnsiString(ADefault)));
+  Result := '';
+  if AIdent = '::FileName' then begin
+    Result := FSourceFolderName;
+  end else begin
+    VExt := UpperCase(ExtractFileExt(AIdent));
+    if (VExt = '.INI') or (VExt = '.HTML') or (VExt = '.TXT') then begin
+      VFileName := IncludeTrailingPathDelimiter(FSourceFolderName) + AIdent;
+      if FileExists(VFileName) then begin
+        Result := FileToText(VFileName);
+      end else begin
+        Result := ADefault;
+      end;
+    end else begin
+      Result := ADefault;
+    end;
+  end;
 end;
 
 function TConfigDataProviderByFolder.ReadSubItemsList: IStringListStatic;

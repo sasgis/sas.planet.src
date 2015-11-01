@@ -90,6 +90,7 @@ uses
   IniFiles,
   u_StringListStatic,
   u_StreamReadOnlyByBinaryData,
+  Encodings,
   u_ConfigDataProviderByIniFile;
 
 { TConfigDataProviderByZip }
@@ -137,7 +138,7 @@ begin
         VIniStream.Position := 0;
         VIniStrings := TStringList.Create;
         try
-          VIniStrings.LoadFromStream(VIniStream);
+          LoadStringsFromStream(VIniStrings, VIniStream);
           VIniFile := TMemIniFile.Create('');
           try
             VIniFile.SetStrings(VIniStrings);
@@ -229,9 +230,7 @@ begin
       if VData <> nil then begin
         VStream := TStreamReadOnlyByBinaryData.Create(VData);
         try
-          SetLength(Result, VStream.Size);
-          VStream.Position := 0;
-          VStream.ReadBuffer(Result[1], VStream.Size);
+          Result := StreamToString(VStream);
         finally
           VStream.Free;
         end;
@@ -242,15 +241,32 @@ begin
   end;
 end;
 
-function TConfigDataProviderByArchive.ReadString(const AIdent,
-  ADefault: string): string;
+function TConfigDataProviderByArchive.ReadString(
+  const AIdent, ADefault: string
+): string;
+var
+  VExt: string;
+  VStream: TStream;
+  VData: IBinaryData;
 begin
   Result := '';
   if AIdent = '::FileName' then begin
     Result := FSourceFileName;
   end else begin
-    //TODO: Replace implementation for unicode files
-    Result := string(ReadAnsiString(AIdent, AnsiString(ADefault)));
+    VExt := UpperCase(ExtractFileExt(AIdent));
+    if (VExt = '.INI') or (VExt = '.HTML') or (VExt = '.TXT') then begin
+      VData := FArchive.GetItemByName(FSubFolder + AIdent);
+      if VData <> nil then begin
+        VStream := TStreamReadOnlyByBinaryData.Create(VData);
+        try
+          Result := StreamToText(VStream);
+        finally
+          VStream.Free;
+        end;
+      end;
+    end else begin
+      Result := ADefault;
+    end;
   end;
 end;
 
