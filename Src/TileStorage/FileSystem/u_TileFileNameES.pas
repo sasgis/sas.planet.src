@@ -53,7 +53,8 @@ implementation
 uses
   RegExpr,
   StrUtils,
-  SysUtils;
+  SysUtils,
+  ALString;
 
 const
   c_ES_Expr = '^(.+\\)?(\d+)-(\d+)-(\d+)(\..+)?$';
@@ -120,9 +121,9 @@ begin
   try
     VRegExpr.Expression := c_ES_Expr;
     if VRegExpr.Exec(ATileFileName) then begin
-      ATileZoom := StrToInt(VRegExpr.Match[2]) - 1;
-      ATileXY.X := StrToInt(VRegExpr.Match[3]);
-      ATileXY.Y := StrToInt(VRegExpr.Match[4]);
+      ATileZoom := ALStrToInt(VRegExpr.Match[2]) - 1;
+      ATileXY.X := ALStrToInt(VRegExpr.Match[3]);
+      ATileXY.Y := ALStrToInt(VRegExpr.Match[4]);
       Result := True;
     end else begin
       Result := False;

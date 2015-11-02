@@ -47,7 +47,8 @@ implementation
 
 uses
   RegExpr,
-  SysUtils;
+  SysUtils,
+  ALString;
 
 const
   c_SAS_Expr = '^(.+\\)?[zZ](\d\d?)\\\d+\\[xX](\d+)\\\d+\\[yY](\d+)(\..+)?$';
@@ -80,9 +81,9 @@ begin
   try
     VRegExpr.Expression := c_SAS_Expr;
     if VRegExpr.Exec(ATileFileName) then begin
-      ATileZoom := StrToInt(VRegExpr.Match[2]) - 1;
-      ATileXY.X := StrToInt(VRegExpr.Match[3]);
-      ATileXY.Y := StrToInt(VRegExpr.Match[4]);
+      ATileZoom := ALStrToInt(VRegExpr.Match[2]) - 1;
+      ATileXY.X := ALStrToInt(VRegExpr.Match[3]);
+      ATileXY.Y := ALStrToInt(VRegExpr.Match[4]);
       Result := True;
     end else begin
       Result := False;

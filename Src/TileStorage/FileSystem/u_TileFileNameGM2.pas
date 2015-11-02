@@ -47,7 +47,8 @@ implementation
 
 uses
   RegExpr,
-  SysUtils;
+  SysUtils,
+  ALString;
 
 const
   c_GM2_Expr = '^(.+\\)?[zZ](\d\d?)\\(\d+)_(\d+)(\..+)?$';
@@ -78,9 +79,9 @@ begin
   try
     VRegExpr.Expression := c_GM2_Expr;
     if VRegExpr.Exec(ATileFileName) then begin
-      ATileZoom := StrToInt(VRegExpr.Match[2]);
-      ATileXY.Y := StrToInt(VRegExpr.Match[3]); // (!) Y - first, X - last
-      ATileXY.X := StrToInt(VRegExpr.Match[4]);
+      ATileZoom := ALStrToInt(VRegExpr.Match[2]);
+      ATileXY.Y := ALStrToInt(VRegExpr.Match[3]); // (!) Y - first, X - last
+      ATileXY.X := ALStrToInt(VRegExpr.Match[4]);
       Result := True;
     end else begin
       Result := False;

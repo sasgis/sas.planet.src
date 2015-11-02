@@ -652,8 +652,8 @@ begin
       (FHttpClientLastConfig.ProxyUseCustomSettings <> VProxyConfig.UseProxy) or
       (FHttpClientLastConfig.ProxyUseLogin <> VProxyConfig.UseLogin) or
       (FHttpClientLastConfig.ProxyHost <> VProxyConfig.Host) or
-      (FHttpClientLastConfig.ProxyUserName <> VProxyConfig.Login) or
-      (FHttpClientLastConfig.ProxyPassword <> VProxyConfig.Password) then
+      (FHttpClientLastConfig.ProxyUserName <> UTF8Encode(VProxyConfig.Login)) or
+      (FHttpClientLastConfig.ProxyPassword <> UTF8Encode(VProxyConfig.Password)) then
     begin
       FHttpClientLastConfig.ProxyUseIESettings := VProxyConfig.UseIESettings;
       FHttpClientLastConfig.ProxyUseCustomSettings := VProxyConfig.UseProxy;

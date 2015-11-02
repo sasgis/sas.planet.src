@@ -47,7 +47,8 @@ implementation
 
 uses
   RegExpr,
-  SysUtils;
+  SysUtils,
+  ALString;
 
 const
   cBerkeleyDBRegExpr = '^(.+\\)?[zZ](\d\d?)\\\d+\\\d+\\(\d+)\.(\d+)(\..+)?$';
@@ -86,9 +87,9 @@ begin
   try
     VRegExpr.Expression := cBerkeleyDBRegExpr;
     if VRegExpr.Exec(ATileFileName) then begin
-      ATileZoom := StrToInt(VRegExpr.Match[2]) - 1;
-      ATileXY.X := StrToInt(VRegExpr.Match[3]) shl 8;
-      ATileXY.Y := StrToInt(VRegExpr.Match[4]) shl 8;
+      ATileZoom := ALStrToInt(VRegExpr.Match[2]) - 1;
+      ATileXY.X := ALStrToInt(VRegExpr.Match[3]) shl 8;
+      ATileXY.Y := ALStrToInt(VRegExpr.Match[4]) shl 8;
       Result := True;
     end else begin
       Result := False;
