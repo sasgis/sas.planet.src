@@ -32,7 +32,7 @@ type
       const ARegionProcess: IRegionProcessFromFile = nil
     ): Integer; overload;
     function Process(
-      const AArgs: string;
+      const AArgs: AnsiString;
       const ARegionProcess: IRegionProcessFromFile = nil
     ): Integer; overload;
     function GetArguments: string;

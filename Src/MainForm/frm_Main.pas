@@ -4570,10 +4570,7 @@ begin
 end;
 
 procedure TfrmMain.WMCopyData(var Msg: TMessage);
-const
-  cUTF8 = '--utf8';
 var
-  VArgs: string;
   VResult: Integer;
   VPCD: PCopyDataStruct;
   VRecievedStr: AnsiString;
@@ -4582,13 +4579,7 @@ begin
     VPCD := PCopyDataStruct(Msg.LParam);
     VRecievedStr := PAnsiChar(VPCD.lpData);
     SetLength(VRecievedStr, VPCD.cbData);
-    if Pos(cUTF8, LowerCase(VRecievedStr)) > 0 then begin
-      VArgs := UTF8Decode(VRecievedStr);
-      VArgs := StringReplace(VArgs, cUTF8, '', [rfIgnoreCase]);
-    end else begin
-      VArgs := string(VRecievedStr);
-    end;
-    VResult := FArgProcessor.Process(VArgs, FFormRegionProcess);
+    VResult := FArgProcessor.Process(VRecievedStr, FFormRegionProcess);
   except
     on E: Exception do begin
       VResult := cCmdLineArgProcessorSASExceptionRaised;

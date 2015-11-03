@@ -54,12 +54,13 @@ type
       const AList: TStringList;
       const ARegionProcess: IRegionProcessFromFile
     ): Integer;
+    function IsArgsInUTF8(const AArgs: AnsiString): Boolean;
   private
     function Process(
       const ARegionProcess: IRegionProcessFromFile = nil
     ): Integer; overload;
     function Process(
-      const AArgs: string;
+      const AArgs: AnsiString;
       const ARegionProcess: IRegionProcessFromFile = nil
     ): Integer; overload;
     function GetArguments: string;
@@ -143,14 +144,41 @@ begin
   end;
 end;
 
+function TCmdLineArgProcessor.IsArgsInUTF8(const AArgs: AnsiString): Boolean;
+const
+  cUTF8 = '--utf8';
+var
+  I: Integer;
+  VList: TStringList;
+begin
+  Result := False;
+  VList := GetArgsAsList(string(AArgs));
+  try
+    for I := 0 to VList.Count - 1 do begin
+      if SameText(VList.Strings[I], cUTF8) then begin
+        Result := True;
+        Break;
+      end;
+    end;
+  finally
+    VList.Free;
+  end;
+end;
+
 function TCmdLineArgProcessor.Process(
-  const AArgs: string;
+  const AArgs: AnsiString;
   const ARegionProcess: IRegionProcessFromFile
 ): Integer;
 var
+  VArgs: string;
   VList: TStringList;
 begin
-  VList := GetArgsAsList(AArgs);
+  if IsArgsInUTF8(AArgs) then begin
+    VArgs := UTF8Decode(AArgs);
+  end else begin
+    VArgs := string(AArgs);
+  end;
+  VList := GetArgsAsList(VArgs);
   try
     Result := ProcessInternal(VList, ARegionProcess);
   finally
