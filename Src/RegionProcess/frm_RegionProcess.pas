@@ -539,7 +539,7 @@ end;
 
 procedure TfrmRegionProcess.tbtmMarkClick(Sender: TObject);
 var
-  VIniFile: Tinifile;
+  VIniFile: TMemIniFile;
   VZoom: Byte;
   VPolygon: IGeometryLonLatPolygon;
   VHLGData: IConfigDataWriteProvider;
@@ -552,7 +552,7 @@ begin
     VZoom := FLastSelectionInfo.Zoom;
     VPolygon := FLastSelectionInfo.Polygon;
     if VPolygon <> nil then begin
-      VIniFile := TIniFile.Create(SaveSelDialog.FileName);
+      VIniFile := TMemIniFile.Create(SaveSelDialog.FileName);
       try
         VHLGData := TConfigDataWriteProviderByIniFile.CreateWithOwn(VIniFile);
         VIniFile := nil;
