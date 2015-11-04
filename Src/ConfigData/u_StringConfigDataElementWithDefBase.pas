@@ -125,10 +125,20 @@ procedure TStringConfigDataElementWithDefBase.DoWriteConfig(
 begin
   inherited;
   if FUseSotre then begin
-    if (FValue <> FDefValue) or FIsStoreDefault then begin
-      AConfigData.WriteString(FStoreIdentifier, FValue);
+    if FIsStoreDefault then begin
+      if (FValue <> FDefValue) then begin
+        AConfigData.WriteString(FStoreIdentifier, FValue);
+        AConfigData.DeleteValue(FStoreIdentifier + '_');
+      end else begin
+        AConfigData.WriteString(FStoreIdentifier + '_', FValue);
+        AConfigData.DeleteValue(FStoreIdentifier);
+      end;
     end else begin
-      AConfigData.DeleteValue(FStoreIdentifier);
+      if (FValue <> FDefValue) then begin
+        AConfigData.WriteString(FStoreIdentifier, FValue);
+      end else begin
+        AConfigData.DeleteValue(FStoreIdentifier);
+      end;
     end;
   end;
 end;
