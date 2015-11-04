@@ -125,7 +125,7 @@ end;
 procedure TTerrainProviderListSimple.LoadFromIni;
 var
   VFileName: String;
-  VIniFile: TMemIniFile;
+  VIniFile: TIniFile;
   VTerrainConfig: IConfigDataProvider;
   VSectionData: IConfigDataProvider;
   VSections: IStringListStatic;
@@ -146,7 +146,7 @@ begin
   end;
 
   // load
-  VIniFile := TMemIniFile.Create(VFileName);
+  VIniFile := TIniFile.Create(VFileName);
   try
     VTerrainConfig := TConfigDataProviderByIniFile.CreateWithOwn(VIniFile);
     VIniFile := nil;
