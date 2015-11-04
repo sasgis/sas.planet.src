@@ -94,7 +94,7 @@ begin
     TStringConfigDataElementWithLanguage.Create(
       ALanguageManager,
       True,
-      'Name',
+      'MapName',
       True,
       FDefConfig.Name
     );
