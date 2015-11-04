@@ -121,16 +121,9 @@ type
     CBShowHintOnMarks: TCheckBox;
     Label32: TLabel;
     SETimeOut: TSpinEdit;
-    tsGSM: TTabSheet;
-    Label33: TLabel;
-    CBGSMComPort: TComboBox;
-    Label34: TLabel;
-    CBGSMBaundRate: TComboBox;
     lblBGColor: TLabel;
     ColorBoxBackGround: TColorBox;
     CBLastSuccess: TCheckBox;
-    Label36: TLabel;
-    SEWaitingAnswer: TSpinEdit;
     pnlBottomButtons: TPanel;
     flwpnlMemCache: TFlowPanel;
     pnlProxyUrl: TPanel;
@@ -162,9 +155,6 @@ type
     pnlBgColor: TPanel;
     grdpnlUI: TGridPanel;
     grdpnlWiki: TGridPanel;
-    chkPosFromGSM: TCheckBox;
-    pnlGSM: TPanel;
-    flwpnlGSM: TFlowPanel;
     CBMinimizeToTray: TCheckBox;
     pnlImageProcessTop: TPanel;
     btnImageProcessReset: TButton;
@@ -238,13 +228,11 @@ type
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure FormCreate(Sender: TObject);
     procedure TrBarGammaChange(Sender: TObject);
     procedure TrBarContrastChange(Sender: TObject);
     procedure chkUseIEProxyClick(Sender: TObject);
     procedure CBProxyusedClick(Sender: TObject);
     procedure CBLoginClick(Sender: TObject);
-    procedure chkPosFromGSMClick(Sender: TObject);
     procedure CBoxLocalChange(Sender: TObject);
     procedure FormCloseQuery(
       Sender: TObject;
@@ -574,15 +562,6 @@ begin
   end;
 
   GState.Config.ViewConfig.BackGroundColor := ColorBoxBackGround.Selected;
-  GState.Config.GsmConfig.LockWrite;
-  try
-    GState.Config.GsmConfig.SetUseGSMByCOM(chkPosFromGSM.Checked);
-    GState.Config.GsmConfig.SetBaudRate(strtoint(CBGSMBaundRate.text));
-    GState.Config.GsmConfig.SetPortName(CBGSMComPort.Text);
-    GState.Config.GsmConfig.SetWaitTime(SEWaitingAnswer.Value);
-  finally
-    GState.Config.GsmConfig.UnlockWrite;
-  end;
   GState.Config.GlobalAppConfig.IsShowIconInTray := CBMinimizeToTray.Checked;
   GState.Config.MainMemCacheConfig.MaxSize := SETilesOCache.value;
   GState.Config.StartUpLogoConfig.IsShowLogo := ChkShowLogo.Checked;
@@ -760,19 +739,6 @@ begin
   CBLoginClick(CBLogin);
 end;
 
-procedure TfrmSettings.chkPosFromGSMClick(Sender: TObject);
-var
-  VUseGSM: Boolean;
-  i: Integer;
-  VControl: TControl;
-begin
-  VUseGSM := chkPosFromGSM.Checked;
-  for i := 0 to flwpnlGSM.ControlCount - 1 do begin
-    VControl := flwpnlGSM.Controls[i];
-    VControl.Enabled := VUseGSM;
-  end;
-end;
-
 procedure TfrmSettings.chkUseIEProxyClick(Sender: TObject);
 var
   VUseIeProxy: Boolean;
@@ -865,15 +831,6 @@ begin
   end;
 
   ColorBoxBackGround.Selected := GState.Config.ViewConfig.BackGroundColor;
-  GState.Config.GsmConfig.LockRead;
-  try
-    chkPosFromGSM.Checked := GState.Config.GsmConfig.GetUseGSMByCOM;
-    CBGSMComPort.Text := GState.Config.GsmConfig.GetPortName;
-    CBGSMBaundRate.text := inttostr(GState.Config.GsmConfig.GetBaudRate);
-    SEWaitingAnswer.Value := GState.Config.GsmConfig.GetWaitTime;
-  finally
-    GState.Config.GsmConfig.UnlockRead;
-  end;
 
   // Internet Tab
   VInetConfig := GState.Config.InetConfig;
@@ -996,7 +953,6 @@ begin
   CBMinimizeToTray.Checked := GState.Config.GlobalAppConfig.IsShowIconInTray;
   ChkShowLogo.Checked := GState.Config.StartUpLogoConfig.IsShowLogo;
 
-  chkPosFromGSMClick(chkPosFromGSM);
   chkUseIEProxyClick(chkUseIEProxy);
 end;
 
@@ -1006,15 +962,6 @@ procedure TfrmSettings.FormCloseQuery(
 );
 begin
   CanClose := frGPSConfig.CanClose;
-end;
-
-procedure TfrmSettings.FormCreate(Sender: TObject);
-var
-  i: integer;
-begin
-  for i := 1 to 64 do begin
-    CBGSMComPort.Items.Add('COM' + inttostr(i));
-  end;
 end;
 
 procedure TfrmSettings.TrBarGammaChange(Sender: TObject);

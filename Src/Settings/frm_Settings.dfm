@@ -12,7 +12,6 @@ object frmSettings: TfrmSettings
   Position = poScreenCenter
   ShowHint = True
   OnCloseQuery = FormCloseQuery
-  OnCreate = FormCreate
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
@@ -1718,112 +1717,6 @@ object frmSettings: TfrmSettings
           Anchors = [akLeft, akTop, akBottom]
           ItemHeight = 16
           TabOrder = 1
-        end
-      end
-    end
-    object tsGSM: TTabSheet
-      Caption = 'GSM'
-      ImageIndex = 7
-      object pnlGSM: TPanel
-        Left = 0
-        Top = 0
-        Width = 644
-        Height = 487
-        Align = alClient
-        BevelOuter = bvNone
-        BorderWidth = 3
-        TabOrder = 0
-        object chkPosFromGSM: TCheckBox
-          Left = 3
-          Top = 3
-          Width = 638
-          Height = 17
-          Align = alTop
-          Caption = 'Automatically detect location using GSM phone (Google query)'
-          TabOrder = 0
-          OnClick = chkPosFromGSMClick
-        end
-        object flwpnlGSM: TFlowPanel
-          Left = 3
-          Top = 20
-          Width = 638
-          Height = 28
-          Align = alTop
-          AutoSize = True
-          BevelEdges = [beBottom]
-          BevelOuter = bvNone
-          BorderWidth = 3
-          TabOrder = 1
-          object Label33: TLabel
-            AlignWithMargins = True
-            Left = 6
-            Top = 6
-            Width = 49
-            Height = 13
-            Caption = 'Serial port'
-          end
-          object CBGSMComPort: TComboBox
-            Left = 58
-            Top = 3
-            Width = 89
-            Height = 21
-            ItemHeight = 0
-            TabOrder = 0
-            Text = 'COM1'
-          end
-          object Label34: TLabel
-            AlignWithMargins = True
-            Left = 150
-            Top = 6
-            Width = 73
-            Height = 13
-            Alignment = taRightJustify
-            Caption = 'Bits per second'
-          end
-          object CBGSMBaundRate: TComboBox
-            Left = 226
-            Top = 3
-            Width = 89
-            Height = 21
-            ItemHeight = 13
-            ItemIndex = 5
-            TabOrder = 1
-            Text = '4800'
-            Items.Strings = (
-              '110'
-              '300'
-              '600'
-              '1200'
-              '2400'
-              '4800'
-              '9600'
-              '14400'
-              '19200'
-              '38400'
-              '57600'
-              '115200')
-          end
-          object Label36: TLabel
-            AlignWithMargins = True
-            Left = 318
-            Top = 6
-            Width = 93
-            Height = 13
-            Alignment = taRightJustify
-            BiDiMode = bdRightToLeft
-            Caption = 'Connection timeout'
-            ParentBiDiMode = False
-          end
-          object SEWaitingAnswer: TSpinEdit
-            Left = 414
-            Top = 3
-            Width = 63
-            Height = 22
-            MaxValue = 0
-            MinValue = 0
-            TabOrder = 2
-            Value = 200
-          end
         end
       end
     end

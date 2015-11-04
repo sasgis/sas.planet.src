@@ -26,7 +26,6 @@ uses
   i_PathConfig,
   i_GlobalAppConfig,
   i_LanguageManager,
-  i_GSMGeoCodeConfig,
   i_InetConfig,
   i_BitmapPostProcessingConfig,
   i_ValueToStringConverterConfig,
@@ -94,9 +93,6 @@ type
 
     function GetLanguageManager: ILanguageManager;
     property LanguageManager: ILanguageManager read GetLanguageManager;
-
-    function GetGsmConfig: IGSMGeoCodeConfig;
-    property GsmConfig: IGSMGeoCodeConfig read GetGsmConfig;
 
     function GetInetConfig: IInetConfig;
     property InetConfig: IInetConfig read GetInetConfig;

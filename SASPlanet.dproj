@@ -376,9 +376,6 @@
     <DCCReference Include="Src\GPS\u_GPSSatellitesInView.pas" />
     <DCCReference Include="Src\GPS\u_GpsSystem.pas" />
     <DCCReference Include="Src\GPS\u_GpsTrackRecorder.pas" />
-    <DCCReference Include="Src\GSM\i_GSMGeoCodeConfig.pas" />
-    <DCCReference Include="Src\GSM\u_GSMGeoCodeConfig.pas" />
-    <DCCReference Include="Src\GSM\u_PosFromGSM.pas" />
     <DCCReference Include="Src\ImageResampler\c_ImageResampler.pas" />
     <DCCReference Include="Src\ImageResampler\i_ImageResamplerConfig.pas" />
     <DCCReference Include="Src\ImageResampler\i_ImageResamplerFactory.pas" />

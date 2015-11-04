@@ -1265,12 +1265,6 @@ object frmMain: TfrmMain
           Caption = ''
           Hint = ''
         end
-        object tbitmPositionByGSM: TTBXItem
-          Images = MenusImageList
-          OnClick = tbitmPositionByGSMClick
-          Caption = 'Get Locaton from GSM (Google Query)'
-          Hint = ''
-        end
         object TBXSeparatorItem19: TTBXSeparatorItem
           Caption = ''
           Hint = ''

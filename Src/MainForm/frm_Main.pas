@@ -248,7 +248,6 @@ type
     TBXToolBarSearch: TTBXToolbar;
     TBXSelectSrchType: TTBXSubmenuItem;
     tbsprtGPS2: TTBXSeparatorItem;
-    tbitmPositionByGSM: TTBXItem;
     tbitmOpenFile: TTBXItem;
     NShowSelection: TTBXItem;
     TBRECT: TTBXItem;
@@ -564,7 +563,6 @@ type
       var NewText: String;
       var Accept: Boolean
     );
-    procedure tbitmPositionByGSMClick(Sender: TObject);
     procedure tbitmOpenFileClick(Sender: TObject);
     procedure NShowSelectionClick(Sender: TObject);
     procedure NGoToCurClick(Sender: TObject);
@@ -1032,7 +1030,6 @@ uses
   u_ActiveMapsLicenseList,
   u_NotifierOperation,
   u_MainFormState,
-  u_PosFromGSM,
   u_ViewPortState,
   u_ProjectionSetChangeableByConfig,
   u_MainFormConfig,
@@ -7154,18 +7151,6 @@ begin
 
   if FMarkDBGUI.SaveMarkModal(nil, VPoint) then begin
     FState.State := ao_movemap;
-  end;
-end;
-
-procedure TfrmMain.tbitmPositionByGSMClick(Sender: TObject);
-var
-  PosFromGSM: TPosFromGSM;
-begin
-  PosFromGSM := tPosFromGSM.Create(GState.Config.GsmConfig, FMapGoto);
-  try
-    PosFromGSM.GetPos(FViewPortState.View.GetStatic.Projection);
-  except
-    PosFromGSM.Free;
   end;
 end;
 

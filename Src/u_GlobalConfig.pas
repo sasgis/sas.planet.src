@@ -27,7 +27,6 @@ uses
   i_GlobalAppConfig,
   i_LanguageManager,
   i_AppearanceOfMarkFactory,
-  i_GSMGeoCodeConfig,
   i_InetConfig,
   i_BitmapPostProcessingConfig,
   i_ValueToStringConverterConfig,
@@ -70,7 +69,6 @@ type
 
     FGlobalAppConfig: IGlobalAppConfig;
     FLanguageManager: ILanguageManager;
-    FGsmConfig: IGSMGeoCodeConfig;
     FInetConfig: IInetConfig;
     FInternalBrowserConfig: IWindowPositionConfig;
     FMainThreadConfig: IThreadConfig;
@@ -110,7 +108,6 @@ type
     function GetInternalDebugConfig: IInternalDebugConfig;
     function GetGlobalAppConfig: IGlobalAppConfig;
     function GetLanguageManager: ILanguageManager;
-    function GetGsmConfig: IGSMGeoCodeConfig;
     function GetInetConfig: IInetConfig;
     function GetInternalBrowserConfig: IWindowPositionConfig;
     function GetMainThreadConfig: IThreadConfig;
@@ -154,7 +151,6 @@ uses
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_ConfigSaveLoadStrategyBasicUseProvider,
   u_LanguageManager,
-  u_GSMGeoCodeConfig,
   u_InetConfig,
   u_WindowPositionConfig,
   u_ThreadConfig,
@@ -233,9 +229,6 @@ begin
 
   FLanguageManager := TLanguageManager.Create(IncludeTrailingPathDelimiter(ABaseApplicationPath.FullPath) + 'lang');
   Add(FLanguageManager, TConfigSaveLoadStrategyBasicProviderSubItem.Create('View'), False, False, False, False);
-
-  FGsmConfig := TGSMGeoCodeConfig.Create;
-  Add(FGsmConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('GSM'), False, False, False, False);
 
   FInetConfig := TInetConfig.Create;
   Add(FInetConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Internet'), False, False, False, False);
@@ -345,11 +338,6 @@ end;
 function TGlobalConfig.GetGpsTrackRecorderFileName: IPathConfig;
 begin
   Result := FGpsTrackRecorderFileName;
-end;
-
-function TGlobalConfig.GetGsmConfig: IGSMGeoCodeConfig;
-begin
-  Result := FGsmConfig;
 end;
 
 function TGlobalConfig.GetImageResamplerConfig: IImageResamplerConfig;
