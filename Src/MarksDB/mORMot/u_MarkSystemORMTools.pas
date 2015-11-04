@@ -111,14 +111,14 @@ end;
 procedure CheckDeleteResult(const AResult: Boolean);
 begin
   if not AResult then begin
-    raise EMarkSystemORMError.Create('MarkSystemORM: Delete operarion is failed!');
+    raise EMarkSystemORMError.Create('MarkSystemORM: Delete operation is failed!');
   end;
 end;
 
 procedure CheckUpdateResult(const AResult: Boolean);
 begin
   if not AResult then begin
-    raise EMarkSystemORMError.Create('MarkSystemORM: Update operarion is failed!');
+    raise EMarkSystemORMError.Create('MarkSystemORM: Update operation is failed!');
   end;
 end;
 
@@ -132,7 +132,7 @@ end;
 procedure CheckExecuteResult(const AResult: Boolean);
 begin
   if not AResult then begin
-    raise EMarkSystemORMError.Create('MarkSystemORM: Execute operarion is failed!');
+    raise EMarkSystemORMError.Create('MarkSystemORM: Execute operation is failed!');
   end;
 end;
 
