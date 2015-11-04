@@ -186,7 +186,7 @@ end;
 
 procedure TfrmMapTypeEdit.btnResetHeaderClick(Sender: TObject);
 begin
-  mmoHeader.Text := FMapType.Zmp.TileDownloadRequestBuilderConfig.RequestHeader;
+  mmoHeader.Text := string(FMapType.Zmp.TileDownloadRequestBuilderConfig.RequestHeader);
 end;
 
 procedure TfrmMapTypeEdit.btnOkClick(Sender: TObject);
@@ -252,8 +252,8 @@ end;
 
 procedure TfrmMapTypeEdit.btnByDefaultClick(Sender: TObject);
 begin
-  EditURL.Text := FMapType.Zmp.TileDownloadRequestBuilderConfig.UrlBase;
-  mmoHeader.Text := FMapType.Zmp.TileDownloadRequestBuilderConfig.RequestHeader;
+  EditURL.Text := string(FMapType.Zmp.TileDownloadRequestBuilderConfig.UrlBase);
+  mmoHeader.Text := string(FMapType.Zmp.TileDownloadRequestBuilderConfig.RequestHeader);
 
   EditNameinCache.Text := FMapType.Zmp.StorageConfig.NameInCache;
   SESleep.Value := FMapType.Zmp.TileDownloaderConfig.WaitInterval;
@@ -271,7 +271,7 @@ end;
 
 procedure TfrmMapTypeEdit.btnResetUrlClick(Sender: TObject);
 begin
-  EditURL.Text := FMapType.Zmp.TileDownloadRequestBuilderConfig.UrlBase;
+  EditURL.Text := string(FMapType.Zmp.TileDownloadRequestBuilderConfig.UrlBase);
 end;
 
 procedure TfrmMapTypeEdit.btnResetFolderClick(Sender: TObject);
@@ -312,15 +312,15 @@ begin
 
   FMapType.TileDownloadRequestBuilderConfig.LockRead;
   try
-    EditURL.Text := FMapType.TileDownloadRequestBuilderConfig.UrlBase;
-    mmoHeader.Text := FMapType.TileDownloadRequestBuilderConfig.RequestHeader;
+    EditURL.Text := string(FMapType.TileDownloadRequestBuilderConfig.UrlBase);
+    mmoHeader.Text := string(FMapType.TileDownloadRequestBuilderConfig.RequestHeader);
   finally
     FMapType.TileDownloadRequestBuilderConfig.UnlockRead;
   end;
 
   synedtParams.Text := FMapType.Zmp.DataProvider.ReadString('params.txt', '');
   synedtInfo.Text := FMapType.Zmp.DataProvider.ReadString('info.txt', '');
-  synedtScript.Text := FMapType.Zmp.DataProvider.ReadAnsiString('GetUrlScript.txt', '');
+  synedtScript.Text := string(FMapType.Zmp.DataProvider.ReadAnsiString('GetUrlScript.txt', ''));
 
   SESleep.Value := FMapType.TileDownloaderConfig.WaitInterval;
   EditParSubMenu.Text := FMapType.GUIConfig.ParentSubMenu.Value;

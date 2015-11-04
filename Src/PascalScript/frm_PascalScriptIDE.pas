@@ -380,7 +380,7 @@ procedure TfrmPascalScriptIDE.InitByZmp(const AZmp: IZmpInfo);
 begin
   FZmp := AZmp;
   synedtParams.Text := FZmp.DataProvider.ReadString('params.txt', '');
-  synedtScript.Text := FZmp.DataProvider.ReadAnsiString('GetUrlScript.txt', '');
+  synedtScript.Text := string(FZmp.DataProvider.ReadAnsiString('GetUrlScript.txt', ''));
   FScriptBuffer := '';
   ResetModified;
   FNeedSavePrompt := False;
@@ -652,12 +652,12 @@ end;
 
 procedure TfrmPascalScriptIDE.OnExecSuccess;
 
-  function _VarToStr(const AStr: string): string;
+  function _VarToStr(const AStr: AnsiString): string;
   begin
     if AStr = '' then begin
       Result := '<empty>' + #13#10;
     end else begin
-      Result := AStr + #13#10;
+      Result := string(AStr) + #13#10;
     end;
   end;
 
@@ -805,8 +805,8 @@ begin
     FNeedSavePrompt := True;
   end;
   statEditor.Panels[0].Text :=
-    'Ln : ' + IntToStr(VEdit.CaretY) + '    ' +
-    'Col : ' + IntToStr(VEdit.CaretX);
+    'Ln : ' + SysUtils.IntToStr(VEdit.CaretY) + '    ' +
+    'Col : ' + SysUtils.IntToStr(VEdit.CaretX);
 end;
 
 function TfrmPascalScriptIDE.IsModified: Boolean;
@@ -863,9 +863,9 @@ begin
 
   VPoint := PointFromDoublePoint(VScreenCenter, prToTopLeft);
 
-  edtGetX.Text := IntToStr(VPoint.X);
-  edtGetY.Text := IntToStr(VPoint.Y);
-  edtGetZ.Text := IntToStr(VLocalConverter.Projection.Zoom + 1);
+  edtGetX.Text := SysUtils.IntToStr(VPoint.X);
+  edtGetY.Text := SysUtils.IntToStr(VPoint.Y);
+  edtGetZ.Text := SysUtils.IntToStr(VLocalConverter.Projection.Zoom + 1);
 end;
 
 end.
