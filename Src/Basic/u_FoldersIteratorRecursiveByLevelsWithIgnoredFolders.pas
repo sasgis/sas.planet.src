@@ -4,22 +4,22 @@ interface
 
 uses
   Windows,
-  WideStrings,
+  Classes,
   i_FileNameIterator,
   u_FoldersIteratorRecursiveByLevels;
 
 type
   TFoldersIteratorRecursiveByLevelsWithIgnoredFolders = class(TFoldersIteratorRecursiveByLevels)
   private
-    FIgnoredFoldersMasksList: TWideStrings;
+    FIgnoredFoldersMasksList: TStrings;
   protected
-    function IsNeedFolderProcess(const AParentFolderNameFromRoot, AFolderName: WideString): Boolean; override;
+    function IsNeedFolderProcess(const AParentFolderNameFromRoot, AFolderName: string): Boolean; override;
   public
     constructor Create(
-      const ARootFolderName: WideString;
-      const AFolderNameFromRoot: WideString;
+      const ARootFolderName: string;
+      const AFolderNameFromRoot: string;
       AMaxFolderDepth: integer;
-      AIgnoredFoldersMasksList: TWideStrings
+      AIgnoredFoldersMasksList: TStrings
     );
     destructor Destroy; override;
   end;
@@ -27,16 +27,16 @@ type
   TFoldersIteratorRecursiveByLevelsWithIgnoredFoldersFactory = class(TInterfacedObject, IFileNameIteratorFactory)
   private
     FMaxFolderDepth: integer;
-    FIgnoredFoldersMasksList: TWideStrings;
+    FIgnoredFoldersMasksList: TStrings;
   protected
     function CreateIterator(
-      const ARootFolderName: WideString;
-      const AFolderNameFromRoot: WideString
+      const ARootFolderName: string;
+      const AFolderNameFromRoot: string
     ): IFileNameIterator;
   public
     constructor Create(
       AMaxFolderDepth: integer;
-      AIgnoredFoldersMasksList: TWideStrings
+      AIgnoredFoldersMasksList: TStrings
     );
     destructor Destroy; override;
   end;
@@ -51,10 +51,10 @@ function PathMatchSpecW(pszFile, pszSpec: PWideChar): BOOL; stdcall; external 's
 { TFoldersIteratorRecursiveByLevelsWithIgnoredFolders }
 
 constructor TFoldersIteratorRecursiveByLevelsWithIgnoredFolders.Create(
-  const ARootFolderName: WideString;
-  const AFolderNameFromRoot: WideString;
+  const ARootFolderName: string;
+  const AFolderNameFromRoot: string;
   AMaxFolderDepth: integer;
-  AIgnoredFoldersMasksList: TWideStrings
+  AIgnoredFoldersMasksList: TStrings
 );
 begin
   inherited Create(
@@ -62,7 +62,7 @@ begin
     AFolderNameFromRoot,
     AMaxFolderDepth
   );
-  FIgnoredFoldersMasksList := TWideStringList.Create;
+  FIgnoredFoldersMasksList := TStringList.Create;
   FIgnoredFoldersMasksList.Assign(AIgnoredFoldersMasksList);
 end;
 
@@ -73,17 +73,19 @@ begin
 end;
 
 function TFoldersIteratorRecursiveByLevelsWithIgnoredFolders.IsNeedFolderProcess(
-  const AParentFolderNameFromRoot, AFolderName: WideString
+  const AParentFolderNameFromRoot, AFolderName: string
 ): Boolean;
 var
   i: Integer;
+  VFolderName: WideString;
   VMask: WideString;
 begin
   Result := inherited IsNeedFolderProcess(AParentFolderNameFromRoot, AFolderName);
   if Result then begin
+    VFolderName := AFolderName;
     for i := 0 to FIgnoredFoldersMasksList.Count - 1 do begin
       VMask := FIgnoredFoldersMasksList.Strings[i];
-      if PathMatchSpecW(PWideChar(AFolderName), PWideChar(VMask)) then begin
+      if PathMatchSpecW(PWideChar(VFolderName), PWideChar(VMask)) then begin
         Result := False;
         Break;
       end;
@@ -95,12 +97,12 @@ end;
 
 constructor TFoldersIteratorRecursiveByLevelsWithIgnoredFoldersFactory.Create(
   AMaxFolderDepth: integer;
-  AIgnoredFoldersMasksList: TWideStrings
+  AIgnoredFoldersMasksList: TStrings
 );
 begin
   inherited Create;
   FMaxFolderDepth := AMaxFolderDepth;
-  FIgnoredFoldersMasksList := TWideStringList.Create;
+  FIgnoredFoldersMasksList := TStringList.Create;
   FIgnoredFoldersMasksList.Assign(AIgnoredFoldersMasksList);
 end;
 
@@ -111,7 +113,7 @@ begin
 end;
 
 function TFoldersIteratorRecursiveByLevelsWithIgnoredFoldersFactory.CreateIterator(
-  const ARootFolderName, AFolderNameFromRoot: WideString
+  const ARootFolderName, AFolderNameFromRoot: string
 ): IFileNameIterator;
 begin
   Result := TFoldersIteratorRecursiveByLevelsWithIgnoredFolders.Create(

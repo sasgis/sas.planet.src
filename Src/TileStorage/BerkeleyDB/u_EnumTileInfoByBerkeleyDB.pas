@@ -105,7 +105,7 @@ function TEnumTileInfoByBerkeleyDB.Next(var ATileInfo: TTileInfo): Boolean;
 var
   VTileFileFullName: string;
   VTileFileName: AnsiString;
-  VTileFileNameW: WideString;
+  VTileFileNameW: string;
   VTileInfo: ITileInfoBasic;
   VTileInfoWithData: ITileInfoWithData;
   VData: IBinaryData;

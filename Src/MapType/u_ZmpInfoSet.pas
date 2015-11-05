@@ -81,7 +81,7 @@ constructor TZmpInfoSet.Create(
   const AFilesIterator: IFileNameIterator
 );
 var
-  VFileName: WideString;
+  VFileName: string;
   VFullFileName: string;
   VZmp: IZmpInfo;
   VZmpExist: IZmpInfo;

@@ -165,7 +165,7 @@ procedure TLanguageManager.LoadLangs;
   procedure GetListOfLanguages(const AList: TStringList);
   var
     VIterator: IFileNameIterator;
-    VFileNameW: WideString;
+    VFileNameW: string;
   begin
     VIterator := TFileNameIteratorInFolderByMask.Create(FLangRootPath, '', '*' + cLangFileExt, True);
     while VIterator.Next(VFileNameW) do begin

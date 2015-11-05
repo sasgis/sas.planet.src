@@ -23,7 +23,6 @@ unit u_ZmpFileNamesIteratorFactory;
 interface
 
 uses
-  WideStrings,
   i_FileNameIterator,
   u_BaseInterfacedObject;
 
@@ -33,8 +32,8 @@ type
     FFactory: IFileNameIteratorFactory;
   private
     function CreateIterator(
-      const ARootFolderName: WideString;
-      const AFolderNameFromRoot: WideString
+      const ARootFolderName: string;
+      const AFolderNameFromRoot: string
     ): IFileNameIterator;
   public
     constructor Create;
@@ -43,6 +42,7 @@ type
 implementation
 
 uses
+  Classes,
   SysUtils,
   u_FoldersIteratorRecursiveByLevelsWithIgnoredFolders,
   u_FileNameIteratorInFolderByMaskList,
@@ -52,14 +52,14 @@ uses
 
 constructor TZmpFileNamesIteratorFactory.Create;
 var
-  VIgnoredFodlerMasks: TWideStringList;
-  VProcessFileMasks: TWideStringList;
+  VIgnoredFodlerMasks: TStringList;
+  VProcessFileMasks: TStringList;
   VFoldersIteratorFactory: IFileNameIteratorFactory;
   VFilesInFolderIteratorFactory: IFileNameIteratorFactory;
 begin
   inherited Create;
-  VIgnoredFodlerMasks := TWideStringList.Create;
-  VProcessFileMasks := TWideStringList.Create;
+  VIgnoredFodlerMasks := TStringList.Create;
+  VProcessFileMasks := TStringList.Create;
   try
     VProcessFileMasks.Add('*.zmp');
     VIgnoredFodlerMasks.Add('*.zmp');
@@ -86,7 +86,7 @@ begin
 end;
 
 function TZmpFileNamesIteratorFactory.CreateIterator(
-  const ARootFolderName, AFolderNameFromRoot: WideString
+  const ARootFolderName, AFolderNameFromRoot: string
 ): IFileNameIterator;
 begin
   Result := FFactory.CreateIterator(ARootFolderName, AFolderNameFromRoot);

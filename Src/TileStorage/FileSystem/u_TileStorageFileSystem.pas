@@ -125,7 +125,6 @@ implementation
 
 uses
   Types,
-  WideStrings,
   t_CommonTypes,
   i_FileNameIterator,
   i_StorageState,
@@ -667,7 +666,7 @@ end;
 function TEnumTileInfoByFileIterator.Next(var ATileInfo: TTileInfo): Boolean;
 var
   VTileFileName: AnsiString;
-  VTileFileNameW: WideString;
+  VTileFileNameW: string;
   VTileXY: TPoint;
   VTileZoom: Byte;
   VFullFileName: string;
@@ -709,12 +708,12 @@ function TTileStorageFileSystem.ScanTiles(
 const
   cMaxFolderDepth = 10;
 var
-  VProcessFileMasks: TWideStringList;
+  VProcessFileMasks: TStringList;
   VFilesIterator: IFileNameIterator;
   VFoldersIteratorFactory: IFileNameIteratorFactory;
   VFilesInFolderIteratorFactory: IFileNameIteratorFactory;
 begin
-  VProcessFileMasks := TWideStringList.Create;
+  VProcessFileMasks := TStringList.Create;
   try
     VProcessFileMasks.Add('*' + FFileExt);
     if not AIgnoreTNE then begin

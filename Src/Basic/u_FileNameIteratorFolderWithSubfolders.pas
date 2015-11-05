@@ -13,15 +13,15 @@ type
     FCurrentIterator: IFileNameIterator;
     FEOI: Boolean;
   protected
-    function IsNeedFolderProcess(const AParentFolderNameFromRoot, AFolderName: WideString): Boolean; virtual;
+    function IsNeedFolderProcess(const AParentFolderNameFromRoot, AFolderName: string): Boolean; virtual;
   protected
-    function GetRootFolderName: WideString;
-    function Next(var AFileName: WideString): Boolean;
+    function GetRootFolderName: string;
+    function Next(var AFileName: string): Boolean;
     procedure Reset;
   public
     constructor Create(
-      const ARootFolderName: WideString;
-      const AFolderNameFromRoot: WideString;
+      const ARootFolderName: string;
+      const AFolderNameFromRoot: string;
       const AFolderIteratorFactory: IFileNameIteratorFactory;
       const AFilesInFolderIteratorFactory: IFileNameIteratorFactory
     );
@@ -34,8 +34,8 @@ type
     FFilesInFolderIteratorFactory: IFileNameIteratorFactory;
   protected
     function CreateIterator(
-      const ARootFolderName: WideString;
-      const AFolderNameFromRoot: WideString
+      const ARootFolderName: string;
+      const AFolderNameFromRoot: string
     ): IFileNameIterator;
   public
     constructor Create(
@@ -49,8 +49,8 @@ implementation
 { TFileNameIteratorFolderWithSubfolders }
 
 constructor TFileNameIteratorFolderWithSubfolders.Create(
-  const ARootFolderName: WideString;
-  const AFolderNameFromRoot: WideString;
+  const ARootFolderName: string;
+  const AFolderNameFromRoot: string;
   const AFolderIteratorFactory: IFileNameIteratorFactory;
   const AFilesInFolderIteratorFactory: IFileNameIteratorFactory
 );
@@ -70,22 +70,22 @@ begin
   inherited;
 end;
 
-function TFileNameIteratorFolderWithSubfolders.GetRootFolderName: WideString;
+function TFileNameIteratorFolderWithSubfolders.GetRootFolderName: string;
 begin
   Result := FFoldersIterator.GetRootFolderName;
 end;
 
 function TFileNameIteratorFolderWithSubfolders.IsNeedFolderProcess(
-  const AParentFolderNameFromRoot, AFolderName: WideString
+  const AParentFolderNameFromRoot, AFolderName: string
 ): Boolean;
 begin
   Result := True;
 end;
 
 function TFileNameIteratorFolderWithSubfolders.Next(
-  var AFileName: WideString): Boolean;
+  var AFileName: string): Boolean;
 var
-  VFolderName: WideString;
+  VFolderName: string;
 begin
   AFileName := '';
   Result := False;
@@ -131,7 +131,7 @@ begin
 end;
 
 function TFileNameIteratorFolderWithSubfoldersFactory.CreateIterator(
-  const ARootFolderName, AFolderNameFromRoot: WideString
+  const ARootFolderName, AFolderNameFromRoot: string
 ): IFileNameIterator;
 begin
   Result := TFileNameIteratorFolderWithSubfolders.Create(

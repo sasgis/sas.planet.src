@@ -153,7 +153,7 @@ implementation
 
 uses
   Types,
-  WideStrings,
+  Classes,
   t_CommonTypes,
   i_FileNameIterator,
   i_TileFileNameParser,
@@ -1051,14 +1051,14 @@ function TTileStorageBerkeleyDB.ScanTiles(
 const
   cMaxFolderDepth = 10;
 var
-  VProcessFileMasks: TWideStringList;
+  VProcessFileMasks: TStringList;
   VFileNameParser: ITileFileNameParser;
   VFilesIterator: IFileNameIterator;
   VFoldersIteratorFactory: IFileNameIteratorFactory;
   VFilesInFolderIteratorFactory: IFileNameIteratorFactory;
   VHelper: ITileStorageBerkeleyDBHelper;
 begin
-  VProcessFileMasks := TWideStringList.Create;
+  VProcessFileMasks := TStringList.Create;
   try
     VProcessFileMasks.Add('*' + GetStorageFileExtention);
     if not AIgnoreTNE then begin

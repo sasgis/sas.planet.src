@@ -5,30 +5,30 @@ interface
 uses
   Windows,
   SysUtils,
-  WideStrings,
+  Classes,
   i_FileNameIterator;
 
 type
   TFoldersIteratorRecursiveByLevels = class(TInterfacedObject, IFileNameIterator)
   private
-    FRootFolderName: WideString;
-    FFolderNameFromRoot: WideString;
-    FFolderNamesList: TWideStringList;
+    FRootFolderName: string;
+    FFolderNameFromRoot: string;
+    FFolderNamesList: TStringList;
     FMaxFolderDepth: integer;
     procedure ProcessAddSubFolders(
-      const AFolderNameFromRoot: WideString;
+      const AFolderNameFromRoot: string;
       ADepth: Integer
     );
   protected
-    function IsNeedFolderProcess(const AParentFolderNameFromRoot, AFolderName: WideString): Boolean; virtual;
+    function IsNeedFolderProcess(const AParentFolderNameFromRoot, AFolderName: string): Boolean; virtual;
   protected
-    function GetRootFolderName: WideString;
-    function Next(var AFileName: WideString): Boolean;
+    function GetRootFolderName: string;
+    function Next(var AFileName: string): Boolean;
     procedure Reset;
   public
     constructor Create(
-      const ARootFolderName: WideString;
-      const AFolderNameFromRoot: WideString;
+      const ARootFolderName: string;
+      const AFolderNameFromRoot: string;
       AMaxFolderDepth: integer
     );
     destructor Destroy; override;
@@ -39,8 +39,8 @@ type
     FMaxFolderDepth: integer;
   protected
     function CreateIterator(
-      const ARootFolderName: WideString;
-      const AFolderNameFromRoot: WideString
+      const ARootFolderName: string;
+      const AFolderNameFromRoot: string
     ): IFileNameIterator;
   public
     constructor Create(AMaxFolderDepth: integer);
@@ -51,8 +51,8 @@ implementation
 { TFoldersIteratorRecursiveByLevels }
 
 constructor TFoldersIteratorRecursiveByLevels.Create(
-  const ARootFolderName: WideString;
-  const AFolderNameFromRoot: WideString;
+  const ARootFolderName: string;
+  const AFolderNameFromRoot: string;
   AMaxFolderDepth: integer
 );
 begin
@@ -62,7 +62,7 @@ begin
   end;
   FFolderNameFromRoot := AFolderNameFromRoot;
   FMaxFolderDepth := AMaxFolderDepth;
-  FFolderNamesList := TWideStringList.Create;
+  FFolderNamesList := TStringList.Create;
   FFolderNamesList.AddObject(FFolderNameFromRoot, TObject(0));
 end;
 
@@ -72,13 +72,13 @@ begin
   inherited;
 end;
 
-function TFoldersIteratorRecursiveByLevels.GetRootFolderName: WideString;
+function TFoldersIteratorRecursiveByLevels.GetRootFolderName: string;
 begin
   Result := FRootFolderName;
 end;
 
 function TFoldersIteratorRecursiveByLevels.IsNeedFolderProcess(
-  const AParentFolderNameFromRoot, AFolderName: WideString
+  const AParentFolderNameFromRoot, AFolderName: string
 ): Boolean;
 begin
   Result := (WideCompareStr(AFolderName, '.') <> 0) and
@@ -86,7 +86,7 @@ begin
 end;
 
 function TFoldersIteratorRecursiveByLevels.Next(
-  var AFileName: WideString): Boolean;
+  var AFileName: string): Boolean;
 begin
   AFileName := '';
   Result := False;
@@ -99,15 +99,15 @@ begin
 end;
 
 procedure TFoldersIteratorRecursiveByLevels.ProcessAddSubFolders(
-  const AFolderNameFromRoot: WideString;
+  const AFolderNameFromRoot: string;
   ADepth: Integer
 );
 var
   VFindFileData: TWIN32FindDataW;
   VhFind: THandle;
   VCurrFullFilesMask: WideString;
-  VPathFromRootNew: WideString;
-  VFolderNameFromRoot: WideString;
+  VPathFromRootNew: string;
+  VFolderNameFromRoot: string;
 begin
   if ADepth < FMaxFolderDepth then begin
     if AFolderNameFromRoot <> '' then begin
@@ -149,7 +149,7 @@ begin
 end;
 
 function TFoldersIteratorRecursiveByLevelsFactory.CreateIterator(
-  const ARootFolderName, AFolderNameFromRoot: WideString
+  const ARootFolderName, AFolderNameFromRoot: string
 ): IFileNameIterator;
 begin
   Result := TFoldersIteratorRecursiveByLevels.Create(

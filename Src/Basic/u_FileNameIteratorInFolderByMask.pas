@@ -9,9 +9,9 @@ uses
 type
   TFileNameIteratorInFolderByMask = class(TInterfacedObject, IFileNameIterator)
   private
-    FRootFolderName: WideString;
-    FFolderNameFromRoot: WideString;
-    FFileMask: WideString;
+    FRootFolderName: string;
+    FFolderNameFromRoot: string;
+    FFileMask: string;
     FFilesOnly: Boolean;
     FValidFindData: Boolean;
     FFindHandle: THandle;
@@ -19,14 +19,14 @@ type
   protected
     function IsNeedProcess(AFindFileData: TWIN32FindDataW): Boolean; virtual;
   protected
-    function GetRootFolderName: WideString;
-    function Next(var AFileName: WideString): Boolean;
+    function GetRootFolderName: string;
+    function Next(var AFileName: string): Boolean;
     procedure Reset;
   public
     constructor Create(
-      const ARootFolderName: WideString;
-      const AFolderNameFromRoot: WideString;
-      const AFileMask: WideString;
+      const ARootFolderName: string;
+      const AFolderNameFromRoot: string;
+      const AFileMask: string;
       const AFilesOnly: Boolean
     );
     destructor Destroy; override;
@@ -40,9 +40,9 @@ uses
 { TFileNameIteratorInFolderByMask }
 
 constructor TFileNameIteratorInFolderByMask.Create(
-  const ARootFolderName: WideString;
-  const AFolderNameFromRoot: WideString;
-  const AFileMask: WideString;
+  const ARootFolderName: string;
+  const AFolderNameFromRoot: string;
+  const AFileMask: string;
   const AFilesOnly: Boolean
 );
 begin
@@ -66,7 +66,7 @@ begin
   inherited;
 end;
 
-function TFileNameIteratorInFolderByMask.GetRootFolderName: WideString;
+function TFileNameIteratorInFolderByMask.GetRootFolderName: string;
 begin
   Result := FRootFolderName;
 end;
@@ -83,7 +83,7 @@ begin
 end;
 
 function TFileNameIteratorInFolderByMask.Next(
-  var AFileName: WideString): Boolean;
+  var AFileName: string): Boolean;
 begin
   Result := False;
   AFileName := '';

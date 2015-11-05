@@ -4,27 +4,27 @@ interface
 
 uses
   SysUtils,
-  WideStrings,
+  Classes,
   i_FileNameIterator;
 
 type
   TFileNameIteratorInFolderByMaskList = class(TInterfacedObject, IFileNameIterator)
   private
-    FRootFolderName: WideString;
-    FFolderNameFromRoot: WideString;
-    FFileMasksList: TWideStrings;
+    FRootFolderName: string;
+    FFolderNameFromRoot: string;
+    FFileMasksList: TStrings;
     FFilesOnly: Boolean;
     FCurrentMaskIndex: Integer;
     FCurrentFolderIterator: IFileNameIterator;
   protected
-    function GetRootFolderName: WideString;
-    function Next(var AFileName: WideString): Boolean;
+    function GetRootFolderName: string;
+    function Next(var AFileName: string): Boolean;
     procedure Reset;
   public
     constructor Create(
-      const ARootFolderName: WideString;
-      const AFolderNameFromRoot: WideString;
-      AFileMasksList: TWideStrings;
+      const ARootFolderName: string;
+      const AFolderNameFromRoot: string;
+      AFileMasksList: TStrings;
       AFilesOnly: Boolean
     );
     destructor Destroy; override;
@@ -32,15 +32,15 @@ type
 
   TFileNameIteratorInFolderByMaskListFactory = class(TInterfacedObject, IFileNameIteratorFactory)
   private
-    FFileMasksList: TWideStrings;
+    FFileMasksList: TStrings;
     FFilesOnly: Boolean;
     function CreateIterator(
-      const ARootFolderName: WideString;
-      const AFolderNameFromRoot: WideString
+      const ARootFolderName: string;
+      const AFolderNameFromRoot: string
     ): IFileNameIterator;
   public
     constructor Create(
-      AFileMasksList: TWideStrings;
+      AFileMasksList: TStrings;
       AFilesOnly: Boolean
     );
     destructor Destroy; override;
@@ -54,8 +54,8 @@ uses
 { TFileNameIteratorInFolderByMaskList }
 
 constructor TFileNameIteratorInFolderByMaskList.Create(
-  const ARootFolderName, AFolderNameFromRoot: WideString;
-  AFileMasksList: TWideStrings;
+  const ARootFolderName, AFolderNameFromRoot: string;
+  AFileMasksList: TStrings;
   AFilesOnly: Boolean
 );
 begin
@@ -63,7 +63,7 @@ begin
   FRootFolderName := ARootFolderName;
   FFolderNameFromRoot := AFolderNameFromRoot;
   FFilesOnly := AFilesOnly;
-  FFileMasksList := TWideStringList.Create;
+  FFileMasksList := TStringList.Create;
   FFileMasksList.Assign(AFileMasksList);
   FCurrentMaskIndex := -1;
 end;
@@ -75,13 +75,13 @@ begin
   inherited;
 end;
 
-function TFileNameIteratorInFolderByMaskList.GetRootFolderName: WideString;
+function TFileNameIteratorInFolderByMaskList.GetRootFolderName: string;
 begin
   Result := FRootFolderName;
 end;
 
 function TFileNameIteratorInFolderByMaskList.Next(
-  var AFileName: WideString): Boolean;
+  var AFileName: string): Boolean;
 begin
   AFileName := '';
   Result := False;
@@ -118,18 +118,18 @@ end;
 { TFileNameIteratorInFolderByMaskListFactory }
 
 constructor TFileNameIteratorInFolderByMaskListFactory.Create(
-  AFileMasksList: TWideStrings;
+  AFileMasksList: TStrings;
   AFilesOnly: Boolean
 );
 begin
   inherited Create;
   FFilesOnly := AFilesOnly;
-  FFileMasksList := TWideStringList.Create;
+  FFileMasksList := TStringList.Create;
   FFileMasksList.Assign(AFileMasksList);
 end;
 
 function TFileNameIteratorInFolderByMaskListFactory.CreateIterator(
-  const ARootFolderName, AFolderNameFromRoot: WideString
+  const ARootFolderName, AFolderNameFromRoot: string
 ): IFileNameIterator;
 begin
   if FFileMasksList.Count = 1 then begin

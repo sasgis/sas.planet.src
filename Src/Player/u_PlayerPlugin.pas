@@ -34,7 +34,7 @@ type
     FPlayerDLL: IPlayerDLL;
     FAvailable: Boolean;
   private
-    procedure InternalFindPluginDLL(const AFolderNameFromRoot: WideString);
+    procedure InternalFindPluginDLL(const AFolderNameFromRoot: string);
   private
     function Available: Boolean;
     function PlayByDefault(const AFilename: String): IPlayerTask;
@@ -53,8 +53,8 @@ type
     procedure InternalAddToPreload(const APreloadHandle: THandle);
   public
     constructor Create(
-      const AFolderNameFromRoot: WideString;
-      const AIniFilename: WideString
+      const AFolderNameFromRoot: string;
+      const AIniFilename: string
     );
     destructor Destroy; override;
   end;
@@ -73,7 +73,7 @@ type
     function DLLPluginHandlePtr: Pointer;
   public
     constructor Create(
-      const ADLLFilename: WideString;
+      const ADLLFilename: string;
       var APlayerPluginIni: TPlayerPluginIni
     );
     destructor Destroy; override;
@@ -132,11 +132,11 @@ begin
   FAvailable := (FPlayerDLL<>nil) and (FPlayerDLL.DLLAvailable);
 end;
 
-procedure TPlayerPlugin.InternalFindPluginDLL(const AFolderNameFromRoot: WideString);
+procedure TPlayerPlugin.InternalFindPluginDLL(const AFolderNameFromRoot: string);
 var
   VIterator: IFileNameIterator;
-  VFileName: WideString;
-  VPath: WideString;
+  VFileName: string;
+  VPath: string;
   VPluginIni: TPlayerPluginIni;
 begin
   VPath := AFolderNameFromRoot;
@@ -233,7 +233,7 @@ end;
 { TPlayerDLL }
 
 constructor TPlayerDLL.Create(
-  const ADLLFilename: WideString;
+  const ADLLFilename: string;
   var APlayerPluginIni: TPlayerPluginIni
 );
 begin
@@ -241,7 +241,7 @@ begin
   FPlayerPluginIni := nil;
   FPluginHandle := nil;
   // try to load library
-  FDLLHandle := LoadLibraryW(PWideChar(ADLLFilename));
+  FDLLHandle := LoadLibrary(PChar(ADLLFilename));
   // check and init
   if (FDLLHandle<>0) then begin
     // ok
@@ -289,7 +289,7 @@ end;
 
 function TPlayerDLL.DLLInitPlugin: Byte;
 var
-  VSubFolderName: WideString;
+  VSubFolderName: string;
 begin
   // set main Application.Handle
   Result := TPlayerPluginFunc(FPlayerFunc)(nil, nil, PPM_SET_APP_HANDLE, nil{Pointer(Application.Handle)}, nil);
@@ -303,7 +303,7 @@ begin
 
   // set SubFolder name
   VSubFolderName := c_PluginSubFolder;
-  Result := TPlayerPluginFunc(FPlayerFunc)(DLLPluginHandlePtr, nil, PPM_SET_SUBFOLDER_NAME, PWideChar(VSubFolderName), nil);
+  Result := TPlayerPluginFunc(FPlayerFunc)(DLLPluginHandlePtr, nil, PPM_SET_SUBFOLDER_NAME, PChar(VSubFolderName), nil);
 end;
 
 function TPlayerDLL.DLLPluginHandlePtr: Pointer;
@@ -352,15 +352,15 @@ end;
 { TPlayerPluginIni }
 
 constructor TPlayerPluginIni.Create(
-  const AFolderNameFromRoot: WideString;
-  const AIniFilename: WideString
+  const AFolderNameFromRoot: string;
+  const AIniFilename: string
 );
 var
   VIni: TIniFile;
   VSL: TStrings;
   i: Integer;
   VExists: Boolean;
-  VPreloadFile{, VPath}: WideString;
+  VPreloadFile{, VPath}: string;
   VPreloadHandle: THandle;
 begin
   inherited Create;
@@ -391,7 +391,7 @@ begin
 
         if VExists then
         try
-          VPreloadHandle := LoadLibraryW(PWideChar(VPreloadFile));
+          VPreloadHandle := LoadLibrary(PChar(VPreloadFile));
           InternalAddToPreload(VPreloadHandle);
         except
         end;
