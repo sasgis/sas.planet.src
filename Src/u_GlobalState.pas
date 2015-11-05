@@ -310,6 +310,9 @@ uses
   {$IFDEF SasDebugWithJcl}
   Forms,
   {$ENDIF}
+  {$IFNDef UNICODE}
+  CompatibilityIniFiles,
+  {$ENDIF}
   u_Notifier,
   u_NotifierOperation,
   c_CoordConverter,
