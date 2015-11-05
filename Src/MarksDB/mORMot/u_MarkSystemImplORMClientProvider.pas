@@ -196,7 +196,7 @@ var
   VTable: TSQLRecordClass;
   VTableName: RawUTF8;
   VDatabase: TMongoDatabase;
-  VCollection: TMongoCollection;
+  VStorage: TSQLRestStorageMongoDB;
 begin
   // 'mongodb://server:port/db'
   // 'mongodb://<user>:<pass>@server:port/db'
@@ -291,13 +291,23 @@ begin
   if not FImplConfig.IsReadOnly then begin
     VServer.CreateMissingTables;
 
-    VCollection :=
-      (VServer.StaticDataServer[TSQLMarkMongoDB] as TSQLRestStorageMongoDB).Collection;
+    VStorage := VServer.StaticDataServer[TSQLMarkMongoDB] as TSQLRestStorageMongoDB;
 
-    VCollection.EnsureIndex(
-      _ObjFast(['mGeoJsonIdx','2dsphere']),
-      _ObjFast(['name','mGeoJsonIdx_','2dsphereIndexVersion',2])
-    );
+    if Assigned(VStorage) then begin
+      VStorage.Collection.EnsureIndex(
+        _ObjFast(['mGeoJsonIdx','2dsphere']),
+        _ObjFast(['name','mGeoJsonIdx_','2dsphereIndexVersion',2])
+      );
+    end else begin
+      Assert(False);
+    end;
+  end;
+
+  for I := 0 to High(FModel.Tables) do begin
+    VStorage := VServer.StaticDataServer[FModel.Tables[I]] as TSQLRestStorageMongoDB;
+    if Assigned(VStorage) then begin
+      VStorage.EngineAddUseSelectMaxID := True;
+    end;
   end;
 end;
 
