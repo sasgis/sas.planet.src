@@ -44,7 +44,7 @@ type
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const AFile: String;
-      const ASearch: WideString;
+      const ASearch: string;
       const AList: IInterfaceListSimple;
       const AValueConverter: IValueToStringConverter
     );
@@ -52,7 +52,7 @@ type
     function DoSearch(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
-      const ASearch: WideString;
+      const ASearch: string;
       const ALocalConverter: ILocalCoordConverter
     ): IInterfaceListSimple; override;
   public
@@ -120,7 +120,7 @@ procedure TGeoCoderByGpx.SearchInGpxFile(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const AFile: String;
-  const ASearch: WideString;
+  const ASearch: string;
   const AList: IInterfaceListSimple;
   const AValueConverter: IValueToStringConverter
 );
@@ -214,7 +214,7 @@ end;
 function TGeoCoderByGpx.DoSearch(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
-  const ASearch: WideString;
+  const ASearch: string;
   const ALocalConverter: ILocalCoordConverter
 ): IInterfaceListSimple;
 var

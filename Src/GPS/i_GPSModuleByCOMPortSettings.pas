@@ -46,8 +46,8 @@ type
     function GetLowLevelLog: Boolean; safecall;
     property LowLevelLog: Boolean read GetLowLevelLog;
 
-    function GetLogPath: WideString; safecall;
-    property LogPath: WideString read GetLogPath;
+    function GetLogPath: string; safecall;
+    property LogPath: string read GetLogPath;
 
     // USBGarmin
     function GetGPSOrigin: TGPSOrigin; safecall;

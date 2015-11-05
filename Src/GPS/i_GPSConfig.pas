@@ -48,8 +48,8 @@ type
     function AllowWriteLog(out ATrackTypes: TVSAGPS_TrackTypes): Boolean;
     procedure AbortWriteLog(const ATrackTypes: TVSAGPS_TrackTypes);
 
-    function GetLogPath: WideString;
-    property LogPath: WideString read GetLogPath;
+    function GetLogPath: string;
+    property LogPath: string read GetLogPath;
 
     function GetModuleConfig: IGPSModuleByCOMPortConfig;
     property ModuleConfig: IGPSModuleByCOMPortConfig read GetModuleConfig;

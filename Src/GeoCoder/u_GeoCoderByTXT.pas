@@ -45,7 +45,7 @@ type
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const AFile: string;
-      const ASearch: widestring;
+      const ASearch: string;
       const Alist: IInterfaceListSimple;
       var Acnt: integer
     );
@@ -53,7 +53,7 @@ type
     function DoSearch(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
-      const ASearch: WideString;
+      const ASearch: string;
       const ALocalConverter: ILocalCoordConverter
     ): IInterfaceListSimple; override;
   public
@@ -121,7 +121,7 @@ procedure TGeoCoderByTXT.SearchInTXTFile(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const AFile: string;
-  const ASearch: WideString;
+  const ASearch: string;
   const AList: IInterfaceListSimple;
   var ACnt: Integer
 );
@@ -227,7 +227,7 @@ end;
 function TGeoCoderByTXT.DoSearch(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
-  const ASearch: WideString;
+  const ASearch: string;
   const ALocalConverter: ILocalCoordConverter
 ): IInterfaceListSimple;
 var

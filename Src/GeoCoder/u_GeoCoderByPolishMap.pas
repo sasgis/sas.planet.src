@@ -44,7 +44,7 @@ type
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const AFile: String;
-      const ASearch: Widestring;
+      const ASearch: string;
       const AList: IInterfaceListSimple;
       var Acnt: Integer
     );
@@ -52,7 +52,7 @@ type
     function DoSearch(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
-      const ASearch: WideString;
+      const ASearch: string;
       const ALocalConverter: ILocalCoordConverter
     ): IInterfaceListSimple; override;
   public
@@ -507,7 +507,7 @@ procedure TGeoCoderByPolishMap.SearchInMapFile(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const AFile: String;
-  const ASearch: Widestring;
+  const ASearch: string;
   const AList: IInterfaceListSimple;
   var Acnt: Integer
 );
@@ -695,7 +695,7 @@ end;
 function TGeoCoderByPolishMap.DoSearch(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
-  const ASearch: WideString;
+  const ASearch: string;
   const ALocalConverter: ILocalCoordConverter
 ): IInterfaceListSimple;
 var

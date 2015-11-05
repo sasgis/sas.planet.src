@@ -24,7 +24,7 @@ interface
 
 uses
   SysUtils,
-  WideStrings,
+  Classes,
   i_LogSimple,
   i_LogSimpleProvider,
   u_BaseInterfacedObject;
@@ -36,19 +36,19 @@ type
     FNextId: Cardinal;
     FMaxRowsCount: Cardinal;
     FLock: IReadWriteSync;
-    FList: TWideStringList;
-    FLinesSeparator: WideString;
+    FList: TStringList;
+    FLinesSeparator: String;
   private
     procedure WriteText(
-      const AMessage: WideString;
+      const AMessage: String;
       ALogLevel: integer
-    ); safecall;
+    );
   private
     function GetLastMessages(
       AMaxRowsCount: Cardinal;
       var ALastId: Cardinal;
       out AcntLines: Cardinal
-    ): WideString; safecall;
+    ): string; 
   public
     constructor Create(
       AMaxLinesCount: Cardinal;
@@ -75,7 +75,7 @@ begin
   FMinLogLevel := AMinLogLevel;
   FMaxRowsCount := AMaxLinesCount;
   FLock := GSync.SyncStd.Make(Self.ClassName);
-  FList := TWideStringList.Create;
+  FList := TStringList.Create;
   FList.Capacity := FMaxRowsCount;
   for i := 0 to FMaxRowsCount - 1 do begin
     FList.Add('');
@@ -94,7 +94,7 @@ function TLogSimpleProvider.GetLastMessages(
   AMaxRowsCount: Cardinal;
   var ALastId: Cardinal;
   out AcntLines: Cardinal
-): WideString;
+): string;
 var
   VNewRowsCount: Cardinal;
   i: Cardinal;
@@ -132,7 +132,7 @@ begin
 end;
 
 procedure TLogSimpleProvider.WriteText(
-  const AMessage: WideString;
+  const AMessage: string;
   ALogLevel: integer
 );
 var

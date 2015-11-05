@@ -32,7 +32,7 @@ type
       AMaxRowsCount: Cardinal;
       var ALastId: Cardinal;
       out AcntLines: Cardinal
-    ): WideString; safecall;
+    ): string;
   end;
 
 implementation

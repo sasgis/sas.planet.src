@@ -64,7 +64,7 @@ type
     function GetLowLevelLog: Boolean;
     procedure SetLowLevelLog(const AValue: Boolean);
 
-    function GetLogPath: WideString;
+    function GetLogPath: string;
 
     function GetStatic: IGPSModuleByCOMPortSettings;
 
@@ -202,7 +202,7 @@ begin
   end;
 end;
 
-function TGPSModuleByCOMPortConfig.GetLogPath: WideString;
+function TGPSModuleByCOMPortConfig.GetLogPath: string;
 begin
   Result := FLogPath.FullPath;
 end;

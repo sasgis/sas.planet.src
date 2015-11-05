@@ -26,9 +26,9 @@ type
   ILogSimple = interface
     ['{81895444-746B-4D79-9BF8-71D90A7B2437}']
     procedure WriteText(
-      const AMessage: WideString;
+      const AMessage: string;
       ALogLevel: integer
-    ); safecall;
+    );
   end;
 
 implementation

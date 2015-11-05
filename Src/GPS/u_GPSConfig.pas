@@ -63,7 +63,7 @@ type
       const AValue: Boolean
     );
 
-    function GetLogPath: WideString;
+    function GetLogPath: string;
     function GetModuleConfig: IGPSModuleByCOMPortConfig;
 
     function AllowWriteLog(out ATrackTypes: TVSAGPS_TrackTypes): Boolean;
@@ -141,7 +141,7 @@ begin
   end;
 end;
 
-function TGPSConfig.GetLogPath: WideString;
+function TGPSConfig.GetLogPath: string;
 begin
   Result := FLogPath.FullPath;
 end;

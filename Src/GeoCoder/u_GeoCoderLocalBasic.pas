@@ -44,7 +44,7 @@ type
     function DoSearch(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
-      const ASearch: WideString;
+      const ASearch: string;
       const ALocalConverter: ILocalCoordConverter
     ): IInterfaceListSimple; virtual; abstract;
     property PlacemarkFactory: IGeoCodePlacemarkFactory read FPlacemarkFactory;

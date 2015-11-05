@@ -51,8 +51,8 @@ type
     procedure SetLowLevelLog(const AValue: Boolean);
     property LowLevelLog: Boolean read GetLowLevelLog write SetLowLevelLog;
 
-    function GetLogPath: WideString;
-    property LogPath: WideString read GetLogPath;
+    function GetLogPath: string;
+    property LogPath: string read GetLogPath;
 
     function GetStatic: IGPSModuleByCOMPortSettings;
 

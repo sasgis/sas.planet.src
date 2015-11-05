@@ -39,7 +39,7 @@ type
     function DoSearch(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
-      const ASearch: WideString;
+      const ASearch: string;
       const ALocalConverter: ILocalCoordConverter
     ): IInterfaceListSimple; override;
   public
@@ -71,7 +71,7 @@ end;
 function TGeoCoderByMarks.DoSearch(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
-  const ASearch: WideString;
+  const ASearch: string;
   const ALocalConverter: ILocalCoordConverter
 ): IInterfaceListSimple;
 var
