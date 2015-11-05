@@ -41,14 +41,14 @@ type
     function GetCoordSysStr(const AProjection: IProjection): AnsiString;
   private
     { IMapCalibration }
-    function GetName: WideString; safecall;
-    function GetDescription: WideString; safecall;
+    function GetName: string; 
+    function GetDescription: string; 
     procedure SaveCalibrationInfo(
-      const AFileName: WideString;
+      const AFileName: string;
       const ATopLeft: TPoint;
       const ABottomRight: TPoint;
       const AProjection: IProjection
-    ); safecall;
+    ); 
   public
     constructor Create;
   end;
@@ -77,12 +77,12 @@ begin
   FFormatSettings.DecimalSeparator := '.';
 end;
 
-function TMapCalibrationTab.GetDescription: WideString;
+function TMapCalibrationTab.GetDescription: string;
 begin
   Result := rsTabMapCalibrationDescription;
 end;
 
-function TMapCalibrationTab.GetName: WideString;
+function TMapCalibrationTab.GetName: string;
 begin
   Result := cTabFileExt;
 end;
@@ -124,7 +124,7 @@ begin
 end;
 
 procedure TMapCalibrationTab.SaveCalibrationInfo(
-  const AFileName: WideString;
+  const AFileName: string;
   const ATopLeft: TPoint;
   const ABottomRight: TPoint;
   const AProjection: IProjection

@@ -35,14 +35,14 @@ type
     FFormatSettings: TALFormatSettings;
   private
     { IMapCalibration }
-    function GetName: WideString; safecall;
-    function GetDescription: WideString; safecall;
+    function GetName: string;
+    function GetDescription: string; 
     procedure SaveCalibrationInfo(
-      const AFileName: WideString;
+      const AFileName: string;
       const ATopLeft: TPoint;
       const ABottomRight: TPoint;
       const AProjection: IProjection
-    ); safecall;
+    );
   public
     constructor Create;
   end;
@@ -71,18 +71,18 @@ begin
   FFormatSettings.DecimalSeparator := '.';
 end;
 
-function TMapCalibrationOzi.GetDescription: WideString;
+function TMapCalibrationOzi.GetDescription: string;
 begin
   Result := rsOziMapCalibrationDescription;
 end;
 
-function TMapCalibrationOzi.GetName: WideString;
+function TMapCalibrationOzi.GetName: string;
 begin
   Result := cOziFileExt;
 end;
 
 procedure TMapCalibrationOzi.SaveCalibrationInfo(
-  const AFileName: WideString;
+  const AFileName: string;
   const ATopLeft: TPoint;
   const ABottomRight: TPoint;
   const AProjection: IProjection

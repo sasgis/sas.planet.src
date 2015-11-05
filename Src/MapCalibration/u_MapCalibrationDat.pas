@@ -32,14 +32,14 @@ type
   TMapCalibrationDat = class(TBaseInterfacedObject, IMapCalibration)
   private
     { IMapCalibration }
-    function GetName: WideString; safecall;
-    function GetDescription: WideString; safecall;
+    function GetName: string;
+    function GetDescription: string; 
     procedure SaveCalibrationInfo(
-      const AFileName: WideString;
+      const AFileName: string;
       const ATopLeft: TPoint;
       const ABottomRight: TPoint;
       const AProjection: IProjection
-    ); safecall;
+    );
   end;
 
 implementation
@@ -52,18 +52,18 @@ uses
 
 { TMapCalibrationDat }
 
-function TMapCalibrationDat.GetDescription: WideString;
+function TMapCalibrationDat.GetDescription: string;
 begin
   Result := 'Привязка *.dat для программы Radio Mobile';
 end;
 
-function TMapCalibrationDat.GetName: WideString;
+function TMapCalibrationDat.GetName: string;
 begin
   Result := '.dat';
 end;
 
 procedure TMapCalibrationDat.SaveCalibrationInfo(
-  const AFileName: WideString;
+  const AFileName: string;
   const ATopLeft: TPoint;
   const ABottomRight: TPoint;
   const AProjection: IProjection

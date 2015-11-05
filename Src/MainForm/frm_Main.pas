@@ -4804,7 +4804,7 @@ var
   VProjection: IProjection;
   VMouseMapPoint: TDoublePoint;
   VMouseLonLat: TDoublePoint;
-  VListName: Widestring;
+  VListName: string;
 begin
   VLocalConverter := FViewPortState.View.GetStatic;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
@@ -7953,7 +7953,7 @@ end;
 
 procedure TfrmMain.tbitmCopySearchResultCoordinatesClick(Sender: TObject);
 var
-  VStr: WideString;
+  VStr: string;
   VPlacemark: IVectorDataItem;
 begin
   if tbxpmnSearchResult.Tag <> 0 then begin
@@ -7965,7 +7965,7 @@ end;
 
 procedure TfrmMain.tbitmCopySearchResultDescriptionClick(Sender: TObject);
 var
-  VStr: WideString;
+  VStr: string;
   VPlacemark: IVectorDataItem;
 begin
   if tbxpmnSearchResult.Tag <> 0 then begin
@@ -7980,7 +7980,7 @@ end;
 
 procedure TfrmMain.tbitmCreatePlaceMarkBySearchResultClick(Sender: TObject);
 var
-  VStr: WideString;
+  VStr: string;
   VPlacemark: IVectorDataItem;
   VMark: IVectorDataItem;
   VVisible: Boolean;

@@ -34,29 +34,29 @@ type
     FUseShortExt: Boolean;
   private
     procedure SavePrjFile(
-      const AFileName: WideString;
+      const AFileName: string;
       const AProjection: IProjection
     );
     procedure SaveAuxXmlFile(
-      const AFileName: WideString;
+      const AFileName: string;
       const AProjection: IProjection
     );
     procedure SaveWFile(
-      const AFileName: WideString;
+      const AFileName: string;
       const xy1, xy2: TPoint;
       const AProjection: IProjection
     );
-    function GetWorldFileExt(const AFileName: WideString): string;
+    function GetWorldFileExt(const AFileName: string): string;
   private
     { IMapCalibration }
-    function GetName: WideString; safecall;
-    function GetDescription: WideString; safecall;
+    function GetName: string; 
+    function GetDescription: string; 
     procedure SaveCalibrationInfo(
-      const AFileName: WideString;
+      const AFileName: string;
       const ATopLeft: TPoint;
       const ABottomRight: TPoint;
       const AProjection: IProjection
-    ); safecall;
+    ); 
   public
     constructor Create(const AUseShortExt: Boolean = False);
   end;
@@ -167,12 +167,12 @@ begin
   FUseShortExt := AUseShortExt;
 end;
 
-function TMapCalibrationWorldFiles.GetDescription: WideString;
+function TMapCalibrationWorldFiles.GetDescription: string;
 begin
   Result := 'Привязка при помощи World файла и файлов с описанием проекции';
 end;
 
-function TMapCalibrationWorldFiles.GetName: WideString;
+function TMapCalibrationWorldFiles.GetName: string;
 begin
   if FUseShortExt then begin
     Result := '.w (short ext.)';
@@ -182,7 +182,7 @@ begin
 end;
 
 procedure TMapCalibrationWorldFiles.SaveAuxXmlFile(
-  const AFileName: WideString;
+  const AFileName: string;
   const AProjection: IProjection
 );
 var
@@ -202,7 +202,7 @@ begin
 end;
 
 procedure TMapCalibrationWorldFiles.SaveCalibrationInfo(
-  const AFileName: WideString;
+  const AFileName: string;
   const ATopLeft: TPoint;
   const ABottomRight: TPoint;
   const AProjection: IProjection
@@ -214,7 +214,7 @@ begin
 end;
 
 procedure TMapCalibrationWorldFiles.SavePrjFile(
-  const AFileName: WideString;
+  const AFileName: string;
   const AProjection: IProjection
 );
 var
@@ -232,7 +232,7 @@ begin
   end;
 end;
 
-function TMapCalibrationWorldFiles.GetWorldFileExt(const AFileName: WideString): string;
+function TMapCalibrationWorldFiles.GetWorldFileExt(const AFileName: string): string;
 var
   VExt: string;
 begin
@@ -249,7 +249,7 @@ begin
 end;
 
 procedure TMapCalibrationWorldFiles.SaveWFile(
-  const AFileName: WideString;
+  const AFileName: string;
   const xy1, xy2: TPoint;
   const AProjection: IProjection
 );

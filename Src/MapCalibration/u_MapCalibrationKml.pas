@@ -32,14 +32,14 @@ type
   TMapCalibrationKml = class(TBaseInterfacedObject, IMapCalibration)
   private
     { IMapCalibration }
-    function GetName: WideString; safecall;
-    function GetDescription: WideString; safecall;
+    function GetName: string;
+    function GetDescription: string; 
     procedure SaveCalibrationInfo(
-      const AFileName: WideString;
+      const AFileName: string;
       const ATopLeft: TPoint;
       const ABottomRight: TPoint;
       const AProjection: IProjection
-    ); safecall;
+    );
   end;
 
 implementation
@@ -52,18 +52,18 @@ uses
 
 { TMapCalibrationKml }
 
-function TMapCalibrationKml.GetDescription: WideString;
+function TMapCalibrationKml.GetDescription: string;
 begin
   Result := 'Привязка *.kml для программы Google Earth';
 end;
 
-function TMapCalibrationKml.GetName: WideString;
+function TMapCalibrationKml.GetName: string;
 begin
   Result := '.kml';
 end;
 
 procedure TMapCalibrationKml.SaveCalibrationInfo(
-  const AFileName: WideString;
+  const AFileName: string;
   const ATopLeft: TPoint;
   const ABottomRight: TPoint;
   const AProjection: IProjection

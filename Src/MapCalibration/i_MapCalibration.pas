@@ -30,16 +30,16 @@ type
   IMapCalibration = interface
     ['{08085422-4267-49EC-913C-3A47866A46E9}']
     // Имя для вывода в листбоксе для выбора при экспорте.
-    function GetName: WideString; safecall;
+    function GetName: string;
     // Более детальное описание привязки
-    function GetDescription: WideString; safecall;
+    function GetDescription: string;
     // Генерирует привязку для склеенной карты.
     procedure SaveCalibrationInfo(
-      const AFileName: WideString;
+      const AFileName: string;
       const ATopLeft: TPoint;
       const ABottomRight: TPoint;
       const AProjection: IProjection
-    ); safecall;
+    );
   end;
 
   IMapCalibrationList = interface
