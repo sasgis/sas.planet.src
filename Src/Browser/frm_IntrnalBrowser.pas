@@ -88,7 +88,7 @@ type
     FConfigListener: IListener;
     procedure OnConfigChange;
     procedure SetGoodCaption(const ACaption: String);
-    function OpenLocalImage(const AFileName: WideString): Boolean;
+    function OpenLocalImage(const AFileName: string): Boolean;
     procedure ResetImageView(const AForImage: Boolean);
   public
     constructor Create(
@@ -165,7 +165,7 @@ procedure TfrmIntrnalBrowser.EmbeddedWB1BeforeNavigate2(
   var Cancel: WordBool
 );
 var
-  VURL: WideString;
+  VURL: string;
 begin
   if Cancel then begin
     Exit;
@@ -257,7 +257,7 @@ begin
   end;
 end;
 
-function TfrmIntrnalBrowser.OpenLocalImage(const AFileName: WideString): Boolean;
+function TfrmIntrnalBrowser.OpenLocalImage(const AFileName: string): Boolean;
 begin
   Result := FALSE;
   ResetImageView(TRUE);

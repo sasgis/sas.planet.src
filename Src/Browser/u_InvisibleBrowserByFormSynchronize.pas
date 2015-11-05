@@ -38,7 +38,7 @@ type
     FLanguageManager: ILanguageManager;
     FfrmInvisibleBrowser: TfrmInvisibleBrowser;
   private
-    procedure NavigateAndWait(const AUrl: WideString);
+    procedure NavigateAndWait(const AUrl: string);
     procedure InternalCreateBrowser;
   public
     constructor Create(
@@ -57,12 +57,12 @@ uses
 type
   TSyncNavigate = class
   private
-    FUrl: WideString;
+    FUrl: string;
     FfrmInvisibleBrowser: TfrmInvisibleBrowser;
     procedure SyncNavigate;
   public
     constructor Create(
-      const AUrl: WideString;
+      const AUrl: string;
       AfrmInvisibleBrowser: TfrmInvisibleBrowser
     );
     procedure Navigate;
@@ -71,7 +71,7 @@ type
 { TSyncNavigate }
 
 constructor TSyncNavigate.Create(
-  const AUrl: WideString;
+  const AUrl: string;
   AfrmInvisibleBrowser: TfrmInvisibleBrowser
 );
 begin
@@ -117,7 +117,7 @@ begin
   FfrmInvisibleBrowser := TfrmInvisibleBrowser.Create(FLanguageManager, FProxyConfig);
 end;
 
-procedure TInvisibleBrowserByFormSynchronize.NavigateAndWait(const AUrl: WideString);
+procedure TInvisibleBrowserByFormSynchronize.NavigateAndWait(const AUrl: string);
 var
   VSyncNav: TSyncNavigate;
 begin

@@ -75,13 +75,13 @@ type
     FMarksList: IInterfaceListStatic;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     function GeocodeResultFromVectorItem(
-      const ASearch: WideString;
+      const ASearch: string;
       const AItem: IVectorDataItem
     ): IGeoCodeResult;
     function GeocodeResultFromLonLat(
-      const ASearch: WideString;
+      const ASearch: string;
       const ALonLat: TDoublePoint;
-      const AMessage: WideString
+      const AMessage: string
     ): IGeoCodeResult;
     procedure InitHistory;
     procedure InitGeoCoders;
@@ -120,9 +120,9 @@ uses
 {$R *.dfm}
 
 function TfrmGoTo.GeocodeResultFromLonLat(
-  const ASearch: WideString;
+  const ASearch: string;
   const ALonLat: TDoublePoint;
-  const AMessage: WideString
+  const AMessage: string
 ): IGeoCodeResult;
 var
   VPlace: IVectorDataItem;
@@ -135,7 +135,7 @@ begin
 end;
 
 function TfrmGoTo.GeocodeResultFromVectorItem(
-  const ASearch: WideString;
+  const ASearch: string;
   const AItem: IVectorDataItem
 ): IGeoCodeResult;
 var

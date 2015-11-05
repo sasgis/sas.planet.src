@@ -54,7 +54,7 @@ type
       const ALanguageManager: ILanguageManager;
       const AProxyConfig: IProxyConfig
     ); reintroduce;
-    procedure NavigateAndWait(const AUrl: WideString);
+    procedure NavigateAndWait(const AUrl: string);
   end;
 
 implementation
@@ -81,7 +81,7 @@ begin
   WebBrowser1.Navigate('about:blank');
 end;
 
-procedure TfrmInvisibleBrowser.NavigateAndWait(const AUrl: WideString);
+procedure TfrmInvisibleBrowser.NavigateAndWait(const AUrl: string);
 begin
   FCS.BeginWrite;
   try

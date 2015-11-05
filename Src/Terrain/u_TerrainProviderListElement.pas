@@ -31,16 +31,16 @@ type
   TTerrainProviderListElement = class(TBaseInterfacedObject, ITerrainProviderListElement)
   private
     FGUID: TGUID;
-    FCaption: WideString;
+    FCaption: string;
     FProvider: ITerrainProvider;
   private
     function GetGUID: TGUID;
-    function GetCaption: WideString;
+    function GetCaption: string;
     function GetProvider: ITerrainProvider;
   public
     constructor Create(
       const AGUID: TGUID;
-      const ACaption: WideString;
+      const ACaption: string;
       const AProvider: ITerrainProvider
     );
   end;
@@ -51,7 +51,7 @@ implementation
 
 constructor TTerrainProviderListElement.Create(
   const AGUID: TGUID;
-  const ACaption: WideString;
+  const ACaption: string;
   const AProvider: ITerrainProvider
 );
 begin
@@ -61,7 +61,7 @@ begin
   FProvider := AProvider;
 end;
 
-function TTerrainProviderListElement.GetCaption: WideString;
+function TTerrainProviderListElement.GetCaption: string;
 begin
   Result := FCaption;
 end;

@@ -98,7 +98,7 @@ end;
 
 procedure TAntiBanStuped.addDwnforban;
 var
-  VUrl: WideString;
+  VUrl: string;
 begin
   if FPreloadPage = '' then begin
     VUrl := 'http://maps.google.com/?ie=UTF8&ll=' + inttostr(random(100) - 50) + ',' + inttostr(random(300) - 150) + '&spn=1,1&t=k&z=8';
