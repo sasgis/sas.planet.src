@@ -23,7 +23,6 @@ unit u_SASMainConfigProvider;
 interface
 
 uses
-  IniFiles,
   u_ConfigDataWriteProviderWithGlobal;
 
 type
@@ -42,6 +41,10 @@ implementation
 uses
   SysUtils,
   StrUtils,
+  IniFiles,
+  {$IFNDef UNICODE}
+  CompatibilityIniFiles,
+  {$ENDIF}
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   u_ConfigDataWriteProviderByIniFile,
