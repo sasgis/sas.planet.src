@@ -4,9 +4,11 @@ unit CompatibilityIniFiles;
 
 interface
 
+{$IFNDEF Compiler12_Up} // Delphi11_Down
 uses
   IniFiles,
   Compatibility;
+{$ENDIF}
 
 {$IFNDEF Compiler12_Up} // Delphi11_Down
 type
@@ -24,10 +26,12 @@ type
 
 implementation
 
+{$IFNDEF Compiler12_Up} // Delphi11_Down
 uses
   Classes,
   SysUtils,
-  Encodings;
+  CompatibilityStringList;
+{$ENDIF}
 
 { TMemIniFile }
 
@@ -85,7 +89,7 @@ begin
   List := TStringList.Create;
   try
     GetStrings(List);
-    SaveStringsToFile(List, FileName, FEncoding);
+    List.SaveToFile(FileName, FEncoding);
   finally
     List.Free;
   end;
