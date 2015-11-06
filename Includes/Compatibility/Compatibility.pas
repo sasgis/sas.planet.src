@@ -424,7 +424,9 @@ type
     class function Convert(Source, Destination: TEncoding; Bytes: TBytes; StartIndex, Count: Integer): TBytes; overload;
     class procedure FreeEncodings;
     class function IsStandardEncoding(AEncoding: TEncoding): Boolean; {$IFDEF SUPPORTS_STATIC}static;{$ENDIF}
-    class function GetBufferEncoding(const Buffer: TBytes; var AEncoding: TEncoding): Integer; {$IFDEF SUPPORTS_STATIC}static;{$ENDIF}
+    class function GetBufferEncoding(const Buffer: TBytes; var AEncoding: TEncoding): Integer; overload; {$IFDEF SUPPORTS_STATIC}static;{$ENDIF}
+    class function GetBufferEncoding(const Buffer: TBytes; var AEncoding: TEncoding;
+      ADefaultEncoding: TEncoding): Integer; overload; {$IFDEF SUPPORTS_STATIC}static;{$ENDIF}
     function GetByteCount(const Chars: TCharArray): Integer; overload;
     function GetByteCount(const Chars: TCharArray; CharIndex, CharCount: Integer): Integer; overload;
     function GetByteCount(const S: string): Integer; overload;
@@ -1753,6 +1755,12 @@ begin
 end;
 
 class function TEncoding.GetBufferEncoding(const Buffer: TBytes; var AEncoding: TEncoding): Integer;
+begin
+  Result := GetBufferEncoding(Buffer, AEncoding, Default); // Must call property getter to create Encoding
+end;
+
+class function TEncoding.GetBufferEncoding(const Buffer: TBytes;
+  var AEncoding: TEncoding; ADefaultEncoding: TEncoding): Integer;
 
   function ContainsPreamble(const Buffer, Signature: TBytes): Boolean;
   var
@@ -1780,16 +1788,16 @@ begin
   if AEncoding = nil then
   begin
     // Find the appropraite encoding
-    AEncoding := TEncoding.Unicode;
-    if not ContainsPreamble(Buffer, AEncoding.GetPreamble) then
+    if ContainsPreamble(Buffer, TEncoding.UTF8.GetPreamble) then
+      AEncoding := TEncoding.UTF8
+    else if ContainsPreamble(Buffer, TEncoding.Unicode.GetPreamble) then
+      AEncoding := TEncoding.Unicode
+    else if ContainsPreamble(Buffer, TEncoding.BigEndianUnicode.GetPreamble) then
+      AEncoding := TEncoding.BigEndianUnicode
+    else
     begin
-      AEncoding := TEncoding.BigEndianUnicode;
-      if not ContainsPreamble(Buffer, AEncoding.GetPreamble) then
-      begin
-        AEncoding := TEncoding.UTF8;
-        if not ContainsPreamble(Buffer, AEncoding.GetPreamble) then
-          AEncoding := TEncoding.Default;
-      end;
+      AEncoding := ADefaultEncoding;
+      Exit; // Don't proceed just in case ADefaultEncoding has a Preamble
     end;
     Result := Length(AEncoding.GetPreamble);
   end
