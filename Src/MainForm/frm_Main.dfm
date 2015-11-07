@@ -1189,7 +1189,7 @@ object frmMain: TfrmMain
         object tbitmPointProject: TTBXItem
           Images = PanelsImageList
           OnClick = tbitmPointProjectClick
-          Caption = 'Project Point'
+          Caption = 'Project New Placemark'
           Hint = ''
         end
         object tbxMergePolygonsShow1: TTBXVisibilityToggleItem

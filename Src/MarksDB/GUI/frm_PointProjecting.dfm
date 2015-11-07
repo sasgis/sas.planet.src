@@ -1,12 +1,12 @@
 object frmPointProjecting: TfrmPointProjecting
   Left = 0
   Top = 0
-  Caption = 'Projecting'
-  ClientHeight = 161
-  ClientWidth = 334
+  Caption = 'Project New Placemark'
+  ClientHeight = 191
+  ClientWidth = 384
   Color = clBtnFace
-  Constraints.MinHeight = 200
-  Constraints.MinWidth = 350
+  Constraints.MinHeight = 230
+  Constraints.MinWidth = 400
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -14,6 +14,7 @@ object frmPointProjecting: TfrmPointProjecting
   Font.Style = []
   OldCreateOrder = False
   PopupMode = pmExplicit
+  Position = poMainFormCenter
   ShowHint = True
   OnHide = FormHide
   PixelsPerInch = 96
@@ -21,71 +22,77 @@ object frmPointProjecting: TfrmPointProjecting
   object pnlDist: TPanel
     Left = 0
     Top = 0
-    Width = 334
-    Height = 28
+    Width = 384
+    Height = 45
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitWidth = 331
+    ExplicitWidth = 412
     object lblDist: TLabel
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 61
-      Height = 22
-      Align = alLeft
-      Caption = 'Distance, km'
-      ExplicitHeight = 13
+      Width = 378
+      Height = 13
+      Align = alTop
+      Caption = 'Distance, m'
+      ExplicitWidth = 56
     end
     object edtDist: TEdit
       AlignWithMargins = True
-      Left = 70
-      Top = 3
-      Width = 261
+      Left = 3
+      Top = 20
+      Width = 378
       Height = 22
-      Align = alClient
+      Align = alBottom
       TabOrder = 0
-      Text = '10'
-      ExplicitWidth = 258
-      ExplicitHeight = 26
+      Text = '1000'
+      ExplicitLeft = 70
+      ExplicitTop = 3
+      ExplicitWidth = 261
+      ExplicitHeight = 21
     end
   end
   object pnlAzimuth: TPanel
     Left = 0
-    Top = 28
-    Width = 334
-    Height = 28
+    Top = 45
+    Width = 384
+    Height = 45
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitWidth = 331
+    ExplicitTop = 28
+    ExplicitWidth = 412
     object lblAzimuth: TLabel
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 38
-      Height = 22
-      Align = alLeft
+      Width = 378
+      Height = 38
+      Align = alTop
       Caption = 'Azimuth'
-      ExplicitHeight = 13
+      ExplicitWidth = 22
     end
     object edtAzimuth: TEdit
       AlignWithMargins = True
-      Left = 47
-      Top = 3
-      Width = 284
+      Left = 3
+      Top = 20
+      Width = 378
       Height = 22
-      Align = alClient
+      Align = alBottom
       TabOrder = 0
       Text = '10'
-      ExplicitWidth = 281
+      ExplicitLeft = 47
+      ExplicitTop = 3
+      ExplicitWidth = 284
+      ExplicitHeight = 21
     end
   end
   object rgSourcePointType: TRadioGroup
     AlignWithMargins = True
     Left = 3
-    Top = 59
-    Width = 328
+    Top = 93
+    Width = 378
     Height = 39
     Align = alTop
     Caption = 'Source point type'
@@ -96,34 +103,35 @@ object frmPointProjecting: TfrmPointProjecting
       'Placemark')
     TabOrder = 2
     OnClick = rgSourcePointTypeClick
-    ExplicitLeft = -2
-    ExplicitWidth = 325
+    ExplicitTop = 59
+    ExplicitWidth = 328
   end
   object cbbAllMarks: TComboBox
     AlignWithMargins = True
     Left = 3
-    Top = 104
-    Width = 328
+    Top = 138
+    Width = 378
     Height = 21
     Align = alClient
     Enabled = False
-    ItemHeight = 13
     TabOrder = 3
     OnDropDown = cbbAllMarksDropDown
-    ExplicitTop = 112
-    ExplicitWidth = 325
+    ExplicitTop = 104
+    ExplicitWidth = 328
   end
   object pnlBottom: TPanel
     Left = 0
-    Top = 130
-    Width = 334
+    Top = 160
+    Width = 384
     Height = 31
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 4
+    ExplicitTop = 130
+    ExplicitWidth = 334
     object btnCreatePoint: TButton
       AlignWithMargins = True
-      Left = 203
+      Left = 253
       Top = 3
       Width = 128
       Height = 25
@@ -131,8 +139,7 @@ object frmPointProjecting: TfrmPointProjecting
       Caption = 'Project'
       TabOrder = 0
       OnClick = btnCreatePointClick
-      ExplicitLeft = 200
-      ExplicitHeight = 24
+      ExplicitLeft = 203
     end
   end
 end

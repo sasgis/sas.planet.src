@@ -147,7 +147,7 @@ begin
   end;
 
   VDatum := FPosition.GetStatic.Projection.ProjectionType.Datum;
-  VLonLat := VDatum.CalcFinishPosition(VSourceLonLat, VAzimuth, VDist * 1000);
+  VLonLat := VDatum.CalcFinishPosition(VSourceLonLat, VAzimuth, VDist);
   VPoint := FGeometryLonLatFactory.CreateLonLatPoint(VLonLat);
   FMarkDBGUI.SaveMarkModal(nil, VPoint);
 end;
