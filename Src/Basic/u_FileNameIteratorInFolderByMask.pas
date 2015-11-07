@@ -15,9 +15,9 @@ type
     FFilesOnly: Boolean;
     FValidFindData: Boolean;
     FFindHandle: THandle;
-    FFindFileData: TWIN32FindDataW;
+    FFindFileData: TWIN32FindData;
   protected
-    function IsNeedProcess(AFindFileData: TWIN32FindDataW): Boolean; virtual;
+    function IsNeedProcess(AFindFileData: TWIN32FindData): Boolean; virtual;
   protected
     function GetRootFolderName: string;
     function Next(var AFileName: string): Boolean;
@@ -72,13 +72,13 @@ begin
 end;
 
 function TFileNameIteratorInFolderByMask.IsNeedProcess(
-  AFindFileData: TWIN32FindDataW): Boolean;
+  AFindFileData: TWIN32FindData): Boolean;
 begin
   if FFilesOnly then begin
     Result := (AFindFileData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY) = 0;
   end else begin
-    Result := (WideCompareStr(AFindFileData.cFileName, '.') <> 0) and
-      (WideCompareStr(AFindFileData.cFileName, '..') <> 0);
+    Result := (CompareStr(AFindFileData.cFileName, '.') <> 0) and
+      (CompareStr(AFindFileData.cFileName, '..') <> 0);
   end;
 end;
 
@@ -93,20 +93,20 @@ begin
         AFileName := FFolderNameFromRoot + FFindFileData.cFileName;
         Result := True;
       end;
-      FValidFindData := Windows.FindNextFileW(FFindHandle, FFindFileData);
+      FValidFindData := Windows.FindNextFile(FFindHandle, FFindFileData);
     until not FValidFindData or Result;
   end;
 end;
 
 procedure TFileNameIteratorInFolderByMask.Reset;
 var
-  VCurrFullFilesMask: WideString;
+  VCurrFullFilesMask: string;
 begin
   if not (FFindHandle = INVALID_HANDLE_VALUE) then begin
     Windows.FindClose(FFindHandle);
   end;
   VCurrFullFilesMask := FRootFolderName + FFolderNameFromRoot + FFileMask;
-  FFindHandle := Windows.FindFirstFileW(PWideChar(VCurrFullFilesMask), FFindFileData);
+  FFindHandle := Windows.FindFirstFile(PChar(VCurrFullFilesMask), FFindFileData);
   FValidFindData := not (FFindHandle = INVALID_HANDLE_VALUE);
 end;
 

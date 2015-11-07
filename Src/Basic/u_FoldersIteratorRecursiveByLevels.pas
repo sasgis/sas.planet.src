@@ -81,8 +81,8 @@ function TFoldersIteratorRecursiveByLevels.IsNeedFolderProcess(
   const AParentFolderNameFromRoot, AFolderName: string
 ): Boolean;
 begin
-  Result := (WideCompareStr(AFolderName, '.') <> 0) and
-    (WideCompareStr(AFolderName, '..') <> 0);
+  Result := (CompareStr(AFolderName, '.') <> 0) and
+    (CompareStr(AFolderName, '..') <> 0);
 end;
 
 function TFoldersIteratorRecursiveByLevels.Next(
@@ -103,9 +103,9 @@ procedure TFoldersIteratorRecursiveByLevels.ProcessAddSubFolders(
   ADepth: Integer
 );
 var
-  VFindFileData: TWIN32FindDataW;
+  VFindFileData: TWIN32FindData;
   VhFind: THandle;
-  VCurrFullFilesMask: WideString;
+  VCurrFullFilesMask: string;
   VPathFromRootNew: string;
   VFolderNameFromRoot: string;
 begin
@@ -114,7 +114,7 @@ begin
       VFolderNameFromRoot := AFolderNameFromRoot + PathDelim;
     end;
     VCurrFullFilesMask := FRootFolderName + VFolderNameFromRoot + '*';
-    VhFind := THandle(Windows.FindFirstFileExW(PWideChar(VCurrFullFilesMask),
+    VhFind := THandle(Windows.FindFirstFileEx(PChar(VCurrFullFilesMask),
       FindExInfoStandard, @VFindFileData, FindExSearchLimitToDirectories, nil, 0));
     if not (VhFind = INVALID_HANDLE_VALUE) then begin
       try
@@ -125,7 +125,7 @@ begin
               FFolderNamesList.AddObject(VPathFromRootNew, TObject(ADepth + 1));
             end;
           end;
-        until not Windows.FindNextFileW(VhFind, VFindFileData);
+        until not Windows.FindNextFile(VhFind, VFindFileData);
       finally
         Windows.FindClose(VhFind);
       end;

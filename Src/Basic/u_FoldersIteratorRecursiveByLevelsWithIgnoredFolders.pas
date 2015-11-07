@@ -46,7 +46,11 @@ implementation
 uses
   SysUtils;
 
-function PathMatchSpecW(pszFile, pszSpec: PWideChar): BOOL; stdcall; external 'shlwapi.dll' name 'PathMatchSpecW';
+{$IFDef UNICODE}
+function PathMatchSpec(pszFile, pszSpec: PChar): BOOL; stdcall; external 'shlwapi.dll' name 'PathMatchSpecW';
+{$ELSE}
+function PathMatchSpec(pszFile, pszSpec: PChar): BOOL; stdcall; external 'shlwapi.dll' name 'PathMatchSpecA';
+{$ENDIF}
 
 { TFoldersIteratorRecursiveByLevelsWithIgnoredFolders }
 
@@ -77,15 +81,15 @@ function TFoldersIteratorRecursiveByLevelsWithIgnoredFolders.IsNeedFolderProcess
 ): Boolean;
 var
   i: Integer;
-  VFolderName: WideString;
-  VMask: WideString;
+  VFolderName: string;
+  VMask: string;
 begin
   Result := inherited IsNeedFolderProcess(AParentFolderNameFromRoot, AFolderName);
   if Result then begin
     VFolderName := AFolderName;
     for i := 0 to FIgnoredFoldersMasksList.Count - 1 do begin
       VMask := FIgnoredFoldersMasksList.Strings[i];
-      if PathMatchSpecW(PWideChar(VFolderName), PWideChar(VMask)) then begin
+      if PathMatchSpec(PChar(VFolderName), PChar(VMask)) then begin
         Result := False;
         Break;
       end;
