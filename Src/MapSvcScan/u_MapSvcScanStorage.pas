@@ -59,19 +59,19 @@ type
     function Available: Boolean;
     function ItemExists(
       const AServiceName: String;
-      const AIdentifier: WideString;
+      const AIdentifier: string;
       const AFetchedDate: PDateTime
     ): Boolean;
     function AddItem(
       const AServiceName: String;
-      const AIdentifier: WideString;
+      const AIdentifier: string;
       const AFetchedDate: TDateTime
     ): Boolean;
     function GetScanDate(
-      const AVersionId: WideString
+      const AVersionId: string
     ): string;
     function AddImageDate(
-      const AVersionId: WideString;
+      const AVersionId: string;
       const ADate: string;
       const AX: Double;
       const AY: Double;
@@ -89,6 +89,9 @@ implementation
 
 uses
   ALSqlite3Wrapper,
+  {$IFNDef UNICODE}
+  Compatibility,
+  {$ENDIF}
   u_ListenerByEvent,
   u_Synchronizer;
 
@@ -99,11 +102,12 @@ const
 
 function TMapSvcScanStorage.AddItem(
   const AServiceName: String;
-  const AIdentifier: WideString;
+  const AIdentifier: string;
   const AFetchedDate: TDateTime
 ): Boolean;
 var
   VId: Integer;
+  VIdentifier: UnicodeString;
 begin
   Result := Available;
   if (not Result) then
@@ -117,11 +121,12 @@ begin
 
   // insert one row
   try
+    VIdentifier := AIdentifier;
     FDbHandler.ExecSQLWithTEXTW(
       'INSERT OR IGNORE INTO svcitem (id,itemname,itemdate) VALUES ('+ALIntToStr(VId) + ',?,' + ALIntToStr(DateTimeToDBSeconds(AFetchedDate)) + ')',
       TRUE,
-      PWideChar(AIdentifier),
-      Length(AIdentifier)
+      PWideChar(VIdentifier),
+      Length(VIdentifier)
     );
     Result := TRUE;
   except
@@ -197,7 +202,7 @@ end;
 
 function TMapSvcScanStorage.GetServiceId(const AServiceName: String): Integer;
 var
-  VServiceName: WideString;
+  VServiceName: UnicodeString;
 
   function _SelectId: Integer;
   begin
@@ -257,23 +262,25 @@ begin
 end;
 
 function TMapSvcScanStorage.GetScanDate(
-  const AVersionId: WideString
+  const AVersionId: string
 ): string;
 var
   VDBSeconds: Integer;
+  VVersionId: UnicodeString;
 begin
   Result := '';
   if  (AVersionId <> '') or (not Available) then begin
     try
       VDBSeconds := 0;
+      VVersionId := AVersionId;
       FDbHandler.OpenSQLWithTEXTW(
         'SELECT date FROM scandate WHERE imageid=?',
         CallbackReadSingleInt,
         @VDBSeconds,
         True,
         TRUE,
-        PWideChar(AVersionId),
-        Length(AVersionId)
+        PWideChar(VVersionId),
+        Length(VVersionId)
       );
       if (VDBSeconds <> 0) then begin
         Result := DateTimeToStr(DBSecondsToDateTime(VDBSeconds));
@@ -284,7 +291,7 @@ begin
 end;
 
 function TMapSvcScanStorage.AddImageDate(
-      const AVersionId: WideString;
+      const AVersionId: string;
       const ADate: string;
       const AX: Double;
       const AY: Double;
@@ -294,6 +301,7 @@ var
   VSQLText: AnsiString;
   VDBSeconds: Integer;
   VdateTime : TDateTime;
+  VVersionId: UnicodeString;
 begin
   Result := FALSE;
   if GetScanDate(AVersionId) <> '' then Exit;
@@ -310,11 +318,12 @@ begin
       AlFloatToStr(AY, FFormatSettings) + ',' +
       ALIntToStr(AZoom) + ')';
 
+    VVersionId := AVersionId;
     FDbHandler.ExecSQLWithTEXTW(
       VSQLText,
       TRUE,
-      PWideChar(AVersionId),
-      Length(AVersionId)
+      PWideChar(VVersionId),
+      Length(VVersionId)
     );
     Result := TRUE;
   except
@@ -324,12 +333,13 @@ end;
 
 function TMapSvcScanStorage.ItemExists(
   const AServiceName: String;
-  const AIdentifier: WideString;
+  const AIdentifier: string;
   const AFetchedDate: PDateTime
 ): Boolean;
 var
   VId: Integer;
   VDBSeconds: Integer;
+  VIdentifier: UnicodeString;
 begin
   Result := Available;
   if (not Result) then
@@ -343,14 +353,15 @@ begin
 
   try
     VDBSeconds := 0;
+    VIdentifier := AIdentifier;
     FDbHandler.OpenSQLWithTEXTW(
       'SELECT itemdate FROM svcitem WHERE id='+ALIntToStr(VId) + ' AND itemname=?',
       CallbackReadSingleInt,
       @VDBSeconds,
       TRUE,
       TRUE,
-      PWideChar(AIdentifier),
-      Length(AIdentifier)
+      PWideChar(VIdentifier),
+      Length(VIdentifier)
     );
     Result := (VDBSeconds<>0);
     if Result then begin

@@ -84,11 +84,11 @@ type
     // check item exists, if not - add it to storage
     function ItemExists(
       const AServiceName: String;
-      const AIdentifier: WideString;
+      const AIdentifier: string;
       const AFetchedDate: PDateTime
     ): Boolean;
     function StoreImageDate(
-      const AItemName: WideString;
+      const AItemName: string;
       const ADate: string
     ): Boolean;
   end;
@@ -181,7 +181,7 @@ end;
 
 function TAvailPicsAbstract.ItemExists(
   const AServiceName: String;
-  const AIdentifier: WideString;
+  const AIdentifier: string;
   const AFetchedDate: PDateTime
 ): Boolean;
 begin
@@ -195,7 +195,7 @@ begin
 end;
 
 function TAvailPicsAbstract.StoreImageDate(
-      const AItemName: WideString;
+      const AItemName: string;
       const ADate: string
     ): Boolean;
 var

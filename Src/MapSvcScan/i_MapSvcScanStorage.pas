@@ -30,20 +30,20 @@ type
     // check if image exists (and returns fetch date if requested)
     function ItemExists(
       const AServiceName: String;
-      const AIdentifier: WideString;
+      const AIdentifier: string;
       const AFetchedDate: PDateTime
     ): Boolean;
     // add image to storage
     function AddItem(
       const AServiceName: String;
-      const AIdentifier: WideString;
+      const AIdentifier: string;
       const AFetchedDate: TDateTime
     ): Boolean;
     function GetScanDate(
-      const AVersionId: WideString
+      const AVersionId: string
     ): string;
     function AddImageDate(
-      const AVersionId: WideString;
+      const AVersionId: string;
       const ADateDime: string;
       const AX: Double;
       const AY: Double;

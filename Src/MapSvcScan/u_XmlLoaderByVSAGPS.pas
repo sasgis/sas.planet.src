@@ -33,17 +33,17 @@ function LoadXmlDomDocFromStream(
 
 function GetXmlAttribute(
   const ANode: IDOMNode;
-  const AName: WideString
-): WideString;
+  const AName: string
+): string;
 
 function GetXmlNodeText(
   const ANode: IDOMNode
-): WideString;
+): string;
 
 function GetXmlFirstSubNodeText(
   const ANode: IDOMNode;
-  const ASubNodeName: WideString
-): WideString;
+  const ASubNodeName: string
+): string;
 
 implementation
 
@@ -73,8 +73,8 @@ end;
 
 function GetXmlAttribute(
   const ANode: IDOMNode;
-  const AName: WideString
-): WideString;
+  const AName: string
+): string;
 var
   VNode: IDOMNode;
 begin
@@ -90,15 +90,15 @@ end;
 
 function GetXmlNodeText(
   const ANode: IDOMNode
-): WideString;
+): string;
 begin
   Result := VSAGPS_XML_DOMNodeValue(ANode);
 end;
 
 function GetXmlFirstSubNodeText(
   const ANode: IDOMNode;
-  const ASubNodeName: WideString
-): WideString;
+  const ASubNodeName: string
+): string;
 var
   VNode: IDOMNode;
 begin
