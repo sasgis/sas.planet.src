@@ -357,8 +357,8 @@ var
   VPath: string;
   VResult: Boolean;
   VTileBinaryData: IBinaryData;
-  VTileVersion: WideString;
-  VTileContentType: WideString;
+  VTileVersion: string;
+  VTileContentType: AnsiString;
   VTileDate: TDateTime;
   VTileSize: Integer;
   VShowPrevVersion: Boolean;
@@ -485,8 +485,8 @@ var
   VPath: string;
   VResult: Boolean;
   VTileBinaryData: IBinaryData;
-  VTileVersion: WideString;
-  VTileContentType: WideString;
+  VTileVersion: string;
+  VTileContentType: AnsiString;
   VTileDate: TDateTime;
   VTileSize: Integer;
   VList: IMapVersionListStatic;
@@ -614,8 +614,8 @@ var
   VResult: Boolean;
   VVersion: IMapVersionInfo;
   VShowPrev: Boolean;
-  VTileVersion: WideString;
-  VTileContentType: WideString;
+  VTileVersion: string;
+  VTileContentType: AnsiString;
   VTileDate: TDateTime;
   VTileSize: Integer;
   VList: IMapVersionListStatic;
@@ -702,8 +702,8 @@ var
   VShowPrev: Boolean;
   VTileExists: Boolean;
   VTileBinaryData: IBinaryData;
-  VTileVersion: WideString;
-  VTileContentType: WideString;
+  VTileVersion: string;
+  VTileContentType: AnsiString;
   VTileDate: TDateTime;
   VHelper: ITileStorageBerkeleyDBHelper;
 begin

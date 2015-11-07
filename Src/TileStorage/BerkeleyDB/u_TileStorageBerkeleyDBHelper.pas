@@ -108,8 +108,8 @@ type
       const AVersionInfo: IMapVersionInfo;
       const AShowPrevVersion: Boolean;
       out ATileBinaryData: IBinaryData;
-      out ATileVersion: WideString;
-      out ATileContentType: WideString;
+      out ATileVersion: string;
+      out ATileContentType: AnsiString;
       out ATileDate: TDateTime
     ): Boolean;
 
@@ -121,8 +121,8 @@ type
       const AShowPrevVersion: Boolean;
       const ASingleTileInfo: Boolean;
       out ATileVersionListStatic: IMapVersionListStatic;
-      out ATileVersion: WideString;
-      out ATileContentType: WideString;
+      out ATileVersion: string;
+      out ATileContentType: AnsiString;
       out ATileSize: Integer;
       out ATileDate: TDateTime
     ): Boolean;
@@ -317,7 +317,7 @@ begin
 
   for I := 0 to AVersionedMetaValue.ItemsCount - 1 do begin
     VMetaElement := AVersionedMetaValue.Item[I];
-    if WideSameText(VMetaElement.TileVersionInfo, AVersionInfo.StoreString) then begin
+    if SameText(VMetaElement.TileVersionInfo, AVersionInfo.StoreString) then begin
       AVersionIDInfo.IsSameVersionFound := True;
       AVersionIDInfo.TileIndexInMetaValue := I;
       Result := VMetaElement.VersionID;
@@ -654,8 +654,8 @@ function TTileStorageBerkeleyDBHelper.LoadTile(
   const AVersionInfo: IMapVersionInfo;
   const AShowPrevVersion: Boolean;
   out ATileBinaryData: IBinaryData;
-  out ATileVersion: WideString;
-  out ATileContentType: WideString;
+  out ATileVersion: string;
+  out ATileContentType: AnsiString;
   out ATileDate: TDateTime
 ): Boolean;
 var
@@ -722,8 +722,8 @@ function TTileStorageBerkeleyDBHelper.LoadTileInfo(
   const AShowPrevVersion: Boolean;
   const ASingleTileInfo: Boolean;
   out ATileVersionListStatic: IMapVersionListStatic;
-  out ATileVersion: WideString;
-  out ATileContentType: WideString;
+  out ATileVersion: string;
+  out ATileContentType: AnsiString;
   out ATileSize: Integer;
   out ATileDate: TDateTime
 ): Boolean;
@@ -791,7 +791,7 @@ begin
                     );
                   VList.Add(VMapVersionInfo);
                 end;
-                if WideSameText(VMetaElement.TileVersionInfo, VVersionInfo.StoreString) then begin
+                if SameText(VMetaElement.TileVersionInfo, VVersionInfo.StoreString) then begin
                   VTileInfoIndex := I;
                   if ASingleTileInfo then begin
                     Break;

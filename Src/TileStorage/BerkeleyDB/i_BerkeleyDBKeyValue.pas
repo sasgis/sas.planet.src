@@ -68,11 +68,11 @@ type
     function GetTileDate: TDateTime;
     property TileDate: TDateTime read GetTileDate;
 
-    function GetTileVersionInfo: WideString;
-    property TileVersionInfo: WideString read GetTileVersionInfo;
+    function GetTileVersionInfo: string;
+    property TileVersionInfo: string read GetTileVersionInfo;
 
-    function GetTileContentType: WideString;
-    property TileContentType: WideString read GetTileContentType;
+    function GetTileContentType: AnsiString;
+    property TileContentType: AnsiString read GetTileContentType;
   end;
 
   // Метаинформация о хранилище - одна запись на файл (*.sdb)
@@ -108,11 +108,11 @@ type
     function GetTileCRC: Cardinal;
     property TileCRC: Cardinal read GetTileCRC;
 
-    function GetTileVersionInfo: WideString;
-    property TileVersionInfo: WideString read GetTileVersionInfo;
+    function GetTileVersionInfo: string;
+    property TileVersionInfo: string read GetTileVersionInfo;
 
-    function GetTileContentType: WideString;
-    property TileContentType: WideString read GetTileContentType;
+    function GetTileContentType: AnsiString;
+    property TileContentType: AnsiString read GetTileContentType;
   end;
 
   IBerkeleyDBVersionedMetaValue = interface(IBerkeleyDBKeyValueBase)

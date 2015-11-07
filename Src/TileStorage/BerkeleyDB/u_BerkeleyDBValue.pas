@@ -88,8 +88,8 @@ type
         RecCRC32: Cardinal;
         TileSize: Cardinal;
         TileDate: TDateTime;
-        TileVersion: WideString;
-        TileContentType: WideString;
+        TileVersion: string;
+        TileContentType: AnsiString;
         TileBody: PByte;
       end;
       PValue = ^TValue;
@@ -113,8 +113,8 @@ type
     function GetTileBody: Pointer;
     function GetTileSize: Integer;
     function GetTileDate: TDateTime;
-    function GetTileVersionInfo: WideString;
-    function GetTileContentType: WideString;
+    function GetTileVersionInfo: string;
+    function GetTileContentType: AnsiString;
   public
     constructor Create(
       const ATileBody: Pointer;
@@ -141,8 +141,8 @@ type
         TileSize: Integer;
         TileDate: TDateTime;
         TileCRC: Cardinal;
-        TileVersionInfo: WideString;
-        TileContentType: WideString;
+        TileVersionInfo: string;
+        TileContentType: AnsiString;
       end;
       PVersionedMetaValueElement = ^TVersionedMetaValueElement;
   private
@@ -155,8 +155,8 @@ type
     function GetTileSize: Integer;
     function GetTileDate: TDateTime;
     function GetTileCRC: Cardinal;
-    function GetTileVersionInfo: WideString;
-    function GetTileContentType: WideString;
+    function GetTileVersionInfo: string;
+    function GetTileContentType: AnsiString;
     { IBerkeleyDBKeyValueBase }
     function Assign(
       const AData: Pointer;
@@ -229,6 +229,9 @@ implementation
 uses
   Math,
   CRC32,
+  {$IFNDef UNICODE}
+  Compatibility,
+  {$ENDIF}
   u_BerkeleyDBValueZlib;
 
 const
@@ -451,7 +454,7 @@ begin
   end;
 
   if Assigned(ATileContentType) then begin
-    FValue.TileContentType := WideString(ATileContentType.GetContentType);
+    FValue.TileContentType := ATileContentType.GetContentType;
   end else begin
     FValue.TileContentType := '';
   end;
@@ -496,7 +499,7 @@ begin
   // tile version
   VLen := Length(FValue.TileVersion) * SizeOf(WideChar);
   if VLen > 0 then begin
-    Move(PWideChar(FValue.TileVersion)^, VPtr^, VLen);
+    Move(PWideChar(UnicodeString(FValue.TileVersion))^, VPtr^, VLen);
     Inc(VPtr, VLen);
   end;
   VLen := Length(cWideCharEndLine) * SizeOf(WideChar);
@@ -506,7 +509,7 @@ begin
   // tile content-type
   VLen := Length(FValue.TileContentType) * SizeOf(WideChar);
   if VLen > 0 then begin
-    Move(PWideChar(FValue.TileContentType)^, VPtr^, VLen);
+    Move(PWideChar(UnicodeString(FValue.TileContentType))^, VPtr^, VLen);
     Inc(VPtr, VLen);
   end;
   VLen := Length(cWideCharEndLine) * SizeOf(WideChar);
@@ -631,7 +634,7 @@ begin
   end;
 end;
 
-function TBerkeleyDBValue.GetTileVersionInfo: WideString;
+function TBerkeleyDBValue.GetTileVersionInfo: string;
 begin
   if Assigned(FValue) then begin
     Result := FValue.TileVersion;
@@ -640,7 +643,7 @@ begin
   end;
 end;
 
-function TBerkeleyDBValue.GetTileContentType: WideString;
+function TBerkeleyDBValue.GetTileContentType: AnsiString;
 begin
   if Assigned(FValue) then begin
     Result := FValue.TileContentType;
@@ -676,7 +679,7 @@ begin
   end;
 
   if Assigned(ATileContentType) then begin
-    FValue.TileContentType := WideString(ATileContentType.GetContentType);
+    FValue.TileContentType := ATileContentType.GetContentType;
   end else begin
     FValue.TileContentType := '';
   end;
@@ -813,7 +816,7 @@ begin
   // tile version
   VLen := Length(FValue.TileVersionInfo) * SizeOf(WideChar);
   if VLen > 0 then begin
-    Move(PWideChar(FValue.TileVersionInfo)^, VPtr^, VLen);
+    Move(PWideChar(UnicodeString(FValue.TileVersionInfo))^, VPtr^, VLen);
     Inc(VPtr, VLen);
   end;
   VLen := Length(cWideCharEndLine) * SizeOf(WideChar);
@@ -823,7 +826,7 @@ begin
   // tile content-type
   VLen := Length(FValue.TileContentType) * SizeOf(WideChar);
   if VLen > 0 then begin
-    Move(PWideChar(FValue.TileContentType)^, VPtr^, VLen);
+    Move(PWideChar(UnicodeString(FValue.TileContentType))^, VPtr^, VLen);
     Inc(VPtr, VLen);
   end;
   VLen := Length(cWideCharEndLine) * SizeOf(WideChar);
@@ -875,7 +878,7 @@ begin
   end;
 end;
 
-function TBerkeleyDBVersionedMetaValueElement.GetTileVersionInfo: WideString;
+function TBerkeleyDBVersionedMetaValueElement.GetTileVersionInfo: string;
 begin
   if Assigned(FValue) then begin
     Result := FValue.TileVersionInfo;
@@ -884,7 +887,7 @@ begin
   end;
 end;
 
-function TBerkeleyDBVersionedMetaValueElement.GetTileContentType: WideString;
+function TBerkeleyDBVersionedMetaValueElement.GetTileContentType: AnsiString;
 begin
   if Assigned(FValue) then begin
     Result := FValue.TileContentType;

@@ -58,8 +58,8 @@ type
       const AVersionInfo: IMapVersionInfo;
       const AShowPrevVersion: Boolean;
       out ATileBinaryData: IBinaryData;
-      out ATileVersion: WideString;
-      out ATileContentType: WideString;
+      out ATileVersion: string;
+      out ATileContentType: AnsiString;
       out ATileDate: TDateTime
     ): Boolean;
 
@@ -71,8 +71,8 @@ type
       const AShowPrevVersion: Boolean;
       const ASingleTileInfo: Boolean;
       out ATileVersionListStatic: IMapVersionListStatic;
-      out ATileVersion: WideString;
-      out ATileContentType: WideString;
+      out ATileVersion: string;
+      out ATileContentType: AnsiString;
       out ATileSize: Integer;
       out ATileDate: TDateTime
     ): Boolean;
