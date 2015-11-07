@@ -123,12 +123,12 @@ begin
   end;
 end;
 
-procedure TStringList.SaveToStream(Stream: TStream; Encoding: TEncoding);
+procedure TStringList.SaveToStream(Stream: TStream);
 begin
   SaveToStream(Stream, FEncoding);
 end;
 
-procedure TStringList.SaveToStream(Stream: TStream);
+procedure TStringList.SaveToStream(Stream: TStream; Encoding: TEncoding);
 var
   Buffer, Preamble: TBytes;
 begin
