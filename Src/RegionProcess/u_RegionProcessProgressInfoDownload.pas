@@ -51,6 +51,7 @@ type
     FVersionForDownload: IMapVersionInfo;
 
     FSecondLoadTNE: boolean;
+    FReplaceTneOlderDate: TDateTime;
     FReplaceExistTiles: boolean;
     FCheckExistTileSize: boolean;
     FCheckExistTileDate: boolean;
@@ -125,6 +126,7 @@ type
       const AZoomArr: TByteDynArray;
       const APolygon: IGeometryLonLatPolygon;
       ASecondLoadTNE: boolean;
+      const AReplaceTneOlderDate: TDateTime;
       AReplaceExistTiles: boolean;
       ACheckExistTileSize: boolean;
       ACheckExistTileDate: boolean;
@@ -140,6 +142,7 @@ type
 implementation
 
 uses
+  Math,
   u_GeoFunc,
   u_ConfigProviderHelpers,
   u_ZoomArrayFunc,
@@ -157,6 +160,7 @@ constructor TRegionProcessProgressInfoDownload.Create(
   const AZoomArr: TByteDynArray;
   const APolygon: IGeometryLonLatPolygon;
   ASecondLoadTNE: boolean;
+  const AReplaceTneOlderDate: TDateTime;
   AReplaceExistTiles: boolean;
   ACheckExistTileSize: boolean;
   ACheckExistTileDate: boolean;
@@ -176,6 +180,7 @@ begin
   FZoomArr := GetZoomArrayCopy(AZoomArr);
   FPolygon := APolygon;
   FSecondLoadTNE := ASecondLoadTNE;
+  FReplaceTneOlderDate := AReplaceTneOlderDate;
   FReplaceExistTiles := AReplaceExistTiles;
   FCheckExistTileSize := ACheckExistTileSize;
   FCheckExistTileDate := ACheckExistTileDate;
@@ -473,6 +478,9 @@ begin
   ASLSSection.WriteBool('CheckExistTileDate', FCheckExistTileDate);
   ASLSSection.WriteDate('CheckTileDate', FCheckTileDate);
   ASLSSection.WriteBool('SecondLoadTNE', FSecondLoadTNE);
+  if not IsNan(FReplaceTneOlderDate) then begin
+    ASLSSection.WriteDate('LoadTneOlderDate', FReplaceTneOlderDate);
+  end;
   FCS.BeginRead;
   try
     ASLSSection.WriteInteger('ProcessedTileCount', FDownloadedCount);

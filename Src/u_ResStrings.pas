@@ -48,6 +48,7 @@ ResourceString
   SAS_MSG_NeedZoom = 'Please select at least one zoom';
   SAS_MSG_FunExForPoly = 'The feature can be used on polygons and polylines';
   SAS_MSG_FileBeCreateTime = 'The tile is newer than the entered age, skipping.';
+  SAS_MSG_TneBeCreateTime = 'The tne is newer than the entered age, skipping.';
   SAS_MSG_FileBeCreateLen = 'The tile size is equal to the existing one, skipping.';
   SAS_MSG_ProcessFilesComplete = 'The task is completed!';
   SAS_MSG_LoadComplete = 'Download completed';

@@ -50,6 +50,9 @@ type
     function GetIsIgnoreTne: Boolean;
     property IsIgnoreTne: Boolean read GetIsIgnoreTne;
 
+    function GetLoadTneOlderDate: TDateTime;
+    property LoadTneOlderDate: TDateTime read GetLoadTneOlderDate;
+
     function GetIsReplace: Boolean;
     property IsReplace: Boolean read GetIsReplace;
 
@@ -88,9 +91,16 @@ type
     pnlZoom: TPanel;
     lblMapCaption: TLabel;
     pnlFrame: TPanel;
+    pnlLoadIfTneParams: TPanel;
+    pnlLoadIfTneOld: TPanel;
+    lblLoadIfTneOld: TLabel;
+    chkLoadIfTneOld: TCheckBox;
+    dtpLoadIfTneOld: TDateTimePicker;
     procedure chkReplaceClick(Sender: TObject);
     procedure chkReplaceOlderClick(Sender: TObject);
     procedure cbbZoomChange(Sender: TObject);
+    procedure chkLoadIfTneOldClick(Sender: TObject);
+    procedure chkTryLoadIfTNEClick(Sender: TObject);
   private
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FPolygLL: IGeometryLonLatPolygon;
@@ -115,6 +125,7 @@ type
   private
     function GetIsStartPaused: Boolean;
     function GetIsIgnoreTne: Boolean;
+    function GetLoadTneOlderDate: TDateTime;
     function GetIsReplace: Boolean;
     function GetIsReplaceIfDifSize: Boolean;
     function GetIsReplaceIfOlder: Boolean;
@@ -259,6 +270,20 @@ begin
   FfrZoomsSelect.Init(0, 23);
 end;
 
+procedure TfrTilesDownload.chkLoadIfTneOldClick(Sender: TObject);
+begin
+  dtpLoadIfTneOld.Enabled := chkLoadIfTneOld.Enabled and chkLoadIfTneOld.Checked;
+end;
+
+procedure TfrTilesDownload.chkTryLoadIfTNEClick(Sender: TObject);
+var
+  VEnabled: Boolean;
+begin
+  VEnabled := chkTryLoadIfTNE.Checked;
+  chkLoadIfTneOld.Enabled := VEnabled;
+  chkLoadIfTneOldClick(chkLoadIfTneOld);
+end;
+
 function TfrTilesDownload.GetAllowDownload(const AMapType: IMapType): boolean; // чисто для проверки
 begin
   Result := (AMapType.StorageConfig.GetAllowAdd) and (AMapType.TileDownloadSubsystem.State.GetStatic.Enabled);
@@ -289,6 +314,15 @@ begin
   Result := chkStartPaused.Checked;
 end;
 
+function TfrTilesDownload.GetLoadTneOlderDate: TDateTime;
+begin
+  if chkLoadIfTneOld.Checked then begin
+    Result := dtpLoadIfTneOld.DateTime;
+  end else begin
+    Result := NaN;
+  end;
+end;
+
 function TfrTilesDownload.GetMapType: IMapType;
 begin
   Result := FfrMapSelect.GetSelectedMapType;
@@ -312,6 +346,7 @@ begin
   FPolygLL := APolygon;
   FfrZoomsSelect.Show(pnlZoom);
   dtpReplaceOlderDate.Date := now;
+  dtpLoadIfTneOld.Date := now;
   FfrMapSelect.Show(pnlFrame);
   cbbZoomChange(Self);
 end;

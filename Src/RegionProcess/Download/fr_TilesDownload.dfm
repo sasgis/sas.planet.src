@@ -2,7 +2,7 @@ object frTilesDownload: TfrTilesDownload
   Left = 0
   Top = 0
   Width = 480
-  Height = 200
+  Height = 304
   Align = alClient
   Constraints.MinHeight = 200
   Constraints.MinWidth = 480
@@ -31,7 +31,7 @@ object frTilesDownload: TfrTilesDownload
     Align = alCustom
     Anchors = [akLeft, akTop, akRight]
     BevelOuter = bvNone
-    TabOrder = 1
+    TabOrder = 3
     object pnlMain: TPanel
       Left = 0
       Top = 0
@@ -43,12 +43,12 @@ object frTilesDownload: TfrTilesDownload
       TabOrder = 0
       object chkReplace: TCheckBox
         Left = 5
-        Top = 37
+        Top = 64
         Width = 363
         Height = 16
         Align = alTop
         Caption = 'Overwrite old tiles'
-        TabOrder = 0
+        TabOrder = 3
         OnClick = chkReplaceClick
       end
       object chkTryLoadIfTNE: TCheckBox
@@ -57,12 +57,13 @@ object frTilesDownload: TfrTilesDownload
         Width = 363
         Height = 16
         Align = alTop
-        Caption = 'Try to re-download missing tiles'
+        Caption = 'Try download if tne exists'
         TabOrder = 1
+        OnClick = chkTryLoadIfTNEClick
       end
       object pnlTileReplaceCondition: TPanel
         Left = 5
-        Top = 53
+        Top = 80
         Width = 363
         Height = 40
         Align = alTop
@@ -70,7 +71,7 @@ object frTilesDownload: TfrTilesDownload
         BevelOuter = bvNone
         BorderWidth = 3
         Padding.Left = 15
-        TabOrder = 2
+        TabOrder = 4
         object chkReplaceIfDifSize: TCheckBox
           Left = 18
           Top = 3
@@ -128,7 +129,58 @@ object frTilesDownload: TfrTilesDownload
         Height = 16
         Align = alTop
         Caption = 'Start paused'
-        TabOrder = 3
+        TabOrder = 0
+      end
+      object pnlLoadIfTneParams: TPanel
+        Left = 5
+        Top = 37
+        Width = 363
+        Height = 27
+        Align = alTop
+        AutoSize = True
+        BevelOuter = bvNone
+        BorderWidth = 3
+        Padding.Left = 15
+        TabOrder = 2
+        object pnlLoadIfTneOld: TPanel
+          Left = 18
+          Top = 3
+          Width = 342
+          Height = 21
+          Align = alTop
+          BevelOuter = bvNone
+          TabOrder = 0
+          object lblLoadIfTneOld: TLabel
+            Left = 16
+            Top = 0
+            Width = 95
+            Height = 21
+            Align = alLeft
+            Caption = 'only created before'
+            Layout = tlCenter
+          end
+          object chkLoadIfTneOld: TCheckBox
+            Left = 0
+            Top = 0
+            Width = 16
+            Height = 21
+            Align = alLeft
+            Enabled = False
+            TabOrder = 0
+            OnClick = chkLoadIfTneOldClick
+          end
+          object dtpLoadIfTneOld: TDateTimePicker
+            Left = 111
+            Top = 0
+            Width = 81
+            Height = 21
+            Align = alLeft
+            Date = 39513.436381111110000000
+            Time = 39513.436381111110000000
+            Enabled = False
+            TabOrder = 1
+          end
+        end
       end
     end
   end
@@ -142,7 +194,7 @@ object frTilesDownload: TfrTilesDownload
     BevelEdges = [beBottom]
     BevelKind = bkTile
     BevelOuter = bvNone
-    TabOrder = 2
+    TabOrder = 1
     object lblStat: TLabel
       AlignWithMargins = True
       Left = 3
@@ -176,13 +228,13 @@ object frTilesDownload: TfrTilesDownload
     Left = 376
     Top = 22
     Width = 104
-    Height = 178
+    Height = 282
     Align = alRight
     Alignment = taLeftJustify
     BevelEdges = []
     BevelKind = bkTile
     BevelOuter = bvNone
     BorderWidth = 3
-    TabOrder = 3
+    TabOrder = 2
   end
 end

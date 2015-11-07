@@ -55,6 +55,8 @@ type
     FVersionForDownload: IMapVersionInfo;
     FDownloadInfo: IDownloadInfoSimple;
     FSecondLoadTNE: boolean;
+    FCheckTneOlderDate: Boolean;
+    FReplaceTneOlderDate: TDateTime;
     FReplaceExistTiles: boolean;
     FCheckExistTileSize: boolean;
     FCheckExistTileDate: boolean;
@@ -79,6 +81,7 @@ type
     FRES_LoadProcessRepl: string;
     FRES_LoadProcess: string;
     FRES_FileBeCreateTime: string;
+    FRES_TneBeCreateTime: string;
     FRES_FileBeCreateLen: string;
     FRES_Authorization: string;
     FRES_WaitTime: string;
@@ -135,6 +138,8 @@ type
       ACheckExistTileDate: Boolean;
       const AReplaceOlderDate: TDateTime;
       ASecondLoadTNE: Boolean;
+      ACheckTneOlderDate: Boolean;
+      const AReplaceTneOlderDate: TDateTime;
       const AZoomArray: TByteDynArray;
       const ALastProcessedZoom: Byte;
       const ALastProcessedPoint: TPoint;
@@ -174,6 +179,8 @@ constructor TThreadDownloadTiles.Create(
   AReplaceExistTiles, ACheckExistTileSize, ACheckExistTileDate: Boolean;
   const AReplaceOlderDate: TDateTime;
   ASecondLoadTNE: Boolean;
+  ACheckTneOlderDate: Boolean;
+  const AReplaceTneOlderDate: TDateTime;
   const AZoomArray: TByteDynArray;
   const ALastProcessedZoom: Byte;
   const ALastProcessedPoint: TPoint;
@@ -218,6 +225,8 @@ begin
   FCheckTileDate := AReplaceOlderDate;
   FCheckExistTileDate := ACheckExistTileDate;
   FSecondLoadTNE := ASecondLoadTNE;
+  FCheckTneOlderDate := ACheckTneOlderDate;
+  FReplaceTneOlderDate := AReplaceTneOlderDate;
   FZoomArray := GetZoomArrayCopy(AZoomArray);
   FLastProcessedZoom := ALastProcessedZoom;
   FLastProcessedPoint := ALastProcessedPoint;
@@ -356,75 +365,81 @@ begin
 
       // if gtimWithData - tile will be loaded, so we use gtimAsIs
       VTileInfo := FMapType.TileStorage.GetTileInfoEx(VTile, AZoom, FVersionForCheck, gtimAsIs);
-
-      if (FReplaceExistTiles) or not (VTileInfo.IsExists) then begin
-        // what to do
-        if VTileInfo.IsExists then begin
+      if VTileInfo.IsExists then begin
+        if FReplaceExistTiles then begin
           FProgressInfo.Log.WriteText(FRES_LoadProcessRepl, 0);
         end else begin
-          FProgressInfo.Log.WriteText(FRES_LoadProcess, 0);
-        end;
-        if (FCheckExistTileDate) and (VTileInfo.IsExists or VTileInfo.IsExistsTNE) and (VTileInfo.LoadDate >= FCheckTileDate) then begin
-          // skip existing newer tile
-          FProgressInfo.Log.WriteText(FRES_FileBeCreateTime, 0);
-          FLastProcessedPoint := VTile;
+          FProgressInfo.Log.WriteText(FRES_FileExistsShort, 0);
           VGotoNextTile := True;
+        end;
+        if not VGotoNextTile then begin
+          if FCheckExistTileDate and (VTileInfo.LoadDate >= FCheckTileDate) then begin
+            // skip existing newer tile
+            FProgressInfo.Log.WriteText(FRES_FileBeCreateTime, 0);
+            VGotoNextTile := True;
+          end;
+        end;
+      end else if VTileInfo.IsExistsTNE then begin
+        if FSecondLoadTNE then begin
+          FProgressInfo.Log.WriteText(FRES_LoadProcess, 0);
         end else begin
-          try
-            if (not (FSecondLoadTNE)) and
-              (VTileInfo.IsExistsTNE) and
-              (FDownloadConfig.IsSaveTileNotExists) then begin
-              // tne found - skip downloading tile
-              FProgressInfo.Log.WriteText('(tne exists)', 0);
-              FLastProcessedPoint := VTile;
-              VGotoNextTile := True;
-            end else begin
-              // download tile
-              VTask := FMapType.TileDownloadSubsystem.GetRequestTask(
-                ACancelNotifier,
-                FCancelNotifier,
-                FOperationID,
-                FTaskFinishNotifier,
-                VTile,
-                AZoom,
-                FVersionForDownload,
-                FCheckExistTileSize
-              );
-              if VTask <> nil then begin
-                FTileRequestResult := nil;
-                FMapType.TileDownloadSubsystem.Download(VTask);
-                if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
-                  Exit;
-                end;
-                FFinishEvent.WaitFor(INFINITE);
-                if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
-                  Exit;
-                end;
-                VGotoNextTile := ProcessResultAndCheckGotoNextTile(FTileRequestResult);
-                if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
-                  Exit;
-                end;
-                FLastProcessedPoint := VTile;
-              end else begin
-                FProgressInfo.Log.WriteText('Download disabled', 0);
-                VGotoNextTile := False;
-                FProgressInfo.NeedPause := True;
-              end;
-            end;
-          except
-            on E: Exception do begin
-              FProgressInfo.Log.WriteText(E.Message, 0);
-              VGotoNextTile := True;
-            end;
+          FProgressInfo.Log.WriteText('(tne exists)', 0);
+          VGotoNextTile := True;
+        end;
+        if not VGotoNextTile then begin
+          if FCheckTneOlderDate and (VTileInfo.LoadDate >= FReplaceTneOlderDate) then begin
+            // skip existing newer tne
+            FProgressInfo.Log.WriteText(FRES_TneBeCreateTime, 0);
+            VGotoNextTile := True;
           end;
         end;
       end else begin
-        FProgressInfo.Log.WriteText(FRES_FileExistsShort, 0);
-        VGotoNextTile := True;
+        FProgressInfo.Log.WriteText(FRES_LoadProcess, 0);
       end;
       if VGotoNextTile then begin
+        FLastProcessedPoint := VTile;
         FProgressInfo.AddProcessedTile(VTile);
+      end else begin
+        try
+          // download tile
+          VTask := FMapType.TileDownloadSubsystem.GetRequestTask(
+            ACancelNotifier,
+            FCancelNotifier,
+            FOperationID,
+            FTaskFinishNotifier,
+            VTile,
+            AZoom,
+            FVersionForDownload,
+            FCheckExistTileSize
+          );
+          if VTask <> nil then begin
+            FTileRequestResult := nil;
+            FMapType.TileDownloadSubsystem.Download(VTask);
+            if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
+              Exit;
+            end;
+            FFinishEvent.WaitFor(INFINITE);
+            if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
+              Exit;
+            end;
+            VGotoNextTile := ProcessResultAndCheckGotoNextTile(FTileRequestResult);
+            if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
+              Exit;
+            end;
+            FLastProcessedPoint := VTile;
+          end else begin
+            FProgressInfo.Log.WriteText('Download disabled', 0);
+            VGotoNextTile := False;
+            FProgressInfo.NeedPause := True;
+          end;
+        except
+          on E: Exception do begin
+            FProgressInfo.Log.WriteText(E.Message, 0);
+            VGotoNextTile := True;
+          end;
+        end;
       end;
+
       if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
         Exit;
       end;
@@ -564,6 +579,7 @@ begin
   FRES_LoadProcessRepl := SAS_STR_LoadProcessRepl;
   FRES_LoadProcess := SAS_STR_LoadProcess;
   FRES_FileBeCreateTime := SAS_MSG_FileBeCreateTime;
+  FRES_TneBeCreateTime := SAS_MSG_TneBeCreateTime;
   FRES_FileBeCreateLen := SAS_MSG_FileBeCreateLen;
   FRES_Authorization := SAS_ERR_Authorization;
   FRES_WaitTime := SAS_ERR_WaitTime;

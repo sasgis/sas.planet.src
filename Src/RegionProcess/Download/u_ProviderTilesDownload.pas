@@ -104,6 +104,7 @@ implementation
 uses
   Classes,
   SysUtils,
+  Math,
   IniFiles,
   c_ZeroGUID,
   i_MapType,
@@ -236,6 +237,7 @@ var
   VProcessedTileCount: Int64;
   VProcessedSize: Int64;
   VSecondLoadTNE: Boolean;
+  VLoadTneOlderDate: TDateTime;
   VLastProcessedPoint: TPoint;
   VElapsedTime: TDateTime;
   VMapType: IMapType;
@@ -266,6 +268,7 @@ begin
   VCheckExistTileSize := False;
   VCheckExistTileDate := False;
   VCheckTileDate := Now;
+  VLoadTneOlderDate := NaN;
   VSecondLoadTNE := False;
   VElapsedTime := 0;
   VProcessedTileCount := 0;
@@ -315,6 +318,7 @@ begin
   VProcessedSize := trunc(VSessionSection.ReadFloat('ProcessedSize', 0) * 1024);
 
   VSecondLoadTNE := VSessionSection.ReadBool('SecondLoadTNE', VSecondLoadTNE);
+  VLoadTneOlderDate := VSessionSection.ReadDate('LoadTneOlderDate', VLoadTneOlderDate);
   VElapsedTime := VSessionSection.ReadFloat('ElapsedTime', VElapsedTime);
   if FDownloadConfig.IsUseSessionLastSuccess then begin
     VLastProcessedPoint.X := VSessionSection.ReadInteger('LastSuccessfulStartX', -1);
@@ -340,6 +344,7 @@ begin
       VZoomArr,
       VPolygon,
       VSecondLoadTNE,
+      VLoadTneOlderDate,
       VReplaceExistTiles,
       VCheckExistTileSize,
       VCheckExistTileDate,
@@ -384,6 +389,8 @@ begin
       VCheckExistTileDate,
       VCheckTileDate,
       VSecondLoadTNE,
+      not IsNan(VLoadTneOlderDate),
+      VLoadTneOlderDate,
       VZoomArr,
       VZoom,
       VLastProcessedPoint,
@@ -405,9 +412,11 @@ var
   VOperationID: Integer;
   VProgressInfo: TRegionProcessProgressInfoDownload;
   VThread: TThread;
+  VLoadTneOlderDate: TDateTime;
 begin
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
   VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
+  VLoadTneOlderDate := (ParamsFrame as IRegionProcessParamsFrameTilesDownload).LoadTneOlderDate;
 
   VZoom := VZoomArr[0];
 
@@ -431,6 +440,7 @@ begin
       VZoomArr,
       APolygon,
       (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsIgnoreTne,
+      VLoadTneOlderDate,
       (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplace,
       (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplaceIfDifSize,
       (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplaceIfOlder,
@@ -476,6 +486,8 @@ begin
         (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplaceIfOlder,
         (ParamsFrame as IRegionProcessParamsFrameTilesDownload).ReplaceDate,
         (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsIgnoreTne,
+        not IsNan(VLoadTneOlderDate),
+        VLoadTneOlderDate,
         VZoomArr,
         VZoom,
         Point(-1, -1),
