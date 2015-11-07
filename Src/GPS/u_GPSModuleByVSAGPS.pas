@@ -184,6 +184,9 @@ uses
   Classes,
   ALString,
   vsagps_public_sysutils,
+  {$IFNDef UNICODE}
+  Compatibility,
+  {$ENDIF}
   t_GeoTypes,
   u_ResStrings,
   u_ListenerByEvent;
@@ -521,7 +524,7 @@ var
   VszGPSPortName: PAnsiChar;
 {$ifend}
   VTimeout: DWORD;
-  VFlyOnTrackSource: WideString;
+  VFlyOnTrackSource: UnicodeString;
   VTrackTypes: TVSAGPS_TrackTypes;
 
   procedure _LoadFlyOnTrackSource;
@@ -868,19 +871,15 @@ procedure TGPSModuleByVSAGPS.DoGPSUnitInfoChanged(
 );
 var
   VValue: string;
-  VAnsiValue: AnsiString;
-  VWideValue: WideString;
 begin
   // save to info
   if (guik_ClearALL=AKind) then
     InternalClearUnitInfo(AUnitIndex)
   else begin
     if AIsWide then begin
-      VWideValue := SafeSetStringP(PWideChar(AValue));
-      VValue := string(VWideValue);
+      VValue := string(SafeSetStringP(PWideChar(AValue)));
     end else begin
-      VAnsiValue := SafeSetStringP(PAnsiChar(AValue));
-      VValue := string(VAnsiValue);
+      VValue := string(SafeSetStringP(PAnsiChar(AValue)));
     end;
     InternalSetUnitInfo(AUnitIndex, AKind, VValue);
   end;
@@ -1178,7 +1177,7 @@ procedure TGPSModuleByVSAGPS.InternalStartLogger(const AConfig: IGPSModuleByCOMP
                                                  const ALogConfig: IGPSConfig);
 var
   VTrackTypes: TVSAGPS_TrackTypes;
-  VLoggerPath: WideString;
+  VLoggerPath: UnicodeString;
   tCallbackFilter: TVSAGPS_LOGGER_GETVALUES_CALLBACK_FILTER;
 begin
   if InternalGetLoggerState(AConfig, ALogConfig, VTrackTypes) then begin

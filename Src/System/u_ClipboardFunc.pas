@@ -34,6 +34,9 @@ uses
   Windows,
   Graphics,
   GR32,
+  {$IFNDef UNICODE}
+  Compatibility,
+  {$ENDIF}
   u_BitmapFunc;
 
 procedure CopyBitmapToClipboard(
@@ -79,7 +82,7 @@ procedure CopyStringToClipboard(
   const s: string
 );
 var
-  VStr: WideString;
+  VStr: UnicodeString;
   hg: THandle;
   P: Pointer;
   VLen: Integer;

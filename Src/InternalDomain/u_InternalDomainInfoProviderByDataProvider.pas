@@ -65,6 +65,9 @@ uses
   SysUtils,
   ActiveX,
   UrlMon,
+  {$IFNDef UNICODE}
+  Compatibility,
+  {$ENDIF}
   i_ContentTypeInfo;
 
 const
@@ -99,7 +102,7 @@ var
   VFileName: string;
   VExt: AnsiString;
   VContentType: IContentTypeInfoBasic;
-  VUrl: WideString;
+  VUrl: UnicodeString;
   VMimeType: PWideChar;
 begin
   AContentType := '';
