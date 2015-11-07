@@ -75,7 +75,7 @@ type
     procedure InternalMakeTrackObject;
     procedure InternalCloseArrayPoints;
     function ParseKmlCoordinatesToArray(
-      const ACoordinates: WideString
+      const ACoordinates: string
     ): Integer;
     function ParseCloseMarkObjectData(
       const AData: Pointer;
@@ -104,12 +104,12 @@ type
       const AMode: TCloseMarkObjectMode
     );
 
-    procedure CloseKmlLineString(const ACoordinates: WideString);
+    procedure CloseKmlLineString(const ACoordinates: string);
     procedure CloseKmlLinearRing(
-      const ACoordinates: WideString;
+      const ACoordinates: string;
       const AInner: Boolean
     );
-    procedure CloseKmlPoint(const ACoordinates: WideString);
+    procedure CloseKmlPoint(const ACoordinates: string);
     procedure CloseGPXPoint(const APoint: TDoublePoint);
     procedure CloseKmlPolygon;
 
@@ -152,7 +152,7 @@ uses
 
 function FindNextDelimiterPos(
   const APrevDelimiterPos: Integer;
-  const ASource: WideString
+  const ASource: string
 ): Integer;
 begin
   Result := APrevDelimiterPos + 1;
@@ -187,7 +187,7 @@ begin
 end;
 
 procedure TXmlVectorObjects.CloseKmlLinearRing(
-  const ACoordinates: WideString;
+  const ACoordinates: string;
   const AInner: Boolean
 );
 begin
@@ -209,7 +209,7 @@ begin
   end;
 end;
 
-procedure TXmlVectorObjects.CloseKmlLineString(const ACoordinates: WideString);
+procedure TXmlVectorObjects.CloseKmlLineString(const ACoordinates: string);
 begin
   // check
   if (0 = Length(ACoordinates)) then begin
@@ -224,7 +224,7 @@ begin
   end;
 end;
 
-procedure TXmlVectorObjects.CloseKmlPoint(const ACoordinates: WideString);
+procedure TXmlVectorObjects.CloseKmlPoint(const ACoordinates: string);
 var
   VData: TCoordLineData;
   VLonLatPoint: IGeometryLonLatPoint;
@@ -451,7 +451,7 @@ function TXmlVectorObjects.ParseCloseMarkObjectData(
   out AMarkDesc: string
 ): Boolean;
 
-  procedure _AddToDesc(const AParamName, AParamValue: WideString);
+  procedure _AddToDesc(const AParamName, AParamValue: string);
   begin
     if (0 < Length(AParamValue)) then begin
       if (0 < Length(AMarkDesc)) then begin
@@ -468,8 +468,8 @@ var
   x: Tvsagps_GPX_ext_sasx_str;
   y: Tvsagps_GPX_trk_ext;
   z: Tvsagps_GPX_wpt_ext;
-  VParamName: WideString;
-  VParamValue: WideString;
+  VParamName: string;
+  VParamValue: string;
 begin
   Result := False;
   AAppearance := nil;
@@ -615,11 +615,11 @@ begin
 end;
 
 function TXmlVectorObjects.ParseKmlCoordinatesToArray(
-  const ACoordinates: WideString
+  const ACoordinates: string
 ): Integer;
 var
   VPosPrev, VPosCur: Integer;
-  VCoordLine: WideString;
+  VCoordLine: string;
   VData: TCoordLineData;
   VPoint: TDoublePoint;
 begin

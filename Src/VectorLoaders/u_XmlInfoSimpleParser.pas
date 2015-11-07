@@ -158,7 +158,7 @@ procedure TXmlInfoSimpleParser.Internal_CloseLinearRing(
   const pPX_Result: Pvsagps_XML_ParserResult
 );
 var
-  VCoordinates: WideString;
+  VCoordinates: string;
   VInner: Boolean;
   VPX_Result: Pvsagps_XML_ParserResult;
 begin
@@ -201,7 +201,7 @@ procedure TXmlInfoSimpleParser.Internal_CloseLineString(
   const pPX_Result: Pvsagps_XML_ParserResult
 );
 var
-  VCoordinates: WideString;
+  VCoordinates: string;
 begin
   with pPX_Result^.kml_data do begin
     if (fParamsStrs[kml_coordinates] <> nil) then begin
@@ -228,7 +228,7 @@ procedure TXmlInfoSimpleParser.Internal_ClosePoint(
   const pPX_Result: Pvsagps_XML_ParserResult
 );
 var
-  VCoordinates: WideString;
+  VCoordinates: string;
 begin
   with pPX_Result^.kml_data do begin
     if (fParamsStrs[kml_coordinates] <> nil) then begin

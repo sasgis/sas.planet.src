@@ -59,14 +59,14 @@ type
     );
 
     // close simple line and add coordinates to array
-    procedure CloseKmlLineString(const ACoordinates: WideString);
+    procedure CloseKmlLineString(const ACoordinates: string);
     // close polygon border and add coordinates to array
     procedure CloseKmlLinearRing(
-      const ACoordinates: WideString;
+      const ACoordinates: string;
       const AInner: Boolean
     );
     // add single point as single object
-    procedure CloseKmlPoint(const ACoordinates: WideString);
+    procedure CloseKmlPoint(const ACoordinates: string);
     // add single point as single object
     procedure CloseGPXPoint(const APoint: TDoublePoint);
     // close polygon object
