@@ -6641,7 +6641,7 @@ begin
     SetDescription(PChar(Desc));
     SetPath(PChar(PathObj));
   end;
-  PFile.Save(POleStr(WideString(PathLink)), False);
+  PFile.Save(POleStr(UnicodeString(PathLink)), False);
 end;
 
 procedure TfrmMain.tbitmCreateShortcutClick(Sender: TObject);

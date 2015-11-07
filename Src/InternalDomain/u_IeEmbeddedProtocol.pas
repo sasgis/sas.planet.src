@@ -81,6 +81,9 @@ implementation
 uses
   StrUtils,
   SysUtils,
+  {$IFNDef UNICODE}
+  Compatibility,
+  {$ENDIF}
   i_BinaryData;
 
 { TIeEmbeddedProtocol }
@@ -133,7 +136,7 @@ begin
           if Result then begin
             FStream.WriteBuffer(VData.Buffer^, VData.Size);
           end;
-          FProtocolSink.ReportProgress(BINDSTATUS_MIMETYPEAVAILABLE, PWideChar(WideString(VContentType)));
+          FProtocolSink.ReportProgress(BINDSTATUS_MIMETYPEAVAILABLE, PWideChar(UnicodeString(VContentType)));
         end;
         FStream.Position := 0;
       end;

@@ -24,12 +24,15 @@ interface
 
 uses
   UrlMon,
+  {$IFNDef UNICODE}
+  Compatibility,
+  {$ENDIF}
   ActiveX;
 
 type
   TIeEmbeddedProtocolRegistration = class
   private
-    FProtocol: WideString;
+    FProtocol: UnicodeString;
     FFactory: IClassFactory;
     FInternetSession: IInternetSession;
   public
