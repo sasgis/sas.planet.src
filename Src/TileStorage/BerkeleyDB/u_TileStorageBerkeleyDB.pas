@@ -406,7 +406,7 @@ begin
                 VTileDate,
                 VTileSize,
                 MapVersionFactory.CreateByStoreString(VTileVersion),
-                FContentTypeManager.GetInfo(AnsiString(VTileContentType))
+                FContentTypeManager.GetInfo(VTileContentType)
               );
           end;
         end else begin
@@ -428,7 +428,7 @@ begin
                 VTileDate,
                 VTileBinaryData,
                 MapVersionFactory.CreateByStoreString(VTileVersion),
-                FContentTypeManager.GetInfo(AnsiString(VTileContentType))
+                FContentTypeManager.GetInfo(VTileContentType)
               );
           end;
         end;
@@ -537,7 +537,7 @@ begin
                 VTileDate,
                 VTileSize,
                 MapVersionFactory.CreateByStoreString(VTileVersion),
-                FContentTypeManager.GetInfo(AnsiString(VTileContentType))
+                FContentTypeManager.GetInfo(VTileContentType)
               );
           end;
         end else begin
@@ -559,7 +559,7 @@ begin
                 VTileDate,
                 VTileBinaryData,
                 MapVersionFactory.CreateByStoreString(VTileVersion),
-                FContentTypeManager.GetInfo(AnsiString(VTileContentType))
+                FContentTypeManager.GetInfo(VTileContentType)
               );
           end;
         end;
