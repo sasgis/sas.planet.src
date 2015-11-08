@@ -582,10 +582,10 @@ begin
         );
       end;
 
-      FValue.TileVersion := PWideChar(VPtr);
+      FValue.TileVersion := string(PWideChar(VPtr));
       Inc(VPtr, (Length(FValue.TileVersion) + 1) * SizeOf(WideChar));
 
-      FValue.TileContentType := PWideChar(VPtr);
+      FValue.TileContentType := AnsiString(PWideChar(VPtr));
       Inc(VPtr, (Length(FValue.TileContentType) + 1) * SizeOf(WideChar));
 
       if FValue.TileSize > 0 then begin
@@ -748,10 +748,10 @@ begin
   FValue.TileCRC := PCardinal(VPtr)^;
   Inc(VPtr, SizeOf(FValue.TileCRC));
 
-  FValue.TileVersionInfo := PWideChar(VPtr);
+  FValue.TileVersionInfo := string(PWideChar(VPtr));
   Inc(VPtr, (Length(FValue.TileVersionInfo) + 1) * SizeOf(WideChar));
 
-  FValue.TileContentType := PWideChar(VPtr);
+  FValue.TileContentType := AnsiString(PWideChar(VPtr));
   Inc(VPtr, (Length(FValue.TileContentType) + 1) * SizeOf(WideChar));
 
   if FSize <= 0 then begin
