@@ -229,7 +229,7 @@ implementation
 uses
   Math,
   CRC32,
-  {$IFNDef UNICODE}
+  {$IFNDEF UNICODE}
   Compatibility,
   {$ENDIF}
   u_BerkeleyDBValueZlib;
@@ -245,6 +245,38 @@ const
 
   cValueVersion = #03;
   cValueMagic: array [0..3] of AnsiChar = ('T', 'L', 'D', cValueVersion);         // TiLe Data
+
+procedure StringToValue(const AStr: UnicodeString; var APtr: PByte);
+var
+  VLen: Integer;
+begin
+  VLen := Length(AStr) * SizeOf(WideChar);
+  if VLen > 0 then begin
+    Move(PWideChar(AStr)^, APtr^, VLen);
+    Inc(APtr, VLen);
+  end;
+  VLen := Length(cWideCharEndLine) * SizeOf(WideChar);
+  Move(cWideCharEndLine, APtr^, VLen);
+  Inc(APtr, VLen);
+end;
+
+function ValueToString(var APtr: PByte): string; overload;
+var
+  VStr: UnicodeString;
+begin
+  VStr := PWideChar(APtr);
+  Inc(APtr, (Length(VStr) + 1) * SizeOf(WideChar));
+  Result := string(VStr);
+end;
+
+function ValueToAnsiString(var APtr: PByte): AnsiString; overload;
+var
+  VStr: UnicodeString;
+begin
+  VStr := PWideChar(APtr);
+  Inc(APtr, (Length(VStr) + 1) * SizeOf(WideChar));
+  Result := AnsiString(VStr);
+end;
 
 { TBerkeleyDBValueBase }
 
@@ -434,6 +466,7 @@ var
   VPtr: PByte;
   VLen: Integer;
   VCRC32Ptr: PByte;
+  VStr: UnicodeString;
 begin
   if Assigned(FValue) then begin
     Dispose(FValue);
@@ -497,24 +530,12 @@ begin
   Inc(VPtr, VLen);
 
   // tile version
-  VLen := Length(FValue.TileVersion) * SizeOf(WideChar);
-  if VLen > 0 then begin
-    Move(PWideChar(UnicodeString(FValue.TileVersion))^, VPtr^, VLen);
-    Inc(VPtr, VLen);
-  end;
-  VLen := Length(cWideCharEndLine) * SizeOf(WideChar);
-  Move(cWideCharEndLine, VPtr^, VLen);
-  Inc(VPtr, VLen);
+  VStr := UnicodeString(FValue.TileVersion);
+  StringToValue(VStr, VPtr);
 
   // tile content-type
-  VLen := Length(FValue.TileContentType) * SizeOf(WideChar);
-  if VLen > 0 then begin
-    Move(PWideChar(UnicodeString(FValue.TileContentType))^, VPtr^, VLen);
-    Inc(VPtr, VLen);
-  end;
-  VLen := Length(cWideCharEndLine) * SizeOf(WideChar);
-  Move(cWideCharEndLine, VPtr^, VLen);
-  Inc(VPtr, VLen);
+  VStr := UnicodeString(FValue.TileContentType);
+  StringToValue(VStr, VPtr);
 
   // tile body
   if (ATileSize > 0) and (ATileBody <> nil) then begin
@@ -582,11 +603,8 @@ begin
         );
       end;
 
-      FValue.TileVersion := string(PWideChar(VPtr));
-      Inc(VPtr, (Length(FValue.TileVersion) + 1) * SizeOf(WideChar));
-
-      FValue.TileContentType := AnsiString(PWideChar(VPtr));
-      Inc(VPtr, (Length(FValue.TileContentType) + 1) * SizeOf(WideChar));
+      FValue.TileVersion := ValueToString(VPtr);
+      FValue.TileContentType := ValueToAnsiString(VPtr);
 
       if FValue.TileSize > 0 then begin
         FValue.TileBody := VPtr;
@@ -748,11 +766,8 @@ begin
   FValue.TileCRC := PCardinal(VPtr)^;
   Inc(VPtr, SizeOf(FValue.TileCRC));
 
-  FValue.TileVersionInfo := string(PWideChar(VPtr));
-  Inc(VPtr, (Length(FValue.TileVersionInfo) + 1) * SizeOf(WideChar));
-
-  FValue.TileContentType := AnsiString(PWideChar(VPtr));
-  Inc(VPtr, (Length(FValue.TileContentType) + 1) * SizeOf(WideChar));
+  FValue.TileVersionInfo := ValueToString(VPtr);
+  FValue.TileContentType := ValueToAnsiString(VPtr);
 
   if FSize <= 0 then begin
     FSize := Cardinal(VPtr) - Cardinal(AData);
@@ -770,6 +785,7 @@ procedure TBerkeleyDBVersionedMetaValueElement.ValueToData;
 var
   VPtr: PByte;
   VLen: Integer;
+  VStr: UnicodeString;
 begin
   if FOwnMem and Assigned(FData) then begin
     FreeMemory(FData);
@@ -814,23 +830,12 @@ begin
   Inc(VPtr, VLen);
 
   // tile version
-  VLen := Length(FValue.TileVersionInfo) * SizeOf(WideChar);
-  if VLen > 0 then begin
-    Move(PWideChar(UnicodeString(FValue.TileVersionInfo))^, VPtr^, VLen);
-    Inc(VPtr, VLen);
-  end;
-  VLen := Length(cWideCharEndLine) * SizeOf(WideChar);
-  Move(cWideCharEndLine, VPtr^, VLen);
-  Inc(VPtr, VLen);
+  VStr := UnicodeString(FValue.TileVersionInfo);
+  StringToValue(VStr, VPtr);
 
   // tile content-type
-  VLen := Length(FValue.TileContentType) * SizeOf(WideChar);
-  if VLen > 0 then begin
-    Move(PWideChar(UnicodeString(FValue.TileContentType))^, VPtr^, VLen);
-    Inc(VPtr, VLen);
-  end;
-  VLen := Length(cWideCharEndLine) * SizeOf(WideChar);
-  Move(cWideCharEndLine, VPtr^, VLen);
+  VStr := UnicodeString(FValue.TileContentType);
+  StringToValue(VStr, VPtr);
 end;
 
 function TBerkeleyDBVersionedMetaValueElement.GetVersionID: Word;
