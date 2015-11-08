@@ -260,7 +260,7 @@ begin
   Inc(APtr, VLen);
 end;
 
-function ValueToString(var APtr: PByte): string; overload;
+function ValueToString(var APtr: PByte): string;
 var
   VStr: UnicodeString;
 begin
@@ -269,7 +269,7 @@ begin
   Result := string(VStr);
 end;
 
-function ValueToAnsiString(var APtr: PByte): AnsiString; overload;
+function ValueToAnsiString(var APtr: PByte): AnsiString;
 var
   VStr: UnicodeString;
 begin
