@@ -55,8 +55,8 @@ type
     ProxyUseCustomSettings: Boolean;
     ProxyHost: AnsiString;
     ProxyUseLogin: Boolean;
-    ProxyUserName: AnsiString;
-    ProxyPassword: AnsiString;
+    ProxyUserName: string;
+    ProxyPassword: string;
   end;
 
   TDownloaderHttp = class(TBaseInterfacedObject, IDownloader, IDownloaderAsync)
@@ -681,8 +681,8 @@ begin
           FHttpClient.ProxyParams.ProxyPort := 0;
         end;
         if FHttpClientLastConfig.ProxyUseLogin then begin
-          FHttpClient.ProxyParams.ProxyUserName := FHttpClientLastConfig.ProxyUserName;
-          FHttpClient.ProxyParams.ProxyPassword := FHttpClientLastConfig.ProxyPassword;
+          FHttpClient.ProxyParams.ProxyUserName := AnsiString(FHttpClientLastConfig.ProxyUserName);
+          FHttpClient.ProxyParams.ProxyPassword := AnsiString(FHttpClientLastConfig.ProxyPassword);
         end;
         FHttpClient.AccessType := wHttpAt_Proxy;
         {$IFDEF VerboseHttpClient}
