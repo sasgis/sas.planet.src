@@ -45,6 +45,7 @@ implementation
 
 uses
   ALString,
+  ALStringList,
   u_StrFunc,
   u_GeoToStrFunc,
   u_StreamReadOnlyByBinaryData;
@@ -57,10 +58,10 @@ begin
   Result := ALIntToStr(i);
 end;
 
-function _ConvertToYYYYMMDD(const AText, ASep: String): String;
+function _ConvertToYYYYMMDD(const AText, ASep: AnsiString): AnsiString;
 var
   VSepPos: Integer;
-  Vyyyy, Vmm, Vdd: String;
+  Vyyyy, Vmm, Vdd: AnsiString;
 begin
   Result := '';
   Vmm := '';
@@ -68,7 +69,7 @@ begin
   Vyyyy := AText;
 
   // get m[m]
-  VSepPos := System.Pos(ASep, Vyyyy);
+  VSepPos := ALPos(ASep, Vyyyy);
   if VSepPos>0 then begin
     Vmm := System.Copy(Vyyyy, 1, VSepPos - 1);
     System.Delete(Vyyyy, 1, VSepPos);
@@ -77,7 +78,7 @@ begin
   end;
 
   // get d[d]
-  VSepPos := System.Pos(ASep, Vyyyy);
+  VSepPos := ALPos(ASep, Vyyyy);
   if VSepPos>0 then begin
     Vdd := System.Copy(Vyyyy, 1, VSepPos - 1);
     System.Delete(Vyyyy, 1, VSepPos);
@@ -86,11 +87,11 @@ begin
   end;
 
   // check all parts
-  if TryStrToInt(Vyyyy, VSepPos) then
-  if TryStrToInt(Vmm, VSepPos) then
-  if TryStrToInt(Vdd, VSepPos) then begin
+  if ALTryStrToInt(Vyyyy, VSepPos) then
+  if ALTryStrToInt(Vmm, VSepPos) then
+  if ALTryStrToInt(Vdd, VSepPos) then begin
     // ok
-    Result := Vyyyy + DateSeparator + Vmm + DateSeparator + Vdd;
+    Result := Vyyyy + '.' + Vmm + '.' + Vdd;
   end;
 end;
 
@@ -105,16 +106,16 @@ end;
 function TAvailPicsTerraserver.ParseResponse(const AResultOk: IDownloadResultOk): Integer;
 
 
-  function _ProcessOption(const AOptionText: String;
+  function _ProcessOption(const AOptionText: AnsiString;
                           var AParams: TStrings): Boolean;
   var
     //VText: String;
-    VDate: String;
-    VValue: String;
-    VLayer: String;
-    VSep: String; // actual separator
+    VDate: AnsiString;
+    VValue: AnsiString;
+    VLayer: AnsiString;
+    VSep: AnsiString; // actual separator
     VPos: Integer;
-    VItemIdentifier: String;
+    VItemIdentifier: AnsiString;
     VItemExisting: Boolean;
     VItemFetched: TDateTime;
   begin
@@ -136,7 +137,7 @@ function TAvailPicsTerraserver.ParseResponse(const AResultOk: IDownloadResultOk)
     if (Length(VValue) in [8..10]) then begin
       // find separator
       VSep := '/';
-      VPos := System.Pos(VSep, VValue);
+      VPos := ALPos(VSep, VValue);
       if (VPos>0) then begin
         // sep defined
         VDate := _ConvertToYYYYMMDD(VValue, VSep);
@@ -218,9 +219,9 @@ function TAvailPicsTerraserver.ParseResponse(const AResultOk: IDownloadResultOk)
 
 var
   VStream: TStreamReadOnlyByBinaryData;
-  VResponse: TStringList;
+  VResponse: TALStringList;
   VSLParams: TStrings;
-  S: String;
+  S: AnsiString;
 begin
   Result := 0;
 
@@ -234,22 +235,22 @@ begin
     if (0 = VStream.Size) then
       Exit;
 
-    VResponse := TStringList.Create;
+    VResponse := TALStringList.Create;
     VResponse.LoadFromStream(VStream);
     // search for:
     // <option value='dg,26410504ede5bddf1bbc7aba966ab61e'  selected='selected'  >9/17/2012&nbsp;-&nbsp;0.5m&nbsp;</option>
     // <option value='dg,f09a1d6be635f037f9b2a079ea57040b'  >7/19/2010</option>
 
     while (VResponse.Count>0) do begin
-      S := Trim(VResponse[0]);
+      S := ALTrim(VResponse[0]);
       S := GetBetween(S, '<option', '</option>');
       if Length(S)>0 then begin
-        if Pos('<', S) = 0 then begin
+        if ALPos('<', S) = 0 then begin
           // got  value='dg,4c0512fac553a1d9cf226b003610efad'  selected='selected'  >5/22/2011
           // provider = dg
           // layer = 4c0512fac553a1d9cf226b003610efad
           // date = 5/22/2011
-          if _ProcessOption(Trim(S), VSLParams) then
+          if _ProcessOption(ALTrim(S), VSLParams) then
             Inc(Result);
         end;
       end;
