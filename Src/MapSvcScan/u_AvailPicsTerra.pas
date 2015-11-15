@@ -46,6 +46,9 @@ implementation
 uses
   ALString,
   ALStringList,
+  {$IFNDef UNICODE}
+  Compatibility,
+  {$ENDIF}
   u_StrFunc,
   u_GeoToStrFunc,
   u_StreamReadOnlyByBinaryData;

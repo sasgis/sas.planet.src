@@ -58,6 +58,9 @@ implementation
 
 uses
   ALZLibExGZ,
+  {$IFNDef UNICODE}
+  Compatibility,
+  {$ENDIF}
   u_StreamReadOnlyByBinaryData,
   u_StrFunc,
   u_InetFunc,

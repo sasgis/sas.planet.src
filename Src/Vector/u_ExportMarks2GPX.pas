@@ -78,6 +78,9 @@ implementation
 uses
   DateUtils,
   ALString,
+  {$IFNDef UNICODE}
+  Compatibility,
+  {$ENDIF}
   t_GeoTypes,
   i_BinaryData,
   i_LonLatRect,

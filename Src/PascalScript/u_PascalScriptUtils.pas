@@ -37,6 +37,9 @@ uses
   ALString,
   DateUtils,
   MD5,
+  {$IFNDef UNICODE}
+  Compatibility,
+  {$ENDIF}
   u_GeoToStrFunc,
   u_StrFunc;
 

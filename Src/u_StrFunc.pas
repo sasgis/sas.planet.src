@@ -25,10 +25,6 @@ interface
 uses
   SysUtils;
 
-{$IFNDEF UNICODE}
-function CharInSet(AChar: AnsiChar; const ASet: TSysCharSet): Boolean; inline;
-{$ENDIF}
-
 function GetAfter(const SubStr, Str: AnsiString): AnsiString;
 function GetBefore(const SubStr, Str: AnsiString): AnsiString;
 function GetBetween(const Str, After, Before: AnsiString): AnsiString;
@@ -41,13 +37,6 @@ implementation
 uses
   ALString,
   RegExpr;
-
-{$IFNDEF UNICODE}
-function CharInSet(AChar: AnsiChar; const ASet: TSysCharSet): Boolean; inline;
-begin
-  Result := AChar in ASet;
-end;
-{$ENDIF}
 
 function GetAfter(const SubStr, Str: AnsiString): AnsiString;
 begin
