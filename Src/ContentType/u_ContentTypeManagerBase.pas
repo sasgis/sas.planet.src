@@ -76,13 +76,15 @@ implementation
 
 uses
   SysUtils,
-  ALString;
+  ALString,
+  u_StrFunc;
 
 procedure TContentTypeManagerBase.AddByExt(
   const AInfo: IContentTypeInfoBasic;
   const AExt: AnsiString
 );
 begin
+  Assert(IsAscii(AExt));
   FExtList.Add(AExt, AInfo);
   if Supports(AInfo, IContentTypeInfoBitmap) then begin
     FBitmapExtList.Add(AExt, AInfo);
@@ -96,6 +98,7 @@ procedure TContentTypeManagerBase.AddByType(
   const AType: AnsiString
 );
 begin
+  Assert(IsAscii(AType));
   FTypeList.Add(AType, AInfo);
   if Supports(AInfo, IContentTypeInfoBitmap) then begin
     FBitmapTypeList.Add(AType, AInfo);
@@ -132,17 +135,21 @@ function TContentTypeManagerBase.GetBitmapLoaderByFileName(
   const AFileName: string
 ): IBitmapTileLoader;
 var
-  VExt: AnsiString;
+  VExt: string;
+  VExtAscii: AnsiString;
   VContentType: IContentTypeInfoBasic;
   VContentTypeBitmap: IContentTypeInfoBitmap;
 begin
   Result := nil;
-  VExt := AnsiString(ExtractFileExt(AFileName));
-  VExt := AlLowerCase(VExt);
-  VContentType := GetInfoByExt(VExt);
-  if Assigned(VContentType) then begin
-    if Supports(VContentType, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
-      Result := VContentTypeBitmap.GetLoader;
+  VExt := ExtractFileExt(AFileName);
+  if IsAscii(VExt) then begin
+    VExtAscii := StringToAsciiSafe(VExt);
+    VExtAscii := AlLowerCase(VExtAscii);
+    VContentType := GetInfoByExt(VExtAscii);
+    if Assigned(VContentType) then begin
+      if Supports(VContentType, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
+        Result := VContentTypeBitmap.GetLoader;
+      end;
     end;
   end;
 end;
@@ -150,12 +157,15 @@ end;
 function TContentTypeManagerBase.GetConverter(
   const ATypeSource, ATypeTarget: AnsiString): IContentConverter;
 begin
+  Assert(IsAscii(ATypeSource));
+  Assert(IsAscii(ATypeTarget));
   Result := FConverterMatrix.Get(ATypeSource, ATypeTarget);
 end;
 
 function TContentTypeManagerBase.GetInfo(
   const AType: AnsiString): IContentTypeInfoBasic;
 begin
+  Assert(IsAscii(AType));
   Result := FTypeList.Get(AType);
 end;
 
@@ -163,26 +173,31 @@ function TContentTypeManagerBase.GetInfoByExt(
   const AExt: AnsiString
 ): IContentTypeInfoBasic;
 begin
+  Assert(IsAscii(AExt));
   Result := FExtList.Get(AExt);
 end;
 
 function TContentTypeManagerBase.GetIsBitmapExt(const AExt: AnsiString): Boolean;
 begin
+  Assert(IsAscii(AExt));
   Result := FBitmapExtList.Get(AExt) <> nil;
 end;
 
 function TContentTypeManagerBase.GetIsBitmapType(const AType: AnsiString): Boolean;
 begin
+  Assert(IsAscii(AType));
   Result := FBitmapTypeList.Get(AType) <> nil;
 end;
 
 function TContentTypeManagerBase.GetIsKmlExt(const AExt: AnsiString): Boolean;
 begin
+  Assert(IsAscii(AExt));
   Result := FKmlExtList.Get(AExt) <> nil;
 end;
 
 function TContentTypeManagerBase.GetIsKmlType(const AType: AnsiString): Boolean;
 begin
+  Assert(IsAscii(AType));
   Result := FKmlTypeList.Get(AType) <> nil;
 end;
 
