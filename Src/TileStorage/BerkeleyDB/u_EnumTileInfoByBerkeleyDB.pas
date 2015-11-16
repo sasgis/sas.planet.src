@@ -71,6 +71,7 @@ uses
   SysUtils,
   i_BinaryData,
   u_MapVersionRequest,
+  u_StrFunc,
   u_GlobalBerkeleyDBHelper;
 
 { TEnumTileInfoByBerkeleyDB }
@@ -165,15 +166,17 @@ begin
       end else begin
         if FFilesIterator.Next(VTileFileNameW) then begin
           // start process new cache file
-          VTileFileName := AnsiString(VTileFileNameW);
-          if FTileFileNameParser.GetTilePoint(VTileFileName, VTileXY, FCurFileZoom)  then begin
-            // get new array of tiles
-            VTileFileFullName := FFilesIterator.GetRootFolderName + VTileFileNameW;
-            if FHelper.GetTileExistsArray(VTileFileFullName, FCurFileZoom, nil, FCurFileTilesArray) then begin
-              FCurFileIndex := 0;
-            end else begin
-              // skip file - tile name parser error
-              FCurFileIndex := Length(FCurFileTilesArray);
+          if IsAscii(VTileFileNameW) then begin
+            VTileFileName := StringToAsciiSafe(VTileFileNameW);
+            if FTileFileNameParser.GetTilePoint(VTileFileName, VTileXY, FCurFileZoom)  then begin
+              // get new array of tiles
+              VTileFileFullName := FFilesIterator.GetRootFolderName + VTileFileNameW;
+              if FHelper.GetTileExistsArray(VTileFileFullName, FCurFileZoom, nil, FCurFileTilesArray) then begin
+                FCurFileIndex := 0;
+              end else begin
+                // skip file - tile name parser error
+                FCurFileIndex := Length(FCurFileTilesArray);
+              end;
             end;
           end;
         end else begin
