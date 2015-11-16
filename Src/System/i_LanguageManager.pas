@@ -29,9 +29,9 @@ uses
 type
   ILanguageManager = interface(IConfigDataElement)
     ['{F8D76CED-2681-4DD4-AB24-4C6ECE89CE4D}']
-    function GetCurrentLanguageCode: string;
-    procedure SetCurrentLanguageCode(const ACode: string);
-    property CurrentLanguageCode: string read GetCurrentLanguageCode write SetCurrentLanguageCode;
+    function GetCurrentLanguageCode: AnsiString;
+    procedure SetCurrentLanguageCode(const ACode: AnsiString);
+    property CurrentLanguageCode: AnsiString read GetCurrentLanguageCode write SetCurrentLanguageCode;
 
     function GetCurrentLanguageIndex: Integer;
     procedure SetCurrentLanguageIndex(const AValue: Integer);

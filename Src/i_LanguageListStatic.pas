@@ -28,11 +28,11 @@ type
     function GetCount: Integer;
     property Count: Integer read GetCount;
 
-    function GetCode(const AIndex: Integer): string;
-    property Code[const AIndex: Integer]: string read GetCode;
+    function GetCode(const AIndex: Integer): AnsiString;
+    property Code[const AIndex: Integer]: AnsiString read GetCode;
 
     function FindCode(
-      const ACode: string;
+      const ACode: AnsiString;
       out AIndex: Integer
     ): Boolean;
   end;

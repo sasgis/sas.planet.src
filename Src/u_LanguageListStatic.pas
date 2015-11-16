@@ -24,24 +24,25 @@ interface
 
 uses
   Classes,
+  ALStringList,
   i_LanguageListStatic,
   u_BaseInterfacedObject;
 
 type
   TLanguageListStatic = class(TBaseInterfacedObject, ILanguageListStatic)
   private
-    FSortedByCode: TStringList;
-    FList: TStringList;
+    FSortedByCode: TALStringList;
+    FList: TALStringList;
   private
     function GetCount: Integer;
 
-    function GetCode(const AIndex: Integer): string;
+    function GetCode(const AIndex: Integer): AnsiString;
     function FindCode(
-      const ACode: string;
+      const ACode: AnsiString;
       out AIndex: Integer
     ): Boolean;
   public
-    constructor Create(const AList: TStrings);
+    constructor Create(const AList: TALStrings);
     destructor Destroy; override;
   end;
 
@@ -52,17 +53,17 @@ uses
 
 { TLanguageListStatic }
 
-constructor TLanguageListStatic.Create(const AList: TStrings);
+constructor TLanguageListStatic.Create(const AList: TALStrings);
 var
   i: Integer;
-  VCode: string;
+  VCode: AnsiString;
 begin
   inherited Create;
-  FSortedByCode := TStringList.Create;
+  FSortedByCode := TALStringList.Create;
   FSortedByCode.Sorted := True;
   FSortedByCode.Duplicates := dupError;
 
-  FList := TStringList.Create;
+  FList := TALStringList.Create;
 
   for i := 0 to AList.Count - 1 do begin
     VCode := AList.Strings[i];
@@ -79,7 +80,7 @@ begin
 end;
 
 function TLanguageListStatic.FindCode(
-  const ACode: string;
+  const ACode: AnsiString;
   out AIndex: Integer
 ): Boolean;
 begin
@@ -89,7 +90,7 @@ begin
   end;
 end;
 
-function TLanguageListStatic.GetCode(const AIndex: Integer): string;
+function TLanguageListStatic.GetCode(const AIndex: Integer): AnsiString;
 begin
   Result := FList.Strings[AIndex];
 end;
