@@ -149,7 +149,7 @@ uses
   c_CacheTypeCodes,
   i_TileDownloaderState,
   u_SynEditExt,
-  u_SafeStrUtil,
+  u_StrFunc,
   u_ResStrings;
 
 {$R *.dfm}
@@ -193,8 +193,8 @@ procedure TfrmMapTypeEdit.btnOkClick(Sender: TObject);
 begin
   FMapType.TileDownloadRequestBuilderConfig.LockWrite;
   try
-    FMapType.TileDownloadRequestBuilderConfig.UrlBase := SafeStringToAnsi(EditURL.Text);
-    FMapType.TileDownloadRequestBuilderConfig.RequestHeader := SafeStringToAnsi(mmoHeader.Text);
+    FMapType.TileDownloadRequestBuilderConfig.UrlBase := StringToAsciiSafe(EditURL.Text);
+    FMapType.TileDownloadRequestBuilderConfig.RequestHeader := StringToAsciiSafe(mmoHeader.Text);
   finally
     FMapType.TileDownloadRequestBuilderConfig.UnlockWrite;
   end;
