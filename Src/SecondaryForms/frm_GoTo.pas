@@ -31,6 +31,10 @@ uses
   ComCtrls,
   Controls,
   t_GeoTypes,
+  TB2Item,
+  TB2Dock,
+  TB2Toolbar,
+  TBX,
   i_LanguageManager,
   i_InterfaceListStatic,
   i_MarkDb,
@@ -42,6 +46,7 @@ uses
   i_VectorDataItemSimple,
   i_VectorItemSubsetBuilder,
   i_ValueToStringConverter,
+  i_SearchResultPresenter,
   i_GeoCoder,
   u_CommonFormAndFrameParents,
   fr_LonLat;
@@ -59,9 +64,13 @@ type
     tsCoordinates: TTabSheet;
     cbbAllMarks: TComboBox;
     cbbSearcherType: TComboBox;
+    TBXDontClose: TTBXToolbar;
+    tbtmDontClose: TTBItem;
     procedure btnGoToClick(Sender: TObject);
     procedure cbbAllMarksDropDown(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure btnCancelClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     FMarksDb: IMarkDb;
     FMainGeoCoderConfig: IMainGeoCoderConfig;
@@ -74,6 +83,7 @@ type
     frLonLatPoint: TfrLonLat;
     FMarksList: IInterfaceListStatic;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+    FSearchPresenter: ISearchResultPresenter;
     function GeocodeResultFromVectorItem(
       const ASearch: string;
       const AItem: IVectorDataItem
@@ -101,10 +111,11 @@ type
       const AFSearchHistory: IStringHistory;
       const AMainGeoCoderConfig: IMainGeoCoderConfig;
       const AViewPortState: ILocalCoordConverterChangeable;
-      const AValueToStringConverter: IValueToStringConverterChangeable
+      const AValueToStringConverter: IValueToStringConverterChangeable;
+      const ASearchPresenter: ISearchResultPresenter
     ); reintroduce;
     destructor Destroy; override;
-    function ShowGeocodeModal(): IGeoCodeResult;
+    procedure ShowGotoDialog();
   end;
 
 implementation
@@ -219,6 +230,11 @@ begin
   end;
 end;
 
+procedure TfrmGoTo.btnCancelClick(Sender: TObject);
+begin
+  Close;
+end;
+
 procedure TfrmGoTo.btnGoToClick(Sender: TObject);
 var
   textsrch: String;
@@ -230,68 +246,63 @@ var
   VLocalConverter: ILocalCoordConverter;
   VNotifier: INotifierOperation;
 begin
-  VLocalConverter := FViewPortState.GetStatic;
-  if pgcSearchType.ActivePage = tsPlaceMarks then begin
-    VIndex := cbbAllMarks.ItemIndex;
-    if VIndex >= 0 then begin
-      VMarkId := IMarkId(Pointer(cbbAllMarks.Items.Objects[VIndex]));
-      VMark := FMarksDb.GetMarkByID(VMarkId);
-      if Assigned(VMark) then begin
-        FResult := GeocodeResultFromVectorItem(cbbAllMarks.Text, VMark);
-        ModalResult := mrOk;
-      end else begin
-        ModalResult := mrCancel;
+  try
+    VLocalConverter := FViewPortState.GetStatic;
+    if pgcSearchType.ActivePage = tsPlaceMarks then begin
+      VIndex := cbbAllMarks.ItemIndex;
+      if VIndex >= 0 then begin
+        VMarkId := IMarkId(Pointer(cbbAllMarks.Items.Objects[VIndex]));
+        VMark := FMarksDb.GetMarkByID(VMarkId);
+        if Assigned(VMark) then begin
+          FResult := GeocodeResultFromVectorItem(cbbAllMarks.Text, VMark);
+        end;
       end;
-    end else begin
-      ModalResult := mrCancel;
+    end else if pgcSearchType.ActivePage = tsCoordinates then begin
+      if frLonLatPoint.Validate then begin
+        VLonLat := frLonLatPoint.LonLat;
+        textsrch := FValueToStringConverter.GetStatic.LonLatConvert(VLonLat);
+        FResult := GeocodeResultFromLonLat(textsrch, VLonLat, textsrch);
+      end;
+    end else if pgcSearchType.ActivePage = tsSearch then begin
+      textsrch := Trim(cbbGeoCode.Text);
+
+      VGeoCoderItem := nil;
+      VIndex := cbbSearcherType.ItemIndex;
+      if VIndex >= 0 then begin
+        VGeoCoderItem := IGeoCoderListEntity(Pointer(cbbSearcherType.Items.Objects[VIndex]));
+      end;
+      if VGeoCoderItem <> nil then begin
+        VNotifier := TNotifierOperationFake.Create;
+        FResult := VGeoCoderItem.GetGeoCoder.GetLocations(VNotifier, VNotifier.CurrentOperation, textsrch, VLocalConverter);
+        FSearchHistory.AddItem(textsrch);
+        FMainGeoCoderConfig.ActiveGeoCoderGUID := VGeoCoderItem.GetGUID;
+      end;
     end;
-  end else if pgcSearchType.ActivePage = tsCoordinates then begin
-    if frLonLatPoint.Validate then begin
-      VLonLat := frLonLatPoint.LonLat;
-      textsrch := FValueToStringConverter.GetStatic.LonLatConvert(VLonLat);
-      FResult := GeocodeResultFromLonLat(textsrch, VLonLat, textsrch);
-      ModalResult := mrOk;
-    end;
-  end else if pgcSearchType.ActivePage = tsSearch then begin
-    textsrch := Trim(cbbGeoCode.Text);
-    VGeoCoderItem := nil;
-    VIndex := cbbSearcherType.ItemIndex;
-    if VIndex >= 0 then begin
-      VGeoCoderItem := IGeoCoderListEntity(Pointer(cbbSearcherType.Items.Objects[VIndex]));
-    end;
-    if VGeoCoderItem <> nil then begin
-      VNotifier := TNotifierOperationFake.Create;
-      FResult := VGeoCoderItem.GetGeoCoder.GetLocations(VNotifier, VNotifier.CurrentOperation, textsrch, VLocalConverter);
-      FSearchHistory.AddItem(textsrch);
-      FMainGeoCoderConfig.ActiveGeoCoderGUID := VGeoCoderItem.GetGUID;
-      ModalResult := mrOk;
-    end else begin
-      ModalResult := mrCancel;
-    end;
+  except
+   FResult := nil;
+  end;
+
+  if Assigned(FResult) then begin
+    FSearchPresenter.ShowSearchResults(FResult);
+  end;
+  if not tbtmDontClose.Checked then begin
+    close;
   end;
 end;
 
-function TfrmGoTo.ShowGeocodeModal: IGeoCodeResult;
+procedure TfrmGoTo.ShowGotoDialog();
 var
   VLocalConverter: ILocalCoordConverter;
 begin
-  frLonLatPoint.Parent := tsCoordinates;
-  VLocalConverter := FViewPortState.GetStatic;
-  frLonLatPoint.LonLat := VLocalConverter.GetCenterLonLat;
-  InitGeoCoders;
-  InitHistory;
-  try
-    if ShowModal = mrOk then begin
-      Result := FResult;
-    end else begin
-      Result := nil;
-    end;
-  finally
-    EmptyGeoCoders;
+  if not self.Visible then
+  begin
+    frLonLatPoint.Parent := tsCoordinates;
+    VLocalConverter := FViewPortState.GetStatic;
+    frLonLatPoint.LonLat := VLocalConverter.GetCenterLonLat;
+    InitGeoCoders;
+    InitHistory;
   end;
-  cbbAllMarks.Clear;
-  FMarksList := nil;
-  cbbGeoCode.Clear;
+  Self.Show;
 end;
 
 procedure TfrmGoTo.cbbAllMarksDropDown(Sender: TObject);
@@ -312,9 +323,22 @@ constructor TfrmGoTo.Create(
   const AFSearchHistory: IStringHistory;
   const AMainGeoCoderConfig: IMainGeoCoderConfig;
   const AViewPortState: ILocalCoordConverterChangeable;
-  const AValueToStringConverter: IValueToStringConverterChangeable
+  const AValueToStringConverter: IValueToStringConverterChangeable;
+  const ASearchPresenter: ISearchResultPresenter
 );
 begin
+  Assert(ALanguageManager <> nil);
+  Assert(AProjectionSet <> nil);
+  Assert(AVectorItemSubsetBuilderFactory <> nil);
+  Assert(AGeoCodePlacemarkFactory <> nil);
+  Assert(AMarksDb <> nil);
+  Assert(AGeoCoderList <> nil);
+  Assert(AFSearchHistory <> nil);
+  Assert(AMainGeoCoderConfig <> nil);
+  Assert(AViewPortState <> nil);
+  Assert(AValueToStringConverter <> nil);
+  Assert(ASearchPresenter <> nil);
+
   inherited Create(ALanguageManager);
   FMarksDb := AMarksDb;
   FGeoCodePlacemarkFactory := AGeoCodePlacemarkFactory;
@@ -324,6 +348,7 @@ begin
   FMainGeoCoderConfig := AMainGeoCoderConfig;
   FViewPortState := AViewPortState;
   FValueToStringConverter := AValueToStringConverter;
+  FSearchPresenter := ASearchPresenter;
   frLonLatPoint :=
     TfrLonLat.Create(
       ALanguageManager,
@@ -352,6 +377,14 @@ begin
     VObj._Release;
   end;
   cbbSearcherType.Clear;
+end;
+
+procedure TfrmGoTo.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  cbbAllMarks.Clear;
+  cbbGeoCode.Clear;
+  FMarksList := nil;
+  EmptyGeoCoders;
 end;
 
 procedure TfrmGoTo.FormShow(Sender: TObject);

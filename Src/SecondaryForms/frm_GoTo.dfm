@@ -10,8 +10,10 @@ object frmGoTo: TfrmGoTo
   Constraints.MinWidth = 272
   ParentFont = True
   OldCreateOrder = False
+  PopupMode = pmExplicit
   Position = poMainFormCenter
   ShowHint = True
+  OnClose = FormClose
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
@@ -35,6 +37,7 @@ object frmGoTo: TfrmGoTo
       Caption = 'Cancel'
       ModalResult = 2
       TabOrder = 0
+      OnClick = btnCancelClick
     end
     object btnGoTo: TButton
       AlignWithMargins = True
@@ -49,6 +52,22 @@ object frmGoTo: TfrmGoTo
       ShowHint = True
       TabOrder = 1
       OnClick = btnGoToClick
+    end
+    object TBXDontClose: TTBXToolbar
+      Left = 4
+      Top = 6
+      Width = 25
+      Height = 24
+      Align = alCustom
+      Images = frmMain.MenusImageList
+      ShrinkMode = tbsmWrap
+      TabOrder = 2
+      object tbtmDontClose: TTBItem
+        AutoCheck = True
+        ImageIndex = 46
+        Caption = ''
+        Hint = 'Do not close this window after start'
+      end
     end
   end
   object pgcSearchType: TPageControl

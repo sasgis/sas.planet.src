@@ -1201,19 +1201,6 @@ begin
     );
   FRegionProcess := FFormRegionProcess;
   FFormRegionProcess.PopupParent := Self;
-  FfrmGoTo :=
-    TfrmGoTo.Create(
-      GState.Config.LanguageManager,
-      FActiveProjectionSet,
-      GState.VectorItemSubsetBuilderFactory,
-      GState.GeoCodePlacemarkFactory,
-      GState.MarksDb.MarkDb,
-      Gstate.GeoCoderList,
-      FConfig.SearchHistory,
-      FConfig.MainGeoCoderConfig,
-      FViewPortState.View,
-      GState.ValueToStringConverter
-    );
 
   FfrmCacheManager :=
     TfrmCacheManager.Create(
@@ -1734,6 +1721,22 @@ begin
     InitMergePolygons;
     CreateLangMenu;
 
+    FfrmGoTo :=
+      TfrmGoTo.Create(
+       GState.Config.LanguageManager,
+       FActiveProjectionSet,
+       GState.VectorItemSubsetBuilderFactory,
+       GState.GeoCodePlacemarkFactory,
+       GState.MarksDb.MarkDb,
+       Gstate.GeoCoderList,
+       FConfig.SearchHistory,
+       FConfig.MainGeoCoderConfig,
+       FViewPortState.View,
+       GState.ValueToStringConverter,
+       FSearchPresenter
+    );
+    FfrmGoTo.PopupParent := Self;
+    
     FfrmSettings :=
       TfrmSettings.Create(
         GState.Config.LanguageManager,
@@ -7448,13 +7451,8 @@ begin
 end;
 
 procedure TfrmMain.TBSubmenuItem1Click(Sender: TObject);
-var
-  VResult: IGeoCodeResult;
 begin
-  VResult := FfrmGoTo.ShowGeocodeModal;
-  if Assigned(VResult) then begin
-    FSearchPresenter.ShowSearchResults(VResult);
-  end;
+  FfrmGoTo.ShowGotoDialog();
 end;
 
 procedure TfrmMain.NSRTM3Click(Sender: TObject);
