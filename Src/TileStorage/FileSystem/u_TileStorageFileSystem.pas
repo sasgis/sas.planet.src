@@ -135,6 +135,7 @@ uses
   u_FoldersIteratorRecursiveByLevels,
   u_FileNameIteratorInFolderByMaskList,
   u_Synchronizer,
+  u_StrFunc,
   u_TileInfoBasic,
   u_BaseInterfacedObject;
 
@@ -673,28 +674,30 @@ var
 begin
   Result := False;
   while FFilesIterator.Next(VTileFileNameW) do begin
-    VTileFileName := AnsiString(VTileFileNameW);
-    if FTileFileNameParser.GetTilePoint(VTileFileName, VTileXY, VTileZoom) then begin
-      VFullFileName := FFilesIterator.GetRootFolderName + VTileFileNameW;
-      if FStorageState.GetStatic.ReadAccess <> asDisabled then begin
-        FLock.BeginRead;
-        try
-          UpdateTileInfoByFile(
-            ExtractFileExt(VFullFileName) = CTneFileExt,
-            True,
-            VFullFileName,
-            ATileInfo
-          );
-          ATileInfo.FTile := VTileXY;
-          ATileInfo.FZoom := VTileZoom;
-          ATileInfo.FVersionInfo := nil;
-          ATileInfo.FContentType := FMainContentType;
-          if ATileInfo.FInfoType <> titNotExists then begin
-            Result := True;
-            Break;
+    if IsAscii(VTileFileNameW) then begin
+      VTileFileName := StringToAsciiSafe(VTileFileNameW);
+      if FTileFileNameParser.GetTilePoint(VTileFileName, VTileXY, VTileZoom) then begin
+        VFullFileName := FFilesIterator.GetRootFolderName + VTileFileNameW;
+        if FStorageState.GetStatic.ReadAccess <> asDisabled then begin
+          FLock.BeginRead;
+          try
+            UpdateTileInfoByFile(
+              ExtractFileExt(VFullFileName) = CTneFileExt,
+              True,
+              VFullFileName,
+              ATileInfo
+            );
+            ATileInfo.FTile := VTileXY;
+            ATileInfo.FZoom := VTileZoom;
+            ATileInfo.FVersionInfo := nil;
+            ATileInfo.FContentType := FMainContentType;
+            if ATileInfo.FInfoType <> titNotExists then begin
+              Result := True;
+              Break;
+            end;
+          finally
+            FLock.EndRead;
           end;
-        finally
-          FLock.EndRead;
         end;
       end;
     end;
