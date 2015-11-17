@@ -35,6 +35,10 @@ uses
   StdCtrls,
   ExtCtrls,
   ComCtrls,
+  TB2Item,
+  TB2Dock,
+  TB2Toolbar,
+  TBX,
   fr_CacheTypeList,
   i_NotifierOperation,
   i_ProjectionSet,
@@ -59,7 +63,6 @@ type
     pnlBottomButtons: TPanel;
     btnStart: TButton;
     btnCansel: TButton;
-    chkCloseWithStart: TCheckBox;
     grpSrc: TGroupBox;
     lblPath: TLabel;
     edtPath: TEdit;
@@ -81,6 +84,8 @@ type
     edtSourceVersion: TEdit;
     chkReplaceDestVersion: TCheckBox;
     edtDestVersion: TEdit;
+    TBXDontClose: TTBXToolbar;
+    tbtmDontClose: TTBItem;
     procedure btnStartClick(Sender: TObject);
     procedure btnSelectSrcPathClick(Sender: TObject);
     procedure btnSelectDestPathClick(Sender: TObject);
@@ -324,7 +329,7 @@ begin
   if PageControl1.ActivePageIndex = 0 then begin
     ProcessCacheConverter;
   end;
-  if chkCloseWithStart.Checked then begin
+  if not tbtmDontClose.Checked then begin
     Self.Close;
   end;
 end;

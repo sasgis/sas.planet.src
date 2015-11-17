@@ -237,17 +237,21 @@ object frmCacheManager: TfrmCacheManager
       TabOrder = 1
       OnClick = btnCanselClick
     end
-    object chkCloseWithStart: TCheckBox
-      AlignWithMargins = True
-      Left = 6
+    object TBXDontClose: TTBXToolbar
+      Left = 4
       Top = 6
-      Width = 398
-      Height = 25
-      Align = alClient
-      Caption = 'Close this window after start'
-      Checked = True
-      State = cbChecked
+      Width = 25
+      Height = 24
+      Align = alCustom
+      Images = frmMain.MenusImageList
+      ShrinkMode = tbsmWrap
       TabOrder = 2
+      object tbtmDontClose: TTBItem
+        AutoCheck = True
+        ImageIndex = 46
+        Caption = ''
+        Hint = 'Do not close this window after start'
+      end
     end
   end
 end
