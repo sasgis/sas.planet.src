@@ -426,7 +426,10 @@ begin
             if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
               Exit;
             end;
-            FLastProcessedPoint := VTile;
+            if VGotoNextTile then begin
+              FLastProcessedPoint := VTile;
+              FProgressInfo.AddProcessedTile(VTile);
+            end;
           end else begin
             FProgressInfo.Log.WriteText('Download disabled', 0);
             VGotoNextTile := False;
@@ -436,6 +439,7 @@ begin
           on E: Exception do begin
             FProgressInfo.Log.WriteText(E.Message, 0);
             VGotoNextTile := True;
+            FProgressInfo.AddProcessedTile(VTile);
           end;
         end;
       end;
