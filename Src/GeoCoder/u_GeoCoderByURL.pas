@@ -353,7 +353,7 @@ begin
   VSDesc := '';
   // http://maps.google.com/?ll=48.718079,44.504639&spn=0.722115,1.234589&t=h&z=10
   // http://maps.google.ru/maps?hl=ru&ll=43.460987,39.948606&spn=0.023144,0.038581&t=m&z=15&vpsrc=6
-  if RegExprGetMatchSubStr(VLink, 'maps\.google\..+ll=[0-9]+', 0) <> '' then begin
+  if RegExprGetMatchSubStr(VLink, 'maps\.google\..+ll=-?[0-9]+', 0) <> '' then begin
     VSName := 'Google';
     I := ALPosEx('ll', VLink, 1);
     J := ALPosEx(',', VLink, I);
@@ -466,7 +466,7 @@ begin
   // http://harita.yandex.com.tr/?ll=29.086777%2C41.000749&spn=0.005043%2C0.003328&z=18&l=sat%2Ctrf&trfm=cur
   // https://n.maps.yandex.ru/#!/?z=15&ll=37.438471%2C55.816492
   // https://n.maps.yandex.ru/?ll=37.43843%2C55.817359&spn=0.037723%2C0.017035&z=15&l=wmap&oid=105810
-  if RegExprGetMatchSubStr(VLink, '\.yandex\..+ll=[0-9]+', 0) <> '' then begin
+  if RegExprGetMatchSubStr(VLink, '\.yandex\..+ll=-?[0-9]+', 0) <> '' then begin
     VSName := 'Yandex';
     I := ALPosEx('ll', VLink, 1);
     J := ALPosEx(',', VLink, I);
