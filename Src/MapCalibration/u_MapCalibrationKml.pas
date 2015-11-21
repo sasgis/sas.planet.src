@@ -47,6 +47,7 @@ implementation
 uses
   Classes,
   SysUtils,
+  gnugettext,
   t_GeoTypes,
   u_GeoToStrFunc;
 
@@ -54,7 +55,7 @@ uses
 
 function TMapCalibrationKml.GetDescription: string;
 begin
-  Result := 'Привязка *.kml для программы Google Earth';
+  Result := _('Calibration for Google Earth programm (*.kml)');
 end;
 
 function TMapCalibrationKml.GetName: string;

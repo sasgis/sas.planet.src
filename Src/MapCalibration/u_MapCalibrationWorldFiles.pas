@@ -66,6 +66,7 @@ implementation
 uses
   Classes,
   SysUtils,
+  gnugettext,
   t_GeoTypes,
   u_CalcWFileParams,
   u_GeoToStrFunc;
@@ -169,7 +170,7 @@ end;
 
 function TMapCalibrationWorldFiles.GetDescription: string;
 begin
-  Result := 'Привязка при помощи World файла и файлов с описанием проекции';
+  Result := _('Calibration by World file and files with projection description');
 end;
 
 function TMapCalibrationWorldFiles.GetName: string;

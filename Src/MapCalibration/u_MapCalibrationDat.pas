@@ -47,6 +47,7 @@ implementation
 uses
   Classes,
   SysUtils,
+  gnugettext,
   t_GeoTypes,
   u_GeoToStrFunc;
 
@@ -54,7 +55,7 @@ uses
 
 function TMapCalibrationDat.GetDescription: string;
 begin
-  Result := 'Привязка *.dat для программы Radio Mobile';
+  Result := _('Calibration for Radio Mobile programm (*.dat)');
 end;
 
 function TMapCalibrationDat.GetName: string;
