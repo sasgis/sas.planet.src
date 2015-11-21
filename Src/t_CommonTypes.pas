@@ -37,6 +37,8 @@ type
 
   TAreaStrFormat = (asfAuto = 0, asfSqM = 1, asfSqKm = 2, asfHa = 3);
 
+  TStringTypeSupport = (stsAscii = 0, stsAnsi = 1, stsUnicode = 2);
+  
 implementation
 
 end.
