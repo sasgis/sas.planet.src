@@ -80,7 +80,7 @@ uses
   u_TileFileNameTMS,
   u_TileStorageTypeArchiveTar,
   u_TileStorageTypeConfig,
-  u_TileStorageTypeGE,
+  u_TileStorageTypeGC,
   u_TileStorageTypeGoogleEarth,
   u_TileStorageTypeBerkeleyDB,
   u_TileStorageTypeDBMS,

@@ -1409,7 +1409,7 @@
     <DCCReference Include="Src\TileStorage\DLL\t_DLLCache.pas" />
     <DCCReference Include="Src\TileStorage\DLL\u_TileStorageGE.pas" />
     <DCCReference Include="Src\TileStorage\DLL\u_TileStorageGETerrain.pas" />
-    <DCCReference Include="Src\TileStorage\DLL\u_TileStorageTypeGE.pas" />
+    <DCCReference Include="Src\TileStorage\DLL\u_TileStorageTypeGC.pas" />
     <DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameBase.pas" />
     <DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameES.pas" />
     <DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameGM1.pas" />

@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_TileStorageTypeGE deprecated;
+unit u_TileStorageTypeGC deprecated;
 
 interface
 

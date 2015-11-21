@@ -1146,7 +1146,7 @@ uses
   t_DLLCache in 'Src\TileStorage\DLL\t_DLLCache.pas',
   u_TileStorageGE in 'Src\TileStorage\DLL\u_TileStorageGE.pas',
   u_TileStorageGETerrain in 'Src\TileStorage\DLL\u_TileStorageGETerrain.pas',
-  u_TileStorageTypeGE in 'Src\TileStorage\DLL\u_TileStorageTypeGE.pas',
+  u_TileStorageTypeGC in 'Src\TileStorage\DLL\u_TileStorageTypeGC.pas',
   u_TileFileNameBase in 'Src\TileStorage\FileSystem\u_TileFileNameBase.pas',
   u_TileFileNameES in 'Src\TileStorage\FileSystem\u_TileFileNameES.pas',
   u_TileFileNameGM1 in 'Src\TileStorage\FileSystem\u_TileFileNameGM1.pas',
