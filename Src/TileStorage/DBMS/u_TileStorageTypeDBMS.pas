@@ -64,6 +64,7 @@ implementation
 
 uses
   SysUtils,
+  t_CommonTypes,
   u_TileStorageAbilities,
   u_TileStorageDBMS;
 
@@ -83,6 +84,7 @@ begin
       TTileStorageAbilities.Create(False, True, True, True, True, True),
       tstvsMultiVersions,
       True,
+      stsUnicode,
       tstcOther
     );
   inherited Create(

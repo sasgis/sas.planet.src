@@ -56,6 +56,7 @@ type
 implementation
 
 uses
+  t_CommonTypes,
   u_TileStorageAbilities,
   u_TileStorageInRAM;
 
@@ -73,6 +74,7 @@ begin
       TTileStorageAbilities.Create(False, True, False, True, True, True),
       tstvsVersionStored,
       True,
+      stsUnicode,
       tstcInMemory
     );
   inherited Create(

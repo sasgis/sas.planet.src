@@ -22,6 +22,9 @@ unit i_TileStorageAbilities;
 
 interface
 
+uses
+  t_CommonTypes;
+
 type
   ITileStorageAbilities = interface
     ['{EBB122FB-5382-49CA-A265-3BEA89694B0E}']
@@ -74,6 +77,9 @@ type
 
     function GetSupportDifferentContentTypes: Boolean;
     property SupportDifferentContentTypes: Boolean read GetSupportDifferentContentTypes;
+
+    function GetPathStringSupport: TStringTypeSupport;
+    property PathStringSupport: TStringTypeSupport read GetPathStringSupport;
   end;
 
 implementation

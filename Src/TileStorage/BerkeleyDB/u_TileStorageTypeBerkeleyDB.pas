@@ -72,6 +72,7 @@ type
 implementation
 
 uses
+  t_CommonTypes,
   u_TileStorageAbilities,
   u_TileStorageBerkeleyDBConfigStatic,
   u_TileStorageBerkeleyDB;
@@ -100,6 +101,7 @@ begin
       TTileStorageAbilities.Create(False, True, True, True, True, True),
       VVersionSupport,
       True,
+      stsUnicode,
       tstcFolder
     );
   inherited Create(

@@ -23,6 +23,7 @@ unit u_TileStorageAbilities;
 interface
 
 uses
+  t_CommonTypes,
   i_TileStorageAbilities,
   u_BaseInterfacedObject;
 
@@ -69,16 +70,19 @@ type
     FVersionSupport: TTileStorageTypeVersionSupport;
     FStorageClass: TTileStorageTypeClass;
     FSupportDifferentContentTypes: Boolean;
+    FPathStringSupport: TStringTypeSupport;
   private
     function GetBaseStorageAbilities: ITileStorageAbilities;
     function GetVersionSupport: TTileStorageTypeVersionSupport;
     function GetStorageClass: TTileStorageTypeClass;
     function GetSupportDifferentContentTypes: Boolean;
+    function GetPathStringSupport: TStringTypeSupport;
   public
     constructor Create(
       const ABaseStorageAbilities: ITileStorageAbilities;
       const AVersionSupport: TTileStorageTypeVersionSupport;
       const ASupportDifferentContentTypes: Boolean;
+      const APathStringSupport: TStringTypeSupport;
       const AStorageClass: TTileStorageTypeClass
     );
   end;
@@ -91,6 +95,7 @@ type
     function GetVersionSupport: TTileStorageTypeVersionSupport;
     function GetStorageClass: TTileStorageTypeClass;
     function GetSupportDifferentContentTypes: Boolean;
+    function GetPathStringSupport: TStringTypeSupport;
   public
     constructor Create;
   end;
@@ -153,6 +158,7 @@ constructor TTileStorageTypeAbilities.Create(
   const ABaseStorageAbilities: ITileStorageAbilities;
   const AVersionSupport: TTileStorageTypeVersionSupport;
   const ASupportDifferentContentTypes: Boolean;
+  const APathStringSupport: TStringTypeSupport;
   const AStorageClass: TTileStorageTypeClass
 );
 begin
@@ -161,11 +167,17 @@ begin
   FVersionSupport := AVersionSupport;
   FStorageClass := AStorageClass;
   FSupportDifferentContentTypes := ASupportDifferentContentTypes;
+  FPathStringSupport := APathStringSupport;
 end;
 
 function TTileStorageTypeAbilities.GetBaseStorageAbilities: ITileStorageAbilities;
 begin
   Result := FBaseStorageAbilities;
+end;
+
+function TTileStorageTypeAbilities.GetPathStringSupport: TStringTypeSupport;
+begin
+  Result := FPathStringSupport;
 end;
 
 function TTileStorageTypeAbilities.GetStorageClass: TTileStorageTypeClass;
@@ -226,6 +238,11 @@ end;
 function TTileStorageTypeAbilitiesNoAccess.GetBaseStorageAbilities: ITileStorageAbilities;
 begin
   Result := FBaseStorageAbilities;
+end;
+
+function TTileStorageTypeAbilitiesNoAccess.GetPathStringSupport: TStringTypeSupport;
+begin
+  Result := stsUnicode;
 end;
 
 function TTileStorageTypeAbilitiesNoAccess.GetStorageClass: TTileStorageTypeClass;

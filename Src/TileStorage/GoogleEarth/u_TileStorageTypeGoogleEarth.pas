@@ -60,6 +60,7 @@ implementation
 
 uses
   SysUtils,
+  t_CommonTypes,
   c_CoordConverter,
   u_TileStorageAbilities,
   u_TileStorageGoogleEarth;
@@ -79,6 +80,7 @@ begin
       TTileStorageAbilities.Create(True, True, False, False, False, False),
       tstvsMultiVersions,
       True,
+      stsAnsi,
       tstcFolder
     );
   inherited Create(
