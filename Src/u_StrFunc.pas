@@ -41,6 +41,8 @@ function IsAscii(const s: AnsiString): Boolean; overload; inline;
 function StringToAsciiSafe(const s: string): AnsiString; inline;
 function AsciiToStringSafe(const s: AnsiString): string; inline;
 
+function IsAnsi(const s: string): Boolean; inline;
+
 implementation
 
 uses
@@ -185,6 +187,16 @@ begin
   end else begin
     raise Exception.CreateFmt('String "%s" contain non-ascii characters!', [s]);
   end;
+end;
+
+function IsAnsi(const s: string): Boolean;
+var
+  VAnsi: AnsiString;
+  VStr: string;
+begin
+  VAnsi := AnsiString(s);
+  VStr := string(VAnsi);
+  Result := VStr = s;
 end;
 
 end.
