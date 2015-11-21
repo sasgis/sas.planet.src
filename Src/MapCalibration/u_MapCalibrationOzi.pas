@@ -25,6 +25,7 @@ interface
 uses
   Types,
   ALString,
+  t_CommonTypes,
   i_Projection,
   i_MapCalibration,
   u_BaseInterfacedObject;
@@ -36,7 +37,8 @@ type
   private
     { IMapCalibration }
     function GetName: string;
-    function GetDescription: string; 
+    function GetDescription: string;
+    function GetStringSupport: TStringTypeSupport;
     procedure SaveCalibrationInfo(
       const AFileName: string;
       const ATopLeft: TPoint;
@@ -79,6 +81,11 @@ end;
 function TMapCalibrationOzi.GetName: string;
 begin
   Result := cOziFileExt;
+end;
+
+function TMapCalibrationOzi.GetStringSupport: TStringTypeSupport;
+begin
+  Result := stsAnsi;
 end;
 
 procedure TMapCalibrationOzi.SaveCalibrationInfo(

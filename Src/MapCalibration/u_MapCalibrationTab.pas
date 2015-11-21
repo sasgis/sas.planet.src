@@ -25,6 +25,7 @@ interface
 uses
   Types,
   ALString,
+  t_CommonTypes,
   i_Projection,
   i_MapCalibration,
   u_BaseInterfacedObject;
@@ -43,6 +44,7 @@ type
     { IMapCalibration }
     function GetName: string; 
     function GetDescription: string; 
+    function GetStringSupport: TStringTypeSupport;
     procedure SaveCalibrationInfo(
       const AFileName: string;
       const ATopLeft: TPoint;
@@ -85,6 +87,11 @@ end;
 function TMapCalibrationTab.GetName: string;
 begin
   Result := cTabFileExt;
+end;
+
+function TMapCalibrationTab.GetStringSupport: TStringTypeSupport;
+begin
+  Result := stsAnsi;
 end;
 
 function TMapCalibrationTab.PointToStr(

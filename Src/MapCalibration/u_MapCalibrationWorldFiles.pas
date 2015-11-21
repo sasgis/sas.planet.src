@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  t_CommonTypes,
   i_Projection,
   i_MapCalibration,
   u_BaseInterfacedObject;
@@ -51,6 +52,7 @@ type
     { IMapCalibration }
     function GetName: string; 
     function GetDescription: string; 
+    function GetStringSupport: TStringTypeSupport;
     procedure SaveCalibrationInfo(
       const AFileName: string;
       const ATopLeft: TPoint;
@@ -180,6 +182,11 @@ begin
   end else begin
     Result := '.w';
   end;
+end;
+
+function TMapCalibrationWorldFiles.GetStringSupport: TStringTypeSupport;
+begin
+  Result := stsUnicode;
 end;
 
 procedure TMapCalibrationWorldFiles.SaveAuxXmlFile(

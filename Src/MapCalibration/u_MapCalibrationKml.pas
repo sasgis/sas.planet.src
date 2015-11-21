@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  t_CommonTypes,
   i_Projection,
   i_MapCalibration,
   u_BaseInterfacedObject;
@@ -34,6 +35,7 @@ type
     { IMapCalibration }
     function GetName: string;
     function GetDescription: string; 
+    function GetStringSupport: TStringTypeSupport;
     procedure SaveCalibrationInfo(
       const AFileName: string;
       const ATopLeft: TPoint;
@@ -61,6 +63,11 @@ end;
 function TMapCalibrationKml.GetName: string;
 begin
   Result := '.kml';
+end;
+
+function TMapCalibrationKml.GetStringSupport: TStringTypeSupport;
+begin
+  Result := stsUnicode;
 end;
 
 procedure TMapCalibrationKml.SaveCalibrationInfo(

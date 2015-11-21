@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  t_CommonTypes,
   i_Projection;
 
 type
@@ -31,8 +32,15 @@ type
     ['{08085422-4267-49EC-913C-3A47866A46E9}']
     // Имя для вывода в листбоксе для выбора при экспорте.
     function GetName: string;
+    property Name: string read GetName;
+
     // Более детальное описание привязки
     function GetDescription: string;
+    property Description: string read GetDescription;
+
+    function GetStringSupport: TStringTypeSupport;
+    property StringSupport: TStringTypeSupport read GetStringSupport;
+
     // Генерирует привязку для склеенной карты.
     procedure SaveCalibrationInfo(
       const AFileName: string;
