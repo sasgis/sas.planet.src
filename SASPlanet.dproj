@@ -1343,6 +1343,7 @@
     <DCCReference Include="Src\TileMatrix\u_VectorTileMatrixChangeableForVectorLayers.pas" />
     <DCCReference Include="Src\TileProvider\i_BinaryTileProvider.pas" />
     <DCCReference Include="Src\TileProvider\i_BitmapTileProvider.pas" />
+    <DCCReference Include="Src\TileProvider\i_InfoTileProvider.pas" />
     <DCCReference Include="Src\TileProvider\i_VectorTileProvider.pas" />
     <DCCReference Include="Src\TileProvider\i_VectorTileProviderChangeable.pas" />
     <DCCReference Include="Src\TileProvider\i_VectorTileRenderer.pas" />
@@ -1356,6 +1357,8 @@
     <DCCReference Include="Src\TileProvider\u_BitmapTileProviderInPolygon.pas" />
     <DCCReference Include="Src\TileProvider\u_BitmapTileProviderWithBGColor.pas" />
     <DCCReference Include="Src\TileProvider\u_BitmapTileProviderWithRecolor.pas" />
+    <DCCReference Include="Src\TileProvider\u_InfoTileProviderByBitmapTileProvider.pas" />
+    <DCCReference Include="Src\TileProvider\u_InfoTileProviderByStorage.pas" />
     <DCCReference Include="Src\TileProvider\u_TileProviderWithCache.pas" />
     <DCCReference Include="Src\TileProvider\u_VectorTileProviderByFixedSubset.pas" />
     <DCCReference Include="Src\TileProvider\u_VectorTileProviderByMatrix.pas" />
