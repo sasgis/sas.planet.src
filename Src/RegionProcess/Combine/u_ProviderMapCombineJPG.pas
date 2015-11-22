@@ -88,6 +88,7 @@ implementation
 uses
   Types,
   gnugettext,
+  t_CommonTypes,
   u_ThreadMapCombineBase,
   u_BitmapMapCombinerJPG,
   fr_MapCombine;
@@ -147,6 +148,7 @@ begin
     True,
     True,
     False,
+    stsUnicode,
     'jpg',
     gettext_NoExtract('JPEG (Joint Photographic Experts Group)')
   );

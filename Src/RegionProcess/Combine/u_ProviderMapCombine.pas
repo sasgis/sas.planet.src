@@ -26,6 +26,7 @@ uses
   Windows,
   Forms,
   t_GeoTypes,
+  t_CommonTypes,
   i_LanguageManager,
   i_ProjectionSetList,
   i_ProjectionSetChangeable,
@@ -62,6 +63,7 @@ type
   TProviderMapCombineBase = class(TExportProviderAbstract)
   private
     FDefaultExt: string;
+    FCombinePathStringTypeSupport: TStringTypeSupport;
     FFormatName: string;
     FUseQuality: Boolean;
     FUseExif: Boolean;
@@ -142,6 +144,7 @@ type
       const AUseQuality: Boolean;
       const AUseExif: Boolean;
       const AUseAlfa: Boolean;
+      const ACombinePathStringTypeSupport: TStringTypeSupport;
       const ADefaultExt: string;
       const AFormatName: string
     );
@@ -213,6 +216,7 @@ constructor TProviderMapCombineBase.Create(
   const AUseQuality: Boolean;
   const AUseExif: Boolean;
   const AUseAlfa: Boolean;
+  const ACombinePathStringTypeSupport: TStringTypeSupport;
   const ADefaultExt: string;
   const AFormatName: string
 );
@@ -251,6 +255,7 @@ begin
   FUseQuality := AUseQuality;
   FUseExif := AUseExif;
   FUseAlfa := AUseAlfa;
+  FCombinePathStringTypeSupport := ACombinePathStringTypeSupport;
   FDefaultExt := ADefaultExt;
   FFormatName := AFormatName;
 end;
@@ -273,6 +278,7 @@ begin
       FUseQuality,
       FUseExif,
       FUseAlfa,
+      FCombinePathStringTypeSupport,
       FDefaultExt,
       FFormatName
     );

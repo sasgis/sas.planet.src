@@ -91,6 +91,7 @@ implementation
 uses
   Types,
   gnugettext,
+  t_CommonTypes,
   u_ThreadMapCombineBase,
   u_BitmapMapCombinerECW,
   fr_MapCombine;
@@ -160,6 +161,7 @@ begin
     not FLossless, // Show Quality option
     False,         // Show Exif option
     False,         // Show Alfa chanel option
+    stsAnsi,
     'jp2',
     gettext_NoExtract(VCaption)
   );

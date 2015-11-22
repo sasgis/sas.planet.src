@@ -88,6 +88,7 @@ implementation
 uses
   Types,
   gnugettext,
+  t_CommonTypes,
   u_ThreadMapCombineBase,
   u_BitmapMapCombinerBMP;
 
@@ -146,6 +147,7 @@ begin
     False,
     False,
     False,
+    stsUnicode,
     'bmp',
     gettext_NoExtract('BMP (Bitmap Picture)')
   );

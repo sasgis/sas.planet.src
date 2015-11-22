@@ -89,6 +89,7 @@ implementation
 uses
   Types,
   gnugettext,
+  t_CommonTypes,
   u_ThreadMapCombineBase,
   u_BitmapMapCombinerRAW,
   fr_MapCombine;
@@ -148,6 +149,7 @@ begin
     False,
     False,
     True,
+    stsUnicode,
     'raw',
     gettext_NoExtract('RAW (Simple bitmap graphic)')
   );

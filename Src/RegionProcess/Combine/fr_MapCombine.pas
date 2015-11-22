@@ -34,6 +34,7 @@ uses
   CheckLst,
   Spin,
   t_Bitmap32,
+  t_CommonTypes,
   i_LanguageManager,
   i_MapType,
   i_MapTypeListChangeable,
@@ -159,6 +160,7 @@ type
     FfrLayerSelect: TfrMapSelect;
     FMinPartSize: TPoint;
     FMaxPartSize: TPoint;
+    FCombinePathStringTypeSupport: TStringTypeSupport;
     procedure UpdateProjectionsList(Sender: TObject);
   private
     procedure Init(
@@ -198,6 +200,7 @@ type
       const AUseQuality: Boolean;
       const AUseExif: Boolean;
       const AUseAlfa: Boolean;
+      const ACombinePathStringTypeSupport: TStringTypeSupport;
       const ADefaultExt: string;
       const AFormatName: string
     ); reintroduce;
@@ -219,6 +222,7 @@ uses
   i_GeometryProjected,
   i_ProjectionSet,
   u_InterfaceListSimple,
+  u_StrFunc,
   u_GeoFunc,
   u_GeometryFunc,
   u_BitmapLayerProviderMapWithLayer,
@@ -244,6 +248,7 @@ constructor TfrMapCombine.Create(
   const AUseQuality: Boolean;
   const AUseExif: Boolean;
   const AUseAlfa: Boolean;
+  const ACombinePathStringTypeSupport: TStringTypeSupport;
   const ADefaultExt: string;
   const AFormatName: string
 );
@@ -263,6 +268,7 @@ begin
   FUseQuality := AUseQuality;
   FUseExif := AUseExif;
   FUseAlfa := AUseAlfa;
+  FCombinePathStringTypeSupport := ACombinePathStringTypeSupport;
   FDefaultExt := ADefaultExt;
   FFormatName := AFormatName;
   chkPngWithAlpha.Visible := FUseAlfa;
@@ -620,6 +626,10 @@ end;
 function TfrMapCombine.Validate: Boolean;
 var
   VPath: string;
+  VFileName: string;
+  VCalibrationStringSupport: TStringTypeSupport;
+  VCalibrationList: IMapCalibrationList;
+  VCalibration: IMapCalibration;
   VMsg: string;
   VEPSG: Integer;
   VProjection: IProjection;
@@ -627,6 +637,7 @@ var
   VPixelRect: TRect;
   VSplitCount: TPoint;
   VPixelSize: TPoint;
+  i: Integer;
 begin
   if (FfrMapSelect.GetSelectedMapType = nil) and (FfrLayerSelect.GetSelectedMapType = nil) then begin
     ShowMessage(_('Please select map or layer'));
@@ -681,6 +692,22 @@ begin
     Result := False;
     Exit;
   end;
+  case FCombinePathStringTypeSupport of
+    stsAscii: begin
+      if not IsAscii(VPath) then begin
+        ShowMessage(_('This format supports file name with ASCII characters only!'));
+        Result := False;
+        Exit;
+      end;
+    end;
+    stsAnsi: begin
+      if not IsAnsi(VPath) then begin
+        ShowMessage(_('This format doesn''t support file name with characters not from current locale!'));
+        Result := False;
+        Exit;
+      end;
+    end;
+  end;
   if FileExists(VPath) then begin
     VMsg := Format(SAS_MSG_FileExists, [VPath]);
     if (Application.MessageBox(pchar(VMsg), pchar(SAS_MSG_coution), 36) <> IDYES) then begin
@@ -688,6 +715,44 @@ begin
       Exit;
     end;
   end;
+  VCalibrationList := GetMapCalibrationList;
+  if Assigned(VCalibrationList) and (VCalibrationList.Count > 0) then begin
+    VCalibrationStringSupport := stsUnicode;
+    for i := 0 to VCalibrationList.Count - 1 do begin
+      VCalibration := VCalibrationList.Items[i];
+      case VCalibration.StringSupport of
+        stsAscii: begin
+          VCalibrationStringSupport := stsAscii;
+          break;
+        end;
+        stsAnsi: begin
+          if VCalibrationStringSupport <> stsAscii then begin
+            VCalibrationStringSupport := stsAnsi;
+          end;
+        end;
+      end;
+    end;
+    if VCalibrationStringSupport <> stsUnicode then begin
+      VFileName := ExtractFileName(VPath);
+      case VCalibrationStringSupport of
+        stsAscii: begin
+          if not IsAscii(VFileName) then begin
+            ShowMessage(_('At least one calibration type supports file name with ASCII characters only!'));
+            Result := False;
+            Exit;
+          end;
+        end;
+        stsAnsi: begin
+          if not IsAnsi(VFileName) then begin
+            ShowMessage(_('At least one calibration type doesn''t support file name with characters not from current locale!'));
+            Result := False;
+            Exit;
+          end;
+        end;
+      end;
+    end;
+  end;
+
   Result := True;
 end;
 

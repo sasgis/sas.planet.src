@@ -88,6 +88,7 @@ implementation
 uses
   Types,
   gnugettext,
+  t_CommonTypes,
   u_ThreadMapCombineBase,
   u_BitmapMapCombinerECW,
   fr_MapCombine;
@@ -147,6 +148,7 @@ begin
     True,
     False,
     False,
+    stsAnsi,
     'ecw',
     gettext_NoExtract('ECW (Enhanced Compression Wavelet)')
   );

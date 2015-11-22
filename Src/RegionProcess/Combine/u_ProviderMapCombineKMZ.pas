@@ -100,6 +100,7 @@ uses
   Types,
   Math,
   gnugettext,
+  t_CommonTypes,
   t_GeoTypes,
   i_Projection,
   u_ThreadMapCombineBase,
@@ -165,6 +166,7 @@ begin
     True,
     False,
     False,
+    stsUnicode,
     'kmz',
     gettext_NoExtract('KMZ for Garmin (JPEG Overlays)')
   );
