@@ -79,7 +79,7 @@ type
     edtTargetFile: TEdit;
     btnSelectTargetFile: TButton;
     dlgSaveTargetFile: TSaveDialog;
-    EJpgQuality: TSpinEdit;
+    EJpgQuality1: TSpinEdit;
     lblCompress: TLabel;
     PageControl1: TPageControl;
     Map: TTabSheet;
@@ -95,7 +95,7 @@ type
     LMapName: TLabel;
     EMapName: TEdit;
     Label1: TLabel;
-    CbbZoom: TComboBox;
+    CbbZoom1: TComboBox;
     EJpgQuality2: TSpinEdit;
     CbbZoom2: TComboBox;
     EJpgQuality4: TSpinEdit;
@@ -105,7 +105,7 @@ type
     EJpgQuality3: TSpinEdit;
     CbbZoom3: TComboBox;
     Label2: TLabel;
-    cbbscale: TComboBox;
+    cbbscale1: TComboBox;
     cbbscale2: TComboBox;
     cbbscale3: TComboBox;
     cbbscale4: TComboBox;
@@ -126,7 +126,7 @@ type
     cbbVersion: TComboBox;
     chkUseRecolor: TCheckBox;
     chkUseMapMarks: TCheckBox;
-    pnlMap: TPanel;
+    pnlMap1: TPanel;
     pnlMap2: TPanel;
     pnlMap3: TPanel;
     pnlMap4: TPanel;
@@ -138,7 +138,7 @@ type
     procedure ChMap3Click(Sender: TObject);
     procedure ChMap4Click(Sender: TObject);
     procedure ChMap5Click(Sender: TObject);
-    procedure CbbZoomChange(Sender: TObject);
+    procedure CbbZoom1Change(Sender: TObject);
     procedure CbbZoom2Change(Sender: TObject);
     procedure CbbZoom3Change(Sender: TObject);
     procedure CbbZoom4Change(Sender: TObject);
@@ -149,14 +149,14 @@ type
     procedure ChRecompress3Click(Sender: TObject);
     procedure ChRecompress4Click(Sender: TObject);
     procedure ChRecompress5Click(Sender: TObject);
-    procedure MapChange(Sender: TObject);
+    procedure Map1Change(Sender: TObject);
     procedure Map2Change(Sender: TObject);
     procedure Map3Change(Sender: TObject);
     procedure Map4Change(Sender: TObject);
     procedure Map5Change(Sender: TObject);
   private
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
-    FfrMapSelect: TfrMapSelect;
+    FfrMap1Select: TfrMapSelect;
     FfrMap2Select: TfrMapSelect;
     FfrMap3Select: TfrMapSelect;
     FfrMap4Select: TfrMapSelect;
@@ -215,14 +215,14 @@ begin
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   dlgSaveTargetFile.Filter := AFileFilters;
   dlgSaveTargetFile.DefaultExt := AFileExtDefault;
-  FfrMapSelect :=
+  FfrMap1Select :=
     AMapSelectFrameBuilder.Build(
       mfMaps, // show maps and layers
       False,  // add -NO- to combobox
       False,  // show disabled map
       GetAllowExport
     );
-  FfrMapSelect.OnMapChange := MapChange;
+  FfrMap1Select.OnMapChange := Map1Change;
   FfrMap2Select :=
     AMapSelectFrameBuilder.Build(
       mfMaps, // show maps and layers
@@ -259,7 +259,7 @@ end;
 
 destructor TfrExportToJNX.Destroy;
 begin
-  FreeAndNil(FfrMapSelect);
+  FreeAndNil(FfrMap1Select);
   FreeAndNil(FfrMap2Select);
   FreeAndNil(FfrMap3Select);
   FreeAndNil(FfrMap4Select);
@@ -279,12 +279,12 @@ begin
   Result := chkUseRecolor.Checked;
 end;
 
-procedure TfrExportToJNX.MapChange(Sender: TObject);
+procedure TfrExportToJNX.Map1Change(Sender: TObject);
 begin
   if ChMap1.Checked then begin
     EProductName.text := 'SAS Palnet';
-    EMapName.text := FfrMapSelect.Text;
-    TreeView1.Items[1].Text := FfrMapSelect.text;
+    EMapName.text := FfrMap1Select.Text;
+    TreeView1.Items[1].Text := FfrMap1Select.text;
   end;
 end;
 
@@ -424,6 +424,11 @@ begin
   end;
 end;
 
+procedure TfrExportToJNX.CbbZoom1Change(Sender: TObject);
+begin
+  cbbscale1.ItemIndex := ZoomIndexToScaleIndex[CbbZoom1.itemindex];
+end;
+
 procedure TfrExportToJNX.CbbZoom2Change(Sender: TObject);
 begin
   cbbscale2.ItemIndex := ZoomIndexToScaleIndex[CbbZoom2.itemindex];
@@ -444,11 +449,6 @@ begin
   cbbscale5.ItemIndex := ZoomIndexToScaleIndex[CbbZoom5.itemindex];
 end;
 
-procedure TfrExportToJNX.CbbZoomChange(Sender: TObject);
-begin
-  cbbscale.ItemIndex := ZoomIndexToScaleIndex[CbbZoom.itemindex];
-end;
-
 procedure TfrExportToJNX.Init(
   const AZoom: byte;
   const APolygon: IGeometryLonLatPolygon
@@ -458,47 +458,47 @@ var
 begin
   // Инициализируем список соответствия масштабов каждый раз, чтобы можно было пробовать различные настройки, не перезапуская программу.
   InitZoomIndexToScaleIndex;
-  FfrMapSelect.Show(pnlMap);
+  FfrMap1Select.Show(pnlMap1);
   FfrMap2Select.Show(pnlMap2);
   FfrMap3Select.Show(pnlMap3);
   FfrMap4Select.Show(pnlMap4);
   FfrMap5Select.Show(pnlMap5);
 
-  FfrMapSelect.SetEnabled(ChMap1.Checked);
+  FfrMap1Select.SetEnabled(ChMap1.Checked);
   FfrMap2Select.SetEnabled(ChMap2.Checked);
   FfrMap3Select.SetEnabled(ChMap3.Checked);
   FfrMap4Select.SetEnabled(ChMap4.Checked);
   FfrMap5Select.SetEnabled(ChMap5.Checked);
 
-  if CbbZoom.Items.count = 0 then begin
+  if CbbZoom1.Items.count = 0 then begin
     for i := 1 to 24 do begin
-      CbbZoom.Items.Add(inttostr(i));
+      CbbZoom1.Items.Add(inttostr(i));
     end;
 
-    CbbZoom2.items := CbbZoom.Items;
-    CbbZoom3.items := CbbZoom.Items;
-    CbbZoom4.items := CbbZoom.Items;
-    CbbZoom5.items := CbbZoom.Items;
+    CbbZoom2.items := CbbZoom1.Items;
+    CbbZoom3.items := CbbZoom1.Items;
+    CbbZoom4.items := CbbZoom1.Items;
+    CbbZoom5.items := CbbZoom1.Items;
 
-    cbbscale2.items := cbbscale.Items;
-    cbbscale3.items := cbbscale.Items;
-    cbbscale4.items := cbbscale.Items;
-    cbbscale5.items := cbbscale.Items;
+    cbbscale2.items := cbbscale1.Items;
+    cbbscale3.items := cbbscale1.Items;
+    cbbscale4.items := cbbscale1.Items;
+    cbbscale5.items := cbbscale1.Items;
 
-    CbbZoom.ItemIndex := AZoom;
+    CbbZoom1.ItemIndex := AZoom;
     CbbZoom2.ItemIndex := AZoom;
     CbbZoom3.ItemIndex := AZoom;
     CbbZoom4.ItemIndex := AZoom;
     CbbZoom5.ItemIndex := AZoom;
 
-    cbbscale.ItemIndex := ZoomIndexToScaleIndex[AZoom];
+    cbbscale1.ItemIndex := ZoomIndexToScaleIndex[AZoom];
     cbbscale2.ItemIndex := ZoomIndexToScaleIndex[AZoom];
     cbbscale3.ItemIndex := ZoomIndexToScaleIndex[AZoom];
     cbbscale4.ItemIndex := ZoomIndexToScaleIndex[AZoom];
     cbbscale5.ItemIndex := ZoomIndexToScaleIndex[AZoom];
   end;
 
-  EMapName.text := FfrMapSelect.Text;
+  EMapName.text := FfrMap1Select.Text;
   EProductName.text := 'SAS Planet';
   EProductID.ItemIndex := 0;
   if cbbVersion.ItemIndex = -1 then begin
@@ -522,16 +522,16 @@ procedure TfrExportToJNX.ChMap1Click(Sender: TObject);
 var
   VItemNode, VParentNode: TTreeNode;
 begin
-  FfrMapSelect.SetEnabled(ChMap1.Checked);
-  EJpgQuality.Enabled := ChMap1.Checked and ChRecompress1.Checked;
-  CbbZoom.Enabled := ChMap1.Checked;
-  cbbscale.Enabled := ChMap1.Checked;
+  FfrMap1Select.SetEnabled(ChMap1.Checked);
+  EJpgQuality1.Enabled := ChMap1.Checked and ChRecompress1.Checked;
+  CbbZoom1.Enabled := ChMap1.Checked;
+  cbbscale1.Enabled := ChMap1.Checked;
   ChMap2.Enabled := ChMap1.Checked;
   ChRecompress1.Enabled := ChMap1.Checked;
 
   if ChMap1.Checked then begin
     VParentNode := TreeView1.Items.AddFirst(nil, 'Level' + inttostr(1));
-    TreeView1.Items.AddChild(VParentNode, FfrMapSelect.text);
+    TreeView1.Items.AddChild(VParentNode, FfrMap1Select.text);
     TreeView1.Items.AddChild(VParentNode, '(c) ' + EProductName.text);
   end else begin
     VItemNode := TreeView1.Items[0];
@@ -760,14 +760,14 @@ var
 begin
   Result := nil;
   if ChMap1.Checked then begin
-    VMap := FfrMapSelect.GetSelectedMapType;
+    VMap := FfrMap1Select.GetSelectedMapType;
     if Assigned(VMap) then begin
       VTask.FTileStorage := VMap.TileStorage;
       VTask.FMapVersion := VMap.VersionRequest.GetStatic;
-      VTask.FScale := cbbscale.ItemIndex;
-      VTask.FZoom := CbbZoom.ItemIndex;
+      VTask.FScale := cbbscale1.ItemIndex;
+      VTask.FZoom := CbbZoom1.ItemIndex;
       VTask.FRecompress := ChRecompress1.Checked;
-      VTask.FSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(EJpgQuality.Value);
+      VTask.FSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(EJpgQuality1.Value);
       VTask.FLevelDesc := TreeView1.Items[0].text;
       VTask.FLevelName := TreeView1.Items[1].text;
       VTask.FLevelCopyright := TreeView1.Items[2].text;
@@ -856,7 +856,7 @@ end;
 
 procedure TfrExportToJNX.ChRecompress1Click(Sender: TObject);
 begin
-  EJpgQuality.Enabled := ChRecompress1.Checked;
+  EJpgQuality1.Enabled := ChRecompress1.Checked;
 end;
 
 procedure TfrExportToJNX.ChRecompress2Click(Sender: TObject);

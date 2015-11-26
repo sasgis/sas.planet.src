@@ -124,7 +124,7 @@ object frExportToJNX: TfrExportToJNX
             Anchors = [akTop, akRight]
             Caption = 'Scale:'
           end
-          object EJpgQuality: TSpinEdit
+          object EJpgQuality1: TSpinEdit
             Left = 154
             Top = 19
             Width = 57
@@ -136,7 +136,7 @@ object frExportToJNX: TfrExportToJNX
             TabOrder = 0
             Value = 95
           end
-          object CbbZoom: TComboBox
+          object CbbZoom1: TComboBox
             Left = 5
             Top = 19
             Width = 57
@@ -147,7 +147,7 @@ object frExportToJNX: TfrExportToJNX
             Enabled = False
             ItemHeight = 13
             TabOrder = 1
-            OnChange = CbbZoomChange
+            OnChange = CbbZoom1Change
           end
           object EJpgQuality2: TSpinEdit
             Left = 154
@@ -297,7 +297,7 @@ object frExportToJNX: TfrExportToJNX
             ItemHeight = 13
             TabOrder = 13
           end
-          object cbbscale: TComboBox
+          object cbbscale1: TComboBox
             Left = 70
             Top = 19
             Width = 57
@@ -454,7 +454,7 @@ object frExportToJNX: TfrExportToJNX
           TabOrder = 4
           OnClick = ChMap5Click
         end
-        object pnlMap: TPanel
+        object pnlMap1: TPanel
           Left = 23
           Top = 1
           Width = 228
