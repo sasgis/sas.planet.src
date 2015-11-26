@@ -29,6 +29,7 @@ uses
 
 type
   TExportTaskJnx = record
+    FBlankLevel: Boolean;
     FScale: Byte;
     FZoom: Byte;
     FTileStorage: ITileStorage;

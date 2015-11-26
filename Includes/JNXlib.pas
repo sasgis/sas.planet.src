@@ -1,8 +1,8 @@
 unit {$IFNDEF JNXLIB_DLL} JNXLib {$ELSE} uJNXLib {$ENDIF};
 { Unit:    JNXLib
   Author:  Alex Whiter
-  Version: 1.11
-  Date:    2014.03.10
+  Version: 1.13
+  Date:    2015.11.26
 
   Description: This unit provides the necessary classes and routines to read
     and write JNX raster maps files.
@@ -98,7 +98,7 @@ type
 
   TJNXMapMeta = record
     Version: integer;
-    GUID: AnsiString;
+    GUID: WideString;
     ProductName: WideString;
     MapName: WideString;
     LevelMetaCount: integer;
@@ -194,6 +194,7 @@ type
   public
     procedure WriteTile(Level, PicWidth, PicHeight: integer; const Bounds: TJNXRect; const JpegString: AnsiString; AdjustMapBounds: boolean = True); virtual; abstract;
     function CanAcceptTile(LevelIndex, TileLength: integer): boolean; virtual;
+    procedure WriteEmptyTile(Level: integer); virtual;
   end;
 
   TSimpleJNXWriter = class(TBaseJNXWriter)
@@ -263,7 +264,7 @@ procedure WriteUTFString(var f: File; const s: WideString);
 function JNXCoordToWGS84(c: integer): double;
 function WGS84CoordToJNX(c: double): integer;
 
-function CreateGUID: AnsiString;
+function CreateGUID: WideString;
 
 function JNXRect(northern_lat, eastern_lon, southern_lat, western_lon: integer): TJNXRect;
 
@@ -320,14 +321,14 @@ begin
   SetFilePointer(TFileRec(f).Handle, Pos, @HiDWord, FILE_BEGIN);
 end;
 
-function CreateGUID: AnsiString;
-  function MakeRandSeq(Len: integer): AnsiString;
+function CreateGUID: WideString;
+  function MakeRandSeq(Len: integer): WideString;
   var
     i: integer;
   begin
     Result := '';
     for i:=1 to Len do
-      Result := Result + AnsiString(IntToHex(random(256), 2));
+      Result := Result + IntToHex(random(256), 2);
   end;
 begin
   Result :=
@@ -518,9 +519,17 @@ begin
 end;
 
 function TJNXReader.OpenFile(const Path: String): Boolean;
+var
+  OldFileMode: integer;
 begin
+  OldFileMode := FileMode;
+  FileMode := 0;
+  try
   AssignFile(FFile, Path);
   Reset(FFile, 1);
+  finally
+    FileMode := OldFileMode;
+  end;
 
   ReadFileHeaders;
 
@@ -577,7 +586,7 @@ procedure TJNXReader.ReadMeta;
 var
   Dummy1: array [1..3] of byte;
   i: integer;
-  Dummy2: String;
+  Dummy2: WideString;
   Dummy3: Word;
 begin
   with FMeta do
@@ -588,12 +597,12 @@ begin
       Seek64(FFile, Header.SigOffset + $314);
 
     BlockRead(FFile, Version, SizeOf(Version));
-    GUID := AnsiString(ReadUTFString(FFile));
+    GUID := ReadUTFString(FFile);
     ProductName := ReadUTFString(FFile);
     if Version = 3 then
     begin
       Dummy2 := ReadUTFString(FFile);
-      BlockRead(FFile, Dummy3, SizeOf(Dummy3));      
+      BlockRead(FFile, Dummy3, SizeOf(Dummy3));
     end
     else
       BlockRead(FFile, Dummy1, SizeOf(Dummy1));
@@ -666,6 +675,24 @@ begin
   InitHeader;
 
   Result := True;
+end;
+
+procedure TBaseJNXWriter.WriteEmptyTile(Level: integer);
+const
+  // Google "Worlds Smallest, Valid JPEG"
+  EmptyJPEGString: AnsiString =
+    #$FF#$D8#$FF#$E0#$00#$10#$4A#$46#$49#$46#$00#$01#$01#$01#$00#$48#$00#$48#$00#$00#$FF#$DB#$00#$43#$00#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF +
+    #$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF +
+    #$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$FF#$C2#$00#$0B#$08#$00#$01#$00#$01#$01#$01#$11#$00 +
+    #$FF#$C4#$00#$14#$10#$01#$00#$00#$00#$00#$00#$00#$00#$00#$00#$00#$00#$00#$00#$00#$00#$00#$FF#$DA#$00#$08#$01#$01#$00#$01#$3F#$10#$FF#$D9;
+  NorthPole: TJNXRect = (
+    northern_lat: $40000000;
+    eastern_lon:  $7FFFFFFF;
+    southern_lat: $40000000;
+    western_lon:  $7FFFFFFF;
+  );
+begin
+  WriteTile(Level, 1, 1, NorthPole, EmptyJPEGString, False);
 end;
 
 

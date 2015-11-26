@@ -151,15 +151,17 @@ begin
   SetLength(VTileIterators, Length(FTasks));
   for i := 0 to Length(FTasks) - 1 do begin
     VZoom := FTasks[i].FZoom;
-    VProjectionSet := FTasks[i].FTileStorage.ProjectionSet;
-    VProjection := VProjectionSet.Zooms[VZoom];
-    VProjectedPolygon :=
-      FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-        VProjection,
-        PolygLL
-      );
-    VTileIterators[i] := TTileIteratorByPolygon.Create(VProjection, VProjectedPolygon);
-    VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal;
+    if not FTasks[i].FBlankLevel then begin
+      VProjectionSet := FTasks[i].FTileStorage.ProjectionSet;
+      VProjection := VProjectionSet.Zooms[VZoom];
+      VProjectedPolygon :=
+        FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
+          VProjection,
+          PolygLL
+        );
+      VTileIterators[i] := TTileIteratorByPolygon.Create(VProjection, VProjectedPolygon);
+      VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal;
+    end;
   end;
 
   VWriter := TMultiVolumeJNXWriter.Create(FTargetFile);
@@ -173,7 +175,10 @@ begin
 
     for i := 0 to Length(FTasks) - 1 do begin
       VWriter.LevelScale[i] := ZoomToScale[FTasks[i].FScale];
-      VWriter.TileCount[i] := VTileIterators[i].TilesTotal;
+      if FTasks[i].FBlankLevel then
+        VWriter.TileCount[i] := 1
+      else
+        VWriter.TileCount[i] := VTileIterators[i].TilesTotal;
       VWriter.LevelDescription[i] := FTasks[i].FLevelDesc;
       VWriter.LevelName[i] := FTasks[i].FLevelName;
       VWriter.LevelCopyright[i] := FTasks[i].FLevelCopyright;
@@ -188,60 +193,64 @@ begin
         VTilesProcessed := 0;
         ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
         for i := 0 to Length(FTasks) - 1 do begin
-          VSaver := FTasks[i].FSaver;
-          VRecompress := FTasks[i].FRecompress or (FBitmapPostProcessing <> nil);
-          VTileStorage := FTasks[i].FTileStorage;
-          VVersion := FTasks[i].FMapVersion;
-          VZoom := FTasks[i].FZoom;
-          VProjectionSet := VTileStorage.ProjectionSet;
-          VTileIterator := VTileIterators[i];
-          while VTileIterator.Next(VTile) do begin
-            if CancelNotifier.IsOperationCanceled(OperationID) then begin
-              exit;
-            end;
+          if FTasks[i].FBlankLevel then begin
+            VWriter.WriteEmptyTile(i)
+          end else begin
+            VSaver := FTasks[i].FSaver;
+            VRecompress := FTasks[i].FRecompress or (FBitmapPostProcessing <> nil);
+            VTileStorage := FTasks[i].FTileStorage;
+            VVersion := FTasks[i].FMapVersion;
+            VZoom := FTasks[i].FZoom;
+            VProjectionSet := VTileStorage.ProjectionSet;
+            VTileIterator := VTileIterators[i];
+            while VTileIterator.Next(VTile) do begin
+              if CancelNotifier.IsOperationCanceled(OperationID) then begin
+                exit;
+              end;
 
-            if Supports(VTileStorage.GetTileInfoEx(VTile, VZoom, VVersion, gtimWithData), ITileInfoWithData, VTileInfo) then begin
-              VData := Nil;
-              if VRecompress or not ALSameText(VTileInfo.ContentType.GetContentType, 'image/jpg') then begin
-                if Supports(VTileInfo.ContentType, IContentTypeInfoBitmap, VContentTypeInfoBitmap) then begin
-                  VBitmapTile := VContentTypeInfoBitmap.GetLoader.Load(VTileInfo.TileData);
-                  if FBitmapPostProcessing <> nil then begin
-                    VBitmapTile := FBitmapPostProcessing.Process(VBitmapTile);
+              if Supports(VTileStorage.GetTileInfoEx(VTile, VZoom, VVersion, gtimWithData), ITileInfoWithData, VTileInfo) then begin
+                VData := Nil;
+                if VRecompress or not ALSameText(VTileInfo.ContentType.GetContentType, 'image/jpg') then begin
+                  if Supports(VTileInfo.ContentType, IContentTypeInfoBitmap, VContentTypeInfoBitmap) then begin
+                    VBitmapTile := VContentTypeInfoBitmap.GetLoader.Load(VTileInfo.TileData);
+                    if FBitmapPostProcessing <> nil then begin
+                      VBitmapTile := FBitmapPostProcessing.Process(VBitmapTile);
+                    end;
+                    if Assigned(VBitmapTile) then begin
+                      VData := VSaver.Save(VBitmapTile);
+                    end;
                   end;
-                  if Assigned(VBitmapTile) then begin
-                    VData := VSaver.Save(VBitmapTile);
-                  end;
+                end else begin
+                  VData := VTileInfo.TileData;
                 end;
-              end else begin
-                VData := VTileInfo.TileData;
+
+                if Assigned(VData) then begin
+                  VTopLeft := VProjectionSet.Zooms[VZoom].TilePos2LonLat(Point(VTile.X, VTile.Y + 1));
+                  VBottomRight := VProjectionSet.Zooms[VZoom].TilePos2LonLat(Point(VTile.X + 1, VTile.Y));
+
+                  VTileBounds := JNXRect(
+                    WGS84CoordToJNX(VBottomRight.Y),
+                    WGS84CoordToJNX(VBottomRight.X),
+                    WGS84CoordToJNX(VTopLeft.Y),
+                    WGS84CoordToJNX(VTopLeft.X)
+                  );
+
+                  VStringStream.Size := 0;
+                  VStringStream.WriteBuffer(VData.Buffer^, VData.Size);
+
+                  VWriter.WriteTile(
+                    i,
+                    256,
+                    256,
+                    VTileBounds,
+                    VStringStream.DataString
+                  );
+                end;
               end;
-
-              if Assigned(VData) then begin
-                VTopLeft := VProjectionSet.Zooms[VZoom].TilePos2LonLat(Point(VTile.X, VTile.Y + 1));
-                VBottomRight := VProjectionSet.Zooms[VZoom].TilePos2LonLat(Point(VTile.X + 1, VTile.Y));
-
-                VTileBounds := JNXRect(
-                  WGS84CoordToJNX(VBottomRight.Y),
-                  WGS84CoordToJNX(VBottomRight.X),
-                  WGS84CoordToJNX(VTopLeft.Y),
-                  WGS84CoordToJNX(VTopLeft.X)
-                );
-
-                VStringStream.Size := 0;
-                VStringStream.WriteBuffer(VData.Buffer^, VData.Size);
-
-                VWriter.WriteTile(
-                  i,
-                  256,
-                  256,
-                  VTileBounds,
-                  VStringStream.DataString
-                );
+              inc(VTilesProcessed);
+              if VTilesProcessed mod 100 = 0 then begin
+                ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
               end;
-            end;
-            inc(VTilesProcessed);
-            if VTilesProcessed mod 100 = 0 then begin
-              ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
             end;
           end;
         end;

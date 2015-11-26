@@ -218,7 +218,7 @@ begin
   FfrMap1Select :=
     AMapSelectFrameBuilder.Build(
       mfMaps, // show maps and layers
-      False,  // add -NO- to combobox
+      True,   // add -NO- to combobox
       False,  // show disabled map
       GetAllowExport
     );
@@ -226,7 +226,7 @@ begin
   FfrMap2Select :=
     AMapSelectFrameBuilder.Build(
       mfMaps, // show maps and layers
-      False,  // add -NO- to combobox
+      True,   // add -NO- to combobox
       False,  // show disabled map
       GetAllowExport
     );
@@ -234,7 +234,7 @@ begin
   FfrMap3Select :=
     AMapSelectFrameBuilder.Build(
       mfMaps, // show maps and layers
-      False,  // add -NO- to combobox
+      True,   // add -NO- to combobox
       False,  // show disabled map
       GetAllowExport
     );
@@ -242,7 +242,7 @@ begin
   FfrMap4Select :=
     AMapSelectFrameBuilder.Build(
       mfMaps, // show maps and layers
-      False,  // add -NO- to combobox
+      True,   // add -NO- to combobox
       False,  // show disabled map
       GetAllowExport
     );
@@ -250,7 +250,7 @@ begin
   FfrMap5Select :=
     AMapSelectFrameBuilder.Build(
       mfMaps, // show maps and layers
-      False,  // add -NO- to combobox
+      True,   // add -NO- to combobox
       False,  // show disabled map
       GetAllowExport
     );
@@ -280,28 +280,42 @@ begin
 end;
 
 procedure TfrExportToJNX.Map1Change(Sender: TObject);
+var
+  BlankLayer: Boolean;
 begin
   if ChMap1.Checked then begin
     EProductName.text := 'SAS Palnet';
     EMapName.text := FfrMap1Select.Text;
     TreeView1.Items[1].Text := FfrMap1Select.text;
   end;
+
+  BlankLayer := (FfrMap1Select.GetSelectedMapType = Nil);
+  CbbZoom1.Enabled := not BlankLayer;
+  ChRecompress1.Enabled := not BlankLayer;
+  EJpgQuality1.Enabled :=  not BlankLayer;
 end;
 
 procedure TfrExportToJNX.Map2Change(Sender: TObject);
 var
   cnt: integer;
+  BlankLayer: Boolean;
 begin
   cnt := 0;
   if ChMap1.Checked then begin
     inc(cnt);
   end;
   TreeView1.Items[cnt * 3 + 1].Text := FfrMap2Select.text;
+
+  BlankLayer := (FfrMap2Select.GetSelectedMapType = Nil);
+  CbbZoom2.Enabled := not BlankLayer;
+  ChRecompress2.Enabled := not BlankLayer;
+  EJpgQuality2.Enabled :=  not BlankLayer;
 end;
 
 procedure TfrExportToJNX.Map3Change(Sender: TObject);
 var
   cnt: integer;
+  BlankLayer: Boolean;
 begin
   cnt := 0;
   if ChMap1.Checked then begin
@@ -311,11 +325,17 @@ begin
     inc(cnt);
   end;
   TreeView1.Items[cnt * 3 + 1].Text := FfrMap3Select.text;
+
+  BlankLayer := (FfrMap3Select.GetSelectedMapType = Nil);
+  CbbZoom3.Enabled := not BlankLayer;
+  ChRecompress3.Enabled := not BlankLayer;
+  EJpgQuality3.Enabled :=  not BlankLayer;
 end;
 
 procedure TfrExportToJNX.Map4Change(Sender: TObject);
 var
   cnt: integer;
+  BlankLayer: Boolean;
 begin
   cnt := 0;
   if ChMap1.Checked then begin
@@ -328,11 +348,17 @@ begin
     inc(cnt);
   end;
   TreeView1.Items[cnt * 3 + 1].Text := FfrMap4Select.text;
+
+  BlankLayer := (FfrMap4Select.GetSelectedMapType = Nil);
+  CbbZoom4.Enabled := not BlankLayer;
+  ChRecompress4.Enabled := not BlankLayer;
+  EJpgQuality4.Enabled :=  not BlankLayer;
 end;
 
 procedure TfrExportToJNX.Map5Change(Sender: TObject);
 var
   cnt: integer;
+  BlankLayer: Boolean;
 begin
   cnt := 0;
   if ChMap1.Checked then begin
@@ -348,6 +374,11 @@ begin
     inc(cnt);
   end;
   TreeView1.Items[cnt * 3 + 1].Text := FfrMap5Select.Text;
+
+  BlankLayer := (FfrMap5Select.GetSelectedMapType = Nil);
+  CbbZoom5.Enabled := not BlankLayer;
+  ChRecompress5.Enabled := not BlankLayer;
+  EJpgQuality5.Enabled :=  not BlankLayer;
 end;
 
 procedure TfrExportToJNX.cbbVersionChange(Sender: TObject);
@@ -458,11 +489,16 @@ var
 begin
   // Инициализируем список соответствия масштабов каждый раз, чтобы можно было пробовать различные настройки, не перезапуская программу.
   InitZoomIndexToScaleIndex;
-  FfrMap1Select.Show(pnlMap1);
-  FfrMap2Select.Show(pnlMap2);
-  FfrMap3Select.Show(pnlMap3);
-  FfrMap4Select.Show(pnlMap4);
-  FfrMap5Select.Show(pnlMap5);
+  if not Assigned(FfrMap1Select.Parent) then
+    FfrMap1Select.Show(pnlMap1);
+  if not Assigned(FfrMap2Select.Parent) then
+    FfrMap2Select.Show(pnlMap2);
+  if not Assigned(FfrMap3Select.Parent) then
+    FfrMap3Select.Show(pnlMap3);
+  if not Assigned(FfrMap4Select.Parent) then
+    FfrMap4Select.Show(pnlMap4);
+  if not Assigned(FfrMap5Select.Parent) then
+    FfrMap5Select.Show(pnlMap5);
 
   FfrMap1Select.SetEnabled(ChMap1.Checked);
   FfrMap2Select.SetEnabled(ChMap2.Checked);
@@ -521,13 +557,16 @@ end;
 procedure TfrExportToJNX.ChMap1Click(Sender: TObject);
 var
   VItemNode, VParentNode: TTreeNode;
+  BlankLayer: Boolean;
 begin
   FfrMap1Select.SetEnabled(ChMap1.Checked);
-  EJpgQuality1.Enabled := ChMap1.Checked and ChRecompress1.Checked;
-  CbbZoom1.Enabled := ChMap1.Checked;
+  BlankLayer := (FfrMap1Select.GetSelectedMapType = Nil);
+
+  EJpgQuality1.Enabled := ChMap1.Checked and ChRecompress1.Checked and not BlankLayer;
+  CbbZoom1.Enabled := ChMap1.Checked and not BlankLayer;
   cbbscale1.Enabled := ChMap1.Checked;
   ChMap2.Enabled := ChMap1.Checked;
-  ChRecompress1.Enabled := ChMap1.Checked;
+  ChRecompress1.Enabled := ChMap1.Checked and not BlankLayer;
 
   if ChMap1.Checked then begin
     VParentNode := TreeView1.Items.AddFirst(nil, 'Level' + inttostr(1));
@@ -544,14 +583,17 @@ procedure TfrExportToJNX.ChMap2Click(Sender: TObject);
 var
   VItemNode, VParentNode: TTreeNode;
   cnt: integer;
+  BlankLayer: Boolean;  
 begin
   cnt := 0;
   FfrMap2Select.SetEnabled(ChMap2.Checked);
-  EJpgQuality2.Enabled := ChMap2.Checked and ChRecompress2.Checked;
-  CbbZoom2.Enabled := ChMap2.Checked;
+  BlankLayer := (FfrMap2Select.GetSelectedMapType = Nil);
+
+  EJpgQuality2.Enabled := ChMap2.Checked and ChRecompress2.Checked and not BlankLayer;
+  CbbZoom2.Enabled := ChMap2.Checked and not BlankLayer;
   cbbscale2.Enabled := ChMap2.Checked;
   ChMap3.Enabled := ChMap2.Checked;
-  ChRecompress2.Enabled := ChMap2.Checked;
+  ChRecompress2.Enabled := ChMap2.Checked and not BlankLayer;
   if ChMap1.Checked then begin
     inc(cnt);
   end;
@@ -579,14 +621,17 @@ procedure TfrExportToJNX.ChMap3Click(Sender: TObject);
 var
   VItemNode, VParentNode: TTreeNode;
   cnt: integer;
+  BlankLayer: Boolean;
 begin
   cnt := 0;
   FfrMap3Select.SetEnabled(ChMap3.Checked);
-  EJpgQuality3.Enabled := ChMap3.Checked and ChRecompress3.Checked;
-  CbbZoom3.Enabled := ChMap3.Checked;
+  BlankLayer := (FfrMap3Select.GetSelectedMapType = Nil);
+
+  EJpgQuality3.Enabled := ChMap3.Checked and ChRecompress3.Checked and not BlankLayer;
+  CbbZoom3.Enabled := ChMap3.Checked and not BlankLayer;
   cbbscale3.Enabled := ChMap3.Checked;
   ChMap4.Enabled := ChMap3.Checked;
-  ChRecompress3.Enabled := ChMap3.Checked;
+  ChRecompress3.Enabled := ChMap3.Checked and not BlankLayer;
   if ChMap1.Checked then begin
     inc(cnt);
   end;
@@ -617,14 +662,17 @@ procedure TfrExportToJNX.ChMap4Click(Sender: TObject);
 var
   VItemNode, VParentNode: TTreeNode;
   cnt: integer;
+  BlankLayer: Boolean;
 begin
   cnt := 0;
   FfrMap4Select.SetEnabled(ChMap4.Checked);
-  EJpgQuality4.Enabled := ChMap4.Checked and ChRecompress4.Checked;
-  CbbZoom4.Enabled := ChMap4.Checked;
+  BlankLayer := (FfrMap4Select.GetSelectedMapType = Nil);
+
+  EJpgQuality4.Enabled := ChMap4.Checked and ChRecompress4.Checked and not BlankLayer;
+  CbbZoom4.Enabled := ChMap4.Checked and not BlankLayer;
   cbbscale4.Enabled := ChMap4.Checked;
   ChMap5.Enabled := ChMap4.Checked;
-  ChRecompress4.Enabled := ChMap4.Checked;
+  ChRecompress4.Enabled := ChMap4.Checked and not BlankLayer;
   if ChMap1.Checked then begin
     inc(cnt);
   end;
@@ -658,14 +706,16 @@ procedure TfrExportToJNX.ChMap5Click(Sender: TObject);
 var
   VItemNode, VParentNode: TTreeNode;
   cnt: integer;
+  BlankLayer: Boolean;
 begin
   cnt := 0;
   FfrMap5Select.SetEnabled(ChMap5.Checked);
-  EJpgQuality5.Enabled := ChMap5.Checked and ChRecompress5.Checked;
-  ;
-  CbbZoom5.Enabled := ChMap5.Checked;
+  BlankLayer := (FfrMap5Select.GetSelectedMapType = Nil);
+
+  EJpgQuality5.Enabled := ChMap5.Checked and ChRecompress5.Checked and not BlankLayer;
+  CbbZoom5.Enabled := ChMap5.Checked and not BlankLayer;
   cbbscale5.Enabled := ChMap5.Checked;
-  ChRecompress5.Enabled := ChMap5.Checked;
+  ChRecompress5.Enabled := ChMap5.Checked and not BlankLayer;
   if ChMap1.Checked then begin
     inc(cnt);
   end;
@@ -764,16 +814,21 @@ begin
     if Assigned(VMap) then begin
       VTask.FTileStorage := VMap.TileStorage;
       VTask.FMapVersion := VMap.VersionRequest.GetStatic;
-      VTask.FScale := cbbscale1.ItemIndex;
-      VTask.FZoom := CbbZoom1.ItemIndex;
-      VTask.FRecompress := ChRecompress1.Checked;
-      VTask.FSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(EJpgQuality1.Value);
-      VTask.FLevelDesc := TreeView1.Items[0].text;
-      VTask.FLevelName := TreeView1.Items[1].text;
-      VTask.FLevelCopyright := TreeView1.Items[2].text;
-      SetLength(Result, Length(Result) + 1);
-      Result[Length(Result) - 1] := VTask;
+      VTask.FBlankLevel := False;
+    end else begin
+      VTask.FTileStorage := Nil;
+      VTask.FMapVersion := Nil;
+      VTask.FBlankLevel := True;
     end;
+    VTask.FScale := cbbscale1.ItemIndex;
+    VTask.FZoom := CbbZoom1.ItemIndex;
+    VTask.FRecompress := ChRecompress1.Checked;
+    VTask.FSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(EJpgQuality1.Value);
+    VTask.FLevelDesc := TreeView1.Items[0].text;
+    VTask.FLevelName := TreeView1.Items[1].text;
+    VTask.FLevelCopyright := TreeView1.Items[2].text;
+    SetLength(Result, Length(Result) + 1);
+    Result[Length(Result) - 1] := VTask;
   end;
 
   if ChMap2.Checked then begin
@@ -781,16 +836,21 @@ begin
     if Assigned(VMap) then begin
       VTask.FTileStorage := VMap.TileStorage;
       VTask.FMapVersion := VMap.VersionRequest.GetStatic;
-      VTask.FScale := cbbscale2.ItemIndex;
-      VTask.FZoom := CbbZoom2.ItemIndex;
-      VTask.FRecompress := ChRecompress2.Checked;
-      VTask.FSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(EJpgQuality2.Value);
-      VTask.FLevelDesc := TreeView1.Items[3].text;
-      VTask.FLevelName := TreeView1.Items[4].text;
-      VTask.FLevelCopyright := TreeView1.Items[5].text;
-      SetLength(Result, Length(Result) + 1);
-      Result[Length(Result) - 1] := VTask;
+      VTask.FBlankLevel := False;
+    end else begin
+      VTask.FTileStorage := Nil;
+      VTask.FMapVersion := Nil;
+      VTask.FBlankLevel := True;
     end;
+    VTask.FScale := cbbscale2.ItemIndex;
+    VTask.FZoom := CbbZoom2.ItemIndex;
+    VTask.FRecompress := ChRecompress2.Checked;
+    VTask.FSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(EJpgQuality2.Value);
+    VTask.FLevelDesc := TreeView1.Items[3].text;
+    VTask.FLevelName := TreeView1.Items[4].text;
+    VTask.FLevelCopyright := TreeView1.Items[5].text;
+    SetLength(Result, Length(Result) + 1);
+    Result[Length(Result) - 1] := VTask;
   end;
 
   if ChMap3.Checked then begin
@@ -798,16 +858,21 @@ begin
     if Assigned(VMap) then begin
       VTask.FTileStorage := VMap.TileStorage;
       VTask.FMapVersion := VMap.VersionRequest.GetStatic;
-      VTask.FScale := cbbscale3.ItemIndex;
-      VTask.FZoom := CbbZoom3.ItemIndex;
-      VTask.FRecompress := ChRecompress3.Checked;
-      VTask.FSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(EJpgQuality3.Value);
-      VTask.FLevelDesc := TreeView1.Items[6].text;
-      VTask.FLevelName := TreeView1.Items[7].text;
-      VTask.FLevelCopyright := TreeView1.Items[8].text;
-      SetLength(Result, Length(Result) + 1);
-      Result[Length(Result) - 1] := VTask;
+      VTask.FBlankLevel := False;
+    end else begin
+      VTask.FTileStorage := Nil;
+      VTask.FMapVersion := Nil;
+      VTask.FBlankLevel := True;
     end;
+    VTask.FScale := cbbscale3.ItemIndex;
+    VTask.FZoom := CbbZoom3.ItemIndex;
+    VTask.FRecompress := ChRecompress3.Checked;
+    VTask.FSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(EJpgQuality3.Value);
+    VTask.FLevelDesc := TreeView1.Items[6].text;
+    VTask.FLevelName := TreeView1.Items[7].text;
+    VTask.FLevelCopyright := TreeView1.Items[8].text;
+    SetLength(Result, Length(Result) + 1);
+    Result[Length(Result) - 1] := VTask;
   end;
 
   if ChMap4.Checked then begin
@@ -815,16 +880,21 @@ begin
     if Assigned(VMap) then begin
       VTask.FTileStorage := VMap.TileStorage;
       VTask.FMapVersion := VMap.VersionRequest.GetStatic;
-      VTask.FScale := cbbscale4.ItemIndex;
-      VTask.FZoom := CbbZoom4.ItemIndex;
-      VTask.FRecompress := ChRecompress4.Checked;
-      VTask.FSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(EJpgQuality4.Value);
-      VTask.FLevelDesc := TreeView1.Items[9].text;
-      VTask.FLevelName := TreeView1.Items[10].text;
-      VTask.FLevelCopyright := TreeView1.Items[11].text;
-      SetLength(Result, Length(Result) + 1);
-      Result[Length(Result) - 1] := VTask;
+      VTask.FBlankLevel := False;
+    end else begin
+      VTask.FTileStorage := Nil;
+      VTask.FMapVersion := Nil;
+      VTask.FBlankLevel := True;
     end;
+    VTask.FScale := cbbscale4.ItemIndex;
+    VTask.FZoom := CbbZoom4.ItemIndex;
+    VTask.FRecompress := ChRecompress4.Checked;
+    VTask.FSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(EJpgQuality4.Value);
+    VTask.FLevelDesc := TreeView1.Items[9].text;
+    VTask.FLevelName := TreeView1.Items[10].text;
+    VTask.FLevelCopyright := TreeView1.Items[11].text;
+    SetLength(Result, Length(Result) + 1);
+    Result[Length(Result) - 1] := VTask;
   end;
 
   if ChMap5.Checked then begin
@@ -832,16 +902,21 @@ begin
     if Assigned(VMap) then begin
       VTask.FTileStorage := VMap.TileStorage;
       VTask.FMapVersion := VMap.VersionRequest.GetStatic;
-      VTask.FScale := cbbscale5.ItemIndex;
-      VTask.FZoom := CbbZoom5.ItemIndex;
-      VTask.FRecompress := ChRecompress5.Checked;
-      VTask.FSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(EJpgQuality5.Value);
-      VTask.FLevelDesc := TreeView1.Items[12].text;
-      VTask.FLevelName := TreeView1.Items[13].text;
-      VTask.FLevelCopyright := TreeView1.Items[14].text;
-      SetLength(Result, Length(Result) + 1);
-      Result[Length(Result) - 1] := VTask;
+      VTask.FBlankLevel := False;
+    end else begin
+      VTask.FTileStorage := Nil;
+      VTask.FMapVersion := Nil;
+      VTask.FBlankLevel := True;
     end;
+    VTask.FScale := cbbscale5.ItemIndex;
+    VTask.FZoom := CbbZoom5.ItemIndex;
+    VTask.FRecompress := ChRecompress5.Checked;
+    VTask.FSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(EJpgQuality5.Value);
+    VTask.FLevelDesc := TreeView1.Items[12].text;
+    VTask.FLevelName := TreeView1.Items[13].text;
+    VTask.FLevelCopyright := TreeView1.Items[14].text;
+    SetLength(Result, Length(Result) + 1);
+    Result[Length(Result) - 1] := VTask;
   end;
 end;
 
