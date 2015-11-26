@@ -132,7 +132,7 @@ var
 begin
   Result := False;
   VExistsTileInfo := PrepareOldTileInfo(ARequest);
-  if VExistsTileInfo <> nil then begin
+  if Assigned(VExistsTileInfo) then begin
     VOldTileSize := VExistsTileInfo.GetSize;
     if ANewSize = VOldTileSize then begin
       Result := True;

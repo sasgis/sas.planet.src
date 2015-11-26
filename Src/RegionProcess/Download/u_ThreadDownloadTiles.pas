@@ -365,32 +365,34 @@ begin
 
       // if gtimWithData - tile will be loaded, so we use gtimAsIs
       VTileInfo := FMapType.TileStorage.GetTileInfoEx(VTile, AZoom, FVersionForCheck, gtimAsIs);
-      if VTileInfo.IsExists then begin
-        if FReplaceExistTiles then begin
-          FProgressInfo.Log.WriteText(FRES_LoadProcessRepl, 0);
-        end else begin
-          FProgressInfo.Log.WriteText(FRES_FileExistsShort, 0);
-          VGotoNextTile := True;
-        end;
-        if not VGotoNextTile then begin
-          if FCheckExistTileDate and (VTileInfo.LoadDate >= FCheckTileDate) then begin
-            // skip existing newer tile
-            FProgressInfo.Log.WriteText(FRES_FileBeCreateTime, 0);
+      if Assigned(VTileInfo) and (VTileInfo.IsExists or VTileInfo.IsExistsTNE) then begin
+        if VTileInfo.IsExists then begin
+          if FReplaceExistTiles then begin
+            FProgressInfo.Log.WriteText(FRES_LoadProcessRepl, 0);
+          end else begin
+            FProgressInfo.Log.WriteText(FRES_FileExistsShort, 0);
             VGotoNextTile := True;
           end;
-        end;
-      end else if VTileInfo.IsExistsTNE then begin
-        if FSecondLoadTNE then begin
-          FProgressInfo.Log.WriteText(FRES_LoadProcess, 0);
-        end else begin
-          FProgressInfo.Log.WriteText('(tne exists)', 0);
-          VGotoNextTile := True;
-        end;
-        if not VGotoNextTile then begin
-          if FCheckTneOlderDate and (VTileInfo.LoadDate >= FReplaceTneOlderDate) then begin
-            // skip existing newer tne
-            FProgressInfo.Log.WriteText(FRES_TneBeCreateTime, 0);
+          if not VGotoNextTile then begin
+            if FCheckExistTileDate and (VTileInfo.LoadDate >= FCheckTileDate) then begin
+              // skip existing newer tile
+              FProgressInfo.Log.WriteText(FRES_FileBeCreateTime, 0);
+              VGotoNextTile := True;
+            end;
+          end;
+        end else if VTileInfo.IsExistsTNE then begin
+          if FSecondLoadTNE then begin
+            FProgressInfo.Log.WriteText(FRES_LoadProcess, 0);
+          end else begin
+            FProgressInfo.Log.WriteText('(tne exists)', 0);
             VGotoNextTile := True;
+          end;
+          if not VGotoNextTile then begin
+            if FCheckTneOlderDate and (VTileInfo.LoadDate >= FReplaceTneOlderDate) then begin
+              // skip existing newer tne
+              FProgressInfo.Log.WriteText(FRES_TneBeCreateTime, 0);
+              VGotoNextTile := True;
+            end;
           end;
         end;
       end else begin

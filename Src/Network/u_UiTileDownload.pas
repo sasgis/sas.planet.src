@@ -374,20 +374,20 @@ begin
 
       while FRequestManager.Acquire(VTile) do begin
         VNeedDownload := False;
+        if (FUseDownload = tsCache) then begin
+          break;
+        end;
         VTileInfo := VStorage.GetTileInfoEx(VTile, VZoom, VVersionInfo, gtimWithoutData);
-
-        if VTileInfo.IsExists then begin
+        if Assigned(VTileInfo) and (VTileInfo.IsExists or VTileInfo.IsExistsTNE) then begin
           if FUseDownload = tsInternet then begin
             if Now - VTileInfo.LoadDate > FTileMaxAgeInInternet then begin
               VNeedDownload := True;
             end;
+          end else begin
+            VNeedDownload := True;
           end;
         end else begin
-          if (FUseDownload = tsInternet) or (FUseDownload = tsCacheInternet) then begin
-            if not VTileInfo.IsExistsTNE then begin
-              VNeedDownload := True;
-            end;
-          end;
+          VNeedDownload := True;
         end;
 
         if ACancelNotifier.IsOperationCanceled(AOperationID) then begin

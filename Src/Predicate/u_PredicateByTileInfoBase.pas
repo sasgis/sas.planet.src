@@ -125,7 +125,7 @@ var
 begin
   VTileInfo.FTile := ATile;
   VTileInfo.FZoom := AZoom;
-  if ATileInfo = nil then begin
+  if not Assigned(ATileInfo) then begin
     VTileInfo.FInfoType := titNotExists;
     VTileInfo.FData := nil;
   end else if ATileInfo.IsExists then begin

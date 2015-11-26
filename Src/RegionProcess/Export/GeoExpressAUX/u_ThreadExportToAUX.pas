@@ -125,7 +125,7 @@ begin
           exit;
         end;
         VTileInfo := FTileStorage.GetTileInfo(VTile, FZoom, FVersion, gtimAsIs);
-        if VTileInfo.GetIsExists then begin
+        if Assigned(VTileInfo) and VTileInfo.GetIsExists then begin
           VRectOfTilePixels := FProjection.TilePos2PixelRect(VTile);
           VOutPos.X := VRectOfTilePixels.Left - VPixelRect.Left;
           VOutPos.Y := VPixelRect.Bottom - VRectOfTilePixels.Bottom;

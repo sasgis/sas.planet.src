@@ -125,7 +125,7 @@ begin
   //TODO: Нужно думать на случай когда тайлы будут в базе данных
   if FNotSaveNotExists then begin
     VTileInfo := FTileStorage.GetTileInfo(ATile, AZoom, FVersion, gtimAsIs);
-    if not VTileInfo.GetIsExists then begin
+    if not Assigned(VTileInfo) or not VTileInfo.GetIsExists then begin
       exit;
     end;
   end;

@@ -4885,7 +4885,7 @@ begin
       VVersion := VMapType.VersionRequest.GetStatic.BaseVersion;
       path := VMapType.GetTileShowName(VTile, VMapProjection.Zoom, VVersion);
       VTileInfo := VMapType.TileStorage.GetTileInfo(VTile, VMapProjection.Zoom, VVersion, gtimAsIs);
-      if not VTileInfo.GetIsExists or
+      if not Assigned(VTileInfo) or not VTileInfo.GetIsExists or
         (MessageBox(handle, pchar(Format(SAS_MSG_TileExists, [path])), pchar(SAS_MSG_coution), 36) = IDYES) then begin
         TTileDownloaderUIOneTile.Create(
           GState.Config.DownloaderThreadConfig,

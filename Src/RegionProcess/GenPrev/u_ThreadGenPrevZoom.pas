@@ -213,7 +213,7 @@ begin
           VCurrentTilePixelRect := VProjection.TilePos2PixelRect(VTile);
           if not (FIsReplace) then begin
             VTileInfo := FMapType.TileStorage.GetTileInfoEx(VTile, VProjection.Zoom, FVersion, gtimAsIs);
-            if VTileInfo.GetIsExists then begin
+            if Assigned(VTileInfo) and VTileInfo.GetIsExists then begin
               continue;
             end;
           end;

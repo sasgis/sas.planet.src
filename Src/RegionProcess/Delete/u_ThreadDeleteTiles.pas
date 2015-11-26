@@ -125,7 +125,7 @@ begin
       exit;
     end;
     VTileInfo := FTileStorage.GetTileInfoEx(VTile, FZoom, FVersion, VGetTileInfoMode);
-    if (VTileInfo <> nil) then begin
+    if Assigned(VTileInfo) then begin
       if FPredicate.Check(VTileInfo, FZoom, VTile) then begin
         if FTileStorage.DeleteTile(VTile, FZoom, VTileInfo.VersionInfo) then begin
           inc(VDeletedCount);

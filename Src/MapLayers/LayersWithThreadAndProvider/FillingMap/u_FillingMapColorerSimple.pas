@@ -96,26 +96,34 @@ var
   VInfoWithData: ITileInfoWithData;
 begin
   try
-    VTileInfo.FLoadDate := ATileInfo.LoadDate;
-    VTileInfo.FSize := ATileInfo.Size;
-    VTileInfo.FVersionInfo := ATileInfo.VersionInfo;
-    VTileInfo.FContentType := ATileInfo.ContentType;
-    if Supports(ATileInfo, ITileInfoWithData, VInfoWithData) then begin
-      VTileInfo.FData := VInfoWithData.TileData;
-    end;
-    if ATileInfo.IsExists then begin
-      VTileInfo.FInfoType := titExists;
-    end else if ATileInfo.IsExistsTNE then begin
-      VTileInfo.FInfoType := titTneExists;
+    if Assigned(ATileInfo) then begin
+      VTileInfo.FLoadDate := ATileInfo.LoadDate;
+      VTileInfo.FSize := ATileInfo.Size;
+      VTileInfo.FVersionInfo := ATileInfo.VersionInfo;
+      VTileInfo.FContentType := ATileInfo.ContentType;
+      if Supports(ATileInfo, ITileInfoWithData, VInfoWithData) then begin
+        VTileInfo.FData := VInfoWithData.TileData;
+      end;
+      if ATileInfo.IsExists then begin
+        VTileInfo.FInfoType := titExists;
+      end else if ATileInfo.IsExistsTNE then begin
+        VTileInfo.FInfoType := titTneExists;
+      end else begin
+        VTileInfo.FInfoType := titNotExists;
+      end;
     end else begin
       VTileInfo.FInfoType := titNotExists;
+      VTileInfo.FVersionInfo := nil;
+      VTileInfo.FContentType := nil;
+      VTileInfo.FData := nil;
     end;
-    Result := GetColor(VTileInfo);
   finally
+    VTileInfo.FInfoType := titNotExists;
     VTileInfo.FVersionInfo := nil;
     VTileInfo.FContentType := nil;
     VTileInfo.FData := nil;
   end;
+  Result := GetColor(VTileInfo);
 end;
 
 function TFillingMapColorerSimple.GetColor(
