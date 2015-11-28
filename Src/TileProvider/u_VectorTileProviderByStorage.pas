@@ -26,22 +26,18 @@ uses
   Types,
   SysUtils,
   i_NotifierOperation,
-  i_MapVersionRequest,
   i_VectorItemSubset,
   i_Projection,
+  i_InfoTileProvider,
   i_VectorTileProvider,
-  i_VectorDataLoader,
   i_VectorDataFactory,
-  i_TileStorage,
   u_BaseInterfacedObject;
 
 type
-  TVectorTileProviderByStorage = class(TBaseInterfacedObject, IVectorTileProvider)
+  TVectorTileProviderByInfoTileProvider = class(TBaseInterfacedObject, IVectorTileProvider)
   private
     FProjection: IProjection;
-    FVersion: IMapVersionRequest;
-    FLoaderFromStorage: IVectorDataLoader;
-    FStorage: ITileStorage;
+    FSource: IInfoTileProvider;
     FVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
     FIsIgnoreError: Boolean;
   private
@@ -55,69 +51,90 @@ type
     constructor Create(
       const AIsIgnoreError: Boolean;
       const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
-      const AVersionConfig: IMapVersionRequest;
-      const ALoaderFromStorage: IVectorDataLoader;
-      const AProjection: IProjection;
-      const AStorage: ITileStorage
+      const ASource: IInfoTileProvider
     );
   end;
+
+type
+  EBadContentTypeError = type Exception;
 
 implementation
 
 uses
+  i_VectorDataLoader,
+  i_ContentTypeInfo,
+  i_BinaryData,
   i_TileInfoBasic;
 
-{ TVectorTileProviderByStorage }
+{ TVectorTileProviderByInfoTileProvider }
 
-constructor TVectorTileProviderByStorage.Create(
+constructor TVectorTileProviderByInfoTileProvider.Create(
   const AIsIgnoreError: Boolean;
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
-  const AVersionConfig: IMapVersionRequest;
-  const ALoaderFromStorage: IVectorDataLoader;
-  const AProjection: IProjection;
-  const AStorage: ITileStorage
+  const ASource: IInfoTileProvider
 );
 begin
   Assert(AVectorDataItemMainInfoFactory <> nil);
-  Assert(AVersionConfig <> nil);
-  Assert(ALoaderFromStorage <> nil);
-  Assert(AStorage <> nil);
-  Assert(AProjection <> nil);
-  Assert(AStorage.ProjectionSet.IsProjectionFromThisSet(AProjection));
+  Assert(ASource <> nil);
   inherited Create;
   FIsIgnoreError := AIsIgnoreError;
   FVectorDataItemMainInfoFactory := AVectorDataItemMainInfoFactory;
-  FStorage := AStorage;
-  FProjection := AProjection;
-  FVersion := AVersionConfig;
-  FLoaderFromStorage := ALoaderFromStorage;
+  FSource := ASource;
+  FProjection := FSource.Projection;
 end;
 
-function TVectorTileProviderByStorage.GetProjection: IProjection;
+function TVectorTileProviderByInfoTileProvider.GetProjection: IProjection;
 begin
   Result := FProjection;
 end;
 
-function TVectorTileProviderByStorage.GetTile(
+function TVectorTileProviderByInfoTileProvider.GetTile(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const ATile: TPoint
 ): IVectorItemSubset;
 var
-  VTileInfo: ITileInfoWithData;
-  VZoom: Byte;
+  VTileInfo: ITileInfoBasic;
+  VTileInfoWithData: ITileInfoWithData;
+  VBinary: IBinaryData;
+  VContentType: IContentTypeInfoVectorData;
+  VLoader: IVectorDataLoader;
 begin
   Result := nil;
   try
-    VZoom := FProjection.Zoom;
-    if Supports(FStorage.GetTileInfoEx(ATile, VZoom, FVersion, gtimWithData), ITileInfoWithData, VTileInfo) then begin
-      Result := FLoaderFromStorage.Load(VTileInfo.TileData, nil, FVectorDataItemMainInfoFactory);
-    end;
+    VTileInfo := FSource.GetTile(AOperationID, ACancelNotifier, ATile);
   except
     if not FIsIgnoreError then begin
       raise;
     end else begin
       Result := nil;
+    end;
+  end;
+  if Supports(VTileInfo, ITileInfoWithData, VTileInfoWithData) then begin
+    VBinary := VTileInfoWithData.TileData;
+    if Assigned(VBinary) then begin
+      if Supports(VTileInfoWithData.ContentType, IVectorDataLoader, VContentType) then begin
+        VLoader := VContentType.GetLoader;
+        if Assigned(VLoader) then begin
+          try
+            Result := VLoader.Load(VBinary, nil, FVectorDataItemMainInfoFactory);
+          except
+            if not FIsIgnoreError then begin
+              raise;
+            end else begin
+              Result := nil;
+            end;
+          end;
+        end else begin
+          if not FIsIgnoreError then begin
+            raise EBadContentTypeError.Create('No loader for this vector type');
+          end;
+        end;
+      end else begin
+        if not FIsIgnoreError then begin
+          raise EBadContentTypeError.Create('Tile is not vector');
+        end;
+      end;
     end;
   end;
 end;
