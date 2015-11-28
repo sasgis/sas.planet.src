@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_BitmapTileProviderByStorage;
+unit u_BitmapTileProviderByInfoTileProvider;
 
 interface
 
