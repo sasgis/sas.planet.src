@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_VectorTileProviderByStorage;
+unit u_VectorTileProviderByInfoTileProvider;
 
 interface
 
