@@ -28,23 +28,20 @@ uses
   i_NotifierOperation,
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
-  i_MapVersionRequest,
-  i_BitmapTileSaveLoad,
   i_Projection,
+  i_InfoTileProvider,
   i_BitmapTileProvider,
   i_ImageResamplerFactoryChangeable,
-  i_TileStorage,
   u_BaseInterfacedObject;
 
 type
-  TBitmapTileProviderByStorage = class(TBaseInterfacedObject, IBitmapTileProvider)
+  TBitmapTileProviderByInfoTileProvider = class(TBaseInterfacedObject, IBitmapTileProvider)
   private
     FProjection: IProjection;
-    FVersion: IMapVersionRequest;
-    FLoaderFromStorage: IBitmapTileLoader;
+    FSource: IInfoTileProvider;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
-    FStorage: ITileStorage;
     FIsIgnoreError: Boolean;
+    FIsResizeTile: Boolean;
     FImageResampler: IImageResamplerFactoryChangeable;
   private
     function GetProjection: IProjection;
@@ -56,81 +53,111 @@ type
   public
     constructor Create(
       const AIsIgnoreError: Boolean;
+      const AIsResizeTile: Boolean;
       const AImageResampler: IImageResamplerFactoryChangeable;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
-      const AVersionConfig: IMapVersionRequest;
-      const ALoaderFromStorage: IBitmapTileLoader;
-      const AProjection: IProjection;
-      const AStorage: ITileStorage
+      const ASource: IInfoTileProvider
     );
   end;
+
+type
+  EBadContentTypeError = type Exception;
 
 implementation
 
 uses
   GR32,
   i_TileInfoBasic,
+  i_ContentTypeInfo,
+  i_BitmapTileSaveLoad,
+  i_BinaryData,
   u_BitmapFunc,
   u_Bitmap32ByStaticBitmap;
 
-{ TBitmapTileProviderByStorage }
+{ TBitmapTileProviderByInfoTileProvider }
 
-constructor TBitmapTileProviderByStorage.Create(
+constructor TBitmapTileProviderByInfoTileProvider.Create(
   const AIsIgnoreError: Boolean;
+  const AIsResizeTile: Boolean;
   const AImageResampler: IImageResamplerFactoryChangeable;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
-  const AVersionConfig: IMapVersionRequest;
-  const ALoaderFromStorage: IBitmapTileLoader;
-  const AProjection: IProjection;
-  const AStorage: ITileStorage
+  const ASource: IInfoTileProvider
 );
 begin
   Assert(Assigned(AImageResampler));
   Assert(Assigned(ABitmap32StaticFactory));
-  Assert(Assigned(AVersionConfig));
-  Assert(Assigned(ALoaderFromStorage));
-  Assert(Assigned(AStorage));
-  Assert(Assigned(AProjection));
-  Assert(AStorage.ProjectionSet.IsProjectionFromThisSet(AProjection));
+  Assert(Assigned(ASource));
   inherited Create;
   FIsIgnoreError := AIsIgnoreError;
+  FIsResizeTile := AIsResizeTile;
   FImageResampler := AImageResampler;
-  FStorage := AStorage;
+  FSource := ASource;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
-  FProjection := AProjection;
-  FVersion := AVersionConfig;
-  FLoaderFromStorage := ALoaderFromStorage;
+  FProjection := FSource.Projection;
 end;
 
-function TBitmapTileProviderByStorage.GetProjection: IProjection;
+function TBitmapTileProviderByInfoTileProvider.GetProjection: IProjection;
 begin
   Result := FProjection;
 end;
 
-function TBitmapTileProviderByStorage.GetTile(
+function TBitmapTileProviderByInfoTileProvider.GetTile(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const ATile: TPoint
 ): IBitmap32Static;
 var
-  VTileInfo: ITileInfoWithData;
-  VRect: TRect;
+  VTileInfo: ITileInfoBasic;
+  VTileInfoWithData: ITileInfoWithData;
   VSize: TPoint;
   VBitmap: TBitmap32ByStaticBitmap;
+  VContentType: IContentTypeInfoBitmap;
   VResampler: TCustomResampler;
-  VZoom: Byte;
+  VLoader: IBitmapTileLoader;
+  VBinary: IBinaryData;
 begin
   Result := nil;
   try
-    VZoom := FProjection.Zoom;
-    if Supports(FStorage.GetTileInfoEx(ATile, VZoom, FVersion, gtimWithData), ITileInfoWithData, VTileInfo) then begin
-      Result := FLoaderFromStorage.Load(VTileInfo.TileData);
+    VTileInfo := FSource.GetTile(AOperationID, ACancelNotifier, ATile);
+  except
+    if not FIsIgnoreError then begin
+      raise;
+    end else begin
+      Result := nil;
     end;
-    if Result <> nil then begin
-      VRect := FProjection.TilePos2PixelRect(ATile);
-      VSize := Types.Point(VRect.Right - VRect.Left, VRect.Bottom - VRect.Top);
-      if (Result.Size.X <> VSize.X) or
-        (Result.Size.Y <> VSize.Y) then begin
+  end;
+  if Supports(VTileInfo, ITileInfoWithData, VTileInfoWithData) then begin
+    VBinary := VTileInfoWithData.TileData;
+    if Assigned(VBinary) then begin
+      if Supports(VTileInfo.ContentType, IContentTypeInfoBitmap, VContentType) then begin
+        VLoader := VContentType.GetLoader;
+        if Assigned(VLoader) then begin
+          try
+            Result := VLoader.Load(VBinary);
+          except
+            if not FIsIgnoreError then begin
+              raise;
+            end else begin
+              Result := nil;
+            end;
+          end;
+        end else begin
+          if not FIsIgnoreError then begin
+            raise EBadContentTypeError.Create('No loader for this bitmap type');
+          end;
+        end;
+      end else begin
+        if not FIsIgnoreError then begin
+          raise EBadContentTypeError.Create('Tile is not bitmap');
+        end;
+      end;
+    end;
+  end;
+  if Result <> nil then begin
+    VSize := FProjection.GetTileSize(ATile);
+    if (Result.Size.X <> VSize.X) or
+      (Result.Size.Y <> VSize.Y) then begin
+      if FIsResizeTile then begin
         VResampler := FImageResampler.GetStatic.CreateResampler;
         try
           VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
@@ -150,13 +177,24 @@ begin
         finally
           VResampler.Free;
         end;
+      end else begin
+        if (Result.Size.X > VSize.X) or
+          (Result.Size.Y > VSize.Y) then begin
+          VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
+          try
+            VBitmap.SetSize(VSize.X, VSize.Y);
+            BlockTransferFull(
+              VBitmap,
+              0, 0,
+              Result,
+              dmOpaque
+            );
+            Result := VBitmap.MakeAndClear;
+          finally
+            VBitmap.Free;
+          end;
+        end;
       end;
-    end;
-  except
-    if not FIsIgnoreError then begin
-      raise;
-    end else begin
-      Result := nil;
     end;
   end;
 end;
