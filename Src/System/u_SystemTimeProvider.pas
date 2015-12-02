@@ -37,6 +37,7 @@ type
     function GetLocalTime: TDateTime;
     function GetUTCTime: TDateTime;
     function UTCToLocalTime(const ASysTime: TDateTime): TDateTime;
+    function LocalTimeToUTC(const ASysTime: TDateTime): TDateTime;
     function GetSystemTimeChangedNotifier: INotifier;
   private
     procedure SystemTimeChanged;
@@ -100,6 +101,16 @@ begin
     Result := 0;
   end else begin
     Result := ASysTime + FLocalTimeShift;
+  end;
+end;
+
+function TSystemTimeProvider.LocalTimeToUTC(
+  const ASysTime: TDateTime): TDateTime;
+begin
+  if (0 = ASysTime) then begin
+    Result := 0;
+  end else begin
+    Result := ASysTime - FLocalTimeShift;
   end;
 end;
 

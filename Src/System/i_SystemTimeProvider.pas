@@ -11,6 +11,7 @@ type
     function GetLocalTime: TDateTime;
     function GetUTCTime: TDateTime;
     function UTCToLocalTime(const ASysTime: TDateTime): TDateTime;
+    function LocalTimeToUTC(const ASysTime: TDateTime): TDateTime;
 
     function GetSystemTimeChangedNotifier: INotifier;
     property SystemTimeChangedNotifier: INotifier read GetSystemTimeChangedNotifier;
