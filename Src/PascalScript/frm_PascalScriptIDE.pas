@@ -642,6 +642,7 @@ begin
     FScriptBuffer,
     AnsiString(FLanguageManager.GetCurrentLanguageCode),
     VConverter,
+    FZmp.ProjectionSet,
     VSimpleDownloader,
     nil,  // LastResponseInfo
     VSource,

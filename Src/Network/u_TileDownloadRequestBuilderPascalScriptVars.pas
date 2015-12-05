@@ -26,6 +26,7 @@ uses
   Types,
   uPSRuntime,
   uPSCompiler,
+  i_ProjectionSet,
   i_CoordConverterSimple,
   i_TileRequest,
   i_LastResponseInfo,
@@ -74,6 +75,7 @@ type
       const AScriptBuffer: AnsiString;
       const ALang: AnsiString;
       const ACoordConverter: ICoordConverterSimple;
+      const AProjectionSet: IProjectionSet;
       const ASimpleDownloader: ISimpleHttpDownloader;
       const ALastResponseInfo: ILastResponseInfo;
       const ASource: ITileRequest;
@@ -87,7 +89,8 @@ procedure CompileTimeReg_RequestBuilderVars(const APSComp: TPSPascalCompiler);
 implementation
 
 uses
-  t_GeoTypes;
+  t_GeoTypes,
+  i_Projection;
 
 procedure CompileTimeReg_RequestBuilderVars(const APSComp: TPSPascalCompiler);
 var
@@ -169,6 +172,7 @@ procedure TRequestBuilderVars.ExecTimeSet(
   const AScriptBuffer: AnsiString;
   const ALang: AnsiString;
   const ACoordConverter: ICoordConverterSimple;
+  const AProjectionSet: IProjectionSet;
   const ASimpleDownloader: ISimpleHttpDownloader;
   const ALastResponseInfo: ILastResponseInfo;
   const ASource: ITileRequest;
@@ -176,37 +180,34 @@ procedure TRequestBuilderVars.ExecTimeSet(
   const AProjFactory: IProjConverterFactory
 );
 var
-  XY: TPoint;
-  VLonLat: TDoublePoint;
+  VLonLatRect: TDoubleRect;
+  VMetrRect: TDoubleRect;
   VTile: TPoint;
   VZoom: Byte;
+  VProjection: IProjection;
 begin
+
   VTile := ASource.Tile;
   VZoom := ASource.Zoom;
+  VProjection := AProjectionSet.Zooms[VZoom];
 
   FpGetX.Data := VTile.X;
   FpGetY.Data := VTile.Y;
   FpGetZ.Data := VZoom + 1;
 
-  VLonLat := ACoordConverter.Pos2LonLat(VTile, VZoom);
-  FpGetLlon.Data := VLonLat.X;
-  FpGetTLat.Data := VLonLat.Y;
+  VLonLatRect := VProjection.TilePos2LonLatRect(VTile);
+  FpGetLlon.Data := VLonLatRect.Left;
+  FpGetTLat.Data := VLonLatRect.Top;
+  FpGetRLon.Data := VLonLatRect.Right;
+  FpGetBLat.Data := VLonLatRect.Bottom;
 
-  VLonLat := ACoordConverter.LonLat2Metr(VLonLat);
-  FpGetLMetr.Data := VLonLat.X;
-  FpGetTMetr.Data := VLonLat.Y;
+  VMetrRect.TopLeft := VProjection.ProjectionType.LonLat2Metr(VLonLatRect.TopLeft);
+  VMetrRect.BottomRight := VProjection.ProjectionType.LonLat2Metr(VLonLatRect.BottomRight);
 
-  XY := VTile;
-  Inc(XY.X);
-  Inc(XY.Y);
-
-  VLonLat := ACoordConverter.Pos2LonLat(XY, VZoom);
-  FpGetRLon.Data := VLonLat.X;
-  FpGetBLat.Data := VLonLat.Y;
-
-  VLonLat := ACoordConverter.LonLat2Metr(VLonLat);
-  FpGetRMetr.Data := VLonLat.X;
-  FpGetBMetr.Data := VLonLat.Y;
+  FpGetLMetr.Data := VMetrRect.Left;
+  FpGetTMetr.Data := VMetrRect.Top;
+  FpGetRMetr.Data := VMetrRect.Right;
+  FpGetBMetr.Data := VMetrRect.Bottom;
 
   FpConverter.Data := ACoordConverter;
 

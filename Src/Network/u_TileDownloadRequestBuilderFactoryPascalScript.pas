@@ -44,6 +44,7 @@ type
     FState: ITileDownloaderStateChangeble;
     FStateInternal: ITileDownloaderStateInternal;
     FConfig: ITileDownloadRequestBuilderConfig;
+    FProjectionSet: IProjectionSet;
     FCoordConverter: ICoordConverterSimple;
     FTileDownloaderConfig: ITileDownloaderConfig;
     FCheker: IDownloadChecker;
@@ -100,6 +101,7 @@ begin
   FConfig := AConfig;
   FCheker := ACheker;
   FLangManager := ALangManager;
+  FProjectionSet := AProjectionSet;
   FTileDownloaderConfig := ATileDownloaderConfig;
   FProjFactory := AProjFactory;
 
@@ -184,7 +186,8 @@ begin
           FCompiledData,
           FConfig,
           FTileDownloaderConfig,
-          FCoordConverter as ICoordConverterSimple,
+          FProjectionSet,
+          FCoordConverter,
           ADownloader,
           FCheker,
           FDefProjConverter,

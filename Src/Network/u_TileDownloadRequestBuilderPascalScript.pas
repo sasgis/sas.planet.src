@@ -29,6 +29,7 @@ uses
   uPSUtils,
   i_Notifier,
   i_Listener,
+  i_ProjectionSet,
   i_CoordConverterSimple,
   i_NotifierOperation,
   i_TileDownloaderConfig,
@@ -51,6 +52,7 @@ type
     FTileDownloaderConfig: ITileDownloaderConfig;
     FCheker: IDownloadChecker;
     FDownloader: IDownloader;
+    FProjectionSet: IProjectionSet;
     FCoordConverter: ICoordConverterSimple;
     FDefProjConverter: IProjConverter;
     FProjFactory: IProjConverterFactory;
@@ -85,6 +87,7 @@ type
       const ACompiledData: TbtString;
       const AConfig: ITileDownloadRequestBuilderConfig;
       const ATileDownloaderConfig: ITileDownloaderConfig;
+      const AProjectionSet: IProjectionSet;
       const ACoordConverter: ICoordConverterSimple;
       const ADownloader: IDownloader;
       const ACheker: IDownloadChecker;
@@ -115,6 +118,7 @@ constructor TTileDownloadRequestBuilderPascalScript.Create(
   const ACompiledData: TbtString;
   const AConfig: ITileDownloadRequestBuilderConfig;
   const ATileDownloaderConfig: ITileDownloaderConfig;
+  const AProjectionSet: IProjectionSet;
   const ACoordConverter: ICoordConverterSimple;
   const ADownloader: IDownloader;
   const ACheker: IDownloadChecker;
@@ -126,6 +130,7 @@ begin
   inherited Create(AConfig);
   FPSExec := nil;
   FTileDownloaderConfig := ATileDownloaderConfig;
+  FProjectionSet := AProjectionSet;
   FLangManager := ALangManager;
   FDownloader := ADownloader;
   FDefProjConverter := ADefProjConverter;
@@ -137,7 +142,7 @@ begin
   FLangListener := TNotifyNoMmgEventListener.Create(Self.OnLangChange);
   FLangManager.GetChangeNotifier.Add(FLangListener);
 
-  FCoordConverter := ACoordConverter as ICoordConverterSimple;
+  FCoordConverter := ACoordConverter;
   PrepareCompiledScript(ACompiledData);
 
   OnLangChange;
@@ -289,6 +294,7 @@ begin
     FScriptBuffer,
     FLang,
     FCoordConverter,
+    FProjectionSet,
     VSimpleDownloader,
     ALastResponseInfo,
     ASource,
