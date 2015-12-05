@@ -79,6 +79,7 @@ type
       const ADatum: IDatum;
       const AProjEPSG: integer
     );
+    procedure AfterConstruction; override;
   end;
 
 implementation
@@ -98,6 +99,11 @@ begin
   FHash := AHash;
   FDatum := ADatum;
   FProjectionEPSG := AProjEPSG;
+end;
+
+procedure TProjectionTypeBase.AfterConstruction;
+begin
+  inherited;
   FValidLonLatRect := RelativeRect2LonLatRect(DoubleRect(0, 0, 1, 1));
 end;
 
