@@ -384,7 +384,7 @@ begin
               VNeedDownload := True;
             end;
           end else begin
-            VNeedDownload := True;
+            VNeedDownload := False;
           end;
         end else begin
           VNeedDownload := True;
