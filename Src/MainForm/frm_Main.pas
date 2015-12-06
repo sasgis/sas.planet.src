@@ -439,6 +439,12 @@ type
     tbxMergePolygonsShow1: TTBXVisibilityToggleItem;
     tbxtmAddToMergePolygons: TTBXItem;
     tbxFillingMap: TTBXSubmenuItem;
+    tbxFavorite: TTBXSubmenuItem;
+    TBXFavoriteToolbar: TTBXToolbar;
+    TBFavorite: TTBXSubmenuItem;
+    tbxAddToFavorite: TTBXItem;
+    TBXSeparatorItem15: TTBXSeparatorItem;
+    NFavoriteToolbarShow: TTBXVisibilityToggleItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
