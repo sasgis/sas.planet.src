@@ -105,6 +105,7 @@ uses
   u_CmdLineArgProcessorAPI,
   u_ShortcutManager,
   u_MarkDbGUIHelper,
+  u_FavoriteMapSetMenu,
   frm_About,
   frm_Settings,
   frm_MapLayersOptions,
@@ -683,6 +684,7 @@ type
     procedure tbMergePolygonsClose(Sender: TObject);
     procedure tbxtmAddToMergePolygonsClick(Sender: TObject);
     procedure tbxFillingMapClick(Sender: TObject);
+    procedure tbxAddToFavoriteClick(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -780,6 +782,8 @@ type
 
     FInternalErrorListener: IListener;
     FInternalErrorNotifier: INotifier;
+
+    FFavoriteMapSetMenu: TFavoriteMapSetMenu;
 
     procedure InitSearchers;
     procedure InitMergepolygons;
@@ -1476,6 +1480,16 @@ begin
       GState.VectorGeometryLonLatFactory,
       GState.AppearanceOfMarkFactory,
       GState.ImporterList
+    );
+
+  FFavoriteMapSetMenu :=
+    TFavoriteMapSetMenu.Create(
+      GState.FavoriteMapSetConfig,
+      FMainMapState.AllMapsSet,
+      FConfig.MainMapConfig,
+      FConfig.MapLayersConfig,
+      FViewPortState,
+      TBFavorite
     );
 
   ProgramStart := True;
@@ -3464,6 +3478,7 @@ begin
   FreeAndNil(FMarkDBGUI);
   FreeAndNil(FfrmUpdateChecker);
   FreeAndNil(FfrmPascalScriptIDE);
+  FreeAndNil(FFavoriteMapSetMenu);
   inherited;
 end;
 
@@ -5442,6 +5457,12 @@ begin
       FConfig.LayersConfig.FillingMapLayerConfig.UnlockWrite;
     end;
   end;
+end;
+
+procedure TfrmMain.tbxAddToFavoriteClick(Sender: TObject);
+begin
+  //ToDo
+  ShowMessage('Under construction...');
 end;
 
 procedure TfrmMain.tbxFillingMapClick(Sender: TObject);

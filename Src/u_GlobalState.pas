@@ -103,6 +103,7 @@ uses
   i_AppEnum,
   i_GlobalConfig,
   i_GlobalCacheConfig,
+  i_FavoriteMapSetConfig,
   u_GarbageCollectorThread,
   u_MapTypesMainList,
   u_IeEmbeddedProtocolRegistration;
@@ -201,6 +202,7 @@ type
     FLastSearchResult: ILastSearchResult;
     FValueToStringConverter: IValueToStringConverterChangeable;
     FAppEnum: IAppEnum;
+    FFavoriteMapSetConfig: IFavoriteMapSetConfig;
 
     procedure OnMainThreadConfigChange;
     procedure InitProtocol;
@@ -286,6 +288,7 @@ type
     property DebugInfoSubSystem: IDebugInfoSubSystem read FDebugInfoSubSystem;
     property BatteryStatus: IBatteryStatus read FBatteryStatus;
     property AppEnum: IAppEnum read FAppEnum;
+    property FavoriteMapSetConfig: IFavoriteMapSetConfig read FFavoriteMapSetConfig;
 
     constructor Create;
     destructor Destroy; override;
@@ -406,6 +409,7 @@ uses
   u_BuildInfo,
   u_AppEnum,
   u_ResStrings,
+  u_FavoriteMapSetConfig,
   u_VectorItemTreeExporterListSimple,
   u_VectorItemTreeImporterListSimple,
   u_BitmapPostProcessingChangeableByConfig,
@@ -850,6 +854,7 @@ begin
       FGlobalBerkeleyDBHelper,
       FBGTimerNotifier
     );
+  FFavoriteMapSetConfig := TFavoriteMapSetConfig.Create;
 end;
 
 destructor TGlobalState.Destroy;
@@ -876,6 +881,7 @@ begin
   FProjConverterFactory := nil;
   FGlobalBerkeleyDBHelper := nil;
   FAppEnum := nil;
+  FFavoriteMapSetConfig := nil;
   inherited;
 end;
 
@@ -1039,15 +1045,16 @@ end;
 
 procedure TGlobalState.LoadConfig;
 var
-  VLocalMapsConfig: IConfigDataProvider;
+  VConfig: IConfigDataProvider;
   VIniFile: TMeminifile;
   VMapsPath: String;
 begin
   VMapsPath := IncludeTrailingPathDelimiter(FGlobalConfig.MapsPath.FullPath);
   ForceDirectories(VMapsPath);
+
   VIniFile := TMeminiFile.Create(VMapsPath + 'Maps.ini');
   try
-    VLocalMapsConfig := TConfigDataProviderByIniFile.CreateWithOwn(VIniFile);
+    VConfig := TConfigDataProviderByIniFile.CreateWithOwn(VIniFile);
     VIniFile := nil;
   finally
     VIniFile.Free;
@@ -1073,7 +1080,7 @@ begin
     FProjectionSetFactory,
     FInvisibleBrowser,
     FProjConverterFactory,
-    VLocalMapsConfig
+    VConfig
   );
 
   FGPSRecorderInternal.Load;
@@ -1081,6 +1088,15 @@ begin
 
   if (not ModuleIsLib) then begin
     FMarkPictureListInternal.LoadList;
+
+    VIniFile := TMeminiFile.Create(VMapsPath + 'Favorite.ini');
+    try
+      VConfig := TConfigDataProviderByIniFile.CreateWithOwn(VIniFile);
+      VIniFile := nil;
+    finally
+      VIniFile.Free;
+    end;
+    FFavoriteMapSetConfig.ReadConfig(VConfig);
   end;
 end;
 
@@ -1111,21 +1127,32 @@ end;
 procedure TGlobalState.SaveMainParams;
 var
   VIniFile: TMeminifile;
-  VLocalMapsConfig: IConfigDataWriteProvider;
+  VConfig: IConfigDataWriteProvider;
   VMapsPath: String;
 begin
   if ModuleIsLib then begin
     Exit;
   end;
+
   VMapsPath := IncludeTrailingPathDelimiter(FGlobalConfig.MapsPath.FullPath);
+
   VIniFile := TMeminiFile.Create(VMapsPath + 'Maps.ini');
   try
-    VLocalMapsConfig := TConfigDataWriteProviderByIniFile.CreateWithOwn(VIniFile);
+    VConfig := TConfigDataWriteProviderByIniFile.CreateWithOwn(VIniFile);
     VIniFile := nil;
   finally
     VIniFile.Free;
   end;
-  FMainMapsList.SaveMaps(VLocalMapsConfig);
+  FMainMapsList.SaveMaps(VConfig);
+
+  VIniFile := TMeminiFile.Create(VMapsPath + 'Favorite.ini');
+  try
+    VConfig := TConfigDataWriteProviderByIniFile.CreateWithOwn(VIniFile);
+    VIniFile := nil;
+  finally
+    VIniFile.Free;
+  end;
+  FFavoriteMapSetConfig.WriteConfig(VConfig);
 
   FGPSRecorderInternal.Save;
   FGpsTrackRecorderInternal.Save;

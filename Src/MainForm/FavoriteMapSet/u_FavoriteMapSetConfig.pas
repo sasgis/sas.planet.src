@@ -48,6 +48,7 @@ type
       const AID: TGUID;
       const ABaseMap: TGUID;
       const ALayers: IGUIDSetStatic;
+      const AMergeLayers: Boolean;
       const AZoom: Integer;
       const AName: string;
       const AHotKey: TShortCut;
@@ -57,6 +58,7 @@ type
       const AID: TGUID;
       const ABaseMap: TGUID;
       const ALayers: IGUIDSetStatic;
+      const AMergeLayers: Boolean;
       const AZoom: Integer;
       const AName: string;
       const AHotKey: TShortCut;
@@ -180,6 +182,7 @@ procedure TFavoriteMapSetConfig.Add(
   const AID: TGUID;
   const ABaseMap: TGUID;
   const ALayers: IGUIDSetStatic;
+  const AMergeLayers: Boolean;
   const AZoom: Integer;
   const AName: string;
   const AHotKey: TShortCut;
@@ -193,6 +196,7 @@ begin
       AID,
       ABaseMap,
       ALayers,
+      AMergeLayers,
       AZoom,
       AName,
       AHotKey,
@@ -212,6 +216,7 @@ procedure TFavoriteMapSetConfig.Update(
   const AID: TGUID;
   const ABaseMap: TGUID;
   const ALayers: IGUIDSetStatic;
+  const AMergeLayers: Boolean;
   const AZoom: Integer;
   const AName: string;
   const AHotKey: TShortCut;
@@ -226,6 +231,7 @@ begin
       AID,
       ABaseMap,
       ALayers,
+      AMergeLayers,
       AZoom,
       AName,
       AHotKey,
@@ -257,6 +263,7 @@ var
   VItemLayers: IGUIDSetStatic;
   VItemLayersCount: Integer;
   VItemLayersGUID: array of TGUID;
+  VItemMergeLayers: Boolean;
   VItemZoom: Integer;
   VItemName: string;
   VItemHotKey: TShortCut;
@@ -279,6 +286,8 @@ begin
           end;
 
           VItemBaseMap := ReadGUID(VConfig, 'BaseMap', CGUID_Zero);
+
+          VItemMergeLayers := VConfig.ReadBool('MergeLayers', False);
 
           VItemLayers := nil;
           VItemLayersCount := VConfig.ReadInteger('LayersCount', 0);
@@ -309,6 +318,7 @@ begin
               VItemID,
               VItemBaseMap,
               VItemLayers,
+              VItemMergeLayers,
               VItemZoom,
               VItemName,
               VItemHotKey,
@@ -352,6 +362,8 @@ begin
 
     WriteGUID(VConfig, 'ID', VItem.ID);
     WriteGUID(VConfig, 'BaseMap', VItem.BaseMap);
+
+    VConfig.WriteBool('MergeLayers', VItem.MergeLayers);
 
     VLayers := VItem.Layers;
     if Assigned(VLayers) then begin

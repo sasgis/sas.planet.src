@@ -515,6 +515,10 @@
 			<DCCReference Include="Src\Logger\u_LogForTaskThread.pas"/>
 			<DCCReference Include="Src\Logger\u_TileErrorInfo.pas"/>
 			<DCCReference Include="Src\Logger\u_TileErrorLogProviedrStuped.pas"/>
+			<DCCReference Include="Src\MainForm\FavoriteMapSet\i_FavoriteMapSetConfig.pas"/>
+			<DCCReference Include="Src\MainForm\FavoriteMapSet\i_FavoriteMapSetItemStatic.pas"/>
+			<DCCReference Include="Src\MainForm\FavoriteMapSet\u_FavoriteMapSetConfig.pas"/>
+			<DCCReference Include="Src\MainForm\FavoriteMapSet\u_FavoriteMapSetItemStatic.pas"/>
 			<DCCReference Include="Src\MainForm\MergePolygons\fr_MergePolygons.pas">
 				<Form>frMergePolygons</Form>
 				<DesignClass>TFrame</DesignClass>
@@ -1422,8 +1426,8 @@
 			<DCCReference Include="Src\TileProvider\u_BitmapTileProviderInPolygon.pas"/>
 			<DCCReference Include="Src\TileProvider\u_BitmapTileProviderWithBGColor.pas"/>
 			<DCCReference Include="Src\TileProvider\u_BitmapTileProviderWithRecolor.pas"/>
-			<DCCReference Include="Src\TileProvider\u_InfoTileProviderByStorage.pas"/>
 			<DCCReference Include="Src\TileProvider\u_InfoTileProviderByBitmapTileProvider.pas"/>
+			<DCCReference Include="Src\TileProvider\u_InfoTileProviderByStorage.pas"/>
 			<DCCReference Include="Src\TileProvider\u_TileProviderWithCache.pas"/>
 			<DCCReference Include="Src\TileProvider\u_VectorTileProviderByFixedSubset.pas"/>
 			<DCCReference Include="Src\TileProvider\u_VectorTileProviderByInfoTileProvider.pas"/>
@@ -1695,10 +1699,7 @@
 			<DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
 			<DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
 			<DCCReference Include="Src\u_WindowPositionConfig.pas"/>
-			<DCCReference Include="Src\MainForm\FavoriteMapSet\i_FavoriteMapSetItemStatic.pas"/>
-			<DCCReference Include="Src\MainForm\FavoriteMapSet\u_FavoriteMapSetItemStatic.pas"/>
-			<DCCReference Include="Src\MainForm\FavoriteMapSet\i_FavoriteMapSetConfig.pas"/>
-			<DCCReference Include="Src\MainForm\FavoriteMapSet\u_FavoriteMapSetConfig.pas"/>
+			<DCCReference Include="Src\MainForm\FavoriteMapSet\u_FavoriteMapSetMenu.pas"/>
 			<BuildConfiguration Include="Debug">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>

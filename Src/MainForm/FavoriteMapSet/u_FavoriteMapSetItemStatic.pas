@@ -38,11 +38,13 @@ type
     FName: string;
     FHotKey: TShortCut;
     FSortIndex: Integer;
+    FMergeLayers: Boolean;
   private
     { IFavoriteMapSetItemStatic }
     function GetID: TGUID;
     function GetBaseMap: TGUID;
     function GetLayers: IGUIDSetStatic;
+    function GetMergeLayers: Boolean;
     function GetZoom: Integer;
     function GetName: string;
     function GetHotKey: TShortCut;
@@ -52,6 +54,7 @@ type
       const AID: TGUID;
       const ABaseMap: TGUID;
       const ALayers: IGUIDSetStatic;
+      const AMergeLayers: Boolean;
       const AZoom: Integer;
       const AName: string;
       const AHotKey: TShortCut;
@@ -67,6 +70,7 @@ constructor TFavoriteMapSetItemStatic.Create(
   const AID: TGUID;
   const ABaseMap: TGUID;
   const ALayers: IGUIDSetStatic;
+  const AMergeLayers: Boolean;
   const AZoom: Integer;
   const AName: string;
   const AHotKey: TShortCut;
@@ -77,6 +81,7 @@ begin
   FID := AID;
   FBaseMap := ABaseMap;
   FLayers := ALayers;
+  FMergeLayers := AMergeLayers;
   FZoom := AZoom;
   FName := AName;
   FHotKey := AHotKey;
@@ -96,6 +101,11 @@ end;
 function TFavoriteMapSetItemStatic.GetLayers: IGUIDSetStatic;
 begin
   Result := FLayers;
+end;
+
+function TFavoriteMapSetItemStatic.GetMergeLayers: Boolean;
+begin
+  Result := FMergeLayers;
 end;
 
 function TFavoriteMapSetItemStatic.GetZoom: Integer;

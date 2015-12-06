@@ -1493,6 +1493,7 @@ object frmMain: TfrmMain
         Caption = ''
         Hint = ''
         object tbxAddToFavorite: TTBXItem
+          OnClick = tbxAddToFavoriteClick
           Caption = 'Add'
           Hint = ''
         end

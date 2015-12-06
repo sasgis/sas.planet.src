@@ -38,6 +38,9 @@ type
     function GetLayers: IGUIDSetStatic;
     property Layers: IGUIDSetStatic read GetLayers;
 
+    function GetMergeLayers: Boolean;
+    property MergeLayers: Boolean read GetMergeLayers;
+
     function GetZoom: Integer;
     property Zoom: Integer read GetZoom;
 

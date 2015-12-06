@@ -43,6 +43,7 @@ type
       const AID: TGUID;
       const ABaseMap: TGUID;
       const ALayers: IGUIDSetStatic;
+      const AMergeLayers: Boolean;
       const AZoom: Integer;
       const AName: string;
       const AHotKey: TShortCut;
@@ -53,6 +54,7 @@ type
       const AID: TGUID;
       const ABaseMap: TGUID;
       const ALayers: IGUIDSetStatic;
+      const AMergeLayers: Boolean;
       const AZoom: Integer;
       const AName: string;
       const AHotKey: TShortCut;

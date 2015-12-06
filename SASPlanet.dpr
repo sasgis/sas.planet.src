@@ -361,6 +361,7 @@ uses
   i_FavoriteMapSetItemStatic in 'Src\MainForm\FavoriteMapSet\i_FavoriteMapSetItemStatic.pas',
   u_FavoriteMapSetConfig in 'Src\MainForm\FavoriteMapSet\u_FavoriteMapSetConfig.pas',
   u_FavoriteMapSetItemStatic in 'Src\MainForm\FavoriteMapSet\u_FavoriteMapSetItemStatic.pas',
+  u_FavoriteMapSetMenu in 'Src\MainForm\FavoriteMapSet\u_FavoriteMapSetMenu.pas',
   fr_MergePolygons in 'Src\MainForm\MergePolygons\fr_MergePolygons.pas' {frMergePolygons: TFrame},
   frm_MergePolygonsProgress in 'Src\MainForm\MergePolygons\frm_MergePolygonsProgress.pas' {frmMergePolygonsProgress},
   i_MergePolygonsPresenter in 'Src\MainForm\MergePolygons\i_MergePolygonsPresenter.pas',
