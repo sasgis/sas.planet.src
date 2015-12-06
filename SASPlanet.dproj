@@ -450,6 +450,11 @@
     <DCCReference Include="Src\Logger\u_LogForTaskThread.pas" />
     <DCCReference Include="Src\Logger\u_TileErrorInfo.pas" />
     <DCCReference Include="Src\Logger\u_TileErrorLogProviedrStuped.pas" />
+    <DCCReference Include="Src\MainForm\FavoriteMapSet\i_FavoriteMapSetConfig.pas" />
+    <DCCReference Include="Src\MainForm\FavoriteMapSet\i_FavoriteMapSetItemStatic.pas" />
+    <DCCReference Include="Src\MainForm\FavoriteMapSet\u_FavoriteMapSetConfig.pas" />
+    <DCCReference Include="Src\MainForm\FavoriteMapSet\u_FavoriteMapSetItemStatic.pas" />
+    <DCCReference Include="Src\MainForm\FavoriteMapSet\u_FavoriteMapSetMenu.pas" />
     <DCCReference Include="Src\MainForm\frm_Main.pas">
       <Form>frmMain</Form>
     </DCCReference>
