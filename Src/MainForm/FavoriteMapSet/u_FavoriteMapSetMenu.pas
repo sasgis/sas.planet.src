@@ -27,7 +27,6 @@ uses
   TBX,
   i_Listener,
   i_MapTypeSet,
-  i_MapType,
   i_ViewPortState,
   i_ActiveMapsConfig,
   i_InterfaceListStatic,
