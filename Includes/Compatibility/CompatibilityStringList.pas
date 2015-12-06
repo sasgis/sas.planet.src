@@ -131,13 +131,15 @@ end;
 procedure TStringList.SaveToStream(Stream: TStream; Encoding: TEncoding);
 var
   Buffer, Preamble: TBytes;
+  TextStr: string;
 begin
-  if Encoding = nil then
+  if FEncoding = nil then
     FEncoding := FDefaultEncoding;
-  Buffer := Encoding.GetBytes(GetTextStr);
+  TextStr := GetTextStr;
+  Buffer := FEncoding.GetBytes(TextStr);
   if FWriteBOM then
   begin
-    Preamble := Encoding.GetPreamble;
+    Preamble := FEncoding.GetPreamble;
     if Length(Preamble) > 0 then
       Stream.WriteBuffer(Preamble[0], Length(Preamble));
   end;
