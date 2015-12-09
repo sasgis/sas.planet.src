@@ -242,17 +242,17 @@ end;
 
 procedure TfrmFavoriteMapSetEditor.chkAllClick(Sender: TObject);
 var
-  VState: TCheckBoxState;
+  I: Integer;
   VChkCount: Integer;
 begin
   if chkAll.Checked then begin
-    VState := cbChecked;
     VChkCount := chklstMaps.Count;
   end else begin
-    VState := cbUnchecked;
     VChkCount := 0;
   end;
-  chklstMaps.CheckAll(VState, False, False);
+  for I := 0 to chklstMaps.Count - 1 do begin
+    chklstMaps.Checked[I] := chkAll.Checked
+  end;
   lblLayersCount.Caption := Format('(%d of %d)', [VChkCount, chklstMaps.Count]);
 end;
 
