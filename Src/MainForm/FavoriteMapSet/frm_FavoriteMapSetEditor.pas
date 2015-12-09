@@ -202,7 +202,7 @@ begin
     VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID);
     if VMapType.GUIConfig.Enabled and VMapType.Zmp.IsLayer then begin
       VAddedIndex := chklstMaps.Items.AddObject(VMapType.GUIConfig.Name.Value, TObject(Pointer(VMapType)));
-      if VActiveLayers.IsExists(VMapType.Zmp.GUID) then begin
+      if Assigned(VActiveLayers) and VActiveLayers.IsExists(VMapType.Zmp.GUID) then begin
         if chklstMaps.ItemIndex = -1 then begin
           chklstMaps.ItemIndex := VAddedIndex;
         end;
