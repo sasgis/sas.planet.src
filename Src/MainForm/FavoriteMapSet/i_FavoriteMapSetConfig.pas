@@ -46,8 +46,7 @@ type
       const AMergeLayers: Boolean;
       const AZoom: Integer;
       const AName: string;
-      const AHotKey: TShortCut;
-      const ASortIndex: Integer
+      const AHotKey: TShortCut
     );
 
     procedure Update(
@@ -57,8 +56,7 @@ type
       const AMergeLayers: Boolean;
       const AZoom: Integer;
       const AName: string;
-      const AHotKey: TShortCut;
-      const ASortIndex: Integer
+      const AHotKey: TShortCut
     );
 
     function GetStatic: IInterfaceListStatic;

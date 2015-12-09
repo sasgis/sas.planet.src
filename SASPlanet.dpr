@@ -357,6 +357,7 @@ uses
   u_LogForTaskThread in 'Src\Logger\u_LogForTaskThread.pas',
   u_TileErrorInfo in 'Src\Logger\u_TileErrorInfo.pas',
   u_TileErrorLogProviedrStuped in 'Src\Logger\u_TileErrorLogProviedrStuped.pas',
+  frm_FavoriteMapSetEditor in 'Src\MainForm\FavoriteMapSet\frm_FavoriteMapSetEditor.pas' {frmFavoriteMapSetEditor},
   i_FavoriteMapSetConfig in 'Src\MainForm\FavoriteMapSet\i_FavoriteMapSetConfig.pas',
   i_FavoriteMapSetItemStatic in 'Src\MainForm\FavoriteMapSet\i_FavoriteMapSetItemStatic.pas',
   u_FavoriteMapSetConfig in 'Src\MainForm\FavoriteMapSet\u_FavoriteMapSetConfig.pas',

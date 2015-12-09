@@ -84,6 +84,8 @@ type
       AMapSelectPredicate: TMapSelectPredicate
     ); reintroduce;
     function GetSelectedMapType: IMapType;
+    function TrySelectMapType(const AMapType: IMapType): Boolean; overload;
+    function TrySelectMapType(const AMapTypeGUID: TGUID): Boolean; overload;
     function Text: TCaption;
     procedure SetEnabled(Amode: boolean); reintroduce;
     procedure Show(AParent: TWinControl);
@@ -188,6 +190,27 @@ begin
   if cbbMap.ItemIndex >= 0 then begin
     Result := IMapType(Pointer(cbbMap.Items.Objects[cbbMap.ItemIndex]));
   end;
+end;
+
+function TfrMapSelect.TrySelectMapType(const AMapTypeGUID: TGUID): Boolean;
+var
+  I: Integer;
+  VMapType: IMapType;
+begin
+  Result := False;
+  for I := 0 to cbbMap.Items.Count - 1 do begin
+    VMapType := IMapType(Pointer(cbbMap.Items.Objects[I]));
+    if IsEqualGUID(VMapType.GUID, AMapTypeGUID) then begin
+      cbbMap.ItemIndex := I;
+      Result := True;
+      Break;
+    end;
+  end;
+end;
+
+function TfrMapSelect.TrySelectMapType(const AMapType: IMapType): Boolean;
+begin
+  Result := TrySelectMapType(AMapType.GUID);
 end;
 
 procedure TfrMapSelect.SetEnabled(Amode: boolean);

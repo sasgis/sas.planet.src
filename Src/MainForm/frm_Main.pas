@@ -117,6 +117,7 @@ uses
   frm_PointProjecting,
   frm_UpdateChecker,
   frm_PascalScriptIDE,
+  frm_FavoriteMapSetEditor,
   u_CommonFormAndFrameParents;
 
 const
@@ -784,6 +785,7 @@ type
     FInternalErrorNotifier: INotifier;
 
     FFavoriteMapSetMenu: TFavoriteMapSetMenu;
+    FfrmFavoriteMapSetEditor: TfrmFavoriteMapSetEditor;
 
     procedure InitSearchers;
     procedure InitMergepolygons;
@@ -1267,6 +1269,18 @@ begin
       FViewPortState.View
     );
   FfrmPointProjecting.PopupParent := Self;
+
+  FfrmFavoriteMapSetEditor :=
+    TfrmFavoriteMapSetEditor.Create(
+      GState.Config.LanguageManager,
+      GState.FavoriteMapSetConfig,
+      FViewPortState.View,
+      FConfig.MainMapConfig,
+      FConfig.MapLayersConfig,
+      GState.MapType.FullMapsSet,
+      GState.MapType.GUIConfigList
+    );
+  FfrmFavoriteMapSetEditor.PopupParent := Self;
 
   FfrmMapLayersOptions := TfrmMapLayersOptions.Create(
     GState.Config.LanguageManager,
@@ -3452,6 +3466,7 @@ end;
 destructor TfrmMain.Destroy;
 begin
   FreeAndNil(FfrmDGAvailablePic);
+  FreeAndNil(FfrmFavoriteMapSetEditor);
   FPlacemarkPlayerPlugin := nil;
   FLineOnMapEdit := nil;
   FWinPosition := nil;
@@ -5461,8 +5476,7 @@ end;
 
 procedure TfrmMain.tbxAddToFavoriteClick(Sender: TObject);
 begin
-  //ToDo
-  ShowMessage('Under construction...');
+  FfrmFavoriteMapSetEditor.DoAdd;
 end;
 
 procedure TfrmMain.tbxFillingMapClick(Sender: TObject);

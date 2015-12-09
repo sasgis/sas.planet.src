@@ -130,6 +130,7 @@ begin
   Result.Tag := LongInt(AItem);
   Result.Caption := AItem.Name;
   Result.OnClick := Self.OnMenuItemClick;
+  Result.ShortCut := AItem.HotKey;
 end;
 
 procedure TFavoriteMapSetMenu.OnMenuItemClick(Sender: TObject);

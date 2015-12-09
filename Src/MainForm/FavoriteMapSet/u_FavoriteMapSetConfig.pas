@@ -51,8 +51,7 @@ type
       const AMergeLayers: Boolean;
       const AZoom: Integer;
       const AName: string;
-      const AHotKey: TShortCut;
-      const ASortIndex: Integer
+      const AHotKey: TShortCut
     );
     procedure Update(
       const AID: TGUID;
@@ -61,8 +60,7 @@ type
       const AMergeLayers: Boolean;
       const AZoom: Integer;
       const AName: string;
-      const AHotKey: TShortCut;
-      const ASortIndex: Integer
+      const AHotKey: TShortCut
     );
     function GetStatic: IInterfaceListStatic;
   protected
@@ -113,6 +111,7 @@ var
   VCount: Integer;
   VIndexList: array of Integer;
 begin
+  Exit;
   VCount := FItems.Count;
   if VCount > 1 then begin
     SetLength(VIndexList, VCount);
@@ -185,8 +184,7 @@ procedure TFavoriteMapSetConfig.Add(
   const AMergeLayers: Boolean;
   const AZoom: Integer;
   const AName: string;
-  const AHotKey: TShortCut;
-  const ASortIndex: Integer
+  const AHotKey: TShortCut
 );
 var
   VItem: IFavoriteMapSetItemStatic;
@@ -200,7 +198,7 @@ begin
       AZoom,
       AName,
       AHotKey,
-      ASortIndex
+      0
     );
   LockWrite;
   try
@@ -219,8 +217,7 @@ procedure TFavoriteMapSetConfig.Update(
   const AMergeLayers: Boolean;
   const AZoom: Integer;
   const AName: string;
-  const AHotKey: TShortCut;
-  const ASortIndex: Integer
+  const AHotKey: TShortCut
 );
 var
   I: Integer;
@@ -235,7 +232,7 @@ begin
       AZoom,
       AName,
       AHotKey,
-      ASortIndex
+      0
     );
   LockWrite;
   try
