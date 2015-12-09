@@ -167,7 +167,7 @@ begin
 
     if not VItem.MergeLayers then begin
       FMapLayersConfig.LayerGuids := VLayers;
-    end else begin
+    end else if Assigned(VLayers) then begin
       for I := 0 to VLayers.Count - 1 do begin
         FMapLayersConfig.SelectLayerByGUID(VLayers.Items[I]);
       end;
