@@ -245,7 +245,6 @@ type
     procedure btnImageProcessResetClick(Sender: TObject);
     procedure btnResetUserAgentStringClick(Sender: TObject);
     procedure BtnDefClick(Sender: TObject);
-    procedure FormHide(Sender: TObject);
   private
     FOnSave: TNotifyEvent;
     FLinksList: IListenerNotifierLinksList;
@@ -804,7 +803,6 @@ var
   VInetConfig: IInetConfig;
   i: Integer;
 begin
-  GState.FavoriteMapSetConfig.StopNotify;
   FLinksList.ActivateLinks;
 
   CBoxLocal.Clear;
@@ -986,11 +984,6 @@ procedure TfrmSettings.FormCloseQuery(
 );
 begin
   CanClose := frGPSConfig.CanClose;
-end;
-
-procedure TfrmSettings.FormHide(Sender: TObject);
-begin
-  GState.FavoriteMapSetConfig.StartNotify;
 end;
 
 procedure TfrmSettings.TrBarGammaChange(Sender: TObject);

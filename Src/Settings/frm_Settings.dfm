@@ -12,7 +12,6 @@ object frmSettings: TfrmSettings
   Position = poScreenCenter
   ShowHint = True
   OnCloseQuery = FormCloseQuery
-  OnHide = FormHide
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
