@@ -37,7 +37,6 @@ type
     FZoom: Integer;
     FName: string;
     FHotKey: TShortCut;
-    FSortIndex: Integer;
     FMergeLayers: Boolean;
   private
     { IFavoriteMapSetItemStatic }
@@ -48,7 +47,6 @@ type
     function GetZoom: Integer;
     function GetName: string;
     function GetHotKey: TShortCut;
-    function GetSortIndex: Integer;
   public
     constructor Create(
       const AID: TGUID;
@@ -57,8 +55,7 @@ type
       const AMergeLayers: Boolean;
       const AZoom: Integer;
       const AName: string;
-      const AHotKey: TShortCut;
-      const ASortIndex: Integer
+      const AHotKey: TShortCut
     );
   end;
 
@@ -73,8 +70,7 @@ constructor TFavoriteMapSetItemStatic.Create(
   const AMergeLayers: Boolean;
   const AZoom: Integer;
   const AName: string;
-  const AHotKey: TShortCut;
-  const ASortIndex: Integer
+  const AHotKey: TShortCut
 );
 begin
   inherited Create;
@@ -85,7 +81,6 @@ begin
   FZoom := AZoom;
   FName := AName;
   FHotKey := AHotKey;
-  FSortIndex := ASortIndex;
 end;
 
 function TFavoriteMapSetItemStatic.GetID: TGUID;
@@ -121,11 +116,6 @@ end;
 function TFavoriteMapSetItemStatic.GetHotKey: TShortCut;
 begin
   Result := FHotKey;
-end;
-
-function TFavoriteMapSetItemStatic.GetSortIndex: Integer;
-begin
-  Result := FSortIndex;
 end;
 
 end.

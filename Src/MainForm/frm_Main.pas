@@ -101,6 +101,7 @@ uses
   i_ImportConfig,
   i_PanelsPositionsSaveLoad,
   i_FillingMapPolygon,
+  i_FavoriteMapSetHelper,
   i_CmdLineArgProcessor,
   u_CmdLineArgProcessorAPI,
   u_ShortcutManager,
@@ -118,6 +119,7 @@ uses
   frm_UpdateChecker,
   frm_PascalScriptIDE,
   frm_FavoriteMapSetEditor,
+  frm_FavoriteMapSetManager,
   u_CommonFormAndFrameParents;
 
 const
@@ -447,6 +449,7 @@ type
     tbxAddToFavorite: TTBXItem;
     TBXSeparatorItem15: TTBXSeparatorItem;
     NFavoriteToolbarShow: TTBXVisibilityToggleItem;
+    tbxManageFavorite: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -686,6 +689,7 @@ type
     procedure tbxtmAddToMergePolygonsClick(Sender: TObject);
     procedure tbxFillingMapClick(Sender: TObject);
     procedure tbxAddToFavoriteClick(Sender: TObject);
+    procedure tbxManageFavoriteClick(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -785,7 +789,9 @@ type
     FInternalErrorNotifier: INotifier;
 
     FFavoriteMapSetMenu: TFavoriteMapSetMenu;
+    FFavoriteMapSetHelper: IFavoriteMapSetHelper;
     FfrmFavoriteMapSetEditor: TfrmFavoriteMapSetEditor;
+    FfrmFavoriteMapSetManager: TfrmFavoriteMapSetManager;
 
     procedure InitSearchers;
     procedure InitMergepolygons;
@@ -968,6 +974,7 @@ uses
   i_VectorTileRendererChangeable,
   i_VectorTileProviderChangeable,
   i_GeometryLonLatChangeable,
+  u_FavoriteMapSetHelper,
   u_InterfaceListSimple,
   u_ImportFromArcGIS,
   u_StickToGrids,
@@ -1270,6 +1277,14 @@ begin
     );
   FfrmPointProjecting.PopupParent := Self;
 
+  FFavoriteMapSetHelper :=
+    TFavoriteMapSetHelper.Create(
+      GState.MapType.FullMapsSet,
+      FConfig.MainMapConfig,
+      FConfig.MapLayersConfig,
+      FViewPortState
+    );
+
   FfrmFavoriteMapSetEditor :=
     TfrmFavoriteMapSetEditor.Create(
       GState.Config.LanguageManager,
@@ -1281,6 +1296,16 @@ begin
       GState.MapType.GUIConfigList
     );
   FfrmFavoriteMapSetEditor.PopupParent := Self;
+
+  FfrmFavoriteMapSetManager :=
+    TfrmFavoriteMapSetManager.Create(
+      GState.Config.LanguageManager,
+      GState.MapType.FullMapsSet,
+      GState.FavoriteMapSetConfig,
+      FFavoriteMapSetHelper,
+      FfrmFavoriteMapSetEditor
+    );
+  FfrmFavoriteMapSetManager.PopupParent := Self;
 
   FfrmMapLayersOptions := TfrmMapLayersOptions.Create(
     GState.Config.LanguageManager,
@@ -1499,10 +1524,7 @@ begin
   FFavoriteMapSetMenu :=
     TFavoriteMapSetMenu.Create(
       GState.FavoriteMapSetConfig,
-      FMainMapState.AllMapsSet,
-      FConfig.MainMapConfig,
-      FConfig.MapLayersConfig,
-      FViewPortState,
+      FFavoriteMapSetHelper,
       TBFavorite
     );
 
@@ -3466,7 +3488,6 @@ end;
 destructor TfrmMain.Destroy;
 begin
   FreeAndNil(FfrmDGAvailablePic);
-  FreeAndNil(FfrmFavoriteMapSetEditor);
   FPlacemarkPlayerPlugin := nil;
   FLineOnMapEdit := nil;
   FWinPosition := nil;
@@ -3494,6 +3515,8 @@ begin
   FreeAndNil(FfrmUpdateChecker);
   FreeAndNil(FfrmPascalScriptIDE);
   FreeAndNil(FFavoriteMapSetMenu);
+  FreeAndNil(FfrmFavoriteMapSetManager);
+  FreeAndNil(FfrmFavoriteMapSetEditor);
   inherited;
 end;
 
@@ -5477,6 +5500,11 @@ end;
 procedure TfrmMain.tbxAddToFavoriteClick(Sender: TObject);
 begin
   FfrmFavoriteMapSetEditor.DoAdd;
+end;
+
+procedure TfrmMain.tbxManageFavoriteClick(Sender: TObject);
+begin
+  FfrmFavoriteMapSetManager.ShowModal;
 end;
 
 procedure TfrmMain.tbxFillingMapClick(Sender: TObject);

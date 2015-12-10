@@ -1497,6 +1497,11 @@ object frmMain: TfrmMain
           Caption = 'Add'
           Hint = ''
         end
+        object tbxManageFavorite: TTBXItem
+          OnClick = tbxManageFavoriteClick
+          Caption = 'Manage'
+          Hint = ''
+        end
         object TBXSeparatorItem15: TTBXSeparatorItem
           Caption = ''
           Hint = ''

@@ -23,25 +23,21 @@ unit u_FavoriteMapSetMenu;
 interface
 
 uses
+  Dialogs,
   TB2Item,
   TBX,
   i_Listener,
-  i_MapTypeSet,
-  i_ViewPortState,
-  i_ActiveMapsConfig,
   i_InterfaceListStatic,
   i_FavoriteMapSetConfig,
+  i_FavoriteMapSetHelper,
   i_FavoriteMapSetItemStatic;
 
 type
   TFavoriteMapSetMenu = class
   private
-    FMapsSet: IMapTypeSet;
-    FMainMapConfig: IActiveMapConfig;
-    FMapLayersConfig: IActiveLayersConfig;
-    FViewPortState: IViewPortState;
     FRootMenu: TTBXCustomItem;
     FFavoriteMapSetConfig: IFavoriteMapSetConfig;
+    FFavoriteMapSetHelper: IFavoriteMapSetHelper;
     FFavoriteMapSetChangeListener: IListener;
     procedure ClearMenu;
     procedure OnMenuItemClick(Sender: TObject);
@@ -50,10 +46,7 @@ type
   public
     constructor Create(
       const AFavoriteMapSetConfig: IFavoriteMapSetConfig;
-      const AMapsSet: IMapTypeSet;
-      const AMainMapConfig: IActiveMapConfig;
-      const AMapLayersConfig: IActiveLayersConfig;
-      const AViewPortState: IViewPortState;
+      const AFavoriteMapSetHelper: IFavoriteMapSetHelper;
       ARootMenu: TTBXCustomItem
     );
     destructor Destroy; override;
@@ -71,20 +64,14 @@ uses
 
 constructor TFavoriteMapSetMenu.Create(
   const AFavoriteMapSetConfig: IFavoriteMapSetConfig;
-  const AMapsSet: IMapTypeSet;
-  const AMainMapConfig: IActiveMapConfig;
-  const AMapLayersConfig: IActiveLayersConfig;
-  const AViewPortState: IViewPortState;
+  const AFavoriteMapSetHelper: IFavoriteMapSetHelper;
   ARootMenu: TTBXCustomItem
 );
 begin
   inherited Create;
 
   FFavoriteMapSetConfig := AFavoriteMapSetConfig;
-  FMapsSet := AMapsSet;
-  FMainMapConfig := AMainMapConfig;
-  FMapLayersConfig := AMapLayersConfig;
-  FViewPortState := AViewPortState;
+  FFavoriteMapSetHelper := AFavoriteMapSetHelper;
   FRootMenu := ARootMenu;
 
   OnFavoriteMapSetChanged;
@@ -135,46 +122,16 @@ end;
 
 procedure TFavoriteMapSetMenu.OnMenuItemClick(Sender: TObject);
 var
-  I: Integer;
-  VLayers: IGUIDSetStatic;
+  VErrMsg: string;
   VMenuItem: TTBXCustomItem;
   VItem: IFavoriteMapSetItemStatic;
 begin
   VMenuItem := Sender as TTBXCustomItem;
   if Assigned(VMenuItem) and (VMenuItem.Tag > 0) then begin
     VItem := IFavoriteMapSetItemStatic(VMenuItem.Tag);
-
-    if not IsEqualGUID(VItem.BaseMap, CGUID_Zero) then begin
-      if FMapsSet.IsExists(VItem.BaseMap) then begin
-        FMainMapConfig.MainMapGUID := VItem.BaseMap;
-      end else begin
-        raise Exception.Create(
-          'Can''t switch BaseMap - unknown GUID: ' + GUIDToString(VItem.BaseMap)
-        );
-      end;
-    end;
-
-    VLayers := VItem.Layers;
-    if Assigned(VLayers) then begin
-      for I := 0 to VLayers.Count - 1 do begin
-        if not FMapsSet.IsExists(VLayers.Items[I]) then begin
-          raise Exception.Create(
-            'Can''t switch Layers - unknown GUID: ' + GUIDToString(VLayers.Items[I])
-          );
-        end;
-      end;
-    end;
-
-    if not VItem.MergeLayers then begin
-      FMapLayersConfig.LayerGuids := VLayers;
-    end else if Assigned(VLayers) then begin
-      for I := 0 to VLayers.Count - 1 do begin
-        FMapLayersConfig.SelectLayerByGUID(VLayers.Items[I]);
-      end;
-    end;
-
-    if VItem.Zoom >= 0 then begin
-      FViewPortState.ChangeZoomWithFreezeAtCenter(VItem.Zoom);
+    Assert(VItem <> nil);
+    if not FFavoriteMapSetHelper.TrySwitchOn(VItem, VErrMsg) then begin
+      MessageDlg(VErrMsg, mtError, [mbOK], 0);
     end;
   end;
 end;

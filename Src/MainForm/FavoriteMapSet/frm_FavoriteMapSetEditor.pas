@@ -90,8 +90,8 @@ type
     function GetAllowWrite(const AMapType: IMapType): Boolean;
     procedure Init;
   public
-    procedure DoAdd;
-    procedure DoUpdate(const AItemGUID: TGUID);
+    function DoAdd: Boolean;
+    function DoUpdate(const AItemGUID: TGUID): Boolean;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -177,6 +177,8 @@ var
   VGUIDList: IGUIDListStatic;
   VGUID: TGUID;
 begin
+  FfrMapSelect.Show(pnlMap);
+
   if Assigned(FMapSetItem) then begin
     edtName.Text := FMapSetItem.Name;
     chkMap.Checked := False;
@@ -191,8 +193,12 @@ begin
     chkMergeLayers.Checked := not FMapSetItem.MergeLayers;
     EditHotKey.HotKey := FMapSetItem.HotKey;
   end else begin
+    edtName.Text := '';
+    EditHotKey.HotKey := 0;
     VActiveLayers := FMainLayersConfig.LayerGuids;
   end;
+
+  chkAll.Checked := False;
 
   chklstMaps.Items.Clear;
   chklstMaps.ItemIndex := -1;
@@ -221,8 +227,6 @@ begin
   end else begin
     cbbZoom.ItemIndex := FViewPortState.GetStatic.Projection.Zoom;
   end;
-
-  FfrMapSelect.Show(pnlMap);
 
   chkMapClick(nil);
   chkLayersClick(nil);
@@ -287,23 +291,23 @@ begin
   Result := True;
 end;
 
-procedure TfrmFavoriteMapSetEditor.DoAdd;
+function TfrmFavoriteMapSetEditor.DoAdd: Boolean;
 begin
   FMapSetItem := nil;
   Init;
   Caption := _('Add to favorite');
   btnOk.Caption := _('Add');
-  ShowModal;
+  Result := ShowModal = mrOk;;
 end;
 
-procedure TfrmFavoriteMapSetEditor.DoUpdate(const AItemGUID: TGUID);
+function TfrmFavoriteMapSetEditor.DoUpdate(const AItemGUID: TGUID): Boolean;
 begin
   FMapSetItem := FFavoriteMapSetConfig.GetByID(AItemGUID);
   Assert(FMapSetItem <> nil);
   Init;
   Caption := _('Edit favorite map set');
   btnOk.Caption := _('Save');
-  ShowModal;
+  Result := ShowModal = mrOk;;
 end;
 
 procedure TfrmFavoriteMapSetEditor.btnOkClick(Sender: TObject);
@@ -333,7 +337,6 @@ procedure TfrmFavoriteMapSetEditor.btnOkClick(Sender: TObject);
   end;
 
 var
-  VID: TGUID;
   VBaseMap: TGUID;
   VLayers: IGUIDSetStatic;
   VZoom: Integer;
@@ -370,9 +373,7 @@ begin
   end;
 
   if FMapSetItem = nil then begin
-    CreateGUID(VID);
     FFavoriteMapSetConfig.Add(
-      VID,
       VBaseMap,
       VLayers,
       not chkMergeLayers.Checked,
@@ -392,7 +393,7 @@ begin
     );
   end;
 
-  Close;
+  ModalResult := mrOk;
 end;
 
 end.

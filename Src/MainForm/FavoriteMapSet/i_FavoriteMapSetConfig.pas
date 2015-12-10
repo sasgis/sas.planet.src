@@ -37,9 +37,18 @@ type
 
     function GetByID(const AID: TGUID): IFavoriteMapSetItemStatic;
 
-    procedure Delete(const AID: TGUID);
+    function Delete(const AID: TGUID): Boolean;
 
-    procedure Add(
+    function Add(
+      const ABaseMap: TGUID;
+      const ALayers: IGUIDSetStatic;
+      const AMergeLayers: Boolean;
+      const AZoom: Integer;
+      const AName: string;
+      const AHotKey: TShortCut
+    ): TGUID;
+
+    function Update(
       const AID: TGUID;
       const ABaseMap: TGUID;
       const ALayers: IGUIDSetStatic;
@@ -47,17 +56,10 @@ type
       const AZoom: Integer;
       const AName: string;
       const AHotKey: TShortCut
-    );
+    ): Boolean;
 
-    procedure Update(
-      const AID: TGUID;
-      const ABaseMap: TGUID;
-      const ALayers: IGUIDSetStatic;
-      const AMergeLayers: Boolean;
-      const AZoom: Integer;
-      const AName: string;
-      const AHotKey: TShortCut
-    );
+    function MoveUp(const AID: TGUID): Boolean;
+    function MoveDown(const AID: TGUID): Boolean;
 
     function GetStatic: IInterfaceListStatic;
   end;

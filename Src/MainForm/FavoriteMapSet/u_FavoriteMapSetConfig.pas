@@ -37,14 +37,21 @@ type
   TFavoriteMapSetConfig = class(TConfigDataElementBase, IFavoriteMapSetConfig)
   private
     FItems: IInterfaceListSimple;
-    procedure _Sort;
     function _FindItemIndex(const AID: TGUID): Integer;
   private
     { IFavoriteMapSetConfig }
     function GetCount: Integer;
     function GetByID(const AID: TGUID): IFavoriteMapSetItemStatic;
-    procedure Delete(const AID: TGUID);
-    procedure Add(
+    function Delete(const AID: TGUID): Boolean;
+    function Add(
+      const ABaseMap: TGUID;
+      const ALayers: IGUIDSetStatic;
+      const AMergeLayers: Boolean;
+      const AZoom: Integer;
+      const AName: string;
+      const AHotKey: TShortCut
+    ): TGUID;
+    function Update(
       const AID: TGUID;
       const ABaseMap: TGUID;
       const ALayers: IGUIDSetStatic;
@@ -52,16 +59,9 @@ type
       const AZoom: Integer;
       const AName: string;
       const AHotKey: TShortCut
-    );
-    procedure Update(
-      const AID: TGUID;
-      const ABaseMap: TGUID;
-      const ALayers: IGUIDSetStatic;
-      const AMergeLayers: Boolean;
-      const AZoom: Integer;
-      const AName: string;
-      const AHotKey: TShortCut
-    );
+    ): Boolean;
+    function MoveUp(const AID: TGUID): Boolean;
+    function MoveDown(const AID: TGUID): Boolean;
     function GetStatic: IInterfaceListStatic;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
@@ -105,23 +105,6 @@ begin
   end;
 end;
 
-procedure TFavoriteMapSetConfig._Sort;
-var
-  I: Integer;
-  VCount: Integer;
-  VIndexList: array of Integer;
-begin
-  Exit;
-  VCount := FItems.Count;
-  if VCount > 1 then begin
-    SetLength(VIndexList, VCount);
-    for I := 0 to VCount - 1 do begin
-      VIndexList[I] := IFavoriteMapSetItemStatic(FItems[I]).SortIndex;
-    end;
-    SortInterfaceListByIntegerMeasure(FItems, VIndexList);
-  end;
-end;
-
 function TFavoriteMapSetConfig.GetCount: Integer;
 begin
   LockRead;
@@ -159,7 +142,7 @@ begin
   end;
 end;
 
-procedure TFavoriteMapSetConfig.Delete(const AID: TGUID);
+function TFavoriteMapSetConfig.Delete(const AID: TGUID): Boolean;
 var
   I: Integer;
 begin
@@ -169,15 +152,49 @@ begin
     if I >= 0 then begin
       FItems.Delete(I);
       SetChanged;
+      Result := True;
     end else begin
-      Assert(False);
+      Result := False;
     end;
   finally
     UnlockWrite;
   end;
 end;
 
-procedure TFavoriteMapSetConfig.Add(
+function TFavoriteMapSetConfig.Add(
+  const ABaseMap: TGUID;
+  const ALayers: IGUIDSetStatic;
+  const AMergeLayers: Boolean;
+  const AZoom: Integer;
+  const AName: string;
+  const AHotKey: TShortCut
+): TGUID;
+var
+  VID: TGUID;
+  VItem: IFavoriteMapSetItemStatic;
+begin
+  CreateGUID(VID);
+  VItem :=
+    TFavoriteMapSetItemStatic.Create(
+      VID,
+      ABaseMap,
+      ALayers,
+      AMergeLayers,
+      AZoom,
+      AName,
+      AHotKey
+    );
+  LockWrite;
+  try
+    FItems.Add(VItem);
+    SetChanged;
+    Result := VID;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+function TFavoriteMapSetConfig.Update(
   const AID: TGUID;
   const ABaseMap: TGUID;
   const ALayers: IGUIDSetStatic;
@@ -185,8 +202,9 @@ procedure TFavoriteMapSetConfig.Add(
   const AZoom: Integer;
   const AName: string;
   const AHotKey: TShortCut
-);
+): Boolean;
 var
+  I: Integer;
   VItem: IFavoriteMapSetItemStatic;
 begin
   VItem :=
@@ -197,53 +215,55 @@ begin
       AMergeLayers,
       AZoom,
       AName,
-      AHotKey,
-      0
-    );
-  LockWrite;
-  try
-    FItems.Add(VItem);
-    _Sort;
-    SetChanged;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-procedure TFavoriteMapSetConfig.Update(
-  const AID: TGUID;
-  const ABaseMap: TGUID;
-  const ALayers: IGUIDSetStatic;
-  const AMergeLayers: Boolean;
-  const AZoom: Integer;
-  const AName: string;
-  const AHotKey: TShortCut
-);
-var
-  I: Integer;
-  VNewItem, VOldItem: IFavoriteMapSetItemStatic;
-begin
-  VNewItem :=
-    TFavoriteMapSetItemStatic.Create(
-      AID,
-      ABaseMap,
-      ALayers,
-      AMergeLayers,
-      AZoom,
-      AName,
-      AHotKey,
-      0
+      AHotKey
     );
   LockWrite;
   try
     I := _FindItemIndex(AID);
     if I >= 0 then begin
-      VOldItem := IFavoriteMapSetItemStatic(FItems[I]);
-      FItems[I] := VNewItem;
-      if VOldItem.SortIndex <> VNewItem.SortIndex then begin
-        _Sort;
-      end;
+      FItems[I] := VItem;
       SetChanged;
+      Result := True;
+    end else begin
+      Result := False;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+function TFavoriteMapSetConfig.MoveUp(const AID: TGUID): Boolean;
+var
+  I: Integer;
+begin
+  LockWrite;
+  try
+    I := _FindItemIndex(AID);
+    if I > 0 then begin
+      FItems.Exchange(I, I-1);
+      SetChanged;
+      Result := True;
+    end else begin
+      Result := False;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+function TFavoriteMapSetConfig.MoveDown(const AID: TGUID): Boolean;
+var
+  I: Integer;
+begin
+  LockWrite;
+  try
+    I := _FindItemIndex(AID);
+    if (I >= 0) and (I+1 < FItems.Count) then begin
+      FItems.Exchange(I, I+1);
+      SetChanged;
+      Result := True;
+    end else begin
+      Result := False;
     end;
   finally
     UnlockWrite;
@@ -264,7 +284,6 @@ var
   VItemZoom: Integer;
   VItemName: string;
   VItemHotKey: TShortCut;
-  VItemSortIndex: Integer;
   VItem: IFavoriteMapSetItemStatic;
 begin
   inherited;
@@ -272,60 +291,63 @@ begin
     VConfig := AConfigData.GetSubItem('Main');
     if VConfig <> nil then begin
       VCount := VConfig.ReadInteger('Count', 0);
-      for I := 0 to VCount - 1 do begin
-        VConfig := AConfigData.GetSubItem('FavoriteMapSet_' + IntToStr(I + 1));
-        if VConfig <> nil then begin
+      LockWrite;
+      try
+        for I := 0 to VCount - 1 do begin
+          VConfig := AConfigData.GetSubItem('FavoriteMapSet_' + IntToStr(I + 1));
+          if VConfig <> nil then begin
 
-          VItemID := ReadGUID(VConfig, 'ID', CGUID_Zero);
-          if IsEqualGUID(VItemID, CGUID_Zero) then begin
-            Assert(False);
-            Continue;
-          end;
+            VItemID := ReadGUID(VConfig, 'ID', CGUID_Zero);
+            if IsEqualGUID(VItemID, CGUID_Zero) then begin
+              Assert(False);
+              Continue;
+            end;
 
-          VItemBaseMap := ReadGUID(VConfig, 'BaseMap', CGUID_Zero);
+            VItemBaseMap := ReadGUID(VConfig, 'BaseMap', CGUID_Zero);
 
-          VItemMergeLayers := VConfig.ReadBool('MergeLayers', False);
+            VItemMergeLayers := VConfig.ReadBool('MergeLayers', False);
 
-          VItemLayers := nil;
-          VItemLayersCount := VConfig.ReadInteger('LayersCount', 0);
-          if VItemLayersCount > 0 then begin
-            K := 0;
-            SetLength(VItemLayersGUID, VItemLayersCount);
-            for J := 0 to VItemLayersCount - 1 do begin
-              VItemLayersGUID[K] := ReadGUID(VConfig, 'Layer_' + IntToStr(J + 1), CGUID_Zero);
-              if not IsEqualGUID(VItemLayersGUID[K], CGUID_Zero) then begin
-                Inc(K);
-              end else begin
-                Assert(False);
+            VItemLayers := nil;
+            VItemLayersCount := VConfig.ReadInteger('LayersCount', 0);
+            if VItemLayersCount > 0 then begin
+              K := 0;
+              SetLength(VItemLayersGUID, VItemLayersCount);
+              for J := 0 to VItemLayersCount - 1 do begin
+                VItemLayersGUID[K] := ReadGUID(VConfig, 'Layer_' + IntToStr(J + 1), CGUID_Zero);
+                if not IsEqualGUID(VItemLayersGUID[K], CGUID_Zero) then begin
+                  Inc(K);
+                end else begin
+                  Assert(False);
+                end;
+              end;
+              if K > 0 then begin
+                SetLength(VItemLayersGUID, K);
+                VItemLayers := TGUIDSetStatic.CreateAndSort(VItemLayersGUID, K);
               end;
             end;
-            if K > 0 then begin
-              SetLength(VItemLayersGUID, K);
-              VItemLayers := TGUIDSetStatic.CreateAndSort(VItemLayersGUID, K);
-            end;
+
+            VItemZoom := VConfig.ReadInteger('Zoom', -1);
+            VItemName := VConfig.ReadString('Name', '<Unnamed>');
+            VItemHotKey := TShortCut(VConfig.ReadInteger('HotKey', 0));
+
+            VItem :=
+              TFavoriteMapSetItemStatic.Create(
+                VItemID,
+                VItemBaseMap,
+                VItemLayers,
+                VItemMergeLayers,
+                VItemZoom,
+                VItemName,
+                VItemHotKey
+              );
+
+            FItems.Add(VItem);
           end;
-
-          VItemZoom := VConfig.ReadInteger('Zoom', -1);
-          VItemName := VConfig.ReadString('Name', '<Unnamed>');
-          VItemHotKey := TShortCut(VConfig.ReadInteger('HotKey', 0));
-          VItemSortIndex := VConfig.ReadInteger('SortIndex', 0);
-
-          VItem :=
-            TFavoriteMapSetItemStatic.Create(
-              VItemID,
-              VItemBaseMap,
-              VItemLayers,
-              VItemMergeLayers,
-              VItemZoom,
-              VItemName,
-              VItemHotKey,
-              VItemSortIndex
-            );
-
-          FItems.Add(VItem);
         end;
+        SetChanged;
+      finally
+        UnlockWrite;
       end;
-      _Sort;
     end;
   end;
 end;
@@ -349,34 +371,38 @@ begin
 
   VConfig := AConfigData.GetOrCreateSubItem('Main');
 
-  VCount := FItems.Count;
-  VConfig.WriteInteger('Count', VCount);
+  LockRead;
+  try
+    VCount := FItems.Count;
+    VConfig.WriteInteger('Count', VCount);
 
-  for I := 0 to VCount - 1 do begin
-    VConfig := AConfigData.GetOrCreateSubItem('FavoriteMapSet_' + IntToStr(I + 1));
+    for I := 0 to VCount - 1 do begin
+      VConfig := AConfigData.GetOrCreateSubItem('FavoriteMapSet_' + IntToStr(I + 1));
 
-    VItem := IFavoriteMapSetItemStatic(FItems[I]);
+      VItem := IFavoriteMapSetItemStatic(FItems[I]);
 
-    WriteGUID(VConfig, 'ID', VItem.ID);
-    WriteGUID(VConfig, 'BaseMap', VItem.BaseMap);
+      WriteGUID(VConfig, 'ID', VItem.ID);
+      WriteGUID(VConfig, 'BaseMap', VItem.BaseMap);
 
-    VConfig.WriteBool('MergeLayers', VItem.MergeLayers);
+      VConfig.WriteBool('MergeLayers', VItem.MergeLayers);
 
-    VLayers := VItem.Layers;
-    if Assigned(VLayers) then begin
-      VLayersCount := VLayers.Count;
-      VConfig.WriteInteger('LayersCount', VLayersCount);
-      for J := 0 to VLayersCount - 1 do begin
-        WriteGUID(VConfig, 'Layer_' + IntToStr(J + 1), VLayers.Items[J]);
+      VLayers := VItem.Layers;
+      if Assigned(VLayers) then begin
+        VLayersCount := VLayers.Count;
+        VConfig.WriteInteger('LayersCount', VLayersCount);
+        for J := 0 to VLayersCount - 1 do begin
+          WriteGUID(VConfig, 'Layer_' + IntToStr(J + 1), VLayers.Items[J]);
+        end;
+      end else begin
+        VConfig.WriteInteger('LayersCount', 0);
       end;
-    end else begin
-      VConfig.WriteInteger('LayersCount', 0);
-    end;
 
-    VConfig.WriteInteger('Zoom', VItem.Zoom);
-    VConfig.WriteString('Name', VItem.Name);
-    VConfig.WriteInteger('HotKey', Integer(VItem.HotKey));
-    VConfig.WriteInteger('SortIndex', VItem.SortIndex);
+      VConfig.WriteInteger('Zoom', VItem.Zoom);
+      VConfig.WriteString('Name', VItem.Name);
+      VConfig.WriteInteger('HotKey', Integer(VItem.HotKey));
+    end;
+  finally
+    UnlockRead;
   end;
 end;
 

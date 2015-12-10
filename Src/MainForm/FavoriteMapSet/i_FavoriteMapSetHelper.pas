@@ -18,37 +18,20 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_FavoriteMapSetItemStatic;
+unit i_FavoriteMapSetHelper;
 
 interface
 
 uses
-  Classes,
-  i_GUIDListStatic;
+  i_FavoriteMapSetItemStatic;
 
 type
-  IFavoriteMapSetItemStatic = interface
-    ['{35E1D826-5C9A-473D-B4EC-13261D7A037F}']
-    function GetID: TGUID;
-    property ID: TGUID read GetID;
-
-    function GetBaseMap: TGUID;
-    property BaseMap: TGUID read GetBaseMap;
-
-    function GetLayers: IGUIDSetStatic;
-    property Layers: IGUIDSetStatic read GetLayers;
-
-    function GetMergeLayers: Boolean;
-    property MergeLayers: Boolean read GetMergeLayers;
-
-    function GetZoom: Integer;
-    property Zoom: Integer read GetZoom;
-
-    function GetName: string;
-    property Name: string read GetName;
-
-    function GetHotKey: TShortCut;
-    property HotKey: TShortCut read GetHotKey;
+  IFavoriteMapSetHelper = interface
+    ['{66D229E1-C66B-4F2E-92F7-0B3942E7F8F9}']
+    function TrySwitchOn(
+      const AItem: IFavoriteMapSetItemStatic;
+      out AErrMsg: string
+    ): Boolean;
   end;
 
 implementation
