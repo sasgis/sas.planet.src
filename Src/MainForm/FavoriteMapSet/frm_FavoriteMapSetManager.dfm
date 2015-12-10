@@ -3,7 +3,7 @@ object frmFavoriteMapSetManager: TfrmFavoriteMapSetManager
   Top = 0
   Caption = 'Favorite Map Set Manager'
   ClientHeight = 492
-  ClientWidth = 609
+  ClientWidth = 632
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -19,16 +19,15 @@ object frmFavoriteMapSetManager: TfrmFavoriteMapSetManager
   object pnlBottomButtons: TPanel
     Left = 0
     Top = 461
-    Width = 609
+    Width = 632
     Height = 31
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 481
-    ExplicitWidth = 630
+    ExplicitWidth = 609
     object btnCancel: TButton
       AlignWithMargins = True
-      Left = 531
+      Left = 554
       Top = 3
       Width = 75
       Height = 25
@@ -37,12 +36,11 @@ object frmFavoriteMapSetManager: TfrmFavoriteMapSetManager
       Caption = 'Cancel'
       TabOrder = 0
       OnClick = btnCancelClick
-      ExplicitLeft = 477
-      ExplicitTop = 6
+      ExplicitLeft = 531
     end
     object btnOk: TButton
       AlignWithMargins = True
-      Left = 450
+      Left = 473
       Top = 3
       Width = 75
       Height = 25
@@ -52,18 +50,17 @@ object frmFavoriteMapSetManager: TfrmFavoriteMapSetManager
       ModalResult = 1
       TabOrder = 1
       OnClick = btnOkClick
-      ExplicitLeft = 471
+      ExplicitLeft = 450
     end
   end
   object pnlMapSets: TPanel
     Left = 0
     Top = 0
-    Width = 609
+    Width = 632
     Height = 461
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitWidth = 630
-    ExplicitHeight = 481
+    ExplicitWidth = 609
   end
 end

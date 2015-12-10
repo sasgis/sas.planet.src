@@ -41,8 +41,11 @@ uses
   i_LanguageManager,
   i_MainFormConfig,
   i_SensorList,
+  i_FavoriteMapSetHelper,
   u_ShortcutManager,
   u_CommonFormAndFrameParents,
+  frm_FavoriteMapSetEditor,
+  fr_FavoriteMapSetManager,
   fr_MapsList,
   fr_GPSConfig,
   fr_PathSelect,
@@ -225,6 +228,7 @@ type
     pnlMATilesPath: TPanel;
     pnlCacheTypesList: TPanel;
     pnlTMSPath: TPanel;
+    tsFavorite: TTabSheet;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -241,6 +245,7 @@ type
     procedure btnImageProcessResetClick(Sender: TObject);
     procedure btnResetUserAgentStringClick(Sender: TObject);
     procedure BtnDefClick(Sender: TObject);
+    procedure FormHide(Sender: TObject);
   private
     FOnSave: TNotifyEvent;
     FLinksList: IListenerNotifierLinksList;
@@ -270,6 +275,7 @@ type
     FfrBDBVerCachePath: TfrPathSelect;
     FfrGCCachePath: TfrPathSelect;
     FfrCacheTypesList: TfrCacheTypeList;
+    frFavoriteMapSetManager: TfrFavoriteMapSetManager;
 
     procedure InitResamplersList(
       const AList: IImageResamplerFactoryList;
@@ -282,6 +288,8 @@ type
       const ASensorList: ISensorList;
       const AShortCutManager: TShortcutManager;
       const AMapTypeEditor: IMapTypeConfigModalEdit;
+      const AFavoriteMapSetHelper: IFavoriteMapSetHelper;
+      const AFavoriteMapSetEditor: TfrmFavoriteMapSetEditor;
       AOnSave: TNotifyEvent
     ); reintroduce;
     destructor Destroy; override;
@@ -312,6 +320,8 @@ constructor TfrmSettings.Create(
   const ASensorList: ISensorList;
   const AShortCutManager: TShortcutManager;
   const AMapTypeEditor: IMapTypeConfigModalEdit;
+  const AFavoriteMapSetHelper: IFavoriteMapSetHelper;
+  const AFavoriteMapSetEditor: TfrmFavoriteMapSetEditor;
   AOnSave: TNotifyEvent
 );
 begin
@@ -333,6 +343,14 @@ begin
       GState.MapType.FullMapsSet,
       GState.MapType.GUIConfigList,
       AMapTypeEditor
+    );
+  frFavoriteMapSetManager :=
+    TfrFavoriteMapSetManager.Create(
+      ALanguageManager,
+      GState.MapType.FullMapsSet,
+      GState.FavoriteMapSetConfig,
+      AFavoriteMapSetHelper,
+      AFavoriteMapSetEditor
     );
   frGPSConfig :=
     TfrGPSConfig.Create(
@@ -475,6 +493,7 @@ procedure TfrmSettings.btnCancelClick(Sender: TObject);
 begin
   frShortCutList.CancelChanges;
   frMapsList.CancelChanges;
+  frFavoriteMapSetManager.CancelChanges;
   frGPSConfig.CancelChanges;
   Close;
 end;
@@ -704,6 +723,7 @@ begin
 
   frShortCutList.ApplyChanges;
   frMapsList.ApplyChanges;
+  frFavoriteMapSetManager.ApplyChanges;
   frGPSConfig.ApplyChanges;
   if Assigned(FOnSave) then begin
     FOnSave(nil);
@@ -753,6 +773,7 @@ destructor TfrmSettings.Destroy;
 begin
   FreeAndNil(frShortCutList);
   FreeAndNil(frMapsList);
+  FreeAndNil(frFavoriteMapSetManager);
   FreeAndNil(frGPSConfig);
   FreeAndNil(FfrMapPathSelect);
   FreeAndNil(FfrTerrainDataPathSelect);
@@ -783,12 +804,15 @@ var
   VInetConfig: IInetConfig;
   i: Integer;
 begin
+  GState.FavoriteMapSetConfig.StopNotify;
   FLinksList.ActivateLinks;
 
   CBoxLocal.Clear;
   frShortCutList.Parent := GroupBox5;
   frMapsList.Parent := tsMaps;
   frMapsList.Init;
+  frFavoriteMapSetManager.Parent := tsFavorite;
+  frFavoriteMapSetManager.Init;
   FfrMapPathSelect.Show(pnlMapsPath);
   FfrTerrainDataPathSelect.Show(pnlTerrainDataPath);
   FfrUserDataPathSelect.Show(pnlUserDataPath);
@@ -962,6 +986,11 @@ procedure TfrmSettings.FormCloseQuery(
 );
 begin
   CanClose := frGPSConfig.CanClose;
+end;
+
+procedure TfrmSettings.FormHide(Sender: TObject);
+begin
+  GState.FavoriteMapSetConfig.StartNotify;
 end;
 
 procedure TfrmSettings.TrBarGammaChange(Sender: TObject);

@@ -12,6 +12,7 @@ object frmSettings: TfrmSettings
   Position = poScreenCenter
   ShowHint = True
   OnCloseQuery = FormCloseQuery
+  OnHide = FormHide
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
@@ -27,6 +28,10 @@ object frmSettings: TfrmSettings
       BorderWidth = 3
       Caption = 'Maps'
       ImageIndex = 8
+    end
+    object tsFavorite: TTabSheet
+      Caption = 'Favorite'
+      ImageIndex = 10
     end
     object tsCache: TTabSheet
       Caption = 'Cache'

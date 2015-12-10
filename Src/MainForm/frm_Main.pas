@@ -1800,6 +1800,8 @@ begin
         FSensorList,
         FShortCutManager,
         FMapTypeEditor,
+        FFavoriteMapSetHelper,
+        FfrmFavoriteMapSetEditor,
         Self.SaveConfig
       );
 
