@@ -443,7 +443,7 @@ object frmMain: TfrmMain
           object NFavoriteToolbarShow: TTBXVisibilityToggleItem
             Control = TBXFavoriteToolbar
             Images = MenusImageList
-            Caption = 'Favorite'
+            Caption = 'Favorites'
             Hint = ''
           end
           object NGPSToolBarShow: TTBXVisibilityToggleItem
