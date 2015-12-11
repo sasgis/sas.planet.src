@@ -75,7 +75,7 @@ object frFavoriteMapSetManager: TfrFavoriteMapSetManager
       Width = 95
       Height = 25
       Align = alTop
-      Caption = 'Up'
+      Caption = 'Move Up'
       TabOrder = 3
       OnClick = btnUpClick
       ExplicitWidth = 138
@@ -87,7 +87,7 @@ object frFavoriteMapSetManager: TfrFavoriteMapSetManager
       Width = 95
       Height = 25
       Align = alTop
-      Caption = 'Down'
+      Caption = 'Move Down'
       TabOrder = 4
       OnClick = btnDownClick
       ExplicitTop = 15
@@ -100,7 +100,7 @@ object frFavoriteMapSetManager: TfrFavoriteMapSetManager
       Width = 95
       Height = 25
       Align = alTop
-      Caption = 'Switch On'
+      Caption = 'Apply'
       TabOrder = 5
       OnClick = btnSwitchOnClick
       ExplicitLeft = 24
@@ -115,7 +115,6 @@ object frFavoriteMapSetManager: TfrFavoriteMapSetManager
     Height = 183
     Align = alBottom
     BevelOuter = bvNone
-    Caption = 'pnlBottom'
     TabOrder = 1
     ExplicitWidth = 420
     object lvInfo: TListView
@@ -152,7 +151,6 @@ object frFavoriteMapSetManager: TfrFavoriteMapSetManager
     Height = 229
     Align = alClient
     BevelOuter = bvNone
-    Caption = 'pnlMapSets'
     TabOrder = 2
     ExplicitLeft = 32
     ExplicitTop = 72
@@ -193,7 +191,7 @@ object frFavoriteMapSetManager: TfrFavoriteMapSetManager
     Height = 17
     Margins.Left = 6
     Align = alBottom
-    Caption = 'Edit / Switch On by double click'
+    Caption = 'Edit / Apply on double click'
     Checked = True
     State = cbChecked
     TabOrder = 3

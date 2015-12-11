@@ -45,10 +45,8 @@ uses
 type
   TfrmFavoriteMapSetManager = class(TFormWitghLanguageManager)
     pnlBottomButtons: TPanel;
-    btnCancel: TButton;
     btnOk: TButton;
     pnlMapSets: TPanel;
-    procedure btnCancelClick(Sender: TObject);
     procedure btnOkClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormHide(Sender: TObject);
@@ -114,12 +112,6 @@ end;
 procedure TfrmFavoriteMapSetManager.btnOkClick(Sender: TObject);
 begin
   FfrFavoriteMapSetManager.ApplyChanges;
-  Close;
-end;
-
-procedure TfrmFavoriteMapSetManager.btnCancelClick(Sender: TObject);
-begin
-  FfrFavoriteMapSetManager.CancelChanges;
   Close;
 end;
 

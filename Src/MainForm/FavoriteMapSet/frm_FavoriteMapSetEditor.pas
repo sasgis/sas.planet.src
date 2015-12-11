@@ -186,7 +186,7 @@ begin
       if FfrMapSelect.TrySelectMapType(FMapSetItem.BaseMap) then begin
         chkMap.Checked := True;
       end else begin
-        MessageDlg(_('Can''t set Map - GUID not in list!'), mtError, [mbOK], 0);
+        MessageDlg(_('Can''t bound the Map - GUID not found!'), mtError, [mbOK], 0);
       end;
     end;
     VActiveLayers := FMapSetItem.Layers;
@@ -295,7 +295,7 @@ function TfrmFavoriteMapSetEditor.DoAdd: Boolean;
 begin
   FMapSetItem := nil;
   Init;
-  Caption := _('Add to favorite');
+  Caption := _('Add to Favorites');
   btnOk.Caption := _('Add');
   Result := ShowModal = mrOk;;
 end;
@@ -305,7 +305,7 @@ begin
   FMapSetItem := FFavoriteMapSetConfig.GetByID(AItemGUID);
   Assert(FMapSetItem <> nil);
   Init;
-  Caption := _('Edit favorite map set');
+  Caption := _('Edit');
   btnOk.Caption := _('Save');
   Result := ShowModal = mrOk;;
 end;
@@ -345,7 +345,7 @@ begin
   VName := Trim(edtName.Text);
 
   if VName = '' then begin
-    MessageDlg(_('Please, set the Name first!'), mtError, [mbOK], 0);
+    MessageDlg(_('The Name can''t be empty!'), mtError, [mbOK], 0);
     Exit;
   end;
 

@@ -29,7 +29,7 @@ object frmSettings: TfrmSettings
       ImageIndex = 8
     end
     object tsFavorite: TTabSheet
-      Caption = 'Favorite'
+      Caption = 'Favorites'
       ImageIndex = 10
     end
     object tsCache: TTabSheet

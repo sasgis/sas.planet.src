@@ -75,7 +75,7 @@ object frmFavoriteMapSetEditor: TfrmFavoriteMapSetEditor
       Width = 329
       Height = 17
       Align = alBottom
-      Caption = 'Hide non-selected layers on activate'
+      Caption = 'Hide non-selected layers'
       Checked = True
       State = cbChecked
       TabOrder = 3
@@ -122,7 +122,7 @@ object frmFavoriteMapSetEditor: TfrmFavoriteMapSetEditor
       Width = 329
       Height = 17
       Align = alTop
-      Caption = 'Overlay layers:'
+      Caption = 'Layers:'
       Checked = True
       State = cbChecked
       TabOrder = 5

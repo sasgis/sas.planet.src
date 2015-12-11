@@ -268,7 +268,7 @@ begin
       if Assigned(VLayers) and (VLayers.Count > 0) then begin
         for I := 0 to VLayers.Count - 1 do begin
           VInfoItem := lvInfo.Items.Add;
-          VInfoItem.Caption := _('Overlay layer') + ' ' + IntToStr(I + 1);
+          VInfoItem.Caption := _('Layer') + ' ' + IntToStr(I + 1);
           VMapType := FMapsSet.GetMapTypeByGUID(VLayers.Items[I]);
           if Assigned(VMapType) then begin
             _SetSubItem(VInfoItem, 0, VMapType.GUIConfig.Name.Value);
@@ -312,7 +312,7 @@ var
 begin
   VItem := _GetSelected;
   if Assigned(VItem) then begin
-    VMsg := Format(_('Delete favorite map set: ''%s''?'), [VItem.Name]);
+    VMsg := Format(_('Delete from Favorites: ''%s''?'), [VItem.Name]);
     if MessageDlg(VMsg, mtConfirmation, [mbYes, mbCancel], 0) = mrYes then begin
       if FFavoriteMapSetConfig.Delete(VItem.ID) then begin
         Init;

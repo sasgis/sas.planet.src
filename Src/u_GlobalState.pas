@@ -1089,7 +1089,7 @@ begin
   if (not ModuleIsLib) then begin
     FMarkPictureListInternal.LoadList;
 
-    VIniFile := TMeminiFile.Create(VMapsPath + 'Favorite.ini');
+    VIniFile := TMeminiFile.Create(VMapsPath + 'Favorites.ini');
     try
       VConfig := TConfigDataProviderByIniFile.CreateWithOwn(VIniFile);
       VIniFile := nil;
@@ -1145,7 +1145,7 @@ begin
   end;
   FMainMapsList.SaveMaps(VConfig);
 
-  VIniFile := TMeminiFile.Create(VMapsPath + 'Favorite.ini');
+  VIniFile := TMeminiFile.Create(VMapsPath + 'Favorites.ini');
   try
     VConfig := TConfigDataWriteProviderByIniFile.CreateWithOwn(VIniFile);
     VIniFile := nil;

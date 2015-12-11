@@ -1133,7 +1133,7 @@ object frmMain: TfrmMain
       end
       object tbxFavorite: TTBXSubmenuItem
         LinkSubitems = TBFavorite
-        Caption = 'Favorite'
+        Caption = 'Favorites'
         Hint = ''
       end
       object NMarks: TTBXSubmenuItem
@@ -1491,7 +1491,7 @@ object frmMain: TfrmMain
         Images = PanelsImageList
         Options = [tboDropdownArrow]
         Caption = ''
-        Hint = ''
+        Hint = 'Favorite maps/layers'
         object tbxAddToFavorite: TTBXItem
           OnClick = tbxAddToFavoriteClick
           Caption = 'Add'
