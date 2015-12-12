@@ -779,7 +779,7 @@ begin
     end;
   end;
   if VTemp.Count > 0 then begin
-    VBuilder.AddLine(VLineBounds, ATemp.MakeStaticAndClear);
+    VBuilder.AddLine(VLineBounds, VTemp.MakeStaticAndClear);
   end;
   Result := VBuilder.MakeStaticAndClear;
 end;
