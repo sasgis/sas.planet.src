@@ -28,6 +28,8 @@ uses
   i_GeoCoder,
   i_MarkDb,
   i_VectorItemSubsetBuilder,
+  i_VectorDataFactory,
+  i_GeometryLonLatFactory,
   i_ProjectionSetFactory,
   i_DownloadResultFactory,
   i_ValueToStringConverter,
@@ -45,7 +47,10 @@ type
       const AResultFactory: IDownloadResultFactory;
       const AValueToStringConverter: IValueToStringConverterChangeable;
       const AMarksDb: IMarkDb;
-      const AProjectionSetFactory: IProjectionSetFactory
+      const AProjectionSetFactory: IProjectionSetFactory;
+      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+      const AVectorDataFactory: IVectorDataFactory;
+      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
     );
   end;
 
@@ -84,7 +89,11 @@ constructor TGeoCoderListSimple.Create(
   const AResultFactory: IDownloadResultFactory;
   const AValueToStringConverter: IValueToStringConverterChangeable;
   const AMarksDb: IMarkDb;
-  const AProjectionSetFactory: IProjectionSetFactory
+  const AProjectionSetFactory: IProjectionSetFactory;
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+  const AVectorDataFactory: IVectorDataFactory;
+  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
+
 );
 var
   VItem: IGeoCoderListEntity;
@@ -161,7 +170,7 @@ begin
       TGeoCoderListEntity.Create(
         CGeoCoderGpxGUID,
         'Offline search (*.gpx)',
-        TGeoCoderByGpx.Create(AUserDataPath + 'gpx' + PathDelim, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AValueToStringConverter)
+        TGeoCoderByGpx.Create(AUserDataPath + 'gpx' + PathDelim, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AValueToStringConverter, AVectorGeometryLonLatFactory, AVectorDataFactory, AVectorDataItemMainInfoFactory)
       );
     VList.Add(VItem);
   Except

@@ -748,7 +748,10 @@ begin
       TDownloadResultFactory.Create,
       FValueToStringConverter,
       FMarkSystem.MarkDb,
-      FProjectionSetFactory
+      FProjectionSetFactory,
+      FVectorGeometryLonLatFactory,
+      FVectorDataFactory,
+      FVectorDataItemMainInfoFactory
     );
   VFilesIteratorFactory := TZmpFileNamesIteratorFactory.Create;
   VFilesIterator := VFilesIteratorFactory.CreateIterator(FGlobalConfig.MapsPath.FullPath, '');
