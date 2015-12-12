@@ -235,6 +235,7 @@ begin
     end;
 
   finally
+    FreeAndNil(VRegExpr);
   end;
 
   VDateTime := VDate + VTime;
