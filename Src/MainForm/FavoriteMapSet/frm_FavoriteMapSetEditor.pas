@@ -199,6 +199,7 @@ begin
   end;
 
   chkAll.Checked := False;
+  chkLayers.Checked := (VActiveLayers <> nil);
 
   chklstMaps.Items.Clear;
   chklstMaps.ItemIndex := -1;
