@@ -93,6 +93,7 @@ uses
   i_SystemTimeProvider,
   i_MarkCategoryFactory,
   i_MarkFactory,
+  i_CoordToStringConverter,
   i_ValueToStringConverter,
   i_VectorItemTreeImporterList,
   i_VectorItemTreeExporterList,
@@ -200,6 +201,7 @@ type
     FMergePolygonsResult: IMergePolygonsResult;
     FImageResamplerFactoryList: IImageResamplerFactoryList;
     FLastSearchResult: ILastSearchResult;
+    FCoordToStringConverter: ICoordToStringConverterChangeable;
     FValueToStringConverter: IValueToStringConverterChangeable;
     FAppEnum: IAppEnum;
     FFavoriteMapSetConfig: IFavoriteMapSetConfig;
@@ -283,6 +285,7 @@ type
     property TileStorageTypeList: ITileStorageTypeListStatic read FTileStorageTypeList;
     property ImageResamplerFactoryList: IImageResamplerFactoryList read FImageResamplerFactoryList;
     property LastSearchResult: ILastSearchResult read FLastSearchResult;
+    property CoordToStringConverter: ICoordToStringConverterChangeable read FCoordToStringConverter;
     property ValueToStringConverter: IValueToStringConverterChangeable read FValueToStringConverter;
     property GeoCoderList: IGeoCoderListStatic read FGeoCoderList;
     property DebugInfoSubSystem: IDebugInfoSubSystem read FDebugInfoSubSystem;
@@ -413,6 +416,7 @@ uses
   u_VectorItemTreeExporterListSimple,
   u_VectorItemTreeImporterListSimple,
   u_BitmapPostProcessingChangeableByConfig,
+  u_CoordToStringConverterChangeable,
   u_ValueToStringConverterChangeable,
   u_InternalBrowserLastContent,
   u_TileStorageTypeListSimple,
@@ -637,6 +641,12 @@ begin
       FVectorGeometryProjectedFactory
     );
 
+  FCoordToStringConverter :=
+    TCoordToStringConverterChangeable.Create(
+      FGlobalConfig.CoordRepresentationConfig,
+      FGlobalConfig.LanguageManager.ChangeNotifier
+    );
+
   FValueToStringConverter :=
     TValueToStringConverterChangeable.Create(
       FGlobalConfig.ValueToStringConverterConfig,
@@ -711,7 +721,7 @@ begin
 
   FImporterList :=
     TVectorItemTreeImporterListSimple.Create(
-      FValueToStringConverter,
+      FCoordToStringConverter,
       FVectorDataFactory,
       FVectorDataItemMainInfoFactory,
       FVectorGeometryLonLatFactory,
@@ -746,7 +756,7 @@ begin
       FVectorItemSubsetBuilderFactory,
       FGeoCodePlacemarkFactory,
       TDownloadResultFactory.Create,
-      FValueToStringConverter,
+      FCoordToStringConverter,
       FMarkSystem.MarkDb,
       FProjectionSetFactory,
       FVectorGeometryLonLatFactory,

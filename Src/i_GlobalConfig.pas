@@ -28,6 +28,7 @@ uses
   i_LanguageManager,
   i_InetConfig,
   i_BitmapPostProcessingConfig,
+  i_CoordRepresentationConfig,
   i_ValueToStringConverterConfig,
   i_ImageResamplerConfig,
   i_MainMemCacheConfig,
@@ -117,6 +118,9 @@ type
 
     function GetBitmapPostProcessingConfig: IBitmapPostProcessingConfig;
     property BitmapPostProcessingConfig: IBitmapPostProcessingConfig read GetBitmapPostProcessingConfig;
+
+    function GetCoordRepresentationConfig: ICoordRepresentationConfig;
+    property CoordRepresentationConfig: ICoordRepresentationConfig read GetCoordRepresentationConfig;
 
     function GetValueToStringConverterConfig: IValueToStringConverterConfig;
     property ValueToStringConverterConfig: IValueToStringConverterConfig read GetValueToStringConverterConfig;

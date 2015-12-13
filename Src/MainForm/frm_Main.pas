@@ -1170,6 +1170,7 @@ begin
       GState.VectorGeometryLonLatFactory,
       GState.ArchiveReadWriteFactory,
       GState.VectorItemSubsetBuilderFactory,
+      GState.CoordToStringConverter,
       GState.ValueToStringConverter
     );
   FFormRegionProcess :=
@@ -1214,6 +1215,7 @@ begin
       FMainMapState.FillingMapActiveMap,
       FFillingMapPolygon,
       FConfig.LayersConfig.MapLayerGridsConfig,
+      GState.CoordToStringConverter,
       GState.ValueToStringConverter,
       FMapGoto,
       FMarkDBGUI
@@ -1490,6 +1492,7 @@ begin
   VSensorViewGenerator :=
     TSensorViewListGeneratorStuped.Create(
       GState.GUISyncronizedTimerNotifier,
+      GState.CoordToStringConverter,
       GState.ValueToStringConverter,
       GState.Config.LanguageManager,
       Self,
@@ -1788,7 +1791,7 @@ begin
        FConfig.SearchHistory,
        FConfig.MainGeoCoderConfig,
        FViewPortState.View,
-       GState.ValueToStringConverter,
+       GState.CoordToStringConverter,
        FSearchPresenter
     );
     FfrmGoTo.PopupParent := Self;
@@ -2017,7 +2020,7 @@ begin
     TBitmapLayerProviderChangeableForGrids.Create(
       GState.Bitmap32StaticFactory,
       FActiveProjectionSet,
-      GState.ValueToStringConverter,
+      GState.CoordToStringConverter,
       FConfig.LayersConfig.MapLayerGridsConfig
     );
   VTileMatrix :=
@@ -2935,6 +2938,7 @@ begin
       map,
       FViewPortState.View,
       FConfig.LayersConfig.StatBar,
+      GState.CoordToStringConverter,
       GState.ValueToStringConverter,
       FMouseState,
       GState.GUISyncronizedTimerNotifier,
@@ -3137,7 +3141,7 @@ begin
       ScrollBoxSearchWindow,
       tbxpmnSearchResult,
       Self.OnShowSearchResults,
-      GState.ValueToStringConverter,
+      GState.CoordToStringConverter,
       GState.LastSearchResult
     );
   for i := 0 to GState.GeoCoderList.Count - 1 do begin
@@ -4858,7 +4862,7 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, True);
   VMouseLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
-  VStr := GState.ValueToStringConverter.GetStatic.LonLatConvert(VMouseLonLat);
+  VStr := GState.CoordToStringConverter.GetStatic.LonLatConvert(VMouseLonLat);
   CopyStringToClipboard(Handle, VStr);
 end;
 
@@ -5692,7 +5696,7 @@ begin
       GState.Config.LanguageManager,
       FActiveProjectionSet,
       FViewPortState.View,
-      GState.ValueToStringConverter
+      GState.CoordToStringConverter
     );
   Try
     VPolygon := GState.LastSelectionInfo.Polygon;
@@ -8027,7 +8031,7 @@ var
 begin
   if tbxpmnSearchResult.Tag <> 0 then begin
     VPlacemark := IVectorDataItem(tbxpmnSearchResult.Tag);
-    VStr := GState.ValueToStringConverter.GetStatic.LonLatConvert(VPlacemark.Geometry.GetGoToPoint);
+    VStr := GState.CoordToStringConverter.GetStatic.LonLatConvert(VPlacemark.Geometry.GetGoToPoint);
     CopyStringToClipboard(Handle, VStr);
   end;
 end;

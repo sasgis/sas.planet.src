@@ -34,19 +34,13 @@ type
   TValueToStringConverterConfigStatic = class(TBaseInterfacedObject, IValueToStringConverterConfigStatic)
   private
     FDistStrFormat: TDistStrFormat;
-    FIsLatitudeFirst: Boolean;
-    FDegrShowFormat: TDegrShowFormat;
     FAreaShowFormat: TAreaStrFormat;
   private
     function GetDistStrFormat: TDistStrFormat;
-    function GetIsLatitudeFirst: Boolean;
-    function GetDegrShowFormat: TDegrShowFormat;
     function GetAreaShowFormat: TAreaStrFormat;
   public
     constructor Create(
       const ADistStrFormat: TDistStrFormat;
-      const AIsLatitudeFirst: Boolean;
-      const ADegrShowFormat: TDegrShowFormat;
       const AAreaShowFormat: TAreaStrFormat
     );
   end;
@@ -54,8 +48,6 @@ type
   TValueToStringConverterConfig = class(TConfigDataElementWithStaticBase, IValueToStringConverterConfig)
   private
     FDistStrFormat: TDistStrFormat;
-    FIsLatitudeFirst: Boolean;
-    FDegrShowFormat: TDegrShowFormat;
     FAreaShowFormat: TAreaStrFormat;
   protected
     function CreateStatic: IInterface; override;
@@ -65,12 +57,6 @@ type
   private
     function GetDistStrFormat: TDistStrFormat;
     procedure SetDistStrFormat(AValue: TDistStrFormat);
-
-    function GetIsLatitudeFirst: Boolean;
-    procedure SetIsLatitudeFirst(AValue: Boolean);
-
-    function GetDegrShowFormat: TDegrShowFormat;
-    procedure SetDegrShowFormat(AValue: TDegrShowFormat);
 
     function GetAreaShowFormat: TAreaStrFormat;
     procedure SetAreaShowFormat(AValue: TAreaStrFormat);
@@ -88,9 +74,7 @@ implementation
 constructor TValueToStringConverterConfig.Create;
 begin
   inherited Create;
-  FIsLatitudeFirst := True;
   FDistStrFormat := dsfKmAndM;
-  FDegrShowFormat := dshCharDegrMinSec;
   FAreaShowFormat := asfAuto;
 end;
 
@@ -101,8 +85,6 @@ begin
   VStatic :=
     TValueToStringConverterConfigStatic.Create(
       FDistStrFormat,
-      FIsLatitudeFirst,
-      FDegrShowFormat,
       FAreaShowFormat
     );
   Result := VStatic;
@@ -114,9 +96,7 @@ procedure TValueToStringConverterConfig.DoReadConfig(
 begin
   inherited;
   if AConfigData <> nil then begin
-    FIsLatitudeFirst := AConfigData.ReadBool('FirstLat', FIsLatitudeFirst);
     FDistStrFormat := TDistStrFormat(AConfigData.ReadInteger('DistFormat', Integer(FDistStrFormat)));
-    FDegrShowFormat := TDegrShowFormat(AConfigData.ReadInteger('DegrisShowFormat', Integer(FDegrShowFormat)));
     FAreaShowFormat := TAreaStrFormat(AConfigData.ReadInteger('AreaShowFormat', Integer(FAreaShowFormat)));
     SetChanged;
   end;
@@ -127,9 +107,7 @@ procedure TValueToStringConverterConfig.DoWriteConfig(
 );
 begin
   inherited;
-  AConfigData.WriteBool('FirstLat', FIsLatitudeFirst);
   AConfigData.WriteInteger('DistFormat', Integer(FDistStrFormat));
-  AConfigData.WriteInteger('DegrisShowFormat', Integer(FDegrShowFormat));
   AConfigData.WriteInteger('AreaShowFormat', Integer(FAreaShowFormat));
 end;
 
@@ -143,31 +121,11 @@ begin
   end;
 end;
 
-function TValueToStringConverterConfig.GetDegrShowFormat: TDegrShowFormat;
-begin
-  LockRead;
-  try
-    Result := FDegrShowFormat;
-  finally
-    UnlockRead;
-  end;
-end;
-
 function TValueToStringConverterConfig.GetDistStrFormat: TDistStrFormat;
 begin
   LockRead;
   try
     Result := FDistStrFormat;
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TValueToStringConverterConfig.GetIsLatitudeFirst: Boolean;
-begin
-  LockRead;
-  try
-    Result := FIsLatitudeFirst;
   finally
     UnlockRead;
   end;
@@ -192,20 +150,6 @@ begin
   end;
 end;
 
-procedure TValueToStringConverterConfig.SetDegrShowFormat(
-  AValue: TDegrShowFormat);
-begin
-  LockWrite;
-  try
-    if FDegrShowFormat <> AValue then begin
-      FDegrShowFormat := AValue;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
-
 procedure TValueToStringConverterConfig.SetDistStrFormat(
   AValue: TDistStrFormat);
 begin
@@ -220,32 +164,15 @@ begin
   end;
 end;
 
-procedure TValueToStringConverterConfig.SetIsLatitudeFirst(AValue: Boolean);
-begin
-  LockWrite;
-  try
-    if FIsLatitudeFirst <> AValue then begin
-      FIsLatitudeFirst := AValue;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
-
 { TValueToStringConverterConfigStatic }
 
 constructor TValueToStringConverterConfigStatic.Create(
   const ADistStrFormat: TDistStrFormat;
-  const AIsLatitudeFirst: Boolean;
-  const ADegrShowFormat: TDegrShowFormat;
   const AAreaShowFormat: TAreaStrFormat
 );
 begin
   inherited Create;
   FDistStrFormat := ADistStrFormat;
-  FIsLatitudeFirst := AIsLatitudeFirst;
-  FDegrShowFormat := ADegrShowFormat;
   FAreaShowFormat := AAreaShowFormat;
 end;
 
@@ -254,19 +181,9 @@ begin
   Result := FAreaShowFormat;
 end;
 
-function TValueToStringConverterConfigStatic.GetDegrShowFormat: TDegrShowFormat;
-begin
-  Result := FDegrShowFormat;
-end;
-
 function TValueToStringConverterConfigStatic.GetDistStrFormat: TDistStrFormat;
 begin
   Result := FDistStrFormat;
-end;
-
-function TValueToStringConverterConfigStatic.GetIsLatitudeFirst: Boolean;
-begin
-  Result := FIsLatitudeFirst;
 end;
 
 end.

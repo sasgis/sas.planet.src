@@ -28,7 +28,7 @@ uses
   Controls,
   Menus,
   i_MapViewGoto,
-  i_ValueToStringConverter,
+  i_CoordToStringConverter,
   i_LastSearchResult,
   i_GeoCoder,
   i_InternalBrowser,
@@ -43,7 +43,7 @@ type
     FIntrnalBrowser: IInternalBrowser;
     FDrawParent: TWinControl;
     FPopUp: TPopupMenu;
-    FValueConverter: IValueToStringConverterChangeable;
+    FCoordToStringConverter: ICoordToStringConverterChangeable;
     FLastSearchResults: ILastSearchResult;
     FOnShowResults: TNotifyEvent;
     FSearchItems: array of TfrSearchResultsItem;
@@ -59,7 +59,7 @@ type
       ADrawParent: TWinControl;
       APopUp: TPopupMenu;
       AOnShowResults: TNotifyEvent;
-      const AValueConverter: IValueToStringConverterChangeable;
+      const ACoordToStringConverter: ICoordToStringConverterChangeable;
       const ALastSearchResults: ILastSearchResult
     );
     destructor Destroy; override;
@@ -81,7 +81,7 @@ constructor TSearchResultPresenterOnPanel.Create(
   ADrawParent: TWinControl;
   APopUp: TPopupMenu;
   AOnShowResults: TNotifyEvent;
-  const AValueConverter: IValueToStringConverterChangeable;
+  const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const ALastSearchResults: ILastSearchResult
 );
 begin
@@ -89,7 +89,7 @@ begin
   FPopUp := APopUp;
   FIntrnalBrowser := AIntrnalBrowser;
   FMapGoto := AMapGoto;
-  FValueConverter := AValueConverter;
+  FCoordToStringConverter := ACoordToStringConverter;
   FDrawParent := ADrawParent;
   FLastSearchResults := ALastSearchResults;
   FOnShowResults := AOnShowResults;
@@ -149,7 +149,7 @@ begin
           VPlacemark,
           FIntrnalBrowser,
           FMapGoto,
-          FValueConverter
+          FCoordToStringConverter
         );
       if LengthFSearchItems > 0 then begin
         FSearchItems[LengthFSearchItems].Top := FSearchItems[LengthFSearchItems - 1].Top + 1;

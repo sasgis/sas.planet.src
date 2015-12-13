@@ -34,7 +34,7 @@ uses
   i_InetConfig,
   i_NotifierTime,
   i_DownloadResultFactory,
-  i_ValueToStringConverter,
+  i_CoordToStringConverter,
   i_VectorDataItemSimple,
   i_VectorItemSubsetBuilder,
   i_GeoCoder,
@@ -43,7 +43,7 @@ uses
 type
   TGeoCoderByURL = class(TGeoCoderBasic)
   private
-    FValueToStringConverter: IValueToStringConverterChangeable;
+    FCoordToStringConverter: ICoordToStringConverterChangeable;
     FProjectionSet: IProjectionSet;
     function GetPointFromFullLink(
       const Astr: AnsiString;
@@ -74,7 +74,7 @@ type
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
       const AResultFactory: IDownloadResultFactory;
-      const AValueToStringConverter: IValueToStringConverterChangeable
+      const ACoordToStringConverter: ICoordToStringConverterChangeable
     );
   end;
 
@@ -113,7 +113,7 @@ constructor TGeoCoderByURL.Create(
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APlacemarkFactory: IGeoCodePlacemarkFactory;
   const AResultFactory: IDownloadResultFactory;
-  const AValueToStringConverter: IValueToStringConverterChangeable
+  const ACoordToStringConverter: ICoordToStringConverterChangeable
 );
 begin
   inherited Create(
@@ -123,7 +123,7 @@ begin
     APlacemarkFactory,
     AResultFactory
   );
-  FValueToStringConverter := AValueToStringConverter;
+  FCoordToStringConverter := ACoordToStringConverter;
   FProjectionSet := AProjectionSetFactory.GetProjectionSetByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256);
 end;
 
@@ -145,9 +145,9 @@ var
   VRequest: IDownloadRequest;
   VResult: IDownloadResult;
   VResultOk: IDownloadResultOk;
-  VValueConverter: IValueToStringConverter;
+  VCoordToStringConverter: ICoordToStringConverter;
 begin
-  VValueConverter := FValueToStringConverter.GetStatic;
+  VCoordToStringConverter := FCoordToStringConverter.GetStatic;
   VLink := ALStringReplace(AStr, '%2C', ',', [rfReplaceAll]);
   VFormatSettings.DecimalSeparator := '.';
   VSName := '';
@@ -319,7 +319,7 @@ begin
     except
       raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [VSLat, VSLon]);
     end;
-    VSDesc := '[ ' + VValueConverter.LonLatConvert(VPoint) + ' ]';
+    VSDesc := '[ ' + VCoordToStringConverter.LonLatConvert(VPoint) + ' ]';
     VSFullDesc := '<a href=' + String(Astr) + '>' + String(Astr) + '</a><br>' + ReplaceStr(VSName + #$D#$A + VSDesc, #$D#$A, '<br>');
     VPlace := PlacemarkFactory.Build(VPoint, VSName, VSDesc, VSFullDesc, 4);
     Result := VPlace;
@@ -344,9 +344,9 @@ var
   VXYPoint: TPoint;
   VXYRect: TRect;
   VProjection: IProjection;
-  VValueConverter: IValueToStringConverter;
+  VCoordToStringConverter: ICoordToStringConverter;
 begin
-  VValueConverter := FValueToStringConverter.GetStatic;
+  VCoordToStringConverter := FCoordToStringConverter.GetStatic;
   VLink := ALStringReplace(AStr, '%2C', ',', [rfReplaceAll]);
   VFormatSettings.DecimalSeparator := '.';
   VSName := '';
@@ -688,7 +688,7 @@ begin
     except
       raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [VSLat, VSLon]);
     end;
-    VSDesc := VSDesc + '[ ' + VValueConverter.LonLatConvert(VPoint) + ' ]';
+    VSDesc := VSDesc + '[ ' + VCoordToStringConverter.LonLatConvert(VPoint) + ' ]';
     VSFullDesc := '<a href=' + String(Astr) + '>' + String(Astr) + '</a><br>' + ReplaceStr(VSName + #$D#$A + VSDesc, #$D#$A, '<br>');
     VPlace := PlacemarkFactory.Build(VPoint, VSName, VSDesc, VSFullDesc, 4);
     Result := VPlace;

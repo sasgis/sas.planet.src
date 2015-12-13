@@ -31,7 +31,7 @@ uses
   i_Projection,
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
-  i_ValueToStringConverter,
+  i_CoordToStringConverter,
   i_BitmapLayerProvider,
   u_BaseInterfacedObject;
 
@@ -43,7 +43,7 @@ type
     FShowLines: Boolean;
     FScale: Double;
     FBitmapFactory: IBitmap32StaticFactory;
-    FValueConverter: IValueToStringConverter;
+    FCoordToStringConverter: ICoordToStringConverter;
 
     FCS: IReadWriteSync;
     FBitmap: TBitmap32;
@@ -74,7 +74,7 @@ type
       AScale: Double;
       AShowText: Boolean;
       AShowLines: Boolean;
-      const AValueConverter: IValueToStringConverter
+      const ACoordToStringConverter: ICoordToStringConverter
     );
     destructor Destroy; override;
   end;
@@ -96,7 +96,7 @@ constructor TBitmapLayerProviderGridDegree.Create(
   AColor: TColor32;
   AScale: Double;
   AShowText, AShowLines: Boolean;
-  const AValueConverter: IValueToStringConverter
+  const ACoordToStringConverter: ICoordToStringConverter
 );
 begin
   inherited Create;
@@ -105,7 +105,7 @@ begin
   FShowText := AShowText;
   FShowLines := AShowLines;
   FBitmapFactory := ABitmapFactory;
-  FValueConverter := AValueConverter;
+  FCoordToStringConverter := ACoordToStringConverter;
 
   FCS := GSync.SyncVariable.Make(Self.ClassName);
   FBitmapChangeFlag := TSimpleFlagWithInterlock.Create;
@@ -186,7 +186,7 @@ begin
       VLocalCellCenter := RectCenter(VLocalRectOfCell);
 
       if abs(VLonLatRectOfCell.Top) <= 85 then begin
-        VListName := FValueConverter.LatConvert(VLonLatRectOfCell.Top, true);
+        VListName := FCoordToStringConverter.LatConvert(VLonLatRectOfCell.Top, true);
       end else begin
         VListName := '';
       end;
@@ -195,7 +195,7 @@ begin
       VOutPoint := Types.Point(Trunc(VLocalCellCenter.X - VTextSize.cx / 2), Trunc(VLocalRectOfCell.Top));
       FBitmap.RenderText(VOutPoint.X, VOutPoint.Y, VListName, 0, FColor);
 // **************************************************
-      VListName := FValueConverter.LonConvert(VLonLatRectOfCell.Left, true);
+      VListName := FCoordToStringConverter.LonConvert(VLonLatRectOfCell.Left, true);
       VTextSize := FBitmap.TextExtent(VListName);
       VOutPoint := Types.Point(Trunc(VLocalRectOfCell.Left) + 3, Trunc(VLocalCellCenter.Y - VTextSize.cy / 2));
       FBitmap.RenderText(VOutPoint.X, VOutPoint.Y, VListName, 0, FColor);

@@ -24,6 +24,7 @@ interface
 
 uses
   i_VectorDataItemSimple,
+  i_CoordToStringConverter,
   i_ValueToStringConverter,
   i_GeometryLonLat,
   i_GeoCalc,
@@ -33,6 +34,7 @@ uses
 type
   TTextByVectorItemMarkInfo = class(TBaseInterfacedObject, ITextByVectorItem)
   private
+    FCoordToStringConverter: ICoordToStringConverterChangeable;
     FValueToStringConverter: IValueToStringConverterChangeable;
     FGeoCalc: IGeoCalc;
     function GetTextForGeometry(const AGeometry: IGeometryLonLat): string;
@@ -46,6 +48,7 @@ type
     function GetText(const AItem: IVectorDataItem): string;
   public
     constructor Create(
+      const ACoordToStringConverter: ICoordToStringConverterChangeable;
       const AValueToStringConverter: IValueToStringConverterChangeable;
       const AGeoCalc: IGeoCalc
     );
@@ -61,13 +64,16 @@ uses
 { TTextByVectorItemMarkInfo }
 
 constructor TTextByVectorItemMarkInfo.Create(
+  const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const AValueToStringConverter: IValueToStringConverterChangeable;
   const AGeoCalc: IGeoCalc
 );
 begin
+  Assert(ACoordToStringConverter <> nil);
   Assert(AValueToStringConverter <> nil);
   Assert(Assigned(AGeoCalc));
   inherited Create;
+  FCoordToStringConverter := ACoordToStringConverter;
   FValueToStringConverter := AValueToStringConverter;
   FGeoCalc := AGeoCalc;
 end;
@@ -179,9 +185,9 @@ function TTextByVectorItemMarkInfo.GetTextForGeometryPoint(
   const AGeometry: IGeometryLonLatPoint
 ): string;
 var
-  VConverter: IValueToStringConverter;
+  VConverter: ICoordToStringConverter;
 begin
-  VConverter := FValueToStringConverter.GetStatic;
+  VConverter := FCoordToStringConverter.GetStatic;
   Result := '';
   Result := Result + Format(_('Coordinates: %s'), [VConverter.LonLatConvert(AGeometry.Point)]) + '<br>'#13#10;
 end;

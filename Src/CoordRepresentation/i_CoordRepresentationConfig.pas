@@ -18,35 +18,42 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_ValueToStringConverterConfig;
+unit i_CoordRepresentationConfig;
 
 interface
 
 uses
-  t_CommonTypes,
+  t_CoordRepresentation,
   i_ConfigDataElement;
 
 type
-  IValueToStringConverterConfigStatic = interface
-    ['{DFD404AC-DB7D-4108-9822-A0DD2943A5C7}']
-    function GetDistStrFormat: TDistStrFormat;
-    property DistStrFormat: TDistStrFormat read GetDistStrFormat;
+    ICoordRepresentationConfigStatic = interface
+    ['{74F2A6F1-C15F-476E-8315-AF64A2B11DDB}']
+    function GetIsLatitudeFirst: Boolean;
+    property IsLatitudeFirst: Boolean read GetIsLatitudeFirst;
 
-    function GetAreaShowFormat: TAreaStrFormat;
-    property AreaShowFormat: TAreaStrFormat read GetAreaShowFormat;
+    function GetDegrShowFormat: TDegrShowFormat;
+    property DegrShowFormat: TDegrShowFormat read GetDegrShowFormat;
+
+    function GetCoordSysType: TCoordSysType;
+    property CoordSysType: TCoordSysType read GetCoordSysType;
   end;
 
-  IValueToStringConverterConfig = interface(IConfigDataElement)
-    ['{DDC4DF45-A387-43DC-AED7-33935241C718}']
-    function GetDistStrFormat: TDistStrFormat;
-    procedure SetDistStrFormat(AValue: TDistStrFormat);
-    property DistStrFormat: TDistStrFormat read GetDistStrFormat write SetDistStrFormat;
+  ICoordRepresentationConfig = interface(IConfigDataElement)
+    ['{E20335CA-5087-48BC-B2E2-640BB39BD547}']
+    function GetIsLatitudeFirst: Boolean;
+    procedure SetIsLatitudeFirst(const AValue: Boolean);
+    property IsLatitudeFirst: Boolean read GetIsLatitudeFirst write SetIsLatitudeFirst;
 
-    function GetAreaShowFormat: TAreaStrFormat;
-    procedure SetAreaShowFormat(AValue: TAreaStrFormat);
-    property AreaShowFormat: TAreaStrFormat read GetAreaShowFormat write SetAreaShowFormat;
+    function GetDegrShowFormat: TDegrShowFormat;
+    procedure SetDegrShowFormat(const AValue: TDegrShowFormat);
+    property DegrShowFormat: TDegrShowFormat read GetDegrShowFormat write SetDegrShowFormat;
 
-    function GetStatic: IValueToStringConverterConfigStatic;
+    function GetCoordSysType: TCoordSysType;
+    procedure SetCoordSysType(const AValue: TCoordSysType);
+    property CoordSysType: TCoordSysType read GetCoordSysType write SetCoordSysType;
+
+    function GetStatic: ICoordRepresentationConfigStatic;
   end;
 
 implementation

@@ -37,7 +37,7 @@ uses
   TB2Dock,
   TB2Toolbar,
   i_VectorDataItemSimple,
-  i_ValueToStringConverter,
+  i_CoordToStringConverter,
   i_MapViewGoto,
   i_InternalBrowser;
 
@@ -74,7 +74,7 @@ type
     procedure LabelDescDblClick(Sender: TObject);
     procedure tbtmHideClick(Sender: TObject);
   private
-    FValueToStringConverter: IValueToStringConverterChangeable;
+    FCoordToStringConverter: ICoordToStringConverterChangeable;
     FPlacemark: IVectorDataItem;
     FMapGoto: IMapViewGoto;
     FIntrnalBrowser: IInternalBrowser;
@@ -87,7 +87,7 @@ type
       const APlacemark: IVectorDataItem;
       const AIntrnalBrowser: IInternalBrowser;
       const AMapGoto: IMapViewGoto;
-      const AValueConverter: IValueToStringConverterChangeable
+      const ACoordToStringConverter: ICoordToStringConverterChangeable
     ); reintroduce;
   end;
 
@@ -107,16 +107,16 @@ constructor TfrSearchResultsItem.Create(
   const APlacemark: IVectorDataItem;
   const AIntrnalBrowser: IInternalBrowser;
   const AMapGoto: IMapViewGoto;
-  const AValueConverter: IValueToStringConverterChangeable
+  const ACoordToStringConverter: ICoordToStringConverterChangeable
 );
 var
   VAppearanceIcon: IAppearancePointIcon;
   VGotoLonLat: TDoublePoint;
-  VValueConverter: IValueToStringConverter;
+  VConverter: ICoordToStringConverter;
   VItemWithCategory: IVectorDataItemWithCategory;
 begin
   inherited Create(AOwner);
-  FValueToStringConverter := AValueConverter;
+  FCoordToStringConverter := ACoordToStringConverter;
   Parent := AParent;
   FPlacemark := APlacemark;
   FPopUp := APopUp;
@@ -127,7 +127,7 @@ begin
   PanelDesc.Visible := FPlacemark.GetDesc <> '';
   LabelFullDescImg.Visible := FPlacemark.GetInfoHTML <> ''; // есть ли вообще доп инфо...
   LabelFullDescShort.Visible := FPlacemark.GetInfoHTML <> '';
-  VValueConverter := FValueToStringConverter.GetStatic;
+  VConverter := FCoordToStringConverter.GetStatic;
 
   if Supports(FPlacemark.MainInfo, IVectorDataItemWithCategory, VItemWithCategory) then begin
     if VItemWithCategory.Category <> nil then begin
@@ -142,7 +142,7 @@ begin
       imgIcon.Visible := True;
       CopyBitmap32StaticToBitmap32(VAppearanceIcon.Pic.GetMarker, imgIcon.Bitmap);
       VGotoLonLat := FPlacemark.Geometry.GetGoToPoint;
-      LabelMarkInfo.Caption := '[ ' + VValueConverter.LonLatConvert(VGotoLonLat) + ' ]';
+      LabelMarkInfo.Caption := '[ ' + VConverter.LonLatConvert(VGotoLonLat) + ' ]';
     end;
   end;
   PanelFullDescImg.Visible := imgIcon.Visible;

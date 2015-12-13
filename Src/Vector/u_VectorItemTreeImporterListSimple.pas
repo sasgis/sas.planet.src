@@ -31,7 +31,7 @@ uses
   i_VectorDataFactory,
   i_VectorDataLoader,
   i_VectorItemSubsetBuilder,
-  i_ValueToStringConverter,
+  i_CoordToStringConverter,
   i_InternalPerformanceCounter,
   i_MarkPicture,
   i_HashFunction,
@@ -55,7 +55,7 @@ type
     function GetStatic: IVectorItemTreeImporterListStatic;
   public
     constructor Create(
-      const AValueToStringConverter: IValueToStringConverterChangeable;
+      const ACoordToStringConverter: ICoordToStringConverterChangeable;
       const AVectorDataFactory: IVectorDataFactory;
       const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
@@ -97,7 +97,7 @@ uses
 { TVectorItemTreeImporterListSimple }
 
 constructor TVectorItemTreeImporterListSimple.Create(
-  const AValueToStringConverter: IValueToStringConverterChangeable;
+  const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const AVectorDataFactory: IVectorDataFactory;
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
@@ -276,7 +276,7 @@ begin
       AVectorDataFactory,
       AAppearanceOfMarkFactory,
       AMediaDataPath,
-      AValueToStringConverter,
+      ACoordToStringConverter,
       AContentTypeManager
     );
   VItem :=

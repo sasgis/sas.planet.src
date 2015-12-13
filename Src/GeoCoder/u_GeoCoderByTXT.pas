@@ -30,7 +30,7 @@ uses
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_VectorItemSubsetBuilder,
-  i_ValueToStringConverter,
+  i_CoordToStringConverter,
   u_GeoCoderLocalBasic;
 
 type
@@ -40,7 +40,7 @@ type
   TGeoCoderByTXT = class(TGeoCoderLocalBasic)
   private
     FPath: string;
-    FValueToStringConverter: IValueToStringConverterChangeable;
+    FCoordToStringConverter: ICoordToStringConverterChangeable;
     procedure SearchInTXTFile(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
@@ -61,7 +61,7 @@ type
       const APath: string;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
-      const AValueToStringConverter: IValueToStringConverterChangeable
+      const ACoordToStringConverter: ICoordToStringConverterChangeable
     );
   end;
 
@@ -80,7 +80,7 @@ constructor TGeoCoderByTXT.Create(
   const APath: string;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APlacemarkFactory: IGeoCodePlacemarkFactory;
-  const AValueToStringConverter: IValueToStringConverterChangeable
+  const ACoordToStringConverter: ICoordToStringConverterChangeable
 );
 begin
   inherited Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory);
@@ -88,7 +88,7 @@ begin
   if not DirectoryExists(FPath) then begin
     raise EDirNotExist.CreateFmt('not found %s! skip GeoCoderByTXT', [FPath]);
   end;
-  FValueToStringConverter := AValueToStringConverter;
+  FCoordToStringConverter := ACoordToStringConverter;
 end;
 
 function ItemExist(
@@ -133,14 +133,14 @@ var
   VSName, VSDesc, VSFullDesc: string;
   I: Integer;
   VSearch: string;
-  VValueConverter: IValueToStringConverter;
+  VCoordToStringConverter: ICoordToStringConverter;
   VAnsi: AnsiString;
   VLine: string;
   VLineUpper: string;
   VTabArray: TStringList;
   VTextFile: Textfile;
 begin
-  VValueConverter := FValueToStringConverter.GetStatic;
+  VCoordToStringConverter := FCoordToStringConverter.GetStatic;
   VFormatSettings.DecimalSeparator := '.';
   VSearch := AnsiUpperCase(ASearch);
   Assign(VTextFile, AFile);
@@ -205,7 +205,7 @@ begin
               raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [VLatStr, VLonStr]);
             end;
 
-            VSDesc := VSDesc + '[ ' + VValueConverter.LonLatConvert(VPoint) + ' ]';
+            VSDesc := VSDesc + '[ ' + VCoordToStringConverter.LonLatConvert(VPoint) + ' ]';
             VSDesc := VSDesc + #$D#$A + ExtractFileName(AFile);
             VSFullDesc := ReplaceStr(VSName + #$D#$A + VSDesc, #$D#$A, '<br>');
 

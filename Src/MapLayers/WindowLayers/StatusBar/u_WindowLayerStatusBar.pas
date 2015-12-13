@@ -39,6 +39,7 @@ uses
   i_StatBarConfig,
   i_MouseState,
   i_MapType,
+  i_CoordToStringConverter,
   i_ValueToStringConverter,
   i_DownloadInfoSimple,
   i_GlobalInternetState,
@@ -61,6 +62,7 @@ type
     FTimeZoneInfo: TTimeZoneInfo;
     FTerrainInfo: ITerrainInfo;
     FTerrainConfig: ITerrainConfig;
+    FCoordToStringConverter: ICoordToStringConverterChangeable;
     FValueToStringConverter: IValueToStringConverterChangeable;
     FView: ILocalCoordConverterChangeable;
     FPopupMenu: IPopUp;
@@ -93,6 +95,7 @@ type
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
       const AConfig: IStatBarConfig;
+      const ACoordToStringConverter: ICoordToStringConverterChangeable;
       const AValueToStringConverter: IValueToStringConverterChangeable;
       const AMouseState: IMouseState;
       const ATimerNoifier: INotifierTime;
@@ -135,6 +138,7 @@ constructor TWindowLayerStatusBar.Create(
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
   const AConfig: IStatBarConfig;
+  const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const AValueToStringConverter: IValueToStringConverterChangeable;
   const AMouseState: IMouseState;
   const ATimerNoifier: INotifierTime;
@@ -156,6 +160,7 @@ begin
   FConfig := AConfig;
   FTerrainConfig := ATerrainConfig;
   FGlobalInternetState := AGlobalInternetState;
+  FCoordToStringConverter := ACoordToStringConverter;
   FValueToStringConverter := AValueToStringConverter;
   FPopupMenu := APopupMenu;
 
@@ -371,7 +376,7 @@ begin
 
     if FConfig.ViewLonLatInfo then begin
       VOffset.X := VOffset.X + Layer.Bitmap.TextWidth(VString) + 20;
-      VString := VValueConverter.LonLatConvert(VLonLat);
+      VString := FCoordToStringConverter.GetStatic.LonLatConvert(VLonLat);
       RenderText(VOffset, VString, VNeedSeparator);
       VNeedSeparator := True;
     end;

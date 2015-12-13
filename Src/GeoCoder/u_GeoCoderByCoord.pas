@@ -35,13 +35,13 @@ uses
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_VectorItemSubsetBuilder,
-  i_ValueToStringConverter,
+  i_CoordToStringConverter,
   u_GeoCoderLocalBasic;
 
 type
   TGeoCoderByCoord = class(TGeoCoderLocalBasic)
   private
-    FValueToStringConverter: IValueToStringConverterChangeable;
+    FCoordToStringConverter: ICoordToStringConverterChangeable;
     FProjectionSet: IProjectionSet;
     FProjectionType3785: IProjectionType;
     FProjectionType3395: IProjectionType;
@@ -81,7 +81,7 @@ type
     constructor Create(
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
-      const AValueToStringConverter: IValueToStringConverterChangeable;
+      const ACoordToStringConverter: ICoordToStringConverterChangeable;
       const AProjectionSetFactory: IProjectionSetFactory
     );
   end;
@@ -312,17 +312,17 @@ Procedure TGeoCoderByCoord.Test2Coord(
 var
   VPlace: IVectorDataItem;
   VSname, VSDesc, VFullDesc: string;
-  VValueConverter: IValueToStringConverter;
+  VToStringConverter: ICoordToStringConverter;
   VPoint: TDoublePoint;
 begin
   VPoint.X := APoint.X;
   VPoint.Y := APoint.Y;
-  VValueConverter := FValueToStringConverter.GetStatic;
+  VToStringConverter := FCoordToStringConverter.GetStatic;
     if (abs(VPoint.y) <= 90) and (abs(VPoint.x) <= 180) then begin
       if not(((APoint.Y < 0) or (APoint.X < 0)) and (VPoint.y > 0)and (VPoint.X > 0) or
         ((APoint.Y < 0) and (APoint.X < 0) and ((VPoint.y > 192160)or(VPoint.X > 0)))) then begin
         VSname := APos1 + ' ' + Apos2;
-        VSDesc := '[ '+VValueConverter.LonLatConvert(VPoint) + ' ]'+ AText;
+        VSDesc := '[ '+VToStringConverter.LonLatConvert(VPoint) + ' ]'+ AText;
         VFullDesc :=  ReplaceStr(VSname + #$D#$A + VSDesc, #$D#$A, '<br>');
         VPlace := PlacemarkFactory.Build(VPoint, VSname, VSDesc, VFullDesc, 4);
         AddItem2List(VPlace, Alist);
@@ -334,7 +334,7 @@ begin
       if not(((APoint.Y < 0) or (APoint.X < 0)) and (VPoint.y > 0) and (VPoint.X > 0) or
         ((APoint.Y < 0) and (APoint.X < 0) and ((VPoint.y > 0)or(VPoint.X > 0)))) then begin
         VSname := APos1 + ' ' + Apos2;
-        VSDesc := '[ '+VValueConverter.LonLatConvert(VPoint) + ' ]'+ AText;
+        VSDesc := '[ '+VToStringConverter.LonLatConvert(VPoint) + ' ]'+ AText;
         VFullDesc :=  ReplaceStr(VSname + #$D#$A + VSDesc, #$D#$A, '<br>');
         VPlace := PlacemarkFactory.Build(VPoint, VSname, VSDesc, VFullDesc, 4);
         AddItem2List(VPlace, Alist);
@@ -346,7 +346,7 @@ begin
       if not(((APoint.Y < 0) or (APoint.X < 0)) and (VPoint.y > 0)and (VPoint.X > 0) or
         ((APoint.Y < 0) and (APoint.X < 0) and ((VPoint.y > 0)or(VPoint.X > 0)))) then begin
         VSname := APos1 + ' ' + Apos2;
-        VSDesc := '[ '+VValueConverter.LonLatConvert(VPoint) + ' ]'+ AText;
+        VSDesc := '[ '+VToStringConverter.LonLatConvert(VPoint) + ' ]'+ AText;
         VFullDesc :=  ReplaceStr(VSname + #$D#$A + VSDesc, #$D#$A, '<br>');
         VPlace := PlacemarkFactory.Build(VPoint, VSname, VSDesc, VFullDesc, 4);
         AddItem2List(VPlace, Alist);
@@ -358,7 +358,7 @@ begin
       if not(((APoint.Y < 0) or (APoint.X < 0)) and (VPoint.y > 0)and (VPoint.X > 0) or
         ((APoint.Y < 0) and (APoint.X < 0) and ((VPoint.y > 0) or (VPoint.X > 0)))) then begin
         VSname := APos1 + ' ' + Apos2;
-        VSDesc := '[ '+VValueConverter.LonLatConvert(VPoint) + ' ]'+ AText;
+        VSDesc := '[ '+VToStringConverter.LonLatConvert(VPoint) + ' ]'+ AText;
         VFullDesc :=  ReplaceStr(VSname + #$D#$A + VSDesc, #$D#$A, '<br>');
         VPlace := PlacemarkFactory.Build(VPoint, VSname, VSDesc, VFullDesc, 4);
         AddItem2List(VPlace, Alist);
@@ -372,7 +372,7 @@ begin
         if not(((APoint.Y < 0) or (APoint.X < 0)) and (VPoint.y > 0)and (VPoint.X > 0) or
          ((APoint.Y < 0) and (APoint.X < 0) and ((VPoint.y > 0)or(VPoint.X > 0)))) then begin
           VSname := APos1 + ' ' + Apos2;
-          VSDesc := '[ '+VValueConverter.LonLatConvert(VPoint) + ' ]'+ AText;
+          VSDesc := '[ '+VToStringConverter.LonLatConvert(VPoint) + ' ]'+ AText;
           VFullDesc :=  ReplaceStr(VSname + #$D#$A + VSDesc, #$D#$A, '<br>');
           VPlace := PlacemarkFactory.Build(VPoint, VSname, VSDesc, VFullDesc, 4);
           AddItem2List(VPlace, Alist);
@@ -384,7 +384,7 @@ begin
         if not(((APoint.Y < 0) or (APoint.X < 0)) and (VPoint.y > 0)and (VPoint.X > 0) or
           ((APoint.Y < 0) and (APoint.X < 0) and ((VPoint.y > 0)or(VPoint.X > 0)))) then begin
           VSname := APos1 + ' ' + Apos2;
-          VSDesc := '[ '+VValueConverter.LonLatConvert(VPoint) + ' ]'+ AText;
+          VSDesc := '[ '+VToStringConverter.LonLatConvert(VPoint) + ' ]'+ AText;
           VFullDesc :=  ReplaceStr(VSname + #$D#$A + VSDesc, #$D#$A, '<br>');
           VPlace := PlacemarkFactory.Build(VPoint, VSname, VSDesc, VFullDesc, 4);
           AddItem2List(VPlace, Alist);
@@ -398,7 +398,7 @@ begin
         if not(((APoint.Y < 0) or (APoint.X < 0)) and (VPoint.y > 0)and (VPoint.X > 0) or
           ((APoint.Y < 0) and (APoint.X < 0) and ((VPoint.y > 0)or(VPoint.X > 0)))) then begin
           VSname := APos1 + ' ' + Apos2;
-          VSDesc := '[ '+VValueConverter.LonLatConvert(VPoint) + ' ]'+ AText;
+          VSDesc := '[ '+VToStringConverter.LonLatConvert(VPoint) + ' ]'+ AText;
           VFullDesc :=  ReplaceStr(VSname + #$D#$A + VSDesc, #$D#$A, '<br>');
           VPlace := PlacemarkFactory.Build(VPoint, VSname, VSDesc, VFullDesc, 4);
           AddItem2List(VPlace, Alist);
@@ -410,7 +410,7 @@ begin
         if not(((APoint.Y < 0) or (APoint.X < 0)) and (VPoint.y > 0) and (VPoint.X > 0) or
           ((APoint.Y < 0) and (APoint.X < 0) and ((VPoint.y > 0) or (VPoint.X > 0)))) then begin
           VSname := APos1 + ' ' + Apos2;
-          VSDesc := '[ '+VValueConverter.LonLatConvert(VPoint) + ' ]'+ AText;
+          VSDesc := '[ '+VToStringConverter.LonLatConvert(VPoint) + ' ]'+ AText;
           VFullDesc :=  ReplaceStr(VSname + #$D#$A + VSDesc, #$D#$A, '<br>');
           VPlace := PlacemarkFactory.Build(VPoint, VSname, VSDesc, VFullDesc, 4);
           AddItem2List(VPlace, Alist);
@@ -451,9 +451,9 @@ var
   VPoint: TDoublePoint;
   VSname, VSDesc, VFullDesc: string;
   VCounter: Integer;
-  VValueConverter: IValueToStringConverter;
+  VToStringConverter: ICoordToStringConverter;
 begin
-  VValueConverter := FValueToStringConverter.GetStatic;
+  VToStringConverter := FCoordToStringConverter.GetStatic;
   VCounter := 0;
   Str2Degree(APos1, VBlat1, VBlon1, VDLat);
   if VBLat1 and VBLon1 then begin
@@ -491,7 +491,7 @@ begin
   if (VBLat1 and VBLon2)or(VBLat2 and VBLon1) then begin // точно определили всего одну пару
     VSname := APos1 + ' ' + APos2;
     if (abs(VPoint.y)<=90) and (abs(VPoint.x)<=180) then begin
-      VSDesc := '[ '+VValueConverter.LonLatConvert(VPoint) + ' ]';
+      VSDesc := '[ '+VToStringConverter.LonLatConvert(VPoint) + ' ]';
       VFullDesc :=  ReplaceStr(VSname + #$D#$A + VSDesc, #$D#$A, '<br>');
       VPlace := PlacemarkFactory.Build(VPoint, VSname, VSDesc, VFullDesc, 4);
       AddItem2List(VPlace, Alist);
@@ -507,7 +507,7 @@ begin
         ((VDLat<0) and (VDLon<0) and ((VPoint.y > 0) or (VPoint.X > 0)))) then begin
         Inc(VCounter);
         VSname := inttostr(VCounter) + '.) ' + APos1 + ' '+APos2;
-        VSDesc := '[ '+VValueConverter.LonLatConvert(VPoint) + ' ]';
+        VSDesc := '[ '+VToStringConverter.LonLatConvert(VPoint) + ' ]';
         VFullDesc :=  ReplaceStr(VSname + #$D#$A + VSDesc, #$D#$A, '<br>');
         VPlace := PlacemarkFactory.Build(VPoint, VSname, VSDesc, VFullDesc, 4);
         AddItem2List(VPlace, Alist);
@@ -520,7 +520,7 @@ begin
         ((VDLat < 0) and (VDLon < 0) and ((VPoint.y > 0) or (VPoint.X > 0)))) then begin
         Inc(VCounter);
         VSname := inttostr(VCounter) + '.) '+APos1 + ' '+APos2;
-        VSDesc := '[ '+VValueConverter.LonLatConvert(VPoint) + ' ]';
+        VSDesc := '[ '+VToStringConverter.LonLatConvert(VPoint) + ' ]';
         VFullDesc :=  ReplaceStr(VSname + #$D#$A + VSDesc, #$D#$A, '<br>');
         VPlace := PlacemarkFactory.Build(VPoint, VSname, VSDesc, VFullDesc, 4);
         AddItem2List(VPlace, Alist);
@@ -536,7 +536,7 @@ begin
         ((VDLat<0) and (VDLon<0) and ((VPoint.y > 0)or(VPoint.X > 0)))) then begin
         Inc(VCounter);
         VSname := inttostr(VCounter) + '.) '+APos1 + ' '+APos2;
-        VSDesc := '[ '+VValueConverter.LonLatConvert(VPoint) + ' ]';
+        VSDesc := '[ '+VToStringConverter.LonLatConvert(VPoint) + ' ]';
         VFullDesc :=  ReplaceStr(VSname + #$D#$A + VSDesc, #$D#$A, '<br>');
         VPlace := PlacemarkFactory.Build(VPoint, VSname, VSDesc, VFullDesc, 4);
         AddItem2List(VPlace, Alist);
@@ -549,7 +549,7 @@ begin
         ((VDLat<0) and (VDLon<0) and ((VPoint.y > 0) or (VPoint.X > 0)))) then begin
         Inc(VCounter);
         VSname := inttostr(VCounter) + '.) ' + APos1 + ' '+APos2;
-        VSDesc := '[ '+VValueConverter.LonLatConvert(VPoint) + ' ]';
+        VSDesc := '[ '+VToStringConverter.LonLatConvert(VPoint) + ' ]';
         VFullDesc :=  ReplaceStr(VSname + #$D#$A + VSDesc, #$D#$A, '<br>');
         VPlace := PlacemarkFactory.Build(VPoint, VSname, VSDesc, VFullDesc, 4);
         AddItem2List(VPlace, Alist);
@@ -571,12 +571,12 @@ end;
 constructor TGeoCoderByCoord.Create(
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APlacemarkFactory: IGeoCodePlacemarkFactory;
-  const AValueToStringConverter: IValueToStringConverterChangeable;
+  const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const AProjectionSetFactory: IProjectionSetFactory
 );
 begin
   inherited Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory);
-  FValueToStringConverter := AValueToStringConverter;
+  FCoordToStringConverter := ACoordToStringConverter;
   FProjectionSet := AProjectionSetFactory.GetProjectionSetByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256);
 
   FProjectionType3785 := AProjectionSetFactory.GetProjectionSetByCode(
@@ -632,9 +632,9 @@ var
   VLatStr, VLonStr: string;
   VPoint: TDoublePoint;
   VPlace: IVectorDataItem;
-  VValueConverter: IValueToStringConverter;
+  VToStringConverter: ICoordToStringConverter;
 begin
-  VValueConverter := FValueToStringConverter.GetStatic;
+  VToStringConverter := FCoordToStringConverter.GetStatic;
   // X-XX-XXX-X-X-X
   // C-II-III-C-C-I  char/integer
   // C-II-CCCCCC-C-C-C
@@ -842,7 +842,7 @@ begin
     VPoint.Y := VDLon;
     VPoint.X := VDLat;
     if (abs(VPoint.y) <= 90) and (abs(VPoint.x) <= 180) then begin
-      VSDesc := '[ ' + VValueConverter.LonLatConvert(VPoint) + ' ]';
+      VSDesc := '[ ' + VToStringConverter.LonLatConvert(VPoint) + ' ]';
       VFullDesc := ReplaceStr(VSname + #$D#$A + VSDesc, #$D#$A, '<br>');
       VPlace := PlacemarkFactory.Build(VPoint, VSname, VSDesc, VFullDesc, 4);
       AddItem2List(VPlace, Alist);
@@ -870,11 +870,11 @@ var
   VXYRect: TRect;
   ViLat, ViLon: Integer;
   VcoordError: Boolean;
-  VValueConverter: IValueToStringConverter;
+  VToStringConverter: ICoordToStringConverter;
   VList: IInterfaceListSimple;
 begin
   Result := nil;
-  VValueConverter := FValueToStringConverter.GetStatic;
+  VToStringConverter := FCoordToStringConverter.GetStatic;
   VList := TInterfaceListSimple.Create;
   if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
     Exit;
@@ -1003,7 +1003,7 @@ begin
           VPoint := VProjection.PixelPos2LonLat(VXYPoint);
           if (abs(VPoint.y) <= 90) and (abs(VPoint.x) <= 180) then begin
             VSname := ASearch;
-            VSDesc := '[ ' + VValueConverter.LonLatConvert(VPoint) + ' ]';
+            VSDesc := '[ ' + VToStringConverter.LonLatConvert(VPoint) + ' ]';
             VFullDesc :=  ReplaceStr(VSname + #$D#$A + VSDesc, #$D#$A, '<br>');
             VPlace := PlacemarkFactory.Build(VPoint, VSname, VSDesc, VFullDesc, 4);
             AddItem2List(VPlace, VList);

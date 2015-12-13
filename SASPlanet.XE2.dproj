@@ -515,13 +515,24 @@
 			<DCCReference Include="Src\Logger\u_LogForTaskThread.pas"/>
 			<DCCReference Include="Src\Logger\u_TileErrorInfo.pas"/>
 			<DCCReference Include="Src\Logger\u_TileErrorLogProviedrStuped.pas"/>
+			<DCCReference Include="Src\MainForm\FavoriteMapSet\fr_FavoriteMapSetManager.pas">
+				<Form>frFavoriteMapSetManager</Form>
+				<FormType>dfm</FormType>
+				<DesignClass>TFrame</DesignClass>
+			</DCCReference>
 			<DCCReference Include="Src\MainForm\FavoriteMapSet\frm_FavoriteMapSetEditor.pas">
 				<Form>frmFavoriteMapSetEditor</Form>
 				<FormType>dfm</FormType>
 			</DCCReference>
+			<DCCReference Include="Src\MainForm\FavoriteMapSet\frm_FavoriteMapSetManager.pas">
+				<Form>frmFavoriteMapSetManager</Form>
+				<FormType>dfm</FormType>
+			</DCCReference>
 			<DCCReference Include="Src\MainForm\FavoriteMapSet\i_FavoriteMapSetConfig.pas"/>
+			<DCCReference Include="Src\MainForm\FavoriteMapSet\i_FavoriteMapSetHelper.pas"/>
 			<DCCReference Include="Src\MainForm\FavoriteMapSet\i_FavoriteMapSetItemStatic.pas"/>
 			<DCCReference Include="Src\MainForm\FavoriteMapSet\u_FavoriteMapSetConfig.pas"/>
+			<DCCReference Include="Src\MainForm\FavoriteMapSet\u_FavoriteMapSetHelper.pas"/>
 			<DCCReference Include="Src\MainForm\FavoriteMapSet\u_FavoriteMapSetItemStatic.pas"/>
 			<DCCReference Include="Src\MainForm\FavoriteMapSet\u_FavoriteMapSetMenu.pas"/>
 			<DCCReference Include="Src\MainForm\MergePolygons\fr_MergePolygons.pas">
@@ -1704,17 +1715,12 @@
 			<DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
 			<DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
 			<DCCReference Include="Src\u_WindowPositionConfig.pas"/>
-			<DCCReference Include="Src\MainForm\FavoriteMapSet\fr_FavoriteMapSetManager.pas">
-				<Form>frFavoriteMapSetManager</Form>
-				<FormType>dfm</FormType>
-				<DesignClass>TFrame</DesignClass>
-			</DCCReference>
-			<DCCReference Include="Src\MainForm\FavoriteMapSet\frm_FavoriteMapSetManager.pas">
-				<Form>frmFavoriteMapSetManager</Form>
-				<FormType>dfm</FormType>
-			</DCCReference>
-			<DCCReference Include="Src\MainForm\FavoriteMapSet\i_FavoriteMapSetHelper.pas"/>
-			<DCCReference Include="Src\MainForm\FavoriteMapSet\u_FavoriteMapSetHelper.pas"/>
+			<DCCReference Include="Src\CoordRepresentation\i_CoordRepresentationConfig.pas"/>
+			<DCCReference Include="Src\CoordRepresentation\t_CoordRepresentation.pas"/>
+			<DCCReference Include="Src\CoordRepresentation\u_CoordRepresentationConfig.pas"/>
+			<DCCReference Include="Src\CoordRepresentation\u_CoordToStringConverter.pas"/>
+			<DCCReference Include="Src\CoordRepresentation\i_CoordToStringConverter.pas"/>
+			<DCCReference Include="Src\CoordRepresentation\u_CoordToStringConverterChangeable.pas"/>
 			<BuildConfiguration Include="Debug">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>

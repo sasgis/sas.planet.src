@@ -32,7 +32,7 @@ uses
   i_GeometryLonLatFactory,
   i_ProjectionSetFactory,
   i_DownloadResultFactory,
-  i_ValueToStringConverter,
+  i_CoordToStringConverter,
   u_GeoCoderListBase;
 
 type
@@ -45,7 +45,7 @@ type
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
       const AResultFactory: IDownloadResultFactory;
-      const AValueToStringConverter: IValueToStringConverterChangeable;
+      const ACoordToStringConverter: ICoordToStringConverterChangeable;
       const AMarksDb: IMarkDb;
       const AProjectionSetFactory: IProjectionSetFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
@@ -87,7 +87,7 @@ constructor TGeoCoderListSimple.Create(
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APlacemarkFactory: IGeoCodePlacemarkFactory;
   const AResultFactory: IDownloadResultFactory;
-  const AValueToStringConverter: IValueToStringConverterChangeable;
+  const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const AMarksDb: IMarkDb;
   const AProjectionSetFactory: IProjectionSetFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
@@ -145,7 +145,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderRosreestrGUID,
       'Rosreestr',
-      TGeoCoderByRosreestr.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory, AValueToStringConverter)
+      TGeoCoderByRosreestr.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory, ACoordToStringConverter)
     );
   VList.Add(VItem);
 
@@ -161,7 +161,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderURLGUID,
       'URL',
-      TGeoCoderByURL.Create(AInetConfig, AGCNotifier, AProjectionSetFactory, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory, AValueToStringConverter)
+      TGeoCoderByURL.Create(AInetConfig, AGCNotifier, AProjectionSetFactory, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory, ACoordToStringConverter)
     );
   VList.Add(VItem);
 
@@ -170,7 +170,7 @@ begin
       TGeoCoderListEntity.Create(
         CGeoCoderGpxGUID,
         'Offline search (*.gpx)',
-        TGeoCoderByGpx.Create(AUserDataPath + 'gpx' + PathDelim, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AValueToStringConverter, AVectorGeometryLonLatFactory, AVectorDataFactory, AVectorDataItemMainInfoFactory)
+        TGeoCoderByGpx.Create(AUserDataPath + 'gpx' + PathDelim, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ACoordToStringConverter, AVectorGeometryLonLatFactory, AVectorDataFactory, AVectorDataItemMainInfoFactory)
       );
     VList.Add(VItem);
   Except
@@ -181,7 +181,7 @@ begin
       TGeoCoderListEntity.Create(
         CGeoCoderPolishMapGUID,
         'Offline search (*.mp)',
-        TGeoCoderByPolishMap.Create(AUserDataPath + 'mp' + PathDelim, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AValueToStringConverter)
+        TGeoCoderByPolishMap.Create(AUserDataPath + 'mp' + PathDelim, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ACoordToStringConverter)
       );
     VList.Add(VItem);
   Except
@@ -192,7 +192,7 @@ begin
       TGeoCoderListEntity.Create(
         CGeoCoderGeonamesTXTGUID,
         'Offline search (*.txt)',
-        TGeoCoderByTXT.Create(AUserDataPath + 'txt' + PathDelim, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AValueToStringConverter)
+        TGeoCoderByTXT.Create(AUserDataPath + 'txt' + PathDelim, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ACoordToStringConverter)
       );
     VList.Add(VItem);
   Except
@@ -202,7 +202,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderCoordGUID,
       'Coordinates',
-      TGeoCoderByCoord.Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory, AValueToStringConverter, AProjectionSetFactory)
+      TGeoCoderByCoord.Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory, ACoordToStringConverter, AProjectionSetFactory)
     );
   VList.Add(VItem);
 

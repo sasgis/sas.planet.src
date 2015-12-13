@@ -44,7 +44,7 @@ uses
   i_FillingMapLayerConfig,
   i_FillingMapPolygon,
   i_MapLayerGridsConfig,
-  i_ValueToStringConverter,
+  i_CoordToStringConverter,
   i_MapCalibration,
   i_MapTypeListChangeable,
   i_GeometryProjectedFactory,
@@ -93,7 +93,7 @@ type
       const AFillingMapType: IMapTypeChangeable;
       const AFillingMapPolygon: IFillingMapPolygon;
       const AGridsConfig: IMapLayerGridsConfig;
-      const AValueToStringConverter: IValueToStringConverterChangeable;
+      const ACoordToStringConverter: ICoordToStringConverterChangeable;
       const AMapCalibrationList: IMapCalibrationList
     ); reintroduce;
     destructor Destroy; override;
@@ -148,7 +148,7 @@ constructor TfrCombine.Create(
   const AFillingMapType: IMapTypeChangeable;
   const AFillingMapPolygon: IFillingMapPolygon;
   const AGridsConfig: IMapLayerGridsConfig;
-  const AValueToStringConverter: IValueToStringConverterChangeable;
+  const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const AMapCalibrationList: IMapCalibrationList
 );
 var
@@ -181,7 +181,7 @@ begin
       AFillingMapType,
       AFillingMapPolygon,
       AGridsConfig,
-      AValueToStringConverter,
+      ACoordToStringConverter,
       AMapCalibrationList
     );
   VList.Add(VExportProvider);
@@ -209,7 +209,7 @@ begin
       AFillingMapType,
       AFillingMapPolygon,
       AGridsConfig,
-      AValueToStringConverter,
+      ACoordToStringConverter,
       AMapCalibrationList
     );
   VList.Add(VExportProvider);
@@ -237,7 +237,7 @@ begin
       AFillingMapType,
       AFillingMapPolygon,
       AGridsConfig,
-      AValueToStringConverter,
+      ACoordToStringConverter,
       AMapCalibrationList
     );
   VList.Add(VExportProvider);
@@ -265,7 +265,7 @@ begin
       AFillingMapType,
       AFillingMapPolygon,
       AGridsConfig,
-      AValueToStringConverter,
+      ACoordToStringConverter,
       AMapCalibrationList
     );
   VList.Add(VExportProvider);
@@ -293,7 +293,7 @@ begin
       AFillingMapType,
       AFillingMapPolygon,
       AGridsConfig,
-      AValueToStringConverter,
+      ACoordToStringConverter,
       AMapCalibrationList,
       False // Lossless
     );
@@ -322,7 +322,7 @@ begin
       AFillingMapType,
       AFillingMapPolygon,
       AGridsConfig,
-      AValueToStringConverter,
+      ACoordToStringConverter,
       AMapCalibrationList,
       True // Lossless
     );
@@ -353,7 +353,7 @@ begin
       AFillingMapType,
       AFillingMapPolygon,
       AGridsConfig,
-      AValueToStringConverter,
+      ACoordToStringConverter,
       AMapCalibrationList
     );
   VList.Add(VExportProvider);
@@ -381,7 +381,7 @@ begin
       AFillingMapType,
       AFillingMapPolygon,
       AGridsConfig,
-      AValueToStringConverter,
+      ACoordToStringConverter,
       AMapCalibrationList
     );
   VList.Add(VExportProvider);

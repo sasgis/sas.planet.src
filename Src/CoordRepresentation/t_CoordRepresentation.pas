@@ -18,36 +18,24 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_ValueToStringConverterConfig;
+unit t_CoordRepresentation;
 
 interface
 
-uses
-  t_CommonTypes,
-  i_ConfigDataElement;
-
 type
-  IValueToStringConverterConfigStatic = interface
-    ['{DFD404AC-DB7D-4108-9822-A0DD2943A5C7}']
-    function GetDistStrFormat: TDistStrFormat;
-    property DistStrFormat: TDistStrFormat read GetDistStrFormat;
+  TDegrShowFormat = (
+    dshCharDegrMinSec = 0,
+    dshCharDegrMin = 1,
+    dshCharDegr = 2,
+    dshSignDegrMinSec = 3,
+    dshSignDegrMin = 4,
+    dshSignDegr = 5
+  );
 
-    function GetAreaShowFormat: TAreaStrFormat;
-    property AreaShowFormat: TAreaStrFormat read GetAreaShowFormat;
-  end;
-
-  IValueToStringConverterConfig = interface(IConfigDataElement)
-    ['{DDC4DF45-A387-43DC-AED7-33935241C718}']
-    function GetDistStrFormat: TDistStrFormat;
-    procedure SetDistStrFormat(AValue: TDistStrFormat);
-    property DistStrFormat: TDistStrFormat read GetDistStrFormat write SetDistStrFormat;
-
-    function GetAreaShowFormat: TAreaStrFormat;
-    procedure SetAreaShowFormat(AValue: TAreaStrFormat);
-    property AreaShowFormat: TAreaStrFormat read GetAreaShowFormat write SetAreaShowFormat;
-
-    function GetStatic: IValueToStringConverterConfigStatic;
-  end;
+  TCoordSysType = (
+    cstWGS84 = 0,
+    cstCK42 = 1
+  );
 
 implementation
 

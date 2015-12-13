@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2015, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -18,31 +18,31 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_ValueToStringConverterChangeable;
+unit u_CoordToStringConverterChangeable;
 
 interface
 
 uses
   i_Notifier,
   i_Listener,
-  i_ValueToStringConverter,
-  i_ValueToStringConverterConfig,
+  i_CoordToStringConverter,
+  i_CoordRepresentationConfig,
   u_ChangeableBase;
 
 type
-  TValueToStringConverterChangeable = class(TChangeableWithSimpleLockBase, IValueToStringConverterChangeable)
+  TCoordToStringConverterChangeable = class(TChangeableWithSimpleLockBase, ICoordToStringConverterChangeable)
   private
-    FConfig: IValueToStringConverterConfig;
+    FConfig: ICoordRepresentationConfig;
     FDependentNotifier: INotifier;
     FDependentListener: IListener;
-    FStatic: IValueToStringConverter;
+    FStatic: ICoordToStringConverter;
     procedure OnDependentNotifier;
-    function CreateStatic: IValueToStringConverter;
+    function CreateStatic: ICoordToStringConverter;
   private
-    function GetStatic: IValueToStringConverter;
+    function GetStatic: ICoordToStringConverter;
   public
     constructor Create(
-      const AConfig: IValueToStringConverterConfig;
+      const AConfig: ICoordRepresentationConfig;
       const ADependentNotifier: INotifier
     );
     destructor Destroy; override;
@@ -53,12 +53,12 @@ implementation
 uses
   SysUtils,
   u_ListenerByEvent,
-  u_ValueToStringConverter;
+  u_CoordToStringConverter;
 
-{ TValueToStringConverterChangeable }
+{ TCoordToStringConverterChangeable }
 
-constructor TValueToStringConverterChangeable.Create(
-  const AConfig: IValueToStringConverterConfig;
+constructor TCoordToStringConverterChangeable.Create(
+  const AConfig: ICoordRepresentationConfig;
   const ADependentNotifier: INotifier
 );
 begin
@@ -71,7 +71,7 @@ begin
   FStatic := CreateStatic;
 end;
 
-destructor TValueToStringConverterChangeable.Destroy;
+destructor TCoordToStringConverterChangeable.Destroy;
 begin
   if Assigned(FDependentNotifier) and Assigned(FDependentListener) then begin
     FDependentNotifier.Remove(FDependentListener);
@@ -84,19 +84,20 @@ begin
   inherited;
 end;
 
-function TValueToStringConverterChangeable.CreateStatic: IValueToStringConverter;
+function TCoordToStringConverterChangeable.CreateStatic: ICoordToStringConverter;
 var
-  VConfig: IValueToStringConverterConfigStatic;
+  VConfig: ICoordRepresentationConfigStatic;
 begin
   VConfig := FConfig.GetStatic;
   Result :=
-    TValueToStringConverter.Create(
-      VConfig.DistStrFormat,
-      VConfig.AreaShowFormat
+    TCoordToStringConverter.Create(
+      VConfig.IsLatitudeFirst,
+      VConfig.DegrShowFormat,
+      VConfig.CoordSysType
     );
 end;
 
-function TValueToStringConverterChangeable.GetStatic: IValueToStringConverter;
+function TCoordToStringConverterChangeable.GetStatic: ICoordToStringConverter;
 begin
   CS.BeginRead;
   try
@@ -106,7 +107,7 @@ begin
   end;
 end;
 
-procedure TValueToStringConverterChangeable.OnDependentNotifier;
+procedure TCoordToStringConverterChangeable.OnDependentNotifier;
 begin
   CS.BeginWrite;
   try

@@ -304,6 +304,7 @@ uses
   c_CacheTypeCodes, // for default path
   c_InetConfig, // for default UserAgent
   t_CommonTypes,
+  t_CoordRepresentation,
   i_ProxySettings,
   i_InetConfig,
   u_ListenerNotifierLinksList,
@@ -610,10 +611,17 @@ begin
 
   GState.CacheConfig.DefCache := FfrCacheTypesList.IntCode;
 
+  GState.Config.CoordRepresentationConfig.LockWrite;
+  try
+    GState.Config.CoordRepresentationConfig.IsLatitudeFirst := ChBoxFirstLat.Checked;
+    GState.Config.CoordRepresentationConfig.DegrShowFormat := TDegrShowFormat(CB_llstrType.ItemIndex);
+    // ToDo: GState.Config.CoordRepresentationConfig.CoordSysType
+  finally
+    GState.Config.CoordRepresentationConfig.UnlockWrite;
+  end;
+
   GState.Config.ValueToStringConverterConfig.LockWrite;
   try
-    GState.Config.ValueToStringConverterConfig.IsLatitudeFirst := ChBoxFirstLat.Checked;
-    GState.Config.ValueToStringConverterConfig.DegrShowFormat := TDegrShowFormat(CB_llstrType.ItemIndex);
     GState.Config.ValueToStringConverterConfig.DistStrFormat := TDistStrFormat(ComboBox1.ItemIndex);
     GState.Config.ValueToStringConverterConfig.AreaShowFormat := TAreaStrFormat(cbbAreaFormat.ItemIndex);
   finally
@@ -954,10 +962,17 @@ begin
   InitResamplersList(GState.ImageResamplerFactoryList, cbbResizeTileMatrixDraft);
   cbbResizeTileMatrixDraft.ItemIndex := GState.ImageResamplerFactoryList.GetIndexByGUID(GState.Config.TileMatrixDraftResamplerConfig.ActiveGUID);
 
+  GState.Config.CoordRepresentationConfig.LockRead;
+  try
+    ChBoxFirstLat.Checked := GState.Config.CoordRepresentationConfig.IsLatitudeFirst;
+    CB_llstrType.ItemIndex := byte(GState.Config.CoordRepresentationConfig.DegrShowFormat);
+    //ToDo: byte(GState.Config.CoordRepresentationConfig.CoordSysType);
+  finally
+    GState.Config.CoordRepresentationConfig.UnlockRead;
+  end;
+
   GState.Config.ValueToStringConverterConfig.LockRead;
   try
-    ChBoxFirstLat.Checked := GState.Config.ValueToStringConverterConfig.IsLatitudeFirst;
-    CB_llstrType.ItemIndex := byte(GState.Config.ValueToStringConverterConfig.DegrShowFormat);
     ComboBox1.ItemIndex := byte(GState.Config.ValueToStringConverterConfig.DistStrFormat);
     cbbAreaFormat.ItemIndex := byte(GState.Config.ValueToStringConverterConfig.AreaShowFormat);
   finally

@@ -29,6 +29,7 @@ uses
   TB2Dock,
   i_NotifierTime,
   i_GUIDSet,
+  i_CoordToStringConverter,
   i_ValueToStringConverter,
   i_LanguageManager,
   i_SensorList,
@@ -39,6 +40,7 @@ type
   TSensorViewListGeneratorStuped = class(TBaseInterfacedObject, ISensorViewListGenerator)
   private
     FTimerNoifier: INotifierTime;
+    FCoordToStringConverter: ICoordToStringConverterChangeable;
     FValueConverter: IValueToStringConverterChangeable;
     FLanguageManager: ILanguageManager;
     FOwner: TComponent;
@@ -59,6 +61,7 @@ type
   public
     constructor Create(
       const ATimerNoifier: INotifierTime;
+      const ACoordToStringConverter: ICoordToStringConverterChangeable;
       const AValueConverter: IValueToStringConverterChangeable;
       const ALanguageManager: ILanguageManager;
       AOwner: TComponent;
@@ -207,7 +210,7 @@ begin
           TSensorViewPositionTBXPanel.Create(
             ASensor,
             FTimerNoifier,
-            FValueConverter,
+            FCoordToStringConverter,
             FOwner,
             FDefaultDoc,
             FParentMenu,
@@ -280,6 +283,7 @@ end;
 
 constructor TSensorViewListGeneratorStuped.Create(
   const ATimerNoifier: INotifierTime;
+  const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const AValueConverter: IValueToStringConverterChangeable;
   const ALanguageManager: ILanguageManager;
   AOwner: TComponent;
@@ -291,6 +295,7 @@ constructor TSensorViewListGeneratorStuped.Create(
 begin
   inherited Create;
   FTimerNoifier := ATimerNoifier;
+  FCoordToStringConverter := ACoordToStringConverter;
   FValueConverter := AValueConverter;
   FLanguageManager := ALanguageManager;
   FOwner := AOwner;

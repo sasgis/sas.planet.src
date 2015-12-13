@@ -23,7 +23,6 @@ unit i_ValueToStringConverter;
 interface
 
 uses
-  t_GeoTypes,
   i_Changeable;
 
 type
@@ -35,15 +34,6 @@ type
     function AreaConvert(const AAreaInSqm: Double): string;
     function SpeedConvert(const AKmph: Double): string;
     function AltitudeConvert(const AMeters: Double): string;
-    function LonLatConvert(const ALonLat: TDoublePoint): string;
-    function LonConvert(
-      const ALon: Double;
-      ACutZero: boolean
-    ): string;
-    function LatConvert(
-      const ALat: Double;
-      ACutZero: boolean
-    ): string;
   end;
 
   IValueToStringConverterChangeable = interface(IChangeable)

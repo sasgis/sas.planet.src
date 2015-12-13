@@ -41,7 +41,7 @@ uses
   i_Bitmap32BufferFactory,
   i_BitmapPostProcessing,
   i_MapLayerGridsConfig,
-  i_ValueToStringConverter,
+  i_CoordToStringConverter,
   i_UsedMarksConfig,
   i_MarksDrawConfig,
   i_MarkSystem,
@@ -86,7 +86,7 @@ type
     FFillingMapType: IMapTypeChangeable;
     FFillingMapPolygon: IFillingMapPolygon;
     FGridsConfig: IMapLayerGridsConfig;
-    FValueToStringConverter: IValueToStringConverterChangeable;
+    FCoordToStringConverter: ICoordToStringConverterChangeable;
     FMinPartSize: TPoint;
     FMaxPartSize: TPoint;
     function PrepareGridsProvider(const AProjection: IProjection): IBitmapTileProvider;
@@ -137,7 +137,7 @@ type
       const AFillingMapType: IMapTypeChangeable;
       const AFillingMapPolygon: IFillingMapPolygon;
       const AGridsConfig: IMapLayerGridsConfig;
-      const AValueToStringConverter: IValueToStringConverterChangeable;
+      const ACoordToStringConverter: ICoordToStringConverterChangeable;
       const AMapCalibrationList: IMapCalibrationList;
       const AMinPartSize: TPoint;
       const AMaxPartSize: TPoint;
@@ -209,7 +209,7 @@ constructor TProviderMapCombineBase.Create(
   const AFillingMapType: IMapTypeChangeable;
   const AFillingMapPolygon: IFillingMapPolygon;
   const AGridsConfig: IMapLayerGridsConfig;
-  const AValueToStringConverter: IValueToStringConverterChangeable;
+  const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const AMapCalibrationList: IMapCalibrationList;
   const AMinPartSize: TPoint;
   const AMaxPartSize: TPoint;
@@ -249,7 +249,7 @@ begin
   FFillingMapType := AFillingMapType;
   FFillingMapPolygon := AFillingMapPolygon;
   FGridsConfig := AGridsConfig;
-  FValueToStringConverter := AValueToStringConverter;
+  FCoordToStringConverter := ACoordToStringConverter;
   FMinPartSize := AMinPartSize;
   FMaxPartSize := AMaxPartSize;
   FUseQuality := AUseQuality;
@@ -428,7 +428,7 @@ begin
         VScaleDegree,
         VShowText,
         VShowLines,
-        FValueToStringConverter.GetStatic
+        FCoordToStringConverter.GetStatic
       );
     if VResult <> nil then begin
       VResult :=

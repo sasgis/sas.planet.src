@@ -40,7 +40,7 @@ uses
   i_FillingMapLayerConfig,
   i_FillingMapPolygon,
   i_MapLayerGridsConfig,
-  i_ValueToStringConverter,
+  i_CoordToStringConverter,
   i_MapCalibration,
   i_MapTypeListChangeable,
   i_GeometryProjectedFactory,
@@ -88,7 +88,7 @@ type
       const AFillingMapType: IMapTypeChangeable;
       const AFillingMapPolygon: IFillingMapPolygon;
       const AGridsConfig: IMapLayerGridsConfig;
-      const AValueToStringConverter: IValueToStringConverterChangeable;
+      const ACoordToStringConverter: ICoordToStringConverterChangeable;
       const AMapCalibrationList: IMapCalibrationList
     );
   end;
@@ -134,7 +134,7 @@ constructor TProviderMapCombineKMZ.Create(
   const AFillingMapType: IMapTypeChangeable;
   const AFillingMapPolygon: IFillingMapPolygon;
   const AGridsConfig: IMapLayerGridsConfig;
-  const AValueToStringConverter: IValueToStringConverterChangeable;
+  const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const AMapCalibrationList: IMapCalibrationList
 );
 begin
@@ -159,7 +159,7 @@ begin
     AFillingMapType,
     AFillingMapPolygon,
     AGridsConfig,
-    AValueToStringConverter,
+    ACoordToStringConverter,
     AMapCalibrationList,
     Point(0, 0),
     Point(10240, 10240),

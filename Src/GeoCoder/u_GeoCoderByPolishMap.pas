@@ -30,7 +30,7 @@ uses
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_VectorItemSubsetBuilder,
-  i_ValueToStringConverter,
+  i_CoordToStringConverter,
   u_GeoCoderLocalBasic;
 
 type
@@ -39,7 +39,7 @@ type
   TGeoCoderByPolishMap = class(TGeoCoderLocalBasic)
   private
     FPath: string;
-    FValueToStringConverter: IValueToStringConverterChangeable;
+    FCoordToStringConverter: ICoordToStringConverterChangeable;
     procedure SearchInMapFile(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
@@ -60,7 +60,7 @@ type
       const APath: string;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
-      const AValueToStringConverter: IValueToStringConverterChangeable
+      const ACoordToStringConverter: ICoordToStringConverterChangeable
     );
   end;
 
@@ -538,7 +538,7 @@ var
  VSkip: Boolean;
  VStream: TFileStream;
  V_EndOfLine: String;
- VValueConverter: IValueToStringConverter;
+ VCoordToStringConverter: ICoordToStringConverter;
 begin
   VFormatSettings.DecimalSeparator := '.';
   //TODO: Fix for unicode file
@@ -655,8 +655,8 @@ begin
         if V_Type <> -1 then Vsdesc := getType(V_SectionType, V_Type) + #$D#$A + Vsdesc;
         if V_CityName <> '' then Vsdesc := Vsdesc +  String(V_CityName) + #$D#$A;
         if V_Phone <> '' then Vsdesc := Vsdesc + 'Phone '+ String(V_Phone) + #$D#$A;
-        VValueConverter := FValueToStringConverter.GetStatic;
-        Vsdesc := Vsdesc + '[ ' + VValueConverter.LonLatConvert(VPoint) + ' ]';
+        VCoordToStringConverter := FCoordToStringConverter.GetStatic;
+        Vsdesc := Vsdesc + '[ ' + VCoordToStringConverter.LonLatConvert(VPoint) + ' ]';
         Vsdesc := Vsdesc + #$D#$A + ExtractFileName(AFile);
         sfulldesc := ReplaceStr(Vsname + #$D#$A + Vsdesc, #$D#$A, '<br>');
         if V_WebPage <> '' then begin
@@ -681,7 +681,7 @@ constructor TGeoCoderByPolishMap.Create(
   const APath: string;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APlacemarkFactory: IGeoCodePlacemarkFactory;
-  const AValueToStringConverter: IValueToStringConverterChangeable
+  const ACoordToStringConverter: ICoordToStringConverterChangeable
 );
 begin
   inherited Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory);
@@ -689,7 +689,7 @@ begin
   if not DirectoryExists(FPath) then begin
     raise EDirNotExist.CreateFmt('not found %s! skip GeoCoderByPolishMap', [FPath]);
   end;
-  FValueToStringConverter := AValueToStringConverter;
+  FCoordToStringConverter := ACoordToStringConverter;
 end;
 
 function TGeoCoderByPolishMap.DoSearch(

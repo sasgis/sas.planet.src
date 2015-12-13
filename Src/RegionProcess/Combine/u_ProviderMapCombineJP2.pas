@@ -38,7 +38,7 @@ uses
   i_FillingMapLayerConfig,
   i_FillingMapPolygon,
   i_MapLayerGridsConfig,
-  i_ValueToStringConverter,
+  i_CoordToStringConverter,
   i_MapCalibration,
   i_MapTypeListChangeable,
   i_GeometryProjectedFactory,
@@ -80,7 +80,7 @@ type
       const AFillingMapType: IMapTypeChangeable;
       const AFillingMapPolygon: IFillingMapPolygon;
       const AGridsConfig: IMapLayerGridsConfig;
-      const AValueToStringConverter: IValueToStringConverterChangeable;
+      const ACoordToStringConverter: ICoordToStringConverterChangeable;
       const AMapCalibrationList: IMapCalibrationList;
       const ALossless: Boolean
     );
@@ -119,7 +119,7 @@ constructor TProviderMapCombineJP2.Create(
   const AFillingMapType: IMapTypeChangeable;
   const AFillingMapPolygon: IFillingMapPolygon;
   const AGridsConfig: IMapLayerGridsConfig;
-  const AValueToStringConverter: IValueToStringConverterChangeable;
+  const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const AMapCalibrationList: IMapCalibrationList;
   const ALossless: Boolean
 );
@@ -154,7 +154,7 @@ begin
     AFillingMapType,
     AFillingMapPolygon,
     AGridsConfig,
-    AValueToStringConverter,
+    ACoordToStringConverter,
     AMapCalibrationList,
     Point(100, 100),
     Point(MaxInt, MaxInt),

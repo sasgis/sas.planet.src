@@ -32,8 +32,6 @@ type
   TValueToStringConverter = class(TBaseInterfacedObject, IValueToStringConverter)
   private
     FDistStrFormat: TDistStrFormat;
-    FIsLatitudeFirst: Boolean;
-    FDegrShowFormat: TDegrShowFormat;
     FAreaShowFormat: TAreaStrFormat;
     FUnitsKb: string;
     FUnitsMb: string;
@@ -44,17 +42,6 @@ type
     FUnitsHa: string;
     FUnitsSqKm: string;
     FUnitsSqMeters: string;
-    FEastMarker: string;
-    FWestMarker: string;
-    FNorthMarker: string;
-    FSouthMarker: string;
-  private
-    function DegrToStr(
-      const ADegr: Double;
-      ACutZero: boolean
-    ): string;
-    function GetLatitudeMarker(const ADegr: Double): string;
-    function GetLongitudeMarker(const ADegr: Double): string;
   private
     function DataSizeConvert(const ASizeInKb: Double): string;
     function DistConvert(const ADistInMeters: Double): string;
@@ -62,20 +49,9 @@ type
     function AreaConvert(const AAreaInSqm: Double): string;
     function SpeedConvert(const AKmph: Double): string;
     function AltitudeConvert(const AMeters: Double): string;
-    function LonLatConvert(const ALonLat: TDoublePoint): string;
-    function LonConvert(
-      const ALon: Double;
-      ACutZero: boolean
-    ): string;
-    function LatConvert(
-      const ALat: Double;
-      ACutZero: boolean
-    ): string;
   public
     constructor Create(
       ADistStrFormat: TDistStrFormat;
-      AIsLatitudeFirst: Boolean;
-      ADegrShowFormat: TDegrShowFormat;
       AAreaShowFormat: TAreaStrFormat
     );
   end;
@@ -92,15 +68,11 @@ uses
 
 constructor TValueToStringConverter.Create(
   ADistStrFormat: TDistStrFormat;
-  AIsLatitudeFirst: Boolean;
-  ADegrShowFormat: TDegrShowFormat;
   AAreaShowFormat: TAreaStrFormat
 );
 begin
   inherited Create;
   FDistStrFormat := ADistStrFormat;
-  FIsLatitudeFirst := AIsLatitudeFirst;
-  FDegrShowFormat := ADegrShowFormat;
   FAreaShowFormat := AAreaShowFormat;
   FUnitsKb := SAS_UNITS_kb;
   FUnitsMb := SAS_UNITS_mb;
@@ -111,10 +83,6 @@ begin
   FUnitsSqKm := SAS_UNITS_km2;
   FUnitsHa := SAS_UNITS_Ha;
   FUnitsSqMeters := SAS_UNITS_m2;
-  FNorthMarker := 'N';
-  FEastMarker := 'E';
-  FWestMarker := 'W';
-  FSouthMarker := 'S';
 end;
 
 function TValueToStringConverter.AltitudeConvert(const AMeters: Double): string;
@@ -179,80 +147,6 @@ begin
   end;
 end;
 
-function TValueToStringConverter.DegrToStr(
-  const ADegr: Double;
-  ACutZero: boolean
-): string;
-var
-  VDegr: Double;
-  VInt: Integer;
-  VValue: Integer;
-  res: string;
-begin
-  VDegr := abs(ADegr);
-  Res := '-';
-  case FDegrShowFormat of
-    dshCharDegrMinSec, dshSignDegrMinSec: begin
-      VValue := Trunc(VDegr * 60 * 60 * 100 + 0.005);
-      VInt := Trunc(VValue / (60 * 60 * 100));
-      VValue := VValue - VInt * (60 * 60 * 100);
-      Res := IntToStr(VInt) + '°';
-      VInt := Trunc(VValue / (60 * 100));
-      VValue := VValue - VInt * (60 * 100);
-
-      if VInt < 10 then begin
-        Res := Res + '0' + IntToStr(VInt) + '''';
-      end else begin
-        Res := Res + IntToStr(VInt) + '''';
-      end;
-
-      Res := Res + FormatFloat('00.00', VValue / 100) + '"';
-
-      if ACutZero then begin
-        if copy(Res, length(Res) - 3, 4) = decimalseparator + '00"' then begin // X12°30'45,00" -> X12°30'45"
-          Res := ReplaceStr(Res, decimalseparator + '00"', '"');
-          if copy(Res, length(Res) - 2, 3) = '00"' then begin   // X12°30'00" -> X12°30'
-            Res := ReplaceStr(Res, '00"', '');
-            if copy(Res, length(Res) - 2, 3) = '00''' then begin  // X12°00' -> X12°
-              Res := ReplaceStr(Res, '00''', '');
-            end;
-          end;
-        end;
-      end;
-    end;
-    dshCharDegrMin, dshSignDegrMin: begin
-      VValue := Trunc(VDegr * 60 * 10000 + 0.00005);
-      VInt := Trunc(VValue / (60 * 10000));
-      VValue := VValue - VInt * (60 * 10000);
-      Res := IntToStr(VInt) + '°';
-      Res := Res + FormatFloat('00.0000', VValue / 10000) + '''';
-      if ACutZero then begin
-        while copy(Res, length(Res) - 1, 2) = '0''' do begin
-          Res := ReplaceStr(Res, '0''', '''');
-        end;   // 12°34,50000' -> 12°34,5'   12°00,00000' -> 12°00,'
-        if copy(Res, length(Res) - 1, 2) = decimalseparator + '''' then begin
-          Res := ReplaceStr(Res, decimalseparator + '''', '''');
-        end; // 12°40,' -> 12°40'
-        if copy(Res, length(Res) - 2, 3) = '00''' then begin
-          Res := ReplaceStr(Res, '00''', '');
-        end; //  12°00' -> 12°
-      end;
-    end;
-    dshCharDegr, dshSignDegr: begin
-      Res := FormatFloat('0.000000', VDegr) + '°';
-      if ACutZero then begin
-        while copy(Res, length(Res) - 1, 2) = '0°' do begin
-          Res := ReplaceStr(Res, '0°', '°');
-        end;   // 12,3450000° -> 12,345°   12,0000000° -> 12,°
-        if copy(Res, length(Res) - 1, 2) = decimalseparator + '°' then begin
-          Res := ReplaceStr(Res, decimalseparator + '°', '°');
-        end; //12,° -> 12°
-      end;
-    end;
-  end;
-  Result := res;
-end;
-
 function TValueToStringConverter.DistConvert(const ADistInMeters: Double): string;
 var
   VKmDist: Double;
@@ -288,80 +182,6 @@ function TValueToStringConverter.DistPerPixelConvert(
 ): string;
 begin
   Result := DistConvert(ADistPerPixelInMeters) + SAS_UNITS_mperp;
-end;
-
-function TValueToStringConverter.GetLatitudeMarker(const ADegr: Double): string;
-begin
-  case FDegrShowFormat of
-    dshCharDegrMinSec, dshCharDegrMin, dshCharDegr: begin
-      if ADegr > 0 then begin
-        result := FNorthMarker;
-      end else if ADegr < 0 then begin
-        result := FSouthMarker;
-      end else begin
-        result := '';
-      end;
-    end;
-    dshSignDegrMinSec, dshSignDegrMin, dshSignDegr: begin
-      if ADegr >= 0 then begin
-        result := '';
-      end else begin
-        result := '-';
-      end;
-    end;
-  end;
-end;
-
-function TValueToStringConverter.GetLongitudeMarker(const ADegr: Double): string;
-begin
-  case FDegrShowFormat of
-    dshCharDegrMinSec, dshCharDegrMin, dshCharDegr: begin
-      if ADegr > 0 then begin
-        result := FEastMarker;
-      end else if ADegr < 0 then begin
-        result := FWestMarker;
-      end else begin
-        result := '';
-      end;
-    end;
-    dshSignDegrMinSec, dshSignDegrMin, dshSignDegr: begin
-      if ADegr >= 0 then begin
-        result := '';
-      end else begin
-        result := '-';
-      end;
-    end;
-  end;
-end;
-
-function TValueToStringConverter.LonLatConvert(const ALonLat: TDoublePoint): string;
-var
-  VLatStr: string;
-  VLonStr: string;
-begin
-  VLatStr := GetLatitudeMarker(ALonLat.Y) + DegrToStr(ALonLat.Y, false);
-  VLonStr := GetLongitudeMarker(ALonLat.X) + DegrToStr(ALonLat.X, false);
-  if FIsLatitudeFirst then begin
-    Result := VLatStr + ' ' + VLonStr;
-  end else begin
-    Result := VLonStr + ' ' + VLatStr;
-  end;
-end;
-
-function TValueToStringConverter.LonConvert(
-  const ALon: Double;
-  ACutZero: boolean
-): string;
-begin
-  result := GetLongitudeMarker(ALon) + DegrToStr(ALon, ACutZero);
-end;
-
-function TValueToStringConverter.LatConvert(
-  const ALat: Double;
-  ACutZero: boolean
-): string;
-begin
-  result := GetLatitudeMarker(ALat) + DegrToStr(ALat, ACutZero);
 end;
 
 function TValueToStringConverter.SpeedConvert(const AKmph: Double): string;

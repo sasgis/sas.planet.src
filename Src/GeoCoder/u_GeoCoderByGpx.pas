@@ -30,7 +30,7 @@ uses
   i_LocalCoordConverter,
   i_VectorItemSubsetBuilder,
   i_VectorDataFactory,
-  i_ValueToStringConverter,
+  i_CoordToStringConverter,
   i_GeometryLonLatFactory,
   i_DoublePointsAggregator,
   i_GeometryLonLat,
@@ -47,7 +47,7 @@ type
   TGeoCoderByGpx = class(TGeoCoderLocalBasic)
   private
     FPath: string;
-    FValueToStringConverter: IValueToStringConverterChangeable;
+    FCoordToStringConverter: ICoordToStringConverterChangeable;
     FSystemTimeInternal: ISystemTimeProviderInternal;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FVectorDataFactory: IVectorDataFactory;
@@ -59,7 +59,7 @@ type
       const AFile: String;
       const ASearch: string;
       const AList: IInterfaceListSimple;
-      const AValueConverter: IValueToStringConverter
+      const ACoordToStringConverter: ICoordToStringConverter
     );
     procedure SearchInGpxFileByDate(
       const ACancelNotifier: INotifierOperation;
@@ -67,7 +67,7 @@ type
       const AFile: string;
       const ADateTime: string;
       const AList: IInterfaceListSimple;
-      const AValueConverter: IValueToStringConverter
+      const ACoordToStringConverter: ICoordToStringConverter
     );
     function ParseDateTime(
       const ASearch:string;
@@ -85,7 +85,7 @@ type
       const APath: string;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
-      const AValueToStringConverter: IValueToStringConverterChangeable;
+      const AValueToStringConverter: ICoordToStringConverterChangeable;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorDataFactory: IVectorDataFactory;
       const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
@@ -112,7 +112,7 @@ constructor TGeoCoderByGpx.Create(
   const APath: string;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APlacemarkFactory: IGeoCodePlacemarkFactory;
-  const AValueToStringConverter: IValueToStringConverterChangeable;
+  const AValueToStringConverter: ICoordToStringConverterChangeable;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorDataFactory: IVectorDataFactory;
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
@@ -126,7 +126,7 @@ begin
   if not DirectoryExists(FPath) then begin
     raise EDirNotExist.CreateFmt('not found %s! skip GeoCoderByGpx', [FPath]);
   end;
-  FValueToStringConverter := AValueToStringConverter;
+  FCoordToStringConverter := AValueToStringConverter;
   FSystemTimeInternal := TSystemTimeProvider.Create;
 end;
 
@@ -265,7 +265,7 @@ procedure TGeoCoderByGpx.SearchInGpxFileByDate(
   const AFile: string;
   const ADateTime: string;
   const AList: IInterfaceListSimple;
-  const AValueConverter: IValueToStringConverter
+  const ACoordToStringConverter: ICoordToStringConverter
 );
 var
   VNode: IXMLNode;
@@ -325,7 +325,7 @@ begin
           end;
           Vskip := True;
 
-          VDesc := VDesc + #$D#$A + '[ ' + AValueConverter.LonLatConvert(VPoint) + ' ]';
+          VDesc := VDesc + #$D#$A + '[ ' + ACoordToStringConverter.LonLatConvert(VPoint) + ' ]';
           VDesc := VDesc + #$D#$A + AFile;
           VFullDesc := VAddress + '<br>' + VDesc;
 
@@ -409,7 +409,7 @@ begin
                       VDesc := VTempELE;
                       VDesc := VDesc + #$D#$A + 'DateTime: ' + VStrDate;
                       VDesc := VDesc + #$D#$A + AFile;
-                      VFullDesc := VAddress + '<br>' + VDesc  + #$D#$A + '[ ' + AValueConverter.LonLatConvert(VPoint) + ' ]';
+                      VFullDesc := VAddress + '<br>' + VDesc  + #$D#$A + '[ ' + ACoordToStringConverter.LonLatConvert(VPoint) + ' ]';
                       VPlace := PlacemarkFactory.Build(VPoint, VAddress , VDesc, VFullDesc, 4);
                       Vskip := ItemExist(Vplace, AList, CDistForDate);
                       if not Vskip then begin
@@ -434,7 +434,7 @@ procedure TGeoCoderByGpx.SearchInGpxFileByName(
   const AFile: String;
   const ASearch: string;
   const AList: IInterfaceListSimple;
-  const AValueConverter: IValueToStringConverter
+  const ACoordToStringConverter: ICoordToStringConverter
 );
 var
   VNode: IXMLNode;
@@ -505,7 +505,7 @@ begin
             VDesc := VDesc + #$D#$A + 'DateTime: ' + DateTimeToStr(FSystemTimeInternal.UTCToLocalTime(ISOToDateTime(VStrDateTime)));;
           end;
 
-          VDesc := VDesc + #$D#$A + '[ ' + AValueConverter.LonLatConvert(VPoint) + ' ]';
+          VDesc := VDesc + #$D#$A + '[ ' + ACoordToStringConverter.LonLatConvert(VPoint) + ' ]';
           VDesc := VDesc + #$D#$A + AFile;
           VFullDesc := VAddress + '<br>' + VDesc;
 
@@ -590,7 +590,7 @@ begin
               VDesc := VDesc + 'DateTime: ' + VStrDate;
             end;
             VDesc := VDesc + #$D#$A + AFile;
-            VDesc := VDesc  + #$D#$A + '[ ' + AValueConverter.LonLatConvert(VPoint) + ' ]';
+            VDesc := VDesc  + #$D#$A + '[ ' + ACoordToStringConverter.LonLatConvert(VPoint) + ' ]';
 
             if VPointsAggregator.Count > 0 then begin
               VBuilder.AddLine(VPointsAggregator.MakeStaticAndClear);
@@ -651,13 +651,13 @@ var
   Vpath: String;
   VSearchRec: TSearchRec;
   VMySearch: String;
-  VValueConverter: IValueToStringConverter;
+  VValueConverter: ICoordToStringConverter;
   VTxtGpxDateTime: string;
   VSearchDate: Boolean;
 begin
   VMySearch := ASearch;
 
-  VValueConverter := FValueToStringConverter.GetStatic;
+  VValueConverter := FCoordToStringConverter.GetStatic;
   while PosEx('  ', VMySearch) > 0 do begin
     VMySearch := ReplaceStr(VMySearch, '  ', ' ');
   end;

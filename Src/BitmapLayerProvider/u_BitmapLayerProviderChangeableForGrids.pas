@@ -25,7 +25,7 @@ interface
 uses
   i_MapLayerGridsConfig,
   i_Bitmap32BufferFactory,
-  i_ValueToStringConverter,
+  i_CoordToStringConverter,
   i_ProjectionSetChangeable,
   i_BitmapLayerProvider,
   i_ListenerNotifierLinksList,
@@ -37,7 +37,7 @@ type
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FProjectionSet: IProjectionSetChangeable;
     FConfig: IMapLayerGridsConfig;
-    FValueToStringConverter: IValueToStringConverterChangeable;
+    FCoordToStringConverter: ICoordToStringConverterChangeable;
 
     procedure OnConfigChange;
   protected
@@ -46,7 +46,7 @@ type
     constructor Create(
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AProjectionSet: IProjectionSetChangeable;
-      const AValueToStringConverter: IValueToStringConverterChangeable;
+      const ACoordToStringConverter: ICoordToStringConverterChangeable;
       const AConfig: IMapLayerGridsConfig
     );
   end;
@@ -66,11 +66,11 @@ uses
 constructor TBitmapLayerProviderChangeableForGrids.Create(
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AProjectionSet: IProjectionSetChangeable;
-  const AValueToStringConverter: IValueToStringConverterChangeable;
+  const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const AConfig: IMapLayerGridsConfig
 );
 begin
-  Assert(Assigned(AValueToStringConverter));
+  Assert(Assigned(ACoordToStringConverter));
   Assert(Assigned(AConfig));
   Assert(Assigned(ABitmap32StaticFactory));
   Assert(Assigned(AProjectionSet));
@@ -78,7 +78,7 @@ begin
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FProjectionSet := AProjectionSet;
   FConfig := AConfig;
-  FValueToStringConverter := AValueToStringConverter;
+  FCoordToStringConverter := ACoordToStringConverter;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(OnConfigChange),
@@ -94,7 +94,7 @@ begin
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(OnConfigChange),
-    FValueToStringConverter.ChangeNotifier
+    FCoordToStringConverter.ChangeNotifier
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(OnConfigChange),
@@ -188,7 +188,7 @@ begin
         VScaleDegree,
         VShowText,
         VShowLines,
-        FValueToStringConverter.GetStatic
+        FCoordToStringConverter.GetStatic
       );
     if VResult <> nil then begin
       VResult :=

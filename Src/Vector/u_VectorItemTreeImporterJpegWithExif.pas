@@ -27,7 +27,7 @@ uses
   i_NotifierOperation,
   i_VectorItemSubsetBuilder,
   i_VectorDataFactory,
-  i_ValueToStringConverter,
+  i_CoordToStringConverter,
   i_VectorItemTreeImporter,
   i_GeometryLonLatFactory,
   i_VectorItemTree,
@@ -49,7 +49,7 @@ type
     FVectorDataFactory: IVectorDataFactory;
     FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
     FMediaDataPath: IPathConfig;
-    FValueToStringConverter: IValueToStringConverterChangeable;
+    FCoordToStringConverter: ICoordToStringConverterChangeable;
     FContentTypeManager: IContentTypeManager;
   private
     function ProcessImport(
@@ -67,7 +67,7 @@ type
       const AVectorDataFactory: IVectorDataFactory;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AMediaDataPath: IPathConfig;
-      const AValueToStringConverter: IValueToStringConverterChangeable;
+      const AValueToStringConverter: ICoordToStringConverterChangeable;
       const AContentTypeManager: IContentTypeManager
     );
   end;
@@ -108,7 +108,7 @@ constructor TVectorItemTreeImporterJpegWithExif.Create(
   const AVectorDataFactory: IVectorDataFactory;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AMediaDataPath: IPathConfig;
-  const AValueToStringConverter: IValueToStringConverterChangeable;
+  const AValueToStringConverter: ICoordToStringConverterChangeable;
   const AContentTypeManager: IContentTypeManager
 );
 begin
@@ -120,7 +120,7 @@ begin
   FVectorDataFactory := AVectorDataFactory;
   FAppearanceOfMarkFactory := AAppearanceOfMarkFactory;
   FMediaDataPath := AMediaDataPath;
-  FValueToStringConverter := AValueToStringConverter;
+  FCoordToStringConverter := AValueToStringConverter;
   FContentTypeManager := AContentTypeManager;
 end;
 
@@ -186,7 +186,7 @@ var
   VItem: IVectorDataItem;
   VList: IVectorItemSubsetBuilder;
   VVectorData: IVectorItemSubset;
-  VValueToStringConverter: IValueToStringConverter;
+  VCoordToStringConverter: ICoordToStringConverter;
   VConfig: IJpegWithExifImportConfig;
   VIcon: IAppearancePointIcon;
   VCaption: IAppearancePointCaption;
@@ -199,7 +199,7 @@ begin
 
   Result := nil;
 
-  VValueToStringConverter := FValueToStringConverter.GetStatic;
+  VCoordToStringConverter := FCoordToStringConverter.GetStatic;
 
   if not Supports(AConfig, IJpegWithExifImportConfig, VConfig) then begin
     VConfig := nil;
@@ -287,7 +287,7 @@ begin
       end;
     end;
 
-    VDesc := VDesc + 'GPS Coordinates: [ ' + VValueToStringConverter.LonLatConvert(VPoint) + ' ]' + br;
+    VDesc := VDesc + 'GPS Coordinates: [ ' + VCoordToStringConverter.LonLatConvert(VPoint) + ' ]' + br;
 
     if VAltitude <> '' then begin
       VDesc := VDesc + 'GPS Elevation: ' + VAltitude + br;

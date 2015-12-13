@@ -33,6 +33,7 @@ uses
   i_Projection,
   i_GeometryLonLatFactory,
   i_ArchiveReadWriteFactory,
+  i_CoordToStringConverter,
   i_ValueToStringConverter,
   i_GeoCalc,
   i_GeometryLonLat,
@@ -191,6 +192,7 @@ type
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+      const ACoordToStringConverter: ICoordToStringConverterChangeable;
       const AValueToStringConverter: IValueToStringConverterChangeable
     );
     destructor Destroy; override;
@@ -235,6 +237,7 @@ constructor TMarkDbGUIHelper.Create(
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+  const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const AValueToStringConverter: IValueToStringConverterChangeable
 );
 begin
@@ -260,7 +263,7 @@ begin
       FMarkSystem.CategoryDB,
       FMarkSystem.MarkDb.Factory.MarkPictureList,
       AViewPortState,
-      AValueToStringConverter
+      ACoordToStringConverter
     );
   FfrmMarkEditPath :=
     TfrmMarkEditPath.Create(
@@ -300,6 +303,7 @@ begin
   FfrmMarkInfo :=
     TfrmMarkInfo.Create(
       ALanguageManager,
+      ACoordToStringConverter,
       AValueToStringConverter,
       AGeoCalc
     );

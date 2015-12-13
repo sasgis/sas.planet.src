@@ -37,6 +37,7 @@ uses
   i_ListenerNotifierLinksList,
   i_LanguageManager,
   i_SatellitesInViewMapDraw,
+  i_CoordToStringConverter,
   i_ValueToStringConverter,
   i_SensorList,
   i_Sensor,
@@ -240,7 +241,7 @@ type
 
   TSensorViewPositionTBXPanel = class(TSensorViewTBXPanelBase)
   private
-    FValueConverter: IValueToStringConverterChangeable;
+    FCoordToStringConverter: ICoordToStringConverterChangeable;
     FSensor: ISensorPosition;
     FlblValue: TTBXLabel;
   protected
@@ -250,7 +251,7 @@ type
     constructor Create(
       const AListEntity: ISensorListEntity;
       const ATimerNoifier: INotifierTime;
-      const AValueConverter: IValueToStringConverterChangeable;
+      const ACoordToStringConverter: ICoordToStringConverterChangeable;
       AOwner: TComponent;
       ADefaultDoc: TTBDock;
       AParentMenu: TTBCustomItem;
@@ -868,7 +869,7 @@ end;
 constructor TSensorViewPositionTBXPanel.Create(
   const AListEntity: ISensorListEntity;
   const ATimerNoifier: INotifierTime;
-  const AValueConverter: IValueToStringConverterChangeable;
+  const ACoordToStringConverter: ICoordToStringConverterChangeable;
   AOwner: TComponent;
   ADefaultDoc: TTBDock;
   AParentMenu: TTBCustomItem;
@@ -877,13 +878,13 @@ constructor TSensorViewPositionTBXPanel.Create(
 );
 begin
   inherited Create(AListEntity, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
-  FValueConverter := AValueConverter;
+  FCoordToStringConverter := ACoordToStringConverter;
   if not Supports(FListEntity.GetSensor, ISensorPosition, FSensor) then begin
     raise Exception.Create('Неподдерживаемый тип сенсора');
   end;
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnSensorDataUpdate),
-    FValueConverter.ChangeNotifier
+    FCoordToStringConverter.ChangeNotifier
   );
 end;
 
@@ -918,7 +919,7 @@ begin
   if PointIsEmpty(VValue) then begin
     VText := '~';
   end else begin
-    VText := FValueConverter.GetStatic.LonLatConvert(FSensor.GetValue);
+    VText := FCoordToStringConverter.GetStatic.LonLatConvert(FSensor.GetValue);
   end;
   FlblValue.Caption := VText;
 end;

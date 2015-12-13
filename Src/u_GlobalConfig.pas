@@ -30,6 +30,7 @@ uses
   i_InetConfig,
   i_BitmapPostProcessingConfig,
   i_ValueToStringConverterConfig,
+  i_CoordRepresentationConfig,
   i_ImageResamplerConfig,
   i_MainMemCacheConfig,
   i_MarkFactoryConfig,
@@ -77,6 +78,7 @@ type
     FTileReprojectResamplerConfig: IImageResamplerConfig;
     FTileDownloadResamplerConfig: IImageResamplerConfig;
     FBitmapPostProcessingConfig: IBitmapPostProcessingConfig;
+    FCoordRepresentationConfig: ICoordRepresentationConfig;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FImageResamplerConfig: IImageResamplerConfig;
     FTileMatrixDraftResamplerConfig: IImageResamplerConfig;
@@ -116,6 +118,7 @@ type
     function GetTileReprojectResamplerConfig: IImageResamplerConfig;
     function GetTileDownloadResamplerConfig: IImageResamplerConfig;
     function GetBitmapPostProcessingConfig: IBitmapPostProcessingConfig;
+    function GetCoordRepresentationConfig: ICoordRepresentationConfig;
     function GetValueToStringConverterConfig: IValueToStringConverterConfig;
     function GetImageResamplerConfig: IImageResamplerConfig;
     function GetTileMatrixDraftResamplerConfig: IImageResamplerConfig;
@@ -155,6 +158,7 @@ uses
   u_WindowPositionConfig,
   u_ThreadConfig,
   u_ImageResamplerConfig,
+  u_CoordRepresentationConfig,
   u_ValueToStringConverterConfig,
   u_MainMemCacheConfig,
   u_GPSConfig,
@@ -250,6 +254,9 @@ begin
 
   FTileDownloadResamplerConfig := TImageResamplerConfig.Create(CResamplerLinearGUID);
   Add(FTileDownloadResamplerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps_Download'), False, False, False, False);
+
+  FCoordRepresentationConfig := TCoordRepresentationConfig.Create;
+  Add(FCoordRepresentationConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('CoordFormats'), False, False, False, False);
 
   FValueToStringConverterConfig := TValueToStringConverterConfig.Create;
   Add(FValueToStringConverterConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('ValueFormats'), False, False, False, False);
@@ -473,6 +480,11 @@ end;
 function TGlobalConfig.GetTrackPath: IPathConfig;
 begin
   Result := FTrackPath;
+end;
+
+function TGlobalConfig.GetCoordRepresentationConfig: ICoordRepresentationConfig;
+begin
+  Result := FCoordRepresentationConfig;
 end;
 
 function TGlobalConfig.GetValueToStringConverterConfig: IValueToStringConverterConfig;

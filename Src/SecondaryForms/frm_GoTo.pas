@@ -45,7 +45,7 @@ uses
   i_LocalCoordConverterChangeable,
   i_VectorDataItemSimple,
   i_VectorItemSubsetBuilder,
-  i_ValueToStringConverter,
+  i_CoordToStringConverter,
   i_SearchResultPresenter,
   i_GeoCoder,
   u_CommonFormAndFrameParents,
@@ -78,7 +78,7 @@ type
     FGeoCoderList: IGeoCoderListStatic;
     FGeoCodePlacemarkFactory: IGeoCodePlacemarkFactory;
     FViewPortState: ILocalCoordConverterChangeable;
-    FValueToStringConverter: IValueToStringConverterChangeable;
+    FCoordToStringConverter: ICoordToStringConverterChangeable;
     FResult: IGeoCodeResult;
     frLonLatPoint: TfrLonLat;
     FMarksList: IInterfaceListStatic;
@@ -111,7 +111,7 @@ type
       const AFSearchHistory: IStringHistory;
       const AMainGeoCoderConfig: IMainGeoCoderConfig;
       const AViewPortState: ILocalCoordConverterChangeable;
-      const AValueToStringConverter: IValueToStringConverterChangeable;
+      const ACoordToStringConverter: ICoordToStringConverterChangeable;
       const ASearchPresenter: ISearchResultPresenter
     ); reintroduce;
     destructor Destroy; override;
@@ -260,7 +260,7 @@ begin
     end else if pgcSearchType.ActivePage = tsCoordinates then begin
       if frLonLatPoint.Validate then begin
         VLonLat := frLonLatPoint.LonLat;
-        textsrch := FValueToStringConverter.GetStatic.LonLatConvert(VLonLat);
+        textsrch := FCoordToStringConverter.GetStatic.LonLatConvert(VLonLat);
         FResult := GeocodeResultFromLonLat(textsrch, VLonLat, textsrch);
       end;
     end else if pgcSearchType.ActivePage = tsSearch then begin
@@ -323,7 +323,7 @@ constructor TfrmGoTo.Create(
   const AFSearchHistory: IStringHistory;
   const AMainGeoCoderConfig: IMainGeoCoderConfig;
   const AViewPortState: ILocalCoordConverterChangeable;
-  const AValueToStringConverter: IValueToStringConverterChangeable;
+  const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const ASearchPresenter: ISearchResultPresenter
 );
 begin
@@ -336,7 +336,7 @@ begin
   Assert(AFSearchHistory <> nil);
   Assert(AMainGeoCoderConfig <> nil);
   Assert(AViewPortState <> nil);
-  Assert(AValueToStringConverter <> nil);
+  Assert(ACoordToStringConverter <> nil);
   Assert(ASearchPresenter <> nil);
 
   inherited Create(ALanguageManager);
@@ -347,14 +347,14 @@ begin
   FSearchHistory := AFSearchHistory;
   FMainGeoCoderConfig := AMainGeoCoderConfig;
   FViewPortState := AViewPortState;
-  FValueToStringConverter := AValueToStringConverter;
+  FCoordToStringConverter := ACoordToStringConverter;
   FSearchPresenter := ASearchPresenter;
   frLonLatPoint :=
     TfrLonLat.Create(
       ALanguageManager,
       AProjectionSet,
       FViewPortState,
-      FValueToStringConverter,
+      FCoordToStringConverter,
       tssCenter
     );
   frLonLatPoint.Width := tsCoordinates.Width;

@@ -37,6 +37,7 @@ uses
   i_LanguageManager,
   i_GeometryLonLat,
   i_GeoCalc,
+  i_CoordToStringConverter,
   i_ValueToStringConverter,
   i_VectorDataItemSimple,
   u_CommonFormAndFrameParents;
@@ -52,6 +53,7 @@ type
     );
   private
     FCancelNotifier: INotifierOperationInternal;
+    FCoordToStringConverter: ICoordToStringConverterChangeable;
     FValueToStringConverter: IValueToStringConverterChangeable;
     FGeoCalc: IGeoCalc;
     FArea: Double;
@@ -69,6 +71,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
+      const ACoordToStringConverter: ICoordToStringConverterChangeable;
       const AValueToStringConverter: IValueToStringConverterChangeable;
       const AGeoCalc: IGeoCalc
     ); reintroduce;
@@ -153,14 +156,17 @@ end;
 
 constructor TfrmMarkInfo.Create(
   const ALanguageManager: ILanguageManager;
+  const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const AValueToStringConverter: IValueToStringConverterChangeable;
   const AGeoCalc: IGeoCalc
 );
 begin
   TP_GlobalIgnoreClassProperty(TEmbeddedWB, 'StatusText');
+  Assert(ACoordToStringConverter <> nil);
   Assert(AValueToStringConverter <> nil);
   Assert(Assigned(AGeoCalc));
   inherited Create(ALanguageManager);
+  FCoordToStringConverter := ACoordToStringConverter;
   FValueToStringConverter := AValueToStringConverter;
   FGeoCalc := AGeoCalc;
   FCancelNotifier :=
@@ -278,9 +284,9 @@ end;
 
 function TfrmMarkInfo.GetTextForPoint(const APoint: IGeometryLonLatPoint): string;
 var
-  VConverter: IValueToStringConverter;
+  VConverter: ICoordToStringConverter;
 begin
-  VConverter := FValueToStringConverter.GetStatic;
+  VConverter := FCoordToStringConverter.GetStatic;
   Result := '';
   Result := Result + Format(_('Coordinates: %s'), [VConverter.LonLatConvert(APoint.Point)]) + #13#10;
 end;

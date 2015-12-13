@@ -34,7 +34,7 @@ uses
   t_GeoTypes,
   i_LanguageManager,
   i_ProjectionSetChangeable,
-  i_ValueToStringConverter,
+  i_CoordToStringConverter,
   i_LocalCoordConverterChangeable,
   fr_LonLat;
 
@@ -59,7 +59,7 @@ type
       const ALanguageManager: ILanguageManager;
       const AProjectionSet: IProjectionSetChangeable;
       const AViewPortState: ILocalCoordConverterChangeable;
-      const AValueToStringConverter: IValueToStringConverterChangeable
+      const ACoordToStringConverter: ICoordToStringConverterChangeable
     ); reintroduce;
     destructor Destroy; override;
     function Execute(var ALonLatRect: TDoubleRect): Boolean;
@@ -76,7 +76,7 @@ constructor TfrmLonLatRectEdit.Create(
   const ALanguageManager: ILanguageManager;
   const AProjectionSet: IProjectionSetChangeable;
   const AViewPortState: ILocalCoordConverterChangeable;
-  const AValueToStringConverter: IValueToStringConverterChangeable
+  const ACoordToStringConverter: ICoordToStringConverterChangeable
 );
 begin
   inherited Create(ALanguageManager);
@@ -85,7 +85,7 @@ begin
       ALanguageManager,
       AProjectionSet,
       AViewPortState,
-      AValueToStringConverter,
+      ACoordToStringConverter,
       tssTopLeft
     );
   FfrLonLatBottomRight :=
@@ -93,7 +93,7 @@ begin
       ALanguageManager,
       AProjectionSet,
       AViewPortState,
-      AValueToStringConverter,
+      ACoordToStringConverter,
       tssBottomRight
     );
 end;

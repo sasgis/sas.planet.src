@@ -33,8 +33,6 @@ type
   }
   TDistStrFormat = (dsfKmAndM = 0, dsfSimpleKM = 1);
 
-  TDegrShowFormat = (dshCharDegrMinSec = 0, dshCharDegrMin = 1, dshCharDegr = 2, dshSignDegrMinSec = 3, dshSignDegrMin = 4, dshSignDegr = 5);
-
   TAreaStrFormat = (asfAuto = 0, asfSqM = 1, asfSqKm = 2, asfHa = 3);
 
   TStringTypeSupport = (stsAscii = 0, stsAnsi = 1, stsUnicode = 2);

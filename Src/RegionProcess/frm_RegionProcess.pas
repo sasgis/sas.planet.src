@@ -77,6 +77,7 @@ uses
   i_FillingMapLayerConfig,
   i_FillingMapPolygon,
   i_MapLayerGridsConfig,
+  i_CoordToStringConverter,
   i_ValueToStringConverter,
   i_MapTypeGUIConfigList,
   i_GlobalBerkeleyDBHelper,
@@ -191,6 +192,7 @@ type
       const AFillingMapType: IMapTypeChangeable;
       const AFillingMapPolygon: IFillingMapPolygon;
       const AGridsConfig: IMapLayerGridsConfig;
+      const ACoordToStringConverter: ICoordToStringConverterChangeable;
       const AValueToStringConverter: IValueToStringConverterChangeable;
       const AMapGoto: IMapViewGoto;
       const AMarkDBGUI: TMarkDbGUIHelper
@@ -255,6 +257,7 @@ constructor TfrmRegionProcess.Create(
   const AFillingMapType: IMapTypeChangeable;
   const AFillingMapPolygon: IFillingMapPolygon;
   const AGridsConfig: IMapLayerGridsConfig;
+  const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const AValueToStringConverter: IValueToStringConverterChangeable;
   const AMapGoto: IMapViewGoto;
   const AMarkDBGUI: TMarkDbGUIHelper
@@ -378,7 +381,7 @@ begin
       AFillingMapType,
       AFillingMapPolygon,
       AGridsConfig,
-      AValueToStringConverter,
+      ACoordToStringConverter,
       AMapCalibrationList
     );
 end;

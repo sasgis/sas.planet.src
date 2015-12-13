@@ -35,7 +35,7 @@ uses
   t_GeoTypes,
   i_LanguageManager,
   i_ProjectionSetChangeable,
-  i_ValueToStringConverter,
+  i_CoordToStringConverter,
   i_LocalCoordConverterChangeable,
   u_CommonFormAndFrameParents;
 
@@ -64,7 +64,7 @@ type
     FCoordinates: TDoublePoint;
     FProjectionSet: IProjectionSetChangeable;
     FViewPortState: ILocalCoordConverterChangeable;
-    FValueToStringConverter: IValueToStringConverterChangeable;
+    FCoordToStringConverter: ICoordToStringConverterChangeable;
     FTileSelectStyle: TTileSelectStyle;
     function GetLonLat: TDoublePoint;
     procedure SetLonLat(const Value: TDoublePoint);
@@ -78,7 +78,7 @@ type
       const ALanguageManager: ILanguageManager;
       const AProjectionSet: IProjectionSetChangeable;
       const AViewPortState: ILocalCoordConverterChangeable;
-      const AValueToStringConverter: IValueToStringConverterChangeable;
+      const AValueToStringConverter: ICoordToStringConverterChangeable;
       ATileSelectStyle: TTileSelectStyle
     ); reintroduce;
     property LonLat: TDoublePoint read GetLonLat write SetLonLat;
@@ -121,14 +121,14 @@ constructor TfrLonLat.Create(
   const ALanguageManager: ILanguageManager;
   const AProjectionSet: IProjectionSetChangeable;
   const AViewPortState: ILocalCoordConverterChangeable;
-  const AValueToStringConverter: IValueToStringConverterChangeable;
+  const AValueToStringConverter: ICoordToStringConverterChangeable;
   ATileSelectStyle: TTileSelectStyle
 );
 begin
   inherited Create(ALanguageManager);
   FProjectionSet := AProjectionSet;
   FViewPortState := AViewPortState;
-  FValueToStringConverter := AValueToStringConverter;
+  FCoordToStringConverter := AValueToStringConverter;
   FTileSelectStyle := ATileSelectStyle;
 end;
 
@@ -216,13 +216,13 @@ end;
 
 procedure TfrLonLat.SetLonLat(const Value: TDoublePoint);
 var
-  VValueConverter: IValueToStringConverter;
+  VToStringConverter: ICoordToStringConverter;
   XYPoint: TPoint;
   CurrZoom: integer;
   VLocalConverter: ILocalCoordConverter;
 begin
   FCoordinates := Value;
-  VValueConverter := FValueToStringConverter.GetStatic;
+  VToStringConverter := FCoordToStringConverter.GetStatic;
   VLocalConverter := FViewPortState.GetStatic;
   CurrZoom := VLocalConverter.Projection.Zoom;
   cbbZoom.ItemIndex := CurrZoom;
@@ -232,8 +232,8 @@ begin
 
   case cbbCoordType.ItemIndex of
     0: begin
-      edtLon.Text := VValueConverter.LonConvert(Value.x, false);
-      edtLat.Text := VValueConverter.LatConvert(Value.y, false);
+      edtLon.Text := VToStringConverter.LonConvert(Value.x, false);
+      edtLat.Text := VToStringConverter.LatConvert(Value.y, false);
     end;
     1: begin
       XYPoint :=

@@ -18,35 +18,35 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_ValueToStringConverterConfig;
+unit i_CoordToStringConverter;
 
 interface
 
 uses
-  t_CommonTypes,
-  i_ConfigDataElement;
+  t_GeoTypes,
+  i_Changeable;
 
 type
-  IValueToStringConverterConfigStatic = interface
-    ['{DFD404AC-DB7D-4108-9822-A0DD2943A5C7}']
-    function GetDistStrFormat: TDistStrFormat;
-    property DistStrFormat: TDistStrFormat read GetDistStrFormat;
+  ICoordToStringConverter = interface
+  ['{0140A97B-47A3-44DE-91D5-9BAA54B34C4C}']
+    function LonLatConvert(
+      const ALonLat: TDoublePoint
+    ): string;
 
-    function GetAreaShowFormat: TAreaStrFormat;
-    property AreaShowFormat: TAreaStrFormat read GetAreaShowFormat;
+    function LonConvert(
+      const ALon: Double;
+      const ACutZero: Boolean
+    ): string;
+
+    function LatConvert(
+      const ALat: Double;
+      const ACutZero: Boolean
+    ): string;
   end;
 
-  IValueToStringConverterConfig = interface(IConfigDataElement)
-    ['{DDC4DF45-A387-43DC-AED7-33935241C718}']
-    function GetDistStrFormat: TDistStrFormat;
-    procedure SetDistStrFormat(AValue: TDistStrFormat);
-    property DistStrFormat: TDistStrFormat read GetDistStrFormat write SetDistStrFormat;
-
-    function GetAreaShowFormat: TAreaStrFormat;
-    procedure SetAreaShowFormat(AValue: TAreaStrFormat);
-    property AreaShowFormat: TAreaStrFormat read GetAreaShowFormat write SetAreaShowFormat;
-
-    function GetStatic: IValueToStringConverterConfigStatic;
+  ICoordToStringConverterChangeable = interface(IChangeable)
+  ['{BEAE1C2A-2516-43CF-818C-6D7C5B42D788}']
+    function GetStatic: ICoordToStringConverter;
   end;
 
 implementation

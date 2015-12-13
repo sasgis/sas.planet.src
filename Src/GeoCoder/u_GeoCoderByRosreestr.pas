@@ -34,13 +34,13 @@ uses
   i_LocalCoordConverter,
   i_VectorItemSubsetBuilder,
   i_DownloadResultFactory,
-  i_ValueToStringConverter,
+  i_CoordToStringConverter,
   u_GeoCoderBasic;
 
 type
   TGeoCoderByRosreestr = class(TGeoCoderBasic)
   private
-    FValueToStringConverter: IValueToStringConverterChangeable;
+    FCoordToStringConverter: ICoordToStringConverterChangeable;
   protected
     function PrepareRequest(
       const ASearch: string;
@@ -60,7 +60,7 @@ type
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
       const AResultFactory: IDownloadResultFactory;
-      const AValueToStringConverter: IValueToStringConverterChangeable
+      const ACoordToStringConverter: ICoordToStringConverterChangeable
     );
 
   end;
@@ -119,7 +119,7 @@ constructor TGeoCoderByRosreestr.Create(
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APlacemarkFactory: IGeoCodePlacemarkFactory;
   const AResultFactory: IDownloadResultFactory;
-  const AValueToStringConverter: IValueToStringConverterChangeable
+  const ACoordToStringConverter: ICoordToStringConverterChangeable
 );
 begin
   inherited Create(
@@ -129,7 +129,7 @@ begin
     APlacemarkFactory,
     AResultFactory
   );
-  FValueToStringConverter := AValueToStringConverter;
+  FCoordToStringConverter := ACoordToStringConverter;
 end;
 
 
@@ -148,12 +148,12 @@ var
   VPlace: IVectorDataItem;
   VList: IInterfaceListSimple;
   VFormatSettings: TALFormatSettings;
-  VValueConverter: IValueToStringConverter;
+  VCoordToStringConverter: ICoordToStringConverter;
   VStr: AnsiString;
   VTemp: AnsiString;
   VTemp1: AnsiString;
 begin
-  VValueConverter := FValueToStringConverter.GetStatic;
+  VCoordToStringConverter := FCoordToStringConverter.GetStatic;
   sfulldesc := '';
   sdesc := '';
   VtempString := '';
@@ -196,7 +196,7 @@ begin
       raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
     end;
     i := (ALPosEx('}}', VStr, j));
-    sdesc := sdesc + #$D#$A + '[ ' + VValueConverter.LonLatConvert(VPoint) + ' ]';
+    sdesc := sdesc + #$D#$A + '[ ' + VCoordToStringConverter.LonLatConvert(VPoint) + ' ]';
     sfulldesc := ReplaceStr(sname + #$D#$A + sdesc, #$D#$A, '<br>');
     VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
     VList.Add(VPlace);
@@ -227,7 +227,7 @@ begin
       raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
     end;
     i := (ALPosEx('}}', VStr, i));
-    sdesc := sdesc + #$D#$A + '[ ' + VValueConverter.LonLatConvert(VPoint) + ' ]';
+    sdesc := sdesc + #$D#$A + '[ ' + VCoordToStringConverter.LonLatConvert(VPoint) + ' ]';
     sfulldesc := ReplaceStr(sname + #$D#$A + sdesc, #$D#$A, '<br>');
     VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
     VList.Add(VPlace);
