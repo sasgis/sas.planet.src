@@ -138,7 +138,7 @@ var
   VGridRect: TRect;
   i, j: Integer;
   VTextSize: TSize;
-  VListName: String;
+  VListNameLon, VListNameLat: string;
   VLocalCellCenter: TDoublePoint;
   VOutPoint: TPoint;
 begin
@@ -186,19 +186,25 @@ begin
       VLocalCellCenter := RectCenter(VLocalRectOfCell);
 
       if abs(VLonLatRectOfCell.Top) <= 85 then begin
-        VListName := FCoordToStringConverter.LatConvert(VLonLatRectOfCell.Top, true);
+        FCoordToStringConverter.LonLatConvert(
+          VLonLatRectOfCell.Left,
+          VLonLatRectOfCell.Top,
+          True,
+          VListNameLon,
+          VListNameLat
+        )
       end else begin
-        VListName := '';
+        VListNameLon := '';
+        VListNameLat := '';
       end;
 
-      VTextSize := FBitmap.TextExtent(VListName);
+      VTextSize := FBitmap.TextExtent(VListNameLat);
       VOutPoint := Types.Point(Trunc(VLocalCellCenter.X - VTextSize.cx / 2), Trunc(VLocalRectOfCell.Top));
-      FBitmap.RenderText(VOutPoint.X, VOutPoint.Y, VListName, 0, FColor);
+      FBitmap.RenderText(VOutPoint.X, VOutPoint.Y, VListNameLat, 0, FColor);
 // **************************************************
-      VListName := FCoordToStringConverter.LonConvert(VLonLatRectOfCell.Left, true);
-      VTextSize := FBitmap.TextExtent(VListName);
+      VTextSize := FBitmap.TextExtent(VListNameLon);
       VOutPoint := Types.Point(Trunc(VLocalRectOfCell.Left) + 3, Trunc(VLocalCellCenter.Y - VTextSize.cy / 2));
-      FBitmap.RenderText(VOutPoint.X, VOutPoint.Y, VListName, 0, FColor);
+      FBitmap.RenderText(VOutPoint.X, VOutPoint.Y, VListNameLon, 0, FColor);
     end;
   end;
 end;

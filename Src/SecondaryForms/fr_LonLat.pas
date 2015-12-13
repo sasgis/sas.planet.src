@@ -35,6 +35,7 @@ uses
   t_GeoTypes,
   i_LanguageManager,
   i_ProjectionSetChangeable,
+  i_CoordFromStringParser,
   i_CoordToStringConverter,
   i_LocalCoordConverterChangeable,
   u_CommonFormAndFrameParents;
@@ -64,21 +65,18 @@ type
     FCoordinates: TDoublePoint;
     FProjectionSet: IProjectionSetChangeable;
     FViewPortState: ILocalCoordConverterChangeable;
+    FCoordFromStringParser: ICoordFromStringParser;
     FCoordToStringConverter: ICoordToStringConverterChangeable;
     FTileSelectStyle: TTileSelectStyle;
     function GetLonLat: TDoublePoint;
     procedure SetLonLat(const Value: TDoublePoint);
-    function Edit2Digit(
-      const Atext: string;
-      lat: boolean;
-      out res: Double
-    ): boolean;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AProjectionSet: IProjectionSetChangeable;
       const AViewPortState: ILocalCoordConverterChangeable;
-      const AValueToStringConverter: ICoordToStringConverterChangeable;
+      const ACoordFromStringParser: ICoordFromStringParser;
+      const ACoordToStringConverter: ICoordToStringConverterChangeable;
       ATileSelectStyle: TTileSelectStyle
     ); reintroduce;
     property LonLat: TDoublePoint read GetLonLat write SetLonLat;
@@ -121,92 +119,17 @@ constructor TfrLonLat.Create(
   const ALanguageManager: ILanguageManager;
   const AProjectionSet: IProjectionSetChangeable;
   const AViewPortState: ILocalCoordConverterChangeable;
-  const AValueToStringConverter: ICoordToStringConverterChangeable;
+  const ACoordFromStringParser: ICoordFromStringParser;
+  const ACoordToStringConverter: ICoordToStringConverterChangeable;
   ATileSelectStyle: TTileSelectStyle
 );
 begin
   inherited Create(ALanguageManager);
   FProjectionSet := AProjectionSet;
   FViewPortState := AViewPortState;
-  FCoordToStringConverter := AValueToStringConverter;
+  FCoordFromStringParser := ACoordFromStringParser;
+  FCoordToStringConverter := ACoordToStringConverter;
   FTileSelectStyle := ATileSelectStyle;
-end;
-
-function TfrLonLat.Edit2Digit(
-  const Atext: string;
-  lat: boolean;
-  out res: Double
-): boolean;
-var
-  i, delitel: integer;
-  gms: double;
-  VText: string;
-  minus: boolean;
-begin
-  result := true;
-  res := 0;
-  VText := UpperCase(Atext);
-
-  VText := StringReplace(VText, 'S', '-', [rfReplaceAll]);
-  VText := StringReplace(VText, 'W', '-', [rfReplaceAll]);
-  VText := StringReplace(VText, 'N', '+', [rfReplaceAll]);
-  VText := StringReplace(VText, 'E', '+', [rfReplaceAll]);
-  VText := StringReplace(VText, 'Þ', '-', [rfReplaceAll]);
-  VText := StringReplace(VText, 'Ç', '-', [rfReplaceAll]);
-  VText := StringReplace(VText, 'Â', '+', [rfReplaceAll]);
-  VText := StringReplace(VText, 'Ñ', '+', [rfReplaceAll]);
-  minus := false;
-  if posEx('-', VText, 1) > 0 then begin
-    minus := true;
-  end;
-
-  i := 1;
-  while i <= length(VText) do begin
-    if (not (AnsiChar(VText[i]) in ['0'..'9', '-', '+', '.', ',', ' '])) then begin
-      VText[i] := ' ';
-      dec(i);
-    end;
-
-    if ((i = 1) and (VText[i] = ' ')) or
-      ((i = length(VText)) and (VText[i] = ' ')) or
-      ((i < length(VText) - 1) and (VText[i] = ' ') and (VText[i + 1] = ' ')) or
-      ((i > 1) and (VText[i] = ' ') and (not (AnsiChar(VText[i - 1]) in ['0'..'9']))) or
-      ((i < length(VText) - 1) and (VText[i] = ',') and (VText[i + 1] = ' ')) then begin
-      Delete(VText, i, 1);
-      dec(i);
-    end;
-    inc(i);
-  end;
-
-  try
-    res := 0;
-    delitel := 1;
-    repeat
-      i := posEx(' ', VText, 1);
-      if i = 0 then begin
-        gms := str2r(VText);
-      end else begin
-        gms := str2r(copy(VText, 1, i - 1));
-        Delete(VText, 1, i);
-      end;
-      if ((delitel > 1) and (abs(gms) > 60)) or
-        ((delitel = 1) and (lat) and (abs(gms) > 90)) or
-        ((delitel = 1) and (not lat) and (abs(gms) > 180)) then begin
-        Result := false;
-      end;
-      if res < 0 then begin
-        res := res - gms / delitel;
-      end else begin
-        res := res + gms / delitel;
-      end;
-      if minus and (res > 0) then begin
-        res := -res;
-      end;
-      delitel := delitel * 60;
-    until (i = 0) or (delitel > 3600) or (not result);
-  except
-    result := false;
-  end;
 end;
 
 function TfrLonLat.GetLonLat: TDoublePoint;
@@ -216,13 +139,12 @@ end;
 
 procedure TfrLonLat.SetLonLat(const Value: TDoublePoint);
 var
-  VToStringConverter: ICoordToStringConverter;
+  VLon, VLat: string;
   XYPoint: TPoint;
   CurrZoom: integer;
   VLocalConverter: ILocalCoordConverter;
 begin
   FCoordinates := Value;
-  VToStringConverter := FCoordToStringConverter.GetStatic;
   VLocalConverter := FViewPortState.GetStatic;
   CurrZoom := VLocalConverter.Projection.Zoom;
   cbbZoom.ItemIndex := CurrZoom;
@@ -232,8 +154,11 @@ begin
 
   case cbbCoordType.ItemIndex of
     0: begin
-      edtLon.Text := VToStringConverter.LonConvert(Value.x, false);
-      edtLat.Text := VToStringConverter.LatConvert(Value.y, false);
+      FCoordToStringConverter.GetStatic.LonLatConvert(
+        Value.X, Value.Y, False, VLon, VLat
+      );
+      edtLon.Text := VLon;
+      edtLat.Text := VLat;
     end;
     1: begin
       XYPoint :=
@@ -270,7 +195,7 @@ begin
   Result := True;
   case cbbCoordType.ItemIndex of
     0: begin
-      if not (Edit2Digit(edtLat.Text, true, VLonLat.y)) or not (Edit2Digit(edtLon.Text, false, VLonLat.x)) then begin
+      if not FCoordFromStringParser.TryStrToCoord(edtLon.Text, edtLat.Text, VLonLat) then begin
         ShowMessage(SAS_ERR_CoordinatesInput);
         Result := False;
       end;

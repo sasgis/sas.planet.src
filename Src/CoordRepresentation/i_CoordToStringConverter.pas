@@ -31,17 +31,15 @@ type
   ['{0140A97B-47A3-44DE-91D5-9BAA54B34C4C}']
     function LonLatConvert(
       const ALonLat: TDoublePoint
-    ): string;
+    ): string; overload;
 
-    function LonConvert(
+    procedure LonLatConvert(
       const ALon: Double;
-      const ACutZero: Boolean
-    ): string;
-
-    function LatConvert(
       const ALat: Double;
-      const ACutZero: Boolean
-    ): string;
+      const ACutZero: Boolean;
+      out ALonStr: string;
+      out ALatStr: string
+    ); overload;
   end;
 
   ICoordToStringConverterChangeable = interface(IChangeable)

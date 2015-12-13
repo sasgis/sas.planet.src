@@ -93,6 +93,7 @@ uses
   i_SystemTimeProvider,
   i_MarkCategoryFactory,
   i_MarkFactory,
+  i_CoordFromStringParser,
   i_CoordToStringConverter,
   i_ValueToStringConverter,
   i_VectorItemTreeImporterList,
@@ -201,6 +202,7 @@ type
     FMergePolygonsResult: IMergePolygonsResult;
     FImageResamplerFactoryList: IImageResamplerFactoryList;
     FLastSearchResult: ILastSearchResult;
+    FCoordFromStringParser: ICoordFromStringParser;
     FCoordToStringConverter: ICoordToStringConverterChangeable;
     FValueToStringConverter: IValueToStringConverterChangeable;
     FAppEnum: IAppEnum;
@@ -285,6 +287,7 @@ type
     property TileStorageTypeList: ITileStorageTypeListStatic read FTileStorageTypeList;
     property ImageResamplerFactoryList: IImageResamplerFactoryList read FImageResamplerFactoryList;
     property LastSearchResult: ILastSearchResult read FLastSearchResult;
+    property CoordFromStringParser: ICoordFromStringParser read FCoordFromStringParser;
     property CoordToStringConverter: ICoordToStringConverterChangeable read FCoordToStringConverter;
     property ValueToStringConverter: IValueToStringConverterChangeable read FValueToStringConverter;
     property GeoCoderList: IGeoCoderListStatic read FGeoCoderList;
@@ -416,6 +419,7 @@ uses
   u_VectorItemTreeExporterListSimple,
   u_VectorItemTreeImporterListSimple,
   u_BitmapPostProcessingChangeableByConfig,
+  u_CoordFromStringParser,
   u_CoordToStringConverterChangeable,
   u_ValueToStringConverterChangeable,
   u_InternalBrowserLastContent,
@@ -639,6 +643,11 @@ begin
     TGeometryProjectedProvider.Create(
       FHashFunction,
       FVectorGeometryProjectedFactory
+    );
+
+  FCoordFromStringParser :=
+    TCoordFromStringParser.Create(
+      FGlobalConfig.CoordRepresentationConfig
     );
 
   FCoordToStringConverter :=

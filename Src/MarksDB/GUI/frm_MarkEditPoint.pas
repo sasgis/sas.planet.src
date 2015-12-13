@@ -38,6 +38,7 @@ uses
   i_PathConfig,
   i_ProjectionSetChangeable,
   i_LocalCoordConverterChangeable,
+  i_CoordFromStringParser,
   i_CoordToStringConverter,
   i_MarkPicture,
   i_GeometryLonLatFactory,
@@ -125,6 +126,7 @@ type
       const ACategoryDB: IMarkCategoryDB;
       const APictureList: IMarkPictureList;
       const AViewPortState: ILocalCoordConverterChangeable;
+      const ACoordFromStringParser: ICoordFromStringParser;
       const ACoordToStringConverter: ICoordToStringConverterChangeable
     ); reintroduce;
     destructor Destroy; override;
@@ -159,6 +161,7 @@ constructor TfrmMarkEditPoint.Create(
   const ACategoryDB: IMarkCategoryDB;
   const APictureList: IMarkPictureList;
   const AViewPortState: ILocalCoordConverterChangeable;
+  const ACoordFromStringParser: ICoordFromStringParser;
   const ACoordToStringConverter: ICoordToStringConverterChangeable
 );
 begin
@@ -175,6 +178,7 @@ begin
       ALanguageManager,
       AProjectionSetChangeable,
       AViewPortState,
+      ACoordFromStringParser,
       ACoordToStringConverter,
       tssCenter
     );

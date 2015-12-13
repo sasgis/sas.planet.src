@@ -377,6 +377,12 @@
 			<DCCReference Include="Src\CoordConvert\u_ProjectionTypeGELonLat.pas"/>
 			<DCCReference Include="Src\CoordConvert\u_ProjectionTypeMercatorOnEllipsoid.pas"/>
 			<DCCReference Include="Src\CoordConvert\u_ProjectionTypeMercatorOnSphere.pas"/>
+			<DCCReference Include="Src\CoordRepresentation\i_CoordRepresentationConfig.pas"/>
+			<DCCReference Include="Src\CoordRepresentation\i_CoordToStringConverter.pas"/>
+			<DCCReference Include="Src\CoordRepresentation\t_CoordRepresentation.pas"/>
+			<DCCReference Include="Src\CoordRepresentation\u_CoordRepresentationConfig.pas"/>
+			<DCCReference Include="Src\CoordRepresentation\u_CoordToStringConverter.pas"/>
+			<DCCReference Include="Src\CoordRepresentation\u_CoordToStringConverterChangeable.pas"/>
 			<DCCReference Include="Src\Debug\frm_DebugInfo.pas">
 				<Form>frmDebugInfo</Form>
 			</DCCReference>
@@ -1715,12 +1721,8 @@
 			<DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
 			<DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
 			<DCCReference Include="Src\u_WindowPositionConfig.pas"/>
-			<DCCReference Include="Src\CoordRepresentation\i_CoordRepresentationConfig.pas"/>
-			<DCCReference Include="Src\CoordRepresentation\t_CoordRepresentation.pas"/>
-			<DCCReference Include="Src\CoordRepresentation\u_CoordRepresentationConfig.pas"/>
-			<DCCReference Include="Src\CoordRepresentation\u_CoordToStringConverter.pas"/>
-			<DCCReference Include="Src\CoordRepresentation\i_CoordToStringConverter.pas"/>
-			<DCCReference Include="Src\CoordRepresentation\u_CoordToStringConverterChangeable.pas"/>
+			<DCCReference Include="Src\CoordRepresentation\i_CoordFromStringParser.pas"/>
+			<DCCReference Include="Src\CoordRepresentation\u_CoordFromStringParser.pas"/>
 			<BuildConfiguration Include="Debug">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>

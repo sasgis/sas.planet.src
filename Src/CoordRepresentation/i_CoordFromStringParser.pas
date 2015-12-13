@@ -18,24 +18,22 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit t_CoordRepresentation;
+unit i_CoordFromStringParser;
 
 interface
 
-type
-  TDegrShowFormat = (
-    dshCharDegrMinSec = 0,
-    dshCharDegrMin = 1,
-    dshCharDegr = 2,
-    dshSignDegrMinSec = 3,
-    dshSignDegrMin = 4,
-    dshSignDegr = 5
-  );
+uses
+  t_GeoTypes;
 
-  TCoordSysType = (
-    cstWGS84 = 0,
-    cstSK42 = 1
-  );
+type
+  ICoordFromStringParser = interface
+    ['{B5EE19FE-DBBE-458B-B933-2B5A6EAFC51B}']
+    function TryStrToCoord(
+      const ALon: string;
+      const ALat: string;
+      out ACoord: TDoublePoint
+    ): Boolean;
+  end;
 
 implementation
 

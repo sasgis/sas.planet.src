@@ -33,6 +33,7 @@ uses
   i_Projection,
   i_GeometryLonLatFactory,
   i_ArchiveReadWriteFactory,
+  i_CoordFromStringParser,
   i_CoordToStringConverter,
   i_ValueToStringConverter,
   i_GeoCalc,
@@ -192,6 +193,7 @@ type
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+      const ACoordFromStringParser: ICoordFromStringParser;
       const ACoordToStringConverter: ICoordToStringConverterChangeable;
       const AValueToStringConverter: IValueToStringConverterChangeable
     );
@@ -237,6 +239,7 @@ constructor TMarkDbGUIHelper.Create(
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+  const ACoordFromStringParser: ICoordFromStringParser;
   const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const AValueToStringConverter: IValueToStringConverterChangeable
 );
@@ -263,6 +266,7 @@ begin
       FMarkSystem.CategoryDB,
       FMarkSystem.MarkDb.Factory.MarkPictureList,
       AViewPortState,
+      ACoordFromStringParser,
       ACoordToStringConverter
     );
   FfrmMarkEditPath :=

@@ -48,15 +48,14 @@ type
   private
     function LonLatConvert(
       const ALonLat: TDoublePoint
-    ): string;
-    function LonConvert(
+    ): string; overload;
+    procedure LonLatConvert(
       const ALon: Double;
-      const ACutZero: Boolean
-    ): string;
-    function LatConvert(
       const ALat: Double;
-      const ACutZero: Boolean
-    ): string;
+      const ACutZero: Boolean;
+      out ALonStr: string;
+      out ALatStr: string
+    ); overload;
   public
     constructor Create(
       const AIsLatitudeFirst: Boolean;
@@ -71,6 +70,7 @@ uses
   Math,
   SysUtils,
   StrUtils,
+  WGS84_SK42,
   u_ResStrings;
 
 { TCoordToStringConverter }
@@ -216,8 +216,7 @@ var
   VLatStr: string;
   VLonStr: string;
 begin
-  VLatStr := GetLatitudeMarker(ALonLat.Y) + DegrToStr(ALonLat.Y, false);
-  VLonStr := GetLongitudeMarker(ALonLat.X) + DegrToStr(ALonLat.X, false);
+  LonLatConvert(ALonLat.X, ALonLat.Y, False, VLonStr, VLatStr);
   if FIsLatitudeFirst then begin
     Result := VLatStr + ' ' + VLonStr;
   end else begin
@@ -225,20 +224,28 @@ begin
   end;
 end;
 
-function TCoordToStringConverter.LonConvert(
+procedure TCoordToStringConverter.LonLatConvert(
   const ALon: Double;
-  const ACutZero: Boolean
-): string;
-begin
-  Result := GetLongitudeMarker(ALon) + DegrToStr(ALon, ACutZero);
-end;
-
-function TCoordToStringConverter.LatConvert(
   const ALat: Double;
-  const ACutZero: Boolean
-): string;
+  const ACutZero: Boolean;
+  out ALonStr: string;
+  out ALatStr: string
+);
+var
+  VLonLat: TDoublePoint;
 begin
-  Result := GetLatitudeMarker(ALat) + DegrToStr(ALat, ACutZero);
+  case FCoordSysType of
+    cstWGS84: begin
+      VLonLat.X := ALon;
+      VLonLat.Y := ALat;
+    end;
+    cstSK42: begin
+      VLonLat.X := WGS84_SK42_Long(ALat, ALon, 0);
+      VLonLat.Y := WGS84_SK42_Lat(ALat, ALon, 0);
+    end;
+  end;
+  ALonStr := GetLongitudeMarker(VLonLat.X) + DegrToStr(VLonLat.X, ACutZero);
+  ALatStr := GetLatitudeMarker(VLonLat.Y) + DegrToStr(VLonLat.Y, ACutZero);
 end;
 
 end.

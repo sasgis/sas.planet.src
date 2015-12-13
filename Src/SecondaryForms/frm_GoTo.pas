@@ -45,6 +45,7 @@ uses
   i_LocalCoordConverterChangeable,
   i_VectorDataItemSimple,
   i_VectorItemSubsetBuilder,
+  i_CoordFromStringParser,
   i_CoordToStringConverter,
   i_SearchResultPresenter,
   i_GeoCoder,
@@ -111,6 +112,7 @@ type
       const AFSearchHistory: IStringHistory;
       const AMainGeoCoderConfig: IMainGeoCoderConfig;
       const AViewPortState: ILocalCoordConverterChangeable;
+      const ACoordFromStringParser: ICoordFromStringParser;
       const ACoordToStringConverter: ICoordToStringConverterChangeable;
       const ASearchPresenter: ISearchResultPresenter
     ); reintroduce;
@@ -323,6 +325,7 @@ constructor TfrmGoTo.Create(
   const AFSearchHistory: IStringHistory;
   const AMainGeoCoderConfig: IMainGeoCoderConfig;
   const AViewPortState: ILocalCoordConverterChangeable;
+  const ACoordFromStringParser: ICoordFromStringParser;
   const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const ASearchPresenter: ISearchResultPresenter
 );
@@ -336,6 +339,7 @@ begin
   Assert(AFSearchHistory <> nil);
   Assert(AMainGeoCoderConfig <> nil);
   Assert(AViewPortState <> nil);
+  Assert(ACoordFromStringParser <> nil);
   Assert(ACoordToStringConverter <> nil);
   Assert(ASearchPresenter <> nil);
 
@@ -354,6 +358,7 @@ begin
       ALanguageManager,
       AProjectionSet,
       FViewPortState,
+      ACoordFromStringParser,
       FCoordToStringConverter,
       tssCenter
     );
