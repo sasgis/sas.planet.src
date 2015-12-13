@@ -229,6 +229,9 @@ type
     pnlCacheTypesList: TPanel;
     pnlTMSPath: TPanel;
     tsFavorite: TTabSheet;
+    pnlCoordSys: TPanel;
+    lblCoordSysType: TLabel;
+    cbbCoordSysType: TComboBox;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -615,7 +618,7 @@ begin
   try
     GState.Config.CoordRepresentationConfig.IsLatitudeFirst := ChBoxFirstLat.Checked;
     GState.Config.CoordRepresentationConfig.DegrShowFormat := TDegrShowFormat(CB_llstrType.ItemIndex);
-    // ToDo: GState.Config.CoordRepresentationConfig.CoordSysType
+    GState.Config.CoordRepresentationConfig.CoordSysType := TCoordSysType(cbbCoordSysType.ItemIndex);
   finally
     GState.Config.CoordRepresentationConfig.UnlockWrite;
   end;
@@ -966,7 +969,7 @@ begin
   try
     ChBoxFirstLat.Checked := GState.Config.CoordRepresentationConfig.IsLatitudeFirst;
     CB_llstrType.ItemIndex := byte(GState.Config.CoordRepresentationConfig.DegrShowFormat);
-    //ToDo: byte(GState.Config.CoordRepresentationConfig.CoordSysType);
+    cbbCoordSysType.ItemIndex := byte(GState.Config.CoordRepresentationConfig.CoordSysType);
   finally
     GState.Config.CoordRepresentationConfig.UnlockRead;
   end;

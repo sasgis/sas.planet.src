@@ -645,7 +645,7 @@ object frmSettings: TfrmSettings
           end
           object pnlLonLatFormat: TPanel
             Left = 3
-            Top = 102
+            Top = 136
             Width = 316
             Height = 34
             Align = alTop
@@ -719,7 +719,7 @@ object frmSettings: TfrmSettings
           end
           object pnlOptions: TPanel
             Left = 3
-            Top = 136
+            Top = 170
             Width = 316
             Height = 91
             Align = alTop
@@ -775,7 +775,7 @@ object frmSettings: TfrmSettings
           end
           object flwpnlTileBorder: TFlowPanel
             Left = 3
-            Top = 227
+            Top = 261
             Width = 316
             Height = 28
             Align = alTop
@@ -805,7 +805,7 @@ object frmSettings: TfrmSettings
           end
           object pnlImageProcess: TPanel
             Left = 3
-            Top = 255
+            Top = 289
             Width = 316
             Height = 125
             Align = alTop
@@ -937,6 +937,45 @@ object frmSettings: TfrmSettings
                 '206,63 ha')
             end
           end
+          object pnlCoordSys: TPanel
+            Left = 3
+            Top = 102
+            Width = 316
+            Height = 34
+            Align = alTop
+            BevelOuter = bvNone
+            BorderWidth = 3
+            TabOrder = 7
+            object lblCoordSysType: TLabel
+              Left = 3
+              Top = 3
+              Width = 90
+              Height = 28
+              Align = alLeft
+              Alignment = taRightJustify
+              Caption = 'Coordinate system'
+              Layout = tlCenter
+              ExplicitLeft = 8
+              ExplicitHeight = 13
+            end
+            object cbbCoordSysType: TComboBox
+              AlignWithMargins = True
+              Left = 96
+              Top = 6
+              Width = 214
+              Height = 21
+              Align = alClient
+              Style = csDropDownList
+              ItemIndex = 0
+              TabOrder = 0
+              Text = 'WGS84 (default)'
+              Items.Strings = (
+                'WGS84 (default)'
+                'SK42')
+              ExplicitLeft = 138
+              ExplicitWidth = 172
+            end
+          end
         end
         object pnlUIRight: TPanel
           Left = 322
@@ -960,7 +999,7 @@ object frmSettings: TfrmSettings
           end
           object flwpnlMiniMapAlfa: TFlowPanel
             Left = 3
-            Top = 217
+            Top = 220
             Width = 314
             Height = 30
             Align = alTop
