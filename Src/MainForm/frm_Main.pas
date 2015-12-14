@@ -5753,7 +5753,7 @@ var
 begin
   VAllPoints := GState.GpsTrackRecorder.GetAllPoints;
   if Assigned(VAllPoints) then begin
-    if FMarkDBGUI.SaveMarkModal(nil, VAllPoints) then begin
+    if FMarkDBGUI.SaveMarkModal(nil, VAllPoints, False, 'time: ' + DateTimeToStr(Now) + sLineBreak + 'track: true') then begin
       FState.State := ao_movemap;
     end;
   end else begin

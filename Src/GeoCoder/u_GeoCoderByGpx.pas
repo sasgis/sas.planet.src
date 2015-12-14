@@ -375,6 +375,8 @@ begin
             VtrkDesc := VtrkDesc + 'Elevation ' + VPlacemarkNode.ChildNodes.FindNode('ele').Text;
           end;
 
+          VtrkDesc := Trim(VtrkDesc + sLineBreak + 'track: true');
+
           if VPlacemarkNode.ChildNodes.FindNode('trkseg') <> nil then begin
             VPlacemarkNode := VPlacemarkNode.ChildNodes.FindNode('trkseg');
 
@@ -409,6 +411,7 @@ begin
                       VDesc := VTempELE;
                       VDesc := VDesc + #$D#$A + 'DateTime: ' + VStrDate;
                       VDesc := VDesc + #$D#$A + AFile;
+                      VDesc := VDesc + #$D#$A + 'track: true';
                       VFullDesc := VAddress + '<br>' + VDesc  + #$D#$A + '[ ' + ACoordToStringConverter.LonLatConvert(VPoint) + ' ]';
                       VPlace := PlacemarkFactory.Build(VPoint, VAddress , VDesc, VFullDesc, 4);
                       Vskip := ItemExist(Vplace, AList, CDistForDate);
@@ -591,6 +594,7 @@ begin
             end;
             VDesc := VDesc + #$D#$A + AFile;
             VDesc := VDesc  + #$D#$A + '[ ' + ACoordToStringConverter.LonLatConvert(VPoint) + ' ]';
+            VDesc := Trim(VDesc + sLineBreak + 'track: true');
 
             if VPointsAggregator.Count > 0 then begin
               VBuilder.AddLine(VPointsAggregator.MakeStaticAndClear);
