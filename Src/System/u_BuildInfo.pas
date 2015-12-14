@@ -151,14 +151,20 @@ end;
 
 function TBuildInfo.GetCompilerInfo: string;
 begin
-  {$IFDEF VER185} Result := 'CodeGear' + #153 +' Delphi' + #174 + ' 2007'; {$ENDIF}
-  {$IFDEF VER230} Result := 'Embarcadero' + #153 +' Delphi' + #174 + ' XE2'; {$ENDIF}
+  {$DEFINE UNKNOWNVERFORBUILDINFO}
+  {$IFDEF VER185} Result := 'CodeGear'    + #153 +' Delphi' + #174 + ' 2007'; {$UNDEF UNKNOWNVERFORBUILDINFO}{$ENDIF}
+  {$IFDEF VER220} Result := 'Embarcadero' + #153 +' Delphi' + #174 + ' XE';   {$UNDEF UNKNOWNVERFORBUILDINFO}{$ENDIF}
+  {$IFDEF VER230} Result := 'Embarcadero' + #153 +' Delphi' + #174 + ' XE2';  {$UNDEF UNKNOWNVERFORBUILDINFO}{$ENDIF}
+  {$IFDEF UNKNOWNVERFORBUILDINFO}
+    ! Define IDE version above !
+  {$ENDIF}
+  {$UNDEF UNKNOWNVERFORBUILDINFO}
 end;
 
 function TBuildInfo.GetDescription: string;
 begin
   Result := 'Windows' + ', ' +
-    {$IFDEF WIN32} '32-bit' {$ELSE} '64-bit' {$ENDIF} + ', ' +
+    {$IFDEF WIN32}   '32-bit'  {$ELSE} '64-bit'      {$ENDIF} + ', ' +
     {$IFDEF UNICODE} 'Unicode' {$ELSE} 'Non-Unicode' {$ENDIF}
     {$IFDEF DEBUG} + ', ' + 'Debug'{$ENDIF}
   ;
