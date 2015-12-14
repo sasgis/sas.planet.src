@@ -26,6 +26,7 @@ uses
   i_Notifier,
   i_ArchiveReadWriteFactory,
   i_GeoCalc,
+  i_BuildInfo,
   i_VectorItemTreeExporter,
   i_VectorItemTreeExporterList,
   i_AppearanceOfMarkFactory,
@@ -51,7 +52,8 @@ type
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AMarkFactory: IMarkFactory;
       const ACategoryFactory: IMarkCategoryFactory;
-      const AMarkSystemImplFactoryListStatic: IMarkSystemImplFactoryListStatic
+      const AMarkSystemImplFactoryListStatic: IMarkSystemImplFactoryListStatic;
+      const ABuildInfo: IBuildInfo
     );
   end;
 
@@ -65,7 +67,8 @@ uses
   u_VectorItemTreeMarksDb,
   u_VectorItemTreeExporterList,
   u_VectorItemTreeExporterKmlKmz,
-  u_VectorItemTreeExporterGPX;
+  u_VectorItemTreeExporterGPX,
+  u_VectorItemTreeExporterTCX;
 
 { TVectorItemTreeExporterListSimple }
 
@@ -75,7 +78,8 @@ constructor TVectorItemTreeExporterListSimple.Create(
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AMarkFactory: IMarkFactory;
   const ACategoryFactory: IMarkCategoryFactory;
-  const AMarkSystemImplFactoryListStatic: IMarkSystemImplFactoryListStatic
+  const AMarkSystemImplFactoryListStatic: IMarkSystemImplFactoryListStatic;
+  const ABuildInfo: IBuildInfo
 );
 var
   VList: IInterfaceListSimple;
@@ -102,12 +106,21 @@ begin
     );
   VList.Add(VItem);
 
-  VExporter := TVectorItemTreeExporterGPX.Create(AGeoCalc);
+  VExporter := TVectorItemTreeExporterGPX.Create(AGeoCalc, ABuildInfo);
   VItem :=
     TVectorItemTreeExporterListItem.Create(
       VExporter,
       'gpx',
-      'GPS Exchange files'
+      'GPS Exchange files (GPX)'
+    );
+  VList.Add(VItem);
+
+  VExporter := TVectorItemTreeExporterTCX.Create(AGeoCalc, ABuildInfo);
+  VItem :=
+    TVectorItemTreeExporterListItem.Create(
+      VExporter,
+      'tcx',
+      'Training Center XML files (TCX)'
     );
   VList.Add(VItem);
 

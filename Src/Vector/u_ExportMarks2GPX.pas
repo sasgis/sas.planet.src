@@ -30,6 +30,7 @@ uses
   ALXmlDoc,
   t_Bitmap32,
   i_GeoCalc,
+  i_BuildInfo,
   i_GeometryLonLat,
   i_AppearanceOfVectorItem,
   i_VectorDataItemSimple,
@@ -41,12 +42,14 @@ type
   private
     FGPXDoc: TALXMLDocument;
     FGeoCalc: IGeoCalc;
+    FBuildInfo: IBuildInfo;
     FFileName: string;
     FGPXNode: TALXMLNode;
     FGPXMetaNode: TALXMLNode;
     FNameNode: TALXMLNode;
     FDescNode: TALXMLNode;
     FTrackNumber: Integer;
+    FNow: TDateTime;
     function AddTree(
       const ACategory: String;
       const ATree: IVectorItemTree
@@ -65,9 +68,12 @@ type
     procedure SaveToFile;
     function XMLDateTime(const ADateTime: TDateTime; const ADetailed: Boolean = False): AnsiString;
     function XMLText(const AStr: String): AnsiString;
+    function FindSymByName(const AName: String): AnsiString;
+    function FindSymByMark(const AMark: IVectorDataItem): AnsiString;
   public
     procedure ExportTreeToGPX(
       const AGeoCalc: IGeoCalc;
+      const ABuildInfo: IBuildInfo;
       const ATree: IVectorItemTree;
       const AFileName: string
     );
@@ -89,284 +95,6 @@ uses
   u_GeoFunc,
   u_StrFunc,
   u_StreamReadOnlyByBinaryData;
-
-const
-  GarminSymNames: array[0..138] of String = (
-    'Cache In Trash Out Event',
-    'Earthcache',
-    'Event Cache',
-    'Geocache',
-    'Geocache Course',
-    'Geocache Found',
-    'Letterbox Hybrid',
-    'Locationless (Reverse) Cache',
-    'Mega-Event Cache',
-    'Multi-cache',
-    'Project APE Cache',
-    'Traditional Cache',
-    'Unknown Cache',
-    'Virtual Cache',
-    'Webcam Cache',
-    'Wherigo Cache',
-
-    'Airport',
-    'Amusement Park',
-    'Anchor',
-    'Animal Tracks',
-    'ATV',
-    'Ball Park',
-    'Bank',
-    'Bar',
-    'Beach',
-    'Bell',
-    'Big Game',
-    'Bike Trail',
-    'Blind',
-    'Block, Blue',
-    'Block, Green',
-    'Block, Red',
-    'Blood Trail',
-    'Boat Ramp',
-    'Bowling',
-    'Bridge',
-    'Building',
-    'Buoy, White',
-    'Campground',
-    'Car',
-    'Car Rental',
-    'Car Repair',
-    'Cemetery',
-    'Church',
-    'City (Large)',
-    'City (Medium)',
-    'City (Small)',
-    'Civil',
-    'Controlled Area',
-    'Convenience Store',
-    'Cover',
-    'Covey',
-    'Crossing',
-    'Dam',
-    'Danger Area',
-    'Department Store',
-    'Diver Down Flag 1',
-    'Diver Down Flag 2',
-    'Drinking Water',
-    'Fast Food',
-    'Fishing Area',
-    'Fishing Hot Spot Facility',
-    'Fitness Center',
-    'Flag, Blue',
-    'Flag, Green',
-    'Flag, Red',
-    'Food Source',
-    'Forest',
-    'Furbearer',
-    'Gas Station',
-    'Glider Area',
-    'Golf Course',
-    'Horn',
-    'Ice Skating',
-    'Information',
-    'Light',
-    'Live Theater',
-    'Lodge',
-    'Lodging',
-    'Man Overboard',
-    'Medical Facility',
-    'Mine',
-    'Movie Theater',
-    'Museum',
-    'Navaid, Amber',
-    'Navaid, Black',
-    'Navaid, Blue',
-    'Navaid, Green',
-    'Navaid, Orange',
-    'Navaid, Red',
-    'Navaid, Violet',
-    'Navaid, White',
-    'Oil Field',
-    'Parachute Area',
-    'Park',
-    'Parking Area',
-    'Pharmacy',
-    'Picnic Area',
-    'Pin, Blue',
-    'Pin, Green',
-    'Pin, Red',
-    'Pizza',
-    'Police Station',
-    'Post Office',
-    'Radio Beacon',
-    'Residence',
-    'Restaurant',
-    'Restricted Area',
-    'Restroom',
-    'RV Park',
-    'Scales',
-    'Scenic Area',
-    'School',
-    'Shipwreck',
-    'Shopping Center',
-    'Short Tower',
-    'Shower',
-    'Ski Resort',
-    'Skiing Area',
-    'Skull and Crossbones',
-    'Small Game',
-    'Stadium',
-    'Summit',
-    'Swimming Area',
-    'Tall Tower',
-    'Telephone',
-    'Toll Booth',
-    'Trail Head',
-    'Tree Stand',
-    'Treed Quarry',
-    'Truck',
-    'Truck Stop',
-    'Tunnel',
-    'Ultralight Area',
-    'Upland Game',
-    'Water Source',
-    'Waterfowl',
-    'Wrecker',
-    'Zoo');
-
-function FindSymByImage(const AImageName: String): String;
-type
-  TWords = array of String;
-  TIndexRec = record Similarity: Double; Sym: Integer; end;
-  TIndex = array of TIndexRec;
-
-  procedure SplitIntoWords(const AImageName: String; out AWords: TWords);
-  var
-    ImageName: String;
-    StartInd: Integer;
-    X: Integer;
-    IsCapital: Boolean;
-    IsLetter: Boolean;
-    NextIsSmall: Boolean;
-    IsDigit: Boolean;
-    IsNewWord: Boolean;
-    CopyDigit: Boolean;
-  begin
-    AWords := nil;
-    ImageName := Trim(AImageName);
-    StartInd := 1;
-    CopyDigit := CharInSet(ImageName[1], ['0'..'9']);
-    for X := 1 to Length(ImageName) do begin
-      IsCapital := CharInSet(ImageName[X], ['A'..'Z']);
-      IsLetter := IsCapital or CharInSet(ImageName[X], ['a'..'z']);
-      IsDigit := CharInSet(ImageName[X], ['0'..'9']);
-      NextIsSmall := (X < Length(ImageName)) and CharInSet(ImageName[X + 1], ['a'..'z']);
-      if CopyDigit then
-        IsNewWord := not IsDigit
-      else
-        IsNewWord := (not IsLetter) or
-                     (
-                       IsCapital and
-                       NextIsSmall
-                     );
-
-      if IsNewWord then begin
-        if X - 1 > StartInd then
-        begin
-          SetLength(AWords, Length(AWords) + 1);
-          AWords[High(AWords)] := AnsiLowerCase(Copy(ImageName, StartInd, X - StartInd));
-          CopyDigit := IsDigit;
-        end;
-        if CopyDigit or IsLetter then // 'word80' or 'wordWord'
-          StartInd := X
-        else
-          StartInd := X + 1;          // 'word 80' or 'word word'
-      end;
-    end;
-
-    if StartInd < Length(ImageName) then
-    begin
-      SetLength(AWords, Length(AWords) + 1);
-      AWords[High(AWords)] := AnsiLowerCase(Copy(ImageName, StartInd, MaxInt));
-    end;
-  end;
-
-  procedure BuildIndex(const AWords: TWords; out AIndex: TIndex);
-
-    function FindSimilarity(const AGarminName: String; const AWords: TWords): Double;
-    var
-      GarminNames: TWords;
-      X: Integer;
-      Y: Integer;
-    begin
-      Result := 0;
-
-      SplitIntoWords(AGarminName, GarminNames);
-
-      for X := 0 to High(GarminNames) do
-        for Y := 0 to High(AWords) do
-          if AWords[Y] = GarminNames[X] then
-            Result := Result + 1 + (1/100 * Length(AWords[Y])) // +1.0 for every matched word, +0.x for length (e.g. prefer longer words)
-          else
-            Result := Result - 0.05; // penalty for not matched words; prefer fully matched
-    end;
-
-  var
-    X: Integer;
-  begin
-    SetLength(AIndex, Length(GarminSymNames));
-
-    for X := 0 to High(AIndex) do
-    begin
-      AIndex[X].Sym := X;
-      AIndex[X].Similarity := FindSimilarity(GarminSymNames[X], AWords);
-    end;
-  end;
-
-  procedure SortIndex(var AIndex: TIndex; L, R: Integer);
-  var
-    I, J: Integer;
-    P, T: TIndexRec;
-  begin
-    repeat
-      I := L;
-      J := R;
-      P := AIndex[(L + R) shr 1];
-      repeat
-        while AIndex[I].Similarity > P.Similarity do
-          Inc(I);
-        while AIndex[J].Similarity < P.Similarity do
-          Dec(J);
-        if I <= J then
-        begin
-          if I <> J then
-          begin
-            T := AIndex[I];
-            AIndex[I] := AIndex[J];
-            AIndex[J] := T;
-          end;
-          Inc(I);
-          Dec(J);
-        end;
-      until I > J;
-      if L < J then
-        SortIndex(AIndex, L, J);
-      L := I;
-    until I >= R;
-  end;
-
-var
-  Words: TWords;
-  Index: TIndex;
-begin
-  SplitIntoWords(AImageName, Words);
-  BuildIndex(Words, Index);
-  SortIndex(Index, 0, High(Index));
-
-  if Index[0].Similarity > 0 then
-    Result := GarminSymNames[Index[0].Sym];
-  if Result = '' then
-    Result := 'Flag, Blue';
-end;
 
 { TExportMarks2GPX }
 
@@ -537,6 +265,27 @@ procedure TExportMarks2GPX.PrepareExportToFile(const AFileName: string; const AT
     end;
   end;
 
+  function GetVersion: String;
+  var
+    VDT: TDateTime;
+    VVer: String;
+    VVerMajor: String;
+    VVerMinor: String;
+    VVerBuild: String;
+    VSrcRev: Integer;
+    VDummy: String;
+  begin
+    FBuildInfo.GetBuildSrcInfo(VSrcRev, VDummy);
+    VDT := FBuildInfo.GetBuildDate;
+    if VDT = 0 then
+      VDT := FNow;
+    VVer := FBuildInfo.GetVersion;
+    VVerMajor := Trim(Copy(VVer, 1, 2)); if VVerMajor = '' then VVerMajor := IntToStr(YearOf(VDT) mod 100);
+    VVerMinor := Trim(Copy(VVer, 3, 2)); if VVerMinor = '' then VVerMinor := IntToStr(MonthOf(VDT));
+    VVerBuild := Trim(Copy(VVer, 5, 2)); if VVerBuild = '' then VVerBuild := IntToStr(DayOf(VDT));
+    Result := Format('%s.%s.%s.%d', [VVerMajor, VVerMinor, VVerBuild, VSrcRev]);
+  end;
+
 var
   VAuthorNode: TALXMLNode;
   VLinkNode: TALXMLNode;
@@ -546,6 +295,8 @@ var
   VBounds: TDoubleRect;
   VBoundsNode: TALXMLNode;
 begin
+  FNow := Now;
+
   // Windows 8+ - this is e-mail from Windows Live/Passport
   VUserEMail := GetUserFullName;
   if (Pos('@', VUserEMail) <= 1) or
@@ -558,7 +309,8 @@ begin
   FGPXDoc.Encoding := 'UTF-8';
   FGPXNode := FGPXDoc.AddChild('gpx');
   FGPXNode.Attributes['xmlns'] := 'http://www.topografix.com/GPX/1/1';
-  FGPXNode.Attributes['creator'] := 'SAS.Planet';
+
+  FGPXNode.Attributes['creator'] := XMLText('SAS.Planet ' + GetVersion);
   FGPXNode.Attributes['version'] := '1.1'; // You must include the version number in your GPX document.
   FGPXNode.Attributes['xmlns:xsi'] := 'http://www.w3.org/2001/XMLSchema-instance';
   FGPXNode.Attributes['xmlns:wptx1'] := 'http://www.garmin.com/xmlschemas/WaypointExtension/v1';
@@ -577,7 +329,7 @@ begin
   FGPXMetaNode := FGPXNode.AddChild('metadata'); // Metadata about the file.
   // FGPXNode.AddChild('extensions'); // You can add extend GPX by adding your own elements from another schema here.
 
-  FGPXMetaNode.AddChild('time').Text := XMLDateTime(Now);
+  FGPXMetaNode.AddChild('time').Text := XMLDateTime(FNow);
   VLinkNode := FGPXMetaNode.AddChild('link');
   VLinkNode.Attributes['href'] := 'http://www.sasgis.org/';
   VLinkNode.AddChild('text').Text := 'SAS.Planet';
@@ -644,11 +396,13 @@ end;
 
 procedure TExportMarks2GPX.ExportTreeToGPX(
   const AGeoCalc: IGeoCalc;
+  const ABuildInfo: IBuildInfo;
   const ATree: IVectorItemTree;
   const AFileName: string
 );
 begin
   FGeoCalc := AGeoCalc;
+  FBuildInfo := ABuildInfo;
   FGPXDoc := TALXMLDocument.Create;
   try
     FTrackNumber := 1;
@@ -711,9 +465,26 @@ const
   DummySpeedMS  = DummySpeedKMH * 1000 / (60 * 60); // dummy speed in meters per second
 
   function ExtractDesc(const ADesc: String): String;
-  var
-    X: Integer;
-    Pre: String;
+
+    procedure RemoveField(var AStr: String; const AFieldName: String);
+    var
+      X: Integer;
+      VPrefix: String;
+      VPre: String;
+    begin
+      VPrefix := AFieldName + ': ';
+      X := Pos(VPrefix, AStr);
+      if X > 0 then
+      begin
+        VPre := Trim(Copy(AStr, 1, X - 1));
+        AStr := Trim(Copy(AStr, X + Length(VPrefix), MaxInt));
+        X := Pos(#10, AStr);
+        if X > 0 then
+          AStr := Trim(Copy(AStr, X + 1, MaxInt));
+        AStr := Trim(VPre + sLineBreak + AStr);
+      end;
+    end;
+
   begin
     Result := Trim(AdjustLineBreaks(ADesc));
 
@@ -725,53 +496,34 @@ const
     Result := StringReplace(Result, '<br />',  '',  [rfReplaceAll]);
     Result := StringReplace(Result, '<br/>',  '',  [rfReplaceAll]);
 
-    // Fully strip/remove "number:" field
-    X := Pos('number: ', Result);
-    if X > 0 then
-    begin
-      Pre := Trim(Copy(Result, 1, X - 1));
-      Result := Trim(Copy(Result, X + Length('number: '), MaxInt));
-      X := Pos(#10, Result);
-      if X > 0 then
-        Result := Trim(Copy(Result, X + 1, MaxInt));
-      Result := Trim(Pre + sLineBreak + Result);
-    end;
-
-    // Fully strip/remove "GPS Coordinates:" field
-    X := Pos('GPS Coordinates: [', Result);
-    if X > 0 then
-    begin
-      Pre := Trim(Copy(Result, 1, X - 1));
-      Result := Trim(Copy(Result, X + Length('GPS Coordinates: ['), MaxInt));
-      X := Pos(#10, Result);
-      if X > 0 then
-        Result := Trim(Copy(Result, X + 1, MaxInt));
-      Result := Trim(Pre + sLineBreak + Result);
-    end;
+    RemoveField(Result, 'number');
+    RemoveField(Result, 'track');
+    RemoveField(Result, 'kind');
+    RemoveField(Result, 'GPS Coordinates');
   end;
 
   function ExtractCmt(var ADesc: String): String;
   var
     X: Integer;
-    Pre: String;
+    VPre: String;
   begin
     // Extract "cmt:" field
     X := Pos('cmt: ', ADesc);
     if X > 0 then
     begin
-      Pre := Trim(Copy(ADesc, 1, X - 1));
+      VPre := Trim(Copy(ADesc, 1, X - 1));
       ADesc := Trim(Copy(ADesc, X + Length('cmt: '), MaxInt));
       X := Pos(#10, ADesc);
       if X > 0 then
       begin
         Result := Trim(Copy(ADesc, 1, X - 1));
         ADesc := Trim(Copy(ADesc, X + 1, MaxInt));
-        ADesc := Trim(Pre + sLineBreak + ADesc);
+        ADesc := Trim(VPre + sLineBreak + ADesc);
       end
       else
       begin
         Result := ADesc;
-        ADesc := Pre;
+        ADesc := VPre;
       end;
     end
     else
@@ -781,7 +533,8 @@ const
   function ExtractTime(var ADesc: String): TDateTime;
   var
     X: Integer;
-    Pre: String;
+    VPre: String;
+    VDesc: String;
   begin
     Result := 0;
     if TryStrToDateTime(ADesc, Result) then
@@ -789,24 +542,48 @@ const
       ADesc := '';
       Exit;
     end;
+    VDesc := LowerCase(ADesc);
 
     // Extract "time:" field
-    X := Pos('time: ', ADesc);
+    X := Pos('time: ', VDesc);
     if X > 0 then
     begin
-      Pre := Trim(Copy(ADesc, 1, X - 1));
+      VPre := Trim(Copy(ADesc, 1, X - 1));
       ADesc := Trim(Copy(ADesc, X + Length('time: '), MaxInt));
       X := Pos(#10, ADesc);
       if X > 0 then
       begin
         if not TryStrToDateTime(Trim(Copy(ADesc, 1, X - 1)), Result) then Result := 0;
         ADesc := Trim(Copy(ADesc, X + 1, MaxInt));
-        ADesc := Trim(Pre + sLineBreak + ADesc);
+        ADesc := Trim(VPre + sLineBreak + ADesc);
       end
       else
       begin
         if not TryStrToDateTime(ADesc, Result) then Result := 0;
-        ADesc := Pre;
+        ADesc := VPre;
+      end;
+    end;
+
+    if Result <> 0 then
+      Exit;
+
+    // Extract "DateTime:" field
+    X := Pos('datetime: ', VDesc);
+    if X > 0 then
+    begin
+      VPre := Trim(Copy(ADesc, 1, X - 1));
+      ADesc := Trim(Copy(ADesc, X + Length('time: '), MaxInt));
+      X := Pos(#10, ADesc);
+      if X > 0 then
+      begin
+        if not TryStrToDateTime(Trim(Copy(ADesc, 1, X - 1)), Result) then Result := 0;
+        ADesc := Trim(Copy(ADesc, X + 1, MaxInt));
+        ADesc := Trim(VPre + sLineBreak + ADesc);
+      end
+      else
+      begin
+        if not TryStrToDateTime(ADesc, Result) then Result := 0;
+        ADesc := VPre;
       end;
     end;
 
@@ -814,22 +591,22 @@ const
       Exit;
 
     // Extract "Date:" field
-    X := Pos('Date: ', ADesc);
+    X := Pos('date: ', VDesc);
     if X > 0 then
     begin
-      Pre := Trim(Copy(ADesc, 1, X - 1));
+      VPre := Trim(Copy(ADesc, 1, X - 1));
       ADesc := Trim(Copy(ADesc, X + Length('Date: '), MaxInt));
       X := Pos(#10, ADesc);
       if X > 0 then
       begin
         if not TryStrToDateTime(Trim(Copy(ADesc, 1, X - 1)), Result) then Result := 0;
         ADesc := Trim(Copy(ADesc, X + 1, MaxInt));
-        ADesc := Trim(Pre + sLineBreak + ADesc);
+        ADesc := Trim(VPre + sLineBreak + ADesc);
       end
       else
       begin
         if not TryStrToDateTime(ADesc, Result) then Result := 0;
-        ADesc := Pre;
+        ADesc := VPre;
       end;
     end;
   end;
@@ -837,25 +614,25 @@ const
   function ExtractType(var ADesc: String): String;
   var
     X: Integer;
-    Pre: String;
+    VPre: String;
   begin
     // Extract "type:" field
     X := Pos('type: ', ADesc);
     if X > 0 then
     begin
-      Pre := Trim(Copy(ADesc, 1, X - 1));
+      VPre := Trim(Copy(ADesc, 1, X - 1));
       ADesc := Trim(Copy(ADesc, X + Length('type: '), MaxInt));
       X := Pos(#10, ADesc);
       if X > 0 then
       begin
         Result := Trim(Copy(ADesc, 1, X - 1));
         ADesc := Trim(Copy(ADesc, X + 1, MaxInt));
-        ADesc := Trim(Pre + sLineBreak + ADesc);
+        ADesc := Trim(VPre + sLineBreak + ADesc);
       end
       else
       begin
         Result := ADesc;
-        ADesc := Pre;
+        ADesc := VPre;
       end;
     end
     else
@@ -865,25 +642,25 @@ const
   function ExtractSym(var ADesc: String): String;
   var
     X: Integer;
-    Pre: String;
+    VPre: String;
   begin
     // Extract "sym:" field
     X := Pos('sym: ', ADesc);
     if X > 0 then
     begin
-      Pre := Trim(Copy(ADesc, 1, X - 1));
+      VPre := Trim(Copy(ADesc, 1, X - 1));
       ADesc := Trim(Copy(ADesc, X + Length('sym: '), MaxInt));
       X := Pos(#10, ADesc);
       if X > 0 then
       begin
         Result := Trim(Copy(ADesc, 1, X - 1));
         ADesc := Trim(Copy(ADesc, X + 1, MaxInt));
-        ADesc := Trim(Pre + sLineBreak + ADesc);
+        ADesc := Trim(VPre + sLineBreak + ADesc);
       end
       else
       begin
         Result := ADesc;
-        ADesc := Pre;
+        ADesc := VPre;
       end;
     end
     else
@@ -1008,7 +785,7 @@ const
         if VType = '' then
           VType := 'user';
         if VSym = '' then
-          VSym := FindSymByImage(ChangeFileExt(ExtractFileName(VAppearanceIcon.Pic.GetName), ''));
+          VSym := FindSymByMark(AMark);
         VCurrentNode.ChildNodes['type'].Text := XMLText(VType); // Type (classification) of the waypoint.
         VCurrentNode.ChildNodes['sym'].Text := XMLText(VSym); // Text of GPS symbol name. For interchange with other programs, use the exact spelling of the symbol as displayed on the GPS. If the GPS abbreviates words, spell them out.
         VCurrentNode.ChildNodes['link'].Attributes['href'] := XMLText(SaveMarkIcon(VAppearanceIcon)); // Link to additional information about the waypoint.
@@ -1039,8 +816,15 @@ const
     const ALonLatLine: IGeometryLonLatSingleLine);
 
     function IsTrack: Boolean;
+    var
+      VLCDescr: String;
     begin
-      Result := (ALonLatLine.Count >= 500);
+      VLCDescr := LowerCase(AMark.Desc);
+      Result := (
+                  (ALonLatLine.Count >= 500) or
+                  (Pos('track: true', VLCDescr) > 0)
+                ) and
+                (Pos('track: false', VLCDescr) <= 0);
     end;
 
   var
@@ -1106,8 +890,8 @@ const
       VCurrentNode := VCurrentNode.AddChild('trkseg'); // A Track Segment holds a list of Track Points which are logically connected in order. To represent a single GPS track where GPS reception was lost, or the GPS receiver was turned off, start a new Track Segment for each continuous span of track data.
 
       VLength := FGeoCalc.CalcLineLength(ALonLatLine); // distance in meters
-      VStartTime := IncSecond(Now, -Round(VLength / DummySpeedMS));
-      VDelta := (Now - VStartTime) / ALonLatLine.Count;
+      VStartTime := IncSecond(FNow, -Round(VLength / DummySpeedMS));
+      VDelta := (FNow - VStartTime) / ALonLatLine.Count;
       VPoints := ALonLatLine.GetEnum;
       while VPoints.Next(VPoint) do begin
         VPointNode := VCurrentNode.AddChild('trkpt');
@@ -1243,8 +1027,8 @@ const
       VCount := VCount + VLonLatPathLine.Count;
     end;
     VLength := FGeoCalc.CalcLineLength(ALonLatPath); // distance in meters
-    VStartTime := IncSecond(Now, -Round(VLength / DummySpeedMS));
-    VDelta := (Now - VStartTime) / VCount;
+    VStartTime := IncSecond(FNow, -Round(VLength / DummySpeedMS));
+    VDelta := (FNow - VStartTime) / VCount;
 
     for i := 0 to ALonLatPath.Count - 1 do begin
       VLonLatPathLine := ALonLatPath.Item[i];
@@ -1441,6 +1225,298 @@ begin
   //VStr := StringReplace(VStr, '>',  '&gt;',   [rfReplaceAll]);
 
   Result := UTF8Encode(VStr);
+end;
+
+function TExportMarks2GPX.FindSymByName(const AName: String): AnsiString;
+const
+  GarminSymNames: array[0..138] of String = (
+    'Cache In Trash Out Event',
+    'Earthcache',
+    'Event Cache',
+    'Geocache',
+    'Geocache Course',
+    'Geocache Found',
+    'Letterbox Hybrid',
+    'Locationless (Reverse) Cache',
+    'Mega-Event Cache',
+    'Multi-cache',
+    'Project APE Cache',
+    'Traditional Cache',
+    'Unknown Cache',
+    'Virtual Cache',
+    'Webcam Cache',
+    'Wherigo Cache',
+
+    'Airport',
+    'Amusement Park',
+    'Anchor',
+    'Animal Tracks',
+    'ATV',
+    'Ball Park',
+    'Bank',
+    'Bar',
+    'Beach',
+    'Bell',
+    'Big Game',
+    'Bike Trail',
+    'Blind',
+    'Block, Blue',
+    'Block, Green',
+    'Block, Red',
+    'Blood Trail',
+    'Boat Ramp',
+    'Bowling',
+    'Bridge',
+    'Building',
+    'Buoy, White',
+    'Campground',
+    'Car',
+    'Car Rental',
+    'Car Repair',
+    'Cemetery',
+    'Church',
+    'City (Large)',
+    'City (Medium)',
+    'City (Small)',
+    'Civil',
+    'Controlled Area',
+    'Convenience Store',
+    'Cover',
+    'Covey',
+    'Crossing',
+    'Dam',
+    'Danger Area',
+    'Department Store',
+    'Diver Down Flag 1',
+    'Diver Down Flag 2',
+    'Drinking Water',
+    'Fast Food',
+    'Fishing Area',
+    'Fishing Hot Spot Facility',
+    'Fitness Center',
+    'Flag, Blue',
+    'Flag, Green',
+    'Flag, Red',
+    'Food Source',
+    'Forest',
+    'Furbearer',
+    'Gas Station',
+    'Glider Area',
+    'Golf Course',
+    'Horn',
+    'Ice Skating',
+    'Information',
+    'Light',
+    'Live Theater',
+    'Lodge',
+    'Lodging',
+    'Man Overboard',
+    'Medical Facility',
+    'Mine',
+    'Movie Theater',
+    'Museum',
+    'Navaid, Amber',
+    'Navaid, Black',
+    'Navaid, Blue',
+    'Navaid, Green',
+    'Navaid, Orange',
+    'Navaid, Red',
+    'Navaid, Violet',
+    'Navaid, White',
+    'Oil Field',
+    'Parachute Area',
+    'Park',
+    'Parking Area',
+    'Pharmacy',
+    'Picnic Area',
+    'Pin, Blue',
+    'Pin, Green',
+    'Pin, Red',
+    'Pizza',
+    'Police Station',
+    'Post Office',
+    'Radio Beacon',
+    'Residence',
+    'Restaurant',
+    'Restricted Area',
+    'Restroom',
+    'RV Park',
+    'Scales',
+    'Scenic Area',
+    'School',
+    'Shipwreck',
+    'Shopping Center',
+    'Short Tower',
+    'Shower',
+    'Ski Resort',
+    'Skiing Area',
+    'Skull and Crossbones',
+    'Small Game',
+    'Stadium',
+    'Summit',
+    'Swimming Area',
+    'Tall Tower',
+    'Telephone',
+    'Toll Booth',
+    'Trail Head',
+    'Tree Stand',
+    'Treed Quarry',
+    'Truck',
+    'Truck Stop',
+    'Tunnel',
+    'Ultralight Area',
+    'Upland Game',
+    'Water Source',
+    'Waterfowl',
+    'Wrecker',
+    'Zoo');
+
+type
+  TWords = array of String;
+  TIndexRec = record Similarity: Double; Sym: Integer; end;
+  TIndex = array of TIndexRec;
+
+  procedure SplitIntoWords(const AImageName: String; out AWords: TWords);
+  var
+    ImageName: String;
+    StartInd: Integer;
+    X: Integer;
+    IsCapital: Boolean;
+    IsLetter: Boolean;
+    NextIsSmall: Boolean;
+    IsDigit: Boolean;
+    IsNewWord: Boolean;
+    CopyDigit: Boolean;
+  begin
+    AWords := nil;
+    ImageName := Trim(AImageName);
+    StartInd := 1;
+    CopyDigit := CharInSet(ImageName[1], ['0'..'9']);
+    for X := 1 to Length(ImageName) do begin
+      IsCapital := CharInSet(ImageName[X], ['A'..'Z']);
+      IsLetter := IsCapital or CharInSet(ImageName[X], ['a'..'z']);
+      IsDigit := CharInSet(ImageName[X], ['0'..'9']);
+      NextIsSmall := (X < Length(ImageName)) and CharInSet(ImageName[X + 1], ['a'..'z']);
+      if CopyDigit then
+        IsNewWord := not IsDigit
+      else
+        IsNewWord := (not IsLetter) or
+                     (
+                       IsCapital and
+                       NextIsSmall
+                     );
+
+      if IsNewWord then begin
+        if X - 1 > StartInd then
+        begin
+          SetLength(AWords, Length(AWords) + 1);
+          AWords[High(AWords)] := AnsiLowerCase(Copy(ImageName, StartInd, X - StartInd));
+          CopyDigit := IsDigit;
+        end;
+        if CopyDigit or IsLetter then // 'word80' or 'wordWord'
+          StartInd := X
+        else
+          StartInd := X + 1;          // 'word 80' or 'word word'
+      end;
+    end;
+
+    if StartInd < Length(ImageName) then
+    begin
+      SetLength(AWords, Length(AWords) + 1);
+      AWords[High(AWords)] := AnsiLowerCase(Copy(ImageName, StartInd, MaxInt));
+    end;
+  end;
+
+  procedure BuildIndex(const AWords: TWords; out AIndex: TIndex);
+
+    function FindSimilarity(const AGarminName: String; const AWords: TWords): Double;
+    var
+      GarminNames: TWords;
+      X: Integer;
+      Y: Integer;
+    begin
+      Result := 0;
+
+      SplitIntoWords(AGarminName, GarminNames);
+
+      for X := 0 to High(GarminNames) do
+        for Y := 0 to High(AWords) do
+          if AWords[Y] = GarminNames[X] then
+            Result := Result + 1 + (1/100 * Length(AWords[Y])) // +1.0 for every matched word, +0.x for length (e.g. prefer longer words)
+          else
+            Result := Result - 0.05; // penalty for not matched words; prefer fully matched
+    end;
+
+  var
+    X: Integer;
+  begin
+    SetLength(AIndex, Length(GarminSymNames));
+
+    for X := 0 to High(AIndex) do
+    begin
+      AIndex[X].Sym := X;
+      AIndex[X].Similarity := FindSimilarity(GarminSymNames[X], AWords);
+    end;
+  end;
+
+  procedure SortIndex(var AIndex: TIndex; L, R: Integer);
+  var
+    I, J: Integer;
+    P, T: TIndexRec;
+  begin
+    repeat
+      I := L;
+      J := R;
+      P := AIndex[(L + R) shr 1];
+      repeat
+        while AIndex[I].Similarity > P.Similarity do
+          Inc(I);
+        while AIndex[J].Similarity < P.Similarity do
+          Dec(J);
+        if I <= J then
+        begin
+          if I <> J then
+          begin
+            T := AIndex[I];
+            AIndex[I] := AIndex[J];
+            AIndex[J] := T;
+          end;
+          Inc(I);
+          Dec(J);
+        end;
+      until I > J;
+      if L < J then
+        SortIndex(AIndex, L, J);
+      L := I;
+    until I >= R;
+  end;
+
+var
+  Words: TWords;
+  Index: TIndex;
+begin
+  SplitIntoWords(AName, Words);
+  BuildIndex(Words, Index);
+  SortIndex(Index, 0, High(Index));
+
+  if Index[0].Similarity > 0 then
+    Result := XMLText(GarminSymNames[Index[0].Sym])
+  else
+    Result := '';
+  if Result = '' then
+    Result := 'Flag, Blue';
+end;
+
+function TExportMarks2GPX.FindSymByMark(const AMark: IVectorDataItem): AnsiString;
+var
+  VAppearanceIcon: IAppearancePointIcon;
+begin
+  if Supports(AMark.Appearance, IAppearancePointIcon, VAppearanceIcon) and
+     (VAppearanceIcon <> nil) and
+     (VAppearanceIcon.Pic <> nil) then
+    Result := FindSymByName(ChangeFileExt(ExtractFileName(VAppearanceIcon.Pic.GetName), ''))
+  else
+    Result := FindSymByName('');
 end;
 
 end.

@@ -754,7 +754,8 @@ begin
       FAppearanceOfMarkFactory,
       FMarkFactory,
       FMarkCategoryFactory,
-      FMarkSystem.ImplFactoryList
+      FMarkSystem.ImplFactoryList,
+      FBuildInfo
     );
 
   FGeoCoderList :=

@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_VectorItemTreeExporterGPX;
+unit u_VectorItemTreeExporterTCX;
 
 interface
 
@@ -31,7 +31,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TVectorItemTreeExporterGPX = class(TBaseInterfacedObject, IVectorItemTreeExporter)
+  TVectorItemTreeExporterTCX = class(TBaseInterfacedObject, IVectorItemTreeExporter)
   private
     FGeoCalc: IGeoCalc;
     FBuildInfo: IBuildInfo;
@@ -43,20 +43,17 @@ type
       const ATree: IVectorItemTree
     );
   public
-    constructor Create(const AGeoCalc: IGeoCalc;
-                       const ABuildInfo: IBuildInfo);
+    constructor Create(const AGeoCalc: IGeoCalc; const ABuildInfo: IBuildInfo);
   end;
 
 implementation
 
 uses
-  u_ExportMarks2GPX;
+  u_ExportMarks2TCX;
 
-{ TVectorItemTreeExporterGPX }
+{ TVectorItemTreeExporterTCX }
 
-constructor TVectorItemTreeExporterGPX.Create(
-  const AGeoCalc: IGeoCalc;
-  const ABuildInfo: IBuildInfo);
+constructor TVectorItemTreeExporterTCX.Create(const AGeoCalc: IGeoCalc; const ABuildInfo: IBuildInfo);
 begin
   Assert(Assigned(AGeoCalc));
   inherited Create;
@@ -64,18 +61,18 @@ begin
   FBuildInfo := ABuildInfo;
 end;
 
-procedure TVectorItemTreeExporterGPX.ProcessExport(
+procedure TVectorItemTreeExporterTCX.ProcessExport(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const AFileName: string;
   const ATree: IVectorItemTree
 );
 var
-  VExport: TExportMarks2GPX;
+  VExport: TExportMarks2TCX;
 begin
-  VExport := TExportMarks2GPX.Create;
+  VExport := TExportMarks2TCX.Create;
   try
-    VExport.ExportTreeToGPX(FGeoCalc, FBuildInfo, ATree, AFileName);
+    VExport.ExportTreeToTCX(FGeoCalc, FBuildInfo, ATree, AFileName);
   finally
     VExport.Free
   end;
