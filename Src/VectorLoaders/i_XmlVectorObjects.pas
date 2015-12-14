@@ -27,7 +27,7 @@ uses
   i_VectorItemSubset;
 
 type
-  TCloseMarkObjectMode = (cmom_KML, cmom_GPX_TRK, cmom_GPX_WPT);
+  TCloseMarkObjectMode = (cmom_KML, cmom_GPX_TRK, cmom_GPX_WPT, cmom_GPX_RTE);
 
   IXmlVectorObjects = interface
     ['{463DCF4D-096C-41FE-927B-23A2CB125A41}']

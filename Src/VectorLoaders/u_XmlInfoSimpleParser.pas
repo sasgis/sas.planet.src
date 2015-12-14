@@ -1,5 +1,5 @@
-{******************************************************************************}
-{* SAS.Planet (SAS.Планета)                                                   *}
+п»ї{******************************************************************************}
+{* SAS.Planet (SAS.РџР»Р°РЅРµС‚Р°)                                                   *}
 {* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
@@ -56,6 +56,10 @@ type
     );
   private
     procedure Internal_CloseTRK(
+      const AXmlVectorObjects: IXmlVectorObjects;
+      const pPX_Result: Pvsagps_XML_ParserResult
+    );
+    procedure Internal_CloseRTE(
       const AXmlVectorObjects: IXmlVectorObjects;
       const pPX_Result: Pvsagps_XML_ParserResult
     );
@@ -250,6 +254,18 @@ begin
   );
 end;
 
+procedure TXmlInfoSimpleParser.Internal_CloseRTE(
+  const AXmlVectorObjects: IXmlVectorObjects;
+  const pPX_Result: Pvsagps_XML_ParserResult
+);
+begin
+  // do it
+  AXmlVectorObjects.CloseMarkObject(
+    @(pPX_Result^.gpx_data),
+    cmom_GPX_RTE
+  );
+end;
+
 procedure TXmlInfoSimpleParser.Internal_CloseWPT(
   const AXmlVectorObjects: IXmlVectorObjects;
   const pPX_Result: Pvsagps_XML_ParserResult
@@ -291,6 +307,7 @@ begin
 
   // for wpt and trk
   Inc(VParserOptions.gpx_options.bParse_trk);
+  Inc(VParserOptions.gpx_options.bParse_rte);
   Inc(VParserOptions.gpx_options.bParse_wpt);
 
   // parse
@@ -322,8 +339,7 @@ const
     kml_Region
   ];
   c_GPX_Skipped: set of Tvsagps_GPX_main_tag = [
-    gpx_metadata,
-    gpx_rte
+    gpx_metadata
   ];
 var
   VWptPoint: TDoublePoint;
@@ -345,10 +361,10 @@ begin
 
     case pPX_Result^.kml_data.current_tag of
       //kml_innerBoundaryIs: begin
-        // только полигон
+        // С‚РѕР»СЊРєРѕ РїРѕР»РёРіРѕРЅ
       //end;
       kml_LinearRing: begin
-        // только полигон
+        // С‚РѕР»СЊРєРѕ РїРѕР»РёРіРѕРЅ
         case pPX_State^.tag_disposition of
           xtd_Close: begin
             Internal_CloseLinearRing(AXmlVectorObjects, pPX_Result);
@@ -356,7 +372,7 @@ begin
         end;
       end;
       kml_LineString: begin
-        // обычно полилиния, но в вики - полигон
+        // РѕР±С‹С‡РЅРѕ РїРѕР»РёР»РёРЅРёСЏ, РЅРѕ РІ РІРёРєРё - РїРѕР»РёРіРѕРЅ
         case pPX_State^.tag_disposition of
           xtd_Close: begin
             Internal_CloseLineString(AXmlVectorObjects, pPX_Result);
@@ -364,7 +380,7 @@ begin
         end;
       end;
       kml_MultiGeometry: begin
-        // внутри может быть что угодно
+        // РІРЅСѓС‚СЂРё РјРѕР¶РµС‚ Р±С‹С‚СЊ С‡С‚Рѕ СѓРіРѕРґРЅРѕ
         case pPX_State^.tag_disposition of
           xtd_Open: begin
             AXmlVectorObjects.OpenMultiGeometry;
@@ -375,10 +391,10 @@ begin
         end;
       end;
       //kml_outerBoundaryIs: begin
-        // только полигон
+        // С‚РѕР»СЊРєРѕ РїРѕР»РёРіРѕРЅ
       //end;
       kml_Placemark: begin
-        // объект метки
+        // РѕР±СЉРµРєС‚ РјРµС‚РєРё
         case pPX_State^.tag_disposition of
           xtd_Open: begin
             AXmlVectorObjects.OpenMarkObject;
@@ -390,7 +406,7 @@ begin
         end;
       end;
       kml_Point: begin
-        // точка (может быть внутри MultiGeometry)
+        // С‚РѕС‡РєР° (РјРѕР¶РµС‚ Р±С‹С‚СЊ РІРЅСѓС‚СЂРё MultiGeometry)
         case pPX_State^.tag_disposition of
           xtd_Close: begin
             Internal_ClosePoint(AXmlVectorObjects, pPX_Result);
@@ -398,7 +414,7 @@ begin
         end;
       end;
       kml_Polygon: begin
-        // полигон (может быть внутри MultiGeometry)
+        // РїРѕР»РёРіРѕРЅ (РјРѕР¶РµС‚ Р±С‹С‚СЊ РІРЅСѓС‚СЂРё MultiGeometry)
         case pPX_State^.tag_disposition of
           xtd_Close: begin
             AXmlVectorObjects.CloseKmlPolygon;
@@ -408,7 +424,7 @@ begin
 
       // gx:
       kml_gx_coord: begin
-        // точка (мульти)трека
+        // С‚РѕС‡РєР° (РјСѓР»СЊС‚Рё)С‚СЂРµРєР°
         case pPX_State^.tag_disposition of
           xtd_Close: begin
             with pPX_Result^.kml_data do begin
@@ -422,7 +438,7 @@ begin
         end;
       end;
       kml_gx_MultiTrack: begin
-        // мультитрек
+        // РјСѓР»СЊС‚РёС‚СЂРµРє
         case pPX_State^.tag_disposition of
           xtd_Open: begin
             AXmlVectorObjects.OpenMultiTrack;
@@ -433,7 +449,7 @@ begin
         end;
       end;
       kml_gx_Track: begin
-        // отдельный трек или кусок мультитрека
+        // РѕС‚РґРµР»СЊРЅС‹Р№ С‚СЂРµРє РёР»Рё РєСѓСЃРѕРє РјСѓР»СЊС‚РёС‚СЂРµРєР°
         case pPX_State^.tag_disposition of
           xtd_Open: begin
             // open new track segment or open single track
@@ -448,10 +464,10 @@ begin
 
       // appearance
       kml_LineStyle: begin
-        // параметры рисования линии
+        // РїР°СЂР°РјРµС‚СЂС‹ СЂРёСЃРѕРІР°РЅРёСЏ Р»РёРЅРёРё
         case pPX_State^.tag_disposition of
           xtd_Close: begin
-            // пропихнуть наверх color и width
+            // РїСЂРѕРїРёС…РЅСѓС‚СЊ РЅР°РІРµСЂС… color Рё width
             if (pPX_Result^.prev_data <> nil) then begin
               VSAGPS_KML_ShiftParam(pPX_Result, kml_color);
               VSAGPS_KML_ShiftParam(pPX_Result, kml_width);
@@ -460,10 +476,10 @@ begin
         end;
       end;
       kml_PolyStyle: begin
-        // параметры рисования полигона
+        // РїР°СЂР°РјРµС‚СЂС‹ СЂРёСЃРѕРІР°РЅРёСЏ РїРѕР»РёРіРѕРЅР°
         case pPX_State^.tag_disposition of
           xtd_Close: begin
-            // пропихнуть наверх bgColor и fill
+            // РїСЂРѕРїРёС…РЅСѓС‚СЊ РЅР°РІРµСЂС… bgColor Рё fill
             if (pPX_Result^.prev_data <> nil) then begin
               VSAGPS_KML_ShiftParam(pPX_Result, kml_bgColor);
               VSAGPS_KML_ShiftParam(pPX_Result, kml_fill);
@@ -472,10 +488,10 @@ begin
         end;
       end;
       kml_LabelStyle: begin
-        // параметры рисования текстовой метки
+        // РїР°СЂР°РјРµС‚СЂС‹ СЂРёСЃРѕРІР°РЅРёСЏ С‚РµРєСЃС‚РѕРІРѕР№ РјРµС‚РєРё
         case pPX_State^.tag_disposition of
           xtd_Close: begin
-            // пропихнуть наверх textColor и tileSize (вместо scale)
+            // РїСЂРѕРїРёС…РЅСѓС‚СЊ РЅР°РІРµСЂС… textColor Рё tileSize (РІРјРµСЃС‚Рѕ scale)
             if (pPX_Result^.prev_data <> nil) then begin
               VSAGPS_KML_ShiftParam(pPX_Result, kml_textColor);
               VSAGPS_KML_ShiftParam(pPX_Result, kml_tileSize);
@@ -484,10 +500,10 @@ begin
         end;
       end;
       kml_BalloonStyle: begin
-        // параметры рисования иконки
+        // РїР°СЂР°РјРµС‚СЂС‹ СЂРёСЃРѕРІР°РЅРёСЏ РёРєРѕРЅРєРё
         case pPX_State^.tag_disposition of
           xtd_Close: begin
-            // пропихнуть наверх bgColor
+            // РїСЂРѕРїРёС…РЅСѓС‚СЊ РЅР°РІРµСЂС… bgColor
             if (pPX_Result^.prev_data <> nil) then begin
               VSAGPS_KML_ShiftParam(pPX_Result, kml_bgColor);
             end;
@@ -495,10 +511,10 @@ begin
         end;
       end;
       kml_IconStyle: begin
-        // параметры рисования иконки
+        // РїР°СЂР°РјРµС‚СЂС‹ СЂРёСЃРѕРІР°РЅРёСЏ РёРєРѕРЅРєРё
         case pPX_State^.tag_disposition of
           xtd_Close: begin
-            // пропихнуть наверх scale
+            // РїСЂРѕРїРёС…РЅСѓС‚СЊ РЅР°РІРµСЂС… scale
             if (pPX_Result^.prev_data <> nil) then begin
               VSAGPS_KML_ShiftParam(pPX_Result, kml_scale_);
             end;
@@ -506,10 +522,10 @@ begin
         end;
       end;
       kml_Style: begin
-        // параметры рисования
+        // РїР°СЂР°РјРµС‚СЂС‹ СЂРёСЃРѕРІР°РЅРёСЏ
         case pPX_State^.tag_disposition of
           xtd_Close: begin
-            // пропихнуть наверх все параметры *Style
+            // РїСЂРѕРїРёС…РЅСѓС‚СЊ РЅР°РІРµСЂС… РІСЃРµ РїР°СЂР°РјРµС‚СЂС‹ *Style
             if (pPX_Result^.prev_data <> nil) then begin
               VSAGPS_KML_ShiftParam(pPX_Result, kml_color);
               VSAGPS_KML_ShiftParam(pPX_Result, kml_width);
@@ -544,15 +560,15 @@ begin
         // trk - entire track object
         case pPX_State^.tag_disposition of
           xtd_Open: begin
-            // тут будет новая метка
+            // С‚СѓС‚ Р±СѓРґРµС‚ РЅРѕРІР°СЏ РјРµС‚РєР°
             AXmlVectorObjects.OpenMarkObject;
-            // начинаем мультиобъект в терминах KML
+            // РЅР°С‡РёРЅР°РµРј РјСѓР»СЊС‚РёРѕР±СЉРµРєС‚ РІ С‚РµСЂРјРёРЅР°С… KML
             AXmlVectorObjects.OpenMultiGeometry;
           end;
           xtd_Close: begin
-            // заканчиваем мультиобъект в терминах KML
+            // Р·Р°РєР°РЅС‡РёРІР°РµРј РјСѓР»СЊС‚РёРѕР±СЉРµРєС‚ РІ С‚РµСЂРјРёРЅР°С… KML
             AXmlVectorObjects.CloseMultiGeometry;
-            // заканчиваем объект метки
+            // Р·Р°РєР°РЅС‡РёРІР°РµРј РѕР±СЉРµРєС‚ РјРµС‚РєРё
             Internal_CloseTRK(AXmlVectorObjects, pPX_Result);
           end;
         end;
@@ -581,11 +597,43 @@ begin
           end;
         end;
       end;
+      gpx_rte: begin
+        // rte - entire route object
+        case pPX_State^.tag_disposition of
+          xtd_Open: begin
+            // С‚СѓС‚ Р±СѓРґРµС‚ РЅРѕРІР°СЏ РјРµС‚РєР°
+            AXmlVectorObjects.OpenMarkObject;
+            // РЅР°С‡РёРЅР°РµРј РјСѓР»СЊС‚РёРѕР±СЉРµРєС‚ РІ С‚РµСЂРјРёРЅР°С… KML
+            AXmlVectorObjects.OpenMultiGeometry;
+            AXmlVectorObjects.OpenTrackSegment;
+          end;
+          xtd_Close: begin
+            AXmlVectorObjects.CloseTrackSegment;
+            // Р·Р°РєР°РЅС‡РёРІР°РµРј РјСѓР»СЊС‚РёРѕР±СЉРµРєС‚ РІ С‚РµСЂРјРёРЅР°С… KML
+            AXmlVectorObjects.CloseMultiGeometry;
+            // Р·Р°РєР°РЅС‡РёРІР°РµРј РѕР±СЉРµРєС‚ РјРµС‚РєРё
+            Internal_CloseRTE(AXmlVectorObjects, pPX_Result);
+          end;
+        end;
+      end;
+      gpx_rtept: begin
+        // single route point - lon/lat as attributes
+        case pPX_State^.tag_disposition of
+          xtd_ReadAttributes: begin
+            // add point to array and skip other params
+            pPX_State^.skip_current := True;
+            if GetPointForGPX(pPX_Result^.gpx_data.wpt_data, VWptPoint) then begin
+              // add to array of points
+              AXmlVectorObjects.AddTrackPoint(VWptPoint);
+            end;
+          end;
+        end;
+      end;
       gpx_wpt: begin
         // single waypoint
         case pPX_State^.tag_disposition of
           xtd_Open: begin
-            // тут будет новая метка
+            // С‚СѓС‚ Р±СѓРґРµС‚ РЅРѕРІР°СЏ РјРµС‚РєР°
             AXmlVectorObjects.OpenMarkObject;
           end;
           xtd_Close: begin

@@ -1,5 +1,5 @@
-{******************************************************************************}
-{* SAS.Planet (SAS.œÎ‡ÌÂÚ‡)                                                   *}
+Ôªø{******************************************************************************}
+{* SAS.Planet (SAS.–ü–ª–∞–Ω–µ—Ç–∞)                                                   *}
 {* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
@@ -519,6 +519,45 @@ begin
         if (trk_desc in fAvail_trk_strs) then begin
           AMarkDesc := SafeSetStringP(fStrs[trk_desc]);
         end;
+        _AddToDesc('track', 'true');
+
+        // others
+        for j := Low(j) to High(j) do begin
+          if (not (j in [trk_name, trk_desc])) then begin
+            if (j in fAvail_trk_strs) then begin
+              VParamName := c_GPX_trk_subtag[j];
+              VParamValue := SafeSetStringP(fStrs[j]);
+            // add to description
+              _AddToDesc(VParamName, VParamValue);
+            end;
+          end;
+        end;
+          // gpxx:TrackExtension
+        for y := Low(y) to High(y) do begin
+          if (y in fAvail_trk_exts) then begin
+            VParamName := c_GPX_trk_ext_subtag[y];
+            VParamValue := SafeSetStringP(fExts[y]);
+            // add to description
+            _AddToDesc(VParamName, VParamValue);
+          end;
+        end;
+      end;
+      Inc(Result);
+    end;
+
+    cmom_GPX_RTE: begin
+      // rte in gpx
+      with Pvsagps_GPX_ParserData(AData)^.trk_data { same as rte_date } do begin
+        // name
+        if (trk_name in fAvail_trk_strs) then begin
+          AMarkName := SafeSetStringP(fStrs[trk_name]);
+        end;
+
+        // description
+        if (trk_desc in fAvail_trk_strs) then begin
+          AMarkDesc := SafeSetStringP(fStrs[trk_desc]);
+        end;
+        _AddToDesc('track', 'false');
 
         // others
         for j := Low(j) to High(j) do begin
@@ -668,3 +707,4 @@ begin
 end;
 
 end.
+
