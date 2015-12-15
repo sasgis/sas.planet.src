@@ -130,7 +130,6 @@ begin
   FSystemTimeInternal := TSystemTimeProvider.Create;
 end;
 
-
 function ItemExist(
   const AValue: IVectorDataItem;
   const AList: IInterfaceListSimple;
@@ -166,7 +165,10 @@ begin
   Result := Trunc(VDate) + Frac(VTime);
 end;
 
-function TGeoCoderByGpx.ParseDateTime(const ASearch:string; var AstrDateTime: string):Boolean;
+function TGeoCoderByGpx.ParseDateTime(
+  const ASearch:string;
+  var AstrDateTime: string
+):Boolean;
 var
   VFormatSettings: TFormatSettings;
   VStrDateTime: string;
@@ -320,13 +322,12 @@ begin
             VDesc := VPlacemarkNode.ChildNodes.FindNode('desc').Text;
           end;
           if VPlacemarkNode.ChildNodes.FindNode('ele') <> nil then begin
-            if VDesc <> '' then VDesc := VDesc + #$D#$A;
+            if VDesc <> '' then VDesc := VDesc + sLineBreak;
             VDesc := VDesc + 'Elevation ' + VPlacemarkNode.ChildNodes.FindNode('ele'). Text;
           end;
           Vskip := True;
-
-          VDesc := VDesc + #$D#$A + '[ ' + ACoordToStringConverter.LonLatConvert(VPoint) + ' ]';
-          VDesc := VDesc + #$D#$A + AFile;
+          VDesc := VDesc + sLineBreak + '[ ' + ACoordToStringConverter.LonLatConvert(VPoint) + ' ]';
+          VDesc := VDesc + sLineBreak + AFile;
           VFullDesc := VAddress + '<br>' + VDesc;
 
           if VPlacemarkNode.ChildNodes.FindNode('url') <> nil then begin
@@ -367,15 +368,13 @@ begin
             VtrkDesc := VPlacemarkNode.ChildNodes.FindNode('name').Text;
           end;
           if VPlacemarkNode.ChildNodes.FindNode('desc') <> nil then begin
-            if VtrkDesc <> '' then VtrkDesc := VtrkDesc + #$D#$A;
+            if VtrkDesc <> '' then VtrkDesc := VtrkDesc + sLineBreak;
             VtrkDesc := VtrkDesc +VPlacemarkNode.ChildNodes.FindNode('desc').Text;
           end;
           if VPlacemarkNode.ChildNodes.FindNode('ele') <> nil then begin
-            if VtrkDesc <> '' then VtrkDesc := VtrkDesc + #$D#$A;
+            if VtrkDesc <> '' then VtrkDesc := VtrkDesc + sLineBreak;
             VtrkDesc := VtrkDesc + 'Elevation ' + VPlacemarkNode.ChildNodes.FindNode('ele').Text;
           end;
-
-          VtrkDesc := Trim(VtrkDesc + sLineBreak + 'track: true');
 
           if VPlacemarkNode.ChildNodes.FindNode('trkseg') <> nil then begin
             VPlacemarkNode := VPlacemarkNode.ChildNodes.FindNode('trkseg');
@@ -409,10 +408,10 @@ begin
                       end;
                       VAddress := VtrkDesc + ' (' + VStrDate + ')';
                       VDesc := VTempELE;
-                      VDesc := VDesc + #$D#$A + 'DateTime: ' + VStrDate;
-                      VDesc := VDesc + #$D#$A + AFile;
-                      VDesc := VDesc + #$D#$A + 'track: true';
-                      VFullDesc := VAddress + '<br>' + VDesc  + #$D#$A + '[ ' + ACoordToStringConverter.LonLatConvert(VPoint) + ' ]';
+                      VDesc := VDesc + sLineBreak + 'DateTime: ' + VStrDate;
+                      VDesc := VDesc + sLineBreak + AFile;
+//                      VDesc := VDesc + sLineBreak + 'track: false'; // тут вообще точки из координат трека
+                      VFullDesc := VAddress + '<br>' + VDesc  + sLineBreak + '[ ' + ACoordToStringConverter.LonLatConvert(VPoint) + ' ]';
                       VPlace := PlacemarkFactory.Build(VPoint, VAddress , VDesc, VFullDesc, 4);
                       Vskip := ItemExist(Vplace, AList, CDistForDate);
                       if not Vskip then begin
@@ -441,6 +440,7 @@ procedure TGeoCoderByGpx.SearchInGpxFileByName(
 );
 var
   VNode: IXMLNode;
+  VTrkNode: IXMLNode;
   VPlacemarkNode: IXMLNode;
   VPlacemarkSubNode: IXMLNode;
   VTrksegSubNode: IXMLNode;
@@ -450,9 +450,10 @@ var
   VAddress: String;
   VDesc: String;
   VFullDesc: String;
+  VTrkDesc: String;
   VPlace: IVectorDataItem;
   VXMLDocument: IXMLDocument;
-  I, J, K: Integer;
+  I, J, K, L: Integer;
   Vskip: Boolean;
   VStrDateTime: string;
   VStrDate: string;
@@ -499,17 +500,17 @@ begin
             VDesc := VPlacemarkNode.ChildNodes.FindNode('desc').Text;
           end;
           if VPlacemarkNode.ChildNodes.FindNode('ele') <> nil then begin
-            if VDesc <> '' then VDesc := VDesc + #$D#$A;
+            if VDesc <> '' then VDesc := VDesc + sLineBreak;
             VDesc := VDesc + 'Elevation ' + VPlacemarkNode.ChildNodes.FindNode('ele'). Text;
           end;
 
           if VPlacemarkNode.ChildNodes.FindNode('time') <> nil then begin
             VStrDateTime := VPlacemarkNode.ChildNodes.FindNode('time').Text; // '2015-12-02T08:54:43';
-            VDesc := VDesc + #$D#$A + 'DateTime: ' + DateTimeToStr(FSystemTimeInternal.UTCToLocalTime(ISOToDateTime(VStrDateTime)));;
+            VDesc := VDesc + sLineBreak + 'DateTime: ' + DateTimeToStr(FSystemTimeInternal.UTCToLocalTime(ISOToDateTime(VStrDateTime)));;
           end;
 
-          VDesc := VDesc + #$D#$A + '[ ' + ACoordToStringConverter.LonLatConvert(VPoint) + ' ]';
-          VDesc := VDesc + #$D#$A + AFile;
+          VDesc := VDesc + sLineBreak + '[ ' + ACoordToStringConverter.LonLatConvert(VPoint) + ' ]';
+          VDesc := VDesc + sLineBreak + AFile;
           VFullDesc := VAddress + '<br>' + VDesc;
 
           if VPlacemarkNode.ChildNodes.FindNode('url') <> nil then begin
@@ -548,72 +549,83 @@ begin
         end;
 
         if VNode.ChildNodes[I].NodeName = 'trk' then begin
-          VPlacemarkNode := VNode.ChildNodes[I];
-          VAddress := VPlacemarkNode.ChildNodes.FindNode('name').Text;
+          VAddress := '';
           VDesc := '';
           VFullDesc := '';
-          if VPlacemarkNode.ChildNodes.FindNode('desc') <> nil then begin
-            VDesc := VPlacemarkNode.ChildNodes.FindNode('desc').Text;
-          end;
-          if (Pos(VSearch, AnsiUpperCase(VAddress)) <> 0) or
-            (Pos(VSearch, AnsiUpperCase(VFullDesc)) <> 0 )then begin
-            if VPlacemarkNode.ChildNodes.FindNode('trkseg') <> nil then begin
-              VPlacemarkNode := VPlacemarkNode.ChildNodes.FindNode('trkseg');
-              if VPlacemarkNode.ChildNodes.Count >0 then begin
-                for J := 0 to VPlacemarkNode.ChildNodes.Count - 1 do begin
-                  if VPlacemarkNode.ChildNodes[J].NodeName = 'trkpt' then begin
+          VTrkNode := VNode.ChildNodes[I];
+          for L := 0 to VTrkNode.ChildNodes.Count - 1 do begin
+            VPlacemarkNode := VTrkNode.ChildNodes[L];
+            VDesc := VTrkDesc + VDesc;
 
-                    VTrksegSubNode := VPlacemarkNode.ChildNodes[J];
-                    VAttribNode := VTrksegSubNode.GetAttributeNodes;
+            if VPlacemarkNode.GetNodeName = 'name' then begin
+              VAddress := VPlacemarkNode.Text;
+            end;
 
-                    for K := 0 to VAttribNode.getcount - 1 do begin
-                      VLatLonNode := VAttribNode.get(K);
-                      if VLatLonNode.GetNodeName = 'lon' then begin
-                        VPoint.X := StrToFloat(VLatLonNode.gettext, VFormatSettings);
-                      end else
-                      if VLatLonNode.GetNodeName = 'lat' then begin
-                        VPoint.Y := StrToFloat(VLatLonNode.gettext, VFormatSettings);
+            if VPlacemarkNode.GetNodeName = 'desc' then begin
+              VTrkDesc := VPlacemarkNode.Text;
+            end;
+            if VPlacemarkNode.GetNodeName = 'trkseg'  then begin
+              if (Pos(VSearch, AnsiUpperCase(VAddress)) <> 0) or
+                (Pos(VSearch, AnsiUpperCase(VTrkDesc)) <> 0 )then begin
+                if VPlacemarkNode.ChildNodes.Count >0 then begin
+                  for J := 0 to VPlacemarkNode.ChildNodes.Count - 1 do begin
+                    if VPlacemarkNode.ChildNodes[J].NodeName = 'trkpt' then begin
+
+                      VTrksegSubNode := VPlacemarkNode.ChildNodes[J];
+                      VAttribNode := VTrksegSubNode.GetAttributeNodes;
+
+                      for K := 0 to VAttribNode.getcount - 1 do begin
+                        VLatLonNode := VAttribNode.get(K);
+                        if VLatLonNode.GetNodeName = 'lon' then begin
+                          VPoint.X := StrToFloat(VLatLonNode.gettext, VFormatSettings);
+                        end else
+                        if VLatLonNode.GetNodeName = 'lat' then begin
+                          VPoint.Y := StrToFloat(VLatLonNode.gettext, VFormatSettings);
+                        end;
                       end;
-                    end;
 
-                    if VStrDate = '' then begin
-                      if VTrksegSubNode.ChildNodes.FindNode('time') <> nil then begin
-                        VStrDateTime := VTrksegSubNode.ChildNodes.FindNode('time').Text;
-                        VStrDate := DateTimeToStr(FSystemTimeInternal.UTCToLocalTime(ISOToDateTime(VStrDateTime)));
+                      if VStrDate = '' then begin
+                        if VTrksegSubNode.ChildNodes.FindNode('time') <> nil then begin
+                          VStrDateTime := VTrksegSubNode.ChildNodes.FindNode('time').Text;
+                          VStrDate := DateTimeToStr(FSystemTimeInternal.UTCToLocalTime(ISOToDateTime(VStrDateTime)));
+                        end;
                       end;
+                      VPointsAggregator.Add(VPoint);
                     end;
-                    VPointsAggregator.Add(VPoint);
                   end;
                 end;
               end;
-            end;
-
-            if VStrDate <> '' then begin
-              if VDesc <> '' then  VDesc := VDesc + #$D#$A;
-              VDesc := VDesc + 'DateTime: ' + VStrDate;
-            end;
-            VDesc := VDesc + #$D#$A + AFile;
-            VDesc := VDesc  + #$D#$A + '[ ' + ACoordToStringConverter.LonLatConvert(VPoint) + ' ]';
-            VDesc := Trim(VDesc + sLineBreak + 'track: true');
-
-            if VPointsAggregator.Count > 0 then begin
-              VBuilder.AddLine(VPointsAggregator.MakeStaticAndClear);
-              VPath := VBuilder.MakeStaticAndClear;
-              if Assigned(VPath) then begin
-                VItem :=
-                  FVectorDataFactory.BuildItem(
-                    FVectorDataItemMainInfoFactory.BuildMainInfo(nil, VAddress, VDesc),
-                    nil,
-                    VPath
-                  );
+              if VStrDate <> '' then begin
+                if VDesc <> '' then  VDesc := VDesc + sLineBreak;
+                VDesc := VDesc + 'DateTime: ' + VStrDate;
               end;
-              AList.Add(VItem);
+              VDesc := VDesc + sLineBreak + '[ ' + ACoordToStringConverter.LonLatConvert(VPoint) + ' ]';
+              VDesc := VDesc + sLineBreak + AFile;
+              VDesc := VDesc + sLineBreak + 'track: true';
+              VDesc := VDesc + sLineBreak +IntToStr(VPointsAggregator.Count)+' points';
+
+              if VPointsAggregator.Count > 0 then begin
+                VBuilder.AddLine(VPointsAggregator.MakeStaticAndClear);
+                VPath := VBuilder.MakeStaticAndClear;
+                if Assigned(VPath) then begin
+                  VItem :=
+                    FVectorDataFactory.BuildItem(
+                      FVectorDataItemMainInfoFactory.BuildMainInfo(nil, VAddress, VDesc),
+                      nil,
+                      VPath
+                  );
+                  AList.Add(VItem);
+                  VDesc := '';
+                  VFullDesc := '';
+                  VStrDate := '';
+                end;
+              end;
             end;
           end;
-          VPointsAggregator.Clear;
-          VPath := nil;
-          VStrDate := '';
         end;
+        VPointsAggregator.Clear;
+        VPath := nil;
+        VStrDate := '';
       end;
     end;
   except
