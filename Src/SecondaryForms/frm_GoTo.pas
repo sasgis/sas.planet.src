@@ -47,6 +47,7 @@ uses
   i_VectorItemSubsetBuilder,
   i_CoordFromStringParser,
   i_CoordToStringConverter,
+  i_CoordRepresentationConfig,
   i_SearchResultPresenter,
   i_GeoCoder,
   u_CommonFormAndFrameParents,
@@ -112,6 +113,7 @@ type
       const AFSearchHistory: IStringHistory;
       const AMainGeoCoderConfig: IMainGeoCoderConfig;
       const AViewPortState: ILocalCoordConverterChangeable;
+      const ACoordRepresentationConfig: ICoordRepresentationConfig;
       const ACoordFromStringParser: ICoordFromStringParser;
       const ACoordToStringConverter: ICoordToStringConverterChangeable;
       const ASearchPresenter: ISearchResultPresenter
@@ -325,6 +327,7 @@ constructor TfrmGoTo.Create(
   const AFSearchHistory: IStringHistory;
   const AMainGeoCoderConfig: IMainGeoCoderConfig;
   const AViewPortState: ILocalCoordConverterChangeable;
+  const ACoordRepresentationConfig: ICoordRepresentationConfig;
   const ACoordFromStringParser: ICoordFromStringParser;
   const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const ASearchPresenter: ISearchResultPresenter
@@ -358,6 +361,7 @@ begin
       ALanguageManager,
       AProjectionSet,
       FViewPortState,
+      ACoordRepresentationConfig,
       ACoordFromStringParser,
       FCoordToStringConverter,
       tssCenter

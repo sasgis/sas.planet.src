@@ -118,7 +118,7 @@ begin
   inherited;
   AConfigData.WriteBool('FirstLat', FIsLatitudeFirst);
   AConfigData.WriteInteger('DegrisShowFormat', Integer(FDegrShowFormat));
-  AConfigData.WriteInteger('AreaShowFormat', Integer(FCoordSysType));
+  AConfigData.WriteInteger('CoordSysType', Integer(FCoordSysType));
 end;
 
 function TCoordRepresentationConfig.GetCoordSysType: TCoordSysType;

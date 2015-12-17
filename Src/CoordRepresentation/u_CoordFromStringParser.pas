@@ -38,7 +38,15 @@ type
       const ALon: string;
       const ALat: string;
       out ACoord: TDoublePoint
-    ): Boolean;
+    ): Boolean; overload;
+
+    function TryStrToCoord(
+      const AX: string;
+      const AY: string;
+      const AZone: Integer;
+      const AIsNorth: Boolean;
+      out ACoord: TDoublePoint
+    ): Boolean; overload;
   public
     constructor Create(
       const AConfig: ICoordRepresentationConfig
@@ -50,7 +58,7 @@ implementation
 uses
   SysUtils,
   StrUtils,
-  WGS84_SK42,
+  Proj4,
   u_GeoToStrFunc;
 
 function Edit2Digit(
@@ -153,18 +161,55 @@ begin
   if not Result then begin
     Exit;
   end;
+
   Result := Edit2Digit(ALat, True, VCoord.Y);
   if not Result then begin
     Exit;
   end;
+
+  Result := False;
   case FConfig.CoordSysType of
-    cstWGS84: begin
-      ACoord := VCoord;
-    end;
-    cstSK42: begin
-      ACoord.X := SK42_WGS84_Long(VCoord.Y, VCoord.X, 0);
-      ACoord.Y := SK42_WGS84_Lat(VCoord.Y, VCoord.X, 0);
-    end;
+    cstWGS84: Result := True;
+    cstSK42: Result := geodetic_sk42_to_wgs84(VCoord.X, VCoord.Y);
+  else
+    Assert(False);
+  end;
+
+  if Result then begin
+    ACoord := VCoord;
+  end;
+end;
+
+function TCoordFromStringParser.TryStrToCoord(
+  const AX: string;
+  const AY: string;
+  const AZone: Integer;
+  const AIsNorth: Boolean;
+  out ACoord: TDoublePoint
+): Boolean;
+var
+  X, Y: Double;
+  VCoord: TDoublePoint;
+begin
+  Result := TryStrToFloat(AX, X);
+  if not Result then begin
+    Exit;
+  end;
+
+  Result := TryStrToFloat(AY, Y);
+  if not Result then begin
+    Exit;
+  end;
+
+  Result := False;
+  case FConfig.CoordSysType of
+    cstSK42GK: Result := gauss_kruger_to_wgs84(X, Y, AZone, AIsNorth, VCoord.X, VCoord.Y);
+  else
+    Assert(False);
+  end;
+
+  if Result then begin
+    ACoord := VCoord;
   end;
 end;
 

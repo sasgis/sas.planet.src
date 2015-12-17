@@ -20,20 +20,23 @@ object frLonLat: TfrLonLat
     BevelOuter = bvNone
     TabOrder = 0
     object cbbCoordType: TComboBox
-      Left = 6
+      AlignWithMargins = True
+      Left = 3
       Top = 3
-      Width = 123
+      Width = 445
       Height = 21
+      Align = alTop
       Style = csDropDownList
-      ItemHeight = 13
       ItemIndex = 0
       TabOrder = 0
-      Text = 'Geographic'
+      Text = 'Geographic Coordinates'
       OnSelect = cbbCoordTypeSelect
       Items.Strings = (
-        'Geographic'
+        'Geographic Coordinates'
         'Pixel'
         'Tile')
+      ExplicitLeft = 6
+      ExplicitWidth = 219
     end
   end
   object grdpnlLonLat: TGridPanel
@@ -95,7 +98,7 @@ object frLonLat: TfrLonLat
       AlignWithMargins = True
       Left = 60
       Top = 3
-      Width = 387
+      Width = 388
       Height = 18
       Align = alClient
       AutoSize = False
@@ -108,7 +111,7 @@ object frLonLat: TfrLonLat
       AlignWithMargins = True
       Left = 60
       Top = 27
-      Width = 387
+      Width = 388
       Height = 18
       Align = alClient
       AutoSize = False
@@ -202,7 +205,7 @@ object frLonLat: TfrLonLat
         AlignWithMargins = True
         Left = 19
         Top = 3
-        Width = 370
+        Width = 371
         Height = 18
         Align = alClient
         AutoSize = False
@@ -215,7 +218,7 @@ object frLonLat: TfrLonLat
         AlignWithMargins = True
         Left = 19
         Top = 27
-        Width = 370
+        Width = 371
         Height = 18
         Align = alClient
         AutoSize = False
@@ -275,11 +278,12 @@ object frLonLat: TfrLonLat
         Left = 0
         Top = 3
         Width = 10
-        Height = 45
+        Height = 42
         Margins.Left = 0
         Align = alLeft
         Caption = 'Z:'
         Layout = tlCenter
+        ExplicitHeight = 13
       end
       object cbbZoom: TComboBox
         AlignWithMargins = True
@@ -290,7 +294,6 @@ object frLonLat: TfrLonLat
         Hint = 'Zoom'
         Style = csDropDownList
         Anchors = [akLeft, akTop, akBottom]
-        ItemHeight = 13
         ItemIndex = 0
         TabOrder = 0
         Text = '01'
@@ -319,6 +322,192 @@ object frLonLat: TfrLonLat
           '22'
           '23'
           '24')
+      end
+    end
+  end
+  object pnlProjected: TPanel
+    AlignWithMargins = True
+    Left = 0
+    Top = 120
+    Width = 451
+    Height = 48
+    Margins.Left = 0
+    Margins.Top = 0
+    Margins.Right = 0
+    Margins.Bottom = 0
+    Align = alTop
+    BevelOuter = bvNone
+    TabOrder = 3
+    Visible = False
+    ExplicitTop = 80
+    object grdpnlProjected: TGridPanel
+      Left = 0
+      Top = 0
+      Width = 296
+      Height = 48
+      Align = alClient
+      BevelOuter = bvNone
+      ColumnCollection = <
+        item
+          SizeStyle = ssAuto
+          Value = 25.000000000000000000
+        end
+        item
+          Value = 100.000000000000000000
+        end>
+      ControlCollection = <
+        item
+          Column = 0
+          Control = lbl1
+          Row = 1
+        end
+        item
+          Column = 1
+          Control = edtProjectedX
+          Row = 0
+        end
+        item
+          Column = 1
+          Control = edtProjectedY
+          Row = 1
+        end
+        item
+          Column = 0
+          Control = lbl2
+          Row = 0
+        end>
+      RowCollection = <
+        item
+          Value = 50.000000000000000000
+        end
+        item
+          Value = 50.000000000000000000
+        end>
+      TabOrder = 0
+      ExplicitLeft = 19
+      ExplicitWidth = 374
+      object lbl1: TLabel
+        AlignWithMargins = True
+        Left = 3
+        Top = 27
+        Width = 10
+        Height = 13
+        Align = alRight
+        Alignment = taRightJustify
+        Caption = 'Y:'
+        Layout = tlCenter
+      end
+      object edtProjectedX: TEdit
+        AlignWithMargins = True
+        Left = 19
+        Top = 3
+        Width = 274
+        Height = 18
+        Align = alClient
+        AutoSize = False
+        BorderStyle = bsNone
+        Ctl3D = False
+        ParentCtl3D = False
+        TabOrder = 0
+        ExplicitWidth = 371
+      end
+      object edtProjectedY: TEdit
+        AlignWithMargins = True
+        Left = 19
+        Top = 27
+        Width = 274
+        Height = 18
+        Align = alClient
+        AutoSize = False
+        BorderStyle = bsNone
+        Ctl3D = False
+        ParentCtl3D = False
+        TabOrder = 1
+        ExplicitWidth = 371
+      end
+      object lbl2: TLabel
+        AlignWithMargins = True
+        Left = 3
+        Top = 3
+        Width = 10
+        Height = 13
+        Align = alRight
+        Alignment = taRightJustify
+        Caption = 'X:'
+        Layout = tlCenter
+      end
+    end
+    object grdpnlZone: TGridPanel
+      Left = 296
+      Top = 0
+      Width = 155
+      Height = 48
+      Align = alRight
+      BevelOuter = bvNone
+      ColumnCollection = <
+        item
+          SizeStyle = ssAbsolute
+          Value = 60.000000000000000000
+        end
+        item
+          Value = 100.000000000000000000
+        end>
+      ControlCollection = <
+        item
+          Column = 0
+          Control = lblZone
+          Row = 0
+        end
+        item
+          Column = 1
+          Control = cbbZone
+          Row = 0
+        end
+        item
+          Column = 1
+          Control = chkNorth
+          Row = 1
+        end>
+      RowCollection = <
+        item
+          Value = 49.999999656341050000
+        end
+        item
+          Value = 50.000000343658950000
+        end>
+      TabOrder = 1
+      object lblZone: TLabel
+        AlignWithMargins = True
+        Left = 29
+        Top = 6
+        Width = 28
+        Height = 13
+        Margins.Top = 6
+        Align = alTop
+        Alignment = taRightJustify
+        Caption = 'Zone:'
+      end
+      object cbbZone: TComboBox
+        AlignWithMargins = True
+        Left = 63
+        Top = 3
+        Width = 89
+        Height = 21
+        Align = alTop
+        TabOrder = 0
+      end
+      object chkNorth: TCheckBox
+        AlignWithMargins = True
+        Left = 63
+        Top = 26
+        Width = 89
+        Height = 20
+        Align = alTop
+        Caption = 'North'
+        TabOrder = 1
+        ExplicitLeft = 100
+        ExplicitTop = 48
+        ExplicitWidth = 145
       end
     end
   end

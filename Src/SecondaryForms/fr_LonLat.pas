@@ -37,6 +37,7 @@ uses
   i_ProjectionSetChangeable,
   i_CoordFromStringParser,
   i_CoordToStringConverter,
+  i_CoordRepresentationConfig,
   i_LocalCoordConverterChangeable,
   u_CommonFormAndFrameParents;
 
@@ -60,6 +61,16 @@ type
     edtY: TEdit;
     lblX: TLabel;
     grdpnlZoom: TGridPanel;
+    pnlProjected: TPanel;
+    grdpnlProjected: TGridPanel;
+    lbl1: TLabel;
+    lbl2: TLabel;
+    edtProjectedX: TEdit;
+    edtProjectedY: TEdit;
+    grdpnlZone: TGridPanel;
+    lblZone: TLabel;
+    cbbZone: TComboBox;
+    chkNorth: TCheckBox;
     procedure cbbCoordTypeSelect(Sender: TObject);
   private
     FCoordinates: TDoublePoint;
@@ -67,20 +78,24 @@ type
     FViewPortState: ILocalCoordConverterChangeable;
     FCoordFromStringParser: ICoordFromStringParser;
     FCoordToStringConverter: ICoordToStringConverterChangeable;
+    FCoordRepresentationConfig: ICoordRepresentationConfig;
     FTileSelectStyle: TTileSelectStyle;
     function GetLonLat: TDoublePoint;
     procedure SetLonLat(const Value: TDoublePoint);
+    function IsProjected: Boolean; inline;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AProjectionSet: IProjectionSetChangeable;
       const AViewPortState: ILocalCoordConverterChangeable;
+      const ACoordRepresentationConfig: ICoordRepresentationConfig;
       const ACoordFromStringParser: ICoordFromStringParser;
       const ACoordToStringConverter: ICoordToStringConverterChangeable;
       ATileSelectStyle: TTileSelectStyle
     ); reintroduce;
     property LonLat: TDoublePoint read GetLonLat write SetLonLat;
     function Validate: Boolean;
+    procedure Init;
   end;
 
 implementation
@@ -88,6 +103,9 @@ implementation
 uses
   Types,
   Math,
+  gnugettext,
+  Proj4,
+  t_CoordRepresentation,
   i_Projection,
   i_ProjectionSet,
   i_LocalCoordConverter,
@@ -98,14 +116,72 @@ uses
 {$R *.dfm}
 
 { TfrLonLat }
+
 procedure TfrLonLat.cbbCoordTypeSelect(Sender: TObject);
 begin
   SetLonLat(FCoordinates);
+end;
+
+constructor TfrLonLat.Create(
+  const ALanguageManager: ILanguageManager;
+  const AProjectionSet: IProjectionSetChangeable;
+  const AViewPortState: ILocalCoordConverterChangeable;
+  const ACoordRepresentationConfig: ICoordRepresentationConfig;
+  const ACoordFromStringParser: ICoordFromStringParser;
+  const ACoordToStringConverter: ICoordToStringConverterChangeable;
+  ATileSelectStyle: TTileSelectStyle
+);
+var
+  I: Integer;
+begin
+  inherited Create(ALanguageManager);
+  FProjectionSet := AProjectionSet;
+  FViewPortState := AViewPortState;
+  FCoordFromStringParser := ACoordFromStringParser;
+  FCoordToStringConverter := ACoordToStringConverter;
+  FCoordRepresentationConfig := ACoordRepresentationConfig;
+  FTileSelectStyle := ATileSelectStyle;
+  cbbZone.Clear;
+  for I := 1 to 60 do begin
+    cbbZone.AddItem(IntToStr(I), nil);
+  end;
+end;
+
+function TfrLonLat.IsProjected: Boolean;
+begin
+  Result := FCoordRepresentationConfig.CoordSysType in [cstSK42GK];
+end;
+
+procedure TfrLonLat.Init;
+var
+  VIndex: Integer;
+  VIsProjected: Boolean;
+begin
+  VIsProjected := IsProjected;
+  VIndex := cbbCoordType.ItemIndex;
+
+  if VIsProjected then begin
+    cbbCoordType.Items.Strings[0] := _('Projected Coordinates');
+  end else begin
+    cbbCoordType.Items.Strings[0] := _('Geographic Coordinates');
+  end;
+  cbbCoordType.ItemIndex := VIndex;
+
+  if cbbCoordType.ItemIndex = -1 then begin
+    cbbCoordType.ItemIndex := 0;
+  end;
+
   case cbbCoordType.ItemIndex of
     0: begin
       pnlXY.Visible := False;
-      grdpnlLonLat.Visible := True;
-      grdpnlLonLat.Realign;
+      if VIsProjected then begin
+        pnlProjected.Visible := True;
+        grdpnlLonLat.Visible := False;
+      end else begin
+        grdpnlLonLat.Visible := True;
+        pnlProjected.Visible := False;
+        grdpnlLonLat.Realign;
+      end;
     end;
     1, 2: begin
       pnlXY.Visible := True;
@@ -113,23 +189,6 @@ begin
       grdpnlXY.Realign;
     end;
   end;
-end;
-
-constructor TfrLonLat.Create(
-  const ALanguageManager: ILanguageManager;
-  const AProjectionSet: IProjectionSetChangeable;
-  const AViewPortState: ILocalCoordConverterChangeable;
-  const ACoordFromStringParser: ICoordFromStringParser;
-  const ACoordToStringConverter: ICoordToStringConverterChangeable;
-  ATileSelectStyle: TTileSelectStyle
-);
-begin
-  inherited Create(ALanguageManager);
-  FProjectionSet := AProjectionSet;
-  FViewPortState := AViewPortState;
-  FCoordFromStringParser := ACoordFromStringParser;
-  FCoordToStringConverter := ACoordToStringConverter;
-  FTileSelectStyle := ATileSelectStyle;
 end;
 
 function TfrLonLat.GetLonLat: TDoublePoint;
@@ -142,23 +201,35 @@ var
   VLon, VLat: string;
   XYPoint: TPoint;
   CurrZoom: integer;
+  VZone: Integer;
   VLocalConverter: ILocalCoordConverter;
 begin
+  Init;
+
   FCoordinates := Value;
   VLocalConverter := FViewPortState.GetStatic;
+
   CurrZoom := VLocalConverter.Projection.Zoom;
   cbbZoom.ItemIndex := CurrZoom;
-  if cbbCoordType.ItemIndex = -1 then begin
-    cbbCoordType.ItemIndex := 0;
-  end;
+
+  VZone := long_to_gauss_kruger_zone(Value.X);
+  Assert( (VZone >= 1) and (VZone <= 60) );
+  cbbZone.ItemIndex := VZone - 1;
+
+  chkNorth.Checked := (Value.Y > 0);
 
   case cbbCoordType.ItemIndex of
     0: begin
       FCoordToStringConverter.GetStatic.LonLatConvert(
         Value.X, Value.Y, False, VLon, VLat
       );
-      edtLon.Text := VLon;
-      edtLat.Text := VLat;
+      if IsProjected then begin
+        edtProjectedX.Text := VLon;
+        edtProjectedY.Text := VLat;
+      end else begin
+        edtLon.Text := VLon;
+        edtLat.Text := VLat;
+      end;
     end;
     1: begin
       XYPoint :=
@@ -183,6 +254,7 @@ end;
 
 function TfrLonLat.Validate: Boolean;
 var
+  X, Y: string;
   VProjectionSet: IProjectionSet;
   VTile: TPoint;
   XYPoint: TDoublePoint;
@@ -195,14 +267,31 @@ begin
   Result := True;
   case cbbCoordType.ItemIndex of
     0: begin
-      if not FCoordFromStringParser.TryStrToCoord(edtLon.Text, edtLat.Text, VLonLat) then begin
-        ShowMessage(SAS_ERR_CoordinatesInput);
-        Result := False;
+      if IsProjected then begin
+        X := edtProjectedY.Text; // !
+        Y := edtProjectedX.Text; // !
+        Result :=
+          FCoordFromStringParser.TryStrToCoord(
+            X,
+            Y,
+            cbbZone.ItemIndex + 1,
+            chkNorth.Checked,
+            VLonLat
+          );
+      end else begin
+        Result :=
+          FCoordFromStringParser.TryStrToCoord(
+            edtLon.Text,
+            edtLat.Text,
+            VLonLat
+          );
       end;
       if Result then begin
         VLocalConverter := FViewPortState.GetStatic;
         VProjection := VLocalConverter.Projection;
         VProjection.ProjectionType.ValidateLonLatPos(VLonLat);
+      end else begin
+        ShowMessage(SAS_ERR_CoordinatesInput);
       end;
     end;
     1: begin

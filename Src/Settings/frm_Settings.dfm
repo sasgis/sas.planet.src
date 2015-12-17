@@ -971,9 +971,8 @@ object frmSettings: TfrmSettings
               Text = 'WGS84 (default)'
               Items.Strings = (
                 'WGS84 (default)'
-                'SK42')
-              ExplicitLeft = 138
-              ExplicitWidth = 172
+                'SK42'
+                'SK42 (Gauss-Kruger)')
             end
           end
         end

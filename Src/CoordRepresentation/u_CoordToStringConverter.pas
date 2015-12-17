@@ -70,7 +70,7 @@ uses
   Math,
   SysUtils,
   StrUtils,
-  WGS84_SK42,
+  Proj4,
   u_ResStrings;
 
 { TCoordToStringConverter }
@@ -217,7 +217,7 @@ var
   VLonStr: string;
 begin
   LonLatConvert(ALonLat.X, ALonLat.Y, False, VLonStr, VLatStr);
-  if FIsLatitudeFirst then begin
+  if FIsLatitudeFirst and (FCoordSysType in [cstWGS84, cstSK42]) then begin
     Result := VLatStr + ' ' + VLonStr;
   end else begin
     Result := VLonStr + ' ' + VLatStr;
@@ -231,21 +231,42 @@ procedure TCoordToStringConverter.LonLatConvert(
   out ALonStr: string;
   out ALatStr: string
 );
+
+  procedure _GeodeticCoordToStr(const ALonLat: TDoublePoint; out ALon, ALat: string);
+  begin
+    ALon := GetLongitudeMarker(ALonLat.X) + DegrToStr(ALonLat.X, ACutZero);
+    ALat := GetLatitudeMarker(ALonLat.Y) + DegrToStr(ALonLat.Y, ACutZero);
+  end;
+
+  procedure _ProjectedCoordToStr(const AXY: TDoublePoint; out AX, AY: string);
+  begin
+    AX := IntToStr(Round(AXY.X));
+    AY := IntToStr(Round(AXY.Y));
+  end;
+
 var
+  VPoint: TDoublePoint;
   VLonLat: TDoublePoint;
 begin
+  ALonStr := 'NaN';
+  ALatStr := 'NaN';
+  VLonLat.X := ALon;
+  VLonLat.Y := ALat;
   case FCoordSysType of
     cstWGS84: begin
-      VLonLat.X := ALon;
-      VLonLat.Y := ALat;
+      _GeodeticCoordToStr(VLonLat, ALonStr, ALatStr);
     end;
     cstSK42: begin
-      VLonLat.X := WGS84_SK42_Long(ALat, ALon, 0);
-      VLonLat.Y := WGS84_SK42_Lat(ALat, ALon, 0);
+      if geodetic_wgs84_to_sk42(VLonLat.X, VLonLat.Y) then begin
+        _GeodeticCoordToStr(VLonLat, ALonStr, ALatStr);
+      end;
+    end;
+    cstSK42GK: begin
+      if geodetic_wgs84_to_gauss_kruger(VLonLat.X, VLonLat.Y, VPoint.X, VPoint.Y) then begin
+        _ProjectedCoordToStr(VPoint, ALatStr, ALonStr); // !
+      end;
     end;
   end;
-  ALonStr := GetLongitudeMarker(VLonLat.X) + DegrToStr(VLonLat.X, ACutZero);
-  ALatStr := GetLatitudeMarker(VLonLat.Y) + DegrToStr(VLonLat.Y, ACutZero);
 end;
 
 end.

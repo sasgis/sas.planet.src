@@ -32,7 +32,15 @@ type
       const ALon: string;
       const ALat: string;
       out ACoord: TDoublePoint
-    ): Boolean;
+    ): Boolean; overload;
+
+    function TryStrToCoord(
+      const AX: string;
+      const AY: string;
+      const AZone: Integer;
+      const AIsNorth: Boolean;
+      out ACoord: TDoublePoint
+    ): Boolean; overload;
   end;
 
 implementation

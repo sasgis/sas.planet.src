@@ -1170,6 +1170,7 @@ begin
       GState.VectorGeometryLonLatFactory,
       GState.ArchiveReadWriteFactory,
       GState.VectorItemSubsetBuilderFactory,
+      GState.Config.CoordRepresentationConfig,
       GState.CoordFromStringParser,
       GState.CoordToStringConverter,
       GState.ValueToStringConverter
@@ -1792,6 +1793,7 @@ begin
        FConfig.SearchHistory,
        FConfig.MainGeoCoderConfig,
        FViewPortState.View,
+       GState.Config.CoordRepresentationConfig,
        GState.CoordFromStringParser,
        GState.CoordToStringConverter,
        FSearchPresenter
@@ -5698,6 +5700,7 @@ begin
       GState.Config.LanguageManager,
       FActiveProjectionSet,
       FViewPortState.View,
+      GState.Config.CoordRepresentationConfig,
       GState.CoordFromStringParser,
       GState.CoordToStringConverter
     );

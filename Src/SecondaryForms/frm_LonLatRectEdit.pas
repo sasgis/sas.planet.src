@@ -36,6 +36,7 @@ uses
   i_ProjectionSetChangeable,
   i_CoordFromStringParser,
   i_CoordToStringConverter,
+  i_CoordRepresentationConfig,
   i_LocalCoordConverterChangeable,
   fr_LonLat;
 
@@ -60,6 +61,7 @@ type
       const ALanguageManager: ILanguageManager;
       const AProjectionSet: IProjectionSetChangeable;
       const AViewPortState: ILocalCoordConverterChangeable;
+      const ACoordRepresentationConfig: ICoordRepresentationConfig;
       const ACoordFromStringParser: ICoordFromStringParser;
       const ACoordToStringConverter: ICoordToStringConverterChangeable
     ); reintroduce;
@@ -78,6 +80,7 @@ constructor TfrmLonLatRectEdit.Create(
   const ALanguageManager: ILanguageManager;
   const AProjectionSet: IProjectionSetChangeable;
   const AViewPortState: ILocalCoordConverterChangeable;
+  const ACoordRepresentationConfig: ICoordRepresentationConfig;
   const ACoordFromStringParser: ICoordFromStringParser;
   const ACoordToStringConverter: ICoordToStringConverterChangeable
 );
@@ -88,6 +91,7 @@ begin
       ALanguageManager,
       AProjectionSet,
       AViewPortState,
+      ACoordRepresentationConfig,
       ACoordFromStringParser,
       ACoordToStringConverter,
       tssTopLeft
@@ -97,6 +101,7 @@ begin
       ALanguageManager,
       AProjectionSet,
       AViewPortState,
+      ACoordRepresentationConfig,
       ACoordFromStringParser,
       ACoordToStringConverter,
       tssBottomRight
