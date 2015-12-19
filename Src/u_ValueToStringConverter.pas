@@ -149,31 +149,35 @@ end;
 
 function TValueToStringConverter.DistConvert(const ADistInMeters: Double): string;
 var
+  VDistInMeters: Double;
   VKmDist: Double;
 begin
   if IsNan(ADistInMeters) then begin
     Result := 'NAN';
     Exit;
   end;
-
+  VDistInMeters := Abs(ADistInMeters);
   Result := '';
   case FDistStrFormat of
     dsfKmAndM: begin
-      if ADistInMeters > 1000 then begin
-        VKmDist := ADistInMeters / 1000;
+      if VDistInMeters > 1000 then begin
+        VKmDist := VDistInMeters / 1000;
         Result := IntToStr(Trunc(VKmDist)) + ' ' + FUnitsKm + ' ';
         Result := Result + FormatFloat('0.00', frac(VKmDist) * 1000) + ' ' + FUnitsMeters;
       end else begin
-        Result := FormatFloat('0.00', ADistInMeters) + ' ' + FUnitsMeters;
+        Result := FormatFloat('0.00', VDistInMeters) + ' ' + FUnitsMeters;
       end;
     end;
     dsfSimpleKM: begin
-      if ADistInMeters < 10000 then begin
-        Result := FormatFloat('0.00', ADistInMeters) + ' ' + FUnitsMeters;
+      if VDistInMeters < 10000 then begin
+        Result := FormatFloat('0.00', VDistInMeters) + ' ' + FUnitsMeters;
       end else begin
-        Result := FormatFloat('0.00', ADistInMeters / 1000) + ' ' + FUnitsKm;
+        Result := FormatFloat('0.00', VDistInMeters / 1000) + ' ' + FUnitsKm;
       end;
     end;
+  end;
+  if ADistInMeters < 0 then begin
+    Result := '-' + Result;
   end;
 end;
 
