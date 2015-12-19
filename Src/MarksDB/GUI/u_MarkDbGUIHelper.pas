@@ -27,6 +27,7 @@ uses
   Dialogs,
   Controls,
   Classes,
+  Forms,
   i_PathConfig,
   i_LanguageManager,
   i_InterfaceListStatic,
@@ -177,6 +178,7 @@ type
     property MarkFactoryConfig: IMarkFactoryConfig read FMarkFactoryConfig;
   public
     constructor Create(
+      APopUpParent: TCustomForm;
       const ALanguageManager: ILanguageManager;
       const AProjectionSetChangeable: IProjectionSetChangeable;
       const AMediaPath: IPathConfig;
@@ -224,6 +226,7 @@ uses
 { TMarksDbGUIHelper }
 
 constructor TMarkDbGUIHelper.Create(
+  APopUpParent: TCustomForm;
   const ALanguageManager: ILanguageManager;
   const AProjectionSetChangeable: IProjectionSetChangeable;
   const AMediaPath: IPathConfig;
@@ -315,6 +318,7 @@ begin
       AValueToStringConverter,
       AGeoCalc
     );
+  FfrmMarkInfo.PopupParent := APopUpParent;
   FfrmMarksMultiEdit :=
     TfrmMarksMultiEdit.Create(
       ALanguageManager,

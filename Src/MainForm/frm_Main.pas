@@ -1153,6 +1153,7 @@ begin
   FMapGoto := TMapViewGoto.Create(FActiveProjectionSet, FViewPortState);
   FMarkDBGUI :=
     TMarkDbGUIHelper.Create(
+      Self,
       GState.Config.LanguageManager,
       FActiveProjectionSet,
       GState.Config.MediaDataPath,

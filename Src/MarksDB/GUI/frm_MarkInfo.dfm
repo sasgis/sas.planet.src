@@ -6,12 +6,9 @@ object frmMarkInfo: TfrmMarkInfo
   ClientHeight = 333
   ClientWidth = 401
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'Tahoma'
-  Font.Style = []
+  ParentFont = True
   OldCreateOrder = False
+  PopupMode = pmExplicit
   OnClose = FormClose
   PixelsPerInch = 96
   TextHeight = 13
