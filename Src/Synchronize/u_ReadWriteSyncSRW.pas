@@ -218,12 +218,14 @@ var
   VDll: ISyncronizerSRWDll;
 begin
   Result := nil;
+  if not CheckWin32Version(6, 0) then begin // Vista and newer
+    Exit;
+  end;
   VDllHandle := GetModuleHandle('ntdll.dll');
   // Resource
   if (0 <> VDllHandle) then begin
     VInitializePtr := GetProcAddress(VDllHandle, 'RtlInitializeSRWLock');
     if VInitializePtr <> nil then begin
-      // Vista and newer
       VAcquireExclusivePtr := GetProcAddress(VDllHandle, 'RtlAcquireSRWLockExclusive');
       VReleaseExclusivePtr := GetProcAddress(VDllHandle, 'RtlReleaseSRWLockExclusive');
       VAcquireSharedPtr := GetProcAddress(VDllHandle, 'RtlAcquireSRWLockShared');
