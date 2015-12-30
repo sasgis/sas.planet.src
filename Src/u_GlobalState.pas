@@ -151,7 +151,7 @@ type
     FGeoCoderList: IGeoCoderListStatic;
     FMarkPictureList: IMarkPictureList;
     FMarkPictureListInternal: IMarkPictureListInternal;
-    FGpsSystem: IGPSModule;
+    FGpsSystem: IGpsSystem;
     FImporterList: IVectorItemTreeImporterListChangeable;
     FExporterList: IVectorItemTreeExporterListChangeable;
     FGPSDatum: IDatum;
@@ -226,7 +226,7 @@ type
     property CacheConfig: IGlobalCacheConfig read FCacheConfig;
     property MarksDb: IMarkSystem read FMarkSystem;
     property MarkSystemConfig: IMarkSystemConfigListChangeable read FMarkSystemConfig;
-    property GpsSystem: IGPSModule read FGpsSystem;
+    property GpsSystem: IGpsSystem read FGpsSystem;
     property GPSDatum: IDatum read FGPSDatum;
     property GeoCalc: IGeoCalc read FGeoCalc;
 

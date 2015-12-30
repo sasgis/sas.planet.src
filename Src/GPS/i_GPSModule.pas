@@ -61,6 +61,40 @@ type
     procedure ResetUnitInfo;
   end;
 
+  IGpsSystem = interface
+    ['{F5255517-B74E-486D-AF34-8F48F510D30C}']
+    function GetPosition: IGPSPosition;
+    property Position: IGPSPosition read GetPosition;
+
+    function GetDataReciveNotifier: INotifier;
+    property DataReciveNotifier: INotifier read GetDataReciveNotifier;
+
+    function GetConnectingNotifier: INotifier;
+    property ConnectingNotifier: INotifier read GetConnectingNotifier;
+
+    function GetConnectedNotifier: INotifier;
+    property ConnectedNotifier: INotifier read GetConnectedNotifier;
+
+    function GetDisconnectingNotifier: INotifier;
+    property DisconnectingNotifier: INotifier read GetDisconnectingNotifier;
+
+    function GetDisconnectedNotifier: INotifier;
+    property DisconnectedNotifier: INotifier read GetDisconnectedNotifier;
+
+    function GetTimeOutNotifier: INotifier;
+    property TimeOutNotifier: INotifier read GetTimeOutNotifier;
+
+    function GetConnectErrorNotifier: INotifier;
+    property ConnectErrorNotifier: INotifier read GetConnectErrorNotifier;
+
+    function GetGPSUnitInfo: String;
+    property GPSUnitInfo: String read GetGPSUnitInfo;
+
+    procedure ApplyUTCDateTime;
+    procedure ResetDGPS;
+    procedure ResetUnitInfo;
+  end;
+
 implementation
 
 end.

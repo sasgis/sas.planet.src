@@ -86,7 +86,7 @@ type
     procedure btnGPSAutodetectCOMClick(Sender: TObject);
     procedure btnGPSSwitchClick(Sender: TObject);
   private
-    FGpsSystem: IGPSModule;
+    FGpsSystem: IGpsSystem;
     FGPSConfig: IGPSConfig;
     FGPSTrackConfig: IMapLayerGPSTrackConfig;
     FGPSBehaviour: IMainFormBehaviourByGPSConfig;
@@ -105,7 +105,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AGpsSystem: IGPSModule;
+      const AGpsSystem: IGpsSystem;
       const ASensorList: ISensorList;
       const AGUISyncronizedTimerNotifier: INotifierTime;
       const ASkyMapDraw: ISatellitesInViewMapDraw;
@@ -139,7 +139,7 @@ uses
 
 constructor TfrGPSConfig.Create(
   const ALanguageManager: ILanguageManager;
-  const AGpsSystem: IGPSModule;
+  const AGpsSystem: IGpsSystem;
   const ASensorList: ISensorList;
   const AGUISyncronizedTimerNotifier: INotifierTime;
   const ASkyMapDraw: ISatellitesInViewMapDraw;

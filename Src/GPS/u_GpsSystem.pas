@@ -45,7 +45,7 @@ type
   TInternalState = (isDisconnected, isConnecting, isConnected, isDisconnecting, isTimeOut, isConnectError);
 
 type
-  TGpsSystem = class(TBaseInterfacedObject, IGPSModule)
+  TGpsSystem = class(TBaseInterfacedObject, IGpsSystem)
   private
     FAppStartedNotifier: INotifierOneOperation;
     FAppClosingNotifier: INotifierOneOperation;
@@ -93,14 +93,14 @@ type
 
     procedure CreateModuleAndLinks;
   private
-    function GetPosition: IGPSPosition; safecall;
-    function GetConnectedNotifier: INotifier; safecall;
-    function GetConnectErrorNotifier: INotifier; safecall;
-    function GetConnectingNotifier: INotifier; safecall;
-    function GetDataReciveNotifier: INotifier; safecall;
-    function GetDisconnectedNotifier: INotifier; safecall;
-    function GetDisconnectingNotifier: INotifier; safecall;
-    function GetTimeOutNotifier: INotifier; safecall;
+    function GetPosition: IGPSPosition;
+    function GetConnectedNotifier: INotifier;
+    function GetConnectErrorNotifier: INotifier;
+    function GetConnectingNotifier: INotifier;
+    function GetDataReciveNotifier: INotifier;
+    function GetDisconnectedNotifier: INotifier;
+    function GetDisconnectingNotifier: INotifier;
+    function GetTimeOutNotifier: INotifier;
     function GetGPSUnitInfo: String;
     procedure ApplyUTCDateTime;
     procedure ResetDGPS;

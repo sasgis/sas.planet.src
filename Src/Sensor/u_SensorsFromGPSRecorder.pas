@@ -131,7 +131,7 @@ type
   TSensorFromGPSRecorderLocalTime = class(TSensorDateTimeValueFromGPSRecorder, ISensorTime, ISensorResetable)
   private
     FSystemTime: ISystemTimeProvider;
-    FGPSModule: IGPSModule;
+    FGPSModule: IGpsSystem;
   protected
     function GetSensorTypeIID: TGUID; override;
     function GetCurrentValue: TDateTime; override;
@@ -140,13 +140,13 @@ type
     constructor Create(
       const ASystemTime: ISystemTimeProvider;
       const AGPSRecorder: IGPSRecorder;
-      const AGPSModule: IGPSModule
+      const AGPSModule: IGpsSystem
     );
   end;
 
   TSensorFromGPSRecorderDGPS = class(TSensorTextValueFromGPSRecorder, ISensorText, ISensorResetable)
   private
-    FGPSModule: IGPSModule;
+    FGPSModule: IGpsSystem;
   protected
     function GetSensorTypeIID: TGUID; override;
     function GetCurrentValue: string; override;
@@ -154,13 +154,13 @@ type
   public
     constructor Create(
       const AGPSRecorder: IGPSRecorder;
-      const AGPSModule: IGPSModule
+      const AGPSModule: IGpsSystem
     );
   end;
 
   TSensorFromGPSRecorderGPSUnitInfo = class(TSensorTextValueFromGPSRecorder, ISensorText, ISensorResetable)
   private
-    FGPSModule: IGPSModule;
+    FGPSModule: IGpsSystem;
   protected
     function GetSensorTypeIID: TGUID; override;
     function GetCurrentValue: string; override;
@@ -168,7 +168,7 @@ type
   public
     constructor Create(
       const AGPSRecorder: IGPSRecorder;
-      const AGPSModule: IGPSModule
+      const AGPSModule: IGpsSystem
     );
   end;
 
@@ -432,7 +432,7 @@ end;
 constructor TSensorFromGPSRecorderLocalTime.Create(
   const ASystemTime: ISystemTimeProvider;
   const AGPSRecorder: IGPSRecorder;
-  const AGPSModule: IGPSModule
+  const AGPSModule: IGpsSystem
 );
 begin
   inherited Create(AGPSRecorder);
@@ -469,7 +469,7 @@ end;
 
 constructor TSensorFromGPSRecorderDGPS.Create(
   const AGPSRecorder: IGPSRecorder;
-  const AGPSModule: IGPSModule
+  const AGPSModule: IGpsSystem
 );
 begin
   inherited Create(AGPSRecorder);
@@ -502,7 +502,7 @@ end;
 
 constructor TSensorFromGPSRecorderGPSUnitInfo.Create(
   const AGPSRecorder: IGPSRecorder;
-  const AGPSModule: IGPSModule
+  const AGPSModule: IGpsSystem
 );
 begin
   inherited Create(AGPSRecorder);

@@ -41,7 +41,7 @@ type
       const ANavigationToPoint: INavigationToPoint;
       const ASystemTime: ISystemTimeProvider;
       const AGPSRecorder: IGPSRecorder;
-      const AGPSModule: IGPSModule;
+      const AGPSModule: IGpsSystem;
       const ABatteryStatus: IBatteryStatus
     );
   end;
@@ -69,7 +69,7 @@ constructor TSensorListStuped.Create(
   const ANavigationToPoint: INavigationToPoint;
   const ASystemTime: ISystemTimeProvider;
   const AGPSRecorder: IGPSRecorder;
-  const AGPSModule: IGPSModule;
+  const AGPSModule: IGpsSystem;
   const ABatteryStatus: IBatteryStatus
 );
 var
