@@ -44,6 +44,7 @@ uses
   i_MapTypeListBuilder,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
+  i_MapTypeListChangeable,
   i_GeometryLonLat,
   i_ContentTypeInfo,
   i_ContentTypeManager,
@@ -134,11 +135,13 @@ type
     chkPlaceInNameSubFolder: TCheckBox;
     lblImageFormat: TLabel;
     cbbImageFormat: TComboBox;
+    chkAddVisibleLayers: TCheckBox;
     procedure btnSelectTargetPathClick(Sender: TObject);
     procedure OnCacheTypeChange(Sender: TObject);
     procedure chkSetTargetVersionToClick(Sender: TObject);
     procedure chkAllMapsClick(Sender: TObject);
     procedure cbbImageFormatChange(Sender: TObject);
+    procedure chkAddVisibleLayersClick(Sender: TObject);
   private
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
@@ -146,6 +149,7 @@ type
     FContentTypeManager: IContentTypeManager;
     FMainMapConfig: IActiveMapConfig;
     FFullMapsSet: IMapTypeSet;
+    FActiveMapsList: IMapTypeListChangeable;
     FGUIConfigList: IMapTypeGUIConfigList;
     FfrMapSelect: TfrMapSelect;
     FfrOverlaySelect: TfrMapSelect;
@@ -158,6 +162,7 @@ type
     );
     function Validate: Boolean;
     procedure UpdateSetTargetVersionState;
+    function GetSelectedLayer: IMapType;
   private
     function GetZoomArray: TByteDynArray;
     function GetPath: string;
@@ -181,6 +186,7 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
+      const AActiveMapsList: IMapTypeListChangeable;
       const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
       const AMainMapConfig: IActiveMapConfig;
       const AFullMapsSet: IMapTypeSet;
@@ -211,6 +217,7 @@ uses
 constructor TfrTilesCopy.Create(
   const ALanguageManager: ILanguageManager;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
+  const AActiveMapsList: IMapTypeListChangeable;
   const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
   const AMainMapConfig: IActiveMapConfig;
   const AFullMapsSet: IMapTypeSet;
@@ -222,6 +229,7 @@ constructor TfrTilesCopy.Create(
 );
 begin
   inherited Create(ALanguageManager);
+  FActiveMapsList := AActiveMapsList;
   FMainMapConfig := AMainMapConfig;
   FMapTypeListBuilderFactory := AMapTypeListBuilderFactory;
   FFullMapsSet := AFullMapsSet;
@@ -302,6 +310,11 @@ begin
   seCompression.Enabled := VValue;
 end;
 
+procedure TfrTilesCopy.chkAddVisibleLayersClick(Sender: TObject);
+begin
+  FfrOverlaySelect.SetEnabled(not chkAddVisibleLayers.Checked);
+end;
+
 procedure TfrTilesCopy.chkAllMapsClick(Sender: TObject);
 var
   i: byte;
@@ -327,6 +340,22 @@ begin
   Result := AMapType.IsBitmapTiles;
 end;
 
+function TfrTilesCopy.GetSelectedLayer: IMapType;
+var
+  VActiveMapsSet: IMapTypeListStatic;
+begin
+  if chkAddVisibleLayers.Checked then begin
+    VActiveMapsSet := FActiveMapsList.List;
+    if Assigned(VActiveMapsSet) and (VActiveMapsSet.Count > 0) then begin
+      Result := VActiveMapsSet.Items[0];
+    end else begin
+      Result := nil;
+    end;
+  end else begin
+    Result := FfrOverlaySelect.GetSelectedMapType;
+  end;
+end;
+
 function TfrTilesCopy.GetBitmapTileSaver: IBitmapTileSaver;
 
   function _GetSaver(const AMap: IMapType): IBitmapTileSaver;
@@ -350,7 +379,7 @@ begin
   if cbbImageFormat.ItemIndex <= 0 then begin
     Result := _GetSaver(FfrMapSelect.GetSelectedMapType);
     if not Assigned(Result) then begin
-      Result := _GetSaver(FfrOverlaySelect.GetSelectedMapType);
+      Result := _GetSaver(GetSelectedLayer);
     end;
   end else begin
     case cbbImageFormat.ItemIndex of
@@ -387,7 +416,7 @@ begin
   if cbbImageFormat.ItemIndex <= 0 then begin
     Result := _GetContentType(FfrMapSelect.GetSelectedMapType);
     if not Assigned(Result) then begin
-      Result := _GetContentType(FfrOverlaySelect.GetSelectedMapType);
+      Result := _GetContentType(GetSelectedLayer);
     end;
   end else begin
     case cbbImageFormat.ItemIndex of
@@ -415,6 +444,9 @@ end;
 function TfrTilesCopy.GetMapSource: IMapType;
 begin
   Result := FfrMapSelect.GetSelectedMapType;
+  if not Assigned(Result) then begin
+    Result := GetSelectedLayer;
+  end;
 end;
 
 function TfrTilesCopy.GetMapTypeList: IMapTypeListStatic;
@@ -442,9 +474,8 @@ end;
 
 function TfrTilesCopy.GetOverlay: IMapType;
 begin
-  if pcSource.ActivePageIndex = 0 then begin
-    Result := nil;
-  end else begin
+  Result := nil;
+  if (pcSource.ActivePageIndex <> 0) and not chkAddVisibleLayers.Checked then begin
     Result := FfrOverlaySelect.GetSelectedMapType;
   end;
 end;
@@ -465,6 +496,7 @@ var
   VMapVersion: IMapVersionRequest;
   VLayer: IMapType;
   VLayerVersion: IMapVersionRequest;
+  VActiveMapsSet: IMapTypeListStatic;
 begin
   if pcSource.ActivePageIndex = 0 then begin
     Result := nil;
@@ -484,6 +516,14 @@ begin
     VLayerVersion := nil;
   end;
 
+  if chkAddVisibleLayers.Checked then begin
+    VLayer := nil;
+    VLayerVersion := nil;
+    VActiveMapsSet := FActiveMapsList.List;
+  end else begin
+    VActiveMapsSet := nil;
+  end;
+
   Result :=
     TBitmapLayerProviderMapWithLayer.Create(
       FBitmap32StaticFactory,
@@ -491,7 +531,7 @@ begin
       VMapVersion,
       VLayer,
       VLayerVersion,
-      nil,
+      VActiveMapsSet,
       False,
       False
     );

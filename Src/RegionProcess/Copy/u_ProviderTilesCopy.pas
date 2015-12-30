@@ -37,6 +37,7 @@ uses
   i_TileStorageTypeList,
   i_MapVersionInfo,
   i_ContentTypeInfo,
+  i_MapTypeListChangeable,
   i_GlobalBerkeleyDBHelper,
   i_RegionProcessProgressInfoInternalFactory,
   i_Bitmap32BufferFactory,
@@ -47,6 +48,7 @@ uses
 type
   TProviderTilesCopy = class(TExportProviderAbstract)
   private
+    FActiveMapsList: IMapTypeListChangeable;
     FMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
     FTimerNoifier: INotifierTime;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
@@ -69,6 +71,7 @@ type
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
+      const AActiveMapsList: IMapTypeListChangeable;
       const AMainMapConfig: IActiveMapConfig;
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AFullMapsSet: IMapTypeSet;
@@ -106,6 +109,7 @@ constructor TProviderTilesCopy.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
+  const AActiveMapsList: IMapTypeListChangeable;
   const AMainMapConfig: IActiveMapConfig;
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AFullMapsSet: IMapTypeSet;
@@ -123,6 +127,7 @@ begin
     ALanguageManager,
     AMapSelectFrameBuilder
   );
+  FActiveMapsList := AActiveMapsList;
   FMainMapConfig := AMainMapConfig;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
@@ -142,6 +147,7 @@ begin
     TfrTilesCopy.Create(
       Self.LanguageManager,
       Self.MapSelectFrameBuilder,
+      FActiveMapsList,
       FMapTypeListBuilderFactory,
       FMainMapConfig,
       FFullMapsSet,

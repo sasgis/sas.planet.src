@@ -330,6 +330,7 @@ begin
       VProgressFactory,
       ALanguageManager,
       VMapSelectFrameBuilder,
+      AActiveBitmapLayersList,
       AMainMapConfig,
       AGlobalBerkeleyDBHelper,
       AFullMapsSet,
