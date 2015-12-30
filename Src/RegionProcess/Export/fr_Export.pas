@@ -41,6 +41,7 @@ uses
   i_RegionProcessProgressInfoInternalFactory,
   i_RegionProcessProvider,
   i_InterfaceListStatic,
+  i_MapTypeListChangeable,
   fr_MapSelect,
   u_CommonFormAndFrameParents;
 
@@ -60,6 +61,7 @@ type
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
+      const AActiveMapsList: IMapTypeListChangeable;
       const AProjectionSetFactory: IProjectionSetFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
@@ -108,6 +110,7 @@ constructor TfrExport.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
+  const AActiveMapsList: IMapTypeListChangeable;
   const AProjectionSetFactory: IProjectionSetFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
@@ -266,6 +269,7 @@ begin
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,
+      AActiveMapsList,
       AVectorGeometryProjectedFactory,
       ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
@@ -279,6 +283,7 @@ begin
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,
+      AActiveMapsList,
       AVectorGeometryProjectedFactory,
       ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
@@ -292,6 +297,7 @@ begin
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,
+      AActiveMapsList,
       AVectorGeometryProjectedFactory,
       ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,

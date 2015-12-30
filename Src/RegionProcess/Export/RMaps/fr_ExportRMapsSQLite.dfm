@@ -2,7 +2,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
   Left = 0
   Top = 0
   Width = 550
-  Height = 230
+  Height = 304
   Align = alClient
   Constraints.MinHeight = 230
   Constraints.MinWidth = 550
@@ -13,7 +13,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
     Left = 0
     Top = 27
     Width = 550
-    Height = 203
+    Height = 277
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
@@ -21,7 +21,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
       Left = 0
       Top = 0
       Width = 467
-      Height = 203
+      Height = 277
       Align = alClient
       BevelOuter = bvNone
       BorderWidth = 3
@@ -41,7 +41,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
       end
       object lblOverlay: TLabel
         Left = 3
-        Top = 39
+        Top = 42
         Width = 461
         Height = 13
         Align = alTop
@@ -50,7 +50,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
       end
       object chkReplaceExistingTiles: TCheckBox
         Left = 3
-        Top = 95
+        Top = 112
         Width = 461
         Height = 17
         Align = alTop
@@ -58,25 +58,23 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
         Checked = True
         State = cbChecked
         TabOrder = 0
+        ExplicitTop = 98
       end
       object chkForceDropTarget: TCheckBox
-        AlignWithMargins = True
         Left = 3
-        Top = 78
+        Top = 95
         Width = 461
         Height = 17
-        Margins.Left = 0
-        Margins.Right = 0
-        Margins.Bottom = 0
         Align = alTop
         Caption = 'Recreate target database if exists'
         Checked = True
         State = cbChecked
         TabOrder = 1
+        ExplicitTop = 81
       end
       object pnlMap: TPanel
         Left = 3
-        Top = 16
+        Top = 19
         Width = 461
         Height = 23
         Align = alTop
@@ -85,17 +83,18 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
       end
       object chkDirectTilesCopy: TCheckBox
         Left = 3
-        Top = 129
+        Top = 146
         Width = 461
         Height = 17
         Align = alTop
         Caption = 'Direct tiles copy (without any modifications)'
         TabOrder = 3
         OnClick = chkDirectTilesCopyClick
+        ExplicitTop = 132
       end
       object pnlOverlay: TPanel
         Left = 3
-        Top = 52
+        Top = 55
         Width = 461
         Height = 23
         Align = alTop
@@ -104,12 +103,13 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
       end
       object pnlImageFormat: TPanel
         Left = 3
-        Top = 146
+        Top = 163
         Width = 461
         Height = 48
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 5
+        ExplicitTop = 149
         object lblJpgQulity: TLabel
           Left = 156
           Top = 6
@@ -149,7 +149,6 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
           Top = 22
           Width = 150
           Height = 21
-          ItemHeight = 13
           TabOrder = 1
           Text = 'JPEG'
           OnChange = cbbImageFormatChange
@@ -175,20 +174,33 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
       end
       object chkUsePrevZoom: TCheckBox
         Left = 3
-        Top = 112
+        Top = 129
         Width = 461
         Height = 17
         Align = alTop
         Caption = 'Use tiles from lower zooms (on unavalible tile)'
         TabOrder = 6
         OnClick = chkUsePrevZoomClick
+        ExplicitTop = 115
+      end
+      object chkAddVisibleLayers: TCheckBox
+        Left = 3
+        Top = 78
+        Width = 461
+        Height = 17
+        Align = alTop
+        Caption = 'Add visible Layers'
+        TabOrder = 7
+        OnClick = chkAddVisibleLayersClick
+        ExplicitLeft = 6
+        ExplicitTop = 61
       end
     end
     object PnlZoom: TPanel
       Left = 467
       Top = 0
       Width = 83
-      Height = 203
+      Height = 277
       Align = alRight
       BevelOuter = bvNone
       BiDiMode = bdLeftToRight
@@ -210,12 +222,13 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
       Left = 3
       Top = 3
       Width = 41
-      Height = 21
+      Height = 18
       Margins.Left = 0
       Margins.Top = 0
       Align = alLeft
       Caption = 'Save to:'
       Layout = tlCenter
+      ExplicitHeight = 13
     end
     object edtTargetFile: TEdit
       Left = 47

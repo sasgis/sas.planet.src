@@ -41,6 +41,7 @@ uses
   i_BitmapTileSaveLoadFactory,
   i_MapType,
   i_BinaryData,
+  i_MapTypeListChangeable,
   fr_MapSelect,
   fr_ZoomsSelect,
   u_CommonFormAndFrameParents;
@@ -88,12 +89,15 @@ type
     lblCompression: TLabel;
     chkUsePrevZoom: TCheckBox;
     chkStoreBlankTiles: TCheckBox;
+    chkAddVisibleLayers: TCheckBox;
     procedure btnSelectTargetPathClick(Sender: TObject);
     procedure cbbImageFormatChange(Sender: TObject);
+    procedure chkAddVisibleLayersClick(Sender: TObject);
   private
     FLastPath: string;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+    FActiveMapsList: IMapTypeListChangeable;
     FfrMapSelect: TfrMapSelect;
     FfrOverlaySelect: TfrMapSelect;
     FfrZoomsSelect: TfrZoomsSelect;
@@ -116,6 +120,7 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
+      const AActiveMapsList: IMapTypeListChangeable;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory
     ); reintroduce;
@@ -135,6 +140,7 @@ uses
   i_Bitmap32Static,
   i_MapVersionRequest,
   i_ContentTypeInfo,
+  i_MapTypeListStatic,
   u_BitmapLayerProviderMapWithLayer;
 
 {$R *.dfm}
@@ -142,6 +148,7 @@ uses
 constructor TfrExportOruxMapsSQLite.Create(
   const ALanguageManager: ILanguageManager;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
+  const AActiveMapsList: IMapTypeListChangeable;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory
 );
@@ -151,6 +158,7 @@ begin
 
   FLastPath := '';
 
+  FActiveMapsList := AActiveMapsList;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
 
@@ -196,6 +204,11 @@ begin
 
   lblCompression.Enabled := VValue;
   seCompression.Enabled := VValue;
+end;
+
+procedure TfrExportOruxMapsSQLite.chkAddVisibleLayersClick(Sender: TObject);
+begin
+  FfrOverlaySelect.SetEnabled(not chkAddVisibleLayers.Checked);
 end;
 
 procedure TfrExportOruxMapsSQLite.btnSelectTargetPathClick(Sender: TObject);
@@ -267,6 +280,9 @@ var
   VLayer: IMapType;
 begin
   Result := False;
+  if chkAddVisibleLayers.Checked or chkUsePrevZoom.Checked then begin
+    Exit;
+  end;
   VMap := FfrMapSelect.GetSelectedMapType;
   VLayer := FfrOverlaySelect.GetSelectedMapType;
   if Assigned(VMap) and not Assigned(VLayer) then begin
@@ -274,7 +290,7 @@ begin
   end else if not Assigned(VMap) and Assigned(VLayer) then begin
     Result := _IsValidMap(VLayer);
   end;
-  Result := Result and (cbbImageFormat.ItemIndex = 0) and not chkUsePrevZoom.Checked;
+  Result := Result and (cbbImageFormat.ItemIndex = 0);
 end;
 
 function TfrExportOruxMapsSQLite.GetZoomArray: TByteDynArray;
@@ -288,6 +304,7 @@ var
   VMapVersion: IMapVersionRequest;
   VLayer: IMapType;
   VLayerVersion: IMapVersionRequest;
+  VActiveMapsSet: IMapTypeListStatic;
 begin
   VMap := FfrMapSelect.GetSelectedMapType;
   if Assigned(VMap) then begin
@@ -303,6 +320,14 @@ begin
     VLayerVersion := nil;
   end;
 
+  if chkAddVisibleLayers.Checked then begin
+    VLayer := nil;
+    VLayerVersion := nil;
+    VActiveMapsSet := FActiveMapsList.List;
+  end else begin
+    VActiveMapsSet := nil;
+  end;
+
   Result :=
     TBitmapLayerProviderMapWithLayer.Create(
       FBitmap32StaticFactory,
@@ -310,7 +335,7 @@ begin
       VMapVersion,
       VLayer,
       VLayerVersion,
-      nil,
+      VActiveMapsSet,
       chkUsePrevZoom.Checked,
       chkUsePrevZoom.Checked
     );

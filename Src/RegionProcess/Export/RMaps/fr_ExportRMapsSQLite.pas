@@ -40,6 +40,7 @@ uses
   i_BitmapTileSaveLoad,
   i_BitmapTileSaveLoadFactory,
   i_MapType,
+  i_MapTypeListChangeable,
   fr_MapSelect,
   fr_ZoomsSelect,
   u_CommonFormAndFrameParents;
@@ -93,13 +94,16 @@ type
     seCompression: TSpinEdit;
     lblCompression: TLabel;
     chkUsePrevZoom: TCheckBox;
+    chkAddVisibleLayers: TCheckBox;
     procedure btnSelectTargetFileClick(Sender: TObject);
     procedure chkDirectTilesCopyClick(Sender: TObject);
     procedure cbbImageFormatChange(Sender: TObject);
     procedure chkUsePrevZoomClick(Sender: TObject);
+    procedure chkAddVisibleLayersClick(Sender: TObject);
   private
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+    FActiveMapsList: IMapTypeListChangeable;
     FfrMapSelect: TfrMapSelect;
     FfrOverlaySelect: TfrMapSelect;
     FfrZoomsSelect: TfrZoomsSelect;
@@ -125,6 +129,7 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
+      const AActiveMapsList: IMapTypeListChangeable;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory
     ); reintroduce;
@@ -139,6 +144,7 @@ uses
   c_CoordConverter,
   i_MapVersionRequest,
   i_ContentTypeInfo,
+  i_MapTypeListStatic,
   u_BitmapLayerProviderMapWithLayer;
 
 {$R *.dfm}
@@ -146,6 +152,7 @@ uses
 constructor TfrExportRMapsSQLite.Create(
   const ALanguageManager: ILanguageManager;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
+  const AActiveMapsList: IMapTypeListChangeable;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory
 );
@@ -153,6 +160,7 @@ begin
   Assert(Assigned(ABitmap32StaticFactory));
   inherited Create(ALanguageManager);
 
+  FActiveMapsList := AActiveMapsList;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
 
@@ -222,27 +230,22 @@ begin
 
     if not Assigned(VMap) or not Assigned(VLayer) then begin
       FfrOverlaySelect.cbbMap.Enabled := not Assigned(VMap);
-      lblOverlay.Enabled := not Assigned(VMap);
-
       FfrMapSelect.cbbMap.Enabled := not Assigned(VLayer);
-      lblMap.Enabled := not Assigned(VLayer);
     end else begin
-      FfrOverlaySelect.cbbMap.Enabled := VItemEnabled;
-      lblOverlay.Enabled := VItemEnabled;
+      FfrOverlaySelect.cbbMap.Enabled := VItemEnabled and not chkAddVisibleLayers.Checked;
     end;
 
     chkUsePrevZoom.Enabled := VItemEnabled;
+    chkAddVisibleLayers.Enabled := VItemEnabled;
 
     lblImageFormat.Enabled := VItemEnabled;
     cbbImageFormat.Enabled := VItemEnabled;
   end else begin
-    FfrOverlaySelect.cbbMap.Enabled := True;
-    lblOverlay.Enabled := True;
-
+    FfrOverlaySelect.cbbMap.Enabled := not chkAddVisibleLayers.Checked;
     FfrMapSelect.cbbMap.Enabled := True;
-    lblMap.Enabled := True;
 
     chkUsePrevZoom.Enabled := True;
+    chkAddVisibleLayers.Enabled := True;
 
     lblImageFormat.Enabled := VItemEnabled or (cbbImageFormat.ItemIndex = 0);
     cbbImageFormat.Enabled := VItemEnabled or (cbbImageFormat.ItemIndex = 0);
@@ -259,6 +262,12 @@ end;
 
 procedure TfrExportRMapsSQLite.OnMapChange(Sender: TObject);
 begin
+  OnDirectTilesCopyChange(GetDirectTilesCopy);
+end;
+
+procedure TfrExportRMapsSQLite.chkAddVisibleLayersClick(Sender: TObject);
+begin
+  FfrOverlaySelect.SetEnabled(not chkAddVisibleLayers.Checked);
   OnDirectTilesCopyChange(GetDirectTilesCopy);
 end;
 
@@ -315,6 +324,10 @@ var
   VMap: IMapType;
   VLayer: IMapType;
 begin
+  if chkAddVisibleLayers.Checked or chkUsePrevZoom.Checked then begin
+    Result := False;
+    Exit;
+  end;
   Result := chkDirectTilesCopy.Checked;
   if not Result then begin
     VMap := FfrMapSelect.GetSelectedMapType;
@@ -332,7 +345,7 @@ begin
         end;
       end;
     end;
-    Result := Result and (cbbImageFormat.ItemIndex = 0) and not chkUsePrevZoom.Checked;
+    Result := Result and (cbbImageFormat.ItemIndex = 0);
   end;
 end;
 
@@ -347,6 +360,7 @@ var
   VMapVersion: IMapVersionRequest;
   VLayer: IMapType;
   VLayerVersion: IMapVersionRequest;
+  VActiveMapsSet: IMapTypeListStatic;
 begin
   VMap := FfrMapSelect.GetSelectedMapType;
   if Assigned(VMap) then begin
@@ -362,6 +376,14 @@ begin
     VLayerVersion := nil;
   end;
 
+  if chkAddVisibleLayers.Checked then begin
+    VLayer := nil;
+    VLayerVersion := nil;
+    VActiveMapsSet := FActiveMapsList.List;
+  end else begin
+    VActiveMapsSet := nil;
+  end;
+
   Result :=
     TBitmapLayerProviderMapWithLayer.Create(
       FBitmap32StaticFactory,
@@ -369,7 +391,7 @@ begin
       VMapVersion,
       VLayer,
       VLayerVersion,
-      nil,
+      VActiveMapsSet,
       chkUsePrevZoom.Checked,
       chkUsePrevZoom.Checked
     );

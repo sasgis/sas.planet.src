@@ -68,13 +68,13 @@ object frExportOruxMapsSQLite: TfrExportOruxMapsSQLite
       end
       object pnlImageFormat: TPanel
         Left = 3
-        Top = 112
+        Top = 129
         Width = 461
         Height = 48
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 2
-        ExplicitTop = 95
+        ExplicitTop = 112
         object lblJpgQulity: TLabel
           Left = 156
           Top = 6
@@ -114,7 +114,6 @@ object frExportOruxMapsSQLite: TfrExportOruxMapsSQLite
           Top = 22
           Width = 150
           Height = 21
-          ItemHeight = 13
           ItemIndex = 0
           TabOrder = 1
           Text = 'Auto'
@@ -139,17 +138,17 @@ object frExportOruxMapsSQLite: TfrExportOruxMapsSQLite
       end
       object chkUsePrevZoom: TCheckBox
         Left = 3
-        Top = 78
+        Top = 95
         Width = 461
         Height = 17
         Align = alTop
         Caption = 'Use tiles from lower zooms (on unavalible tile)'
         TabOrder = 3
-        ExplicitLeft = 0
+        ExplicitTop = 78
       end
       object chkStoreBlankTiles: TCheckBox
         Left = 3
-        Top = 95
+        Top = 112
         Width = 461
         Height = 17
         Align = alTop
@@ -157,7 +156,19 @@ object frExportOruxMapsSQLite: TfrExportOruxMapsSQLite
         Checked = True
         State = cbChecked
         TabOrder = 4
-        ExplicitLeft = 0
+        ExplicitTop = 95
+      end
+      object chkAddVisibleLayers: TCheckBox
+        Left = 3
+        Top = 78
+        Width = 461
+        Height = 17
+        Align = alTop
+        Caption = 'Add visible Layers'
+        TabOrder = 5
+        OnClick = chkAddVisibleLayersClick
+        ExplicitLeft = 6
+        ExplicitTop = 72
       end
     end
     object PnlZoom: TPanel

@@ -31,6 +31,7 @@ uses
   i_ProjectionSetFactory,
   i_Bitmap32BufferFactory,
   i_BitmapTileSaveLoadFactory,
+  i_MapTypeListChangeable,
   u_ExportProviderAbstract,
   fr_MapSelect,
   fr_ExportOruxMapsSQLite;
@@ -38,6 +39,7 @@ uses
 type
   TExportProviderOruxMapsSQLite = class(TExportProviderAbstract)
   private
+    FActiveMapsList: IMapTypeListChangeable;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
@@ -52,6 +54,7 @@ type
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
+      const AActiveMapsList: IMapTypeListChangeable;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
@@ -83,6 +86,7 @@ constructor TExportProviderOruxMapsSQLite.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
+  const AActiveMapsList: IMapTypeListChangeable;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
@@ -95,6 +99,7 @@ begin
     ALanguageManager,
     AMapSelectFrameBuilder
   );
+  FActiveMapsList := AActiveMapsList;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
@@ -107,6 +112,7 @@ begin
     TfrExportOruxMapsSQLite.Create(
       Self.LanguageManager,
       Self.MapSelectFrameBuilder,
+      FActiveMapsList,
       FBitmap32StaticFactory,
       FBitmapTileSaveLoadFactory
     );

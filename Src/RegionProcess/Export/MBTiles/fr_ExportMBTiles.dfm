@@ -2,30 +2,33 @@ object frExportMBTiles: TfrExportMBTiles
   Left = 0
   Top = 0
   Width = 550
-  Height = 304
+  Height = 327
   Align = alClient
   Constraints.MinHeight = 230
   Constraints.MinWidth = 550
   ParentShowHint = False
   ShowHint = True
   TabOrder = 0
+  ExplicitHeight = 304
   object pnlCenter: TPanel
     Left = 0
     Top = 27
     Width = 550
-    Height = 277
+    Height = 300
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitHeight = 277
     object pnlMain: TPanel
       Left = 0
       Top = 0
       Width = 467
-      Height = 277
+      Height = 300
       Align = alClient
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 0
+      ExplicitHeight = 277
       object lblMap: TLabel
         AlignWithMargins = True
         Left = 3
@@ -50,29 +53,32 @@ object frExportMBTiles: TfrExportMBTiles
       end
       object lblDesc: TLabel
         Left = 3
-        Top = 194
+        Top = 211
         Width = 461
         Height = 13
         Align = alTop
         Caption = 'Description:'
+        ExplicitTop = 194
         ExplicitWidth = 57
       end
       object lblName: TLabel
         Left = 3
-        Top = 160
+        Top = 177
         Width = 461
         Height = 13
         Align = alTop
         Caption = 'Name:'
+        ExplicitTop = 160
         ExplicitWidth = 31
       end
       object lblAttr: TLabel
         Left = 3
-        Top = 228
+        Top = 245
         Width = 461
         Height = 13
         Align = alTop
         Caption = 'Attribution:'
+        ExplicitTop = 228
         ExplicitWidth = 55
       end
       object pnlMap: TPanel
@@ -95,12 +101,13 @@ object frExportMBTiles: TfrExportMBTiles
       end
       object pnlImageFormat: TPanel
         Left = 3
-        Top = 112
+        Top = 129
         Width = 461
         Height = 48
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 2
+        ExplicitTop = 112
         object lblJpgQulity: TLabel
           Left = 156
           Top = 6
@@ -164,57 +171,75 @@ object frExportMBTiles: TfrExportMBTiles
       end
       object chkUsePrevZoom: TCheckBox
         Left = 3
-        Top = 78
+        Top = 95
         Width = 461
         Height = 17
         Align = alTop
         Caption = 'Use tiles from lower zooms (on unavalible tile)'
         TabOrder = 3
+        ExplicitTop = 78
       end
       object chkUseXYZScheme: TCheckBox
         Left = 3
-        Top = 95
+        Top = 112
         Width = 461
         Height = 17
         Align = alTop
         Caption = 'Use xyz scheme'
         TabOrder = 4
+        ExplicitTop = 95
       end
       object edtDesc: TEdit
         Left = 3
-        Top = 207
+        Top = 224
         Width = 461
         Height = 21
         Align = alTop
         TabOrder = 5
+        ExplicitTop = 207
       end
       object edtName: TEdit
         Left = 3
-        Top = 173
+        Top = 190
         Width = 461
         Height = 21
         Align = alTop
         TabOrder = 6
+        ExplicitTop = 173
       end
       object edtAttr: TEdit
         Left = 3
-        Top = 241
+        Top = 258
         Width = 461
         Height = 21
         Align = alTop
         TabOrder = 7
+        ExplicitTop = 241
+      end
+      object chkAddVisibleLayers: TCheckBox
+        Left = 3
+        Top = 78
+        Width = 461
+        Height = 17
+        Align = alTop
+        Caption = 'Add visible Layers'
+        TabOrder = 8
+        OnClick = chkAddVisibleLayersClick
+        ExplicitLeft = 6
+        ExplicitTop = 72
       end
     end
     object PnlZoom: TPanel
       Left = 467
       Top = 0
       Width = 83
-      Height = 277
+      Height = 300
       Align = alRight
       BevelOuter = bvNone
       BiDiMode = bdLeftToRight
       ParentBiDiMode = False
       TabOrder = 1
+      ExplicitHeight = 277
     end
   end
   object pnlTop: TPanel

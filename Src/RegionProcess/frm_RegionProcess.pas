@@ -293,6 +293,7 @@ begin
       VProgressFactory,
       ALanguageManager,
       VMapSelectFrameBuilder,
+      AActiveBitmapLayersList,
       AProjectionSetFactory,
       AVectorGeometryProjectedFactory,
       ABitmapFactory,

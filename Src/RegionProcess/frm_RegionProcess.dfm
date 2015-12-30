@@ -2,7 +2,7 @@ object frmRegionProcess: TfrmRegionProcess
   Left = 234
   Top = 298
   Caption = 'Selection Manager'
-  ClientHeight = 400
+  ClientHeight = 411
   ClientWidth = 572
   Color = clBtnFace
   Constraints.MinHeight = 400
@@ -19,49 +19,72 @@ object frmRegionProcess: TfrmRegionProcess
     Left = 0
     Top = 0
     Width = 572
-    Height = 286
+    Height = 374
     ActivePage = TabSheet1
     Align = alClient
     TabOrder = 0
     TabWidth = 92
+    ExplicitHeight = 363
     object TabSheet1: TTabSheet
       Caption = 'Download'
+      ExplicitHeight = 335
     end
     object TabSheet2: TTabSheet
       Tag = 1
       Caption = 'Stitch'
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
     end
     object TabSheet3: TTabSheet
       Tag = 2
       Caption = 'Generate'
       ImageIndex = 2
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
     end
     object TabSheet4: TTabSheet
       Tag = 3
       Caption = 'Delete'
       ImageIndex = 3
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
     end
     object TabSheet5: TTabSheet
       Tag = 4
       Caption = 'Export'
       ImageIndex = 4
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
     end
     object TabSheet6: TTabSheet
       Tag = 5
       Caption = 'Copy'
       ImageIndex = 5
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
     end
   end
   object pnlBottomButtons: TPanel
     Left = 0
-    Top = 286
+    Top = 374
     Width = 572
     Height = 37
     Align = alBottom
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 1
+    ExplicitTop = 363
     object Button1: TButton
       AlignWithMargins = True
       Left = 410
