@@ -239,6 +239,8 @@
     <DCCReference Include="Src\ContentType\u_ContentTypeManagerSimple.pas" />
     <DCCReference Include="Src\ContentType\u_ContentTypeSubstByList.pas" />
     <DCCReference Include="Src\CoordConvert\c_CoordConverter.pas" />
+    <DCCReference Include="Src\CoordConvert\i_ConvertProjectionToProjection.pas" />
+    <DCCReference Include="Src\CoordConvert\i_ConvertProjectionToProjectionFactory.pas" />
     <DCCReference Include="Src\CoordConvert\i_CoordConverterSimple.pas" />
     <DCCReference Include="Src\CoordConvert\i_Datum.pas" />
     <DCCReference Include="Src\CoordConvert\i_DatumFactory.pas" />

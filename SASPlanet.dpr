@@ -188,6 +188,8 @@ uses
   u_ContentTypeSubstByList in 'Src\ContentType\u_ContentTypeSubstByList.pas',
   c_CoordConverter in 'Src\CoordConvert\c_CoordConverter.pas',
   i_CoordConverterSimple in 'Src\CoordConvert\i_CoordConverterSimple.pas',
+  i_ConvertProjectionToProjection in 'Src\CoordConvert\i_ConvertProjectionToProjection.pas',
+  i_ConvertProjectionToProjectionFactory in 'Src\CoordConvert\i_ConvertProjectionToProjectionFactory.pas',
   i_Datum in 'Src\CoordConvert\i_Datum.pas',
   i_DatumFactory in 'Src\CoordConvert\i_DatumFactory.pas',
   i_LocalCoordConverter in 'Src\CoordConvert\i_LocalCoordConverter.pas',
