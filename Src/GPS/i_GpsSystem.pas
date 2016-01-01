@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_GPSModule;
+unit i_GpsSystem;
 
 interface
 
@@ -27,30 +27,30 @@ uses
   i_GPS;
 
 type
-  IGPSModule = interface
-    ['{B477FFBD-C36D-40C6-AF7F-B118E47A6815}']
-    function GetPosition: IGPSPosition; safecall;
+  IGpsSystem = interface
+    ['{F5255517-B74E-486D-AF34-8F48F510D30C}']
+    function GetPosition: IGPSPosition;
     property Position: IGPSPosition read GetPosition;
 
-    function GetDataReciveNotifier: INotifier; safecall;
+    function GetDataReciveNotifier: INotifier;
     property DataReciveNotifier: INotifier read GetDataReciveNotifier;
 
-    function GetConnectingNotifier: INotifier; safecall;
+    function GetConnectingNotifier: INotifier;
     property ConnectingNotifier: INotifier read GetConnectingNotifier;
 
-    function GetConnectedNotifier: INotifier; safecall;
+    function GetConnectedNotifier: INotifier;
     property ConnectedNotifier: INotifier read GetConnectedNotifier;
 
-    function GetDisconnectingNotifier: INotifier; safecall;
+    function GetDisconnectingNotifier: INotifier;
     property DisconnectingNotifier: INotifier read GetDisconnectingNotifier;
 
-    function GetDisconnectedNotifier: INotifier; safecall;
+    function GetDisconnectedNotifier: INotifier;
     property DisconnectedNotifier: INotifier read GetDisconnectedNotifier;
 
-    function GetTimeOutNotifier: INotifier; safecall;
+    function GetTimeOutNotifier: INotifier;
     property TimeOutNotifier: INotifier read GetTimeOutNotifier;
 
-    function GetConnectErrorNotifier: INotifier; safecall;
+    function GetConnectErrorNotifier: INotifier;
     property ConnectErrorNotifier: INotifier read GetConnectErrorNotifier;
 
     function GetGPSUnitInfo: String;

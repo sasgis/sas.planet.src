@@ -24,7 +24,7 @@ interface
 
 uses
   i_GPS,
-  i_GPSModule,
+  i_GpsSystem,
   i_GPSRecorder,
   i_SystemTimeProvider,
   i_Sensor,

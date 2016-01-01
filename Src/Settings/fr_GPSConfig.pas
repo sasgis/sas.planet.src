@@ -35,7 +35,7 @@ uses
   i_Notifier,
   i_NotifierTime,
   i_LanguageManager,
-  i_GPSModule,
+  i_GpsSystem,
   i_GPSConfig,
   i_MapLayerGPSTrackConfig,
   i_MainFormBehaviourByGPSConfig,

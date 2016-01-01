@@ -248,6 +248,7 @@ uses
   i_GPSModuleByCOMPortSettings in 'Src\GPS\i_GPSModuleByCOMPortSettings.pas',
   i_GPSPositionFactory in 'Src\GPS\i_GPSPositionFactory.pas',
   i_GPSRecorder in 'Src\GPS\i_GPSRecorder.pas',
+  i_GpsSystem in 'Src\GPS\i_GpsSystem.pas',
   u_GPSConfig in 'Src\GPS\u_GPSConfig.pas',
   u_GPSModuleAbstract in 'Src\GPS\u_GPSModuleAbstract.pas',
   u_GPSModuleByCOMPortConfig in 'Src\GPS\u_GPSModuleByCOMPortConfig.pas',

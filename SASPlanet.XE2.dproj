@@ -402,6 +402,7 @@
 			<DCCReference Include="Src\GPS\i_GPSModuleByCOMPortSettings.pas"/>
 			<DCCReference Include="Src\GPS\i_GPSPositionFactory.pas"/>
 			<DCCReference Include="Src\GPS\i_GPSRecorder.pas"/>
+			<DCCReference Include="Src\GPS\i_GpsSystem.pas"/>
 			<DCCReference Include="Src\GPS\u_GPSConfig.pas"/>
 			<DCCReference Include="Src\GPS\u_GPSModuleAbstract.pas"/>
 			<DCCReference Include="Src\GPS\u_GPSModuleByCOMPortConfig.pas"/>

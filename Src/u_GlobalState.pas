@@ -51,7 +51,7 @@ uses
   i_BatteryStatus,
   i_InternalBrowserLastContent,
   i_LocalCoordConverterFactorySimpe,
-  i_GPSModule,
+  i_GpsSystem,
   i_GeometryProjectedProvider,
   i_DownloadInfoSimple,
   i_ImageResamplerConfig,

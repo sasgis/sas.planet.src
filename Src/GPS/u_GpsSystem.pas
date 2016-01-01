@@ -34,7 +34,7 @@ uses
   i_GPSConfig,
   i_InternalPerformanceCounter,
   i_GPS,
-  i_GPSModule,
+  i_GpsSystem,
   i_GPSModuleByCOMFactory,
   i_GPSModuleByCOM,
   u_BaseInterfacedObject;
