@@ -344,6 +344,8 @@
 			<DCCReference Include="Src\ContentType\u_ContentTypeSubstByList.pas"/>
 			<DCCReference Include="Src\CoordConvert\c_CoordConverter.pas"/>
 			<DCCReference Include="Src\CoordConvert\i_CoordConverterSimple.pas"/>
+			<DCCReference Include="Src\CoordConvert\i_ConvertProjectionToProjection.pas"/>
+			<DCCReference Include="Src\CoordConvert\i_ConvertProjectionToProjectionFactory.pas"/>
 			<DCCReference Include="Src\CoordConvert\i_Datum.pas"/>
 			<DCCReference Include="Src\CoordConvert\i_DatumFactory.pas"/>
 			<DCCReference Include="Src\CoordConvert\i_LocalCoordConverter.pas"/>
@@ -377,9 +379,11 @@
 			<DCCReference Include="Src\CoordConvert\u_ProjectionTypeGELonLat.pas"/>
 			<DCCReference Include="Src\CoordConvert\u_ProjectionTypeMercatorOnEllipsoid.pas"/>
 			<DCCReference Include="Src\CoordConvert\u_ProjectionTypeMercatorOnSphere.pas"/>
+			<DCCReference Include="Src\CoordRepresentation\i_CoordFromStringParser.pas"/>
 			<DCCReference Include="Src\CoordRepresentation\i_CoordRepresentationConfig.pas"/>
 			<DCCReference Include="Src\CoordRepresentation\i_CoordToStringConverter.pas"/>
 			<DCCReference Include="Src\CoordRepresentation\t_CoordRepresentation.pas"/>
+			<DCCReference Include="Src\CoordRepresentation\u_CoordFromStringParser.pas"/>
 			<DCCReference Include="Src\CoordRepresentation\u_CoordRepresentationConfig.pas"/>
 			<DCCReference Include="Src\CoordRepresentation\u_CoordToStringConverter.pas"/>
 			<DCCReference Include="Src\CoordRepresentation\u_CoordToStringConverterChangeable.pas"/>
@@ -1595,6 +1599,7 @@
 			<DCCReference Include="Src\Vector\u_Category.pas"/>
 			<DCCReference Include="Src\Vector\u_ExportMarks2GPX.pas"/>
 			<DCCReference Include="Src\Vector\u_ExportMarks2KML.pas"/>
+			<DCCReference Include="Src\Vector\u_ExportMarks2TCX.pas"/>
 			<DCCReference Include="Src\Vector\u_ImportConfig.pas"/>
 			<DCCReference Include="Src\Vector\u_JpegWithExifImportConfig.pas"/>
 			<DCCReference Include="Src\Vector\u_VectorDataFactoryForMap.pas"/>
@@ -1609,6 +1614,7 @@
 			<DCCReference Include="Src\Vector\u_VectorItemTreeExporterKmlKmz.pas"/>
 			<DCCReference Include="Src\Vector\u_VectorItemTreeExporterList.pas"/>
 			<DCCReference Include="Src\Vector\u_VectorItemTreeExporterListSimple.pas"/>
+			<DCCReference Include="Src\Vector\u_VectorItemTreeExporterTCX.pas"/>
 			<DCCReference Include="Src\Vector\u_VectorItemTreeImporterByVectorLoader.pas"/>
 			<DCCReference Include="Src\Vector\u_VectorItemTreeImporterJpegWithExif.pas"/>
 			<DCCReference Include="Src\Vector\u_VectorItemTreeImporterList.pas"/>
@@ -1722,8 +1728,6 @@
 			<DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
 			<DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
 			<DCCReference Include="Src\u_WindowPositionConfig.pas"/>
-			<DCCReference Include="Src\CoordRepresentation\i_CoordFromStringParser.pas"/>
-			<DCCReference Include="Src\CoordRepresentation\u_CoordFromStringParser.pas"/>
 			<BuildConfiguration Include="Debug">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
