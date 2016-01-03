@@ -95,6 +95,8 @@ var
 begin
   BeginUpdate;
   try
+    if not Assigned(Encoding) then
+      Encoding := DefaultEncoding;
     Size := Stream.Size - Stream.Position;
     SetLength(Buffer, Size);
     Stream.Read(Buffer[0], Size);
@@ -133,13 +135,15 @@ var
   Buffer, Preamble: TBytes;
   TextStr: string;
 begin
-  if FEncoding = nil then
-    FEncoding := FDefaultEncoding;
+  if Encoding = nil then
+    Encoding := FEncoding;
+  if Encoding = nil then
+    Encoding := FDefaultEncoding;
   TextStr := GetTextStr;
-  Buffer := FEncoding.GetBytes(TextStr);
+  Buffer := Encoding.GetBytes(TextStr);
   if FWriteBOM then
   begin
-    Preamble := FEncoding.GetPreamble;
+    Preamble := Encoding.GetPreamble;
     if Length(Preamble) > 0 then
       Stream.WriteBuffer(Preamble[0], Length(Preamble));
   end;
