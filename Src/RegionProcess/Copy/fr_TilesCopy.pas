@@ -110,7 +110,6 @@ type
     pnlCacheTypes: TPanel;
     pnlTop: TPanel;
     lblTargetPath: TLabel;
-    edtTargetPath: TEdit;
     btnSelectTargetPath: TButton;
     chkReplaseTarget: TCheckBox;
     Panel1: TPanel;
@@ -136,6 +135,7 @@ type
     lblImageFormat: TLabel;
     cbbImageFormat: TComboBox;
     chkAddVisibleLayers: TCheckBox;
+    cbbTargetPath: TComboBox;
     procedure btnSelectTargetPathClick(Sender: TObject);
     procedure OnCacheTypeChange(Sender: TObject);
     procedure chkSetTargetVersionToClick(Sender: TObject);
@@ -279,10 +279,17 @@ end;
 
 procedure TfrTilesCopy.btnSelectTargetPathClick(Sender: TObject);
 var
-  TempPath: string;
+  TempPath: String;
+  i: Integer;
+  vFind: Boolean;
 begin
   if SelectDirectory('', '', TempPath) then begin
-    edtTargetPath.Text := IncludeTrailingPathDelimiter(TempPath);
+    cbbTargetPath.Text := IncludeTrailingPathDelimiter(TempPath);
+    vFind := False;
+    if cbbTargetPath.Items.Count > 0 then     
+      for i := 0 to cbbTargetPath.Items.Count - 1 do
+       if cbbTargetPath.Items.ValueFromIndex[i] = cbbTargetPath.Text then vFind := True;
+    if not vFind then cbbTargetPath.Items.Add(cbbTargetPath.Text)
   end;
 end;
 
@@ -482,7 +489,7 @@ end;
 
 function TfrTilesCopy.GetPath: string;
 begin
-  Result := edtTargetPath.Text;
+  Result := cbbTargetPath.Text;
 end;
 
 function TfrTilesCopy.GetPlaceInNameSubFolder: Boolean;
@@ -604,7 +611,7 @@ function TfrTilesCopy.Validate: Boolean;
 var
   VMaps: IMapTypeListStatic;
 begin
-  Result := (edtTargetPath.Text <> '');
+  Result := (cbbTargetPath.Text <> '');
   if not Result then begin
     ShowMessage(_('Please select output folder'));
     Exit;

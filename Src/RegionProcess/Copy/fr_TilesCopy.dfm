@@ -346,15 +346,6 @@ object frTilesCopy: TfrTilesCopy
       Layout = tlCenter
       ExplicitHeight = 13
     end
-    object edtTargetPath: TEdit
-      Left = 47
-      Top = 3
-      Width = 497
-      Height = 21
-      Align = alClient
-      TabOrder = 0
-      ExplicitWidth = 409
-    end
     object btnSelectTargetPath: TButton
       Left = 544
       Top = 3
@@ -362,9 +353,17 @@ object frTilesCopy: TfrTilesCopy
       Height = 21
       Align = alRight
       Caption = '...'
-      TabOrder = 1
+      TabOrder = 0
       OnClick = btnSelectTargetPathClick
-      ExplicitLeft = 456
+    end
+    object cbbTargetPath: TComboBox
+      Left = 47
+      Top = 3
+      Width = 409
+      Height = 21
+      Align = alClient
+      ItemHeight = 13
+      TabOrder = 1
     end
   end
   object Panel1: TPanel
