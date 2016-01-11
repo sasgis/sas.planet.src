@@ -146,7 +146,6 @@ procedure TfrmMergePolygonsProgress.FormClose(
 begin
   CancelOperation;
   Action := caHide;
-  Application.MainForm.SetFocus;
 end;
 
 procedure TfrmMergePolygonsProgress.btnAbortClick(Sender: TObject);
