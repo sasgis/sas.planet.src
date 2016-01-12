@@ -184,7 +184,7 @@ begin
         APixelRect := RectFromDoubleRect(VBounds, rrOutside);
         ATileRect := VProjection.PixelRect2TileRect(APixelRect);
         ATilesCount :=
-          (ATileRect.Right - ATileRect.Left) * (ATileRect.Bottom - ATileRect.Top);
+          Int64(ATileRect.Right - ATileRect.Left) * Int64(ATileRect.Bottom - ATileRect.Top);
         Result := True;
       end;
     end;
