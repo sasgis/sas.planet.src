@@ -88,6 +88,7 @@ uses
   gnugettext,
   i_InterfaceListSimple,
   u_InterfaceListSimple,
+  u_ExportProviderRMP,
   u_ExportProviderMBTiles,
   u_ExportProviderRMapsSQLite,
   u_ExportProviderOruxMapsSQLite,
@@ -294,6 +295,20 @@ begin
 
   VExportProvider :=
     TExportProviderMBTiles.Create(
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AActiveMapsList,
+      AVectorGeometryProjectedFactory,
+      ABitmap32StaticFactory,
+      ABitmapTileSaveLoadFactory,
+      AProjectionSetFactory
+    );
+  VList.Add(VExportProvider);
+  CBFormat.Items.Add(VExportProvider.GetCaption);
+
+  VExportProvider :=
+    TExportProviderRMP.Create(
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,

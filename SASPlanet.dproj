@@ -275,6 +275,14 @@
     <DCCReference Include="Src\CoordConvert\u_ProjectionTypeGELonLat.pas" />
     <DCCReference Include="Src\CoordConvert\u_ProjectionTypeMercatorOnEllipsoid.pas" />
     <DCCReference Include="Src\CoordConvert\u_ProjectionTypeMercatorOnSphere.pas" />
+    <DCCReference Include="Src\CoordRepresentation\i_CoordFromStringParser.pas" />
+    <DCCReference Include="Src\CoordRepresentation\i_CoordRepresentationConfig.pas" />
+    <DCCReference Include="Src\CoordRepresentation\i_CoordToStringConverter.pas" />
+    <DCCReference Include="Src\CoordRepresentation\t_CoordRepresentation.pas" />
+    <DCCReference Include="Src\CoordRepresentation\u_CoordFromStringParser.pas" />
+    <DCCReference Include="Src\CoordRepresentation\u_CoordRepresentationConfig.pas" />
+    <DCCReference Include="Src\CoordRepresentation\u_CoordToStringConverter.pas" />
+    <DCCReference Include="Src\CoordRepresentation\u_CoordToStringConverterChangeable.pas" />
     <DCCReference Include="Src\Debug\frm_DebugInfo.pas">
       <Form>frmDebugInfo</Form>
     </DCCReference>
@@ -365,6 +373,7 @@
     <DCCReference Include="Src\GPS\i_GPSModuleByCOMPortSettings.pas" />
     <DCCReference Include="Src\GPS\i_GPSPositionFactory.pas" />
     <DCCReference Include="Src\GPS\i_GPSRecorder.pas" />
+    <DCCReference Include="Src\GPS\i_GpsSystem.pas" />
     <DCCReference Include="Src\GPS\u_GPSConfig.pas" />
     <DCCReference Include="Src\GPS\u_GPSModuleAbstract.pas" />
     <DCCReference Include="Src\GPS\u_GPSModuleByCOMPortConfig.pas" />
@@ -452,9 +461,21 @@
     <DCCReference Include="Src\Logger\u_LogForTaskThread.pas" />
     <DCCReference Include="Src\Logger\u_TileErrorInfo.pas" />
     <DCCReference Include="Src\Logger\u_TileErrorLogProviedrStuped.pas" />
+    <DCCReference Include="Src\MainForm\FavoriteMapSet\frm_FavoriteMapSetEditor.pas">
+      <Form>frmFavoriteMapSetEditor</Form>
+    </DCCReference>
+    <DCCReference Include="Src\MainForm\FavoriteMapSet\frm_FavoriteMapSetManager.pas">
+      <Form>frmFavoriteMapSetManager</Form>
+    </DCCReference>
+    <DCCReference Include="Src\MainForm\FavoriteMapSet\fr_FavoriteMapSetManager.pas">
+      <Form>frFavoriteMapSetManager</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
     <DCCReference Include="Src\MainForm\FavoriteMapSet\i_FavoriteMapSetConfig.pas" />
+    <DCCReference Include="Src\MainForm\FavoriteMapSet\i_FavoriteMapSetHelper.pas" />
     <DCCReference Include="Src\MainForm\FavoriteMapSet\i_FavoriteMapSetItemStatic.pas" />
     <DCCReference Include="Src\MainForm\FavoriteMapSet\u_FavoriteMapSetConfig.pas" />
+    <DCCReference Include="Src\MainForm\FavoriteMapSet\u_FavoriteMapSetHelper.pas" />
     <DCCReference Include="Src\MainForm\FavoriteMapSet\u_FavoriteMapSetItemStatic.pas" />
     <DCCReference Include="Src\MainForm\FavoriteMapSet\u_FavoriteMapSetMenu.pas" />
     <DCCReference Include="Src\MainForm\frm_Main.pas">
@@ -1154,6 +1175,13 @@
     </DCCReference>
     <DCCReference Include="Src\RegionProcess\Export\RMaps\u_ExportProviderRMapsSQLite.pas" />
     <DCCReference Include="Src\RegionProcess\Export\RMaps\u_ThreadExportToRMapsSQLite.pas" />
+    <DCCReference Include="Src\RegionProcess\Export\RMP\fr_ExportRMP.pas">
+      <Form>frExportRMP</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
+    <DCCReference Include="Src\RegionProcess\Export\RMP\u_ExportProviderRMP.pas" />
+    <DCCReference Include="Src\RegionProcess\Export\RMP\u_RMPWriter.pas" />
+    <DCCReference Include="Src\RegionProcess\Export\RMP\u_ThreadExportToRMP.pas" />
     <DCCReference Include="Src\RegionProcess\Export\SAS4Android\fr_ExportToCE.pas">
       <DesignClass>TFrame</DesignClass>
       <Form>frExportToCE</Form>
@@ -1579,6 +1607,7 @@
     <DCCReference Include="Src\Vector\u_Category.pas" />
     <DCCReference Include="Src\Vector\u_ExportMarks2GPX.pas" />
     <DCCReference Include="Src\Vector\u_ExportMarks2KML.pas" />
+    <DCCReference Include="Src\Vector\u_ExportMarks2TCX.pas" />
     <DCCReference Include="Src\Vector\u_ImportConfig.pas" />
     <DCCReference Include="Src\Vector\u_JpegWithExifImportConfig.pas" />
     <DCCReference Include="Src\Vector\u_VectorDataFactoryForMap.pas" />
@@ -1593,6 +1622,7 @@
     <DCCReference Include="Src\Vector\u_VectorItemTreeExporterKmlKmz.pas" />
     <DCCReference Include="Src\Vector\u_VectorItemTreeExporterList.pas" />
     <DCCReference Include="Src\Vector\u_VectorItemTreeExporterListSimple.pas" />
+    <DCCReference Include="Src\Vector\u_VectorItemTreeExporterTCX.pas" />
     <DCCReference Include="Src\Vector\u_VectorItemTreeImporterByVectorLoader.pas" />
     <DCCReference Include="Src\Vector\u_VectorItemTreeImporterJpegWithExif.pas" />
     <DCCReference Include="Src\Vector\u_VectorItemTreeImporterList.pas" />
