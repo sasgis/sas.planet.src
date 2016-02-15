@@ -342,7 +342,8 @@ begin
               VPixelRect
             );
           if Assigned(VBitmapTile) then begin
-            Assert( VBitmapTile.Size = Types.Point(256, 256) );
+            Assert(VBitmapTile.Size.X = 256);
+            Assert(VBitmapTile.Size.Y = 256);
             VTileData := FBitmapTileSaver.Save(VBitmapTile);
           end;
         end;
