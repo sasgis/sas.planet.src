@@ -40,7 +40,7 @@
 0x00000000 (0):
 
       4 bytes           - 0x01 - Start of block
-      4 bytes           - Total Number of Tiles
+      4 bytes           - Total number of tiles in this TLM file
       2 bytes           - 256 - Height of tile in pixel
       2 bytes           - 256 - Width of tile in pixel
 
@@ -65,50 +65,54 @@
 0x00000100 (+104 (+0x68) -> 256):
 
       4 bytes           - 0x01 - Start of block
-      4 bytes           - 0x63 (99) - Number of tiles per block (?? Max blocks count)
+      4 bytes           - 0x63 (99) - Max records count per block
       4 bytes           - First block offset (0x0F5C if no index block or 0x1724 if it is)
       3920 bytes        - 0x00 - Reserved
 
 0x0000105C (+3932 (+0x0F5C) -> 4188):
 
-      0x07C8 bytes      - First block with tiles meta
+      0x07C8 bytes      - First block with Data (tiles meta)
         --- Block Start ---
-        4 bytes         - Number of tiles meta in this block
-        2 bytes         - Number of tiles meta in this block
-        2 bytes         - 0x01 - block with data ID
+        4 bytes         - Number of records in this block
+        2 bytes         - Number of records in this block
+        2 bytes         - 0x01 - block with Data ID
 
-        16*99 bytes     - Tiles Meta (max 99 records):
+        16*99 bytes     - Tile Meta records:
           --- Tile Meta Start ---
           4 bytes       - X
           4 bytes       - Y
           4 bytes       - 0x00 - Reserved
-          4 bytes       - Tile Offset in .A00 file
+          4 bytes       - Tile offset in .A00 file
           --- Tile Meta End ---
 
         4*99 bytes      - 0x00 - Reserved
+        4 bytes         - 0x00 - Reserved
         --- Block End ---
 
   Index present only if file contain more then 1 block with data. It always
-  placed as a second block:
+  placed as a second block.
+
+  Index contain one Tile Meta record per each additional block with Data.
 
 0x00001824 (+1992 (+0x07C8) -> 6180):
 
-      1992 (0x07C8) bytes - Index:
+      1992 (0x07C8) bytes - Block with Index:
 
         --- Index Block Start ---
-        4 bytes          - Total Number of Tiles
-        2 bytes          - Total Number of blocks with data
-        2 bytes          - 0x00 - index block ID
+        4 bytes          - Total number of tiles in this TLM file
+        2 bytes          - Number of records in this block
+        2 bytes          - 0x00 - block with Index ID
 
-        16*99 bytes      - Meta of first tile in each block with data (max 99 records):
-          --- Tile Meta Start (same as in blocks with data) ---
+        16*99 bytes      - Tile Meta records:
+          --- Tile Meta Start (same struct as in the blocks with Data) ---
           4 bytes       - X
           4 bytes       - Y
           4 bytes       - 0x00 - Reserved
-          4 bytes       - Tile Offset in .A00 file
+          4 bytes       - Tile offset in .A00 file
           --- Tile Meta End ---
 
-        4*99 bytes      - Offsets of bloks with data (max 99 records)
+        4*99 bytes      - Offsets of bloks with Data
+        4 bytes         - 0x00 Reserved
         --- Index Block End ---
 
   Then follows blocks with data + 2 empty blocks (or just 2 empty blocks if
@@ -124,12 +128,14 @@ interface
 uses
   Windows,
   Classes,
-  SysUtils;
+  SysUtils,
+  Math;
 
 {$A4}
 
 const
   cTLMFileMaxTilesPerBlockCount = 99; // 0x63
+  cTLMFileTilesPerBlockCount = 70;
   cTLMFileDataBlockID = 1;
   cTLMFileIndexBlockID = 0;
 
@@ -245,18 +251,31 @@ type
     FLayerIndex: Integer;
     FTilesPerBlock: Integer;
     FMaxTilesCount: Integer;
+    FLeftLimit: Double;
+    FTopLimit: Double;
+    FRightLimit: Double;
+    FBottomLimit: Double;
+    FIsHeaderBoundingInitilized: Boolean;
+    procedure CheckBoundingLimit;
+    procedure UpdateBoundingRect(const ALeft, ATop, ARight, ABottom: Double);
     function GetBlock: PTLMFileBlock;
     function GetTilesCount: Integer;
   public
     constructor Create(
       const ABaseName: AnsiString;
       const ALayerIndex: Integer;
-      const ATilesPerBlock: Integer = 70
+      const ATilesPerBlock: Integer = cTLMFileTilesPerBlockCount
     );
     procedure AddTile(
       const AX, AY: Integer;
       const ALeft, ATop, ARight, ABottom: Double;
       const AOffset: Integer
+    );
+    procedure SetBoundingLimit(
+      const ALeftLimit: Double;
+      const ATopLimit: Double;
+      const ARightLimit: Double;
+      const ABottomLimit: Double
     );
     procedure WriteEntry(const AEntryWriter: TRMPFileEntryWriter);
     property MaxTilesCount: Integer read FMaxTilesCount;
@@ -330,9 +349,6 @@ procedure CalcFirstRmpTilePos(
 );
 
 implementation
-
-uses
-  Math;
 
 var
   cZeroByte: Byte = 0;
@@ -678,6 +694,11 @@ begin
   FLayerIndex := ALayerIndex;
   FTilesPerBlock := ATilesPerBlock;
 
+  FLeftLimit := NaN;
+  FTopLimit := NaN;
+  FRightLimit := NaN;
+  FBottomLimit := NaN;
+
   FMaxTilesCount := (FTilesPerBlock - 1) * FTilesPerBlock;
 
   FillChar(FHeader, SizeOf(FHeader), 0);
@@ -688,6 +709,8 @@ begin
   FHeader.UnkVal_1 := 256;
   FHeader.StartFlag_3 := 1;
   FHeader.MaxTilesPerBlockCount := cTLMFileMaxTilesPerBlockCount;
+
+  FIsHeaderBoundingInitilized := False;
 end;
 
 function TTLMFile.GetBlock: PTLMFileBlock;
@@ -763,25 +786,49 @@ begin
   Result := FHeader.TilesCount;
 end;
 
-procedure TTLMFile.AddTile(
-  const AX, AY: Integer;
-  const ALeft, ATop, ARight, ABottom: Double;
-  const AOffset: Integer
-);
-var
-  I: Integer;
-  VBlock: PTLMFileBlock;
+procedure TTLMFile.CheckBoundingLimit;
 begin
-  Assert(FHeader.TilesCount < FMaxTilesCount, 'TLM tiles count overflow!');
+  if not FIsHeaderBoundingInitilized then begin
+    Exit;
+  end;
+  if not IsNan(FLeftLimit) and (FHeader.Left < FLeftLimit) then begin
+    FHeader.Left := FLeftLimit;
+  end;
+  if not IsNan(FTopLimit) and (FHeader.Top > FTopLimit) then begin
+    FHeader.Top := FTopLimit;
+  end;
+  if not IsNan(FRightLimit) and (FHeader.Right > FRightLimit) then begin
+    FHeader.Right := FRightLimit;
+  end;
+  if not IsNan(FBottomLimit) and (FHeader.Bottom < FBottomLimit) then begin
+    FHeader.Bottom := FBottomLimit;
+  end;
+end;
 
-  if FHeader.TilesCount = 0 then begin
+procedure TTLMFile.SetBoundingLimit(
+  const ALeftLimit: Double;
+  const ATopLimit: Double;
+  const ARightLimit: Double;
+  const ABottomLimit: Double
+);
+begin
+  FLeftLimit := ALeftLimit;
+  FTopLimit := ATopLimit;
+  FRightLimit := ARightLimit;
+  FBottomLimit := ABottomLimit;
+
+  CheckBoundingLimit;
+end;
+
+procedure TTLMFile.UpdateBoundingRect(const ALeft, ATop, ARight, ABottom: Double);
+begin
+  if not FIsHeaderBoundingInitilized then begin
     FHeader.Left := ALeft;
     FHeader.Top := ATop;
     FHeader.Right := ARight;
     FHeader.Bottom := ABottom;
 
-    FHeader.TileHeightResolution := Abs(ATop - ABottom);
-    FHeader.TileWidthResolution := Abs(ARight - ALeft);
+    FIsHeaderBoundingInitilized := True;
   end else begin
     if ALeft < FHeader.Left then begin
       FHeader.Left := ALeft;
@@ -796,6 +843,27 @@ begin
       FHeader.Bottom := ABottom;
     end;
   end;
+
+  CheckBoundingLimit;
+end;
+
+procedure TTLMFile.AddTile(
+  const AX, AY: Integer;
+  const ALeft, ATop, ARight, ABottom: Double;
+  const AOffset: Integer
+);
+var
+  I: Integer;
+  VBlock: PTLMFileBlock;
+begin
+  Assert(FHeader.TilesCount < FMaxTilesCount, 'TLM tiles count overflow!');
+
+  if FHeader.TilesCount = 0 then begin
+    FHeader.TileHeightResolution := Abs(ATop - ABottom);
+    FHeader.TileWidthResolution := Abs(ARight - ALeft);
+  end;
+
+  UpdateBoundingRect(ALeft, ATop, ARight, ABottom);
 
   VBlock := GetBlock;
 

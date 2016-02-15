@@ -3,6 +3,7 @@ unit u_RMPWriter;
 interface
 
 uses
+  Math,
   librmp;
 
 type
@@ -17,13 +18,23 @@ type
     FLayerNameBase: AnsiString;
     FImgName, FProduct, FProvider, FComments: AnsiString;
     FPreallocLayersCount: Integer;
+    FLeftLimit: Double;
+    FTopLimit: Double;
+    FRightLimit: Double;
+    FBottomLimit: Double;
     function BuildRMPFileName: string;
     procedure StartNewLayer;
     procedure FinishLayer;
     procedure StartNewFile;
     procedure FinishFile;
   public
-    procedure ForceNewLayer; // call this on zoom change or new row
+     // call this on zoom change or new row
+    procedure ForceNewLayer(
+      const ALeftLimit: Double = NaN;
+      const ATopLimit: Double = NaN;
+      const ARightLimit: Double = NaN;
+      const ABottomLimit: Double = NaN
+    );
     procedure AddTile(
       const AX, AY: Integer;
       const ALeft, ATop, ARight, ABottom: Double;
@@ -177,6 +188,11 @@ begin
   FComments := AComments;
   FPreallocLayersCount := APreallocLayersCount;
 
+  FLeftLimit := NaN;
+  FTopLimit := NaN;
+  FRightLimit := NaN;
+  FBottomLimit := NaN;
+
   FTLMFile := nil;
   FRMPLayerWriter := nil;
   FLayersCount := 0;
@@ -242,12 +258,25 @@ begin
   Inc(FLayersCount);
   FRMPLayerWriter := TRMPLayerWriter.Create(FLayerNameBase, FLayersCount, FRMPFile.EntryWriter);
   FTLMFile := TTLMFile.Create(FLayerNameBase, FLayersCount);
+  FTLMFile.SetBoundingLimit(FLeftLimit, FTopLimit, FRightLimit, FBottomLimit);
 end;
 
-procedure TRMPFileWriter.ForceNewLayer;
+procedure TRMPFileWriter.ForceNewLayer(
+  const ALeftLimit: Double;
+  const ATopLimit: Double;
+  const ARightLimit: Double;
+  const ABottomLimit: Double
+);
 begin
+  FLeftLimit := ALeftLimit;
+  FTopLimit := ATopLimit;
+  FRightLimit := ARightLimit;
+  FBottomLimit := ABottomLimit;
+
   if FTLMFile.TilesCount > 0 then begin
     StartNewLayer;
+  end else begin
+    FTLMFile.SetBoundingLimit(FLeftLimit, FTopLimit, FRightLimit, FBottomLimit);
   end;
 end;
 

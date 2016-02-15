@@ -51,22 +51,22 @@ object frExportRMP: TfrExportRMP
       end
       object lblDesc: TLabel
         Left = 3
-        Top = 161
-        Width = 362
-        Height = 13
-        Align = alTop
-        Caption = 'Product:'
-        ExplicitTop = 195
-        ExplicitWidth = 41
-      end
-      object lblAttr: TLabel
-        Left = 3
         Top = 195
         Width = 362
         Height = 13
         Align = alTop
+        Caption = 'Product:'
+        ExplicitTop = 161
+        ExplicitWidth = 41
+      end
+      object lblAttr: TLabel
+        Left = 3
+        Top = 229
+        Width = 362
+        Height = 13
+        Align = alTop
         Caption = 'Provider:'
-        ExplicitTop = 229
+        ExplicitTop = 195
         ExplicitWidth = 44
       end
       object pnlMap: TPanel
@@ -89,12 +89,13 @@ object frExportRMP: TfrExportRMP
       end
       object pnlImageFormat: TPanel
         Left = 3
-        Top = 112
+        Top = 146
         Width = 362
         Height = 49
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 2
+        ExplicitTop = 112
         object lblJpgQulity: TLabel
           Left = 2
           Top = 6
@@ -122,24 +123,26 @@ object frExportRMP: TfrExportRMP
         Align = alTop
         Caption = 'Use tiles from lower zooms (on unavalible tile)'
         TabOrder = 3
+        ExplicitLeft = 6
+        ExplicitTop = 84
       end
       object edtRmpProduct: TEdit
-        Left = 3
-        Top = 174
-        Width = 362
-        Height = 21
-        Align = alTop
-        TabOrder = 4
-        ExplicitTop = 208
-      end
-      object edtRmpProvider: TEdit
         Left = 3
         Top = 208
         Width = 362
         Height = 21
         Align = alTop
+        TabOrder = 4
+        ExplicitTop = 174
+      end
+      object edtRmpProvider: TEdit
+        Left = 3
+        Top = 242
+        Width = 362
+        Height = 21
+        Align = alTop
         TabOrder = 5
-        ExplicitTop = 242
+        ExplicitTop = 208
       end
       object chkAddVisibleLayers: TCheckBox
         Left = 3
@@ -150,6 +153,29 @@ object frExportRMP: TfrExportRMP
         Caption = 'Add visible Layers'
         TabOrder = 6
         OnClick = chkAddVisibleLayersClick
+      end
+      object chkDontAlignSelection: TCheckBox
+        Left = 3
+        Top = 129
+        Width = 362
+        Height = 17
+        Align = alTop
+        Caption = 'Don'#39't align selection by tiles border'
+        Checked = True
+        State = cbChecked
+        TabOrder = 7
+        ExplicitTop = 95
+      end
+      object chkDontProjectToLatLon: TCheckBox
+        Left = 3
+        Top = 112
+        Width = 362
+        Height = 17
+        Align = alTop
+        Caption = 'Don'#39't project tiles to Geographic projection (EPSG:4326)'
+        TabOrder = 8
+        Visible = False
+        ExplicitTop = 95
       end
     end
     object PnlZoom: TPanel

@@ -125,7 +125,6 @@ begin
   Assert(Supports(Result, IRegionProcessParamsFrameZoomArray));
   Assert(Supports(Result, IRegionProcessParamsFrameTargetPath));
   Assert(Supports(Result, IRegionProcessParamsFrameOneMap));
-  Assert(Supports(Result, IRegionProcessParamsFrameImageProvider));
   Assert(Supports(Result, IRegionProcessParamsFrameRMPExport));
 end;
 
@@ -139,8 +138,10 @@ var
   VPath: string;
   VZoomArr: TByteDynArray;
   VDirectTilesCopy: Boolean;
+  VAlignSelection: Boolean;
+  VProjectToLatLon: Boolean;
   VBitmapTileSaver: IBitmapTileSaver;
-  VBitmapProvider: IBitmapTileUniProvider;
+  VBitmapUniProvider: IBitmapUniProvider;
   VMapType: IMapType;
   VProjectionSet: IProjectionSet;
   VProgressInfo: IRegionProcessProgressInfoInternal;
@@ -154,28 +155,30 @@ begin
   VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
   VPath := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
-  VBitmapProvider := (ParamsFrame as IRegionProcessParamsFrameImageProvider).Provider;
 
   Assert(VMapType <> nil);
 
   VMapVersion := VMapType.VersionRequest.GetStatic;
   VTileStorage := VMapType.TileStorage;
 
-  {$IFDEF USE_LON_LAT_PROJ}
-  VProjectionSet :=
-    FProjectionSetFactory.GetProjectionSetByCode(
-      CGELonLatProjectionEPSG,
-      CTileSplitQuadrate256x256
-    );
-  {$ELSE}
-  VProjectionSet := VMapType.ProjectionSet;
-  {$ENDIF}
-
   with (ParamsFrame as IRegionProcessParamsFrameRMPExport) do begin
-    VDirectTilesCopy := {$IFDEF USE_LON_LAT_PROJ} False {$ELSE} DirectTilesCopy {$ENDIF} ;
+    VDirectTilesCopy := DirectTilesCopy;
+    VAlignSelection := AlignSelection;
+    VProjectToLatLon := ProjectToLatLon;
     VProduct := RmpProduct;
     VProvider := RmpProvider;
     VBitmapTileSaver := BitmapTileSaver;
+    VBitmapUniProvider := BitmapUniProvider;
+  end;
+
+  if VDirectTilesCopy or not VProjectToLatLon then begin
+    VProjectionSet := VMapType.ProjectionSet;
+  end else begin
+    VProjectionSet :=
+      FProjectionSetFactory.GetProjectionSetByCode(
+        CGELonLatProjectionEPSG,
+        CTileSplitQuadrate256x256
+      );
   end;
 
   VProgressInfo := ProgressFactory.Build(APolygon);
@@ -191,8 +194,9 @@ begin
       VMapType.TileStorage,
       VMapType.VersionRequest.GetStatic,
       VBitmapTileSaver,
-      VBitmapProvider,
+      VBitmapUniProvider,
       VDirectTilesCopy,
+      VAlignSelection,
       VProduct,
       VProvider
     );

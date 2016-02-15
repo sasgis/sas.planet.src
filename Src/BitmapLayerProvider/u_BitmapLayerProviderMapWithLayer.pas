@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2016, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -35,24 +35,45 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TBitmapLayerProviderMapWithLayer = class(TBaseInterfacedObject, IBitmapTileUniProvider)
+  TBitmapLayerProviderMapWithLayer = class(
+    TBaseInterfacedObject,
+    IBitmapTileUniProvider,
+    IBitmapUniProvider
+  )
   private
     type
       TMapTypeItem = record
         FMapType: IMapType;
         FVersion: IMapVersionRequest;
       end;
+      TUniType = (uniTile, uniBitmap);
   private
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FMapTypeArray: array of TMapTypeItem;
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayers: Boolean;
+    function GetUni(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
+      const AProjection: IProjection;
+      const AUniType: TUniType;
+      const ATile: TPoint;
+      const APixelRectTarget: TRect
+    ): IBitmap32Static;
   private
+    { IBitmapTileUniProvider }
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const AProjection: IProjection;
       const ATile: TPoint
+    ): IBitmap32Static;
+    { IBitmapUniProvider }
+    function GetBitmap(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
+      const AProjection: IProjection;
+      const APixelRectTarget: TRect
     ): IBitmap32Static;
   public
     constructor Create(
@@ -128,11 +149,13 @@ begin
   FUsePrevZoomAtLayers := AUsePrevZoomAtLayers;
 end;
 
-function TBitmapLayerProviderMapWithLayer.GetTile(
+function TBitmapLayerProviderMapWithLayer.GetUni(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const AProjection: IProjection;
-  const ATile: TPoint
+  const AUniType: TUniType;
+  const ATile: TPoint;
+  const APixelRectTarget: TRect
 ): IBitmap32Static;
 var
   I: Integer;
@@ -153,15 +176,33 @@ begin
         VUsePrevZoom := FUsePrevZoomAtMap;
       end;
 
-      VResult :=
-        FMapTypeArray[I].FMapType.LoadTileUni(
-          ATile,
-          AProjection,
-          FMapTypeArray[I].FVersion,
-          VUsePrevZoom,
-          True,
-          True
-        );
+      case AUniType of
+        uniTile: begin
+          VResult :=
+            FMapTypeArray[I].FMapType.LoadTileUni(
+              ATile,
+              AProjection,
+              FMapTypeArray[I].FVersion,
+              VUsePrevZoom,
+              True,
+              True
+            );
+        end;
+
+        uniBitmap: begin
+          VResult :=
+            FMapTypeArray[I].FMapType.LoadBitmapUni(
+              APixelRectTarget,
+              AProjection,
+              FMapTypeArray[I].FVersion,
+              VUsePrevZoom,
+              True,
+              True
+            );
+        end;
+      else
+        Assert(False, 'Unknown uni type!');
+      end;
     end;
 
     if Result <> nil then begin
@@ -184,6 +225,40 @@ begin
       Result := VResult;
     end;
   end;
+end;
+
+function TBitmapLayerProviderMapWithLayer.GetBitmap(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
+  const AProjection: IProjection;
+  const APixelRectTarget: TRect
+): IBitmap32Static;
+begin
+  Result := GetUni(
+    AOperationID,
+    ACancelNotifier,
+    AProjection,
+    uniBitmap,
+    Types.Point(0, 0),
+    APixelRectTarget
+  );
+end;
+
+function TBitmapLayerProviderMapWithLayer.GetTile(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
+  const AProjection: IProjection;
+  const ATile: TPoint
+): IBitmap32Static;
+begin
+  Result := GetUni(
+    AOperationID,
+    ACancelNotifier,
+    AProjection,
+    uniTile,
+    ATile,
+    Types.Rect(0, 0, 0, 0)
+  );
 end;
 
 end.

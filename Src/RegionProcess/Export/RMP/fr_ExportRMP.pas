@@ -51,6 +51,12 @@ type
     function GetDirectTilesCopy: Boolean;
     property DirectTilesCopy: Boolean read GetDirectTilesCopy;
 
+    function GetAlignSelection: Boolean;
+    property AlignSelection: Boolean read GetAlignSelection;
+
+    function GetProjectToLatLon: Boolean;
+    property ProjectToLatLon: Boolean read GetProjectToLatLon;
+
     function GetRmpProduct: AnsiString;
     property RmpProduct: AnsiString read GetRmpProduct;
 
@@ -59,6 +65,9 @@ type
 
     function GetBitmapTileSaver: IBitmapTileSaver;
     property BitmapTileSaver: IBitmapTileSaver read GetBitmapTileSaver;
+
+    function GetBitmapUniProvider: IBitmapUniProvider;
+    property BitmapUniProvider: IBitmapUniProvider read GetBitmapUniProvider;
   end;
 
 type
@@ -68,7 +77,6 @@ type
       IRegionProcessParamsFrameZoomArray,
       IRegionProcessParamsFrameTargetPath,
       IRegionProcessParamsFrameOneMap,
-      IRegionProcessParamsFrameImageProvider,
       IRegionProcessParamsFrameRMPExport
     )
     pnlCenter: TPanel;
@@ -92,6 +100,8 @@ type
     edtRmpProvider: TEdit;
     dlgSaveTo: TSaveDialog;
     chkAddVisibleLayers: TCheckBox;
+    chkDontAlignSelection: TCheckBox;
+    chkDontProjectToLatLon: TCheckBox;
     procedure btnSelectTargetFileClick(Sender: TObject);
     procedure chkAddVisibleLayersClick(Sender: TObject);
   private
@@ -113,8 +123,10 @@ type
     function GetZoomArray: TByteDynArray;
     function GetPath: string;
     function GetDirectTilesCopy: Boolean;
+    function GetAlignSelection: Boolean;
+    function GetProjectToLatLon: Boolean;
     function GetAllowExport(const AMapType: IMapType): Boolean;
-    function GetProvider: IBitmapTileUniProvider;
+    function GetBitmapUniProvider: IBitmapUniProvider;
     function GetRmpProduct: AnsiString;
     function GetRmpProvider: AnsiString;
     function GetBitmapTileSaver: IBitmapTileSaver;
@@ -133,8 +145,8 @@ implementation
 
 uses
   gnugettext,
-  //Graphics,
   ALString,
+  c_CoordConverter,
   i_MapVersionRequest,
   i_ContentTypeInfo,
   i_MapTypeListStatic,
@@ -215,6 +227,11 @@ begin
   end;
 end;
 
+function TfrExportRMP.GetAlignSelection: Boolean;
+begin
+  Result := not chkDontAlignSelection.Checked;
+end;
+
 function TfrExportRMP.GetAllowExport(const AMapType: IMapType): Boolean;
 begin
   Result := AMapType.IsBitmapTiles;
@@ -246,13 +263,19 @@ begin
   Result := Trim(edtTargetFile.Text);
 end;
 
+function TfrExportRMP.GetProjectToLatLon: Boolean;
+begin
+  Result := not chkDontProjectToLatLon.Checked;
+end;
+
 function TfrExportRMP.GetDirectTilesCopy: Boolean;
 
   function _IsValidMap(const AMapType: IMapType): Boolean;
   begin
     Result :=
       AMapType.IsBitmapTiles and
-      IsJpegContentType(AMapType.ContentType);
+      IsJpegContentType(AMapType.ContentType) and
+      (AMapType.ProjectionSet.Zooms[0].ProjectionType.ProjectionEPSG = CGELonLatProjectionEPSG);
   end;
 
 var
@@ -277,7 +300,7 @@ begin
   Result := FfrZoomsSelect.GetZoomList;
 end;
 
-function TfrExportRMP.GetProvider: IBitmapTileUniProvider;
+function TfrExportRMP.GetBitmapUniProvider: IBitmapUniProvider;
 var
   VMap: IMapType;
   VMapVersion: IMapVersionRequest;

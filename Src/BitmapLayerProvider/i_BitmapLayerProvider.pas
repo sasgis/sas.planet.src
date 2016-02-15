@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2016, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -36,6 +36,16 @@ type
       const ACancelNotifier: INotifierOperation;
       const AProjection: IProjection;
       const ATile: TPoint
+    ): IBitmap32Static;
+  end;
+
+  IBitmapUniProvider = interface
+    ['{4A5E8E75-701C-459A-A181-3FCF04FBE3A0}']
+    function GetBitmap(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
+      const AProjection: IProjection;
+      const APixelRectTarget: TRect
     ): IBitmap32Static;
   end;
 
