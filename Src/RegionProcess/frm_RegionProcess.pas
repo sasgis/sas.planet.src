@@ -299,6 +299,8 @@ begin
       ABitmapFactory,
       ABitmapPostProcessing,
       ABitmapTileSaveLoadFactory,
+      AImageResamplerFactoryList,
+      AImageResamplerConfig,
       AArchiveReadWriteFactory,
       ATileStorageTypeList,
       ATileNameGenerator

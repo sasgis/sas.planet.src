@@ -22,8 +22,6 @@ unit u_ExportProviderRMP;
 
 interface
 
-{$DEFINE USE_LON_LAT_PROJ}
-
 uses
   Forms,
   i_GeometryLonLat,
@@ -33,6 +31,8 @@ uses
   i_ProjectionSetFactory,
   i_Bitmap32BufferFactory,
   i_BitmapTileSaveLoadFactory,
+  i_ImageResamplerFactory,
+  i_ImageResamplerConfig,
   i_MapTypeListChangeable,
   u_ExportProviderAbstract,
   fr_MapSelect,
@@ -45,6 +45,8 @@ type
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+    FImageResamplerFactoryList: IImageResamplerFactoryList;
+    FImageResamplerConfig: IImageResamplerConfig;
     FProjectionSetFactory: IProjectionSetFactory;
   protected
     function CreateFrame: TFrame; override;
@@ -60,6 +62,8 @@ type
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+      const AImageResamplerFactoryList: IImageResamplerFactoryList;
+      const AImageResamplerConfig: IImageResamplerConfig;
       const AProjectionSetFactory: IProjectionSetFactory
     );
   end;
@@ -71,9 +75,7 @@ uses
   Types,
   Classes,
   SysUtils,
-  {$IFDEF USE_LON_LAT_PROJ}
   c_CoordConverter,
-  {$ENDIF}
   i_BitmapTileSaveLoad,
   i_BitmapLayerProvider,
   i_RegionProcessParamsFrame,
@@ -95,6 +97,8 @@ constructor TExportProviderRMP.Create(
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+  const AImageResamplerFactoryList: IImageResamplerFactoryList;
+  const AImageResamplerConfig: IImageResamplerConfig;
   const AProjectionSetFactory: IProjectionSetFactory
 );
 begin
@@ -108,6 +112,8 @@ begin
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
+  FImageResamplerFactoryList := AImageResamplerFactoryList;
+  FImageResamplerConfig := AImageResamplerConfig;
   FProjectionSetFactory := AProjectionSetFactory;
 end;
 
@@ -135,6 +141,7 @@ end;
 
 procedure TExportProviderRMP.StartProcess(const APolygon: IGeometryLonLatPolygon);
 var
+  I: Integer;
   VPath: string;
   VZoomArr: TByteDynArray;
   VDirectTilesCopy: Boolean;
@@ -149,6 +156,7 @@ var
   VMapVersion: IMapVersionRequest;
   VTileStorage: ITileStorage;
   VProduct, VProvider: AnsiString;
+  VImageResamplerFactory: IImageResamplerFactory;
 begin
   inherited;
 
@@ -181,6 +189,9 @@ begin
       );
   end;
 
+  I := FImageResamplerFactoryList.GetIndexByGUID(FImageResamplerConfig.ActiveGUID);
+  VImageResamplerFactory := FImageResamplerFactoryList.Items[I];
+
   VProgressInfo := ProgressFactory.Build(APolygon);
 
   VThread :=
@@ -195,6 +206,8 @@ begin
       VMapType.VersionRequest.GetStatic,
       VBitmapTileSaver,
       VBitmapUniProvider,
+      FBitmap32StaticFactory,
+      VImageResamplerFactory,
       VDirectTilesCopy,
       VAlignSelection,
       VProduct,

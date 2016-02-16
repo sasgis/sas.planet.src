@@ -100,7 +100,6 @@ type
     edtRmpProvider: TEdit;
     dlgSaveTo: TSaveDialog;
     chkAddVisibleLayers: TCheckBox;
-    chkDontAlignSelection: TCheckBox;
     chkDontProjectToLatLon: TCheckBox;
     procedure btnSelectTargetFileClick(Sender: TObject);
     procedure chkAddVisibleLayersClick(Sender: TObject);
@@ -229,7 +228,7 @@ end;
 
 function TfrExportRMP.GetAlignSelection: Boolean;
 begin
-  Result := not chkDontAlignSelection.Checked;
+  Result := False;
 end;
 
 function TfrExportRMP.GetAllowExport(const AMapType: IMapType): Boolean;

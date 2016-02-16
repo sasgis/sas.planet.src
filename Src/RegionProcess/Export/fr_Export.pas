@@ -34,6 +34,8 @@ uses
   i_GeometryProjectedFactory,
   i_BitmapTileSaveLoadFactory,
   i_BitmapPostProcessing,
+  i_ImageResamplerFactory,
+  i_ImageResamplerConfig,
   i_ArchiveReadWriteFactory,
   i_Bitmap32BufferFactory,
   i_TileStorageTypeList,
@@ -67,6 +69,8 @@ type
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+      const AImageResamplerFactoryList: IImageResamplerFactoryList;
+      const AImageResamplerConfig: IImageResamplerConfig;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const ATileStorageTypeList: ITileStorageTypeListStatic;
       const ATileNameGenerator: ITileFileNameGeneratorsList
@@ -117,6 +121,8 @@ constructor TfrExport.Create(
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+  const AImageResamplerFactoryList: IImageResamplerFactoryList;
+  const AImageResamplerConfig: IImageResamplerConfig;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const ATileStorageTypeList: ITileStorageTypeListStatic;
   const ATileNameGenerator: ITileFileNameGeneratorsList
@@ -316,6 +322,8 @@ begin
       AVectorGeometryProjectedFactory,
       ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
+      AImageResamplerFactoryList,
+      AImageResamplerConfig,
       AProjectionSetFactory
     );
   VList.Add(VExportProvider);

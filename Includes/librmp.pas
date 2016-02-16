@@ -343,9 +343,10 @@ type
     );
   end;
 
-procedure CalcFirstRmpTilePos(
-  const ALeft, ATop, scalex, scaley: Double;
-  out firstTilex, firstTiley: Integer
+procedure CalcRmpTilePos(
+  const ALon, ALat, ATileWidth, ATileHeight: Double;
+  out ATileX, ATileY: Integer;
+  out ATileLon, ATileLat: Double
 );
 
 implementation
@@ -1243,59 +1244,73 @@ end;
 //
 // copy-pasted from RMPCreator/geo_raster.pas
 //
-procedure CalcFirstRmpTilePos(
-  const ALeft, ATop, scalex, scaley: Double;
-  out firstTilex, firstTiley: Integer
+procedure CalcRmpTilePos(
+  const ALon, ALat, ATileWidth, ATileHeight: Double;
+  out ATileX, ATileY: Integer;
+  out ATileLon, ATileLat: Double
 );
 var
-  i: Integer;
-  x, y: Integer;
-  tlx, tly, cmin, cmax: Double;
+  I: Integer;
+  X, Y: Integer;
+  VLon, VLat, VMin, VMax: Double;
+  VIsCalcOK: Boolean;
 begin
-  tlx := ALeft;
-  tly := -ATop; // (!!!)
+  VLon := ALon;
+  VLat := -ALat; // (!!!)
 
-  firstTilex := 0;
-  firstTiley := 0;
+  ATileX := 0;
+  ATileY := 0;
 
-  x := Round( ceil( (tlx + 180) / abs(scalex) ) - 10 );
-  y := 22;
-  for i:=x to x + 20 do begin
-    cmin := i * scalex;
-    if (cmin < 0) then cmin := 0 - (cmin + 180) else cmin := cmin - 180;
+  VIsCalcOK := False;
 
-    cmax := (i + 1) * scalex;
-    if (cmax < 0) then cmax := 0 - (cmax + 180) else cmax := cmax - 180;
+  X := Ceil((VLon + 180) / Abs(ATileWidth)) - 10;
+  for I := X to X + 20 do begin
+    VMin := I * ATileWidth;
 
-    if (cmin <= tlx) and (tlx < cmax ) then begin
-      firstTilex := i;
-      y := 1;
+    if VMin < 0 then
+      VMin := -180 - VMin
+    else
+      VMin := VMin - 180;
+
+    VMax := (I + 1) * ATileWidth;
+
+    if VMax < 0 then
+      VMax := -180 - VMax
+    else
+      VMax := VMax - 180;
+
+    if (VMin <= VLon) and (VLon < VMax ) then begin
+      ATileX := I;
+      ATileLon := VMin;
+      VIsCalcOK := True;
+      Break;
+    end;
+  end;
+
+  if not VIsCalcOK then begin
+    raise Exception.Create('[librmp] Can''t calc tile X');
+  end;
+
+  VIsCalcOK := False;
+
+  Y := Round( Ceil( (VLat + 90) / Abs(ATileHeight) ) - 10 );
+  for I:=Y to Y + 20 do begin
+    VMin := I * ATileHeight;
+    if (VMin < 0) then VMin := 0 - (VMin + 90) else VMin := VMin - 90;
+
+    VMax := (I + 1) * ATileHeight;
+    if (VMax < 0) then VMax := 0 - (VMax + 90) else VMax := VMax - 90;
+
+    if (VMin <= VLat) and (VLat < VMax ) then begin
+      ATileY := I;
+      ATileLat := VMin;
+      VIsCalcOK := True;
       break;
     end;
   end;
 
-  if (y = 22) then begin
-    raise Exception.Create('[RMP] Can''t get tile X');
-  end;
-
-  y := Round( ceil( (tly + 90) / abs(scaley) ) - 10 );
-  x := 22;
-  for i:=y to y + 20 do begin
-    cmin := i * scaley;
-    if (cmin < 0) then cmin := 0 - (cmin + 90) else cmin := cmin - 90;
-
-    cmax := (i + 1) * scaley;
-    if (cmax < 0) then cmax := 0 - (cmax + 90) else cmax := cmax - 90;
-
-    if (cmin <= tly) and (tly < cmax ) then begin
-      firstTiley := i;
-      x := 1;
-      break;
-    end;
-  end;
-
-  if (x = 22) then begin
-    raise Exception.Create('[RMP] Can''t get tile Y');
+  if not VIsCalcOK then begin
+    raise Exception.Create('[librmp] Can''t calc tile Y');
   end;
 end;
 

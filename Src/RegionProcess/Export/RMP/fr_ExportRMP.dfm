@@ -51,22 +51,22 @@ object frExportRMP: TfrExportRMP
       end
       object lblDesc: TLabel
         Left = 3
-        Top = 195
+        Top = 178
         Width = 362
         Height = 13
         Align = alTop
         Caption = 'Product:'
-        ExplicitTop = 161
+        ExplicitTop = 195
         ExplicitWidth = 41
       end
       object lblAttr: TLabel
         Left = 3
-        Top = 229
+        Top = 212
         Width = 362
         Height = 13
         Align = alTop
         Caption = 'Provider:'
-        ExplicitTop = 195
+        ExplicitTop = 229
         ExplicitWidth = 44
       end
       object pnlMap: TPanel
@@ -89,13 +89,13 @@ object frExportRMP: TfrExportRMP
       end
       object pnlImageFormat: TPanel
         Left = 3
-        Top = 146
+        Top = 129
         Width = 362
         Height = 49
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 2
-        ExplicitTop = 112
+        ExplicitTop = 146
         object lblJpgQulity: TLabel
           Left = 2
           Top = 6
@@ -123,26 +123,24 @@ object frExportRMP: TfrExportRMP
         Align = alTop
         Caption = 'Use tiles from lower zooms (on unavalible tile)'
         TabOrder = 3
-        ExplicitLeft = 6
-        ExplicitTop = 84
       end
       object edtRmpProduct: TEdit
         Left = 3
-        Top = 208
+        Top = 191
         Width = 362
         Height = 21
         Align = alTop
         TabOrder = 4
-        ExplicitTop = 174
+        ExplicitTop = 208
       end
       object edtRmpProvider: TEdit
         Left = 3
-        Top = 242
+        Top = 225
         Width = 362
         Height = 21
         Align = alTop
         TabOrder = 5
-        ExplicitTop = 208
+        ExplicitTop = 242
       end
       object chkAddVisibleLayers: TCheckBox
         Left = 3
@@ -154,18 +152,6 @@ object frExportRMP: TfrExportRMP
         TabOrder = 6
         OnClick = chkAddVisibleLayersClick
       end
-      object chkDontAlignSelection: TCheckBox
-        Left = 3
-        Top = 129
-        Width = 362
-        Height = 17
-        Align = alTop
-        Caption = 'Don'#39't align selection by tiles border'
-        Checked = True
-        State = cbChecked
-        TabOrder = 7
-        ExplicitTop = 95
-      end
       object chkDontProjectToLatLon: TCheckBox
         Left = 3
         Top = 112
@@ -173,9 +159,9 @@ object frExportRMP: TfrExportRMP
         Height = 17
         Align = alTop
         Caption = 'Don'#39't project tiles to Geographic projection (EPSG:4326)'
-        TabOrder = 8
-        Visible = False
-        ExplicitTop = 95
+        Checked = True
+        State = cbChecked
+        TabOrder = 7
       end
     end
     object PnlZoom: TPanel
