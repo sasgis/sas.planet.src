@@ -69,9 +69,12 @@ type
     FImageResamplerFactory: IImageResamplerFactory;
     FDirectTilesCopy: Boolean;
     FAlignSelection: Boolean;
+    FRowsPerRmpLayer: Integer;
     FImgName, FProduct, FProvider, FComments: AnsiString;
     procedure CalcCounts(
       const AProjectedPolygons: array of IGeometryProjectedPolygon;
+      const AMaxTilesCountPerRmpLayer: Integer;
+      const ACalcCountUni: Boolean;
       out ARmpLayersCount: Integer;
       out ATilesToProcessCount: Int64
     );
@@ -186,19 +189,25 @@ var
   VMultiProjected: IGeometryProjectedMultiPolygon;
   VRMPWriter: TRMPFileWriter;
   VProcessSingleGeometry: TProcessSingleGeometry;
-  VIsToLatLon: Boolean;
+  VIsExportUni: Boolean;
 begin
   inherited;
 
-  VIsToLatLon :=
-    FProjectionSet.Zooms[0].ProjectionType.ProjectionEPSG = CGELonLatProjectionEPSG;
+  ProgressInfo.SetCaption(SAS_STR_ExportTiles);
+  ProgressInfo.SetFirstLine('Initializing...');
 
-  if FDirectTilesCopy or VIsToLatLon then begin
+  VIsExportUni :=
+    not FDirectTilesCopy and
+    (FProjectionSet.Zooms[0].ProjectionType.ProjectionEPSG <> CGELonLatProjectionEPSG);
+
+  if not VIsExportUni then begin
     Assert(FTileStorage <> nil);
+    FRowsPerRmpLayer := 1;
     VProcessSingleGeometry := Self.ProcessSingleGeometry;
   end else begin
     Assert(FBitmapUniProvider <> nil);
     Assert(FBitmapTileSaver <> nil);
+    FRowsPerRmpLayer := 8;
     VProcessSingleGeometry := Self.ProcessSingleGeometryUni;
   end;
 
@@ -221,7 +230,13 @@ begin
       );
   end;
 
-  CalcCounts(VProjectedPolygons, VRmpLayersCount, VTilesToProcess);
+  CalcCounts(
+    VProjectedPolygons,
+    TRMPFileWriter.MaxTilesPerLayer,
+    VIsExportUni,
+    VRmpLayersCount,
+    VTilesToProcess
+  );
 
   VRMPWriter :=
     TRMPFileWriter.Create(
@@ -230,7 +245,6 @@ begin
       VRmpLayersCount
     );
   try
-    ProgressInfo.SetCaption(SAS_STR_ExportTiles);
     ProgressInfo.SetFirstLine(
       Format('%s %d %s', [SAS_STR_AllSaves, VTilesToProcess, SAS_STR_Files])
     );
@@ -254,7 +268,9 @@ begin
       end;
     end;
 
+    ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
   finally
+    ProgressInfo.SetFirstLine('Finalizing...');
     VRMPWriter.Free;
   end;
 end;
@@ -270,7 +286,6 @@ var
   X, Y: Integer;
   VRmpX, VRmpY: Integer;
   VRmpStartPoint: TPoint;
-  VRmpTileLon, VRmpTileLat: Double;
   VTile: Types.TPoint;
   VTilesRect, VPixelRect: Types.TRect;
   VRectLL, VAlignRectLL: TDoubleRect;
@@ -290,18 +305,16 @@ begin
       rrOutside
     );
 
-  // --- Calculate the position of the upper left tile ---
   VRectLL := VProjection.PixelRectFloat2LonLatRect(VBounds);
   VRect := VProjection.TilePos2LonLatRect(VTilesRect.TopLeft);
-  librmp.CalcRmpTilePos(
+
+  librmp.LonLatToRmpXY(
     VRectLL.Left,
     VRectLL.Top,
     (VRect.Right - VRect.Left),
     (VRect.Top - VRect.Bottom),
     VRmpStartPoint.X,
-    VRmpStartPoint.Y,
-    VRmpTileLon,
-    VRmpTileLat
+    VRmpStartPoint.Y
   );
 
   if FAlignSelection then begin
@@ -385,6 +398,8 @@ begin
   end;
 end;
 
+{$DEFINE FULL_TILES}
+
 procedure TThreadExportToRMP.ProcessSingleGeometryUni(
   const ARMPWriter: TRMPFileWriter;
   const AZoom: Byte;
@@ -393,34 +408,115 @@ procedure TThreadExportToRMP.ProcessSingleGeometryUni(
   var ATilesProcessed: Int64
 );
 
+  {$IFNDEF FULL_TILES}
+  function _GetBitmapBounds(
+    const ABitmapRectLL: TDoubleRect;
+    const ASrcRectLL: TDoubleRect
+  ): TRect;
+  var
+    I: Integer;
+    VImgRect: TRect;
+    VPixSize: TDoublePoint;
+  begin
+    VImgRect := Types.Rect(0, 0, 256, 256);
+    VPixSize.X := (ABitmapRectLL.Right - ABitmapRectLL.Left) / 256;
+    VPixSize.Y := (ABitmapRectLL.Top - ABitmapRectLL.Bottom) / 256;
+    for I := 0 to 256 do begin
+      if ABitmapRectLL.Top - I * VPixSize.Y > ASrcRectLL.Top then begin
+        VImgRect.Top := I;
+      end;
+      if ABitmapRectLL.Bottom + I * VPixSize.Y < ASrcRectLL.Bottom then begin
+        VImgRect.Bottom := 256 - I;
+      end;
+      if ABitmapRectLL.Left + I * VPixSize.X < ASrcRectLL.Left then begin
+        VImgRect.Left := I;
+      end;
+      if ABitmapRectLL.Right - I * VPixSize.X > ASrcRectLL.Right then begin
+        VImgRect.Right := 256 - I;
+      end;
+    end;
+    Result :=
+      Bounds(
+        VImgRect.Left, VImgRect.Top,
+        VImgRect.Right - VImgRect.Left,
+        VImgRect.Bottom - VImgRect.Top
+      );
+  end;
+  {$ENDIF}
+
   procedure _ProcessSubRect(
     const ATilesRect: Types.TRect;
-    const ATileWidth, ATileHeight: Double;
+    const AAlignRectLL: TDoubleRect;
     const AProjection: IProjection;
     const AResampler: TCustomResampler
   );
   var
+    I: Integer;
     X, Y: Integer;
+    VTilesPerCol: Integer;
+    VTileWidth, VTileHeight: Double;
+    VDoublePoint: TDoublePoint;
     VRmpStartPoint, VRmpEndPoint: TPoint;
     VPixelRect: Types.TRect;
     VPixelRectFloat: TDoubleRect;
-    VRectLL, VSubRectLL: TDoubleRect;
-    VTileData: IBinaryData;
+    VRectLL, VSubRectLL, VLonLatRect: TDoubleRect;
+    VAlignRectLL: TDoubleRect;
+    VTileData: array of IBinaryData;
     VBitmap: TBitmap32ByStaticBitmap;
     VBitmapTile, VRmpBitmapTile: IBitmap32Static;
+    VRMPTiles: TRMPFileWriterTileRecArray;
+    VBitmapBounds: TRect;
+    VProcess: Boolean;
   begin
     VRectLL := AProjection.TileRect2LonLatRect(ATilesRect);
 
-    VRmpStartPoint.X := Floor((VRectLL.Left + 180) / ATileWidth);
-    VRmpStartPoint.Y := Floor((-VRectLL.Top + 90) / ATileHeight);
+    VTileWidth := (VRectLL.Right - VRectLL.Left) / (ATilesRect.Right - ATilesRect.Left);
+    VTileHeight := (VRectLL.Top - VRectLL.Bottom) / (ATilesRect.Bottom - ATilesRect.Top);
 
-    VRmpEndPoint.X := Round((VRectLL.Right + 180) / ATileWidth);
-    VRmpEndPoint.Y := Round((-VRectLL.Bottom + 90) / ATileHeight);
+    IntersecLonLatRect(VAlignRectLL, AAlignRectLL, VRectLL);
+
+    ARMPWriter.ForceNewLayer(
+      VAlignRectLL.Left, VAlignRectLL.Top,
+      VAlignRectLL.Right, VAlignRectLL.Bottom
+    );
+
+    librmp.LonLatToRmpXYFloat(
+      VRectLL.Left,
+      VRectLL.Top,
+      VTileWidth,
+      VTileHeight,
+      VDoublePoint.X,
+      VDoublePoint.Y
+    );
+    VRmpStartPoint := PointFromDoublePoint(VDoublePoint, prToTopLeft);
+
+    librmp.LonLatToRmpXYFloat(
+      VRectLL.Right,
+      VRectLL.Bottom,
+      VTileWidth,
+      VTileHeight,
+      VDoublePoint.X,
+      VDoublePoint.Y
+    );
+    VRmpEndPoint := PointFromDoublePoint(VDoublePoint, prToBottomRight);
+
+    VTilesPerCol := VRmpEndPoint.Y - VRmpStartPoint.Y;
+
+    if VTilesPerCol = 0 then begin
+      Assert(False);
+      Exit;
+    end;
+
+    SetLength(VRMPTiles, VTilesPerCol);
+    SetLength(VTileData, VTilesPerCol);
 
     for X := VRmpStartPoint.X to VRmpEndPoint.X - 1 do begin
 
-      // ToDo: Если колонка тайлов не вмещается в текущий слой, нужно
-      // инициировать создание нового слоя через ForceNewLayer
+      FillChar(VRMPTiles[0], SizeOf(VRMPTiles[0]) * VTilesPerCol, 0);
+      for I := Low(VTileData) to High(VTileData) do begin
+        VTileData[I] := nil;
+      end;
+      I := 0;
 
       for Y := VRmpStartPoint.Y to VRmpEndPoint.Y - 1 do begin
 
@@ -428,20 +524,30 @@ procedure TThreadExportToRMP.ProcessSingleGeometryUni(
           Exit;
         end;
 
-        VTileData := nil;
+        librmp.RmpXYToLonLat(
+          X, Y, VTileWidth, VTileHeight, VSubRectLL.Left, VSubRectLL.Top
+        );
+        librmp.RmpXYToLonLat(
+          X+1, Y+1, VTileWidth, VTileHeight, VSubRectLL.Right, VSubRectLL.Bottom
+        );
 
-        VSubRectLL :=
-          DoubleRect(
-            X * ATileWidth - 180,
-            -(Y * ATileHeight - 90),
-            (X + 1) * ATileWidth - 180,
-            -((Y + 1) * ATileHeight - 90)
-          );
+        VLonLatRect := VSubRectLL;
+        AProjection.ProjectionType.ValidateLonLatRect(VLonLatRect);
 
-        VPixelRectFloat := AProjection.LonLatRect2PixelRectFloat(VSubRectLL);
-        VPixelRect := RectFromDoubleRect(VPixelRectFloat, rrClosest);
+        {$IFDEF FULL_TILES}
+        VPixelRectFloat := AProjection.LonLatRect2PixelRectFloat(VLonLatRect);
+        VProcess := APolygon.IsRectIntersectPolygon(VPixelRectFloat);
+        {$ELSE}
+        VProcess := IntersecLonLatRect(VLonLatRect, VLonLatRect, VRectLL);
+        if VProcess then begin
+          VPixelRectFloat := AProjection.LonLatRect2PixelRectFloat(VLonLatRect);
+          VProcess := APolygon.IsRectIntersectPolygon(VPixelRectFloat);
+        end;
+        {$ENDIF}
 
-        if APolygon.IsRectIntersectPolygon(VPixelRectFloat) then begin
+        if VProcess then begin
+          VPixelRect := RectFromDoubleRect(VPixelRectFloat, rrClosest);
+
           VBitmapTile :=
             FBitmapUniProvider.GetBitmap(
               Self.OperationID,
@@ -457,84 +563,85 @@ procedure TThreadExportToRMP.ProcessSingleGeometryUni(
               VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
               try
                 VBitmap.SetSize(256, 256);
-                VBitmap.Clear(0);
+                VBitmap.Clear(clBlack32);
+
+                {$IFDEF FULL_TILES}
+                VBitmapBounds := VBitmap.BoundsRect;
+                {$ELSE}
+                VBitmapBounds := _GetBitmapBounds(VSubRectLL, VLonLatRect);
+                {$ENDIF}
+
                 StretchTransferFull(
                   VBitmap,
-                  VBitmap.BoundsRect,
+                  VBitmapBounds,
                   VBitmapTile,
                   AResampler,
                   dmOpaque
                 );
+
                 VRmpBitmapTile := VBitmap.MakeAndClear;
               finally
                 VBitmap.Free;
               end;
             end;
-            VTileData := FBitmapTileSaver.Save(VRmpBitmapTile);
+            VTileData[I] := FBitmapTileSaver.Save(VRmpBitmapTile);
           end;
         end;
 
-        if Assigned(VTileData) then begin
-          ARMPWriter.AddTile(
-            X, Y,
-            VSubRectLL.Left, VSubRectLL.Top,
-            VSubRectLL.Right, VSubRectLL.Bottom,
-            VTileData.Buffer, VTileData.Size
-          );
+        VRMPTiles[I].X := X;
+        VRMPTiles[I].Y := Y;
+        VRMPTiles[I].Left := VSubRectLL.Left;
+        VRMPTiles[I].Top := VSubRectLL.Top;
+        VRMPTiles[I].Right := VSubRectLL.Right;
+        VRMPTiles[I].Bottom := VSubRectLL.Bottom;
+
+        if Assigned(VTileData[I]) then begin
+          VRMPTiles[I].Data := VTileData[I].Buffer;
+          VRMPTiles[I].Size := VTileData[I].Size;
         end else begin
-          ARMPWriter.AddEmptyTile(
-            X, Y,
-            VSubRectLL.Left, VSubRectLL.Top,
-            VSubRectLL.Right, VSubRectLL.Bottom
-          );
+          VRMPTiles[I].Data := nil;
+          VRMPTiles[I].Size := 0;
+        end;
+
+        Inc(I);
+
+        Inc(ATilesProcessed);
+        if ATilesProcessed mod 100 = 0 then begin
+          ProgressFormUpdateOnProgress(ATilesProcessed, ATilesToProcess);
         end;
       end;
 
-      Inc(ATilesProcessed);
-      if ATilesProcessed mod 100 = 0 then begin
-        ProgressFormUpdateOnProgress(ATilesProcessed, ATilesToProcess);
-      end;
+      // add tiles column
+      ARMPWriter.AddTiles(VRMPTiles);
     end;
   end;
 
 var
-  Y: Integer;
-  VTilesRect: Types.TRect;
-  VBounds, VAlignRectLL, VTileRectLL: TDoubleRect;
+  VTop, VBottom: Integer;
+  VTilesRect, VSubRect: Types.TRect;
+  VBounds, VAlignRectLL: TDoubleRect;
   VProjection: IProjection;
   VResampler: TCustomResampler;
 begin
   VBounds := APolygon.Bounds;
   VProjection := FProjectionSet.Zooms[AZoom];
-
   VTilesRect :=
     RectFromDoubleRect(
       VProjection.PixelRectFloat2TileRectFloat(VBounds),
       rrOutside
     );
-
   VAlignRectLL := VProjection.PixelRectFloat2LonLatRect(VBounds);
-
   VResampler := FImageResamplerFactory.CreateResampler;
   try
-    for Y := VTilesRect.Top to VTilesRect.Bottom - 1 do begin
-      ARMPWriter.ForceNewLayer(
-        VAlignRectLL.Left, VAlignRectLL.Top,
-        VAlignRectLL.Right, VAlignRectLL.Bottom
-      );
-
-      VTileRectLL :=
-        VProjection.TilePos2LonLatRect(
-          Types.Point(VTilesRect.Left, Y)
-        );
-
-      _ProcessSubRect(
-        Types.Rect(VTilesRect.Left, Y, VTilesRect.Right, Y+1),
-        (VTileRectLL.Right - VTileRectLL.Left),
-        (VTileRectLL.Top - VTileRectLL.Bottom),
-        VProjection,
-        VResampler
-      );
+    VTop := VTilesRect.Top;
+    while VTop < VTilesRect.Bottom do begin
+      VBottom := VTop + FRowsPerRmpLayer;
+      if VBottom > VTilesRect.Bottom then begin
+        VBottom := VTilesRect.Bottom;
+      end;
+      VSubRect := Types.Rect(VTilesRect.Left, VTop, VTilesRect.Right, VBottom);
+      _ProcessSubRect(VSubRect, VAlignRectLL, VProjection, VResampler);
+      Inc(VTop, FRowsPerRmpLayer);
     end;
   finally
     VResampler.Free;
@@ -543,12 +650,11 @@ end;
 
 procedure TThreadExportToRMP.CalcCounts(
   const AProjectedPolygons: array of IGeometryProjectedPolygon;
+  const AMaxTilesCountPerRmpLayer: Integer;
+  const ACalcCountUni: Boolean;
   out ARmpLayersCount: Integer;
   out ATilesToProcessCount: Int64
 );
-
-const
-  cMaxTilesCountPerRmpLayer = 70*(70-1);
 
   procedure _CalcCountsPerPolygon(
     const AZoom: Byte;
@@ -556,9 +662,8 @@ const
   );
   var
     X, Y: Integer;
-    VTile: Types.TPoint;
     VTilesRect: Types.TRect;
-    VRect, VBounds: TDoubleRect;
+    VBounds: TDoubleRect;
     VProjection: IProjection;
     VTilesInLayer: Integer;
   begin
@@ -569,22 +674,90 @@ const
         VProjection.PixelRectFloat2TileRectFloat(VBounds),
         rrOutside
       );
-    Inc(ARmpLayersCount);
     for Y := VTilesRect.Top to VTilesRect.Bottom - 1 do begin
-      Inc(ARmpLayersCount);
-      Inc(ATilesToProcessCount);
+      Inc(ARmpLayersCount); // 1
       VTilesInLayer := 0;
       for X := VTilesRect.Left to VTilesRect.Right - 1 do begin
         Inc(VTilesInLayer);
         Inc(ATilesToProcessCount);
-        VTile := Types.Point(X, Y);
-        VRect := VProjection.TilePos2PixelRectFloat(VTile);
-        if APolygon.IsRectIntersectPolygon(VRect) then begin
-          if VTilesInLayer > cMaxTilesCountPerRmpLayer then begin
-            Inc(ARmpLayersCount);
-          end;
+        if VTilesInLayer >= AMaxTilesCountPerRmpLayer then begin
+          Inc(ARmpLayersCount); // 2
+          VTilesInLayer := 0;
         end;
       end;
+    end;
+  end;
+
+  procedure _CalcCountsPerPolygonUni(
+    const AZoom: Byte;
+    const APolygon: IGeometryProjectedSinglePolygon
+  );
+  var
+    X: Integer;
+    VTop, VBottom: Integer;
+    VTileWidth, VTileHeight: Double;
+    VRmpStartPoint, VRmpEndPoint: Types.TPoint;
+    VTilesRect, VSubRect: Types.TRect;
+    VDoublePoint: TDoublePoint;
+    VBounds, VRectLL: TDoubleRect;
+    VProjection: IProjection;
+    VTilesInLayer, VTilesPerCol: Integer;
+  begin
+    VBounds := APolygon.Bounds;
+    VProjection := FProjectionSet.Zooms[AZoom];
+    VTilesRect :=
+      RectFromDoubleRect(
+        VProjection.PixelRectFloat2TileRectFloat(VBounds),
+        rrOutside
+      );
+    VTop := VTilesRect.Top;
+    while VTop < VTilesRect.Bottom do begin
+      Inc(ARmpLayersCount); // 1
+
+      VBottom := VTop + FRowsPerRmpLayer;
+      if VBottom > VTilesRect.Bottom then begin
+        VBottom := VTilesRect.Bottom;
+      end;
+      VSubRect := Types.Rect(VTilesRect.Left, VTop, VTilesRect.Right, VBottom);
+
+      VRectLL := VProjection.TileRect2LonLatRect(VSubRect);
+
+      VTileWidth := (VRectLL.Right - VRectLL.Left) / (VSubRect.Right - VSubRect.Left);
+      VTileHeight := (VRectLL.Top - VRectLL.Bottom) / (VSubRect.Bottom - VSubRect.Top);
+
+      librmp.LonLatToRmpXYFloat(
+        VRectLL.Left,
+        VRectLL.Top,
+        VTileWidth,
+        VTileHeight,
+        VDoublePoint.X,
+        VDoublePoint.Y
+      );
+      VRmpStartPoint := PointFromDoublePoint(VDoublePoint, prToTopLeft);
+
+      librmp.LonLatToRmpXYFloat(
+        VRectLL.Right,
+        VRectLL.Bottom,
+        VTileWidth,
+        VTileHeight,
+        VDoublePoint.X,
+        VDoublePoint.Y
+      );
+      VRmpEndPoint := PointFromDoublePoint(VDoublePoint, prToBottomRight);
+
+      VTilesPerCol := VRmpEndPoint.Y - VRmpStartPoint.Y;
+      VTilesInLayer := 0;
+
+      for X := VRmpStartPoint.X to VRmpEndPoint.X - 1 do begin
+        Inc(ATilesToProcessCount, VTilesPerCol);
+        if (VTilesInLayer + VTilesPerCol) >= AMaxTilesCountPerRmpLayer then begin
+          Inc(ARmpLayersCount); // 2
+          VTilesInLayer := 0;
+        end;
+        Inc(VTilesInLayer, VTilesPerCol);
+      end;
+
+      Inc(VTop, FRowsPerRmpLayer);
     end;
   end;
 
@@ -597,10 +770,18 @@ begin
   for I := 0 to Length(FZooms) - 1 do begin
     VZoom := FZooms[I];
     if Supports(AProjectedPolygons[I], IGeometryProjectedSinglePolygon, VSingleLine) then begin
-       _CalcCountsPerPolygon(VZoom, VSingleLine);
+       if ACalcCountUni then begin
+         _CalcCountsPerPolygonUni(VZoom, VSingleLine);
+       end else begin
+         _CalcCountsPerPolygon(VZoom, VSingleLine);
+       end;
     end else if Supports(AProjectedPolygons[I], IGeometryProjectedMultiPolygon, VMultiProjected) then begin
       for J := 0 to VMultiProjected.Count - 1 do begin
-        _CalcCountsPerPolygon(VZoom, VMultiProjected.Item[J]);
+        if ACalcCountUni then begin
+          _CalcCountsPerPolygonUni(VZoom, VMultiProjected.Item[J]);
+        end else begin
+          _CalcCountsPerPolygon(VZoom, VMultiProjected.Item[J]);
+        end;
       end;
     end else begin
       Assert(False);

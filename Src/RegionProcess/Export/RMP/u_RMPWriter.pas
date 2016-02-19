@@ -7,6 +7,16 @@ uses
   librmp;
 
 type
+  TRMPFileWriterTileRec = record
+    X, Y: Integer;
+    Left, Top, Right, Bottom: Double;
+    Data: PByte;
+    Size: Integer;
+  end;
+  PRMPFileWriterTileRec = ^TRMPFileWriterTileRec;
+
+  TRMPFileWriterTileRecArray = array of TRMPFileWriterTileRec;
+
   TRMPFileWriter = class(TObject)
   private
     FRMPFile: TRMPFile;
@@ -22,18 +32,21 @@ type
     FTopLimit: Double;
     FRightLimit: Double;
     FBottomLimit: Double;
+    FTilesPerRMPLayerBlock: Integer;
     function BuildRMPFileName: string;
     procedure StartNewLayer;
     procedure FinishLayer;
     procedure StartNewFile;
     procedure FinishFile;
   public
-     // call this on zoom change or new row
     procedure ForceNewLayer(
       const ALeftLimit: Double = NaN;
       const ATopLimit: Double = NaN;
       const ARightLimit: Double = NaN;
       const ABottomLimit: Double = NaN
+    );
+    procedure AddTiles(
+      const ATilesArr: TRMPFileWriterTileRecArray
     );
     procedure AddTile(
       const AX, AY: Integer;
@@ -51,6 +64,8 @@ type
       const APreallocLayersCount: Integer
     );
     destructor Destroy; override;
+  public
+    class function MaxTilesPerLayer: Integer;
   end;
 
 implementation
@@ -175,6 +190,11 @@ const
 
 { TRMPFileWriter }
 
+class function TRMPFileWriter.MaxTilesPerLayer: Integer;
+begin
+  Result := CalcTilesCountPerRMPLayer(cTLMFileTilesPerBlockCount);
+end;
+
 constructor TRMPFileWriter.Create(
   const AFileName: string;
   const AImgName, AProduct, AProvider, AComments: AnsiString;
@@ -187,6 +207,9 @@ begin
   FProvider := AProvider;
   FComments := AComments;
   FPreallocLayersCount := APreallocLayersCount;
+
+  // (!) This value must be equal that used in TRMPFileWriter.MaxTilesPerLayer
+  FTilesPerRMPLayerBlock := cTLMFileTilesPerBlockCount;
 
   FLeftLimit := NaN;
   FTopLimit := NaN;
@@ -257,7 +280,7 @@ begin
   FinishLayer;
   Inc(FLayersCount);
   FRMPLayerWriter := TRMPLayerWriter.Create(FLayerNameBase, FLayersCount, FRMPFile.EntryWriter);
-  FTLMFile := TTLMFile.Create(FLayerNameBase, FLayersCount);
+  FTLMFile := TTLMFile.Create(FLayerNameBase, FLayersCount, FTilesPerRMPLayerBlock);
   FTLMFile.SetBoundingLimit(FLeftLimit, FTopLimit, FRightLimit, FBottomLimit);
 end;
 
@@ -285,7 +308,7 @@ procedure TRMPFileWriter.AddEmptyTile(
   const ALeft, ATop, ARight, ABottom: Double
 );
 begin
-  AddTile(AX, AY, ALeft, ATop, ARight, ABottom, @cBlackJpeg[0], Length(cBlackJpeg));
+  AddTile(AX, AY, ALeft, ATop, ARight, ABottom, nil, 0);
 end;
 
 procedure TRMPFileWriter.AddTile(
@@ -295,15 +318,71 @@ procedure TRMPFileWriter.AddTile(
   const ASize: Integer
 );
 var
-  VTileOffset: Integer;
+  VTiles: TRMPFileWriterTileRecArray;
 begin
-  if FRMPFile.Size >= cMaxRmpFileSize then begin
+  SetLength(VTiles, 1);
+  with VTiles[0] do begin
+    X := AX;
+    Y := AY;
+    Left := ALeft;
+    Top := ATop;
+    Right := ARight;
+    Bottom := ABottom;
+    Data := AData;
+    Size := ASize;
+  end;
+  AddTiles(VTiles);
+end;
+
+procedure TRMPFileWriter.AddTiles(const ATilesArr: TRMPFileWriterTileRecArray);
+var
+  I: Integer;
+  VData: PByte;
+  VSize: Integer;
+  VCount: Integer;
+  VOffset: Integer;
+  VTile: PRMPFileWriterTileRec;
+begin
+  VSize := 0;
+  VCount := Length(ATilesArr);
+
+  for I := Low(ATilesArr) to High(ATilesArr) do begin
+    VTile := @ATilesArr[I];
+    if (VTile.Size > 0) and (VTile.Data <> nil) then begin
+      Inc(VSize, VTile.Size);
+    end;
+  end;
+
+  if (FRMPFile.Size + VSize) >= cMaxRmpFileSize then begin
     StartNewFile;
-  end else if FTLMFile.TilesCount >= FTLMFile.MaxTilesCount then begin
+  end else if (FTLMFile.TilesCount + VCount) >= FTLMFile.MaxTilesCount then begin
     StartNewLayer;
   end;
-  FRMPLayerWriter.WriteTileData(AData^, ASize, VTileOffset);
-  FTLMFile.AddTile(AX, AY, ALeft, ATop, ARight, ABottom, VTileOffset);
+
+  for I := Low(ATilesArr) to High(ATilesArr) do begin
+    VTile := @ATilesArr[I];
+
+    if (VTile.Size <= 0) or (VTile.Data = nil) then begin
+      // Empty tile
+      VData := @cBlackJpeg[0];
+      VSize := Length(cBlackJpeg);
+    end else begin
+      VData := VTile.Data;
+      VSize := VTile.Size;
+    end;
+
+    FRMPLayerWriter.WriteTileData(VData^, VSize, VOffset);
+
+    FTLMFile.AddTile(
+      VTile.X,
+      VTile.Y,
+      VTile.Left,
+      VTile.Top,
+      VTile.Right,
+      VTile.Bottom,
+      VOffset
+    );
+  end;
 end;
 
 procedure TRMPFileWriter.FinishLayer;

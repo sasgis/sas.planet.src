@@ -56,7 +56,6 @@ object frExportRMP: TfrExportRMP
         Height = 13
         Align = alTop
         Caption = 'Product:'
-        ExplicitTop = 195
         ExplicitWidth = 41
       end
       object lblAttr: TLabel
@@ -66,7 +65,6 @@ object frExportRMP: TfrExportRMP
         Height = 13
         Align = alTop
         Caption = 'Provider:'
-        ExplicitTop = 229
         ExplicitWidth = 44
       end
       object pnlMap: TPanel
@@ -95,7 +93,6 @@ object frExportRMP: TfrExportRMP
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 2
-        ExplicitTop = 146
         object lblJpgQulity: TLabel
           Left = 2
           Top = 6
@@ -131,7 +128,6 @@ object frExportRMP: TfrExportRMP
         Height = 21
         Align = alTop
         TabOrder = 4
-        ExplicitTop = 208
       end
       object edtRmpProvider: TEdit
         Left = 3
@@ -140,7 +136,6 @@ object frExportRMP: TfrExportRMP
         Height = 21
         Align = alTop
         TabOrder = 5
-        ExplicitTop = 242
       end
       object chkAddVisibleLayers: TCheckBox
         Left = 3
@@ -158,7 +153,7 @@ object frExportRMP: TfrExportRMP
         Width = 362
         Height = 17
         Align = alTop
-        Caption = 'Don'#39't project tiles to Geographic projection (EPSG:4326)'
+        Caption = 'Don'#39't transform tiles to Geographic projection'
         Checked = True
         State = cbChecked
         TabOrder = 7

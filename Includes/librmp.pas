@@ -343,11 +343,32 @@ type
     );
   end;
 
-procedure CalcRmpTilePos(
-  const ALon, ALat, ATileWidth, ATileHeight: Double;
-  out ATileX, ATileY: Integer;
-  out ATileLon, ATileLat: Double
+function CalcTilesCountPerRMPLayer(const ATilesPerBlock: Integer): Integer;
+
+procedure RmpXYToLonLat(
+  const AX, AY: Integer;
+  const ATileWidthDegree, ATileHeightDegree: Double;
+  out ATopLeftLon, ATopLeftLat: Double
 );
+
+procedure LonLatToRmpXYFloat(
+  const ALon, ALat: Double;
+  const ATileWidthDegree, ATileHeightDegree: Double;
+  out AX, AY: Double
+);
+
+procedure LonLatToRmpXY(
+  const ALon, ALat: Double;
+  const ATileWidthDegree, ATileHeightDegree: Double;
+  out AX, AY: Integer;
+  out ATopLeftLon, ATopLeftLat: Double
+); overload;
+
+procedure LonLatToRmpXY(
+  const ALon, ALat: Double;
+  const ATileWidthDegree, ATileHeightDegree: Double;
+  out AX, AY: Integer
+); overload;
 
 implementation
 
@@ -359,6 +380,11 @@ const
   cBufSize = $01000000; // 16 Mb
   cKnownExt: array [0..4] of string = ('.ini', '.msf', '.ics', '.a00', '.tlm');
   cCRLF: AnsiString = #13#10;
+
+function CalcTilesCountPerRMPLayer(const ATilesPerBlock: Integer): Integer;
+begin
+  Result := ATilesPerBlock * (ATilesPerBlock - 1);
+end;
 
 function BuildLayerName(
   const ABaseName: AnsiString;
@@ -700,7 +726,7 @@ begin
   FRightLimit := NaN;
   FBottomLimit := NaN;
 
-  FMaxTilesCount := (FTilesPerBlock - 1) * FTilesPerBlock;
+  FMaxTilesCount := CalcTilesCountPerRMPLayer(FTilesPerBlock);
 
   FillChar(FHeader, SizeOf(FHeader), 0);
   FHeader.StartFlag_1 := 1;
@@ -1159,7 +1185,7 @@ procedure TRMPICSFile.WriteEntry(const AEntryWriter: TRMPFileEntryWriter);
 begin
   case FType of
     icsBmp4bit: begin
-      AEntryWriter.Open('BMP4BIT', 'ICS');
+      AEntryWriter.Open('bmp4bit', 'ics');
       AEntryWriter.WriteBuffer(bmp4bit_ics[0], Length(bmp4bit_ics));
       AEntryWriter.Close;
     end;
@@ -1231,23 +1257,51 @@ begin
   FEntryWriter.WriteBuffer(AData, ASize);
 end;
 
-// *****************************************************************************
-//
-// Calculate RMP-specific first (top-left) tile position.
-//
-// Input params:
-//
-// ALeft - longitude of top-left tile corner
-// ATop - latitude of top-left tile corner
-// scalex - tile resolution in degree by X
-// scaley - tile resolution in degree by Y
-//
-// copy-pasted from RMPCreator/geo_raster.pas
-//
-procedure CalcRmpTilePos(
-  const ALon, ALat, ATileWidth, ATileHeight: Double;
-  out ATileX, ATileY: Integer;
-  out ATileLon, ATileLat: Double
+(******************************************************************************)
+(*                 Tools to convert RMP X,Y to/from Lon,Lat                   *)
+(******************************************************************************)
+
+procedure RmpXYToLonLat(
+  const AX, AY: Integer;
+  const ATileWidthDegree, ATileHeightDegree: Double;
+  out ATopLeftLon, ATopLeftLat: Double
+);
+begin
+  ATopLeftLon := AX * ATileWidthDegree - 180;
+  ATopLeftLat := -(AY * ATileHeightDegree - 90);
+end;
+
+procedure LonLatToRmpXYFloat(
+  const ALon, ALat: Double;
+  const ATileWidthDegree, ATileHeightDegree: Double;
+  out AX, AY: Double
+);
+begin
+  AX := (ALon + 180) / ATileWidthDegree;
+  AY := (-ALat + 90) / ATileHeightDegree;
+
+  (************************************************************)
+  (*  Now you can use 3 types of point rounding:              *)
+  (*                                                          *)
+  (*    1. TopLeft     : Floor(AX + z) and Floor(AY + z)      *)
+  (*    2. BottomRight : Ceil(AX + z) and Ceil(AY + z)        *)
+  (*    3. Closest     : Round(AX) and Round(AY)              *)
+  (*                                                          *)
+  (*    z - is a coeff = 0.005                                *)
+  (************************************************************)
+end;
+
+
+(******************************************************************************)
+(*  RMPCreator use this algorithm to find RMP tile pos by given coordinates   *)
+(*  https://github.com/antalos/RMPCreator/blob/master/geo_raster.pas#L179     *)
+(******************************************************************************)
+
+procedure LonLatToRmpXY(
+  const ALon, ALat: Double;
+  const ATileWidthDegree, ATileHeightDegree: Double;
+  out AX, AY: Integer;
+  out ATopLeftLon, ATopLeftLat: Double
 );
 var
   I: Integer;
@@ -1256,23 +1310,23 @@ var
   VIsCalcOK: Boolean;
 begin
   VLon := ALon;
-  VLat := -ALat; // (!!!)
+  VLat := -ALat; // (!)
 
-  ATileX := 0;
-  ATileY := 0;
+  AX := 0;
+  AY := 0;
 
   VIsCalcOK := False;
 
-  X := Ceil((VLon + 180) / Abs(ATileWidth)) - 10;
+  X := Ceil((VLon + 180) / Abs(ATileWidthDegree)) - 10;
   for I := X to X + 20 do begin
-    VMin := I * ATileWidth;
+    VMin := I * ATileWidthDegree;
 
     if VMin < 0 then
       VMin := -180 - VMin
     else
       VMin := VMin - 180;
 
-    VMax := (I + 1) * ATileWidth;
+    VMax := (I + 1) * ATileWidthDegree;
 
     if VMax < 0 then
       VMax := -180 - VMax
@@ -1280,8 +1334,8 @@ begin
       VMax := VMax - 180;
 
     if (VMin <= VLon) and (VLon < VMax ) then begin
-      ATileX := I;
-      ATileLon := VMin;
+      AX := I;
+      ATopLeftLon := VMin;
       VIsCalcOK := True;
       Break;
     end;
@@ -1293,25 +1347,49 @@ begin
 
   VIsCalcOK := False;
 
-  Y := Round( Ceil( (VLat + 90) / Abs(ATileHeight) ) - 10 );
-  for I:=Y to Y + 20 do begin
-    VMin := I * ATileHeight;
-    if (VMin < 0) then VMin := 0 - (VMin + 90) else VMin := VMin - 90;
+  Y := Ceil((VLat + 90) / Abs(ATileHeightDegree)) - 10;
+  for I := Y to Y + 20 do begin
+    VMin := I * ATileHeightDegree;
 
-    VMax := (I + 1) * ATileHeight;
-    if (VMax < 0) then VMax := 0 - (VMax + 90) else VMax := VMax - 90;
+    if VMin < 0 then
+      VMin := 0 - (VMin + 90)
+    else
+      VMin := VMin - 90;
+
+    VMax := (I + 1) * ATileHeightDegree;
+
+    if VMax < 0 then
+      VMax := 0 - (VMax + 90)
+    else
+      VMax := VMax - 90;
 
     if (VMin <= VLat) and (VLat < VMax ) then begin
-      ATileY := I;
-      ATileLat := VMin;
+      AY := I;
+      ATopLeftLat := -VMin; // (!)
       VIsCalcOK := True;
-      break;
+      Break;
     end;
   end;
 
   if not VIsCalcOK then begin
     raise Exception.Create('[librmp] Can''t calc tile Y');
   end;
+end;
+
+procedure LonLatToRmpXY(
+  const ALon, ALat: Double;
+  const ATileWidthDegree, ATileHeightDegree: Double;
+  out AX, AY: Integer
+);
+var
+  VLon, VLat: Double;
+begin
+  LonLatToRmpXY(
+    ALon, ALat,
+    ATileWidthDegree, ATileHeightDegree,
+    AX, AY,
+    VLon, VLat
+  );
 end;
 
 end.
