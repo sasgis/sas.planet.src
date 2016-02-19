@@ -50,14 +50,16 @@ uses
   u_TileFileNameGM1,
   u_TileFileNameGM2,
   u_TileFileNameGM3,
-  u_TileFileNameMOBAC;
+  u_TileFileNameMOBAC,
+  u_TileFileNameTMS,
+  u_TileFileNameOsmAnd;
 
 { TTileFileNameGeneratorsSimpleList }
 
 constructor TTileFileNameGeneratorsSimpleList.Create;
 begin
   inherited Create;
-  SetLength(FItems, 7);
+  SetLength(FItems, 9);
   FItems[0] := TTileFileNameGMV.Create;
   FItems[1] := TTileFileNameSAS.Create;
   FItems[2] := TTileFileNameES.Create;
@@ -65,6 +67,8 @@ begin
   FItems[4] := TTileFileNameGM2.Create;
   FItems[5] := TTileFileNameGM3.Create;
   FItems[6] := TTileFileNameMOBAC.Create;
+  FItems[7] := TTileFileNameOsmAnd.Create;
+  FItems[8] := TTileFileNameTMS.Create;
 end;
 
 destructor TTileFileNameGeneratorsSimpleList.Destroy;
@@ -110,6 +114,14 @@ begin
     c_File_Cache_Id_MOBAC:
     begin
       Result := FItems[6];
+    end;
+    c_File_Cache_Id_OsmAnd:
+    begin
+      Result := FItems[7];
+    end;
+    c_File_Cache_Id_TMS:
+    begin
+      Result := FItems[8];
     end;
   else begin
     Assert(False);

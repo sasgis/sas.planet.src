@@ -24,15 +24,19 @@ interface
 
 const
   c_File_Cache_Id_DEFAULT = 0; // subst only
-  c_File_Cache_Id_GMV = 1;  // old
+
+  // File system based caches
+  c_File_Cache_Id_GMV = 1;  // old (GoogleMV)
   c_File_Cache_Id_SAS = 2;  // new
-  c_File_Cache_Id_ES = 3;
-  c_File_Cache_Id_GM = 4;
+  c_File_Cache_Id_ES = 3; // EarthSlicer
+  c_File_Cache_Id_GM = 4; // GlobalMapper
   c_File_Cache_Id_GM_Aux = 41; // auxillary
   c_File_Cache_Id_GM_Bing = 42; // "Bing Maps (Virtual Earth) Tiles" <ZOOM>\<Y>\<X>.<ext>
   c_File_Cache_Id_MOBAC = 43; // "Mobile Atlas Creator" <ZOOM>\<X>\<Y>.<ext>
   c_File_Cache_Id_OsmAnd = 44; // OsmAnd+ <ZOOM>\<X>\<Y>.<ext>.tile
   c_File_Cache_Id_TMS = 45; // "TileMapService" <ZOOM>\<X>\<Yb>.<ext> (<Yb> - starts from bottom)
+
+  // other
   c_File_Cache_Id_GE = 5;  // GE imagery cache direct access
   c_File_Cache_Id_GEt = 51;  // GE terrain cache direct access
   c_File_Cache_Id_BDB = 6;
