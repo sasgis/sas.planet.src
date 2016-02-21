@@ -1105,6 +1105,11 @@ var
 begin
   inherited;
 
+  // Disable popup menu item "Make Polygon by RosReestr (F8+MLeft)" due it
+  // stop working: http://www.sasgis.org/mantis/view.php?id=2641
+  TBXMakeRosreestrPolygon.Enabled := False;
+  TBXMakeRosreestrPolygon.Visible := False;
+
   FStartedNormal := False;
   movepoint := False;
   FMapZoomAnimtion := False;
