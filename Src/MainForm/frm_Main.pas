@@ -1199,6 +1199,7 @@ begin
       FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig,
       GState.ImageResamplerFactoryList,
       GState.Config.ImageResamplerConfig,
+      GState.Config.TileReprojectResamplerConfig,
       FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig,
       FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig,
       GState.MarksDb,

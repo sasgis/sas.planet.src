@@ -46,7 +46,7 @@ type
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FImageResamplerFactoryList: IImageResamplerFactoryList;
-    FImageResamplerConfig: IImageResamplerConfig;
+    FTileReprojectResamplerConfig: IImageResamplerConfig;
     FProjectionSetFactory: IProjectionSetFactory;
   protected
     function CreateFrame: TFrame; override;
@@ -63,7 +63,7 @@ type
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const AImageResamplerFactoryList: IImageResamplerFactoryList;
-      const AImageResamplerConfig: IImageResamplerConfig;
+      const ATileReprojectResamplerConfig: IImageResamplerConfig;
       const AProjectionSetFactory: IProjectionSetFactory
     );
   end;
@@ -98,7 +98,7 @@ constructor TExportProviderRMP.Create(
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AImageResamplerFactoryList: IImageResamplerFactoryList;
-  const AImageResamplerConfig: IImageResamplerConfig;
+  const ATileReprojectResamplerConfig: IImageResamplerConfig;
   const AProjectionSetFactory: IProjectionSetFactory
 );
 begin
@@ -113,7 +113,7 @@ begin
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FImageResamplerFactoryList := AImageResamplerFactoryList;
-  FImageResamplerConfig := AImageResamplerConfig;
+  FTileReprojectResamplerConfig := ATileReprojectResamplerConfig;
   FProjectionSetFactory := AProjectionSetFactory;
 end;
 
@@ -189,7 +189,7 @@ begin
       );
   end;
 
-  I := FImageResamplerFactoryList.GetIndexByGUID(FImageResamplerConfig.ActiveGUID);
+  I := FImageResamplerFactoryList.GetIndexByGUID(FTileReprojectResamplerConfig.ActiveGUID);
   VImageResamplerFactory := FImageResamplerFactoryList.Items[I];
 
   VProgressInfo := ProgressFactory.Build(APolygon);

@@ -70,7 +70,7 @@ type
       const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const AImageResamplerFactoryList: IImageResamplerFactoryList;
-      const AImageResamplerConfig: IImageResamplerConfig;
+      const ATileReprojectResamplerConfig: IImageResamplerConfig;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const ATileStorageTypeList: ITileStorageTypeListStatic;
       const ATileNameGenerator: ITileFileNameGeneratorsList
@@ -122,7 +122,7 @@ constructor TfrExport.Create(
   const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AImageResamplerFactoryList: IImageResamplerFactoryList;
-  const AImageResamplerConfig: IImageResamplerConfig;
+  const ATileReprojectResamplerConfig: IImageResamplerConfig;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const ATileStorageTypeList: ITileStorageTypeListStatic;
   const ATileNameGenerator: ITileFileNameGeneratorsList
@@ -323,7 +323,7 @@ begin
       ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
       AImageResamplerFactoryList,
-      AImageResamplerConfig,
+      ATileReprojectResamplerConfig,
       AProjectionSetFactory
     );
   VList.Add(VExportProvider);

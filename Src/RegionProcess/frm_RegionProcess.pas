@@ -173,6 +173,7 @@ type
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
       const AImageResamplerFactoryList: IImageResamplerFactoryList;
       const AImageResamplerConfig: IImageResamplerConfig;
+      const ATileReprojectResamplerConfig: IImageResamplerConfig;
       const AMarksShowConfig: IUsedMarksConfig;
       const AMarksDrawConfig: IMarksDrawConfig;
       const AMarksDB: IMarkSystem;
@@ -238,6 +239,7 @@ constructor TfrmRegionProcess.Create(
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
   const AImageResamplerFactoryList: IImageResamplerFactoryList;
   const AImageResamplerConfig: IImageResamplerConfig;
+  const ATileReprojectResamplerConfig: IImageResamplerConfig;
   const AMarksShowConfig: IUsedMarksConfig;
   const AMarksDrawConfig: IMarksDrawConfig;
   const AMarksDB: IMarkSystem;
@@ -300,7 +302,7 @@ begin
       ABitmapPostProcessing,
       ABitmapTileSaveLoadFactory,
       AImageResamplerFactoryList,
-      AImageResamplerConfig,
+      ATileReprojectResamplerConfig,
       AArchiveReadWriteFactory,
       ATileStorageTypeList,
       ATileNameGenerator
