@@ -204,6 +204,8 @@ begin
       ALanguageManager
     );
   FfrZoomsSelect.Init(0, 23);
+  FfrZoomsSelect.DisableZoom(0);
+  FfrZoomsSelect.DisableZoom(1);
 end;
 
 destructor TfrExportRMP.Destroy;
