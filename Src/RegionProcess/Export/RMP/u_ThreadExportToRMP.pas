@@ -207,7 +207,7 @@ begin
   end else begin
     Assert(FBitmapUniProvider <> nil);
     Assert(FBitmapTileSaver <> nil);
-    FRowsPerRmpLayer := 8;
+    FRowsPerRmpLayer := 128;
     VProcessSingleGeometry := Self.ProcessSingleGeometryUni;
   end;
 
