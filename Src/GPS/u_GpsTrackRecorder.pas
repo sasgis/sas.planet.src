@@ -590,7 +590,7 @@ function TGpsTrackRecorder.IsEmpty: Boolean;
 begin
   CS.BeginRead;
   try
-    Result := FLastBlock <> nil;
+    Result := FLastBlock = nil;
   finally
     CS.EndRead;
   end;
