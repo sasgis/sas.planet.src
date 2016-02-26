@@ -6758,7 +6758,11 @@ end;
 
 procedure TfrmMain.TBItemDelTrackClick(Sender: TObject);
 begin
-  GState.GpsTrackRecorder.ClearTrack;
+  if GState.GpsTrackRecorder.IsEmpty then begin
+    MessageDlg(_('Nothing to delete - GPS track is empty.'), mtInformation, [mbOk], 0);
+  end else if MessageBox(Handle, PChar(SAS_MSG_DeleteGPSTrackAsk), PChar(SAS_MSG_coution), 36) = IDYES then begin
+    GState.GpsTrackRecorder.ClearTrack;
+  end;
 end;
 
 procedure TfrmMain.NGShScale01Click(Sender: TObject);

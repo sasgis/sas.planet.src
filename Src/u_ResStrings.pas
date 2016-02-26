@@ -34,6 +34,7 @@ ResourceString
   SAS_MSG_DeleteMarkPolyAsk = 'Are you sure you want to delete polygon with name "%0:s"?';
   SAS_MSG_DeleteManyMarksAsk = 'Are you sure you want to delete %0:d placemarks?';
 
+  SAS_MSG_DeleteGPSTrackAsk = 'Are you sure you want to delete current GPS track?';
 
   SAS_MSG_DeleteTileOneTileAsk = 'Are you sure you want to delete tile with name "%0:s"?';
   SAS_MSG_DeleteTilesInRegionAsk = 'Are you sure you want to delete tiles in selected region?';
