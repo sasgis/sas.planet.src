@@ -32,7 +32,21 @@ type
     procedure Add(const APoint: TDoublePoint);
     procedure AddPoints(
       const APoints: PDoublePointArray;
-      ACount: Integer
+      const ACount: Integer
+    );
+    procedure Insert(
+      const AIndex: Integer;
+      const APoint: TDoublePoint
+    );
+    procedure InsertPoints(
+      const AIndex: Integer;
+      const APoints: PDoublePointArray;
+      const ACount: Integer
+    );
+    procedure Delete(const AIndex: Integer);
+    procedure DeletePoints(
+      const AIndex: Integer;
+      const ACount: Integer
     );
     procedure Clear;
 

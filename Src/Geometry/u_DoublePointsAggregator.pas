@@ -39,7 +39,21 @@ type
     procedure Add(const APoint: TDoublePoint);
     procedure AddPoints(
       const APoints: PDoublePointArray;
-      ACount: Integer
+      const ACount: Integer
+    );
+    procedure Insert(
+      const AIndex: Integer;
+      const APoint: TDoublePoint
+    );
+    procedure InsertPoints(
+      const AIndex: Integer;
+      const APoints: PDoublePointArray;
+      const ACount: Integer
+    );
+    procedure Delete(const AIndex: Integer);
+    procedure DeletePoints(
+      const AIndex: Integer;
+      const ACount: Integer
     );
     procedure Clear;
 
@@ -117,13 +131,78 @@ end;
 
 procedure TDoublePointsAggregator.AddPoints(
   const APoints: PDoublePointArray;
-  ACount: Integer
+  const ACount: Integer
 );
 begin
   if ACount > 0 then begin
     Grow(ACount);
     Move(APoints[0], FPoints[FCount], ACount * SizeOf(TDoublePoint));
     FCount := FCount + ACount;
+  end;
+end;
+
+procedure TDoublePointsAggregator.Insert(
+  const AIndex: Integer;
+  const APoint: TDoublePoint
+);
+begin
+  Assert((AIndex >= 0) or (AIndex <= FCount));
+  if (AIndex < 0) or (AIndex > FCount) then begin
+    Assert(False);
+  end else if AIndex = FCount then begin
+    Add(APoint);
+  end else begin
+    Grow(1);
+    Move(FPoints[AIndex], FPoints[AIndex + 1], (FCount - AIndex) * SizeOf(TDoublePoint));
+    FPoints[AIndex] := APoint;
+    Inc(FCount);
+  end;
+end;
+
+procedure TDoublePointsAggregator.InsertPoints(
+  const AIndex: Integer;
+  const APoints: PDoublePointArray;
+  const ACount: Integer
+);
+begin
+  Assert((AIndex >= 0) or (AIndex <= FCount));
+  if (AIndex < 0) or (AIndex > FCount) then begin
+    Assert(False);
+  end else if AIndex = FCount then begin
+    AddPoints(APoints, ACount);
+  end else begin
+    if ACount > 0 then begin
+      Grow(ACount);
+      Move(FPoints[AIndex], FPoints[AIndex + ACount], (FCount - AIndex) * SizeOf(TDoublePoint));
+      Move(APoints[0], FPoints[AIndex], ACount * SizeOf(TDoublePoint));
+      FCount := FCount + ACount;
+    end;
+  end;
+end;
+
+procedure TDoublePointsAggregator.Delete(const AIndex: Integer);
+begin
+  Assert((AIndex >= 0) or (AIndex < FCount));
+  if (AIndex < 0) or (AIndex >= FCount) then begin
+    Assert(False);
+  end else if AIndex = FCount - 1 then begin
+    Dec(FCount);
+  end else begin
+    Move(FPoints[AIndex + 1], FPoints[AIndex], (FCount - AIndex - 1) * SizeOf(TDoublePoint));
+    Dec(FCount);
+  end;
+end;
+
+procedure TDoublePointsAggregator.DeletePoints(const AIndex, ACount: Integer);
+begin
+  Assert((AIndex >= 0) or (AIndex < FCount));
+  if (AIndex < 0) or (AIndex >= FCount) then begin
+    Assert(False);
+  end else if AIndex = FCount - 1 then begin
+    Dec(FCount, ACount);
+  end else begin
+    Move(FPoints[AIndex], FPoints[AIndex + ACount], (FCount - AIndex - ACount) * SizeOf(TDoublePoint));
+    Dec(FCount, ACount);
   end;
 end;
 
