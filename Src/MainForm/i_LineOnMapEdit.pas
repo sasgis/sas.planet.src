@@ -46,19 +46,17 @@ type
 
   ILineOnMapEdit = interface(IChangeable)
     ['{BD78781E-F5E0-406B-AE16-E5015BA87743}']
-    procedure SetSelectedPoint(
-      ASegmentIndex: Integer;
-      APointIndex: Integer
-    );
     function SetSelectedNextPoint: TDoublePoint;
     function SetSelectedPrevPoint: TDoublePoint;
     function SelectPointInLonLatRect(const ARect: TDoubleRect): Boolean;
 
     function IsEmpty: Boolean;
     function IsReady: Boolean;
+    function IsNearSplit: Boolean;
     procedure Clear;
     procedure DeleteActivePoint;
     procedure InsertPoint(const APoint: TDoublePoint);
+    procedure TogleSplit;
     procedure MoveActivePoint(const APoint: TDoublePoint);
   end;
 
