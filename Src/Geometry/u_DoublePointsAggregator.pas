@@ -195,13 +195,13 @@ end;
 
 procedure TDoublePointsAggregator.DeletePoints(const AIndex, ACount: Integer);
 begin
-  Assert((AIndex >= 0) or (AIndex < FCount));
-  if (AIndex < 0) or (AIndex >= FCount) then begin
+  Assert((AIndex >= 0) or (AIndex + ACount < FCount));
+  if (AIndex < 0) or (AIndex + ACount >= FCount) then begin
     Assert(False);
-  end else if AIndex = FCount - 1 then begin
+  end else if AIndex + ACount = FCount - 1 then begin
     Dec(FCount, ACount);
   end else begin
-    Move(FPoints[AIndex], FPoints[AIndex + ACount], (FCount - AIndex - ACount) * SizeOf(TDoublePoint));
+    Move(FPoints[AIndex + ACount], FPoints[AIndex], (FCount - AIndex - ACount) * SizeOf(TDoublePoint));
     Dec(FCount, ACount);
   end;
 end;
