@@ -450,6 +450,7 @@ type
     TBXSeparatorItem15: TTBXSeparatorItem;
     NFavoriteToolbarShow: TTBXVisibilityToggleItem;
     tbxManageFavorite: TTBXItem;
+    TBEditPathSplit: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -679,6 +680,7 @@ type
     procedure TBfillMapAsMainClick(Sender: TObject);
     procedure TBEditPathLabelLastOnlyClick(Sender: TObject);
     procedure TBEditPathLabelShowAzimuthClick(Sender: TObject);
+    procedure TBEditPathSplitClick(Sender: TObject);
     procedure tbitmPointProjectClick(Sender: TObject);
     procedure TBXNextVerClick(Sender: TObject);
     procedure TBXPrevVerClick(Sender: TObject);
@@ -3686,6 +3688,7 @@ begin
   TBEditPathLabelVisible.Visible := (VNewState = ao_calc_line) or (VNewState = ao_edit_line);
   TBEditPathLabelLastOnly.Visible := (VNewState = ao_calc_line) or (VNewState = ao_edit_line);
   TBEditPathLabelShowAzimuth.Visible := (VNewState = ao_calc_line) or (VNewState = ao_edit_line);
+  TBEditPathSplit.Visible := (VNewState = ao_calc_line) or (VNewState = ao_edit_line);
   if (VNewState = ao_calc_line) or (VNewState = ao_edit_line) then begin
     case VNewState of
       ao_calc_line: begin
@@ -3728,6 +3731,10 @@ begin
   if VNewState = ao_select_line then begin
     TBEditSelectPolylineRadius.Value :=
       Round(FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig.Radius);
+  end;
+
+  if Assigned(FLineOnMapEdit) then begin
+    TBEditPathSplit.Checked := FLineOnMapEdit.IsNearSplit;
   end;
 
   case VNewState of
@@ -3816,6 +3823,9 @@ begin
       end;
     end;
     TBEditPath.Visible := VSaveAviable;
+    if Assigned(FLineOnMapEdit) then begin
+      TBEditPathSplit.Checked := FLineOnMapEdit.IsNearSplit;
+    end;
   end;
 end;
 
@@ -6797,6 +6807,13 @@ procedure TfrmMain.TBEditPathDelClick(Sender: TObject);
 begin
   if FLineOnMapEdit <> nil then begin
     FLineOnMapEdit.DeleteActivePoint;
+  end;
+end;
+
+procedure TfrmMain.TBEditPathSplitClick(Sender: TObject);
+begin
+  if FLineOnMapEdit <> nil then begin
+    FLineOnMapEdit.TogleSplit;
   end;
 end;
 
