@@ -245,9 +245,13 @@ begin
       end else begin
         VCurrPoint := FPoints.Points[FSelectedPointIndex];
         if PointIsEmpty(VCurrPoint) then begin
-          FPoints.Insert(FSelectedPointIndex + 1, APoint);
-          FPoints.Insert(FSelectedPointIndex + 2, CEmptyDoublePoint);
-          Inc(FSelectedPointIndex);
+          if FSelectedPointIndex = 0 then begin
+            FPoints.Insert(FSelectedPointIndex, APoint);
+          end else begin
+            FPoints.Insert(FSelectedPointIndex + 1, APoint);
+            FPoints.Insert(FSelectedPointIndex + 2, CEmptyDoublePoint);
+            Inc(FSelectedPointIndex);
+          end;
         end else begin
           FPoints.Insert(FSelectedPointIndex + 1, APoint);
           Inc(FSelectedPointIndex);
@@ -435,10 +439,69 @@ begin
 end;
 
 procedure TLineOnMapEdit.TogleSplit;
+var
+  VPoint: TDoublePoint;
 begin
   CS.BeginWrite;
   try
-
+    if FPoints.Count > 0 then begin
+      if (FSelectedPointIndex >= 0) and (FSelectedPointIndex < FPoints.Count) then begin
+        VPoint := FPoints.Points[FSelectedPointIndex];
+        if PointIsEmpty(VPoint) then begin
+          if (FSelectedPointIndex > 0) and (FSelectedPointIndex < FPoints.Count - 1) and
+            DoublePointsEqual(FPoints.Points[FSelectedPointIndex - 1], FPoints.Points[FSelectedPointIndex + 1])
+          then begin
+            FPoints.DeletePoints(FSelectedPointIndex, 2);
+            Dec(FSelectedPointIndex, 2);
+          end else begin
+            FPoints.Delete(FSelectedPointIndex);
+            Dec(FSelectedPointIndex);
+          end;
+        end else begin
+          if FSelectedPointIndex = FPoints.Count - 1 then begin
+            VPoint := FPoints.Points[FSelectedPointIndex - 1];
+            if PointIsEmpty(VPoint) then begin
+              FPoints.Delete(FSelectedPointIndex - 1);
+              Dec(FSelectedPointIndex);
+            end else begin
+              FPoints.Add(CEmptyDoublePoint);
+              Inc(FSelectedPointIndex);
+            end;
+          end else if FSelectedPointIndex = 0 then begin
+            VPoint := FPoints.Points[FSelectedPointIndex + 1];
+            if PointIsEmpty(VPoint) then begin
+              FPoints.Delete(FSelectedPointIndex + 1);
+            end else begin
+              FPoints.Insert(FSelectedPointIndex, CEmptyDoublePoint);
+            end;
+          end else begin
+            if PointIsEmpty(FPoints.Points[FSelectedPointIndex - 1]) then begin
+              if (FSelectedPointIndex > 1) and
+                DoublePointsEqual(FPoints.Points[FSelectedPointIndex], FPoints.Points[FSelectedPointIndex - 2])
+              then begin
+                FPoints.DeletePoints(FSelectedPointIndex - 1, 2);
+                Dec(FSelectedPointIndex, 2);
+              end else begin
+                FPoints.Delete(FSelectedPointIndex - 1);
+                Dec(FSelectedPointIndex);
+              end;
+            end else if PointIsEmpty(FPoints.Points[FSelectedPointIndex + 1]) then begin
+              if (FSelectedPointIndex < FPoints.Count - 2) and
+                DoublePointsEqual(FPoints.Points[FSelectedPointIndex], FPoints.Points[FSelectedPointIndex + 2])
+              then begin
+                FPoints.DeletePoints(FSelectedPointIndex + 1, 2);
+              end else begin
+                FPoints.Delete(FSelectedPointIndex + 1);
+              end;
+            end else begin
+              FPoints.Insert(FSelectedPointIndex + 1, VPoint);
+              FPoints.Insert(FSelectedPointIndex + 1, CEmptyDoublePoint);
+            end;
+          end;
+        end;
+      end;
+      _UpdateLineObject;
+    end;
   finally
     CS.EndWrite;
   end;
