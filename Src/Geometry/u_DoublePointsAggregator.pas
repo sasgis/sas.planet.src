@@ -198,7 +198,7 @@ begin
   Assert((AIndex >= 0) or (AIndex + ACount < FCount));
   if (AIndex < 0) or (AIndex + ACount >= FCount) then begin
     Assert(False);
-  end else if AIndex + ACount = FCount - 1 then begin
+  end else if AIndex + ACount = FCount then begin
     Dec(FCount, ACount);
   end else begin
     Move(FPoints[AIndex + ACount], FPoints[AIndex], (FCount - AIndex - ACount) * SizeOf(TDoublePoint));
