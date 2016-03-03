@@ -662,6 +662,7 @@ type
     procedure tbitmFitMarkToScreenClick(Sender: TObject);
     procedure tbitmHideThisMarkClick(Sender: TObject);
     procedure tbitmSaveMarkAsNewClick(Sender: TObject);
+    procedure tbitmSaveMarkLineAsSeparateSegmentsClick(Sender: TObject);
     procedure tbitmCopySearchResultDescriptionClick(Sender: TObject);
     procedure tbitmCreatePlaceMarkBySearchResultClick(Sender: TObject);
     procedure tbitmFitEditToScreenClick(Sender: TObject);
@@ -6917,6 +6918,26 @@ begin
     ao_edit_line: begin
       if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathEdit) then begin
         VResult := FMarkDBGUI.SaveMarkModal(FEditMarkLine, VPathEdit.Path.Geometry, True, FMarshrutComment);
+      end;
+    end;
+  end;
+  if VResult then begin
+    FState.State := ao_movemap;
+  end;
+end;
+
+procedure TfrmMain.tbitmSaveMarkLineAsSeparateSegmentsClick(Sender: TObject);
+var
+  VResult: boolean;
+  VPathEdit: IPathOnMapEdit;
+begin
+  VResult := False;
+  case FState.State of
+    ao_edit_line: begin
+      if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathEdit) then begin
+        if Supports(VPathEdit.Path.Geometry, IGeometryLonLatMultiLine) then begin
+          VResult := FMarkDBGUI.SaveMarkUngroupModal(FEditMarkLine, VPathEdit.Path.Geometry, FMarshrutComment);
+        end;
       end;
     end;
   end;
