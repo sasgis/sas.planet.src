@@ -57,7 +57,12 @@ type
 
     function ModifyGeometry(
       const ASource: IVectorDataItem;
-      const AGeometry: IGeometryLonLat;
+      const AGeometry: IGeometryLonLat
+    ): IVectorDataItem;
+
+    function ModifyName(
+      const ASource: IVectorDataItem;
+      const AName: string;
       const ADesc: string = ''
     ): IVectorDataItem;
 

@@ -86,7 +86,12 @@ type
 
     function ModifyGeometry(
       const ASource: IVectorDataItem;
-      const AGeometry: IGeometryLonLat;
+      const AGeometry: IGeometryLonLat
+    ): IVectorDataItem;
+
+    function ModifyName(
+      const ASource: IVectorDataItem;
+      const AName: string;
       const ADesc: string = ''
     ): IVectorDataItem;
 
@@ -216,18 +221,12 @@ end;
 
 function TMarkFactory.ModifyGeometry(
   const ASource: IVectorDataItem;
-  const AGeometry: IGeometryLonLat;
-  const ADesc: string
+  const AGeometry: IGeometryLonLat
 ): IVectorDataItem;
 var
-  VDesc: string;
   VCategory: ICategory;
   VMarkWithCategory: IVectorDataItemWithCategory;
 begin
-  VDesc := ADesc;
-  if ADesc = '' then begin
-    VDesc := ASource.Desc;
-  end;
   VCategory := nil;
   if Supports(ASource.MainInfo, IVectorDataItemWithCategory, VMarkWithCategory) then begin
     VCategory := VMarkWithCategory.Category;
@@ -237,6 +236,38 @@ begin
       AGeometry,
       ASource.Name,
       ASource.Desc,
+      VCategory,
+      ASource.Appearance
+    );
+end;
+
+function TMarkFactory.ModifyName(
+  const ASource: IVectorDataItem;
+  const AName, ADesc: string
+): IVectorDataItem;
+var
+  VDesc: string;
+  VName: string;
+  VCategory: ICategory;
+  VMarkWithCategory: IVectorDataItemWithCategory;
+begin
+  VDesc := ADesc;
+  if ADesc = '' then begin
+    VDesc := ASource.Desc;
+  end;
+  VName := AName;
+  if AName = '' then begin
+    VName := ASource.Name;
+  end;
+  VCategory := nil;
+  if Supports(ASource.MainInfo, IVectorDataItemWithCategory, VMarkWithCategory) then begin
+    VCategory := VMarkWithCategory.Category;
+  end;
+  Result :=
+    CreateMark(
+      ASource.Geometry,
+      VName,
+      VDesc,
       VCategory,
       ASource.Appearance
     );

@@ -139,6 +139,12 @@ type
       const ADescription: string = '';
       const ATemplate: IMarkTemplate = nil
     ): Boolean;
+    function SaveMarkUngroupModal(
+      const AMark: IVectorDataItem;
+      const AGeometry: IGeometryLonLat;
+      const ADescription: string = '';
+      const ATemplate: IMarkTemplate = nil
+    ): Boolean;
     function UpdateMark(
       const AMark: IVectorDataItem;
       const AGeometry: IGeometryLonLat
@@ -911,7 +917,10 @@ begin
     end else begin
       VSourceMark := AMark;
     end;
-    VMark := FMarkSystem.MarkDb.Factory.ModifyGeometry(AMark, AGeometry, ADescription);
+    if ADescription <> '' then begin
+      VMark := FMarkSystem.MarkDb.Factory.ModifyName(AMark, '', ADescription);
+    end;
+    VMark := FMarkSystem.MarkDb.Factory.ModifyGeometry(VMark, AGeometry);
   end else begin
     VVisible := True;
     VDescription := ADescription;
@@ -929,6 +938,73 @@ begin
       if VResult <> nil then begin
         FMarkSystem.MarkDb.SetMarkVisible(VResult, VVisible);
         Result := True;
+      end;
+    end;
+  end;
+end;
+
+function TMarkDbGUIHelper.SaveMarkUngroupModal(
+  const AMark: IVectorDataItem;
+  const AGeometry: IGeometryLonLat;
+  const ADescription: string;
+  const ATemplate: IMarkTemplate
+): Boolean;
+var
+  VMark: IVectorDataItem;
+  VVisible: Boolean;
+  VResult: IVectorDataItem;
+  VDescription: string;
+  VGeometryMultiLine: IGeometryLonLatMultiLine;
+  VGeometryMultiPolygon: IGeometryLonLatMultiPolygon;
+  i: Integer;
+  VSingleMark: IVectorDataItem;
+begin
+  Result := False;
+  if Supports(AGeometry, IGeometryLonLatMultiLine) or
+    Supports(AGeometry, IGeometryLonLatMultiPolygon)
+  then begin
+    if AMark <> nil then begin
+      VVisible := FMarkSystem.MarkDb.GetMarkVisible(AMark);
+      VMark := FMarkSystem.MarkDb.Factory.ModifyGeometry(AMark, AGeometry);
+      if ADescription <> '' then begin
+        VMark := FMarkSystem.MarkDb.Factory.ModifyName(VMark, '', ADescription);
+      end;
+    end else begin
+      VVisible := True;
+      VDescription := ADescription;
+      if VDescription = '' then begin
+        if FMarksGUIConfig.IsAddTimeToDescription then begin
+          VDescription := DateTimeToStr(Now);
+        end;
+      end;
+      VMark := FMarkSystem.MarkDb.Factory.CreateNewMark(AGeometry, '', VDescription, ATemplate);
+    end;
+    if VMark <> nil then begin
+      VMark := EditMarkModal(VMark, True, VVisible);
+      if VMark <> nil then begin
+        if Supports(AGeometry, IGeometryLonLatMultiLine, VGeometryMultiLine) then begin
+          for i := 0 to VGeometryMultiLine.Count - 1 do begin
+            VSingleMark := VMark;
+            VSingleMark := FMarkSystem.MarkDb.Factory.ModifyGeometry(VSingleMark, VGeometryMultiLine.Item[i]);
+            VSingleMark :=  FMarkSystem.MarkDb.Factory.ModifyName(VSingleMark, VMark.Name + '_#' + IntToStr(i+1));
+            VResult := FMarkSystem.MarkDb.UpdateMark(nil, VSingleMark);
+            if VResult <> nil then begin
+              FMarkSystem.MarkDb.SetMarkVisible(VResult, VVisible);
+              Result := True;
+            end;
+          end;
+        end else if Supports(AGeometry, IGeometryLonLatMultiPolygon, VGeometryMultiPolygon) then begin
+          for i := 0 to VGeometryMultiPolygon.Count - 1 do begin
+            VSingleMark := VMark;
+            VSingleMark := FMarkSystem.MarkDb.Factory.ModifyGeometry(VSingleMark, VGeometryMultiPolygon.Item[i]);
+            VSingleMark :=  FMarkSystem.MarkDb.Factory.ModifyName(VSingleMark, VMark.Name + '_#' + IntToStr(i+1));
+            VResult := FMarkSystem.MarkDb.UpdateMark(nil, VSingleMark);
+            if VResult <> nil then begin
+              FMarkSystem.MarkDb.SetMarkVisible(VResult, VVisible);
+              Result := True;
+            end;
+          end;
+        end;
       end;
     end;
   end;
