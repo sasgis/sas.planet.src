@@ -1758,6 +1758,12 @@ object frmMain: TfrmMain
           Caption = 'Save as...'
           Hint = 'Save as...'
         end
+        object tbxtmSaveMarkAsSeparateSegment: TTBXItem
+          ImageIndex = 25
+          OnClick = tbitmSaveMarkLineAsSeparateSegmentsClick
+          Caption = 'Save as separate...'
+          Hint = 'Save as separate...'
+        end
       end
       object TBEditSelectPolylineRadius: TSpinEdit
         Left = 0

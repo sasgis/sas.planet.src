@@ -451,6 +451,7 @@ type
     NFavoriteToolbarShow: TTBXVisibilityToggleItem;
     tbxManageFavorite: TTBXItem;
     TBEditPathSplit: TTBXItem;
+    tbxtmSaveMarkAsSeparateSegment: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -3648,6 +3649,7 @@ procedure TfrmMain.OnStateChange;
 var
   VNewState: TStateEnum;
   VConfig: IPointCaptionsLayerConfig;
+  VIsMarkEdit: Boolean;
 begin
   VNewState := FState.State;
   if VNewState <> ao_select_rect then begin
@@ -3669,18 +3671,22 @@ begin
     (VNewState = ao_edit_line) or
     (VNewState = ao_edit_poly);
 
-  tbitmSaveMark.DropdownCombo :=
+  VIsMarkEdit :=
+    ((VNewState = ao_edit_point) and (FEditMarkPoint <> nil)) or
     ((VNewState = ao_edit_line) and (FEditMarkLine <> nil)) or
     ((VNewState = ao_edit_poly) and (FEditMarkPoly <> nil));
 
-  if tbitmSaveMark.DropdownCombo then begin
+  if VIsMarkEdit then begin
     tbitmSaveMark.Hint := _('Save (Enter)');
     tbitmSaveMark.OnClick := Self.TBEditPathSaveClick;
   end else begin
     tbitmSaveMark.Hint := _('Save as... (Enter)');
     tbitmSaveMark.OnClick := Self.tbitmSaveMarkAsNewClick;
   end;
-  tbitmSaveMarkAsNew.Visible := tbitmSaveMark.DropdownCombo;
+  tbitmSaveMarkAsNew.Visible := VIsMarkEdit;
+  tbxtmSaveMarkAsSeparateSegment.Enabled :=
+    ((VNewState = ao_edit_line) and (FEditMarkLine <> nil) and Supports(FEditMarkLine.Geometry, IGeometryLonLatMultiLine)) or
+    ((VNewState = ao_edit_poly) and (FEditMarkPoly <> nil) and Supports(FEditMarkPoly.Geometry, IGeometryLonLatMultiPolygon));
 
   TBEditPathOk.Visible :=
     (VNewState = ao_select_poly) or
@@ -3808,6 +3814,7 @@ var
   VSaveAviable: Boolean;
   VPath: IGeometryLonLatLine;
   VPoly: IGeometryLonLatPolygon;
+  VIsMultiItem: Boolean;
 begin
   VLineOnMapEdit := FLineOnMapEdit;
   if VLineOnMapEdit <> nil then begin
@@ -3816,14 +3823,17 @@ begin
       if Assigned(VPathOnMapEdit.Path) then begin
         VPath := VPathOnMapEdit.Path.Geometry;
         VSaveAviable := IsValidLonLatLine(VPath);
+        VIsMultiItem := Supports(VPath, IGeometryLonLatMultiLine);
       end;
     end else if Supports(VLineOnMapEdit, IPolygonOnMapEdit, VPolygonOnMapEdit) then begin
       if Assigned(VPolygonOnMapEdit.Polygon) then begin
         VPoly := VPolygonOnMapEdit.Polygon.Geometry;
         VSaveAviable := IsValidLonLatPolygon(VPoly);
+        VIsMultiItem := Supports(VPoly, IGeometryLonLatMultiPolygon);
       end;
     end;
     TBEditPath.Visible := VSaveAviable;
+    tbxtmSaveMarkAsSeparateSegment.Enabled := VIsMultiItem;
     if Assigned(FLineOnMapEdit) then begin
       TBEditPathSplit.Checked := FLineOnMapEdit.IsNearSplit;
     end;
@@ -6930,13 +6940,21 @@ procedure TfrmMain.tbitmSaveMarkLineAsSeparateSegmentsClick(Sender: TObject);
 var
   VResult: boolean;
   VPathEdit: IPathOnMapEdit;
+  VPolygonEdit: IPolygonOnMapEdit;
 begin
   VResult := False;
   case FState.State of
     ao_edit_line: begin
       if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathEdit) then begin
         if Supports(VPathEdit.Path.Geometry, IGeometryLonLatMultiLine) then begin
-          VResult := FMarkDBGUI.SaveMarkUngroupModal(FEditMarkLine, VPathEdit.Path.Geometry, FMarshrutComment);
+          VResult := FMarkDBGUI.SaveMarkUngroupModal(FEditMarkLine, VPathEdit.Path.Geometry);
+        end;
+      end;
+    end;
+    ao_edit_poly: begin
+      if Supports(FLineOnMapEdit, IPolygonOnMapEdit, VPolygonEdit) then begin
+        if Supports(VPolygonEdit.Polygon.Geometry, IGeometryLonLatMultiPolygon) then begin
+          VResult := FMarkDBGUI.SaveMarkUngroupModal(FEditMarkPoly, VPolygonEdit.Polygon.Geometry);
         end;
       end;
     end;
