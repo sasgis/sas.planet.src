@@ -748,7 +748,6 @@
     <DCCReference Include="Src\MapVersion\i_MapVersionFactory.pas" />
     <DCCReference Include="Src\MapVersion\i_MapVersionFactoryList.pas" />
     <DCCReference Include="Src\MapVersion\i_MapVersionInfo.pas" />
-    <DCCReference Include="Src\MapVersion\i_MapVersionInfoGE.pas" />
     <DCCReference Include="Src\MapVersion\i_MapVersionListStatic.pas" />
     <DCCReference Include="Src\MapVersion\i_MapVersionRequest.pas" />
     <DCCReference Include="Src\MapVersion\i_MapVersionRequestChangeable.pas" />
@@ -756,7 +755,6 @@
     <DCCReference Include="Src\MapVersion\u_MapVersionChangeable.pas" />
     <DCCReference Include="Src\MapVersion\u_MapVersionConfig.pas" />
     <DCCReference Include="Src\MapVersion\u_MapVersionFactoryChangeable.pas" />
-    <DCCReference Include="Src\MapVersion\u_MapVersionFactoryGE.pas" />
     <DCCReference Include="Src\MapVersion\u_MapVersionFactoryList.pas" />
     <DCCReference Include="Src\MapVersion\u_MapVersionFactorySimpleString.pas" />
     <DCCReference Include="Src\MapVersion\u_MapVersionInfo.pas" />
@@ -1337,11 +1335,6 @@
     <DCCReference Include="Src\Terrain\c_TerrainProviderGUID.pas" />
     <DCCReference Include="Src\Terrain\External\u_ExternalTerrainAPI.pas" />
     <DCCReference Include="Src\Terrain\External\u_ExternalTerrainsProvider.pas" />
-    <DCCReference Include="Src\Terrain\GoogleEarth\deprecated\i_GoogleEarthTerrain.pas" />
-    <DCCReference Include="Src\Terrain\GoogleEarth\deprecated\i_TerrainStorage.pas" />
-    <DCCReference Include="Src\Terrain\GoogleEarth\deprecated\u_GoogleEarthLibrary.pas" />
-    <DCCReference Include="Src\Terrain\GoogleEarth\deprecated\u_TerrainProviderByGE.pas" />
-    <DCCReference Include="Src\Terrain\GoogleEarth\deprecated\u_TerrainProviderByGEMemCache.pas" />
     <DCCReference Include="Src\Terrain\GoogleEarth\i_GoogleEarthTerrainTileStorage.pas" />
     <DCCReference Include="Src\Terrain\GoogleEarth\u_GoogleEarthTerrainMemCache.pas" />
     <DCCReference Include="Src\Terrain\GoogleEarth\u_GoogleEarthTerrainTileStorage.pas" />
@@ -1444,10 +1437,6 @@
     <DCCReference Include="Src\TileStorage\DBMS\ExtTileStorages\u_ETS_Tiles.pas" />
     <DCCReference Include="Src\TileStorage\DBMS\u_TileStorageDBMS.pas" />
     <DCCReference Include="Src\TileStorage\DBMS\u_TileStorageTypeDBMS.pas" />
-    <DCCReference Include="Src\TileStorage\DLL\t_DLLCache.pas" />
-    <DCCReference Include="Src\TileStorage\DLL\u_TileStorageGE.pas" />
-    <DCCReference Include="Src\TileStorage\DLL\u_TileStorageGETerrain.pas" />
-    <DCCReference Include="Src\TileStorage\DLL\u_TileStorageTypeGC.pas" />
     <DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameBase.pas" />
     <DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameES.pas" />
     <DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameGM1.pas" />
