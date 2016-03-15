@@ -78,7 +78,6 @@ uses
   u_ConfigDataProviderByIniFile,
   u_ConfigProviderHelpers,
   u_TerrainProviderListElement,
-  u_TerrainProviderByGE,
   u_TerrainProviderByGoogleEarth,
   u_ExternalTerrainsProvider,
   u_Notifier,
@@ -106,7 +105,7 @@ begin
     TTerrainProviderListElement.Create(
       cTerrainProviderGoogleEarthGUID,
       'GoogleEarth',
-      TTerrainProviderByGoogleEarth.Create(AProjectionSetFactory, AGECachePath)
+      TTerrainProviderByGoogleEarth.Create(False, AProjectionSetFactory, AGECachePath)
     );
   Add(VItem);
 
@@ -114,7 +113,7 @@ begin
     TTerrainProviderListElement.Create(
       cTerrainProviderGeoCacherGUID,
       'GeoCacher',
-      TTerrainProviderByGeoCacher.Create(AProjectionSetFactory, AGCCachePath)
+      TTerrainProviderByGoogleEarth.Create(True, AProjectionSetFactory, AGCCachePath)
     );
   Add(VItem);
 

@@ -144,6 +144,11 @@ type
     function CreateMoonTerrainProvider(const APath: PAnsiChar; out AErrMsg: WideString): IGoogleEarthCacheProvider; safecall;
   end;
 
+  IGeoCacherCacheProviderFactory = interface(IGoogleEarthCacheProviderFactory)
+    ['{3A06A553-C2CD-4797-8FF5-922901B77067}']
+  end;
+
+function CreateGeoCacherCacheProviderFactory: IGoogleEarthCacheProviderFactory;
 function CreateGoogleEarthCacheProviderFactory: IGoogleEarthCacheProviderFactory;
 function CreateGoogleEarthImageTileProviderFactory: IGoogleEarthImageTileProviderFactory;
 function CreateGoogleEarthTerrainTileProviderFactory: IGoogleEarthTerrainTileProviderFactory;
@@ -193,6 +198,17 @@ begin
     end;
   finally
     libge_Lock.Release;
+  end;
+end;
+
+function CreateGeoCacherCacheProviderFactory: IGoogleEarthCacheProviderFactory;
+var
+  VResult: IInterface;
+begin
+  Result := nil;
+  if libge_LoadLibrary then begin
+    VResult := libge_CreateObject(IGeoCacherCacheProviderFactory);
+    Supports(VResult, IGoogleEarthCacheProviderFactory, Result);
   end;
 end;
 

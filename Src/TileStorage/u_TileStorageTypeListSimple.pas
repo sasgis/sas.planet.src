@@ -80,7 +80,6 @@ uses
   u_TileFileNameTMS,
   u_TileStorageTypeArchiveTar,
   u_TileStorageTypeConfig,
-  u_TileStorageTypeGC,
   u_TileStorageTypeGoogleEarth,
   u_TileStorageTypeBerkeleyDB,
   u_TileStorageTypeDBMS,
@@ -291,24 +290,6 @@ begin
     VList
   );
 
-  VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.GCCachePath);
-  VStorageType :=
-    TTileStorageTypeGC.Create(
-      AContentTypeManager,
-      AMapVersionFactoryList.GetGEVersionFactory,
-      VStorageTypeConfig
-    );
-  VItem :=
-    TTileStorageTypeListItem.Create(
-      CTileStorageTypeGC,
-      c_File_Cache_Id_GC,
-      rsGeoCacherCacheName,
-      VStorageType,
-      False,
-      False
-    );
-  VList.Add(VItem);
-
   VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.BDBCachePath);
   VStorageType :=
     TTileStorageTypeBerkeleyDB.Create(
@@ -351,11 +332,31 @@ begin
     );
   VList.Add(VItem);
 
+  VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.GCCachePath);
+  VStorageType :=
+    TTileStorageTypeGoogleEarth.Create(
+      AMapVersionFactoryList.GetSimpleVersionFactory,
+      False, // IsTerrain
+      True, // IsGeoCacher
+      VStorageTypeConfig
+    );
+  VItem :=
+    TTileStorageTypeListItem.Create(
+      CTileStorageTypeGC,
+      c_File_Cache_Id_GC,
+      rsGeoCacherCacheName,
+      VStorageType,
+      False,
+      False
+    );
+  VList.Add(VItem);
+
   VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.GECachePath);
   VStorageType :=
     TTileStorageTypeGoogleEarth.Create(
       AMapVersionFactoryList.GetSimpleVersionFactory,
-      False,
+      False, // IsTerrain
+      False, // IsGeoCacher
       VStorageTypeConfig
     );
   VItem :=
@@ -373,7 +374,8 @@ begin
   VStorageType :=
     TTileStorageTypeGoogleEarth.Create(
       AMapVersionFactoryList.GetSimpleVersionFactory,
-      True,
+      True, // IsTerrain
+      False, // IsGeoCacher
       VStorageTypeConfig
     );
   VItem :=

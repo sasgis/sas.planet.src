@@ -38,6 +38,7 @@ type
   TTileStorageTypeGoogleEarth = class(TTileStorageTypeBase)
   private
     FIsTerrainStorage: Boolean;
+    FIsGeoCacherStorage: Boolean;
   protected
     function BuildStorageInternal(
       const AStorageConfigData: IConfigDataProvider;
@@ -52,6 +53,7 @@ type
     constructor Create(
       const AMapVersionFactory: IMapVersionFactory;
       const AIsTerrainStorage: Boolean;
+      const AIsGeoCacherStorage: Boolean;
       const AConfig: ITileStorageTypeConfig
     );
   end;
@@ -70,6 +72,7 @@ uses
 constructor TTileStorageTypeGoogleEarth.Create(
   const AMapVersionFactory: IMapVersionFactory;
   const AIsTerrainStorage: Boolean;
+  const AIsGeoCacherStorage: Boolean;
   const AConfig: ITileStorageTypeConfig
 );
 var
@@ -89,6 +92,7 @@ begin
     AConfig
   );
   FIsTerrainStorage := AIsTerrainStorage;
+  FIsGeoCacherStorage := AIsGeoCacherStorage;
 end;
 
 function TTileStorageTypeGoogleEarth.BuildStorageInternal(
@@ -130,6 +134,7 @@ begin
         GetConfig.BasePath.FullPath,
         VNameInCache,
         FIsTerrainStorage,
+        FIsGeoCacherStorage,
         ACacheTileInfo,
         GetMapVersionFactory,
         AMainContentType

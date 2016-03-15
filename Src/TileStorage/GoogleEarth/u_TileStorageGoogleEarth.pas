@@ -47,6 +47,7 @@ type
     FCachePath: string;
     FDatabaseName: string;
     FIsTerrainStorage: Boolean;
+    FIsGeoCacherStorage: Boolean;
     FMainContentType: IContentTypeInfoBasic;
     FTileNotExistsTileInfo: ITileInfoBasic;
     FTileInfoMemCache: ITileInfoBasicMemCache;
@@ -132,6 +133,7 @@ type
       const AStoragePath: string;
       const ANameInCache: string;
       const AIsTerrainStorage: Boolean;
+      const AIsGeoCacherStorage: Boolean;
       const ATileInfoMemCache: ITileInfoBasicMemCache;
       const AMapVersionFactory: IMapVersionFactory;
       const AMainContentType: IContentTypeInfoBasic
@@ -165,6 +167,7 @@ constructor TTileStorageGoogleEarth.Create(
   const AStoragePath: string;
   const ANameInCache: string;
   const AIsTerrainStorage: Boolean;
+  const AIsGeoCacherStorage: Boolean;
   const ATileInfoMemCache: ITileInfoBasicMemCache;
   const AMapVersionFactory: IMapVersionFactory;
   const AMainContentType: IContentTypeInfoBasic
@@ -182,6 +185,7 @@ begin
   FCachePath := AStoragePath;
   FDatabaseName := ANameInCache;
   FIsTerrainStorage := AIsTerrainStorage;
+  FIsGeoCacherStorage := AIsGeoCacherStorage;
 
   FMainContentType := AMainContentType;
   FTileInfoMemCache := ATileInfoMemCache;
@@ -227,8 +231,13 @@ begin
         FCacheProvider := nil;
         FCacheTmProvider := nil;
 
-        VCachePath := PAnsiChar(AnsiString(FCachePath));  // TODO: Fix for unicode path
-        VCacheFactory := libge.CreateGoogleEarthCacheProviderFactory;
+        if FIsGeoCacherStorage then begin
+          VCachePath := PAnsiChar(AnsiToUtf8(FCachePath));
+          VCacheFactory := libge.CreateGeoCacherCacheProviderFactory;
+        end else begin
+          VCachePath := PAnsiChar(AnsiString(FCachePath));  // TODO: Fix for unicode path
+          VCacheFactory := libge.CreateGoogleEarthCacheProviderFactory;
+        end;
 
         if VCacheFactory <> nil then begin
           if (FDatabaseName = '') or SameText(FDatabaseName, 'earth') then begin

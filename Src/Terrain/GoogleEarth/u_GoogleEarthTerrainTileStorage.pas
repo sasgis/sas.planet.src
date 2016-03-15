@@ -35,7 +35,8 @@ type
   TGoogleEarthTerrainTileStorage = class(TBaseInterfacedObject, IGoogleEarthTerrainTileStorage)
   private
     FAvailable: Boolean;
-    FCachePath: AnsiString;
+    FCachePath: string;
+    FIsGeoCacherStorage: Boolean;
     FCacheProvider: IGoogleEarthCacheProvider;
     FSync: IReadWriteSync;
     FNotifier: INotifier;
@@ -54,6 +55,7 @@ type
     function GetNotifier: INotifier;
   public
     constructor Create(
+      const AIsGeoCacherStorage: Boolean;
       const AStoragePath: string
     );
     destructor Destroy; override;
@@ -68,6 +70,7 @@ uses
 { TGoogleEarthTerrainTileStorage }
 
 constructor TGoogleEarthTerrainTileStorage.Create(
+  const AIsGeoCacherStorage: Boolean;
   const AStoragePath: string
 );
 begin
@@ -82,6 +85,7 @@ begin
 
   FMemCache := TGoogleEarthTerrainMemCache.Create;
 
+  FIsGeoCacherStorage := AIsGeoCacherStorage;
   FCachePath := AStoragePath;  // TODO: Fix for unicode path
   FCacheProvider := nil;
   FAvailable := True;
@@ -99,6 +103,7 @@ end;
 
 function TGoogleEarthTerrainTileStorage.BuildCacheProvider: Boolean;
 var
+  VCachePath: PAnsiChar;
   VOpenErrorMsg: WideString;
   VCacheFactory: IGoogleEarthCacheProviderFactory;
 begin
@@ -106,9 +111,15 @@ begin
   try
     VOpenErrorMsg := '';
     if FAvailable and (FCacheProvider = nil) then begin
-      VCacheFactory := libge.CreateGoogleEarthCacheProviderFactory;
+      if FIsGeoCacherStorage then begin
+        VCachePath := PAnsiChar(AnsiToUtf8(FCachePath));
+        VCacheFactory := libge.CreateGeoCacherCacheProviderFactory;
+      end else begin
+        VCachePath := PAnsiChar(AnsiString(FCachePath));
+        VCacheFactory := libge.CreateGoogleEarthCacheProviderFactory;
+      end;
       if VCacheFactory <> nil then begin
-        FCacheProvider := VCacheFactory.CreateEarthTerrainProvider(PAnsiChar(FCachePath), VOpenErrorMsg);
+        FCacheProvider := VCacheFactory.CreateEarthTerrainProvider(VCachePath, VOpenErrorMsg);
       end;
     end;
     FAvailable := (VOpenErrorMsg = '') and (FCacheProvider <> nil);

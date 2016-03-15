@@ -343,9 +343,9 @@
 			<DCCReference Include="Src\ContentType\u_ContentTypeManagerSimple.pas"/>
 			<DCCReference Include="Src\ContentType\u_ContentTypeSubstByList.pas"/>
 			<DCCReference Include="Src\CoordConvert\c_CoordConverter.pas"/>
-			<DCCReference Include="Src\CoordConvert\i_CoordConverterSimple.pas"/>
 			<DCCReference Include="Src\CoordConvert\i_ConvertProjectionToProjection.pas"/>
 			<DCCReference Include="Src\CoordConvert\i_ConvertProjectionToProjectionFactory.pas"/>
+			<DCCReference Include="Src\CoordConvert\i_CoordConverterSimple.pas"/>
 			<DCCReference Include="Src\CoordConvert\i_Datum.pas"/>
 			<DCCReference Include="Src\CoordConvert\i_DatumFactory.pas"/>
 			<DCCReference Include="Src\CoordConvert\i_LocalCoordConverter.pas"/>
@@ -1234,6 +1234,13 @@
 			</DCCReference>
 			<DCCReference Include="Src\RegionProcess\Export\OruxMaps\u_ExportProviderOruxMapsSQLite.pas"/>
 			<DCCReference Include="Src\RegionProcess\Export\OruxMaps\u_ThreadExportToOruxMapsSQLite.pas"/>
+			<DCCReference Include="Src\RegionProcess\Export\RMP\fr_ExportRMP.pas">
+				<Form>frExportRMP</Form>
+				<DesignClass>TFrame</DesignClass>
+			</DCCReference>
+			<DCCReference Include="Src\RegionProcess\Export\RMP\u_ExportProviderRMP.pas"/>
+			<DCCReference Include="Src\RegionProcess\Export\RMP\u_RMPWriter.pas"/>
+			<DCCReference Include="Src\RegionProcess\Export\RMP\u_ThreadExportToRMP.pas"/>
 			<DCCReference Include="Src\RegionProcess\Export\RMaps\fr_ExportRMapsSQLite.pas">
 				<Form>frExportRMapsSQLite</Form>
 				<DesignClass>TFrame</DesignClass>
@@ -1396,11 +1403,6 @@
 			<DCCReference Include="Src\System\u_TimeZoneInfo.pas"/>
 			<DCCReference Include="Src\Terrain\External\u_ExternalTerrainAPI.pas"/>
 			<DCCReference Include="Src\Terrain\External\u_ExternalTerrainsProvider.pas"/>
-			<DCCReference Include="Src\Terrain\GoogleEarth\deprecated\i_GoogleEarthTerrain.pas"/>
-			<DCCReference Include="Src\Terrain\GoogleEarth\deprecated\i_TerrainStorage.pas"/>
-			<DCCReference Include="Src\Terrain\GoogleEarth\deprecated\u_GoogleEarthLibrary.pas"/>
-			<DCCReference Include="Src\Terrain\GoogleEarth\deprecated\u_TerrainProviderByGE.pas"/>
-			<DCCReference Include="Src\Terrain\GoogleEarth\deprecated\u_TerrainProviderByGEMemCache.pas"/>
 			<DCCReference Include="Src\Terrain\GoogleEarth\i_GoogleEarthTerrainTileStorage.pas"/>
 			<DCCReference Include="Src\Terrain\GoogleEarth\u_GoogleEarthTerrainMemCache.pas"/>
 			<DCCReference Include="Src\Terrain\GoogleEarth\u_GoogleEarthTerrainTileStorage.pas"/>
@@ -1504,10 +1506,6 @@
 			<DCCReference Include="Src\TileStorage\DBMS\ExtTileStorages\u_ETS_Tiles.pas"/>
 			<DCCReference Include="Src\TileStorage\DBMS\u_TileStorageDBMS.pas"/>
 			<DCCReference Include="Src\TileStorage\DBMS\u_TileStorageTypeDBMS.pas"/>
-			<DCCReference Include="Src\TileStorage\DLL\t_DLLCache.pas"/>
-			<DCCReference Include="Src\TileStorage\DLL\u_TileStorageGE.pas"/>
-			<DCCReference Include="Src\TileStorage\DLL\u_TileStorageGETerrain.pas"/>
-			<DCCReference Include="Src\TileStorage\DLL\u_TileStorageTypeGC.pas"/>
 			<DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameBase.pas"/>
 			<DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameES.pas"/>
 			<DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameGM1.pas"/>
@@ -1728,13 +1726,6 @@
 			<DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
 			<DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
 			<DCCReference Include="Src\u_WindowPositionConfig.pas"/>
-			<DCCReference Include="Src\RegionProcess\Export\RMP\fr_ExportRMP.pas">
-				<Form>frExportRMP</Form>
-				<DesignClass>TFrame</DesignClass>
-			</DCCReference>
-			<DCCReference Include="Src\RegionProcess\Export\RMP\u_ExportProviderRMP.pas"/>
-			<DCCReference Include="Src\RegionProcess\Export\RMP\u_RMPWriter.pas"/>
-			<DCCReference Include="Src\RegionProcess\Export\RMP\u_ThreadExportToRMP.pas"/>
 			<BuildConfiguration Include="Debug">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>

@@ -56,6 +56,7 @@ type
     function GetStateChangeNotifier: INotifier;
   public
     constructor Create(
+      const AIsGeoCacherStorage: Boolean;
       const AProjectionSetFactory: IProjectionSetFactory;
       const APathConfig: IPathConfig
     );
@@ -78,6 +79,7 @@ uses
 { TTerrainProviderByGoogleEarth }
 
 constructor TTerrainProviderByGoogleEarth.Create(
+  const AIsGeoCacherStorage: Boolean;
   const AProjectionSetFactory: IProjectionSetFactory;
   const APathConfig: IPathConfig
 );
@@ -85,7 +87,11 @@ begin
   inherited Create;
   FPathConfig := APathConfig;
 
-  FStorage := TGoogleEarthTerrainTileStorage.Create(FPathConfig.FullPath);
+  FStorage :=
+    TGoogleEarthTerrainTileStorage.Create(
+      AIsGeoCacherStorage,
+      FPathConfig.FullPath
+    );
 
   FProjectionSet :=
     AProjectionSetFactory.GetProjectionSetByCode(
