@@ -917,8 +917,9 @@ begin
     end else begin
       VSourceMark := AMark;
     end;
+    VMark := AMark;
     if ADescription <> '' then begin
-      VMark := FMarkSystem.MarkDb.Factory.ModifyName(AMark, '', ADescription);
+      VMark := FMarkSystem.MarkDb.Factory.ModifyName(VMark, '', ADescription);
     end;
     VMark := FMarkSystem.MarkDb.Factory.ModifyGeometry(VMark, AGeometry);
   end else begin
