@@ -235,7 +235,7 @@ begin
           VCachePath := PAnsiChar(AnsiToUtf8(FCachePath));
           VCacheFactory := libge.CreateGeoCacherCacheProviderFactory;
         end else begin
-          VCachePath := PAnsiChar(AnsiString(FCachePath));  // TODO: Fix for unicode path
+          VCachePath := PAnsiChar(AnsiString(FCachePath)); // TODO: Fix for unicode path
           VCacheFactory := libge.CreateGoogleEarthCacheProviderFactory;
         end;
 

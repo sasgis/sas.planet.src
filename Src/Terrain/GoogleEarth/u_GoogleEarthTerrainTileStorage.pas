@@ -86,7 +86,7 @@ begin
   FMemCache := TGoogleEarthTerrainMemCache.Create;
 
   FIsGeoCacherStorage := AIsGeoCacherStorage;
-  FCachePath := AStoragePath;  // TODO: Fix for unicode path
+  FCachePath := AStoragePath;
   FCacheProvider := nil;
   FAvailable := True;
 end;
@@ -115,7 +115,7 @@ begin
         VCachePath := PAnsiChar(AnsiToUtf8(FCachePath));
         VCacheFactory := libge.CreateGeoCacherCacheProviderFactory;
       end else begin
-        VCachePath := PAnsiChar(AnsiString(FCachePath));
+        VCachePath := PAnsiChar(AnsiString(FCachePath)); // TODO: Fix for unicode path
         VCacheFactory := libge.CreateGoogleEarthCacheProviderFactory;
       end;
       if VCacheFactory <> nil then begin
@@ -195,7 +195,7 @@ begin
   FSync.BeginWrite;
   try
     FMemCache.Clear;
-    FCachePath := APath; // TODO: Fix for unicode path
+    FCachePath := APath;
     FCacheProvider := nil;
     FAvailable := True;
     Result := True;
