@@ -392,7 +392,7 @@ begin
 
   ParseVersionInfo(
     AVersionInfo,
-    False,
+    AShowPrevVersion,
     VInTileVersion,
     VInTileDate,
     VSearchAnyVersion,
