@@ -65,6 +65,7 @@ type
 implementation
 
 uses
+  gnugettext,
   u_TileDownloaderStateStatic;
 
 { TTileDownloaderStateInternal }
@@ -134,7 +135,7 @@ begin
     if FEnabled then begin
       Result := '';
     end else begin
-      Result := FReason;
+      Result := gettext_NoExtract(FReason);
     end;
   finally
     CS.EndRead;

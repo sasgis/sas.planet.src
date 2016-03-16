@@ -43,6 +43,9 @@ type
 
 implementation
 
+uses
+  gnugettext;
+
 { TTileDownloaderStateStatic }
 
 constructor TTileDownloaderStateStatic.Create(
@@ -57,7 +60,7 @@ end;
 
 function TTileDownloaderStateStatic.GetDisableReason: string;
 begin
-  Result := FReason;
+  Result := gettext_NoExtract(FReason);
 end;
 
 function TTileDownloaderStateStatic.GetEnabled: Boolean;

@@ -231,7 +231,7 @@ begin
     Exit;
   end;
   if FStorage.State.GetStatic.WriteAccess = asDisabled then begin
-    FStateInternal.Disable('No write access to tile storage');
+    FStateInternal.Disable(gettext_NoOp('No write access to tile storage'));
   end else begin
     FStateInternal.Enable;
   end;

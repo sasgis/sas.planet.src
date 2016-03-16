@@ -84,11 +84,11 @@ begin
   VStatic := ITileDownloaderStateStatic(GetStaticInternal);
   if not FZmpDownloadEnabled then begin
     if VStatic = nil then begin
-      VStatic := TTileDownloaderStateStatic.Create(False, _('Disabled by Zmp'));
+      VStatic := TTileDownloaderStateStatic.Create(False, gettext_NoOp('Disabled by Zmp'));
     end;
   end else begin
     if not FMapAbilitiesConfig.UseDownload then begin
-      VStatic := TTileDownloaderStateStatic.Create(False, _('Disabled by map params'));
+      VStatic := TTileDownloaderStateStatic.Create(False, gettext_NoOp('Disabled by map params'));
     end else begin
       VState := FRequestBuilderState.GetStatic;
       if not VState.Enabled then begin

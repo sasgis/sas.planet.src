@@ -74,6 +74,7 @@ type
 implementation
 
 uses
+  gnugettext,
   t_PascalScript,
   u_Synchronizer,
   u_CoordConverterSimpleByProjectionSet,
@@ -112,7 +113,7 @@ begin
   FState := VState;
 
   if FScriptText = '' then begin
-    FStateInternal.Disable('Empty script');
+    FStateInternal.Disable(gettext_NoOp('Empty script'));
   end;
 
   FCompiledData := '';
