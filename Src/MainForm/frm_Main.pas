@@ -3819,6 +3819,7 @@ begin
   VLineOnMapEdit := FLineOnMapEdit;
   if VLineOnMapEdit <> nil then begin
     VSaveAviable := False;
+    VIsMultiItem := False;
     if Supports(VLineOnMapEdit, IPathOnMapEdit, VPathOnMapEdit) then begin
       if Assigned(VPathOnMapEdit.Path) then begin
         VPath := VPathOnMapEdit.Path.Geometry;
