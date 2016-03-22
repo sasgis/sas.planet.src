@@ -951,6 +951,7 @@ uses
   u_ThreadExportKML in 'Src\RegionProcess\Export\KML\u_ThreadExportKML.pas',
   fr_ExportMBTiles in 'Src\RegionProcess\Export\MBTiles\fr_ExportMBTiles.pas' {frExportMBTiles: TFrame},
   u_ExportProviderMBTiles in 'Src\RegionProcess\Export\MBTiles\u_ExportProviderMBTiles.pas',
+  u_StorageExportToMBTiles in 'Src\RegionProcess\Export\MBTiles\u_StorageExportToMBTiles.pas',
   u_ThreadExportToMBTiles in 'Src\RegionProcess\Export\MBTiles\u_ThreadExportToMBTiles.pas',
   fr_ExportToOgf2 in 'Src\RegionProcess\Export\OGF2\fr_ExportToOgf2.pas' {frExportToOgf2: TFrame},
   u_ExportProviderOgf2 in 'Src\RegionProcess\Export\OGF2\u_ExportProviderOgf2.pas',

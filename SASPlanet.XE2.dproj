@@ -816,7 +816,6 @@
 			<DCCReference Include="Src\MapVersion\i_MapVersionFactory.pas"/>
 			<DCCReference Include="Src\MapVersion\i_MapVersionFactoryList.pas"/>
 			<DCCReference Include="Src\MapVersion\i_MapVersionInfo.pas"/>
-			<DCCReference Include="Src\MapVersion\i_MapVersionInfoGE.pas"/>
 			<DCCReference Include="Src\MapVersion\i_MapVersionListStatic.pas"/>
 			<DCCReference Include="Src\MapVersion\i_MapVersionRequest.pas"/>
 			<DCCReference Include="Src\MapVersion\i_MapVersionRequestChangeable.pas"/>
@@ -824,7 +823,6 @@
 			<DCCReference Include="Src\MapVersion\u_MapVersionChangeable.pas"/>
 			<DCCReference Include="Src\MapVersion\u_MapVersionConfig.pas"/>
 			<DCCReference Include="Src\MapVersion\u_MapVersionFactoryChangeable.pas"/>
-			<DCCReference Include="Src\MapVersion\u_MapVersionFactoryGE.pas"/>
 			<DCCReference Include="Src\MapVersion\u_MapVersionFactoryList.pas"/>
 			<DCCReference Include="Src\MapVersion\u_MapVersionFactorySimpleString.pas"/>
 			<DCCReference Include="Src\MapVersion\u_MapVersionInfo.pas"/>
@@ -1726,6 +1724,7 @@
 			<DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
 			<DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
 			<DCCReference Include="Src\u_WindowPositionConfig.pas"/>
+			<DCCReference Include="Src\RegionProcess\Export\MBTiles\u_StorageExportToMBTiles.pas"/>
 			<BuildConfiguration Include="Debug">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>

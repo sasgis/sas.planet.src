@@ -27,7 +27,6 @@ uses
   Windows,
   SysUtils,
   Classes,
-  SQLite3Handler,
   t_GeoTypes,
   i_BinaryData,
   i_NotifierOperation,
@@ -41,12 +40,12 @@ uses
   i_MapVersionRequest,
   i_BitmapTileSaveLoad,
   i_BitmapLayerProvider,
+  u_StorageExportToMBTiles,
   u_ThreadExportAbstract;
 
 type
   TThreadExportToMBTiles = class(TThreadExportAbstract)
   private
-    FFormatSettings: TFormatSettings;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FProjectionSetFactory: IProjectionSetFactory;
     FExportPath: string;
@@ -56,24 +55,9 @@ type
     FBitmapTileSaver: IBitmapTileSaver;
     FBitmapProvider: IBitmapTileUniProvider;
     FDirectTilesCopy: Boolean;
-    FSQLite3DB: TSQLite3DbHandler;
-    FSQLiteAvailable: Boolean;
-    FUseXYZScheme: Boolean;
-    FName: string;
-    FDescription: string;
-    FAttribution: string;
-    FImgType: string;
-    FImgFormat: string;
     FBasePoint: TPoint;
+    FSQLiteStorage: TSQLiteStorageBase;
   private
-    procedure OpenSQLiteStorage(const ATileIterator: ITileIterator);
-    procedure CloseSQLiteStorage;
-    procedure SaveTileToSQLiteStorage(
-      const ATile: TPoint;
-      const AZoom: Byte;
-      const AData: IBinaryData
-    );
-    function GetBounds(const ATileIterator: ITileIterator): string;
     function GetLonLatRect(const ATileIterator: ITileIterator): TDoubleRect;
   protected
     procedure ProcessRegion; override;
@@ -102,8 +86,6 @@ type
 implementation
 
 uses
-  ALString,
-  ALSqlite3Wrapper,
   c_CoordConverter,
   i_GeometryProjected,
   i_ProjectionSet,
@@ -111,19 +93,7 @@ uses
   i_Bitmap32Static,
   i_TileRect,
   u_TileIteratorByPolygon,
-  u_GeoFunc,
   u_ResStrings;
-
-const
-  // metadata
-  TABLE_METADATA_DDL = 'CREATE TABLE IF NOT EXISTS metadata (name text, value text)';
-  INDEX_METADATA_DDL = 'CREATE UNIQUE INDEX IF NOT EXISTS metadata_idx  ON metadata (name)';
-  INSERT_METADATA_SQL = 'INSERT INTO metadata (name, value) VALUES (%s,%s)';
-
-  // tiles
-  TABLE_TILES_DDL = 'CREATE TABLE IF NOT EXISTS tiles (zoom_level integer, tile_column integer, tile_row integer, tile_data blob)';
-  INDEX_TILES_DDL = 'CREATE INDEX IF NOT EXISTS tiles_idx on tiles (zoom_level, tile_column, tile_row)';
-  INSERT_TILES_SQL = 'INSERT OR REPLACE INTO tiles (zoom_level, tile_column, tile_row, tile_data) VALUES (%d,%d,%d,?)';
 
 { TThreadExportToMBTiles }
 
@@ -153,7 +123,6 @@ begin
     AZoomArr,
     Self.ClassName
   );
-  FFormatSettings.DecimalSeparator := '.';
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FProjectionSetFactory := AProjectionSetFactory;
   FExportPath := ExtractFilePath(AExportPath);
@@ -163,17 +132,19 @@ begin
   FBitmapTileSaver := ABitmapTileSaver;
   FBitmapProvider := ABitmapProvider;
   FDirectTilesCopy := ADirectTilesCopy;
-  FUseXYZScheme := AUseXYZScheme;
-  FName := AName;
-  FDescription := ADescription;
-  FAttribution := AAttribution;
-  if AIsLayer then begin
-    FImgType := 'overlay';
-  end else begin
-    FImgType := 'baselayer';
-  end;
-  FImgFormat := AImgFormat;
-  FSQLiteAvailable := FSQLite3DB.Init;
+
+  FSQLiteStorage := TSQLiteStorageMBTiles.Create;
+
+  FSQLiteStorage.Init(
+    FExportPath,
+    FExportFileName,
+    AName,
+    ADescription,
+    AAttribution,
+    AIsLayer,
+    AImgFormat,
+    AUseXYZScheme
+  );
 end;
 
 procedure TThreadExportToMBTiles.ProcessRegion;
@@ -238,7 +209,7 @@ begin
     VTilesToProcess := VTilesToProcess + VTileIterators[I].TilesTotal;
   end;
 
-  OpenSQLiteStorage(VTileIterators[0]);
+  FSQLiteStorage.Open(GetLonLatRect(VTileIterators[0]), FZooms);
   try
     ProgressInfo.SetCaption(SAS_STR_ExportTiles);
     ProgressInfo.SetFirstLine(
@@ -261,7 +232,7 @@ begin
 
           if VDoDirectCopy then begin
             if Supports(FTileStorage.GetTileInfoEx(VTile, VZoom, FMapVersion, gtimWithData), ITileInfoWithData, VTileInfo) then begin
-              SaveTileToSQLiteStorage(VTile, VZoom, VTileInfo.TileData);
+              FSQLiteStorage.Add(VTile, VZoom, VTileInfo.TileData);
             end;
           end else begin
             VBitmapTile :=
@@ -273,7 +244,7 @@ begin
               );
             if Assigned(VBitmapTile) then begin
               VTileData := FBitmapTileSaver.Save(VBitmapTile);
-              SaveTileToSQLiteStorage(VTile, VZoom, VTileData);
+              FSQLiteStorage.Add(VTile, VZoom, VTileData);
             end;
           end;
 
@@ -285,160 +256,8 @@ begin
       end;
     end;
   finally
-    CloseSQLiteStorage;
-    for I := 0 to Length(FZooms) - 1 do begin
-      VTileIterators[I] := nil;
-      VProjectedPolygons[I] := nil;
-    end;
-    VTileIterators := nil;
-    VProjectedPolygons := nil;
+    FSQLiteStorage.Close;
   end;
-end;
-
-procedure TThreadExportToMBTiles.OpenSQLiteStorage(const ATileIterator: ITileIterator);
-
-  procedure _DoInsert(const AName, AValue: string);
-  begin
-    FSQLite3DB.ExecSQL(
-      ALFormat(
-        INSERT_METADATA_SQL,
-        [ '''' + UTF8Encode(AName) + '''', '''' + UTF8Encode(AValue) + '''']
-      )
-    );
-  end;
-
-  procedure _WriteMetadata;
-  var
-    VRectCenter: TDoublePoint;
-    VScheme, VCenter, VMinZoom, VMaxZoom: string;
-  begin
-    FSQLite3DB.BeginTran;
-    try
-      if FName <> '' then begin
-        _DoInsert('name', FName);
-      end else begin
-        _DoInsert('name', 'Unnamed map');
-      end;
-
-      _DoInsert('type', FImgType);
-      _DoInsert('version', '1.2');
-
-      if FDescription <> '' then begin
-        _DoInsert('description', FDescription);
-      end else begin
-        _DoInsert('description', 'Created by SAS.Planet');
-      end;
-
-      _DoInsert('format', FImgFormat);
-      _DoInsert('bounds', GetBounds(ATileIterator));
-
-      if FAttribution <> '' then begin
-        _DoInsert('attribution', FAttribution);
-      end;
-
-      // insert additional fiels from TileJSON standart
-      // https://github.com/mapbox/tilejson-spec/tree/master/2.1.0
-
-      if FUseXYZScheme then begin
-        VScheme := 'xyz';
-      end else begin
-        VScheme := 'tms';
-      end;
-      _DoInsert('scheme', VScheme);
-
-      VMinZoom := IntToStr(FZooms[Low(FZooms)]);
-      VMaxZoom := IntToStr(FZooms[High(FZooms)]);
-      _DoInsert('minzoom', VMinZoom);
-      _DoInsert('maxzoom', VMaxZoom);
-
-      VRectCenter := RectCenter(GetLonLatRect(ATileIterator));
-      VCenter := Format('%.8f, %.8f, %s', [VRectCenter.X, VRectCenter.Y, VMinZoom], FFormatSettings);
-      _DoInsert('center', VCenter);
-
-      FSQLite3DB.Commit;
-    except
-      FSQLite3DB.Rollback;
-      raise;
-    end;
-  end;
-
-var
-  VFileName: string;
-begin
-  if not FSQLiteAvailable then begin
-    raise ESQLite3SimpleError.Create('SQLite not available');
-  end;
-
-  CloseSQLiteStorage;
-
-  VFileName := FExportPath + FExportFileName;
-
-  if FileExists(VFileName) then begin
-    if not DeleteFile(VFileName) then begin
-      raise ESQLite3SimpleError.CreateFmt('Can''t delete database: %s', [VFileName]);
-    end;
-  end;
-
-  FSQLite3Db.OpenW(VFileName);
-
-  FSQLite3DB.SetExclusiveLockingMode;
-  FSQLite3DB.ExecSQL('PRAGMA synchronous=OFF');
-
-  FSQLite3DB.ExecSQL(TABLE_TILES_DDL);
-  FSQLite3DB.ExecSQL(INDEX_TILES_DDL);
-
-  FSQLite3DB.ExecSQL(TABLE_METADATA_DDL);
-  FSQLite3DB.ExecSQL(INDEX_METADATA_DDL);
-
-  _WriteMetadata;
-
-  FSQLite3DB.BeginTran;
-end;
-
-procedure TThreadExportToMBTiles.CloseSQLiteStorage;
-begin
-  if FSQLite3DB.Opened then begin
-    FSQLite3DB.Commit;
-    FSQLite3DB.Close;
-  end;
-end;
-
-procedure TThreadExportToMBTiles.SaveTileToSQLiteStorage(
-  const ATile: TPoint;
-  const AZoom: Byte;
-  const AData: IBinaryData
-);
-var
-  X, Y: Integer;
-begin
-  Assert(AData <> nil);
-
-  X := ATile.X;
-
-  if FUseXYZScheme then begin
-    Y := ATile.Y;
-  end else begin
-    Y := (1 shl AZoom) - ATile.Y - 1;
-  end;
-
-  FSQLite3DB.ExecSQLWithBLOB(
-    ALFormat(INSERT_TILES_SQL, [AZoom, X, Y]),
-    AData.Buffer,
-    AData.Size
-  );
-end;
-
-function TThreadExportToMBTiles.GetBounds(const ATileIterator: ITileIterator): string;
-var
-  VLonLatRect: TDoubleRect;
-begin
-  VLonLatRect := GetLonLatRect(ATileIterator);
-  Result :=
-    Format(
-      '%.8f,%.8f,%.8f,%.8f',
-      [VLonLatRect.Left, VLonLatRect.Bottom, VLonLatRect.Right, VLonLatRect.Top],
-      FFormatSettings
-    );
 end;
 
 function TThreadExportToMBTiles.GetLonLatRect(const ATileIterator: ITileIterator): TDoubleRect;
