@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  Windows,
   Classes,
   SysUtils,
   SQLite3Handler,

@@ -1154,6 +1154,7 @@
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="Src\RegionProcess\Export\MBTiles\u_ExportProviderMBTiles.pas" />
+    <DCCReference Include="Src\RegionProcess\Export\MBTiles\u_StorageExportToMBTiles.pas" />
     <DCCReference Include="Src\RegionProcess\Export\MBTiles\u_ThreadExportToMBTiles.pas" />
     <DCCReference Include="Src\RegionProcess\Export\OGF2\fr_ExportToOgf2.pas">
       <DesignClass>TFrame</DesignClass>
