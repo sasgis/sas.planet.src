@@ -142,6 +142,7 @@ var
   VTileStorage: ITileStorage;
   VName, VDesc, VAttr, VImgFormat: string;
   VIsLayer, VUseXYZScheme: Boolean;
+  VMakeTileMillCompatibility: Boolean;
 begin
   inherited;
 
@@ -164,6 +165,7 @@ begin
     VAttr := Attribution;
     VIsLayer := IsLayer;
     VUseXYZScheme := UseXYZScheme;
+    VMakeTileMillCompatibility := MakeTileMillCompatibility;
     GetBitmapTileSaver(VBitmapTileSaver, VImgFormat);
   end;
 
@@ -183,6 +185,7 @@ begin
       VBitmapProvider,
       VDirectTilesCopy,
       VUseXYZScheme,
+      VMakeTileMillCompatibility,
       VName,
       VDesc,
       VAttr,

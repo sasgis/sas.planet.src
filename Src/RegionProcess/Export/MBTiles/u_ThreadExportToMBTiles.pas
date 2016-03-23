@@ -56,7 +56,7 @@ type
     FBitmapProvider: IBitmapTileUniProvider;
     FDirectTilesCopy: Boolean;
     FBasePoint: TPoint;
-    FSQLiteStorage: TSQLiteStorageBase;
+    FSQLiteStorage: TSQLiteStorageMBTilesBase;
   private
     function GetLonLatRect(const ATileIterator: ITileIterator): TDoubleRect;
   protected
@@ -75,6 +75,7 @@ type
       const ABitmapProvider: IBitmapTileUniProvider;
       const ADirectTilesCopy: Boolean;
       const AUseXYZScheme: Boolean;
+      const AMakeTileMillCompatibility: Boolean;
       const AName: string;
       const ADescription: string;
       const AAttribution: string;
@@ -110,6 +111,7 @@ constructor TThreadExportToMBTiles.Create(
   const ABitmapProvider: IBitmapTileUniProvider;
   const ADirectTilesCopy: Boolean;
   const AUseXYZScheme: Boolean;
+  const AMakeTileMillCompatibility: Boolean;
   const AName: string;
   const ADescription: string;
   const AAttribution: string;
@@ -133,7 +135,11 @@ begin
   FBitmapProvider := ABitmapProvider;
   FDirectTilesCopy := ADirectTilesCopy;
 
-  FSQLiteStorage := TSQLiteStorageMBTiles.Create;
+  if AMakeTileMillCompatibility then begin
+    FSQLiteStorage := TSQLiteStorageMBTilesTileMill.Create;
+  end else begin
+    FSQLiteStorage := TSQLiteStorageMBTilesClassic.Create;
+  end;
 
   FSQLiteStorage.Init(
     FExportPath,

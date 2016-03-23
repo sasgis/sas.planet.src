@@ -66,6 +66,9 @@ type
     function GetIsLayer: Boolean;
     property IsLayer: Boolean read GetIsLayer;
 
+    function GetMakeTileMillCompatibility: Boolean;
+    property MakeTileMillCompatibility: Boolean read GetMakeTileMillCompatibility;
+
     procedure GetBitmapTileSaver(out ASaver: IBitmapTileSaver; out AFormat: string);
   end;
 
@@ -107,9 +110,11 @@ type
     edtAttr: TEdit;
     dlgSaveTo: TSaveDialog;
     chkAddVisibleLayers: TCheckBox;
+    chkMakeTileMillStruct: TCheckBox;
     procedure btnSelectTargetFileClick(Sender: TObject);
     procedure cbbImageFormatChange(Sender: TObject);
     procedure chkAddVisibleLayersClick(Sender: TObject);
+    procedure chkMakeTileMillStructClick(Sender: TObject);
   private
     FLastPath: string;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
@@ -136,6 +141,7 @@ type
     function GetDescription: string;
     function GetAttribution: string;
     function GetIsLayer: Boolean;
+    function GetMakeTileMillCompatibility: Boolean;
     procedure GetBitmapTileSaver(out ASaver: IBitmapTileSaver; out AFormat: string);
   public
     constructor Create(
@@ -287,6 +293,16 @@ var
 begin
   VMapType := FfrMapSelect.GetSelectedMapType;
   Result := not Assigned(VMapType);
+end;
+
+function TfrExportMBTiles.GetMakeTileMillCompatibility: Boolean;
+begin
+  Result := chkMakeTileMillStruct.Checked;
+end;
+
+procedure TfrExportMBTiles.chkMakeTileMillStructClick(Sender: TObject);
+begin
+  chkUseXYZScheme.Enabled := not chkMakeTileMillStruct.Checked;
 end;
 
 function TfrExportMBTiles.GetMapType: IMapType;
