@@ -114,7 +114,6 @@ type
     procedure btnSelectTargetFileClick(Sender: TObject);
     procedure cbbImageFormatChange(Sender: TObject);
     procedure chkAddVisibleLayersClick(Sender: TObject);
-    procedure chkMakeTileMillStructClick(Sender: TObject);
   private
     FLastPath: string;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
@@ -298,11 +297,6 @@ end;
 function TfrExportMBTiles.GetMakeTileMillCompatibility: Boolean;
 begin
   Result := chkMakeTileMillStruct.Checked;
-end;
-
-procedure TfrExportMBTiles.chkMakeTileMillStructClick(Sender: TObject);
-begin
-  chkUseXYZScheme.Enabled := not chkMakeTileMillStruct.Checked;
 end;
 
 function TfrExportMBTiles.GetMapType: IMapType;

@@ -232,10 +232,6 @@ object frExportMBTiles: TfrExportMBTiles
         Align = alTop
         Caption = 'Make TileMill compatible structure'
         TabOrder = 9
-        OnClick = chkMakeTileMillStructClick
-        ExplicitLeft = 72
-        ExplicitTop = 120
-        ExplicitWidth = 97
       end
     end
     object PnlZoom: TPanel

@@ -471,7 +471,7 @@ begin
     VMetadata.Add( KeyValToStr('format', FImgFormat) );
     VMetadata.Add( KeyValToStr('bounds', GetBoundsStr(ALonLatRect)) );
     VMetadata.Add( KeyValToStr('attribution', FAttribution) );
-    //VMetadata.Add( KeyValToStr('scheme', FScheme) );
+    VMetadata.Add( KeyValToStr('scheme', FScheme) );
     VMetadata.Add( KeyValToStr('minzoom', IntToStr(AZooms[Low(AZooms)])) );
     VMetadata.Add( KeyValToStr('maxzoom', IntToStr(AZooms[High(AZooms)])) );
     VMetadata.Add( KeyValToStr('center', GetCenterStr(ALonLatRect, AZooms[Low(AZooms)])) );
@@ -491,6 +491,7 @@ procedure TSQLiteStorageMBTilesTileMill.Add(
   const AData: IBinaryData
 );
 var
+  X, Y: Integer;
   VMD5: string;
   VTileID: AnsiString;
 begin
@@ -504,9 +505,17 @@ begin
     AData.Size
   );
 
+  X := ATile.X;
+
+  if FUseXYZScheme then begin
+    Y := ATile.Y;
+  end else begin
+    Y := (1 shl AZoom) - ATile.Y - 1;
+  end;
+
   // insert coordinates into 'map' table
   FSQLite3DB.ExecSQL(
-    ALFormat(INSERT_MAP_SQL, [AZoom, ATile.X, ATile.Y, VTileID])
+    ALFormat(INSERT_MAP_SQL, [AZoom, X, Y, VTileID])
   );
 end;
 
