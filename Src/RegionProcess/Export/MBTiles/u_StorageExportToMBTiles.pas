@@ -71,7 +71,7 @@ type
 
     procedure OpenInternal(const ATablesDDL: array of AnsiString);
   public
-    procedure Init(
+    constructor Create(
       const AExportPath: string;
       const AExportFileName: string;
       const AName: string;
@@ -95,6 +95,8 @@ type
 
     procedure Close;
   end;
+
+  TSQLiteStorageMBTilesBaseClass = class of TSQLiteStorageMBTilesBase;
 
   TSQLiteStorageMBTilesClassic = class(TSQLiteStorageMBTilesBase)
   public
@@ -141,7 +143,7 @@ const
 
 { TSQLiteStorageMBTilesBase }
 
-procedure TSQLiteStorageMBTilesBase.Init(
+constructor TSQLiteStorageMBTilesBase.Create(
   const AExportPath: string;
   const AExportFileName: string;
   const AName: string;
@@ -152,6 +154,8 @@ procedure TSQLiteStorageMBTilesBase.Init(
   const AUseXYZScheme: Boolean
 );
 begin
+  inherited Create;
+
   FExportPath := AExportPath;
   FExportFileName := AExportFileName;
 

@@ -118,6 +118,13 @@ constructor TThreadExportToMBTiles.Create(
   const AIsLayer: Boolean;
   const AImgFormat: string
 );
+const
+  cSQLiteStorageTypes: array [Boolean] of TSQLiteStorageMBTilesBaseClass = (
+    TSQLiteStorageMBTilesClassic,
+    TSQLiteStorageMBTilesTileMill
+  );
+var
+  VSQLiteStorageClass: TSQLiteStorageMBTilesBaseClass;
 begin
   inherited Create(
     AProgressInfo,
@@ -135,22 +142,19 @@ begin
   FBitmapProvider := ABitmapProvider;
   FDirectTilesCopy := ADirectTilesCopy;
 
-  if AMakeTileMillCompatibility then begin
-    FSQLiteStorage := TSQLiteStorageMBTilesTileMill.Create;
-  end else begin
-    FSQLiteStorage := TSQLiteStorageMBTilesClassic.Create;
-  end;
+  VSQLiteStorageClass := cSQLiteStorageTypes[AMakeTileMillCompatibility];
 
-  FSQLiteStorage.Init(
-    FExportPath,
-    FExportFileName,
-    AName,
-    ADescription,
-    AAttribution,
-    AIsLayer,
-    AImgFormat,
-    AUseXYZScheme
-  );
+  FSQLiteStorage :=
+    VSQLiteStorageClass.Create(
+      FExportPath,
+      FExportFileName,
+      AName,
+      ADescription,
+      AAttribution,
+      AIsLayer,
+      AImgFormat,
+      AUseXYZScheme
+    );
 end;
 
 procedure TThreadExportToMBTiles.ProcessRegion;
