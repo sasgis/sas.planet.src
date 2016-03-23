@@ -352,7 +352,7 @@ begin
   if VDownloadState.Enabled then begin
     mmoDownloadState.Text := _('Download Enabled');
   end else begin
-    mmoDownloadState.Text := VDownloadState.DisableReason;
+    mmoDownloadState.Text := gettext_NoExtract(VDownloadState.DisableReason);
   end;
   chkDownloadEnabled.Checked := FMapType.Abilities.UseDownload;
 

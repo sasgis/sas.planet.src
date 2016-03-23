@@ -135,7 +135,7 @@ begin
     if FEnabled then begin
       Result := '';
     end else begin
-      Result := gettext_NoExtract(FReason);
+      Result := FReason;
     end;
   finally
     CS.EndRead;

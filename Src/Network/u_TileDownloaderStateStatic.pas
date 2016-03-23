@@ -60,7 +60,7 @@ end;
 
 function TTileDownloaderStateStatic.GetDisableReason: string;
 begin
-  Result := gettext_NoExtract(FReason);
+  Result := FReason;
 end;
 
 function TTileDownloaderStateStatic.GetEnabled: Boolean;
