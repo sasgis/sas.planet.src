@@ -82,6 +82,7 @@ type
       const AIsLayer: Boolean;
       const AImgFormat: string
     );
+    destructor Destroy; override;
   end;
 
 implementation
@@ -155,6 +156,12 @@ begin
       AImgFormat,
       AUseXYZScheme
     );
+end;
+
+destructor TThreadExportToMBTiles.Destroy;
+begin
+  FreeAndNil(FSQLiteStorage);
+  inherited;
 end;
 
 procedure TThreadExportToMBTiles.ProcessRegion;
