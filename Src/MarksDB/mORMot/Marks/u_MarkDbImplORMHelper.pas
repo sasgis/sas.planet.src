@@ -1128,6 +1128,11 @@ begin
     SetLength(VMarkIdRows, VCount);
     K := 0;
     VCurrCategory := 0;
+    if not VByCategory then begin
+      // Enshure that result is sorted by Category
+      // (MongoDB 3.2 issue: http://www.sasgis.org/mantis/view.php?id=2970)
+      VList.SortFields(3, True, nil, sftID);
+    end;
     for I := 0 to VCount - 1 do begin
       J := I + 1;
       VMarkIdRows[I].MarkId := VList.GetAsInt64(J, 0);
