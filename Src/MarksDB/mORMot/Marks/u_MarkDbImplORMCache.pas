@@ -684,14 +684,14 @@ begin
     Assert(VItem.Data <> nil);
     VArray := TIDDynArrayObject(VItem.Data);
     VArray.Reset;
-    VArray.AddArray(AMarkIDArray);
+    VArray.AddArray(AMarkIDArray, AStartIndex, ACount);
     {$IFDEF SQL_LOG_CACHE_RESULT}
     VArrayCount := VArray.Count;
     {$ENDIF}
   end else begin
     VArray := TIDDynArrayObject.Create;
     try
-      VArray.AddArray(AMarkIDArray);
+      VArray.AddArray(AMarkIDArray, AStartIndex, ACount);
       {$IFDEF SQL_LOG_CACHE_RESULT}
       VArrayCount := VArray.Count;
       {$ENDIF}

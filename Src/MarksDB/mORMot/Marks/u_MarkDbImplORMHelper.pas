@@ -1082,6 +1082,9 @@ end;
 
 function TMarkDbImplORMHelper._FillPrepareMarkIdIndex(const ACategoryID: TID): Integer;
 var
+  {$IFDEF DEBUG}
+  Z: Integer;
+  {$ENDIF}
   I, J, K: Integer;
   VCount: Integer;
   VList: TSQLTableJSON;
@@ -1145,14 +1148,25 @@ begin
         VCategory := VList.GetAsInt64(J, 3);
         if VCurrCategory = 0 then begin
           VCurrCategory := VCategory;
-        end else if VCurrCategory = VCategory then begin
+        end;
+        if VCurrCategory = VCategory then begin
           Inc(K);
         end else if VCurrCategory < VCategory then begin
           if K > 0 then begin
-            FCache.FMarkIdByCategoryIndex.AddPrepared(VCurrCategory, VMarkIdArray, I-(K-1), K);
+            {$IFDEF DEBUG}
+            Assert(I-K >= 0);
+            for Z := I - K to I - 1 do begin
+              Assert(VMarkIdRows[Z].CategoryId = VCurrCategory);
+            end;
+            if I > K then begin
+              Assert(VMarkIdRows[I-K-1].CategoryId < VCurrCategory);
+            end;
+            {$ENDIF}
+            FCache.FMarkIdByCategoryIndex.AddPrepared(VCurrCategory, VMarkIdArray, I-K, K);
             K := 0;
           end;
           VCurrCategory := VCategory;
+          Inc(K);
         end else begin
           Assert(False, 'List not ordered by Category!');
         end;
