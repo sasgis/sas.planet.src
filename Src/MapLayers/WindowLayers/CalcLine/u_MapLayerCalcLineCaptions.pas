@@ -389,6 +389,9 @@ begin
       if not VSkipPoint then begin
         AProjectedPoints.Add(VCurrProjected);
         VText := AValueConverter.DistConvert(ATotalDist);
+        if FConfig.ShowAzimuth then begin
+          VText := VText + '; ' + FloatToStrF(ALastStartAzimuth, ffNumber, 12, 2) + #176;
+        end;
         ADistStrings.Add(VText);
         if Length(ATextSizeArray) < AProjectedPoints.Count then begin
           SetLength(ATextSizeArray, AProjectedPoints.Count);
