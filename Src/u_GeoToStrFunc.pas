@@ -30,7 +30,7 @@ function RoundExAnsi(const chislo: Double; const Precision: Integer): AnsiString
 function R2StrPoint(const r: Double): string;
 function R2AnsiStrPoint(const r: Double): AnsiString;
 function R2AnsiStrPointF(const r: Double; const AFormat: AnsiString): AnsiString;
-function LonLat2GShListName(const ALonLat: TDoublePoint; AScale: Integer; Prec: integer): string;
+function LonLat2GShListName(const ALonLat: TDoublePoint; AScale: Integer; APrec: Integer): string;
 function str2r(const AStrValue: string): Double;
 
 // forced with point
@@ -112,32 +112,55 @@ begin
   Result := ALFormat(AFormat, [r], GAnsiFormatSettings);
 end;
 
-function LonLat2GShListName(const ALonLat: TDoublePoint; AScale: Integer; Prec: Integer): string;
+function LonLat2GShListName(const ALonLat: TDoublePoint; AScale: Integer; APrec: Integer): string;
 const
-  CRomans: array[1..36] of string = ('I','II','III','IV','V','VI','VII','VIII','IX','X','XI',
-             'XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX','XXI','XXII','XXIII','XXIV','XXV',
-             'XXVI','XXVII','XXVIII','XXIX','XXX','XXXI','XXXII','XXXIII','XXXIV','XXXV','XXXVI');
+  cRomans: array[1..36] of string = (
+    'I','II','III','IV','V','VI','VII','VIII','IX','X','XI',
+    'XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX',
+    'XXI','XXII','XXIII','XXIV','XXV','XXVI','XXVII','XXVIII',
+    'XXIX','XXX','XXXI','XXXII','XXXIII','XXXIV','XXXV','XXXVI'
+  );
+
 var
   VLon, VLat: Int64;
+
   function GetNameAtom(divr, modl: Integer): Integer;
   begin
     Result :=
-      ((VLon div round(6/divr*prec))mod modl)+
-      (abs(integer(ALonLat.Y>0)*(modl-1)-((VLat div round(4/divr*prec))mod modl)))*modl;
+      ((VLon div Round(6/divr*APrec)) mod modl)+
+      (Abs(integer(ALonLat.Y>0)*(modl-1)-((VLat div Round(4/divr*APrec)) mod modl)))*modl;
   end;
+
+  function AChr(const AValue: Integer): AnsiChar;
+  begin
+    Result := {$IFDEF UNICODE} AnsiChar(AValue) {$ELSE} Chr(AValue) {$ENDIF} ;
+  end;
+
 begin
-  VLon := Round((ALonLat.X+180)*prec);
-  VLat := Round(abs(ALonLat.Y*prec));
-  Result := chr(65+(VLat div (4*prec)))+'-'+inttostr(1+(VLon div (6*prec)));
+  VLon := Round((ALonLat.X+180)*APrec);
+  VLat := Round(Abs(ALonLat.Y*APrec));
+  Result := AChr(65+(VLat div (4*APrec)))+'-'+IntToStr(1+(VLon div (6*APrec)));
   if ALonLat.Y < 0 then Result := 'x'+ Result;
-  if AScale = 500000  then Result := Result +'-'+chr(192+GetNameAtom(2,2));
-  if AScale = 200000  then Result := Result +'-'+CRomans[1+GetNameAtom(6,6)];
-  if AScale <= 100000 then Result := Result +'-'+inttostr(1+GetNameAtom(12,12));
-  if AScale <= 50000  then Result := Result +'-'+chr(192+GetNameAtom(24,2));
-  if AScale <= 25000  then Result := Result +'-'+chr(224+GetNameAtom(48,2));
-  if AScale = 10000   then Result := Result+'-'+inttostr(1+GetNameAtom(96,2));
-  if AScale = 5000    then Result := chr(65+(VLat div (4*prec)))+'-'+inttostr(1+(VLon div (6*prec)))+'-'+inttostr(1+GetNameAtom(12,12))+'-('+inttostr(1+GetNameAtom(192,16))+')';
-  if AScale = 2500    then Result := chr(65+(VLat div (4*prec)))+'-'+inttostr(1+(VLon div (6*prec)))+'-'+inttostr(1+GetNameAtom(12,12))+'-('+inttostr(1+GetNameAtom(192,16))+'-'+chr(224+GetNameAtom(384,2))+')';
+  if AScale = 500000  then Result := Result +'-'+AChr(192+GetNameAtom(2,2));
+  if AScale = 200000  then Result := Result +'-'+cRomans[1+GetNameAtom(6,6)];
+  if AScale <= 100000 then Result := Result +'-'+IntToStr(1+GetNameAtom(12,12));
+  if AScale <= 50000  then Result := Result +'-'+AChr(192+GetNameAtom(24,2));
+  if AScale <= 25000  then Result := Result +'-'+AChr(224+GetNameAtom(48,2));
+  if AScale = 10000   then Result := Result+'-'+IntToStr(1+GetNameAtom(96,2));
+
+  if AScale = 5000 then
+    Result :=
+      AChr(65+(VLat div (4*APrec)))+'-'+
+      IntToStr(1+(VLon div (6*APrec)))+'-'+
+      IntToStr(1+GetNameAtom(12,12))+'-'+
+      '('+IntToStr(1+GetNameAtom(192,16))+')';
+
+  if AScale = 2500 then
+    Result :=
+      AChr(65+(VLat div (4*APrec)))+'-'+
+      IntToStr(1+(VLon div (6*APrec)))+'-'+
+      IntToStr(1+GetNameAtom(12,12))+'-'+
+      '('+IntToStr(1+GetNameAtom(192,16))+'-'+AChr(224+GetNameAtom(384,2))+')';
 end;
 
 initialization
