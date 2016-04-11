@@ -38,13 +38,16 @@ type
     FFactory: IProjectionSetFactory;
     FMapChangeable: IMapTypeChangeable;
     FConfig: IViewProjectionConfig;
-
     FLinkList: IListenerNotifierLinksList;
-
     FProjectionSet: IProjectionSet;
-    FEpsg: Integer;
+
+    function GetProjectionSetByEPSG(
+      const AEPSG: Integer
+    ): IProjectionSet;
+
     procedure OnConfigChange;
   private
+    { IProjectionSetChangeable }
     function GetStatic: IProjectionSet;
   public
     constructor Create(
@@ -85,9 +88,22 @@ begin
 
   FLinkList.Add(VListener, FMapChangeable.ChangeNotifier);
   FLinkList.Add(VListener, FConfig.ChangeNotifier);
-  FEpsg := 0;
-  FProjectionSet := FMapChangeable.GetStatic.ViewProjectionSet;
+
+  FProjectionSet := GetProjectionSetByEPSG(FConfig.EPSG);
   FLinkList.ActivateLinks;
+end;
+
+function TProjectionSetChangeableByConfig.GetProjectionSetByEPSG(
+  const AEPSG: Integer
+): IProjectionSet;
+begin
+  Result := nil;
+  if AEPSG > 0 then begin
+    Result := FFactory.GetProjectionSetByCode(AEPSG, CTileSplitQuadrate256x256);
+  end;
+  if not Assigned(Result) then begin
+    Result := FMapChangeable.GetStatic.ViewProjectionSet;
+  end;
 end;
 
 function TProjectionSetChangeableByConfig.GetStatic: IProjectionSet;
@@ -102,18 +118,10 @@ end;
 
 procedure TProjectionSetChangeableByConfig.OnConfigChange;
 var
-  VEpsg: Integer;
   VProjectionSet: IProjectionSet;
   VNeedNotify: Boolean;
 begin
-  VProjectionSet := nil;
-  VEpsg := FConfig.EPSG;
-  if VEpsg > 0 then begin
-    VProjectionSet := FFactory.GetProjectionSetByCode(VEpsg, CTileSplitQuadrate256x256);
-  end;
-  if not Assigned(VProjectionSet) then begin
-    VProjectionSet := FMapChangeable.GetStatic.ViewProjectionSet;
-  end;
+  VProjectionSet := GetProjectionSetByEPSG(FConfig.EPSG);
   VNeedNotify := False;
   CS.BeginWrite;
   try
