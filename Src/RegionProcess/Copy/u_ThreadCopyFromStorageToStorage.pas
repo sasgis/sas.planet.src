@@ -79,6 +79,7 @@ uses
   u_TileIteratorByPolygon,
   i_MapVersionListStatic,
   i_TileInfoBasic,
+  u_ZoomArrayFunc,
   u_ResStrings;
 
 { TThreadCopyFromStorageToStorage }
@@ -142,7 +143,7 @@ begin
     end;
   end;
   try
-    ProgressInfo.SetCaption(SAS_STR_ExportTiles);
+    ProgressInfo.SetCaption(SAS_STR_ExportTiles + ' ' + ZoomArrayToStr(FZooms));
     ProgressInfo.SetFirstLine(
       SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files
     );

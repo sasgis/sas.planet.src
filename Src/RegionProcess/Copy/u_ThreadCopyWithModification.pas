@@ -79,6 +79,7 @@ uses
   i_Projection,
   i_GeometryProjected,
   u_TileIteratorByPolygon,
+  u_ZoomArrayFunc,
   u_ResStrings;
 
 { TThreadCopyWithModification }
@@ -187,7 +188,7 @@ begin
     VTilesToProcess := VTilesToProcess + VTileIterators[I].TilesTotal;
   end;
 
-  ProgressInfo.SetCaption(SAS_STR_ExportTiles);
+  ProgressInfo.SetCaption(SAS_STR_ExportTiles + ' ' + ZoomArrayToStr(FZooms));
   ProgressInfo.SetFirstLine(
     SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files
   );

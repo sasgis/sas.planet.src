@@ -64,6 +64,7 @@ uses
   i_TileIterator,
   i_TileInfoBasic,
   u_TileIteratorByPolygon,
+  u_ZoomArrayFunc,
   u_ResStrings;
 
 { TThreadExportToArchive }
@@ -123,7 +124,7 @@ begin
     VTilesToProcess := VTilesToProcess + VTileIterators[I].TilesTotal;
   end;
   try
-    ProgressInfo.SetCaption(SAS_STR_ExportTiles);
+    ProgressInfo.SetCaption(SAS_STR_ExportTiles + ' ' + ZoomArrayToStr(FZooms));
     ProgressInfo.SetFirstLine(
       SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files
     );
