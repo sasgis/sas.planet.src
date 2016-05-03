@@ -302,11 +302,8 @@ end;
 procedure TThreadDownloadTiles.SkipTiles(const ATileIterator: ITileIterator);
 var
   VTile: TPoint;
-  VLastSkipped: TPoint;
-  VCntSkipped: Cardinal;
 begin
   if (FLastProcessedPoint.X >= 0) and (FLastProcessedPoint.Y >= 0) then begin
-    VCntSkipped := 0;
     while ATileIterator.Next(VTile) do begin
       if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
         Break;
@@ -314,15 +311,6 @@ begin
       if (VTile.X = FLastProcessedPoint.X) and (VTile.Y = FLastProcessedPoint.Y) then begin
         Break;
       end;
-      Inc(VCntSkipped);
-      VLastSkipped := VTile;
-      if VCntSkipped > 100 then begin
-        FProgressInfo.AddManyProcessedTile(VLastSkipped, VCntSkipped);
-        VCntSkipped := 0;
-      end;
-    end;
-    if VCntSkipped > 0 then begin
-      FProgressInfo.AddManyProcessedTile(VLastSkipped, VCntSkipped);
     end;
   end;
 end;

@@ -27,9 +27,8 @@ uses
   SysUtils,
   i_LogSimple,
   i_LogSimpleProvider,
-  i_GeometryLonLat,
-  i_MapVersionInfo,
-  i_MapVersionRequest,
+  i_DownloadSession,
+  i_MapTypeSet,
   i_ConfigDataWriteProvider,
   i_RegionProcessProgressInfo,
   i_RegionProcessProgressInfoDownload,
@@ -43,35 +42,15 @@ type
     IRegionProcessProgressInfoDownloadInternal
   )
   private
-    FGUID: TGUID;
-    FZoom: Byte;
-    FZoomArr: TByteDynArray;
-    FPolygon: IGeometryLonLatPolygon;
-    FVersionForCheck: IMapVersionRequest;
-    FVersionForDownload: IMapVersionInfo;
-
-    FSecondLoadTNE: boolean;
-    FReplaceTneOlderDate: TDateTime;
-    FReplaceExistTiles: boolean;
-    FCheckExistTileSize: boolean;
-    FCheckExistTileDate: boolean;
-    FCheckTileDate: TDateTime;
-
+    FSession: IDownloadSession;
     FCS: IReadWriteSync;
     FLog: ILogSimple;
     FLogProvider: ILogSimpleProvider;
-    FProcessedRatio: Double;
     FFinished: Boolean;
     FNeedPause: Boolean;
     FPaused: Boolean;
-    FElapsedTime: TDateTime;
     FStartTime: TDateTime;
     FTotalInRegion: Int64;
-    FProcessed: Int64;
-    FDownloadedSize: UInt64;
-    FDownloadedCount: Int64;
-    FLastProcessedPoint: TPoint;
-    FLastSuccessfulPoint: TPoint;
     FLastSuccessfulSize: Integer;
   private
     function GetProcessedRatio: Double;
@@ -119,24 +98,10 @@ type
     constructor Create(
       const ALog: ILogSimple;
       const ALogProvider: ILogSimpleProvider;
-      const AGUID: TGUID;
-      const AVersionForCheck: IMapVersionRequest;
-      const AVersionForDownload: IMapVersionInfo;
-      AZoom: Byte;
-      const AZoomArr: TByteDynArray;
-      const APolygon: IGeometryLonLatPolygon;
-      ASecondLoadTNE: boolean;
-      const AReplaceTneOlderDate: TDateTime;
-      AReplaceExistTiles: boolean;
-      ACheckExistTileSize: boolean;
-      ACheckExistTileDate: boolean;
-      ACheckTileDate: TDateTime;
-      APaused: Boolean;
-      const ADownloadedSize: UInt64;
-      const ADownloadedCount: Int64;
-      const ALastProcessedPoint: TPoint;
-      const AElapsedTime: TDateTime
+      const ASession: IDownloadSession;
+      const APaused: Boolean
     );
+
   end;
 
 implementation
@@ -144,8 +109,6 @@ implementation
 uses
   Math,
   u_GeoFunc,
-  u_ConfigProviderHelpers,
-  u_ZoomArrayFunc,
   u_Synchronizer;
 
 { TRegionProcessProgressInfoDownload }
@@ -153,56 +116,19 @@ uses
 constructor TRegionProcessProgressInfoDownload.Create(
   const ALog: ILogSimple;
   const ALogProvider: ILogSimpleProvider;
-  const AGUID: TGUID;
-  const AVersionForCheck: IMapVersionRequest;
-  const AVersionForDownload: IMapVersionInfo;
-  AZoom: Byte;
-  const AZoomArr: TByteDynArray;
-  const APolygon: IGeometryLonLatPolygon;
-  ASecondLoadTNE: boolean;
-  const AReplaceTneOlderDate: TDateTime;
-  AReplaceExistTiles: boolean;
-  ACheckExistTileSize: boolean;
-  ACheckExistTileDate: boolean;
-  ACheckTileDate: TDateTime;
-  APaused: Boolean;
-  const ADownloadedSize: UInt64;
-  const ADownloadedCount: Int64;
-  const ALastProcessedPoint: TPoint;
-  const AElapsedTime: TDateTime
+  const ASession: IDownloadSession;
+  const APaused: Boolean
 );
 begin
   inherited Create;
-  FGUID := AGUID;
-  FVersionForCheck := AVersionForCheck;
-  FVersionForDownload := AVersionForDownload;
-  FZoom := AZoom;
-  FZoomArr := GetZoomArrayCopy(AZoomArr);
-  FPolygon := APolygon;
-  FSecondLoadTNE := ASecondLoadTNE;
-  FReplaceTneOlderDate := AReplaceTneOlderDate;
-  FReplaceExistTiles := AReplaceExistTiles;
-  FCheckExistTileSize := ACheckExistTileSize;
-  FCheckExistTileDate := ACheckExistTileDate;
-  FCheckTileDate := ACheckTileDate;
-
   FCS := GSync.SyncVariable.Make(Self.ClassName);
-
   FLog := ALog;
   FLogProvider := ALogProvider;
-
+  FSession := ASession;
   FPaused := APaused;
   FNeedPause := APaused;
-  FProcessedRatio := 0;
   FFinished := False;
-  FElapsedTime := AElapsedTime;
   FStartTime := Now;
-  FTotalInRegion := 0;
-  FProcessed := 0;
-  FDownloadedSize := ADownloadedSize;
-  FDownloadedCount := ADownloadedCount;
-  FLastProcessedPoint := ALastProcessedPoint;
-  FLastSuccessfulPoint := Point(-1, -1);
   FLastSuccessfulSize := -1;
 end;
 
@@ -213,10 +139,10 @@ procedure TRegionProcessProgressInfoDownload.AddDownloadedTile(
 begin
   FCS.BeginWrite;
   try
-    FLastSuccessfulPoint := ATile;
     FLastSuccessfulSize := ASize;
-    Inc(FDownloadedSize, ASize);
-    Inc(FDownloadedCount);
+    FSession.LastSuccessfulPoint := ATile;
+    FSession.DownloadedSize := FSession.DownloadedSize + ASize;
+    FSession.DownloadedCount := FSession.DownloadedCount + 1;
   finally
     FCS.EndWrite;
   end;
@@ -229,19 +155,20 @@ procedure TRegionProcessProgressInfoDownload.AddManyProcessedTile(
 begin
   FCS.BeginWrite;
   try
-    FLastProcessedPoint := ALastTile;
-    Inc(FProcessed, ACnt);
+    FSession.LastProcessedPoint := ALastTile;
+    FSession.Processed := FSession.Processed + ACnt;
   finally
     FCS.EndWrite;
   end;
 end;
 
 procedure TRegionProcessProgressInfoDownload.AddNotNecessaryTile(
-  const ATile: TPoint);
+  const ATile: TPoint
+);
 begin
   FCS.BeginWrite;
   try
-    FLastSuccessfulPoint := ATile;
+    FSession.LastSuccessfulPoint := ATile;
     FLastSuccessfulSize := -1;
   finally
     FCS.EndWrite;
@@ -249,12 +176,13 @@ begin
 end;
 
 procedure TRegionProcessProgressInfoDownload.AddProcessedTile(
-  const ATile: TPoint);
+  const ATile: TPoint
+);
 begin
   FCS.BeginWrite;
   try
-    FLastProcessedPoint := ATile;
-    Inc(FProcessed);
+    FSession.LastProcessedPoint := ATile;
+    FSession.Processed := FSession.Processed + 1;
   finally
     FCS.EndWrite;
   end;
@@ -274,7 +202,7 @@ function TRegionProcessProgressInfoDownload.GetDownloaded: Int64;
 begin
   FCS.BeginRead;
   try
-    Result := FDownloadedCount
+    Result := FSession.DownloadedCount;
   finally
     FCS.EndRead;
   end;
@@ -284,7 +212,7 @@ function TRegionProcessProgressInfoDownload.GetDownloadSize: UInt64;
 begin
   FCS.BeginRead;
   try
-    Result := FDownloadedSize
+    Result := FSession.DownloadedSize;
   finally
     FCS.EndRead;
   end;
@@ -295,9 +223,9 @@ begin
   FCS.BeginRead;
   try
     if FFinished or FPaused then begin
-      Result := FElapsedTime;
+      Result := FSession.ElapsedTime;
     end else begin
-      Result := FElapsedTime + (Now - FStartTime);
+      Result := FSession.ElapsedTime + (Now - FStartTime);
     end;
   finally
     FCS.EndRead;
@@ -348,7 +276,7 @@ function TRegionProcessProgressInfoDownload.GetProcessed: Int64;
 begin
   FCS.BeginRead;
   try
-    Result := FProcessed
+    Result := FSession.Processed;
   finally
     FCS.EndRead;
   end;
@@ -362,10 +290,10 @@ begin
       Result := 1;
     end else if FTotalInRegion = 0 then begin
       Result := 0;
-    end else if FProcessed > FTotalInRegion then begin
+    end else if FSession.Processed > FTotalInRegion then begin
       Result := 1;
     end else begin
-      Result := FProcessed / FTotalInRegion;
+      Result := FSession.Processed / FTotalInRegion;
     end;
   finally
     FCS.EndRead;
@@ -382,11 +310,21 @@ begin
   end;
 end;
 
+procedure TRegionProcessProgressInfoDownload.SetTotalToProcess(AValue: Int64);
+begin
+  FCS.BeginWrite;
+  try
+    FTotalInRegion := AValue;
+  finally
+    FCS.EndWrite;
+  end;
+end;
+
 function TRegionProcessProgressInfoDownload.GetZoom: Byte;
 begin
   FCS.BeginRead;
   try
-    Result := FZoom;
+    Result := FSession.Zoom;
   finally
     FCS.EndRead;
   end;
@@ -396,7 +334,7 @@ procedure TRegionProcessProgressInfoDownload.SetZoom(const AValue: Byte);
 begin
   FCS.BeginWrite;
   try
-    FZoom := AValue;
+    FSession.Zoom := AValue;
   finally
     FCS.EndWrite;
   end;
@@ -406,7 +344,7 @@ function TRegionProcessProgressInfoDownload.GetZoomArray: TByteDynArray;
 begin
   FCS.BeginRead;
   try
-    Result := GetZoomArrayCopy(FZoomArr);
+    Result := FSession.ZoomArr;
   finally
     FCS.EndRead;
   end;
@@ -420,15 +358,30 @@ procedure TRegionProcessProgressInfoDownload.GetLastTileInfo(
 begin
   FCS.BeginRead;
   try
-    AZoom := FZoom;
-    APoint := FLastProcessedPoint;
-    if IsPointsEqual(FLastSuccessfulPoint, FLastProcessedPoint) then begin
+    AZoom := FSession.Zoom;
+    APoint := FSession.LastProcessedPoint;
+    if IsPointsEqual(FSession.LastSuccessfulPoint, FSession.LastProcessedPoint) then begin
       ASize := FLastSuccessfulSize;
     end else begin
       ASize := 0;
     end;
   finally
     FCS.EndRead;
+  end;
+end;
+
+procedure TRegionProcessProgressInfoDownload.SaveState(
+  const ASLSSection: IConfigDataWriteProvider
+);
+begin
+  FCS.BeginWrite;
+  try
+    if not FNeedPause then begin
+      FSession.ElapsedTime := FSession.ElapsedTime + (Now - FStartTime);
+    end;
+    FSession.Save(ASLSSection);
+  finally
+    FCS.EndWrite;
   end;
 end;
 
@@ -452,56 +405,6 @@ begin
   end;
 end;
 
-procedure TRegionProcessProgressInfoDownload.SaveState(
-  const ASLSSection: IConfigDataWriteProvider);
-var
-  VElapsedTime: TDateTime;
-  VVersionForCheck: string;
-  VVersionForCheckUsePrev: Boolean;
-begin
-  VVersionForCheck := '';
-  VVersionForCheckUsePrev := False;
-  if Assigned(FVersionForCheck) then begin
-    if Assigned(FVersionForCheck.BaseVersion) then begin
-      VVersionForCheck := FVersionForCheck.BaseVersion.StoreString;
-    end;
-    VVersionForCheckUsePrev := FVersionForCheck.ShowPrevVersion;
-  end;
-  ASLSSection.WriteString('MapGUID', GUIDToString(FGUID));
-  ASLSSection.WriteString('VersionDownload', FVersionForDownload.StoreString);
-  ASLSSection.WriteString('VersionCheck', VVersionForCheck);
-  ASLSSection.WriteBool('VersionCheckPrev', VVersionForCheckUsePrev);
-  ASLSSection.WriteInteger('Zoom', FZoom + 1);
-  ASLSSection.WriteString('ZoomArr', ZoomArrayToStr(FZoomArr));
-  ASLSSection.WriteBool('ReplaceExistTiles', FReplaceExistTiles);
-  ASLSSection.WriteBool('CheckExistTileSize', FCheckExistTileSize);
-  ASLSSection.WriteBool('CheckExistTileDate', FCheckExistTileDate);
-  ASLSSection.WriteDate('CheckTileDate', FCheckTileDate);
-  ASLSSection.WriteBool('SecondLoadTNE', FSecondLoadTNE);
-  if not IsNan(FReplaceTneOlderDate) then begin
-    ASLSSection.WriteDate('LoadTneOlderDate', FReplaceTneOlderDate);
-  end;
-  FCS.BeginRead;
-  try
-    ASLSSection.WriteInteger('ProcessedTileCount', FDownloadedCount);
-    ASLSSection.WriteInteger('Processed', FProcessed);
-    ASLSSection.WriteFloat('ProcessedSize', FDownloadedSize / 1024);
-    ASLSSection.WriteInteger('StartX', FLastProcessedPoint.X);
-    ASLSSection.WriteInteger('StartY', FLastProcessedPoint.Y);
-    ASLSSection.WriteInteger('LastSuccessfulStartX', FLastSuccessfulPoint.X);
-    ASLSSection.WriteInteger('LastSuccessfulStartY', FLastSuccessfulPoint.Y);
-    WritePolygon(ASLSSection, FPolygon);
-    if FNeedPause then begin
-      VElapsedTime := FElapsedTime;
-    end else begin
-      VElapsedTime := FElapsedTime + (Now - FStartTime);
-    end;
-    ASLSSection.WriteFloat('ElapsedTime', VElapsedTime);
-  finally
-    FCS.EndRead;
-  end;
-end;
-
 procedure TRegionProcessProgressInfoDownload.SetNeedPause(AValue: Boolean);
 begin
   FCS.BeginWrite;
@@ -517,7 +420,7 @@ begin
   FCS.BeginWrite;
   try
     FPaused := True;
-    FElapsedTime := FElapsedTime + (Now - FStartTime);
+    FSession.ElapsedTime := FSession.ElapsedTime + (Now - FStartTime);
   finally
     FCS.EndWrite;
   end;
@@ -529,16 +432,6 @@ begin
   try
     FPaused := False;
     FStartTime := Now;
-  finally
-    FCS.EndWrite;
-  end;
-end;
-
-procedure TRegionProcessProgressInfoDownload.SetTotalToProcess(AValue: Int64);
-begin
-  FCS.BeginWrite;
-  try
-    FTotalInRegion := AValue;
   finally
     FCS.EndWrite;
   end;

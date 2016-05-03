@@ -930,6 +930,8 @@ uses
   u_ThreadDeleteTiles in 'Src\RegionProcess\Delete\u_ThreadDeleteTiles.pas',
   fr_TilesDownload in 'Src\RegionProcess\Download\fr_TilesDownload.pas' {frTilesDownload: TFrame},
   frm_ProgressDownload in 'Src\RegionProcess\Download\frm_ProgressDownload.pas' {frmProgressDownload},
+  i_DownloadSession in 'Src\RegionProcess\Download\i_DownloadSession.pas',
+  u_DownloadSession in 'Src\RegionProcess\Download\u_DownloadSession.pas',
   u_ProviderTilesDownload in 'Src\RegionProcess\Download\u_ProviderTilesDownload.pas',
   u_ThreadDownloadTiles in 'Src\RegionProcess\Download\u_ThreadDownloadTiles.pas',
   fr_ExportToFileCont in 'Src\RegionProcess\Export\Archive\fr_ExportToFileCont.pas' {frExportToFileCont: TFrame},
