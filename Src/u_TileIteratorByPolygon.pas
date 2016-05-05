@@ -202,7 +202,6 @@ end;
 
 procedure TTileIteratorByPolygon.Reset;
 begin
-  inherited;
   FCurrent := FTilesRect.TopLeft;
   FLastUsedLine := nil;
 end;
