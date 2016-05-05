@@ -94,6 +94,8 @@ type
     procedure AddNotNecessaryTile(const ATile: TPoint);
     procedure SetTotalToProcess(AValue: Int64);
     function GetLog: ILogSimple;
+    procedure SetAutoCloseAtFinish(const Value: Boolean);
+    function GetAutoCloseAtFinish: Boolean;
   public
     constructor Create(
       const ALog: ILogSimple;
@@ -101,7 +103,6 @@ type
       const ASession: IDownloadSession;
       const APaused: Boolean
     );
-
   end;
 
 implementation
@@ -434,6 +435,28 @@ begin
     FStartTime := Now;
   finally
     FCS.EndWrite;
+  end;
+end;
+
+procedure TRegionProcessProgressInfoDownload.SetAutoCloseAtFinish(
+  const Value: Boolean
+);
+begin
+  FCS.BeginWrite;
+  try
+    FSession.AutoCloseAtFinish := Value;
+  finally
+    FCS.EndWrite;
+  end;
+end;
+
+function TRegionProcessProgressInfoDownload.GetAutoCloseAtFinish: Boolean;
+begin
+  FCS.BeginRead;
+  try
+    Result := FSession.AutoCloseAtFinish;
+  finally
+    FCS.EndRead;
   end;
 end;
 

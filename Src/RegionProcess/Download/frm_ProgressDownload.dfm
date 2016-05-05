@@ -313,7 +313,7 @@ object frmProgressDownload: TfrmProgressDownload
       Align = alBottom
       Caption = 'Close this window once finished'
       TabOrder = 8
-      ExplicitTop = 198
+      OnClick = chkAutoCloseWhenFinishClick
     end
   end
   object tbxStatusBar: TTBXStatusBar

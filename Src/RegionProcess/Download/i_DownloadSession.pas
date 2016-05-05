@@ -98,6 +98,10 @@ type
     procedure SetElapsedTime(const Value: TDateTime);
     property ElapsedTime: TDateTime read GetElapsedTime write SetElapsedTime;
 
+    function GetAutoCloseAtFinish: Boolean;
+    procedure SetAutoCloseAtFinish(const Value: Boolean);
+    property AutoCloseAtFinish: Boolean read GetAutoCloseAtFinish write SetAutoCloseAtFinish;
+
     procedure Save(
       const ASessionSection: IConfigDataWriteProvider
     );

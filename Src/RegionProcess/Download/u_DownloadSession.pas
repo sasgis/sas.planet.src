@@ -58,6 +58,7 @@ type
     FDownloadedCount: Int64;
     FLastProcessedPoint: TPoint;
     FLastSuccessfulPoint: TPoint;
+    FAutoCloseAtFinish: Boolean;
   private
     procedure _InitSession;
   private
@@ -79,6 +80,7 @@ type
     function GetZoomArr: TByteDynArray;
     function GetLastSuccessfulPoint: TPoint;
     function GetProcessed: Int64;
+    function GetAutoCloseAtFinish: Boolean;
 
     procedure SetZoom(const Value: Byte);
     procedure SetLastSuccessfulPoint(const Value: TPoint);
@@ -87,6 +89,7 @@ type
     procedure SetDownloadedSize(const Value: UInt64);
     procedure SetElapsedTime(const Value: TDateTime);
     procedure SetLastProcessedPoint(const Value: TPoint);
+    procedure SetAutoCloseAtFinish(const Value: Boolean);
 
     procedure Save(
       const ASessionSection: IConfigDataWriteProvider
@@ -188,6 +191,7 @@ begin
   FDownloadedCount := 0;
   FLastProcessedPoint := Point(-1, -1);
   FLastSuccessfulPoint := Point(-1, -1);
+  FAutoCloseAtFinish := False;
 end;
 
 procedure TDownloadSession.Save(
@@ -236,6 +240,7 @@ begin
   ASessionSection.WriteInteger('LastSuccessfulStartX', FLastSuccessfulPoint.X);
   ASessionSection.WriteInteger('LastSuccessfulStartY', FLastSuccessfulPoint.Y);
   ASessionSection.WriteFloat('ElapsedTime', FElapsedTime);
+  ASessionSection.WriteBool('AutoCloseAtFinish', FAutoCloseAtFinish);
 
   WritePolygon(ASessionSection, FPolygon);
 end;
@@ -303,6 +308,7 @@ var
   VVersionForCheck: IMapVersionRequest;
   VVersionString: string;
   VVersionCheckShowPrev: Boolean;
+  VAutoCloseAtFinish: Boolean;
 begin
   Assert(AFullMapsSet <> nil);
   Assert(ADownloadConfig <> nil);
@@ -361,6 +367,7 @@ begin
   VSecondLoadTNE := ASessionSection.ReadBool('SecondLoadTNE', False);
   VLoadTneOlderDate := ASessionSection.ReadDate('LoadTneOlderDate', NaN);
   VElapsedTime := ASessionSection.ReadFloat('ElapsedTime', 0);
+  VAutoCloseAtFinish := ASessionSection.ReadBool('AutoCloseAtFinish', False);
 
   VLastSuccessfulPoint.X := ASessionSection.ReadInteger('LastSuccessfulStartX', -1);
   VLastSuccessfulPoint.Y := ASessionSection.ReadInteger('LastSuccessfulStartY', -1);
@@ -406,11 +413,17 @@ begin
   FSecondLoadTNE := VSecondLoadTNE;
   FReplaceTneOlderDate := VLoadTneOlderDate;
   FElapsedTime := VElapsedTime;
+  FAutoCloseAtFinish := VAutoCloseAtFinish;
 
   FLastProcessedPoint := VLastProcessedPoint;
   FLastSuccessfulPoint := VLastSuccessfulPoint;
 
   FPolygon := VPolygon;
+end;
+
+function TDownloadSession.GetAutoCloseAtFinish: Boolean;
+begin
+  Result := FAutoCloseAtFinish;
 end;
 
 function TDownloadSession.GetCheckExistTileDate: Boolean;
@@ -501,6 +514,11 @@ end;
 function TDownloadSession.GetZoomArr: TByteDynArray;
 begin
   Result := GetZoomArrayCopy(FZoomArr);
+end;
+
+procedure TDownloadSession.SetAutoCloseAtFinish(const Value: Boolean);
+begin
+  FAutoCloseAtFinish := Value;
 end;
 
 procedure TDownloadSession.SetDownloadedCount(const Value: Int64);

@@ -98,6 +98,7 @@ type
     procedure tbtmSelectClick(Sender: TObject);
     procedure tbtmMarkClick(Sender: TObject);
     procedure tbtmGotoMapClick(Sender: TObject);
+    procedure chkAutoCloseWhenFinishClick(Sender: TObject);
   private
     FValueToStringConverter: IValueToStringConverterChangeable;
     FCancelNotifier: INotifierOperationInternal;
@@ -226,6 +227,7 @@ begin
     btnPause.Caption := SAS_STR_Pause;
   end;
   FFinished := False;
+  chkAutoCloseWhenFinish.Checked := FProgressInfo.AutoCloseAtFinish;
 end;
 
 destructor TfrmProgressDownload.Destroy;
@@ -256,6 +258,11 @@ begin
     FStoped := true;
     btnPause.Caption := SAS_STR_Continue;
   end;
+end;
+
+procedure TfrmProgressDownload.chkAutoCloseWhenFinishClick(Sender: TObject);
+begin
+  FProgressInfo.AutoCloseAtFinish := chkAutoCloseWhenFinish.Checked;
 end;
 
 procedure TfrmProgressDownload.Panel1Resize(Sender: TObject);
@@ -318,7 +325,7 @@ begin
       tbxStatusBar.Panels.Items[1].Caption := '';
       tbxStatusBar.Panels.Items[2].Caption := '';
       Repaint;
-      if chkAutoCloseWhenFinish.Checked then begin
+      if FProgressInfo.AutoCloseAtFinish then begin
         btnCloseClick(nil);
       end;
     end;

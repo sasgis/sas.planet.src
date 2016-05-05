@@ -68,6 +68,10 @@ type
     property IsPaused: Boolean read GetIsPaused;
     procedure Pause;
     procedure Resume;
+
+    function GetAutoCloseAtFinish: Boolean;
+    procedure SetAutoCloseAtFinish(const Value: Boolean);
+    property AutoCloseAtFinish: Boolean read GetAutoCloseAtFinish write SetAutoCloseAtFinish;
   end;
 
   IRegionProcessProgressInfoDownloadInternal = interface
