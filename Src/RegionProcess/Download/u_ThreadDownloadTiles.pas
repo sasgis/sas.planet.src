@@ -300,18 +300,9 @@ begin
 end;
 
 procedure TThreadDownloadTiles.SkipTiles(const ATileIterator: ITileIterator);
-var
-  VTile: TPoint;
 begin
   if (FLastProcessedPoint.X >= 0) and (FLastProcessedPoint.Y >= 0) then begin
-    while ATileIterator.Next(VTile) do begin
-      if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
-        Break;
-      end;
-      if (VTile.X = FLastProcessedPoint.X) and (VTile.Y = FLastProcessedPoint.Y) then begin
-        Break;
-      end;
-    end;
+    ATileIterator.Seek(FLastProcessedPoint);
   end;
 end;
 

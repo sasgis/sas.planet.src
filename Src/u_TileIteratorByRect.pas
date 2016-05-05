@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  SysUtils,
   i_TileRect,
   i_TileIterator,
   u_BaseInterfacedObject;
@@ -49,6 +50,7 @@ type
   private
     function Next(out ATile: TPoint): Boolean;
     procedure Reset;
+    procedure Seek(const APos: TPoint);
   public
     constructor Create(const ARect: ITileRect);
   end;
@@ -64,6 +66,7 @@ type
     property TilesTotal: Int64 read FTilesTotal;
     function Next(out ATile: TPoint): Boolean; inline;
     procedure Reset; inline;
+    procedure Seek(const APos: TPoint); inline;
   end;
 
 implementation
@@ -120,11 +123,27 @@ end;
 
 procedure TTileIteratorByRect.Reset;
 begin
-  if IsRectEmpty(TilesRect) then begin
-    FEOI := True;
-  end else begin
-    FEOI := False;
+  FEOI := IsRectEmpty(TilesRect);
+  if not FEOI then begin
     FCurrent := TilesRect.TopLeft;
+  end;
+end;
+
+procedure TTileIteratorByRect.Seek(const APos: TPoint);
+var
+  VPoint: TPoint;
+begin
+  if PtInRect(TilesRect, APos) then begin
+    FEOI := IsRectEmpty(TilesRect);
+    if not FEOI then begin
+      FCurrent := APos;
+      Next(VPoint);
+    end;
+  end else begin
+    raise Exception.CreateFmt(
+      'Point %d, %d not in Rect [%d, %d; %d, %d]',
+      [APos.X, APos.Y, TilesRect.Left, TilesRect.Top, TilesRect.Right, TilesRect.Bottom]
+    );
   end;
 end;
 
@@ -161,11 +180,27 @@ end;
 
 procedure TTileIteratorByRectRecord.Reset;
 begin
-  if IsRectEmpty(FTilesRect) then begin
-    FEOI := True;
-  end else begin
-    FEOI := False;
+  FEOI := IsRectEmpty(FTilesRect);
+  if not FEOI then begin
     FCurrent := FTilesRect.TopLeft;
+  end;
+end;
+
+procedure TTileIteratorByRectRecord.Seek(const APos: TPoint);
+var
+  VPoint: TPoint;
+begin
+  if PtInRect(FTilesRect, APos) then begin
+    FEOI := IsRectEmpty(FTilesRect);
+    if not FEOI then begin
+      FCurrent := APos;
+      Next(VPoint);
+    end;
+  end else begin
+    raise Exception.CreateFmt(
+      'Point %d, %d not in Rect [%d, %d; %d, %d]',
+      [APos.X, APos.Y, FTilesRect.Left, FTilesRect.Top, FTilesRect.Right, FTilesRect.Bottom]
+    );
   end;
 end;
 

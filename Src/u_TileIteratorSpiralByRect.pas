@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  SysUtils,
   i_TileRect,
   i_TileIterator,
   u_TileIteratorByRect;
@@ -51,6 +52,7 @@ type
   private
     function Next(out ATile: TPoint): Boolean;
     procedure Reset;
+    procedure Seek(const APos: TPoint);
   public
     constructor CreateWithCenter(
       const ARect: ITileRect;
@@ -198,6 +200,29 @@ begin
   FEOI := IsRectEmpty(TilesRect);
   FCurrentRing := 0;
   FIndexInRing := 0;
+end;
+
+procedure TTileIteratorSpiralByRect.Seek(const APos: TPoint);
+var
+  VPoint: TPoint;
+begin
+  if PtInRect(TilesRect, APos) then begin
+    FEOI := IsRectEmpty(TilesRect);
+    //ToDo: Make this faster, if you can!
+    if not FEOI then begin
+      Reset;
+      while Next(VPoint) do begin
+        if (VPoint.X = APos.X) and (VPoint.Y = APos.Y) then begin
+          Break;
+        end;
+      end;
+    end;
+  end else begin
+    raise Exception.CreateFmt(
+      'Point %d, %d not in Rect [%d, %d; %d, %d]',
+      [APos.X, APos.Y, TilesRect.Left, TilesRect.Top, TilesRect.Right, TilesRect.Bottom]
+    );
+  end;
 end;
 
 end.

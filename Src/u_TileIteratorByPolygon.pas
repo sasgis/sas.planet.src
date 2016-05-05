@@ -50,6 +50,7 @@ type
     function GetTilesRect: ITileRect;
     function Next(out ATile: TPoint): Boolean;
     procedure Reset;
+    procedure Seek(const APos: TPoint);
   private
     function InternalIntersectPolygon(const ARect: TDoubleRect): Boolean;
   public
@@ -204,6 +205,22 @@ begin
   inherited;
   FCurrent := FTilesRect.TopLeft;
   FLastUsedLine := nil;
+end;
+
+procedure TTileIteratorByPolygon.Seek(const APos: TPoint);
+var
+  VPoint: TPoint;
+begin
+  if FRect.IsPointInRect(APos) then begin
+    FCurrent := APos;
+    FLastUsedLine := nil;
+    Next(VPoint);
+  end else begin
+    raise Exception.CreateFmt(
+      'Point %d, %d not in Rect [%d, %d; %d, %d]',
+      [APos.X, APos.Y, FTilesRect.Left, FTilesRect.Top, FTilesRect.Right, FTilesRect.Bottom]
+    );
+  end;
 end;
 
 end.

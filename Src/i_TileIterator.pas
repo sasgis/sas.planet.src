@@ -32,6 +32,8 @@ type
     function Next(out ATile: TPoint): Boolean;
     procedure Reset;
 
+    procedure Seek(const APos: TPoint);
+
     function GetTilesTotal: Int64;
     property TilesTotal: Int64 read GetTilesTotal;
 
