@@ -212,6 +212,7 @@ begin
     FHttpClient.OnDownloadProgress := Self.DoOnALDownloadProgress;
   end;
   FHttpClient.DisconnectOnError := True;
+  FHttpClient.IgnoreSecurityErrors := True;
 
   FHttpResponseHeader := TALHTTPResponseHeader.Create;
   FHttpResponseBody := TMemoryStream.Create;
