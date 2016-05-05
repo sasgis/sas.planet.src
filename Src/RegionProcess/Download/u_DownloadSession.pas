@@ -53,10 +53,13 @@ type
     FCheckTileDate: TDateTime;
     FElapsedTime: TDateTime;
     FProcessed: Int64;
+    FProcessedFromLastSuccessfulPoint: Int64;
     FDownloadedSize: UInt64;
     FDownloadedCount: Int64;
     FLastProcessedPoint: TPoint;
     FLastSuccessfulPoint: TPoint;
+  private
+    procedure _InitSession;
   private
     function GetMapType: IMapType;
     function GetVersionForCheck: IMapVersionRequest;
@@ -95,8 +98,8 @@ type
       const ADownloadConfig: IGlobalDownloadConfig;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory
     );
-
-    procedure Reset(
+  public
+    constructor Create(
       const AMapType: IMapType;
       const AVersionForCheck: IMapVersionRequest;
       const AVersionForDownload: IMapVersionInfo;
@@ -108,16 +111,10 @@ type
       const AReplaceExistTiles: Boolean;
       const ACheckExistTileSize: Boolean;
       const ACheckExistTileDate: Boolean;
-      const ACheckTileDate: TDateTime;
-      const AProcessed: Int64;
-      const ADownloadedSize: UInt64;
-      const ADownloadedCount: Int64;
-      const ALastProcessedPoint: TPoint;
-      const ALastSuccessfulPoint: TPoint;
-      const AElapsedTime: TDateTime
-    );
-  public
-    constructor Create;
+      const ACheckTileDate: TDateTime
+    ); overload;
+
+    constructor Create; overload;
   end;
 
 implementation
@@ -129,6 +126,7 @@ uses
   i_ProjectionSet,
   u_MapVersionRequest,
   u_ConfigProviderHelpers,
+  u_GeoFunc,
   u_ZoomArrayFunc;
 
 { TDownloadSession }
@@ -136,7 +134,41 @@ uses
 constructor TDownloadSession.Create;
 begin
   inherited Create;
+  _InitSession;
+end;
 
+constructor TDownloadSession.Create(
+  const AMapType: IMapType;
+  const AVersionForCheck: IMapVersionRequest;
+  const AVersionForDownload: IMapVersionInfo;
+  const AZoom: Byte;
+  const AZoomArr: TByteDynArray;
+  const APolygon: IGeometryLonLatPolygon;
+  const ASecondLoadTNE: Boolean;
+  const AReplaceTneOlderDate: TDateTime;
+  const AReplaceExistTiles, ACheckExistTileSize, ACheckExistTileDate: Boolean;
+  const ACheckTileDate: TDateTime
+);
+begin
+  inherited Create;
+  _InitSession;
+
+  FMapType := AMapType;
+  FVersionForCheck := AVersionForCheck;
+  FVersionForDownload := AVersionForDownload;
+  FZoom := AZoom;
+  FZoomArr := GetZoomArrayCopy(AZoomArr);
+  FReplaceExistTiles := AReplaceExistTiles;
+  FCheckExistTileSize := ACheckExistTileSize;
+  FCheckExistTileDate := ACheckExistTileDate;
+  FCheckTileDate := ACheckTileDate;
+  FSecondLoadTNE := ASecondLoadTNE;
+  FReplaceTneOlderDate := AReplaceTneOlderDate;
+  FPolygon := APolygon;
+end;
+
+procedure TDownloadSession._InitSession;
+begin
   FMapType := nil;
   FVersionForCheck := nil;
   FVersionForDownload := nil;
@@ -151,56 +183,11 @@ begin
   FCheckTileDate := Now;
   FElapsedTime := 0;
   FProcessed := 0;
+  FProcessedFromLastSuccessfulPoint := 0;
   FDownloadedSize := 0;
   FDownloadedCount := 0;
   FLastProcessedPoint := Point(-1, -1);
   FLastSuccessfulPoint := Point(-1, -1);
-end;
-
-procedure TDownloadSession.Reset(
-  const AMapType: IMapType;
-  const AVersionForCheck: IMapVersionRequest;
-  const AVersionForDownload: IMapVersionInfo;
-  const AZoom: Byte;
-  const AZoomArr: TByteDynArray;
-  const APolygon: IGeometryLonLatPolygon;
-  const ASecondLoadTNE: Boolean;
-  const AReplaceTneOlderDate: TDateTime;
-  const AReplaceExistTiles, ACheckExistTileSize, ACheckExistTileDate: Boolean;
-  const ACheckTileDate: TDateTime;
-  const AProcessed: Int64;
-  const ADownloadedSize: UInt64;
-  const ADownloadedCount: Int64;
-  const ALastProcessedPoint: TPoint;
-  const ALastSuccessfulPoint: TPoint;
-  const AElapsedTime: TDateTime
-);
-begin
-  FMapType := AMapType;
-
-  FVersionForCheck := AVersionForCheck;
-  FVersionForDownload := AVersionForDownload;
-
-  FZoom := AZoom;
-  FZoomArr := GetZoomArrayCopy(AZoomArr);
-
-  FReplaceExistTiles := AReplaceExistTiles;
-  FCheckExistTileSize := ACheckExistTileSize;
-  FCheckExistTileDate := ACheckExistTileDate;
-  FCheckTileDate := ACheckTileDate;
-
-  FProcessed := AProcessed;
-  FDownloadedCount := ADownloadedCount;
-  FDownloadedSize := ADownloadedSize;
-
-  FSecondLoadTNE := ASecondLoadTNE;
-  FReplaceTneOlderDate := AReplaceTneOlderDate;
-  FElapsedTime := AElapsedTime;
-
-  FLastProcessedPoint := ALastProcessedPoint;
-  FLastSuccessfulPoint := ALastSuccessfulPoint;
-
-  FPolygon := APolygon;
 end;
 
 procedure TDownloadSession.Save(
@@ -218,6 +205,10 @@ begin
       VVersionForCheck := FVersionForCheck.BaseVersion.StoreString;
     end;
     VVersionForCheckUsePrev := FVersionForCheck.ShowPrevVersion;
+  end;
+
+  if IsPointsEqual(FLastSuccessfulPoint, FLastProcessedPoint) then begin
+    FProcessedFromLastSuccessfulPoint := 0;
   end;
 
   ASessionSection.WriteString('MapGUID', GUIDToString(FMapType.GUID));
@@ -238,6 +229,7 @@ begin
 
   ASessionSection.WriteInteger('ProcessedTileCount', FDownloadedCount);
   ASessionSection.WriteInteger('Processed', FProcessed);
+  ASessionSection.WriteInteger('ProcessedFromLastSuccessfulPoint', FProcessedFromLastSuccessfulPoint);
   ASessionSection.WriteFloat('ProcessedSize', FDownloadedSize / 1024);
   ASessionSection.WriteInteger('StartX', FLastProcessedPoint.X);
   ASessionSection.WriteInteger('StartY', FLastProcessedPoint.Y);
@@ -297,6 +289,7 @@ var
   VCheckExistTileDate: Boolean;
   VCheckTileDate: TDateTime;
   VProcessed: Int64;
+  VProcessedFromLastSuccessfulPoint: Int64;
   VProcessedTileCount: Int64;
   VProcessedSize: Int64;
   VSecondLoadTNE: Boolean;
@@ -362,6 +355,7 @@ begin
   VCheckExistTileDate := ASessionSection.ReadBool('CheckExistTileDate', False);
   VCheckTileDate := ASessionSection.ReadDate('CheckTileDate', Now);
   VProcessed := ASessionSection.ReadInteger('Processed', 0);
+  VProcessedFromLastSuccessfulPoint := ASessionSection.ReadInteger('ProcessedFromLastSuccessfulPoint', 0);
   VProcessedTileCount := ASessionSection.ReadInteger('ProcessedTileCount', 0);
   VProcessedSize := Trunc(ASessionSection.ReadFloat('ProcessedSize', 0) * 1024);
   VSecondLoadTNE := ASessionSection.ReadBool('SecondLoadTNE', False);
@@ -374,8 +368,17 @@ begin
   VLastProcessedPoint.X := ASessionSection.ReadInteger('StartX', -1);
   VLastProcessedPoint.Y := ASessionSection.ReadInteger('StartY', -1);
 
+  if IsPointsEqual(VLastSuccessfulPoint, VLastProcessedPoint) then begin
+    VProcessedFromLastSuccessfulPoint := 0;
+  end;
+
   if ADownloadConfig.IsUseSessionLastSuccess then begin
+    // rollback processed point to last successful point
     VLastProcessedPoint := VLastSuccessfulPoint;
+    if (VProcessed > 0) and (VProcessedFromLastSuccessfulPoint > 0) then begin
+      Dec(VProcessed, VProcessedFromLastSuccessfulPoint);
+      VProcessedFromLastSuccessfulPoint := 0;
+    end;
   end;
 
   VPolygon := ReadPolygon(ASessionSection, AVectorGeometryLonLatFactory);
@@ -396,6 +399,7 @@ begin
   FCheckExistTileDate := VCheckExistTileDate;
   FCheckTileDate := VCheckTileDate;
   FProcessed := VProcessed;
+  FProcessedFromLastSuccessfulPoint := VProcessedFromLastSuccessfulPoint;
   FDownloadedCount := VProcessedTileCount;
   FDownloadedSize := VProcessedSize;
 
@@ -517,11 +521,19 @@ end;
 procedure TDownloadSession.SetLastProcessedPoint(const Value: TPoint);
 begin
   FLastProcessedPoint := Value;
+  if IsPointsEqual(FLastSuccessfulPoint, FLastProcessedPoint) then begin
+    FProcessedFromLastSuccessfulPoint := 0;
+  end else begin
+    Inc(FProcessedFromLastSuccessfulPoint);
+  end;
 end;
 
 procedure TDownloadSession.SetLastSuccessfulPoint(const Value: TPoint);
 begin
   FLastSuccessfulPoint := Value;
+  if IsPointsEqual(FLastSuccessfulPoint, FLastProcessedPoint) then begin
+    FProcessedFromLastSuccessfulPoint := 0;
+  end;
 end;
 
 procedure TDownloadSession.SetProcessed(const Value: Int64);

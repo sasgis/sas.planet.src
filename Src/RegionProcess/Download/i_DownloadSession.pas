@@ -108,27 +108,6 @@ type
       const ADownloadConfig: IGlobalDownloadConfig;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory
     );
-
-    procedure Reset(
-      const AMapType: IMapType;
-      const AVersionForCheck: IMapVersionRequest;
-      const AVersionForDownload: IMapVersionInfo;
-      const AZoom: Byte;
-      const AZoomArr: TByteDynArray;
-      const APolygon: IGeometryLonLatPolygon;
-      const ASecondLoadTNE: Boolean;
-      const AReplaceTneOlderDate: TDateTime;
-      const AReplaceExistTiles: Boolean;
-      const ACheckExistTileSize: Boolean;
-      const ACheckExistTileDate: Boolean;
-      const ACheckTileDate: TDateTime;
-      const AProcessed: Int64;
-      const ADownloadedSize: UInt64;
-      const ADownloadedCount: Int64;
-      const ALastProcessedPoint: TPoint;
-      const ALastSuccessfulPoint: TPoint;
-      const AElapsedTime: TDateTime
-    );
   end;
 
 implementation

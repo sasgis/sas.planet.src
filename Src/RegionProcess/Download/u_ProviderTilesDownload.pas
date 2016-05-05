@@ -301,28 +301,21 @@ begin
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
   VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
 
-  VSession := TDownloadSession.Create;
-
-  VSession.Reset(
-    VMapType,
-    VMapType.VersionRequest.GetStatic,
-    VMapType.VersionRequest.GetStatic.BaseVersion,
-    VZoomArr[0],
-    VZoomArr,
-    APolygon,
-    (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsIgnoreTne,
-    (ParamsFrame as IRegionProcessParamsFrameTilesDownload).LoadTneOlderDate,
-    (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplace,
-    (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplaceIfDifSize,
-    (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplaceIfOlder,
-    (ParamsFrame as IRegionProcessParamsFrameTilesDownload).ReplaceDate,
-    0, // processed
-    0, // download size
-    0, // download count
-    Point(-1, -1), // last processed point
-    Point(-1, -1), // last successful point
-    0 // elapsed
-  );
+  VSession :=
+    TDownloadSession.Create(
+      VMapType,
+      VMapType.VersionRequest.GetStatic,
+      VMapType.VersionRequest.GetStatic.BaseVersion,
+      VZoomArr[0],
+      VZoomArr,
+      APolygon,
+      (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsIgnoreTne,
+      (ParamsFrame as IRegionProcessParamsFrameTilesDownload).LoadTneOlderDate,
+      (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplace,
+      (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplaceIfDifSize,
+      (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplaceIfOlder,
+      (ParamsFrame as IRegionProcessParamsFrameTilesDownload).ReplaceDate
+   );
 
   StartSession(
     VSession,
