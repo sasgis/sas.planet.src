@@ -508,7 +508,7 @@ begin
 
     // skip tiles processed in last session
     I := VStartZoomIndex;
-    if Length(VIterTaskArray) >= I then begin
+    if Length(VIterTaskArray) > I then begin
       FProgressInfo.SetZoom(VIterTaskArray[I].FZoom);
       SkipTiles(VIterTaskArray[I].FTileIterator);
     end;
