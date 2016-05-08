@@ -561,7 +561,12 @@ end;
 
 procedure TDownloadSession.SetZoom(const Value: Byte);
 begin
-  FZoom := Value;
+  if FZoom <> Value then begin
+    FZoom := Value;
+    FLastSuccessfulPoint := Point(-1, -1);
+    FLastProcessedPoint := Point(-1, -1);
+    FProcessedFromLastSuccessfulPoint := 0;
+  end;
 end;
 
 end.
