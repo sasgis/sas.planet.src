@@ -474,7 +474,7 @@ begin
     // prepare iterators
     VIterTaskCount := 0;
     SetLength(VIterTaskArray, 0);
-    for I := VStartZoomIndex to High(FZoomArray) do begin
+    for I := Low(FZoomArray) to High(FZoomArray) do begin
       VZoom := FZoomArray[I];
 
       VProjection := FMapType.ProjectionSet[VZoom];
@@ -507,9 +507,10 @@ begin
     FProgressInfo.SetTotalToProcess(VTilesTotal);
 
     // skip tiles processed in last session
-    if Length(VIterTaskArray) > 0 then begin
-      FProgressInfo.SetZoom(VIterTaskArray[0].FZoom);
-      SkipTiles(VIterTaskArray[0].FTileIterator);
+    I := VStartZoomIndex;
+    if Length(VIterTaskArray) >= I then begin
+      FProgressInfo.SetZoom(VIterTaskArray[I].FZoom);
+      SkipTiles(VIterTaskArray[I].FTileIterator);
     end;
 
     if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
@@ -517,7 +518,7 @@ begin
     end;
 
     // start downloading
-    for I := 0 to Length(VIterTaskArray) - 1 do begin
+    for I := VStartZoomIndex to Length(VIterTaskArray) - 1 do begin
       FProgressInfo.SetZoom(VIterTaskArray[I].FZoom);
       ProcessTiles(
         VIterTaskArray[I].FZoom,
