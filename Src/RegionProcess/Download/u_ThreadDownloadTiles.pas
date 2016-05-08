@@ -45,6 +45,11 @@ uses
   i_RegionProcessProgressInfoDownload;
 
 type
+  TDownloaderTask = record
+    Zoom: Byte;
+    TileIterator: ITileIterator;
+  end;
+
   TThreadDownloadTiles = class(TThread)
   private
     FProgressInfo: IRegionProcessProgressInfoDownloadInternal;
@@ -110,9 +115,8 @@ type
 
     procedure PrepareStrings;
 
-    procedure ProcessTiles(
-      const AZoom: Byte;
-      const ATileIterator: ITileIterator;
+    procedure ProcessTask(
+      const ADownloaderTask: TDownloaderTask;
       const ACancelNotifier: INotifierOneOperation
     );
     procedure SkipTiles(
@@ -306,19 +310,22 @@ begin
   end;
 end;
 
-procedure TThreadDownloadTiles.ProcessTiles(
-  const AZoom: Byte;
-  const ATileIterator: ITileIterator;
+procedure TThreadDownloadTiles.ProcessTask(
+  const ADownloaderTask: TDownloaderTask;
   const ACancelNotifier: INotifierOneOperation
 );
 var
   VTile: TPoint;
-  VTask: ITileRequestTask;
+  VZoom: Byte;
+  VRequestTask: ITileRequestTask;
   VTileInfo: ITileInfoBasic;
   VGotoNextTile: Boolean;
   VProcessingTileMsg: string;
 begin
-  while ATileIterator.Next(VTile) do begin
+  VZoom := ADownloaderTask.Zoom;
+  FProgressInfo.SetZoom(VZoom);
+
+  while ADownloaderTask.TileIterator.Next(VTile) do begin
     VGotoNextTile := False;
     while not VGotoNextTile do begin
       FFinishEvent.ResetEvent;
@@ -339,11 +346,11 @@ begin
 
       // notify about current tile
       VProcessingTileMsg := Format('[z%d/x%d/y%d]' + #13#10 + '%s',
-        [AZoom + 1, VTile.X, VTile.Y, FMapType.GetTileShowName(VTile, AZoom, FVersionForDownload)]);
+        [VZoom + 1, VTile.X, VTile.Y, FMapType.GetTileShowName(VTile, VZoom, FVersionForDownload)]);
       FProgressInfo.Log.WriteText(Format(FRES_ProcessedFile, [VProcessingTileMsg]), 0);
 
       // if gtimWithData - tile will be loaded, so we use gtimAsIs
-      VTileInfo := FMapType.TileStorage.GetTileInfoEx(VTile, AZoom, FVersionForCheck, gtimAsIs);
+      VTileInfo := FMapType.TileStorage.GetTileInfoEx(VTile, VZoom, FVersionForCheck, gtimAsIs);
       if Assigned(VTileInfo) and (VTileInfo.IsExists or VTileInfo.IsExistsTNE) then begin
         if VTileInfo.IsExists then begin
           if FReplaceExistTiles then begin
@@ -383,19 +390,19 @@ begin
       end else begin
         try
           // download tile
-          VTask := FMapType.TileDownloadSubsystem.GetRequestTask(
+          VRequestTask := FMapType.TileDownloadSubsystem.GetRequestTask(
             ACancelNotifier,
             FCancelNotifier,
             FOperationID,
             FTaskFinishNotifier,
             VTile,
-            AZoom,
+            VZoom,
             FVersionForDownload,
             FCheckExistTileSize
           );
-          if VTask <> nil then begin
+          if VRequestTask <> nil then begin
             FTileRequestResult := nil;
-            FMapType.TileDownloadSubsystem.Download(VTask);
+            FMapType.TileDownloadSubsystem.Download(VRequestTask);
             if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
               Exit;
             end;
@@ -436,18 +443,13 @@ begin
 end;
 
 procedure TThreadDownloadTiles.Execute;
-type
-  TIterTask = record
-    FZoom: Byte;
-    FTileIterator: ITileIterator;
-  end;
 var
   I: Integer;
   VZoom: Byte;
   VStartZoomIndex: Integer;
   VTilesTotal: Int64;
   VIterTaskCount: Integer;
-  VIterTaskArray: array of TIterTask;
+  VIterTaskArray: array of TDownloaderTask;
   VTileIterator: ITileIterator;
   VSoftCancelNotifier: INotifierOneOperation;
   VProjection: IProjection;
@@ -493,8 +495,8 @@ begin
 
       SetLength(VIterTaskArray, VIterTaskCount + 1);
 
-      VIterTaskArray[VIterTaskCount].FZoom := FZoomArray[I];
-      VIterTaskArray[VIterTaskCount].FTileIterator := VTileIterator;
+      VIterTaskArray[VIterTaskCount].Zoom := FZoomArray[I];
+      VIterTaskArray[VIterTaskCount].TileIterator := VTileIterator;
 
       Inc(VIterTaskCount);
     end;
@@ -502,15 +504,15 @@ begin
     // calc tiles count
     VTilesTotal := 0;
     for I := 0 to Length(VIterTaskArray) - 1 do begin
-      Inc(VTilesTotal, VIterTaskArray[I].FTileIterator.TilesTotal);
+      Inc(VTilesTotal, VIterTaskArray[I].TileIterator.TilesTotal);
     end;
     FProgressInfo.SetTotalToProcess(VTilesTotal);
 
     // skip tiles processed in last session
     I := VStartZoomIndex;
     if Length(VIterTaskArray) > I then begin
-      FProgressInfo.SetZoom(VIterTaskArray[I].FZoom);
-      SkipTiles(VIterTaskArray[I].FTileIterator);
+      FProgressInfo.SetZoom(VIterTaskArray[I].Zoom);
+      SkipTiles(VIterTaskArray[I].TileIterator);
     end;
 
     if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
@@ -519,10 +521,8 @@ begin
 
     // start downloading
     for I := VStartZoomIndex to Length(VIterTaskArray) - 1 do begin
-      FProgressInfo.SetZoom(VIterTaskArray[I].FZoom);
-      ProcessTiles(
-        VIterTaskArray[I].FZoom,
-        VIterTaskArray[I].FTileIterator,
+      ProcessTask(
+        VIterTaskArray[I],
         VSoftCancelNotifier
       );
       if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
