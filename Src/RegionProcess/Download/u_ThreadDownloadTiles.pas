@@ -448,8 +448,8 @@ var
   VZoom: Byte;
   VStartZoomIndex: Integer;
   VTilesTotal: Int64;
-  VIterTaskCount: Integer;
-  VIterTaskArray: array of TDownloaderTask;
+  VTaskCount: Integer;
+  VTaskArray: array of TDownloaderTask;
   VTileIterator: ITileIterator;
   VSoftCancelNotifier: INotifierOneOperation;
   VProjection: IProjection;
@@ -473,9 +473,9 @@ begin
       end;
     end;
 
-    // prepare iterators
-    VIterTaskCount := 0;
-    SetLength(VIterTaskArray, 0);
+    // prepare tasks
+    VTaskCount := 0;
+    SetLength(VTaskArray, 0);
     for I := Low(FZoomArray) to High(FZoomArray) do begin
       VZoom := FZoomArray[I];
 
@@ -493,26 +493,26 @@ begin
           VProjectedPolygon
         );
 
-      SetLength(VIterTaskArray, VIterTaskCount + 1);
+      SetLength(VTaskArray, VTaskCount + 1);
 
-      VIterTaskArray[VIterTaskCount].Zoom := FZoomArray[I];
-      VIterTaskArray[VIterTaskCount].TileIterator := VTileIterator;
+      VTaskArray[VTaskCount].Zoom := FZoomArray[I];
+      VTaskArray[VTaskCount].TileIterator := VTileIterator;
 
-      Inc(VIterTaskCount);
+      Inc(VTaskCount);
     end;
 
     // calc tiles count
     VTilesTotal := 0;
-    for I := 0 to Length(VIterTaskArray) - 1 do begin
-      Inc(VTilesTotal, VIterTaskArray[I].TileIterator.TilesTotal);
+    for I := 0 to Length(VTaskArray) - 1 do begin
+      Inc(VTilesTotal, VTaskArray[I].TileIterator.TilesTotal);
     end;
     FProgressInfo.SetTotalToProcess(VTilesTotal);
 
     // skip tiles processed in last session
     I := VStartZoomIndex;
-    if Length(VIterTaskArray) > I then begin
-      FProgressInfo.SetZoom(VIterTaskArray[I].Zoom);
-      SkipTiles(VIterTaskArray[I].TileIterator);
+    if Length(VTaskArray) > I then begin
+      FProgressInfo.SetZoom(VTaskArray[I].Zoom);
+      SkipTiles(VTaskArray[I].TileIterator);
     end;
 
     if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
@@ -520,9 +520,9 @@ begin
     end;
 
     // start downloading
-    for I := VStartZoomIndex to Length(VIterTaskArray) - 1 do begin
+    for I := VStartZoomIndex to Length(VTaskArray) - 1 do begin
       ProcessTask(
-        VIterTaskArray[I],
+        VTaskArray[I],
         VSoftCancelNotifier
       );
       if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
