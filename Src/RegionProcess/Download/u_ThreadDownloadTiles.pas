@@ -45,11 +45,6 @@ uses
   i_RegionProcessProgressInfoDownload;
 
 type
-  TDownloaderTask = record
-    Zoom: Byte;
-    TileIterator: ITileIterator;
-  end;
-
   TThreadDownloadTiles = class(TThread)
   private
     FProgressInfo: IRegionProcessProgressInfoDownloadInternal;
@@ -116,7 +111,7 @@ type
     procedure PrepareStrings;
 
     procedure ProcessTask(
-      const ADownloaderTask: TDownloaderTask;
+      const ATileIterator: ITileIterator;
       const ACancelNotifier: INotifierOneOperation
     );
     procedure SkipTiles(
@@ -311,7 +306,7 @@ begin
 end;
 
 procedure TThreadDownloadTiles.ProcessTask(
-  const ADownloaderTask: TDownloaderTask;
+  const ATileIterator: ITileIterator;
   const ACancelNotifier: INotifierOneOperation
 );
 var
@@ -322,10 +317,10 @@ var
   VGotoNextTile: Boolean;
   VProcessingTileMsg: string;
 begin
-  VZoom := ADownloaderTask.Zoom;
+  VZoom := FMapType.ProjectionSet.GetSuitableZoom(ATileIterator.TilesRect.Projection);
   FProgressInfo.SetZoom(VZoom);
 
-  while ADownloaderTask.TileIterator.Next(VTile) do begin
+  while ATileIterator.Next(VTile) do begin
     VGotoNextTile := False;
     while not VGotoNextTile do begin
       FFinishEvent.ResetEvent;
@@ -449,7 +444,7 @@ var
   VStartZoomIndex: Integer;
   VTilesTotal: Int64;
   VTaskCount: Integer;
-  VTaskArray: array of TDownloaderTask;
+  VTaskArray: array of ITileIterator;
   VTileIterator: ITileIterator;
   VSoftCancelNotifier: INotifierOneOperation;
   VProjection: IProjection;
@@ -495,8 +490,7 @@ begin
 
       SetLength(VTaskArray, VTaskCount + 1);
 
-      VTaskArray[VTaskCount].Zoom := FZoomArray[I];
-      VTaskArray[VTaskCount].TileIterator := VTileIterator;
+      VTaskArray[VTaskCount] := VTileIterator;
 
       Inc(VTaskCount);
     end;
@@ -504,15 +498,15 @@ begin
     // calc tiles count
     VTilesTotal := 0;
     for I := 0 to Length(VTaskArray) - 1 do begin
-      Inc(VTilesTotal, VTaskArray[I].TileIterator.TilesTotal);
+      Inc(VTilesTotal, VTaskArray[I].TilesTotal);
     end;
     FProgressInfo.SetTotalToProcess(VTilesTotal);
 
     // skip tiles processed in last session
     I := VStartZoomIndex;
     if Length(VTaskArray) > I then begin
-      FProgressInfo.SetZoom(VTaskArray[I].Zoom);
-      SkipTiles(VTaskArray[I].TileIterator);
+      FProgressInfo.SetZoom(FZoomArray[I]);
+      SkipTiles(VTaskArray[I]);
     end;
 
     if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
