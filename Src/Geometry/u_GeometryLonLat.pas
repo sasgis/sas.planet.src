@@ -51,6 +51,20 @@ type
     ); overload;
   end;
 
+  TGeometryLonLatMultiPoint = class(TGeometryLonLatBase, IGeometryLonLat, IGeometryLonLatMultiPoint)
+  private
+    function GetEnum: IEnumLonLatPoint;
+    function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
+    function IsSame(const APoint: IGeometryLonLatMultiPoint): Boolean;
+    function GetGoToPoint: TDoublePoint;
+  public
+    constructor Create(
+      const ABounds: ILonLatRect;
+      const AHash: THashValue;
+      const APoints: IDoublePoints
+    );
+  end;
+
   TGeometryLonLatSingleLine = class(TGeometryLonLatBase, IGeometryLonLat, IGeometryLonLatLine, IGeometryLonLatSingleLine)
   private
     function GetEnum: IEnumLonLatPoint;
@@ -166,6 +180,82 @@ end;
 function TGeometryLonLatBase.GetPoints: PDoublePointArray;
 begin
   Result := FPoints.Points;
+end;
+
+{ TGeometryLonLatMultiPoint }
+
+constructor TGeometryLonLatMultiPoint.Create(
+  const ABounds: ILonLatRect;
+  const AHash: THashValue;
+  const APoints: IDoublePoints
+);
+begin
+  inherited Create(False, ABounds, AHash, APoints);
+end;
+
+function TGeometryLonLatMultiPoint.GetEnum: IEnumLonLatPoint;
+begin
+  Result := TEnumDoublePointBySingleLonLatLine.Create(FPoints, False, FPoints.Points, FCount);
+end;
+
+function TGeometryLonLatMultiPoint.GetGoToPoint: TDoublePoint;
+begin
+  if GetCount > 0 then begin
+    Result := GetPoints[0];
+  end else begin
+    Result := CEmptyDoublePoint;
+  end;
+end;
+
+function TGeometryLonLatMultiPoint.IsSame(
+  const APoint: IGeometryLonLatMultiPoint
+): Boolean;
+begin
+  if APoint = IGeometryLonLatMultiPoint(Self) then begin
+    Result := True;
+    Exit;
+  end;
+
+  if FCount <> APoint.Count then begin
+    Result := False;
+    Exit;
+  end;
+
+  if (FHash <> 0) and (APoint.Hash <> 0) then begin
+    Result := FHash = APoint.Hash;
+  end else begin
+    if not FBounds.IsEqual(APoint.Bounds) then begin
+      Result := False;
+      Exit;
+    end;
+
+    Result := CompareMem(FPoints.Points, APoint.Points, FCount * SizeOf(TDoublePoint));
+  end;
+end;
+
+function TGeometryLonLatMultiPoint.IsSameGeometry(
+  const AGeometry: IGeometryLonLat
+): Boolean;
+var
+  VPoints: IGeometryLonLatMultiPoint;
+begin
+  if AGeometry = nil then begin
+    Result := False;
+    Exit;
+  end;
+  if AGeometry = IGeometryLonLat(Self) then begin
+    Result := True;
+    Exit;
+  end;
+  if (FHash <> 0) and (AGeometry.Hash <> 0) and (FHash <> AGeometry.Hash) then begin
+    Result := False;
+    Exit;
+  end;
+
+  Result := False;
+  if Supports(AGeometry, IGeometryLonLatMultiPoint, VPoints) then begin
+    Result := IsSame(VPoints);
+  end;
 end;
 
 { TGeometryLonLatSingleLine }

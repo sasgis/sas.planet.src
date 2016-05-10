@@ -38,6 +38,10 @@ type
     function MakeLineBuilder(): IGeometryProjectedLineBuilder;
     function MakePolygonBuilder(): IGeometryProjectedPolygonBuilder;
 
+    function CreateMultiPoint(
+      const ABounds: TDoubleRect;
+      const APoints: IDoublePoints
+    ): IGeometryProjectedMultiPoint;
     function CreateProjectedLineByLonLatPath(
       const AProjection: IProjection;
       const ASource: IGeometryLonLatLine;
@@ -317,6 +321,18 @@ begin
   if Assigned(VPoints) then begin
     ABuilder.AddLine(VBounds, VPoints);
   end;
+end;
+
+function TGeometryProjectedFactory.CreateMultiPoint(
+  const ABounds: TDoubleRect;
+  const APoints: IDoublePoints
+): IGeometryProjectedMultiPoint;
+begin
+  Result :=
+    TGeometryProjectedMultiPoint.Create(
+      ABounds,
+      APoints
+    );
 end;
 
 function TGeometryProjectedFactory.CreateProjectedLineByLonLatPath(

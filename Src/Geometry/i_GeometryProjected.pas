@@ -33,6 +33,17 @@ type
     property Bounds: TDoubleRect read GetBounds;
   end;
 
+  IGeometryProjectedMultiPoint = interface(IGeometryProjected)
+    ['{D0241C2A-E725-490C-AADB-C8ED4B585E55}']
+    function GetEnum: IEnumProjectedPoint;
+
+    function GetCount: Integer;
+    property Count: Integer read GetCount;
+
+    function GetPoints: PDoublePointArray;
+    property Points: PDoublePointArray read GetPoints;
+  end;
+
   IGeometryProjectedLine = interface(IGeometryProjected)
     ['{C2726CC7-0661-4116-9D08-B7DBE1D54612}']
     function IsPointOnPath(

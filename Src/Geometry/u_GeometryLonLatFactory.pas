@@ -26,6 +26,10 @@ type
     function CreateLonLatPoint(
       const APoint: TDoublePoint
     ): IGeometryLonLatPoint;
+    function CreateLonLatMultiPoint(
+      const APoints: PDoublePointArray;
+      ACount: Integer
+    ): IGeometryLonLatMultiPoint;
 
     function MakeLineBuilder(): IGeometryLonLatLineBuilder;
     function MakePolygonBuilder(): IGeometryLonLatPolygonBuilder;
@@ -782,6 +786,30 @@ begin
     VBuilder.AddLine(VLineBounds, VTemp.MakeStaticAndClear);
   end;
   Result := VBuilder.MakeStaticAndClear;
+end;
+
+function TGeometryLonLatFactory.CreateLonLatMultiPoint(
+  const APoints: PDoublePointArray;
+  ACount: Integer
+): IGeometryLonLatMultiPoint;
+var
+  VHash: THashValue;
+  VBounds: TDoubleRect;
+  VRect: ILonLatRect;
+  VPoints: IDoublePoints;
+begin
+  Assert(Assigned(APoints));
+  Assert(ACount > 0);
+  Result := nil;
+  if Assigned(APoints) then begin
+    if ACount > 0 then begin
+      VBounds := LonLatMBRByPoints(APoints, ACount);
+      VHash := FHashFunction.CalcHashByBuffer(APoints, ACount * SizeOf(TDoublePoint));
+      VRect := TLonLatRect.Create(VBounds);
+      VPoints := TDoublePoints.Create(APoints, ACount);
+      Result := TGeometryLonLatMultiPoint.Create(VRect, VHash, VPoints);
+    end;
+  end;
 end;
 
 function TGeometryLonLatFactory.CreateLonLatPoint(

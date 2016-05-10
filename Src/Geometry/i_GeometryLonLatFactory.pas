@@ -87,6 +87,10 @@ type
     function CreateLonLatPoint(
       const APoint: TDoublePoint
     ): IGeometryLonLatPoint;
+    function CreateLonLatMultiPoint(
+      const APoints: PDoublePointArray;
+      ACount: Integer
+    ): IGeometryLonLatMultiPoint;
 
     function MakeLineBuilder(): IGeometryLonLatLineBuilder;
     function MakePolygonBuilder(): IGeometryLonLatPolygonBuilder;

@@ -62,6 +62,10 @@ type
     function MakeLineBuilder(): IGeometryProjectedLineBuilder;
     function MakePolygonBuilder(): IGeometryProjectedPolygonBuilder;
 
+    function CreateMultiPoint(
+      const ABounds: TDoubleRect;
+      const APoints: IDoublePoints
+    ): IGeometryProjectedMultiPoint;
     function CreateProjectedLineByLonLatPath(
       const AProjection: IProjection;
       const ASource: IGeometryLonLatLine;

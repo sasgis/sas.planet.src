@@ -28,6 +28,16 @@ type
     ); overload;
   end;
 
+  TGeometryProjectedMultiPoint = class(TGeometryProjectedBase, IGeometryProjectedMultiPoint)
+  private
+    function GetEnum: IEnumProjectedPoint;
+  public
+    constructor Create(
+      const ABounds: TDoubleRect;
+      const APoints: IDoublePoints
+    );
+  end;
+
   TGeometryProjectedLine = class(TGeometryProjectedBase, IGeometryProjectedLine, IGeometryProjectedSingleLine)
   private
     function GetEnum: IEnumProjectedPoint;
@@ -140,6 +150,21 @@ end;
 function TGeometryProjectedBase.GetPoints: PDoublePointArray;
 begin
   Result := FPoints.Points;
+end;
+
+{ TGeometryProjectedMultiPoint }
+
+constructor TGeometryProjectedMultiPoint.Create(
+  const ABounds: TDoubleRect;
+  const APoints: IDoublePoints
+);
+begin
+  inherited Create(False, ABounds, APoints);
+end;
+
+function TGeometryProjectedMultiPoint.GetEnum: IEnumProjectedPoint;
+begin
+  Result := TEnumDoublePointBySingleProjectedLine.Create(FPoints, False, FPoints.Points, FCount);
 end;
 
 { TGeometryProjectedLine }

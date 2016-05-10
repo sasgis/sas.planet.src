@@ -49,6 +49,19 @@ type
     property Point: TDoublePoint read GetPoint;
   end;
 
+  IGeometryLonLatMultiPoint = interface(IGeometryLonLat)
+    ['{D8376ED0-D2F9-4D8A-AEE0-F61AEB7CE254}']
+    function IsSame(const APoint: IGeometryLonLatMultiPoint): Boolean;
+    function GetEnum: IEnumLonLatPoint;
+
+    function GetCount: Integer;
+    property Count: Integer read GetCount;
+
+    function GetPoints: PDoublePointArray;
+    property Points: PDoublePointArray read GetPoints;
+  end;
+
+
   IGeometryLonLatLine = interface(IGeometryLonLat)
     ['{05412527-06DC-43F9-8902-97D7112E1FFD}']
   end;
