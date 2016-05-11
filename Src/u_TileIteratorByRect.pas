@@ -51,6 +51,13 @@ type
     function Next(out ATile: TPoint): Boolean;
     procedure Reset;
     procedure Seek(const APos: TPoint);
+    function Clone: ITileIterator;
+  private
+    constructor CreateClone(
+      const ARect: ITileRect;
+      const ACurrent: TPoint;
+      const AEOI: Boolean
+    );
   public
     constructor Create(const ARect: ITileRect);
   end;
@@ -67,6 +74,7 @@ type
     function Next(out ATile: TPoint): Boolean; inline;
     procedure Reset; inline;
     procedure Seek(const APos: TPoint); inline;
+    function Clone: TTileIteratorByRectRecord; inline;
   end;
 
 implementation
@@ -102,6 +110,17 @@ constructor TTileIteratorByRect.Create(const ARect: ITileRect);
 begin
   inherited Create(ARect);
   Reset;
+end;
+
+constructor TTileIteratorByRect.CreateClone(
+  const ARect: ITileRect;
+  const ACurrent: TPoint;
+  const AEOI: Boolean
+);
+begin
+  Self.Create(ARect);
+  FCurrent := ACurrent;
+  FEOI := AEOI;
 end;
 
 function TTileIteratorByRect.Next(out ATile: TPoint): Boolean;
@@ -145,6 +164,16 @@ begin
       [APos.X, APos.Y, TilesRect.Left, TilesRect.Top, TilesRect.Right, TilesRect.Bottom]
     );
   end;
+end;
+
+function TTileIteratorByRect.Clone: ITileIterator;
+begin
+  Result :=
+    TTileIteratorByRect.CreateClone(
+      Self.GetTilesRect,
+      FCurrent,
+      FEOI
+    );
 end;
 
 { TTileIteratorByRectRecord }
@@ -202,6 +231,11 @@ begin
       [APos.X, APos.Y, FTilesRect.Left, FTilesRect.Top, FTilesRect.Right, FTilesRect.Bottom]
     );
   end;
+end;
+
+function TTileIteratorByRectRecord.Clone: TTileIteratorByRectRecord;
+begin
+  Result := Self;
 end;
 
 end.

@@ -51,8 +51,15 @@ type
     function Next(out ATile: TPoint): Boolean;
     procedure Reset;
     procedure Seek(const APos: TPoint);
+    function Clone: ITileIterator;
   private
     function InternalIntersectPolygon(const ARect: TDoubleRect): Boolean;
+    constructor CreateClone(
+      const AProjection: IProjection;
+      const AProjected: IGeometryProjectedPolygon;
+      const ACurrent: TPoint;
+      const ATilesTotal: Int64
+    );
   public
     constructor Create(
       const AProjection: IProjection;
@@ -118,6 +125,18 @@ begin
     Reset;
     FTilesTotal := -1;
   end;
+end;
+
+constructor TTileIteratorByPolygon.CreateClone(
+  const AProjection: IProjection;
+  const AProjected: IGeometryProjectedPolygon;
+  const ACurrent: TPoint;
+  const ATilesTotal: Int64
+);
+begin
+  Self.Create(AProjection, AProjected);
+  FCurrent := ACurrent;
+  FTilesTotal := ATilesTotal;
 end;
 
 function TTileIteratorByPolygon.GetTilesRect: ITileRect;
@@ -220,6 +239,17 @@ begin
       [APos.X, APos.Y, FTilesRect.Left, FTilesRect.Top, FTilesRect.Right, FTilesRect.Bottom]
     );
   end;
+end;
+
+function TTileIteratorByPolygon.Clone: ITileIterator;
+begin
+  Result :=
+    TTileIteratorByPolygon.CreateClone(
+      FProjection,
+      FPolygon,
+      FCurrent,
+      FTilesTotal
+    );
 end;
 
 end.

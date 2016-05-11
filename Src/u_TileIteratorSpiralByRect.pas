@@ -53,6 +53,14 @@ type
     function Next(out ATile: TPoint): Boolean;
     procedure Reset;
     procedure Seek(const APos: TPoint);
+    function Clone: ITileIterator;
+  private
+    constructor CreateClone(
+      const ARect: ITileRect;
+      const ACurrentRing: Integer;
+      const AIndexInRing: Integer;
+      const AEOI: Boolean
+    );
   public
     constructor CreateWithCenter(
       const ARect: ITileRect;
@@ -91,6 +99,19 @@ end;
 constructor TTileIteratorSpiralByRect.Create(const ARect: ITileRect);
 begin
   CreateWithCenter(ARect, CenterPoint(ARect.Rect));
+end;
+
+constructor TTileIteratorSpiralByRect.CreateClone(
+  const ARect: ITileRect;
+  const ACurrentRing: Integer;
+  const AIndexInRing: Integer;
+  const AEOI: Boolean
+);
+begin
+  Self.Create(ARect);
+  FCurrentRing := ACurrentRing;
+  FIndexInRing := AIndexInRing;
+  FEOI := AEOI;
 end;
 
 class function TTileIteratorSpiralByRect.GetDeltaByRingAndIndex(ARad,
@@ -223,6 +244,17 @@ begin
       [APos.X, APos.Y, TilesRect.Left, TilesRect.Top, TilesRect.Right, TilesRect.Bottom]
     );
   end;
+end;
+
+function TTileIteratorSpiralByRect.Clone: ITileIterator;
+begin
+  Result :=
+    TTileIteratorSpiralByRect.CreateClone(
+      Self.GetTilesRect,
+      FCurrentRing,
+      FIndexInRing,
+      FEOI
+    );
 end;
 
 end.
