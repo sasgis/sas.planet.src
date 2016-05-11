@@ -138,8 +138,7 @@ type
       const AReplaceTneOlderDate: TDateTime;
       const AZoomArray: TByteDynArray;
       const ALastProcessedZoom: Byte;
-      const ALastProcessedPoint: TPoint;
-      const AElapsedTime: TDateTime
+      const ALastProcessedPoint: TPoint
     );
     destructor Destroy; override;
   end;
@@ -179,8 +178,7 @@ constructor TThreadDownloadTiles.Create(
   const AReplaceTneOlderDate: TDateTime;
   const AZoomArray: TByteDynArray;
   const ALastProcessedZoom: Byte;
-  const ALastProcessedPoint: TPoint;
-  const AElapsedTime: TDateTime
+  const ALastProcessedPoint: TPoint
 );
 var
   VState: ITileDownloaderStateStatic;

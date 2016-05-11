@@ -251,8 +251,7 @@ begin
         ASession.ReplaceTneOlderDate,
         ASession.ZoomArr,
         ASession.Zoom,
-        ASession.LastProcessedPoint,
-        ASession.ElapsedTime
+        ASession.LastProcessedPoint
       );
     if not APaused then begin
       VThread.Resume;
