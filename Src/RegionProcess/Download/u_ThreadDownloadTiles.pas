@@ -114,9 +114,6 @@ type
       const ATileIterator: ITileIterator;
       const ACancelNotifier: INotifierOneOperation
     );
-    procedure SkipTiles(
-      const ATileIterator: ITileIterator
-    );
   protected
     procedure Execute; override;
   public
@@ -298,13 +295,6 @@ begin
   FFinishEvent.WaitFor(ATime);
 end;
 
-procedure TThreadDownloadTiles.SkipTiles(const ATileIterator: ITileIterator);
-begin
-  if (FLastProcessedPoint.X >= 0) and (FLastProcessedPoint.Y >= 0) then begin
-    ATileIterator.Seek(FLastProcessedPoint);
-  end;
-end;
-
 procedure TThreadDownloadTiles.ProcessTask(
   const ATileIterator: ITileIterator;
   const ACancelNotifier: INotifierOneOperation
@@ -460,17 +450,10 @@ begin
 
     VSoftCancelNotifier := TNotifierOneOperationByNotifier.Create(FCancelNotifier, FOperationID);
 
-    VStartZoomIndex := 0;
-    for I := Low(FZoomArray) to High(FZoomArray) do begin
-      if FZoomArray[I] = FLastProcessedZoom then begin
-        VStartZoomIndex := I;
-        Break;
-      end;
-    end;
-
     // prepare tasks
     VTaskCount := 0;
     SetLength(VTaskArray, 0);
+    VStartZoomIndex := -1;
     for I := Low(FZoomArray) to High(FZoomArray) do begin
       VZoom := FZoomArray[I];
 
@@ -492,7 +475,16 @@ begin
 
       VTaskArray[VTaskCount] := VTileIterator;
 
+      if VZoom = FLastProcessedZoom then begin
+        VStartZoomIndex := VTaskCount;
+      end;
+
       Inc(VTaskCount);
+    end;
+
+    if VStartZoomIndex = -1 then begin
+      FProgressInfo.Log.WriteText('Start zoom index detection error!', 0);
+      Exit;
     end;
 
     // calc tiles count
@@ -503,10 +495,8 @@ begin
     FProgressInfo.SetTotalToProcess(VTilesTotal);
 
     // skip tiles processed in last session
-    I := VStartZoomIndex;
-    if Length(VTaskArray) > I then begin
-      FProgressInfo.SetZoom(FZoomArray[I]);
-      SkipTiles(VTaskArray[I]);
+    if (FLastProcessedPoint.X >= 0) and (FLastProcessedPoint.Y >= 0) then begin
+      VTaskArray[VStartZoomIndex].Seek(FLastProcessedPoint);
     end;
 
     if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
