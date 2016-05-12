@@ -2660,11 +2660,15 @@ begin
   // SelectionByLine shadow visualisation layer
   VDebugName := 'SelectionByLineShadow';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLineChangeable :=
+    TGeometryLonLatLineChangeableByPathEdit.Create(
+      FLineOnMapByOperation[ao_select_line] as IPathOnMapEdit
+    );
   VPolygonChangeable :=
-    TGeometryLonLatPolygonChangeableByPathEdit.Create(
+    TGeometryLonLatPolygonChangeableByLineChangeable.Create(
       GState.VectorGeometryLonLatFactory,
       FViewPortState.View,
-      FLineOnMapByOperation[ao_select_line] as IPathOnMapEdit,
+      VLineChangeable,
       FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig
     );
   VLayer :=
@@ -2683,10 +2687,7 @@ begin
   // SelectionByLyne line visualisation layer
   VDebugName := 'SelectionByLine';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
-  VLineChangeable :=
-    TGeometryLonLatLineChangeableByPathEdit.Create(
-      FLineOnMapByOperation[ao_select_line] as IPathOnMapEdit
-    );
+
   VLayer :=
     TMapLayerSingleLine.Create(
       VPerfList,

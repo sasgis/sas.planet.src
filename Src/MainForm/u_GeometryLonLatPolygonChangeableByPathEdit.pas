@@ -35,11 +35,11 @@ uses
   u_ChangeableBase;
 
 type
-  TGeometryLonLatPolygonChangeableByPathEdit = class(TChangeableWithSimpleLockBase, IGeometryLonLatPolygonChangeable)
+  TGeometryLonLatPolygonChangeableByLineChangeable = class(TChangeableWithSimpleLockBase, IGeometryLonLatPolygonChangeable)
   private
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FConverter: ILocalCoordConverterChangeable;
-    FSource: IPathOnMapEdit;
+    FSource: IGeometryLonLatLineChangeable;
     FConfig: ISelectionPolylineShadowLayerConfig;
     FSourceListener: IListener;
 
@@ -59,7 +59,7 @@ type
     constructor Create(
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AConverter: ILocalCoordConverterChangeable;
-      const ASource: IPathOnMapEdit;
+      const ASource: IGeometryLonLatLineChangeable;
       const AConfig: ISelectionPolylineShadowLayerConfig
     );
     destructor Destroy; override;
@@ -73,12 +73,12 @@ uses
   u_EnumDoublePointLine2Poly,
   u_ListenerByEvent;
 
-{ TGeometryLonLatLineChangeableByPathEdit }
+{ TGeometryLonLatPolygonChangeableByLineChangeable }
 
-constructor TGeometryLonLatPolygonChangeableByPathEdit.Create(
+constructor TGeometryLonLatPolygonChangeableByLineChangeable.Create(
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AConverter: ILocalCoordConverterChangeable;
-  const ASource: IPathOnMapEdit;
+  const ASource: IGeometryLonLatLineChangeable;
   const AConfig: ISelectionPolylineShadowLayerConfig
 );
 begin
@@ -101,7 +101,7 @@ begin
   FConfig.ChangeNotifier.Add(FSourceListener);
 end;
 
-destructor TGeometryLonLatPolygonChangeableByPathEdit.Destroy;
+destructor TGeometryLonLatPolygonChangeableByLineChangeable.Destroy;
 begin
   if Assigned(FConverter) and Assigned(FSourceListener) then begin
     FConverter.ChangeNotifier.Remove(FSourceListener);
@@ -118,7 +118,7 @@ begin
   inherited;
 end;
 
-function TGeometryLonLatPolygonChangeableByPathEdit.GetStatic: IGeometryLonLatPolygon;
+function TGeometryLonLatPolygonChangeableByLineChangeable.GetStatic: IGeometryLonLatPolygon;
 begin
   CS.BeginRead;
   try
@@ -128,9 +128,8 @@ begin
   end;
 end;
 
-procedure TGeometryLonLatPolygonChangeableByPathEdit.OnSourceChange;
+procedure TGeometryLonLatPolygonChangeableByLineChangeable.OnSourceChange;
 var
-  VPath: ILonLatPathWithSelected;
   VLine: IGeometryLonLatLine;
   VRadius: Double;
   VConverter: ILocalCoordConverter;
@@ -141,10 +140,7 @@ begin
   CS.BeginWrite;
   try
     VResult := nil;
-    VPath := FSource.Path;
-    if Assigned(VPath) then begin
-      VLine := VPath.Geometry;
-    end;
+    VLine := FSource.GetStatic;
     VConverter := FConverter.GetStatic;
     VRadius := FConfig.Radius;
     VChanged := False;
@@ -200,7 +196,7 @@ begin
   end;
 end;
 
-function TGeometryLonLatPolygonChangeableByPathEdit.PolygonByLine(
+function TGeometryLonLatPolygonChangeableByLineChangeable.PolygonByLine(
   const ALine: IGeometryLonLatLine;
   const AProjection: IProjection;
   const ARadius: Double
