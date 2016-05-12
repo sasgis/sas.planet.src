@@ -1082,7 +1082,7 @@ uses
   u_GeometryLonLatPolygonChangeableByPolygonEdit,
   u_GeometryLonLatPolygonChangeableByLastSelection,
   u_GeometryLonLatPolygonChangeableByMergePolygonsResult,
-  u_GeometryLonLatPolygonChangeableByPathEdit,
+  u_GeometryLonLatPolygonChangeableByLineChangeable,
   u_LayerScaleLinePopupMenu,
   u_LayerStatBarPopupMenu,
   u_LayerMiniMapPopupMenu,

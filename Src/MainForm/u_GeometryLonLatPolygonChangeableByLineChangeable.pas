@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_GeometryLonLatPolygonChangeableByPathEdit;
+unit u_GeometryLonLatPolygonChangeableByLineChangeable;
 
 interface
 

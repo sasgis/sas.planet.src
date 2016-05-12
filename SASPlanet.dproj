@@ -534,7 +534,7 @@
     <DCCReference Include="Src\MainForm\u_FindVectorItemsForVectorTileMatrix.pas" />
     <DCCReference Include="Src\MainForm\u_GeometryLonLatLineChangeableByPathEdit.pas" />
     <DCCReference Include="Src\MainForm\u_GeometryLonLatPolygonChangeableByLastSelection.pas" />
-    <DCCReference Include="Src\MainForm\u_GeometryLonLatPolygonChangeableByPathEdit.pas" />
+    <DCCReference Include="Src\MainForm\u_GeometryLonLatPolygonChangeableByLineChangeable.pas" />
     <DCCReference Include="Src\MainForm\u_GeometryLonLatPolygonChangeableByPolygonEdit.pas" />
     <DCCReference Include="Src\MainForm\u_KeyMovingConfig.pas" />
     <DCCReference Include="Src\MainForm\u_KeyMovingHandler.pas" />

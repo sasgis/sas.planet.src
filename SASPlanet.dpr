@@ -424,7 +424,7 @@ uses
   u_FindVectorItemsForVectorTileMatrix in 'Src\MainForm\u_FindVectorItemsForVectorTileMatrix.pas',
   u_GeometryLonLatLineChangeableByPathEdit in 'Src\MainForm\u_GeometryLonLatLineChangeableByPathEdit.pas',
   u_GeometryLonLatPolygonChangeableByLastSelection in 'Src\MainForm\u_GeometryLonLatPolygonChangeableByLastSelection.pas',
-  u_GeometryLonLatPolygonChangeableByPathEdit in 'Src\MainForm\u_GeometryLonLatPolygonChangeableByPathEdit.pas',
+  u_GeometryLonLatPolygonChangeableByLineChangeable in 'Src\MainForm\u_GeometryLonLatPolygonChangeableByLineChangeable.pas',
   u_GeometryLonLatPolygonChangeableByPolygonEdit in 'Src\MainForm\u_GeometryLonLatPolygonChangeableByPolygonEdit.pas',
   u_KeyMovingConfig in 'Src\MainForm\u_KeyMovingConfig.pas',
   u_KeyMovingHandler in 'Src\MainForm\u_KeyMovingHandler.pas',
