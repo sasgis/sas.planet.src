@@ -27,6 +27,11 @@ uses
   i_Changeable;
 
 type
+  IGeometryLonLatMultiPointChangeable = interface(IChangeable)
+    ['{3F88807D-25D7-4F18-8A0B-943CB224AAEE}']
+    function GetStatic: IGeometryLonLatMultiPoint;
+  end;
+
   IGeometryLonLatLineChangeable = interface(IChangeable)
     ['{34134BAA-FF88-4616-89E7-6402F8572ACF}']
     function GetStatic: IGeometryLonLatLine;
