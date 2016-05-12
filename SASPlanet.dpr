@@ -422,6 +422,7 @@ uses
   u_ActiveMapTBXItem in 'Src\MainForm\u_ActiveMapTBXItem.pas',
   u_FillingMapPolygon in 'Src\MainForm\u_FillingMapPolygon.pas',
   u_FindVectorItemsForVectorTileMatrix in 'Src\MainForm\u_FindVectorItemsForVectorTileMatrix.pas',
+  u_GeometryLonLatChangeableInternal in 'Src\MainForm\u_GeometryLonLatChangeableInternal.pas',
   u_GeometryLonLatLineChangeableByPathEdit in 'Src\MainForm\u_GeometryLonLatLineChangeableByPathEdit.pas',
   u_GeometryLonLatPolygonChangeableByLastSelection in 'Src\MainForm\u_GeometryLonLatPolygonChangeableByLastSelection.pas',
   u_GeometryLonLatPolygonChangeableByLineChangeable in 'Src\MainForm\u_GeometryLonLatPolygonChangeableByLineChangeable.pas',

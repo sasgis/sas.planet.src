@@ -532,6 +532,7 @@
     <DCCReference Include="Src\MainForm\u_ActiveMapTBXItem.pas" />
     <DCCReference Include="Src\MainForm\u_FillingMapPolygon.pas" />
     <DCCReference Include="Src\MainForm\u_FindVectorItemsForVectorTileMatrix.pas" />
+    <DCCReference Include="Src\MainForm\u_GeometryLonLatChangeableInternal.pas" />
     <DCCReference Include="Src\MainForm\u_GeometryLonLatLineChangeableByPathEdit.pas" />
     <DCCReference Include="Src\MainForm\u_GeometryLonLatPolygonChangeableByLastSelection.pas" />
     <DCCReference Include="Src\MainForm\u_GeometryLonLatPolygonChangeableByLineChangeable.pas" />
