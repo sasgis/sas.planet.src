@@ -5,6 +5,7 @@ interface
 uses
   GR32,
   GR32_Polygons,
+  Types,
   t_GeoTypes,
   i_GeometryLonLat,
   i_GeometryProjected,
@@ -77,12 +78,21 @@ function CalcTileCountInProjectedMultiPolygon(
   const AGeometry: IGeometryProjectedMultiPolygon
 ): Int64;
 
+procedure SplitProjectedPolygon(
+  const AProjection: IProjection;
+  const AGeometry: IGeometryProjectedPolygon;
+  const ASplitCount: Integer;
+  const ATilesCountInPolygon: Int64;
+  out AStartPoints: TArrayOfPoint;
+  out ATilesCount: TIntegerDynArray
+);
+
 implementation
 
 uses
-  Types,
   Math,
   SysUtils,
+  i_TileIterator,
   i_ProjectionType,
   i_EnumDoublePoint,
   u_EnumDoublePointClosePoly,
@@ -90,6 +100,7 @@ uses
   u_EnumDoublePointWithClip,
   u_EnumDoublePointFilterEqual,
   u_TileIteratorByRect,
+  u_TileIteratorByPolygon,
   u_GeoFunc;
 
 function GetGeometryLonLatPointNearestPoint(
@@ -969,6 +980,61 @@ begin
       end else begin
         VSingleLine := VMultiLine.Item[0];
         Result := CalcTileCountInProjectedSinglePolygon(AProjection, VSingleLine);
+      end;
+    end;
+  end;
+end;
+
+procedure SplitProjectedPolygon(
+  const AProjection: IProjection;
+  const AGeometry: IGeometryProjectedPolygon;
+  const ASplitCount: Integer;
+  const ATilesCountInPolygon: Int64;
+  out AStartPoints: TArrayOfPoint;
+  out ATilesCount: TIntegerDynArray
+);
+var
+  I: Integer;
+  VPoint: TPoint;
+  VPartTilesCount: Int64;
+  VSplitCount: Integer;
+  VIterator: ITileIterator;
+  VFoundNextPart: Boolean;
+begin
+  VSplitCount := ASplitCount;
+  repeat
+    VPartTilesCount := ATilesCountInPolygon div VSplitCount;
+    if VPartTilesCount = 0 then begin
+      Dec(VSplitCount);
+    end;
+  until VPartTilesCount > 0;
+
+  if VSplitCount <= 0 then begin
+    SetLength(AStartPoints, 0);
+    SetLength(ATilesCount, 0);
+    Exit;
+  end;
+
+  SetLength(AStartPoints, VSplitCount);
+  SetLength(ATilesCount, VSplitCount);
+
+  VIterator := TTileIteratorByPolygon.Create(AProjection, AGeometry);
+
+  I := 0;
+  VFoundNextPart := True;
+
+  while VIterator.Next(VPoint) do begin
+    Inc(ATilesCount[I]);
+
+    if VFoundNextPart then begin
+      AStartPoints[I] := VPoint;
+      VFoundNextPart := False;
+    end;
+
+    if I < VSplitCount - 1 then begin
+      VFoundNextPart := ATilesCount[I] = VPartTilesCount;
+      if VFoundNextPart then begin
+        Inc(I);
       end;
     end;
   end;
