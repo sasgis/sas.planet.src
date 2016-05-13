@@ -108,8 +108,8 @@ uses
   i_RegionProcessParamsFrame,
   i_LogSimple,
   i_LogSimpleProvider,
-  i_MapVersionInfo,
   i_MapVersionRequest,
+  i_DownloadTaskProvider,
   u_ConfigDataProviderByIniFile,
   u_LogForTaskThread,
   u_ThreadDownloadTiles,
@@ -120,6 +120,7 @@ uses
   u_DownloadInfoSimple,
   u_Synchronizer,
   u_ZoomArrayFunc,
+  u_DownloadTaskProvider,
   frm_ProgressDownload,
   u_ResStrings;
 
@@ -192,6 +193,7 @@ var
   VOperationID: Integer;
   VProgressInfo: TRegionProcessProgressInfoDownload;
   VThread: TThread;
+  VDownloadTaskProvider: IDownloadTaskProvider;
 begin
   VLog := TLogSimpleProvider.Create(5000, 0);
   VLogSimple := VLog;
@@ -229,6 +231,16 @@ begin
   VForm.Show;
 
   if not VCancelNotifierInternal.IsOperationCanceled(VOperationID) then begin
+    VDownloadTaskProvider :=
+      TDownloadTaskProvider.Create(
+        ASession.MapType,
+        ASession.Polygon,
+        FVectorGeometryProjectedFactory,
+        ASession.ZoomArr,
+        ASession.Zoom,
+        ASession.LastProcessedPoint
+      );
+
     VThread :=
       TThreadDownloadTiles.Create(
         VCancelNotifierInternal,
@@ -238,8 +250,7 @@ begin
         ASession.MapType,
         ASession.VersionForCheck,
         ASession.VersionForDownload,
-        ASession.Polygon,
-        FVectorGeometryProjectedFactory,
+        VDownloadTaskProvider,
         FDownloadConfig,
         ADownloadInfoSimple,
         ASession.ReplaceExistTiles,
@@ -248,10 +259,7 @@ begin
         ASession.CheckTileDate,
         ASession.SecondLoadTNE,
         not IsNan(ASession.ReplaceTneOlderDate),
-        ASession.ReplaceTneOlderDate,
-        ASession.ZoomArr,
-        ASession.Zoom,
-        ASession.LastProcessedPoint
+        ASession.ReplaceTneOlderDate
       );
     if not APaused then begin
       VThread.Resume;

@@ -600,9 +600,10 @@
 			<DCCReference Include="Src\MainForm\u_ActiveMapTBXItem.pas"/>
 			<DCCReference Include="Src\MainForm\u_FillingMapPolygon.pas"/>
 			<DCCReference Include="Src\MainForm\u_FindVectorItemsForVectorTileMatrix.pas"/>
+			<DCCReference Include="Src\MainForm\u_GeometryLonLatChangeableInternal.pas"/>
 			<DCCReference Include="Src\MainForm\u_GeometryLonLatLineChangeableByPathEdit.pas"/>
 			<DCCReference Include="Src\MainForm\u_GeometryLonLatPolygonChangeableByLastSelection.pas"/>
-			<DCCReference Include="Src\MainForm\u_GeometryLonLatPolygonChangeableByPathEdit.pas"/>
+			<DCCReference Include="Src\MainForm\u_GeometryLonLatPolygonChangeableByLineChangeable.pas"/>
 			<DCCReference Include="Src\MainForm\u_GeometryLonLatPolygonChangeableByPolygonEdit.pas"/>
 			<DCCReference Include="Src\MainForm\u_KeyMovingConfig.pas"/>
 			<DCCReference Include="Src\MainForm\u_KeyMovingHandler.pas"/>
@@ -1180,6 +1181,8 @@
 			<DCCReference Include="Src\RegionProcess\Download\frm_ProgressDownload.pas">
 				<Form>frmProgressDownload</Form>
 			</DCCReference>
+			<DCCReference Include="Src\RegionProcess\Download\i_DownloadSession.pas"/>
+			<DCCReference Include="Src\RegionProcess\Download\u_DownloadSession.pas"/>
 			<DCCReference Include="Src\RegionProcess\Download\u_ProviderTilesDownload.pas"/>
 			<DCCReference Include="Src\RegionProcess\Download\u_ThreadDownloadTiles.pas"/>
 			<DCCReference Include="Src\RegionProcess\Export\Archive\fr_ExportToFileCont.pas">
@@ -1725,8 +1728,8 @@
 			<DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
 			<DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
 			<DCCReference Include="Src\u_WindowPositionConfig.pas"/>
-			<DCCReference Include="Src\RegionProcess\Download\i_DownloadSession.pas"/>
-			<DCCReference Include="Src\RegionProcess\Download\u_DownloadSession.pas"/>
+			<DCCReference Include="Src\RegionProcess\Download\u_DownloadTaskProvider.pas"/>
+			<DCCReference Include="Src\RegionProcess\Download\i_DownloadTaskProvider.pas"/>
 			<BuildConfiguration Include="Debug">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>

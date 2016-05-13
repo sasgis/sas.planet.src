@@ -29,19 +29,16 @@ uses
   Classes,
   i_Listener,
   i_LogSimple,
-  i_Projection,
   i_MapVersionInfo,
   i_MapVersionRequest,
   i_NotifierOperation,
   i_GlobalDownloadConfig,
   i_TileRequestTask,
   i_TileRequestResult,
-  i_GeometryLonLat,
-  i_GeometryProjected,
-  i_GeometryProjectedFactory,
   i_DownloadInfoSimple,
   i_MapType,
   i_TileIterator,
+  i_DownloadTaskProvider,
   i_RegionProcessProgressInfoDownload;
 
 type
@@ -60,15 +57,10 @@ type
     FReplaceExistTiles: boolean;
     FCheckExistTileSize: boolean;
     FCheckExistTileDate: boolean;
+    FDownloadTaskProvider: IDownloadTaskProvider;
     FDownloadConfig: IGlobalDownloadConfig;
     FCheckTileDate: TDateTime;
-    FZoomArray: TByteDynArray;
-    FLastProcessedZoom: Byte;
-    FLastProcessedPoint: TPoint;
-
-    FPolygon: IGeometryLonLatPolygon;
-    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-
+    
     FPausedSleepTime: Cardinal;
     FBanSleepTime: Cardinal;
     FProxyAuthErrorSleepTime: Cardinal;
@@ -91,7 +83,6 @@ type
     FRES_Noconnectionstointernet: string;
     FRES_FileExistsShort: string;
     FRES_ProcessFilesComplete: string;
-
 
     FOperationID: Integer;
     FCancelNotifier: INotifierOperation;
@@ -125,8 +116,7 @@ type
       const AMapType: IMapType;
       const AVersionForCheck: IMapVersionRequest;
       const AVersionForDownload: IMapVersionInfo;
-      const APolygon: IGeometryLonLatPolygon;
-      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+      const ADownloadTaskProvider: IDownloadTaskProvider;
       const ADownloadConfig: IGlobalDownloadConfig;
       const ADownloadInfo: IDownloadInfoSimple;
       AReplaceExistTiles: Boolean;
@@ -135,10 +125,7 @@ type
       const AReplaceOlderDate: TDateTime;
       ASecondLoadTNE: Boolean;
       ACheckTneOlderDate: Boolean;
-      const AReplaceTneOlderDate: TDateTime;
-      const AZoomArray: TByteDynArray;
-      const ALastProcessedZoom: Byte;
-      const ALastProcessedPoint: TPoint
+      const AReplaceTneOlderDate: TDateTime
     );
     destructor Destroy; override;
   end;
@@ -151,9 +138,7 @@ uses
   i_TileInfoBasic,
   i_TileDownloaderState,
   i_TileStorage,
-  u_ZoomArrayFunc,
   u_NotifierOperation,
-  u_TileIteratorByPolygon,
   u_TileRequestTask,
   u_ListenerByEvent,
   u_ReadableThreadNames,
@@ -167,18 +152,14 @@ constructor TThreadDownloadTiles.Create(
   const AMapType: IMapType;
   const AVersionForCheck: IMapVersionRequest;
   const AVersionForDownload: IMapVersionInfo;
-  const APolygon: IGeometryLonLatPolygon;
-  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+  const ADownloadTaskProvider: IDownloadTaskProvider;
   const ADownloadConfig: IGlobalDownloadConfig;
   const ADownloadInfo: IDownloadInfoSimple;
   AReplaceExistTiles, ACheckExistTileSize, ACheckExistTileDate: Boolean;
   const AReplaceOlderDate: TDateTime;
   ASecondLoadTNE: Boolean;
   ACheckTneOlderDate: Boolean;
-  const AReplaceTneOlderDate: TDateTime;
-  const AZoomArray: TByteDynArray;
-  const ALastProcessedZoom: Byte;
-  const ALastProcessedPoint: TPoint
+  const AReplaceTneOlderDate: TDateTime
 );
 var
   VState: ITileDownloaderStateStatic;
@@ -187,8 +168,7 @@ begin
   Assert(AProgressInfo <> nil);
   Assert(AAppClosingNotifier <> nil);
   Assert(AMapType <> nil);
-  Assert(APolygon <> nil);
-  Assert(AVectorGeometryProjectedFactory <> nil);
+  Assert(ADownloadTaskProvider <> nil);
   Assert(ADownloadConfig <> nil);
   Assert(ADownloadInfo <> nil);
   inherited Create(False);
@@ -201,15 +181,13 @@ begin
   FAppClosingNotifier := AAppClosingNotifier;
   FDownloadInfo := ADownloadInfo;
   FDownloadConfig := ADownloadConfig;
+  FDownloadTaskProvider := ADownloadTaskProvider;
 
   FPausedSleepTime := 100;
   FBanSleepTime := 5000;
   FProxyAuthErrorSleepTime := 10000;
   FDownloadErrorSleepTime := 5000;
   Priority := tpLower;
-
-  FPolygon := APolygon;
-  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
 
   FReplaceExistTiles := AReplaceExistTiles;
   FCheckExistTileSize := ACheckExistTileSize;
@@ -221,9 +199,6 @@ begin
   FSecondLoadTNE := ASecondLoadTNE;
   FCheckTneOlderDate := ACheckTneOlderDate;
   FReplaceTneOlderDate := AReplaceTneOlderDate;
-  FZoomArray := GetZoomArrayCopy(AZoomArray);
-  FLastProcessedZoom := ALastProcessedZoom;
-  FLastProcessedPoint := ALastProcessedPoint;
 
   if FMapType = nil then begin
     Terminate;
@@ -237,11 +212,6 @@ begin
   VState := FMapType.TileDownloadSubsystem.State.GetStatic;
   if not VState.Enabled then begin
     FProgressInfo.Log.WriteText(Format('Download of map %s disabled. Reason: %s', [FMapType.GUIConfig.Name.Value, VState.DisableReason]), 10);
-    Terminate;
-    Exit;
-  end;
-  if not Assigned(FPolygon) then begin
-    FProgressInfo.Log.WriteText('Polygon does not exist', 10);
     Terminate;
     Exit;
   end;
@@ -368,7 +338,6 @@ begin
         FProgressInfo.Log.WriteText(FRES_LoadProcess, 0);
       end;
       if VGotoNextTile then begin
-        FLastProcessedPoint := VTile;
         FProgressInfo.AddProcessedTile(VTile);
       end else begin
         try
@@ -398,7 +367,6 @@ begin
               Exit;
             end;
             if VGotoNextTile then begin
-              FLastProcessedPoint := VTile;
               FProgressInfo.AddProcessedTile(VTile);
             end;
           end else begin
@@ -428,15 +396,9 @@ end;
 procedure TThreadDownloadTiles.Execute;
 var
   I: Integer;
-  VZoom: Byte;
-  VStartZoomIndex: Integer;
   VTilesTotal: Int64;
-  VTaskCount: Integer;
-  VTaskArray: array of ITileIterator;
-  VTileIterator: ITileIterator;
+  VTaskArray: TTileIteratorArray;
   VSoftCancelNotifier: INotifierOneOperation;
-  VProjection: IProjection;
-  VProjectedPolygon: IGeometryProjectedPolygon;
 begin
   try
     if Terminated then begin
@@ -446,73 +408,34 @@ begin
     SetCurrentThreadName(Self.ClassName);
     Randomize;
 
-    VSoftCancelNotifier := TNotifierOneOperationByNotifier.Create(FCancelNotifier, FOperationID);
+    try
+      FDownloadTaskProvider.GetTask(VTilesTotal, VTaskArray);
 
-    // prepare tasks
-    VTaskCount := 0;
-    SetLength(VTaskArray, 0);
-    VStartZoomIndex := -1;
-    for I := Low(FZoomArray) to High(FZoomArray) do begin
-      VZoom := FZoomArray[I];
-
-      VProjection := FMapType.ProjectionSet[VZoom];
-
-      VProjectedPolygon :=
-        FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-          VProjection,
-          FPolygon
-        );
-
-      VTileIterator :=
-        TTileIteratorByPolygon.Create(
-          VProjection,
-          VProjectedPolygon
-        );
-
-      SetLength(VTaskArray, VTaskCount + 1);
-
-      VTaskArray[VTaskCount] := VTileIterator;
-
-      if VZoom = FLastProcessedZoom then begin
-        VStartZoomIndex := VTaskCount;
-      end;
-
-      Inc(VTaskCount);
-    end;
-
-    if VStartZoomIndex = -1 then begin
-      FProgressInfo.Log.WriteText('Start zoom index detection error!', 0);
-      Exit;
-    end;
-
-    // calc tiles count
-    VTilesTotal := 0;
-    for I := 0 to Length(VTaskArray) - 1 do begin
-      Inc(VTilesTotal, VTaskArray[I].TilesTotal);
-    end;
-    FProgressInfo.SetTotalToProcess(VTilesTotal);
-
-    // skip tiles processed in last session
-    if (FLastProcessedPoint.X >= 0) and (FLastProcessedPoint.Y >= 0) then begin
-      VTaskArray[VStartZoomIndex].Seek(FLastProcessedPoint);
-    end;
-
-    if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
-      Exit;
-    end;
-
-    // start downloading
-    for I := VStartZoomIndex to Length(VTaskArray) - 1 do begin
-      ProcessTask(
-        VTaskArray[I],
-        VSoftCancelNotifier
-      );
       if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
         Exit;
       end;
-    end;
 
-    FProgressInfo.Log.WriteText(FRES_ProcessFilesComplete, 0);
+      FProgressInfo.SetTotalToProcess(VTilesTotal);
+
+      VSoftCancelNotifier :=
+        TNotifierOneOperationByNotifier.Create(FCancelNotifier, FOperationID);
+
+      for I := Low(VTaskArray) to High(VTaskArray) do begin
+        ProcessTask(
+          VTaskArray[I],
+          VSoftCancelNotifier
+        );
+        if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
+          Exit;
+        end;
+      end;
+
+      FProgressInfo.Log.WriteText(FRES_ProcessFilesComplete, 0);
+    except
+      on E: Exception do begin
+        FProgressInfo.Log.WriteText(E.ClassName + ': ' + E.Message, 10);
+      end;
+    end;
   finally
     FProgressInfo.Finish;
   end;
