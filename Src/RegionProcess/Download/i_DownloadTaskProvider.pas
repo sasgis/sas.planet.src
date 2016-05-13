@@ -23,14 +23,14 @@ unit i_DownloadTaskProvider;
 interface
 
 uses
-  i_TileIterator;
+  i_InterfaceListStatic;
 
 type
   IDownloadTaskProvider = interface
     ['{1669A7CB-78C3-440C-AAE9-831768A8E3DF}']
-    procedure GetTask(
+    procedure GetTasksList(
       out ATilesTotal: Int64;
-      out ATaskArray: TTileIteratorArray
+      out ATasksList: IInterfaceListStatic
     );
   end;
 

@@ -138,6 +138,7 @@ uses
   i_TileInfoBasic,
   i_TileDownloaderState,
   i_TileStorage,
+  i_InterfaceListStatic,
   u_NotifierOperation,
   u_TileRequestTask,
   u_ListenerByEvent,
@@ -397,7 +398,7 @@ procedure TThreadDownloadTiles.Execute;
 var
   I: Integer;
   VTilesTotal: Int64;
-  VTaskArray: TTileIteratorArray;
+  VTasksList: IInterfaceListStatic;
   VSoftCancelNotifier: INotifierOneOperation;
 begin
   try
@@ -409,7 +410,7 @@ begin
     Randomize;
 
     try
-      FDownloadTaskProvider.GetTask(VTilesTotal, VTaskArray);
+      FDownloadTaskProvider.GetTasksList(VTilesTotal, VTasksList);
 
       if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
         Exit;
@@ -420,9 +421,9 @@ begin
       VSoftCancelNotifier :=
         TNotifierOneOperationByNotifier.Create(FCancelNotifier, FOperationID);
 
-      for I := Low(VTaskArray) to High(VTaskArray) do begin
+      for I := 0 to VTasksList.Count - 1 do begin
         ProcessTask(
-          VTaskArray[I],
+          VTasksList.Items[I] as ITileIterator,
           VSoftCancelNotifier
         );
         if FCancelNotifier.IsOperationCanceled(FOperationID) then begin

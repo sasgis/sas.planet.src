@@ -51,8 +51,6 @@ type
     ['{947F77CB-2368-4734-95D1-FC1D65487BD9}']
   end;
 
-  TTileIteratorArray = array of ITileIterator;
-
 implementation
 
 end.

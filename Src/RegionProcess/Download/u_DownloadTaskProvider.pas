@@ -30,6 +30,7 @@ uses
   i_GeometryLonLat,
   i_GeometryProjectedFactory,
   i_DownloadTaskProvider,
+  i_InterfaceListStatic,
   u_BaseInterfacedObject;
 
 type
@@ -43,9 +44,9 @@ type
     FLastProcessedPoint: TPoint;
   private
     { IDownloadTaskProvider }
-    procedure GetTask(
+    procedure GetTasksList(
       out ATilesTotal: Int64;
-      out ATaskArray: TTileIteratorArray
+      out ATasksList: IInterfaceListStatic
     );
   public
     constructor Create(
@@ -63,7 +64,9 @@ implementation
 uses
   i_Projection,
   i_GeometryProjected,
+  i_InterfaceListSimple,
   u_ZoomArrayFunc,
+  u_InterfaceListSimple,
   u_TileIteratorByPolygon;
 
 { TDownloadTaskProvider }
@@ -91,16 +94,17 @@ begin
   FLastProcessedPoint := ALastProcessedPoint;
 end;
 
-procedure TDownloadTaskProvider.GetTask(
+procedure TDownloadTaskProvider.GetTasksList(
   out ATilesTotal: Int64;
-  out ATaskArray: TTileIteratorArray
+  out ATasksList: IInterfaceListStatic
 );
 var
   I: Integer;
   VZoom: Byte;
   VStartZoomIndex: Integer;
   VTaskCount: Integer;
-  VTaskArray: TTileIteratorArray;
+  VTaskArray: array of ITileIterator;
+  VTasksList: IInterfaceListSimple;
   VTileIterator: ITileIterator;
   VProjection: IProjection;
   VProjectedPolygon: IGeometryProjectedPolygon;
@@ -108,6 +112,8 @@ begin
   if not Assigned(FPolygon) then begin
     raise Exception.Create('Polygon does not exist!');
   end;
+
+  VTasksList := TInterfaceListSimple.Create;
 
   VTaskCount := 0;
   SetLength(VTaskArray, 0);
@@ -156,10 +162,11 @@ begin
     VTaskArray[VStartZoomIndex].Seek(FLastProcessedPoint);
   end;
 
-  SetLength(ATaskArray, Length(VTaskArray) - VStartZoomIndex);
   for I := VStartZoomIndex to Length(VTaskArray) - 1 do begin
-    ATaskArray[I - VStartZoomIndex] := VTaskArray[I];
+    VTasksList.Add(VTaskArray[I]);
   end;
+
+  ATasksList := VTasksList.MakeStaticCopy;
 end;
 
 end.
