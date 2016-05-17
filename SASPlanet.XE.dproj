@@ -1538,7 +1538,7 @@
 			<DCCReference Include="Src\i_ThreadConfig.pas"/>
 			<DCCReference Include="Src\i_TileInfoBasic.pas"/>
 			<DCCReference Include="Src\i_TileInfoBasicMemCache.pas"/>
-			<DCCReference Include="Src\i_TileIterator.pas"/>
+			<DCCReference Include="Src\TileIterator\i_TileIterator.pas"/>
 			<DCCReference Include="Src\i_TileKey.pas"/>
 			<DCCReference Include="Src\i_TileObjCache.pas"/>
 			<DCCReference Include="Src\i_TileRect.pas"/>
@@ -1600,9 +1600,9 @@
 			<DCCReference Include="Src\u_ThreadConfig.pas"/>
 			<DCCReference Include="Src\u_TileInfoBasic.pas"/>
 			<DCCReference Include="Src\u_TileInfoBasicMemCache.pas"/>
-			<DCCReference Include="Src\u_TileIteratorByPolygon.pas"/>
-			<DCCReference Include="Src\u_TileIteratorByRect.pas"/>
-			<DCCReference Include="Src\u_TileIteratorSpiralByRect.pas"/>
+			<DCCReference Include="Src\TileIterator\u_TileIteratorByPolygon.pas"/>
+			<DCCReference Include="Src\TileIterator\u_TileIteratorByRect.pas"/>
+			<DCCReference Include="Src\TileIterator\u_TileIteratorSpiralByRect.pas"/>
 			<DCCReference Include="Src\u_TileKey.pas"/>
 			<DCCReference Include="Src\u_TileRect.pas"/>
 			<DCCReference Include="Src\u_TileRectChangeableByLocalConverter.pas"/>
