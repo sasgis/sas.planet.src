@@ -232,14 +232,11 @@ begin
 end;
 
 procedure TTileIteratorByPolygon.Reset;
-var
-  VTmp: TPoint;
 begin
   if IsPointsEqual(FStartPoint, cFakePoint) then begin
     FCurrent := FTilesRect.TopLeft;
   end else begin
     FCurrent := FStartPoint;
-    Next(VTmp);
   end;
   FLastUsedLine := nil;
   FProcessedTilesCount := 0;

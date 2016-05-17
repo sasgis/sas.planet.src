@@ -77,6 +77,7 @@ uses
   i_Projection,
   i_GeometryProjected,
   i_InterfaceListSimple,
+  u_GeoFunc,
   u_GeometryFunc,
   u_ZoomArrayFunc,
   u_InterfaceListSimple,
@@ -175,10 +176,12 @@ procedure TDownloadTaskProvider.GetTasksList(
 var
   I: Integer;
   VZoom: Byte;
+  VTmp: TPoint;
   VStartPoint: TPoint;
   VTilesToProcess: Int64;
   VTasksList: IInterfaceListSimple;
   VTileIterator: ITileIterator;
+  VSeekToLastProcessedPoint: Boolean;
 begin
   if not FPrepared then begin
     _PrepareDataProviders;
@@ -202,12 +205,14 @@ begin
 
     if VZoom >= FLastProcessedZoom then begin
 
+      VSeekToLastProcessedPoint := False;
       if VZoom = FLastProcessedZoom then begin
-        if (FLastProcessedPoint.X >= 0) and ((FLastProcessedPoint.Y >= 0)) then begin
+        if (FLastProcessedPoint.X >= 0) and (FLastProcessedPoint.Y >= 0) then begin
           VStartPoint := FLastProcessedPoint;
-        end;
-        if FLastProcessedCount > 0 then begin
-          Dec(VTilesToProcess, FLastProcessedCount);
+          if FLastProcessedCount > 0 then begin
+            Dec(VTilesToProcess, FLastProcessedCount);
+          end;
+          VSeekToLastProcessedPoint := True;
         end;
       end;
 
@@ -219,6 +224,12 @@ begin
           VStartPoint.X,
           VStartPoint.Y
         );
+
+      if VSeekToLastProcessedPoint then begin
+        if VTileIterator.Next(VTmp) then begin
+          Assert(IsPointsEqual(VTmp, FLastProcessedPoint));
+        end;
+      end;
 
       VTasksList.Add(VTileIterator);
     end;
