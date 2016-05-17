@@ -29,6 +29,7 @@ type
   IDownloadTaskProvider = interface
     ['{1669A7CB-78C3-440C-AAE9-831768A8E3DF}']
     procedure GetTasksList(
+      const AWorkerIndex: Integer;
       out ATilesTotal: Int64;
       out ATasksList: IInterfaceListStatic
     );

@@ -29,6 +29,7 @@ uses
   i_TileRect,
   i_TileIterator,
   i_GeometryProjected,
+  i_TileIteratorDataProvider,
   u_BaseInterfacedObject;
 
 type
@@ -36,10 +37,13 @@ type
   private
     FProjection: IProjection;
     FPolygon: IGeometryProjectedPolygon;
+    FStartPoint: TPoint;
     FCurrent: TPoint;
     FTilesRect: TRect;
     FRect: ITileRect;
     FTilesTotal: Int64;
+    FProcessedTilesCount: Int64;
+    FStopOnProcessedTilesCount: Boolean;
     // устанавливается только если один кусок (для скорости)
     FSingleLine: IGeometryProjectedSinglePolygon;
     FMultiProjected: IGeometryProjectedMultiPolygon;
@@ -50,20 +54,15 @@ type
     function GetTilesRect: ITileRect;
     function Next(out ATile: TPoint): Boolean;
     procedure Reset;
-    procedure Seek(const APos: TPoint);
-    function Clone: ITileIterator;
   private
     function InternalIntersectPolygon(const ARect: TDoubleRect): Boolean;
-    constructor CreateClone(
-      const AProjection: IProjection;
-      const AProjected: IGeometryProjectedPolygon;
-      const ACurrent: TPoint;
-      const ATilesTotal: Int64
-    );
   public
     constructor Create(
       const AProjection: IProjection;
-      const AProjected: IGeometryProjectedPolygon
+      const AProjected: IGeometryProjectedPolygon;
+      const ATilesTotal: Int64 = -1;
+      const AStartX: Integer = -1;
+      const AStartY: Integer = -1
     );
   end;
 
@@ -76,17 +75,33 @@ uses
   u_GeometryFunc,
   u_GeoFunc;
 
+const
+  cFakePoint: TPoint = (X: -1; Y: -1);
+
 { TTileIteratorByPolygon }
 
 constructor TTileIteratorByPolygon.Create(
   const AProjection: IProjection;
-  const AProjected: IGeometryProjectedPolygon
+  const AProjected: IGeometryProjectedPolygon;
+  const ATilesTotal: Int64;
+  const AStartX: Integer;
+  const AStartY: Integer
 );
 var
   VBounds: TDoubleRect;
 begin
   inherited Create;
   FProjection := AProjection;
+
+  if (AStartX <> -1) and (AStartY <> -1) then begin
+    FStartPoint := Point(AStartX, AStartY);
+  end else begin
+    FStartPoint := cFakePoint;
+  end;
+
+  FProcessedTilesCount := 0;
+  FStopOnProcessedTilesCount := ATilesTotal <> -1;
+
   if not Assigned(AProjected) then begin
     FTilesTotal := 0;
     FTilesRect := Rect(0, 0, 0, 0);
@@ -123,20 +138,8 @@ begin
     FRect := TTileRect.Create(AProjection, FTilesRect);
     FPolygon := AProjected;
     Reset;
-    FTilesTotal := -1;
+    FTilesTotal := ATilesTotal;
   end;
-end;
-
-constructor TTileIteratorByPolygon.CreateClone(
-  const AProjection: IProjection;
-  const AProjected: IGeometryProjectedPolygon;
-  const ACurrent: TPoint;
-  const ATilesTotal: Int64
-);
-begin
-  Self.Create(AProjection, AProjected);
-  FCurrent := ACurrent;
-  FTilesTotal := ATilesTotal;
 end;
 
 function TTileIteratorByPolygon.GetTilesRect: ITileRect;
@@ -197,6 +200,11 @@ var
   VRect: TDoubleRect;
 begin
   Result := False;
+
+  if FStopOnProcessedTilesCount and (FProcessedTilesCount >= FTilesTotal) then begin
+    Exit;
+  end;
+
   while FCurrent.X < FTilesRect.Right do begin
     while FCurrent.Y < FTilesRect.Bottom do begin
       VRect := FProjection.TilePos2PixelRectFloat(FCurrent);
@@ -217,39 +225,24 @@ begin
       Inc(FCurrent.X);
     end;
   end;
-end;
 
-procedure TTileIteratorByPolygon.Reset;
-begin
-  FCurrent := FTilesRect.TopLeft;
-  FLastUsedLine := nil;
-end;
-
-procedure TTileIteratorByPolygon.Seek(const APos: TPoint);
-var
-  VPoint: TPoint;
-begin
-  if FRect.IsPointInRect(APos) then begin
-    FCurrent := APos;
-    FLastUsedLine := nil;
-    Next(VPoint);
-  end else begin
-    raise Exception.CreateFmt(
-      'Point %d, %d not in Rect [%d, %d; %d, %d]',
-      [APos.X, APos.Y, FTilesRect.Left, FTilesRect.Top, FTilesRect.Right, FTilesRect.Bottom]
-    );
+  if Result then begin
+    Inc(FProcessedTilesCount);
   end;
 end;
 
-function TTileIteratorByPolygon.Clone: ITileIterator;
+procedure TTileIteratorByPolygon.Reset;
+var
+  VTmp: TPoint;
 begin
-  Result :=
-    TTileIteratorByPolygon.CreateClone(
-      FProjection,
-      FPolygon,
-      FCurrent,
-      FTilesTotal
-    );
+  if IsPointsEqual(FStartPoint, cFakePoint) then begin
+    FCurrent := FTilesRect.TopLeft;
+  end else begin
+    FCurrent := FStartPoint;
+    Next(VTmp);
+  end;
+  FLastUsedLine := nil;
+  FProcessedTilesCount := 0;
 end;
 
 end.

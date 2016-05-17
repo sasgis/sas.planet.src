@@ -59,6 +59,8 @@ type
     FLastProcessedPoint: TPoint;
     FLastSuccessfulPoint: TPoint;
     FAutoCloseAtFinish: Boolean;
+    FWorkersCount: Integer;
+    FWorkerIndex: Integer;
   private
     procedure _InitSession;
   private
@@ -81,6 +83,8 @@ type
     function GetLastSuccessfulPoint: TPoint;
     function GetProcessed: Int64;
     function GetAutoCloseAtFinish: Boolean;
+    function GetWorkersCount: Integer;
+    function GetWorkerIndex: Integer;
 
     procedure SetZoom(const Value: Byte);
     procedure SetLastSuccessfulPoint(const Value: TPoint);
@@ -114,7 +118,9 @@ type
       const AReplaceExistTiles: Boolean;
       const ACheckExistTileSize: Boolean;
       const ACheckExistTileDate: Boolean;
-      const ACheckTileDate: TDateTime
+      const ACheckTileDate: TDateTime;
+      const AWorkersCount: Integer;
+      const AWorkerIndex: Integer
     ); overload;
 
     constructor Create; overload;
@@ -150,7 +156,9 @@ constructor TDownloadSession.Create(
   const ASecondLoadTNE: Boolean;
   const AReplaceTneOlderDate: TDateTime;
   const AReplaceExistTiles, ACheckExistTileSize, ACheckExistTileDate: Boolean;
-  const ACheckTileDate: TDateTime
+  const ACheckTileDate: TDateTime;
+  const AWorkersCount: Integer;
+  const AWorkerIndex: Integer
 );
 begin
   inherited Create;
@@ -168,6 +176,8 @@ begin
   FSecondLoadTNE := ASecondLoadTNE;
   FReplaceTneOlderDate := AReplaceTneOlderDate;
   FPolygon := APolygon;
+  FWorkersCount := AWorkersCount;
+  FWorkerIndex := AWorkerIndex;
 end;
 
 procedure TDownloadSession._InitSession;
@@ -192,6 +202,8 @@ begin
   FLastProcessedPoint := Point(-1, -1);
   FLastSuccessfulPoint := Point(-1, -1);
   FAutoCloseAtFinish := False;
+  FWorkerIndex := 0;
+  FWorkersCount := 1;
 end;
 
 procedure TDownloadSession.Save(
@@ -504,6 +516,16 @@ end;
 function TDownloadSession.GetVersionForDownload: IMapVersionInfo;
 begin
   Result := FVersionForDownload;
+end;
+
+function TDownloadSession.GetWorkerIndex: Integer;
+begin
+  Result := FWorkerIndex;
+end;
+
+function TDownloadSession.GetWorkersCount: Integer;
+begin
+  Result := FWorkersCount;
 end;
 
 function TDownloadSession.GetZoom: Byte;

@@ -39,6 +39,7 @@ uses
   i_ValueToStringConverter,
   i_GlobalDownloadConfig,
   i_DownloadInfoSimple,
+  i_DownloadTaskProvider,
   i_RegionProcessProgressInfoInternalFactory,
   i_RegionProcessProvider,
   u_ExportProviderAbstract,
@@ -67,6 +68,7 @@ type
     FMainConfig: IActiveMapConfig;
     procedure StartSession(
       const ASession: IDownloadSession;
+      const ADownloadTaskProvider: IDownloadTaskProvider;
       const ADownloadInfoSimple: IDownloadInfoSimple;
       const APaused: Boolean
     );
@@ -109,7 +111,6 @@ uses
   i_LogSimple,
   i_LogSimpleProvider,
   i_MapVersionRequest,
-  i_DownloadTaskProvider,
   u_ConfigDataProviderByIniFile,
   u_LogForTaskThread,
   u_ThreadDownloadTiles,
@@ -181,6 +182,7 @@ end;
 
 procedure TProviderTilesDownload.StartSession(
   const ASession: IDownloadSession;
+  const ADownloadTaskProvider: IDownloadTaskProvider;
   const ADownloadInfoSimple: IDownloadInfoSimple;
   const APaused: Boolean
 );
@@ -193,7 +195,6 @@ var
   VOperationID: Integer;
   VProgressInfo: TRegionProcessProgressInfoDownload;
   VThread: TThread;
-  VDownloadTaskProvider: IDownloadTaskProvider;
 begin
   VLog := TLogSimpleProvider.Create(5000, 0);
   VLogSimple := VLog;
@@ -227,22 +228,16 @@ begin
     FMainConfig,
     ASession.MapType
   );
+  if ASession.WorkersCount > 1 then begin
+    VForm.Position := poDefaultPosOnly;
+  end;
   Application.ProcessMessages;
   VForm.Show;
 
   if not VCancelNotifierInternal.IsOperationCanceled(VOperationID) then begin
-    VDownloadTaskProvider :=
-      TDownloadTaskProvider.Create(
-        ASession.MapType,
-        ASession.Polygon,
-        FVectorGeometryProjectedFactory,
-        ASession.ZoomArr,
-        ASession.Zoom,
-        ASession.LastProcessedPoint
-      );
-
     VThread :=
       TThreadDownloadTiles.Create(
+        ASession.WorkerIndex,
         VCancelNotifierInternal,
         VOperationID,
         VProgressInfo,
@@ -250,7 +245,7 @@ begin
         ASession.MapType,
         ASession.VersionForCheck,
         ASession.VersionForDownload,
-        VDownloadTaskProvider,
+        ADownloadTaskProvider,
         FDownloadConfig,
         ADownloadInfoSimple,
         ASession.ReplaceExistTiles,
@@ -273,6 +268,7 @@ var
   VSLSData: IConfigDataProvider;
   VSessionSection: IConfigDataProvider;
   VSession: IDownloadSession;
+  VDownloadTaskProvider: IDownloadTaskProvider;
 begin
   VIniFile := TMemIniFile.Create(AFileName);
   try
@@ -292,8 +288,21 @@ begin
     FVectorGeometryLonLatFactory
   );
 
+  VDownloadTaskProvider :=
+    TDownloadTaskProvider.Create(
+      VSession.MapType,
+      VSession.Polygon,
+      FVectorGeometryProjectedFactory,
+      VSession.WorkersCount,
+      VSession.ZoomArr,
+      VSession.Zoom,
+      VSession.LastProcessedPoint,
+      -1 // ToDo: last processed count
+    );
+
   StartSession(
     VSession,
+    VDownloadTaskProvider,
     TDownloadInfoSimple.Create(FDownloadInfo, VSession.DownloadedCount, VSession.DownloadedSize),
     True // start paused
   );
@@ -301,34 +310,56 @@ end;
 
 procedure TProviderTilesDownload.StartProcess(const APolygon: IGeometryLonLatPolygon);
 var
+  I: Integer;
   VMapType: IMapType;
   VZoomArr: TByteDynArray;
   VSession: IDownloadSession;
+  VDownloadTaskProvider: IDownloadTaskProvider;
+  VWorkersCount: Integer;
 begin
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
   VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
 
-  VSession :=
-    TDownloadSession.Create(
-      VMapType,
-      VMapType.VersionRequest.GetStatic,
-      VMapType.VersionRequest.GetStatic.BaseVersion,
-      VZoomArr[0],
-      VZoomArr,
-      APolygon,
-      (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsIgnoreTne,
-      (ParamsFrame as IRegionProcessParamsFrameTilesDownload).LoadTneOlderDate,
-      (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplace,
-      (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplaceIfDifSize,
-      (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplaceIfOlder,
-      (ParamsFrame as IRegionProcessParamsFrameTilesDownload).ReplaceDate
-   );
+  VWorkersCount := 1; // ToDo
 
-  StartSession(
-    VSession,
-    TDownloadInfoSimple.Create(FDownloadInfo),
-    (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsStartPaused
-  );
+  VDownloadTaskProvider :=
+    TDownloadTaskProvider.Create(
+      VMapType,
+      APolygon,
+      FVectorGeometryProjectedFactory,
+      VWorkersCount,
+      VZoomArr,
+      VZoomArr[0],
+      Point(-1, -1),
+      -1
+    );
+
+  for I := 0 to VWorkersCount - 1 do begin
+    VSession :=
+      TDownloadSession.Create(
+        VMapType,
+        VMapType.VersionRequest.GetStatic,
+        VMapType.VersionRequest.GetStatic.BaseVersion,
+        VZoomArr[0],
+        VZoomArr,
+        APolygon,
+        (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsIgnoreTne,
+        (ParamsFrame as IRegionProcessParamsFrameTilesDownload).LoadTneOlderDate,
+        (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplace,
+        (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplaceIfDifSize,
+        (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplaceIfOlder,
+        (ParamsFrame as IRegionProcessParamsFrameTilesDownload).ReplaceDate,
+        VWorkersCount,
+        I // worker index
+     );
+
+    StartSession(
+      VSession,
+      VDownloadTaskProvider,
+      TDownloadInfoSimple.Create(FDownloadInfo),
+      (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsStartPaused
+    );
+  end;
 end;
 
 end.

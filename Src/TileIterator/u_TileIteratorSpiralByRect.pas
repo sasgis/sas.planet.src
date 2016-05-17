@@ -52,15 +52,6 @@ type
   private
     function Next(out ATile: TPoint): Boolean;
     procedure Reset;
-    procedure Seek(const APos: TPoint);
-    function Clone: ITileIterator;
-  private
-    constructor CreateClone(
-      const ARect: ITileRect;
-      const ACurrentRing: Integer;
-      const AIndexInRing: Integer;
-      const AEOI: Boolean
-    );
   public
     constructor CreateWithCenter(
       const ARect: ITileRect;
@@ -99,19 +90,6 @@ end;
 constructor TTileIteratorSpiralByRect.Create(const ARect: ITileRect);
 begin
   CreateWithCenter(ARect, CenterPoint(ARect.Rect));
-end;
-
-constructor TTileIteratorSpiralByRect.CreateClone(
-  const ARect: ITileRect;
-  const ACurrentRing: Integer;
-  const AIndexInRing: Integer;
-  const AEOI: Boolean
-);
-begin
-  Self.Create(ARect);
-  FCurrentRing := ACurrentRing;
-  FIndexInRing := AIndexInRing;
-  FEOI := AEOI;
 end;
 
 class function TTileIteratorSpiralByRect.GetDeltaByRingAndIndex(ARad,
@@ -221,40 +199,6 @@ begin
   FEOI := IsRectEmpty(TilesRect);
   FCurrentRing := 0;
   FIndexInRing := 0;
-end;
-
-procedure TTileIteratorSpiralByRect.Seek(const APos: TPoint);
-var
-  VPoint: TPoint;
-begin
-  if PtInRect(TilesRect, APos) then begin
-    FEOI := IsRectEmpty(TilesRect);
-    //ToDo: Make this faster, if you can!
-    if not FEOI then begin
-      Reset;
-      while Next(VPoint) do begin
-        if (VPoint.X = APos.X) and (VPoint.Y = APos.Y) then begin
-          Break;
-        end;
-      end;
-    end;
-  end else begin
-    raise Exception.CreateFmt(
-      'Point %d, %d not in Rect [%d, %d; %d, %d]',
-      [APos.X, APos.Y, TilesRect.Left, TilesRect.Top, TilesRect.Right, TilesRect.Bottom]
-    );
-  end;
-end;
-
-function TTileIteratorSpiralByRect.Clone: ITileIterator;
-begin
-  Result :=
-    TTileIteratorSpiralByRect.CreateClone(
-      Self.GetTilesRect,
-      FCurrentRing,
-      FIndexInRing,
-      FEOI
-    );
 end;
 
 end.

@@ -102,6 +102,12 @@ type
     procedure SetAutoCloseAtFinish(const Value: Boolean);
     property AutoCloseAtFinish: Boolean read GetAutoCloseAtFinish write SetAutoCloseAtFinish;
 
+    function GetWorkersCount: Integer;
+    property WorkersCount: Integer read GetWorkersCount;
+
+    function GetWorkerIndex: Integer;
+    property WorkerIndex: Integer read GetWorkerIndex;
+
     procedure Save(
       const ASessionSection: IConfigDataWriteProvider
     );

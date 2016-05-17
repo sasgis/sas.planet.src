@@ -44,6 +44,7 @@ uses
 type
   TThreadDownloadTiles = class(TThread)
   private
+    FWorkerIndex: Integer;
     FProgressInfo: IRegionProcessProgressInfoDownloadInternal;
 
     FAppClosingNotifier: INotifierOneOperation;
@@ -109,6 +110,7 @@ type
     procedure Execute; override;
   public
     constructor Create(
+      const AWorkerIndex: Integer;
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoDownloadInternal;
@@ -146,6 +148,7 @@ uses
   u_ResStrings;
 
 constructor TThreadDownloadTiles.Create(
+  const AWorkerIndex: Integer;
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoDownloadInternal;
@@ -176,6 +179,7 @@ begin
   Priority := tpLower;
   FreeOnTerminate := True;
 
+  FWorkerIndex := AWorkerIndex;
   FCancelNotifier := ACancelNotifier;
   FOperationID := AOperationID;
   FProgressInfo := AProgressInfo;
@@ -410,7 +414,7 @@ begin
     Randomize;
 
     try
-      FDownloadTaskProvider.GetTasksList(VTilesTotal, VTasksList);
+      FDownloadTaskProvider.GetTasksList(FWorkerIndex, VTilesTotal, VTasksList);
 
       if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
         Exit;
