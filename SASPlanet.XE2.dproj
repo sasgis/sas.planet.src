@@ -1182,7 +1182,9 @@
 				<Form>frmProgressDownload</Form>
 			</DCCReference>
 			<DCCReference Include="Src\RegionProcess\Download\i_DownloadSession.pas"/>
+			<DCCReference Include="Src\RegionProcess\Download\i_DownloadTaskProvider.pas"/>
 			<DCCReference Include="Src\RegionProcess\Download\u_DownloadSession.pas"/>
+			<DCCReference Include="Src\RegionProcess\Download\u_DownloadTaskProvider.pas"/>
 			<DCCReference Include="Src\RegionProcess\Download\u_ProviderTilesDownload.pas"/>
 			<DCCReference Include="Src\RegionProcess\Download\u_ThreadDownloadTiles.pas"/>
 			<DCCReference Include="Src\RegionProcess\Export\Archive\fr_ExportToFileCont.pas">
@@ -1420,6 +1422,10 @@
 			<DCCReference Include="Src\Terrain\u_TerrainInfo.pas"/>
 			<DCCReference Include="Src\Terrain\u_TerrainProviderList.pas"/>
 			<DCCReference Include="Src\Terrain\u_TerrainProviderListElement.pas"/>
+			<DCCReference Include="Src\TileIterator\i_TileIterator.pas"/>
+			<DCCReference Include="Src\TileIterator\u_TileIteratorByPolygon.pas"/>
+			<DCCReference Include="Src\TileIterator\u_TileIteratorByRect.pas"/>
+			<DCCReference Include="Src\TileIterator\u_TileIteratorSpiralByRect.pas"/>
 			<DCCReference Include="Src\TileMatrix\i_BitmapTileMatrix.pas"/>
 			<DCCReference Include="Src\TileMatrix\i_BitmapTileMatrixBuilder.pas"/>
 			<DCCReference Include="Src\TileMatrix\i_BitmapTileMatrixChangeable.pas"/>
@@ -1648,7 +1654,6 @@
 			<DCCReference Include="Src\i_ThreadConfig.pas"/>
 			<DCCReference Include="Src\i_TileInfoBasic.pas"/>
 			<DCCReference Include="Src\i_TileInfoBasicMemCache.pas"/>
-			<DCCReference Include="Src\TileIterator\i_TileIterator.pas"/>
 			<DCCReference Include="Src\i_TileKey.pas"/>
 			<DCCReference Include="Src\i_TileObjCache.pas"/>
 			<DCCReference Include="Src\i_TileRect.pas"/>
@@ -1710,9 +1715,6 @@
 			<DCCReference Include="Src\u_ThreadConfig.pas"/>
 			<DCCReference Include="Src\u_TileInfoBasic.pas"/>
 			<DCCReference Include="Src\u_TileInfoBasicMemCache.pas"/>
-			<DCCReference Include="Src\TileIterator\u_TileIteratorByPolygon.pas"/>
-			<DCCReference Include="Src\TileIterator\u_TileIteratorByRect.pas"/>
-			<DCCReference Include="Src\TileIterator\u_TileIteratorSpiralByRect.pas"/>
 			<DCCReference Include="Src\u_TileKey.pas"/>
 			<DCCReference Include="Src\u_TileRect.pas"/>
 			<DCCReference Include="Src\u_TileRectChangeableByLocalConverter.pas"/>
@@ -1728,8 +1730,8 @@
 			<DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
 			<DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
 			<DCCReference Include="Src\u_WindowPositionConfig.pas"/>
-			<DCCReference Include="Src\RegionProcess\Download\u_DownloadTaskProvider.pas"/>
-			<DCCReference Include="Src\RegionProcess\Download\i_DownloadTaskProvider.pas"/>
+			<DCCReference Include="Src\TileIterator\i_TileIteratorDataProvider.pas"/>
+			<DCCReference Include="Src\TileIterator\u_TileIteratorDataProvider.pas"/>
 			<BuildConfiguration Include="Debug">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
