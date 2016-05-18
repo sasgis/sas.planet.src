@@ -31,6 +31,7 @@ uses
   i_GeometryProjectedFactory,
   i_DownloadTaskProvider,
   i_InterfaceListStatic,
+  i_InterfaceListSimple,
   i_TileIteratorDataProvider,
   u_BaseInterfacedObject;
 
@@ -46,8 +47,7 @@ type
     FLastProcessedPoint: TPoint;
     FLastProcessedCount: Int64;
     FPartsCount: Integer;
-    FTilesTotal: Int64;
-    FDataProvidersArr: array of ITileIteratorDataProvider;
+    FDataProvidersList: IInterfaceListSimple;
     FPrepared: Boolean;
     procedure _PrepareDataProviders;
   private
@@ -76,7 +76,6 @@ uses
   t_GeoTypes,
   i_Projection,
   i_GeometryProjected,
-  i_InterfaceListSimple,
   u_GeoFunc,
   u_GeometryFunc,
   u_ZoomArrayFunc,
@@ -112,17 +111,18 @@ begin
   FLastProcessedPoint := ALastProcessedPoint;
   FLastProcessedCount := ALastProcessedCount;
   FPartsCount := APartsCount;
-
+  FDataProvidersList := TInterfaceListSimple.Create;
   FPrepared := False;
   FLock := GSync.SyncStd.Make(Self.ClassName);
 end;
 
 procedure TDownloadTaskProvider._PrepareDataProviders;
 var
-  I, J: Integer;
+  I: Integer;
   VZoom: Byte;
   VProjection: IProjection;
   VProjectedPolygon: IGeometryProjectedPolygon;
+  VDataProvider: ITileIteratorDataProvider;
 begin
   FLock.BeginWrite;
   try
@@ -133,9 +133,6 @@ begin
     if not Assigned(FPolygon) then begin
       raise Exception.Create('Polygon does not exist!');
     end;
-
-    J := 0;
-    SetLength(FDataProvidersArr, 0);
 
     for I := Low(FZoomArray) to High(FZoomArray) do begin
       VZoom := FZoomArray[I];
@@ -148,18 +145,14 @@ begin
           FPolygon
         );
 
-      SetLength(FDataProvidersArr, J + 1);
-
-      FDataProvidersArr[J] :=
+      VDataProvider :=
         TTileIteratorDataProvider.Create(
           VProjection,
           VProjectedPolygon,
           FPartsCount
         );
 
-      Inc(FTilesTotal, FDataProvidersArr[J].TilesTotal);
-
-      Inc(J);
+      FDataProvidersList.Add(VDataProvider);
     end;
 
     FPrepared := True;
@@ -182,6 +175,7 @@ var
   VTasksList: IInterfaceListSimple;
   VTileIterator: ITileIterator;
   VSeekToLastProcessedPoint: Boolean;
+  VDataProvider: ITileIteratorDataProvider;
 begin
   if not FPrepared then begin
     _PrepareDataProviders;
@@ -190,16 +184,19 @@ begin
   ATilesTotal := 0;
   VTasksList := TInterfaceListSimple.Create;
 
-  for I := 0 to Length(FDataProvidersArr) - 1 do begin
+  for I := 0 to FDataProvidersList.Count - 1 do begin
 
-    if AWorkerIndex >= FDataProvidersArr[I].PartsCount then begin
+    VDataProvider := FDataProvidersList.Items[I] as ITileIteratorDataProvider;
+    Assert(VDataProvider <> nil);
+
+    if AWorkerIndex >= VDataProvider.PartsCount then begin
       Continue;
     end;
 
-    VZoom := FDataProvidersArr[I].Projection.Zoom;
+    VZoom := VDataProvider.Projection.Zoom;
 
-    VStartPoint := FDataProvidersArr[I].StartPoint[AWorkerIndex];
-    VTilesToProcess := FDataProvidersArr[I].TilesToProcess[AWorkerIndex];
+    VStartPoint := VDataProvider.StartPoint[AWorkerIndex];
+    VTilesToProcess := VDataProvider.TilesToProcess[AWorkerIndex];
 
     Inc(ATilesTotal, VTilesToProcess);
 
@@ -218,8 +215,8 @@ begin
 
       VTileIterator :=
         TTileIteratorByPolygon.Create(
-          FDataProvidersArr[I].Projection,
-          FDataProvidersArr[I].Polygon,
+          VDataProvider.Projection,
+          VDataProvider.Polygon,
           VTilesToProcess,
           VStartPoint.X,
           VStartPoint.Y
@@ -228,6 +225,8 @@ begin
       if VSeekToLastProcessedPoint then begin
         if VTileIterator.Next(VTmp) then begin
           Assert(IsPointsEqual(VTmp, FLastProcessedPoint));
+        end else begin
+          Assert(False);
         end;
       end;
 
