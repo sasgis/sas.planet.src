@@ -319,8 +319,7 @@ var
 begin
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
   VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
-
-  VWorkersCount := 1; // ToDo
+  VWorkersCount := (ParamsFrame as IRegionProcessParamsFrameTilesDownload).SplitCount;
 
   VDownloadTaskProvider :=
     TDownloadTaskProvider.Create(

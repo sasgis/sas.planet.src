@@ -32,6 +32,7 @@ uses
   SysUtils,
   StdCtrls,
   Windows,
+  Spin,
   i_MapType,
   i_LanguageManager,
   i_GeometryLonLat,
@@ -64,6 +65,9 @@ type
 
     function GetReplaceDate: TDateTime;
     property ReplaceDate: TDateTime read GetReplaceDate;
+
+    function GetSplitCount: Integer;
+    property SplitCount: Integer read GetSplitCount;
   end;
 
 type
@@ -96,11 +100,16 @@ type
     lblLoadIfTneOld: TLabel;
     chkLoadIfTneOld: TCheckBox;
     dtpLoadIfTneOld: TDateTimePicker;
+    chkSplitRegion: TCheckBox;
+    pnlSplitRegionParams: TPanel;
+    lblSplitRegion: TLabel;
+    sePartsCount: TSpinEdit;
     procedure chkReplaceClick(Sender: TObject);
     procedure chkReplaceOlderClick(Sender: TObject);
     procedure cbbZoomChange(Sender: TObject);
     procedure chkLoadIfTneOldClick(Sender: TObject);
     procedure chkTryLoadIfTNEClick(Sender: TObject);
+    procedure chkSplitRegionClick(Sender: TObject);
   private
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FPolygLL: IGeometryLonLatPolygon;
@@ -131,6 +140,7 @@ type
     function GetIsReplaceIfOlder: Boolean;
     function GetReplaceDate: TDateTime;
     function GetAllowDownload(const AMapType: IMapType): boolean; // чисто для проверки
+    function GetSplitCount: Integer;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -247,6 +257,11 @@ begin
   dtpReplaceOlderDate.Enabled := chkReplaceOlder.Enabled and chkReplaceOlder.Checked;
 end;
 
+procedure TfrTilesDownload.chkSplitRegionClick(Sender: TObject);
+begin
+  sePartsCount.Enabled := chkSplitRegion.Checked;
+end;
+
 constructor TfrTilesDownload.Create(
   const ALanguageManager: ILanguageManager;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -333,6 +348,15 @@ begin
   Result := dtpReplaceOlderDate.DateTime;
 end;
 
+function TfrTilesDownload.GetSplitCount: Integer;
+begin
+  if chkSplitRegion.Checked then begin
+    Result := sePartsCount.Value;
+  end else begin
+    Result := 1;
+  end;
+end;
+
 function TfrTilesDownload.GetZoomArray: TByteDynArray;
 begin
   Result := FfrZoomsSelect.GetZoomList;
@@ -342,6 +366,9 @@ procedure TfrTilesDownload.Init(
   const AZoom: Byte;
   const APolygon: IGeometryLonLatPolygon
 );
+var
+  I: Integer;
+  VMapType: IMapType;
 begin
   FPolygLL := APolygon;
   FfrZoomsSelect.Show(pnlZoom);
@@ -349,6 +376,13 @@ begin
   dtpLoadIfTneOld.Date := now;
   FfrMapSelect.Show(pnlFrame);
   cbbZoomChange(Self);
+
+  sePartsCount.Enabled := chkSplitRegion.Checked;
+  VMapType := FfrMapSelect.GetSelectedMapType;
+  I := VMapType.Zmp.TileDownloaderConfig.MaxConnectToServerCount;
+  if (sePartsCount.MinValue <= I) and (sePartsCount.MaxValue >= I) then begin
+    sePartsCount.Value := I;
+  end;
 end;
 
 function TfrTilesDownload.Validate: Boolean;
