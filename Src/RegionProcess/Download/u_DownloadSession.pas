@@ -57,6 +57,7 @@ type
     FDownloadedSize: UInt64;
     FDownloadedCount: Int64;
     FLastProcessedPoint: TPoint;
+    FLastProcessedCount: Int64;
     FLastSuccessfulPoint: TPoint;
     FAutoCloseAtFinish: Boolean;
     FWorkersCount: Integer;
@@ -81,6 +82,7 @@ type
     function GetZoom: Byte;
     function GetZoomArr: TByteDynArray;
     function GetLastSuccessfulPoint: TPoint;
+    function GetLastProcessedCount: Int64;
     function GetProcessed: Int64;
     function GetAutoCloseAtFinish: Boolean;
     function GetWorkersCount: Integer;
@@ -200,6 +202,7 @@ begin
   FDownloadedSize := 0;
   FDownloadedCount := 0;
   FLastProcessedPoint := Point(-1, -1);
+  FLastProcessedCount := 0;
   FLastSuccessfulPoint := Point(-1, -1);
   FAutoCloseAtFinish := False;
   FWorkerIndex := 0;
@@ -246,6 +249,7 @@ begin
   ASessionSection.WriteInteger('ProcessedTileCount', FDownloadedCount);
   ASessionSection.WriteInteger('Processed', FProcessed);
   ASessionSection.WriteInteger('ProcessedFromLastSuccessfulPoint', FProcessedFromLastSuccessfulPoint);
+  ASessionSection.WriteInteger('LastProcessedCount', FLastProcessedCount);
   ASessionSection.WriteFloat('ProcessedSize', FDownloadedSize / 1024);
   ASessionSection.WriteInteger('StartX', FLastProcessedPoint.X);
   ASessionSection.WriteInteger('StartY', FLastProcessedPoint.Y);
@@ -253,6 +257,8 @@ begin
   ASessionSection.WriteInteger('LastSuccessfulStartY', FLastSuccessfulPoint.Y);
   ASessionSection.WriteFloat('ElapsedTime', FElapsedTime);
   ASessionSection.WriteBool('AutoCloseAtFinish', FAutoCloseAtFinish);
+  ASessionSection.WriteInteger('WorkersCount', FWorkersCount);
+  ASessionSection.WriteInteger('WorkerIndex', FWorkerIndex);
 
   WritePolygon(ASessionSection, FPolygon);
 end;
@@ -309,6 +315,7 @@ var
   VProcessedFromLastSuccessfulPoint: Int64;
   VProcessedTileCount: Int64;
   VProcessedSize: Int64;
+  VLastProcessedCount: Int64;
   VSecondLoadTNE: Boolean;
   VLoadTneOlderDate: TDateTime;
   VLastProcessedPoint: TPoint;
@@ -321,6 +328,8 @@ var
   VVersionString: string;
   VVersionCheckShowPrev: Boolean;
   VAutoCloseAtFinish: Boolean;
+  VWorkersCount: Integer;
+  VWorkerIndex: Integer;
 begin
   Assert(AFullMapsSet <> nil);
   Assert(ADownloadConfig <> nil);
@@ -374,12 +383,15 @@ begin
   VCheckTileDate := ASessionSection.ReadDate('CheckTileDate', Now);
   VProcessed := ASessionSection.ReadInteger('Processed', 0);
   VProcessedFromLastSuccessfulPoint := ASessionSection.ReadInteger('ProcessedFromLastSuccessfulPoint', 0);
+  VLastProcessedCount := ASessionSection.ReadInteger('LastProcessedCount', 0);
   VProcessedTileCount := ASessionSection.ReadInteger('ProcessedTileCount', 0);
   VProcessedSize := Trunc(ASessionSection.ReadFloat('ProcessedSize', 0) * 1024);
   VSecondLoadTNE := ASessionSection.ReadBool('SecondLoadTNE', False);
   VLoadTneOlderDate := ASessionSection.ReadDate('LoadTneOlderDate', NaN);
   VElapsedTime := ASessionSection.ReadFloat('ElapsedTime', 0);
   VAutoCloseAtFinish := ASessionSection.ReadBool('AutoCloseAtFinish', False);
+  VWorkersCount := ASessionSection.ReadInteger('WorkersCount', 1);
+  VWorkerIndex := ASessionSection.ReadInteger('WorkerIndex', 0);
 
   VLastSuccessfulPoint.X := ASessionSection.ReadInteger('LastSuccessfulStartX', -1);
   VLastSuccessfulPoint.Y := ASessionSection.ReadInteger('LastSuccessfulStartY', -1);
@@ -396,6 +408,9 @@ begin
     VLastProcessedPoint := VLastSuccessfulPoint;
     if (VProcessed > 0) and (VProcessedFromLastSuccessfulPoint > 0) then begin
       Dec(VProcessed, VProcessedFromLastSuccessfulPoint);
+      Assert(VProcessed >= 0);
+      Dec(VLastProcessedCount, VProcessedFromLastSuccessfulPoint);
+      Assert(VLastProcessedCount >= 0);
       VProcessedFromLastSuccessfulPoint := 0;
     end;
   end;
@@ -419,6 +434,7 @@ begin
   FCheckTileDate := VCheckTileDate;
   FProcessed := VProcessed;
   FProcessedFromLastSuccessfulPoint := VProcessedFromLastSuccessfulPoint;
+  FLastProcessedCount := VLastProcessedCount;
   FDownloadedCount := VProcessedTileCount;
   FDownloadedSize := VProcessedSize;
 
@@ -426,6 +442,8 @@ begin
   FReplaceTneOlderDate := VLoadTneOlderDate;
   FElapsedTime := VElapsedTime;
   FAutoCloseAtFinish := VAutoCloseAtFinish;
+  FWorkersCount := VWorkersCount;
+  FWorkerIndex := VWorkerIndex;
 
   FLastProcessedPoint := VLastProcessedPoint;
   FLastSuccessfulPoint := VLastSuccessfulPoint;
@@ -491,6 +509,11 @@ end;
 function TDownloadSession.GetProcessed: Int64;
 begin
   Result := FProcessed;
+end;
+
+function TDownloadSession.GetLastProcessedCount: Int64;
+begin
+  Result := FLastProcessedCount;
 end;
 
 function TDownloadSession.GetReplaceExistTiles: Boolean;
@@ -566,6 +589,7 @@ begin
   end else begin
     Inc(FProcessedFromLastSuccessfulPoint);
   end;
+  Inc(FLastProcessedCount);
 end;
 
 procedure TDownloadSession.SetLastSuccessfulPoint(const Value: TPoint);
@@ -588,6 +612,7 @@ begin
     FLastSuccessfulPoint := Point(-1, -1);
     FLastProcessedPoint := Point(-1, -1);
     FProcessedFromLastSuccessfulPoint := 0;
+    FLastProcessedCount := 0;
   end;
 end;
 

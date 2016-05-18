@@ -297,7 +297,7 @@ begin
       VSession.ZoomArr,
       VSession.Zoom,
       VSession.LastProcessedPoint,
-      -1 // ToDo: last processed count
+      VSession.LastProcessedCount
     );
 
   StartSession(

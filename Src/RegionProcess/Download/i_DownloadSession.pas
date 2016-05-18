@@ -90,6 +90,9 @@ type
     procedure SetLastProcessedPoint(const Value: TPoint);
     property LastProcessedPoint: TPoint read GetLastProcessedPoint write SetLastProcessedPoint;
 
+    function GetLastProcessedCount: Int64;
+    property LastProcessedCount: Int64 read GetLastProcessedCount;
+
     function GetLastSuccessfulPoint: TPoint;
     procedure SetLastSuccessfulPoint(const Value: TPoint);
     property LastSuccessfulPoint: TPoint read GetLastSuccessfulPoint write SetLastSuccessfulPoint;
