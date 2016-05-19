@@ -379,7 +379,7 @@ begin
 
   sePartsCount.Enabled := chkSplitRegion.Checked;
   VMapType := FfrMapSelect.GetSelectedMapType;
-  I := VMapType.Zmp.TileDownloaderConfig.MaxConnectToServerCount;
+  I := VMapType.TileDownloaderConfig.MaxConnectToServerCount;
   if (sePartsCount.MinValue <= I) and (sePartsCount.MaxValue >= I) then begin
     sePartsCount.Value := I;
   end;

@@ -96,6 +96,10 @@ type
     pnlSleep: TPanel;
     pnlCacheTypesList: TPanel;
     chkCacheReadOnly: TCheckBox;
+    pnlMaxConnectToServerCount: TPanel;
+    lblMaxConnectToServerCount: TLabel;
+    seMaxConnectToServerCount: TSpinEdit;
+    btnResetMaxConnect: TButton;
     procedure btnOkClick(Sender: TObject);
     procedure FormClose(
       Sender: TObject;
@@ -118,6 +122,7 @@ type
       var AllowCollapse: Boolean
     );
     procedure FormShow(Sender: TObject);
+    procedure btnResetMaxConnectClick(Sender: TObject);
   private
     synedtParams: TSynEdit;
     synedtScript: TSynEdit;
@@ -209,7 +214,14 @@ begin
     FMapType.GUIConfig.UnlockWrite;
   end;
 
-  FMapType.TileDownloaderConfig.WaitInterval := SESleep.Value;
+  FMapType.TileDownloaderConfig.LockWrite;
+  try
+    FMapType.TileDownloaderConfig.WaitInterval := SESleep.Value;
+    FMapType.TileDownloaderConfig.MaxConnectToServerCount := seMaxConnectToServerCount.Value;
+  finally
+    FMapType.TileDownloaderConfig.UnlockWrite;
+  end;
+
   FMapType.StorageConfig.LockWrite;
   try
     FMapType.StorageConfig.NameInCache := EditNameinCache.Text;
@@ -257,6 +269,7 @@ begin
 
   EditNameinCache.Text := FMapType.Zmp.StorageConfig.NameInCache;
   SESleep.Value := FMapType.Zmp.TileDownloaderConfig.WaitInterval;
+  seMaxConnectToServerCount.Value := FMapType.Zmp.TileDownloaderConfig.MaxConnectToServerCount;
   EditHotKey.HotKey := FMapType.Zmp.GUI.HotKey;
 
   if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE, c_File_Cache_Id_GC]) then begin
@@ -289,9 +302,14 @@ begin
   EditHotKey.HotKey := FMapType.Zmp.GUI.HotKey;
 end;
 
+procedure TfrmMapTypeEdit.btnResetMaxConnectClick(Sender: TObject);
+begin
+  seMaxConnectToServerCount.Value := FMapType.Zmp.TileDownloaderConfig.MaxConnectToServerCount;
+end;
+
 procedure TfrmMapTypeEdit.btnResetPauseClick(Sender: TObject);
 begin
-  SESleep.Value := FMapType.TileDownloaderConfig.WaitInterval;
+  SESleep.Value := FMapType.Zmp.TileDownloaderConfig.WaitInterval;
 end;
 
 procedure TfrmMapTypeEdit.btnResetCacheTypeClick(Sender: TObject);
@@ -323,6 +341,7 @@ begin
   synedtScript.Text := string(FMapType.Zmp.DataProvider.ReadAnsiString('GetUrlScript.txt', ''));
 
   SESleep.Value := FMapType.TileDownloaderConfig.WaitInterval;
+  seMaxConnectToServerCount.Value := FMapType.TileDownloaderConfig.MaxConnectToServerCount;
   EditParSubMenu.Text := FMapType.GUIConfig.ParentSubMenu.Value;
   EditHotKey.HotKey := FMapType.GUIConfig.HotKey;
 
