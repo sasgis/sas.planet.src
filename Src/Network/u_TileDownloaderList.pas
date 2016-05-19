@@ -160,7 +160,7 @@ begin
     TTileDownloaderSimple.Create(
       FAppClosingNotifier,
       VTileDownloadRequestBuilder,
-      FTileDownloaderConfig,
+      FTileDownloaderConfig.GetStatic,
       VDownloader,
       FResultSaver,
       TLastResponseInfo.Create
@@ -184,70 +184,43 @@ end;
 
 procedure TTileDownloaderList.OnConfigChange;
 var
-  VStatic: ITileDownloaderListStatic;
-  VList: array of ITileDownloader;
+  I: Integer;
   VCount: Integer;
-  VOldCount: Integer;
-  VCountForCopy: Integer;
-  i: Integer;
-  VState: ITileDownloaderStateStatic;
   VCounter: Integer;
+  VList: array of ITileDownloader;
+  VState: ITileDownloaderStateStatic;
+  VStatic: ITileDownloaderListStatic;
 begin
   VCounter := FChangeCounter.Inc;
-  VStatic := GetStatic;
+
   VCount := FTileDownloaderConfig.MaxConnectToServerCount;
   VState := FDownloadSystemState.GetStatic;
+
   if not VState.Enabled then begin
     VCount := 0;
   end;
 
-  VOldCount := 0;
-  if VStatic <> nil then begin
-    VOldCount := VStatic.Count;
+  SetLength(VList, VCount);
+  for I := 0 to VCount - 1 do begin
+    VList[I] := CreateDownloader;
+    if not FChangeCounter.CheckEqual(VCounter) then begin
+      Exit;
+    end;
   end;
 
-  if VOldCount <> VCount then begin
-    SetLength(VList, VCount);
-    if not FChangeCounter.CheckEqual(VCounter) then begin
-      Exit;
-    end;
-    VCountForCopy := VOldCount;
-    if VCount < VCountForCopy then begin
-      VCountForCopy := VCount;
-    end;
-    for i := 0 to VCountForCopy - 1 do begin
-      VList[i] := VStatic.Item[i];
-    end;
-    for i := VCountForCopy to VCount - 1 do begin
-      VList[i] := CreateDownloader;
-      if not FChangeCounter.CheckEqual(VCounter) then begin
-        Exit;
-      end;
-    end;
-    VStatic := TTileDownloaderListStatic.Create(VList);
-    if not FChangeCounter.CheckEqual(VCounter) then begin
-      Exit;
-    end;
-    FCS.BeginWrite;
-    try
-      FStatic := VStatic;
-    finally
-      FCS.EndWrite;
-    end;
-    FChangeNotifier.Notify(nil);
-  end else if VStatic = nil then begin
-    SetLength(VList, 0);
-    VStatic := TTileDownloaderListStatic.Create(VList);
-    if not FChangeCounter.CheckEqual(VCounter) then begin
-      Exit;
-    end;
-    FCS.BeginWrite;
-    try
-      FStatic := VStatic;
-    finally
-      FCS.EndWrite;
-    end;
+  VStatic := TTileDownloaderListStatic.Create(VList);
+  if not FChangeCounter.CheckEqual(VCounter) then begin
+    Exit;
   end;
+
+  FCS.BeginWrite;
+  try
+    FStatic := VStatic;
+  finally
+    FCS.EndWrite;
+  end;
+
+  FChangeNotifier.Notify(nil);
 end;
 
 end.

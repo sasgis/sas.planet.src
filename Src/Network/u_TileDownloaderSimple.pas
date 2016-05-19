@@ -43,7 +43,6 @@ type
   TTileDownloaderSimple = class(TBaseInterfacedObject, ITileDownloader)
   private
     FTileDownloadRequestBuilder: ITileDownloadRequestBuilder;
-    FTileDownloaderConfig: ITileDownloaderConfig;
     FHttpDownloader: IDownloader;
     FResultSaver: ITileDownloadResultSaver;
     FAppClosingNotifier: INotifierOneOperation;
@@ -52,7 +51,6 @@ type
     FAppClosingListener: IListener;
     FCS: IReadWriteSync;
     FCancelListener: IListener;
-    FConfigChangeListener: IListener;
     FCancelEvent: TEvent;
     FWasConnectError: Boolean;
     FLastDownloadTime: Cardinal;
@@ -60,7 +58,6 @@ type
     FDownloadTryCount: Integer;
     FSleepOnResetConnection: Cardinal;
     FSleepAfterDownload: Cardinal;
-    procedure OnConfigChange;
     procedure OnCancelEvent;
     procedure OnAppClosing;
     procedure SleepCancelable(ATime: Cardinal);
@@ -79,7 +76,7 @@ type
     constructor Create(
       const AAppClosingNotifier: INotifierOneOperation;
       const ATileDownloadRequestBuilder: ITileDownloadRequestBuilder;
-      const ATileDownloaderConfig: ITileDownloaderConfig;
+      const ATileDownloaderConfigStatic: ITileDownloaderConfigStatic;
       const AHttpDownloader: IDownloader;
       const AResultSaver: ITileDownloadResultSaver;
       const ALastResponseInfo: ILastResponseInfo
@@ -102,7 +99,7 @@ uses
 constructor TTileDownloaderSimple.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   const ATileDownloadRequestBuilder: ITileDownloadRequestBuilder;
-  const ATileDownloaderConfig: ITileDownloaderConfig;
+  const ATileDownloaderConfigStatic: ITileDownloaderConfigStatic;
   const AHttpDownloader: IDownloader;
   const AResultSaver: ITileDownloadResultSaver;
   const ALastResponseInfo: ILastResponseInfo
@@ -111,17 +108,19 @@ begin
   inherited Create;
   FAppClosingNotifier := AAppClosingNotifier;
   FTileDownloadRequestBuilder := ATileDownloadRequestBuilder;
-  FTileDownloaderConfig := ATileDownloaderConfig;
   FHttpDownloader := AHttpDownloader;
   FResultSaver := AResultSaver;
   FLastResponseInfo := ALastResponseInfo;
   Assert(FResultSaver <> nil);
 
+  // Static config used because of bug: http://www.sasgis.org/mantis/view.php?id=3029
+  FDownloadTryCount := ATileDownloaderConfigStatic.InetConfigStatic.DownloadTryCount;
+  FSleepOnResetConnection := ATileDownloaderConfigStatic.InetConfigStatic.SleepOnResetConnection;
+  FSleepAfterDownload := ATileDownloaderConfigStatic.WaitInterval;
+
   FCS := GSync.SyncStd.Make(Self.ClassName);
   FCancelEvent := TEvent.Create;
   FCancelListener := TNotifyNoMmgEventListener.Create(Self.OnCancelEvent);
-  FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
-  FTileDownloaderConfig.ChangeNotifier.Add(FConfigChangeListener);
   FWasConnectError := False;
 
   FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);
@@ -136,12 +135,6 @@ begin
     FAppClosingNotifier := nil;
   end;
 
-  if Assigned(FTileDownloaderConfig) and Assigned(FConfigChangeListener) then begin
-    FTileDownloaderConfig.ChangeNotifier.Remove(FConfigChangeListener);
-    FConfigChangeListener := nil;
-    FTileDownloaderConfig := nil;
-  end;
-
   FCS := nil;
   FreeAndNil(FCancelEvent);
   inherited;
@@ -152,8 +145,6 @@ begin
   inherited;
   if FAppClosingNotifier.IsExecuted then begin
     OnAppClosing;
-  end else begin
-    OnConfigChange;
   end;
 end;
 
@@ -285,16 +276,6 @@ end;
 procedure TTileDownloaderSimple.OnCancelEvent;
 begin
   FCancelEvent.SetEvent;
-end;
-
-procedure TTileDownloaderSimple.OnConfigChange;
-var
-  VTileDownloaderConfigStatic: ITileDownloaderConfigStatic;
-begin
-  VTileDownloaderConfigStatic := FTileDownloaderConfig.GetStatic;
-  FDownloadTryCount := VTileDownloaderConfigStatic.InetConfigStatic.DownloadTryCount;
-  FSleepOnResetConnection := VTileDownloaderConfigStatic.InetConfigStatic.SleepOnResetConnection;
-  FSleepAfterDownload := VTileDownloaderConfigStatic.WaitInterval;
 end;
 
 procedure TTileDownloaderSimple.SleepCancelable(ATime: Cardinal);
