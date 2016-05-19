@@ -304,8 +304,8 @@ object frmMapTypeEdit: TfrmMapTypeEdit
           Top = 3
           Width = 75
           Height = 22
-          MaxValue = 0
-          MinValue = 0
+          MaxValue = 64
+          MinValue = 1
           TabOrder = 0
           Value = 0
         end
