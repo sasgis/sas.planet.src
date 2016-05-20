@@ -88,7 +88,7 @@ begin
   );
 
   if not VRes then begin
-    RaiseLastWin32Error;
+    RaiseLastOSError;
   end;
 
   // HTTP 1.0 (Default 4)
@@ -101,7 +101,7 @@ begin
   );
 
   if not VRes then begin
-    RaiseLastWin32Error;
+    RaiseLastOSError;
   end;
 end;
 
