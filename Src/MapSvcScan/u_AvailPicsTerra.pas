@@ -103,7 +103,7 @@ end;
 
 function TAvailPicsTerraserver.ContentType: String;
 begin
-  Result := 'text/html';
+  Result := 'application/json; charset=utf-8';
 end;
 
 function TAvailPicsTerraserver.ParseResponse(const AResultOk: IDownloadResultOk): Integer;
@@ -122,24 +122,14 @@ function TAvailPicsTerraserver.ParseResponse(const AResultOk: IDownloadResultOk)
     VItemExisting: Boolean;
     VItemFetched: TDateTime;
   begin
-    if GetAfter('disabled', AOptionText) <> '' then begin
-      Result := FALSE;
-      Exit
-    end;
+    // ':"47f6c122130d37e9e6b5cf17c9fde868","formatted_date":"09-17-2014","product_type":"pan sharpened natural color'
+    VLayer := GetBetween(AOptionText, ':"', '","formatted_date"');
 
-    //skip  "<option value='0.336'>0.03km&sup2;</option>"+
-    if GetBetween(AOptionText, '>', '&sup2;') <> '' then begin
-      Result := FALSE;
-      Exit
-    end;
-
-    // value='dg,4c0512fac553a1d9cf226b003610efad'  selected='selected'  >5/22/2011
-    VValue := GetBetween(AOptionText, '>', '&nbsp;');
-
+    VValue := GetBetween(AOptionText, 'formatted_date":"', '"');
     // try convert to date (m[m]/d[d]/yyyy)
     if (Length(VValue) in [8..10]) then begin
       // find separator
-      VSep := '/';
+      VSep := '-';
       VPos := ALPos(VSep, VValue);
       if (VPos>0) then begin
         // sep defined
@@ -171,11 +161,7 @@ function TAvailPicsTerraserver.ParseResponse(const AResultOk: IDownloadResultOk)
       VDate := VValue;
     end;
 
-    // get parts of value=
-    VValue := GetAfter('value=', AOptionText);
-    VValue := GetBetween(VValue, '''', '''');
-    VLayer := GetAfter(',', VValue);
-    VValue := GetBefore(',', VValue);
+    VValue := GetAfter('"product_type":"', AOptionText);
 
     if (VValue='-1') and (VDate='-1') and (VLayer='-1') then begin
       // no image
@@ -200,14 +186,16 @@ function TAvailPicsTerraserver.ParseResponse(const AResultOk: IDownloadResultOk)
     // add
     AParams.Values['layer'] := VLayer;
     AParams.Values['date'] := VDate;
-    AParams.Values['provider'] := VValue;
-    AParams.Values['METADATA_URL'] := 'http://www.terraserver.com/view.asp?' +
-          'cx=' + RoundEx(FTileInfoPtr.LonLat.X, 4) +
-          '&cy=' + RoundEx(FTileInfoPtr.LonLat.Y, 4) +
-          '&mpp=5' +
-          '&proj=4326&pic=img&prov=' + VValue + '&stac=' + VLayer + '&ovrl=-1&drwl=' +
-          '&lgin=' + _RandInt5 +
-          '&styp=&vic=';
+    AParams.Values['product_type'] := VValue;
+//    AParams.Values['METADATA_URL'] := 'http://www.terraserver.com/view.asp?' +
+//          'cx=' + RoundEx(FTileInfoPtr.LonLat.X, 4) +
+//          '&cy=' + RoundEx(FTileInfoPtr.LonLat.Y, 4) +
+//          '&mpp=5' +
+//          '&proj=4326&pic=img&prov=' + VValue + '&stac=' + VLayer + '&ovrl=-1&drwl=' +
+//          '&lgin=' + _RandInt5 +
+//          '&styp=&vic=';
+
+//  /viewers/47f6c122130d37e9e6b5cf17c9fde868/image?width=108&height=81&bbox=39.003825187683105,45.013951949748076,39.011549949645996,45.01804747927431
 
     // call
     Result := FTileInfoPtr.AddImageProc(
@@ -239,20 +227,20 @@ begin
       Exit;
 
     VResponse := TALStringList.Create;
+    VResponse.LineBreak := '{';
     VResponse.LoadFromStream(VStream);
-    // search for:
-    // <option value='dg,26410504ede5bddf1bbc7aba966ab61e'  selected='selected'  >9/17/2012&nbsp;-&nbsp;0.5m&nbsp;</option>
-    // <option value='dg,f09a1d6be635f037f9b2a079ea57040b'  >7/19/2010</option>
+    // parse for date:
+    // {"features_count":10,"finished_features":[{"feature_id":"47f6c122130d37e9e6b5cf17c9fde868","formatted_date":"09-17-2014","product_type":"pan sharpened natural color"},{"feature_id":"8d7ed6c02d21738460a4341f3cc49685","formatted_date":"09-29-2014","product_type":"pan sharpened natural color"},
 
     while (VResponse.Count>0) do begin
       S := ALTrim(VResponse[0]);
-      S := GetBetween(S, '<option', '</option>');
+      S := GetBetween(S, '"feature_id"', '"}');
       if Length(S)>0 then begin
         if ALPos('<', S) = 0 then begin
-          // got  value='dg,4c0512fac553a1d9cf226b003610efad'  selected='selected'  >5/22/2011
-          // provider = dg
-          // layer = 4c0512fac553a1d9cf226b003610efad
-          // date = 5/22/2011
+          // ':"47f6c122130d37e9e6b5cf17c9fde868","formatted_date":"09-17-2014","product_type":"pan sharpened natural color'
+          // layer = 47f6c122130d37e9e6b5cf17c9fde868
+          // date = 09-17-2014
+          // product_type = pan sharpened natural color
           if _ProcessOption(ALTrim(S), VSLParams) then
             Inc(Result);
         end;
@@ -271,17 +259,26 @@ end;
 function TAvailPicsTerraserver.GetRequest(const AInetConfig: IInetConfig): IDownloadRequest;
 var
   VLink: AnsiString;
+  VHeader: AnsiString;
 begin
- VLink := 'http://www.terraserver.com/view_frm.asp?' +
-          'cx=' + RoundExAnsi(FTileInfoPtr.LonLat.X, 4) +
-          '&cy=' + RoundExAnsi(FTileInfoPtr.LonLat.Y, 4) +
-          '&mpp=5' +
-          '&proj=4326&pic=img&prov=-1&stac=-1&ovrl=-1&drwl=&ms=km' +
-          '&lgin=' + _RandInt5 +
-          '&styp=&vic=';
+ VLink := 'https://www.terraserver.com/viewers/features?bbox=' +
+          RoundExAnsi(FTileInfoPtr.TileRect.Left, 14) + '%2C'+
+          RoundExAnsi(FTileInfoPtr.TileRect.Bottom, 14) + '%2C'+
+          RoundExAnsi(FTileInfoPtr.TileRect.Right, 14) + '%2C'+
+          RoundExAnsi(FTileInfoPtr.TileRect.Top, 14) +
+          '&image_option=';
+
+ VHeader :='User-Agent: Opera/9.80 (Windows NT 6.1; MRA 5.10 (build 5231)) Presto/2.12.388 Version/12.18'+#$D#$A+
+    'Host: www.terraserver.com'+#$D#$A+
+    'Accept-Language: ru-RU,ru;q=0.9,en;q=0.8'+#$D#$A+
+    'Accept-Encoding: gzip, deflate'+#$D#$A+
+    'Referer: https://www.terraserver.com/view'+#$D#$A+
+    'Accept: */*'+#$D#$A+
+    'X-Requested-With: XMLHttpRequest';
+
  Result := TDownloadRequest.Create(
            VLink,
-           '',
+           VHeader,
            AInetConfig.GetStatic
            );
 end;
