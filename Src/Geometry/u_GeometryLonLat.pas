@@ -216,6 +216,11 @@ begin
     Exit;
   end;
 
+  if not Assigned(APoint) then begin
+    Result := False;
+    Exit;
+  end;
+
   if FCount <> APoint.Count then begin
     Result := False;
     Exit;

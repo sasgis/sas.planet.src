@@ -42,6 +42,11 @@ type
       const ABounds: TDoubleRect;
       const APoints: IDoublePoints
     ): IGeometryProjectedMultiPoint;
+    function CreateMultiPointByLonLat(
+      const AProjection: IProjection;
+      const ASource: IGeometryLonLatMultiPoint;
+      const ATemp: IDoublePointsAggregator = nil
+    ): IGeometryProjectedMultiPoint;
     function CreateProjectedLineByLonLatPath(
       const AProjection: IProjection;
       const ASource: IGeometryLonLatLine;
@@ -333,6 +338,39 @@ begin
       ABounds,
       APoints
     );
+end;
+
+function TGeometryProjectedFactory.CreateMultiPointByLonLat(
+  const AProjection: IProjection;
+  const ASource: IGeometryLonLatMultiPoint;
+  const ATemp: IDoublePointsAggregator
+): IGeometryProjectedMultiPoint;
+var
+  VTemp: IDoublePointsAggregator;
+  VEnum: IEnumProjectedPoint;
+  VBounds: TDoubleRect;
+  VPoints: IDoublePoints;
+begin
+  Result := nil;
+  VTemp := ATemp;
+  if VTemp = nil then begin
+    VTemp := TDoublePointsAggregator.Create;
+  end;
+
+  VEnum :=
+    TEnumDoublePointLonLatToMapPixel.Create(
+      AProjection,
+      ASource.GetEnum
+    );
+  VEnum := TEnumProjectedPointFilterEqual.Create(VEnum);
+  VPoints := EnumToPoints(VEnum, VTemp, VBounds);
+  if Assigned(VPoints) then begin
+    Result :=
+      TGeometryProjectedMultiPoint.Create(
+        VBounds,
+        VPoints
+      );
+  end;
 end;
 
 function TGeometryProjectedFactory.CreateProjectedLineByLonLatPath(

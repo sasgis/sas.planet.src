@@ -66,6 +66,11 @@ type
       const ABounds: TDoubleRect;
       const APoints: IDoublePoints
     ): IGeometryProjectedMultiPoint;
+    function CreateMultiPointByLonLat(
+      const AProjection: IProjection;
+      const ASource: IGeometryLonLatMultiPoint;
+      const ATemp: IDoublePointsAggregator = nil
+    ): IGeometryProjectedMultiPoint;
     function CreateProjectedLineByLonLatPath(
       const AProjection: IProjection;
       const ASource: IGeometryLonLatLine;
