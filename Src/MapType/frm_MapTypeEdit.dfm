@@ -290,28 +290,28 @@ object frmMapTypeEdit: TfrmMapTypeEdit
           AlignWithMargins = True
           Left = 6
           Top = 6
-          Width = 142
+          Width = 200
           Height = 22
           Margins.Left = 6
           Margins.Top = 6
           Align = alLeft
-          Caption = 'Max connect to server count:'
+          Caption = 'Max concurrent http(s)-requests number:'
           ExplicitHeight = 13
         end
         object seMaxConnectToServerCount: TSpinEdit
           AlignWithMargins = True
-          Left = 154
+          Left = 212
           Top = 3
           Width = 75
           Height = 22
           MaxValue = 64
           MinValue = 1
           TabOrder = 0
-          Value = 0
+          Value = 1
         end
         object btnResetMaxConnect: TButton
           AlignWithMargins = True
-          Left = 235
+          Left = 293
           Top = 3
           Width = 21
           Height = 21

@@ -98,6 +98,7 @@ object frTilesDownload: TfrTilesDownload
             Align = alLeft
             Caption = 'only created before'
             Layout = tlCenter
+            ExplicitHeight = 13
           end
           object chkReplaceOlder: TCheckBox
             Left = 0
@@ -158,6 +159,7 @@ object frTilesDownload: TfrTilesDownload
             Align = alLeft
             Caption = 'only created before'
             Layout = tlCenter
+            ExplicitHeight = 13
           end
           object chkLoadIfTneOld: TCheckBox
             Left = 0
@@ -194,14 +196,12 @@ object frTilesDownload: TfrTilesDownload
           AlignWithMargins = True
           Left = 17
           Top = 7
-          Width = 173
+          Width = 114
           Height = 15
           Margins.Left = 0
           Margins.Top = 7
           Align = alLeft
-          Caption = 'Split region (by tiles count) to parts:'
-          ExplicitLeft = 20
-          ExplicitTop = 3
+          Caption = 'Split selection to, parts:'
           ExplicitHeight = 13
         end
         object chkSplitRegion: TCheckBox
@@ -216,11 +216,9 @@ object frTilesDownload: TfrTilesDownload
           Align = alLeft
           TabOrder = 0
           OnClick = chkSplitRegionClick
-          ExplicitTop = 0
-          ExplicitHeight = 363
         end
         object sePartsCount: TSpinEdit
-          Left = 196
+          Left = 135
           Top = 3
           Width = 50
           Height = 22
@@ -247,12 +245,14 @@ object frTilesDownload: TfrTilesDownload
     object lblStat: TLabel
       AlignWithMargins = True
       Left = 3
-      Top = 47
+      Top = 44
       Width = 370
       Height = 13
       Margins.Right = 0
       Align = alBottom
       Caption = '_'
+      ExplicitTop = 47
+      ExplicitWidth = 6
     end
     object pnlFrame: TPanel
       Left = 0
@@ -270,6 +270,7 @@ object frTilesDownload: TfrTilesDownload
         Height = 13
         Align = alTop
         Caption = 'Map/Overlay layer:'
+        ExplicitWidth = 93
       end
     end
   end
