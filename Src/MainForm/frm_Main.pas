@@ -1973,8 +1973,9 @@ var
   VDebugName: string;
   VVectorOversizeRect: TRect;
   VMatrixList: IInterfaceListSimple;
-  VLineChangeable: IGeometryLonLatLineChangeable;
   VPolygonChangeable: IGeometryLonLatPolygonChangeable;
+  VGeometryChangeableByPathEdit: TGeometryLonLatChangeableByPathEdit;
+  VGeometryChangeableByPolygonEdit: TGeometryLonLatChangeableByPolygonEdit;
 begin
   VTileRectForShow :=
     TTileRectChangeableByLocalConverterSmart.Create(
@@ -2472,13 +2473,19 @@ begin
     );
   VLayersList.Add(VLayer);
 
+  // CalcLine points
+  VGeometryChangeableByPathEdit :=
+    TGeometryLonLatChangeableByPathEdit.Create(
+      GState.VectorGeometryLonLatFactory,
+      FLineOnMapByOperation[ao_calc_line] as IPathOnMapEdit
+    );
+
+  VLayer := VGeometryChangeableByPathEdit;
+  VLayersList.Add(VLayer);
+
   // CalcLine line visualisation layer
   VDebugName := 'CalcLine';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
-  VLineChangeable :=
-    TGeometryLonLatLineChangeableByPathEdit.Create(
-      FLineOnMapByOperation[ao_calc_line] as IPathOnMapEdit
-    );
   VLayer :=
     TMapLayerSingleLine.Create(
       VPerfList,
@@ -2488,25 +2495,55 @@ begin
       FViewPortState.View,
       GState.VectorGeometryProjectedFactory,
       FConfig.LayersConfig.CalcLineLayerConfig.LineConfig,
-      VLineChangeable
+      VGeometryChangeableByPathEdit.LineChangeable
     );
   VLayersList.Add(VLayer);
 
-  // CalcLine points visualisation layer
-  VDebugName := 'CalcLinePoints';
+  // CalcLine simple points visualisation layer
+  VDebugName := 'CalcLineSimplePoints';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
-    TMapLayerPointsSetByPathEdit.Create(
+    TMapLayerPointsSet.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
       FViewPortState.View,
       GState.VectorGeometryProjectedFactory,
-      FLineOnMapByOperation[ao_calc_line] as IPathOnMapEdit,
-      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.CalcLineLayerConfig.PointsConfig.FirstPointMarker),
-      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.CalcLineLayerConfig.PointsConfig.ActivePointMarker),
+      VGeometryChangeableByPathEdit.OtherPointsChangeable,
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.CalcLineLayerConfig.PointsConfig.NormalPointMarker)
+    );
+  VLayersList.Add(VLayer);
+
+  // CalcLine first points visualisation layer
+  VDebugName := 'CalcFirstSimplePoints';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
+    TMapLayerPointsSet.Create(
+      VPerfList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FViewPortState.View,
+      GState.VectorGeometryProjectedFactory,
+      VGeometryChangeableByPathEdit.FirstPointsChangeable,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.CalcLineLayerConfig.PointsConfig.FirstPointMarker)
+    );
+  VLayersList.Add(VLayer);
+
+  // CalcLine active points visualisation layer
+  VDebugName := 'CalcActiveSimplePoints';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
+    TMapLayerPointsSet.Create(
+      VPerfList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FViewPortState.View,
+      GState.VectorGeometryProjectedFactory,
+      VGeometryChangeableByPathEdit.ActivePointsChangeable,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.CalcLineLayerConfig.PointsConfig.ActivePointMarker)
     );
   VLayersList.Add(VLayer);
 
@@ -2527,12 +2564,18 @@ begin
   VLayersList.Add(VLayer);
 
   // PathEdit line visualisation layer
-  VDebugName := 'PathEdit';
-  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
-  VLineChangeable :=
-    TGeometryLonLatLineChangeableByPathEdit.Create(
+  VGeometryChangeableByPathEdit :=
+    TGeometryLonLatChangeableByPathEdit.Create(
+      GState.VectorGeometryLonLatFactory,
       FLineOnMapByOperation[ao_edit_line] as IPathOnMapEdit
     );
+
+  VLayer := VGeometryChangeableByPathEdit;
+  VLayersList.Add(VLayer);
+
+  // PathEdit line visualisation layer
+  VDebugName := 'PathEdit';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
     TMapLayerSingleLine.Create(
       VPerfList,
@@ -2542,25 +2585,55 @@ begin
       FViewPortState.View,
       GState.VectorGeometryProjectedFactory,
       FConfig.LayersConfig.MarkPolyLineLayerConfig.LineConfig,
-      VLineChangeable
+      VGeometryChangeableByPathEdit.LineChangeable
     );
   VLayersList.Add(VLayer);
 
-  // PathEdit poinst visualisation layer
-  VDebugName := 'PathEditPoints';
+  // PathEdit simple points visualisation layer
+  VDebugName := 'PathEditSimplePoints';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
-    TMapLayerPointsSetByPathEdit.Create(
+    TMapLayerPointsSet.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
       FViewPortState.View,
       GState.VectorGeometryProjectedFactory,
-      FLineOnMapByOperation[ao_edit_line] as IPathOnMapEdit,
-      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolyLineLayerConfig.PointsConfig.FirstPointMarker),
-      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolyLineLayerConfig.PointsConfig.ActivePointMarker),
+      VGeometryChangeableByPathEdit.OtherPointsChangeable,
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolyLineLayerConfig.PointsConfig.NormalPointMarker)
+    );
+  VLayersList.Add(VLayer);
+
+  // PathEdit first points visualisation layer
+  VDebugName := 'PathEditFirstPoints';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
+    TMapLayerPointsSet.Create(
+      VPerfList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FViewPortState.View,
+      GState.VectorGeometryProjectedFactory,
+      VGeometryChangeableByPathEdit.FirstPointsChangeable,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolyLineLayerConfig.PointsConfig.FirstPointMarker)
+    );
+  VLayersList.Add(VLayer);
+
+  // PathEdit active points visualisation layer
+  VDebugName := 'PathEditActivePoints';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
+    TMapLayerPointsSet.Create(
+      VPerfList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FViewPortState.View,
+      GState.VectorGeometryProjectedFactory,
+      VGeometryChangeableByPathEdit.ActivePointsChangeable,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolyLineLayerConfig.PointsConfig.ActivePointMarker)
     );
   VLayersList.Add(VLayer);
 
@@ -2580,14 +2653,20 @@ begin
     );
   VLayersList.Add(VLayer);
 
+
   // PolygonEdit line and fill visualisation layer
-  VDebugName := 'PolygonEdit';
-  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
-  VPolygonChangeable :=
-    TGeometryLonLatPolygonChangeableByPolygonEdit.Create(
+  VGeometryChangeableByPolygonEdit :=
+    TGeometryLonLatChangeableByPolygonEdit.Create(
+      GState.VectorGeometryLonLatFactory,
       FLineOnMapByOperation[ao_edit_poly] as IPolygonOnMapEdit
     );
 
+  VLayer := VGeometryChangeableByPolygonEdit;
+  VLayersList.Add(VLayer);
+
+  // PolygonEdit line and fill visualisation layer
+  VDebugName := 'PolygonEdit';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
     TMapLayerSinglePolygon.Create(
       VPerfList,
@@ -2597,35 +2676,71 @@ begin
       FViewPortState.View,
       GState.VectorGeometryProjectedFactory,
       FConfig.LayersConfig.MarkPolygonLayerConfig.LineConfig,
-      VPolygonChangeable
+      VGeometryChangeableByPolygonEdit.PolygonChangeable
     );
   VLayersList.Add(VLayer);
 
-  // PolygonEdit points visualisation layer
-  VDebugName := 'PolygonEditPoints';
+  // PolygonEdit simple points visualisation layer
+  VDebugName := 'PolygonEditSimplePoints';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
-    TMapLayerPointsSetByPolygonEdit.Create(
+    TMapLayerPointsSet.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
       FViewPortState.View,
       GState.VectorGeometryProjectedFactory,
-      FLineOnMapByOperation[ao_edit_poly] as IPolygonOnMapEdit,
-      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolygonLayerConfig.PointsConfig.FirstPointMarker),
-      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolygonLayerConfig.PointsConfig.ActivePointMarker),
+      VGeometryChangeableByPolygonEdit.OtherPointsChangeable,
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolygonLayerConfig.PointsConfig.NormalPointMarker)
     );
+  VLayersList.Add(VLayer);
+
+  // PolygonEdit first points visualisation layer
+  VDebugName := 'PolygonEditFirstPoints';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
+    TMapLayerPointsSet.Create(
+      VPerfList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FViewPortState.View,
+      GState.VectorGeometryProjectedFactory,
+      VGeometryChangeableByPolygonEdit.FirstPointsChangeable,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolygonLayerConfig.PointsConfig.FirstPointMarker)
+    );
+  VLayersList.Add(VLayer);
+
+  // PolygonEdit active points visualisation layer
+  VDebugName := 'PolygonEditActivePoints';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
+    TMapLayerPointsSet.Create(
+      VPerfList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FViewPortState.View,
+      GState.VectorGeometryProjectedFactory,
+      VGeometryChangeableByPolygonEdit.ActivePointsChangeable,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolygonLayerConfig.PointsConfig.ActivePointMarker)
+    );
+  VLayersList.Add(VLayer);
+
+  // PolygonSelection line and fill visualisation layer
+  VGeometryChangeableByPolygonEdit :=
+    TGeometryLonLatChangeableByPolygonEdit.Create(
+      GState.VectorGeometryLonLatFactory,
+      FLineOnMapByOperation[ao_select_poly] as IPolygonOnMapEdit
+    );
+
+  VLayer := VGeometryChangeableByPolygonEdit;
   VLayersList.Add(VLayer);
 
   // PolygonSelection line and fill visualisation layer
   VDebugName := 'PolygonSelection';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
-  VPolygonChangeable :=
-    TGeometryLonLatPolygonChangeableByPolygonEdit.Create(
-      FLineOnMapByOperation[ao_select_poly] as IPolygonOnMapEdit
-    );
   VLayer :=
     TMapLayerSinglePolygon.Create(
       VPerfList,
@@ -2635,40 +2750,76 @@ begin
       FViewPortState.View,
       GState.VectorGeometryProjectedFactory,
       FConfig.LayersConfig.SelectionPolygonLayerConfig.LineConfig,
-      VPolygonChangeable
+      VGeometryChangeableByPolygonEdit.PolygonChangeable
     );
   VLayersList.Add(VLayer);
 
-  // PolygonSelection points visualisation layer
-  VDebugName := 'PolygonSelectionPoints';
+  // PolygonSelection simple points visualisation layer
+  VDebugName := 'PolygonSelectionSimplePoints';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
-    TMapLayerPointsSetByPolygonEdit.Create(
+    TMapLayerPointsSet.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
       FViewPortState.View,
       GState.VectorGeometryProjectedFactory,
-      FLineOnMapByOperation[ao_select_poly] as IPolygonOnMapEdit,
-      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolygonLayerConfig.PointsConfig.FirstPointMarker),
-      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolygonLayerConfig.PointsConfig.ActivePointMarker),
+      VGeometryChangeableByPolygonEdit.OtherPointsChangeable,
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolygonLayerConfig.PointsConfig.NormalPointMarker)
     );
+  VLayersList.Add(VLayer);
+
+  // PolygonSelection first points visualisation layer
+  VDebugName := 'PolygonSelectionFirstPoints';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
+    TMapLayerPointsSet.Create(
+      VPerfList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FViewPortState.View,
+      GState.VectorGeometryProjectedFactory,
+      VGeometryChangeableByPolygonEdit.FirstPointsChangeable,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolygonLayerConfig.PointsConfig.FirstPointMarker)
+    );
+  VLayersList.Add(VLayer);
+
+  // PolygonSelection active points visualisation layer
+  VDebugName := 'PolygonSelectionActivePoints';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
+    TMapLayerPointsSet.Create(
+      VPerfList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FViewPortState.View,
+      GState.VectorGeometryProjectedFactory,
+      VGeometryChangeableByPolygonEdit.ActivePointsChangeable,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolygonLayerConfig.PointsConfig.ActivePointMarker)
+    );
+  VLayersList.Add(VLayer);
+
+  // SelectionByLine visualisation layer
+  VGeometryChangeableByPathEdit :=
+    TGeometryLonLatChangeableByPathEdit.Create(
+      GState.VectorGeometryLonLatFactory,
+      FLineOnMapByOperation[ao_select_line] as IPathOnMapEdit
+    );
+
+  VLayer := VGeometryChangeableByPathEdit;
   VLayersList.Add(VLayer);
 
   // SelectionByLine shadow visualisation layer
   VDebugName := 'SelectionByLineShadow';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
-  VLineChangeable :=
-    TGeometryLonLatLineChangeableByPathEdit.Create(
-      FLineOnMapByOperation[ao_select_line] as IPathOnMapEdit
-    );
   VPolygonChangeable :=
     TGeometryLonLatPolygonChangeableByLineChangeable.Create(
       GState.VectorGeometryLonLatFactory,
       FViewPortState.View,
-      VLineChangeable,
+      VGeometryChangeableByPathEdit.LineChangeable,
       FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig
     );
   VLayer :=
@@ -2687,7 +2838,6 @@ begin
   // SelectionByLyne line visualisation layer
   VDebugName := 'SelectionByLine';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
-
   VLayer :=
     TMapLayerSingleLine.Create(
       VPerfList,
@@ -2697,25 +2847,55 @@ begin
       FViewPortState.View,
       GState.VectorGeometryProjectedFactory,
       FConfig.LayersConfig.SelectionPolylineLayerConfig.LineConfig,
-      VLineChangeable
+      VGeometryChangeableByPathEdit.LineChangeable
     );
   VLayersList.Add(VLayer);
 
-  // SelectionByLyne points visualisation layer
-  VDebugName := 'SelectionByLinePoints';
+  // SelectionByLyne simple points visualisation layer
+  VDebugName := 'SelectionByLineSimplePoints';
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
-    TMapLayerPointsSetByPathEdit.Create(
+    TMapLayerPointsSet.Create(
       VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
       FViewPortState.View,
       GState.VectorGeometryProjectedFactory,
-      FLineOnMapByOperation[ao_select_line] as IPathOnMapEdit,
-      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolylineLayerConfig.PointsConfig.FirstPointMarker),
-      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolylineLayerConfig.PointsConfig.ActivePointMarker),
+      VGeometryChangeableByPathEdit.OtherPointsChangeable,
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolylineLayerConfig.PointsConfig.NormalPointMarker)
+    );
+  VLayersList.Add(VLayer);
+
+  // SelectionByLyne first points visualisation layer
+  VDebugName := 'SelectionByLineFirstPoints';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
+    TMapLayerPointsSet.Create(
+      VPerfList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FViewPortState.View,
+      GState.VectorGeometryProjectedFactory,
+      VGeometryChangeableByPathEdit.FirstPointsChangeable,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolylineLayerConfig.PointsConfig.FirstPointMarker)
+    );
+  VLayersList.Add(VLayer);
+
+  // SelectionByLyne active points visualisation layer
+  VDebugName := 'SelectionByLineActivePoints';
+  VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
+    TMapLayerPointsSet.Create(
+      VPerfList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FViewPortState.View,
+      GState.VectorGeometryProjectedFactory,
+      VGeometryChangeableByPathEdit.ActivePointsChangeable,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolylineLayerConfig.PointsConfig.ActivePointMarker)
     );
   VLayersList.Add(VLayer);
 

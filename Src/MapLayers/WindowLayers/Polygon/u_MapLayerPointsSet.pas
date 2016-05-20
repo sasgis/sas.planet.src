@@ -30,33 +30,29 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
-  i_LineOnMapEdit,
   i_Projection,
   i_MarkerDrawable,
-  i_DoublePointsAggregator,
   i_GeometryProjectedFactory,
   i_GeometryLonLat,
+  i_GeometryLonLatChangeable,
+  i_GeometryProjected,
   u_MapLayerBasicNoBitmap;
 
 type
-  TMapLayerPointsSetBase = class(TMapLayerBasicNoBitmap)
+  TMapLayerPointsSet = class(TMapLayerBasicNoBitmap)
   private
-    FFirstPointMarker: IMarkerDrawableChangeable;
-    FActivePointMarker: IMarkerDrawableChangeable;
-    FNormalPointMarker: IMarkerDrawableChangeable;
+    FGeometryProjectedFactory: IGeometryProjectedFactory;
+    FPointMarker: IMarkerDrawableChangeable;
+    FSource: IGeometryLonLatMultiPointChangeable;
 
     FNeedUpdatePoints: Boolean;
     FProjection: IProjection;
-    FProjectedPoints: IDoublePointsAggregator;
-    FActivePointIndex: Integer;
+    FLonLatPointsPrepared: IGeometryLonLatMultiPoint;
+    FProjectedPoints: IGeometryProjectedMultiPoint;
     procedure OnConfigChange;
   protected
     procedure ChangedSource;
-    procedure PreparePoints(
-      const AProjection: IProjection;
-      out AProjectedPoints: IDoublePointsAggregator;
-      out AActivePointIndex: Integer
-    ); virtual; abstract;
+    procedure OnSourceChange;
   protected
     procedure PaintLayer(
       ABuffer: TBitmap32;
@@ -70,62 +66,9 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
-      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const AFirstPointMarker: IMarkerDrawableChangeable;
-      const AActivePointMarker: IMarkerDrawableChangeable;
-      const ANormalPointMarker: IMarkerDrawableChangeable
-    );
-  end;
-
-  TMapLayerPointsSetByPathEdit = class(TMapLayerPointsSetBase)
-  private
-    FLineOnMapEdit: IPathOnMapEdit;
-    FLine: ILonLatPathWithSelected;
-    procedure OnLineChange;
-  protected
-    procedure PreparePoints(
-      const AProjection: IProjection;
-      out AProjectedPoints: IDoublePointsAggregator;
-      out AActivePointIndex: Integer
-    ); override;
-  public
-    constructor Create(
-      const APerfList: IInternalPerformanceCounterList;
-      const AAppStartedNotifier: INotifierOneOperation;
-      const AAppClosingNotifier: INotifierOneOperation;
-      AParentMap: TImage32;
-      const AView: ILocalCoordConverterChangeable;
-      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const ALineOnMapEdit: IPathOnMapEdit;
-      const AFirstPointMarker: IMarkerDrawableChangeable;
-      const AActivePointMarker: IMarkerDrawableChangeable;
-      const ANormalPointMarker: IMarkerDrawableChangeable
-    );
-  end;
-
-  TMapLayerPointsSetByPolygonEdit = class(TMapLayerPointsSetBase)
-  private
-    FLineOnMapEdit: IPolygonOnMapEdit;
-    FLine: ILonLatPolygonWithSelected;
-    procedure OnLineChange;
-  protected
-    procedure PreparePoints(
-      const AProjection: IProjection;
-      out AProjectedPoints: IDoublePointsAggregator;
-      out AActivePointIndex: Integer
-    ); override;
-  public
-    constructor Create(
-      const APerfList: IInternalPerformanceCounterList;
-      const AAppStartedNotifier: INotifierOneOperation;
-      const AAppClosingNotifier: INotifierOneOperation;
-      AParentMap: TImage32;
-      const AView: ILocalCoordConverterChangeable;
-      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const ALineOnMapEdit: IPolygonOnMapEdit;
-      const AFirstPointMarker: IMarkerDrawableChangeable;
-      const AActivePointMarker: IMarkerDrawableChangeable;
-      const ANormalPointMarker: IMarkerDrawableChangeable
+      const AGeometryProjectedFactory: IGeometryProjectedFactory;
+      const ASource: IGeometryLonLatMultiPointChangeable;
+      const APointMarker: IMarkerDrawableChangeable
     );
   end;
 
@@ -134,25 +77,27 @@ implementation
 uses
   SysUtils,
   i_Listener,
-  u_DoublePointsAggregator,
+  i_EnumDoublePoint,
+  u_GeoFunc,
   u_ListenerByEvent;
 
-{ TMapLayerPointsSetBase }
+{ TMapLayerPointsSet }
 
-constructor TMapLayerPointsSetBase.Create(
+constructor TMapLayerPointsSet.Create(
   const APerfList: IInternalPerformanceCounterList;
-  const AAppStartedNotifier: INotifierOneOperation;
-  const AAppClosingNotifier: INotifierOneOperation;
+  const AAppStartedNotifier, AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
-  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const AFirstPointMarker: IMarkerDrawableChangeable;
-  const AActivePointMarker: IMarkerDrawableChangeable;
-  const ANormalPointMarker: IMarkerDrawableChangeable
+  const AGeometryProjectedFactory: IGeometryProjectedFactory;
+  const ASource: IGeometryLonLatMultiPointChangeable;
+  const APointMarker: IMarkerDrawableChangeable
 );
 var
   VListener: IListener;
 begin
+  Assert(Assigned(AGeometryProjectedFactory));
+  Assert(Assigned(ASource));
+  Assert(Assigned(APointMarker));
   inherited Create(
     APerfList,
     AAppStartedNotifier,
@@ -160,26 +105,27 @@ begin
     AParentMap,
     AView
   );
-  FFirstPointMarker := AFirstPointMarker;
-  FActivePointMarker := AActivePointMarker;
-  FNormalPointMarker := ANormalPointMarker;
+  FGeometryProjectedFactory := AGeometryProjectedFactory;
+  FSource := ASource;
+  FPointMarker := APointMarker;
 
   VListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   LinksList.Add(
     VListener,
-    FFirstPointMarker.GetChangeNotifier
+    FPointMarker.GetChangeNotifier
   );
   LinksList.Add(
-    VListener,
-    FActivePointMarker.GetChangeNotifier
-  );
-  LinksList.Add(
-    VListener,
-    FNormalPointMarker.GetChangeNotifier
+    TNotifyNoMmgEventListener.Create(Self.OnSourceChange),
+    FSource.ChangeNotifier
   );
 end;
 
-procedure TMapLayerPointsSetBase.OnConfigChange;
+procedure TMapLayerPointsSet.ChangedSource;
+begin
+  FNeedUpdatePoints := True;
+end;
+
+procedure TMapLayerPointsSet.OnConfigChange;
 begin
   ViewUpdateLock;
   try
@@ -189,466 +135,89 @@ begin
   end;
 end;
 
-procedure TMapLayerPointsSetBase.ChangedSource;
+procedure TMapLayerPointsSet.OnSourceChange;
 begin
-  FNeedUpdatePoints := True;
+  ViewUpdateLock;
+  try
+    if Assigned(FSource.GetStatic) then begin
+      SetNeedRedraw;
+      Show;
+    end else begin
+      Hide;
+    end;
+    ChangedSource;
+  finally
+    ViewUpdateUnlock;
+  end;
 end;
 
-procedure TMapLayerPointsSetBase.PaintLayer(
+procedure TMapLayerPointsSet.PaintLayer(
   ABuffer: TBitmap32;
   const ALocalConverter: ILocalCoordConverter
 );
 var
   VProjection: IProjection;
-  VPoints: IDoublePointsAggregator;
-  VActiveIndex: Integer;
   VNeedUpdatePoints: Boolean;
-  VLocalRect: TRect;
-  VBitmapSize: TPoint;
+  VViewRect: TDoubleRect;
   VPosOnMap: TDoublePoint;
   VPosOnBitmap: TDoublePoint;
-  i: Integer;
-  VFirstPointMarker: IMarkerDrawable;
-  VActivePointMarker: IMarkerDrawable;
-  VNormalPointMarker: IMarkerDrawable;
+  VPointMarker: IMarkerDrawable;
+  VPoints: IGeometryLonLatMultiPoint;
+  VProjectedPoints: IGeometryProjectedMultiPoint;
+  VEnum: IEnumProjectedPoint;
 begin
   inherited;
-  VFirstPointMarker := FFirstPointMarker.GetStatic;
-  VActivePointMarker := FActivePointMarker.GetStatic;
-  VNormalPointMarker := FNormalPointMarker.GetStatic;
+  VNeedUpdatePoints := FNeedUpdatePoints;
+  if VNeedUpdatePoints then begin
+    VPoints := FSource.GetStatic;
+    if Assigned(VPoints) then begin
+      VNeedUpdatePoints := not VPoints.IsSame(FLonLatPointsPrepared);
+    end else begin
+      VNeedUpdatePoints := Assigned(FLonLatPointsPrepared);
+    end;
+  end else begin
+    VPoints := FLonLatPointsPrepared;
+  end;
+
+  if VNeedUpdatePoints then begin
+    FLonLatPointsPrepared := VPoints;
+  end;
 
   VProjection := FProjection;
-  VPoints := FProjectedPoints;
-  VActiveIndex := FActivePointIndex;
-  VNeedUpdatePoints := FNeedUpdatePoints;
-  if not VNeedUpdatePoints then begin
-    if (VProjection = nil) or (VPoints = nil) then begin
-      VNeedUpdatePoints := True;
-    end else begin
-      if not ALocalConverter.Projection.IsSame(VProjection) then begin
-        VNeedUpdatePoints := True;
-      end;
-    end;
-  end;
-  if VNeedUpdatePoints then begin
+  if not ALocalConverter.Projection.IsSame(VProjection) then begin
+    VNeedUpdatePoints := True;
     VProjection := ALocalConverter.Projection;
-    PreparePoints(VProjection, VPoints, VActiveIndex);
-    FProjectedPoints := VPoints;
     FProjection := VProjection;
-    FActivePointIndex := VActiveIndex;
-    FNeedUpdatePoints := False;
   end;
 
-  if VPoints = nil then begin
-    Exit;
-  end;
-
-  if VPoints.Count > 0 then begin
-    VLocalRect := ALocalConverter.GetLocalRect;
-    VBitmapSize.X := VLocalRect.Right - VLocalRect.Left;
-    VBitmapSize.Y := VLocalRect.Bottom - VLocalRect.Top;
-    VPosOnMap := VPoints.Points[0];
-    VPosOnBitmap := ALocalConverter.MapPixelFloat2LocalPixelFloat(VPosOnMap);
-    if VActiveIndex = 0 then begin
-      VActivePointMarker.DrawToBitmap(ABuffer, VPosOnBitmap);
+  if VNeedUpdatePoints then begin
+    if Assigned(VPoints) then begin
+      FProjectedPoints := FGeometryProjectedFactory.CreateMultiPointByLonLat(VProjection, VPoints);
     end else begin
-      VFirstPointMarker.DrawToBitmap(ABuffer, VPosOnBitmap);
+      FProjectedPoints := nil;
     end;
-    for i := 1 to VPoints.Count - 1 do begin
-      VPosOnMap := VPoints.Points[i];
-      VPosOnBitmap := ALocalConverter.MapPixelFloat2LocalPixelFloat(VPosOnMap);
-      if VActiveIndex = i then begin
-        VActivePointMarker.DrawToBitmap(ABuffer, VPosOnBitmap);
-      end else begin
-        VNormalPointMarker.DrawToBitmap(ABuffer, VPosOnBitmap);
+  end;
+  VProjectedPoints := FProjectedPoints;
+
+  if Assigned(VProjectedPoints) then begin
+    VViewRect := ALocalConverter.GetRectInMapPixelFloat;
+    if IsIntersecProjectedRect(VViewRect, VProjectedPoints.Bounds) then begin
+      VPointMarker := FPointMarker.GetStatic;
+      VEnum := VProjectedPoints.GetEnum;
+      while VEnum.Next(VPosOnMap) do begin
+        if PixelPointInRect(VPosOnMap, VViewRect) then begin
+          VPosOnBitmap := ALocalConverter.MapPixelFloat2LocalPixelFloat(VPosOnMap);
+          VPointMarker.DrawToBitmap(ABuffer, VPosOnBitmap);
+        end;
       end;
     end;
   end;
 end;
 
-procedure TMapLayerPointsSetBase.StartThreads;
+procedure TMapLayerPointsSet.StartThreads;
 begin
   inherited;
   OnConfigChange;
-end;
-
-{ TMapLayerPointsSetByPathEdit }
-
-constructor TMapLayerPointsSetByPathEdit.Create(
-  const APerfList: IInternalPerformanceCounterList;
-  const AAppStartedNotifier: INotifierOneOperation;
-  const AAppClosingNotifier: INotifierOneOperation;
-  AParentMap: TImage32;
-  const AView: ILocalCoordConverterChangeable;
-  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const ALineOnMapEdit: IPathOnMapEdit;
-  const AFirstPointMarker: IMarkerDrawableChangeable;
-  const AActivePointMarker: IMarkerDrawableChangeable;
-  const ANormalPointMarker: IMarkerDrawableChangeable
-);
-begin
-  inherited Create(
-    APerfList,
-    AAppStartedNotifier,
-    AAppClosingNotifier,
-    AParentMap,
-    AView,
-    AVectorGeometryProjectedFactory,
-    AFirstPointMarker,
-    AActivePointMarker,
-    ANormalPointMarker
-  );
-  FLineOnMapEdit := ALineOnMapEdit;
-
-  LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnLineChange),
-    FLineOnMapEdit.GetChangeNotifier
-  );
-end;
-
-procedure TMapLayerPointsSetByPathEdit.OnLineChange;
-begin
-  ViewUpdateLock;
-  try
-    FLine := FLineOnMapEdit.Path;
-    if Assigned(FLine) then begin
-      SetNeedRedraw;
-      Show;
-    end else begin
-      Hide;
-    end;
-    ChangedSource;
-  finally
-    ViewUpdateUnlock;
-  end;
-end;
-
-procedure PrepareSingleLine(
-  const AProjection: IProjection;
-  const AGeometry: IGeometryLonLatSingleLine;
-  const ASourceActivePointIndex: Integer;
-  const AProjectedPoints: IDoublePointsAggregator;
-  var AIndex: Integer;
-  var AActivePointIndex: Integer
-);
-var
-  i: Integer;
-  VLonLatPoint: TDoublePoint;
-  VPrevPoint: TDoublePoint;
-  VProjectedPoint: TDoublePoint;
-begin
-  if AProjectedPoints.Count > 0 then begin
-    VPrevPoint := AProjectedPoints.Points[AProjectedPoints.Count - 1];
-  end;
-  for i := 0 to AGeometry.Count - 1 do begin
-    VLonLatPoint := AGeometry.Points[i];
-    AProjection.ProjectionType.ValidateLonLatPos(VLonLatPoint);
-    VProjectedPoint := AProjection.LonLat2PixelPosFloat(VLonLatPoint);
-    if (ASourceActivePointIndex = AIndex) then begin
-      AActivePointIndex := AProjectedPoints.Count;
-      AProjectedPoints.Add(VProjectedPoint);
-      VPrevPoint := VProjectedPoint;
-    end else begin
-      if AProjectedPoints.Count = 0 then begin
-        AProjectedPoints.Add(VProjectedPoint);
-        VPrevPoint := VProjectedPoint;
-      end else begin
-        if (abs(VProjectedPoint.X - VPrevPoint.X) > 1) or (abs(VProjectedPoint.Y - VPrevPoint.Y) > 1) then begin
-          AProjectedPoints.Add(VProjectedPoint);
-          VPrevPoint := VProjectedPoint;
-        end;
-      end;
-    end;
-    Inc(AIndex);
-  end;
-  Inc(AIndex);
-end;
-
-procedure PrepareMultiLine(
-  const AProjection: IProjection;
-  const AGeometry: IGeometryLonLatMultiLine;
-  const ASourceActivePointIndex: Integer;
-  const AProjectedPoints: IDoublePointsAggregator;
-  var AIndex: Integer;
-  var AActivePointIndex: Integer
-);
-var
-  i: Integer;
-begin
-  for i := 0 to AGeometry.Count - 1 do begin
-    PrepareSingleLine(
-      AProjection,
-      AGeometry.Item[i],
-      ASourceActivePointIndex,
-      AProjectedPoints,
-      AIndex,
-      AActivePointIndex
-    );
-  end;
-end;
-
-procedure PrepareLine(
-  const AProjection: IProjection;
-  const AGeometry: IGeometryLonLatLine;
-  const ASourceActivePointIndex: Integer;
-  const AProjectedPoints: IDoublePointsAggregator;
-  var AIndex: Integer;
-  var AActivePointIndex: Integer
-);
-var
-  VSigleLine: IGeometryLonLatSingleLine;
-  VMultiLine: IGeometryLonLatMultiLine;
-begin
-  if Supports(AGeometry, IGeometryLonLatSingleLine, VSigleLine) then begin
-    PrepareSingleLine(
-      AProjection,
-      VSigleLine,
-      ASourceActivePointIndex,
-      AProjectedPoints,
-      AIndex,
-      AActivePointIndex
-    );
-  end else if Supports(AGeometry, IGeometryLonLatMultiLine, VMultiLine) then begin
-    PrepareMultiLine(
-      AProjection,
-      VMultiLine,
-      ASourceActivePointIndex,
-      AProjectedPoints,
-      AIndex,
-      AActivePointIndex
-    );
-  end;
-end;
-
-procedure PrepareContour(
-  const AProjection: IProjection;
-  const AGeometry: IGeometryLonLatContour;
-  const ASourceActivePointIndex: Integer;
-  const AProjectedPoints: IDoublePointsAggregator;
-  var AIndex: Integer;
-  var AActivePointIndex: Integer
-);
-var
-  i: Integer;
-  VLonLatPoint: TDoublePoint;
-  VPrevPoint: TDoublePoint;
-  VProjectedPoint: TDoublePoint;
-begin
-  if AProjectedPoints.Count > 0 then begin
-    VPrevPoint := AProjectedPoints.Points[AProjectedPoints.Count - 1];
-  end;
-  for i := 0 to AGeometry.Count - 1 do begin
-    VLonLatPoint := AGeometry.Points[i];
-    AProjection.ProjectionType.ValidateLonLatPos(VLonLatPoint);
-    VProjectedPoint := AProjection.LonLat2PixelPosFloat(VLonLatPoint);
-    if (ASourceActivePointIndex = AIndex) then begin
-      AActivePointIndex := AProjectedPoints.Count;
-      AProjectedPoints.Add(VProjectedPoint);
-      VPrevPoint := VProjectedPoint;
-    end else begin
-      if AProjectedPoints.Count = 0 then begin
-        AProjectedPoints.Add(VProjectedPoint);
-        VPrevPoint := VProjectedPoint;
-      end else begin
-        if (abs(VProjectedPoint.X - VPrevPoint.X) > 1) or (abs(VProjectedPoint.Y - VPrevPoint.Y) > 1) then begin
-          AProjectedPoints.Add(VProjectedPoint);
-          VPrevPoint := VProjectedPoint;
-        end;
-      end;
-    end;
-    Inc(AIndex);
-  end;
-  Inc(AIndex);
-end;
-
-procedure PrepareSinglePolygon(
-  const AProjection: IProjection;
-  const AGeometry: IGeometryLonLatSinglePolygon;
-  const ASourceActivePointIndex: Integer;
-  const AProjectedPoints: IDoublePointsAggregator;
-  var AIndex: Integer;
-  var AActivePointIndex: Integer
-);
-var
-  i: Integer;
-begin
-  PrepareContour(
-    AProjection,
-    AGeometry.OuterBorder,
-    ASourceActivePointIndex,
-    AProjectedPoints,
-    AIndex,
-    AActivePointIndex
-  );
-  for i := 0 to AGeometry.HoleCount - 1 do begin
-    PrepareContour(
-      AProjection,
-      AGeometry.HoleBorder[i],
-      ASourceActivePointIndex,
-      AProjectedPoints,
-      AIndex,
-      AActivePointIndex
-    );
-  end;
-end;
-
-procedure PrepareMultiPolygon(
-  const AProjection: IProjection;
-  const AGeometry: IGeometryLonLatMultiPolygon;
-  const ASourceActivePointIndex: Integer;
-  const AProjectedPoints: IDoublePointsAggregator;
-  var AIndex: Integer;
-  var AActivePointIndex: Integer
-);
-var
-  i: Integer;
-begin
-  for i := 0 to AGeometry.Count - 1 do begin
-    PrepareSinglePolygon(
-      AProjection,
-      AGeometry.Item[i],
-      ASourceActivePointIndex,
-      AProjectedPoints,
-      AIndex,
-      AActivePointIndex
-    );
-  end;
-end;
-
-procedure PreparePolygon(
-  const AProjection: IProjection;
-  const AGeometry: IGeometryLonLatPolygon;
-  const ASourceActivePointIndex: Integer;
-  const AProjectedPoints: IDoublePointsAggregator;
-  var AIndex: Integer;
-  var AActivePointIndex: Integer
-);
-var
-  VSiglePolygon: IGeometryLonLatSinglePolygon;
-  VMultiPolygon: IGeometryLonLatMultiPolygon;
-begin
-  if Supports(AGeometry, IGeometryLonLatSinglePolygon, VSiglePolygon) then begin
-    PrepareSinglePolygon(
-      AProjection,
-      VSiglePolygon,
-      ASourceActivePointIndex,
-      AProjectedPoints,
-      AIndex,
-      AActivePointIndex
-    );
-  end else if Supports(AGeometry, IGeometryLonLatMultiPolygon, VMultiPolygon) then begin
-    PrepareMultiPolygon(
-      AProjection,
-      VMultiPolygon,
-      ASourceActivePointIndex,
-      AProjectedPoints,
-      AIndex,
-      AActivePointIndex
-    );
-  end;
-end;
-
-procedure TMapLayerPointsSetByPathEdit.PreparePoints(
-  const AProjection: IProjection;
-  out AProjectedPoints: IDoublePointsAggregator;
-  out AActivePointIndex: Integer
-);
-var
-  VLine: ILonLatPathWithSelected;
-  VIndex: Integer;
-begin
-  AProjectedPoints := nil;
-  AActivePointIndex := -1;
-  VLine := FLine;
-  if Assigned(VLine) then begin
-    AProjectedPoints := TDoublePointsAggregator.Create;
-    VIndex := 0;
-    PrepareLine(
-      AProjection,
-      VLine.Geometry,
-      VLine.GetSelectedPointIndex,
-      AProjectedPoints,
-      VIndex,
-      AActivePointIndex
-    );
-  end;
-end;
-
-{ TMapLayerPointsSetByPolygonEdit }
-
-constructor TMapLayerPointsSetByPolygonEdit.Create(
-  const APerfList: IInternalPerformanceCounterList;
-  const AAppStartedNotifier: INotifierOneOperation;
-  const AAppClosingNotifier: INotifierOneOperation;
-  AParentMap: TImage32;
-  const AView: ILocalCoordConverterChangeable;
-  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const ALineOnMapEdit: IPolygonOnMapEdit;
-  const AFirstPointMarker: IMarkerDrawableChangeable;
-  const AActivePointMarker: IMarkerDrawableChangeable;
-  const ANormalPointMarker: IMarkerDrawableChangeable
-);
-begin
-  inherited Create(
-    APerfList,
-    AAppStartedNotifier,
-    AAppClosingNotifier,
-    AParentMap,
-    AView,
-    AVectorGeometryProjectedFactory,
-    AFirstPointMarker,
-    AActivePointMarker,
-    ANormalPointMarker
-  );
-  FLineOnMapEdit := ALineOnMapEdit;
-
-  LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnLineChange),
-    FLineOnMapEdit.GetChangeNotifier
-  );
-end;
-
-procedure TMapLayerPointsSetByPolygonEdit.OnLineChange;
-begin
-  ViewUpdateLock;
-  try
-    FLine := FLineOnMapEdit.Polygon;
-    if Assigned(FLine) then begin
-      SetNeedRedraw;
-      Show;
-    end else begin
-      Hide;
-    end;
-    ChangedSource;
-  finally
-    ViewUpdateUnlock;
-  end;
-end;
-
-procedure TMapLayerPointsSetByPolygonEdit.PreparePoints(
-  const AProjection: IProjection;
-  out AProjectedPoints: IDoublePointsAggregator;
-  out AActivePointIndex: Integer
-);
-var
-  VLine: ILonLatPolygonWithSelected;
-  VIndex: Integer;
-begin
-  AProjectedPoints := nil;
-  AActivePointIndex := -1;
-  VLine := FLine;
-  if Assigned(VLine) then begin
-    AProjectedPoints := TDoublePointsAggregator.Create;
-    VIndex := 0;
-    PreparePolygon(
-      AProjection,
-      VLine.Geometry,
-      VLine.GetSelectedPointIndex,
-      AProjectedPoints,
-      VIndex,
-      AActivePointIndex
-    );
-  end;
 end;
 
 end.
