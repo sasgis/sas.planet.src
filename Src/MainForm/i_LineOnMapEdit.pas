@@ -33,6 +33,12 @@ type
     function GetGeometry: IGeometryLonLatLine;
     property Geometry: IGeometryLonLatLine read GetGeometry;
 
+    function GetCount: Integer;
+    property Count: Integer read GetCount;
+
+    function GetPoints: PDoublePointArray;
+    property Points: PDoublePointArray read GetPoints;
+
     function GetSelectedPointIndex: Integer;
   end;
 
@@ -40,6 +46,12 @@ type
     ['{586F7096-3641-4B08-8D7E-0C74ECC32096}']
     function GetGeometry: IGeometryLonLatPolygon;
     property Geometry: IGeometryLonLatPolygon read GetGeometry;
+
+    function GetCount: Integer;
+    property Count: Integer read GetCount;
+
+    function GetPoints: PDoublePointArray;
+    property Points: PDoublePointArray read GetPoints;
 
     function GetSelectedPointIndex: Integer;
   end;

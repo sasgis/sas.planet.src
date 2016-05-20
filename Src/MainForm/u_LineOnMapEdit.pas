@@ -122,11 +122,15 @@ uses
 type
   TLonLatLineWithSelectedBase = class(TBaseInterfacedObject)
   private
+    FPoints: IDoublePoints;
     FSelectedPointIndex: Integer;
   private
     function GetSelectedPointIndex: Integer;
+    function GetCount: Integer;
+    function GetPoints: PDoublePointArray;
   public
     constructor Create(
+      const APoints: IDoublePoints;
       ASelectedPointIndex: Integer
     );
   end;
@@ -139,6 +143,7 @@ type
   public
     constructor Create(
       const ALine: IGeometryLonLatLine;
+      const APoints: IDoublePoints;
       ASelectedPointIndex: Integer
     );
   end;
@@ -151,6 +156,7 @@ type
   public
     constructor Create(
       const ALine: IGeometryLonLatPolygon;
+      const APoints: IDoublePoints;
       ASelectedPointIndex: Integer
     );
   end;
@@ -659,7 +665,7 @@ end;
 procedure TPathOnMapEdit._UpdateLineWithSelected;
 begin
   if Assigned(FLine) then begin
-    FLineWithSelected := TLonLatPathWithSelected.Create(FLine, FSelectedPointIndex);
+    FLineWithSelected := TLonLatPathWithSelected.Create(FLine, FPoints.MakeStaticCopy, FSelectedPointIndex);
   end else begin
     FLineWithSelected := nil;
   end;
@@ -845,7 +851,7 @@ end;
 procedure TPolygonOnMapEdit._UpdateLineWithSelected;
 begin
   if Assigned(FLine) then begin
-    FLineWithSelected := TLonLatPolygonWithSelected.Create(FLine, FSelectedPointIndex);
+    FLineWithSelected := TLonLatPolygonWithSelected.Create(FLine, FPoints.MakeStaticCopy, FSelectedPointIndex);
   end else begin
     FLineWithSelected := nil;
   end;
@@ -854,11 +860,25 @@ end;
 { TLonLatLineWithSelectedBase }
 
 constructor TLonLatLineWithSelectedBase.Create(
+  const APoints: IDoublePoints;
   ASelectedPointIndex: Integer
 );
 begin
+  Assert(Assigned(APoints));
+  Assert(APoints.Count > ASelectedPointIndex);
   inherited Create;
+  FPoints := APoints;
   FSelectedPointIndex := ASelectedPointIndex;
+end;
+
+function TLonLatLineWithSelectedBase.GetCount: Integer;
+begin
+  Result := FPoints.Count;
+end;
+
+function TLonLatLineWithSelectedBase.GetPoints: PDoublePointArray;
+begin
+  Result := FPoints.Points;
 end;
 
 function TLonLatLineWithSelectedBase.GetSelectedPointIndex: Integer;
@@ -870,11 +890,12 @@ end;
 
 constructor TLonLatPathWithSelected.Create(
   const ALine: IGeometryLonLatLine;
+  const APoints: IDoublePoints;
   ASelectedPointIndex: Integer
 );
 begin
   Assert(Assigned(ALine));
-  inherited Create(ASelectedPointIndex);
+  inherited Create(APoints, ASelectedPointIndex);
   FLine := ALine;
 end;
 
@@ -887,11 +908,12 @@ end;
 
 constructor TLonLatPolygonWithSelected.Create(
   const ALine: IGeometryLonLatPolygon;
+  const APoints: IDoublePoints;
   ASelectedPointIndex: Integer
 );
 begin
   Assert(Assigned(ALine));
-  inherited Create(ASelectedPointIndex);
+  inherited Create(APoints, ASelectedPointIndex);
   FLine := ALine;
 end;
 
