@@ -34,13 +34,14 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       TabVisible = False
       object pnlDownloaderState: TPanel
         Left = 0
-        Top = 247
+        Top = 249
         Width = 397
         Height = 70
         Align = alTop
         BevelOuter = bvNone
         BorderWidth = 3
         TabOrder = 0
+        ExplicitTop = 247
         object lblDownloaderState: TLabel
           AlignWithMargins = True
           Left = 6
@@ -278,48 +279,50 @@ object frmMapTypeEdit: TfrmMapTypeEdit
         Caption = 'Download enabled'
         TabOrder = 5
       end
-      object pnlMaxConnectToServerCount: TPanel
+      object flwpnlMaxConnectToServerCount: TFlowPanel
         Left = 0
         Top = 216
         Width = 397
-        Height = 31
+        Height = 33
         Align = alTop
+        AutoSize = True
         BevelOuter = bvNone
+        Padding.Top = 2
         TabOrder = 6
+        ExplicitLeft = -3
+        ExplicitTop = 224
         object lblMaxConnectToServerCount: TLabel
           AlignWithMargins = True
           Left = 6
-          Top = 6
+          Top = 8
           Width = 200
           Height = 22
           Margins.Left = 6
           Margins.Top = 6
-          Align = alLeft
           Caption = 'Max concurrent http(s)-requests number:'
-          ExplicitHeight = 13
         end
         object seMaxConnectToServerCount: TSpinEdit
           AlignWithMargins = True
           Left = 212
-          Top = 3
+          Top = 5
           Width = 75
           Height = 22
           MaxValue = 64
           MinValue = 1
-          TabOrder = 0
+          TabOrder = 1
           Value = 1
         end
         object btnResetMaxConnect: TButton
           AlignWithMargins = True
           Left = 293
-          Top = 3
+          Top = 5
           Width = 21
           Height = 21
           Hint = 'By default'
           Caption = '<>'
           ParentShowHint = False
           ShowHint = True
-          TabOrder = 1
+          TabOrder = 0
           OnClick = btnResetMaxConnectClick
         end
       end

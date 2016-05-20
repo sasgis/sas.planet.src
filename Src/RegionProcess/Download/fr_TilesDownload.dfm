@@ -184,45 +184,44 @@ object frTilesDownload: TfrTilesDownload
           end
         end
       end
-      object pnlSplitRegionParams: TPanel
+      object flwpnlSplitRegionParams: TFlowPanel
         Left = 5
         Top = 120
         Width = 363
-        Height = 25
+        Height = 30
         Align = alTop
+        AutoSize = True
         BevelOuter = bvNone
+        Padding.Top = 2
         TabOrder = 5
-        object lblSplitRegion: TLabel
-          AlignWithMargins = True
-          Left = 17
-          Top = 7
-          Width = 114
-          Height = 15
-          Margins.Left = 0
-          Margins.Top = 7
-          Align = alLeft
-          Caption = 'Split selection to, parts:'
-          ExplicitHeight = 13
-        end
         object chkSplitRegion: TCheckBox
           AlignWithMargins = True
           Left = 0
-          Top = 3
+          Top = 5
           Width = 17
           Height = 22
           Margins.Left = 0
           Margins.Right = 0
           Margins.Bottom = 0
-          Align = alLeft
           TabOrder = 0
           OnClick = chkSplitRegionClick
         end
+        object lblSplitRegion: TLabel
+          AlignWithMargins = True
+          Left = 17
+          Top = 9
+          Width = 114
+          Height = 13
+          Margins.Left = 0
+          Margins.Top = 7
+          Caption = 'Split selection to, parts:'
+        end
         object sePartsCount: TSpinEdit
-          Left = 135
-          Top = 3
+          AlignWithMargins = True
+          Left = 137
+          Top = 5
           Width = 50
           Height = 22
-          AutoSize = False
           MaxValue = 24
           MinValue = 2
           TabOrder = 1
@@ -251,7 +250,6 @@ object frTilesDownload: TfrTilesDownload
       Margins.Right = 0
       Align = alBottom
       Caption = '_'
-      ExplicitTop = 47
       ExplicitWidth = 6
     end
     object pnlFrame: TPanel

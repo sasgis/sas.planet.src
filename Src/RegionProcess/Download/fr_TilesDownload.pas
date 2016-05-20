@@ -101,9 +101,9 @@ type
     chkLoadIfTneOld: TCheckBox;
     dtpLoadIfTneOld: TDateTimePicker;
     chkSplitRegion: TCheckBox;
-    pnlSplitRegionParams: TPanel;
     lblSplitRegion: TLabel;
     sePartsCount: TSpinEdit;
+    flwpnlSplitRegionParams: TFlowPanel;
     procedure chkReplaceClick(Sender: TObject);
     procedure chkReplaceOlderClick(Sender: TObject);
     procedure cbbZoomChange(Sender: TObject);

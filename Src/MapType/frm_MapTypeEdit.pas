@@ -96,10 +96,10 @@ type
     pnlSleep: TPanel;
     pnlCacheTypesList: TPanel;
     chkCacheReadOnly: TCheckBox;
-    pnlMaxConnectToServerCount: TPanel;
     lblMaxConnectToServerCount: TLabel;
     seMaxConnectToServerCount: TSpinEdit;
     btnResetMaxConnect: TButton;
+    flwpnlMaxConnectToServerCount: TFlowPanel;
     procedure btnOkClick(Sender: TObject);
     procedure FormClose(
       Sender: TObject;
