@@ -218,6 +218,10 @@ begin
               Inc(VCount);
               FLastDownloadTime := GetTickCount;
               if VDownloadResult <> nil then begin
+                if Supports(VDownloadResult, IDownloadResultCanceled) then begin
+                  Result := TTileRequestResultCanceledAfterDownloadRequest.Create(VDownloadResult);
+                  Break;
+                end;
                 if VDownloadResult.IsServerExists then begin
                   FWasConnectError := False;
                   if Supports(VDownloadResult, IDownloadResultWithServerRespond, VResultWithRespond) then begin
