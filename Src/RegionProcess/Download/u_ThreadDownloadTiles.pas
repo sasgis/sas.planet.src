@@ -425,13 +425,15 @@ begin
       VSoftCancelNotifier :=
         TNotifierOneOperationByNotifier.Create(FCancelNotifier, FOperationID);
 
-      for I := 0 to VTasksList.Count - 1 do begin
-        ProcessTask(
-          VTasksList.Items[I] as ITileIterator,
-          VSoftCancelNotifier
-        );
-        if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
-          Exit;
+      if Assigned(VTasksList) then begin
+        for I := 0 to VTasksList.Count - 1 do begin
+          ProcessTask(
+            VTasksList.Items[I] as ITileIterator,
+            VSoftCancelNotifier
+          );
+          if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
+            Exit;
+          end;
         end;
       end;
 
