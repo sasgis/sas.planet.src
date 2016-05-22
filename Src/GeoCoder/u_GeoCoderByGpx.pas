@@ -170,13 +170,14 @@ function TGeoCoderByGpx.ParseDateTime(
   var AstrDateTime: string
 ):Boolean;
 var
-  VFormatSettings: TFormatSettings;
-  VStrDateTime: string;
-  VStrTime: string;
+  VFormatSettings: TALFormatSettings;
+  VStrDateTime: AnsiString;
+  VStrTime: AnsiString;
   VDate: TDateTime;
   VTime: TDateTime;
   VDateTime: TDateTime;
   VSearch: string;
+  VSearchAnsi: AnsiString;
   VShortTimeSearch: boolean;
   VRegExpr: TRegExpr;
 begin
@@ -189,53 +190,59 @@ begin
   VRegExpr  := TRegExpr.Create;
 
   try
+    VSearch := '';
+    VSearchAnsi := AnsiString(ASearch);
     VRegExpr.Expression := '([0-3]?[0-9]).([01]?[0-9]).([0-9]{4})';
-    if VRegExpr.Exec(ASearch) then begin
+    if VRegExpr.Exec(VSearchAnsi) then begin
       VStrDateTime :=
         VRegExpr.Match[1] + VFormatSettings.DateSeparator +
         VRegExpr.Match[2] + VFormatSettings.DateSeparator +
         VRegExpr.Match[3];
       VSearch := VRegExpr.Match[0];
-      VDate := StrToDate(VStrDateTime, VFormatSettings);
+      VDate := ALStrToDate(VStrDateTime, VFormatSettings);
     end else begin
       VRegExpr.Expression := '([0-9]{4}).([01]?[0-9]).([0-3]?[0-9])';
-      if VRegExpr.Exec(ASearch) then begin
+      if VRegExpr.Exec(VSearchAnsi) then begin
         VStrDateTime :=
           VRegExpr.Match[3] + VFormatSettings.DateSeparator +
           VRegExpr.Match[2] + VFormatSettings.DateSeparator +
           VRegExpr.Match[1];
         VSearch := VRegExpr.Match[0];
-        VDate := StrToDate(VStrDateTime, VFormatSettings);
+        VDate := ALStrToDate(VStrDateTime, VFormatSettings);
       end else
         VDate := 0;
     end;
 
-    VSearch := ReplaceStr(ASearch, VSearch, ''); // cut date rom parsed string and caontimue parse time value
-    VShortTimeSearch := false;
+    if VSearch = '' then begin
+      VSearch := ASearch;
+    end else begin
+      VSearch := ReplaceStr(ASearch, VSearch, ''); // cut date rom parsed string and caontimue parse time value
+    end;
 
+    VShortTimeSearch := false;
+    VSearchAnsi := AnsiString(VSearch);
     VRegExpr.Expression := '([0-2]?[0-9]).([0-5]?[0-9]).([0-5]?[0-9])'; // hh:mm:ss
-    if VRegExpr.Exec(VSearch) then begin
+    if VRegExpr.Exec(VSearchAnsi) then begin
       if VStrDateTime <> '' then VStrDateTime := VStrDateTime + ' ';
       VStrTime :=
         VRegExpr.Match[1] + VFormatSettings.TimeSeparator +
         VRegExpr.Match[2] + VFormatSettings.TimeSeparator +
         VRegExpr.Match[3];
       VStrDateTime := VStrDateTime + VStrTime;
-      VTime := StrToTime(VStrTime, VFormatSettings);
+      VTime := ALStrToTime(VStrTime, VFormatSettings);
     end else begin
       VRegExpr.Expression := '([0-2]?[0-9]).([0-5]?[0-9])'; // hh:mm
-      if VRegExpr.Exec(VSearch) then begin
+      if VRegExpr.Exec(VSearchAnsi) then begin
         if VStrDateTime <> '' then VStrDateTime := VStrDateTime + ' ';
         VStrTime :=
           VRegExpr.Match[1] + VFormatSettings.TimeSeparator +
           VRegExpr.Match[2];
         VStrDateTime := VStrDateTime + VStrTime;
-        VTime := StrToTime(VStrTime, VFormatSettings);
+        VTime := ALStrToTime(VStrTime, VFormatSettings);
         VShortTimeSearch := true;
       end else
         VTime := 0;
     end;
-
   finally
     FreeAndNil(VRegExpr);
   end;
@@ -245,7 +252,7 @@ begin
     if VTime <> 0 then
       VDateTime := FSystemTimeInternal.LocalTimeToUTC(VDateTime);  // make UTC time to search in files
     VFormatSettings.ShortDateFormat := 'yyyy-mm-dd"T"hh:nn:ss"Z"';
-    AstrDateTime := copy(DateTimeToStr(VDateTime, VFormatSettings),0,20); //cut last space from DateTimeToStr
+    AstrDateTime := copy(ALDateTimeToStr(VDateTime, VFormatSettings),0,20); //cut last space from DateTimeToStr
 
     if VTime = 0 then
       AstrDateTime := copy(AstrDateTime, 0, 11); // отрезаем время совсем
@@ -460,7 +467,7 @@ var
   Vskip: Boolean;
   VStrDateTime: string;
   VStrDate: string;
-  VSearch: AnsiString;
+  VSearch: string;
   VFormatSettings: TFormatSettings;
   VPointsAggregator: IDoublePointsAggregator;
   VBuilder: IGeometryLonLatLineBuilder;
@@ -477,7 +484,7 @@ begin
   VBuilder := FVectorGeometryLonLatFactory.MakeLineBuilder;
 
   //TODO: Fix for unicode file
-  VSearch := AnsiString(AnsiUpperCase(ASearch));
+  VSearch := AnsiUpperCase(ASearch);
   VXMLDocument := TXMLDocument.Create(nil);
 
   try
