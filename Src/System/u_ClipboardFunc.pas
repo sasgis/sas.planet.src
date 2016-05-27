@@ -90,6 +90,9 @@ begin
   if OpenClipboard(AHandle) then begin
     try
       EmptyClipBoard;
+      if s = '' then begin
+        Exit;
+      end;
       VStr := s;
       VLen := (Length(VStr) + 1) * SizeOf(VStr[1]);
       hg := GlobalAlloc(GMEM_DDESHARE or GMEM_MOVEABLE, VLen);
