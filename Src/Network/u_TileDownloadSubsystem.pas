@@ -60,8 +60,31 @@ uses
   u_BaseInterfacedObject;
 
 type
+  TRequestBuilderProviderInternal = class
+  private
+    FGCNotifier: INotifierTime;
+    FDownloadResultFactory: IDownloadResultFactory;
+    FTileDownloaderConfig: ITileDownloaderConfig;
+    FTileDownloadRequestBuilderFactory: ITileDownloadRequestBuilderFactory;
+    FLock: IReadWriteSync;
+    FTileDownloadRequestBuilder: ITileDownloadRequestBuilder;
+    FConfigChangeListener: IListener;
+    function GetRequestBuilder: ITileDownloadRequestBuilder;
+    procedure DoInit;
+  public
+    property RequestBuilder: ITileDownloadRequestBuilder read GetRequestBuilder;
+    constructor Create(
+      const AGCNotifier: INotifierTime;
+      const ADownloadResultFactory: IDownloadResultFactory;
+      const ATileDownloaderConfig: ITileDownloaderConfig;
+      const ATileDownloadRequestBuilderFactory: ITileDownloadRequestBuilderFactory
+    );
+    destructor Destroy; override;
+  end;
+
   TTileDownloadSubsystem = class(TBaseInterfacedObject, ITileDownloadSubsystem)
   private
+    FRequestBuilderProviderInternal: TRequestBuilderProviderInternal;
     FTileDownloaderConfig: ITileDownloaderConfig;
     FTileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
     FProjectionSet: IProjectionSet;
@@ -77,7 +100,6 @@ type
     FState: ITileDownloaderStateChangeble;
     FDownloadResultSaver: ITileDownloadResultSaver;
     FTileDownloader: ITileDownloaderAsync;
-    FTileDownloadRequestBuilder: ITileDownloadRequestBuilder;
     FTileDownloadRequestBuilderFactory: ITileDownloadRequestBuilderFactory;
     function GetScriptText(const AConfig: IConfigDataProvider): AnsiString;
     procedure OnAppClosing;
@@ -139,6 +161,7 @@ uses
   i_TileDownloaderList,
   i_PredicateByBinaryData,
   i_DownloadChecker,
+  i_Downloader,
   u_Notifier,
   u_NotifierOperation,
   u_ListenerByEvent,
@@ -146,7 +169,7 @@ uses
   u_TileRequestTask,
   u_TileDownloaderList,
   u_AntiBanStuped,
-  u_DownloaderFaked,
+  u_DownloaderHttpWithTTL,
   u_DownloadCheckerStuped,
   u_PredicateByStaticSampleList,
   u_TileDownloadRequestBuilderLazy,
@@ -158,6 +181,69 @@ uses
 
 const
   PascalScriptFileName = 'GetUrlScript.txt';
+
+{ TRequestBuilderProviderInternal }
+
+constructor TRequestBuilderProviderInternal.Create(
+  const AGCNotifier: INotifierTime;
+  const ADownloadResultFactory: IDownloadResultFactory;
+  const ATileDownloaderConfig: ITileDownloaderConfig;
+  const ATileDownloadRequestBuilderFactory: ITileDownloadRequestBuilderFactory
+);
+begin
+  inherited Create;
+  FGCNotifier := AGCNotifier;
+  FDownloadResultFactory := ADownloadResultFactory;
+  FTileDownloaderConfig := ATileDownloaderConfig;
+  FTileDownloadRequestBuilderFactory := ATileDownloadRequestBuilderFactory;
+
+  FLock := GSync.SyncVariable.Make(Self.ClassName);
+
+  FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.DoInit);
+  FTileDownloaderConfig.ChangeNotifier.Add(FConfigChangeListener);
+
+  DoInit;
+end;
+
+destructor TRequestBuilderProviderInternal.Destroy;
+begin
+  FTileDownloaderConfig.ChangeNotifier.Remove(FConfigChangeListener);
+  inherited Destroy;
+end;
+
+procedure TRequestBuilderProviderInternal.DoInit;
+var
+  VDownloader: IDownloader;
+begin
+  FLock.BeginWrite;
+  try
+    VDownloader :=
+      TDownloaderHttpWithTTL.Create(
+        FGCNotifier,
+        FDownloadResultFactory,
+        FTileDownloaderConfig.AllowUseCookie,
+        FTileDownloaderConfig.DetectMIMEType
+      );
+
+    FTileDownloadRequestBuilder :=
+      TTileDownloadRequestBuilderLazy.Create(
+        VDownloader,
+        FTileDownloadRequestBuilderFactory
+      );
+  finally
+    FLock.EndWrite;
+  end;
+end;
+
+function TRequestBuilderProviderInternal.GetRequestBuilder: ITileDownloadRequestBuilder;
+begin
+  FLock.BeginRead;
+  try
+    Result := FTileDownloadRequestBuilder;
+  finally
+    FLock.EndRead;
+  end;
+end;
 
 { TTileDownloadSubsystem }
 
@@ -237,11 +323,6 @@ begin
         ALanguageManager
       );
 
-    FTileDownloadRequestBuilder :=
-      TTileDownloadRequestBuilderLazy.Create(
-        TDownloaderFaked.Create(ADownloadResultFactory),
-        FTileDownloadRequestBuilderFactory
-      );
     FDownloadResultSaver :=
       TTileDownloadResultSaverStuped.Create(
         AGlobalDownloadConfig,
@@ -283,6 +364,14 @@ begin
         256
       );
     FTileRequestTaskSync := GSync.SyncVariable.Make(Self.ClassName);
+
+    FRequestBuilderProviderInternal :=
+      TRequestBuilderProviderInternal.Create(
+        AGCNotifier,
+        ADownloadResultFactory,
+        FTileDownloaderConfig,
+        FTileDownloadRequestBuilderFactory
+      );
   end else begin
     FState :=
       TTileDownloadSubsystemState.Create(
@@ -311,6 +400,7 @@ begin
     FAppClosingListener := nil;
     FAppClosingNotifier := nil;
   end;
+  FreeAndNil(FRequestBuilderProviderInternal);
   inherited;
 end;
 
@@ -341,6 +431,7 @@ function TTileDownloadSubsystem.GetLink(
 var
   VRequest: ITileRequest;
   VDownloadRequest: ITileDownloadRequest;
+  VRequestBuilder: ITileDownloadRequestBuilder;
 begin
   Result := '';
   if FZmpDownloadEnabled then begin
@@ -353,7 +444,14 @@ begin
         );
       VDownloadRequest := nil;
       if VRequest <> nil then begin
-        VDownloadRequest := FTileDownloadRequestBuilder.BuildRequest(VRequest, nil, FDestroyNotifier, FDestroyOperationID);
+        VRequestBuilder := FRequestBuilderProviderInternal.RequestBuilder;
+        VDownloadRequest :=
+          VRequestBuilder.BuildRequest(
+            VRequest,
+            nil,
+            FDestroyNotifier,
+            FDestroyOperationID
+          );
       end;
       if VDownloadRequest <> nil then begin
         Result := VDownloadRequest.Url;
