@@ -41,6 +41,21 @@ object frTilesDownload: TfrTilesDownload
       BevelOuter = bvNone
       BorderWidth = 5
       TabOrder = 0
+      object lblSplitRegionHint: TLabel
+        AlignWithMargins = True
+        Left = 8
+        Top = 150
+        Width = 3
+        Height = 13
+        Margins.Top = 0
+        Align = alTop
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clGrayText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsItalic]
+        ParentFont = False
+      end
       object chkReplace: TCheckBox
         Left = 5
         Top = 64
@@ -94,11 +109,10 @@ object frTilesDownload: TfrTilesDownload
             Left = 16
             Top = 0
             Width = 95
-            Height = 21
+            Height = 13
             Align = alLeft
             Caption = 'only created before'
             Layout = tlCenter
-            ExplicitHeight = 13
           end
           object chkReplaceOlder: TCheckBox
             Left = 0
@@ -155,11 +169,10 @@ object frTilesDownload: TfrTilesDownload
             Left = 16
             Top = 0
             Width = 95
-            Height = 21
+            Height = 13
             Align = alLeft
             Caption = 'only created before'
             Layout = tlCenter
-            ExplicitHeight = 13
           end
           object chkLoadIfTneOld: TCheckBox
             Left = 0
@@ -210,15 +223,15 @@ object frTilesDownload: TfrTilesDownload
           AlignWithMargins = True
           Left = 17
           Top = 9
-          Width = 114
+          Width = 120
           Height = 13
           Margins.Left = 0
           Margins.Top = 7
-          Caption = 'Split selection to, parts:'
+          Caption = 'Split selection to, parts*:'
         end
         object sePartsCount: TSpinEdit
           AlignWithMargins = True
-          Left = 137
+          Left = 143
           Top = 5
           Width = 50
           Height = 22
@@ -245,12 +258,11 @@ object frTilesDownload: TfrTilesDownload
       AlignWithMargins = True
       Left = 3
       Top = 44
-      Width = 370
+      Width = 6
       Height = 13
       Margins.Right = 0
       Align = alBottom
       Caption = '_'
-      ExplicitWidth = 6
     end
     object pnlFrame: TPanel
       Left = 0
@@ -264,11 +276,10 @@ object frTilesDownload: TfrTilesDownload
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 367
+        Width = 93
         Height = 13
         Align = alTop
         Caption = 'Map/Overlay layer:'
-        ExplicitWidth = 93
       end
     end
   end

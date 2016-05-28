@@ -34,6 +34,8 @@ uses
   Windows,
   Spin,
   i_MapType,
+  i_Listener,
+  i_Notifier,
   i_LanguageManager,
   i_GeometryLonLat,
   i_GeometryProjectedFactory,
@@ -104,6 +106,7 @@ type
     lblSplitRegion: TLabel;
     sePartsCount: TSpinEdit;
     flwpnlSplitRegionParams: TFlowPanel;
+    lblSplitRegionHint: TLabel;
     procedure chkReplaceClick(Sender: TObject);
     procedure chkReplaceOlderClick(Sender: TObject);
     procedure cbbZoomChange(Sender: TObject);
@@ -111,6 +114,10 @@ type
     procedure chkTryLoadIfTNEClick(Sender: TObject);
     procedure chkSplitRegionClick(Sender: TObject);
   private
+    FTimer: TTimer;
+    FIsDownloaderConfigChanged: Boolean;
+    FDownloaderConfigNotifier: INotifier;
+    FDownloaderConfigListener: IListener;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FPolygLL: IGeometryLonLatPolygon;
     FfrMapSelect: TfrMapSelect;
@@ -122,6 +129,9 @@ type
       out APixelRect: TRect;
       out ATilesCount: Int64
     ): Boolean;
+    procedure OnDownloaderConfigChange;
+    procedure OnMapChange(Sender: TObject);
+    procedure OnTimer(Sender: TObject);
   private
     procedure Init(
       const AZoom: byte;
@@ -153,13 +163,18 @@ type
 implementation
 
 uses
+  gnugettext,
   Math,
   Dialogs,
   t_GeoTypes,
   i_Projection,
   i_GeometryProjected,
   u_GeoFunc,
+  u_ListenerByEvent,
   u_ResStrings;
+
+resourcestring
+  rsLimitHint = '* - Limited by max concurrent http(s) requests for current map: %d';
 
 {$R *.dfm}
 
@@ -237,6 +252,9 @@ end;
 
 destructor TfrTilesDownload.Destroy;
 begin
+  if Assigned(FDownloaderConfigNotifier) then begin
+    FDownloaderConfigNotifier.Remove(FDownloaderConfigListener);
+  end;
   FreeAndNil(FfrMapSelect);
   FreeAndNil(FfrZoomsSelect);
   inherited;
@@ -270,6 +288,7 @@ constructor TfrTilesDownload.Create(
 begin
   inherited Create(ALanguageManager);
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
+
   FfrMapSelect :=
     AMapSelectFrameBuilder.Build(
       mfAll, // show maps and layers
@@ -277,12 +296,73 @@ begin
       false,  // show disabled map
       GetAllowDownload
     );
+  FfrMapSelect.OnMapChange := Self.OnMapChange;
+
   FfrZoomsSelect :=
     TfrZoomsSelect.Create(
       ALanguageManager,
       Self.cbbZoomChange
     );
   FfrZoomsSelect.Init(0, 23);
+
+  FDownloaderConfigListener :=
+    TNotifyNoMmgEventListener.Create(Self.OnDownloaderConfigChange);
+
+  FDownloaderConfigNotifier := nil;
+  FIsDownloaderConfigChanged := False;
+
+  FTimer := TTimer.Create(Self);
+  FTimer.Interval := 300;
+  FTimer.OnTimer := Self.OnTimer;
+  FTimer.Enabled := True;
+end;
+
+procedure TfrTilesDownload.OnTimer(Sender: TObject);
+begin
+  if FIsDownloaderConfigChanged then begin
+    OnMapChange(Sender);
+    FIsDownloaderConfigChanged := False;
+  end;
+end;
+
+procedure TfrTilesDownload.OnDownloaderConfigChange;
+begin
+  FIsDownloaderConfigChanged := True;
+end;
+
+procedure TfrTilesDownload.OnMapChange(Sender: TObject);
+var
+  VCount: Integer;
+  VMapType: IMapType;
+  VSplitEnabled: Boolean;
+begin
+  VMapType := FfrMapSelect.GetSelectedMapType;
+  VCount := VMapType.TileDownloaderConfig.MaxConnectToServerCount;
+
+  if Assigned(FDownloaderConfigNotifier) then begin
+    FDownloaderConfigNotifier.Remove(FDownloaderConfigListener);
+  end;
+
+  FDownloaderConfigNotifier := VMapType.TileDownloaderConfig.ChangeNotifier;
+  if Assigned(FDownloaderConfigNotifier) then begin
+    FDownloaderConfigNotifier.Add(FDownloaderConfigListener);
+  end;
+
+  VSplitEnabled := VCount > 1;
+
+  if VSplitEnabled then begin
+    sePartsCount.MaxValue := VCount;
+    if sePartsCount.Value > sePartsCount.MaxValue then begin
+      sePartsCount.Value := sePartsCount.MaxValue;
+    end;
+  end else begin
+    chkSplitRegion.Checked := False;
+  end;
+
+  chkSplitRegion.Enabled := VSplitEnabled;
+  sePartsCount.Enabled := VSplitEnabled and chkSplitRegion.Checked;
+
+  lblSplitRegionHint.Caption := Format(_(rsLimitHint), [VCount]);
 end;
 
 procedure TfrTilesDownload.chkLoadIfTneOldClick(Sender: TObject);
@@ -366,9 +446,6 @@ procedure TfrTilesDownload.Init(
   const AZoom: Byte;
   const APolygon: IGeometryLonLatPolygon
 );
-var
-  I: Integer;
-  VMapType: IMapType;
 begin
   FPolygLL := APolygon;
   FfrZoomsSelect.Show(pnlZoom);
@@ -376,13 +453,7 @@ begin
   dtpLoadIfTneOld.Date := now;
   FfrMapSelect.Show(pnlFrame);
   cbbZoomChange(Self);
-
-  sePartsCount.Enabled := chkSplitRegion.Checked;
-  VMapType := FfrMapSelect.GetSelectedMapType;
-  I := VMapType.TileDownloaderConfig.MaxConnectToServerCount;
-  if (sePartsCount.MinValue <= I) and (sePartsCount.MaxValue >= I) then begin
-    sePartsCount.Value := I;
-  end;
+  OnMapChange(Self);
 end;
 
 function TfrTilesDownload.Validate: Boolean;
