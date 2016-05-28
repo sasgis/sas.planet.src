@@ -67,12 +67,14 @@ type
     FTileDownloaderConfig: ITileDownloaderConfig;
     FTileDownloadRequestBuilderFactory: ITileDownloadRequestBuilderFactory;
     FLock: IReadWriteSync;
+    FRequestBuilderLock: IReadWriteSync;
     FTileDownloadRequestBuilder: ITileDownloadRequestBuilder;
     FConfigChangeListener: IListener;
     function GetRequestBuilder: ITileDownloadRequestBuilder;
     procedure DoInit;
   public
     property RequestBuilder: ITileDownloadRequestBuilder read GetRequestBuilder;
+    property RequestBuilderLock: IReadWriteSync read FRequestBuilderLock;
     constructor Create(
       const AGCNotifier: INotifierTime;
       const ADownloadResultFactory: IDownloadResultFactory;
@@ -198,6 +200,7 @@ begin
   FTileDownloadRequestBuilderFactory := ATileDownloadRequestBuilderFactory;
 
   FLock := GSync.SyncVariable.Make(Self.ClassName);
+  FRequestBuilderLock := GSync.SyncStd.Make(Self.ClassName + 'RequestBuilderLock');
 
   FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.DoInit);
   FTileDownloaderConfig.ChangeNotifier.Add(FConfigChangeListener);
@@ -380,7 +383,6 @@ begin
         nil,
         nil
       );
-
   end;
 
   FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);
@@ -432,6 +434,7 @@ var
   VRequest: ITileRequest;
   VDownloadRequest: ITileDownloadRequest;
   VRequestBuilder: ITileDownloadRequestBuilder;
+  VRequestBuilderLock: IReadWriteSync;
 begin
   Result := '';
   if FZmpDownloadEnabled then begin
@@ -445,13 +448,20 @@ begin
       VDownloadRequest := nil;
       if VRequest <> nil then begin
         VRequestBuilder := FRequestBuilderProviderInternal.RequestBuilder;
-        VDownloadRequest :=
-          VRequestBuilder.BuildRequest(
-            VRequest,
-            nil,
-            FDestroyNotifier,
-            FDestroyOperationID
-          );
+        VRequestBuilderLock := FRequestBuilderProviderInternal.RequestBuilderLock;
+
+        VRequestBuilderLock.BeginWrite;
+        try
+          VDownloadRequest :=
+            VRequestBuilder.BuildRequest(
+              VRequest,
+              nil,
+              FDestroyNotifier,
+              FDestroyOperationID
+            );
+        finally
+          VRequestBuilderLock.EndWrite;
+        end;
       end;
       if VDownloadRequest <> nil then begin
         Result := VDownloadRequest.Url;
