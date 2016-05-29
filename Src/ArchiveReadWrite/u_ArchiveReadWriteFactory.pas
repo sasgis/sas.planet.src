@@ -93,7 +93,7 @@ begin
   inherited Create;
   FZip :=
     TArchiveType.Create(
-      TArchiveReaderFactoryKaZip.Create,
+      TArchiveReaderFactory7Zip.Create(atZip),
       TArchiveWriterFactoryKaZip.Create
     );
   FTar :=
