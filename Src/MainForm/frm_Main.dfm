@@ -3957,7 +3957,7 @@ object frmMain: TfrmMain
       Hint = ''
     end
     object tbitmCenterWithZoom: TTBXSubmenuItem
-      Caption = 'Center With Zoom'
+      Caption = 'Center With &Zoom'
       Hint = ''
       object tbtpltCenterWithZoom: TTBXToolPalette
         ColCount = 5
@@ -3976,7 +3976,7 @@ object frmMain: TfrmMain
     object tbitmCopyToClipboard: TTBXSubmenuItem
       ImageIndex = 28
       Images = MenusImageList
-      Caption = 'Copy to Clipboard'
+      Caption = '&Copy to Clipboard'
       Hint = ''
       object Google1: TTBXItem
         OnClick = Google1Click
@@ -4036,7 +4036,7 @@ object frmMain: TfrmMain
       end
       object tbitmCopyToClipboardCoordinates: TTBXItem
         OnClick = tbitmCopyToClipboardCoordinatesClick
-        Caption = 'Coordinates'
+        Caption = '&Coordinates'
         Hint = ''
       end
       object tbitmCopyToClipboardMainMapTile: TTBXItem
