@@ -91,12 +91,12 @@ begin
       Result.Y := Round(APoint.Y);
     end;
     prToTopLeft: begin
-      Result.X := Floor(APoint.X + 0.005);
-      Result.Y := Floor(APoint.Y + 0.005);
+      Result.X := Floor(APoint.X + 0.001);
+      Result.Y := Floor(APoint.Y + 0.001);
     end;
     prToBottomRight: begin
-      Result.X := Ceil(APoint.X + 0.005);
-      Result.Y := Ceil(APoint.Y + 0.005);
+      Result.X := Ceil(APoint.X + 0.001);
+      Result.Y := Ceil(APoint.Y + 0.001);
     end;
   end;
   if (Result.X < 0) and (APoint.X  > MaxInt - 2) then begin
@@ -121,26 +121,26 @@ begin
     end;
 
     rrInside: begin
-      Result.Left := Ceil(ARect.Left - 0.005);
-      Result.Top := Ceil(ARect.Top - 0.005);
-      Result.Right := Floor(ARect.Right + 0.005);
-      Result.Bottom := Floor(ARect.Bottom + 0.005);
+      Result.Left := Ceil(ARect.Left - 0.001);
+      Result.Top := Ceil(ARect.Top - 0.001);
+      Result.Right := Floor(ARect.Right + 0.001);
+      Result.Bottom := Floor(ARect.Bottom + 0.001);
       if Result.Right < Result.Left then Result.Right := Result.Left;
       if Result.Bottom < Result.Top then Result.Bottom := Result.Top;
     end;
 
     rrOutside: begin
-      Result.Left := Floor(ARect.Left + 0.005);
-      Result.Top := Floor(ARect.Top + 0.005);
-      Result.Right := Ceil(ARect.Right - 0.005);
-      Result.Bottom := Ceil(ARect.Bottom - 0.005);
+      Result.Left := Floor(ARect.Left + 0.001);
+      Result.Top := Floor(ARect.Top + 0.001);
+      Result.Right := Ceil(ARect.Right - 0.001);
+      Result.Bottom := Ceil(ARect.Bottom - 0.001);
     end;
 
     rrToTopLeft: begin
-      Result.Left := Floor(ARect.Left + 0.005);
-      Result.Top := Floor(ARect.Top + 0.005);
-      Result.Right := Floor(ARect.Right + 0.005);
-      Result.Bottom := Floor(ARect.Bottom + 0.005);
+      Result.Left := Floor(ARect.Left + 0.001);
+      Result.Top := Floor(ARect.Top + 0.001);
+      Result.Right := Floor(ARect.Right + 0.001);
+      Result.Bottom := Floor(ARect.Bottom + 0.001);
     end;
   end;
 
