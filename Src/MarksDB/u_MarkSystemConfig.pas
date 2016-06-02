@@ -255,11 +255,9 @@ begin
     end;
   end;
   if FList.Count = 0 then begin
-    VItem := _GetDefaultConfig(_NewID, cSMLMarksDbGUID);
-    FList.Add(VItem.ID, VItem);
-    FActiveConfigID := VItem.ID; // sml as default
     VItem := _GetDefaultConfig(_NewID, cORMSQLiteMarksDbGUID);
     FList.Add(VItem.ID, VItem);
+    FActiveConfigID := VItem.ID;
   end;
   if FActiveConfigID = 0 then begin
     FActiveConfigID := 1;
