@@ -1169,7 +1169,9 @@ begin
   if VSubset.Count > 1 then begin
     VTree := TVectorItemTree.Create('', VSubset, nil);
     VImportConfig := EditModalImportConfig;
-    FMarkSystem.ImportItemsTree(VTree, VImportConfig);
+    if Assigned(VImportConfig) then begin
+      FMarkSystem.ImportItemsTree(VTree, VImportConfig);
+    end;
   end;
 end;
 
