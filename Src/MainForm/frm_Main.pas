@@ -3869,6 +3869,7 @@ begin
     tbitmSaveMark.Hint := _('Save as... (Enter)');
     tbitmSaveMark.OnClick := Self.tbitmSaveMarkAsNewClick;
   end;
+  tbitmSaveMark.DropdownCombo := VIsMarkEdit;
   tbitmSaveMarkAsNew.Visible := VIsMarkEdit;
   tbxtmSaveMarkAsSeparateSegment.Enabled :=
     ((VNewState = ao_edit_line) and (FEditMarkLine <> nil) and Supports(FEditMarkLine.Geometry, IGeometryLonLatMultiLine)) or
