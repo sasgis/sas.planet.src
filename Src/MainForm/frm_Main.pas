@@ -8417,6 +8417,7 @@ procedure TfrmMain.RefreshTranslation;
 begin
   inherited;
   Caption := GState.ApplicationCaption;
+  OnMainFormMainConfigChange;
 end;
 
 procedure TfrmMain.tbitmPointProjectClick(Sender: TObject);
