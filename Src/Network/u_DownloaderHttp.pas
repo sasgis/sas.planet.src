@@ -547,7 +547,7 @@ begin
     if IsOkStatus(VStatusCode) then begin
       VContentType := FHttpResponseHeader.ContentType;
 
-      if FTryDetectContentType then begin
+      if FTryDetectContentType and (FHttpResponseBody.Size > 0) then begin
         VRealContentType := DetectContentType(FHttpResponseBody.Memory, FHttpResponseBody.Size);
         if (VRealContentType <> '') and (AlLowerCase(VRealContentType) <> AlLowerCase(VContentType)) then begin
           VRawHeaderText := ALStringReplace(VRawHeaderText, VContentType, VRealContentType, [rfIgnoreCase, rfReplaceAll]);
