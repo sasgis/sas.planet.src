@@ -355,6 +355,7 @@ var
   VProvider: IBitmapTileUniProvider;
   VResult: IBitmapTileUniProvider;
 begin
+  Result := nil;
   VResult := nil;
   FGridsConfig.TileGrid.LockRead;
   try
@@ -441,11 +442,13 @@ begin
       VResult := VProvider;
     end;
   end;
-  Result :=
-    TBitmapTileProviderByBitmapTileUniProvider.Create(
-      AProjection,
-      VResult
-    );
+  if Assigned(VResult) then begin
+    Result :=
+      TBitmapTileProviderByBitmapTileUniProvider.Create(
+        AProjection,
+        VResult
+      );
+  end;
 end;
 
 function TProviderMapCombineBase.PrepareImageProvider(
