@@ -2,8 +2,8 @@ object frmFavoriteMapSetEditor: TfrmFavoriteMapSetEditor
   Left = 0
   Top = 0
   BorderStyle = bsSizeToolWin
-  ClientHeight = 393
-  ClientWidth = 335
+  ClientHeight = 494
+  ClientWidth = 403
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -17,18 +17,18 @@ object frmFavoriteMapSetEditor: TfrmFavoriteMapSetEditor
   object pnlMain: TPanel
     Left = 0
     Top = 0
-    Width = 335
-    Height = 355
+    Width = 403
+    Height = 456
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitWidth = 400
-    ExplicitHeight = 414
+    ExplicitWidth = 335
+    ExplicitHeight = 355
     object lblName: TLabel
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 329
+      Width = 397
       Height = 13
       Align = alTop
       Caption = 'Name:'
@@ -38,71 +38,70 @@ object frmFavoriteMapSetEditor: TfrmFavoriteMapSetEditor
       AlignWithMargins = True
       Left = 3
       Top = 124
-      Width = 329
-      Height = 140
+      Width = 397
+      Height = 141
       OnClickCheck = chklstMapsClickCheck
       Align = alClient
       ItemHeight = 13
       TabOrder = 0
-      ExplicitWidth = 394
-      ExplicitHeight = 185
+      ExplicitWidth = 329
+      ExplicitHeight = 140
     end
     object edtName: TEdit
       AlignWithMargins = True
       Left = 3
       Top = 22
-      Width = 329
+      Width = 397
       Height = 21
       Align = alTop
       TabOrder = 1
-      ExplicitWidth = 394
+      ExplicitWidth = 329
     end
     object pnlMap: TPanel
       AlignWithMargins = True
       Left = 3
       Top = 72
-      Width = 329
+      Width = 397
       Height = 23
       Align = alTop
       BevelOuter = bvNone
       TabOrder = 2
-      ExplicitWidth = 394
+      ExplicitWidth = 329
     end
     object chkMergeLayers: TCheckBox
       AlignWithMargins = True
       Left = 3
-      Top = 290
-      Width = 329
+      Top = 291
+      Width = 397
       Height = 17
       Align = alBottom
       Caption = 'Hide non-selected layers'
       Checked = True
       State = cbChecked
       TabOrder = 3
-      ExplicitLeft = 6
-      ExplicitTop = 347
-      ExplicitWidth = 349
+      ExplicitTop = 290
+      ExplicitWidth = 329
     end
     object pnlLayers: TPanel
       Left = 0
-      Top = 267
-      Width = 335
+      Top = 268
+      Width = 403
       Height = 20
       Align = alBottom
       BevelOuter = bvNone
       TabOrder = 4
-      ExplicitTop = 312
-      ExplicitWidth = 400
+      ExplicitTop = 267
+      ExplicitWidth = 335
       object lblLayersCount: TLabel
         AlignWithMargins = True
-        Left = 329
+        Left = 397
         Top = 3
         Width = 3
         Height = 14
         Align = alRight
         BiDiMode = bdLeftToRight
         ParentBiDiMode = False
-        ExplicitLeft = 394
+        ExplicitLeft = 329
         ExplicitHeight = 13
       end
       object chkAll: TCheckBox
@@ -119,7 +118,7 @@ object frmFavoriteMapSetEditor: TfrmFavoriteMapSetEditor
       AlignWithMargins = True
       Left = 3
       Top = 101
-      Width = 329
+      Width = 397
       Height = 17
       Align = alTop
       Caption = 'Layers:'
@@ -127,13 +126,13 @@ object frmFavoriteMapSetEditor: TfrmFavoriteMapSetEditor
       State = cbChecked
       TabOrder = 5
       OnClick = chkLayersClick
-      ExplicitWidth = 394
+      ExplicitWidth = 329
     end
     object chkMap: TCheckBox
       AlignWithMargins = True
       Left = 3
       Top = 49
-      Width = 329
+      Width = 397
       Height = 17
       Align = alTop
       Caption = 'Map:'
@@ -141,12 +140,12 @@ object frmFavoriteMapSetEditor: TfrmFavoriteMapSetEditor
       State = cbChecked
       TabOrder = 6
       OnClick = chkMapClick
-      ExplicitWidth = 394
+      ExplicitWidth = 329
     end
     object grdpnlHotKey1: TGridPanel
       Left = 0
-      Top = 310
-      Width = 335
+      Top = 311
+      Width = 403
       Height = 45
       Align = alBottom
       BevelOuter = bvNone
@@ -188,23 +187,20 @@ object frmFavoriteMapSetEditor: TfrmFavoriteMapSetEditor
           Value = 50.000000000000000000
         end>
       TabOrder = 7
-      ExplicitLeft = 3
-      ExplicitTop = 385
-      ExplicitWidth = 362
+      ExplicitTop = 310
+      ExplicitWidth = 335
       object chkZoom: TCheckBox
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 161
+        Width = 195
         Height = 17
         Align = alTop
         Anchors = []
         Caption = 'Zoom'
         TabOrder = 0
         OnClick = chkZoomClick
-        ExplicitLeft = 4
-        ExplicitTop = 4
-        ExplicitWidth = 193
+        ExplicitWidth = 161
       end
       object cbbZoom: TComboBox
         AlignWithMargins = True
@@ -215,33 +211,28 @@ object frmFavoriteMapSetEditor: TfrmFavoriteMapSetEditor
         Align = alLeft
         Style = csDropDownList
         TabOrder = 1
-        ExplicitLeft = 4
-        ExplicitTop = 29
       end
       object lblHotKey: TLabel
         AlignWithMargins = True
-        Left = 170
+        Left = 204
         Top = 3
-        Width = 162
+        Width = 196
         Height = 13
         Align = alTop
         Caption = 'Hotkey'
-        ExplicitLeft = 206
-        ExplicitTop = 4
+        ExplicitLeft = 170
         ExplicitWidth = 34
       end
       object pnlZoom: TPanel
-        Left = 167
+        Left = 201
         Top = 20
-        Width = 168
+        Width = 202
         Height = 50
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 2
-        ExplicitLeft = 197
-        ExplicitTop = -1
-        ExplicitWidth = 197
-        ExplicitHeight = 59
+        ExplicitLeft = 167
+        ExplicitWidth = 168
         object EditHotKey: THotKey
           AlignWithMargins = True
           Left = 3
@@ -269,19 +260,42 @@ object frmFavoriteMapSetEditor: TfrmFavoriteMapSetEditor
         end
       end
     end
+    object pnlCoords: TPanel
+      Left = 0
+      Top = 356
+      Width = 403
+      Height = 100
+      Align = alBottom
+      BevelOuter = bvNone
+      TabOrder = 8
+      object chkCoords: TCheckBox
+        AlignWithMargins = True
+        Left = 3
+        Top = 3
+        Width = 397
+        Height = 17
+        Align = alTop
+        Caption = 'Coordinates'
+        TabOrder = 0
+        OnClick = chkCoordsClick
+        ExplicitLeft = 40
+        ExplicitTop = 16
+        ExplicitWidth = 97
+      end
+    end
   end
   object pnlBottom: TPanel
     Left = 0
-    Top = 355
-    Width = 335
+    Top = 456
+    Width = 403
     Height = 38
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitTop = 414
-    ExplicitWidth = 400
+    ExplicitTop = 355
+    ExplicitWidth = 335
     object btnOk: TButton
-      Left = 125
+      Left = 193
       Top = 7
       Width = 100
       Height = 25
@@ -290,10 +304,10 @@ object frmFavoriteMapSetEditor: TfrmFavoriteMapSetEditor
       Caption = 'Ok'
       TabOrder = 0
       OnClick = btnOkClick
-      ExplicitLeft = 190
+      ExplicitLeft = 125
     end
     object btnCancel: TButton
-      Left = 231
+      Left = 299
       Top = 7
       Width = 100
       Height = 25
@@ -302,7 +316,7 @@ object frmFavoriteMapSetEditor: TfrmFavoriteMapSetEditor
       Caption = 'Cancel'
       TabOrder = 1
       OnClick = btnCancelClick
-      ExplicitLeft = 296
+      ExplicitLeft = 231
     end
   end
 end

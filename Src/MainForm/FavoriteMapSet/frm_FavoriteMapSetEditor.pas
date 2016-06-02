@@ -37,11 +37,16 @@ uses
   ComCtrls,
   ExtCtrls,
   fr_MapSelect,
+  fr_LonLat,
   i_ActiveMapsConfig,
   i_MapType,
   i_MapTypeSet,
   i_MapTypeGUIConfigList,
   i_LanguageManager,
+  i_ProjectionSetChangeable,
+  i_CoordFromStringParser,
+  i_CoordToStringConverter,
+  i_CoordRepresentationConfig,
   i_LocalCoordConverterChangeable,
   i_FavoriteMapSetConfig,
   i_FavoriteMapSetItemStatic,
@@ -70,6 +75,8 @@ type
     chkLayers: TCheckBox;
     chkMap: TCheckBox;
     grdpnlHotkey1: TGridPanel;
+    pnlCoords: TPanel;
+    chkCoords: TCheckBox;
     procedure btnCancelClick(Sender: TObject);
     procedure chkMapClick(Sender: TObject);
     procedure chkLayersClick(Sender: TObject);
@@ -78,9 +85,11 @@ type
     procedure chkAllClick(Sender: TObject);
     procedure btnResetHotKeyClick(Sender: TObject);
     procedure btnOkClick(Sender: TObject);
+    procedure chkCoordsClick(Sender: TObject);
   private
     FMapSetItem: IFavoriteMapSetItemStatic;
     FfrMapSelect: TfrMapSelect;
+    FfrLonLat: TfrLonLat;
     FFavoriteMapSetConfig: IFavoriteMapSetConfig;
     FViewPortState: ILocalCoordConverterChangeable;
     FMainMapConfig: IActiveMapConfig;
@@ -97,6 +106,10 @@ type
       const ALanguageManager: ILanguageManager;
       const AFavoriteMapSetConfig: IFavoriteMapSetConfig;
       const AViewPortState: ILocalCoordConverterChangeable;
+      const AProjectionSet: IProjectionSetChangeable;
+      const ACoordRepresentationConfig: ICoordRepresentationConfig;
+      const ACoordFromStringParser: ICoordFromStringParser;
+      const ACoordToStringConverter: ICoordToStringConverterChangeable;
       const AMainMapConfig: IActiveMapConfig;
       const AMainLayersConfig: IActiveLayersConfig;
       const AFullMapsSet: IMapTypeSet;
@@ -109,8 +122,12 @@ implementation
 
 uses
   gnugettext,
+  Math,
   c_ZeroGUID,
+  t_GeoTypes,
+  i_LocalCoordConverter,
   i_GUIDListStatic,
+  u_GeoFunc,
   u_GUIDListStatic;
 
 {$R *.dfm}
@@ -121,6 +138,10 @@ constructor TfrmFavoriteMapSetEditor.Create(
   const ALanguageManager: ILanguageManager;
   const AFavoriteMapSetConfig: IFavoriteMapSetConfig;
   const AViewPortState: ILocalCoordConverterChangeable;
+  const AProjectionSet: IProjectionSetChangeable;
+  const ACoordRepresentationConfig: ICoordRepresentationConfig;
+  const ACoordFromStringParser: ICoordFromStringParser;
+  const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const AMainMapConfig: IActiveMapConfig;
   const AMainLayersConfig: IActiveLayersConfig;
   const AFullMapsSet: IMapTypeSet;
@@ -154,12 +175,24 @@ begin
       GetAllowWrite
     );
 
+  FfrLonLat :=
+    TfrLonLat.Create(
+      ALanguageManager,
+      AProjectionSet,
+      AViewPortState,
+      ACoordRepresentationConfig,
+      ACoordFromStringParser,
+      ACoordToStringConverter,
+      tssCenter
+    );
+
   FMapSetItem := nil;
 end;
 
 destructor TfrmFavoriteMapSetEditor.Destroy;
 begin
   FreeAndNil(FfrMapSelect);
+  FreeAndNil(FfrLonLat);
   inherited Destroy;
 end;
 
@@ -176,8 +209,12 @@ var
   VActiveLayers: IGUIDSetStatic;
   VGUIDList: IGUIDListStatic;
   VGUID: TGUID;
+  VCoordConverter: ILocalCoordConverter;
 begin
+  VCoordConverter := FViewPortState.GetStatic;
+
   FfrMapSelect.Show(pnlMap);
+  FfrLonLat.Parent := pnlCoords;
 
   if Assigned(FMapSetItem) then begin
     edtName.Text := FMapSetItem.Name;
@@ -226,13 +263,21 @@ begin
     cbbZoom.ItemIndex := FMapSetItem.Zoom;
     chkZoom.Checked := True;
   end else begin
-    cbbZoom.ItemIndex := FViewPortState.GetStatic.Projection.Zoom;
+    cbbZoom.ItemIndex := VCoordConverter.Projection.Zoom;
+  end;
+
+  if (FMapSetItem <> nil) and not PointIsEmpty(FMapSetItem.LonLat) then begin
+    FfrLonLat.LonLat := FMapSetItem.LonLat;
+    chkCoords.Checked := True;
+  end else begin
+    FfrLonLat.LonLat := VCoordConverter.GetCenterLonLat;
   end;
 
   chkMapClick(nil);
   chkLayersClick(nil);
   chklstMapsClickCheck(nil);
   chkZoomClick(nil);
+  chkCoordsClick(nil);
 end;
 
 procedure TfrmFavoriteMapSetEditor.chkMapClick(Sender: TObject);
@@ -259,6 +304,11 @@ begin
     chklstMaps.Checked[I] := chkAll.Checked
   end;
   lblLayersCount.Caption := Format('(%d of %d)', [VChkCount, chklstMaps.Count]);
+end;
+
+procedure TfrmFavoriteMapSetEditor.chkCoordsClick(Sender: TObject);
+begin
+  FfrLonLat.Enabled := chkCoords.Checked;
 end;
 
 procedure TfrmFavoriteMapSetEditor.chklstMapsClickCheck(Sender: TObject);
@@ -342,6 +392,7 @@ var
   VLayers: IGUIDSetStatic;
   VZoom: Integer;
   VName: string;
+  VLonLat: TDoublePoint;
 begin
   VName := Trim(edtName.Text);
 
@@ -362,15 +413,28 @@ begin
     VLayers := nil;
   end;
 
-  if IsEqualGUID(VBaseMap, CGUID_Zero) and (VLayers = nil) then begin
-    MessageDlg(_('Please, select at least one Layer or Map first!'), mtError, [mbOK], 0);
-    Exit;
-  end;
-
   if chkZoom.Checked then begin
     VZoom := cbbZoom.ItemIndex;
   end else begin
     VZoom := -1;
+  end;
+
+  VLonLat := CEmptyDoublePoint;
+  if chkCoords.Checked then begin
+    if FfrLonLat.Validate then begin
+      VLonLat := FfrLonLat.LonLat;
+    end else begin
+      Exit;
+    end;
+  end;
+
+  if (VZoom = -1) and PointIsEmpty(VLonLat) and
+    IsEqualGUID(VBaseMap, CGUID_Zero) and (VLayers = nil) then begin
+    MessageDlg(
+      _('Please, select zoom/coordinates or at least one Layer or Map first!'),
+      mtError, [mbOK], 0
+    );
+    Exit;
   end;
 
   if FMapSetItem = nil then begin
@@ -379,6 +443,7 @@ begin
       VLayers,
       not chkMergeLayers.Checked,
       VZoom,
+      VLonLat,
       VName,
       EditHotKey.HotKey
     );
@@ -389,6 +454,7 @@ begin
       VLayers,
       not chkMergeLayers.Checked,
       VZoom,
+      VLonLat,
       VName,
       EditHotKey.HotKey
     );

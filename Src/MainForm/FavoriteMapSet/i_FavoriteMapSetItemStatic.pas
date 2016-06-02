@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  t_GeoTypes,
   i_GUIDListStatic;
 
 type
@@ -43,6 +44,9 @@ type
 
     function GetZoom: Integer;
     property Zoom: Integer read GetZoom;
+
+    function GetLonLat: TDoublePoint;
+    property LonLat: TDoublePoint read GetLonLat;
 
     function GetName: string;
     property Name: string read GetName;

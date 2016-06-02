@@ -351,6 +351,7 @@ begin
     TfrFavoriteMapSetManager.Create(
       ALanguageManager,
       GState.MapType.FullMapsSet,
+      GState.CoordToStringConverter,
       GState.FavoriteMapSetConfig,
       AFavoriteMapSetHelper,
       AFavoriteMapSetEditor

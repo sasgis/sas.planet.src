@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  t_GeoTypes,
   i_GUIDListStatic,
   i_FavoriteMapSetItemStatic,
   u_BaseInterfacedObject;
@@ -35,6 +36,7 @@ type
     FBaseMap: TGUID;
     FLayers: IGUIDSetStatic;
     FZoom: Integer;
+    FLonLat: TDoublePoint;
     FName: string;
     FHotKey: TShortCut;
     FMergeLayers: Boolean;
@@ -45,6 +47,7 @@ type
     function GetLayers: IGUIDSetStatic;
     function GetMergeLayers: Boolean;
     function GetZoom: Integer;
+    function GetLonLat: TDoublePoint;
     function GetName: string;
     function GetHotKey: TShortCut;
   public
@@ -54,6 +57,7 @@ type
       const ALayers: IGUIDSetStatic;
       const AMergeLayers: Boolean;
       const AZoom: Integer;
+      const ALonLat: TDoublePoint;
       const AName: string;
       const AHotKey: TShortCut
     );
@@ -69,6 +73,7 @@ constructor TFavoriteMapSetItemStatic.Create(
   const ALayers: IGUIDSetStatic;
   const AMergeLayers: Boolean;
   const AZoom: Integer;
+  const ALonLat: TDoublePoint;
   const AName: string;
   const AHotKey: TShortCut
 );
@@ -79,6 +84,7 @@ begin
   FLayers := ALayers;
   FMergeLayers := AMergeLayers;
   FZoom := AZoom;
+  FLonLat := ALonLat;
   FName := AName;
   FHotKey := AHotKey;
 end;
@@ -106,6 +112,11 @@ end;
 function TFavoriteMapSetItemStatic.GetZoom: Integer;
 begin
   Result := FZoom;
+end;
+
+function TFavoriteMapSetItemStatic.GetLonLat: TDoublePoint;
+begin
+  Result := FLonLat;
 end;
 
 function TFavoriteMapSetItemStatic.GetName: string;

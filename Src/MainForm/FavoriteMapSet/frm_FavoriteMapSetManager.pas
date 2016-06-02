@@ -40,6 +40,7 @@ uses
   i_LanguageManager,
   i_FavoriteMapSetConfig,
   i_FavoriteMapSetHelper,
+  i_CoordToStringConverter,
   u_CommonFormAndFrameParents;
 
 type
@@ -57,6 +58,7 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AMapsSet: IMapTypeSet;
+      const ACoordToStringConverter: ICoordToStringConverterChangeable;
       const AFavoriteMapSetConfig: IFavoriteMapSetConfig;
       const AFavoriteMapSetHelper: IFavoriteMapSetHelper;
       const AFavoriteMapSetEditor: TfrmFavoriteMapSetEditor
@@ -74,6 +76,7 @@ implementation
 constructor TfrmFavoriteMapSetManager.Create(
   const ALanguageManager: ILanguageManager;
   const AMapsSet: IMapTypeSet;
+  const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const AFavoriteMapSetConfig: IFavoriteMapSetConfig;
   const AFavoriteMapSetHelper: IFavoriteMapSetHelper;
   const AFavoriteMapSetEditor: TfrmFavoriteMapSetEditor
@@ -85,6 +88,7 @@ begin
     TfrFavoriteMapSetManager.Create(
       ALanguageManager,
       AMapsSet,
+      ACoordToStringConverter,
       AFavoriteMapSetConfig,
       AFavoriteMapSetHelper,
       AFavoriteMapSetEditor

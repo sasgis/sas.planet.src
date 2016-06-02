@@ -55,8 +55,11 @@ implementation
 
 uses
   SysUtils,
+  Math,
   c_ZeroGUID,
-  i_GUIDListStatic;
+  t_GeoTypes,
+  i_GUIDListStatic,
+  u_GeoFunc;
 
 { TFavoriteMapSetHelper }
 
@@ -81,6 +84,7 @@ function TFavoriteMapSetHelper.TrySwitchOn(
 var
   I: Integer;
   VLayers: IGUIDSetStatic;
+  VLonLat: TDoublePoint;
 begin
   AErrMsg := '';
   Result := False;
@@ -114,6 +118,11 @@ begin
 
   if AItem.Zoom >= 0 then begin
     FViewPortState.ChangeZoomWithFreezeAtCenter(AItem.Zoom);
+  end;
+
+  VLonLat := AItem.LonLat;
+  if not PointIsEmpty(VLonLat) then begin
+    FViewPortState.ChangeLonLat(VLonLat);
   end;
 
   Result := True;

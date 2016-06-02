@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  t_GeoTypes,
   i_GUIDListStatic,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
@@ -48,6 +49,7 @@ type
       const ALayers: IGUIDSetStatic;
       const AMergeLayers: Boolean;
       const AZoom: Integer;
+      const ALonLat: TDoublePoint;
       const AName: string;
       const AHotKey: TShortCut
     ): TGUID;
@@ -57,6 +59,7 @@ type
       const ALayers: IGUIDSetStatic;
       const AMergeLayers: Boolean;
       const AZoom: Integer;
+      const ALonLat: TDoublePoint;
       const AName: string;
       const AHotKey: TShortCut
     ): Boolean;
@@ -74,9 +77,11 @@ implementation
 
 uses
   SysUtils,
+  Math,
   c_ZeroGUID,
   i_StringListStatic,
   u_SortFunc,
+  u_GeoFunc,
   u_GUIDListStatic,
   u_InterfaceListSimple,
   u_ConfigProviderHelpers,
@@ -166,6 +171,7 @@ function TFavoriteMapSetConfig.Add(
   const ALayers: IGUIDSetStatic;
   const AMergeLayers: Boolean;
   const AZoom: Integer;
+  const ALonLat: TDoublePoint;
   const AName: string;
   const AHotKey: TShortCut
 ): TGUID;
@@ -181,6 +187,7 @@ begin
       ALayers,
       AMergeLayers,
       AZoom,
+      ALonLat,
       AName,
       AHotKey
     );
@@ -200,6 +207,7 @@ function TFavoriteMapSetConfig.Update(
   const ALayers: IGUIDSetStatic;
   const AMergeLayers: Boolean;
   const AZoom: Integer;
+  const ALonLat: TDoublePoint;
   const AName: string;
   const AHotKey: TShortCut
 ): Boolean;
@@ -214,6 +222,7 @@ begin
       ALayers,
       AMergeLayers,
       AZoom,
+      ALonLat,
       AName,
       AHotKey
     );
@@ -271,6 +280,18 @@ begin
 end;
 
 procedure TFavoriteMapSetConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
+
+  function ReadLonLatPoint(
+    const AConfigProvider: IConfigDataProvider
+  ): TDoublePoint;
+  begin
+    Result.X := AConfigProvider.ReadFloat('Lon', -10000);
+    Result.Y := AConfigProvider.ReadFloat('Lat', -10000);
+    if not PointIsEmpty(Result) and ((Abs(Result.X) > 360) or (Abs(Result.Y) > 360)) then begin
+      Result := CEmptyDoublePoint;
+    end;
+  end;
+
 var
   I, J, K: Integer;
   VCount: Integer;
@@ -282,6 +303,7 @@ var
   VItemLayersGUID: array of TGUID;
   VItemMergeLayers: Boolean;
   VItemZoom: Integer;
+  VItemLonLat: TDoublePoint;
   VItemName: string;
   VItemHotKey: TShortCut;
   VItem: IFavoriteMapSetItemStatic;
@@ -327,6 +349,7 @@ begin
             end;
 
             VItemZoom := VConfig.ReadInteger('Zoom', -1);
+            VItemLonLat := ReadLonLatPoint(VConfig);
             VItemName := VConfig.ReadString('Name', '<Unnamed>');
             VItemHotKey := TShortCut(VConfig.ReadInteger('HotKey', 0));
 
@@ -337,6 +360,7 @@ begin
                 VItemLayers,
                 VItemMergeLayers,
                 VItemZoom,
+                VItemLonLat,
                 VItemName,
                 VItemHotKey
               );
@@ -398,6 +422,8 @@ begin
       end;
 
       VConfig.WriteInteger('Zoom', VItem.Zoom);
+      VConfig.WriteFloat('Lon', VItem.LonLat.X);
+      VConfig.WriteFloat('Lat', VItem.LonLat.Y);
       VConfig.WriteString('Name', VItem.Name);
       VConfig.WriteInteger('HotKey', Integer(VItem.HotKey));
     end;

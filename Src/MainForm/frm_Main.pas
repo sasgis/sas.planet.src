@@ -1305,6 +1305,10 @@ begin
       GState.Config.LanguageManager,
       GState.FavoriteMapSetConfig,
       FViewPortState.View,
+      FActiveProjectionSet,
+      GState.Config.CoordRepresentationConfig,
+      GState.CoordFromStringParser,
+      GState.CoordToStringConverter,
       FConfig.MainMapConfig,
       FConfig.MapLayersConfig,
       GState.MapType.FullMapsSet,
@@ -1316,6 +1320,7 @@ begin
     TfrmFavoriteMapSetManager.Create(
       GState.Config.LanguageManager,
       GState.MapType.FullMapsSet,
+      GState.CoordToStringConverter,
       GState.FavoriteMapSetConfig,
       FFavoriteMapSetHelper,
       FfrmFavoriteMapSetEditor

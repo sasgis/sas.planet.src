@@ -82,6 +82,7 @@ type
     FTileSelectStyle: TTileSelectStyle;
     function GetLonLat: TDoublePoint;
     procedure SetLonLat(const Value: TDoublePoint);
+    procedure SetEnabled(const Value: Boolean); reintroduce;
     function IsProjected: Boolean; inline;
   public
     constructor Create(
@@ -94,6 +95,7 @@ type
       ATileSelectStyle: TTileSelectStyle
     ); reintroduce;
     property LonLat: TDoublePoint read GetLonLat write SetLonLat;
+    property Enabled: Boolean write SetEnabled;
     function Validate: Boolean;
     procedure Init;
   end;
@@ -250,6 +252,27 @@ begin
       edtY.Text := inttostr(XYPoint.y);
     end;
   end;
+end;
+
+procedure TfrLonLat.SetEnabled(const Value: Boolean);
+
+  procedure SetControlEnabled(const AControl: TControl; const AEnabled: Boolean);
+  var
+    I: Integer;
+  begin
+    if AControl = nil then begin
+      Exit;
+    end;
+    if AControl is TWinControl then begin
+      for I := 0 to TWinControl(AControl).ControlCount - 1 do begin
+        SetControlEnabled(TWinControl(AControl).Controls[I], AEnabled);
+      end;
+    end;
+    AControl.Enabled := AEnabled;
+  end;
+
+begin
+  SetControlEnabled(Self, Value);
 end;
 
 function TfrLonLat.Validate: Boolean;

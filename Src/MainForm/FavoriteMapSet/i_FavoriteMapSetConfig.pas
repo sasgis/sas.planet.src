@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  t_GeoTypes,
   i_GUIDListStatic,
   i_ConfigDataElement,
   i_InterfaceListStatic,
@@ -44,6 +45,7 @@ type
       const ALayers: IGUIDSetStatic;
       const AMergeLayers: Boolean;
       const AZoom: Integer;
+      const ALonLat: TDoublePoint;
       const AName: string;
       const AHotKey: TShortCut
     ): TGUID;
@@ -54,6 +56,7 @@ type
       const ALayers: IGUIDSetStatic;
       const AMergeLayers: Boolean;
       const AZoom: Integer;
+      const ALonLat: TDoublePoint;
       const AName: string;
       const AHotKey: TShortCut
     ): Boolean;

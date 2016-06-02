@@ -39,6 +39,7 @@ uses
   frm_FavoriteMapSetEditor,
   i_LanguageManager,
   i_MapTypeSet,
+  i_CoordToStringConverter,
   i_FavoriteMapSetConfig,
   i_FavoriteMapSetHelper,
   i_FavoriteMapSetItemStatic,
@@ -69,6 +70,7 @@ type
     procedure lvMapSetsDblClick(Sender: TObject);
   private
     FMapsSet: IMapTypeSet;
+    FCoordToStringConverter: ICoordToStringConverterChangeable;
     FFavoriteMapSetConfig: IFavoriteMapSetConfig;
     FFavoriteMapSetHelper: IFavoriteMapSetHelper;
     FFavoriteMapSetEditor: TfrmFavoriteMapSetEditor;
@@ -81,6 +83,7 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AMapsSet: IMapTypeSet;
+      const ACoordToStringConverter: ICoordToStringConverterChangeable;
       const AFavoriteMapSetConfig: IFavoriteMapSetConfig;
       const AFavoriteMapSetHelper: IFavoriteMapSetHelper;
       const AFavoriteMapSetEditor: TfrmFavoriteMapSetEditor
@@ -94,11 +97,14 @@ type
 implementation
 
 uses
+  Math,
   gnugettext,
   c_ZeroGUID,
+  t_GeoTypes,
   i_MapType,
   i_GUIDListStatic,
-  i_InterfaceListStatic;
+  i_InterfaceListStatic,
+  u_GeoFunc;
 
 {$R *.dfm}
 
@@ -107,6 +113,7 @@ uses
 constructor TfrFavoriteMapSetManager.Create(
   const ALanguageManager: ILanguageManager;
   const AMapsSet: IMapTypeSet;
+  const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const AFavoriteMapSetConfig: IFavoriteMapSetConfig;
   const AFavoriteMapSetHelper: IFavoriteMapSetHelper;
   const AFavoriteMapSetEditor: TfrmFavoriteMapSetEditor
@@ -114,6 +121,7 @@ constructor TfrFavoriteMapSetManager.Create(
 begin
   inherited Create(ALanguageManager);
   FMapsSet := AMapsSet;
+  FCoordToStringConverter := ACoordToStringConverter;
   FFavoriteMapSetConfig := AFavoriteMapSetConfig;
   FFavoriteMapSetHelper := AFavoriteMapSetHelper;
   FFavoriteMapSetEditor := AFavoriteMapSetEditor;
@@ -282,6 +290,15 @@ begin
         VInfoItem := lvInfo.Items.Add;
         VInfoItem.Caption := _('Zoom');
         _SetSubItem(VInfoItem, 0, IntToStr(VItem.Zoom + 1));
+      end;
+
+      if not PointIsEmpty(VItem.LonLat) then begin
+        VInfoItem := lvInfo.Items.Add;
+        VInfoItem.Caption := _('Coordinates');
+        _SetSubItem(
+          VInfoItem, 0,
+          FCoordToStringConverter.GetStatic.LonLatConvert(VItem.LonLat)
+        );
       end;
     end;
   finally
