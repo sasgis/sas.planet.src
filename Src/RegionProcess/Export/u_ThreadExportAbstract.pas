@@ -102,7 +102,7 @@ procedure TThreadExportAbstract.ProcessRegion;
 begin
   inherited;
   if Length(FZooms) <= 0 then begin
-    raise Exception.Create('Не выбрано ни одного зума');
+    raise Exception.Create('Please select at least one zoom');
   end;
 end;
 
