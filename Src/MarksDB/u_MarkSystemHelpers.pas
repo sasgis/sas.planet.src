@@ -90,7 +90,11 @@ begin
   end;
 
   if Assigned(ADataItemTree) and (ADataItemTree.Name <> '') then begin
-    VCategoryName := VCategoryName + '\' + ADataItemTree.Name;
+    if VCategoryName <> '' then begin
+      VCategoryName := VCategoryName + '\' + ADataItemTree.Name;
+    end else begin
+      VCategoryName := ADataItemTree.Name;
+    end;
     VMarkCategory := ACategoryDB.GetCategoryByName(VCategoryName);
     if not Assigned(VMarkCategory) then begin
       VMarkCategory := ACategoryFactory.CreateNew(VCategoryName);
@@ -140,7 +144,11 @@ begin
   end;
 
   if Assigned(ADataItemTree) and (ADataItemTree.Name <> '') then begin
-    VCategoryName := VCategoryName + '\' + ADataItemTree.Name;
+    if VCategoryName <> '' then begin
+      VCategoryName := VCategoryName + '\' + ADataItemTree.Name;
+    end else begin
+      VCategoryName := ADataItemTree.Name;
+    end;
     VMarkCategory := ACategoryDB.GetCategoryByName(VCategoryName);
     if not Assigned(VMarkCategory) then begin
       VMarkCategory := ACategoryFactory.CreateNew(VCategoryName);

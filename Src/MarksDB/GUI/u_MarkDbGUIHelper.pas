@@ -604,7 +604,7 @@ begin
         if Assigned(VExporterItem) then begin
           VSubsetBuilder := FVectorItemSubsetBuilderFactory.Build;
           VSubsetBuilder.Add(AMark);
-          VMarkTree := TVectorItemTree.Create('', VSubsetBuilder.MakeStaticAndClear, nil);
+          VMarkTree := TVectorItemTree.Create('Export', VSubsetBuilder.MakeStaticAndClear, nil);
           VNotifier := TNotifierOperationFake.Create;
           VExporterItem.Exporter.ProcessExport(VNotifier.CurrentOperation, VNotifier, VFileName, VMarkTree);
         end;
