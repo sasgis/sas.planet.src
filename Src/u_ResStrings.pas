@@ -62,6 +62,7 @@ ResourceString
     'and use resulting KMZ files separately';
   SAS_MSG_HotKeyExists = 'Hotkey in use. Please select another one';
   SAS_MSG_CantGetTileFileName = 'This is not simple file storage. Tile''s file name does not exist.';
+  SAS_MSG_SetAsDefaultForNewMarks = 'Set as default for new marks?';
 
   SAS_ERR_Nopoints = 'Required pointset is not found!';
   SAS_ERR_Save = 'Error while saving!';

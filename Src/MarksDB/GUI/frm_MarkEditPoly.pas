@@ -232,7 +232,7 @@ var
   VConfig: IMarkPolyTemplateConfig;
   VTemplate: IMarkTemplatePoly;
 begin
-  if MessageBox(handle, pchar('Set as default for new marks?'), pchar(SAS_MSG_coution), 36) = IDYES then begin
+  if MessageBox(handle, pchar(SAS_MSG_SetAsDefaultForNewMarks), pchar(SAS_MSG_coution), 36) = IDYES then begin
     VConfig := FMarkFactory.Config.PolyTemplateConfig;
     VTemplate :=
       VConfig.CreateTemplate(
