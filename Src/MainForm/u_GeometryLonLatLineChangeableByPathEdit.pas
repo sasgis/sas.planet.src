@@ -161,12 +161,10 @@ begin
       if PointIsEmpty(VPoint) then begin
         VPrevIsEmpty := True;
       end else begin
-        if i <> VSelectedPointIndex then begin
-          if VPrevIsEmpty then begin
-            VFirst.Add(VPoint);
-          end else begin
-            VOther.Add(VPoint);
-          end;
+        if VPrevIsEmpty then begin
+          VFirst.Add(VPoint);
+        end else begin
+          VOther.Add(VPoint);
         end;
         VPrevIsEmpty := False;
       end;

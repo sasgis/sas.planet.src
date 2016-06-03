@@ -70,15 +70,15 @@ begin
   VFirstPointMarkerDefault :=
     TMarkerSimpleConfigStatic.Create(
       8,
-      SetAlpha(ClGreen32, 255),
+      SetAlpha(clLime32, 255),
       SetAlpha(ClRed32, 150)
     );
 
   VActivePointMarkerDefault :=
     TMarkerSimpleConfigStatic.Create(
-      8,
-      SetAlpha(ClRed32, 255),
-      SetAlpha(ClRed32, 150)
+      10,
+      SetAlpha(ClRed32, 100),
+      SetAlpha(ClRed32, 255)
     );
 
   VNormalPointMarkerDefault :=
