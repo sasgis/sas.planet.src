@@ -3823,11 +3823,10 @@ begin
   VLonLat := VProjectionType.LonLat2Metr(VLonLat);
   CopyStringToClipboard(
     Handle,
-    'http://maps.rosreestr.ru/PortalOnline/?' +
-    'l=' + IntToStr(VProjection.Zoom) + // TODO: Calc Zoom for CGoogleProjectionEPSG projection set
-    '&x=' + RoundEx(VLonLat.x, 4) +
-    '&y=' + RoundEx(VLonLat.y, 4) +
-    '&mls=map|anno&cls=cadastre'
+    'http://pkk5.rosreestr.ru/#' +
+    'x=' + RoundEx(VLonLat.x, 9) +
+    '&y=' + RoundEx(VLonLat.y, 9) +
+    '&z=' + IntToStr(VProjection.Zoom)
   );
 end;
 
