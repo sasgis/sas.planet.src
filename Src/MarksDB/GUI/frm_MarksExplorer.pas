@@ -1372,14 +1372,18 @@ var
   VLine: IGeometryLonLatMultiLine;
   VPolygon: IGeometryLonLatMultiPolygon;
   VUngroupVisible: Boolean;
+  VSelection: IInterfaceListStatic;
 begin
   VUngroupVisible := False;
-  VMark := GetSelectedMarkFull;
-  if Assigned(VMark) then begin
-    if Supports(VMark.Geometry, IGeometryLonLatMultiPolygon, VPolygon) then begin
-      VUngroupVisible := (VPolygon.Count > 1);
-    end else if Supports(VMark.Geometry, IGeometryLonLatMultiLine, VLine) then begin
-      VUngroupVisible := (VLine.Count > 1);
+  VSelection := GetSelectedMarksIdList;
+  if Assigned(VSelection) and (VSelection.Count = 1) then begin
+    VMark := GetSelectedMarkFull;
+    if Assigned(VMark) then begin
+      if Supports(VMark.Geometry, IGeometryLonLatMultiPolygon, VPolygon) then begin
+        VUngroupVisible := (VPolygon.Count > 1);
+      end else if Supports(VMark.Geometry, IGeometryLonLatMultiLine, VLine) then begin
+        VUngroupVisible := (VLine.Count > 1);
+      end;
     end;
   end;
   tbxtmUngroup.Visible := VUngroupVisible;
