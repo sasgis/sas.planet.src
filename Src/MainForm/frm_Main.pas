@@ -3870,6 +3870,8 @@ begin
   end;
   tbitmSaveMark.DropdownCombo := VIsMarkEdit;
   tbitmSaveMarkAsNew.Visible := VIsMarkEdit;
+
+  tbxtmSaveMarkAsSeparateSegment.Visible := VIsMarkEdit;
   tbxtmSaveMarkAsSeparateSegment.Enabled :=
     ((VNewState = ao_edit_line) and (FEditMarkLine <> nil) and Supports(FEditMarkLine.Geometry, IGeometryLonLatMultiLine)) or
     ((VNewState = ao_edit_poly) and (FEditMarkPoly <> nil) and Supports(FEditMarkPoly.Geometry, IGeometryLonLatMultiPolygon));
