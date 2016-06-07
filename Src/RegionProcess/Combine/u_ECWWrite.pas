@@ -38,6 +38,18 @@ type
       var lineR, LineG, LineB: PLineRGB
     ): boolean of object;
 
+  TECWCompressionStatistics = record
+    // Actual compression rate achieved - ratio of input data size to output file size
+    ActualCompression: Single;
+    // Time taken to perform the complete compression, in seconds
+    CompressionSeconds: Double;
+    // MB/s throughput during the compression process
+    CompressionMBSec: Double;
+    // Total size of the output file in bytes
+    OutputSize: Int64;
+  end;
+  PECWCompressionStatistics = ^TECWCompressionStatistics;
+
 type
   TECWWrite = class
   private
@@ -47,17 +59,24 @@ type
   public
     constructor Create;
     function Encode(
-      AOperationID: Integer;
+      const AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const FileName: AnsiString;
-      Width, Height: cardinal;
-      CompressRatio: Single;
-      Hint: CompressHint;
-      AReadDelegate: TEcwRead;
-      const Datum, Projection: AnsiString;
-      SizeUnits: TCellSizeUnits;
-      CellIncrementX, CellIncrementY, OriginX, OriginY: double
-    ): integer;
+      const AFileName: AnsiString;
+      const AWidth: Cardinal;
+      const AHeight: Cardinal;
+      const ACompressRatio: Single;
+      const AHint: CompressHint;
+      const AReadDelegate: TEcwRead;
+      const ADatum: AnsiString;
+      const AProjection: AnsiString;
+      const ASizeUnits: TCellSizeUnits;
+      const ACellIncrementX: Double;
+      const ACellIncrementY: Double;
+      const AOriginX: Double;
+      const AOriginY: Double;
+      const AOutEncodeInfo: PECWCompressionStatistics = nil
+    ): Integer;
+    class function ErrorCodeToString(const AErrorCode: Integer): string;
   end;
 
 implementation
@@ -99,16 +118,22 @@ begin
 end;
 
 function TECWWrite.Encode(
-  AOperationID: Integer;
+  const AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const FileName: AnsiString;
-  Width, Height: cardinal;
-  CompressRatio: Single;
-  Hint: CompressHint;
-  AReadDelegate: TEcwRead;
-  const Datum, Projection: AnsiString;
-  SizeUnits: TCellSizeUnits;
-  CellIncrementX, CellIncrementY, OriginX, OriginY: double
+  const AFileName: AnsiString;
+  const AWidth: Cardinal;
+  const AHeight: Cardinal;
+  const ACompressRatio: Single;
+  const AHint: CompressHint;
+  const AReadDelegate: TEcwRead;
+  const ADatum: AnsiString;
+  const AProjection: AnsiString;
+  const ASizeUnits: TCellSizeUnits;
+  const ACellIncrementX: Double;
+  const ACellIncrementY: Double;
+  const AOriginX: Double;
+  const AOriginY: Double;
+  const AOutEncodeInfo: PECWCompressionStatistics
 ): Integer;
 var
   VNCSError: NCSError;
@@ -120,36 +145,38 @@ begin
   FCancelNotifier := ACancelNotifier;
   VEcwData := NCSEcwCompressAllocClient();
   try
-    FillChar(VEcwData^, SizeOf(NCSEcwCompressClient), 0);
-
     VEcwData.pClientData := Self;
     VEcwData.nInputBands := 3;
-    VEcwData.nInOutSizeX := Width;
-    VEcwData.nInOutSizeY := Height;
+    VEcwData.nInOutSizeX := AWidth;
+    VEcwData.nInOutSizeY := AHeight;
     VEcwData.eCompressFormat := COMPRESS_RGB;
-    VEcwData.eCompressHint := Hint;
-    VEcwData.fTargetCompression := CompressRatio;
-    VEcwData.eCellSizeUnits := CellSizeUnits(SizeUnits);
-    VEcwData.fCellIncrementX := CellIncrementX;
-    VEcwData.fCellIncrementY := CellIncrementY;
-    VEcwData.fOriginX := OriginX;
-    VEcwData.fOriginY := OriginY;
+    VEcwData.eCompressHint := AHint;
+    VEcwData.fTargetCompression := ACompressRatio;
+    VEcwData.eCellSizeUnits := CellSizeUnits(ASizeUnits);
+    VEcwData.fCellIncrementX := ACellIncrementX;
+    VEcwData.fCellIncrementY := ACellIncrementY;
+    VEcwData.fOriginX := AOriginX;
+    VEcwData.fOriginY := AOriginY;
     VEcwData.pReadCallback := ReadCallbackFunc;
     VEcwData.pStatusCallback := nil;
     VEcwData.pCancelCallback := CancelCallbackFunc;
 
-    if Length(Datum) < Length(VEcwData.szDatum) then begin
-      Move(Datum[1], VEcwData.szDatum[0], Length(Datum));
+    if Length(ADatum) < Length(VEcwData.szDatum) then begin
+      FillChar(VEcwData.szDatum[0], Length(VEcwData.szDatum), 0);
+      Move(ADatum[1], VEcwData.szDatum[0], Length(ADatum));
     end else begin
       raise Exception.Create('ECW Encode: Datum string is too long!');
     end;
-    if Length(Projection) < Length(VEcwData.szProjection) then begin
-      Move(Projection[1], VEcwData.szProjection[0], Length(Projection));
+
+    if Length(AProjection) < Length(VEcwData.szProjection) then begin
+      FillChar(VEcwData.szProjection[0], Length(VEcwData.szProjection), 0);
+      Move(AProjection[1], VEcwData.szProjection[0], Length(AProjection));
     end else begin
       raise Exception.Create('ECW Encode: Projection string is too long!');
     end;
-    if Length(FileName) < Length(VEcwData.szOutputFilename) then begin
-      Move(FileName[1], VEcwData.szOutputFilename[0], Length(FileName));
+
+    if Length(AFileName) < Length(VEcwData.szOutputFilename) then begin
+      Move(AFileName[1], VEcwData.szOutputFilename[0], Length(AFileName));
     end else begin
       raise Exception.Create('ECW Encode: FileName string is too long!');
     end;
@@ -159,11 +186,26 @@ begin
       VNCSError := NCSEcwCompress(VEcwData);
       if VNCSError = NCS_SUCCESS then begin
         VNCSError := NCSEcwCompressClose(VEcwData);
+        if (VNCSError = NCS_SUCCESS) and (AOutEncodeInfo <> nil) then begin
+          AOutEncodeInfo.ActualCompression := VEcwData.fActualCompression;
+          AOutEncodeInfo.CompressionSeconds := VEcwData.fCompressionSeconds;
+          AOutEncodeInfo.CompressionMBSec := VEcwData.fCompressionMBSec;
+          AOutEncodeInfo.OutputSize := VEcwData.nOutputSize;
+        end;
       end;
     end;
     Result := Integer(VNCSError);
   finally
     NCSEcwCompressFreeClient(VEcwData);
+  end;
+end;
+
+class function TECWWrite.ErrorCodeToString(const AErrorCode: Integer): string;
+begin
+  if (AErrorCode >= Integer(NCS_SUCCESS)) and (AErrorCode <= Integer(NCS_MAX_ERROR_NUMBER)) then begin
+    Result := NCSErrorTextArray[NCSError(AErrorCode)];
+  end else begin
+    Result := 'Unknown error code!';
   end;
 end;
 

@@ -156,7 +156,7 @@ begin
     AGridsConfig,
     ACoordToStringConverter,
     AMapCalibrationList,
-    Point(100, 100),
+    Point(2, 2),
     Point(MaxInt, MaxInt),
     not FLossless, // Show Quality option
     False,         // Show Exif option

@@ -1423,8 +1423,10 @@
 			<DCCReference Include="Src\Terrain\u_TerrainProviderList.pas"/>
 			<DCCReference Include="Src\Terrain\u_TerrainProviderListElement.pas"/>
 			<DCCReference Include="Src\TileIterator\i_TileIterator.pas"/>
+			<DCCReference Include="Src\TileIterator\i_TileIteratorDataProvider.pas"/>
 			<DCCReference Include="Src\TileIterator\u_TileIteratorByPolygon.pas"/>
 			<DCCReference Include="Src\TileIterator\u_TileIteratorByRect.pas"/>
+			<DCCReference Include="Src\TileIterator\u_TileIteratorDataProvider.pas"/>
 			<DCCReference Include="Src\TileIterator\u_TileIteratorSpiralByRect.pas"/>
 			<DCCReference Include="Src\TileMatrix\i_BitmapTileMatrix.pas"/>
 			<DCCReference Include="Src\TileMatrix\i_BitmapTileMatrixBuilder.pas"/>
@@ -1730,8 +1732,6 @@
 			<DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
 			<DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
 			<DCCReference Include="Src\u_WindowPositionConfig.pas"/>
-			<DCCReference Include="Src\TileIterator\i_TileIteratorDataProvider.pas"/>
-			<DCCReference Include="Src\TileIterator\u_TileIteratorDataProvider.pas"/>
 			<BuildConfiguration Include="Debug">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>

@@ -65,6 +65,9 @@ type
 implementation
 
 uses
+  {$IFDEF DEBUG}
+  Dialogs,
+  {$ENDIF}
   LibECW,
   ALString,
   t_ECW,
@@ -114,6 +117,28 @@ begin
   Result := True;
 end;
 
+{$IFDEF DEBUG}
+function _SizeToStr(const ASizeInKb: Double): string;
+begin
+  if ASizeInKb > 1048576 then begin
+    Result := FormatFloat('0.0', ASizeInKb / 1048576) + ' GB';
+  end else begin
+    if ASizeInKb > 1024 then begin
+      Result := FormatFloat('0.0', ASizeInKb / 1024) + ' MB';
+    end else begin
+      Result := FormatFloat('0.0', ASizeInKb) + ' KB';
+    end;
+  end;
+end;
+
+function _SecondsToTime(const Seconds: Double): TDateTime;
+const
+  MilliSecsPerDay = 86400000;
+begin
+  Result := Round(Seconds * 1000) / MilliSecsPerDay;
+end;
+{$ENDIF}
+
 procedure TBitmapMapCombinerECW.SaveRect(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
@@ -131,6 +156,11 @@ var
   VCurrentPieceRect: TRect;
   VProjection: IProjection;
   VMapPieceSize: TPoint;
+  VCompressionRatio: Single;
+  VEncodeInfo: TECWCompressionStatistics;
+  {$IFDEF DEBUG}
+  VEncodeInfoMsg: string;
+  {$ENDIF}
 begin
   FOperationID := AOperationID;
   FCancelNotifier := ACancelNotifier;
@@ -146,25 +176,32 @@ begin
     VCurrentPieceRect := AMapRect;
     VMapPieceSize := RectSize(AMapRect);
     FLinesCount := VMapPieceSize.Y;
+
     VEPSG := VProjection.ProjectionType.Datum.EPSG;
     if VEPSG > 0 then begin
       Datum := 'EPSG:' + ALIntToStr(VEPSG);
     end else begin
       Datum := 'RAW';
     end;
+
     VEPSG := VProjection.ProjectionType.ProjectionEPSG;
     if VEPSG > 0 then begin
       Proj := 'EPSG:' + ALIntToStr(VEPSG);
     end else begin
       Proj := 'RAW';
     end;
+
     Units := GetUnitsByProjectionEPSG(VEPSG);
+
     CalculateWFileParams(
       VProjection.PixelPos2LonLat(VCurrentPieceRect.TopLeft),
       VProjection.PixelPos2LonLat(VCurrentPieceRect.BottomRight),
       VMapPieceSize.X, VMapPieceSize.Y, VProjection.ProjectionType,
       CellIncrementX, CellIncrementY, OriginX, OriginY
     );
+
+    VCompressionRatio := 101 - FQuality;
+
     errecw :=
       VECWWriter.Encode(
         FOperationID,
@@ -172,7 +209,7 @@ begin
         AFileName,
         VMapPieceSize.X,
         VMapPieceSize.Y,
-        101 - FQuality,
+        VCompressionRatio,
         COMPRESS_HINT_BEST,
         ReadLine,
         Datum,
@@ -181,10 +218,33 @@ begin
         CellIncrementX,
         CellIncrementY,
         OriginX,
-        OriginY
+        OriginY,
+        @VEncodeInfo
       );
     if (errecw > 0) and (errecw <> 52) then begin
-      raise Exception.Create(SAS_ERR_Save + ' ' + SAS_ERR_Code + inttostr(errecw));
+      // NCS_SUCCESS = 0
+      // NCS_USER_CANCELLED_COMPRESSION = 52
+      raise Exception.Create(
+        SAS_ERR_Save + ' ' + SAS_ERR_Code + ' [' + IntToStr(errecw) + '] ' +
+        VECWWriter.ErrorCodeToString(errecw)
+      );
+    end else begin
+      {$IFDEF DEBUG}
+      VEncodeInfoMsg := Format(
+        'Compression finished sucessfull at %s sec.' + #13#10 + #13#10 +
+        'Target compression ratio: %2.f' + #13#10 +
+        'Actual compression ratio: %2.f' + #13#10 +
+        'Compression speed: %4.f MB/sec' + #13#10 +
+        'Output file size: %s',
+        [FormatDateTime('hh:nn:ss.zzz', _SecondsToTime(VEncodeInfo.CompressionSeconds)),
+         VCompressionRatio,
+         VEncodeInfo.ActualCompression,
+         VEncodeInfo.CompressionMBSec,
+         _SizeToStr(VEncodeInfo.OutputSize / 1024)
+        ]
+      );
+      MessageDlg(VEncodeInfoMsg, mtInformation, [mbOK], 0);
+      {$ENDIF}
     end;
   finally
     FreeAndNil(VECWWriter);
