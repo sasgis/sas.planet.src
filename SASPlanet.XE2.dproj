@@ -1134,13 +1134,13 @@
 			<DCCReference Include="Src\RegionProcess\Combine\i_ImageLineProvider.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\t_ECW.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerBMP.pas"/>
-			<DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerECW.pas"/>
+			<DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerECWJP2.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerJPG.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerKMZ.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerPNG.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerRAW.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_CalcWFileParams.pas"/>
-			<DCCReference Include="Src\RegionProcess\Combine\u_ECWWrite.pas"/>
+			<DCCReference Include="Src\RegionProcess\Combine\u_ECWJP2Write.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_ImageLineProvider.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombine.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombineBMP.pas"/>

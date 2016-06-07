@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_ECWWrite;
+unit u_ECWJP2Write;
 
 interface
 

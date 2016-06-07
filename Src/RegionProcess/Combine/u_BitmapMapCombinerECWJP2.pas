@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_BitmapMapCombinerECW;
+unit u_BitmapMapCombinerECWJP2;
 
 interface
 
@@ -30,7 +30,7 @@ uses
   i_Projection,
   i_ImageLineProvider,
   i_BitmapMapCombiner,
-  u_ECWWrite,
+  u_ECWJP2Write,
   u_BaseInterfacedObject;
 
 type

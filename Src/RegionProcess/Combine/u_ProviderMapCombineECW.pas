@@ -90,7 +90,7 @@ uses
   gnugettext,
   t_CommonTypes,
   u_ThreadMapCombineBase,
-  u_BitmapMapCombinerECW,
+  u_BitmapMapCombinerECWJP2,
   fr_MapCombine;
 
 { TProviderMapCombineECW }
