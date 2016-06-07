@@ -1,4 +1,4 @@
-unit LibECW;
+unit libecwj2;
 
 {$A8}
 {$MINENUMSIZE 4}

@@ -68,7 +68,7 @@ uses
   {$IFDEF DEBUG}
   Dialogs,
   {$ENDIF}
-  LibECW,
+  libecwj2,
   ALString,
   t_ECW,
   u_CalcWFileParams,

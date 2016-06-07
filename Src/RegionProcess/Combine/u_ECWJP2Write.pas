@@ -24,7 +24,7 @@ interface
 
 uses
   SysUtils,
-  LibECW,
+  libecwj2,
   t_ECW,
   i_NotifierOperation;
 
