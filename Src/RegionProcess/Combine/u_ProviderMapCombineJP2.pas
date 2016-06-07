@@ -180,7 +180,7 @@ begin
     VQuality := (ParamsFrame as IRegionProcessParamsFrameMapCombineJpg).Quality;
   end;
   VProgressUpdate := TBitmapCombineProgressUpdate.Create(AProgressInfo);
-  Result := TBitmapMapCombinerECW.Create(VProgressUpdate, VQuality);
+  Result := TBitmapMapCombinerECWJP2.Create(VProgressUpdate, VQuality);
 end;
 
 end.

@@ -162,7 +162,7 @@ var
 begin
   VProgressUpdate := TBitmapCombineProgressUpdate.Create(AProgressInfo);
   Result :=
-    TBitmapMapCombinerECW.Create(
+    TBitmapMapCombinerECWJP2.Create(
       VProgressUpdate,
       (ParamsFrame as IRegionProcessParamsFrameMapCombineJpg).Quality
     );

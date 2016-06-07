@@ -34,7 +34,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TBitmapMapCombinerECW = class(TBaseInterfacedObject, IBitmapMapCombiner)
+  TBitmapMapCombinerECWJP2 = class(TBaseInterfacedObject, IBitmapMapCombiner)
   private
     FProgressUpdate: IBitmapCombineProgressUpdate;
     FImageLineProvider: IImageLineProvider;
@@ -76,7 +76,7 @@ uses
   u_GeoFunc,
   u_ResStrings;
 
-constructor TBitmapMapCombinerECW.Create(
+constructor TBitmapMapCombinerECWJP2.Create(
   const AProgressUpdate: IBitmapCombineProgressUpdate;
   AQuality: Integer
 );
@@ -86,7 +86,7 @@ begin
   FQuality := AQuality;
 end;
 
-function TBitmapMapCombinerECW.ReadLine(
+function TBitmapMapCombinerECWJP2.ReadLine(
   ALine: Integer;
   var LineR, LineG,
   LineB: PLineRGB
@@ -139,7 +139,7 @@ begin
 end;
 {$ENDIF}
 
-procedure TBitmapMapCombinerECW.SaveRect(
+procedure TBitmapMapCombinerECWJP2.SaveRect(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const AFileName: string;
