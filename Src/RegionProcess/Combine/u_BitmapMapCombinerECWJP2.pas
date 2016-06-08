@@ -58,7 +58,7 @@ type
   public
     constructor Create(
       const AProgressUpdate: IBitmapCombineProgressUpdate;
-      AQuality: Integer
+      const AQuality: Integer
     );
   end;
 
@@ -71,6 +71,7 @@ uses
   libecwj2,
   ALString,
   t_ECW,
+  c_CoordConverter,
   u_CalcWFileParams,
   u_ImageLineProvider,
   u_GeoFunc,
@@ -78,7 +79,7 @@ uses
 
 constructor TBitmapMapCombinerECWJP2.Create(
   const AProgressUpdate: IBitmapCombineProgressUpdate;
-  AQuality: Integer
+  const AQuality: Integer
 );
 begin
   inherited Create;
@@ -185,13 +186,18 @@ begin
     end;
 
     VEPSG := VProjection.ProjectionType.ProjectionEPSG;
-    if VEPSG > 0 then begin
-      Proj := 'EPSG:' + ALIntToStr(VEPSG);
+    if VEPSG = CGELonLatProjectionEPSG then begin
+      Proj := 'GEODETIC';
+      Datum := 'WGS84';
+      Units := CELL_UNITS_DEGREES;
     end else begin
-      Proj := 'RAW';
+      if VEPSG > 0 then begin
+        Proj := 'EPSG:' + ALIntToStr(VEPSG);
+      end else begin
+        Proj := 'RAW';
+      end;
+      Units := GetUnitsByProjectionEPSG(VEPSG);
     end;
-
-    Units := GetUnitsByProjectionEPSG(VEPSG);
 
     CalculateWFileParams(
       VProjection.PixelPos2LonLat(VCurrentPieceRect.TopLeft),
