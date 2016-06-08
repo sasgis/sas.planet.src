@@ -90,6 +90,7 @@ uses
   Types,
   gnugettext,
   t_CommonTypes,
+  t_MapCombineOptions,
   u_ThreadMapCombineBase,
   u_BitmapMapCombinerRAW,
   fr_MapCombine;
@@ -146,12 +147,10 @@ begin
     AMapCalibrationList,
     Point(0, 0),
     Point(1000000, MaxInt),
-    False,
-    False,
-    True,
     stsUnicode,
     'raw',
-    gettext_NoExtract('RAW (Simple bitmap graphic)')
+    gettext_NoExtract('RAW (Simple bitmap graphic)'),
+    [mcAlphaCheck]
   );
 end;
 
@@ -166,7 +165,7 @@ begin
     TBitmapMapCombinerRAW.Create(
       VProgressUpdate,
       (ParamsFrame as IRegionProcessParamsFrameMapCombine).BGColor,
-      (ParamsFrame as IRegionProcessParamsFrameMapCombineWithAlfa).IsSaveAlfa
+      (ParamsFrame as IRegionProcessParamsFrameMapCombine).CustomOptions.IsSaveAlfa
     );
 end;
 

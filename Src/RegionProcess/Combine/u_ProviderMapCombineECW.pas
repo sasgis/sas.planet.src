@@ -89,6 +89,7 @@ uses
   Types,
   gnugettext,
   t_CommonTypes,
+  t_MapCombineOptions,
   u_ThreadMapCombineBase,
   u_BitmapMapCombinerECWJP2,
   fr_MapCombine;
@@ -145,12 +146,10 @@ begin
     AMapCalibrationList,
     Point(128, 128),
     Point(MaxInt, MaxInt),
-    True,
-    False,
-    False,
     stsAnsi,
     'ecw',
-    gettext_NoExtract('ECW (Enhanced Compression Wavelet)')
+    gettext_NoExtract('ECW (Enhanced Compression Wavelet)'),
+    [mcQuality]
   );
 end;
 
@@ -164,7 +163,7 @@ begin
   Result :=
     TBitmapMapCombinerECWJP2.Create(
       VProgressUpdate,
-      (ParamsFrame as IRegionProcessParamsFrameMapCombineJpg).Quality
+      (ParamsFrame as IRegionProcessParamsFrameMapCombine).CustomOptions.Quality
     );
 end;
 

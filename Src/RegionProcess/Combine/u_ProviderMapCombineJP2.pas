@@ -92,6 +92,7 @@ uses
   Types,
   gnugettext,
   t_CommonTypes,
+  t_MapCombineOptions,
   u_ThreadMapCombineBase,
   u_BitmapMapCombinerECWJP2,
   fr_MapCombine;
@@ -125,12 +126,16 @@ constructor TProviderMapCombineJP2.Create(
 );
 var
   VCaption: string;
+  VOptions: TMapCombineOptionsSet;
 begin
   FLossless := ALossless;
 
   VCaption := 'JPEG2000';
+  VOptions := [mcQuality];
+
   if FLossless then begin
     VCaption := VCaption + ' (Lossless Compression)';
+    VOptions := [];
   end;
 
   inherited Create(
@@ -158,12 +163,10 @@ begin
     AMapCalibrationList,
     Point(2, 2),
     Point(MaxInt, MaxInt),
-    not FLossless, // Show Quality option
-    False,         // Show Exif option
-    False,         // Show Alfa chanel option
     stsAnsi,
     'jp2',
-    gettext_NoExtract(VCaption)
+    gettext_NoExtract(VCaption),
+    VOptions
   );
 end;
 
@@ -177,7 +180,7 @@ begin
   if FLossless then begin
     VQuality := 100;
   end else begin
-    VQuality := (ParamsFrame as IRegionProcessParamsFrameMapCombineJpg).Quality;
+    VQuality := (ParamsFrame as IRegionProcessParamsFrameMapCombine).CustomOptions.Quality;
   end;
   VProgressUpdate := TBitmapCombineProgressUpdate.Create(AProgressInfo);
   Result := TBitmapMapCombinerECWJP2.Create(VProgressUpdate, VQuality);

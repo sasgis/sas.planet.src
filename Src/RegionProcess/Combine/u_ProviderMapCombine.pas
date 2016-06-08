@@ -27,6 +27,7 @@ uses
   Forms,
   t_GeoTypes,
   t_CommonTypes,
+  t_MapCombineOptions,
   i_LanguageManager,
   i_ProjectionSetList,
   i_ProjectionSetChangeable,
@@ -65,9 +66,7 @@ type
     FDefaultExt: string;
     FCombinePathStringTypeSupport: TStringTypeSupport;
     FFormatName: string;
-    FUseQuality: Boolean;
-    FUseExif: Boolean;
-    FUseAlfa: Boolean;
+    FOptionsSet: TMapCombineOptionsSet;
     FViewConfig: IGlobalViewMainConfig;
     FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
     FBitmapFactory: IBitmap32StaticFactory;
@@ -141,12 +140,10 @@ type
       const AMapCalibrationList: IMapCalibrationList;
       const AMinPartSize: TPoint;
       const AMaxPartSize: TPoint;
-      const AUseQuality: Boolean;
-      const AUseExif: Boolean;
-      const AUseAlfa: Boolean;
       const ACombinePathStringTypeSupport: TStringTypeSupport;
       const ADefaultExt: string;
-      const AFormatName: string
+      const AFormatName: string;
+      const AOptionsSet: TMapCombineOptionsSet = []
     );
   end;
 
@@ -213,12 +210,10 @@ constructor TProviderMapCombineBase.Create(
   const AMapCalibrationList: IMapCalibrationList;
   const AMinPartSize: TPoint;
   const AMaxPartSize: TPoint;
-  const AUseQuality: Boolean;
-  const AUseExif: Boolean;
-  const AUseAlfa: Boolean;
   const ACombinePathStringTypeSupport: TStringTypeSupport;
   const ADefaultExt: string;
-  const AFormatName: string
+  const AFormatName: string;
+  const AOptionsSet: TMapCombineOptionsSet
 );
 begin
   Assert(AMinPartSize.X <= AMaxPartSize.X);
@@ -252,12 +247,10 @@ begin
   FCoordToStringConverter := ACoordToStringConverter;
   FMinPartSize := AMinPartSize;
   FMaxPartSize := AMaxPartSize;
-  FUseQuality := AUseQuality;
-  FUseExif := AUseExif;
-  FUseAlfa := AUseAlfa;
   FCombinePathStringTypeSupport := ACombinePathStringTypeSupport;
   FDefaultExt := ADefaultExt;
   FFormatName := AFormatName;
+  FOptionsSet := AOptionsSet;
 end;
 
 function TProviderMapCombineBase.CreateFrame: TFrame;
@@ -275,9 +268,7 @@ begin
       FMapCalibrationList,
       FMinPartSize,
       FMaxPartSize,
-      FUseQuality,
-      FUseExif,
-      FUseAlfa,
+      FOptionsSet,
       FCombinePathStringTypeSupport,
       FDefaultExt,
       FFormatName
@@ -287,8 +278,6 @@ begin
   Assert(Supports(Result, IRegionProcessParamsFrameTargetProjection));
   Assert(Supports(Result, IRegionProcessParamsFrameTargetPath));
   Assert(Supports(Result, IRegionProcessParamsFrameMapCombine));
-  Assert(Supports(Result, IRegionProcessParamsFrameMapCombineJpg));
-  Assert(Supports(Result, IRegionProcessParamsFrameMapCombineWithAlfa));
 end;
 
 function TProviderMapCombineBase.GetCaption: string;

@@ -144,9 +144,6 @@ begin
     AMapCalibrationList,
     Point(0, 0),
     Point(32768, 32768),
-    False,
-    False,
-    False,
     stsUnicode,
     'bmp',
     gettext_NoExtract('BMP (Bitmap Picture)')

@@ -119,7 +119,8 @@ uses
   u_ProviderMapCombineKMZ,
   u_ProviderMapCombineECW,
   u_ProviderMapCombineRAW,
-  u_ProviderMapCombineJP2;
+  u_ProviderMapCombineJP2,
+  u_ProviderMapCombineGeoTIFF;
 
 {$R *.dfm}
 
@@ -387,7 +388,36 @@ begin
   VList.Add(VExportProvider);
   cbbOutputFormat.Items.Add(VExportProvider.GetCaption);
 
-  cbbOutputFormat.ItemIndex := 0;
+  VExportProvider :=
+    TProviderMapCombineGeoTIFF.Create(
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AActiveMapsSet,
+      AViewConfig,
+      AUseTilePrevZoomConfig,
+      AProjectionSet,
+      AProjectionSetList,
+      AVectorGeometryProjectedFactory,
+      AProjectedGeometryProvider,
+      AVectorSubsetBuilderFactory,
+      AMarksShowConfig,
+      AMarksDrawConfig,
+      AMarksDB,
+      ABitmapFactory,
+      ABitmapPostProcessing,
+      AFillingMapConfig,
+      AFillingMapType,
+      AFillingMapPolygon,
+      AGridsConfig,
+      ACoordToStringConverter,
+      AMapCalibrationList
+    );
+  VList.Add(VExportProvider);
+  cbbOutputFormat.Items.Add(VExportProvider.GetCaption);
+
+  cbbOutputFormat.ItemIndex := 0; // JPEG
+  cbbOutputFormat.DropDownCount := cbbOutputFormat.Items.Count;
   FProviders := VList.MakeStaticAndClear;
   Assert(cbbOutputFormat.Items.Count = FProviders.Count);
 end;

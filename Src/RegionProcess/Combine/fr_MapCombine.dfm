@@ -24,7 +24,7 @@ object frMapCombine: TfrMapCombine
       Left = 3
       Top = 3
       Width = 41
-      Height = 19
+      Height = 13
       Margins.Left = 0
       Margins.Top = 0
       Align = alLeft
@@ -38,6 +38,7 @@ object frMapCombine: TfrMapCombine
       Height = 19
       Align = alClient
       TabOrder = 0
+      ExplicitHeight = 21
     end
     object btnSelectTargetFile: TButton
       Left = 516
@@ -71,104 +72,66 @@ object frMapCombine: TfrMapCombine
       TabOrder = 0
       object chkUseMapMarks: TCheckBox
         Left = 3
-        Top = 88
+        Top = 37
         Width = 209
         Height = 17
         Align = alTop
         Caption = 'Add visible Placemarks'
         TabOrder = 0
+        ExplicitTop = 88
       end
       object chkUseRecolor: TCheckBox
-        Left = 3
-        Top = 20
-        Width = 209
-        Height = 17
-        Align = alTop
-        Caption = 'Use postprocessing settings'
-        TabOrder = 1
-      end
-      object flwpnlJpegQuality: TFlowPanel
-        Left = 3
-        Top = 122
-        Width = 209
-        Height = 25
-        Align = alTop
-        AutoSize = True
-        AutoWrap = False
-        BevelOuter = bvNone
-        Constraints.MinHeight = 25
-        Padding.Top = 2
-        TabOrder = 2
-        object lblJpgQulity: TLabel
-          AlignWithMargins = True
-          Left = 0
-          Top = 5
-          Width = 52
-          Height = 13
-          Margins.Left = 0
-          Margins.Right = 5
-          Alignment = taRightJustify
-          Caption = 'Quality, %'
-          Layout = tlCenter
-        end
-        object seJpgQuality: TSpinEdit
-          Left = 57
-          Top = 2
-          Width = 53
-          Height = 22
-          MaxValue = 100
-          MinValue = 1
-          TabOrder = 0
-          Value = 95
-        end
-      end
-      object chkPngWithAlpha: TCheckBox
-        Left = 3
-        Top = 3
-        Width = 209
-        Height = 17
-        Align = alTop
-        Caption = 'Include alpha channel'
-        Checked = True
-        State = cbChecked
-        TabOrder = 3
-      end
-      object chkSaveGeoRefInfoToJpegExif: TCheckBox
-        Left = 3
-        Top = 37
-        Width = 209
-        Height = 17
-        Align = alTop
-        Caption = 'Save GeoRef info to Exif'
-        TabOrder = 4
-      end
-      object chkUseMapGrids: TCheckBox
         Left = 3
         Top = 71
         Width = 209
         Height = 17
         Align = alTop
-        Caption = 'Add visible Grids'
-        TabOrder = 5
+        Caption = 'Use postprocessing settings'
+        TabOrder = 1
+        ExplicitLeft = 0
+        ExplicitTop = 77
       end
-      object chkAddVisibleLayers: TCheckBox
+      object chkUseMapGrids: TCheckBox
         Left = 3
-        Top = 105
+        Top = 20
         Width = 209
         Height = 17
         Align = alTop
-        Caption = 'Add visible Layers'
-        TabOrder = 6
-        OnClick = chkAddVisibleLayersClick
+        Caption = 'Add visible Grids'
+        TabOrder = 2
+        ExplicitTop = 71
       end
-      object chkUseFillingMap: TCheckBox
+      object chkAddVisibleLayers: TCheckBox
         Left = 3
         Top = 54
         Width = 209
         Height = 17
         Align = alTop
+        Caption = 'Add visible Layers'
+        TabOrder = 3
+        OnClick = chkAddVisibleLayersClick
+        ExplicitTop = 105
+      end
+      object chkUseFillingMap: TCheckBox
+        Left = 3
+        Top = 3
+        Width = 209
+        Height = 17
+        Align = alTop
         Caption = 'Add visible Cached Tiles Map'
-        TabOrder = 7
+        TabOrder = 4
+        ExplicitTop = 54
+      end
+      object pnlCustomOpt: TPanel
+        Left = 3
+        Top = 88
+        Width = 209
+        Height = 81
+        Align = alClient
+        BevelOuter = bvNone
+        TabOrder = 5
+        ExplicitTop = 153
+        ExplicitHeight = 62
       end
     end
     object pnlPrTypes: TPanel
@@ -302,7 +265,6 @@ object frMapCombine: TfrMapCombine
         Width = 67
         Height = 21
         Style = csDropDownList
-        ItemHeight = 13
         TabOrder = 0
         OnChange = cbbZoomChange
       end
@@ -318,8 +280,8 @@ object frMapCombine: TfrMapCombine
       object lblStat: TLabel
         AlignWithMargins = True
         Left = 3
-        Top = 113
-        Width = 463
+        Top = 110
+        Width = 6
         Height = 13
         Align = alBottom
         Caption = '_'
@@ -337,7 +299,7 @@ object frMapCombine: TfrMapCombine
         object lblMapCaption: TLabel
           Left = 0
           Top = 0
-          Width = 469
+          Width = 24
           Height = 13
           Margins.Left = 0
           Margins.Top = 0
@@ -357,7 +319,7 @@ object frMapCombine: TfrMapCombine
         object lblLayerCaption: TLabel
           Left = 0
           Top = 0
-          Width = 469
+          Width = 69
           Height = 13
           Margins.Left = 0
           Margins.Top = 0
@@ -378,7 +340,7 @@ object frMapCombine: TfrMapCombine
           Left = 3
           Top = 0
           Width = 52
-          Height = 19
+          Height = 13
           Margins.Top = 0
           Margins.Right = 5
           Margins.Bottom = 2
@@ -394,7 +356,6 @@ object frMapCombine: TfrMapCombine
           Align = alCustom
           Style = csDropDownList
           Anchors = [akLeft, akTop, akRight]
-          ItemHeight = 13
           TabOrder = 0
         end
       end
@@ -403,7 +364,7 @@ object frMapCombine: TfrMapCombine
   object dlgSaveTargetFile: TSaveDialog
     DefaultExt = 'zip'
     Filter = 'Zip |*.zip'
-    Left = 120
-    Top = 128
+    Left = 432
+    Top = 224
   end
 end

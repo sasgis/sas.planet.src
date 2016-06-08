@@ -89,6 +89,7 @@ uses
   Types,
   gnugettext,
   t_CommonTypes,
+  t_MapCombineOptions,
   u_ThreadMapCombineBase,
   u_BitmapMapCombinerJPG,
   fr_MapCombine;
@@ -145,12 +146,10 @@ begin
     AMapCalibrationList,
     Point(0, 0),
     Point(65536, 65536),
-    True,
-    True,
-    False,
     stsUnicode,
     'jpg',
-    gettext_NoExtract('JPEG (Joint Photographic Experts Group)')
+    gettext_NoExtract('JPEG (Joint Photographic Experts Group)'),
+    [mcQuality, mcExif]
   );
 end;
 
@@ -164,8 +163,8 @@ begin
   Result :=
     TBitmapMapCombinerJPG.Create(
       VProgressUpdate,
-      (ParamsFrame as IRegionProcessParamsFrameMapCombineJpg).Quality,
-      (ParamsFrame as IRegionProcessParamsFrameMapCombineJpg).IsSaveGeoRefInfoToExif
+      (ParamsFrame as IRegionProcessParamsFrameMapCombine).CustomOptions.Quality,
+      (ParamsFrame as IRegionProcessParamsFrameMapCombine).CustomOptions.IsSaveGeoRefInfoToExif
     );
 end;
 

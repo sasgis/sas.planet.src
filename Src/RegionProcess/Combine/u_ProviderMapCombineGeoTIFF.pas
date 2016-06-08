@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2016, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_ProviderMapCombinePNG;
+unit u_ProviderMapCombineGeoTIFF;
 
 interface
 
@@ -51,7 +51,7 @@ uses
   u_ProviderMapCombine;
 
 type
-  TProviderMapCombinePNG = class(TProviderMapCombineBase)
+  TProviderMapCombineGeoTIFF = class(TProviderMapCombineBase)
   private
   protected
     function PrepareMapCombiner(
@@ -92,12 +92,12 @@ uses
   t_CommonTypes,
   t_MapCombineOptions,
   u_ThreadMapCombineBase,
-  u_BitmapMapCombinerPNG,
+  u_BitmapMapCombinerGeoTIFF,
   fr_MapCombine;
 
-{ TProviderMapCombinePNG }
+{ TProviderMapCombineGeoTIFF }
 
-constructor TProviderMapCombinePNG.Create(
+constructor TProviderMapCombineGeoTIFF.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
@@ -146,15 +146,15 @@ begin
     ACoordToStringConverter,
     AMapCalibrationList,
     Point(0, 0),
-    Point(65536, 65536),
+    Point(1000000, MaxInt),
     stsUnicode,
-    'png',
-    gettext_NoExtract('PNG (Portable Network Graphics)'),
-    [mcAlphaCheck]
+    'tif',
+    gettext_NoExtract('GeoTIFF (Tagged Image File Format)'),
+    [mcAlphaUncheck, mcGeoTiff]
   );
 end;
 
-function TProviderMapCombinePNG.PrepareMapCombiner(
+function TProviderMapCombineGeoTIFF.PrepareMapCombiner(
   const AProgressInfo: IRegionProcessProgressInfoInternal
 ): IBitmapMapCombiner;
 var
@@ -162,9 +162,11 @@ var
 begin
   VProgressUpdate := TBitmapCombineProgressUpdate.Create(AProgressInfo);
   Result :=
-    TBitmapMapCombinerPNG.Create(
+    TBitmapMapCombinerGeoTIFF.Create(
       VProgressUpdate,
-      (ParamsFrame as IRegionProcessParamsFrameMapCombine).CustomOptions.IsSaveAlfa
+      (ParamsFrame as IRegionProcessParamsFrameMapCombine).CustomOptions.IsSaveAlfa,
+      (ParamsFrame as IRegionProcessParamsFrameMapCombine).CustomOptions.GeoTiffFormat,
+      (ParamsFrame as IRegionProcessParamsFrameMapCombine).CustomOptions.GeoTiffCompression
     );
 end;
 

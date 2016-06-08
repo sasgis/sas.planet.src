@@ -101,6 +101,7 @@ uses
   Math,
   gnugettext,
   t_CommonTypes,
+  t_MapCombineOptions,
   t_GeoTypes,
   i_Projection,
   u_ThreadMapCombineBase,
@@ -163,12 +164,10 @@ begin
     AMapCalibrationList,
     Point(0, 0),
     Point(10240, 10240),
-    True,
-    False,
-    False,
     stsUnicode,
     'kmz',
-    gettext_NoExtract('KMZ for Garmin (JPEG Overlays)')
+    gettext_NoExtract('KMZ for Garmin (JPEG Overlays)'),
+    [mcQuality]
   );
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FBitmapFactory := ABitmapFactory;
@@ -188,7 +187,7 @@ begin
       FBitmapFactory,
       FBitmapTileSaveLoadFactory,
       FArchiveReadWriteFactory,
-      (ParamsFrame as IRegionProcessParamsFrameMapCombineJpg).Quality
+      (ParamsFrame as IRegionProcessParamsFrameMapCombine).CustomOptions.Quality
     );
 end;
 

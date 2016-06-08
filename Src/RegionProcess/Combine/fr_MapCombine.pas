@@ -35,6 +35,7 @@ uses
   Spin,
   t_Bitmap32,
   t_CommonTypes,
+  t_MapCombineOptions,
   i_LanguageManager,
   i_MapType,
   i_MapTypeListChangeable,
@@ -49,6 +50,7 @@ uses
   i_BitmapLayerProvider,
   i_Bitmap32BufferFactory,
   fr_MapSelect,
+  fr_MapCombineOptions,
   u_CommonFormAndFrameParents;
 
 type
@@ -71,21 +73,9 @@ type
 
     function GetBGColor: TColor32;
     property BGColor: TColor32 read GetBGColor;
-  end;
 
-  IRegionProcessParamsFrameMapCombineJpg = interface(IRegionProcessParamsFrameBase)
-    ['{C9A0712B-4456-4F34-8A06-9BA57F21D40A}']
-    function GetQuality: Integer;
-    property Quality: Integer read GetQuality;
-
-    function GetIsSaveGeoRefInfoToExif: Boolean;
-    property IsSaveGeoRefInfoToExif: Boolean read GetIsSaveGeoRefInfoToExif;
-  end;
-
-  IRegionProcessParamsFrameMapCombineWithAlfa = interface(IRegionProcessParamsFrameBase)
-    ['{45043DE9-9950-40C9-92E2-0D28FEC341C7}']
-    function GetIsSaveAlfa: Boolean;
-    property IsSaveAlfa: Boolean read GetIsSaveAlfa;
+    function GetCustomOptions: IMapCombineCustomOptions;
+    property CustomOptions: IMapCombineCustomOptions read GetCustomOptions;
   end;
 
 type
@@ -96,9 +86,7 @@ type
       IRegionProcessParamsFrameMapCalibrationList,
       IRegionProcessParamsFrameTargetProjection,
       IRegionProcessParamsFrameTargetPath,
-      IRegionProcessParamsFrameMapCombine,
-      IRegionProcessParamsFrameMapCombineJpg,
-      IRegionProcessParamsFrameMapCombineWithAlfa
+      IRegionProcessParamsFrameMapCombine
     )
     pnlTargetFile: TPanel;
     lblTargetFile: TLabel;
@@ -114,15 +102,11 @@ type
     pnlOptions: TPanel;
     chkUseMapMarks: TCheckBox;
     chkUseRecolor: TCheckBox;
-    flwpnlJpegQuality: TFlowPanel;
-    lblJpgQulity: TLabel;
     pnlPrTypes: TPanel;
     lblPrTypes: TLabel;
     chklstPrTypes: TCheckListBox;
-    seJpgQuality: TSpinEdit;
     lblStat: TLabel;
     pnlBottom: TPanel;
-    chkPngWithAlpha: TCheckBox;
     pnlProjection: TPanel;
     lblProjection: TLabel;
     cbbProjection: TComboBox;
@@ -134,11 +118,11 @@ type
     lblMapCaption: TLabel;
     pnlLayerFrame: TPanel;
     lblLayerCaption: TLabel;
-    chkSaveGeoRefInfoToJpegExif: TCheckBox;
     chkUseMapGrids: TCheckBox;
     pnlMaps: TPanel;
     chkAddVisibleLayers: TCheckBox;
     chkUseFillingMap: TCheckBox;
+    pnlCustomOpt: TPanel;
     procedure cbbZoomChange(Sender: TObject);
     procedure btnSelectTargetFileClick(Sender: TObject);
     procedure chkAddVisibleLayersClick(Sender: TObject);
@@ -151,13 +135,11 @@ type
     FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
     FPolygLL: IGeometryLonLatPolygon;
     FViewConfig: IGlobalViewMainConfig;
-    FUseQuality: Boolean;
-    FUseExif: Boolean;
-    FUseAlfa: Boolean;
     FDefaultExt: string;
     FFormatName: string;
     FfrMapSelect: TfrMapSelect;
     FfrLayerSelect: TfrMapSelect;
+    FfrMapCombineOptions: TfrMapCombineCustomOptions;
     FMinPartSize: TPoint;
     FMaxPartSize: TPoint;
     FCombinePathStringTypeSupport: TStringTypeSupport;
@@ -179,10 +161,8 @@ type
     function GetUseFillingMap: Boolean;
     function GetUseRecolor: Boolean;
     function GetSplitCount: TPoint;
-    function GetQuality: Integer;
-    function GetIsSaveGeoRefInfoToExif: Boolean;
-    function GetIsSaveAlfa: Boolean;
     function GetBGColor: TColor32;
+    function GetCustomOptions: IMapCombineCustomOptions;
     function GetAllowWrite(const AMapType: IMapType): boolean;
   public
     constructor Create(
@@ -197,9 +177,7 @@ type
       const AMapCalibrationList: IMapCalibrationList;
       const AMinPartSize: TPoint;
       const AMaxPartSize: TPoint;
-      const AUseQuality: Boolean;
-      const AUseExif: Boolean;
-      const AUseAlfa: Boolean;
+      const AOptionsSet: TMapCombineOptionsSet;
       const ACombinePathStringTypeSupport: TStringTypeSupport;
       const ADefaultExt: string;
       const AFormatName: string
@@ -245,9 +223,7 @@ constructor TfrMapCombine.Create(
   const AMapCalibrationList: IMapCalibrationList;
   const AMinPartSize: TPoint;
   const AMaxPartSize: TPoint;
-  const AUseQuality: Boolean;
-  const AUseExif: Boolean;
-  const AUseAlfa: Boolean;
+  const AOptionsSet: TMapCombineOptionsSet;
   const ACombinePathStringTypeSupport: TStringTypeSupport;
   const ADefaultExt: string;
   const AFormatName: string
@@ -265,15 +241,13 @@ begin
   FMaxPartSize := AMaxPartSize;
   FViewConfig := AViewConfig;
   FUseTilePrevZoomConfig := AUseTilePrevZoomConfig;
-  FUseQuality := AUseQuality;
-  FUseExif := AUseExif;
-  FUseAlfa := AUseAlfa;
   FCombinePathStringTypeSupport := ACombinePathStringTypeSupport;
   FDefaultExt := ADefaultExt;
   FFormatName := AFormatName;
-  chkPngWithAlpha.Visible := FUseAlfa;
-  flwpnlJpegQuality.Visible := FUseQuality;
-  chkSaveGeoRefInfoToJpegExif.Visible := FUseExif;
+
+  FfrMapCombineOptions :=
+    TfrMapCombineCustomOptions.Create(ALanguageManager, AOptionsSet);
+
   FfrMapSelect :=
     AMapSelectFrameBuilder.Build(
       mfMaps,    // show Maps
@@ -295,6 +269,7 @@ end;
 
 destructor TfrMapCombine.Destroy;
 begin
+  FreeAndNil(FfrMapCombineOptions);
   FreeAndNil(FfrMapSelect);
   FreeAndNil(FfrLayerSelect);
   inherited;
@@ -384,9 +359,9 @@ begin
   end;
 end;
 
-function TfrMapCombine.GetIsSaveAlfa: Boolean;
+function TfrMapCombine.GetCustomOptions: IMapCombineCustomOptions;
 begin
-  Result := chkPngWithAlpha.Checked;
+  Result := (FfrMapCombineOptions as IMapCombineCustomOptions);
 end;
 
 function TfrMapCombine.GetMapCalibrationList: IMapCalibrationList;
@@ -501,16 +476,6 @@ begin
     );
 end;
 
-function TfrMapCombine.GetQuality: Integer;
-begin
-  Result := seJpgQuality.Value;
-end;
-
-function TfrMapCombine.GetIsSaveGeoRefInfoToExif: Boolean;
-begin
-  Result := chkSaveGeoRefInfoToJpegExif.Checked;
-end;
-
 function TfrMapCombine.GetSplitCount: TPoint;
 begin
   Result.X := seSplitHor.Value;
@@ -559,6 +524,7 @@ begin
   cbbZoomChange(nil);
   FfrMapSelect.Show(pnlMapFrame);
   FfrLayerSelect.Show(pnlLayerFrame);
+  FfrMapCombineOptions.Show(pnlCustomOpt);
   UpdateProjectionsList(Self);
 end;
 
