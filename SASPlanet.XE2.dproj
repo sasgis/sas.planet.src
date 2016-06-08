@@ -68,7 +68,7 @@
 			<DCC_ObjOutput>.\.dcu</DCC_ObjOutput>
 			<DCC_HppOutput>.\.dcu</DCC_HppOutput>
 			<DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
-			<DCC_UnitSearchPath>Includes;Includes\RarProgressBar;Includes\FastMM;Includes\Fundamentals;Includes\FastCode;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_UnitSearchPath>Includes;Includes\RarProgressBar;Includes\FastMM;Includes\Fundamentals;Includes\FastCode;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;Includes\LibTiff;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<DCC_ResourcePath>Includes;Includes\RarProgressBar;Includes\FastMM;Includes\Fundamentals;Includes\FastCode;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;$(DCC_ResourcePath)</DCC_ResourcePath>
 			<DCC_ObjPath>Includes;Includes\RarProgressBar;Includes\FastMM;Includes\Fundamentals;Includes\FastCode;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;$(DCC_ObjPath)</DCC_ObjPath>
 			<DCC_IncludePath>Includes;Includes\RarProgressBar;Includes\FastMM;Includes\Fundamentals;Includes\FastCode;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;$(DCC_IncludePath)</DCC_IncludePath>
@@ -1130,11 +1130,19 @@
 				<Form>frMapCombine</Form>
 				<DesignClass>TFrame</DesignClass>
 			</DCCReference>
+			<DCCReference Include="Src\RegionProcess\Combine\fr_MapCombineOptions.pas">
+				<Form>frGeoTiffOpt</Form>
+				<FormType>dfm</FormType>
+				<DesignClass>TFrame</DesignClass>
+			</DCCReference>
 			<DCCReference Include="Src\RegionProcess\Combine\i_BitmapMapCombiner.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\i_ImageLineProvider.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\t_ECW.pas"/>
+			<DCCReference Include="Src\RegionProcess\Combine\t_GeoTIFF.pas"/>
+			<DCCReference Include="Src\RegionProcess\Combine\t_MapCombineOptions.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerBMP.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerECWJP2.pas"/>
+			<DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerGeoTIFF.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerJPG.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerKMZ.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerPNG.pas"/>
@@ -1145,6 +1153,7 @@
 			<DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombine.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombineBMP.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombineECW.pas"/>
+			<DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombineGeoTIFF.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombineJP2.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombineJPG.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombineKMZ.pas"/>
@@ -1732,15 +1741,6 @@
 			<DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
 			<DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
 			<DCCReference Include="Src\u_WindowPositionConfig.pas"/>
-			<DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerGeoTIFF.pas"/>
-			<DCCReference Include="Src\RegionProcess\Combine\t_GeoTIFF.pas"/>
-			<DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombineGeoTIFF.pas"/>
-			<DCCReference Include="Src\RegionProcess\Combine\fr_MapCombineOptions.pas">
-				<Form>frGeoTiffOpt</Form>
-				<FormType>dfm</FormType>
-				<DesignClass>TFrame</DesignClass>
-			</DCCReference>
-			<DCCReference Include="Src\RegionProcess\Combine\t_MapCombineOptions.pas"/>
 			<BuildConfiguration Include="Debug">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
