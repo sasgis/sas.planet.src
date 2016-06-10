@@ -384,7 +384,7 @@ end;
 
 procedure TProjConverterFactory.InitDll;
 const
-  proj4_dll = 'proj480.dll';
+  proj4_dll = 'proj.dll';
 var
   VDll: IProjDLLHolder;
 begin
