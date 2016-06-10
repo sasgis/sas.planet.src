@@ -60,7 +60,7 @@ type
   public
     procedure Write(
       const ATiffType: TTiffType;
-      const AOutputFileName: WideString;
+      const AOutputFileName: string;
       const AWidth, AHeight: Integer;
       const ACompression: TTiffCompression;
       const AGetLineCallBack: TGetLineCallBack;
@@ -97,7 +97,7 @@ end;
 
 procedure TGeoTiffWriter.Write(
   const ATiffType: TTiffType;
-  const AOutputFileName: WideString;
+  const AOutputFileName: string;
   const AWidth, AHeight: Integer;
   const ACompression: TTiffCompression;
   const AGetLineCallBack: TGetLineCallBack;
@@ -127,7 +127,12 @@ begin
     VMode := VMode + '8';
   end;
 
-  VTiff := TIFFOpenW(PWideChar(AOutputFileName), PAnsiChar(VMode));
+  {$IF DEFINED(WIN32) AND DEFINED(UNICODE)}
+  VTiff := TIFFOpenW(PWideChar(WideString(AOutputFileName)), PAnsiChar(VMode));
+  {$ELSE}
+  VTiff := TIFFOpen(PAnsiChar(AnsiString(AOutputFileName)), PAnsiChar(VMode));
+  {$IFEND}
+
   if VTiff <> nil then begin
     try
       WriteTIFFDirectory(
@@ -231,7 +236,7 @@ begin
     VPixScale[2] := 0;
 
     TIFFSetField(ATiff, TIFFTAG_GEOTIEPOINTS, 6, VTiePoints);
-	  TIFFSetField(ATiff, TIFFTAG_GEOPIXELSCALE, 3, VPixScale);
+    TIFFSetField(ATiff, TIFFTAG_GEOPIXELSCALE, 3, VPixScale);
   end;
 end;
 

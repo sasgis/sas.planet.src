@@ -28,7 +28,9 @@ type
 {$IFDEF TIFF_STATIC_LINK}
 function TIFFGetVersion: PAnsiChar; cdecl; external libtiff_dll;
 function TIFFOpen(const FileName: PAnsiChar; const Mode: PAnsiChar): PTIFF; cdecl; external libtiff_dll;
+{$IFDEF WIN32}
 function TIFFOpenW(const FileName: PWideChar; const Mode: PAnsiChar): PTIFF; cdecl; external libtiff_dll;
+{$ENDIF}
 function TIFFClientOpen(
   const Name: PAnsiChar;
   const Mode: PAnsiChar;
@@ -49,7 +51,9 @@ function TIFFWriteScanline(Handle: PTIFF; Buf: Pointer; Row: Cardinal; Sample: W
 var
   TIFFGetVersion: function(): PAnsiChar; cdecl;
   TIFFOpen: function (const FileName: PAnsiChar; const Mode: PAnsiChar): PTIFF; cdecl;
+  {$IFDEF WIN32}
   TIFFOpenW: function(const FileName: PWideChar; const Mode: PAnsiChar): PTIFF; cdecl;
+  {$ENDIF}
   TIFFClientOpen: function(
     const Name: PAnsiChar;
     const Mode: PAnsiChar;
@@ -562,7 +566,9 @@ begin
     if gHandle <> 0 then begin
       TIFFGetVersion := GetProcAddr('TIFFGetVersion');
       TIFFOpen := GetProcAddr('TIFFOpen');
+      {$IFDEF WIN32}
       TIFFOpenW := GetProcAddr('TIFFOpenW');
+      {$ENDIF}
       TIFFClientOpen := GetProcAddr('TIFFClientOpen');
       TIFFClose := GetProcAddr('TIFFClose');
       TIFFSetFileno := GetProcAddr('TIFFSetFileno');
@@ -591,7 +597,9 @@ begin
 
     TIFFGetVersion := nil;
     TIFFOpen := nil;
+    {$IFDEF WIN32}
     TIFFOpenW := nil;
+    {$ENDIF}
     TIFFClientOpen := nil;
     TIFFClose := nil;
     TIFFSetFileno := nil;
