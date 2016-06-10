@@ -3,9 +3,12 @@ unit libtiff;
 interface
 
 {.$DEFINE TIFF_STATIC_LINK}
+{.$DEFINE  USE_DELPHI_STREAM}
 
+{$IFDEF USE_DELPHI_STREAM}
 uses
   Classes;
+{$ENDIF}
 
 const
   libtiff_dll = 'libtiff.dll';
@@ -417,7 +420,12 @@ const
 {$ENDREGION}
 
 procedure InitLibTiff(const ALibName: string = libtiff_dll);
+
+{$IFDEF USE_DELPHI_STREAM}
+// fixme: for some unknown reason, this function can write Tiff up to 2 GB
+// and BigTiff up to 4GB only
 function TIFFOpen_DelphiStream(const AStream: TStream; const AMode: AnsiString): PTIFF;
+{$ENDIF}
 
 implementation
 
@@ -428,6 +436,7 @@ uses
   SyncObjs;
 {$ENDIF}
 
+{$IFDEF USE_DELPHI_STREAM}
 function _StreamCloseProc(Fd: Cardinal): Integer; cdecl;
 begin
   Result := 0;
@@ -496,6 +505,7 @@ end;
 
 function TIFFOpen_DelphiStream(const AStream: TStream; const AMode: AnsiString): PTIFF;
 begin
+  {$MESSAGE WARN 'This function can write Tiff up to 2 GB and BigTiff up to 4GB only!'}
   Result := TIFFClientOpen(
     PAnsiChar('Stream'),
     PAnsiChar(AMode),
@@ -512,6 +522,7 @@ begin
     TIFFSetFileno(Result, Cardinal(AStream));
   end;
 end;
+{$ENDIF}
 
 {$IFDEF TIFF_STATIC_LINK}
 procedure InitLibTiff(const ALibName: string);

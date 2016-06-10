@@ -3,7 +3,6 @@ unit GeoTiffWriter;
 interface
 
 uses
-  Classes,
   SysUtils,
   libgeotiff,
   libtiff;
@@ -27,9 +26,15 @@ type
     const AUserInfo: Pointer
   ): Pointer of object;
 
-  TTiePoints = array [0..5] of Double;
-
-  TPixScale = array [0..2] of Double;
+  TProjectionInfo = record
+    EPSG: Integer;
+    IsGeographic: Boolean;
+    CellIncrementX: Double;
+    CellIncrementY: Double;
+    OriginX: Double;
+    OriginY: Double;
+  end;
+  PProjectionInfo = ^TProjectionInfo;
 
   TGeoTiffWriter = class(TObject)
   private
@@ -41,14 +46,11 @@ type
       const ATiff: PTIFF;
       const ACompression: TTiffCompression;
       const AStoreAlphaChanel: Boolean;
-      const AStoreProjectionInfo: Boolean;
-      const AProjectionTiePoints: TTiePoints;
-      const AProjectionPixScale: TPixScale
+      const AProjectionInfo: PProjectionInfo
     );
     procedure WriteGeoKeys(
       const AGTiff: PGTIFF;
-      const AProjectionEPSG: Integer;
-      const AIsGeographicProjection: Boolean
+      const AProjectionInfo: PProjectionInfo
     );
     function WriteImage(
       const ATiff: PTIFF;
@@ -58,17 +60,13 @@ type
   public
     procedure Write(
       const ATiffType: TTiffType;
-      const AOutputStream: TStream;
+      const AOutputFileName: WideString;
       const AWidth, AHeight: Integer;
       const ACompression: TTiffCompression;
       const AGetLineCallBack: TGetLineCallBack;
-      const AUserInfo: Pointer;
-      const AStoreAlphaChanel: Boolean;
-      const AStoreProjectionInfo: Boolean;
-      const AProjectionEPSG: Integer;
-      const AIsGeographicProjection: Boolean;
-      const AProjectionTiePoints: TTiePoints;
-      const AProjectionPixScale: TPixScale
+      const AStoreAlphaChanel: Boolean = False;
+      const AProjectionInfo: PProjectionInfo = nil;
+      const AUserInfo: Pointer = nil
     );
     constructor Create(const ASoftwareIDStr: AnsiString = '');
     procedure AfterConstruction; override;
@@ -99,17 +97,13 @@ end;
 
 procedure TGeoTiffWriter.Write(
   const ATiffType: TTiffType;
-  const AOutputStream: TStream;
+  const AOutputFileName: WideString;
   const AWidth, AHeight: Integer;
   const ACompression: TTiffCompression;
   const AGetLineCallBack: TGetLineCallBack;
-  const AUserInfo: Pointer;
-  const AStoreAlphaChanel: Boolean;
-  const AStoreProjectionInfo: Boolean;
-  const AProjectionEPSG: Integer;
-  const AIsGeographicProjection: Boolean;
-  const AProjectionTiePoints: TTiePoints;
-  const AProjectionPixScale: TPixScale
+  const AStoreAlphaChanel: Boolean = False;
+  const AProjectionInfo: PProjectionInfo = nil;
+  const AUserInfo: Pointer = nil
 );
 var
   VTiff: PTIFF;
@@ -117,13 +111,14 @@ var
   VMode: AnsiString;
   VIsWriteOK: Boolean;
 begin
+  Assert(AOutputFileName <> '');
   Assert(AWidth > 0);
   Assert(AHeight > 0);
 
   FWidth := AWidth;
   FHeight := AHeight;
 
-  if AStoreProjectionInfo then begin
+  if AProjectionInfo <> nil then begin
     XTIFFInitialize; // (!) Registers an GeoTIFF extension with libtiff
   end;
 
@@ -132,26 +127,23 @@ begin
     VMode := VMode + '8';
   end;
 
-  VTiff := TIFFOpen_DelphiStream(AOutputStream, VMode);
+  VTiff := TIFFOpenW(PWideChar(AOutputFileName), PAnsiChar(VMode));
   if VTiff <> nil then begin
     try
       WriteTIFFDirectory(
         VTiff,
         ACompression,
         AStoreAlphaChanel,
-        AStoreProjectionInfo,
-        AProjectionTiePoints,
-        AProjectionPixScale
+        AProjectionInfo
       );
-      if AStoreProjectionInfo then begin
+      if AProjectionInfo <> nil then begin
         VIsWriteOK := False;
         VGTiff := GTIFNew(VTiff);
         if VGTiff <> nil then begin
           try
             WriteGeoKeys(
               VGTiff,
-              AProjectionEPSG,
-              AIsGeographicProjection
+              AProjectionInfo
             );
             GTIFWriteKeys(VGTiff);
             VIsWriteOK := WriteImage(VTiff, AGetLineCallBack, AUserInfo);
@@ -179,14 +171,14 @@ procedure TGeoTiffWriter.WriteTIFFDirectory(
   const ATiff: PTIFF;
   const ACompression: TTiffCompression;
   const AStoreAlphaChanel: Boolean;
-  const AStoreProjectionInfo: Boolean;
-  const AProjectionTiePoints: TTiePoints;
-  const AProjectionPixScale: TPixScale
+  const AProjectionInfo: PProjectionInfo
 );
 var
   VExtras: array of Word;
   VCompression: Word;
   VRowsPerStrip: Word;
+  VTiePoints: array [0..5] of Double;
+  VPixScale: array [0..2] of Double;
 begin
   TIFFSetField(ATiff, TIFFTAG_SOFTWARE, PAnsiChar(FSoftwareIDStr));
 
@@ -225,35 +217,62 @@ begin
   end;
 	TIFFSetField(ATiff, TIFFTAG_ROWSPERSTRIP, VRowsPerStrip);
 
-  if AStoreProjectionInfo then begin
+  if AProjectionInfo <> nil then begin
     // GeoTiff info in Tiff Directory
-	  TIFFSetField(ATiff, TIFFTAG_GEOTIEPOINTS, 6, AProjectionTiePoints);
-	  TIFFSetField(ATiff, TIFFTAG_GEOPIXELSCALE, 3, AProjectionPixScale);
+    VTiePoints[0] := 0;
+    VTiePoints[1] := 0;
+    VTiePoints[2] := 0;
+    VTiePoints[3] := AProjectionInfo.OriginX;
+    VTiePoints[4] := AProjectionInfo.OriginY;
+    VTiePoints[5] := 0;
+
+    VPixScale[0] := AProjectionInfo.CellIncrementX;
+    VPixScale[1] := AProjectionInfo.CellIncrementY;
+    VPixScale[2] := 0;
+
+    TIFFSetField(ATiff, TIFFTAG_GEOTIEPOINTS, 6, VTiePoints);
+	  TIFFSetField(ATiff, TIFFTAG_GEOPIXELSCALE, 3, VPixScale);
   end;
 end;
 
 procedure TGeoTiffWriter.WriteGeoKeys(
   const AGTiff: PGTIFF;
-  const AProjectionEPSG: Integer;
-  const AIsGeographicProjection: Boolean
+  const AProjectionInfo: PProjectionInfo
 );
+const
+  cWGS84_a: Double = 6378137;
+  cWGS84_b: Double = 6356752.314245;
+  cWGS84_f: Double = 298.257223560493;
 var
   VEpsg: Word;
   VProjCSCitation: AnsiString;
 begin
-  Assert(AProjectionEPSG > 0);
-  Assert(AProjectionEPSG < $FFFF);
+  Assert(AProjectionInfo <> nil);
+  Assert(AProjectionInfo.EPSG > 0);
+  Assert(AProjectionInfo.EPSG < $FFFF);
 
-  VEpsg := Word(AProjectionEPSG);
+  VEpsg := Word(AProjectionInfo.EPSG);
   VProjCSCitation := 'EPSG:' + AnsiString(IntToStr(VEpsg));
 
-  GTIFKeySet(AGTiff, GTModelTypeGeoKey, TYPE_SHORT, 1, ModelTypeProjected);
-	GTIFKeySet(AGTiff, GTRasterTypeGeoKey, TYPE_SHORT, 1, RasterPixelIsArea);
-	GTIFKeySet(AGTiff, GTCitationGeoKey, TYPE_ASCII, 0, PAnsiChar(VProjCSCitation));
-  GTIFKeySet(AGTiff, ProjectedCSTypeGeoKey, TYPE_SHORT, 1, VEpsg);
+  if not AProjectionInfo.IsGeographic then begin
+    GTIFKeySet(AGTiff, GTModelTypeGeoKey, TYPE_SHORT, 1, ModelTypeProjected);
+    GTIFKeySet(AGTiff, GTRasterTypeGeoKey, TYPE_SHORT, 1, RasterPixelIsArea);
+    GTIFKeySet(AGTiff, GTCitationGeoKey, TYPE_ASCII, 0, PAnsiChar(VProjCSCitation));
 
-  if not AIsGeographicProjection then begin
-   GTIFKeySet(AGTiff, ProjLinearUnitsGeoKey, TYPE_SHORT, 1, Linear_Meter);
+    GTIFKeySet(AGTiff, ProjectedCSTypeGeoKey, TYPE_SHORT, 1, VEpsg);
+    GTIFKeySet(AGTiff, ProjLinearUnitsGeoKey, TYPE_SHORT, 1, Linear_Meter);
+  end else begin
+    GTIFKeySet(AGTiff, GTModelTypeGeoKey, TYPE_SHORT, 1, ModelTypeGeographic);
+    GTIFKeySet(AGTiff, GTRasterTypeGeoKey, TYPE_SHORT, 1, RasterPixelIsArea);
+    GTIFKeySet(AGTiff, GTCitationGeoKey, TYPE_ASCII, 0, PAnsiChar(VProjCSCitation));
+
+    GTIFKeySet(AGTiff, GeographicTypeGeoKey, TYPE_SHORT, 1, GCS_WGS_84);
+    GTIFKeySet(AGTiff, GeogAngularUnitsGeoKey, TYPE_SHORT, 1, Angular_Degree);
+
+    GTIFKeySet(AGTiff, GeogEllipsoidGeoKey, TYPE_SHORT, 1, Ellipse_WGS_84);
+    GTIFKeySet(AGTiff, GeogSemiMajorAxisGeoKey, TYPE_DOUBLE, 1, cWGS84_a);
+    GTIFKeySet(AGTiff, GeogSemiMinorAxisGeoKey, TYPE_DOUBLE, 1, cWGS84_b);
+    GTIFKeySet(AGTiff, GeogInvFlatteningGeoKey, TYPE_DOUBLE, 1, cWGS84_f);
   end;
 end;
 

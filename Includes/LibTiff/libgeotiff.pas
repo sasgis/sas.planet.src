@@ -96,6 +96,7 @@ var
 {$ENDIF}
 
 {$REGION 'GeoTiff constants'}
+// www.remotesensing.org/geotiff/spec/geotiff6.html
 const
   TIFFTAG_GEOPIXELSCALE      = 33550;
   TIFFTAG_INTERGRAPH_MATRIX  = 33920;
@@ -218,6 +219,8 @@ const
   Angular_Gon =	9106;
   Angular_DMS =	9107;
   Angular_DMS_Hemisphere =	9108;
+
+  GCS_WGS_84 = 4326;
 
   Ellipse_Airy_1830 =	7001;
   Ellipse_Airy_Modified_1849 =	7002;

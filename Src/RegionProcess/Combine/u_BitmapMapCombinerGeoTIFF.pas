@@ -138,7 +138,6 @@ procedure TBitmapMapCombinerGeoTIFF.SaveRect(
   const AMapRect: TRect
 );
 var
-  VDest: TFileStream;
   VCurrentPieceRect: TRect;
   VMapPieceSize: TPoint;
   VProjection: IProjection;
@@ -146,9 +145,7 @@ var
   VGeoTiffWriter: TGeoTiffWriter;
   VTiffType: TTiffType;
   VCompression: TTiffCompression;
-  VTiePoints: TTiePoints;
-  VPixScale: TPixScale;
-  VEPSG: Integer;
+  VProjInfo: TProjectionInfo;
 begin
   FOperationID := AOperationID;
   FCancelNotifier := ACancelNotifier;
@@ -161,9 +158,6 @@ begin
 
   VProjection := AImageProvider.Projection;
 
-  FillChar(VTiePoints[0], Length(VTiePoints)*SizeOf(VTiePoints[0]), 0);
-  FillChar(VPixScale[0], Length(VPixScale)*SizeOf(VPixScale[0]), 0);
-
   CalculateWFileParams(
     VProjection.PixelPos2LonLat(VCurrentPieceRect.TopLeft),
     VProjection.PixelPos2LonLat(VCurrentPieceRect.BottomRight),
@@ -171,13 +165,12 @@ begin
     VCellIncrementX, VCellIncrementY, VOriginX, VOriginY
   );
 
-  VTiePoints[3] := VOriginX;
-  VTiePoints[4] := VOriginY;
-
-  VPixScale[0] := VCellIncrementX;
-  VPixScale[1] := -VCellIncrementY;
-
-  VEPSG := VProjection.ProjectionType.ProjectionEPSG;
+  VProjInfo.EPSG := VProjection.ProjectionType.ProjectionEPSG;
+  VProjInfo.IsGeographic := (VProjInfo.EPSG = CGELonLatProjectionEPSG);
+  VProjInfo.CellIncrementX := VCellIncrementX;
+  VProjInfo.CellIncrementY := -VCellIncrementY;
+  VProjInfo.OriginX := VOriginX;
+  VProjInfo.OriginY := VOriginY;
 
   case FCompression of
     gtcZIP: VCompression := tcZip;
@@ -203,30 +196,20 @@ begin
       );
   end;
 
-  VDest := TFileStream.Create(AFileName, fmCreate);
+  VGeoTiffWriter := TGeoTiffWriter.Create('SAS.Planet');
   try
-    VGeoTiffWriter := TGeoTiffWriter.Create('SAS.Planet');
-    try
-      VGeoTiffWriter.Write(
-        VTiffType,
-        VDest,
-        FWidth,
-        FHeight,
-        VCompression,
-        Self.GetLineCallBack,
-        nil,
-        FWithAlpha,
-        True, // store proj info
-        VEPSG,
-        (VEPSG = CGELonLatProjectionEPSG), // is geographic proj
-        VTiePoints,
-        VPixScale
-      );
-    finally
-      VGeoTiffWriter.Free;
-    end;
+    VGeoTiffWriter.Write(
+      VTiffType,
+      AFileName,
+      FWidth,
+      FHeight,
+      VCompression,
+      Self.GetLineCallBack,
+      FWithAlpha,
+      @VProjInfo
+    );
   finally
-    VDest.Free;
+    VGeoTiffWriter.Free;
   end;
 end;
 
