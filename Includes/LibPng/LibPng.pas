@@ -5,9 +5,9 @@ unit LibPng;
 interface
 
 const
-  PNG_LIBPNG_VER_STRING = '1.5.7';
-  PNG_HEADER_VERSION_STRING = 'libpng version 1.5.7 - December 15, 2011';
-  PNG_LIBPNG_VER = 10507; // 1.5.7
+  PNG_LIBPNG_VER_STRING = '1.6.22';
+  PNG_HEADER_VERSION_STRING = 'libpng version 1.6.22 - May 26, 2016';
+  PNG_LIBPNG_VER = 10622; // 1.6.22
 
   // These describe the color_type field in png_info.
   // color type masks
@@ -69,15 +69,10 @@ type
   png_charp = PAnsiChar;
 
   png_infopp = ^png_infop;
-  png_infop = ^png_info;
+  png_infop = Pointer;
 
   png_structpp = ^png_structp;
-  png_structp = ^png_struct_def;
-
-  jmp_buf = array [0..15] of int;
-  
-  png_longjmp_ptr = Pointer;
-  user_error_ptr = Pointer;
+  png_structp = Pointer;
 
   png_error_ptrp = ^png_error_ptr;
   png_error_ptr = procedure(png_ptr: png_structp; msg: png_charp); cdecl;
@@ -112,30 +107,6 @@ type
   png_color_16p = ^png_color_16;
   png_const_color_16p = png_color_16p;
 
-  png_info = packed record
-    // pnginfo.h 
-
-    width: png_uint_32;  // width of image in pixels (from IHDR)
-    height: png_uint_32; // height of image in pixels (from IHDR)        
-
-    // ...  
-  end;
-
-  png_struct_def = packed record
-    // pngstruct.h    
-
-    longjmp_buffer: jmp_buf;    // used in png_error
-    longjmp_fn: png_longjmp_ptr;// setjmp non-local goto function. 
-    error_fn: png_error_ptr;    // function for printing errors and aborting
-    warning_fn: png_error_ptr;  // function for printing warnings 
-    error_ptr: png_voidp;       // user supplied struct for error functions
-    write_data_fn: png_rw_ptr;  // function for writing output data 
-    read_data_fn: png_rw_ptr;   // function for reading input data
-    io_ptr: png_voidp;          // ptr to application struct for I/O functions
-    
-    // ...
-  end;
-
 var
 
 (* The following return the library version as a short string in the
@@ -150,7 +121,7 @@ png_get_libpng_ver: function(png_ptr: png_structp): png_charp; cdecl;
 
 // Allocate and initialize png_ptr struct for writing, and any other memory
 png_create_write_struct: function(user_png_ver: png_charp;
-  error_ptr: user_error_ptr; error_fn: png_error_ptr;
+  error_ptr: png_voidp; error_fn: png_error_ptr;
   warn_fn: png_error_ptr): png_structp;  cdecl;
 
 (* Allocate the memory for an info_struct for the application.  We don't
@@ -232,10 +203,19 @@ png_set_tRNS: procedure(png_ptr: png_structp; info_ptr: png_infop;
     trans_alpha: png_const_bytep; num_trans: int;
     trans_color: png_const_color_16p); cdecl;
 
-const
-  libpng_dll = 'libpng15.dll';
+// Return the user pointer associated with the I/O functions
+png_get_io_ptr: function(const png_ptr: png_structp): png_voidp; cdecl;
 
-function InitLibPng(const ALibName: string = libpng_dll): Boolean;
+// Returns image width in pixels
+png_get_image_width: function(png_ptr: png_structp; info_ptr: png_infop): png_uint_32; cdecl;
+
+// Returns image height in pixels
+png_get_image_height: function(png_ptr: png_structp; info_ptr: png_infop): png_uint_32; cdecl;
+
+const
+  libpng_dll = 'libpng16.dll';
+
+procedure InitLibPng(const ALibName: string = libpng_dll);
 
 implementation
 
@@ -251,20 +231,21 @@ var
 
 function GetProcAddr(const AProcName: PAnsiChar): Pointer;
 begin
-  GetProcAddr := GetProcAddress(gHandle, AProcName);
+  Result := GetProcAddress(gHandle, AProcName);
+  if Addr(Result) = nil then begin
+    RaiseLastOSError;
+  end;
 end;
 
-function InitLibPng(const ALibName: string): Boolean;
+procedure InitLibPng(const ALibName: string);
 begin
   if gIsInitialized then begin
-    Result := True;
     Exit;
   end;
 
   gLock.Acquire;
   try
     if gIsInitialized then begin
-      Result := True;
       Exit;
     end;
 
@@ -290,29 +271,14 @@ begin
       png_set_filter := GetProcAddr('png_set_filter');
       png_set_PLTE := GetProcAddr('png_set_PLTE');
       png_set_tRNS := GetProcAddr('png_set_tRNS');
+      png_get_io_ptr := GetProcAddr('png_get_io_ptr');
+      png_get_image_width := GetProcAddr('png_get_image_width');
+      png_get_image_height := GetProcAddr('png_get_image_height');
+    end else begin
+      RaiseLastOSError;
     end;
 
-    gIsInitialized :=
-      (gHandle <> 0) and
-      (Addr(png_get_libpng_ver) <> nil) and
-      (Addr(png_create_write_struct) <> nil) and
-      (Addr(png_create_info_struct) <> nil) and
-      (Addr(png_set_write_fn) <> nil) and
-      (Addr(png_set_IHDR) <> nil) and
-      (Addr(png_write_info) <> nil) and
-      (Addr(png_write_row) <> nil) and
-      (Addr(png_write_end) <> nil) and
-      (Addr(png_free_data) <> nil) and
-      (Addr(png_set_compression_level) <> nil) and
-      (Addr(png_set_packing) <> nil) and
-      (Addr(png_set_gAMA) <> nil) and
-      (Addr(png_set_sRGB) <> nil) and
-      (Addr(png_set_filter) <> nil) and
-      (Addr(png_set_PLTE) <> nil) and
-      (Addr(png_set_tRNS) <> nil) and
-      (Addr(png_destroy_write_struct) <> nil);
-
-    Result := gIsInitialized;
+    gIsInitialized := True;
   finally
     gLock.Release;
   end;
@@ -346,6 +312,9 @@ begin
     png_set_filter := nil;
     png_set_PLTE := nil;
     png_set_tRNS := nil;
+    png_get_io_ptr := nil;
+    png_get_image_width := nil;
+    png_get_image_height := nil;
   finally
     gLock.Release;
   end;

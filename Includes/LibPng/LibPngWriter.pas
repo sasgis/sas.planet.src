@@ -65,9 +65,7 @@ type
 constructor TLibPngWriter.Create;
 begin
   inherited Create;
-  if not InitLibPng then begin
-    raise ELibPngWriterError.CreateFmt('Initialization of %s failed', [libpng_dll]);
-  end;
+  InitLibPng;
 end;
 
 procedure TLibPngWriter.InitWriter(const AOutStream: TStream);
@@ -122,15 +120,19 @@ var
   I: Integer;
   VLine: Pointer;
   VLineSize: Integer;
+  VWidth, VHeight: Integer;
 begin
   png_write_info(png_ptr, info_ptr);
   try
     png_set_packing(png_ptr);
 
-    VLineSize := Integer(info_ptr.width) * FBitsPerPixel;
+    VWidth := png_get_image_width(png_ptr, info_ptr);
+    VHeight := png_get_image_height(png_ptr, info_ptr);
+
+    VLineSize := VWidth * FBitsPerPixel;
     Assert(VLineSize > 0);
 
-    for I := 0 to info_ptr.height - 1 do begin
+    for I := 0 to VHeight - 1 do begin
       VLine := FGetLineCallBack(I, VLineSize, FUserInfo);
       if VLine <> nil then begin
         png_write_row(png_ptr, VLine);

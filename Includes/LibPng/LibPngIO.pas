@@ -26,9 +26,11 @@ implementation
 
 procedure lib_png_write_data_callback(png_ptr: png_structp; data: png_bytep; data_length: png_size_t); cdecl;
 var
+  io_ptr: png_voidp;
   rw_io_ptr: png_rw_io_stream_ptr;
 begin
-  rw_io_ptr := png_rw_io_stream_ptr(png_ptr.io_ptr);
+  io_ptr := png_get_io_ptr(png_ptr);
+  rw_io_ptr := png_rw_io_stream_ptr(io_ptr);
   if data_length >= rw_io_ptr.DestBufferSize then begin // buffer is too small
     FlashBuffer(rw_io_ptr);
     rw_io_ptr.DestStream.WriteBuffer(data^, data_length);
