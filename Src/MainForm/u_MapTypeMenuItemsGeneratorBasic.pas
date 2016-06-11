@@ -63,6 +63,7 @@ implementation
 
 uses
   SysUtils,
+  Menus,
   i_GUIDListStatic,
   u_TBXSubmenuItemWithIndicator,
   u_ActiveMapTBXItem;
@@ -96,6 +97,8 @@ function TMapMenuGeneratorBasic.CreateMenuItem(
 ): TTBXCustomItem;
 var
   VGUID: TGUID;
+  VShortCut: TShortCut;
+  VShortCutText: string;
 begin
   VGUID := AMapType.GUID;
   if Assigned(FMapConfig) then begin
@@ -104,7 +107,12 @@ begin
     Result := TActiveLayerTBXItem.Create(FRootMenu, VGUID, FLayersConfig);
   end;
   Result.tag := -1;
-  Result.Caption := AMapType.GUIConfig.Name.Value;
+  VShortCut := AMapType.GUIConfig.HotKey;
+  VShortCutText := '';
+  if VShortCut <> 0 then begin
+    VShortCutText := #9 + ShortCutToText(VShortCut);
+  end;
+  Result.Caption := AMapType.GUIConfig.Name.Value + VShortCutText;
   Result.ImageIndex := FIconsList.GetIconIndexByGUID(VGUID);
 end;
 
