@@ -320,6 +320,7 @@ uses
   Forms,
   {$ENDIF}
   {$IFNDef UNICODE}
+  Compatibility,
   CompatibilityIniFiles,
   {$ENDIF}
   u_Notifier,
@@ -1161,6 +1162,10 @@ begin
 
   VIniFile := TMeminiFile.Create(VMapsPath + 'Maps.ini');
   try
+    if not Assigned(VIniFile.Encoding) then begin
+      VIniFile.Encoding := TEncoding.UTF8;
+    end;
+
     VConfig := TConfigDataWriteProviderByIniFile.CreateWithOwn(VIniFile);
     VIniFile := nil;
   finally
@@ -1170,6 +1175,10 @@ begin
 
   VIniFile := TMeminiFile.Create(VMapsPath + 'Favorites.ini');
   try
+    if not Assigned(VIniFile.Encoding) then begin
+      VIniFile.Encoding := TEncoding.UTF8;
+    end;
+
     VConfig := TConfigDataWriteProviderByIniFile.CreateWithOwn(VIniFile);
     VIniFile := nil;
   finally
