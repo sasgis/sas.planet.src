@@ -1390,8 +1390,13 @@ begin
 end;
 
 procedure TfrmMarksExplorer.tbxtmUngroupClick(Sender: TObject);
+var
+  VMark: IVectorDataItem;
 begin
-  FMarkDBGUI.UngroupMultiItem(GetSelectedMarkFull);
+  VMark := GetSelectedMarkFull;
+  if Assigned(VMark) then begin
+    FMarkDBGUI.SaveMarkUngroupModal(VMark, VMark.Geometry);
+  end;
 end;
 
 procedure TfrmMarksExplorer.tbxtmAddToMergePolygonsClick(Sender: TObject);
