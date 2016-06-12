@@ -148,6 +148,9 @@ uses
   SysUtils,
   Graphics,
   IniFiles,
+  {$IFNDef UNICODE}
+  CompatibilityIniFiles,
+  {$ENDIF}
   i_ConfigDataWriteProvider,
   u_ResStrings,
   u_MapTypeIconsList,

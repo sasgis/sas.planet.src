@@ -56,6 +56,7 @@ implementation
 uses
   Classes,
   IniFiles,
+  Encodings,
   i_ConfigDataProvider,
   i_GeometryLonLat,
   i_VectorDataItemSimple,
@@ -101,7 +102,7 @@ begin
       VIniStream.Position := 0;
       VIniStrings := TStringList.Create;
       try
-        VIniStrings.LoadFromStream(VIniStream);
+        LoadStringsFromStream(VIniStrings, VIniStream);
         VIniFile := TMemIniFile.Create('');
         try
           VIniFile.SetStrings(VIniStrings);

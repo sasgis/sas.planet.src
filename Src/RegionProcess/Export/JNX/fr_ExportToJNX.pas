@@ -193,6 +193,9 @@ implementation
 
 uses
   IniFiles,
+  {$IFNDef UNICODE}
+  CompatibilityIniFiles,
+  {$ENDIF}
   ALString,
   RegExprUtils,
   gnugettext,

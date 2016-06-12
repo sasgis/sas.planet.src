@@ -31,7 +31,6 @@ uses
   Dialogs,
   StdCtrls,
   ExtCtrls,
-  inifiles,
   ComCtrls,
   TB2Item,
   TB2Dock,
@@ -204,6 +203,10 @@ type
 implementation
 
 uses
+  IniFiles,
+  {$IFNDef UNICODE}
+  CompatibilityIniFiles,
+  {$ENDIF}
   gnugettext,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,

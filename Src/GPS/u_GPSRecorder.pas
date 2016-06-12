@@ -89,6 +89,9 @@ uses
   Math,
   SysUtils,
   IniFiles,
+  {$IFNDef UNICODE}
+  CompatibilityIniFiles,
+  {$ENDIF}
   u_GeoFunc,
   u_ConfigDataProviderByIniFile,
   u_ConfigDataWriteProviderByIniFile;

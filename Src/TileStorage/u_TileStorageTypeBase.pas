@@ -80,6 +80,9 @@ implementation
 uses
   SysUtils,
   IniFiles,
+  {$IFNDef UNICODE}
+  CompatibilityIniFiles,
+  {$ENDIF}
   u_ConfigDataProviderByIniFile,
   u_TileStorageAbilities;
 

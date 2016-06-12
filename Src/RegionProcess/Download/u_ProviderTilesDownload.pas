@@ -106,6 +106,9 @@ uses
   SysUtils,
   Math,
   IniFiles,
+  {$IFNDef UNICODE}
+  CompatibilityIniFiles,
+  {$ENDIF}
   i_MapType,
   i_RegionProcessParamsFrame,
   i_LogSimple,
