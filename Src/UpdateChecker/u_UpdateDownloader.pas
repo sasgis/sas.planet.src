@@ -101,8 +101,8 @@ uses
   u_DownloadResultFactory;
 
 const
-  cNightlyChannel = 'http://sasgis.org/programs/sasplanet/nightly.php';
-  cStableChannel = 'http://sasgis.org/programs/sasplanet/release.php';
+  cNightlyChannel = 'http://www.sasgis.org/programs/sasplanet/nightly.php';
+  cStableChannel = 'http://www.sasgis.org/programs/sasplanet/release.php';
 
   cSearchVersionInfoRegExpr = 'SAS\.Planet\.(Stable|Release|Nightly)\.(\d\d)(\d\d)(\d\d)(\.(\d+))?\.(zip|rar|7z)';
   cSearchAvailableVersionUrlRegExpr = '<a href="(.*?)">' + cSearchVersionInfoRegExpr + '</a>';
@@ -166,7 +166,7 @@ begin
   VDownloader := TDownloaderHttp.Create(
     FDownloadResultFactory,
     True, // allow cookie
-    False // disable redirect
+    True // allow redirect
   );
 
   VDownloader.DoRequestAsync(
