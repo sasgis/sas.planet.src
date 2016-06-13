@@ -441,6 +441,7 @@ end;
 procedure TXmlVectorObjects.OpenTrackSegment;
 begin
   CloseTrackSegment;
+  FInMultiTrack := True;
 end;
 
 function TXmlVectorObjects.ParseCloseMarkObjectData(
