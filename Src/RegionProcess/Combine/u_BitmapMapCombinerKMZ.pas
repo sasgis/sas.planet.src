@@ -74,6 +74,7 @@ implementation
 
 uses
   GR32,
+  ALString,
   t_GeoTypes,
   i_BinaryData,
   i_BitmapTileSaveLoad,
@@ -170,16 +171,16 @@ procedure TBitmapMapCombinerKMZ.SaveRect(
 var
   iWidth, iHeight: integer;
   i, j: integer;
-  VFileName: string;
+  VFileName: AnsiString;
   kmlm: TMemoryStream;
   VLLRect: TDoubleRect;
   VStr: UTF8String;
-  VNameInKmz: String;
+  VNameInKmz: AnsiString;
   nim: TPoint;
   VZip: IArchiveWriter;
   VPixelRect: TRect;
   JPGSaver: IBitmapTileSaver;
-  VKmzFileNameOnly: string;
+  VKmzFileNameOnly: AnsiString;
   VCurrentPieceRect: TRect;
   VProjection: IProjection;
   VMapPieceSize: TPoint;
@@ -203,7 +204,7 @@ begin
 
   JPGSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(FQuality);
   VZip := FArchiveReadWriteFactory.Zip.WriterFactory.BuildByFileName(AFileName);
-  VKmzFileNameOnly := ExtractFileName(AFileName);
+  VKmzFileNameOnly := 'part_';
   kmlm := TMemoryStream.Create;
   try
     VStr := ansiToUTF8('<?xml version="1.0" encoding="UTF-8"?>' + #13#10 + '<kml xmlns="http://earth.google.com/kml/2.2">' + #13#10 + '<Folder>' + #13#10 + '<name>' + VKmzFileNameOnly + '</name>' + #13#10);
@@ -230,7 +231,7 @@ begin
           VData := JPGSaver.Save(VBitmapTile);
 
           if VData <> nil then begin
-            VFileName := ChangeFileExt(VKmzFileNameOnly, inttostr(i) + inttostr(j) + '.jpg');
+            VFileName := VKmzFileNameOnly + ALIntToStr(i) + '_' + ALIntToStr(j) + '.jpg';
             VNameInKmz := 'files/' + VFileName;
             VStr := VStr + ansiToUTF8('<GroundOverlay>' + #13#10 + '<name>' + VFileName + '</name>' + #13#10 + '<drawOrder>75</drawOrder>' + #13#10);
             VStr := VStr + ansiToUTF8('<Icon><href>' + VNameInKmz + '</href>' + '<viewBoundScale>0.75</viewBoundScale></Icon>' + #13#10);
