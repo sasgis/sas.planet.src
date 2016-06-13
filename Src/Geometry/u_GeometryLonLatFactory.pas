@@ -22,6 +22,12 @@ type
       const ARect: TDoubleRect;
       const APoints: IDoublePoints
     ): IGeometryLonLatSinglePolygon;
+    procedure AddPolygonsBySingleLine(
+      const ASource: IGeometryLonLatSingleLine;
+      const AFilter: ILonLatPointFilter;
+      const ABuilder: IGeometryLonLatPolygonBuilder;
+      const ATemp: IDoublePointsAggregator
+    );
   private
     function CreateLonLatPoint(
       const APoint: TDoublePoint
@@ -866,48 +872,63 @@ begin
   Result := VBuilder.MakeStaticAndClear;
 end;
 
-function TGeometryLonLatFactory.CreateLonLatPolygonByLonLatPathAndFilter(
-  const ASource: IGeometryLonLatLine;
-  const AFilter: ILonLatPointFilter
-): IGeometryLonLatPolygon;
+procedure TGeometryLonLatFactory.AddPolygonsBySingleLine(
+  const ASource: IGeometryLonLatSingleLine;
+  const AFilter: ILonLatPointFilter;
+  const ABuilder: IGeometryLonLatPolygonBuilder;
+  const ATemp: IDoublePointsAggregator
+);
 var
-  VLine: IDoublePoints;
   VEnum: IEnumLonLatPoint;
-  VTemp: IDoublePointsAggregator;
   VPoint: TDoublePoint;
+  VPoints: IDoublePoints;
   VLineBounds: TDoubleRect;
-  VBuilder: IGeometryLonLatPolygonBuilder;
-  VLineSingle: IGeometryLonLatSingleLine;
-  VLineMulti: IGeometryLonLatMultiLine;
 begin
-  VBuilder := MakePolygonBuilder;
-
-  VTemp := TDoublePointsAggregator.Create;
-  if Supports(ASource, IGeometryLonLatSingleLine, VLineSingle) then begin
-    VEnum := VLineSingle.GetEnum;
-  end else if Supports(ASource, IGeometryLonLatMultiLine, VLineMulti) then begin
-    VEnum := TEnumLonLatPointByPath.Create(VLineMulti);
-  end;
+  VEnum := ASource.GetEnum;
   VEnum := AFilter.CreateFilteredEnum(VEnum);
   while VEnum.Next(VPoint) do begin
     if PointIsEmpty(VPoint) then begin
-      if VTemp.Count > 0 then begin
-        VLine := VTemp.MakeStaticAndClear;
-        VBuilder.AddOuter(VLineBounds, VLine);
+      if ATemp.Count > 0 then begin
+        VPoints := ATemp.MakeStaticAndClear;
+        ABuilder.AddOuter(VLineBounds, VPoints);
       end;
     end else begin
-      if VTemp.Count = 0 then begin
+      if ATemp.Count = 0 then begin
         VLineBounds.TopLeft := VPoint;
         VLineBounds.BottomRight := VPoint;
       end else begin
         UpdateLonLatMBRByPoint(VLineBounds, VPoint);
       end;
-      VTemp.Add(VPoint);
+      ATemp.Add(VPoint);
     end;
   end;
-  if VTemp.Count > 0 then begin
-    VLine := VTemp.MakeStaticAndClear;
-    VBuilder.AddOuter(VLineBounds, VLine);
+  if ATemp.Count > 0 then begin
+    VPoints := ATemp.MakeStaticAndClear;
+    ABuilder.AddOuter(VLineBounds, VPoints);
+  end;
+end;
+
+function TGeometryLonLatFactory.CreateLonLatPolygonByLonLatPathAndFilter(
+  const ASource: IGeometryLonLatLine;
+  const AFilter: ILonLatPointFilter
+): IGeometryLonLatPolygon;
+var
+  VTemp: IDoublePointsAggregator;
+  VBuilder: IGeometryLonLatPolygonBuilder;
+  VLineSingle: IGeometryLonLatSingleLine;
+  VLineMulti: IGeometryLonLatMultiLine;
+  i: Integer;
+begin
+  VBuilder := MakePolygonBuilder;
+
+  VTemp := TDoublePointsAggregator.Create;
+  if Supports(ASource, IGeometryLonLatSingleLine, VLineSingle) then begin
+    AddPolygonsBySingleLine(VLineSingle, AFilter, VBuilder, VTemp);
+  end else if Supports(ASource, IGeometryLonLatMultiLine, VLineMulti) then begin
+    for i := 0 to VLineMulti.Count - 1 do begin
+      VLineSingle := VLineMulti.Item[i];
+      AddPolygonsBySingleLine(VLineSingle, AFilter, VBuilder, VTemp);
+    end;
   end;
   Result := VBuilder.MakeStaticAndClear;
 end;
