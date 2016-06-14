@@ -23,6 +23,7 @@ unit u_CommonFormAndFrameParents;
 interface
 
 uses
+  Messages,
   Classes,
   Forms,
   i_Notifier,
@@ -30,13 +31,18 @@ uses
   i_LanguageManager;
 
 type
-  TCommonFormParent = class(TForm)
+  TBaseForm = class(TForm)
+  public
+    procedure WMSetIcon(var Message: TWMSetIcon); message WM_SETICON;
+  end;
+
+  TCommonFormParent = class(TBaseForm)
   public
     constructor Create(AOwner: TComponent); override;
     procedure RefreshTranslation; virtual;
   end;
 
-  TFormWitghLanguageManager = class(TForm)
+  TFormWitghLanguageManager = class(TBaseForm)
   private
     FLanguageChangeListener: IListener;
     FLanguageManager: ILanguageManager;
@@ -73,6 +79,15 @@ implementation
 uses
   gnugettext,
   u_ListenerByEvent;
+
+{ TBaseForm }
+
+procedure TBaseForm.WMSetIcon(var Message: TWMSetIcon);
+begin
+  if (csDesigning in ComponentState) or not (csDestroying in ComponentState) then begin
+    inherited;
+  end;
+end;
 
 { TCommonFormParent }
 
