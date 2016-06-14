@@ -46,8 +46,10 @@ type
   protected
     property LanguageManager: ILanguageManager read FLanguageManager;
   public
+    procedure AfterConstruction; override;
+    procedure BeforeDestruction; override;
+  public
     constructor Create(const ALanguageManager: ILanguageManager); reintroduce;
-    destructor Destroy; override;
   end;
 
   TCommonFrameParent = class(Forms.TFrame)
@@ -58,8 +60,10 @@ type
   protected
     procedure RefreshTranslation; virtual;
   public
+    procedure AfterConstruction; override;
+    procedure BeforeDestruction; override;
+  public
     constructor Create(const ALanguageManager: ILanguageManager); reintroduce;
-    destructor Destroy; override;
   end;
 
   TFrame = class(TCommonFrameParent);
@@ -92,17 +96,20 @@ begin
   TranslateComponent(self);
   FLanguageManager := ALanguageManager;
   FLanguageChangeListener := TNotifyNoMmgEventListener.Create(Self.OnLangChange);
+end;
+
+procedure TCommonFrameParent.AfterConstruction;
+begin
+  inherited;
   FLanguageManager.ChangeNotifier.Add(FLanguageChangeListener);
 end;
 
-destructor TCommonFrameParent.Destroy;
+procedure TCommonFrameParent.BeforeDestruction;
 begin
+  inherited;
   if Assigned(FLanguageManager) and Assigned(FLanguageChangeListener) then begin
     FLanguageManager.ChangeNotifier.Remove(FLanguageChangeListener);
-    FLanguageChangeListener := nil;
-    FLanguageManager := nil;
   end;
-  inherited;
 end;
 
 procedure TCommonFrameParent.OnLangChange;
@@ -126,17 +133,20 @@ begin
   TranslateComponent(self);
   FLanguageManager := ALanguageManager;
   FLanguageChangeListener := TNotifyNoMmgEventListener.Create(Self.OnLangChange);
+end;
+
+procedure TFormWitghLanguageManager.AfterConstruction;
+begin
+  inherited;
   FLanguageManager.ChangeNotifier.Add(FLanguageChangeListener);
 end;
 
-destructor TFormWitghLanguageManager.Destroy;
+procedure TFormWitghLanguageManager.BeforeDestruction;
 begin
+  inherited;
   if Assigned(FLanguageManager) and Assigned(FLanguageChangeListener) then begin
     FLanguageManager.ChangeNotifier.Remove(FLanguageChangeListener);
-    FLanguageChangeListener := nil;
-    FLanguageManager := nil;
   end;
-  inherited;
 end;
 
 procedure TFormWitghLanguageManager.OnLangChange;
