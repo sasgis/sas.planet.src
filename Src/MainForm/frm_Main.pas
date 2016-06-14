@@ -4240,6 +4240,9 @@ var
   VLonLat: TDoublePoint;
 begin
   if Self.Active then begin
+    if Self.ActiveControl is TCustomEdit then begin
+      exit;
+    end;
     VShortCut := ShortCutFromMessage(Msg);
     case VShortCut of
       VK_LEFT + scCtrl: begin
