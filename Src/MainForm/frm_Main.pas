@@ -5404,6 +5404,8 @@ begin
         if FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Scale = VTag then begin
           FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible := False;
           NDegScale0.checked := True;
+        end else begin
+          TTBXItem(Sender).checked := True;
         end;
       end else begin
         FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible := True;
