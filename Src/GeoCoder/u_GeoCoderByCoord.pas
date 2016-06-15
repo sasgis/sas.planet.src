@@ -25,6 +25,9 @@ interface
 uses
   Classes,
   sysutils,
+  {$IFNDef UNICODE}
+  Compatibility,
+  {$ENDIF}
   t_GeoTypes,
   i_ProjectionType,
   i_ProjectionSet,
@@ -37,7 +40,6 @@ uses
   i_VectorItemSubsetBuilder,
   i_CoordToStringConverter,
   u_GeoCoderLocalBasic;
-
 type
   TGeoCoderByCoord = class(TGeoCoderLocalBasic)
   private
@@ -256,7 +258,7 @@ begin
 
   I := 1;
   while I <= Length(VText) do begin
-    if (not (AnsiChar(VText[I]) in ['0'..'9', '-', '+', '.', ',', ' '])) then begin
+    if (not (CharInSet(VText[I], ['0'..'9', '-', '+', '.', ',', ' ']))) then begin
       VText[I] := ' ';
       Dec(I);
     end;
