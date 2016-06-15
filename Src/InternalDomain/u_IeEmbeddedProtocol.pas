@@ -35,7 +35,6 @@ type
     FDomainList: IInternalDomainInfoProviderList;
     FStream: TMemoryStream;
 
-    FUrl: String;
     FProtocolSink: IInternetProtocolSink;
     FBindInfo: IInternetBindInfo;
     function ParseUrl(
@@ -223,7 +222,6 @@ begin
   if ((szUrl = nil) or (OIProtSink = nil)) then begin
     Result := E_INVALIDARG;
   end else begin
-    FUrl := szUrl;
     FProtocolSink := OIProtSink;
     FBindInfo := OIBindInfo;
     if LoadDataToStream(szUrl) then begin
