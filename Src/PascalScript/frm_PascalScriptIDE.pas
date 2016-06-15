@@ -210,6 +210,9 @@ uses
   uPSUtils,
   uPSRuntime,
   uPSDisassembly,
+  {$IFNDef UNICODE}
+  Compatibility,
+  {$ENDIF}
   Encodings,
   t_GeoTypes,
   t_PascalScript,
@@ -551,7 +554,7 @@ begin
     FArchiveReadWriteFactory.Zip.WriterFactory.BuildByStream(FArchiveStream);
 
   VArchiveWriter.AddFile(
-    TBinaryData.CreateByAnsiString(TextToString(synedtParams.Text)),
+    TBinaryData.CreateByAnsiString(TextToString(synedtParams.Text, TEncoding.UTF8)),
     'params.txt',
     Now
   );
@@ -752,7 +755,8 @@ begin
     );
     TextToFile(
       FLastPath + 'params.txt',
-      FZmp.DataProvider.ReadString('params.txt', '')
+      FZmp.DataProvider.ReadString('params.txt', ''),
+      TEncoding.UTF8
     );
   end;
 end;
