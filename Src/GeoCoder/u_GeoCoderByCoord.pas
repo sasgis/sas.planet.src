@@ -258,7 +258,7 @@ begin
 
   I := 1;
   while I <= Length(VText) do begin
-    if (not (CharInSet(VText[I], ['0'..'9', '-', '+', '.', ',', ' ']))) then begin
+    if not CharInSet(VText[I], ['0'..'9', '-', '+', '.', ',', ' ']) then begin
       VText[I] := ' ';
       Dec(I);
     end;
@@ -266,7 +266,7 @@ begin
     if ((I = 1) and (VText[I] = ' '))or
        ((I = Length(VText)) and (VText[I]=' '))or
        ((I < Length(VText) - 1) and (VText[I]=' ') and (VText[I + 1]=' '))or
-       ((I > 1) and (VText[I]=' ') and (not(AnsiChar(VText[I - 1]) in ['0'..'9'])))or
+       ((I > 1) and (VText[I]=' ') and (not CharInSet(VText[I - 1], ['0'..'9'])))or
        ((I < Length(VText) - 1) and (VText[I] = ',') and (VText[I + 1] = ' ')) then begin
       Delete(VText, I, 1);
       Dec(I);

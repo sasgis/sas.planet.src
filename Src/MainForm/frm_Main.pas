@@ -921,6 +921,9 @@ implementation
 uses
   StrUtils,
   Math,
+  {$IFNDef UNICODE}
+  Compatibility,
+  {$ENDIF}
   gnugettext,
   t_CommonTypes,
   t_FillingMapModes,
@@ -5321,14 +5324,14 @@ begin
   rest := True;
   i := 1;
   while i <= length(VText) do begin
-    if (not (AnsiChar(VText[i]) in ['0'..'9', '-', '+', '.', ',', ' '])) then begin
+    if not CharInSet(VText[i], ['0'..'9', '-', '+', '.', ',', ' ']) then begin
       VText[i] := ' ';
       dec(i);
     end;
     if ((i = 1) and (VText[i] = ' ')) or
       ((i = length(VText)) and (VText[i] = ' ')) or
       ((i < length(VText) - 1) and (VText[i] = ' ') and (VText[i + 1] = ' ')) or
-      ((i > 1) and (VText[i] = ' ') and (not (AnsiChar(VText[i - 1]) in ['0'..'9']))) or
+      ((i > 1) and (VText[i] = ' ') and (not CharInSet(VText[i - 1], ['0'..'9']))) or
       ((i < length(VText) - 1) and (VText[i] = ',') and (VText[i + 1] = ' ')) then begin
       Delete(VText, i, 1);
       dec(i);
