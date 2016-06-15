@@ -84,6 +84,9 @@ implementation
 uses
   SysUtils,
   StrUtils,
+  {$IFNDef UNICODE}
+  Compatibility,
+  {$ENDIF}
   ArgumentParser,
   t_GeoTypes,
   i_StringListStatic,
@@ -174,7 +177,7 @@ var
   VList: TStringList;
 begin
   if IsArgsInUTF8(AArgs) then begin
-    VArgs := UTF8Decode(AArgs);
+    VArgs := UTF8ToString(AArgs);
   end else begin
     VArgs := string(AArgs);
   end;

@@ -54,6 +54,9 @@ uses
   SysUtils,
   ALString,
   RegExpr,
+  {$IFNDef UNICODE}
+  Compatibility,
+  {$ENDIF}
   t_GeoTypes,
   i_GeoCoder,
   i_VectorDataItemSimple,
@@ -138,8 +141,8 @@ begin
           raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [VRegExpr.Match[1], VRegExpr.Match[2]]);
         end;
 
-        VName := UTF8Decode(ALStringReplace(VRegExpr.Match[3], '&quot;', '''', [rfReplaceAll]));
-        VDesc := UTF8Decode(ALStringReplace(VRegExpr.Match[4], '&quot;', '''', [rfReplaceAll]));
+        VName := UTF8ToString(ALStringReplace(VRegExpr.Match[3], '&quot;', '''', [rfReplaceAll]));
+        VDesc := UTF8ToString(ALStringReplace(VRegExpr.Match[4], '&quot;', '''', [rfReplaceAll]));
 
         VPlace := PlacemarkFactory.Build(VPoint, Trim(VName), Trim(VDesc), '', 4);
         VList.Add(VPlace);
