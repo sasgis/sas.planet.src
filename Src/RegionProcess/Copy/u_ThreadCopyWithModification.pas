@@ -36,7 +36,7 @@ uses
   u_ThreadExportAbstract;
 
 type
-  TThreadCopyWithModification = class(TThreadExportAbstract)
+  TThreadCopyWithModification = class(TExportTaskAbstract)
   private
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FTarget: ITileStorage;
@@ -103,8 +103,7 @@ begin
   inherited Create(
     AProgressInfo,
     APolygon,
-    AZoomArr,
-    Self.ClassName
+    AZoomArr
   );
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FIsProcessTne := AIsProcessTne;

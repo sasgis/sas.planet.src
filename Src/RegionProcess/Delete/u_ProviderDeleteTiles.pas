@@ -61,6 +61,7 @@ uses
   i_PredicateByTileInfo,
   i_Projection,
   i_GeometryProjected,
+  u_ThreadRegionProcessAbstract,
   u_ThreadDeleteTiles,
   u_ResStrings,
   fr_DeleteTiles;
@@ -107,7 +108,8 @@ var
   VProjectedPolygon: IGeometryProjectedPolygon;
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VPredicate: IPredicateByTileInfo;
-  VThread: TThread;
+  VTask: IRegionProcessTask;
+  VThread: TRegionProcessWorker;
 begin
   inherited;
   if (Application.MessageBox(pchar(SAS_MSG_DeleteTilesInRegionAsk), pchar(SAS_MSG_coution), 36) <> IDYES) then begin
@@ -124,7 +126,7 @@ begin
       APolygon
     );
   VProgressInfo := ProgressFactory.Build(APolygon);
-  VThread :=
+  VTask :=
     TThreadDeleteTiles.Create(
       VProgressInfo,
       APolygon,
@@ -134,7 +136,13 @@ begin
       VMapType.VersionRequest.GetStatic,
       VPredicate
     );
-  VThread.Resume;
+  VThread :=
+    TRegionProcessWorker.Create(
+      VTask,
+      VProgressInfo,
+      ClassName
+    );
+  VThread.Start;
 end;
 
 end.

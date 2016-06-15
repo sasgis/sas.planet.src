@@ -37,7 +37,7 @@ uses
   u_ThreadRegionProcessAbstract;
 
 type
-  TThreadDeleteTiles = class(TThreadRegionProcessAbstract)
+  TThreadDeleteTiles = class(TRegionProcessTaskAbstract)
   private
     FZoom: byte;
     FProjection: IProjection;
@@ -82,8 +82,7 @@ constructor TThreadDeleteTiles.Create(
 begin
   inherited Create(
     AProgressInfo,
-    APolyLL,
-    Self.ClassName
+    APolyLL
   );
   FPolyProjected := AProjectedPolygon;
   FProjection := AProjection;

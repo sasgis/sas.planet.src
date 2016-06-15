@@ -36,7 +36,7 @@ uses
   u_ThreadExportAbstract;
 
 type
-  TThreadExportToArchive = class(TThreadExportAbstract)
+  TThreadExportToArchive = class(TExportTaskAbstract)
   private
     FTileStorage: ITileStorage;
     FArchive: IArchiveWriter;
@@ -82,8 +82,7 @@ begin
   inherited Create(
     AProgressInfo,
     APolygon,
-    Azoomarr,
-    Self.ClassName
+    Azoomarr
   );
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FTileNameGen := ATileNameGen;

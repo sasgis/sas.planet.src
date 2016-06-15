@@ -60,6 +60,7 @@ uses
   i_MapType,
   i_Projection,
   i_GeometryProjected,
+  u_ThreadRegionProcessAbstract,
   u_ThreadExportToAUX,
   u_ResStrings,
   fr_ExportAUX;
@@ -106,7 +107,8 @@ var
   VProjection: IProjection;
   VProjectedPolygon: IGeometryProjectedPolygon;
   VProgressInfo: IRegionProcessProgressInfoInternal;
-  VThread: TThread;
+  VTask: IRegionProcessTask;
+  VThread: TRegionProcessWorker;
 begin
   inherited;
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
@@ -122,7 +124,7 @@ begin
 
   VProgressInfo := ProgressFactory.Build(APolygon);
 
-  VThread :=
+  VTask :=
     TThreadExportToAUX.Create(
       VProgressInfo,
       APolygon,
@@ -132,7 +134,13 @@ begin
       VMapType.VersionRequest.GetStatic.BaseVersion,
       VPath
     );
-  VThread.Resume;
+  VThread :=
+    TRegionProcessWorker.Create(
+      VTask,
+      VProgressInfo,
+      ClassName
+    );
+  VThread.Start;
 end;
 
 end.

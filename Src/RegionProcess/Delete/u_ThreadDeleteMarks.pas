@@ -38,7 +38,7 @@ uses
   u_ThreadRegionProcessAbstract;
 
 type
-  TThreadDeleteMarks = class(TThreadRegionProcessAbstract)
+  TThreadDeleteMarks = class(TRegionProcessTaskAbstract)
   private
     FpolyLL: IGeometryLonLatPolygon;
     FProjectedPolygon: IGeometryProjectedPolygon;
@@ -87,8 +87,7 @@ constructor TThreadDeleteMarks.Create(
 begin
   inherited Create(
     AProgressInfo,
-    APolyLL,
-    Self.ClassName
+    APolyLL
   );
   Assert(AProgressInfo <> nil);
   Assert(APolyLL <> nil);

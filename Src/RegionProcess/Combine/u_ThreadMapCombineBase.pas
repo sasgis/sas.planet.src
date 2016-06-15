@@ -46,7 +46,7 @@ type
     );
   end;
 
-  TThreadMapCombineBase = class(TThreadRegionProcessAbstract)
+  TThreadMapCombineBase = class(TRegionProcessTaskAbstract)
   private
     FImageProvider: IBitmapTileProvider;
     FMapRect: TRect;
@@ -68,8 +68,7 @@ type
       const AImageProvider: IBitmapTileProvider;
       const AMapCalibrationList: IMapCalibrationList;
       const AFileName: string;
-      const ASplitCount: TPoint;
-      const ADebugThreadName: string = ''
+      const ASplitCount: TPoint
     );
   end;
 
@@ -90,14 +89,12 @@ constructor TThreadMapCombineBase.Create(
   const AImageProvider: IBitmapTileProvider;
   const AMapCalibrationList: IMapCalibrationList;
   const AFileName: string;
-  const ASplitCount: TPoint;
-  const ADebugThreadName: string = ''
+  const ASplitCount: TPoint
 );
 begin
   inherited Create(
     AProgressInfo,
-    APolygon,
-    ADebugThreadName
+    APolygon
   );
   FMapRect := AMapRect;
   FCombiner := ACombiner;

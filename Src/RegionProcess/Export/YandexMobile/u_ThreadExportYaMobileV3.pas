@@ -46,7 +46,7 @@ type
   end;
   TExportTaskYaMobileV3Array = array of TExportTaskYaMobileV3;
 
-  TThreadExportYaMobileV3 = class(TThreadExportAbstract)
+  TThreadExportYaMobileV3 = class(TExportTaskAbstract)
   private
     FTasks: TExportTaskYaMobileV3Array;
     FBitmapFactory: IBitmap32StaticFactory;
@@ -120,8 +120,7 @@ begin
   inherited Create(
     AProgressInfo,
     APolygon,
-    AZoomArr,
-    Self.ClassName
+    AZoomArr
   );
   FProjectionSetFactory := AProjectionSetFactory;
   FBitmapFactory := ABitmapFactory;

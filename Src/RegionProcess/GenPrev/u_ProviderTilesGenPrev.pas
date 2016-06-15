@@ -73,6 +73,7 @@ uses
   i_ContentTypeInfo,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
+  u_ThreadRegionProcessAbstract,
   u_ThreadGenPrevZoom,
   u_ResStrings;
 
@@ -127,7 +128,8 @@ var
   VResampler: IImageResamplerFactory;
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VBgColor: TColor32;
-  VThread: TThread;
+  VTask: IRegionProcessTask;
+  VThread: TRegionProcessWorker;
 begin
   inherited;
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
@@ -141,7 +143,7 @@ begin
 
   VProgressInfo := ProgressFactory.Build(APolygon);
 
-  VThread :=
+  VTask :=
     TThreadGenPrevZoom.Create(
       VProgressInfo,
       FVectorGeometryProjectedFactory,
@@ -158,7 +160,13 @@ begin
       VBgColor,
       VResampler
     );
-  VThread.Resume;
+  VThread :=
+    TRegionProcessWorker.Create(
+      VTask,
+      VProgressInfo,
+      ClassName
+    );
+  VThread.Start;
 end;
 
 end.

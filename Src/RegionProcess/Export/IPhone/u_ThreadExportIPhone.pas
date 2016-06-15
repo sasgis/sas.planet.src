@@ -50,7 +50,7 @@ type
   end;
   TExportTaskIPhoneArray = array of TExportTaskIPhone;
 
-  TThreadExportIPhone = class(TThreadExportAbstract)
+  TThreadExportIPhone = class(TExportTaskAbstract)
   private
     FBitmapFactory: IBitmap32StaticFactory;
     FTasks: TExportTaskIPhoneArray;
@@ -122,8 +122,7 @@ begin
   inherited Create(
     AProgressInfo,
     APolygon,
-    Azoomarr,
-    Self.ClassName
+    Azoomarr
   );
   FProjectionSetFactory := ACoordConverterFactory;
   FBitmapFactory := ABitmapFactory;

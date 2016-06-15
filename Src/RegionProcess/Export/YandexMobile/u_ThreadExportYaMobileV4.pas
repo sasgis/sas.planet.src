@@ -50,7 +50,7 @@ type
   end;
   TExportTaskYaMobileV4Array = array of TExportTaskYaMobileV4;
 
-  TThreadExportYaMobileV4 = class(TThreadExportAbstract)
+  TThreadExportYaMobileV4 = class(TExportTaskAbstract)
   private
     FTasks: TExportTaskYaMobileV4Array;
     FIsReplace: Boolean;
@@ -125,8 +125,7 @@ begin
   inherited Create(
     AProgressInfo,
     APolygon,
-    Azoomarr,
-    Self.ClassName
+    Azoomarr
   );
   FTileSize := ATileSize;
   FProjectionSetFactory := AProjectionSetFactory;

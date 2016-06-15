@@ -70,6 +70,7 @@ uses
   i_MapVersionRequest,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
+  u_ThreadRegionProcessAbstract,
   u_ThreadExportYaMobileV3,
   u_BitmapLayerProviderMapWithLayer,
   u_ResStrings;
@@ -122,11 +123,12 @@ var
   comprSat, comprMap: byte;
   Replace: boolean;
   VProgressInfo: IRegionProcessProgressInfoInternal;
-  VThread: TThread;
   VTasks: TExportTaskYaMobileV3Array;
   VTaskIndex: Integer;
   VMapVersion: IMapVersionRequest;
   VLayerVersion: IMapVersionRequest;
+  VTask: IRegionProcessTask;
+  VThread: TRegionProcessWorker;
 begin
   inherited;
   VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
@@ -182,7 +184,7 @@ begin
       );
   end;
 
-  VThread :=
+  VTask :=
     TThreadExportYaMobileV3.Create(
       VProgressInfo,
       FProjectionSetFactory,
@@ -194,7 +196,13 @@ begin
       VZoomArr,
       Replace
     );
-  VThread.Resume;
+  VThread :=
+    TRegionProcessWorker.Create(
+      VTask,
+      VProgressInfo,
+      ClassName
+    );
+  VThread.Start;
 end;
 
 end.

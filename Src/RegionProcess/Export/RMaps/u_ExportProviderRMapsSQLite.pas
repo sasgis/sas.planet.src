@@ -76,6 +76,7 @@ uses
   i_TileStorage,
   i_MapVersionRequest,
   i_MapType,
+  u_ThreadRegionProcessAbstract,
   u_ThreadExportToRMapsSQLite,
   u_ResStrings;
 
@@ -139,9 +140,10 @@ var
   VBitmapProvider: IBitmapTileUniProvider;
   VMapType: IMapType;
   VProgressInfo: IRegionProcessProgressInfoInternal;
-  VThread: TThread;
   VMapVersion: IMapVersionRequest;
   VTileStorage: ITileStorage;
+  VTask: IRegionProcessTask;
+  VThread: TRegionProcessWorker;
 begin
   inherited;
 
@@ -166,7 +168,7 @@ begin
 
   VProgressInfo := ProgressFactory.Build(APolygon);
 
-  VThread :=
+  VTask :=
     TThreadExportToRMapsSQLite.Create(
       VProgressInfo,
       VPath,
@@ -182,7 +184,13 @@ begin
       VReplaceExistingTiles,
       VDirectTilesCopy
     );
-  VThread.Resume;
+  VThread :=
+    TRegionProcessWorker.Create(
+      VTask,
+      VProgressInfo,
+      ClassName
+    );
+  VThread.Start;
 end;
 
 end.

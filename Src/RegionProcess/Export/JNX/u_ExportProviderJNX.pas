@@ -64,6 +64,7 @@ uses
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
   u_ExportToJnxTask,
+  u_ThreadRegionProcessAbstract,
   u_ThreadExportToJNX,
   u_ResStrings;
 
@@ -117,9 +118,10 @@ var
   VProductID: integer;
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VTasks: TExportTaskJnxArray;
-  VThread: TThread;
   VUseRecolor: Boolean;
   VBitmapPostProcessing: IBitmapPostProcessing;
+  VTask: IRegionProcessTask;
+  VThread: TRegionProcessWorker;
 begin
   inherited;
 
@@ -137,7 +139,7 @@ begin
     VBitmapPostProcessing := FBitmapPostProcessing.GetStatic;
   end;
 
-  VThread :=
+  VTask :=
     TThreadExportToJnx.Create(
       VProgressInfo,
       FVectorGeometryProjectedFactory,
@@ -151,7 +153,13 @@ begin
       VZorder,
       VProductID
     );
-  VThread.Resume;
+  VThread :=
+    TRegionProcessWorker.Create(
+      VTask,
+      VProgressInfo,
+      ClassName
+    );
+  VThread.Start;
 end;
 
 end.

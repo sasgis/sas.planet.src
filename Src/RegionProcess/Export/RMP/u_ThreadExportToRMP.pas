@@ -46,7 +46,7 @@ uses
   u_RMPWriter;
 
 type
-  TThreadExportToRMP = class(TThreadExportAbstract)
+  TThreadExportToRMP = class(TExportTaskAbstract)
   private
     type
       TProcessSingleGeometry = procedure(
@@ -154,8 +154,7 @@ begin
   inherited Create(
     AProgressInfo,
     APolygon,
-    AZoomArr,
-    Self.ClassName
+    AZoomArr
   );
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FProjectionSet := AProjectionSet;

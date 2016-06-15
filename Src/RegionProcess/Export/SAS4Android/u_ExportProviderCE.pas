@@ -61,6 +61,7 @@ uses
   i_MapType,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
+  u_ThreadRegionProcessAbstract,
   u_ThreadExportToCE,
   u_ResStrings,
   fr_ExportToCE;
@@ -115,7 +116,8 @@ var
   VRecoverInfo: boolean;
 
   VProgressInfo: IRegionProcessProgressInfoInternal;
-  VThread: TThread;
+  VTask: IRegionProcessTask;
+  VThread: TRegionProcessWorker;
 begin
   Zoomarr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
@@ -126,7 +128,7 @@ begin
 
   VProgressInfo := ProgressFactory.Build(APolygon);
 
-  VThread :=
+  VTask :=
     TThreadExportToCE.Create(
       VProgressInfo,
       FProjectionSetFactory,
@@ -140,7 +142,13 @@ begin
       VComent,
       VRecoverInfo
     );
-  VThread.Resume;
+  VThread :=
+    TRegionProcessWorker.Create(
+      VTask,
+      VProgressInfo,
+      ClassName
+    );
+  VThread.Start;
 end;
 
 end.

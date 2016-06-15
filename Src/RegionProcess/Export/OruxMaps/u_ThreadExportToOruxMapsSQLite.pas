@@ -43,7 +43,7 @@ uses
   u_ThreadExportAbstract;
 
 type
-  TThreadExportToOruxMapsSQLite = class(TThreadExportAbstract)
+  TThreadExportToOruxMapsSQLite = class(TExportTaskAbstract)
   private
     FFormatSettings: TFormatSettings;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -132,8 +132,7 @@ begin
   inherited Create(
     AProgressInfo,
     APolygon,
-    AZoomArr,
-    Self.ClassName
+    AZoomArr
   );
   FFormatSettings.DecimalSeparator := '.';
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;

@@ -84,6 +84,7 @@ uses
   i_ProjectionSet,
   i_MapVersionRequest,
   i_MapType,
+  u_ThreadRegionProcessAbstract,
   u_ThreadExportToRMP,
   u_ResStrings;
 
@@ -152,11 +153,12 @@ var
   VMapType: IMapType;
   VProjectionSet: IProjectionSet;
   VProgressInfo: IRegionProcessProgressInfoInternal;
-  VThread: TThread;
   VMapVersion: IMapVersionRequest;
   VTileStorage: ITileStorage;
   VProduct, VProvider: AnsiString;
   VImageResamplerFactory: IImageResamplerFactory;
+  VTask: IRegionProcessTask;
+  VThread: TRegionProcessWorker;
 begin
   inherited;
 
@@ -194,7 +196,7 @@ begin
 
   VProgressInfo := ProgressFactory.Build(APolygon);
 
-  VThread :=
+  VTask :=
     TThreadExportToRMP.Create(
       VProgressInfo,
       VPath,
@@ -213,7 +215,13 @@ begin
       VProduct,
       VProvider
     );
-  VThread.Resume;
+  VThread :=
+    TRegionProcessWorker.Create(
+      VTask,
+      VProgressInfo,
+      ClassName
+    );
+  VThread.Start;
 end;
 
 end.

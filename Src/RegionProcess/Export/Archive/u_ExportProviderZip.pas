@@ -69,6 +69,7 @@ uses
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
   i_TileFileNameGenerator,
+  u_ThreadRegionProcessAbstract,
   u_ThreadExportToArchive,
   u_ResStrings;
 
@@ -124,7 +125,8 @@ var
   VMapType: IMapType;
   VNameGenerator: ITileFileNameGenerator;
   VProgressInfo: IRegionProcessProgressInfoInternal;
-  VThread: TThread;
+  VTask: IRegionProcessTask;
+  VThread: TRegionProcessWorker;
 begin
   inherited;
   Zoomarr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
@@ -134,7 +136,7 @@ begin
 
   VProgressInfo := ProgressFactory.Build(APolygon);
 
-  VThread :=
+  VTask :=
     TThreadExportToArchive.Create(
       VProgressInfo,
       FArchiveReadWriteFactory.Zip.WriterFactory.BuildByFileName(VPath),
@@ -144,7 +146,13 @@ begin
       VMapType.TileStorage,
       VNameGenerator
     );
-  VThread.Resume;
+  VThread :=
+    TRegionProcessWorker.Create(
+      VTask,
+      VProgressInfo,
+      ClassName
+    );
+  VThread.Start;
 end;
 
 end.

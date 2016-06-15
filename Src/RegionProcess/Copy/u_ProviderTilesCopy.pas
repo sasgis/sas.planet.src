@@ -97,6 +97,7 @@ uses
   i_TileStorageTypeListItem,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
+  u_ThreadRegionProcessAbstract,
   u_ThreadCopyFromStorageToStorage,
   u_ThreadCopyWithModification,
   u_ResStrings,
@@ -176,7 +177,7 @@ var
     Result := Assigned(VMaps);
   end;
 
-  function PrepareDirectCopy(const VProgressInfo: IRegionProcessProgressInfoInternal; const VCacheType: Byte; const VZoomArr: TByteDynArray; const VDeleteSource, VReplace: Boolean): TThread;
+  function PrepareDirectCopy(const VProgressInfo: IRegionProcessProgressInfoInternal; const VCacheType: Byte; const VZoomArr: TByteDynArray; const VDeleteSource, VReplace: Boolean): IRegionProcessTask;
   var
     VTasks: TCopyTaskArray;
     VPlaceInSubFolder: Boolean;
@@ -250,7 +251,7 @@ var
       );
   end;
 
-  function PrepareModification(const VProgressInfo: IRegionProcessProgressInfoInternal; const VCacheType: Byte; const VZoomArr: TByteDynArray; const VDeleteSource, VReplace: Boolean): TThread;
+  function PrepareModification(const VProgressInfo: IRegionProcessProgressInfoInternal; const VCacheType: Byte; const VZoomArr: TByteDynArray; const VDeleteSource, VReplace: Boolean): IRegionProcessTask;
   var
     VSetTargetVersionEnabled: Boolean;
     VSetTargetVersionValue: String;
@@ -316,7 +317,8 @@ var
   VDeleteSource: Boolean;
   VReplace: Boolean;
   VProgressInfo: IRegionProcessProgressInfoInternal;
-  VThread: TThread;
+  VTask: IRegionProcessTask;
+  VThread: TRegionProcessWorker;
 begin
   VMaps := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).MapTypeList;
   VCacheType := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).TargetCacheType;
@@ -327,13 +329,19 @@ begin
   VProgressInfo := ProgressFactory.Build(APolygon);
 
   if DoDirectCopy then begin
-    VThread := PrepareDirectCopy(VProgressInfo, VCacheType, VZoomArr, VDeleteSource, VReplace);
+    VTask := PrepareDirectCopy(VProgressInfo, VCacheType, VZoomArr, VDeleteSource, VReplace);
   end else begin
-    VThread := PrepareModification(VProgressInfo, VCacheType, VZoomArr, VDeleteSource, VReplace);
+    VTask := PrepareModification(VProgressInfo, VCacheType, VZoomArr, VDeleteSource, VReplace);
   end;
 
-  if Assigned(VThread) then begin
-    VThread.Resume;
+  if Assigned(VTask) then begin
+    VThread :=
+      TRegionProcessWorker.Create(
+        VTask,
+        VProgressInfo,
+        ClassName
+      );
+    VThread.Start;
   end;
 end;
 

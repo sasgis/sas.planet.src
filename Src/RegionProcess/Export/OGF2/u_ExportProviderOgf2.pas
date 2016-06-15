@@ -69,6 +69,7 @@ uses
   i_RegionProcessProgressInfo,
   i_BitmapLayerProvider,
   i_BitmapTileSaveLoad,
+  u_ThreadRegionProcessAbstract,
   u_ThreadExportToOgf2,
   u_ResStrings;
 
@@ -127,7 +128,8 @@ var
   VZoom: Byte;
   VSaver: IBitmapTileSaver;
   VTileSize: TPoint;
-  VThread: TThread;
+  VTask: IRegionProcessTask;
+  VThread: TRegionProcessWorker;
 begin
   inherited;
 
@@ -139,7 +141,7 @@ begin
 
   VProgressInfo := ProgressFactory.Build(APolygon);
 
-  VThread :=
+  VTask :=
     TThreadExportToOgf2.Create(
       VProgressInfo,
       FProjectionSetFactory,
@@ -152,7 +154,13 @@ begin
       VTileSize,
       VSaver
     );
-  VThread.Resume;
+  VThread :=
+    TRegionProcessWorker.Create(
+      VTask,
+      VProgressInfo,
+      ClassName
+    );
+  VThread.Start;
 end;
 
 end.

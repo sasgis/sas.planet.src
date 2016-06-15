@@ -42,7 +42,7 @@ uses
   u_ThreadExportAbstract;
 
 type
-  TThreadExportToRMapsSQLite = class(TThreadExportAbstract)
+  TThreadExportToRMapsSQLite = class(TExportTaskAbstract)
   private
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FProjectionSetFactory: IProjectionSetFactory;
@@ -120,8 +120,7 @@ begin
   inherited Create(
     AProgressInfo,
     APolygon,
-    AZoomArr,
-    Self.ClassName
+    AZoomArr
   );
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FProjectionSetFactory := AProjectionSetFactory;

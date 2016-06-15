@@ -60,6 +60,7 @@ uses
   i_MapType,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
+  u_ThreadRegionProcessAbstract,
   u_ThreadExportKML,
   u_ResStrings;
 
@@ -106,7 +107,8 @@ var
   NotSaveNotExists: boolean;
   RelativePath: Boolean;
   VProgressInfo: IRegionProcessProgressInfoInternal;
-  VThread: TThread;
+  VTask: IRegionProcessTask;
+  VThread: TRegionProcessWorker;
 begin
   inherited;
   VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
@@ -117,7 +119,7 @@ begin
 
   VProgressInfo := ProgressFactory.Build(APolygon);
 
-  VThread :=
+  VTask :=
     TThreadExportKML.Create(
       VProgressInfo,
       VPath,
@@ -129,7 +131,13 @@ begin
       NotSaveNotExists,
       RelativePath
     );
-  VThread.Resume;
+  VThread :=
+    TRegionProcessWorker.Create(
+      VTask,
+      VProgressInfo,
+      ClassName
+    );
+  VThread.Start;
 end;
 
 end.

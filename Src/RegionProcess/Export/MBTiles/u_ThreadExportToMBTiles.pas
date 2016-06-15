@@ -44,7 +44,7 @@ uses
   u_ThreadExportAbstract;
 
 type
-  TThreadExportToMBTiles = class(TThreadExportAbstract)
+  TThreadExportToMBTiles = class(TExportTaskAbstract)
   private
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FProjectionSetFactory: IProjectionSetFactory;
@@ -130,8 +130,7 @@ begin
   inherited Create(
     AProgressInfo,
     APolygon,
-    AZoomArr,
-    Self.ClassName
+    AZoomArr
   );
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FProjectionSetFactory := AProjectionSetFactory;

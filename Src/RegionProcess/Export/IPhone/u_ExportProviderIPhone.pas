@@ -72,6 +72,7 @@ uses
   i_MapVersionRequest,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
+  u_ThreadRegionProcessAbstract,
   u_ThreadExportIPhone,
   u_BitmapLayerProviderMapWithLayer,
   u_ResStrings;
@@ -132,11 +133,12 @@ var
   VActiveMapIndex: Integer;
   VActiveTaskIndex: Integer;
   VProgressInfo: IRegionProcessProgressInfoInternal;
-  VThread: TThread;
   VTasks: TExportTaskIPhoneArray;
   VTaskIndex: Integer;
   VMapVersion: IMapVersionRequest;
   VLayerVersion: IMapVersionRequest;
+  VTask: IRegionProcessTask;
+  VThread: TRegionProcessWorker;
 begin
   inherited;
   VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
@@ -236,7 +238,7 @@ begin
         False
       );
   end;
-  VThread :=
+  VTask :=
     TThreadExportIPhone.Create(
       VProgressInfo,
       FProjectionSetFactory,
@@ -250,7 +252,13 @@ begin
       Replace,
       FNewFormat
     );
-  VThread.Resume;
+  VThread :=
+    TRegionProcessWorker.Create(
+      VTask,
+      VProgressInfo,
+      ClassName
+    );
+  VThread.Start;
 end;
 
 end.

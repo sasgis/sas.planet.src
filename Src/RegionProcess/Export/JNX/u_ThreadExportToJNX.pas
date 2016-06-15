@@ -32,7 +32,7 @@ uses
   u_ThreadRegionProcessAbstract;
 
 type
-  TThreadExportToJnx = class(TThreadRegionProcessAbstract)
+  TThreadExportToJnx = class(TRegionProcessTaskAbstract)
   private
     FTasks: TExportTaskJnxArray;
     FTargetFile: string;
@@ -99,8 +99,7 @@ constructor TThreadExportToJnx.Create(
 begin
   inherited Create(
     AProgressInfo,
-    APolygon,
-    Self.ClassName
+    APolygon
   );
   FTargetFile := ATargetFile;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;

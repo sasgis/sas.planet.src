@@ -35,7 +35,7 @@ uses
   u_ThreadRegionProcessAbstract;
 
 type
-  TThreadExportToAUX = class(TThreadRegionProcessAbstract)
+  TThreadExportToAUX = class(TRegionProcessTaskAbstract)
   private
     FTileStorage: ITileStorage;
     FVersion: IMapVersionInfo;
@@ -82,8 +82,7 @@ constructor TThreadExportToAUX.Create(
 begin
   inherited Create(
     AProgressInfo,
-    APolygon,
-    Self.ClassName
+    APolygon
   );
   FPolyProjected := AProjectedPolygon;
   FProjection := AProjection;

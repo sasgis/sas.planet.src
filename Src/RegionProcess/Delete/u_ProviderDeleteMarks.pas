@@ -65,6 +65,7 @@ uses
   i_RegionProcessProgressInfo,
   i_Projection,
   i_GeometryProjected,
+  u_ThreadRegionProcessAbstract,
   u_ThreadDeleteMarks,
   u_ResStrings,
   fr_DeleteMarks;
@@ -106,9 +107,10 @@ var
   VProjection: IProjection;
   VProjectedPolygon: IGeometryProjectedPolygon;
   VProgressInfo: IRegionProcessProgressInfoInternal;
-  VThread: TThread;
   VMarkState: Byte;
   VDelHiddenMarks: Boolean;
+  VTask: IRegionProcessTask;
+  VThread: TRegionProcessWorker;
 begin
   inherited;
   VMarkState := (ParamsFrame as IRegionProcessParamsFrameMarksState).GetMarksState;
@@ -127,7 +129,7 @@ begin
     );
   VProgressInfo := ProgressFactory.Build(APolygon);
   VDelHiddenMarks := (ParamsFrame as IRegionProcessParamsFrameMarksState).GetDeleteHiddenMarks;
-  VThread :=
+  VTask :=
     TThreadDeleteMarks.Create(
       VProgressInfo,
       APolygon,
@@ -137,7 +139,13 @@ begin
       VMarkState,
       VDelHiddenMarks
     );
-  VThread.Resume;
+  VThread :=
+    TRegionProcessWorker.Create(
+      VTask,
+      VProgressInfo,
+      ClassName
+    );
+  VThread.Start;
 end;
 
 end.

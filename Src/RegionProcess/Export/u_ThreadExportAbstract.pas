@@ -30,7 +30,7 @@ uses
   u_ThreadRegionProcessAbstract;
 
 type
-  TThreadExportAbstract = class(TThreadRegionProcessAbstract)
+  TExportTaskAbstract = class(TRegionProcessTaskAbstract)
   protected
     FZooms: TByteDynArray;
     procedure ProcessRegion; override;
@@ -38,10 +38,8 @@ type
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: IGeometryLonLatPolygon;
-      const AZooms: TByteDynArray;
-      const ADebigThreadName: string = ''
+      const AZooms: TByteDynArray
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -49,11 +47,10 @@ implementation
 uses
   SysUtils;
 
-constructor TThreadExportAbstract.Create(
+constructor TExportTaskAbstract.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: IGeometryLonLatPolygon;
-  const AZooms: TByteDynArray;
-  const ADebigThreadName: string = ''
+  const AZooms: TByteDynArray
 );
 var
   i: Integer;
@@ -63,8 +60,7 @@ var
 begin
   inherited Create(
     AProgressInfo,
-    APolygon,
-    ADebigThreadName
+    APolygon
   );
   Assert(AZooms <> nil);
   VZoomSourceCount := Length(AZooms);
@@ -92,13 +88,7 @@ begin
   end;
 end;
 
-destructor TThreadExportAbstract.Destroy;
-begin
-  inherited;
-  FZooms := nil;
-end;
-
-procedure TThreadExportAbstract.ProcessRegion;
+procedure TExportTaskAbstract.ProcessRegion;
 begin
   inherited;
   if Length(FZooms) <= 0 then begin

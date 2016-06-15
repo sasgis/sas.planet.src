@@ -36,7 +36,7 @@ uses
   u_ThreadExportAbstract;
 
 type
-  TThreadExportToCE = class(TThreadExportAbstract)
+  TThreadExportToCE = class(TExportTaskAbstract)
   private
     FTileStorage: ITileStorage;
     FVersion: IMapVersionRequest;
@@ -95,8 +95,7 @@ begin
   inherited Create(
     AProgressInfo,
     APolygon,
-    Azoomarr,
-    Self.ClassName
+    Azoomarr
   );
   FTargetFile := ATargetFile;
   FTileStorage := ATileStorage;

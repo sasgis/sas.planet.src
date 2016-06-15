@@ -27,15 +27,42 @@ uses
   i_Listener,
   i_GeometryLonLat,
   i_NotifierOperation,
-  i_RegionProcessProgressInfo;
+  i_RegionProcessProgressInfo,
+  u_BaseInterfacedObject;
 
 type
-  TThreadRegionProcessAbstract = class(TThread)
+  IRegionProcessTask = interface
+    ['{F1502271-EBD9-408E-BF77-5E0204CCE6FD}']
+    procedure ProcessRegion;
+  end;
+
+  TRegionProcessTaskAbstract = class(TBaseInterfacedObject, IRegionProcessTask)
   private
+    FCancelNotifier: INotifierOperation;
     FOperationID: Integer;
-    FCancelListener: IListener;
     FProgressInfo: IRegionProcessProgressInfoInternal;
     FPolygLL: IGeometryLonLatPolygon;
+  protected
+    procedure ProgressFormUpdateOnProgress(AProcessed, AToProcess: Int64);
+    procedure ProcessRegion; virtual; abstract;
+
+    property CancelNotifier: INotifierOperation read FCancelNotifier;
+    property OperationID: Integer read FOperationID;
+    property ProgressInfo: IRegionProcessProgressInfoInternal read FProgressInfo;
+    property PolygLL: IGeometryLonLatPolygon read FPolygLL;
+  public
+    constructor Create(
+      const AProgressInfo: IRegionProcessProgressInfoInternal;
+      const APolygon: IGeometryLonLatPolygon
+    );
+    destructor Destroy; override;
+  end;
+
+  TRegionProcessWorker = class(TThread)
+  private
+    FTask: IRegionProcessTask;
+    FOperationID: Integer;
+    FCancelListener: IListener;
 
     FMessageForShow: string;
     FCancelNotifier: INotifierOperation;
@@ -48,22 +75,19 @@ type
     procedure ShowMessageSync(const AMessage: string);
     {$HINTS ON}
   protected
-    procedure ProgressFormUpdateOnProgress(AProcessed, AToProcess: Int64);
-    procedure ProcessRegion; virtual; abstract;
     procedure Execute; override;
-
-    property CancelNotifier: INotifierOperation read FCancelNotifier;
-    property OperationID: Integer read FOperationID;
-    property ProgressInfo: IRegionProcessProgressInfoInternal read FProgressInfo;
-    property PolygLL: IGeometryLonLatPolygon read FPolygLL;
+  public
+    procedure Start;
   public
     constructor Create(
+      const ATask: IRegionProcessTask;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
-      const APolygon: IGeometryLonLatPolygon;
       const ADebugThreadName: string = ''
     );
     destructor Destroy; override;
   end;
+
+
 
 implementation
 
@@ -77,20 +101,54 @@ uses
   u_ReadableThreadNames,
   u_ListenerByEvent;
 
-constructor TThreadRegionProcessAbstract.Create(
+{ TRegionProcessTaskAbstract }
+
+constructor TRegionProcessTaskAbstract.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
-  const APolygon: IGeometryLonLatPolygon;
-  const ADebugThreadName: string = ''
+  const APolygon: IGeometryLonLatPolygon
 );
 begin
+  inherited Create;
+  FCancelNotifier := AProgressInfo.CancelNotifier;
+  FOperationID := AProgressInfo.OperationID;
+  FProgressInfo := AProgressInfo;
+  FPolygLL := APolygon;
+end;
+
+destructor TRegionProcessTaskAbstract.Destroy;
+begin
+  if Assigned(FProgressInfo) then begin
+    FProgressInfo.Finish;
+    FProgressInfo := nil;
+  end;
+  inherited;
+end;
+
+procedure TRegionProcessTaskAbstract.ProgressFormUpdateOnProgress(
+  AProcessed, AToProcess: Int64
+);
+begin
+  ProgressInfo.SetProcessedRatio(AProcessed / AToProcess);
+  ProgressInfo.SetSecondLine(SAS_STR_Processed + ' ' + inttostr(AProcessed));
+end;
+
+{ TRegionProcessWorker }
+
+constructor TRegionProcessWorker.Create(
+  const ATask: IRegionProcessTask;
+  const AProgressInfo: IRegionProcessProgressInfoInternal;
+  const ADebugThreadName: string
+);
+begin
+  Assert(Assigned(ATask));
+  Assert(Assigned(AProgressInfo));
   inherited Create(True);
+  FTask := ATask;
   FDebugThreadName := ADebugThreadName;
   Priority := tpLowest;
   FreeOnTerminate := true;
   FCancelNotifier := AProgressInfo.CancelNotifier;
   FOperationID := AProgressInfo.OperationID;
-  FProgressInfo := AProgressInfo;
-  FPolygLL := APolygon;
   if not FCancelNotifier.IsOperationCanceled(FOperationID) then begin
     FCancelListener := TNotifyNoMmgEventListener.Create(Self.OnCancel);
     FCancelNotifier.AddListener(FCancelListener);
@@ -100,26 +158,21 @@ begin
   end;
 end;
 
-destructor TThreadRegionProcessAbstract.Destroy;
+destructor TRegionProcessWorker.Destroy;
 begin
   if Assigned(FCancelListener) and Assigned(FCancelNotifier) then begin
     FCancelNotifier.RemoveListener(FCancelListener);
     FCancelListener := nil;
     FCancelNotifier := nil;
   end;
-  FPolygLL := nil;
-  if Assigned(FProgressInfo) then begin
-    FProgressInfo.Finish;
-    FProgressInfo := nil;
-  end;
   inherited;
 end;
 
-procedure TThreadRegionProcessAbstract.Execute;
+procedure TRegionProcessWorker.Execute;
 begin
   SetCurrentThreadName(FDebugThreadName);
   try
-    ProcessRegion;
+    FTask.ProcessRegion;
   except
   {$IFDEF EUREKALOG}
     ShowLastExceptionData;
@@ -131,25 +184,23 @@ begin
   end;
 end;
 
-procedure TThreadRegionProcessAbstract.OnCancel;
+procedure TRegionProcessWorker.OnCancel;
 begin
   Terminate;
 end;
 
-procedure TThreadRegionProcessAbstract.ProgressFormUpdateOnProgress(AProcessed,
-  AToProcess: Int64);
-begin
-  ProgressInfo.SetProcessedRatio(AProcessed / AToProcess);
-  ProgressInfo.SetSecondLine(SAS_STR_Processed + ' ' + inttostr(AProcessed));
-end;
-
-procedure TThreadRegionProcessAbstract.ShowMessageSync(const AMessage: string);
+procedure TRegionProcessWorker.ShowMessageSync(const AMessage: string);
 begin
   FMessageForShow := AMessage;
   Synchronize(SynShowMessage);
 end;
 
-procedure TThreadRegionProcessAbstract.SynShowMessage;
+procedure TRegionProcessWorker.Start;
+begin
+  Resume;
+end;
+
+procedure TRegionProcessWorker.SynShowMessage;
 begin
   ShowMessage(FMessageForShow);
 end;

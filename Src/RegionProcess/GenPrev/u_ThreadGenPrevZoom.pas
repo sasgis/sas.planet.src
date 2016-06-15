@@ -40,7 +40,7 @@ uses
   u_ThreadRegionProcessAbstract;
 
 type
-  TThreadGenPrevZoom = class(TThreadRegionProcessAbstract)
+  TThreadGenPrevZoom = class(TRegionProcessTaskAbstract)
   private
     FIsReplace: boolean;
     FIsSaveFullOnly: boolean;
@@ -117,8 +117,7 @@ constructor TThreadGenPrevZoom.Create(
 begin
   inherited Create(
     AProgressInfo,
-    APolygLL,
-    Self.ClassName
+    APolygLL
   );
   if Length(AZooms) <= 1 then begin
     raise Exception.Create('Не выбрано целевых масштабов');

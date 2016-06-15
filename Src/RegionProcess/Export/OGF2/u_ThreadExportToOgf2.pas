@@ -41,7 +41,7 @@ uses
   u_ThreadRegionProcessAbstract;
 
 type
-  TThreadExportToOgf2 = class(TThreadRegionProcessAbstract)
+  TThreadExportToOgf2 = class(TRegionProcessTaskAbstract)
   private
     FZoom: Byte;
     FOgf2TileWidth: Integer;
@@ -118,8 +118,7 @@ constructor TThreadExportToOgf2.Create(
 begin
   inherited Create(
     AProgressInfo,
-    APolygon,
-    Self.ClassName
+    APolygon
   );
   FImageProvider := AImageProvider;
   FZoom := AZoom;

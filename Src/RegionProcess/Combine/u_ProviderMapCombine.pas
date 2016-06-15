@@ -166,6 +166,7 @@ uses
   i_MapVersionRequest,
   i_RegionProcessParamsFrame,
   u_GeoFunc,
+  u_ThreadRegionProcessAbstract,
   u_ThreadMapCombineBase,
   u_MarkerProviderForVectorItemForMarkPoints,
   u_VectorTileProviderByFixedSubset,
@@ -613,8 +614,9 @@ var
   VProjectedPolygon: IGeometryProjectedPolygon;
   VImageProvider: IBitmapTileProvider;
   VProgressInfo: IRegionProcessProgressInfoInternal;
-  VThread: TThread;
   VCombiner: IBitmapMapCombiner;
+  VTask: IRegionProcessTask;
+  VThread: TRegionProcessWorker;
 begin
   VProjection := PrepareProjection;
   VProjectedPolygon := PreparePolygon(VProjection, APolygon);
@@ -625,7 +627,7 @@ begin
 
   VProgressInfo := ProgressFactory.Build(APolygon);
   VCombiner := PrepareMapCombiner(VProgressInfo);
-  VThread :=
+  VTask :=
     TThreadMapCombineBase.Create(
       VProgressInfo,
       APolygon,
@@ -634,10 +636,15 @@ begin
       VImageProvider,
       VMapCalibrations,
       VFileName,
-      VSplitCount,
-      Self.ClassName + 'Thread'
+      VSplitCount
     );
-  VThread.Resume;
+  VThread :=
+    TRegionProcessWorker.Create(
+      VTask,
+      VProgressInfo,
+      ClassName
+    );
+  VThread.Start;
 end;
 
 function TProviderMapCombineBase.PrepareTargetFileName: string;

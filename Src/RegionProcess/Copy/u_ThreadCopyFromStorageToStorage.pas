@@ -41,7 +41,7 @@ type
   end;
   TCopyTaskArray = array of TCopyTask;
 
-  TThreadCopyFromStorageToStorage = class(TThreadExportAbstract)
+  TThreadCopyFromStorageToStorage = class(TExportTaskAbstract)
   private
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FTasks: TCopyTaskArray;
@@ -97,8 +97,7 @@ begin
   inherited Create(
     AProgressInfo,
     APolygon,
-    AZoomArr,
-    Self.ClassName
+    AZoomArr
   );
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FIsProcessTne := AIsProcessTne;

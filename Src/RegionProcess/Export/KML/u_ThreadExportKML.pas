@@ -36,7 +36,7 @@ uses
   u_ThreadExportAbstract;
 
 type
-  TThreadExportKML = class(TThreadExportAbstract)
+  TThreadExportKML = class(TExportTaskAbstract)
   private
     FTileStorage: ITileStorage;
     FVersion: IMapVersionInfo;
@@ -96,8 +96,7 @@ begin
   inherited Create(
     AProgressInfo,
     APolygon,
-    Azoomarr,
-    Self.ClassName
+    Azoomarr
   );
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FPathExport := APath;
