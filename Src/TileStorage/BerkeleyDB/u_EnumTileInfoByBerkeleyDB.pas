@@ -42,7 +42,8 @@ type
     FIgnoreMultiVersionTiles: Boolean;
     FFilesIterator: IFileNameIterator;
     FTileFileNameParser: ITileFileNameParser;
-    FVersionRequest: IMapVersionRequest;
+    FVersionRequestAnyVersion: IMapVersionRequest;
+    FVersionRequestWithoutVersion: IMapVersionRequest;
     FStorage: ITileStorage;
     FHelper: ITileStorageBerkeleyDBHelper;
     FCurFileTilesArray: TPointArray;
@@ -93,13 +94,24 @@ begin
   FIgnoreMultiVersionTiles := AIgnoreMultiVersionTiles;
   FFilesIterator := AFilesIterator;
   FTileFileNameParser := ATileFileNameParser;
-  FVersionRequest := TMapVersionRequest.Create(AMapVersionFactory.CreateByStoreString(''), True);
   FStorage := AStorage;
   FHelper := AHelper;
   FCurFileIndex := 0;
   SetLength(FCurFileTilesArray, 0);
   FCurMapVersionList := nil;
   FCurMapVersionIndex := 0;
+
+  FVersionRequestAnyVersion :=
+    TMapVersionRequest.Create(
+      AMapVersionFactory.CreateByStoreString(''),
+      True
+    );
+
+  FVersionRequestWithoutVersion :=
+    TMapVersionRequest.Create(
+      AMapVersionFactory.CreateByStoreString(''),
+      False
+    );
 end;
 
 function TEnumTileInfoByBerkeleyDB.Next(var ATileInfo: TTileInfo): Boolean;
@@ -133,13 +145,25 @@ begin
             Inc(FCurMapVersionIndex);
           end else begin
             // process tile without version
-            VTileInfo := FStorage.GetTileInfo(ATileInfo.FTile, FCurFileZoom, nil, gtimWithData);
+            VTileInfo :=
+              FStorage.GetTileInfoEx(
+                ATileInfo.FTile,
+                FCurFileZoom,
+                FVersionRequestWithoutVersion,
+                gtimWithData
+              );
             // prepare process for next tile
             Inc(FCurFileIndex);
             FCurMapVersionList := nil;
           end;
         end else begin
-          VTileInfo := FStorage.GetTileInfoEx(ATileInfo.FTile, FCurFileZoom, FVersionRequest, gtimWithData);
+          VTileInfo :=
+            FStorage.GetTileInfoEx(
+              ATileInfo.FTile,
+              FCurFileZoom,
+              FVersionRequestAnyVersion,
+              gtimWithData
+            );
           Inc(FCurFileIndex);
         end;
         if Supports(VTileInfo, ITileInfoWithData, VTileInfoWithData) then begin
