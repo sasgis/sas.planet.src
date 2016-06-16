@@ -232,6 +232,7 @@ type
     pnlCoordSys: TPanel;
     lblCoordSysType: TLabel;
     cbbCoordSysType: TComboBox;
+    pnlSQLiteCachePath: TPanel;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -275,6 +276,7 @@ type
     FfrGECachePath: TfrPathSelect;
     FfrBDBCachePath: TfrPathSelect;
     FfrBDBVerCachePath: TfrPathSelect;
+    FfrSQLiteCachePath: TfrPathSelect;
     FfrGCCachePath: TfrPathSelect;
     FfrCacheTypesList: TfrCacheTypeList;
     frFavoriteMapSetManager: TfrFavoriteMapSetManager;
@@ -482,6 +484,12 @@ begin
       ALanguageManager,
       gettext_NoOp('BerkeleyDB (Versioned) cache folder:'),
       GState.CacheConfig.BDBVerCachePath
+    );
+  FfrSQLiteCachePath :=
+    TfrPathSelect.Create(
+      ALanguageManager,
+      gettext_NoOp('SQLite3 cache folder:'),
+      GState.CacheConfig.SQLiteCachePath
     );
   FfrGCCachePath :=
     TfrPathSelect.Create(
@@ -698,6 +706,7 @@ begin
   FfrGECachePath.ApplyChanges;
   FfrBDBCachePath.ApplyChanges;
   FfrBDBVerCachePath.ApplyChanges;
+  FfrSQLiteCachePath.ApplyChanges;
   FfrGCCachePath.ApplyChanges;
 
   GState.CacheConfig.DBMSCachePath.Path := edtDBMSCachePath.Text; // do not add delimiter(s)
@@ -804,6 +813,7 @@ begin
   FreeAndNil(FfrGECachePath);
   FreeAndNil(FfrBDBCachePath);
   FreeAndNil(FfrBDBVerCachePath);
+  FreeAndNil(FfrSQLiteCachePath);
   FreeAndNil(FfrGCCachePath);
   FreeAndNil(FfrCacheTypesList);
   inherited;
@@ -841,6 +851,7 @@ begin
   FfrGECachePath.Show(pnlGECachePath);
   FfrBDBCachePath.Show(pnledtBDBCachePath);
   FfrBDBVerCachePath.Show(pnledtBDBVerCachePath);
+  FfrSQLiteCachePath.Show(pnlSQLiteCachePath);
   FfrGCCachePath.Show(pnledtGCCachePath);
   FfrCacheTypesList.Show(pnlCacheTypesList);
 

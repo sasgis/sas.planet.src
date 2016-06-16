@@ -254,6 +254,7 @@ begin
       c_File_Cache_Id_BDB,
       c_File_Cache_Id_BDB_Versioned,
       c_File_Cache_Id_DBMS,
+      c_File_Cache_Id_SQLite,
       c_File_Cache_Id_GE,
       c_File_Cache_Id_GC
     ]) then begin

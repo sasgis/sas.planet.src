@@ -1,0 +1,1255 @@
+unit u_TileStorageSQLiteHandler;
+
+interface
+
+uses
+  Windows,
+  Classes,
+  SQLite3Handler,
+  t_TileStorageSQLite,
+  t_NotifierOperationRec,
+  t_TileStorageSQLiteHandler,
+  i_BinaryData,
+  i_ContentTypeInfo,
+  i_InterfaceListSimple,
+  i_MapVersionInfo,
+  i_MapVersionListStatic,
+  i_TileInfoBasic,
+  i_TileStorageSQLiteHandler,
+  i_TileStorageSQLiteHolder,
+  u_BaseInterfacedObject;
+
+type
+  TTileStorageSQLiteHandler = class(TBaseInterfacedObject, ITileStorageSQLiteHandler)
+  private
+    FSQLite3DbHandler: TSQLite3DbHandler;
+    FTileStorageSQLiteHolder: ITileStorageSQLiteHolder;
+    FDBFilename: WideString;
+    FSingleVersionOnly: IMapVersionInfo;
+    FUseVersionFieldInDB: Boolean;
+  protected
+    procedure InternalCheckStructure; virtual; abstract;
+
+    function GetSQL_DeleteTile(
+      const ADeleteTileAllData: PDeleteTileAllData
+    ): AnsiString; virtual; abstract;
+
+    function GetSQL_SetTileVersion(
+      const ASetTileVersionAllData: PSetTileVersionAllData
+    ): AnsiString; virtual; abstract;
+
+    function GetSQL_TileRectInfo(
+      const AUsePrevVersions: Boolean;
+      const AEnumData: TTileInfoShortEnumData
+    ): AnsiString; virtual; abstract;
+
+    procedure CallbackSelectTileRectInfo(
+      const AHandler: PSQLite3DbHandler;
+      const ACallbackPtr: Pointer;
+      const AStmtData: PSQLite3StmtData
+    ); virtual; abstract;
+  private
+    procedure LogError(
+      const ACmd: AnsiChar;
+      const AMsg: String;
+      const ARaiseError: Boolean = False
+    );
+    procedure ExecuteSQL(const ASQLStatement: AnsiString);
+  private
+    { ITileStorageSQLiteHandler }
+    function Opened: Boolean;
+
+    function GetTileInfo(
+      const AOper: PNotifierOperationRec;
+      const AXY: TPoint;
+      const AZoom: Byte;
+      const AVersionInfo: IMapVersionInfo;
+      const AMode: TGetTileInfoModeSQLite;
+      const AUsePrevVersions: Boolean;
+      const AResult: PGetTileResult
+    ): Boolean; virtual; abstract;
+
+    function DeleteTile(
+      const ADeleteTileAllData: PDeleteTileAllData
+    ): Boolean;
+
+    function SaveTile(
+      const ASaveTileAllData: PSaveTileAllData
+    ): Boolean; virtual; abstract;
+
+    function SetTileVersion(
+      const ASetTileVersionAllData: PSetTileVersionAllData
+    ): Boolean;
+
+    function GetListOfTileVersions(
+      const AOper: PNotifierOperationRec;
+      const AXY: TPoint;
+      const AZoom: byte;
+      const AVersionInfo: IMapVersionInfo
+    ): IMapVersionListStatic; virtual; abstract;
+
+    function GetTileRectInfo(
+      const AOper: PNotifierOperationRec;
+      const AUsePrevVersions: Boolean;
+      const AEnumData: TTileInfoShortEnumData
+    ): Boolean;
+  public
+    function GetSQLite3DbHandlerPtr: Pointer;
+    property SQLite3DbHandlerPtr: Pointer read GetSQLite3DbHandlerPtr;
+  public
+    constructor Create(
+      const ATileStorageSQLiteHolder: ITileStorageSQLiteHolder;
+      const ADBFilename: WideString;
+      const ASingleVersionOnly: IMapVersionInfo;
+      const AUseVersionFieldInDB: Boolean
+    );
+    destructor Destroy; override;
+  end;
+
+  TTileStorageSQLiteHandlerComplex = class(TTileStorageSQLiteHandler)
+  private
+    FTBColInfo: TTBColInfo;
+  private
+    procedure CallbackSelectTileInfo(
+      const AHandler: PSQLite3DbHandler;
+      const ACallbackPtr: Pointer;
+      const AStmtData: PSQLite3StmtData
+    );
+    procedure CallbackSelectVersions(
+      const AHandler: PSQLite3DbHandler;
+      const ACallbackPtr: Pointer;
+      const AStmtData: PSQLite3StmtData
+    );
+    procedure CallbackSelectCols(
+      const AHandler: PSQLite3DbHandler;
+      const ACallbackPtr: Pointer;
+      const AStmtData: PSQLite3StmtData
+    );
+  protected
+    procedure InternalCheckStructure; override;
+
+    procedure CallbackSelectTileRectInfo(
+      const AHandler: PSQLite3DbHandler;
+      const ACallbackPtr: Pointer;
+      const AStmtData: PSQLite3StmtData
+    ); override;
+
+    function GetTileInfo(
+      const AOper: PNotifierOperationRec;
+      const AXY: TPoint;
+      const AZoom: Byte;
+      const AVersionInfo: IMapVersionInfo;
+      const AMode: TGetTileInfoModeSQLite;
+      const AUsePrevVersions: Boolean;
+      const AResult: PGetTileResult
+    ): Boolean; override;
+
+    function SaveTile(
+      const ASaveTileAllData: PSaveTileAllData
+    ): Boolean; override;
+
+    function GetListOfTileVersions(
+      const AOper: PNotifierOperationRec;
+      const AXY: TPoint;
+      const AZoom: byte;
+      const AVersionInfo: IMapVersionInfo
+    ): IMapVersionListStatic; override;
+  protected
+    function GetSQL_DeleteTile(
+      const ADeleteTileAllData: PDeleteTileAllData
+    ): AnsiString; override;
+
+    function GetSQL_SetTileVersion(
+      const ASetTileVersionAllData: PSetTileVersionAllData
+    ): AnsiString; override;
+
+    function GetSQL_TileRectInfo(
+      const AUsePrevVersions: Boolean;
+      const AEnumData: TTileInfoShortEnumData
+    ): AnsiString; override;
+  public
+    function GetListOfVersions(const AOper: PNotifierOperationRec): IMapVersionListStatic;
+    function GetTBColInfoPtr: Pointer;
+  end;
+
+implementation
+
+uses
+  SysUtils,
+  DateUtils,
+  ALString,
+  AlSqlite3Wrapper,
+  c_TileStorageSQLite,
+  u_InterfaceListSimple,
+  u_MapVersionListStatic,
+  u_TileInfoBasic,
+  u_TileRectInfoShort,
+  u_TileStorageSQLiteFunc;
+
+const
+  cReplaceOrIgnore: array [Boolean] of AnsiString = ('REPLACE', 'IGNORE');
+
+type
+  PGetTileRectInfoCancellable = ^TGetTileRectInfoCancellable;
+  TGetTileRectInfoCancellable = record
+    AEnumDataPtr: PTileInfoShortEnumData;
+    AOperationPtr: PNotifierOperationRec;
+    ACancelled: Boolean;
+  end;
+
+type
+  TSelectTileVersions = record
+    ListOfVersions: IInterfaceListSimple;
+    OperationPtr: PNotifierOperationRec;
+    Cancelled: Boolean;
+  public
+    procedure Init;
+    procedure Uninit;
+    function GetMapVersionInfoStatic: IMapVersionListStatic;
+  end;
+  PSelectTileVersions = ^TSelectTileVersions;
+
+{ TSelectTileVersions }
+
+procedure TSelectTileVersions.Init;
+begin
+  Cancelled := False;
+  OperationPtr := nil;
+  ListOfVersions := TInterfaceListSimple.Create;
+end;
+
+procedure TSelectTileVersions.Uninit;
+begin
+  OperationPtr := nil;
+end;
+
+function TSelectTileVersions.GetMapVersionInfoStatic: IMapVersionListStatic;
+begin
+  if not Cancelled and (ListOfVersions.Count > 0) then begin
+    Result := TMapVersionListStatic.Create(ListOfVersions.MakeStaticCopy, True);
+  end else begin
+    Result := nil;
+  end;
+end;
+
+function VersionFieldCompare(
+  const ARequestedVersionIsInt: Boolean;
+  const ATBColInfoModeV: TVersionColMode;
+  const AStrOperator: AnsiString;
+  const ARequestedVersionToDB: AnsiString
+): AnsiString;
+begin
+  Assert(AStrOperator <> '=');
+  case ATBColInfoModeV of
+    vcm_Int: begin
+      // версия в БД целочисленная
+      if ARequestedVersionIsInt then begin
+        // версию дали целочисленную
+        Result := 'v' + AStrOperator + ARequestedVersionToDB;
+      end else begin
+        // версию дали текстовую
+        Result := 'cast(v as TEXT)' + AStrOperator + ARequestedVersionToDB +
+          ' COLLATE ' + cLogicalSortingCollation;
+      end;
+    end;
+    vcm_Text: begin
+      // версия в БД текстовая
+      Result := 'v' + AStrOperator + ARequestedVersionToDB +
+        ' COLLATE ' + cLogicalSortingCollation;
+    end;
+  end;
+end;
+
+function GetOrderByVersionDesc(
+  const ATBColInfoModeV: TVersionColMode
+): AnsiString;
+begin
+  case ATBColInfoModeV of
+    vcm_Int: begin
+      // версия в БД целочисленная
+      Result := 'v DESC';
+    end;
+    vcm_Text: begin
+      // версия в БД текстовая
+      Result := 'v COLLATE ' + cLogicalSortingCollation + ' DESC';
+    end;
+  else
+    begin
+      Assert(False, IntToStr(Ord(ATBColInfoModeV)));
+    end;
+  end;
+end;
+
+function GetCheckPrevVersionSQLText(
+  const ARequestedVersionIsInt: Boolean;
+  const ATBColInfoModeV: TVersionColMode;
+  const AXY: TPoint;
+  const ARequestedVersionToDB: AnsiString;
+  const AOriginalTileSize: Integer;
+  const ALinkSize: AnsiString
+): AnsiString;
+var
+  VSize2: AnsiString;
+begin
+  if (0 < Length(ALinkSize)) then begin
+    // delete from if size =
+    Result := ALinkSize + '=';
+    VSize2 := ALinkSize + '+1';
+  end else begin
+    // insert or replace where size <>
+    Result := ALIntToStr(AOriginalTileSize) + '<>';
+    VSize2 := ALIntToStr(AOriginalTileSize + 1);
+  end;
+
+  Result := Result+
+    'COALESCE((SELECT s FROM t' +
+    ' WHERE x=' + ALIntToStr(AXY.X) +
+    ' AND y=' + ALIntToStr(AXY.Y) +
+    ' AND ' + VersionFieldCompare(ARequestedVersionIsInt, ATBColInfoModeV, '<', ARequestedVersionToDB) +
+    ' ORDER BY ' + GetOrderByVersionDesc(ATBColInfoModeV) + ' LIMIT 1),' + VSize2 + ')';
+end;
+
+{ TTileStorageSQLiteHandler }
+
+constructor TTileStorageSQLiteHandler.Create(
+  const ATileStorageSQLiteHolder: ITileStorageSQLiteHolder;
+  const ADBFilename: WideString;
+  const ASingleVersionOnly: IMapVersionInfo;
+  const AUseVersionFieldInDB: Boolean
+);
+begin
+  Assert(ATileStorageSQLiteHolder <> nil);
+  inherited Create;
+  FTileStorageSQLiteHolder := ATileStorageSQLiteHolder;
+  FDBFilename := ADBFilename;
+  FSingleVersionOnly := ASingleVersionOnly;
+  FUseVersionFieldInDB := AUseVersionFieldInDB;
+
+  // open database and prepare to work
+  try
+    if FSQLite3DbHandler.Init then begin
+      // open existing or create new
+      FSQLite3DbHandler.OpenW(FDBFilename, True);
+      // apply session params
+      FTileStorageSQLiteHolder.ExecMakeSession(ExecuteSQL);
+      // make or check structure
+      InternalCheckStructure;
+      // apply working params
+      FTileStorageSQLiteHolder.ExecEstablished(ExecuteSQL);
+      // register BUSY-handler
+      FSQLite3DbHandler.SetBusyTryCount(3);
+    end;
+  except
+    on E: Exception do begin
+      // no sqlite or another error
+      LogError(c_Log_Init, FSQLite3DbHandler.LibVersionInfo);
+      FSQLite3DbHandler.Close;
+      LogError(c_Log_Init, E.Message);
+    end
+  end;
+end;
+
+function TTileStorageSQLiteHandler.DeleteTile(
+  const ADeleteTileAllData: PDeleteTileAllData
+): Boolean;
+var
+  VRowsAffected: Integer;
+begin
+  Result := False;
+  VRowsAffected := 0;
+  try
+    FSQLite3DbHandler.ExecSQL(
+      GetSQL_DeleteTile(ADeleteTileAllData),
+      @VRowsAffected
+    );
+    Result := (VRowsAffected > 0);
+  except
+    on E: Exception do
+      LogError(c_Log_Delete, E.Message);
+  end;
+end;
+
+destructor TTileStorageSQLiteHandler.Destroy;
+begin
+  FSQLite3DbHandler.Close;
+  FTileStorageSQLiteHolder := nil;
+  inherited Destroy;
+end;
+
+procedure TTileStorageSQLiteHandler.ExecuteSQL(const ASQLStatement: AnsiString);
+begin
+  FSQLite3DbHandler.ExecSQL(ASQLStatement);
+end;
+
+function TTileStorageSQLiteHandler.GetSQLite3DbHandlerPtr: Pointer;
+begin
+  Result := @FSQLite3DbHandler;
+end;
+
+function TTileStorageSQLiteHandler.GetTileRectInfo(
+  const AOper: PNotifierOperationRec;
+  const AUsePrevVersions: Boolean;
+  const AEnumData: TTileInfoShortEnumData
+): Boolean;
+var
+  VData: TGetTileRectInfoCancellable;
+begin
+  VData.AEnumDataPtr := @AEnumData;
+  VData.AOperationPtr := AOper;
+  VData.ACancelled := False;
+  try
+    // call
+    FSQLite3DbHandler.OpenSQL(
+      GetSQL_TileRectInfo(AUsePrevVersions, AEnumData),
+      CallbackSelectTileRectInfo,
+      @VData,
+      True
+    );
+  except
+    on E: Exception do
+      LogError(c_Log_GetMap, E.Message);
+  end;
+  Result := not VData.ACancelled;
+end;
+
+procedure TTileStorageSQLiteHandler.LogError(
+  const ACmd: AnsiChar;
+  const AMsg: String;
+  const ARaiseError: Boolean
+);
+begin
+  FTileStorageSQLiteHolder.LogError(ACmd, AMsg, ARaiseError);
+end;
+
+function TTileStorageSQLiteHandler.Opened: Boolean;
+begin
+  Result := FSQLite3DbHandler.Opened;
+end;
+
+function TTileStorageSQLiteHandler.SetTileVersion(
+  const ASetTileVersionAllData: PSetTileVersionAllData
+): Boolean;
+var
+  VSQLText: AnsiString;
+begin
+  Result := False;
+  if not FUseVersionFieldInDB then begin
+    Exit;
+  end;
+  try
+    VSQLText := GetSQL_SetTileVersion(ASetTileVersionAllData);
+    if Length(VSQLText) = 0 then begin
+      Exit;
+    end;
+    FSQLite3DbHandler.ExecSQL(VSQLText);
+    Result := True;
+  except
+    on E: Exception do
+      LogError(c_Log_SetVer, E.Message);
+  end;
+end;
+
+{ TTileStorageSQLiteHandlerComplex }
+
+procedure TTileStorageSQLiteHandlerComplex.CallbackSelectCols(
+  const AHandler: PSQLite3DbHandler;
+  const ACallbackPtr: Pointer;
+  const AStmtData: PSQLite3StmtData
+);
+var
+  I: Integer;
+  VName: PAnsiChar;
+  VFound: Byte;
+begin
+  VFound := 2;
+
+  with PTBColInfo(ACallbackPtr)^ do begin
+    ColCount := AStmtData^.ColumnCount;
+    for I := 0 to ColCount - 1 do begin
+      VName := AStmtData^.ColumnName(I);
+      if StrIComp(VName, 'v') = 0 then begin
+        VName := AStmtData^.ColumnDeclType(I);
+        if StrIComp(VName, 'TEXT') = 0 then begin
+          ModeV := vcm_Text;
+        end else begin
+          ModeV := vcm_Int;
+        end;
+        Dec(VFound);
+      end else if StrIComp(VName, 'c') = 0 then begin
+        HasC := True;
+        Dec(VFound);
+      end;
+      if VFound = 0 then begin
+        Break;
+      end;
+    end;
+  end;
+
+  AStmtData^.Cancelled := True;
+end;
+
+procedure TTileStorageSQLiteHandlerComplex.CallbackSelectTileInfo(
+  const AHandler: PSQLite3DbHandler;
+  const ACallbackPtr: Pointer;
+  const AStmtData: PSQLite3StmtData
+);
+var
+  VOriginalTileSize: Integer;
+  VBlobSize: Integer;
+  VTemp: Int64;
+  VDateTime: TDateTime;
+  VColType: Integer;
+  VVersionStr: String;
+  VContentType: AnsiString;
+  VBinaryData: IBinaryData;
+begin
+  // s,d[,v][,c][,b]
+  // здесь читаем только один тайл
+  AStmtData^.Cancelled := True;
+
+  with PSelectTileInfoComplex(ACallbackPtr)^.TileResult^ do begin
+    // размер и дату тащим даже без запроса пользователя
+    GExtraMode := GExtraMode + [gtiiSize, gtiiLoadDate];
+  end;
+
+  // original tile size (in bytes)
+  VOriginalTileSize := AStmtData^.ColumnInt(0);
+
+  // time (in unix seconds)
+  VTemp := AStmtData^.ColumnInt64(1);
+  VDateTime := UnixToDateTime(VTemp);
+
+  // version
+  if FTBColInfo.ModeV <> vcm_None then begin
+    // get version as field 2
+    VColType := AStmtData^.ColumnType(2);
+    case VColType of
+      SQLITE_NULL: begin
+        // null value
+        with PSelectTileInfoComplex(ACallbackPtr)^ do begin
+          if RequestedVersionIsInt and (RequestedVersionAsInt = 0) then begin
+            // use source version
+          end else begin
+            // make new empty version
+            RequestedVersionInfo := FTileStorageSQLiteHolder.GetVersionInfo('');
+          end;
+        end;
+      end;
+      SQLITE_INTEGER: begin
+        // version as integer
+        VTemp := AStmtData^.ColumnInt64(2);
+        with PSelectTileInfoComplex(ACallbackPtr)^ do begin
+          if RequestedVersionIsInt then begin
+            // check given version was the same
+            if RequestedVersionAsInt <> VTemp then begin
+              // make new version
+              RequestedVersionInfo := FTileStorageSQLiteHolder.GetVersionInfo(IntToStr(VTemp));
+            end;
+          end else begin
+            // make new version
+            RequestedVersionInfo := FTileStorageSQLiteHolder.GetVersionInfo(IntToStr(VTemp));
+          end;
+        end;
+      end;
+    else
+      begin
+        // SQLITE_FLOAT, SQLITE_BLOB, SQLITE_TEXT
+        {$IFDEF UNICODE}
+        VVersionStr := AStmtData^.ColumnAsWideString(2);
+        {$ELSE}
+        VVersionStr := AStmtData^.ColumnAsAnsiString(2);
+        {$ENDIF}
+        with PSelectTileInfoComplex(ACallbackPtr)^ do begin
+          if (RequestedVersionInfo = nil) or not SameText(RequestedVersionInfo.StoreString, VVersionStr) then begin
+            // make new version
+            RequestedVersionInfo := FTileStorageSQLiteHolder.GetVersionInfo(VVersionStr);
+          end;
+        end;
+      end;
+    end;
+  end;
+
+  if VOriginalTileSize <= 0 then begin
+    // TNE
+    PSelectTileInfoComplex(ACallbackPtr)^.TileResult^.GTileInfo :=
+      TTileInfoBasicTNE.Create(
+        VDateTime,
+        PSelectTileInfoComplex(ACallbackPtr)^.RequestedVersionInfo
+      );
+    Exit;
+  end;
+
+  // content-type
+  if FTBColInfo.HasC then begin
+    // get content_type (FieldIndex = 2 + Ord(FTBColInfo.HasV)
+    VContentType := AStmtData^.ColumnAsAnsiString(2 + Ord(FTBColInfo.ModeV <> vcm_None));
+  end else begin
+    // use default content_type
+    VContentType := '';
+  end;
+
+  with PSelectTileInfoComplex(ACallbackPtr)^.TileResult^ do begin
+    // тип тайла тут всегда тащим
+    GExtraMode := GExtraMode + [gtiiContentType];
+  end;
+
+  // treat as tile
+  if gtiiBody in PSelectTileInfoComplex(ACallbackPtr)^.SelectMode then begin
+    // get tile with body
+    VColType := 2 + Ord(FTBColInfo.ModeV <> vcm_None) + Ord(FTBColInfo.HasC);
+    VBlobSize := AStmtData^.ColumnBlobSize(VColType);
+    if VBlobSize <= 0 then begin
+      // TNE ?!
+      PSelectTileInfoComplex(ACallbackPtr)^.TileResult^.GTileInfo :=
+        TTileInfoBasicTNE.Create(
+          VDateTime,
+          PSelectTileInfoComplex(ACallbackPtr)^.RequestedVersionInfo
+        );
+    end else begin
+      // has body
+      VBinaryData :=
+        CreateTileBinaryData(
+          VOriginalTileSize,
+          VBlobSize,
+          AStmtData^.ColumnBlobData(VColType)
+        );
+      PSelectTileInfoComplex(ACallbackPtr)^.TileResult^.GTileInfo :=
+        TTileInfoBasicExistsWithTile.Create(
+          VDateTime,
+          VBinaryData,
+          PSelectTileInfoComplex(ACallbackPtr)^.RequestedVersionInfo,
+          FTileStorageSQLiteHolder.GetContentTypeInfo(VContentType)
+        );
+    end;
+  end else begin
+    // no need tile body
+    PSelectTileInfoComplex(ACallbackPtr)^.TileResult^.GTileInfo :=
+      TTileInfoBasicExists.Create(
+        VDateTime,
+        VOriginalTileSize,
+        PSelectTileInfoComplex(ACallbackPtr)^.RequestedVersionInfo,
+        FTileStorageSQLiteHolder.GetContentTypeInfo(VContentType)
+      );
+  end;
+end;
+
+procedure TTileStorageSQLiteHandlerComplex.CallbackSelectTileRectInfo(
+  const AHandler: PSQLite3DbHandler;
+  const ACallbackPtr: Pointer;
+  const AStmtData: PSQLite3StmtData
+);
+var
+  VIndex: Integer;
+  VXY: TPoint;
+  VDataPtr: PGetTileRectInfoCancellable;
+  VPtr: PTileInfoShortEnumData;
+begin
+  VDataPtr := PGetTileRectInfoCancellable(ACallbackPtr);
+
+  // check
+  with VDataPtr^ do begin
+    if AOperationPtr^.IsOperationCancelled then begin
+      AStmtData^.Cancelled := True;
+      ACancelled := True;
+      Exit;
+    end;
+  end;
+
+  // x,y,d,s
+  VXY.X := AStmtData^.ColumnInt(0);
+  VXY.Y := AStmtData^.ColumnInt(1);
+
+  VPtr := VDataPtr^.AEnumDataPtr;
+
+  // get index in array
+  VIndex := TTileRectInfoShort.TileInRectToIndex(VXY, VPtr^.DestRect);
+
+  // apply values
+  with VPtr^.RectItems[VIndex] do begin
+    FLoadDate := UnixToDateTime(AStmtData^.ColumnInt64(2));
+    FSize := AStmtData^.ColumnInt(3);
+    if FSize > 0 then begin
+      FInfoType := titExists;
+    end else begin
+      FInfoType := titTneExists;
+    end;
+  end;
+end;
+
+procedure TTileStorageSQLiteHandlerComplex.CallbackSelectVersions(
+  const AHandler: PSQLite3DbHandler;
+  const ACallbackPtr: Pointer;
+  const AStmtData: PSQLite3StmtData
+);
+var
+  VData: PSelectTileVersions;
+  VColType: Integer;
+  VVersionInfo: IMapVersionInfo;
+begin
+  VData := PSelectTileVersions(ACallbackPtr);
+
+  // check
+  with VData^ do begin
+    if OperationPtr^.IsOperationCancelled then begin
+      AStmtData^.Cancelled := True;
+      Cancelled := True;
+      Exit;
+    end;
+  end;
+
+  // make version
+  VColType := AStmtData^.ColumnType(0);
+  case VColType of
+    SQLITE_NULL: begin
+      // NULL - use empty string
+      VVersionInfo := FTileStorageSQLiteHolder.GetVersionInfo('');
+    end;
+    SQLITE_INTEGER: begin
+      // Int64
+      VVersionInfo := FTileStorageSQLiteHolder.GetVersionInfo(IntToStr(AStmtData^.ColumnInt64(0)));
+    end;
+  else
+    begin
+      // SQLITE_FLOAT, SQLITE_BLOB, SQLITE_TEXT
+      VVersionInfo :=
+        FTileStorageSQLiteHolder.GetVersionInfo(
+          {$IFDEF UNICODE}
+          AStmtData^.ColumnAsWideString(0)
+          {$ELSE}
+          AStmtData^.ColumnAsAnsiString(0)
+          {$ENDIF}
+        );
+    end;
+  end;
+
+  // add it to list
+  if VVersionInfo <> nil then begin
+    VData^.ListOfVersions.Add(VVersionInfo);
+  end;
+end;
+
+function TTileStorageSQLiteHandlerComplex.GetListOfTileVersions(
+  const AOper: PNotifierOperationRec;
+  const AXY: TPoint;
+  const AZoom: byte;
+  const AVersionInfo: IMapVersionInfo
+): IMapVersionListStatic;
+var
+  VSelectTileVersions: TSelectTileVersions;
+  VSQLText: AnsiString;
+begin
+  if not FUseVersionFieldInDB or (FTBColInfo.ModeV = vcm_None) then begin
+    // no versions
+    Result := nil;
+    Exit;
+  end;
+
+  VSQLText :=
+    'SELECT v FROM t' +
+    ' WHERE x=' + ALIntToStr(AXY.X) +
+    ' AND y=' + ALIntToStr(AXY.Y) +
+    ' ORDER BY ' + GetOrderByVersionDesc(FTBColInfo.ModeV);
+
+  VSelectTileVersions.Init;
+  try
+    VSelectTileVersions.OperationPtr := AOper;
+    try
+      FSQLite3DbHandler.OpenSQL(
+        VSQLText,
+        CallbackSelectVersions,
+        @VSelectTileVersions,
+        True
+      );
+      // return versions
+      Result := VSelectTileVersions.GetMapVersionInfoStatic;
+    except
+      on E: Exception do
+        LogError(c_Log_GetVer, E.Message);
+    end;
+  finally
+    VSelectTileVersions.Uninit;
+  end;
+end;
+
+function TTileStorageSQLiteHandlerComplex.GetListOfVersions(
+  const AOper: PNotifierOperationRec
+): IMapVersionListStatic;
+var
+  VSelectTileVersions: TSelectTileVersions;
+  VSQLText: AnsiString;
+begin
+  if not FUseVersionFieldInDB or (FTBColInfo.ModeV = vcm_None) then begin
+    // no versions
+    Result := nil;
+    Exit;
+  end;
+
+  VSQLText := 'SELECT DISTINCT v FROM t';
+
+  VSelectTileVersions.Init;
+  try
+    VSelectTileVersions.OperationPtr := AOper;
+    try
+      FSQLite3DbHandler.OpenSQL(
+        VSQLText,
+        CallbackSelectVersions,
+        @VSelectTileVersions,
+        True
+      );
+      // return versions
+      Result := VSelectTileVersions.GetMapVersionInfoStatic;
+    except
+      on E: Exception do
+        LogError(c_Log_GetVer, E.Message);
+    end;
+  finally
+    VSelectTileVersions.Uninit;
+  end;
+end;
+
+function TTileStorageSQLiteHandlerComplex.GetSQL_DeleteTile(
+  const ADeleteTileAllData: PDeleteTileAllData
+): AnsiString;
+var
+  VInfo: TSelectTileInfoComplex;
+begin
+  with ADeleteTileAllData^ do begin
+    Result := 'DELETE FROM t WHERE x=' + ALIntToStr(DXY.X) + ' AND y=' + ALIntToStr(DXY.Y);
+
+    if FTBColInfo.ModeV <> vcm_None then begin
+      // table has version field
+      ParseSQLiteDBVersion(
+        FUseVersionFieldInDB,
+        FTBColInfo.ModeV,
+        DVersionInfo,
+        VInfo
+      );
+
+      Result := Result + ' AND ' +
+        VersionFieldIsEqual(
+          VInfo.RequestedVersionIsInt,
+          FTBColInfo.ModeV,
+          VInfo.RequestedVersionToDB
+        );
+
+      if VInfo.RequestedVersionIsSet and (DDeleteTileFlags <> c_Default_TileFlags) then begin
+        // check size for prev version
+        Result := Result + ' AND ' +
+          GetCheckPrevVersionSQLText(
+            VInfo.RequestedVersionIsInt,
+            FTBColInfo.ModeV,
+            DXY,
+            VInfo.RequestedVersionToDB,
+            0,
+            't.s'
+          );
+      end;
+    end;
+  end;
+end;
+
+function TTileStorageSQLiteHandlerComplex.GetSQL_SetTileVersion(
+  const ASetTileVersionAllData: PSetTileVersionAllData
+): AnsiString;
+var
+  VSrc, VDst: TSelectTileInfoComplex;
+begin
+  if FTBColInfo.ModeV = vcm_None then begin
+    // нет поля версии в БД
+    Result := '';
+    Exit;
+  end;
+
+  with ASetTileVersionAllData^ do begin
+    // а может быть версии равны
+    if SVersionSrc = nil then begin
+      // старой версии не было
+      if SVersionDst = nil then begin
+        // новой тоже нет
+        Result := '';
+        Exit;
+      end;
+    end else begin
+      // старая версия была
+      if SVersionSrc.IsSame(SVersionDst) then begin
+        // версии одинаковы
+        Result := '';
+        Exit;
+      end;
+    end;
+
+    // парсим обе версии
+    ParseSQLiteDBVersion(FUseVersionFieldInDB, FTBColInfo.ModeV, SVersionSrc, VSrc);
+    ParseSQLiteDBVersion(FUseVersionFieldInDB, FTBColInfo.ModeV, SVersionDst, VDst);
+
+    // дополнительная проверка на случай сложных версий
+    if ALSameText(VSrc.RequestedVersionToDB, VDst.RequestedVersionToDB) then begin
+      // equals
+      Result := '';
+      Exit;
+    end;
+
+    // mode
+    Result := 'UPDATE OR ';
+    if (SReplaceVersionFlags and RVF_OVERWRITE_EXISTING) <> 0 then begin
+      Result := Result + 'REPLACE';
+    end else begin
+      Result := Result + 'ABORT';
+    end;
+
+    // make command
+    Result := Result + ' t' +
+      ' SET v=' + VDst.RequestedVersionToDB +
+      ' WHERE x=' + ALIntToStr(SXY.X) +
+      ' AND y=' + ALIntToStr(SXY.Y) +
+      ' AND ' + VersionFieldIsEqual(VSrc.RequestedVersionIsInt, FTBColInfo.ModeV, VSrc.RequestedVersionToDB);
+  end;
+end;
+
+function TTileStorageSQLiteHandlerComplex.GetSQL_TileRectInfo(
+  const AUsePrevVersions: Boolean;
+  const AEnumData: TTileInfoShortEnumData
+): AnsiString;
+var
+  VSelect: AnsiString;
+  VComplex: TSelectTileInfoComplex;
+begin
+  VSelect := 'SELECT x,y,d,s';
+  Result := ' FROM t WHERE x';
+  with AEnumData do begin
+    // x
+    if DestRect.Left = DestRect.Right - 1 then begin
+      Result := Result + '=' + ALIntToStr(DestRect.Left);
+    end else begin
+      Result := Result +
+        ' between ' + ALIntToStr(DestRect.Left) +
+        ' and ' + ALIntToStr(DestRect.Right - 1);
+    end;
+
+    // y
+    Result := Result + ' AND y';
+    if DestRect.Top = DestRect.Bottom - 1 then begin
+      Result := Result + '=' + ALIntToStr(DestRect.Top);
+    end else begin
+      Result := Result +
+        ' between ' + ALIntToStr(DestRect.Top) +
+        ' and ' + ALIntToStr(DestRect.Bottom - 1);
+    end;
+  end;
+
+  // add version
+  if FTBColInfo.ModeV <> vcm_None then begin
+    // version
+    VSelect := VSelect + ',v';
+
+    ParseSQLiteDBVersion(
+      FUseVersionFieldInDB,
+      FTBColInfo.ModeV,
+      AEnumData.RectVersionInfo,
+      VComplex
+    );
+
+    // use given version
+    if not AUsePrevVersions then begin
+      // use ONLY given version
+      Result := Result +
+        ' AND ' +
+        VersionFieldIsEqual(
+          VComplex.RequestedVersionIsInt,
+          FTBColInfo.ModeV,
+          VComplex.RequestedVersionToDB
+        );
+    end else if VComplex.RequestedVersionIsSet then begin
+      // allow use prev versions before given
+      Result := Result +
+        ' AND ' +
+        VersionFieldCompare(
+          VComplex.RequestedVersionIsInt,
+          FTBColInfo.ModeV,
+          '<=',
+          VComplex.RequestedVersionToDB
+        );
+    end else begin
+      // no given version - just use last version
+    end;
+
+    if AUsePrevVersions then begin
+      Result := Result + ' ORDER BY ' + GetOrderByVersionDesc(FTBColInfo.ModeV);
+    end;
+  end;
+
+  Result := VSelect + Result;
+end;
+
+function TTileStorageSQLiteHandlerComplex.GetTBColInfoPtr: Pointer;
+begin
+  Result := @FTBColInfo;
+end;
+
+function TTileStorageSQLiteHandlerComplex.GetTileInfo(
+  const AOper: PNotifierOperationRec;
+  const AXY: TPoint;
+  const AZoom: Byte;
+  const AVersionInfo: IMapVersionInfo;
+  const AMode: TGetTileInfoModeSQLite;
+  const AUsePrevVersions: Boolean;
+  const AResult: PGetTileResult
+): Boolean;
+var
+  VSelectTileInfo: TSelectTileInfoComplex;
+  VSQLText: AnsiString;
+  VSQLWhere: AnsiString;
+  VSQLOrder: AnsiString;
+begin
+  Result := False;
+
+  // select single tile
+  VSQLText := 'SELECT s,d';
+  VSQLWhere := 'WHERE x=' + ALIntToStr(AXY.X) + ' AND y=' + ALIntToStr(AXY.Y);
+  VSQLOrder := '';
+
+  if FTBColInfo.ModeV <> vcm_None then begin
+    // select version
+    VSQLText := VSQLText + ',v';
+
+    ParseSQLiteDBVersion(
+      FUseVersionFieldInDB,
+      FTBColInfo.ModeV,
+      AVersionInfo,
+      VSelectTileInfo
+    );
+    VSelectTileInfo.RequestedVersionInfo := AVersionInfo;
+
+    // use given version
+    if not AUsePrevVersions then begin
+      // use ONLY given version
+      VSQLWhere := VSQLWhere +
+        ' AND ' +
+        VersionFieldIsEqual(
+          VSelectTileInfo.RequestedVersionIsInt,
+          FTBColInfo.ModeV,
+          VSelectTileInfo.RequestedVersionToDB
+        );
+    end else if VSelectTileInfo.RequestedVersionIsSet then begin
+      // allow use prev versions before given
+      VSQLWhere := VSQLWhere +
+        ' AND ' +
+        VersionFieldCompare(
+          VSelectTileInfo.RequestedVersionIsInt,
+          FTBColInfo.ModeV,
+          '<=',
+          VSelectTileInfo.RequestedVersionToDB
+        );
+    end else begin
+      // no given version - just use last version
+    end;
+
+    if AUsePrevVersions then begin
+      VSQLWhere := VSQLWhere + ' ORDER BY ' + GetOrderByVersionDesc(FTBColInfo.ModeV);
+    end;
+  end;
+
+  if FTBColInfo.HasC then begin
+    // select contenttype
+    VSQLText := VSQLText + ',c';
+  end;
+
+  if gtiiBody in AMode then begin
+    // with body
+    VSQLText := VSQLText + ',b';
+  end;
+
+  VSelectTileInfo.SelectMode := AMode;
+  VSelectTileInfo.TileResult := AResult;
+
+  // make full select
+  VSQLText := VSQLText + ' FROM t ' + VSQLWhere + VSQLOrder + ' LIMIT 1'#0;
+
+  try
+    FSQLite3DbHandler.OpenSQL(
+      VSQLText,
+      CallbackSelectTileInfo,
+      @VSelectTileInfo,
+      True
+    );
+    Result := Assigned(AResult^.GTileInfo);
+  except
+    on E: Exception do
+      LogError(c_Log_Select, E.Message);
+  end;
+end;
+
+procedure TTileStorageSQLiteHandlerComplex.InternalCheckStructure;
+const
+  cSelectFieldTypesSQL = 'SELECT * FROM t WHERE 0=1';
+begin
+  FillChar(FTBColInfo, SizeOf(FTBColInfo), 0);
+
+  // check field count in main table
+  FSQLite3DbHandler.DeclareSQL(
+    cSelectFieldTypesSQL,
+    CallbackSelectCols,
+    @FTBColInfo,
+    False
+  );
+
+  if FTBColInfo.ColCount = 0 then begin
+    // no table - create it
+    FTileStorageSQLiteHolder.ExecForNewTable(ExecuteSQL);
+
+    // check again
+    FSQLite3DbHandler.DeclareSQL(
+      cSelectFieldTypesSQL,
+      CallbackSelectCols,
+      @FTBColInfo,
+      False
+    );
+  end;
+
+  with FTBColInfo do begin
+    if (ColCount < 5) or (ColCount > 7) then begin
+      // invalid struct
+      LogError(c_Log_Init, 'Invalid column count');
+    end;
+  end;
+end;
+
+function TTileStorageSQLiteHandlerComplex.SaveTile(
+  const ASaveTileAllData: PSaveTileAllData
+): Boolean;
+var
+  VInfoComplex: TSelectTileInfoComplex;
+  VOriginalTileBody: Pointer;
+  VOriginalTileSize: Integer;
+  VRowsAffected: Integer;
+  VKeepExisting: Boolean;
+  VSQLText: AnsiString;
+  VSQLInsert: AnsiString;
+  VSQLValues: AnsiString;
+  VSQLAfter: AnsiString;
+
+  procedure _BuildSqlText;
+  begin
+    if Length(VSQLAfter) > 0 then begin
+      // insert .. select
+      VSQLText := 'SELECT ' + VSQLValues + VSQLAfter;
+    end else begin
+      // insert .. values
+      VSQLText := 'VALUES (' + VSQLValues + ')';
+    end;
+    VSQLText :=
+      'INSERT OR ' + cReplaceOrIgnore[VKeepExisting] +
+      ' INTO t (' + VSQLInsert + ') ' + VSQLText;
+  end;
+
+begin
+  with ASaveTileAllData^ do begin
+    if SData <> nil then begin
+      VOriginalTileBody := SData.Buffer;
+      VOriginalTileSize := SData.Size;
+    end else begin
+      VOriginalTileBody := nil;
+      VOriginalTileSize := 0;
+    end;
+
+    // x,y - tile coordinates
+    // d for datetime - as unix seconds
+    VSQLInsert := 'x,y,d';
+
+    VSQLValues :=
+      ALIntToStr(SXY.X) + ',' +
+      ALIntToStr(SXY.Y) + ',' +
+      ALIntToStr(DateTimeToUnix(SLoadDate));
+
+    // version
+    if FTBColInfo.ModeV <> vcm_None then begin
+      // add version
+      VSQLInsert := VSQLInsert + ',v';
+      ParseSQLiteDBVersion(
+        FUseVersionFieldInDB,
+        FTBColInfo.ModeV,
+        SVersionInfo,
+        VInfoComplex
+      );
+      VSQLValues := VSQLValues + ',' + VInfoComplex.RequestedVersionToDB;
+
+      // check prev version with same size
+      if VInfoComplex.RequestedVersionIsSet and ((SSaveTileFlags and STF_SKIP_IF_SAME_AS_PREV) <> 0) then begin
+        VSQLAfter :=
+          ' WHERE ' +
+          GetCheckPrevVersionSQLText(
+            VInfoComplex.RequestedVersionIsInt,
+            FTBColInfo.ModeV,
+            SXY,
+            VInfoComplex.RequestedVersionToDB,
+            VOriginalTileSize,
+            ''
+          );
+      end else begin
+        VSQLAfter := '';
+      end;
+    end else begin
+      VSQLAfter := '';
+    end;
+
+    VKeepExisting := (SSaveTileFlags and STF_KEEP_EXISTING) <> 0;
+  end;
+
+  Result := False;
+  VRowsAffected := 0;
+
+  if (VOriginalTileSize <> 0) and (VOriginalTileBody <> nil) then begin
+    // not TNE - need contenttype
+
+    // contenttype
+    if FTBColInfo.HasC then begin
+      // add contenttype
+      VSQLInsert := VSQLInsert + ',c';
+      VSQLValues := VSQLValues + ',' +
+        FTileStorageSQLiteHolder.GetContentTypeToDB(ASaveTileAllData^.SContentType);
+    end;
+
+    // other fields (s for size and b for body)
+    VSQLInsert := VSQLInsert + ',s,b';
+    VSQLValues := VSQLValues + ',' + ALIntToStr(VOriginalTileSize) + ',?';
+
+    // execute for TILE
+    try
+      _BuildSqlText;
+      FSQLite3DbHandler.ExecSQLWithBLOB(
+        VSqlText,
+        VOriginalTileBody,
+        VOriginalTileSize,
+        @VRowsAffected
+      );
+
+      // check inserted or updated
+      Result := (VRowsAffected > 0);
+    except
+      on E: Exception do
+        LogError(c_Log_Replace, E.Message);
+    end;
+  end else begin
+    // TNE
+
+    // other fields (s for size and b for body)
+    VSQLInsert := VSQLInsert + ',s,b';
+    VSQLValues := VSQLValues + ',0,NULL';
+
+    // execute for TNE
+    try
+      _BuildSqlText;
+      FSQLite3DbHandler.ExecSQL(
+        VSqlText,
+        @VRowsAffected
+      );
+      // check inserted or updated
+      Result := (VRowsAffected > 0);
+    except
+      on E: Exception do
+        LogError(c_Log_Replace, E.Message);
+    end;
+  end;
+end;
+
+end.

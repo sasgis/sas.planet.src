@@ -299,7 +299,7 @@ var
   VAllowSetVersion: Boolean;
 begin
   VIntCode := GetTargetCacheType;
-  VAllowSetVersion := (VIntCode in [c_File_Cache_Id_DBMS, c_File_Cache_Id_BDB_Versioned]);
+  VAllowSetVersion := (VIntCode in [c_File_Cache_Id_DBMS, c_File_Cache_Id_BDB_Versioned, c_File_Cache_Id_SQLite]);
   chkSetTargetVersionTo.Enabled := VAllowSetVersion;
   UpdateSetTargetVersionState;
 end;

@@ -49,6 +49,7 @@ type
     FBDBCachePath: IPathConfig;
     FBDBVerCachePath: IPathConfig;
     FDBMSCachePath: IPathConfig;
+    FSQLiteCachePath: IPathConfig;
 
     function GetDefCache: byte;
     procedure SetDefCache(const AValue: byte);
@@ -64,6 +65,7 @@ type
     function GetBDBCachePath: IPathConfig;
     function GetBDBVerCachePath: IPathConfig;
     function GetDBMSCachePath: IPathConfig;
+    function GetSQLiteCachePath: IPathConfig;
   protected
     procedure DoReadConfig(const AConfigProvider: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigProvider: IConfigDataWriteProvider); override;
@@ -122,6 +124,9 @@ begin
 
   FDBMSCachePath := TPathConfig.Create('DBMSCache', c_File_Cache_Default_DBMS, FCacheGlobalPath);
   Add(FDBMSCachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
+
+  FSQLiteCachePath := TPathConfig.Create('SQLiteCache', c_File_Cache_Default_SQLite, FCacheGlobalPath);
+  Add(FSQLiteCachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
 end;
 
 procedure TGlobalCacheConfig.DoReadConfig(const AConfigProvider: IConfigDataProvider);
@@ -213,6 +218,11 @@ begin
   Result := FOldCPath;
 end;
 
+function TGlobalCacheConfig.GetSQLiteCachePath: IPathConfig;
+begin
+  Result := FSQLiteCachePath;
+end;
+
 procedure TGlobalCacheConfig.SetDefCache(const AValue: byte);
 begin
   LockWrite;
@@ -226,6 +236,7 @@ begin
         c_File_Cache_Id_MOBAC,
         c_File_Cache_Id_TMS,
         c_File_Cache_Id_DBMS,
+        c_File_Cache_Id_SQLite,
         c_File_Cache_Id_RAM,
         c_File_Cache_Id_BDB,
         c_File_Cache_Id_BDB_Versioned

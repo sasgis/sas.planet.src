@@ -42,6 +42,7 @@ const
   c_File_Cache_Id_BDB = 6;
   c_File_Cache_Id_BDB_Versioned = 61;
   c_File_Cache_Id_DBMS = 7;
+  c_File_Cache_Id_SQLite = 71;
   c_File_Cache_Id_GC = 8;  // GeoCacher.LOCAL direct access
   c_File_Cache_Id_RAM = 9; // only in-memory cache
 
@@ -55,6 +56,7 @@ const
   c_File_Cache_Default_BDB  = 'cache_db';      // for 6
   c_File_Cache_Default_BDBv = 'cache_dbv';     // for 61
   c_File_Cache_Default_DBMS = 'SASGIS_DBMS\$'; // for 7
+  c_File_Cache_Default_SQLite = 'cache_sqlite'; // for 71
   c_File_Cache_Default_GC   = 'cache_gc';      // for 8
   c_File_Cache_Default_RAM  = '';              // for 9
 

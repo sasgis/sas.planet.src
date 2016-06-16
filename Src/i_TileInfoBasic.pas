@@ -42,6 +42,7 @@ type
     FZoom: Byte;
     FInfoType: TTileInfoType;
   end;
+  PTileInfo = ^TTileInfo;
 
   IEnumTileInfo = interface
     ['{E04CF298-53DE-4ABC-A083-03C917599DE5}']

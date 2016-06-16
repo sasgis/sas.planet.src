@@ -84,6 +84,7 @@ uses
   u_TileStorageTypeBerkeleyDB,
   u_TileStorageTypeDBMS,
   u_TileStorageTypeInRAM,
+  u_TileStorageTypeSQLite,
   u_TileStorageTypeFileSystemSimple,
   u_TileStorageTypeListItem;
 
@@ -94,6 +95,7 @@ const
   CTileStorageTypeBerkeleyDB: TGUID = '{3DBF81CD-9356-40EB-9778-DE4D98E5BE61}';
   CTileStorageTypeBerkeleyDBVersioned: TGUID = '{CA3868AE-6762-4D17-B72F-6892E61E119B}';
   CTileStorageTypeDBMS: TGUID = '{5F9E2D54-A433-4853-B7EB-3EE218160263}';
+  CTileStorageTypeSQLite: TGUID = '{5E8ABF86-92B4-48FA-8F71-E94E22DD7831}';
   CTileStorageTypeFileSystemSAS: TGUID = '{BE87ACAB-7031-4F57-9C1D-FA62C709818F}';
   CTileStorageTypeFileSystemGMV: TGUID = '{CB20D66C-FC79-4D1C-93A9-1C41A8D6B002}';
   CTileStorageTypeFileSystemES: TGUID = '{F6056405-C25C-4573-AFAC-BC4F8DF52283}';
@@ -132,6 +134,7 @@ resourcestring
   rsBerkeleyDBVersionedCacheName = 'BerkeleyDB (Versioned)';
   rsMobileAtlasCacheName = 'Mobile Atlas Creator (MOBAC)';
   rsDBMSCacheName = 'DBMS';
+  rsSQLiteCacheName = 'SQLite3';
   rsRAMCacheName = 'RAM';
 
 { TTileStorageTypeListSimple }
@@ -326,6 +329,26 @@ begin
       CTileStorageTypeBerkeleyDB,
       c_File_Cache_Id_BDB_Versioned,
       rsBerkeleyDBVersionedCacheName,
+      VStorageType,
+      True,
+      True
+    );
+  VList.Add(VItem);
+
+  VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.SQLiteCachePath);
+  VStorageType :=
+    TTileStorageTypeSQLite.Create(
+      AGCNotifier,
+      AContentTypeManager,
+      AMapVersionFactoryList.GetSimpleVersionFactory,
+      VStorageTypeConfig,
+      True // IsVersioned
+    );
+  VItem :=
+    TTileStorageTypeListItem.Create(
+      CTileStorageTypeSQLite,
+      c_File_Cache_Id_SQLite,
+      rsSQLiteCacheName,
       VStorageType,
       True,
       True

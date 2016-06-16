@@ -38,13 +38,13 @@ object frmSettings: TfrmSettings
       object flwpnlMemCache: TFlowPanel
         AlignWithMargins = True
         Left = 3
-        Top = 333
+        Top = 361
         Width = 638
         Height = 25
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitTop = 305
+        ExplicitTop = 333
         object Label30: TLabel
           AlignWithMargins = True
           Left = 0
@@ -78,14 +78,14 @@ object frmSettings: TfrmSettings
       end
       object pnlDBMSPath: TPanel
         Left = 0
-        Top = 280
+        Top = 308
         Width = 644
         Height = 22
         Align = alTop
         BevelEdges = []
         BevelOuter = bvNone
         TabOrder = 2
-        ExplicitTop = 252
+        ExplicitTop = 280
         object lbDBMSCachePath: TLabel
           AlignWithMargins = True
           Left = 3
@@ -172,7 +172,6 @@ object frmSettings: TfrmSettings
         BevelEdges = []
         BevelOuter = bvNone
         TabOrder = 6
-        ExplicitTop = 140
       end
       object pnledtBDBCachePath: TPanel
         Left = 0
@@ -183,7 +182,6 @@ object frmSettings: TfrmSettings
         BevelEdges = []
         BevelOuter = bvNone
         TabOrder = 7
-        ExplicitTop = 168
       end
       object pnledtBDBVerCachePath: TPanel
         Left = 0
@@ -194,29 +192,28 @@ object frmSettings: TfrmSettings
         BevelEdges = []
         BevelOuter = bvNone
         TabOrder = 8
-        ExplicitTop = 196
       end
       object pnledtGCCachePath: TPanel
         Left = 0
-        Top = 252
+        Top = 280
         Width = 644
         Height = 28
         Align = alTop
         BevelEdges = []
         BevelOuter = bvNone
         TabOrder = 9
-        ExplicitTop = 224
+        ExplicitTop = 252
       end
       object pnlDefCache: TPanel
         Left = 0
-        Top = 302
+        Top = 330
         Width = 644
         Height = 28
         Align = alTop
         BevelEdges = []
         BevelOuter = bvNone
         TabOrder = 10
-        ExplicitTop = 274
+        ExplicitTop = 302
         object lbl: TLabel
           Left = 3
           Top = 12
@@ -254,8 +251,18 @@ object frmSettings: TfrmSettings
         BevelEdges = []
         BevelOuter = bvNone
         TabOrder = 12
-        ExplicitLeft = -3
-        ExplicitTop = 162
+      end
+      object pnlSQLiteCachePath: TPanel
+        Left = 0
+        Top = 252
+        Width = 644
+        Height = 28
+        Align = alTop
+        BevelEdges = []
+        BevelOuter = bvNone
+        TabOrder = 13
+        ExplicitLeft = 3
+        ExplicitTop = 264
       end
     end
     object tsInternet: TTabSheet

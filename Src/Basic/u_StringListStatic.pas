@@ -36,8 +36,10 @@ type
     function GetItem(AIndex: Integer): string;
     function IndexOf(const S: string): Integer;
   public
-    constructor CreateByStrings(AList: TStrings);
+    constructor CreateByStrings(const AList: TStrings);
     constructor CreateWithOwn(var AList: TStringList);
+    constructor CreateFromFile(const AFileName: string);
+    constructor CreateByPlainText(const APlainText: string);
     destructor Destroy; override;
   end;
 
@@ -48,7 +50,7 @@ uses
 
 { TStringListStatic }
 
-constructor TStringListStatic.CreateByStrings(AList: TStrings);
+constructor TStringListStatic.CreateByStrings(const AList: TStrings);
 var
   VList: TStringList;
 begin
@@ -67,6 +69,31 @@ begin
   inherited Create;
   FList := AList;
   AList := nil;
+end;
+
+constructor TStringListStatic.CreateFromFile(const AFileName: string);
+var
+  VStream: TFileStream;
+begin
+  inherited Create;
+  FList := TStringList.Create;
+  try
+    VStream := TFileStream.Create(AFileName, fmOpenRead or fmShareDenyNone);
+    try
+      FList.LoadFromStream(VStream);
+    finally
+      VStream.Free;
+    end;
+  except
+    //
+  end;
+end;
+
+constructor TStringListStatic.CreateByPlainText(const APlainText: string);
+begin
+  inherited Create;
+  FList := TStringList.Create;
+  FList.Text := APlainText;
 end;
 
 destructor TStringListStatic.Destroy;

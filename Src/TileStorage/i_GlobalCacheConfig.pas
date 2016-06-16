@@ -67,6 +67,9 @@ type
 
     function GetDBMSCachePath: IPathConfig;
     property DBMSCachePath: IPathConfig read GetDBMSCachePath;
+
+    function GetSQLiteCachePath: IPathConfig;
+    property SQLiteCachePath: IPathConfig read GetSQLiteCachePath;
   end;
 
 implementation
