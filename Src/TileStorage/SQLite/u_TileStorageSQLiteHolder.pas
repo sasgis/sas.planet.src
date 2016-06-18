@@ -192,6 +192,7 @@ begin
   end else begin
     // no file - use default values
     FSQLMakeSession := TStringListStatic.CreateByPlainText(
+      'PRAGMA encoding="UTF-8"' + #13#10 +
       'PRAGMA cache_size=60000' + #13#10 +
       'PRAGMA main.journal_mode=WAL' + #13#10 +
       'PRAGMA synchronous=NORMAL'
