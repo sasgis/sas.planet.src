@@ -86,6 +86,7 @@ uses
   SysUtils,
   DateUtils,
   AlSqlite3Wrapper,
+  c_TileStorageSQLite,
   u_TileStorageSQLiteFunc;
 
 { TTileStorageSQLiteFetcher }
@@ -214,12 +215,16 @@ begin
       case VColType of
         SQLITE_NULL: begin
           // null value - empty version
-          VVersionStr := '';
+          VVersionStr := cDefaultVersionAsStrValue;
         end;
         SQLITE_INTEGER: begin
           // version as integer
           VTemp := AStmtData^.ColumnInt64(4);
-          VVersionStr := IntToStr(VTemp);
+          if VTemp = cDefaultVersionAsIntValue then begin
+            VVersionStr := cDefaultVersionAsStrValue;
+          end else begin
+            VVersionStr := IntToStr(VTemp);
+          end;
         end;
       else
         begin

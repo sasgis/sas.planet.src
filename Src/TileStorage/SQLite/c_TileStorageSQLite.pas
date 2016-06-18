@@ -15,6 +15,8 @@ const
   c_Log_SetVer  = 'w';
   c_Log_GetMap  = 'm';
 
+  cDefaultVersionAsIntValue = 0;
+  cDefaultVersionAsStrValue = ''; // empty string
 
   //ToDo: replace this flags with sets
 

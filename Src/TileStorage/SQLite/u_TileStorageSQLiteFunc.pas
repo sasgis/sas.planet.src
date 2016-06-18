@@ -31,6 +31,7 @@ implementation
 uses
   ALString,
   SysUtils,
+  c_TileStorageSQLite,
   u_BinaryData;
 
 function CreateTileBinaryData(
@@ -54,9 +55,9 @@ end;
 function GetDefaultDBVersion(const AVersionColMode: TVersionColMode): AnsiString; inline;
 begin
   if AVersionColMode = vcm_Int then begin
-    Result := '0';
+    Result := ALIntToStr(cDefaultVersionAsIntValue);
   end else begin
-    Result := ''''''; // empty quoted string
+    Result := ALQuotedStr(cDefaultVersionAsStrValue);
   end;
 end;
 
@@ -82,7 +83,7 @@ begin
   if AUseVersionFieldInDB and Assigned(ARequestedVersionInfo) then begin
     AInfo.RequestedVersionToDB := VersionInfoToAnsi(ARequestedVersionInfo);
     if Length(AInfo.RequestedVersionToDB) = 0 then begin
-      // default version = 0
+      // default version
       AInfo.RequestedVersionToDB := GetDefaultDBVersion(ATBColInfoModeV);
       AInfo.RequestedVersionIsInt := True;
     end else if LocalTryStrToInt64(AInfo.RequestedVersionToDB, AInfo.RequestedVersionAsInt) then begin
@@ -100,7 +101,7 @@ begin
       AInfo.RequestedVersionIsSet := True;
     end;
   end else begin
-    // default version = 0
+    // default version
     AInfo.RequestedVersionToDB := GetDefaultDBVersion(ATBColInfoModeV);
     AInfo.RequestedVersionIsInt := True;
   end;

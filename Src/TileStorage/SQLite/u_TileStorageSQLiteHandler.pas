@@ -202,6 +202,7 @@ type
     ListOfVersions: IInterfaceListSimple;
     OperationPtr: PNotifierOperationRec;
     Cancelled: Boolean;
+    StoreEmptyVersion: Boolean;
   public
     procedure Init;
     procedure Uninit;
@@ -216,6 +217,7 @@ begin
   Cancelled := False;
   OperationPtr := nil;
   ListOfVersions := TInterfaceListSimple.Create;
+  StoreEmptyVersion := False;
 end;
 
 procedure TSelectTileVersions.Uninit;
@@ -527,27 +529,32 @@ begin
       SQLITE_NULL: begin
         // null value
         with PSelectTileInfoComplex(ACallbackPtr)^ do begin
-          if RequestedVersionIsInt and (RequestedVersionAsInt = 0) then begin
+          if RequestedVersionIsInt and (RequestedVersionAsInt = cDefaultVersionAsIntValue) then begin
             // use source version
           end else begin
             // make new empty version
-            RequestedVersionInfo := FTileStorageSQLiteHolder.GetVersionInfo('');
+            RequestedVersionInfo := FTileStorageSQLiteHolder.GetVersionInfo(cDefaultVersionAsStrValue);
           end;
         end;
       end;
       SQLITE_INTEGER: begin
         // version as integer
         VTemp := AStmtData^.ColumnInt64(2);
+        if VTemp = cDefaultVersionAsIntValue then begin
+          VVersionStr := cDefaultVersionAsStrValue;
+        end else begin
+          VVersionStr := IntToStr(VTemp);
+        end;
         with PSelectTileInfoComplex(ACallbackPtr)^ do begin
           if RequestedVersionIsInt then begin
             // check given version was the same
             if RequestedVersionAsInt <> VTemp then begin
               // make new version
-              RequestedVersionInfo := FTileStorageSQLiteHolder.GetVersionInfo(IntToStr(VTemp));
+              RequestedVersionInfo := FTileStorageSQLiteHolder.GetVersionInfo(VVersionStr);
             end;
           end else begin
             // make new version
-            RequestedVersionInfo := FTileStorageSQLiteHolder.GetVersionInfo(IntToStr(VTemp));
+            RequestedVersionInfo := FTileStorageSQLiteHolder.GetVersionInfo(VVersionStr);
           end;
         end;
       end;
@@ -684,6 +691,8 @@ procedure TTileStorageSQLiteHandlerComplex.CallbackSelectVersions(
 var
   VData: PSelectTileVersions;
   VColType: Integer;
+  VTemp: Int64;
+  VVersionStr: string;
   VVersionInfo: IMapVersionInfo;
 begin
   VData := PSelectTileVersions(ACallbackPtr);
@@ -702,24 +711,32 @@ begin
   case VColType of
     SQLITE_NULL: begin
       // NULL - use empty string
-      VVersionInfo := FTileStorageSQLiteHolder.GetVersionInfo('');
+      VVersionStr := cDefaultVersionAsStrValue;
     end;
     SQLITE_INTEGER: begin
       // Int64
-      VVersionInfo := FTileStorageSQLiteHolder.GetVersionInfo(IntToStr(AStmtData^.ColumnInt64(0)));
+      VTemp := AStmtData^.ColumnInt64(0);
+      if VTemp = cDefaultVersionAsIntValue then begin
+        VVersionStr := cDefaultVersionAsStrValue;
+      end else begin
+        VVersionStr := IntToStr(VTemp);
+      end;
     end;
   else
     begin
       // SQLITE_FLOAT, SQLITE_BLOB, SQLITE_TEXT
-      VVersionInfo :=
-        FTileStorageSQLiteHolder.GetVersionInfo(
-          {$IFDEF UNICODE}
-          AStmtData^.ColumnAsWideString(0)
-          {$ELSE}
-          AStmtData^.ColumnAsAnsiString(0)
-          {$ENDIF}
-        );
+      {$IFDEF UNICODE}
+      VVersionStr := AStmtData^.ColumnAsWideString(0);
+      {$ELSE}
+      VVersionStr := AStmtData^.ColumnAsAnsiString(0);
+      {$ENDIF}
     end;
+  end;
+
+  if VData^.StoreEmptyVersion or (VVersionStr <> cDefaultVersionAsStrValue) then begin
+    VVersionInfo := FTileStorageSQLiteHolder.GetVersionInfo(VVersionStr);
+  end else begin
+    VVersionInfo := nil;
   end;
 
   // add it to list
@@ -753,6 +770,7 @@ begin
   VSelectTileVersions.Init;
   try
     VSelectTileVersions.OperationPtr := AOper;
+    VSelectTileVersions.StoreEmptyVersion := False;
     try
       FSQLite3DbHandler.OpenSQL(
         VSQLText,
@@ -789,6 +807,7 @@ begin
   VSelectTileVersions.Init;
   try
     VSelectTileVersions.OperationPtr := AOper;
+    VSelectTileVersions.StoreEmptyVersion := True;
     try
       FSQLite3DbHandler.OpenSQL(
         VSQLText,
