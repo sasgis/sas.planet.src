@@ -24,7 +24,7 @@ type
   private
     FSQLite3DbHandler: TSQLite3DbHandler;
     FTileStorageSQLiteHolder: ITileStorageSQLiteHolder;
-    FDBFilename: WideString;
+    FDBFilename: string;
     FSingleVersionOnly: IMapVersionInfo;
     FUseVersionFieldInDB: Boolean;
   protected
@@ -99,7 +99,7 @@ type
   public
     constructor Create(
       const ATileStorageSQLiteHolder: ITileStorageSQLiteHolder;
-      const ADBFilename: WideString;
+      const ADBFilename: string;
       const ASingleVersionOnly: IMapVersionInfo;
       const AUseVersionFieldInDB: Boolean
     );
@@ -315,10 +315,12 @@ end;
 
 constructor TTileStorageSQLiteHandler.Create(
   const ATileStorageSQLiteHolder: ITileStorageSQLiteHolder;
-  const ADBFilename: WideString;
+  const ADBFilename: string;
   const ASingleVersionOnly: IMapVersionInfo;
   const AUseVersionFieldInDB: Boolean
 );
+var
+  VOpenFlags: Integer;
 begin
   Assert(ATileStorageSQLiteHolder <> nil);
   inherited Create;
@@ -331,7 +333,8 @@ begin
   try
     if FSQLite3DbHandler.Init then begin
       // open existing or create new
-      FSQLite3DbHandler.OpenW(FDBFilename, True);
+      VOpenFlags := SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE;
+      FSQLite3DbHandler.Open(FDBFilename, VOpenFlags, True);
       // apply session params
       FTileStorageSQLiteHolder.ExecMakeSession(ExecuteSQL);
       // make or check structure

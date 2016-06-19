@@ -35,7 +35,7 @@ type
     ); virtual; abstract;
     procedure InitObjIface(
       const ATileStorageSQLiteHolder: ITileStorageSQLiteHolder;
-      const ADBFilename: WideString;
+      const ADBFilename: string;
       const AUseVersionFieldInDB: Boolean;
       out AObj: TTileStorageSQLiteHandler
     ); virtual;
@@ -48,7 +48,7 @@ type
   public
     constructor Create(
       const ATileStorageSQLiteHolder: ITileStorageSQLiteHolder;
-      const ADBFilename: WideString;
+      const ADBFilename: string;
       const ASingleVersionToScan: IMapVersionInfo;
       const AUseVersionFieldInDB: Boolean;
       const AInoreTNE: Boolean
@@ -74,7 +74,7 @@ type
     ); override;
     procedure InitObjIface(
       const ATileStorageSQLiteHolder: ITileStorageSQLiteHolder;
-      const ADBFilename: WideString;
+      const ADBFilename: string;
       const AUseVersionFieldInDB: Boolean;
       out AObj: TTileStorageSQLiteHandler
     ); override;
@@ -93,7 +93,7 @@ uses
 
 constructor TTileStorageSQLiteFetcher.Create(
   const ATileStorageSQLiteHolder: ITileStorageSQLiteHolder;
-  const ADBFilename: WideString;
+  const ADBFilename: string;
   const ASingleVersionToScan: IMapVersionInfo;
   const AUseVersionFieldInDB: Boolean;
   const AInoreTNE: Boolean
@@ -136,7 +136,7 @@ end;
 
 procedure TTileStorageSQLiteFetcher.InitObjIface(
   const ATileStorageSQLiteHolder: ITileStorageSQLiteHolder;
-  const ADBFilename: WideString;
+  const ADBFilename:string;
   const AUseVersionFieldInDB: Boolean;
   out AObj: TTileStorageSQLiteHandler
 );
@@ -381,7 +381,7 @@ end;
 
 procedure TTileStorageSQLiteFetcherComplex.InitObjIface(
   const ATileStorageSQLiteHolder: ITileStorageSQLiteHolder;
-  const ADBFilename: WideString;
+  const ADBFilename: string;
   const AUseVersionFieldInDB: Boolean;
   out AObj: TTileStorageSQLiteHandler
 );
