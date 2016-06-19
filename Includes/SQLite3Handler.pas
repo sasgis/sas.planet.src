@@ -705,6 +705,28 @@ begin
   end;
 end;
 
+procedure TSQLite3DbHandler.OpenW(
+  const ADbFileName: WideString;
+  const ASupportLogicalCollation: Boolean
+);
+begin
+  Close;
+  try
+    CheckError(
+      g_Sqlite3Library.sqlite3_open16(
+      PWideChar(ADbFileName),
+      Sqlite3Handle
+      ) <> SQLITE_OK
+    );
+    if ASupportLogicalCollation then begin
+      RegisterCollationNeededCallback;
+    end;
+  except
+    Close;
+    raise;
+  end;
+end;
+
 function TSQLite3DbHandler.Opened: Boolean;
 begin
   Result := (nil<>Sqlite3Handle)
@@ -797,28 +819,6 @@ begin
   end;
 end;
 
-procedure TSQLite3DbHandler.OpenW(
-  const ADbFileName: WideString;
-  const ASupportLogicalCollation: Boolean
-);
-begin
-  Close;
-  try
-    CheckError(
-      g_Sqlite3Library.sqlite3_open16(
-      PWideChar(ADbFileName),
-      Sqlite3Handle
-      ) <> SQLITE_OK
-    );
-    if ASupportLogicalCollation then begin
-      RegisterCollationNeededCallback;
-    end;
-  except
-    Close;
-    raise;
-  end;
-end;
-
 function TSQLite3DbHandler.PrepareStatement(
   const AStmtData: PSQLite3StmtData;
   const ASQLText: AnsiString
@@ -883,7 +883,7 @@ end;
 initialization
   g_Sqlite3Library := nil;
 
-  finalization
+finalization
   FreeAndNil(g_Sqlite3Library);
 
 end.
