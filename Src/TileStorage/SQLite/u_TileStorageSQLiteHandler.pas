@@ -5,6 +5,7 @@ interface
 uses
   Windows,
   Classes,
+  SyncObjs,
   SQLite3Handler,
   t_TileStorageSQLite,
   t_NotifierOperationRec,
@@ -27,6 +28,8 @@ type
     FDBFilename: string;
     FSingleVersionOnly: IMapVersionInfo;
     FUseVersionFieldInDB: Boolean;
+  protected
+    FSQLite3DbModifyLock: TCriticalSection;
   protected
     procedure InternalCheckStructure; virtual; abstract;
 
@@ -328,6 +331,7 @@ begin
   FDBFilename := ADBFilename;
   FSingleVersionOnly := ASingleVersionOnly;
   FUseVersionFieldInDB := AUseVersionFieldInDB;
+  FSQLite3DbModifyLock := TCriticalSection.Create;
 
   // open database and prepare to work
   try
@@ -363,10 +367,15 @@ begin
   Result := False;
   VRowsAffected := 0;
   try
-    FSQLite3DbHandler.ExecSQL(
-      GetSQL_DeleteTile(ADeleteTileAllData),
-      @VRowsAffected
-    );
+    FSQLite3DbModifyLock.Acquire;
+    try
+      FSQLite3DbHandler.ExecSQL(
+        GetSQL_DeleteTile(ADeleteTileAllData),
+        @VRowsAffected
+      );
+    finally
+      FSQLite3DbModifyLock.Release;
+    end;
     Result := (VRowsAffected > 0);
   except
     on E: Exception do
@@ -377,6 +386,7 @@ end;
 destructor TTileStorageSQLiteHandler.Destroy;
 begin
   FSQLite3DbHandler.Close;
+  FSQLite3DbModifyLock.Free;
   FTileStorageSQLiteHolder := nil;
   inherited Destroy;
 end;
@@ -1230,14 +1240,20 @@ begin
     // execute for TILE
     try
       _BuildSqlText;
-      FSQLite3DbHandler.ExecSQLWithBLOB(
-        VSqlText,
-        VOriginalTileBody,
-        VOriginalTileSize,
-        @VRowsAffected
-      );
 
-      // check inserted or updated
+      FSQLite3DbModifyLock.Acquire;
+      try
+        FSQLite3DbHandler.ExecSQLWithBLOB(
+          VSqlText,
+          VOriginalTileBody,
+          VOriginalTileSize,
+          @VRowsAffected
+        );
+      finally
+        FSQLite3DbModifyLock.Release;
+      end;
+
+      // check if inserted/updated or ignored
       Result := (VRowsAffected > 0);
     except
       on E: Exception do
@@ -1253,11 +1269,18 @@ begin
     // execute for TNE
     try
       _BuildSqlText;
-      FSQLite3DbHandler.ExecSQL(
-        VSqlText,
-        @VRowsAffected
-      );
-      // check inserted or updated
+
+      FSQLite3DbModifyLock.Acquire;
+      try
+        FSQLite3DbHandler.ExecSQL(
+          VSqlText,
+          @VRowsAffected
+        );
+      finally
+        FSQLite3DbModifyLock.Release;
+      end;
+
+      // check if inserted/updated or ignored
       Result := (VRowsAffected > 0);
     except
       on E: Exception do
