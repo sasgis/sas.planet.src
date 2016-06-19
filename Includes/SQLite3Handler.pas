@@ -8,6 +8,11 @@ uses
   AlSqlite3Wrapper,
   Classes;
 
+{$IFNDEF UNICODE}
+type
+  UnicodeString = WideString;
+{$ENDIF}
+
 const
   c_SQLite_Ext = '.sqlitedb';
   cLogicalSortingCollation = 'LOGICALSORTING';
@@ -29,8 +34,9 @@ type
     function ColumnInt64(const iCol: Integer): Int64; //inline;
     function ColumnDouble(const iCol: Integer): Double; //inline;
     function ColumnIntDef(const iCol, AValueIfNull: Integer): Integer;
+    function ColumnAsString(const iCol: Integer): string;
     function ColumnAsAnsiString(const iCol: Integer): AnsiString;
-    function ColumnAsWideString(const iCol: Integer): WideString;
+    function ColumnAsWideString(const iCol: Integer): UnicodeString;
     function ColumnBlobSize(const iCol: Integer): Integer;
     function ColumnBlobData(const iCol: Integer): Pointer;
     function ColumnCount: Integer;
@@ -392,27 +398,37 @@ end;
 
 { TSQLite3StmtData }
 
-function TSQLite3StmtData.ColumnAsAnsiString(const iCol: Integer): AnsiString;
+function TSQLite3StmtData.ColumnAsString(const iCol: Integer): string;
 var
   VValue: PAnsiChar;
 begin
-  VValue := g_Sqlite3Library.sqlite3_column_text(Stmt, iCol);
+  VValue := g_Sqlite3Library.sqlite3_column_text(Stmt, iCol); // return UTF-8
   if VValue = nil then begin
     Result := '';
   end else begin
-    Result := AnsiString(Utf8ToAnsi(StrPas(VValue)));
+    Result :=
+      {$IFDEF UNICODE}
+      UTF8ToString(VValue);
+      {$ELSE}
+      UTf8ToAnsi(VValue);
+      {$ENDIF}
   end;
 end;
 
-function TSQLite3StmtData.ColumnAsWideString(const iCol: Integer): WideString;
+function TSQLite3StmtData.ColumnAsAnsiString(const iCol: Integer): AnsiString;
+begin
+  Result := AnsiString(ColumnAsString(iCol));
+end;
+
+function TSQLite3StmtData.ColumnAsWideString(const iCol: Integer): UnicodeString;
 var
   VValue: PWideChar;
 begin
-  VValue := g_Sqlite3Library.sqlite3_column_text16(Stmt, iCol);
+  VValue := g_Sqlite3Library.sqlite3_column_text16(Stmt, iCol); // return UTF-16
   if VValue = nil then begin
     Result := '';
   end else begin
-    Result := WideString(VValue);
+    Result := UnicodeString(VValue);
   end;
 end;
 

@@ -564,11 +564,7 @@ begin
     else
       begin
         // SQLITE_FLOAT, SQLITE_BLOB, SQLITE_TEXT
-        {$IFDEF UNICODE}
-        VVersionStr := AStmtData^.ColumnAsWideString(2);
-        {$ELSE}
-        VVersionStr := AStmtData^.ColumnAsAnsiString(2);
-        {$ENDIF}
+        VVersionStr := AStmtData^.ColumnAsString(2);
         with PSelectTileInfoComplex(ACallbackPtr)^ do begin
           if (RequestedVersionInfo = nil) or not SameText(RequestedVersionInfo.StoreString, VVersionStr) then begin
             // make new version
@@ -728,11 +724,7 @@ begin
   else
     begin
       // SQLITE_FLOAT, SQLITE_BLOB, SQLITE_TEXT
-      {$IFDEF UNICODE}
-      VVersionStr := AStmtData^.ColumnAsWideString(0);
-      {$ELSE}
-      VVersionStr := AStmtData^.ColumnAsAnsiString(0);
-      {$ENDIF}
+      VVersionStr := AStmtData^.ColumnAsString(0);
     end;
   end;
 

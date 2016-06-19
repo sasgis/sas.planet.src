@@ -203,11 +203,7 @@ begin
   case FTBColInfoPtr^.ModeV of
     vcm_Text: begin
       // version as TEXT without conversion
-      {$IFDEF UNICODE}
-      VVersionStr := AStmtData^.ColumnAsWideString(4);
-      {$ELSE}
-      VVersionStr := AStmtData^.ColumnAsAnsiString(4);
-      {$ENDIF}
+      VVersionStr := AStmtData^.ColumnAsString(4);
     end;
     vcm_Int: begin
       // get version as field 4
@@ -229,11 +225,7 @@ begin
       else
         begin
           // SQLITE_FLOAT, SQLITE_BLOB, SQLITE_TEXT
-          {$IFDEF UNICODE}
-          VVersionStr := AStmtData^.ColumnAsWideString(4);
-          {$ELSE}
-          VVersionStr := AStmtData^.ColumnAsAnsiString(4);
-          {$ENDIF}
+          VVersionStr := AStmtData^.ColumnAsString(4);
         end;
       end;
     end;
