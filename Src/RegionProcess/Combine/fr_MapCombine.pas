@@ -348,12 +348,9 @@ begin
 end;
 
 function TfrMapCombine.GetBGColor: TColor32;
-var
-  VMap: IMapType;
 begin
-  VMap := FfrMapSelect.GetSelectedMapType;
-  if VMap = nil then begin
-    Result := SetAlpha(FViewConfig.BackGroundColor, 0);
+  if GetCustomOptions.IsSaveAlfa then begin
+    Result := 0;
   end else begin
     Result := SetAlpha(FViewConfig.BackGroundColor, 255);
   end;

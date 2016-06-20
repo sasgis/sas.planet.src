@@ -118,21 +118,23 @@ begin
       ATile
     );
   if Result <> nil then begin
-    VTargetBmp := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
-    try
-      VTileSize := FSourceProvider.Projection.GetTileSize(ATile);
-      VTargetBmp.SetSize(VTileSize.X, VTileSize.Y);
-      VTargetBmp.Clear(FBackGroundColor);
-      BlockTransferFull(
-        VTargetBmp,
-        0,
-        0,
-        Result,
-        dmBlend
-      );
-      Result := VTargetBmp.MakeAndClear;
-    finally
-      VTargetBmp.Free;
+    if FBackGroundColor <> 0 then begin
+      VTargetBmp := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
+      try
+        VTileSize := FSourceProvider.Projection.GetTileSize(ATile);
+        VTargetBmp.SetSize(VTileSize.X, VTileSize.Y);
+        VTargetBmp.Clear(FBackGroundColor);
+        BlockTransferFull(
+          VTargetBmp,
+          0,
+          0,
+          Result,
+          dmBlend
+        );
+        Result := VTargetBmp.MakeAndClear;
+      finally
+        VTargetBmp.Free;
+      end;
     end;
   end else begin
     VTileSize := FSourceProvider.Projection.GetTileSize(ATile);

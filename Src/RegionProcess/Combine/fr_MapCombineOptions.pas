@@ -159,7 +159,11 @@ end;
 
 function TfrMapCombineCustomOptions.GetIsSaveAlfa: Boolean;
 begin
-  Result := chkPngWithAlpha.Checked;
+  if chkPngWithAlpha.Visible then begin
+    Result := chkPngWithAlpha.Checked;
+  end else begin
+    Result := False;
+  end;
 end;
 
 function TfrMapCombineCustomOptions.GetIsSaveGeoRefInfoToExif: Boolean;
