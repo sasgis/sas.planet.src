@@ -856,7 +856,7 @@ begin
           VInfo.RequestedVersionToDB
         );
 
-      if VInfo.RequestedVersionIsSet and (DDeleteTileFlags <> c_Default_TileFlags) then begin
+      if VInfo.RequestedVersionIsSet and (dtfOnlyIfSameAsPrevVersion in DDeleteTileFlags) then begin
         // check size for prev version
         Result := Result + ' AND ' +
           GetCheckPrevVersionSQLText(
@@ -915,7 +915,7 @@ begin
 
     // mode
     Result := 'UPDATE OR ';
-    if (SReplaceVersionFlags and RVF_OVERWRITE_EXISTING) <> 0 then begin
+    if rvfOverwriteExisting in SReplaceVersionFlags then begin
       Result := Result + 'REPLACE';
     end else begin
       Result := Result + 'ABORT';
@@ -1198,7 +1198,7 @@ begin
       VSQLValues := VSQLValues + ',' + VInfoComplex.RequestedVersionToDB;
 
       // check prev version with same size
-      if VInfoComplex.RequestedVersionIsSet and ((SSaveTileFlags and STF_SKIP_IF_SAME_AS_PREV) <> 0) then begin
+      if VInfoComplex.RequestedVersionIsSet and (stfSkipIfSameAsPrev in SSaveTileFlags) then begin
         VSQLAfter :=
           ' WHERE ' +
           GetCheckPrevVersionSQLText(
@@ -1216,7 +1216,7 @@ begin
       VSQLAfter := '';
     end;
 
-    VKeepExisting := (SSaveTileFlags and STF_KEEP_EXISTING) <> 0;
+    VKeepExisting := (stfKeepExisting in SSaveTileFlags);
   end;
 
   Result := False;

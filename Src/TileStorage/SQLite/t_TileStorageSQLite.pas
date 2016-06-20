@@ -19,9 +19,10 @@ type
   );
   TGetTileInfoModeSQLite = set of TGetTileInfoItem;
 
-  TSaveTileFlags = Byte;
-  TDeleteTileFlags = Byte;
-  TReplaceVersionFlags = Byte;
+  TDeleteTileFlag =(
+    dtfOnlyIfSameAsPrevVersion
+  );
+  TDeleteTileFlags = set of TDeleteTileFlag;
 
   TDeleteTileAllData = record
     DXY: TPoint;
@@ -31,6 +32,12 @@ type
     DPrevSizeValue: Integer;
   end;
   PDeleteTileAllData = ^TDeleteTileAllData;
+
+  TSaveTileFlag = (
+    stfKeepExisting,
+    stfSkipIfSameAsPrev
+  );
+  TSaveTileFlags = set of TSaveTileFlag;
 
   TSaveTileAllData = record
     SXY: TPoint;
@@ -42,6 +49,11 @@ type
     SSaveTileFlags: TSaveTileFlags;
   end;
   PSaveTileAllData = ^TSaveTileAllData;
+
+  TReplaceVersionFlag = (
+    rvfOverwriteExisting
+  );
+  TReplaceVersionFlags = set of TReplaceVersionFlag;
 
   TSetTileVersionAllData = record
     SXY: TPoint;

@@ -431,12 +431,10 @@ begin
       SLoadDate := ALoadDate;
       SContentType := AContentType;
       SData := AData;
-
-      // ToDo: replace this flags with sets
       if AIsOverwrite then begin
-        SSaveTileFlags := c_Default_TileFlags;
+        SSaveTileFlags := [];
       end else begin
-        SSaveTileFlags := STF_KEEP_EXISTING;
+        SSaveTileFlags := [stfKeepExisting]
       end;
     end;
 
@@ -488,7 +486,7 @@ begin
         DXY := AXY;
         DZoom := AZoom;
         DVersionInfo := AVersionInfo;
-        DDeleteTileFlags := 0;
+        DDeleteTileFlags := [];
         DPrevSizeValue := 0;
       end;
 

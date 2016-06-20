@@ -18,21 +18,6 @@ const
   cDefaultVersionAsIntValue = 0;
   cDefaultVersionAsStrValue = ''; // empty string
 
-  //ToDo: replace this flags with sets
-
-  // save/delete/replace
-  c_Default_TileFlags = 0;
-
-  // save tile flags
-  STF_KEEP_EXISTING = $1;
-  STF_SKIP_IF_SAME_AS_PREV = $2;
-
-  // delete flags
-  DTF_ONLY_IF_SAME_AS_PREV_VERSION = $1;
-
-  // replace version flags
-  RVF_OVERWRITE_EXISTING = $1;
-
 implementation
 
 end.
