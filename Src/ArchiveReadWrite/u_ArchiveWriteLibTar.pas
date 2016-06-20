@@ -32,6 +32,7 @@ type
   TArchiveWriterFactoryLibTar = class(TBaseInterfacedObject, IArchiveWriterFactory)
   private
     function BuildByFileName(const AFileName: string): IArchiveWriter;
+    function BuildByStreamWithOwn(var AStream: TStream): IArchiveWriter;
     function BuildByStream(const AStream: TStream): IArchiveWriter;
   public
     constructor Create;
@@ -52,6 +53,8 @@ type
   private
     FTar: TTarWriter;
     FFilesCount: Integer;
+    FStream: TStream;
+    FOwnStream: Boolean;
   private
     function AddFile(
       const AFileData: IBinaryData;
@@ -60,7 +63,7 @@ type
     ): Integer;
   public
     constructor Create(const AFileName: string); overload;
-    constructor Create(const AStream: TStream); overload;
+    constructor Create(const AStream: TStream; const AOwnStream: Boolean); overload;
     destructor Destroy; override;
   end;
 
@@ -68,19 +71,32 @@ constructor TArchiveWriteByLibTar.Create(const AFileName: string);
 begin
   inherited Create;
   FFilesCount := 0;
+  FOwnStream := False;
+  FStream := nil;
   FTar := TTarWriter.Create(AFileName);
 end;
 
-constructor TArchiveWriteByLibTar.Create(const AStream: TStream);
+constructor TArchiveWriteByLibTar.Create(
+  const AStream: TStream;
+  const AOwnStream: Boolean
+);
 begin
   inherited Create;
   FFilesCount := 0;
+  FOwnStream := AOwnStream;
+  FStream := nil;
   FTar := TTarWriter.Create(AStream);
+  if AOwnStream then begin
+    FStream := AStream;
+  end;
 end;
 
 destructor TArchiveWriteByLibTar.Destroy;
 begin
   FreeAndNil(FTar);
+  if FOwnStream then begin
+    FreeAndNil(FStream);
+  end;
   inherited;
 end;
 
@@ -122,7 +138,14 @@ end;
 function TArchiveWriterFactoryLibTar.BuildByStream(
   const AStream: TStream): IArchiveWriter;
 begin
-  Result := TArchiveWriteByLibTar.Create(AStream);
+  Result := TArchiveWriteByLibTar.Create(AStream, False);
+end;
+
+function TArchiveWriterFactoryLibTar.BuildByStreamWithOwn(
+  var AStream: TStream): IArchiveWriter;
+begin
+  Result := TArchiveWriteByLibTar.Create(AStream, True);
+  AStream := nil;
 end;
 
 end.

@@ -37,6 +37,7 @@ type
     FType: TArchiveType;
   private
     function BuildByFileName(const AFileName: string): IArchiveWriter;
+    function BuildByStreamWithOwn(var AStream: TStream): IArchiveWriter;
     function BuildByStream(const AStream: TStream): IArchiveWriter;
   public
     constructor Create(AType: TArchiveType);
@@ -48,6 +49,7 @@ type
     FType: TArchiveType;
   private
     function BuildByFileName(const AFileName: string): IArchiveReader;
+    function BuildByStreamWithOwn(var AStream: TStream): IArchiveReader;
     function BuildByStream(const AStream: TStream): IArchiveReader;
   public
     constructor Create(AType: TArchiveType);
@@ -92,6 +94,7 @@ type
     ); overload;
     constructor Create(
       const AStream: TStream;
+      const AOwnStream: Boolean;
       const AArchiveType: TArchiveType
     ); overload;
     destructor Destroy; override;
@@ -110,11 +113,12 @@ end;
 
 constructor TArchiveReadBy7Zip.Create(
   const AStream: TStream;
+  const AOwnStream: Boolean;
   const AArchiveType: TArchiveType
 );
 begin
   inherited Create;
-  FOwnStream := False;
+  FOwnStream := AOwnStream;
   FStream := AStream;
   FArch := CreateArchive(AArchiveType);
 end;
@@ -228,6 +232,7 @@ type
     ); overload;
     constructor Create(
       const AStream: TStream;
+      const AOwnStream: Boolean;
       const AArchiveType: TArchiveType
     ); overload;
     destructor Destroy; override;
@@ -247,12 +252,13 @@ end;
 
 constructor TArchiveWriteBy7Zip.Create(
   const AStream: TStream;
+  const AOwnStream: Boolean;
   const AArchiveType: TArchiveType
 );
 begin
   inherited Create;
   FFilesCount := 0;
-  FOwnStream := False;
+  FOwnStream := AOwnStream;
   FStream := AStream;
   FArch := CreateArchive(AArchiveType);
 end;
@@ -340,7 +346,14 @@ end;
 function TArchiveReaderFactory7Zip.BuildByStream(
   const AStream: TStream): IArchiveReader;
 begin
-  Result := TArchiveReadBy7Zip.Create(AStream, FType);
+  Result := TArchiveReadBy7Zip.Create(AStream, False, FType);
+end;
+
+function TArchiveReaderFactory7Zip.BuildByStreamWithOwn(
+  var AStream: TStream): IArchiveReader;
+begin
+  Result := TArchiveReadBy7Zip.Create(AStream, True, FType);
+  AStream := nil;
 end;
 
 { TArchiveWriterFactory7Zip }
@@ -360,7 +373,14 @@ end;
 function TArchiveWriterFactory7Zip.BuildByStream(
   const AStream: TStream): IArchiveWriter;
 begin
-  Result := TArchiveWriteBy7Zip.Create(AStream, FType);
+  Result := TArchiveWriteBy7Zip.Create(AStream, False, FType);
+end;
+
+function TArchiveWriterFactory7Zip.BuildByStreamWithOwn(
+  var AStream: TStream): IArchiveWriter;
+begin
+  Result := TArchiveWriteBy7Zip.Create(AStream, True, FType);
+  AStream := nil;
 end;
 
 end.

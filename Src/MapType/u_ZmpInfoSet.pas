@@ -59,6 +59,7 @@ type
 implementation
 
 uses
+  Classes,
   SysUtils,
   Dialogs,
   i_ConfigDataProvider,
@@ -87,6 +88,7 @@ var
   VZmpExist: IZmpInfo;
   VZmpMapConfig: IConfigDataProvider;
   VMapTypeCount: integer;
+  VStream: TStream;
 begin
   inherited Create;
   FList := TGUIDInterfaceSet.Create;
@@ -95,10 +97,17 @@ begin
     VFullFileName := AFilesIterator.GetRootFolderName + VFileName;
     try
       if FileExists(VFullFileName) then begin
-        VZmpMapConfig := TConfigDataProviderByArchive.Create(
-          VFullFileName,
-          AArchiveReadWriteFactory.Zip.ReaderFactory.BuildByFileName(VFullFileName)
-        );
+        VStream := TMemoryStream.Create;
+        try
+          TMemoryStream(VStream).LoadFromFile(VFullFileName);
+          VZmpMapConfig := TConfigDataProviderByArchive.Create(
+            VFullFileName,
+            AArchiveReadWriteFactory.Zip.ReaderFactory.BuildByStreamWithOwn(VStream)
+          );
+          VStream := nil;
+        finally
+          FreeAndNil(VStream);
+        end;
       end else begin
         VZmpMapConfig := TConfigDataProviderByFolder.Create(VFullFileName);
       end;

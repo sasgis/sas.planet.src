@@ -30,12 +30,14 @@ type
   IArchiveReaderFactory = interface
     ['{EEC4958E-B843-413D-8BAF-30FCC216C577}']
     function BuildByFileName(const AFileName: string): IArchiveReader;
+    function BuildByStreamWithOwn(var AStream: TStream): IArchiveReader;
     function BuildByStream(const AStream: TStream): IArchiveReader;
   end;
 
   IArchiveWriterFactory = interface
     ['{F83F0DE4-162C-40C5-AC38-BD131A3D78CB}']
     function BuildByFileName(const AFileName: string): IArchiveWriter;
+    function BuildByStreamWithOwn(var AStream: TStream): IArchiveWriter;
     function BuildByStream(const AStream: TStream): IArchiveWriter;
   end;
 

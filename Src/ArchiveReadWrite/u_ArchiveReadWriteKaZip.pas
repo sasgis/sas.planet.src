@@ -32,6 +32,7 @@ type
   TArchiveReaderFactoryKaZip = class(TBaseInterfacedObject, IArchiveReaderFactory)
   private
     function BuildByFileName(const AFileName: string): IArchiveReader;
+    function BuildByStreamWithOwn(var AStream: TStream): IArchiveReader;
     function BuildByStream(const AStream: TStream): IArchiveReader;
   public
     constructor Create;
@@ -41,6 +42,7 @@ type
   TArchiveWriterFactoryKaZip = class(TBaseInterfacedObject, IArchiveWriterFactory)
   private
     function BuildByFileName(const AFileName: string): IArchiveWriter;
+    function BuildByStreamWithOwn(var AStream: TStream): IArchiveWriter;
     function BuildByStream(const AStream: TStream): IArchiveWriter;
   public
     constructor Create;
@@ -61,6 +63,8 @@ type
   TArchiveReadByKaZip = class(TBaseInterfacedObject, IArchiveReader)
   private
     FZip: TKAZip;
+    FStream: TStream;
+    FOwnStream: Boolean;
   private
     function GetItemsCount: Integer;
     function GetItemByName(const AItemName: string): IBinaryData;
@@ -71,20 +75,31 @@ type
     ): IBinaryData;
   public
     constructor Create(const AFileName: string); overload;
-    constructor Create(const AStream: TStream); overload;
+    constructor Create(const AStream: TStream; const AOwnStream: Boolean); overload;
     destructor Destroy; override;
   end;
 
 constructor TArchiveReadByKaZip.Create(const AFileName: string);
 begin
   inherited Create;
+  FStream := nil;
+  FOwnStream := False;
   FZip := TKAZip.Create(nil);
   FZip.Open(AFileName);
 end;
 
-constructor TArchiveReadByKaZip.Create(const AStream: TStream);
+constructor TArchiveReadByKaZip.Create(
+  const AStream: TStream;
+  const AOwnStream: Boolean
+);
 begin
   inherited Create;
+  FOwnStream := AOwnStream;
+  if FOwnStream then begin
+    FStream := AStream;
+  end else begin
+    FStream := nil;
+  end;
   FZip := TKAZip.Create(nil);
   FZip.Open(AStream);
 end;
@@ -92,6 +107,9 @@ end;
 destructor TArchiveReadByKaZip.Destroy;
 begin
   FreeAndNil(FZip);
+  if FOwnStream then begin
+    FreeAndNil(FStream);
+  end;
   inherited;
 end;
 
@@ -147,6 +165,8 @@ type
   TArchiveWriteByKaZip = class(TBaseInterfacedObject, IArchiveWriter)
   private
     FZip: TKAZip;
+    FStream: TStream;
+    FOwnStream: Boolean;
     FIsFromFileName: Boolean;
   private
     function AddFile(
@@ -159,7 +179,7 @@ type
       const AFileName: string;
       const AAllowOpenExisting: Boolean
     ); overload;
-    constructor Create(const AStream: TStream); overload;
+    constructor Create(const AStream: TStream; const AOwnStream: Boolean); overload;
     destructor Destroy; override;
   end;
 
@@ -169,6 +189,8 @@ constructor TArchiveWriteByKaZip.Create(
 );
 begin
   inherited Create;
+  FOwnStream := False;
+  FStream := nil;
   FIsFromFileName := True;
   FZip := TKAZip.Create(nil);
   FZip.FileName := AFileName;
@@ -183,9 +205,18 @@ begin
   FZip.Active := True;
 end;
 
-constructor TArchiveWriteByKaZip.Create(const AStream: TStream);
+constructor TArchiveWriteByKaZip.Create(
+  const AStream: TStream;
+  const AOwnStream: Boolean
+);
 begin
   inherited Create;
+  FOwnStream := AOwnStream;
+  if FOwnStream then begin
+    FStream := AStream;
+  end else begin
+    FStream := nil;
+  end;
   FIsFromFileName := False;
   FZip := TKAZip.Create(nil);
   FZip.CreateZip(AStream);
@@ -200,6 +231,9 @@ begin
     FZip.Close;
   end;
   FreeAndNil(FZip);
+  if FOwnStream then begin
+    FreeAndNil(FStream);
+  end;
   inherited;
 end;
 
@@ -244,7 +278,14 @@ end;
 function TArchiveReaderFactoryKaZip.BuildByStream(
   const AStream: TStream): IArchiveReader;
 begin
-  Result := TArchiveReadByKaZip.Create(AStream);
+  Result := TArchiveReadByKaZip.Create(AStream, False);
+end;
+
+function TArchiveReaderFactoryKaZip.BuildByStreamWithOwn(
+  var AStream: TStream): IArchiveReader;
+begin
+  Result := TArchiveReadByKaZip.Create(AStream, True);
+  AStream := nil;
 end;
 
 { TArchiveWriterFactoryKaZip }
@@ -263,7 +304,14 @@ end;
 function TArchiveWriterFactoryKaZip.BuildByStream(
   const AStream: TStream): IArchiveWriter;
 begin
-  Result := TArchiveWriteByKaZip.Create(AStream);
+  Result := TArchiveWriteByKaZip.Create(AStream, False);
+end;
+
+function TArchiveWriterFactoryKaZip.BuildByStreamWithOwn(
+  var AStream: TStream): IArchiveWriter;
+begin
+  Result := TArchiveWriteByKaZip.Create(AStream, True);
+  AStream := nil;
 end;
 
 end.
