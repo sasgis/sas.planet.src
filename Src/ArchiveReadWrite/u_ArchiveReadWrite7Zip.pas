@@ -104,7 +104,7 @@ constructor TArchiveReadBy7Zip.Create(
 begin
   inherited Create;
   FOwnStream := True;
-  FStream := TFileStream.Create(AFileName, fmOpenRead);
+  FStream := TFileStream.Create(AFileName, fmOpenRead or fmShareDenyNone);
   FArch := CreateArchive(AArchiveType);
 end;
 
