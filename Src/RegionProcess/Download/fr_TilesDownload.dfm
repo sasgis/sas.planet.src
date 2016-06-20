@@ -44,8 +44,8 @@ object frTilesDownload: TfrTilesDownload
       object lblSplitRegionHint: TLabel
         AlignWithMargins = True
         Left = 8
-        Top = 150
-        Width = 3
+        Top = 155
+        Width = 357
         Height = 13
         Margins.Top = 0
         Align = alTop
@@ -55,16 +55,19 @@ object frTilesDownload: TfrTilesDownload
         Font.Name = 'Tahoma'
         Font.Style = [fsItalic]
         ParentFont = False
+        ExplicitTop = 150
+        ExplicitWidth = 3
       end
       object chkReplace: TCheckBox
         Left = 5
-        Top = 64
+        Top = 65
         Width = 363
         Height = 16
         Align = alTop
         Caption = 'Overwrite old tiles'
         TabOrder = 3
         OnClick = chkReplaceClick
+        ExplicitTop = 74
       end
       object chkTryLoadIfTNE: TCheckBox
         Left = 5
@@ -78,9 +81,9 @@ object frTilesDownload: TfrTilesDownload
       end
       object pnlTileReplaceCondition: TPanel
         Left = 5
-        Top = 80
+        Top = 81
         Width = 363
-        Height = 40
+        Height = 44
         Align = alTop
         AutoSize = True
         BevelOuter = bvNone
@@ -91,7 +94,7 @@ object frTilesDownload: TfrTilesDownload
           Left = 18
           Top = 3
           Width = 342
-          Height = 13
+          Height = 16
           Align = alTop
           Caption = 'only if different'
           Enabled = False
@@ -99,9 +102,9 @@ object frTilesDownload: TfrTilesDownload
         end
         object pnlReplaceOlder: TPanel
           Left = 18
-          Top = 16
+          Top = 19
           Width = 342
-          Height = 21
+          Height = 22
           Align = alTop
           BevelOuter = bvNone
           TabOrder = 1
@@ -109,31 +112,34 @@ object frTilesDownload: TfrTilesDownload
             Left = 16
             Top = 0
             Width = 95
-            Height = 13
+            Height = 22
             Align = alLeft
             Caption = 'only created before'
             Layout = tlCenter
+            ExplicitHeight = 13
           end
           object chkReplaceOlder: TCheckBox
             Left = 0
             Top = 0
             Width = 16
-            Height = 21
+            Height = 22
             Align = alLeft
             Enabled = False
             TabOrder = 0
             OnClick = chkReplaceOlderClick
+            ExplicitHeight = 16
           end
           object dtpReplaceOlderDate: TDateTimePicker
             Left = 111
             Top = 0
             Width = 81
-            Height = 21
+            Height = 22
             Align = alLeft
             Date = 39513.436381111110000000
             Time = 39513.436381111110000000
             Enabled = False
             TabOrder = 1
+            ExplicitHeight = 21
           end
         end
       end
@@ -150,7 +156,7 @@ object frTilesDownload: TfrTilesDownload
         Left = 5
         Top = 37
         Width = 363
-        Height = 27
+        Height = 28
         Align = alTop
         AutoSize = True
         BevelOuter = bvNone
@@ -161,7 +167,7 @@ object frTilesDownload: TfrTilesDownload
           Left = 18
           Top = 3
           Width = 342
-          Height = 21
+          Height = 22
           Align = alTop
           BevelOuter = bvNone
           TabOrder = 0
@@ -169,37 +175,40 @@ object frTilesDownload: TfrTilesDownload
             Left = 16
             Top = 0
             Width = 95
-            Height = 13
+            Height = 22
             Align = alLeft
             Caption = 'only created before'
             Layout = tlCenter
+            ExplicitHeight = 13
           end
           object chkLoadIfTneOld: TCheckBox
             Left = 0
             Top = 0
             Width = 16
-            Height = 21
+            Height = 22
             Align = alLeft
             Enabled = False
             TabOrder = 0
             OnClick = chkLoadIfTneOldClick
+            ExplicitHeight = 16
           end
           object dtpLoadIfTneOld: TDateTimePicker
             Left = 111
             Top = 0
             Width = 81
-            Height = 21
+            Height = 22
             Align = alLeft
             Date = 39513.436381111110000000
             Time = 39513.436381111110000000
             Enabled = False
             TabOrder = 1
+            ExplicitHeight = 21
           end
         end
       end
       object flwpnlSplitRegionParams: TFlowPanel
         Left = 5
-        Top = 120
+        Top = 125
         Width = 363
         Height = 30
         Align = alTop
@@ -207,6 +216,7 @@ object frTilesDownload: TfrTilesDownload
         BevelOuter = bvNone
         Padding.Top = 2
         TabOrder = 5
+        ExplicitTop = 123
         object chkSplitRegion: TCheckBox
           AlignWithMargins = True
           Left = 0
@@ -258,11 +268,12 @@ object frTilesDownload: TfrTilesDownload
       AlignWithMargins = True
       Left = 3
       Top = 44
-      Width = 6
+      Width = 370
       Height = 13
       Margins.Right = 0
       Align = alBottom
       Caption = '_'
+      ExplicitWidth = 6
     end
     object pnlFrame: TPanel
       Left = 0
@@ -276,10 +287,11 @@ object frTilesDownload: TfrTilesDownload
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 93
+        Width = 367
         Height = 13
         Align = alTop
         Caption = 'Map/Overlay layer:'
+        ExplicitWidth = 93
       end
     end
   end
