@@ -38,7 +38,7 @@ uses
   i_ProjectionSetFactory,
   i_GeometryProjectedFactory,
   u_ResStrings,
-  u_ThreadRegionProcessAbstract;
+  u_RegionProcessTaskAbstract;
 
 type
   TThreadExportToOgf2 = class(TRegionProcessTaskAbstract)

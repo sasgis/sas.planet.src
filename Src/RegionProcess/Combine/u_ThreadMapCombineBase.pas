@@ -32,7 +32,7 @@ uses
   i_MapCalibration,
   i_BitmapMapCombiner,
   u_BaseInterfacedObject,
-  u_ThreadRegionProcessAbstract;
+  u_RegionProcessTaskAbstract;
 
 type
   TBitmapCombineProgressUpdate = class(TBaseInterfacedObject, IBitmapCombineProgressUpdate)

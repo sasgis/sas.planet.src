@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_ThreadRegionProcessAbstract;
+unit u_RegionProcessTaskAbstract;
 
 interface
 

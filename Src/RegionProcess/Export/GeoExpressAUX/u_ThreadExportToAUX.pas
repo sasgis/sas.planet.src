@@ -32,7 +32,7 @@ uses
   i_RegionProcessProgressInfo,
   i_GeometryLonLat,
   i_GeometryProjected,
-  u_ThreadRegionProcessAbstract;
+  u_RegionProcessTaskAbstract;
 
 type
   TThreadExportToAUX = class(TRegionProcessTaskAbstract)

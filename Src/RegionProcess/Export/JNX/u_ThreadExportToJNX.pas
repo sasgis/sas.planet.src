@@ -29,7 +29,7 @@ uses
   i_GeometryProjectedFactory,
   i_BitmapPostProcessing,
   u_ExportToJnxTask,
-  u_ThreadRegionProcessAbstract;
+  u_RegionProcessTaskAbstract;
 
 type
   TThreadExportToJnx = class(TRegionProcessTaskAbstract)

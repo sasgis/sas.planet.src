@@ -37,7 +37,7 @@ uses
   i_MapVersionRequest,
   i_ImageResamplerFactory,
   i_MapType,
-  u_ThreadRegionProcessAbstract;
+  u_RegionProcessTaskAbstract;
 
 type
   TThreadGenPrevZoom = class(TRegionProcessTaskAbstract)

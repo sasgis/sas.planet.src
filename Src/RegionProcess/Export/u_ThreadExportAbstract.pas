@@ -27,7 +27,7 @@ uses
   Types,
   i_GeometryLonLat,
   i_RegionProcessProgressInfo,
-  u_ThreadRegionProcessAbstract;
+  u_RegionProcessTaskAbstract;
 
 type
   TExportTaskAbstract = class(TRegionProcessTaskAbstract)

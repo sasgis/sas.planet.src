@@ -34,7 +34,7 @@ uses
   i_MapVersionRequest,
   i_PredicateByTileInfo,
   i_TileStorage,
-  u_ThreadRegionProcessAbstract;
+  u_RegionProcessTaskAbstract;
 
 type
   TThreadDeleteTiles = class(TRegionProcessTaskAbstract)

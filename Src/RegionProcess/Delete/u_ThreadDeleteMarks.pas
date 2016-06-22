@@ -35,7 +35,7 @@ uses
   i_GeometryProjected,
   i_InterfaceListStatic,
   u_GeoFunc,
-  u_ThreadRegionProcessAbstract;
+  u_RegionProcessTaskAbstract;
 
 type
   TThreadDeleteMarks = class(TRegionProcessTaskAbstract)
