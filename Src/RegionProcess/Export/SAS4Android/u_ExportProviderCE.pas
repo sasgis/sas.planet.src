@@ -29,12 +29,14 @@ uses
   i_ProjectionSetFactory,
   i_GeometryProjectedFactory,
   i_LanguageManager,
+  i_RegionProcessTask,
+  i_RegionProcessProgressInfo,
   i_RegionProcessProgressInfoInternalFactory,
   fr_MapSelect,
   u_ExportProviderAbstract;
 
 type
-  TExportProviderCE = class(TExportProviderAbstract)
+  TExportProviderCE = class(TExportProviderBase)
   private
     FProjectionSetFactory: IProjectionSetFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -42,7 +44,10 @@ type
     function CreateFrame: TFrame; override;
   protected
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
+    function PrepareTask(
+      const APolygon: IGeometryLonLatPolygon;
+      const AProgressInfo: IRegionProcessProgressInfoInternal
+    ): IRegionProcessTask; override;
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
@@ -60,8 +65,6 @@ uses
   SysUtils,
   i_MapType,
   i_RegionProcessParamsFrame,
-  i_RegionProcessProgressInfo,
-  u_ThreadRegionProcessAbstract,
   u_ThreadExportToCE,
   u_ResStrings,
   fr_ExportToCE;
@@ -105,7 +108,10 @@ begin
   Result := SAS_STR_ExportCEPackCaption;
 end;
 
-procedure TExportProviderCE.StartProcess(const APolygon: IGeometryLonLatPolygon);
+function TExportProviderCE.PrepareTask(
+  const APolygon: IGeometryLonLatPolygon;
+  const AProgressInfo: IRegionProcessProgressInfoInternal
+): IRegionProcessTask;
 var
   VPath: string;
   Zoomarr: TByteDynArray;
@@ -114,10 +120,6 @@ var
   VMaxSize: integer;
   VComent: string;
   VRecoverInfo: boolean;
-
-  VProgressInfo: IRegionProcessProgressInfoInternal;
-  VTask: IRegionProcessTask;
-  VThread: TRegionProcessWorker;
 begin
   Zoomarr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
@@ -126,11 +128,9 @@ begin
   VComent := (ParamsFrame as IRegionProcessParamsFrameExportToCE).Coment;
   VRecoverInfo := (ParamsFrame as IRegionProcessParamsFrameExportToCE).IsAddRecoverInfo;
 
-  VProgressInfo := ProgressFactory.Build(APolygon);
-
-  VTask :=
+  Result :=
     TThreadExportToCE.Create(
-      VProgressInfo,
+      AProgressInfo,
       FProjectionSetFactory,
       FVectorGeometryProjectedFactory,
       VPath,
@@ -142,13 +142,6 @@ begin
       VComent,
       VRecoverInfo
     );
-  VThread :=
-    TRegionProcessWorker.Create(
-      VTask,
-      VProgressInfo,
-      ClassName
-    );
-  VThread.Start;
 end;
 
 end.

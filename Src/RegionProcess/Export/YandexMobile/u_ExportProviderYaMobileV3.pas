@@ -29,6 +29,8 @@ uses
   i_Bitmap32BufferFactory,
   i_GeometryProjectedFactory,
   i_GeometryLonLat,
+  i_RegionProcessTask,
+  i_RegionProcessProgressInfo,
   i_RegionProcessProgressInfoInternalFactory,
   i_BitmapTileSaveLoadFactory,
   u_ExportProviderAbstract,
@@ -36,7 +38,7 @@ uses
   fr_ExportYaMobileV3;
 
 type
-  TExportProviderYaMobileV3 = class(TExportProviderAbstract)
+  TExportProviderYaMobileV3 = class(TExportProviderBase)
   private
     FFrame: TfrExportYaMobileV3;
     FProjectionSetFactory: IProjectionSetFactory;
@@ -47,7 +49,10 @@ type
     function CreateFrame: TFrame; override;
   protected
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
+    function PrepareTask(
+      const APolygon: IGeometryLonLatPolygon;
+      const AProgressInfo: IRegionProcessProgressInfoInternal
+    ): IRegionProcessTask; override;
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
@@ -69,8 +74,6 @@ uses
   SysUtils,
   i_MapVersionRequest,
   i_RegionProcessParamsFrame,
-  i_RegionProcessProgressInfo,
-  u_ThreadRegionProcessAbstract,
   u_ThreadExportYaMobileV3,
   u_BitmapLayerProviderMapWithLayer,
   u_ResStrings;
@@ -116,19 +119,19 @@ begin
   Result := SAS_STR_ExportYaMobileV3Caption;
 end;
 
-procedure TExportProviderYaMobileV3.StartProcess(const APolygon: IGeometryLonLatPolygon);
+function TExportProviderYaMobileV3.PrepareTask(
+  const APolygon: IGeometryLonLatPolygon;
+  const AProgressInfo: IRegionProcessProgressInfoInternal
+): IRegionProcessTask;
 var
   VPath: string;
   VZoomArr: TByteDynArray;
   comprSat, comprMap: byte;
   Replace: boolean;
-  VProgressInfo: IRegionProcessProgressInfoInternal;
   VTasks: TExportTaskYaMobileV3Array;
   VTaskIndex: Integer;
   VMapVersion: IMapVersionRequest;
   VLayerVersion: IMapVersionRequest;
-  VTask: IRegionProcessTask;
-  VThread: TRegionProcessWorker;
 begin
   inherited;
   VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
@@ -137,8 +140,6 @@ begin
   comprSat := FFrame.seSatCompress.Value;
   comprMap := FFrame.seMapCompress.Value;
   Replace := FFrame.chkReplaseTiles.Checked;
-
-  VProgressInfo := ProgressFactory.Build(APolygon);
 
   VTaskIndex := -1;
   if (FFrame.GetSat.GetSelectedMapType <> nil) or (FFrame.GetHyb.GetSelectedMapType <> nil) then begin
@@ -184,9 +185,9 @@ begin
       );
   end;
 
-  VTask :=
+  Result :=
     TThreadExportYaMobileV3.Create(
-      VProgressInfo,
+      AProgressInfo,
       FProjectionSetFactory,
       FVectorGeometryProjectedFactory,
       FBitmap32StaticFactory,
@@ -196,13 +197,6 @@ begin
       VZoomArr,
       Replace
     );
-  VThread :=
-    TRegionProcessWorker.Create(
-      VTask,
-      VProgressInfo,
-      ClassName
-    );
-  VThread.Start;
 end;
 
 end.

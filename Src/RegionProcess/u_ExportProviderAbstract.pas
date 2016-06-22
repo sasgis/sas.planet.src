@@ -27,6 +27,8 @@ uses
   Forms,
   i_LanguageManager,
   i_GeometryLonLat,
+  i_RegionProcessTask,
+  i_RegionProcessProgressInfo,
   i_RegionProcessProgressInfoInternalFactory,
   i_RegionProcessParamsFrame,
   i_RegionProcessProvider,
@@ -70,10 +72,22 @@ type
     destructor Destroy; override;
   end;
 
+  TExportProviderBase = class(TExportProviderAbstract)
+  protected
+    function PrepareTask(
+      const APolygon: IGeometryLonLatPolygon;
+      const AProgressInfo: IRegionProcessProgressInfoInternal
+    ): IRegionProcessTask; virtual; abstract;
+    procedure StartProcess(
+      const APolygon: IGeometryLonLatPolygon
+    ); override;
+  end;
+
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  u_RegionProcessWorker;
 
 { TExportProviderAbstract }
 
@@ -143,6 +157,28 @@ function TExportProviderAbstract.Validate(
 ): Boolean;
 begin
   Result := GetParamsFrame.Validate;
+end;
+
+{ TExportProviderBase }
+
+procedure TExportProviderBase.StartProcess(
+  const APolygon: IGeometryLonLatPolygon
+);
+var
+  VProgressInfo: IRegionProcessProgressInfoInternal;
+  VTask: IRegionProcessTask;
+  VThread: TRegionProcessWorker;
+begin
+  VProgressInfo := ProgressFactory.Build(APolygon);
+
+  VTask := PrepareTask(APolygon, VProgressInfo);
+  VThread :=
+    TRegionProcessWorker.Create(
+      VTask,
+      VProgressInfo,
+      ClassName
+    );
+  VThread.Start;
 end;
 
 end.

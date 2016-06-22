@@ -39,6 +39,8 @@ uses
   i_ContentTypeInfo,
   i_MapTypeListChangeable,
   i_GlobalBerkeleyDBHelper,
+  i_RegionProcessTask,
+  i_RegionProcessProgressInfo,
   i_RegionProcessProgressInfoInternalFactory,
   i_Bitmap32BufferFactory,
   i_BitmapTileSaveLoadFactory,
@@ -46,7 +48,7 @@ uses
   fr_MapSelect;
 
 type
-  TProviderTilesCopy = class(TExportProviderAbstract)
+  TProviderTilesCopy = class(TExportProviderBase)
   private
     FActiveMapsList: IMapTypeListChangeable;
     FMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
@@ -64,7 +66,10 @@ type
     function CreateFrame: TFrame; override;
   protected
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
+    function PrepareTask(
+      const APolygon: IGeometryLonLatPolygon;
+      const AProgressInfo: IRegionProcessProgressInfoInternal
+    ): IRegionProcessTask; override;
   public
     constructor Create(
       const ATimerNoifier: INotifierTime;
@@ -96,8 +101,6 @@ uses
   i_TileStorageAbilities,
   i_TileStorageTypeListItem,
   i_RegionProcessParamsFrame,
-  i_RegionProcessProgressInfo,
-  u_ThreadRegionProcessAbstract,
   u_ThreadCopyFromStorageToStorage,
   u_ThreadCopyWithModification,
   u_ResStrings,
@@ -168,7 +171,10 @@ begin
   Result := SAS_STR_OperationTilesCopyCaption;
 end;
 
-procedure TProviderTilesCopy.StartProcess(const APolygon: IGeometryLonLatPolygon);
+function TProviderTilesCopy.PrepareTask(
+  const APolygon: IGeometryLonLatPolygon;
+  const AProgressInfo: IRegionProcessProgressInfoInternal
+): IRegionProcessTask;
 var
   VMaps: IMapTypeListStatic;
 
@@ -316,9 +322,6 @@ var
   VZoomArr: TByteDynArray;
   VDeleteSource: Boolean;
   VReplace: Boolean;
-  VProgressInfo: IRegionProcessProgressInfoInternal;
-  VTask: IRegionProcessTask;
-  VThread: TRegionProcessWorker;
 begin
   VMaps := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).MapTypeList;
   VCacheType := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).TargetCacheType;
@@ -326,22 +329,10 @@ begin
   VDeleteSource := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).DeleteSource;
   VReplace := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).ReplaseTarget;
 
-  VProgressInfo := ProgressFactory.Build(APolygon);
-
   if DoDirectCopy then begin
-    VTask := PrepareDirectCopy(VProgressInfo, VCacheType, VZoomArr, VDeleteSource, VReplace);
+    Result := PrepareDirectCopy(AProgressInfo, VCacheType, VZoomArr, VDeleteSource, VReplace);
   end else begin
-    VTask := PrepareModification(VProgressInfo, VCacheType, VZoomArr, VDeleteSource, VReplace);
-  end;
-
-  if Assigned(VTask) then begin
-    VThread :=
-      TRegionProcessWorker.Create(
-        VTask,
-        VProgressInfo,
-        ClassName
-      );
-    VThread.Start;
+    Result := PrepareModification(AProgressInfo, VCacheType, VZoomArr, VDeleteSource, VReplace);
   end;
 end;
 

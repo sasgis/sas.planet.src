@@ -30,12 +30,14 @@ uses
   i_GeometryProjectedFactory,
   i_GeometryLonLat,
   i_LocalCoordConverterChangeable,
+  i_RegionProcessTask,
+  i_RegionProcessProgressInfo,
   i_RegionProcessProgressInfoInternalFactory,
   fr_MapSelect,
   u_ExportProviderAbstract;
 
 type
-  TProviderDeleteMarks = class(TExportProviderAbstract)
+  TProviderDeleteMarks = class(TExportProviderBase)
   private
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FMarkSystem: IMarkSystem;
@@ -44,7 +46,10 @@ type
     function CreateFrame: TFrame; override;
   protected
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
+    function PrepareTask(
+      const APolygon: IGeometryLonLatPolygon;
+      const AProgressInfo: IRegionProcessProgressInfoInternal
+    ): IRegionProcessTask; override;
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
@@ -62,10 +67,8 @@ uses
   Classes,
   SysUtils,
   i_RegionProcessParamsFrame,
-  i_RegionProcessProgressInfo,
   i_Projection,
   i_GeometryProjected,
-  u_ThreadRegionProcessAbstract,
   u_ThreadDeleteMarks,
   u_ResStrings,
   fr_DeleteMarks;
@@ -102,15 +105,15 @@ begin
   Result := SAS_STR_OperationDeleteCaption;
 end;
 
-procedure TProviderDeleteMarks.StartProcess(const APolygon: IGeometryLonLatPolygon);
+function TProviderDeleteMarks.PrepareTask(
+  const APolygon: IGeometryLonLatPolygon;
+  const AProgressInfo: IRegionProcessProgressInfoInternal
+): IRegionProcessTask;
 var
   VProjection: IProjection;
   VProjectedPolygon: IGeometryProjectedPolygon;
-  VProgressInfo: IRegionProcessProgressInfoInternal;
   VMarkState: Byte;
   VDelHiddenMarks: Boolean;
-  VTask: IRegionProcessTask;
-  VThread: TRegionProcessWorker;
 begin
   inherited;
   VMarkState := (ParamsFrame as IRegionProcessParamsFrameMarksState).GetMarksState;
@@ -127,11 +130,10 @@ begin
       VProjection,
       APolygon
     );
-  VProgressInfo := ProgressFactory.Build(APolygon);
   VDelHiddenMarks := (ParamsFrame as IRegionProcessParamsFrameMarksState).GetDeleteHiddenMarks;
-  VTask :=
+  Result :=
     TThreadDeleteMarks.Create(
-      VProgressInfo,
+      AProgressInfo,
       APolygon,
       VProjectedPolygon,
       VProjection,
@@ -139,13 +141,6 @@ begin
       VMarkState,
       VDelHiddenMarks
     );
-  VThread :=
-    TRegionProcessWorker.Create(
-      VTask,
-      VProgressInfo,
-      ClassName
-    );
-  VThread.Start;
 end;
 
 end.

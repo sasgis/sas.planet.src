@@ -30,13 +30,15 @@ uses
   i_ProjectionSetFactory,
   i_GeometryProjectedFactory,
   i_BitmapTileSaveLoadFactory,
+  i_RegionProcessTask,
+  i_RegionProcessProgressInfo,
   i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
   fr_MapSelect,
   fr_ExportIPhone;
 
 type
-  TExportProviderIPhone = class(TExportProviderAbstract)
+  TExportProviderIPhone = class(TExportProviderBase)
   private
     FFrame: TfrExportIPhone;
     FProjectionSetFactory: IProjectionSetFactory;
@@ -48,7 +50,10 @@ type
     function CreateFrame: TFrame; override;
   protected
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
+    function PrepareTask(
+      const APolygon: IGeometryLonLatPolygon;
+      const AProgressInfo: IRegionProcessProgressInfoInternal
+    ): IRegionProcessTask; override;
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
@@ -71,8 +76,6 @@ uses
   SysUtils,
   i_MapVersionRequest,
   i_RegionProcessParamsFrame,
-  i_RegionProcessProgressInfo,
-  u_ThreadRegionProcessAbstract,
   u_ThreadExportIPhone,
   u_BitmapLayerProviderMapWithLayer,
   u_ResStrings;
@@ -124,7 +127,10 @@ begin
   end;
 end;
 
-procedure TExportProviderIPhone.StartProcess(const APolygon: IGeometryLonLatPolygon);
+function TExportProviderIPhone.PrepareTask(
+  const APolygon: IGeometryLonLatPolygon;
+  const AProgressInfo: IRegionProcessProgressInfoInternal
+): IRegionProcessTask;
 var
   VPath: string;
   VZoomArr: TByteDynArray;
@@ -132,13 +138,10 @@ var
   Replace: boolean;
   VActiveMapIndex: Integer;
   VActiveTaskIndex: Integer;
-  VProgressInfo: IRegionProcessProgressInfoInternal;
   VTasks: TExportTaskIPhoneArray;
   VTaskIndex: Integer;
   VMapVersion: IMapVersionRequest;
   VLayerVersion: IMapVersionRequest;
-  VTask: IRegionProcessTask;
-  VThread: TRegionProcessWorker;
 begin
   inherited;
   VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
@@ -163,8 +166,6 @@ begin
   comprMap := FFrame.seMapCompress.Value;
   comprHyb := FFrame.seHybrCompress.Value;
   Replace := FFrame.chkAppendTilse.Checked;
-
-  VProgressInfo := ProgressFactory.Build(APolygon);
 
   VTaskIndex := -1;
   VActiveTaskIndex := VTaskIndex;
@@ -238,9 +239,9 @@ begin
         False
       );
   end;
-  VTask :=
+  Result :=
     TThreadExportIPhone.Create(
-      VProgressInfo,
+      AProgressInfo,
       FProjectionSetFactory,
       FVectorGeometryProjectedFactory,
       FBitmap32StaticFactory,
@@ -252,13 +253,6 @@ begin
       Replace,
       FNewFormat
     );
-  VThread :=
-    TRegionProcessWorker.Create(
-      VTask,
-      VProgressInfo,
-      ClassName
-    );
-  VThread.Start;
 end;
 
 end.

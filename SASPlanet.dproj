@@ -1242,10 +1242,12 @@
     <DCCReference Include="Src\RegionProcess\i_RegionProcessProgressInfoDownload.pas" />
     <DCCReference Include="Src\RegionProcess\i_RegionProcessProgressInfoInternalFactory.pas" />
     <DCCReference Include="Src\RegionProcess\i_RegionProcessProvider.pas" />
+    <DCCReference Include="Src\RegionProcess\i_RegionProcessTask.pas" />
     <DCCReference Include="Src\RegionProcess\u_ExportProviderAbstract.pas" />
     <DCCReference Include="Src\RegionProcess\u_RegionProcessProgressInfo.pas" />
     <DCCReference Include="Src\RegionProcess\u_RegionProcessProgressInfoDownload.pas" />
     <DCCReference Include="Src\RegionProcess\u_RegionProcessProgressInfoInternalFactory.pas" />
+    <DCCReference Include="Src\RegionProcess\u_RegionProcessWorker.pas" />
     <DCCReference Include="Src\RegionProcess\u_ThreadRegionProcessAbstract.pas" />
     <DCCReference Include="Src\RegionProcess\u_ZoomArrayFunc.pas" />
     <DCCReference Include="Src\Routing\c_PathDetalizeProvidersGUID.pas" />

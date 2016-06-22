@@ -27,19 +27,24 @@ uses
   i_LanguageManager,
   i_GeometryProjectedFactory,
   i_GeometryLonLat,
+  i_RegionProcessTask,
+  i_RegionProcessProgressInfo,
   i_RegionProcessProgressInfoInternalFactory,
   fr_MapSelect,
   u_ExportProviderAbstract;
 
 type
-  TExportProviderAUX = class(TExportProviderAbstract)
+  TExportProviderAUX = class(TExportProviderBase)
   private
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   protected
     function CreateFrame: TFrame; override;
   protected
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
+    function PrepareTask(
+      const APolygon: IGeometryLonLatPolygon;
+      const AProgressInfo: IRegionProcessProgressInfoInternal
+    ): IRegionProcessTask; override;
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
@@ -56,11 +61,9 @@ uses
   Classes,
   SysUtils,
   i_RegionProcessParamsFrame,
-  i_RegionProcessProgressInfo,
   i_MapType,
   i_Projection,
   i_GeometryProjected,
-  u_ThreadRegionProcessAbstract,
   u_ThreadExportToAUX,
   u_ResStrings,
   fr_ExportAUX;
@@ -99,16 +102,16 @@ begin
   Result := SAS_STR_ExportAUXGeoServerCaption;
 end;
 
-procedure TExportProviderAUX.StartProcess(const APolygon: IGeometryLonLatPolygon);
+function TExportProviderAUX.PrepareTask(
+  const APolygon: IGeometryLonLatPolygon;
+  const AProgressInfo: IRegionProcessProgressInfoInternal
+): IRegionProcessTask;
 var
   VPath: string;
   VMapType: IMapType;
   VZoom: byte;
   VProjection: IProjection;
   VProjectedPolygon: IGeometryProjectedPolygon;
-  VProgressInfo: IRegionProcessProgressInfoInternal;
-  VTask: IRegionProcessTask;
-  VThread: TRegionProcessWorker;
 begin
   inherited;
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
@@ -122,11 +125,9 @@ begin
       APolygon
     );
 
-  VProgressInfo := ProgressFactory.Build(APolygon);
-
-  VTask :=
+  Result :=
     TThreadExportToAUX.Create(
-      VProgressInfo,
+      AProgressInfo,
       APolygon,
       VProjectedPolygon,
       VProjection,
@@ -134,13 +135,6 @@ begin
       VMapType.VersionRequest.GetStatic.BaseVersion,
       VPath
     );
-  VThread :=
-    TRegionProcessWorker.Create(
-      VTask,
-      VProgressInfo,
-      ClassName
-    );
-  VThread.Start;
 end;
 
 end.

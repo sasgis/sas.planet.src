@@ -27,20 +27,25 @@ uses
   i_GeometryLonLat,
   i_GeometryProjectedFactory,
   i_LanguageManager,
+  i_RegionProcessTask,
+  i_RegionProcessProgressInfo,
   i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
   fr_MapSelect,
   fr_ExportGEKml;
 
 type
-  TExportProviderGEKml = class(TExportProviderAbstract)
+  TExportProviderGEKml = class(TExportProviderBase)
   private
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   protected
     function CreateFrame: TFrame; override;
   protected
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
+    function PrepareTask(
+      const APolygon: IGeometryLonLatPolygon;
+      const AProgressInfo: IRegionProcessProgressInfoInternal
+    ): IRegionProcessTask; override;
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
@@ -59,8 +64,6 @@ uses
   SysUtils,
   i_MapType,
   i_RegionProcessParamsFrame,
-  i_RegionProcessProgressInfo,
-  u_ThreadRegionProcessAbstract,
   u_ThreadExportKML,
   u_ResStrings;
 
@@ -99,16 +102,16 @@ begin
   Result := SAS_STR_ExportGEKmlExportCaption;
 end;
 
-procedure TExportProviderGEKml.StartProcess(const APolygon: IGeometryLonLatPolygon);
+function TExportProviderGEKml.PrepareTask(
+  const APolygon: IGeometryLonLatPolygon;
+  const AProgressInfo: IRegionProcessProgressInfoInternal
+): IRegionProcessTask;
 var
   VPath: string;
   VZoomArr: TByteDynArray;
   VMapType: IMapType;
   NotSaveNotExists: boolean;
   RelativePath: Boolean;
-  VProgressInfo: IRegionProcessProgressInfoInternal;
-  VTask: IRegionProcessTask;
-  VThread: TRegionProcessWorker;
 begin
   inherited;
   VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
@@ -117,11 +120,9 @@ begin
   RelativePath := (ParamsFrame as IRegionProcessParamsFrameKmlExport).RelativePath;
   NotSaveNotExists := (ParamsFrame as IRegionProcessParamsFrameKmlExport).NotSaveNotExists;
 
-  VProgressInfo := ProgressFactory.Build(APolygon);
-
-  VTask :=
+  Result :=
     TThreadExportKML.Create(
-      VProgressInfo,
+      AProgressInfo,
       VPath,
       FVectorGeometryProjectedFactory,
       APolygon,
@@ -131,13 +132,6 @@ begin
       NotSaveNotExists,
       RelativePath
     );
-  VThread :=
-    TRegionProcessWorker.Create(
-      VTask,
-      VProgressInfo,
-      ClassName
-    );
-  VThread.Start;
 end;
 
 end.

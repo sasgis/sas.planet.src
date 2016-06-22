@@ -27,6 +27,8 @@ uses
   i_GeometryLonLat,
   i_GeometryProjectedFactory,
   i_LanguageManager,
+  i_RegionProcessTask,
+  i_RegionProcessProgressInfo,
   i_RegionProcessProgressInfoInternalFactory,
   i_ProjectionSetFactory,
   i_Bitmap32BufferFactory,
@@ -39,7 +41,7 @@ uses
   fr_ExportRMP;
 
 type
-  TExportProviderRMP = class(TExportProviderAbstract)
+  TExportProviderRMP = class(TExportProviderBase)
   private
     FActiveMapsList: IMapTypeListChangeable;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -52,7 +54,10 @@ type
     function CreateFrame: TFrame; override;
   protected
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
+    function PrepareTask(
+      const APolygon: IGeometryLonLatPolygon;
+      const AProgressInfo: IRegionProcessProgressInfoInternal
+    ): IRegionProcessTask; override;
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
@@ -79,12 +84,10 @@ uses
   i_BitmapTileSaveLoad,
   i_BitmapLayerProvider,
   i_RegionProcessParamsFrame,
-  i_RegionProcessProgressInfo,
   i_TileStorage,
   i_ProjectionSet,
   i_MapVersionRequest,
   i_MapType,
-  u_ThreadRegionProcessAbstract,
   u_ThreadExportToRMP,
   u_ResStrings;
 
@@ -140,7 +143,10 @@ begin
   Result := SAS_STR_ExportRMPExportCaption;
 end;
 
-procedure TExportProviderRMP.StartProcess(const APolygon: IGeometryLonLatPolygon);
+function TExportProviderRMP.PrepareTask(
+  const APolygon: IGeometryLonLatPolygon;
+  const AProgressInfo: IRegionProcessProgressInfoInternal
+): IRegionProcessTask;
 var
   I: Integer;
   VPath: string;
@@ -152,13 +158,10 @@ var
   VBitmapUniProvider: IBitmapUniProvider;
   VMapType: IMapType;
   VProjectionSet: IProjectionSet;
-  VProgressInfo: IRegionProcessProgressInfoInternal;
   VMapVersion: IMapVersionRequest;
   VTileStorage: ITileStorage;
   VProduct, VProvider: AnsiString;
   VImageResamplerFactory: IImageResamplerFactory;
-  VTask: IRegionProcessTask;
-  VThread: TRegionProcessWorker;
 begin
   inherited;
 
@@ -194,11 +197,9 @@ begin
   I := FImageResamplerFactoryList.GetIndexByGUID(FTileReprojectResamplerConfig.ActiveGUID);
   VImageResamplerFactory := FImageResamplerFactoryList.Items[I];
 
-  VProgressInfo := ProgressFactory.Build(APolygon);
-
-  VTask :=
+  Result :=
     TThreadExportToRMP.Create(
-      VProgressInfo,
+      AProgressInfo,
       VPath,
       FVectorGeometryProjectedFactory,
       VProjectionSet,
@@ -215,13 +216,6 @@ begin
       VProduct,
       VProvider
     );
-  VThread :=
-    TRegionProcessWorker.Create(
-      VTask,
-      VProgressInfo,
-      ClassName
-    );
-  VThread.Start;
 end;
 
 end.

@@ -30,13 +30,15 @@ uses
   i_GeometryProjectedFactory,
   i_ProjectionSetFactory,
   i_BitmapTileSaveLoadFactory,
+  i_RegionProcessTask,
+  i_RegionProcessProgressInfo,
   i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
   fr_MapSelect,
   fr_ExportYaMobileV4;
 
 type
-  TExportProviderYaMobileV4 = class(TExportProviderAbstract)
+  TExportProviderYaMobileV4 = class(TExportProviderBase)
   private
     FFrame: TfrExportYaMobileV4;
     FProjectionSetFactory: IProjectionSetFactory;
@@ -47,7 +49,10 @@ type
     function CreateFrame: TFrame; override;
   protected
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
+    function PrepareTask(
+      const APolygon: IGeometryLonLatPolygon;
+      const AProgressInfo: IRegionProcessProgressInfoInternal
+    ): IRegionProcessTask; override;
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
@@ -68,8 +73,6 @@ uses
   SysUtils,
   i_MapVersionRequest,
   i_RegionProcessParamsFrame,
-  i_RegionProcessProgressInfo,
-  u_ThreadRegionProcessAbstract,
   u_ThreadExportYaMobileV4,
   u_BitmapLayerProviderMapWithLayer,
   u_ResStrings;
@@ -115,26 +118,24 @@ begin
   Result := SAS_STR_ExportYaMobileV4Caption;
 end;
 
-procedure TExportProviderYaMobileV4.StartProcess(const APolygon: IGeometryLonLatPolygon);
+function TExportProviderYaMobileV4.PrepareTask(
+  const APolygon: IGeometryLonLatPolygon;
+  const AProgressInfo: IRegionProcessProgressInfoInternal
+): IRegionProcessTask;
 var
   VPath: string;
   VZoomArr: TByteDynArray;
   comprSat, comprMap: byte;
-  VProgressInfo: IRegionProcessProgressInfoInternal;
   VTasks: TExportTaskYaMobileV4Array;
   VTaskIndex: Integer;
   VMapVersion: IMapVersionRequest;
   VLayerVersion: IMapVersionRequest;
-  VTask: IRegionProcessTask;
-  VThread: TRegionProcessWorker;
 begin
   inherited;
   VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
   VPath := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
   comprSat := FFrame.seSatCompress.Value;
   comprMap := FFrame.seMapCompress.Value;
-
-  VProgressInfo := ProgressFactory.Build(APolygon);
 
   VTaskIndex := -1;
   if (FFrame.GetSat.GetSelectedMapType <> nil) or (FFrame.GetHyb.GetSelectedMapType <> nil) then begin
@@ -187,9 +188,9 @@ begin
       );
   end;
 
-  VTask :=
+  Result :=
     TThreadExportYaMobileV4.Create(
-      VProgressInfo,
+      AProgressInfo,
       FProjectionSetFactory,
       FVectorGeometryProjectedFactory,
       FBitmap32StaticFactory,
@@ -200,13 +201,6 @@ begin
       FFrame.chkReplaseTiles.Checked,
       TYaMobileV4TileSize(FFrame.rgTileSize.ItemIndex)
     );
-  VThread :=
-    TRegionProcessWorker.Create(
-      VTask,
-      VProgressInfo,
-      ClassName
-    );
-  VThread.Start;
 end;
 
 end.

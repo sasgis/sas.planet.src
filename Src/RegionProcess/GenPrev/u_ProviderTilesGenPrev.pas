@@ -32,13 +32,15 @@ uses
   i_GeometryProjectedFactory,
   i_Bitmap32BufferFactory,
   i_GlobalViewMainConfig,
+  i_RegionProcessTask,
+  i_RegionProcessProgressInfo,
   i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
   fr_MapSelect,
   fr_TilesGenPrev;
 
 type
-  TProviderTilesGenPrev = class(TExportProviderAbstract)
+  TProviderTilesGenPrev = class(TExportProviderBase)
   private
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FBitmapFactory: IBitmap32StaticFactory;
@@ -49,7 +51,10 @@ type
     function CreateFrame: TFrame; override;
   protected
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
+    function PrepareTask(
+      const APolygon: IGeometryLonLatPolygon;
+      const AProgressInfo: IRegionProcessProgressInfoInternal
+    ): IRegionProcessTask; override;
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
@@ -72,8 +77,6 @@ uses
   i_MapType,
   i_ContentTypeInfo,
   i_RegionProcessParamsFrame,
-  i_RegionProcessProgressInfo,
-  u_ThreadRegionProcessAbstract,
   u_ThreadGenPrevZoom,
   u_ResStrings;
 
@@ -121,15 +124,15 @@ begin
   Result := SAS_STR_OperationGenPrevCaption;
 end;
 
-procedure TProviderTilesGenPrev.StartProcess(const APolygon: IGeometryLonLatPolygon);
+function TProviderTilesGenPrev.PrepareTask(
+  const APolygon: IGeometryLonLatPolygon;
+  const AProgressInfo: IRegionProcessProgressInfoInternal
+): IRegionProcessTask;
 var
   VInZooms: TByteDynArray;
   VMapType: IMapType;
   VResampler: IImageResamplerFactory;
-  VProgressInfo: IRegionProcessProgressInfoInternal;
   VBgColor: TColor32;
-  VTask: IRegionProcessTask;
-  VThread: TRegionProcessWorker;
 begin
   inherited;
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
@@ -141,11 +144,9 @@ begin
     VBgColor := Color32(FViewConfig.BackGroundColor);
   end;
 
-  VProgressInfo := ProgressFactory.Build(APolygon);
-
-  VTask :=
+  Result :=
     TThreadGenPrevZoom.Create(
-      VProgressInfo,
+      AProgressInfo,
       FVectorGeometryProjectedFactory,
       FBitmapFactory,
       VInZooms,
@@ -160,13 +161,6 @@ begin
       VBgColor,
       VResampler
     );
-  VThread :=
-    TRegionProcessWorker.Create(
-      VTask,
-      VProgressInfo,
-      ClassName
-    );
-  VThread.Start;
 end;
 
 end.

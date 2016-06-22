@@ -54,6 +54,7 @@ uses
   i_GlobalViewMainConfig,
   i_MapTypeListChangeable,
   i_BitmapMapCombiner,
+  i_RegionProcessTask,
   i_RegionProcessProgressInfo,
   i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
@@ -61,7 +62,7 @@ uses
   fr_MapCombine;
 
 type
-  TProviderMapCombineBase = class(TExportProviderAbstract)
+  TProviderMapCombineBase = class(TExportProviderBase)
   private
     FDefaultExt: string;
     FCombinePathStringTypeSupport: TStringTypeSupport;
@@ -113,7 +114,10 @@ type
     ): IBitmapMapCombiner; virtual; abstract;
   protected
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
+    function PrepareTask(
+      const APolygon: IGeometryLonLatPolygon;
+      const AProgressInfo: IRegionProcessProgressInfoInternal
+    ): IRegionProcessTask; override;
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
@@ -166,7 +170,6 @@ uses
   i_MapVersionRequest,
   i_RegionProcessParamsFrame,
   u_GeoFunc,
-  u_ThreadRegionProcessAbstract,
   u_ThreadMapCombineBase,
   u_MarkerProviderForVectorItemForMarkPoints,
   u_VectorTileProviderByFixedSubset,
@@ -603,9 +606,10 @@ begin
   Result := RectFromDoubleRect(APolygon.Bounds, rrOutside);
 end;
 
-procedure TProviderMapCombineBase.StartProcess(
-  const APolygon: IGeometryLonLatPolygon
-);
+function TProviderMapCombineBase.PrepareTask(
+  const APolygon: IGeometryLonLatPolygon;
+  const AProgressInfo: IRegionProcessProgressInfoInternal
+): IRegionProcessTask;
 var
   VMapCalibrations: IMapCalibrationList;
   VFileName: string;
@@ -613,10 +617,7 @@ var
   VProjection: IProjection;
   VProjectedPolygon: IGeometryProjectedPolygon;
   VImageProvider: IBitmapTileProvider;
-  VProgressInfo: IRegionProcessProgressInfoInternal;
   VCombiner: IBitmapMapCombiner;
-  VTask: IRegionProcessTask;
-  VThread: TRegionProcessWorker;
 begin
   VProjection := PrepareProjection;
   VProjectedPolygon := PreparePolygon(VProjection, APolygon);
@@ -625,11 +626,10 @@ begin
   VFileName := PrepareTargetFileName;
   VSplitCount := (ParamsFrame as IRegionProcessParamsFrameMapCombine).SplitCount;
 
-  VProgressInfo := ProgressFactory.Build(APolygon);
-  VCombiner := PrepareMapCombiner(VProgressInfo);
-  VTask :=
+  VCombiner := PrepareMapCombiner(AProgressInfo);
+  Result :=
     TThreadMapCombineBase.Create(
-      VProgressInfo,
+      AProgressInfo,
       APolygon,
       PrepareTargetRect(VProjection, VProjectedPolygon),
       VCombiner,
@@ -638,13 +638,6 @@ begin
       VFileName,
       VSplitCount
     );
-  VThread :=
-    TRegionProcessWorker.Create(
-      VTask,
-      VProgressInfo,
-      ClassName
-    );
-  VThread.Start;
 end;
 
 function TProviderMapCombineBase.PrepareTargetFileName: string;

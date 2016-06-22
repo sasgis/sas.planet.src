@@ -30,13 +30,15 @@ uses
   i_ArchiveReadWriteFactory,
   i_TileStorageTypeList,
   i_TileFileNameGeneratorsList,
+  i_RegionProcessTask,
+  i_RegionProcessProgressInfo,
   i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
   fr_MapSelect,
   fr_ExportToFileCont;
 
 type
-  TExportProviderZip = class(TExportProviderAbstract)
+  TExportProviderZip = class(TExportProviderBase)
   private
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
@@ -46,7 +48,10 @@ type
     function CreateFrame: TFrame; override;
   protected
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
+    function PrepareTask(
+      const APolygon: IGeometryLonLatPolygon;
+      const AProgressInfo: IRegionProcessProgressInfoInternal
+    ): IRegionProcessTask; override;
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
@@ -67,9 +72,7 @@ uses
   SysUtils,
   i_MapType,
   i_RegionProcessParamsFrame,
-  i_RegionProcessProgressInfo,
   i_TileFileNameGenerator,
-  u_ThreadRegionProcessAbstract,
   u_ThreadExportToArchive,
   u_ResStrings;
 
@@ -118,15 +121,15 @@ begin
   Result := SAS_STR_ExportZipPackCaption;
 end;
 
-procedure TExportProviderZip.StartProcess(const APolygon: IGeometryLonLatPolygon);
+function TExportProviderZip.PrepareTask(
+  const APolygon: IGeometryLonLatPolygon;
+  const AProgressInfo: IRegionProcessProgressInfoInternal
+): IRegionProcessTask;
 var
   VPath: string;
   Zoomarr: TByteDynArray;
   VMapType: IMapType;
   VNameGenerator: ITileFileNameGenerator;
-  VProgressInfo: IRegionProcessProgressInfoInternal;
-  VTask: IRegionProcessTask;
-  VThread: TRegionProcessWorker;
 begin
   inherited;
   Zoomarr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
@@ -134,11 +137,9 @@ begin
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
   VNameGenerator := (ParamsFrame as IRegionProcessParamsFrameExportToFileCont).NameGenerator;
 
-  VProgressInfo := ProgressFactory.Build(APolygon);
-
-  VTask :=
+  Result :=
     TThreadExportToArchive.Create(
-      VProgressInfo,
+      AProgressInfo,
       FArchiveReadWriteFactory.Zip.WriterFactory.BuildByFileName(VPath),
       FVectorGeometryProjectedFactory,
       APolygon,
@@ -146,13 +147,6 @@ begin
       VMapType.TileStorage,
       VNameGenerator
     );
-  VThread :=
-    TRegionProcessWorker.Create(
-      VTask,
-      VProgressInfo,
-      ClassName
-    );
-  VThread.Start;
 end;
 
 end.

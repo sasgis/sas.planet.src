@@ -30,13 +30,15 @@ uses
   i_Bitmap32BufferFactory,
   i_BitmapTileSaveLoadFactory,
   i_LanguageManager,
+  i_RegionProcessTask,
+  i_RegionProcessProgressInfo,
   i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
   fr_MapSelect,
   fr_ExportToOgf2;
 
 type
-  TExportProviderOgf2 = class(TExportProviderAbstract)
+  TExportProviderOgf2 = class(TExportProviderBase)
   private
     FProjectionSetFactory: IProjectionSetFactory;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
@@ -46,7 +48,10 @@ type
     function CreateFrame: TFrame; override;
   protected
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
+    function PrepareTask(
+      const APolygon: IGeometryLonLatPolygon;
+      const AProgressInfo: IRegionProcessProgressInfoInternal
+    ): IRegionProcessTask; override;
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
@@ -66,10 +71,8 @@ uses
   Classes,
   SysUtils,
   i_RegionProcessParamsFrame,
-  i_RegionProcessProgressInfo,
   i_BitmapLayerProvider,
   i_BitmapTileSaveLoad,
-  u_ThreadRegionProcessAbstract,
   u_ThreadExportToOgf2,
   u_ResStrings;
 
@@ -120,16 +123,16 @@ begin
   Result := SAS_STR_ExportOgf2PackCaption;
 end;
 
-procedure TExportProviderOgf2.StartProcess(const APolygon: IGeometryLonLatPolygon);
+function TExportProviderOgf2.PrepareTask(
+  const APolygon: IGeometryLonLatPolygon;
+  const AProgressInfo: IRegionProcessProgressInfoInternal
+): IRegionProcessTask;
 var
   VTargetFile: string;
-  VProgressInfo: IRegionProcessProgressInfoInternal;
   VImageProvider: IBitmapTileUniProvider;
   VZoom: Byte;
   VSaver: IBitmapTileSaver;
   VTileSize: TPoint;
-  VTask: IRegionProcessTask;
-  VThread: TRegionProcessWorker;
 begin
   inherited;
 
@@ -139,11 +142,9 @@ begin
   VSaver := (ParamsFrame as IRegionProcessParamsFrameExportToOgf2).Saver;
   VTileSize := (ParamsFrame as IRegionProcessParamsFrameExportToOgf2).TileSize;
 
-  VProgressInfo := ProgressFactory.Build(APolygon);
-
-  VTask :=
+  Result :=
     TThreadExportToOgf2.Create(
-      VProgressInfo,
+      AProgressInfo,
       FProjectionSetFactory,
       FBitmap32StaticFactory,
       FVectorGeometryProjectedFactory,
@@ -154,13 +155,6 @@ begin
       VTileSize,
       VSaver
     );
-  VThread :=
-    TRegionProcessWorker.Create(
-      VTask,
-      VProgressInfo,
-      ClassName
-    );
-  VThread.Start;
 end;
 
 end.

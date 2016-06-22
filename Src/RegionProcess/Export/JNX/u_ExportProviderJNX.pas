@@ -29,13 +29,15 @@ uses
   i_LanguageManager,
   i_BitmapTileSaveLoadFactory,
   i_BitmapPostProcessing,
+  i_RegionProcessTask,
+  i_RegionProcessProgressInfo,
   i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
   fr_MapSelect,
   fr_ExportToJNX;
 
 type
-  TExportProviderJNX = class(TExportProviderAbstract)
+  TExportProviderJNX = class(TExportProviderBase)
   private
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
@@ -44,7 +46,10 @@ type
     function CreateFrame: TFrame; override;
   protected
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
+    function PrepareTask(
+      const APolygon: IGeometryLonLatPolygon;
+      const AProgressInfo: IRegionProcessProgressInfoInternal
+    ): IRegionProcessTask; override;
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
@@ -62,9 +67,7 @@ uses
   Classes,
   SysUtils,
   i_RegionProcessParamsFrame,
-  i_RegionProcessProgressInfo,
   u_ExportToJnxTask,
-  u_ThreadRegionProcessAbstract,
   u_ThreadExportToJNX,
   u_ResStrings;
 
@@ -108,7 +111,10 @@ begin
   Result := SAS_STR_ExportJNXPackCaption;
 end;
 
-procedure TExportProviderJNX.StartProcess(const APolygon: IGeometryLonLatPolygon);
+function TExportProviderJNX.PrepareTask(
+  const APolygon: IGeometryLonLatPolygon;
+  const AProgressInfo: IRegionProcessProgressInfoInternal
+): IRegionProcessTask;
 var
   VPath: string;
   VProductName: string;
@@ -116,12 +122,9 @@ var
   VJNXVersion: integer;
   VZorder: integer;
   VProductID: integer;
-  VProgressInfo: IRegionProcessProgressInfoInternal;
   VTasks: TExportTaskJnxArray;
   VUseRecolor: Boolean;
   VBitmapPostProcessing: IBitmapPostProcessing;
-  VTask: IRegionProcessTask;
-  VThread: TRegionProcessWorker;
 begin
   inherited;
 
@@ -133,15 +136,14 @@ begin
   VProductID := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).ProductID;
   VTasks := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).Tasks;
   VUseRecolor := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).UseRecolor;
-  VProgressInfo := ProgressFactory.Build(APolygon);
   VBitmapPostProcessing := nil;
   if VUseRecolor then begin
     VBitmapPostProcessing := FBitmapPostProcessing.GetStatic;
   end;
 
-  VTask :=
+  Result :=
     TThreadExportToJnx.Create(
-      VProgressInfo,
+      AProgressInfo,
       FVectorGeometryProjectedFactory,
       VPath,
       APolygon,
@@ -153,13 +155,6 @@ begin
       VZorder,
       VProductID
     );
-  VThread :=
-    TRegionProcessWorker.Create(
-      VTask,
-      VProgressInfo,
-      ClassName
-    );
-  VThread.Start;
 end;
 
 end.

@@ -28,19 +28,24 @@ uses
   i_LanguageManager,
   i_GeometryProjectedFactory,
   i_GeometryLonLat,
+  i_RegionProcessTask,
+  i_RegionProcessProgressInfo,
   i_RegionProcessProgressInfoInternalFactory,
   fr_MapSelect,
   u_ExportProviderAbstract;
 
 type
-  TProviderDeleteTiles = class(TExportProviderAbstract)
+  TProviderDeleteTiles = class(TExportProviderBase)
   private
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   protected
     function CreateFrame: TFrame; override;
   protected
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
+    function PrepareTask(
+      const APolygon: IGeometryLonLatPolygon;
+      const AProgressInfo: IRegionProcessProgressInfoInternal
+    ): IRegionProcessTask; override;
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
@@ -57,11 +62,9 @@ uses
   SysUtils,
   i_MapType,
   i_RegionProcessParamsFrame,
-  i_RegionProcessProgressInfo,
   i_PredicateByTileInfo,
   i_Projection,
   i_GeometryProjected,
-  u_ThreadRegionProcessAbstract,
   u_ThreadDeleteTiles,
   u_ResStrings,
   fr_DeleteTiles;
@@ -100,16 +103,16 @@ begin
   Result := SAS_STR_OperationDeleteCaption;
 end;
 
-procedure TProviderDeleteTiles.StartProcess(const APolygon: IGeometryLonLatPolygon);
+function TProviderDeleteTiles.PrepareTask(
+  const APolygon: IGeometryLonLatPolygon;
+  const AProgressInfo: IRegionProcessProgressInfoInternal
+): IRegionProcessTask;
 var
   VMapType: IMapType;
   VZoom: byte;
   VProjection: IProjection;
   VProjectedPolygon: IGeometryProjectedPolygon;
-  VProgressInfo: IRegionProcessProgressInfoInternal;
   VPredicate: IPredicateByTileInfo;
-  VTask: IRegionProcessTask;
-  VThread: TRegionProcessWorker;
 begin
   inherited;
   if (Application.MessageBox(pchar(SAS_MSG_DeleteTilesInRegionAsk), pchar(SAS_MSG_coution), 36) <> IDYES) then begin
@@ -125,10 +128,10 @@ begin
       VProjection,
       APolygon
     );
-  VProgressInfo := ProgressFactory.Build(APolygon);
-  VTask :=
+
+  Result :=
     TThreadDeleteTiles.Create(
-      VProgressInfo,
+      AProgressInfo,
       APolygon,
       VProjectedPolygon,
       VProjection,
@@ -136,13 +139,6 @@ begin
       VMapType.VersionRequest.GetStatic,
       VPredicate
     );
-  VThread :=
-    TRegionProcessWorker.Create(
-      VTask,
-      VProgressInfo,
-      ClassName
-    );
-  VThread.Start;
 end;
 
 end.

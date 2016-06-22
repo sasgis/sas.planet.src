@@ -27,6 +27,8 @@ uses
   i_GeometryLonLat,
   i_GeometryProjectedFactory,
   i_LanguageManager,
+  i_RegionProcessTask,
+  i_RegionProcessProgressInfo,
   i_RegionProcessProgressInfoInternalFactory,
   i_ProjectionSetFactory,
   i_Bitmap32BufferFactory,
@@ -37,7 +39,7 @@ uses
   fr_ExportOruxMapsSQLite;
 
 type
-  TExportProviderOruxMapsSQLite = class(TExportProviderAbstract)
+  TExportProviderOruxMapsSQLite = class(TExportProviderBase)
   private
     FActiveMapsList: IMapTypeListChangeable;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -48,7 +50,10 @@ type
     function CreateFrame: TFrame; override;
   protected
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
+    function PrepareTask(
+      const APolygon: IGeometryLonLatPolygon;
+      const AProgressInfo: IRegionProcessProgressInfoInternal
+    ): IRegionProcessTask; override;
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
@@ -73,11 +78,9 @@ uses
   i_BitmapTileSaveLoad,
   i_BitmapLayerProvider,
   i_RegionProcessParamsFrame,
-  i_RegionProcessProgressInfo,
   i_TileStorage,
   i_MapVersionRequest,
   i_MapType,
-  u_ThreadRegionProcessAbstract,
   u_ThreadExportToOruxMapsSQLite,
   u_ResStrings;
 
@@ -130,7 +133,10 @@ begin
   Result := SAS_STR_ExportOruxMapsSQLiteExportCaption;
 end;
 
-procedure TExportProviderOruxMapsSQLite.StartProcess(const APolygon: IGeometryLonLatPolygon);
+function TExportProviderOruxMapsSQLite.PrepareTask(
+  const APolygon: IGeometryLonLatPolygon;
+  const AProgressInfo: IRegionProcessProgressInfoInternal
+): IRegionProcessTask;
 var
   VPath: string;
   VZoomArr: TByteDynArray;
@@ -138,12 +144,9 @@ var
   VBitmapTileSaver: IBitmapTileSaver;
   VBitmapProvider: IBitmapTileUniProvider;
   VMapType: IMapType;
-  VProgressInfo: IRegionProcessProgressInfoInternal;
   VMapVersion: IMapVersionRequest;
   VTileStorage: ITileStorage;
   VBlankTile: IBinaryData;
-  VTask: IRegionProcessTask;
-  VThread: TRegionProcessWorker;
 begin
   inherited;
 
@@ -165,11 +168,9 @@ begin
     VBitmapTileSaver := BitmapTileSaver;
   end;
 
-  VProgressInfo := ProgressFactory.Build(APolygon);
-
-  VTask :=
+  Result :=
     TThreadExportToOruxMapsSQLite.Create(
-      VProgressInfo,
+      AProgressInfo,
       VPath,
       FVectorGeometryProjectedFactory,
       FProjectionSetFactory,
@@ -182,13 +183,6 @@ begin
       VBlankTile,
       VDirectTilesCopy
     );
-  VThread :=
-    TRegionProcessWorker.Create(
-      VTask,
-      VProgressInfo,
-      ClassName
-    );
-  VThread.Start;
 end;
 
 end.
