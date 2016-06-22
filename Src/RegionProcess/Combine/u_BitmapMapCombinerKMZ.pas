@@ -246,6 +246,7 @@ begin
             VZip.AddFile(VData, VNameInKmz, Now);
           end;
         end;
+        Inc(VTilesProcessed);
         FProgressUpdate.Update(VTilesProcessed / VTilesToProcess);
       end;
     end;
