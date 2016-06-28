@@ -265,24 +265,71 @@ begin
   end;
 end;
 
-function GetOrderByVersionDesc(
-  const ATBColInfoModeV: TVersionColMode
-): AnsiString;
+function GetOrderByVersion(
+  const ATBColInfoModeV: TVersionColMode;
+  const AIsOrderDESC: Boolean
+): AnsiString; inline;
+var
+  VOrder: AnsiString;
 begin
+  if AIsOrderDESC then begin
+    VOrder := ' DESC';
+  end else begin
+    VOrder := ' ASC';
+  end;
   case ATBColInfoModeV of
     vcm_Int: begin
       // версия в БД целочисленная
-      Result := 'v DESC';
+      Result := 'v' + VOrder;
     end;
     vcm_Text: begin
       // версия в БД текстовая
-      Result := 'v COLLATE ' + cLogicalSortingCollation + ' DESC';
+      Result := 'v COLLATE ' + cLogicalSortingCollation + VOrder;
     end;
   else
     begin
       Assert(False, IntToStr(Ord(ATBColInfoModeV)));
     end;
   end;
+end;
+
+function GetOrderByVersion_DESC(
+  const ATBColInfoModeV: TVersionColMode
+): AnsiString; inline;
+begin
+  Result := GetOrderByVersion(ATBColInfoModeV, True);
+end;
+
+function GetOrderByVersion_ASC(
+  const ATBColInfoModeV: TVersionColMode
+): AnsiString; inline;
+begin
+  Result := GetOrderByVersion(ATBColInfoModeV, False);
+end;
+
+function VersionFieldIsEqualOrMax(
+  const ARequestedVersionIsInt: Boolean;
+  const ATBColInfoModeV: TVersionColMode;
+  const ARequestedVersionToDB: AnsiString;
+  const AXY: TPoint
+): AnsiString;
+var
+  VVer, VMax: AnsiString;
+begin
+  if (ATBColInfoModeV = vcm_Int) and not ARequestedVersionIsInt then begin
+    // версия в БД целочисленная, но дали текстовую
+    VVer := 'cast(v as TEXT)';
+  end else begin
+    VVer := 'v';
+  end;
+
+  VMax :=
+    '(SELECT v FROM t' +
+    ' WHERE x=' + ALIntToStr(AXY.X) +
+    ' AND y=' + ALIntToStr(AXY.Y) +
+    ' ORDER BY ' + GetOrderByVersion_DESC(ATBColInfoModeV) + ' LIMIT 1)';
+
+  Result := VVer + ' IN (' + ARequestedVersionToDB + ',' + VMax + ')';
 end;
 
 function GetCheckPrevVersionSQLText(
@@ -311,7 +358,7 @@ begin
     ' WHERE x=' + ALIntToStr(AXY.X) +
     ' AND y=' + ALIntToStr(AXY.Y) +
     ' AND ' + VersionFieldCompare(ARequestedVersionIsInt, ATBColInfoModeV, '<', ARequestedVersionToDB) +
-    ' ORDER BY ' + GetOrderByVersionDesc(ATBColInfoModeV) + ' LIMIT 1),' + VSize2 + ')';
+    ' ORDER BY ' + GetOrderByVersion_DESC(ATBColInfoModeV) + ' LIMIT 1),' + VSize2 + ')';
 end;
 
 { TTileStorageSQLiteHandler }
@@ -770,7 +817,7 @@ begin
     'SELECT v FROM t' +
     ' WHERE x=' + ALIntToStr(AXY.X) +
     ' AND y=' + ALIntToStr(AXY.Y) +
-    ' ORDER BY ' + GetOrderByVersionDesc(FTBColInfo.ModeV);
+    ' ORDER BY ' + GetOrderByVersion_DESC(FTBColInfo.ModeV);
 
   VSelectTileVersions.Init;
   try
@@ -983,22 +1030,9 @@ begin
           FTBColInfo.ModeV,
           VComplex.RequestedVersionToDB
         );
-    end else if VComplex.RequestedVersionIsSet then begin
-      // allow use prev versions before given
-      Result := Result +
-        ' AND ' +
-        VersionFieldCompare(
-          VComplex.RequestedVersionIsInt,
-          FTBColInfo.ModeV,
-          '<=',
-          VComplex.RequestedVersionToDB
-        );
     end else begin
-      // no given version - just use last version
-    end;
-
-    if AUsePrevVersions then begin
-      Result := Result + ' ORDER BY ' + GetOrderByVersionDesc(FTBColInfo.ModeV);
+      // use last version
+      Result := Result + ' ORDER BY ' + GetOrderByVersion_DESC(FTBColInfo.ModeV);
     end;
   end;
 
@@ -1055,21 +1089,19 @@ begin
           VSelectTileInfo.RequestedVersionToDB
         );
     end else if VSelectTileInfo.RequestedVersionIsSet then begin
-      // allow use prev versions before given
+      // use given or last version
       VSQLWhere := VSQLWhere +
         ' AND ' +
-        VersionFieldCompare(
+        VersionFieldIsEqualOrMax(
           VSelectTileInfo.RequestedVersionIsInt,
           FTBColInfo.ModeV,
-          '<=',
-          VSelectTileInfo.RequestedVersionToDB
+          VSelectTileInfo.RequestedVersionToDB,
+          AXY
         );
+      VSQLOrder := ' ORDER BY ' + GetOrderByVersion_ASC(FTBColInfo.ModeV);
     end else begin
       // no given version - just use last version
-    end;
-
-    if AUsePrevVersions then begin
-      VSQLWhere := VSQLWhere + ' ORDER BY ' + GetOrderByVersionDesc(FTBColInfo.ModeV);
+      VSQLOrder := ' ORDER BY ' + GetOrderByVersion_DESC(FTBColInfo.ModeV);
     end;
   end;
 
@@ -1087,7 +1119,7 @@ begin
   VSelectTileInfo.TileResult := AResult;
 
   // make full select
-  VSQLText := VSQLText + ' FROM t ' + VSQLWhere + VSQLOrder + ' LIMIT 1'#0;
+  VSQLText := VSQLText + ' FROM t ' + VSQLWhere + VSQLOrder + ' LIMIT 1';
 
   try
     FSQLite3DbHandler.OpenSQL(
