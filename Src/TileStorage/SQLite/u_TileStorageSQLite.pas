@@ -431,10 +431,9 @@ begin
       SLoadDate := ALoadDate;
       SContentType := AContentType;
       SData := AData;
-      if AIsOverwrite then begin
-        SSaveTileFlags := [];
-      end else begin
-        SSaveTileFlags := [stfKeepExisting]
+      SSaveTileFlags := [stfSkipIfSameAsPrev];
+      if not AIsOverwrite then begin
+        Include(SSaveTileFlags, stfKeepExisting);
       end;
     end;
 
@@ -486,8 +485,6 @@ begin
         DXY := AXY;
         DZoom := AZoom;
         DVersionInfo := AVersionInfo;
-        DDeleteTileFlags := [];
-        DPrevSizeValue := 0;
       end;
 
       // delete tile or tne

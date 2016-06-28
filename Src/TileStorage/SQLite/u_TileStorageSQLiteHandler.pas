@@ -237,34 +237,6 @@ begin
   end;
 end;
 
-function VersionFieldCompare(
-  const ARequestedVersionIsInt: Boolean;
-  const ATBColInfoModeV: TVersionColMode;
-  const AStrOperator: AnsiString;
-  const ARequestedVersionToDB: AnsiString
-): AnsiString;
-begin
-  Assert(AStrOperator <> '=');
-  case ATBColInfoModeV of
-    vcm_Int: begin
-      // версия в БД целочисленная
-      if ARequestedVersionIsInt then begin
-        // версию дали целочисленную
-        Result := 'v' + AStrOperator + ARequestedVersionToDB;
-      end else begin
-        // версию дали текстовую
-        Result := 'cast(v as TEXT)' + AStrOperator + ARequestedVersionToDB +
-          ' COLLATE ' + cLogicalSortingCollation;
-      end;
-    end;
-    vcm_Text: begin
-      // версия в БД текстовая
-      Result := 'v' + AStrOperator + ARequestedVersionToDB +
-        ' COLLATE ' + cLogicalSortingCollation;
-    end;
-  end;
-end;
-
 function GetOrderByVersion(
   const ATBColInfoModeV: TVersionColMode;
   const AIsOrderDESC: Boolean
@@ -333,32 +305,23 @@ begin
 end;
 
 function GetCheckPrevVersionSQLText(
-  const ARequestedVersionIsInt: Boolean;
-  const ATBColInfoModeV: TVersionColMode;
   const AXY: TPoint;
-  const ARequestedVersionToDB: AnsiString;
-  const AOriginalTileSize: Integer;
-  const ALinkSize: AnsiString
+  const AOriginalTileSize: Integer
 ): AnsiString;
 var
-  VSize2: AnsiString;
+  VSize1, VSize2: AnsiString;
 begin
-  if (0 < Length(ALinkSize)) then begin
-    // delete from if size =
-    Result := ALinkSize + '=';
-    VSize2 := ALinkSize + '+1';
-  end else begin
-    // insert or replace where size <>
-    Result := ALIntToStr(AOriginalTileSize) + '<>';
-    VSize2 := ALIntToStr(AOriginalTileSize + 1);
-  end;
+  // insert or replace where size <>
+  Result := ALIntToStr(AOriginalTileSize) + '<>';
+  VSize2 := ALIntToStr(AOriginalTileSize + 1);
 
-  Result := Result+
-    'COALESCE((SELECT s FROM t' +
-    ' WHERE x=' + ALIntToStr(AXY.X) +
-    ' AND y=' + ALIntToStr(AXY.Y) +
-    ' AND ' + VersionFieldCompare(ARequestedVersionIsInt, ATBColInfoModeV, '<', ARequestedVersionToDB) +
-    ' ORDER BY ' + GetOrderByVersion_DESC(ATBColInfoModeV) + ' LIMIT 1),' + VSize2 + ')';
+  VSize1 :=
+    'SELECT s FROM t WHERE ' +
+    'x=' + ALIntToStr(AXY.X) + ' AND ' +
+    'y=' + ALIntToStr(AXY.Y) + ' AND ' +
+    's=' + ALIntToStr(AOriginalTileSize);
+
+  Result := Result + 'COALESCE(' + '(' +VSize1 + ')' + ',' + VSize2 + ')';
 end;
 
 { TTileStorageSQLiteHandler }
@@ -902,19 +865,6 @@ begin
           FTBColInfo.ModeV,
           VInfo.RequestedVersionToDB
         );
-
-      if VInfo.RequestedVersionIsSet and (dtfOnlyIfSameAsPrevVersion in DDeleteTileFlags) then begin
-        // check size for prev version
-        Result := Result + ' AND ' +
-          GetCheckPrevVersionSQLText(
-            VInfo.RequestedVersionIsInt,
-            FTBColInfo.ModeV,
-            DXY,
-            VInfo.RequestedVersionToDB,
-            0,
-            't.s'
-          );
-      end;
     end;
   end;
 end;
@@ -1231,16 +1181,7 @@ begin
 
       // check prev version with same size
       if VInfoComplex.RequestedVersionIsSet and (stfSkipIfSameAsPrev in SSaveTileFlags) then begin
-        VSQLAfter :=
-          ' WHERE ' +
-          GetCheckPrevVersionSQLText(
-            VInfoComplex.RequestedVersionIsInt,
-            FTBColInfo.ModeV,
-            SXY,
-            VInfoComplex.RequestedVersionToDB,
-            VOriginalTileSize,
-            ''
-          );
+        VSQLAfter := ' WHERE ' + GetCheckPrevVersionSQLText(SXY, VOriginalTileSize);
       end else begin
         VSQLAfter := '';
       end;

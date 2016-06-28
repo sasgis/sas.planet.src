@@ -19,17 +19,10 @@ type
   );
   TGetTileInfoModeSQLite = set of TGetTileInfoItem;
 
-  TDeleteTileFlag =(
-    dtfOnlyIfSameAsPrevVersion
-  );
-  TDeleteTileFlags = set of TDeleteTileFlag;
-
   TDeleteTileAllData = record
     DXY: TPoint;
     DZoom: Byte;
     DVersionInfo: IMapVersionInfo;
-    DDeleteTileFlags: TDeleteTileFlags;
-    DPrevSizeValue: Integer;
   end;
   PDeleteTileAllData = ^TDeleteTileAllData;
 
