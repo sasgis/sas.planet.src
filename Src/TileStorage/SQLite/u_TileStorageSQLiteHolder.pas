@@ -213,6 +213,7 @@ begin
       'v INTEGER DEFAULT 0 NOT NULL,'+ // version
       'c TEXT,'+                       // content_type
       's INTEGER DEFAULT 0 NOT NULL,'+ // size
+      'h INTEGER DEFAULT 0 NOT NULL,'+ // crc32
       'd INTEGER NOT NULL,'+           // date as unix seconds DEFAULT (strftime(''%s'',''now'')))
       'b BLOB,'+                       // body
       'constraint PK_TB primary key (x,y,v))' + #13#10 +

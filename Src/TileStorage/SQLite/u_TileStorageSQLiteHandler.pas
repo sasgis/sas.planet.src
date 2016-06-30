@@ -182,6 +182,7 @@ uses
   DateUtils,
   ALString,
   AlSqlite3Wrapper,
+  CRC32,
   c_TileStorageSQLite,
   u_InterfaceListSimple,
   u_MapVersionListStatic,
@@ -304,24 +305,38 @@ begin
   Result := VVer + ' IN (' + ARequestedVersionToDB + ',' + VMax + ')';
 end;
 
-function GetCheckPrevVersionSQLText(
+function GetCheckPrevVersionBySizeSQLText(
   const AXY: TPoint;
-  const AOriginalTileSize: Integer
+  const ATileSize: Integer
 ): AnsiString;
 var
-  VSize1, VSize2: AnsiString;
+  s: AnsiString;
 begin
-  // insert or replace where size <>
-  Result := ALIntToStr(AOriginalTileSize) + '<>';
-  VSize2 := ALIntToStr(AOriginalTileSize + 1);
-
-  VSize1 :=
+  s :=
     'SELECT s FROM t WHERE ' +
     'x=' + ALIntToStr(AXY.X) + ' AND ' +
     'y=' + ALIntToStr(AXY.Y) + ' AND ' +
-    's=' + ALIntToStr(AOriginalTileSize);
+    's=' + ALIntToStr(ATileSize);
 
-  Result := Result + 'COALESCE(' + '(' +VSize1 + ')' + ',' + VSize2 + ')';
+  // insert or replace where size <>
+  Result := ALIntToStr(ATileSize) + '<>' + 'COALESCE((' + s + '),-1)';
+end;
+
+function GetCheckPrevVersionByCRC32SQLText(
+  const AXY: TPoint;
+  const ATileCRC32: Cardinal
+): AnsiString;
+var
+  h: AnsiString;
+begin
+  h :=
+    'SELECT h FROM t WHERE ' +
+    'x=' + ALIntToStr(AXY.X) + ' AND ' +
+    'y=' + ALIntToStr(AXY.Y) + ' AND ' +
+    'h=' + ALIntToStr(ATileCRC32);
+
+  // insert or replace where crc32 <>
+  Result := ALIntToStr(ATileCRC32) + '<>' + 'COALESCE((' + h + '),-1)';
 end;
 
 { TTileStorageSQLiteHandler }
@@ -486,7 +501,7 @@ var
   VName: PAnsiChar;
   VFound: Byte;
 begin
-  VFound := 2;
+  VFound := 3;
 
   with PTBColInfo(ACallbackPtr)^ do begin
     ColCount := AStmtData^.ColumnCount;
@@ -502,6 +517,9 @@ begin
         Dec(VFound);
       end else if StrIComp(VName, 'c') = 0 then begin
         HasC := True;
+        Dec(VFound);
+      end else if StrIComp(VName, 'h') = 0 then begin
+        HasH := True;
         Dec(VFound);
       end;
       if VFound = 0 then begin
@@ -1113,7 +1131,7 @@ begin
   end;
 
   with FTBColInfo do begin
-    if (ColCount < 5) or (ColCount > 7) then begin
+    if (ColCount < 5) or (ColCount > 8) then begin
       // invalid struct
       LogError(c_Log_Init, 'Invalid column count');
     end;
@@ -1124,9 +1142,11 @@ function TTileStorageSQLiteHandlerComplex.SaveTile(
   const ASaveTileAllData: PSaveTileAllData
 ): Boolean;
 var
+  VIsTne: Boolean;
   VInfoComplex: TSelectTileInfoComplex;
   VOriginalTileBody: Pointer;
   VOriginalTileSize: Integer;
+  VOriginalTileCRC32: Cardinal;
   VRowsAffected: Integer;
   VKeepExisting: Boolean;
   VSQLText: AnsiString;
@@ -1149,6 +1169,8 @@ var
   end;
 
 begin
+  VSQLAfter := '';
+
   with ASaveTileAllData^ do begin
     if SData <> nil then begin
       VOriginalTileBody := SData.Buffer;
@@ -1158,6 +1180,8 @@ begin
       VOriginalTileSize := 0;
     end;
 
+    VIsTne := (VOriginalTileSize = 0) or (VOriginalTileBody = nil);
+
     // x,y - tile coordinates
     // d for datetime - as unix seconds
     VSQLInsert := 'x,y,d';
@@ -1166,6 +1190,15 @@ begin
       ALIntToStr(SXY.X) + ',' +
       ALIntToStr(SXY.Y) + ',' +
       ALIntToStr(DateTimeToUnix(SLoadDate));
+
+    // crc32
+    if FTBColInfo.HasH then begin
+      VOriginalTileCRC32 := CRC32Buf(VOriginalTileBody, VOriginalTileSize);
+      VSQLInsert := VSQLInsert + ',h';
+      VSQLValues := VSQLValues + ',' + ALIntToStr(VOriginalTileCRC32);
+    end else begin
+      VOriginalTileCRC32 := 0;
+    end;
 
     // version
     if FTBColInfo.ModeV <> vcm_None then begin
@@ -1179,14 +1212,14 @@ begin
       );
       VSQLValues := VSQLValues + ',' + VInfoComplex.RequestedVersionToDB;
 
-      // check prev version with same size
-      if VInfoComplex.RequestedVersionIsSet and (stfSkipIfSameAsPrev in SSaveTileFlags) then begin
-        VSQLAfter := ' WHERE ' + GetCheckPrevVersionSQLText(SXY, VOriginalTileSize);
-      end else begin
-        VSQLAfter := '';
+      // check prev version with same crc32/size
+      if not VIsTne and (stfSkipIfSameAsPrev in SSaveTileFlags) then begin
+        if FTBColInfo.HasH then begin
+          VSQLAfter := ' WHERE ' + GetCheckPrevVersionByCRC32SQLText(SXY, VOriginalTileCRC32);
+        end else begin
+          VSQLAfter := ' WHERE ' + GetCheckPrevVersionBySizeSQLText(SXY, VOriginalTileSize);
+        end;
       end;
-    end else begin
-      VSQLAfter := '';
     end;
 
     VKeepExisting := (stfKeepExisting in SSaveTileFlags);
@@ -1195,12 +1228,9 @@ begin
   Result := False;
   VRowsAffected := 0;
 
-  if (VOriginalTileSize <> 0) and (VOriginalTileBody <> nil) then begin
-    // not TNE - need contenttype
-
-    // contenttype
+  if not VIsTne then begin
+    // content-type
     if FTBColInfo.HasC then begin
-      // add contenttype
       VSQLInsert := VSQLInsert + ',c';
       VSQLValues := VSQLValues + ',' +
         FTileStorageSQLiteHolder.GetContentTypeToDB(ASaveTileAllData^.SContentType);

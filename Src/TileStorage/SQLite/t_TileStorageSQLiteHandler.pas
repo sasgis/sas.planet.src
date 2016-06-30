@@ -16,7 +16,7 @@ type
   );
 
   TTBColInfo = record
-    // 5..7: x, y, [v], [c], s, d, b
+    // 5..8: x, y, [v], [c], s, [h], d, b
     ColCount: Integer;
 
     // 0 - no field 'v' for Version
@@ -24,8 +24,11 @@ type
     // 2 - has field 'v' of type TEXT
     ModeV: TVersionColMode;
 
-    // if true - has field 'c' for contenttype as TEXT
+    // if true - has field 'c' for content-type as TEXT
     HasC: Boolean;
+
+    // if true - has field 'h' for crc32 as INT
+    HasH: Boolean;
   end;
   PTBColInfo = ^TTBColInfo;
 
