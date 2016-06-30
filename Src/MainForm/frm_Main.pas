@@ -4225,7 +4225,7 @@ begin
   if Assigned(VVersion) then begin
     VVersionString := VVersion.StoreString;
   end else begin
-    VVersionString := '';
+    VVersionString := VMapType.Zmp.Version;
   end;
   // apply this version or clear (uncheck) version
   VMapType.VersionRequestConfig.Version := VVersionString;
