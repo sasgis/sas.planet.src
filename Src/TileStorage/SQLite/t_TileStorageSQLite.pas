@@ -43,20 +43,6 @@ type
   end;
   PSaveTileAllData = ^TSaveTileAllData;
 
-  TReplaceVersionFlag = (
-    rvfOverwriteExisting
-  );
-  TReplaceVersionFlags = set of TReplaceVersionFlag;
-
-  TSetTileVersionAllData = record
-    SXY: TPoint;
-    SZoom: Byte;
-    SVersionSrc: IMapVersionInfo;
-    SVersionDst: IMapVersionInfo;
-    SReplaceVersionFlags: TReplaceVersionFlags;
-  end;
-  PSetTileVersionAllData = ^TSetTileVersionAllData;
-
   TGetTileInfo = record
     GTilePos: TPoint;
     GZoom: Byte;

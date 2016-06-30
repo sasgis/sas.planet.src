@@ -47,12 +47,6 @@ type
       const ASaveTileAllData: PSaveTileAllData
     ): Boolean;
 
-    // set tile version
-    function SetTileVersion(
-      const AOper: PNotifierOperationRec;
-      const ASetTileVersionAllData: PSetTileVersionAllData
-    ): Boolean;
-
     // get list of versions
     function GetListOfTileVersions(
       const AOper: PNotifierOperationRec;

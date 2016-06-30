@@ -32,9 +32,6 @@ type
     // save tile
     function SaveTile(const ASaveTileAllData: PSaveTileAllData): Boolean;
 
-    // set tile version
-    function SetTileVersion(const ASetTileVersionAllData: PSetTileVersionAllData): Boolean;
-
     // get list of versions
     function GetListOfTileVersions(
       const AOper: PNotifierOperationRec;

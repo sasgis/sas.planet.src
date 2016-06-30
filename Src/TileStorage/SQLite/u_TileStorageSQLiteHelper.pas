@@ -70,12 +70,6 @@ type
       const ASaveTileAllData: PSaveTileAllData
     ): Boolean;
 
-    // set tile version
-    function SetTileVersion(
-      const AOper: PNotifierOperationRec;
-      const ASetTileVersionAllData: PSetTileVersionAllData
-    ): Boolean;
-
     // get list of versions
     function GetListOfTileVersions(
       const AOper: PNotifierOperationRec;
@@ -438,63 +432,6 @@ begin
     // save tile
     Result := VHandler.SaveTile(ASaveTileAllData);
   end;
-end;
-
-function TTileStorageSQLiteHelper.SetTileVersion(
-  const AOper: PNotifierOperationRec;
-  const ASetTileVersionAllData: PSetTileVersionAllData
-): Boolean;
-var
-  VHandlerSrc: ITileStorageSQLiteHandler;
-  VHandlerDst: ITileStorageSQLiteHandler;
-begin
-  if FShutdown then begin
-    Result := False;
-    Exit;
-  end;
-
-  // get database by xyz
-  with ASetTileVersionAllData^ do begin
-    VHandlerSrc :=
-      FDBSingleList.GetHandler(
-        AOper,
-        SZoom,
-        SXY,
-        SVersionSrc,
-        False
-      );
-  end;
-
-  // check if database exists
-  if (VHandlerSrc = nil) or AOper^.IsOperationCancelled then begin
-    // no source database
-    Result := False;
-    Exit;
-  end;
-
-  // check target storage
-  with ASetTileVersionAllData^ do begin
-    VHandlerDst :=
-      FDBSingleList.GetHandler(
-        AOper,
-        SZoom,
-        SXY,
-        SVersionDst,
-        True
-      );
-  end;
-
-  // check the same database
-  if VHandlerDst <> VHandlerSrc then begin
-    // different databases
-    Assert(False);
-    Result := False;
-    Exit;
-  end;
-
-  // do it now
-  VHandlerSrc := nil;
-  Result := VHandlerDst.SetTileVersion(ASetTileVersionAllData);
 end;
 
 procedure TTileStorageSQLiteHelper.Sync;

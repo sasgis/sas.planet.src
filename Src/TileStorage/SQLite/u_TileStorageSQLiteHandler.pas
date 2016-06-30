@@ -37,10 +37,6 @@ type
       const ADeleteTileAllData: PDeleteTileAllData
     ): AnsiString; virtual; abstract;
 
-    function GetSQL_SetTileVersion(
-      const ASetTileVersionAllData: PSetTileVersionAllData
-    ): AnsiString; virtual; abstract;
-
     function GetSQL_TileRectInfo(
       const AUsePrevVersions: Boolean;
       const AEnumData: TTileInfoShortEnumData
@@ -79,10 +75,6 @@ type
     function SaveTile(
       const ASaveTileAllData: PSaveTileAllData
     ): Boolean; virtual; abstract;
-
-    function SetTileVersion(
-      const ASetTileVersionAllData: PSetTileVersionAllData
-    ): Boolean;
 
     function GetListOfTileVersions(
       const AOper: PNotifierOperationRec;
@@ -160,10 +152,6 @@ type
   protected
     function GetSQL_DeleteTile(
       const ADeleteTileAllData: PDeleteTileAllData
-    ): AnsiString; override;
-
-    function GetSQL_SetTileVersion(
-      const ASetTileVersionAllData: PSetTileVersionAllData
     ): AnsiString; override;
 
     function GetSQL_TileRectInfo(
@@ -464,29 +452,6 @@ end;
 function TTileStorageSQLiteHandler.Opened: Boolean;
 begin
   Result := FSQLite3DbHandler.Opened;
-end;
-
-function TTileStorageSQLiteHandler.SetTileVersion(
-  const ASetTileVersionAllData: PSetTileVersionAllData
-): Boolean;
-var
-  VSQLText: AnsiString;
-begin
-  Result := False;
-  if not FUseVersionFieldInDB then begin
-    Exit;
-  end;
-  try
-    VSQLText := GetSQL_SetTileVersion(ASetTileVersionAllData);
-    if Length(VSQLText) = 0 then begin
-      Exit;
-    end;
-    FSQLite3DbHandler.ExecSQL(VSQLText);
-    Result := True;
-  except
-    on E: Exception do
-      LogError(c_Log_SetVer, E.Message);
-  end;
 end;
 
 { TTileStorageSQLiteHandlerComplex }
@@ -884,64 +849,6 @@ begin
           VInfo.RequestedVersionToDB
         );
     end;
-  end;
-end;
-
-function TTileStorageSQLiteHandlerComplex.GetSQL_SetTileVersion(
-  const ASetTileVersionAllData: PSetTileVersionAllData
-): AnsiString;
-var
-  VSrc, VDst: TSelectTileInfoComplex;
-begin
-  if FTBColInfo.ModeV = vcm_None then begin
-    // нет поля версии в БД
-    Result := '';
-    Exit;
-  end;
-
-  with ASetTileVersionAllData^ do begin
-    // а может быть версии равны
-    if SVersionSrc = nil then begin
-      // старой версии не было
-      if SVersionDst = nil then begin
-        // новой тоже нет
-        Result := '';
-        Exit;
-      end;
-    end else begin
-      // старая версия была
-      if SVersionSrc.IsSame(SVersionDst) then begin
-        // версии одинаковы
-        Result := '';
-        Exit;
-      end;
-    end;
-
-    // парсим обе версии
-    ParseSQLiteDBVersion(FUseVersionFieldInDB, FTBColInfo.ModeV, SVersionSrc, VSrc);
-    ParseSQLiteDBVersion(FUseVersionFieldInDB, FTBColInfo.ModeV, SVersionDst, VDst);
-
-    // дополнительная проверка на случай сложных версий
-    if ALSameText(VSrc.RequestedVersionToDB, VDst.RequestedVersionToDB) then begin
-      // equals
-      Result := '';
-      Exit;
-    end;
-
-    // mode
-    Result := 'UPDATE OR ';
-    if rvfOverwriteExisting in SReplaceVersionFlags then begin
-      Result := Result + 'REPLACE';
-    end else begin
-      Result := Result + 'ABORT';
-    end;
-
-    // make command
-    Result := Result + ' t' +
-      ' SET v=' + VDst.RequestedVersionToDB +
-      ' WHERE x=' + ALIntToStr(SXY.X) +
-      ' AND y=' + ALIntToStr(SXY.Y) +
-      ' AND ' + VersionFieldIsEqual(VSrc.RequestedVersionIsInt, FTBColInfo.ModeV, VSrc.RequestedVersionToDB);
   end;
 end;
 
