@@ -44,6 +44,7 @@ uses
   i_MapTypeSet,
   i_MapType,
   i_MapTypeGUIConfigList,
+  i_Timer,
   i_ZmpInfo,
   i_InetConfig,
   i_ProjConverter,
@@ -156,6 +157,7 @@ type
     FScriptBuffer: AnsiString;
     FProjFactory: IProjConverterFactory;
     FDownloader: IDownloader;
+    FTimer: ITimer;
     FAppClosingNotifier: INotifierOneOperation;
     FAppClosingListener: IListener;
     FCancelNotifierInternal: INotifierOperationInternal;
@@ -240,6 +242,7 @@ uses
   u_DownloaderHttp,
   u_DownloadResultFactory,
   u_SimpleHttpDownloader,
+  u_TimerByQueryPerformanceCounter,
   u_MapTypeMenuItemsGeneratorSimple;
 
 {$R *.dfm}
@@ -322,6 +325,8 @@ begin
     TDownloadResultFactory.Create
   );
 
+  FTimer := MakeTimerByQueryPerformanceCounter;
+
   FPrepared := False;
   FNeedSavePrompt := False;
   FZmp := nil;
@@ -398,6 +403,8 @@ var
   VCode: TbtString;
   VBuff: AnsiString;
   VComp: TPSPascalCompilerEx;
+  VTime: Int64;
+  VTimeInfo: string;
 begin
   AByteCode := '';
 
@@ -414,13 +421,19 @@ begin
 
   VComp := TPSPascalCompilerEx.Create(CompileTime_GetRegProcArray);
   try
+    VTime := FTimer.CurrentTime;
+
     Result := VComp.Compile(VCode);
+
+    VTime := FTimer.CurrentTime - VTime;
+    VTimeInfo := Format('[%.6f sec]', [VTime / FTimer.Freq]);
+
     lstLog.Clear;
     for I := 0 to VComp.MsgCount - 1 do begin
       lstLog.Items.Add(VComp.Msg[I].MessageToString);
     end;
     if Result then begin
-      lstLog.Items.Add(rsSuccessfullyCompiled);
+      lstLog.Items.Add(rsSuccessfullyCompiled + ' ' + VTimeInfo);
       Result := VComp.GetOutput(AByteCode);
     end;
   finally
@@ -432,6 +445,8 @@ function TfrmPascalScriptIDE.Execute: Boolean;
 var
   VByteCode: TbtString;
   VExec: TPSExecEx;
+  VTime: Int64;
+  VTimeInfo: string;
 begin
   Result := Compile(VByteCode);
   if Result then begin
@@ -439,10 +454,16 @@ begin
     try
       Result := VExec.LoadData(VByteCode);
       if Result then begin
+        VTime := FTimer.CurrentTime;
+
         OnBeforeRunScript(VExec);
         Result := VExec.RunScript;
+
+        VTime := FTimer.CurrentTime - VTime;
+        VTimeInfo := Format('[%.6f sec]', [VTime / FTimer.Freq]);
+
         if Result then begin
-          lstLog.Items.Add(rsSuccessfullyExecuted);
+          lstLog.Items.Add(rsSuccessfullyExecuted + ' ' + VTimeInfo);
           OnExecSuccess;
         end;
       end;
