@@ -4131,7 +4131,7 @@ object frmMain: TfrmMain
       object tbpmiShowPrevVersion: TTBXItem
         AutoCheck = True
         OnClick = tbpmiShowPrevVersionClick
-        Caption = 'Show previous Version'
+        Caption = 'Show other Versions'
         Hint = ''
       end
       object tbpmiClearVersion: TTBXItem
