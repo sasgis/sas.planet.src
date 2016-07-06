@@ -214,16 +214,16 @@ procedure TDownloadSession.Save(
 );
 var
   VVersionForCheck: string;
-  VVersionForCheckUsePrev: Boolean;
+  VVersionForCheckUseOther: Boolean;
 begin
   VVersionForCheck := '';
-  VVersionForCheckUsePrev := False;
+  VVersionForCheckUseOther := False;
 
   if Assigned(FVersionForCheck) then begin
     if Assigned(FVersionForCheck.BaseVersion) then begin
       VVersionForCheck := FVersionForCheck.BaseVersion.StoreString;
     end;
-    VVersionForCheckUsePrev := FVersionForCheck.ShowPrevVersion;
+    VVersionForCheckUseOther := FVersionForCheck.ShowOtherVersions;
   end;
 
   if IsPointsEqual(FLastSuccessfulPoint, FLastProcessedPoint) then begin
@@ -233,7 +233,7 @@ begin
   ASessionSection.WriteString('MapGUID', GUIDToString(FMapType.GUID));
   ASessionSection.WriteString('VersionDownload', FVersionForDownload.StoreString);
   ASessionSection.WriteString('VersionCheck', VVersionForCheck);
-  ASessionSection.WriteBool('VersionCheckPrev', VVersionForCheckUsePrev);
+  ASessionSection.WriteBool('VersionCheckOther', VVersionForCheckUseOther);
   ASessionSection.WriteInteger('Zoom', FZoom + 1);
   ASessionSection.WriteString('ZoomArr', ZoomArrayToStr(FZoomArr));
   ASessionSection.WriteBool('ReplaceExistTiles', FReplaceExistTiles);
@@ -358,7 +358,7 @@ begin
     VVersionForDownload := VMapType.VersionRequest.GetStatic.BaseVersion;
   end;
 
-  VVersionCheckShowPrev := ASessionSection.ReadBool('VersionCheckPrev', False);
+  VVersionCheckShowPrev := ASessionSection.ReadBool('VersionCheckOther', False);
   VVersionString := ASessionSection.ReadString('VersionCheck', '');
 
   if VVersionString <> '' then begin

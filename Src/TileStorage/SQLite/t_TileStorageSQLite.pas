@@ -47,7 +47,7 @@ type
     GTilePos: TPoint;
     GZoom: Byte;
     GVersion: IMapVersionInfo;
-    GShowPrevVersion: Boolean;
+    GShowOtherVersions: Boolean;
     GMode: TGetTileInfoModeSQLite;
   end;
   PGetTileInfo = ^TGetTileInfo;

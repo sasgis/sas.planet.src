@@ -30,8 +30,8 @@ type
     function GetBaseVersion: IMapVersionInfo;
     property BaseVersion: IMapVersionInfo read GetBaseVersion;
 
-    function GetShowPrevVersion: Boolean;
-    property ShowPrevVersion: Boolean read GetShowPrevVersion;
+    function GetShowOtherVersions: Boolean;
+    property ShowOtherVersions: Boolean read GetShowOtherVersions;
 
     function GetIsValidVersion(const AVersion: IMapVersionInfo): Boolean;
   end;

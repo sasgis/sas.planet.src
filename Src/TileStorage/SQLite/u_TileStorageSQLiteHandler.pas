@@ -38,7 +38,7 @@ type
     ): AnsiString; virtual; abstract;
 
     function GetSQL_TileRectInfo(
-      const AUsePrevVersions: Boolean;
+      const AUseOtherVersions: Boolean;
       const AEnumData: TTileInfoShortEnumData
     ): AnsiString; virtual; abstract;
 
@@ -64,7 +64,7 @@ type
       const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
       const AMode: TGetTileInfoModeSQLite;
-      const AUsePrevVersions: Boolean;
+      const AUseOtherVersions: Boolean;
       const AResult: PGetTileResult
     ): Boolean; virtual; abstract;
 
@@ -85,7 +85,7 @@ type
 
     function GetTileRectInfo(
       const AOper: PNotifierOperationRec;
-      const AUsePrevVersions: Boolean;
+      const AUseOtherVersions: Boolean;
       const AEnumData: TTileInfoShortEnumData
     ): Boolean;
   public
@@ -135,7 +135,7 @@ type
       const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
       const AMode: TGetTileInfoModeSQLite;
-      const AUsePrevVersions: Boolean;
+      const AUseOtherVersions: Boolean;
       const AResult: PGetTileResult
     ): Boolean; override;
 
@@ -155,7 +155,7 @@ type
     ): AnsiString; override;
 
     function GetSQL_TileRectInfo(
-      const AUsePrevVersions: Boolean;
+      const AUseOtherVersions: Boolean;
       const AEnumData: TTileInfoShortEnumData
     ): AnsiString; override;
   public
@@ -293,7 +293,7 @@ begin
   Result := VVer + ' IN (' + ARequestedVersionToDB + ',' + VMax + ')';
 end;
 
-function GetCheckPrevVersionBySizeSQLText(
+function GetCheckOtherVersionsBySizeSQLText(
   const AXY: TPoint;
   const ATileSize: Integer
 ): AnsiString;
@@ -310,7 +310,7 @@ begin
   Result := ALIntToStr(ATileSize) + '<>' + 'COALESCE((' + s + '),-1)';
 end;
 
-function GetCheckPrevVersionByCRC32SQLText(
+function GetCheckOtherVersionsByCRC32SQLText(
   const AXY: TPoint;
   const ATileCRC32: Cardinal
 ): AnsiString;
@@ -416,7 +416,7 @@ end;
 
 function TTileStorageSQLiteHandler.GetTileRectInfo(
   const AOper: PNotifierOperationRec;
-  const AUsePrevVersions: Boolean;
+  const AUseOtherVersions: Boolean;
   const AEnumData: TTileInfoShortEnumData
 ): Boolean;
 var
@@ -428,7 +428,7 @@ begin
   try
     // call
     FSQLite3DbHandler.OpenSQL(
-      GetSQL_TileRectInfo(AUsePrevVersions, AEnumData),
+      GetSQL_TileRectInfo(AUseOtherVersions, AEnumData),
       CallbackSelectTileRectInfo,
       @VData,
       True
@@ -853,7 +853,7 @@ begin
 end;
 
 function TTileStorageSQLiteHandlerComplex.GetSQL_TileRectInfo(
-  const AUsePrevVersions: Boolean;
+  const AUseOtherVersions: Boolean;
   const AEnumData: TTileInfoShortEnumData
 ): AnsiString;
 var
@@ -896,7 +896,7 @@ begin
     );
 
     // use given version
-    if not AUsePrevVersions then begin
+    if not AUseOtherVersions then begin
       // use ONLY given version
       Result := Result +
         ' AND ' +
@@ -925,7 +925,7 @@ function TTileStorageSQLiteHandlerComplex.GetTileInfo(
   const AZoom: Byte;
   const AVersionInfo: IMapVersionInfo;
   const AMode: TGetTileInfoModeSQLite;
-  const AUsePrevVersions: Boolean;
+  const AUseOtherVersions: Boolean;
   const AResult: PGetTileResult
 ): Boolean;
 var
@@ -954,7 +954,7 @@ begin
     VSelectTileInfo.RequestedVersionInfo := AVersionInfo;
 
     // use given version
-    if not AUsePrevVersions then begin
+    if not AUseOtherVersions then begin
       // use ONLY given version
       VSQLWhere := VSQLWhere +
         ' AND ' +
@@ -1122,9 +1122,9 @@ begin
       // check prev version with same crc32/size
       if not VIsTne and (stfSkipIfSameAsPrev in SSaveTileFlags) then begin
         if FTBColInfo.HasH then begin
-          VSQLAfter := ' WHERE ' + GetCheckPrevVersionByCRC32SQLText(SXY, VOriginalTileCRC32);
+          VSQLAfter := ' WHERE ' + GetCheckOtherVersionsByCRC32SQLText(SXY, VOriginalTileCRC32);
         end else begin
-          VSQLAfter := ' WHERE ' + GetCheckPrevVersionBySizeSQLText(SXY, VOriginalTileSize);
+          VSQLAfter := ' WHERE ' + GetCheckOtherVersionsBySizeSQLText(SXY, VOriginalTileSize);
         end;
       end;
     end;

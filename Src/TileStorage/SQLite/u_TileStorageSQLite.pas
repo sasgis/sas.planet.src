@@ -49,7 +49,7 @@ type
       const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
       const AMode: TGetTileInfoMode;
-      const AShowPrevVersion: Boolean
+      const AShowOtherVersions: Boolean
     ): ITileInfoBasic;
   protected
     function GetTileFileName(
@@ -260,7 +260,7 @@ function TTileStorageSQLite.GetTileInfoInternal(
   const AZoom: Byte;
   const AVersionInfo: IMapVersionInfo;
   const AMode: TGetTileInfoMode;
-  const AShowPrevVersion: Boolean
+  const AShowOtherVersions: Boolean
 ): ITileInfoBasic;
 var
   VTileResult: TGetTileResult;
@@ -282,7 +282,7 @@ begin
         AZoom,
         AVersionInfo,
         AMode,
-        AShowPrevVersion,
+        AShowOtherVersions,
         @VTileResult
       );
     if VObtained then begin
@@ -309,10 +309,10 @@ function TTileStorageSQLite.GetTileInfo(
   const AMode: TGetTileInfoMode
 ): ITileInfoBasic;
 var
-  VShowPrevVersion: Boolean;
+  VShowOtherVersions: Boolean;
 begin
-  VShowPrevVersion := not (Assigned(AVersionInfo) and (AVersionInfo.StoreString <> ''));
-  Result := GetTileInfoInternal(AXY, AZoom, AVersionInfo, AMode, VShowPrevVersion);
+  VShowOtherVersions := not (Assigned(AVersionInfo) and (AVersionInfo.StoreString <> ''));
+  Result := GetTileInfoInternal(AXY, AZoom, AVersionInfo, AMode, VShowOtherVersions);
 end;
 
 function TTileStorageSQLite.GetTileInfoEx(
@@ -323,16 +323,16 @@ function TTileStorageSQLite.GetTileInfoEx(
 ): ITileInfoBasic;
 var
   VVersionInfo: IMapVersionInfo;
-  VShowPrevVersion: Boolean;
+  VShowOtherVersions: Boolean;
 begin
   if Assigned(AVersionInfo) then begin
     VVersionInfo := AVersionInfo.BaseVersion;
-    VShowPrevVersion := AVersionInfo.ShowPrevVersion;
+    VShowOtherVersions := AVersionInfo.ShowOtherVersions;
   end else begin
     VVersionInfo := nil;
-    VShowPrevVersion := True;
+    VShowOtherVersions := True;
   end;
-  Result := GetTileInfoInternal(AXY, AZoom, VVersionInfo, AMode, VShowPrevVersion);
+  Result := GetTileInfoInternal(AXY, AZoom, VVersionInfo, AMode, VShowOtherVersions);
 end;
 
 function TTileStorageSQLite.GetTileRectInfo(
@@ -346,16 +346,16 @@ var
   VOper: TNotifierOperationRec;
   VTileInfoShortEnumData: TTileInfoShortEnumData;
   VVersionInfo: IMapVersionInfo;
-  VShowPrevVersion: Boolean;
+  VShowOtherVersions: Boolean;
 begin
   Result := nil;
 
   if Assigned(AVersionInfo) then begin
     VVersionInfo := AVersionInfo.BaseVersion;
-    VShowPrevVersion := AVersionInfo.ShowPrevVersion;
+    VShowOtherVersions := AVersionInfo.ShowOtherVersions;
   end else begin
     VVersionInfo := nil;
-    VShowPrevVersion := True;
+    VShowOtherVersions := True;
   end;
 
   if GetState.GetStatic.ReadAccess <> asDisabled then begin
@@ -382,7 +382,7 @@ begin
 
           FTileStorageSQLiteHelper.GetTileRectInfo(
             @VOper,
-            VShowPrevVersion,
+            VShowOtherVersions,
             VTileInfoShortEnumData
           );
 

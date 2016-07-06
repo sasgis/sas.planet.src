@@ -116,7 +116,7 @@ begin
     VConfig := FConfig.GetStatic;
     VVersionFactory := FVersionFactory.GetStatic;
     VVersion := VVersionFactory.CreateByStoreString(VConfig.Version);
-    FStatic := TMapVersionRequest.Create(VVersion, VConfig.ShowPrevVersion);
+    FStatic := TMapVersionRequest.Create(VVersion, VConfig.ShowOtherVersions);
   finally
     CS.EndWrite;
   end;
@@ -134,7 +134,7 @@ begin
     VConfig := FConfig.GetStatic;
     VVersionFactory := FVersionFactory.GetStatic;
     VVersion := VVersionFactory.CreateByStoreString(VConfig.Version);
-    FStatic := TMapVersionRequest.Create(VVersion, VConfig.ShowPrevVersion);
+    FStatic := TMapVersionRequest.Create(VVersion, VConfig.ShowOtherVersions);
   finally
     CS.EndWrite;
   end;

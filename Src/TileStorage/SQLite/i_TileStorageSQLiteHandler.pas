@@ -22,7 +22,7 @@ type
       const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
       const AMode: TGetTileInfoModeSQLite;
-      const AUsePrevVersions: Boolean;
+      const AShowOtherVersions: Boolean;
       const AResult: PGetTileResult
     ): Boolean;
 
@@ -43,7 +43,7 @@ type
     // get information by tile rect
     function GetTileRectInfo(
       const AOper: PNotifierOperationRec;
-      const AUsePrevVersions: Boolean;
+      const AShowOtherVersions: Boolean;
       const AEnumData: TTileInfoShortEnumData
     ): Boolean;
   end;

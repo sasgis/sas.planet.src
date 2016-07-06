@@ -4128,9 +4128,9 @@ object frmMain: TfrmMain
         Caption = 'Make by Placemark'
         Hint = ''
       end
-      object tbpmiShowPrevVersion: TTBXItem
+      object tbpmiShowOtherVersions: TTBXItem
         AutoCheck = True
-        OnClick = tbpmiShowPrevVersionClick
+        OnClick = tbpmiShowOtherVersionsClick
         Caption = 'Show other Versions'
         Hint = ''
       end

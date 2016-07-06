@@ -31,15 +31,15 @@ type
   TMapVersionRequest = class(TBaseInterfacedObject, IMapVersionRequest)
   private
     FBaseVersion: IMapVersionInfo;
-    FShowPrevVersion: Boolean;
+    FShowOtherVersions: Boolean;
   private
     function GetBaseVersion: IMapVersionInfo;
-    function GetShowPrevVersion: Boolean;
+    function GetShowOtherVersions: Boolean;
     function GetIsValidVersion(const AVersion: IMapVersionInfo): Boolean;
   public
     constructor Create(
       const ABaseVersion: IMapVersionInfo;
-      const AShowPrevVersion: Boolean
+      const AShowOtherVersions: Boolean
     );
   end;
 
@@ -49,12 +49,12 @@ implementation
 
 constructor TMapVersionRequest.Create(
   const ABaseVersion: IMapVersionInfo;
-  const AShowPrevVersion: Boolean
+  const AShowOtherVersions: Boolean
 );
 begin
   inherited Create;
   FBaseVersion := ABaseVersion;
-  FShowPrevVersion := AShowPrevVersion;
+  FShowOtherVersions := AShowOtherVersions;
 end;
 
 function TMapVersionRequest.GetBaseVersion: IMapVersionInfo;
@@ -66,12 +66,12 @@ function TMapVersionRequest.GetIsValidVersion(
   const AVersion: IMapVersionInfo
 ): Boolean;
 begin
-  Result := FShowPrevVersion or FBaseVersion.IsSame(AVersion);
+  Result := FShowOtherVersions or FBaseVersion.IsSame(AVersion);
 end;
 
-function TMapVersionRequest.GetShowPrevVersion: Boolean;
+function TMapVersionRequest.GetShowOtherVersions: Boolean;
 begin
-  Result := FShowPrevVersion;
+  Result := FShowOtherVersions;
 end;
 
 end.

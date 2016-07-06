@@ -31,8 +31,8 @@ type
     function GetVersion: string;
     property Version: string read GetVersion;
 
-    function GetShowPrevVersion: Boolean;
-    property ShowPrevVersion: Boolean read GetShowPrevVersion;
+    function GetShowOtherVersions: Boolean;
+    property ShowOtherVersions: Boolean read GetShowOtherVersions;
   end;
 
   IMapVersionRequestConfig = interface(IConfigDataElement)
@@ -41,9 +41,9 @@ type
     procedure SetVersion(const AValue: string);
     property Version: string read GetVersion write SetVersion;
 
-    function GetShowPrevVersion: Boolean;
-    procedure SetShowPrevVersion(const AValue: Boolean);
-    property ShowPrevVersion: Boolean read GetShowPrevVersion write SetShowPrevVersion;
+    function GetShowOtherVersions: Boolean;
+    procedure SetShowOtherVersions(const AValue: Boolean);
+    property ShowOtherVersions: Boolean read GetShowOtherVersions write SetShowOtherVersions;
 
     function GetStatic: IMapVersionRequestConfigStatic;
   end;

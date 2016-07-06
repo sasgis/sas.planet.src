@@ -79,7 +79,7 @@ type
     function GetReadOnlyKey(
       const ATileXY: TPoint;
       const AVersionInfo: IMapVersionInfo;
-      const AShowPrevVersion: Boolean;
+      const AShowOtherVersions: Boolean;
       const ADatabase: IBerkeleyDB
     ): IBinaryData;
   private
@@ -106,7 +106,7 @@ type
       const ATileXY: TPoint;
       const ATileZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
-      const AShowPrevVersion: Boolean;
+      const AShowOtherVersions: Boolean;
       out ATileBinaryData: IBinaryData;
       out ATileVersion: string;
       out ATileContentType: AnsiString;
@@ -118,7 +118,7 @@ type
       const ATileXY: TPoint;
       const ATileZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
-      const AShowPrevVersion: Boolean;
+      const AShowOtherVersions: Boolean;
       const ASingleTileInfo: Boolean;
       out ATileVersionListStatic: IMapVersionListStatic;
       out ATileVersion: string;
@@ -132,7 +132,7 @@ type
       const ATileXY: TPoint;
       const ATileZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
-      const AShowPrevVersion: Boolean
+      const AShowOtherVersions: Boolean
     ): Boolean;
 
     function IsTNEFound(
@@ -140,7 +140,7 @@ type
       const ATileXY: TPoint;
       const ATileZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
-      const AShowPrevVersion: Boolean;
+      const AShowOtherVersions: Boolean;
       out ATileDate: TDateTime
     ): Boolean;
 
@@ -345,7 +345,7 @@ end;
 function TTileStorageBerkeleyDBHelper.GetReadOnlyKey(
   const ATileXY: TPoint;
   const AVersionInfo: IMapVersionInfo;
-  const AShowPrevVersion: Boolean;
+  const AShowOtherVersions: Boolean;
   const ADatabase: IBerkeleyDB
 ): IBinaryData;
 var
@@ -369,7 +369,7 @@ begin
       if VVersionIDInfo.IsSameVersionFound then begin
         // show versioned tile
         Result := TBerkeleyDBVersionedKey.Create(ATileXY, VVersionID);
-      end else if AShowPrevVersion and (VVersionIDInfo.YoungestTileVersionID <> $FFFF) then begin
+      end else if AShowOtherVersions and (VVersionIDInfo.YoungestTileVersionID <> $FFFF) then begin
         // show yougest versioned tile
         Result := TBerkeleyDBVersionedKey.Create(ATileXY, VVersionIDInfo.YoungestTileVersionID);
       end;
@@ -652,7 +652,7 @@ function TTileStorageBerkeleyDBHelper.LoadTile(
   const ATileXY: TPoint;
   const ATileZoom: Byte;
   const AVersionInfo: IMapVersionInfo;
-  const AShowPrevVersion: Boolean;
+  const AShowOtherVersions: Boolean;
   out ATileBinaryData: IBinaryData;
   out ATileVersion: string;
   out ATileContentType: AnsiString;
@@ -676,7 +676,7 @@ begin
     try
       VDatabase.LockRead;
       try
-        VKey := GetReadOnlyKey(ATileXY, AVersionInfo, AShowPrevVersion, VDatabase);
+        VKey := GetReadOnlyKey(ATileXY, AVersionInfo, AShowOtherVersions, VDatabase);
         if Assigned(VKey) then begin
           VBinValue := VDatabase.Read(VKey);
           if Assigned(VBinValue) then begin
@@ -719,7 +719,7 @@ function TTileStorageBerkeleyDBHelper.LoadTileInfo(
   const ATileXY: TPoint;
   const ATileZoom: Byte;
   const AVersionInfo: IMapVersionInfo;
-  const AShowPrevVersion: Boolean;
+  const AShowOtherVersions: Boolean;
   const ASingleTileInfo: Boolean;
   out ATileVersionListStatic: IMapVersionListStatic;
   out ATileVersion: string;
@@ -805,7 +805,7 @@ begin
 
               if ASingleTileInfo then begin
                 if (VTileInfoIndex = -1) and (VYoungestTileIndex <> -1) then begin
-                  if AShowPrevVersion then begin
+                  if AShowOtherVersions then begin
                     VTileInfoIndex := VYoungestTileIndex;
                   end;
                 end;
@@ -873,7 +873,7 @@ function TTileStorageBerkeleyDBHelper.TileExists(
   const ATileXY: TPoint;
   const ATileZoom: Byte;
   const AVersionInfo: IMapVersionInfo;
-  const AShowPrevVersion: Boolean
+  const AShowOtherVersions: Boolean
 ): Boolean;
 var
   VKey: IBinaryData;
@@ -889,7 +889,7 @@ begin
     try
       VDatabase.LockRead;
       try
-        VKey := GetReadOnlyKey(ATileXY, AVersionInfo, AShowPrevVersion, VDatabase);
+        VKey := GetReadOnlyKey(ATileXY, AVersionInfo, AShowOtherVersions, VDatabase);
         if Assigned(VKey) then begin
           Result := VDatabase.Exists(VKey);
         end;
@@ -909,7 +909,7 @@ function TTileStorageBerkeleyDBHelper.IsTNEFound(
   const ATileXY: TPoint;
   const ATileZoom: Byte;
   const AVersionInfo: IMapVersionInfo;
-  const AShowPrevVersion: Boolean;
+  const AShowOtherVersions: Boolean;
   out ATileDate: TDateTime
 ): Boolean;
 var
@@ -930,7 +930,7 @@ begin
     try
       VDatabase.LockRead;
       try
-        VKey := GetReadOnlyKey(ATileXY, AVersionInfo, AShowPrevVersion, VDatabase);
+        VKey := GetReadOnlyKey(ATileXY, AVersionInfo, AShowOtherVersions, VDatabase);
         if Assigned(VKey) then begin
           VBinValue := VDatabase.Read(VKey);
           if Assigned(VBinValue) then begin

@@ -60,7 +60,7 @@ type
       const AXY: TPoint;
       const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
-      const AShowPrevVersion: Boolean;
+      const AShowOtherVersions: Boolean;
       const AMode: TGetTileInfoMode
     ): ITileInfoBasic;
   protected
@@ -286,7 +286,7 @@ end;
 
 procedure ParseVersionInfo(
   const AVersionInfo: IMapVersionInfo;
-  const AShowPrevVersion: Boolean;
+  const AShowOtherVersions: Boolean;
   out ATileVersion: Word;
   out ATileDate: TDateTime;
   out ASearchAnyVersion: Boolean;
@@ -314,11 +314,11 @@ begin
       VStr := Copy(AVersionInfo.StoreString, 1, I - 2);
       ATileVersion := StrToIntDef(VStr, 0);
 
-      ASearchAnyVersion := AShowPrevVersion;
-      ASearchAnyDate := AShowPrevVersion;
+      ASearchAnyVersion := AShowOtherVersions;
+      ASearchAnyDate := AShowOtherVersions;
     end else if AVersionInfo.StoreString <> '' then begin
       ATileVersion := StrToIntDef(AVersionInfo.StoreString, 0);
-      ASearchAnyVersion := AShowPrevVersion;
+      ASearchAnyVersion := AShowOtherVersions;
     end;
   end;
 end;
@@ -340,7 +340,7 @@ function TTileStorageGoogleEarth.InternalGetTileInfo(
   const AXY: TPoint;
   const AZoom: Byte;
   const AVersionInfo: IMapVersionInfo;
-  const AShowPrevVersion: Boolean;
+  const AShowOtherVersions: Boolean;
   const AMode: TGetTileInfoMode
 ): ITileInfoBasic;
 var
@@ -392,7 +392,7 @@ begin
 
   ParseVersionInfo(
     AVersionInfo,
-    AShowPrevVersion,
+    AShowOtherVersions,
     VInTileVersion,
     VInTileDate,
     VSearchAnyVersion,
@@ -558,13 +558,13 @@ function TTileStorageGoogleEarth.GetTileInfoEx(
 ): ITileInfoBasic;
 var
   VVersion: IMapVersionInfo;
-  VShowPrev: Boolean;
+  VShowOtherVersions: Boolean;
 begin
   VVersion := nil;
-  VShowPrev := False;
+  VShowOtherVersions := False;
   if Assigned(AVersionInfo) then begin
     VVersion := AVersionInfo.BaseVersion;
-    VShowPrev := AVersionInfo.ShowPrevVersion;
+    VShowOtherVersions := AVersionInfo.ShowOtherVersions;
   end;
   if Assigned(FTileInfoMemCache) then begin
     Result := FTileInfoMemCache.Get(AXY, AZoom, VVersion, AMode, True);
@@ -576,7 +576,7 @@ begin
   Result := FTileNotExistsTileInfo;
 
   if GetState.GetStatic.ReadAccess <> asDisabled then begin
-    Result := InternalGetTileInfo(AXY, AZoom, VVersion, VShowPrev, AMode);
+    Result := InternalGetTileInfo(AXY, AZoom, VVersion, VShowOtherVersions, AMode);
 
     if not Assigned(Result) then begin
       Result := TTileInfoBasicNotExists.Create(0, VVersion);
@@ -669,7 +669,7 @@ var
   VIterator: TTileIteratorByRectRecord;
   VTileInfo: ITileInfoBasic;
   VVersion: IMapVersionInfo;
-  VShowPrev: Boolean;
+  VShowOtherVersions: Boolean;
 begin
   Result := nil;
   if GetState.GetStatic.ReadAccess <> asDisabled then begin
@@ -677,10 +677,10 @@ begin
       Exit;
     end;
     VVersion := nil;
-    VShowPrev := False;
+    VShowOtherVersions := False;
     if Assigned(AVersionInfo) then begin
       VVersion := AVersionInfo.BaseVersion;
-      VShowPrev := AVersionInfo.ShowPrevVersion;
+      VShowOtherVersions := AVersionInfo.ShowOtherVersions;
     end;
     VRect := ARect;
     VZoom := AZoom;
@@ -698,7 +698,7 @@ begin
         VIndex := TTileRectInfoShort.TileInRectToIndex(VTile, VRect);
         Assert(VIndex >= 0);
         if VIndex >= 0 then begin
-          VTileInfo := InternalGetTileInfo(VTile, VZoom, VVersion, VShowPrev, gtimWithoutData);
+          VTileInfo := InternalGetTileInfo(VTile, VZoom, VVersion, VShowOtherVersions, gtimWithoutData);
           if Assigned(VTileInfo) then begin
             VItems[VIndex].FLoadDate := 0;
             VItems[VIndex].FSize := VTileInfo.Size;

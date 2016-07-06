@@ -418,7 +418,7 @@ type
     NGShScale2500: TTBXItem;
     Rosreestr: TTBXItem;
     TBXMakeRosreestrPolygon: TTBXItem;
-    tbpmiShowPrevVersion: TTBXItem;
+    tbpmiShowOtherVersions: TTBXItem;
     tbxsbmProjection: TTBXSubmenuItem;
     tbxSep1: TTBXSeparatorItem;
     tbitmCheckUpdate: TTBXItem;
@@ -676,7 +676,7 @@ type
     procedure tbitmSelectVersionByMarkClick(Sender: TObject);
     procedure RosreestrClick(Sender: TObject);
     procedure TBXMakeRosreestrPolygonClick(Sender: TObject);
-    procedure tbpmiShowPrevVersionClick(Sender: TObject);
+    procedure tbpmiShowOtherVersionsClick(Sender: TObject);
     procedure tbitmCheckUpdateClick(Sender: TObject);
     procedure btnHideAllClick(Sender: TObject);
     procedure TBfillMapAsMainClick(Sender: TObject);
@@ -4546,7 +4546,7 @@ begin
   DoSelectSpecialVersion(nil);
 end;
 
-procedure TfrmMain.tbpmiShowPrevVersionClick(Sender: TObject);
+procedure TfrmMain.tbpmiShowOtherVersionsClick(Sender: TObject);
 var
   VMapType: IMapType;
 begin
@@ -4554,7 +4554,7 @@ begin
   VMapType := FMainMapState.ActiveMap.GetStatic;
 
   // apply this version or clear (uncheck) version
-  VMapType.VersionRequestConfig.ShowPrevVersion := tbpmiShowPrevVersion.Checked;
+  VMapType.VersionRequestConfig.ShowOtherVersions := tbpmiShowOtherVersions.Checked;
 end;
 
 procedure TfrmMain.NextMapWithTile(AStep: integer);
@@ -4702,7 +4702,7 @@ begin
   // and add view items
   VMapType := FMainMapState.ActiveMap.GetStatic;
   VAllowListOfTileVersions := VMapType.TileStorage.StorageTypeAbilities.VersionSupport = tstvsMultiVersions;
-  tbpmiShowPrevVersion.Visible := VAllowListOfTileVersions;
+  tbpmiShowOtherVersions.Visible := VAllowListOfTileVersions;
 
   if VAllowListOfTileVersions then begin
     // to lonlat
@@ -4723,7 +4723,7 @@ begin
     // get current version
     VVersion := VMapType.VersionRequest.GetStatic;
     VCurrentVersion := VVersion.BaseVersion.StoreString;
-    tbpmiShowPrevVersion.Checked := VVersion.ShowPrevVersion;
+    tbpmiShowOtherVersions.Checked := VVersion.ShowOtherVersions;
     VList := VMapType.TileStorage.GetListOfTileVersions(VMapTile, VMapProjection.Zoom, VVersion);
     VVersion := nil;
     // parse list

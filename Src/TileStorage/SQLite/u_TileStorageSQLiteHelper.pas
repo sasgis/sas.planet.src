@@ -47,14 +47,14 @@ type
       const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
       const AMode: TGetTileInfoMode;
-      const AUsePrevVersions: Boolean;
+      const AUseOtherVersions: Boolean;
       const AResult: PGetTileResult
     ): Boolean;
 
     // load tile rect info
     function GetTileRectInfo(
       const AOper: PNotifierOperationRec;
-      const AUsePrevVersions: Boolean;
+      const AUseOtherVersions: Boolean;
       const AEnumData: TTileInfoShortEnumData
     ): Boolean;
 
@@ -272,7 +272,7 @@ function TTileStorageSQLiteHelper.GetTileInfo(
   const AZoom: Byte;
   const AVersionInfo: IMapVersionInfo;
   const AMode: TGetTileInfoMode;
-  const AUsePrevVersions: Boolean;
+  const AUseOtherVersions: Boolean;
   const AResult: PGetTileResult
 ): Boolean;
 var
@@ -306,7 +306,7 @@ begin
         AZoom,
         AVersionInfo,
         TileInfoModeToSQLiteMode(AMode),
-        AUsePrevVersions,
+        AUseOtherVersions,
         AResult
       );
   end;
@@ -314,7 +314,7 @@ end;
 
 function TTileStorageSQLiteHelper.GetTileRectInfo(
   const AOper: PNotifierOperationRec;
-  const AUsePrevVersions: Boolean;
+  const AUseOtherVersions: Boolean;
   const AEnumData: TTileInfoShortEnumData
 ): Boolean;
 var
@@ -346,7 +346,7 @@ begin
       Result :=
         VHandler.GetTileRectInfo(
           AOper,
-          AUsePrevVersions,
+          AUseOtherVersions,
           AEnumData
         );
     end;
@@ -385,7 +385,7 @@ begin
           VResult :=
             VHandler.GetTileRectInfo(
               AOper,
-              AUsePrevVersions,
+              AUseOtherVersions,
               AEnumData
             );
           Result := Result or VResult;

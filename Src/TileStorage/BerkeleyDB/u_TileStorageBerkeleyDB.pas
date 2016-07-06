@@ -361,11 +361,11 @@ var
   VTileContentType: AnsiString;
   VTileDate: TDateTime;
   VTileSize: Integer;
-  VShowPrevVersion: Boolean;
+  VShowOtherVersions: Boolean;
   VList: IMapVersionListStatic;
   VHelper: ITileStorageBerkeleyDBHelper;
 begin
-  VShowPrevVersion := not (Assigned(AVersionInfo) and (AVersionInfo.StoreString <> ''));
+  VShowOtherVersions := not (Assigned(AVersionInfo) and (AVersionInfo.StoreString <> ''));
   try
     if Assigned(FTileInfoMemCache) then begin
       Result := FTileInfoMemCache.Get(AXY, AZoom, AVersionInfo, AMode, True);
@@ -392,7 +392,7 @@ begin
               AXY,
               AZoom,
               AVersionInfo,
-              VShowPrevVersion,
+              VShowOtherVersions,
               True, // will get single tile info
               VList,
               VTileVersion,
@@ -416,7 +416,7 @@ begin
               AXY,
               AZoom,
               AVersionInfo,
-              VShowPrevVersion,
+              VShowOtherVersions,
               VTileBinaryData,
               VTileVersion,
               VTileContentType,
@@ -445,7 +445,7 @@ begin
             AXY,
             AZoom,
             AVersionInfo,
-            VShowPrevVersion,
+            VShowOtherVersions,
             VTileDate
           );
           if VResult then begin
@@ -481,7 +481,7 @@ function TTileStorageBerkeleyDB.GetTileInfoEx(
 ): ITileInfoBasic;
 var
   VVersionInfo: IMapVersionInfo;
-  VShowPrevVersion: Boolean;
+  VShowOtherVersions: Boolean;
   VPath: string;
   VResult: Boolean;
   VTileBinaryData: IBinaryData;
@@ -493,10 +493,10 @@ var
   VHelper: ITileStorageBerkeleyDBHelper;
 begin
   VVersionInfo := nil;
-  VShowPrevVersion := True;
+  VShowOtherVersions := True;
   if Assigned(AVersionInfo) then begin
     VVersionInfo := AVersionInfo.BaseVersion;
-    VShowPrevVersion := AVersionInfo.ShowPrevVersion;
+    VShowOtherVersions := AVersionInfo.ShowOtherVersions;
   end;
   try
     if Assigned(FTileInfoMemCache) then begin
@@ -523,7 +523,7 @@ begin
               AXY,
               AZoom,
               VVersionInfo,
-              VShowPrevVersion,
+              VShowOtherVersions,
               True, // will get single tile info
               VList,
               VTileVersion,
@@ -547,7 +547,7 @@ begin
               AXY,
               AZoom,
               VVersionInfo,
-              VShowPrevVersion,
+              VShowOtherVersions,
               VTileBinaryData,
               VTileVersion,
               VTileContentType,
@@ -576,7 +576,7 @@ begin
             AXY,
             AZoom,
             VVersionInfo,
-            VShowPrevVersion,
+            VShowOtherVersions,
             VTileDate
           );
           if VResult then begin
@@ -613,7 +613,7 @@ var
   VPath: string;
   VResult: Boolean;
   VVersion: IMapVersionInfo;
-  VShowPrev: Boolean;
+  VShowOtherVersions: Boolean;
   VTileVersion: string;
   VTileContentType: AnsiString;
   VTileDate: TDateTime;
@@ -621,11 +621,11 @@ var
   VList: IMapVersionListStatic;
   VHelper: ITileStorageBerkeleyDBHelper;
 begin
-  VShowPrev := True;
+  VShowOtherVersions := True;
   VVersion := nil;
   if Assigned(AVersionInfo) then begin
     VVersion := AVersionInfo.BaseVersion;
-    VShowPrev := AVersionInfo.ShowPrevVersion;
+    VShowOtherVersions := AVersionInfo.ShowOtherVersions;
   end;
   Result := nil;
   try
@@ -639,7 +639,7 @@ begin
             AXY,
             AZoom,
             VVersion,
-            VShowPrev,
+            VShowOtherVersions,
             False, // will get multi-versions tile info
             VList,
             VTileVersion,
@@ -699,7 +699,7 @@ var
   VFileInfo: TInfo;
   VTneFileInfo: TInfo;
   VVersion: IMapVersionInfo;
-  VShowPrev: Boolean;
+  VShowOtherVersions: Boolean;
   VTileExists: Boolean;
   VTileBinaryData: IBinaryData;
   VTileVersion: string;
@@ -707,11 +707,11 @@ var
   VTileDate: TDateTime;
   VHelper: ITileStorageBerkeleyDBHelper;
 begin
-  VShowPrev := True;
+  VShowOtherVersions := True;
   VVersion := nil;
   if Assigned(AVersionInfo) then begin
     VVersion := AVersionInfo.BaseVersion;
-    VShowPrev := AVersionInfo.ShowPrevVersion;
+    VShowOtherVersions := AVersionInfo.ShowOtherVersions;
   end;
   Result := nil;
   try
@@ -780,7 +780,7 @@ begin
                   VTile,
                   VZoom,
                   VVersion,
-                  VShowPrev,
+                  VShowOtherVersions,
                   VTileBinaryData,
                   VTileVersion,
                   VTileContentType,
@@ -801,7 +801,7 @@ begin
                   VTile,
                   VZoom,
                   VVersion,
-                  VShowPrev,
+                  VShowOtherVersions,
                   VTileDate
                 );
                 if VTileExists then begin

@@ -56,7 +56,7 @@ type
       const ATileXY: TPoint;
       const ATileZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
-      const AShowPrevVersion: Boolean;
+      const AShowOtherVersions: Boolean;
       out ATileBinaryData: IBinaryData;
       out ATileVersion: string;
       out ATileContentType: AnsiString;
@@ -68,7 +68,7 @@ type
       const ATileXY: TPoint;
       const ATileZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
-      const AShowPrevVersion: Boolean;
+      const AShowOtherVersions: Boolean;
       const ASingleTileInfo: Boolean;
       out ATileVersionListStatic: IMapVersionListStatic;
       out ATileVersion: string;
@@ -82,7 +82,7 @@ type
       const ATileXY: TPoint;
       const ATileZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
-      const AShowPrevVersion: Boolean
+      const AShowOtherVersions: Boolean
     ): Boolean;
 
     function IsTNEFound(
@@ -90,7 +90,7 @@ type
       const ATileXY: TPoint;
       const ATileZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
-      const AShowPrevVersion: Boolean;
+      const AShowOtherVersions: Boolean;
       out ATileDate: TDateTime
     ): Boolean;
 

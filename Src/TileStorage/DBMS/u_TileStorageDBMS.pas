@@ -1123,12 +1123,12 @@ var
   VTileID: TTILE_ID_XYZ;
   VBufferIn: TETS_SELECT_TILE_IN;
   VVersion: IMapVersionInfo;
-  VShowPrev: Boolean;
+  VShowOtherVersions: Boolean;
 begin
   VVersion := nil;
-  VShowPrev := True;
+  VShowOtherVersions := True;
   if Assigned(AVersionInfo) then begin
-    VShowPrev := AVersionInfo.ShowPrevVersion;
+    VShowOtherVersions := AVersionInfo.ShowOtherVersions;
     VVersion := AVersionInfo.BaseVersion;
   end;
   // try to read from cache
@@ -1176,8 +1176,8 @@ begin
               VVersionString := VVersion.StoreString;
             end;
             VBufferIn.szVersionIn := PChar(VVersionString); // Pointer to VersionString with the same type of char
-            // ShowPrevVersion mode
-            if VShowPrev then begin
+            // ShowOtherVersions mode
+            if VShowOtherVersions then begin
               VBufferIn.dwOptionsIn := (VBufferIn.dwOptionsIn or ETS_ROI_SHOW_PREV_VERSION);
             end;
           end else begin
@@ -1292,8 +1292,8 @@ begin
           if (AVersionInfo<>nil) then begin
             VVersionString := AVersionInfo.BaseVersion.StoreString;
             VBufferIn.szVersionIn := PChar(VVersionString); // Pointer to VersionString with the same type of char
-            // ShowPrevVersion mode
-            if AVersionInfo.ShowPrevVersion then begin
+            // ShowOtherVersions mode
+            if AVersionInfo.ShowOtherVersions then begin
               VBufferIn.dwOptionsIn := (VBufferIn.dwOptionsIn or ETS_ROI_SHOW_PREV_VERSION);
             end;
           end else begin

@@ -24,14 +24,14 @@ type
       const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
       const AMode: TGetTileInfoMode;
-      const AUsePrevVersions: Boolean;
+      const AShowOtherVersions: Boolean;
       const AResult: PGetTileResult
     ): Boolean;
 
     // load tile rect info
     function GetTileRectInfo(
       const AOper: PNotifierOperationRec;
-      const AUsePrevVersions: Boolean;
+      const AShowOtherVersions: Boolean;
       const AEnumData: TTileInfoShortEnumData
     ): Boolean;
 

@@ -33,7 +33,7 @@ type
   private
     FVersionDef: string;
     FVersion: string;
-    FShowPrevVersion: Boolean;
+    FShowOtherVersions: Boolean;
   protected
     function CreateStatic: IInterface; override;
   protected
@@ -43,8 +43,8 @@ type
     function GetVersion: string;
     procedure SetVersion(const AValue: string);
 
-    function GetShowPrevVersion: Boolean;
-    procedure SetShowPrevVersion(const AValue: Boolean);
+    function GetShowOtherVersions: Boolean;
+    procedure SetShowOtherVersions(const AValue: Boolean);
 
     function GetStatic: IMapVersionRequestConfigStatic;
   public
@@ -63,14 +63,14 @@ type
   TMapVersionRequestConfigStatic = class(TBaseInterfacedObject, IMapVersionRequestConfigStatic)
   private
     FVersion: string;
-    FShowPrevVersion: Boolean;
+    FShowOtherVersions: Boolean;
   private
     function GetVersion: string;
-    function GetShowPrevVersion: Boolean;
+    function GetShowOtherVersions: Boolean;
   public
     constructor Create(
       const AVersion: string;
-      const AShowPrevVersion: Boolean
+      const AShowOtherVersions: Boolean
     );
   end;
 
@@ -78,17 +78,17 @@ type
 
 constructor TMapVersionRequestConfigStatic.Create(
   const AVersion: string;
-  const AShowPrevVersion: Boolean
+  const AShowOtherVersions: Boolean
 );
 begin
   inherited Create;
   FVersion := AVersion;
-  FShowPrevVersion := AShowPrevVersion;
+  FShowOtherVersions := AShowOtherVersions;
 end;
 
-function TMapVersionRequestConfigStatic.GetShowPrevVersion: Boolean;
+function TMapVersionRequestConfigStatic.GetShowOtherVersions: Boolean;
 begin
-  Result := FShowPrevVersion;
+  Result := FShowOtherVersions;
 end;
 
 function TMapVersionRequestConfigStatic.GetVersion: string;
@@ -105,12 +105,12 @@ begin
   inherited Create;
   FVersionDef := AVersion;
   FVersion := AVersion;
-  FShowPrevVersion := True;
+  FShowOtherVersions := True;
 end;
 
 function TMapVersionRequestConfig.CreateStatic: IInterface;
 begin
-  Result := IMapVersionRequestConfigStatic(TMapVersionRequestConfigStatic.Create(FVersion, FShowPrevVersion));
+  Result := IMapVersionRequestConfigStatic(TMapVersionRequestConfigStatic.Create(FVersion, FShowOtherVersions));
 end;
 
 procedure TMapVersionRequestConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
@@ -118,7 +118,7 @@ begin
   inherited;
   if AConfigData <> nil then begin
     FVersion := AConfigData.ReadString('Version', FVersion);
-    FShowPrevVersion := AConfigData.ReadBool('ShowPrevVersion', FShowPrevVersion);
+    FShowOtherVersions := AConfigData.ReadBool('ShowOtherVersions', FShowOtherVersions);
     SetChanged;
   end;
 end;
@@ -136,14 +136,14 @@ begin
   end else begin
     AConfigData.DeleteValue('Version');
   end;
-  AConfigData.WriteBool('ShowPrevVersion', FShowPrevVersion);
+  AConfigData.WriteBool('ShowOtherVersions', FShowOtherVersions);
 end;
 
-function TMapVersionRequestConfig.GetShowPrevVersion: Boolean;
+function TMapVersionRequestConfig.GetShowOtherVersions: Boolean;
 begin
   LockRead;
   try
-    Result := FShowPrevVersion;
+    Result := FShowOtherVersions;
   finally
     UnlockRead;
   end;
@@ -164,12 +164,12 @@ begin
   end;
 end;
 
-procedure TMapVersionRequestConfig.SetShowPrevVersion(const AValue: Boolean);
+procedure TMapVersionRequestConfig.SetShowOtherVersions(const AValue: Boolean);
 begin
   LockWrite;
   try
-    if FShowPrevVersion <> AValue then begin
-      FShowPrevVersion := AValue;
+    if FShowOtherVersions <> AValue then begin
+      FShowOtherVersions := AValue;
       SetChanged;
     end;
   finally
