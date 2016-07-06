@@ -5,7 +5,7 @@ interface
 {.$DEFINE STATIC_PROJ4}
 
 const
-  proj4_dll = 'proj480.dll';
+  proj4_dll = 'proj.dll';
 
   DEG_TO_RAD = 0.0174532925199432958;
   RAD_TO_DEG = 57.29577951308232;
