@@ -23,6 +23,7 @@ unit u_CmdLineArgProcessor;
 interface
 
 uses
+  Types,
   Classes,
   i_MarkSystem,
   i_MapViewGoto,
@@ -198,6 +199,7 @@ var
   VGUID: TGUID;
   VZoom: Byte;
   VLonLat: TDoublePoint;
+  VPoint: TPoint;
   VMap: IMapType;
   i: Integer;
   VStrValue: string;
@@ -223,6 +225,7 @@ begin
     VParser.AddArgument('--map', saStore);              // --map={GUID}
     VParser.AddArgument('--zoom', saStore);             // --zoom={value}
     VParser.AddArgument('--move', saStore);             // --move=({lon},{lat})
+    VParser.AddArgument('--move-xyz', saStore);         // --move-xyz=({x},{y},{z})
     VParser.AddArgument('--navigate', saStore);         // --navigate=({lon},{lat})
     VParser.AddArgument('--show-placemarks', saStore);  // --show-placemarks={0/1}
     VParser.AddArgument('--insert-placemark', saStore); // --insert-placemark="{name}";({lon},{lat});"{desc}"
@@ -254,14 +257,22 @@ begin
 
       if VParseResult.HasArgument('move') then begin
         VStrValue := VParseResult.GetValue('move');
-        if GetCoords(AnsiString(VStrValue), _GetProjectionSet.Zooms[0].ProjectionType, VLonLat, Result) then begin
+        if GetLonLat(AnsiString(VStrValue), _GetProjectionSet.Zooms[0].ProjectionType, VLonLat, Result) then begin
           FViewPortState.ChangeLonLat(VLonLat);
+        end;
+      end;
+
+      if VParseResult.HasArgument('move-xyz') then begin
+        VStrValue := VParseResult.GetValue('move-xyz');
+        if GetXYZ(AnsiString(VStrValue), _GetProjectionSet, VPoint, VZoom, Result) then begin
+          VLonLat := _GetProjectionSet.Zooms[VZoom].TilePos2LonLat(VPoint);
+          FViewPortState.ChangeLonLatAndZoom(VZoom, VLonLat);
         end;
       end;
 
       if VParseResult.HasArgument('navigate') then begin
         VStrValue := VParseResult.GetValue('navigate');
-        if GetCoords(AnsiString(VStrValue), _GetProjectionSet.Zooms[0].ProjectionType, VLonLat, Result) then begin
+        if GetLonLat(AnsiString(VStrValue), _GetProjectionSet.Zooms[0].ProjectionType, VLonLat, Result) then begin
           FMainFormConfig.NavToPoint.StartNavLonLat(VLonLat);
         end;
       end;

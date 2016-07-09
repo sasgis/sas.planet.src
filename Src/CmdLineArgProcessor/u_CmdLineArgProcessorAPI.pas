@@ -37,9 +37,11 @@ const
   cCmdLineArgProcessorGUIDParserError         = $00000010;
   cCmdLineArgProcessorUnknownGUID             = $00000020;
   cCmdLineArgProcessorShowMarksParserError    = $00000040;
+  cCmdLineArgProcessorXYZParserError          = $00000080;
+  cCmdLineArgProcessorXYOutOfBounds           = $00000100;
   cCmdLineArgProcessorSASExceptionRaised      = -1;
 
-resourcestring
+const
   rsCmdLineArgProcessorLonLatParserError      = 'LonLatParserError';
   rsCmdLineArgProcessorLonLatOutOfBounds      = 'LonLatOutOfBounds';
   rsCmdLineArgProcessorZoomParserError        = 'ZoomParserError';
@@ -47,6 +49,8 @@ resourcestring
   rsCmdLineArgProcessorGUIDParserError        = 'GUIDParserError';
   rsCmdLineArgProcessorUnknownGUID            = 'UnknownGUID';
   rsCmdLineArgProcessorShowMarksParserError   = 'ShowMarksParserError';
+  rsCmdLineArgProcessorXYZParserError         = 'XYZParserError';
+  rsCmdLineArgProcessorXYOutOfBounds          = 'XYOutOfBounds';
   rsCmdLineArgProcessorUnknownError           = 'UnknownError: %s';
   rsCmdLineArgProcessorSASExceptionRaised     = 'SASExceptionRaised';
 
@@ -71,7 +75,10 @@ begin
     '    --map=<GUID>            Activate the map assigned to <GUID>,   ' + CR +
     '                            or switch ON the layer''s visibility   ' + CR +
     '    --zoom=<z>              Set Zoom to the level <z>              ' + CR +
-    '    --move=(<lon>,<lat>)    Center the map with <lon>/<lat>        ' + CR +
+                                                                            CR +
+    '    --move=(<lon>,<lat>)     Center the map with <lon>/<lat>       ' + CR +
+    '    --move-xyz=(<x>,<y>,<z>) Center the map with <x>/<y>/<z>       ' + CR +
+                                                                            CR +
     '    --show-placemarks=<v>   Set the placemarks visibility:         ' + CR +
     '                                <v>=0 - visibility is OFF          ' + CR +
     '                                <v>=1 - visibility is ON           ' + CR +
@@ -145,6 +152,16 @@ begin
 
   if (ACode and cCmdLineArgProcessorShowMarksParserError) > 0 then begin
     Result := Result + VSep + rsCmdLineArgProcessorShowMarksParserError;
+    VSep := cSep;
+  end;
+
+  if (ACode and cCmdLineArgProcessorXYZParserError) > 0 then begin
+    Result := Result + VSep + rsCmdLineArgProcessorXYZParserError;
+    VSep := cSep;
+  end;
+
+  if (ACode and cCmdLineArgProcessorXYOutOfBounds) > 0 then begin
+    Result := Result + VSep + rsCmdLineArgProcessorXYOutOfBounds;
     VSep := cSep;
   end;
 

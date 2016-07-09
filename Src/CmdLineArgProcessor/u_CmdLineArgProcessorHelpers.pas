@@ -23,6 +23,7 @@ unit u_CmdLineArgProcessorHelpers;
 interface
 
 uses
+  Types,
   Classes,
   t_GeoTypes,
   i_MarkSystem,
@@ -36,10 +37,18 @@ uses
   i_VectorItemTreeImporterList,
   u_MarkDbGUIHelper;
 
-function GetCoords(
+function GetLonLat(
   const AStr: AnsiString;
   const AProjectionType: IProjectionType;
   out ALonLat: TDoublePoint;
+  var ECode: Integer
+): Boolean;
+
+function GetXYZ(
+  const AStr: AnsiString;
+  const AProjectionSet: IProjectionSet;
+  out APoint: TPoint;
+  out AZoom: Byte;
   var ECode: Integer
 ): Boolean;
 
@@ -103,41 +112,90 @@ uses
   u_NotifierOperation,
   u_CmdLineArgProcessorAPI;
 
-function StrToCoord(const AStr: AnsiString): TDoublePoint;
+function StrToLonLat(
+  const AStr: AnsiString;
+  out ALonLat: TDoublePoint
+): Boolean;
 var
   VRegExpr: TRegExpr;
 begin
+  Result := False;
   VRegExpr  := TRegExpr.Create;
   try
     VRegExpr.Expression := '\((.+?),(.+?)\)';
     if VRegExpr.Exec(AStr) then begin
-      Result.X := str2r(VRegExpr.Match[1]);
-      Result.Y := str2r(VRegExpr.Match[2]);
-    end else begin
-      Result := CEmptyDoublePoint;
+      ALonLat.X := str2r(VRegExpr.Match[1]);
+      ALonLat.Y := str2r(VRegExpr.Match[2]);
+      Result := True;
     end;
   finally
     FreeAndNil(VRegExpr);
   end;
 end;
 
-function GetCoords(
+function StrToXYZ(
+  const AStr: AnsiString;
+  out APoint: TPoint;
+  out AZoom: Byte
+): Boolean;
+var
+  VRegExpr: TRegExpr;
+begin
+  Result := False;
+  VRegExpr  := TRegExpr.Create;
+  try
+    VRegExpr.Expression := '\((\d+),(\d+),(\d+)\)';
+    if VRegExpr.Exec(AStr) then begin
+      APoint.X := StrToInt(VRegExpr.Match[1]);
+      APoint.Y := StrToInt(VRegExpr.Match[2]);
+      AZoom := StrToInt(VRegExpr.Match[3]);
+      Result := True;
+    end;
+  finally
+    FreeAndNil(VRegExpr);
+  end;
+end;
+
+function GetLonLat(
   const AStr: AnsiString;
   const AProjectionType: IProjectionType;
   out ALonLat: TDoublePoint;
   var ECode: Integer
 ): Boolean;
 begin
-  ALonLat := StrToCoord(AStr);
-  Result := not PointIsEmpty(ALonLat);
+  Result := StrToLonLat(AStr, ALonLat);
   if Result then begin
     Result := AProjectionType.CheckLonLatPos(ALonLat);
     if not Result then begin
-      ALonLat := DoublePoint(0, 0);
       ECode := ECode or cCmdLineArgProcessorLonLatOutOfBounds;
     end;
   end else begin
     ECode := ECode or cCmdLineArgProcessorLonLatParserError;
+  end;
+end;
+
+function GetXYZ(
+  const AStr: AnsiString;
+  const AProjectionSet: IProjectionSet;
+  out APoint: TPoint;
+  out AZoom: Byte;
+  var ECode: Integer
+): Boolean;
+begin
+  Result := StrToXYZ(AStr, APoint, AZoom);
+  if Result then begin
+    AZoom := AZoom - 1;
+    Result := AProjectionSet.CheckZoom(AZoom);
+    if Result then begin
+      Result := AProjectionSet.Zooms[AZoom].CheckTilePos(APoint);
+      if not Result then begin
+        ECode := ECode or cCmdLineArgProcessorXYOutOfBounds;
+      end;
+    end else begin
+      ECode := ECode or cCmdLineArgProcessorZoomOutOfBounds;
+    end;
+  end else begin
+    ECode := ECode or cCmdLineArgProcessorXYZParserError;
   end;
 end;
 
@@ -236,8 +294,7 @@ begin
     J := PosEx(cSep, AStr, I);
     if J > 0 then begin
       VCoords := AnsiString(Copy(AStr, I, J-I));
-      VLonLat := StrToCoord(VCoords);
-      if not PointIsEmpty(VLonLat) then begin
+      if StrToLonLat(VCoords, VLonLat) then begin
         Inc(J);
         I := Length(AStr);
         if J <= I then begin
