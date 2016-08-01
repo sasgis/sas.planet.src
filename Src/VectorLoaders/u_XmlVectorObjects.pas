@@ -23,12 +23,13 @@ unit u_XmlVectorObjects;
 interface
 
 uses
+  Classes,
   SysUtils,
   t_GeoTypes,
   i_Appearance,
   i_XmlVectorObjects,
   i_VectorItemSubsetBuilder,
-  i_VectorItemSubset,
+  i_VectorItemTree,
   i_VectorDataItemSimple,
   i_VectorDataFactory,
   i_GeometryLonLat,
@@ -39,6 +40,13 @@ uses
 
 type
   PFormatSettings = ^TFormatSettings;
+
+  TFolderRec = record
+    FName: string;
+    FVectorDataItemsResultBuilder: IVectorItemSubsetBuilder;
+    FSubTree: IInterfaceListSimple;
+  end;
+  PFolderRec = ^TFolderRec;
 
   TXmlVectorObjects = class(TBaseInterfacedObject, IXmlVectorObjects)
   private
@@ -58,7 +66,7 @@ type
     // storage for coordinates
     FDoublePointsAggregator: IDoublePointsAggregator;
     // list of result objects
-    FVectorDataItemsResultBuilder: IVectorItemSubsetBuilder;
+    FFoldersList: TList;
 
     // check if in multigeometry
     FInMultiGeometry: Boolean;
@@ -86,8 +94,7 @@ type
     ): Boolean;
   private
     { IXmlVectorObjects }
-    function GetCount: Integer;
-    function GetVectorDataItemsResult: IVectorItemSubset;
+    function GetVectorDataItemsResult: IVectorItemTree;
 
     procedure OpenMultiGeometry;
     procedure CloseMultiGeometry;
@@ -114,6 +121,10 @@ type
     procedure CloseKmlPolygon;
 
     procedure AddTrackPoint(const APoint: TDoublePoint);
+
+    procedure OpenFolder;
+    procedure CloseFolder;
+    procedure SetFolderName(const AName: string);
   public
     constructor Create(
       const ACheckLineIsClosed, ASkipPointInMultiObject: Boolean;
@@ -125,6 +136,7 @@ type
       const ADataFactory: IVectorDataFactory;
       const AGeometryFactory: IGeometryLonLatFactory
     );
+    destructor Destroy; override;
   end;
 
   EXmlVectorObjectsError = class(Exception);
@@ -147,6 +159,7 @@ uses
   vsagps_public_parser,
   vsagps_public_print,
   u_GeoFunc,
+  u_VectorItemTree,
   u_InterfaceListSimple,
   u_DoublePointsAggregator;
 
@@ -339,6 +352,8 @@ constructor TXmlVectorObjects.Create(
   const ADataFactory: IVectorDataFactory;
   const AGeometryFactory: IGeometryLonLatFactory
 );
+var
+  VRootFolder: PFolderRec;
 begin
   Assert(AVectorItemSubsetBuilderFactory <> nil);
   Assert(AGeometryFactory <> nil);
@@ -363,20 +378,36 @@ begin
   FInMarkObject := False;
   FInMultiGeometry := False;
   FInMultiTrack := False;
+
+  FFoldersList := TList.Create;
+  New(VRootFolder);
+  VRootFolder.FName := '';
+  VRootFolder.FVectorDataItemsResultBuilder := FVectorItemSubsetBuilderFactory.Build;
+  VRootFolder.FSubTree := TInterfaceListSimple.Create;
+  FFoldersList.Add(VRootFolder);
 end;
 
-function TXmlVectorObjects.GetCount: Integer;
+destructor TXmlVectorObjects.Destroy;
+var
+  VRootFolder: PFolderRec;
 begin
-  Result := FList.Count;
+  VRootFolder := PFolderRec(FFoldersList.Items[0]);
+  Dispose(VRootFolder);
+  Assert(FFoldersList.Count = 1);
+  FreeAndNil(FFoldersList);
+  inherited;
 end;
 
-function TXmlVectorObjects.GetVectorDataItemsResult: IVectorItemSubset;
+function TXmlVectorObjects.GetVectorDataItemsResult: IVectorItemTree;
+var
+  VRootFolder: PFolderRec;
 begin
-  Result := nil;
-  if Assigned(FVectorDataItemsResultBuilder) then begin
-    Result := FVectorDataItemsResultBuilder.MakeStaticAndClear;
-    FVectorDataItemsResultBuilder := nil;
-  end;
+  VRootFolder := PFolderRec(FFoldersList.Items[0]);
+  Result := TVectorItemTree.Create(
+    VRootFolder.FName,
+    VRootFolder.FVectorDataItemsResultBuilder.MakeStaticAndClear,
+    VRootFolder.FSubTree.MakeStaticAndClear
+  );
 end;
 
 procedure TXmlVectorObjects.InternalCloseArrayPoints;
@@ -695,15 +726,58 @@ begin
   until False;
 end;
 
+procedure TXmlVectorObjects.OpenFolder;
+var
+  VFolder: PFolderRec;
+begin
+  New(VFolder);
+  VFolder.FName := '';
+  VFolder.FVectorDataItemsResultBuilder := FVectorItemSubsetBuilderFactory.Build;
+  VFolder.FSubTree := TInterfaceListSimple.Create;
+  FFoldersList.Add(VFolder);
+end;
+
+procedure TXmlVectorObjects.SetFolderName(const AName: string);
+var
+  I: Integer;
+  VFolder: PFolderRec;
+begin
+  I := FFoldersList.Count - 1;
+  VFolder := PFolderRec(FFoldersList.Items[I]);
+  VFolder.FName := AName;
+end;
+
+procedure TXmlVectorObjects.CloseFolder;
+var
+  I: Integer;
+  VFolder: PFolderRec;
+  VParent: PFolderRec;
+  VSubTree: IVectorItemTree;
+begin
+  I := FFoldersList.Count - 1;
+  VFolder := PFolderRec(FFoldersList.Items[I]);
+  VSubTree := TVectorItemTree.Create(
+    VFolder.FName,
+    VFolder.FVectorDataItemsResultBuilder.MakeStaticAndClear,
+    VFolder.FSubTree.MakeStaticAndClear
+  );
+  VParent := PFolderRec(FFoldersList.Items[I - 1]);
+  VParent.FSubTree.Add(VSubTree);
+  FFoldersList.Delete(I);
+  Dispose(VFolder);
+end;
+
 procedure TXmlVectorObjects.SafeAddToResult(
   const AItem: IVectorDataItem
 );
+var
+  I: Integer;
+  VFolder: PFolderRec;
 begin
   if Assigned(AItem) then begin
-    if not Assigned(FVectorDataItemsResultBuilder) then begin
-      FVectorDataItemsResultBuilder := FVectorItemSubsetBuilderFactory.Build;
-    end;
-    FVectorDataItemsResultBuilder.Add(AItem);
+    I := FFoldersList.Count - 1;
+    VFolder := PFolderRec(FFoldersList.Items[I]);
+    VFolder.FVectorDataItemsResultBuilder.Add(AItem);
   end;
 end;
 

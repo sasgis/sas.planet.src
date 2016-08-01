@@ -1,5 +1,5 @@
-ï»¿{******************************************************************************}
-{* SAS.Planet (SAS.ÐŸÐ»Ð°Ð½ÐµÑ‚Ð°)                                                   *}
+{******************************************************************************}
+{* SAS.Planet (SAS.Ïëàíåòà)                                                   *}
 {* Copyright (C) 2007-2016, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_XmlInfoSimpleParser;
+unit u_VectorItemTreeImporterKMZ;
 
 interface
 
@@ -28,26 +28,33 @@ uses
   i_BinaryData,
   i_VectorDataFactory,
   i_VectorItemSubsetBuilder,
-  i_VectorItemSubset,
+  i_VectorItemTree,
   i_GeometryLonLatFactory,
-  i_VectorDataLoader,
+  i_VectorItemTreeImporter,
+  i_NotifierOperation,
+  i_ArchiveReadWriteFactory,
   u_BaseInterfacedObject;
 
 type
-  TXMLInfoSimpleParser = class(TBaseInterfacedObject, IVectorDataLoader)
+  TVectorItemTreeImporterKMZ = class(TBaseInterfacedObject, IVectorItemTreeImporter)
   private
+    FArchiveReadWriteFactory: IArchiveReadWriteFactory;
+    FVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FVectorDataFactory: IVectorDataFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FAllowMultiParts: Boolean;
   private
-    function Load(
-      const AData: IBinaryData;
-      const AIdData: Pointer;
-      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
-    ): IVectorItemSubset;
+    function ProcessImport(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
+      const AFileName: string;
+      var AConfig: IInterface
+    ): IVectorItemTree;
   public
     constructor Create(
+      const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorDataFactory: IVectorDataFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
@@ -58,85 +65,83 @@ type
 implementation
 
 uses
-  i_VectorItemTree,
+  i_ArchiveReadWrite,
   u_VectorItemTreeImporterXML,
   u_StreamReadOnlyByBinaryData;
 
-{ TXmlInfoSimpleParser }
+{ TVectorItemTreeImporterKMZ }
 
-constructor TXmlInfoSimpleParser.Create(
+constructor TVectorItemTreeImporterKMZ.Create(
+  const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorDataFactory: IVectorDataFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AAllowMultiParts: Boolean
 );
 begin
-  inherited Create;
+  FArchiveReadWriteFactory := AArchiveReadWriteFactory;
+  FVectorDataItemMainInfoFactory := AVectorDataItemMainInfoFactory;
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FVectorDataFactory := AVectorDataFactory;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FAllowMultiParts := AAllowMultiParts;
 end;
 
-procedure AddSubTree(
-  const ASubsetBuilder: IVectorItemSubsetBuilder;
-  const ATree: IVectorItemTree
-);
+function TVectorItemTreeImporterKMZ.ProcessImport(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
+  const AFileName: string;
+  var AConfig: IInterface
+): IVectorItemTree;
 var
+  VZip: IArchiveReader;
+  VItemsCount: Integer;
+  VData: IBinaryData;
+  VIndex: Integer;
   I: Integer;
-  VSubset: IVectorItemSubset;
-  VSubTree: IVectorItemTree;
-begin
-  if Assigned(ATree) then begin
-    VSubset := ATree.Items;
-    if Assigned(VSubset) then begin
-      for I := 0 to VSubset.Count - 1 do begin
-        ASubsetBuilder.Add(VSubset.Items[I]);
-      end;
-    end;
-    for I := 0 to ATree.SubTreeItemCount - 1 do begin
-      VSubTree := ATree.GetSubTreeItem(I);
-      AddSubTree(ASubsetBuilder, VSubTree);
-    end;
-  end;
-end;
-
-function TXmlInfoSimpleParser.Load(
-  const AData: IBinaryData;
-  const AIdData: Pointer;
-  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
-): IVectorItemSubset;
-var
-  VTree: IVectorItemTree;
+  VFileName: string;
   VImporter: TVectorItemTreeImporterXML;
   VStream: TStreamReadOnlyByBinaryData;
-  VSubsetBuilder: IVectorItemSubsetBuilder;
 begin
-  VImporter :=
-    TVectorItemTreeImporterXML.Create(
-      AVectorDataItemMainInfoFactory,
-      FVectorGeometryLonLatFactory,
-      FVectorDataFactory,
-      FVectorItemSubsetBuilderFactory,
-      FAllowMultiParts
-    );
-  try
-    VStream := TStreamReadOnlyByBinaryData.Create(AData);
-    try
-      VTree :=
-        VImporter.LoadFromStream(
-          VStream,
-          AIdData,
-          AVectorDataItemMainInfoFactory
-        );
-      VSubsetBuilder := FVectorItemSubsetBuilderFactory.Build;
-      AddSubTree(VSubsetBuilder, VTree);
-      Result := VSubsetBuilder.MakeStaticAndClear;
-    finally
-      VStream.Free;
+  Result := nil;
+  VZip := FArchiveReadWriteFactory.Zip.ReaderFactory.BuildByFileName(AFileName);
+  VItemsCount := VZip.GetItemsCount;
+  if VItemsCount > 0 then begin
+    VData := VZip.GetItemByName('doc.kml');
+    if VData = nil then begin
+      VIndex := 0;
+      for I := 0 to VItemsCount - 1 do begin
+        if ExtractFileExt(VZip.GetItemNameByIndex(I)) = '.kml' then begin
+          VIndex := I;
+          Break;
+        end;
+      end;
+      VData := VZip.GetItemByIndex(VIndex, VFileName);
     end;
-  finally
-    VImporter.Free;
+
+    if VData = nil then begin
+      Exit;
+    end;
+
+    VImporter :=
+      TVectorItemTreeImporterXML.Create(
+        FVectorDataItemMainInfoFactory,
+        FVectorGeometryLonLatFactory,
+        FVectorDataFactory,
+        FVectorItemSubsetBuilderFactory,
+        FAllowMultiParts
+      );
+    try
+      VStream := TStreamReadOnlyByBinaryData.Create(VData);
+      try
+        Result := VImporter.LoadFromStream(VStream, nil, FVectorDataItemMainInfoFactory);
+      finally
+        VStream.Free;
+      end;
+    finally
+      VImporter.Free;
+    end;
   end;
 end;
 

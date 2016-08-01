@@ -24,20 +24,16 @@ interface
 
 uses
   t_GeoTypes,
-  i_VectorItemSubset;
+  i_VectorItemTree;
 
 type
   TCloseMarkObjectMode = (cmom_KML, cmom_GPX_TRK, cmom_GPX_WPT, cmom_GPX_RTE);
 
   IXmlVectorObjects = interface
     ['{463DCF4D-096C-41FE-927B-23A2CB125A41}']
-    // count of geometry objects
-    function GetCount: Integer;
-    property Count: Integer read GetCount;
-
     // result list
-    function GetVectorDataItemsResult: IVectorItemSubset;
-    property VectorDataItemsResult: IVectorItemSubset read GetVectorDataItemsResult;
+    function GetVectorDataItemsResult: IVectorItemTree;
+    property VectorDataItemsResult: IVectorItemTree read GetVectorDataItemsResult;
 
     // open and close multigeometry object
     procedure OpenMultiGeometry;
@@ -74,6 +70,10 @@ type
 
     // add single track point to array
     procedure AddTrackPoint(const APoint: TDoublePoint);
+
+    procedure OpenFolder;
+    procedure CloseFolder;
+    procedure SetFolderName(const AName: string);
   end;
 
 implementation

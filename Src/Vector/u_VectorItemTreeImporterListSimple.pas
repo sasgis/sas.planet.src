@@ -84,9 +84,9 @@ uses
   u_VectorItemTreeImporterByVectorLoader,
   u_VectorItemTreeImporterJpegWithExif,
   u_VectorItemTreeMarksDb,
+  u_VectorItemTreeImporterXML,
+  u_VectorItemTreeImporterKMZ,
   u_VectorDataLoaderWithCounter,
-  u_XmlInfoSimpleParser,
-  u_KmzInfoSimpleParser,
   u_PLTSimpleParser,
   u_SlsParser,
   u_HlgParser,
@@ -117,29 +117,19 @@ var
   VList: IInterfaceListSimple;
   VImporter: IVectorItemTreeImporter;
   VItem: IVectorItemTreeImporterListItem;
-  VKmlLoader: IVectorDataLoader;
   VLoader: IVectorDataLoader;
 begin
   inherited Create;
   FNotifierFake := TNotifierFaked.Create;
   VList := TInterfaceListSimple.Create;
-  VKmlLoader :=
-    TXmlInfoSimpleParser.Create(
+
+  VImporter :=
+    TVectorItemTreeImporterXML.Create(
+      AVectorDataItemMainInfoFactory,
       AVectorGeometryLonLatFactory,
       AVectorDataFactory,
       AVectorItemSubsetBuilderFactory,
       True
-    );
-
-  VLoader :=
-    TVectorDataLoaderWithCounter.Create(
-      VKmlLoader,
-      APerfCounterList.CreateAndAddNewCounter('Kml')
-    );
-  VImporter :=
-    TVectorItemTreeImporterByVectorLoader.Create(
-      AVectorDataItemMainInfoFactory,
-      VLoader
     );
   VItem :=
     TVectorItemTreeImporterListItem.Create(
@@ -149,25 +139,14 @@ begin
     );
   VList.Add(VItem);
 
-  VLoader :=
-    TVectorDataLoaderWithCounter.Create(
-      VKmlLoader,
-      APerfCounterList.CreateAndAddNewCounter('KmlFromKmz')
-    );
-  VLoader :=
-    TKmzInfoSimpleParser.Create(
-      VLoader,
-      AArchiveReadWriteFactory
-    );
-  VLoader :=
-    TVectorDataLoaderWithCounter.Create(
-      VLoader,
-      APerfCounterList.CreateAndAddNewCounter('Kmz')
-    );
   VImporter :=
-    TVectorItemTreeImporterByVectorLoader.Create(
+    TVectorItemTreeImporterKMZ.Create(
+      AArchiveReadWriteFactory,
       AVectorDataItemMainInfoFactory,
-      VLoader
+      AVectorGeometryLonLatFactory,
+      AVectorDataFactory,
+      AVectorItemSubsetBuilderFactory,
+      True
     );
   VItem :=
     TVectorItemTreeImporterListItem.Create(
@@ -177,15 +156,13 @@ begin
     );
   VList.Add(VItem);
 
-  VLoader :=
-    TVectorDataLoaderWithCounter.Create(
-      VKmlLoader,
-      APerfCounterList.CreateAndAddNewCounter('Gpx')
-    );
   VImporter :=
-    TVectorItemTreeImporterByVectorLoader.Create(
+    TVectorItemTreeImporterXML.Create(
       AVectorDataItemMainInfoFactory,
-      VLoader
+      AVectorGeometryLonLatFactory,
+      AVectorDataFactory,
+      AVectorItemSubsetBuilderFactory,
+      True
     );
   VItem :=
     TVectorItemTreeImporterListItem.Create(
