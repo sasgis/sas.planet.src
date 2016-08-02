@@ -42,7 +42,6 @@ type
   PFormatSettings = ^TFormatSettings;
 
   TFolderRec = record
-    FName: string;
     FVectorDataItemsResultBuilder: IVectorItemSubsetBuilder;
     FSubTree: IInterfaceListSimple;
   end;
@@ -123,8 +122,7 @@ type
     procedure AddTrackPoint(const APoint: TDoublePoint);
 
     procedure OpenFolder;
-    procedure CloseFolder;
-    procedure SetFolderName(const AName: string);
+    procedure CloseFolder(const AName: string);
   public
     constructor Create(
       const ACheckLineIsClosed, ASkipPointInMultiObject: Boolean;
@@ -352,8 +350,6 @@ constructor TXmlVectorObjects.Create(
   const ADataFactory: IVectorDataFactory;
   const AGeometryFactory: IGeometryLonLatFactory
 );
-var
-  VRootFolder: PFolderRec;
 begin
   Assert(AVectorItemSubsetBuilderFactory <> nil);
   Assert(AGeometryFactory <> nil);
@@ -380,20 +376,12 @@ begin
   FInMultiTrack := False;
 
   FFoldersList := TList.Create;
-  New(VRootFolder);
-  VRootFolder.FName := '';
-  VRootFolder.FVectorDataItemsResultBuilder := FVectorItemSubsetBuilderFactory.Build;
-  VRootFolder.FSubTree := TInterfaceListSimple.Create;
-  FFoldersList.Add(VRootFolder);
+  OpenFolder; // open root folder
 end;
 
 destructor TXmlVectorObjects.Destroy;
-var
-  VRootFolder: PFolderRec;
 begin
-  VRootFolder := PFolderRec(FFoldersList.Items[0]);
-  Dispose(VRootFolder);
-  Assert(FFoldersList.Count = 1);
+  CloseFolder(''); // close root folder
   FreeAndNil(FFoldersList);
   inherited;
 end;
@@ -404,7 +392,7 @@ var
 begin
   VRootFolder := PFolderRec(FFoldersList.Items[0]);
   Result := TVectorItemTree.Create(
-    VRootFolder.FName,
+    '',
     VRootFolder.FVectorDataItemsResultBuilder.MakeStaticAndClear,
     VRootFolder.FSubTree.MakeStaticAndClear
   );
@@ -731,23 +719,12 @@ var
   VFolder: PFolderRec;
 begin
   New(VFolder);
-  VFolder.FName := '';
   VFolder.FVectorDataItemsResultBuilder := FVectorItemSubsetBuilderFactory.Build;
   VFolder.FSubTree := TInterfaceListSimple.Create;
   FFoldersList.Add(VFolder);
 end;
 
-procedure TXmlVectorObjects.SetFolderName(const AName: string);
-var
-  I: Integer;
-  VFolder: PFolderRec;
-begin
-  I := FFoldersList.Count - 1;
-  VFolder := PFolderRec(FFoldersList.Items[I]);
-  VFolder.FName := AName;
-end;
-
-procedure TXmlVectorObjects.CloseFolder;
+procedure TXmlVectorObjects.CloseFolder(const AName: string);
 var
   I: Integer;
   VFolder: PFolderRec;
@@ -755,14 +732,17 @@ var
   VSubTree: IVectorItemTree;
 begin
   I := FFoldersList.Count - 1;
+  Assert(I >= 0);
   VFolder := PFolderRec(FFoldersList.Items[I]);
-  VSubTree := TVectorItemTree.Create(
-    VFolder.FName,
-    VFolder.FVectorDataItemsResultBuilder.MakeStaticAndClear,
-    VFolder.FSubTree.MakeStaticAndClear
-  );
-  VParent := PFolderRec(FFoldersList.Items[I - 1]);
-  VParent.FSubTree.Add(VSubTree);
+  if I > 0 then begin
+    VSubTree := TVectorItemTree.Create(
+      AName,
+      VFolder.FVectorDataItemsResultBuilder.MakeStaticAndClear,
+      VFolder.FSubTree.MakeStaticAndClear
+    );
+    VParent := PFolderRec(FFoldersList.Items[I - 1]);
+    VParent.FSubTree.Add(VSubTree);
+  end;
   FFoldersList.Delete(I);
   Dispose(VFolder);
 end;
@@ -776,6 +756,7 @@ var
 begin
   if Assigned(AItem) then begin
     I := FFoldersList.Count - 1;
+    Assert(I >= 0);
     VFolder := PFolderRec(FFoldersList.Items[I]);
     VFolder.FVectorDataItemsResultBuilder.Add(AItem);
   end;

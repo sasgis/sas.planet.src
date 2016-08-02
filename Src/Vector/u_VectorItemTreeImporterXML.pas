@@ -84,6 +84,10 @@ type
       const AXmlVectorObjects: IXmlVectorObjects;
       const pPX_Result: Pvsagps_XML_ParserResult
     );
+    procedure Internal_CloseFolder(
+      const AXmlVectorObjects: IXmlVectorObjects;
+      const pPX_Result: Pvsagps_XML_ParserResult
+    );
   private
     function ProcessImport(
       AOperationID: Integer;
@@ -282,6 +286,23 @@ begin
   );
 end;
 
+procedure TVectorItemTreeImporterXML.Internal_CloseFolder(
+  const AXmlVectorObjects: IXmlVectorObjects;
+  const pPX_Result: Pvsagps_XML_ParserResult
+);
+var
+  VName: string;
+begin
+  with pPX_Result^.kml_data do begin
+    if (kml_name in fAvail_strs) and (fParamsStrs[kml_name] <> nil) then begin
+      VName := SafeSetStringP(fParamsStrs[kml_name]);
+    end else begin
+      VName := '';
+    end;
+    AXmlVectorObjects.CloseFolder(VName);
+  end;
+end;
+
 function TVectorItemTreeImporterXML.LoadFromStream(
   const AStream: TStream;
   const AIdData: Pointer;
@@ -347,7 +368,6 @@ const
   ];
 var
   VWptPoint: TDoublePoint;
-  VName: string;
 begin
   // if aborted
   if pPX_State^.aborted_by_user then begin
@@ -371,11 +391,7 @@ begin
             AXmlVectorObjects.OpenFolder;
           end;
           xtd_Close: begin
-            if (kml_name in pPX_Result^.kml_data.fAvail_strs) then begin
-              VName := SafeSetStringP(pPX_Result^.kml_data.fParamsStrs[kml_name]);
-              AXmlVectorObjects.SetFolderName(VName);
-            end;
-            AXmlVectorObjects.CloseFolder;
+            Internal_CloseFolder(AXmlVectorObjects, pPX_Result);
           end;
         end;
       end;

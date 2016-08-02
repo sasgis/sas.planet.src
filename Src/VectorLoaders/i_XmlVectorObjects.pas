@@ -72,8 +72,7 @@ type
     procedure AddTrackPoint(const APoint: TDoublePoint);
 
     procedure OpenFolder;
-    procedure CloseFolder;
-    procedure SetFolderName(const AName: string);
+    procedure CloseFolder(const AName: string);
   end;
 
 implementation
