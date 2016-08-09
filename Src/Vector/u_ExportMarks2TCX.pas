@@ -389,6 +389,8 @@ function TExportMarks2TCX.AddMark(
 const
   DummySpeedKMH = 5; // 5 Km / Hour - dummy speed for export TRK/track
   DummySpeedMS  = DummySpeedKMH * 1000 / (60 * 60); // dummy speed in meters per second
+var
+  VFormatSettings: TFormatSettings;
 
   procedure AddFolders(const ACategory, AName: String; const AIsActivity: Boolean);
   var
@@ -615,7 +617,7 @@ const
 
       // Minimum mandatory
       VCurrentNode.AddChild('TotalTimeSeconds').Text := XMLText(IntToStr(SecondsBetween(FNow, VStartTime)));
-      VCurrentNode.AddChild('DistanceMeters').Text := XMLText(StringReplace(FloatToStr(VLength), DecimalSeparator, '.', []));
+      VCurrentNode.AddChild('DistanceMeters').Text := XMLText(FloatToStr(VLength, VFormatSettings));
       VCurrentNode.AddChild('Calories').Text := '0';
 
       VDelta := (FNow - VStartTime) / ALonLatLine.Count;
@@ -770,7 +772,7 @@ const
 
     // Minimum mandatory
     VCurrentNode.AddChild('TotalTimeSeconds').Text := XMLText(IntToStr(SecondsBetween(FNow, VStartTime)));
-    VCurrentNode.AddChild('DistanceMeters').Text := XMLText(StringReplace(FloatToStr(VLength), DecimalSeparator, '.', []));
+    VCurrentNode.AddChild('DistanceMeters').Text := XMLText(FloatToStr(VLength, VFormatSettings));
     VCurrentNode.AddChild('Calories').Text := '0';
 
     VCount := 0;
@@ -805,6 +807,7 @@ var
   VLonLatMultiLine: IGeometryLonLatMultiLine;
   VActivity: Boolean;
 begin
+  VFormatSettings.DecimalSeparator := '.';
   if Supports(AMark.Geometry, IGeometryLonLatPoint, VLonLatPoint) then begin
     VActivity := IsActivity(ARoot);
     Result := AddPoint(AMark, ARoot, ARootNode, VLonLatPoint, VActivity)
