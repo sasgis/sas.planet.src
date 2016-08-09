@@ -24,7 +24,6 @@ interface
 
 uses
   Types,
-  SysUtils,
   Classes,
   Graphics,
   Controls,
@@ -209,6 +208,7 @@ uses
   {$WARN UNIT_PLATFORM OFF}
   FileCtrl,
   {$WARN UNIT_PLATFORM ON}
+  SysUtils,
   uPSUtils,
   uPSRuntime,
   uPSDisassembly,

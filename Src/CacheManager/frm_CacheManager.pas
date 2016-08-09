@@ -25,7 +25,6 @@ interface
 uses
   Windows,
   Messages,
-  SysUtils,
   Variants,
   Classes,
   Graphics,
@@ -143,6 +142,7 @@ uses
   {$WARN UNIT_PLATFORM OFF}
   FileCtrl,
   {$WARN UNIT_PLATFORM ON}
+  SysUtils,
   ALString,
   c_CacheTypeCodes,
   c_CoordConverter,
