@@ -389,8 +389,6 @@ function TExportMarks2TCX.AddMark(
 const
   DummySpeedKMH = 5; // 5 Km / Hour - dummy speed for export TRK/track
   DummySpeedMS  = DummySpeedKMH * 1000 / (60 * 60); // dummy speed in meters per second
-var
-  VFormatSettings: TFormatSettings;
 
   procedure AddFolders(const ACategory, AName: String; const AIsActivity: Boolean);
   var
@@ -616,8 +614,8 @@ var
       VStartTime := IncSecond(FNow, -Round(VLength / DummySpeedMS));
 
       // Minimum mandatory
-      VCurrentNode.AddChild('TotalTimeSeconds').Text := XMLText(IntToStr(SecondsBetween(FNow, VStartTime)));
-      VCurrentNode.AddChild('DistanceMeters').Text := XMLText(FloatToStr(VLength, VFormatSettings));
+      VCurrentNode.AddChild('TotalTimeSeconds').Text := ALIntToStr(SecondsBetween(FNow, VStartTime));
+      VCurrentNode.AddChild('DistanceMeters').Text := R2AnsiStrPoint(VLength);
       VCurrentNode.AddChild('Calories').Text := '0';
 
       VDelta := (FNow - VStartTime) / ALonLatLine.Count;
@@ -771,8 +769,8 @@ var
     VStartTime := IncSecond(FNow, -Round(VLength / DummySpeedMS));
 
     // Minimum mandatory
-    VCurrentNode.AddChild('TotalTimeSeconds').Text := XMLText(IntToStr(SecondsBetween(FNow, VStartTime)));
-    VCurrentNode.AddChild('DistanceMeters').Text := XMLText(FloatToStr(VLength, VFormatSettings));
+    VCurrentNode.AddChild('TotalTimeSeconds').Text := ALIntToStr(SecondsBetween(FNow, VStartTime));
+    VCurrentNode.AddChild('DistanceMeters').Text := R2AnsiStrPoint(VLength);
     VCurrentNode.AddChild('Calories').Text := '0';
 
     VCount := 0;
@@ -807,7 +805,6 @@ var
   VLonLatMultiLine: IGeometryLonLatMultiLine;
   VActivity: Boolean;
 begin
-  VFormatSettings.DecimalSeparator := '.';
   if Supports(AMark.Geometry, IGeometryLonLatPoint, VLonLatPoint) then begin
     VActivity := IsActivity(ARoot);
     Result := AddPoint(AMark, ARoot, ARootNode, VLonLatPoint, VActivity)
