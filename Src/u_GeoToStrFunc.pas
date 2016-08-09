@@ -29,7 +29,6 @@ function RoundEx(const chislo: Double; const Precision: Integer): string;
 function RoundExAnsi(const chislo: Double; const Precision: Integer): AnsiString;
 function R2StrPoint(const r: Double): string;
 function R2AnsiStrPoint(const r: Double): AnsiString;
-function R2AnsiStrPointF(const r: Double; const AFormat: AnsiString): AnsiString;
 function LonLat2GShListName(const ALonLat: TDoublePoint; AScale: Integer; APrec: Integer): string;
 function str2r(const AStrValue: string): Double;
 
@@ -105,11 +104,6 @@ end;
 function R2AnsiStrPoint(const r: Double): AnsiString;
 begin
   Result := ALFloatToStr(r, GAnsiFormatSettings);
-end;
-
-function R2AnsiStrPointF(const r: Double; const AFormat: AnsiString): AnsiString;
-begin
-  Result := ALFormat(AFormat, [r], GAnsiFormatSettings);
 end;
 
 function LonLat2GShListName(const ALonLat: TDoublePoint; AScale: Integer; APrec: Integer): string;

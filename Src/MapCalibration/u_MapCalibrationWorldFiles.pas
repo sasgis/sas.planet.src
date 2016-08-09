@@ -261,8 +261,6 @@ procedure TMapCalibrationWorldFiles.SaveWFile(
   const xy1, xy2: TPoint;
   const AProjection: IProjection
 );
-const
-  cCoordFmtStr = '%.16f';
 var
   ll1, ll2: TDoublePoint;
   CellX, CellY, OrigX, OrigY: Double;
@@ -277,12 +275,12 @@ begin
     ll2 := AProjection.PixelPos2LonLat(xy2);
     CalculateWFileParams(ll1, ll2, xy2.X - xy1.X, xy2.Y - xy1.Y, AProjection.ProjectionType, CellX, CellY, OrigX, OrigY);
     VText := '';
-    VText := VText + R2AnsiStrPointF(CellX, cCoordFmtStr) + #13#10;
+    VText := VText + RoundExAnsi(CellX, 16) + #13#10;
     VText := VText + '0' + #13#10;
     VText := VText + '0' + #13#10;
-    VText := VText + R2AnsiStrPointF(CellY, cCoordFmtStr) + #13#10;
-    VText := VText + R2AnsiStrPointF(OrigX, cCoordFmtStr) + #13#10;
-    VText := VText + R2AnsiStrPointF(OrigY, cCoordFmtStr) + #13#10;
+    VText := VText + RoundExAnsi(CellY, 16) + #13#10;
+    VText := VText + RoundExAnsi(OrigX, 16) + #13#10;
+    VText := VText + RoundExAnsi(OrigY, 16) + #13#10;
     VFileStream.WriteBuffer(VText[1], Length(VText));
   finally
     VFileStream.Free;
