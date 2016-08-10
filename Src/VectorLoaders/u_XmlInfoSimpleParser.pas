@@ -31,11 +31,15 @@ uses
   i_VectorItemSubset,
   i_GeometryLonLatFactory,
   i_VectorDataLoader,
+  i_MarkPicture,
+  i_AppearanceOfMarkFactory,
   u_BaseInterfacedObject;
 
 type
   TXMLInfoSimpleParser = class(TBaseInterfacedObject, IVectorDataLoader)
   private
+    FMarkPictureList: IMarkPictureList;
+    FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FVectorDataFactory: IVectorDataFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
@@ -48,6 +52,8 @@ type
     ): IVectorItemSubset;
   public
     constructor Create(
+      const AMarkPictureList: IMarkPictureList;
+      const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorDataFactory: IVectorDataFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
@@ -65,6 +71,8 @@ uses
 { TXmlInfoSimpleParser }
 
 constructor TXmlInfoSimpleParser.Create(
+  const AMarkPictureList: IMarkPictureList;
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorDataFactory: IVectorDataFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
@@ -72,6 +80,8 @@ constructor TXmlInfoSimpleParser.Create(
 );
 begin
   inherited Create;
+  FMarkPictureList := AMarkPictureList;
+  FAppearanceOfMarkFactory := AAppearanceOfMarkFactory;
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FVectorDataFactory := AVectorDataFactory;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
@@ -114,6 +124,8 @@ var
 begin
   VImporter :=
     TVectorItemTreeImporterXML.Create(
+      FMarkPictureList,
+      FAppearanceOfMarkFactory,
       AVectorDataItemMainInfoFactory,
       FVectorGeometryLonLatFactory,
       FVectorDataFactory,
@@ -123,12 +135,7 @@ begin
   try
     VStream := TStreamReadOnlyByBinaryData.Create(AData);
     try
-      VTree :=
-        VImporter.LoadFromStream(
-          VStream,
-          AIdData,
-          AVectorDataItemMainInfoFactory
-        );
+      VTree := VImporter.LoadFromStream(VStream, AIdData, nil {ToDo: IImportConfig});
       VSubsetBuilder := FVectorItemSubsetBuilderFactory.Build;
       AddSubTree(VSubsetBuilder, VTree);
       Result := VSubsetBuilder.MakeStaticAndClear;

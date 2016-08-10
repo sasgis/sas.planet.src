@@ -55,6 +55,7 @@ type
     function GetIndexByName(const AValue: string): Integer;
 
     function GetDefaultPicture: IMarkPicture;
+    function FindByName(const AValue: string): IMarkPicture;
     function FindByNameOrDefault(const AValue: string): IMarkPicture;
   end;
 

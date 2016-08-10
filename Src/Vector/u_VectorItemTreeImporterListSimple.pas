@@ -125,6 +125,8 @@ begin
 
   VImporter :=
     TVectorItemTreeImporterXML.Create(
+      AMarkPictureList,
+      AAppearanceOfMarkFactory,
       AVectorDataItemMainInfoFactory,
       AVectorGeometryLonLatFactory,
       AVectorDataFactory,
@@ -141,6 +143,8 @@ begin
 
   VImporter :=
     TVectorItemTreeImporterKMZ.Create(
+      AMarkPictureList,
+      AAppearanceOfMarkFactory,
       AArchiveReadWriteFactory,
       AVectorDataItemMainInfoFactory,
       AVectorGeometryLonLatFactory,
@@ -158,6 +162,8 @@ begin
 
   VImporter :=
     TVectorItemTreeImporterXML.Create(
+      AMarkPictureList,
+      AAppearanceOfMarkFactory,
       AVectorDataItemMainInfoFactory,
       AVectorGeometryLonLatFactory,
       AVectorDataFactory,

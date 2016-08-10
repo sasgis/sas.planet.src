@@ -825,6 +825,8 @@ begin
 
   VKmlLoader :=
     TXmlInfoSimpleParser.Create(
+      FMarkPictureList,
+      FAppearanceOfMarkFactory,
       FVectorGeometryLonLatFactory,
       FVectorDataFactory,
       FVectorItemSubsetBuilderFactory,

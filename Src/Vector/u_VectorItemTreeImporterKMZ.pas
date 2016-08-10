@@ -29,15 +29,19 @@ uses
   i_VectorDataFactory,
   i_VectorItemSubsetBuilder,
   i_VectorItemTree,
+  i_MarkPicture,
   i_GeometryLonLatFactory,
   i_VectorItemTreeImporter,
   i_NotifierOperation,
   i_ArchiveReadWriteFactory,
+  i_AppearanceOfMarkFactory,
   u_BaseInterfacedObject;
 
 type
   TVectorItemTreeImporterKMZ = class(TBaseInterfacedObject, IVectorItemTreeImporter)
   private
+    FMarkPictureList: IMarkPictureList;
+    FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
@@ -53,6 +57,8 @@ type
     ): IVectorItemTree;
   public
     constructor Create(
+      const AMarkPictureList: IMarkPictureList;
+      const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
@@ -72,6 +78,8 @@ uses
 { TVectorItemTreeImporterKMZ }
 
 constructor TVectorItemTreeImporterKMZ.Create(
+  const AMarkPictureList: IMarkPictureList;
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
@@ -80,6 +88,9 @@ constructor TVectorItemTreeImporterKMZ.Create(
   const AAllowMultiParts: Boolean
 );
 begin
+  inherited Create;
+  FMarkPictureList := AMarkPictureList;
+  FAppearanceOfMarkFactory := AAppearanceOfMarkFactory;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
   FVectorDataItemMainInfoFactory := AVectorDataItemMainInfoFactory;
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
@@ -126,6 +137,8 @@ begin
 
     VImporter :=
       TVectorItemTreeImporterXML.Create(
+        FMarkPictureList,
+        FAppearanceOfMarkFactory,
         FVectorDataItemMainInfoFactory,
         FVectorGeometryLonLatFactory,
         FVectorDataFactory,
@@ -135,7 +148,7 @@ begin
     try
       VStream := TStreamReadOnlyByBinaryData.Create(VData);
       try
-        Result := VImporter.LoadFromStream(VStream, nil, FVectorDataItemMainInfoFactory);
+        Result := VImporter.LoadFromStream(VStream, nil, AConfig);
       finally
         VStream.Free;
       end;

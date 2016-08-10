@@ -57,6 +57,7 @@ type
     function GetIndexByName(const AValue: string): Integer;
 
     function GetDefaultPicture: IMarkPicture;
+    function FindByName(const AValue: string): IMarkPicture;
     function FindByNameOrDefault(const AValue: string): IMarkPicture;
   public
     constructor Create(
@@ -216,7 +217,7 @@ begin
   end;
 end;
 
-function TMarkPictureListSimple.FindByNameOrDefault(
+function TMarkPictureListSimple.FindByName(
   const AValue: string
 ): IMarkPicture;
 var
@@ -224,13 +225,14 @@ var
   VTryLoadPictureInRuntime: Boolean;
 begin
   Result := nil;
-  VTryLoadPictureInRuntime := False;
 
   if AValue <> '' then begin
     VIndex := FBaseList.IndexOf(AValue);
     if VIndex >= 0 then begin
       Result := IMarkPicture(Pointer(FBaseList.Objects[VIndex]));
     end else begin
+      VTryLoadPictureInRuntime := False;
+
       FCS.BeginRead;
       try
         VIndex := FRuntimeList.IndexOf(AValue);
@@ -238,32 +240,36 @@ begin
           Result := _GetFromRuntimeList(VIndex);
         end else begin
           VIndex := FRuntimeFailList.IndexOf(AValue);
-          if VIndex >= 0 then begin
-            Result := GetDefaultPicture;
-          end else begin
+          if VIndex < 0 then begin
             VTryLoadPictureInRuntime := True;
           end;
         end;
       finally
         FCS.EndRead;
       end;
-    end;
-  end else begin
-    Result := GetDefaultPicture;
-  end;
 
-  if VTryLoadPictureInRuntime then begin
-    FCS.BeginWrite;
-    try
-      VIndex := _TryAddToRuntimeList(AValue);
-      if VIndex >= 0 then begin
-        Result := _GetFromRuntimeList(VIndex);
-      end else begin
-        Result := GetDefaultPicture;
+      if VTryLoadPictureInRuntime then begin
+        FCS.BeginWrite;
+        try
+          VIndex := _TryAddToRuntimeList(AValue);
+          if VIndex >= 0 then begin
+            Result := _GetFromRuntimeList(VIndex);
+          end;
+        finally
+          FCS.EndWrite;
+        end;
       end;
-    finally
-      FCS.EndWrite;
     end;
+  end;
+end;
+
+function TMarkPictureListSimple.FindByNameOrDefault(
+  const AValue: string
+): IMarkPicture;
+begin
+  Result := FindByName(AValue);
+  if not Assigned(Result) then begin
+    Result := GetDefaultPicture;
   end;
 end;
 

@@ -185,6 +185,8 @@ begin
     'application/gpx+xml',
     '.gpx',
     TXmlInfoSimpleParser.Create(
+      nil, // ToDo: IMarkPictureList
+      nil, // ToDo: IAppearanceOfMarkFactory
       AVectorGeometryLonLatFactory,
       AVectorDataFactory,
       AVectorItemSubsetBuilderFactory,

@@ -27,6 +27,9 @@ uses
   SysUtils,
   t_GeoTypes,
   i_Appearance,
+  i_AppearanceHelper,
+  i_MarkPicture,
+  i_ImportConfig,
   i_XmlVectorObjects,
   i_VectorItemSubsetBuilder,
   i_VectorItemTree,
@@ -47,6 +50,8 @@ type
   end;
   PFolderRec = ^TFolderRec;
 
+  TMarkType = (mtUnk, mtPoint, mtPolyline, mtPolygon);
+
   TXmlVectorObjects = class(TBaseInterfacedObject, IXmlVectorObjects)
   private
     FLineBuilder: IGeometryLonLatLineBuilder;
@@ -57,6 +62,8 @@ type
     FSkipPointInMultiObject: Boolean;
     FFormatPtr: PFormatSettings;
     FIdData: Pointer;
+    FAppearanceHelper: IAppearanceHelper;
+    FImportConfig: IImportConfig;
     FVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
     FDataFactory: IVectorDataFactory;
     FGeometryFactory: IGeometryLonLatFactory;
@@ -87,6 +94,7 @@ type
     function ParseCloseMarkObjectData(
       const AData: Pointer;
       const AMode: TCloseMarkObjectMode;
+      const AMarkType: TMarkType;
       out AAppearance: IAppearance;
       out AMarkName: string;
       out AMarkDesc: string
@@ -129,6 +137,8 @@ type
       const AFormatPtr: PFormatSettings;
       const AIdData: Pointer;
       const AAllowMultiParts: Boolean;
+      const AAppearanceHelper: IAppearanceHelper;
+      const AImportConfig: IImportConfig;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
       const ADataFactory: IVectorDataFactory;
@@ -156,10 +166,24 @@ uses
   vsagps_public_gpx,
   vsagps_public_parser,
   vsagps_public_print,
+  t_MarkAppearance,
   u_GeoFunc,
   u_VectorItemTree,
   u_InterfaceListSimple,
   u_DoublePointsAggregator;
+
+function GetMarkGeometryType(const AGeometry: IGeometryLonLat): TMarkType;
+begin
+  Assert(Assigned(AGeometry));
+  if Supports(AGeometry, IGeometryLonLatPoint) then
+    Result := mtPoint
+  else if Supports(AGeometry, IGeometryLonLatLine) then
+    Result := mtPolyline
+  else if Supports(AGeometry, IGeometryLonLatPolygon) then
+    Result := mtPolygon
+  else
+    Result := mtUnk;
+end;
 
 function FindNextDelimiterPos(
   const APrevDelimiterPos: Integer;
@@ -283,6 +307,7 @@ var
   // item
   VGeometry: IGeometryLonLat;
   VItem: IVectorDataItem;
+  VItemType: TMarkType;
 begin
   if (not FInMarkObject) then begin
     raise EXmlVectorObjectsNotInMark.Create('');
@@ -295,7 +320,9 @@ begin
   // get objects
   for i := 0 to FList.Count - 1 do begin
     VGeometry := FList[i] as IGeometryLonLat;
-    if ParseCloseMarkObjectData(AData, AMode, VAppearance, VName, VDesc) then begin
+    VItemType := GetMarkGeometryType(VGeometry);
+    Assert(VItemType <> mtUnk);
+    if ParseCloseMarkObjectData(AData, AMode, VItemType, VAppearance, VName, VDesc) then begin
       VItem :=
         FDataFactory.BuildItem(
           FVectorDataItemMainInfoFactory.BuildMainInfo(FIdData, VName, VDesc),
@@ -345,6 +372,8 @@ constructor TXmlVectorObjects.Create(
   const AFormatPtr: PFormatSettings;
   const AIdData: Pointer;
   const AAllowMultiParts: Boolean;
+  const AAppearanceHelper: IAppearanceHelper;
+  const AImportConfig: IImportConfig;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const ADataFactory: IVectorDataFactory;
@@ -363,6 +392,8 @@ begin
   FSkipPointInMultiObject := ASkipPointInMultiObject;
   FFormatPtr := AFormatPtr;
   FIdData := AIdData;
+  FAppearanceHelper := AAppearanceHelper;
+  FImportConfig := AImportConfig;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FDataFactory := ADataFactory;
   FGeometryFactory := AGeometryFactory;
@@ -466,6 +497,7 @@ end;
 function TXmlVectorObjects.ParseCloseMarkObjectData(
   const AData: Pointer;
   const AMode: TCloseMarkObjectMode;
+  const AMarkType: TMarkType;
   out AAppearance: IAppearance;
   out AMarkName: string;
   out AMarkDesc: string
@@ -490,11 +522,20 @@ var
   z: Tvsagps_GPX_wpt_ext;
   VParamName: string;
   VParamValue: string;
+  VProcessed: Boolean;
+  VAllowImportAppearance: Boolean;
+  VImportAppearance: TAppearanceRedefinitions;
+  VImportPic: IMarkPicture;
 begin
   Result := False;
   AAppearance := nil;
   AMarkName := '';
   AMarkDesc := '';
+
+  VImportPic := nil;
+  VImportAppearance.Init;
+
+  VAllowImportAppearance := Assigned(FAppearanceHelper) and Assigned(FImportConfig);
 
   Assert(AData <> nil);
 
@@ -518,9 +559,39 @@ begin
             if (i in fAvail_strs) then begin
               VParamName := c_KML_str[i];
               VParamValue := SafeSetStringP(fParamsStrs[i]);
-          // add to description
+              // add to description
               _AddToDesc(VParamName, VParamValue);
             end;
+          end;
+        end;
+
+        // appearance
+        if VAllowImportAppearance then begin
+          // color for LineStyle
+          if (kml_color in fAvail_params) then begin
+            VImportAppearance.FLineColorDef.SetKMLColorValue(fValues.color);
+          end;
+          // width for LineStyle
+          if (kml_width in fAvail_params) then begin
+            VImportAppearance.FLineWidth := fValues.width;
+          end;
+          // color for PolyStyle
+          if (kml_bgColor in fAvail_params) then begin
+            VImportAppearance.FFillColorDef.SetKMLColorValue(fValues.bgColor);
+          end;
+          // TODO: fill
+          // color for LabelStyle
+          if (kml_textColor in fAvail_params) then begin
+            VImportAppearance.FTextColorDef.SetKMLColorValue(fValues.textColor);
+          end;
+          // scale for LabelStyle
+          if (kml_tileSize in fAvail_params) then begin
+            VImportAppearance.FTextSize := fValues.tileSize;
+          end;
+          // scale for Icon
+          if (kml_scale_ in fAvail_params) then begin
+            // TODO: use real image size
+            VImportAppearance.FIconSize := Round(64 * fValues.scale);
           end;
         end;
       end;
@@ -547,18 +618,27 @@ begin
             if (j in fAvail_trk_strs) then begin
               VParamName := c_GPX_trk_subtag[j];
               VParamValue := SafeSetStringP(fStrs[j]);
-            // add to description
+              // add to description
               _AddToDesc(VParamName, VParamValue);
             end;
           end;
         end;
-          // gpxx:TrackExtension
+        // gpxx:TrackExtension
         for y := Low(y) to High(y) do begin
           if (y in fAvail_trk_exts) then begin
             VParamName := c_GPX_trk_ext_subtag[y];
             VParamValue := SafeSetStringP(fExts[y]);
-            // add to description
-            _AddToDesc(VParamName, VParamValue);
+            VProcessed := False;
+            if VAllowImportAppearance then begin
+              if (y = gpxx_DisplayColor) then begin
+                // get color from gpxx
+                VProcessed := VImportAppearance.FLineColorDef.SetGPXColorName(VParamValue);
+              end;
+            end;
+            if (not VProcessed) then begin
+              // add to description
+              _AddToDesc(VParamName, VParamValue);
+            end;
           end;
         end;
       end;
@@ -585,12 +665,12 @@ begin
             if (j in fAvail_trk_strs) then begin
               VParamName := c_GPX_trk_subtag[j];
               VParamValue := SafeSetStringP(fStrs[j]);
-            // add to description
+              // add to description
               _AddToDesc(VParamName, VParamValue);
             end;
           end;
         end;
-          // gpxx:TrackExtension
+        // gpxx:TrackExtension
         for y := Low(y) to High(y) do begin
           if (y in fAvail_trk_exts) then begin
             VParamName := c_GPX_trk_ext_subtag[y];
@@ -622,32 +702,42 @@ begin
             if (k in fAvail_wpt_strs) then begin
               VParamName := c_GPX_wpt_str_subtag[k];
               VParamValue := SafeSetStringP(fStrs[k]);
-            // add to description
-              _AddToDesc(VParamName, VParamValue);
+              VProcessed := False;
+              // try to find image
+              if (k = wpt_sym) and VAllowImportAppearance then begin
+                VImportPic := FAppearanceHelper.MarkPictureList.FindByName(VParamValue);
+                if Assigned(VImportPic) then begin
+                  Inc(VProcessed);
+                end;
+              end;
+              if (not VProcessed) then begin
+                // add to description
+                _AddToDesc(VParamName, VParamValue);
+              end;
             end;
           end;
         end;
 
-          // fPos
+        // fPos
         with fPos do begin
-            // time
+          // time
           if (wpt_time in fAvail_wpt_params) and UTCDateOK and UTCTimeOK then begin
             VParamName := 'time';
             VParamValue := DateTime_To_ISO8601(UTCDate + UTCTime, False);
-              // add to description
+            // add to description
             _AddToDesc(VParamName, VParamValue);
           end;
 
-            // ele
+          // ele
           if (wpt_ele in fAvail_wpt_params) and (not NoData_Float64(Altitude)) then begin
             VParamName := 'ele';
             VParamValue := Round_Float64_to_String(Altitude, FFormatPtr^, round_ele);
-              // add to description
+            // add to description
             _AddToDesc(VParamName, VParamValue);
           end;
         end;
 
-          // gpxx:*
+        // gpxx:*
         for z := Low(z) to High(z) do begin
           if (z in fAvail_wpt_exts) then begin
             VParamName := c_GPX_wpt_ext_subtag[z];
@@ -663,12 +753,39 @@ begin
           if (x in fAvail_strs) then begin
             VParamName := c_GPX_ext_sasx_subtag[x];
             VParamValue := SafeSetStringP(sasx_strs[x]);
-          // add to description
+            // add to description
             _AddToDesc(VParamName, VParamValue);
           end;
         end;
       end;
       Inc(Result);
+    end;
+  end;
+
+  if Result then begin
+    // appearance
+    if VAllowImportAppearance and (VImportAppearance.HasSomeValues or Assigned(VImportPic)) then begin
+      case AMarkType of
+        mtPoint: begin
+          AAppearance := FAppearanceHelper.RedefinePointAppearance(
+            FImportConfig.PointParams,
+            VImportAppearance,
+            VImportPic
+          );
+        end;
+        mtPolyline: begin
+          AAppearance := FAppearanceHelper.RedefineLineAppearance(
+            FImportConfig.LineParams,
+            VImportAppearance
+          );
+        end;
+        mtPolygon: begin
+          AAppearance := FAppearanceHelper.RedefinePolygonAppearance(
+            FImportConfig.PolyParams,
+            VImportAppearance
+          );
+        end;
+      end;
     end;
   end;
 end;

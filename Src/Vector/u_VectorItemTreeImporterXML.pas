@@ -33,6 +33,9 @@ uses
   i_VectorItemTreeImporter,
   i_XmlVectorObjects,
   i_NotifierOperation,
+  i_ImportConfig,
+  i_MarkPicture,
+  i_AppearanceOfMarkFactory,
   u_BaseInterfacedObject,
   vsagps_public_sysutils,
   vsagps_public_print,
@@ -43,6 +46,8 @@ uses
 type
   TVectorItemTreeImporterXML = class(TBaseInterfacedObject, IVectorItemTreeImporter)
   private
+    FMarkPictureList: IMarkPictureList;
+    FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
     FVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FVectorDataFactory: IVectorDataFactory;
@@ -99,10 +104,12 @@ type
     function LoadFromStream(
       const AStream: TStream;
       const AIdData: Pointer;
-      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
+      const AConfig: IInterface
     ): IVectorItemTree;
   public
     constructor Create(
+      const AMarkPictureList: IMarkPictureList;
+      const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorDataFactory: IVectorDataFactory;
@@ -114,6 +121,8 @@ type
 implementation
 
 uses
+  i_AppearanceHelper,
+  u_AppearanceHelper,
   u_XmlVectorObjects;
 
 procedure rTVSAGPS_ParseXML_UserProc(
@@ -148,6 +157,8 @@ end;
 { TXmlInfoSimpleParser }
 
 constructor TVectorItemTreeImporterXML.Create(
+  const AMarkPictureList: IMarkPictureList;
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorDataFactory: IVectorDataFactory;
@@ -156,6 +167,8 @@ constructor TVectorItemTreeImporterXML.Create(
 );
 begin
   inherited Create;
+  FMarkPictureList := AMarkPictureList;
+  FAppearanceOfMarkFactory := AAppearanceOfMarkFactory;
   FVectorDataItemMainInfoFactory := AVectorDataItemMainInfoFactory;
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FVectorDataFactory := AVectorDataFactory;
@@ -306,13 +319,28 @@ end;
 function TVectorItemTreeImporterXML.LoadFromStream(
   const AStream: TStream;
   const AIdData: Pointer;
-  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
+  const AConfig: IInterface
 ): IVectorItemTree;
 var
+  VConfig: IImportConfig;
+  VAppearanceHelper: IAppearanceHelper;
   VXmlVectorObjects: IXmlVectorObjects;
   VParserOptions: Tvsagps_XML_ParserOptions;
 begin
   Result := nil;
+
+  if not Supports(AConfig, IImportConfig, VConfig) then begin
+    VConfig := nil;
+  end;
+
+  if Assigned(VConfig) and Assigned(FAppearanceOfMarkFactory) and Assigned(FMarkPictureList) then begin
+    VAppearanceHelper := TAppearanceHelper.Create(
+      FMarkPictureList,
+      FAppearanceOfMarkFactory
+    );
+  end else begin
+    VAppearanceHelper := nil;
+  end;
 
   // init
   VXmlVectorObjects := TXmlVectorObjects.Create(
@@ -321,8 +349,10 @@ begin
     @FFormat,
     AIdData,
     FAllowMultiParts,
+    VAppearanceHelper,
+    VConfig,
     FVectorItemSubsetBuilderFactory,
-    AVectorDataItemMainInfoFactory,
+    FVectorDataItemMainInfoFactory,
     FVectorDataFactory,
     FVectorGeometryLonLatFactory
   );
@@ -330,10 +360,18 @@ begin
   // xml parser options
   FillChar(VParserOptions, SizeOf(VParserOptions), 0);
 
-  // for wpt and trk
+  // for wpt, rte and trk
   Inc(VParserOptions.gpx_options.bParse_trk);
   Inc(VParserOptions.gpx_options.bParse_rte);
   Inc(VParserOptions.gpx_options.bParse_wpt);
+
+  if Assigned(VAppearanceHelper) then begin
+    Inc(VParserOptions.gpx_options.bParse_trk_extensions);
+    Inc(VParserOptions.gpx_options.bParse_rte_extensions);
+    Inc(VParserOptions.gpx_options.bParse_wpt_extensions);
+    Inc(VParserOptions.gpx_options.bParse_gpxx_extensions);
+    Inc(VParserOptions.gpx_options.bParse_gpxx_appearance);
+  end;
 
   // parse
   VSAGPS_LoadAndParseXML(
@@ -699,7 +737,7 @@ begin
   try
     VMemStream.LoadFromFile(AFileName);
     VMemStream.Position := 0;
-    Result := LoadFromStream(VMemStream, nil, FVectorDataItemMainInfoFactory);
+    Result := LoadFromStream(VMemStream, nil, AConfig);
   finally
     VMemStream.Free;
   end;
