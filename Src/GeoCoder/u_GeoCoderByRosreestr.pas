@@ -81,13 +81,10 @@ uses
 
 { TGeoCoderByRosreestr }
 
-procedure meters_to_lonlat(
-  in_x, in_y: Double;
-  out outout: TDoublePoint
-);
+procedure MetersToLonLat(const AX, AY: Double; out ALonLat: TDoublePoint);
 begin
-  outout.X := in_X / 6378137 * 180 / Pi;
-  outout.Y := ((arctan(exp(in_Y / 6378137)) - Pi / 4) * 360) / Pi;
+  ALonLat.X := AX / 6378137 * 180 / Pi;
+  ALonLat.Y := ((arctan(exp(AY / 6378137)) - Pi / 4) * 360) / Pi;
 end;
 
 constructor TGeoCoderByRosreestr.Create(
@@ -117,7 +114,7 @@ function TGeoCoderByRosreestr.ParseResultToPlacemarksList(
   const ALocalConverter: ILocalCoordConverter
 ): IInterfaceListSimple;
 var
-  x, y: double;
+  X, Y: Double;
   VTempString: string;
   VPoint: TDoublePoint;
   VPlace: IVectorDataItem;
@@ -126,7 +123,6 @@ var
   VJsonObject: ISuperObject;
   VTmpBuf: UTF8String;
   VName, VFullDesc, VDescription: string;
-
 begin
   VCoordToStringConverter := FCoordToStringConverter.GetStatic;
   VTempString := '';
@@ -158,9 +154,9 @@ begin
     Y := VJsonObject.D['feature.center.y'];
 
     try
-      meters_to_lonlat(x, y, Vpoint);
+      MetersToLonLat(X, Y, Vpoint);
     except
-      raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [floattostr(x), floattostr(y)]);
+      raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [FloatToStr(X), FloatToStr(Y)]);
     end;
 
     VDescription := VDescription + #$D#$A + '[ ' + VCoordToStringConverter.LonLatConvert(VPoint) + ' ]';
@@ -175,41 +171,35 @@ function TGeoCoderByRosreestr.PrepareRequest(
   const ASearch: string;
   const ALocalConverter: ILocalCoordConverter
 ): IDownloadRequest;
+const
+  cURLFmt = 'http://pkk5.rosreestr.ru/api/features/%d/%s?f=pjson';
 var
-  VSearch: AnsiString;
-  i, j: integer;
-  Vcount: Integer;
+  I, J: Integer;
+  VCount: Integer;
+  VRequestStr: UTF8String;
 begin
-
-  VSearch := AnsiString(ASearch);
-  Vcount := 0;
-  i := 1;
-  j := ALPosEx(':', VSearch, i);
-  while  j > i do
-  begin
-    inc(Vcount);
-    i := j+1;
-    j := ALPosEx(':', VSearch, i);
+  VCount := 0;
+  I := 1;
+  J := PosEx(':', ASearch, I);
+  while J > I do begin
+    Inc(VCount);
+    I := J + 1;
+    J := PosEx(':', ASearch, I);
   end;
 
-  if Vcount <> 0 then begin //cadastre number
-    if Vcount = 2 then //  варталы
-    begin
-      Result :=
-       PrepareRequestByURL(
-         'http://pkk5.rosreestr.ru/api/features/2/' + URLEncode(AnsiToUtf8(VSearch))
-       );
-    end else // участки
-    begin
-     Result :=
-       PrepareRequestByURL(
-          'http://pkk5.rosreestr.ru/api/features/1/' + URLEncode(AnsiToUtf8(VSearch))
-       );
+  if VCount > 0 then begin
+    if VCount = 2 then begin //  варталы
+      I := 2;
+    end else begin // участки
+      I := 1;
     end;
+    VRequestStr := URLEncode(AnsiToUtf8(ASearch));
+    Result := PrepareRequestByURL(ALFormat(cURLFmt, [I, VRequestStr]));
   end else begin
     Result := nil;
   end;
 end;
+
 end.
 
 // "http://pkk5.rosreestr.ru/api/typeahead?text="%"D0"%"BD"%"D0"%"BE"%"D0"%"B2"%"D0"%"BE&limit=10&skip=0&type=-1"
