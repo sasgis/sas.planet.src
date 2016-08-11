@@ -182,7 +182,7 @@ var
   VIPTCData: TIPTCData;
   VGPSLatitude: TGPSLatitude;
   VGPSLongitude: TGPSLongitude;
-  VGPSAltitude: TExifFraction;
+  VGPSAltitude: TGPSAltitude;
   VItem: IVectorDataItem;
   VList: IVectorItemSubsetBuilder;
   VVectorData: IVectorItemSubset;
@@ -254,7 +254,7 @@ begin
       VAltitude := '';
     end else begin
       VExAltitude := VGPSAltitude.Quotient;
-      if VExifData.GPSAltitudeRef = alBelowSeaLevel then begin
+      if VGPSAltitude.Ref = alBelowSeaLevel then begin
         VExAltitude := -VExAltitude;
       end;
       VAltitude := FloatToStrF(VExAltitude, ffFixed, 10, 2);
