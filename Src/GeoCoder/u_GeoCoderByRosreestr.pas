@@ -71,11 +71,10 @@ uses
   SysUtils,
   StrUtils,
   ALString,
-  RegExprUtils,
+  RegExpr,
   superobject,
   t_GeoTypes,
   i_VectorDataItemSimple,
-  i_Projection,
   u_InterfaceListSimple,
   u_ResStrings;
 
@@ -138,10 +137,13 @@ begin
     raise EParserError.Create('JSON parser error');
   end;
 
-  if Assigned(VJsonObject) then begin
+  if Assigned(VJsonObject) and Assigned(VJsonObject.O['feature.attrs']) then
+  begin
     VName := ASearch;
     VTempString := VJsonObject.S['feature.attrs.address'];
     if VTempString <> '' then VDescription := 'address: ' + VTempString;
+    VTempString := VJsonObject.S['feature.attrs.cn'];
+    if VTempString <> '' then VDescription := VDescription + #$D#$A + 'cn: ' + VTempString;
     VTempString := VJsonObject.S['feature.attrs.adate'];
     if VTempString <> '' then VDescription := VDescription + #$D#$A + 'adate: ' + VTempString;
     VTempString := VJsonObject.S['feature.attrs.pubdate'];
@@ -174,29 +176,34 @@ function TGeoCoderByRosreestr.PrepareRequest(
 const
   cURLFmt = 'http://pkk5.rosreestr.ru/api/features/%d/%s?f=pjson';
 var
-  I, J: Integer;
-  VCount: Integer;
+  I: Integer;
   VRequestStr: UTF8String;
+  VRegExpr: TRegExpr;
+  VSearch: AnsiString;
 begin
-  VCount := 0;
-  I := 1;
-  J := PosEx(':', ASearch, I);
-  while J > I do begin
-    Inc(VCount);
-    I := J + 1;
-    J := PosEx(':', ASearch, I);
-  end;
 
-  if VCount > 0 then begin
-    if VCount = 2 then begin //  варталы
+  VRegExpr  := TRegExpr.Create;
+  try
+    VSearch := AnsiString(ASearch);
+    VRegExpr.Expression := '^([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,7})(:([0-9]{1,5}))?$';
+
+    if VRegExpr.Exec(VSearch) then begin
+      VSearch :=
+        ALIntToStr(ALStrToInt(VRegExpr.Match[1])) + ':' +
+        ALIntToStr(ALStrToInt(VRegExpr.Match[2])) + ':' +
+        ALIntToStr(ALStrToInt(VRegExpr.Match[3]));
       I := 2;
-    end else begin // участки
-      I := 1;
+      if VRegExpr.Match[4] <> '' then begin
+        VSearch := VSearch + ':' + ALIntToStr(ALStrToInt(VRegExpr.Match[5]));
+        I := 1;
+      end;
+      VRequestStr := URLEncode(VSearch);
+      Result := PrepareRequestByURL(ALFormat(cURLFmt, [I, VRequestStr]));
+    end else begin
+      Result := nil;
     end;
-    VRequestStr := URLEncode(AnsiToUtf8(ASearch));
-    Result := PrepareRequestByURL(ALFormat(cURLFmt, [I, VRequestStr]));
-  end else begin
-    Result := nil;
+  finally
+    FreeAndNil(VRegExpr);
   end;
 end;
 
