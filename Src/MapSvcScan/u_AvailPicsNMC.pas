@@ -536,17 +536,12 @@ const
 
           // parse and convert
           try
-            if (DecimalSeparator<>'.') then begin
-              Vc1 := StringReplace(Vc1, '.',DecimalSeparator, []);
-              Vc2 := StringReplace(Vc2, '.',DecimalSeparator, []);
-            end;
-
             // TODO: check EPSG from
             // <digitalglobe:tileMatrix>EPSG:3857:13</digitalglobe:tileMatrix>
 
             // convert to lonlat
-            VMM.X := StrToFloat(Vc1);
-            VMM.Y := StrToFloat(Vc2);
+            VMM.X := str2r(Vc1);
+            VMM.Y := str2r(Vc2);
             VLonLat := FLocalConverter.Projection.ProjectionType.Metr2LonLat(VMM);
 
             // add to list

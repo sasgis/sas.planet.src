@@ -91,6 +91,7 @@ begin
   VConfig := FConfig.GetStatic;
   Result :=
     TCoordToStringConverter.Create(
+      DecimalSeparator,
       VConfig.IsLatitudeFirst,
       VConfig.DegrShowFormat,
       VConfig.CoordSysType

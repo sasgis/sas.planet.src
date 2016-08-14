@@ -34,6 +34,7 @@ type
     FIsLatitudeFirst: Boolean;
     FDegrShowFormat: TDegrShowFormat;
     FCoordSysType: TCoordSysType;
+    FDecimalseparator: Char;
     FEastMarker: string;
     FWestMarker: string;
     FNorthMarker: string;
@@ -58,6 +59,7 @@ type
     ); overload;
   public
     constructor Create(
+      const ADecimalseparator: Char;
       const AIsLatitudeFirst: Boolean;
       const ADegrShowFormat: TDegrShowFormat;
       const ACoordSysType: TCoordSysType
@@ -76,12 +78,14 @@ uses
 { TCoordToStringConverter }
 
 constructor TCoordToStringConverter.Create(
+  const ADecimalseparator: Char;
   const AIsLatitudeFirst: Boolean;
   const ADegrShowFormat: TDegrShowFormat;
   const ACoordSysType: TCoordSysType
 );
 begin
   inherited Create;
+  FDecimalseparator := ADecimalseparator;
   FIsLatitudeFirst := AIsLatitudeFirst;
   FDegrShowFormat := ADegrShowFormat;
   FCoordSysType := ACoordSysType;
@@ -121,8 +125,8 @@ begin
       Res := Res + FormatFloat('00.00', VValue / 100) + '"';
 
       if ACutZero then begin
-        if copy(Res, length(Res) - 3, 4) = decimalseparator + '00"' then begin // X12°30'45,00" -> X12°30'45"
-          Res := ReplaceStr(Res, decimalseparator + '00"', '"');
+        if copy(Res, length(Res) - 3, 4) = FDecimalseparator + '00"' then begin // X12°30'45,00" -> X12°30'45"
+          Res := ReplaceStr(Res, FDecimalseparator + '00"', '"');
           if copy(Res, length(Res) - 2, 3) = '00"' then begin   // X12°30'00" -> X12°30'
             Res := ReplaceStr(Res, '00"', '');
             if copy(Res, length(Res) - 2, 3) = '00''' then begin  // X12°00' -> X12°
@@ -142,8 +146,8 @@ begin
         while copy(Res, length(Res) - 1, 2) = '0''' do begin
           Res := ReplaceStr(Res, '0''', '''');
         end;   // 12°34,50000' -> 12°34,5'   12°00,00000' -> 12°00,'
-        if copy(Res, length(Res) - 1, 2) = decimalseparator + '''' then begin
-          Res := ReplaceStr(Res, decimalseparator + '''', '''');
+        if copy(Res, length(Res) - 1, 2) = FDecimalseparator + '''' then begin
+          Res := ReplaceStr(Res, FDecimalseparator + '''', '''');
         end; // 12°40,' -> 12°40'
         if copy(Res, length(Res) - 2, 3) = '00''' then begin
           Res := ReplaceStr(Res, '00''', '');
@@ -156,8 +160,8 @@ begin
         while copy(Res, length(Res) - 1, 2) = '0°' do begin
           Res := ReplaceStr(Res, '0°', '°');
         end;   // 12,3450000° -> 12,345°   12,0000000° -> 12,°
-        if copy(Res, length(Res) - 1, 2) = decimalseparator + '°' then begin
-          Res := ReplaceStr(Res, decimalseparator + '°', '°');
+        if copy(Res, length(Res) - 1, 2) = FDecimalseparator + '°' then begin
+          Res := ReplaceStr(Res, FDecimalseparator + '°', '°');
         end; //12,° -> 12°
       end;
     end;
