@@ -26,6 +26,7 @@ uses
   SysUtils,
   t_Hash,
   i_HashInterfaceCache,
+  i_InternalPerformanceCounter,
   u_BaseInterfacedObject;
 
 type
@@ -174,6 +175,14 @@ type
     // они попадают в разряд долгоживущих и помещаются в очередь QueueMulti
     FQueueFirstOutMaxCount: Integer;
     FQueueFirstOut: TQueue;
+
+    FHitCounter: IInternalPerformanceCounter;
+    FMissCounter: IInternalPerformanceCounter;
+    FCreateCounter: IInternalPerformanceCounter;
+    FAddCounter: IInternalPerformanceCounter;
+    FDeleteCounter: IInternalPerformanceCounter;
+    FClearCounter: IInternalPerformanceCounter;
+
     procedure MoveItemFromFirstInToFirstOut;
     procedure FreeItemFromQueueMulti;
   protected
@@ -187,6 +196,7 @@ type
   public
     constructor Create(
       const ASync: IReadWriteSync;
+      const APerfCounterList: IInternalPerformanceCounterList;
       ACreateFunction: TCreateItemFunction;
       AHashSizeInBit: Byte;
       AFirstUseCount: Integer;
@@ -586,6 +596,7 @@ end;
 
 constructor THashInterfaceCache2Q.Create(
   const ASync: IReadWriteSync;
+  const APerfCounterList: IInternalPerformanceCounterList;
   ACreateFunction: TCreateItemFunction;
   AHashSizeInBit: Byte;
   AFirstUseCount: Integer;
@@ -597,6 +608,7 @@ var
   VHashSizeInBit: Byte;
 begin
   Assert(Assigned(ASync));
+  Assert(Assigned(APerfCounterList));
   Assert(Assigned(ACreateFunction));
   Assert(AHashSizeInBit >= 6);
   Assert(AHashSizeInBit <= 30);
@@ -614,6 +626,13 @@ begin
   FCreateFunction := ACreateFunction;
   VHashSizeInBit := AHashSizeInBit;
   FCS := ASync;
+
+  FHitCounter := APerfCounterList.CreateAndAddNewCounter('Hit');
+  FMissCounter := APerfCounterList.CreateAndAddNewCounter('Miss');
+  FCreateCounter := APerfCounterList.CreateAndAddNewCounter('Create');
+  FAddCounter := APerfCounterList.CreateAndAddNewCounter('Add');
+  FDeleteCounter := APerfCounterList.CreateAndAddNewCounter('Delete');
+  FClearCounter := APerfCounterList.CreateAndAddNewCounter('Clear');
 
   if VHashSizeInBit < 6 then begin
     VHashSizeInBit := 6;
@@ -687,68 +706,80 @@ end;
 
 procedure THashInterfaceCache2Q.Clear;
 var
+  VCounterContext: TInternalPerformanceCounterContext;
   VItem: PCacheItem;
   VIndex: TItemIndex;
 begin
-  FCS.BeginWrite;
+  VCounterContext := FClearCounter.StartOperation;
   try
-    while FQueueMulti.Count > 0 do begin
-      VItem := FQueueMulti.PopItemFromTail(VIndex);
-      FHash.RemoveItem(GetIndexByKey(VItem.Key), VIndex, VItem);
-      FFreeItems.Push(VIndex, VItem);
-    end;
-    while FQueueFirstIn.Count > 0 do begin
-      VItem := FQueueFirstIn.PopItemFromTail(VIndex);
-      FHash.RemoveItem(GetIndexByKey(VItem.Key), VIndex, VItem);
-      FFreeItems.Push(VIndex, VItem);
-    end;
-    while FQueueFirstOut.Count > 0 do begin
-      VItem := FQueueFirstOut.PopItemFromTail(VIndex);
-      FHash.RemoveItem(GetIndexByKey(VItem.Key), VIndex, VItem);
-      FFreeItems.Push(VIndex, VItem);
+    FCS.BeginWrite;
+    try
+      while FQueueMulti.Count > 0 do begin
+        VItem := FQueueMulti.PopItemFromTail(VIndex);
+        FHash.RemoveItem(GetIndexByKey(VItem.Key), VIndex, VItem);
+        FFreeItems.Push(VIndex, VItem);
+      end;
+      while FQueueFirstIn.Count > 0 do begin
+        VItem := FQueueFirstIn.PopItemFromTail(VIndex);
+        FHash.RemoveItem(GetIndexByKey(VItem.Key), VIndex, VItem);
+        FFreeItems.Push(VIndex, VItem);
+      end;
+      while FQueueFirstOut.Count > 0 do begin
+        VItem := FQueueFirstOut.PopItemFromTail(VIndex);
+        FHash.RemoveItem(GetIndexByKey(VItem.Key), VIndex, VItem);
+        FFreeItems.Push(VIndex, VItem);
+      end;
+    finally
+      FCS.EndWrite;
     end;
   finally
-    FCS.EndWrite;
+    FClearCounter.FinishOperation(VCounterContext);
   end;
 end;
 
 procedure THashInterfaceCache2Q.DeleteItem(const AKey: THashValue);
 var
+  VCounterContext: TInternalPerformanceCounterContext;
   VHashIndex: THashIndex;
   VCurrIndex: TItemIndex;
   VCurrItem: PCacheItem;
 begin
-  VHashIndex := GetIndexByKey(AKey);
-  Assert(VHashIndex >= 0);
-  Assert(VHashIndex < FHashSize);
-
-  FCS.BeginWrite;
+  VCounterContext := FDeleteCounter.StartOperation;
   try
-    VCurrItem := FHash.GetItem(VHashIndex, AKey, VCurrIndex);
-    if VCurrItem <> nil then begin
-      Assert(VCurrItem.Key = AKey);
-      Assert(VCurrItem.QueueType in [qtMulti, qtFirstIn, qtFirstOut]);
-      Assert(FItems.GetItemByIndex(VCurrIndex) = VCurrItem);
-      case VCurrItem.QueueType of
-        qtMulti: begin
-          FQueueMulti.ExcludeItem(VCurrIndex, VCurrItem);
-          FHash.RemoveItem(VHashIndex, VCurrIndex, VCurrItem);
-          FFreeItems.Push(VCurrIndex, VCurrItem);
-        end;
-        qtFirstIn: begin
-          FQueueFirstIn.ExcludeItem(VCurrIndex, VCurrItem);
-          FHash.RemoveItem(VHashIndex, VCurrIndex, VCurrItem);
-          FFreeItems.Push(VCurrIndex, VCurrItem);
-        end;
-        qtFirstOut: begin
-          FQueueFirstOut.ExcludeItem(VCurrIndex, VCurrItem);
-          FHash.RemoveItem(VHashIndex, VCurrIndex, VCurrItem);
-          FFreeItems.Push(VCurrIndex, VCurrItem);
+    VHashIndex := GetIndexByKey(AKey);
+    Assert(VHashIndex >= 0);
+    Assert(VHashIndex < FHashSize);
+
+    FCS.BeginWrite;
+    try
+      VCurrItem := FHash.GetItem(VHashIndex, AKey, VCurrIndex);
+      if VCurrItem <> nil then begin
+        Assert(VCurrItem.Key = AKey);
+        Assert(VCurrItem.QueueType in [qtMulti, qtFirstIn, qtFirstOut]);
+        Assert(FItems.GetItemByIndex(VCurrIndex) = VCurrItem);
+        case VCurrItem.QueueType of
+          qtMulti: begin
+            FQueueMulti.ExcludeItem(VCurrIndex, VCurrItem);
+            FHash.RemoveItem(VHashIndex, VCurrIndex, VCurrItem);
+            FFreeItems.Push(VCurrIndex, VCurrItem);
+          end;
+          qtFirstIn: begin
+            FQueueFirstIn.ExcludeItem(VCurrIndex, VCurrItem);
+            FHash.RemoveItem(VHashIndex, VCurrIndex, VCurrItem);
+            FFreeItems.Push(VCurrIndex, VCurrItem);
+          end;
+          qtFirstOut: begin
+            FQueueFirstOut.ExcludeItem(VCurrIndex, VCurrItem);
+            FHash.RemoveItem(VHashIndex, VCurrIndex, VCurrItem);
+            FFreeItems.Push(VCurrIndex, VCurrItem);
+          end;
         end;
       end;
+    finally
+      FCS.EndWrite;
     end;
   finally
-    FCS.EndWrite;
+    FDeleteCounter.FinishOperation(VCounterContext);
   end;
 end;
 
@@ -773,116 +804,136 @@ function THashInterfaceCache2Q.GetOrCreateItem(
   const AData: Pointer
 ): IInterface;
 var
+  VCounterContext: TInternalPerformanceCounterContext;
   VHashIndex: THashIndex;
   VCurrIndex: TItemIndex;
   VCurrItem: PCacheItem;
 begin
   Result := nil;
-  VHashIndex := GetIndexByKey(AKey);
-  Assert(VHashIndex >= 0);
-  Assert(VHashIndex < FHashSize);
-  FCS.BeginWrite;
+  VCounterContext := FHitCounter.StartOperation;
   try
-    VCurrItem := FHash.GetItem(VHashIndex, AKey, VCurrIndex);
-    if VCurrItem <> nil then begin
-      Assert(VCurrItem.Key = AKey);
-      Assert(VCurrItem.QueueType in [qtMulti, qtFirstIn, qtFirstOut]);
-      Assert(FItems.GetItemByIndex(VCurrIndex) = VCurrItem);
-      case VCurrItem.QueueType of
-        qtMulti: begin
-          Result := VCurrItem.Value;
-          FQueueMulti.MoveItemToHead(VCurrIndex, VCurrItem);
-        end;
-        qtFirstIn: begin
-          Assert(FQueueFirstInMaxCount > 0);
-          Result := VCurrItem.Value;
-        end;
-        qtFirstOut: begin
-          Assert(FQueueFirstOutMaxCount > 0);
-          FQueueFirstOut.MoveItemToHead(VCurrIndex, VCurrItem);
-        end;
-      end;
-    end;
-  finally
-    FCS.EndWrite;
-  end;
-
-  if Result = nil then begin
-    Result := FCreateFunction(AKey, AData);
+    VHashIndex := GetIndexByKey(AKey);
+    Assert(VHashIndex >= 0);
+    Assert(VHashIndex < FHashSize);
     FCS.BeginWrite;
     try
       VCurrItem := FHash.GetItem(VHashIndex, AKey, VCurrIndex);
       if VCurrItem <> nil then begin
         Assert(VCurrItem.Key = AKey);
-        Assert(VCurrItem.QueueType <> qtEmpty);
+        Assert(VCurrItem.QueueType in [qtMulti, qtFirstIn, qtFirstOut]);
         Assert(FItems.GetItemByIndex(VCurrIndex) = VCurrItem);
         case VCurrItem.QueueType of
           qtMulti: begin
+            Result := VCurrItem.Value;
+            FQueueMulti.MoveItemToHead(VCurrIndex, VCurrItem);
           end;
           qtFirstIn: begin
             Assert(FQueueFirstInMaxCount > 0);
+            Result := VCurrItem.Value;
           end;
           qtFirstOut: begin
             Assert(FQueueFirstOutMaxCount > 0);
-            FQueueFirstOut.ExcludeItem(VCurrIndex, VCurrItem);
-            VCurrItem.Value := Result;
-            if FQueueMulti.Count + 1 > FQueueMultiMaxCount then begin
-              FreeItemFromQueueMulti;
-            end else begin
-              if FQueueFirstInMaxCount > 0 then begin
-                if FQueueFirstIn.Count + FQueueMulti.Count + 1 > FQueueMultiMaxCount + FQueueFirstInMaxCount then begin
-                  MoveItemFromFirstInToFirstOut;
-                end;
-              end;
-            end;
-            FQueueMulti.PushItemToHead(VCurrIndex, VCurrItem);
+            FQueueFirstOut.MoveItemToHead(VCurrIndex, VCurrItem);
           end;
         end;
-      end else begin
-        if FFreeItems.Count > 0 then begin
-          VCurrItem := FFreeItems.Pop(VCurrIndex);
-          if FQueueFirstInMaxCount > 0 then begin
-            if FQueueFirstIn.Count + FQueueMulti.Count + 1 > FQueueMultiMaxCount + FQueueFirstInMaxCount then begin
-              MoveItemFromFirstInToFirstOut;
-            end;
-          end;
-        end else begin
-          if FQueueFirstInMaxCount > 0 then begin
-            if FQueueFirstIn.Count + 1 > FQueueFirstInMaxCount then begin
-              VCurrItem := FQueueFirstOut.PopItemFromTail(VCurrIndex);
-              FHash.RemoveItem(GetIndexByKey(VCurrItem.Key), VCurrIndex, VCurrItem);
-              MoveItemFromFirstInToFirstOut;
-            end else begin
-              VCurrItem := FQueueMulti.PopItemFromTail(VCurrIndex);
-              FHash.RemoveItem(GetIndexByKey(VCurrItem.Key), VCurrIndex, VCurrItem);
-            end;
-          end else if FQueueFirstOutMaxCount > 0 then begin
-            if FQueueMulti.Count > FQueueMultiMaxCount then begin
-              VCurrItem := FQueueMulti.PopItemFromTail(VCurrIndex);
-              FHash.RemoveItem(GetIndexByKey(VCurrItem.Key), VCurrIndex, VCurrItem);
-            end else begin
-              VCurrItem := FQueueFirstOut.PopItemFromTail(VCurrIndex);
-              FHash.RemoveItem(GetIndexByKey(VCurrItem.Key), VCurrIndex, VCurrItem);
-            end;
-          end else begin
-            VCurrItem := FQueueMulti.PopItemFromTail(VCurrIndex);
-            FHash.RemoveItem(GetIndexByKey(VCurrItem.Key), VCurrIndex, VCurrItem);
-          end;
-        end;
-        VCurrItem.Key := AKey;
-        if FQueueFirstInMaxCount > 0 then begin
-          VCurrItem.Value := Result;
-          FQueueFirstIn.PushItemToHead(VCurrIndex, VCurrItem);
-        end else if FQueueFirstOutMaxCount > 0 then begin
-          FQueueFirstOut.PushItemToHead(VCurrIndex, VCurrItem);
-        end else begin
-          VCurrItem.Value := Result;
-          FQueueMulti.PushItemToHead(VCurrIndex, VCurrItem);
-        end;
-        FHash.AddItem(VHashIndex, VCurrIndex, VCurrItem);
       end;
     finally
       FCS.EndWrite;
+    end;
+  finally
+    if Result = nil then begin
+      FMissCounter.FinishOperation(VCounterContext);
+    end else begin
+      FHitCounter.FinishOperation(VCounterContext);
+    end;
+  end;
+
+  if Result = nil then begin
+    VCounterContext := FHitCounter.StartOperation;
+    try
+      Result := FCreateFunction(AKey, AData);
+    finally
+      FCreateCounter.FinishOperation(VCounterContext);
+    end;
+    VCounterContext := FAddCounter.StartOperation;
+    try
+      FCS.BeginWrite;
+      try
+        VCurrItem := FHash.GetItem(VHashIndex, AKey, VCurrIndex);
+        if VCurrItem <> nil then begin
+          Assert(VCurrItem.Key = AKey);
+          Assert(VCurrItem.QueueType <> qtEmpty);
+          Assert(FItems.GetItemByIndex(VCurrIndex) = VCurrItem);
+          case VCurrItem.QueueType of
+            qtMulti: begin
+            end;
+            qtFirstIn: begin
+              Assert(FQueueFirstInMaxCount > 0);
+            end;
+            qtFirstOut: begin
+              Assert(FQueueFirstOutMaxCount > 0);
+              FQueueFirstOut.ExcludeItem(VCurrIndex, VCurrItem);
+              VCurrItem.Value := Result;
+              if FQueueMulti.Count + 1 > FQueueMultiMaxCount then begin
+                FreeItemFromQueueMulti;
+              end else begin
+                if FQueueFirstInMaxCount > 0 then begin
+                  if FQueueFirstIn.Count + FQueueMulti.Count + 1 > FQueueMultiMaxCount + FQueueFirstInMaxCount then begin
+                    MoveItemFromFirstInToFirstOut;
+                  end;
+                end;
+              end;
+              FQueueMulti.PushItemToHead(VCurrIndex, VCurrItem);
+            end;
+          end;
+        end else begin
+          if FFreeItems.Count > 0 then begin
+            VCurrItem := FFreeItems.Pop(VCurrIndex);
+            if FQueueFirstInMaxCount > 0 then begin
+              if FQueueFirstIn.Count + FQueueMulti.Count + 1 > FQueueMultiMaxCount + FQueueFirstInMaxCount then begin
+                MoveItemFromFirstInToFirstOut;
+              end;
+            end;
+          end else begin
+            if FQueueFirstInMaxCount > 0 then begin
+              if FQueueFirstIn.Count + 1 > FQueueFirstInMaxCount then begin
+                VCurrItem := FQueueFirstOut.PopItemFromTail(VCurrIndex);
+                FHash.RemoveItem(GetIndexByKey(VCurrItem.Key), VCurrIndex, VCurrItem);
+                MoveItemFromFirstInToFirstOut;
+              end else begin
+                VCurrItem := FQueueMulti.PopItemFromTail(VCurrIndex);
+                FHash.RemoveItem(GetIndexByKey(VCurrItem.Key), VCurrIndex, VCurrItem);
+              end;
+            end else if FQueueFirstOutMaxCount > 0 then begin
+              if FQueueMulti.Count > FQueueMultiMaxCount then begin
+                VCurrItem := FQueueMulti.PopItemFromTail(VCurrIndex);
+                FHash.RemoveItem(GetIndexByKey(VCurrItem.Key), VCurrIndex, VCurrItem);
+              end else begin
+                VCurrItem := FQueueFirstOut.PopItemFromTail(VCurrIndex);
+                FHash.RemoveItem(GetIndexByKey(VCurrItem.Key), VCurrIndex, VCurrItem);
+              end;
+            end else begin
+              VCurrItem := FQueueMulti.PopItemFromTail(VCurrIndex);
+              FHash.RemoveItem(GetIndexByKey(VCurrItem.Key), VCurrIndex, VCurrItem);
+            end;
+          end;
+          VCurrItem.Key := AKey;
+          if FQueueFirstInMaxCount > 0 then begin
+            VCurrItem.Value := Result;
+            FQueueFirstIn.PushItemToHead(VCurrIndex, VCurrItem);
+          end else if FQueueFirstOutMaxCount > 0 then begin
+            FQueueFirstOut.PushItemToHead(VCurrIndex, VCurrItem);
+          end else begin
+            VCurrItem.Value := Result;
+            FQueueMulti.PushItemToHead(VCurrIndex, VCurrItem);
+          end;
+          FHash.AddItem(VHashIndex, VCurrIndex, VCurrItem);
+        end;
+      finally
+        FCS.EndWrite;
+      end;
+    finally
+      FAddCounter.FinishOperation(VCounterContext);
     end;
   end;
 end;

@@ -2184,25 +2184,6 @@ begin
   VMatrixList.Add(VTileMatrix);
 
   // Marks from MarkSystem
-  VBitmap :=
-    ReadBitmapByFileRef(
-      GState.ResourceProvider,
-      'RED.png',
-      GState.ContentTypeManager,
-      nil
-    );
-  VMarkerChangeable := nil;
-  if VBitmap <> nil then begin
-    VMarkerChangeable :=
-      TMarkerDrawableChangeableFaked.Create(
-        TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(VBitmap.Size.X / 2, VBitmap.Size.Y))
-      );
-  end;
-  VMarkerProviderForVectorItem :=
-    TMarkerProviderForVectorItemWithCache.Create(
-      GState.HashFunction,
-      TMarkerProviderForVectorItemForMarkPoints.Create(GState.Bitmap32StaticFactory, VMarkerChangeable)
-    );
   VDebugName := 'Marks';
   VVectorOversizeRect := FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.DrawOrderConfig.OverSizeRect;
   VPerfList := VPerfListGroup.CreateAndAddNewSubList(VDebugName);
@@ -2239,6 +2220,28 @@ begin
       VPerfList.CreateAndAddNewCounter('FindItems'),
       24
     );
+
+  VBitmap :=
+    ReadBitmapByFileRef(
+      GState.ResourceProvider,
+      'RED.png',
+      GState.ContentTypeManager,
+      nil
+    );
+  VMarkerChangeable := nil;
+  if VBitmap <> nil then begin
+    VMarkerChangeable :=
+      TMarkerDrawableChangeableFaked.Create(
+        TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(VBitmap.Size.X / 2, VBitmap.Size.Y))
+      );
+  end;
+  VMarkerProviderForVectorItem :=
+    TMarkerProviderForVectorItemWithCache.Create(
+      VPerfList.CreateAndAddNewSubList('Marker'),
+      GState.HashFunction,
+      TMarkerProviderForVectorItemForMarkPoints.Create(GState.Bitmap32StaticFactory, VMarkerChangeable)
+    );
+
   VVectorRenderer :=
     TVectorTileRendererChangeableForMarksLayer.Create(
       FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.CaptionDrawConfig,

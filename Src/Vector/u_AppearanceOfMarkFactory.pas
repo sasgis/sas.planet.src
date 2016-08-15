@@ -29,6 +29,7 @@ uses
   i_HashFunction,
   i_Appearance,
   i_AppearanceOfMarkFactory,
+  i_InternalPerformanceCounter,
   i_HashInterfaceCache,
   u_BaseInterfacedObject;
 
@@ -62,6 +63,7 @@ type
     ): IAppearance;
   public
     constructor Create(
+      const APerfCounterList: IInternalPerformanceCounterList;
       const AHashFunction: IHashFunction
     );
   end;
@@ -92,13 +94,17 @@ type
 
 { TAppearanceOfMarkFactory }
 
-constructor TAppearanceOfMarkFactory.Create(const AHashFunction: IHashFunction);
+constructor TAppearanceOfMarkFactory.Create(
+  const APerfCounterList: IInternalPerformanceCounterList;
+  const AHashFunction: IHashFunction
+);
 begin
   inherited Create;
   FHashFunction := AHashFunction;
   FCache :=
     THashInterfaceCache2Q.Create(
       GSync.SyncVariable.Make(Self.ClassName),
+      APerfCounterList.CreateAndAddNewSubList('Cache'),
       Self.CreateByKey,
       10,  // 2^10 elements in hash-table
       0,   // LRU 256 elements

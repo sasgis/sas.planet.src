@@ -26,6 +26,7 @@ uses
   i_HashFunction,
   i_MapVersionFactory,
   i_MapVersionFactoryList,
+  i_InternalPerformanceCounter,
   u_BaseInterfacedObject;
 
 type
@@ -37,6 +38,7 @@ type
     function GetSimpleVersionFactory: IMapVersionFactory;
   public
     constructor Create(
+      const APerfCounterList: IInternalPerformanceCounterList;
       const AHashFunction: IHashFunction
     );
   end;
@@ -49,11 +51,12 @@ uses
 { TMapVersionFactoryList }
 
 constructor TMapVersionFactoryList.Create(
+  const APerfCounterList: IInternalPerformanceCounterList;
   const AHashFunction: IHashFunction
 );
 begin
   inherited Create;
-  FSimpleVersionFactory := TMapVersionFactorySimpleString.Create(AHashFunction);
+  FSimpleVersionFactory := TMapVersionFactorySimpleString.Create(APerfCounterList, AHashFunction);
 end;
 
 function TMapVersionFactoryList.GetSimpleVersionFactory: IMapVersionFactory;

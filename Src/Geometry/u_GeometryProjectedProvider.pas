@@ -10,6 +10,7 @@ uses
   i_GeometryProjectedProvider,
   i_HashFunction,
   i_GeometryProjectedFactory,
+  i_InternalPerformanceCounter,
   i_HashInterfaceCache,
   u_BaseInterfacedObject;
 
@@ -35,6 +36,7 @@ type
     ): IGeometryProjectedPolygon;
   public
     constructor Create(
+      const APerfCounterList: IInternalPerformanceCounterList;
       const AHashFunction: IHashFunction;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory
     );
@@ -64,6 +66,7 @@ const
   CMinProjectedPolygonSize = 10;
 
 constructor TGeometryProjectedProvider.Create(
+  const APerfCounterList: IInternalPerformanceCounterList;
   const AHashFunction: IHashFunction;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory
 );
@@ -74,6 +77,7 @@ begin
   FCache :=
     THashInterfaceCache2Q.Create(
       GSync.SyncVariable.Make(Self.ClassName),
+      APerfCounterList.CreateAndAddNewSubList('Cache'),
       Self.CreateByKey,
       14,  // 2^14 elements in hash-table
       1000,

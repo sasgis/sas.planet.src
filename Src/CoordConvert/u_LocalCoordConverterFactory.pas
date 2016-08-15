@@ -30,6 +30,7 @@ uses
   i_Projection,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactory,
+  i_InternalPerformanceCounter,
   i_HashInterfaceCache,
   u_BaseInterfacedObject;
 
@@ -62,6 +63,7 @@ type
     ): ILocalCoordConverter;
   public
     constructor Create(
+      const APerfCounterList: IInternalPerformanceCounterList;
       const AHashFunction: IHashFunction
     );
   end;
@@ -94,6 +96,7 @@ type
 { TLocalCoordConverterFactory }
 
 constructor TLocalCoordConverterFactory.Create(
+  const APerfCounterList: IInternalPerformanceCounterList;
   const AHashFunction: IHashFunction
 );
 begin
@@ -102,6 +105,7 @@ begin
   FCache :=
     THashInterfaceCache2Q.Create(
       GSync.SyncVariable.Make(Self.ClassName),
+      APerfCounterList.CreateAndAddNewSubList('Cache'),
       Self.CreateByKey,
       13,  // 2^13 elements in hash-table
       0,   // LRU 1024 elements

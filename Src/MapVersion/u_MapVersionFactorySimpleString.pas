@@ -27,6 +27,7 @@ uses
   i_HashFunction,
   i_MapVersionInfo,
   i_MapVersionFactory,
+  i_InternalPerformanceCounter,
   i_HashInterfaceCache,
   u_BaseInterfacedObject;
 
@@ -51,6 +52,7 @@ type
     function IsSameFactoryClass(const AMapVersionFactory: IMapVersionFactory): Boolean;
   public
     constructor Create(
+      const APerfCounterList: IInternalPerformanceCounterList;
       const AHashFunction: IHashFunction
     );
   end;
@@ -66,6 +68,7 @@ uses
 { TMapVersionFactorySimpleString }
 
 constructor TMapVersionFactorySimpleString.Create(
+  const APerfCounterList: IInternalPerformanceCounterList;
   const AHashFunction: IHashFunction);
 begin
   Assert(Assigned(AHashFunction));
@@ -74,6 +77,7 @@ begin
   FCache :=
     THashInterfaceCache2Q.Create(
       GSync.SyncVariable.Make(Self.ClassName),
+      APerfCounterList.CreateAndAddNewSubList('Cache'),
       Self.CreateByKey,
       10,  // 2^10 elements in hash-table
       256,

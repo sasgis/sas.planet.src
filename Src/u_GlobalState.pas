@@ -333,6 +333,7 @@ uses
   u_ConfigDataProviderByPathConfig,
   i_InternalDomainInfoProvider,
   i_TextByVectorItem,
+  i_LocalCoordConverterFactory,
   i_ImageResamplerFactoryChangeable,
   u_MapTypeSetBuilderFactory,
   u_MapTypeListBuilderFactory,
@@ -446,6 +447,7 @@ var
   VTileDownloadResampler: IImageResamplerFactoryChangeable;
   VNotifierSync: IReadWriteSync;
   VOneOperationSync: IReadWriteSync;
+  VLocalCoordConverterFactory: ILocalCoordConverterFactory;
 begin
   inherited Create;
 
@@ -487,9 +489,17 @@ begin
     );
 
   FImageResamplerFactoryList := TImageResamplerFactoryListStaticSimple.Create;
-  FMapVersionFactoryList := TMapVersionFactoryList.Create(FHashFunction);
+  FMapVersionFactoryList :=
+    TMapVersionFactoryList.Create(
+      FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('MapVersion'),
+      FHashFunction
+    );
 
-  FAppearanceOfMarkFactory := TAppearanceOfMarkFactory.Create(FHashFunction);
+  FAppearanceOfMarkFactory :=
+    TAppearanceOfMarkFactory.Create(
+      FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('AppearanceOfMark'),
+      FHashFunction
+    );
   FInternalBrowserContent := TInternalBrowserLastContent.Create;
 
 
@@ -566,10 +576,13 @@ begin
   FDatumFactory := TDatumFactory.Create(FHashFunction);
   FProjectionSetFactory := TProjectionSetFactorySimple.Create(FHashFunction, FDatumFactory);
   FProjectionSetList := TProjectionSetListStaticSimple.Create(FProjectionSetFactory);
-  FLocalConverterFactory :=
-    TLocalCoordConverterFactorySimpe.Create(
-      TLocalCoordConverterFactory.Create(FHashFunction)
+  VLocalCoordConverterFactory :=
+    TLocalCoordConverterFactory.Create(
+      FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('LocalCoordConverter'),
+      FHashFunction
     );
+  FLocalConverterFactory :=
+    TLocalCoordConverterFactorySimpe.Create(VLocalCoordConverterFactory);
 
   FCacheConfig := TGlobalCacheConfig.Create(FBaseCahcePath);
   FDownloadInfo := TDownloadInfoSimple.Create(nil);
@@ -642,6 +655,7 @@ begin
   FMapCalibrationList := TMapCalibrationListBasic.Create;
   FProjectedGeometryProvider :=
     TGeometryProjectedProvider.Create(
+      FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('GeometryProject'),
       FHashFunction,
       FVectorGeometryProjectedFactory
     );
