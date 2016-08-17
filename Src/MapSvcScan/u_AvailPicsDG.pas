@@ -336,8 +336,7 @@ begin
       // date as 2007/05/06
       VDate := GetWord(VLine, ',', 2);
       if (Length(VDate) >= 10) then begin
-        VDate[5] := DateSeparator;
-        VDate[8] := DateSeparator;
+        VDate := GetDateForCaption(VDate);
 
         // id = 7066342802
         VId := GetWord(VLine, ',', 1);

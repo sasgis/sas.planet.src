@@ -201,10 +201,7 @@ function TAvailPicsKS.ParseResponse(const AResultOk: IDownloadResultOk): Integer
       // image and storage identifiers
       VItemSubStorage := VOutParams.Values['sat_name'];
       VDate := VOutParams.Values['date'];
-      if (Length(VDate)>=10) then begin
-        VDate[5] := DateSeparator;
-        VDate[8] := DateSeparator;
-      end;
+      VDate := GetDateForCaption(VDate);
       VRealID := VOutParams.Values['id'];
       VID := VDate + ' [' + VRealID + '] '+VItemSubStorage;
 

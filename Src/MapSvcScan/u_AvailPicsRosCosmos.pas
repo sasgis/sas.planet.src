@@ -287,9 +287,7 @@ begin
 
         try
           VParams := TStringList.Create;
-          VDate := copy(VSurvayDate, 1, 10);
-          VDate[5] := DateSeparator;
-          VDate[8] := DateSeparator;
+          VDate := GetDateForCaption(VSurvayDate);
           VParams.Values['id'] := VId;
           VParams.Values['dateTime'] := VDateTime;
           VParams.Values['order'] := PlacemarkNode.GetAttribute('order');

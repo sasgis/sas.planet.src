@@ -175,10 +175,8 @@ begin
       // check
       if (0 < Length(VVintageStart)) and (0 < Length(VVintageEnd)) then begin
         // set user date format
-        VVintageStart[5] := DateSeparator;
-        VVintageStart[8] := DateSeparator;
-        VVintageEnd[5] := DateSeparator;
-        VVintageEnd[8] := DateSeparator;
+        VVintageStart := GetDateForCaption(VVintageStart);
+        VVintageEnd := GetDateForCaption(VVintageEnd);
 
         if VVintageStart <> VVintageEnd then begin
            VVintageStart := VVintageStart + ' - '+ VVintageEnd;

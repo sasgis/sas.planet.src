@@ -110,19 +110,15 @@ uses
   u_GeoToStrFunc;
 
 function CheckHiResResolution(const AStrResolution: String): Boolean;
-var VRes: String;
 begin
   if (0=Length(AStrResolution)) then begin
     // if no resolution info - show image
     Result := TRUE;
   end else begin
     // try co check landsat
-    VRes := AStrResolution;
     try
-      if (DecimalSeparator<>'.') and (System.Pos(DecimalSeparator, VRes)>0) then
-        VRes := StringReplace(VRes, DecimalSeparator, '.', []);
       // do not show "landsat" with 15 and 25 meters
-      Result := (StrPointToFloat(VRes)<=14);
+      Result := (str2r(AStrResolution) <= 14);
     except
       Result := TRUE;
     end;

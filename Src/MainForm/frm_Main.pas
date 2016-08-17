@@ -1923,9 +1923,9 @@ begin
   end;
 
 
-  NDegScale50000.Caption := '0' + DecimalSeparator + '5°';
-  NDegScale25000.Caption := '0' + DecimalSeparator + '25°';
-  NDegScale10000.Caption := '0' + DecimalSeparator + '125°';
+  NDegScale50000.Caption := FloatToStr(0.5) + '°';
+  NDegScale25000.Caption := FloatToStr(0.25) + '°';
+  NDegScale10000.Caption := FloatToStr(0.125) + '°';
   VDegScale := FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Scale;
   if FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible then begin
     if VDegScale = 12500000 then begin

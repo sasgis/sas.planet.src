@@ -199,8 +199,7 @@ begin
           try
             VParams := TStringList.Create;
             VDate := copy(SubNode.GetAttribute('acq_date'), 1, 10);
-            VDate[5] := DateSeparator;
-            VDate[8] := DateSeparator;
+            VDate := GetDateForCaption(VDate);
 
             VposList := SubNode.GetAttribute('uid');
             VParams.Values['uid'] := VposList;
