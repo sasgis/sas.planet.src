@@ -15,12 +15,12 @@ type
   end;
 
   PInterfaceWithIdList = ^TInterfaceWithIdList;
-  TInterfaceWithIdList = array[0..MaxListSize - 1] of TInterfaceWithId;
+  TInterfaceWithIdList = array of TInterfaceWithId;
   TInterfaceWithIDListSortCompare = function(const Item1, Item2: Integer): Integer of object;
 
   TIDInterfaceList = class(TIDListBase, IIDInterfaceList)
   protected
-    FList: PInterfaceWithIdList;
+    FList: TInterfaceWithIdList;
     procedure SetCapacity(NewCapacity: Integer); override;
     procedure SetCount(NewCount: Integer); override;
     procedure Delete(Index: Integer); override;
@@ -165,7 +165,7 @@ begin
     Insert(VIndex, AID, AInterface);
     Result := AInterface;
   end else begin
-    Result := FList^[VIndex].Obj;
+    Result := FList[VIndex].Obj;
   end;
 end;
 
@@ -174,10 +174,10 @@ begin
   if (Index < 0) or (Index >= FCount) then begin
     Error(@SListIndexError, Index);
   end;
-  FList^[Index].Obj := nil;
+  FList[Index].Obj := nil;
   Dec(FCount);
   if Index < FCount then begin
-    System.Move(FList^[Index + 1], FList^[Index],
+    System.Move(FList[Index + 1], FList[Index],
       (FCount - Index) * SizeOf(TInterfaceWithId));
   end;
 end;
@@ -187,7 +187,7 @@ var
   VIndex: Integer;
 begin
   if Find(AID, VIndex) then begin
-    Result := FList^[VIndex].Obj;
+    Result := FList[VIndex].Obj;
   end else begin
     Result := nil;
   end;
@@ -195,12 +195,12 @@ end;
 
 function TIDInterfaceList.GetEnumUnknown: IEnumUnknown;
 begin
-  Result := TIDListEnumUnknown.Create(Self, FList, FCount);
+  Result := TIDListEnumUnknown.Create(Self, Addr(FList), FCount);
 end;
 
 function TIDInterfaceList.GetItemID(Index: Integer): Integer;
 begin
-  Result := FList^[Index].ID;
+  Result := FList[Index].ID;
 end;
 
 procedure TIDInterfaceList.Insert(
@@ -215,12 +215,12 @@ begin
     Grow;
   end;
   if Index < FCount then begin
-    System.Move(FList^[Index], FList^[Index + 1],
+    System.Move(FList[Index], FList[Index + 1],
       (FCount - Index) * SizeOf(TInterfaceWithId));
   end;
-  FillChar(FList^[Index], SizeOf(TInterfaceWithId), 0);
-  FList^[Index].ID := AID;
-  FList^[Index].Obj := AObj;
+  FillChar(FList[Index], SizeOf(TInterfaceWithId), 0);
+  FList[Index].ID := AID;
+  FList[Index].Obj := AObj;
   Inc(FCount);
 end;
 
@@ -235,7 +235,7 @@ begin
     raise Exception.Create(LoadResString(@SInterfaceIsNilError));
   end;
   if Find(AID, VIndex) then begin
-    FList^[VIndex].Obj := AInterface;
+    FList[VIndex].Obj := AInterface;
   end else begin
     Insert(VIndex, AID, AInterface);
   end;
@@ -243,11 +243,11 @@ end;
 
 procedure TIDInterfaceList.SetCapacity(NewCapacity: Integer);
 begin
-  if (NewCapacity < FCount) or (NewCapacity > MaxListSize) then begin
+  if (NewCapacity < FCount) then begin
     Error(@SListCapacityError, NewCapacity);
   end;
   if NewCapacity <> FCapacity then begin
-    ReallocMem(FList, NewCapacity * SizeOf(TInterfaceWithId));
+    SetLength(FList, NewCapacity);
     FCapacity := NewCapacity;
   end;
 end;
@@ -256,14 +256,14 @@ procedure TIDInterfaceList.SetCount(NewCount: Integer);
 var
   I: Integer;
 begin
-  if (NewCount < 0) or (NewCount > MaxListSize) then begin
+  if (NewCount < 0) then begin
     Error(@SListCountError, NewCount);
   end;
   if NewCount > FCapacity then begin
     SetCapacity(NewCount);
   end;
   if NewCount > FCount then begin
-    FillChar(FList^[FCount], (NewCount - FCount) * SizeOf(TInterfaceWithID), 0);
+    FillChar(FList[FCount], (NewCount - FCount) * SizeOf(TInterfaceWithID), 0);
   end else begin
     for I := FCount - 1 downto NewCount do begin
       Delete(I);
@@ -310,7 +310,7 @@ end;
 procedure TIDInterfaceList.Sort;
 begin
   if (FList <> nil) and (Count > 0) then begin
-    QuickSort(FList, 0, Count - 1, CompareId);
+    QuickSort(Addr(FList), 0, Count - 1, CompareId);
   end;
 end;
 
