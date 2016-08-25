@@ -1603,6 +1603,7 @@
 			</DCCReference>
 			<DCCReference Include="Src\UpdateChecker\i_UpdateDownloader.pas"/>
 			<DCCReference Include="Src\UpdateChecker\u_UpdateDownloader.pas"/>
+			<DCCReference Include="Src\UrlByCoord\i_UrlByCoordProvider.pas"/>
 			<DCCReference Include="Src\VectorLoaders\i_XmlVectorObjects.pas"/>
 			<DCCReference Include="Src\VectorLoaders\u_CsvParser.pas"/>
 			<DCCReference Include="Src\VectorLoaders\u_HlgParser.pas"/>
@@ -1694,7 +1695,6 @@
 			<DCCReference Include="Src\i_TileRect.pas"/>
 			<DCCReference Include="Src\i_TileRectChangeable.pas"/>
 			<DCCReference Include="Src\i_TreeChangeable.pas"/>
-			<DCCReference Include="Src\i_UrlByCoordProvider.pas"/>
 			<DCCReference Include="Src\i_UsedMarksConfig.pas"/>
 			<DCCReference Include="Src\i_ValueToStringConverter.pas"/>
 			<DCCReference Include="Src\i_ValueToStringConverterConfig.pas"/>
