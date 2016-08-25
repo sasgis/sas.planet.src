@@ -142,7 +142,7 @@ begin
 
   if VNeedResume then begin
     if Assigned(FThread) then begin
-      FThread.Resume;
+      FThread.Start;
     end;
   end;
   inherited;
@@ -243,7 +243,7 @@ procedure TThread4InterfacedThread.Start(const ARef: IInterface);
 begin
   FRef := ARef;
   if not Terminated then begin
-    Resume;
+    inherited Start;
   end;
 end;
 

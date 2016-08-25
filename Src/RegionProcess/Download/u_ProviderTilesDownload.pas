@@ -260,7 +260,7 @@ begin
         ASession.ReplaceTneOlderDate
       );
     if not APaused then begin
-      VThread.Resume;
+      VThread.Start;
     end;
   end;
 end;

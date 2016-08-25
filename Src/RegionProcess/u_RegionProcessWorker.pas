@@ -29,8 +29,6 @@ type
   protected
     procedure Execute; override;
   public
-    procedure Start;
-  public
     constructor Create(
       const ATask: IRegionProcessTask;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
@@ -112,11 +110,6 @@ procedure TRegionProcessWorker.ShowMessageSync(const AMessage: string);
 begin
   FMessageForShow := AMessage;
   Synchronize(SynShowMessage);
-end;
-
-procedure TRegionProcessWorker.Start;
-begin
-  Resume;
 end;
 
 procedure TRegionProcessWorker.SynShowMessage;

@@ -87,7 +87,7 @@ begin
   if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
     Terminate;
   end else begin
-    Resume;
+    Start;
   end;
 end;
 

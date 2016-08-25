@@ -1471,7 +1471,7 @@ begin
                          AChkBox
                          ) do
     begin
-      Resume;
+      Start;
     end;
   end;
 end;
