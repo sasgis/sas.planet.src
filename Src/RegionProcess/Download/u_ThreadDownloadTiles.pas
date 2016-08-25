@@ -27,6 +27,9 @@ uses
   Windows,
   SyncObjs,
   Classes,
+  {$IFNDef UNICODE}
+  Compatibility,
+  {$ENDIF}
   i_Listener,
   i_LogSimple,
   i_MapVersionInfo,

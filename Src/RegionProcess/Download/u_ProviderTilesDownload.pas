@@ -107,6 +107,7 @@ uses
   Math,
   IniFiles,
   {$IFNDef UNICODE}
+  Compatibility,
   CompatibilityIniFiles,
   {$ENDIF}
   i_MapType,

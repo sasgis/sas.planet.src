@@ -395,6 +395,7 @@ type
   TUTF8Encoding = SysUtils.TUTF8Encoding;
   TUnicodeEncoding = SysUtils.TUnicodeEncoding;
   TBigEndianUnicodeEncoding = SysUtils.TBigEndianUnicodeEncoding;
+  TThread = Classes.TThread;
 
 {$ELSE Compiler12_Up}
 
@@ -516,6 +517,12 @@ type
     function GetChars(Bytes: PByte; ByteCount: Integer; Chars: PChar; CharCount: Integer): Integer; overload; override;
   public
     function GetPreamble: TBytes; override;
+  end;
+
+  TThread = class(Classes.TThread)
+  public
+    // Use Start after creating a suspended thread.
+    procedure Start;
   end;
 
 {$ENDIF Compiler12_Up}
@@ -2383,6 +2390,13 @@ begin
   SetLength(Result, 2);
   Result[0] := $FE;
   Result[1] := $FF;
+end;
+
+{ TThread }
+
+procedure TThread.Start;
+begin
+  Resume;
 end;
 
 initialization

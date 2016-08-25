@@ -287,6 +287,9 @@ implementation
 
 uses
   Math,
+  {$IFNDef UNICODE}
+  Compatibility,
+  {$ENDIF}
   c_CoordConverter,
   i_ImportConfig,
   i_VectorDataItemSimple,
