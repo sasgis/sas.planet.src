@@ -167,6 +167,27 @@ type
     constructor Create;
   end;
 
+  TUrlByCoordProviderRosreestr = class(TUrlByCoordProviderBase)
+  protected
+    function GetUrlByLonLat(
+      const AProjection: IProjection;
+      const ALonLat: TDoublePoint
+    ): AnsiString; override;
+  public
+    constructor Create(
+      const AProjectionSetFactory: IProjectionSetFactory
+    );
+  end;
+
+  TUrlByCoordProviderTerraserver = class(TUrlByCoordProviderLonLatBase)
+  protected
+    function GetUrlByLonLat(
+      const ALonLat: TDoublePoint
+    ): AnsiString; override;
+  public
+    constructor Create;
+  end;
+
 implementation
 
 uses
@@ -205,6 +226,7 @@ begin
   VProjection.ValidatePixelPosFloatStrict(VMapPoint, False);
   VLonLat := VProjection.PixelPosFloat2LonLat(VMapPoint);
   VProjectionMain := FMainProjectionSet.GetSuitableProjection(VProjection);
+  VProjectionMain.ProjectionType.ValidateLonLatPos(VLonLat);
   VUrl := GetUrlByLonLat(VProjectionMain, VLonLat);
   Result := TDownloadRequest.Create(VUrl, '', nil);
 end;
@@ -436,6 +458,52 @@ begin
       'userid=&map=WORLD&newloc=1&WMO=&city=Or+choose+a+city+--%3E&Lat=' + RoundExAnsi(VLonLat.y, 2) + '&Lon=' + RoundExAnsi(VLonLat.x, 2)
     );
   Result := TDownloadPostRequest.Create(VUrl, VHeaders, VPostData, nil);
+end;
+
+{ TUrlByCoordProviderRosreestr }
+
+constructor TUrlByCoordProviderRosreestr.Create(
+  const AProjectionSetFactory: IProjectionSetFactory
+);
+begin
+  inherited Create(AProjectionSetFactory.GetProjectionSetByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256));
+end;
+
+function TUrlByCoordProviderRosreestr.GetUrlByLonLat(
+  const AProjection: IProjection;
+  const ALonLat: TDoublePoint
+): AnsiString;
+var
+  VMetr: TDoublePoint;
+begin
+  VMetr := AProjection.ProjectionType.LonLat2Metr(ALonLat);
+  Result :=
+    'http://pkk5.rosreestr.ru/#' +
+    'x=' + RoundExAnsi(VMetr.x, 9) +
+    '&y=' + RoundExAnsi(VMetr.y, 9) +
+    '&z=' + ALIntToStr(AProjection.Zoom);
+end;
+
+{ TUrlByCoordProviderTerraserver }
+
+constructor TUrlByCoordProviderTerraserver.Create;
+begin
+  inherited Create;
+end;
+
+function TUrlByCoordProviderTerraserver.GetUrlByLonLat(
+  const ALonLat: TDoublePoint
+): AnsiString;
+begin
+  Result :=
+    'http://www.terraserver.com/view.asp?' +
+    'cx=' + RoundExAnsi(ALonLat.x, 4) +
+    '&cy=' + RoundExAnsi(ALonLat.y, 4) +
+    // scale (by zoom and lat):
+    // 10 (failed), 5 if (zoom <= 15), 2.5 if (zoom = 16), 1.5 if (zoom = 17), 1, 0.75 (zoom = 18), 0.5, 0.25, 0.15 (failed)
+    // select from values above (round up to nearest) for another values
+    '&mpp=5' +
+    '&proj=4326&pic=img&prov=-1&stac=-1&ovrl=-1&vic=';
 end;
 
 end.
