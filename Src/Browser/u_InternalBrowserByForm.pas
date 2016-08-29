@@ -48,7 +48,6 @@ type
     { IInternalBrowser }
     procedure ShowMessage(const ACaption, AText: string);
     procedure Navigate(const ACaption, AUrl: string);
-    procedure NavigatePost(const ACaption, AUrl, AReferer, APostData: string);
     procedure NavigateByRequest(const ACaption: string; const ARequest: IDownloadRequest);
   public
     constructor Create(
@@ -106,12 +105,6 @@ procedure TInternalBrowserByForm.NavigateByRequest(
 begin
   SafeCreateInternal;
   FfrmInternalBrowser.NavigateByRequest(ACaption, ARequest);
-end;
-
-procedure TInternalBrowserByForm.NavigatePost(const ACaption, AUrl, AReferer, APostData: string);
-begin
-  SafeCreateInternal;
-  FfrmInternalBrowser.NavigatePost(ACaption, AUrl, AReferer, APostData);
 end;
 
 procedure TInternalBrowserByForm.SafeCreateInternal;

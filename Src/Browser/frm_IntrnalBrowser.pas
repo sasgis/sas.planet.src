@@ -100,7 +100,6 @@ type
     ); reintroduce;
 
     procedure Navigate(const ACaption, AUrl: string);
-    procedure NavigatePost(const ACaption, AUrl, AReferer, APostData: string);
     procedure NavigateByRequest(const ACaption: string; const ARequest: IDownloadRequest);
   end;
 
@@ -250,31 +249,6 @@ begin
   VFlags := EmptyParam;
   VTargetFrameName := EmptyParam;
   EmbeddedWB1.Navigate(ARequest.Url, VFlags, VTargetFrameName, VPostData, VHeaders);
-end;
-
-procedure TfrmIntrnalBrowser.NavigatePost(const ACaption, AUrl, AReferer, APostData: string);
-var
-  VPostData, VHeaders: OleVariant;
-  VFlags: OleVariant;
-  VTargetFrameName: OleVariant;
-  i: Integer;
-begin
-  EmbeddedWB1.HTMLCode.Text := SAS_STR_WiteLoad;
-  SetGoodCaption(ACaption);
-  ResetImageView(FALSE);
-  show;
-
-  VPostData := VarArrayCreate([0, Length(APostData) - 1], varByte);
-  for i := 1 to Length(APostData) do begin
-    VPostData[i - 1] := Ord(APostData[i]);
-  end;
-
-  VHeaders := 'Referer: ' + AReferer + #$D#$A +
-    'Content-Type: application/x-www-form-urlencoded';
-
-  VFlags := EmptyParam;
-  VTargetFrameName := EmptyParam;
-  EmbeddedWB1.Navigate(AUrl, VFlags, VTargetFrameName, VPostData, VHeaders);
 end;
 
 procedure TfrmIntrnalBrowser.OnConfigChange;
