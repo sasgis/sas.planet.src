@@ -102,6 +102,7 @@ uses
   i_PanelsPositionsSaveLoad,
   i_FillingMapPolygon,
   i_FavoriteMapSetHelper,
+  i_UrlByCoordProvider,
   i_CmdLineArgProcessor,
   u_CmdLineArgProcessorAPI,
   u_ShortcutManager,
@@ -747,6 +748,18 @@ type
     FEditMarkPoly: IVectorDataItem;
     FState: IMainFormState;
 
+    FUrlProviderBing: IUrlByCoordProvider;
+    FUrlProviderKosmosnimki: IUrlByCoordProvider;
+    FUrlProviderYandex: IUrlByCoordProvider;
+    FUrlProviderGoogle: IUrlByCoordProvider;
+    FUrlProviderGTopo30: IUrlByCoordProvider;
+    FUrlProviderSTRM3: IUrlByCoordProvider;
+    FUrlProviderOSM: IUrlByCoordProvider;
+    FUrlProviderNokia: IUrlByCoordProvider;
+    FUrlProviderNoaaForecast: IUrlByCoordProvider;
+    FUrlProviderRosreestr: IUrlByCoordProvider;
+    FUrlProviderTerraserver: IUrlByCoordProvider;
+
     FWinPosition: IMainWindowPosition;
     FPanelPositionSaveLoad: IPanelsPositionsSaveLoad;
 
@@ -802,6 +815,7 @@ type
     procedure InitLayers;
     procedure InitGridsMenus;
     procedure InitMouseCursors;
+    procedure InitUrlProviders;
     procedure LoadParams;
     procedure LoadPosition;
     procedure LoadMapIconsList;
@@ -964,6 +978,7 @@ uses
   i_TileStorage,
   i_TileStorageAbilities,
   i_TileRectChangeable,
+  i_DownloadRequest,
   i_GPS,
   i_GeoCoder,
   i_GPSRecorder,
@@ -1072,6 +1087,7 @@ uses
   u_InetFunc,
   u_BitmapFunc,
   u_ClipboardFunc,
+  u_UrlByCoordProvider,
   u_BitmapTileMatrixChangeableByVectorMatrix,
   u_VectorTileMatrixChangeableForVectorLayers,
   u_VectorTileMatrixChangeableByVectorSubsetChangeable,
@@ -1159,6 +1175,8 @@ begin
       GState.DebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('ViewState')
     );
   LoadPosition;
+
+  InitUrlProviders;
 
   LoadMapIconsList;
 
@@ -3374,6 +3392,21 @@ begin
   end;
 end;
 
+procedure TfrmMain.InitUrlProviders;
+begin
+  FUrlProviderBing := TUrlByCoordProviderBing.Create(GState.ProjectionSetFactory);
+  FUrlProviderKosmosnimki := TUrlByCoordProviderKosmosnimki.Create(GState.ProjectionSetFactory);
+  FUrlProviderYandex := TUrlByCoordProviderYandex.Create(GState.ProjectionSetFactory);
+  FUrlProviderGoogle := TUrlByCoordProviderGoogle.Create(GState.ProjectionSetFactory);
+  FUrlProviderGTopo30 := TUrlByCoordProviderGTopo30.Create;
+  FUrlProviderSTRM3 := TUrlByCoordProviderSTRM3.Create;
+  FUrlProviderOSM := TUrlByCoordProviderOSM.Create(GState.ProjectionSetFactory);
+  FUrlProviderNokia := TUrlByCoordProviderNokia.Create(GState.ProjectionSetFactory);
+  FUrlProviderNoaaForecast := TUrlByCoordProviderNoaaForecast.Create;
+  FUrlProviderRosreestr := TUrlByCoordProviderRosreestr.Create(GState.ProjectionSetFactory);
+  FUrlProviderTerraserver := TUrlByCoordProviderTerraserver.Create;
+end;
+
 procedure TfrmMain.InitMergePolygons;
 begin
   FMergePolygonsPresenter :=
@@ -3810,30 +3843,12 @@ end;
 
 procedure TfrmMain.RosreestrClick(Sender: TObject);
 var
-  VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjection;
-  VProjectionType: IProjectionType;
-  VMouseMapPoint: TDoublePoint;
-  VLonLat: TDoublePoint;
+  VRequest: IDownloadRequest;
 begin
-  VLocalConverter := FViewPortState.View.GetStatic;
-  VProjection := VLocalConverter.Projection;
-  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-  VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, False);
-  VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
-  VProjectionType := VProjection.ProjectionType;
-  if VProjectionType.ProjectionEPSG <> CGoogleProjectionEPSG then begin
-    VProjectionType := GState.ProjectionSetFactory.GetProjectionSetByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256).Zooms[0].ProjectionType;
+  VRequest := FUrlProviderRosreestr.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
+  if Assigned(VRequest) then begin
+    CopyDownloadRequestToClipboard(Handle, VRequest);
   end;
-  VProjectionType.ValidateLonLatPos(VLonLat);
-  VLonLat := VProjectionType.LonLat2Metr(VLonLat);
-  CopyStringToClipboard(
-    Handle,
-    'http://pkk5.rosreestr.ru/#' +
-    'x=' + RoundEx(VLonLat.x, 9) +
-    '&y=' + RoundEx(VLonLat.y, 9) +
-    '&z=' + IntToStr(VProjection.Zoom)
-  );
 end;
 
 procedure TfrmMain.OnStateChange;
@@ -4773,27 +4788,12 @@ end;
 
 procedure TfrmMain.terraserver1Click(Sender: TObject);
 var
-  VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjection;
-  VMouseMapPoint: TDoublePoint;
-  VLonLat: TDoublePoint;
+  VRequest: IDownloadRequest;
 begin
-  VLocalConverter := FViewPortState.View.GetStatic;
-  VProjection := VLocalConverter.Projection;
-  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-  VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, False);
-  VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
-  CopyStringToClipboard(
-    Handle,
-    'http://www.terraserver.com/view.asp?' +
-    'cx=' + RoundEx(VLonLat.x, 4) +
-    '&cy=' + RoundEx(VLonLat.y, 4) +
-    // scale (by zoom and lat):
-    // 10 (failed), 5 if (zoom <= 15), 2.5 if (zoom = 16), 1.5 if (zoom = 17), 1, 0.75 (zoom = 18), 0.5, 0.25, 0.15 (failed)
-    // select from values above (round up to nearest) for another values
-    '&mpp=5' +
-    '&proj=4326&pic=img&prov=-1&stac=-1&ovrl=-1&vic='
-  );
+  VRequest := FUrlProviderTerraserver.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
+  if Assigned(VRequest) then begin
+    CopyDownloadRequestToClipboard(Handle, VRequest);
+  end;
 end;
 
 procedure TfrmMain.WMGetMinMaxInfo(var Msg: TWMGetMinMaxInfo);
@@ -6152,22 +6152,12 @@ end;
 
 procedure TfrmMain.NoaaForecastMeteorology1Click(Sender: TObject);
 var
-  VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjection;
-  VMouseMapPoint: TDoublePoint;
-  VLonLat: TDoublePoint;
+  VRequest: IDownloadRequest;
 begin
-  VLocalConverter := FViewPortState.View.GetStatic;
-  VProjection := VLocalConverter.Projection;
-  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-  VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, False);
-  VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
-  GState.InternalBrowser.NavigatePost(
-    NoaaForecastMeteorology1.Caption,
-    'http://ready.arl.noaa.gov/ready2-bin/main.pl',
-    'http://ready.arl.noaa.gov/READYcmet.php',
-    'userid=&map=WORLD&newloc=1&WMO=&city=Or+choose+a+city+--%3E&Lat=' + RoundEx(VLonLat.y, 2) + '&Lon=' + RoundEx(VLonLat.x, 2)
-  );
+  VRequest := FUrlProviderNoaaForecast.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
+  if Assigned(VRequest) then begin
+    GState.InternalBrowser.NavigateByRequest(NoaaForecastMeteorology1.Caption, VRequest);
+  end;
 end;
 
 procedure TfrmMain.tbitmCopyToClipboardMainMapUrlClick(Sender: TObject);
@@ -7323,24 +7313,12 @@ end;
 
 procedure TfrmMain.nokiamapcreator1Click(Sender: TObject);
 var
-  VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjection;
-  VMouseMapPoint: TDoublePoint;
-  VLonLat: TDoublePoint;
+  VRequest: IDownloadRequest;
 begin
-  VLocalConverter := FViewPortState.View.GetStatic;
-  VProjection := VLocalConverter.Projection;
-  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-  VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, False);
-  VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
-  CopyStringToClipboard(
-    Handle,
-    'http://maps.nokia.com/mapcreator/?ns=True#|' +
-    R2StrPoint(VLonLat.y) + '|' +
-    R2StrPoint(VLonLat.x) + '|' +
-    IntToStr(VProjection.Zoom) +   // TODO: Calc Zoom for google projection set
-    '|0|0|'
-  );
+  VRequest := FUrlProviderNokia.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
+  if Assigned(VRequest) then begin
+    CopyDownloadRequestToClipboard(Handle, VRequest);
+  end;
 end;
 
 procedure TfrmMain.TBEditPathOkClick(Sender: TObject);
@@ -7543,25 +7521,12 @@ end;
 
 procedure TfrmMain.osmorg1Click(Sender: TObject);
 var
-  VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjection;
-  VMouseMapPoint: TDoublePoint;
-  VLonLat: TDoublePoint;
+  VRequest: IDownloadRequest;
 begin
-  VLocalConverter := FViewPortState.View.GetStatic;
-  VProjection := VLocalConverter.Projection;
-  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-  VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, False);
-  VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
-  CopyStringToClipboard(
-    Handle,
-    'http://www.openstreetmap.org/?lat=' +
-    R2StrPoint(VLonLat.y) +
-    '&lon=' + R2StrPoint(VLonLat.x) +
-    '&mlat=' + R2StrPoint(VLonLat.y) +
-    '&mlon=' + R2StrPoint(VLonLat.x) +
-    '&zoom=' + inttostr(VProjection.Zoom)   // TODO: Calc Zoom for google projection set
-  );
+  VRequest := FUrlProviderOSM.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
+  if Assigned(VRequest) then begin
+    CopyDownloadRequestToClipboard(Handle, VRequest);
+  end;
 end;
 
 procedure TfrmMain.ProcessOpenFiles(const AFiles: IStringListStatic);
@@ -7811,130 +7776,62 @@ end;
 
 procedure TfrmMain.NSRTM3Click(Sender: TObject);
 var
-  VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjection;
-  VMouseMapPoint: TDoublePoint;
-  VLonLat: TDoublePoint;
+  VRequest: IDownloadRequest;
 begin
-  VLocalConverter := FViewPortState.View.GetStatic;
-  VProjection := VLocalConverter.Projection;
-  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-  VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, False);
-  VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
-  GState.InternalBrowser.Navigate(
-    'http://api.geonames.org/srtm3',
-    'http://api.geonames.org/srtm3?' +
-    'lat=' + R2StrPoint(VLonLat.Y) + '&' +
-    'lng=' + R2StrPoint(VLonLat.X) + '&' +
-    'username=sasgis'
-  );
+  VRequest := FUrlProviderSTRM3.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
+  if Assigned(VRequest) then begin
+    GState.InternalBrowser.NavigateByRequest('http://api.geonames.org/srtm3', VRequest);
+  end;
 end;
 
 procedure TfrmMain.NGTOPO30Click(Sender: TObject);
 var
-  VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjection;
-  VMouseMapPoint: TDoublePoint;
-  VLonLat: TDoublePoint;
+  VRequest: IDownloadRequest;
 begin
-  VLocalConverter := FViewPortState.View.GetStatic;
-  VProjection := VLocalConverter.Projection;
-  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-  VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, False);
-  VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
-  GState.InternalBrowser.Navigate(
-    'http://api.geonames.org/gtopo30',
-    'http://api.geonames.org/gtopo30?' +
-    'lat=' + R2StrPoint(VLonLat.Y) + '&' +
-    'lng=' + R2StrPoint(VLonLat.X) + '&' +
-    'username=sasgis'
-  );
+  VRequest := FUrlProviderGTopo30.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
+  if Assigned(VRequest) then begin
+    GState.InternalBrowser.NavigateByRequest('http://api.geonames.org/gtopo30', VRequest);
+  end;
 end;
 
 procedure TfrmMain.Google1Click(Sender: TObject);
 var
-  VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjection;
-  VMouseMapPoint: TDoublePoint;
-  VLonLat: TDoublePoint;
+  VRequest: IDownloadRequest;
 begin
-  VLocalConverter := FViewPortState.View.GetStatic;
-  VProjection := VLocalConverter.Projection;
-  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-  VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, False);
-  VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
-  CopyStringToClipboard(
-    Handle,
-    'http://maps.google.com/?ie=UTF8&ll=' +
-    R2StrPoint(VLonLat.y) + ',' +
-    R2StrPoint(VLonLat.x) +
-    '&spn=57.249013,100.371094&t=h&z=' + inttostr(VProjection.Zoom)  // TODO: Calc Zoom for CGoogleProjectionEPSG projection set
-  );
+  VRequest := FUrlProviderGoogle.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
+  if Assigned(VRequest) then begin
+    CopyDownloadRequestToClipboard(Handle, VRequest);
+  end;
 end;
 
 procedure TfrmMain.YaLinkClick(Sender: TObject);
 var
-  VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjection;
-  VMouseMapPoint: TDoublePoint;
-  VLonLat: TDoublePoint;
+  VRequest: IDownloadRequest;
 begin
-  VLocalConverter := FViewPortState.View.GetStatic;
-  VProjection := VLocalConverter.Projection;
-  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-  VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, False);
-  VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
-  CopyStringToClipboard(
-    Handle,
-    'http://maps.yandex.ru/?ll=' +
-    R2StrPoint(round(VLonLat.x * 100000) / 100000) + '%2C' +
-    R2StrPoint(round(VLonLat.y * 100000) / 100000) +
-    '&z=' + IntToStr(VProjection.Zoom) +  // TODO: Calc Zoom for CYandexProjectionEPSG projection set
-    '&l=sat'
-  );
+  VRequest := FUrlProviderYandex.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
+  if Assigned(VRequest) then begin
+    CopyDownloadRequestToClipboard(Handle, VRequest);
+  end;
 end;
 
 procedure TfrmMain.kosmosnimkiru1Click(Sender: TObject);
 var
-  VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjection;
-  VMouseMapPoint: TDoublePoint;
-  VLonLat: TDoublePoint;
+  VRequest: IDownloadRequest;
 begin
-  VLocalConverter := FViewPortState.View.GetStatic;
-  VProjection := VLocalConverter.Projection;
-  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-  VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, False);
-  VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
-  CopyStringToClipboard(
-    Handle,
-    'http://kosmosnimki.ru/?x=' +
-    R2StrPoint(VLonLat.x) +
-    '&y=' + R2StrPoint(VLonLat.y) +
-    '&z=' + inttostr(VProjection.Zoom) +   // TODO: Calc Zoom for CGoogleProjectionEPSG projection set
-    '&fullscreen=False&mode=satellite'
-  );
+  VRequest := FUrlProviderKosmosnimki.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
+  if Assigned(VRequest) then begin
+    CopyDownloadRequestToClipboard(Handle, VRequest);
+  end;
 end;
 
 procedure TfrmMain.livecom1Click(Sender: TObject);
 var
-  VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjection;
-  VMouseMapPoint: TDoublePoint;
-  VLonLat: TDoublePoint;
+  VRequest: IDownloadRequest;
 begin
-  VLocalConverter := FViewPortState.View.GetStatic;
-  VProjection := VLocalConverter.Projection;
-  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-  VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, False);
-  VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
-  CopyStringToClipboard(
-    Handle,
-    'http://www.bing.com/maps/default.aspx?v=2&cp=' +
-    R2StrPoint(VLonLat.y) + '~' +
-    R2StrPoint(VLonLat.x) +
-    '&style=h&lvl=' + inttostr(VProjection.Zoom) // TODO: Calc Zoom for CGoogleProjectionEPSG projection set
-  );
+  VRequest := FUrlProviderBing.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
+  if Assigned(VRequest) then begin
+    CopyDownloadRequestToClipboard(Handle, VRequest);
+  end;
 end;
 
 procedure TfrmMain.LoadMapIconsList;
