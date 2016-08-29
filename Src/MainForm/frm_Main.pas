@@ -5785,11 +5785,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.tbitmOnlineHelpClick(Sender: TObject);
-begin
-  OpenUrlInBrowser('http://sasgis.org/wikisasiya/');
-end;
-
 procedure TfrmMain.N000Click(Sender: TObject);
 var
   VTag: Integer;
@@ -8107,6 +8102,11 @@ begin
   tbpmiVersions.Visible := (VMapType.TileStorage.StorageTypeAbilities.VersionSupport = tstvsMultiVersions) or tbpmiClearVersion.Visible or tbitmMakeVersionByMark.Visible;
 end;
 
+procedure TfrmMain.tbitmOnlineHelpClick(Sender: TObject);
+begin
+  OpenUrlInBrowser('http://sasgis.org/wikisasiya/');
+end;
+
 procedure TfrmMain.tbitmOnlineForumClick(Sender: TObject);
 begin
   OpenUrlInBrowser('http://sasgis.org/forum');
@@ -8115,6 +8115,11 @@ end;
 procedure TfrmMain.tbitmOnlineHomeClick(Sender: TObject);
 begin
   OpenUrlInBrowser('http://sasgis.org/');
+end;
+
+procedure TfrmMain.tbtmHelpBugTrackClick(Sender: TObject);
+begin
+  OpenUrlInBrowser('http://sasgis.org/mantis/');
 end;
 
 procedure TfrmMain.NParamsPopup(
@@ -8143,11 +8148,6 @@ begin
       end;
     end;
   end;
-end;
-
-procedure TfrmMain.tbtmHelpBugTrackClick(Sender: TObject);
-begin
-  OpenUrlInBrowser('http://sasgis.org/mantis/');
 end;
 
 procedure TfrmMain.TBEditPathMarshClick(Sender: TObject);
