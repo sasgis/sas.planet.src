@@ -22,7 +22,8 @@ unit i_InternalBrowser;
 
 interface
 
-
+uses
+  i_DownloadRequest;
 
 type
   IInternalBrowser = interface
@@ -30,6 +31,7 @@ type
     procedure ShowMessage(const ACaption, AText: string);
     procedure Navigate(const ACaption, AUrl: string);
     procedure NavigatePost(const ACaption, AUrl, AReferer, APostData: string);
+    procedure NavigateByRequest(const ACaption: string; const ARequest: IDownloadRequest);
   end;
 
 implementation

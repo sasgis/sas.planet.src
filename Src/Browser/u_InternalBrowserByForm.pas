@@ -24,6 +24,7 @@ interface
 
 uses
   i_ProxySettings,
+  i_DownloadRequest,
   i_InternalBrowser,
   i_LanguageManager,
   i_InternalBrowserLastContent,
@@ -48,6 +49,7 @@ type
     procedure ShowMessage(const ACaption, AText: string);
     procedure Navigate(const ACaption, AUrl: string);
     procedure NavigatePost(const ACaption, AUrl, AReferer, APostData: string);
+    procedure NavigateByRequest(const ACaption: string; const ARequest: IDownloadRequest);
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -95,6 +97,15 @@ procedure TInternalBrowserByForm.Navigate(const ACaption, AUrl: string);
 begin
   SafeCreateInternal;
   FfrmInternalBrowser.Navigate(ACaption, AUrl);
+end;
+
+procedure TInternalBrowserByForm.NavigateByRequest(
+  const ACaption: string;
+  const ARequest: IDownloadRequest
+);
+begin
+  SafeCreateInternal;
+  FfrmInternalBrowser.NavigateByRequest(ACaption, ARequest);
 end;
 
 procedure TInternalBrowserByForm.NavigatePost(const ACaption, AUrl, AReferer, APostData: string);

@@ -23,10 +23,12 @@ unit u_ClipboardFunc;
 interface
 
 uses
+  i_DownloadRequest,
   i_Bitmap32Static;
 
 procedure CopyBitmapToClipboard(AHandle: THandle; const ABitmap: IBitmap32Static);
 procedure CopyStringToClipboard(AHandle: THandle; const s: string);
+procedure CopyDownloadRequestToClipboard(AHandle: THandle; const ARequest: IDownloadRequest);
 
 implementation
 
@@ -74,6 +76,42 @@ begin
     end;
   finally
     btm.Free;
+  end;
+end;
+
+procedure CopyDownloadRequestToClipboard(AHandle: THandle; const ARequest: IDownloadRequest);
+var
+  VStr: UnicodeString;
+  hg: THandle;
+  P: Pointer;
+  VLen: Integer;
+begin
+  Assert(Assigned(ARequest));
+  if not Assigned(ARequest) then begin
+    Exit;
+  end;
+
+  if OpenClipboard(AHandle) then begin
+    try
+      EmptyClipBoard;
+      VStr := ARequest.Url;
+      VLen := (Length(VStr) + 1) * SizeOf(VStr[1]);
+      hg := GlobalAlloc(GMEM_DDESHARE or GMEM_MOVEABLE, VLen);
+      try
+        P := GlobalLock(hg);
+        try
+          Move(VStr[1], P^, VLen);
+          SetClipboardData(CF_UNICODETEXT, hg);
+        finally
+          GlobalUnlock(hg);
+        end;
+      except
+        GlobalFree(hg);
+        raise
+      end;
+    finally
+      CloseClipboard;
+    end;
   end;
 end;
 

@@ -25,6 +25,7 @@ interface
 uses
   Types,
   t_GeoTypes,
+  i_DownloadRequest,
   i_LocalCoordConverter;
 
 type
@@ -33,7 +34,7 @@ type
     function GetUrl(
       const AConverter: ILocalCoordConverter;
       const ALocalPoint: TPoint
-    ): string;
+    ): IDownloadRequest;
   end;
 
 implementation

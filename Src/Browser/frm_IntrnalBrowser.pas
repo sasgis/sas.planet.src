@@ -38,6 +38,7 @@ uses
   u_CommonFormAndFrameParents,
   i_WindowPositionConfig,
   i_ContentTypeManager,
+  i_DownloadRequest,
   i_LanguageManager,
   i_ProxySettings;
 
@@ -100,6 +101,7 @@ type
 
     procedure Navigate(const ACaption, AUrl: string);
     procedure NavigatePost(const ACaption, AUrl, AReferer, APostData: string);
+    procedure NavigateByRequest(const ACaption: string; const ARequest: IDownloadRequest);
   end;
 
 implementation
@@ -220,6 +222,34 @@ begin
   ResetImageView(FALSE);
   show;
   EmbeddedWB1.Navigate(AUrl);
+end;
+
+procedure TfrmIntrnalBrowser.NavigateByRequest(
+  const ACaption: string;
+  const ARequest: IDownloadRequest
+);
+var
+  VPostData, VHeaders: OleVariant;
+  VFlags: OleVariant;
+  VTargetFrameName: OleVariant;
+  VPostRequest: IDownloadPostRequest;
+  VSafeArray: PVarArray;
+begin
+  EmbeddedWB1.HTMLCode.Text := SAS_STR_WiteLoad;
+  SetGoodCaption(ACaption);
+  ResetImageView(FALSE);
+  Show;
+
+  VPostData := EmptyParam;
+  if Supports(ARequest, IDownloadPostRequest, VPostRequest) then begin
+    VPostData := VarArrayCreate([0, VPostRequest.PostData.Size - 1], varByte);
+    VSafeArray := VarArrayAsPSafeArray(VPostData);
+    Move(VPostRequest.PostData.Buffer^, VSafeArray.Data^, VPostRequest.PostData.Size);
+  end;
+  VHeaders := ARequest.RequestHeader;
+  VFlags := EmptyParam;
+  VTargetFrameName := EmptyParam;
+  EmbeddedWB1.Navigate(ARequest.Url, VFlags, VTargetFrameName, VPostData, VHeaders);
 end;
 
 procedure TfrmIntrnalBrowser.NavigatePost(const ACaption, AUrl, AReferer, APostData: string);

@@ -1258,6 +1258,7 @@ uses
   i_UpdateDownloader in 'Src\UpdateChecker\i_UpdateDownloader.pas',
   u_UpdateDownloader in 'Src\UpdateChecker\u_UpdateDownloader.pas',
   i_UrlByCoordProvider in 'Src\UrlByCoord\i_UrlByCoordProvider.pas',
+  u_UrlByCoordProvider in 'Src\UrlByCoord\u_UrlByCoordProvider.pas',
   i_XmlVectorObjects in 'Src\VectorLoaders\i_XmlVectorObjects.pas',
   u_CsvParser in 'Src\VectorLoaders\u_CsvParser.pas',
   u_HlgParser in 'Src\VectorLoaders\u_HlgParser.pas',
