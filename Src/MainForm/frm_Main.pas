@@ -6169,7 +6169,7 @@ var
   VMouseMapPoint: TDoublePoint;
   VMouseLonLat: TDoublePoint;
   VTile: TPoint;
-  VTileURL: string;
+  VRequest: IDownloadRequest;
 begin
   if TMenuItem(Sender).Tag <> 0 then begin
     VMapType := IMapType(TMenuItem(Sender).Tag);
@@ -6189,14 +6189,14 @@ begin
         VMapProjection.LonLat2TilePosFloat(VMouseLonLat),
         prToTopLeft
       );
-    VTileURL :=
-      VMapType.TileDownloadSubsystem.GetLink(
+    VRequest :=
+      VMapType.TileDownloadSubsystem.GetRequest(
         VTile,
         VMapProjection.Zoom,
         VMapType.VersionRequest.GetStatic.BaseVersion
       );
-    if VTileURL <> '' then begin
-      CopyStringToClipboard(Handle, VTileURL);
+    if Assigned(VRequest) then begin
+      CopyDownloadRequestToClipboard(Handle, VRequest);
     end else begin
       MessageDlg(_('Nothing to copy: URL is empty!'), mtError, [mbOK], 0);
     end;

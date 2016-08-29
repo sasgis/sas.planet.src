@@ -26,6 +26,7 @@ uses
   Types,
   i_NotifierOperation,
   i_MapVersionInfo,
+  i_DownloadRequest,
   i_TileRequestTask,
   i_TileDownloaderState;
 
@@ -43,11 +44,11 @@ type
       const ACheckTileSize: Boolean
     ): ITileRequestTask;
 
-    function GetLink(
+    function GetRequest(
       const AXY: TPoint;
       const AZoom: Byte;
       const AVersion: IMapVersionInfo
-    ): string;
+    ): IDownloadRequest;
 
     procedure Download(
       const ATileRequestTask: ITileRequestTask

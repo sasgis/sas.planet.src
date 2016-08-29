@@ -40,6 +40,7 @@ uses
   i_LanguageManager,
   i_GlobalDownloadConfig,
   i_ContentTypeInfo,
+  i_DownloadRequest,
   i_TileRequest,
   i_TileRequestTask,
   i_TileDownloaderState,
@@ -117,11 +118,11 @@ type
       const AVersion: IMapVersionInfo;
       const ACheckTileSize: Boolean
     ): ITileRequestTask;
-    function GetLink(
+    function GetRequest(
       const AXY: TPoint;
       const AZoom: Byte;
       const AVersion: IMapVersionInfo
-    ): string;
+    ): IDownloadRequest;
     procedure Download(
       const ATileRequestTask: ITileRequestTask
     );
@@ -425,18 +426,17 @@ begin
   end;
 end;
 
-function TTileDownloadSubsystem.GetLink(
+function TTileDownloadSubsystem.GetRequest(
   const AXY: TPoint;
   const AZoom: Byte;
   const AVersion: IMapVersionInfo
-): string;
+): IDownloadRequest;
 var
   VRequest: ITileRequest;
-  VDownloadRequest: ITileDownloadRequest;
   VRequestBuilder: ITileDownloadRequestBuilder;
   VRequestBuilderLock: IReadWriteSync;
 begin
-  Result := '';
+  Result := nil;
   if FZmpDownloadEnabled then begin
     if FTileDownloadRequestBuilderFactory.State.GetStatic.Enabled then begin
       VRequest :=
@@ -445,14 +445,13 @@ begin
           AZoom,
           AVersion
         );
-      VDownloadRequest := nil;
       if VRequest <> nil then begin
         VRequestBuilder := FRequestBuilderProviderInternal.RequestBuilder;
         VRequestBuilderLock := FRequestBuilderProviderInternal.RequestBuilderLock;
 
         VRequestBuilderLock.BeginWrite;
         try
-          VDownloadRequest :=
+          Result :=
             VRequestBuilder.BuildRequest(
               VRequest,
               nil,
@@ -462,9 +461,6 @@ begin
         finally
           VRequestBuilderLock.EndWrite;
         end;
-      end;
-      if VDownloadRequest <> nil then begin
-        Result := VDownloadRequest.Url;
       end;
     end;
   end;
