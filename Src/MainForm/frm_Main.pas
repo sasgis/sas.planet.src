@@ -74,6 +74,7 @@ uses
   i_StickToGrid,
   i_SensorList,
   i_SearchResultPresenter,
+  i_MergePolygonsResult,
   i_MergePolygonsPresenter,
   i_MainWindowPosition,
   i_SelectionRect,
@@ -736,6 +737,7 @@ type
 
     FSearchPresenter: ISearchResultPresenter;
     FMergePolygonsPresenter: IMergePolygonsPresenter;
+    FMergePolygonsResult: IMergePolygonsResult;
     FMapMoving: Boolean;
     FMapMovingButton: TMouseButton;
     FMapZoomAnimtion: Boolean;
@@ -1018,6 +1020,7 @@ uses
   u_MainFormConfig,
   u_SensorListStuped,
   u_SearchResultPresenterOnPanel,
+  u_MergePolygonsResult,
   u_MergePolygonsPresenterOnPanel,
   u_ListenerNotifierLinksList,
   u_TileDownloaderUIOneTile,
@@ -1073,6 +1076,8 @@ begin
   FMouseHandler := VMouseState;
   FMouseState := VMouseState;
   FFillingMapPolygon := TFillingMapPolygon.Create;
+  FMergePolygonsResult := TMergePolygonsResult.Create;
+
 
   FConfig := TMainFormConfig.Create(GState.MapType.FirstMainMapGUID);
   FConfig.ReadConfig(GState.MainConfigProvider);
@@ -1972,7 +1977,7 @@ begin
       FMouseState,
       FMainMapState,
       FFillingMapPolygon,
-      GState.MergePolygonsResult,
+      FMergePolygonsResult,
       FLineOnMapByOperation[ao_calc_line] as IPathOnMapEdit,
       FLineOnMapByOperation[ao_edit_line] as IPathOnMapEdit,
       FLineOnMapByOperation[ao_edit_poly] as IPolygonOnMapEdit,
@@ -2067,7 +2072,7 @@ begin
       GState.AppClosingNotifier,
       GState.VectorDataFactory,
       GState.VectorGeometryLonLatFactory,
-      GState.MergePolygonsResult,
+      FMergePolygonsResult,
       FMapGoto,
       FRegionProcess,
       FMarkDBGUI
