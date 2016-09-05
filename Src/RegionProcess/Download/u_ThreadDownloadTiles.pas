@@ -178,7 +178,7 @@ begin
   Assert(ADownloadTaskProvider <> nil);
   Assert(ADownloadConfig <> nil);
   Assert(ADownloadInfo <> nil);
-  inherited Create(False);
+  inherited Create(True);
   Priority := tpLower;
   FreeOnTerminate := True;
 

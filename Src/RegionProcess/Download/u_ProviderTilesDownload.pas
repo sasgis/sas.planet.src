@@ -260,9 +260,7 @@ begin
         not IsNan(ASession.ReplaceTneOlderDate),
         ASession.ReplaceTneOlderDate
       );
-    if not APaused then begin
-      VThread.Start;
-    end;
+    VThread.Start;
   end;
 end;
 
