@@ -439,6 +439,7 @@ uses
   u_LineOnMapEdit in 'Src\MainForm\u_LineOnMapEdit.pas',
   u_MainFormBehaviourByGPSConfig in 'Src\MainForm\u_MainFormBehaviourByGPSConfig.pas',
   u_MainFormConfig in 'Src\MainForm\u_MainFormConfig.pas',
+  u_MainFormLayersList in 'Src\MainForm\u_MainFormLayersList.pas',
   u_MainFormMainConfig in 'Src\MainForm\u_MainFormMainConfig.pas',
   u_MainFormState in 'Src\MainForm\u_MainFormState.pas',
   u_MainGeoCoderConfig in 'Src\MainForm\u_MainGeoCoderConfig.pas',

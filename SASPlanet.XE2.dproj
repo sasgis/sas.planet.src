@@ -617,6 +617,7 @@
 			<DCCReference Include="Src\MainForm\u_LineOnMapEdit.pas"/>
 			<DCCReference Include="Src\MainForm\u_MainFormBehaviourByGPSConfig.pas"/>
 			<DCCReference Include="Src\MainForm\u_MainFormConfig.pas"/>
+			<DCCReference Include="Src\MainForm\u_MainFormLayersList.pas"/>
 			<DCCReference Include="Src\MainForm\u_MainFormMainConfig.pas"/>
 			<DCCReference Include="Src\MainForm\u_MainFormState.pas"/>
 			<DCCReference Include="Src\MainForm\u_MainGeoCoderConfig.pas"/>
