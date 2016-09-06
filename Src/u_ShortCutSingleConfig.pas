@@ -66,6 +66,7 @@ implementation
 uses
   Types,
   Graphics,
+  ActnList,
   GR32;
 
 { TShortCutSingleConfig }
@@ -102,9 +103,18 @@ procedure TShortCutSingleConfig.ApplyShortCut;
 begin
   LockWrite;
   try
-    if FMenuItem.ShortCut <> FShortCut then begin
-      FMenuItem.ShortCut := FShortCut;
-      SetChanged;
+    if Assigned(FMenuItem.Action) then begin
+      if FMenuItem.Action is TCustomAction then begin
+        if TCustomAction(FMenuItem.Action).ShortCut <> FShortCut then begin
+          TCustomAction(FMenuItem.Action).ShortCut := FShortCut;
+          SetChanged;
+        end;
+      end;
+    end else begin
+      if FMenuItem.ShortCut <> FShortCut then begin
+        FMenuItem.ShortCut := FShortCut;
+        SetChanged;
+      end;
     end;
   finally
     UnlockWrite;

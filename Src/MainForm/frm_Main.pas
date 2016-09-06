@@ -37,6 +37,7 @@ uses
   Graphics,
   StdCtrls,
   Controls,
+  ActnList,
   ExtCtrls,
   Dialogs,
   Spin,
@@ -453,6 +454,12 @@ type
     tbxManageFavorite: TTBXItem;
     TBEditPathSplit: TTBXItem;
     tbxtmSaveMarkAsSeparateSegment: TTBXItem;
+    actlstMain: TActionList;
+    actSelectByPolygon: TAction;
+    actSelectByRect: TAction;
+    actSelectByLine: TAction;
+    actSelectByCoordinates: TAction;
+    actSelectByVisibleArea: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -481,13 +488,10 @@ type
     procedure NopendirClick(Sender: TObject);
     procedure tbitmOpenFolderMainMapTileClick(Sender: TObject);
     procedure NDelClick(Sender: TObject);
-    procedure TBREGIONClick(Sender: TObject);
     procedure NShowGranClick(Sender: TObject);
     procedure NFillMapClick(Sender: TObject);
     procedure NSRCinetClick(Sender: TObject);
     procedure tbitmAboutClick(Sender: TObject);
-    procedure TBRECTClick(Sender: TObject);
-    procedure TBRectSaveClick(Sender: TObject);
     procedure TBPreviousClick(Sender: TObject);
     procedure TBCalcRasClick(Sender: TObject);
     procedure tbitmOnlineHelpClick(Sender: TObject);
@@ -498,7 +502,6 @@ type
     procedure TBGPSPathClick(Sender: TObject);
     procedure TBGPSToPointClick(Sender: TObject);
     procedure tbitmCopyToClipboardCoordinatesClick(Sender: TObject);
-    procedure TBCOORDClick(Sender: TObject);
     procedure ShowstatusClick(Sender: TObject);
     procedure ShowMiniMapClick(Sender: TObject);
     procedure ShowLineClick(Sender: TObject);
@@ -606,7 +609,6 @@ type
       ARow: Integer;
       var AllowChange: Boolean
     );
-    procedure TBScreenSelectClick(Sender: TObject);
     procedure NSensorsClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure NBlock_toolbarsClick(Sender: TObject);
@@ -624,7 +626,6 @@ type
     );
     procedure TBSearchWindowClose(Sender: TObject);
     procedure TBEditMagnetDrawClick(Sender: TObject);
-    procedure TBPolylineSelectClick(Sender: TObject);
     procedure TBEditSelectPolylineRadiusChange(Sender: TObject);
     procedure osmorg1Click(Sender: TObject);
     procedure NFillMode1Click(Sender: TObject);
@@ -695,6 +696,11 @@ type
     procedure tbxFillingMapClick(Sender: TObject);
     procedure tbxAddToFavoriteClick(Sender: TObject);
     procedure tbxManageFavoriteClick(Sender: TObject);
+    procedure actSelectByRectExecute(Sender: TObject);
+    procedure actSelectByPolygonExecute(Sender: TObject);
+    procedure actSelectByLineExecute(Sender: TObject);
+    procedure actSelectByCoordinatesExecute(Sender: TObject);
+    procedure actSelectByVisibleAreaExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -4165,57 +4171,6 @@ begin
   FfrmAbout.ShowModal;
 end;
 
-procedure TfrmMain.TBREGIONClick(Sender: TObject);
-begin
-  TBRectSave.ImageIndex := 13;
-  if FState.State <> ao_select_poly then begin
-    FState.State := ao_select_poly;
-  end else begin
-    FState.State := ao_movemap;
-  end;
-end;
-
-procedure TfrmMain.TBRECTClick(Sender: TObject);
-begin
-  TBRectSave.ImageIndex := 10;
-  if FState.State <> ao_select_rect then begin
-    FState.State := ao_select_rect;
-  end else begin
-    FState.State := ao_movemap;
-  end;
-end;
-
-procedure TfrmMain.TBRectSaveClick(Sender: TObject);
-begin
-  case TBRectSave.ImageIndex of
-    10: begin
-      TBRECTClick(Sender);
-    end;
-    13: begin
-      TBREGIONClick(Sender);
-    end;
-    12: begin
-      TBCOORDClick(Sender);
-    end;
-    20: begin
-      TBScreenSelectClick(Sender);
-    end;
-    21: begin
-      TBPolylineSelectClick(Sender);
-    end;
-  end;
-end;
-
-procedure TfrmMain.TBPolylineSelectClick(Sender: TObject);
-begin
-  TBRectSave.ImageIndex := 21;
-  if FState.State <> ao_select_line then begin
-    FState.State := ao_select_line;
-  end else begin
-    FState.State := ao_movemap;
-  end;
-end;
-
 procedure TfrmMain.TBPreviousClick(Sender: TObject);
 var
   VZoom: Byte;
@@ -4564,43 +4519,6 @@ end;
 procedure TfrmMain.TBHideMarksClick(Sender: TObject);
 begin
   FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks := not (TBHideMarks.Checked);
-end;
-
-procedure TfrmMain.TBCOORDClick(Sender: TObject);
-var
-  VPolygon: IGeometryLonLatPolygon;
-  VSelLonLat: TfrmLonLatRectEdit;
-  VLonLatRect: TDoubleRect;
-begin
-  TBRectSave.ImageIndex := 12;
-  VSelLonLat :=
-    TfrmLonLatRectEdit.Create(
-      GState.Config.LanguageManager,
-      FActiveProjectionSet,
-      FViewPortState.View,
-      GState.Config.CoordRepresentationConfig,
-      GState.CoordFromStringParser,
-      GState.CoordToStringConverter
-    );
-  Try
-    VPolygon := GState.LastSelectionInfo.Polygon;
-    if Assigned(VPolygon) then begin
-      VLonLatRect := VPolygon.Bounds.Rect;
-    end else begin
-      VLonLatRect.TopLeft := FViewPortState.View.GetStatic.GetCenterLonLat;
-      VLonLatRect.BottomRight := VLonLatRect.TopLeft;
-    end;
-    if VSelLonLat.Execute(VLonLatRect) Then Begin
-      VPolygon := GState.VectorGeometryLonLatFactory.CreateLonLatPolygonByRect(VLonLatRect);
-      FState.State := ao_movemap;
-      FRegionProcess.ProcessPolygon(VPolygon);
-      VPolygon := nil;
-    end else begin
-      FState.State := ao_movemap;
-    end;
-  Finally
-    VSelLonLat.Free;
-  End;
 end;
 
 procedure TfrmMain.ShowstatusClick(Sender: TObject);
@@ -6237,26 +6155,6 @@ begin
   FfrmSettings.ShowGPSSettings;
 end;
 
-procedure TfrmMain.TBScreenSelectClick(Sender: TObject);
-var
-  VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjection;
-  VMapRect: TDoubleRect;
-  VLonLatRect: TDoubleRect;
-  VPolygon: IGeometryLonLatPolygon;
-begin
-  TBRectSave.ImageIndex := 20;
-  VLocalConverter := FViewPortState.View.GetStatic;
-  VProjection := VLocalConverter.Projection;
-  VMapRect := VLocalConverter.GetRectInMapPixelFloat;
-  VProjection.ValidatePixelRectFloat(VMapRect);
-  VLonLatRect := VProjection.PixelRectFloat2LonLatRect(VMapRect);
-
-  VPolygon := GState.VectorGeometryLonLatFactory.CreateLonLatPolygonByRect(VLonLatRect);
-  FState.State := ao_movemap;
-  FRegionProcess.ProcessPolygonWithZoom(VProjection.Zoom, VPolygon);
-end;
-
 procedure TfrmMain.TBSearchWindowClose(Sender: TObject);
 begin
   GState.LastSearchResult.ClearGeoCodeResult;
@@ -6926,7 +6824,6 @@ var
 begin
   VPolygon := GState.LastSelectionInfo.Polygon;
   FState.State := ao_select_poly;
-  TBRectSave.ImageIndex := 13;
   if Assigned(VPolygon) then begin
     VLineOnMapEdit := FLineOnMapEdit;
     if Supports(VLineOnMapEdit, IPolygonOnMapEdit, VPolygonOnMapEdit) then begin
@@ -6987,6 +6884,106 @@ end;
 procedure TfrmMain.tbitmPointProjectClick(Sender: TObject);
 begin
   FfrmPointProjecting.Show;
+end;
+
+procedure TfrmMain.actSelectByCoordinatesExecute(Sender: TObject);
+var
+  VPolygon: IGeometryLonLatPolygon;
+  VSelLonLat: TfrmLonLatRectEdit;
+  VLonLatRect: TDoubleRect;
+  VAction: TBasicAction;
+begin
+  VAction := Sender as TBasicAction;
+  TBRectSave.Action := VAction;
+  VSelLonLat :=
+    TfrmLonLatRectEdit.Create(
+      GState.Config.LanguageManager,
+      FActiveProjectionSet,
+      FViewPortState.View,
+      GState.Config.CoordRepresentationConfig,
+      GState.CoordFromStringParser,
+      GState.CoordToStringConverter
+    );
+  try
+    VPolygon := GState.LastSelectionInfo.Polygon;
+    if Assigned(VPolygon) then begin
+      VLonLatRect := VPolygon.Bounds.Rect;
+    end else begin
+      VLonLatRect.TopLeft := FViewPortState.View.GetStatic.GetCenterLonLat;
+      VLonLatRect.BottomRight := VLonLatRect.TopLeft;
+    end;
+    if VSelLonLat.Execute(VLonLatRect) Then Begin
+      VPolygon := GState.VectorGeometryLonLatFactory.CreateLonLatPolygonByRect(VLonLatRect);
+      FState.State := ao_movemap;
+      FRegionProcess.ProcessPolygon(VPolygon);
+      VPolygon := nil;
+    end else begin
+      FState.State := ao_movemap;
+    end;
+  finally
+    VSelLonLat.Free;
+  end;
+end;
+
+procedure TfrmMain.actSelectByLineExecute(Sender: TObject);
+var
+  VAction: TBasicAction;
+begin
+  VAction := Sender as TBasicAction;
+  TBRectSave.Action := VAction;
+  if FState.State <> ao_select_line then begin
+    FState.State := ao_select_line;
+  end else begin
+    FState.State := ao_movemap;
+  end;
+end;
+
+procedure TfrmMain.actSelectByPolygonExecute(Sender: TObject);
+var
+  VAction: TBasicAction;
+begin
+  VAction := Sender as TBasicAction;
+  TBRectSave.Action := VAction;
+  if FState.State <> ao_select_poly then begin
+    FState.State := ao_select_poly;
+  end else begin
+    FState.State := ao_movemap;
+  end;
+end;
+
+procedure TfrmMain.actSelectByRectExecute(Sender: TObject);
+var
+  VAction: TBasicAction;
+begin
+  VAction := Sender as TBasicAction;
+  TBRectSave.Action := VAction;
+  if FState.State <> ao_select_rect then begin
+    FState.State := ao_select_rect;
+  end else begin
+    FState.State := ao_movemap;
+  end;
+end;
+
+procedure TfrmMain.actSelectByVisibleAreaExecute(Sender: TObject);
+var
+  VLocalConverter: ILocalCoordConverter;
+  VProjection: IProjection;
+  VMapRect: TDoubleRect;
+  VLonLatRect: TDoubleRect;
+  VPolygon: IGeometryLonLatPolygon;
+  VAction: TBasicAction;
+begin
+  VAction := Sender as TBasicAction;
+  TBRectSave.Action := VAction;
+  VLocalConverter := FViewPortState.View.GetStatic;
+  VProjection := VLocalConverter.Projection;
+  VMapRect := VLocalConverter.GetRectInMapPixelFloat;
+  VProjection.ValidatePixelRectFloat(VMapRect);
+  VLonLatRect := VProjection.PixelRectFloat2LonLatRect(VMapRect);
+
+  VPolygon := GState.VectorGeometryLonLatFactory.CreateLonLatPolygonByRect(VLonLatRect);
+  FState.State := ao_movemap;
+  FRegionProcess.ProcessPolygonWithZoom(VProjection.Zoom, VPolygon);
 end;
 
 end.

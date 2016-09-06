@@ -62,14 +62,11 @@ object frmMain: TfrmMain
         Hint = 'Move'
       end
       object TBRectSave: TTBXSubmenuItem
+        Action = actSelectByRect
         DropdownCombo = True
-        ImageIndex = 10
         Images = PanelsImageList
         LinkSubitems = NRectSave
         Options = [tboShowHint]
-        OnClick = TBRectSaveClick
-        Caption = ''
-        Hint = 'Selection manager'
       end
       object TBCalcRas: TTBXItem
         AutoCheck = True
@@ -328,43 +325,25 @@ object frmMain: TfrmMain
           Caption = 'Selection Manager'
           Hint = ''
           object TBRECT: TTBXItem
-            ImageIndex = 10
+            Action = actSelectByRect
             Images = PanelsImageList
             Options = [tboShowHint]
-            ShortCut = 32850
-            OnClick = TBRECTClick
-            Caption = 'Rectangular Selection'
-            Hint = 'Shift - snap to active grids (if enabled)'
           end
           object TBREGION: TTBXItem
-            ImageIndex = 13
+            Action = actSelectByPolygon
             Images = PanelsImageList
-            ShortCut = 32848
-            OnClick = TBREGIONClick
-            Caption = 'Polygonal Selection'
-            Hint = ''
           end
           object TBPolylineSelect: TTBXItem
-            ImageIndex = 21
+            Action = actSelectByLine
             Images = PanelsImageList
-            OnClick = TBPolylineSelectClick
-            Caption = 'Polyline Selection'
-            Hint = ''
           end
           object TBCOORD: TTBXItem
-            ImageIndex = 12
+            Action = actSelectByCoordinates
             Images = PanelsImageList
-            OnClick = TBCOORDClick
-            Caption = 'By Coordinates'
-            Hint = ''
           end
           object TBScreenSelect: TTBXItem
-            ImageIndex = 20
+            Action = actSelectByVisibleArea
             Images = PanelsImageList
-            ShortCut = 16449
-            OnClick = TBScreenSelectClick
-            Caption = 'Visible Area'
-            Hint = ''
           end
           object TBXSeparatorItem13: TTBXSeparatorItem
             Caption = ''
@@ -4230,6 +4209,44 @@ object frmMain: TfrmMain
       OnClick = tbitmCreatePlaceMarkBySearchResultClick
       Caption = 'Create placemark'
       Hint = ''
+    end
+  end
+  object actlstMain: TActionList
+    Left = 328
+    Top = 136
+    object actSelectByRect: TAction
+      Category = 'Operations\Selection'
+      Caption = 'Rectangular Selection'
+      Hint = 'Shift - snap to active grids (if enabled)'
+      ImageIndex = 10
+      ShortCut = 32850
+      OnExecute = actSelectByRectExecute
+    end
+    object actSelectByPolygon: TAction
+      Category = 'Operations\Selection'
+      Caption = 'Polygonal Selection'
+      ImageIndex = 13
+      ShortCut = 32848
+      OnExecute = actSelectByPolygonExecute
+    end
+    object actSelectByLine: TAction
+      Category = 'Operations\Selection'
+      Caption = 'Polyline Selection'
+      ImageIndex = 21
+      OnExecute = actSelectByLineExecute
+    end
+    object actSelectByCoordinates: TAction
+      Category = 'Operations\Selection'
+      Caption = 'By Coordinates'
+      ImageIndex = 12
+      OnExecute = actSelectByCoordinatesExecute
+    end
+    object actSelectByVisibleArea: TAction
+      Category = 'Operations\Selection'
+      Caption = 'Visible Area'
+      ImageIndex = 20
+      ShortCut = 16449
+      OnExecute = actSelectByVisibleAreaExecute
     end
   end
 end
