@@ -264,10 +264,8 @@ object frmMain: TfrmMain
         Caption = '&Operations'
         Hint = ''
         object tbitmCreateShortcut: TTBXItem
+          Action = actMakeLinkOnDesktop
           Images = MenusImageList
-          OnClick = tbitmCreateShortcutClick
-          Caption = 'Create Shortcut'
-          Hint = ''
         end
         object tbitmOpenFile: TTBXItem
           ImageIndex = 34
@@ -4247,6 +4245,11 @@ object frmMain: TfrmMain
       ImageIndex = 20
       ShortCut = 16449
       OnExecute = actSelectByVisibleAreaExecute
+    end
+    object actMakeLinkOnDesktop: TAction
+      Category = 'Operations'
+      Caption = 'Create Shortcut'
+      OnExecute = actMakeLinkOnDesktopExecute
     end
   end
 end

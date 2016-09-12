@@ -460,6 +460,7 @@ type
     actSelectByLine: TAction;
     actSelectByCoordinates: TAction;
     actSelectByVisibleArea: TAction;
+    actMakeLinkOnDesktop: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -545,7 +546,6 @@ type
       AX, AY: Integer;
       Layer: TCustomLayer
     );
-    procedure tbitmCreateShortcutClick(Sender: TObject);
     procedure TBItemDelTrackClick(Sender: TObject);
     procedure NGShScale01Click(Sender: TObject);
     procedure TBEditPathDelClick(Sender: TObject);
@@ -701,6 +701,7 @@ type
     procedure actSelectByLineExecute(Sender: TObject);
     procedure actSelectByCoordinatesExecute(Sender: TObject);
     procedure actSelectByVisibleAreaExecute(Sender: TObject);
+    procedure actMakeLinkOnDesktopExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -5525,27 +5526,6 @@ begin
   PFile.Save(POleStr(UnicodeString(PathLink)), False);
 end;
 
-procedure TfrmMain.tbitmCreateShortcutClick(Sender: TObject);
-var
-  VLonLat: TDoublePoint;
-  VArgStr: string;
-  VZoomCurr: Byte;
-  VMapType: IMapType;
-  VLocalConverter: ILocalCoordConverter;
-begin
-  if SaveLink.Execute then begin
-    VMapType := FMainMapState.ActiveMap.GetStatic;
-    VLocalConverter := FViewPortState.View.GetStatic;
-    VZoomCurr := VLocalConverter.Projection.Zoom;
-    VLonLat := VLocalConverter.GetCenterLonLat;
-    VArgStr :=
-      '--map=' + GUIDToString(VMapType.Zmp.GUID) + ' ' +
-      '--zoom=' + IntToStr(VZoomCurr + 1) + ' ' +
-      '--move=(' + R2StrPoint(VLonLat.X) + ',' + R2StrPoint(VLonLat.Y) + ')';
-    CreateLink(ParamStr(0), SaveLink.filename, '', VArgStr);
-  end;
-end;
-
 procedure TfrmMain.TBItemDelTrackClick(Sender: TObject);
 begin
   if GState.GpsTrackRecorder.IsEmpty then begin
@@ -6884,6 +6864,27 @@ end;
 procedure TfrmMain.tbitmPointProjectClick(Sender: TObject);
 begin
   FfrmPointProjecting.Show;
+end;
+
+procedure TfrmMain.actMakeLinkOnDesktopExecute(Sender: TObject);
+var
+  VLonLat: TDoublePoint;
+  VArgStr: string;
+  VZoomCurr: Byte;
+  VMapType: IMapType;
+  VLocalConverter: ILocalCoordConverter;
+begin
+  if SaveLink.Execute then begin
+    VMapType := FMainMapState.ActiveMap.GetStatic;
+    VLocalConverter := FViewPortState.View.GetStatic;
+    VZoomCurr := VLocalConverter.Projection.Zoom;
+    VLonLat := VLocalConverter.GetCenterLonLat;
+    VArgStr :=
+      '--map=' + GUIDToString(VMapType.Zmp.GUID) + ' ' +
+      '--zoom=' + IntToStr(VZoomCurr + 1) + ' ' +
+      '--move=(' + R2StrPoint(VLonLat.X) + ',' + R2StrPoint(VLonLat.Y) + ')';
+    CreateLink(ParamStr(0), SaveLink.filename, '', VArgStr);
+  end;
 end;
 
 procedure TfrmMain.actSelectByCoordinatesExecute(Sender: TObject);
