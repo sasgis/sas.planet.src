@@ -461,6 +461,7 @@ type
     actSelectByCoordinates: TAction;
     actSelectByVisibleArea: TAction;
     actMakeLinkOnDesktop: TAction;
+    actFileOpen: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -580,7 +581,6 @@ type
       var NewText: String;
       var Accept: Boolean
     );
-    procedure tbitmOpenFileClick(Sender: TObject);
     procedure NShowSelectionClick(Sender: TObject);
     procedure NGoToCurClick(Sender: TObject);
     procedure TBGPSToPointCenterClick(Sender: TObject);
@@ -702,6 +702,7 @@ type
     procedure actSelectByCoordinatesExecute(Sender: TObject);
     procedure actSelectByVisibleAreaExecute(Sender: TObject);
     procedure actMakeLinkOnDesktopExecute(Sender: TObject);
+    procedure actFileOpenExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -6095,16 +6096,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.tbitmOpenFileClick(Sender: TObject);
-var
-  VList: IStringListStatic;
-begin
-  VList := FMarkDBGUI.ImportFileDialog(Self.Handle);
-  if Assigned(VList) then begin
-    ProcessOpenFiles(VList);
-  end;
-end;
-
 procedure TfrmMain.TBLoadSelFromFileClick(Sender: TObject);
 var
   VList: IStringListStatic;
@@ -6864,6 +6855,16 @@ end;
 procedure TfrmMain.tbitmPointProjectClick(Sender: TObject);
 begin
   FfrmPointProjecting.Show;
+end;
+
+procedure TfrmMain.actFileOpenExecute(Sender: TObject);
+var
+  VList: IStringListStatic;
+begin
+  VList := FMarkDBGUI.ImportFileDialog(Self.Handle);
+  if Assigned(VList) then begin
+    ProcessOpenFiles(VList);
+  end;
 end;
 
 procedure TfrmMain.actMakeLinkOnDesktopExecute(Sender: TObject);

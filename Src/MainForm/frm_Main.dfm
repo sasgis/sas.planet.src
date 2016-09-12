@@ -268,11 +268,8 @@ object frmMain: TfrmMain
           Images = MenusImageList
         end
         object tbitmOpenFile: TTBXItem
-          ImageIndex = 34
+          Action = actFileOpen
           Images = MenusImageList
-          OnClick = tbitmOpenFileClick
-          Caption = 'Open...'
-          Hint = ''
         end
         object TBXSeparatorItem6: TTBXSeparatorItem
           Caption = ''
@@ -4250,6 +4247,12 @@ object frmMain: TfrmMain
       Category = 'Operations'
       Caption = 'Create Shortcut'
       OnExecute = actMakeLinkOnDesktopExecute
+    end
+    object actFileOpen: TAction
+      Category = 'Operations'
+      Caption = 'Open...'
+      ImageIndex = 34
+      OnExecute = actFileOpenExecute
     end
   end
 end
