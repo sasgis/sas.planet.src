@@ -464,6 +464,7 @@ type
     actFileOpen: TAction;
     actZoomIn: TAction;
     actZoomOut: TAction;
+    actShowGoTo: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -497,7 +498,6 @@ type
     procedure TBPreviousClick(Sender: TObject);
     procedure TBCalcRasClick(Sender: TObject);
     procedure tbitmOnlineHelpClick(Sender: TObject);
-    procedure TBSubmenuItem1Click(Sender: TObject);
     procedure N000Click(Sender: TObject);
     procedure TrayItemQuitClick(Sender: TObject);
     procedure TBGPSconnClick(Sender: TObject);
@@ -705,6 +705,7 @@ type
     procedure actFileOpenExecute(Sender: TObject);
     procedure actZoomInExecute(Sender: TObject);
     procedure actZoomOutExecute(Sender: TObject);
+    procedure actShowGoToExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -6269,11 +6270,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.TBSubmenuItem1Click(Sender: TObject);
-begin
-  FfrmGoTo.ShowGotoDialog();
-end;
-
 procedure TfrmMain.NSRTM3Click(Sender: TObject);
 var
   VRequest: IDownloadRequest;
@@ -6962,6 +6958,11 @@ begin
   VPolygon := GState.VectorGeometryLonLatFactory.CreateLonLatPolygonByRect(VLonLatRect);
   FState.State := ao_movemap;
   FRegionProcess.ProcessPolygonWithZoom(VProjection.Zoom, VPolygon);
+end;
+
+procedure TfrmMain.actShowGoToExecute(Sender: TObject);
+begin
+  FfrmGoTo.ShowGotoDialog();
 end;
 
 procedure TfrmMain.actZoomInExecute(Sender: TObject);

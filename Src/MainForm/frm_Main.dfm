@@ -90,13 +90,10 @@ object frmMain: TfrmMain
         Hint = 'Cached tiles map'
       end
       object TBGoTo: TTBXSubmenuItem
+        Action = actShowGoTo
         DropdownCombo = True
-        ImageIndex = 11
         Images = PanelsImageList
         Options = [tboShowHint]
-        OnClick = TBSubmenuItem1Click
-        Caption = ''
-        Hint = 'Go to'
       end
       object TBXSeparatorItem5: TTBXSeparatorItem
         Caption = ''
@@ -288,12 +285,8 @@ object frmMain: TfrmMain
           Hint = ''
         end
         object tbitmGoToModal: TTBXItem
-          ImageIndex = 11
+          Action = actShowGoTo
           Images = MenusImageList
-          ShortCut = 16455
-          OnClick = TBSubmenuItem1Click
-          Caption = 'Go to...'
-          Hint = ''
         end
         object NCalcRast: TTBXItem
           ImageIndex = 9
@@ -4255,6 +4248,14 @@ object frmMain: TfrmMain
       ImageIndex = 24
       ShortCut = 34
       OnExecute = actZoomOutExecute
+    end
+    object actShowGoTo: TAction
+      Category = 'Operations'
+      Caption = 'Go to...'
+      Hint = 'Go to'
+      ImageIndex = 11
+      ShortCut = 16455
+      OnExecute = actShowGoToExecute
     end
   end
 end
