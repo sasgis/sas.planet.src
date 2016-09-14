@@ -276,20 +276,12 @@ object frmMain: TfrmMain
           Hint = ''
         end
         object NZoomIn: TTBXItem
-          ImageIndex = 23
+          Action = actZoomIn
           Images = MenusImageList
-          ShortCut = 33
-          OnClick = NzoomInClick
-          Caption = 'Zoom In'
-          Hint = ''
         end
         object NZoomOut: TTBXItem
-          ImageIndex = 24
+          Action = actZoomOut
           Images = MenusImageList
-          ShortCut = 34
-          OnClick = NZoomOutClick
-          Caption = 'Zoom Out'
-          Hint = ''
         end
         object TBXSeparatorItem7: TTBXSeparatorItem
           Caption = ''
@@ -1508,13 +1500,10 @@ object frmMain: TfrmMain
       OnDockChanging = ZoomToolBarDockChanging
       Caption = 'Zoom'
       object TBZoomIn: TTBXItem
-        ImageIndex = 23
+        Action = actZoomIn
         Images = MenusImageList
         MinHeight = 29
         MinWidth = 29
-        OnClick = NzoomInClick
-        Caption = ''
-        Hint = 'Zoom In'
       end
       object TBXSeparatorItem1: TTBXSeparatorItem
         Blank = True
@@ -1534,13 +1523,10 @@ object frmMain: TfrmMain
         Hint = ''
       end
       object TBZoom_out: TTBXItem
-        ImageIndex = 24
+        Action = actZoomOut
         Images = MenusImageList
         MinHeight = 29
         MinWidth = 29
-        OnClick = NZoomOutClick
-        Caption = ''
-        Hint = 'Zoom Out'
       end
       object TBXSeparatorItem2: TTBXSeparatorItem
         Blank = True
@@ -4253,6 +4239,22 @@ object frmMain: TfrmMain
       Caption = 'Open...'
       ImageIndex = 34
       OnExecute = actFileOpenExecute
+    end
+    object actZoomIn: TAction
+      Category = 'Operations'
+      Caption = 'Zoom In'
+      Hint = 'Zoom In'
+      ImageIndex = 23
+      ShortCut = 33
+      OnExecute = actZoomInExecute
+    end
+    object actZoomOut: TAction
+      Category = 'Operations'
+      Caption = 'Zoom Out'
+      Hint = 'Zoom Out'
+      ImageIndex = 24
+      ShortCut = 34
+      OnExecute = actZoomOutExecute
     end
   end
 end

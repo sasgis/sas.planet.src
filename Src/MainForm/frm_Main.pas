@@ -462,10 +462,10 @@ type
     actSelectByVisibleArea: TAction;
     actMakeLinkOnDesktop: TAction;
     actFileOpen: TAction;
+    actZoomIn: TAction;
+    actZoomOut: TAction;
 
     procedure FormActivate(Sender: TObject);
-    procedure NzoomInClick(Sender: TObject);
-    procedure NZoomOutClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(
       Sender: TObject;
@@ -703,6 +703,8 @@ type
     procedure actSelectByVisibleAreaExecute(Sender: TObject);
     procedure actMakeLinkOnDesktopExecute(Sender: TObject);
     procedure actFileOpenExecute(Sender: TObject);
+    procedure actZoomInExecute(Sender: TObject);
+    procedure actZoomOutExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -3189,32 +3191,6 @@ begin
   finally
     FMapMoveAnimtion := False;
   end;
-end;
-
-procedure TfrmMain.NzoomInClick(Sender: TObject);
-var
-  VLocalConverter: ILocalCoordConverter;
-  VFreezePos: TPoint;
-begin
-  VLocalConverter := FViewPortState.View.GetStatic;
-  VFreezePos := CenterPoint(VLocalConverter.GetLocalRect);
-  zooming(
-    VLocalConverter.Projection.Zoom + 1,
-    VFreezePos
-  );
-end;
-
-procedure TfrmMain.NZoomOutClick(Sender: TObject);
-var
-  VLocalConverter: ILocalCoordConverter;
-  VFreezePos: TPoint;
-begin
-  VLocalConverter := FViewPortState.View.GetStatic;
-  VFreezePos := CenterPoint(VLocalConverter.GetLocalRect);
-  zooming(
-    VLocalConverter.Projection.Zoom - 1,
-    VFreezePos
-  );
 end;
 
 procedure TfrmMain.TBmoveClick(Sender: TObject);
@@ -6986,6 +6962,32 @@ begin
   VPolygon := GState.VectorGeometryLonLatFactory.CreateLonLatPolygonByRect(VLonLatRect);
   FState.State := ao_movemap;
   FRegionProcess.ProcessPolygonWithZoom(VProjection.Zoom, VPolygon);
+end;
+
+procedure TfrmMain.actZoomInExecute(Sender: TObject);
+var
+  VLocalConverter: ILocalCoordConverter;
+  VFreezePos: TPoint;
+begin
+  VLocalConverter := FViewPortState.View.GetStatic;
+  VFreezePos := CenterPoint(VLocalConverter.GetLocalRect);
+  zooming(
+    VLocalConverter.Projection.Zoom + 1,
+    VFreezePos
+  );
+end;
+
+procedure TfrmMain.actZoomOutExecute(Sender: TObject);
+var
+  VLocalConverter: ILocalCoordConverter;
+  VFreezePos: TPoint;
+begin
+  VLocalConverter := FViewPortState.View.GetStatic;
+  VFreezePos := CenterPoint(VLocalConverter.GetLocalRect);
+  zooming(
+    VLocalConverter.Projection.Zoom - 1,
+    VFreezePos
+  );
 end;
 
 end.
