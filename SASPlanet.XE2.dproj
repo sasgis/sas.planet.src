@@ -1618,6 +1618,7 @@
 			<DCCReference Include="Src\VectorLoaders\u_XmlInfoSimpleParser.pas"/>
 			<DCCReference Include="Src\VectorLoaders\u_XmlVectorObjects.pas"/>
 			<DCCReference Include="Src\Vector\i_Appearance.pas"/>
+			<DCCReference Include="Src\Vector\i_AppearanceHelper.pas"/>
 			<DCCReference Include="Src\Vector\i_AppearanceOfMarkFactory.pas"/>
 			<DCCReference Include="Src\Vector\i_AppearanceOfVectorItem.pas"/>
 			<DCCReference Include="Src\Vector\i_Category.pas"/>
@@ -1634,6 +1635,8 @@
 			<DCCReference Include="Src\Vector\i_VectorItemTreeExporterList.pas"/>
 			<DCCReference Include="Src\Vector\i_VectorItemTreeImporter.pas"/>
 			<DCCReference Include="Src\Vector\i_VectorItemTreeImporterList.pas"/>
+			<DCCReference Include="Src\Vector\t_MarkAppearance.pas"/>
+			<DCCReference Include="Src\Vector\u_AppearanceHelper.pas"/>
 			<DCCReference Include="Src\Vector\u_AppearanceOfMarkFactory.pas"/>
 			<DCCReference Include="Src\Vector\u_AppearanceOfMarkLine.pas"/>
 			<DCCReference Include="Src\Vector\u_AppearanceOfMarkPoint.pas"/>
@@ -1767,9 +1770,7 @@
 			<DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
 			<DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
 			<DCCReference Include="Src\u_WindowPositionConfig.pas"/>
-			<DCCReference Include="Src\Vector\t_MarkAppearance.pas"/>
-			<DCCReference Include="Src\Vector\i_AppearanceHelper.pas"/>
-			<DCCReference Include="Src\Vector\u_AppearanceHelper.pas"/>
+			<DCCReference Include="Src\CoordConvert\u_ProjConverterByDll.pas"/>
 			<BuildConfiguration Include="Debug">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>

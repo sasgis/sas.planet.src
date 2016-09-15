@@ -212,6 +212,7 @@ uses
   u_LocalCoordConverterChangeable in 'Src\CoordConvert\u_LocalCoordConverterChangeable.pas',
   u_LocalCoordConverterFactory in 'Src\CoordConvert\u_LocalCoordConverterFactory.pas',
   u_LocalCoordConverterFactorySimpe in 'Src\CoordConvert\u_LocalCoordConverterFactorySimpe.pas',
+  u_ProjConverterByDll in 'Src\CoordConvert\u_ProjConverterByDll.pas',
   u_ProjConverterFactory in 'Src\CoordConvert\u_ProjConverterFactory.pas',
   u_ProjectionBasic256x256 in 'Src\CoordConvert\u_ProjectionBasic256x256.pas',
   u_ProjectionSetFactorySimple in 'Src\CoordConvert\u_ProjectionSetFactorySimple.pas',

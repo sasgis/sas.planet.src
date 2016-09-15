@@ -48,125 +48,12 @@ implementation
 uses
   Proj4,
   ALString,
-  t_GeoTypes;
+  u_ProjConverterByDll;
 
 const
   cProj4NotLoaded = 0;
   cProj4LoadedOK = 1;
   cProj4LoadedError = 2;
-
-resourcestring
-  rsProjectionInitError = 'Can''t initialize proj4 with string: %s';
-
-type
-  EProjConverterByDllError = class(Exception);
-
-  TProjConverterByDll = class(TBaseInterfacedObject, IProjConverter)
-  private
-    FGeoPJ: projPJ;
-    FProjPJ: projPJ;
-    FProj4InitStr: AnsiString;
-  private
-    function LonLat2XY(const ALonLat: TDoublePoint): TDoublePoint;
-    function XY2LonLat(const AXY: TDoublePoint): TDoublePoint;
-  public
-    constructor Create(const AProj4InitStr: AnsiString);
-    destructor Destroy; override;
-    procedure AfterConstruction; override;
-  end;
-
-{ TProjConverterByDll }
-
-constructor TProjConverterByDll.Create(const AProj4InitStr: AnsiString);
-begin
-  Assert(AProj4InitStr <> '');
-  inherited Create;
-  FProj4InitStr := AProj4InitStr;
-  FProjPJ := nil;
-  FGeoPJ := nil;
-end;
-
-procedure TProjConverterByDll.AfterConstruction;
-begin
-  inherited;
-
-  FProjPJ := pj_init_plus(PAnsiChar(FProj4InitStr));
-  if FProjPJ = nil then begin
-    raise EProjConverterByDllError.CreateFmt(rsProjectionInitError, [FProj4InitStr]);
-  end;
-
-  FGeoPJ := pj_init_plus(PAnsiChar(wgs84));
-  if FGeoPJ = nil then begin
-    raise EProjConverterByDllError.CreateFmt(rsProjectionInitError, [wgs84]);
-  end;
-end;
-
-destructor TProjConverterByDll.Destroy;
-begin
-  if FProjPJ <> nil then begin
-    pj_free(FProjPJ);
-    FProjPJ := nil;
-  end;
-
-  if FGeoPJ <> nil then begin
-    pj_free(FGeoPJ);
-    FGeoPJ := nil;
-  end;
-
-  inherited;
-end;
-
-function TProjConverterByDll.LonLat2XY(
-  const ALonLat: TDoublePoint
-): TDoublePoint;
-var
-  err: Integer;
-  x, y, z: Double;
-begin
-  Assert(FProjPJ <> nil);
-  Assert(FGeoPJ <> nil);
-
-  x := ALonLat.X * DEG_TO_RAD;
-  y := ALonLat.Y * DEG_TO_RAD;
-  z := 0;
-
-  err := pj_transform(FGeoPJ, FProjPJ, 1, 0, x, y, z); // Geo -> Proj
-
-  if err <> 0 then begin
-    raise EProjConverterByDllError.CreateFmt(
-      'LonLat2XY(%.6f; %.6f) failed: %s', [ALonLat.X, ALonLat.Y, pj_strerrno(err)]
-    );
-  end;
-
-  Result.X := x;
-  Result.Y := y;
-end;
-
-function TProjConverterByDll.XY2LonLat(
-  const AXY: TDoublePoint
-): TDoublePoint;
-var
-  err: Integer;
-  x, y, z: Double;
-begin
-  Assert(FProjPJ <> nil);
-  Assert(FGeoPJ <> nil);
-
-  x := AXY.X;
-  y := AXY.Y;
-  z := 0;
-
-  err := pj_transform(FProjPJ, FGeoPJ, 1, 0, x, y, z); // Proj -> Geo
-
-  if err <> 0 then begin
-    raise EProjConverterByDllError.CreateFmt(
-      'XY2LonLat(%.6f; %.6f) failed: %s', [AXY.X, AXY.Y, pj_strerrno(err)]
-    );
-  end;
-
-  Result.X := x * RAD_TO_DEG;
-  Result.Y := y * RAD_TO_DEG;
-end;
 
 { TProjConverterFactory }
 
