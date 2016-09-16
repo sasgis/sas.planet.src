@@ -28,8 +28,8 @@ uses
 type
   IProjConverter = interface
     ['{F51E7967-01AF-40CA-A7A1-9BE0E2CF03AE}']
-    function LonLat2XY(const AProjLP: TDoublePoint): TDoublePoint;
-    function XY2LonLat(const AProjXY: TDoublePoint): TDoublePoint;
+    function LonLat2XY(const ALonLat: TDoublePoint): TDoublePoint;
+    function XY2LonLat(const AXY: TDoublePoint): TDoublePoint;
   end;
 
   IProjConverterFactory = interface
