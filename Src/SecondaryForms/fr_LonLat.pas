@@ -106,7 +106,7 @@ uses
   Types,
   Math,
   gnugettext,
-  Proj4,
+  Proj4SK42,
   t_CoordRepresentation,
   i_Projection,
   i_ProjectionSet,

@@ -33,7 +33,6 @@ type
   private
     FProj4Status: Integer; // 0 - not loaded; 1 - ok; 2 - error
   private
-    function _GetArgsByEpsg(const AEPSG: Integer): AnsiString;
     function _GetByInitString(const AArgs: AnsiString): IProjConverter;
   private
     { IProjConverterFactory }
@@ -47,6 +46,7 @@ implementation
 
 uses
   Proj4,
+  Proj4Defs,
   ALString,
   u_ProjConverterByDll;
 
@@ -61,47 +61,6 @@ constructor TProjConverterFactory.Create;
 begin
   inherited Create;
   FProj4Status := cProj4NotLoaded;
-end;
-
-function TProjConverterFactory._GetArgsByEpsg(const AEPSG: Integer): AnsiString;
-var
-  I: Integer;
-begin
-  Result := '';
-  // known EPSGs
-  if AEPSG = 53004 then begin
-    // Sphere Mercator ESRI:53004
-    Result := '+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=6371000 +b=6371000 +units=m +no_defs';
-  end else if AEPSG = 3785 then begin
-    // Popular Visualisation CRS / Mercator
-    Result := '+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=6378137 +b=6378137 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs';
-  end else if AEPSG = 3395 then begin
-    // WGS 84 / World Mercator
-    Result := '+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs';
-  end else if AEPSG = 4269 then begin
-    // NAD83
-    Result := '+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs';
-  end else if AEPSG = 4326 then begin
-    // WGS 84
-    Result := wgs84;
-  end else if (AEPSG >= 2463) and (AEPSG <= 2491) then begin
-    // 2463-2491 = Pulkovo 1995 / Gauss-Kruger CM
-    I := 21 + (AEPSG - 2463) * 6;
-    if I > 180 then begin
-      I := I - 360;
-    end;
-    Result := '+proj=tmerc +lat_0=0 +lon_0=' + ALIntToStr(I) + ' +k=1 +x_0=500000 +y_0=0 +ellps=krass +units=m +no_defs';
-  end else if (AEPSG >= 2492) and (AEPSG <= 2522) then begin
-    // 2492-2522 = Pulkovo 1942 / Gauss-Kruger CM
-    I := 9 + (AEPSG - 2492) * 6;
-    if I > 180 then begin
-      I := I - 360;
-    end;
-    Result := '+proj=tmerc +lat_0=0 +lon_0=' + ALIntToStr(I) + ' +k=1 +x_0=500000 +y_0=0 +ellps=krass +units=m +no_defs';
-  end else if (AEPSG >= 32601) and (AEPSG <= 32660) then begin
-    // 32601-32660 = WGS 84 / UTM zone N
-    Result := '+proj=utm +zone=' + ALIntToStr(AEPSG - 32600) + ' +ellps=WGS84 +datum=WGS84 +units=m +no_defs';
-  end;
 end;
 
 function TProjConverterFactory._GetByInitString(
@@ -139,7 +98,7 @@ function TProjConverterFactory.GetByEPSG(const AEPSG: Integer): IProjConverter;
 var
   VArgs: AnsiString;
 begin
-  VArgs := _GetArgsByEpsg(AEPSG);
+  VArgs := Proj4ArgsByEpsg(AEPSG);
   Result := _GetByInitString(VArgs);
 end;
 
@@ -155,7 +114,7 @@ begin
   VArgs := AArgs;
   if ALSameText(ALCopyStr(AArgs, 1, Length(cEPSG)), cEPSG) then begin
     if ALTryStrToInt(ALCopyStr(AArgs, Length(cEPSG) + 1, Length(AArgs)), VEPSG) then begin
-      VArgs := _GetArgsByEpsg(VEPSG);
+      VArgs := Proj4ArgsByEpsg(VEPSG);
     end;
   end;
   Result := _GetByInitString(VArgs);

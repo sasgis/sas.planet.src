@@ -68,7 +68,7 @@
 			<DCC_ObjOutput>.\.dcu</DCC_ObjOutput>
 			<DCC_HppOutput>.\.dcu</DCC_HppOutput>
 			<DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
-			<DCC_UnitSearchPath>Includes;Includes\RarProgressBar;Includes\FastMM;Includes\Fundamentals;Includes\FastCode;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;Includes\LibTiff;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_UnitSearchPath>Includes;Includes\RarProgressBar;Includes\FastMM;Includes\Fundamentals;Includes\FastCode;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;Includes\LibTiff;Includes\Proj4;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<DCC_ResourcePath>Includes;Includes\RarProgressBar;Includes\FastMM;Includes\Fundamentals;Includes\FastCode;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;$(DCC_ResourcePath)</DCC_ResourcePath>
 			<DCC_ObjPath>Includes;Includes\RarProgressBar;Includes\FastMM;Includes\Fundamentals;Includes\FastCode;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;$(DCC_ObjPath)</DCC_ObjPath>
 			<DCC_IncludePath>Includes;Includes\RarProgressBar;Includes\FastMM;Includes\Fundamentals;Includes\FastCode;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;$(DCC_IncludePath)</DCC_IncludePath>
@@ -84,7 +84,7 @@
 			<DCC_Optimize>False</DCC_Optimize>
 			<DCC_GenerateStackFrames>True</DCC_GenerateStackFrames>
 			<DCC_SymbolReferenceInfo>2</DCC_SymbolReferenceInfo>
-			<DCC_UnitSearchPath>Includes;Includes\RarProgressBar;Includes\Fundamentals;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;Includes\LibTiff;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_UnitSearchPath>Includes;Includes\RarProgressBar;Includes\Fundamentals;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;Includes\LibTiff;Includes\Proj4;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<DCC_ResourcePath>Includes;Includes\RarProgressBar;Includes\Fundamentals;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;$(DCC_ResourcePath)</DCC_ResourcePath>
 			<DCC_ObjPath>Includes;Includes\RarProgressBar;Includes\Fundamentals;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;$(DCC_ObjPath)</DCC_ObjPath>
 			<DCC_IncludePath>Includes;Includes\RarProgressBar;Includes\Fundamentals;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;$(DCC_IncludePath)</DCC_IncludePath>
@@ -368,6 +368,7 @@
 			<DCCReference Include="Src\CoordConvert\u_LocalCoordConverterChangeable.pas"/>
 			<DCCReference Include="Src\CoordConvert\u_LocalCoordConverterFactory.pas"/>
 			<DCCReference Include="Src\CoordConvert\u_LocalCoordConverterFactorySimpe.pas"/>
+			<DCCReference Include="Src\CoordConvert\u_ProjConverterByDll.pas"/>
 			<DCCReference Include="Src\CoordConvert\u_ProjConverterFactory.pas"/>
 			<DCCReference Include="Src\CoordConvert\u_ProjectionBasic256x256.pas"/>
 			<DCCReference Include="Src\CoordConvert\u_ProjectionSetFactorySimple.pas"/>
@@ -1770,7 +1771,6 @@
 			<DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
 			<DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
 			<DCCReference Include="Src\u_WindowPositionConfig.pas"/>
-			<DCCReference Include="Src\CoordConvert\u_ProjConverterByDll.pas"/>
 			<BuildConfiguration Include="Debug">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>

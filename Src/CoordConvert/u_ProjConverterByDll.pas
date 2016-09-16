@@ -46,7 +46,8 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  Proj4Defs;
 
 type
   EProjConverterByDllError = class(Exception);
@@ -74,9 +75,9 @@ begin
     raise EProjConverterByDllError.CreateFmt(rsProjectionInitError, [FProj4InitStr]);
   end;
 
-  FGeoPJ := pj_init_plus(PAnsiChar(wgs84));
+  FGeoPJ := pj_init_plus(PAnsiChar(wgs_84));
   if FGeoPJ = nil then begin
-    raise EProjConverterByDllError.CreateFmt(rsProjectionInitError, [wgs84]);
+    raise EProjConverterByDllError.CreateFmt(rsProjectionInitError, [wgs_84]);
   end;
 end;
 

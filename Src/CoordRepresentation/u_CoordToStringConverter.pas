@@ -72,7 +72,7 @@ uses
   Math,
   SysUtils,
   StrUtils,
-  Proj4,
+  Proj4SK42,
   u_ResStrings;
 
 { TCoordToStringConverter }

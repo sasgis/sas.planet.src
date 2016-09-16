@@ -58,7 +58,7 @@ implementation
 uses
   SysUtils,
   StrUtils,
-  Proj4,
+  Proj4SK42,
   {$IFNDef UNICODE}
   Compatibility,
   {$ENDIF}
