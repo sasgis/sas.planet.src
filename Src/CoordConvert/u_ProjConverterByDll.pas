@@ -29,8 +29,13 @@ uses
   u_BaseInterfacedObject;
 
 type
+  // 1. This class is not thread safe (because of projCtx), so use one instance
+  // per thread (https://trac.osgeo.org/proj/wiki/ThreadSafety).
+  // 2. You must init pro4 library BEFORE creating instances of this class
+  // (see TProjConverterFactory).
   TProjConverterByDll = class(TBaseInterfacedObject, IProjConverter)
   private
+    FCtx: projCtx;
     FGeoPJ: projPJ;
     FProjPJ: projPJ;
     FProj4InitStr: AnsiString;
@@ -52,8 +57,9 @@ uses
 type
   EProjConverterByDllError = class(Exception);
 
-resourcestring
-  rsProjectionInitError = 'Can''t initialize proj4 with string: %s';
+const
+  cProjCtxInitError = 'Can''t initialize proj4 context!';
+  cProjectionInitError = 'Can''t initialize proj4 with string: %s';
 
 { TProjConverterByDll }
 
@@ -62,6 +68,7 @@ begin
   Assert(AProj4InitStr <> '');
   inherited Create;
   FProj4InitStr := AProj4InitStr;
+  FCtx := nil;
   FProjPJ := nil;
   FGeoPJ := nil;
 end;
@@ -70,14 +77,19 @@ procedure TProjConverterByDll.AfterConstruction;
 begin
   inherited;
 
-  FProjPJ := pj_init_plus(PAnsiChar(FProj4InitStr));
-  if FProjPJ = nil then begin
-    raise EProjConverterByDllError.CreateFmt(rsProjectionInitError, [FProj4InitStr]);
+  FCtx := pj_ctx_alloc();
+  if FCtx = nil then begin
+    raise EProjConverterByDllError.Create(cProjCtxInitError);
   end;
 
-  FGeoPJ := pj_init_plus(PAnsiChar(wgs_84));
+  FProjPJ := pj_init_plus_ctx(FCtx, PAnsiChar(FProj4InitStr));
+  if FProjPJ = nil then begin
+    raise EProjConverterByDllError.CreateFmt(cProjectionInitError, [FProj4InitStr]);
+  end;
+
+  FGeoPJ := pj_init_plus_ctx(FCtx, PAnsiChar(wgs_84));
   if FGeoPJ = nil then begin
-    raise EProjConverterByDllError.CreateFmt(rsProjectionInitError, [wgs_84]);
+    raise EProjConverterByDllError.CreateFmt(cProjectionInitError, [wgs_84]);
   end;
 end;
 
@@ -91,6 +103,11 @@ begin
   if FGeoPJ <> nil then begin
     pj_free(FGeoPJ);
     FGeoPJ := nil;
+  end;
+
+  if FCtx <> nil then begin
+    pj_ctx_free(FCtx);
+    FCtx := nil;
   end;
 
   inherited;
