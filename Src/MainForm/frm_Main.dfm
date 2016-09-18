@@ -53,13 +53,9 @@ object frmMain: TfrmMain
       TabOrder = 0
       Caption = 'Main'
       object TBmove: TTBXItem
-        Checked = True
-        ImageIndex = 8
+        Action = actMoveMap
         Images = PanelsImageList
         Options = [tboDefault]
-        OnClick = TBmoveClick
-        Caption = ''
-        Hint = 'Move'
       end
       object TBRectSave: TTBXSubmenuItem
         Action = actSelectByRect
@@ -4233,6 +4229,13 @@ object frmMain: TfrmMain
       ImageIndex = 11
       ShortCut = 16455
       OnExecute = actShowGoToExecute
+    end
+    object actMoveMap: TAction
+      Category = 'Operations'
+      Caption = 'Move'
+      Checked = True
+      ImageIndex = 8
+      OnExecute = actMoveMapExecute
     end
     object actDistanceCalculation: TAction
       Category = 'Operations'

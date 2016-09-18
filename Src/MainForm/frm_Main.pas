@@ -471,6 +471,7 @@ type
     actShowCacheManager: TAction;
     actQuit: TAction;
     actDistanceCalculation: TAction;
+    actMoveMap: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -478,7 +479,6 @@ type
       Sender: TObject;
       var Action: TCloseAction
     );
-    procedure TBmoveClick(Sender: TObject);
     procedure TBFullSizeClick(Sender: TObject);
     procedure ZoomToolBarDockChanging(
       Sender: TObject;
@@ -711,6 +711,7 @@ type
     procedure actShowCacheManagerExecute(Sender: TObject);
     procedure actQuitExecute(Sender: TObject);
     procedure actDistanceCalculationExecute(Sender: TObject);
+    procedure actMoveMapExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -2533,7 +2534,7 @@ begin
     FSelectionRect.Reset;
   end;
   FMarshrutComment := '';
-  TBmove.Checked := VNewState = ao_movemap;
+  actMoveMap.Checked := VNewState = ao_movemap;
   TBCalcRas.Checked := VNewState = ao_calc_line;
   TBRectSave.Checked :=
     (VNewState = ao_select_poly) or
@@ -3197,11 +3198,6 @@ begin
   finally
     FMapMoveAnimtion := False;
   end;
-end;
-
-procedure TfrmMain.TBmoveClick(Sender: TObject);
-begin
-  FState.State := ao_movemap;
 end;
 
 procedure TfrmMain.tbpmiClearVersionClick(Sender: TObject);
@@ -6805,6 +6801,11 @@ begin
       '--move=(' + R2StrPoint(VLonLat.X) + ',' + R2StrPoint(VLonLat.Y) + ')';
     CreateLink(ParamStr(0), SaveLink.filename, '', VArgStr);
   end;
+end;
+
+procedure TfrmMain.actMoveMapExecute(Sender: TObject);
+begin
+  FState.State := ao_movemap;
 end;
 
 procedure TfrmMain.actQuitExecute(Sender: TObject);
