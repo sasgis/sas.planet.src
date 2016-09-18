@@ -467,6 +467,7 @@ type
     actShowGoTo: TAction;
     actSelectByLastSelection: TAction;
     actSelectByLastSelectionEdit: TAction;
+    actSelectBySelectionFromFile: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -511,7 +512,6 @@ type
     procedure tbitmGaugeClick(Sender: TObject);
     procedure Google1Click(Sender: TObject);
     procedure mapResize(Sender: TObject);
-    procedure TBLoadSelFromFileClick(Sender: TObject);
     procedure YaLinkClick(Sender: TObject);
     procedure kosmosnimkiru1Click(Sender: TObject);
     procedure NinvertcolorClick(Sender: TObject);
@@ -708,6 +708,7 @@ type
     procedure actShowGoToExecute(Sender: TObject);
     procedure actSelectByLastSelectionExecute(Sender: TObject);
     procedure actSelectByLastSelectionEditExecute(Sender: TObject);
+    procedure actSelectBySelectionFromFileExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -6060,17 +6061,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.TBLoadSelFromFileClick(Sender: TObject);
-var
-  VList: IStringListStatic;
-begin
-  if (OpenDialog1.Execute) then begin
-    FState.State := ao_movemap;
-    VList := TStringListStatic.CreateByStrings(OpenDialog1.Files);
-    ProcessOpenFiles(VList);
-  end;
-end;
-
 procedure TfrmMain.OnShowMergePolygons(Sender: TObject);
 begin
   tbMergePolygons.Show;
@@ -6937,6 +6927,17 @@ begin
     FState.State := ao_select_rect;
   end else begin
     FState.State := ao_movemap;
+  end;
+end;
+
+procedure TfrmMain.actSelectBySelectionFromFileExecute(Sender: TObject);
+var
+  VList: IStringListStatic;
+begin
+  if (OpenDialog1.Execute) then begin
+    FState.State := ao_movemap;
+    VList := TStringListStatic.CreateByStrings(OpenDialog1.Files);
+    ProcessOpenFiles(VList);
   end;
 end;
 

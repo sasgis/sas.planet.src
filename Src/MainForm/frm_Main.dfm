@@ -338,11 +338,8 @@ object frmMain: TfrmMain
             Images = MenusImageList
           end
           object TBLoadSelFromFile: TTBXItem
-            ImageIndex = 34
+            Action = actSelectBySelectionFromFile
             Images = MenusImageList
-            OnClick = TBLoadSelFromFileClick
-            Caption = 'Load from File'
-            Hint = ''
           end
         end
         object TBXSeparatorItem9: TTBXSeparatorItem
@@ -4262,6 +4259,12 @@ object frmMain: TfrmMain
       Caption = 'Edit Last Selection'
       ImageIndex = 31
       OnExecute = actSelectByLastSelectionEditExecute
+    end
+    object actSelectBySelectionFromFile: TAction
+      Category = 'Operations\Selection'
+      Caption = 'Load from File'
+      ImageIndex = 34
+      OnExecute = actSelectBySelectionFromFileExecute
     end
   end
 end
