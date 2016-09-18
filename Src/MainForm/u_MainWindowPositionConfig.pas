@@ -43,6 +43,7 @@ type
     function GetIsFullScreen: Boolean;
     function GetIsMaximized: Boolean;
     function GetBoundsRect: TRect;
+    procedure ToggleFullScreen;
     procedure SetFullScreen;
     procedure SetNoFullScreen;
     procedure SetMaximized;
@@ -185,6 +186,17 @@ begin
       FIsFullScreen := False;
       SetChanged;
     end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TMainWindowPositionConfig.ToggleFullScreen;
+begin
+  LockWrite;
+  try
+    FIsFullScreen := not FIsFullScreen;
+    SetChanged;
   finally
     UnlockWrite;
   end;

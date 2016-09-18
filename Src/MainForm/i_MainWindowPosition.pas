@@ -31,6 +31,7 @@ type
     ['{BD5C5719-02CB-4364-A670-B1DD75A5BAEE}']
     function GetIsFullScreen: Boolean;
     property IsFullScreen: Boolean read GetIsFullScreen;
+    procedure ToggleFullScreen;
     procedure SetFullScreen;
     procedure SetNoFullScreen;
 

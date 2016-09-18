@@ -3062,7 +3062,7 @@ begin
         end;
       end;
       VK_F11: begin
-        TBFullSizeClick(nil);
+        FWinPosition.ToggleFullScreen;
         Handled := True;
       end;
     else begin
@@ -3597,16 +3597,7 @@ end;
 
 procedure TfrmMain.TBFullSizeClick(Sender: TObject);
 begin
-  FWinPosition.LockWrite;
-  try
-    if FWinPosition.GetIsFullScreen then begin
-      FWinPosition.SetNoFullScreen;
-    end else begin
-      FWinPosition.SetFullScreen;
-    end;
-  finally
-    FWinPosition.UnlockWrite;
-  end;
+  FWinPosition.ToggleFullScreen;
 end;
 
 procedure TfrmMain.ZoomToolBarDockChanging(
@@ -5097,7 +5088,7 @@ begin
   end;
 
   if Button = mbMiddle then begin
-    TBFullSizeClick(nil);
+    FWinPosition.ToggleFullScreen;
     exit;
   end;
 
