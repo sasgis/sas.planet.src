@@ -69,12 +69,8 @@ object frmMain: TfrmMain
         Options = [tboShowHint]
       end
       object TBCalcRas: TTBXItem
-        AutoCheck = True
-        ImageIndex = 9
+        Action = actDistanceCalculation
         Images = PanelsImageList
-        OnClick = TBCalcRasClick
-        Caption = ''
-        Hint = 'Distance calculation'
       end
       object TBXSeparatorItem4: TTBXSeparatorItem
         Caption = ''
@@ -289,12 +285,8 @@ object frmMain: TfrmMain
           Images = MenusImageList
         end
         object NCalcRast: TTBXItem
-          ImageIndex = 9
+          Action = actDistanceCalculation
           Images = MenusImageList
-          ShortCut = 16460
-          OnClick = NCalcRastClick
-          Caption = 'Distance Calculation'
-          Hint = ''
         end
         object TBXSeparatorItem8: TTBXSeparatorItem
           Caption = ''
@@ -4241,6 +4233,14 @@ object frmMain: TfrmMain
       ImageIndex = 11
       ShortCut = 16455
       OnExecute = actShowGoToExecute
+    end
+    object actDistanceCalculation: TAction
+      Category = 'Operations'
+      Caption = 'Distance Calculation'
+      Hint = 'Distance calculation'
+      ImageIndex = 9
+      ShortCut = 16460
+      OnExecute = actDistanceCalculationExecute
     end
     object actSelectByLastSelection: TAction
       Category = 'Operations\Selection'

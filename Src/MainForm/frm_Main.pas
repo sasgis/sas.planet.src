@@ -470,6 +470,7 @@ type
     actSelectBySelectionFromFile: TAction;
     actShowCacheManager: TAction;
     actQuit: TAction;
+    actDistanceCalculation: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -479,7 +480,6 @@ type
     );
     procedure TBmoveClick(Sender: TObject);
     procedure TBFullSizeClick(Sender: TObject);
-    procedure NCalcRastClick(Sender: TObject);
     procedure ZoomToolBarDockChanging(
       Sender: TObject;
       Floating: Boolean;
@@ -499,7 +499,6 @@ type
     procedure NFillMapClick(Sender: TObject);
     procedure NSRCinetClick(Sender: TObject);
     procedure tbitmAboutClick(Sender: TObject);
-    procedure TBCalcRasClick(Sender: TObject);
     procedure tbitmOnlineHelpClick(Sender: TObject);
     procedure N000Click(Sender: TObject);
     procedure TrayItemQuitClick(Sender: TObject);
@@ -711,6 +710,7 @@ type
     procedure actSelectBySelectionFromFileExecute(Sender: TObject);
     procedure actShowCacheManagerExecute(Sender: TObject);
     procedure actQuitExecute(Sender: TObject);
+    procedure actDistanceCalculationExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -3637,12 +3637,6 @@ begin
   PaintZSlider(FViewPortState.View.GetStatic.Projection.Zoom);
 end;
 
-procedure TfrmMain.NCalcRastClick(Sender: TObject);
-begin
-  TBCalcRas.Checked := True;
-  TBCalcRasClick(self);
-end;
-
 procedure TfrmMain.tbitmOptionsClick(Sender: TObject);
 begin
   FfrmSettings.ShowModal;
@@ -4348,15 +4342,6 @@ begin
   VZoom := ((5 * ARow) + ACol) - 1;
   VMouseDownPoint := FMouseState.GetLastDownPos(mbRight);
   zooming(VZoom, VMouseDownPoint);
-end;
-
-procedure TfrmMain.TBCalcRasClick(Sender: TObject);
-begin
-  if FState.State <> ao_calc_line then begin
-    FState.State := ao_calc_line;
-  end else begin
-    FState.State := ao_movemap;
-  end;
 end;
 
 procedure TfrmMain.N000Click(Sender: TObject);
@@ -6780,6 +6765,15 @@ end;
 procedure TfrmMain.tbitmPointProjectClick(Sender: TObject);
 begin
   FfrmPointProjecting.Show;
+end;
+
+procedure TfrmMain.actDistanceCalculationExecute(Sender: TObject);
+begin
+  if FState.State <> ao_calc_line then begin
+    FState.State := ao_calc_line;
+  end else begin
+    FState.State := ao_movemap;
+  end;
 end;
 
 procedure TfrmMain.actFileOpenExecute(Sender: TObject);
