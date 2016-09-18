@@ -330,12 +330,8 @@ object frmMain: TfrmMain
             Hint = ''
           end
           object TBPrevious: TTBXItem
-            ImageIndex = 44
+            Action = actSelectByLastSelection
             Images = MenusImageList
-            ShortCut = 16450
-            OnClick = TBPreviousClick
-            Caption = 'Last Selection'
-            Hint = ''
           end
           object tbitmEditLastSelection: TTBXItem
             ImageIndex = 31
@@ -4256,6 +4252,13 @@ object frmMain: TfrmMain
       ImageIndex = 11
       ShortCut = 16455
       OnExecute = actShowGoToExecute
+    end
+    object actSelectByLastSelection: TAction
+      Category = 'Operations\Selection'
+      Caption = 'Last Selection'
+      ImageIndex = 44
+      ShortCut = 16450
+      OnExecute = actSelectByLastSelectionExecute
     end
   end
 end

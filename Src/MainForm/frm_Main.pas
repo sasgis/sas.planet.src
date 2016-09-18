@@ -465,6 +465,7 @@ type
     actZoomIn: TAction;
     actZoomOut: TAction;
     actShowGoTo: TAction;
+    actSelectByLastSelection: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -495,7 +496,6 @@ type
     procedure NFillMapClick(Sender: TObject);
     procedure NSRCinetClick(Sender: TObject);
     procedure tbitmAboutClick(Sender: TObject);
-    procedure TBPreviousClick(Sender: TObject);
     procedure TBCalcRasClick(Sender: TObject);
     procedure tbitmOnlineHelpClick(Sender: TObject);
     procedure N000Click(Sender: TObject);
@@ -706,6 +706,7 @@ type
     procedure actZoomInExecute(Sender: TObject);
     procedure actZoomOutExecute(Sender: TObject);
     procedure actShowGoToExecute(Sender: TObject);
+    procedure actSelectByLastSelectionExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -4150,21 +4151,6 @@ begin
   FfrmAbout.ShowModal;
 end;
 
-procedure TfrmMain.TBPreviousClick(Sender: TObject);
-var
-  VZoom: Byte;
-  VPolygon: IGeometryLonLatPolygon;
-begin
-  VZoom := GState.LastSelectionInfo.Zoom;
-  VPolygon := GState.LastSelectionInfo.Polygon;
-  if Assigned(VPolygon) then begin
-    FState.State := ao_movemap;
-    FRegionProcess.ProcessPolygonWithZoom(VZoom, VPolygon);
-  end else begin
-    showmessage(SAS_MSG_NeedHL);
-  end;
-end;
-
 //карта заполнения в основном окне
 procedure TfrmMain.NFillMapClick(Sender: TObject);
 var
@@ -6896,6 +6882,21 @@ begin
     end;
   finally
     VSelLonLat.Free;
+  end;
+end;
+
+procedure TfrmMain.actSelectByLastSelectionExecute(Sender: TObject);
+var
+  VZoom: Byte;
+  VPolygon: IGeometryLonLatPolygon;
+begin
+  VZoom := GState.LastSelectionInfo.Zoom;
+  VPolygon := GState.LastSelectionInfo.Polygon;
+  if Assigned(VPolygon) then begin
+    FState.State := ao_movemap;
+    FRegionProcess.ProcessPolygonWithZoom(VZoom, VPolygon);
+  end else begin
+    showmessage(SAS_MSG_NeedHL);
   end;
 end;
 
