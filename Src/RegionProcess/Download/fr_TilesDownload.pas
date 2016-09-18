@@ -50,6 +50,9 @@ type
     function GetIsStartPaused: Boolean;
     property IsStartPaused: Boolean read GetIsStartPaused;
 
+    function GetAutoCloseAtFinish: Boolean;
+    property IsCloseOnFinish: Boolean read GetAutoCloseAtFinish;
+
     function GetIsIgnoreTne: Boolean;
     property IsIgnoreTne: Boolean read GetIsIgnoreTne;
 
@@ -107,6 +110,7 @@ type
     sePartsCount: TSpinEdit;
     flwpnlSplitRegionParams: TFlowPanel;
     lblSplitRegionHint: TLabel;
+    chkCloseAfterFinish: TCheckBox;
     procedure chkReplaceClick(Sender: TObject);
     procedure chkReplaceOlderClick(Sender: TObject);
     procedure cbbZoomChange(Sender: TObject);
@@ -143,6 +147,7 @@ type
     function GetZoomArray: TByteDynArray;
   private
     function GetIsStartPaused: Boolean;
+    function GetAutoCloseAtFinish: Boolean;
     function GetIsIgnoreTne: Boolean;
     function GetLoadTneOlderDate: TDateTime;
     function GetIsReplace: Boolean;
@@ -407,6 +412,11 @@ end;
 function TfrTilesDownload.GetIsStartPaused: Boolean;
 begin
   Result := chkStartPaused.Checked;
+end;
+
+function TfrTilesDownload.GetAutoCloseAtFinish: Boolean;
+begin
+  Result := chkCloseAfterFinish.Checked;
 end;
 
 function TfrTilesDownload.GetLoadTneOlderDate: TDateTime;

@@ -121,6 +121,7 @@ type
       const ACheckExistTileSize: Boolean;
       const ACheckExistTileDate: Boolean;
       const ACheckTileDate: TDateTime;
+      const AAutoCloseAtFinish: Boolean;
       const AWorkersCount: Integer;
       const AWorkerIndex: Integer
     ); overload;
@@ -159,6 +160,7 @@ constructor TDownloadSession.Create(
   const AReplaceTneOlderDate: TDateTime;
   const AReplaceExistTiles, ACheckExistTileSize, ACheckExistTileDate: Boolean;
   const ACheckTileDate: TDateTime;
+  const AAutoCloseAtFinish: Boolean;
   const AWorkersCount: Integer;
   const AWorkerIndex: Integer
 );
@@ -180,6 +182,7 @@ begin
   FPolygon := APolygon;
   FWorkersCount := AWorkersCount;
   FWorkerIndex := AWorkerIndex;
+  FAutoCloseAtFinish := AAutoCloseAtFinish;
 end;
 
 procedure TDownloadSession._InitSession;

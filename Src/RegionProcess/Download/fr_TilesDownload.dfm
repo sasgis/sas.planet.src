@@ -251,6 +251,15 @@ object frTilesDownload: TfrTilesDownload
           Value = 2
         end
       end
+      object chkCloseAfterFinish: TCheckBox
+        Left = 5
+        Top = 21
+        Width = 363
+        Height = 16
+        Align = alTop
+        Caption = 'Close download window once finish'
+        TabOrder = 6
+      end
     end
   end
   object pnlMapSelect: TPanel

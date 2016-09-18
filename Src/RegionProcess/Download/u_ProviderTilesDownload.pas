@@ -350,6 +350,7 @@ begin
         (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplaceIfDifSize,
         (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplaceIfOlder,
         (ParamsFrame as IRegionProcessParamsFrameTilesDownload).ReplaceDate,
+        (ParamsFrame as IRegionProcessParamsFrameTilesDownload).GetAutoCloseAtFinish,
         VWorkersCount,
         I // worker index
      );
