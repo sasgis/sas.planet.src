@@ -347,10 +347,8 @@ object frmMain: TfrmMain
           Hint = ''
         end
         object tbitmCacheManager: TTBXItem
+          Action = actShowCacheManager
           Images = MenusImageList
-          OnClick = tbitmCacheManagerClick
-          Caption = 'Cache Manager'
-          Hint = ''
         end
         object TBXSeparatorCacheManager: TTBXSeparatorItem
           Caption = ''
@@ -4265,6 +4263,11 @@ object frmMain: TfrmMain
       Caption = 'Load from File'
       ImageIndex = 34
       OnExecute = actSelectBySelectionFromFileExecute
+    end
+    object actShowCacheManager: TAction
+      Category = 'Operations'
+      Caption = 'Cache Manager'
+      OnExecute = actShowCacheManagerExecute
     end
   end
 end

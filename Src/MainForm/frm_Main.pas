@@ -468,6 +468,7 @@ type
     actSelectByLastSelection: TAction;
     actSelectByLastSelectionEdit: TAction;
     actSelectBySelectionFromFile: TAction;
+    actShowCacheManager: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -658,7 +659,6 @@ type
     procedure NextVersion(AStep: integer);
     procedure tbpmiClearVersionClick(Sender: TObject);
     procedure terraserver1Click(Sender: TObject);
-    procedure tbitmCacheManagerClick(Sender: TObject);
     procedure tbitmCopySearchResultCoordinatesClick(Sender: TObject);
     procedure tbitmNavigationArrowClick(Sender: TObject);
     procedure tbitmPropertiesClick(Sender: TObject);
@@ -709,6 +709,7 @@ type
     procedure actSelectByLastSelectionExecute(Sender: TObject);
     procedure actSelectByLastSelectionEditExecute(Sender: TObject);
     procedure actSelectBySelectionFromFileExecute(Sender: TObject);
+    procedure actShowCacheManagerExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -6668,11 +6669,6 @@ begin
   Close;
 end;
 
-procedure TfrmMain.tbitmCacheManagerClick(Sender: TObject);
-begin
-  FfrmCacheManager.Show;
-end;
-
 procedure TfrmMain.tbitmCheckUpdateClick(Sender: TObject);
 begin
   FfrmUpdateChecker.Show;
@@ -6961,6 +6957,11 @@ begin
   VPolygon := GState.VectorGeometryLonLatFactory.CreateLonLatPolygonByRect(VLonLatRect);
   FState.State := ao_movemap;
   FRegionProcess.ProcessPolygonWithZoom(VProjection.Zoom, VPolygon);
+end;
+
+procedure TfrmMain.actShowCacheManagerExecute(Sender: TObject);
+begin
+  FfrmCacheManager.Show;
 end;
 
 procedure TfrmMain.actShowGoToExecute(Sender: TObject);
