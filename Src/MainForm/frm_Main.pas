@@ -2535,11 +2535,11 @@ begin
   end;
   FMarshrutComment := '';
   actMoveMap.Checked := VNewState = ao_movemap;
-  TBCalcRas.Checked := VNewState = ao_calc_line;
-  TBRectSave.Checked :=
-    (VNewState = ao_select_poly) or
-    (VNewState = ao_select_rect) or
-    (VNewState = ao_select_line);
+  actDistanceCalculation.Checked := VNewState = ao_calc_line;
+  actSelectByRect.Checked := VNewState = ao_select_rect;
+  actSelectByPolygon.Checked := VNewState = ao_select_poly;
+  actSelectByLine.Checked := VNewState = ao_select_line;
+
   TBAdd_Point.Checked := VNewState = ao_edit_point;
   TBAdd_Line.Checked := VNewState = ao_edit_line;
   TBAdd_Poly.Checked := VNewState = ao_edit_poly;
@@ -6860,6 +6860,7 @@ var
 begin
   VPolygon := GState.LastSelectionInfo.Polygon;
   FState.State := ao_select_poly;
+  TBRectSave.Action := actSelectByPolygon;
   if Assigned(VPolygon) then begin
     VLineOnMapEdit := FLineOnMapEdit;
     if Supports(VLineOnMapEdit, IPolygonOnMapEdit, VPolygonOnMapEdit) then begin
