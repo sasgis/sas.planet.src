@@ -355,11 +355,8 @@ object frmMain: TfrmMain
           Hint = ''
         end
         object tbitmQuit: TTBXItem
-          ImageIndex = 29
+          Action = actQuit
           Images = MenusImageList
-          OnClick = tbitmQuitClick
-          Caption = 'Quit'
-          Hint = ''
         end
       end
       object NView: TTBXSubmenuItem
@@ -4268,6 +4265,12 @@ object frmMain: TfrmMain
       Category = 'Operations'
       Caption = 'Cache Manager'
       OnExecute = actShowCacheManagerExecute
+    end
+    object actQuit: TAction
+      Category = 'Operations'
+      Caption = 'Quit'
+      ImageIndex = 29
+      OnExecute = actQuitExecute
     end
   end
 end

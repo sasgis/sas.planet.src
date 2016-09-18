@@ -469,6 +469,7 @@ type
     actSelectByLastSelectionEdit: TAction;
     actSelectBySelectionFromFile: TAction;
     actShowCacheManager: TAction;
+    actQuit: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -479,7 +480,6 @@ type
     procedure TBmoveClick(Sender: TObject);
     procedure TBFullSizeClick(Sender: TObject);
     procedure NCalcRastClick(Sender: TObject);
-    procedure tbitmQuitClick(Sender: TObject);
     procedure ZoomToolBarDockChanging(
       Sender: TObject;
       Floating: Boolean;
@@ -710,6 +710,7 @@ type
     procedure actSelectByLastSelectionEditExecute(Sender: TObject);
     procedure actSelectBySelectionFromFileExecute(Sender: TObject);
     procedure actShowCacheManagerExecute(Sender: TObject);
+    procedure actQuitExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -3640,11 +3641,6 @@ procedure TfrmMain.NCalcRastClick(Sender: TObject);
 begin
   TBCalcRas.Checked := True;
   TBCalcRasClick(self);
-end;
-
-procedure TfrmMain.tbitmQuitClick(Sender: TObject);
-begin
-  close;
 end;
 
 procedure TfrmMain.tbitmOptionsClick(Sender: TObject);
@@ -6815,6 +6811,11 @@ begin
       '--move=(' + R2StrPoint(VLonLat.X) + ',' + R2StrPoint(VLonLat.Y) + ')';
     CreateLink(ParamStr(0), SaveLink.filename, '', VArgStr);
   end;
+end;
+
+procedure TfrmMain.actQuitExecute(Sender: TObject);
+begin
+  Close;
 end;
 
 procedure TfrmMain.actSelectByCoordinatesExecute(Sender: TObject);
