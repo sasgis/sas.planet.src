@@ -334,11 +334,8 @@ object frmMain: TfrmMain
             Images = MenusImageList
           end
           object tbitmEditLastSelection: TTBXItem
-            ImageIndex = 31
+            Action = actSelectByLastSelectionEdit
             Images = MenusImageList
-            OnClick = tbitmEditLastSelectionClick
-            Caption = 'Edit Last Selection'
-            Hint = ''
           end
           object TBLoadSelFromFile: TTBXItem
             ImageIndex = 34
@@ -4259,6 +4256,12 @@ object frmMain: TfrmMain
       ImageIndex = 44
       ShortCut = 16450
       OnExecute = actSelectByLastSelectionExecute
+    end
+    object actSelectByLastSelectionEdit: TAction
+      Category = 'Operations\Selection'
+      Caption = 'Edit Last Selection'
+      ImageIndex = 31
+      OnExecute = actSelectByLastSelectionEditExecute
     end
   end
 end

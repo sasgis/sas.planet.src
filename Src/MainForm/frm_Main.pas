@@ -466,6 +466,7 @@ type
     actZoomOut: TAction;
     actShowGoTo: TAction;
     actSelectByLastSelection: TAction;
+    actSelectByLastSelectionEdit: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -659,7 +660,6 @@ type
     procedure terraserver1Click(Sender: TObject);
     procedure tbitmCacheManagerClick(Sender: TObject);
     procedure tbitmCopySearchResultCoordinatesClick(Sender: TObject);
-    procedure tbitmEditLastSelectionClick(Sender: TObject);
     procedure tbitmNavigationArrowClick(Sender: TObject);
     procedure tbitmPropertiesClick(Sender: TObject);
     procedure tbitmFitMarkToScreenClick(Sender: TObject);
@@ -707,6 +707,7 @@ type
     procedure actZoomOutExecute(Sender: TObject);
     procedure actShowGoToExecute(Sender: TObject);
     procedure actSelectByLastSelectionExecute(Sender: TObject);
+    procedure actSelectByLastSelectionEditExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -6745,22 +6746,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.tbitmEditLastSelectionClick(Sender: TObject);
-var
-  VPolygon: IGeometryLonLatPolygon;
-  VLineOnMapEdit: ILineOnMapEdit;
-  VPolygonOnMapEdit: IPolygonOnMapEdit;
-begin
-  VPolygon := GState.LastSelectionInfo.Polygon;
-  FState.State := ao_select_poly;
-  if Assigned(VPolygon) then begin
-    VLineOnMapEdit := FLineOnMapEdit;
-    if Supports(VLineOnMapEdit, IPolygonOnMapEdit, VPolygonOnMapEdit) then begin
-      VPolygonOnMapEdit.SetPolygon(VPolygon);
-    end;
-  end;
-end;
-
 procedure TfrmMain.tbitmMakeVersionByMarkClick(Sender: TObject);
 var
   VMark: IVectorDataItem;
@@ -6882,6 +6867,22 @@ begin
     end;
   finally
     VSelLonLat.Free;
+  end;
+end;
+
+procedure TfrmMain.actSelectByLastSelectionEditExecute(Sender: TObject);
+var
+  VPolygon: IGeometryLonLatPolygon;
+  VLineOnMapEdit: ILineOnMapEdit;
+  VPolygonOnMapEdit: IPolygonOnMapEdit;
+begin
+  VPolygon := GState.LastSelectionInfo.Polygon;
+  FState.State := ao_select_poly;
+  if Assigned(VPolygon) then begin
+    VLineOnMapEdit := FLineOnMapEdit;
+    if Supports(VLineOnMapEdit, IPolygonOnMapEdit, VPolygonOnMapEdit) then begin
+      VPolygonOnMapEdit.SetPolygon(VPolygon);
+    end;
   end;
 end;
 
