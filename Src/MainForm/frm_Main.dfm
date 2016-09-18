@@ -1786,7 +1786,7 @@ object frmMain: TfrmMain
       end
     end
   end
-  object OpenDialog1: TOpenDialog
+  object dlgOpenHlgLoad: TOpenDialog
     DefaultExt = '*.hlg'
     Filter = 'Selections|*.hlg'
     Left = 161

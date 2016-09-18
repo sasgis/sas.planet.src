@@ -130,7 +130,7 @@ const
 type
   TfrmMain = class(TCommonFormParent)
     map: TImage32;
-    OpenDialog1: TOpenDialog;
+    dlgOpenHlgLoad: TOpenDialog;
     SaveLink: TSaveDialog;
     TBDock: TTBXDock;
     TBMainToolBar: TTBXToolbar;
@@ -6934,9 +6934,9 @@ procedure TfrmMain.actSelectBySelectionFromFileExecute(Sender: TObject);
 var
   VList: IStringListStatic;
 begin
-  if (OpenDialog1.Execute) then begin
+  if (dlgOpenHlgLoad.Execute) then begin
     FState.State := ao_movemap;
-    VList := TStringListStatic.CreateByStrings(OpenDialog1.Files);
+    VList := TStringListStatic.CreateByStrings(dlgOpenHlgLoad.Files);
     ProcessOpenFiles(VList);
   end;
 end;
