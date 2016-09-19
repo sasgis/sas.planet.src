@@ -44,7 +44,7 @@ object frTilesDownload: TfrTilesDownload
       object lblSplitRegionHint: TLabel
         AlignWithMargins = True
         Left = 8
-        Top = 155
+        Top = 171
         Width = 357
         Height = 13
         Margins.Top = 0
@@ -55,33 +55,33 @@ object frTilesDownload: TfrTilesDownload
         Font.Name = 'Tahoma'
         Font.Style = [fsItalic]
         ParentFont = False
-        ExplicitTop = 150
+        ExplicitTop = 155
         ExplicitWidth = 3
       end
       object chkReplace: TCheckBox
         Left = 5
-        Top = 65
+        Top = 81
         Width = 363
         Height = 16
         Align = alTop
         Caption = 'Overwrite old tiles'
         TabOrder = 3
         OnClick = chkReplaceClick
-        ExplicitTop = 74
       end
       object chkTryLoadIfTNE: TCheckBox
         Left = 5
-        Top = 21
+        Top = 37
         Width = 363
         Height = 16
         Align = alTop
         Caption = 'Try download if tne exists'
         TabOrder = 1
         OnClick = chkTryLoadIfTNEClick
+        ExplicitTop = 21
       end
       object pnlTileReplaceCondition: TPanel
         Left = 5
-        Top = 81
+        Top = 97
         Width = 363
         Height = 44
         Align = alTop
@@ -127,7 +127,6 @@ object frTilesDownload: TfrTilesDownload
             Enabled = False
             TabOrder = 0
             OnClick = chkReplaceOlderClick
-            ExplicitHeight = 16
           end
           object dtpReplaceOlderDate: TDateTimePicker
             Left = 111
@@ -139,7 +138,6 @@ object frTilesDownload: TfrTilesDownload
             Time = 39513.436381111110000000
             Enabled = False
             TabOrder = 1
-            ExplicitHeight = 21
           end
         end
       end
@@ -154,7 +152,7 @@ object frTilesDownload: TfrTilesDownload
       end
       object pnlLoadIfTneParams: TPanel
         Left = 5
-        Top = 37
+        Top = 53
         Width = 363
         Height = 28
         Align = alTop
@@ -190,7 +188,6 @@ object frTilesDownload: TfrTilesDownload
             Enabled = False
             TabOrder = 0
             OnClick = chkLoadIfTneOldClick
-            ExplicitHeight = 16
           end
           object dtpLoadIfTneOld: TDateTimePicker
             Left = 111
@@ -202,13 +199,12 @@ object frTilesDownload: TfrTilesDownload
             Time = 39513.436381111110000000
             Enabled = False
             TabOrder = 1
-            ExplicitHeight = 21
           end
         end
       end
       object flwpnlSplitRegionParams: TFlowPanel
         Left = 5
-        Top = 125
+        Top = 141
         Width = 363
         Height = 30
         Align = alTop
@@ -216,7 +212,6 @@ object frTilesDownload: TfrTilesDownload
         BevelOuter = bvNone
         Padding.Top = 2
         TabOrder = 5
-        ExplicitTop = 123
         object chkSplitRegion: TCheckBox
           AlignWithMargins = True
           Left = 0
@@ -259,6 +254,7 @@ object frTilesDownload: TfrTilesDownload
         Align = alTop
         Caption = 'Close download window once finish'
         TabOrder = 6
+        ExplicitLeft = 7
       end
     end
   end
