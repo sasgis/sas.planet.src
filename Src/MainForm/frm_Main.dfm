@@ -92,12 +92,8 @@ object frmMain: TfrmMain
         Hint = ''
       end
       object TBFullSize: TTBXItem
-        AutoCheck = True
-        ImageIndex = 4
+        Action = actViewFullScreen
         Images = PanelsImageList
-        OnClick = TBFullSizeClick
-        Caption = ''
-        Hint = 'Full screen (F11)'
       end
     end
     object SrcToolbar: TTBXToolbar
@@ -927,13 +923,8 @@ object frmMain: TfrmMain
           Hint = ''
         end
         object NFoolSize: TTBXItem
-          AutoCheck = True
-          ImageIndex = 4
+          Action = actViewFullScreen
           Images = MenusImageList
-          ShortCut = 122
-          OnClick = TBFullSizeClick
-          Caption = 'Full Screen'
-          Hint = ''
         end
         object NGoToCur: TTBXItem
           AutoCheck = True
@@ -4274,6 +4265,14 @@ object frmMain: TfrmMain
       Caption = 'Quit'
       ImageIndex = 29
       OnExecute = actQuitExecute
+    end
+    object actViewFullScreen: TAction
+      Category = 'View'
+      Caption = 'Full screen'
+      Hint = 'Full screen (F11)'
+      ImageIndex = 4
+      ShortCut = 122
+      OnExecute = actViewFullScreenExecute
     end
   end
 end

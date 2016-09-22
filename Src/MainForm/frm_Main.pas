@@ -472,6 +472,7 @@ type
     actQuit: TAction;
     actDistanceCalculation: TAction;
     actMoveMap: TAction;
+    actViewFullScreen: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -479,7 +480,6 @@ type
       Sender: TObject;
       var Action: TCloseAction
     );
-    procedure TBFullSizeClick(Sender: TObject);
     procedure ZoomToolBarDockChanging(
       Sender: TObject;
       Floating: Boolean;
@@ -712,6 +712,7 @@ type
     procedure actQuitExecute(Sender: TObject);
     procedure actDistanceCalculationExecute(Sender: TObject);
     procedure actMoveMapExecute(Sender: TObject);
+    procedure actViewFullScreenExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -2838,8 +2839,7 @@ begin
       ShowWindow(Self.Handle, SW_SHOW);
       TrayIcon.Visible := False;
     end;
-    TBFullSize.Checked := VIsFullScreen;
-    NFoolSize.Checked := VIsFullScreen;
+    actViewFullScreen.Checked := VIsFullScreen;
     TBExit.Visible := VIsFullScreen;
     TBDock.Parent := Self;
     TBDockLeft.Parent := Self;
@@ -3060,10 +3060,6 @@ begin
             end;
           end;
         end;
-      end;
-      VK_F11: begin
-        FWinPosition.ToggleFullScreen;
-        Handled := True;
       end;
     else begin
       VMapType := FMapHotKeyList.GetMapTypeGUIDByHotKey(VShortCut);
@@ -3593,11 +3589,6 @@ begin
     AMsg._AddRef;
     PostMessage(Self.Handle, WM_INTERNAL_ERROR, WPARAM(Pointer(AMsg)), 0);
   end;
-end;
-
-procedure TfrmMain.TBFullSizeClick(Sender: TObject);
-begin
-  FWinPosition.ToggleFullScreen;
 end;
 
 procedure TfrmMain.ZoomToolBarDockChanging(
@@ -6955,6 +6946,11 @@ end;
 procedure TfrmMain.actShowGoToExecute(Sender: TObject);
 begin
   FfrmGoTo.ShowGotoDialog();
+end;
+
+procedure TfrmMain.actViewFullScreenExecute(Sender: TObject);
+begin
+  FWinPosition.ToggleFullScreen;
 end;
 
 procedure TfrmMain.actZoomInExecute(Sender: TObject);
