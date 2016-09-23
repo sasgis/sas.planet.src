@@ -4269,7 +4269,7 @@ object frmMain: TfrmMain
     object actViewFullScreen: TAction
       Category = 'View'
       Caption = 'Full screen'
-      Hint = 'Full screen (F11)'
+      Hint = 'Full screen'
       ImageIndex = 4
       ShortCut = 122
       OnExecute = actViewFullScreenExecute
