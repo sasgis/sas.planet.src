@@ -477,6 +477,7 @@ type
     actConfigUsePrevForMap: TAction;
     actConfigUsePrevForLayers: TAction;
     actConfigUseZoomAnimation: TAction;
+    actConfigUseInertialMovement: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -617,7 +618,6 @@ type
     procedure tbitmGPSOptionsClick(Sender: TObject);
     procedure TrayItemRestoreClick(Sender: TObject);
     procedure tbitmShowMarkCaptionClick(Sender: TObject);
-    procedure NAnimateMoveClick(Sender: TObject);
     procedure FormShortCut(
       var Msg: TWMKey;
       var Handled: Boolean
@@ -718,6 +718,7 @@ type
     procedure actConfigUsePrevForMapExecute(Sender: TObject);
     procedure actConfigUsePrevForLayersExecute(Sender: TObject);
     procedure actConfigUseZoomAnimationExecute(Sender: TObject);
+    procedure actConfigUseInertialMovementExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -1747,6 +1748,10 @@ begin
     );
     FLinksList.Add(
       VMainFormMainConfigChangeListener,
+      FConfig.MapMovingConfig.ChangeNotifier
+    );
+    FLinksList.Add(
+      VMainFormMainConfigChangeListener,
       FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig.ChangeNotifier
     );
 
@@ -2748,6 +2753,7 @@ begin
 
   actConfigZoomToCursor.Checked := FConfig.MapZoomingConfig.ZoomingAtMousePos;
   actConfigUseZoomAnimation.Checked := FConfig.MapZoomingConfig.AnimateZoom;
+  actConfigUseInertialMovement.Checked := FConfig.MapMovingConfig.AnimateMove;
   Ninvertcolor.Checked := GState.Config.BitmapPostProcessingConfig.InvertColor;
   TBGPSToPoint.Checked := FConfig.GPSBehaviour.MapMove;
   tbitmGPSCenterMap.Checked := tBGPSToPoint.Checked;
@@ -2763,8 +2769,6 @@ begin
   end else begin
     TBSMB.Caption := '';
   end;
-
-  NAnimateMove.Checked := FConfig.MapMovingConfig.AnimateMove;
 
   VGUID := FConfig.MainGeoCoderConfig.ActiveGeoCoderGUID;
   for i := 0 to TBXSelectSrchType.Count - 1 do begin
@@ -5857,11 +5861,6 @@ begin
   FConfig.MapZoomingConfig.AnimateZoom := (Sender as TTBXItem).Checked;
 end;
 
-procedure TfrmMain.NAnimateMoveClick(Sender: TObject);
-begin
-  FConfig.MapMovingConfig.AnimateMove := (Sender as TTBXItem).Checked;
-end;
-
 procedure TfrmMain.SafeCreateDGAvailablePic(const AVisualPoint: TPoint);
 begin
   // create
@@ -6739,6 +6738,11 @@ end;
 procedure TfrmMain.tbitmPointProjectClick(Sender: TObject);
 begin
   FfrmPointProjecting.Show;
+end;
+
+procedure TfrmMain.actConfigUseInertialMovementExecute(Sender: TObject);
+begin
+  FConfig.MapMovingConfig.AnimateMove := not FConfig.MapMovingConfig.AnimateMove;
 end;
 
 procedure TfrmMain.actConfigUsePrevForLayersExecute(Sender: TObject);

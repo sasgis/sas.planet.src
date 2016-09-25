@@ -943,12 +943,8 @@ object frmMain: TfrmMain
           Images = MenusImageList
         end
         object NAnimateMove: TTBXItem
-          AutoCheck = True
-          Checked = True
+          Action = actConfigUseInertialMovement
           Images = MenusImageList
-          OnClick = NAnimateMoveClick
-          Caption = 'Inertial Movement'
-          Hint = ''
         end
         object tbitmGauge: TTBXItem
           AutoCheck = True
@@ -4277,6 +4273,11 @@ object frmMain: TfrmMain
       Category = 'Config'
       Caption = 'Zoom Animation'
       OnExecute = actConfigUseZoomAnimationExecute
+    end
+    object actConfigUseInertialMovement: TAction
+      Category = 'Config'
+      Caption = 'Inertial Movement'
+      OnExecute = actConfigUseInertialMovementExecute
     end
   end
 end
