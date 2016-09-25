@@ -473,6 +473,7 @@ type
     actDistanceCalculation: TAction;
     actMoveMap: TAction;
     actViewFullScreen: TAction;
+    actConfigZoomToCursor: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -583,7 +584,6 @@ type
       var Accept: Boolean
     );
     procedure NShowSelectionClick(Sender: TObject);
-    procedure NGoToCurClick(Sender: TObject);
     procedure TBGPSToPointCenterClick(Sender: TObject);
     procedure tbtmHelpBugTrackClick(Sender: TObject);
     procedure tbitmShowDebugInfoClick(Sender: TObject);
@@ -713,6 +713,7 @@ type
     procedure actDistanceCalculationExecute(Sender: TObject);
     procedure actMoveMapExecute(Sender: TObject);
     procedure actViewFullScreenExecute(Sender: TObject);
+    procedure actConfigZoomToCursorExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -1736,7 +1737,10 @@ begin
       VMainFormMainConfigChangeListener,
       FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.GetChangeNotifier
     );
-
+    FLinksList.Add(
+      VMainFormMainConfigChangeListener,
+      FConfig.MapZoomingConfig.ChangeNotifier
+    );
 
     FLinksList.Add(
       TNotifyNoMmgEventListener.Create(Self.OnFillingMapChange),
@@ -2734,7 +2738,7 @@ begin
   NbackloadLayer.Checked := FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig.UsePrevZoomAtLayer;
   map.Color := GState.Config.ViewConfig.BackGroundColor;
 
-  NGoToCur.Checked := FConfig.MapZoomingConfig.ZoomingAtMousePos;
+  actConfigZoomToCursor.Checked := FConfig.MapZoomingConfig.ZoomingAtMousePos;
   Ninvertcolor.Checked := GState.Config.BitmapPostProcessingConfig.InvertColor;
   TBGPSToPoint.Checked := FConfig.GPSBehaviour.MapMove;
   tbitmGPSCenterMap.Checked := tBGPSToPoint.Checked;
@@ -6059,11 +6063,6 @@ begin
   FConfig.LayersConfig.LastSelectionLayerConfig.Visible := (Sender as TTBXItem).Checked;
 end;
 
-procedure TfrmMain.NGoToCurClick(Sender: TObject);
-begin
-  FConfig.MapZoomingConfig.ZoomingAtMousePos := (Sender as TTBXItem).Checked;
-end;
-
 procedure TfrmMain.TBXSelectSrchClick(Sender: TObject);
 var
   VToolbarItem: TTBXItem;
@@ -6743,6 +6742,11 @@ end;
 procedure TfrmMain.tbitmPointProjectClick(Sender: TObject);
 begin
   FfrmPointProjecting.Show;
+end;
+
+procedure TfrmMain.actConfigZoomToCursorExecute(Sender: TObject);
+begin
+  FConfig.MapZoomingConfig.ZoomingAtMousePos := not FConfig.MapZoomingConfig.ZoomingAtMousePos;
 end;
 
 procedure TfrmMain.actDistanceCalculationExecute(Sender: TObject);

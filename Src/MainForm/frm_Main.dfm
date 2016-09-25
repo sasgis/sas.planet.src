@@ -927,12 +927,8 @@ object frmMain: TfrmMain
           Images = MenusImageList
         end
         object NGoToCur: TTBXItem
-          AutoCheck = True
-          Checked = True
+          Action = actConfigZoomToCursor
           Images = MenusImageList
-          OnClick = NGoToCurClick
-          Caption = 'Zoom to Cursor'
-          Hint = ''
         end
         object Nbackload: TTBXItem
           AutoCheck = True
@@ -4273,6 +4269,11 @@ object frmMain: TfrmMain
       ImageIndex = 4
       ShortCut = 122
       OnExecute = actViewFullScreenExecute
+    end
+    object actConfigZoomToCursor: TAction
+      Category = 'Config'
+      Caption = 'Zoom to Cursor'
+      OnExecute = actConfigZoomToCursorExecute
     end
   end
 end
