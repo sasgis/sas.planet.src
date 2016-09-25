@@ -474,6 +474,7 @@ type
     actMoveMap: TAction;
     actViewFullScreen: TAction;
     actConfigZoomToCursor: TAction;
+    actConfigUsePrevForMap: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -488,7 +489,6 @@ type
     );
     procedure tbitmOptionsClick(Sender: TObject);
     procedure tbitmOnInterfaceOptionsClick(Sender: TObject);
-    procedure NbackloadClick(Sender: TObject);
     procedure NaddPointClick(Sender: TObject);
     procedure tbitmCopyToClipboardMainMapTileClick(Sender: TObject);
     procedure tbitmCopyToClipboardMainMapTileFileNameClick(Sender: TObject);
@@ -714,6 +714,7 @@ type
     procedure actMoveMapExecute(Sender: TObject);
     procedure actViewFullScreenExecute(Sender: TObject);
     procedure actConfigZoomToCursorExecute(Sender: TObject);
+    procedure actConfigUsePrevForMapExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -1741,6 +1742,10 @@ begin
       VMainFormMainConfigChangeListener,
       FConfig.MapZoomingConfig.ChangeNotifier
     );
+    FLinksList.Add(
+      VMainFormMainConfigChangeListener,
+      FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig.ChangeNotifier
+    );
 
     FLinksList.Add(
       TNotifyNoMmgEventListener.Create(Self.OnFillingMapChange),
@@ -2734,7 +2739,7 @@ var
   VToolbarItem: TTBCustomItem;
   VItem: IGeoCoderListEntity;
 begin
-  Nbackload.Checked := FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig.UsePrevZoomAtMap;
+  actConfigUsePrevForMap.Checked := FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig.UsePrevZoomAtMap;
   NbackloadLayer.Checked := FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig.UsePrevZoomAtLayer;
   map.Color := GState.Config.ViewConfig.BackGroundColor;
 
@@ -3632,11 +3637,6 @@ begin
     FfrmMapLayersOptions.pgcOptions.ActivePageIndex := 1;
   end;
   FfrmMapLayersOptions.ShowModal;
-end;
-
-procedure TfrmMain.NbackloadClick(Sender: TObject);
-begin
-  FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig.UsePrevZoomAtMap := (Sender as TTBXItem).Checked;
 end;
 
 procedure TfrmMain.NbackloadLayerClick(Sender: TObject);
@@ -6742,6 +6742,12 @@ end;
 procedure TfrmMain.tbitmPointProjectClick(Sender: TObject);
 begin
   FfrmPointProjecting.Show;
+end;
+
+procedure TfrmMain.actConfigUsePrevForMapExecute(Sender: TObject);
+begin
+  FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig.UsePrevZoomAtMap :=
+    not FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig.UsePrevZoomAtMap;
 end;
 
 procedure TfrmMain.actConfigZoomToCursorExecute(Sender: TObject);

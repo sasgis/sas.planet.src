@@ -931,12 +931,8 @@ object frmMain: TfrmMain
           Images = MenusImageList
         end
         object Nbackload: TTBXItem
-          AutoCheck = True
-          Checked = True
+          Action = actConfigUsePrevForMap
           Images = MenusImageList
-          OnClick = NbackloadClick
-          Caption = 'Use Maps from Lower Zooms'
-          Hint = ''
         end
         object NbackloadLayer: TTBXItem
           AutoCheck = True
@@ -4274,6 +4270,11 @@ object frmMain: TfrmMain
       Category = 'Config'
       Caption = 'Zoom to Cursor'
       OnExecute = actConfigZoomToCursorExecute
+    end
+    object actConfigUsePrevForMap: TAction
+      Category = 'Config'
+      Caption = 'Use Maps from Lower Zooms'
+      OnExecute = actConfigUsePrevForMapExecute
     end
   end
 end
