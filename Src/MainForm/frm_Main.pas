@@ -475,6 +475,7 @@ type
     actViewFullScreen: TAction;
     actConfigZoomToCursor: TAction;
     actConfigUsePrevForMap: TAction;
+    actConfigUsePrevForLayers: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -575,7 +576,6 @@ type
       var AllowChange: Boolean
     );
     procedure NanimateClick(Sender: TObject);
-    procedure NbackloadLayerClick(Sender: TObject);
     procedure TBXSensorsBarVisibleChanged(Sender: TObject);
     procedure tbitmSaveCurrentPositionClick(Sender: TObject);
     procedure TBXSearchEditAcceptText(
@@ -715,6 +715,7 @@ type
     procedure actViewFullScreenExecute(Sender: TObject);
     procedure actConfigZoomToCursorExecute(Sender: TObject);
     procedure actConfigUsePrevForMapExecute(Sender: TObject);
+    procedure actConfigUsePrevForLayersExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -2740,7 +2741,7 @@ var
   VItem: IGeoCoderListEntity;
 begin
   actConfigUsePrevForMap.Checked := FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig.UsePrevZoomAtMap;
-  NbackloadLayer.Checked := FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig.UsePrevZoomAtLayer;
+  actConfigUsePrevForLayers.Checked := FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig.UsePrevZoomAtLayer;
   map.Color := GState.Config.ViewConfig.BackGroundColor;
 
   actConfigZoomToCursor.Checked := FConfig.MapZoomingConfig.ZoomingAtMousePos;
@@ -3637,11 +3638,6 @@ begin
     FfrmMapLayersOptions.pgcOptions.ActivePageIndex := 1;
   end;
   FfrmMapLayersOptions.ShowModal;
-end;
-
-procedure TfrmMain.NbackloadLayerClick(Sender: TObject);
-begin
-  FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig.UsePrevZoomAtLayer := (Sender as TTBXItem).Checked;
 end;
 
 procedure TfrmMain.NBlock_toolbarsClick(Sender: TObject);
@@ -6742,6 +6738,12 @@ end;
 procedure TfrmMain.tbitmPointProjectClick(Sender: TObject);
 begin
   FfrmPointProjecting.Show;
+end;
+
+procedure TfrmMain.actConfigUsePrevForLayersExecute(Sender: TObject);
+begin
+  FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig.UsePrevZoomAtLayer :=
+    not FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig.UsePrevZoomAtLayer;
 end;
 
 procedure TfrmMain.actConfigUsePrevForMapExecute(Sender: TObject);

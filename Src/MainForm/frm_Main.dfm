@@ -935,12 +935,8 @@ object frmMain: TfrmMain
           Images = MenusImageList
         end
         object NbackloadLayer: TTBXItem
-          AutoCheck = True
-          Checked = True
+          Action = actConfigUsePrevForLayers
           Images = MenusImageList
-          OnClick = NbackloadLayerClick
-          Caption = 'Use Layers from Lower Zooms'
-          Hint = ''
         end
         object Nanimate: TTBXItem
           AutoCheck = True
@@ -4275,6 +4271,11 @@ object frmMain: TfrmMain
       Category = 'Config'
       Caption = 'Use Maps from Lower Zooms'
       OnExecute = actConfigUsePrevForMapExecute
+    end
+    object actConfigUsePrevForLayers: TAction
+      Category = 'Config'
+      Caption = 'Use Layers from Lower Zooms'
+      OnExecute = actConfigUsePrevForLayersExecute
     end
   end
 end
