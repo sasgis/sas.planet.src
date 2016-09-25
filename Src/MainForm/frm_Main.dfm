@@ -939,12 +939,8 @@ object frmMain: TfrmMain
           Images = MenusImageList
         end
         object Nanimate: TTBXItem
-          AutoCheck = True
-          Checked = True
+          Action = actConfigUseZoomAnimation
           Images = MenusImageList
-          OnClick = NanimateClick
-          Caption = 'Zoom Animation'
-          Hint = ''
         end
         object NAnimateMove: TTBXItem
           AutoCheck = True
@@ -4276,6 +4272,11 @@ object frmMain: TfrmMain
       Category = 'Config'
       Caption = 'Use Layers from Lower Zooms'
       OnExecute = actConfigUsePrevForLayersExecute
+    end
+    object actConfigUseZoomAnimation: TAction
+      Category = 'Config'
+      Caption = 'Zoom Animation'
+      OnExecute = actConfigUseZoomAnimationExecute
     end
   end
 end

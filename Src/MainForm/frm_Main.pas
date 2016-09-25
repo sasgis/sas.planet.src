@@ -476,6 +476,7 @@ type
     actConfigZoomToCursor: TAction;
     actConfigUsePrevForMap: TAction;
     actConfigUsePrevForLayers: TAction;
+    actConfigUseZoomAnimation: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -716,6 +717,7 @@ type
     procedure actConfigZoomToCursorExecute(Sender: TObject);
     procedure actConfigUsePrevForMapExecute(Sender: TObject);
     procedure actConfigUsePrevForLayersExecute(Sender: TObject);
+    procedure actConfigUseZoomAnimationExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -2745,6 +2747,7 @@ begin
   map.Color := GState.Config.ViewConfig.BackGroundColor;
 
   actConfigZoomToCursor.Checked := FConfig.MapZoomingConfig.ZoomingAtMousePos;
+  actConfigUseZoomAnimation.Checked := FConfig.MapZoomingConfig.AnimateZoom;
   Ninvertcolor.Checked := GState.Config.BitmapPostProcessingConfig.InvertColor;
   TBGPSToPoint.Checked := FConfig.GPSBehaviour.MapMove;
   tbitmGPSCenterMap.Checked := tBGPSToPoint.Checked;
@@ -2760,8 +2763,6 @@ begin
   end else begin
     TBSMB.Caption := '';
   end;
-
-  Nanimate.Checked := FConfig.MapZoomingConfig.AnimateZoom;
 
   NAnimateMove.Checked := FConfig.MapMovingConfig.AnimateMove;
 
@@ -6750,6 +6751,11 @@ procedure TfrmMain.actConfigUsePrevForMapExecute(Sender: TObject);
 begin
   FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig.UsePrevZoomAtMap :=
     not FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig.UsePrevZoomAtMap;
+end;
+
+procedure TfrmMain.actConfigUseZoomAnimationExecute(Sender: TObject);
+begin
+  FConfig.MapZoomingConfig.AnimateZoom := not FConfig.MapZoomingConfig.AnimateZoom;
 end;
 
 procedure TfrmMain.actConfigZoomToCursorExecute(Sender: TObject);
