@@ -480,6 +480,7 @@ type
     actConfigUseInertialMovement: TAction;
     actConfigAzimuthCircle: TAction;
     actConfigColorInversion: TAction;
+    actConfigPreviousSelectionVisible: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -585,7 +586,6 @@ type
       var NewText: String;
       var Accept: Boolean
     );
-    procedure NShowSelectionClick(Sender: TObject);
     procedure TBGPSToPointCenterClick(Sender: TObject);
     procedure tbtmHelpBugTrackClick(Sender: TObject);
     procedure tbitmShowDebugInfoClick(Sender: TObject);
@@ -721,6 +721,7 @@ type
     procedure actConfigUseInertialMovementExecute(Sender: TObject);
     procedure actConfigAzimuthCircleExecute(Sender: TObject);
     procedure actConfigColorInversionExecute(Sender: TObject);
+    procedure actConfigPreviousSelectionVisibleExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -1682,6 +1683,10 @@ begin
       VMapLayersVsibleChangeListener,
       FConfig.LayersConfig.CenterScaleConfig.ChangeNotifier
     );
+    FLinksList.Add(
+      VMapLayersVsibleChangeListener,
+      FConfig.LayersConfig.LastSelectionLayerConfig.ChangeNotifier
+    );
 
     VGPSReceiverStateChangeListener :=
       TNotifyEventListenerSync.Create(
@@ -2476,7 +2481,7 @@ begin
   end;
   ShowMiniMap.Checked := FConfig.LayersConfig.MiniMapLayerConfig.LocationConfig.Visible;
   ShowLine.Checked := FConfig.LayersConfig.ScaleLineConfig.Visible;
-  NShowSelection.Checked := FConfig.LayersConfig.LastSelectionLayerConfig.Visible;
+  actConfigPreviousSelectionVisible.Checked := FConfig.LayersConfig.LastSelectionLayerConfig.Visible;
   actConfigAzimuthCircle.Checked := FConfig.LayersConfig.CenterScaleConfig.Visible;
 
   TBGPSPath.Checked := FConfig.LayersConfig.GPSTrackConfig.Visible;
@@ -6050,11 +6055,6 @@ begin
   FConfig.GPSBehaviour.MapMoveCentered := TTBXitem(Sender).Checked;
 end;
 
-procedure TfrmMain.NShowSelectionClick(Sender: TObject);
-begin
-  FConfig.LayersConfig.LastSelectionLayerConfig.Visible := (Sender as TTBXItem).Checked;
-end;
-
 procedure TfrmMain.TBXSelectSrchClick(Sender: TObject);
 var
   VToolbarItem: TTBXItem;
@@ -6746,6 +6746,12 @@ procedure TfrmMain.actConfigColorInversionExecute(Sender: TObject);
 begin
   GState.Config.BitmapPostProcessingConfig.InvertColor :=
     not GState.Config.BitmapPostProcessingConfig.InvertColor;
+end;
+
+procedure TfrmMain.actConfigPreviousSelectionVisibleExecute(Sender: TObject);
+begin
+  FConfig.LayersConfig.LastSelectionLayerConfig.Visible :=
+    not FConfig.LayersConfig.LastSelectionLayerConfig.Visible;
 end;
 
 procedure TfrmMain.actConfigUseInertialMovementExecute(Sender: TObject);

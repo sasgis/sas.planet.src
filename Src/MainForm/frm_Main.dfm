@@ -955,11 +955,8 @@ object frmMain: TfrmMain
           Images = MenusImageList
         end
         object NShowSelection: TTBXItem
-          AutoCheck = True
+          Action = actConfigPreviousSelectionVisible
           Images = MenusImageList
-          OnClick = NShowSelectionClick
-          Caption = 'Previous Selection'
-          Hint = ''
         end
         object tbitmNavigationArrow: TTBXItem
           Images = MenusImageList
@@ -4282,6 +4279,11 @@ object frmMain: TfrmMain
       Caption = 'Night Mode (Color Inversion)'
       ShortCut = 32846
       OnExecute = actConfigColorInversionExecute
+    end
+    object actConfigPreviousSelectionVisible: TAction
+      Category = 'Config'
+      Caption = 'Previous Selection'
+      OnExecute = actConfigPreviousSelectionVisibleExecute
     end
   end
 end
