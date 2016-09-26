@@ -963,11 +963,8 @@ object frmMain: TfrmMain
           Images = MenusImageList
         end
         object tbitmShowDebugInfo: TTBXItem
+          Action = actShowDebugInfo
           Images = MenusImageList
-          Visible = False
-          OnClick = tbitmShowDebugInfoClick
-          Caption = 'Debug Info'
-          Hint = ''
         end
       end
       object NSources: TTBXSubmenuItem
@@ -4287,6 +4284,11 @@ object frmMain: TfrmMain
       Category = 'View'
       Caption = 'Navigation Arrow'
       OnExecute = actViewNavigationExecute
+    end
+    object actShowDebugInfo: TAction
+      Category = 'View'
+      Caption = 'Debug Info'
+      OnExecute = actShowDebugInfoExecute
     end
   end
 end

@@ -482,6 +482,7 @@ type
     actConfigColorInversion: TAction;
     actConfigPreviousSelectionVisible: TAction;
     actViewNavigation: TAction;
+    actShowDebugInfo: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -589,7 +590,6 @@ type
     );
     procedure TBGPSToPointCenterClick(Sender: TObject);
     procedure tbtmHelpBugTrackClick(Sender: TObject);
-    procedure tbitmShowDebugInfoClick(Sender: TObject);
     procedure NMarkExportClick(Sender: TObject);
     procedure TBHideMarksClick(Sender: TObject);
     procedure ZSliderMouseMove(
@@ -723,6 +723,7 @@ type
     procedure actConfigColorInversionExecute(Sender: TObject);
     procedure actConfigPreviousSelectionVisibleExecute(Sender: TObject);
     procedure actViewNavigationExecute(Sender: TObject);
+    procedure actShowDebugInfoExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -1625,7 +1626,7 @@ begin
       );
     FShortCutManager.Load(GState.MainConfigProvider.GetSubItem('HOTKEY'));
 
-    tbitmShowDebugInfo.Visible := GState.Config.InternalDebugConfig.IsShowDebugInfo;
+    actShowDebugInfo.Visible := GState.Config.InternalDebugConfig.IsShowDebugInfo;
 
     InitGridsMenus;
 
@@ -5974,11 +5975,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.tbitmShowDebugInfoClick(Sender: TObject);
-begin
-  GState.DebugInfoWindow.Show;
-end;
-
 procedure TfrmMain.tbitmShowMarkCaptionClick(Sender: TObject);
 begin
   FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.CaptionDrawConfig.ShowPointCaption := (Sender as TTBXItem).Checked;
@@ -6962,6 +6958,11 @@ end;
 procedure TfrmMain.actShowCacheManagerExecute(Sender: TObject);
 begin
   FfrmCacheManager.Show;
+end;
+
+procedure TfrmMain.actShowDebugInfoExecute(Sender: TObject);
+begin
+  GState.DebugInfoWindow.Show;
 end;
 
 procedure TfrmMain.actShowGoToExecute(Sender: TObject);
