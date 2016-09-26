@@ -478,6 +478,7 @@ type
     actConfigUsePrevForLayers: TAction;
     actConfigUseZoomAnimation: TAction;
     actConfigUseInertialMovement: TAction;
+    actConfigAzimuthCircle: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -513,7 +514,6 @@ type
     procedure ShowstatusClick(Sender: TObject);
     procedure ShowMiniMapClick(Sender: TObject);
     procedure ShowLineClick(Sender: TObject);
-    procedure tbitmGaugeClick(Sender: TObject);
     procedure Google1Click(Sender: TObject);
     procedure mapResize(Sender: TObject);
     procedure YaLinkClick(Sender: TObject);
@@ -719,6 +719,7 @@ type
     procedure actConfigUsePrevForLayersExecute(Sender: TObject);
     procedure actConfigUseZoomAnimationExecute(Sender: TObject);
     procedure actConfigUseInertialMovementExecute(Sender: TObject);
+    procedure actConfigAzimuthCircleExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -1676,6 +1677,10 @@ begin
       VMapLayersVsibleChangeListener,
       FConfig.LayersConfig.GPSTrackConfig.GetChangeNotifier
     );
+    FLinksList.Add(
+      VMapLayersVsibleChangeListener,
+      FConfig.LayersConfig.CenterScaleConfig.ChangeNotifier
+    );
 
     VGPSReceiverStateChangeListener :=
       TNotifyEventListenerSync.Create(
@@ -2471,7 +2476,7 @@ begin
   ShowMiniMap.Checked := FConfig.LayersConfig.MiniMapLayerConfig.LocationConfig.Visible;
   ShowLine.Checked := FConfig.LayersConfig.ScaleLineConfig.Visible;
   NShowSelection.Checked := FConfig.LayersConfig.LastSelectionLayerConfig.Visible;
-  tbitmGauge.Checked := FConfig.LayersConfig.CenterScaleConfig.Visible;
+  actConfigAzimuthCircle.Checked := FConfig.LayersConfig.CenterScaleConfig.Visible;
 
   TBGPSPath.Checked := FConfig.LayersConfig.GPSTrackConfig.Visible;
   tbitmGPSTrackShow.Checked := TBGPSPath.Checked;
@@ -4471,11 +4476,6 @@ end;
 procedure TfrmMain.ShowLineClick(Sender: TObject);
 begin
   FConfig.LayersConfig.ScaleLineConfig.Visible := TTBXItem(Sender).Checked;
-end;
-
-procedure TfrmMain.tbitmGaugeClick(Sender: TObject);
-begin
-  FConfig.LayersConfig.CenterScaleConfig.Visible := TTBXItem(Sender).Checked;
 end;
 
 procedure TfrmMain.tbitmGPSTrackSaveToMarksClick(Sender: TObject);
@@ -6738,6 +6738,12 @@ end;
 procedure TfrmMain.tbitmPointProjectClick(Sender: TObject);
 begin
   FfrmPointProjecting.Show;
+end;
+
+procedure TfrmMain.actConfigAzimuthCircleExecute(Sender: TObject);
+begin
+  FConfig.LayersConfig.CenterScaleConfig.Visible :=
+    not FConfig.LayersConfig.CenterScaleConfig.Visible;
 end;
 
 procedure TfrmMain.actConfigUseInertialMovementExecute(Sender: TObject);

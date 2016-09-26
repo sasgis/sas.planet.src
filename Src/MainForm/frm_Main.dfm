@@ -947,11 +947,8 @@ object frmMain: TfrmMain
           Images = MenusImageList
         end
         object tbitmGauge: TTBXItem
-          AutoCheck = True
+          Action = actConfigAzimuthCircle
           Images = MenusImageList
-          OnClick = tbitmGaugeClick
-          Caption = 'Azimuth Circle'
-          Hint = ''
         end
         object Ninvertcolor: TTBXItem
           AutoCheck = True
@@ -4278,6 +4275,11 @@ object frmMain: TfrmMain
       Category = 'Config'
       Caption = 'Inertial Movement'
       OnExecute = actConfigUseInertialMovementExecute
+    end
+    object actConfigAzimuthCircle: TAction
+      Category = 'Config'
+      Caption = 'Azimuth Circle'
+      OnExecute = actConfigAzimuthCircleExecute
     end
   end
 end
