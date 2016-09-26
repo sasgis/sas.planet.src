@@ -951,12 +951,8 @@ object frmMain: TfrmMain
           Images = MenusImageList
         end
         object Ninvertcolor: TTBXItem
-          AutoCheck = True
+          Action = actConfigColorInversion
           Images = MenusImageList
-          ShortCut = 32846
-          OnClick = NinvertcolorClick
-          Caption = 'Night Mode (Color Inversion)'
-          Hint = ''
         end
         object NShowSelection: TTBXItem
           AutoCheck = True
@@ -4280,6 +4276,12 @@ object frmMain: TfrmMain
       Category = 'Config'
       Caption = 'Azimuth Circle'
       OnExecute = actConfigAzimuthCircleExecute
+    end
+    object actConfigColorInversion: TAction
+      Category = 'Config'
+      Caption = 'Night Mode (Color Inversion)'
+      ShortCut = 32846
+      OnExecute = actConfigColorInversionExecute
     end
   end
 end

@@ -479,6 +479,7 @@ type
     actConfigUseZoomAnimation: TAction;
     actConfigUseInertialMovement: TAction;
     actConfigAzimuthCircle: TAction;
+    actConfigColorInversion: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -518,7 +519,6 @@ type
     procedure mapResize(Sender: TObject);
     procedure YaLinkClick(Sender: TObject);
     procedure kosmosnimkiru1Click(Sender: TObject);
-    procedure NinvertcolorClick(Sender: TObject);
     procedure mapDblClick(Sender: TObject);
     procedure TBAdd_PointClick(Sender: TObject);
     procedure TBAdd_LineClick(Sender: TObject);
@@ -720,6 +720,7 @@ type
     procedure actConfigUseZoomAnimationExecute(Sender: TObject);
     procedure actConfigUseInertialMovementExecute(Sender: TObject);
     procedure actConfigAzimuthCircleExecute(Sender: TObject);
+    procedure actConfigColorInversionExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -2759,7 +2760,7 @@ begin
   actConfigZoomToCursor.Checked := FConfig.MapZoomingConfig.ZoomingAtMousePos;
   actConfigUseZoomAnimation.Checked := FConfig.MapZoomingConfig.AnimateZoom;
   actConfigUseInertialMovement.Checked := FConfig.MapMovingConfig.AnimateMove;
-  Ninvertcolor.Checked := GState.Config.BitmapPostProcessingConfig.InvertColor;
+  actConfigColorInversion.Checked := GState.Config.BitmapPostProcessingConfig.InvertColor;
   TBGPSToPoint.Checked := FConfig.GPSBehaviour.MapMove;
   tbitmGPSCenterMap.Checked := tBGPSToPoint.Checked;
   TBGPSToPointCenter.Checked := FConfig.GPSBehaviour.MapMoveCentered;
@@ -4511,11 +4512,6 @@ end;
 procedure TfrmMain.mapResize(Sender: TObject);
 begin
   FViewPortState.ChangeViewSize(Point(map.Width, map.Height));
-end;
-
-procedure TfrmMain.NinvertcolorClick(Sender: TObject);
-begin
-  GState.Config.BitmapPostProcessingConfig.InvertColor := (Sender as TTBXItem).Checked;
 end;
 
 procedure TfrmMain.mapDblClick(Sender: TObject);
@@ -6744,6 +6740,12 @@ procedure TfrmMain.actConfigAzimuthCircleExecute(Sender: TObject);
 begin
   FConfig.LayersConfig.CenterScaleConfig.Visible :=
     not FConfig.LayersConfig.CenterScaleConfig.Visible;
+end;
+
+procedure TfrmMain.actConfigColorInversionExecute(Sender: TObject);
+begin
+  GState.Config.BitmapPostProcessingConfig.InvertColor :=
+    not GState.Config.BitmapPostProcessingConfig.InvertColor;
 end;
 
 procedure TfrmMain.actConfigUseInertialMovementExecute(Sender: TObject);
