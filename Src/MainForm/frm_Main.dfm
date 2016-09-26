@@ -435,28 +435,16 @@ object frmMain: TfrmMain
           Caption = 'Interface'
           Hint = ''
           object Showstatus: TTBXItem
-            AutoCheck = True
+            Action = actConfigStatusBarVisible
             Images = MenusImageList
-            ShortCut = 32851
-            OnClick = ShowstatusClick
-            Caption = 'Status Bar'
-            Hint = ''
           end
           object ShowMiniMap: TTBXItem
-            AutoCheck = True
+            Action = actConfigMiniMapVisible
             Images = MenusImageList
-            ShortCut = 32845
-            OnClick = ShowMiniMapClick
-            Caption = 'Overview Map'
-            Hint = ''
           end
           object ShowLine: TTBXItem
-            AutoCheck = True
+            Action = actConfigScaleLineVisible
             Images = MenusImageList
-            ShortCut = 32844
-            OnClick = ShowLineClick
-            Caption = 'Scale Legend'
-            Hint = ''
           end
         end
         object NFillMap: TTBXSubmenuItem
@@ -4289,6 +4277,24 @@ object frmMain: TfrmMain
       Category = 'View'
       Caption = 'Debug Info'
       OnExecute = actShowDebugInfoExecute
+    end
+    object actConfigStatusBarVisible: TAction
+      Category = 'Config'
+      Caption = 'Status Bar'
+      ShortCut = 32851
+      OnExecute = actConfigStatusBarVisibleExecute
+    end
+    object actConfigMiniMapVisible: TAction
+      Category = 'Config'
+      Caption = 'Overview Map'
+      ShortCut = 32845
+      OnExecute = actConfigMiniMapVisibleExecute
+    end
+    object actConfigScaleLineVisible: TAction
+      Category = 'Config'
+      Caption = 'Scale Legend'
+      ShortCut = 32844
+      OnExecute = actConfigScaleLineVisibleExecute
     end
   end
 end

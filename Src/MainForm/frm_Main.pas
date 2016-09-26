@@ -483,6 +483,9 @@ type
     actConfigPreviousSelectionVisible: TAction;
     actViewNavigation: TAction;
     actShowDebugInfo: TAction;
+    actConfigStatusBarVisible: TAction;
+    actConfigMiniMapVisible: TAction;
+    actConfigScaleLineVisible: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -515,9 +518,6 @@ type
     procedure TBGPSPathClick(Sender: TObject);
     procedure TBGPSToPointClick(Sender: TObject);
     procedure tbitmCopyToClipboardCoordinatesClick(Sender: TObject);
-    procedure ShowstatusClick(Sender: TObject);
-    procedure ShowMiniMapClick(Sender: TObject);
-    procedure ShowLineClick(Sender: TObject);
     procedure Google1Click(Sender: TObject);
     procedure mapResize(Sender: TObject);
     procedure YaLinkClick(Sender: TObject);
@@ -724,6 +724,9 @@ type
     procedure actConfigPreviousSelectionVisibleExecute(Sender: TObject);
     procedure actViewNavigationExecute(Sender: TObject);
     procedure actShowDebugInfoExecute(Sender: TObject);
+    procedure actConfigStatusBarVisibleExecute(Sender: TObject);
+    procedure actConfigMiniMapVisibleExecute(Sender: TObject);
+    procedure actConfigScaleLineVisibleExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -2473,16 +2476,16 @@ procedure TfrmMain.MapLayersVisibleChange;
 var
   VUseDownload: TTileSource;
 begin
-  Showstatus.Checked := FConfig.LayersConfig.StatBar.Visible;
-  if Showstatus.Checked then begin
+  actConfigStatusBarVisible.Checked := FConfig.LayersConfig.StatBar.Visible;
+  if actConfigStatusBarVisible.Checked then begin
     FConfig.LayersConfig.ScaleLineConfig.BottomMargin := FConfig.LayersConfig.StatBar.Height;
     FConfig.LayersConfig.MiniMapLayerConfig.LocationConfig.BottomMargin := FConfig.LayersConfig.StatBar.Height;
   end else begin
     FConfig.LayersConfig.ScaleLineConfig.BottomMargin := 0;
     FConfig.LayersConfig.MiniMapLayerConfig.LocationConfig.BottomMargin := 0;
   end;
-  ShowMiniMap.Checked := FConfig.LayersConfig.MiniMapLayerConfig.LocationConfig.Visible;
-  ShowLine.Checked := FConfig.LayersConfig.ScaleLineConfig.Visible;
+  actConfigMiniMapVisible.Checked := FConfig.LayersConfig.MiniMapLayerConfig.LocationConfig.Visible;
+  actConfigScaleLineVisible.Checked := FConfig.LayersConfig.ScaleLineConfig.Visible;
   actConfigPreviousSelectionVisible.Checked := FConfig.LayersConfig.LastSelectionLayerConfig.Visible;
   actConfigAzimuthCircle.Checked := FConfig.LayersConfig.CenterScaleConfig.Visible;
 
@@ -4466,24 +4469,9 @@ begin
   FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks := not (TBHideMarks.Checked);
 end;
 
-procedure TfrmMain.ShowstatusClick(Sender: TObject);
-begin
-  FConfig.LayersConfig.StatBar.Visible := TTBXItem(Sender).Checked;
-end;
-
 procedure TfrmMain.TBEditSelectPolylineRadiusChange(Sender: TObject);
 begin
   FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig.Radius := TBEditSelectPolylineRadius.Value;
-end;
-
-procedure TfrmMain.ShowMiniMapClick(Sender: TObject);
-begin
-  FConfig.LayersConfig.MiniMapLayerConfig.LocationConfig.Visible := TTBXItem(Sender).Checked;
-end;
-
-procedure TfrmMain.ShowLineClick(Sender: TObject);
-begin
-  FConfig.LayersConfig.ScaleLineConfig.Visible := TTBXItem(Sender).Checked;
 end;
 
 procedure TfrmMain.tbitmGPSTrackSaveToMarksClick(Sender: TObject);
@@ -6729,10 +6717,27 @@ begin
     not GState.Config.BitmapPostProcessingConfig.InvertColor;
 end;
 
+procedure TfrmMain.actConfigMiniMapVisibleExecute(Sender: TObject);
+begin
+  FConfig.LayersConfig.MiniMapLayerConfig.LocationConfig.Visible :=
+    not FConfig.LayersConfig.MiniMapLayerConfig.LocationConfig.Visible;
+end;
+
 procedure TfrmMain.actConfigPreviousSelectionVisibleExecute(Sender: TObject);
 begin
   FConfig.LayersConfig.LastSelectionLayerConfig.Visible :=
     not FConfig.LayersConfig.LastSelectionLayerConfig.Visible;
+end;
+
+procedure TfrmMain.actConfigScaleLineVisibleExecute(Sender: TObject);
+begin
+  FConfig.LayersConfig.ScaleLineConfig.Visible :=
+    not FConfig.LayersConfig.ScaleLineConfig.Visible;
+end;
+
+procedure TfrmMain.actConfigStatusBarVisibleExecute(Sender: TObject);
+begin
+  FConfig.LayersConfig.StatBar.Visible := not FConfig.LayersConfig.StatBar.Visible;
 end;
 
 procedure TfrmMain.actConfigUseInertialMovementExecute(Sender: TObject);
