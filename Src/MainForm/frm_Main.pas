@@ -481,6 +481,7 @@ type
     actConfigAzimuthCircle: TAction;
     actConfigColorInversion: TAction;
     actConfigPreviousSelectionVisible: TAction;
+    actViewNavigation: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -660,7 +661,6 @@ type
     procedure tbpmiClearVersionClick(Sender: TObject);
     procedure terraserver1Click(Sender: TObject);
     procedure tbitmCopySearchResultCoordinatesClick(Sender: TObject);
-    procedure tbitmNavigationArrowClick(Sender: TObject);
     procedure tbitmPropertiesClick(Sender: TObject);
     procedure tbitmFitMarkToScreenClick(Sender: TObject);
     procedure tbitmHideThisMarkClick(Sender: TObject);
@@ -722,6 +722,7 @@ type
     procedure actConfigAzimuthCircleExecute(Sender: TObject);
     procedure actConfigColorInversionExecute(Sender: TObject);
     procedure actConfigPreviousSelectionVisibleExecute(Sender: TObject);
+    procedure actViewNavigationExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -4498,22 +4499,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.tbitmNavigationArrowClick(Sender: TObject);
-var
-  VPoint: TDoublePoint;
-begin
-  if FConfig.NavToPoint.IsActive then begin
-    FConfig.NavToPoint.StopNav;
-  end else begin
-    VPoint := FConfig.NavToPoint.LonLat;
-    if PointIsEmpty(VPoint) then begin
-      ShowMessage('Use right-click on mark and choose Navigation to Mark');
-    end else begin
-      FConfig.NavToPoint.StartNavLonLat(VPoint);
-    end;
-  end;
-end;
-
 procedure TfrmMain.mapResize(Sender: TObject);
 begin
   FViewPortState.ChangeViewSize(Point(map.Width, map.Height));
@@ -6570,7 +6555,7 @@ end;
 
 procedure TfrmMain.OnNavToMarkChange;
 begin
-  tbitmNavigationArrow.Checked := FConfig.NavToPoint.IsActive;
+  actViewNavigation.Checked := FConfig.NavToPoint.IsActive;
 end;
 
 procedure TfrmMain.OnPathProvidesChange;
@@ -6987,6 +6972,22 @@ end;
 procedure TfrmMain.actViewFullScreenExecute(Sender: TObject);
 begin
   FWinPosition.ToggleFullScreen;
+end;
+
+procedure TfrmMain.actViewNavigationExecute(Sender: TObject);
+var
+  VPoint: TDoublePoint;
+begin
+  if FConfig.NavToPoint.IsActive then begin
+    FConfig.NavToPoint.StopNav;
+  end else begin
+    VPoint := FConfig.NavToPoint.LonLat;
+    if PointIsEmpty(VPoint) then begin
+      ShowMessage('Use right-click on mark and choose Navigation to Mark');
+    end else begin
+      FConfig.NavToPoint.StartNavLonLat(VPoint);
+    end;
+  end;
 end;
 
 procedure TfrmMain.actZoomInExecute(Sender: TObject);

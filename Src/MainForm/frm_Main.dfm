@@ -959,10 +959,8 @@ object frmMain: TfrmMain
           Images = MenusImageList
         end
         object tbitmNavigationArrow: TTBXItem
+          Action = actViewNavigation
           Images = MenusImageList
-          OnClick = tbitmNavigationArrowClick
-          Caption = 'Navigation Arrow'
-          Hint = ''
         end
         object tbitmShowDebugInfo: TTBXItem
           Images = MenusImageList
@@ -4284,6 +4282,11 @@ object frmMain: TfrmMain
       Category = 'Config'
       Caption = 'Previous Selection'
       OnExecute = actConfigPreviousSelectionVisibleExecute
+    end
+    object actViewNavigation: TAction
+      Category = 'View'
+      Caption = 'Navigation Arrow'
+      OnExecute = actViewNavigationExecute
     end
   end
 end
