@@ -486,6 +486,7 @@ type
     actConfigStatusBarVisible: TAction;
     actConfigMiniMapVisible: TAction;
     actConfigScaleLineVisible: TAction;
+    actViewToolbarsLock: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -615,7 +616,6 @@ type
     );
     procedure NSensorsClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure NBlock_toolbarsClick(Sender: TObject);
     procedure tbitmGPSOptionsClick(Sender: TObject);
     procedure TrayItemRestoreClick(Sender: TObject);
     procedure tbitmShowMarkCaptionClick(Sender: TObject);
@@ -727,6 +727,7 @@ type
     procedure actConfigStatusBarVisibleExecute(Sender: TObject);
     procedure actConfigMiniMapVisibleExecute(Sender: TObject);
     procedure actConfigScaleLineVisibleExecute(Sender: TObject);
+    procedure actViewToolbarsLockExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -915,7 +916,6 @@ type
     procedure SafeCreateDGAvailablePic(const AVisualPoint: TPoint);
 
     procedure PaintZSlider(zoom: integer);
-    procedure SetToolbarsLock(AValue: Boolean);
 
     procedure OnBeforeViewChange;
     procedure OnAfterViewChange;
@@ -2775,7 +2775,6 @@ begin
   tbitmGPSCenterMap.Checked := tBGPSToPoint.Checked;
   TBGPSToPointCenter.Checked := FConfig.GPSBehaviour.MapMoveCentered;
   tbitmGPSToPointCenter.Checked := tBGPSToPointCenter.Checked;
-  NBlock_toolbars.Checked := FConfig.ToolbarsLock.GetIsLock;
   tbitmShowMarkCaption.Checked := FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.CaptionDrawConfig.ShowPointCaption;
 
   TBHideMarks.Checked := not (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks);
@@ -2826,20 +2825,18 @@ begin
   OnMainMapChange;
 end;
 
-procedure TfrmMain.SetToolbarsLock(AValue: Boolean);
-begin
-  TBDock.AllowDrag := not AValue;
-  TBDockLeft.AllowDrag := not AValue;
-  TBDockRight.AllowDrag := not AValue;
-  TBDockBottom.AllowDrag := not AValue;
-  TBXDock1.AllowDrag := not AValue;
-  TBXDockForSearch.AllowDrag := not AValue;
-  NBlock_toolbars.Checked := AValue;
-end;
-
 procedure TfrmMain.OnToolbarsLockChange;
+var
+  VValue: Boolean;
 begin
-  SetToolbarsLock(FConfig.ToolbarsLock.GetIsLock);
+  VValue := FConfig.ToolbarsLock.GetIsLock;
+  TBDock.AllowDrag := not VValue;
+  TBDockLeft.AllowDrag := not VValue;
+  TBDockRight.AllowDrag := not VValue;
+  TBDockBottom.AllowDrag := not VValue;
+  TBXDock1.AllowDrag := not VValue;
+  TBXDockForSearch.AllowDrag := not VValue;
+  actViewToolbarsLock.Checked := VValue;
 end;
 
 procedure TfrmMain.OnWinPositionChange;
@@ -3659,11 +3656,6 @@ begin
     FfrmMapLayersOptions.pgcOptions.ActivePageIndex := 1;
   end;
   FfrmMapLayersOptions.ShowModal;
-end;
-
-procedure TfrmMain.NBlock_toolbarsClick(Sender: TObject);
-begin
-  FConfig.ToolbarsLock.SetLock(NBlock_toolbars.Checked);
 end;
 
 procedure TfrmMain.NaddPointClick(Sender: TObject);
@@ -6994,6 +6986,11 @@ begin
       FConfig.NavToPoint.StartNavLonLat(VPoint);
     end;
   end;
+end;
+
+procedure TfrmMain.actViewToolbarsLockExecute(Sender: TObject);
+begin
+  FConfig.ToolbarsLock.SetLock(not FConfig.ToolbarsLock.GetIsLock);
 end;
 
 procedure TfrmMain.actZoomInExecute(Sender: TObject);

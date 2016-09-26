@@ -423,11 +423,8 @@ object frmMain: TfrmMain
             Hint = ''
           end
           object NBlock_toolbars: TTBXItem
-            AutoCheck = True
+            Action = actViewToolbarsLock
             Images = MenusImageList
-            OnClick = NBlock_toolbarsClick
-            Caption = 'Lock Toolbars'
-            Hint = ''
           end
         end
         object tbsbmInterface: TTBXSubmenuItem
@@ -4295,6 +4292,11 @@ object frmMain: TfrmMain
       Caption = 'Scale Legend'
       ShortCut = 32844
       OnExecute = actConfigScaleLineVisibleExecute
+    end
+    object actViewToolbarsLock: TAction
+      Category = 'View'
+      Caption = 'Lock Toolbars'
+      OnExecute = actViewToolbarsLockExecute
     end
   end
 end
