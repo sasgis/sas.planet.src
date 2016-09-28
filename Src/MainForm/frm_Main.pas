@@ -591,7 +591,6 @@ type
       var ACol, ARow: Integer;
       var AllowChange: Boolean
     );
-    procedure NanimateClick(Sender: TObject);
     procedure TBXSensorsBarVisibleChanged(Sender: TObject);
     procedure tbitmSaveCurrentPositionClick(Sender: TObject);
     procedure TBXSearchEditAcceptText(
@@ -5824,11 +5823,6 @@ begin
     VUrl := CZmpInfoInternalURL + GUIDToString(VMapType.Zmp.GUID) + VUrl;
     GState.InternalBrowser.Navigate(VMapType.Zmp.FileName, VUrl);
   end;
-end;
-
-procedure TfrmMain.NanimateClick(Sender: TObject);
-begin
-  FConfig.MapZoomingConfig.AnimateZoom := (Sender as TTBXItem).Checked;
 end;
 
 procedure TfrmMain.SafeCreateDGAvailablePic(const AVisualPoint: TPoint);
