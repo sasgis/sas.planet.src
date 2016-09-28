@@ -487,6 +487,17 @@ type
     actConfigMiniMapVisible: TAction;
     actConfigScaleLineVisible: TAction;
     actViewToolbarsLock: TAction;
+    actViewGridGenShtabNo: TAction;
+    actViewGridGenShtab_1_000_000: TAction;
+    actViewGridGenShtab_500_000: TAction;
+    actViewGridGenShtab_200_000: TAction;
+    actViewGridGenShtab_100_000: TAction;
+    actViewGridGenShtab_50_000: TAction;
+    actViewGridGenShtab_25_000: TAction;
+    actViewGridGenShtab_10_000: TAction;
+    actViewGridGenShtab_5_000: TAction;
+    actViewGridGenShtab_2_500: TAction;
+    actViewGridGenShtabAuto: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -557,7 +568,6 @@ type
       Layer: TCustomLayer
     );
     procedure TBItemDelTrackClick(Sender: TObject);
-    procedure NGShScale01Click(Sender: TObject);
     procedure TBEditPathDelClick(Sender: TObject);
     procedure TBEditPathLabelClick(Sender: TObject);
     procedure TBEditPathSaveClick(Sender: TObject);
@@ -728,6 +738,7 @@ type
     procedure actConfigMiniMapVisibleExecute(Sender: TObject);
     procedure actConfigScaleLineVisibleExecute(Sender: TObject);
     procedure actViewToolbarsLockExecute(Sender: TObject);
+    procedure actViewGridGenShtabExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -907,6 +918,7 @@ type
     procedure OnMainFormMainConfigChange;
     procedure OnStateChange;
 
+    procedure OnGridGenshtabChange;
     procedure OnMainMapChange;
     procedure OnActivLayersChange;
     procedure OnFillingMapChange;
@@ -1772,6 +1784,11 @@ begin
     );
 
     FLinksList.Add(
+      TNotifyNoMmgEventListener.Create(Self.OnGridGenshtabChange),
+      FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.ChangeNotifier
+    );
+
+    FLinksList.Add(
       TNotifyNoMmgEventListener.Create(Self.OnFillingMapChange),
       FConfig.LayersConfig.FillingMapLayerConfig.GetChangeNotifier
     );
@@ -1903,27 +1920,9 @@ end;
 
 procedure TfrmMain.InitGridsMenus;
 var
-  VScale: Integer;
   VDegScale: Double;
 begin
-  VScale := FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale;
-  if FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible then begin
-    NGShScale2500.Checked := VScale = 2500;
-    NGShScale5000.Checked := VScale = 5000;
-    NGShScale10000.Checked := VScale = 10000;
-    NGShScale25000.Checked := VScale = 25000;
-    NGShScale50000.Checked := VScale = 50000;
-    NGShScale100000.Checked := VScale = 100000;
-    NGShScale200000.Checked := VScale = 200000;
-    NGShScale500000.Checked := VScale = 500000;
-    NGShScale1000000.Checked := VScale = 1000000;
-    NGShScale0.Checked := VScale = 0;
-    NGShAuto.Checked := VScale < 0;
-
-  end else begin
-    NGShScale0.Checked := True;
-  end;
-
+  OnGridGenshtabChange;
 
   NDegScale50000.Caption := FloatToStr(0.5) + '°';
   NDegScale25000.Caption := FloatToStr(0.25) + '°';
@@ -2719,6 +2718,38 @@ begin
   end;
   FillDates.Visible := VConfig.FilterMode;
   tbitmFillingMapAsMain.Checked := IsEqualGUID(VConfig.SelectedMap, CGUID_Zero);
+end;
+
+procedure TfrmMain.OnGridGenshtabChange;
+var
+  VScale: Integer;
+begin
+  VScale := FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale;
+  if FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible then begin
+    actViewGridGenShtab_1_000_000.Checked := VScale = 1000000;
+    actViewGridGenShtab_500_000.Checked := VScale = 500000;
+    actViewGridGenShtab_200_000.Checked := VScale = 200000;
+    actViewGridGenShtab_100_000.Checked := VScale = 100000;
+    actViewGridGenShtab_50_000.Checked := VScale = 50000;
+    actViewGridGenShtab_25_000.Checked := VScale = 25000;
+    actViewGridGenShtab_10_000.Checked := VScale = 10000;
+    actViewGridGenShtab_5_000.Checked := VScale = 5000;
+    actViewGridGenShtab_2_500.Checked := VScale = 2500;
+    actViewGridGenShtabNo.Checked := VScale = 0;
+    actViewGridGenShtabAuto.Checked := VScale < 0;
+  end else begin
+    actViewGridGenShtab_1_000_000.Checked := False;
+    actViewGridGenShtab_500_000.Checked := False;
+    actViewGridGenShtab_200_000.Checked := False;
+    actViewGridGenShtab_100_000.Checked := False;
+    actViewGridGenShtab_50_000.Checked := False;
+    actViewGridGenShtab_25_000.Checked := False;
+    actViewGridGenShtab_10_000.Checked := False;
+    actViewGridGenShtab_5_000.Checked := False;
+    actViewGridGenShtab_2_500.Checked := False;
+    actViewGridGenShtabNo.Checked := True;
+    actViewGridGenShtabAuto.Checked := False;
+  end;
 end;
 
 procedure TfrmMain.OnLineOnMapEditChange;
@@ -5433,34 +5464,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.NGShScale01Click(Sender: TObject);
-var
-  VTag: Integer;
-begin
-  VTag := TTBXItem(Sender).Tag;
-  FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.LockWrite;
-  try
-    if VTag = 0 then begin
-      FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible := False;
-      FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale := VTag; // всёравно записываем Scale=0 - признак того что сетка отключена
-      TTBXItem(Sender).checked := True;
-    end else begin
-      if FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible then begin
-        if FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale = VTag then begin
-          FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible := False;
-          NGShScale0.Checked := True;
-        end;
-      end else begin
-        FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible := True;
-        TTBXItem(Sender).checked := True;
-      end;
-      FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale := VTag;
-    end;
-  finally
-    FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.UnlockWrite;
-  end;
-end;
-
 procedure TfrmMain.TBEditPathDelClick(Sender: TObject);
 begin
   if FLineOnMapEdit <> nil then begin
@@ -6970,6 +6973,30 @@ end;
 procedure TfrmMain.actViewFullScreenExecute(Sender: TObject);
 begin
   FWinPosition.ToggleFullScreen;
+end;
+
+procedure TfrmMain.actViewGridGenShtabExecute(Sender: TObject);
+var
+  VTag: Integer;
+begin
+  VTag := TComponent(Sender).Tag;
+  FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.LockWrite;
+  try
+    if VTag = 0 then begin
+      FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible :=
+        not FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible;
+    end else begin
+      if FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale = VTag then begin
+        FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible :=
+          not FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible;
+      end else begin
+        FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible := True;
+        FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale := VTag;
+      end;
+    end;
+  finally
+    FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.UnlockWrite;
+  end;
 end;
 
 procedure TfrmMain.actViewNavigationExecute(Sender: TObject);
