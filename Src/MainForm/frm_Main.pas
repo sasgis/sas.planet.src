@@ -498,6 +498,16 @@ type
     actViewGridGenShtab_5_000: TAction;
     actViewGridGenShtab_2_500: TAction;
     actViewGridGenShtabAuto: TAction;
+    actViewGridLonLatNo: TAction;
+    actViewGridLonLat_10_000: TAction;
+    actViewGridLonLat_05_000: TAction;
+    actViewGridLonLat_02_000: TAction;
+    actViewGridLonLat_01_000: TAction;
+    actViewGridLonLat_00_500: TAction;
+    actViewGridLonLat_00_250: TAction;
+    actViewGridLonLat_00_125: TAction;
+    actViewGridLonLat_User: TAction;
+    actViewGridLonLatAuto: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -654,7 +664,6 @@ type
       MousePos: TPoint;
       var Handled: Boolean
     );
-    procedure NDegScale0Click(Sender: TObject);
     procedure NDegValueAcceptText(
       Sender: TObject;
       var NewText: string;
@@ -738,6 +747,7 @@ type
     procedure actConfigScaleLineVisibleExecute(Sender: TObject);
     procedure actViewToolbarsLockExecute(Sender: TObject);
     procedure actViewGridGenShtabExecute(Sender: TObject);
+    procedure actViewGridLonLatExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -918,6 +928,7 @@ type
     procedure OnStateChange;
 
     procedure OnGridGenshtabChange;
+    procedure OnGridLonLatChange;
     procedure OnMainMapChange;
     procedure OnActivLayersChange;
     procedure OnFillingMapChange;
@@ -1786,6 +1797,10 @@ begin
       TNotifyNoMmgEventListener.Create(Self.OnGridGenshtabChange),
       FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.ChangeNotifier
     );
+    FLinksList.Add(
+      TNotifyNoMmgEventListener.Create(Self.OnGridLonLatChange),
+      FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.ChangeNotifier
+    );
 
     FLinksList.Add(
       TNotifyNoMmgEventListener.Create(Self.OnFillingMapChange),
@@ -1918,41 +1933,13 @@ begin
 end;
 
 procedure TfrmMain.InitGridsMenus;
-var
-  VDegScale: Double;
 begin
   OnGridGenshtabChange;
+  OnGridLonLatChange;
 
-  NDegScale50000.Caption := FloatToStr(0.5) + '°';
-  NDegScale25000.Caption := FloatToStr(0.25) + '°';
-  NDegScale10000.Caption := FloatToStr(0.125) + '°';
-  VDegScale := FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Scale;
-  if FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible then begin
-    if VDegScale = 12500000 then begin
-      NDegScale10000.Checked := True;
-    end else if VDegScale = 25000000 then begin
-      NDegScale25000.Checked := True;
-    end else if VDegScale = 50000000 then begin
-      NDegScale50000.Checked := True;
-    end else if VDegScale = 100000000 then begin
-      NDegScale100000.Checked := True;
-    end else if VDegScale = 200000000 then begin
-      NDegScale200000.Checked := True;
-    end else if VDegScale = 500000000 then begin
-      NDegScale500000.Checked := True;
-    end else if VDegScale = 1000000000 then begin
-      NDegScale1000000.Checked := True;
-    end else if VDegScale = 0 then begin
-      NDegScale0.Checked := True;
-    end else if VDegScale < 0 then begin
-      NDegScaleAuto.Checked := True;
-    end else begin
-      NDegScaleUser.Checked := True;
-    end;
-    NDegValue.text := Deg2StrValue(VDegScale);
-  end else begin
-    NDegScale0.Checked := True;
-  end;
+  actViewGridLonLat_00_500.Caption := FloatToStr(0.5) + '°';
+  actViewGridLonLat_00_250.Caption := FloatToStr(0.25) + '°';
+  actViewGridLonLat_00_125.Caption := FloatToStr(0.125) + '°';
 end;
 
 procedure TfrmMain.InitLayers;
@@ -2749,6 +2736,40 @@ begin
     actViewGridGenShtabNo.Checked := True;
     actViewGridGenShtabAuto.Checked := False;
   end;
+end;
+
+procedure TfrmMain.OnGridLonLatChange;
+var
+  VDegScale: Integer;
+begin
+  VDegScale := Trunc(FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Scale);
+  if FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible then begin
+    if VDegScale = 12500000 then begin
+      actViewGridLonLat_00_125.Checked := True;
+    end else if VDegScale = 25000000 then begin
+      actViewGridLonLat_00_250.Checked := True;
+    end else if VDegScale = 50000000 then begin
+      actViewGridLonLat_00_500.Checked := True;
+    end else if VDegScale = 100000000 then begin
+      actViewGridLonLat_01_000.Checked := True;
+    end else if VDegScale = 200000000 then begin
+      actViewGridLonLat_02_000.Checked := True;
+    end else if VDegScale = 500000000 then begin
+      actViewGridLonLat_05_000.Checked := True;
+    end else if VDegScale = 1000000000 then begin
+      actViewGridLonLat_10_000.Checked := True;
+    end else if VDegScale = 0 then begin
+      actViewGridLonLatNo.Checked := True;
+    end else if VDegScale < 0 then begin
+      actViewGridLonLatAuto.Checked := True;
+    end else begin
+      actViewGridLonLat_User.Checked := True;
+      actViewGridLonLat_User.Tag := VDegScale;
+    end;
+  end else begin
+    actViewGridLonLatNo.Checked := True;
+  end;
+  NDegValue.text := Deg2StrValue(actViewGridLonLat_User.Tag);
 end;
 
 procedure TfrmMain.OnLineOnMapEditChange;
@@ -4044,66 +4065,19 @@ begin
   result := result + FormatFloat('00.00', VDegScale) + '"';
 end;
 
-procedure TfrmMain.NDegScale0Click(Sender: TObject);
-var
-  VTag: Double;
-begin
-  if NDegScaleUser.Checked then begin
-    VTag := (ConvLatLon2Scale(NDegValue.text) * 100000000);
-  end else begin
-    VTag := TTBXItem(Sender).Tag;
-  end;
-  NDegValue.text := Deg2StrValue(VTag);
-  FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.LockWrite;
-  try
-    if VTag = 0 then begin
-      FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible := False;
-      FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Scale := VTag;
-      TTBXItem(Sender).checked := True;
-    end else begin
-      if FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible then begin
-        if FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Scale = VTag then begin
-          FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible := False;
-          NDegScale0.checked := True;
-        end else begin
-          TTBXItem(Sender).checked := True;
-        end;
-      end else begin
-        FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible := True;
-        TTBXItem(Sender).checked := True;
-      end;
-      FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Scale := VTag;
-    end;
-  finally
-    FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.UnlockWrite;
-  end;
-end;
-
 procedure TfrmMain.NDegValueAcceptText(
   Sender: TObject;
   var NewText: string;
   var Accept: Boolean
 );
 var
-  VTag: Double;
+  VTag: Integer;
 begin
-  NDegScaleUser.checked := True;
-  VTag := (ConvLatLon2Scale(NewText) * 100000000);
+  VTag := Trunc(ConvLatLon2Scale(NewText) * 100000000);
   NewText := Deg2StrValue(VTag);
-//  NDegScaleUser.tag := VTag;
-  FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.LockWrite;
-  try
-    if VTag = 0 then begin
-      FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible := False;
-      FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Scale := VTag;
-    end else begin
-      FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible := True;
-      FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Scale := VTag;
-    end;
-  finally
-    FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.UnlockWrite;
-  end;
-
+  actViewGridLonLat_User.Tag := VTag;
+  actViewGridLonLat_User.Checked := False;
+  actViewGridLonLat_User.Execute;
 end;
 
 procedure TfrmMain.NDelClick(Sender: TObject);
@@ -6990,6 +6964,29 @@ begin
     end;
   finally
     FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.UnlockWrite;
+  end;
+end;
+
+procedure TfrmMain.actViewGridLonLatExecute(Sender: TObject);
+var
+  VTag: Double;
+begin
+  VTag := TComponent(Sender).Tag;
+  FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.LockWrite;
+  try
+    if VTag = 0 then begin
+      FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible :=
+        not FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible;
+    end else begin
+      if TCustomAction(Sender).Checked then begin
+        FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible := False;
+      end else begin
+        FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible := True;
+        FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Scale := VTag;
+      end;
+    end;
+  finally
+    FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.UnlockWrite;
   end;
 end;
 

@@ -733,88 +733,44 @@ object frmMain: TfrmMain
           Caption = 'Lat/Lon Grid'
           Hint = ''
           object NDegScale0: TTBXItem
-            AutoCheck = True
-            GroupIndex = 1
+            Action = actViewGridLonLatNo
             Images = MenusImageList
-            RadioItem = True
-            OnClick = NDegScale0Click
-            Caption = 'No'
-            Hint = ''
           end
           object NDegScale1000000: TTBXItem
-            Tag = 1000000000
-            GroupIndex = 1
+            Action = actViewGridLonLat_10_000
             Images = MenusImageList
-            RadioItem = True
-            OnClick = NDegScale0Click
-            Caption = '10'#176
-            Hint = ''
           end
           object NDegScale500000: TTBXItem
-            Tag = 500000000
-            GroupIndex = 1
+            Action = actViewGridLonLat_05_000
             Images = MenusImageList
-            RadioItem = True
-            OnClick = NDegScale0Click
-            Caption = '5'#176
-            Hint = ''
           end
           object NDegScale200000: TTBXItem
-            Tag = 200000000
-            GroupIndex = 1
+            Action = actViewGridLonLat_02_000
             Images = MenusImageList
-            RadioItem = True
-            OnClick = NDegScale0Click
-            Caption = '2'#176
-            Hint = ''
           end
           object NDegScale100000: TTBXItem
-            Tag = 100000000
-            GroupIndex = 1
+            Action = actViewGridLonLat_01_000
             Images = MenusImageList
-            RadioItem = True
-            OnClick = NDegScale0Click
-            Caption = '1'#176
-            Hint = ''
           end
           object NDegScale50000: TTBXItem
-            Tag = 50000000
-            GroupIndex = 1
+            Action = actViewGridLonLat_00_500
             Images = MenusImageList
-            RadioItem = True
-            OnClick = NDegScale0Click
-            Caption = '0.5'#176
-            Hint = ''
           end
           object NDegScale25000: TTBXItem
-            Tag = 25000000
-            GroupIndex = 1
+            Action = actViewGridLonLat_00_250
             Images = MenusImageList
-            RadioItem = True
-            OnClick = NDegScale0Click
-            Caption = '0.25'#176
-            Hint = ''
           end
           object NDegScale10000: TTBXItem
-            Tag = 12500000
-            GroupIndex = 1
+            Action = actViewGridLonLat_00_125
             Images = MenusImageList
-            RadioItem = True
-            OnClick = NDegScale0Click
-            Caption = '0.125'#176
-            Hint = ''
           end
           object TBXSeparatorItem22: TTBXSeparatorItem
             Caption = ''
             Hint = ''
           end
           object NDegScaleUser: TTBXItem
-            Tag = 1
-            GroupIndex = 1
-            RadioItem = True
-            OnClick = NDegScale0Click
-            Caption = 'User defined'
-            Hint = ''
+            Action = actViewGridLonLat_User
+            Images = MenusImageList
           end
           object NDegValue: TTBXEditItem
             OnAcceptText = NDegValueAcceptText
@@ -826,13 +782,8 @@ object frmMain: TfrmMain
             Hint = ''
           end
           object NDegScaleAuto: TTBXItem
-            Tag = -100000000
-            GroupIndex = 1
+            Action = actViewGridLonLatAuto
             Images = MenusImageList
-            RadioItem = True
-            OnClick = NDegScale0Click
-            Caption = 'Auto'
-            Hint = ''
           end
         end
         object tbxsbmProjection: TTBXSubmenuItem
@@ -4329,6 +4280,75 @@ object frmMain: TfrmMain
       Category = 'View\GridGenShtab'
       Caption = 'Auto'
       OnExecute = actViewGridGenShtabExecute
+    end
+    object actViewGridLonLatNo: TAction
+      Category = 'View\GridLonLat'
+      Caption = 'No'
+      GroupIndex = 2
+      OnExecute = actViewGridLonLatExecute
+    end
+    object actViewGridLonLat_10_000: TAction
+      Tag = 1000000000
+      Category = 'View\GridLonLat'
+      Caption = '10'#176
+      GroupIndex = 2
+      OnExecute = actViewGridLonLatExecute
+    end
+    object actViewGridLonLat_05_000: TAction
+      Tag = 500000000
+      Category = 'View\GridLonLat'
+      Caption = '5'#176
+      GroupIndex = 2
+      OnExecute = actViewGridLonLatExecute
+    end
+    object actViewGridLonLat_02_000: TAction
+      Tag = 200000000
+      Category = 'View\GridLonLat'
+      Caption = '2'#176
+      GroupIndex = 2
+      OnExecute = actViewGridLonLatExecute
+    end
+    object actViewGridLonLat_01_000: TAction
+      Tag = 100000000
+      Category = 'View\GridLonLat'
+      Caption = '1'#176
+      GroupIndex = 2
+      OnExecute = actViewGridLonLatExecute
+    end
+    object actViewGridLonLat_00_500: TAction
+      Tag = 50000000
+      Category = 'View\GridLonLat'
+      Caption = '0.5'#176
+      GroupIndex = 2
+      OnExecute = actViewGridLonLatExecute
+    end
+    object actViewGridLonLat_00_250: TAction
+      Tag = 25000000
+      Category = 'View\GridLonLat'
+      Caption = '0.25'#176
+      GroupIndex = 2
+      OnExecute = actViewGridLonLatExecute
+    end
+    object actViewGridLonLat_00_125: TAction
+      Tag = 12500000
+      Category = 'View\GridLonLat'
+      Caption = '0.125'#176
+      GroupIndex = 2
+      OnExecute = actViewGridLonLatExecute
+    end
+    object actViewGridLonLat_User: TAction
+      Tag = 1000000
+      Category = 'View\GridLonLat'
+      Caption = 'User defined'
+      GroupIndex = 2
+      OnExecute = actViewGridLonLatExecute
+    end
+    object actViewGridLonLatAuto: TAction
+      Tag = -1
+      Category = 'View\GridLonLat'
+      Caption = 'Auto'
+      GroupIndex = 2
+      OnExecute = actViewGridLonLatExecute
     end
   end
 end
