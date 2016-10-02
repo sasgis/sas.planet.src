@@ -2712,29 +2712,34 @@ var
 begin
   VScale := FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale;
   if FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible then begin
-    actViewGridGenShtab_1_000_000.Checked := VScale = 1000000;
-    actViewGridGenShtab_500_000.Checked := VScale = 500000;
-    actViewGridGenShtab_200_000.Checked := VScale = 200000;
-    actViewGridGenShtab_100_000.Checked := VScale = 100000;
-    actViewGridGenShtab_50_000.Checked := VScale = 50000;
-    actViewGridGenShtab_25_000.Checked := VScale = 25000;
-    actViewGridGenShtab_10_000.Checked := VScale = 10000;
-    actViewGridGenShtab_5_000.Checked := VScale = 5000;
-    actViewGridGenShtab_2_500.Checked := VScale = 2500;
-    actViewGridGenShtabNo.Checked := VScale = 0;
-    actViewGridGenShtabAuto.Checked := VScale < 0;
+    if VScale = 1000000 then begin
+      actViewGridGenShtab_1_000_000.Checked := True;
+    end else if VScale = 500000 then begin
+      actViewGridGenShtab_500_000.Checked := True;
+    end else if VScale = 200000 then begin
+      actViewGridGenShtab_200_000.Checked := True;
+    end else if VScale = 100000 then begin
+      actViewGridGenShtab_100_000.Checked := True;
+    end else if VScale = 50000 then begin
+      actViewGridGenShtab_50_000.Checked := True;
+    end else if VScale = 25000 then begin
+      actViewGridGenShtab_25_000.Checked := True;
+    end else if VScale = 10000 then begin
+      actViewGridGenShtab_10_000.Checked := True;
+    end else if VScale = 5000 then begin
+      actViewGridGenShtab_5_000.Checked := True;
+    end else if VScale = 2500 then begin
+      actViewGridGenShtab_2_500.Checked := True;
+    end else if VScale = 0 then begin
+      actViewGridGenShtabNo.Checked := True;
+    end else begin
+      actViewGridGenShtabAuto.Checked := True;
+      if VScale > 0 then begin
+        FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale := -1;
+      end;
+    end;
   end else begin
-    actViewGridGenShtab_1_000_000.Checked := False;
-    actViewGridGenShtab_500_000.Checked := False;
-    actViewGridGenShtab_200_000.Checked := False;
-    actViewGridGenShtab_100_000.Checked := False;
-    actViewGridGenShtab_50_000.Checked := False;
-    actViewGridGenShtab_25_000.Checked := False;
-    actViewGridGenShtab_10_000.Checked := False;
-    actViewGridGenShtab_5_000.Checked := False;
-    actViewGridGenShtab_2_500.Checked := False;
     actViewGridGenShtabNo.Checked := True;
-    actViewGridGenShtabAuto.Checked := False;
   end;
 end;
 
@@ -6954,9 +6959,8 @@ begin
       FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible :=
         not FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible;
     end else begin
-      if FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale = VTag then begin
-        FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible :=
-          not FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible;
+      if TCustomAction(Sender).Checked then begin
+        FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible := False;
       end else begin
         FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible := True;
         FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale := VTag;

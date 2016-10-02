@@ -649,83 +649,51 @@ object frmMain: TfrmMain
           Hint = ''
           object NGShScale0: TTBXItem
             Action = actViewGridGenShtabNo
-            GroupIndex = 1
             Images = MenusImageList
-            RadioItem = True
           end
           object NGShScale1000000: TTBXItem
-            Tag = 1000000
             Action = actViewGridGenShtab_1_000_000
-            GroupIndex = 1
             Images = MenusImageList
-            RadioItem = True
           end
           object NGShScale500000: TTBXItem
-            Tag = 500000
             Action = actViewGridGenShtab_500_000
-            GroupIndex = 1
             Images = MenusImageList
-            RadioItem = True
           end
           object NGShScale200000: TTBXItem
-            Tag = 200000
             Action = actViewGridGenShtab_200_000
-            GroupIndex = 1
             Images = MenusImageList
-            RadioItem = True
           end
           object NGShScale100000: TTBXItem
-            Tag = 100000
             Action = actViewGridGenShtab_100_000
-            GroupIndex = 1
             Images = MenusImageList
-            RadioItem = True
           end
           object NGShScale50000: TTBXItem
-            Tag = 50000
             Action = actViewGridGenShtab_50_000
-            GroupIndex = 1
             Images = MenusImageList
-            RadioItem = True
           end
           object NGShScale25000: TTBXItem
-            Tag = 25000
             Action = actViewGridGenShtab_25_000
-            GroupIndex = 1
             Images = MenusImageList
-            RadioItem = True
           end
           object NGShScale10000: TTBXItem
-            Tag = 10000
             Action = actViewGridGenShtab_10_000
-            GroupIndex = 1
             Images = MenusImageList
-            RadioItem = True
           end
           object NGShScale5000: TTBXItem
-            Tag = 5000
             Action = actViewGridGenShtab_5_000
-            GroupIndex = 1
             Images = MenusImageList
-            RadioItem = True
           end
           object NGShScale2500: TTBXItem
-            Tag = 2500
             Action = actViewGridGenShtab_2_500
-            GroupIndex = 1
             Images = MenusImageList
-            RadioItem = True
           end
           object TBSeparatorItem3: TTBSeparatorItem
             Caption = ''
             Hint = ''
           end
           object NGShauto: TTBXItem
-            Tag = -1
             Action = actViewGridGenShtabAuto
-            GroupIndex = 1
             Images = MenusImageList
-            RadioItem = True
           end
         end
         object DegreedLinesSubMenu: TTBXSubmenuItem
@@ -1365,7 +1333,7 @@ object frmMain: TfrmMain
         Hint = ''
       end
       object labZoom: TLabel
-        Left = 24
+        Left = 8
         Top = 221
         Width = 14
         Height = 13
@@ -1385,7 +1353,7 @@ object frmMain: TfrmMain
         Transparent = True
       end
       object ZSlider: TImage32
-        Left = 18
+        Left = 2
         Top = 32
         Width = 25
         Height = 153
@@ -4219,66 +4187,77 @@ object frmMain: TfrmMain
     object actViewGridGenShtabNo: TAction
       Category = 'View\GridGenShtab'
       Caption = 'No'
+      GroupIndex = 1
       OnExecute = actViewGridGenShtabExecute
     end
     object actViewGridGenShtab_1_000_000: TAction
       Tag = 1000000
       Category = 'View\GridGenShtab'
       Caption = '1:1 000 000 (10 km)'
+      GroupIndex = 1
       OnExecute = actViewGridGenShtabExecute
     end
     object actViewGridGenShtab_500_000: TAction
       Tag = 500000
       Category = 'View\GridGenShtab'
       Caption = '1:500 000 (5 km)'
+      GroupIndex = 1
       OnExecute = actViewGridGenShtabExecute
     end
     object actViewGridGenShtab_200_000: TAction
       Tag = 200000
       Category = 'View\GridGenShtab'
       Caption = '1:200 000 (2 km)'
+      GroupIndex = 1
       OnExecute = actViewGridGenShtabExecute
     end
     object actViewGridGenShtab_100_000: TAction
       Tag = 100000
       Category = 'View\GridGenShtab'
       Caption = '1:100 000 (1 km)'
+      GroupIndex = 1
       OnExecute = actViewGridGenShtabExecute
     end
     object actViewGridGenShtab_50_000: TAction
       Tag = 50000
       Category = 'View\GridGenShtab'
       Caption = '1:50 000 (500 m)'
+      GroupIndex = 1
       OnExecute = actViewGridGenShtabExecute
     end
     object actViewGridGenShtab_25_000: TAction
       Tag = 25000
       Category = 'View\GridGenShtab'
       Caption = '1:25 000 (250 m)'
+      GroupIndex = 1
       OnExecute = actViewGridGenShtabExecute
     end
     object actViewGridGenShtab_10_000: TAction
       Tag = 10000
       Category = 'View\GridGenShtab'
       Caption = '1:10 000 (100 m)'
+      GroupIndex = 1
       OnExecute = actViewGridGenShtabExecute
     end
     object actViewGridGenShtab_5_000: TAction
       Tag = 5000
       Category = 'View\GridGenShtab'
       Caption = '1:5 000 (50 m)'
+      GroupIndex = 1
       OnExecute = actViewGridGenShtabExecute
     end
     object actViewGridGenShtab_2_500: TAction
       Tag = 2500
       Category = 'View\GridGenShtab'
       Caption = '1:2 500 (25 m)'
+      GroupIndex = 1
       OnExecute = actViewGridGenShtabExecute
     end
     object actViewGridGenShtabAuto: TAction
       Tag = -1
       Category = 'View\GridGenShtab'
       Caption = 'Auto'
+      GroupIndex = 1
       OnExecute = actViewGridGenShtabExecute
     end
     object actViewGridLonLatNo: TAction
