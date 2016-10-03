@@ -480,32 +480,16 @@ object frmMain: TfrmMain
             Hint = ''
           end
           object NFillMode1: TTBXItem
-            Tag = 99
-            Checked = True
-            GroupIndex = 2
+            Action = actViewFillingMapMarkUnexisting
             Images = MenusImageList
-            RadioItem = True
-            OnClick = NFillMode1Click
-            Caption = 'Mark Nonexistent Tiles'
-            Hint = ''
           end
           object NFillMode2: TTBXItem
-            Tag = 99
-            GroupIndex = 2
+            Action = actViewFillingMapMarkExisting
             Images = MenusImageList
-            RadioItem = True
-            OnClick = NFillMode2Click
-            Caption = 'Mark Existing Tiles'
-            Hint = ''
           end
           object NFillMode3: TTBXItem
-            Tag = 99
-            GroupIndex = 2
+            Action = actViewFillingMapMarkGradient
             Images = MenusImageList
-            RadioItem = True
-            OnClick = NFillMode3Click
-            Caption = 'Use Age Gradient'
-            Hint = ''
           end
           object TBXSeparatorItem21: TTBXSeparatorItem
             Caption = ''
@@ -4349,6 +4333,24 @@ object frmMain: TfrmMain
       Category = 'Help'
       Caption = 'Check for updates...'
       OnExecute = actShowUpddateCheckerExecute
+    end
+    object actViewFillingMapMarkUnexisting: TAction
+      Category = 'View\FillingMap'
+      Caption = 'Mark Nonexistent Tiles'
+      GroupIndex = 4
+      OnExecute = actViewFillingMapMarkUnexistingExecute
+    end
+    object actViewFillingMapMarkExisting: TAction
+      Category = 'View\FillingMap'
+      Caption = 'Mark Existing Tiles'
+      GroupIndex = 4
+      OnExecute = actViewFillingMapMarkExistingExecute
+    end
+    object actViewFillingMapMarkGradient: TAction
+      Category = 'View\FillingMap'
+      Caption = 'Use Age Gradient'
+      GroupIndex = 4
+      OnExecute = actViewFillingMapMarkGradientExecute
     end
   end
 end

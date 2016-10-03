@@ -516,6 +516,9 @@ type
     actHelpOpenCommunity: TBrowseURL;
     actShowPascalScriptIde: TAction;
     actShowUpddateChecker: TAction;
+    actViewFillingMapMarkUnexisting: TAction;
+    actViewFillingMapMarkExisting: TAction;
+    actViewFillingMapMarkGradient: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -653,9 +656,6 @@ type
     procedure TBEditMagnetDrawClick(Sender: TObject);
     procedure TBEditSelectPolylineRadiusChange(Sender: TObject);
     procedure osmorg1Click(Sender: TObject);
-    procedure NFillMode1Click(Sender: TObject);
-    procedure NFillMode2Click(Sender: TObject);
-    procedure NFillMode3Click(Sender: TObject);
     procedure NShowFillDatesClick(Sender: TObject);
     procedure DateTimePicker1Change(Sender: TObject);
     procedure DateTimePicker2Change(Sender: TObject);
@@ -750,6 +750,9 @@ type
     procedure actHelpShowAboutExecute(Sender: TObject);
     procedure actShowPascalScriptIdeExecute(Sender: TObject);
     procedure actShowUpddateCheckerExecute(Sender: TObject);
+    procedure actViewFillingMapMarkUnexistingExecute(Sender: TObject);
+    procedure actViewFillingMapMarkExistingExecute(Sender: TObject);
+    procedure actViewFillingMapMarkGradientExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -2685,6 +2688,7 @@ end;
 procedure TfrmMain.OnFillingMapChange;
 var
   VConfig: IFillingMapLayerConfigStatic;
+  VFillMode: TFillMode;
 begin
   VConfig := FConfig.LayersConfig.FillingMapLayerConfig.GetStatic;
   if VConfig.Visible then begin
@@ -2696,6 +2700,15 @@ begin
   end else begin
     TBMapZap.Caption := '';
   end;
+  VFillMode := VConfig.FillMode;
+  if (VFillMode = fmUnexisting) then begin
+    actViewFillingMapMarkUnexisting.Checked := True;
+  end else if (VFillMode = fmExisting) then begin
+    actViewFillingMapMarkExisting.Checked := True;
+  end else if (VFillMode = fmGradient) then begin
+    actViewFillingMapMarkGradient.Checked := True;
+  end;
+
   FillDates.Visible := VConfig.FilterMode;
   tbitmFillingMapAsMain.Checked := IsEqualGUID(VConfig.SelectedMap, CGUID_Zero);
 end;
@@ -4024,7 +4037,6 @@ var
   VRelative: Boolean;
   VZoom: Byte;
   VSelectedCell: TPoint;
-  VFillMode: TFillMode;
   VFilterMode: Boolean;
   VFillFirstDay: TDateTime;
   VFillLastDay: TDateTime;
@@ -4034,7 +4046,6 @@ begin
     VVisible := FConfig.LayersConfig.FillingMapLayerConfig.Visible;
     VRelative := FConfig.LayersConfig.FillingMapLayerConfig.UseRelativeZoom;
     VZoom := FConfig.LayersConfig.FillingMapLayerConfig.Zoom;
-    VFillMode := FConfig.LayersConfig.FillingMapLayerConfig.FillMode;
     VFilterMode := FConfig.LayersConfig.FillingMapLayerConfig.FilterMode;
     VFillFirstDay := FConfig.LayersConfig.FillingMapLayerConfig.FillFirstDay;
     VFillLastDay := FConfig.LayersConfig.FillingMapLayerConfig.FillLastDay;
@@ -4053,33 +4064,9 @@ begin
     VSelectedCell := Point(0, 0);
   end;
   TBXToolPalette1.SelectedCell := VSelectedCell;
-  if (VFillMode = fmUnexisting) then begin
-    NFillMode1.Checked := True;
-  end;
-  if (VFillMode = fmExisting) then begin
-    NFillMode2.Checked := True;
-  end;
-  if (VFillMode = fmGradient) then begin
-    NFillMode3.Checked := True;
-  end;
   NShowFillDates.Checked := VFilterMode;
   DateTimePicker1.DateTime := VFillFirstDay;
   DateTimePicker2.DateTime := VFillLastDay;
-end;
-
-procedure TfrmMain.NFillMode1Click(Sender: TObject);
-begin
-  FConfig.LayersConfig.FillingMapLayerConfig.FillMode := fmUnexisting;
-end;
-
-procedure TfrmMain.NFillMode2Click(Sender: TObject);
-begin
-  FConfig.LayersConfig.FillingMapLayerConfig.FillMode := fmExisting;
-end;
-
-procedure TfrmMain.NFillMode3Click(Sender: TObject);
-begin
-  FConfig.LayersConfig.FillingMapLayerConfig.FillMode := fmGradient;
 end;
 
 procedure TfrmMain.NShowFillDatesClick(Sender: TObject);
@@ -6815,6 +6802,21 @@ end;
 procedure TfrmMain.actShowUpddateCheckerExecute(Sender: TObject);
 begin
   FfrmUpdateChecker.Show;
+end;
+
+procedure TfrmMain.actViewFillingMapMarkExistingExecute(Sender: TObject);
+begin
+  FConfig.LayersConfig.FillingMapLayerConfig.FillMode := fmExisting;
+end;
+
+procedure TfrmMain.actViewFillingMapMarkGradientExecute(Sender: TObject);
+begin
+  FConfig.LayersConfig.FillingMapLayerConfig.FillMode := fmGradient;
+end;
+
+procedure TfrmMain.actViewFillingMapMarkUnexistingExecute(Sender: TObject);
+begin
+  FConfig.LayersConfig.FillingMapLayerConfig.FillMode := fmUnexisting;
 end;
 
 procedure TfrmMain.actViewFullScreenExecute(Sender: TObject);
