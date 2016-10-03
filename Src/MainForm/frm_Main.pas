@@ -39,6 +39,7 @@ uses
   Controls,
   ActnList,
   ExtCtrls,
+  ExtActns,
   Dialogs,
   Spin,
   ImgList,
@@ -508,6 +509,7 @@ type
     actViewGridLonLat_00_125: TAction;
     actViewGridLonLat_User: TAction;
     actViewGridLonLatAuto: TAction;
+    actHelpOpenOnline: TBrowseURL;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -533,7 +535,6 @@ type
     procedure NFillMapClick(Sender: TObject);
     procedure NSRCinetClick(Sender: TObject);
     procedure tbitmAboutClick(Sender: TObject);
-    procedure tbitmOnlineHelpClick(Sender: TObject);
     procedure N000Click(Sender: TObject);
     procedure TrayItemQuitClick(Sender: TObject);
     procedure TBGPSconnClick(Sender: TObject);
@@ -6247,11 +6248,6 @@ begin
   tbitmSelectVersionByMark.Visible := tbitmMakeVersionByMark.Visible;
   // versions submenu
   tbpmiVersions.Visible := (VMapType.TileStorage.StorageTypeAbilities.VersionSupport = tstvsMultiVersions) or tbpmiClearVersion.Visible or tbitmMakeVersionByMark.Visible;
-end;
-
-procedure TfrmMain.tbitmOnlineHelpClick(Sender: TObject);
-begin
-  OpenUrlInBrowser('http://sasgis.org/wikisasiya/');
 end;
 
 procedure TfrmMain.tbitmOnlineForumClick(Sender: TObject);

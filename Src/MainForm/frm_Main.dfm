@@ -1091,12 +1091,8 @@ object frmMain: TfrmMain
         Caption = '&Help'
         Hint = ''
         object tbitmOnlineHelp: TTBXItem
-          ImageIndex = 26
+          Action = actHelpOpenOnline
           Images = MenusImageList
-          ShortCut = 112
-          OnClick = tbitmOnlineHelpClick
-          Caption = 'Online Help (http://sasgis.org/wikisasiya)'
-          Hint = ''
         end
         object tbitmAbout: TTBXItem
           ImageIndex = 27
@@ -4328,6 +4324,13 @@ object frmMain: TfrmMain
       Caption = 'Auto'
       GroupIndex = 2
       OnExecute = actViewGridLonLatExecute
+    end
+    object actHelpOpenOnline: TBrowseURL
+      Category = 'Help'
+      Caption = 'Online Help (http://sasgis.org/wikisasiya)'
+      ImageIndex = 26
+      ShortCut = 112
+      URL = 'http://sasgis.org/wikisasiya/'
     end
   end
 end
