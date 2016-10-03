@@ -520,6 +520,8 @@ type
     actViewFillingMapMarkExisting: TAction;
     actViewFillingMapMarkGradient: TAction;
     actViewFillingMapFilterMode: TAction;
+    actViewSelectNextMapWithTile: TAction;
+    actViewSelectPrevMapWithTile: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -705,8 +707,6 @@ type
     procedure tbitmPointProjectClick(Sender: TObject);
     procedure TBXNextVerClick(Sender: TObject);
     procedure TBXPrevVerClick(Sender: TObject);
-    procedure tbxnxtmapClick(Sender: TObject);
-    procedure tbxprevmapClick(Sender: TObject);
     procedure tbMergePolygonsClose(Sender: TObject);
     procedure tbxtmAddToMergePolygonsClick(Sender: TObject);
     procedure tbxFillingMapClick(Sender: TObject);
@@ -753,6 +753,8 @@ type
     procedure actViewFillingMapMarkExistingExecute(Sender: TObject);
     procedure actViewFillingMapMarkGradientExecute(Sender: TObject);
     procedure actViewFillingMapFilterModeExecute(Sender: TObject);
+    procedure actViewSelectNextMapWithTileExecute(Sender: TObject);
+    procedure actViewSelectPrevMapWithTileExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -5820,38 +5822,6 @@ begin
   VMapType.NextVersion(VLocalConverter, +1);
 end;
 
-procedure TfrmMain.tbxnxtmapClick(Sender: TObject);
-var
-  VNextMap: IMapType;
-begin
-  VNextMap :=
-    GState.MapType.NextMapWithTile(
-      FViewPortState.View.GetStatic,
-      FMainMapState.ActiveMap.GetStatic,
-      +1
-    );
-
-  if Assigned(VNextMap) then begin
-    FConfig.MainMapConfig.MainMapGUID := VNextMap.GUID;
-  end;
-end;
-
-procedure TfrmMain.tbxprevmapClick(Sender: TObject);
-var
-  VNextMap: IMapType;
-begin
-  VNextMap :=
-    GState.MapType.NextMapWithTile(
-      FViewPortState.View.GetStatic,
-      FMainMapState.ActiveMap.GetStatic,
-      -1
-    );
-
-  if Assigned(VNextMap) then begin
-    FConfig.MainMapConfig.MainMapGUID := VNextMap.GUID;
-  end;
-end;
-
 procedure TfrmMain.TBXPrevVerClick(Sender: TObject);
 var
   VMapType: IMapType;
@@ -6860,6 +6830,38 @@ begin
     end else begin
       FConfig.NavToPoint.StartNavLonLat(VPoint);
     end;
+  end;
+end;
+
+procedure TfrmMain.actViewSelectNextMapWithTileExecute(Sender: TObject);
+var
+  VNextMap: IMapType;
+begin
+  VNextMap :=
+    GState.MapType.NextMapWithTile(
+      FViewPortState.View.GetStatic,
+      FMainMapState.ActiveMap.GetStatic,
+      +1
+    );
+
+  if Assigned(VNextMap) then begin
+    FConfig.MainMapConfig.MainMapGUID := VNextMap.GUID;
+  end;
+end;
+
+procedure TfrmMain.actViewSelectPrevMapWithTileExecute(Sender: TObject);
+var
+  VNextMap: IMapType;
+begin
+  VNextMap :=
+    GState.MapType.NextMapWithTile(
+      FViewPortState.View.GetStatic,
+      FMainMapState.ActiveMap.GetStatic,
+      -1
+    );
+
+  if Assigned(VNextMap) then begin
+    FConfig.MainMapConfig.MainMapGUID := VNextMap.GUID;
   end;
 end;
 

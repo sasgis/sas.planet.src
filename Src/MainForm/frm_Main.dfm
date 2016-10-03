@@ -743,14 +743,10 @@ object frmMain: TfrmMain
           Caption = 'Maps'
           Hint = ''
           object tbxnxtmap: TTBXItem
-            OnClick = tbxnxtmapClick
-            Caption = 'Next map with tile'
-            Hint = ''
+            Action = actViewSelectNextMapWithTile
           end
           object tbxprevmap: TTBXItem
-            OnClick = tbxprevmapClick
-            Caption = 'Previous map with tile'
-            Hint = ''
+            Action = actViewSelectPrevMapWithTile
           end
         end
         object TBXSubmnMapVer: TTBXSubmenuItem
@@ -4351,6 +4347,16 @@ object frmMain: TfrmMain
       Category = 'View\FillingMap'
       Caption = 'Within Time Interval'
       OnExecute = actViewFillingMapFilterModeExecute
+    end
+    object actViewSelectNextMapWithTile: TAction
+      Category = 'View'
+      Caption = 'Next map with tile'
+      OnExecute = actViewSelectNextMapWithTileExecute
+    end
+    object actViewSelectPrevMapWithTile: TAction
+      Category = 'View'
+      Caption = 'Previous map with tile'
+      OnExecute = actViewSelectPrevMapWithTileExecute
     end
   end
 end
