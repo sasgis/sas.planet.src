@@ -754,14 +754,10 @@ object frmMain: TfrmMain
           Caption = 'Versions'
           Hint = ''
           object TBXNextVer: TTBXItem
-            OnClick = TBXNextVerClick
-            Caption = 'Next version'
-            Hint = ''
+            Action = actViewSelectNextMapVersion
           end
           object TBXPrevVer: TTBXItem
-            OnClick = TBXPrevVerClick
-            Caption = 'Previous version'
-            Hint = ''
+            Action = actViewSelectPrevMapVersion
           end
         end
         object TBXSeparatorItem10: TTBXSeparatorItem
@@ -4357,6 +4353,16 @@ object frmMain: TfrmMain
       Category = 'View'
       Caption = 'Previous map with tile'
       OnExecute = actViewSelectPrevMapWithTileExecute
+    end
+    object actViewSelectNextMapVersion: TAction
+      Category = 'View'
+      Caption = 'Next version'
+      OnExecute = actViewSelectNextMapVersionExecute
+    end
+    object actViewSelectPrevMapVersion: TAction
+      Category = 'View'
+      Caption = 'Previous version'
+      OnExecute = actViewSelectPrevMapVersionExecute
     end
   end
 end

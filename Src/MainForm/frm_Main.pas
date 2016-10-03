@@ -522,6 +522,8 @@ type
     actViewFillingMapFilterMode: TAction;
     actViewSelectNextMapWithTile: TAction;
     actViewSelectPrevMapWithTile: TAction;
+    actViewSelectNextMapVersion: TAction;
+    actViewSelectPrevMapVersion: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -705,8 +707,6 @@ type
     procedure TBEditPathLabelShowAzimuthClick(Sender: TObject);
     procedure TBEditPathSplitClick(Sender: TObject);
     procedure tbitmPointProjectClick(Sender: TObject);
-    procedure TBXNextVerClick(Sender: TObject);
-    procedure TBXPrevVerClick(Sender: TObject);
     procedure tbMergePolygonsClose(Sender: TObject);
     procedure tbxtmAddToMergePolygonsClick(Sender: TObject);
     procedure tbxFillingMapClick(Sender: TObject);
@@ -755,6 +755,8 @@ type
     procedure actViewFillingMapFilterModeExecute(Sender: TObject);
     procedure actViewSelectNextMapWithTileExecute(Sender: TObject);
     procedure actViewSelectPrevMapWithTileExecute(Sender: TObject);
+    procedure actViewSelectNextMapVersionExecute(Sender: TObject);
+    procedure actViewSelectPrevMapVersionExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -5812,26 +5814,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.TBXNextVerClick(Sender: TObject);
-var
-  VMapType: IMapType;
-  VLocalConverter: ILocalCoordConverter;
-begin
-  VMapType := FMainMapState.ActiveMap.GetStatic;
-  VLocalConverter := FViewPortState.View.GetStatic;
-  VMapType.NextVersion(VLocalConverter, +1);
-end;
-
-procedure TfrmMain.TBXPrevVerClick(Sender: TObject);
-var
-  VMapType: IMapType;
-  VLocalConverter: ILocalCoordConverter;
-begin
-  VMapType := FMainMapState.ActiveMap.GetStatic;
-  VLocalConverter := FViewPortState.View.GetStatic;
-  VMapType.NextVersion(VLocalConverter, -1);
-end;
-
 procedure TfrmMain.MakeRosreestrPolygon(const APoint: TPoint);
 var
   VLocalConverter: ILocalCoordConverter;
@@ -6833,6 +6815,16 @@ begin
   end;
 end;
 
+procedure TfrmMain.actViewSelectNextMapVersionExecute(Sender: TObject);
+var
+  VMapType: IMapType;
+  VLocalConverter: ILocalCoordConverter;
+begin
+  VMapType := FMainMapState.ActiveMap.GetStatic;
+  VLocalConverter := FViewPortState.View.GetStatic;
+  VMapType.NextVersion(VLocalConverter, +1);
+end;
+
 procedure TfrmMain.actViewSelectNextMapWithTileExecute(Sender: TObject);
 var
   VNextMap: IMapType;
@@ -6847,6 +6839,16 @@ begin
   if Assigned(VNextMap) then begin
     FConfig.MainMapConfig.MainMapGUID := VNextMap.GUID;
   end;
+end;
+
+procedure TfrmMain.actViewSelectPrevMapVersionExecute(Sender: TObject);
+var
+  VMapType: IMapType;
+  VLocalConverter: ILocalCoordConverter;
+begin
+  VMapType := FMainMapState.ActiveMap.GetStatic;
+  VLocalConverter := FViewPortState.View.GetStatic;
+  VMapType.NextVersion(VLocalConverter, -1);
 end;
 
 procedure TfrmMain.actViewSelectPrevMapWithTileExecute(Sender: TObject);
