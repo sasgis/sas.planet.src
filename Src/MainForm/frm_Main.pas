@@ -513,6 +513,7 @@ type
     actHelpShowAbout: TAction;
     actHelpOpenWebSite: TBrowseURL;
     actHelpOpenIssueTracker: TBrowseURL;
+    actHelpOpenCommunity: TBrowseURL;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -585,7 +586,6 @@ type
     procedure TBEditPathLabelClick(Sender: TObject);
     procedure TBEditPathSaveClick(Sender: TObject);
     procedure TBEditPathClose(Sender: TObject);
-    procedure tbitmOnlineForumClick(Sender: TObject);
     procedure tbitmPlacemarkManagerClick(Sender: TObject);
     procedure NSRTM3Click(Sender: TObject);
     procedure NGTOPO30Click(Sender: TObject);
@@ -6236,11 +6236,6 @@ begin
   tbitmSelectVersionByMark.Visible := tbitmMakeVersionByMark.Visible;
   // versions submenu
   tbpmiVersions.Visible := (VMapType.TileStorage.StorageTypeAbilities.VersionSupport = tstvsMultiVersions) or tbpmiClearVersion.Visible or tbitmMakeVersionByMark.Visible;
-end;
-
-procedure TfrmMain.tbitmOnlineForumClick(Sender: TObject);
-begin
-  OpenUrlInBrowser('http://sasgis.org/forum');
 end;
 
 procedure TfrmMain.NParamsPopup(

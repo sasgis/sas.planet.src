@@ -1111,10 +1111,8 @@ object frmMain: TfrmMain
           Images = MenusImageList
         end
         object tbitmOnlineForum: TTBXItem
+          Action = actHelpOpenCommunity
           Images = MenusImageList
-          OnClick = tbitmOnlineForumClick
-          Caption = 'Community  (http://www.sasgis.org/forum)'
-          Hint = ''
         end
         object tbxSep1: TTBXSeparatorItem
           Caption = ''
@@ -4338,8 +4336,13 @@ object frmMain: TfrmMain
     end
     object actHelpOpenIssueTracker: TBrowseURL
       Category = 'Help'
-      Caption = 'Issue Tracker (http://sasgis.org/mantis)'
+      Caption = 'Issue Tracker (http://sasgis.org/mantis)'
       URL = 'http://sasgis.org/mantis/'
+    end
+    object actHelpOpenCommunity: TBrowseURL
+      Category = 'Help'
+      Caption = 'Community  (http://www.sasgis.org/forum)'
+      URL = 'http://sasgis.org/forum/'
     end
   end
 end
