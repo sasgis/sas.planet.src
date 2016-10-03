@@ -511,6 +511,7 @@ type
     actViewGridLonLatAuto: TAction;
     actHelpOpenOnline: TBrowseURL;
     actHelpShowAbout: TAction;
+    actHelpOpenWebSite: TBrowseURL;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -584,7 +585,6 @@ type
     procedure TBEditPathSaveClick(Sender: TObject);
     procedure TBEditPathClose(Sender: TObject);
     procedure tbitmOnlineForumClick(Sender: TObject);
-    procedure tbitmOnlineHomeClick(Sender: TObject);
     procedure tbitmPlacemarkManagerClick(Sender: TObject);
     procedure NSRTM3Click(Sender: TObject);
     procedure NGTOPO30Click(Sender: TObject);
@@ -6241,11 +6241,6 @@ end;
 procedure TfrmMain.tbitmOnlineForumClick(Sender: TObject);
 begin
   OpenUrlInBrowser('http://sasgis.org/forum');
-end;
-
-procedure TfrmMain.tbitmOnlineHomeClick(Sender: TObject);
-begin
-  OpenUrlInBrowser('http://sasgis.org/');
 end;
 
 procedure TfrmMain.tbtmHelpBugTrackClick(Sender: TObject);

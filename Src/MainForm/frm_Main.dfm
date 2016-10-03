@@ -1103,10 +1103,8 @@ object frmMain: TfrmMain
           Hint = ''
         end
         object tbitmOnlineHome: TTBXItem
+          Action = actHelpOpenWebSite
           Images = MenusImageList
-          OnClick = tbitmOnlineHomeClick
-          Caption = 'Web Site (http://www.sasgis.org)'
-          Hint = ''
         end
         object tbtmHelpBugTrack: TTBXItem
           Images = MenusImageList
@@ -4334,6 +4332,11 @@ object frmMain: TfrmMain
       Caption = 'About'
       ImageIndex = 27
       OnExecute = actHelpShowAboutExecute
+    end
+    object actHelpOpenWebSite: TBrowseURL
+      Category = 'Help'
+      Caption = 'Web Site (http://www.sasgis.org)'
+      URL = 'http://sasgis.org/'
     end
   end
 end
