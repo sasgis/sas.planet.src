@@ -495,12 +495,8 @@ object frmMain: TfrmMain
             Hint = ''
           end
           object NShowFillDates: TTBXItem
-            Tag = 99
-            GroupIndex = 1
+            Action = actViewFillingMapFilterMode
             Images = MenusImageList
-            OnClick = NShowFillDatesClick
-            Caption = 'Within Time Interval'
-            Hint = ''
           end
         end
         object NShowGran: TTBXSubmenuItem
@@ -4350,6 +4346,11 @@ object frmMain: TfrmMain
       Caption = 'Use Age Gradient'
       GroupIndex = 4
       OnExecute = actViewFillingMapMarkGradientExecute
+    end
+    object actViewFillingMapFilterMode: TAction
+      Category = 'View\FillingMap'
+      Caption = 'Within Time Interval'
+      OnExecute = actViewFillingMapFilterModeExecute
     end
   end
 end

@@ -519,6 +519,7 @@ type
     actViewFillingMapMarkUnexisting: TAction;
     actViewFillingMapMarkExisting: TAction;
     actViewFillingMapMarkGradient: TAction;
+    actViewFillingMapFilterMode: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -655,7 +656,6 @@ type
     procedure TBEditMagnetDrawClick(Sender: TObject);
     procedure TBEditSelectPolylineRadiusChange(Sender: TObject);
     procedure osmorg1Click(Sender: TObject);
-    procedure NShowFillDatesClick(Sender: TObject);
     procedure DateTimePicker1Change(Sender: TObject);
     procedure DateTimePicker2Change(Sender: TObject);
     procedure FormMouseWheel(
@@ -752,6 +752,7 @@ type
     procedure actViewFillingMapMarkUnexistingExecute(Sender: TObject);
     procedure actViewFillingMapMarkExistingExecute(Sender: TObject);
     procedure actViewFillingMapMarkGradientExecute(Sender: TObject);
+    procedure actViewFillingMapFilterModeExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -4048,15 +4049,6 @@ begin
 end;
 
 //карта заполнения в основном окне
-procedure TfrmMain.NShowFillDatesClick(Sender: TObject);
-var
-  VFilter: Boolean;
-begin
-  VFilter := not NShowFillDates.Checked;
-  FConfig.LayersConfig.FillingMapLayerConfig.FilterMode := VFilter;
-  NShowFillDates.Checked := VFilter;
-end;
-
 procedure TfrmMain.DateTimePicker1Change(Sender: TObject);
 begin
   if (DateTimePicker2.DateTime < DateTimePicker1.DateTime) then begin
@@ -6781,6 +6773,12 @@ end;
 procedure TfrmMain.actShowUpddateCheckerExecute(Sender: TObject);
 begin
   FfrmUpdateChecker.Show;
+end;
+
+procedure TfrmMain.actViewFillingMapFilterModeExecute(Sender: TObject);
+begin
+  FConfig.LayersConfig.FillingMapLayerConfig.FilterMode :=
+    not FConfig.LayersConfig.FillingMapLayerConfig.FilterMode;
 end;
 
 procedure TfrmMain.actViewFillingMapMarkExistingExecute(Sender: TObject);
