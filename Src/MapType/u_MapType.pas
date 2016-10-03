@@ -39,6 +39,7 @@ uses
   i_LanguageManager,
   i_Projection,
   i_ProjectionSet,
+  i_LocalCoordConverter,
   i_MapVersionFactory,
   i_MapVersionRequest,
   i_MapVersionRequestConfig,
@@ -180,6 +181,7 @@ type
     ): IBitmap32Static;
 
     function GetShortFolderName: string;
+    procedure NextVersion(const AView: ILocalCoordConverter; AStep: integer);
 
     function GetGUID: TGUID;
 
@@ -240,6 +242,7 @@ uses
   c_InternalBrowser,
   i_TileInfoBasic,
   i_TileStorageAbilities,
+  i_MapVersionListStatic,
   i_DownloadResultFactory,
   u_StringProviderForMapTileItem,
   u_LayerDrawConfig,
@@ -734,6 +737,48 @@ begin
   except
     if not IgnoreError then begin
       raise;
+    end;
+  end;
+end;
+
+procedure TMapType.NextVersion(const AView: ILocalCoordConverter; AStep: integer);
+var
+  I: Integer;
+  VProjection: IProjection;
+  VMapProjection: IProjection;
+  VList: IMapVersionListStatic;
+  VMapTile: Tpoint;
+  VLonLat: TDoublePoint;
+  VIndex: integer;
+begin
+  if FStorage.StorageTypeAbilities.VersionSupport = tstvsMultiVersions then begin
+    VIndex := -1;
+    VProjection := AView.Projection;
+    VLonLat := AView.GetCenterLonLat;
+    VMapProjection := FProjectionSet.GetSuitableProjection(VProjection);
+    if VMapProjection.ProjectionType.CheckLonLatPos(VLonLat) then begin
+      VMapTile :=
+        PointFromDoublePoint(
+          VMapProjection.LonLat2TilePosFloat(VLonLat),
+          prToTopLeft
+        );
+      VList := FStorage.GetListOfTileVersions(VMapTile, VMapProjection.Zoom, nil);
+      if Vlist <> nil then begin
+        for I := 0 to VList.Count - 1 do begin
+          if FVersionRequest.GetStatic.BaseVersion.IsSame(VList.Item[i]) then begin
+            VIndex := i;
+            Break;
+          end;
+        end;
+        VIndex := VIndex + AStep;
+        if (VIndex >= VList.Count) then begin
+          VIndex := 0;
+        end;
+        if (VIndex < 0) then begin
+          VIndex := VList.Count - 1;
+        end;
+        FVersionRequestConfig.Version := VList.Item[VIndex].StoreString;
+      end;
     end;
   end;
 end;

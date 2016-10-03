@@ -41,6 +41,7 @@ uses
   i_SimpleTileStorageConfig,
   i_TileDownloadSubsystem,
   i_TileStorage,
+  i_LocalCoordConverter,
   i_MapTypeGUIConfig,
   i_LayerDrawConfig,
   i_TileDownloaderConfig,
@@ -98,6 +99,7 @@ type
     ): IBitmap32Static;
 
     function GetShortFolderName: string;
+    procedure NextVersion(const AView: ILocalCoordConverter; AStep: integer);
 
     function GetZmp: IZmpInfo;
     property Zmp: IZmpInfo read GetZmp;

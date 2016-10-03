@@ -675,7 +675,6 @@ type
       FromLink: Boolean
     );
     procedure NextMapWithTile(AStep: integer);
-    procedure NextVersion(AStep: integer);
     procedure tbpmiClearVersionClick(Sender: TObject);
     procedure terraserver1Click(Sender: TObject);
     procedure tbitmCopySearchResultCoordinatesClick(Sender: TObject);
@@ -3359,52 +3358,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.NextVersion(AStep: integer);
-var
-  I: Integer;
-  VMapType: IMapType;
-  VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjection;
-  VMapProjection: IProjection;
-  VList: IMapVersionListStatic;
-  VMapTile: Tpoint;
-  VLonLat: TDoublePoint;
-  VIndex: integer;
-begin
-  VMapType := FMainMapState.ActiveMap.GetStatic;
-  if VMapType.TileStorage.StorageTypeAbilities.VersionSupport = tstvsMultiVersions then begin
-    VLocalConverter := FViewPortState.View.GetStatic;
-    VIndex := -1;
-    VProjection := VLocalConverter.Projection;
-    VLonLat := VLocalConverter.GetCenterLonLat;
-    VMapProjection := VMapType.ProjectionSet.GetSuitableProjection(VProjection);
-    if VMapProjection.ProjectionType.CheckLonLatPos(VLonLat) then begin
-      VMapTile :=
-        PointFromDoublePoint(
-          VMapProjection.LonLat2TilePosFloat(VLonLat),
-          prToTopLeft
-        );
-      VList := VMapType.TileStorage.GetListOfTileVersions(VMapTile, VMapProjection.Zoom, nil);
-      if Vlist <> nil then begin
-        for I := 0 to VList.Count - 1 do begin
-          if VMapType.VersionRequest.GetStatic.BaseVersion.IsSame(VList.Item[i]) then begin
-            VIndex := i;
-            Break;
-          end;
-        end;
-        VIndex := VIndex + AStep;
-        if (VIndex >= VList.Count) then begin
-          VIndex := 0;
-        end;
-        if (VIndex < 0) then begin
-          VIndex := VList.Count - 1;
-        end;
-        VMapType.VersionRequestConfig.Version := VList.Item[VIndex].StoreString;
-      end;
-    end;
-  end;
-end;
-
 procedure TfrmMain.tbpmiVersionsPopup(
   Sender: TTBCustomItem;
   FromLink: Boolean
@@ -6007,8 +5960,13 @@ begin
 end;
 
 procedure TfrmMain.TBXNextVerClick(Sender: TObject);
+var
+  VMapType: IMapType;
+  VLocalConverter: ILocalCoordConverter;
 begin
-  NextVersion(+1);
+  VMapType := FMainMapState.ActiveMap.GetStatic;
+  VLocalConverter := FViewPortState.View.GetStatic;
+  VMapType.NextVersion(VLocalConverter, +1);
 end;
 
 procedure TfrmMain.tbxnxtmapClick(Sender: TObject);
@@ -6022,8 +5980,13 @@ begin
 end;
 
 procedure TfrmMain.TBXPrevVerClick(Sender: TObject);
+var
+  VMapType: IMapType;
+  VLocalConverter: ILocalCoordConverter;
 begin
-  NextVersion(-1);
+  VMapType := FMainMapState.ActiveMap.GetStatic;
+  VLocalConverter := FViewPortState.View.GetStatic;
+  VMapType.NextVersion(VLocalConverter, -1);
 end;
 
 procedure TfrmMain.MakeRosreestrPolygon(const APoint: TPoint);
