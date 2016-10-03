@@ -4085,32 +4085,17 @@ end;
 
 procedure TfrmMain.NFillMode1Click(Sender: TObject);
 begin
-  FConfig.LayersConfig.FillingMapLayerConfig.LockWrite;
-  try
-    FConfig.LayersConfig.FillingMapLayerConfig.FillMode := fmUnexisting;
-  finally
-    FConfig.LayersConfig.FillingMapLayerConfig.UnlockWrite;
-  end;
+  FConfig.LayersConfig.FillingMapLayerConfig.FillMode := fmUnexisting;
 end;
 
 procedure TfrmMain.NFillMode2Click(Sender: TObject);
 begin
-  FConfig.LayersConfig.FillingMapLayerConfig.LockWrite;
-  try
-    FConfig.LayersConfig.FillingMapLayerConfig.FillMode := fmExisting;
-  finally
-    FConfig.LayersConfig.FillingMapLayerConfig.UnlockWrite;
-  end;
+  FConfig.LayersConfig.FillingMapLayerConfig.FillMode := fmExisting;
 end;
 
 procedure TfrmMain.NFillMode3Click(Sender: TObject);
 begin
-  FConfig.LayersConfig.FillingMapLayerConfig.LockWrite;
-  try
-    FConfig.LayersConfig.FillingMapLayerConfig.FillMode := fmGradient;
-  finally
-    FConfig.LayersConfig.FillingMapLayerConfig.UnlockWrite;
-  end;
+  FConfig.LayersConfig.FillingMapLayerConfig.FillMode := fmGradient;
 end;
 
 procedure TfrmMain.NShowFillDatesClick(Sender: TObject);
@@ -4118,21 +4103,16 @@ var
   VFilter: Boolean;
 begin
   VFilter := not NShowFillDates.Checked;
-  FConfig.LayersConfig.FillingMapLayerConfig.LockWrite;
-  try
-    FConfig.LayersConfig.FillingMapLayerConfig.FilterMode := VFilter;
-  finally
-    FConfig.LayersConfig.FillingMapLayerConfig.UnlockWrite;
-  end;
+  FConfig.LayersConfig.FillingMapLayerConfig.FilterMode := VFilter;
   NShowFillDates.Checked := VFilter;
 end;
 
 procedure TfrmMain.DateTimePicker1Change(Sender: TObject);
 begin
-  FConfig.LayersConfig.FillingMapLayerConfig.LockWrite;
   if (DateTimePicker2.DateTime < DateTimePicker1.DateTime) then begin
     DateTimePicker2.DateTime := DateTimePicker1.DateTime;
   end;
+  FConfig.LayersConfig.FillingMapLayerConfig.LockWrite;
   try
     FConfig.LayersConfig.FillingMapLayerConfig.FillFirstDay := DateTimePicker1.DateTime;
     FConfig.LayersConfig.FillingMapLayerConfig.FillLastDay := DateTimePicker2.DateTime;
@@ -4143,10 +4123,10 @@ end;
 
 procedure TfrmMain.DateTimePicker2Change(Sender: TObject);
 begin
-  FConfig.LayersConfig.FillingMapLayerConfig.LockWrite;
   if (DateTimePicker1.DateTime > DateTimePicker2.DateTime) then begin
     DateTimePicker1.DateTime := DateTimePicker2.DateTime;
   end;
+  FConfig.LayersConfig.FillingMapLayerConfig.LockWrite;
   try
     FConfig.LayersConfig.FillingMapLayerConfig.FillFirstDay := DateTimePicker1.DateTime;
     FConfig.LayersConfig.FillingMapLayerConfig.FillLastDay := DateTimePicker2.DateTime;
