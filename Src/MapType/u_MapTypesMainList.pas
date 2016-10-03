@@ -42,6 +42,7 @@ uses
   i_ContentTypeManager,
   i_InvisibleBrowser,
   i_ProjConverter,
+  i_LocalCoordConverter,
   i_MapVersionFactoryList,
   i_MainMemCacheConfig,
   i_MapTypeGUIConfigList,
@@ -86,6 +87,13 @@ type
       const ATileDownloadResamplerConfig: IImageResamplerFactoryChangeable;
       const APerfCounterList: IInternalPerformanceCounterList
     );
+
+    function NextMapWithTile(
+      const AView: ILocalCoordConverter;
+      const AActiveMap: IMapType;
+      AStep: integer
+    ): IMapType;
+
     property FullMapsSetChangeable: IMapTypeSetChangeable read FFullMapsSetChangeable;
     property FullMapsSet: IMapTypeSet read FFullMapsSet;
     property MapsSet: IMapTypeSet read FMapsSet;
@@ -119,11 +127,19 @@ implementation
 
 uses
   Dialogs,
+  Types,
+  Math,
   c_ZeroGUID,
+  t_GeoTypes,
   i_GUIDListStatic,
+  i_Projection,
+  i_MapVersionRequest,
+  i_TileInfoBasic,
+  i_TileStorage,
   i_ZmpInfo,
   u_MapTypeGUIConfigList,
   u_MapType,
+  u_GeoFunc,
   u_ResStrings;
 
 { TMapTypesMainList }
@@ -319,6 +335,65 @@ begin
     end;
   finally
     FGUIConfigList.UnlockWrite;
+  end;
+end;
+
+function TMapTypesMainList.NextMapWithTile(
+  const AView: ILocalCoordConverter;
+  const AActiveMap: IMapType;
+  AStep: integer
+): IMapType;
+var
+  VMapType: IMapType;
+  VProjection: IProjection;
+  VMapProjection: IProjection;
+  VMapTile: Tpoint;
+  VVersion: IMapVersionRequest;
+  VTileInfo: ITileInfoBasic;
+  VLonLat: TDoublePoint;
+  VGUIDList: IGUIDListStatic;
+  VGUID: TGUID;
+  i: Integer;
+  VLoopCnt: Integer;
+begin
+  Result := nil;
+  VProjection := AView.Projection;
+  VLonLat := AView.GetCenterLonLat;
+  VGUIDList := FGUIConfigList.OrderedMapGUIDList;
+  VLoopCnt := 0;
+  for i := 0 to VGUIDList.Count - 1 do begin
+    if IsEqualGUID(AActiveMap.GUID, VGUIDList.Items[i]) then begin
+      Break;
+    end;
+  end;
+
+  while (VLoopCnt < VGUIDList.Count) do begin
+    Inc(VLoopCnt);
+    i := i + AStep;
+    if i < 0 then begin
+      i := VGUIDList.Count - 1;
+    end;
+    if i > VGUIDList.Count - 1 then begin
+      i := 0;
+    end;
+    VGUID := VGUIDList.Items[i];
+    VMapType := FMapsSet.GetMapTypeByGUID(VGUID);
+    if VMapType <> nil then begin
+      if (not VMapType.Zmp.IsLayer) and (VMapType.GUIConfig.Enabled) then begin
+        VMapProjection := VMapType.ProjectionSet.GetSuitableProjection(VProjection);
+        VMapTile :=
+          PointFromDoublePoint(
+            VMapProjection.LonLat2TilePosFloat(VLonLat),
+            prToTopLeft
+          );
+        VVersion := VMapType.VersionRequest.GetStatic;
+        VTileInfo := VMapType.TileStorage.GetTileInfoEx(VMapTile, VMapProjection.Zoom, VVersion, gtimAsIs);
+        if Assigned(VTileInfo) and VTileInfo.GetIsExists then begin
+          Result := VMapType;
+          break;
+        end;
+      end;
+    end;
   end;
 end;
 
