@@ -510,6 +510,7 @@ type
     actViewGridLonLat_User: TAction;
     actViewGridLonLatAuto: TAction;
     actHelpOpenOnline: TBrowseURL;
+    actHelpShowAbout: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -534,7 +535,6 @@ type
     procedure NShowGranClick(Sender: TObject);
     procedure NFillMapClick(Sender: TObject);
     procedure NSRCinetClick(Sender: TObject);
-    procedure tbitmAboutClick(Sender: TObject);
     procedure N000Click(Sender: TObject);
     procedure TrayItemQuitClick(Sender: TObject);
     procedure TBGPSconnClick(Sender: TObject);
@@ -747,6 +747,7 @@ type
     procedure actViewToolbarsLockExecute(Sender: TObject);
     procedure actViewGridGenShtabExecute(Sender: TObject);
     procedure actViewGridLonLatExecute(Sender: TObject);
+    procedure actHelpShowAboutExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -4013,19 +4014,6 @@ begin
   FConfig.DownloadUIConfig.UseDownload := TTileSource(TComponent(Sender).Tag);
 end;
 
-procedure TfrmMain.tbitmAboutClick(Sender: TObject);
-begin
-  if FfrmAbout = nil then begin
-    FfrmAbout := TfrmAbout.Create(
-      GState.Config.LanguageManager,
-      GState.BuildInfo,
-      GState.ContentTypeManager,
-      GState.MainConfigProvider
-    );
-  end;
-  FfrmAbout.ShowModal;
-end;
-
 //карта заполнения в основном окне
 procedure TfrmMain.NFillMapClick(Sender: TObject);
 var
@@ -6637,6 +6625,19 @@ begin
   if Assigned(VList) then begin
     ProcessOpenFiles(VList);
   end;
+end;
+
+procedure TfrmMain.actHelpShowAboutExecute(Sender: TObject);
+begin
+  if FfrmAbout = nil then begin
+    FfrmAbout := TfrmAbout.Create(
+      GState.Config.LanguageManager,
+      GState.BuildInfo,
+      GState.ContentTypeManager,
+      GState.MainConfigProvider
+    );
+  end;
+  FfrmAbout.ShowModal;
 end;
 
 procedure TfrmMain.actMakeLinkOnDesktopExecute(Sender: TObject);

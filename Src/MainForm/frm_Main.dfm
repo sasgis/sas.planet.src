@@ -1095,11 +1095,8 @@ object frmMain: TfrmMain
           Images = MenusImageList
         end
         object tbitmAbout: TTBXItem
-          ImageIndex = 27
+          Action = actHelpShowAbout
           Images = MenusImageList
-          OnClick = tbitmAboutClick
-          Caption = 'About'
-          Hint = ''
         end
         object tbsprtHelp01: TTBXSeparatorItem
           Caption = ''
@@ -4331,6 +4328,12 @@ object frmMain: TfrmMain
       ImageIndex = 26
       ShortCut = 112
       URL = 'http://sasgis.org/wikisasiya/'
+    end
+    object actHelpShowAbout: TAction
+      Category = 'Help'
+      Caption = 'About'
+      ImageIndex = 27
+      OnExecute = actHelpShowAboutExecute
     end
   end
 end
