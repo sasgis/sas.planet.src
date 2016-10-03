@@ -1127,10 +1127,8 @@ object frmMain: TfrmMain
           Hint = ''
         end
         object tbitmCheckUpdate: TTBXItem
+          Action = actShowUpddateChecker
           Images = MenusImageList
-          OnClick = tbitmCheckUpdateClick
-          Caption = 'Check for updates...'
-          Hint = ''
         end
       end
     end
@@ -4346,6 +4344,11 @@ object frmMain: TfrmMain
       Category = 'Help'
       Caption = 'PascalScript IDE'
       OnExecute = actShowPascalScriptIdeExecute
+    end
+    object actShowUpddateChecker: TAction
+      Category = 'Help'
+      Caption = 'Check for updates...'
+      OnExecute = actShowUpddateCheckerExecute
     end
   end
 end

@@ -515,6 +515,7 @@ type
     actHelpOpenIssueTracker: TBrowseURL;
     actHelpOpenCommunity: TBrowseURL;
     actShowPascalScriptIde: TAction;
+    actShowUpddateChecker: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -697,7 +698,6 @@ type
     procedure RosreestrClick(Sender: TObject);
     procedure TBXMakeRosreestrPolygonClick(Sender: TObject);
     procedure tbpmiShowOtherVersionsClick(Sender: TObject);
-    procedure tbitmCheckUpdateClick(Sender: TObject);
     procedure btnHideAllClick(Sender: TObject);
     procedure TBfillMapAsMainClick(Sender: TObject);
     procedure TBEditPathLabelLastOnlyClick(Sender: TObject);
@@ -749,6 +749,7 @@ type
     procedure actViewGridLonLatExecute(Sender: TObject);
     procedure actHelpShowAboutExecute(Sender: TObject);
     procedure actShowPascalScriptIdeExecute(Sender: TObject);
+    procedure actShowUpddateCheckerExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -6410,11 +6411,6 @@ begin
   Close;
 end;
 
-procedure TfrmMain.tbitmCheckUpdateClick(Sender: TObject);
-begin
-  FfrmUpdateChecker.Show;
-end;
-
 procedure TfrmMain.tbitmCopySearchResultCoordinatesClick(Sender: TObject);
 var
   VStr: string;
@@ -6813,6 +6809,11 @@ end;
 procedure TfrmMain.actShowPascalScriptIdeExecute(Sender: TObject);
 begin
   FfrmPascalScriptIDE.Show;
+end;
+
+procedure TfrmMain.actShowUpddateCheckerExecute(Sender: TObject);
+begin
+  FfrmUpdateChecker.Show;
 end;
 
 procedure TfrmMain.actViewFullScreenExecute(Sender: TObject);
