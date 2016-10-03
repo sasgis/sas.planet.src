@@ -2149,14 +2149,12 @@ end;
 procedure TfrmMain.OnProjectionMenuItemClick(Sender: TObject);
 var
   VIndex: Integer;
-  VMenuItem: TTBXItem;
   VProjList: IProjectionSetList;
   VEpsg: Integer;
   VNewProjectionSet: IProjectionSet;
 begin
-  VMenuItem := Sender as TTBXItem;
-  if Assigned(VMenuItem) then begin
-    VIndex := VMenuItem.Tag;
+  if Assigned(Sender) then begin
+    VIndex := TComponent(Sender).Tag;
     VProjList := GState.ProjectionSetList;
     Assert(VProjList <> nil);
     if (VIndex >= 0) and (VProjList.Count > VIndex) then begin
@@ -2493,6 +2491,7 @@ end;
 
 procedure TfrmMain.ProcessPosChangeMessage;
 var
+  VProjection: IProjection;
   VZoomCurr: Byte;
   VGPSLonLat: TDoublePoint;
   VGPSMapPoint: TDoublePoint;
@@ -2501,7 +2500,7 @@ var
   VPosition: IGPSPosition;
 begin
   VConverter := FViewPortState.View.GetStatic;
-  VZoomCurr := VConverter.Projection.Zoom;
+  VProjection := VConverter.Projection;
 
   VPosition := GState.GPSRecorder.CurrentPosition;
   if (not VPosition.PositionOK) then begin
@@ -2510,22 +2509,15 @@ begin
   end else begin
     // ok
     VGPSLonLat := VPosition.LonLat;
-
-    VGPSMapPoint := VConverter.Projection.LonLat2PixelPosFloat(VGPSLonLat);
+    VProjection.ProjectionType.ValidateLonLatPos(VGPSLonLat);
+    VGPSMapPoint := VProjection.LonLat2PixelPosFloat(VGPSLonLat);
 
     VCenterMapPoint := VConverter.GetCenterMapPixelFloat;
     FCenterToGPSDelta.X := VGPSMapPoint.X - VCenterMapPoint.X;
     FCenterToGPSDelta.Y := VGPSMapPoint.Y - VCenterMapPoint.Y;
   end;
 
-  if VZoomCurr > 0 then begin
-    TBZoom_Out.Enabled := True;
-    NZoomOut.Enabled := True;
-  end;
-  if VZoomCurr < 23 then begin
-    TBZoomIn.Enabled := True;
-    NZoomIn.Enabled := True;
-  end;
+  VZoomCurr := VProjection.Zoom;
   PaintZSlider(VZoomCurr);
   labZoom.caption := 'z' + inttostr(VZoomCurr + 1);
 end;
@@ -4017,7 +4009,7 @@ end;
 
 procedure TfrmMain.NSRCinetClick(Sender: TObject);
 begin
-  FConfig.DownloadUIConfig.UseDownload := TTileSource(TTBXItem(Sender).Tag);
+  FConfig.DownloadUIConfig.UseDownload := TTileSource(TComponent(Sender).Tag);
 end;
 
 procedure TfrmMain.tbitmAboutClick(Sender: TObject);
@@ -4683,10 +4675,10 @@ procedure TfrmMain.NMapParamsClick(Sender: TObject);
 var
   VMapType: IMapType;
 begin
-  if TTBXItem(Sender).Tag = 0 then begin
+  if TComponent(Sender).Tag = 0 then begin
     VMapType := FMainMapState.ActiveMap.GetStatic;
   end else begin
-    VMapType := IMapType(TTBXItem(Sender).Tag);
+    VMapType := IMapType(TComponent(Sender).Tag);
   end;
   FMapTypeEditor.EditMap(VMapType);
 end;
@@ -5863,12 +5855,10 @@ end;
 
 procedure TfrmMain.TBXSelectSrchClick(Sender: TObject);
 var
-  VToolbarItem: TTBXItem;
   VItem: IGeoCoderListEntity;
 begin
-  if Sender is TTBXItem then begin
-    VToolbarItem := TTBXItem(Sender);
-    VItem := IGeoCoderListEntity(VToolbarItem.tag);
+  if Assigned(Sender) then begin
+    VItem := IGeoCoderListEntity(TComponent(Sender).tag);
     if VItem <> nil then begin
       FConfig.MainGeoCoderConfig.ActiveGeoCoderGUID := VItem.GetGUID;
     end;
@@ -6016,15 +6006,13 @@ procedure TfrmMain.tbiEditSrchAcceptText(
 );
 var
   VResult: IGeoCodeResult;
-  VToolbarItem: TTBCustomItem;
   VItem: IGeoCoderListEntity;
   VLocalConverter: ILocalCoordConverter;
   VText: string;
   VNotifier: INotifierOperation;
 begin
-  if Sender is TTBCustomItem then begin
-    VToolbarItem := TTBCustomItem(Sender);
-    VItem := IGeoCoderListEntity(VToolbarItem.Tag);
+  if Assigned(Sender) then begin
+    VItem := IGeoCoderListEntity(TComponent(Sender).Tag);
     if VItem <> nil then begin
       VLocalConverter := FViewPortState.View.GetStatic;
       VText := Trim(NewText);
@@ -6320,7 +6308,7 @@ var
   VOperationNotifier: INotifierOperation;
 begin
   if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathOnMapEdit) then begin
-    VInterface := IInterface(TTBXItem(Sender).tag);
+    VInterface := IInterface(TComponent(Sender).tag);
     if Supports(VInterface, IPathDetalizeProviderTreeEntity, VEntity) then begin
       VProvider := VEntity.GetProvider;
       VIsError := True;
