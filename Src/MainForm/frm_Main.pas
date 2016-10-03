@@ -3592,11 +3592,12 @@ end;
 procedure TfrmMain.tbitmOnInterfaceOptionsClick(Sender: TObject);
 begin
   if Sender is TLayerStatBarPopupMenu then begin
-    FfrmMapLayersOptions.pgcOptions.ActivePageIndex := 0;
+    FfrmMapLayersOptions.ShowStatusBarOptions;
   end else if (Sender is TLayerScaleLinePopupMenu) then begin
-    FfrmMapLayersOptions.pgcOptions.ActivePageIndex := 1;
+    FfrmMapLayersOptions.ShowScaleLineOptions;
+  end else begin
+    FfrmMapLayersOptions.ShowModal;
   end;
-  FfrmMapLayersOptions.ShowModal;
 end;
 
 procedure TfrmMain.NaddPointClick(Sender: TObject);

@@ -119,6 +119,8 @@ type
       const ATerrainConfig: ITerrainConfig;
       const ATerrainProviderList: ITerrainProviderList
     ); reintroduce;
+    procedure ShowStatusBarOptions;
+    procedure ShowScaleLineOptions;
   end;
 
 implementation
@@ -222,6 +224,18 @@ begin
     cbbElevProviderList.AddItem('< No One Providers Found >', nil);
   end;
   cbbElevProviderList.ItemIndex := VPrimaryIndex;
+end;
+
+procedure TfrmMapLayersOptions.ShowScaleLineOptions;
+begin
+  pgcOptions.ActivePageIndex := 1;
+  ShowModal;
+end;
+
+procedure TfrmMapLayersOptions.ShowStatusBarOptions;
+begin
+  pgcOptions.ActivePageIndex := 0;
+  ShowModal;
 end;
 
 procedure TfrmMapLayersOptions.btnApplyClick(Sender: TObject);
