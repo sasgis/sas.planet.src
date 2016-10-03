@@ -512,6 +512,7 @@ type
     actHelpOpenOnline: TBrowseURL;
     actHelpShowAbout: TAction;
     actHelpOpenWebSite: TBrowseURL;
+    actHelpOpenIssueTracker: TBrowseURL;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -610,7 +611,6 @@ type
       var Accept: Boolean
     );
     procedure TBGPSToPointCenterClick(Sender: TObject);
-    procedure tbtmHelpBugTrackClick(Sender: TObject);
     procedure NMarkExportClick(Sender: TObject);
     procedure TBHideMarksClick(Sender: TObject);
     procedure ZSliderMouseMove(
@@ -6241,11 +6241,6 @@ end;
 procedure TfrmMain.tbitmOnlineForumClick(Sender: TObject);
 begin
   OpenUrlInBrowser('http://sasgis.org/forum');
-end;
-
-procedure TfrmMain.tbtmHelpBugTrackClick(Sender: TObject);
-begin
-  OpenUrlInBrowser('http://sasgis.org/mantis/');
 end;
 
 procedure TfrmMain.NParamsPopup(

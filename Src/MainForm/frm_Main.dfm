@@ -1107,10 +1107,8 @@ object frmMain: TfrmMain
           Images = MenusImageList
         end
         object tbtmHelpBugTrack: TTBXItem
+          Action = actHelpOpenIssueTracker
           Images = MenusImageList
-          OnClick = tbtmHelpBugTrackClick
-          Caption = 'Issue Tracker (http://sasgis.org/mantis)'
-          Hint = ''
         end
         object tbitmOnlineForum: TTBXItem
           Images = MenusImageList
@@ -4337,6 +4335,11 @@ object frmMain: TfrmMain
       Category = 'Help'
       Caption = 'Web Site (http://www.sasgis.org)'
       URL = 'http://sasgis.org/'
+    end
+    object actHelpOpenIssueTracker: TBrowseURL
+      Category = 'Help'
+      Caption = 'Issue Tracker (http://sasgis.org/mantis)'
+      URL = 'http://sasgis.org/mantis/'
     end
   end
 end
