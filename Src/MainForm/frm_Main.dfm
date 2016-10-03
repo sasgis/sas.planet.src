@@ -447,7 +447,6 @@ object frmMain: TfrmMain
         object NFillMap: TTBXSubmenuItem
           ImageIndex = 7
           Images = MenusImageList
-          OnClick = NFillMapClick
           Caption = 'Cached Tiles Map'
           Hint = ''
           object TBFillingTypeMap: TTBXSubmenuItem

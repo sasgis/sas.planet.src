@@ -541,7 +541,6 @@ type
     procedure tbitmOpenFolderMainMapTileClick(Sender: TObject);
     procedure NDelClick(Sender: TObject);
     procedure NShowGranClick(Sender: TObject);
-    procedure NFillMapClick(Sender: TObject);
     procedure NSRCinetClick(Sender: TObject);
     procedure N000Click(Sender: TObject);
     procedure TrayItemQuitClick(Sender: TObject);
@@ -2689,18 +2688,32 @@ procedure TfrmMain.OnFillingMapChange;
 var
   VConfig: IFillingMapLayerConfigStatic;
   VFillMode: TFillMode;
+var
+  VZoom: Byte;
+  VSelectedCell: TPoint;
+  VFilterMode: Boolean;
 begin
   VConfig := FConfig.LayersConfig.FillingMapLayerConfig.GetStatic;
+  VZoom := VConfig.Zoom;
+  VFillMode := VConfig.FillMode;
+  VFilterMode := VConfig.FilterMode;
+
   if VConfig.Visible then begin
     if VConfig.UseRelativeZoom then begin
-      TBMapZap.Caption := '+' + inttostr(VConfig.Zoom);
+      TBMapZap.Caption := '+' + IntToStr(VZoom);
+      VSelectedCell.X := (VZoom + 25) mod 5;
+      VSelectedCell.Y := (VZoom + 25) div 5;
     end else begin
-      TBMapZap.Caption := 'z' + inttostr(VConfig.Zoom + 1);
+      TBMapZap.Caption := 'z' + IntToStr(VZoom + 1);
+      VSelectedCell.X := (VZoom + 1) mod 5;
+      VSelectedCell.Y := (VZoom + 1) div 5;
     end;
   end else begin
     TBMapZap.Caption := '';
+    VSelectedCell := Point(0, 0);
   end;
-  VFillMode := VConfig.FillMode;
+  TBXToolPalette1.SelectedCell := VSelectedCell;
+
   if (VFillMode = fmUnexisting) then begin
     actViewFillingMapMarkUnexisting.Checked := True;
   end else if (VFillMode = fmExisting) then begin
@@ -2709,7 +2722,11 @@ begin
     actViewFillingMapMarkGradient.Checked := True;
   end;
 
-  FillDates.Visible := VConfig.FilterMode;
+  NShowFillDates.Checked := VFilterMode;
+  DateTimePicker1.DateTime := VConfig.FillFirstDay;
+  DateTimePicker2.DateTime := VConfig.FillLastDay;
+
+  FillDates.Visible := VFilterMode;
   tbitmFillingMapAsMain.Checked := IsEqualGUID(VConfig.SelectedMap, CGUID_Zero);
 end;
 
@@ -4031,44 +4048,6 @@ begin
 end;
 
 //карта заполнения в основном окне
-procedure TfrmMain.NFillMapClick(Sender: TObject);
-var
-  VVisible: Boolean;
-  VRelative: Boolean;
-  VZoom: Byte;
-  VSelectedCell: TPoint;
-  VFilterMode: Boolean;
-  VFillFirstDay: TDateTime;
-  VFillLastDay: TDateTime;
-begin
-  FConfig.LayersConfig.FillingMapLayerConfig.LockRead;
-  try
-    VVisible := FConfig.LayersConfig.FillingMapLayerConfig.Visible;
-    VRelative := FConfig.LayersConfig.FillingMapLayerConfig.UseRelativeZoom;
-    VZoom := FConfig.LayersConfig.FillingMapLayerConfig.Zoom;
-    VFilterMode := FConfig.LayersConfig.FillingMapLayerConfig.FilterMode;
-    VFillFirstDay := FConfig.LayersConfig.FillingMapLayerConfig.FillFirstDay;
-    VFillLastDay := FConfig.LayersConfig.FillingMapLayerConfig.FillLastDay;
-  finally
-    FConfig.LayersConfig.FillingMapLayerConfig.UnlockRead;
-  end;
-  if VVisible then begin
-    if VRelative then begin
-      VSelectedCell.X := (VZoom + 25) mod 5;
-      VSelectedCell.Y := (VZoom + 25) div 5;
-    end else begin
-      VSelectedCell.X := (VZoom + 1) mod 5;
-      VSelectedCell.Y := (VZoom + 1) div 5;
-    end;
-  end else begin
-    VSelectedCell := Point(0, 0);
-  end;
-  TBXToolPalette1.SelectedCell := VSelectedCell;
-  NShowFillDates.Checked := VFilterMode;
-  DateTimePicker1.DateTime := VFillFirstDay;
-  DateTimePicker2.DateTime := VFillLastDay;
-end;
-
 procedure TfrmMain.NShowFillDatesClick(Sender: TObject);
 var
   VFilter: Boolean;
