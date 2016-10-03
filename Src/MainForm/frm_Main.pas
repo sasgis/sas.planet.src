@@ -514,6 +514,7 @@ type
     actHelpOpenWebSite: TBrowseURL;
     actHelpOpenIssueTracker: TBrowseURL;
     actHelpOpenCommunity: TBrowseURL;
+    actShowPascalScriptIde: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -707,7 +708,6 @@ type
     procedure TBXPrevVerClick(Sender: TObject);
     procedure tbxnxtmapClick(Sender: TObject);
     procedure tbxprevmapClick(Sender: TObject);
-    procedure tbxtmPascalScriptIDEClick(Sender: TObject);
     procedure tbMergePolygonsClose(Sender: TObject);
     procedure tbxtmAddToMergePolygonsClick(Sender: TObject);
     procedure tbxFillingMapClick(Sender: TObject);
@@ -748,6 +748,7 @@ type
     procedure actViewGridGenShtabExecute(Sender: TObject);
     procedure actViewGridLonLatExecute(Sender: TObject);
     procedure actHelpShowAboutExecute(Sender: TObject);
+    procedure actShowPascalScriptIdeExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -5731,11 +5732,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.tbxtmPascalScriptIDEClick(Sender: TObject);
-begin
-  FfrmPascalScriptIDE.Show;
-end;
-
 procedure TfrmMain.NSensorsClick(Sender: TObject);
 begin
   TBXSensorsBar.Visible := TTBXItem(Sender).Checked;
@@ -6812,6 +6808,11 @@ end;
 procedure TfrmMain.actShowGoToExecute(Sender: TObject);
 begin
   FfrmGoTo.ShowGotoDialog();
+end;
+
+procedure TfrmMain.actShowPascalScriptIdeExecute(Sender: TObject);
+begin
+  FfrmPascalScriptIDE.Show;
 end;
 
 procedure TfrmMain.actViewFullScreenExecute(Sender: TObject);

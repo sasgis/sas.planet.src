@@ -1119,10 +1119,8 @@ object frmMain: TfrmMain
           Hint = ''
         end
         object tbxtmPascalScriptIDE: TTBXItem
+          Action = actShowPascalScriptIde
           Images = MenusImageList
-          OnClick = tbxtmPascalScriptIDEClick
-          Caption = 'PascalScript IDE'
-          Hint = ''
         end
         object tbxSep2: TTBXSeparatorItem
           Caption = ''
@@ -4343,6 +4341,11 @@ object frmMain: TfrmMain
       Category = 'Help'
       Caption = 'Community  (http://www.sasgis.org/forum)'
       URL = 'http://sasgis.org/forum/'
+    end
+    object actShowPascalScriptIde: TAction
+      Category = 'Help'
+      Caption = 'PascalScript IDE'
+      OnExecute = actShowPascalScriptIdeExecute
     end
   end
 end
