@@ -920,18 +920,12 @@ object frmMain: TfrmMain
           end
         end
         object tbitmShowMarkCaption: TTBXItem
-          AutoCheck = True
-          Checked = True
+          Action = actConfigMarksNamesVisible
           Images = PanelsImageList
-          OnClick = tbitmShowMarkCaptionClick
-          Caption = 'Placemark Names'
-          Hint = ''
         end
         object tbitmPointProject: TTBXItem
+          Action = actShowPointProject
           Images = PanelsImageList
-          OnClick = tbitmPointProjectClick
-          Caption = 'Project New Placemark'
-          Hint = ''
         end
         object tbxMergePolygonsShow1: TTBXVisibilityToggleItem
           Control = tbMergePolygons
@@ -4363,6 +4357,16 @@ object frmMain: TfrmMain
       Category = 'View'
       Caption = 'Previous version'
       OnExecute = actViewSelectPrevMapVersionExecute
+    end
+    object actConfigMarksNamesVisible: TAction
+      Category = 'Config'
+      Caption = 'Placemark Names'
+      OnExecute = actConfigMarksNamesVisibleExecute
+    end
+    object actShowPointProject: TAction
+      Category = 'Marks'
+      Caption = 'Project New Placemark'
+      OnExecute = actShowPointProjectExecute
     end
   end
 end

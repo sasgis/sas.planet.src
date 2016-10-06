@@ -524,6 +524,8 @@ type
     actViewSelectPrevMapWithTile: TAction;
     actViewSelectNextMapVersion: TAction;
     actViewSelectPrevMapVersion: TAction;
+    actConfigMarksNamesVisible: TAction;
+    actShowPointProject: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -647,7 +649,6 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure tbitmGPSOptionsClick(Sender: TObject);
     procedure TrayItemRestoreClick(Sender: TObject);
-    procedure tbitmShowMarkCaptionClick(Sender: TObject);
     procedure FormShortCut(
       var Msg: TWMKey;
       var Handled: Boolean
@@ -706,7 +707,6 @@ type
     procedure TBEditPathLabelLastOnlyClick(Sender: TObject);
     procedure TBEditPathLabelShowAzimuthClick(Sender: TObject);
     procedure TBEditPathSplitClick(Sender: TObject);
-    procedure tbitmPointProjectClick(Sender: TObject);
     procedure tbMergePolygonsClose(Sender: TObject);
     procedure tbxtmAddToMergePolygonsClick(Sender: TObject);
     procedure tbxFillingMapClick(Sender: TObject);
@@ -757,6 +757,8 @@ type
     procedure actViewSelectPrevMapWithTileExecute(Sender: TObject);
     procedure actViewSelectNextMapVersionExecute(Sender: TObject);
     procedure actViewSelectPrevMapVersionExecute(Sender: TObject);
+    procedure actConfigMarksNamesVisibleExecute(Sender: TObject);
+    procedure actShowPointProjectExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -2860,7 +2862,7 @@ begin
   tbitmGPSCenterMap.Checked := tBGPSToPoint.Checked;
   TBGPSToPointCenter.Checked := FConfig.GPSBehaviour.MapMoveCentered;
   tbitmGPSToPointCenter.Checked := tBGPSToPointCenter.Checked;
-  tbitmShowMarkCaption.Checked := FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.CaptionDrawConfig.ShowPointCaption;
+  actConfigMarksNamesVisible.Checked := FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.CaptionDrawConfig.ShowPointCaption;
 
   TBHideMarks.Checked := not (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks);
 
@@ -5741,11 +5743,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.tbitmShowMarkCaptionClick(Sender: TObject);
-begin
-  FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.CaptionDrawConfig.ShowPointCaption := (Sender as TTBXItem).Checked;
-end;
-
 procedure TfrmMain.osmorg1Click(Sender: TObject);
 var
   VRequest: IDownloadRequest;
@@ -6429,11 +6426,6 @@ begin
   OnMainFormMainConfigChange;
 end;
 
-procedure TfrmMain.tbitmPointProjectClick(Sender: TObject);
-begin
-  FfrmPointProjecting.Show;
-end;
-
 procedure TfrmMain.actConfigAzimuthCircleExecute(Sender: TObject);
 begin
   FConfig.LayersConfig.CenterScaleConfig.Visible :=
@@ -6444,6 +6436,12 @@ procedure TfrmMain.actConfigColorInversionExecute(Sender: TObject);
 begin
   GState.Config.BitmapPostProcessingConfig.InvertColor :=
     not GState.Config.BitmapPostProcessingConfig.InvertColor;
+end;
+
+procedure TfrmMain.actConfigMarksNamesVisibleExecute(Sender: TObject);
+begin
+  FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.CaptionDrawConfig.ShowPointCaption :=
+    not FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.CaptionDrawConfig.ShowPointCaption;
 end;
 
 procedure TfrmMain.actConfigMiniMapVisibleExecute(Sender: TObject);
@@ -6720,6 +6718,11 @@ end;
 procedure TfrmMain.actShowPascalScriptIdeExecute(Sender: TObject);
 begin
   FfrmPascalScriptIDE.Show;
+end;
+
+procedure TfrmMain.actShowPointProjectExecute(Sender: TObject);
+begin
+  FfrmPointProjecting.Show;
 end;
 
 procedure TfrmMain.actShowUpddateCheckerExecute(Sender: TObject);
