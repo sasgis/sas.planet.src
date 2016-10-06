@@ -536,6 +536,7 @@ type
     actConfigDownloadModeCacheInternet: TAction;
     actMapsEditMapParams: TAction;
     actConfigOptionsShow: TAction;
+    actGpsConnect: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -559,7 +560,6 @@ type
     procedure NShowGranClick(Sender: TObject);
     procedure N000Click(Sender: TObject);
     procedure TrayItemQuitClick(Sender: TObject);
-    procedure TBGPSconnClick(Sender: TObject);
     procedure TBGPSPathClick(Sender: TObject);
     procedure TBGPSToPointClick(Sender: TObject);
     procedure tbitmCopyToClipboardCoordinatesClick(Sender: TObject);
@@ -769,6 +769,7 @@ type
     procedure actConfigDownloadModeExecute(Sender: TObject);
     procedure actMapsEditMapParamsExecute(Sender: TObject);
     procedure actConfigOptionsShowExecute(Sender: TObject);
+    procedure actGpsConnectExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -4273,11 +4274,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.TBGPSconnClick(Sender: TObject);
-begin
-  GState.Config.GPSConfig.GPSEnabled := TTBXitem(Sender).Checked;
-end;
-
 procedure TfrmMain.TBGPSPathClick(Sender: TObject);
 begin
   FConfig.LayersConfig.GPSTrackConfig.Visible := TTBXitem(Sender).Checked;
@@ -4490,10 +4486,8 @@ begin
   if FConfig.GPSBehaviour.SensorsAutoShow then begin
     TBXSensorsBar.Visible := False;
   end;
-  tbitmGPSConnect.Enabled := True;
-  TBGPSconn.Enabled := True;
-  tbitmGPSConnect.Checked := False;
-  TBGPSconn.Checked := False;
+  actGpsConnect.Enabled := True;
+  actGpsConnect.Checked := False;
 end;
 
 procedure TfrmMain.GPSReceiverReceive;
@@ -4571,16 +4565,13 @@ end;
 
 procedure TfrmMain.GPSReceiverStateChange;
 begin
-  tbitmGPSConnect.Enabled := False;
-  TBGPSconn.Enabled := False;
+  actGpsConnect.Enabled := False;
 end;
 
 procedure TfrmMain.GPSReceiverConnect;
 begin
-  tbitmGPSConnect.Enabled := True;
-  TBGPSconn.Enabled := True;
-  tbitmGPSConnect.Checked := True;
-  TBGPSconn.Checked := True;
+  actGpsConnect.Enabled := True;
+  actGpsConnect.Checked := True;
   if FConfig.GPSBehaviour.SensorsAutoShow then begin
     TBXSensorsBar.Visible := True;
   end;
@@ -4593,8 +4584,7 @@ end;
 
 procedure TfrmMain.GPSReceiverTimeout;
 begin
-  tbitmGPSConnect.Enabled := True;
-  TBGPSconn.Enabled := True;
+  actGpsConnect.Enabled := True;
   ShowMessage(SAS_ERR_Communication);
 end;
 
@@ -6481,6 +6471,13 @@ begin
   if Assigned(VList) then begin
     ProcessOpenFiles(VList);
   end;
+end;
+
+procedure TfrmMain.actGpsConnectExecute(Sender: TObject);
+begin
+  GState.Config.GPSConfig.GPSEnabled :=
+    not GState.Config.GPSConfig.GPSEnabled;
+  TCustomAction(Sender).Enabled := False;
 end;
 
 procedure TfrmMain.actHelpShowAboutExecute(Sender: TObject);

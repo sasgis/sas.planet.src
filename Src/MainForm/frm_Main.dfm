@@ -158,12 +158,8 @@ object frmMain: TfrmMain
       TabOrder = 3
       Caption = 'GPS'
       object TBGPSconn: TTBXItem
-        AutoCheck = True
-        ImageIndex = 14
+        Action = actGpsConnect
         Images = PanelsImageList
-        OnClick = TBGPSconnClick
-        Caption = ''
-        Hint = 'Connect to GPS receiver'
       end
       object TBGPSPath: TTBXSubmenuItem
         AutoCheck = True
@@ -899,13 +895,8 @@ object frmMain: TfrmMain
         Caption = 'GPS'
         Hint = ''
         object tbitmGPSConnect: TTBXItem
-          AutoCheck = True
-          ImageIndex = 14
+          Action = actGpsConnect
           Images = MenusImageList
-          ShortCut = 49223
-          OnClick = TBGPSconnClick
-          Caption = 'Connect to GPS Receiver'
-          Hint = ''
         end
         object tbitmGPSTrackShow: TTBXItem
           AutoCheck = True
@@ -4391,6 +4382,14 @@ object frmMain: TfrmMain
       Caption = 'Options'
       ImageIndex = 20
       OnExecute = actConfigOptionsShowExecute
+    end
+    object actGpsConnect: TAction
+      Category = 'GPS'
+      Caption = 'Connect to GPS Receiver'
+      Hint = 'Connect to GPS receiver'
+      ImageIndex = 14
+      ShortCut = 49223
+      OnExecute = actGpsConnectExecute
     end
   end
 end
