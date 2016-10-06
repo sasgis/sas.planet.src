@@ -529,6 +529,8 @@ type
     actMarksAddPoint: TAction;
     actMarksAddLine: TAction;
     actMarksAddPolygon: TAction;
+    actShowPlacemarkManager: TAction;
+    actConfigMarksHide: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -597,7 +599,6 @@ type
     procedure TBEditPathLabelClick(Sender: TObject);
     procedure TBEditPathSaveClick(Sender: TObject);
     procedure TBEditPathClose(Sender: TObject);
-    procedure tbitmPlacemarkManagerClick(Sender: TObject);
     procedure NSRTM3Click(Sender: TObject);
     procedure NGTOPO30Click(Sender: TObject);
     procedure NMarkNavClick(Sender: TObject);
@@ -623,7 +624,6 @@ type
     );
     procedure TBGPSToPointCenterClick(Sender: TObject);
     procedure NMarkExportClick(Sender: TObject);
-    procedure TBHideMarksClick(Sender: TObject);
     procedure ZSliderMouseMove(
       Sender: TObject;
       Shift: TShiftState;
@@ -762,6 +762,8 @@ type
     procedure actMarksAddPointExecute(Sender: TObject);
     procedure actMarksAddLineExecute(Sender: TObject);
     procedure actMarksAddPolygonExecute(Sender: TObject);
+    procedure actShowPlacemarkManagerExecute(Sender: TObject);
+    procedure actConfigMarksHideExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -2867,7 +2869,7 @@ begin
   tbitmGPSToPointCenter.Checked := tBGPSToPointCenter.Checked;
   actConfigMarksNamesVisible.Checked := FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.CaptionDrawConfig.ShowPointCaption;
 
-  TBHideMarks.Checked := not (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks);
+  actConfigMarksHide.Checked := not (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks);
 
   if FConfig.MainConfig.ShowMapName then begin
     TBSMB.Caption := FMainMapState.ActiveMap.GetStatic.GUIConfig.Name.Value;
@@ -4285,11 +4287,6 @@ begin
   FConfig.GPSBehaviour.MapMove := TTBXitem(Sender).Checked;
 end;
 
-procedure TfrmMain.TBHideMarksClick(Sender: TObject);
-begin
-  FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks := not (TBHideMarks.Checked);
-end;
-
 procedure TfrmMain.TBEditSelectPolylineRadiusChange(Sender: TObject);
 begin
   FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig.Radius := TBEditSelectPolylineRadius.Value;
@@ -5424,11 +5421,6 @@ begin
   FState.State := ao_movemap;
 end;
 
-procedure TfrmMain.tbitmPlacemarkManagerClick(Sender: TObject);
-begin
-  FfrmMarksExplorer.ToggleVisible;
-end;
-
 procedure TfrmMain.NMarkNavClick(Sender: TObject);
 var
   VLonLat: TDoublePoint;
@@ -6411,6 +6403,12 @@ begin
     not GState.Config.BitmapPostProcessingConfig.InvertColor;
 end;
 
+procedure TfrmMain.actConfigMarksHideExecute(Sender: TObject);
+begin
+  FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks :=
+    not FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks;
+end;
+
 procedure TfrmMain.actConfigMarksNamesVisibleExecute(Sender: TObject);
 begin
   FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.CaptionDrawConfig.ShowPointCaption :=
@@ -6721,6 +6719,11 @@ end;
 procedure TfrmMain.actShowPascalScriptIdeExecute(Sender: TObject);
 begin
   FfrmPascalScriptIDE.Show;
+end;
+
+procedure TfrmMain.actShowPlacemarkManagerExecute(Sender: TObject);
+begin
+  FfrmMarksExplorer.ToggleVisible;
 end;
 
 procedure TfrmMain.actShowPointProjectExecute(Sender: TObject);

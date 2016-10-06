@@ -893,20 +893,13 @@ object frmMain: TfrmMain
             Hint = ''
           end
           object tbitmPlacemarkManager: TTBXItem
-            ImageIndex = 18
+            Action = actShowPlacemarkManager
             Images = PanelsImageList
             Options = [tboShowHint]
-            OnClick = tbitmPlacemarkManagerClick
-            Caption = 'Placemark Manager'
-            Hint = 'Placemark manager'
           end
           object TBHideMarks: TTBXItem
-            AutoCheck = True
-            ImageIndex = 19
+            Action = actConfigMarksHide
             Images = PanelsImageList
-            OnClick = TBHideMarksClick
-            Caption = 'Hide All Placemarks'
-            Hint = 'Hide all placemarks'
           end
         end
         object tbitmShowMarkCaption: TTBXItem
@@ -4378,6 +4371,20 @@ object frmMain: TfrmMain
       Hint = 'Add polygon'
       ImageIndex = 17
       OnExecute = actMarksAddPolygonExecute
+    end
+    object actShowPlacemarkManager: TAction
+      Category = 'Marks'
+      Caption = 'Placemark Manager'
+      Hint = 'Placemark manager'
+      ImageIndex = 18
+      OnExecute = actShowPlacemarkManagerExecute
+    end
+    object actConfigMarksHide: TAction
+      Category = 'Marks'
+      Caption = 'Hide All Placemarks'
+      Hint = 'Hide all placemarks'
+      ImageIndex = 19
+      OnExecute = actConfigMarksHideExecute
     end
   end
 end
