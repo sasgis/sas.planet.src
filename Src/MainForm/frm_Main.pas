@@ -526,6 +526,9 @@ type
     actViewSelectPrevMapVersion: TAction;
     actConfigMarksNamesVisible: TAction;
     actShowPointProject: TAction;
+    actMarksAddPoint: TAction;
+    actMarksAddLine: TAction;
+    actMarksAddPolygon: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -560,9 +563,6 @@ type
     procedure YaLinkClick(Sender: TObject);
     procedure kosmosnimkiru1Click(Sender: TObject);
     procedure mapDblClick(Sender: TObject);
-    procedure TBAdd_PointClick(Sender: TObject);
-    procedure TBAdd_LineClick(Sender: TObject);
-    procedure TBAdd_PolyClick(Sender: TObject);
     procedure tbitmGPSTrackSaveToMarksClick(Sender: TObject);
     procedure NMarkEditClick(Sender: TObject);
     procedure NMarkDelClick(Sender: TObject);
@@ -759,6 +759,9 @@ type
     procedure actViewSelectPrevMapVersionExecute(Sender: TObject);
     procedure actConfigMarksNamesVisibleExecute(Sender: TObject);
     procedure actShowPointProjectExecute(Sender: TObject);
+    procedure actMarksAddPointExecute(Sender: TObject);
+    procedure actMarksAddLineExecute(Sender: TObject);
+    procedure actMarksAddPolygonExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -2562,9 +2565,9 @@ begin
   actSelectByPolygon.Checked := VNewState = ao_select_poly;
   actSelectByLine.Checked := VNewState = ao_select_line;
 
-  TBAdd_Point.Checked := VNewState = ao_edit_point;
-  TBAdd_Line.Checked := VNewState = ao_edit_line;
-  TBAdd_Poly.Checked := VNewState = ao_edit_poly;
+  actMarksAddPoint.Checked := VNewState = ao_edit_point;
+  actMarksAddLine.Checked := VNewState = ao_edit_line;
+  actMarksAddPolygon.Checked := VNewState = ao_edit_poly;
   TBEditPath.Visible := False;
 
   tbitmSaveMark.Visible :=
@@ -4329,36 +4332,6 @@ begin
     end;
     FMapMoving := False;
     FViewPortState.ChangeMapPixelToVisualPoint(r);
-  end;
-end;
-
-procedure TfrmMain.TBAdd_PointClick(Sender: TObject);
-begin
-  FEditMarkPoint := nil;
-  if FState.State <> ao_edit_point then begin
-    FState.State := ao_edit_point;
-  end else begin
-    FState.State := ao_movemap;
-  end;
-end;
-
-procedure TfrmMain.TBAdd_LineClick(Sender: TObject);
-begin
-  FEditMarkLine := nil;
-  if FState.State <> ao_edit_line then begin
-    FState.State := ao_edit_line;
-  end else begin
-    FState.State := ao_movemap;
-  end;
-end;
-
-procedure TfrmMain.TBAdd_PolyClick(Sender: TObject);
-begin
-  FEditMarkPoly := nil;
-  if FState.State <> ao_edit_poly then begin
-    FState.State := ao_edit_poly;
-  end else begin
-    FState.State := ao_movemap;
   end;
 end;
 
@@ -6544,6 +6517,36 @@ begin
       '--zoom=' + IntToStr(VZoomCurr + 1) + ' ' +
       '--move=(' + R2StrPoint(VLonLat.X) + ',' + R2StrPoint(VLonLat.Y) + ')';
     CreateLink(ParamStr(0), SaveLink.filename, '', VArgStr);
+  end;
+end;
+
+procedure TfrmMain.actMarksAddLineExecute(Sender: TObject);
+begin
+  FEditMarkLine := nil;
+  if FState.State <> ao_edit_line then begin
+    FState.State := ao_edit_line;
+  end else begin
+    FState.State := ao_movemap;
+  end;
+end;
+
+procedure TfrmMain.actMarksAddPointExecute(Sender: TObject);
+begin
+  FEditMarkPoint := nil;
+  if FState.State <> ao_edit_point then begin
+    FState.State := ao_edit_point;
+  end else begin
+    FState.State := ao_movemap;
+  end;
+end;
+
+procedure TfrmMain.actMarksAddPolygonExecute(Sender: TObject);
+begin
+  FEditMarkPoly := nil;
+  if FState.State <> ao_edit_poly then begin
+    FState.State := ao_edit_poly;
+  end else begin
+    FState.State := ao_movemap;
   end;
 end;
 

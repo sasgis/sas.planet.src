@@ -873,30 +873,20 @@ object frmMain: TfrmMain
           Caption = ''
           Hint = ''
           object TBAdd_Point: TTBXItem
-            GroupIndex = 1
-            ImageIndex = 15
+            Action = actMarksAddPoint
             Images = PanelsImageList
             Options = [tboShowHint]
             Stretch = True
-            OnClick = TBAdd_PointClick
-            Caption = 'Add Placemark'
-            Hint = 'Add new placemark'
           end
           object TBAdd_Line: TTBXItem
-            ImageIndex = 16
+            Action = actMarksAddLine
             Images = PanelsImageList
             MaskOptions = [tboShowHint]
-            OnClick = TBAdd_LineClick
-            Caption = 'Add Path'
-            Hint = 'Add new path'
           end
           object TBAdd_Poly: TTBXItem
-            ImageIndex = 17
+            Action = actMarksAddPolygon
             Images = PanelsImageList
             Options = [tboShowHint]
-            OnClick = TBAdd_PolyClick
-            Caption = 'Add Polygon'
-            Hint = 'Add polygon'
           end
           object TBXSeparatorItem12: TTBXSeparatorItem
             Caption = ''
@@ -4367,6 +4357,27 @@ object frmMain: TfrmMain
       Category = 'Marks'
       Caption = 'Project New Placemark'
       OnExecute = actShowPointProjectExecute
+    end
+    object actMarksAddPoint: TAction
+      Category = 'Marks'
+      Caption = 'Add Placemark'
+      Hint = 'Add new placemark'
+      ImageIndex = 15
+      OnExecute = actMarksAddPointExecute
+    end
+    object actMarksAddLine: TAction
+      Category = 'Marks'
+      Caption = 'Add Path'
+      Hint = 'Add new path'
+      ImageIndex = 16
+      OnExecute = actMarksAddLineExecute
+    end
+    object actMarksAddPolygon: TAction
+      Category = 'Marks'
+      Caption = 'Add Polygon'
+      Hint = 'Add polygon'
+      ImageIndex = 17
+      OnExecute = actMarksAddPolygonExecute
     end
   end
 end
