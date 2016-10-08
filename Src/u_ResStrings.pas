@@ -77,7 +77,7 @@ ResourceString
   SAS_ERR_LonLat2 = 'Latitude of upper left corner must be less than '#13#10 +
     'latitude of lower right corner';
   SAS_ERR_Authorization = 'Proxy authorization error';
-  SAS_ERR_WaitTime = 'Wait %0:d secons...';
+  SAS_ERR_WaitTime = 'Wait %0:d seconds...';
   SAS_ERR_Ban = 'Most likely you''ve been banned by the server!';
   SAS_ERR_TileNotExists = 'Tile is not found!';
   SAS_ERR_Noconnectionstointernet = 'Error connecting to server';
