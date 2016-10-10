@@ -537,6 +537,7 @@ type
     actMapsEditMapParams: TAction;
     actConfigOptionsShow: TAction;
     actGpsConnect: TAction;
+    actConfigGpsShowTrack: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -560,7 +561,6 @@ type
     procedure NShowGranClick(Sender: TObject);
     procedure N000Click(Sender: TObject);
     procedure TrayItemQuitClick(Sender: TObject);
-    procedure TBGPSPathClick(Sender: TObject);
     procedure TBGPSToPointClick(Sender: TObject);
     procedure tbitmCopyToClipboardCoordinatesClick(Sender: TObject);
     procedure Google1Click(Sender: TObject);
@@ -770,6 +770,7 @@ type
     procedure actMapsEditMapParamsExecute(Sender: TObject);
     procedure actConfigOptionsShowExecute(Sender: TObject);
     procedure actGpsConnectExecute(Sender: TObject);
+    procedure actConfigGpsShowTrackExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -2494,8 +2495,7 @@ begin
   actConfigPreviousSelectionVisible.Checked := FConfig.LayersConfig.LastSelectionLayerConfig.Visible;
   actConfigAzimuthCircle.Checked := FConfig.LayersConfig.CenterScaleConfig.Visible;
 
-  TBGPSPath.Checked := FConfig.LayersConfig.GPSTrackConfig.Visible;
-  tbitmGPSTrackShow.Checked := TBGPSPath.Checked;
+  actConfigGpsShowTrack.Checked := FConfig.LayersConfig.GPSTrackConfig.Visible;
   VUseDownload := FConfig.DownloadUIConfig.UseDownload;
   TBSrc.ImageIndex := integer(VUseDownload);
   case VUseDownload of
@@ -4272,11 +4272,6 @@ begin
       NShowGran.Items[i].Visible := False;
     end;
   end;
-end;
-
-procedure TfrmMain.TBGPSPathClick(Sender: TObject);
-begin
-  FConfig.LayersConfig.GPSTrackConfig.Visible := TTBXitem(Sender).Checked;
 end;
 
 procedure TfrmMain.TBGPSToPointClick(Sender: TObject);
@@ -6385,6 +6380,12 @@ end;
 procedure TfrmMain.actConfigDownloadModeExecute(Sender: TObject);
 begin
   FConfig.DownloadUIConfig.UseDownload := TTileSource(TComponent(Sender).Tag);
+end;
+
+procedure TfrmMain.actConfigGpsShowTrackExecute(Sender: TObject);
+begin
+  FConfig.LayersConfig.GPSTrackConfig.Visible :=
+    not FConfig.LayersConfig.GPSTrackConfig.Visible;
 end;
 
 procedure TfrmMain.actConfigMarksHideExecute(Sender: TObject);

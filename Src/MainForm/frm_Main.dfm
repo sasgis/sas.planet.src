@@ -162,13 +162,9 @@ object frmMain: TfrmMain
         Images = PanelsImageList
       end
       object TBGPSPath: TTBXSubmenuItem
-        AutoCheck = True
+        Action = actConfigGpsShowTrack
         DropdownCombo = True
-        ImageIndex = 6
         Images = PanelsImageList
-        OnClick = TBGPSPathClick
-        Caption = ''
-        Hint = 'Show GPS track'
         object tbitmSaveCurrentPositionToolbar: TTBXItem
           ImageIndex = 15
           Images = MenusImageList
@@ -899,13 +895,8 @@ object frmMain: TfrmMain
           Images = MenusImageList
         end
         object tbitmGPSTrackShow: TTBXItem
-          AutoCheck = True
-          ImageIndex = 6
+          Action = actConfigGpsShowTrack
           Images = MenusImageList
-          ShortCut = 49236
-          OnClick = TBGPSPathClick
-          Caption = 'Show GPS Track'
-          Hint = ''
         end
         object tbitmGPSCenterMap: TTBXItem
           AutoCheck = True
@@ -4390,6 +4381,14 @@ object frmMain: TfrmMain
       ImageIndex = 14
       ShortCut = 49223
       OnExecute = actGpsConnectExecute
+    end
+    object actConfigGpsShowTrack: TAction
+      Category = 'GPS'
+      Caption = 'Show GPS Track'
+      Hint = 'Show GPS track'
+      ImageIndex = 6
+      ShortCut = 49236
+      OnExecute = actConfigGpsShowTrackExecute
     end
   end
 end
