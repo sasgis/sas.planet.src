@@ -978,11 +978,8 @@ object frmMain: TfrmMain
         Caption = 'Settings'
         Hint = ''
         object NMapParams: TTBXItem
+          Action = actMapsEditMapParams
           Images = MenusImageList
-          ShortCut = 49232
-          OnClick = NMapParamsClick
-          Caption = 'Map Settings'
-          Hint = ''
         end
         object NLayerParams: TTBXSubmenuItem
           Images = MenusImageList
@@ -4385,6 +4382,12 @@ object frmMain: TfrmMain
       ImageIndex = 2
       ShortCut = 32834
       OnExecute = actConfigDownloadModeExecute
+    end
+    object actMapsEditMapParams: TAction
+      Category = 'Maps'
+      Caption = 'Map Settings'
+      ShortCut = 49232
+      OnExecute = actMapsEditMapParamsExecute
     end
   end
 end

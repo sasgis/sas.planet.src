@@ -534,6 +534,7 @@ type
     actConfigDownloadModeCache: TAction;
     actConfigDownloadModeInternet: TAction;
     actConfigDownloadModeCacheInternet: TAction;
+    actMapsEditMapParams: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -575,7 +576,6 @@ type
     procedure tbitmCopyToClipboardMainMapUrlClick(Sender: TObject);
     procedure DigitalGlobe1Click(Sender: TObject);
     procedure mapMouseLeave(Sender: TObject);
-    procedure NMapParamsClick(Sender: TObject);
     procedure mapMouseDown(
       Sender: TObject;
       Button: TMouseButton;
@@ -767,6 +767,7 @@ type
     procedure actShowPlacemarkManagerExecute(Sender: TObject);
     procedure actConfigMarksHideExecute(Sender: TObject);
     procedure actConfigDownloadModeExecute(Sender: TObject);
+    procedure actMapsEditMapParamsExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -2347,7 +2348,7 @@ begin
       FNLayerParamsItemList.Add(VGUID, NLayerParamsItem);
       NLayerParamsItem.Caption := VMapType.GUIConfig.Name.Value;
       NLayerParamsItem.ImageIndex := VIcon18Index;
-      NLayerParamsItem.OnClick := NMapParamsClick;
+      NLayerParamsItem.OnClick := actMapsEditMapParamsExecute;
       NLayerParamsItem.Tag := longint(VMapType);
       NLayerParams.Add(NLayerParamsItem);
 
@@ -4601,18 +4602,6 @@ begin
   ShowMessage(SAS_ERR_Communication);
 end;
 
-procedure TfrmMain.NMapParamsClick(Sender: TObject);
-var
-  VMapType: IMapType;
-begin
-  if TComponent(Sender).Tag = 0 then begin
-    VMapType := FMainMapState.ActiveMap.GetStatic;
-  end else begin
-    VMapType := IMapType(TComponent(Sender).Tag);
-  end;
-  FMapTypeEditor.EditMap(VMapType);
-end;
-
 procedure TfrmMain.NMapStorageInfoClick(Sender: TObject);
 var
   VMapType: IMapType;
@@ -6525,6 +6514,18 @@ begin
       '--move=(' + R2StrPoint(VLonLat.X) + ',' + R2StrPoint(VLonLat.Y) + ')';
     CreateLink(ParamStr(0), SaveLink.filename, '', VArgStr);
   end;
+end;
+
+procedure TfrmMain.actMapsEditMapParamsExecute(Sender: TObject);
+var
+  VMapType: IMapType;
+begin
+  if TComponent(Sender).Tag = 0 then begin
+    VMapType := FMainMapState.ActiveMap.GetStatic;
+  end else begin
+    VMapType := IMapType(TComponent(Sender).Tag);
+  end;
+  FMapTypeEditor.EditMap(VMapType);
 end;
 
 procedure TfrmMain.actMarksAddLineExecute(Sender: TObject);
