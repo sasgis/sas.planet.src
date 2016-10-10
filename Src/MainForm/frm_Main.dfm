@@ -182,11 +182,8 @@ object frmMain: TfrmMain
           Hint = ''
         end
         object TBItemDelTrack: TTBXItem
-          ImageIndex = 35
+          Action = actGpsTrackClear
           Images = MenusImageList
-          OnClick = TBItemDelTrackClick
-          Caption = 'Delete Track'
-          Hint = ''
         end
       end
       object TBGPSToPoint: TTBXSubmenuItem
@@ -906,11 +903,8 @@ object frmMain: TfrmMain
           Images = MenusImageList
         end
         object tbitmGPSTrackClear: TTBXItem
-          ImageIndex = 35
+          Action = actGpsTrackClear
           Images = MenusImageList
-          OnClick = TBItemDelTrackClick
-          Caption = 'Delete Track'
-          Hint = ''
         end
         object tbsprtGPS2: TTBXSeparatorItem
           Caption = ''
@@ -4387,6 +4381,12 @@ object frmMain: TfrmMain
       Caption = 'Add Track to Database'
       ImageIndex = 25
       OnExecute = actGpsTrackSaveToDbExecute
+    end
+    object actGpsTrackClear: TAction
+      Category = 'GPS'
+      Caption = 'Delete Track'
+      ImageIndex = 35
+      OnExecute = actGpsTrackClearExecute
     end
   end
 end

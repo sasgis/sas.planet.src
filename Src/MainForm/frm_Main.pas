@@ -542,6 +542,7 @@ type
     actConfigGpsFollowPositionAtCenter: TAction;
     actGpsMarkPointAdd: TAction;
     actGpsTrackSaveToDb: TAction;
+    actGpsTrackClear: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -598,7 +599,6 @@ type
       AX, AY: Integer;
       Layer: TCustomLayer
     );
-    procedure TBItemDelTrackClick(Sender: TObject);
     procedure TBEditPathDelClick(Sender: TObject);
     procedure TBEditPathLabelClick(Sender: TObject);
     procedure TBEditPathSaveClick(Sender: TObject);
@@ -775,6 +775,7 @@ type
     procedure actConfigGpsFollowPositionAtCenterExecute(Sender: TObject);
     procedure actGpsMarkPointAddExecute(Sender: TObject);
     procedure actGpsTrackSaveToDbExecute(Sender: TObject);
+    procedure actGpsTrackClearExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -5177,15 +5178,6 @@ begin
   PFile.Save(POleStr(UnicodeString(PathLink)), False);
 end;
 
-procedure TfrmMain.TBItemDelTrackClick(Sender: TObject);
-begin
-  if GState.GpsTrackRecorder.IsEmpty then begin
-    MessageDlg(_('Nothing to delete - GPS track is empty.'), mtInformation, [mbOk], 0);
-  end else if MessageBox(Handle, PChar(SAS_MSG_DeleteGPSTrackAsk), PChar(SAS_MSG_coution), 36) = IDYES then begin
-    GState.GpsTrackRecorder.ClearTrack;
-  end;
-end;
-
 procedure TfrmMain.TBEditPathDelClick(Sender: TObject);
 begin
   if FLineOnMapEdit <> nil then begin
@@ -6466,6 +6458,15 @@ begin
 
   if FMarkDBGUI.SaveMarkModal(nil, VPoint) then begin
     FState.State := ao_movemap;
+  end;
+end;
+
+procedure TfrmMain.actGpsTrackClearExecute(Sender: TObject);
+begin
+  if GState.GpsTrackRecorder.IsEmpty then begin
+    MessageDlg(_('Nothing to delete - GPS track is empty.'), mtInformation, [mbOk], 0);
+  end else if MessageBox(Handle, PChar(SAS_MSG_DeleteGPSTrackAsk), PChar(SAS_MSG_coution), 36) = IDYES then begin
+    GState.GpsTrackRecorder.ClearTrack;
   end;
 end;
 
