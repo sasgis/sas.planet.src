@@ -135,6 +135,10 @@ object frmMain: TfrmMain
           Caption = ''
           Hint = ''
         end
+        object tbiLayersList: TTBGroupItem
+          Caption = ''
+          Hint = ''
+        end
       end
     end
     object TBMarksToolbar: TTBXToolbar

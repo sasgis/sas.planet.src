@@ -193,14 +193,8 @@ begin
 end;
 
 procedure TMapMenuGeneratorBasic.ClearLists;
-var
-  i: integer;
 begin
-  for i := FRootMenu.Count - 1 downto 0 do begin
-    if FRootMenu.Items[i].Tag <> 0 then begin
-      FRootMenu.Items[i].Free;
-    end;
-  end;
+  FRootMenu.Clear;
 end;
 
 procedure TMapMenuGeneratorBasic.ProcessSubItemGUID(const AGUID: TGUID);

@@ -545,6 +545,7 @@ type
     actGpsTrackClear: TAction;
     actConfigGpsOptionsShow: TAction;
     tbiFillingMapMaps: TTBGroupItem;
+    tbiLayersList: TTBGroupItem;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -2270,7 +2271,7 @@ begin
       VLayersSet,
       nil,
       FConfig.MapLayersConfig,
-      TBLayerSel,
+      tbiLayersList,
       FMapTypeIcons18List
     );
     try
@@ -2396,7 +2397,7 @@ function TfrmMain.GetIgnoredMenuItemsList: TList;
 begin
   Result := TList.Create;
   Result.Add(NSMB);
-  Result.Add(NLayerSel);
+  Result.Add(tbiLayersList);
   Result.Add(tbiFillingMapMaps);
   Result.Add(NLayerParams);
   Result.Add(TBLang);

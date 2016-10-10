@@ -149,6 +149,7 @@ var
   VSubMenuItem: TTBXSubmenuItem;
   VLayersSubMenu: TTBXSubmenuItem;
   VMenuItemAsMainMap: TTBXCustomItem;
+  VMapsList: TTBGroupItem;
 begin
   FPopup := TTBXPopupMenu.Create(nil);
   FPopup.Name := 'PopupMiniMap';
@@ -168,7 +169,10 @@ begin
   VMenuItemAsMainMap.Hint := '';
   FPopup.Items.Add(VMenuItemAsMainMap);
 
-  BuildMapsListUI(FPopup.Items, VLayersSubMenu);
+  VMapsList := TTBGroupItem.Create(FPopup);
+  FPopup.Items.Add(VMapsList);
+
+  BuildMapsListUI(VMapsList, VLayersSubMenu);
 end;
 
 procedure TLayerMiniMapPopupMenu.PopUp;
