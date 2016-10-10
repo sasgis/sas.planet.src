@@ -166,11 +166,8 @@ object frmMain: TfrmMain
         DropdownCombo = True
         Images = PanelsImageList
         object tbitmSaveCurrentPositionToolbar: TTBXItem
-          ImageIndex = 15
+          Action = actGpsMarkPointAdd
           Images = MenusImageList
-          OnClick = tbitmSaveCurrentPositionClick
-          Caption = 'Add Placemark'
-          Hint = ''
         end
         object TBXSeparatorItem16: TTBXSeparatorItem
           Caption = ''
@@ -904,12 +901,8 @@ object frmMain: TfrmMain
           Hint = ''
         end
         object tbitmSaveCurrentPosition: TTBXItem
-          ImageIndex = 15
+          Action = actGpsMarkPointAdd
           Images = MenusImageList
-          ShortCut = 49235
-          OnClick = tbitmSaveCurrentPositionClick
-          Caption = 'Add Placemark'
-          Hint = ''
         end
         object tbitmGPSTrackSaveToDb: TTBXItem
           ImageIndex = 25
@@ -4387,6 +4380,13 @@ object frmMain: TfrmMain
       Category = 'GPS'
       Caption = 'Centered GPS Position'
       OnExecute = actConfigGpsFollowPositionAtCenterExecute
+    end
+    object actGpsMarkPointAdd: TAction
+      Category = 'GPS'
+      Caption = 'Add Placemark'
+      ImageIndex = 15
+      ShortCut = 49235
+      OnExecute = actGpsMarkPointAddExecute
     end
   end
 end

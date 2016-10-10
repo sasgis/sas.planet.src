@@ -540,6 +540,7 @@ type
     actConfigGpsShowTrack: TAction;
     actConfigGpsFollowPosition: TAction;
     actConfigGpsFollowPositionAtCenter: TAction;
+    actGpsMarkPointAdd: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -619,7 +620,6 @@ type
       var AllowChange: Boolean
     );
     procedure TBXSensorsBarVisibleChanged(Sender: TObject);
-    procedure tbitmSaveCurrentPositionClick(Sender: TObject);
     procedure TBXSearchEditAcceptText(
       Sender: TObject;
       var NewText: String;
@@ -773,6 +773,7 @@ type
     procedure actConfigGpsShowTrackExecute(Sender: TObject);
     procedure actConfigGpsFollowPositionExecute(Sender: TObject);
     procedure actConfigGpsFollowPositionAtCenterExecute(Sender: TObject);
+    procedure actGpsMarkPointAddExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -5637,26 +5638,6 @@ begin
   TBXSensorsBar.Visible := TTBXItem(Sender).Checked;
 end;
 
-procedure TfrmMain.tbitmSaveCurrentPositionClick(Sender: TObject);
-var
-  VPosition: IGPSPosition;
-  VLonLat: TDoublePoint;
-  VPoint: IGeometryLonLatPoint;
-begin
-  VPosition := GState.GPSRecorder.CurrentPosition;
-
-  if (VPosition.PositionOK) then begin
-    VLonLat := VPosition.LonLat;
-  end else begin
-    VLonLat := FViewPortState.View.GetStatic.GetCenterLonLat;
-  end;
-  VPoint := GState.VectorGeometryLonLatFactory.CreateLonLatPoint(VLonLat);
-
-  if FMarkDBGUI.SaveMarkModal(nil, VPoint) then begin
-    FState.State := ao_movemap;
-  end;
-end;
-
 procedure TfrmMain.tbitmPropertiesClick(Sender: TObject);
 var
   VMark: IVectorDataItem;
@@ -6479,6 +6460,26 @@ begin
   GState.Config.GPSConfig.GPSEnabled :=
     not GState.Config.GPSConfig.GPSEnabled;
   TCustomAction(Sender).Enabled := False;
+end;
+
+procedure TfrmMain.actGpsMarkPointAddExecute(Sender: TObject);
+var
+  VPosition: IGPSPosition;
+  VLonLat: TDoublePoint;
+  VPoint: IGeometryLonLatPoint;
+begin
+  VPosition := GState.GPSRecorder.CurrentPosition;
+
+  if (VPosition.PositionOK) then begin
+    VLonLat := VPosition.LonLat;
+  end else begin
+    VLonLat := FViewPortState.View.GetStatic.GetCenterLonLat;
+  end;
+  VPoint := GState.VectorGeometryLonLatFactory.CreateLonLatPoint(VLonLat);
+
+  if FMarkDBGUI.SaveMarkModal(nil, VPoint) then begin
+    FState.State := ao_movemap;
+  end;
 end;
 
 procedure TfrmMain.actHelpShowAboutExecute(Sender: TObject);
