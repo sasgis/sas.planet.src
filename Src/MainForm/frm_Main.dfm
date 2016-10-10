@@ -436,6 +436,10 @@ object frmMain: TfrmMain
               Caption = 'Displayed Main Map'
               Hint = ''
             end
+            object tbiFillingMapMaps: TTBGroupItem
+              Caption = ''
+              Hint = ''
+            end
           end
           object TBXSeparatorItem11: TTBXSeparatorItem
             Caption = ''

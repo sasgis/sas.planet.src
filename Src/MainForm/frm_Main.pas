@@ -544,6 +544,7 @@ type
     actGpsTrackSaveToDb: TAction;
     actGpsTrackClear: TAction;
     actConfigGpsOptionsShow: TAction;
+    tbiFillingMapMaps: TTBGroupItem;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -2247,7 +2248,7 @@ begin
     FMainMapState.AllMapsSet,
     FConfig.LayersConfig.FillingMapLayerConfig.SourceMap,
     nil,
-    TBFillingTypeMap,
+    tbiFillingMapMaps,
     FMapTypeIcons18List
   );
   try
@@ -2396,7 +2397,7 @@ begin
   Result := TList.Create;
   Result.Add(NSMB);
   Result.Add(NLayerSel);
-  Result.Add(TBFillingTypeMap);
+  Result.Add(tbiFillingMapMaps);
   Result.Add(NLayerParams);
   Result.Add(TBLang);
   Result.Add(N002);
@@ -2405,7 +2406,6 @@ begin
   Result.Add(N005);
   Result.Add(N006);
   Result.Add(N007);
-  Result.Add(NFillMap);
   if not GState.Config.InternalDebugConfig.IsShowDebugInfo then begin
     Result.Add(tbitmShowDebugInfo);
   end;
