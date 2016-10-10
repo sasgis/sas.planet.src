@@ -915,11 +915,8 @@ object frmMain: TfrmMain
           Hint = ''
         end
         object tbitmGPSOptions: TTBXItem
-          ImageIndex = 20
+          Action = actConfigGpsOptionsShow
           Images = MenusImageList
-          OnClick = tbitmGPSOptionsClick
-          Caption = 'Options'
-          Hint = ''
         end
       end
       object NParams: TTBXSubmenuItem
@@ -4387,6 +4384,12 @@ object frmMain: TfrmMain
       Caption = 'Delete Track'
       ImageIndex = 35
       OnExecute = actGpsTrackClearExecute
+    end
+    object actConfigGpsOptionsShow: TAction
+      Category = 'GPS'
+      Caption = 'Options'
+      ImageIndex = 20
+      OnExecute = actConfigGpsOptionsShowExecute
     end
   end
 end

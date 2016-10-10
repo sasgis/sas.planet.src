@@ -543,6 +543,7 @@ type
     actGpsMarkPointAdd: TAction;
     actGpsTrackSaveToDb: TAction;
     actGpsTrackClear: TAction;
+    actConfigGpsOptionsShow: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -649,7 +650,6 @@ type
     );
     procedure NSensorsClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure tbitmGPSOptionsClick(Sender: TObject);
     procedure TrayItemRestoreClick(Sender: TObject);
     procedure FormShortCut(
       var Msg: TWMKey;
@@ -776,6 +776,7 @@ type
     procedure actGpsMarkPointAddExecute(Sender: TObject);
     procedure actGpsTrackSaveToDbExecute(Sender: TObject);
     procedure actGpsTrackClearExecute(Sender: TObject);
+    procedure actConfigGpsOptionsShowExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -5674,11 +5675,6 @@ begin
   FMergePolygonsPresenter.ClearAll;
 end;
 
-procedure TfrmMain.tbitmGPSOptionsClick(Sender: TObject);
-begin
-  FfrmSettings.ShowGPSSettings;
-end;
-
 procedure TfrmMain.TBSearchWindowClose(Sender: TObject);
 begin
   GState.LastSearchResult.ClearGeoCodeResult;
@@ -6340,6 +6336,11 @@ end;
 procedure TfrmMain.actConfigGpsFollowPositionExecute(Sender: TObject);
 begin
   FConfig.GPSBehaviour.MapMove := not FConfig.GPSBehaviour.MapMove;
+end;
+
+procedure TfrmMain.actConfigGpsOptionsShowExecute(Sender: TObject);
+begin
+  FfrmSettings.ShowGPSSettings;
 end;
 
 procedure TfrmMain.actConfigGpsShowTrackExecute(Sender: TObject);
