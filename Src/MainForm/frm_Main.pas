@@ -541,6 +541,7 @@ type
     actConfigGpsFollowPosition: TAction;
     actConfigGpsFollowPositionAtCenter: TAction;
     actGpsMarkPointAdd: TAction;
+    actGpsTrackSaveToDb: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -570,7 +571,6 @@ type
     procedure YaLinkClick(Sender: TObject);
     procedure kosmosnimkiru1Click(Sender: TObject);
     procedure mapDblClick(Sender: TObject);
-    procedure tbitmGPSTrackSaveToMarksClick(Sender: TObject);
     procedure NMarkEditClick(Sender: TObject);
     procedure NMarkDelClick(Sender: TObject);
     procedure NMarkOperClick(Sender: TObject);
@@ -774,6 +774,7 @@ type
     procedure actConfigGpsFollowPositionExecute(Sender: TObject);
     procedure actConfigGpsFollowPositionAtCenterExecute(Sender: TObject);
     procedure actGpsMarkPointAddExecute(Sender: TObject);
+    procedure actGpsTrackSaveToDbExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -4280,20 +4281,6 @@ begin
   FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig.Radius := TBEditSelectPolylineRadius.Value;
 end;
 
-procedure TfrmMain.tbitmGPSTrackSaveToMarksClick(Sender: TObject);
-var
-  VAllPoints: IGeometryLonLatLine;
-begin
-  VAllPoints := GState.GpsTrackRecorder.GetAllPoints;
-  if Assigned(VAllPoints) then begin
-    if FMarkDBGUI.SaveMarkModal(nil, VAllPoints, False, 'time: ' + DateTimeToStr(Now) + sLineBreak + 'track: true') then begin
-      FState.State := ao_movemap;
-    end;
-  end else begin
-    ShowMessage(SAS_ERR_Nopoints);
-  end;
-end;
-
 procedure TfrmMain.mapResize(Sender: TObject);
 begin
   FViewPortState.ChangeViewSize(Point(map.Width, map.Height));
@@ -6479,6 +6466,20 @@ begin
 
   if FMarkDBGUI.SaveMarkModal(nil, VPoint) then begin
     FState.State := ao_movemap;
+  end;
+end;
+
+procedure TfrmMain.actGpsTrackSaveToDbExecute(Sender: TObject);
+var
+  VAllPoints: IGeometryLonLatLine;
+begin
+  VAllPoints := GState.GpsTrackRecorder.GetAllPoints;
+  if Assigned(VAllPoints) then begin
+    if FMarkDBGUI.SaveMarkModal(nil, VAllPoints, False, 'time: ' + DateTimeToStr(Now) + sLineBreak + 'track: true') then begin
+      FState.State := ao_movemap;
+    end;
+  end else begin
+    ShowMessage(SAS_ERR_Nopoints);
   end;
 end;
 

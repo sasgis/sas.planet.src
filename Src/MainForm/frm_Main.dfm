@@ -174,11 +174,8 @@ object frmMain: TfrmMain
           Hint = ''
         end
         object tbitmGPSTrackSaveToMarks: TTBXItem
-          ImageIndex = 25
+          Action = actGpsTrackSaveToDb
           Images = MenusImageList
-          OnClick = tbitmGPSTrackSaveToMarksClick
-          Caption = 'Add Track to Database'
-          Hint = ''
         end
         object TBXSeparatorItem17: TTBXSeparatorItem
           Caption = ''
@@ -905,11 +902,8 @@ object frmMain: TfrmMain
           Images = MenusImageList
         end
         object tbitmGPSTrackSaveToDb: TTBXItem
-          ImageIndex = 25
+          Action = actGpsTrackSaveToDb
           Images = MenusImageList
-          OnClick = tbitmGPSTrackSaveToMarksClick
-          Caption = 'Add Track to Database'
-          Hint = ''
         end
         object tbitmGPSTrackClear: TTBXItem
           ImageIndex = 35
@@ -4387,6 +4381,12 @@ object frmMain: TfrmMain
       ImageIndex = 15
       ShortCut = 49235
       OnExecute = actGpsMarkPointAddExecute
+    end
+    object actGpsTrackSaveToDb: TAction
+      Category = 'GPS'
+      Caption = 'Add Track to Database'
+      ImageIndex = 25
+      OnExecute = actGpsTrackSaveToDbExecute
     end
   end
 end
