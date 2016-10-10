@@ -535,6 +535,7 @@ type
     actConfigDownloadModeInternet: TAction;
     actConfigDownloadModeCacheInternet: TAction;
     actMapsEditMapParams: TAction;
+    actConfigOptionsShow: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -547,7 +548,6 @@ type
       Floating: Boolean;
       DockingTo: TTBDock
     );
-    procedure tbitmOptionsClick(Sender: TObject);
     procedure tbitmOnInterfaceOptionsClick(Sender: TObject);
     procedure NaddPointClick(Sender: TObject);
     procedure tbitmCopyToClipboardMainMapTileClick(Sender: TObject);
@@ -768,6 +768,7 @@ type
     procedure actConfigMarksHideExecute(Sender: TObject);
     procedure actConfigDownloadModeExecute(Sender: TObject);
     procedure actMapsEditMapParamsExecute(Sender: TObject);
+    procedure actConfigOptionsShowExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -3636,11 +3637,6 @@ begin
   PaintZSlider(FViewPortState.View.GetStatic.Projection.Zoom);
 end;
 
-procedure TfrmMain.tbitmOptionsClick(Sender: TObject);
-begin
-  FfrmSettings.ShowModal;
-end;
-
 procedure TfrmMain.tbitmOnInterfaceOptionsClick(Sender: TObject);
 begin
   if Sender is TLayerStatBarPopupMenu then begin
@@ -6417,6 +6413,11 @@ procedure TfrmMain.actConfigMiniMapVisibleExecute(Sender: TObject);
 begin
   FConfig.LayersConfig.MiniMapLayerConfig.LocationConfig.Visible :=
     not FConfig.LayersConfig.MiniMapLayerConfig.LocationConfig.Visible;
+end;
+
+procedure TfrmMain.actConfigOptionsShowExecute(Sender: TObject);
+begin
+  FfrmSettings.ShowModal;
 end;
 
 procedure TfrmMain.actConfigPreviousSelectionVisibleExecute(Sender: TObject);

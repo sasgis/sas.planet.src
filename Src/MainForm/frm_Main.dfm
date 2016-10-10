@@ -991,11 +991,8 @@ object frmMain: TfrmMain
           Hint = ''
         end
         object tbitmOptions: TTBXItem
-          ImageIndex = 20
+          Action = actConfigOptionsShow
           Images = MenusImageList
-          OnClick = tbitmOptionsClick
-          Caption = 'Options'
-          Hint = ''
         end
         object tbitmInterfaceOptions: TTBXItem
           Images = MenusImageList
@@ -4388,6 +4385,12 @@ object frmMain: TfrmMain
       Caption = 'Map Settings'
       ShortCut = 49232
       OnExecute = actMapsEditMapParamsExecute
+    end
+    object actConfigOptionsShow: TAction
+      Category = 'Config'
+      Caption = 'Options'
+      ImageIndex = 20
+      OnExecute = actConfigOptionsShowExecute
     end
   end
 end
