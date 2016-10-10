@@ -196,13 +196,9 @@ object frmMain: TfrmMain
         end
       end
       object TBGPSToPoint: TTBXSubmenuItem
-        AutoCheck = True
+        Action = actConfigGpsFollowPosition
         DropdownCombo = True
-        ImageIndex = 5
         Images = PanelsImageList
-        OnClick = TBGPSToPointClick
-        Caption = ''
-        Hint = 'Follow GPS Position'
         object TBGPSToPointCenter: TTBXItem
           AutoCheck = True
           OnClick = TBGPSToPointCenterClick
@@ -899,12 +895,8 @@ object frmMain: TfrmMain
           Images = MenusImageList
         end
         object tbitmGPSCenterMap: TTBXItem
-          AutoCheck = True
-          ImageIndex = 5
+          Action = actConfigGpsFollowPosition
           Images = MenusImageList
-          OnClick = TBGPSToPointClick
-          Caption = 'Follow GPS Position'
-          Hint = ''
         end
         object tbitmGPSToPointCenter: TTBXItem
           AutoCheck = True
@@ -4389,6 +4381,13 @@ object frmMain: TfrmMain
       ImageIndex = 6
       ShortCut = 49236
       OnExecute = actConfigGpsShowTrackExecute
+    end
+    object actConfigGpsFollowPosition: TAction
+      Category = 'GPS'
+      Caption = 'Follow GPS Position'
+      Hint = 'Follow GPS Position'
+      ImageIndex = 5
+      OnExecute = actConfigGpsFollowPositionExecute
     end
   end
 end

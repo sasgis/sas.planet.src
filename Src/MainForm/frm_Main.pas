@@ -538,6 +538,7 @@ type
     actConfigOptionsShow: TAction;
     actGpsConnect: TAction;
     actConfigGpsShowTrack: TAction;
+    actConfigGpsFollowPosition: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -561,7 +562,6 @@ type
     procedure NShowGranClick(Sender: TObject);
     procedure N000Click(Sender: TObject);
     procedure TrayItemQuitClick(Sender: TObject);
-    procedure TBGPSToPointClick(Sender: TObject);
     procedure tbitmCopyToClipboardCoordinatesClick(Sender: TObject);
     procedure Google1Click(Sender: TObject);
     procedure mapResize(Sender: TObject);
@@ -771,6 +771,7 @@ type
     procedure actConfigOptionsShowExecute(Sender: TObject);
     procedure actGpsConnectExecute(Sender: TObject);
     procedure actConfigGpsShowTrackExecute(Sender: TObject);
+    procedure actConfigGpsFollowPositionExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -2875,8 +2876,7 @@ begin
   actConfigUseZoomAnimation.Checked := FConfig.MapZoomingConfig.AnimateZoom;
   actConfigUseInertialMovement.Checked := FConfig.MapMovingConfig.AnimateMove;
   actConfigColorInversion.Checked := GState.Config.BitmapPostProcessingConfig.InvertColor;
-  TBGPSToPoint.Checked := FConfig.GPSBehaviour.MapMove;
-  tbitmGPSCenterMap.Checked := tBGPSToPoint.Checked;
+  actConfigGpsFollowPosition.Checked := FConfig.GPSBehaviour.MapMove;
   TBGPSToPointCenter.Checked := FConfig.GPSBehaviour.MapMoveCentered;
   tbitmGPSToPointCenter.Checked := tBGPSToPointCenter.Checked;
   actConfigMarksNamesVisible.Checked := FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.CaptionDrawConfig.ShowPointCaption;
@@ -4272,11 +4272,6 @@ begin
       NShowGran.Items[i].Visible := False;
     end;
   end;
-end;
-
-procedure TfrmMain.TBGPSToPointClick(Sender: TObject);
-begin
-  FConfig.GPSBehaviour.MapMove := TTBXitem(Sender).Checked;
 end;
 
 procedure TfrmMain.TBEditSelectPolylineRadiusChange(Sender: TObject);
@@ -6380,6 +6375,11 @@ end;
 procedure TfrmMain.actConfigDownloadModeExecute(Sender: TObject);
 begin
   FConfig.DownloadUIConfig.UseDownload := TTileSource(TComponent(Sender).Tag);
+end;
+
+procedure TfrmMain.actConfigGpsFollowPositionExecute(Sender: TObject);
+begin
+  FConfig.GPSBehaviour.MapMove := not FConfig.GPSBehaviour.MapMove;
 end;
 
 procedure TfrmMain.actConfigGpsShowTrackExecute(Sender: TObject);
