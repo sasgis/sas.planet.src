@@ -531,6 +531,9 @@ type
     actMarksAddPolygon: TAction;
     actShowPlacemarkManager: TAction;
     actConfigMarksHide: TAction;
+    actConfigDownloadModeCache: TAction;
+    actConfigDownloadModeInternet: TAction;
+    actConfigDownloadModeCacheInternet: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -553,7 +556,6 @@ type
     procedure tbitmOpenFolderMainMapTileClick(Sender: TObject);
     procedure NDelClick(Sender: TObject);
     procedure NShowGranClick(Sender: TObject);
-    procedure NSRCinetClick(Sender: TObject);
     procedure N000Click(Sender: TObject);
     procedure TrayItemQuitClick(Sender: TObject);
     procedure TBGPSconnClick(Sender: TObject);
@@ -764,6 +766,7 @@ type
     procedure actMarksAddPolygonExecute(Sender: TObject);
     procedure actShowPlacemarkManagerExecute(Sender: TObject);
     procedure actConfigMarksHideExecute(Sender: TObject);
+    procedure actConfigDownloadModeExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -2494,13 +2497,19 @@ begin
   TBSrc.ImageIndex := integer(VUseDownload);
   case VUseDownload of
     tsInternet: begin
-      NSRCinet.Checked := True;
+      actConfigDownloadModeInternet.Checked := True;
+      actConfigDownloadModeCache.Checked := False;
+      actConfigDownloadModeCacheInternet.Checked := False;
     end;
     tsCache: begin
-      NSRCesh.Checked := True;
+      actConfigDownloadModeInternet.Checked := False;
+      actConfigDownloadModeCache.Checked := True;
+      actConfigDownloadModeCacheInternet.Checked := False;
     end;
     tsCacheInternet: begin
-      NSRCic.Checked := True;
+      actConfigDownloadModeInternet.Checked := False;
+      actConfigDownloadModeCache.Checked := False;
+      actConfigDownloadModeCacheInternet.Checked := True;
     end;
   end;
 
@@ -4052,11 +4061,6 @@ begin
       end;
     end;
   end;
-end;
-
-procedure TfrmMain.NSRCinetClick(Sender: TObject);
-begin
-  FConfig.DownloadUIConfig.UseDownload := TTileSource(TComponent(Sender).Tag);
 end;
 
 //карта заполнения в основном окне
@@ -6401,6 +6405,11 @@ procedure TfrmMain.actConfigColorInversionExecute(Sender: TObject);
 begin
   GState.Config.BitmapPostProcessingConfig.InvertColor :=
     not GState.Config.BitmapPostProcessingConfig.InvertColor;
+end;
+
+procedure TfrmMain.actConfigDownloadModeExecute(Sender: TObject);
+begin
+  FConfig.DownloadUIConfig.UseDownload := TTileSource(TComponent(Sender).Tag);
 end;
 
 procedure TfrmMain.actConfigMarksHideExecute(Sender: TObject);

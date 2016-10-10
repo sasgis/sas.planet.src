@@ -813,42 +813,19 @@ object frmMain: TfrmMain
         Caption = '&Source'
         Hint = ''
         object NSRCesh: TTBXItem
-          Tag = 1
-          AutoCheck = True
-          GroupIndex = 1
-          ImageIndex = 1
+          Action = actConfigDownloadModeCache
           Images = PanelsImageList
-          RadioItem = True
-          ShortCut = 32835
           OnAdjustFont = AdjustFont
-          OnClick = NSRCinetClick
-          Caption = 'Cache'
-          Hint = ''
         end
         object NSRCinet: TTBXItem
-          AutoCheck = True
-          GroupIndex = 1
-          ImageIndex = 0
+          Action = actConfigDownloadModeInternet
           Images = PanelsImageList
-          RadioItem = True
-          ShortCut = 32841
           OnAdjustFont = AdjustFont
-          OnClick = NSRCinetClick
-          Caption = 'Internet'
-          Hint = ''
         end
         object NSRCic: TTBXItem
-          Tag = 2
-          AutoCheck = True
-          GroupIndex = 1
-          ImageIndex = 2
+          Action = actConfigDownloadModeCacheInternet
           Images = PanelsImageList
-          RadioItem = True
-          ShortCut = 32834
           OnAdjustFont = AdjustFont
-          OnClick = NSRCinetClick
-          Caption = 'Internet && Cache'
-          Hint = ''
         end
       end
       object NSMB: TTBXSubmenuItem
@@ -4385,6 +4362,29 @@ object frmMain: TfrmMain
       Hint = 'Hide all placemarks'
       ImageIndex = 19
       OnExecute = actConfigMarksHideExecute
+    end
+    object actConfigDownloadModeCache: TAction
+      Tag = 1
+      Category = 'Download Mode'
+      Caption = 'Cache'
+      ImageIndex = 1
+      ShortCut = 32835
+      OnExecute = actConfigDownloadModeExecute
+    end
+    object actConfigDownloadModeInternet: TAction
+      Category = 'Download Mode'
+      Caption = 'Internet'
+      ImageIndex = 0
+      ShortCut = 32841
+      OnExecute = actConfigDownloadModeExecute
+    end
+    object actConfigDownloadModeCacheInternet: TAction
+      Tag = 2
+      Category = 'Download Mode'
+      Caption = 'Internet && Cache'
+      ImageIndex = 2
+      ShortCut = 32834
+      OnExecute = actConfigDownloadModeExecute
     end
   end
 end
