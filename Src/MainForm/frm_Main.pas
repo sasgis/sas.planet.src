@@ -539,6 +539,7 @@ type
     actGpsConnect: TAction;
     actConfigGpsShowTrack: TAction;
     actConfigGpsFollowPosition: TAction;
+    actConfigGpsFollowPositionAtCenter: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -624,7 +625,6 @@ type
       var NewText: String;
       var Accept: Boolean
     );
-    procedure TBGPSToPointCenterClick(Sender: TObject);
     procedure NMarkExportClick(Sender: TObject);
     procedure ZSliderMouseMove(
       Sender: TObject;
@@ -772,6 +772,7 @@ type
     procedure actGpsConnectExecute(Sender: TObject);
     procedure actConfigGpsShowTrackExecute(Sender: TObject);
     procedure actConfigGpsFollowPositionExecute(Sender: TObject);
+    procedure actConfigGpsFollowPositionAtCenterExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -2877,8 +2878,7 @@ begin
   actConfigUseInertialMovement.Checked := FConfig.MapMovingConfig.AnimateMove;
   actConfigColorInversion.Checked := GState.Config.BitmapPostProcessingConfig.InvertColor;
   actConfigGpsFollowPosition.Checked := FConfig.GPSBehaviour.MapMove;
-  TBGPSToPointCenter.Checked := FConfig.GPSBehaviour.MapMoveCentered;
-  tbitmGPSToPointCenter.Checked := tBGPSToPointCenter.Checked;
+  actConfigGpsFollowPositionAtCenter.Checked := FConfig.GPSBehaviour.MapMoveCentered;
   actConfigMarksNamesVisible.Checked := FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.CaptionDrawConfig.ShowPointCaption;
 
   actConfigMarksHide.Checked := not (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks);
@@ -5728,11 +5728,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.TBGPSToPointCenterClick(Sender: TObject);
-begin
-  FConfig.GPSBehaviour.MapMoveCentered := TTBXitem(Sender).Checked;
-end;
-
 procedure TfrmMain.TBXSelectSrchClick(Sender: TObject);
 var
   VItem: IGeoCoderListEntity;
@@ -6375,6 +6370,11 @@ end;
 procedure TfrmMain.actConfigDownloadModeExecute(Sender: TObject);
 begin
   FConfig.DownloadUIConfig.UseDownload := TTileSource(TComponent(Sender).Tag);
+end;
+
+procedure TfrmMain.actConfigGpsFollowPositionAtCenterExecute(Sender: TObject);
+begin
+  FConfig.GPSBehaviour.MapMoveCentered := not FConfig.GPSBehaviour.MapMoveCentered;
 end;
 
 procedure TfrmMain.actConfigGpsFollowPositionExecute(Sender: TObject);

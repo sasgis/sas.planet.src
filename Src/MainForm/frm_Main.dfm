@@ -200,10 +200,7 @@ object frmMain: TfrmMain
         DropdownCombo = True
         Images = PanelsImageList
         object TBGPSToPointCenter: TTBXItem
-          AutoCheck = True
-          OnClick = TBGPSToPointCenterClick
-          Caption = 'Centered GPS Position'
-          Hint = ''
+          Action = actConfigGpsFollowPositionAtCenter
         end
       end
     end
@@ -899,11 +896,8 @@ object frmMain: TfrmMain
           Images = MenusImageList
         end
         object tbitmGPSToPointCenter: TTBXItem
-          AutoCheck = True
+          Action = actConfigGpsFollowPositionAtCenter
           Images = MenusImageList
-          OnClick = TBGPSToPointCenterClick
-          Caption = 'Centered GPS Position'
-          Hint = ''
         end
         object tbsprtGPS1: TTBXSeparatorItem
           Caption = ''
@@ -4388,6 +4382,11 @@ object frmMain: TfrmMain
       Hint = 'Follow GPS Position'
       ImageIndex = 5
       OnExecute = actConfigGpsFollowPositionExecute
+    end
+    object actConfigGpsFollowPositionAtCenter: TAction
+      Category = 'GPS'
+      Caption = 'Centered GPS Position'
+      OnExecute = actConfigGpsFollowPositionAtCenterExecute
     end
   end
 end
