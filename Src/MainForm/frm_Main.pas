@@ -223,14 +223,8 @@ type
     Showstatus: TTBXItem;
     ShowMiniMap: TTBXItem;
     ShowLine: TTBXItem;
-    N000: TTBXItem;
-    N001: TTBXItem;
-    N002: TTBXItem;
-    N003: TTBXItem;
-    N004: TTBXItem;
-    N005: TTBXItem;
-    N006: TTBXItem;
-    N007: TTBXItem;
+    tbitmTileGridNo: TTBXItem;
+    tbitmTileGrid0p: TTBXItem;
     TBXExit: TTBXItem;
     TBXSeparatorItem4: TTBXSeparatorItem;
     TBXSeparatorItem5: TTBXSeparatorItem;
@@ -455,6 +449,8 @@ type
     tbxManageFavorite: TTBXItem;
     TBEditPathSplit: TTBXItem;
     tbxtmSaveMarkAsSeparateSegment: TTBXItem;
+    tbiFillingMapMaps: TTBGroupItem;
+    tbiLayersList: TTBGroupItem;
     actlstMain: TActionList;
     actSelectByPolygon: TAction;
     actSelectByRect: TAction;
@@ -544,8 +540,61 @@ type
     actGpsTrackSaveToDb: TAction;
     actGpsTrackClear: TAction;
     actConfigGpsOptionsShow: TAction;
-    tbiFillingMapMaps: TTBGroupItem;
-    tbiLayersList: TTBGroupItem;
+    actViewGridTileNo: TAction;
+    actViewGridTileZoomCurrent: TAction;
+    actViewGridTileZoomCurrentP1: TAction;
+    actViewGridTileZoomCurrentP2: TAction;
+    actViewGridTileZoomCurrentP3: TAction;
+    actViewGridTileZoomCurrentP4: TAction;
+    actViewGridTileZoomCurrentP5: TAction;
+    actViewGridTileZoom00: TAction;
+    actViewGridTileZoom01: TAction;
+    actViewGridTileZoom02: TAction;
+    actViewGridTileZoom03: TAction;
+    actViewGridTileZoom04: TAction;
+    actViewGridTileZoom05: TAction;
+    actViewGridTileZoom06: TAction;
+    actViewGridTileZoom07: TAction;
+    actViewGridTileZoom08: TAction;
+    actViewGridTileZoom09: TAction;
+    actViewGridTileZoom10: TAction;
+    actViewGridTileZoom11: TAction;
+    actViewGridTileZoom12: TAction;
+    actViewGridTileZoom13: TAction;
+    actViewGridTileZoom14: TAction;
+    actViewGridTileZoom15: TAction;
+    actViewGridTileZoom16: TAction;
+    actViewGridTileZoom17: TAction;
+    actViewGridTileZoom18: TAction;
+    actViewGridTileZoom19: TAction;
+    actViewGridTileZoom20: TAction;
+    actViewGridTileZoom21: TAction;
+    actViewGridTileZoom22: TAction;
+    actViewGridTileZoom23: TAction;
+    tbxtmTileGridZ00: TTBXItem;
+    tbxtmTileGridZ01: TTBXItem;
+    tbxtmTileGridZ02: TTBXItem;
+    tbxtmTileGridZ03: TTBXItem;
+    tbxtmTileGridZ04: TTBXItem;
+    tbxtmTileGridZ05: TTBXItem;
+    tbxtmTileGridZ06: TTBXItem;
+    tbxtmTileGridZ07: TTBXItem;
+    tbxtmTileGridZ08: TTBXItem;
+    tbxtmTileGridZ09: TTBXItem;
+    tbxtmTileGridZ10: TTBXItem;
+    tbxtmTileGridZ11: TTBXItem;
+    tbxtmTileGridZ12: TTBXItem;
+    tbxtmTileGridZ13: TTBXItem;
+    tbxtmTileGridZ14: TTBXItem;
+    tbxtmTileGridZ16: TTBXItem;
+    tbxtmTileGridZ17: TTBXItem;
+    tbxtmTileGridZ18: TTBXItem;
+    tbxtmTileGridZ19: TTBXItem;
+    tbxtmTileGridZ20: TTBXItem;
+    tbxtmTileGridZ21: TTBXItem;
+    tbxtmTileGridZ22: TTBXItem;
+    tbxtmTileGridZ23: TTBXItem;
+    tbxtmTileGridZ15: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -566,8 +615,6 @@ type
     procedure NopendirClick(Sender: TObject);
     procedure tbitmOpenFolderMainMapTileClick(Sender: TObject);
     procedure NDelClick(Sender: TObject);
-    procedure NShowGranClick(Sender: TObject);
-    procedure N000Click(Sender: TObject);
     procedure TrayItemQuitClick(Sender: TObject);
     procedure tbitmCopyToClipboardCoordinatesClick(Sender: TObject);
     procedure Google1Click(Sender: TObject);
@@ -779,6 +826,7 @@ type
     procedure actGpsTrackSaveToDbExecute(Sender: TObject);
     procedure actGpsTrackClearExecute(Sender: TObject);
     procedure actConfigGpsOptionsShowExecute(Sender: TObject);
+    procedure actViewGridTileExecute(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -960,6 +1008,7 @@ type
 
     procedure OnGridGenshtabChange;
     procedure OnGridLonLatChange;
+    procedure OnGridTileChange;
     procedure OnMainMapChange;
     procedure OnActivLayersChange;
     procedure OnFillingMapChange;
@@ -1832,6 +1881,10 @@ begin
       TNotifyNoMmgEventListener.Create(Self.OnGridLonLatChange),
       FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.ChangeNotifier
     );
+    FLinksList.Add(
+      TNotifyNoMmgEventListener.Create(Self.OnGridTileChange),
+      FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.ChangeNotifier
+    );
 
     FLinksList.Add(
       TNotifyNoMmgEventListener.Create(Self.OnFillingMapChange),
@@ -1967,6 +2020,7 @@ procedure TfrmMain.InitGridsMenus;
 begin
   OnGridGenshtabChange;
   OnGridLonLatChange;
+  OnGridTileChange;
 
   actViewGridLonLat_00_500.Caption := FloatToStr(0.5) + '°';
   actViewGridLonLat_00_250.Caption := FloatToStr(0.25) + '°';
@@ -2401,12 +2455,6 @@ begin
   Result.Add(tbiFillingMapMaps);
   Result.Add(NLayerParams);
   Result.Add(TBLang);
-  Result.Add(N002);
-  Result.Add(N003);
-  Result.Add(N004);
-  Result.Add(N005);
-  Result.Add(N006);
-  Result.Add(N007);
   if not GState.Config.InternalDebugConfig.IsShowDebugInfo then begin
     Result.Add(tbitmShowDebugInfo);
   end;
@@ -2830,6 +2878,130 @@ begin
     actViewGridLonLatNo.Checked := True;
   end;
   NDegValue.text := Deg2StrValue(actViewGridLonLat_User.Tag);
+end;
+
+procedure TfrmMain.OnGridTileChange;
+var
+  VGridVisible: Boolean;
+  VRelativeZoom: Boolean;
+  VGridZoom: Integer;
+begin
+  FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.LockRead;
+  try
+    VGridVisible := FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible;
+    VRelativeZoom := FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UseRelativeZoom;
+    VGridZoom := FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Zoom;
+  finally
+    FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UnlockRead;
+  end;
+
+  if not VGridVisible then begin
+    actViewGridTileNo.Checked := True;
+  end else begin
+    if VRelativeZoom then begin
+      case VGridZoom of
+        0: begin
+          actViewGridTileZoomCurrent.Checked := True;
+        end;
+        1: begin
+          actViewGridTileZoomCurrentP1.Checked := True;
+        end;
+        2: begin
+          actViewGridTileZoomCurrentP2.Checked := True;
+        end;
+        3: begin
+          actViewGridTileZoomCurrentP3.Checked := True;
+        end;
+        4: begin
+          actViewGridTileZoomCurrentP4.Checked := True;
+        end;
+        5: begin
+          actViewGridTileZoomCurrentP5.Checked := True;
+        end;
+      else begin
+        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Zoom := 0;
+      end;
+      end;
+    end else begin
+      case VGridZoom of
+        0: begin
+          actViewGridTileZoom00.Checked := True;
+        end;
+        1: begin
+          actViewGridTileZoom01.Checked := True;
+        end;
+        2: begin
+          actViewGridTileZoom02.Checked := True;
+        end;
+        3: begin
+          actViewGridTileZoom03.Checked := True;
+        end;
+        4: begin
+          actViewGridTileZoom04.Checked := True;
+        end;
+        5: begin
+          actViewGridTileZoom05.Checked := True;
+        end;
+        6: begin
+          actViewGridTileZoom06.Checked := True;
+        end;
+        7: begin
+          actViewGridTileZoom07.Checked := True;
+        end;
+        8: begin
+          actViewGridTileZoom08.Checked := True;
+        end;
+        9: begin
+          actViewGridTileZoom09.Checked := True;
+        end;
+        10: begin
+          actViewGridTileZoom10.Checked := True;
+        end;
+        11: begin
+          actViewGridTileZoom11.Checked := True;
+        end;
+        12: begin
+          actViewGridTileZoom12.Checked := True;
+        end;
+        13: begin
+          actViewGridTileZoom13.Checked := True;
+        end;
+        14: begin
+          actViewGridTileZoom14.Checked := True;
+        end;
+        15: begin
+          actViewGridTileZoom15.Checked := True;
+        end;
+        16: begin
+          actViewGridTileZoom16.Checked := True;
+        end;
+        17: begin
+          actViewGridTileZoom17.Checked := True;
+        end;
+        18: begin
+          actViewGridTileZoom18.Checked := True;
+        end;
+        19: begin
+          actViewGridTileZoom19.Checked := True;
+        end;
+        20: begin
+          actViewGridTileZoom20.Checked := True;
+        end;
+        21: begin
+          actViewGridTileZoom21.Checked := True;
+        end;
+        22: begin
+          actViewGridTileZoom22.Checked := True;
+        end;
+        23: begin
+          actViewGridTileZoom23.Checked := True;
+        end;
+      else begin
+        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Zoom := 0;
+      end;
+      end;
+    end;
+  end;
 end;
 
 procedure TfrmMain.OnLineOnMapEditChange;
@@ -4171,112 +4343,6 @@ begin
   VZoom := ((5 * ARow) + ACol) - 1;
   VMouseDownPoint := FMouseState.GetLastDownPos(mbRight);
   zooming(VZoom, VMouseDownPoint);
-end;
-
-procedure TfrmMain.N000Click(Sender: TObject);
-var
-  VTag: Integer;
-begin
-  VTag := TMenuItem(Sender).Tag;
-  if VTag = 0 then begin
-    FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := False;
-  end else begin
-    FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.LockWrite;
-    try
-      if VTag >= 100 then begin
-        if FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible then begin
-          if (FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Zoom = VTag - 100) and
-            (FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UseRelativeZoom)
-          then begin
-            FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := False;
-          end;
-        end else begin
-          FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := True;
-        end;
-
-        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UseRelativeZoom := True;
-        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Zoom := VTag - 100;
-      end else begin
-        if FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible then begin
-          if (FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Zoom = VTag - 1) and
-            (not FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UseRelativeZoom)
-          then begin
-            FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := False;
-          end;
-        end else begin
-          FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := True;
-        end;
-
-        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UseRelativeZoom := False;
-        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Zoom := VTag - 1;
-      end;
-    finally
-      FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UnlockWrite;
-    end;
-  end;
-end;
-
-procedure TfrmMain.NShowGranClick(Sender: TObject);
-var
-  i: integer;
-  VZoom: Byte;
-  VGridVisible: Boolean;
-  VRelativeZoom: Boolean;
-  VGridZoom: Byte;
-  VZoomCurr: Byte;
-begin
-  FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.LockRead;
-  try
-    VGridVisible := FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible;
-    VRelativeZoom := FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UseRelativeZoom;
-    VGridZoom := FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Zoom;
-  finally
-    FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UnlockRead;
-  end;
-
-  if not VGridVisible then begin
-    NShowGran.Items[0].Checked := True;
-  end else begin
-    if VRelativeZoom then begin
-      case VGridZoom of
-        1: begin
-          NShowGran.Items[8].Checked := True;
-        end;
-        2: begin
-          NShowGran.Items[9].Checked := True;
-        end;
-        3: begin
-          NShowGran.Items[10].Checked := True;
-        end;
-        4: begin
-          NShowGran.Items[11].Checked := True;
-        end;
-        5: begin
-          NShowGran.Items[12].Checked := True;
-        end;
-      else begin
-        NShowGran.Items[1].Checked := True;
-      end;
-      end;
-    end;
-  end;
-  VZoomCurr := FViewPortState.View.GetStatic.Projection.Zoom;
-  NShowGran.Items[1].Caption := SAS_STR_activescale + ' (z' + inttostr(VZoomCurr + 1) + ')';
-  for i := 2 to 7 do begin
-    VZoom := VZoomCurr + i - 2;
-    if VZoom < 24 then begin
-      NShowGran.Items[i].Caption := SAS_STR_for + ' z' + inttostr(VZoom + 1);
-      NShowGran.Items[i].Visible := True;
-      NShowGran.Items[i].Tag := VZoom + 1;
-      if VGridVisible and not VRelativeZoom and (VZoom = VGridZoom) then begin
-        NShowGran.Items[i].Checked := True;
-      end else begin
-        NShowGran.Items[i].Checked := False;
-      end;
-    end else begin
-      NShowGran.Items[i].Visible := False;
-    end;
-  end;
 end;
 
 procedure TfrmMain.TBEditSelectPolylineRadiusChange(Sender: TObject);
@@ -6819,6 +6885,38 @@ begin
     end;
   finally
     FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.UnlockWrite;
+  end;
+end;
+
+procedure TfrmMain.actViewGridTileExecute(Sender: TObject);
+var
+  VTag: Integer;
+begin
+  VTag := TComponent(Sender).Tag;
+  FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.LockWrite;
+  try
+    if VTag = 0 then begin
+      FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible :=
+        not FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible;
+    end else begin
+      if TCustomAction(Sender).Checked then begin
+        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := False;
+      end else begin
+        if (VTag > 50) and (VTag < 200) then begin
+          FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := True;
+          FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UseRelativeZoom := True;
+          FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Zoom := VTag - 100;
+        end else if (VTag >= 200) then begin
+          FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := True;
+          FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UseRelativeZoom := False;
+          FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Zoom := VTag - 200;
+        end else begin
+          FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := False;
+        end;
+      end;
+    end;
+  finally
+    FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UnlockWrite;
   end;
 end;
 

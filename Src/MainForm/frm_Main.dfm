@@ -486,124 +486,107 @@ object frmMain: TfrmMain
         object NShowGran: TTBXSubmenuItem
           ImageIndex = 3
           Images = MenusImageList
-          OnClick = NShowGranClick
           Caption = 'Tile Boundaries'
           Hint = ''
-          object N000: TTBXItem
-            GroupIndex = 1
+          object tbitmTileGridNo: TTBXItem
+            Action = actViewGridTileNo
             Images = MenusImageList
-            RadioItem = True
-            OnClick = N000Click
-            Caption = 'No'
-            Hint = ''
           end
-          object N001: TTBXItem
-            Tag = 100
-            GroupIndex = 1
+          object tbitmTileGrid0p: TTBXItem
+            Action = actViewGridTileZoomCurrent
             Images = MenusImageList
-            RadioItem = True
-            OnClick = N000Click
-            Caption = 'Current Zoom'
-            Hint = ''
-          end
-          object N002: TTBXItem
-            Tag = 2
-            GroupIndex = 1
-            Images = MenusImageList
-            RadioItem = True
-            OnClick = N000Click
-            Caption = '2'
-            Hint = ''
-          end
-          object N003: TTBXItem
-            Tag = 3
-            GroupIndex = 1
-            Images = MenusImageList
-            RadioItem = True
-            OnClick = N000Click
-            Caption = '3'
-            Hint = ''
-          end
-          object N004: TTBXItem
-            Tag = 4
-            GroupIndex = 1
-            Images = MenusImageList
-            RadioItem = True
-            OnClick = N000Click
-            Caption = '4'
-            Hint = ''
-          end
-          object N005: TTBXItem
-            Tag = 5
-            GroupIndex = 1
-            Images = MenusImageList
-            RadioItem = True
-            OnClick = N000Click
-            Caption = '5'
-            Hint = ''
-          end
-          object N006: TTBXItem
-            Tag = 6
-            GroupIndex = 1
-            Images = MenusImageList
-            RadioItem = True
-            OnClick = N000Click
-            Caption = '6'
-            Hint = ''
-          end
-          object N007: TTBXItem
-            Tag = 7
-            GroupIndex = 1
-            Images = MenusImageList
-            RadioItem = True
-            OnClick = N000Click
-            Caption = '7'
-            Hint = ''
           end
           object tbitmTileGrid1p: TTBXItem
-            Tag = 101
-            GroupIndex = 1
+            Action = actViewGridTileZoomCurrentP1
             Images = MenusImageList
-            RadioItem = True
-            OnClick = N000Click
-            Caption = 'Current Zoom + 1'
-            Hint = ''
           end
           object tbitmTileGrid2p: TTBXItem
-            Tag = 102
-            GroupIndex = 1
+            Action = actViewGridTileZoomCurrentP2
             Images = MenusImageList
-            RadioItem = True
-            OnClick = N000Click
-            Caption = 'Current Zoom + 2'
-            Hint = ''
           end
           object tbitmTileGrid3p: TTBXItem
-            Tag = 103
-            GroupIndex = 1
+            Action = actViewGridTileZoomCurrentP3
             Images = MenusImageList
-            RadioItem = True
-            OnClick = N000Click
-            Caption = 'Current Zoom + 3'
-            Hint = ''
           end
           object tbitmTileGrid4p: TTBXItem
-            Tag = 104
-            GroupIndex = 1
+            Action = actViewGridTileZoomCurrentP4
             Images = MenusImageList
-            RadioItem = True
-            OnClick = N000Click
-            Caption = 'Current Zoom + 4'
-            Hint = ''
           end
           object tbitmTileGrid5p: TTBXItem
-            Tag = 105
-            GroupIndex = 1
+            Action = actViewGridTileZoomCurrentP5
             Images = MenusImageList
-            RadioItem = True
-            OnClick = N000Click
-            Caption = 'Current Zoom + 5'
-            Hint = ''
+          end
+          object tbxtmTileGridZ00: TTBXItem
+            Action = actViewGridTileZoom00
+          end
+          object tbxtmTileGridZ01: TTBXItem
+            Action = actViewGridTileZoom01
+          end
+          object tbxtmTileGridZ02: TTBXItem
+            Action = actViewGridTileZoom02
+          end
+          object tbxtmTileGridZ03: TTBXItem
+            Action = actViewGridTileZoom03
+          end
+          object tbxtmTileGridZ04: TTBXItem
+            Action = actViewGridTileZoom04
+          end
+          object tbxtmTileGridZ05: TTBXItem
+            Action = actViewGridTileZoom05
+          end
+          object tbxtmTileGridZ06: TTBXItem
+            Action = actViewGridTileZoom06
+          end
+          object tbxtmTileGridZ07: TTBXItem
+            Action = actViewGridTileZoom07
+          end
+          object tbxtmTileGridZ08: TTBXItem
+            Action = actViewGridTileZoom08
+          end
+          object tbxtmTileGridZ09: TTBXItem
+            Action = actViewGridTileZoom09
+          end
+          object tbxtmTileGridZ10: TTBXItem
+            Action = actViewGridTileZoom10
+          end
+          object tbxtmTileGridZ11: TTBXItem
+            Action = actViewGridTileZoom11
+          end
+          object tbxtmTileGridZ12: TTBXItem
+            Action = actViewGridTileZoom12
+          end
+          object tbxtmTileGridZ13: TTBXItem
+            Action = actViewGridTileZoom13
+          end
+          object tbxtmTileGridZ14: TTBXItem
+            Action = actViewGridTileZoom14
+          end
+          object tbxtmTileGridZ15: TTBXItem
+            Action = actViewGridTileZoom15
+          end
+          object tbxtmTileGridZ16: TTBXItem
+            Action = actViewGridTileZoom16
+          end
+          object tbxtmTileGridZ17: TTBXItem
+            Action = actViewGridTileZoom17
+          end
+          object tbxtmTileGridZ18: TTBXItem
+            Action = actViewGridTileZoom18
+          end
+          object tbxtmTileGridZ19: TTBXItem
+            Action = actViewGridTileZoom19
+          end
+          object tbxtmTileGridZ20: TTBXItem
+            Action = actViewGridTileZoom20
+          end
+          object tbxtmTileGridZ21: TTBXItem
+            Action = actViewGridTileZoom21
+          end
+          object tbxtmTileGridZ22: TTBXItem
+            Action = actViewGridTileZoom22
+          end
+          object tbxtmTileGridZ23: TTBXItem
+            Action = actViewGridTileZoom23
           end
         end
         object tbsbmGenShtabScale: TTBXSubmenuItem
@@ -4398,6 +4381,222 @@ object frmMain: TfrmMain
       Caption = 'Options'
       ImageIndex = 20
       OnExecute = actConfigGpsOptionsShowExecute
+    end
+    object actViewGridTileNo: TAction
+      Category = 'View\GridTile'
+      Caption = 'No'
+      GroupIndex = 3
+      OnExecute = actViewGridTileExecute
+    end
+    object actViewGridTileZoomCurrent: TAction
+      Tag = 100
+      Category = 'View\GridTile'
+      Caption = 'Current Zoom'
+      GroupIndex = 3
+      OnExecute = actViewGridTileExecute
+    end
+    object actViewGridTileZoomCurrentP1: TAction
+      Tag = 101
+      Category = 'View\GridTile'
+      Caption = 'Current Zoom + 1'
+      GroupIndex = 3
+      OnExecute = actViewGridTileExecute
+    end
+    object actViewGridTileZoomCurrentP2: TAction
+      Tag = 102
+      Category = 'View\GridTile'
+      Caption = 'Current Zoom + 2'
+      GroupIndex = 3
+      OnExecute = actViewGridTileExecute
+    end
+    object actViewGridTileZoomCurrentP3: TAction
+      Tag = 103
+      Category = 'View\GridTile'
+      Caption = 'Current Zoom + 3'
+      GroupIndex = 3
+      OnExecute = actViewGridTileExecute
+    end
+    object actViewGridTileZoomCurrentP4: TAction
+      Tag = 104
+      Category = 'View\GridTile'
+      Caption = 'Current Zoom + 4'
+      GroupIndex = 3
+      OnExecute = actViewGridTileExecute
+    end
+    object actViewGridTileZoomCurrentP5: TAction
+      Tag = 105
+      Category = 'View\GridTile'
+      Caption = 'Current Zoom + 5'
+      GroupIndex = 3
+      OnExecute = actViewGridTileExecute
+    end
+    object actViewGridTileZoom00: TAction
+      Tag = 200
+      Category = 'View\GridTile'
+      Caption = 'For z1'
+      GroupIndex = 3
+      OnExecute = actViewGridTileExecute
+    end
+    object actViewGridTileZoom01: TAction
+      Tag = 201
+      Category = 'View\GridTile'
+      Caption = 'For z2'
+      GroupIndex = 3
+      OnExecute = actViewGridTileExecute
+    end
+    object actViewGridTileZoom02: TAction
+      Tag = 202
+      Category = 'View\GridTile'
+      Caption = 'For z3'
+      GroupIndex = 3
+      OnExecute = actViewGridTileExecute
+    end
+    object actViewGridTileZoom03: TAction
+      Tag = 203
+      Category = 'View\GridTile'
+      Caption = 'For z4'
+      GroupIndex = 3
+      OnExecute = actViewGridTileExecute
+    end
+    object actViewGridTileZoom04: TAction
+      Tag = 204
+      Category = 'View\GridTile'
+      Caption = 'For z5'
+      GroupIndex = 3
+      OnExecute = actViewGridTileExecute
+    end
+    object actViewGridTileZoom05: TAction
+      Tag = 205
+      Category = 'View\GridTile'
+      Caption = 'For z6'
+      GroupIndex = 3
+      OnExecute = actViewGridTileExecute
+    end
+    object actViewGridTileZoom06: TAction
+      Tag = 206
+      Category = 'View\GridTile'
+      Caption = 'For z7'
+      GroupIndex = 3
+      OnExecute = actViewGridTileExecute
+    end
+    object actViewGridTileZoom07: TAction
+      Tag = 207
+      Category = 'View\GridTile'
+      Caption = 'For z8'
+      GroupIndex = 3
+      OnExecute = actViewGridTileExecute
+    end
+    object actViewGridTileZoom08: TAction
+      Tag = 208
+      Category = 'View\GridTile'
+      Caption = 'For z9'
+      GroupIndex = 3
+      OnExecute = actViewGridTileExecute
+    end
+    object actViewGridTileZoom09: TAction
+      Tag = 209
+      Category = 'View\GridTile'
+      Caption = 'For z10'
+      GroupIndex = 3
+      OnExecute = actViewGridTileExecute
+    end
+    object actViewGridTileZoom10: TAction
+      Tag = 210
+      Category = 'View\GridTile'
+      Caption = 'For z11'
+      GroupIndex = 3
+      OnExecute = actViewGridTileExecute
+    end
+    object actViewGridTileZoom11: TAction
+      Tag = 211
+      Category = 'View\GridTile'
+      Caption = 'For z12'
+      GroupIndex = 3
+      OnExecute = actViewGridTileExecute
+    end
+    object actViewGridTileZoom12: TAction
+      Tag = 212
+      Category = 'View\GridTile'
+      Caption = 'For z13'
+      GroupIndex = 3
+      OnExecute = actViewGridTileExecute
+    end
+    object actViewGridTileZoom13: TAction
+      Tag = 213
+      Category = 'View\GridTile'
+      Caption = 'For z14'
+      GroupIndex = 3
+      OnExecute = actViewGridTileExecute
+    end
+    object actViewGridTileZoom14: TAction
+      Tag = 214
+      Category = 'View\GridTile'
+      Caption = 'For z15'
+      GroupIndex = 3
+      OnExecute = actViewGridTileExecute
+    end
+    object actViewGridTileZoom15: TAction
+      Tag = 215
+      Category = 'View\GridTile'
+      Caption = 'For z16'
+      GroupIndex = 3
+      OnExecute = actViewGridTileExecute
+    end
+    object actViewGridTileZoom16: TAction
+      Tag = 216
+      Category = 'View\GridTile'
+      Caption = 'For z17'
+      GroupIndex = 3
+      OnExecute = actViewGridTileExecute
+    end
+    object actViewGridTileZoom17: TAction
+      Tag = 217
+      Category = 'View\GridTile'
+      Caption = 'For z18'
+      GroupIndex = 3
+      OnExecute = actViewGridTileExecute
+    end
+    object actViewGridTileZoom18: TAction
+      Tag = 218
+      Category = 'View\GridTile'
+      Caption = 'For z19'
+      GroupIndex = 3
+      OnExecute = actViewGridTileExecute
+    end
+    object actViewGridTileZoom19: TAction
+      Tag = 219
+      Category = 'View\GridTile'
+      Caption = 'For z20'
+      GroupIndex = 3
+      OnExecute = actViewGridTileExecute
+    end
+    object actViewGridTileZoom20: TAction
+      Tag = 220
+      Category = 'View\GridTile'
+      Caption = 'For z21'
+      GroupIndex = 3
+      OnExecute = actViewGridTileExecute
+    end
+    object actViewGridTileZoom21: TAction
+      Tag = 221
+      Category = 'View\GridTile'
+      Caption = 'For z22'
+      GroupIndex = 3
+      OnExecute = actViewGridTileExecute
+    end
+    object actViewGridTileZoom22: TAction
+      Tag = 222
+      Category = 'View\GridTile'
+      Caption = 'For z23'
+      GroupIndex = 3
+      OnExecute = actViewGridTileExecute
+    end
+    object actViewGridTileZoom23: TAction
+      Tag = 223
+      Category = 'View\GridTile'
+      Caption = 'For z24'
+      GroupIndex = 3
+      OnExecute = actViewGridTileExecute
     end
   end
 end
