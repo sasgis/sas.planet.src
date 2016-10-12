@@ -3951,8 +3951,8 @@ var
   VVersion: IMapVersionInfo;
   VTileInfo: ITileInfoBasic;
 begin
-  if TMenuItem(Sender).Tag <> 0 then begin
-    VMapType := IMapType(TMenuItem(Sender).Tag);
+  if TComponent(Sender).Tag <> 0 then begin
+    VMapType := IMapType(TComponent(Sender).Tag);
   end else begin
     VMapType := FMainMapState.ActiveMap.GetStatic;
   end;
@@ -4076,8 +4076,8 @@ var
   VTile: TPoint;
   VMapType: IMapType;
 begin
-  if TMenuItem(Sender).Tag <> 0 then begin
-    VMapType := IMapType(TMenuItem(Sender).Tag);
+  if TComponent(Sender).Tag <> 0 then begin
+    VMapType := IMapType(TComponent(Sender).Tag);
   end else begin
     VMapType := FMainMapState.ActiveMap.GetStatic;
   end;
@@ -4210,8 +4210,8 @@ var
   VMessage: string;
   VVersion: IMapVersionInfo;
 begin
-  if TMenuItem(Sender).Tag <> 0 then begin
-    VMapType := IMapType(TMenuItem(Sender).Tag);
+  if TComponent(Sender).Tag <> 0 then begin
+    VMapType := IMapType(TComponent(Sender).Tag);
   end else begin
     VMapType := FMainMapState.ActiveMap.GetStatic;
   end;
@@ -4483,8 +4483,8 @@ var
   VTile: TPoint;
   VRequest: IDownloadRequest;
 begin
-  if TMenuItem(Sender).Tag <> 0 then begin
-    VMapType := IMapType(TMenuItem(Sender).Tag);
+  if TComponent(Sender).Tag <> 0 then begin
+    VMapType := IMapType(TComponent(Sender).Tag);
   end else begin
     VMapType := FMainMapState.ActiveMap.GetStatic;
   end;
@@ -5591,8 +5591,8 @@ var
   VMapType: IMapType;
   VUrl: string;
 begin
-  if TMenuItem(Sender).Tag <> 0 then begin
-    VMapType := IMapType(TMenuItem(Sender).Tag);
+  if TComponent(Sender).Tag <> 0 then begin
+    VMapType := IMapType(TComponent(Sender).Tag);
   end else begin
     VMapType := FMainMapState.ActiveMap.GetStatic;
   end;
