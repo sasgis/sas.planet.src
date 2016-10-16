@@ -937,10 +937,8 @@ object frmMain: TfrmMain
           Images = MenusImageList
         end
         object tbitmInterfaceOptions: TTBXItem
+          Action = actConfigInterfaceOptionsShow
           Images = MenusImageList
-          OnClick = tbitmOnInterfaceOptionsClick
-          Caption = 'Interface Options'
-          Hint = ''
         end
         object TBLang: TTBXSubmenuItem
           Images = MenusImageList
@@ -4613,6 +4611,11 @@ object frmMain: TfrmMain
       Category = 'View\FillingMap'
       Caption = 'Displayed Main Map'
       OnExecute = actViewFillingMapMapUseExecute
+    end
+    object actConfigInterfaceOptionsShow: TAction
+      Category = 'Config'
+      Caption = 'Interface Options'
+      OnExecute = actConfigInterfaceOptionsShowExecute
     end
   end
 end

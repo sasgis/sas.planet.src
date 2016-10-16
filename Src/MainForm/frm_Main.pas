@@ -599,6 +599,7 @@ type
     actConfigProjectionOfMapUse: TAction;
     tbiProjections: TTBGroupItem;
     actViewFillingMapMainMapUse: TAction;
+    actConfigInterfaceOptionsShow: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -832,6 +833,7 @@ type
     procedure actViewGridTileExecute(Sender: TObject);
     procedure actConfigProjectionUseExecute(Sender: TObject);
     procedure actViewFillingMapMapUseExecute(Sender: TObject);
+    procedure actConfigInterfaceOptionsShowExecute(Sender: TObject);
   private
     FactlstProjections: TActionList;
     FLinksList: IListenerNotifierLinksList;
@@ -6403,6 +6405,11 @@ procedure TfrmMain.actConfigGpsShowTrackExecute(Sender: TObject);
 begin
   FConfig.LayersConfig.GPSTrackConfig.Visible :=
     not FConfig.LayersConfig.GPSTrackConfig.Visible;
+end;
+
+procedure TfrmMain.actConfigInterfaceOptionsShowExecute(Sender: TObject);
+begin
+  FfrmMapLayersOptions.ShowModal;
 end;
 
 procedure TfrmMain.actConfigMarksHideExecute(Sender: TObject);
