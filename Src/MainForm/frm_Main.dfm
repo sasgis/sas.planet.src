@@ -704,6 +704,13 @@ object frmMain: TfrmMain
           Images = MenusImageList
           Caption = 'Projection'
           Hint = ''
+          object tbiProjections: TTBGroupItem
+            Caption = ''
+            Hint = ''
+          end
+          object tbiProjectionOfMap: TTBXItem
+            Action = actConfigProjectionOfMapUse
+          end
         end
         object TBXSubmenuMap: TTBXSubmenuItem
           Images = MenusImageList
@@ -4597,6 +4604,12 @@ object frmMain: TfrmMain
       Caption = 'For z24'
       GroupIndex = 3
       OnExecute = actViewGridTileExecute
+    end
+    object actConfigProjectionOfMapUse: TAction
+      Tag = -1
+      Category = 'View'
+      Caption = 'Map Original Projection (from zmp)'
+      OnExecute = actConfigProjectionUseExecute
     end
   end
 end

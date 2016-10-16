@@ -595,6 +595,9 @@ type
     tbxtmTileGridZ22: TTBXItem;
     tbxtmTileGridZ23: TTBXItem;
     tbxtmTileGridZ15: TTBXItem;
+    tbiProjectionOfMap: TTBXItem;
+    actConfigProjectionOfMapUse: TAction;
+    tbiProjections: TTBGroupItem;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -827,7 +830,9 @@ type
     procedure actGpsTrackClearExecute(Sender: TObject);
     procedure actConfigGpsOptionsShowExecute(Sender: TObject);
     procedure actViewGridTileExecute(Sender: TObject);
+    procedure actConfigProjectionUseExecute(Sender: TObject);
   private
+    FactlstProjections: TActionList;
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
     FMainMapState: IMainMapsState;
@@ -958,9 +963,9 @@ type
     procedure CreateMapUILayerSubMenu;
     procedure CreateLangMenu;
 
+    procedure CreateProjectionActions;
+
     procedure CreateProjectionMenu;
-    procedure OnProjectionMenuItemClick(Sender: TObject);
-    procedure OnProjectionMenuShow(Sender: TObject);
 
     procedure GPSReceiverDisconnect;
     procedure GPSReceiverStateChange;
@@ -1006,6 +1011,7 @@ type
     procedure OnMainFormMainConfigChange;
     procedure OnStateChange;
 
+    procedure OnViewProjectionConfigChange;
     procedure OnGridGenshtabChange;
     procedure OnGridLonLatChange;
     procedure OnGridTileChange;
@@ -1546,6 +1552,7 @@ begin
       GState.GUISyncronizedTimerNotifier,
       FConfig.KeyMovingConfig
     );
+  CreateProjectionActions;
 end;
 
 procedure TfrmMain.CreateWnd;
@@ -1871,6 +1878,11 @@ begin
     FLinksList.Add(
       VMainFormMainConfigChangeListener,
       FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig.ChangeNotifier
+    );
+
+    FLinksList.Add(
+      TNotifyNoMmgEventListener.Create(Self.OnViewProjectionConfigChange),
+      FConfig.ViewProjectionConfig.ChangeNotifier
     );
 
     FLinksList.Add(
@@ -2201,86 +2213,48 @@ begin
   mmoMergePolyHint.Text := _('Press Ctrl and click on polygon to add one...');
 end;
 
-procedure TfrmMain.CreateProjectionMenu;
-
-  procedure _AddItem(const ACaption: string; const ATag: Integer; const AChecked: Boolean);
+procedure TfrmMain.CreateProjectionActions;
+  procedure _AddItem(const ACaption: string; const ATag: Integer);
   var
-    VMenuItem: TTBXItem;
+    VAction: TAction;
   begin
-    VMenuItem := TTBXItem.Create(tbxsbmProjection);
-    VMenuItem.Caption := ACaption;
-    VMenuItem.Tag := ATag;
-    VMenuItem.Checked := AChecked;
-    VMenuItem.OnClick := Self.OnProjectionMenuItemClick;
-    VMenuItem.RadioItem := True;
-    VMenuItem.GroupIndex := 1;
-    tbxsbmProjection.Add(VMenuItem);
+    VAction := TAction.Create(Self);
+    VAction.Caption := ACaption;
+    VAction.Tag := ATag;
+    VAction.OnExecute := Self.actConfigProjectionUseExecute;
+    VAction.ActionList := FactlstProjections;
   end;
-
 var
   I: Integer;
   VProjList: IProjectionSetList;
 begin
+  FactlstProjections := TActionList.Create(Self);
   VProjList := GState.ProjectionSetList;
   Assert(VProjList <> nil);
 
   for I := 0 to VProjList.Count - 1 do begin
-    _AddItem(VProjList.Captions[I], I, False);
-  end;
-
-  _AddItem(_('Map Original Projection (from zmp)'), (VProjList.Count + 1), False);
-
-  tbxsbmProjection.OnClick := Self.OnProjectionMenuShow;
-end;
-
-procedure TfrmMain.OnProjectionMenuItemClick(Sender: TObject);
-var
-  VIndex: Integer;
-  VProjList: IProjectionSetList;
-  VEpsg: Integer;
-  VNewProjectionSet: IProjectionSet;
-begin
-  if Assigned(Sender) then begin
-    VIndex := TComponent(Sender).Tag;
-    VProjList := GState.ProjectionSetList;
-    Assert(VProjList <> nil);
-    if (VIndex >= 0) and (VProjList.Count > VIndex) then begin
-      VNewProjectionSet := VProjList.Items[VIndex];
-      Assert(Assigned(VNewProjectionSet));
-      VEpsg := VNewProjectionSet.Zooms[0].ProjectionType.ProjectionEPSG;
-    end else begin
-      VEpsg := 0; // reset to default
-    end;
-    FConfig.ViewProjectionConfig.EPSG := VEpsg;
+    _AddItem(VProjList.Captions[I], I);
   end;
 end;
 
-procedure TfrmMain.OnProjectionMenuShow(Sender: TObject);
+procedure TfrmMain.CreateProjectionMenu;
+
+  procedure _AddItem(const AAction: TContainedAction);
+  var
+    VMenuItem: TTBXItem;
+  begin
+    VMenuItem := TTBXItem.Create(tbiProjections);
+    VMenuItem.Action := AAction;
+    tbiProjections.Add(VMenuItem);
+  end;
+
 var
   I: Integer;
-  VProjList: IProjectionSetList;
-  VEpsg: Integer;
-  VAsMap: Boolean;
 begin
-  VProjList := GState.ProjectionSetList;
-  Assert(VProjList <> nil);
-  VEpsg := FConfig.ViewProjectionConfig.EPSG;
-
-  if VEpsg > 0 then begin
-    VAsMap := True;
-    for I := 0 to VProjList.Count - 1 do begin
-      if VProjList.Items[I].Zooms[0].ProjectionType.ProjectionEPSG = VEpsg then begin
-        tbxsbmProjection.Items[I].Checked := True;
-        VAsMap := False;
-        break;
-      end;
-    end;
-  end else begin
-    VAsMap := True;
+  for I := 0 to FactlstProjections.ActionCount - 1 do begin
+    _AddItem(FactlstProjections.Actions[i]);
   end;
-  if VAsMap then begin
-    tbxsbmProjection.Items[tbxsbmProjection.Count - 1].Checked := True;
-  end;
+  OnViewProjectionConfigChange;
 end;
 
 procedure TfrmMain.CreateLangMenu;
@@ -3118,6 +3092,37 @@ begin
   TBXDock1.AllowDrag := not VValue;
   TBXDockForSearch.AllowDrag := not VValue;
   actViewToolbarsLock.Checked := VValue;
+end;
+
+procedure TfrmMain.OnViewProjectionConfigChange;
+var
+  VEPSG: Integer;
+  VProjList: IProjectionSetList;
+  i: Integer;
+  VIndex: Integer;
+begin
+  VEPSG := FConfig.ViewProjectionConfig.EPSG;
+  VIndex := -1;
+  if VEPSG <> 0 then begin
+    VProjList := GState.ProjectionSetList;
+    for i := 0 to VProjList.Count - 1 do begin
+      if VProjList.Items[i].Zooms[0].ProjectionType.ProjectionEPSG = VEpsg then begin
+        VIndex := i;
+        break;
+      end;
+    end;
+  end;
+  for i := 0 to FactlstProjections.ActionCount - 1 do begin
+    TCustomAction(FactlstProjections.Actions[i]).Checked := (i = VIndex);
+  end;
+  if (VIndex < 0) or (VIndex >= FactlstProjections.ActionCount) then begin
+    actConfigProjectionOfMapUse.Checked := True;
+    if VEPSG <> 0 then begin
+      FConfig.ViewProjectionConfig.EPSG := 0;
+    end;
+  end else begin
+    actConfigProjectionOfMapUse.Checked := False;
+  end;
 end;
 
 procedure TfrmMain.OnWinPositionChange;
@@ -6443,6 +6448,28 @@ procedure TfrmMain.actConfigPreviousSelectionVisibleExecute(Sender: TObject);
 begin
   FConfig.LayersConfig.LastSelectionLayerConfig.Visible :=
     not FConfig.LayersConfig.LastSelectionLayerConfig.Visible;
+end;
+
+procedure TfrmMain.actConfigProjectionUseExecute(Sender: TObject);
+var
+  VIndex: Integer;
+  VProjList: IProjectionSetList;
+  VEpsg: Integer;
+  VNewProjectionSet: IProjectionSet;
+begin
+  if Assigned(Sender) then begin
+    VIndex := TComponent(Sender).Tag;
+    VProjList := GState.ProjectionSetList;
+    Assert(VProjList <> nil);
+    if (VIndex >= 0) and (VProjList.Count > VIndex) then begin
+      VNewProjectionSet := VProjList.Items[VIndex];
+      Assert(Assigned(VNewProjectionSet));
+      VEpsg := VNewProjectionSet.Zooms[0].ProjectionType.ProjectionEPSG;
+    end else begin
+      VEpsg := 0; // reset to default
+    end;
+    FConfig.ViewProjectionConfig.EPSG := VEpsg;
+  end;
 end;
 
 procedure TfrmMain.actConfigScaleLineVisibleExecute(Sender: TObject);
