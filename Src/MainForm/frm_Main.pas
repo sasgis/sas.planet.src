@@ -598,6 +598,7 @@ type
     tbiProjectionOfMap: TTBXItem;
     actConfigProjectionOfMapUse: TAction;
     tbiProjections: TTBGroupItem;
+    actViewFillingMapMainMapUse: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -757,7 +758,6 @@ type
     procedure TBXMakeRosreestrPolygonClick(Sender: TObject);
     procedure tbpmiShowOtherVersionsClick(Sender: TObject);
     procedure btnHideAllClick(Sender: TObject);
-    procedure TBfillMapAsMainClick(Sender: TObject);
     procedure TBEditPathLabelLastOnlyClick(Sender: TObject);
     procedure TBEditPathLabelShowAzimuthClick(Sender: TObject);
     procedure TBEditPathSplitClick(Sender: TObject);
@@ -831,6 +831,7 @@ type
     procedure actConfigGpsOptionsShowExecute(Sender: TObject);
     procedure actViewGridTileExecute(Sender: TObject);
     procedure actConfigProjectionUseExecute(Sender: TObject);
+    procedure actViewFillingMapMapUseExecute(Sender: TObject);
   private
     FactlstProjections: TActionList;
     FLinksList: IListenerNotifierLinksList;
@@ -2780,7 +2781,7 @@ begin
   DateTimePicker2.DateTime := VConfig.FillLastDay;
 
   FillDates.Visible := VFilterMode;
-  tbitmFillingMapAsMain.Checked := IsEqualGUID(VConfig.SelectedMap, CGUID_Zero);
+  actViewFillingMapMainMapUse.Checked := IsEqualGUID(VConfig.SelectedMap, CGUID_Zero);
 end;
 
 procedure TfrmMain.OnGridGenshtabChange;
@@ -5530,23 +5531,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.TBfillMapAsMainClick(Sender: TObject);
-var
-  VSender: TComponent;
-  VMapType: IMapType;
-  VGUID: TGUID;
-begin
-  if Sender is TComponent then begin
-    VSender := TComponent(Sender);
-    VMapType := IMapType(VSender.Tag);
-    VGUID := CGUID_Zero;
-    if VMapType <> nil then begin
-      VGUID := VMapType.GUID;
-    end;
-    FConfig.LayersConfig.FillingMapLayerConfig.GetSourceMap.MainMapGUID := VGUID;
-  end;
-end;
-
 procedure TfrmMain.nokiamapcreator1Click(Sender: TObject);
 var
   VRequest: IDownloadRequest;
@@ -6847,6 +6831,24 @@ procedure TfrmMain.actViewFillingMapFilterModeExecute(Sender: TObject);
 begin
   FConfig.LayersConfig.FillingMapLayerConfig.FilterMode :=
     not FConfig.LayersConfig.FillingMapLayerConfig.FilterMode;
+end;
+
+procedure TfrmMain.actViewFillingMapMapUseExecute(Sender: TObject);
+var
+  VSender: TComponent;
+  VMapType: IMapType;
+  VGUID: TGUID;
+begin
+  if Sender is TComponent then begin
+    VSender := TComponent(Sender);
+    if VSender.Tag <> 0 then begin
+      VMapType := IMapType(VSender.Tag);
+      VGUID := VMapType.GUID;
+    end else begin
+      VGUID := CGUID_Zero;
+    end;
+    FConfig.LayersConfig.FillingMapLayerConfig.GetSourceMap.MainMapGUID := VGUID;
+  end;
 end;
 
 procedure TfrmMain.actViewFillingMapMarkExistingExecute(Sender: TObject);

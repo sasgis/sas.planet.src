@@ -435,10 +435,8 @@ object frmMain: TfrmMain
             Caption = 'Show for...'
             Hint = ''
             object tbitmFillingMapAsMain: TTBXItem
+              Action = actViewFillingMapMainMapUse
               OnAdjustFont = AdjustFont
-              OnClick = TBfillMapAsMainClick
-              Caption = 'Displayed Main Map'
-              Hint = ''
             end
             object tbiFillingMapMaps: TTBGroupItem
               Caption = ''
@@ -4610,6 +4608,11 @@ object frmMain: TfrmMain
       Category = 'View'
       Caption = 'Map Original Projection (from zmp)'
       OnExecute = actConfigProjectionUseExecute
+    end
+    object actViewFillingMapMainMapUse: TAction
+      Category = 'View\FillingMap'
+      Caption = 'Displayed Main Map'
+      OnExecute = actViewFillingMapMapUseExecute
     end
   end
 end
