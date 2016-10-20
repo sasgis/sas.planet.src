@@ -430,7 +430,7 @@ uses
   u_GeometryLonLatPolygonChangeableByPolygonEdit in 'Src\MainForm\u_GeometryLonLatPolygonChangeableByPolygonEdit.pas',
   u_KeyMovingConfig in 'Src\MainForm\u_KeyMovingConfig.pas',
   u_KeyMovingHandler in 'Src\MainForm\u_KeyMovingHandler.pas',
-  u_LanguageTBXItem in 'Src\MainForm\u_LanguageTBXItem.pas',
+  u_ActionListByLanguageManager in 'Src\MainForm\u_ActionListByLanguageManager.pas',
   u_LastSearchResult in 'Src\MainForm\u_LastSearchResult.pas',
   u_LastSelectionInfo in 'Src\MainForm\u_LastSelectionInfo.pas',
   u_LastSelectionInfoSaver in 'Src\MainForm\u_LastSelectionInfoSaver.pas',

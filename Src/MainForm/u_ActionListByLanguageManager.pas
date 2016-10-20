@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2016, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -18,70 +18,68 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_LanguageTBXItem;
+unit u_ActionListByLanguageManager;
 
 interface
 
 uses
   Classes,
-  TB2Item,
-  TBX,
-  i_Notifier,
+  ActnList,
   i_Listener,
   i_LanguageManager;
 
 type
-  TLanguageTBXItem = class(TTBXCustomItem)
+  TActionListByLanguageManager = class(TActionList)
   private
-    FParentMenu: TTBCustomItem;
-    FLangIndex: Integer;
     FLanguageManager: ILanguageManager;
     FListener: IListener;
     procedure OnLangChange;
-    procedure OnClickItem(Sender: TObject);
+    procedure OnItemExecute(Sender: TObject);
   public
     constructor Create(
       const AOwner: TComponent;
-      const AParentMenu: TTBCustomItem;
-      const ALanguageManager: ILanguageManager;
-      const ALangIndex: Integer
+      const ALanguageManager: ILanguageManager
     ); reintroduce;
     destructor Destroy; override;
   end;
 
-
 implementation
 
 uses
+  i_LanguageListStatic,
   u_ListenerByEvent;
 
-{ TLanguageTBXItem }
+{ TActionListByLanguageManager }
 
-constructor TLanguageTBXItem.Create(
+constructor TActionListByLanguageManager.Create(
   const AOwner: TComponent;
-  const AParentMenu: TTBCustomItem;
-  const ALanguageManager: ILanguageManager;
-  const ALangIndex: Integer
+  const ALanguageManager: ILanguageManager
 );
+var
+  VList: ILanguageListStatic;
+  i: Integer;
+  VAction: TAction;
 begin
+  Assert(Assigned(ALanguageManager));
   inherited Create(AOwner);
-  Assert(ALangIndex < ALanguageManager.LanguageList.Count);
   FLanguageManager := ALanguageManager;
-  FLangIndex := ALangIndex;
-  FParentMenu := AParentMenu;
 
-  Self.OnClick := Self.OnClickItem;
-  Self.Caption := FLanguageManager.GetLangNameByIndex(FLangIndex);
-  Self.RadioItem := True;
+  VList := FLanguageManager.LanguageList;
+  for i := 0 to VList.Count - 1 do begin
+    VAction := TAction.Create(Self);
+    VAction.Caption := FLanguageManager.GetLangNameByIndex(i);
+    VAction.Tag := i;
+    VAction.OnExecute := Self.OnItemExecute;
+    VAction.ActionList := Self;
+  end;
 
   FListener := TNotifyNoMmgEventListener.Create(Self.OnLangChange);
   FLanguageManager.GetChangeNotifier.Add(FListener);
 
-  FParentMenu.Add(Self);
   OnLangChange;
 end;
 
-destructor TLanguageTBXItem.Destroy;
+destructor TActionListByLanguageManager.Destroy;
 begin
   if Assigned(FLanguageManager) and Assigned(FListener) then begin
     FLanguageManager.GetChangeNotifier.Remove(FListener);
@@ -91,17 +89,22 @@ begin
   inherited;
 end;
 
-procedure TLanguageTBXItem.OnClickItem(Sender: TObject);
+procedure TActionListByLanguageManager.OnItemExecute(Sender: TObject);
 begin
-  FLanguageManager.SetCurrentLanguageIndex(FLangIndex);
+  Assert(Assigned(Sender));
+  FLanguageManager.SetCurrentLanguageIndex(TComponent(Sender).Tag);
 end;
 
-procedure TLanguageTBXItem.OnLangChange;
+procedure TActionListByLanguageManager.OnLangChange;
+var
+  VIndex: Integer;
+  i: Integer;
 begin
-  if FLangIndex = FLanguageManager.GetCurrentLanguageIndex then begin
-    Self.Checked := True;
-  end else begin
-    Self.Checked := False;
+  VIndex := FLanguageManager.GetCurrentLanguageIndex;
+  Assert(VIndex >= 0);
+  Assert(VIndex < Self.ActionCount);
+  for i := 0 to ActionCount - 1 do begin
+    TCustomAction(Actions[i]).Checked := i = VIndex;
   end;
 end;
 

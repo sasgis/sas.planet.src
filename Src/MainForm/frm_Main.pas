@@ -836,6 +836,7 @@ type
     procedure actConfigInterfaceOptionsShowExecute(Sender: TObject);
   private
     FactlstProjections: TActionList;
+    FactlstLanguages: TActionList;
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
     FMainMapState: IMainMapsState;
@@ -1145,7 +1146,7 @@ uses
   u_SelectionRect,
   u_KeyMovingHandler,
   u_MapViewGoto,
-  u_LanguageTBXItem,
+  u_ActionListByLanguageManager,
   u_MouseState,
   u_VectorItemTree,
   u_UITileDownloadList,
@@ -1556,6 +1557,11 @@ begin
       FConfig.KeyMovingConfig
     );
   CreateProjectionActions;
+  FactlstLanguages :=
+    TActionListByLanguageManager.Create(
+      Self,
+      GState.Config.LanguageManager
+    );
 end;
 
 procedure TfrmMain.CreateWnd;
@@ -2263,11 +2269,12 @@ end;
 procedure TfrmMain.CreateLangMenu;
 var
   i: Integer;
-  VManager: ILanguageManager;
+  VMenuItem: TTBXItem;
 begin
-  VManager := GState.Config.LanguageManager;
-  for i := 0 to VManager.LanguageList.Count - 1 do begin
-    TLanguageTBXItem.Create(Self, TBLang, VManager, i);
+  for i := 0 to FactlstLanguages.ActionCount - 1 do begin
+    VMenuItem := TTBXItem.Create(TBLang);
+    VMenuItem.Action := FactlstLanguages.Actions[i];
+    TBLang.Add(VMenuItem);
   end;
 end;
 

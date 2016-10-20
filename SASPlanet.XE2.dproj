@@ -608,7 +608,7 @@
 			<DCCReference Include="Src\MainForm\u_GeometryLonLatPolygonChangeableByPolygonEdit.pas"/>
 			<DCCReference Include="Src\MainForm\u_KeyMovingConfig.pas"/>
 			<DCCReference Include="Src\MainForm\u_KeyMovingHandler.pas"/>
-			<DCCReference Include="Src\MainForm\u_LanguageTBXItem.pas"/>
+			<DCCReference Include="Src\MainForm\u_ActionListByLanguageManager.pas"/>
 			<DCCReference Include="Src\MainForm\u_LastSearchResult.pas"/>
 			<DCCReference Include="Src\MainForm\u_LastSelectionInfo.pas"/>
 			<DCCReference Include="Src\MainForm\u_LastSelectionInfoSaver.pas"/>
