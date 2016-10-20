@@ -25,7 +25,6 @@ interface
 uses
   Dialogs,
   TB2Item,
-  TBX,
   i_Listener,
   i_InterfaceListStatic,
   i_FavoriteMapSetConfig,
@@ -35,19 +34,19 @@ uses
 type
   TFavoriteMapSetMenu = class
   private
-    FRootMenu: TTBXCustomItem;
+    FRootMenu: TTBCustomItem;
     FFavoriteMapSetConfig: IFavoriteMapSetConfig;
     FFavoriteMapSetHelper: IFavoriteMapSetHelper;
     FFavoriteMapSetChangeListener: IListener;
     procedure ClearMenu;
     procedure OnMenuItemClick(Sender: TObject);
     procedure OnFavoriteMapSetChanged;
-    function CreateMenuItem(const AItem: IFavoriteMapSetItemStatic): TTBXCustomItem;
+    function CreateMenuItem(const AItem: IFavoriteMapSetItemStatic): TTBCustomItem;
   public
     constructor Create(
       const AFavoriteMapSetConfig: IFavoriteMapSetConfig;
       const AFavoriteMapSetHelper: IFavoriteMapSetHelper;
-      ARootMenu: TTBXCustomItem
+      ARootMenu: TTBCustomItem
     );
     destructor Destroy; override;
   end;
@@ -56,6 +55,8 @@ implementation
 
 uses
   SysUtils,
+  Classes,
+  TBX,
   c_ZeroGUID,
   i_GUIDListStatic,
   u_ListenerByEvent;
@@ -65,7 +66,7 @@ uses
 constructor TFavoriteMapSetMenu.Create(
   const AFavoriteMapSetConfig: IFavoriteMapSetConfig;
   const AFavoriteMapSetHelper: IFavoriteMapSetHelper;
-  ARootMenu: TTBXCustomItem
+  ARootMenu: TTBCustomItem
 );
 begin
   inherited Create;
@@ -94,7 +95,7 @@ var
   I: Integer;
   VStatic: IInterfaceListStatic;
   VItem: IFavoriteMapSetItemStatic;
-  VMenuItem: TTBXCustomItem;
+  VMenuItem: TTBCustomItem;
 begin
   ClearMenu;
   VStatic := FFavoriteMapSetConfig.GetStatic;
@@ -109,7 +110,7 @@ end;
 
 function TFavoriteMapSetMenu.CreateMenuItem(
   const AItem: IFavoriteMapSetItemStatic
-): TTBXCustomItem;
+): TTBCustomItem;
 begin
   Assert(AItem <> nil);
   AItem._AddRef;
@@ -123,10 +124,10 @@ end;
 procedure TFavoriteMapSetMenu.OnMenuItemClick(Sender: TObject);
 var
   VErrMsg: string;
-  VMenuItem: TTBXCustomItem;
+  VMenuItem: TComponent;
   VItem: IFavoriteMapSetItemStatic;
 begin
-  VMenuItem := Sender as TTBXCustomItem;
+  VMenuItem := Sender as TComponent;
   if Assigned(VMenuItem) and (VMenuItem.Tag > 0) then begin
     VItem := IFavoriteMapSetItemStatic(VMenuItem.Tag);
     Assert(VItem <> nil);
