@@ -38,10 +38,11 @@ type
     FFavoriteMapSetConfig: IFavoriteMapSetConfig;
     FFavoriteMapSetHelper: IFavoriteMapSetHelper;
     FFavoriteMapSetChangeListener: IListener;
+    FStatic: IInterfaceListStatic;
     procedure ClearMenu;
     procedure OnMenuItemClick(Sender: TObject);
     procedure OnFavoriteMapSetChanged;
-    function CreateMenuItem(const AItem: IFavoriteMapSetItemStatic): TTBCustomItem;
+    function CreateMenuItem(AIndex: Integer; const AItem: IFavoriteMapSetItemStatic): TTBCustomItem;
   public
     constructor Create(
       const AFavoriteMapSetConfig: IFavoriteMapSetConfig;
@@ -99,23 +100,23 @@ var
 begin
   ClearMenu;
   VStatic := FFavoriteMapSetConfig.GetStatic;
+  FStatic := VStatic;
   if Assigned(VStatic) and (VStatic.Count > 0) then begin
     for I := 0 to VStatic.Count - 1 do begin
       VItem := IFavoriteMapSetItemStatic(VStatic.Items[I]);
-      VMenuItem := CreateMenuItem(VItem);
+      VMenuItem := CreateMenuItem(I, VItem);
       FRootMenu.Add(VMenuItem);
     end;
   end;
 end;
 
 function TFavoriteMapSetMenu.CreateMenuItem(
+  AIndex: Integer;
   const AItem: IFavoriteMapSetItemStatic
 ): TTBCustomItem;
 begin
-  Assert(AItem <> nil);
-  AItem._AddRef;
   Result := TTBXItem.Create(FRootMenu);
-  Result.Tag := LongInt(AItem);
+  Result.Tag := AIndex;
   Result.Caption := AItem.Name;
   Result.OnClick := Self.OnMenuItemClick;
   Result.ShortCut := AItem.HotKey;
@@ -128,8 +129,8 @@ var
   VItem: IFavoriteMapSetItemStatic;
 begin
   VMenuItem := Sender as TComponent;
-  if Assigned(VMenuItem) and (VMenuItem.Tag > 0) then begin
-    VItem := IFavoriteMapSetItemStatic(VMenuItem.Tag);
+  if Assigned(VMenuItem) and (VMenuItem.Tag >= 0) and Assigned(FStatic) and (VMenuItem.Tag < FStatic.Count) then begin
+    VItem := IFavoriteMapSetItemStatic(FStatic[VMenuItem.Tag]);
     Assert(VItem <> nil);
     if not FFavoriteMapSetHelper.TrySwitchOn(VItem, VErrMsg) then begin
       MessageDlg(VErrMsg, mtError, [mbOK], 0);
@@ -138,20 +139,8 @@ begin
 end;
 
 procedure TFavoriteMapSetMenu.ClearMenu;
-var
-  I: Integer;
-  VMenuItem: TTBCustomItem;
-  VItem: IFavoriteMapSetItemStatic;
 begin
-  for I := FRootMenu.Count - 1 downto 0 do begin
-    VMenuItem := FRootMenu.Items[I];
-    if VMenuItem.Tag > 0 then begin
-      VItem := IFavoriteMapSetItemStatic(VMenuItem.Tag);
-      VItem._Release;
-      VMenuItem.Tag := 0;
-      FRootMenu.Remove(VMenuItem);
-    end;
-  end;
+  FRootMenu.Clear;
 end;
 
 end.

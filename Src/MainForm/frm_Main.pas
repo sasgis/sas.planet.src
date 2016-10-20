@@ -603,6 +603,7 @@ type
     actMapsAllLayersHide: TAction;
     actFavoriteAdd: TAction;
     actFavoriteManage: TAction;
+    tbiFavoriteItems: TTBGroupItem;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -1653,7 +1654,7 @@ begin
     TFavoriteMapSetMenu.Create(
       GState.FavoriteMapSetConfig,
       FFavoriteMapSetHelper,
-      TBFavorite
+      tbiFavoriteItems
     );
 
   ProgramStart := True;

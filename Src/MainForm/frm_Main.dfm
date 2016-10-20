@@ -1102,6 +1102,10 @@ object frmMain: TfrmMain
           Caption = ''
           Hint = ''
         end
+        object tbiFavoriteItems: TTBGroupItem
+          Caption = ''
+          Hint = ''
+        end
       end
     end
   end
