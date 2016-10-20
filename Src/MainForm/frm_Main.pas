@@ -600,6 +600,7 @@ type
     tbiProjections: TTBGroupItem;
     actViewFillingMapMainMapUse: TAction;
     actConfigInterfaceOptionsShow: TAction;
+    actMapsAllLayersHide: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -758,7 +759,6 @@ type
     procedure RosreestrClick(Sender: TObject);
     procedure TBXMakeRosreestrPolygonClick(Sender: TObject);
     procedure tbpmiShowOtherVersionsClick(Sender: TObject);
-    procedure btnHideAllClick(Sender: TObject);
     procedure TBEditPathLabelLastOnlyClick(Sender: TObject);
     procedure TBEditPathLabelShowAzimuthClick(Sender: TObject);
     procedure TBEditPathSplitClick(Sender: TObject);
@@ -834,6 +834,7 @@ type
     procedure actConfigProjectionUseExecute(Sender: TObject);
     procedure actViewFillingMapMapUseExecute(Sender: TObject);
     procedure actConfigInterfaceOptionsShowExecute(Sender: TObject);
+    procedure actMapsAllLayersHideExecute(Sender: TObject);
   private
     FactlstProjections: TActionList;
     FactlstLanguages: TActionList;
@@ -5485,11 +5486,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.btnHideAllClick(Sender: TObject);
-begin
-  FConfig.MapLayersConfig.LayerGuids := nil;
-end;
-
 procedure TfrmMain.FormMouseWheel(
   Sender: TObject;
   Shift: TShiftState;
@@ -6609,6 +6605,11 @@ begin
       '--move=(' + R2StrPoint(VLonLat.X) + ',' + R2StrPoint(VLonLat.Y) + ')';
     CreateLink(ParamStr(0), SaveLink.filename, '', VArgStr);
   end;
+end;
+
+procedure TfrmMain.actMapsAllLayersHideExecute(Sender: TObject);
+begin
+  FConfig.MapLayersConfig.LayerGuids := nil;
 end;
 
 procedure TfrmMain.actMapsEditMapParamsExecute(Sender: TObject);

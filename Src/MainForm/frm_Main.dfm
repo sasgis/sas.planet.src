@@ -127,9 +127,7 @@ object frmMain: TfrmMain
         Caption = ''
         Hint = 'Select overlay layers'
         object btnHideAll: TTBXItem
-          OnClick = btnHideAllClick
-          Caption = 'Hide All'
-          Hint = ''
+          Action = actMapsAllLayersHide
         end
         object HideSeparator: TTBSeparatorItem
           Caption = ''
@@ -4616,6 +4614,11 @@ object frmMain: TfrmMain
       Category = 'Config'
       Caption = 'Interface Options'
       OnExecute = actConfigInterfaceOptionsShowExecute
+    end
+    object actMapsAllLayersHide: TAction
+      Category = 'Maps'
+      Caption = 'Hide All'
+      OnExecute = actMapsAllLayersHideExecute
     end
   end
 end
