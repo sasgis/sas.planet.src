@@ -602,6 +602,7 @@ type
     actConfigInterfaceOptionsShow: TAction;
     actMapsAllLayersHide: TAction;
     actFavoriteAdd: TAction;
+    actFavoriteManage: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -766,7 +767,6 @@ type
     procedure tbMergePolygonsClose(Sender: TObject);
     procedure tbxtmAddToMergePolygonsClick(Sender: TObject);
     procedure tbxFillingMapClick(Sender: TObject);
-    procedure tbxManageFavoriteClick(Sender: TObject);
     procedure actSelectByRectExecute(Sender: TObject);
     procedure actSelectByPolygonExecute(Sender: TObject);
     procedure actSelectByLineExecute(Sender: TObject);
@@ -836,6 +836,7 @@ type
     procedure actConfigInterfaceOptionsShowExecute(Sender: TObject);
     procedure actMapsAllLayersHideExecute(Sender: TObject);
     procedure actFavoriteAddExecute(Sender: TObject);
+    procedure actFavoriteManageExecute(Sender: TObject);
   private
     FactlstProjections: TActionList;
     FactlstLanguages: TActionList;
@@ -4321,11 +4322,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.tbxManageFavoriteClick(Sender: TObject);
-begin
-  FfrmFavoriteMapSetManager.ShowModal;
-end;
-
 procedure TfrmMain.tbxFillingMapClick(Sender: TObject);
 var
   VMark: IVectorDataItem;
@@ -6512,6 +6508,11 @@ end;
 procedure TfrmMain.actFavoriteAddExecute(Sender: TObject);
 begin
   FfrmFavoriteMapSetEditor.DoAdd;
+end;
+
+procedure TfrmMain.actFavoriteManageExecute(Sender: TObject);
+begin
+  FfrmFavoriteMapSetManager.ShowModal;
 end;
 
 procedure TfrmMain.actFileOpenExecute(Sender: TObject);

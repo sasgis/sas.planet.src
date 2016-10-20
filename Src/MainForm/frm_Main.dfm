@@ -1096,9 +1096,7 @@ object frmMain: TfrmMain
           Action = actFavoriteAdd
         end
         object tbxManageFavorite: TTBXItem
-          OnClick = tbxManageFavoriteClick
-          Caption = 'Manage'
-          Hint = ''
+          Action = actFavoriteManage
         end
         object TBXSeparatorItem15: TTBXSeparatorItem
           Caption = ''
@@ -4622,6 +4620,11 @@ object frmMain: TfrmMain
       Category = 'Favorite'
       Caption = 'Add'
       OnExecute = actFavoriteAddExecute
+    end
+    object actFavoriteManage: TAction
+      Category = 'Favorite'
+      Caption = 'Manage'
+      OnExecute = actFavoriteManageExecute
     end
   end
 end
