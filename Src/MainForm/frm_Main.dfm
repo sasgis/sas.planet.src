@@ -205,11 +205,8 @@ object frmMain: TfrmMain
       TabOrder = 4
       Visible = False
       object TBXExit: TTBXItem
-        ImageIndex = 29
+        Action = actQuit
         Images = MenusImageList
-        OnClick = TrayItemQuitClick
-        Caption = ''
-        Hint = 'Quit'
       end
     end
     object TBXMainMenu: TTBXToolbar
@@ -3801,9 +3798,7 @@ object frmMain: TfrmMain
       Hint = ''
     end
     object TrayItemQuit: TTBItem
-      OnClick = TrayItemQuitClick
-      Caption = 'Quit'
-      Hint = ''
+      Action = actQuit
     end
   end
   object tbxpmnSearchResult: TTBXPopupMenu
@@ -3939,6 +3934,7 @@ object frmMain: TfrmMain
     object actQuit: TAction
       Category = 'Operations'
       Caption = 'Quit'
+      Hint = 'Quit'
       ImageIndex = 29
       OnExecute = actQuitExecute
     end

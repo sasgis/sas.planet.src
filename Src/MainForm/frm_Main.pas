@@ -624,7 +624,6 @@ type
     procedure NopendirClick(Sender: TObject);
     procedure tbitmOpenFolderMainMapTileClick(Sender: TObject);
     procedure NDelClick(Sender: TObject);
-    procedure TrayItemQuitClick(Sender: TObject);
     procedure tbitmCopyToClipboardCoordinatesClick(Sender: TObject);
     procedure Google1Click(Sender: TObject);
     procedure mapResize(Sender: TObject);
@@ -6252,12 +6251,6 @@ begin
   FWinPosition.SetNotMinimized;
 end;
 
-procedure TfrmMain.TrayItemQuitClick(Sender: TObject);
-begin
-  TrayIcon.Visible := False;
-  Close;
-end;
-
 procedure TfrmMain.tbitmCopySearchResultCoordinatesClick(Sender: TObject);
 var
   VStr: string;
@@ -6664,6 +6657,7 @@ end;
 
 procedure TfrmMain.actQuitExecute(Sender: TObject);
 begin
+  TrayIcon.Visible := False;
   Close;
 end;
 
