@@ -1093,9 +1093,7 @@ object frmMain: TfrmMain
         Caption = ''
         Hint = 'Favorite maps/layers'
         object tbxAddToFavorite: TTBXItem
-          OnClick = tbxAddToFavoriteClick
-          Caption = 'Add'
-          Hint = ''
+          Action = actFavoriteAdd
         end
         object tbxManageFavorite: TTBXItem
           OnClick = tbxManageFavoriteClick
@@ -4619,6 +4617,11 @@ object frmMain: TfrmMain
       Category = 'Maps'
       Caption = 'Hide All'
       OnExecute = actMapsAllLayersHideExecute
+    end
+    object actFavoriteAdd: TAction
+      Category = 'Favorite'
+      Caption = 'Add'
+      OnExecute = actFavoriteAddExecute
     end
   end
 end

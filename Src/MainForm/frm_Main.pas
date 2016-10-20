@@ -601,6 +601,7 @@ type
     actViewFillingMapMainMapUse: TAction;
     actConfigInterfaceOptionsShow: TAction;
     actMapsAllLayersHide: TAction;
+    actFavoriteAdd: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -765,7 +766,6 @@ type
     procedure tbMergePolygonsClose(Sender: TObject);
     procedure tbxtmAddToMergePolygonsClick(Sender: TObject);
     procedure tbxFillingMapClick(Sender: TObject);
-    procedure tbxAddToFavoriteClick(Sender: TObject);
     procedure tbxManageFavoriteClick(Sender: TObject);
     procedure actSelectByRectExecute(Sender: TObject);
     procedure actSelectByPolygonExecute(Sender: TObject);
@@ -835,6 +835,7 @@ type
     procedure actViewFillingMapMapUseExecute(Sender: TObject);
     procedure actConfigInterfaceOptionsShowExecute(Sender: TObject);
     procedure actMapsAllLayersHideExecute(Sender: TObject);
+    procedure actFavoriteAddExecute(Sender: TObject);
   private
     FactlstProjections: TActionList;
     FactlstLanguages: TActionList;
@@ -4320,11 +4321,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.tbxAddToFavoriteClick(Sender: TObject);
-begin
-  FfrmFavoriteMapSetEditor.DoAdd;
-end;
-
 procedure TfrmMain.tbxManageFavoriteClick(Sender: TObject);
 begin
   FfrmFavoriteMapSetManager.ShowModal;
@@ -6511,6 +6507,11 @@ begin
   end else begin
     FState.State := ao_movemap;
   end;
+end;
+
+procedure TfrmMain.actFavoriteAddExecute(Sender: TObject);
+begin
+  FfrmFavoriteMapSetEditor.DoAdd;
 end;
 
 procedure TfrmMain.actFileOpenExecute(Sender: TObject);
