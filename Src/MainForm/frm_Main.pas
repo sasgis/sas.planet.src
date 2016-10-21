@@ -604,6 +604,7 @@ type
     actFavoriteAdd: TAction;
     actFavoriteManage: TAction;
     tbiFavoriteItems: TTBGroupItem;
+    actViewNotMinimized: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -707,7 +708,6 @@ type
     );
     procedure NSensorsClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure TrayItemRestoreClick(Sender: TObject);
     procedure FormShortCut(
       var Msg: TWMKey;
       var Handled: Boolean
@@ -837,6 +837,7 @@ type
     procedure actMapsAllLayersHideExecute(Sender: TObject);
     procedure actFavoriteAddExecute(Sender: TObject);
     procedure actFavoriteManageExecute(Sender: TObject);
+    procedure actViewNotMinimizedExecute(Sender: TObject);
   private
     FactlstProjections: TActionList;
     FactlstLanguages: TActionList;
@@ -6246,11 +6247,6 @@ end;
 
 // TrayIcon
 
-procedure TfrmMain.TrayItemRestoreClick(Sender: TObject);
-begin
-  FWinPosition.SetNotMinimized;
-end;
-
 procedure TfrmMain.tbitmCopySearchResultCoordinatesClick(Sender: TObject);
 var
   VStr: string;
@@ -6975,6 +6971,11 @@ begin
       FConfig.NavToPoint.StartNavLonLat(VPoint);
     end;
   end;
+end;
+
+procedure TfrmMain.actViewNotMinimizedExecute(Sender: TObject);
+begin
+  FWinPosition.SetNotMinimized;
 end;
 
 procedure TfrmMain.actViewSelectNextMapVersionExecute(Sender: TObject);

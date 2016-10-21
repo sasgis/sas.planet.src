@@ -3780,8 +3780,8 @@ object frmMain: TfrmMain
   end
   object TrayIcon: TTrayIcon
     PopupMenu = TrayPopupMenu
-    OnClick = TrayItemRestoreClick
-    OnDblClick = TrayItemRestoreClick
+    OnClick = actViewNotMinimizedExecute
+    OnDblClick = actViewNotMinimizedExecute
     Left = 520
     Top = 112
   end
@@ -3789,9 +3789,7 @@ object frmMain: TfrmMain
     Left = 520
     Top = 144
     object TrayItemRestore: TTBItem
-      OnClick = TrayItemRestoreClick
-      Caption = 'Restore'
-      Hint = ''
+      Action = actViewNotMinimized
     end
     object TBSeparatorItem1: TTBSeparatorItem
       Caption = ''
@@ -4625,6 +4623,11 @@ object frmMain: TfrmMain
       Category = 'Favorite'
       Caption = 'Manage'
       OnExecute = actFavoriteManageExecute
+    end
+    object actViewNotMinimized: TAction
+      Category = 'View'
+      Caption = 'Restore'
+      OnExecute = actViewNotMinimizedExecute
     end
   end
 end
