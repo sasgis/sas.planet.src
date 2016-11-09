@@ -19,10 +19,10 @@
     <DCC_ObjOutput>.\.dcu</DCC_ObjOutput>
     <DCC_HppOutput>.\.dcu</DCC_HppOutput>
     <DCC_Define>RELEASE</DCC_Define>
-    <DCC_UnitSearchPath>Includes;Includes\RarProgressBar;Includes\FastMM;Includes\Fundamentals;Includes\FastCode;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;Includes\Compatibility;Includes\LibTiff</DCC_UnitSearchPath>
-    <DCC_ResourcePath>Includes;Includes\RarProgressBar;Includes\FastMM;Includes\Fundamentals;Includes\FastCode;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;Includes\Compatibility;Includes\LibTiff</DCC_ResourcePath>
-    <DCC_ObjPath>Includes;Includes\RarProgressBar;Includes\FastMM;Includes\Fundamentals;Includes\FastCode;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;Includes\Compatibility;Includes\LibTiff</DCC_ObjPath>
-    <DCC_IncludePath>Includes;Includes\RarProgressBar;Includes\FastMM;Includes\Fundamentals;Includes\FastCode;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;Includes\Compatibility;Includes\LibTiff</DCC_IncludePath>
+    <DCC_UnitSearchPath>Includes;Includes\RarProgressBar;Includes\FastMM;Includes\Fundamentals;Includes\FastCode;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;Includes\Compatibility;Includes\LibTiff;Includes\Proj4</DCC_UnitSearchPath>
+    <DCC_ResourcePath>Includes;Includes\RarProgressBar;Includes\FastMM;Includes\Fundamentals;Includes\FastCode;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;Includes\Compatibility;Includes\LibTiff;Includes\Proj4</DCC_ResourcePath>
+    <DCC_ObjPath>Includes;Includes\RarProgressBar;Includes\FastMM;Includes\Fundamentals;Includes\FastCode;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;Includes\Compatibility;Includes\LibTiff;Includes\Proj4</DCC_ObjPath>
+    <DCC_IncludePath>Includes;Includes\RarProgressBar;Includes\FastMM;Includes\Fundamentals;Includes\FastCode;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;Includes\Compatibility;Includes\LibTiff;Includes\Proj4</DCC_IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <Version>7.0</Version>
@@ -35,10 +35,10 @@
     <DCC_Optimize>False</DCC_Optimize>
     <DCC_GenerateStackFrames>True</DCC_GenerateStackFrames>
     <DCC_SymbolReferenceInfo>2</DCC_SymbolReferenceInfo>
-    <DCC_UnitSearchPath>Includes;Includes\RarProgressBar;Includes\Fundamentals;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;Includes\Compatibility;Includes\LibTiff</DCC_UnitSearchPath>
-    <DCC_ResourcePath>Includes;Includes\RarProgressBar;Includes\Fundamentals;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;Includes\Compatibility;Includes\LibTiff</DCC_ResourcePath>
-    <DCC_ObjPath>Includes;Includes\RarProgressBar;Includes\Fundamentals;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;Includes\Compatibility;Includes\LibTiff</DCC_ObjPath>
-    <DCC_IncludePath>Includes;Includes\RarProgressBar;Includes\Fundamentals;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;Includes\Compatibility;Includes\LibTiff</DCC_IncludePath>
+    <DCC_UnitSearchPath>Includes;Includes\RarProgressBar;Includes\Fundamentals;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;Includes\Compatibility;Includes\LibTiff;Includes\Proj4</DCC_UnitSearchPath>
+    <DCC_ResourcePath>Includes;Includes\RarProgressBar;Includes\Fundamentals;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;Includes\Compatibility;Includes\LibTiff;Includes\Proj4</DCC_ResourcePath>
+    <DCC_ObjPath>Includes;Includes\RarProgressBar;Includes\Fundamentals;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;Includes\Compatibility;Includes\LibTiff;Includes\Proj4</DCC_ObjPath>
+    <DCC_IncludePath>Includes;Includes\RarProgressBar;Includes\Fundamentals;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;Includes\Compatibility;Includes\LibTiff;Includes\Proj4</DCC_IncludePath>
   </PropertyGroup>
   <ProjectExtensions>
     <Borland.Personality>Delphi.Personality</Borland.Personality>
@@ -264,6 +264,7 @@
     <DCCReference Include="Src\CoordConvert\u_LocalCoordConverterChangeable.pas" />
     <DCCReference Include="Src\CoordConvert\u_LocalCoordConverterFactory.pas" />
     <DCCReference Include="Src\CoordConvert\u_LocalCoordConverterFactorySimpe.pas" />
+    <DCCReference Include="Src\CoordConvert\u_ProjConverterByDll.pas" />
     <DCCReference Include="Src\CoordConvert\u_ProjConverterFactory.pas" />
     <DCCReference Include="Src\CoordConvert\u_ProjectionBasic256x256.pas" />
     <DCCReference Include="Src\CoordConvert\u_ProjectionSetFactorySimple.pas" />
@@ -310,6 +311,7 @@
     <DCCReference Include="Src\GeoCoder\u_GeoCoderByGoogle.pas" />
     <DCCReference Include="Src\GeoCoder\u_GeoCoderByGPSies.pas" />
     <DCCReference Include="Src\GeoCoder\u_GeoCoderByGpx.pas" />
+    <DCCReference Include="Src\GeoCoder\u_GeoCoderByIp2geolocation.pas" />
     <DCCReference Include="Src\GeoCoder\u_GeoCoderByMarks.pas" />
     <DCCReference Include="Src\GeoCoder\u_GeoCoderByNavitel.pas" />
     <DCCReference Include="Src\GeoCoder\u_GeoCoderByOSM.pas" />
@@ -445,7 +447,6 @@
     <DCCReference Include="Src\i_TileRect.pas" />
     <DCCReference Include="Src\i_TileRectChangeable.pas" />
     <DCCReference Include="Src\i_TreeChangeable.pas" />
-    <DCCReference Include="Src\UrlByCoord\i_UrlByCoordProvider.pas" />
     <DCCReference Include="Src\i_UsedMarksConfig.pas" />
     <DCCReference Include="Src\i_ValueToStringConverter.pas" />
     <DCCReference Include="Src\i_ValueToStringConverterConfig.pas" />
@@ -528,6 +529,7 @@
     <DCCReference Include="Src\MainForm\MergePolygons\u_MergePolygonsProcessor.pas" />
     <DCCReference Include="Src\MainForm\MergePolygons\u_MergePolygonsProgress.pas" />
     <DCCReference Include="Src\MainForm\MergePolygons\u_MergePolygonsResult.pas" />
+    <DCCReference Include="Src\MainForm\u_ActionListByLanguageManager.pas" />
     <DCCReference Include="Src\MainForm\u_ActiveMapTBXItem.pas" />
     <DCCReference Include="Src\MainForm\u_FillingMapPolygon.pas" />
     <DCCReference Include="Src\MainForm\u_FindVectorItemsForVectorTileMatrix.pas" />
@@ -548,6 +550,7 @@
     <DCCReference Include="Src\MainForm\u_LineOnMapEdit.pas" />
     <DCCReference Include="Src\MainForm\u_MainFormBehaviourByGPSConfig.pas" />
     <DCCReference Include="Src\MainForm\u_MainFormConfig.pas" />
+    <DCCReference Include="Src\MainForm\u_MainFormLayersList.pas" />
     <DCCReference Include="Src\MainForm\u_MainFormMainConfig.pas" />
     <DCCReference Include="Src\MainForm\u_MainFormState.pas" />
     <DCCReference Include="Src\MainForm\u_MainGeoCoderConfig.pas" />
@@ -1535,6 +1538,8 @@
     </DCCReference>
     <DCCReference Include="Src\UpdateChecker\i_UpdateDownloader.pas" />
     <DCCReference Include="Src\UpdateChecker\u_UpdateDownloader.pas" />
+    <DCCReference Include="Src\UrlByCoord\i_UrlByCoordProvider.pas" />
+    <DCCReference Include="Src\UrlByCoord\u_UrlByCoordProvider.pas" />
     <DCCReference Include="Src\u_BitmapFunc.pas" />
     <DCCReference Include="Src\u_CommonFormAndFrameParents.pas" />
     <DCCReference Include="Src\u_FileSystemFunc.pas" />
@@ -1611,6 +1616,7 @@
     <DCCReference Include="Src\VectorLoaders\u_XmlInfoSimpleParser.pas" />
     <DCCReference Include="Src\VectorLoaders\u_XmlVectorObjects.pas" />
     <DCCReference Include="Src\Vector\i_Appearance.pas" />
+    <DCCReference Include="Src\Vector\i_AppearanceHelper.pas" />
     <DCCReference Include="Src\Vector\i_AppearanceOfMarkFactory.pas" />
     <DCCReference Include="Src\Vector\i_AppearanceOfVectorItem.pas" />
     <DCCReference Include="Src\Vector\i_Category.pas" />
@@ -1627,6 +1633,8 @@
     <DCCReference Include="Src\Vector\i_VectorItemTreeExporterList.pas" />
     <DCCReference Include="Src\Vector\i_VectorItemTreeImporter.pas" />
     <DCCReference Include="Src\Vector\i_VectorItemTreeImporterList.pas" />
+    <DCCReference Include="Src\Vector\t_MarkAppearance.pas" />
+    <DCCReference Include="Src\Vector\u_AppearanceHelper.pas" />
     <DCCReference Include="Src\Vector\u_AppearanceOfMarkFactory.pas" />
     <DCCReference Include="Src\Vector\u_AppearanceOfMarkLine.pas" />
     <DCCReference Include="Src\Vector\u_AppearanceOfMarkPoint.pas" />
@@ -1652,8 +1660,10 @@
     <DCCReference Include="Src\Vector\u_VectorItemTreeExporterTCX.pas" />
     <DCCReference Include="Src\Vector\u_VectorItemTreeImporterByVectorLoader.pas" />
     <DCCReference Include="Src\Vector\u_VectorItemTreeImporterJpegWithExif.pas" />
+    <DCCReference Include="Src\Vector\u_VectorItemTreeImporterKMZ.pas" />
     <DCCReference Include="Src\Vector\u_VectorItemTreeImporterList.pas" />
     <DCCReference Include="Src\Vector\u_VectorItemTreeImporterListSimple.pas" />
+    <DCCReference Include="Src\Vector\u_VectorItemTreeImporterXML.pas" />
     <DCCReference Include="Src\Vector\u_VectorItemTreeMarksDb.pas" />
   </ItemGroup>
 </Project>
