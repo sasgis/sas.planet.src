@@ -87,11 +87,6 @@ begin
     FCancelListener := TNotifyNoMmgEventListener.Create(Self.OnCancel);
     FCancelNotifier.AddListener(FCancelListener);
   end;
-  if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
-    Terminate;
-  end else begin
-    Start;
-  end;
 end;
 
 destructor TThreadCacheManagerAbstract.Destroy;

@@ -455,6 +455,12 @@ begin
     VProgressInfo,
     FValueToStringConverter
   );
+
+  if VCancelNotifierInternal.IsOperationCanceled(VOperationID) then begin
+    VConverterThread.Terminate;
+  end else begin
+    VConverterThread.Start;
+  end;
 end;
 
 end.
