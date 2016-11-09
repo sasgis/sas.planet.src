@@ -67,6 +67,7 @@ uses
   u_GeoCoderByYandex,
   u_GeoCoderBy2GIS,
   u_GeoCoderByOSM,
+  u_GeoCoderByIp2geolocation,
   u_GeoCoderByWikiMapia,
   u_GeoCoderByRosreestr,
   u_GeoCoderByNavitel,
@@ -146,6 +147,14 @@ begin
       CGeoCoderRosreestrGUID,
       'Rosreestr',
       TGeoCoderByRosreestr.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory, ACoordToStringConverter)
+    );
+  VList.Add(VItem);
+
+  VItem :=
+    TGeoCoderListEntity.Create(
+      CGeoCoderIp2geolocationGUID,
+      'Ip2geolocation',
+      TGeoCoderByIp2geolocation.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory)
     );
   VList.Add(VItem);
 

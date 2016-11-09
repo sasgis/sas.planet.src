@@ -439,6 +439,7 @@
 			<DCCReference Include="Src\GeoCoder\u_GeoCoderByGPSies.pas"/>
 			<DCCReference Include="Src\GeoCoder\u_GeoCoderByGoogle.pas"/>
 			<DCCReference Include="Src\GeoCoder\u_GeoCoderByGpx.pas"/>
+			<DCCReference Include="Src\GeoCoder\u_GeoCoderByIp2geolocation.pas"/>
 			<DCCReference Include="Src\GeoCoder\u_GeoCoderByMarks.pas"/>
 			<DCCReference Include="Src\GeoCoder\u_GeoCoderByNavitel.pas"/>
 			<DCCReference Include="Src\GeoCoder\u_GeoCoderByOSM.pas"/>

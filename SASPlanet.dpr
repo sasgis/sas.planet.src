@@ -281,6 +281,7 @@ uses
   u_GeoCoderByGPSies in 'Src\GeoCoder\u_GeoCoderByGPSies.pas',
   u_GeoCoderByGoogle in 'Src\GeoCoder\u_GeoCoderByGoogle.pas',
   u_GeoCoderByGpx in 'Src\GeoCoder\u_GeoCoderByGpx.pas',
+  u_GeoCoderByIp2geolocation in 'Src\GeoCoder\u_GeoCoderByIp2geolocation.pas',
   u_GeoCoderByMarks in 'Src\GeoCoder\u_GeoCoderByMarks.pas',
   u_GeoCoderByNavitel in 'Src\GeoCoder\u_GeoCoderByNavitel.pas',
   u_GeoCoderByOSM in 'Src\GeoCoder\u_GeoCoderByOSM.pas',
