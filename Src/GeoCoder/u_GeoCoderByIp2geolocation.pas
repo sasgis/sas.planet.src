@@ -166,17 +166,8 @@ function TGeoCoderByIp2geolocation.PrepareRequest(
   const ASearch: string;
   const ALocalConverter: ILocalCoordConverter
 ): IDownloadRequest;
-var
-  VProjection: IProjection;
-  VMapRect: TDoubleRect;
-  VLonLatRect: TDoubleRect;
 begin
-  VProjection := ALocalConverter.Projection;
-  VMapRect := ALocalConverter.GetRectInMapPixelFloat;
-  VProjection.ValidatePixelRectFloat(VMapRect);
-  VLonLatRect := VProjection.PixelRectFloat2LonLatRect(VMapRect);
-
-  //http://ip2geolocation.com/?ip=37.78.14.148&lang=en
+  // http://ip2geolocation.com/?ip=37.78.14.148&lang=en
   Result :=
     PrepareRequestByURL(
       'http://ip2geolocation.com/?ip=' + URLEncode(AnsiToUtf8(ASearch)) + '&lang=en'
