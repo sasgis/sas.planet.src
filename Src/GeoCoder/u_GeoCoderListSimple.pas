@@ -153,7 +153,7 @@ begin
   VItem :=
     TGeoCoderListEntity.Create(
       CGeoCoderIp2geolocationGUID,
-      'Ip2geolocation',
+      'IP2GeoLocation',
       TGeoCoderByIp2geolocation.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory)
     );
   VList.Add(VItem);

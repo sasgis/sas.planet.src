@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2016, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -45,20 +45,15 @@ type
       const ASearch: string;
       const ALocalConverter: ILocalCoordConverter
     ): IInterfaceListSimple; override;
-  public
   end;
 
 implementation
 
 uses
-  SysUtils,
-  StrUtils,
   ALString,
   RegExpr,
   t_GeoTypes,
-  i_GeoCoder,
   i_VectorDataItemSimple,
-  i_Projection,
   u_InterfaceListSimple,
   u_ResStrings;
 
@@ -71,9 +66,11 @@ function TGeoCoderByIp2geolocation.ParseResultToPlacemarksList(
   const ASearch: string;
   const ALocalConverter: ILocalCoordConverter
 ): IInterfaceListSimple;
+const
+  cLocalHost_v4 = '127.0.0.1';
 var
-  slat, slon: AnsiString;
-  sname, sdesc, sfulldesc: string;
+  VLat, VLon: AnsiString;
+  VName, VDesc, VFullDesc: string;
   VPoint: TDoublePoint;
   VPlace: IVectorDataItem;
   VList: IInterfaceListSimple;
@@ -85,78 +82,82 @@ begin
     raise EParserError.Create(SAS_ERR_EmptyServerResponse);
   end;
 
-  VFormatSettings.DecimalSeparator := '.';
-  VList := TInterfaceListSimple.Create;
-  SetLength(Vstr, AResult.Data.Size);
-  Move(AResult.Data.Buffer^, Vstr[1], AResult.Data.Size);
-  sname := '';
-  sdesc := '';
-  sfulldesc := '';
+  SetLength(VStr, AResult.Data.Size);
+  Move(AResult.Data.Buffer^, VStr[1], AResult.Data.Size);
+
+  VName := '';
+  VDesc := '';
+  VFullDesc := '';
 
   VRegExpr := TRegExpr.Create;
-  //IP Адрес в sname
   try
     VRegExpr.Expression := '<strong>IP</strong>.+?([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})';
     if VRegExpr.Exec(VStr) then begin
-      sname := 'IP: ' + VRegExpr.Match[1];
+      if VRegExpr.Match[1] <> cLocalHost_v4 then begin
+        VName := 'IP: ' + VRegExpr.Match[1];
+      end else begin
+        Exit;
+      end;
     end;
 
-    if not (sname = 'IP: 127.0.0.1') then begin
-      //Страна в sdesc
-      VRegExpr.Expression := '<strong>Country Name</strong>.+?>([^<]+)</a></td></tr>';
-      if VRegExpr.Exec(VStr) then begin
-        sdesc := 'Country Name: ' + VRegExpr.Match[1];
-        sfulldesc := sdesc;
-      end;
-      //Регион в sdesc
-      VRegExpr.Expression := '<strong>Region Name</strong>.+?>([^<]+)</td></tr>';
-      if VRegExpr.Exec(VStr) then begin
-        sdesc := sdesc + #$D#$A + 'Region Name: ' + VRegExpr.Match[1];
-        sfulldesc := sfulldesc + ', Region Name: ' + VRegExpr.Match[1];
-      end;
-      //Все остальное в sfulldesc
-      //Город
-      VRegExpr.Expression := '<strong>City</strong>.+?>([^<]+)</td></tr>';
-      if VRegExpr.Exec(VStr) then begin
-        sfulldesc := sfulldesc + ', City: ' + VRegExpr.Match[1];
-      end;
-      //Почтовый код
-      VRegExpr.Expression := '<strong>Postal Code</strong>.+?>([^<]+)</td></tr>';
-      if VRegExpr.Exec(VStr) then begin
-        sfulldesc := sfulldesc + ', Postal Code: ' + VRegExpr.Match[1];
-      end;
-      //Провайдер
-      VRegExpr.Expression := '<strong>ISP</strong>.+?>([^<]+)</td></tr>';
-      if VRegExpr.Exec(VStr) then begin
-        sfulldesc := sfulldesc + ', ISP: ' + VRegExpr.Match[1];
-      end;
-      //Часовой пояс
-      VRegExpr.Expression := '<strong>Time Zone</strong>.+?>([^<]+)</td></tr>';
-      if VRegExpr.Exec(VStr) then begin
-        sfulldesc := sfulldesc + ', Time Zone: ' + VRegExpr.Match[1];
-      end;
-      //Широта и долгота
-      VRegExpr.Expression := '<strong>Latitude</strong>.+?([-\d\.]+)';
-      if VRegExpr.Exec(VStr) then begin
-        slat := VRegExpr.Match[1];
-        sfulldesc := sfulldesc + ', Latitude: ' + slat;
-      end;
-      VRegExpr.Expression := '<strong>Longitude</strong>.+?([-\d\.]+)';
-      if VRegExpr.Exec(VStr) then begin
-        slon := VRegExpr.Match[1];
-        sfulldesc := sfulldesc + ', Longitude: ' + slon;
-      end;
-
-      try
-        VPoint.Y := ALStrToFloat(slat, VFormatSettings);
-        VPoint.X := ALStrToFloat(slon, VFormatSettings);
-      except
-        raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
-      end;
-      VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
-      VList.Add(VPlace);
-      Result := VList;
+    VRegExpr.Expression := '<strong>Country Name</strong>.+?>([^<]+)</a></td></tr>';
+    if VRegExpr.Exec(VStr) then begin
+      VDesc := 'Country Name: ' + VRegExpr.Match[1];
+      VFullDesc := VDesc;
     end;
+
+    VRegExpr.Expression := '<strong>Region Name</strong>.+?>([^<]+)</td></tr>';
+    if VRegExpr.Exec(VStr) then begin
+      VDesc := VDesc + #$D#$A + 'Region Name: ' + VRegExpr.Match[1];
+      VFullDesc := VFullDesc + ', Region Name: ' + VRegExpr.Match[1];
+    end;
+
+    VRegExpr.Expression := '<strong>City</strong>.+?>([^<]+)</td></tr>';
+    if VRegExpr.Exec(VStr) then begin
+      VFullDesc := VFullDesc + ', City: ' + VRegExpr.Match[1];
+    end;
+
+    VRegExpr.Expression := '<strong>Postal Code</strong>.+?>([^<]+)</td></tr>';
+    if VRegExpr.Exec(VStr) then begin
+      VFullDesc := VFullDesc + ', Postal Code: ' + VRegExpr.Match[1];
+    end;
+
+    VRegExpr.Expression := '<strong>ISP</strong>.+?>([^<]+)</td></tr>';
+    if VRegExpr.Exec(VStr) then begin
+      VFullDesc := VFullDesc + ', ISP: ' + VRegExpr.Match[1];
+    end;
+
+    VRegExpr.Expression := '<strong>Time Zone</strong>.+?>([^<]+)</td></tr>';
+    if VRegExpr.Exec(VStr) then begin
+      VFullDesc := VFullDesc + ', Time Zone: ' + VRegExpr.Match[1];
+    end;
+
+    VRegExpr.Expression := '<strong>Latitude</strong>.+?([-\d\.]+)';
+    if VRegExpr.Exec(VStr) then begin
+      VLat := VRegExpr.Match[1];
+      VFullDesc := VFullDesc + ', Latitude: ' + VLat;
+    end;
+
+    VRegExpr.Expression := '<strong>Longitude</strong>.+?([-\d\.]+)';
+    if VRegExpr.Exec(VStr) then begin
+      VLon := VRegExpr.Match[1];
+      VFullDesc := VFullDesc + ', Longitude: ' + VLon;
+    end;
+
+    try
+      VFormatSettings.DecimalSeparator := '.';
+      VPoint.X := ALStrToFloat(VLon, VFormatSettings);
+      VPoint.Y := ALStrToFloat(VLat, VFormatSettings);
+    except
+      raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [VLat, VLon]);
+    end;
+
+    VPlace := PlacemarkFactory.Build(VPoint, VName, VDesc, VFullDesc, 4);
+
+    VList := TInterfaceListSimple.Create;
+    VList.Add(VPlace);
+
+    Result := VList;
   finally
     VRegExpr.Free;
   end;
