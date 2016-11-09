@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2016, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -22,6 +22,10 @@ unit u_BitmapMapCombinerECWJP2;
 
 interface
 
+{$IFDEF DEBUG}
+  {$DEFINE SHOW_COMPRESSION_STAT}
+{$ENDIF}
+
 uses
   SysUtils,
   Types,
@@ -36,6 +40,8 @@ uses
 type
   TBitmapMapCombinerECWJP2 = class(TBaseInterfacedObject, IBitmapMapCombiner)
   private
+    FCompressionRatio: Single;
+    FEncodeInfo: TECWCompressionStatistics;
     FProgressUpdate: IBitmapCombineProgressUpdate;
     FImageLineProvider: IImageLineProvider;
     FLinesCount: Integer;
@@ -47,6 +53,10 @@ type
       ALine: Integer;
       var LineR, LineG, LineB: PLineRGB
     ): Boolean;
+
+    {$IFDEF SHOW_COMPRESSION_STAT}
+    procedure ShowCompressionStat;
+    {$ENDIF}
   private
     procedure SaveRect(
       AOperationID: Integer;
@@ -65,7 +75,8 @@ type
 implementation
 
 uses
-  {$IFDEF DEBUG}
+  {$IFDEF SHOW_COMPRESSION_STAT}
+  Classes,
   Dialogs,
   {$ENDIF}
   libecwj2,
@@ -118,28 +129,6 @@ begin
   Result := True;
 end;
 
-{$IFDEF DEBUG}
-function _SizeToStr(const ASizeInKb: Double): string;
-begin
-  if ASizeInKb > 1048576 then begin
-    Result := FormatFloat('0.0', ASizeInKb / 1048576) + ' GB';
-  end else begin
-    if ASizeInKb > 1024 then begin
-      Result := FormatFloat('0.0', ASizeInKb / 1024) + ' MB';
-    end else begin
-      Result := FormatFloat('0.0', ASizeInKb) + ' KB';
-    end;
-  end;
-end;
-
-function _SecondsToTime(const Seconds: Double): TDateTime;
-const
-  MilliSecsPerDay = 86400000;
-begin
-  Result := Round(Seconds * 1000) / MilliSecsPerDay;
-end;
-{$ENDIF}
-
 procedure TBitmapMapCombinerECWJP2.SaveRect(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
@@ -147,21 +136,19 @@ procedure TBitmapMapCombinerECWJP2.SaveRect(
   const AImageProvider: IBitmapTileProvider;
   const AMapRect: TRect
 );
+const
+  NCS_SUCCESS = 0;
+  NCS_USER_CANCELLED_COMPRESSION = 52;
 var
   VEPSG: Integer;
   Datum, Proj: AnsiString;
   Units: TCellSizeUnits;
   CellIncrementX, CellIncrementY, OriginX, OriginY: Double;
-  errecw: integer;
+  VErrorCode: Integer;
   VECWWriter: TECWWrite;
   VCurrentPieceRect: TRect;
   VProjection: IProjection;
   VMapPieceSize: TPoint;
-  VCompressionRatio: Single;
-  VEncodeInfo: TECWCompressionStatistics;
-  {$IFDEF DEBUG}
-  VEncodeInfoMsg: string;
-  {$ENDIF}
 begin
   FOperationID := AOperationID;
   FCancelNotifier := ACancelNotifier;
@@ -206,16 +193,16 @@ begin
       CellIncrementX, CellIncrementY, OriginX, OriginY
     );
 
-    VCompressionRatio := 101 - FQuality;
+    FCompressionRatio := 101 - FQuality;
 
-    errecw :=
+    VErrorCode :=
       VECWWriter.Encode(
         FOperationID,
         FCancelNotifier,
         AFileName,
         VMapPieceSize.X,
         VMapPieceSize.Y,
-        VCompressionRatio,
+        FCompressionRatio,
         COMPRESS_HINT_BEST,
         ReadLine,
         Datum,
@@ -225,36 +212,65 @@ begin
         CellIncrementY,
         OriginX,
         OriginY,
-        @VEncodeInfo
+        @FEncodeInfo
       );
-    if (errecw > 0) and (errecw <> 52) then begin
-      // NCS_SUCCESS = 0
-      // NCS_USER_CANCELLED_COMPRESSION = 52
+    if (VErrorCode > NCS_SUCCESS) and (VErrorCode <> NCS_USER_CANCELLED_COMPRESSION) then begin
       raise Exception.Create(
-        SAS_ERR_Save + ' ' + SAS_ERR_Code + ' [' + IntToStr(errecw) + '] ' +
-        VECWWriter.ErrorCodeToString(errecw)
+        SAS_ERR_Save + ' ' + SAS_ERR_Code + ' [' + IntToStr(VErrorCode) + '] ' +
+        VECWWriter.ErrorCodeToString(VErrorCode)
       );
     end else begin
-      {$IFDEF DEBUG}
-      VEncodeInfoMsg := Format(
-        'Compression finished sucessfull at %s sec.' + #13#10 + #13#10 +
-        'Target compression ratio: %2.f' + #13#10 +
-        'Actual compression ratio: %2.f' + #13#10 +
-        'Compression speed: %4.f MB/sec' + #13#10 +
-        'Output file size: %s',
-        [FormatDateTime('hh:nn:ss.zzz', _SecondsToTime(VEncodeInfo.CompressionSeconds)),
-         VCompressionRatio,
-         VEncodeInfo.ActualCompression,
-         VEncodeInfo.CompressionMBSec,
-         _SizeToStr(VEncodeInfo.OutputSize / 1024)
-        ]
-      );
-      MessageDlg(VEncodeInfoMsg, mtInformation, [mbOK], 0);
+      {$IFDEF SHOW_COMPRESSION_STAT}
+      FProgressUpdate.Update(1); // 100%
+      TThread.Synchronize(nil, ShowCompressionStat);
       {$ENDIF}
     end;
   finally
     FreeAndNil(VECWWriter);
   end;
 end;
+
+{$IFDEF SHOW_COMPRESSION_STAT}
+procedure TBitmapMapCombinerECWJP2.ShowCompressionStat;
+
+  function _SizeToStr(const ASizeInKb: Double): string;
+  begin
+    if ASizeInKb > 1048576 then begin
+      Result := FormatFloat('0.0', ASizeInKb / 1048576) + ' GB';
+    end else begin
+      if ASizeInKb > 1024 then begin
+        Result := FormatFloat('0.0', ASizeInKb / 1024) + ' MB';
+      end else begin
+        Result := FormatFloat('0.0', ASizeInKb) + ' KB';
+      end;
+    end;
+  end;
+
+  function _SecondsToTime(const Seconds: Double): TDateTime;
+  const
+    MilliSecsPerDay = 86400000;
+  begin
+    Result := Round(Seconds * 1000) / MilliSecsPerDay;
+  end;
+
+var
+  VEncodeInfoMsg: string;
+begin
+  VEncodeInfoMsg := Format(
+    'Compression finished sucessfull at %s sec.' + #13#10 + #13#10 +
+    'Target compression ratio: %2.f' + #13#10 +
+    'Actual compression ratio: %2.f' + #13#10 +
+    'Compression speed: %4.f MB/sec' + #13#10 +
+    'Output file size: %s',
+    [FormatDateTime('hh:nn:ss.zzz', _SecondsToTime(FEncodeInfo.CompressionSeconds)),
+     FCompressionRatio,
+     FEncodeInfo.ActualCompression,
+     FEncodeInfo.CompressionMBSec,
+     _SizeToStr(FEncodeInfo.OutputSize / 1024)
+    ]
+  );
+  MessageDlg(VEncodeInfoMsg, mtInformation, [mbOK], 0);
+end;
+{$ENDIF}
 
 end.
