@@ -148,6 +148,7 @@ type
     FMaxPartSize: TPoint;
     FCombinePathStringTypeSupport: TStringTypeSupport;
     procedure UpdateProjectionsList(Sender: TObject);
+    procedure OnSplitOptChange(Sender: TObject);
   private
     procedure Init(
       const AZoom: byte;
@@ -270,6 +271,9 @@ begin
   UpdateProjectionsList(Self);
   FfrMapSelect.OnMapChange := Self.UpdateProjectionsList;
   FfrLayerSelect.OnMapChange := Self.UpdateProjectionsList;
+  seSplitHor.OnChange := Self.OnSplitOptChange;
+  seSplitVert.OnChange := Self.OnSplitOptChange;
+  OnSplitOptChange(Self);
 end;
 
 destructor TfrMapCombine.Destroy;
@@ -533,6 +537,11 @@ begin
   FfrLayerSelect.Show(pnlLayerFrame);
   FfrMapCombineOptions.Show(pnlCustomOpt);
   UpdateProjectionsList(Self);
+end;
+
+procedure TfrMapCombine.OnSplitOptChange(Sender: TObject);
+begin
+  chkSkipExistingFiles.Enabled := (seSplitHor.Value > 1) or (seSplitVert.Value > 1);
 end;
 
 procedure TfrMapCombine.RefreshTranslation;

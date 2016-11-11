@@ -226,10 +226,10 @@ object frMapCombine: TfrMapCombine
         end
         object chkSkipExistingFiles: TCheckBox
           Left = 7
-          Top = 65
-          Width = 97
+          Top = 62
+          Width = 154
           Height = 17
-          Caption = 'Skip existing files'
+          Caption = 'Skip existing result files'
           TabOrder = 2
         end
       end
