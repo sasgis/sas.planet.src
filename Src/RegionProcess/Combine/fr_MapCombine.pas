@@ -71,6 +71,9 @@ type
     function GetSplitCount: TPoint;
     property SplitCount: TPoint read GetSplitCount;
 
+    function GetSkipExistingFiles: Boolean;
+    property SkipExistingFiles: Boolean read GetSkipExistingFiles;
+
     function GetBGColor: TColor32;
     property BGColor: TColor32 read GetBGColor;
 
@@ -123,6 +126,7 @@ type
     chkAddVisibleLayers: TCheckBox;
     chkUseFillingMap: TCheckBox;
     pnlCustomOpt: TPanel;
+    chkSkipExistingFiles: TCheckBox;
     procedure cbbZoomChange(Sender: TObject);
     procedure btnSelectTargetFileClick(Sender: TObject);
     procedure chkAddVisibleLayersClick(Sender: TObject);
@@ -161,6 +165,7 @@ type
     function GetUseFillingMap: Boolean;
     function GetUseRecolor: Boolean;
     function GetSplitCount: TPoint;
+    function GetSkipExistingFiles: Boolean;
     function GetBGColor: TColor32;
     function GetCustomOptions: IMapCombineCustomOptions;
     function GetAllowWrite(const AMapType: IMapType): boolean;
@@ -471,6 +476,11 @@ begin
       FUseTilePrevZoomConfig.UsePrevZoomAtMap,
       FUseTilePrevZoomConfig.UsePrevZoomAtLayer
     );
+end;
+
+function TfrMapCombine.GetSkipExistingFiles: Boolean;
+begin
+  Result := chkSkipExistingFiles.Checked;
 end;
 
 function TfrMapCombine.GetSplitCount: TPoint;

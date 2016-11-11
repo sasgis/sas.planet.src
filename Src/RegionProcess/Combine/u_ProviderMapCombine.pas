@@ -614,6 +614,7 @@ var
   VMapCalibrations: IMapCalibrationList;
   VFileName: string;
   VSplitCount: TPoint;
+  VSkipExistingFiles: Boolean;
   VProjection: IProjection;
   VProjectedPolygon: IGeometryProjectedPolygon;
   VImageProvider: IBitmapTileProvider;
@@ -625,6 +626,7 @@ begin
   VMapCalibrations := (ParamsFrame as IRegionProcessParamsFrameMapCalibrationList).MapCalibrationList;
   VFileName := PrepareTargetFileName;
   VSplitCount := (ParamsFrame as IRegionProcessParamsFrameMapCombine).SplitCount;
+  VSkipExistingFiles := (ParamsFrame as IRegionProcessParamsFrameMapCombine).SkipExistingFiles;
 
   VCombiner := PrepareMapCombiner(AProgressInfo);
   Result :=
@@ -636,7 +638,8 @@ begin
       VImageProvider,
       VMapCalibrations,
       VFileName,
-      VSplitCount
+      VSplitCount,
+      VSkipExistingFiles
     );
 end;
 

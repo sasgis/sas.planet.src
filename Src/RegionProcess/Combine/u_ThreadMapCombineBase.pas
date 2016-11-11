@@ -52,6 +52,7 @@ type
     FMapRect: TRect;
     FMapCalibrationList: IMapCalibrationList;
     FSplitCount: TPoint;
+    FSkipExistingFiles: Boolean;
     FFileName: string;
     FFilePath: string;
     FFileExt: string;
@@ -68,7 +69,8 @@ type
       const AImageProvider: IBitmapTileProvider;
       const AMapCalibrationList: IMapCalibrationList;
       const AFileName: string;
-      const ASplitCount: TPoint
+      const ASplitCount: TPoint;
+      const ASkipExistingFiles: Boolean
     );
   end;
 
@@ -89,7 +91,8 @@ constructor TThreadMapCombineBase.Create(
   const AImageProvider: IBitmapTileProvider;
   const AMapCalibrationList: IMapCalibrationList;
   const AFileName: string;
-  const ASplitCount: TPoint
+  const ASplitCount: TPoint;
+  const ASkipExistingFiles: Boolean
 );
 begin
   inherited Create(
@@ -100,6 +103,7 @@ begin
   FCombiner := ACombiner;
   FImageProvider := AImageProvider;
   FSplitCount := ASplitCount;
+  FSkipExistingFiles := ASkipExistingFiles;
   FFilePath := ExtractFilePath(AFileName);
   FFileExt := ExtractFileExt(AFileName);
   FFileName := ChangeFileExt(ExtractFileName(AFileName), '');
@@ -162,6 +166,9 @@ begin
 
       if (FSplitCount.X > 1) or (FSplitCount.Y > 1) then begin
         VCurrentFileName := FFilePath + FFileName + '_' + inttostr(i) + '-' + inttostr(j) + FFileExt;
+        if FSkipExistingFiles and FileExists(VCurrentFileName) then begin
+          Continue;
+        end;
       end else begin
         VCurrentFileName := FFilePath + FFileName + FFileExt;
       end;

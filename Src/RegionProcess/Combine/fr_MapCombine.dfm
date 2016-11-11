@@ -185,7 +185,7 @@ object frMapCombine: TfrMapCombine
         Left = 3
         Top = 3
         Width = 162
-        Height = 63
+        Height = 86
         Align = alTop
         Caption = 'Split image'
         TabOrder = 0
@@ -223,6 +223,14 @@ object frMapCombine: TfrMapCombine
           MinValue = 1
           TabOrder = 1
           Value = 1
+        end
+        object chkSkipExistingFiles: TCheckBox
+          Left = 7
+          Top = 65
+          Width = 97
+          Height = 17
+          Caption = 'Skip existing files'
+          TabOrder = 2
         end
       end
     end
