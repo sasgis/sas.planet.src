@@ -89,7 +89,8 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  Math;
 
 const
   geodesic_lib = 'geodesic.dll';
@@ -156,9 +157,12 @@ procedure TDistanceCalculatorByGeodesicLib.ComputeFinishPosition(
   out ALat2, ALon2: Double
 );
 var
-  azi2: Double;
+  VAzi2: Double;
 begin
-  geod_direct(@g, ALat1, ALon1, AInitialBearing, ADistance, ALat2, ALon2, azi2);
+  ALat2 := NAN;
+  ALon2 := NAN;
+  VAzi2 := NAN;
+  geod_direct(@g, ALat1, ALon1, AInitialBearing, ADistance, ALat2, ALon2, VAzi2);
 end;
 
 function TDistanceCalculatorByGeodesicLib.ComputeDistance(
