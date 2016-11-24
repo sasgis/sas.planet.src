@@ -35,9 +35,7 @@ type
   TAvailPicsTerraserver = class(TAvailPicsAbstract)
   public
     function ContentType: String; override;
-
     function ParseResponse(const AResultOk: IDownloadResultOk): Integer; override;
-
     function GetRequest(const AInetConfig: IInetConfig): IDownloadRequest; override;
   end;
 
@@ -61,43 +59,36 @@ begin
   Result := ALIntToStr(i);
 end;
 
-function _ConvertToYYYYMMDD(const AText, ASep: AnsiString): AnsiString;
+function _CutBySep(var AText: AnsiString; const ASep: AnsiString): AnsiString;
 var
   VSepPos: Integer;
-  v_d, v_y, v_m: AnsiString;
 begin
   Result := '';
-  v_y := '';
-  v_m := '';
-  v_d := AText;
-
-  // get m[m]
-  VSepPos := ALPos(ASep, v_d);
-  if VSepPos>0 then begin
-    v_y := System.Copy(v_d, 1, VSepPos - 1);
-    System.Delete(v_d, 1, VSepPos);
-    while Length(v_y)<2 do
-      v_y := '0' + v_y;
-  end;
-
-  // get d[d]
-  VSepPos := ALPos(ASep, v_d);
-  if VSepPos>0 then begin
-    v_m := System.Copy(v_d, 1, VSepPos - 1);
-    System.Delete(v_d, 1, VSepPos);
-    while Length(v_m)<2 do
-      v_m := '0' + v_m;
-  end;
-
-  // check all parts
-  if ALTryStrToInt(v_d, VSepPos) then
-  if ALTryStrToInt(v_y, VSepPos) then
-  if ALTryStrToInt(v_m, VSepPos) then begin
-    // ok
-    Result := v_y + '.' + v_m + '.' + v_d;
+  VSepPos := ALPos(ASep, AText);
+  if VSepPos > 0 then begin
+    Result := System.Copy(AText, 1, VSepPos - 1);
+    System.Delete(AText, 1, VSepPos);
+    while Length(Result) < 2 do begin
+      Result := '0' + Result;
+    end;
   end;
 end;
 
+function _ConvertToYYYYMMDD(const AText, ASep: AnsiString): AnsiString;
+var
+  I: Integer;
+  VYear, VMonth, VDay, VTmp: AnsiString;
+begin
+  VTmp := AText;
+  VYear := _CutBySep(VTmp, ASep);
+  VMonth := _CutBySep(VTmp, ASep);
+  VDay := VTmp;
+  if ALTryStrToInt(VYear, I) and ALTryStrToInt(VMonth, I) and ALTryStrToInt(VDay, I) then begin
+    Result := VYear + '.' + VMonth + '.' + VDay;
+  end else begin
+    Result := '';
+  end;
+end;
 
 { TAvailPicsTerraserver }
 
