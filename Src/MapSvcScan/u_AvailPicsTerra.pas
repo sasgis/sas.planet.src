@@ -64,37 +64,37 @@ end;
 function _ConvertToYYYYMMDD(const AText, ASep: AnsiString): AnsiString;
 var
   VSepPos: Integer;
-  Vyyyy, Vmm, Vdd: AnsiString;
+  v_d, v_y, v_m: AnsiString;
 begin
   Result := '';
-  Vmm := '';
-  Vdd := '';
-  Vyyyy := AText;
+  v_y := '';
+  v_m := '';
+  v_d := AText;
 
   // get m[m]
-  VSepPos := ALPos(ASep, Vyyyy);
+  VSepPos := ALPos(ASep, v_d);
   if VSepPos>0 then begin
-    Vmm := System.Copy(Vyyyy, 1, VSepPos - 1);
-    System.Delete(Vyyyy, 1, VSepPos);
-    while Length(Vmm)<2 do
-      Vmm := '0' + Vmm;
+    v_y := System.Copy(v_d, 1, VSepPos - 1);
+    System.Delete(v_d, 1, VSepPos);
+    while Length(v_y)<2 do
+      v_y := '0' + v_y;
   end;
 
   // get d[d]
-  VSepPos := ALPos(ASep, Vyyyy);
+  VSepPos := ALPos(ASep, v_d);
   if VSepPos>0 then begin
-    Vdd := System.Copy(Vyyyy, 1, VSepPos - 1);
-    System.Delete(Vyyyy, 1, VSepPos);
-    while Length(Vdd)<2 do
-      Vdd := '0' + Vdd;
+    v_m := System.Copy(v_d, 1, VSepPos - 1);
+    System.Delete(v_d, 1, VSepPos);
+    while Length(v_m)<2 do
+      v_m := '0' + v_m;
   end;
 
   // check all parts
-  if ALTryStrToInt(Vyyyy, VSepPos) then
-  if ALTryStrToInt(Vmm, VSepPos) then
-  if ALTryStrToInt(Vdd, VSepPos) then begin
+  if ALTryStrToInt(v_d, VSepPos) then
+  if ALTryStrToInt(v_y, VSepPos) then
+  if ALTryStrToInt(v_m, VSepPos) then begin
     // ok
-    Result := Vyyyy + '.' + Vmm + '.' + Vdd;
+    Result := v_y + '.' + v_m + '.' + v_d;
   end;
 end;
 
@@ -234,7 +234,7 @@ begin
 
     while (VResponse.Count>0) do begin
       S := ALTrim(VResponse[0]);
-      S := GetBetween(S, '"feature_id"', '"}');
+      S := GetBetween(S, '"feature_id"', '}');
       if Length(S)>0 then begin
         if ALPos('<', S) = 0 then begin
           // ':"47f6c122130d37e9e6b5cf17c9fde868","formatted_date":"09-17-2014","product_type":"pan sharpened natural color'
