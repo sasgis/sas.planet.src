@@ -204,10 +204,10 @@ begin
     VYaMob.SetSize(VInitSize);
     FillChar(VYaMob.Memory^, VInitSize, 0);
     VYaMob.Position := 0;
-    VYaMob.Write('YNDX', 4);        // Magic = "YNDX"
-    VYaMob.Write(#01#00, 2);        // Reserved
-    VYaMob.Write(YaHeaderSize, 4);  // HeadSize = 1024 byte
-    VYaMob.Write(#00#00#00, 3);     // "Author"
+    VYaMob.Write(AnsiString('YNDX'), 4);    // Magic = "YNDX"
+    VYaMob.Write(AnsiString(#01#00), 2);    // Reserved
+    VYaMob.Write(YaHeaderSize, 4);          // HeadSize = 1024 byte
+    VYaMob.Write(AnsiString(#00#00#00), 3); // "Author"
     VYaMob.SaveToFile(AFileName);
   finally
     VYaMob.Free;
