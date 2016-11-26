@@ -126,12 +126,12 @@ object frExportYaMobileV3: TfrExportYaMobileV3
           end
           item
             Column = 1
-            Control = pnlMap
+            Control = pnlSat
             Row = 2
           end
           item
             Column = 1
-            Control = pnlSat
+            Control = pnlMap
             Row = 1
           end>
         RowCollection = <
