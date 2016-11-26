@@ -254,7 +254,7 @@ object frExportYaMobileV3: TfrExportYaMobileV3
           BevelOuter = bvNone
           TabOrder = 2
         end
-        object pnlMap: TPanel
+        object pnlSat: TPanel
           Left = 50
           Top = 41
           Width = 219
@@ -263,7 +263,7 @@ object frExportYaMobileV3: TfrExportYaMobileV3
           BevelOuter = bvNone
           TabOrder = 3
         end
-        object pnlSat: TPanel
+        object pnlMap: TPanel
           Left = 50
           Top = 20
           Width = 219
