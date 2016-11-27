@@ -785,6 +785,7 @@ type
     procedure actFavoriteAddExecute(Sender: TObject);
     procedure actFavoriteManageExecute(Sender: TObject);
     procedure actViewNotMinimizedExecute(Sender: TObject);
+    procedure actViewTilesGridExecute(Sender: TObject);
   private
     FactlstProjections: TActionList;
     FactlstLanguages: TActionList;
@@ -917,6 +918,7 @@ type
     procedure CreateMapUIFillingList;
     procedure CreateMapUILayerSubMenu;
     procedure CreateLangMenu;
+    procedure CreateViewTilesGridActions;
 
     procedure CreateProjectionActions;
 
@@ -1690,6 +1692,8 @@ begin
     Application.HelpFile := ExtractFilePath(Application.ExeName) + 'help.hlp';
     InitMouseCursors;
 
+    CreateViewTilesGridActions;
+
     FShortCutManager :=
       TShortcutManager.Create(
         GState.Bitmap32StaticFactory,
@@ -2392,6 +2396,41 @@ begin
   Result.Add(TBLang);
   if not GState.Config.InternalDebugConfig.IsShowDebugInfo then begin
     Result.Add(tbitmShowDebugInfo);
+  end;
+end;
+
+procedure TfrmMain.CreateViewTilesGridActions;
+var
+  I: Integer;
+  VAction: TAction;
+  VCaption: string;
+  VTBXItem: TTBXItem;
+  VName: TComponentName;
+begin
+  for I := 0 to 30 do begin
+    VAction := TAction.Create(Self);
+    if I = 0 then begin
+      VCaption := _('No');
+      VName := 'tbitmTileGridNo'; // do not Localize
+    end else if (I >= 1) and (I <= 24) then begin
+      VCaption := 'z' + IntToStr(I);
+      VName := 'tbxtmTileGrid' + VCaption;
+    end else begin
+      VCaption := '+' + IntToStr(I - 24 - 1);
+      VName := 'tbitmTileGrid' + IntToStr(I - 24 - 1) + 'p';
+    end;
+    VAction.Caption := VCaption;
+    VAction.Category := _('View\GridTile');
+    VAction.Checked := False;
+    VAction.Visible := False;
+    VAction.Enabled := True;
+    VAction.Tag := I + 100;
+    VAction.OnExecute := Self.actViewTilesGridExecute;
+    VAction.ActionList := actlstMain;
+    VTBXItem := TTBXItem.Create(Self);
+    VTBXItem.Name := VName;
+    VTBXItem.Action := VAction;
+    NShowGran.Add(VTBXItem);
   end;
 end;
 
@@ -6769,6 +6808,40 @@ end;
 procedure TfrmMain.actViewFullScreenExecute(Sender: TObject);
 begin
   FWinPosition.ToggleFullScreen;
+end;
+
+procedure TfrmMain.actViewTilesGridExecute(Sender: TObject);
+var
+  VTag: Integer;
+  VCell: TPoint;
+  VZoom: Byte;
+  VRelative: Boolean;
+begin
+  VTag := TComponent(Sender).Tag - 100;
+  if VTag >= 0 then begin
+    VCell.X := VTag div 5;
+    VCell.Y := VTag mod 5;
+    tbtpltViewGridTile.SelectedCell := VCell;
+    FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.LockWrite;
+    try
+      if VTag = 0 then begin
+        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := False;
+      end else begin
+        if VCell.X < 5 then begin
+          VZoom := 5 * VCell.X + VCell.Y - 1;
+          VRelative := False;
+        end else begin
+          VZoom := 5 * (VCell.X - 5) + VCell.Y;
+          VRelative := True;
+        end;
+        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := True;
+        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UseRelativeZoom := VRelative;
+        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Zoom := VZoom;
+      end;
+    finally
+      FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UnlockWrite;
+    end;
+  end;
 end;
 
 procedure TfrmMain.actViewGridGenShtabExecute(Sender: TObject);
