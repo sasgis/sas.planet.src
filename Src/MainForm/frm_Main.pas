@@ -649,6 +649,11 @@ type
       var ACol, ARow: Integer;
       var AllowChange: Boolean
     );
+    procedure tbtpltViewGridTileGetCellVisible(
+      Sender: TTBXCustomToolPalette;
+      ACol, ARow: Integer;
+      var Visible: Boolean
+    );
     procedure NSensorsClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShortCut(
@@ -4230,6 +4235,15 @@ begin
       FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UnlockWrite;
     end;
   end;
+end;
+
+procedure TfrmMain.tbtpltViewGridTileGetCellVisible(
+  Sender: TTBXCustomToolPalette;
+  ACol, ARow: Integer;
+  var Visible: Boolean
+);
+begin
+  Visible := (5 * (ARow - 5) + ACol) <= 5; // hide relative zooms > +5
 end;
 
 procedure TfrmMain.TBEditSelectPolylineRadiusChange(Sender: TObject);

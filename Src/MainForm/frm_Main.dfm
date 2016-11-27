@@ -487,6 +487,7 @@ object frmMain: TfrmMain
             PaletteOptions = []
             RowCount = 7
             OnCellClick = tbtpltViewGridTileCellClick
+            OnGetCellVisible = tbtpltViewGridTileGetCellVisible
             Caption = ''
             Hint = ''
           end
