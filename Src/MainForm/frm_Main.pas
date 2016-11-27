@@ -195,7 +195,7 @@ type
     tbsbmInterface: TTBXSubmenuItem;
     NFillMap: TTBXSubmenuItem;
     TBFillingTypeMap: TTBXSubmenuItem;
-    TBXToolPalette1: TTBXToolPalette;
+    tbtpltCachedTilesMap: TTBXToolPalette;
     NShowGran: TTBXSubmenuItem;
     tbsbmGenShtabScale: TTBXSubmenuItem;
     NGShScale0: TTBXItem;
@@ -612,7 +612,7 @@ type
     );
     procedure TBEditPathOkClick(Sender: TObject);
     procedure NMapInfoClick(Sender: TObject);
-    procedure TBXToolPalette1CellClick(
+    procedure tbtpltCachedTilesMapCellClick(
       Sender: TTBXCustomToolPalette;
       var ACol, ARow: Integer;
       var AllowChange: Boolean
@@ -2721,7 +2721,7 @@ begin
     TBMapZap.Caption := '';
     VSelectedCell := Point(0, 0);
   end;
-  TBXToolPalette1.SelectedCell := VSelectedCell;
+  tbtpltCachedTilesMap.SelectedCell := VSelectedCell;
 
   if (VFillMode = fmUnexisting) then begin
     actViewFillingMapMarkUnexisting.Checked := True;
@@ -4134,7 +4134,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.TBXToolPalette1CellClick(
+procedure TfrmMain.tbtpltCachedTilesMapCellClick(
   Sender: TTBXCustomToolPalette;
   var ACol, ARow: Integer;
   var AllowChange: Boolean

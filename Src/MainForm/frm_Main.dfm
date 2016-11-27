@@ -442,12 +442,12 @@ object frmMain: TfrmMain
             Caption = ''
             Hint = ''
           end
-          object TBXToolPalette1: TTBXToolPalette
+          object tbtpltCachedTilesMap: TTBXToolPalette
             ColCount = 5
             Images = ScalesImageList
             PaletteOptions = []
             RowCount = 7
-            OnCellClick = TBXToolPalette1CellClick
+            OnCellClick = tbtpltCachedTilesMapCellClick
             Caption = ''
             Hint = ''
           end
