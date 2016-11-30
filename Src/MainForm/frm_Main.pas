@@ -953,6 +953,8 @@ type
     procedure WMFriendOrFoeMessage(var Msg: TMessage); message u_CmdLineArgProcessorAPI.WM_FRIEND_OR_FOE;
     procedure WMInternalError(var Msg: TMessage); message WM_INTERNAL_ERROR;
 
+    procedure ProcessViewGridTileCellClick(const ACol, ARow: Integer);
+
     procedure zooming(
       ANewZoom: byte;
       const AFreezePos: TPoint
@@ -4246,11 +4248,8 @@ begin
   zooming(VZoom, VMouseDownPoint);
 end;
 
-procedure TfrmMain.tbtpltViewGridTileCellClick(
-  Sender: TTBXCustomToolPalette;
-  var ACol, ARow: Integer;
-  var AllowChange: Boolean
-);
+{$REGION 'TileBoundaries'}
+procedure TfrmMain.ProcessViewGridTileCellClick(const ACol, ARow: Integer);
 var
   VZoom: Byte;
   VRelative: Boolean;
@@ -4276,6 +4275,29 @@ begin
   end;
 end;
 
+procedure TfrmMain.actViewTilesGridExecute(Sender: TObject);
+var
+  VTag: Integer;
+  VCell: TPoint;
+begin
+  VTag := TComponent(Sender).Tag - 100;
+  if VTag >= 0 then begin
+    VCell.X := VTag mod 5; // col
+    VCell.Y := VTag div 5; // row
+    tbtpltViewGridTile.SelectedCell := VCell;
+    ProcessViewGridTileCellClick(VCell.X, VCell.Y);
+  end;
+end;
+
+procedure TfrmMain.tbtpltViewGridTileCellClick(
+  Sender: TTBXCustomToolPalette;
+  var ACol, ARow: Integer;
+  var AllowChange: Boolean
+);
+begin
+  ProcessViewGridTileCellClick(ACol, ARow);
+end;
+
 procedure TfrmMain.tbtpltViewGridTileGetCellVisible(
   Sender: TTBXCustomToolPalette;
   ACol, ARow: Integer;
@@ -4284,6 +4306,7 @@ procedure TfrmMain.tbtpltViewGridTileGetCellVisible(
 begin
   Visible := (5 * (ARow - 5) + ACol) <= 5; // hide relative zooms > +5
 end;
+{$ENDREGION 'TileBoundaries'}
 
 procedure TfrmMain.TBEditSelectPolylineRadiusChange(Sender: TObject);
 begin
@@ -6808,40 +6831,6 @@ end;
 procedure TfrmMain.actViewFullScreenExecute(Sender: TObject);
 begin
   FWinPosition.ToggleFullScreen;
-end;
-
-procedure TfrmMain.actViewTilesGridExecute(Sender: TObject);
-var
-  VTag: Integer;
-  VCell: TPoint;
-  VZoom: Byte;
-  VRelative: Boolean;
-begin
-  VTag := TComponent(Sender).Tag - 100;
-  if VTag >= 0 then begin
-    VCell.X := VTag div 5;
-    VCell.Y := VTag mod 5;
-    tbtpltViewGridTile.SelectedCell := VCell;
-    FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.LockWrite;
-    try
-      if VTag = 0 then begin
-        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := False;
-      end else begin
-        if VCell.X < 5 then begin
-          VZoom := 5 * VCell.X + VCell.Y - 1;
-          VRelative := False;
-        end else begin
-          VZoom := 5 * (VCell.X - 5) + VCell.Y;
-          VRelative := True;
-        end;
-        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := True;
-        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UseRelativeZoom := VRelative;
-        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Zoom := VZoom;
-      end;
-    finally
-      FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UnlockWrite;
-    end;
-  end;
 end;
 
 procedure TfrmMain.actViewGridGenShtabExecute(Sender: TObject);
