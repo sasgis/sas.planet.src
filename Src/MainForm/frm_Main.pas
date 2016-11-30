@@ -4151,7 +4151,7 @@ begin
   end;
 end;
 
-//карта заполнения в основном окне
+{$REGION 'CachedTilesMap'}
 procedure TfrmMain.DateTimePicker1Change(Sender: TObject);
 begin
   if (DateTimePicker2.DateTime < DateTimePicker1.DateTime) then begin
@@ -4230,8 +4230,7 @@ begin
     Supports(VMark.Geometry, IGeometryLonLatPolygon, FSelectedPolygon);
   end;
 end;
-
-//X-карта заполнения в основном окне
+{$ENDREGION 'CachedTilesMap'}
 
 procedure TfrmMain.tbtpltCenterWithZoomCellClick(
   Sender: TTBXCustomToolPalette;
