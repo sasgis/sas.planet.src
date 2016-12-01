@@ -566,6 +566,7 @@ begin
     if I > 0 then begin
       k :=  PosEx('[END', VStr, I);
       VStr2 := Copy(VStr, I, k - I); // вырежем весь первый блок
+      I := 1;
       while (PosEx('CITY', VStr2, I) > 0) do begin
         J := I;
         I := PosEx('CITY', VStr2, J);
