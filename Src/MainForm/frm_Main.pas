@@ -953,7 +953,7 @@ type
     procedure WMFriendOrFoeMessage(var Msg: TMessage); message u_CmdLineArgProcessorAPI.WM_FRIEND_OR_FOE;
     procedure WMInternalError(var Msg: TMessage); message WM_INTERNAL_ERROR;
 
-    procedure ProcessViewGridTileCellClick(const ACol, ARow: Integer);
+    procedure ProcessViewGridTileCellClick(const ATag: Integer);
 
     procedure zooming(
       ANewZoom: byte;
@@ -4248,44 +4248,40 @@ begin
 end;
 
 {$REGION 'TileBoundaries'}
-procedure TfrmMain.ProcessViewGridTileCellClick(const ACol, ARow: Integer);
+procedure TfrmMain.ProcessViewGridTileCellClick(const ATag: Integer);
 var
   VZoom: Byte;
-  VRelative: Boolean;
+  VIsRelativeZoom: Boolean;
 begin
-  if (ACol = 0) and (ARow = 0) then begin
-    FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := False;
-  end else begin
-    if ARow < 5 then begin
-      VZoom := 5 * ARow + ACol - 1;
-      VRelative := False;
-    end else begin
-      VZoom := 5 * (ARow - 5) + ACol;
-      VRelative := True;
+  case ATag of
+    0: begin
+      FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := False;
     end;
-    FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.LockWrite;
-    try
-      FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := True;
-      FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UseRelativeZoom := VRelative;
-      FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Zoom := VZoom;
-    finally
-      FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UnlockWrite;
+    1..30: begin
+      if ATag <= 24 then begin
+        VZoom := ATag - 1;
+        VIsRelativeZoom := False;
+      end else begin
+        VZoom := ATag - 24 - 1;
+        VIsRelativeZoom := True;
+      end;
+      FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.LockWrite;
+      try
+        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := True;
+        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UseRelativeZoom := VIsRelativeZoom;
+        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Zoom := VZoom;
+      finally
+        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UnlockWrite;
+      end;
     end;
+  else
+    Assert(False, 'Tag out of range [0..30]: ' + IntToStr(ATag));
   end;
 end;
 
 procedure TfrmMain.actViewTilesGridExecute(Sender: TObject);
-var
-  VTag: Integer;
-  VCell: TPoint;
 begin
-  VTag := TComponent(Sender).Tag - 100;
-  if VTag >= 0 then begin
-    VCell.X := VTag mod 5; // col
-    VCell.Y := VTag div 5; // row
-    tbtpltViewGridTile.SelectedCell := VCell;
-    ProcessViewGridTileCellClick(VCell.X, VCell.Y);
-  end;
+  ProcessViewGridTileCellClick(TComponent(Sender).Tag - 100);
 end;
 
 procedure TfrmMain.tbtpltViewGridTileCellClick(
@@ -4294,7 +4290,7 @@ procedure TfrmMain.tbtpltViewGridTileCellClick(
   var AllowChange: Boolean
 );
 begin
-  ProcessViewGridTileCellClick(ACol, ARow);
+  ProcessViewGridTileCellClick(5 * ARow + ACol);
 end;
 
 procedure TfrmMain.tbtpltViewGridTileGetCellVisible(
