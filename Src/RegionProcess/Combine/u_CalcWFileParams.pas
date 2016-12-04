@@ -31,11 +31,6 @@ uses
 
 function GetUnitsByProjectionEPSG(const AEPSG: Integer): TCellSizeUnits;
 
-function CalculatePixelLonLat(
-  const AProjection: IProjection;
-  const APixelPos: TPoint
-): TDoublePoint;
-
 procedure CalculateWFileParams(
   const LL1, LL2: TDoublePoint;
   const AImageWidth, AImageHeight: Integer;
@@ -60,20 +55,6 @@ begin
   end;
 end;
 
-function CalculatePixelLonLat(
-  const AProjection: IProjection;
-  const APixelPos: TPoint
-): TDoublePoint;
-var
-  VTopLeft: TDoublePoint;
-  VBottomRight: TDoublePoint;
-begin
-  VTopLeft := AProjection.PixelPos2LonLat(APixelPos);
-  VBottomRight := AProjection.PixelPos2LonLat(Point(APixelPos.X + 1, APixelPos.Y - 1));
-  Result.X := (VTopLeft.X + VBottomRight.X) / 2;
-  Result.Y := (VTopLeft.Y + VBottomRight.Y) / 2;
-end;
-
 procedure CalculateWFileParams(
   const LL1, LL2: TDoublePoint;
   const AImageWidth, AImageHeight: Integer;
@@ -88,18 +69,16 @@ begin
     CELL_UNITS_METERS: begin
       VM1 := AProjectionType.LonLat2Metr(LL1);
       VM2 := AProjectionType.LonLat2Metr(LL2);
-
-      OriginX := VM1.X;
-      OriginY := VM1.Y;
-
       CellIncrementX := (VM2.X - VM1.X) / AImageWidth;
       CellIncrementY := (VM2.Y - VM1.Y) / AImageHeight;
+      OriginX := VM1.X + Abs(CellIncrementX / 2);
+      OriginY := VM1.Y - Abs(CellIncrementY / 2);
     end;
     CELL_UNITS_DEGREES: begin
-      OriginX := LL1.x;
-      OriginY := LL1.y;
-      CellIncrementX := (LL2.x - LL1.x) / AImageWidth;
+      CellIncrementX := (LL2.X - LL1.X) / AImageWidth;
       CellIncrementY := -CellIncrementX;
+      OriginX := LL1.X + Abs(CellIncrementX / 2);
+      OriginY := LL1.Y - Abs(CellIncrementY / 2);
     end;
   end;
 end;

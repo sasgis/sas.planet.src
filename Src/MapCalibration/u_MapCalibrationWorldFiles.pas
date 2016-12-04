@@ -272,8 +272,8 @@ begin
   VFileStream := TFileStream.Create(VFileName, fmCreate);
   try
     CalculateWFileParams(
-      CalculatePixelLonLat(AProjection, AXY1),
-      CalculatePixelLonLat(AProjection, AXY2),
+      AProjection.PixelPos2LonLat(AXY1),
+      AProjection.PixelPos2LonLat(AXY2),
       AXY2.X - AXY1.X,
       AXY2.Y - AXY1.Y,
       AProjection.ProjectionType,
