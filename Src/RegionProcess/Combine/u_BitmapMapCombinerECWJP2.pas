@@ -187,8 +187,8 @@ begin
     end;
 
     CalculateWFileParams(
-      VProjection.PixelPos2LonLat(VCurrentPieceRect.TopLeft),
-      VProjection.PixelPos2LonLat(VCurrentPieceRect.BottomRight),
+      CalculatePixelLonLat(VProjection, VCurrentPieceRect.TopLeft),
+      CalculatePixelLonLat(VProjection, VCurrentPieceRect.BottomRight),
       VMapPieceSize.X, VMapPieceSize.Y, VProjection.ProjectionType,
       CellIncrementX, CellIncrementY, OriginX, OriginY
     );

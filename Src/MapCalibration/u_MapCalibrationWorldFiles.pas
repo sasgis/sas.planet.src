@@ -44,21 +44,21 @@ type
     );
     procedure SaveWFile(
       const AFileName: string;
-      const xy1, xy2: TPoint;
+      const AXY1, AXY2: TPoint;
       const AProjection: IProjection
     );
     function GetWorldFileExt(const AFileName: string): string;
   private
     { IMapCalibration }
-    function GetName: string; 
-    function GetDescription: string; 
+    function GetName: string;
+    function GetDescription: string;
     function GetStringSupport: TStringTypeSupport;
     procedure SaveCalibrationInfo(
       const AFileName: string;
       const ATopLeft: TPoint;
       const ABottomRight: TPoint;
       const AProjection: IProjection
-    ); 
+    );
   public
     constructor Create(const AUseShortExt: Boolean = False);
   end;
@@ -69,7 +69,6 @@ uses
   Classes,
   SysUtils,
   gnugettext,
-  t_GeoTypes,
   u_CalcWFileParams,
   u_GeoToStrFunc;
 
@@ -226,15 +225,15 @@ procedure TMapCalibrationWorldFiles.SavePrjFile(
   const AProjection: IProjection
 );
 var
-  VprojInfo: UTF8String;
+  VProjInfo: UTF8String;
   VFileName: string;
   VFileStream: TFileStream;
 begin
   VFileName := ChangeFileExt(AFileName, '.prj');
   VFileStream := TFileStream.Create(VFileName, fmCreate);
   try
-    VprojInfo := GetProj(AProjection);
-    VFileStream.WriteBuffer(VprojInfo[1], Length(VprojInfo));
+    VProjInfo := GetProj(AProjection);
+    VFileStream.WriteBuffer(VProjInfo[1], Length(VProjInfo));
   finally
     VFileStream.Free;
   end;
@@ -258,29 +257,40 @@ end;
 
 procedure TMapCalibrationWorldFiles.SaveWFile(
   const AFileName: string;
-  const xy1, xy2: TPoint;
+  const AXY1, AXY2: TPoint;
   const AProjection: IProjection
 );
+const
+  CRLF: AnsiString = #13#10;
 var
-  ll1, ll2: TDoublePoint;
-  CellX, CellY, OrigX, OrigY: Double;
   VText: AnsiString;
   VFileName: string;
   VFileStream: TFileStream;
+  VCellX, VCellY, VOrigX, VOrigY: Double;
 begin
   VFileName := ChangeFileExt(AFileName, GetWorldFileExt(AFileName));
   VFileStream := TFileStream.Create(VFileName, fmCreate);
   try
-    ll1 := AProjection.PixelPos2LonLat(xy1);
-    ll2 := AProjection.PixelPos2LonLat(xy2);
-    CalculateWFileParams(ll1, ll2, xy2.X - xy1.X, xy2.Y - xy1.Y, AProjection.ProjectionType, CellX, CellY, OrigX, OrigY);
-    VText := '';
-    VText := VText + RoundExAnsi(CellX, 16) + #13#10;
-    VText := VText + '0' + #13#10;
-    VText := VText + '0' + #13#10;
-    VText := VText + RoundExAnsi(CellY, 16) + #13#10;
-    VText := VText + RoundExAnsi(OrigX, 16) + #13#10;
-    VText := VText + RoundExAnsi(OrigY, 16) + #13#10;
+    CalculateWFileParams(
+      CalculatePixelLonLat(AProjection, AXY1),
+      CalculatePixelLonLat(AProjection, AXY2),
+      AXY2.X - AXY1.X,
+      AXY2.Y - AXY1.Y,
+      AProjection.ProjectionType,
+      VCellX,
+      VCellY,
+      VOrigX,
+      VOrigY
+    );
+
+    VText :=
+      RoundExAnsi(VCellX, 16) + CRLF + // pixel size in the x-direction in map units/pixel
+      AnsiString('0') + CRLF +         // rotation about y-axis
+      AnsiString('0') + CRLF +         // rotation about x-axis
+      RoundExAnsi(VCellY, 16) + CRLF + // pixel size in the y-direction in map units, almost always negative
+      RoundExAnsi(VOrigX, 16) + CRLF + // x-coordinate of the center (!) of the upper left pixel
+      RoundExAnsi(VOrigY, 16) + CRLF;  // y-coordinate of the center (!) of the upper left pixel
+
     VFileStream.WriteBuffer(VText[1], Length(VText));
   finally
     VFileStream.Free;

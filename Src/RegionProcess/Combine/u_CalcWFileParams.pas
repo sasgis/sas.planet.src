@@ -23,17 +23,25 @@ unit u_CalcWFileParams;
 interface
 
 uses
+  Types,
   t_GeoTypes,
   t_ECW,
+  i_Projection,
   i_ProjectionType;
 
-  function GetUnitsByProjectionEPSG(const AEPSG: Integer): TCellSizeUnits;
-  procedure CalculateWFileParams(
-    const LL1,LL2:TDoublePoint;
-    ImageWidth,ImageHeight:integer;
-    const AProjectionType: IProjectionType;
-    var CellIncrementX,CellIncrementY,OriginX,OriginY:Double
-  );
+function GetUnitsByProjectionEPSG(const AEPSG: Integer): TCellSizeUnits;
+
+function CalculatePixelLonLat(
+  const AProjection: IProjection;
+  const APixelPos: TPoint
+): TDoublePoint;
+
+procedure CalculateWFileParams(
+  const LL1, LL2: TDoublePoint;
+  const AImageWidth, AImageHeight: Integer;
+  const AProjectionType: IProjectionType;
+  var CellIncrementX, CellIncrementY, OriginX, OriginY: Double
+);
 
 implementation
 
@@ -52,9 +60,23 @@ begin
   end;
 end;
 
+function CalculatePixelLonLat(
+  const AProjection: IProjection;
+  const APixelPos: TPoint
+): TDoublePoint;
+var
+  VTopLeft: TDoublePoint;
+  VBottomRight: TDoublePoint;
+begin
+  VTopLeft := AProjection.PixelPos2LonLat(APixelPos);
+  VBottomRight := AProjection.PixelPos2LonLat(Point(APixelPos.X + 1, APixelPos.Y - 1));
+  Result.X := (VTopLeft.X + VBottomRight.X) / 2;
+  Result.Y := (VTopLeft.Y + VBottomRight.Y) / 2;
+end;
+
 procedure CalculateWFileParams(
   const LL1, LL2: TDoublePoint;
-  ImageWidth, ImageHeight: integer;
+  const AImageWidth, AImageHeight: Integer;
   const AProjectionType: IProjectionType;
   var CellIncrementX, CellIncrementY, OriginX, OriginY: Double
 );
@@ -70,14 +92,14 @@ begin
       OriginX := VM1.X;
       OriginY := VM1.Y;
 
-      CellIncrementX := (VM2.X-VM1.X)/ImageWidth;
-      CellIncrementY := (VM2.Y-VM1.Y)/ImageHeight;
+      CellIncrementX := (VM2.X - VM1.X) / AImageWidth;
+      CellIncrementY := (VM2.Y - VM1.Y) / AImageHeight;
     end;
     CELL_UNITS_DEGREES: begin
-      OriginX:=LL1.x;
-      OriginY:=LL1.y;
-      CellIncrementX:=(LL2.x-LL1.x)/ImageWidth;
-      CellIncrementY:=-CellIncrementX;
+      OriginX := LL1.x;
+      OriginY := LL1.y;
+      CellIncrementX := (LL2.x - LL1.x) / AImageWidth;
+      CellIncrementY := -CellIncrementX;
     end;
   end;
 end;
