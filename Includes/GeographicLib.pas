@@ -73,7 +73,6 @@ implementation
 uses
   Windows,
   SyncObjs,
-  Math,
   SysUtils;
 
 var
