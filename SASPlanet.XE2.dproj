@@ -424,7 +424,7 @@
 			<DCCReference Include="Src\GeoCalc\i_DistanceCalculator.pas"/>
 			<DCCReference Include="Src\GeoCalc\i_GeoCalc.pas"/>
 			<DCCReference Include="Src\GeoCalc\i_PolygonAreaCalculator.pas"/>
-			<DCCReference Include="Src\GeoCalc\u_DistanceCalculatorByGeodesicLib.pas"/>
+			<DCCReference Include="Src\GeoCalc\u_DistanceCalculatorByGeographicLib.pas"/>
 			<DCCReference Include="Src\GeoCalc\u_DistanceCalculatorByVincentyAlgorithm.pas"/>
 			<DCCReference Include="Src\GeoCalc\u_GeoCalc.pas"/>
 			<DCCReference Include="Src\GeoCalc\u_PolygonAreaCalculator.pas"/>

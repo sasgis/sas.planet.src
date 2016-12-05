@@ -102,7 +102,7 @@ uses
   i_DoublePointsAggregator,
   u_DoublePointsAggregator,
   u_PolygonAreaCalculator,
-  u_DistanceCalculatorByGeodesicLib,
+  u_DistanceCalculatorByGeographicLib,
   u_DistanceCalculatorByVincentyAlgorithm,
   u_EnumDoublePointsByArray;
 

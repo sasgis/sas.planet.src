@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_DistanceCalculatorByGeodesicLib;
+unit u_DistanceCalculatorByGeographicLib;
 
 interface
 
