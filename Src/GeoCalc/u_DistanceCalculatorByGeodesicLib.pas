@@ -29,7 +29,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TDistanceCalculatorByGeodesicLib = class(TBaseInterfacedObject, IDistanceCalculator)
+  TDistanceCalculatorByGeographicLib = class(TBaseInterfacedObject, IDistanceCalculator)
   private
     VGeod: geod_geodesic;
   private
@@ -59,9 +59,9 @@ uses
   SysUtils,
   Math;
 
-{ TDistanceCalculatorByGeodesicLib }
+{ TDistanceCalculatorByGeographicLib }
 
-constructor TDistanceCalculatorByGeodesicLib.Create(
+constructor TDistanceCalculatorByGeographicLib.Create(
   const ARadiusA: Double;
   const ARadiusB: Double
 );
@@ -72,7 +72,7 @@ begin
   end;
 end;
 
-procedure TDistanceCalculatorByGeodesicLib.ComputeFinishPosition(
+procedure TDistanceCalculatorByGeographicLib.ComputeFinishPosition(
   const ALat1, ALon1: Double;
   const AInitialBearing: Double;
   const ADistance: Double;
@@ -87,7 +87,7 @@ begin
   geod_direct(@VGeod, ALat1, ALon1, AInitialBearing, ADistance, ALat2, ALon2, VAzi2);
 end;
 
-function TDistanceCalculatorByGeodesicLib.ComputeDistance(
+function TDistanceCalculatorByGeographicLib.ComputeDistance(
   const ALat1, ALon1: Double;
   const ALat2, ALon2: Double;
   out AInitialBearing: Double;
