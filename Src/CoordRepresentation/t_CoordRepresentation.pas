@@ -38,6 +38,12 @@ type
     cstSK42GK = 2   // SK42 in Gauss-Kruger projection
   );
 
+  TCoordSysInfoType = (
+    csitDontShow = 0,
+    csitShowExceptWGS84 = 1,
+    csitShowForAll = 2
+  );
+
 implementation
 
 end.

@@ -94,7 +94,8 @@ begin
       DecimalSeparator,
       VConfig.IsLatitudeFirst,
       VConfig.DegrShowFormat,
-      VConfig.CoordSysType
+      VConfig.CoordSysType,
+      VConfig.CoordSysInfoType
     );
 end;
 

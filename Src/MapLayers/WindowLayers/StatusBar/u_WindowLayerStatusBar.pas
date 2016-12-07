@@ -338,6 +338,7 @@ var
   VMousePos: TPoint;
   VVisualCoordConverter: ILocalCoordConverter;
   VValueConverter: IValueToStringConverter;
+  VCoordToStringConverter: ICoordToStringConverter;
   VOffset: TPoint;
   VTileName: string;
   VShortTileName: string;
@@ -376,7 +377,12 @@ begin
 
     if FConfig.ViewLonLatInfo then begin
       VOffset.X := VOffset.X + Layer.Bitmap.TextWidth(VString) + 20;
-      VString := FCoordToStringConverter.GetStatic.LonLatConvert(VLonLat);
+      VCoordToStringConverter := FCoordToStringConverter.GetStatic;
+      VString := VCoordToStringConverter.GetCoordSysInfo(VLonLat);
+      if VString <> '' then begin
+        VString := VString + ' ';
+      end;
+      VString := VString + VCoordToStringConverter.LonLatConvert(VLonLat);
       RenderText(VOffset, VString, VNeedSeparator);
       VNeedSeparator := True;
     end;

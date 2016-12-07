@@ -29,6 +29,10 @@ uses
 type
   ICoordToStringConverter = interface
   ['{0140A97B-47A3-44DE-91D5-9BAA54B34C4C}']
+    function GetCoordSysInfo(
+      const ALonLat: TDoublePoint
+    ): string;
+
     function LonLatConvert(
       const ALonLat: TDoublePoint
     ): string; overload;

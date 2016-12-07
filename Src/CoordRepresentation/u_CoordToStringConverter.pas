@@ -34,6 +34,7 @@ type
     FIsLatitudeFirst: Boolean;
     FDegrShowFormat: TDegrShowFormat;
     FCoordSysType: TCoordSysType;
+    FCoordSysInfoType: TCoordSysInfoType;
     FDecimalseparator: Char;
     FEastMarker: string;
     FWestMarker: string;
@@ -47,6 +48,9 @@ type
     function GetLatitudeMarker(const ADegr: Double): string;
     function GetLongitudeMarker(const ADegr: Double): string;
   private
+    function GetCoordSysInfo(
+      const ALonLat: TDoublePoint
+    ): string;
     function LonLatConvert(
       const ALonLat: TDoublePoint
     ): string; overload;
@@ -62,7 +66,8 @@ type
       const ADecimalseparator: Char;
       const AIsLatitudeFirst: Boolean;
       const ADegrShowFormat: TDegrShowFormat;
-      const ACoordSysType: TCoordSysType
+      const ACoordSysType: TCoordSysType;
+      const ACoordSysInfoType: TCoordSysInfoType
     );
   end;
 
@@ -81,7 +86,8 @@ constructor TCoordToStringConverter.Create(
   const ADecimalseparator: Char;
   const AIsLatitudeFirst: Boolean;
   const ADegrShowFormat: TDegrShowFormat;
-  const ACoordSysType: TCoordSysType
+  const ACoordSysType: TCoordSysType;
+  const ACoordSysInfoType: TCoordSysInfoType
 );
 begin
   inherited Create;
@@ -89,6 +95,7 @@ begin
   FIsLatitudeFirst := AIsLatitudeFirst;
   FDegrShowFormat := ADegrShowFormat;
   FCoordSysType := ACoordSysType;
+  FCoordSysInfoType := ACoordSysInfoType;
   FNorthMarker := 'N';
   FEastMarker := 'E';
   FWestMarker := 'W';
@@ -209,6 +216,30 @@ begin
       end else begin
         Result := '-';
       end;
+    end;
+  end;
+end;
+
+function TCoordToStringConverter.GetCoordSysInfo(
+  const ALonLat: TDoublePoint
+): string;
+begin
+  Result := '';
+  if FCoordSysInfoType <> csitDontShow then begin
+    case FCoordSysType of
+      cstWGS84: begin
+        if FCoordSysInfoType <> csitShowExceptWGS84 then begin
+          Result := 'GEO (WGS84)';
+        end;
+      end;
+      cstSK42: begin
+        Result := 'GEO (S-42)';
+      end;
+      cstSK42GK: begin
+        Result := Format('GK%d (S-42) ', [long_to_gauss_kruger_zone(ALonLat.X)]);
+      end
+    else
+      Assert(False, 'Unknown CoordSysType: ' + IntToStr(Integer(FCoordSysType)));
     end;
   end;
 end;

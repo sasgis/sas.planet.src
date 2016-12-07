@@ -37,6 +37,9 @@ type
 
     function GetCoordSysType: TCoordSysType;
     property CoordSysType: TCoordSysType read GetCoordSysType;
+
+    function GetCoordSysInfoType: TCoordSysInfoType;
+    property CoordSysInfoType: TCoordSysInfoType read GetCoordSysInfoType;
   end;
 
   ICoordRepresentationConfig = interface(IConfigDataElement)
@@ -52,6 +55,10 @@ type
     function GetCoordSysType: TCoordSysType;
     procedure SetCoordSysType(const AValue: TCoordSysType);
     property CoordSysType: TCoordSysType read GetCoordSysType write SetCoordSysType;
+
+    function GetCoordSysInfoType: TCoordSysInfoType;
+    procedure SetCoordSysInfoType(const AValue: TCoordSysInfoType);
+    property CoordSysInfoType: TCoordSysInfoType read GetCoordSysInfoType write SetCoordSysInfoType;
 
     function GetStatic: ICoordRepresentationConfigStatic;
   end;
