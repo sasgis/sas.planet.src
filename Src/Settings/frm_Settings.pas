@@ -233,6 +233,9 @@ type
     lblCoordSysType: TLabel;
     cbbCoordSysType: TComboBox;
     pnlSQLiteCachePath: TPanel;
+    pnlCoordSysInfoType: TPanel;
+    lblCoordSysInfoType: TLabel;
+    cbbCoordSysInfoType: TComboBox;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -628,6 +631,7 @@ begin
     GState.Config.CoordRepresentationConfig.IsLatitudeFirst := ChBoxFirstLat.Checked;
     GState.Config.CoordRepresentationConfig.DegrShowFormat := TDegrShowFormat(CB_llstrType.ItemIndex);
     GState.Config.CoordRepresentationConfig.CoordSysType := TCoordSysType(cbbCoordSysType.ItemIndex);
+    GState.Config.CoordRepresentationConfig.CoordSysInfoType := TCoordSysInfoType(cbbCoordSysInfoType.ItemIndex);
   finally
     GState.Config.CoordRepresentationConfig.UnlockWrite;
   end;
@@ -982,6 +986,7 @@ begin
     ChBoxFirstLat.Checked := GState.Config.CoordRepresentationConfig.IsLatitudeFirst;
     CB_llstrType.ItemIndex := byte(GState.Config.CoordRepresentationConfig.DegrShowFormat);
     cbbCoordSysType.ItemIndex := byte(GState.Config.CoordRepresentationConfig.CoordSysType);
+    cbbCoordSysInfoType.ItemIndex := byte(GState.Config.CoordRepresentationConfig.CoordSysInfoType);
   finally
     GState.Config.CoordRepresentationConfig.UnlockRead;
   end;

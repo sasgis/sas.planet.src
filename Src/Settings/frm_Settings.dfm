@@ -652,7 +652,7 @@ object frmSettings: TfrmSettings
           end
           object pnlLonLatFormat: TPanel
             Left = 3
-            Top = 136
+            Top = 170
             Width = 316
             Height = 34
             Align = alTop
@@ -726,7 +726,7 @@ object frmSettings: TfrmSettings
           end
           object pnlOptions: TPanel
             Left = 3
-            Top = 170
+            Top = 204
             Width = 316
             Height = 91
             Align = alTop
@@ -782,7 +782,7 @@ object frmSettings: TfrmSettings
           end
           object flwpnlTileBorder: TFlowPanel
             Left = 3
-            Top = 261
+            Top = 295
             Width = 316
             Height = 28
             Align = alTop
@@ -812,7 +812,7 @@ object frmSettings: TfrmSettings
           end
           object pnlImageProcess: TPanel
             Left = 3
-            Top = 289
+            Top = 323
             Width = 316
             Height = 125
             Align = alTop
@@ -956,30 +956,64 @@ object frmSettings: TfrmSettings
             object lblCoordSysType: TLabel
               Left = 3
               Top = 3
-              Width = 90
+              Width = 83
               Height = 28
               Align = alLeft
               Alignment = taRightJustify
-              Caption = 'Coordinate system'
+              Caption = 'Coordinates type'
               Layout = tlCenter
-              ExplicitLeft = 8
-              ExplicitHeight = 13
             end
             object cbbCoordSysType: TComboBox
               AlignWithMargins = True
-              Left = 96
+              Left = 89
               Top = 6
-              Width = 214
+              Width = 221
               Height = 21
               Align = alClient
               Style = csDropDownList
               ItemIndex = 0
               TabOrder = 0
-              Text = 'WGS84 (default)'
+              Text = 'Geographic / WGS84'
               Items.Strings = (
-                'WGS84 (default)'
-                'SK42'
-                'SK42 (Gauss-Kruger)')
+                'Geographic / WGS84'
+                'Geographic / S-42 (Pulkovo 1942)'
+                'Gauss Krueger (6 degree zones) / S-42 ')
+            end
+          end
+          object pnlCoordSysInfoType: TPanel
+            Left = 3
+            Top = 136
+            Width = 316
+            Height = 34
+            Align = alTop
+            BevelOuter = bvNone
+            BorderWidth = 3
+            TabOrder = 8
+            object lblCoordSysInfoType: TLabel
+              Left = 3
+              Top = 3
+              Width = 79
+              Height = 28
+              Align = alLeft
+              Alignment = taRightJustify
+              Caption = 'Coordinates info'
+              Layout = tlCenter
+            end
+            object cbbCoordSysInfoType: TComboBox
+              AlignWithMargins = True
+              Left = 85
+              Top = 6
+              Width = 225
+              Height = 21
+              Align = alClient
+              Style = csDropDownList
+              ItemIndex = 1
+              TabOrder = 0
+              Text = 'Don'#39't show for Geographic / WGS84'
+              Items.Strings = (
+                'Don'#39't show for All'
+                'Don'#39't show for Geographic / WGS84'
+                'Show for All')
             end
           end
         end
