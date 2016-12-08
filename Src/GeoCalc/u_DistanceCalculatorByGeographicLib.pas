@@ -31,7 +31,7 @@ uses
 type
   TDistanceCalculatorByGeographicLib = class(TBaseInterfacedObject, IDistanceCalculator)
   private
-    VGeod: geod_geodesic;
+    FGeod: geod_geodesic;
   private
     { IDistanceCalculator }
     procedure ComputeFinishPosition(
@@ -68,7 +68,7 @@ constructor TDistanceCalculatorByGeographicLib.Create(
 begin
   inherited Create;
   if init_geodesic_dll(geodesic_dll, True) then begin
-    geod_init(@VGeod, ARadiusA, ((ARadiusA - ARadiusB) / ARadiusA));
+    geod_init(@FGeod, ARadiusA, ((ARadiusA - ARadiusB) / ARadiusA));
   end;
 end;
 
@@ -84,7 +84,7 @@ begin
   ALat2 := NAN;
   ALon2 := NAN;
   VAzi2 := NAN;
-  geod_direct(@VGeod, ALat1, ALon1, AInitialBearing, ADistance, ALat2, ALon2, VAzi2);
+  geod_direct(@FGeod, ALat1, ALon1, AInitialBearing, ADistance, ALat2, ALon2, VAzi2);
 end;
 
 function TDistanceCalculatorByGeographicLib.ComputeDistance(
@@ -96,7 +96,7 @@ function TDistanceCalculatorByGeographicLib.ComputeDistance(
 const
   DEG2RAD: Double = 0.017453292519943295769236907684886;
 begin
-  geod_inverse(@VGeod, ALat1, ALon1, ALat2, ALon2, Result, AInitialBearing, AFinalBearing);
+  geod_inverse(@FGeod, ALat1, ALon1, ALat2, ALon2, Result, AInitialBearing, AFinalBearing);
 
   if AInitialBearing < 0 then begin
     AInitialBearing := 2 * Pi / DEG2RAD + AInitialBearing;
