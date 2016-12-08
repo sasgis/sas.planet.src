@@ -1287,7 +1287,7 @@ begin
   (*    2. BottomRight : Ceil(AX + z) and Ceil(AY + z)        *)
   (*    3. Closest     : Round(AX) and Round(AY)              *)
   (*                                                          *)
-  (*    z - is a coeff = 0.005                                *)
+  (*    z - is a coeff <= 0.001                                *)
   (************************************************************)
 end;
 
