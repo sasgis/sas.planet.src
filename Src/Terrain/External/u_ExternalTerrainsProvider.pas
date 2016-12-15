@@ -50,6 +50,7 @@ type
     FVoidValue: Integer;
     FByteOrder: Integer;
     FPrefix, FSuffix: String;
+    FLonDigitsWidth, FLatDigitsWidth : Integer;
   private
     procedure InternalClose;
   private
@@ -149,6 +150,9 @@ begin
 
   FPrefix := Trim(AOptions.ReadString('Prefix', ''));
   FSuffix := Trim(AOptions.ReadString('Suffix', ''));
+
+  FLatDigitsWidth := AOptions.ReadInteger('LatDigitsWidth', 2);
+  FLonDigitsWidth := AOptions.ReadInteger('LonDigitsWidth', 3);
 end;
 
 destructor TTerrainProviderByExternal.Destroy;
@@ -220,7 +224,7 @@ begin
     VIndexInSamples := Round((ALonLat.X - VFilePoint.X) * (FSamplesCount - 1));
 
     // make filename
-    VFilenameForPoint := FBaseFolder + FPrefix + GetFilenamePart(VFilePoint.Y, 'N', 'S', 2) + GetFilenamePart(VFilePoint.X, 'E', 'W', 3) + FSuffix;
+    VFilenameForPoint := FBaseFolder + FPrefix + GetFilenamePart(VFilePoint.Y, 'N', 'S', FLatDigitsWidth) + GetFilenamePart(VFilePoint.X, 'E', 'W', FLonDigitsWidth) + FSuffix;
 
     // if file not opened or opened another file - open this
     if (FFileName <> VFilenameForPoint) or (0 = FFileHandle) then begin
