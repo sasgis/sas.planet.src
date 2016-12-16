@@ -110,14 +110,20 @@ object frmRegionProcess: TfrmRegionProcess
       OnClick = Button3Click
     end
     object TBXOperationsToolbar: TTBXToolbar
-      Left = 329
+      Left = 304
       Top = 6
-      Width = 75
+      Width = 100
       Height = 24
       Align = alCustom
       Images = frmMain.MenusImageList
       ShrinkMode = tbsmWrap
       TabOrder = 2
+      object tbtmCopyBbox: TTBItem
+        ImageIndex = 28
+        OnClick = tbtmCopyBboxClick
+        Caption = ''
+        Hint = 'Copy BBOX coordinates'
+      end
       object tbtmSave: TTBItem
         ImageIndex = 17
         OnClick = tbtmSaveClick

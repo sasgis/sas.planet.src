@@ -106,6 +106,7 @@ type
     tbtmMark: TTBItem;
     tbtmZoom: TTBItem;
     tbtmSave: TTBItem;
+    tbtmCopyBbox: TTBItem;
     TBXDontClose: TTBXToolbar;
     tbtmDontClose: TTBItem;
     procedure Button1Click(Sender: TObject);
@@ -114,6 +115,7 @@ type
     procedure tbtmSaveClick(Sender: TObject);
     procedure tbtmZoomClick(Sender: TObject);
     procedure tbtmMarkClick(Sender: TObject);
+    procedure tbtmCopyBboxClick(Sender: TObject);
   private
     FfrExport: TfrExport;
     FfrCombine: TfrCombine;
@@ -213,6 +215,8 @@ uses
   u_ConfigDataProviderByIniFile,
   u_ConfigDataWriteProviderByIniFile,
   u_ConfigProviderHelpers,
+  u_ClipboardFunc,
+  u_GeoToStrFunc,
   u_RegionProcessProgressInfoInternalFactory,
   u_ProviderTilesGenPrev,
   u_ProviderTilesCopy,
@@ -602,6 +606,18 @@ begin
   end else begin
     ShowMessageFmt(_('Can''t open file: %s'), [AFileName]);
   end;
+end;
+
+procedure TfrmRegionProcess.tbtmCopyBboxClick(Sender: TObject);
+VAR
+  VStr: string;
+begin
+  VStr := '*[bbox=' +
+   (RoundEx(FLastSelectionInfo.Polygon.Bounds.Left,6)) + ',' +
+   (RoundEx(FLastSelectionInfo.Polygon.Bounds.Bottom,6)) + ',' +
+   (RoundEx(FLastSelectionInfo.Polygon.Bounds.Right,6)) + ',' +
+   (RoundEx(FLastSelectionInfo.Polygon.Bounds.Top,6)) + ']';
+  CopyStringToClipboard(Handle, VStr);
 end;
 
 end.
