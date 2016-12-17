@@ -159,7 +159,11 @@ begin
     VMenuItem := Menu.Items[i];
     if not (VMenuItem is TTBSeparatorItem) then begin
       if (FIgnoredItems = nil) or (FIgnoredItems.IndexOf(VMenuItem) < 0) then begin
-        if Assigned(VMenuItem.Action) or Assigned(VMenuItem.OnClick) then begin
+        if
+          Assigned(VMenuItem.Action) or
+          Assigned(VMenuItem.OnClick) or
+          (VMenuItem.ClassName = 'TTBXVisibilityToggleItem')
+        then begin
           VShortCutInfo := TShortCutSingleConfig.Create(ABitmapFactory, VMenuItem);
           FItemsList.Add(VShortCutInfo);
         end;
