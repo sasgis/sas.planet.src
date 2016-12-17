@@ -791,6 +791,7 @@ type
     FactlstGeoCoders: TActionList;
     FactlstProjections: TActionList;
     FactlstLanguages: TActionList;
+    FactlstTileGrids: TActionList;
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
     FMainMapState: IMainMapsState;
@@ -922,6 +923,7 @@ type
     procedure CreateMapUILayerSubMenu;
     procedure CreateLangMenu;
     procedure CreateViewTilesGridActions;
+    procedure CreateViewTilesGridMenu;
 
     procedure CreateProjectionActions;
 
@@ -1697,6 +1699,7 @@ begin
     InitMouseCursors;
 
     CreateViewTilesGridActions;
+    CreateViewTilesGridMenu;
 
     FShortCutManager :=
       TShortcutManager.Create(
@@ -2117,6 +2120,9 @@ procedure SubMenuByActionList(AParent: TTBCustomItem; AActionList: TActionList);
   begin
     VMenuItem := TTBXItem.Create(AParent);
     VMenuItem.Action := AAction;
+    if AAction.Name <> '' then begin
+      VMenuItem.Name := 'tbitm' + AAction.Name;
+    end;
     AParent.Add(VMenuItem);
   end;
 var
@@ -2244,15 +2250,8 @@ begin
 end;
 
 procedure TfrmMain.CreateLangMenu;
-var
-  i: Integer;
-  VMenuItem: TTBXItem;
 begin
-  for i := 0 to FactlstLanguages.ActionCount - 1 do begin
-    VMenuItem := TTBXItem.Create(TBLang);
-    VMenuItem.Action := FactlstLanguages.Actions[i];
-    TBLang.Add(VMenuItem);
-  end;
+  SubMenuByActionList(TBLang, FactlstLanguages);
 end;
 
 procedure TfrmMain.CreateMapUIFillingList;
@@ -2426,34 +2425,35 @@ var
   I: Integer;
   VAction: TAction;
   VCaption: string;
-  VTBXItem: TTBXItem;
   VName: TComponentName;
 begin
+  FactlstTileGrids := TActionList.Create(Self);
   for I := 0 to 30 do begin
     VAction := TAction.Create(Self);
     if I = 0 then begin
       VCaption := _('No');
-      VName := 'tbitmTileGridNo'; // do not Localize
+      VName := 'TileGridNo'; // do not Localize
     end else if (I >= 1) and (I <= 24) then begin
       VCaption := 'z' + IntToStr(I);
-      VName := 'tbxtmTileGrid' + VCaption;
+      VName := 'TileGrid' + VCaption;
     end else begin
       VCaption := '+' + IntToStr(I - 24 - 1);
-      VName := 'tbitmTileGrid' + IntToStr(I - 24 - 1) + 'p';
+      VName := 'TileGrid' + IntToStr(I - 24 - 1) + 'p';
     end;
     VAction.Caption := VCaption;
-    VAction.Category := _('View\GridTile');
     VAction.Checked := False;
     VAction.Visible := False;
     VAction.Enabled := True;
     VAction.Tag := I + 100;
+    VAction.Name := VName;
     VAction.OnExecute := Self.actViewTilesGridExecute;
-    VAction.ActionList := actlstMain;
-    VTBXItem := TTBXItem.Create(Self);
-    VTBXItem.Name := VName;
-    VTBXItem.Action := VAction;
-    NShowGran.Add(VTBXItem);
+    VAction.ActionList := FactlstTileGrids;
   end;
+end;
+
+procedure TfrmMain.CreateViewTilesGridMenu;
+begin
+  SubMenuByActionList(NShowGran, FactlstTileGrids);
 end;
 
 procedure TfrmMain.FormClose(
