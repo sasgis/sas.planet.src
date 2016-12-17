@@ -786,7 +786,9 @@ type
     procedure actFavoriteManageExecute(Sender: TObject);
     procedure actViewNotMinimizedExecute(Sender: TObject);
     procedure actViewTilesGridExecute(Sender: TObject);
+    procedure actGeoCoderSetMain(Sender: TObject);
   private
+    FactlstGeoCoders: TActionList;
     FactlstProjections: TActionList;
     FactlstLanguages: TActionList;
     FLinksList: IListenerNotifierLinksList;
@@ -904,6 +906,7 @@ type
     FfrmFavoriteMapSetEditor: TfrmFavoriteMapSetEditor;
     FfrmFavoriteMapSetManager: TfrmFavoriteMapSetManager;
 
+    procedure InitSearchersActions;
     procedure InitSearchers;
     procedure InitMergepolygons;
     procedure InitLayers;
@@ -995,7 +998,6 @@ type
       var NewText: String;
       var Accept: Boolean
     );
-    procedure TBXSelectSrchClick(Sender: TObject);
     procedure SaveConfig(Sender: TObject);
     function ConvLatLon2Scale(const Astr: string): Double;
     function Deg2StrValue(const aDeg: Double): string;
@@ -1892,6 +1894,7 @@ begin
       FPathProvidersTree.ChangeNotifier
     );
 
+    InitSearchersActions;
     InitSearchers;
     InitMergePolygons;
     CreateLangMenu;
@@ -1913,7 +1916,7 @@ begin
        FSearchPresenter
     );
     FfrmGoTo.PopupParent := Self;
-    
+
     FfrmSettings :=
       TfrmSettings.Create(
         GState.Config.LanguageManager,
@@ -2106,10 +2109,49 @@ begin
   Screen.Cursors[4] := LoadCursor(HInstance, 'SELPOINT');
 end;
 
+
+procedure SubMenuByActionList(AParent: TTBXCustomItem; AActionList: TActionList);
+  procedure _AddItem(const AAction: TContainedAction);
+  var
+    VMenuItem: TTBXItem;
+  begin
+    VMenuItem := TTBXItem.Create(AParent);
+    VMenuItem.Action := AAction;
+    AParent.Add(VMenuItem);
+  end;
+var
+  I: Integer;
+begin
+  for I := 0 to AActionList.ActionCount - 1 do begin
+    _AddItem(AActionList.Actions[i]);
+  end;
+end;
+
+procedure TfrmMain.InitSearchersActions;
+var
+  VItem: IGeoCoderListEntity;
+  i: Integer;
+  procedure _AddItem(const ACaption: string; const ATag: Integer);
+  var
+    VAction: TAction;
+  begin
+    VAction := TAction.Create(Self);
+    VAction.Caption := ACaption;
+    VAction.Tag := ATag;
+    VAction.OnExecute := Self.actGeoCoderSetMain;
+    VAction.ActionList := FactlstGeoCoders;
+  end;
+begin
+  FactlstGeoCoders := TActionList.Create(Self);
+  for i := 0 to GState.GeoCoderList.Count - 1 do begin
+    VItem := GState.GeoCoderList.Items[i];
+    _AddItem(VItem.Caption, Integer(VItem));
+  end;
+end;
+
 procedure TfrmMain.InitSearchers;
 var
   VItem: IGeoCoderListEntity;
-  VTBXItem: TTBXItem;
   VTBEditItem: TTBEditItem;
   i: Integer;
 begin
@@ -2126,15 +2168,6 @@ begin
   for i := 0 to GState.GeoCoderList.Count - 1 do begin
     VItem := GState.GeoCoderList.Items[i];
 
-    VTBXItem := TTBXItem.Create(Self);
-    VTBXItem.GroupIndex := 1;
-    VTBXItem.RadioItem := True;
-    VTBXItem.Tag := Integer(VItem);
-    VTBXItem.OnClick := Self.TBXSelectSrchClick;
-    VTBXItem.Caption := VItem.GetCaption;
-    VTBXItem.Hint := '';
-    TBXSelectSrchType.Add(VTBXItem);
-
     VTBEditItem := TTBEditItem.Create(Self);
     VTBEditItem.EditCaption := VItem.GetCaption;
     VTBEditItem.Caption := VItem.GetCaption;
@@ -2144,6 +2177,7 @@ begin
     VTBEditItem.OnAcceptText := Self.tbiEditSrchAcceptText;
     TBGoTo.Add(VTBEditItem);
   end;
+  SubMenuByActionList(TBXSelectSrchType, FactlstGeoCoders);
 end;
 
 procedure TfrmMain.InitUrlProviders;
@@ -2925,7 +2959,7 @@ procedure TfrmMain.OnMainFormMainConfigChange;
 var
   VGUID: TGUID;
   i: Integer;
-  VToolbarItem: TTBCustomItem;
+  VAction: TCustomAction;
   VItem: IGeoCoderListEntity;
 begin
   actConfigUsePrevForMap.Checked := FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig.UsePrevZoomAtMap;
@@ -2949,13 +2983,15 @@ begin
   end;
 
   VGUID := FConfig.MainGeoCoderConfig.ActiveGeoCoderGUID;
-  for i := 0 to TBXSelectSrchType.Count - 1 do begin
-    VToolbarItem := TBXSelectSrchType.Items[i];
-    VItem := IGeoCoderListEntity(VToolbarItem.Tag);
+  for i := 0 to FactlstGeoCoders.ActionCount - 1 do begin
+    VAction := TCustomAction(FactlstGeoCoders.Actions[i]);
+    VItem := IGeoCoderListEntity(VAction.Tag);
     if VItem <> nil then begin
       if IsEqualGUID(VGUID, VItem.GetGUID) then begin
-        VToolbarItem.Checked := True;
-        TBXSelectSrchType.Caption := VToolbarItem.Caption;
+        VAction.Checked := True;
+        TBXSelectSrchType.Caption := VAction.Caption;
+      end else begin
+        VAction.Checked := False;
       end;
     end;
   end;
@@ -5687,18 +5723,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.TBXSelectSrchClick(Sender: TObject);
-var
-  VItem: IGeoCoderListEntity;
-begin
-  if Assigned(Sender) then begin
-    VItem := IGeoCoderListEntity(TComponent(Sender).tag);
-    if VItem <> nil then begin
-      FConfig.MainGeoCoderConfig.ActiveGeoCoderGUID := VItem.GetGUID;
-    end;
-  end;
-end;
-
 procedure TfrmMain.MakeRosreestrPolygon(const APoint: TPoint);
 var
   VLocalConverter: ILocalCoordConverter;
@@ -6461,6 +6485,18 @@ begin
   VList := FMarkDBGUI.ImportFileDialog(Self.Handle);
   if Assigned(VList) then begin
     ProcessOpenFiles(VList);
+  end;
+end;
+
+procedure TfrmMain.actGeoCoderSetMain(Sender: TObject);
+var
+  VItem: IGeoCoderListEntity;
+begin
+  if Assigned(Sender) then begin
+    VItem := IGeoCoderListEntity(TComponent(Sender).tag);
+    if VItem <> nil then begin
+      FConfig.MainGeoCoderConfig.ActiveGeoCoderGUID := VItem.GetGUID;
+    end;
   end;
 end;
 
