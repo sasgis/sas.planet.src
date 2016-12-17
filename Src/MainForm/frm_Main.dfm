@@ -3923,6 +3923,11 @@ object frmMain: TfrmMain
       ShortCut = 32844
       OnExecute = actConfigScaleLineVisibleExecute
     end
+    object actConfigScaleLineExtended: TAction
+      Category = 'Config'
+      Caption = 'Show Vertical Scale Legend'
+      OnExecute = actConfigScaleLineExtendedExecute
+    end
     object actViewToolbarsLock: TAction
       Category = 'View'
       Caption = 'Lock Toolbars'
@@ -4154,6 +4159,32 @@ object frmMain: TfrmMain
       Caption = 'Previous version'
       OnExecute = actViewSelectPrevMapVersionExecute
     end
+    object actConfigScaleLineOptionsShow: TAction
+      Category = 'Config'
+      Caption = 'Options'
+      ImageIndex = 20
+      OnExecute = actConfigScaleLineOptionsShowExecute
+    end
+    object actConfigScaleLineNumberFormatNice: TAction
+      Category = 'Config\ScaleLineNumberFormat'
+      Caption = 'Nice'
+      GroupIndex = 5
+      OnExecute = actConfigScaleLineNumberFormatExecute
+    end
+    object actConfigScaleLineNumberFormatRound: TAction
+      Tag = 1
+      Category = 'Config\ScaleLineNumberFormat'
+      Caption = 'Round'
+      GroupIndex = 5
+      OnExecute = actConfigScaleLineNumberFormatExecute
+    end
+    object actConfigScaleLineNumberFormatScience: TAction
+      Tag = 2
+      Category = 'Config\ScaleLineNumberFormat'
+      Caption = 'Science'
+      GroupIndex = 5
+      OnExecute = actConfigScaleLineNumberFormatExecute
+    end
     object actConfigMarksNamesVisible: TAction
       Category = 'Config'
       Caption = 'Placemark Names'
@@ -4322,6 +4353,32 @@ object frmMain: TfrmMain
       Category = 'View'
       Caption = 'Restore'
       OnExecute = actViewNotMinimizedExecute
+    end
+  end
+  object tbxpmnScaleLine: TTBXPopupMenu
+    Left = 160
+    Top = 312
+    object tbiConfigScaleLineExtended: TTBXItem
+      Action = actConfigScaleLineExtended
+    end
+    object tbxsbmScaleLineNumberFormat: TTBXSubmenuItem
+      Caption = 'Numbers Format'
+      Hint = ''
+      object tbiConfigScaleLineNumberFormatNice: TTBXItem
+        Action = actConfigScaleLineNumberFormatNice
+      end
+      object tbiConfigScaleLineNumberFormatRound: TTBXItem
+        Action = actConfigScaleLineNumberFormatRound
+      end
+      object tbiConfigScaleLineNumberFormatScience: TTBXItem
+        Action = actConfigScaleLineNumberFormatScience
+      end
+    end
+    object tbiConfigScaleLineVisible: TTBXItem
+      Action = actConfigScaleLineVisible
+    end
+    object tbiConfigScaleLineOptionsShow: TTBXItem
+      Action = actConfigScaleLineOptionsShow
     end
   end
 end

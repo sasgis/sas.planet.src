@@ -544,6 +544,19 @@ type
     actFavoriteManage: TAction;
     tbiFavoriteItems: TTBGroupItem;
     actViewNotMinimized: TAction;
+    actConfigScaleLineExtended: TAction;
+    actConfigScaleLineOptionsShow: TAction;
+    actConfigScaleLineNumberFormatNice: TAction;
+    actConfigScaleLineNumberFormatRound: TAction;
+    actConfigScaleLineNumberFormatScience: TAction;
+    tbxpmnScaleLine: TTBXPopupMenu;
+    tbiConfigScaleLineExtended: TTBXItem;
+    tbxsbmScaleLineNumberFormat: TTBXSubmenuItem;
+    tbiConfigScaleLineNumberFormatNice: TTBXItem;
+    tbiConfigScaleLineNumberFormatRound: TTBXItem;
+    tbiConfigScaleLineNumberFormatScience: TTBXItem;
+    tbiConfigScaleLineVisible: TTBXItem;
+    tbiConfigScaleLineOptionsShow: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -787,6 +800,9 @@ type
     procedure actViewNotMinimizedExecute(Sender: TObject);
     procedure actViewTilesGridExecute(Sender: TObject);
     procedure actGeoCoderSetMain(Sender: TObject);
+    procedure actConfigScaleLineExtendedExecute(Sender: TObject);
+    procedure actConfigScaleLineOptionsShowExecute(Sender: TObject);
+    procedure actConfigScaleLineNumberFormatExecute(Sender: TObject);
   private
     FactlstGeoCoders: TActionList;
     FactlstProjections: TActionList;
@@ -1087,6 +1103,7 @@ uses
   i_PopUp,
   i_ProjectionSet,
   i_ProjectionSetList,
+  i_ScaleLineConfig,
   u_FavoriteMapSetHelper,
   u_ImportFromArcGIS,
   u_StickToGrids,
@@ -2029,10 +2046,8 @@ begin
 
   VScaleLinePopupMenu :=
     TLayerScaleLinePopupMenu.Create(
-      GState.Config.LanguageManager,
       map,
-      FConfig.LayersConfig.ScaleLineConfig,
-      Self.tbitmOnInterfaceOptionsClick
+      tbxpmnScaleLine
     );
 
   VMiniMapPopupMenu :=
@@ -2543,6 +2558,18 @@ begin
   end;
   actConfigMiniMapVisible.Checked := FConfig.LayersConfig.MiniMapLayerConfig.LocationConfig.Visible;
   actConfigScaleLineVisible.Checked := FConfig.LayersConfig.ScaleLineConfig.Visible;
+  actConfigScaleLineExtended.Checked := FConfig.LayersConfig.ScaleLineConfig.Extended;
+  case FConfig.LayersConfig.ScaleLineConfig.NumbersFormat of
+    slnfNice: begin
+      actConfigScaleLineNumberFormatNice.Checked := True;
+    end;
+    slnfScienceRound: begin
+      actConfigScaleLineNumberFormatRound.Checked := True;
+    end;
+    slnfScience: begin
+      actConfigScaleLineNumberFormatScience.Checked := True;
+    end;
+  end;
   actConfigPreviousSelectionVisible.Checked := FConfig.LayersConfig.LastSelectionLayerConfig.Visible;
   actConfigAzimuthCircle.Checked := FConfig.LayersConfig.CenterScaleConfig.Visible;
 
@@ -6405,6 +6432,34 @@ begin
     end;
     FConfig.ViewProjectionConfig.EPSG := VEpsg;
   end;
+end;
+
+procedure TfrmMain.actConfigScaleLineExtendedExecute(Sender: TObject);
+begin
+  FConfig.LayersConfig.ScaleLineConfig.Extended :=
+    not FConfig.LayersConfig.ScaleLineConfig.Extended;
+end;
+
+procedure TfrmMain.actConfigScaleLineNumberFormatExecute(Sender: TObject);
+begin
+  if Assigned(Sender) then begin
+    case TComponent(Sender).Tag of
+      0: begin
+        FConfig.LayersConfig.ScaleLineConfig.NumbersFormat := slnfNice;
+      end;
+      1: begin
+        FConfig.LayersConfig.ScaleLineConfig.NumbersFormat := slnfScienceRound;
+      end;
+      2: begin
+        FConfig.LayersConfig.ScaleLineConfig.NumbersFormat := slnfScience;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmMain.actConfigScaleLineOptionsShowExecute(Sender: TObject);
+begin
+  FfrmMapLayersOptions.ShowScaleLineOptions;
 end;
 
 procedure TfrmMain.actConfigScaleLineVisibleExecute(Sender: TObject);
