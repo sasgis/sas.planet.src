@@ -2110,7 +2110,7 @@ begin
 end;
 
 
-procedure SubMenuByActionList(AParent: TTBXCustomItem; AActionList: TActionList);
+procedure SubMenuByActionList(AParent: TTBCustomItem; AActionList: TActionList);
   procedure _AddItem(const AAction: TContainedAction);
   var
     VMenuItem: TTBXItem;
@@ -2238,22 +2238,8 @@ begin
 end;
 
 procedure TfrmMain.CreateProjectionMenu;
-
-  procedure _AddItem(const AAction: TContainedAction);
-  var
-    VMenuItem: TTBXItem;
-  begin
-    VMenuItem := TTBXItem.Create(tbiProjections);
-    VMenuItem.Action := AAction;
-    tbiProjections.Add(VMenuItem);
-  end;
-
-var
-  I: Integer;
 begin
-  for I := 0 to FactlstProjections.ActionCount - 1 do begin
-    _AddItem(FactlstProjections.Actions[i]);
-  end;
+  SubMenuByActionList(tbiProjections, FactlstProjections);
   OnViewProjectionConfigChange;
 end;
 
