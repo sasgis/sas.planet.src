@@ -84,7 +84,7 @@ begin
     VUnconpressSize := PInteger(VPtr)^;
     Inc(VPtr, 4);
     ZDecompress(VPtr, (AInSize - 8), AOutData, AOutSize, VUnconpressSize);
-    Result := True;
+    Result := (AOutData <> nil) and (AOutSize > 0);
   end else begin
     // error
   end;
