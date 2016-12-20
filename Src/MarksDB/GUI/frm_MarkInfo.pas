@@ -45,13 +45,14 @@ uses
 type
   TfrmMarkInfo = class(TFormWitghLanguageManager)
     mmoInfo: TMemo;
-    embdwbDesc: TEmbeddedWB;
     splDesc: TSplitter;
+    pnlDesc: TPanel;
     procedure FormClose(
       Sender: TObject;
       var Action: TCloseAction
     );
   private
+    FEmbeddedWB: TEmbeddedWB;
     FCancelNotifier: INotifierOperationInternal;
     FCoordToStringConverter: ICoordToStringConverterChangeable;
     FValueToStringConverter: IValueToStringConverterChangeable;
@@ -173,6 +174,20 @@ begin
     TNotifierOperation.Create(
       TNotifierBase.Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifier'))
     );
+
+  FEmbeddedWB := TEmbeddedWB.Create(Self);
+  FEmbeddedWB.Name := 'MarkInfoEmbeddedWB';
+  FEmbeddedWB.Parent := pnlDesc;
+  FEmbeddedWB.Left := 0;
+  FEmbeddedWB.Top := 0;
+  FEmbeddedWB.Align := alClient;
+  FEmbeddedWB.Silent := False;
+  FEmbeddedWB.DisableCtrlShortcuts := 'N';
+  FEmbeddedWB.UserInterfaceOptions := [EnablesFormsAutoComplete, EnableThemes];
+  FEmbeddedWB.About := '';
+  FEmbeddedWB.PrintOptions.HTMLHeader.Clear;
+  FEmbeddedWB.PrintOptions.HTMLHeader.Add('<HTML></HTML>');
+  FEmbeddedWB.PrintOptions.Orientation := poPortrait;
 end;
 
 procedure TfrmMarkInfo.FormClose(
@@ -364,9 +379,9 @@ begin
   VText := GetTextForMark(AMark);
   mmoInfo.Lines.Text := VText;
   if (AMark.GetInfoUrl <> '') and (AMark.Desc <> '') then begin
-    embdwbDesc.NavigateWait(AMark.GetInfoUrl + CVectorItemInfoSuffix);
+    FEmbeddedWB.NavigateWait(AMark.GetInfoUrl + CVectorItemInfoSuffix);
   end else begin
-    embdwbDesc.AssignEmptyDocument;
+    FEmbeddedWB.AssignEmptyDocument;
   end;
   Self.ShowModal;
   FMark := nil;

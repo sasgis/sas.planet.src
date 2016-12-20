@@ -44,43 +44,40 @@ uses
 
 type
   TfrmIntrnalBrowser = class(TFormWitghLanguageManager)
-    EmbeddedWB1: TEmbeddedWB;
     imgViewImage: TImgView32;
-    procedure FormDestroy(Sender: TObject);
-    procedure EmbeddedWB1Authenticate(
+    procedure OnEmbeddedWBAuthenticate(
       Sender: TCustomEmbeddedWB;
       var hwnd: HWND;
       var szUserName, szPassWord: WideString;
       var Rezult: HRESULT
     );
-    procedure FormClose(
-      Sender: TObject;
-      var Action: TCloseAction
-    );
-    procedure EmbeddedWB1KeyDown(
+    procedure OnEmbeddedWBKeyDown(
       Sender: TObject;
       var Key: Word;
       ScanCode: Word;
       Shift: TShiftState
     );
-    procedure FormCreate(Sender: TObject);
-    procedure EmbeddedWB1BeforeNavigate2(
+    procedure OnEmbeddedWBBeforeNavigate2(
       ASender: TObject;
       const pDisp: IDispatch;
       var URL, Flags, TargetFrameName, PostData,
       Headers: OleVariant;
       var Cancel: WordBool
     );
-    procedure EmbeddedWB1TitleChange(
+    procedure OnEmbeddedWBTitleChange(
       ASender: TObject;
       const Text: WideString
     );
+    procedure imgViewImageClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormHide(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure imgViewImageClick(Sender: TObject);
     Procedure FormMove(Var Msg: TWMMove); Message WM_MOVE;
   private
+    FEmbeddedWB: TEmbeddedWB;
     FCurrentCaption: string;
     FProxyConfig: IProxyConfig;
     FConfig: IWindowPositionConfig;
@@ -128,6 +125,24 @@ begin
   FProxyConfig := AProxyConfig;
 
   FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
+
+  FEmbeddedWB := TEmbeddedWB.Create(Self);
+  FEmbeddedWB.Name := 'IntrnalBrowserEmbeddedWB';
+  FEmbeddedWB.Parent := Self;
+  FEmbeddedWB.Left := 0;
+  FEmbeddedWB.Top := 0;
+  FEmbeddedWB.Align := alClient;
+  FEmbeddedWB.Silent := False;
+  FEmbeddedWB.OnTitleChange := OnEmbeddedWBTitleChange;
+  FEmbeddedWB.OnBeforeNavigate2 := OnEmbeddedWBBeforeNavigate2;
+  FEmbeddedWB.DisableCtrlShortcuts := 'N';
+  FEmbeddedWB.UserInterfaceOptions := [EnablesFormsAutoComplete, EnableThemes];
+  FEmbeddedWB.OnAuthenticate := OnEmbeddedWBAuthenticate;
+  FEmbeddedWB.About := '';
+  FEmbeddedWB.PrintOptions.HTMLHeader.Clear;
+  FEmbeddedWB.PrintOptions.HTMLHeader.Add('<HTML></HTML>');
+  FEmbeddedWB.PrintOptions.Orientation := poPortrait;
+  FEmbeddedWB.OnKeyDown := OnEmbeddedWBKeyDown;
 end;
 
 procedure TfrmIntrnalBrowser.FormDestroy(Sender: TObject);
@@ -140,7 +155,7 @@ begin
   end;
 end;
 
-procedure TfrmIntrnalBrowser.EmbeddedWB1Authenticate(
+procedure TfrmIntrnalBrowser.OnEmbeddedWBAuthenticate(
   Sender: TCustomEmbeddedWB;
   var hwnd: HWND;
   var szUserName, szPassWord: WideString;
@@ -158,7 +173,7 @@ begin
   end;
 end;
 
-procedure TfrmIntrnalBrowser.EmbeddedWB1BeforeNavigate2(
+procedure TfrmIntrnalBrowser.OnEmbeddedWBBeforeNavigate2(
   ASender: TObject;
   const pDisp: IDispatch;
   var URL, Flags, TargetFrameName, PostData,
@@ -197,7 +212,7 @@ procedure TfrmIntrnalBrowser.FormClose(
   var Action: TCloseAction
 );
 begin
-  EmbeddedWB1.Stop;
+  FEmbeddedWB.Stop;
 end;
 
 procedure TfrmIntrnalBrowser.FormCreate(Sender: TObject);
@@ -206,7 +221,7 @@ begin
     FConfig.SetWindowPosition(Self.BoundsRect);
   end;
 
-  EmbeddedWB1.Navigate('about:blank');
+  FEmbeddedWB.Navigate('about:blank');
 end;
 
 procedure TfrmIntrnalBrowser.imgViewImageClick(Sender: TObject);
@@ -216,11 +231,11 @@ end;
 
 procedure TfrmIntrnalBrowser.Navigate(const ACaption, AUrl: string);
 begin
-  EmbeddedWB1.HTMLCode.Text := SAS_STR_WiteLoad;
+  FEmbeddedWB.HTMLCode.Text := SAS_STR_WiteLoad;
   SetGoodCaption(ACaption);
   ResetImageView(FALSE);
   show;
-  EmbeddedWB1.Navigate(AUrl);
+  FEmbeddedWB.Navigate(AUrl);
 end;
 
 procedure TfrmIntrnalBrowser.NavigateByRequest(
@@ -234,7 +249,7 @@ var
   VPostRequest: IDownloadPostRequest;
   VSafeArray: PVarArray;
 begin
-  EmbeddedWB1.HTMLCode.Text := SAS_STR_WiteLoad;
+  FEmbeddedWB.HTMLCode.Text := SAS_STR_WiteLoad;
   SetGoodCaption(ACaption);
   ResetImageView(FALSE);
   Show;
@@ -248,7 +263,7 @@ begin
   VHeaders := ARequest.RequestHeader;
   VFlags := EmptyParam;
   VTargetFrameName := EmptyParam;
-  EmbeddedWB1.Navigate(ARequest.Url, VFlags, VTargetFrameName, VPostData, VHeaders);
+  FEmbeddedWB.Navigate(ARequest.Url, VFlags, VTargetFrameName, VPostData, VHeaders);
 end;
 
 procedure TfrmIntrnalBrowser.OnConfigChange;
@@ -276,7 +291,7 @@ procedure TfrmIntrnalBrowser.ResetImageView(const AForImage: Boolean);
 begin
   imgViewImage.Bitmap.Clear;
   imgViewImage.Visible := AForImage;
-  EmbeddedWB1.Visible := (not AForImage);
+  FEmbeddedWB.Visible := (not AForImage);
 end;
 
 procedure TfrmIntrnalBrowser.SetGoodCaption(const ACaption: String);
@@ -292,7 +307,7 @@ begin
   Self.Caption := VCaption;
 end;
 
-procedure TfrmIntrnalBrowser.EmbeddedWB1KeyDown(
+procedure TfrmIntrnalBrowser.OnEmbeddedWBKeyDown(
   Sender: TObject;
   var Key: Word;
   ScanCode: Word;
@@ -311,7 +326,7 @@ begin
   end;
 end;
 
-procedure TfrmIntrnalBrowser.EmbeddedWB1TitleChange(
+procedure TfrmIntrnalBrowser.OnEmbeddedWBTitleChange(
   ASender: TObject;
   const Text: WideString
 );

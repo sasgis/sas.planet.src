@@ -38,9 +38,8 @@ uses
 
 type
   TfrmInvisibleBrowser = class(TFormWitghLanguageManager)
-    WebBrowser1: TEmbeddedWB;
     procedure FormCreate(Sender: TObject);
-    procedure WebBrowser1Authenticate(
+    procedure OnEmbeddedWBAuthenticate(
       Sender: TCustomEmbeddedWB;
       var hwnd: HWND;
       var szUserName, szPassWord: WideString;
@@ -49,6 +48,7 @@ type
   private
     FCS: IReadWriteSync;
     FProxyConfig: IProxyConfig;
+    FEmbeddedWB: TEmbeddedWB;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -74,24 +74,46 @@ begin
   inherited Create(ALanguageManager);
   FProxyConfig := AProxyConfig;
   FCS := GSync.SyncBig.Make(Self.ClassName);
+
+  FEmbeddedWB := TEmbeddedWB.Create(Self);
+  FEmbeddedWB.Name := 'InvisibleBrowserEmbeddedWB';
+  FEmbeddedWB.Parent := Self;
+  FEmbeddedWB.Left := 0;
+  FEmbeddedWB.Top := 0;
+  FEmbeddedWB.Align := alClient;
+  FEmbeddedWB.DisableCtrlShortcuts := 'N';
+  FEmbeddedWB.DownloadOptions := [DownloadImages, DownloadVideos];
+  FEmbeddedWB.UserInterfaceOptions := [EnablesFormsAutoComplete, EnableThemes];
+  FEmbeddedWB.OnAuthenticate := OnEmbeddedWBAuthenticate;
+  FEmbeddedWB.About := '';
+  FEmbeddedWB.EnableMessageHandler := False;
+  FEmbeddedWB.DisableErrors.EnableDDE := False;
+  FEmbeddedWB.DisableErrors.fpExceptions := False;
+  FEmbeddedWB.DisableErrors.ScriptErrorsSuppressed := False;
+  FEmbeddedWB.DialogBoxes.ReplaceCaption := False;
+  FEmbeddedWB.DialogBoxes.ReplaceIcon := False;
+  FEmbeddedWB.PrintOptions.HTMLHeader.Clear;
+  FEmbeddedWB.PrintOptions.HTMLHeader.Add('<HTML></HTML>');
+  FEmbeddedWB.PrintOptions.Orientation := poPortrait;
+  FEmbeddedWB.UserAgent := 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)';
 end;
 
 procedure TfrmInvisibleBrowser.FormCreate(Sender: TObject);
 begin
-  WebBrowser1.Navigate('about:blank');
+  FEmbeddedWB.Navigate('about:blank');
 end;
 
 procedure TfrmInvisibleBrowser.NavigateAndWait(const AUrl: string);
 begin
   FCS.BeginWrite;
   try
-    WebBrowser1.NavigateWait(AUrl, 10000);
+    FEmbeddedWB.NavigateWait(AUrl, 10000);
   finally
     FCS.EndWrite;
   end;
 end;
 
-procedure TfrmInvisibleBrowser.WebBrowser1Authenticate(
+procedure TfrmInvisibleBrowser.OnEmbeddedWBAuthenticate(
   Sender: TCustomEmbeddedWB;
   var hwnd: HWND;
   var szUserName,
