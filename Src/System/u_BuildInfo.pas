@@ -155,6 +155,7 @@ begin
   {$IFDEF VER185} Result := 'CodeGear'    + #153 +' Delphi' + #174 + ' 2007'; {$UNDEF UNKNOWNVERFORBUILDINFO}{$ENDIF}
   {$IFDEF VER220} Result := 'Embarcadero' + #153 +' Delphi' + #174 + ' XE';   {$UNDEF UNKNOWNVERFORBUILDINFO}{$ENDIF}
   {$IFDEF VER230} Result := 'Embarcadero' + #153 +' Delphi' + #174 + ' XE2';  {$UNDEF UNKNOWNVERFORBUILDINFO}{$ENDIF}
+  {$IFDEF VER310} Result := 'Embarcadero' + #153 +' Delphi' + #174 + ' 10.1 Berlin';  {$UNDEF UNKNOWNVERFORBUILDINFO}{$ENDIF}
   {$IFDEF UNKNOWNVERFORBUILDINFO}
     ! Define IDE version above !
   {$ENDIF}
