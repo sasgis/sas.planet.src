@@ -91,7 +91,11 @@ begin
   VConfig := FConfig.GetStatic;
   Result :=
     TCoordToStringConverter.Create(
+      {$IF (CompilerVersion >= 24)} // XE3 and UP
+      FormatSettings.DecimalSeparator,
+      {$ELSE}
       DecimalSeparator,
+      {$IFEND}
       VConfig.IsLatitudeFirst,
       VConfig.DegrShowFormat,
       VConfig.CoordSysType,

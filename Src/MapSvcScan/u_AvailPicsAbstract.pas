@@ -91,6 +91,8 @@ type
       const AItemName: string;
       const ADate: string
     ): Boolean;
+  public
+    class function DateSeparator: Char; inline;
   end;
 
   TAvailPicsByKey = class(TAvailPicsAbstract)
@@ -130,8 +132,8 @@ begin
   Result := System.Copy(ADate, 1, 10);
   if (0 < Length(Result)) then
   try
-    Result[5] := DateSeparator;
-    Result[8] := DateSeparator;
+    Result[5] := TAvailPicsAbstract.DateSeparator;
+    Result[8] := TAvailPicsAbstract.DateSeparator;
   except
   end;
 end;
@@ -204,6 +206,15 @@ end;
 procedure TAvailPicsAbstract.SetLocalConverter(const ALocalConverter: ILocalCoordConverter);
 begin
   FLocalConverter := ALocalConverter;
+end;
+
+class function TAvailPicsAbstract.DateSeparator: Char;
+begin
+  {$IF (CompilerVersion >= 24)} // XE3 and UP
+  Result := FormatSettings.DateSeparator;
+  {$ELSE}
+  Result := DateSeparator;
+  {$IFEND}
 end;
 
 end.

@@ -79,7 +79,12 @@ begin
       if VPos > 0 then begin
         VFormatSettings.DecimalSeparator := '.';
       end else begin
-        VFormatSettings.DecimalSeparator := DecimalSeparator;
+        VFormatSettings.DecimalSeparator :=
+          {$IF (CompilerVersion >= 24)} // XE3 and UP
+          FormatSettings.DecimalSeparator;
+          {$ELSE}
+          DecimalSeparator;
+          {$IFEND}
       end;
     end;
     Result := StrToFloatDef(AStrValue, 0, VFormatSettings);

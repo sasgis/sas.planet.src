@@ -95,8 +95,8 @@ function VDateToDate(const AOrigDate: String): String;
 begin
   Result := AOrigDate;
   if (8 <= Length(Result)) then begin
-    System.Insert(DateSeparator, Result, 5);
-    System.Insert(DateSeparator, Result, 8);
+    System.Insert(TAvailPicsAbstract.DateSeparator, Result, 5);
+    System.Insert(TAvailPicsAbstract.DateSeparator, Result, 8);
   end;
 end;
 

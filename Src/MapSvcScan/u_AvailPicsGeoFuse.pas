@@ -207,7 +207,7 @@ const
     VID := AParams.Values['IMAGE_ID'];
     VColl := AParams.Values['COLLECTION_VEHICLE_LONG'];
     VItemExisting := ItemExists(FBaseStorageName + '_' + VColl, VID, @VItemFetched);
-    VDate := System.Copy(VID, 1, 4) + DateSeparator + System.Copy(VID, 5, 2) + DateSeparator + System.Copy(VID, 7, 2);
+    VDate := System.Copy(VID, 1, 4) + Self.DateSeparator + System.Copy(VID, 5, 2) + Self.DateSeparator + System.Copy(VID, 7, 2);
     // add date to params
     AParams.Values['Date'] := VDate;
     Result := FTileInfoPtr.AddImageProc(
