@@ -85,15 +85,15 @@
 {.$DEFINE DEBUG} // track memory leack
 
 
-{$if defined(FPC) or defined(VER170) or defined(VER180) or defined(VER190) or defined(VER200) or defined(VER210)}
+{$if defined(FPC) or (CompilerVersion >= 17)}
   {$DEFINE HAVE_INLINE}
 {$ifend}
 
-{$if defined(VER210) or defined(VER220) or defined(VER230)}
+{$if (CompilerVersion >= 21)}
   {$define HAVE_RTTI}
 {$ifend}
 
-{$if defined(VER230)}
+{$if (CompilerVersion >= 23)}
   {$define NEED_FORMATSETTINGS}
 {$ifend}
 

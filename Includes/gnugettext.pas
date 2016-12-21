@@ -89,6 +89,10 @@ interface
   {$DEFINE DELPHI2012OROLDER}
 {$endif}
 
+{$if (CompilerVersion > 23)}
+  {$DEFINE DELPHI2012OROLDER}
+{$ifend}
+
 {$ifdef DELPHI2012OROLDER}
   {$DEFINE DELPHI2011OROLDER}
 {$endif}
