@@ -38,6 +38,7 @@ uses
   StdCtrls,
   Controls,
   ActnList,
+  {$I MainForm.Modules.inc} // for XE3 and UP Compatibility
   ExtCtrls,
   ExtActns,
   Dialogs,
