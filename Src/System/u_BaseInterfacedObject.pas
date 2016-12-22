@@ -25,13 +25,18 @@ interface
 uses
   u_BaseInterfacedObjectDebug;
 
-{$IFDEF DEBUG}
 type
-  TBaseInterfacedObject = TBaseInterfacedObjectDebug;
-{$ELSE}
-type
-  TBaseInterfacedObject = TInterfacedObject;
-{$ENDIF}
+  TBaseInterfacedObject =
+    {$IFDEF DEBUG}
+      {$IF (CompilerVersion >= 24)} // XE3 and UP
+      TInterfacedObject;
+      {$MESSAGE WARN 'TBaseInterfacedObjectDebug disabled!'}
+      {$ELSE}
+      TBaseInterfacedObjectDebug;
+      {$IFEND}
+    {$ELSE}
+    TInterfacedObject;
+    {$ENDIF}
 
 implementation
 
