@@ -30,6 +30,7 @@ uses
   StdCtrls,
   ExtCtrls,
   Spin,
+  t_CommonTypes,
   i_LanguageManager,
   i_MarkCategory,
   i_MarkCategoryDB,
@@ -52,13 +53,15 @@ type
     flwpnlZooms: TFlowPanel;
     pnlName: TPanel;
     btnSetAsTemplate: TButton;
+    lblReadOnly: TLabel;
     procedure btnSetAsTemplateClick(Sender: TObject);
   private
     FCategoryDB: IMarkCategoryDB;
   public
     function EditCategory(
       const ACategory: IMarkCategory;
-      AIsNewMark: Boolean
+      const AIsNewCategory: Boolean;
+      const AMarksDBWriteAccess: TAccesState
     ): IMarkCategory;
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -102,12 +105,15 @@ end;
 
 function TfrmMarkCategoryEdit.EditCategory(
   const ACategory: IMarkCategory;
-  AIsNewMark: Boolean
+  const AIsNewCategory: Boolean;
+  const AMarksDBWriteAccess: TAccesState
 ): IMarkCategory;
 begin
+  lblReadOnly.Visible := AMarksDBWriteAccess <> asEnabled;
+
   EditName.Text := SAS_STR_NewPoly;
 
-  if AIsNewMark then begin
+  if AIsNewCategory then begin
     Self.Caption := SAS_STR_AddNewCategory;
   end else begin
     Self.Caption := SAS_STR_EditCategory;

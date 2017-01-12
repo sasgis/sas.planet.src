@@ -34,6 +34,7 @@ uses
   Buttons,
   Spin,
   u_CommonFormAndFrameParents,
+  t_CommonTypes,
   i_LanguageManager,
   i_PathConfig,
   i_ProjectionSetChangeable,
@@ -92,6 +93,7 @@ type
     pnlCategory: TPanel;
     pnlName: TPanel;
     btnSetAsTemplate: TButton;
+    lblReadOnly: TLabel;
     procedure btnOkClick(Sender: TObject);
     procedure btnTextColorClick(Sender: TObject);
     procedure btnShadowColorClick(Sender: TObject);
@@ -135,7 +137,8 @@ type
     function EditMark(
       const AMark: IVectorDataItem;
       const AIsNewMark: Boolean;
-      var AVisible: Boolean
+      var AVisible: Boolean;
+      const AMarksDBWriteAccess: TAccesState
     ): IVectorDataItem;
   end;
 
@@ -213,7 +216,8 @@ end;
 function TfrmMarkEditPoint.EditMark(
   const AMark: IVectorDataItem;
   const AIsNewMark: Boolean;
-  var AVisible: Boolean
+  var AVisible: Boolean;
+  const AMarksDBWriteAccess: TAccesState
 ): IVectorDataItem;
 var
   VLonLat: TDoublePoint;
@@ -225,6 +229,8 @@ var
   VPoint: IGeometryLonLatPoint;
   VMarkWithCategory: IVectorDataItemWithCategory;
 begin
+  lblReadOnly.Visible := AMarksDBWriteAccess <> asEnabled;
+
   FSourceMark := AMark;
   frMarkDescription.Description := '';
   frSelectPicture.Visible := False;

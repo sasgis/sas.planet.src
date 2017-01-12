@@ -100,6 +100,7 @@ type
       const AFiles: IStringListStatic;
       const AImporterList: IVectorItemTreeImporterListStatic
     ): IInterfaceListStatic;
+    function IsMarksDBWritable: Boolean;
   public
     function GetMarkIdCaption(const AMarkId: IMarkId): string;
 
@@ -119,7 +120,7 @@ type
       const AGeometry: IGeometryLonLat;
       const AProjection: IProjection
     ): IGeometryLonLatPolygon;
-    function AddKategory(const Name: string): IMarkCategory;
+    function AddCategory(const Name: string): IMarkCategory;
     procedure ShowMarkInfo(
       const AMark: IVectorDataItem
     );
@@ -130,7 +131,7 @@ type
     ): IVectorDataItem;
     function EditCategoryModal(
       const ACategory: IMarkCategory;
-      AIsNewMark: Boolean
+      const AIsNewCategory: Boolean
     ): IMarkCategory;
     function SaveMarkModal(
       const AMark: IVectorDataItem;
@@ -211,6 +212,7 @@ implementation
 uses
   SysUtils,
   gnugettext,
+  t_CommonTypes,
   i_DoublePointFilter,
   i_VectorItemTree,
   i_VectorItemSubset,
@@ -353,10 +355,22 @@ begin
   inherited;
 end;
 
-function TMarkDbGUIHelper.AddKategory(const Name: string): IMarkCategory;
+function TMarkDbGUIHelper.IsMarksDBWritable: Boolean;
+begin
+  Result := FMarkSystem.State.GetStatic.WriteAccess = asEnabled;
+  if not Result then begin
+    MessageDlg(_('No write access to current Marks DB!'), mtError, [mbOk], 0);
+  end;
+end;
+
+function TMarkDbGUIHelper.AddCategory(const Name: string): IMarkCategory;
 var
   VCategory: IMarkCategory;
 begin
+  if not IsMarksDBWritable then begin
+    Result := nil;
+    Exit;
+  end;
   VCategory := FMarkSystem.CategoryDB.Factory.CreateNew(Name);
   Result := FMarkSystem.CategoryDB.GetCategoryByName(VCategory.Name);
   if Result = nil then begin
@@ -373,6 +387,9 @@ var
   VList: IMarkCategoryList;
 begin
   Result := False;
+  if not IsMarksDBWritable then begin
+    Exit;
+  end;
   if ACategory <> nil then begin
     VList := FMarkSystem.CategoryDB.GetSubCategoryListForCategory(ACategory);
     if Assigned(VList) and (VList.Count > 0) then begin
@@ -399,6 +416,9 @@ var
   VMark: IVectorDataItem;
 begin
   Result := False;
+  if not IsMarksDBWritable then begin
+    Exit;
+  end;
   if AMarkId <> nil then begin
     case AMarkId.MarkType of
       midPoint: VMessage := SAS_MSG_DeleteMarkPointAsk;
@@ -427,6 +447,9 @@ var
   VMessage: string;
 begin
   Result := False;
+  if not IsMarksDBWritable then begin
+    Exit;
+  end;
   if (AMarkIDList <> nil) and (AMarkIDList.Count > 0) then begin
     if AMarkIDList.Count = 1 then begin
       VMark := IMarkId(AMarkIDList[0]);
@@ -443,10 +466,22 @@ end;
 
 function TMarkDbGUIHelper.EditCategoryModal(
   const ACategory: IMarkCategory;
-  AIsNewMark: Boolean
+  const AIsNewCategory: Boolean
 ): IMarkCategory;
 begin
-  Result := FfrmMarkCategoryEdit.EditCategory(ACategory, AIsNewMark);
+  if AIsNewCategory and not IsMarksDBWritable then begin
+    Result := nil;
+    Exit;
+  end;
+  Result :=
+    FfrmMarkCategoryEdit.EditCategory(
+      ACategory,
+      AIsNewCategory,
+      FMarkSystem.State.GetStatic.WriteAccess
+    );
+  if (Result <> nil) and not IsMarksDBWritable then begin
+    Result := nil;
+  end;
 end;
 
 function TMarkDbGUIHelper.EditMarkModal(
@@ -454,14 +489,20 @@ function TMarkDbGUIHelper.EditMarkModal(
   const AIsNewMark: Boolean;
   var AVisible: Boolean
 ): IVectorDataItem;
+var
+  VWriteAccess: TAccesState;
 begin
   Result := nil;
+  VWriteAccess := FMarkSystem.State.GetStatic.WriteAccess;
   if Supports(AMark.Geometry, IGeometryLonLatPoint) then begin
-    Result := FfrmMarkEditPoint.EditMark(AMark, AIsNewMark, AVisible);
+    Result := FfrmMarkEditPoint.EditMark(AMark, AIsNewMark, AVisible, VWriteAccess);
   end else if Supports(AMark.Geometry, IGeometryLonLatLine) then begin
-    Result := FfrmMarkEditPath.EditMark(AMark, AIsNewMark, AVisible);
+    Result := FfrmMarkEditPath.EditMark(AMark, AIsNewMark, AVisible, VWriteAccess);
   end else if Supports(AMark.Geometry, IGeometryLonLatPolygon) then begin
-    Result := FfrmMarkEditPoly.EditMark(AMark, AIsNewMark, AVisible);
+    Result := FfrmMarkEditPoly.EditMark(AMark, AIsNewMark, AVisible, VWriteAccess);
+  end;
+  if (Result <> nil) and not IsMarksDBWritable then begin
+    Result := nil;
   end;
 end;
 
@@ -714,6 +755,9 @@ var
   VMsg: string;
 begin
   Result := nil;
+  if not IsMarksDBWritable then begin
+    Exit;
+  end;
 
   VCount := 0;
   SetLength(VRecArr, 0);
@@ -815,12 +859,20 @@ function TMarkDbGUIHelper.ImportFilesModal(
 var
   VList: IVectorItemTreeImporterListStatic;
 begin
+  if not IsMarksDBWritable then begin
+    Result := nil;
+    Exit;
+  end;
   VList := FImporterList.GetStatic;
   Result := ImportFilesModalInternal(AFiles, VList);
 end;
 
 function TMarkDbGUIHelper.MarksMultiEditModal(const ACategory: ICategory): IImportConfig;
 begin
+  if not IsMarksDBWritable then begin
+    Result := nil;
+    Exit;
+  end;
   Result := FfrmMarksMultiEdit.GetImportConfig(ACategory);
 end;
 
@@ -905,6 +957,9 @@ var
   VDescription: string;
 begin
   Result := False;
+  if not IsMarksDBWritable then begin
+    Exit;
+  end;
   VSourceMark := nil;
   if AMark <> nil then begin
     VVisible := FMarkSystem.MarkDb.GetMarkVisible(AMark);
@@ -957,6 +1012,9 @@ var
   VSingleMark: IVectorDataItem;
 begin
   Result := False;
+  if not IsMarksDBWritable then begin
+    Exit;
+  end;
   if Supports(AGeometry, IGeometryLonLatMultiLine) or
     Supports(AGeometry, IGeometryLonLatMultiPolygon)
   then begin
@@ -1016,6 +1074,9 @@ var
   VResult: IVectorDataItem;
 begin
   Result := False;
+  if not IsMarksDBWritable then begin
+    Exit;
+  end;
   if AMark <> nil then begin
     VMark := FMarkSystem.MarkDb.Factory.ModifyGeometry(AMark, AGeometry);
     if VMark <> nil then begin

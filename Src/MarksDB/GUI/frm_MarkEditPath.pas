@@ -33,6 +33,7 @@ uses
   Spin,
   StdCtrls,
   ExtCtrls,
+  t_CommonTypes,
   u_CommonFormAndFrameParents,
   i_PathConfig,
   i_LanguageManager,
@@ -65,6 +66,7 @@ type
     flwpnlStyle: TFlowPanel;
     pnlBottomButtons: TPanel;
     btnSetAsTemplate: TButton;
+    lblReadOnly: TLabel;
     procedure btnOkClick(Sender: TObject);
     procedure btnLineColorClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -88,7 +90,8 @@ type
     function EditMark(
       const AMark: IVectorDataItem;
       const AIsNewMark: Boolean;
-      var AVisible: Boolean
+      var AVisible: Boolean;
+      const AMarksDBWriteAccess: TAccesState
     ): IVectorDataItem;
   end;
 
@@ -135,13 +138,16 @@ end;
 function TfrmMarkEditPath.EditMark(
   const AMark: IVectorDataItem;
   const AIsNewMark: Boolean;
-  var AVisible: Boolean
+  var AVisible: Boolean;
+  const AMarksDBWriteAccess: TAccesState
 ): IVectorDataItem;
 var
   VAppearanceLine: IAppearanceLine;
   VCategory: ICategory;
   VMarkWithCategory: IVectorDataItemWithCategory;
 begin
+  lblReadOnly.Visible := AMarksDBWriteAccess <> asEnabled;
+
   VCategory := nil;
   if Supports(AMark.MainInfo, IVectorDataItemWithCategory, VMarkWithCategory) then begin
     VCategory := VMarkWithCategory.Category;

@@ -173,6 +173,25 @@ object frmMarkEditPath: TfrmMarkEditPath
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 5
+    object lblReadOnly: TLabel
+      Left = 29
+      Top = 0
+      Width = 141
+      Height = 29
+      Align = alClient
+      Alignment = taCenter
+      AutoSize = False
+      Caption = 'Read only mode'
+      Color = clActiveCaption
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clRed
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentColor = False
+      ParentFont = False
+      Layout = tlCenter
+    end
     object btnOk: TButton
       AlignWithMargins = True
       Left = 173
@@ -213,7 +232,7 @@ object frmMarkEditPath: TfrmMarkEditPath
     end
   end
   object ColorDialog1: TColorDialog
-    Left = 56
-    Top = 280
+    Left = 232
+    Top = 72
   end
 end

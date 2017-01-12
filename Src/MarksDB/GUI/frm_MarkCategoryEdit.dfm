@@ -47,6 +47,25 @@ object frmMarkCategoryEdit: TfrmMarkCategoryEdit
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
+    object lblReadOnly: TLabel
+      Left = 29
+      Top = 0
+      Width = 108
+      Height = 31
+      Align = alClient
+      Alignment = taCenter
+      AutoSize = False
+      Caption = 'Read only mode'
+      Color = clActiveCaption
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clRed
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentColor = False
+      ParentFont = False
+      Layout = tlCenter
+    end
     object btnCancel: TButton
       AlignWithMargins = True
       Left = 219

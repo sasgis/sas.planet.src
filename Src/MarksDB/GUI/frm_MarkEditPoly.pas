@@ -33,6 +33,7 @@ uses
   StdCtrls,
   ExtCtrls,
   Buttons,
+  t_CommonTypes,
   u_CommonFormAndFrameParents,
   i_Appearance,
   i_AppearanceOfMarkFactory,
@@ -77,6 +78,7 @@ type
     pnlCategory: TPanel;
     pnlName: TPanel;
     btnSetAsTemplate: TButton;
+    lblReadOnly: TLabel;
     procedure btnOkClick(Sender: TObject);
     procedure btnLineColorClick(Sender: TObject);
     procedure btnFillColorClick(Sender: TObject);
@@ -101,7 +103,8 @@ type
     function EditMark(
       const AMark: IVectorDataItem;
       const AIsNewMark: Boolean;
-      var AVisible: Boolean
+      var AVisible: Boolean;
+      const AMarksDBWriteAccess: TAccesState
     ): IVectorDataItem;
   end;
 
@@ -148,7 +151,8 @@ end;
 function TfrmMarkEditPoly.EditMark(
   const AMark: IVectorDataItem;
   const AIsNewMark: Boolean;
-  var AVisible: Boolean
+  var AVisible: Boolean;
+  const AMarksDBWriteAccess: TAccesState
 ): IVectorDataItem;
 var
   VAppearanceBorder: IAppearancePolygonBorder;
@@ -156,6 +160,8 @@ var
   VCategory: ICategory;
   VMarkWithCategory: IVectorDataItemWithCategory;
 begin
+  lblReadOnly.Visible := AMarksDBWriteAccess <> asEnabled;
+
   VCategory := nil;
   if Supports(AMark.MainInfo, IVectorDataItemWithCategory, VMarkWithCategory) then begin
     VCategory := VMarkWithCategory.Category;
