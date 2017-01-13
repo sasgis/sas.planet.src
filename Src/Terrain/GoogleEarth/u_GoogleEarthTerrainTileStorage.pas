@@ -86,7 +86,7 @@ begin
   FMemCache := TGoogleEarthTerrainMemCache.Create;
 
   FIsGeoCacherStorage := AIsGeoCacherStorage;
-  FCachePath := AStoragePath;
+  FCachePath := IncludeTrailingPathDelimiter(AStoragePath);
   FCacheProvider := nil;
   FAvailable := True;
 end;
@@ -195,7 +195,7 @@ begin
   FSync.BeginWrite;
   try
     FMemCache.Clear;
-    FCachePath := APath;
+    FCachePath := IncludeTrailingPathDelimiter(APath);
     FCacheProvider := nil;
     FAvailable := True;
     Result := True;

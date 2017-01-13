@@ -173,16 +173,17 @@ constructor TTileStorageGoogleEarth.Create(
   const AMainContentType: IContentTypeInfoBasic
 );
 begin
+  FCachePath := IncludeTrailingPathDelimiter(AStoragePath);
+
   inherited Create(
     AStorageTypeAbilities,
     AStorageForceAbilities,
     AMapVersionFactory,
     AProjectionSet,
     ATileNotifier,
-    AStoragePath
+    FCachePath
   );
 
-  FCachePath := AStoragePath;
   FDatabaseName := ANameInCache;
   FIsTerrainStorage := AIsTerrainStorage;
   FIsGeoCacherStorage := AIsGeoCacherStorage;
