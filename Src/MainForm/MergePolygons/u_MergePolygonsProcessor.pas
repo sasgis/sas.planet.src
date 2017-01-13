@@ -178,9 +178,9 @@ begin
 
   // Coeff for Double <-> Int64 coversions
   {$IFNDEF MAX_PRECISION}
-  FIntToDoubleCoeff := clipper.LoRange div 180; // fastes
+  FIntToDoubleCoeff := clipper.LoRange div (180 * 4); // fastes
   {$ELSE}
-  FIntToDoubleCoeff := clipper.HiRange div 180; // big integer math
+  FIntToDoubleCoeff := clipper.HiRange div (180 * 4); // big integer math
   {$ENDIF}
 end;
 
