@@ -86,6 +86,7 @@ begin
   FLastTZID := '';
   FStrBufSize := 255;
   GetMem(FStrBuf, FStrBufSize);
+  FAvailable := False;
   FLonLatToTimeZoneTime := nil;
   FLastTimeZoneIndex := -1;
   FLastPolygonIndex := -1;

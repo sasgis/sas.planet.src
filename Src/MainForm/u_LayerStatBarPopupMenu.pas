@@ -297,6 +297,10 @@ begin
              VMenuItem.Caption := VMenuItem.Caption + ' ' +
                Format(SAS_ERR_TimeZoneInfoDisabled, [cTimeZoneDllName]);
            end;
+         end else begin
+           if VMenuItem.Caption <> rsShowTimeZoneInfo then begin
+             VMenuItem.Caption := rsShowTimeZoneInfo;
+           end;
          end;
       end;
       tagDownloadInfo: VMenuItem.Checked := FStatBarConfig.ViewDownloadedInfo;
