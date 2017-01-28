@@ -32,10 +32,6 @@ type
     function GetStatic: ILocalCoordConverter;
   end;
 
-  ILocalCoordConverterChangeableInternal = interface(ILocalCoordConverterChangeable)
-    procedure SetConverter(const AValue: ILocalCoordConverter);
-  end;
-
 implementation
 
 end.

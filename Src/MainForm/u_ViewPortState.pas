@@ -35,17 +35,15 @@ uses
   i_ProjectionSetChangeable,
   i_ViewPortState,
   i_LocalCoordConverterFactorySimpe,
-  u_BaseInterfacedObject;
+  u_LocalCoordConverterChangeable;
 
 type
-  TViewPortState = class(TBaseInterfacedObject, IViewPortState)
+  TViewPortState = class(TLocalCoordConverterChangeable, IViewPortState)
   private
     FVisibleCoordConverterFactory: ILocalCoordConverterFactorySimpe;
     FProjectionSet: IProjectionSetChangeable;
     FBaseScale: Double;
-    FCS: IReadWriteSync;
 
-    FView: ILocalCoordConverterChangeableInternal;
     FProjectionSetListener: IListener;
 
     procedure OnProjectionSetChange;
@@ -89,7 +87,6 @@ implementation
 uses
   i_Projection,
   u_ListenerByEvent,
-  u_LocalCoordConverterChangeable,
   u_Synchronizer,
   u_GeoFunc;
 
@@ -108,16 +105,7 @@ var
   VLocalRect: TRect;
   VLocalCenter: TDoublePoint;
 begin
-  inherited Create;
-
-  FVisibleCoordConverterFactory := ACoordConverterFactory;
-  FProjectionSet := AProjectionSet;
-
-  FCS := GSync.SyncVariable.Make(Self.ClassName);
-  FProjectionSetListener := TNotifyNoMmgEventListener.Create(Self.OnProjectionSetChange);
-  FBaseScale := 1;
-
-  VProjectionSet := FProjectionSet.GetStatic;
+  VProjectionSet := AProjectionSet.GetStatic;
   VProjection := VProjectionSet[0];
 
   VCenterPoint := RectCenter(VProjection.GetPixelRect);
@@ -125,17 +113,24 @@ begin
   VLocalCenter := RectCenter(VLocalRect);
 
   VLocalConverter :=
-    FVisibleCoordConverterFactory.CreateConverter(
+    ACoordConverterFactory.CreateConverter(
       VLocalRect,
       VProjection,
-      FBaseScale,
-      DoublePoint(VCenterPoint.X - VLocalCenter.X / FBaseScale, VCenterPoint.Y - VLocalCenter.Y / FBaseScale)
+      1.0,
+      DoublePoint(VCenterPoint.X - VLocalCenter.X, VCenterPoint.Y - VLocalCenter.Y)
     );
-  FView :=
-    TLocalCoordConverterChangeable.Create(
-      VLocalConverter,
-      APerfCounterList.CreateAndAddNewCounter('ScaleChange')
-    );
+
+  inherited Create(
+    VLocalConverter,
+    APerfCounterList.CreateAndAddNewCounter('ScaleChange')
+  );
+
+  FVisibleCoordConverterFactory := ACoordConverterFactory;
+  FProjectionSet := AProjectionSet;
+
+  FBaseScale := VLocalConverter.GetScale;
+
+  FProjectionSetListener := TNotifyNoMmgEventListener.Create(Self.OnProjectionSetChange);
   FProjectionSet.ChangeNotifier.Add(FProjectionSetListener);
 end;
 
@@ -153,18 +148,22 @@ procedure TViewPortState.ChangeLonLat(const ALonLat: TDoublePoint);
 var
   VLocalConverter: ILocalCoordConverter;
   VLocalConverterNew: ILocalCoordConverter;
+  VNeedNotify: Boolean;
 begin
-  FCS.BeginWrite;
+  CS.BeginWrite;
   try
-    VLocalConverter := FView.GetStatic;
+    VLocalConverter := _Converter;
     VLocalConverterNew :=
       FVisibleCoordConverterFactory.ChangeCenterLonLat(
         VLocalConverter,
         ALonLat
       );
-    FView.SetConverter(VLocalConverterNew);
+    VNeedNotify := _SetConverter(VLocalConverterNew);
   finally
-    FCS.EndWrite;
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
@@ -183,10 +182,11 @@ var
   VMapTopLeft: TDoublePoint;
   VLocalRect: TRect;
   VLocalCenter: TDoublePoint;
+  VNeedNotify: Boolean;
 begin
-  FCS.BeginWrite;
+  CS.BeginWrite;
   try
-    VLocalConverter := FView.GetStatic;
+    VLocalConverter := _Converter;
     VProjectionSet := FProjectionSet.GetStatic;
     VZoom := AZoom;
     VProjectionSet.ValidateZoom(VZoom);
@@ -205,9 +205,12 @@ begin
         FBaseScale,
         VMapTopLeft
       );
-    FView.SetConverter(VLocalConverterNew);
+    VNeedNotify := _SetConverter(VLocalConverterNew);
   finally
-    FCS.EndWrite;
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
@@ -215,19 +218,23 @@ procedure TViewPortState.ChangeMapPixelByLocalDelta(const ADelta: TDoublePoint);
 var
   VLocalConverter: ILocalCoordConverter;
   VLocalConverterNew: ILocalCoordConverter;
+  VNeedNotify: Boolean;
 begin
   if (Abs(ADelta.X) > 0.001) or (Abs(ADelta.Y) > 0.001) then begin
-    FCS.BeginWrite;
+    CS.BeginWrite;
     try
-      VLocalConverter := FView.GetStatic;
+      VLocalConverter := _Converter;
       VLocalConverterNew :=
         FVisibleCoordConverterFactory.ChangeByLocalDelta(
           VLocalConverter,
           ADelta
         );
-      FView.SetConverter(VLocalConverterNew);
+      VNeedNotify := _SetConverter(VLocalConverterNew);
     finally
-      FCS.EndWrite;
+      CS.EndWrite;
+    end;
+    if VNeedNotify then begin
+      DoChangeNotify;
     end;
   end;
 end;
@@ -238,18 +245,22 @@ procedure TViewPortState.ChangeMapPixelToVisualPoint(
 var
   VLocalConverter: ILocalCoordConverter;
   VLocalConverterNew: ILocalCoordConverter;
+  VNeedNotify: Boolean;
 begin
-  FCS.BeginWrite;
+  CS.BeginWrite;
   try
-    VLocalConverter := FView.GetStatic;
+    VLocalConverter := _Converter;
     VLocalConverterNew :=
       FVisibleCoordConverterFactory.ChangeCenterToLocalPoint(
         VLocalConverter,
         AVisualPoint
       );
-    FView.SetConverter(VLocalConverterNew);
+    VNeedNotify := _SetConverter(VLocalConverterNew);
   finally
-    FCS.EndWrite;
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
@@ -263,6 +274,7 @@ var
   VLocalCenterNew: TDoublePoint;
   VTopLeftMapPixel: TDoublePoint;
   VScale: Double;
+  VNeedNotify: Boolean;
 begin
   if ANewSize.X <= 0 then begin
     raise Exception.Create('Ошибочный размер отображаемой карты');
@@ -271,9 +283,10 @@ begin
     raise Exception.Create('Ошибочный размер отображаемой карты');
   end;
   VLocalRectNew := Rect(0, 0, ANewSize.X, ANewSize.Y);
-  FCS.BeginWrite;
+  VNeedNotify := False;
+  CS.BeginWrite;
   try
-    VLocalConverter := FView.GetStatic;
+    VLocalConverter := _Converter;
     VLocalRectOld := VLocalConverter.GetLocalRect;
     if not EqualRect(VLocalRectOld, VLocalRectNew) then begin
       VLocalCenterOld := RectCenter(VLocalRectOld);
@@ -289,10 +302,13 @@ begin
           VScale,
           VTopLeftMapPixel
         );
-      FView.SetConverter(VLocalConverterNew);
+      VNeedNotify := _SetConverter(VLocalConverterNew);
     end;
   finally
-    FCS.EndWrite;
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
@@ -303,10 +319,11 @@ var
   VZoom: Byte;
   VProjection: IProjection;
   VLocalConverterNew: ILocalCoordConverter;
+  VNeedNotify: Boolean;
 begin
-  FCS.BeginWrite;
+  CS.BeginWrite;
   try
-    VLocalConverter := FView.GetStatic;
+    VLocalConverter := _Converter;
     VProjectionSet := FProjectionSet.GetStatic;
     VZoom := AZoom;
     VProjectionSet.ValidateZoom(VZoom);
@@ -317,9 +334,12 @@ begin
         VLocalConverter,
         VProjection
       );
-    FView.SetConverter(VLocalConverterNew);
+    VNeedNotify := _SetConverter(VLocalConverterNew);
   finally
-    FCS.EndWrite;
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
@@ -333,10 +353,11 @@ var
   VZoom: Byte;
   VProjection: IProjection;
   VLocalConverterNew: ILocalCoordConverter;
+  VNeedNotify: Boolean;
 begin
-  FCS.BeginWrite;
+  CS.BeginWrite;
   try
-    VLocalConverter := FView.GetStatic;
+    VLocalConverter := _Converter;
     VProjectionSet := FProjectionSet.GetStatic;
     VZoom := AZoom;
     VProjectionSet.ValidateZoom(VZoom);
@@ -347,9 +368,12 @@ begin
         VProjection,
         AFreezePoint
       );
-    FView.SetConverter(VLocalConverterNew);
+    VNeedNotify := _SetConverter(VLocalConverterNew);
   finally
-    FCS.EndWrite;
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
@@ -363,10 +387,11 @@ var
   VZoom: Byte;
   VProjection: IProjection;
   VLocalConverterNew: ILocalCoordConverter;
+  VNeedNotify: Boolean;
 begin
-  FCS.BeginWrite;
+  CS.BeginWrite;
   try
-    VLocalConverter := FView.GetStatic;
+    VLocalConverter := _Converter;
     VProjectionSet := FProjectionSet.GetStatic;
     VZoom := AZoom;
     VProjectionSet.ValidateZoom(VZoom);
@@ -376,15 +401,18 @@ begin
         VLocalConverter,
         VProjection
       );
-    FView.SetConverter(VLocalConverterNew);
+    VNeedNotify := _SetConverter(VLocalConverterNew);
   finally
-    FCS.EndWrite;
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
 function TViewPortState.GetView: ILocalCoordConverterChangeable;
 begin
-  Result := FView;
+  Result := Self;
 end;
 
 procedure TViewPortState.OnProjectionSetChange;
@@ -393,10 +421,11 @@ var
   VProjectionSet: IProjectionSet;
   VProjection: IProjection;
   VLocalConverterNew: ILocalCoordConverter;
+  VNeedNotify: Boolean;
 begin
-  FCS.BeginWrite;
+  CS.BeginWrite;
   try
-    VLocalConverter := FView.GetStatic;
+    VLocalConverter := _Converter;
     VProjectionSet := FProjectionSet.GetStatic;
     VProjection := VProjectionSet.GetSuitableProjection(VLocalConverter.Projection);
     VLocalConverterNew :=
@@ -404,9 +433,12 @@ begin
         VLocalConverter,
         VProjection
       );
-    FView.SetConverter(VLocalConverterNew);
+    VNeedNotify := _SetConverter(VLocalConverterNew);
   finally
-    FCS.EndWrite;
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 
@@ -423,10 +455,11 @@ var
   VProjection: IProjection;
   VTopLeftMapPosNew: TDoublePoint;
   VLocalRect: TRect;
+  VNeedNotify: Boolean;
 begin
-  FCS.BeginWrite;
+  CS.BeginWrite;
   try
-    VLocalConverter := FView.GetStatic;
+    VLocalConverter := _Converter;
     if Abs(AScale - 1) < 0.001 then begin
       VNewMapScale := FBaseScale;
     end else begin
@@ -448,9 +481,12 @@ begin
         VNewMapScale,
         VTopLeftMapPosNew
       );
-    FView.SetConverter(VLocalConverterNew);
+    VNeedNotify := _SetConverter(VLocalConverterNew);
   finally
-    FCS.EndWrite;
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
   end;
 end;
 

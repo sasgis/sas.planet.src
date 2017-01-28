@@ -30,13 +30,15 @@ uses
   u_ChangeableBase;
 
 type
-  TLocalCoordConverterChangeable = class(TChangeableWithSimpleLockBase, ILocalCoordConverterChangeable, ILocalCoordConverterChangeableInternal)
+  TLocalCoordConverterChangeable = class(TChangeableWithSimpleLockBase, ILocalCoordConverterChangeable)
   private
     FConverter: ILocalCoordConverter;
     FChangeCounter: IInternalPerformanceCounter;
   private
     function GetStatic: ILocalCoordConverter;
-    procedure SetConverter(const AValue: ILocalCoordConverter);
+  protected
+    property _Converter: ILocalCoordConverter read FConverter;
+    function _SetConverter(const AValue: ILocalCoordConverter): Boolean;
   protected
     procedure DoChangeNotify; override;
   public
@@ -82,24 +84,14 @@ begin
   end;
 end;
 
-procedure TLocalCoordConverterChangeable.SetConverter(
+function TLocalCoordConverterChangeable._SetConverter(
   const AValue: ILocalCoordConverter
-);
-var
-  VNeedNotify: Boolean;
+): Boolean;
 begin
-  VNeedNotify := False;
-  CS.BeginWrite;
-  try
-    if (Assigned(FConverter) and not FConverter.GetIsSameConverter(AValue)) or (Assigned(AValue) and not Assigned(FConverter)) then begin
-      FConverter := AValue;
-      VNeedNotify := True;
-    end;
-  finally
-    CS.EndWrite;
-  end;
-  if VNeedNotify then begin
-    DoChangeNotify;
+  Result := False;
+  if (Assigned(FConverter) and not FConverter.GetIsSameConverter(AValue)) or (Assigned(AValue) and not Assigned(FConverter)) then begin
+    FConverter := AValue;
+    Result := True;
   end;
 end;
 

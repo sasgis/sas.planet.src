@@ -33,12 +33,11 @@ uses
   i_LocalCoordConverterChangeable,
   i_MiniMapLayerConfig,
   i_ListenerNotifierLinksList,
-  u_BaseInterfacedObject;
+  u_LocalCoordConverterChangeable;
 
 type
-  TLocalConverterChangeableOfMiniMap = class(TBaseInterfacedObject, ILocalCoordConverterChangeable)
+  TLocalConverterChangeableOfMiniMap = class(TLocalCoordConverterChangeable)
   private
-    FInternal: ILocalCoordConverterChangeableInternal;
     FSoruce: ILocalCoordConverterChangeable;
     FConfig: IMiniMapLayerLocationConfig;
     FProjectionSet: IProjectionSetChangeable;
@@ -57,11 +56,6 @@ type
       const AProjectionSet: IProjectionSet;
       const AVisualCoordConverter: ILocalCoordConverter
     ): ILocalCoordConverter;
-  private
-    function GetBeforeChangeNotifier: INotifier;
-    function GetChangeNotifier: INotifier;
-    function GetAfterChangeNotifier: INotifier;
-    function GetStatic: ILocalCoordConverter;
   public
     constructor Create(
       const AChangeCounter: IInternalPerformanceCounter;
@@ -81,7 +75,6 @@ uses
   i_Listener,
   u_ListenerByEvent,
   u_ListenerNotifierLinksList,
-  u_LocalCoordConverterChangeable,
   u_GeoFunc;
 
 { TLocalConverterChangeableOfMiniMap }
@@ -96,18 +89,16 @@ constructor TLocalConverterChangeableOfMiniMap.Create(
 var
   VListener: IListener;
 begin
-  inherited Create;
+  inherited Create(
+    ASoruce.GetStatic,
+    AChangeCounter
+  );
   FSoruce := ASoruce;
   FProjectionSet := AProjectionSet;
   FConfig := AConfig;
   FConverterFactory := AConverterFactory;
 
   FLinkList := TListenerNotifierLinksList.Create;
-  FInternal :=
-    TLocalCoordConverterChangeable.Create(
-      FSoruce.GetStatic,
-      AChangeCounter
-    );
   VListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FLinkList.Add(VListener, FSoruce.ChangeNotifier);
   FLinkList.Add(VListener, FConfig.ChangeNotifier);
@@ -149,21 +140,6 @@ begin
     AProjectionSet.ValidateZoom(VResultZoom);
     Result := AProjectionSet.Zooms[VResultZoom];
   end;
-end;
-
-function TLocalConverterChangeableOfMiniMap.GetAfterChangeNotifier: INotifier;
-begin
-  Result := FInternal.AfterChangeNotifier;
-end;
-
-function TLocalConverterChangeableOfMiniMap.GetBeforeChangeNotifier: INotifier;
-begin
-  Result := FInternal.BeforeChangeNotifier;
-end;
-
-function TLocalConverterChangeableOfMiniMap.GetChangeNotifier: INotifier;
-begin
-  Result := FInternal.ChangeNotifier;
 end;
 
 function TLocalConverterChangeableOfMiniMap.GetConverterForSource(
@@ -219,14 +195,10 @@ begin
   end;
 end;
 
-function TLocalConverterChangeableOfMiniMap.GetStatic: ILocalCoordConverter;
-begin
-  Result := FInternal.GetStatic;
-end;
-
 procedure TLocalConverterChangeableOfMiniMap.OnConfigChange;
 var
   VNewConverter: ILocalCoordConverter;
+  VNeedNotify: Boolean;
 begin
   VNewConverter :=
     GetConverterForSource(
@@ -234,7 +206,15 @@ begin
       FProjectionSet.GetStatic,
       FSoruce.GetStatic
     );
-  FInternal.SetConverter(VNewConverter);
+  CS.BeginWrite;
+  try
+    VNeedNotify := _SetConverter(VNewConverter);
+  finally
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
+  end;
 end;
 
 end.
