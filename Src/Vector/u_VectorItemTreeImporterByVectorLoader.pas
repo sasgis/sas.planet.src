@@ -89,7 +89,7 @@ begin
     VData := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
     VMemStream := nil;
     VVectorData := FLoader.Load(VData, nil, FVectorDataItemMainInfoFactory);
-    Result := TVectorItemTree.Create(ExtractFileName(AFileName), VVectorData, nil);
+    Result := TVectorItemTree.Create('', VVectorData, nil);
   finally
     VMemStream.Free;
   end;
