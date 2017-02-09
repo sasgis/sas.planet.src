@@ -33,6 +33,7 @@ uses
   i_GPSConfig,
   i_SystemTimeProvider,
   i_Listener,
+  u_GeoFunc,
   u_GPSModuleAbstract,
 {$if defined(VSAGPS_AS_DLL)}
   vsagps_public_dll,
@@ -960,8 +961,12 @@ begin
     Exit;
   LockGPSData;
   try
-    VPositionOK := Nmea_Coord_To_Double(@(pRMC^.lon), VPoint.X) and
-                 Nmea_Coord_To_Double(@(pRMC^.lat), VPoint.Y);
+    VPoint := DoublePoint(0, 0);
+
+    VPositionOK :=
+      (pRMC^.status = AnsiChar('A')) and
+      Nmea_Coord_To_Double(@(pRMC^.lon), VPoint.X) and
+      Nmea_Coord_To_Double(@(pRMC^.lat), VPoint.Y);
 
     VUTCDateOK := Nmea_Date_To_DateTime(@(pRMC^.date), VUTCDate);
     VUTCTimeOK := Nmea_Time_To_DateTime(@(pRMC^.time), VUTCTime);
@@ -1619,8 +1624,12 @@ begin
     // b) for GN (GP+GL) shows number of all sats
     //_UpdateSatsInView(pGGA^.sats_in_view);
 
-    VPositionOK := Nmea_Coord_To_Double(@(pGGA^.lon), VPoint.X) and
-                 Nmea_Coord_To_Double(@(pGGA^.lat), VPoint.Y);
+    VPoint := DoublePoint(0, 0);
+
+    VPositionOK :=
+      (pGGA^.quality > 0) and
+      Nmea_Coord_To_Double(@(pGGA^.lon), VPoint.X) and
+      Nmea_Coord_To_Double(@(pGGA^.lat), VPoint.Y);
 
     VUTCTimeOK := Nmea_Time_To_DateTime(@(pGGA^.time), VUTCTime);
 
