@@ -1677,8 +1677,12 @@ begin
     Exit;
   LockGPSData;
   try
-    VPositionOK := Nmea_Coord_To_Double(@(pGLL^.lon), VPoint.X) and
-                 Nmea_Coord_To_Double(@(pGLL^.lat), VPoint.Y);
+    VPoint := DoublePoint(0, 0);
+
+    VPositionOK :=
+      (pGLL.status = AnsiChar('A')) and
+      Nmea_Coord_To_Double(@(pGLL^.lon), VPoint.X) and
+      Nmea_Coord_To_Double(@(pGLL^.lat), VPoint.Y);
 
     VUTCTimeOK := Nmea_Time_To_DateTime(@(pGLL^.time), VUTCTime);
 
