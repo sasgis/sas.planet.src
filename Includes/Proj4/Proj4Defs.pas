@@ -22,7 +22,7 @@ const
   // 2492-2522 = Pulkovo 1942 / Gauss-Kruger CM
   gauss_kruger_fmt = '+proj=tmerc +lat_0=0 +lon_0=%d +k=1 +x_0=%d +y_0=%d +ellps=krass +units=m +no_defs';
 
-  sk_42 = '+proj=longlat +ellps=krass +towgs84=23.92,-141.27,-80.9,-0,0.35,0.82,-0.12 +no_defs';
+  sk_42 = '+proj=longlat +ellps=krass +towgs84=23.57,-140.95,-79.8,0,0.35,0.79,-0.22 +no_defs';
 
   // 32601-32660 = WGS 84 / UTM zone N
   utm_fmt = '+proj=utm +zone=%d +ellps=WGS84 +datum=WGS84 +units=m +no_defs';
