@@ -1296,6 +1296,9 @@ begin
         MarksListBox.ClearSelection(True);
       end;
     end;
+  end else if Key = VK_F2 then begin
+    btnEditMarkClick(Sender);
+    Key := 0;
   end;
 end;
 
