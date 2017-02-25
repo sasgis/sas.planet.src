@@ -74,12 +74,14 @@ object frmMarksExplorer: TfrmMarksExplorer
             end
             object btnEditMark: TTBXItem
               ImageIndex = 31
+              ShortCut = 113
               OnClick = btnEditMarkClick
               Caption = ''
               Hint = 'Edit selected placemark'
             end
             object btnDelMark: TTBXItem
               ImageIndex = 30
+              ShortCut = 46
               OnClick = btnDelMarkClick
               Caption = ''
               Hint = 'Delete selected placemark'
@@ -233,19 +235,21 @@ object frmMarksExplorer: TfrmMarksExplorer
               ImageIndex = 32
               OnClick = BtnAddCategoryClick
               Caption = ''
-              Hint = 'Add'
+              Hint = 'Add new category'
             end
             object BtnEditCategory: TTBXItem
               ImageIndex = 31
+              ShortCut = 113
               OnClick = BtnEditCategoryClick
               Caption = ''
-              Hint = 'Edit'
+              Hint = 'Edit selected category'
             end
             object BtnDelKat: TTBXItem
               ImageIndex = 30
+              ShortCut = 46
               OnClick = BtnDelKatClick
               Caption = ''
-              Hint = 'Delete'
+              Hint = 'Delete selected category'
             end
             object TBXSeparatorItem3: TTBXSeparatorItem
               Caption = ''
