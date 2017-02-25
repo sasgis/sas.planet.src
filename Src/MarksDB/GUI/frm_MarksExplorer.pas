@@ -863,15 +863,17 @@ begin
     if VCategoryOld <> nil then begin
       FMarkDBGUI.DeleteCategoryModal(VCategoryOld, Self.Handle);
     end;
+    Key := 0;
   end else if Key = VK_SPACE then begin
     CategoryTreeViewVisible(CategoryTreeView.Selected);
+    Key := 0;
   end else  if Key = VK_F2 then begin
     VCategoryOld := GetSelectedCategory;
     if VCategoryOld <> nil then begin
       FMarkDBGUI.EditCategoryModal(VCategoryOld, False);
     end;
+    Key := 0;
   end;
-  Key := 0;
 end;
 
 procedure TfrmMarksExplorer.CategoryTreeViewMouseUp(
@@ -1289,8 +1291,10 @@ begin
     if (VMarkIdList <> nil) and (VMarkIdList.Count > 0) then begin
       FMarkDBGUI.MarksDb.MarkDb.ToggleMarkVisibleByIDList(VMarkIdList);
     end;
+    Key := 0;
   end else if Key = VK_RETURN then begin
     MarksListBoxDblClick(Sender);
+    Key := 0;
   end else if key = VK_DELETE then begin
     VMarkIdList := GetSelectedMarksIdList;
     if VMarkIdList <> nil then begin
@@ -1298,10 +1302,11 @@ begin
         MarksListBox.ClearSelection(True);
       end;
     end;
+    Key := 0;
   end else if Key = VK_F2 then begin
     btnEditMarkClick(Sender);
+    Key := 0;
   end;
-  Key := 0;
 end;
 
 procedure TfrmMarksExplorer.MarksListBoxMouseUp(
