@@ -868,10 +868,7 @@ begin
     CategoryTreeViewVisible(CategoryTreeView.Selected);
     Key := 0;
   end else  if Key = VK_F2 then begin
-    VCategoryOld := GetSelectedCategory;
-    if VCategoryOld <> nil then begin
-      FMarkDBGUI.EditCategoryModal(VCategoryOld, False);
-    end;
+    BtnEditCategoryClick(Self);
     Key := 0;
   end;
 end;
