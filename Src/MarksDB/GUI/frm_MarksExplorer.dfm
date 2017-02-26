@@ -555,12 +555,14 @@ object frmMarksExplorer: TfrmMarksExplorer
     end
     object tbitmEditCategory: TTBXItem
       ImageIndex = 31
+      ShortCut = 113
       OnClick = BtnEditCategoryClick
       Caption = 'Edit Category'
       Hint = 'Edit'
     end
     object tbitmDeleteCategory: TTBXItem
       ImageIndex = 30
+      ShortCut = 46
       OnClick = BtnDelKatClick
       Caption = 'Delete Category'
       Hint = 'Delete'
@@ -595,12 +597,14 @@ object frmMarksExplorer: TfrmMarksExplorer
     end
     object tbitmEditMark: TTBXItem
       ImageIndex = 31
+      ShortCut = 113
       OnClick = btnEditMarkClick
       Caption = 'Edit Placemark'
       Hint = 'Edit'
     end
     object tbitmDeleteMark: TTBXItem
       ImageIndex = 30
+      ShortCut = 46
       OnClick = btnDelMarkClick
       Caption = 'Delete Placemark'
       Hint = 'Delete'
