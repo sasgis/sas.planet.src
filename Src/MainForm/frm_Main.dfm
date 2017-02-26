@@ -1163,6 +1163,7 @@ object frmMain: TfrmMain
       object TBEditPathDel: TTBXItem
         ImageIndex = 36
         Images = MenusImageList
+        ShortCut = 8
         OnClick = TBEditPathDelClick
         Caption = ''
         Hint = 'Delete Point'
