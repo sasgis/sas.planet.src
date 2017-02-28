@@ -104,6 +104,7 @@ uses
   u_ExportProviderZip,
   u_ExportProviderTar,
   u_ExportProviderJNX,
+  u_ExportProviderIMG,
   u_ExportProviderOgf2,
   u_ExportProviderCE;
 
@@ -237,6 +238,18 @@ begin
 
   VExportProvider :=
     TExportProviderJNX.Create(
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AVectorGeometryProjectedFactory,
+      ABitmapTileSaveLoadFactory,
+      ABitmapPostProcessing
+    );
+  VList.Add(VExportProvider);
+  CBFormat.Items.Add(VExportProvider.GetCaption);
+
+  VExportProvider :=
+    TExportProviderIMG.Create(
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,

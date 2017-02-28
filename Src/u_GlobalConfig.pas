@@ -47,6 +47,7 @@ uses
   i_GlobalConfig,
   i_InternalDebugConfig,
   i_MapSvcScanConfig,
+  i_ExportToIMGConfig,
   u_ConfigDataElementComplexBase;
 
 type
@@ -94,6 +95,7 @@ type
     FTerrainConfig: ITerrainConfig;
     FZmpConfig: IZmpConfig;
     FMapSvcScanConfig: IMapSvcScanConfig;
+    FExportToIMGConfig: IExportToIMGConfig;
   private
     function GetBaseCahcePath: IPathConfig;
     function GetMapsPath: IPathConfig;
@@ -134,6 +136,7 @@ type
     function GetTerrainConfig: ITerrainConfig;
     function GetZmpConfig: IZmpConfig;
     function GetMapSvcScanConfig: IMapSvcScanConfig;
+    function GetExportToIMGConfig: IExportToIMGConfig;
   public
     constructor Create(
       const AInternalDebugConfig: IInternalDebugConfig;
@@ -173,7 +176,8 @@ uses
   u_MarksGUIConfig,
   u_MarkCategoryFactoryConfig,
   u_GlobalAppConfig,
-  u_PathConfig;
+  u_PathConfig,
+  u_ExportToIMGConfig;
 
 { TGlobalConfig }
 
@@ -305,6 +309,9 @@ begin
 
   FMarksGUIConfig := TMarksGUIConfig.Create;
   Add(FMarksGUIConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarksGUI'), False, False, False, False);
+
+  FExportToIMGConfig := TExportToIMGConfig.Create;
+  Add(FExportToIMGConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('ExportToIMG'), False, False, False, False);
 end;
 
 function TGlobalConfig.GetBaseCahcePath: IPathConfig;
@@ -325,6 +332,11 @@ end;
 function TGlobalConfig.GetDownloaderThreadConfig: IThreadConfig;
 begin
   Result := FDownloaderThreadConfig;
+end;
+
+function TGlobalConfig.GetExportToIMGConfig: IExportToIMGConfig;
+begin
+  Result := FExportToIMGConfig;
 end;
 
 function TGlobalConfig.GetGlobalAppConfig: IGlobalAppConfig;

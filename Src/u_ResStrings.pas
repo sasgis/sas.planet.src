@@ -198,6 +198,7 @@ ResourceString
   SAS_STR_ExportZipPackCaption = 'Compressing to ZIP';
   SAS_STR_ExportTarPackCaption = 'Compressing to TAR';
   SAS_STR_ExportJNXPackCaption = 'JNX raster map for Garmin';
+  SAS_STR_ExportIMGPackCaption = 'IMG raster map for Garmin';
   SAS_STR_ExportOgf2PackCaption = 'Ogf2 map for SmartComGPS 1.5x';
   SAS_STR_ExportCEPackCaption = 'Packed cache for SAS4WinCE/SAS4Android';
   SAS_STR_OperationDeleteCaption = 'Deleting';

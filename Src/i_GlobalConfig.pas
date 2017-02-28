@@ -45,6 +45,7 @@ uses
   i_TerrainConfig,
   i_ZmpConfig,
   i_MapSvcScanConfig,
+  i_ExportToIMGConfig,
   i_ConfigDataElement;
 
 type
@@ -166,6 +167,9 @@ type
 
     function GetMapSvcScanConfig: IMapSvcScanConfig;
     property MapSvcScanConfig: IMapSvcScanConfig read GetMapSvcScanConfig;
+
+    function GetExportToIMGConfig: IExportToIMGConfig;
+    property ExportToIMGConfig: IExportToIMGConfig read GetExportToIMGConfig;
   end;
 
 implementation
