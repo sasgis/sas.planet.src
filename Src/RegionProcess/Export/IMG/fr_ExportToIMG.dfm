@@ -561,20 +561,6 @@ object frExportToIMG: TfrExportToIMG
         BevelOuter = bvNone
         BorderWidth = 3
         TabOrder = 3
-        ExplicitTop = 238
-        object lblGMTPath: TLabel
-          Left = 3
-          Top = 3
-          Width = 466
-          Height = 19
-          Margins.Left = 10
-          Margins.Top = 100
-          Margins.Right = 10
-          Margins.Bottom = 100
-          Align = alTop
-          AutoSize = False
-          Caption = 'Path to GMT.exe:'
-        end
         object edtGMTPath: TEdit
           Left = 3
           Top = 22
@@ -598,6 +584,51 @@ object frExportToIMG: TfrExportToIMG
           Caption = '...'
           TabOrder = 1
           OnClick = btnSetGMTPathClick
+        end
+        object pnlGMTTop: TPanel
+          Left = 3
+          Top = 3
+          Width = 466
+          Height = 19
+          Align = alTop
+          BevelOuter = bvNone
+          TabOrder = 2
+          object lblWebSite: TLabel
+            Left = 209
+            Top = 0
+            Width = 257
+            Height = 19
+            Cursor = crHandPoint
+            Align = alRight
+            AutoSize = False
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlue
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = [fsUnderline]
+            ParentFont = False
+            OnClick = lblWebSiteClick
+            ExplicitLeft = 208
+            ExplicitTop = 1
+            ExplicitHeight = 17
+          end
+          object lblGMTPath: TLabel
+            Left = 0
+            Top = 0
+            Width = 209
+            Height = 19
+            Margins.Left = 10
+            Margins.Top = 100
+            Margins.Right = 10
+            Margins.Bottom = 100
+            Align = alClient
+            AutoSize = False
+            Caption = 'Path to GMT.exe:'
+            ExplicitLeft = 1
+            ExplicitTop = 1
+            ExplicitWidth = 194
+            ExplicitHeight = 17
+          end
         end
       end
       object pnlCompiler: TPanel

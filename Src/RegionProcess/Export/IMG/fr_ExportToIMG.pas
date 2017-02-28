@@ -125,6 +125,8 @@ type
     lblCodePage: TLabel;
     cbbCodePage: TComboBox;
     chkKeepTempFiles: TCheckBox;
+    pnlGMTTop: TPanel;
+    lblWebSite: TLabel;
     procedure btnSelectTargetFileClick(Sender: TObject);
     procedure edtMapCompilePathChange(Sender: TObject);
     procedure edtMapCompilerLicensePathChange(Sender: TObject);
@@ -148,6 +150,7 @@ type
       State: TCustomDrawState; var DefaultDraw: Boolean);
     procedure TBGenerateIdClick(Sender: TObject);
     procedure ZoomGarminDblClick(Sender: TObject);
+    procedure lblWebSiteClick(Sender: TObject);
   private
     FExportToIMGConfig: IExportToIMGConfig;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
@@ -194,6 +197,7 @@ uses
   i_ConfigDataProvider,
   i_PathConfig,
   u_ConfigDataProviderByIniFile,
+  u_InetFunc,
   u_GlobalState;
 
 {$R *.dfm}
@@ -201,6 +205,7 @@ uses
 const
   DefaultSASZooms    = '6,7,8,9,10,11,12,13,14,15,16,17,18';
   DefJPEGCompression = 95;
+  cGMapToolHP = 'http://www.gmaptool.eu/en/content/windows-setup';
 
 function GenerateMapId: LongWord;
 const
@@ -257,6 +262,7 @@ begin
     );
 
   cbbMapFormat.ItemIndex := 2;
+  lblWebSite.Caption := cGMapToolHP;
 
   // Trying to autodetect the code page.
   VIndex := -1;
@@ -471,6 +477,11 @@ begin
   end;
 
   edtMapID.Text := IntToHex(GenerateMapId, 8);
+end;
+
+procedure TfrExportToIMG.lblWebSiteClick(Sender: TObject);
+begin
+  OpenUrlInBrowser(cGMapToolHP);
 end;
 
 procedure TfrExportToIMG.lstSasZoomsClick(Sender: TObject);
