@@ -213,7 +213,7 @@ begin
   {$IF (CompilerVersion >= 24)} // XE3 and UP
   Result := FormatSettings.DateSeparator;
   {$ELSE}
-  Result := DateSeparator;
+  Result := SysUtils.DateSeparator;
   {$IFEND}
 end;
 
