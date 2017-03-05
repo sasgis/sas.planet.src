@@ -380,10 +380,13 @@ begin
       inc(VTileIndex);
     end;
   finally
-    for sk:=skFine to skCoarse do begin
-      if AVolumeInfo.SubmapsPresent[sk] then begin
-        CloseFile(VMtxFiles[sk]);
-      end;
+    // Delphi XE2 cannot correcly compile 'for' loop in this block,
+    // so manual loop unrolling is necessary.
+    if AVolumeInfo.SubmapsPresent[skFine] then begin
+      CloseFile(VMtxFiles[skFine]);
+    end;      
+    if AVolumeInfo.SubmapsPresent[skCoarse] then begin
+      CloseFile(VMtxFiles[skCoarse]);
     end;
   end;
 
