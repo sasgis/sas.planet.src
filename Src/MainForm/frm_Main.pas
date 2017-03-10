@@ -3261,6 +3261,7 @@ begin
             if VLineOnMapEdit <> nil then begin
               if not VLineOnMapEdit.IsEmpty then begin
                 VLineOnMapEdit.Clear;
+                movepoint := false;
               end else begin
                 FState.State := ao_movemap;
               end;
@@ -3273,6 +3274,7 @@ begin
               if VLineOnMapEdit <> nil then begin
                 if not VLineOnMapEdit.IsEmpty then begin
                   VLineOnMapEdit.Clear;
+                  movepoint := false;
                 end else begin
                   FState.State := ao_movemap;
                 end;
@@ -3289,6 +3291,7 @@ begin
               if VLineOnMapEdit <> nil then begin
                 if not VLineOnMapEdit.IsEmpty then begin
                   VLineOnMapEdit.Clear;
+                  movepoint := false;
                 end else begin
                   FState.State := ao_movemap;
                 end;
