@@ -661,7 +661,7 @@ begin
     FMainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.UnlockWrite;
   end;
 
-  FMainFormConfig.ToolbarsLock.SetLock(CBlock_toolbars.Checked);
+  FMainFormConfig.ToolbarsLock.IsLock := CBlock_toolbars.Checked;
   VInetConfig := GState.Config.InetConfig;
   VInetConfig.LockWrite;
   try

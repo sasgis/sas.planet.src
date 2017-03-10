@@ -37,7 +37,7 @@ type
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
     function GetIsLock: Boolean;
-    procedure SetLock(AValue: Boolean);
+    procedure SetIsLock(AValue: Boolean);
   public
     constructor Create;
   end;
@@ -82,7 +82,7 @@ begin
   end;
 end;
 
-procedure TMainWindowToolbarsLock.SetLock(AValue: Boolean);
+procedure TMainWindowToolbarsLock.SetIsLock(AValue: Boolean);
 begin
   LockWrite;
   try

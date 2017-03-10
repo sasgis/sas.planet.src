@@ -7030,7 +7030,7 @@ end;
 
 procedure TfrmMain.actViewToolbarsLockExecute(Sender: TObject);
 begin
-  FConfig.ToolbarsLock.SetLock(not FConfig.ToolbarsLock.GetIsLock);
+  FConfig.ToolbarsLock.IsLock := not FConfig.ToolbarsLock.IsLock;
 end;
 
 procedure TfrmMain.actZoomInExecute(Sender: TObject);
