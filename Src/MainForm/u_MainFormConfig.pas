@@ -36,6 +36,7 @@ uses
   i_DownloadUIConfig,
   i_ViewProjectionConfig,
   i_MarksExplorerConfig,
+  i_PathConfig,
   u_ConfigDataElementComplexBase;
 
 type
@@ -44,6 +45,7 @@ type
     FMainConfig: IMainFormMainConfig;
     FLayersConfig: IMainFormLayersConfig;
     FToolbarsLock: IMainWindowToolbarsLock;
+    FFormStateConfigPath: IPathConfig;
     FNavToPoint: INavigationToPoint;
     FGPSBehaviour: IMainFormBehaviourByGPSConfig;
     FSearchHistory: IStringHistory;
@@ -60,6 +62,7 @@ type
     function GetMainConfig: IMainFormMainConfig;
     function GetLayersConfig: IMainFormLayersConfig;
     function GetToolbarsLock: IMainWindowToolbarsLock;
+    function GetFormStateConfigPath: IPathConfig;
     function GetNavToPoint: INavigationToPoint;
     function GetGPSBehaviour: IMainFormBehaviourByGPSConfig;
     function GetSearchHistory: IStringHistory;
@@ -74,6 +77,7 @@ type
     function GetViewProjectionConfig: IViewProjectionConfig;
   public
     constructor Create(
+      const ABaseConfigPath: IPathConfig;
       const ADefaultMapGUID: TGUID
     );
   end;
@@ -97,11 +101,13 @@ uses
   u_ActiveLayersConfig,
   u_MainFormMainConfig,
   u_ViewProjectionConfig,
+  u_PathConfig,
   u_MarksExplorerConfig;
 
 { TMainFormConfig }
 
 constructor TMainFormConfig.Create(
+  const ABaseConfigPath: IPathConfig;
   const ADefaultMapGUID: TGUID
 );
 begin
@@ -110,6 +116,8 @@ begin
   Add(FMainConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('View'));
   FToolbarsLock := TMainWindowToolbarsLock.Create;
   Add(FToolbarsLock, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PANEL'));
+  FFormStateConfigPath := TPathConfig.Create('ConfigPath', '.\MainFormState.ini', ABaseConfigPath);
+  Add(FFormStateConfigPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PANEL'));
   FNavToPoint := TNavigationToPoint.Create;
   Add(FNavToPoint, TConfigSaveLoadStrategyBasicProviderSubItem.Create('NavToPoint'));
   FGPSBehaviour := TMainFormBehaviourByGPSConfig.Create;
@@ -141,6 +149,11 @@ end;
 function TMainFormConfig.GetDownloadUIConfig: IDownloadUIConfig;
 begin
   Result := FDownloadUIConfig;
+end;
+
+function TMainFormConfig.GetFormStateConfigPath: IPathConfig;
+begin
+  Result := FFormStateConfigPath;
 end;
 
 function TMainFormConfig.GetGPSBehaviour: IMainFormBehaviourByGPSConfig;

@@ -35,6 +35,7 @@ uses
   i_DownloadUIConfig,
   i_MarksExplorerConfig,
   i_ViewProjectionConfig,
+  i_PathConfig,
   i_MainFormLayersConfig;
 
 type
@@ -88,6 +89,9 @@ type
 
     function GetToolbarsLock: IMainWindowToolbarsLock;
     property ToolbarsLock: IMainWindowToolbarsLock read GetToolbarsLock;
+
+    function GetFormStateConfigPath: IPathConfig;
+    property FormStateConfigPath: IPathConfig read GetFormStateConfigPath;
 
     function GetNavToPoint: INavigationToPoint;
     property NavToPoint: INavigationToPoint read GetNavToPoint;

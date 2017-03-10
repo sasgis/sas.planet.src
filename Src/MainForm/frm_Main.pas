@@ -876,6 +876,7 @@ type
 
     FWinPosition: IMainWindowPosition;
     FPanelPositionSaveLoad: IPanelsPositionsSaveLoad;
+    FStateConfigDataProvider: IConfigDataWriteProvider;
 
     FLineOnMapEdit: ILineOnMapEdit;
     FLineOnMapByOperation: array [TStateEnum] of ILineOnMapEdit;
@@ -1056,8 +1057,10 @@ implementation
 uses
   StrUtils,
   Math,
+  IniFiles,
   {$IFNDef UNICODE}
   Compatibility,
+  CompatibilityIniFiles,
   {$ENDIF}
   gnugettext,
   t_CommonTypes,
@@ -1159,6 +1162,7 @@ uses
   u_LayerMiniMapPopupMenu,
   u_PlayerPlugin,
   u_FillingMapPolygon,
+  u_ConfigDataWriteProviderByIniFile,
   u_CmdLineArgProcessor,
   u_CmdLineArgProcessorHelpers,
   frm_LonLatRectEdit;
@@ -1177,6 +1181,8 @@ var
   VMouseState: TMouseState;
   VLineOnMapEditChangeListener: IListener;
   VBitmapStatic: IBitmap32Static;
+  VFormStateFileName: string;
+  VIniFile: TMemIniFile;
 begin
   inherited;
 
@@ -1200,8 +1206,21 @@ begin
   FMergePolygonsResult := TMergePolygonsResult.Create;
 
 
-  FConfig := TMainFormConfig.Create(GState.MapType.FirstMainMapGUID);
+  FConfig := TMainFormConfig.Create(GState.BaseConfigPath, GState.MapType.FirstMainMapGUID);
   FConfig.ReadConfig(GState.MainConfigProvider);
+
+  VFormStateFileName := FConfig.FormStateConfigPath.FullPath;
+  VIniFile := TMeminifile.Create(VFormStateFileName);
+  try
+    if not Assigned(VIniFile.Encoding) then begin
+      VIniFile.Encoding := TEncoding.UTF8;
+    end;
+    FStateConfigDataProvider := TConfigDataWriteProviderByIniFile.CreateWithOwn(VIniFile);
+    VIniFile := nil;
+  finally
+    VIniFile.Free;
+  end;
+
   FMainMapState :=
     TMainMapsState.Create(
       GState.MapTypeSetBuilderFactory,
@@ -1562,10 +1581,10 @@ begin
 
   TBXSetTheme('SAStbxTheme');
 
-  VProvider := GState.MainConfigProvider.GetSubItem('MainForm');
+  VProvider := FStateConfigDataProvider.GetSubItem('MainForm');
   FWinPosition.ReadConfig(VProvider);
 
-  FPanelPositionSaveLoad := TPanelsPositionsSaveLoad.Create(GState.MainConfigProvider);
+  FPanelPositionSaveLoad := TPanelsPositionsSaveLoad.Create(FStateConfigDataProvider);
 
   FInternalErrorListener := TNotifyEventListener.Create(Self.OnInternalErrorNotify);
   FInternalErrorNotifier := GState.MarksDb.ErrorNotifier;
@@ -5639,10 +5658,10 @@ begin
   VProvider := AProvider.GetOrCreateSubItem('HOTKEY');
   FShortCutManager.Save(VProvider);
 
-  VProvider := AProvider.GetOrCreateSubItem('MainForm');
+  VProvider := FStateConfigDataProvider.GetOrCreateSubItem('MainForm');
   FWinPosition.WriteConfig(VProvider);
 
-  VProvider := AProvider.GetOrCreateSubItem('Position');
+  VProvider := FStateConfigDataProvider.GetOrCreateSubItem('Position');
   SavePosition(VProvider);
 
   FConfig.WriteConfig(AProvider);
@@ -5956,7 +5975,7 @@ var
   VLocalConverter: ILocalCoordConverter;
 begin
   inherited;
-  VConfigData := GState.MainConfigProvider.GetSubItem('Position');
+  VConfigData := FStateConfigDataProvider.GetSubItem('Position');
   if VConfigData <> nil then begin
     VLocalConverter := FViewPortState.View.GetStatic;
     VProjectionSet := FActiveProjectionSet.GetStatic;
