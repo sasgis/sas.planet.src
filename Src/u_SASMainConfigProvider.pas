@@ -68,9 +68,7 @@ begin
   VGlobalProvider := TConfigDataProviderVirtualWithSubItem.Create('Resource', VResourceProvider);
   VIniFile := TMeminifile.Create(GetMainConfigFileName(ABasePath, AExeFileName));
   try
-    if not Assigned(VIniFile.Encoding) then begin
-      VIniFile.Encoding := TEncoding.UTF8;
-    end;
+    VIniFile.Encoding := TEncoding.UTF8;
 
     VMainProvider := TConfigDataWriteProviderByIniFile.CreateWithOwn(VIniFile);
     VIniFile := nil;

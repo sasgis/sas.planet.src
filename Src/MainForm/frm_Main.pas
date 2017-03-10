@@ -1212,9 +1212,7 @@ begin
   VFormStateFileName := FConfig.FormStateConfigPath.FullPath;
   VIniFile := TMeminifile.Create(VFormStateFileName);
   try
-    if not Assigned(VIniFile.Encoding) then begin
-      VIniFile.Encoding := TEncoding.UTF8;
-    end;
+    VIniFile.Encoding := TEncoding.UTF8;
     FStateConfigDataProvider := TConfigDataWriteProviderByIniFile.CreateWithOwn(VIniFile);
     VIniFile := nil;
   finally
