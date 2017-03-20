@@ -416,6 +416,7 @@ const
 var
   VGarminZoomList: TStringList;
   VConfigPath: IPathConfig;
+  VIniFileName: string;
   VIniFile: TMeminiFile;
   VJnxScaleConfig: IConfigDataProvider;
   VJnxLevelMappingConfig: IConfigDataProvider;
@@ -430,9 +431,10 @@ begin
     try
       VGarminZoomList.CommaText := GarminMetricZoomListStr;
 
-      VConfigPath := GState.Config.BaseCahcePath.BasePathConfig;
-      if Assigned(VConfigPath) and FileExists(VConfigPath.Path + 'JnxScales.ini') then begin
-        VIniFile := TMeminiFile.Create(VConfigPath.Path + 'JnxScales.ini');
+      VConfigPath := GState.Config.BaseConfigPath;
+      VIniFileName := IncludeTrailingPathDelimiter(VConfigPath.Path) + 'JnxScales.ini';
+      if FileExists(VIniFileName) then begin
+        VIniFile := TMeminiFile.Create(VIniFileName);
         VJnxScaleConfig := TConfigDataProviderByIniFile.CreateWithOwn(VIniFile);
         VJnxLevelMappingConfig := VJnxScaleConfig.GetSubItem('LevelMapping');
 

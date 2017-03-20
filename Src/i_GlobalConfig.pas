@@ -51,8 +51,11 @@ uses
 type
   IGlobalConfig = interface(IConfigDataElement)
     ['{D683FBDE-9549-4581-8516-9ADDCEA64C23}']
-    function GetBaseCahcePath: IPathConfig;
-    property BaseCahcePath: IPathConfig read GetBaseCahcePath;
+    function GetBaseConfigPath: IPathConfig;
+    property BaseConfigPath: IPathConfig read GetBaseConfigPath;
+
+    function GetBaseCachePath: IPathConfig;
+    property BaseCachePath: IPathConfig read GetBaseCachePath;
 
     function GetMapsPath: IPathConfig;
     property MapsPath: IPathConfig read GetMapsPath;

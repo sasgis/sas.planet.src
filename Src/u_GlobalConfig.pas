@@ -53,7 +53,8 @@ uses
 type
   TGlobalConfig = class(TConfigDataElementComplexBase, IGlobalConfig)
   private
-    FBaseCahcePath: IPathConfig;
+    FBaseConfigPath: IPathConfig;
+    FBaseCachePath: IPathConfig;
     FMapsPath: IPathConfig;
     FMapSvcScanPath: IPathConfig;
     FTrackPath: IPathConfig;
@@ -97,7 +98,8 @@ type
     FMapSvcScanConfig: IMapSvcScanConfig;
     FExportToIMGConfig: IExportToIMGConfig;
   private
-    function GetBaseCahcePath: IPathConfig;
+    function GetBaseConfigPath: IPathConfig;
+    function GetBaseCachePath: IPathConfig;
     function GetMapsPath: IPathConfig;
     function GetTrackPath: IPathConfig;
     function GetMarksDbPath: IPathConfig;
@@ -191,8 +193,10 @@ constructor TGlobalConfig.Create(
 );
 begin
   inherited Create;
-  FBaseCahcePath := TPathConfig.Create('PrimaryPath', '.', ABaseCacheDataPath);
-  Add(FBaseCahcePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
+  FBaseConfigPath := ABaseConfigPath;
+
+  FBaseCachePath := ABaseCacheDataPath;
+  Add(FBaseCachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
 
   FMapsPath := TPathConfig.Create('PrimaryPath', '.\Maps', ABaseConfigPath);
   Add(FMapsPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoMAPS'), False, False, False, False);
@@ -314,9 +318,14 @@ begin
   Add(FExportToIMGConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('ExportToIMG'), False, False, False, False);
 end;
 
-function TGlobalConfig.GetBaseCahcePath: IPathConfig;
+function TGlobalConfig.GetBaseCachePath: IPathConfig;
 begin
-  Result := FBaseCahcePath;
+  Result := FBaseCachePath;
+end;
+
+function TGlobalConfig.GetBaseConfigPath: IPathConfig;
+begin
+  Result := FBaseConfigPath;
 end;
 
 function TGlobalConfig.GetBitmapPostProcessingConfig: IBitmapPostProcessingConfig;

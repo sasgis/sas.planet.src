@@ -432,7 +432,7 @@ begin
     TfrPathSelect.Create(
       ALanguageManager,
       gettext_NoOp('Base Cache path'),
-      GState.Config.BaseCahcePath
+      GState.Config.BaseCachePath
     );
   FfrNewCpath :=
     TfrPathSelect.Create(

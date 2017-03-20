@@ -219,7 +219,7 @@ type
     {$ENDIF SasDebugWithJcl}
   public
     property Config: IGlobalConfig read FGlobalConfig;
-    property BaseConfigPath: IPathConfig read FBaseCahcePath;
+    property BaseConfigPath: IPathConfig read FBaseConfigPath;
     property MapType: TMapTypesMainList read FMainMapsList;
     property CacheConfig: IGlobalCacheConfig read FCacheConfig;
     property MarksDb: IMarkSystem read FMarkSystem;
@@ -461,7 +461,7 @@ begin
   FBaseApplicationPath := TPathConfig.Create('', VProgramPath, nil);
   FBaseConfigPath := TPathConfig.Create('', VProgramPath, nil);
   FBaseDataPath := TPathConfig.Create('', VProgramPath, nil);
-  FBaseCahcePath := TPathConfig.Create('', VProgramPath, nil);
+  FBaseCahcePath := TPathConfig.Create('', '.\', FBaseDataPath);
 
   FBuildInfo := TBuildInfo.Create;
 
