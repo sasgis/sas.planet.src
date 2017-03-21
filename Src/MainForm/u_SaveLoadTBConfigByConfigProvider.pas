@@ -149,7 +149,7 @@ var
   VProvider: IConfigDataWriteProvider;
 begin
   VProvider := FConfigProvider.GetOrCreateSubItem('PANEL');
-
+  VProvider.WriteBool('UseConfig', True);
   TBCustomSavePositions(
     AOwnerComponent,
     ConfigProviderWriteInt,
