@@ -342,32 +342,35 @@ var
   VSplitEnabled: Boolean;
 begin
   VMapType := FfrMapSelect.GetSelectedMapType;
-  VCount := VMapType.TileDownloaderConfig.MaxConnectToServerCount;
+  if Assigned(VMapType) then begin
 
-  if Assigned(FDownloaderConfigNotifier) then begin
-    FDownloaderConfigNotifier.Remove(FDownloaderConfigListener);
-  end;
+    VCount := VMapType.TileDownloaderConfig.MaxConnectToServerCount;
 
-  FDownloaderConfigNotifier := VMapType.TileDownloaderConfig.ChangeNotifier;
-  if Assigned(FDownloaderConfigNotifier) then begin
-    FDownloaderConfigNotifier.Add(FDownloaderConfigListener);
-  end;
-
-  VSplitEnabled := VCount > 1;
-
-  if VSplitEnabled then begin
-    sePartsCount.MaxValue := VCount;
-    if sePartsCount.Value > sePartsCount.MaxValue then begin
-      sePartsCount.Value := sePartsCount.MaxValue;
+    if Assigned(FDownloaderConfigNotifier) then begin
+      FDownloaderConfigNotifier.Remove(FDownloaderConfigListener);
     end;
-  end else begin
-    chkSplitRegion.Checked := False;
+
+    FDownloaderConfigNotifier := VMapType.TileDownloaderConfig.ChangeNotifier;
+    if Assigned(FDownloaderConfigNotifier) then begin
+      FDownloaderConfigNotifier.Add(FDownloaderConfigListener);
+    end;
+
+    VSplitEnabled := VCount > 1;
+
+    if VSplitEnabled then begin
+      sePartsCount.MaxValue := VCount;
+      if sePartsCount.Value > sePartsCount.MaxValue then begin
+        sePartsCount.Value := sePartsCount.MaxValue;
+      end;
+    end else begin
+      chkSplitRegion.Checked := False;
+    end;
+
+    chkSplitRegion.Enabled := VSplitEnabled;
+    sePartsCount.Enabled := VSplitEnabled and chkSplitRegion.Checked;
+
+    lblSplitRegionHint.Caption := Format(_(rsLimitHint), [VCount]);
   end;
-
-  chkSplitRegion.Enabled := VSplitEnabled;
-  sePartsCount.Enabled := VSplitEnabled and chkSplitRegion.Checked;
-
-  lblSplitRegionHint.Caption := Format(_(rsLimitHint), [VCount]);
 end;
 
 procedure TfrTilesDownload.chkLoadIfTneOldClick(Sender: TObject);
