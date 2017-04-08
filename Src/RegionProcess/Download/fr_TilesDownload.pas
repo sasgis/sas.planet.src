@@ -475,6 +475,13 @@ begin
   if not Result then begin
     MessageDlg(SAS_MSG_NeedZoom, mtError, [mbOk], 0);
   end;
+
+  if Result then begin
+    Result := FfrMapSelect.GetSelectedMapType <> nil;
+    if not Result then begin
+      ShowMessage(_('Please select a map'));
+    end;
+  end;
 end;
 
 end.
