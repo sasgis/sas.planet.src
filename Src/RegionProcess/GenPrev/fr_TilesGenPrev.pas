@@ -374,6 +374,11 @@ begin
   end;
   if not Result then begin
     ShowMessage(_('Please select at least one zoom'));
+  end else begin
+    Result := FfrMapSelect.GetSelectedMapType <> nil;
+    if not Result then begin
+      ShowMessage(_('Please select a map'));
+    end;
   end;
 end;
 
