@@ -2029,6 +2029,9 @@ begin
 
     CreateProjectionMenu;
 
+{$IF (CompilerVersion >= 23)} // XE2 and UP
+    Self.Touch.InteractiveGestures := Self.Touch.InteractiveGestures + [igZoom];
+{$IFEND}
     FStartedNormal := True;
   finally
     map.SetFocus;
