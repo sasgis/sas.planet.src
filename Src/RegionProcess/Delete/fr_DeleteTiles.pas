@@ -195,15 +195,20 @@ var
   VMapType: IMapType;
   VEmptyTileSamples: IBinaryDataListStatic;
 begin
-  if rgTarget.ItemIndex = 3 then begin
-    VMapType := GetMapType;
-    VEmptyTileSamples := VMapType.Zmp.EmptyTileSamples;
-    Result := Assigned(VEmptyTileSamples) and (VEmptyTileSamples.Count > 0);
-    if not Result then begin
-      ShowMessage(_('Empty tile samples do not exist for this map'));
-    end;
+  VMapType := GetMapType;
+  if VMapType = nil then begin
+    ShowMessage(_('Please select a map'));
+    Result := False;
   end else begin
-    Result := True;
+    if rgTarget.ItemIndex = 3 then begin
+      VEmptyTileSamples := VMapType.Zmp.EmptyTileSamples;
+      Result := Assigned(VEmptyTileSamples) and (VEmptyTileSamples.Count > 0);
+      if not Result then begin
+        ShowMessage(_('Empty tile samples do not exist for this map'));
+      end;
+    end else begin
+      Result := True;
+    end;
   end;
 end;
 
