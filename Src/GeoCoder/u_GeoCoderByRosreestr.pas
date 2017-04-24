@@ -152,6 +152,11 @@ begin
     if VTempString <> '' then VDescription := VDescription + #$D#$A + 'cad_record_date: ' + VTempString;
     VTempString := VJsonObject.S['feature.attrs.util_by_doc'];
     if VTempString <> '' then VDescription := VDescription + #$D#$A + 'util_by_doc: ' + VTempString;
+    VTempString := VJsonObject.S['feature.attrs.cad_cost'];
+    if VTempString <> '' then VDescription := VDescription + #$D#$A + 'cad_cost: ' + VTempString;
+    VTempString := VJsonObject.S['feature.attrs.area_value'];
+    if VTempString <> '' then VDescription := VDescription + #$D#$A + 'area_value: ' + VTempString;
+
     X := VJsonObject.D['feature.center.x'];
     Y := VJsonObject.D['feature.center.y'];
 
