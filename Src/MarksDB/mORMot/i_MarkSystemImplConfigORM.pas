@@ -39,6 +39,9 @@ type
 
     function GetCacheSizeMb: Cardinal;
     property CacheSizeMb: Cardinal read GetCacheSizeMb;
+
+    function GetForcedSchemaName: string;
+    property ForcedSchemaName: string read GetForcedSchemaName;
   end;
 
 implementation

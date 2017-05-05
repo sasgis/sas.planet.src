@@ -356,6 +356,9 @@ begin
       end else begin
         FDBMSProps := TODBCConnectionProperties.Create(VConnectionStr, '', '', '');
       end;
+      if FImplConfig.ForcedSchemaName <> '' then begin
+        FDBMSProps.ForcedSchemaName := FImplConfig.ForcedSchemaName;
+      end;
       {$ELSE}
       raise EMarkSystemORMError.Create('MarkSystemORM: ODBC driver is disabled');
       {$ENDIF}
