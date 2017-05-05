@@ -72,7 +72,7 @@ constructor TMarkSystemImplConfigORM.Create(
 begin
   inherited Create(AFileName, AIsReadOnly);
   FCacheSizeMb := ACacheSizeMb;
-  FForcedSchemaName := AForcedSchemaName;
+  FForcedSchemaName := Trim(AForcedSchemaName);
   FSynUser := TSynUserPassword.Create;
   FSynUser.UserName := StringToUTF8(AUserName);
   if APasswordPlain <> '' then begin
