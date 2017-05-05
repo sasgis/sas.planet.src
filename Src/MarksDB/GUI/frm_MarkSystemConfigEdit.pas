@@ -69,6 +69,10 @@ type
     pnlCache: TPanel;
     lblCacheSize: TLabel;
     seCacheSize: TSpinEdit;
+    grdpnlOptions2: TGridPanel;
+    pnlForcedSchemaName: TPanel;
+    edtForcedSchemaName: TEdit;
+    lblForcedSchemaName: TLabel;
     procedure btnCancelClick(Sender: TObject);
     procedure cbbDbTypeChange(Sender: TObject);
     procedure FormClose(
@@ -210,9 +214,11 @@ begin
       edtUserName.Text := FImplORM.UserName;
       edtPass.Text := FImplORM.PasswordPlain;
       seCacheSize.Value := FImplORM.CacheSizeMb;
+      edtForcedSchemaName.Text := FImplORM.ForcedSchemaName;
     end else begin
       edtUserName.Text := '';
       edtPass.Text := '';
+      edtForcedSchemaName.Text := '';
     end;
 
     edtDisplayName.Text := FConfig.DisplayName;
@@ -232,6 +238,7 @@ begin
     edtUserName.Text := '';
     edtPass.Text := '';
     seCacheSize.Value := 100;
+    edtForcedSchemaName.Text := '';
 
     chkReadOnly.Checked := False;
 
@@ -246,7 +253,7 @@ var
   VSelectedGUID: TGUID;
   VUserEnabled: Boolean;
   VPassEnabled: Boolean;
-  VIsSML, VIsSQLite: Boolean;
+  VIsSML, VIsSQLite, VIsODBC: Boolean;
 begin
   if cbbDbType.ItemIndex >= 0 then begin
     VSelectedGUID := FGUIDList[cbbDbType.ItemIndex];
@@ -274,6 +281,10 @@ begin
 
     seCacheSize.Enabled := not VIsSML;
     lblCacheSize.Enabled := not VIsSML;
+
+    VIsODBC := IsEqualGUID(VSelectedGUID, cORMODBCMarksDbGUID);
+    lblForcedSchemaName.Enabled := VIsODBC;
+    edtForcedSchemaName.Enabled := VIsODBC;
   end;
 end;
 
@@ -368,7 +379,8 @@ begin
         edtUserName.Text,
         edtPass.Text,
         '',
-        seCacheSize.Value
+        seCacheSize.Value,
+        edtForcedSchemaName.Text
       );
   end else begin
     Assert(False);

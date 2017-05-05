@@ -4,8 +4,8 @@ object frmMarkSystemConfigEdit: TfrmMarkSystemConfigEdit
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSizeToolWin
   Caption = 'Add Marks Database'
-  ClientHeight = 321
-  ClientWidth = 425
+  ClientHeight = 354
+  ClientWidth = 394
   Color = clBtnFace
   Constraints.MinHeight = 360
   Constraints.MinWidth = 410
@@ -23,7 +23,7 @@ object frmMarkSystemConfigEdit: TfrmMarkSystemConfigEdit
     AlignWithMargins = True
     Left = 10
     Top = 10
-    Width = 405
+    Width = 374
     Height = 50
     Margins.Left = 10
     Margins.Top = 10
@@ -31,45 +31,41 @@ object frmMarkSystemConfigEdit: TfrmMarkSystemConfigEdit
     Align = alTop
     Caption = 'Database type'
     TabOrder = 0
-    ExplicitWidth = 382
     object cbbDbType: TComboBox
       AlignWithMargins = True
       Left = 12
       Top = 18
-      Width = 381
+      Width = 350
       Height = 21
       Margins.Left = 10
       Margins.Right = 10
       Align = alClient
       TabOrder = 0
       OnChange = cbbDbTypeChange
-      ExplicitWidth = 358
     end
   end
   object grpFile: TGroupBox
     AlignWithMargins = True
     Left = 10
     Top = 66
-    Width = 405
+    Width = 374
     Height = 48
     Margins.Left = 10
     Margins.Right = 10
     Align = alTop
     Caption = 'File name'
     TabOrder = 1
-    ExplicitWidth = 382
     object edtFileName: TEdit
       Left = 12
       Top = 16
-      Width = 357
+      Width = 326
       Height = 21
       Align = alCustom
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 0
-      ExplicitWidth = 334
     end
     object btnOpenFile: TButton
-      Left = 375
+      Left = 344
       Top = 16
       Width = 21
       Height = 21
@@ -78,38 +74,35 @@ object frmMarkSystemConfigEdit: TfrmMarkSystemConfigEdit
       Caption = '...'
       TabOrder = 1
       OnClick = btnOpenFileClick
-      ExplicitLeft = 352
     end
   end
   object grpDisplayName: TGroupBox
     AlignWithMargins = True
     Left = 10
     Top = 120
-    Width = 405
+    Width = 374
     Height = 48
     Margins.Left = 10
     Margins.Right = 10
     Align = alTop
     Caption = 'Name (on the list)'
     TabOrder = 2
-    ExplicitWidth = 382
     object edtDisplayName: TEdit
       Left = 12
       Top = 16
-      Width = 381
+      Width = 350
       Height = 21
       Align = alCustom
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 0
-      ExplicitWidth = 358
     end
   end
   object grpOptions: TGroupBox
     AlignWithMargins = True
     Left = 10
     Top = 174
-    Width = 405
-    Height = 110
+    Width = 374
+    Height = 139
     Margins.Left = 10
     Margins.Right = 10
     Align = alTop
@@ -118,7 +111,7 @@ object frmMarkSystemConfigEdit: TfrmMarkSystemConfigEdit
     object grdpnlOptions: TGridPanel
       Left = 2
       Top = 15
-      Width = 401
+      Width = 370
       Height = 42
       Align = alTop
       BevelOuter = bvNone
@@ -148,18 +141,16 @@ object frmMarkSystemConfigEdit: TfrmMarkSystemConfigEdit
       object pnlUser: TPanel
         Left = 0
         Top = 0
-        Width = 200
+        Width = 185
         Height = 42
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitWidth = 189
-        ExplicitHeight = 45
         object lblUserName: TLabel
           AlignWithMargins = True
           Left = 10
           Top = 0
-          Width = 187
+          Width = 172
           Height = 13
           Margins.Left = 10
           Margins.Top = 0
@@ -172,7 +163,7 @@ object frmMarkSystemConfigEdit: TfrmMarkSystemConfigEdit
           AlignWithMargins = True
           Left = 9
           Top = 17
-          Width = 182
+          Width = 167
           Height = 21
           Margins.Left = 9
           Margins.Right = 9
@@ -180,25 +171,21 @@ object frmMarkSystemConfigEdit: TfrmMarkSystemConfigEdit
           AutoSize = False
           BevelEdges = [beLeft, beTop, beRight]
           TabOrder = 0
-          ExplicitWidth = 171
         end
       end
       object pnlPass: TPanel
-        Left = 200
+        Left = 185
         Top = 0
-        Width = 201
+        Width = 185
         Height = 42
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitLeft = 189
-        ExplicitWidth = 189
-        ExplicitHeight = 45
         object lblPass: TLabel
           AlignWithMargins = True
           Left = 8
           Top = 0
-          Width = 190
+          Width = 174
           Height = 13
           Margins.Left = 8
           Margins.Top = 0
@@ -210,18 +197,17 @@ object frmMarkSystemConfigEdit: TfrmMarkSystemConfigEdit
         object edtPass: TEdit
           Left = 6
           Top = 17
-          Width = 170
+          Width = 154
           Height = 21
           Align = alCustom
           Anchors = [akLeft, akTop, akRight]
           BevelEdges = [beLeft, beTop, beRight]
           PasswordChar = '*'
           TabOrder = 0
-          ExplicitWidth = 158
         end
         object chkShowPass: TCheckBox
           AlignWithMargins = True
-          Left = 181
+          Left = 165
           Top = 14
           Width = 17
           Height = 25
@@ -232,14 +218,119 @@ object frmMarkSystemConfigEdit: TfrmMarkSystemConfigEdit
           ShowHint = True
           TabOrder = 1
           OnClick = chkShowPassClick
-          ExplicitLeft = 170
         end
       end
     end
     object grdpnlOptions1: TGridPanel
       Left = 2
       Top = 57
-      Width = 401
+      Width = 370
+      Height = 45
+      Align = alTop
+      BevelOuter = bvNone
+      ColumnCollection = <
+        item
+          Value = 50.000000000000000000
+        end
+        item
+          Value = 50.000000000000000000
+        end>
+      ControlCollection = <
+        item
+          Column = 0
+          Control = pnlForcedSchemaName
+          Row = 0
+        end
+        item
+          Column = 1
+          Control = pnlCache
+          Row = 0
+        end>
+      RowCollection = <
+        item
+          Value = 100.000000000000000000
+        end
+        item
+          SizeStyle = ssAuto
+        end>
+      TabOrder = 1
+      object pnlForcedSchemaName: TPanel
+        Left = 0
+        Top = 0
+        Width = 185
+        Height = 45
+        Align = alClient
+        BevelOuter = bvNone
+        TabOrder = 1
+        object lblForcedSchemaName: TLabel
+          AlignWithMargins = True
+          Left = 10
+          Top = 3
+          Width = 172
+          Height = 13
+          Margins.Left = 10
+          Align = alTop
+          Caption = 'Forced Schema Name:'
+          ExplicitTop = 0
+          ExplicitWidth = 107
+        end
+        object edtForcedSchemaName: TEdit
+          AlignWithMargins = True
+          Left = 9
+          Top = 21
+          Width = 167
+          Height = 21
+          Margins.Left = 9
+          Margins.Top = 2
+          Margins.Right = 9
+          Align = alTop
+          AutoSize = False
+          BevelEdges = [beLeft, beTop, beRight]
+          TabOrder = 0
+          ExplicitTop = 16
+        end
+      end
+      object pnlCache: TPanel
+        Left = 185
+        Top = 0
+        Width = 185
+        Height = 45
+        Align = alClient
+        BevelOuter = bvNone
+        TabOrder = 0
+        DesignSize = (
+          185
+          45)
+        object lblCacheSize: TLabel
+          AlignWithMargins = True
+          Left = 8
+          Top = 3
+          Width = 174
+          Height = 13
+          Margins.Left = 8
+          Align = alTop
+          Caption = 'Cache Size, Mb:'
+          ExplicitWidth = 77
+        end
+        object seCacheSize: TSpinEdit
+          AlignWithMargins = True
+          Left = 6
+          Top = 20
+          Width = 171
+          Height = 22
+          Anchors = [akLeft, akTop, akRight]
+          Increment = 10
+          MaxValue = 1024
+          MinValue = 0
+          TabOrder = 0
+          Value = 100
+        end
+      end
+    end
+    object grdpnlOptions2: TGridPanel
+      Left = 2
+      Top = 102
+      Width = 370
       Height = 45
       Align = alTop
       BevelOuter = bvNone
@@ -255,85 +346,40 @@ object frmMarkSystemConfigEdit: TfrmMarkSystemConfigEdit
           Column = 0
           Control = pnlReadOnly
           Row = 0
-        end
-        item
-          Column = 1
-          Control = pnlCache
-          Row = 0
         end>
       RowCollection = <
         item
           Value = 100.000000000000000000
         end>
-      TabOrder = 1
-      ExplicitTop = 55
+      TabOrder = 2
       object pnlReadOnly: TPanel
         Left = 0
         Top = 0
-        Width = 200
+        Width = 185
         Height = 45
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitWidth = 189
         object chkReadOnly: TCheckBox
           AlignWithMargins = True
           Left = 9
-          Top = 25
-          Width = 188
+          Top = 5
+          Width = 173
           Height = 17
           Margins.Left = 9
           Margins.Top = 5
-          Align = alBottom
+          Align = alTop
           Caption = 'Read-Only'
           TabOrder = 0
-          ExplicitWidth = 177
-        end
-      end
-      object pnlCache: TPanel
-        Left = 200
-        Top = 0
-        Width = 201
-        Height = 45
-        Align = alClient
-        BevelOuter = bvNone
-        TabOrder = 1
-        ExplicitLeft = 189
-        ExplicitWidth = 189
-        DesignSize = (
-          201
-          45)
-        object lblCacheSize: TLabel
-          AlignWithMargins = True
-          Left = 8
-          Top = 3
-          Width = 190
-          Height = 13
-          Margins.Left = 8
-          Align = alTop
-          Caption = 'Cache Size, Mb:'
-          ExplicitWidth = 77
-        end
-        object seCacheSize: TSpinEdit
-          AlignWithMargins = True
-          Left = 6
-          Top = 20
-          Width = 187
-          Height = 22
-          Anchors = [akLeft, akTop, akRight]
-          Increment = 10
-          MaxValue = 1024
-          MinValue = 0
-          TabOrder = 0
-          Value = 100
-          ExplicitWidth = 175
+          ExplicitLeft = 6
+          ExplicitTop = 8
         end
       end
     end
   end
   object btnOk: TButton
-    Left = 211
-    Top = 290
+    Left = 180
+    Top = 323
     Width = 100
     Height = 25
     Align = alCustom
@@ -341,12 +387,11 @@ object frmMarkSystemConfigEdit: TfrmMarkSystemConfigEdit
     Caption = 'Apply'
     TabOrder = 4
     OnClick = btnOkClick
-    ExplicitLeft = 188
-    ExplicitTop = 298
+    ExplicitTop = 457
   end
   object btnCancel: TButton
-    Left = 317
-    Top = 290
+    Left = 286
+    Top = 323
     Width = 100
     Height = 25
     Align = alCustom
@@ -354,11 +399,10 @@ object frmMarkSystemConfigEdit: TfrmMarkSystemConfigEdit
     Caption = 'Cancel'
     TabOrder = 5
     OnClick = btnCancelClick
-    ExplicitLeft = 294
-    ExplicitTop = 298
+    ExplicitTop = 457
   end
   object dlgOpenDb: TOpenDialog
-    Left = 120
-    Top = 240
+    Left = 296
+    Top = 160
   end
 end
