@@ -97,19 +97,11 @@ begin
 end;
 
 function TBitmapMapCombinerGeoTIFF._GetTiffType: TTiffType;
-const
-  cOldTiffMaxFileSize = 4 * 1024 * 1024; // 4000 MB
 var
-  VSize: Double;
-  VCompressionCoeff: Single;
+  VSize: Int64;
+  VOldTiffMaxFileSize: Int64;
   VBytesPerPix: Integer;
 begin
-  if FCompression = gtcNone then begin
-    VCompressionCoeff := 1.0;
-  end else begin
-    VCompressionCoeff := 2.5; // just try guess compression ratio
-  end;
-
   case FFileFormat of
     gtfOld: Result := ttOldTiff;
     gtfBig: Result := ttBigTiff;
@@ -120,8 +112,9 @@ begin
       end else begin
         VBytesPerPix := 3;
       end;
-      VSize := FWidth * FHeight * VBytesPerPix / (VCompressionCoeff * 1024);
-      if Round(VSize) >= cOldTiffMaxFileSize then begin
+      VSize := FWidth * FHeight * VBytesPerPix;
+      VOldTiffMaxFileSize := Int64(4000) * 1024 * 1024; // 4000 MB
+      if VSize >= VOldTiffMaxFileSize then begin
         Result := ttBigTiff;
       end else begin
         Result := ttOldTiff;
