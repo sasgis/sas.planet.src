@@ -148,7 +148,8 @@ object frGPSConfig: TfrGPSConfig
               '19200'
               '38400'
               '57600'
-              '115200')
+              '115200'
+              '230400')
           end
         end
         object CB_GPSAutodetectCOMOnConnect: TCheckBox
