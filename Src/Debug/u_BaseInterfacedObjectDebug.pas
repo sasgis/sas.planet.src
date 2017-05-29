@@ -97,6 +97,9 @@ procedure TBaseInterfacedObjectDebug.BeforeDestruction;
 var
   VList: IInternalPerformanceCounterListForDebugOneClass;
 begin
+{$IF (CompilerVersion >= 24)} // XE3 and UP
+  inherited BeforeDestruction;
+{$ELSE}
   if FRefCount < 0 then begin
     raise Exception.Create(rsDoubleFree);
   end else if FRefCount <> 0 then begin
@@ -104,6 +107,7 @@ begin
   end;
   inherited BeforeDestruction;
   FRefCount := cUndefRefCount;
+{$IFEND}
 
   VList := GetCounter;
   if VList <> nil then begin

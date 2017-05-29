@@ -28,12 +28,7 @@ uses
 type
   TBaseInterfacedObject =
     {$IFDEF DEBUG}
-      {$IF (CompilerVersion >= 24)} // XE3 and UP
-      TInterfacedObject;
-      {$MESSAGE WARN 'TBaseInterfacedObjectDebug disabled!'}
-      {$ELSE}
-      TBaseInterfacedObjectDebug;
-      {$IFEND}
+    TBaseInterfacedObjectDebug;
     {$ELSE}
     TInterfacedObject;
     {$ENDIF}
