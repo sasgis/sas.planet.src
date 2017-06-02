@@ -326,7 +326,7 @@ begin
   FLinksList := TListenerNotifierLinksList.Create;
 
   FLinksList.Add(
-    TListenerTimeCheck.Create(Self.OnTimer, 1000),
+    TListenerTimeCheck.Create(Self.OnTimer, 200),
     ATimerNoifier
   );
 
