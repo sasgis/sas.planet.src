@@ -579,6 +579,8 @@ end;
 function TExportMarks2KML.SaveMarkIcon(
   const AAppearanceIcon: IAppearancePointIcon
 ): string;
+const
+  cFilesFolderName = 'files';
 var
   VTargetPath: string;
   VTargetFullName: string;
@@ -593,12 +595,11 @@ begin
       VStream := TStreamReadOnlyByBinaryData.Create(VData);
       try
         VPicName := ExtractFileName(AAppearanceIcon.Pic.GetName);
-        VTargetPath := 'files' + PathDelim;
-        Result := VTargetPath + VPicName;
+        Result := cFilesFolderName + '/' + VPicName;
         if Assigned(FZip) then begin
           FZip.AddFile(VData, Result, Now);
         end else begin
-          VTargetPath := ExtractFilePath(FFileName) + VTargetPath;
+          VTargetPath := ExtractFilePath(FFileName) + cFilesFolderName + PathDelim;
           VTargetFullName := VTargetPath + VPicName;
           CreateDir(VTargetPath);
           VStream.SaveToFile(VTargetFullName);
