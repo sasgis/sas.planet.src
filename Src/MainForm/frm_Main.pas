@@ -2684,6 +2684,7 @@ begin
   TBEditPath.Visible := False;
 
   tbitmSaveMark.Visible :=
+    (VNewState = ao_calc_line) or
     (VNewState = ao_edit_line) or
     (VNewState = ao_edit_poly);
 
@@ -5388,7 +5389,7 @@ begin
         VResult := FMarkDBGUI.SaveMarkModal(FEditMarkPoly, VPolygonEdit.Polygon.Geometry, True);
       end;
     end;
-    ao_edit_line: begin
+    ao_edit_line, ao_calc_line: begin
       if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathEdit) then begin
         VResult := FMarkDBGUI.SaveMarkModal(FEditMarkLine, VPathEdit.Path.Geometry, True, FMarshrutComment);
       end;
