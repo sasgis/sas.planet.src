@@ -3336,6 +3336,7 @@ begin
               end;
             end;
           end;
+          ao_calc_line,
           ao_edit_line,
           ao_select_line: begin
             VLineOnMapEdit := FLineOnMapEdit;
