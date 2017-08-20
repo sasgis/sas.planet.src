@@ -47,11 +47,16 @@ type
 implementation
 
 uses
+  IniFiles,
   ALString,
   xmldom,
+  i_PathConfig,
+  i_ConfigDataProvider,
   u_XmlLoaderByVSAGPS,
   u_StreamReadOnlyByBinaryData,
-  u_GeoToStrFunc;
+  u_GeoToStrFunc,
+  u_ConfigDataProviderByIniFile,
+  u_GlobalState;
 
 function SkipNodeByLCName(const ANodeNameLC: String): Boolean;
 
@@ -270,10 +275,25 @@ var
   VLink: AnsiString;
   key: AnsiString;
   i: integer;
+  VConfigPath: IPathConfig;
+  VIniFileName: string;
+  VIniFile: TMeminiFile;
+  VConfig: IConfigDataProvider;
+  VSectionDG2: IConfigDataProvider;
 begin
   Key:= FDefaultKey;
   for i := 1 to Length(Key) do begin
     Key[i] := AnsiChar(Ord(Key[i]) + 1);
+  end;
+
+  VConfigPath := GState.Config.BaseConfigPath;
+  VIniFileName := IncludeTrailingPathDelimiter(VConfigPath.Path) + 'MapSvcScan\MapSvcScan.ini';
+  if FileExists(VIniFileName) then begin
+    VIniFile := TMeminiFile.Create(VIniFileName);
+    VConfig := TConfigDataProviderByIniFile.CreateWithOwn(VIniFile);
+    VSectionDG2 := VConfig.GetSubItem('DG2');
+    if VSectionDG2 <> nil then
+      key := VSectionDG2.ReadAnsiString('key', key);
   end;
 
   // zoom 15 - 256x256
