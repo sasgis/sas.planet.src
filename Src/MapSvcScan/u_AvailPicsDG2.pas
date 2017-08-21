@@ -286,8 +286,9 @@ begin
     Key[i] := AnsiChar(Ord(Key[i]) + 1);
   end;
 
-  VConfigPath := GState.Config.BaseConfigPath;
-  VIniFileName := IncludeTrailingPathDelimiter(VConfigPath.Path) + 'MapSvcScan\MapSvcScan.ini';
+  VConfigPath := GState.Config.MapSvcScanConfig.Path;
+  VIniFileName := IncludeTrailingPathDelimiter(VConfigPath.Path) + 'MapSvcScan.ini';
+
   if FileExists(VIniFileName) then begin
     VIniFile := TMeminiFile.Create(VIniFileName);
     VConfig := TConfigDataProviderByIniFile.CreateWithOwn(VIniFile);
