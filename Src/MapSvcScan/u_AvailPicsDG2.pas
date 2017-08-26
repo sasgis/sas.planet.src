@@ -287,7 +287,7 @@ begin
   end;
 
   VConfigPath := GState.Config.MapSvcScanConfig.Path;
-  VIniFileName := IncludeTrailingPathDelimiter(VConfigPath.Path) + 'MapSvcScan.ini';
+  VIniFileName := IncludeTrailingPathDelimiter(VConfigPath.FullPath) + 'MapSvcScan.ini';
 
   if FileExists(VIniFileName) then begin
     VIniFile := TMeminiFile.Create(VIniFileName);
