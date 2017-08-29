@@ -254,21 +254,17 @@ begin
   // last modified time (if exists)
   if (AInfo.ftLastWriteTime.dwLowDateTime <> 0) and (AInfo.ftLastWriteTime.dwHighDateTime <> 0) then begin
     VFileTimePtr := @(AInfo.ftLastWriteTime);
+  end else if (AInfo.ftCreationTime.dwLowDateTime <> 0) and (AInfo.ftCreationTime.dwHighDateTime <> 0) then begin
+    // created time (if exists)
+    VFileTimePtr := @(AInfo.ftCreationTime);
   end;
 
-  // created time (if exists and greater)
-  if (AInfo.ftCreationTime.dwLowDateTime <> 0) and (AInfo.ftCreationTime.dwHighDateTime <> 0) then begin
-    if (nil = VFileTimePtr) or (CompareFileTime(AInfo.ftCreationTime, VFileTimePtr^) > 0) then begin
-      VFileTimePtr := @(AInfo.ftCreationTime);
-    end;
-  end;
-
-  // convert max value
-  if (nil <> VFileTimePtr) then begin
-    if (FileTimeToSystemTime(VFileTimePtr^, VSysTime) <> FALSE) then begin
+  if VFileTimePtr <> nil then begin
+    if FileTimeToSystemTime(VFileTimePtr^, VSysTime) then begin
       try
         Result := SystemTimeToDateTime(VSysTime);
       except
+        //
       end;
     end;
   end;
