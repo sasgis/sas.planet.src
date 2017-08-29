@@ -35,7 +35,7 @@
 		<PropertyGroup Condition="'$(Base)'!=''">
 			<DCC_UNIT_DEPRECATED>false</DCC_UNIT_DEPRECATED>
 			<DCC_MapFile>3</DCC_MapFile>
-			<DCC_UnitSearchPath>Includes;Includes\RarProgressBar;Includes\Fundamentals;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;Includes\FastMM;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_UnitSearchPath>Placeholders;Includes;Includes\RarProgressBar;Includes\Fundamentals;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;Includes\FastMM;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<DCC_ExeOutput>.\.bin</DCC_ExeOutput>
 			<DCC_DcuOutput>.\.dcu</DCC_DcuOutput>
 			<DCC_SYMBOL_DEPRECATED>false</DCC_SYMBOL_DEPRECATED>
@@ -52,9 +52,9 @@
 			<DCC_HppOutput>.\.dcu</DCC_HppOutput>
 			<DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
 			<DCC_UnitSearchPath>Includes\FastCode;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
-			<DCC_ResourcePath>Includes;Includes\RarProgressBar;Includes\FastMM;Includes\Fundamentals;Includes\FastCode;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;$(DCC_ResourcePath)</DCC_ResourcePath>
-			<DCC_ObjPath>Includes;Includes\RarProgressBar;Includes\FastMM;Includes\Fundamentals;Includes\FastCode;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;$(DCC_ObjPath)</DCC_ObjPath>
-			<DCC_IncludePath>Includes;Includes\RarProgressBar;Includes\FastMM;Includes\Fundamentals;Includes\FastCode;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;$(DCC_IncludePath)</DCC_IncludePath>
+			<DCC_ResourcePath>Placeholders;Includes;Includes\RarProgressBar;Includes\FastMM;Includes\Fundamentals;Includes\FastCode;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;$(DCC_ResourcePath)</DCC_ResourcePath>
+			<DCC_ObjPath>Placeholders;Includes;Includes\RarProgressBar;Includes\FastMM;Includes\Fundamentals;Includes\FastCode;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;$(DCC_ObjPath)</DCC_ObjPath>
+			<DCC_IncludePath>Placeholders;Includes;Includes\RarProgressBar;Includes\FastMM;Includes\Fundamentals;Includes\FastCode;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;$(DCC_IncludePath)</DCC_IncludePath>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2)'!=''">
 			<DCC_DebugDCUs>true</DCC_DebugDCUs>
@@ -65,9 +65,9 @@
 			<DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
 			<DCC_GenerateStackFrames>True</DCC_GenerateStackFrames>
 			<DCC_SymbolReferenceInfo>2</DCC_SymbolReferenceInfo>
-			<DCC_ResourcePath>Includes;Includes\RarProgressBar;Includes\Fundamentals;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;$(DCC_ResourcePath)</DCC_ResourcePath>
-			<DCC_ObjPath>Includes;Includes\RarProgressBar;Includes\Fundamentals;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;$(DCC_ObjPath)</DCC_ObjPath>
-			<DCC_IncludePath>Includes;Includes\RarProgressBar;Includes\Fundamentals;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;$(DCC_IncludePath)</DCC_IncludePath>
+			<DCC_ResourcePath>Placeholders;Includes;Includes\RarProgressBar;Includes\Fundamentals;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;$(DCC_ResourcePath)</DCC_ResourcePath>
+			<DCC_ObjPath>Placeholders;Includes;Includes\RarProgressBar;Includes\Fundamentals;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;$(DCC_ObjPath)</DCC_ObjPath>
+			<DCC_IncludePath>Placeholders;Includes;Includes\RarProgressBar;Includes\Fundamentals;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;$(DCC_IncludePath)</DCC_IncludePath>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
 			<DCC_RangeChecking>false</DCC_RangeChecking>
