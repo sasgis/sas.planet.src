@@ -4328,6 +4328,7 @@ procedure TfrmMain.ProcessViewGridTileCellClick(const ATag: Integer);
 var
   VZoom: Byte;
   VIsRelativeZoom: Boolean;
+  VVisible: Boolean;
 begin
   case ATag of
     0: begin
@@ -4343,7 +4344,15 @@ begin
       end;
       FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.LockWrite;
       try
-        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := True;
+        if (FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Zoom = VZoom)
+          and (FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible)
+          and (FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UseRelativeZoom = VIsRelativeZoom)
+        then begin
+          VVisible := False
+        end else begin
+          VVisible := True;
+        end;
+        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := VVisible;
         FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UseRelativeZoom := VIsRelativeZoom;
         FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Zoom := VZoom;
       finally
