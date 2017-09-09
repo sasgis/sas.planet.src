@@ -484,7 +484,7 @@ object frmMain: TfrmMain
           object tbtpltViewGridTile: TTBXToolPalette
             ColCount = 5
             Images = ScalesImageList
-            PaletteOptions = []
+            PaletteOptions = [tpoNoAutoSelect]
             RowCount = 7
             OnCellClick = tbtpltViewGridTileCellClick
             OnGetCellVisible = tbtpltViewGridTileGetCellVisible
