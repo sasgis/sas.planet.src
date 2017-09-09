@@ -1354,7 +1354,7 @@ begin
 
   // make for DigitalGlobe2
   if (nil=FDG2) then
-    FDG2 := TAvailPicsDG2.Create(VProjectionSet, @FAvailPicsTileInfo, FMapSvcScanStorage);
+    FDG2 := TAvailPicsDG2.Create(VProjectionSet, @FAvailPicsTileInfo, FMapSvcScanStorage, FMapSvcScanConfig);
 
   // make for nokia map creator
   GenerateAvailPicsNMC(FNMCs, @FAvailPicsTileInfo, VProjectionSet, FMapSvcScanStorage);

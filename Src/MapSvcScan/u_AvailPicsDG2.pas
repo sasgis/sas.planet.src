@@ -26,6 +26,9 @@ uses
   SysUtils,
   Classes,
   i_InetConfig,
+  i_ProjectionSet,
+  i_MapSvcScanStorage,
+  i_MapSvcScanConfig,
   i_DownloadResult,
   i_DownloadRequest,
   u_DownloadRequest,
@@ -33,7 +36,16 @@ uses
 
 type
   TAvailPicsdg2 = class(TAvailPicsByKey)
+  private
+    FMapSvcScanConfig: IMapSvcScanConfig;
   public
+    constructor Create(
+      const AProjectionSet: IProjectionSet;
+      const ATileInfoPtr: PAvailPicsTileInfo;
+      const AMapSvcScanStorage: IMapSvcScanStorage;
+      const AMapSvcScanConfig: IMapSvcScanConfig
+    );
+
     procedure AfterConstruction; override;
 
     function ContentType: String; override;
@@ -55,8 +67,7 @@ uses
   u_XmlLoaderByVSAGPS,
   u_StreamReadOnlyByBinaryData,
   u_GeoToStrFunc,
-  u_ConfigDataProviderByIniFile,
-  u_GlobalState;
+  u_ConfigDataProviderByIniFile;
 
 function SkipNodeByLCName(const ANodeNameLC: String): Boolean;
 
@@ -117,6 +128,18 @@ end;
 
 { TAvailPicsDG2 }
 
+constructor TAvailPicsdg2.Create(
+  const AProjectionSet: IProjectionSet;
+  const ATileInfoPtr: PAvailPicsTileInfo;
+  const AMapSvcScanStorage: IMapSvcScanStorage;
+  const AMapSvcScanConfig: IMapSvcScanConfig
+);
+begin
+  Assert(AMapSvcScanConfig <> nil);
+  inherited Create(AProjectionSet, ATileInfoPtr, AMapSvcScanStorage);
+  FMapSvcScanConfig := AMapSvcScanConfig;
+end;
+
 procedure TAvailPicsdg2.AfterConstruction;
 begin
   inherited;
@@ -129,7 +152,6 @@ function TAvailPicsdg2.ContentType: String;
 begin
   Result := 'text/xml';
 end;
-
 
 function TAvailPicsdg2.ParseResponse(const AResultOk: IDownloadResultOk): Integer;
 var
@@ -286,7 +308,7 @@ begin
     Key[i] := AnsiChar(Ord(Key[i]) + 1);
   end;
 
-  VConfigPath := GState.Config.MapSvcScanConfig.Path;
+  VConfigPath := FMapSvcScanConfig.Path;
   VIniFileName := IncludeTrailingPathDelimiter(VConfigPath.FullPath) + 'MapSvcScan.ini';
 
   if FileExists(VIniFileName) then begin
