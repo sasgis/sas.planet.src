@@ -1094,6 +1094,7 @@ uses
   i_MapVersionInfo,
   i_MapVersionRequest,
   i_MapVersionListStatic,
+  i_MapLayerGridsConfig,
   i_InternalDomainOptions,
   i_TileInfoBasic,
   i_TileStorage,
@@ -4328,11 +4329,13 @@ procedure TfrmMain.ProcessViewGridTileCellClick(const ATag: Integer);
 var
   VZoom: Byte;
   VIsRelativeZoom: Boolean;
-  VVisible: Boolean;
+  VTileGrid: ITileGridConfig;
 begin
+  VTileGrid := FConfig.LayersConfig.MapLayerGridsConfig.TileGrid;
+
   case ATag of
     0: begin
-      FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := False;
+      VTileGrid.Visible := False;
     end;
     1..30: begin
       if ATag <= 24 then begin
@@ -4342,21 +4345,18 @@ begin
         VZoom := ATag - 24 - 1;
         VIsRelativeZoom := True;
       end;
-      FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.LockWrite;
-      try
-        if (FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Zoom = VZoom)
-          and (FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible)
-          and (FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UseRelativeZoom = VIsRelativeZoom)
-        then begin
-          VVisible := False
-        end else begin
-          VVisible := True;
+
+      if (VTileGrid.Zoom = VZoom) and (VTileGrid.UseRelativeZoom = VIsRelativeZoom) then begin
+        VTileGrid.Visible := not VTileGrid.Visible;
+      end else begin
+        VTileGrid.LockWrite;
+        try
+          VTileGrid.Visible := True;
+          VTileGrid.UseRelativeZoom := VIsRelativeZoom;
+          VTileGrid.Zoom := VZoom;
+        finally
+          VTileGrid.UnlockWrite;
         end;
-        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := VVisible;
-        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UseRelativeZoom := VIsRelativeZoom;
-        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Zoom := VZoom;
-      finally
-        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UnlockWrite;
       end;
     end;
   else
