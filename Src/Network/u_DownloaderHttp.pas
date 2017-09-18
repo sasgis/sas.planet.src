@@ -530,6 +530,13 @@ function TDownloaderHttp.OnAfterResponse(
 
     if VResult = S_OK then begin
       Result := AnsiString(VContentType);
+
+      // fix detected mime types for IE versions prior IE 9
+      if AlLowerCase(Result) = 'image/x-png' then begin
+        Result := 'image/png';
+      end else if AlLowerCase(Result) = 'image/pjpeg' then begin
+        Result := 'image/jpeg';
+      end;
     end;
   end;
 
