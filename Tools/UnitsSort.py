@@ -143,6 +143,8 @@ def main(src_path):
         patch_proj_file(src_path + 'SASPlanet.dproj', flst)
         patch_proj_file(src_path + 'SASPlanet.XE.dproj', flst)
         patch_proj_file(src_path + 'SASPlanet.XE2.dproj', flst)
+        patch_proj_file(src_path + 'SASPlanet.Berlin.dproj', flst)
+        patch_proj_file(src_path + 'SASPlanet.Tokyo.dproj', flst)
         sort_dpr(src_path + 'SASPlanet.dpr', False)
 
 
