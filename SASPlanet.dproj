@@ -867,7 +867,7 @@
     <DCCReference Include="Src\MarksDB\i_MarkFactoryConfig.pas" />
     <DCCReference Include="Src\MarksDB\i_MarkId.pas" />
     <DCCReference Include="Src\MarksDB\i_MarkNameGenerator.pas" />
-    <DCCReference Include="Src\MarksDB\i_MarkPicture.pas" />
+    <DCCReference Include="Src\MarkPicture\i_MarkPicture.pas" />
     <DCCReference Include="Src\MarksDB\i_MarkSystem.pas" />
     <DCCReference Include="Src\MarksDB\i_MarkSystemConfig.pas" />
     <DCCReference Include="Src\MarksDB\i_MarkSystemErrorMsg.pas" />
@@ -931,8 +931,8 @@
     <DCCReference Include="Src\MarksDB\u_MarkFullBase.pas" />
     <DCCReference Include="Src\MarksDB\u_MarkLineTemplateConfig.pas" />
     <DCCReference Include="Src\MarksDB\u_MarkNameGenerator.pas" />
-    <DCCReference Include="Src\MarksDB\u_MarkPictureListSimple.pas" />
-    <DCCReference Include="Src\MarksDB\u_MarkPictureSimple.pas" />
+    <DCCReference Include="Src\MarkPicture\u_MarkPictureListSimple.pas" />
+    <DCCReference Include="Src\MarkPicture\u_MarkPictureSimple.pas" />
     <DCCReference Include="Src\MarksDB\u_MarkPointTemplateConfig.pas" />
     <DCCReference Include="Src\MarksDB\u_MarkPolyTemplateConfig.pas" />
     <DCCReference Include="Src\MarksDB\u_MarkSystem.pas" />
