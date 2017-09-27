@@ -850,6 +850,9 @@
         <DCCReference Include="Src\MapVersion\u_MapVersionRequest.pas"/>
         <DCCReference Include="Src\MapVersion\u_MapVersionRequestChangeable.pas"/>
         <DCCReference Include="Src\MapVersion\u_MapVersionRequestConfig.pas"/>
+        <DCCReference Include="Src\MarkPicture\i_MarkPicture.pas"/>
+        <DCCReference Include="Src\MarkPicture\u_MarkPictureListSimple.pas"/>
+        <DCCReference Include="Src\MarkPicture\u_MarkPictureSimple.pas"/>
         <DCCReference Include="Src\Marker\i_BitmapMarker.pas"/>
         <DCCReference Include="Src\Marker\i_MarkerDrawable.pas"/>
         <DCCReference Include="Src\Marker\i_MarkerFromFileConfig.pas"/>
@@ -970,7 +973,6 @@
         <DCCReference Include="Src\MarksDB\i_MarkFactoryConfig.pas"/>
         <DCCReference Include="Src\MarksDB\i_MarkId.pas"/>
         <DCCReference Include="Src\MarksDB\i_MarkNameGenerator.pas"/>
-        <DCCReference Include="Src\MarkPicture\i_MarkPicture.pas"/>
         <DCCReference Include="Src\MarksDB\i_MarkSystem.pas"/>
         <DCCReference Include="Src\MarksDB\i_MarkSystemConfig.pas"/>
         <DCCReference Include="Src\MarksDB\i_MarkSystemErrorMsg.pas"/>
@@ -1017,8 +1019,6 @@
         <DCCReference Include="Src\MarksDB\u_MarkFullBase.pas"/>
         <DCCReference Include="Src\MarksDB\u_MarkLineTemplateConfig.pas"/>
         <DCCReference Include="Src\MarksDB\u_MarkNameGenerator.pas"/>
-        <DCCReference Include="Src\MarkPicture\u_MarkPictureListSimple.pas"/>
-        <DCCReference Include="Src\MarkPicture\u_MarkPictureSimple.pas"/>
         <DCCReference Include="Src\MarksDB\u_MarkPointTemplateConfig.pas"/>
         <DCCReference Include="Src\MarksDB\u_MarkPolyTemplateConfig.pas"/>
         <DCCReference Include="Src\MarksDB\u_MarkSystem.pas"/>
@@ -1797,6 +1797,11 @@
         <DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
         <DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
         <DCCReference Include="Src\u_WindowPositionConfig.pas"/>
+        <DCCReference Include="Src\MarkPicture\i_MarkPictureConfig.pas"/>
+        <DCCReference Include="Src\MarkPicture\c_MarkPictureAnchor.pas"/>
+        <DCCReference Include="Src\MarkPicture\u_MarkPictureConfigByFolder.pas"/>
+        <DCCReference Include="Src\MarkPicture\u_MarkPictureConfig.pas"/>
+        <DCCReference Include="Src\MarkPicture\u_MarkPictureAnchorFunc.pas"/>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

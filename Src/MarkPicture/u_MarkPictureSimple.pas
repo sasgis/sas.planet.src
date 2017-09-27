@@ -26,6 +26,7 @@ uses
   SysUtils,
   Classes,
   t_Hash,
+  t_GeoTypes,
   i_SimpleFlag,
   i_BinaryData,
   i_BitmapMarker,
@@ -34,8 +35,6 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TMarkPictureAnchor = (paDefault, paCenter);
-
   TMarkPictureSimple = class(TBaseInterfacedObject, IMarkPicture)
   private
     FHash: THashValue;
@@ -46,7 +45,7 @@ type
     FCS: IReadWriteSync;
     FBitmapMarker: IBitmapMarker;
     FSource: IBinaryData;
-    FPicAnchor: TMarkPictureAnchor;
+    FPicAnchor: TDoublePoint;
 
     FInitedFlag: ISimpleFlag;
     procedure InitPic;
@@ -66,19 +65,18 @@ type
       const AFullFileName: string;
       const AName: string;
       const ALoader: IBitmapTileLoader;
-      const APicAnchor: TMarkPictureAnchor = paDefault
+      const APicAnchor: TDoublePoint
     );
   end;
 
 implementation
 
 uses
-  u_Synchronizer,
-  t_GeoTypes,
   i_Bitmap32Static,
   u_BitmapMarker,
+  u_BinaryDataByMemStream,
   u_SimpleFlagWithInterlock,
-  u_BinaryDataByMemStream;
+  u_Synchronizer;
 
 { TMarkPictureSimple }
 constructor TMarkPictureSimple.Create(
@@ -86,7 +84,7 @@ constructor TMarkPictureSimple.Create(
   const AFullFileName: string;
   const AName: string;
   const ALoader: IBitmapTileLoader;
-  const APicAnchor: TMarkPictureAnchor
+  const APicAnchor: TDoublePoint
 );
 begin
   inherited Create;
@@ -130,17 +128,8 @@ begin
         end;
         VBitmap := FLoader.Load(FSource);
 
-        case FPicAnchor of
-          paCenter: begin
-            VAnchor.X := VBitmap.Size.X / 2;
-            VAnchor.Y := VBitmap.Size.Y / 2;
-          end;
-        else // paDefault
-        begin
-          VAnchor.X := VBitmap.Size.X / 2;
-          VAnchor.Y := VBitmap.Size.Y;
-        end;
-        end;
+        VAnchor.X := VBitmap.Size.X * FPicAnchor.X;
+        VAnchor.Y := VBitmap.Size.Y * FPicAnchor.Y;
 
         FBitmapMarker := TBitmapMarker.Create(VBitmap, VAnchor);
         FInitedFlag.SetFlag;

@@ -29,6 +29,7 @@ uses
   i_PathConfig,
   i_ContentTypeManager,
   i_MarkPicture,
+  i_MarkPictureConfig,
   i_BitmapTileSaveLoad,
   u_BaseInterfacedObject;
 
@@ -43,6 +44,7 @@ type
     FBasePath: IPathConfig;
     FMediaDataPath: IPathConfig;
     FContentTypeManager: IContentTypeManager;
+    FMarkPictureConfig: IMarkPictureConfig;
     procedure Clear;
     function _GetFromRuntimeList(AIndex: Integer): IMarkPicture;
     function _TryAddToRuntimeList(const AValue: string): Integer;
@@ -62,6 +64,7 @@ type
   public
     constructor Create(
       const AHashFunction: IHashFunction;
+      const AMarkPictureConfig: IMarkPictureConfig;
       const ABasePath: IPathConfig;
       const AMediaDataPath: IPathConfig;
       const AContentTypeManager: IContentTypeManager
@@ -75,6 +78,8 @@ uses
   StrUtils,
   ALString,
   t_Hash,
+  t_GeoTypes,
+  c_MarkPictureAnchor,
   c_InternalBrowser,
   i_ContentTypeInfo,
   u_Synchronizer,
@@ -126,12 +131,16 @@ end;
 
 constructor TMarkPictureListSimple.Create(
   const AHashFunction: IHashFunction;
+  const AMarkPictureConfig: IMarkPictureConfig;
   const ABasePath: IPathConfig;
   const AMediaDataPath: IPathConfig;
   const AContentTypeManager: IContentTypeManager
 );
 begin
+  Assert(AMarkPictureConfig <> nil);
+
   inherited Create;
+  FMarkPictureConfig := AMarkPictureConfig;
   FHashFunction := AHashFunction;
   FBasePath := ABasePath;
   FMediaDataPath := AMediaDataPath;
@@ -187,6 +196,7 @@ var
   VShortName: string;
   VPath: string;
   VHash: THashValue;
+  VAnchor: TDoublePoint;
 begin
   inherited;
   Clear;
@@ -207,9 +217,19 @@ begin
         Continue;
       end;
 
+      VAnchor := FMarkPictureConfig.GetAnchor(VFullName);
       VHash := FHashFunction.CalcHashByString(VFullName);
-      VPicture := TMarkPictureSimple.Create(VHash, VFullName, VShortName, VLoader);
+
+      VPicture :=
+        TMarkPictureSimple.Create(
+          VHash,
+          VFullName,
+          VShortName,
+          VLoader,
+          VAnchor
+        );
       VPicture._AddRef;
+
       FBaseList.AddObject(VShortName, TObject(Pointer(VPicture)));
     end;
   finally
@@ -397,7 +417,7 @@ begin
         VFullName,
         VShortName,
         VLoader,
-        paCenter // ToDO: Add config for PicAnchor
+        cPicAnchorCenter
       );
       VPicture._AddRef;
       Result := FRuntimeList.AddObject(VShortName, TObject(Pointer(VPicture)));

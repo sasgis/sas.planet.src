@@ -38,6 +38,7 @@ uses
   i_MarkFactoryConfig,
   i_MarkCategoryFactoryConfig,
   i_MarksGUIConfig,
+  i_MarkPictureConfig,
   i_GlobalDownloadConfig,
   i_ThreadConfig,
   i_StartUpLogoConfig,
@@ -68,6 +69,9 @@ type
 
     function GetMarksIconsPath: IPathConfig;
     property MarksIconsPath: IPathConfig read GetMarksIconsPath;
+
+    function GetMarkPictureConfig: IMarkPictureConfig;
+    property MarkPictureConfig: IMarkPictureConfig read GetMarkPictureConfig;
 
     function GetMediaDataPath: IPathConfig;
     property MediaDataPath: IPathConfig read GetMediaDataPath;

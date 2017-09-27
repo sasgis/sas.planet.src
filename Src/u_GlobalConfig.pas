@@ -36,6 +36,7 @@ uses
   i_MarkFactoryConfig,
   i_MarksGUIConfig,
   i_MarkCategoryFactoryConfig,
+  i_MarkPictureConfig,
   i_GPSConfig,
   i_GlobalViewMainConfig,
   i_GlobalDownloadConfig,
@@ -60,6 +61,7 @@ type
     FTrackPath: IPathConfig;
     FMarksDbPath: IPathConfig;
     FMarksIconsPath: IPathConfig;
+    FMarkPictureConfig: IMarkPictureConfig;
     FMediaDataPath: IPathConfig;
     FTerrainDataPath: IPathConfig;
     FUserDataPath: IPathConfig;
@@ -104,6 +106,7 @@ type
     function GetTrackPath: IPathConfig;
     function GetMarksDbPath: IPathConfig;
     function GetMarksIconsPath: IPathConfig;
+    function GetMarkPictureConfig: IMarkPictureConfig;
     function GetMediaDataPath: IPathConfig;
     function GetTerrainDataPath: IPathConfig;
     function GetUserDataPath: IPathConfig;
@@ -177,6 +180,7 @@ uses
   u_MarkFactoryConfig,
   u_MarksGUIConfig,
   u_MarkCategoryFactoryConfig,
+  u_MarkPictureConfig,
   u_GlobalAppConfig,
   u_PathConfig,
   u_ExportToIMGConfig;
@@ -212,6 +216,9 @@ begin
 
   FMarksIconsPath := TPathConfig.Create('PrimaryPath', '.\MarksIcons', ABaseApplicationPath);
   Add(FMarksIconsPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PathToMarksIcons'), False, False, False, False);
+
+  FMarkPictureConfig := TMarkPictureConfig.Create(FMarksIconsPath);
+  Add(FMarkPictureConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarkPictureConfig'), False, False, False, False);
 
   FMediaDataPath := TPathConfig.Create('PrimaryPath', '.\MediaData', ABaseDataPath);
   Add(FMediaDataPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoMediaData'), False, False, False, False);
@@ -416,6 +423,11 @@ end;
 function TGlobalConfig.GetMapSvcScanConfig: IMapSvcScanConfig;
 begin
   Result := FMapSvcScanConfig;
+end;
+
+function TGlobalConfig.GetMarkPictureConfig: IMarkPictureConfig;
+begin
+  Result := FMarkPictureConfig;
 end;
 
 function TGlobalConfig.GetMarksCategoryFactoryConfig: IMarkCategoryFactoryConfig;

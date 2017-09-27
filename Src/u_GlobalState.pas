@@ -702,6 +702,7 @@ begin
   FMarkPictureListInternal :=
     TMarkPictureListSimple.Create(
       FHashFunction,
+      FGlobalConfig.MarkPictureConfig,
       FGlobalConfig.MarksIconsPath,
       FGlobalConfig.MediaDataPath,
       FContentTypeManager

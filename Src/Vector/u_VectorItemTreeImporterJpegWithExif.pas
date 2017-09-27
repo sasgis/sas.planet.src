@@ -83,6 +83,7 @@ uses
   CCR.Exif,
   CCR.Exif.IPTC,
   t_GeoTypes,
+  c_MarkPictureAnchor,
   c_InternalBrowser,
   i_MarkPicture,
   i_VectorItemSubset,
@@ -357,7 +358,8 @@ begin
                 FHashFunction.CalcHashByString(VPicFullName),
                 VPicFullName,
                 VPicShortName,
-                VLoader
+                VLoader,
+                cPicAnchorCenter
               );
             VAppearance :=
               FAppearanceOfMarkFactory.CreatePointAppearance(
