@@ -1150,6 +1150,15 @@
     </DCCReference>
     <DCCReference Include="Src\RegionProcess\Export\GeoExpressAUX\u_ExportProviderAUX.pas" />
     <DCCReference Include="Src\RegionProcess\Export\GeoExpressAUX\u_ThreadExportToAUX.pas" />
+    <DCCReference Include="Src\RegionProcess\Export\IMG\fr_ExportToIMG.pas">
+      <Form>frExportToIMG</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
+    <DCCReference Include="Src\RegionProcess\Export\IMG\i_ExportToIMGConfig.pas" />
+    <DCCReference Include="Src\RegionProcess\Export\IMG\u_ExportProviderIMG.pas" />
+    <DCCReference Include="Src\RegionProcess\Export\IMG\u_ExportToIMGConfig.pas" />
+    <DCCReference Include="Src\RegionProcess\Export\IMG\u_ExportToIMGTask.pas" />
+    <DCCReference Include="Src\RegionProcess\Export\IMG\u_ThreadExportToIMG.pas" />
     <DCCReference Include="Src\RegionProcess\Export\IPhone\fr_ExportIPhone.pas">
       <Form>frExportIPhone</Form>
       <DesignClass>TFrame</DesignClass>
@@ -1163,15 +1172,6 @@
     <DCCReference Include="Src\RegionProcess\Export\JNX\u_ExportProviderJNX.pas" />
     <DCCReference Include="Src\RegionProcess\Export\JNX\u_ExportToJnxTask.pas" />
     <DCCReference Include="Src\RegionProcess\Export\JNX\u_ThreadExportToJNX.pas" />
-    <DCCReference Include="Src\RegionProcess\Export\IMG\fr_ExportToIMG.pas">
-      <Form>frExportToJNX</Form>
-      <DesignClass>TFrame</DesignClass>
-    </DCCReference>
-    <DCCReference Include="Src\RegionProcess\Export\IMG\u_ExportProviderIMG.pas"/>
-    <DCCReference Include="Src\RegionProcess\Export\IMG\u_ExportToIMGTask.pas"/>
-    <DCCReference Include="Src\RegionProcess\Export\IMG\u_ThreadExportToIMG.pas"/>
-    <DCCReference Include="Src\RegionProcess\Export\IMG\i_ExportToIMGConfig.pas"/>
-    <DCCReference Include="Src\RegionProcess\Export\IMG\u_ExportToIMGConfig.pas"/>
     <DCCReference Include="Src\RegionProcess\Export\KML\fr_ExportGEKml.pas">
       <Form>frExportGEKml</Form>
       <DesignClass>TFrame</DesignClass>
