@@ -46,6 +46,7 @@ type
     FDefaultAnchor: TDoublePoint;
     FMarkPicturePath: string;
     procedure Clear;
+    function IsValidAnchor(const AAnchor: TDoublePoint): Boolean; inline;
     function GetConfigDataProvider: IConfigDataProvider;
     function GetConfigDataWriteProvider: IConfigDataWriteProvider;
   protected
@@ -153,6 +154,16 @@ begin
   end;
 end;
 
+function TMarkPictureConfigByFolder.IsValidAnchor(
+  const AAnchor: TDoublePoint
+): Boolean;
+begin
+  Result :=
+    not PointIsEmpty(AAnchor) and
+    (AAnchor.X >= 0) and (AAnchor.X <= 1) and
+    (AAnchor.Y >= 0) and (AAnchor.Y <= 1);
+end;
+
 procedure TMarkPictureConfigByFolder.DoReadConfig(
   const AConfigData: IConfigDataProvider
 );
@@ -169,7 +180,7 @@ procedure TMarkPictureConfigByFolder.DoReadConfig(
       VAnchor.X := AConfig.ReadFloat('AnchorX', NAN);
       VAnchor.Y := AConfig.ReadFloat('AnchorY', NAN);
     end;
-    Result := not PointIsEmpty(VAnchor);
+    Result := IsValidAnchor(VAnchor);
     if Result then begin
       AAnchor := VAnchor;
     end;
@@ -270,6 +281,7 @@ begin
   LockRead;
   try
     VName := ExtractFileName(APicName);
+    Assert(VName <> '');
     I := FItemsList.IndexOf(VName);
     if I >= 0 then begin
       Result := PItemRec(FItemsList.Objects[I]).Anchor;
@@ -290,9 +302,16 @@ var
   VName: string;
   VItem: PItemRec;
 begin
+  if not IsValidAnchor(AAnchor) then begin
+    raise Exception.CreateFmt(
+      'Invalid anchor value [%.2f, %.2f]',
+      [AAnchor.X, AAnchor.Y]
+    );
+  end;
   LockWrite;
   try
     VName := ExtractFileName(APicName);
+    Assert(VName <> '');
     I := FItemsList.IndexOf(VName);
     if I >= 0 then begin
       VItem := PItemRec(FItemsList.Objects[I]);
