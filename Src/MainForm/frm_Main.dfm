@@ -771,6 +771,15 @@ object frmMain: TfrmMain
           Caption = 'Merge Polygons'
           Hint = ''
         end
+        object TBSeparatorItem4: TTBSeparatorItem
+          Caption = ''
+          Hint = ''
+        end
+        object tbxIconsSettings: TTBXItem
+          Action = actIconsSettings
+          Images = PanelsImageList
+          Caption = ''
+        end
       end
       object tbsbmGPS: TTBXSubmenuItem
         Caption = 'GPS'
@@ -4354,6 +4363,11 @@ object frmMain: TfrmMain
       Category = 'View'
       Caption = 'Restore'
       OnExecute = actViewNotMinimizedExecute
+    end
+    object actIconsSettings: TAction
+      Category = 'Marks'
+      Caption = 'Icons Settings'
+      OnExecute = actIconsSettingsExecute
     end
   end
   object tbxpmnScaleLine: TTBXPopupMenu

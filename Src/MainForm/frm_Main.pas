@@ -123,6 +123,7 @@ uses
   frm_PointProjecting,
   frm_UpdateChecker,
   frm_PascalScriptIDE,
+  frm_MarkPictureConfig,
   frm_FavoriteMapSetEditor,
   frm_FavoriteMapSetManager,
   u_CommonFormAndFrameParents;
@@ -559,6 +560,9 @@ type
     tbiConfigScaleLineNumberFormatScience: TTBXItem;
     tbiConfigScaleLineVisible: TTBXItem;
     tbiConfigScaleLineOptionsShow: TTBXItem;
+    tbxIconsSettings: TTBXItem;
+    TBSeparatorItem4: TTBSeparatorItem;
+    actIconsSettings: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -805,6 +809,7 @@ type
     procedure actConfigScaleLineExtendedExecute(Sender: TObject);
     procedure actConfigScaleLineOptionsShowExecute(Sender: TObject);
     procedure actConfigScaleLineNumberFormatExecute(Sender: TObject);
+    procedure actIconsSettingsExecute(Sender: TObject);
   private
     FactlstGeoCoders: TActionList;
     FactlstProjections: TActionList;
@@ -902,6 +907,7 @@ type
     FfrmCacheManager: TfrmCacheManager;
     FfrmMarksExplorer: TfrmMarksExplorer;
     FfrmAbout: TfrmAbout;
+    FfrmMarkPictureConfig: TfrmMarkPictureConfig;
     FfrmPointProjecting: TfrmPointProjecting;
     FfrmUpdateChecker: TfrmUpdateChecker;
     FfrmPascalScriptIDE: TfrmPascalScriptIDE;
@@ -2549,6 +2555,7 @@ begin
   FLinksList := nil;
   FRegionProcess := nil;
   FreeAndNil(FfrmAbout);
+  FreeAndNil(FfrmMarkPictureConfig);
   FreeAndNil(FTumbler);
   FreeAndNil(FRuller);
   FreeAndNil(FfrmGoTo);
@@ -6638,6 +6645,19 @@ begin
     );
   end;
   FfrmAbout.ShowModal;
+end;
+
+procedure TfrmMain.actIconsSettingsExecute(Sender: TObject);
+begin
+  if FfrmMarkPictureConfig = nil then begin
+    FfrmMarkPictureConfig := TfrmMarkPictureConfig.Create(
+      GState.Config.LanguageManager,
+      GState.Config.MarksIconsPath,
+      GState.MarkPictureList,
+      GState.Config.MarkPictureConfig
+    );
+  end;
+  FfrmMarkPictureConfig.ShowModal;
 end;
 
 procedure TfrmMain.actMakeLinkOnDesktopExecute(Sender: TObject);

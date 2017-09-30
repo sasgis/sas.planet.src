@@ -29,6 +29,8 @@ uses
 type
   IMarkPictureConfig = interface(IConfigDataElement)
     ['{1A89412D-EFD7-4669-A3ED-A90DAE340BC1}']
+    function GetDefaultAnchor(const APicName: string): TDoublePoint;
+
     function GetAnchor(const APicName: string): TDoublePoint;
     procedure SetAnchor(const APicName: string; const AAnchor: TDoublePoint);
   end;

@@ -3,11 +3,22 @@ unit u_MarkPictureAnchorFunc;
 interface
 
 uses
+  Types,
+  Classes,
   t_GeoTypes,
   c_MarkPictureAnchor;
 
 function GetAnchorFromName(const AName: string): TDoublePoint;
 function IsKnownAnchor(const AAnchor: TDoublePoint; out AName: string): Boolean;
+
+procedure AddAnchorNamesToList(const AList: TStrings);
+
+function AnchorRelativeToAbsolute(const ARelative: TDoublePoint; const APicSize: TPoint): TDoublePoint;
+function AnchorAbsoluteToRelative(const AAbsolute: TDoublePoint; const APicSize: TPoint): TDoublePoint;
+
+function AnchorAbsoluteToPoint(const AAbsolute: TDoublePoint; const APicSize: TPoint): TPoint;
+function AnchorRelativeToPoint(const ARelative: TDoublePoint; const APicSize: TPoint): TPoint;
+
 
 implementation
 
@@ -52,6 +63,76 @@ begin
       Break;
     end;
   end;
+end;
+
+procedure AddAnchorNamesToList(const AList: TStrings);
+var
+  I: Integer;
+begin
+  for I := 0 to Length(GAnchorItemsArray) - 1 do begin
+    AList.Add(GAnchorItemsArray[I].ReadableName);
+  end;
+end;
+
+function AnchorRelativeToAbsolute(
+  const ARelative: TDoublePoint;
+  const APicSize: TPoint
+): TDoublePoint;
+begin
+  if (ARelative.X < 0) or (ARelative.X > 1) or
+     (ARelative.Y < 0) or (ARelative.Y > 1)
+  then begin
+    raise Exception.CreateFmt(
+      'Anchor relative value out of range: %.2f; %.2f',
+      [ARelative.X, ARelative.Y]
+    );
+  end;
+  Result.X := (APicSize.X - 1) * ARelative.X + 1;
+  Result.Y := (APicSize.Y - 1) * ARelative.Y + 1;
+end;
+
+function AnchorAbsoluteToRelative(
+  const AAbsolute: TDoublePoint;
+  const APicSize: TPoint
+): TDoublePoint;
+begin
+  if (AAbsolute.X < 1) or (AAbsolute.X > APicSize.X) or
+     (AAbsolute.Y < 1) or (AAbsolute.Y > APicSize.Y)
+  then begin
+    raise Exception.CreateFmt(
+      'Anchor absolute value out of range: %.2f; %.2f (pic size: %dx%d)',
+      [AAbsolute.X, AAbsolute.Y, APicSize.X, APicSize.Y]
+    );
+  end;
+  Result.X := (AAbsolute.X - 1) / (APicSize.X - 1);
+  Result.Y := (AAbsolute.Y - 1) / (APicSize.Y - 1);
+end;
+
+function AnchorAbsoluteToPoint(
+  const AAbsolute: TDoublePoint;
+  const APicSize: TPoint
+): TPoint;
+begin
+  if (AAbsolute.X < 1) or (AAbsolute.X > APicSize.X) or
+     (AAbsolute.Y < 1) or (AAbsolute.Y > APicSize.Y)
+  then begin
+    raise Exception.CreateFmt(
+      'Anchor absolute value out of range: %.2f; %.2f (pic size: %dx%d)',
+      [AAbsolute.X, AAbsolute.Y, APicSize.X, APicSize.Y]
+    );
+  end;
+  Result := PointFromDoublePoint(AAbsolute, prToTopLeft);
+end;
+
+function AnchorRelativeToPoint(
+  const ARelative: TDoublePoint;
+  const APicSize: TPoint
+): TPoint;
+var
+  VAbsolute: TDoublePoint;
+begin
+  VAbsolute := AnchorRelativeToAbsolute(ARelative, APicSize);
+  Result := AnchorAbsoluteToPoint(VAbsolute, APicSize);
 end;
 
 procedure InitAnchorItemsArray;

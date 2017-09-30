@@ -29,6 +29,7 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_MarkPictureConfig,
+  u_GeoFunc,
   u_ConfigDataElementBase;
 
 type
@@ -54,6 +55,7 @@ type
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
     { IMarkPictureConfig }
+    function GetDefaultAnchor(const APicName: string): TDoublePoint;
     function GetAnchor(const APicName: string): TDoublePoint;
     procedure SetAnchor(const APicName: string; const AAnchor: TDoublePoint);
   public
@@ -74,7 +76,6 @@ uses
   c_MarkPictureAnchor,
   i_StringListStatic,
   u_MarkPictureAnchorFunc,
-  u_GeoFunc,
   u_ConfigDataProviderByIniFile,
   u_ConfigDataWriteProviderByIniFile;
 
@@ -269,6 +270,13 @@ begin
       end;
     end;
   end;
+end;
+
+function TMarkPictureConfigByFolder.GetDefaultAnchor(
+  const APicName: string
+): TDoublePoint;
+begin
+  Result := FDefaultAnchor;
 end;
 
 function TMarkPictureConfigByFolder.GetAnchor(

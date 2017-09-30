@@ -850,7 +850,12 @@
         <DCCReference Include="Src\MapVersion\u_MapVersionRequest.pas"/>
         <DCCReference Include="Src\MapVersion\u_MapVersionRequestChangeable.pas"/>
         <DCCReference Include="Src\MapVersion\u_MapVersionRequestConfig.pas"/>
+        <DCCReference Include="Src\MarkPicture\c_MarkPictureAnchor.pas"/>
         <DCCReference Include="Src\MarkPicture\i_MarkPicture.pas"/>
+        <DCCReference Include="Src\MarkPicture\i_MarkPictureConfig.pas"/>
+        <DCCReference Include="Src\MarkPicture\u_MarkPictureAnchorFunc.pas"/>
+        <DCCReference Include="Src\MarkPicture\u_MarkPictureConfig.pas"/>
+        <DCCReference Include="Src\MarkPicture\u_MarkPictureConfigByFolder.pas"/>
         <DCCReference Include="Src\MarkPicture\u_MarkPictureListSimple.pas"/>
         <DCCReference Include="Src\MarkPicture\u_MarkPictureSimple.pas"/>
         <DCCReference Include="Src\Marker\i_BitmapMarker.pas"/>
@@ -1797,11 +1802,14 @@
         <DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
         <DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
         <DCCReference Include="Src\u_WindowPositionConfig.pas"/>
-        <DCCReference Include="Src\MarkPicture\i_MarkPictureConfig.pas"/>
-        <DCCReference Include="Src\MarkPicture\c_MarkPictureAnchor.pas"/>
-        <DCCReference Include="Src\MarkPicture\u_MarkPictureConfigByFolder.pas"/>
-        <DCCReference Include="Src\MarkPicture\u_MarkPictureConfig.pas"/>
-        <DCCReference Include="Src\MarkPicture\u_MarkPictureAnchorFunc.pas"/>
+        <DCCReference Include="Src\MarkPicture\frm_MarkPictureConfig.pas">
+            <Form>frmMarkPictureConfig</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Src\MarkPicture\frm_MarkPictureEditor.pas">
+            <Form>frmMarkPictureEditor</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

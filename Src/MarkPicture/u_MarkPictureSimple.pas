@@ -75,6 +75,7 @@ uses
   i_Bitmap32Static,
   u_BitmapMarker,
   u_BinaryDataByMemStream,
+  u_MarkPictureAnchorFunc,
   u_SimpleFlagWithInterlock,
   u_Synchronizer;
 
@@ -128,8 +129,7 @@ begin
         end;
         VBitmap := FLoader.Load(FSource);
 
-        VAnchor.X := VBitmap.Size.X * FPicAnchor.X;
-        VAnchor.Y := VBitmap.Size.Y * FPicAnchor.Y;
+        VAnchor := AnchorRelativeToAbsolute(FPicAnchor, VBitmap.Size);
 
         FBitmapMarker := TBitmapMarker.Create(VBitmap, VAnchor);
         FInitedFlag.SetFlag;

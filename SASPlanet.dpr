@@ -653,6 +653,8 @@ uses
   u_MapVersionRequestChangeable in 'Src\MapVersion\u_MapVersionRequestChangeable.pas',
   u_MapVersionRequestConfig in 'Src\MapVersion\u_MapVersionRequestConfig.pas',
   c_MarkPictureAnchor in 'Src\MarkPicture\c_MarkPictureAnchor.pas',
+  frm_MarkPictureConfig in 'Src\MarkPicture\frm_MarkPictureConfig.pas' {frmMarkPictureConfig},
+  frm_MarkPictureEditor in 'Src\MarkPicture\frm_MarkPictureEditor.pas' {frmMarkPictureEditor},
   i_MarkPicture in 'Src\MarkPicture\i_MarkPicture.pas',
   i_MarkPictureConfig in 'Src\MarkPicture\i_MarkPictureConfig.pas',
   u_MarkPictureAnchorFunc in 'Src\MarkPicture\u_MarkPictureAnchorFunc.pas',

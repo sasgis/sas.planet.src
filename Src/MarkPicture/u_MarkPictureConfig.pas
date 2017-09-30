@@ -47,6 +47,7 @@ type
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
     { IMarkPictureConfig }
+    function GetDefaultAnchor(const APicName: string): TDoublePoint;
     function GetAnchor(const APicName: string): TDoublePoint;
     procedure SetAnchor(const APicName: string; const AAnchor: TDoublePoint);
   public
@@ -177,6 +178,16 @@ begin
       VFolderConfig.WriteConfig(nil);
     end;
   end;
+end;
+
+function TMarkPictureConfig.GetDefaultAnchor(
+  const APicName: string
+): TDoublePoint;
+var
+  VFolderConfig: IMarkPictureConfig;
+begin
+  VFolderConfig := GetConfigByPicName(APicName);
+  Result := VFolderConfig.GetDefaultAnchor(APicName);
 end;
 
 function TMarkPictureConfig.GetAnchor(
