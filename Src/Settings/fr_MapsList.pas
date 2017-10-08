@@ -63,12 +63,28 @@ type
       State: TCustomDrawState;
       var DefaultDraw: Boolean
     );
+    procedure MapListCustomDrawItem(
+      Sender: TCustomListView;
+      Item: TListItem;
+      State: TCustomDrawState;
+      var DefaultDraw: Boolean
+    );
+    procedure MapListColumnClick(
+      Sender: TObject;
+      Column: TListColumn
+    );
   private
     FMapTypeEditor: IMapTypeConfigModalEdit;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
     FInternalBrowser: IInternalBrowser;
+    FPrevSortColumnIndex: Integer;
+    FIsPrevSortReversed: Boolean;
     procedure UpdateList;
+    procedure DoCustomSort(
+      const ACol: Integer;
+      const AReverse: Boolean
+    );
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -87,6 +103,7 @@ implementation
 
 uses
   Menus,
+  ExplorerSort,
   c_InternalBrowser,
   i_GUIDListStatic,
   i_MapType,
@@ -203,7 +220,9 @@ begin
   FFullMapsSet := AFullMapsSet;
   FMapTypeEditor := AMapTypeEditor;
   FGUIConfigList := AGUIConfigList;
-  MapList.DoubleBuffered := true;
+  MapList.DoubleBuffered := True;
+  FPrevSortColumnIndex := 0;
+  FIsPrevSortReversed := False;
 end;
 
 destructor TfrMapsList.Destroy;
@@ -221,6 +240,7 @@ end;
 procedure TfrMapsList.Init;
 begin
   UpdateList;
+  DoCustomSort(FPrevSortColumnIndex, FIsPrevSortReversed);
 end;
 
 procedure TfrMapsList.MapListChange(
@@ -239,18 +259,15 @@ begin
   end;
 end;
 
-procedure TfrMapsList.MapListCustomDrawSubItem(
+procedure DoItemCustomDraw(
   Sender: TCustomListView;
-  Item: TListItem;
-  SubItem: Integer;
-  State: TCustomDrawState;
-  var DefaultDraw: Boolean
+  Item: TListItem
 );
 var
   VMapType: IMapType;
 begin
   if Item = nil then begin
-    EXIT;
+    Exit;
   end;
   VMapType := IMapType(Item.Data);
   if VMapType <> nil then begin
@@ -262,16 +279,38 @@ begin
   end;
 end;
 
+procedure TfrMapsList.MapListCustomDrawItem(
+  Sender: TCustomListView;
+  Item: TListItem;
+  State: TCustomDrawState;
+  var DefaultDraw: Boolean
+);
+begin
+  DoItemCustomDraw(Sender, Item);
+end;
+
+procedure TfrMapsList.MapListCustomDrawSubItem(
+  Sender: TCustomListView;
+  Item: TListItem;
+  SubItem: Integer;
+  State: TCustomDrawState;
+  var DefaultDraw: Boolean
+);
+begin
+  DoItemCustomDraw(Sender, Item);
+end;
+
 procedure TfrMapsList.MapListDblClick(Sender: TObject);
 begin
   Button15Click(Sender);
 end;
 
 procedure TfrMapsList.UpdateList;
+
   procedure SetSubItem(
     AItem: TListItem;
     AIndex: Integer;
-  const AValue: string
+    const AValue: string
   );
   var
     i: Integer;
@@ -288,31 +327,33 @@ procedure TfrMapsList.UpdateList;
 
   procedure UpdateItem(
     AItem: TListItem;
-  const AMapType: IMapType
+    const AMapType: IMapType
   );
   var
     VValue: string;
   begin
-    AItem.Caption := AMapType.GUIConfig.Name.Value;
+    AItem.Caption := IntToStr(AItem.Index + 1);
     AItem.Data := Pointer(AMapType);
-    VValue := AMapType.StorageConfig.NameInCache;
+    VValue := AMapType.GUIConfig.Name.Value;
     SetSubItem(AItem, 0, VValue);
+    VValue := AMapType.StorageConfig.NameInCache;
+    SetSubItem(AItem, 1, VValue);
     if AMapType.Zmp.IsLayer then begin
       VValue := SAS_STR_Layers + '\' + AMapType.GUIConfig.ParentSubMenu.Value;
     end else begin
       VValue := SAS_STR_Maps + '\' + AMapType.GUIConfig.ParentSubMenu.Value;
     end;
-    SetSubItem(AItem, 1, VValue);
-    VValue := ShortCutToText(AMapType.GUIConfig.HotKey);
     SetSubItem(AItem, 2, VValue);
-    VValue := AMapType.Zmp.FileName;
+    VValue := ShortCutToText(AMapType.GUIConfig.HotKey);
     SetSubItem(AItem, 3, VValue);
+    VValue := AMapType.Zmp.FileName;
+    SetSubItem(AItem, 4, VValue);
     if AMapType.GUIConfig.Enabled then begin
       VValue := SAS_STR_Yes;
     end else begin
       VValue := SAS_STR_No;
     end;
-    SetSubItem(AItem, 4, VValue);
+    SetSubItem(AItem, 5, VValue);
   end;
 
 var
@@ -348,6 +389,47 @@ begin
   finally
     MapList.Items.EndUpdate;
   end;
+end;
+
+function SortByCol(AItem1, AItem2: TListItem; ACol: Integer): Integer; stdcall;
+begin
+  if ACol = 0 then begin
+    Result := CompareStringOrdinal(AItem1.Caption, AItem2.Caption);
+  end else if AItem1.SubItems.Count > ACol - 1 then begin
+    if AItem2.SubItems.Count > ACol - 1 then begin
+      Result := CompareStringOrdinal(AItem1.SubItems[ACol - 1], AItem2.SubItems[ACol - 1]);
+    end else begin
+      Result := 1;
+    end;
+  end else begin
+    Result := -1;
+  end;
+end;
+
+function SortByColReverse(AItem1, AItem2: TListItem; ACol: Integer): Integer; stdcall;
+begin
+  Result := SortByCol(AItem2, AItem1, ACol);
+end;
+
+procedure TfrMapsList.DoCustomSort(const ACol: Integer; const AReverse: Boolean);
+begin
+  if AReverse then begin
+    MapList.CustomSort(@SortByColReverse, ACol);
+  end else begin
+    MapList.CustomSort(@SortByCol, ACol);
+  end;
+  FPrevSortColumnIndex := ACol;
+  FIsPrevSortReversed := AReverse;
+end;
+
+procedure TfrMapsList.MapListColumnClick(Sender: TObject; Column: TListColumn);
+var
+  VCol: Integer;
+  VReverse: Boolean;
+begin
+  VCol := Column.Index;
+  VReverse := (VCol = FPrevSortColumnIndex) and not FIsPrevSortReversed;
+  DoCustomSort(VCol, VReverse);
 end;
 
 end.

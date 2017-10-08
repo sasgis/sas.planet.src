@@ -66,6 +66,10 @@ object frMapsList: TfrMapsList
     Align = alClient
     Columns = <
       item
+        Caption = '#'
+        Width = 30
+      end
+      item
         Caption = 'Map Name'
         Width = 130
       end
@@ -95,6 +99,8 @@ object frMapsList: TfrMapsList
     TabOrder = 1
     ViewStyle = vsReport
     OnChange = MapListChange
+    OnColumnClick = MapListColumnClick
+    OnCustomDrawItem = MapListCustomDrawItem
     OnCustomDrawSubItem = MapListCustomDrawSubItem
     OnDblClick = MapListDblClick
   end
