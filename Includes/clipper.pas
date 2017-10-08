@@ -3,10 +3,10 @@ unit clipper;
 (*******************************************************************************
 *                                                                              *
 * Author    :  Angus Johnson                                                   *
-* Version   :  6.4.1                                                           *
-* Date      :  21 November 2016                                                *
+* Version   :  6.4.2                                                           *
+* Date      :  27 February 2017                                                *
 * Website   :  http://www.angusj.com                                           *
-* Copyright :  Angus Johnson 2010-2016                                         *
+* Copyright :  Angus Johnson 2010-2017                                         *
 *                                                                              *
 * License:                                                                     *
 * Use, modification & distribution is subject to Boost Software License Ver 1. *
@@ -1544,7 +1544,7 @@ end;
 
 function GetUnitNormal(const Pt1, Pt2: TIntPoint): TDoublePoint;
 var
-  Dx, Dy, F: Single;
+  Dx, Dy, F: Double;
 begin
   if (Pt2.X = Pt1.X) and (Pt2.Y = Pt1.Y) then
   begin
@@ -2622,7 +2622,8 @@ begin
       prevE := E.PrevInAEL;
   end;
 
-  if Assigned(prevE) and (prevE.OutIdx >= 0) then
+  if Assigned(prevE) and (prevE.OutIdx >= 0) and
+    (prevE.Top.Y < Pt.Y) and (E.Top.Y < Pt.Y) then
   begin
     X1 := TopX(prevE, Pt.Y);
     X2 := TopX(E, Pt.Y);
@@ -3629,6 +3630,10 @@ begin
 
       if (HorzEdge.OutIdx >= 0) and not IsOpen then //may be done multiple times
       begin
+{$IFDEF use_xyz}
+      if (Direction = dLeftToRight) then SetZ(E.Curr, HorzEdge, E, FZFillCallback)
+      else SetZ(E.Curr, E, HorzEdge, FZFillCallback);
+{$ENDIF}
         Op1 := AddOutPt(HorzEdge, E.Curr);
         eNextHorz := FSortedEdges;
         while Assigned(eNextHorz) do
@@ -3949,6 +3954,11 @@ begin
       begin
         E.Curr.X := TopX(E, TopY);
         E.Curr.Y := TopY;
+{$IFDEF use_xyz}
+        if E.Top.Y = TopY then e.Curr.Z := e.Top.Z
+        else if (E.Bot.Y = TopY) then e.Curr.Z := E.Bot.Z else
+        e.Curr.Z := 0;
+{$ENDIF}
       end;
 
       //When StrictlySimple and 'e' is being touched by another edge, then
