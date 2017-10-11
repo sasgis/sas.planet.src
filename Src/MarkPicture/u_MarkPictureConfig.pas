@@ -30,6 +30,7 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_MarkPictureConfig,
+  i_Listener,
   u_ConfigDataElementBase;
 
 type
@@ -37,11 +38,13 @@ type
   private
     FRootPath: string;
     FMarksIconsPath: IPathConfig;
+    FIconsPathChangeListener: IListener;
     FFolderConfigList: TStringList;
     procedure Clear;
     procedure BuildFolderConfigs;
     function MakeConfigName(const AConfigPath: string): string;
     function GetConfigByPicName(const APicName: string): IMarkPictureConfig;
+    procedure OnIconsPathChange;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
@@ -61,6 +64,7 @@ uses
   Windows,
   SysUtils,
   StrUtils,
+  u_ListenerByEvent,
   u_MarkPictureConfigByFolder;
 
 procedure GetFoldersList(const APath: string; var AList: TStringList);
@@ -93,22 +97,38 @@ constructor TMarkPictureConfig.Create(
 begin
   Assert(AMarksIconsPath <> nil);
   inherited Create;
-  FMarksIconsPath := AMarksIconsPath;
-  FRootPath := AnsiLowerCase(IncludeTrailingPathDelimiter(FMarksIconsPath.FullPath));
+
+  FRootPath := '';
 
   FFolderConfigList := TStringList.Create;
   FFolderConfigList.Sorted := False;
   FFolderConfigList.CaseSensitive := False;
   FFolderConfigList.Duplicates := dupIgnore;
 
-  BuildFolderConfigs;
+  FMarksIconsPath := AMarksIconsPath;
+  FIconsPathChangeListener := TNotifyNoMmgEventListener.Create(Self.OnIconsPathChange);
+  FMarksIconsPath.ChangeNotifier.Add(FIconsPathChangeListener);
 end;
 
 destructor TMarkPictureConfig.Destroy;
 begin
+  if (FMarksIconsPath <> nil) and (FIconsPathChangeListener <> nil) then begin
+    FMarksIconsPath.ChangeNotifier.Remove(FIconsPathChangeListener);
+  end;
   Clear;
   FreeAndNil(FFolderConfigList);
   inherited Destroy;
+end;
+
+procedure TMarkPictureConfig.OnIconsPathChange;
+begin
+  LockWrite;
+  try
+    DoWriteConfig(nil); // save config in previos path
+    DoReadConfig(nil); // load config from new path
+  finally
+    UnlockWrite;
+  end;
 end;
 
 procedure TMarkPictureConfig.BuildFolderConfigs;
@@ -118,6 +138,7 @@ var
   VFolderConfig: IMarkPictureConfig;
   VConfigName: string;
 begin
+  Clear;
   VFoldersList := TStringList.Create;
   try
     GetFoldersList(FRootPath, VFoldersList);
@@ -156,6 +177,8 @@ var
   VFolderConfig: IMarkPictureConfig;
 begin
   inherited;
+  FRootPath := AnsiLowerCase(IncludeTrailingPathDelimiter(FMarksIconsPath.FullPath));
+  BuildFolderConfigs;
   for I := 0 to FFolderConfigList.Count - 1 do begin
     VFolderConfig := IMarkPictureConfig(Pointer(FFolderConfigList.Objects[I]));
     if Assigned(VFolderConfig) then begin
@@ -186,8 +209,13 @@ function TMarkPictureConfig.GetDefaultAnchor(
 var
   VFolderConfig: IMarkPictureConfig;
 begin
-  VFolderConfig := GetConfigByPicName(APicName);
-  Result := VFolderConfig.GetDefaultAnchor(APicName);
+  LockRead;
+  try
+    VFolderConfig := GetConfigByPicName(APicName);
+    Result := VFolderConfig.GetDefaultAnchor(APicName);
+  finally
+    UnlockRead;
+  end;
 end;
 
 function TMarkPictureConfig.GetAnchor(
@@ -196,8 +224,13 @@ function TMarkPictureConfig.GetAnchor(
 var
   VFolderConfig: IMarkPictureConfig;
 begin
-  VFolderConfig := GetConfigByPicName(APicName);
-  Result := VFolderConfig.GetAnchor(APicName);
+  LockRead;
+  try
+    VFolderConfig := GetConfigByPicName(APicName);
+    Result := VFolderConfig.GetAnchor(APicName);
+  finally
+    UnlockRead;
+  end;
 end;
 
 procedure TMarkPictureConfig.SetAnchor(
@@ -207,8 +240,13 @@ procedure TMarkPictureConfig.SetAnchor(
 var
   VFolderConfig: IMarkPictureConfig;
 begin
-  VFolderConfig := GetConfigByPicName(APicName);
-  VFolderConfig.SetAnchor(APicName, AAnchor);
+  LockWrite;
+  try
+    VFolderConfig := GetConfigByPicName(APicName);
+    VFolderConfig.SetAnchor(APicName, AAnchor);
+  finally
+    UnlockWrite;
+  end;
 end;
 
 function TMarkPictureConfig.GetConfigByPicName(
@@ -237,6 +275,7 @@ function TMarkPictureConfig.MakeConfigName(
   const AConfigPath: string
 ): string;
 begin
+  Assert(FRootPath <> '', 'Uninitialized icons RootPath!');
   Assert(AConfigPath <> '');
   if AnsiSameStr(FRootPath, AConfigPath) then begin
     Result := '.\';
