@@ -327,7 +327,7 @@ object frExportToIMG: TfrExportToIMG
           Margins.Left = 0
           Margins.Right = 10
           Align = alLeft
-          Caption = 'Map Name'
+          Caption = 'Map Name:'
           Layout = tlCenter
         end
         object edtMapName: TEdit
@@ -365,7 +365,7 @@ object frExportToIMG: TfrExportToIMG
           Caption = 'Map Series'
         end
         object lblMapID: TLabel
-          Left = 233
+          Left = 273
           Top = 64
           Width = 34
           Height = 13
@@ -379,7 +379,7 @@ object frExportToIMG: TfrExportToIMG
           Caption = 'IMG Format'
         end
         object lblDrawOrder: TLabel
-          Left = 233
+          Left = 273
           Top = 36
           Width = 56
           Height = 13
@@ -400,7 +400,7 @@ object frExportToIMG: TfrExportToIMG
           Caption = 'Map Code Page'
         end
         object edtMapID: TEdit
-          Left = 319
+          Left = 379
           Top = 60
           Width = 74
           Height = 21
@@ -409,7 +409,7 @@ object frExportToIMG: TfrExportToIMG
           TabOrder = 4
         end
         object edtDrawOrder: TSpinEdit
-          Left = 319
+          Left = 379
           Top = 32
           Width = 45
           Height = 22
@@ -419,9 +419,9 @@ object frExportToIMG: TfrExportToIMG
           Value = 24
         end
         object cbbMapFormat: TComboBox
-          Left = 93
+          Left = 113
           Top = 32
-          Width = 122
+          Width = 142
           Height = 21
           Style = csDropDownList
           ItemHeight = 13
@@ -443,7 +443,7 @@ object frExportToIMG: TfrExportToIMG
           TabOrder = 7
         end
         object edtMapSeries: TMaskEdit
-          Left = 93
+          Left = 113
           Top = 60
           Width = 33
           Height = 21
@@ -454,7 +454,7 @@ object frExportToIMG: TfrExportToIMG
           Text = '36'
         end
         object TBXGenerateId: TTBXToolbar
-          Left = 399
+          Left = 459
           Top = 58
           Width = 25
           Height = 24
@@ -472,15 +472,15 @@ object frExportToIMG: TfrExportToIMG
           end
         end
         object edtVolumeSize: TEdit
-          Left = 93
+          Left = 113
           Top = 88
-          Width = 122
+          Width = 142
           Height = 21
           TabOrder = 6
           Text = '$79999999'
         end
         object cbbCodePage: TComboBox
-          Left = 93
+          Left = 113
           Top = 4
           Width = 204
           Height = 21
