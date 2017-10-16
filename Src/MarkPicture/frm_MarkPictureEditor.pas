@@ -170,9 +170,6 @@ const
   cMarkerColor = clLightBlue32;
   cMarkerSize = {$IFDEF DRAW_SCALABLE_MARKER} 4 {$ELSE} 32 {$ENDIF};
 var
-  {$IFNDEF DRAW_SCALABLE_MARKER}
-  I: Integer;
-  {$ENDIF}
   VTmp: TBitmap32;
   VMarkerPos: TPoint;
   X1, X2, Y1, Y2: Integer;
@@ -237,22 +234,24 @@ begin
     Dec(VMarkerPos.X);
     Dec(VMarkerPos.Y);
 
-    VMarkerPos.X := Floor(VMarkerPos.X * FScale + 0.001);
-    VMarkerPos.Y := Floor(VMarkerPos.Y * FScale + 0.001);
+    X1 := Floor(VMarkerPos.X * FScale + 0.001);
+    Y1 := Floor(VMarkerPos.Y * FScale + 0.001);
 
-    X1 := VMarkerPos.X - cMarkerSize;
-    X2 := VMarkerPos.X + cMarkerSize;
+    X2 := Floor((VMarkerPos.X + 1) * FScale + 0.001);
+    Y2 := Floor((VMarkerPos.Y + 1) * FScale + 0.001);
 
-    for I := (VMarkerPos.Y - 2) to (VMarkerPos.Y + 2) do begin
-      FScaledBitmap.HorzLineS(X1, I, X2, cMarkerColor);
+    if (X2 - X1) <= 1 then begin
+      Dec(X1);
+      Inc(X2);
     end;
 
-    Y1 := VMarkerPos.Y - cMarkerSize;
-    Y2 := VMarkerPos.Y + cMarkerSize;
-
-    for I := (VMarkerPos.X - 2) to (VMarkerPos.X + 2) do begin
-      FScaledBitmap.VertLineS(I, Y1, Y2, cMarkerColor);
+    if (Y2 - Y1) <= 1 then begin
+      Dec(Y1);
+      Inc(Y2);
     end;
+
+    FScaledBitmap.FillRectS(X1 - cMarkerSize, Y1, X2 + cMarkerSize, Y2, cMarkerColor);
+    FScaledBitmap.FillRectS(X1, Y1 - cMarkerSize, X2, Y2 + cMarkerSize, cMarkerColor);
     {$ENDIF}
   finally
     VTmp.Free;
