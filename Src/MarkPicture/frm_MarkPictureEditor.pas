@@ -354,13 +354,14 @@ var
 begin
   VBitmapSize := imgIcon.GetBitmapSize;
   if (X >= 0) and (X < VBitmapSize.cx) and (Y >= 0) and (Y < VBitmapSize.cy) then begin
-    imgIcon.Bitmap.Lock;
+    imgIcon.Bitmap.BeginUpdate;
     try
       imgIcon.Bitmap.Assign(FScaledBitmap);
       imgIcon.Bitmap.HorzLineS(0, Y, VBitmapSize.cx - 1, clLtGray);
       imgIcon.Bitmap.VertLineS(X, 0, VBitmapSize.cy - 1, clLtGray);
     finally
-      imgIcon.Bitmap.UnLock;
+      imgIcon.Bitmap.EndUpdate;
+      imgIcon.Bitmap.Changed;
     end;
 
     VPos := PixelPosScaledToPos(X, Y);
