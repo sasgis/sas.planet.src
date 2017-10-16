@@ -52,6 +52,24 @@ uses
   u_WindowLayerWithBitmapBase;
 
 type
+  TStatusBarItemID = (
+    sbiZoom,
+    sbiLonLat,
+    sbiMetrPerPix,
+    sbiElevation,
+    sbiTimeZone,
+    sbiDownloadedInfo,
+    sbiHttpQueueInfo,
+    sbiTilePath
+  );
+
+  TStatusBarItemInfo = record
+    Text: string;
+    Visible: Boolean;
+  end;
+
+  TStatusBarItems = array[Low(TStatusBarItemID)..High(TStatusBarItemID)] of TStatusBarItemInfo;
+
   TWindowLayerStatusBar = class(TWindowLayerWithBitmapBase)
   private
     FConfig: IStatBarConfig;
@@ -71,6 +89,8 @@ type
     FBgColor: TColor32;
     FTextColor: TColor32;
     FAALevel: Integer;
+    FItemsInfo: TStatusBarItems;
+    FPrevItemsInfo: TStatusBarItems;
     procedure OnConfigChange;
     procedure OnTimerEvent;
     procedure OnPosChange;
@@ -80,6 +100,9 @@ type
       Shift: TShiftState;
       X, Y: Integer
     );
+    procedure ResetItems(out AItems: TStatusBarItems);
+    procedure GetItemsInfo(out AItems: TStatusBarItems);
+    function IsEqualItems(const A, B: TStatusBarItems): Boolean;
   protected
     function GetNewBitmapSize: TPoint; override;
     function GetNewLayerLocation: TFloatRect; override;
@@ -123,10 +146,6 @@ uses
   u_ResStrings,
   u_GeoFunc,
   u_TerrainInfo;
-
-const
-  //  онстанта дл€ преобразовани€ градусов в радианы
-  D2R: Double = 0.017453292519943295769236907684886;
 
 { TWindowLayerStatusBar }
 
@@ -255,6 +274,7 @@ begin
     finally
       FConfig.UnlockRead;
     end;
+    ResetItems(FPrevItemsInfo);
     Visible := VVisible;
     SetNeedUpdateBitmapSize;
     SetNeedUpdateBitmapDraw;
@@ -312,159 +332,223 @@ end;
 procedure TWindowLayerStatusBar.DoUpdateBitmapDraw;
 
   procedure RenderText(
-  const AOffset: TPoint;
-  const AText: string;
-    ADrawLine: Boolean = True
+    const AOffset: TPoint;
+    const AText: string;
+    const ADrawLine: Boolean
   );
   begin
     Layer.Bitmap.RenderText(AOffset.X, AOffset.Y, AText, FAALevel, FTextColor);
     if ADrawLine then begin
-      Layer.Bitmap.LineS(AOffset.X - 10, 0, AOffset.X - 10, Layer.Bitmap.Height, SetAlpha(clBlack32, 125));
+      Layer.Bitmap.VertLineS(AOffset.X - 10, 0, Layer.Bitmap.Height, SetAlpha(clBlack32, 125));
     end;
   end;
 
+  function GetTilePathStr(
+    const ATilePath: string;
+    const AOffsetX: Integer
+  ): string;
+  var
+    VCount: Integer;
+    VShortTileName: string;
+    VTileNameWidth: Integer;
+    VTileNameWidthAviable: Integer;
+  begin
+    Result := ATilePath;
+    VTileNameWidthAviable := Layer.Bitmap.Width - AOffsetX;
+    if Length(Result) > 0 then begin
+      if VTileNameWidthAviable > 30 then begin
+        VTileNameWidth := Layer.Bitmap.TextWidth(Result);
+        if VTileNameWidthAviable < VTileNameWidth + 40 then begin
+          SetLength(VShortTileName, 6);
+          StrLCopy(PChar(VShortTileName), PChar(Result), 6);
+          VCount := Trunc((Length(Result) / VTileNameWidth) * (VTileNameWidthAviable - Layer.Bitmap.TextWidth(VShortTileName) - 40));
+          Result := VShortTileName + '...' + RightStr(Result, VCount);
+        end;
+      end;
+    end;
+    Result := SAS_STR_File + ' ' + Result;
+  end;
+
 var
-  VLonLat: TDoublePoint;
+  I: TStatusBarItemID;
   VString: string;
+  VCurrentTick: DWORD;
+  VOffset: TPoint;
+  VNeedSeparator: Boolean;
+begin
+  inherited;
+  VCurrentTick := GetTickCount;
+  if (VCurrentTick < FLastUpdateTick) or (VCurrentTick > FLastUpdateTick + FMinUpdate) then begin
+    GetItemsInfo(FItemsInfo);
+    if IsEqualItems(FPrevItemsInfo, FItemsInfo) then begin
+      Exit;
+    end;
+    Layer.Bitmap.BeginUpdate;
+    try
+      Layer.Bitmap.Clear(FBgColor);
+      Layer.Bitmap.HorzLineS(0, 0, Layer.Bitmap.Width, SetAlpha(clBlack32, 255));
+
+      VOffset.Y := 1;
+      VOffset.X := -10;
+      VString := '';
+      VNeedSeparator := False;
+
+      for I := Low(TStatusBarItemID) to High(TStatusBarItemID) do begin
+        if FItemsInfo[I].Visible then begin
+          if VString <> '' then begin
+            VOffset.X := VOffset.X + Layer.Bitmap.TextWidth(VString) + 20;
+          end else begin
+            VOffset.X := VOffset.X + 20;
+          end;
+
+          if I = sbiTilePath then begin
+            VString := GetTilePathStr(FItemsInfo[I].Text, VOffset.X);
+          end else begin
+            VString := FItemsInfo[I].Text;
+          end;
+
+          RenderText(VOffset, VString, VNeedSeparator);
+          VNeedSeparator := True;
+        end;
+      end;
+      FPrevItemsInfo := FItemsInfo;
+      FLastUpdateTick := GetTickCount;
+    finally
+      Layer.Bitmap.EndUpdate;
+      Layer.Bitmap.Changed;
+    end;
+  end else begin
+    SetNeedUpdateBitmapDraw;
+  end;
+end;
+
+procedure TWindowLayerStatusBar.ResetItems(out AItems: TStatusBarItems);
+var
+  I: TStatusBarItemID;
+begin
+  for I := Low(TStatusBarItemID) to High(TStatusBarItemID) do begin
+    AItems[I].Text := '';
+    AItems[I].Visible := False;
+  end;
+end;
+
+function TWindowLayerStatusBar.IsEqualItems(const A, B: TStatusBarItems): Boolean;
+var
+  I: TStatusBarItemID;
+begin
+  Result := True;
+  for I := Low(TStatusBarItemID) to High(TStatusBarItemID) do begin
+    if not A[I].Visible and not B[I].Visible then begin
+      // don't compare invisible items
+      Continue;
+    end;
+    if (A[I].Visible <> B[I].Visible) or (A[I].Text <> B[I].Text) then begin
+      Result := False;
+      Break;
+    end;
+  end;
+end;
+
+procedure TWindowLayerStatusBar.GetItemsInfo(out AItems: TStatusBarItems);
+const
+  D2R: Double = 0.017453292519943295769236907684886;
+var
+  I: TStatusBarItemID;
+  VLonLat: TDoublePoint;
   VMapPoint: TDoublePoint;
-  VSize: TPoint;
   VRad: Extended;
   VTile: TPoint;
   VMapType: IMapType;
   VProjection: IProjection;
   VMapProjection: IProjection;
   VPixelsAtZoom: Double;
-  VCurrentTick: DWORD;
   VMousePos: TPoint;
   VVisualCoordConverter: ILocalCoordConverter;
   VValueConverter: IValueToStringConverter;
   VCoordToStringConverter: ICoordToStringConverter;
-  VOffset: TPoint;
-  VTileName: string;
-  VShortTileName: string;
-  VTileNameWidth: Integer;
-  VTileNameWidthAviable: Integer;
-  VNeedSeparator: Boolean;
 begin
-  inherited;
-  VCurrentTick := GetTickCount;
-  if (VCurrentTick < FLastUpdateTick) or (VCurrentTick > FLastUpdateTick + FMinUpdate) then begin
-    VValueConverter := FValueToStringConverter.GetStatic;
-    VVisualCoordConverter := FView.GetStatic;
-    VMousePos := FMouseState.CurentPos;
-    VProjection := VVisualCoordConverter.Projection;
-    VSize := Types.Point(Layer.Bitmap.Width, Layer.Bitmap.Height);
+  ResetItems(AItems);
+
+  VValueConverter := FValueToStringConverter.GetStatic;
+  VVisualCoordConverter := FView.GetStatic;
+  VProjection := VVisualCoordConverter.Projection;
+
+  VMousePos := FMouseState.CurentPos;
+  VMapPoint := VVisualCoordConverter.LocalPixel2MapPixelFloat(VMousePos);
+  VProjection.ValidatePixelPosFloatStrict(VMapPoint, True);
+  VLonLat := VProjection.PixelPosFloat2LonLat(VMapPoint);
+
+  I := Low(TStatusBarItemID);
+  AItems[I].Visible := FConfig.ViewZoomInfo;
+  if AItems[I].Visible then begin
+    AItems[I].Text := 'z' + IntToStr(VProjection.Zoom + 1);
+  end;
+
+  Inc(I);
+  AItems[I].Visible := FConfig.ViewLonLatInfo;
+  if AItems[I].Visible then begin
+    VCoordToStringConverter := FCoordToStringConverter.GetStatic;
+    AItems[I].Text := VCoordToStringConverter.GetCoordSysInfo(VLonLat);
+    if AItems[I].Text <> '' then begin
+      AItems[I].Text := AItems[I].Text + ' ';
+    end;
+    AItems[I].Text := AItems[I].Text + VCoordToStringConverter.LonLatConvert(VLonLat);
+  end;
+
+  Inc(I);
+  AItems[I].Visible := FConfig.ViewMetrPerPixInfo;
+  if AItems[I].Visible then begin
+    VRad := VProjection.ProjectionType.Datum.GetSpheroidRadiusA;
+    VPixelsAtZoom := VProjection.GetPixelsFloat;
+    AItems[I].Text := VValueConverter.DistPerPixelConvert(
+      1 / ((VPixelsAtZoom / (2 * PI)) / (VRad * Cos(VLonLat.Y * D2R)))
+    );
+  end;
+
+  Inc(I);
+  AItems[I].Visible := FTerrainConfig.ShowInStatusBar and FTerrainConfig.ElevationInfoAvailable;
+  if AItems[I].Visible then begin
+    AItems[I].Text := FTerrainInfo.GetElevationInfoStr(VLonLat, VProjection.Zoom);
+  end;
+
+  Inc(I);
+  AItems[I].Visible := FConfig.TimeZoneInfoAvailable and FConfig.ViewTimeZoneTimeInfo;
+  if AItems[I].Visible then begin
+    AItems[I].Text := FTimeZoneInfo.GetStatusBarTzInfo(VLonLat);
+  end;
+
+  Inc(I);
+  AItems[I].Visible := FConfig.ViewDownloadedInfo;
+  if AItems[I].Visible then begin
+    AItems[I].Text :=
+      SAS_STR_load + ' ' + IntToStr(FDownloadInfo.TileCount) +
+      ' (' + VValueConverter.DataSizeConvert(FDownloadInfo.Size / 1024) + ')';
+  end;
+
+  Inc(I);
+  AItems[I].Visible := FConfig.ViewHttpQueueInfo;
+  if AItems[I].Visible then begin
+    AItems[I].Text := SAS_STR_queue + ' ' + IntToStr(FGlobalInternetState.QueueCount);
+  end;
+
+  Inc(I);
+  AItems[I].Visible := FConfig.ViewTilePathInfo;
+  if AItems[I].Visible then begin
     VMapType := FMainMap.GetStatic;
-
-    VMapPoint := VVisualCoordConverter.LocalPixel2MapPixelFloat(VMousePos);
-    VProjection.ValidatePixelPosFloatStrict(VMapPoint, True);
-    VLonLat := VProjection.PixelPosFloat2LonLat(VMapPoint);
-
-    Layer.Bitmap.Clear(FBgColor);
-    Layer.Bitmap.LineS(0, 0, VSize.X, 0, SetAlpha(clBlack32, 255));
-
-    VOffset.Y := 1;
-    VOffset.X := -10;
-    VString := '';
-    VNeedSeparator := False;
-
-    if FConfig.ViewZoomInfo then begin
-      VOffset.X := VOffset.X + 20;
-      VString := 'z' + inttostr(VProjection.Zoom + 1);
-      RenderText(VOffset, VString, VNeedSeparator);
-      VNeedSeparator := True;
+    VMapProjection := VMapType.ProjectionSet.GetSuitableProjection(VProjection);
+    if VMapProjection.ProjectionType.CheckLonLatPos(VLonLat) then begin
+      VTile :=
+        PointFromDoublePoint(
+          VMapProjection.LonLat2TilePosFloat(VLonLat),
+          prToTopLeft
+        );
+      AItems[I].Text :=
+        VMapType.GetTileShowName(
+          VTile,
+          VProjection.Zoom,
+          VMapType.VersionRequest.GetStatic.BaseVersion
+        );
     end;
-
-    if FConfig.ViewLonLatInfo then begin
-      VOffset.X := VOffset.X + Layer.Bitmap.TextWidth(VString) + 20;
-      VCoordToStringConverter := FCoordToStringConverter.GetStatic;
-      VString := VCoordToStringConverter.GetCoordSysInfo(VLonLat);
-      if VString <> '' then begin
-        VString := VString + ' ';
-      end;
-      VString := VString + VCoordToStringConverter.LonLatConvert(VLonLat);
-      RenderText(VOffset, VString, VNeedSeparator);
-      VNeedSeparator := True;
-    end;
-
-    if FConfig.ViewMetrPerPixInfo then begin
-      VOffset.X := VOffset.X + Layer.Bitmap.TextWidth(VString) + 20;
-      VRad := VProjection.ProjectionType.Datum.GetSpheroidRadiusA;
-      VPixelsAtZoom := VProjection.GetPixelsFloat;
-      VString := VValueConverter.DistPerPixelConvert(1 / ((VPixelsAtZoom / (2 * PI)) / (VRad * cos(VLonLat.y * D2R))));
-      RenderText(VOffset, VString, VNeedSeparator);
-      VNeedSeparator := True;
-    end;
-
-    if FTerrainConfig.ShowInStatusBar and FTerrainConfig.ElevationInfoAvailable then begin
-      VOffset.X := VOffset.X + Layer.Bitmap.TextWidth(VString) + 20;
-      VString := FTerrainInfo.GetElevationInfoStr(VLonLat, VProjection.Zoom);
-      RenderText(VOffset, VString, VNeedSeparator);
-      VNeedSeparator := True;
-    end;
-
-    if FConfig.TimeZoneInfoAvailable and FConfig.ViewTimeZoneTimeInfo then begin
-      VOffset.X := VOffset.X + Layer.Bitmap.TextWidth(VString) + 20;
-      VString := FTimeZoneInfo.GetStatusBarTzInfo(VLonLat);
-      RenderText(VOffset, VString, VNeedSeparator);
-      VNeedSeparator := True;
-    end;
-
-    if FConfig.ViewDownloadedInfo then begin
-      VOffset.X := VOffset.X + Layer.Bitmap.TextWidth(VString) + 20;
-      VString := SAS_STR_load + ' ' +
-        inttostr(FDownloadInfo.TileCount) +
-        ' (' + VValueConverter.DataSizeConvert(FDownloadInfo.Size / 1024) + ')';
-      RenderText(VOffset, VString, VNeedSeparator);
-      VNeedSeparator := True;
-    end;
-
-    if FConfig.ViewHttpQueueInfo then begin
-      VOffset.X := VOffset.X + Layer.Bitmap.TextWidth(VString) + 20;
-      VString := SAS_STR_queue + ' ' + IntToStr(FGlobalInternetState.QueueCount);
-      RenderText(VOffset, VString, VNeedSeparator);
-      VNeedSeparator := True;
-    end;
-
-    if FConfig.ViewTilePathInfo then begin
-      VOffset.X := VOffset.X + Layer.Bitmap.TextWidth(VString) + 20;
-      VTileNameWidthAviable := Layer.Bitmap.Width - VOffset.X;
-
-      VMapProjection := VMapType.ProjectionSet.GetSuitableProjection(VProjection);
-      if VMapProjection.ProjectionType.CheckLonLatPos(VLonLat) then begin
-        VTile :=
-          PointFromDoublePoint(
-            VMapProjection.LonLat2TilePosFloat(VLonLat),
-            prToTopLeft
-          );
-
-        VTileName := VMapType.GetTileShowName(VTile, VProjection.Zoom, VMapType.VersionRequest.GetStatic.BaseVersion);
-        if Length(VTileName) > 0 then begin
-          if VTileNameWidthAviable > 30 then begin
-            VTileNameWidth := Layer.Bitmap.TextWidth(VTileName);
-            if VTileNameWidthAviable < VTileNameWidth + 40 then begin
-              SetLength(VShortTileName, 6);
-              StrLCopy(PChar(VShortTileName), PChar(VTileName), 6);
-              VShortTileName :=
-                VShortTileName + '...' +
-                RightStr(
-                VTileName,
-                Trunc(
-                  (Length(VTileName) / VTileNameWidth) * (VTileNameWidthAviable - Layer.Bitmap.TextWidth(VShortTileName) - 40)
-                )
-              );
-              VTileName := VShortTileName;
-            end;
-          end;
-        end;
-        VString := SAS_STR_File + ' ' + VTileName;
-        RenderText(VOffset, VString, VNeedSeparator);
-      end;
-    end;
-
-    FLastUpdateTick := GetTickCount;
-  end else begin
-    SetNeedUpdateBitmapDraw;
   end;
 end;
 
