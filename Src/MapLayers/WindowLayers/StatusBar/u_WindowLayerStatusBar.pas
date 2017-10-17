@@ -91,6 +91,7 @@ type
     FAALevel: Integer;
     FItemsInfo: TStatusBarItems;
     FPrevItemsInfo: TStatusBarItems;
+    FIsNeedForceRedraw: Boolean;
     procedure OnConfigChange;
     procedure OnTimerEvent;
     procedure OnPosChange;
@@ -207,7 +208,10 @@ begin
     FView.ChangeNotifier
   );
   FMainMap := AMainMap;
+
   FLastUpdateTick := 0;
+  FIsNeedForceRedraw := True;
+  ResetItems(FPrevItemsInfo);
 end;
 
 destructor TWindowLayerStatusBar.Destroy;
@@ -274,7 +278,7 @@ begin
     finally
       FConfig.UnlockRead;
     end;
-    ResetItems(FPrevItemsInfo);
+    FIsNeedForceRedraw := True;
     Visible := VVisible;
     SetNeedUpdateBitmapSize;
     SetNeedUpdateBitmapDraw;
@@ -288,6 +292,7 @@ procedure TWindowLayerStatusBar.OnPosChange;
 begin
   ViewUpdateLock;
   try
+    FIsNeedForceRedraw := True;
     SetNeedUpdateBitmapSize;
     SetNeedUpdateLayerLocation;
   finally
@@ -299,6 +304,7 @@ procedure TWindowLayerStatusBar.OnTimerEvent;
 begin
   ViewUpdateLock;
   try
+    FIsNeedForceRedraw := False;
     SetNeedUpdateBitmapDraw;
   finally
     ViewUpdateUnlock;
@@ -377,48 +383,53 @@ var
   VNeedSeparator: Boolean;
 begin
   inherited;
-  VCurrentTick := GetTickCount;
-  if (VCurrentTick < FLastUpdateTick) or (VCurrentTick > FLastUpdateTick + FMinUpdate) then begin
+
+  if FIsNeedForceRedraw then begin
+    GetItemsInfo(FItemsInfo);
+  end else begin
+    VCurrentTick := GetTickCount;
+    if (VCurrentTick > FLastUpdateTick) and (VCurrentTick < FLastUpdateTick + FMinUpdate) then begin
+      Exit;
+    end;
     GetItemsInfo(FItemsInfo);
     if IsEqualItems(FPrevItemsInfo, FItemsInfo) then begin
       Exit;
     end;
-    Layer.Bitmap.BeginUpdate;
-    try
-      Layer.Bitmap.Clear(FBgColor);
-      Layer.Bitmap.HorzLineS(0, 0, Layer.Bitmap.Width, SetAlpha(clBlack32, 255));
+  end;
 
-      VOffset.Y := 1;
-      VOffset.X := -10;
-      VString := '';
-      VNeedSeparator := False;
+  Layer.Bitmap.BeginUpdate;
+  try
+    Layer.Bitmap.Clear(FBgColor);
+    Layer.Bitmap.HorzLineS(0, 0, Layer.Bitmap.Width, SetAlpha(clBlack32, 255));
 
-      for I := Low(TStatusBarItemID) to High(TStatusBarItemID) do begin
-        if FItemsInfo[I].Visible then begin
-          if VString <> '' then begin
-            VOffset.X := VOffset.X + Layer.Bitmap.TextWidth(VString) + 20;
-          end else begin
-            VOffset.X := VOffset.X + 20;
-          end;
+    VOffset.Y := 1;
+    VOffset.X := -10;
+    VString := '';
+    VNeedSeparator := False;
 
-          if I = sbiTilePath then begin
-            VString := GetTilePathStr(FItemsInfo[I].Text, VOffset.X);
-          end else begin
-            VString := FItemsInfo[I].Text;
-          end;
-
-          RenderText(VOffset, VString, VNeedSeparator);
-          VNeedSeparator := True;
+    for I := Low(TStatusBarItemID) to High(TStatusBarItemID) do begin
+      if FItemsInfo[I].Visible then begin
+        if VString <> '' then begin
+          VOffset.X := VOffset.X + Layer.Bitmap.TextWidth(VString) + 20;
+        end else begin
+          VOffset.X := VOffset.X + 20;
         end;
+
+        if I = sbiTilePath then begin
+          VString := GetTilePathStr(FItemsInfo[I].Text, VOffset.X);
+        end else begin
+          VString := FItemsInfo[I].Text;
+        end;
+
+        RenderText(VOffset, VString, VNeedSeparator);
+        VNeedSeparator := True;
       end;
-      FPrevItemsInfo := FItemsInfo;
-      FLastUpdateTick := GetTickCount;
-    finally
-      Layer.Bitmap.EndUpdate;
-      Layer.Bitmap.Changed;
     end;
-  end else begin
-    SetNeedUpdateBitmapDraw;
+    FPrevItemsInfo := FItemsInfo;
+    FLastUpdateTick := GetTickCount;
+  finally
+    Layer.Bitmap.EndUpdate;
+    Layer.Bitmap.Changed;
   end;
 end;
 
