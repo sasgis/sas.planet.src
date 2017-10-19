@@ -206,17 +206,20 @@ procedure TMapLayerCalcLineCaptions.DrawPointText(
 var
   VRect: TRect;
 begin
-  if (APosOnBitmap.x > 0) and
-    (APosOnBitmap.y > 0) and
-    (APosOnBitmap.x < ABitmapSize.X) and
-    (APosOnBitmap.y < ABitmapSize.Y) then begin
+  if (APosOnBitmap.X > 0) and (APosOnBitmap.X < ABitmapSize.X) and
+     (APosOnBitmap.Y > 0) and (APosOnBitmap.Y < ABitmapSize.Y)
+  then begin
     ABuffer.Font.Size := AFontSize;
-    VRect.Left := Trunc(APosOnBitmap.x + 12);
+    VRect.Left := Trunc(APosOnBitmap.X + 12);
     VRect.Top := Trunc(APosOnBitmap.Y);
     VRect.Right := VRect.Left + ATextSize.cx + 4;
     VRect.Bottom := VRect.Top + ATextSize.cy + 4;
-    ABuffer.FillRectTS(VRect, ATextBGColor);
-    ABuffer.RenderText(VRect.Left + 2, VRect.Top + 2, AText, 3, ATextColor);
+    if ABuffer.MeasuringMode then begin
+      ABuffer.Changed(VRect);
+    end else begin
+      ABuffer.FillRectTS(VRect, ATextBGColor);
+      ABuffer.RenderText(VRect.Left + 2, VRect.Top + 2, AText, 3, ATextColor);
+    end;
   end;
 end;
 
