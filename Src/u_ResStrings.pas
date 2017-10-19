@@ -179,6 +179,7 @@ ResourceString
   SAS_STR_S = 'Area';
   SAS_STR_L = 'Length';
   SAS_STR_P = 'Perimeter';
+  SAS_STR_Radius = 'Radius';
   SAS_STR_Whole = 'Total';
   SAS_STR_Azimuth = 'Azimuth';
   SAS_STR_Maps = 'Maps';

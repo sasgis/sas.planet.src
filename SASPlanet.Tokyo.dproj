@@ -694,6 +694,9 @@
         <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\MiniMap\u_MiniMapLayerTopBorder.pas"/>
         <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\MiniMap\u_MiniMapLayerViewRect.pas"/>
         <DCCReference Include="Src\MapLayers\LayersWithThreadAndProvider\u_TiledMapLayer.pas"/>
+        <DCCReference Include="Src\MapLayers\WindowLayers\CalcCircle\i_CalcCircleLayerConfig.pas"/>
+        <DCCReference Include="Src\MapLayers\WindowLayers\CalcCircle\u_CalcCircleLayerConfig.pas"/>
+        <DCCReference Include="Src\MapLayers\WindowLayers\CalcCircle\u_MapLayerCalcCircleCaptions.pas"/>
         <DCCReference Include="Src\MapLayers\WindowLayers\CalcLine\i_CalcLineLayerConfig.pas"/>
         <DCCReference Include="Src\MapLayers\WindowLayers\CalcLine\u_CalcLineLayerConfig.pas"/>
         <DCCReference Include="Src\MapLayers\WindowLayers\CalcLine\u_MapLayerCalcLineCaptions.pas"/>
@@ -851,6 +854,14 @@
         <DCCReference Include="Src\MapVersion\u_MapVersionRequestChangeable.pas"/>
         <DCCReference Include="Src\MapVersion\u_MapVersionRequestConfig.pas"/>
         <DCCReference Include="Src\MarkPicture\c_MarkPictureAnchor.pas"/>
+        <DCCReference Include="Src\MarkPicture\frm_MarkPictureConfig.pas">
+            <Form>frmMarkPictureConfig</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Src\MarkPicture\frm_MarkPictureEditor.pas">
+            <Form>frmMarkPictureEditor</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <DCCReference Include="Src\MarkPicture\i_MarkPicture.pas"/>
         <DCCReference Include="Src\MarkPicture\i_MarkPictureConfig.pas"/>
         <DCCReference Include="Src\MarkPicture\u_MarkPictureAnchorFunc.pas"/>
@@ -1802,14 +1813,6 @@
         <DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
         <DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
         <DCCReference Include="Src\u_WindowPositionConfig.pas"/>
-        <DCCReference Include="Src\MarkPicture\frm_MarkPictureConfig.pas">
-            <Form>frmMarkPictureConfig</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Src\MarkPicture\frm_MarkPictureEditor.pas">
-            <Form>frmMarkPictureEditor</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

@@ -24,6 +24,9 @@ interface
 
 uses
   t_GeoTypes,
+  i_Listener,
+  i_LocalCoordConverter,
+  i_LocalCoordConverterChangeable,
   i_GeometryLonLat,
   i_GeometryLonLatFactory,
   i_LineOnMapEdit,
@@ -107,16 +110,41 @@ type
     );
   end;
 
+  TCircleOnMapEdit = class(TPathOnMapEdit, ICircleOnMapEdit)
+  private
+    FPolygonOnMapEdit: IPolygonOnMapEdit;
+    FCoordConverter: ILocalCoordConverter;
+    FCoordConverterChangeable: ILocalCoordConverterChangeable;
+    FListener: IListener;
+    procedure OnConverterChanged;
+    function _UpdatePolygon: IGeometryLonLatPolygon;
+  private
+    procedure _UpdateLineObject; override;
+  private
+    function GetRadius: Double;
+    procedure SetRadius(const AValue: Double);
+    function GetPolygonOnMapEdit: IPolygonOnMapEdit;
+  public
+    constructor Create(
+      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+      const ALocalCoordConverter: ILocalCoordConverterChangeable
+    );
+    destructor Destroy; override;
+  end;
+
 implementation
 
 uses
   SysUtils,
   Math,
+  i_Datum,
+  i_EnumDoublePoint,
   i_DoublePoints,
   u_DoublePoints,
   u_DoublePointsAggregator,
   u_GeoFunc,
   u_GeometryFunc,
+  u_ListenerByEvent,
   u_BaseInterfacedObject;
 
 type
@@ -854,6 +882,109 @@ begin
     FLineWithSelected := TLonLatPolygonWithSelected.Create(FLine, FPoints.MakeStaticCopy, FSelectedPointIndex);
   end else begin
     FLineWithSelected := nil;
+  end;
+end;
+
+{ TCircleOnMapEdit }
+
+constructor TCircleOnMapEdit.Create(
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+  const ALocalCoordConverter: ILocalCoordConverterChangeable
+);
+begin
+  Assert(ALocalCoordConverter <> nil);
+  inherited Create(AVectorGeometryLonLatFactory);
+
+  FCoordConverterChangeable := ALocalCoordConverter;
+  FCoordConverter := FCoordConverterChangeable.GetStatic;
+
+  FListener := TNotifyNoMmgEventListener.Create(Self.OnConverterChanged);
+  FCoordConverterChangeable.ChangeNotifier.Add(FListener);
+
+  FPolygonOnMapEdit := TPolygonOnMapEdit.Create(AVectorGeometryLonLatFactory);
+end;
+
+destructor TCircleOnMapEdit.Destroy;
+begin
+  if Assigned(FListener) and Assigned(FCoordConverterChangeable) then begin
+    FCoordConverterChangeable.ChangeNotifier.Remove(FListener);
+  end;
+  inherited Destroy;
+end;
+
+function TCircleOnMapEdit._UpdatePolygon: IGeometryLonLatPolygon;
+var
+  VRadius: Double;
+  VLine: IGeometryLonLatSingleLine;
+  VCircleLonLat: IGeometryLonLatPolygon;
+begin
+  FPolygonOnMapEdit.Clear;
+  VRadius := GetRadius;
+  if VRadius > 0 then begin
+    if Supports(FLine, IGeometryLonLatSingleLine, VLine) then begin
+      VCircleLonLat :=
+        FVectorGeometryLonLatFactory.CreateLonLatPolygonCircleByPoint(
+          FCoordConverter.Projection.ProjectionType.Datum,
+          VLine.Points[0],
+          VRadius
+        );
+      FPolygonOnMapEdit.SetPolygon(VCircleLonLat);
+    end;
+  end;
+end;
+
+procedure TCircleOnMapEdit._UpdateLineObject;
+begin
+  inherited _UpdateLineObject;
+  _UpdatePolygon;
+end;
+
+procedure TCircleOnMapEdit.OnConverterChanged;
+begin
+  FCoordConverter := FCoordConverterChangeable.GetStatic;
+  _UpdatePolygon;
+end;
+
+function TCircleOnMapEdit.GetPolygonOnMapEdit: IPolygonOnMapEdit;
+begin
+  Result := FPolygonOnMapEdit;
+end;
+
+procedure TCircleOnMapEdit.SetRadius(const AValue: Double);
+var
+  VDatum: IDatum;
+  VLine: IGeometryLonLatSingleLine;
+  VFirst, VSecond: TDoublePoint;
+begin
+  if SameValue(GetRadius, AValue) then begin
+    Exit;
+  end;
+  if Supports(FLine, IGeometryLonLatSingleLine, VLine) then begin
+    if VLine.Count >= 1 then begin
+      VFirst := VLine.Points[0];
+      Clear;
+      InsertPoint(VFirst);
+      if AValue > 0 then begin
+        VDatum := FCoordConverter.Projection.ProjectionType.Datum;
+        VSecond := VDatum.CalcFinishPosition(VFirst, 90, AValue);
+        InsertPoint(VSecond);
+      end;
+    end;
+  end;
+end;
+
+function TCircleOnMapEdit.GetRadius: Double;
+var
+  VLine: IGeometryLonLatSingleLine;
+  VEnum: IEnumLonLatPoint;
+  VFirst, VSecond: TDoublePoint;
+begin
+  Result := 0;
+  if Supports(FLine, IGeometryLonLatSingleLine, VLine) then begin
+    VEnum := VLine.GetEnum;
+    if Assigned(VEnum) and VEnum.Next(VFirst) and VEnum.Next(VSecond) then begin
+      Result := FCoordConverter.Projection.ProjectionType.Datum.CalcDist(VFirst, VSecond);
+    end;
   end;
 end;
 

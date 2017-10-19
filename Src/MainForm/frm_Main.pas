@@ -563,6 +563,8 @@ type
     tbxIconsSettings: TTBXItem;
     TBSeparatorItem4: TTBSeparatorItem;
     actIconsSettings: TAction;
+    TBCircleCalc: TTBXItem;
+    actCircleCalculation: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -810,6 +812,7 @@ type
     procedure actConfigScaleLineOptionsShowExecute(Sender: TObject);
     procedure actConfigScaleLineNumberFormatExecute(Sender: TObject);
     procedure actIconsSettingsExecute(Sender: TObject);
+    procedure actCircleCalculationExecute(Sender: TObject);
   private
     FactlstGeoCoders: TActionList;
     FactlstProjections: TActionList;
@@ -1493,6 +1496,12 @@ begin
   FLineOnMapByOperation[ao_select_poly] := TPolygonOnMapEdit.Create(GState.VectorGeometryLonLatFactory);
   FLineOnMapByOperation[ao_select_line] := TPathOnMapEdit.Create(GState.VectorGeometryLonLatFactory);
 
+  FLineOnMapByOperation[ao_calc_circle] :=
+    TCircleOnMapEdit.Create(
+      GState.VectorGeometryLonLatFactory,
+      FViewPortState.View
+    );
+
   FPointOnMapEdit := TPointOnMapEdit.Create;
 
   FStickToGrid :=
@@ -1519,6 +1528,10 @@ begin
   FLinksList.Add(
     VLineOnMapEditChangeListener,
     FLineOnMapByOperation[ao_calc_line].GetChangeNotifier
+  );
+  FLinksList.Add(
+    VLineOnMapEditChangeListener,
+    FLineOnMapByOperation[ao_calc_circle].GetChangeNotifier
   );
   FLinksList.Add(
     VLineOnMapEditChangeListener,
@@ -2128,6 +2141,7 @@ begin
       FFillingMapPolygon,
       FMergePolygonsResult,
       FLineOnMapByOperation[ao_calc_line] as IPathOnMapEdit,
+      FLineOnMapByOperation[ao_calc_circle] as ICircleOnMapEdit,
       FLineOnMapByOperation[ao_edit_line] as IPathOnMapEdit,
       FLineOnMapByOperation[ao_edit_poly] as IPolygonOnMapEdit,
       FLineOnMapByOperation[ao_select_poly] as IPolygonOnMapEdit,
@@ -2683,6 +2697,7 @@ begin
   FMarshrutComment := '';
   actMoveMap.Checked := VNewState = ao_movemap;
   actDistanceCalculation.Checked := VNewState = ao_calc_line;
+  actCircleCalculation.Checked := VNewState = ao_calc_circle;
   actSelectByRect.Checked := VNewState = ao_select_rect;
   actSelectByPolygon.Checked := VNewState = ao_select_poly;
   actSelectByLine.Checked := VNewState = ao_select_line;
@@ -2694,6 +2709,7 @@ begin
 
   tbitmSaveMark.Visible :=
     (VNewState = ao_calc_line) or
+    (VNewState = ao_calc_circle) or
     (VNewState = ao_edit_line) or
     (VNewState = ao_edit_poly);
 
@@ -2751,10 +2767,13 @@ begin
     (VNewState = ao_select_poly) or
     (VNewState = ao_select_line);
   TBEditMagnetDraw.Checked := FConfig.MainConfig.MagnetDraw;
-
-  TBEditSelectPolylineRadius.Visible := VNewState = ao_select_line;
-  TBEditSelectPolylineRadiusCap1.Visible := VNewState = ao_select_line;
-  TBEditSelectPolylineRadiusCap2.Visible := VNewState = ao_select_line;
+  
+  TBEditSelectPolylineRadius.Visible := 
+    (VNewState = ao_select_line) or 
+    (VNewState = ao_calc_circle);
+  TBEditSelectPolylineRadiusCap1.Visible := TBEditSelectPolylineRadius.Visible;
+  TBEditSelectPolylineRadiusCap2.Visible := TBEditSelectPolylineRadius.Visible;
+  
   if FLineOnMapEdit <> nil then begin
     FLineOnMapEdit.Clear;
   end;
@@ -2765,8 +2784,15 @@ begin
 
   FLineOnMapEdit := FLineOnMapByOperation[VNewState];
   if VNewState = ao_select_line then begin
+    TBEditSelectPolylineRadius.MinValue := 1;
+    TBEditSelectPolylineRadius.MaxValue := 100000;
     TBEditSelectPolylineRadius.Value :=
       Round(FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig.Radius);
+  end else if VNewState = ao_calc_circle then begin
+    TBEditSelectPolylineRadius.MinValue := 0;
+    TBEditSelectPolylineRadius.MaxValue := MaxInt;
+    TBEditSelectPolylineRadius.Value :=
+      Round((FLineOnMapEdit as ICircleOnMapEdit).Radius);
   end;
 
   if Assigned(FLineOnMapEdit) then begin
@@ -2777,7 +2803,7 @@ begin
     ao_movemap: begin
       map.Cursor := crDefault;
     end;
-    ao_calc_line: begin
+    ao_calc_line, ao_calc_circle: begin
       map.Cursor := 2;
     end;
     ao_select_poly, ao_select_rect, ao_select_line: begin
@@ -2969,6 +2995,7 @@ var
   VLineOnMapEdit: ILineOnMapEdit;
   VPathOnMapEdit: IPathOnMapEdit;
   VPolygonOnMapEdit: IPolygonOnMapEdit;
+  VCircleOnMapEdit: ICircleOnMapEdit;
   VSaveAviable: Boolean;
   VPath: IGeometryLonLatLine;
   VPoly: IGeometryLonLatPolygon;
@@ -2978,7 +3005,13 @@ begin
   if VLineOnMapEdit <> nil then begin
     VSaveAviable := False;
     VIsMultiItem := False;
-    if Supports(VLineOnMapEdit, IPathOnMapEdit, VPathOnMapEdit) then begin
+    if Supports(VLineOnMapEdit, ICircleOnMapEdit, VCircleOnMapEdit) then begin
+      TBEditSelectPolylineRadius.Value := Round(VCircleOnMapEdit.Radius);
+      if Assigned(VCircleOnMapEdit.Path) then begin
+        VPath := VCircleOnMapEdit.Path.Geometry;
+        VSaveAviable := IsValidLonLatLine(VPath);
+      end;
+    end else if Supports(VLineOnMapEdit, IPathOnMapEdit, VPathOnMapEdit) then begin
       if Assigned(VPathOnMapEdit.Path) then begin
         VPath := VPathOnMapEdit.Path.Geometry;
         VSaveAviable := IsValidLonLatLine(VPath);
@@ -3286,7 +3319,8 @@ begin
           end;
           ao_select_poly,
           ao_select_line,
-          ao_calc_line: begin
+          ao_calc_line,
+          ao_calc_circle: begin
             VLineOnMapEdit := FLineOnMapEdit;
             if VLineOnMapEdit <> nil then begin
               if not VLineOnMapEdit.IsEmpty then begin
@@ -4004,8 +4038,12 @@ var
   VLLRect: TDoubleRect;
   VPathEdit: IPathOnMapEdit;
   VPolyEdit: IPolygonOnMapEdit;
+  VCircleEdit: ICircleOnMapEdit;
 begin
-  if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathEdit) then begin
+  if Supports(FLineOnMapEdit, ICircleOnMapEdit, VCircleEdit) then begin
+    VPolyEdit := VCircleEdit.GetPolygonOnMapEdit;
+    VLLRect := VPolyEdit.Polygon.Geometry.Bounds.Rect;
+  end else if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathEdit) then begin
     VLLRect := VPathEdit.Path.Geometry.Bounds.Rect;
   end else if Supports(FLineOnMapEdit, IPolygonOnMapEdit, VPolyEdit) then begin
     VLLRect := VPolyEdit.Polygon.Geometry.Bounds.Rect;
@@ -4396,8 +4434,19 @@ end;
 {$ENDREGION 'TileBoundaries'}
 
 procedure TfrmMain.TBEditSelectPolylineRadiusChange(Sender: TObject);
+var
+  VCircleOnMapEdit: ICircleOnMapEdit;
 begin
-  FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig.Radius := TBEditSelectPolylineRadius.Value;
+  if FState.State = ao_select_line then begin
+    FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig.Radius :=
+      TBEditSelectPolylineRadius.Value;
+  end else if FState.State = ao_calc_circle then begin
+    if Supports(FLineOnMapEdit, ICircleOnMapEdit, VCircleOnMapEdit) then begin
+      if Round(VCircleOnMapEdit.Radius) <> TBEditSelectPolylineRadius.Value then begin
+        VCircleOnMapEdit.Radius := TBEditSelectPolylineRadius.Value;
+      end;
+    end;
+  end;
 end;
 
 procedure TfrmMain.mapResize(Sender: TObject);
@@ -4781,7 +4830,15 @@ begin
           end else begin
             VClickLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
           end;
-          FLineOnMapEdit.InsertPoint(VClickLonLat);
+          if FState.State = ao_calc_circle then begin
+            if FLineOnMapEdit.IsReady then begin
+              FLineOnMapEdit.MoveActivePoint(VClickLonLat);
+            end else begin
+              FLineOnMapEdit.InsertPoint(VClickLonLat);
+            end;
+          end else begin
+            FLineOnMapEdit.InsertPoint(VClickLonLat);
+          end;
         end;
       end;
     end;
@@ -5399,6 +5456,7 @@ var
   VResult: boolean;
   VPathEdit: IPathOnMapEdit;
   VPolygonEdit: IPolygonOnMapEdit;
+  VCircleEdit: ICircleOnMapEdit;
 begin
   VResult := False;
   case FState.State of
@@ -5410,6 +5468,11 @@ begin
     ao_edit_line, ao_calc_line: begin
       if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathEdit) then begin
         VResult := FMarkDBGUI.SaveMarkModal(FEditMarkLine, VPathEdit.Path.Geometry, True, FMarshrutComment);
+      end;
+    end;
+    ao_calc_circle: begin
+      if Supports(FLineOnMapEdit, ICircleOnMapEdit, VCircleEdit) then begin
+        VResult := FMarkDBGUI.SaveMarkModal(nil, VCircleEdit.GetPolygonOnMapEdit.Polygon.Geometry, True);
       end;
     end;
   end;
@@ -6547,6 +6610,15 @@ procedure TfrmMain.actDistanceCalculationExecute(Sender: TObject);
 begin
   if FState.State <> ao_calc_line then begin
     FState.State := ao_calc_line;
+  end else begin
+    FState.State := ao_movemap;
+  end;
+end;
+
+procedure TfrmMain.actCircleCalculationExecute(Sender: TObject);
+begin
+  if FState.State <> ao_calc_circle then begin
+    FState.State := ao_calc_circle;
   end else begin
     FState.State := ao_movemap;
   end;

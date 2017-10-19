@@ -112,6 +112,7 @@ type
       const AFillingMapPolygon: IFillingMapPolygon;
       const AMergePolygonsResult: IMergePolygonsResult;
       const ACalcLinePath: IPathOnMapEdit;
+      const ACircleOnMapEdit: ICircleOnMapEdit;
       const AEditLinePath: IPathOnMapEdit;
       const AEditPolygon: IPolygonOnMapEdit;
       const ASelectPolygon: IPolygonOnMapEdit;
@@ -194,6 +195,7 @@ uses
   u_MapLayerSingleGeometry,
   u_MapLayerPointsSet,
   u_MapLayerCalcLineCaptions,
+  u_MapLayerCalcCircleCaptions,
   u_MapLayerSelectionByRect,
   u_MapLayerGotoMarker,
   u_MapLayerNavToMark,
@@ -253,6 +255,7 @@ constructor TMainFormLayersList.Create(
   const AFillingMapPolygon: IFillingMapPolygon;
   const AMergePolygonsResult: IMergePolygonsResult;
   const ACalcLinePath: IPathOnMapEdit;
+  const ACircleOnMapEdit: ICircleOnMapEdit;
   const AEditLinePath: IPathOnMapEdit;
   const AEditPolygon: IPolygonOnMapEdit;
   const ASelectPolygon: IPolygonOnMapEdit;
@@ -884,6 +887,124 @@ begin
       AValueToStringConverter
     );
   VLayersList.Add(VLayer);
+
+  {$REGION 'CalcCircle'}
+  // CalcCircle polygon
+  VGeometryChangeableByPolygonEdit :=
+    TGeometryLonLatChangeableByPolygonEdit.Create(
+      AVectorGeometryLonLatFactory,
+      ACircleOnMapEdit.GetPolygonOnMapEdit
+    );
+
+  VLayer := VGeometryChangeableByPolygonEdit;
+  VLayersList.Add(VLayer);
+
+  // CalcCircle polygon visualisation layer
+  VDebugName := 'CalcCirclePolygon';
+  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
+    TMapLayerSinglePolygon.Create(
+      VPerfList,
+      AAppStartedNotifier,
+      AAppClosingNotifier,
+      AParentMap,
+      AViewPortState.View,
+      AVectorGeometryProjectedFactory,
+      ALayersConfig.CalcCircleLayerConfig.PolygonConfig,
+      VGeometryChangeableByPolygonEdit.PolygonChangeable
+    );
+  VLayersList.Add(VLayer);
+
+  // CalcCircle line
+  VGeometryChangeableByPathEdit :=
+    TGeometryLonLatChangeableByPathEdit.Create(
+      AVectorGeometryLonLatFactory,
+      ACircleOnMapEdit
+    );
+
+  VLayer := VGeometryChangeableByPathEdit;
+  VLayersList.Add(VLayer);
+
+  // CalcCircle line visualisation layer
+  VDebugName := 'CalcCircleLine';
+  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
+    TMapLayerSingleLine.Create(
+      VPerfList,
+      AAppStartedNotifier,
+      AAppClosingNotifier,
+      AParentMap,
+      AViewPortState.View,
+      AVectorGeometryProjectedFactory,
+      ALayersConfig.CalcCircleLayerConfig.LineConfig,
+      VGeometryChangeableByPathEdit.LineChangeable
+    );
+  VLayersList.Add(VLayer);
+
+  // CalcCircle simple points visualisation layer
+  VDebugName := 'CalcCircleSimplePoints';
+  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
+    TMapLayerPointsSet.Create(
+      VPerfList,
+      AAppStartedNotifier,
+      AAppClosingNotifier,
+      AParentMap,
+      AViewPortState.View,
+      AVectorGeometryProjectedFactory,
+      VGeometryChangeableByPathEdit.OtherPointsChangeable,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.CalcCircleLayerConfig.PointsConfig.NormalPointMarker)
+    );
+  VLayersList.Add(VLayer);
+
+  // CalcCircle first points visualisation layer
+  VDebugName := 'CalcCircleSimplePoints';
+  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
+    TMapLayerPointsSet.Create(
+      VPerfList,
+      AAppStartedNotifier,
+      AAppClosingNotifier,
+      AParentMap,
+      AViewPortState.View,
+      AVectorGeometryProjectedFactory,
+      VGeometryChangeableByPathEdit.FirstPointsChangeable,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.CalcCircleLayerConfig.PointsConfig.FirstPointMarker)
+    );
+  VLayersList.Add(VLayer);
+
+  // CalcCircle active points visualisation layer
+  VDebugName := 'CalcCircleActiveSimplePoints';
+  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
+    TMapLayerPointsSet.Create(
+      VPerfList,
+      AAppStartedNotifier,
+      AAppClosingNotifier,
+      AParentMap,
+      AViewPortState.View,
+      AVectorGeometryProjectedFactory,
+      VGeometryChangeableByPathEdit.ActivePointsChangeable,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.CalcCircleLayerConfig.PointsConfig.ActivePointMarker)
+    );
+  VLayersList.Add(VLayer);
+
+  // CalcCircle captions layer
+  VDebugName := 'CalcCircleCaptions';
+  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
+    TMapLayerCalcCircleCaptions.Create(
+      VPerfList,
+      AAppStartedNotifier,
+      AAppClosingNotifier,
+      AParentMap,
+      AViewPortState.View,
+      ACircleOnMapEdit,
+      ALayersConfig.CalcCircleLayerConfig.CaptionConfig,
+      AValueToStringConverter
+    );
+  VLayersList.Add(VLayer);
+  {$ENDREGION 'CalcCircle'}
 
   // PathEdit line visualisation layer
   VGeometryChangeableByPathEdit :=

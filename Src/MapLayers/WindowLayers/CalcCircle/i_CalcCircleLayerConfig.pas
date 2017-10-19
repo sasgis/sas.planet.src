@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2017, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -18,32 +18,30 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_MainFormState;
+unit i_CalcCircleLayerConfig;
 
 interface
 
 uses
-  i_Changeable;
+  i_ConfigDataElement,
+  i_PointCaptionsLayerConfig,
+  i_PolyLineLayerConfig,
+  i_PolygonLayerConfig;
 
 type
-  TStateEnum = (
-    ao_movemap,
-    ao_edit_point,
-    ao_edit_line,
-    ao_edit_poly,
-    ao_calc_line,
-    ao_calc_circle,
-    ao_select_rect,
-    ao_select_poly,
-    ao_select_line
-  );
+  ICalcCircleLayerConfig = interface(IConfigDataElement)
+    ['{F659019C-C6BB-4FFE-839E-7D9D45CEB281}']
+    function GetPolygonConfig: IPolygonLayerConfig;
+    property PolygonConfig: IPolygonLayerConfig read GetPolygonConfig;
 
-type
-  IMainFormState = interface(IChangeable)
-    ['{0CB21E1F-BBFC-4517-A328-40F36E6C1457}']
-    function GetState: TStateEnum;
-    procedure SetState(AValue: TStateEnum);
-    property State: TStateEnum read GetState write SetState;
+    function GetLineConfig: ILineLayerConfig;
+    property LineConfig: ILineLayerConfig read GetLineConfig;
+
+    function GetPointsConfig: IPointsSetLayerConfig;
+    property PointsConfig: IPointsSetLayerConfig read GetPointsConfig;
+
+    function GetCaptionConfig: IPointCaptionsLayerConfig;
+    property CaptionConfig: IPointCaptionsLayerConfig read GetCaptionConfig;
   end;
 
 implementation

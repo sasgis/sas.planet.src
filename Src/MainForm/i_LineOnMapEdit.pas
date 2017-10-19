@@ -90,6 +90,15 @@ type
     procedure SetPolygon(const AValue: IGeometryLonLatPolygon); overload;
   end;
 
+  ICircleOnMapEdit = interface(IPathOnMapEdit)
+    ['{F6631A99-4DE4-4CA4-BFC8-FD9BB82F8C2C}']
+    function GetRadius: Double;
+    procedure SetRadius(const AValue: Double);
+    property Radius: Double read GetRadius write SetRadius;
+
+    function GetPolygonOnMapEdit: IPolygonOnMapEdit;
+  end;
+
 implementation
 
 end.

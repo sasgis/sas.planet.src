@@ -36,6 +36,7 @@ uses
   i_LastSelectionLayerConfig,
   i_MergePolygonsResultLayerConfig,
   i_CalcLineLayerConfig,
+  i_CalcCircleLayerConfig,
   i_SelectionRectLayerConfig,
   i_SelectionPolygonLayerConfig,
   i_SelectionPolylineLayerConfig,
@@ -65,6 +66,7 @@ type
     FLastSelectionLayerConfig: ILastSelectionLayerConfig;
     FMergePolygonsResultLayerConfig: IMergePolygonsResultLayerConfig;
     FCalcLineLayerConfig: ICalcLineLayerConfig;
+    FCalcCircleLayerConfig: ICalcCircleLayerConfig;
     FSelectionRectLayerConfig: ISelectionRectLayerConfig;
     FSelectionPolygonLayerConfig: ISelectionPolygonLayerConfig;
     FSelectionPolylineLayerConfig: ISelectionPolylineLayerConfig;
@@ -88,6 +90,7 @@ type
     function GetLastSelectionLayerConfig: ILastSelectionLayerConfig;
     function GetMergePolygonsResultLayerConfig: IMergePolygonsResultLayerConfig;
     function GetCalcLineLayerConfig: ICalcLineLayerConfig;
+    function GetCalcCircleLayerConfig: ICalcCircleLayerConfig;
     function GetSelectionRectLayerConfig: ISelectionRectLayerConfig;
     function GetSelectionPolygonLayerConfig: ISelectionPolygonLayerConfig;
     function GetSelectionPolylineLayerConfig: ISelectionPolylineLayerConfig;
@@ -118,6 +121,7 @@ uses
   u_LastSelectionLayerConfig,
   u_MergePolygonsResultLayerConfig,
   u_CalcLineLayerConfig,
+  u_CalcCircleLayerConfig,
   u_SelectionRectLayerConfig,
   u_SelectionPolygonLayerConfig,
   u_SelectionPolyLineLayerConfig,
@@ -161,6 +165,8 @@ begin
   Add(FMergePolygonsResultLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MergePolygonsResult'));
   FCalcLineLayerConfig := TCalcLineLayerConfig.Create;
   Add(FCalcLineLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('CalcLine'));
+  FCalcCircleLayerConfig := TCalcCircleLayerConfig.Create;
+  Add(FCalcCircleLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('CalcCircle'));
   FSelectionRectLayerConfig := TSelectionRectLayerConfig.Create;
   Add(FSelectionRectLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('SelectionRect'));
   FSelectionPolygonLayerConfig := TSelectionPolygonLayerConfig.Create;
@@ -177,6 +183,11 @@ begin
   Add(FGotoLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('GotoMarker'));
   FFullMapMouseCursorLayerConfig := TFullMapMouseCursorLayerConfig.Create;
   Add(FFullMapMouseCursorLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('FullMapMouseCursor'));
+end;
+
+function TMainFormLayersConfig.GetCalcCircleLayerConfig: ICalcCircleLayerConfig;
+begin
+  Result := FCalcCircleLayerConfig;
 end;
 
 function TMainFormLayersConfig.GetCalcLineLayerConfig: ICalcLineLayerConfig;

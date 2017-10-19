@@ -36,6 +36,7 @@ uses
   i_LastSelectionLayerConfig,
   i_MergePolygonsResultLayerConfig,
   i_CalcLineLayerConfig,
+  i_CalcCircleLayerConfig,
   i_SelectionRectLayerConfig,
   i_SelectionPolygonLayerConfig,
   i_SelectionPolylineLayerConfig,
@@ -91,6 +92,9 @@ type
 
     function GetCalcLineLayerConfig: ICalcLineLayerConfig;
     property CalcLineLayerConfig: ICalcLineLayerConfig read GetCalcLineLayerConfig;
+
+    function GetCalcCircleLayerConfig: ICalcCircleLayerConfig; 
+    property CalcCircleLayerConfig: ICalcCircleLayerConfig read GetCalcCircleLayerConfig;
 
     function GetSelectionRectLayerConfig: ISelectionRectLayerConfig;
     property SelectionRectLayerConfig: ISelectionRectLayerConfig read GetSelectionRectLayerConfig;
