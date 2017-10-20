@@ -565,6 +565,7 @@ type
     actIconsSettings: TAction;
     TBCircleCalc: TTBXItem;
     actCircleCalculation: TAction;
+    NCircleCalc: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
