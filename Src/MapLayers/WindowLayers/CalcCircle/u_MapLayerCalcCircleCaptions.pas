@@ -24,7 +24,6 @@ interface
 
 uses
   Types,
-  Classes,
   GR32,
   GR32_Image,
   t_GeoTypes,
@@ -33,10 +32,8 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_LineOnMapEdit,
-  i_Datum,
   i_GeometryLonLat,
   i_Projection,
-  i_DoublePointsAggregator,
   i_ValueToStringConverter,
   i_PointCaptionsLayerConfig,
   u_MapLayerBasicNoBitmap;
@@ -85,10 +82,8 @@ implementation
 
 uses
   SysUtils,
-  i_EnumDoublePoint,
   i_ProjectionType,
-  u_ListenerByEvent,
-  u_DoublePointsAggregator,
+  u_ListenerByEvent,  
   u_ResStrings;
 
 { TMapLayerCalcLineCaptions }
