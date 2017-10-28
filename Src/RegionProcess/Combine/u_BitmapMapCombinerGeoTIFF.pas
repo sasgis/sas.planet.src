@@ -28,6 +28,7 @@ uses
   Types,
   GeoTiffWriter,
   t_GeoTIFF,
+  i_InternalPerformanceCounter,
   i_ImageLineProvider,
   i_NotifierOperation,
   i_BitmapTileProvider,
@@ -46,6 +47,8 @@ type
     FLineProvider: IImageLineProvider;
     FOperationID: Integer;
     FCancelNotifier: INotifierOperation;
+    FSaveRectCounter: IInternalPerformanceCounter;
+    FGetLineCounter: IInternalPerformanceCounter;
   private
     function _GetTiffType: TTiffType;
     function GetLineCallBack(
@@ -64,6 +67,8 @@ type
   public
     constructor Create(
       const AProgressUpdate: IBitmapCombineProgressUpdate;
+      const ASaveRectCounter: IInternalPerformanceCounter;
+      const AGetLineCounter: IInternalPerformanceCounter;
       const AWithAlpha: Boolean = True;
       const AFileFormat: TGeoTiffFileFormat = gtfOld;
       const ACompression: TGeoTiffCompression = gtcLZW
@@ -84,6 +89,8 @@ uses
 
 constructor TBitmapMapCombinerGeoTIFF.Create(
   const AProgressUpdate: IBitmapCombineProgressUpdate;
+  const ASaveRectCounter: IInternalPerformanceCounter;
+  const AGetLineCounter: IInternalPerformanceCounter;
   const AWithAlpha: Boolean;
   const AFileFormat: TGeoTiffFileFormat;
   const ACompression: TGeoTiffCompression
@@ -91,6 +98,8 @@ constructor TBitmapMapCombinerGeoTIFF.Create(
 begin
   inherited Create;
   FProgressUpdate := AProgressUpdate;
+  FSaveRectCounter := ASaveRectCounter;
+  FGetLineCounter := AGetLineCounter;
   FWithAlpha := AWithAlpha;
   FFileFormat := AFileFormat;
   FCompression := ACompression;
@@ -139,6 +148,7 @@ var
   VTiffType: TTiffType;
   VCompression: TTiffCompression;
   VProjInfo: TProjectionInfo;
+  VContext: TInternalPerformanceCounterContext;
 begin
   FOperationID := AOperationID;
   FCancelNotifier := ACancelNotifier;
@@ -191,16 +201,21 @@ begin
 
   VGeoTiffWriter := TGeoTiffWriter.Create('SAS.Planet');
   try
-    VGeoTiffWriter.Write(
-      VTiffType,
-      AFileName,
-      FWidth,
-      FHeight,
-      VCompression,
-      Self.GetLineCallBack,
-      FWithAlpha,
-      @VProjInfo
-    );
+    VContext := FSaveRectCounter.StartOperation;
+    try
+      VGeoTiffWriter.Write(
+        VTiffType,
+        AFileName,
+        FWidth,
+        FHeight,
+        VCompression,
+        Self.GetLineCallBack,
+        FWithAlpha,
+        @VProjInfo
+      );
+    finally
+      FSaveRectCounter.FinishOperation(VContext);
+    end;
   finally
     VGeoTiffWriter.Free;
   end;
@@ -211,12 +226,19 @@ function TBitmapMapCombinerGeoTIFF.GetLineCallBack(
   const ALineSize: Integer;
   const AUserInfo: Pointer
 ): Pointer;
+var
+  VContext: TInternalPerformanceCounterContext;
 begin
   if ARowNumber mod 256 = 0 then begin
     FProgressUpdate.Update(ARowNumber / FHeight);
   end;
   if not FCancelNotifier.IsOperationCanceled(FOperationID) then begin
-    Result := FLineProvider.GetLine(FOperationID, FCancelNotifier, ARowNumber);
+    VContext := FGetLineCounter.StartOperation;
+    try
+      Result := FLineProvider.GetLine(FOperationID, FCancelNotifier, ARowNumber);
+    finally
+      FGetLineCounter.FinishOperation(VContext);
+    end;
   end else begin
     Result := nil;
   end;

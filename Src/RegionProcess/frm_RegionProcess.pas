@@ -36,6 +36,7 @@ uses
   TB2Dock,
   TB2Toolbar,
   TBX,
+  i_InternalPerformanceCounter,
   i_NotifierTime,
   i_NotifierOperation,
   i_MapViewGoto,
@@ -154,6 +155,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
+      const ACounterList: IInternalPerformanceCounterList;
       const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifierTime;
       const ALastSelectionInfo: ILastSelectionInfo;
@@ -226,6 +228,7 @@ uses
 
 constructor TfrmRegionProcess.Create(
   const ALanguageManager: ILanguageManager;
+  const ACounterList: IInternalPerformanceCounterList;
   const AAppClosingNotifier: INotifierOneOperation;
   const ATimerNoifier: INotifierTime;
   const ALastSelectionInfo: ILastSelectionInfo;
@@ -374,6 +377,7 @@ begin
     TfrCombine.Create(
       VProgressFactory,
       ALanguageManager,
+      ACounterList.CreateAndAddNewSubList('Combine'),
       VMapSelectFrameBuilder,
       AActiveBitmapLayersList,
       AViewConfig,

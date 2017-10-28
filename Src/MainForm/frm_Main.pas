@@ -1292,6 +1292,7 @@ begin
   FFormRegionProcess :=
     TfrmRegionProcess.Create(
       GState.Config.LanguageManager,
+      GState.PerfCounterList.CreateAndAddNewSubList('RegionProcess'),
       GState.AppClosingNotifier,
       GState.GUISyncronizedTimerNotifier,
       GState.LastSelectionInfo,

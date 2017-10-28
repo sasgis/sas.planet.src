@@ -28,6 +28,7 @@ uses
   Forms,
   StdCtrls,
   ExtCtrls,
+  i_InternalPerformanceCounter,
   i_LanguageManager,
   i_ProjectionSetList,
   i_ProjectionSetChangeable,
@@ -73,6 +74,7 @@ type
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
+      const ACounterList: IInternalPerformanceCounterList;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const AActiveMapsSet: IMapTypeListChangeable;
       const AViewConfig: IGlobalViewMainConfig;
@@ -129,6 +131,7 @@ uses
 constructor TfrCombine.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
+  const ACounterList: IInternalPerformanceCounterList;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const AActiveMapsSet: IMapTypeListChangeable;
   const AViewConfig: IGlobalViewMainConfig;
@@ -392,6 +395,7 @@ begin
     TProviderMapCombineGeoTIFF.Create(
       AProgressFactory,
       ALanguageManager,
+      ACounterList,
       AMapSelectFrameBuilder,
       AActiveMapsSet,
       AViewConfig,
