@@ -66,6 +66,9 @@ type
     pmiSortByUiAvg: TMenuItem;
     pmiSortByName: TMenuItem;
     pmiSep2: TMenuItem;
+    pnlTop: TPanel;
+    chkFilterByClass: TCheckBox;
+    edtFilter: TEdit;
     procedure btnRefreshClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -81,6 +84,8 @@ type
     procedure pmiCountIsGreaterOrEqualClick(Sender: TObject);
     procedure pmiTotalIsGreaterOrEqualClick(Sender: TObject);
     procedure SortByClick(Sender: TObject);
+    procedure chkFilterByClassClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     FDebugInfoSubSystem: IDebugInfoSubSystem;
     FPrevStateList: IIDInterfaceList;
@@ -91,7 +96,11 @@ type
     FMenuFiltering_EnabledCount: Boolean;
     FMenuFiltering_MinimumTotal: Double;
     FMenuFiltering_EnabledTotal: Boolean;
+    FGridFilteringList: TStringList;
   private
+    procedure SaveSettings;
+    procedure LoadSettings;
+
     procedure UpdateMenuFiltering;
     procedure UpdateGrid;
     function UpdateGridRow(
@@ -117,11 +126,17 @@ implementation
 
 uses
   Dialogs,
+  Messages,
+  IniFiles,
   u_ClipboardFunc,
   u_IDInterfaceList,
   u_InterfaceListSimple,
   u_SortFunc,
   u_GeoToStrFunc;
+
+const
+  cIniFileName = 'DebugInfo.ini';
+  cIniFileSection = 'Main';
 
 function _DoubleToStr(const AValue: Double): String;
 begin
@@ -147,10 +162,13 @@ begin
   FPrevStateList := TIDInterfaceList.Create(False);
   FCurrStateList := TInterfaceListSimple.Create;
   FSortIndex := 0;
+
+  FGridFilteringList := TStringList.Create;
 end;
 
 destructor TfrmDebugInfo.Destroy;
 begin
+  FreeAndNil(FGridFilteringList);
   inherited;
 end;
 
@@ -224,6 +242,16 @@ begin
   tmrRefresh.Enabled := chkAutoRefresh.Checked;
 end;
 
+procedure TfrmDebugInfo.chkFilterByClassClick(Sender: TObject);
+begin
+  if chkFilterByClass.Checked then begin
+    FGridFilteringList.Clear;
+    FGridFilteringList.Delimiter := ';';
+    FGridFilteringList.StrictDelimiter := True;
+    FGridFilteringList.DelimitedText := edtFilter.Text;
+  end;
+end;
+
 procedure TfrmDebugInfo.FormCreate(Sender: TObject);
 begin
   sgrdDebugInfo.ColWidths[0] := 360;
@@ -233,8 +261,14 @@ end;
 
 procedure TfrmDebugInfo.FormShow(Sender: TObject);
 begin
+  LoadSettings;
   UpdateMenuFiltering;
   UpdateGrid;
+end;
+
+procedure TfrmDebugInfo.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  SaveSettings;
 end;
 
 function TfrmDebugInfo.GetGridLinesText(const ATop, ABottom: Integer): String;
@@ -484,28 +518,34 @@ var
   VPrevData, VCurrData: IInternalPerformanceCounterStaticData;
   VId: Integer;
 begin
-  PrepareGridHeader;
-  if FDebugInfoSubSystem = nil then begin
-    Exit;
-  end;
-
-  VCurrStaticData := FDebugInfoSubSystem.GetStaticDataList;
-  FCurrStateList.Clear;
-  FCurrStateList.AddListStatic(VCurrStaticData);
-  SortDataForGrid;
-
-  VLastRow := sgrdDebugInfo.FixedRows;
-  for i := 0 to FCurrStateList.Count - 1 do begin
-    VCurrData := IInternalPerformanceCounterStaticData(FCurrStateList.Items[i]);
-    VName := VCurrData.Name;
-    VId := VCurrData.Id;
-    VPrevData := IInternalPerformanceCounterStaticData(FPrevStateList.GetByID(VId));
-    if UpdateGridRow(VLastRow, VName, VPrevData, VCurrData) then begin
-      Inc(VLastRow);
+  sgrdDebugInfo.Perform(WM_SETREDRAW, 0, 0);
+  try
+    PrepareGridHeader;
+    if FDebugInfoSubSystem = nil then begin
+      Exit;
     end;
-  end;
-  if VLastRow < sgrdDebugInfo.RowCount then begin
-    sgrdDebugInfo.RowCount := VLastRow;
+
+    VCurrStaticData := FDebugInfoSubSystem.GetStaticDataList;
+    FCurrStateList.Clear;
+    FCurrStateList.AddListStatic(VCurrStaticData);
+    SortDataForGrid;
+
+    VLastRow := sgrdDebugInfo.FixedRows;
+    for i := 0 to FCurrStateList.Count - 1 do begin
+      VCurrData := IInternalPerformanceCounterStaticData(FCurrStateList.Items[i]);
+      VName := VCurrData.Name;
+      VId := VCurrData.Id;
+      VPrevData := IInternalPerformanceCounterStaticData(FPrevStateList.GetByID(VId));
+      if UpdateGridRow(VLastRow, VName, VPrevData, VCurrData) then begin
+        Inc(VLastRow);
+      end;
+    end;
+    if VLastRow < sgrdDebugInfo.RowCount then begin
+      sgrdDebugInfo.RowCount := VLastRow;
+    end;
+  finally
+    sgrdDebugInfo.Perform(WM_SETREDRAW, 1, 0);
+    sgrdDebugInfo.Invalidate;
   end;
 end;
 
@@ -516,6 +556,8 @@ function TfrmDebugInfo.UpdateGridRow(
   const ACurrData: IInternalPerformanceCounterStaticData
 ): Boolean;
 var
+  I: Integer;
+  VIgnoreItem: Boolean;
   VCount: Cardinal;
   VTime: TDateTime;
   VCountInMain: Cardinal;
@@ -525,6 +567,20 @@ var
   VAvgTime: Extended;
 begin
   Result := False;
+
+  if chkFilterByClass.Checked and (FGridFilteringList.Count > 0) then begin
+    VIgnoreItem := True;
+    for I := 0 to FGridFilteringList.Count - 1 do begin
+      if Pos(FGridFilteringList.Strings[I], AName) > 0 then begin
+        VIgnoreItem := False;
+        Break;
+      end;
+    end;
+    if VIgnoreItem then begin
+      Exit;
+    end;
+  end;
+
   if ACurrData <> nil then begin
     VCount := ACurrData.Counter;
     VTime := ACurrData.TotalTime;
@@ -594,6 +650,36 @@ begin
     lblFiltering.Caption := lblFiltering.Hint;
   end else begin
     lblFiltering.Caption := '';
+  end;
+end;
+
+procedure TfrmDebugInfo.SaveSettings;
+var
+  VIniFile: TIniFile;
+begin
+  VIniFile := TIniFile.Create(ExtractFilePath(ParamStr(0)) + cIniFileName);
+  try
+    VIniFile.WriteInteger(cIniFileSection, 'FormWidth', Self.Width);
+    VIniFile.WriteInteger(cIniFileSection, 'FormHeight', Self.Height);
+    VIniFile.WriteString(cIniFileSection, 'FilterText', edtFilter.Text);
+    VIniFile.WriteBool(cIniFileSection, 'FilterByClass', chkFilterByClass.Checked);
+  finally
+    VIniFile.Free;
+  end;
+end;
+
+procedure TfrmDebugInfo.LoadSettings;
+var
+  VIniFile: TIniFile;
+begin
+  VIniFile := TIniFile.Create(ExtractFilePath(ParamStr(0)) + cIniFileName);
+  try
+    Self.Width := VIniFile.ReadInteger(cIniFileSection, 'FormWidth', Self.Width);
+    Self.Height := VIniFile.ReadInteger(cIniFileSection, 'FormHeight', Self.Height);
+    edtFilter.Text := VIniFile.ReadString(cIniFileSection, 'FilterText', '');
+    chkFilterByClass.Checked := VIniFile.ReadBool(cIniFileSection, 'FilterByClass', False);
+  finally
+    VIniFile.Free;
   end;
 end;
 

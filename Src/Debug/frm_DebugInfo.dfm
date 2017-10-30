@@ -8,15 +8,17 @@ object frmDebugInfo: TfrmDebugInfo
   Color = clBtnFace
   ParentFont = True
   OldCreateOrder = False
+  Position = poMainFormCenter
+  OnClose = FormClose
   OnCreate = FormCreate
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object sgrdDebugInfo: TStringGrid
     Left = 0
-    Top = 0
+    Top = 29
     Width = 792
-    Height = 537
+    Height = 508
     Align = alClient
     ColCount = 9
     DefaultColWidth = 80
@@ -26,6 +28,8 @@ object frmDebugInfo: TfrmDebugInfo
     Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goDrawFocusSelected, goColSizing, goRowSelect]
     PopupMenu = pmFiltering
     TabOrder = 0
+    ExplicitTop = 0
+    ExplicitHeight = 537
     ColWidths = (
       338
       80
@@ -48,8 +52,8 @@ object frmDebugInfo: TfrmDebugInfo
     object lblFiltering: TLabel
       Left = 378
       Top = 0
-      Width = 38
-      Height = 13
+      Width = 93
+      Height = 29
       Hint = 'Filtering'
       Align = alClient
       Caption = 'Filtering'
@@ -60,6 +64,8 @@ object frmDebugInfo: TfrmDebugInfo
       Font.Style = []
       ParentFont = False
       Layout = tlCenter
+      ExplicitWidth = 38
+      ExplicitHeight = 13
     end
     object btnRefresh: TButton
       AlignWithMargins = True
@@ -153,6 +159,34 @@ object frmDebugInfo: TfrmDebugInfo
       Caption = 'Alpha Blend'
       TabOrder = 6
       OnClick = chkAlphaBlendClick
+    end
+  end
+  object pnlTop: TPanel
+    Left = 0
+    Top = 0
+    Width = 792
+    Height = 29
+    Align = alTop
+    BevelOuter = bvNone
+    Caption = 'pnlTop'
+    TabOrder = 2
+    object chkFilterByClass: TCheckBox
+      Left = 5
+      Top = 5
+      Width = 95
+      Height = 17
+      Caption = 'Filter by Class'
+      TabOrder = 0
+      OnClick = chkFilterByClassClick
+    end
+    object edtFilter: TEdit
+      Left = 106
+      Top = 2
+      Width = 684
+      Height = 21
+      Align = alCustom
+      Anchors = [akLeft, akTop, akRight]
+      TabOrder = 1
     end
   end
   object tmrRefresh: TTimer
