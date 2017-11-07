@@ -23,6 +23,7 @@ unit u_ProviderMapCombinePNG;
 interface
 
 uses
+  i_InternalPerformanceCounter,
   i_LanguageManager,
   i_ProjectionSetList,
   i_ProjectionSetChangeable,
@@ -53,6 +54,9 @@ uses
 type
   TProviderMapCombinePNG = class(TProviderMapCombineBase)
   private
+    FSaveRectCounter: IInternalPerformanceCounter;
+    FPrepareDataCounter: IInternalPerformanceCounter;
+    FGetLineCounter: IInternalPerformanceCounter;
   protected
     function PrepareMapCombiner(
       const AProgressInfo: IRegionProcessProgressInfoInternal
@@ -61,6 +65,7 @@ type
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
+      const ACounterList: IInternalPerformanceCounterList;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const AActiveMapsSet: IMapTypeListChangeable;
       const AViewConfig: IGlobalViewMainConfig;
@@ -100,6 +105,7 @@ uses
 constructor TProviderMapCombinePNG.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
+  const ACounterList: IInternalPerformanceCounterList;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const AActiveMapsSet: IMapTypeListChangeable;
   const AViewConfig: IGlobalViewMainConfig;
@@ -121,6 +127,8 @@ constructor TProviderMapCombinePNG.Create(
   const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const AMapCalibrationList: IMapCalibrationList
 );
+var
+  VCounterList: IInternalPerformanceCounterList;
 begin
   inherited Create(
     AProgressFactory,
@@ -152,6 +160,10 @@ begin
     gettext_NoExtract('PNG (Portable Network Graphics)'),
     [mcAlphaCheck]
   );
+  VCounterList := ACounterList.CreateAndAddNewSubList('PNG');
+  FSaveRectCounter := VCounterList.CreateAndAddNewCounter('SaveRect');
+  FPrepareDataCounter := VCounterList.CreateAndAddNewCounter('PrepareData');
+  FGetLineCounter := VCounterList.CreateAndAddNewCounter('GetLine');
 end;
 
 function TProviderMapCombinePNG.PrepareMapCombiner(
@@ -164,6 +176,9 @@ begin
   Result :=
     TBitmapMapCombinerPNG.Create(
       VProgressUpdate,
+      FSaveRectCounter,
+      FPrepareDataCounter,
+      FGetLineCounter,
       (ParamsFrame as IRegionProcessParamsFrameMapCombine).CustomOptions.IsSaveAlfa
     );
 end;

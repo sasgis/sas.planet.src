@@ -29,6 +29,7 @@ interface
 uses
   SysUtils,
   Types,
+  i_InternalPerformanceCounter,
   i_NotifierOperation,
   i_BitmapTileProvider,
   i_Projection,
@@ -43,6 +44,9 @@ type
     FCompressionRatio: Single;
     FEncodeInfo: TECWCompressionStatistics;
     FProgressUpdate: IBitmapCombineProgressUpdate;
+    FSaveRectCounter: IInternalPerformanceCounter;
+    FPrepareDataCounter: IInternalPerformanceCounter;
+    FGetLineCounter: IInternalPerformanceCounter;
     FImageLineProvider: IImageLineProvider;
     FLinesCount: Integer;
     FQuality: Integer;
@@ -68,6 +72,9 @@ type
   public
     constructor Create(
       const AProgressUpdate: IBitmapCombineProgressUpdate;
+      const ASaveRectCounter: IInternalPerformanceCounter;
+      const APrepareDataCounter: IInternalPerformanceCounter;
+      const AGetLineCounter: IInternalPerformanceCounter;
       const AQuality: Integer
     );
   end;
@@ -90,11 +97,17 @@ uses
 
 constructor TBitmapMapCombinerECWJP2.Create(
   const AProgressUpdate: IBitmapCombineProgressUpdate;
+  const ASaveRectCounter: IInternalPerformanceCounter;
+  const APrepareDataCounter: IInternalPerformanceCounter;
+  const AGetLineCounter: IInternalPerformanceCounter;
   const AQuality: Integer
 );
 begin
   inherited Create;
   FProgressUpdate := AProgressUpdate;
+  FSaveRectCounter := ASaveRectCounter;
+  FPrepareDataCounter := APrepareDataCounter;
+  FGetLineCounter := AGetLineCounter;
   FQuality := AQuality;
 end;
 
@@ -149,14 +162,19 @@ var
   VCurrentPieceRect: TRect;
   VProjection: IProjection;
   VMapPieceSize: TPoint;
+  VContext: TInternalPerformanceCounterContext;
 begin
   FOperationID := AOperationID;
   FCancelNotifier := ACancelNotifier;
 
+  VContext := FSaveRectCounter.StartOperation;
+  try
   VECWWriter := TECWWrite.Create;
   try
     FImageLineProvider :=
       TImageLineProviderBGR.Create(
+        FPrepareDataCounter,
+        FGetLineCounter,
         AImageProvider,
         AMapRect
       );
@@ -227,6 +245,9 @@ begin
     end;
   finally
     FreeAndNil(VECWWriter);
+  end;
+  finally
+    FSaveRectCounter.FinishOperation(VContext);
   end;
 end;
 

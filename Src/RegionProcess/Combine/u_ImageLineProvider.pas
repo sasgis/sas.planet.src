@@ -25,6 +25,7 @@ interface
 uses
   Types,
   t_Bitmap32,
+  i_InternalPerformanceCounter,
   i_NotifierOperation,
   i_Bitmap32Static,
   i_Projection,
@@ -35,6 +36,8 @@ uses
 type
   TImageLineProviderAbstract = class(TBaseInterfacedObject, IImageLineProvider)
   private
+    FPrepareDataCounter: IInternalPerformanceCounter;
+    FGetLineCounter: IInternalPerformanceCounter;
     FMapRect: TRect;
     FImageProvider: IBitmapTileProvider;
     FBytesPerPixel: Integer;
@@ -73,6 +76,8 @@ type
     ): Pointer;
   public
     constructor Create(
+      const APrepareDataCounter: IInternalPerformanceCounter;
+      const AGetLineCounter: IInternalPerformanceCounter;
       const AImageProvider: IBitmapTileProvider;
       const AMapRect: TRect;
       ABytesPerPixel: Integer
@@ -83,6 +88,8 @@ type
   TImageLineProviderNoAlfa = class(TImageLineProviderAbstract)
   public
     constructor Create(
+      const APrepareDataCounter: IInternalPerformanceCounter;
+      const AGetLineCounter: IInternalPerformanceCounter;
       const AImageProvider: IBitmapTileProvider;
       const AMapRect: TRect
     );
@@ -91,6 +98,8 @@ type
   TImageLineProviderWithAlfa = class(TImageLineProviderAbstract)
   public
     constructor Create(
+      const APrepareDataCounter: IInternalPerformanceCounter;
+      const AGetLineCounter: IInternalPerformanceCounter;
       const AImageProvider: IBitmapTileProvider;
       const AMapRect: TRect
     );
@@ -143,13 +152,18 @@ uses
 { TImageLineProviderAbstract }
 
 constructor TImageLineProviderAbstract.Create(
+  const APrepareDataCounter: IInternalPerformanceCounter;
+  const AGetLineCounter: IInternalPerformanceCounter;
   const AImageProvider: IBitmapTileProvider;
   const AMapRect: TRect;
   ABytesPerPixel: Integer
 );
 begin
   Assert(Assigned(AImageProvider));
+  Assert(AImageProvider.Projection.CheckPixelRect(AMapRect));
   inherited Create;
+  FPrepareDataCounter := APrepareDataCounter;
+  FGetLineCounter := AGetLineCounter;
   FImageProvider := AImageProvider;
   FMapRect := AMapRect;
   FBytesPerPixel := ABytesPerPixel;
@@ -228,6 +242,7 @@ function TImageLineProviderAbstract.GetLine(
 ): Pointer;
 var
   VMapLine: Integer;
+  VContext: TInternalPerformanceCounterContext;
 begin
   Assert(ALine >= 0);
   VMapLine := FMapRect.Top + ALine;
@@ -240,10 +255,20 @@ begin
   end;
 
   if IsRectEmpty(FPreparedMapRect) then begin
-    FPreparedMapRect := GetMapRectForLine(ALine);
-    PrepareBufferData(AOperationID, ACancelNotifier, FPreparedMapRect);
+    VContext := FPrepareDataCounter.StartOperation;
+    try
+      FPreparedMapRect := GetMapRectForLine(ALine);
+      PrepareBufferData(AOperationID, ACancelNotifier, FPreparedMapRect);
+    finally
+      FPrepareDataCounter.FinishOperation(VContext);
+    end;
   end;
-  Result := GetLocalLine(ALine);
+  VContext := FGetLineCounter.StartOperation;
+  try
+    Result := GetLocalLine(ALine);
+  finally
+    FGetLineCounter.FinishOperation(VContext);
+  end;
 end;
 
 function TImageLineProviderAbstract.GetLocalLine(ALine: Integer): Pointer;
@@ -313,11 +338,15 @@ end;
 { TImageLineProviderNoAlfa }
 
 constructor TImageLineProviderNoAlfa.Create(
+  const APrepareDataCounter: IInternalPerformanceCounter;
+  const AGetLineCounter: IInternalPerformanceCounter;
   const AImageProvider: IBitmapTileProvider;
   const AMapRect: TRect
 );
 begin
   inherited Create(
+    APrepareDataCounter,
+    AGetLineCounter,
     AImageProvider,
     AMapRect,
     3
@@ -327,11 +356,15 @@ end;
 { TImageLineProviderWithAlfa }
 
 constructor TImageLineProviderWithAlfa.Create(
+  const APrepareDataCounter: IInternalPerformanceCounter;
+  const AGetLineCounter: IInternalPerformanceCounter;
   const AImageProvider: IBitmapTileProvider;
   const AMapRect: TRect
 );
 begin
   inherited Create(
+    APrepareDataCounter,
+    AGetLineCounter,
     AImageProvider,
     AMapRect,
     4

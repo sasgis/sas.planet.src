@@ -27,6 +27,7 @@ uses
   Classes,
   Types,
   t_Bitmap32,
+  i_InternalPerformanceCounter,
   i_NotifierOperation,
   i_BitmapTileProvider,
   i_BitmapMapCombiner,
@@ -36,6 +37,9 @@ type
   TBitmapMapCombinerRAW = class(TBaseInterfacedObject, IBitmapMapCombiner)
   private
     FProgressUpdate: IBitmapCombineProgressUpdate;
+    FSaveRectCounter: IInternalPerformanceCounter;
+    FPrepareDataCounter: IInternalPerformanceCounter;
+    FGetLineCounter: IInternalPerformanceCounter;
     FBgColor: TColor32;
     FWithAlpha: Boolean;
     FOperationID: Integer;
@@ -51,6 +55,9 @@ type
   public
     constructor Create(
       const AProgressUpdate: IBitmapCombineProgressUpdate;
+      const ASaveRectCounter: IInternalPerformanceCounter;
+      const APrepareDataCounter: IInternalPerformanceCounter;
+      const AGetLineCounter: IInternalPerformanceCounter;
       const ABgColor: TColor32;
       AWithAlpha: Boolean
     );
@@ -67,12 +74,18 @@ uses
 
 constructor TBitmapMapCombinerRAW.Create(
   const AProgressUpdate: IBitmapCombineProgressUpdate;
+  const ASaveRectCounter: IInternalPerformanceCounter;
+  const APrepareDataCounter: IInternalPerformanceCounter;
+  const AGetLineCounter: IInternalPerformanceCounter;
   const ABgColor: TColor32;
   AWithAlpha: Boolean
 );
 begin
   inherited Create;
   FProgressUpdate := AProgressUpdate;
+  FSaveRectCounter := ASaveRectCounter;
+  FPrepareDataCounter := APrepareDataCounter;
+  FGetLineCounter := AGetLineCounter;
   FBgColor := ABgColor;
   FWithAlpha := AWithAlpha;
 end;
@@ -94,10 +107,13 @@ var
   VBytesPerPix: Byte;
   VMetaInfo: AnsiString;
   VBgColor: TColor32Entry;
+  VContext: TInternalPerformanceCounterContext;
 begin
   FOperationID := AOperationID;
   FCancelNotifier := ACancelNotifier;
 
+  VContext := FSaveRectCounter.StartOperation;
+  try
   VSize := RectSize(AMapRect);
 
   VRawFile := TFileStream.Create(AFileName, fmCreate);
@@ -106,6 +122,8 @@ begin
       VBytesPerPix := 4;
       VLineProvider :=
         TImageLineProviderRGBA.Create(
+          FPrepareDataCounter,
+          FGetLineCounter,
           AImageProvider,
           AMapRect
         );
@@ -113,6 +131,8 @@ begin
       VBytesPerPix := 3;
       VLineProvider :=
         TImageLineProviderRGB.Create(
+          FPrepareDataCounter,
+          FGetLineCounter,
           AImageProvider,
           AMapRect
         );
@@ -155,6 +175,9 @@ begin
     end;
   finally
     VRawFile.Free;
+  end;
+  finally
+    FSaveRectCounter.FinishOperation(VContext);
   end;
 end;
 

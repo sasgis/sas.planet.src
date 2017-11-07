@@ -55,6 +55,7 @@ type
   TProviderMapCombineGeoTIFF = class(TProviderMapCombineBase)
   private
     FSaveRectCounter: IInternalPerformanceCounter;
+    FPrepareDataCounter: IInternalPerformanceCounter;
     FGetLineCounter: IInternalPerformanceCounter;
   protected
     function PrepareMapCombiner(
@@ -161,6 +162,7 @@ begin
   );
   VCounterList := ACounterList.CreateAndAddNewSubList('GeoTIFF');
   FSaveRectCounter := VCounterList.CreateAndAddNewCounter('SaveRect');
+  FPrepareDataCounter := VCounterList.CreateAndAddNewCounter('PrepareData');
   FGetLineCounter := VCounterList.CreateAndAddNewCounter('GetLine');
 end;
 
@@ -175,6 +177,7 @@ begin
     TBitmapMapCombinerGeoTIFF.Create(
       VProgressUpdate,
       FSaveRectCounter,
+      FPrepareDataCounter,
       FGetLineCounter,
       (ParamsFrame as IRegionProcessParamsFrameMapCombine).CustomOptions.IsSaveAlfa,
       (ParamsFrame as IRegionProcessParamsFrameMapCombine).CustomOptions.GeoTiffFormat,

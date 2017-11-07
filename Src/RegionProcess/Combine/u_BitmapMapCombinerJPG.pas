@@ -27,6 +27,7 @@ uses
   SysUtils,
   Classes,
   LibJpegWrite,
+  i_InternalPerformanceCounter,
   i_NotifierOperation,
   i_Projection,
   i_BitmapTileProvider,
@@ -41,6 +42,9 @@ type
     FWidth: Integer;
     FHeight: Integer;
     FQuality: Integer;
+    FSaveRectCounter: IInternalPerformanceCounter;
+    FPrepareDataCounter: IInternalPerformanceCounter;
+    FGetLineCounter: IInternalPerformanceCounter;
     FLineProvider: IImageLineProvider;
     FSaveGeoRefInfoToExif: Boolean;
     FOperationID: Integer;
@@ -62,6 +66,9 @@ type
   public
     constructor Create(
       const AProgressUpdate: IBitmapCombineProgressUpdate;
+      const ASaveRectCounter: IInternalPerformanceCounter;
+      const APrepareDataCounter: IInternalPerformanceCounter;
+      const AGetLineCounter: IInternalPerformanceCounter;
       const AQuality: Integer;
       const ASaveGeoRefInfoToExif: Boolean
     );
@@ -80,12 +87,18 @@ uses
 
 constructor TBitmapMapCombinerJPG.Create(
   const AProgressUpdate: IBitmapCombineProgressUpdate;
+  const ASaveRectCounter: IInternalPerformanceCounter;
+  const APrepareDataCounter: IInternalPerformanceCounter;
+  const AGetLineCounter: IInternalPerformanceCounter;
   const AQuality: Integer;
   const ASaveGeoRefInfoToExif: Boolean
 );
 begin
   inherited Create;
   FProgressUpdate := AProgressUpdate;
+  FSaveRectCounter := ASaveRectCounter;
+  FPrepareDataCounter := APrepareDataCounter;
+  FGetLineCounter := AGetLineCounter;
   FQuality := AQuality;
   FSaveGeoRefInfoToExif := ASaveGeoRefInfoToExif;
 end;
@@ -109,10 +122,13 @@ var
   VExif: TExifSimple;
   VCenterLonLat: TDoublePoint;
   VUseBGRAColorSpace: Boolean;
+  VContext: TInternalPerformanceCounterContext;
 begin
   FOperationID := AOperationID;
   FCancelNotifier := ACancelNotifier;
 
+  VContext := FSaveRectCounter.StartOperation;
+  try
   VProjection := AImageProvider.Projection;
   VCurrentPieceRect := AMapRect;
   VMapPieceSize := RectSize(VCurrentPieceRect);
@@ -122,12 +138,16 @@ begin
   if VUseBGRAColorSpace then begin
     FLineProvider :=
       TImageLineProviderBGRA.Create(
+        FPrepareDataCounter,
+        FGetLineCounter,
         AImageProvider,
         AMapRect
       );
   end else begin
     FLineProvider :=
       TImageLineProviderRGB.Create(
+        FPrepareDataCounter,
+        FGetLineCounter,
         AImageProvider,
         AMapRect
       );
@@ -161,6 +181,9 @@ begin
     end;
   finally
     VStream.Free;
+  end;
+  finally
+    FSaveRectCounter.FinishOperation(VContext);
   end;
 end;
 

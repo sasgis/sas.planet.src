@@ -23,6 +23,7 @@ unit u_ProviderMapCombineJPG;
 interface
 
 uses
+  i_InternalPerformanceCounter,
   i_LanguageManager,
   i_ProjectionSetList,
   i_ProjectionSetChangeable,
@@ -52,6 +53,10 @@ uses
 
 type
   TProviderMapCombineJPG = class(TProviderMapCombineBase)
+  private
+    FSaveRectCounter: IInternalPerformanceCounter;
+    FPrepareDataCounter: IInternalPerformanceCounter;
+    FGetLineCounter: IInternalPerformanceCounter;
   protected
     function PrepareMapCombiner(
       const AProgressInfo: IRegionProcessProgressInfoInternal
@@ -60,6 +65,7 @@ type
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
+      const ACounterList: IInternalPerformanceCounterList;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const AActiveMapsSet: IMapTypeListChangeable;
       const AViewConfig: IGlobalViewMainConfig;
@@ -99,6 +105,7 @@ uses
 constructor TProviderMapCombineJPG.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
+  const ACounterList: IInternalPerformanceCounterList;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const AActiveMapsSet: IMapTypeListChangeable;
   const AViewConfig: IGlobalViewMainConfig;
@@ -120,6 +127,8 @@ constructor TProviderMapCombineJPG.Create(
   const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const AMapCalibrationList: IMapCalibrationList
 );
+var
+  VCounterList: IInternalPerformanceCounterList;
 begin
   inherited Create(
     AProgressFactory,
@@ -151,6 +160,10 @@ begin
     gettext_NoExtract('JPEG (Joint Photographic Experts Group)'),
     [mcQuality, mcExif]
   );
+  VCounterList := ACounterList.CreateAndAddNewSubList('JPEG');
+  FSaveRectCounter := VCounterList.CreateAndAddNewCounter('SaveRect');
+  FPrepareDataCounter := VCounterList.CreateAndAddNewCounter('PrepareData');
+  FGetLineCounter := VCounterList.CreateAndAddNewCounter('GetLine');
 end;
 
 function TProviderMapCombineJPG.PrepareMapCombiner(
@@ -163,6 +176,9 @@ begin
   Result :=
     TBitmapMapCombinerJPG.Create(
       VProgressUpdate,
+      FSaveRectCounter,
+      FPrepareDataCounter,
+      FGetLineCounter,
       (ParamsFrame as IRegionProcessParamsFrameMapCombine).CustomOptions.Quality,
       (ParamsFrame as IRegionProcessParamsFrameMapCombine).CustomOptions.IsSaveGeoRefInfoToExif
     );

@@ -23,6 +23,7 @@ unit u_ProviderMapCombineECW;
 interface
 
 uses
+  i_InternalPerformanceCounter,
   i_LanguageManager,
   i_ProjectionSetList,
   i_ProjectionSetChangeable,
@@ -52,6 +53,10 @@ uses
 
 type
   TProviderMapCombineECW = class(TProviderMapCombineBase)
+  private
+    FSaveRectCounter: IInternalPerformanceCounter;
+    FPrepareDataCounter: IInternalPerformanceCounter;
+    FGetLineCounter: IInternalPerformanceCounter;
   protected
     function PrepareMapCombiner(
       const AProgressInfo: IRegionProcessProgressInfoInternal
@@ -60,6 +65,7 @@ type
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
+      const ACounterList: IInternalPerformanceCounterList;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const AActiveMapsSet: IMapTypeListChangeable;
       const AViewConfig: IGlobalViewMainConfig;
@@ -99,6 +105,7 @@ uses
 constructor TProviderMapCombineECW.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
+  const ACounterList: IInternalPerformanceCounterList;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const AActiveMapsSet: IMapTypeListChangeable;
   const AViewConfig: IGlobalViewMainConfig;
@@ -120,6 +127,8 @@ constructor TProviderMapCombineECW.Create(
   const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const AMapCalibrationList: IMapCalibrationList
 );
+var
+  VCounterList: IInternalPerformanceCounterList;
 begin
   inherited Create(
     AProgressFactory,
@@ -151,6 +160,10 @@ begin
     gettext_NoExtract('ECW (Enhanced Compression Wavelet)'),
     [mcQuality]
   );
+  VCounterList := ACounterList.CreateAndAddNewSubList('ECW');
+  FSaveRectCounter := VCounterList.CreateAndAddNewCounter('SaveRect');
+  FPrepareDataCounter := VCounterList.CreateAndAddNewCounter('PrepareData');
+  FGetLineCounter := VCounterList.CreateAndAddNewCounter('GetLine');
 end;
 
 function TProviderMapCombineECW.PrepareMapCombiner(
@@ -163,6 +176,9 @@ begin
   Result :=
     TBitmapMapCombinerECWJP2.Create(
       VProgressUpdate,
+      FSaveRectCounter,
+      FPrepareDataCounter,
+      FGetLineCounter,
       (ParamsFrame as IRegionProcessParamsFrameMapCombine).CustomOptions.Quality
     );
 end;

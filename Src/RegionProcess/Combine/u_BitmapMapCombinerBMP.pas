@@ -25,6 +25,7 @@ interface
 uses
   SysUtils,
   Types,
+  i_InternalPerformanceCounter,
   i_NotifierOperation,
   i_BitmapTileProvider,
   i_BitmapMapCombiner,
@@ -35,6 +36,9 @@ type
   TBitmapMapCombinerBMP = class(TBaseInterfacedObject, IBitmapMapCombiner)
   private
     FProgressUpdate: IBitmapCombineProgressUpdate;
+    FSaveRectCounter: IInternalPerformanceCounter;
+    FPrepareDataCounter: IInternalPerformanceCounter;
+    FGetLineCounter: IInternalPerformanceCounter;
   private
     procedure SaveRect(
       AOperationID: Integer;
@@ -45,7 +49,10 @@ type
     );
   public
     constructor Create(
-      const AProgressUpdate: IBitmapCombineProgressUpdate
+      const AProgressUpdate: IBitmapCombineProgressUpdate;
+      const ASaveRectCounter: IInternalPerformanceCounter;
+      const APrepareDataCounter: IInternalPerformanceCounter;
+      const AGetLineCounter: IInternalPerformanceCounter
     );
   end;
 
@@ -59,11 +66,17 @@ uses
   u_ResStrings;
 
 constructor TBitmapMapCombinerBMP.Create(
-  const AProgressUpdate: IBitmapCombineProgressUpdate
+  const AProgressUpdate: IBitmapCombineProgressUpdate;
+  const ASaveRectCounter: IInternalPerformanceCounter;
+  const APrepareDataCounter: IInternalPerformanceCounter;
+  const AGetLineCounter: IInternalPerformanceCounter
 );
 begin
   inherited Create;
   FProgressUpdate := AProgressUpdate;
+  FSaveRectCounter := ASaveRectCounter;
+  FPrepareDataCounter := APrepareDataCounter;
+  FGetLineCounter := AGetLineCounter;
 end;
 
 procedure TBitmapMapCombinerBMP.SaveRect(
@@ -82,7 +95,10 @@ var
   VLineBGR: Pointer;
   VSize: TPoint;
   VLineProvider: IImageLineProvider;
+  VContext: TInternalPerformanceCounterContext;
 begin
+  VContext := FSaveRectCounter.StartOperation;
+  try
   VSize := RectSize(AMapRect);
 
   if (VSize.X >= BMP_MAX_WIDTH) or (VSize.Y >= BMP_MAX_HEIGHT) then begin
@@ -93,6 +109,8 @@ begin
   try
     VLineProvider :=
       TImageLineProviderBGR.Create(
+        FPrepareDataCounter,
+        FGetLineCounter,
         AImageProvider,
         AMapRect
       );
@@ -115,6 +133,9 @@ begin
     end;
   finally
     VBMP.Free;
+  end;
+  finally
+    FSaveRectCounter.FinishOperation(VContext);
   end;
 end;
 

@@ -26,6 +26,7 @@ uses
   SysUtils,
   Classes,
   Types,
+  i_InternalPerformanceCounter,
   i_ImageLineProvider,
   i_NotifierOperation,
   i_BitmapTileProvider,
@@ -39,6 +40,9 @@ type
     FWidth: Integer;
     FHeight: Integer;
     FWithAlpha: Boolean;
+    FSaveRectCounter: IInternalPerformanceCounter;
+    FPrepareDataCounter: IInternalPerformanceCounter;
+    FGetLineCounter: IInternalPerformanceCounter;
     FLineProvider: IImageLineProvider;
     FOperationID: Integer;
     FCancelNotifier: INotifierOperation;
@@ -59,6 +63,9 @@ type
   public
     constructor Create(
       const AProgressUpdate: IBitmapCombineProgressUpdate;
+      const ASaveRectCounter: IInternalPerformanceCounter;
+      const APrepareDataCounter: IInternalPerformanceCounter;
+      const AGetLineCounter: IInternalPerformanceCounter;
       AWithAlpha: Boolean
     );
   end;
@@ -75,11 +82,17 @@ uses
 
 constructor TBitmapMapCombinerPNG.Create(
   const AProgressUpdate: IBitmapCombineProgressUpdate;
+  const ASaveRectCounter: IInternalPerformanceCounter;
+  const APrepareDataCounter: IInternalPerformanceCounter;
+  const AGetLineCounter: IInternalPerformanceCounter;
   AWithAlpha: Boolean
 );
 begin
   inherited Create;
   FProgressUpdate := AProgressUpdate;
+  FSaveRectCounter := ASaveRectCounter;
+  FPrepareDataCounter := APrepareDataCounter;
+  FGetLineCounter := AGetLineCounter;
   FWithAlpha := AWithAlpha;
 end;
 
@@ -99,10 +112,13 @@ var
   VCurrentPieceRect: TRect;
   VMapPieceSize: TPoint;
   VPngWriter: TLibPngWriter;
+  VContext: TInternalPerformanceCounterContext;
 begin
   FOperationID := AOperationID;
   FCancelNotifier := ACancelNotifier;
 
+  VContext := FSaveRectCounter.StartOperation;
+  try
   VCurrentPieceRect := AMapRect;
   VMapPieceSize := RectSize(VCurrentPieceRect);
 
@@ -120,6 +136,8 @@ begin
     VBitsPerPix := 32;
     FLineProvider :=
       TImageLineProviderRGBA.Create(
+        FPrepareDataCounter,
+        FGetLineCounter,
         AImageProvider,
         AMapRect
       );
@@ -127,6 +145,8 @@ begin
     VBitsPerPix := 24;
     FLineProvider :=
       TImageLineProviderRGB.Create(
+        FPrepareDataCounter,
+        FGetLineCounter,
         AImageProvider,
         AMapRect
       );
@@ -148,6 +168,9 @@ begin
     end;
   finally
     VDest.Free;
+  end;
+  finally
+    FSaveRectCounter.FinishOperation(VContext);
   end;
 end;
 

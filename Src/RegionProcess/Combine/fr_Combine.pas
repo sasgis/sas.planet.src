@@ -167,6 +167,7 @@ begin
     TProviderMapCombineJPG.Create(
       AProgressFactory,
       ALanguageManager,
+      ACounterList,
       AMapSelectFrameBuilder,
       AActiveMapsSet,
       AViewConfig,
@@ -195,6 +196,7 @@ begin
     TProviderMapCombinePNG.Create(
       AProgressFactory,
       ALanguageManager,
+      ACounterList,
       AMapSelectFrameBuilder,
       AActiveMapsSet,
       AViewConfig,
@@ -223,6 +225,7 @@ begin
     TProviderMapCombineBMP.Create(
       AProgressFactory,
       ALanguageManager,
+      ACounterList,
       AMapSelectFrameBuilder,
       AActiveMapsSet,
       AViewConfig,
@@ -251,6 +254,7 @@ begin
     TProviderMapCombineECW.Create(
       AProgressFactory,
       ALanguageManager,
+      ACounterList,
       AMapSelectFrameBuilder,
       AActiveMapsSet,
       AViewConfig,
@@ -279,6 +283,7 @@ begin
     TProviderMapCombineJP2.Create(
       AProgressFactory,
       ALanguageManager,
+      ACounterList,
       AMapSelectFrameBuilder,
       AActiveMapsSet,
       AViewConfig,
@@ -308,6 +313,7 @@ begin
     TProviderMapCombineJP2.Create(
       AProgressFactory,
       ALanguageManager,
+      ACounterList,
       AMapSelectFrameBuilder,
       AActiveMapsSet,
       AViewConfig,
@@ -367,6 +373,7 @@ begin
     TProviderMapCombineRAW.Create(
       AProgressFactory,
       ALanguageManager,
+      ACounterList,
       AMapSelectFrameBuilder,
       AActiveMapsSet,
       AViewConfig,

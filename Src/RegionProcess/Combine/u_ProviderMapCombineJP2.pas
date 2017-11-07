@@ -23,6 +23,7 @@ unit u_ProviderMapCombineJP2;
 interface
 
 uses
+  i_InternalPerformanceCounter,
   i_LanguageManager,
   i_ProjectionSetList,
   i_ProjectionSetChangeable,
@@ -53,6 +54,9 @@ uses
 type
   TProviderMapCombineJP2 = class(TProviderMapCombineBase)
   private
+    FSaveRectCounter: IInternalPerformanceCounter;
+    FPrepareDataCounter: IInternalPerformanceCounter;
+    FGetLineCounter: IInternalPerformanceCounter;
     FLossless: Boolean;
   protected
     function PrepareMapCombiner(
@@ -62,6 +66,7 @@ type
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
+      const ACounterList: IInternalPerformanceCounterList;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const AActiveMapsSet: IMapTypeListChangeable;
       const AViewConfig: IGlobalViewMainConfig;
@@ -102,6 +107,7 @@ uses
 constructor TProviderMapCombineJP2.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
+  const ACounterList: IInternalPerformanceCounterList;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const AActiveMapsSet: IMapTypeListChangeable;
   const AViewConfig: IGlobalViewMainConfig;
@@ -127,6 +133,7 @@ constructor TProviderMapCombineJP2.Create(
 var
   VCaption: string;
   VOptions: TMapCombineOptionsSet;
+  VCounterList: IInternalPerformanceCounterList;
 begin
   FLossless := ALossless;
 
@@ -168,6 +175,10 @@ begin
     gettext_NoExtract(VCaption),
     VOptions
   );
+  VCounterList := ACounterList.CreateAndAddNewSubList('JPEG2000');
+  FSaveRectCounter := VCounterList.CreateAndAddNewCounter('SaveRect');
+  FPrepareDataCounter := VCounterList.CreateAndAddNewCounter('PrepareData');
+  FGetLineCounter := VCounterList.CreateAndAddNewCounter('GetLine');
 end;
 
 function TProviderMapCombineJP2.PrepareMapCombiner(
@@ -183,7 +194,14 @@ begin
     VQuality := (ParamsFrame as IRegionProcessParamsFrameMapCombine).CustomOptions.Quality;
   end;
   VProgressUpdate := TBitmapCombineProgressUpdate.Create(AProgressInfo);
-  Result := TBitmapMapCombinerECWJP2.Create(VProgressUpdate, VQuality);
+  Result :=
+    TBitmapMapCombinerECWJP2.Create(
+      VProgressUpdate,
+      FSaveRectCounter,
+      FPrepareDataCounter,
+      FGetLineCounter,
+      VQuality
+    );
 end;
 
 end.
