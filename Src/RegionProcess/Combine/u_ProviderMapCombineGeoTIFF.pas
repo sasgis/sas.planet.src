@@ -158,7 +158,7 @@ begin
     stsUnicode,
     'tif',
     gettext_NoExtract('GeoTIFF (Tagged Image File Format)'),
-    [mcAlphaUncheck, mcGeoTiff]
+    [mcAlphaUncheck, mcGeoTiff, mcThreadCount]
   );
   VCounterList := ACounterList.CreateAndAddNewSubList('GeoTIFF');
   FSaveRectCounter := VCounterList.CreateAndAddNewCounter('SaveRect');
@@ -179,6 +179,7 @@ begin
       FSaveRectCounter,
       FPrepareDataCounter,
       FGetLineCounter,
+      (ParamsFrame as IRegionProcessParamsFrameMapCombine).CustomOptions.ThreadCount,
       (ParamsFrame as IRegionProcessParamsFrameMapCombine).CustomOptions.IsSaveAlfa,
       (ParamsFrame as IRegionProcessParamsFrameMapCombine).CustomOptions.GeoTiffFormat,
       (ParamsFrame as IRegionProcessParamsFrameMapCombine).CustomOptions.GeoTiffCompression

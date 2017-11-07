@@ -26,6 +26,7 @@ type
   TMapCombineOptions = (
     mcAlphaCheck = 0,
     mcAlphaUncheck,
+    mcThreadCount,
     mcExif,
     mcQuality,
     mcGeoTiff

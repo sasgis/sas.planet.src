@@ -1113,6 +1113,7 @@
     <DCCReference Include="Src\RegionProcess\Combine\u_CalcWFileParams.pas" />
     <DCCReference Include="Src\RegionProcess\Combine\u_ECWJP2Write.pas" />
     <DCCReference Include="Src\RegionProcess\Combine\u_ImageLineProvider.pas" />
+    <DCCReference Include="Src\RegionProcess\Combine\u_ImageLineProviderMultiThread.pas" />
     <DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombine.pas" />
     <DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombineBMP.pas" />
     <DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombineECW.pas" />

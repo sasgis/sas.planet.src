@@ -13,7 +13,6 @@ object frMapCombineCustomOptions: TfrMapCombineCustomOptions
     AutoWrap = False
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 80
     object lblCompression: TLabel
       AlignWithMargins = True
       Left = 3
@@ -27,6 +26,7 @@ object frMapCombineCustomOptions: TfrMapCombineCustomOptions
       Top = 0
       Width = 140
       Height = 21
+      ItemHeight = 13
       ItemIndex = 2
       TabOrder = 0
       Text = 'LZW'
@@ -59,6 +59,7 @@ object frMapCombineCustomOptions: TfrMapCombineCustomOptions
       Top = 0
       Width = 140
       Height = 21
+      ItemHeight = 13
       ItemIndex = 0
       TabOrder = 0
       Text = 'Auto'
@@ -122,5 +123,40 @@ object frMapCombineCustomOptions: TfrMapCombineCustomOptions
     Align = alTop
     Caption = 'Save GeoRef info to Exif'
     TabOrder = 4
+  end
+  object flwpnlThreadCount: TFlowPanel
+    Left = 0
+    Top = 109
+    Width = 385
+    Height = 25
+    Align = alTop
+    AutoSize = True
+    AutoWrap = False
+    BevelOuter = bvNone
+    Constraints.MinHeight = 25
+    Padding.Top = 2
+    TabOrder = 5
+    object lblThreadCount: TLabel
+      AlignWithMargins = True
+      Left = 0
+      Top = 5
+      Width = 64
+      Height = 13
+      Margins.Left = 0
+      Margins.Right = 5
+      Alignment = taRightJustify
+      Caption = 'Thread count'
+      Layout = tlCenter
+    end
+    object seThreadCount: TSpinEdit
+      Left = 69
+      Top = 2
+      Width = 53
+      Height = 22
+      MaxValue = 16
+      MinValue = 1
+      TabOrder = 0
+      Value = 1
+    end
   end
 end

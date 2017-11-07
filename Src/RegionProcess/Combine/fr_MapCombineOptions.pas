@@ -49,6 +49,9 @@ type
     function GetIsSaveGeoRefInfoToExif: Boolean;
     property IsSaveGeoRefInfoToExif: Boolean read GetIsSaveGeoRefInfoToExif;
 
+    function GetThreadCount: Integer;
+    property ThreadCount: Integer read GetThreadCount;
+
     function GetIsSaveAlfa: Boolean;
     property IsSaveAlfa: Boolean read GetIsSaveAlfa;
 
@@ -71,10 +74,14 @@ type
     seJpgQuality: TSpinEdit;
     chkPngWithAlpha: TCheckBox;
     chkSaveGeoRefInfoToJpegExif: TCheckBox;
+    flwpnlThreadCount: TFlowPanel;
+    lblThreadCount: TLabel;
+    seThreadCount: TSpinEdit;
   private
     { IMapCombineCustomOptions }
     function GetQuality: Integer;
     function GetIsSaveGeoRefInfoToExif: Boolean;
+    function GetThreadCount: Integer;
     function GetIsSaveAlfa: Boolean;
     function GetGeoTiffCompression: TGeoTiffCompression;
     function GetGeoTiffFormat: TGeoTiffFileFormat;
@@ -133,6 +140,11 @@ begin
     Self.Visible := True;
   end;
 
+  if mcThreadCount in AOptionsSet then begin
+    SetControlVisible(flwpnlThreadCount, True);
+    Self.Visible := True;
+  end;
+
   if mcGeoTiff in AOptionsSet then begin
     SetControlVisible(flwpnlFormat, True);
     SetControlVisible(flwpnlCompression, True);
@@ -174,6 +186,11 @@ end;
 function TfrMapCombineCustomOptions.GetQuality: Integer;
 begin
   Result := seJpgQuality.Value;
+end;
+
+function TfrMapCombineCustomOptions.GetThreadCount: Integer;
+begin
+  Result := seThreadCount.Value;
 end;
 
 end.

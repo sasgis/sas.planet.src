@@ -41,6 +41,7 @@ type
     FProgressUpdate: IBitmapCombineProgressUpdate;
     FWidth: Integer;
     FHeight: Integer;
+    FThreadNumber: Integer;
     FWithAlpha: Boolean;
     FFileFormat: TGeoTiffFileFormat;
     FCompression: TGeoTiffCompression;
@@ -71,6 +72,7 @@ type
       const ASaveRectCounter: IInternalPerformanceCounter;
       const APrepareDataCounter: IInternalPerformanceCounter;
       const AGetLineCounter: IInternalPerformanceCounter;
+      const AThreadNumber: Integer;
       const AWithAlpha: Boolean = True;
       const AFileFormat: TGeoTiffFileFormat = gtfOld;
       const ACompression: TGeoTiffCompression = gtcLZW
@@ -84,6 +86,7 @@ uses
   i_Projection,
   u_CalcWFileParams,
   u_ImageLineProvider,
+  u_ImageLineProviderMultiThread,
   u_GeoFunc,
   u_ResStrings;
 
@@ -94,6 +97,7 @@ constructor TBitmapMapCombinerGeoTIFF.Create(
   const ASaveRectCounter: IInternalPerformanceCounter;
   const APrepareDataCounter: IInternalPerformanceCounter;
   const AGetLineCounter: IInternalPerformanceCounter;
+  const AThreadNumber: Integer;
   const AWithAlpha: Boolean;
   const AFileFormat: TGeoTiffFileFormat;
   const ACompression: TGeoTiffCompression
@@ -104,6 +108,7 @@ begin
   FSaveRectCounter := ASaveRectCounter;
   FPrepareDataCounter := APrepareDataCounter;
   FGetLineCounter := AGetLineCounter;
+  FThreadNumber := AThreadNumber;
   FWithAlpha := AWithAlpha;
   FFileFormat := AFileFormat;
   FCompression := ACompression;
@@ -155,6 +160,7 @@ var
   VCompression: TTiffCompression;
   VProjInfo: TProjectionInfo;
   VContext: TInternalPerformanceCounterContext;
+  VThreadNumber: Integer;
 begin
   FOperationID := AOperationID;
   FCancelNotifier := ACancelNotifier;
@@ -192,25 +198,51 @@ begin
   else
     VCompression := tcNone;
   end;
+  VThreadNumber := FThreadNumber;
+  if (VThreadNumber > 1) and (VTileRectSize.X <= VThreadNumber) then begin
+    VThreadNumber := 1;
+  end;
 
   VTiffType := _GetTiffType;
 
   if FWithAlpha then begin
-    FLineProvider :=
-      TImageLineProviderRGBA.Create(
-        FPrepareDataCounter,
-        FGetLineCounter,
-        AImageProvider,
-        VCurrentPieceRect
-      );
+    if VThreadNumber > 1 then begin
+      FLineProvider :=
+        TImageLineProviderRGBAMultiThread.Create(
+          FPrepareDataCounter,
+          FGetLineCounter,
+          AImageProvider,
+          VThreadNumber,
+          VCurrentPieceRect
+        );
+    end else begin
+      FLineProvider :=
+        TImageLineProviderRGBA.Create(
+          FPrepareDataCounter,
+          FGetLineCounter,
+          AImageProvider,
+          VCurrentPieceRect
+        );
+    end;
   end else begin
-    FLineProvider :=
-      TImageLineProviderRGB.Create(
-        FPrepareDataCounter,
-        FGetLineCounter,
-        AImageProvider,
-        VCurrentPieceRect
-      );
+    if VThreadNumber > 1 then begin
+      FLineProvider :=
+        TImageLineProviderRGBMultiThread.Create(
+          FPrepareDataCounter,
+          FGetLineCounter,
+          AImageProvider,
+          VThreadNumber,
+          VCurrentPieceRect
+        );
+    end else begin
+      FLineProvider :=
+        TImageLineProviderRGB.Create(
+          FPrepareDataCounter,
+          FGetLineCounter,
+          AImageProvider,
+          VCurrentPieceRect
+        );
+    end;
   end;
 
   VGeoTiffWriter := TGeoTiffWriter.Create('SAS.Planet');

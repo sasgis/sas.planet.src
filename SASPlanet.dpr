@@ -946,6 +946,7 @@ uses
   u_CalcWFileParams in 'Src\RegionProcess\Combine\u_CalcWFileParams.pas',
   u_ECWJP2Write in 'Src\RegionProcess\Combine\u_ECWJP2Write.pas',
   u_ImageLineProvider in 'Src\RegionProcess\Combine\u_ImageLineProvider.pas',
+  u_ImageLineProviderMultiThread in 'Src\RegionProcess\Combine\u_ImageLineProviderMultiThread.pas',
   u_ProviderMapCombine in 'Src\RegionProcess\Combine\u_ProviderMapCombine.pas',
   u_ProviderMapCombineBMP in 'Src\RegionProcess\Combine\u_ProviderMapCombineBMP.pas',
   u_ProviderMapCombineECW in 'Src\RegionProcess\Combine\u_ProviderMapCombineECW.pas',
