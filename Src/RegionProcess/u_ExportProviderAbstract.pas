@@ -172,13 +172,15 @@ begin
   VProgressInfo := ProgressFactory.Build(APolygon);
 
   VTask := PrepareTask(APolygon, VProgressInfo);
-  VThread :=
-    TRegionProcessWorker.Create(
-      VTask,
-      VProgressInfo,
-      ClassName
-    );
-  VThread.Start;
+  if Assigned(VTask) then begin
+    VThread :=
+      TRegionProcessWorker.Create(
+        VTask,
+        VProgressInfo,
+        ClassName
+      );
+    VThread.Start;
+  end;
 end;
 
 end.
