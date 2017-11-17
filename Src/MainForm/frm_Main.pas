@@ -106,6 +106,7 @@ uses
   i_FillingMapPolygon,
   i_FavoriteMapSetHelper,
   i_UrlByCoordProvider,
+  i_SunCalcProvider,
   i_CmdLineArgProcessor,
   u_CmdLineArgProcessorAPI,
   u_ShortcutManager,
@@ -566,6 +567,8 @@ type
     TBCircleCalc: TTBXItem;
     actCircleCalculation: TAction;
     NCircleCalc: TTBXItem;
+    actViewSunCalc: TAction;
+    tbxSunCalc: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -814,6 +817,7 @@ type
     procedure actConfigScaleLineNumberFormatExecute(Sender: TObject);
     procedure actIconsSettingsExecute(Sender: TObject);
     procedure actCircleCalculationExecute(Sender: TObject);
+    procedure actViewSunCalcExecute(Sender: TObject);
   private
     FactlstGeoCoders: TActionList;
     FactlstProjections: TActionList;
@@ -927,6 +931,8 @@ type
     FArgProcessor: ICmdLineArgProcessor;
     FFillingMapPolygon: IFillingMapPolygon;
     FSelectedPolygon: IGeometryLonLatPolygon;
+
+    FSunCalcProvider: ISunCalcProvider;
 
     FInternalErrorListener: IListener;
     FInternalErrorNotifier: INotifier;
@@ -1169,11 +1175,13 @@ uses
   u_BitmapFunc,
   u_ClipboardFunc,
   u_UrlByCoordProvider,
+  u_LayerSunCalcPopupMenu,
   u_LayerScaleLinePopupMenu,
   u_LayerStatBarPopupMenu,
   u_LayerMiniMapPopupMenu,
   u_PlayerPlugin,
   u_FillingMapPolygon,
+  u_SunCalcProvider,
   u_ConfigDataWriteProviderByIniFile,
   u_CmdLineArgProcessor,
   u_CmdLineArgProcessorHelpers,
@@ -1648,6 +1656,8 @@ begin
 
   FSelectedPolygon := nil;
 
+  FSunCalcProvider := TSunCalcProvider.Create;
+
   InitLayers;
 
   FArgProcessor :=
@@ -1805,6 +1815,10 @@ begin
     FLinksList.Add(
       VMapLayersVsibleChangeListener,
       FConfig.LayersConfig.StatBar.GetChangeNotifier
+    );
+    FLinksList.Add(
+      VMapLayersVsibleChangeListener,
+      FConfig.LayersConfig.SunCalcConfig.GetChangeNotifier
     );
     FLinksList.Add(
       VMapLayersVsibleChangeListener,
@@ -2074,6 +2088,7 @@ end;
 
 procedure TfrmMain.InitLayers;
 var
+  VSunCalcPopupMenu: IPopUp;
   VScaleLinePopupMenu: IPopUp;
   VStatBarPopupMenu: IPopUp;
   VMiniMapPopupMenu: IPopUp;
@@ -2103,6 +2118,14 @@ begin
       FMainMapState.MiniMapLayersSet,
       GState.MapType.GUIConfigList,
       FMapTypeIcons18List
+    );
+
+  VSunCalcPopupMenu :=
+    TLayerSunCalcPopupMenu.Create(
+      GState.Config.LanguageManager,
+      map,
+      FConfig.LayersConfig.SunCalcConfig,
+      FSunCalcProvider
     );
 
   FLayersList :=
@@ -2155,6 +2178,9 @@ begin
       FTileErrorLogProvider,
       FTileErrorLogger,
       GState.PerfCounterList.CreateAndAddNewSubList('MapLayer'),
+      FConfig.LayersConfig.SunCalcConfig,
+      FSunCalcProvider,
+      VSunCalcPopupMenu,
       VStatBarPopupMenu,
       VScaleLinePopupMenu,
       VMiniMapPopupMenu
@@ -2594,6 +2620,10 @@ procedure TfrmMain.MapLayersVisibleChange;
 var
   VUseDownload: TTileSource;
 begin
+  actViewSunCalc.Checked := FConfig.LayersConfig.SunCalcConfig.Visible;
+  if actViewSunCalc.Checked then begin
+    //ToDo: Change TopMargin in LicenseLayer (TWindowLayerLicenseList)
+  end;
   actConfigStatusBarVisible.Checked := FConfig.LayersConfig.StatBar.Visible;
   if actConfigStatusBarVisible.Checked then begin
     FConfig.LayersConfig.ScaleLineConfig.BottomMargin := FConfig.LayersConfig.StatBar.Height;
@@ -5097,6 +5127,14 @@ begin
   end;
   if (VMouseMoveDelta.X = 0) and (VMouseMoveDelta.Y = 0) then begin
     if (FState.State = ao_movemap) and (Button = mbLeft) then begin
+      if FConfig.LayersConfig.SunCalcConfig.Visible then begin
+        VProjection := VLocalConverter.Projection;
+        VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(Point(X, Y));
+        VProjection.ValidatePixelPosFloat(VMouseMapPoint, False);
+        VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
+        FSunCalcProvider.Location := VLonLat;
+        Exit;
+      end;
       VVectorItems := FindItems(VLocalConverter, Point(x, y));
       if (VVectorItems <> nil) and (VVectorItems.Count > 0) then begin
         if (ssCtrl in Shift) then begin
@@ -7152,6 +7190,27 @@ begin
   if Assigned(VNextMap) then begin
     FConfig.MainMapConfig.MainMapGUID := VNextMap.GUID;
   end;
+end;
+
+procedure TfrmMain.actViewSunCalcExecute(Sender: TObject);
+var
+  VNewVisible: Boolean;
+begin
+  VNewVisible := not FConfig.LayersConfig.SunCalcConfig.Visible;
+
+  if VNewVisible then begin
+    FSunCalcProvider.StopNotify;
+    try
+      FSunCalcProvider.LocalDateTime := Now;
+      FSunCalcProvider.Location := FViewPortState.View.GetStatic.GetCenterLonLat;
+    finally
+      FSunCalcProvider.StartNotify;
+    end;
+  end else begin
+    FSunCalcProvider.Reset;
+  end;
+
+  FConfig.LayersConfig.SunCalcConfig.Visible := VNewVisible;
 end;
 
 procedure TfrmMain.actViewToolbarsLockExecute(Sender: TObject);

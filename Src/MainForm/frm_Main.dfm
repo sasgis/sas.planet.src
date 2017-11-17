@@ -690,6 +690,9 @@ object frmMain: TfrmMain
           Action = actViewNavigation
           Images = MenusImageList
         end
+        object tbxSunCalc: TTBXItem
+          Action = actViewSunCalc
+        end
         object tbitmShowDebugInfo: TTBXItem
           Action = actShowDebugInfo
           Images = MenusImageList
@@ -4417,6 +4420,11 @@ object frmMain: TfrmMain
       Category = 'Marks'
       Caption = 'Icons Settings'
       OnExecute = actIconsSettingsExecute
+    end
+    object actViewSunCalc: TAction
+      Category = 'View'
+      Caption = 'Sun Calculator'
+      OnExecute = actViewSunCalcExecute
     end
   end
   object tbxpmnScaleLine: TTBXPopupMenu

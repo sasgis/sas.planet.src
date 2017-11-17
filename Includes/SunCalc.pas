@@ -162,56 +162,46 @@ end;
 
 // date/time constants and conversions
 
-function toJulian(const AValue: TDateTime): Double;
+function toDays(const AValue: TDateTime): Double; inline;
 begin
-  Result :=  DateTimeToJulianDate(AValue);
-end;
-
-function fromJulian(const AValue: Double): TDateTime;
-begin
-  Result := JulianDateToDateTime(AValue);
-end;
-
-function toDays(const AValue: TDateTime): Double;
-begin
-  Result := toJulian(AValue) - J2000;
+  Result := DateTimeToJulianDate(AValue) - J2000;
 end;
 
 // general calculations for position
 
-function getRightAscension(const l, b: Double): Double;
+function getRightAscension(const l, b: Double): Double; inline;
 begin
   result := ArcTan2(sin(l) * cos(e) - tan(b) * sin(e), cos(l));
 end;
 
-function getDeclination(const l, b: Double): Double;
+function getDeclination(const l, b: Double): Double; inline;
 begin
   Result := ArcSin(sin(b) * cos(e) + cos(b) * sin(e) * sin(l));
 end;
 
-function getAzimuth(const H, phi, dec: Double): Double;
+function getAzimuth(const H, phi, dec: Double): Double; inline;
 begin
   Result := ArcTan2(sin(H), cos(H) * sin(phi) - tan(dec) * cos(phi));
 end;
 
-function getAltitude(const H, phi, dec: Double): Double;
+function getAltitude(const H, phi, dec: Double): Double; inline;
 begin
   Result := ArcSin(sin(phi) * sin(dec) + cos(phi) * cos(dec) * cos(H));
 end;
 
-function getSiderealTime(const d, lw: Double): Double;
+function getSiderealTime(const d, lw: Double): Double; inline;
 begin
   Result := cRad * (280.16 + 360.9856235 * d) - lw;
 end;
 
 // general sun calculations
 
-function getSolarMeanAnomaly(const d: Double): Double;
+function getSolarMeanAnomaly(const d: Double): Double; inline;
 begin
   Result := cRad * (357.5291 + 0.98560028 * d);
 end;
 
-function getEclipticLongitude(const M: Double): Double;
+function getEclipticLongitude(const M: Double): Double; inline;
 var
   P, C: Double;
 begin
@@ -220,7 +210,7 @@ begin
   Result := M + C + P + PI;
 end;
 
-function getSunCoords(const d: Double): TSunCoords;
+function getSunCoords(const d: Double): TSunCoords; inline;
 var
   M, L: Double;
 begin
@@ -252,22 +242,22 @@ end;
 
 // calculations for sun times
 
-function getJulianCycle(const d, lw: Double): Double;
+function getJulianCycle(const d, lw: Double): Double; inline;
 begin
   Result := Round(d - J0 - lw / (2 * PI));
 end;
 
-function getApproxTransit(const Ht, lw: Double; const n: Double): Double;
+function getApproxTransit(const Ht, lw: Double; const n: Double): Double; inline;
 begin
   Result := J0 + (Ht + lw) / (2 * PI) + n;
 end;
 
-function getSolarTransitJ(const ds, M, L: Double): Double;
+function getSolarTransitJ(const ds, M, L: Double): Double; inline;
 begin
   Result := J2000 + ds + 0.0053 * sin(M) - 0.0069 * sin(2 * L);
 end;
 
-function getHourAngle(const h, phi, d: Double): Double;
+function getHourAngle(const h, phi, d: Double): Double; inline;
 var
   X: Double;
 begin
@@ -306,8 +296,8 @@ begin
   Jnoon := getSolarTransitJ(ds, M, L);
 
   if not IsNan(Jnoon) then begin
-    Result[solarNoon].Value := fromJulian(Jnoon);
-    Result[nadir].Value     := fromJulian(Jnoon - 0.5);
+    Result[solarNoon].Value := JulianDateToDateTime(Jnoon);
+    Result[nadir].Value     := JulianDateToDateTime(Jnoon - 0.5);
   end;
 
   for I := Low(Result) to High(Result) do begin
@@ -321,9 +311,9 @@ begin
       if not IsNan(Jset) then begin
         if Result[I].IsRiseInfo then begin
           Jrise := Jnoon - (Jset - Jnoon);
-          Result[I].Value := fromJulian(Jrise);
+          Result[I].Value := JulianDateToDateTime(Jrise);
         end else begin
-          Result[I].Value := fromJulian(Jset);
+          Result[I].Value := JulianDateToDateTime(Jset);
         end;
       end;
     end;

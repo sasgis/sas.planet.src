@@ -25,6 +25,7 @@ interface
 uses
   i_ConfigDataElement,
   i_StatBarConfig,
+  i_SunCalcConfig,
   i_MapLayerGPSMarkerConfig,
   i_MapLayerGPSTrackConfig,
   i_MapLayerNavToPointMarkerConfig,
@@ -59,6 +60,9 @@ type
 
     function GetStatBar: IStatBarConfig;
     property StatBar: IStatBarConfig read GetStatBar;
+
+    function GetSunCalcConfig: ISunCalcConfig;
+    property SunCalcConfig: ISunCalcConfig read GetSunCalcConfig;
 
     function GetGPSMarker: IMapLayerGPSMarkerConfig;
     property GPSMarker: IMapLayerGPSMarkerConfig read GetGPSMarker;

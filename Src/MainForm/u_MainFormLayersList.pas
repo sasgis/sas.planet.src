@@ -45,6 +45,8 @@ uses
   i_MapViewGoto,
   i_NavigationToPoint,
   i_PointOnMapEdit,
+  i_SunCalcConfig,
+  i_SunCalcProvider,
   i_CoordToStringConverter,
   i_ValueToStringConverter,
   u_BaseInterfacedObject;
@@ -124,6 +126,9 @@ type
       const ATileErrorLogProvider: ITileErrorLogProviedrStuped;
       const ATileErrorLogger: ITileErrorLogger;
       const APerfListGroup: IInternalPerformanceCounterList;
+      const ASunCalcConfig: ISunCalcConfig;
+      const ASunCalcProvider: ISunCalcProvider;
+      const ASunCalcPopupMenu: IPopUp;
       const AStatBarPopupMenu: IPopUp;
       const AScaleLinePopupMenu: IPopUp;
       const AMiniMapPopupMenu: IPopUp
@@ -207,6 +212,12 @@ uses
   u_WindowLayerScaleLineVertical,
   u_WindowLayerLicenseList,
   u_WindowLayerStatusBar,
+  u_WindowLayerSunCalcYearInfo,
+  u_WindowLayerSunCalcDayInfo,
+  u_WindowLayerSunCalcTimeInfo,
+  u_WindowLayerSunCalcYearTimeLine,
+  u_WindowLayerSunCalcDayTimeLine,
+  u_WindowLayerSunCalcDetailsPanel,
   u_MiniMapLayerViewRect,
   u_MiniMapLayerTopBorder,
   u_MiniMapLayerLeftBorder,
@@ -267,6 +278,9 @@ constructor TMainFormLayersList.Create(
   const ATileErrorLogProvider: ITileErrorLogProviedrStuped;
   const ATileErrorLogger: ITileErrorLogger;
   const APerfListGroup: IInternalPerformanceCounterList;
+  const ASunCalcConfig: ISunCalcConfig;
+  const ASunCalcProvider: ISunCalcProvider;
+  const ASunCalcPopupMenu: IPopUp;
   const AStatBarPopupMenu: IPopUp;
   const AScaleLinePopupMenu: IPopUp;
   const AMiniMapPopupMenu: IPopUp
@@ -1572,6 +1586,100 @@ begin
       AMainMapState.ActiveMap
     );
   VLayersList.Add(VLayer);
+
+  {$REGION 'SunCalc'}
+  // SunCalc Layer
+  VDebugName := 'SunCalc/YearInfo';
+  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
+    TWindowLayerSunCalcYearInfo.Create(
+      VPerfList,
+      AAppStartedNotifier,
+      AAppClosingNotifier,
+      AParentMap,
+      AViewPortState.View,
+      ASunCalcConfig,
+      ASunCalcProvider
+    );
+  VLayersList.Add(VLayer);
+
+  VDebugName := 'SunCalc/DayInfo';
+  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
+    TWindowLayerSunCalcDayInfo.Create(
+      VPerfList,
+      AAppStartedNotifier,
+      AAppClosingNotifier,
+      AParentMap,
+      AViewPortState.View,
+      ASunCalcConfig,
+      ASunCalcProvider
+    );
+  VLayersList.Add(VLayer);
+
+  VDebugName := 'SunCalc/TimeInfo';
+  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
+    TWindowLayerSunCalcTimeInfo.Create(
+      VPerfList,
+      AAppStartedNotifier,
+      AAppClosingNotifier,
+      AParentMap,
+      AViewPortState.View,
+      ASunCalcConfig,
+      ASunCalcProvider
+    );
+  VLayersList.Add(VLayer);
+
+  VDebugName := 'SunCalc/YearTimeLine';
+  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
+    TWindowLayerSunCalcYearTimeLine.Create(
+      VPerfList,
+      AAppStartedNotifier,
+      AAppClosingNotifier,
+      AParentMap,
+      AMouseState,
+      AGUISyncronizedTimerNotifier,
+      AViewPortState.View,
+      ASunCalcConfig,
+      ASunCalcProvider,
+      ASunCalcPopupMenu
+    );
+  VLayersList.Add(VLayer);
+
+  VDebugName := 'SunCalc/DayTimeLine';
+  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
+    TWindowLayerSunCalcDayTimeLine.Create(
+      VPerfList,
+      AAppStartedNotifier,
+      AAppClosingNotifier,
+      AParentMap,
+      AMouseState,
+      AGUISyncronizedTimerNotifier,
+      AViewPortState.View,
+      ASunCalcConfig,
+      ASunCalcProvider,
+      ASunCalcPopupMenu
+    );
+  VLayersList.Add(VLayer);
+
+  VDebugName := 'SunCalc/DetailsPanel';
+  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
+    TWindowLayerSunCalcDetailsPanel.Create(
+      VPerfList,
+      AAppStartedNotifier,
+      AAppClosingNotifier,
+      AParentMap,
+      AViewPortState.View,
+      ASunCalcConfig,
+      ASunCalcProvider,
+      ASunCalcPopupMenu
+    );
+  VLayersList.Add(VLayer);
+  {$ENDREGION 'SunCalc'}
 
   VMiniMapConverterChangeable :=
     TLocalConverterChangeableOfMiniMap.Create(

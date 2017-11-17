@@ -1441,7 +1441,25 @@ uses
   u_ValueToStringConverter in 'Src\u_ValueToStringConverter.pas',
   u_ValueToStringConverterChangeable in 'Src\u_ValueToStringConverterChangeable.pas',
   u_ValueToStringConverterConfig in 'Src\u_ValueToStringConverterConfig.pas',
-  u_WindowPositionConfig in 'Src\u_WindowPositionConfig.pas';
+  u_WindowPositionConfig in 'Src\u_WindowPositionConfig.pas',
+  i_SunCalcProvider in 'Src\MapLayers\WindowLayers\SunCalc\i_SunCalcProvider.pas',
+  u_SunCalcProvider in 'Src\MapLayers\WindowLayers\SunCalc\u_SunCalcProvider.pas',
+  u_WindowLayerSunCalcYearInfo in 'Src\MapLayers\WindowLayers\SunCalc\u_WindowLayerSunCalcYearInfo.pas',
+  i_SunCalcShapesGenerator in 'Src\MapLayers\WindowLayers\SunCalc\i_SunCalcShapesGenerator.pas',
+  u_SunCalcShapesGenerator in 'Src\MapLayers\WindowLayers\SunCalc\u_SunCalcShapesGenerator.pas',
+  u_WindowLayerSunCalcDayInfo in 'Src\MapLayers\WindowLayers\SunCalc\u_WindowLayerSunCalcDayInfo.pas',
+  u_WindowLayerSunCalcTimeInfo in 'Src\MapLayers\WindowLayers\SunCalc\u_WindowLayerSunCalcTimeInfo.pas',
+  u_SunCalcDrawTools in 'Src\MapLayers\WindowLayers\SunCalc\u_SunCalcDrawTools.pas',
+  u_WindowLayerSunCalcYearTimeLine in 'Src\MapLayers\WindowLayers\SunCalc\u_WindowLayerSunCalcYearTimeLine.pas',
+  u_WindowLayerSunCalcInfoBase in 'Src\MapLayers\WindowLayers\SunCalc\u_WindowLayerSunCalcInfoBase.pas',
+  i_SunCalcConfig in 'Src\MapLayers\WindowLayers\SunCalc\i_SunCalcConfig.pas',
+  u_SunCalcConfig in 'Src\MapLayers\WindowLayers\SunCalc\u_SunCalcConfig.pas',
+  t_SunCalcConfig in 'Src\MapLayers\WindowLayers\SunCalc\t_SunCalcConfig.pas',
+  u_WindowLayerSunCalcDayTimeLine in 'Src\MapLayers\WindowLayers\SunCalc\u_WindowLayerSunCalcDayTimeLine.pas',
+  u_MarkerDrawableSimpleCircle in 'Src\Marker\u_MarkerDrawableSimpleCircle.pas',
+  u_WindowLayerSunCalcTimeLineBase in 'Src\MapLayers\WindowLayers\SunCalc\u_WindowLayerSunCalcTimeLineBase.pas',
+  u_WindowLayerSunCalcDetailsPanel in 'Src\MapLayers\WindowLayers\SunCalc\u_WindowLayerSunCalcDetailsPanel.pas',
+  u_LayerSunCalcPopupMenu in 'Src\MainForm\u_LayerSunCalcPopupMenu.pas';
 
 {$R .\Resources\VersionInfo.res}
 {$R .\Resources\MainIcon.res}

@@ -25,6 +25,7 @@ interface
 uses
   i_MapLayerGridsConfig,
   i_StatBarConfig,
+  i_SunCalcConfig,
   i_MapLayerGPSMarkerConfig,
   i_MapLayerGPSTrackConfig,
   i_MapLayerNavToPointMarkerConfig,
@@ -55,6 +56,7 @@ type
     FMainMapLayerConfig: IMainMapLayerConfig;
     FMapLayerGridsConfig: IMapLayerGridsConfig;
     FStatBar: IStatBarConfig;
+    FSunCalcConfig: ISunCalcConfig;
     FGPSMarker: IMapLayerGPSMarkerConfig;
     FGPSTrackConfig: IMapLayerGPSTrackConfig;
     FNavToPointMarkerConfig: IMapLayerNavToPointMarkerConfig;
@@ -79,6 +81,7 @@ type
     function GetMainMapLayerConfig: IMainMapLayerConfig;
     function GetMapLayerGridsConfig: IMapLayerGridsConfig;
     function GetStatBar: IStatBarConfig;
+    function GetSunCalcConfig: ISunCalcConfig;
     function GetGPSMarker: IMapLayerGPSMarkerConfig;
     function GetGPSTrackConfig: IMapLayerGPSTrackConfig;
     function GetNavToPointMarkerConfig: IMapLayerNavToPointMarkerConfig;
@@ -111,6 +114,7 @@ uses
   u_MainMapLayerConfig,
   u_MapLayerGridsConfig,
   u_StatBarConfig,
+  u_SunCalcConfig,
   u_MapLayerGPSMarkerConfig,
   u_MapLayerGPSTrackConfig,
   u_MarksLayerConfig,
@@ -143,6 +147,8 @@ begin
   Add(FMapLayerGridsConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
   FStatBar := TStatBarConfig.Create;
   Add(FStatBar, TConfigSaveLoadStrategyBasicProviderSubItem.Create('StatusBar'));
+  FSunCalcConfig := TSunCalcConfig.Create;
+  Add(FSunCalcConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('SunCalc'));
   FGPSMarker := TMapLayerGPSMarkerConfig.Create;
   Add(FGPSMarker, TConfigSaveLoadStrategyBasicProviderSubItem.Create('GPSMarker'));
   FGPSTrackConfig := TMapLayerGPSTrackConfig.Create;
@@ -298,6 +304,11 @@ end;
 function TMainFormLayersConfig.GetStatBar: IStatBarConfig;
 begin
   Result := FStatBar;
+end;
+
+function TMainFormLayersConfig.GetSunCalcConfig: ISunCalcConfig;
+begin
+  Result := FSunCalcConfig;
 end;
 
 end.

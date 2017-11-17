@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2017, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -25,6 +25,7 @@ interface
 uses
   Types,
   SysUtils,
+  DateUtils,
   t_GeoTypes;
 
 type
@@ -41,6 +42,12 @@ type
     out ATimeZoneUtcOffset: Extended
   ); cdecl;
 
+  TTimeZoneRec = record
+    TzName: string;
+    TzTime: Extended;
+    TzOffset: Extended;
+  end;
+
   TTimeZoneInfo = class(TObject)
   private
     FLastTimeZoneTime: Extended;
@@ -55,14 +62,19 @@ type
     FAvailable: Boolean;
     FStrBuf: PAnsiChar;
     FStrBufSize: Integer;
-    function LocalTimeToUTC(AValue: TDateTime): TDateTime;
-    function UTCOffsetToString(const AOffset: Extended): string;
     procedure GetLonLatToTimeZoneID;
+  public
+    class function GetSystemTzOffset(const AUTCTime: TDateTime): Extended;
+    class function LocalTimeToUTC(const AValue: TDateTime): TDateTime;
+    class function UTCToTzLocalTime(const AUTCTime: TDateTime; const ATzOffset: Extended): TDateTime; inline;
+    class function TzLocalTimeToUTC(const ALocalTime: TDateTime; const ATzOffset: Extended): TDateTime; inline;
+    class function UTCOffsetToString(const AOffset: Extended): string;
+    function GetTzInfo(const ALonLat: TDoublePoint; const AUTCTime: TDateTime): TTimeZoneRec;
+    function GetStatusBarTzInfo(const ALonLat: TDoublePoint): string;
+    property Available: Boolean read FAvailable;
   public
     constructor Create;
     destructor Destroy; override;
-    function GetStatusBarTzInfo(const ALonLat: TDoublePoint): string;
-    property Available: Boolean read FAvailable;
   end;
 
 const
@@ -115,9 +127,23 @@ begin
   end;
 end;
 
-function TTimeZoneInfo.LocalTimeToUTC(AValue: TDateTime): TDateTime;
-// AValue - локальное время
-// Result - время UTC
+class function TTimeZoneInfo.GetSystemTzOffset(const AUTCTime: TDateTime): Extended;
+var
+  VTmpDate: TDateTime;
+  ST1, ST2: TSystemTime;
+  TZ: TTimeZoneInformation;
+begin
+  GetTimeZoneInformation(TZ);
+  DateTimeToSystemTime(AUTCTime, ST1);
+  SystemTimeToTzSpecificLocalTime(@TZ, ST1, ST2);
+  VTmpDate := SystemTimeToDateTime(ST2);
+  Result := MinutesBetween(VTmpDate, AUTCTime) / 60;
+  if VTmpDate < AUTCTime then begin
+    Result := -Result;
+  end;
+end;
+
+class function TTimeZoneInfo.LocalTimeToUTC(const AValue: TDateTime): TDateTime;
 var
   ST1, ST2: TSystemTime;
   TZ: TTimeZoneInformation;
@@ -138,7 +164,28 @@ begin
   Result := SystemTimeToDateTime(ST2);
 end;
 
-function TTimeZoneInfo.UTCOffsetToString(const AOffset: Extended): string;
+class function TTimeZoneInfo.TzLocalTimeToUTC(
+  const ALocalTime: TDateTime;
+  const ATzOffset: Extended
+): TDateTime;
+begin
+  Result := UTCToTzLocalTime(ALocalTime, -ATzOffset);
+end;
+
+class function TTimeZoneInfo.UTCToTzLocalTime(
+  const AUTCTime: TDateTime;
+  const ATzOffset: Extended
+): TDateTime;
+begin
+  if ATzOffset = 0 then begin
+    Result := AUTCTime;
+  end else begin
+    Result := IncHour(AUTCTime, Trunc(ATzOffset));
+    Result := IncMinute(Result, Round(Frac(ATzOffset) * 60));
+  end;
+end;
+
+class function TTimeZoneInfo.UTCOffsetToString(const AOffset: Extended): string;
 const
   cUTCFormatStr = ' (UTC%s%s)';
   cUTCFormatStrWithPlus = ' (UTC+%s%s)';
@@ -147,8 +194,6 @@ var
   VFloor, VFrac: string;
   VOffsetFrac: Extended;
 begin
-  VOffsetFrac := Frac(AOffset) * 60;
-
   if AOffset > 0 then begin
     VFormatStr := cUTCFormatStrWithPlus;
   end else begin
@@ -159,6 +204,8 @@ begin
   if VFloor = '0' then begin
     VFloor := ' ' + VFloor;
   end;
+
+  VOffsetFrac := Frac(AOffset) * 60;
 
   if VOffsetFrac <> 0 then begin
     if VOffsetFrac < 0 then begin
@@ -230,6 +277,44 @@ begin
   end;
 
   Result := TimeToStr(FLastTimeZoneTime) + UTCOffsetToString(FLastTimeZoneOffset);
+end;
+
+function TTimeZoneInfo.GetTzInfo(
+  const ALonLat: TDoublePoint;
+  const AUTCTime: TDateTime
+): TTimeZoneRec;
+var
+  VLen: Integer;
+begin
+  if not FAvailable then begin
+    raise Exception.Create('TimeZone library not available!');
+  end;
+
+  VLen := 0;
+
+  FLonLatToTimeZoneTime(
+    ALonLat.X,
+    ALonLat.Y,
+    AUTCTime,
+    FStrBuf,
+    FStrBufSize,
+    VLen,
+    FLastTimeZoneIndex,
+    FLastPolygonIndex,
+    FLastTimeZoneTime,
+    FLastTimeZoneOffset
+  );
+
+  if VLen > 0 then begin
+    SetLength(FLastTZID, VLen);
+    StrLCopy(PAnsiChar(FLastTZID), FStrBuf, VLen);
+  end else begin
+    FLastTZID := '';
+  end;
+
+  Result.TzName := FLastTZID;
+  Result.TzTime := FLastTimeZoneTime;
+  Result.TzOffset := FLastTimeZoneOffset;
 end;
 
 end.
