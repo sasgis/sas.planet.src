@@ -111,6 +111,9 @@ type
     tbxtmHelp: TTBXItem;
     tbxsprtrtm3: TTBXSeparatorItem;
     tbxsprtrtm4: TTBXSeparatorItem;
+    lblversion: TLabel;
+    edtVersion: TEdit;
+    btnVersion: TButton;
     procedure tbxtmParamsClick(Sender: TObject);
     procedure tbxtmScriptClick(Sender: TObject);
     procedure tbxtmRunClick(Sender: TObject);
@@ -132,6 +135,7 @@ type
       Sender: TObject;
       var CanClose: Boolean
     );
+    procedure btnVersionClick(Sender: TObject);
   private
     FPrepared: Boolean;
     FNeedSavePrompt: Boolean;
@@ -173,6 +177,7 @@ type
       Sender: TObject;
       Changes: TSynStatusChanges
     );
+    procedure VersionFromZmp;
     procedure CreateMapUIMapsList;
     procedure CreateMapUILayersList;
     procedure OnClick(Sender: TObject);
@@ -347,6 +352,11 @@ begin
   inherited Destroy;
 end;
 
+procedure TfrmPascalScriptIDE.VersionFromZmp;
+begin
+  EdtVersion.Text := FZmp.Version;
+end;
+
 procedure TfrmPascalScriptIDE.FormClose(
   Sender: TObject;
   var Action: TCloseAction
@@ -385,6 +395,7 @@ begin
     CreateMapUILayersList;
   end;
   InitByZmp(FMainMapState.ActiveMap.GetStatic.Zmp);
+  VersionFromZmp;
 end;
 
 procedure TfrmPascalScriptIDE.InitByZmp(const AZmp: IZmpInfo);
@@ -658,7 +669,7 @@ begin
     TTileRequest.Create(
       Point(SysUtils.StrToInt(edtGetX.Text), SysUtils.StrToInt(edtGetY.Text)),
       SysUtils.StrToInt(edtGetZ.Text) - 1,
-      FVersionFactory.CreateByStoreString(FZmp.Version)
+      FVersionFactory.CreateByStoreString(edtVersion.Text)
     );
 
   VConverter := TCoordConverterSimpleByProjectionSet.Create(FZmp.ProjectionSet);
@@ -701,6 +712,9 @@ begin
 
   FfrmDebug.mmoDbgOut.Lines.Add('[ScriptBuffer]');
   FfrmDebug.mmoDbgOut.Lines.Add(_VarToStr(FPSVars.ScriptBuffer));
+
+  FfrmDebug.mmoDbgOut.Lines.Add('[Version]');
+  FfrmDebug.mmoDbgOut.Lines.Add(_VarToStr(FPSVars.Version));
 
   FScriptBuffer := FPSVars.ScriptBuffer;
 
@@ -868,6 +882,11 @@ end;
 procedure TfrmPascalScriptIDE.OnAppClosing;
 begin
   Self.Close;
+end;
+
+procedure TfrmPascalScriptIDE.btnVersionClick(Sender: TObject);
+begin
+  VersionFromZmp;
 end;
 
 procedure TfrmPascalScriptIDE.CancelOperation;

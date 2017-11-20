@@ -65,6 +65,7 @@ type
     function ResultUrl: AnsiString; inline;
     function RequestHead: AnsiString; inline;
     function PostData: AnsiString; inline;
+    function Version: AnsiString; inline;
     function ScriptBuffer: AnsiString; inline;
 
     procedure ExecTimeInit(const APSExec: TPSExec); inline;
@@ -256,6 +257,11 @@ end;
 function TRequestBuilderVars.ScriptBuffer: AnsiString;
 begin
   Result := FpScriptBuffer.Data;
+end;
+
+function TRequestBuilderVars.Version: AnsiString;
+begin
+  Result := FpVersion.Data;
 end;
 
 end.

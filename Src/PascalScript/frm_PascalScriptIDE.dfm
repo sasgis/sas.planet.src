@@ -245,6 +245,14 @@ object frmPascalScriptIDE: TfrmPascalScriptIDE
             Align = alCustom
             Caption = 'GetZ:'
           end
+          object lblversion: TLabel
+            Left = 6
+            Top = 190
+            Width = 39
+            Height = 13
+            Align = alCustom
+            Caption = 'Version:'
+          end
           object edtGetX: TEdit
             Left = 6
             Top = 40
@@ -285,6 +293,26 @@ object frmPascalScriptIDE: TfrmPascalScriptIDE
             Caption = 'Screen center'
             TabOrder = 3
             OnClick = btnSetXYZClick
+          end
+          object edtVersion: TEdit
+            Left = 6
+            Top = 209
+            Width = 147
+            Height = 21
+            Align = alCustom
+            Anchors = [akLeft, akTop, akRight]
+            TabOrder = 4
+          end
+          object btnVersion: TButton
+            Left = 159
+            Top = 209
+            Width = 38
+            Height = 21
+            Align = alCustom
+            Anchors = [akTop, akRight]
+            Caption = '<>'
+            TabOrder = 5
+            OnClick = btnVersionClick
           end
         end
       end
