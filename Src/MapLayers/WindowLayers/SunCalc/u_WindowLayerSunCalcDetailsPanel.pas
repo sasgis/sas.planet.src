@@ -45,6 +45,13 @@ type
     Text: string;
     Bitmap: TBitmap32;
   end;
+  PRenderedTextRec = ^TRenderedTextRec;
+
+  TTextAlign = (
+    taLeft,
+    taCenter,
+    taRight
+  );
 
   TWindowLayerSunCalcDetailsPanel = class(TWindowLayerWithBitmapBase)
   private
@@ -71,7 +78,18 @@ type
 
     FColWidth: TSunCalcDetailsPanelColsWidth;
 
+    FRenderedText: array of TRenderedTextRec;
+
     FIsDetailedView: Boolean;
+
+    procedure ClearRenderedText;
+
+    procedure RenderText(
+      const ACol, ARow: Integer;
+      const AText: string;
+      const AAlign: TTextAlign = taLeft
+    );
+
     procedure OnMouseDown(
       Sender: TObject;
       Button: TMouseButton;
@@ -136,6 +154,10 @@ resourcestring
   rsAstroEnd = 'Astro. twilight end';
   rsMidnight = 'Midnight';
 
+const
+  cDetailedRowsCount = 12 + 1;
+  cDetailedColsCount = 4;
+
 { TWindowLayerSunCalcDetailsPanel }
 
 constructor TWindowLayerSunCalcDetailsPanel.Create(
@@ -191,11 +213,25 @@ begin
   FTzOffset := NaN;
 
   FIsDetailedView := False;
+
+  SetLength(FRenderedText, cDetailedColsCount * cDetailedRowsCount);
+  ClearRenderedText;
 end;
 
 destructor TWindowLayerSunCalcDetailsPanel.Destroy;
 begin
+  ClearRenderedText;
   inherited Destroy;
+end;
+
+procedure TWindowLayerSunCalcDetailsPanel.ClearRenderedText;
+var
+  I: Integer;
+begin
+  for I := Low(FRenderedText) to High(FRenderedText) do begin
+    FRenderedText[I].Text := '';
+    FreeAndNil(FRenderedText[I].Bitmap);
+  end;
 end;
 
 procedure TWindowLayerSunCalcDetailsPanel.OnMouseDown(
@@ -210,13 +246,73 @@ begin
   end;
 end;
 
+procedure TWindowLayerSunCalcDetailsPanel.RenderText(
+  const ACol, ARow: Integer;
+  const AText: string;
+  const AAlign: TTextAlign
+);
+var
+  I: Integer;
+  X, X2, Y: Integer;
+  VTextRec: PRenderedTextRec;
+  VTextSize: TSize;
+begin
+  VTextRec := @FRenderedText[ARow * cDetailedColsCount + ACol];
+
+  if not Assigned(VTextRec.Bitmap) then begin
+    VTextRec.Bitmap := TBitmap32.Create;
+  end;
+
+  if VTextRec.Text <> AText then begin
+    VTextRec.Text := AText;
+
+    if FFont.FontName <> '' then begin
+      VTextRec.Bitmap.Font.Name := FFont.FontName;
+    end;
+
+    if FFont.FontSize > 0 then begin
+      VTextRec.Bitmap.Font.Size := FFont.FontSize;
+    end;
+
+    VTextSize := VTextRec.Bitmap.TextExtent(VTextRec.Text);
+    VTextRec.Bitmap.SetSize(VTextSize.cx, VTextSize.cy);
+
+    VTextRec.Bitmap.Clear(FColors.BgColor);
+
+    VTextRec.Bitmap.RenderText(0, 0, VTextRec.Text, 0, FFont.TextColor);
+    VTextRec.Bitmap.DrawMode := dmBlend;
+  end;
+
+  X := FBorder.Left;
+
+  if ACol > 0 then begin
+    for I := 0 to ACol - 1 do begin
+      Inc(X, FColWidth[ACol - 1]);
+    end;
+  end;
+
+  X2 := X + FColWidth[ACol] - 20;
+  case AAlign of
+    taRight: begin
+      X := X2 - VTextRec.Bitmap.Width;
+    end;
+    taCenter: begin
+      X := X + (X2 - X - VTextRec.Bitmap.Width) div 2;
+    end;
+  end;
+
+  Y := FBorder.Top + ARow * FRowHeight;
+
+  VTextRec.Bitmap.DrawTo(Layer.Bitmap, X, Y);
+end;
+
 procedure TWindowLayerSunCalcDetailsPanel.DrawRow(
   const ARowNum: Integer;
   const ATime: TDateTime;
   const AName: string
 );
 var
-  X, Y: Integer;
+  I: Integer;
   VSunPos: TSunPos;
   VTime: string;
   VAzimuth: string;
@@ -237,29 +333,25 @@ begin
     VAltitude := '';
   end;
 
-  X := FBorder.Left;
-  Y := FBorder.Top + ARowNum * FRowHeight;
+  I := 0;
 
-  Layer.Bitmap.RenderText(X, Y, VTime, 0, FFont.TextColor);
-  Inc(X, FColWidth[0]);
-
-  if FIsDetailedView then begin
-    Layer.Bitmap.RenderText(X, Y, VAzimuth, 0, FFont.TextColor);
-  end;
-  Inc(X, FColWidth[1]);
+  RenderText(I, ARowNum, VTime, taCenter);
+  Inc(I);
 
   if FIsDetailedView then begin
-    Layer.Bitmap.RenderText(X, Y, VAltitude, 0, FFont.TextColor);
-  end;
-  Inc(X, FColWidth[2]);
+    RenderText(I, ARowNum, VAzimuth, taRight);
+    Inc(I);
 
-  Layer.Bitmap.RenderText(X, Y, AName, 0, FFont.TextColor);
+    RenderText(I, ARowNum, VAltitude, taRight);
+    Inc(I);
+  end;
+
+  RenderText(I, ARowNum, AName);
 end;
 
 procedure TWindowLayerSunCalcDetailsPanel.DoUpdateBitmapDraw;
 var
   I: Integer;
-  X, Y: Integer;
   VDay: TDateTime;
   VSunTimes: TSunCalcTimes;
 begin
@@ -277,21 +369,12 @@ begin
     end;
 
     I := 0;
-    X := FBorder.Left;
-    Y := FBorder.Top;
 
     if FIsDetailedView then begin
-      Layer.Bitmap.RenderText(X, Y, rsTime, 0, FFont.TextColor);
-      Inc(X, FColWidth[0]);
-
-      Layer.Bitmap.RenderText(X, Y, rsAz, 0, FFont.TextColor);
-      Inc(X, FColWidth[1]);
-
-      Layer.Bitmap.RenderText(X, Y, rsAlt, 0, FFont.TextColor);
-      Inc(X, FColWidth[2]);
-
-      Layer.Bitmap.RenderText(X, Y, rsEvent, 0, FFont.TextColor);
-
+      RenderText(0, I, rsTime, taCenter);
+      RenderText(1, I, rsAz, taCenter);
+      RenderText(2, I, rsAlt, taCenter);
+      RenderText(3, I, rsEvent, taCenter);
       Inc(I);
     end;
 
@@ -392,7 +475,7 @@ begin
       end;
 
       if FIsDetailedView then begin
-        FRowsCount := 12 + 1;
+        FRowsCount := cDetailedRowsCount;
       end else begin
         FRowsCount := 5;
       end;
@@ -407,6 +490,8 @@ begin
     finally
       FSunCalcConfig.UnlockRead;
     end;
+
+    ClearRenderedText;
 
     SetNeedUpdateBitmapSize;
     SetNeedUpdateLayerLocation;
