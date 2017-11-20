@@ -1866,7 +1866,7 @@ function TMarkDbImplORMHelper.GetMarkRecArrayByText(
     R := J - 1;
     P := PInt64Array(VArr1);
     QuickSortInt64(P, 0, R);
-    MoveFast(VArr1[0], C[0], J);
+    MoveFast(VArr1[0], C[0], J * SizeOf(VArr1[0]));
     for I := 0 to Length(VArr2) - 1 do begin
       if FastFindInt64Sorted(P, R, VArr2[I]) < 0 then begin
         C[J] := VArr2[I];
