@@ -361,7 +361,7 @@ begin
   if GetCustomOptions.IsSaveAlfa then begin
     Result := 0;
   end else begin
-    Result := SetAlpha(FViewConfig.BackGroundColor, 255);
+    Result := SetAlpha(Color32(FViewConfig.BackGroundColor), 255);
   end;
 end;
 
