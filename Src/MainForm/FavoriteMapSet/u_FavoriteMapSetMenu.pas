@@ -57,6 +57,7 @@ implementation
 uses
   SysUtils,
   Classes,
+  Menus,
   TBX,
   c_ZeroGUID,
   i_GUIDListStatic,
@@ -114,12 +115,20 @@ function TFavoriteMapSetMenu.CreateMenuItem(
   AIndex: Integer;
   const AItem: IFavoriteMapSetItemStatic
 ): TTBCustomItem;
+var
+  VShortCut: TShortCut;
+  VShortCutText: string;
 begin
   Result := TTBXItem.Create(FRootMenu);
   Result.Tag := AIndex;
-  Result.Caption := AItem.Name;
   Result.OnClick := Self.OnMenuItemClick;
-  Result.ShortCut := AItem.HotKey;
+
+  VShortCut := AItem.HotKey;
+  VShortCutText := '';
+  if VShortCut <> 0 then begin
+    VShortCutText := #9 + ShortCutToText(VShortCut);
+  end;
+  Result.Caption := AItem.Name + VShortCutText;
 end;
 
 procedure TFavoriteMapSetMenu.OnMenuItemClick(Sender: TObject);

@@ -105,6 +105,7 @@ uses
   i_PanelsPositionsSaveLoad,
   i_FillingMapPolygon,
   i_FavoriteMapSetHelper,
+  i_FavoriteMapSetHotKeyList,
   i_UrlByCoordProvider,
   i_SunCalcProvider,
   i_CmdLineArgProcessor,
@@ -939,6 +940,7 @@ type
 
     FFavoriteMapSetMenu: TFavoriteMapSetMenu;
     FFavoriteMapSetHelper: IFavoriteMapSetHelper;
+    FFavoriteMapSetHotKeyList: IFavoriteMapSetHotKeyList;
     FfrmFavoriteMapSetEditor: TfrmFavoriteMapSetEditor;
     FfrmFavoriteMapSetManager: TfrmFavoriteMapSetManager;
 
@@ -1126,6 +1128,8 @@ uses
   i_ProjectionSet,
   i_ProjectionSetList,
   i_ScaleLineConfig,
+  i_FavoriteMapSetItemStatic,
+  u_FavoriteMapSetHotKeyList,
   u_FavoriteMapSetHelper,
   u_ImportFromArcGIS,
   u_StickToGrids,
@@ -1404,6 +1408,11 @@ begin
       FViewPortState.View
     );
   FfrmPointProjecting.PopupParent := Self;
+
+  FFavoriteMapSetHotKeyList :=
+    TFavoriteMapSetHotKeyList.Create(
+      GState.FavoriteMapSetConfig
+    );
 
   FFavoriteMapSetHelper :=
     TFavoriteMapSetHelper.Create(
@@ -3295,6 +3304,8 @@ procedure TfrmMain.FormShortCut(
 var
   VShortCut: TShortCut;
   VMapType: IMapType;
+  VErrMsg: string;
+  VFavoriteMapSet: IFavoriteMapSetItemStatic;
   VCancelSelection: Boolean;
   VLineOnMapEdit: ILineOnMapEdit;
   VLonLat: TDoublePoint;
@@ -3433,16 +3444,27 @@ begin
           end;
         end;
       end;
-    else begin
-      VMapType := FMapHotKeyList.GetMapTypeGUIDByHotKey(VShortCut);
-    end;
-      if VMapType <> nil then begin
-        if VMapType.Zmp.IsLayer then begin
-          FConfig.MapLayersConfig.InvertLayerSelectionByGUID(VMapType.GUID);
-        end else begin
-          FConfig.MainMapConfig.MainMapGUID := VMapType.GUID;
+    else
+      begin
+        VFavoriteMapSet := FFavoriteMapSetHotKeyList.GetMapSetByHotKey(VShortCut);
+        if VFavoriteMapSet <> nil then begin
+          if not FFavoriteMapSetHelper.TrySwitchOn(VFavoriteMapSet, VErrMsg) then begin
+            MessageDlg(VErrMsg, mtError, [mbOk], 0);
+          end;
+          Handled := True;
+          Exit;
         end;
-        Handled := True;
+
+        VMapType := FMapHotKeyList.GetMapTypeGUIDByHotKey(VShortCut);
+        if VMapType <> nil then begin
+          if VMapType.Zmp.IsLayer then begin
+            FConfig.MapLayersConfig.InvertLayerSelectionByGUID(VMapType.GUID);
+          end else begin
+            FConfig.MainMapConfig.MainMapGUID := VMapType.GUID;
+          end;
+          Handled := True;
+          Exit;
+        end;
       end;
     end;
   end;
