@@ -74,6 +74,7 @@ type
       Column: TListColumn
     );
   private
+    FChanged: Boolean;
     FMapTypeEditor: IMapTypeConfigModalEdit;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
@@ -141,6 +142,9 @@ var
   i: Integer;
   VMapType: IMapType;
 begin
+  if not FChanged or not ((FPrevSortColumnIndex = 0) and not FIsPrevSortReversed) then begin
+    Exit;
+  end;
   FGUIConfigList.LockWrite;
   try
     For i := 0 to MapList.Items.Count - 1 do begin
@@ -152,6 +156,7 @@ begin
   finally
     FGUIConfigList.UnlockWrite;
   end;
+  UpdateList;
 end;
 
 procedure TfrMapsList.btnMapInfoClick(Sender: TObject);
@@ -177,6 +182,7 @@ procedure TfrMapsList.Button11Click(Sender: TObject);
 begin
   If (MapList.Selected <> nil) and (MapList.Selected.Index < MapList.Items.Count - 1) then begin
     ExchangeItems(MapList, MapList.Selected.Index, MapList.Selected.Index + 1);
+    FChanged := True;
   end;
 end;
 
@@ -184,6 +190,7 @@ procedure TfrMapsList.Button12Click(Sender: TObject);
 begin
   If (MapList.Selected <> nil) and (MapList.Selected.Index > 0) then begin
     ExchangeItems(MapList, MapList.Selected.Index, MapList.Selected.Index - 1);
+    FChanged := True;
   end;
 end;
 
@@ -239,6 +246,7 @@ end;
 
 procedure TfrMapsList.Init;
 begin
+  FChanged := False;
   UpdateList;
   DoCustomSort(FPrevSortColumnIndex, FIsPrevSortReversed);
 end;
