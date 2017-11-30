@@ -1388,7 +1388,6 @@
         <DCCReference Include="Src\Routing\c_PathDetalizeProvidersGUID.pas"/>
         <DCCReference Include="Src\Routing\i_PathDetalizeProvider.pas"/>
         <DCCReference Include="Src\Routing\i_PathDetalizeProviderTreeEntity.pas"/>
-        <DCCReference Include="Src\Routing\u_PathDetalizeProviderMailRu.pas"/>
         <DCCReference Include="Src\Routing\u_PathDetalizeProviderTreeEntity.pas"/>
         <DCCReference Include="Src\Routing\u_PathDetalizeProviderTreeSimple.pas"/>
         <DCCReference Include="Src\Routing\u_PathDetalizeProviderYourNavigation.pas"/>

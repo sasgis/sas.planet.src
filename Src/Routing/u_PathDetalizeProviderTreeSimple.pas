@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2017, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -48,7 +48,6 @@ type
       const AKmlLoader: IVectorDataLoader
     ): IGUIDInterfaceSet;
 
-    function CreateMailRu: IStaticTreeItem;
     function CreateYourNavigation: IStaticTreeItem;
   protected
     function CreateStatic: IStaticTreeItem; override;
@@ -77,8 +76,7 @@ uses
   u_DownloaderHttpWithTTL,
   u_GUIDInterfaceSet,
   u_PathDetalizeProviderTreeEntity,
-  u_PathDetalizeProviderYourNavigation,
-  u_PathDetalizeProviderMailRu;
+  u_PathDetalizeProviderYourNavigation;
 
 { TPathDetalizeProviderTreeSimple }
 
@@ -117,37 +115,6 @@ var
   VDownloader: IDownloader;
 begin
   Result := TGUIDInterfaceSet.Create;
-
-  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, AResultFactory);
-  VProvider :=
-    TPathDetalizeProviderMailRu.Create(
-      AInetConfig,
-      VDownloader,
-      AVectorGeometryLonLatFactory,
-      'http://maps.mail.ru/stamperx/getPath.aspx?mode=distance'
-    );
-
-  Result.Add(CPathDetalizeProviderMailRuShortest, VProvider);
-
-  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, AResultFactory);
-  VProvider :=
-    TPathDetalizeProviderMailRu.Create(
-      AInetConfig,
-      VDownloader,
-      AVectorGeometryLonLatFactory,
-      'http://maps.mail.ru/stamperx/getPath.aspx?mode=time'
-    );
-  Result.Add(CPathDetalizeProviderMailRuFastest, VProvider);
-
-  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, AResultFactory);
-  VProvider :=
-    TPathDetalizeProviderMailRu.Create(
-      AInetConfig,
-      VDownloader,
-      AVectorGeometryLonLatFactory,
-      'http://maps.mail.ru/stamperx/getPath.aspx?mode=deftime'
-    );
-  Result.Add(CPathDetalizeProviderMailRuFastestWithTraffic, VProvider);
 
   VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, AResultFactory);
   VProvider :=
@@ -196,79 +163,6 @@ begin
       'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=0&layer=mapnik'
     );
   Result.Add(CPathDetalizeProviderYourNavigationShortestByBicycle, VProvider);
-end;
-
-function TPathDetalizeProviderTreeSimple.CreateMailRu: IStaticTreeItem;
-var
-  VList: IInterfaceListSimple;
-  VGUID: TGUID;
-  VProvider: IPathDetalizeProvider;
-  VEntity: IPathDetalizeProviderTreeEntity;
-  VItem: IStaticTreeItem;
-begin
-  VList := TInterfaceListSimple.Create;
-
-  VGUID := CPathDetalizeProviderMailRuShortest;
-  VProvider := IPathDetalizeProvider(FProvidersSet.GetByGUID(VGUID));
-  VEntity :=
-    TPathDetalizeProviderTreeEntity.Create(
-      VGUID,
-      _('Detalize route by car (Shortest) with Maps@mail.ru'),
-      _('By Car (Shortest)'),
-      VProvider
-    );
-  VItem :=
-    TStaticTreeItem.Create(
-      VEntity,
-      VEntity.MenuItemName,
-      '0010',
-      nil
-    );
-  VList.Add(VItem);
-
-  VGUID := CPathDetalizeProviderMailRuFastest;
-  VProvider := IPathDetalizeProvider(FProvidersSet.GetByGUID(VGUID));
-  VEntity :=
-    TPathDetalizeProviderTreeEntity.Create(
-      VGUID,
-      _('Detalize route by car (Fastest) with Maps@mail.ru'),
-      _('By Car (Fastest)'),
-      VProvider
-    );
-  VItem :=
-    TStaticTreeItem.Create(
-      VEntity,
-      VEntity.MenuItemName,
-      '0020',
-      nil
-    );
-  VList.Add(VItem);
-
-  VGUID := CPathDetalizeProviderMailRuFastest;
-  VProvider := IPathDetalizeProvider(FProvidersSet.GetByGUID(VGUID));
-  VEntity :=
-    TPathDetalizeProviderTreeEntity.Create(
-      VGUID,
-      _('Detalize route by car (Fastest with traffic) with Maps@mail.ru'),
-      _('By Car (Fastest with traffic)'),
-      VProvider
-    );
-  VItem :=
-    TStaticTreeItem.Create(
-      VEntity,
-      VEntity.MenuItemName,
-      '0030',
-      nil
-    );
-  VList.Add(VItem);
-
-  Result :=
-    TStaticTreeItem.Create(
-      nil,
-      _('Maps@mail.ru'),
-      '0020~',
-      VList.MakeStaticAndClear
-    );
 end;
 
 function TPathDetalizeProviderTreeSimple.CreateYourNavigation: IStaticTreeItem;
@@ -368,7 +262,6 @@ var
 begin
   VList := TInterfaceListSimple.Create;
 
-  VList.Add(CreateMailRu);
   VList.Add(CreateYourNavigation);
 
   Result :=
