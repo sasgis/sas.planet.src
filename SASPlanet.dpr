@@ -1051,7 +1051,6 @@ uses
   c_PathDetalizeProvidersGUID in 'Src\Routing\c_PathDetalizeProvidersGUID.pas',
   i_PathDetalizeProvider in 'Src\Routing\i_PathDetalizeProvider.pas',
   i_PathDetalizeProviderTreeEntity in 'Src\Routing\i_PathDetalizeProviderTreeEntity.pas',
-  u_PathDetalizeProviderCloudMade in 'Src\Routing\u_PathDetalizeProviderCloudMade.pas',
   u_PathDetalizeProviderMailRu in 'Src\Routing\u_PathDetalizeProviderMailRu.pas',
   u_PathDetalizeProviderTreeEntity in 'Src\Routing\u_PathDetalizeProviderTreeEntity.pas',
   u_PathDetalizeProviderTreeSimple in 'Src\Routing\u_PathDetalizeProviderTreeSimple.pas',

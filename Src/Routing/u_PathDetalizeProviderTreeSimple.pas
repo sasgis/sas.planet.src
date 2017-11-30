@@ -50,7 +50,6 @@ type
 
     function CreateMailRu: IStaticTreeItem;
     function CreateYourNavigation: IStaticTreeItem;
-    function CreateCloudmade: IStaticTreeItem;
   protected
     function CreateStatic: IStaticTreeItem; override;
   public
@@ -79,8 +78,7 @@ uses
   u_GUIDInterfaceSet,
   u_PathDetalizeProviderTreeEntity,
   u_PathDetalizeProviderYourNavigation,
-  u_PathDetalizeProviderMailRu,
-  u_PathDetalizeProviderCloudMade;
+  u_PathDetalizeProviderMailRu;
 
 { TPathDetalizeProviderTreeSimple }
 
@@ -198,72 +196,6 @@ begin
       'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=0&layer=mapnik'
     );
   Result.Add(CPathDetalizeProviderYourNavigationShortestByBicycle, VProvider);
-
-  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, AResultFactory);
-  VProvider :=
-    TPathDetalizeProviderCloudMade.Create(
-      AInetConfig,
-      VDownloader,
-      AVectorGeometryLonLatFactory,
-      car,
-      fastest
-    );
-  Result.Add(CPathDetalizeProviderCloudMadeFastestByCar, VProvider);
-
-  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, AResultFactory);
-  VProvider :=
-    TPathDetalizeProviderCloudMade.Create(
-      AInetConfig,
-      VDownloader,
-      AVectorGeometryLonLatFactory,
-      foot,
-      fastest
-    );
-  Result.Add(CPathDetalizeProviderCloudMadeFastestByFoot, VProvider);
-
-  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, AResultFactory);
-  VProvider :=
-    TPathDetalizeProviderCloudMade.Create(
-      AInetConfig,
-      VDownloader,
-      AVectorGeometryLonLatFactory,
-      bicycle,
-      fastest
-    );
-  Result.Add(CPathDetalizeProviderCloudMadeFastestByBicycle, VProvider);
-
-  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, AResultFactory);
-  VProvider :=
-    TPathDetalizeProviderCloudMade.Create(
-      AInetConfig,
-      VDownloader,
-      AVectorGeometryLonLatFactory,
-      car,
-      shortest
-    );
-  Result.Add(CPathDetalizeProviderCloudMadeShortestByCar, VProvider);
-
-  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, AResultFactory);
-  VProvider :=
-    TPathDetalizeProviderCloudMade.Create(
-      AInetConfig,
-      VDownloader,
-      AVectorGeometryLonLatFactory,
-      foot,
-      shortest
-    );
-  Result.Add(CPathDetalizeProviderCloudMadeShortestByFoot, VProvider);
-
-  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, AResultFactory);
-  VProvider :=
-    TPathDetalizeProviderCloudMade.Create(
-      AInetConfig,
-      VDownloader,
-      AVectorGeometryLonLatFactory,
-      bicycle,
-      shortest
-    );
-  Result.Add(CPathDetalizeProviderCloudMadeShortestByBicycle, VProvider);
 end;
 
 function TPathDetalizeProviderTreeSimple.CreateMailRu: IStaticTreeItem;
@@ -430,140 +362,12 @@ begin
     );
 end;
 
-function TPathDetalizeProviderTreeSimple.CreateCloudmade: IStaticTreeItem;
-var
-  VList: IInterfaceListSimple;
-  VGUID: TGUID;
-  VProvider: IPathDetalizeProvider;
-  VEntity: IPathDetalizeProviderTreeEntity;
-  VItem: IStaticTreeItem;
-begin
-  VList := TInterfaceListSimple.Create;
-
-  VGUID := CPathDetalizeProviderCloudMadeFastestByCar;
-  VProvider := IPathDetalizeProvider(FProvidersSet.GetByGUID(VGUID));
-  VEntity :=
-    TPathDetalizeProviderTreeEntity.Create(
-      VGUID,
-      _('Detalize route by car (Fastest) with cloudmade.com'),
-      _('By Car (Fastest)'),
-      VProvider
-    );
-  VItem :=
-    TStaticTreeItem.Create(
-      VEntity,
-      VEntity.MenuItemName,
-      '0010',
-      nil
-    );
-  VList.Add(VItem);
-
-  VGUID := CPathDetalizeProviderCloudMadeFastestByFoot;
-  VProvider := IPathDetalizeProvider(FProvidersSet.GetByGUID(VGUID));
-  VEntity :=
-    TPathDetalizeProviderTreeEntity.Create(
-      VGUID,
-      _('Detalize route by foot (Fastest) with cloudmade.com'),
-      _('By Foot (Fastest)'),
-      VProvider
-    );
-  VItem :=
-    TStaticTreeItem.Create(
-      VEntity,
-      VEntity.MenuItemName,
-      '0020',
-      nil
-    );
-  VList.Add(VItem);
-
-  VGUID := CPathDetalizeProviderCloudMadeFastestByBicycle;
-  VProvider := IPathDetalizeProvider(FProvidersSet.GetByGUID(VGUID));
-  VEntity :=
-    TPathDetalizeProviderTreeEntity.Create(
-      VGUID,
-      _('Detalize route by bicycle (Fastest) with cloudmade.com'),
-      _('By Bicycle (Fastest)'),
-      VProvider
-    );
-  VItem :=
-    TStaticTreeItem.Create(
-      VEntity,
-      VEntity.MenuItemName,
-      '0030',
-      nil
-    );
-  VList.Add(VItem);
-
-  VGUID := CPathDetalizeProviderCloudMadeShortestByCar;
-  VProvider := IPathDetalizeProvider(FProvidersSet.GetByGUID(VGUID));
-  VEntity :=
-    TPathDetalizeProviderTreeEntity.Create(
-      VGUID,
-      _('Detalize route by car (Shortest) with cloudmade.com'),
-      _('By Car (Shortest)'),
-      VProvider
-    );
-  VItem :=
-    TStaticTreeItem.Create(
-      VEntity,
-      VEntity.MenuItemName,
-      '0040',
-      nil
-    );
-  VList.Add(VItem);
-
-  VGUID := CPathDetalizeProviderCloudMadeShortestByFoot;
-  VProvider := IPathDetalizeProvider(FProvidersSet.GetByGUID(VGUID));
-  VEntity :=
-    TPathDetalizeProviderTreeEntity.Create(
-      VGUID,
-      _('Detalize route by foot (Shortest) with cloudmade.com'),
-      _('By Foot (Shortest)'),
-      VProvider
-    );
-  VItem :=
-    TStaticTreeItem.Create(
-      VEntity,
-      VEntity.MenuItemName,
-      '0050',
-      nil
-    );
-  VList.Add(VItem);
-
-  VGUID := CPathDetalizeProviderCloudMadeShortestByBicycle;
-  VProvider := IPathDetalizeProvider(FProvidersSet.GetByGUID(VGUID));
-  VEntity :=
-    TPathDetalizeProviderTreeEntity.Create(
-      VGUID,
-      _('Detalize route by bicycle (Shortest) with cloudmade.com'),
-      _('By Bicycle (Shortest)'),
-      VProvider
-    );
-  VItem :=
-    TStaticTreeItem.Create(
-      VEntity,
-      VEntity.MenuItemName,
-      '0060',
-      nil
-    );
-  VList.Add(VItem);
-
-  Result :=
-    TStaticTreeItem.Create(
-      nil,
-      _('maps.cloudmade.com (OSM)'),
-      '0010~',
-      VList.MakeStaticAndClear
-    );
-end;
-
 function TPathDetalizeProviderTreeSimple.CreateStatic: IStaticTreeItem;
 var
   VList: IInterfaceListSimple;
 begin
   VList := TInterfaceListSimple.Create;
 
-  VList.Add(CreateCloudmade);
   VList.Add(CreateMailRu);
   VList.Add(CreateYourNavigation);
 
