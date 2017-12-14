@@ -36,7 +36,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  u_ImageLineProviderMultiThreadAbstract = class(TBaseInterfacedObject, IImageLineProvider)
+  TImageLineProviderMultiThreadAbstract = class(TBaseInterfacedObject, IImageLineProvider)
   private
     FPrepareDataCounter: IInternalPerformanceCounter;
     FGetLineCounter: IInternalPerformanceCounter;
@@ -99,7 +99,7 @@ type
     destructor Destroy; override;
   end;
 
-  TImageLineProviderNoAlfaMultiThread = class(u_ImageLineProviderMultiThreadAbstract)
+  TImageLineProviderNoAlfaMultiThread = class(TImageLineProviderMultiThreadAbstract)
   public
     constructor Create(
       const APrepareDataCounter: IInternalPerformanceCounter;
@@ -110,7 +110,7 @@ type
     );
   end;
 
-  TImageLineProviderWithAlfaMultiThread = class(u_ImageLineProviderMultiThreadAbstract)
+  TImageLineProviderWithAlfaMultiThread = class(TImageLineProviderMultiThreadAbstract)
   public
     constructor Create(
       const APrepareDataCounter: IInternalPerformanceCounter;
@@ -216,7 +216,6 @@ end;
 
 procedure TWorkingThread.Execute;
 begin
-  inherited;
   {$IFDEF EUREKALOG}
   try
   {$ENDIF}
@@ -243,7 +242,7 @@ end;
 
 { TImageLineProviderMultiThreadAbstract }
 
-constructor u_ImageLineProviderMultiThreadAbstract.Create(
+constructor TImageLineProviderMultiThreadAbstract.Create(
   const APrepareDataCounter: IInternalPerformanceCounter;
   const AGetLineCounter: IInternalPerformanceCounter;
   const AImageProvider: IBitmapTileProvider;
@@ -296,7 +295,7 @@ begin
   FThreadColPos[FThreadCount] := FFullTileRect.Right;
 end;
 
-destructor u_ImageLineProviderMultiThreadAbstract.Destroy;
+destructor TImageLineProviderMultiThreadAbstract.Destroy;
 var
   i: Integer;
 begin
@@ -316,7 +315,7 @@ begin
   inherited;
 end;
 
-procedure u_ImageLineProviderMultiThreadAbstract.AddTile(
+procedure TImageLineProviderMultiThreadAbstract.AddTile(
   const ABitmap: IBitmap32Static;
   const ATile: TPoint
 );
@@ -351,7 +350,7 @@ begin
   end;
 end;
 
-procedure u_ImageLineProviderMultiThreadAbstract.ClearBuffer;
+procedure TImageLineProviderMultiThreadAbstract.ClearBuffer;
 var
   i: Integer;
 begin
@@ -364,17 +363,17 @@ begin
   FPreparedData := nil;
 end;
 
-function u_ImageLineProviderMultiThreadAbstract.GetBytesPerPixel: Integer;
+function TImageLineProviderMultiThreadAbstract.GetBytesPerPixel: Integer;
 begin
   Result := FBytesPerPixel;
 end;
 
-function u_ImageLineProviderMultiThreadAbstract.GetImageSize: TPoint;
+function TImageLineProviderMultiThreadAbstract.GetImageSize: TPoint;
 begin
   Result := RectSize(FMapRect);
 end;
 
-function u_ImageLineProviderMultiThreadAbstract.GetLine(
+function TImageLineProviderMultiThreadAbstract.GetLine(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   ALine: Integer
@@ -410,7 +409,7 @@ begin
   end;
 end;
 
-function u_ImageLineProviderMultiThreadAbstract.GetLocalLine(ALine: Integer): Pointer;
+function TImageLineProviderMultiThreadAbstract.GetLocalLine(ALine: Integer): Pointer;
 var
   VMapLine: Integer;
 begin
@@ -422,7 +421,7 @@ begin
   Result := FPreparedData[VMapLine - FPreparedMapRect.Top];
 end;
 
-procedure u_ImageLineProviderMultiThreadAbstract.PrepareBufferData(
+procedure TImageLineProviderMultiThreadAbstract.PrepareBufferData(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const AMapRect: TRect
@@ -448,7 +447,7 @@ begin
   FCancelNotifier := nil;
 end;
 
-procedure u_ImageLineProviderMultiThreadAbstract.PrepareBufferDataPart(
+procedure TImageLineProviderMultiThreadAbstract.PrepareBufferDataPart(
   const AIndex: Integer
 );
 var
@@ -470,7 +469,7 @@ begin
   end;
 end;
 
-procedure u_ImageLineProviderMultiThreadAbstract.PrepareBufferMem(ARect: TRect);
+procedure TImageLineProviderMultiThreadAbstract.PrepareBufferMem(ARect: TRect);
 var
   VLinesExists: Integer;
   VLinesNeed: Integer;
@@ -488,7 +487,7 @@ begin
   end;
 end;
 
-function u_ImageLineProviderMultiThreadAbstract.GetMapRectForLine(ALine: Integer): TRect;
+function TImageLineProviderMultiThreadAbstract.GetMapRectForLine(ALine: Integer): TRect;
 var
   VMapLine: Integer;
   VTilePos: TPoint;
