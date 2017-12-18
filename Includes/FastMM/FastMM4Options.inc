@@ -166,6 +166,9 @@ Set the default options for FastMM here.
      install itself. No effect unless FullDebugMode and LoadDebugDLLDynamically
      are also defined.}
 
+    {.$define RestrictDebugDLLLoadPath}
+    {Allow to load debug dll only from host module directory.}
+
   {FastMM usually allocates large blocks from the topmost available address and
    medium and small blocks from the lowest available address (This reduces
    fragmentation somewhat). With this option set all blocks are always
@@ -303,6 +306,18 @@ Set the default options for FastMM here.
  additional peace of mind when working with highly sensitive data. This option
  supersedes the ClearMemoryBeforeReturningToOS option.}
 {.$define AlwaysClearFreedMemory}
+
+{----------------------------Lock Contention Logging--------------------------}
+
+{Define this to lock stack traces for all occasions where GetMem/FreeMem
+ go to sleep because of lock contention (IOW, when memory manager is already
+ locked by another thread). At the end of the program execution top 10 sites
+ (locations with highest occurrence) will be logged to the _MemoryManager_EventLog.txt
+ file.
+ This options works with FullDebugMode or without it, but requires
+ FastMM_FullDebugMode.dll to be present in both cases.
+}
+{.$define LogLockContention}
 
 {--------------------------------Option Grouping------------------------------}
 

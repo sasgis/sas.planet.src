@@ -14,7 +14,11 @@ interface
 
 const
   {The name of the debug info support DLL}
+  {$IFDEF MACOS}
+  FullDebugModeLibraryName32Bit = 'libFastMM_FullDebugMode.dylib';
+  {$ELSE}
   FullDebugModeLibraryName32Bit = 'FastMM_FullDebugMode.dll';
+  {$ENDIF}
   FullDebugModeLibraryName64Bit = 'FastMM_FullDebugMode64.dll';
   {Event log strings}
   LogFileExtension = '_MemoryManager_EventLog.txt'#0;
@@ -127,6 +131,25 @@ const
   InvalidFreeMemMsg = 'FastMM has detected a FreeMem call after FastMM was uninstalled.';
   InvalidReallocMemMsg = 'FastMM has detected a ReallocMem call after FastMM was uninstalled.';
   InvalidAllocMemMsg = 'FastMM has detected an AllocMem call after FastMM was uninstalled.';
+{$endif}
+
+{$ifdef LogLockContention}
+  LockingReportTitle = 'Locking Report';
+  LockingReportHeader = 'Top locking contention sites';
+{$endif}
+
+{$ifdef UseReleaseStack}
+{$ifdef DebugReleaseStack}
+  ReleaseStackUsageHeader = 'Release stack usage statistics';
+  ReleaseStackUsageSmallBlocksMsg1 = 'Small blocks [';
+  ReleaseStackUsageSmallBlocksMsg2 = ']: ';
+  ReleaseStackUsageTotalSmallBlocksMsg = 'Total small blocks: ';
+  ReleaseStackUsageMediumBlocksMsg = 'Medium blocks: ';
+  ReleaseStackUsageLargeBlocksMsg = 'Large blocks: ';
+  ReleaseStackUsageTotalMemoryMsg = 'Total memory: ';
+  ReleaseStackUsageBuffers1Msg = ' in ';
+  ReleaseStackUsageBuffers2Msg = ' buffers [';
+{$endif}
 {$endif}
 
 implementation
