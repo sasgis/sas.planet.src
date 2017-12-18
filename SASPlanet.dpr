@@ -1467,6 +1467,8 @@ uses
 {$R .\Resources\Common.res}
 {$R .\Resources\BuildInfo.res}
 
+{$I .\Src\SASPlanet.inc}
+
 {$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED}
 {$SetPEFlags IMAGE_FILE_EXECUTABLE_IMAGE}
 
@@ -1474,6 +1476,10 @@ uses
   {$SetPEFlags IMAGE_FILE_DEBUG_STRIPPED}
   {$SetPEFlags IMAGE_FILE_LINE_NUMS_STRIPPED}
   {$SetPEFlags IMAGE_FILE_LOCAL_SYMS_STRIPPED}
+
+  {$IFDEF ENABLE_LARGE_ADDRESS_AWARE}
+    {$SetPEFlags IMAGE_FILE_LARGE_ADDRESS_AWARE}
+  {$ENDIF}
 {$ENDIF}
 
 var
