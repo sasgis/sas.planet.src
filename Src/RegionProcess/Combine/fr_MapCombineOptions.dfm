@@ -153,7 +153,7 @@ object frMapCombineCustomOptions: TfrMapCombineCustomOptions
       Top = 2
       Width = 53
       Height = 22
-      MaxValue = 16
+      MaxValue = 32
       MinValue = 1
       TabOrder = 0
       Value = 1
