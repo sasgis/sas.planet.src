@@ -130,7 +130,7 @@ begin
       end else begin
         VBytesPerPix := 3;
       end;
-      VSize := FWidth * FHeight * VBytesPerPix;
+      VSize := Int64(FWidth) * FHeight * VBytesPerPix;
       VOldTiffMaxFileSize := Int64(4000) * 1024 * 1024; // 4000 MB
       if VSize >= VOldTiffMaxFileSize then begin
         Result := ttBigTiff;
