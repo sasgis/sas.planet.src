@@ -27,6 +27,11 @@ uses
   Classes,
   i_InetConfig,
   i_DownloadResult,
+  i_DownloadResultFactory,
+  i_MapSvcScanStorage,
+  i_NotifierOperation,
+  i_ProjectionSet,
+  i_Downloader,
   i_DownloadRequest,
   u_DownloadRequest,
   u_AvailPicsAbstract;
@@ -37,6 +42,15 @@ type
     function ContentType: String; override;
     function ParseResponse(const AResultOk: IDownloadResultOk): Integer; override;
     function GetRequest(const AInetConfig: IInetConfig): IDownloadRequest; override;
+  private
+    FResultFactory: IDownloadResultFactory;
+  public
+    constructor Create(
+      const AProjectionSet: IProjectionSet;
+      const ATileInfoPtr: PAvailPicsTileInfo;
+      const AResultFactory: IDownloadResultFactory;
+      const AMapSvcScanStorage: IMapSvcScanStorage
+    );
   end;
 
 implementation
@@ -49,7 +63,20 @@ uses
   {$ENDIF}
   u_StrFunc,
   u_GeoToStrFunc,
+  u_DownloaderHttp,
+  u_NotifierOperation,
   u_StreamReadOnlyByBinaryData;
+
+constructor TAvailPicsTerraserver.Create(
+  const AProjectionSet: IProjectionSet;
+  const ATileInfoPtr: PAvailPicsTileInfo;
+  const AResultFactory: IDownloadResultFactory;
+  const AMapSvcScanStorage: IMapSvcScanStorage
+);
+begin
+  inherited Create(AProjectionSet, ATileInfoPtr, AMapSvcScanStorage);
+  FResultFactory := AResultFactory;
+end;
 
 function _RandInt5: AnsiString;
 var i: Integer;
@@ -98,8 +125,6 @@ begin
 end;
 
 function TAvailPicsTerraserver.ParseResponse(const AResultOk: IDownloadResultOk): Integer;
-
-
   function _ProcessOption(const AOptionText: AnsiString;
                           var AParams: TStrings): Boolean;
   var
@@ -251,27 +276,55 @@ function TAvailPicsTerraserver.GetRequest(const AInetConfig: IInetConfig): IDown
 var
   VLink: AnsiString;
   VHeader: AnsiString;
+  VGetRequest: IDownloadRequest;
+  VResult: IDownloadResult;
+  VCancelNotifier: INotifierOperation;
+  VDownloaderHttp: IDownloader; // TDownloaderHttp;
+  VResultOk: IDownloadResultOk;
+  VResultWithRespond: IDownloadResultWithServerRespond;
+  VAnonymousData,VTerraServerSession: AnsiString;
+  VRawResponseHeader: AnsiString;
 begin
- VLink := 'https://www.terraserver.com/viewers/features?bbox=' +
-          RoundExAnsi(FTileInfoPtr.TileRect.Left, 14) + '%2C'+
-          RoundExAnsi(FTileInfoPtr.TileRect.Bottom, 14) + '%2C'+
-          RoundExAnsi(FTileInfoPtr.TileRect.Right, 14) + '%2C'+
-          RoundExAnsi(FTileInfoPtr.TileRect.Top, 14) +
-          '&image_option=';
+  VLink := 'https://www.terraserver.com/view';
+  VHeader :=
+    'Accept: */*' + #$D#$A +
+    'Referer: https://www.terraserver.com/' + #$D#$A +
+    'Host: www.terraserver.com';
+  VGetRequest := TDownloadRequest.Create(
+    VLink,
+    VHeader,
+    AInetConfig.GetStatic);
+  VDownloaderHttp := TDownloaderHttp.Create(FResultFactory, TRUE);
+  VCancelNotifier := TNotifierOperationFake.Create;
+  VResult := VDownloaderHttp.DoRequest(
+    VGetRequest,
+    VCancelNotifier,
+    VCancelNotifier.CurrentOperation
+  );
+  if Supports(VResult, IDownloadResultOk, VResultOk) then begin
+    VRawResponseHeader := VResultOk.GetRawResponseHeader;
+    VTerraServerSession := GetBetween(VRawResponseHeader, '_terraserver_session=', '; ');
+    VAnonymousData := GetBetween(VRawResponseHeader, 'anonymous_data=', '; ');
+    VLink := 'https://www.terraserver.com/viewers/features?bbox=' + RoundExAnsi(FTileInfoPtr.TileRect.Left, 14) + '%2C' + RoundExAnsi(FTileInfoPtr.TileRect.Bottom, 14) + '%2C' + RoundExAnsi(FTileInfoPtr.TileRect.Right, 14) + '%2C' + RoundExAnsi(FTileInfoPtr.TileRect.Top, 14);
+    VHeader :=
+      'Accept: */*' + #$D#$A +
+      'X-Requested-With: XMLHttpRequest' + #$D#$A +
+      'Referer: https://www.terraserver.com/view' + #$D#$A +
+      'Accept-Language: ru-RU' + #$D#$A +
+      'Accept-Encoding: gzip, deflate' + #$D#$A +
+      'User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko' + #$D#$A +
+      'Host: www.terraserver.com' + #$D#$A +
+      'DNT: 1' + #$D#$A +
+      'Connection: Keep-Alive' + #$D#$A +
+      'Cookie: anonymous_data=' + VAnonymousData +
+      '_terraserver_session=' + VTerraServerSession;
 
- VHeader :='User-Agent: Opera/9.80 (Windows NT 6.1; MRA 5.10 (build 5231)) Presto/2.12.388 Version/12.18'+#$D#$A+
-    'Host: www.terraserver.com'+#$D#$A+
-    'Accept-Language: ru-RU,ru;q=0.9,en;q=0.8'+#$D#$A+
-    'Accept-Encoding: gzip, deflate'+#$D#$A+
-    'Referer: https://www.terraserver.com/view'+#$D#$A+
-    'Accept: */*'+#$D#$A+
-    'X-Requested-With: XMLHttpRequest';
-
- Result := TDownloadRequest.Create(
-           VLink,
-           VHeader,
-           AInetConfig.GetStatic
-           );
+    Result := TDownloadRequest.Create(
+      VLink,
+      VHeader,
+      AInetConfig.GetStatic
+    );
+  end;
 end;
 
 end.

@@ -1367,7 +1367,7 @@ begin
 
   // make for terraserver
   if (nil=FTerraserver) then
-    FTerraserver := TAvailPicsTerraserver.Create(VProjectionSet, @FAvailPicsTileInfo, FMapSvcScanStorage);
+    FTerraserver := TAvailPicsTerraserver.Create(VProjectionSet, @FAvailPicsTileInfo, FResultFactory, FMapSvcScanStorage);
 
   // make for kosmosnimki
   GenerateAvailPicsKS(FKSs, FResultFactory, @FAvailPicsTileInfo, VProjectionSet, FMapSvcScanStorage);
