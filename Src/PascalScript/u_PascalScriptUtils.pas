@@ -33,6 +33,7 @@ implementation
 
 uses
   SysUtils,
+  StrUtils,
   Classes,
   ALString,
   DateUtils,
@@ -48,6 +49,9 @@ begin
   // SysUtils
   APSComp.AddDelphiFunction('function IntToHex(Value: Integer; Digits: Integer): String');
   APSComp.AddDelphiFunction('function FileExists(const FileName: String): Boolean');
+
+  // StrUtils
+  APSComp.AddDelphiFunction('function PosEx(const SubStr, S: string; Offset: Integer): Integer');
 
   // ALString
   APSComp.AddTypeS('TReplaceFlag', '(rfReplaceAll, rfIgnoreCase)');
@@ -78,55 +82,9 @@ begin
   APSComp.AddDelphiFunction('function SaveToLocalFile(const AFullLocalFilename: string; const AData: AnsiString): Integer');
 end;
 
-function SubStrPos_P(
-  const Str, SubStr: AnsiString;
-  FromPos: Integer
-): Integer; assembler;
-asm
-  PUSH EDI
-  PUSH ESI
-  PUSH EBX
-  PUSH EAX
-  OR EAX,EAX
-  JE @@2
-  OR EDX,EDX
-  JE @@2
-  DEC ECX
-  JS @@2
-
-  MOV EBX,[EAX-4]
-  SUB EBX,ECX
-  JLE @@2
-  SUB EBX,[EDX-4]
-  JL @@2
-  INC EBX
-
-  ADD EAX,ECX
-  MOV ECX,EBX
-  MOV EBX,[EDX-4]
-  DEC EBX
-  MOV EDI,EAX
-  @@1: MOV ESI,EDX
-  LODSB
-  REPNE SCASB
-  JNE @@2
-  MOV EAX,ECX
-  PUSH EDI
-  MOV ECX,EBX
-  REPE CMPSB
-  POP EDI
-  MOV ECX,EAX
-  JNE @@1
-  LEA EAX,[EDI-1]
-  POP EDX
-  SUB EAX,EDX
-  INC EAX
-  JMP @@3
-  @@2: POP EAX
-  XOR EAX,EAX
-  @@3: POP EBX
-  POP ESI
-  POP EDI
+function SubStrPos_P(const Str, SubStr: AnsiString; FromPos: Integer): Integer;
+begin
+  Result := PosEx(SubStr, Str, FromPos);
 end;
 
 function GetNumberAfter_P(const ASubStr, AText: string): string;
@@ -220,6 +178,9 @@ begin
   // SysUtils
   APSExec.RegisterDelphiFunction(@IntToHex_P, 'IntToHex', cdRegister);
   APSExec.RegisterDelphiFunction(@FileExists, 'FileExists', cdRegister);
+
+  // StrUtils
+  APSExec.RegisterDelphiFunction(@StrUtils.PosEx, 'PosEx', cdRegister);
 
   // ALString
   APSExec.RegisterDelphiFunction(@ALStringReplace, 'StringReplace', cdRegister);
