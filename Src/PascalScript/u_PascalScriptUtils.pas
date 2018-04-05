@@ -210,10 +210,15 @@ begin
   Result := MD5DigestToStr(MD5Buffer(PAnsiChar(AStr)^, Length(AStr)));
 end;
 
+function IntToHex_P(AValue: Integer; ADigits: Integer): string;
+begin
+  Result := IntToHex(AValue, ADigits);
+end;
+
 procedure ExecTimeReg_Utils(const APSExec: TPSExec);
 begin
   // SysUtils
-  APSExec.RegisterDelphiFunction(@IntToHex, 'IntToHex', cdRegister);
+  APSExec.RegisterDelphiFunction(@IntToHex_P, 'IntToHex', cdRegister);
   APSExec.RegisterDelphiFunction(@FileExists, 'FileExists', cdRegister);
 
   // ALString
