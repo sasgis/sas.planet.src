@@ -314,6 +314,8 @@ begin
   if cbbAllMarks.Items.Count = 0 then begin
     FMarksList := FMarksDb.GetAllMarkIdList;
     MarksListToStrings(FMarksList, cbbAllMarks.Items);
+    // move cursor to the end of the Text
+    cbbAllMarks.SelStart := Length(cbbAllMarks.Text);
   end;
 end;
 
