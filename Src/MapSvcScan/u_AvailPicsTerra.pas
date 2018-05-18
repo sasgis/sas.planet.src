@@ -281,7 +281,6 @@ var
   VCancelNotifier: INotifierOperation;
   VDownloaderHttp: IDownloader; // TDownloaderHttp;
   VResultOk: IDownloadResultOk;
-  VResultWithRespond: IDownloadResultWithServerRespond;
   VAnonymousData,VTerraServerSession: AnsiString;
   VRawResponseHeader: AnsiString;
 begin
