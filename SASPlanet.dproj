@@ -473,9 +473,11 @@
     </DCCReference>
     <DCCReference Include="Src\MainForm\FavoriteMapSet\i_FavoriteMapSetConfig.pas" />
     <DCCReference Include="Src\MainForm\FavoriteMapSet\i_FavoriteMapSetHelper.pas" />
+    <DCCReference Include="Src\MainForm\FavoriteMapSet\i_FavoriteMapSetHotKeyList.pas" />
     <DCCReference Include="Src\MainForm\FavoriteMapSet\i_FavoriteMapSetItemStatic.pas" />
     <DCCReference Include="Src\MainForm\FavoriteMapSet\u_FavoriteMapSetConfig.pas" />
     <DCCReference Include="Src\MainForm\FavoriteMapSet\u_FavoriteMapSetHelper.pas" />
+    <DCCReference Include="Src\MainForm\FavoriteMapSet\u_FavoriteMapSetHotKeyList.pas" />
     <DCCReference Include="Src\MainForm\FavoriteMapSet\u_FavoriteMapSetItemStatic.pas" />
     <DCCReference Include="Src\MainForm\FavoriteMapSet\u_FavoriteMapSetMenu.pas" />
     <DCCReference Include="Src\MainForm\frm_Main.pas">
