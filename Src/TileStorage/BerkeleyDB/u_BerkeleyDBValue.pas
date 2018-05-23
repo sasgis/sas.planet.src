@@ -228,7 +228,7 @@ implementation
 
 uses
   Math,
-  CRC32,
+  libcrc32,
   {$IFNDEF UNICODE}
   Compatibility,
   {$ENDIF}
@@ -340,7 +340,7 @@ begin
   Move(cMetaValueMagic[0], FMetaValue.MetaMagic[0], Length(FMetaValue.MetaMagic));
   FMetaValue.MetaCRC32 := 0;
   FMetaValue.StorageEPSG := AStorageEPSG;
-  FMetaValue.MetaCRC32 := CRC32Buf(Pointer(FMetaValue), FSize);
+  FMetaValue.MetaCRC32 := crc32(0, Pointer(FMetaValue), FSize);
 
   if FOwnMem and Assigned(FData) then begin
     FreeMemory(FData);
@@ -383,7 +383,7 @@ begin
     FMetaValue.MetaCRC32 := 0;
     Inc(VPtr, SizeOf(FMetaValue.MetaCRC32));
     FMetaValue.StorageEPSG := PInteger(VPtr)^;
-    FMetaValue.MetaCRC32 := CRC32Buf(Pointer(FMetaValue), ASize);
+    FMetaValue.MetaCRC32 := crc32(0, Pointer(FMetaValue), ASize);
     if PCardinal(VCRC32Ptr)^ <> FMetaValue.MetaCRC32 then begin
       raise EBerkeleyDBBadValue.Create(
         'Read meta-value error - bad checksumm: 0x' + IntToHex(FMetaValue.MetaCRC32, 8)
@@ -543,7 +543,7 @@ begin
   end;
 
   // calc and save CRC32
-  FValue.RecCRC32 := CRC32Buf(Pointer(FData), FSize);
+  FValue.RecCRC32 := crc32(0, Pointer(FData), FSize);
   PInteger(VCRC32Ptr)^ := FValue.RecCRC32;
 end;
 
@@ -579,7 +579,7 @@ begin
     FValue.RecCRC32 := PCardinal(VPtr)^;
     PCardinal(VPtr)^ := 0;
 
-    VCRC32 := CRC32Buf(AData, ASize);
+    VCRC32 := crc32(0, AData, ASize);
 
     PCardinal(VPtr)^ := FValue.RecCRC32;
     if VCRC32 = FValue.RecCRC32 then begin
@@ -978,7 +978,7 @@ begin
     FValue.RecCRC32 := PCardinal(VPtr)^;
     PCardinal(VPtr)^ := 0;
 
-    VCRC32 := CRC32Buf(FData, FSize);
+    VCRC32 := crc32(0, FData, FSize);
 
     PCardinal(VPtr)^ := FValue.RecCRC32;
     if VCRC32 = FValue.RecCRC32 then begin
@@ -1074,7 +1074,7 @@ begin
   end;
 
   // calc and save CRC32
-  FValue.RecCRC32 := CRC32Buf(Pointer(FData), FSize);
+  FValue.RecCRC32 := crc32(0, Pointer(FData), FSize);
   PInteger(VCRC32Ptr)^ := FValue.RecCRC32;
 
   // make archive

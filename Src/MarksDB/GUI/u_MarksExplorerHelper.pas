@@ -50,7 +50,7 @@ implementation
 uses
   ALString,
   ALStringList,
-  CRC32,
+  libcrc32,
   i_MarkCategory;
 
 const
@@ -163,7 +163,7 @@ begin
     VMarkCategory := IMarkCategory(ANode.Data);
     if Assigned(VMarkCategory) then begin
       if VMarkCategory.Name <> '' then begin
-        Result := CRC32Buf(PByte(@VMarkCategory.Name[1]), Length(VMarkCategory.Name) * SizeOf(Char));
+        Result := crc32(0, PByte(@VMarkCategory.Name[1]), Length(VMarkCategory.Name) * SizeOf(Char));
       end;
     end;
   end;

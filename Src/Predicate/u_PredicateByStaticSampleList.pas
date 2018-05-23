@@ -48,7 +48,7 @@ implementation
 
 uses
   SysUtils,
-  CRC32,
+  libcrc32,
   u_IDInterfaceList,
   u_BinaryDataListStatic;
 
@@ -133,7 +133,7 @@ function TPredicateByStaticSampleList.CalcHash(
 begin
   Assert(AData <> nil);
   Assert(AData.Size > 0);
-  Result := Integer(CRC32Buf(AData.Buffer, AData.Size));
+  Result := Integer(crc32(0, AData.Buffer, AData.Size));
 end;
 
 function TPredicateByStaticSampleList.Check(const AData: IBinaryData): Boolean;

@@ -110,7 +110,7 @@ uses
   ShLwApi,
   Math,
   ALString,
-  CRC32,
+  libcrc32,
   gnugettext,
   i_TileStorage,
   i_TileInfoBasic,
@@ -730,7 +730,7 @@ begin
               end;
               
 
-              VCrc32 := CRC32Buf(VData.Buffer, VData.Size);
+              VCrc32 := crc32(0, VData.Buffer, VData.Size);
               VTileHash := IntToHex(VCrc32, 8) + '_' + IntToHex(VData.Size, 8);
               VIndex := VTileHashTable.IndexOf(VTileHash);
               if VIndex <> -1 then begin

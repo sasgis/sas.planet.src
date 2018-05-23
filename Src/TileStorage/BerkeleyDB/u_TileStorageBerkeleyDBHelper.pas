@@ -174,7 +174,7 @@ implementation
 uses
   Windows,
   libdb51,
-  CRC32,
+  libcrc32,
   i_InterfaceListSimple,
   u_InterfaceListSimple,
   u_Synchronizer,
@@ -416,7 +416,7 @@ begin
         if Assigned(AData) then begin
           VTile := AData.Buffer;
           VSize := AData.Size;
-          VTileCRC := CRC32Buf(VTile, VSize);
+          VTileCRC := crc32(0, VTile, VSize);
         end else begin // will save TNE info
           VTile := nil;
           VSize := 0;

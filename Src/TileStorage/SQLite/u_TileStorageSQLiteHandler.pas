@@ -170,7 +170,7 @@ uses
   DateUtils,
   ALString,
   AlSqlite3Wrapper,
-  CRC32,
+  libcrc32,
   c_TileStorageSQLite,
   u_InterfaceListSimple,
   u_MapVersionListStatic,
@@ -1100,7 +1100,7 @@ begin
 
     // crc32
     if FTBColInfo.HasH then begin
-      VOriginalTileCRC32 := CRC32Buf(VOriginalTileBody, VOriginalTileSize);
+      VOriginalTileCRC32 := crc32(0, VOriginalTileBody, VOriginalTileSize);
       VSQLInsert := VSQLInsert + ',h';
       VSQLValues := VSQLValues + ',' + ALIntToStr(VOriginalTileCRC32);
     end else begin
