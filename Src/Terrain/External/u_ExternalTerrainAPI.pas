@@ -140,6 +140,13 @@ function FindElevationInTiff(
 
 implementation
 
+{.$DEFINE DUMP_TIFF_TAGS}
+
+{$IFDEF DUMP_TIFF_TAGS}
+uses
+  SysUtils;
+{$ENDIF}
+
 procedure SwapInWord(const AWordPtr: PWord);
 var w: Word;
 begin
@@ -243,103 +250,123 @@ function FindElevationInTiff(
   out AElevationData: SmallInt
 ): Boolean;
 var
+  I: Integer;
   VTiffHeader: TTiffHeader;
-  //VIFDsOffset: LARGE_INTEGER;
+  VStripsPerImage: DWORD;
   VOffset: LARGE_INTEGER;
-  VNumberOfIFDs, i: Word;
-  VStartIFD, VStripOffsets: TIFD_12;
+  VNumberOfIFDs: Word;
+  VCurrentTag, VStripOffsetsTag: TIFD_12;
   VImageWidth, VImageLength: DWORD;
   VOffsetsSize: LongWord;
   VOffsetsBuffer: Pointer;
 begin
   // read header
   Result := NtReadFromFile(AFile, @VTiffHeader, SizeOf(VTiffHeader), 0);
-  if (not Result) then
+  if not Result then
     Exit;
 
   // check header
   Result := CheckTiffHeader(VTiffHeader);
-  if (not Result) then
+  if not Result then
     Exit;
 
-  // IFDOffset = 25934410 = $18BBA4A
-  // נאחלונ 24.7 ֱּ (25 963 722 באיע)
   VOffset := GetTiffDWORD(VTiffHeader.ByteOrder, VTiffHeader.IFDOffset);
 
-  // get number of IFDs (23)
+  // get number of IFDs
   Result := NtReadFromFile(AFile, @VNumberOfIFDs, SizeOf(VNumberOfIFDs), VOffset);
-  if (not Result) then
+  if not Result then
     Exit;
 
   VNumberOfIFDs := GetTiffWORD(VTiffHeader.ByteOrder, VNumberOfIFDs);
   VOffset := VOffset + SizeOf(VNumberOfIFDs);
 
-  //VIFDsOffset := VOffset;
-
   VImageWidth := 0;
   VImageLength := 0;
-  FillChar(VStripOffsets, SizeOf(VStripOffsets), 0);
+  VStripsPerImage := 0;
+  FillChar(VStripOffsetsTag, SizeOf(VStripOffsetsTag), 0);
 
-  if (VNumberOfIFDs>0) then
-  for i := 0 to VNumberOfIFDs-1 do begin
-    // get IFD
-    Result := NtReadFromFile(AFile, @VStartIFD, SizeOf(VStartIFD), VOffset);
-    if (not Result) then
-      Exit;
-
-    case VStartIFD.tag of
-      $100: begin
-        // ImageWidth (SHORT or LONG)
-        VImageWidth := VStartIFD.offset;
-      end;
-      $101: begin
-        // ImageLength (SHORT or LONG)
-        VImageLength := VStartIFD.offset;
-      end;
-      $111: begin
-        // StripOffsets
-        VStripOffsets := VStartIFD;
-      end;
-    end;
-
-    VOffset := VOffset + SizeOf(VStartIFD);
-  end;
-
-  Result := FALSE;
-
-  if (ASamplesCount=Integer(VImageWidth)) and (ALinesCount=Integer(VImageLength)) and (ALinesCount=Integer(VStripOffsets.count)) then begin
-    // copy offsets for every strip
-    // 3 = SHORT 16-bit (2-byte) unsigned integer
-    // 4 = LONG 32-bit (4-byte) unsigned integer
-    // may be as SHORT ...
-    VOffsetsSize := VStripOffsets.count*2;
-    if (VStripOffsets.type_=4) then begin
-      // ... or as LONG
-      VOffsetsSize := VOffsetsSize * 2;
-    end;
-
-    VOffsetsBuffer := HeapAlloc(GetProcessHeap, 0, VOffsetsSize);
-    if (VOffsetsBuffer<>nil) then
-    try
-      VOffset := VStripOffsets.offset;
-      Result := NtReadFromFile(AFile, VOffsetsBuffer, VOffsetsSize, VOffset);
-      if (not Result) then
+  if VNumberOfIFDs > 0 then begin
+    for I := 0 to VNumberOfIFDs - 1 do begin
+      // get IFD
+      Result := NtReadFromFile(AFile, @VCurrentTag, SizeOf(VCurrentTag), VOffset);
+      if not Result then
         Exit;
 
-      // done
-      if (VStripOffsets.type_=4) then begin
-        // as LONG
-        VOffset := PLongWord(INT_PTR(VOffsetsBuffer)+AStripIndex*SizeOf(DWORD))^;
-        VOffset := VOffset + AColumnIndex*SizeOf(AElevationData);
-        Result := NtReadFromFile(AFile, @AElevationData, SizeOf(AElevationData), VOffset);
-      end else begin
-        // as SHORT
-        VOffset := PWord(INT_PTR(VOffsetsBuffer)+AStripIndex*SizeOf(WORD))^;
-        VOffset := VOffset + AColumnIndex*SizeOf(AElevationData);
-        Result := NtReadFromFile(AFile, @AElevationData, SizeOf(AElevationData), VOffset);
+      case VCurrentTag.tag of
+        $100: begin
+          // ImageWidth (SHORT or LONG)
+          VImageWidth := VCurrentTag.offset;
+        end;
+        $101: begin
+          // ImageLength (SHORT or LONG)
+          VImageLength := VCurrentTag.offset;
+        end;
+        $111: begin
+          // StripOffsets
+          VStripOffsetsTag := VCurrentTag;
+          VStripsPerImage := VStripOffsetsTag.count;
+        end;
       end;
-    finally
-      HeapFree(GetProcessHeap, 0, VOffsetsBuffer);
+
+      VOffset := VOffset + SizeOf(VCurrentTag);
+
+      {$IFDEF DUMP_TIFF_TAGS}
+      OutputDebugString(
+        PChar(
+          'tag: ' + IntToStr(VCurrentTag.tag) + ' ' +
+          'type: ' + IntToStr(VCurrentTag.type_) + ' ' +
+          'count: ' + IntToStr(VCurrentTag.count) + ' ' +
+          'offset: ' + IntToStr(VCurrentTag.offset) + ' ' +
+          'offset: 0x' + IntToHex(VCurrentTag.offset, 8)
+        )
+      );
+      {$ENDIF}
+    end;
+  end;
+
+  Result := False;
+
+  if (ASamplesCount = Integer(VImageWidth)) and (ALinesCount = Integer(VImageLength)) then begin
+    if VStripsPerImage = 1 then begin
+      VOffset := VStripOffsetsTag.offset;
+      VOffset := VOffset + AStripIndex * ASamplesCount;
+      VOffset := VOffset + AColumnIndex;
+      VOffset := VOffset * SizeOf(AElevationData);
+      Result := NtReadFromFile(AFile, @AElevationData, SizeOf(AElevationData), VOffset);
+    end else if VStripsPerImage = Cardinal(ALinesCount) then begin
+      // copy offsets for every strip
+      // 3 = SHORT 16-bit (2-byte) unsigned integer
+      // 4 = LONG 32-bit (4-byte) unsigned integer
+      // may be as SHORT ...
+      VOffsetsSize := VStripOffsetsTag.count*2;
+      if (VStripOffsetsTag.type_=4) then begin
+        // ... or as LONG
+        VOffsetsSize := VOffsetsSize * 2;
+      end;
+
+      VOffsetsBuffer := HeapAlloc(GetProcessHeap, 0, VOffsetsSize);
+      if (VOffsetsBuffer<>nil) then
+      try
+        VOffset := VStripOffsetsTag.offset;
+        Result := NtReadFromFile(AFile, VOffsetsBuffer, VOffsetsSize, VOffset);
+        if (not Result) then
+          Exit;
+
+        // done
+        if (VStripOffsetsTag.type_=4) then begin
+          // as LONG
+          VOffset := PLongWord(INT_PTR(VOffsetsBuffer)+AStripIndex*SizeOf(DWORD))^;
+          VOffset := VOffset + AColumnIndex*SizeOf(AElevationData);
+          Result := NtReadFromFile(AFile, @AElevationData, SizeOf(AElevationData), VOffset);
+        end else begin
+          // as SHORT
+          VOffset := PWord(INT_PTR(VOffsetsBuffer)+AStripIndex*SizeOf(WORD))^;
+          VOffset := VOffset + AColumnIndex*SizeOf(AElevationData);
+          Result := NtReadFromFile(AFile, @AElevationData, SizeOf(AElevationData), VOffset);
+        end;
+      finally
+        HeapFree(GetProcessHeap, 0, VOffsetsBuffer);
+      end;
     end;
   end;
 end;
