@@ -96,7 +96,7 @@ begin
   inherited Create;
 
   FProjConverter := AProjConverter;
-  FDefaultPath := ADefaultPath;
+  FDefaultPath := IncludeTrailingPathDelimiter(ADefaultPath);
 
   // read options
   // if failed - create object but disable it
@@ -112,16 +112,16 @@ begin
   // folder - terrain file(s) storage
   FBaseFolder := AOptions.ReadString('Folder', '');
   if Length(FBaseFolder) = 0 then begin
-    FBaseFolder := IncludeTrailingPathDelimiter(FDefaultPath);
+    FBaseFolder := FDefaultPath;
   end;
 
-  // get absolute path to starage if it's not
-  if StartsText('TerrainData', FBaseFolder) then begin
-    FBaseFolder := StringReplace(FBaseFolder, 'TerrainData', FDefaultPath, [rfIgnoreCase]);
-  end else if StartsText('.\TerrainData', FBaseFolder) then begin
-    FBaseFolder := StringReplace(FBaseFolder, '.\TerrainData', FDefaultPath, [rfIgnoreCase]);
+  // get absolute path to storage if it's not
+  if StartsText('TerrainData\', FBaseFolder) then begin
+    FBaseFolder := StringReplace(FBaseFolder, 'TerrainData\', FDefaultPath, [rfIgnoreCase]);
+  end else if StartsText('.\TerrainData\', FBaseFolder) then begin
+    FBaseFolder := StringReplace(FBaseFolder, '.\TerrainData\', FDefaultPath, [rfIgnoreCase]);
   end else if StartsText('.', FBaseFolder) then begin
-    FBaseFolder := LowerCase(GetFullPath(IncludeTrailingPathDelimiter(FDefaultPath), FBaseFolder));
+    FBaseFolder := LowerCase(GetFullPath(FDefaultPath, FBaseFolder));
   end else begin
     // it's absolute path
   end;
@@ -129,8 +129,6 @@ begin
   if Length(FBaseFolder) = 0 then begin
     FAvailable := FALSE;
     Exit;
-  end else begin
-    FBaseFolder := IncludeTrailingPathDelimiter(FBaseFolder);
   end;
 
   // samples count in single file (mandatory)
