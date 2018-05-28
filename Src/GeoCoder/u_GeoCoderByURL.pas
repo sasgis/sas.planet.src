@@ -23,6 +23,7 @@ unit u_GeoCoderByURL;
 interface
 
 uses
+  Types,
   Classes,
   i_InterfaceListSimple,
   i_NotifierOperation,

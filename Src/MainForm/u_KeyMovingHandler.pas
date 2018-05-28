@@ -23,6 +23,7 @@ unit u_KeyMovingHandler;
 interface
 
 uses
+  Types,
   Windows,
   Classes,
   t_GeoTypes,

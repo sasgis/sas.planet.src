@@ -23,6 +23,7 @@ unit u_BerkeleyDBEnv;
 interface
 
 uses
+  Types,
   Classes,
   SyncObjs,
   libdb51,

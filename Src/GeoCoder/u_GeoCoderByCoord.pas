@@ -23,6 +23,7 @@ unit u_GeoCoderByCoord;
 interface
 
 uses
+  Types,
   Classes,
   sysutils,
   {$IFNDef UNICODE}

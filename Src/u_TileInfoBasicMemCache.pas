@@ -23,6 +23,7 @@ unit u_TileInfoBasicMemCache;
 interface
 
 uses
+  Types,
   Windows,
   Classes,
   SysUtils,
