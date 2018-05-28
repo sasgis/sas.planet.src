@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  Graphics,
   GR32,
   GR32_Image,
   i_StringListChangeable,

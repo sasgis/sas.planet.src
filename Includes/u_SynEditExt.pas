@@ -19,6 +19,7 @@ implementation
 uses
   SysUtils,
   ActnList,
+  Actions,
   Menus,
   SynHighlighterPas,
   SynHighlighterIni,

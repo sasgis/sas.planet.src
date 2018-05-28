@@ -82,6 +82,7 @@ uses
   Jpeg,
   CCR.Exif,
   CCR.Exif.IPTC,
+  CCR.Exif.BaseUtils,
   t_GeoTypes,
   c_MarkPictureAnchor,
   c_InternalBrowser,

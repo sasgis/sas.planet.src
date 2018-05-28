@@ -25,6 +25,7 @@ interface
 uses
   Classes,
   ActnList,
+  Actions,
   i_Listener,
   i_LanguageManager;
 
