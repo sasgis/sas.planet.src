@@ -33,6 +33,7 @@ uses
   StdCtrls,
   Windows,
   Spin,
+  UITypes,
   i_MapType,
   i_Listener,
   i_Notifier,

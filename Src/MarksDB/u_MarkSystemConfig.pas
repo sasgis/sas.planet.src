@@ -24,6 +24,7 @@ interface
 
 uses
   Windows,
+  UITypes,
   i_IDList,
   i_MarkSystemConfig,
   i_MarkSystemImplConfig,

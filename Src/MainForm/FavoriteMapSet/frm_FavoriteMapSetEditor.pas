@@ -36,6 +36,7 @@ uses
   CheckLst,
   ComCtrls,
   ExtCtrls,
+  UITypes,
   fr_MapSelect,
   fr_LonLat,
   i_ActiveMapsConfig,

@@ -24,6 +24,7 @@ interface
 
 uses
   Dialogs,
+  UITypes,
   TB2Item,
   i_Listener,
   i_InterfaceListStatic,

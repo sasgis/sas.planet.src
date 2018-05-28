@@ -28,6 +28,7 @@ uses
   Controls,
   Classes,
   Forms,
+  UITypes,
   i_PathConfig,
   i_LanguageManager,
   i_InterfaceListStatic,

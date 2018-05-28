@@ -85,6 +85,7 @@ uses
   {$IFDEF SHOW_COMPRESSION_STAT}
   Classes,
   Dialogs,
+  UITypes,
   {$ENDIF}
   libecwj2,
   ALString,

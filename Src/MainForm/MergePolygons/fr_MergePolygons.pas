@@ -31,6 +31,7 @@ uses
   ComCtrls,
   Dialogs,
   ExtCtrls,
+  UITypes,
   TBX,
   TBXExtItems,
   TB2Item,

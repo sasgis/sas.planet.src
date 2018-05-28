@@ -32,6 +32,7 @@ uses
   ComCtrls,
   ExtCtrls,
   StdCtrls,
+  UITypes,
   TB2Dock,
   TB2Toolbar,
   TB2Item,

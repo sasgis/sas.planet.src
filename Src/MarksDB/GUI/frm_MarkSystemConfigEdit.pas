@@ -35,6 +35,7 @@ uses
   StdCtrls,
   ExtCtrls,
   Spin,
+  UITypes,
   i_MarkSystemConfig,
   i_MarkSystemImplConfig,
   i_MarkSystemImplConfigSML,

@@ -35,6 +35,7 @@ uses
   StdCtrls,
   ComCtrls,
   ExtCtrls,
+  UITypes,
   i_Listener,
   i_PathConfig,
   i_LanguageManager,

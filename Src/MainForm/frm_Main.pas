@@ -46,6 +46,7 @@ uses
   Spin,
   ImgList,
   ComCtrls,
+  UITypes,
   GR32,
   GR32_Layers,
   GR32_Image,

@@ -36,6 +36,7 @@ uses
   ComCtrls,
   ExtCtrls,
   StdCtrls,
+  UITypes,
   frm_FavoriteMapSetEditor,
   i_LanguageManager,
   i_MapTypeSet,
