@@ -25,6 +25,7 @@ interface
 uses
   ActiveX,
   i_Notifier,
+  i_InterfaceListStatic,
   i_TerrainProviderListElement;
 
 type
@@ -33,6 +34,7 @@ type
     function GetGUIDEnum: IEnumGUID;
     function Get(const AGUID: TGUID): ITerrainProviderListElement;
     function GetAddNotifier: INotifier;
+    function GetSorted: IInterfaceListStatic;
   end;
 
 implementation

@@ -27,6 +27,7 @@ uses
   ActiveX,
   i_GUIDSet,
   i_Notifier,
+  i_InterfaceListStatic,
   i_ProjectionSetFactory,
   i_TerrainProviderList,
   i_TerrainProviderListElement,
@@ -44,6 +45,7 @@ type
     function GetGUIDEnum: IEnumGUID;
     function Get(const AGUID: TGUID): ITerrainProviderListElement;
     function GetAddNotifier: INotifier;
+    function GetSorted: IInterfaceListStatic;
   protected
     procedure Add(const AItem: ITerrainProviderListElement);
   public
@@ -71,10 +73,13 @@ implementation
 uses
   IniFiles,
   Classes,
+  ExplorerSort,
   c_TerrainProviderGUID,
   c_ZeroGUID,
   i_ConfigDataProvider,
   i_StringListStatic,
+  i_InterfaceListSimple,
+  u_InterfaceListSimple,
   u_ConfigDataProviderByIniFile,
   u_ConfigProviderHelpers,
   u_TerrainProviderListElement,
@@ -241,6 +246,64 @@ begin
   finally
     FCS.EndRead;
   end;
+end;
+
+function TTerrainProviderListBase.GetSorted: IInterfaceListStatic;
+
+  function CompareByCaption(const A, B: IInterface): Integer;
+  begin
+    Result := CompareStringOrdinal(
+      ITerrainProviderListElement(A).Caption,
+      ITerrainProviderListElement(B).Caption
+    );
+  end;
+
+  procedure QuickSort(const ASortList: IInterfaceListSimple; L, R: Integer);
+  var
+    I, J: Integer;
+    T: IInterface;
+  begin
+    repeat
+      I := L;
+      J := R;
+      T := ASortList.Items[(L + R) shr 1];
+      repeat
+        while CompareByCaption(ASortList.Items[I], T) < 0 do begin
+          Inc(I);
+        end;
+        while CompareByCaption(ASortList.Items[J], T) > 0 do begin
+          Dec(J);
+        end;
+        if I <= J then begin
+          ASortList.Exchange(J, I);
+          Inc(I);
+          Dec(J);
+        end;
+      until I > J;
+      if L < J then begin
+        QuickSort(ASortList, L, J);
+      end;
+      L := I;
+    until I >= R;
+  end;
+
+var
+  I: Integer;
+  VList: IInterfaceListSimple;
+begin
+  // fill
+  VList := TInterfaceListSimple.Create;
+  for I := 0 to FList.Count - 1 do begin
+    VList.Add(FList.Items[I]);
+  end;
+
+  // sort
+  I := VList.Count;
+  if I > 1 then begin
+    QuickSort(VList, 0, I - 1);
+  end;
+
+  Result := VList.MakeStaticAndClear;
 end;
 
 end.

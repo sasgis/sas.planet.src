@@ -128,6 +128,7 @@ implementation
 uses
   ActiveX,
   GR32,
+  i_InterfaceListStatic,
   i_TerrainProviderListElement,
   u_ResStrings,
   u_TimeZoneInfo;
@@ -154,12 +155,10 @@ end;
 
 procedure TfrmMapLayersOptions.FormShow(Sender: TObject);
 var
-  VGUID: TGUID;
-  VEnum: IEnumGUID;
-  VTmp: Cardinal;
+  I: Integer;
+  VList: IInterfaceListStatic;
   VItem: ITerrainProviderListElement;
   VPrimaryIndex: Integer;
-  I: Integer;
 begin
   // Status Bar
   chkStatBarHide.Checked := not FStatBarConfig.Visible;
@@ -210,18 +209,18 @@ begin
   chkElevTrySecondaryProviders.Checked := FTerrainConfig.TrySecondaryElevationProviders;
   cbbElevProviderList.Clear;
   VPrimaryIndex := 0;
-  I := 0;
-  VEnum := FTerrainProviderList.GetGUIDEnum;
-  while VEnum.Next(1, VGUID, VTmp) = S_OK do begin
-    VItem := FTerrainProviderList.Get(VGUID);
-    cbbElevProviderList.AddItem(VItem.Caption, Pointer(VItem));
-    if IsEqualGUID(VItem.GUID, FTerrainConfig.ElevationPrimaryProvider) then begin
-      VPrimaryIndex := I;
+  VList := FTerrainProviderList.GetSorted;
+  if VList <> nil then begin
+    for I := 0 to VList.Count - 1 do begin
+      VItem := VList.Items[I] as ITerrainProviderListElement;
+      cbbElevProviderList.AddItem(VItem.Caption, Pointer(VItem));
+      if IsEqualGUID(VItem.GUID, FTerrainConfig.ElevationPrimaryProvider) then begin
+        VPrimaryIndex := I;
+      end;
     end;
-    Inc(I);
-  end;
-  if I = 0 then begin
+  end else begin
     cbbElevProviderList.AddItem('< No One Providers Found >', nil);
+    cbbElevProviderList.Enabled := False;
   end;
   cbbElevProviderList.ItemIndex := VPrimaryIndex;
 end;

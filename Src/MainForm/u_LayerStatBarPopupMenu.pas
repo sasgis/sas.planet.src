@@ -72,6 +72,7 @@ implementation
 uses
   ActiveX,
   SysUtils,
+  i_InterfaceListStatic,
   i_TerrainProviderListElement,
   u_ResStrings,
   u_TimeZoneInfo,
@@ -174,9 +175,7 @@ var
   VMenuSubItem: TTBXSubmenuItem;
   VMenuItemList: TMenuItemList;
   VMenuSeparator: TTBSeparatorItem;
-  VGUID: TGUID;
-  VTmp: Cardinal;
-  VEnum: IEnumGUID;
+  VList: IInterfaceListStatic;
   VItem: ITerrainProviderListElement;
 begin
   VMenuItemList := GetMenuItemList;
@@ -185,25 +184,23 @@ begin
       VMenuSubItem := TTBXSubmenuItem.Create(FPopup);
       VMenuSubItem.Caption := VMenuItemList[I];
       VMenuSubItem.Tag := Integer(I);
-      J := 0;
 
-      VEnum := FTerrainProviderList.GetGUIDEnum;
-      while VEnum.Next(1, VGUID, VTmp) = S_OK do begin
-        VItem := FTerrainProviderList.Get(VGUID);
-        VMenuItem := TTBXItem.Create(FPopup);
-        VMenuItem.RadioItem := True;
-        VMenuItem.AutoCheck := True;
-        VMenuItem.GroupIndex := 1;
-        VMenuItem.Caption := VItem.Caption;
-        VMenuItem.Tag := Integer(VItem);
-        VMenuItem.OnClick := OnTerrainItemClick;
-        VMenuSubItem.Add(VMenuItem);
-        Inc(J);
-      end;
-
-      VMenuSubItem.Enabled := (J > 0);
+      VList := FTerrainProviderList.GetSorted;
+      VMenuSubItem.Enabled := (VList <> nil);
 
       if VMenuSubItem.Enabled then begin
+        for J := 0 to VList.Count - 1 do begin
+          VItem := VList.Items[J] as ITerrainProviderListElement;
+          VMenuItem := TTBXItem.Create(FPopup);
+          VMenuItem.RadioItem := True;
+          VMenuItem.AutoCheck := True;
+          VMenuItem.GroupIndex := 1;
+          VMenuItem.Caption := VItem.Caption;
+          VMenuItem.Tag := Integer(VItem);
+          VMenuItem.OnClick := OnTerrainItemClick;
+          VMenuSubItem.Add(VMenuItem);
+        end;
+
         VMenuSeparator := TTBSeparatorItem.Create(FPopup);
         VMenuSubItem.Add(VMenuSeparator);
 
