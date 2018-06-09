@@ -49,6 +49,7 @@ uses
   i_InternalDebugConfig,
   i_MapSvcScanConfig,
   i_ExportToIMGConfig,
+  i_ExportMarks2KMLConfig,
   u_ConfigDataElementComplexBase;
 
 type
@@ -62,6 +63,7 @@ type
     FMarksDbPath: IPathConfig;
     FMarksIconsPath: IPathConfig;
     FMarkPictureConfig: IMarkPictureConfig;
+    FExportMarks2KMLConfig: IExportMarks2KMLConfig;
     FMediaDataPath: IPathConfig;
     FTerrainDataPath: IPathConfig;
     FUserDataPath: IPathConfig;
@@ -107,6 +109,7 @@ type
     function GetMarksDbPath: IPathConfig;
     function GetMarksIconsPath: IPathConfig;
     function GetMarkPictureConfig: IMarkPictureConfig;
+    function GetExportMarks2KMLConfig: IExportMarks2KMLConfig;
     function GetMediaDataPath: IPathConfig;
     function GetTerrainDataPath: IPathConfig;
     function GetUserDataPath: IPathConfig;
@@ -183,6 +186,7 @@ uses
   u_MarkPictureConfig,
   u_GlobalAppConfig,
   u_PathConfig,
+  u_ExportMarks2KMLConfig,
   u_ExportToIMGConfig;
 
 { TGlobalConfig }
@@ -323,6 +327,9 @@ begin
 
   FExportToIMGConfig := TExportToIMGConfig.Create;
   Add(FExportToIMGConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('ExportToIMG'), False, False, False, False);
+
+  FExportMarks2KMLConfig := TExportMarks2KMLConfig.Create;
+  Add(FExportMarks2KMLConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('ExportMarks2KML'), False, False, False, False);
 end;
 
 function TGlobalConfig.GetBaseCachePath: IPathConfig;
@@ -348,6 +355,11 @@ end;
 function TGlobalConfig.GetDownloaderThreadConfig: IThreadConfig;
 begin
   Result := FDownloaderThreadConfig;
+end;
+
+function TGlobalConfig.GetExportMarks2KMLConfig: IExportMarks2KMLConfig;
+begin
+  Result := FExportMarks2KMLConfig;
 end;
 
 function TGlobalConfig.GetExportToIMGConfig: IExportToIMGConfig;

@@ -33,6 +33,7 @@ uses
   i_MarkFactory,
   i_MarkCategoryFactory,
   i_MarkSystemImplFactory,
+  i_ExportMarks2KMLConfig,
   u_BaseInterfacedObject;
 
 type
@@ -53,6 +54,7 @@ type
       const AMarkFactory: IMarkFactory;
       const ACategoryFactory: IMarkCategoryFactory;
       const AMarkSystemImplFactoryListStatic: IMarkSystemImplFactoryListStatic;
+      const AExportMarks2KMLConfig: IExportMarks2KMLConfig;
       const ABuildInfo: IBuildInfo
     );
   end;
@@ -79,6 +81,7 @@ constructor TVectorItemTreeExporterListSimple.Create(
   const AMarkFactory: IMarkFactory;
   const ACategoryFactory: IMarkCategoryFactory;
   const AMarkSystemImplFactoryListStatic: IMarkSystemImplFactoryListStatic;
+  const AExportMarks2KMLConfig: IExportMarks2KMLConfig;
   const ABuildInfo: IBuildInfo
 );
 var
@@ -90,7 +93,11 @@ begin
   FNotifierFake := TNotifierFaked.Create;
   VList := TInterfaceListSimple.Create;
 
-  VExporter := TVectorItemTreeExporterKmlKmz.Create(AArchiveReadWriteFactory);
+  VExporter :=
+    TVectorItemTreeExporterKmlKmz.Create(
+      AArchiveReadWriteFactory,
+      AExportMarks2KMLConfig
+    );
   VItem :=
     TVectorItemTreeExporterListItem.Create(
       VExporter,

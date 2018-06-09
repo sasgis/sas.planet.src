@@ -47,6 +47,7 @@ uses
   i_ZmpConfig,
   i_MapSvcScanConfig,
   i_ExportToIMGConfig,
+  i_ExportMarks2KMLConfig,
   i_ConfigDataElement;
 
 type
@@ -72,6 +73,9 @@ type
 
     function GetMarkPictureConfig: IMarkPictureConfig;
     property MarkPictureConfig: IMarkPictureConfig read GetMarkPictureConfig;
+
+    function GetExportMarks2KMLConfig: IExportMarks2KMLConfig;
+    property ExportMarks2KmlConfig: IExportMarks2KMLConfig read GetExportMarks2KMLConfig;
 
     function GetMediaDataPath: IPathConfig;
     property MediaDataPath: IPathConfig read GetMediaDataPath;

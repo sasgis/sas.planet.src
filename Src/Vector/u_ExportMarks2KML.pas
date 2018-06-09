@@ -31,6 +31,7 @@ uses
   t_Bitmap32,
   i_ArchiveReadWrite,
   i_ArchiveReadWriteFactory,
+  i_ExportMarks2KMLConfig,
   i_GeometryLonLat,
   i_Appearance,
   i_AppearanceOfVectorItem,
@@ -47,6 +48,7 @@ type
     FKmlDocumentNode: TALXMLNode;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FZip: IArchiveWriter;
+    FConfig: IExportMarks2KMLConfigStatic;
     function AddTree(
       const AParentNode: TALXMLNode;
       const ATree: IVectorItemTree
@@ -109,7 +111,10 @@ type
     procedure PrepareExportToFile(const AFileName: string);
     procedure SaveToFile;
   public
-    constructor Create(const AArchiveReadWriteFactory: IArchiveReadWriteFactory);
+    constructor Create(
+      const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+      const AExportMarks2KMLConfig: IExportMarks2KMLConfig
+    );
     procedure ExportTreeToKML(
       const ATree: IVectorItemTree;
       const AFileName: string
@@ -172,11 +177,15 @@ end;
 { TExportMarks2KML }
 
 constructor TExportMarks2KML.Create(
-  const AArchiveReadWriteFactory: IArchiveReadWriteFactory
+  const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+  const AExportMarks2KMLConfig: IExportMarks2KMLConfig
 );
 begin
+  Assert(AExportMarks2KMLConfig <> nil);
+
   inherited Create;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
+  FConfig := AExportMarks2KMLConfig.GetStatic;
 end;
 
 procedure TExportMarks2KML.PrepareExportToFile(const AFileName: string);

@@ -27,12 +27,14 @@ uses
   i_VectorItemTree,
   i_VectorItemTreeExporter,
   i_ArchiveReadWriteFactory,
+  i_ExportMarks2KMLConfig,
   u_BaseInterfacedObject;
 
 type
   TVectorItemTreeExporterKmlKmz = class(TBaseInterfacedObject, IVectorItemTreeExporter)
   private
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
+    FExportMarks2KMLConfig: IExportMarks2KMLConfig;
   private
     procedure ProcessExport(
       AOperationID: Integer;
@@ -41,7 +43,10 @@ type
       const ATree: IVectorItemTree
     );
   public
-    constructor Create(const AArchiveReadWriteFactory: IArchiveReadWriteFactory);
+    constructor Create(
+      const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+      const AExportMarks2KMLConfig: IExportMarks2KMLConfig
+    );
   end;
 
 implementation
@@ -52,11 +57,13 @@ uses
 { TVectorItemTreeExporterKmlKmz }
 
 constructor TVectorItemTreeExporterKmlKmz.Create(
-  const AArchiveReadWriteFactory: IArchiveReadWriteFactory
+  const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+  const AExportMarks2KMLConfig: IExportMarks2KMLConfig
 );
 begin
   inherited Create;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
+  FExportMarks2KMLConfig := AExportMarks2KMLConfig;
 end;
 
 procedure TVectorItemTreeExporterKmlKmz.ProcessExport(
@@ -68,7 +75,7 @@ procedure TVectorItemTreeExporterKmlKmz.ProcessExport(
 var
   VExport: TExportMarks2KML;
 begin
-  VExport := TExportMarks2KML.Create(FArchiveReadWriteFactory);
+  VExport := TExportMarks2KML.Create(FArchiveReadWriteFactory, FExportMarks2KMLConfig);
   try
     VExport.ExportTreeToKML(ATree, AFileName);
   finally

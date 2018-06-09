@@ -765,6 +765,7 @@ begin
       FMarkFactory,
       FMarkCategoryFactory,
       FMarkSystem.ImplFactoryList,
+      FGlobalConfig.ExportMarks2KmlConfig,
       FBuildInfo
     );
 
