@@ -129,6 +129,7 @@ var
 begin
   inherited;
   if AConfigData <> nil then begin
+    FUseCoordFormatting := AConfigData.ReadBool('UseCoordFormatting', FUseCoordFormatting);
     FCoordPrecision := AConfigData.ReadInteger('CoordPrecision', FCoordPrecision);
     if (FCoordPrecision > 12) or (FCoordPrecision < 4) then begin
       FCoordPrecision := cDefaultPrecision;
@@ -137,7 +138,8 @@ begin
     if (VSortingType >= Ord(Low(TKmlSortingType))) and (VSortingType <= Ord(High(TKmlSortingType))) then begin
       FSortingType := TKmlSortingType(VSortingType);
     end;
-
+    FUseAbsPathToIcon := AConfigData.ReadBool('UseAbsPathToIcon', FUseAbsPathToIcon);
+    FAbsPathToIcon := AConfigData.ReadString('AbsPathToIcon', FAbsPathToIcon);
     SetChanged;
   end;
 end;
@@ -147,8 +149,11 @@ procedure TExportMarks2KMLConfig.DoWriteConfig(
 );
 begin
   inherited;
+  AConfigData.WriteBool('UseCoordFormatting', FUseCoordFormatting);
   AConfigData.WriteInteger('CoordPrecision', FCoordPrecision);
   AConfigData.WriteInteger('SortingType', Integer(FSortingType));
+  AConfigData.WriteBool('UseAbsPathToIcon', FUseAbsPathToIcon);
+  AConfigData.WriteString('AbsPathToIcon', FAbsPathToIcon);
 end;
 
 function TExportMarks2KMLConfig.GetAbsPathToIcon: string;
