@@ -29,9 +29,11 @@ uses
   ALXmlDoc,
   ActiveX,
   t_Bitmap32,
+  t_GeoTypes,
   i_ArchiveReadWrite,
   i_ArchiveReadWriteFactory,
   i_ExportMarks2KMLConfig,
+  i_EnumDoublePoint,
   i_GeometryLonLat,
   i_Appearance,
   i_AppearanceOfVectorItem,
@@ -107,9 +109,11 @@ type
       const inNode: TALXMLNode
     );
     function SaveMarkIcon(const AAppearanceIcon: IAppearancePointIcon): string;
-    function Color32toKMLColor(Color32: TColor32): AnsiString;
+    function Color32toKMLColor(Color32: TColor32): AnsiString; inline;
     procedure PrepareExportToFile(const AFileName: string);
     procedure SaveToFile;
+    function GetKMLCoordinates(const APointEnum: IEnumLonLatPoint): AnsiString; inline;
+    function PointToKml(const APoint: TDoublePoint): AnsiString; inline;
   public
     constructor Create(
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
@@ -125,9 +129,8 @@ implementation
 
 uses
   ALString,
-  t_GeoTypes,
+  ExplorerSort,
   i_BinaryData,
-  i_EnumDoublePoint,
   u_BinaryDataByMemStream,
   u_GeoToStrFunc,
   u_StreamReadOnlyByBinaryData;
@@ -159,19 +162,9 @@ begin
   end;
 end;
 
-function PointToKml(const APoint: TDoublePoint): AnsiString; inline;
+function StringListCompareDESC(List: TStringList; Index1, Index2: Integer): Integer;
 begin
-  Result := R2AnsiStrPoint(APoint.X) + ',' + R2AnsiStrPoint(APoint.Y) + ',0 ';
-end;
-
-function GetKMLCoordinates(const APointEnum: IEnumLonLatPoint): AnsiString;
-var
-  VPoint: TDoublePoint;
-begin
-  Result := '';
-  while APointEnum.Next(VPoint) do begin
-    Result := Result + PointToKml(VPoint);
-  end;
+  Result := CompareStringOrdinal(List.Strings[Index2], List.Strings[Index1]);
 end;
 
 { TExportMarks2KML }
@@ -251,16 +244,37 @@ function TExportMarks2KML.AddMarks(
   const inNode: TALXMLNode
 ): Boolean;
 var
+  I: Integer;
+  VList: TStringList;
   VMark: IVectorDataItem;
-  VEnumMarks: IEnumUnknown;
-  i: integer;
 begin
   Result := False;
   if Assigned(AMarksSubset) then begin
-    VEnumMarks := AMarksSubset.GetEnum;
-    while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
-      AddMark(VMark, inNode);
-      Result := True;
+    VList := TStringList.Create;
+    try
+      for I := 0 to AMarksSubset.Count - 1 do begin
+        VMark := AMarksSubset.Items[I];
+        VList.AddObject(VMark.Name, Pointer(VMark));
+      end;
+
+      case FConfig.SortingType of
+        kstNone: {do nothing} ;
+        kstByNameASC: VList.CustomSort(ExplorerSort.StringListCompare);
+        kstByNameDESC: VList.CustomSort(StringListCompareDESC);
+      else
+        raise Exception.Create(
+          '[' + Self.ClassName + '] ' +
+          'Unknown sorting type: ' + IntToStr(Integer(FConfig.SortingType))
+        );
+      end;
+
+      for I := 0 to VList.Count - 1 do begin
+        VMark := IVectorDataItem(Pointer(VList.Objects[I]));
+        AddMark(VMark, inNode);
+        Result := True;
+      end;
+    finally
+      VList.Free;
     end;
   end;
 end;
@@ -270,29 +284,53 @@ function TExportMarks2KML.AddTree(
   const ATree: IVectorItemTree
 ): boolean;
 var
-  i: Integer;
+  I: Integer;
   VNode: TALXMLNode;
   VSubTree: IVectorItemTree;
+  VList: TStringList;
 begin
   Result := False;
   if not Assigned(ATree) then begin
     Exit;
   end;
-  for i := 0 to ATree.SubTreeItemCount - 1 do begin
-    VSubTree := ATree.GetSubTreeItem(i);
-    VNode := AParentNode.AddChild('Folder');
-    VNode.ChildNodes['name'].Text := UTF8Encode(XMLTextPrepare(VSubTree.Name));
-    VNode.ChildNodes['open'].Text := '1';
-    with VNode.AddChild('Style').AddChild('ListStyle') do begin
-      ChildNodes['listItemType'].Text := 'check';
-      ChildNodes['bgColor'].Text := '00ffffff';
+
+  VList := TStringList.Create;
+  try
+    for I := 0 to ATree.SubTreeItemCount - 1 do begin
+      VSubTree := ATree.GetSubTreeItem(I);
+      VList.AddObject(VSubTree.Name, Pointer(VSubTree));
     end;
-    if not AddTree(VNode, VSubTree) then begin
-      AParentNode.ChildNodes.Remove(VNode);
-    end else begin
-      Result := True;
+
+    case FConfig.SortingType of
+      kstNone: {do nothing} ;
+      kstByNameASC: VList.CustomSort(ExplorerSort.StringListCompare);
+      kstByNameDESC: VList.CustomSort(StringListCompareDESC);
+    else
+      raise Exception.Create(
+        '[' + Self.ClassName + '] ' +
+        'Unknown sorting type: ' + IntToStr(Integer(FConfig.SortingType))
+      );
     end;
+
+    for I := 0 to VList.Count - 1 do begin
+      VSubTree := IVectorItemTree(Pointer(VList.Objects[I]));
+      VNode := AParentNode.AddChild('Folder');
+      VNode.ChildNodes['name'].Text := UTF8Encode(XMLTextPrepare(VSubTree.Name));
+      VNode.ChildNodes['open'].Text := '1';
+      with VNode.AddChild('Style').AddChild('ListStyle') do begin
+        ChildNodes['listItemType'].Text := 'check';
+        ChildNodes['bgColor'].Text := '00ffffff';
+      end;
+      if not AddTree(VNode, VSubTree) then begin
+        AParentNode.ChildNodes.Remove(VNode);
+      end else begin
+        Result := True;
+      end;
+    end;
+  finally
+    VList.Free;
   end;
+
   if AddMarks(ATree.Items, AParentNode) then begin
     Result := True;
   end;
@@ -617,6 +655,27 @@ begin
         VStream.Free;
       end;
     end;
+  end;
+end;
+
+function TExportMarks2KML.GetKMLCoordinates(const APointEnum: IEnumLonLatPoint): AnsiString;
+var
+  VPoint: TDoublePoint;
+begin
+  Result := '';
+  while APointEnum.Next(VPoint) do begin
+    Result := Result + PointToKml(VPoint);
+  end;
+end;
+
+function TExportMarks2KML.PointToKml(const APoint: TDoublePoint): AnsiString;
+begin
+  if FConfig.UseCoordFormatting then begin
+    Result :=
+      RoundExAnsi(APoint.X, FConfig.CoordPrecision) + ',' +
+      RoundExAnsi(APoint.Y, FConfig.CoordPrecision) + ',0 ';
+  end else begin
+    Result := R2AnsiStrPoint(APoint.X) + ',' + R2AnsiStrPoint(APoint.Y) + ',0 ';
   end;
 end;
 
