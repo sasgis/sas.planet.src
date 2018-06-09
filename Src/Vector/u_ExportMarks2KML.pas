@@ -517,7 +517,11 @@ begin
       if VAppearanceIcon <> nil then begin
         if VAppearanceIcon.Pic <> nil then begin
           with AddChild('IconStyle') do begin
-            VFileName := SaveMarkIcon(VAppearanceIcon);
+            if FConfig.UseAbsPathToIcon then begin
+              VFileName := FConfig.AbsPathToIcon + ExtractFileName(VAppearanceIcon.Pic.GetName);
+            end else begin
+              VFileName := SaveMarkIcon(VAppearanceIcon);
+            end;
             width := VAppearanceIcon.Pic.GetMarker.Size.X;
             ChildNodes['scale'].Text := R2AnsiStrPoint(VAppearanceIcon.MarkerSize / width);
             with AddChild('Icon') do begin
