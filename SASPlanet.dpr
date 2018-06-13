@@ -724,6 +724,7 @@ uses
   frm_MarkInfo in 'Src\MarksDB\GUI\frm_MarkInfo.pas' {frmMarkInfo},
   frm_MarkSystemConfigEdit in 'Src\MarksDB\GUI\frm_MarkSystemConfigEdit.pas' {frmMarkSystemConfigEdit},
   frm_MarksExplorer in 'Src\MarksDB\GUI\frm_MarksExplorer.pas' {frmMarksExplorer},
+  frm_MarksExportConfig in 'Src\MarksDB\GUI\frm_MarksExportConfig.pas' {frmMarksExportConfig},
   frm_MarksMultiEdit in 'Src\MarksDB\GUI\frm_MarksMultiEdit.pas' {frmMarksMultiEdit},
   frm_PointProjecting in 'Src\MarksDB\GUI\frm_PointProjecting.pas' {frmPointProjecting},
   i_MarksExplorerConfig in 'Src\MarksDB\GUI\i_MarksExplorerConfig.pas',

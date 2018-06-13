@@ -119,6 +119,16 @@ object frmMarksExplorer: TfrmMarksExplorer
               Caption = ''
               Hint = 'Export selected placemark'
             end
+            object btnExportConfig: TTBXItem
+              ImageIndex = 20
+              OnClick = btnExportConfigClick
+              Caption = ''
+              Hint = 'Export settings'
+            end
+            object TBXSeparatorItem4: TTBXSeparatorItem
+              Caption = ''
+              Hint = ''
+            end
             object tbitmAllVisible: TTBXItem
               ImageIndex = 55
               OnClick = tbitmAllVisibleClick

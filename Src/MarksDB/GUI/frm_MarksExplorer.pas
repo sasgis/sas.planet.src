@@ -44,6 +44,7 @@ uses
   TBXControls,
   TBXGraphics,
   frm_MarkSystemConfigEdit,
+  frm_MarksExportConfig,
   i_Listener,
   i_RegionProcess,
   i_LanguageManager,
@@ -62,6 +63,7 @@ uses
   i_MarkSystemConfig,
   i_MarkSystemImplFactory,
   i_MergePolygonsPresenter,
+  i_ExportMarks2KMLConfig,
   u_MarkDbGUIHelper,
   u_MarksExplorerHelper,
   u_CommonFormAndFrameParents;
@@ -133,6 +135,8 @@ type
     tbxEdit: TTBXItem;
     tbxDelete: TTBXItem;
     TBXImageList1: TTBXImageList;
+    btnExportConfig: TTBXItem;
+    TBXSeparatorItem4: TTBXSeparatorItem;
     procedure BtnAddCategoryClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure BtnDelKatClick(Sender: TObject);
@@ -214,8 +218,10 @@ type
     procedure tbxDeleteClick(Sender: TObject);
     procedure tbxAddClick(Sender: TObject);
     procedure tbxEditClick(Sender: TObject);
+    procedure btnExportConfigClick(Sender: TObject);
   private
     FfrmMarkSystemConfigEdit: TfrmMarkSystemConfigEdit;
+    FfrmMarksExportConfig: TfrmMarksExportConfig;
     FUseAsIndepentWindow: Boolean;
     FMapGoto: IMapViewGoto;
     FCategoryList: IMarkCategoryList;
@@ -273,6 +279,7 @@ type
       AMarkDBGUI: TMarkDbGUIHelper;
       const AMarkSystemFactoryList: IMarkSystemImplFactoryListStatic;
       const AMarkSystemConfig: IMarkSystemConfigListChangeable;
+      const AExportMarks2KMLConfig: IExportMarks2KMLConfig;
       const AMapGoto: IMapViewGoto;
       const ARegionProcess: IRegionProcess
     ); reintroduce;
@@ -313,6 +320,7 @@ constructor TfrmMarksExplorer.Create(
   AMarkDBGUI: TMarkDbGUIHelper;
   const AMarkSystemFactoryList: IMarkSystemImplFactoryListStatic;
   const AMarkSystemConfig: IMarkSystemConfigListChangeable;
+  const AExportMarks2KMLConfig: IExportMarks2KMLConfig;
   const AMapGoto: IMapViewGoto;
   const ARegionProcess: IRegionProcess
 );
@@ -344,6 +352,12 @@ begin
       AMarkSystemFactoryList,
       FMarkSystemConfig
     );
+
+  FfrmMarksExportConfig :=
+    TfrmMarksExportConfig.Create(
+      Self,
+      AExportMarks2KMLConfig
+    );
 end;
 
 procedure TfrmMarksExplorer.CreateParams(var Params: TCreateParams);
@@ -373,6 +387,7 @@ begin
     FConfigListener := nil;
   end;
   FreeAndNil(FfrmMarkSystemConfigEdit);
+  FreeAndNil(FfrmMarksExportConfig);
   inherited;
 end;
 
@@ -643,6 +658,11 @@ begin
     VCategoryList := FMarkDBGUI.MarksDb.CategoryDB.GetCategoriesList;
   end;
   FMarkDBGUI.ExportCategoryList(VCategoryList, not VOnlyVisible);
+end;
+
+procedure TfrmMarksExplorer.btnExportConfigClick(Sender: TObject);
+begin
+  FfrmMarksExportConfig.ShowModal;
 end;
 
 procedure TfrmMarksExplorer.btnDelMarkClick(Sender: TObject);

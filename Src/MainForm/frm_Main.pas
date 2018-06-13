@@ -2029,6 +2029,7 @@ begin
         FMarkDBGUI,
         GState.MarksDb.ImplFactoryList,
         GState.MarkSystemConfig,
+        GState.Config.ExportMarks2KmlConfig,
         FMapGoto,
         FFormRegionProcess
       );
