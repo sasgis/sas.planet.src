@@ -35,6 +35,7 @@ type
     FUseCoordFormatting: Boolean;
     FCoordPrecision: Integer;
     FSortingType: TKmlSortingType;
+    FIconScaleType: TKmlIconScaleType;
     FUseAbsPathToIcon: Boolean;
     FAbsPathToIcon: string;
   private
@@ -42,6 +43,7 @@ type
     function GetUseCoordFormatting: Boolean;
     function GetCoordPrecision: Integer;
     function GetSortingType: TKmlSortingType;
+    function GetIconScaleType: TKmlIconScaleType;
     function GetUseAbsPathToIcon: Boolean;
     function GetAbsPathToIcon: string;
   public
@@ -49,6 +51,7 @@ type
       const AUseCoordFormatting: Boolean;
       const ACoordPrecision: Integer;
       const ASortingType: TKmlSortingType;
+      const AIconScaleType: TKmlIconScaleType;
       const AUseAbsPathToIcon: Boolean;
       const AAbsPathToIcon: string
     );
@@ -59,6 +62,7 @@ type
     FUseCoordFormatting: Boolean;
     FCoordPrecision: Integer;
     FSortingType: TKmlSortingType;
+    FIconScaleType: TKmlIconScaleType;
     FUseAbsPathToIcon: Boolean;
     FAbsPathToIcon: string;
   private
@@ -71,6 +75,9 @@ type
 
     function GetSortingType: TKmlSortingType;
     procedure SetSortingType(const AValue: TKmlSortingType);
+
+    function GetIconScaleType: TKmlIconScaleType;
+    procedure SetIconScaleType(const AValue: TKmlIconScaleType);
 
     function GetUseAbsPathToIcon: Boolean;
     procedure SetUseAbsPathToIcon(const AValue: Boolean);
@@ -93,6 +100,7 @@ implementation
 const
   cDefaultPrecision = 6;
   cDefaultSortingType = kstNone;
+  cDefaultIconScaleType = kistAbs;
 
 { TExportMarks2KMLConfig }
 
@@ -102,6 +110,7 @@ begin
   FUseCoordFormatting := False;
   FCoordPrecision := cDefaultPrecision;
   FSortingType := cDefaultSortingType;
+  FIconScaleType := cDefaultIconScaleType;
   FUseAbsPathToIcon := False;
   FAbsPathToIcon := '';
 end;
@@ -115,6 +124,7 @@ begin
       FUseCoordFormatting,
       FCoordPrecision,
       FSortingType,
+      FIconScaleType,
       FUseAbsPathToIcon,
       FAbsPathToIcon
     );
@@ -125,7 +135,7 @@ procedure TExportMarks2KMLConfig.DoReadConfig(
   const AConfigData: IConfigDataProvider
 );
 var
-  VSortingType: Integer;
+  VTmp: Integer;
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -134,9 +144,13 @@ begin
     if (FCoordPrecision > 12) or (FCoordPrecision < 4) then begin
       FCoordPrecision := cDefaultPrecision;
     end;
-    VSortingType := AConfigData.ReadInteger('SortingType', Integer(FSortingType));
-    if (VSortingType >= Ord(Low(TKmlSortingType))) and (VSortingType <= Ord(High(TKmlSortingType))) then begin
-      FSortingType := TKmlSortingType(VSortingType);
+    VTmp := AConfigData.ReadInteger('SortingType', Integer(FSortingType));
+    if (VTmp >= Ord(Low(TKmlSortingType))) and (VTmp <= Ord(High(TKmlSortingType))) then begin
+      FSortingType := TKmlSortingType(VTmp);
+    end;
+    VTmp := AConfigData.ReadInteger('IconScaleType', Integer(FIconScaleType));
+    if (VTmp >= Ord(Low(TKmlIconScaleType))) and (VTmp <= Ord(High(TKmlIconScaleType))) then begin
+      FIconScaleType := TKmlIconScaleType(VTmp);
     end;
     FUseAbsPathToIcon := AConfigData.ReadBool('UseAbsPathToIcon', FUseAbsPathToIcon);
     FAbsPathToIcon := AConfigData.ReadString('AbsPathToIcon', FAbsPathToIcon);
@@ -152,6 +166,7 @@ begin
   AConfigData.WriteBool('UseCoordFormatting', FUseCoordFormatting);
   AConfigData.WriteInteger('CoordPrecision', FCoordPrecision);
   AConfigData.WriteInteger('SortingType', Integer(FSortingType));
+  AConfigData.WriteInteger('IconScaleType', Integer(FIconScaleType));
   AConfigData.WriteBool('UseAbsPathToIcon', FUseAbsPathToIcon);
   AConfigData.WriteString('AbsPathToIcon', FAbsPathToIcon);
 end;
@@ -171,6 +186,16 @@ begin
   LockRead;
   try
     Result := FCoordPrecision;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TExportMarks2KMLConfig.GetIconScaleType: TKmlIconScaleType;
+begin
+  LockRead;
+  try
+    Result := FIconScaleType;
   finally
     UnlockRead;
   end;
@@ -237,6 +262,19 @@ begin
   end;
 end;
 
+procedure TExportMarks2KMLConfig.SetIconScaleType(const AValue: TKmlIconScaleType);
+begin
+  LockWrite;
+  try
+    if AValue <> FIconScaleType then begin
+      FIconScaleType := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
 procedure TExportMarks2KMLConfig.SetSortingType(const AValue: TKmlSortingType);
 begin
   LockWrite;
@@ -282,6 +320,7 @@ constructor TExportMarks2KMLConfigStatic.Create(
   const AUseCoordFormatting: Boolean;
   const ACoordPrecision: Integer;
   const ASortingType: TKmlSortingType;
+  const AIconScaleType: TKmlIconScaleType;
   const AUseAbsPathToIcon: Boolean;
   const AAbsPathToIcon: string
 );
@@ -290,6 +329,7 @@ begin
   FUseCoordFormatting := AUseCoordFormatting;
   FCoordPrecision := ACoordPrecision;
   FSortingType := ASortingType;
+  FIconScaleType := AIconScaleType;
   FUseAbsPathToIcon := AUseAbsPathToIcon;
   FAbsPathToIcon := AAbsPathToIcon;
 end;
@@ -302,6 +342,11 @@ end;
 function TExportMarks2KMLConfigStatic.GetCoordPrecision: Integer;
 begin
   Result := FCoordPrecision;
+end;
+
+function TExportMarks2KMLConfigStatic.GetIconScaleType: TKmlIconScaleType;
+begin
+  Result := FIconScaleType;
 end;
 
 function TExportMarks2KMLConfigStatic.GetSortingType: TKmlSortingType;

@@ -28,6 +28,8 @@ uses
 type
   TKmlSortingType = (kstNone = 0, kstByNameASC, kstByNameDESC);
 
+  TKmlIconScaleType = (kistAbs = 0, kistSmall, kistMedium, kistLarge);
+
   IExportMarks2KMLConfigStatic = interface
     ['{19E357D9-248B-44FB-93F0-9CCDBD1748FF}']
     function GetUseCoordFormatting: Boolean;
@@ -38,6 +40,9 @@ type
 
     function GetSortingType: TKmlSortingType;
     property SortingType: TKmlSortingType read GetSortingType;
+
+    function GetIconScaleType: TKmlIconScaleType;
+    property IconScaleType: TKmlIconScaleType read GetIconScaleType;
 
     function GetUseAbsPathToIcon: Boolean;
     property UseAbsPathToIcon: Boolean read GetUseAbsPathToIcon;
@@ -59,6 +64,10 @@ type
     function GetSortingType: TKmlSortingType;
     procedure SetSortingType(const AValue: TKmlSortingType);
     property SortingType: TKmlSortingType read GetSortingType write SetSortingType;
+
+    function GetIconScaleType: TKmlIconScaleType;
+    procedure SetIconScaleType(const AValue: TKmlIconScaleType);
+    property IconScaleType: TKmlIconScaleType read GetIconScaleType write SetIconScaleType;
 
     function GetUseAbsPathToIcon: Boolean;
     procedure SetUseAbsPathToIcon(const AValue: Boolean);

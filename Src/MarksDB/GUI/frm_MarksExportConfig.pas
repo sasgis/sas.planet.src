@@ -55,6 +55,7 @@ type
     edtAbsPathToIcon: TEdit;
     grpCoordinates: TGroupBox;
     GridPanel1: TGridPanel;
+    rgIconScale: TRadioGroup;
     procedure tvMenuClick(Sender: TObject);
     procedure btnCloseClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
@@ -146,6 +147,8 @@ begin
   chkAbsPathToIcon.Checked := VConfig.UseAbsPathToIcon;
   edtAbsPathToIcon.Text := VConfig.AbsPathToIcon;
   edtAbsPathToIcon.Enabled := chkAbsPathToIcon.Checked;
+
+  rgIconScale.ItemIndex := Integer(VConfig.IconScaleType);
 end;
 
 procedure TfrmMarksExportConfig.btnApplyClick(Sender: TObject);
@@ -159,6 +162,8 @@ begin
 
     FExportMarks2KMLConfig.UseAbsPathToIcon := chkAbsPathToIcon.Checked;
     FExportMarks2KMLConfig.AbsPathToIcon := edtAbsPathToIcon.Text;
+
+    FExportMarks2KMLConfig.IconScaleType := TKmlIconScaleType(rgIconScale.ItemIndex);
   finally
     FExportMarks2KMLConfig.StartNotify;
   end;

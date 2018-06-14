@@ -495,10 +495,10 @@ procedure TExportMarks2KML.AddPointAppearence(
   const inNode: TALXMLNode
 );
 var
+  VScale: Double;
+  VFileName: string;
   VAppearanceIcon: IAppearancePointIcon;
   VAppearanceCaption: IAppearancePointCaption;
-  width: integer;
-  VFileName: string;
 begin
   if not Supports(AAppearence, IAppearancePointIcon, VAppearanceIcon) then begin
     VAppearanceIcon := nil;
@@ -517,16 +517,28 @@ begin
       if VAppearanceIcon <> nil then begin
         if VAppearanceIcon.Pic <> nil then begin
           with AddChild('IconStyle') do begin
-            if FConfig.UseAbsPathToIcon then begin
-              VFileName := FConfig.AbsPathToIcon + ExtractFileName(VAppearanceIcon.Pic.GetName);
-            end else begin
-              VFileName := SaveMarkIcon(VAppearanceIcon);
+            case FConfig.IconScaleType of
+              kistAbs: VScale := VAppearanceIcon.MarkerSize / VAppearanceIcon.Pic.GetMarker.Size.X;
+              kistSmall: VScale := VAppearanceIcon.MarkerSize / 28;
+              kistMedium: VScale := VAppearanceIcon.MarkerSize / 32;
+              kistLarge: VScale := VAppearanceIcon.MarkerSize / 38;
+            else
+              raise Exception.Create(
+                '[' + Self.ClassName + '] ' +
+                'Unknown icon scale type: ' + IntToStr(Integer(FConfig.IconScaleType))
+              );
             end;
-            width := VAppearanceIcon.Pic.GetMarker.Size.X;
-            ChildNodes['scale'].Text := R2AnsiStrPoint(VAppearanceIcon.MarkerSize / width);
+            ChildNodes['scale'].Text := R2AnsiStrPoint(VScale);
+
             with AddChild('Icon') do begin
+              if FConfig.UseAbsPathToIcon then begin
+                VFileName := FConfig.AbsPathToIcon + ExtractFileName(VAppearanceIcon.Pic.GetName);
+              end else begin
+                VFileName := SaveMarkIcon(VAppearanceIcon);
+              end;
               ChildNodes['href'].Text := UTF8Encode(VFileName);
             end;
+
             with AddChild('hotSpot') do begin
               Attributes['x'] := '0.5';
               Attributes['y'] := '0';
