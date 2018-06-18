@@ -494,6 +494,9 @@ procedure TExportMarks2KML.AddPointAppearence(
   const AAppearence: IAppearance;
   const inNode: TALXMLNode
 );
+const
+  cSASDefaultFontSize = 11;
+  cSASDefaultIconSize = 32;
 var
   VScale: Double;
   VFileName: string;
@@ -511,7 +514,12 @@ begin
       if VAppearanceCaption <> nil then begin
         with AddChild('LabelStyle') do begin
           ChildNodes['color'].Text := Color32toKMLColor(VAppearanceCaption.TextColor);
-          ChildNodes['scale'].Text := R2AnsiStrPoint(VAppearanceCaption.FontSize / 14);
+          VScale := VAppearanceCaption.FontSize / cSASDefaultFontSize;
+          if VScale < 0.4 then begin
+            // GoogleEarth hides Caption if its scale less then 0.4
+            VScale := 0.4;
+          end;
+          ChildNodes['scale'].Text := R2AnsiStrPoint(VScale);
         end;
       end;
       if VAppearanceIcon <> nil then begin
@@ -520,13 +528,17 @@ begin
             case FConfig.IconScaleType of
               kistAbs: VScale := VAppearanceIcon.MarkerSize / VAppearanceIcon.Pic.GetMarker.Size.X;
               kistSmall: VScale := VAppearanceIcon.MarkerSize / 28;
-              kistMedium: VScale := VAppearanceIcon.MarkerSize / 32;
+              kistMedium: VScale := VAppearanceIcon.MarkerSize / cSASDefaultIconSize;
               kistLarge: VScale := VAppearanceIcon.MarkerSize / 38;
             else
               raise Exception.Create(
                 '[' + Self.ClassName + '] ' +
                 'Unknown icon scale type: ' + IntToStr(Integer(FConfig.IconScaleType))
               );
+            end;
+            if VScale < 0.2 then begin
+              // GoogleEarth hides Icon if its scale less then 0.2
+              VScale := 0.2;
             end;
             ChildNodes['scale'].Text := R2AnsiStrPoint(VScale);
 
