@@ -133,6 +133,7 @@ uses
   i_BinaryData,
   u_BinaryDataByMemStream,
   u_GeoToStrFunc,
+  u_MarkPictureAnchorFunc,
   u_StreamReadOnlyByBinaryData;
 
 function XMLTextPrepare(const Src: string): string;
@@ -499,6 +500,7 @@ const
   cSASDefaultIconSize = 32;
 var
   VScale: Double;
+  VAnchor: TDoublePoint;
   VFileName: string;
   VAppearanceIcon: IAppearancePointIcon;
   VAppearanceCaption: IAppearancePointCaption;
@@ -552,8 +554,14 @@ begin
             end;
 
             with AddChild('hotSpot') do begin
-              Attributes['x'] := '0.5';
-              Attributes['y'] := '0';
+              VAnchor :=
+                AnchorAbsoluteToRelative(
+                  VAppearanceIcon.Pic.GetMarker.AnchorPoint,
+                  VAppearanceIcon.Pic.GetMarker.Size
+                );
+              // The origin of the coordinate system is in the lower left corner of the icon
+              Attributes['x'] := R2AnsiStrPoint(VAnchor.X);
+              Attributes['y'] := R2AnsiStrPoint(1.0 - VAnchor.Y);
               Attributes['xunits'] := 'fraction';
               Attributes['yunits'] := 'fraction';
             end;
