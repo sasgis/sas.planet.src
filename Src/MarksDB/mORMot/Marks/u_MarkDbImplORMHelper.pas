@@ -67,10 +67,6 @@ type
     FSQLMarkClass: TSQLMarkClass;
     FSQLMarkName: RawUTF8;
   private
-    function _RectToGeoJson(
-      const ARect: TDoubleRect;
-      const AGeoType: TSQLGeoType
-    ): Variant;
     function _GeomertryFromBlob(const ABlob: TSQLRawBlob): IGeometryLonLat;
     function _GeomertryToBlob(const AGeometry: IGeometryLonLat): TSQLRawBlob;
     function _AddMarkImage(const APicName: string): TID;
@@ -104,7 +100,7 @@ type
     {$ENDIF}
     function _GetMarkIDArrayByRectMongoDB(
       const ACategoryIDArray: TIDDynArray;
-      const AGeoJsonRect: Variant;
+      const ARect: TDoubleRect;
       const ALonSize: Cardinal;
       const ALatSize: Cardinal;
       const AReciveCategoryID: Boolean;
@@ -232,45 +228,6 @@ begin
   FClientProvider := nil;
   FCache.Done;
   inherited Destroy;
-end;
-
-function TMarkDbImplORMHelper._RectToGeoJson(
-  const ARect: TDoubleRect;
-  const AGeoType: TSQLGeoType
-): Variant;
-var
-  VIsLeftRightSame, VIsTopBottomSame: Boolean;
-begin
-  VIsLeftRightSame := SameValue(ARect.Left, ARect.Right);
-  VIsTopBottomSame := SameValue(ARect.Top, ARect.Bottom);
-  if (AGeoType = gtPoint) or (VIsLeftRightSame and VIsTopBottomSame) then begin
-    Result :=
-      _ObjFast([
-        'type','Point',
-        'coordinates',_Arr([ARect.Left,ARect.Top])
-      ]);
-  end else if (VIsLeftRightSame or VIsTopBottomSame) then begin
-    Result :=
-      _ObjFast([
-        'type','LineString',
-        'coordinates',_Arr([
-          _Arr([ARect.Left,ARect.Top]),
-          _Arr([ARect.Right,ARect.Bottom])
-        ])
-      ]);
-  end else begin
-    Result :=
-      _ObjFast([
-        'type','Polygon',
-        'coordinates',_Arr([_Arr([
-          _Arr([ARect.Left,ARect.Top]),
-          _Arr([ARect.Right,ARect.Top]),
-          _Arr([ARect.Right,ARect.Bottom]),
-          _Arr([ARect.Left,ARect.Bottom]),
-          _Arr([ARect.Left,ARect.Top])
-        ])])
-      ]);
-  end;
 end;
 
 function TMarkDbImplORMHelper._GeomertryFromBlob(
@@ -526,9 +483,7 @@ begin
       VSQLMark.FGeoType := AMarkRec.FGeoType;
       VSQLMark.FGeoCount := AMarkRec.FGeoCount;
 
-      if FClientType = ctMongoDB then begin
-        (VSQLMark as TSQLMarkMongoDB).FGeoJsonIdx := _RectToGeoJson(VRect, VSQLMark.FGeoType);
-      end else if (FClientType = ctZDBC) or (FClientType = ctODBC) then begin
+      if FClientType in [ctMongoDB, ctZDBC, ctODBC] then begin
         LonLatDoubleRectToRect(VRect, VIntRect);
         VSQLMarkDBMS := VSQLMark as TSQLMarkDBMS;
         VSQLMarkDBMS.FLeft := VIntRect.Left;
@@ -712,10 +667,7 @@ begin
         VSQLMark.FGeoLatSize := ANewMarkRec.FGeoLatSize;
         VSQLMark.FGeoType := ANewMarkRec.FGeoType;
         VSQLMark.FGeoCount := ANewMarkRec.FGeoCount;
-        if FClientType = ctMongoDB then begin
-          VFieldsBuilder.Add('mGeoJsonIdx');
-          (VSQLMark as TSQLMarkMongoDB).FGeoJsonIdx := _RectToGeoJson(VRect, VSQLMark.FGeoType);
-        end else if (FClientType = ctZDBC) or (FClientType = ctODBC) then begin
+        if FClientType in [ctMongoDB, ctZDBC, ctODBC] then begin
           VFieldsBuilder.Add('mLeft');
           VFieldsBuilder.Add('mRight');
           VFieldsBuilder.Add('mTop');
@@ -1580,7 +1532,7 @@ end;
 
 function TMarkDbImplORMHelper._GetMarkIDArrayByRectMongoDB(
   const ACategoryIDArray: TIDDynArray;
-  const AGeoJsonRect: Variant;
+  const ARect: TDoubleRect;
   const ALonSize: Cardinal;
   const ALatSize: Cardinal;
   const AReciveCategoryID: Boolean;
@@ -1589,11 +1541,14 @@ function TMarkDbImplORMHelper._GetMarkIDArrayByRectMongoDB(
 var
   I, J: Integer;
   VLen: Integer;
+  VIntRect: TRect;
   VSelectedRows: RawUTF8;
   VCategoryWhere: RawUTF8;
   VCollection: TMongoCollection;
   VArray: TVariantDynArray;
 begin
+  LonLatDoubleRectToRect(ARect, VIntRect);
+
   VLen := Length(ACategoryIDArray);
 
   if AReciveCategoryID then begin
@@ -1623,10 +1578,12 @@ begin
 
   VCollection.FindDocs(
     PUTF8Char('{$and:[' +
-      '{mGeoJsonIdx:{$geoIntersects:{$geometry:?}}},' + VCategoryWhere +
+      '{$and:[{mLeft:{$lte:?}},{mRight:{$gte:?}},{mBottom:{$lte:?}},{mTop:{$gte:?}}]},' +
+      VCategoryWhere +
       '{$or:[{mGeoType:?},{mGeoLonSize:{$gte:?}},{mGeoLatSize:{$gte:?}}]}' +
     ']}'),
-    [AGeoJsonRect, Integer(gtPoint), ALonSize, ALatSize], VArray, VSelectedRows
+    [VIntRect.Right, VIntRect.Left, VIntRect.Top, VIntRect.Bottom, Integer(gtPoint), ALonSize, ALatSize],
+    VArray, VSelectedRows
   );
 
   J := 0;
@@ -1659,7 +1616,6 @@ var
   VCount: Integer;
   VId: TID;
   VMarksCount: Integer;
-  VGeoJsonRect: Variant;
   VLonSize, VLatSize: Cardinal;
   VFilterByCategory: Boolean;
   VIDArray: TMarkWithCategoryIDDynArray;
@@ -1682,10 +1638,9 @@ begin
   // search mark id's
   case FClientType of
     ctMongoDB: begin
-      VGeoJsonRect := _RectToGeoJson(ARect, gtPoly);
       VCount := _GetMarkIDArrayByRectMongoDB(
         VCategoryIDArray,
-        VGeoJsonRect,
+        ARect,
         VLonSize,
         VLatSize,
         VFilterByCategory,

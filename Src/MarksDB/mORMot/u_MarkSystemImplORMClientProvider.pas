@@ -290,17 +290,6 @@ begin
 
   if not FImplConfig.IsReadOnly then begin
     VServer.CreateMissingTables;
-
-    VStorage := VServer.StaticDataServer[TSQLMarkMongoDB] as TSQLRestStorageMongoDB;
-
-    if Assigned(VStorage) then begin
-      VStorage.Collection.EnsureIndex(
-        _ObjFast(['mGeoJsonIdx','2dsphere']),
-        _ObjFast(['name','mGeoJsonIdx_','2dsphereIndexVersion',2])
-      );
-    end else begin
-      Assert(False);
-    end;
   end;
 
   for I := 0 to High(FModel.Tables) do begin

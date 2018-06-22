@@ -113,20 +113,15 @@ type
 
   TSQLMarkDBMS = class(TSQLMark)
   public
-    FLeft, FRight, FBottom, FTop: Cardinal;
+    FLeft, FRight, FBottom, FTop: Integer;
   published
-    property mLeft: Cardinal read FLeft write FLeft;
-    property mRight: Cardinal read FRight write FRight;
-    property mBottom: Cardinal read FBottom write FBottom;
-    property mTop: Cardinal read FTop write FTop;
+    property mLeft: Integer read FLeft write FLeft;
+    property mRight: Integer read FRight write FRight;
+    property mBottom: Integer read FBottom write FBottom;
+    property mTop: Integer read FTop write FTop;
   end;
 
-  TSQLMarkMongoDB = class(TSQLMark)
-  public
-    FGeoJsonIdx: Variant;
-  published
-    property mGeoJsonIdx: Variant read FGeoJsonIdx write FGeoJsonIdx;
-  end;
+  TSQLMarkMongoDB = class(TSQLMarkDBMS);
 
   // Настройка видимости меток по пользователям
   TSQLMarkView = class(TSQLRecord)
@@ -157,7 +152,7 @@ type
 
   // Индекс по имени и описания меток, для быстрого текстового поиска
   // - для нелатинских символов чувствителен к регистру, поэтому пишем сюда
-  //   всё в LowerCase
+  //   всё в AnsiLowerCase
   TSQLMarkFTS = class(TSQLRecordFTS4)
   public
     FName: RawUTF8;
