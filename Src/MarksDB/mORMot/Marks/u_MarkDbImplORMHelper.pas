@@ -332,7 +332,7 @@ begin
   end else begin
     VSQLMarkAppearance := TSQLMarkAppearance.Create(
       FClient, 'maColor1=? AND maColor2=? AND maScale1=? AND maScale2=?',
-      [AColor1, AColor2, AScale1, AScale2]
+      [Int64(AColor1), Int64(AColor2), AScale1, AScale2]
     );
     try
       if VSQLMarkAppearance.ID = 0 then begin
@@ -1431,7 +1431,7 @@ begin
       'AND mLeft<=? AND mRight>=? AND mBottom<=? AND mTop>=? ' +
       'AND (%.mGeoType=? OR %.mGeoLonSize>=? OR %.mGeoLatSize>=?);',
       [VSelectedRows,FSQLMarkName,FSQLMarkName,FSQLMarkName,FSQLMarkName,FSQLMarkName],
-      [ARect.Right,ARect.Left,ARect.Top,ARect.Bottom,Integer(gtPoint),ALonSize,ALatSize]
+      [ARect.Right,ARect.Left,ARect.Top,ARect.Bottom,Integer(gtPoint),Int64(ALonSize),Int64(ALatSize)]
     );
 
   VList := FClient.ExecuteList([FSQLMarkClass, TSQLMarkRTree], VSQLSelect);
@@ -1503,7 +1503,7 @@ begin
       'mLeft<=? AND mRight>=? AND mBottom<=? AND mTop>=? ' +
       'AND (mGeoType=? OR mGeoLonSize>=? OR mGeoLatSize>=?);',
       [VSelectedRows],
-      [VIntRect.Right,VIntRect.Left,VIntRect.Top,VIntRect.Bottom,Integer(gtPoint),ALonSize,ALatSize]
+      [VIntRect.Right,VIntRect.Left,VIntRect.Top,VIntRect.Bottom,Integer(gtPoint),Int64(ALonSize),Int64(ALatSize)]
     );
 
   VProps :=
@@ -1582,7 +1582,7 @@ begin
       VCategoryWhere +
       '{$or:[{mGeoType:?},{mGeoLonSize:{$gte:?}},{mGeoLatSize:{$gte:?}}]}' +
     ']}'),
-    [VIntRect.Right, VIntRect.Left, VIntRect.Top, VIntRect.Bottom, Integer(gtPoint), ALonSize, ALatSize],
+    [VIntRect.Right, VIntRect.Left, VIntRect.Top, VIntRect.Bottom, Integer(gtPoint), Int64(ALonSize), Int64(ALatSize)],
     VArray, VSelectedRows
   );
 
