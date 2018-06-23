@@ -295,7 +295,7 @@ begin
   for I := 0 to High(FModel.Tables) do begin
     VStorage := VServer.StaticDataServer[FModel.Tables[I]] as TSQLRestStorageMongoDB;
     if Assigned(VStorage) then begin
-      VStorage.EngineAddCompute := eacMaxIDEachTime;
+      VStorage.EngineAddCompute := eacLastIDEachTime;
     end;
   end;
 end;
