@@ -1418,7 +1418,7 @@ begin
       VCategoryWhere := FormatUTF8('AND %.mCategory=? ',[FSQLMarkName],[ACategoryIDArray[0]]);
     end;
   end else if VLen > 1 then begin
-    VCategoryWhere := Int64DynArrayToCSV(TInt64DynArray(ACategoryIDArray), VLen);
+    VCategoryWhere := Int64DynArrayToCSV(TInt64DynArray(ACategoryIDArray));
     VCategoryWhere := FormatUTF8('AND %.mCategory IN (%) ', [FSQLMarkName, VCategoryWhere]);
   end else begin
     VCategoryWhere := '';
@@ -1490,7 +1490,7 @@ begin
       VCategoryWhere := FormatUTF8('mCategory=? AND ',[],[ACategoryIDArray[0]]);
     end;
   end else if VLen > 1 then begin
-    VCategoryWhere := Int64DynArrayToCSV(TInt64DynArray(ACategoryIDArray), VLen);
+    VCategoryWhere := Int64DynArrayToCSV(TInt64DynArray(ACategoryIDArray));
     VCategoryWhere := FormatUTF8('mCategory IN (%) AND ', [VCategoryWhere]);
   end else begin
     VCategoryWhere := '';
@@ -1567,7 +1567,7 @@ begin
   end else if VLen > 1 then begin
     VCategoryWhere :=
       Int64DynArrayToCSV(
-        TInt64DynArray(ACategoryIDArray), VLen, '{mCategory:{$in:[',']}},'
+        TInt64DynArray(ACategoryIDArray), '{mCategory:{$in:[',']}},'
       );
   end else begin
     VCategoryWhere := '';
