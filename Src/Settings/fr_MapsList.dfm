@@ -64,14 +64,14 @@ object frMapsList: TfrMapsList
     Width = 609
     Height = 298
     Align = alClient
+    Checkboxes = True
     Columns = <
       item
         Caption = '#'
-        Width = 30
       end
       item
         Caption = 'Map Name'
-        Width = 130
+        Width = 170
       end
       item
         Caption = 'Cache Folder'
@@ -88,9 +88,6 @@ object frMapsList: TfrMapsList
       item
         Caption = 'ZMP Filename'
         Width = 100
-      end
-      item
-        Caption = 'Enabled'
       end>
     FlatScrollBars = True
     HideSelection = False

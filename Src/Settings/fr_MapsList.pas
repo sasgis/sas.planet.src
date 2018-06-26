@@ -22,6 +22,11 @@ unit fr_MapsList;
 
 interface
 
+{$IF (CompilerVersion <= 19)}
+  // Adds implementation of event TListView.OnItemChecked for Delphi 2007 and older
+  {$DEFINE USE_CUSTOM_LV}
+{$IFEND}
+
 uses
   SysUtils,
   Classes,
@@ -29,6 +34,9 @@ uses
   Controls,
   Forms,
   ComCtrls,
+  {$IFDEF USE_CUSTOM_LV}
+  CommCtrl,
+  {$ENDIF}
   StdCtrls,
   ExtCtrls,
   i_LanguageManager,
@@ -39,6 +47,19 @@ uses
   u_CommonFormAndFrameParents;
 
 type
+  {$IFDEF USE_CUSTOM_LV}
+  TLVCheckedItemEvent = procedure(Sender: TObject; Item: TListItem) of object;
+
+  TListView = class(ComCtrls.TListView)
+  private
+    FOnItemChecked: TLVCheckedItemEvent;
+  protected
+    procedure CNNotify(var AMsg: TWMNotifyLV); message CN_NOTIFY;
+  public
+    property OnItemChecked: TLVCheckedItemEvent read FOnItemChecked write FOnItemChecked;
+  end;
+  {$ENDIF}
+
   TfrMapsList = class(TFrame)
     pnlMapsRightButtons: TPanel;
     Button15: TButton;
@@ -72,6 +93,10 @@ type
     procedure MapListColumnClick(
       Sender: TObject;
       Column: TListColumn
+    );
+    procedure MapListItemChecked(
+      Sender: TObject;
+      Item: TListItem
     );
   private
     FChanged: Boolean;
@@ -111,6 +136,22 @@ uses
   u_ResStrings;
 
 {$R *.dfm}
+
+{$IFDEF USE_CUSTOM_LV}
+procedure TListView.CNNotify(var AMsg: TWMNotifyLV);
+begin
+  inherited;
+  if Assigned(FOnItemChecked) and (AMsg.NMHdr.code = LVN_ITEMCHANGED) then begin
+    if (AMsg.NMListView.uChanged = LVIF_STATE) and
+       ( ((AMsg.NMListView.uOldState and LVIS_STATEIMAGEMASK) shr 12)
+         <> ((AMsg.NMListView.uNewState and LVIS_STATEIMAGEMASK) shr 12)) then
+    begin
+      // check box state changed
+      FOnItemChecked(Self, Items[AMsg.NMListView.iItem]);
+    end;
+  end;
+end;
+{$ENDIF}
 
 { TfrMapsList }
 
@@ -230,6 +271,7 @@ begin
   MapList.DoubleBuffered := True;
   FPrevSortColumnIndex := 0;
   FIsPrevSortReversed := False;
+
 end;
 
 destructor TfrMapsList.Destroy;
@@ -246,9 +288,11 @@ end;
 
 procedure TfrMapsList.Init;
 begin
+  MapList.OnItemChecked := nil;
   FChanged := False;
   UpdateList;
   DoCustomSort(FPrevSortColumnIndex, FIsPrevSortReversed);
+  MapList.OnItemChecked := Self.MapListItemChecked;
 end;
 
 procedure TfrMapsList.MapListChange(
@@ -340,28 +384,28 @@ procedure TfrMapsList.UpdateList;
   var
     VValue: string;
   begin
+    AItem.Checked := AMapType.GUIConfig.Enabled;
     AItem.Caption := IntToStr(AItem.Index + 1);
     AItem.Data := Pointer(AMapType);
+
     VValue := AMapType.GUIConfig.Name.Value;
     SetSubItem(AItem, 0, VValue);
+
     VValue := AMapType.StorageConfig.NameInCache;
     SetSubItem(AItem, 1, VValue);
+
     if AMapType.Zmp.IsLayer then begin
       VValue := SAS_STR_Layers + '\' + AMapType.GUIConfig.ParentSubMenu.Value;
     end else begin
       VValue := SAS_STR_Maps + '\' + AMapType.GUIConfig.ParentSubMenu.Value;
     end;
     SetSubItem(AItem, 2, VValue);
+
     VValue := ShortCutToText(AMapType.GUIConfig.HotKey);
     SetSubItem(AItem, 3, VValue);
+
     VValue := AMapType.Zmp.FileName;
     SetSubItem(AItem, 4, VValue);
-    if AMapType.GUIConfig.Enabled then begin
-      VValue := SAS_STR_Yes;
-    end else begin
-      VValue := SAS_STR_No;
-    end;
-    SetSubItem(AItem, 5, VValue);
   end;
 
 var
@@ -438,6 +482,19 @@ begin
   VCol := Column.Index;
   VReverse := (VCol = FPrevSortColumnIndex) and not FIsPrevSortReversed;
   DoCustomSort(VCol, VReverse);
+end;
+
+procedure TfrMapsList.MapListItemChecked(
+  Sender: TObject;
+  Item: TListItem
+);
+var
+  VMapType: IMapType;
+begin
+  VMapType := IMapType(Item.Data);
+  if VMapType <> nil then begin
+    VMapType.GUIConfig.Enabled := Item.Checked;
+  end;
 end;
 
 end.
