@@ -111,6 +111,9 @@ type
       const ACol: Integer;
       const AReverse: Boolean
     );
+    procedure ExchangeItems(const I, J: Integer);
+    procedure _BeginUpdate;
+    procedure _EndUpdate;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -155,26 +158,39 @@ end;
 
 { TfrMapsList }
 
-procedure ExchangeItems(
-  lv: TListView;
-  const i, j: Integer
-);
-var
-  tempLI: TListItem;
+procedure TfrMapsList._BeginUpdate;
 begin
-  lv.Items.BeginUpdate;
+  MapList.OnItemChecked := nil;
+  MapList.Items.BeginUpdate;
+end;
+
+procedure TfrMapsList._EndUpdate;
+begin
+  MapList.Items.EndUpdate;
+  MapList.OnItemChecked := Self.MapListItemChecked;
+end;
+
+procedure TfrMapsList.ExchangeItems(const I, J: Integer);
+var
+  A, B, C: TListItem;
+begin
+  _BeginUpdate;
   try
-    tempLI := TListItem.Create(lv.Items);
-    try
-      tempLI.Assign(lv.Items.Item[i]);
-      lv.Items.Item[i].Assign(lv.Items.Item[j]);
-      lv.Items.Item[j].Assign(tempLI);
-      lv.Items.Item[j].Selected := true;
-    finally
-      tempLI.Free;
-    end;
+    A := MapList.Items[I];
+    B := MapList.Items[J];
+    C := MapList.Items.Add; // allocate temp item
+
+    // swap
+    C.Assign(A);
+    A.Assign(B);
+    B.Assign(C);
+
+    B.Selected := True;
+
+    // remove temp item
+    MapList.Items.Delete(MapList.Items.Count - 1);
   finally
-    lv.Items.EndUpdate
+    _EndUpdate
   end;
 end;
 
@@ -222,7 +238,7 @@ end;
 procedure TfrMapsList.Button11Click(Sender: TObject);
 begin
   If (MapList.Selected <> nil) and (MapList.Selected.Index < MapList.Items.Count - 1) then begin
-    ExchangeItems(MapList, MapList.Selected.Index, MapList.Selected.Index + 1);
+    ExchangeItems(MapList.Selected.Index, MapList.Selected.Index + 1);
     FChanged := True;
   end;
 end;
@@ -230,7 +246,7 @@ end;
 procedure TfrMapsList.Button12Click(Sender: TObject);
 begin
   If (MapList.Selected <> nil) and (MapList.Selected.Index > 0) then begin
-    ExchangeItems(MapList, MapList.Selected.Index, MapList.Selected.Index - 1);
+    ExchangeItems(MapList.Selected.Index, MapList.Selected.Index - 1);
     FChanged := True;
   end;
 end;
@@ -271,7 +287,6 @@ begin
   MapList.DoubleBuffered := True;
   FPrevSortColumnIndex := 0;
   FIsPrevSortReversed := False;
-
 end;
 
 destructor TfrMapsList.Destroy;
@@ -288,11 +303,8 @@ end;
 
 procedure TfrMapsList.Init;
 begin
-  MapList.OnItemChecked := nil;
   FChanged := False;
   UpdateList;
-  DoCustomSort(FPrevSortColumnIndex, FIsPrevSortReversed);
-  MapList.OnItemChecked := Self.MapListItemChecked;
 end;
 
 procedure TfrMapsList.MapListChange(
@@ -417,7 +429,7 @@ var
   VItem: TListItem;
 begin
   VPrevSelectedIndex := MapList.ItemIndex;
-  MapList.Items.BeginUpdate;
+  _BeginUpdate;
   try
     VGUIDList := FGUIConfigList.OrderedMapGUIDList;
     for i := 0 to VGUIDList.Count - 1 do begin
@@ -438,8 +450,9 @@ begin
         MapList.ItemIndex := MapList.Items.Count - 1;
       end;
     end;
+    DoCustomSort(FPrevSortColumnIndex, FIsPrevSortReversed);
   finally
-    MapList.Items.EndUpdate;
+    _EndUpdate;
   end;
 end;
 
