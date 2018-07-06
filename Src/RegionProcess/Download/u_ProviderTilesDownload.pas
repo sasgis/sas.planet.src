@@ -351,6 +351,7 @@ begin
         (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplaceIfOlder,
         (ParamsFrame as IRegionProcessParamsFrameTilesDownload).ReplaceDate,
         (ParamsFrame as IRegionProcessParamsFrameTilesDownload).GetAutoCloseAtFinish,
+        (ParamsFrame as IRegionProcessParamsFrameTilesDownload).GetSessionAutosaveInterval,
         VWorkersCount,
         I // worker index
      );

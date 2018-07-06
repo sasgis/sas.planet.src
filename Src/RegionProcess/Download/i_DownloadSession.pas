@@ -111,6 +111,10 @@ type
     function GetWorkerIndex: Integer;
     property WorkerIndex: Integer read GetWorkerIndex;
 
+    function GetAutosaveInterval: Integer;
+    procedure SetAutosaveInterval(const AValue: Integer);
+    property AutosaveInterval: Integer read GetAutosaveInterval write SetAutosaveInterval;
+
     procedure Save(
       const ASessionSection: IConfigDataWriteProvider
     );

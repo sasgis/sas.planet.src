@@ -72,6 +72,9 @@ type
     function GetReplaceDate: TDateTime;
     property ReplaceDate: TDateTime read GetReplaceDate;
 
+    function GetSessionAutosaveInterval: Integer; // minutes
+    property SessionAutosaveInterval: Integer read GetSessionAutosaveInterval;
+
     function GetSplitCount: Integer;
     property SplitCount: Integer read GetSplitCount;
   end;
@@ -112,12 +115,17 @@ type
     flwpnlSplitRegionParams: TFlowPanel;
     lblSplitRegionHint: TLabel;
     chkCloseAfterFinish: TCheckBox;
+    pnlAutosaveSession: TPanel;
+    seAutosaveSession: TSpinEdit;
+    lblAutoSaveSession: TLabel;
+    chkAutosaveSession: TCheckBox;
     procedure chkReplaceClick(Sender: TObject);
     procedure chkReplaceOlderClick(Sender: TObject);
     procedure cbbZoomChange(Sender: TObject);
     procedure chkLoadIfTneOldClick(Sender: TObject);
     procedure chkTryLoadIfTNEClick(Sender: TObject);
     procedure chkSplitRegionClick(Sender: TObject);
+    procedure chkAutosaveSessionClick(Sender: TObject);
   private
     FTimer: TTimer;
     FIsDownloaderConfigChanged: Boolean;
@@ -156,6 +164,7 @@ type
     function GetIsReplaceIfOlder: Boolean;
     function GetReplaceDate: TDateTime;
     function GetAllowDownload(const AMapType: IMapType): boolean; // чисто для проверки
+    function GetSessionAutosaveInterval: Integer;
     function GetSplitCount: Integer;
   public
     constructor Create(
@@ -374,6 +383,12 @@ begin
   end;
 end;
 
+procedure TfrTilesDownload.chkAutosaveSessionClick(Sender: TObject);
+begin
+  lblAutoSaveSession.Enabled := chkAutosaveSession.Checked;
+  seAutosaveSession.Enabled := chkAutosaveSession.Checked;
+end;
+
 procedure TfrTilesDownload.chkLoadIfTneOldClick(Sender: TObject);
 begin
   dtpLoadIfTneOld.Enabled := chkLoadIfTneOld.Enabled and chkLoadIfTneOld.Checked;
@@ -442,6 +457,15 @@ begin
   Result := dtpReplaceOlderDate.DateTime;
 end;
 
+function TfrTilesDownload.GetSessionAutosaveInterval: Integer;
+begin
+  if chkAutosaveSession.Checked then begin
+    Result := seAutosaveSession.Value;
+  end else begin
+    Result := 0; // disabled
+  end;
+end;
+
 function TfrTilesDownload.GetSplitCount: Integer;
 begin
   if chkSplitRegion.Checked then begin
@@ -468,6 +492,7 @@ begin
   FfrMapSelect.Show(pnlFrame);
   cbbZoomChange(Self);
   OnMapChange(Self);
+  chkAutosaveSessionClick(Self);
 end;
 
 function TfrTilesDownload.Validate: Boolean;

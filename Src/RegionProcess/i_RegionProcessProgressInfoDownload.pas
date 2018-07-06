@@ -72,6 +72,9 @@ type
     function GetAutoCloseAtFinish: Boolean;
     procedure SetAutoCloseAtFinish(const Value: Boolean);
     property AutoCloseAtFinish: Boolean read GetAutoCloseAtFinish write SetAutoCloseAtFinish;
+
+    function GetSessionAutosaveInterval: Integer;
+    property SessionAutosaveInterval: Integer read GetSessionAutosaveInterval;
   end;
 
   IRegionProcessProgressInfoDownloadInternal = interface

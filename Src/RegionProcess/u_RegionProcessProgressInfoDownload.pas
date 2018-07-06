@@ -96,6 +96,7 @@ type
     function GetLog: ILogSimple;
     procedure SetAutoCloseAtFinish(const Value: Boolean);
     function GetAutoCloseAtFinish: Boolean;
+    function GetSessionAutosaveInterval: Integer;
   public
     constructor Create(
       const ALog: ILogSimple;
@@ -296,6 +297,16 @@ begin
     end else begin
       Result := FSession.Processed / FTotalInRegion;
     end;
+  finally
+    FCS.EndRead;
+  end;
+end;
+
+function TRegionProcessProgressInfoDownload.GetSessionAutosaveInterval: Integer;
+begin
+  FCS.BeginRead;
+  try
+    Result := FSession.AutosaveInterval;
   finally
     FCS.EndRead;
   end;

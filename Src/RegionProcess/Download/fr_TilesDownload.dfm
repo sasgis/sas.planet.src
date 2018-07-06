@@ -44,7 +44,7 @@ object frTilesDownload: TfrTilesDownload
       object lblSplitRegionHint: TLabel
         AlignWithMargins = True
         Left = 8
-        Top = 171
+        Top = 194
         Width = 357
         Height = 13
         Margins.Top = 0
@@ -55,7 +55,7 @@ object frTilesDownload: TfrTilesDownload
         Font.Name = 'Tahoma'
         Font.Style = [fsItalic]
         ParentFont = False
-        ExplicitTop = 155
+        ExplicitTop = 223
         ExplicitWidth = 3
       end
       object chkReplace: TCheckBox
@@ -77,7 +77,6 @@ object frTilesDownload: TfrTilesDownload
         Caption = 'Try download if tne exists'
         TabOrder = 1
         OnClick = chkTryLoadIfTNEClick
-        ExplicitTop = 21
       end
       object pnlTileReplaceCondition: TPanel
         Left = 5
@@ -204,7 +203,7 @@ object frTilesDownload: TfrTilesDownload
       end
       object flwpnlSplitRegionParams: TFlowPanel
         Left = 5
-        Top = 141
+        Top = 164
         Width = 363
         Height = 30
         Align = alTop
@@ -212,6 +211,7 @@ object frTilesDownload: TfrTilesDownload
         BevelOuter = bvNone
         Padding.Top = 2
         TabOrder = 5
+        ExplicitTop = 193
         object chkSplitRegion: TCheckBox
           AlignWithMargins = True
           Left = 0
@@ -254,7 +254,41 @@ object frTilesDownload: TfrTilesDownload
         Align = alTop
         Caption = 'Close download window once finish'
         TabOrder = 6
-        ExplicitLeft = 7
+      end
+      object pnlAutosaveSession: TPanel
+        Left = 5
+        Top = 141
+        Width = 363
+        Height = 23
+        Align = alTop
+        AutoSize = True
+        BevelOuter = bvNone
+        TabOrder = 7
+        object lblAutoSaveSession: TLabel
+          Left = 17
+          Top = 4
+          Width = 111
+          Height = 13
+          Caption = 'Autosave session, min:'
+        end
+        object seAutosaveSession: TSpinEdit
+          Left = 143
+          Top = 1
+          Width = 50
+          Height = 22
+          MaxValue = 999
+          MinValue = 1
+          TabOrder = 0
+          Value = 15
+        end
+        object chkAutosaveSession: TCheckBox
+          Left = 0
+          Top = 0
+          Width = 17
+          Height = 22
+          TabOrder = 1
+          OnClick = chkAutosaveSessionClick
+        end
       end
     end
   end

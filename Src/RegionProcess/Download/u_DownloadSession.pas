@@ -60,6 +60,7 @@ type
     FLastProcessedCount: Int64;
     FLastSuccessfulPoint: TPoint;
     FAutoCloseAtFinish: Boolean;
+    FAutoSaveInterval: Integer;
     FWorkersCount: Integer;
     FWorkerIndex: Integer;
   private
@@ -85,6 +86,7 @@ type
     function GetLastProcessedCount: Int64;
     function GetProcessed: Int64;
     function GetAutoCloseAtFinish: Boolean;
+    function GetAutoSaveInterval: Integer;
     function GetWorkersCount: Integer;
     function GetWorkerIndex: Integer;
 
@@ -96,6 +98,7 @@ type
     procedure SetElapsedTime(const Value: TDateTime);
     procedure SetLastProcessedPoint(const Value: TPoint);
     procedure SetAutoCloseAtFinish(const Value: Boolean);
+    procedure SetAutoSaveInterval(const AValue: Integer);
 
     procedure Save(
       const ASessionSection: IConfigDataWriteProvider
@@ -122,6 +125,7 @@ type
       const ACheckExistTileDate: Boolean;
       const ACheckTileDate: TDateTime;
       const AAutoCloseAtFinish: Boolean;
+      const AAutoSaveInterval: Integer;
       const AWorkersCount: Integer;
       const AWorkerIndex: Integer
     ); overload;
@@ -161,6 +165,7 @@ constructor TDownloadSession.Create(
   const AReplaceExistTiles, ACheckExistTileSize, ACheckExistTileDate: Boolean;
   const ACheckTileDate: TDateTime;
   const AAutoCloseAtFinish: Boolean;
+  const AAutoSaveInterval: Integer;
   const AWorkersCount: Integer;
   const AWorkerIndex: Integer
 );
@@ -183,6 +188,7 @@ begin
   FWorkersCount := AWorkersCount;
   FWorkerIndex := AWorkerIndex;
   FAutoCloseAtFinish := AAutoCloseAtFinish;
+  FAutoSaveInterval := AAutoSaveInterval;
 end;
 
 procedure TDownloadSession._InitSession;
@@ -208,6 +214,7 @@ begin
   FLastProcessedCount := 0;
   FLastSuccessfulPoint := Point(-1, -1);
   FAutoCloseAtFinish := False;
+  FAutoSaveInterval := 0;
   FWorkerIndex := 0;
   FWorkersCount := 1;
 end;
@@ -260,6 +267,7 @@ begin
   ASessionSection.WriteInteger('LastSuccessfulStartY', FLastSuccessfulPoint.Y);
   ASessionSection.WriteFloat('ElapsedTime', FElapsedTime);
   ASessionSection.WriteBool('AutoCloseAtFinish', FAutoCloseAtFinish);
+  ASessionSection.WriteInteger('AutoSaveInterval', FAutoSaveInterval);
   ASessionSection.WriteInteger('WorkersCount', FWorkersCount);
   ASessionSection.WriteInteger('WorkerIndex', FWorkerIndex);
 
@@ -331,6 +339,7 @@ var
   VVersionString: string;
   VVersionCheckShowPrev: Boolean;
   VAutoCloseAtFinish: Boolean;
+  VAutoSaveInterval: Integer;
   VWorkersCount: Integer;
   VWorkerIndex: Integer;
 begin
@@ -393,6 +402,7 @@ begin
   VLoadTneOlderDate := ASessionSection.ReadDate('LoadTneOlderDate', NaN);
   VElapsedTime := ASessionSection.ReadFloat('ElapsedTime', 0);
   VAutoCloseAtFinish := ASessionSection.ReadBool('AutoCloseAtFinish', False);
+  VAutoSaveInterval := ASessionSection.ReadInteger('AutoSaveInterval', 0);
   VWorkersCount := ASessionSection.ReadInteger('WorkersCount', 1);
   VWorkerIndex := ASessionSection.ReadInteger('WorkerIndex', 0);
 
@@ -445,6 +455,7 @@ begin
   FReplaceTneOlderDate := VLoadTneOlderDate;
   FElapsedTime := VElapsedTime;
   FAutoCloseAtFinish := VAutoCloseAtFinish;
+  FAutoSaveInterval := VAutoSaveInterval;
   FWorkersCount := VWorkersCount;
   FWorkerIndex := VWorkerIndex;
 
@@ -457,6 +468,11 @@ end;
 function TDownloadSession.GetAutoCloseAtFinish: Boolean;
 begin
   Result := FAutoCloseAtFinish;
+end;
+
+function TDownloadSession.GetAutoSaveInterval: Integer;
+begin
+  Result := FAutoSaveInterval;
 end;
 
 function TDownloadSession.GetCheckExistTileDate: Boolean;
@@ -567,6 +583,11 @@ end;
 procedure TDownloadSession.SetAutoCloseAtFinish(const Value: Boolean);
 begin
   FAutoCloseAtFinish := Value;
+end;
+
+procedure TDownloadSession.SetAutoSaveInterval(const AValue: Integer);
+begin
+  FAutoSaveInterval := AValue;
 end;
 
 procedure TDownloadSession.SetDownloadedCount(const Value: Int64);

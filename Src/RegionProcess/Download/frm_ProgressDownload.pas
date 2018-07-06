@@ -115,6 +115,10 @@ type
     FMainConfig: IActiveMapConfig;
     FMapType: IMapType;
     FMapTypeIcons18List: IMapTypeIconsList;
+    FSessionFileName: string;
+    FLastElapsedTime: TDateTime;
+    procedure CheckSessionAutosave;
+    procedure DoSaveSession(const ATargetFileName: string);
     procedure UpdateProgressForm;
     procedure UpdateMemoProgressForm;
     function GetTimeEnd(
@@ -155,6 +159,10 @@ uses
   u_ResStrings,
   u_MapTypeIconsList,
   u_ConfigDataWriteProviderByIniFile;
+
+resourcestring
+  rsFailedSessionSave = 'Failed to save session to file: ';
+  rsSessionSavedToFile = 'Session saved to file: ';
 
 {$R *.dfm}
 
@@ -231,6 +239,8 @@ begin
   end;
   FFinished := False;
   chkAutoCloseWhenFinish.Checked := FProgressInfo.AutoCloseAtFinish;
+  FLastElapsedTime := FProgressInfo.ElapsedTime;
+  FSessionFileName := '';
 end;
 
 destructor TfrmProgressDownload.Destroy;
@@ -414,6 +424,7 @@ end;
 
 procedure TfrmProgressDownload.UpdateTimerTimer(Sender: TObject);
 begin
+  CheckSessionAutosave;
   UpdateProgressForm;
 end;
 
@@ -429,26 +440,121 @@ begin
   end;
 end;
 
-procedure TfrmProgressDownload.tbtmSaveClick(Sender: TObject);
+procedure TfrmProgressDownload.DoSaveSession(const ATargetFileName: string);
 var
-  VFileName: string;
   VIniFile: TMemIniFile;
   VSLSData: IConfigDataWriteProvider;
   VSessionSection: IConfigDataWriteProvider;
 begin
-  if SaveSessionDialog.Execute then begin
-    VFileName := SaveSessionDialog.FileName;
-    if VFileName <> '' then begin
-      VIniFile := TMemIniFile.Create(VFileName);
-      try
-        VSLSData := TConfigDataWriteProviderByIniFile.CreateWithOwn(VIniFile);
-        VIniFile := nil;
-      finally
-        VIniFile.Free;
-      end;
-      VSessionSection := VSLSData.GetOrCreateSubItem('Session');
-      FProgressInfo.SaveState(VSessionSection);
+  if ATargetFileName <> '' then begin
+    VIniFile := TMemIniFile.Create(ATargetFileName);
+    try
+      VSLSData := TConfigDataWriteProviderByIniFile.CreateWithOwn(VIniFile);
+      VIniFile := nil;
+    finally
+      VIniFile.Free;
     end;
+    VSessionSection := VSLSData.GetOrCreateSubItem('Session');
+    FProgressInfo.SaveState(VSessionSection);
+
+    mmoLog.Lines.Add(rsSessionSavedToFile + ATargetFileName);
+  end;
+end;
+
+procedure TfrmProgressDownload.CheckSessionAutosave;
+
+  function _GenFileName(const ADir: string): string;
+  begin
+    Result :=
+      ADir + '\' +
+      FormatDateTime('yymmdd_hhnnss_zzz', Now) +
+      '_' + LowerCase(IntToHex(Integer(FProgressInfo), 8)) +
+      '.sls';
+  end;
+
+  function _PrepareFile: Boolean;
+  const
+    cTryCount = 10;
+  var
+    I: Integer;
+    VDirName: string;
+    VFileName: string;
+    VHandle: THandle;
+  begin
+    I := 0;
+
+    if FSessionFileName = '' then begin
+      VDirName := ExtractFilePath(ParamStr(0)) + 'AutoSave';
+      if not DirectoryExists(VDirName) then begin
+        if not CreateDir(VDirName) then begin
+          RaiseLastOSError;
+        end;
+      end;
+      while I < cTryCount do begin
+        FSessionFileName := _GenFileName(VDirName);
+        if not FileExists(FSessionFileName) then begin
+          VHandle := FileCreate(FSessionFileName);
+          if VHandle <> INVALID_HANDLE_VALUE then begin
+            FileClose(VHandle);
+            Break;
+          end;
+        end;
+        Sleep(100);
+        Inc(I);
+      end;
+    end else begin
+      VDirName := ExtractFileDir(FSessionFileName);
+      while I < cTryCount do begin
+        VFileName := _GenFileName(VDirName);
+        if not FileExists(VFileName) and RenameFile(FSessionFileName, VFileName) then begin
+          FSessionFileName := VFileName;
+          Break;
+        end;
+        Sleep(100);
+        Inc(I);
+      end;
+    end;
+
+    Result := I < cTryCount;
+  end;
+
+var
+  VInterval: Integer;
+  VMinutes: Integer;
+begin
+  VInterval := FProgressInfo.SessionAutosaveInterval;
+  if VInterval <= 0 then begin
+    // disabled
+    Exit;
+  end;
+
+  VMinutes := Round((FProgressInfo.ElapsedTime - FLastElapsedTime) * 24 * 60);
+  if VMinutes < VInterval then begin
+    // timeout is not expired yet
+    Exit;
+  end;
+
+  try
+    if not _PrepareFile then begin
+      // error
+      Exit;
+    end;
+    DoSaveSession(FSessionFileName);
+    FLastElapsedTime := FProgressInfo.ElapsedTime;
+  except
+    on E: Exception do begin
+      mmoLog.Lines.Add(
+        rsFailedSessionSave + FSessionFileName + #13#10 +
+        E.ClassName + ': ' + E.Message
+      );
+    end;
+  end;
+end;
+
+procedure TfrmProgressDownload.tbtmSaveClick(Sender: TObject);
+begin
+  if SaveSessionDialog.Execute then begin
+    DoSaveSession(SaveSessionDialog.FileName);
   end;
 end;
 
