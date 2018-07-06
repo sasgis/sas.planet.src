@@ -115,7 +115,7 @@ type
     flwpnlSplitRegionParams: TFlowPanel;
     lblSplitRegionHint: TLabel;
     chkCloseAfterFinish: TCheckBox;
-    pnlAutosaveSession: TPanel;
+    pnlAutosaveSession: TFlowPanel;
     seAutosaveSession: TSpinEdit;
     lblAutoSaveSession: TLabel;
     chkAutosaveSession: TCheckBox;

@@ -44,7 +44,7 @@ object frTilesDownload: TfrTilesDownload
       object lblSplitRegionHint: TLabel
         AlignWithMargins = True
         Left = 8
-        Top = 194
+        Top = 193
         Width = 357
         Height = 13
         Margins.Top = 0
@@ -55,7 +55,6 @@ object frTilesDownload: TfrTilesDownload
         Font.Name = 'Tahoma'
         Font.Style = [fsItalic]
         ParentFont = False
-        ExplicitTop = 223
         ExplicitWidth = 3
       end
       object chkReplace: TCheckBox
@@ -203,7 +202,7 @@ object frTilesDownload: TfrTilesDownload
       end
       object flwpnlSplitRegionParams: TFlowPanel
         Left = 5
-        Top = 164
+        Top = 163
         Width = 363
         Height = 30
         Align = alTop
@@ -211,7 +210,6 @@ object frTilesDownload: TfrTilesDownload
         BevelOuter = bvNone
         Padding.Top = 2
         TabOrder = 5
-        ExplicitTop = 193
         object chkSplitRegion: TCheckBox
           AlignWithMargins = True
           Left = 0
@@ -255,39 +253,47 @@ object frTilesDownload: TfrTilesDownload
         Caption = 'Close download window once finish'
         TabOrder = 6
       end
-      object pnlAutosaveSession: TPanel
+      object pnlAutosaveSession: TFlowPanel
         Left = 5
         Top = 141
         Width = 363
-        Height = 23
+        Height = 22
         Align = alTop
         AutoSize = True
         BevelOuter = bvNone
         TabOrder = 7
+        object chkAutosaveSession: TCheckBox
+          AlignWithMargins = True
+          Left = 0
+          Top = 5
+          Width = 17
+          Height = 22
+          Margins.Left = 0
+          Margins.Right = 0
+          Margins.Bottom = 0
+          TabOrder = 1
+          OnClick = chkAutosaveSessionClick
+        end
         object lblAutoSaveSession: TLabel
-          Left = 17
-          Top = 4
+          AlignWithMargins = True
+          Left = 20
+          Top = 9
           Width = 111
           Height = 13
+          Margins.Left = 0
+          Margins.Top = 7
           Caption = 'Autosave session, min:'
         end
         object seAutosaveSession: TSpinEdit
-          Left = 143
-          Top = 1
+          AlignWithMargins = True
+          Left = 134
+          Top = 5
           Width = 50
           Height = 22
           MaxValue = 999
           MinValue = 1
           TabOrder = 0
           Value = 15
-        end
-        object chkAutosaveSession: TCheckBox
-          Left = 0
-          Top = 0
-          Width = 17
-          Height = 22
-          TabOrder = 1
-          OnClick = chkAutosaveSessionClick
         end
       end
     end
