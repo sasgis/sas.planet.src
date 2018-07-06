@@ -523,18 +523,30 @@ procedure ProcessOpenFiles(
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory = nil
 );
 var
+  I: Integer;
   VFileName: string;
+  VProcessed: Boolean;
   VList: IInterfaceListStatic;
   VLastMark: IVectorDataItem;
   VPolygon: IGeometryLonLatPolygon;
 begin
   if Assigned(AFiles) and (AFiles.Count > 0) then begin
-    if AFiles.Count = 1 then begin
-      VFileName := AFiles.Items[0];
+    // Download session(s)
+    VProcessed := False;
+    for I := 0 to AFiles.Count - 1 do begin
+      VFileName := AFiles.Items[I];
       if LowerCase(ExtractFileExt(VFileName)) = '.sls' then begin
         ARegionProcess.StartSlsFromFile(VFileName);
-        Exit;
-      end else if LowerCase(ExtractFileExt(VFileName)) = '.hlg' then begin
+        VProcessed := True;
+      end;
+    end;
+    if VProcessed then begin
+      Exit;
+    end;
+    // Selection region
+    if AFiles.Count = 1 then begin
+      VFileName := AFiles.Items[0];
+      if LowerCase(ExtractFileExt(VFileName)) = '.hlg' then begin
         ARegionProcess.LoadSelFromFile(VFileName, VPolygon);
         if Assigned(VPolygon) then begin
           AMapGoto.FitRectToScreen(VPolygon.Bounds.Rect);
@@ -542,6 +554,7 @@ begin
         Exit;
       end;
     end;
+    // Mark(s)
     if AShowImportDlg then begin
       if Assigned(AMarkDBGUIHelper) then begin
         VList := AMarkDBGUIHelper.ImportFilesModal(AFiles);
