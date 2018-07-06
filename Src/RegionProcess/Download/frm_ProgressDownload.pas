@@ -463,26 +463,37 @@ end;
 
 procedure TfrmProgressDownload.CheckSessionAutosave;
 
-  function _GenFileName(const ADir: string): string;
-  begin
-    Result :=
-      ADir + '\' +
-      FormatDateTime('yymmdd_hhnnss_zzz', Now) +
-      '_' + LowerCase(IntToHex(Integer(FProgressInfo), 8)) +
-      '.sls';
-  end;
-
-  function _PrepareFile: Boolean;
+  function _CreateFileUnique(const ADir: string; out AFileName: string): Boolean;
   const
     cTryCount = 10;
   var
     I: Integer;
-    VDirName: string;
-    VFileName: string;
     VHandle: THandle;
   begin
     I := 0;
+    while I < cTryCount do begin
+      AFileName :=
+        ADir + '\' +
+        FormatDateTime('yymmdd_hhnnss_zzz', Now) +
+        '_' + LowerCase(IntToHex(Integer(FProgressInfo), 8)) +
+        '.sls';
+      if not FileExists(AFileName) then begin
+        VHandle := FileCreate(AFileName);
+        if VHandle <> INVALID_HANDLE_VALUE then begin
+          FileClose(VHandle);
+          Break;
+        end;
+      end;
+      Sleep(100);
+      Inc(I);
+    end;
+    Result := I < cTryCount;
+  end;
 
+  function _GetFileName(out AFileName: string): Boolean;
+  var
+    VDirName: string;
+  begin
     if FSessionFileName = '' then begin
       VDirName := ExtractFilePath(ParamStr(0)) + 'AutoSave';
       if not DirectoryExists(VDirName) then begin
@@ -490,37 +501,16 @@ procedure TfrmProgressDownload.CheckSessionAutosave;
           RaiseLastOSError;
         end;
       end;
-      while I < cTryCount do begin
-        FSessionFileName := _GenFileName(VDirName);
-        if not FileExists(FSessionFileName) then begin
-          VHandle := FileCreate(FSessionFileName);
-          if VHandle <> INVALID_HANDLE_VALUE then begin
-            FileClose(VHandle);
-            Break;
-          end;
-        end;
-        Sleep(100);
-        Inc(I);
-      end;
     end else begin
       VDirName := ExtractFileDir(FSessionFileName);
-      while I < cTryCount do begin
-        VFileName := _GenFileName(VDirName);
-        if not FileExists(VFileName) and RenameFile(FSessionFileName, VFileName) then begin
-          FSessionFileName := VFileName;
-          Break;
-        end;
-        Sleep(100);
-        Inc(I);
-      end;
     end;
-
-    Result := I < cTryCount;
+    Result := _CreateFileUnique(VDirName, AFileName);
   end;
 
 var
   VInterval: Integer;
   VMinutes: Integer;
+  VFileName: string;
 begin
   VInterval := FProgressInfo.SessionAutosaveInterval;
   if VInterval <= 0 then begin
@@ -535,16 +525,20 @@ begin
   end;
 
   try
-    if not _PrepareFile then begin
+    if not _GetFileName(VFileName) then begin
       // error
       Exit;
     end;
-    DoSaveSession(FSessionFileName);
+    DoSaveSession(VFileName);
+
     FLastElapsedTime := FProgressInfo.ElapsedTime;
+
+    DeleteFile(FSessionFileName);
+    FSessionFileName := VFileName;
   except
     on E: Exception do begin
       mmoLog.Lines.Add(
-        rsFailedSessionSave + FSessionFileName + #13#10 +
+        rsFailedSessionSave + VFileName + #13#10 +
         E.ClassName + ': ' + E.Message
       );
     end;
