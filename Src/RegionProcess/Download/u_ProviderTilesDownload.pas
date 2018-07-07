@@ -316,6 +316,7 @@ var
   VMapType: IMapType;
   VZoomArr: TByteDynArray;
   VSession: IDownloadSession;
+  VSessionPrefix: string;
   VDownloadTaskProvider: IDownloadTaskProvider;
   VWorkersCount: Integer;
 begin
@@ -336,6 +337,12 @@ begin
     );
 
   for I := 0 to VWorkersCount - 1 do begin
+
+    VSessionPrefix := (ParamsFrame as IRegionProcessParamsFrameTilesDownload).GetSessionAutosaveFilePrefix;
+    if VWorkersCount > 1 then begin
+      VSessionPrefix := VSessionPrefix + Format('%.2d_', [I+1]);
+    end;
+
     VSession :=
       TDownloadSession.Create(
         VMapType,
@@ -352,6 +359,7 @@ begin
         (ParamsFrame as IRegionProcessParamsFrameTilesDownload).ReplaceDate,
         (ParamsFrame as IRegionProcessParamsFrameTilesDownload).GetAutoCloseAtFinish,
         (ParamsFrame as IRegionProcessParamsFrameTilesDownload).GetSessionAutosaveInterval,
+        VSessionPrefix,
         VWorkersCount,
         I // worker index
      );

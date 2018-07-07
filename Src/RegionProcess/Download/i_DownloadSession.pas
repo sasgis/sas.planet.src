@@ -111,6 +111,10 @@ type
     function GetWorkerIndex: Integer;
     property WorkerIndex: Integer read GetWorkerIndex;
 
+    function GetAutosavePrefix: string;
+    procedure SetAutosavePrefix(const AValue: string);
+    property AutosavePrefix: string read GetAutosavePrefix write SetAutosavePrefix;
+
     function GetAutosaveInterval: Integer;
     procedure SetAutosaveInterval(const AValue: Integer);
     property AutosaveInterval: Integer read GetAutosaveInterval write SetAutosaveInterval;

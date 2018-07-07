@@ -115,7 +115,9 @@ type
     FMainConfig: IActiveMapConfig;
     FMapType: IMapType;
     FMapTypeIcons18List: IMapTypeIconsList;
+    FSessionPrefix: string;
     FSessionFileName: string;
+    FSessionFileNameBack: string;
     FLastElapsedTime: TDateTime;
     procedure CheckSessionAutosave;
     procedure DoSaveSession(const ATargetFileName: string);
@@ -240,7 +242,9 @@ begin
   FFinished := False;
   chkAutoCloseWhenFinish.Checked := FProgressInfo.AutoCloseAtFinish;
   FLastElapsedTime := FProgressInfo.ElapsedTime;
+  FSessionPrefix := '';
   FSessionFileName := '';
+  FSessionFileNameBack := '';
 end;
 
 destructor TfrmProgressDownload.Destroy;
@@ -463,22 +467,37 @@ end;
 
 procedure TfrmProgressDownload.CheckSessionAutosave;
 
-  function _CreateFileUnique(const ADir: string; out AFileName: string): Boolean;
+  function _CreateFileUnique(out AFileName: string): Boolean;
   const
     cTryCount = 10;
   var
     I: Integer;
     VHandle: THandle;
   begin
+    if FSessionPrefix = '' then begin
+      FSessionPrefix := FProgressInfo.SessionAutosavePrefix;
+      if FSessionPrefix <> '' then begin
+        FSessionPrefix := StringReplace(FSessionPrefix, '/', '\', [rfReplaceAll]);
+      end;
+      FSessionPrefix := ExtractFilePath(ParamStr(0)) + 'AutoSave\' + FSessionPrefix;
+      if not ForceDirectories(ExtractFilePath(FSessionPrefix)) then begin
+        RaiseLastOSError;
+      end;
+    end;
     I := 0;
     while I < cTryCount do begin
-      AFileName :=
-        ADir + '\' +
-        FormatDateTime('yymmdd_hhnnss_zzz', Now) +
-        '_' + LowerCase(IntToHex(Integer(FProgressInfo), 8)) +
-        '.sls';
+      AFileName := FSessionPrefix + FormatDateTime('hhnnss_z', Now) + '.sls';
       if not FileExists(AFileName) then begin
-        VHandle := FileCreate(AFileName);
+        VHandle :=
+          CreateFile(
+            PChar(AFileName),
+            GENERIC_READ or GENERIC_WRITE,
+            0,
+            nil,
+            CREATE_NEW,
+            FILE_ATTRIBUTE_NORMAL,
+            0
+          );
         if VHandle <> INVALID_HANDLE_VALUE then begin
           FileClose(VHandle);
           Break;
@@ -488,23 +507,6 @@ procedure TfrmProgressDownload.CheckSessionAutosave;
       Inc(I);
     end;
     Result := I < cTryCount;
-  end;
-
-  function _GetFileName(out AFileName: string): Boolean;
-  var
-    VDirName: string;
-  begin
-    if FSessionFileName = '' then begin
-      VDirName := ExtractFilePath(ParamStr(0)) + 'AutoSave';
-      if not DirectoryExists(VDirName) then begin
-        if not CreateDir(VDirName) then begin
-          RaiseLastOSError;
-        end;
-      end;
-    end else begin
-      VDirName := ExtractFileDir(FSessionFileName);
-    end;
-    Result := _CreateFileUnique(VDirName, AFileName);
   end;
 
 var
@@ -525,16 +527,24 @@ begin
   end;
 
   try
-    if not _GetFileName(VFileName) then begin
+    if not _CreateFileUnique(VFileName) then begin
       // error
       Exit;
     end;
     DoSaveSession(VFileName);
 
-    FLastElapsedTime := FProgressInfo.ElapsedTime;
-
-    DeleteFile(FSessionFileName);
+    if FSessionFileName <> '' then begin
+      if FSessionFileNameBack <> '' then begin
+        DeleteFile(FSessionFileNameBack);
+      end;
+      FSessionFileNameBack := ChangeFileExt(FSessionFileName, '.bk');
+      if not RenameFile(FSessionFileName, FSessionFileNameBack) then begin
+        FSessionFileNameBack := FSessionFileName;
+      end;
+    end;
     FSessionFileName := VFileName;
+
+    FLastElapsedTime := FProgressInfo.ElapsedTime;
   except
     on E: Exception do begin
       mmoLog.Lines.Add(
@@ -559,6 +569,9 @@ procedure TfrmProgressDownload.FormClose(
 begin
   UpdateTimer.Enabled := false;
   FCancelNotifier.NextOperation;
+  if FSessionFileNameBack <> '' then begin
+    DeleteFile(FSessionFileNameBack);
+  end;
   Action := caFree;
   Application.MainForm.SetFocus;
 end;

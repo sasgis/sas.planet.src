@@ -97,6 +97,7 @@ type
     procedure SetAutoCloseAtFinish(const Value: Boolean);
     function GetAutoCloseAtFinish: Boolean;
     function GetSessionAutosaveInterval: Integer;
+    function GetSessionAutosavePrefix: string;
   public
     constructor Create(
       const ALog: ILogSimple;
@@ -307,6 +308,16 @@ begin
   FCS.BeginRead;
   try
     Result := FSession.AutosaveInterval;
+  finally
+    FCS.EndRead;
+  end;
+end;
+
+function TRegionProcessProgressInfoDownload.GetSessionAutosavePrefix: string;
+begin
+  FCS.BeginRead;
+  try
+    Result := FSession.AutosavePrefix;
   finally
     FCS.EndRead;
   end;

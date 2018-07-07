@@ -2,13 +2,14 @@ object frTilesDownload: TfrTilesDownload
   Left = 0
   Top = 0
   Width = 480
-  Height = 304
+  Height = 377
   Align = alClient
   Constraints.MinHeight = 200
   Constraints.MinWidth = 480
   ParentShowHint = False
   ShowHint = True
   TabOrder = 0
+  ExplicitHeight = 304
   object pnlTop: TPanel
     Left = 0
     Top = 0
@@ -27,7 +28,7 @@ object frTilesDownload: TfrTilesDownload
     Left = 0
     Top = 84
     Width = 373
-    Height = 220
+    Height = 299
     Align = alCustom
     Anchors = [akLeft, akTop, akRight]
     BevelOuter = bvNone
@@ -36,7 +37,7 @@ object frTilesDownload: TfrTilesDownload
       Left = 0
       Top = 0
       Width = 373
-      Height = 220
+      Height = 299
       Align = alClient
       BevelOuter = bvNone
       BorderWidth = 5
@@ -44,7 +45,7 @@ object frTilesDownload: TfrTilesDownload
       object lblSplitRegionHint: TLabel
         AlignWithMargins = True
         Left = 8
-        Top = 193
+        Top = 227
         Width = 357
         Height = 13
         Margins.Top = 0
@@ -202,7 +203,7 @@ object frTilesDownload: TfrTilesDownload
       end
       object flwpnlSplitRegionParams: TFlowPanel
         Left = 5
-        Top = 163
+        Top = 197
         Width = 363
         Height = 30
         Align = alTop
@@ -257,7 +258,7 @@ object frTilesDownload: TfrTilesDownload
         Left = 5
         Top = 141
         Width = 363
-        Height = 22
+        Height = 28
         Align = alTop
         AutoSize = True
         BevelOuter = bvNone
@@ -265,7 +266,7 @@ object frTilesDownload: TfrTilesDownload
         object chkAutosaveSession: TCheckBox
           AlignWithMargins = True
           Left = 0
-          Top = 5
+          Top = 3
           Width = 17
           Height = 22
           Margins.Left = 0
@@ -276,8 +277,8 @@ object frTilesDownload: TfrTilesDownload
         end
         object lblAutoSaveSession: TLabel
           AlignWithMargins = True
-          Left = 20
-          Top = 9
+          Left = 17
+          Top = 7
           Width = 111
           Height = 13
           Margins.Left = 0
@@ -287,13 +288,55 @@ object frTilesDownload: TfrTilesDownload
         object seAutosaveSession: TSpinEdit
           AlignWithMargins = True
           Left = 134
-          Top = 5
+          Top = 3
           Width = 50
           Height = 22
           MaxValue = 999
           MinValue = 1
           TabOrder = 0
           Value = 15
+        end
+      end
+      object pnlAutoSaveSessionPrefix: TFlowPanel
+        AlignWithMargins = True
+        Left = 20
+        Top = 169
+        Width = 348
+        Height = 28
+        Margins.Left = 15
+        Margins.Top = 0
+        Margins.Right = 0
+        Margins.Bottom = 0
+        Align = alTop
+        BevelOuter = bvNone
+        TabOrder = 8
+        object chkSessionPrefix: TCheckBox
+          AlignWithMargins = True
+          Left = 3
+          Top = 3
+          Width = 17
+          Height = 22
+          TabOrder = 1
+          OnClick = chkSessionPrefixClick
+        end
+        object lblSessionPrefix: TLabel
+          AlignWithMargins = True
+          Left = 23
+          Top = 7
+          Width = 80
+          Height = 13
+          Margins.Left = 0
+          Margins.Top = 7
+          Caption = 'File name prefix:'
+        end
+        object edtSessionPrefix: TEdit
+          AlignWithMargins = True
+          Left = 109
+          Top = 3
+          Width = 206
+          Height = 21
+          Hint = 'It'#39's allowed to use \ as a path delimeter'
+          TabOrder = 0
         end
       end
     end
@@ -344,7 +387,7 @@ object frTilesDownload: TfrTilesDownload
     Left = 376
     Top = 22
     Width = 104
-    Height = 282
+    Height = 355
     Align = alRight
     Alignment = taLeftJustify
     BevelEdges = []
@@ -352,5 +395,6 @@ object frTilesDownload: TfrTilesDownload
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 2
+    ExplicitHeight = 282
   end
 end

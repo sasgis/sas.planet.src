@@ -75,6 +75,9 @@ type
     function GetSessionAutosaveInterval: Integer; // minutes
     property SessionAutosaveInterval: Integer read GetSessionAutosaveInterval;
 
+    function GetSessionAutosaveFilePrefix: string;
+    property SessionAutosaveFilePrefix: string read GetSessionAutosaveFilePrefix;
+
     function GetSplitCount: Integer;
     property SplitCount: Integer read GetSplitCount;
   end;
@@ -119,6 +122,10 @@ type
     seAutosaveSession: TSpinEdit;
     lblAutoSaveSession: TLabel;
     chkAutosaveSession: TCheckBox;
+    pnlAutoSaveSessionPrefix: TFlowPanel;
+    lblSessionPrefix: TLabel;
+    edtSessionPrefix: TEdit;
+    chkSessionPrefix: TCheckBox;
     procedure chkReplaceClick(Sender: TObject);
     procedure chkReplaceOlderClick(Sender: TObject);
     procedure cbbZoomChange(Sender: TObject);
@@ -126,6 +133,7 @@ type
     procedure chkTryLoadIfTNEClick(Sender: TObject);
     procedure chkSplitRegionClick(Sender: TObject);
     procedure chkAutosaveSessionClick(Sender: TObject);
+    procedure chkSessionPrefixClick(Sender: TObject);
   private
     FTimer: TTimer;
     FIsDownloaderConfigChanged: Boolean;
@@ -165,6 +173,7 @@ type
     function GetReplaceDate: TDateTime;
     function GetAllowDownload(const AMapType: IMapType): boolean; // чисто для проверки
     function GetSessionAutosaveInterval: Integer;
+    function GetSessionAutosaveFilePrefix: string;
     function GetSplitCount: Integer;
   public
     constructor Create(
@@ -387,6 +396,17 @@ procedure TfrTilesDownload.chkAutosaveSessionClick(Sender: TObject);
 begin
   lblAutoSaveSession.Enabled := chkAutosaveSession.Checked;
   seAutosaveSession.Enabled := chkAutosaveSession.Checked;
+  chkSessionPrefix.Enabled := chkAutosaveSession.Checked;
+  chkSessionPrefixClick(Sender);
+end;
+
+procedure TfrTilesDownload.chkSessionPrefixClick(Sender: TObject);
+var
+  VEnabled: Boolean;
+begin
+  VEnabled := chkSessionPrefix.Enabled and chkSessionPrefix.Checked;
+  lblSessionPrefix.Enabled := VEnabled;
+  edtSessionPrefix.Enabled := VEnabled;
 end;
 
 procedure TfrTilesDownload.chkLoadIfTneOldClick(Sender: TObject);
@@ -463,6 +483,15 @@ begin
     Result := seAutosaveSession.Value;
   end else begin
     Result := 0; // disabled
+  end;
+end;
+
+function TfrTilesDownload.GetSessionAutosaveFilePrefix: string;
+begin
+  if chkAutosaveSession.Checked and chkSessionPrefix.Checked then begin
+    Result := edtSessionPrefix.Text;
+  end else begin
+    Result := '';
   end;
 end;
 

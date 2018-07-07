@@ -75,6 +75,9 @@ type
 
     function GetSessionAutosaveInterval: Integer;
     property SessionAutosaveInterval: Integer read GetSessionAutosaveInterval;
+
+    function GetSessionAutosavePrefix: string;
+    property SessionAutosavePrefix: string read GetSessionAutosavePrefix;
   end;
 
   IRegionProcessProgressInfoDownloadInternal = interface
