@@ -314,28 +314,28 @@ object frTilesDownload: TfrTilesDownload
           AlignWithMargins = True
           Left = 3
           Top = 3
-          Width = 17
+          Width = 14
           Height = 22
           TabOrder = 1
           OnClick = chkSessionPrefixClick
         end
         object lblSessionPrefix: TLabel
           AlignWithMargins = True
-          Left = 23
-          Top = 7
+          Left = 17
+          Top = 6
           Width = 80
           Height = 13
           Margins.Left = 0
-          Margins.Top = 7
+          Margins.Top = 6
           Caption = 'File name prefix:'
         end
         object edtSessionPrefix: TEdit
           AlignWithMargins = True
           Left = 109
           Top = 3
-          Width = 206
+          Width = 150
           Height = 21
-          Hint = 'It'#39's allowed to use \ as a path delimeter'
+          Hint = 'It'#39's allowed to use \ as a path delimiter'
           TabOrder = 0
         end
       end
