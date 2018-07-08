@@ -290,6 +290,7 @@ var
 begin
   VEnabled := chkReplace.Checked;
   chkReplaceIfDifSize.Enabled := VEnabled;
+  lblReplaceOlder.Enabled := VEnabled;
   chkReplaceOlder.Enabled := VEnabled;
   chkReplaceOlderClick(chkReplaceOlder);
 end;
@@ -394,19 +395,15 @@ end;
 
 procedure TfrTilesDownload.chkAutosaveSessionClick(Sender: TObject);
 begin
-  lblAutoSaveSession.Enabled := chkAutosaveSession.Checked;
   seAutosaveSession.Enabled := chkAutosaveSession.Checked;
   chkSessionPrefix.Enabled := chkAutosaveSession.Checked;
+  lblSessionPrefix.Enabled := chkAutosaveSession.Checked;
   chkSessionPrefixClick(Sender);
 end;
 
 procedure TfrTilesDownload.chkSessionPrefixClick(Sender: TObject);
-var
-  VEnabled: Boolean;
 begin
-  VEnabled := chkSessionPrefix.Enabled and chkSessionPrefix.Checked;
-  lblSessionPrefix.Enabled := VEnabled;
-  edtSessionPrefix.Enabled := VEnabled;
+  edtSessionPrefix.Enabled := chkSessionPrefix.Enabled and chkSessionPrefix.Checked;
 end;
 
 procedure TfrTilesDownload.chkLoadIfTneOldClick(Sender: TObject);
@@ -420,6 +417,7 @@ var
 begin
   VEnabled := chkTryLoadIfTNE.Checked;
   chkLoadIfTneOld.Enabled := VEnabled;
+  lblLoadIfTneOld.Enabled := VEnabled;
   chkLoadIfTneOldClick(chkLoadIfTneOld);
 end;
 
@@ -516,11 +514,13 @@ procedure TfrTilesDownload.Init(
 begin
   FPolygLL := APolygon;
   FfrZoomsSelect.Show(pnlZoom);
-  dtpReplaceOlderDate.Date := now;
-  dtpLoadIfTneOld.Date := now;
+  dtpReplaceOlderDate.Date := Now;
+  dtpLoadIfTneOld.Date := Now;
   FfrMapSelect.Show(pnlFrame);
   cbbZoomChange(Self);
   OnMapChange(Self);
+  chkReplaceClick(Self);
+  chkTryLoadIfTNEClick(Self);
   chkAutosaveSessionClick(Self);
 end;
 

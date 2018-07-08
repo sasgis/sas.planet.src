@@ -56,27 +56,38 @@ type
     function GetProcessedRatio: Double;
     function GetFinished: Boolean;
   private
+    { IRegionProcessProgressInfoDownload }
     function GetTotalToProcess: Int64;
     function GetDownloaded: Int64;
     function GetProcessed: Int64;
     function GetDownloadSize: UInt64;
     function GetElapsedTime: TDateTime;
     function GetZoom: Byte;
-    procedure SetZoom(const AValue: Byte);
     function GetZoomArray: TByteDynArray;
-    function GetLogProvider: ILogSimpleProvider;
-
     procedure GetLastTileInfo(
       out AZoom: Byte;
       out APoint: TPoint;
       out ASize: Integer
     );
+    function GetLogProvider: ILogSimpleProvider;
+    procedure SaveState(const ASLSSection: IConfigDataWriteProvider);
 
     function GetIsPaused: Boolean;
     procedure Pause;
     procedure Resume;
-    procedure SaveState(const ASLSSection: IConfigDataWriteProvider);
+
+    procedure SetAutoCloseAtFinish(const Value: Boolean);
+    function GetAutoCloseAtFinish: Boolean;
+
+    function GetSessionAutosaveInterval: Integer;
+    function GetSessionAutosavePrefix: string;
+
+    procedure GetWorkerInfo(
+      out AWorkerIndex: Integer;
+      out AWorkersCount: Integer
+    );
   private
+    { IRegionProcessProgressInfoDownloadInternal }
     function GetNeedPause: Boolean;
     procedure SetNeedPause(AValue: Boolean);
     procedure Finish;
@@ -94,10 +105,7 @@ type
     procedure AddNotNecessaryTile(const ATile: TPoint);
     procedure SetTotalToProcess(AValue: Int64);
     function GetLog: ILogSimple;
-    procedure SetAutoCloseAtFinish(const Value: Boolean);
-    function GetAutoCloseAtFinish: Boolean;
-    function GetSessionAutosaveInterval: Integer;
-    function GetSessionAutosavePrefix: string;
+    procedure SetZoom(const AValue: Byte);
   public
     constructor Create(
       const ALog: ILogSimple;
@@ -328,6 +336,20 @@ begin
   FCS.BeginRead;
   try
     Result := FTotalInRegion
+  finally
+    FCS.EndRead;
+  end;
+end;
+
+procedure TRegionProcessProgressInfoDownload.GetWorkerInfo(
+  out AWorkerIndex: Integer;
+  out AWorkersCount: Integer
+);
+begin
+  FCS.BeginRead;
+  try
+    AWorkerIndex := FSession.WorkerIndex;
+    AWorkersCount := FSession.WorkersCount;
   finally
     FCS.EndRead;
   end;

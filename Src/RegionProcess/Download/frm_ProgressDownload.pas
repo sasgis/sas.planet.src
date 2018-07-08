@@ -32,6 +32,7 @@ uses
   Controls,
   Classes,
   DateUtils,
+  UITypes,
   RarProgress,
   TB2Item,
   TB2Dock,
@@ -115,6 +116,7 @@ type
     FMainConfig: IActiveMapConfig;
     FMapType: IMapType;
     FMapTypeIcons18List: IMapTypeIconsList;
+    FIsSessionInitialized: Boolean;
     FSessionPrefix: string;
     FSessionFileName: string;
     FSessionFileNameBack: string;
@@ -245,6 +247,7 @@ begin
   FSessionPrefix := '';
   FSessionFileName := '';
   FSessionFileNameBack := '';
+  FIsSessionInitialized := False;
 end;
 
 destructor TfrmProgressDownload.Destroy;
@@ -473,8 +476,10 @@ procedure TfrmProgressDownload.CheckSessionAutosave;
   var
     I: Integer;
     VHandle: THandle;
+    VDateTimeFmt: string;
+    VWorkerIndex, VWorkersCount: Integer;
   begin
-    if FSessionPrefix = '' then begin
+    if not FIsSessionInitialized then begin
       FSessionPrefix := FProgressInfo.SessionAutosavePrefix;
       if FSessionPrefix <> '' then begin
         FSessionPrefix := StringReplace(FSessionPrefix, '/', '\', [rfReplaceAll]);
@@ -483,10 +488,21 @@ procedure TfrmProgressDownload.CheckSessionAutosave;
       if not ForceDirectories(ExtractFilePath(FSessionPrefix)) then begin
         RaiseLastOSError;
       end;
+      FProgressInfo.GetWorkerInfo(VWorkerIndex, VWorkersCount);
+      if VWorkersCount > 1 then begin
+        FSessionPrefix := FSessionPrefix + Format('%.2d_', [VWorkerIndex+1]);
+      end;
     end;
+
+    if FProgressInfo.SessionAutosavePrefix = '' then begin
+      VDateTimeFmt := 'yymmdd_hhnnss_zzz';
+    end else begin
+      VDateTimeFmt := 'hhnnss_zzz';
+    end;
+
     I := 0;
     while I < cTryCount do begin
-      AFileName := FSessionPrefix + FormatDateTime('hhnnss_z', Now) + '.sls';
+      AFileName := FSessionPrefix + FormatDateTime(VDateTimeFmt, Now) + '.sls';
       if not FileExists(AFileName) then begin
         VHandle :=
           CreateFile(
@@ -513,6 +529,7 @@ var
   VInterval: Integer;
   VMinutes: Integer;
   VFileName: string;
+  VErrMsg: string;
 begin
   VInterval := FProgressInfo.SessionAutosaveInterval;
   if VInterval <= 0 then begin
@@ -521,7 +538,7 @@ begin
   end;
 
   VMinutes := Round((FProgressInfo.ElapsedTime - FLastElapsedTime) * 24 * 60);
-  if VMinutes < VInterval then begin
+  if FIsSessionInitialized and (VMinutes < VInterval) then begin
     // timeout is not expired yet
     Exit;
   end;
@@ -547,12 +564,15 @@ begin
     FLastElapsedTime := FProgressInfo.ElapsedTime;
   except
     on E: Exception do begin
-      mmoLog.Lines.Add(
-        rsFailedSessionSave + VFileName + #13#10 +
-        E.ClassName + ': ' + E.Message
-      );
+      VErrMsg := rsFailedSessionSave + VFileName + #13#10 + E.ClassName + ': ' + E.Message;
+      mmoLog.Lines.Add(VErrMsg);
+      if not FIsSessionInitialized then begin
+        MessageDlg(VErrMsg, mtError, [mbOK], -1);
+      end;
     end;
   end;
+
+  FIsSessionInitialized := True;
 end;
 
 procedure TfrmProgressDownload.tbtmSaveClick(Sender: TObject);

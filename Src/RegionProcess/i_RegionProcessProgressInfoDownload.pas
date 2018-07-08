@@ -78,6 +78,11 @@ type
 
     function GetSessionAutosavePrefix: string;
     property SessionAutosavePrefix: string read GetSessionAutosavePrefix;
+
+    procedure GetWorkerInfo(
+      out AWorkerIndex: Integer;
+      out AWorkersCount: Integer
+    );
   end;
 
   IRegionProcessProgressInfoDownloadInternal = interface
