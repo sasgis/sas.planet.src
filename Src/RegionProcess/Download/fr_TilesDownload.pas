@@ -97,7 +97,6 @@ type
     dtpReplaceOlderDate: TDateTimePicker;
     chkTryLoadIfTNE: TCheckBox;
     pnlTop: TPanel;
-    pnlBottom: TPanel;
     pnlMain: TPanel;
     pnlTileReplaceCondition: TPanel;
     pnlReplaceOlder: TPanel;
@@ -126,6 +125,7 @@ type
     lblSessionPrefix: TLabel;
     edtSessionPrefix: TEdit;
     chkSessionPrefix: TCheckBox;
+    pnlCenter: TPanel;
     procedure chkReplaceClick(Sender: TObject);
     procedure chkReplaceOlderClick(Sender: TObject);
     procedure cbbZoomChange(Sender: TObject);

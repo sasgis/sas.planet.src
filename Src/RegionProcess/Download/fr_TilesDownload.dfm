@@ -2,14 +2,13 @@ object frTilesDownload: TfrTilesDownload
   Left = 0
   Top = 0
   Width = 480
-  Height = 377
+  Height = 304
   Align = alClient
   Constraints.MinHeight = 200
   Constraints.MinWidth = 480
   ParentShowHint = False
   ShowHint = True
   TabOrder = 0
-  ExplicitHeight = 304
   object pnlTop: TPanel
     Left = 0
     Top = 0
@@ -24,29 +23,90 @@ object frTilesDownload: TfrTilesDownload
     Caption = 'Download Tiles'
     TabOrder = 0
   end
-  object pnlBottom: TPanel
-    Left = 0
-    Top = 84
-    Width = 373
-    Height = 299
-    Align = alCustom
-    Anchors = [akLeft, akTop, akRight]
+  object pnlZoom: TPanel
+    Left = 376
+    Top = 22
+    Width = 104
+    Height = 282
+    Align = alRight
+    Alignment = taLeftJustify
+    BevelEdges = []
+    BevelKind = bkTile
     BevelOuter = bvNone
-    TabOrder = 3
-    object pnlMain: TPanel
+    BorderWidth = 3
+    TabOrder = 1
+  end
+  object pnlCenter: TPanel
+    Left = 0
+    Top = 22
+    Width = 376
+    Height = 282
+    Align = alClient
+    BevelOuter = bvNone
+    TabOrder = 2
+    ExplicitLeft = 8
+    ExplicitTop = 3
+    ExplicitWidth = 469
+    ExplicitHeight = 305
+    object pnlMapSelect: TPanel
       Left = 0
       Top = 0
-      Width = 373
-      Height = 299
+      Width = 376
+      Height = 62
+      Align = alTop
+      BevelEdges = [beBottom]
+      BevelKind = bkTile
+      BevelOuter = bvNone
+      TabOrder = 0
+      ExplicitTop = 22
+      ExplicitWidth = 373
+      object lblStat: TLabel
+        AlignWithMargins = True
+        Left = 3
+        Top = 44
+        Width = 373
+        Height = 13
+        Margins.Right = 0
+        Align = alBottom
+        Caption = '_'
+        ExplicitWidth = 6
+      end
+      object pnlFrame: TPanel
+        Left = 0
+        Top = 0
+        Width = 376
+        Height = 43
+        Align = alTop
+        BevelOuter = bvNone
+        TabOrder = 0
+        ExplicitWidth = 373
+        object lblMapCaption: TLabel
+          AlignWithMargins = True
+          Left = 3
+          Top = 3
+          Width = 370
+          Height = 13
+          Align = alTop
+          Caption = 'Map/Overlay layer:'
+          ExplicitWidth = 93
+        end
+      end
+    end
+    object pnlMain: TPanel
+      Left = 0
+      Top = 62
+      Width = 376
+      Height = 220
       Align = alClient
       BevelOuter = bvNone
       BorderWidth = 5
-      TabOrder = 0
+      TabOrder = 1
+      ExplicitTop = 0
       object lblSplitRegionHint: TLabel
         AlignWithMargins = True
         Left = 8
         Top = 227
-        Width = 357
+        Width = 360
         Height = 13
         Margins.Top = 0
         Align = alTop
@@ -61,7 +121,7 @@ object frTilesDownload: TfrTilesDownload
       object chkReplace: TCheckBox
         Left = 5
         Top = 81
-        Width = 363
+        Width = 366
         Height = 16
         Align = alTop
         Caption = 'Overwrite old tiles'
@@ -71,7 +131,7 @@ object frTilesDownload: TfrTilesDownload
       object chkTryLoadIfTNE: TCheckBox
         Left = 5
         Top = 37
-        Width = 363
+        Width = 366
         Height = 16
         Align = alTop
         Caption = 'Try download if tne exists'
@@ -81,7 +141,7 @@ object frTilesDownload: TfrTilesDownload
       object pnlTileReplaceCondition: TPanel
         Left = 5
         Top = 97
-        Width = 363
+        Width = 366
         Height = 44
         Align = alTop
         AutoSize = True
@@ -92,7 +152,7 @@ object frTilesDownload: TfrTilesDownload
         object chkReplaceIfDifSize: TCheckBox
           Left = 18
           Top = 3
-          Width = 342
+          Width = 345
           Height = 16
           Align = alTop
           Caption = 'only if different'
@@ -102,7 +162,7 @@ object frTilesDownload: TfrTilesDownload
         object pnlReplaceOlder: TPanel
           Left = 18
           Top = 19
-          Width = 342
+          Width = 345
           Height = 22
           Align = alTop
           BevelOuter = bvNone
@@ -143,7 +203,7 @@ object frTilesDownload: TfrTilesDownload
       object chkStartPaused: TCheckBox
         Left = 5
         Top = 5
-        Width = 363
+        Width = 366
         Height = 16
         Align = alTop
         Caption = 'Start paused'
@@ -152,7 +212,7 @@ object frTilesDownload: TfrTilesDownload
       object pnlLoadIfTneParams: TPanel
         Left = 5
         Top = 53
-        Width = 363
+        Width = 366
         Height = 28
         Align = alTop
         AutoSize = True
@@ -163,7 +223,7 @@ object frTilesDownload: TfrTilesDownload
         object pnlLoadIfTneOld: TPanel
           Left = 18
           Top = 3
-          Width = 342
+          Width = 345
           Height = 22
           Align = alTop
           BevelOuter = bvNone
@@ -204,7 +264,7 @@ object frTilesDownload: TfrTilesDownload
       object flwpnlSplitRegionParams: TFlowPanel
         Left = 5
         Top = 197
-        Width = 363
+        Width = 366
         Height = 30
         Align = alTop
         AutoSize = True
@@ -248,7 +308,7 @@ object frTilesDownload: TfrTilesDownload
       object chkCloseAfterFinish: TCheckBox
         Left = 5
         Top = 21
-        Width = 363
+        Width = 366
         Height = 16
         Align = alTop
         Caption = 'Close download window once finish'
@@ -257,7 +317,7 @@ object frTilesDownload: TfrTilesDownload
       object pnlAutosaveSession: TFlowPanel
         Left = 5
         Top = 141
-        Width = 363
+        Width = 366
         Height = 28
         Align = alTop
         AutoSize = True
@@ -301,7 +361,7 @@ object frTilesDownload: TfrTilesDownload
         AlignWithMargins = True
         Left = 20
         Top = 169
-        Width = 348
+        Width = 351
         Height = 28
         Margins.Left = 15
         Margins.Top = 0
@@ -321,7 +381,7 @@ object frTilesDownload: TfrTilesDownload
         end
         object lblSessionPrefix: TLabel
           AlignWithMargins = True
-          Left = 17
+          Left = 20
           Top = 7
           Width = 80
           Height = 13
@@ -331,7 +391,7 @@ object frTilesDownload: TfrTilesDownload
         end
         object edtSessionPrefix: TEdit
           AlignWithMargins = True
-          Left = 109
+          Left = 106
           Top = 3
           Width = 130
           Height = 21
@@ -340,61 +400,5 @@ object frTilesDownload: TfrTilesDownload
         end
       end
     end
-  end
-  object pnlMapSelect: TPanel
-    Left = 0
-    Top = 22
-    Width = 373
-    Height = 62
-    Align = alCustom
-    Anchors = [akLeft, akTop, akRight]
-    BevelEdges = [beBottom]
-    BevelKind = bkTile
-    BevelOuter = bvNone
-    TabOrder = 1
-    object lblStat: TLabel
-      AlignWithMargins = True
-      Left = 3
-      Top = 44
-      Width = 370
-      Height = 13
-      Margins.Right = 0
-      Align = alBottom
-      Caption = '_'
-      ExplicitWidth = 6
-    end
-    object pnlFrame: TPanel
-      Left = 0
-      Top = 0
-      Width = 373
-      Height = 43
-      Align = alTop
-      BevelOuter = bvNone
-      TabOrder = 0
-      object lblMapCaption: TLabel
-        AlignWithMargins = True
-        Left = 3
-        Top = 3
-        Width = 367
-        Height = 13
-        Align = alTop
-        Caption = 'Map/Overlay layer:'
-        ExplicitWidth = 93
-      end
-    end
-  end
-  object pnlZoom: TPanel
-    Left = 376
-    Top = 22
-    Width = 104
-    Height = 355
-    Align = alRight
-    Alignment = taLeftJustify
-    BevelEdges = []
-    BevelKind = bkTile
-    BevelOuter = bvNone
-    BorderWidth = 3
-    TabOrder = 2
-    ExplicitHeight = 282
   end
 end
