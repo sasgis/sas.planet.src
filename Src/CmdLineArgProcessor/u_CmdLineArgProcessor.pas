@@ -208,6 +208,7 @@ var
   VParser: TArgumentParser;
   VParseResult: TParseResult;
   VProjectionSet: IProjectionSet;
+  VStartSlsPaused: Boolean;
 
   function _GetProjectionSet: IProjectionSet;
   begin
@@ -229,6 +230,7 @@ begin
     VParser.AddArgument('--navigate', saStore);         // --navigate=({lon},{lat})
     VParser.AddArgument('--show-placemarks', saStore);  // --show-placemarks={0/1}
     VParser.AddArgument('--insert-placemark', saStore); // --insert-placemark="{name}";({lon},{lat});"{desc}"
+    VParser.AddArgument('--sls-autostart', saBool);     // --sls-autostart
 
     VParseResult := VParser.ParseArgs(AList);
     try
@@ -293,6 +295,8 @@ begin
         ProcessImportPlacemark(VStrValue, FMarkSystem, FGeometryLonLatFactory);
       end;
 
+      VStartSlsPaused := not VParseResult.HasArgument('sls-autostart');
+
       // unnamed arguments -> files: sls/hlg/kml/gpx/sml etc.
       if VParseResult.Args.Count > 0 then begin
         VFilesList := TStringList.Create;
@@ -308,6 +312,7 @@ begin
           VFiles,
           FMapGoTo,
           ARegionProcess,
+          VStartSlsPaused,
           False, // import in silent mode
           nil,
           FMarkSystem,

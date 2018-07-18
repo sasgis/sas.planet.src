@@ -42,7 +42,10 @@ type
       const AFileName: string;
       out APolygon: IGeometryLonLatPolygon
     );
-    procedure StartSlsFromFile(const AFileName: string);
+    procedure StartSlsFromFile(
+      const AFileName: string;
+      const AStartPaused: Boolean
+    );
   end;
 
 implementation

@@ -5877,7 +5877,8 @@ begin
       AFiles,
       FMapGoto,
       FFormRegionProcess,
-      True,
+      True, // start downloads from *.sls in paused state
+      True, // show import dialog for vector data (*.kml/*.gpx/etc.)
       FMarkDBGUI
     );
   end;

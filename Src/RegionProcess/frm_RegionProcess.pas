@@ -151,7 +151,10 @@ type
       const AFileName: string;
       out APolygon: IGeometryLonLatPolygon
     );
-    procedure StartSlsFromFile(const AFileName: string);
+    procedure StartSlsFromFile(
+      const AFileName: string;
+      const AStartPaused: Boolean
+    );
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -603,10 +606,13 @@ begin
   end;
 end;
 
-procedure TfrmRegionProcess.StartSlsFromFile(const AFileName: string);
+procedure TfrmRegionProcess.StartSlsFromFile(
+  const AFileName: string;
+  const AStartPaused: Boolean
+);
 begin
   if FileExists(AFileName) then begin
-    FProviderTilesDownload.StartBySLS(AFileName);
+    FProviderTilesDownload.StartBySLS(AFileName, AStartPaused);
   end else begin
     ShowMessageFmt(_('Can''t open file: %s'), [AFileName]);
   end;

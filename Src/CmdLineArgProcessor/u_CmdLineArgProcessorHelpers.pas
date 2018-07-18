@@ -75,6 +75,7 @@ procedure ProcessOpenFiles(
   const AFiles: IStringListStatic;
   const AMapGoto: IMapViewGoto;
   const ARegionProcess: IRegionProcessFromFile;
+  const AStartSlsPaused: Boolean = True;
   const AShowImportDlg: Boolean = False;
   const AMarkDBGUIHelper: TMarkDBGUIHelper = nil;
   const AMarkSystem: IMarkSystem = nil;
@@ -516,11 +517,12 @@ procedure ProcessOpenFiles(
   const AFiles: IStringListStatic;
   const AMapGoto: IMapViewGoto;
   const ARegionProcess: IRegionProcessFromFile;
-  const AShowImportDlg: Boolean = False;
-  const AMarkDBGUIHelper: TMarkDBGUIHelper = nil;
-  const AMarkSystem: IMarkSystem = nil;
-  const AImporterList: IVectorItemTreeImporterListChangeable = nil;
-  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory = nil
+  const AStartSlsPaused: Boolean;
+  const AShowImportDlg: Boolean;
+  const AMarkDBGUIHelper: TMarkDBGUIHelper;
+  const AMarkSystem: IMarkSystem;
+  const AImporterList: IVectorItemTreeImporterListChangeable;
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory
 );
 var
   I: Integer;
@@ -536,7 +538,7 @@ begin
     for I := 0 to AFiles.Count - 1 do begin
       VFileName := AFiles.Items[I];
       if LowerCase(ExtractFileExt(VFileName)) = '.sls' then begin
-        ARegionProcess.StartSlsFromFile(VFileName);
+        ARegionProcess.StartSlsFromFile(VFileName, AStartSlsPaused);
         VProcessed := True;
       end;
     end;

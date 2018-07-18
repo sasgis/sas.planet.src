@@ -50,7 +50,10 @@ uses
 type
   IRegionProcessProviderDownload = interface(IRegionProcessProvider)
     ['{664082BF-E983-48E8-A554-C655E925C45E}']
-    procedure StartBySLS(const AFileName: string);
+    procedure StartBySLS(
+      const AFileName: string;
+      const AStartPaused: Boolean
+    );
   end;
 
   TProviderTilesDownload = class(TExportProviderAbstract, IRegionProcessProviderDownload)
@@ -78,7 +81,10 @@ type
     function GetCaption: string; override;
     procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
   private
-    procedure StartBySLS(const AFileName: string);
+    procedure StartBySLS(
+      const AFileName: string;
+      const AStartPaused: Boolean
+    );
   public
     constructor Create(
       const AAppClosingNotifier: INotifierOneOperation;
@@ -264,7 +270,10 @@ begin
   end;
 end;
 
-procedure TProviderTilesDownload.StartBySLS(const AFileName: string);
+procedure TProviderTilesDownload.StartBySLS(
+  const AFileName: string;
+  const AStartPaused: Boolean
+);
 var
   VIniFile: TMemIniFile;
   VSLSData: IConfigDataProvider;
@@ -306,7 +315,7 @@ begin
     VSession,
     VDownloadTaskProvider,
     TDownloadInfoSimple.Create(FDownloadInfo, VSession.DownloadedCount, VSession.DownloadedSize),
-    True // start paused
+    AStartPaused
   );
 end;
 

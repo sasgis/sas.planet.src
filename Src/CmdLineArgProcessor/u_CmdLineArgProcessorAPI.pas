@@ -89,6 +89,11 @@ begin
     '    --insert-placemark="<name>";(<lon>,<lat>);"<desc>"             ' + CR +
     '                            Insert the given placemark into the    ' + CR +
     '                            temporary database                     ' + CR +
+                                                                            CR +
+    '    --sls-autostart         Run download from saved session (*.sls)' + CR +
+    '                            immediately. Without this option       ' + CR +
+    '                            dounload will be started in paused     ' + CR +
+    '                            state                                  ' + CR +
     'Arguments:                                                         ' + CR +
     '    filename                One (or more, space-separated) files   ' + CR +
     '                            to be imported into the temporary      ' + CR +
@@ -98,7 +103,8 @@ begin
     '    ' + AppName + ' --navigate=(24.56,-32.11)                      ' + CR +
     '    ' + AppName + ' --insert-placemark="My Point";(-44,1.2);"Home" ' + CR +
     '    ' + AppName + ' --show-placemarks=1 --zoom=10 --move=(5,-5)    ' + CR +
-    '    ' + AppName + ' --map={F6574B06-E632-4D5F-BC75-C8FA658B57DF}   ' + CR;
+    '    ' + AppName + ' --map={F6574B06-E632-4D5F-BC75-C8FA658B57DF}   ' + CR +
+    '    ' + AppName + ' --sls-autostart c:\mydownload.sls              ' + CR;
 end;
 
 function GetErrorFromCode(const ACode: Integer): string;
