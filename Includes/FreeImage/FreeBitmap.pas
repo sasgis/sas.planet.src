@@ -10,6 +10,7 @@ unit FreeBitmap;
 // Contributors:
 // - Enzo Costantini (enzocostantini@libero.it)
 // - Lorenzo Monti (LM)  lomo74@gmail.com
+// - Maurício (MAU)      mauricio_box@yahoo.com - see also http://sourceforge.net/projects/tcycomponents/
 //
 // Revision history
 // When        Who   What
@@ -25,6 +26,7 @@ unit FreeBitmap;
 //                     - TFreeBitmap.IsGrayScale
 //                     - TFreeWinBitmap.CopyFromBitmap
 //                     - TFreeMultiBitmap.Open
+// 2013-11-25  MAU   Added type FreeImageAnsiString for handling accents on MAC OSX filenames/path
 
 // This file is part of FreeImage 3
 //
@@ -138,14 +140,14 @@ type
     function CopySubImage(Left, Top, Right, Bottom: Integer; Dest: TFreeBitmap): Boolean;
     function PasteSubImage(Src: TFreeBitmap; Left, Top: Integer; Alpha: Integer = 256): Boolean;
     procedure Clear; virtual;
-    function Load(const FileName: AnsiString; Flag: Integer = 0): Boolean;
+    function Load(const FileName: FreeImageAnsiString; Flag: Integer = 0): Boolean;
     function LoadU(const FileName: {$IFDEF DELPHI2010}string{$ELSE}WideString{$ENDIF}; Flag: Integer = 0): Boolean;
     function LoadFromHandle(IO: PFreeImageIO; Handle: fi_handle; Flag: Integer = 0): Boolean;
     function LoadFromMemory(MemIO: TFreeMemoryIO; Flag: Integer = 0): Boolean;
     function LoadFromStream(Stream: TStream; Flag: Integer = 0): Boolean;
     // save functions
     function CanSave(fif: FREE_IMAGE_FORMAT): Boolean;
-    function Save(const FileName: AnsiString; Flag: Integer = 0): Boolean;
+    function Save(const FileName: FreeImageAnsiString; Flag: Integer = 0): Boolean;
     function SaveU(const FileName: {$IFDEF DELPHI2010}string{$ELSE}WideString{$ENDIF}; Flag: Integer = 0): Boolean;
     function SaveToHandle(fif: FREE_IMAGE_FORMAT; IO: PFreeImageIO; Handle: fi_handle; Flag: Integer = 0): Boolean;
     function SaveToMemory(fif: FREE_IMAGE_FORMAT; MemIO: TFreeMemoryIO; Flag: Integer = 0): Boolean;
@@ -292,7 +294,7 @@ type
     destructor Destroy; override;
 
     // methods
-    function Open(const FileName: AnsiString; CreateNew, ReadOnly: Boolean; Flags: Integer = 0): Boolean;
+    function Open(const FileName: FreeImageAnsiString; CreateNew, ReadOnly: Boolean; Flags: Integer = 0): Boolean;
     function Close(Flags: Integer = 0): Boolean;
     function GetPageCount: Integer;
     procedure AppendPage(Bitmap: TFreeBitmap);
@@ -899,13 +901,13 @@ begin
   Result := FDib <> nil
 end;
 
-function TFreeBitmap.Load(const FileName: AnsiString; Flag: Integer): Boolean;
+function TFreeBitmap.Load(const FileName: FreeImageAnsiString; Flag: Integer): Boolean;
 var
   fif: FREE_IMAGE_FORMAT;
 begin
 
   // check the file signature and get its format
-  fif := FreeImage_GetFileType(PAnsiChar(Filename), 0);
+  fif := FreeImage_GetFileType(PAnsiChar(FileName), 0);
   if fif = FIF_UNKNOWN then
     // no signature?
     // try to guess the file format from the file extention
@@ -1287,14 +1289,14 @@ begin
   end;
 end;
 
-function TFreeBitmap.Save(const FileName: AnsiString; Flag: Integer): Boolean;
+function TFreeBitmap.Save(const FileName: FreeImageAnsiString; Flag: Integer): Boolean;
 var
   fif: FREE_IMAGE_FORMAT;
 begin
   Result := False;
 
   // try to guess the file format from the file extension
-  fif := FreeImage_GetFIFFromFilename(PAnsiChar(Filename));
+  fif := FreeImage_GetFIFFromFilename(PAnsiChar(FileName));
   if CanSave(fif) then
     Result := FreeImage_Save(fif, FDib, PAnsiChar(FileName), Flag);
 end;
@@ -1949,7 +1951,7 @@ begin
   Result := FreeImage_MovePage(FMPage, Target, Source);
 end;
 
-function TFreeMultiBitmap.Open(const FileName: AnsiString; CreateNew,
+function TFreeMultiBitmap.Open(const FileName: FreeImageAnsiString; CreateNew,
   ReadOnly: Boolean; Flags: Integer): Boolean;
 var
   fif: FREE_IMAGE_FORMAT;
@@ -1959,7 +1961,8 @@ begin
 // modif NOVAXEL
 // In order to try to get the file format even if the extension is not standard,
 // we check first the file signature
-  fif := FreeImage_GetFileType(PAnsiChar(Filename), 0);
+  fif := FreeImage_GetFileType(PAnsiChar(FileName), 0);
+
   if fif = FIF_UNKNOWN then
     // no signature?
 // end of modif NOVAXEL
