@@ -56,6 +56,7 @@ uses
   u_FoldersIteratorRecursiveByLevels in 'Src\Basic\u_FoldersIteratorRecursiveByLevels.pas',
   u_FoldersIteratorRecursiveByLevelsWithIgnoredFolders in 'Src\Basic\u_FoldersIteratorRecursiveByLevelsWithIgnoredFolders.pas',
   u_GUIDInterfaceSet in 'Src\Basic\u_GUIDInterfaceSet.pas',
+  u_GUIDInterfaceSetOrdered in 'Src\Basic\u_GUIDInterfaceSetOrdered.pas',
   u_GUIDListStatic in 'Src\Basic\u_GUIDListStatic.pas',
   u_GUIDObjectSet in 'Src\Basic\u_GUIDObjectSet.pas',
   u_GUIDSet in 'Src\Basic\u_GUIDSet.pas',
