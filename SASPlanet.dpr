@@ -62,7 +62,7 @@ uses
   u_HashFunctionCRC64 in 'Src\Basic\u_HashFunctionCRC64.pas',
   u_HashFunctionCityHash in 'Src\Basic\u_HashFunctionCityHash.pas',
   u_IDInterfaceList in 'Src\Basic\u_IDInterfaceList.pas',
-  u_IdListBase in 'Src\Basic\u_IdListBase.pas',
+  u_IDListBase in 'Src\Basic\u_IDListBase.pas',
   u_InterfaceListSimple in 'Src\Basic\u_InterfaceListSimple.pas',
   u_InterfaceListStatic in 'Src\Basic\u_InterfaceListStatic.pas',
   u_InterfacedThread in 'Src\Basic\u_InterfacedThread.pas',

@@ -1,4 +1,24 @@
-unit u_IdListBase;
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.org                                                          *}
+{* info@sasgis.org                                                            *}
+{******************************************************************************}
+
+unit u_IDListBase;
 
 interface
 
@@ -7,7 +27,7 @@ uses
   i_EnumID;
 
 type
-  TIdListBase = class(TInterfacedObject)
+  TIDListBase = class(TInterfacedObject)
   protected
     FCount: Integer;
     FCapacity: Integer;
@@ -22,7 +42,7 @@ type
       AId: Integer;
       var Index: Integer
     ): Boolean; virtual;
-    function CompareId(const I1, I2: Integer): Integer;
+    function CompareID(const I1, I2: Integer): Integer;
   protected
     class procedure Error(
       const Msg: string;
@@ -144,15 +164,15 @@ begin
   end;
 end;
 
-{ TIdListBase }
+{ TIDListBase }
 
-procedure TIdListBase.Clear;
+procedure TIDListBase.Clear;
 begin
   SetCount(0);
   SetCapacity(0);
 end;
 
-function TIdListBase.CompareId(const I1, I2: Integer): Integer;
+function TIDListBase.CompareID(const I1, I2: Integer): Integer;
 begin
   if I1 > I2 then begin
     Result := 1;
@@ -165,7 +185,7 @@ begin
   end;
 end;
 
-constructor TIdListBase.Create(
+constructor TIDListBase.Create(
   AAllowNil: Boolean;
   ACapacity: Integer
 );
@@ -175,13 +195,13 @@ begin
   SetCapacity(ACapacity);
 end;
 
-destructor TIdListBase.Destroy;
+destructor TIDListBase.Destroy;
 begin
   Clear;
   inherited;
 end;
 
-class procedure TIdListBase.Error(
+class procedure TIDListBase.Error(
   const Msg: string;
   Data: Integer
 );
@@ -193,7 +213,7 @@ begin
   raise EListError.CreateFmt(Msg, [Data]) at ReturnAddr;
 end;
 
-class procedure TIdListBase.Error(
+class procedure TIDListBase.Error(
   Msg: PResStringRec;
   Data: Integer
 );
@@ -201,7 +221,7 @@ begin
   TIDListBase.Error(LoadResString(Msg), Data);
 end;
 
-function TIdListBase.Find(
+function TIDListBase.Find(
   AId: Integer;
   var Index: Integer
 ): Boolean;
@@ -213,7 +233,7 @@ begin
   H := FCount - 1;
   while L <= H do begin
     I := (L + H) shr 1;
-    C := CompareId(GetItemId(I), AID);
+    C := CompareID(GetItemId(I), AID);
     if C < 0 then begin
       L := I + 1;
     end else begin
@@ -227,17 +247,17 @@ begin
   Index := L;
 end;
 
-function TIdListBase.GetCount: Integer;
+function TIDListBase.GetCount: Integer;
 begin
   Result := FCount;
 end;
 
-function TIdListBase.GetIDEnum: IEnumID;
+function TIDListBase.GetIDEnum: IEnumID;
 begin
   Result := TIDListEnum.Create(Self);
 end;
 
-procedure TIdListBase.Grow;
+procedure TIDListBase.Grow;
 var
   Delta: Integer;
 begin
@@ -253,14 +273,14 @@ begin
   SetCapacity(FCapacity + Delta);
 end;
 
-function TIdListBase.IsExists(AId: Integer): boolean;
+function TIDListBase.IsExists(AId: Integer): boolean;
 var
   VIndex: Integer;
 begin
   Result := Find(AID, VIndex);
 end;
 
-procedure TIdListBase.Remove(AId: Integer);
+procedure TIDListBase.Remove(AId: Integer);
 var
   VIndex: Integer;
 begin

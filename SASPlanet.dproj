@@ -106,7 +106,7 @@
     <DCCReference Include="Src\Basic\u_HashFunctionCityHash.pas" />
     <DCCReference Include="Src\Basic\u_HashFunctionCRC64.pas" />
     <DCCReference Include="Src\Basic\u_IDInterfaceList.pas" />
-    <DCCReference Include="Src\Basic\u_IdListBase.pas" />
+    <DCCReference Include="Src\Basic\u_IDListBase.pas" />
     <DCCReference Include="Src\Basic\u_InterfacedThread.pas" />
     <DCCReference Include="Src\Basic\u_InterfaceListSimple.pas" />
     <DCCReference Include="Src\Basic\u_InterfaceListStatic.pas" />
