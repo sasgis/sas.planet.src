@@ -62,6 +62,7 @@ uses
   Classes,
   SysUtils,
   Dialogs,
+  ExplorerSort,
   i_ConfigDataProvider,
   u_GUIDInterfaceSetOrdered,
   u_ConfigDataProviderByFolder,
@@ -82,65 +83,83 @@ constructor TZmpInfoSet.Create(
   const AFilesIterator: IFileNameIterator
 );
 var
+  I: Integer;
   VFileName: string;
+  VRootFolder: string;
   VFullFileName: string;
   VZmp: IZmpInfo;
   VZmpExist: IZmpInfo;
   VZmpMapConfig: IConfigDataProvider;
   VMapTypeCount: integer;
   VStream: TStream;
+  VFileNameList: TStringList;
 begin
   inherited Create;
-  FList := TGUIDInterfaceSetOrdered.Create;
+  
   VMapTypeCount := 0;
-  while AFilesIterator.Next(VFileName) do begin
-    VFullFileName := AFilesIterator.GetRootFolderName + VFileName;
-    try
-      if FileExists(VFullFileName) then begin
-        VStream := TMemoryStream.Create;
-        try
-          TMemoryStream(VStream).LoadFromFile(VFullFileName);
-          VZmpMapConfig := TConfigDataProviderByArchive.Create(
-            VFullFileName,
-            AArchiveReadWriteFactory.Zip.ReaderFactory.BuildByStreamWithOwn(VStream)
-          );
-          VStream := nil;
-        finally
-          FreeAndNil(VStream);
-        end;
-      end else begin
-        VZmpMapConfig := TConfigDataProviderByFolder.Create(VFullFileName);
-      end;
+  FList := TGUIDInterfaceSetOrdered.Create;
+
+  VFileNameList := TStringList.Create;
+  try
+    VRootFolder := AFilesIterator.GetRootFolderName;
+    
+    while AFilesIterator.Next(VFileName) do begin
+      VFileNameList.Add(VFileName);
+    end;
+    VFileNameList.CustomSort(StringListCompare);
+
+    for I := 0 to VFileNameList.Count - 1 do begin
+      VFileName := VFileNameList.Strings[I];
+      VFullFileName := VRootFolder + VFileName;
       try
-        VZmp := TZmpInfo.Create(
-          AZmpConfig,
-          ALanguageManager,
-          AProjectionSetFactory,
-          AContentTypeManager,
-          ABitmapFactory,
-          VFileName,
-          VZmpMapConfig,
-          VMapTypeCount
-        );
-      except
-        on E: EZmpError do begin
-          raise Exception.CreateResFmt(@SAS_ERR_MapGUIDError, [VFileName, E.Message]);
+        if FileExists(VFullFileName) then begin
+          VStream := TMemoryStream.Create;
+          try
+            TMemoryStream(VStream).LoadFromFile(VFullFileName);
+            VZmpMapConfig := TConfigDataProviderByArchive.Create(
+              VFullFileName,
+              AArchiveReadWriteFactory.Zip.ReaderFactory.BuildByStreamWithOwn(VStream)
+            );
+            VStream := nil;
+          finally
+            FreeAndNil(VStream);
+          end;
+        end else begin
+          VZmpMapConfig := TConfigDataProviderByFolder.Create(VFullFileName);
         end;
+        try
+          VZmp := TZmpInfo.Create(
+            AZmpConfig,
+            ALanguageManager,
+            AProjectionSetFactory,
+            AContentTypeManager,
+            ABitmapFactory,
+            VFileName,
+            VZmpMapConfig,
+            VMapTypeCount
+          );
+        except
+          on E: EZmpError do begin
+            raise Exception.CreateResFmt(@SAS_ERR_MapGUIDError, [VFileName, E.Message]);
+          end;
+        end;
+        VZmpExist := IZmpInfo(FList.GetByGUID(VZmp.GUID));
+        if VZmpExist <> nil then begin
+          raise Exception.CreateFmt(SAS_ERR_MapGUIDDuplicate, [VZmpExist.FileName, VFullFileName]);
+        end;
+      except
+        if ExceptObject <> nil then begin
+          ShowMessage((ExceptObject as Exception).Message);
+        end;
+        VZmp := nil;
       end;
-      VZmpExist := IZmpInfo(FList.GetByGUID(VZmp.GUID));
-      if VZmpExist <> nil then begin
-        raise Exception.CreateFmt(SAS_ERR_MapGUIDDuplicate, [VZmpExist.FileName, VFullFileName]);
+      if VZmp <> nil then begin
+        FList.Add(VZmp.GUID, VZmp);
+        inc(VMapTypeCount);
       end;
-    except
-      if ExceptObject <> nil then begin
-        ShowMessage((ExceptObject as Exception).Message);
-      end;
-      VZmp := nil;
     end;
-    if VZmp <> nil then begin
-      FList.Add(VZmp.GUID, VZmp);
-      inc(VMapTypeCount);
-    end;
+  finally
+    VFileNameList.Free;
   end;
 end;
 
