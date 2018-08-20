@@ -18,8 +18,7 @@ const
 type
   PObjectWithGUIDList = ^TObjectWithGUIDList;
   TObjectWithGUIDList = array[0..MaxObjectWithGUIDListSize - 1] of TObjectWithGUID;
-  TObjectWithGUIDListSortCompare = function(const Item1, Item2: TGUID): Integer of object;
-
+  
 type
   TGUIDObjectSet = class(TGUIDSetBase, IGUIDObjectSet)
   protected
@@ -32,7 +31,6 @@ type
       const AGUID: TGUID;
       AObj: TObject
     );
-    procedure Sort(); override;
     function GetItemGUID(Index: Integer): TGUID; override;
   public
     // Добавление объекта. Если объект с таким GUID уже есть, то заменяться не будет
@@ -82,7 +80,6 @@ begin
     Result := FList^[VIndex].Obj;
   end;
 end;
-
 
 procedure TGUIDObjectSet.Delete(Index: Integer);
 begin
@@ -186,48 +183,6 @@ begin
     end;
   end;
   FCount := NewCount;
-end;
-
-procedure QuickSort(
-  SortList: PObjectWithGUIDList;
-  L, R: Integer;
-  SCompare: TObjectWithGUIDListSortCompare
-);
-var
-  I, J: Integer;
-  P, T: TObjectWithGUID;
-begin
-  repeat
-    I := L;
-    J := R;
-    P := SortList^[(L + R) shr 1];
-    repeat
-      while SCompare(SortList^[I].GUID, P.GUID) < 0 do begin
-        Inc(I);
-      end;
-      while SCompare(SortList^[J].GUID, P.GUID) > 0 do begin
-        Dec(J);
-      end;
-      if I <= J then begin
-        T := SortList^[I];
-        SortList^[I] := SortList^[J];
-        SortList^[J] := T;
-        Inc(I);
-        Dec(J);
-      end;
-    until I > J;
-    if L < J then begin
-      QuickSort(SortList, L, J, SCompare);
-    end;
-    L := I;
-  until I >= R;
-end;
-
-procedure TGUIDObjectSet.Sort();
-begin
-  if (FList <> nil) and (Count > 0) then begin
-    QuickSort(FList, 0, Count - 1, CompareGUIDs);
-  end;
 end;
 
 end.

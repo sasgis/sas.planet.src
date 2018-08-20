@@ -16,7 +16,6 @@ type
 
   PInterfaceWithIdList = ^TInterfaceWithIdList;
   TInterfaceWithIdList = array of TInterfaceWithId;
-  TInterfaceWithIDListSortCompare = function(const Item1, Item2: Integer): Integer of object;
 
   TIDInterfaceList = class(TIDListBase, IIDInterfaceList)
   protected
@@ -29,7 +28,6 @@ type
       AID: Integer;
       const AObj: IInterface
     );
-    procedure Sort(); override;
     function GetItemId(Index: Integer): Integer; override;
   public
     // Добавление объекта. Если объект с таким ID уже есть, то заменяться не будет
@@ -270,48 +268,6 @@ begin
     end;
   end;
   FCount := NewCount;
-end;
-
-procedure QuickSort(
-  SortList: PInterfaceWithIDList;
-  L, R: Integer;
-  SCompare: TInterfaceWithIDListSortCompare
-);
-var
-  I, J: Integer;
-  P, T: TInterfaceWithID;
-begin
-  repeat
-    I := L;
-    J := R;
-    P := SortList^[(L + R) shr 1];
-    repeat
-      while SCompare(SortList^[I].ID, P.ID) < 0 do begin
-        Inc(I);
-      end;
-      while SCompare(SortList^[J].ID, P.ID) > 0 do begin
-        Dec(J);
-      end;
-      if I <= J then begin
-        T := SortList^[I];
-        SortList^[I] := SortList^[J];
-        SortList^[J] := T;
-        Inc(I);
-        Dec(J);
-      end;
-    until I > J;
-    if L < J then begin
-      QuickSort(SortList, L, J, SCompare);
-    end;
-    L := I;
-  until I >= R;
-end;
-
-procedure TIDInterfaceList.Sort;
-begin
-  if (FList <> nil) and (Count > 0) then begin
-    QuickSort(Addr(FList), 0, Count - 1, CompareId);
-  end;
 end;
 
 end.

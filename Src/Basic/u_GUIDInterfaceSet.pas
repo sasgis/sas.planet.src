@@ -40,7 +40,6 @@ const
 type
   PInterfaceWithGUIDList = ^TInterfaceWithGUIDList;
   TInterfaceWithGUIDList = array[0..MaxInterfaceWithGUIDListSize - 1] of TInterfaceWithGUID;
-  TInterfaceWithGUIDListSortCompare = function(const Item1, Item2: TGUID): Integer of object;
 
   TGUIDInterfaceSet = class(TGUIDSetBase, IGUIDInterfaceSet)
   private
@@ -54,7 +53,6 @@ type
     procedure SetCapacity(NewCapacity: Integer); override;
     procedure SetCount(NewCount: Integer); override;
     procedure Delete(Index: Integer); override;
-    procedure Sort(); override;
     function GetItemGUID(Index: Integer): TGUID; override;
   private
     function GetItem(Index: Integer): IInterface;
@@ -292,48 +290,5 @@ begin
   end;
   FCount := NewCount;
 end;
-
-procedure QuickSort(
-  SortList: PInterfaceWithGUIDList;
-  L, R: Integer;
-  SCompare: TInterfaceWithGUIDListSortCompare
-);
-var
-  I, J: Integer;
-  P, T: TInterfaceWithGUID;
-begin
-  repeat
-    I := L;
-    J := R;
-    P := SortList^[(L + R) shr 1];
-    repeat
-      while SCompare(SortList^[I].GUID, P.GUID) < 0 do begin
-        Inc(I);
-      end;
-      while SCompare(SortList^[J].GUID, P.GUID) > 0 do begin
-        Dec(J);
-      end;
-      if I <= J then begin
-        T := SortList^[I];
-        SortList^[I] := SortList^[J];
-        SortList^[J] := T;
-        Inc(I);
-        Dec(J);
-      end;
-    until I > J;
-    if L < J then begin
-      QuickSort(SortList, L, J, SCompare);
-    end;
-    L := I;
-  until I >= R;
-end;
-
-procedure TGUIDInterfaceSet.Sort();
-begin
-  if (FList <> nil) and (Count > 0) then begin
-    QuickSort(FList, 0, Count - 1, CompareGUIDs);
-  end;
-end;
-
 
 end.
