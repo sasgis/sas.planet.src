@@ -42,7 +42,7 @@ type
       AId: Integer;
       var Index: Integer
     ): Boolean; virtual;
-    function CompareID(const I1, I2: Integer): Integer;
+    function CompareID(const I1, I2: Integer): Integer; inline;
   protected
     class procedure Error(
       const Msg: string;
