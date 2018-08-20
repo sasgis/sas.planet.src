@@ -103,6 +103,7 @@
     <DCCReference Include="Src\Basic\u_GUIDListStatic.pas" />
     <DCCReference Include="Src\Basic\u_GUIDObjectSet.pas" />
     <DCCReference Include="Src\Basic\u_GUIDSet.pas" />
+    <DCCReference Include="Src\Basic\u_GUIDTool.pas" />
     <DCCReference Include="Src\Basic\u_HashFunctionCityHash.pas" />
     <DCCReference Include="Src\Basic\u_HashFunctionCRC64.pas" />
     <DCCReference Include="Src\Basic\u_IDInterfaceList.pas" />

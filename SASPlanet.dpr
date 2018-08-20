@@ -59,6 +59,7 @@ uses
   u_GUIDListStatic in 'Src\Basic\u_GUIDListStatic.pas',
   u_GUIDObjectSet in 'Src\Basic\u_GUIDObjectSet.pas',
   u_GUIDSet in 'Src\Basic\u_GUIDSet.pas',
+  u_GUIDTool in 'Src\Basic\u_GUIDTool.pas',
   u_HashFunctionCRC64 in 'Src\Basic\u_HashFunctionCRC64.pas',
   u_HashFunctionCityHash in 'Src\Basic\u_HashFunctionCityHash.pas',
   u_IDInterfaceList in 'Src\Basic\u_IDInterfaceList.pas',

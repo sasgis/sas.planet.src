@@ -25,7 +25,8 @@ interface
 
 uses
   Windows,
-  ActiveX;
+  ActiveX,
+  u_GUIDTool;
 
 type
   TGUIDSetBase = class(TInterfacedObject)
@@ -44,7 +45,6 @@ type
       const AGUID: TGUID;
       var Index: Integer
     ): Boolean; virtual;
-    function CompareGUIDs(const G1, G2: TGUID): Integer;
   public
     constructor Create; overload;
     constructor Create(AAllowNil: Boolean); overload;
@@ -170,108 +170,6 @@ procedure TGUIDSetBase.Clear;
 begin
   SetCount(0);
   SetCapacity(0);
-end;
-
-function TGUIDSetBase.CompareGUIDs(const G1, G2: TGUID): Integer;
-begin
-  if G1.D1 > G2.D1 then begin
-    Result := 1;
-  end else begin
-    if G1.D1 < G2.D1 then begin
-      Result := -1;
-    end else begin
-
-      if G1.D2 > G2.D2 then begin
-        Result := 1;
-      end else begin
-        if G1.D2 < G2.D2 then begin
-          Result := -1;
-        end else begin
-
-          if G1.D3 > G2.D3 then begin
-            Result := 1;
-          end else begin
-            if G1.D3 < G2.D3 then begin
-              Result := -1;
-            end else begin
-
-              if G1.D4[0] > G2.D4[0] then begin
-                Result := 1;
-              end else begin
-                if G1.D4[0] < G2.D4[0] then begin
-                  Result := -1;
-                end else begin
-                  if G1.D4[1] > G2.D4[1] then begin
-                    Result := 1;
-                  end else begin
-                    if G1.D4[1] < G2.D4[1] then begin
-                      Result := -1;
-                    end else begin
-                      if G1.D4[2] > G2.D4[2] then begin
-                        Result := 1;
-                      end else begin
-                        if G1.D4[2] < G2.D4[2] then begin
-                          Result := -1;
-                        end else begin
-
-                          if G1.D4[3] > G2.D4[3] then begin
-                            Result := 1;
-                          end else begin
-                            if G1.D4[3] < G2.D4[3] then begin
-                              Result := -1;
-                            end else begin
-                              if G1.D4[4] > G2.D4[4] then begin
-                                Result := 1;
-                              end else begin
-                                if G1.D4[4] < G2.D4[4] then begin
-                                  Result := -1;
-                                end else begin
-                                  if G1.D4[5] > G2.D4[5] then begin
-                                    Result := 1;
-                                  end else begin
-                                    if G1.D4[5] < G2.D4[5] then begin
-                                      Result := -1;
-                                    end else begin
-
-                                      if G1.D4[6] > G2.D4[6] then begin
-                                        Result := 1;
-                                      end else begin
-                                        if G1.D4[6] < G2.D4[6] then begin
-                                          Result := -1;
-                                        end else begin
-                                          if G1.D4[7] > G2.D4[7] then begin
-                                            Result := 1;
-                                          end else begin
-                                            if G1.D4[7] < G2.D4[7] then begin
-                                              Result := -1;
-                                            end else begin
-                                              Result := 0;
-                                            end;
-                                          end;
-                                        end;
-                                      end;
-
-                                    end;
-                                  end;
-                                end;
-                              end;
-                            end;
-                          end;
-
-
-                        end;
-                      end;
-                    end;
-                  end;
-                end;
-              end;
-
-            end;
-          end;
-        end;
-      end;
-    end;
-  end;
 end;
 
 constructor TGUIDSetBase.Create;
