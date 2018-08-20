@@ -28,6 +28,8 @@ uses
   i_ConfigDataElement;
 
 type
+  TMapTypeGUIConfigListSortOrder = (soByMapNumber, soByMapName, soByZmpName);
+
   IMapTypeGUIConfigList = interface(IConfigDataElement)
     ['{6EAFA879-3A76-40CA-89A7-598D45E2C92E}']
     function GetOrderedMapGUIDList: IGUIDListStatic;

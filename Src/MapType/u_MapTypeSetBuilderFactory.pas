@@ -46,7 +46,7 @@ uses
   i_GUIDSet,
   i_MapType,
   i_MapTypeSet,
-  u_GUIDInterfaceSet;
+  u_GUIDInterfaceSetOrdered;
 
 const
   CInitialHash: THashValue = $49626a97a946096;
@@ -177,7 +177,7 @@ var
   VGUID: TGUID;
 begin
   if not Assigned(FList) then begin
-    FList := TGUIDInterfaceSet.Create(FAllowNil);
+    FList := TGUIDInterfaceSetOrdered.Create(FAllowNil);
   end;
 
   if AItem <> nil then begin
@@ -224,7 +224,7 @@ begin
   if Assigned(FList) and (FList.Count > 0) then begin
     VHash := CInitialHash;
     if not Assigned(FList) then begin
-      FList := TGUIDInterfaceSet.Create(FAllowNil);
+      FList := TGUIDInterfaceSetOrdered.Create(FAllowNil);
     end else begin
       VEnum := FList.GetGUIDEnum;
       while VEnum.Next(1, VGUID, VFetched) = S_OK do begin
@@ -247,7 +247,7 @@ begin
   Result := nil;
   if Assigned(FList) and (FList.Count > 0) then begin
     VHash := CInitialHash;
-    VList := TGUIDInterfaceSet.Create(FAllowNil);
+    VList := TGUIDInterfaceSetOrdered.Create(FAllowNil);
     for i := 0 to FList.Count - 1 do begin
       VMap := FList.Items[i] as IMapType;
       if Assigned(VMap) then begin
@@ -266,7 +266,7 @@ procedure TMapTypeSetBuilder.SetCapacity(ANewCapacity: Integer);
 begin
   if ANewCapacity > 0 then begin
     if not Assigned(FList) then begin
-      FList := TGUIDInterfaceSet.Create(FAllowNil);
+      FList := TGUIDInterfaceSetOrdered.Create(FAllowNil);
     end;
     FList.Capacity := ANewCapacity;
   end else begin

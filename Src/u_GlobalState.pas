@@ -1116,7 +1116,8 @@ begin
     FProjectionSetFactory,
     FInvisibleBrowser,
     FProjConverterFactory,
-    VConfig
+    VConfig,
+    FMainConfigProvider.GetOrCreateSubItem('MapsList')
   );
 
   FGPSRecorderInternal.Load;
@@ -1181,7 +1182,10 @@ begin
   finally
     VIniFile.Free;
   end;
-  FMainMapsList.SaveMaps(VConfig);
+  FMainMapsList.SaveMaps(
+    VConfig,
+    FMainConfigProvider.GetOrCreateSubItem('MapsList')
+  );
 
   VIniFile := TMeminiFile.Create(VMapsPath + 'Favorites.ini');
   try

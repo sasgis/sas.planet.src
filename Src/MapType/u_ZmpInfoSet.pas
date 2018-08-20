@@ -63,7 +63,7 @@ uses
   SysUtils,
   Dialogs,
   i_ConfigDataProvider,
-  u_GUIDInterfaceSet,
+  u_GUIDInterfaceSetOrdered,
   u_ConfigDataProviderByFolder,
   u_ConfigDataProviderByZip,
   u_ZmpInfo,
@@ -91,7 +91,7 @@ var
   VStream: TStream;
 begin
   inherited Create;
-  FList := TGUIDInterfaceSet.Create;
+  FList := TGUIDInterfaceSetOrdered.Create;
   VMapTypeCount := 0;
   while AFilesIterator.Next(VFileName) do begin
     VFullFileName := AFilesIterator.GetRootFolderName + VFileName;

@@ -30,6 +30,8 @@ uses
   i_MapTypeGUIConfigList,
   i_MapTypeSet,
   i_LanguageManager,
+  i_ConfigDataProvider,
+  i_ConfigDataWriteProvider,
   u_ConfigDataElementComplexBase;
 
 type
@@ -41,12 +43,15 @@ type
     FHotKeyList: IMapTypeHotKeyListStatic;
     FBeforeLangChangeListener: IListener;
     FAfterLangChangeListener: IListener;
+    FSortOrder: TMapTypeGUIConfigListSortOrder;
     procedure OnBeforeLangChange;
     procedure OnAfterLangChange;
     function CreateHotKeyList: IMapTypeHotKeyListStatic;
     function CreateOrderedList: IGUIDListStatic;
   protected
     procedure DoBeforeChangeNotify; override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
     function GetOrderedMapGUIDList: IGUIDListStatic;
     function GetHotKeyList: IMapTypeHotKeyListStatic;
@@ -80,6 +85,7 @@ var
   VMap: IMapType;
 begin
   inherited Create;
+  FSortOrder := soByMapNumber;
   FLanguageManager := ALanguageManager;
   FMapsSet := AMapsSet;
   FOrderedMapGUIDList := CreateOrderedList;
@@ -120,6 +126,7 @@ end;
 function TMapTypeGUIConfigList.CreateOrderedList: IGUIDListStatic;
 var
   VIndexList: array of Integer;
+  VStrIndexList: array of string;
   VGUIDList: array of TGUID;
   VMap: IMapType;
   VCount: Integer;
@@ -138,11 +145,23 @@ begin
 
     VCount := VList.GetCount;
     if VCount > 1 then begin
-      SetLength(VIndexList, VCount);
-      for i := 0 to VCount - 1 do begin
-        VIndexList[i] := IMapType(VList[i]).GUIConfig.SortIndex;
+      if FSortOrder = soByMapNumber then begin
+        SetLength(VIndexList, VCount);
+        for i := 0 to VCount - 1 do begin
+          VIndexList[i] := IMapType(VList[i]).GUIConfig.SortIndex;
+        end;
+        SortInterfaceListByIntegerMeasure(VList, VIndexList);
+      end else if FSortOrder = soByMapName then begin
+        SetLength(VStrIndexList, VCount);
+        for i := 0 to VCount - 1 do begin
+          VStrIndexList[i] :=
+            IMapType(VList[i]).GUIConfig.ParentSubMenu.Value +
+            IMapType(VList[i]).GUIConfig.Name.Value;
+        end;
+        SortInterfaceListByStringMeasure(VList, VStrIndexList);
+      end else begin
+        // soByZmpName: already sorted
       end;
-      SortInterfaceListByIntegerMeasure(VList, VIndexList);
     end;
     if VCount > 0 then begin
       SetLength(VGUIDList, VCount);
@@ -163,6 +182,27 @@ begin
     FHotKeyList := CreateHotKeyList;
   finally
     UnlockWrite;
+  end;
+end;
+
+procedure TMapTypeGUIConfigList.DoReadConfig(const AConfigData: IConfigDataProvider);
+begin
+  inherited;
+  if AConfigData <> nil then begin
+    FSortOrder := TMapTypeGUIConfigListSortOrder(
+      AConfigData.ReadInteger('SortOrder', Integer(FSortOrder))
+    );
+    SetChanged;
+  end;
+end;
+
+procedure TMapTypeGUIConfigList.DoWriteConfig(
+  const AConfigData: IConfigDataWriteProvider
+);
+begin
+  inherited;
+  if AConfigData <> nil then begin
+    AConfigData.WriteInteger('SortOrder', Integer(FSortOrder))
   end;
 end;
 

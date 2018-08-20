@@ -118,9 +118,13 @@ type
       const AProjectionSetFactory: IProjectionSetFactory;
       const AInvisibleBrowser: IInvisibleBrowser;
       const AProjFactory: IProjConverterFactory;
-      const ALocalMapsConfig: IConfigDataProvider
+      const ALocalMapsConfig: IConfigDataProvider;
+      const AMapsListConfig: IConfigDataProvider
     );
-    procedure SaveMaps(const ALocalMapsConfig: IConfigDataWriteProvider);
+    procedure SaveMaps(
+      const ALocalMapsConfig: IConfigDataWriteProvider;
+      const AMapsListConfig: IConfigDataWriteProvider
+    );
   end;
 
 implementation
@@ -226,7 +230,8 @@ procedure TMapTypesMainList.LoadMaps(
   const AProjectionSetFactory: IProjectionSetFactory;
   const AInvisibleBrowser: IInvisibleBrowser;
   const AProjFactory: IProjConverterFactory;
-  const ALocalMapsConfig: IConfigDataProvider
+  const ALocalMapsConfig: IConfigDataProvider;
+  const AMapsListConfig: IConfigDataProvider
 );
 var
   VMapType: IMapType;
@@ -319,11 +324,13 @@ begin
   FFullMapsSet := VFullMapsList.MakeAndClear;
 
   BuildMapsLists;
+  
   FGUIConfigList :=
     TMapTypeGUIConfigList.Create(
       ALanguageManager,
       FFullMapsSet
     );
+  FGUIConfigList.ReadConfig(AMapsListConfig);
 
   VGUIDList := FGUIConfigList.OrderedMapGUIDList;
   FGUIConfigList.LockWrite;
@@ -398,7 +405,8 @@ begin
 end;
 
 procedure TMapTypesMainList.SaveMaps(
-  const ALocalMapsConfig: IConfigDataWriteProvider
+  const ALocalMapsConfig: IConfigDataWriteProvider;
+  const AMapsListConfig: IConfigDataWriteProvider
 );
 var
   i: integer;
@@ -416,6 +424,7 @@ begin
     VSubItem := ALocalMapsConfig.GetOrCreateSubItem(VGUIDString);
     VMapType.SaveConfig(VSubItem);
   end;
+  FGUIConfigList.WriteConfig(AMapsListConfig);
 end;
 
 end.

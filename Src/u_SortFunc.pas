@@ -51,6 +51,11 @@ procedure SortInterfaceListByIntegerMeasure(
   var AMeasure: array of Integer
 );
 
+procedure SortInterfaceListByStringMeasure(
+  const AList: IInterfaceListSimple;
+  var AMeasure: array of string
+);
+
 type
   TInterfaceListSortCompareFunction = function (const Item1, Item2: IInterface): Integer;
   TInterfaceListSortCompareFunctor = function (const Item1, Item2: IInterface): Integer of object;
@@ -76,6 +81,9 @@ procedure SortInterfaceListByCompareFunctor(
 );
 
 implementation
+
+uses
+  ExplorerSort;
 
 function IsSortedDoubleArray(
   const AArray: array of Double
@@ -328,6 +336,57 @@ procedure SortInterfaceListByIntegerMeasure(
           Inc(I);
         end;
         while AMeasure[J] > P do begin
+          Dec(J);
+        end;
+        if I <= J then begin
+          AList.Exchange(I, J);
+          TI := AMeasure[I];
+          AMeasure[I] := AMeasure[J];
+          AMeasure[J] := TI;
+          Inc(I);
+          Dec(J);
+        end;
+      until I > J;
+      if L < J then begin
+        QuickSort(AList, AMeasure, L, J);
+      end;
+      L := I;
+    until I >= R;
+  end;
+var
+  VCount: Integer;
+begin
+  Assert(Assigned(AList));
+  VCount := Length(AMeasure);
+  Assert(AList.Count = VCount);
+  if VCount > 1 then begin
+    QuickSort(AList, AMeasure, 0, VCount - 1);
+  end;
+end;
+
+procedure SortInterfaceListByStringMeasure(
+  const AList: IInterfaceListSimple;
+  var AMeasure: array of string
+);
+  procedure QuickSort(
+    const AList: IInterfaceListSimple;
+    var AMeasure: array of string;
+    L, R: Integer
+  );
+  var
+    I, J: Integer;
+    P: string;
+    TI: string;
+  begin
+    repeat
+      I := L;
+      J := R;
+      P := AMeasure[(L + R) shr 1];
+      repeat
+        while CompareStringOrdinal(AMeasure[I], P) < 0 do begin
+          Inc(I);
+        end;
+        while CompareStringOrdinal(AMeasure[J], P) > 0 do begin
           Dec(J);
         end;
         if I <= J then begin
