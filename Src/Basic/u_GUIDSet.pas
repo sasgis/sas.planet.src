@@ -46,9 +46,7 @@ type
       var Index: Integer
     ): Boolean; virtual;
   public
-    constructor Create; overload;
-    constructor Create(AAllowNil: Boolean); overload;
-
+    constructor Create(const AAllowNil: Boolean = False);
     destructor Destroy; override;
 
     class procedure Error(
@@ -172,13 +170,7 @@ begin
   SetCapacity(0);
 end;
 
-constructor TGUIDSetBase.Create;
-begin
-  inherited;
-  FAllowNil := false;
-end;
-
-constructor TGUIDSetBase.Create(AAllowNil: Boolean);
+constructor TGUIDSetBase.Create(const AAllowNil: Boolean);
 begin
   inherited Create;
   FAllowNil := AAllowNil;
