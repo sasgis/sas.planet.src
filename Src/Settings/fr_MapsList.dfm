@@ -1,68 +1,104 @@
 object frMapsList: TfrMapsList
   Left = 0
   Top = 0
-  Width = 451
+  Width = 580
   Height = 304
   Align = alClient
   TabOrder = 0
+  ExplicitWidth = 451
   object pnlMapsRightButtons: TPanel
-    Left = 609
+    Left = 455
     Top = 0
-    Width = 97
-    Height = 298
+    Width = 125
+    Height = 304
     Align = alRight
     BevelOuter = bvNone
     TabOrder = 0
-    object Button15: TButton
+    object lblSortingOrder: TLabel
+      AlignWithMargins = True
+      Left = 3
+      Top = 127
+      Width = 119
+      Height = 13
+      Align = alTop
+      Caption = 'Order by:'
+      ExplicitWidth = 47
+    end
+    object btnSettings: TButton
       AlignWithMargins = True
       Left = 3
       Top = 65
-      Width = 91
+      Width = 119
       Height = 25
       Align = alTop
       Caption = 'Settings'
       TabOrder = 0
-      OnClick = Button15Click
+      OnClick = btnSettingsClick
+      ExplicitWidth = 91
     end
-    object Button11: TButton
+    object btnDown: TButton
       AlignWithMargins = True
       Left = 3
       Top = 34
-      Width = 91
+      Width = 119
       Height = 25
       Align = alTop
       Caption = 'Down'
       TabOrder = 1
-      OnClick = Button11Click
+      OnClick = btnDownClick
+      ExplicitWidth = 91
     end
-    object Button12: TButton
+    object btnUp: TButton
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 91
+      Width = 119
       Height = 25
       Align = alTop
       Caption = 'Up'
       TabOrder = 2
-      OnClick = Button12Click
+      OnClick = btnUpClick
+      ExplicitWidth = 91
     end
     object btnMapInfo: TButton
       AlignWithMargins = True
       Left = 3
       Top = 96
-      Width = 91
+      Width = 119
       Height = 25
       Align = alTop
       Caption = 'Info'
       TabOrder = 3
       OnClick = btnMapInfoClick
+      ExplicitWidth = 91
+    end
+    object cbbSortingOrder: TComboBox
+      AlignWithMargins = True
+      Left = 3
+      Top = 143
+      Width = 119
+      Height = 21
+      Margins.Top = 0
+      Align = alTop
+      ItemHeight = 13
+      ItemIndex = 0
+      TabOrder = 4
+      Text = 'Map Number'
+      OnChange = cbbSortingOrderChange
+      Items.Strings = (
+        'Map Number'
+        'Map Name'
+        'Zmp Name')
+      ExplicitLeft = 8
+      ExplicitTop = 152
+      ExplicitWidth = 145
     end
   end
   object MapList: TListView
     Left = 0
     Top = 0
-    Width = 609
-    Height = 298
+    Width = 455
+    Height = 304
     Align = alClient
     Checkboxes = True
     Columns = <
@@ -100,5 +136,6 @@ object frMapsList: TfrMapsList
     OnCustomDrawItem = MapListCustomDrawItem
     OnCustomDrawSubItem = MapListCustomDrawSubItem
     OnDblClick = MapListDblClick
+    ExplicitWidth = 354
   end
 end

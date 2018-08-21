@@ -62,14 +62,16 @@ type
 
   TfrMapsList = class(TFrame)
     pnlMapsRightButtons: TPanel;
-    Button15: TButton;
-    Button11: TButton;
-    Button12: TButton;
+    btnSettings: TButton;
+    btnDown: TButton;
+    btnUp: TButton;
     btnMapInfo: TButton;
     MapList: TListView;
-    procedure Button12Click(Sender: TObject);
-    procedure Button11Click(Sender: TObject);
-    procedure Button15Click(Sender: TObject);
+    lblSortingOrder: TLabel;
+    cbbSortingOrder: TComboBox;
+    procedure btnUpClick(Sender: TObject);
+    procedure btnDownClick(Sender: TObject);
+    procedure btnSettingsClick(Sender: TObject);
     procedure btnMapInfoClick(Sender: TObject);
     procedure MapListDblClick(Sender: TObject);
     procedure MapListChange(
@@ -98,6 +100,7 @@ type
       Sender: TObject;
       Item: TListItem
     );
+    procedure cbbSortingOrderChange(Sender: TObject);
   private
     FChanged: Boolean;
     FMapTypeEditor: IMapTypeConfigModalEdit;
@@ -235,7 +238,7 @@ begin
   end;
 end;
 
-procedure TfrMapsList.Button11Click(Sender: TObject);
+procedure TfrMapsList.btnDownClick(Sender: TObject);
 begin
   If (MapList.Selected <> nil) and (MapList.Selected.Index < MapList.Items.Count - 1) then begin
     ExchangeItems(MapList.Selected.Index, MapList.Selected.Index + 1);
@@ -243,7 +246,7 @@ begin
   end;
 end;
 
-procedure TfrMapsList.Button12Click(Sender: TObject);
+procedure TfrMapsList.btnUpClick(Sender: TObject);
 begin
   If (MapList.Selected <> nil) and (MapList.Selected.Index > 0) then begin
     ExchangeItems(MapList.Selected.Index, MapList.Selected.Index - 1);
@@ -251,7 +254,7 @@ begin
   end;
 end;
 
-procedure TfrMapsList.Button15Click(Sender: TObject);
+procedure TfrMapsList.btnSettingsClick(Sender: TObject);
 var
   VMapType: IMapType;
   VItem: TListItem;
@@ -269,6 +272,17 @@ end;
 
 procedure TfrMapsList.CancelChanges;
 begin
+end;
+
+procedure TfrMapsList.cbbSortingOrderChange(Sender: TObject);
+var
+  VEnabled: Boolean;
+begin
+  FGUIConfigList.SortOrder := TMapTypeGUIConfigListSortOrder(cbbSortingOrder.ItemIndex);
+  VEnabled := FGUIConfigList.SortOrder = soByMapNumber;
+  btnUp.Enabled := VEnabled;
+  btnDown.Enabled := VEnabled;
+  UpdateList;
 end;
 
 constructor TfrMapsList.Create(
@@ -303,6 +317,7 @@ end;
 
 procedure TfrMapsList.Init;
 begin
+  cbbSortingOrder.ItemIndex := Integer(FGUIConfigList.SortOrder);
   FChanged := False;
   UpdateList;
 end;
@@ -366,7 +381,7 @@ end;
 
 procedure TfrMapsList.MapListDblClick(Sender: TObject);
 begin
-  Button15Click(Sender);
+  btnSettingsClick(Sender);
 end;
 
 procedure TfrMapsList.UpdateList;

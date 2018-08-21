@@ -53,6 +53,8 @@ type
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
+    function GetSortOrder: TMapTypeGUIConfigListSortOrder;
+    procedure SetSortOrder(const AValue: TMapTypeGUIConfigListSortOrder);
     function GetOrderedMapGUIDList: IGUIDListStatic;
     function GetHotKeyList: IMapTypeHotKeyListStatic;
   public
@@ -66,6 +68,7 @@ type
 implementation
 
 uses
+  SysUtils,
   i_InterfaceListSimple,
   i_MapType,
   u_ListenerByEvent,
@@ -159,8 +162,10 @@ begin
             IMapType(VList[i]).GUIConfig.Name.Value;
         end;
         SortInterfaceListByStringMeasure(VList, VStrIndexList);
+      end else if FSortOrder = soByZmpName then begin
+        // already sorted
       end else begin
-        // soByZmpName: already sorted
+        raise Exception.CreateFmt('Unexpected SortOrder type: %d', [Integer(FSortOrder)]);
       end;
     end;
     if VCount > 0 then begin
@@ -216,6 +221,16 @@ begin
   Result := FOrderedMapGUIDList;
 end;
 
+function TMapTypeGUIConfigList.GetSortOrder: TMapTypeGUIConfigListSortOrder;
+begin
+  LockRead;
+  try
+    Result := FSortOrder;
+  finally
+    UnlockRead;
+  end;
+end;
+
 procedure TMapTypeGUIConfigList.OnAfterLangChange;
 begin
   StartNotify;
@@ -224,6 +239,21 @@ end;
 procedure TMapTypeGUIConfigList.OnBeforeLangChange;
 begin
   StopNotify;
+end;
+
+procedure TMapTypeGUIConfigList.SetSortOrder(
+  const AValue: TMapTypeGUIConfigListSortOrder
+);
+begin
+  LockWrite;
+  try
+    if AValue <> FSortOrder then begin
+      FSortOrder := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
 end;
 
 end.

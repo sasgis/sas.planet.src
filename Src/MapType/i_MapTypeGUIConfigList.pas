@@ -32,6 +32,10 @@ type
 
   IMapTypeGUIConfigList = interface(IConfigDataElement)
     ['{6EAFA879-3A76-40CA-89A7-598D45E2C92E}']
+    function GetSortOrder: TMapTypeGUIConfigListSortOrder;
+    procedure SetSortOrder(const AValue: TMapTypeGUIConfigListSortOrder);
+    property SortOrder: TMapTypeGUIConfigListSortOrder read GetSortOrder write SetSortOrder;
+
     function GetOrderedMapGUIDList: IGUIDListStatic;
     property OrderedMapGUIDList: IGUIDListStatic read GetOrderedMapGUIDList;
 
