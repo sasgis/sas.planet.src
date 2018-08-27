@@ -26,7 +26,7 @@ object frZoomsSelect: TfrZoomsSelect
     Height = 17
     Align = alBottom
     Caption = 'All'
-    TabOrder = 0
+    TabOrder = 1
     OnClick = chkAllZoomsClick
   end
   object chklstZooms: TCheckListBox
@@ -38,7 +38,7 @@ object frZoomsSelect: TfrZoomsSelect
     Align = alTop
     Anchors = [akLeft, akTop, akRight, akBottom]
     ItemHeight = 13
-    TabOrder = 1
+    TabOrder = 0
     OnDblClick = chklstZoomsDblClick
   end
 end

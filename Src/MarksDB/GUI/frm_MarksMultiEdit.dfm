@@ -39,7 +39,7 @@ object frmMarksMultiEdit: TfrmMarksMultiEdit
       Cancel = True
       Caption = 'Cancel'
       ModalResult = 2
-      TabOrder = 0
+      TabOrder = 1
     end
     object btnOk: TButton
       AlignWithMargins = True
@@ -50,7 +50,7 @@ object frmMarksMultiEdit: TfrmMarksMultiEdit
       Align = alRight
       Caption = 'Start'
       ModalResult = 1
-      TabOrder = 1
+      TabOrder = 0
       OnClick = btnOkClick
     end
   end

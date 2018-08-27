@@ -40,7 +40,7 @@ object frmMarkPictureEditor: TfrmMarkPictureEditor
     Align = alCustom
     Anchors = [akRight, akBottom]
     Caption = 'Apply'
-    TabOrder = 1
+    TabOrder = 2
     OnClick = btnApplyClick
   end
   object btnCancel: TButton
@@ -51,7 +51,7 @@ object frmMarkPictureEditor: TfrmMarkPictureEditor
     Align = alCustom
     Anchors = [akRight, akBottom]
     Caption = 'Cancel'
-    TabOrder = 2
+    TabOrder = 3
     OnClick = btnCancelClick
   end
   object grpAnchor: TGroupBox
@@ -60,7 +60,7 @@ object frmMarkPictureEditor: TfrmMarkPictureEditor
     Width = 221
     Height = 256
     Caption = 'Anchor'
-    TabOrder = 3
+    TabOrder = 1
     object lblAnchorX: TLabel
       Left = 15
       Top = 52

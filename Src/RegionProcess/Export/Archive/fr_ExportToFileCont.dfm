@@ -17,7 +17,7 @@ object frExportToFileCont: TfrExportToFileCont
     Height = 277
     Align = alClient
     BevelOuter = bvNone
-    TabOrder = 0
+    TabOrder = 1
     object pnlZoom: TPanel
       Left = 405
       Top = 0
@@ -26,7 +26,7 @@ object frExportToFileCont: TfrExportToFileCont
       Align = alRight
       BevelOuter = bvNone
       BorderWidth = 3
-      TabOrder = 0
+      TabOrder = 1
     end
     object pnlMain: TPanel
       Left = 0
@@ -37,7 +37,7 @@ object frExportToFileCont: TfrExportToFileCont
       AutoSize = True
       BevelOuter = bvNone
       BorderWidth = 3
-      TabOrder = 1
+      TabOrder = 0
       object lblNamesType: TLabel
         AlignWithMargins = True
         Left = 3
@@ -93,7 +93,7 @@ object frExportToFileCont: TfrExportToFileCont
     Align = alTop
     BevelOuter = bvNone
     BorderWidth = 3
-    TabOrder = 1
+    TabOrder = 0
     object lblTargetFile: TLabel
       AlignWithMargins = True
       Left = 3

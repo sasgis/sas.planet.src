@@ -16,7 +16,7 @@ object frShortCutList: TfrShortCutList
     Style = lbOwnerDrawFixed
     Align = alClient
     ItemHeight = 20
-    TabOrder = 0
+    TabOrder = 1
     OnDblClick = lstShortCutListDblClick
     OnDrawItem = lstShortCutListDrawItem
   end
@@ -27,7 +27,7 @@ object frShortCutList: TfrShortCutList
     Height = 25
     Align = alTop
     BevelOuter = bvNone
-    TabOrder = 1
+    TabOrder = 0
     object lblOperation: TLabel
       AlignWithMargins = True
       Left = 3

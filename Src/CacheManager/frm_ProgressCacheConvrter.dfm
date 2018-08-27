@@ -124,7 +124,7 @@ object frmProgressCacheConverter: TfrmProgressCacheConverter
       Height = 20
       Align = alRight
       Caption = 'Quit'
-      TabOrder = 0
+      TabOrder = 2
       OnClick = btnQuitClick
     end
     object btnPause: TButton
@@ -146,7 +146,7 @@ object frmProgressCacheConverter: TfrmProgressCacheConverter
       Height = 20
       Align = alLeft
       Caption = 'Minimize'
-      TabOrder = 2
+      TabOrder = 0
       OnClick = btnMinimizeClick
     end
   end

@@ -63,7 +63,7 @@ object frmMarkEditPoly: TfrmMarkEditPoly
       Caption = 'Ok'
       Default = True
       ModalResult = 1
-      TabOrder = 0
+      TabOrder = 1
       OnClick = btnOkClick
     end
     object btnCancel: TButton
@@ -77,7 +77,7 @@ object frmMarkEditPoly: TfrmMarkEditPoly
       Cancel = True
       Caption = 'Cancel'
       ModalResult = 2
-      TabOrder = 1
+      TabOrder = 2
     end
     object btnSetAsTemplate: TButton
       AlignWithMargins = True
@@ -89,7 +89,7 @@ object frmMarkEditPoly: TfrmMarkEditPoly
       Align = alLeft
       Caption = '~'
       Default = True
-      TabOrder = 2
+      TabOrder = 0
       OnClick = btnSetAsTemplateClick
     end
   end

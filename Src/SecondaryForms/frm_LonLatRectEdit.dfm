@@ -22,7 +22,7 @@ object frmLonLatRectEdit: TfrmLonLatRectEdit
     Height = 31
     Align = alBottom
     BevelOuter = bvNone
-    TabOrder = 0
+    TabOrder = 1
     object btnCancel: TButton
       AlignWithMargins = True
       Left = 213
@@ -33,7 +33,7 @@ object frmLonLatRectEdit: TfrmLonLatRectEdit
       Cancel = True
       Caption = 'Cancel'
       ModalResult = 2
-      TabOrder = 0
+      TabOrder = 1
     end
     object btnOk: TButton
       AlignWithMargins = True
@@ -45,7 +45,7 @@ object frmLonLatRectEdit: TfrmLonLatRectEdit
       Caption = 'Apply'
       Default = True
       ModalResult = 1
-      TabOrder = 1
+      TabOrder = 0
     end
   end
   object grdpnlMain: TGridPanel
@@ -77,7 +77,7 @@ object frmLonLatRectEdit: TfrmLonLatRectEdit
       item
         Value = 50.000000000000000000
       end>
-    TabOrder = 1
+    TabOrder = 0
     object grpTopLeft: TGroupBox
       AlignWithMargins = True
       Left = 3

@@ -133,7 +133,7 @@ object frExportToJNX: TfrExportToJNX
             Enabled = False
             MaxValue = 100
             MinValue = 10
-            TabOrder = 3
+            TabOrder = 2
             Value = 95
           end
           object CbbZoom1: TComboBox
@@ -158,7 +158,7 @@ object frExportToJNX: TfrExportToJNX
             Enabled = False
             MaxValue = 100
             MinValue = 10
-            TabOrder = 7
+            TabOrder = 6
             Value = 95
           end
           object CbbZoom2: TComboBox
@@ -183,7 +183,7 @@ object frExportToJNX: TfrExportToJNX
             Enabled = False
             MaxValue = 100
             MinValue = 10
-            TabOrder = 15
+            TabOrder = 14
             Value = 95
           end
           object CbbZoom4: TComboBox
@@ -208,7 +208,7 @@ object frExportToJNX: TfrExportToJNX
             Enabled = False
             MaxValue = 100
             MinValue = 10
-            TabOrder = 19
+            TabOrder = 18
             Value = 95
           end
           object CbbZoom5: TComboBox
@@ -233,7 +233,7 @@ object frExportToJNX: TfrExportToJNX
             Enabled = False
             MaxValue = 100
             MinValue = 10
-            TabOrder = 11
+            TabOrder = 10
             Value = 95
           end
           object CbbZoom3: TComboBox
@@ -346,7 +346,7 @@ object frExportToJNX: TfrExportToJNX
               'Re-compress JPEG tiles'#13#10'Note: Non-JPEG tiles are always recompre' +
               'ssed'
             Enabled = False
-            TabOrder = 2
+            TabOrder = 3
             OnClick = ChRecompress1Click
           end
           object ChRecompress2: TCheckBox
@@ -358,7 +358,7 @@ object frExportToJNX: TfrExportToJNX
               'Re-compress JPEG tiles'#13#10'Note: Non-JPEG tiles are always recompre' +
               'ssed'
             Enabled = False
-            TabOrder = 6
+            TabOrder = 7
             OnClick = ChRecompress2Click
           end
           object ChRecompress3: TCheckBox
@@ -370,7 +370,7 @@ object frExportToJNX: TfrExportToJNX
               'Re-compress JPEG tiles'#13#10'Note: Non-JPEG tiles are always recompre' +
               'ssed'
             Enabled = False
-            TabOrder = 10
+            TabOrder = 11
             OnClick = ChRecompress3Click
           end
           object ChRecompress4: TCheckBox
@@ -382,7 +382,7 @@ object frExportToJNX: TfrExportToJNX
               'Re-compress JPEG tiles'#13#10'Note: Non-JPEG tiles are always recompre' +
               'ssed'
             Enabled = False
-            TabOrder = 14
+            TabOrder = 15
             OnClick = ChRecompress4Click
           end
           object ChRecompress5: TCheckBox
@@ -394,7 +394,7 @@ object frExportToJNX: TfrExportToJNX
               'Re-compress JPEG tiles'#13#10'Note: Non-JPEG tiles are always recompre' +
               'ssed'
             Enabled = False
-            TabOrder = 18
+            TabOrder = 19
             OnClick = ChRecompress5Click
           end
         end
@@ -415,7 +415,7 @@ object frExportToJNX: TfrExportToJNX
           Top = 3
           Width = 20
           Height = 17
-          TabOrder = 0
+          TabOrder = 1
           OnClick = ChMap1Click
         end
         object ChMap2: TCheckBox
@@ -424,7 +424,7 @@ object frExportToJNX: TfrExportToJNX
           Width = 20
           Height = 17
           Enabled = False
-          TabOrder = 2
+          TabOrder = 3
           OnClick = ChMap2Click
         end
         object ChMap3: TCheckBox
@@ -433,7 +433,7 @@ object frExportToJNX: TfrExportToJNX
           Width = 20
           Height = 17
           Enabled = False
-          TabOrder = 4
+          TabOrder = 5
           OnClick = ChMap3Click
         end
         object ChMap4: TCheckBox
@@ -442,7 +442,7 @@ object frExportToJNX: TfrExportToJNX
           Width = 20
           Height = 17
           Enabled = False
-          TabOrder = 6
+          TabOrder = 7
           OnClick = ChMap4Click
         end
         object ChMap5: TCheckBox
@@ -451,7 +451,7 @@ object frExportToJNX: TfrExportToJNX
           Width = 20
           Height = 17
           Enabled = False
-          TabOrder = 8
+          TabOrder = 9
           OnClick = ChMap5Click
         end
         object pnlMap1: TPanel
@@ -461,7 +461,7 @@ object frExportToJNX: TfrExportToJNX
           Height = 21
           Anchors = [akLeft, akTop, akRight]
           BevelOuter = bvNone
-          TabOrder = 1
+          TabOrder = 0
         end
         object pnlMap2: TPanel
           Left = 23
@@ -470,7 +470,7 @@ object frExportToJNX: TfrExportToJNX
           Height = 21
           Anchors = [akLeft, akTop, akRight]
           BevelOuter = bvNone
-          TabOrder = 3
+          TabOrder = 2
         end
         object pnlMap4: TPanel
           Left = 23
@@ -479,7 +479,7 @@ object frExportToJNX: TfrExportToJNX
           Height = 21
           Anchors = [akLeft, akTop, akRight]
           BevelOuter = bvNone
-          TabOrder = 7
+          TabOrder = 6
         end
         object pnlMap3: TPanel
           Left = 23
@@ -488,7 +488,7 @@ object frExportToJNX: TfrExportToJNX
           Height = 21
           Anchors = [akLeft, akTop, akRight]
           BevelOuter = bvNone
-          TabOrder = 5
+          TabOrder = 4
         end
         object pnlMap5: TPanel
           Left = 23
@@ -497,7 +497,7 @@ object frExportToJNX: TfrExportToJNX
           Height = 21
           Anchors = [akLeft, akTop, akRight]
           BevelOuter = bvNone
-          TabOrder = 9
+          TabOrder = 8
         end
       end
     end
@@ -554,7 +554,7 @@ object frExportToJNX: TfrExportToJNX
           Width = 253
           Height = 21
           Align = alCustom
-          TabOrder = 1
+          TabOrder = 2
         end
         object EProductID: TComboBox
           Left = 96
@@ -564,7 +564,7 @@ object frExportToJNX: TfrExportToJNX
           Align = alCustom
           AutoDropDown = True
           ItemHeight = 0
-          TabOrder = 0
+          TabOrder = 1
           Items.Strings = (
             '0 - BirdsEye'
             '2 - BirdsEye Select EIRE'
@@ -582,7 +582,7 @@ object frExportToJNX: TfrExportToJNX
           Width = 253
           Height = 21
           Align = alCustom
-          TabOrder = 2
+          TabOrder = 3
         end
         object EZorder: TSpinEdit
           Left = 264
@@ -591,7 +591,7 @@ object frExportToJNX: TfrExportToJNX
           Height = 22
           MaxValue = 100
           MinValue = 0
-          TabOrder = 4
+          TabOrder = 5
           Value = 30
         end
         object TreeView1: TTreeView
@@ -606,7 +606,7 @@ object frExportToJNX: TfrExportToJNX
           Indent = 19
           ParentShowHint = False
           ShowHint = True
-          TabOrder = 7
+          TabOrder = 0
         end
         object cbbVersion: TComboBox
           Left = 96
@@ -616,7 +616,7 @@ object frExportToJNX: TfrExportToJNX
           Style = csDropDownList
           ItemHeight = 0
           ItemIndex = 0
-          TabOrder = 3
+          TabOrder = 4
           Text = '3'
           OnChange = cbbVersionChange
           Items.Strings = (
@@ -630,7 +630,7 @@ object frExportToJNX: TfrExportToJNX
           Height = 17
           Align = alCustom
           Caption = 'Use postprocessing settings'
-          TabOrder = 5
+          TabOrder = 6
         end
         object chkUseMapMarks: TCheckBox
           Left = 4
@@ -640,7 +640,7 @@ object frExportToJNX: TfrExportToJNX
           Align = alCustom
           Caption = 'Add visible placemarks'
           Enabled = False
-          TabOrder = 6
+          TabOrder = 7
         end
       end
     end

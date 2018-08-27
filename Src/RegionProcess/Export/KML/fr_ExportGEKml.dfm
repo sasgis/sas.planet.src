@@ -16,7 +16,7 @@ object frExportGEKml: TfrExportGEKml
     Height = 93
     Align = alClient
     BevelOuter = bvNone
-    TabOrder = 0
+    TabOrder = 1
     object pnlZoom: TPanel
       Left = 325
       Top = 0
@@ -25,7 +25,7 @@ object frExportGEKml: TfrExportGEKml
       Align = alRight
       BevelOuter = bvNone
       BorderWidth = 3
-      TabOrder = 0
+      TabOrder = 1
     end
     object pnlMain: TPanel
       Left = 0
@@ -35,7 +35,7 @@ object frExportGEKml: TfrExportGEKml
       Align = alClient
       BevelOuter = bvNone
       BorderWidth = 3
-      TabOrder = 1
+      TabOrder = 0
       object lblMap: TLabel
         AlignWithMargins = True
         Left = 3
@@ -57,7 +57,7 @@ object frExportGEKml: TfrExportGEKml
         Height = 17
         Align = alTop
         Caption = 'Don'#39't store references to non-existent tiles'
-        TabOrder = 0
+        TabOrder = 2
       end
       object chkUseRelativePath: TCheckBox
         AlignWithMargins = True
@@ -81,7 +81,7 @@ object frExportGEKml: TfrExportGEKml
         Height = 23
         Align = alTop
         BevelOuter = bvNone
-        TabOrder = 2
+        TabOrder = 0
       end
     end
   end
@@ -93,7 +93,7 @@ object frExportGEKml: TfrExportGEKml
     Align = alTop
     BevelOuter = bvNone
     BorderWidth = 3
-    TabOrder = 1
+    TabOrder = 0
     object lblTargetFile: TLabel
       AlignWithMargins = True
       Left = 3

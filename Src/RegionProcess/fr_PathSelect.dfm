@@ -22,7 +22,7 @@ object frPathSelect: TfrPathSelect
       Align = alClient
       BevelEdges = []
       BevelOuter = bvNone
-      TabOrder = 0
+      TabOrder = 1
       ExplicitLeft = 169
       ExplicitWidth = 282
       object EPath: TEdit
@@ -77,7 +77,7 @@ object frPathSelect: TfrPathSelect
       Align = alLeft
       BevelEdges = []
       BevelOuter = bvNone
-      TabOrder = 1
+      TabOrder = 0
       object LCaption: TLabel
         AlignWithMargins = True
         Left = 3

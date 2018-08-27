@@ -43,7 +43,7 @@ object frmFavoriteMapSetEditor: TfrmFavoriteMapSetEditor
       OnClickCheck = chklstMapsClickCheck
       Align = alClient
       ItemHeight = 13
-      TabOrder = 0
+      TabOrder = 4
       ExplicitWidth = 329
       ExplicitHeight = 140
     end
@@ -54,7 +54,7 @@ object frmFavoriteMapSetEditor: TfrmFavoriteMapSetEditor
       Width = 397
       Height = 21
       Align = alTop
-      TabOrder = 1
+      TabOrder = 0
       ExplicitWidth = 329
     end
     object pnlMap: TPanel
@@ -78,7 +78,7 @@ object frmFavoriteMapSetEditor: TfrmFavoriteMapSetEditor
       Caption = 'Hide non-selected layers'
       Checked = True
       State = cbChecked
-      TabOrder = 3
+      TabOrder = 6
       ExplicitTop = 290
       ExplicitWidth = 329
     end
@@ -89,7 +89,7 @@ object frmFavoriteMapSetEditor: TfrmFavoriteMapSetEditor
       Height = 20
       Align = alBottom
       BevelOuter = bvNone
-      TabOrder = 4
+      TabOrder = 5
       ExplicitTop = 267
       ExplicitWidth = 335
       object lblLayersCount: TLabel
@@ -124,7 +124,7 @@ object frmFavoriteMapSetEditor: TfrmFavoriteMapSetEditor
       Caption = 'Layers:'
       Checked = True
       State = cbChecked
-      TabOrder = 5
+      TabOrder = 3
       OnClick = chkLayersClick
       ExplicitWidth = 329
     end
@@ -138,7 +138,7 @@ object frmFavoriteMapSetEditor: TfrmFavoriteMapSetEditor
       Caption = 'Map:'
       Checked = True
       State = cbChecked
-      TabOrder = 6
+      TabOrder = 1
       OnClick = chkMapClick
       ExplicitWidth = 329
     end

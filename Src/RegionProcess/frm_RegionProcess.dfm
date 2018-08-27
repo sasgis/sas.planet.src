@@ -94,7 +94,7 @@ object frmRegionProcess: TfrmRegionProcess
       Align = alRight
       Caption = 'Start'
       Default = True
-      TabOrder = 0
+      TabOrder = 2
       OnClick = Button1Click
     end
     object Button3: TButton
@@ -106,7 +106,7 @@ object frmRegionProcess: TfrmRegionProcess
       Align = alRight
       Cancel = True
       Caption = 'Cancel'
-      TabOrder = 1
+      TabOrder = 3
       OnClick = Button3Click
     end
     object TBXOperationsToolbar: TTBXToolbar
@@ -117,7 +117,7 @@ object frmRegionProcess: TfrmRegionProcess
       Align = alCustom
       Images = frmMain.MenusImageList
       ShrinkMode = tbsmWrap
-      TabOrder = 2
+      TabOrder = 1
       object tbtmCopyBbox: TTBItem
         ImageIndex = 28
         OnClick = tbtmCopyBboxClick
@@ -151,7 +151,7 @@ object frmRegionProcess: TfrmRegionProcess
       Align = alCustom
       Images = frmMain.MenusImageList
       ShrinkMode = tbsmWrap
-      TabOrder = 3
+      TabOrder = 0
       object tbtmDontClose: TTBItem
         AutoCheck = True
         ImageIndex = 46

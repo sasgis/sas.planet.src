@@ -12,7 +12,7 @@ object frMapCombineCustomOptions: TfrMapCombineCustomOptions
     Align = alTop
     AutoWrap = False
     BevelOuter = bvNone
-    TabOrder = 0
+    TabOrder = 4
     object lblCompression: TLabel
       AlignWithMargins = True
       Left = 3
@@ -45,7 +45,7 @@ object frMapCombineCustomOptions: TfrMapCombineCustomOptions
     Align = alTop
     AutoWrap = False
     BevelOuter = bvNone
-    TabOrder = 1
+    TabOrder = 3
     object lblFormat: TLabel
       AlignWithMargins = True
       Left = 3
@@ -113,7 +113,7 @@ object frMapCombineCustomOptions: TfrMapCombineCustomOptions
     Caption = 'Include alpha channel'
     Checked = True
     State = cbChecked
-    TabOrder = 3
+    TabOrder = 0
   end
   object chkSaveGeoRefInfoToJpegExif: TCheckBox
     Left = 0
@@ -122,7 +122,7 @@ object frMapCombineCustomOptions: TfrMapCombineCustomOptions
     Height = 17
     Align = alTop
     Caption = 'Save GeoRef info to Exif'
-    TabOrder = 4
+    TabOrder = 1
   end
   object flwpnlThreadCount: TFlowPanel
     Left = 0

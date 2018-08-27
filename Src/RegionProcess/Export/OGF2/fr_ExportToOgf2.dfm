@@ -17,7 +17,7 @@ object frExportToOgf2: TfrExportToOgf2
     Height = 158
     Align = alClient
     BevelOuter = bvNone
-    TabOrder = 0
+    TabOrder = 1
     object pnlMain: TPanel
       Left = 0
       Top = 0
@@ -83,7 +83,7 @@ object frExportToOgf2: TfrExportToOgf2
         Height = 21
         ItemHeight = 13
         ItemIndex = 2
-        TabOrder = 0
+        TabOrder = 3
         Text = 'JPEG'
         Items.Strings = (
           'BMP'
@@ -97,7 +97,7 @@ object frExportToOgf2: TfrExportToOgf2
         Height = 21
         ItemHeight = 13
         ItemIndex = 0
-        TabOrder = 1
+        TabOrder = 4
         Text = '128x128 pix'
         OnChange = cbbTileResChange
         Items.Strings = (
@@ -119,7 +119,7 @@ object frExportToOgf2: TfrExportToOgf2
         Height = 22
         MaxValue = 100
         MinValue = 1
-        TabOrder = 3
+        TabOrder = 5
         Value = 75
       end
       object pnlMap: TPanel
@@ -130,7 +130,7 @@ object frExportToOgf2: TfrExportToOgf2
         Align = alCustom
         Anchors = [akLeft, akTop, akRight]
         BevelOuter = bvNone
-        TabOrder = 4
+        TabOrder = 0
       end
       object pnlHyb: TPanel
         Left = 3
@@ -140,7 +140,7 @@ object frExportToOgf2: TfrExportToOgf2
         Align = alCustom
         Anchors = [akLeft, akTop, akRight]
         BevelOuter = bvNone
-        TabOrder = 5
+        TabOrder = 1
       end
     end
   end
@@ -152,7 +152,7 @@ object frExportToOgf2: TfrExportToOgf2
     Align = alTop
     BevelOuter = bvNone
     BorderWidth = 3
-    TabOrder = 1
+    TabOrder = 0
     object lblTargetFile: TLabel
       AlignWithMargins = True
       Left = 3

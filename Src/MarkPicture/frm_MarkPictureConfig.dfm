@@ -20,7 +20,7 @@ object frmMarkPictureConfig: TfrmMarkPictureConfig
     Align = alCustom
     Anchors = [akRight, akBottom]
     Caption = 'Close'
-    TabOrder = 1
+    TabOrder = 3
     OnClick = btnCloseClick
   end
   object pnlCaptions: TPanel
@@ -30,7 +30,7 @@ object frmMarkPictureConfig: TfrmMarkPictureConfig
     Height = 18
     Align = alTop
     BevelOuter = bvNone
-    TabOrder = 3
+    TabOrder = 0
     object lblIcon: TLabel
       Left = 8
       Top = 5
@@ -66,7 +66,7 @@ object frmMarkPictureConfig: TfrmMarkPictureConfig
     Align = alCustom
     Anchors = [akLeft, akTop, akRight, akBottom]
     ItemHeight = 32
-    TabOrder = 0
+    TabOrder = 1
     OnDblClick = lstItemsDblClick
     OnDrawItem = lstItemsDrawItem
     OnKeyDown = lstItemsKeyDown

@@ -17,7 +17,7 @@ object frExportMBTiles: TfrExportMBTiles
     Height = 302
     Align = alClient
     BevelOuter = bvNone
-    TabOrder = 0
+    TabOrder = 1
     ExplicitHeight = 277
     object pnlMain: TPanel
       Left = 0
@@ -106,7 +106,7 @@ object frExportMBTiles: TfrExportMBTiles
         Height = 48
         Align = alTop
         BevelOuter = bvNone
-        TabOrder = 2
+        TabOrder = 6
         ExplicitTop = 129
         object lblJpgQulity: TLabel
           Left = 156
@@ -139,7 +139,7 @@ object frExportMBTiles: TfrExportMBTiles
           Height = 22
           MaxValue = 100
           MinValue = 1
-          TabOrder = 0
+          TabOrder = 1
           Value = 75
         end
         object cbbImageFormat: TComboBox
@@ -148,7 +148,7 @@ object frExportMBTiles: TfrExportMBTiles
           Width = 150
           Height = 21
           ItemIndex = 0
-          TabOrder = 1
+          TabOrder = 0
           Text = 'Auto'
           OnChange = cbbImageFormatChange
           Items.Strings = (
@@ -193,7 +193,7 @@ object frExportMBTiles: TfrExportMBTiles
         Width = 461
         Height = 21
         Align = alTop
-        TabOrder = 5
+        TabOrder = 8
         ExplicitTop = 224
       end
       object edtName: TEdit
@@ -202,7 +202,7 @@ object frExportMBTiles: TfrExportMBTiles
         Width = 461
         Height = 21
         Align = alTop
-        TabOrder = 6
+        TabOrder = 7
         ExplicitTop = 190
       end
       object edtAttr: TEdit
@@ -211,7 +211,7 @@ object frExportMBTiles: TfrExportMBTiles
         Width = 461
         Height = 21
         Align = alTop
-        TabOrder = 7
+        TabOrder = 9
         ExplicitTop = 258
       end
       object chkAddVisibleLayers: TCheckBox
@@ -221,7 +221,7 @@ object frExportMBTiles: TfrExportMBTiles
         Height = 17
         Align = alTop
         Caption = 'Add visible Layers'
-        TabOrder = 8
+        TabOrder = 2
         OnClick = chkAddVisibleLayersClick
       end
       object chkMakeTileMillStruct: TCheckBox
@@ -231,7 +231,7 @@ object frExportMBTiles: TfrExportMBTiles
         Height = 17
         Align = alTop
         Caption = 'Make TileMill compatible structure'
-        TabOrder = 9
+        TabOrder = 5
       end
     end
     object PnlZoom: TPanel
@@ -255,7 +255,7 @@ object frExportMBTiles: TfrExportMBTiles
     Align = alTop
     BevelOuter = bvNone
     BorderWidth = 3
-    TabOrder = 1
+    TabOrder = 0
     object lblTargetFile: TLabel
       AlignWithMargins = True
       Left = 3

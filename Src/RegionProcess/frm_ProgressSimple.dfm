@@ -38,7 +38,7 @@ object frmProgressSimple: TfrmProgressSimple
     Height = 16
     Align = alBottom
     BevelOuter = bvNone
-    TabOrder = 1
+    TabOrder = 2
   end
   object TBXOperationsToolbar: TTBXToolbar
     Left = 244
@@ -48,7 +48,7 @@ object frmProgressSimple: TfrmProgressSimple
     Align = alRight
     Images = frmMain.MenusImageList
     ShrinkMode = tbsmWrap
-    TabOrder = 2
+    TabOrder = 1
     object tbtmSelect: TTBItem
       ImageIndex = 44
       OnClick = tbtmSelectClick

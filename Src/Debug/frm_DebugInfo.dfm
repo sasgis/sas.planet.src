@@ -27,7 +27,7 @@ object frmDebugInfo: TfrmDebugInfo
     FixedCols = 0
     Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goDrawFocusSelected, goColSizing, goRowSelect]
     PopupMenu = pmFiltering
-    TabOrder = 0
+    TabOrder = 1
     ExplicitTop = 0
     ExplicitHeight = 537
     ColWidths = (
@@ -48,7 +48,7 @@ object frmDebugInfo: TfrmDebugInfo
     Height = 29
     Align = alBottom
     BevelOuter = bvNone
-    TabOrder = 1
+    TabOrder = 2
     object lblFiltering: TLabel
       Left = 378
       Top = 0
@@ -79,7 +79,7 @@ object frmDebugInfo: TfrmDebugInfo
       Margins.Bottom = 2
       Align = alRight
       Caption = 'Refresh'
-      TabOrder = 0
+      TabOrder = 6
       OnClick = btnRefreshClick
     end
     object btnReset: TButton
@@ -94,7 +94,7 @@ object frmDebugInfo: TfrmDebugInfo
       Margins.Bottom = 2
       Align = alLeft
       Caption = 'Reset'
-      TabOrder = 1
+      TabOrder = 0
       OnClick = btnResetClick
     end
     object btnSaveToFile: TButton
@@ -109,7 +109,7 @@ object frmDebugInfo: TfrmDebugInfo
       Margins.Bottom = 2
       Align = alRight
       Caption = 'Save to file ...'
-      TabOrder = 2
+      TabOrder = 5
       OnClick = btnSaveToFileClick
     end
     object btnCopyToClipboard: TButton
@@ -124,7 +124,7 @@ object frmDebugInfo: TfrmDebugInfo
       Margins.Bottom = 2
       Align = alRight
       Caption = 'Copy to clipboard'
-      TabOrder = 3
+      TabOrder = 4
       OnClick = btnCopyToClipboardClick
     end
     object chkHideEmtyRows: TCheckBox
@@ -136,7 +136,7 @@ object frmDebugInfo: TfrmDebugInfo
       Caption = 'Hide emty rows'
       Checked = True
       State = cbChecked
-      TabOrder = 4
+      TabOrder = 1
     end
     object chkAutoRefresh: TCheckBox
       Left = 184
@@ -147,7 +147,7 @@ object frmDebugInfo: TfrmDebugInfo
       Caption = 'Auto Refresh'
       Checked = True
       State = cbChecked
-      TabOrder = 5
+      TabOrder = 2
       OnClick = chkAutoRefreshClick
     end
     object chkAlphaBlend: TCheckBox
@@ -157,7 +157,7 @@ object frmDebugInfo: TfrmDebugInfo
       Height = 29
       Align = alLeft
       Caption = 'Alpha Blend'
-      TabOrder = 6
+      TabOrder = 3
       OnClick = chkAlphaBlendClick
     end
   end
@@ -169,7 +169,7 @@ object frmDebugInfo: TfrmDebugInfo
     Align = alTop
     BevelOuter = bvNone
     Caption = 'pnlTop'
-    TabOrder = 2
+    TabOrder = 0
     object chkFilterByClass: TCheckBox
       Left = 5
       Top = 5

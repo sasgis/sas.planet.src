@@ -23,7 +23,7 @@ object frmMarksExplorer: TfrmMarksExplorer
     Height = 385
     Align = alClient
     BevelOuter = bvNone
-    TabOrder = 0
+    TabOrder = 1
     object pnlMain: TPanel
       Left = 0
       Top = 0
@@ -44,7 +44,7 @@ object frmMarksExplorer: TfrmMarksExplorer
         Height = 385
         Align = alClient
         Caption = 'Placemarks'
-        TabOrder = 0
+        TabOrder = 1
         object TBXDockMark: TTBXDock
           Left = 2
           Top = 15
@@ -144,7 +144,7 @@ object frmMarksExplorer: TfrmMarksExplorer
           Height = 20
           Align = alBottom
           BevelOuter = bvNone
-          TabOrder = 1
+          TabOrder = 2
           object CheckBox1: TCheckBox
             AlignWithMargins = True
             Left = 3
@@ -153,7 +153,7 @@ object frmMarksExplorer: TfrmMarksExplorer
             Height = 14
             Align = alLeft
             Caption = 'All'
-            TabOrder = 0
+            TabOrder = 1
             OnClick = CheckBox1Click
           end
           object lblMarksCount: TStaticText
@@ -162,7 +162,7 @@ object frmMarksExplorer: TfrmMarksExplorer
             Width = 4
             Height = 20
             Align = alRight
-            TabOrder = 1
+            TabOrder = 0
           end
         end
         object MarksListBox: TTreeView
@@ -181,7 +181,7 @@ object frmMarksExplorer: TfrmMarksExplorer
           ReadOnly = True
           ShowRoot = False
           StateImages = imlStates
-          TabOrder = 2
+          TabOrder = 1
           OnContextPopup = MarksListBoxContextPopup
           OnDblClick = MarksListBoxDblClick
           OnKeyDown = MarksListBoxKeyDown
@@ -199,7 +199,7 @@ object frmMarksExplorer: TfrmMarksExplorer
         Margins.Bottom = 0
         Align = alLeft
         Caption = 'Placemark Categories'
-        TabOrder = 1
+        TabOrder = 0
         object CategoryTreeView: TTreeView
           AlignWithMargins = True
           Left = 5
@@ -213,7 +213,7 @@ object frmMarksExplorer: TfrmMarksExplorer
           PopupMenu = tbpmnCategories
           ReadOnly = True
           StateImages = imlStates
-          TabOrder = 0
+          TabOrder = 1
           OnChange = CategoryTreeViewChange
           OnContextPopup = CategoryTreeViewContextPopup
           OnDragDrop = CategoryTreeViewDragDrop
@@ -315,7 +315,7 @@ object frmMarksExplorer: TfrmMarksExplorer
     Height = 75
     Align = alBottom
     BevelOuter = bvNone
-    TabOrder = 1
+    TabOrder = 2
     object rgMarksShowMode: TRadioGroup
       AlignWithMargins = True
       Left = 3
@@ -406,7 +406,7 @@ object frmMarksExplorer: TfrmMarksExplorer
     ProcessShortCuts = True
     ShrinkMode = tbsmWrap
     Stretch = True
-    TabOrder = 2
+    TabOrder = 0
     Caption = 'TBXToolbar3'
     object tbxConfigList: TTBXSubmenuItem
       DisplayMode = nbdmImageAndText

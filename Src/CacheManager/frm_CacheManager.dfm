@@ -69,7 +69,7 @@ object frmCacheManager: TfrmCacheManager
           Width = 153
           Height = 21
           BevelOuter = bvNone
-          TabOrder = 1
+          TabOrder = 2
         end
         object chkIgnoreTNE: TCheckBox
           Left = 279
@@ -77,7 +77,7 @@ object frmCacheManager: TfrmCacheManager
           Width = 130
           Height = 17
           Caption = 'Ignore *.tne'
-          TabOrder = 2
+          TabOrder = 4
         end
         object chkRemove: TCheckBox
           Left = 415
@@ -85,14 +85,14 @@ object frmCacheManager: TfrmCacheManager
           Width = 141
           Height = 17
           Caption = 'Remove tiles'
-          TabOrder = 3
+          TabOrder = 5
         end
         object edtDefExtention: TEdit
           Left = 175
           Top = 81
           Width = 98
           Height = 21
-          TabOrder = 4
+          TabOrder = 3
           Text = '*.jpg'
         end
         object btnSelectSrcPath: TButton
@@ -103,7 +103,7 @@ object frmCacheManager: TfrmCacheManager
           Align = alCustom
           Anchors = [akTop, akRight]
           Caption = '...'
-          TabOrder = 5
+          TabOrder = 1
           OnClick = btnSelectSrcPathClick
         end
         object chkCheckSourceVersion: TCheckBox
@@ -162,7 +162,7 @@ object frmCacheManager: TfrmCacheManager
           Width = 153
           Height = 21
           BevelOuter = bvNone
-          TabOrder = 1
+          TabOrder = 2
         end
         object chkOverwrite: TCheckBox
           Left = 175
@@ -170,7 +170,7 @@ object frmCacheManager: TfrmCacheManager
           Width = 381
           Height = 17
           Caption = 'Overwrite existing tiles'
-          TabOrder = 2
+          TabOrder = 3
         end
         object btnSelectDestPath: TButton
           Left = 532
@@ -180,7 +180,7 @@ object frmCacheManager: TfrmCacheManager
           Align = alCustom
           Anchors = [akTop, akRight]
           Caption = '...'
-          TabOrder = 3
+          TabOrder = 1
           OnClick = btnSelectDestPathClick
         end
         object chkReplaceDestVersion: TCheckBox
@@ -222,7 +222,7 @@ object frmCacheManager: TfrmCacheManager
       Align = alRight
       Caption = 'Start'
       Default = True
-      TabOrder = 0
+      TabOrder = 1
       OnClick = btnStartClick
     end
     object btnCansel: TButton
@@ -234,7 +234,7 @@ object frmCacheManager: TfrmCacheManager
       Align = alRight
       Cancel = True
       Caption = 'Cancel'
-      TabOrder = 1
+      TabOrder = 2
       OnClick = btnCanselClick
     end
     object TBXDontClose: TTBXToolbar
@@ -245,7 +245,7 @@ object frmCacheManager: TfrmCacheManager
       Align = alCustom
       Images = frmMain.MenusImageList
       ShrinkMode = tbsmWrap
-      TabOrder = 2
+      TabOrder = 0
       object tbtmDontClose: TTBItem
         AutoCheck = True
         ImageIndex = 46

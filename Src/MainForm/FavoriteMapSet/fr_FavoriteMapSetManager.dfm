@@ -25,7 +25,7 @@ object frFavoriteMapSetManager: TfrFavoriteMapSetManager
     Height = 229
     Align = alRight
     BevelOuter = bvNone
-    TabOrder = 0
+    TabOrder = 1
     ExplicitLeft = 363
     ExplicitHeight = 216
     object btnEdit: TButton
@@ -36,7 +36,7 @@ object frFavoriteMapSetManager: TfrFavoriteMapSetManager
       Height = 25
       Align = alTop
       Caption = 'Edit'
-      TabOrder = 0
+      TabOrder = 4
       OnClick = btnEditClick
       ExplicitLeft = 6
       ExplicitTop = 51
@@ -50,7 +50,7 @@ object frFavoriteMapSetManager: TfrFavoriteMapSetManager
       Height = 25
       Align = alTop
       Caption = 'Add'
-      TabOrder = 1
+      TabOrder = 2
       OnClick = btnAddClick
       ExplicitTop = 43
       ExplicitWidth = 132
@@ -63,7 +63,7 @@ object frFavoriteMapSetManager: TfrFavoriteMapSetManager
       Height = 25
       Align = alTop
       Caption = 'Delete'
-      TabOrder = 2
+      TabOrder = 3
       OnClick = btnDeleteClick
       ExplicitTop = 25
       ExplicitWidth = 135
@@ -76,7 +76,7 @@ object frFavoriteMapSetManager: TfrFavoriteMapSetManager
       Height = 25
       Align = alTop
       Caption = 'Move Up'
-      TabOrder = 3
+      TabOrder = 0
       OnClick = btnUpClick
       ExplicitWidth = 138
     end
@@ -88,7 +88,7 @@ object frFavoriteMapSetManager: TfrFavoriteMapSetManager
       Height = 25
       Align = alTop
       Caption = 'Move Down'
-      TabOrder = 4
+      TabOrder = 1
       OnClick = btnDownClick
       ExplicitTop = 15
       ExplicitWidth = 132
@@ -115,7 +115,7 @@ object frFavoriteMapSetManager: TfrFavoriteMapSetManager
     Height = 183
     Align = alBottom
     BevelOuter = bvNone
-    TabOrder = 1
+    TabOrder = 2
     ExplicitWidth = 420
     object lvInfo: TListView
       AlignWithMargins = True
@@ -151,7 +151,7 @@ object frFavoriteMapSetManager: TfrFavoriteMapSetManager
     Height = 229
     Align = alClient
     BevelOuter = bvNone
-    TabOrder = 2
+    TabOrder = 0
     ExplicitLeft = 32
     ExplicitTop = 72
     ExplicitWidth = 185

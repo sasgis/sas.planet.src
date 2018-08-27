@@ -23,7 +23,7 @@ object frmFavoriteMapSetManager: TfrmFavoriteMapSetManager
     Height = 31
     Align = alBottom
     BevelOuter = bvNone
-    TabOrder = 0
+    TabOrder = 1
     object btnOk: TButton
       AlignWithMargins = True
       Left = 554
@@ -46,6 +46,6 @@ object frmFavoriteMapSetManager: TfrmFavoriteMapSetManager
     Height = 461
     Align = alClient
     BevelOuter = bvNone
-    TabOrder = 1
+    TabOrder = 0
   end
 end

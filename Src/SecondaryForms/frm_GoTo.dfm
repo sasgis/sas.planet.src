@@ -36,7 +36,7 @@ object frmGoTo: TfrmGoTo
       Cancel = True
       Caption = 'Cancel'
       ModalResult = 2
-      TabOrder = 0
+      TabOrder = 1
       OnClick = btnCancelClick
     end
     object btnGoTo: TButton
@@ -50,7 +50,7 @@ object frmGoTo: TfrmGoTo
       Default = True
       ParentShowHint = False
       ShowHint = True
-      TabOrder = 1
+      TabOrder = 0
       OnClick = btnGoToClick
     end
     object TBXDontClose: TTBXToolbar

@@ -94,7 +94,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
         Anchors = [akLeft, akTop, akRight]
         ItemHeight = 16
-        TabOrder = 1
+        TabOrder = 9
       end
       object seStatBarTextOpacity: TSpinEdit
         Left = 230
@@ -104,7 +104,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Anchors = [akTop, akRight]
         MaxValue = 255
         MinValue = 0
-        TabOrder = 2
+        TabOrder = 10
         Value = 255
       end
       object clrbxStatBarBackgroundColor: TColorBox
@@ -115,7 +115,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
         Anchors = [akLeft, akTop, akRight]
         ItemHeight = 16
-        TabOrder = 3
+        TabOrder = 11
       end
       object seStatBarBackgroundOpacity: TSpinEdit
         Left = 230
@@ -125,7 +125,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Anchors = [akTop, akRight]
         MaxValue = 255
         MinValue = 0
-        TabOrder = 4
+        TabOrder = 12
         Value = 80
       end
       object grpStatBarFont: TGroupBox
@@ -136,7 +136,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Align = alCustom
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Font'
-        TabOrder = 5
+        TabOrder = 13
         DesignSize = (
           310
           52)
@@ -157,7 +157,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
           Anchors = [akTop, akRight]
           MaxValue = 0
           MinValue = 0
-          TabOrder = 0
+          TabOrder = 1
           Value = 10
         end
         object edtStatBarFontName: TEdit
@@ -167,7 +167,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
           Height = 21
           Align = alCustom
           Anchors = [akLeft, akTop, akRight]
-          TabOrder = 1
+          TabOrder = 0
           Text = 'Arial'
         end
       end
@@ -178,7 +178,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Height = 22
         MaxValue = 0
         MinValue = 0
-        TabOrder = 6
+        TabOrder = 14
         Value = 17
       end
       object seStatBarRedrawTime: TSpinEdit
@@ -188,7 +188,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Height = 22
         MaxValue = 0
         MinValue = 0
-        TabOrder = 7
+        TabOrder = 15
         Value = 200
       end
       object chkStatBarZoomInfo: TCheckBox
@@ -197,7 +197,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Width = 310
         Height = 17
         Caption = 'Show Zoom Info'
-        TabOrder = 8
+        TabOrder = 1
       end
       object chkStatBarLonLatInfo: TCheckBox
         Left = 3
@@ -205,7 +205,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Width = 310
         Height = 17
         Caption = 'Show LonLat Info'
-        TabOrder = 9
+        TabOrder = 2
       end
       object chkStatBarMetrPerPixInfo: TCheckBox
         Left = 3
@@ -213,7 +213,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Width = 310
         Height = 17
         Caption = 'Show Meter Per Pixel Info'
-        TabOrder = 10
+        TabOrder = 3
       end
       object chkStatBarTimeZoneInfo: TCheckBox
         Left = 3
@@ -221,7 +221,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Width = 310
         Height = 17
         Caption = 'Show Time Zone Info'
-        TabOrder = 11
+        TabOrder = 5
       end
       object chkStatBarDownloadInfo: TCheckBox
         Left = 3
@@ -229,7 +229,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Width = 310
         Height = 17
         Caption = 'Show Download Info'
-        TabOrder = 12
+        TabOrder = 6
       end
       object chkStatBarQueueInfo: TCheckBox
         Left = 3
@@ -237,7 +237,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Width = 310
         Height = 17
         Caption = 'Show Queue Info'
-        TabOrder = 13
+        TabOrder = 7
       end
       object chkStatBarTilePathInfo: TCheckBox
         Left = 3
@@ -245,7 +245,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Width = 310
         Height = 17
         Caption = 'Show Tile Path Info'
-        TabOrder = 14
+        TabOrder = 8
       end
       object chkStatBarElevation: TCheckBox
         Left = 3
@@ -253,7 +253,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Width = 310
         Height = 17
         Caption = 'Show Elevation Info'
-        TabOrder = 15
+        TabOrder = 4
         OnClick = chkStatBarElevationClick
       end
     end
@@ -344,7 +344,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Height = 22
         MaxValue = 0
         MinValue = 0
-        TabOrder = 3
+        TabOrder = 8
         Value = 256
       end
       object clrbxScaleLineColor: TColorBox
@@ -356,7 +356,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
         Anchors = [akLeft, akTop, akRight]
         ItemHeight = 16
-        TabOrder = 4
+        TabOrder = 3
       end
       object clrbxScaleLineOutlineColor: TColorBox
         Left = 3
@@ -377,7 +377,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Anchors = [akTop, akRight]
         MaxValue = 255
         MinValue = 0
-        TabOrder = 6
+        TabOrder = 4
         Value = 255
       end
       object seScaleLineOutlineOpacity: TSpinEdit
@@ -388,7 +388,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Anchors = [akTop, akRight]
         MaxValue = 255
         MinValue = 0
-        TabOrder = 7
+        TabOrder = 6
         Value = 170
       end
       object grpScaleLineFont: TGroupBox
@@ -399,7 +399,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Align = alCustom
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Font'
-        TabOrder = 8
+        TabOrder = 7
         DesignSize = (
           309
           52)
@@ -420,7 +420,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
           Anchors = [akTop, akRight]
           MaxValue = 0
           MinValue = 0
-          TabOrder = 0
+          TabOrder = 1
           Value = 8
         end
         object edtScaleLineFont: TEdit
@@ -430,7 +430,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
           Height = 21
           Align = alCustom
           Anchors = [akLeft, akTop, akRight]
-          TabOrder = 1
+          TabOrder = 0
           Text = 'Arial'
         end
       end
@@ -485,7 +485,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
-    TabOrder = 1
+    TabOrder = 3
   end
   object btnApply: TButton
     Left = 86
@@ -496,7 +496,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
     Anchors = [akRight, akBottom]
     Caption = 'Apply'
     Default = True
-    TabOrder = 2
+    TabOrder = 1
     OnClick = btnApplyClick
   end
   object btnOk: TButton
@@ -508,7 +508,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
     Anchors = [akRight, akBottom]
     Caption = 'Ok'
     Default = True
-    TabOrder = 3
+    TabOrder = 2
     OnClick = btnOkClick
   end
   object dlgFont: TFontDialog

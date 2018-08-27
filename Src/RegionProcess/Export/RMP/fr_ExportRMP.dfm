@@ -16,7 +16,7 @@ object frExportRMP: TfrExportRMP
     Height = 277
     Align = alClient
     BevelOuter = bvNone
-    TabOrder = 0
+    TabOrder = 1
     object pnlMain: TPanel
       Left = 0
       Top = 0
@@ -92,7 +92,7 @@ object frExportRMP: TfrExportRMP
         Height = 49
         Align = alTop
         BevelOuter = bvNone
-        TabOrder = 2
+        TabOrder = 5
         object lblJpgQulity: TLabel
           Left = 2
           Top = 6
@@ -127,7 +127,7 @@ object frExportRMP: TfrExportRMP
         Width = 362
         Height = 21
         Align = alTop
-        TabOrder = 4
+        TabOrder = 6
       end
       object edtRmpProvider: TEdit
         Left = 3
@@ -135,7 +135,7 @@ object frExportRMP: TfrExportRMP
         Width = 362
         Height = 21
         Align = alTop
-        TabOrder = 5
+        TabOrder = 7
       end
       object chkAddVisibleLayers: TCheckBox
         Left = 3
@@ -144,7 +144,7 @@ object frExportRMP: TfrExportRMP
         Height = 17
         Align = alTop
         Caption = 'Add visible Layers'
-        TabOrder = 6
+        TabOrder = 2
         OnClick = chkAddVisibleLayersClick
       end
       object chkDontProjectToLatLon: TCheckBox
@@ -156,7 +156,7 @@ object frExportRMP: TfrExportRMP
         Caption = 'Don'#39't transform tiles to Geographic projection'
         Checked = True
         State = cbChecked
-        TabOrder = 7
+        TabOrder = 4
       end
     end
     object PnlZoom: TPanel
@@ -179,7 +179,7 @@ object frExportRMP: TfrExportRMP
     Align = alTop
     BevelOuter = bvNone
     BorderWidth = 3
-    TabOrder = 1
+    TabOrder = 0
     object lblTargetFile: TLabel
       AlignWithMargins = True
       Left = 3

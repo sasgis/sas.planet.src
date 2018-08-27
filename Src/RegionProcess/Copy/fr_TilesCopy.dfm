@@ -18,7 +18,7 @@ object frTilesCopy: TfrTilesCopy
     Height = 299
     Align = alClient
     BevelOuter = bvNone
-    TabOrder = 0
+    TabOrder = 2
     ExplicitWidth = 480
     ExplicitHeight = 255
     object pnlZoom: TPanel
@@ -29,7 +29,7 @@ object frTilesCopy: TfrTilesCopy
       Align = alRight
       BevelOuter = bvNone
       BorderWidth = 3
-      TabOrder = 0
+      TabOrder = 1
       ExplicitLeft = 400
       ExplicitHeight = 255
     end
@@ -41,7 +41,7 @@ object frTilesCopy: TfrTilesCopy
       Align = alClient
       BevelOuter = bvNone
       BorderWidth = 3
-      TabOrder = 1
+      TabOrder = 0
       ExplicitWidth = 400
       ExplicitHeight = 255
       object lblNamesType: TLabel
@@ -144,7 +144,7 @@ object frTilesCopy: TfrTilesCopy
             Height = 106
             Align = alClient
             ItemHeight = 13
-            TabOrder = 0
+            TabOrder = 2
           end
           object chkAllMaps: TCheckBox
             AlignWithMargins = True
@@ -157,7 +157,7 @@ object frTilesCopy: TfrTilesCopy
             Margins.Bottom = 0
             Align = alBottom
             Caption = 'All'
-            TabOrder = 1
+            TabOrder = 3
             OnClick = chkAllMapsClick
           end
           object chkDeleteSource: TCheckBox
@@ -171,7 +171,7 @@ object frTilesCopy: TfrTilesCopy
             Margins.Bottom = 0
             Align = alTop
             Caption = 'Move'
-            TabOrder = 2
+            TabOrder = 1
           end
           object chkPlaceInNameSubFolder: TCheckBox
             Left = 0
@@ -182,7 +182,7 @@ object frTilesCopy: TfrTilesCopy
             Caption = 'Make subfolder with map path name'
             Checked = True
             State = cbChecked
-            TabOrder = 3
+            TabOrder = 0
           end
         end
         object tsOverlay: TTabSheet
@@ -220,7 +220,7 @@ object frTilesCopy: TfrTilesCopy
             Height = 23
             Align = alTop
             BevelOuter = bvNone
-            TabOrder = 0
+            TabOrder = 1
             ExplicitWidth = 386
           end
           object pnlImageFormat: TPanel
@@ -230,7 +230,7 @@ object frTilesCopy: TfrTilesCopy
             Height = 48
             Align = alTop
             BevelOuter = bvNone
-            TabOrder = 1
+            TabOrder = 3
             ExplicitTop = 78
             ExplicitWidth = 386
             object lblJpgQulity: TLabel
@@ -264,7 +264,7 @@ object frTilesCopy: TfrTilesCopy
               Height = 22
               MaxValue = 100
               MinValue = 1
-              TabOrder = 0
+              TabOrder = 1
               Value = 75
             end
             object seCompression: TSpinEdit
@@ -274,7 +274,7 @@ object frTilesCopy: TfrTilesCopy
               Height = 22
               MaxValue = 9
               MinValue = 0
-              TabOrder = 1
+              TabOrder = 2
               Value = 2
             end
             object cbbImageFormat: TComboBox
@@ -283,7 +283,7 @@ object frTilesCopy: TfrTilesCopy
               Width = 150
               Height = 21
               ItemIndex = 0
-              TabOrder = 2
+              TabOrder = 0
               Text = 'Auto'
               OnChange = cbbImageFormatChange
               Items.Strings = (
@@ -303,7 +303,7 @@ object frTilesCopy: TfrTilesCopy
             Height = 23
             Align = alTop
             BevelOuter = bvNone
-            TabOrder = 2
+            TabOrder = 0
             ExplicitWidth = 386
           end
           object chkAddVisibleLayers: TCheckBox
@@ -313,7 +313,7 @@ object frTilesCopy: TfrTilesCopy
             Height = 17
             Align = alTop
             Caption = 'Add visible Layers'
-            TabOrder = 3
+            TabOrder = 2
             OnClick = chkAddVisibleLayersClick
             ExplicitLeft = 6
             ExplicitTop = 61
@@ -353,7 +353,7 @@ object frTilesCopy: TfrTilesCopy
       Height = 21
       Align = alRight
       Caption = '...'
-      TabOrder = 0
+      TabOrder = 1
       OnClick = btnSelectTargetPathClick
     end
     object cbbTargetPath: TComboBox
@@ -363,7 +363,7 @@ object frTilesCopy: TfrTilesCopy
       Height = 21
       Align = alClient
       ItemHeight = 13
-      TabOrder = 1
+      TabOrder = 0
     end
   end
   object Panel1: TPanel
@@ -378,7 +378,7 @@ object frTilesCopy: TfrTilesCopy
     BevelOuter = bvNone
     BorderWidth = 3
     Caption = 'Copy tiles from selection to folder'
-    TabOrder = 2
+    TabOrder = 0
     ExplicitWidth = 480
   end
 end

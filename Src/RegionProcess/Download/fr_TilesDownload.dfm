@@ -34,7 +34,7 @@ object frTilesDownload: TfrTilesDownload
     BevelKind = bkTile
     BevelOuter = bvNone
     BorderWidth = 3
-    TabOrder = 1
+    TabOrder = 2
   end
   object pnlCenter: TPanel
     Left = 0
@@ -43,7 +43,7 @@ object frTilesDownload: TfrTilesDownload
     Height = 282
     Align = alClient
     BevelOuter = bvNone
-    TabOrder = 2
+    TabOrder = 1
     ExplicitLeft = 8
     ExplicitTop = 3
     ExplicitWidth = 469
@@ -125,7 +125,7 @@ object frTilesDownload: TfrTilesDownload
         Height = 16
         Align = alTop
         Caption = 'Overwrite old tiles'
-        TabOrder = 3
+        TabOrder = 4
         OnClick = chkReplaceClick
       end
       object chkTryLoadIfTNE: TCheckBox
@@ -135,7 +135,7 @@ object frTilesDownload: TfrTilesDownload
         Height = 16
         Align = alTop
         Caption = 'Try download if tne exists'
-        TabOrder = 1
+        TabOrder = 2
         OnClick = chkTryLoadIfTNEClick
       end
       object pnlTileReplaceCondition: TPanel
@@ -148,7 +148,7 @@ object frTilesDownload: TfrTilesDownload
         BevelOuter = bvNone
         BorderWidth = 3
         Padding.Left = 15
-        TabOrder = 4
+        TabOrder = 5
         object chkReplaceIfDifSize: TCheckBox
           Left = 18
           Top = 3
@@ -219,7 +219,7 @@ object frTilesDownload: TfrTilesDownload
         BevelOuter = bvNone
         BorderWidth = 3
         Padding.Left = 15
-        TabOrder = 2
+        TabOrder = 3
         object pnlLoadIfTneOld: TPanel
           Left = 18
           Top = 3
@@ -270,7 +270,7 @@ object frTilesDownload: TfrTilesDownload
         AutoSize = True
         BevelOuter = bvNone
         Padding.Top = 2
-        TabOrder = 5
+        TabOrder = 8
         object chkSplitRegion: TCheckBox
           AlignWithMargins = True
           Left = 0
@@ -312,7 +312,7 @@ object frTilesDownload: TfrTilesDownload
         Height = 16
         Align = alTop
         Caption = 'Close download window once finish'
-        TabOrder = 6
+        TabOrder = 1
       end
       object pnlAutosaveSession: TFlowPanel
         Left = 5
@@ -322,7 +322,7 @@ object frTilesDownload: TfrTilesDownload
         Align = alTop
         AutoSize = True
         BevelOuter = bvNone
-        TabOrder = 7
+        TabOrder = 6
         object chkAutosaveSession: TCheckBox
           AlignWithMargins = True
           Left = 0
@@ -332,7 +332,7 @@ object frTilesDownload: TfrTilesDownload
           Margins.Left = 0
           Margins.Right = 0
           Margins.Bottom = 0
-          TabOrder = 1
+          TabOrder = 0
           OnClick = chkAutosaveSessionClick
         end
         object lblAutoSaveSession: TLabel
@@ -353,7 +353,7 @@ object frTilesDownload: TfrTilesDownload
           Height = 22
           MaxValue = 999
           MinValue = 1
-          TabOrder = 0
+          TabOrder = 1
           Value = 15
         end
       end
@@ -369,14 +369,14 @@ object frTilesDownload: TfrTilesDownload
         Margins.Bottom = 0
         Align = alTop
         BevelOuter = bvNone
-        TabOrder = 8
+        TabOrder = 7
         object chkSessionPrefix: TCheckBox
           AlignWithMargins = True
           Left = 3
           Top = 3
           Width = 14
           Height = 22
-          TabOrder = 1
+          TabOrder = 0
           OnClick = chkSessionPrefixClick
         end
         object lblSessionPrefix: TLabel
@@ -396,7 +396,7 @@ object frTilesDownload: TfrTilesDownload
           Width = 130
           Height = 21
           Hint = 'It'#39's allowed to use \ as a path delimiter'
-          TabOrder = 0
+          TabOrder = 1
         end
       end
     end

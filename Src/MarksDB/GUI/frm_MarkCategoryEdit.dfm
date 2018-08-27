@@ -37,7 +37,7 @@ object frmMarkCategoryEdit: TfrmMarkCategoryEdit
     Height = 17
     Align = alBottom
     Caption = 'Show on map'
-    TabOrder = 0
+    TabOrder = 2
   end
   object pnlBottomButtons: TPanel
     Left = 0
@@ -46,7 +46,7 @@ object frmMarkCategoryEdit: TfrmMarkCategoryEdit
     Height = 31
     Align = alBottom
     BevelOuter = bvNone
-    TabOrder = 1
+    TabOrder = 3
     object lblReadOnly: TLabel
       Left = 29
       Top = 0
@@ -77,7 +77,7 @@ object frmMarkCategoryEdit: TfrmMarkCategoryEdit
       Cancel = True
       Caption = 'Cancel'
       ModalResult = 2
-      TabOrder = 0
+      TabOrder = 2
     end
     object btnOk: TButton
       AlignWithMargins = True
@@ -101,7 +101,7 @@ object frmMarkCategoryEdit: TfrmMarkCategoryEdit
       Align = alLeft
       Caption = '~'
       Default = True
-      TabOrder = 2
+      TabOrder = 0
       OnClick = btnSetAsTemplateClick
     end
   end
@@ -112,7 +112,7 @@ object frmMarkCategoryEdit: TfrmMarkCategoryEdit
     Height = 34
     Align = alClient
     BevelOuter = bvNone
-    TabOrder = 2
+    TabOrder = 1
     object Label3: TLabel
       AlignWithMargins = True
       Left = 3
@@ -159,7 +159,7 @@ object frmMarkCategoryEdit: TfrmMarkCategoryEdit
     Height = 27
     Align = alTop
     BevelOuter = bvNone
-    TabOrder = 3
+    TabOrder = 0
     object Label1: TLabel
       AlignWithMargins = True
       Left = 3

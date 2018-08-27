@@ -16,7 +16,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
     Height = 277
     Align = alClient
     BevelOuter = bvNone
-    TabOrder = 0
+    TabOrder = 1
     object pnlMain: TPanel
       Left = 0
       Top = 0
@@ -57,7 +57,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
         Caption = 'Replace existing tiles'
         Checked = True
         State = cbChecked
-        TabOrder = 0
+        TabOrder = 4
         ExplicitTop = 98
       end
       object chkForceDropTarget: TCheckBox
@@ -69,7 +69,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
         Caption = 'Recreate target database if exists'
         Checked = True
         State = cbChecked
-        TabOrder = 1
+        TabOrder = 3
         ExplicitTop = 81
       end
       object pnlMap: TPanel
@@ -79,7 +79,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
         Height = 23
         Align = alTop
         BevelOuter = bvNone
-        TabOrder = 2
+        TabOrder = 0
       end
       object chkDirectTilesCopy: TCheckBox
         Left = 3
@@ -88,7 +88,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
         Height = 17
         Align = alTop
         Caption = 'Direct tiles copy (without any modifications)'
-        TabOrder = 3
+        TabOrder = 6
         OnClick = chkDirectTilesCopyClick
         ExplicitTop = 132
       end
@@ -99,7 +99,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
         Height = 23
         Align = alTop
         BevelOuter = bvNone
-        TabOrder = 4
+        TabOrder = 1
       end
       object pnlImageFormat: TPanel
         Left = 3
@@ -108,7 +108,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
         Height = 48
         Align = alTop
         BevelOuter = bvNone
-        TabOrder = 5
+        TabOrder = 7
         ExplicitTop = 149
         object lblJpgQulity: TLabel
           Left = 156
@@ -141,7 +141,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
           Height = 22
           MaxValue = 100
           MinValue = 1
-          TabOrder = 0
+          TabOrder = 1
           Value = 75
         end
         object cbbImageFormat: TComboBox
@@ -149,7 +149,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
           Top = 22
           Width = 150
           Height = 21
-          TabOrder = 1
+          TabOrder = 0
           Text = 'JPEG'
           OnChange = cbbImageFormatChange
           Items.Strings = (
@@ -179,7 +179,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
         Height = 17
         Align = alTop
         Caption = 'Use tiles from lower zooms (on unavalible tile)'
-        TabOrder = 6
+        TabOrder = 5
         OnClick = chkUsePrevZoomClick
         ExplicitTop = 115
       end
@@ -190,7 +190,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
         Height = 17
         Align = alTop
         Caption = 'Add visible Layers'
-        TabOrder = 7
+        TabOrder = 2
         OnClick = chkAddVisibleLayersClick
         ExplicitLeft = 6
         ExplicitTop = 61
@@ -216,7 +216,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
     Align = alTop
     BevelOuter = bvNone
     BorderWidth = 3
-    TabOrder = 1
+    TabOrder = 0
     object lblTargetFile: TLabel
       AlignWithMargins = True
       Left = 3

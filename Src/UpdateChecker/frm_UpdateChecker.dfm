@@ -71,7 +71,7 @@ object frmUpdateChecker: TfrmUpdateChecker
     Align = alCustom
     Anchors = [akTop, akRight]
     Caption = 'Download'
-    TabOrder = 1
+    TabOrder = 2
     OnClick = btnDownloadClick
   end
   object btnClose: TButton
@@ -82,7 +82,7 @@ object frmUpdateChecker: TfrmUpdateChecker
     Align = alCustom
     Anchors = [akTop, akRight]
     Caption = 'Close'
-    TabOrder = 2
+    TabOrder = 3
     OnClick = btnCloseClick
   end
   object cbbChannel: TComboBox
@@ -90,7 +90,7 @@ object frmUpdateChecker: TfrmUpdateChecker
     Top = 100
     Width = 152
     Height = 21
-    TabOrder = 3
+    TabOrder = 1
     Text = 'Nightly (testing)'
     OnChange = cbbChannelChange
     Items.Strings = (

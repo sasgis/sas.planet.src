@@ -85,7 +85,7 @@ object frSearchResultsItem: TfrSearchResultsItem
     Align = alTop
     AutoSize = True
     BevelOuter = bvNone
-    TabOrder = 1
+    TabOrder = 2
     object LabelDesc: TLabel
       AlignWithMargins = True
       Left = 3
@@ -112,7 +112,7 @@ object frSearchResultsItem: TfrSearchResultsItem
     Align = alTop
     AutoSize = True
     BevelOuter = bvNone
-    TabOrder = 2
+    TabOrder = 3
     object LabelFullDescImg: TLabel
       AlignWithMargins = True
       Left = 376
@@ -180,7 +180,7 @@ object frSearchResultsItem: TfrSearchResultsItem
     Align = alTop
     AutoSize = True
     BevelOuter = bvNone
-    TabOrder = 3
+    TabOrder = 4
     object LabelFullDescShort: TLabel
       AlignWithMargins = True
       Left = 376
@@ -209,7 +209,7 @@ object frSearchResultsItem: TfrSearchResultsItem
     Align = alTop
     AutoSize = True
     BevelOuter = bvNone
-    TabOrder = 4
+    TabOrder = 1
     object LabelCategory: TLabel
       AlignWithMargins = True
       Left = 3

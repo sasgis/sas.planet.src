@@ -73,7 +73,7 @@ object frmMarkEditPoint: TfrmMarkEditPoint
       Cancel = True
       Caption = 'Cancel'
       ModalResult = 2
-      TabOrder = 1
+      TabOrder = 2
     end
     object btnOk: TButton
       AlignWithMargins = True
@@ -84,7 +84,7 @@ object frmMarkEditPoint: TfrmMarkEditPoint
       Align = alRight
       Caption = 'Ok'
       Default = True
-      TabOrder = 0
+      TabOrder = 1
       OnClick = btnOkClick
     end
     object btnSetAsTemplate: TButton
@@ -97,7 +97,7 @@ object frmMarkEditPoint: TfrmMarkEditPoint
       Align = alLeft
       Caption = '~'
       Default = True
-      TabOrder = 2
+      TabOrder = 0
       OnClick = btnSetAsTemplateClick
     end
   end

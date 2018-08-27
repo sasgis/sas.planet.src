@@ -47,7 +47,7 @@ object frmProgressDownload: TfrmProgressDownload
       Align = alBottom
       AutoSize = True
       BevelOuter = bvNone
-      TabOrder = 1
+      TabOrder = 8
       ExplicitTop = 215
       object btnClose: TButton
         AlignWithMargins = True
@@ -57,7 +57,7 @@ object frmProgressDownload: TfrmProgressDownload
         Height = 24
         Align = alRight
         Caption = 'Quit'
-        TabOrder = 0
+        TabOrder = 2
         OnClick = btnCloseClick
       end
       object btnPause: TButton
@@ -80,7 +80,7 @@ object frmProgressDownload: TfrmProgressDownload
         Align = alLeft
         Images = frmMain.MenusImageList
         ShrinkMode = tbsmWrap
-        TabOrder = 2
+        TabOrder = 0
         object tbtmSelect: TTBItem
           ImageIndex = 44
           OnClick = tbtmSelectClick
@@ -127,7 +127,7 @@ object frmProgressDownload: TfrmProgressDownload
       Margins.Bottom = 0
       Align = alBottom
       BevelOuter = bvNone
-      TabOrder = 2
+      TabOrder = 6
       ExplicitTop = 181
     end
     object pnlToProcess: TPanel
@@ -137,7 +137,7 @@ object frmProgressDownload: TfrmProgressDownload
       Height = 17
       Align = alBottom
       BevelOuter = bvNone
-      TabOrder = 3
+      TabOrder = 1
       ExplicitTop = 96
       object lblToProcess: TLabel
         Left = 0
@@ -172,7 +172,7 @@ object frmProgressDownload: TfrmProgressDownload
       Height = 17
       Align = alBottom
       BevelOuter = bvNone
-      TabOrder = 4
+      TabOrder = 2
       ExplicitTop = 113
       object lblProcessed: TLabel
         Left = 0
@@ -207,7 +207,7 @@ object frmProgressDownload: TfrmProgressDownload
       Height = 17
       Align = alBottom
       BevelOuter = bvNone
-      TabOrder = 5
+      TabOrder = 3
       ExplicitTop = 130
       object lblDownloaded: TLabel
         Left = 0
@@ -242,7 +242,7 @@ object frmProgressDownload: TfrmProgressDownload
       Height = 17
       Align = alBottom
       BevelOuter = bvNone
-      TabOrder = 6
+      TabOrder = 5
       ExplicitTop = 164
       object lblSizeToFinish: TLabel
         Left = 0
@@ -277,7 +277,7 @@ object frmProgressDownload: TfrmProgressDownload
       Height = 17
       Align = alBottom
       BevelOuter = bvNone
-      TabOrder = 7
+      TabOrder = 4
       ExplicitTop = 147
       object lblTimeToFinish: TLabel
         Left = 0
@@ -312,7 +312,7 @@ object frmProgressDownload: TfrmProgressDownload
       Height = 17
       Align = alBottom
       Caption = 'Close this window once finished'
-      TabOrder = 8
+      TabOrder = 7
       OnClick = chkAutoCloseWhenFinishClick
     end
   end

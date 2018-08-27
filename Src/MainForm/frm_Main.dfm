@@ -33,7 +33,7 @@ object frmMain: TfrmMain
     RepaintMode = rmOptimizer
     Scale = 1.000000000000000000
     ScaleMode = smNormal
-    TabOrder = 0
+    TabOrder = 2
     OnDblClick = mapDblClick
     OnMouseLeave = mapMouseLeave
   end
@@ -50,7 +50,7 @@ object frmMain: TfrmMain
       DockRow = 1
       Images = PanelsImageList
       Stretch = True
-      TabOrder = 0
+      TabOrder = 3
       Caption = 'Main'
       object TBmove: TTBXItem
         Action = actMoveMap
@@ -106,7 +106,7 @@ object frmMain: TfrmMain
       DockPos = 224
       DockRow = 1
       Stretch = True
-      TabOrder = 1
+      TabOrder = 4
       Caption = 'Sources'
       object TBSrc: TTBXSubmenuItem
         ImageIndex = 0
@@ -151,7 +151,7 @@ object frmMain: TfrmMain
       Images = PanelsImageList
       LinkSubitems = NMarksGroup
       Stretch = True
-      TabOrder = 2
+      TabOrder = 6
       Caption = 'Placemarks'
     end
     object GPSToolbar: TTBXToolbar
@@ -161,7 +161,7 @@ object frmMain: TfrmMain
       DockRow = 1
       Images = PanelsImageList
       Stretch = True
-      TabOrder = 3
+      TabOrder = 7
       Caption = 'GPS'
       object TBGPSconn: TTBXItem
         Action = actGpsConnect
@@ -206,7 +206,7 @@ object frmMain: TfrmMain
       Top = 25
       DockPos = 807
       DockRow = 1
-      TabOrder = 4
+      TabOrder = 8
       Visible = False
       object TBXExit: TTBXItem
         Action = actQuit
@@ -222,7 +222,7 @@ object frmMain: TfrmMain
       ProcessShortCuts = True
       ShrinkMode = tbsmWrap
       Stretch = True
-      TabOrder = 5
+      TabOrder = 0
       Caption = 'Main Menu'
       object NOperations: TTBXSubmenuItem
         Caption = '&Operations'
@@ -923,7 +923,7 @@ object frmMain: TfrmMain
       DockPos = 413
       Options = [tboNoRotation]
       Stretch = True
-      TabOrder = 6
+      TabOrder = 1
       Caption = 'Search'
       object TBXSelectSrchType: TTBXSubmenuItem
         Options = [tboDropdownArrow, tboNoRotation]
@@ -948,7 +948,7 @@ object frmMain: TfrmMain
       Top = 0
       DefaultDock = TBDock
       DockPos = 643
-      TabOrder = 7
+      TabOrder = 2
       Visible = False
       Caption = 'FillDates'
       object TBControlItem7: TTBControlItem
@@ -1012,7 +1012,7 @@ object frmMain: TfrmMain
       DockPos = 224
       DockRow = 1
       Stretch = True
-      TabOrder = 8
+      TabOrder = 5
       Caption = 'Sources'
       object TBFavorite: TTBXSubmenuItem
         ImageIndex = 22
@@ -1179,7 +1179,7 @@ object frmMain: TfrmMain
       Left = 0
       Top = 244
       DockPos = 240
-      TabOrder = 2
+      TabOrder = 3
       OnClose = TBEditPathClose
       object TBEditPathDel: TTBXItem
         ImageIndex = 36
@@ -1309,7 +1309,7 @@ object frmMain: TfrmMain
       DockRow = 2
       FloatingWidth = 128
       FloatingHeight = 128
-      TabOrder = 3
+      TabOrder = 2
       Visible = False
       OnClose = tbMergePolygonsClose
       Caption = 'Merge Polygons'

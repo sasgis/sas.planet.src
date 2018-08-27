@@ -58,7 +58,7 @@ object frMapCombine: TfrMapCombine
     Height = 151
     Align = alClient
     BevelOuter = bvNone
-    TabOrder = 1
+    TabOrder = 2
     object pnlOptions: TPanel
       Left = 0
       Top = 0
@@ -77,7 +77,7 @@ object frMapCombine: TfrMapCombine
         Height = 17
         Align = alTop
         Caption = 'Add visible Placemarks'
-        TabOrder = 0
+        TabOrder = 2
         ExplicitTop = 88
       end
       object chkUseRecolor: TCheckBox
@@ -87,7 +87,7 @@ object frMapCombine: TfrMapCombine
         Height = 17
         Align = alTop
         Caption = 'Use postprocessing settings'
-        TabOrder = 1
+        TabOrder = 4
         ExplicitLeft = 0
         ExplicitTop = 77
       end
@@ -98,7 +98,7 @@ object frMapCombine: TfrMapCombine
         Height = 17
         Align = alTop
         Caption = 'Add visible Grids'
-        TabOrder = 2
+        TabOrder = 1
         ExplicitTop = 71
       end
       object chkAddVisibleLayers: TCheckBox
@@ -119,7 +119,7 @@ object frMapCombine: TfrMapCombine
         Height = 17
         Align = alTop
         Caption = 'Add visible Cached Tiles Map'
-        TabOrder = 4
+        TabOrder = 0
         ExplicitTop = 54
       end
       object pnlCustomOpt: TPanel
@@ -244,7 +244,7 @@ object frMapCombine: TfrMapCombine
     BevelEdges = [beBottom]
     BevelKind = bkTile
     BevelOuter = bvNone
-    TabOrder = 2
+    TabOrder = 1
     object pnlZoom: TPanel
       Left = 469
       Top = 0
@@ -255,7 +255,7 @@ object frMapCombine: TfrMapCombine
       BevelEdges = []
       BevelKind = bkTile
       BevelOuter = bvNone
-      TabOrder = 0
+      TabOrder = 1
       object Labelzoom: TLabel
         AlignWithMargins = True
         Left = 3
@@ -284,7 +284,7 @@ object frMapCombine: TfrMapCombine
       Height = 126
       Align = alClient
       BevelOuter = bvNone
-      TabOrder = 1
+      TabOrder = 0
       object lblStat: TLabel
         AlignWithMargins = True
         Left = 3

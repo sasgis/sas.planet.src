@@ -14,7 +14,7 @@ object frExport: TfrExport
     Height = 50
     Align = alClient
     BevelOuter = bvNone
-    TabOrder = 0
+    TabOrder = 1
   end
   object pnlTop: TPanel
     Left = 0
@@ -22,7 +22,7 @@ object frExport: TfrExport
     Width = 480
     Height = 30
     Align = alTop
-    TabOrder = 1
+    TabOrder = 0
     object Label9: TLabel
       Left = 1
       Top = 1

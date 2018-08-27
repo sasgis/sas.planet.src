@@ -18,7 +18,7 @@ object frMergePolygons: TfrMergePolygons
     RightClickSelect = True
     RowSelect = True
     ShowRoot = False
-    TabOrder = 0
+    TabOrder = 1
     OnAddition = tvPolygonsListAddition
     OnDblClick = tvPolygonsListDblClick
     OnDragDrop = tvPolygonsListDragDrop
@@ -32,7 +32,7 @@ object frMergePolygons: TfrMergePolygons
     Height = 24
     Align = alTop
     Images = frmMain.MenusImageList
-    TabOrder = 1
+    TabOrder = 0
     Caption = 'tbTop'
     object tbUp: TTBItem
       ImageIndex = 47

@@ -195,7 +195,7 @@ object frmAbout: TfrmAbout
     BevelOuter = bvNone
     Padding.Bottom = 2
     ParentColor = True
-    TabOrder = 0
+    TabOrder = 1
     object btnClose: TButton
       Left = 198
       Top = 2
@@ -205,7 +205,7 @@ object frmAbout: TfrmAbout
       Anchors = [akRight, akBottom]
       Cancel = True
       Caption = 'Close'
-      TabOrder = 0
+      TabOrder = 1
       OnClick = btnCloseClick
     end
     object btnLicense: TButton
@@ -216,7 +216,7 @@ object frmAbout: TfrmAbout
       Align = alCustom
       Anchors = [akLeft, akBottom]
       Caption = 'License'
-      TabOrder = 1
+      TabOrder = 0
       OnClick = btnLicenseClick
     end
   end
@@ -232,6 +232,6 @@ object frmAbout: TfrmAbout
     BitmapAlign = baTopLeft
     Scale = 1.000000000000000000
     ScaleMode = smResize
-    TabOrder = 1
+    TabOrder = 0
   end
 end

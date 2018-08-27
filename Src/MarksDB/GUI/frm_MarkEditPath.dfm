@@ -201,7 +201,7 @@ object frmMarkEditPath: TfrmMarkEditPath
       Align = alRight
       Caption = 'Ok'
       Default = True
-      TabOrder = 0
+      TabOrder = 1
       OnClick = btnOkClick
     end
     object btnCancel: TButton
@@ -215,7 +215,7 @@ object frmMarkEditPath: TfrmMarkEditPath
       Cancel = True
       Caption = 'Cancel'
       ModalResult = 2
-      TabOrder = 1
+      TabOrder = 2
     end
     object btnSetAsTemplate: TButton
       AlignWithMargins = True
@@ -227,7 +227,7 @@ object frmMarkEditPath: TfrmMarkEditPath
       Align = alLeft
       Caption = '~'
       Default = True
-      TabOrder = 2
+      TabOrder = 0
       OnClick = btnSetAsTemplateClick
     end
   end

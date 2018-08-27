@@ -13,7 +13,7 @@ object frMapsList: TfrMapsList
     Height = 304
     Align = alRight
     BevelOuter = bvNone
-    TabOrder = 0
+    TabOrder = 1
     object lblSortingOrder: TLabel
       AlignWithMargins = True
       Left = 3
@@ -32,7 +32,7 @@ object frMapsList: TfrMapsList
       Height = 25
       Align = alTop
       Caption = 'Settings'
-      TabOrder = 0
+      TabOrder = 2
       OnClick = btnSettingsClick
       ExplicitWidth = 91
     end
@@ -56,7 +56,7 @@ object frMapsList: TfrMapsList
       Height = 25
       Align = alTop
       Caption = 'Up'
-      TabOrder = 2
+      TabOrder = 0
       OnClick = btnUpClick
       ExplicitWidth = 91
     end
@@ -129,7 +129,7 @@ object frMapsList: TfrMapsList
     HideSelection = False
     ReadOnly = True
     RowSelect = True
-    TabOrder = 1
+    TabOrder = 0
     ViewStyle = vsReport
     OnChange = MapListChange
     OnColumnClick = MapListColumnClick

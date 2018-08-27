@@ -203,7 +203,7 @@ object frmMarkSystemConfigEdit: TfrmMarkSystemConfigEdit
           Anchors = [akLeft, akTop, akRight]
           BevelEdges = [beLeft, beTop, beRight]
           PasswordChar = '*'
-          TabOrder = 0
+          TabOrder = 1
         end
         object chkShowPass: TCheckBox
           AlignWithMargins = True
@@ -216,7 +216,7 @@ object frmMarkSystemConfigEdit: TfrmMarkSystemConfigEdit
           Align = alRight
           ParentShowHint = False
           ShowHint = True
-          TabOrder = 1
+          TabOrder = 0
           OnClick = chkShowPassClick
         end
       end
@@ -261,7 +261,7 @@ object frmMarkSystemConfigEdit: TfrmMarkSystemConfigEdit
         Height = 45
         Align = alClient
         BevelOuter = bvNone
-        TabOrder = 1
+        TabOrder = 0
         object lblForcedSchemaName: TLabel
           AlignWithMargins = True
           Left = 10
@@ -297,7 +297,7 @@ object frmMarkSystemConfigEdit: TfrmMarkSystemConfigEdit
         Height = 45
         Align = alClient
         BevelOuter = bvNone
-        TabOrder = 0
+        TabOrder = 1
         DesignSize = (
           185
           45)

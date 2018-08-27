@@ -16,7 +16,7 @@ object frExportOruxMapsSQLite: TfrExportOruxMapsSQLite
     Height = 277
     Align = alClient
     BevelOuter = bvNone
-    TabOrder = 0
+    TabOrder = 1
     object pnlMain: TPanel
       Left = 0
       Top = 0
@@ -73,7 +73,7 @@ object frExportOruxMapsSQLite: TfrExportOruxMapsSQLite
         Height = 48
         Align = alTop
         BevelOuter = bvNone
-        TabOrder = 2
+        TabOrder = 5
         ExplicitTop = 112
         object lblJpgQulity: TLabel
           Left = 156
@@ -106,7 +106,7 @@ object frExportOruxMapsSQLite: TfrExportOruxMapsSQLite
           Height = 22
           MaxValue = 100
           MinValue = 1
-          TabOrder = 0
+          TabOrder = 1
           Value = 75
         end
         object cbbImageFormat: TComboBox
@@ -115,7 +115,7 @@ object frExportOruxMapsSQLite: TfrExportOruxMapsSQLite
           Width = 150
           Height = 21
           ItemIndex = 0
-          TabOrder = 1
+          TabOrder = 0
           Text = 'Auto'
           OnChange = cbbImageFormatChange
           Items.Strings = (
@@ -165,7 +165,7 @@ object frExportOruxMapsSQLite: TfrExportOruxMapsSQLite
         Height = 17
         Align = alTop
         Caption = 'Add visible Layers'
-        TabOrder = 5
+        TabOrder = 2
         OnClick = chkAddVisibleLayersClick
         ExplicitLeft = 6
         ExplicitTop = 72
@@ -191,7 +191,7 @@ object frExportOruxMapsSQLite: TfrExportOruxMapsSQLite
     Align = alTop
     BevelOuter = bvNone
     BorderWidth = 3
-    TabOrder = 1
+    TabOrder = 0
     object lblTargetPath: TLabel
       AlignWithMargins = True
       Left = 3

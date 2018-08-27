@@ -17,7 +17,7 @@ object frExportToCE: TfrExportToCE
     Height = 277
     Align = alClient
     BevelOuter = bvNone
-    TabOrder = 0
+    TabOrder = 1
     object pnlZoom: TPanel
       Left = 376
       Top = 0
@@ -26,7 +26,7 @@ object frExportToCE: TfrExportToCE
       Align = alRight
       BevelOuter = bvNone
       BorderWidth = 3
-      TabOrder = 0
+      TabOrder = 1
     end
     object pnlMain: TPanel
       Left = 0
@@ -37,7 +37,7 @@ object frExportToCE: TfrExportToCE
       AutoSize = True
       BevelOuter = bvNone
       BorderWidth = 3
-      TabOrder = 1
+      TabOrder = 0
       DesignSize = (
         376
         277)
@@ -68,7 +68,7 @@ object frExportToCE: TfrExportToCE
         Width = 259
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        TabOrder = 1
+        TabOrder = 2
       end
       object EComent: TEdit
         Left = 111
@@ -76,7 +76,7 @@ object frExportToCE: TfrExportToCE
         Width = 259
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        TabOrder = 0
+        TabOrder = 4
       end
       object SaveRecoverInfo: TCheckBox
         Left = 3
@@ -86,7 +86,7 @@ object frExportToCE: TfrExportToCE
         Caption = 'Save recovery information'
         Checked = True
         State = cbChecked
-        TabOrder = 2
+        TabOrder = 6
       end
       object CComment: TCheckBox
         Left = 3
@@ -94,7 +94,7 @@ object frExportToCE: TfrExportToCE
         Width = 102
         Height = 17
         Caption = 'Comment'
-        TabOrder = 3
+        TabOrder = 5
         OnClick = CCommentClick
       end
       object CMapName: TCheckBox
@@ -103,7 +103,7 @@ object frExportToCE: TfrExportToCE
         Width = 102
         Height = 17
         Caption = 'Map Name'
-        TabOrder = 4
+        TabOrder = 3
         OnClick = CMapNameClick
       end
       object cbbMaxVolSize: TSpinEdit
@@ -114,7 +114,7 @@ object frExportToCE: TfrExportToCE
         Anchors = [akTop, akRight]
         MaxValue = 2047
         MinValue = 1
-        TabOrder = 6
+        TabOrder = 1
         Value = 1024
       end
       object pnlMap: TPanel
@@ -124,7 +124,7 @@ object frExportToCE: TfrExportToCE
         Height = 23
         Anchors = [akLeft, akTop, akRight]
         BevelOuter = bvNone
-        TabOrder = 5
+        TabOrder = 0
       end
     end
   end
@@ -136,7 +136,7 @@ object frExportToCE: TfrExportToCE
     Align = alTop
     BevelOuter = bvNone
     BorderWidth = 3
-    TabOrder = 1
+    TabOrder = 0
     object lblTargetFile: TLabel
       AlignWithMargins = True
       Left = 3

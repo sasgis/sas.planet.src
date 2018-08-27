@@ -48,7 +48,7 @@ object frmMarksExportConfig: TfrmMarksExportConfig
     BevelKind = bkTile
     BevelOuter = bvNone
     BorderWidth = 3
-    TabOrder = 1
+    TabOrder = 2
     object btnApply: TButton
       AlignWithMargins = True
       Left = 387
@@ -80,7 +80,7 @@ object frmMarksExportConfig: TfrmMarksExportConfig
     ActivePage = tsExportToKml
     Align = alClient
     Style = tsFlatButtons
-    TabOrder = 2
+    TabOrder = 1
     object tsExportToKml: TTabSheet
       Caption = 'tsExportToKml'
       object rgSorting: TRadioGroup
@@ -95,7 +95,7 @@ object frmMarksExportConfig: TfrmMarksExportConfig
           'None'
           'By Name (ascend)'
           'By Name (descend)')
-        TabOrder = 0
+        TabOrder = 1
       end
       object chkAbsPathToIcon: TCheckBox
         AlignWithMargins = True
@@ -105,7 +105,7 @@ object frmMarksExportConfig: TfrmMarksExportConfig
         Height = 17
         Align = alTop
         Caption = 'Set absolute path or url to the Icons'
-        TabOrder = 1
+        TabOrder = 2
         OnClick = chkAbsPathToIconClick
       end
       object edtAbsPathToIcon: TEdit
@@ -115,7 +115,7 @@ object frmMarksExportConfig: TfrmMarksExportConfig
         Width = 371
         Height = 21
         Align = alTop
-        TabOrder = 2
+        TabOrder = 3
       end
       object grpCoordinates: TGroupBox
         Left = 0
@@ -124,7 +124,7 @@ object frmMarksExportConfig: TfrmMarksExportConfig
         Height = 40
         Align = alTop
         Caption = ' Coordinates '
-        TabOrder = 3
+        TabOrder = 0
         object GridPanel1: TGridPanel
           Left = 2
           Top = 15
@@ -166,7 +166,7 @@ object frmMarksExportConfig: TfrmMarksExportConfig
             Height = 17
             Align = alClient
             Caption = 'Fixed Precision'
-            TabOrder = 0
+            TabOrder = 1
             OnClick = chkFixedCoordPrecisionClick
           end
           object seCoordDigits: TSpinEdit
@@ -177,7 +177,7 @@ object frmMarksExportConfig: TfrmMarksExportConfig
             Anchors = [akTop, akRight]
             MaxValue = 12
             MinValue = 4
-            TabOrder = 1
+            TabOrder = 0
             Value = 6
           end
         end

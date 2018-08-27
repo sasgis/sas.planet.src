@@ -43,7 +43,7 @@ object frmSettings: TfrmSettings
         Height = 25
         Align = alTop
         BevelOuter = bvNone
-        TabOrder = 0
+        TabOrder = 13
         ExplicitTop = 333
         object Label30: TLabel
           AlignWithMargins = True
@@ -74,7 +74,7 @@ object frmSettings: TfrmSettings
         Height = 28
         Align = alTop
         BevelOuter = bvNone
-        TabOrder = 1
+        TabOrder = 0
       end
       object pnlDBMSPath: TPanel
         Left = 0
@@ -84,7 +84,7 @@ object frmSettings: TfrmSettings
         Align = alTop
         BevelEdges = []
         BevelOuter = bvNone
-        TabOrder = 2
+        TabOrder = 11
         ExplicitTop = 280
         object lbDBMSCachePath: TLabel
           AlignWithMargins = True
@@ -141,7 +141,7 @@ object frmSettings: TfrmSettings
         Align = alTop
         BevelEdges = []
         BevelOuter = bvNone
-        TabOrder = 3
+        TabOrder = 1
       end
       object pnlEScPath: TPanel
         Left = 0
@@ -151,7 +151,7 @@ object frmSettings: TfrmSettings
         Align = alTop
         BevelEdges = []
         BevelOuter = bvNone
-        TabOrder = 4
+        TabOrder = 2
       end
       object pnlGMTilesPath: TPanel
         Left = 0
@@ -161,7 +161,7 @@ object frmSettings: TfrmSettings
         Align = alTop
         BevelEdges = []
         BevelOuter = bvNone
-        TabOrder = 5
+        TabOrder = 3
       end
       object pnlGECachePath: TPanel
         Left = 0
@@ -201,7 +201,7 @@ object frmSettings: TfrmSettings
         Align = alTop
         BevelEdges = []
         BevelOuter = bvNone
-        TabOrder = 9
+        TabOrder = 10
         ExplicitTop = 252
       end
       object pnlDefCache: TPanel
@@ -212,7 +212,7 @@ object frmSettings: TfrmSettings
         Align = alTop
         BevelEdges = []
         BevelOuter = bvNone
-        TabOrder = 10
+        TabOrder = 12
         ExplicitTop = 302
         object lbl: TLabel
           Left = 3
@@ -240,7 +240,7 @@ object frmSettings: TfrmSettings
         Align = alTop
         BevelEdges = []
         BevelOuter = bvNone
-        TabOrder = 11
+        TabOrder = 4
       end
       object pnlTMSPath: TPanel
         Left = 0
@@ -250,7 +250,7 @@ object frmSettings: TfrmSettings
         Align = alTop
         BevelEdges = []
         BevelOuter = bvNone
-        TabOrder = 12
+        TabOrder = 5
       end
       object pnlSQLiteCachePath: TPanel
         Left = 0
@@ -260,7 +260,7 @@ object frmSettings: TfrmSettings
         Align = alTop
         BevelEdges = []
         BevelOuter = bvNone
-        TabOrder = 13
+        TabOrder = 9
         ExplicitLeft = 3
         ExplicitTop = 264
       end
@@ -286,7 +286,7 @@ object frmSettings: TfrmSettings
           Height = 17
           Align = alTop
           Caption = 'Retry download if tile not found'
-          TabOrder = 0
+          TabOrder = 1
         end
         object CkBGoNextTile: TCheckBox
           AlignWithMargins = True
@@ -296,7 +296,7 @@ object frmSettings: TfrmSettings
           Height = 17
           Align = alTop
           Caption = 'Download next tile if no response'
-          TabOrder = 1
+          TabOrder = 2
         end
         object CBSaveTileNotExists: TCheckBox
           AlignWithMargins = True
@@ -306,7 +306,7 @@ object frmSettings: TfrmSettings
           Height = 17
           Align = alTop
           Caption = 'Store info about not found tiles'
-          TabOrder = 2
+          TabOrder = 3
         end
         object flwpnlDownloadTimeOut: TFlowPanel
           AlignWithMargins = True
@@ -319,7 +319,7 @@ object frmSettings: TfrmSettings
           Align = alTop
           AutoSize = True
           BevelOuter = bvNone
-          TabOrder = 3
+          TabOrder = 5
           object Label32: TLabel
             AlignWithMargins = True
             Left = 3
@@ -356,7 +356,7 @@ object frmSettings: TfrmSettings
           Height = 108
           Align = alTop
           Caption = 'Connection settings'
-          TabOrder = 5
+          TabOrder = 0
           object pnlProxyUrl: TPanel
             AlignWithMargins = True
             Left = 5
@@ -365,7 +365,7 @@ object frmSettings: TfrmSettings
             Height = 23
             Align = alTop
             BevelOuter = bvNone
-            TabOrder = 0
+            TabOrder = 1
             object lblUseProxy: TLabel
               AlignWithMargins = True
               Left = 24
@@ -383,7 +383,7 @@ object frmSettings: TfrmSettings
               Width = 15
               Height = 17
               Align = alLeft
-              TabOrder = 0
+              TabOrder = 1
               OnClick = CBProxyusedClick
             end
             object EditIP: TEdit
@@ -392,7 +392,7 @@ object frmSettings: TfrmSettings
               Width = 501
               Height = 23
               Align = alClient
-              TabOrder = 1
+              TabOrder = 0
             end
           end
           object flwpnlProxyAuth: TFlowPanel
@@ -404,14 +404,14 @@ object frmSettings: TfrmSettings
             Align = alTop
             AutoSize = True
             BevelOuter = bvNone
-            TabOrder = 1
+            TabOrder = 2
             object CBLogin: TCheckBox
               AlignWithMargins = True
               Left = 3
               Top = 3
               Width = 17
               Height = 17
-              TabOrder = 0
+              TabOrder = 2
               OnClick = CBLoginClick
             end
             object lblProxyLogin: TLabel
@@ -427,7 +427,7 @@ object frmSettings: TfrmSettings
               Top = 0
               Width = 81
               Height = 21
-              TabOrder = 1
+              TabOrder = 0
             end
             object Label25: TLabel
               AlignWithMargins = True
@@ -443,7 +443,7 @@ object frmSettings: TfrmSettings
               Width = 81
               Height = 21
               PasswordChar = '*'
-              TabOrder = 2
+              TabOrder = 1
             end
           end
           object pnlUseIEProxy: TPanel
@@ -455,7 +455,7 @@ object frmSettings: TfrmSettings
             Align = alTop
             AutoSize = True
             BevelOuter = bvNone
-            TabOrder = 2
+            TabOrder = 0
             object chkUseIEProxy: TCheckBox
               AlignWithMargins = True
               Left = 3
@@ -622,7 +622,7 @@ object frmSettings: TfrmSettings
             Align = alTop
             BevelOuter = bvNone
             BorderWidth = 3
-            TabOrder = 0
+            TabOrder = 2
             object Label3: TLabel
               Left = 3
               Top = 3
@@ -658,7 +658,7 @@ object frmSettings: TfrmSettings
             Align = alTop
             BevelOuter = bvNone
             BorderWidth = 3
-            TabOrder = 1
+            TabOrder = 5
             object Label84: TLabel
               Left = 3
               Top = 3
@@ -699,7 +699,7 @@ object frmSettings: TfrmSettings
             AutoSize = True
             BevelOuter = bvNone
             BorderWidth = 3
-            TabOrder = 2
+            TabOrder = 0
             object Label8: TLabel
               AlignWithMargins = True
               Left = 6
@@ -733,7 +733,7 @@ object frmSettings: TfrmSettings
             AutoSize = True
             BevelOuter = bvNone
             BorderWidth = 3
-            TabOrder = 3
+            TabOrder = 6
             object CBShowmapname: TCheckBox
               Left = 3
               Top = 37
@@ -741,7 +741,7 @@ object frmSettings: TfrmSettings
               Height = 17
               Align = alTop
               Caption = 'Show map name on toolbar'
-              TabOrder = 0
+              TabOrder = 2
             end
             object ChBoxFirstLat: TCheckBox
               Left = 3
@@ -750,7 +750,7 @@ object frmSettings: TfrmSettings
               Height = 17
               Align = alTop
               Caption = 'Latitude-Longitude order'
-              TabOrder = 1
+              TabOrder = 0
             end
             object CBlock_toolbars: TCheckBox
               Left = 3
@@ -759,7 +759,7 @@ object frmSettings: TfrmSettings
               Height = 17
               Align = alTop
               Caption = 'Lock toolbars'
-              TabOrder = 2
+              TabOrder = 3
             end
             object CBShowHintOnMarks: TCheckBox
               Left = 3
@@ -768,7 +768,7 @@ object frmSettings: TfrmSettings
               Height = 17
               Align = alTop
               Caption = 'Show tooltips'
-              TabOrder = 3
+              TabOrder = 1
             end
             object CBMinimizeToTray: TCheckBox
               Left = 3
@@ -789,7 +789,7 @@ object frmSettings: TfrmSettings
             AutoSize = True
             BevelOuter = bvNone
             BorderWidth = 3
-            TabOrder = 4
+            TabOrder = 7
             object Label69: TLabel
               AlignWithMargins = True
               Left = 6
@@ -819,7 +819,7 @@ object frmSettings: TfrmSettings
             AutoSize = True
             BevelOuter = bvNone
             BorderWidth = 3
-            TabOrder = 5
+            TabOrder = 8
             object LabelGamma: TLabel
               Left = 3
               Top = 23
@@ -848,7 +848,7 @@ object frmSettings: TfrmSettings
               Frequency = 5
               Position = 1
               ShowHint = False
-              TabOrder = 0
+              TabOrder = 1
               ThumbLength = 15
               TickMarks = tmTopLeft
               OnChange = TrBarGammaChange
@@ -862,7 +862,7 @@ object frmSettings: TfrmSettings
               Max = 100
               Min = -100
               Frequency = 10
-              TabOrder = 1
+              TabOrder = 2
               ThumbLength = 15
               TickMarks = tmTopLeft
               OnChange = TrBarContrastChange
@@ -875,7 +875,7 @@ object frmSettings: TfrmSettings
               Height = 17
               Align = alTop
               Caption = 'Night mode (color inversion)'
-              TabOrder = 2
+              TabOrder = 3
             end
             object pnlImageProcessTop: TPanel
               Left = 3
@@ -884,7 +884,7 @@ object frmSettings: TfrmSettings
               Height = 20
               Align = alTop
               BevelOuter = bvNone
-              TabOrder = 3
+              TabOrder = 0
               object lblImageProcessCaption: TLabel
                 Left = 0
                 Top = 0
@@ -914,7 +914,7 @@ object frmSettings: TfrmSettings
             Align = alTop
             BevelOuter = bvNone
             BorderWidth = 3
-            TabOrder = 6
+            TabOrder = 1
             object lblAreaFormat: TLabel
               Left = 3
               Top = 3
@@ -952,7 +952,7 @@ object frmSettings: TfrmSettings
             Align = alTop
             BevelOuter = bvNone
             BorderWidth = 3
-            TabOrder = 7
+            TabOrder = 3
             object lblCoordSysType: TLabel
               Left = 3
               Top = 3
@@ -988,7 +988,7 @@ object frmSettings: TfrmSettings
             Align = alTop
             BevelOuter = bvNone
             BorderWidth = 3
-            TabOrder = 8
+            TabOrder = 4
             object lblCoordSysInfoType: TLabel
               Left = 3
               Top = 3
@@ -1048,7 +1048,7 @@ object frmSettings: TfrmSettings
             BevelKind = bkTile
             BevelOuter = bvNone
             BorderWidth = 3
-            TabOrder = 0
+            TabOrder = 6
             object lblMiniMapAlfa: TLabel
               AlignWithMargins = True
               Left = 6
@@ -1080,7 +1080,7 @@ object frmSettings: TfrmSettings
             BevelKind = bkTile
             BevelOuter = bvNone
             BorderWidth = 3
-            TabOrder = 1
+            TabOrder = 8
             object Label24: TLabel
               AlignWithMargins = True
               Left = 6
@@ -1147,7 +1147,7 @@ object frmSettings: TfrmSettings
             BevelKind = bkTile
             BevelOuter = bvNone
             BorderWidth = 3
-            TabOrder = 2
+            TabOrder = 7
             object lblBGColor: TLabel
               AlignWithMargins = True
               Left = 6
@@ -1179,7 +1179,7 @@ object frmSettings: TfrmSettings
             AutoSize = True
             BevelOuter = bvNone
             BorderWidth = 3
-            TabOrder = 3
+            TabOrder = 5
             object lblResizeMethod: TLabel
               AlignWithMargins = True
               Left = 6
@@ -1214,7 +1214,7 @@ object frmSettings: TfrmSettings
             AutoSize = True
             BevelOuter = bvNone
             BorderWidth = 3
-            TabOrder = 4
+            TabOrder = 0
             object lblResizeOnLoad: TLabel
               AlignWithMargins = True
               Left = 6
@@ -1249,7 +1249,7 @@ object frmSettings: TfrmSettings
             AutoSize = True
             BevelOuter = bvNone
             BorderWidth = 3
-            TabOrder = 5
+            TabOrder = 1
             object lblResizeGetPre: TLabel
               AlignWithMargins = True
               Left = 6
@@ -1284,7 +1284,7 @@ object frmSettings: TfrmSettings
             AutoSize = True
             BevelOuter = bvNone
             BorderWidth = 3
-            TabOrder = 6
+            TabOrder = 2
             object lblProjectionChange: TLabel
               AlignWithMargins = True
               Left = 6
@@ -1319,7 +1319,7 @@ object frmSettings: TfrmSettings
             AutoSize = True
             BevelOuter = bvNone
             BorderWidth = 3
-            TabOrder = 7
+            TabOrder = 3
             object lblDownloadResize: TLabel
               AlignWithMargins = True
               Left = 6
@@ -1354,7 +1354,7 @@ object frmSettings: TfrmSettings
             AutoSize = True
             BevelOuter = bvNone
             BorderWidth = 3
-            TabOrder = 8
+            TabOrder = 4
             object lblResizeTileMatrixDraft: TLabel
               AlignWithMargins = True
               Left = 6
@@ -1814,7 +1814,7 @@ object frmSettings: TfrmSettings
         Align = alTop
         BevelEdges = []
         BevelOuter = bvNone
-        TabOrder = 0
+        TabOrder = 6
       end
       object pnlUserDataPath: TPanel
         Left = 0
@@ -1824,7 +1824,7 @@ object frmSettings: TfrmSettings
         Align = alTop
         BevelEdges = []
         BevelOuter = bvNone
-        TabOrder = 1
+        TabOrder = 5
       end
       object pnlTerrainDataPath: TPanel
         Left = 0
@@ -1834,7 +1834,7 @@ object frmSettings: TfrmSettings
         Align = alTop
         BevelEdges = []
         BevelOuter = bvNone
-        TabOrder = 2
+        TabOrder = 7
       end
       object pnlTrackPath: TPanel
         Left = 0
@@ -1844,7 +1844,7 @@ object frmSettings: TfrmSettings
         Align = alTop
         BevelEdges = []
         BevelOuter = bvNone
-        TabOrder = 3
+        TabOrder = 4
       end
       object pnlMarksDbPath: TPanel
         Left = 0
@@ -1854,7 +1854,7 @@ object frmSettings: TfrmSettings
         Align = alTop
         BevelEdges = []
         BevelOuter = bvNone
-        TabOrder = 4
+        TabOrder = 1
       end
       object pnlMarksIconsPath: TPanel
         Left = 0
@@ -1864,7 +1864,7 @@ object frmSettings: TfrmSettings
         Align = alTop
         BevelEdges = []
         BevelOuter = bvNone
-        TabOrder = 5
+        TabOrder = 3
       end
       object pnlMediaDataPath: TPanel
         Left = 0
@@ -1874,7 +1874,7 @@ object frmSettings: TfrmSettings
         Align = alTop
         BevelEdges = []
         BevelOuter = bvNone
-        TabOrder = 6
+        TabOrder = 2
       end
       object pnlMapSvcScan: TPanel
         Left = 0
@@ -1884,7 +1884,7 @@ object frmSettings: TfrmSettings
         Align = alTop
         BevelEdges = []
         BevelOuter = bvNone
-        TabOrder = 7
+        TabOrder = 8
       end
       object pnlBaseCahcePath: TPanel
         Left = 0
@@ -1894,7 +1894,7 @@ object frmSettings: TfrmSettings
         Align = alTop
         BevelEdges = []
         BevelOuter = bvNone
-        TabOrder = 8
+        TabOrder = 0
       end
     end
   end
@@ -1915,7 +1915,7 @@ object frmSettings: TfrmSettings
       Align = alRight
       Cancel = True
       Caption = 'Cancel'
-      TabOrder = 0
+      TabOrder = 2
       OnClick = btnCancelClick
     end
     object btnOk: TButton
@@ -1939,7 +1939,7 @@ object frmSettings: TfrmSettings
       Height = 25
       Align = alRight
       Caption = 'Apply'
-      TabOrder = 2
+      TabOrder = 0
       OnClick = btnApplyClick
     end
   end

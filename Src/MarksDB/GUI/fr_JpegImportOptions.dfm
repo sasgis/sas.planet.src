@@ -21,7 +21,7 @@ object frJpegImportOptions: TfrJpegImportOptions
     Height = 76
     Align = alTop
     Caption = 'Caption parameters'
-    TabOrder = 0
+    TabOrder = 2
     ExplicitTop = 117
     ExplicitWidth = 609
     object pnlPointParams: TPanel
@@ -175,7 +175,7 @@ object frJpegImportOptions: TfrJpegImportOptions
     Height = 26
     Align = alTop
     BevelOuter = bvNone
-    TabOrder = 1
+    TabOrder = 0
     ExplicitWidth = 615
   end
   object grp1: TGroupBox
@@ -186,7 +186,7 @@ object frJpegImportOptions: TfrJpegImportOptions
     Height = 84
     Align = alTop
     Caption = 'Icon parameters'
-    TabOrder = 2
+    TabOrder = 1
     ExplicitWidth = 609
     object lblPointIconSize: TLabel
       AlignWithMargins = True
@@ -204,7 +204,7 @@ object frJpegImportOptions: TfrJpegImportOptions
       Height = 61
       Align = alLeft
       BevelOuter = bvLowered
-      TabOrder = 0
+      TabOrder = 1
       OnResize = pnlImageResize
       ExplicitLeft = 26
       ExplicitHeight = 68
@@ -217,7 +217,7 @@ object frJpegImportOptions: TfrJpegImportOptions
       Height = 22
       MaxValue = 64
       MinValue = 1
-      TabOrder = 1
+      TabOrder = 2
       Value = 64
     end
     object chk1: TCheckBox
@@ -228,7 +228,7 @@ object frJpegImportOptions: TfrJpegImportOptions
       Caption = 'Use thumbnail as Icon'
       Checked = True
       State = cbChecked
-      TabOrder = 2
+      TabOrder = 0
     end
   end
   object ColorDialog1: TColorDialog

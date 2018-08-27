@@ -16,7 +16,7 @@ object frTilesGenPrev: TfrTilesGenPrev
     Height = 165
     Align = alClient
     BevelOuter = bvNone
-    TabOrder = 0
+    TabOrder = 2
     object pnlRight: TPanel
       Left = 389
       Top = 0
@@ -25,7 +25,7 @@ object frTilesGenPrev: TfrTilesGenPrev
       Align = alRight
       BevelOuter = bvNone
       BorderWidth = 3
-      TabOrder = 0
+      TabOrder = 1
       object lblZooms: TLabel
         AlignWithMargins = True
         Left = 3
@@ -44,7 +44,7 @@ object frTilesGenPrev: TfrTilesGenPrev
         Height = 17
         Align = alBottom
         Caption = 'All'
-        TabOrder = 0
+        TabOrder = 1
         OnClick = chkAllZoomsClick
       end
       object chklstZooms: TCheckListBox
@@ -55,7 +55,7 @@ object frTilesGenPrev: TfrTilesGenPrev
         OnClickCheck = chklstZoomsClickCheck
         Align = alClient
         ItemHeight = 13
-        TabOrder = 1
+        TabOrder = 0
       end
     end
     object pnlCenter: TPanel
@@ -66,7 +66,7 @@ object frTilesGenPrev: TfrTilesGenPrev
       Align = alClient
       BevelOuter = bvNone
       BorderWidth = 3
-      TabOrder = 1
+      TabOrder = 0
       DesignSize = (
         389
         165)
@@ -197,7 +197,7 @@ object frTilesGenPrev: TfrTilesGenPrev
     BevelOuter = bvNone
     BorderWidth = 3
     Caption = 'Generate Lower Zooms for Selection'
-    TabOrder = 1
+    TabOrder = 0
   end
   object pnlMapSelect: TPanel
     Left = 0
@@ -210,7 +210,7 @@ object frTilesGenPrev: TfrTilesGenPrev
     BevelKind = bkTile
     BevelOuter = bvNone
     BorderWidth = 3
-    TabOrder = 2
+    TabOrder = 1
     DesignSize = (
       503
       41)

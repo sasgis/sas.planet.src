@@ -16,7 +16,7 @@ object frExportYaMobileV3: TfrExportYaMobileV3
     Height = 153
     Align = alClient
     BevelOuter = bvNone
-    TabOrder = 0
+    TabOrder = 1
     object pnlZoom: TPanel
       Left = 389
       Top = 0
@@ -25,7 +25,7 @@ object frExportYaMobileV3: TfrExportYaMobileV3
       Align = alRight
       BevelOuter = bvNone
       BorderWidth = 3
-      TabOrder = 0
+      TabOrder = 1
     end
     object pnlMapsSelect: TPanel
       Left = 0
@@ -34,7 +34,7 @@ object frExportYaMobileV3: TfrExportYaMobileV3
       Height = 153
       Align = alClient
       BevelOuter = bvNone
-      TabOrder = 1
+      TabOrder = 0
       object chkReplaseTiles: TCheckBox
         Left = 0
         Top = 93
@@ -42,7 +42,7 @@ object frExportYaMobileV3: TfrExportYaMobileV3
         Height = 20
         Align = alTop
         Caption = 'Replace existing tiles'
-        TabOrder = 0
+        TabOrder = 1
       end
       object grdpnlMaps: TGridPanel
         Left = 0
@@ -151,7 +151,7 @@ object frExportYaMobileV3: TfrExportYaMobileV3
             SizeStyle = ssAbsolute
             Value = 21.000000000000000000
           end>
-        TabOrder = 1
+        TabOrder = 0
         DesignSize = (
           389
           93)
@@ -173,7 +173,7 @@ object frExportYaMobileV3: TfrExportYaMobileV3
           Anchors = []
           MaxValue = 9
           MinValue = 0
-          TabOrder = 0
+          TabOrder = 1
           Value = 2
         end
         object seSatCompress: TSpinEdit
@@ -184,7 +184,7 @@ object frExportYaMobileV3: TfrExportYaMobileV3
           Anchors = []
           MaxValue = 100
           MinValue = 1
-          TabOrder = 1
+          TabOrder = 3
           Value = 85
         end
         object lblSatCompress: TLabel
@@ -252,7 +252,7 @@ object frExportYaMobileV3: TfrExportYaMobileV3
           Align = alClient
           Anchors = []
           BevelOuter = bvNone
-          TabOrder = 2
+          TabOrder = 4
         end
         object pnlSat: TPanel
           Left = 50
@@ -261,7 +261,7 @@ object frExportYaMobileV3: TfrExportYaMobileV3
           Height = 21
           Align = alClient
           BevelOuter = bvNone
-          TabOrder = 3
+          TabOrder = 2
         end
         object pnlMap: TPanel
           Left = 50
@@ -271,7 +271,7 @@ object frExportYaMobileV3: TfrExportYaMobileV3
           Align = alClient
           Anchors = []
           BevelOuter = bvNone
-          TabOrder = 4
+          TabOrder = 0
         end
       end
     end
@@ -284,7 +284,7 @@ object frExportYaMobileV3: TfrExportYaMobileV3
     Align = alTop
     BevelOuter = bvNone
     BorderWidth = 3
-    TabOrder = 1
+    TabOrder = 0
     object lblTargetPath: TLabel
       AlignWithMargins = True
       Left = 3

@@ -15,7 +15,7 @@ object frMarksGeneralOptions: TfrMarksGeneralOptions
     Height = 81
     Align = alTop
     Caption = 'Placemark parameters'
-    TabOrder = 0
+    TabOrder = 2
     object lblPointIcon: TLabel
       Left = 2
       Top = 15
@@ -34,7 +34,7 @@ object frMarksGeneralOptions: TfrMarksGeneralOptions
       Height = 58
       Align = alLeft
       BevelOuter = bvLowered
-      TabOrder = 0
+      TabOrder = 1
       OnResize = pnlImageResize
     end
     object pnlPointParams: TPanel
@@ -44,7 +44,7 @@ object frMarksGeneralOptions: TfrMarksGeneralOptions
       Height = 64
       Align = alClient
       BevelOuter = bvNone
-      TabOrder = 1
+      TabOrder = 0
       object flwpnlPointText: TFlowPanel
         Left = 0
         Top = 0
@@ -204,7 +204,7 @@ object frMarksGeneralOptions: TfrMarksGeneralOptions
     Height = 48
     Align = alTop
     Caption = 'Path parameters'
-    TabOrder = 1
+    TabOrder = 4
     object flwpnlPath: TFlowPanel
       Left = 2
       Top = 15
@@ -289,7 +289,7 @@ object frMarksGeneralOptions: TfrMarksGeneralOptions
     Height = 79
     Align = alTop
     Caption = 'Polygon parameters'
-    TabOrder = 2
+    TabOrder = 6
     object flwpnlPlygonLine: TFlowPanel
       Left = 2
       Top = 15
@@ -445,7 +445,7 @@ object frMarksGeneralOptions: TfrMarksGeneralOptions
     Height = 17
     Align = alTop
     Caption = 'Ignore placemarks'
-    TabOrder = 3
+    TabOrder = 1
   end
   object chkLineIgnore: TCheckBox
     AlignWithMargins = True
@@ -455,7 +455,7 @@ object frMarksGeneralOptions: TfrMarksGeneralOptions
     Height = 17
     Align = alTop
     Caption = 'Ignore paths'
-    TabOrder = 4
+    TabOrder = 3
   end
   object chkPolyIgnore: TCheckBox
     AlignWithMargins = True
@@ -474,7 +474,7 @@ object frMarksGeneralOptions: TfrMarksGeneralOptions
     Height = 26
     Align = alTop
     BevelOuter = bvNone
-    TabOrder = 6
+    TabOrder = 0
   end
   object ColorDialog1: TColorDialog
     Left = 470

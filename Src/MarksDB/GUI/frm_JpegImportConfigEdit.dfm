@@ -41,7 +41,7 @@ object frmJpegImportConfigEdit: TfrmJpegImportConfigEdit
       Cancel = True
       Caption = 'Cancel'
       ModalResult = 2
-      TabOrder = 0
+      TabOrder = 1
     end
     object btnOk: TButton
       AlignWithMargins = True
@@ -51,7 +51,7 @@ object frmJpegImportConfigEdit: TfrmJpegImportConfigEdit
       Height = 25
       Align = alRight
       Caption = 'Start'
-      TabOrder = 1
+      TabOrder = 0
       OnClick = btnOkClick
     end
   end

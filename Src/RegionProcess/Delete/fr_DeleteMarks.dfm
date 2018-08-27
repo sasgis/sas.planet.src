@@ -20,7 +20,7 @@ object frDeleteMarks: TfrDeleteMarks
     Font.Name = 'Tahoma'
     Font.Style = []
     ParentFont = False
-    TabOrder = 0
+    TabOrder = 1
   end
   object PnlTop: TPanel
     Left = 0
@@ -30,7 +30,7 @@ object frDeleteMarks: TfrDeleteMarks
     Align = alTop
     BevelKind = bkTile
     BevelOuter = bvNone
-    TabOrder = 1
+    TabOrder = 0
     object chkPlacemarks: TCheckBox
       Left = 0
       Top = 0

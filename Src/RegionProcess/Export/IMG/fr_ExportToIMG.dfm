@@ -118,7 +118,7 @@ object frExportToIMG: TfrExportToIMG
           AutoSize = True
           BevelOuter = bvNone
           BorderWidth = 3
-          TabOrder = 1
+          TabOrder = 2
           ExplicitHeight = 227
           DesignSize = (
             32
@@ -132,7 +132,7 @@ object frExportToIMG: TfrExportToIMG
             Anchors = [akTop, akRight]
             Caption = '-'
             Enabled = False
-            TabOrder = 0
+            TabOrder = 1
             OnClick = btnRemoveLayerClick
           end
           object btnAddLayer: TButton
@@ -144,7 +144,7 @@ object frExportToIMG: TfrExportToIMG
             Anchors = [akTop, akRight]
             Caption = '+'
             Enabled = False
-            TabOrder = 1
+            TabOrder = 0
             OnClick = btnAddLayerClick
           end
         end
@@ -173,7 +173,7 @@ object frExportToIMG: TfrExportToIMG
           ReadOnly = True
           RowSelect = True
           SortType = stData
-          TabOrder = 2
+          TabOrder = 1
           ViewStyle = vsReport
           OnCompare = MapListCompare
           OnCustomDrawItem = MapListCustomDrawItem
@@ -191,7 +191,7 @@ object frExportToIMG: TfrExportToIMG
         AutoSize = True
         BevelOuter = bvNone
         BorderWidth = 3
-        TabOrder = 2
+        TabOrder = 3
         ExplicitHeight = 258
         object lblGarmin: TLabel
           Left = 3
@@ -258,7 +258,7 @@ object frExportToIMG: TfrExportToIMG
         AutoSize = True
         BevelOuter = bvNone
         BorderWidth = 3
-        TabOrder = 3
+        TabOrder = 2
         Visible = False
         ExplicitHeight = 258
         object lblsas: TLabel
@@ -406,7 +406,7 @@ object frExportToIMG: TfrExportToIMG
           Height = 21
           Align = alCustom
           MaxLength = 8
-          TabOrder = 4
+          TabOrder = 5
         end
         object edtDrawOrder: TSpinEdit
           Left = 379
@@ -450,7 +450,7 @@ object frExportToIMG: TfrExportToIMG
           AutoSize = False
           EditMask = '099;0; '
           MaxLength = 3
-          TabOrder = 3
+          TabOrder = 4
           Text = '36'
         end
         object TBXGenerateId: TTBXToolbar
@@ -463,7 +463,7 @@ object frExportToIMG: TfrExportToIMG
           ParentShowHint = False
           ShowHint = True
           ShrinkMode = tbsmWrap
-          TabOrder = 5
+          TabOrder = 3
           object TBGenerateId: TTBItem
             ImageIndex = 40
             OnClick = TBGenerateIdClick
@@ -568,7 +568,7 @@ object frExportToIMG: TfrExportToIMG
           Height = 22
           Margins.Left = 10
           Align = alClient
-          TabOrder = 0
+          TabOrder = 1
           OnChange = edtGMTPathChange
           ExplicitHeight = 21
         end
@@ -582,7 +582,7 @@ object frExportToIMG: TfrExportToIMG
           Margins.Bottom = 100
           Align = alRight
           Caption = '...'
-          TabOrder = 1
+          TabOrder = 2
           OnClick = btnSetGMTPathClick
         end
         object pnlGMTTop: TPanel
@@ -592,7 +592,7 @@ object frExportToIMG: TfrExportToIMG
           Height = 19
           Align = alTop
           BevelOuter = bvNone
-          TabOrder = 2
+          TabOrder = 0
           object lblWebSite: TLabel
             Left = 209
             Top = 0

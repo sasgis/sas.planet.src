@@ -37,7 +37,7 @@ object frExportIPhone: TfrExportIPhone
       Height = 21
       Align = alRight
       Caption = '...'
-      TabOrder = 0
+      TabOrder = 1
       OnClick = btnSelectTargetPathClick
     end
     object edtTargetPath: TEdit
@@ -46,7 +46,7 @@ object frExportIPhone: TfrExportIPhone
       Width = 450
       Height = 21
       Align = alClient
-      TabOrder = 1
+      TabOrder = 0
     end
   end
   object pnlBottom: TPanel
@@ -73,7 +73,7 @@ object frExportIPhone: TfrExportIPhone
         Height = 17
         Align = alTop
         Caption = 'Add tiles to database'
-        TabOrder = 0
+        TabOrder = 1
       end
       object grdpnlMaps: TGridPanel
         Left = 0
@@ -209,7 +209,7 @@ object frExportIPhone: TfrExportIPhone
           item
             Value = 100.000000000000000000
           end>
-        TabOrder = 1
+        TabOrder = 0
         DesignSize = (
           446
           91)
@@ -231,7 +231,7 @@ object frExportIPhone: TfrExportIPhone
           Anchors = []
           MaxValue = 9
           MinValue = 0
-          TabOrder = 0
+          TabOrder = 2
           Value = 2
         end
         object seSatCompress: TSpinEdit
@@ -242,7 +242,7 @@ object frExportIPhone: TfrExportIPhone
           Anchors = []
           MaxValue = 100
           MinValue = 1
-          TabOrder = 1
+          TabOrder = 5
           Value = 85
         end
         object rbHybr: TRadioButton
@@ -252,7 +252,7 @@ object frExportIPhone: TfrExportIPhone
           Height = 21
           Hint = 'Select Hybrid as main layer'
           Align = alClient
-          TabOrder = 2
+          TabOrder = 7
         end
         object rbMap: TRadioButton
           Left = 301
@@ -262,7 +262,7 @@ object frExportIPhone: TfrExportIPhone
           Hint = 'Select Map as main layer'
           Align = alClient
           Checked = True
-          TabOrder = 3
+          TabOrder = 1
           TabStop = True
         end
         object rbSat: TRadioButton
@@ -348,7 +348,7 @@ object frExportIPhone: TfrExportIPhone
           Anchors = []
           MaxValue = 100
           MinValue = 1
-          TabOrder = 5
+          TabOrder = 8
           Value = 85
         end
         object pnlHyb: TPanel
@@ -367,7 +367,7 @@ object frExportIPhone: TfrExportIPhone
           Height = 21
           Align = alClient
           BevelOuter = bvNone
-          TabOrder = 7
+          TabOrder = 0
         end
         object pnlSat: TPanel
           Left = 50
@@ -376,7 +376,7 @@ object frExportIPhone: TfrExportIPhone
           Height = 21
           Align = alClient
           BevelOuter = bvNone
-          TabOrder = 8
+          TabOrder = 3
         end
       end
     end

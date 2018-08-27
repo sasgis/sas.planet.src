@@ -45,7 +45,7 @@ object frGPSConfig: TfrGPSConfig
         Height = 50
         Hint = 'Disable or enable GPS'
         Caption = 'GPS On/Off'
-        TabOrder = 0
+        TabOrder = 1
         OnClick = btnGPSSwitchClick
       end
       object rgConnectionType: TRadioGroup
@@ -60,7 +60,7 @@ object frGPSConfig: TfrGPSConfig
           'USB Garmin'
           'Location API'
           'Fly-on-Track')
-        TabOrder = 1
+        TabOrder = 2
       end
       object pnlComParams: TPanel
         AlignWithMargins = True
@@ -71,7 +71,7 @@ object frGPSConfig: TfrGPSConfig
         BevelKind = bkTile
         BevelOuter = bvNone
         BorderWidth = 2
-        TabOrder = 2
+        TabOrder = 0
         object flwpnlComPort: TFlowPanel
           Left = 2
           Top = 2
@@ -190,7 +190,7 @@ object frGPSConfig: TfrGPSConfig
             Height = 17
             Align = alTop
             Caption = 'Others'
-            TabOrder = 1
+            TabOrder = 4
           end
           object CB_GPSAutodetectCOMSerial: TCheckBox
             AlignWithMargins = True
@@ -210,7 +210,7 @@ object frGPSConfig: TfrGPSConfig
             Height = 17
             Align = alTop
             Caption = 'USBSer'
-            TabOrder = 3
+            TabOrder = 1
           end
           object CB_GPSAutodetectCOMVirtual: TCheckBox
             AlignWithMargins = True
@@ -220,7 +220,7 @@ object frGPSConfig: TfrGPSConfig
             Height = 17
             Align = alTop
             Caption = 'Virtual'
-            TabOrder = 4
+            TabOrder = 3
           end
         end
       end
@@ -321,7 +321,7 @@ object frGPSConfig: TfrGPSConfig
         Width = 51
         Height = 17
         Caption = '.plt'
-        TabOrder = 0
+        TabOrder = 1
       end
       object CB_GPSlogNmea: TCheckBox
         AlignWithMargins = True
@@ -330,7 +330,7 @@ object frGPSConfig: TfrGPSConfig
         Width = 168
         Height = 17
         Caption = '.nmea/.garmin/.locationapi'
-        TabOrder = 1
+        TabOrder = 2
       end
       object CB_GPSlogGPX: TCheckBox
         AlignWithMargins = True
@@ -339,7 +339,7 @@ object frGPSConfig: TfrGPSConfig
         Width = 51
         Height = 17
         Caption = '.gpx'
-        TabOrder = 2
+        TabOrder = 0
       end
     end
     object pnlGpsSensors: TPanel

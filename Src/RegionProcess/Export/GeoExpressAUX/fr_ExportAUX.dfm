@@ -16,7 +16,7 @@ object frExportAUX: TfrExportAUX
     Height = 63
     Align = alClient
     BevelOuter = bvNone
-    TabOrder = 0
+    TabOrder = 1
     object pnlMapSelect: TPanel
       Left = 0
       Top = 0
@@ -93,7 +93,7 @@ object frExportAUX: TfrExportAUX
     Align = alTop
     BevelOuter = bvNone
     BorderWidth = 3
-    TabOrder = 1
+    TabOrder = 0
     object lblTargetFile: TLabel
       AlignWithMargins = True
       Left = 3

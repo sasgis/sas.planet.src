@@ -36,7 +36,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
     Align = alBottom
     Caption = 'Description:'
     Constraints.MinHeight = 80
-    TabOrder = 0
+    TabOrder = 1
     object veImageParams: TValueListEditor
       Left = 2
       Top = 15
@@ -61,7 +61,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
     Height = 220
     Align = alClient
     BevelOuter = bvNone
-    TabOrder = 1
+    TabOrder = 0
     object gbAvailImages: TGroupBox
       Left = 267
       Top = 0
@@ -70,7 +70,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       Align = alClient
       Caption = 'Images available'
       Constraints.MinHeight = 220
-      TabOrder = 0
+      TabOrder = 1
       object tvFound: TTreeView
         AlignWithMargins = True
         Left = 5
@@ -106,7 +106,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
           Height = 17
           Align = alBottom
           Caption = 'All Images'
-          TabOrder = 0
+          TabOrder = 4
           OnClick = chkALLImagesClick
         end
         object TBXOperationsToolbar: TTBXToolbar
@@ -117,7 +117,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
           Align = alTop
           Images = frmMain.MenusImageList
           ShrinkMode = tbsmWrap
-          TabOrder = 1
+          TabOrder = 2
           object TBXUp: TTBXItem
             ImageIndex = 22
             OnClick = btnUpClick
@@ -145,7 +145,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
           Hint = 'Refresh'
           Align = alTop
           Caption = 'Refresh'
-          TabOrder = 2
+          TabOrder = 0
           OnClick = btnRefreshClick
         end
         object chkShowOnlyNew: TCheckBox
@@ -156,7 +156,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
           Hint = 'Show only new'
           Align = alTop
           Caption = 'Show only new'
-          TabOrder = 3
+          TabOrder = 1
           OnClick = chkShowOnlyNewClick
         end
         object btnMakePoly: TButton
@@ -167,7 +167,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
           Hint = 'Make Polygon'
           Align = alTop
           Caption = 'Make Polygon'
-          TabOrder = 4
+          TabOrder = 3
           OnClick = btnMakePolyClick
         end
       end
@@ -179,7 +179,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       Height = 220
       ActivePage = tsImageServices
       Align = alLeft
-      TabOrder = 1
+      TabOrder = 0
       object tsImageServices: TTabSheet
         Caption = 'Image services'
         object pnlImgSvcFooter: TPanel
@@ -191,7 +191,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
           Align = alBottom
           AutoSize = True
           BevelOuter = bvNone
-          TabOrder = 0
+          TabOrder = 4
           object chkALLServices: TCheckBox
             Left = 0
             Top = 0
@@ -221,7 +221,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
           Align = alTop
           AutoSize = True
           BevelOuter = bvNone
-          TabOrder = 1
+          TabOrder = 0
           object lbZoom: TLabel
             Left = 188
             Top = 4
@@ -240,7 +240,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
             Height = 21
             Style = csDropDownList
             ItemHeight = 0
-            TabOrder = 0
+            TabOrder = 3
           end
           object chkBing: TCheckBox
             AlignWithMargins = True
@@ -249,7 +249,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
             Width = 44
             Height = 17
             Caption = 'Bing'
-            TabOrder = 1
+            TabOrder = 2
           end
           object chkDG: TCheckBox
             AlignWithMargins = True
@@ -258,7 +258,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
             Width = 40
             Height = 17
             Caption = 'DG'
-            TabOrder = 2
+            TabOrder = 4
           end
           object chkESRI: TCheckBox
             Left = 92
@@ -266,7 +266,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
             Width = 44
             Height = 17
             Caption = 'ESRI'
-            TabOrder = 3
+            TabOrder = 1
           end
           object chkTerraserver: TCheckBox
             AlignWithMargins = True
@@ -275,7 +275,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
             Width = 80
             Height = 17
             Caption = 'Terraserver'
-            TabOrder = 4
+            TabOrder = 0
           end
         end
         object pnlImgSvcOthers: TPanel
@@ -288,7 +288,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
           BevelOuter = bvNone
           Padding.Left = 3
           Padding.Top = 3
-          TabOrder = 2
+          TabOrder = 3
           object chkDataDoors: TCheckBox
             Left = 3
             Top = 37
@@ -296,7 +296,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
             Height = 17
             Align = alTop
             Caption = 'DataDoors (www.datadoors.net)'
-            TabOrder = 0
+            TabOrder = 2
           end
           object chkDG2: TCheckBox
             Left = 3
@@ -305,7 +305,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
             Height = 17
             Align = alTop
             Caption = 'DigitalGlobe (Catalogservice)'
-            TabOrder = 1
+            TabOrder = 0
           end
           object chkGeoFuse: TCheckBox
             Left = 3
@@ -314,7 +314,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
             Height = 17
             Align = alTop
             Caption = 'GeoFuse.GeoEye (GeoEye+IKONOS)'
-            TabOrder = 2
+            TabOrder = 1
           end
           object chkSearchKosmosnimki: TCheckBox
             Left = 3
@@ -323,7 +323,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
             Height = 17
             Align = alTop
             Caption = 'Kosmosnimki (search.kosmosnimki.ru)'
-            TabOrder = 3
+            TabOrder = 4
           end
           object chkRoscosmos: TCheckBox
             Left = 3
@@ -332,7 +332,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
             Height = 17
             Align = alTop
             Caption = 'Roscosmos (geoportal.ntsomz.ru)'
-            TabOrder = 4
+            TabOrder = 3
           end
         end
         object pnlNMCMain: TPanel
@@ -342,7 +342,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
           Height = 17
           Align = alTop
           BevelOuter = bvNone
-          TabOrder = 3
+          TabOrder = 1
           object LblNMC: TLabel
             Left = 0
             Top = 0
@@ -368,7 +368,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
           Height = 17
           Align = alTop
           BevelOuter = bvNone
-          TabOrder = 4
+          TabOrder = 2
           object lbNMCZoom: TLabel
             Left = 0
             Top = 0
@@ -452,7 +452,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
             Width = 85
             Height = 17
             Caption = 'WorldView-2'
-            TabOrder = 1
+            TabOrder = 3
           end
           object ChkDD3: TCheckBox
             Left = 108
@@ -460,7 +460,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
             Width = 62
             Height = 17
             Caption = 'QuickBird'
-            TabOrder = 2
+            TabOrder = 1
           end
           object ChkDD4: TCheckBox
             Left = 108
@@ -468,7 +468,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
             Width = 63
             Height = 17
             Caption = 'GeoEye'
-            TabOrder = 3
+            TabOrder = 4
           end
           object ChkDD5: TCheckBox
             Left = 180
@@ -476,7 +476,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
             Width = 58
             Height = 17
             Caption = 'IKONOS'
-            TabOrder = 4
+            TabOrder = 2
           end
         end
         object grpbxRosCosmos: TGroupBox
@@ -499,7 +499,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
             Margins.Bottom = 0
             Align = alClient
             BevelOuter = bvNone
-            TabOrder = 0
+            TabOrder = 1
             object lblRoscosmosPassword: TLabel
               Left = 0
               Top = 34
@@ -546,7 +546,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
             Margins.Bottom = 0
             Align = alLeft
             BevelOuter = bvNone
-            TabOrder = 1
+            TabOrder = 0
             object ChkRC1: TCheckBox
               Left = 0
               Top = 0
@@ -645,7 +645,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
             Height = 107
             Align = alLeft
             BevelOuter = bvNone
-            TabOrder = 0
+            TabOrder = 1
             object chkKS1: TCheckBox
               Left = 0
               Top = 0
@@ -691,7 +691,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
             Height = 107
             Align = alLeft
             BevelOuter = bvNone
-            TabOrder = 1
+            TabOrder = 2
             object chkKS5: TCheckBox
               Left = 0
               Top = 0
@@ -736,7 +736,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
             Height = 113
             Align = alClient
             BevelOuter = bvNone
-            TabOrder = 2
+            TabOrder = 0
             object chkKS9: TCheckBox
               Left = 0
               Top = 0
@@ -771,7 +771,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
               Height = 17
               Align = alTop
               Caption = 'SPOT 5 - 2.5m Color'
-              TabOrder = 3
+              TabOrder = 4
             end
             object chkKS12: TCheckBox
               Left = 0
@@ -780,7 +780,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
               Height = 17
               Align = alTop
               Caption = 'SPOT 5 - 2.5m BW'
-              TabOrder = 4
+              TabOrder = 3
             end
           end
         end
