@@ -128,12 +128,13 @@ end;
 
 function TMapTypeGUIConfigList.CreateOrderedList: IGUIDListStatic;
 var
+  I: Integer;
+  VCount: Integer;
+  VSubMenu, VSep: string;
   VIndexList: array of Integer;
   VStrIndexList: array of string;
   VGUIDList: array of TGUID;
   VMap: IMapType;
-  VCount: Integer;
-  i: Integer;
   VList: IInterfaceListSimple;
 begin
   Result := nil;
@@ -141,37 +142,44 @@ begin
     VCount := FMapsSet.GetCount;
     VList := TInterfaceListSimple.Create;
     VList.Capacity := VCount;
-    for i := 0 to FMapsSet.Count - 1 do begin
-      VMap := FMapsSet.Items[i];
+    for I := 0 to FMapsSet.Count - 1 do begin
+      VMap := FMapsSet.Items[I];
       VList.Add(VMap);
     end;
-
     VCount := VList.GetCount;
     if VCount > 1 then begin
-      if FSortOrder = soByMapNumber then begin
-        SetLength(VIndexList, VCount);
-        for i := 0 to VCount - 1 do begin
-          VIndexList[i] := IMapType(VList[i]).GUIConfig.SortIndex;
+      case FSortOrder of
+        soByMapNumber: begin
+          SetLength(VIndexList, VCount);
+          for I := 0 to VCount - 1 do begin
+            VIndexList[I] := IMapType(VList[I]).GUIConfig.SortIndex;
+          end;
+          SortInterfaceListByIntegerMeasure(VList, VIndexList);
         end;
-        SortInterfaceListByIntegerMeasure(VList, VIndexList);
-      end else if FSortOrder = soByMapName then begin
-        SetLength(VStrIndexList, VCount);
-        for i := 0 to VCount - 1 do begin
-          VStrIndexList[i] :=
-            IMapType(VList[i]).GUIConfig.ParentSubMenu.Value +
-            IMapType(VList[i]).GUIConfig.Name.Value;
+        soByMapName: begin
+          SetLength(VStrIndexList, VCount);
+          for I := 0 to VCount - 1 do begin
+            VSubMenu := IMapType(VList[I]).GUIConfig.ParentSubMenu.Value;
+            if (VSubMenu <> '') and (VSubMenu[Length(VSubMenu)] <> '\') then begin
+              VSep := '\';
+            end else begin
+              VSep := '';
+            end;
+            VStrIndexList[I] := VSubMenu + VSep + IMapType(VList[I]).GUIConfig.Name.Value;
+          end;
+          SortInterfaceListByStringMeasure(VList, VStrIndexList);
         end;
-        SortInterfaceListByStringMeasure(VList, VStrIndexList);
-      end else if FSortOrder = soByZmpName then begin
-        // already sorted
-      end else begin
+        soByZmpName: begin
+          // Do nothing (already sorted)
+        end;
+      else
         raise Exception.CreateFmt('Unexpected SortOrder type: %d', [Integer(FSortOrder)]);
       end;
     end;
     if VCount > 0 then begin
       SetLength(VGUIDList, VCount);
-      for i := 0 to VCount - 1 do begin
-        VGUIDList[i] := IMapType(VList[i]).Zmp.GUID;
+      for I := 0 to VCount - 1 do begin
+        VGUIDList[I] := IMapType(VList[I]).Zmp.GUID;
       end;
       Result := TGUIDListStatic.Create(VGUIDList, VCount);
     end;
