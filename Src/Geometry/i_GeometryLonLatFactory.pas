@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2018, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -111,11 +111,19 @@ type
     function CreateLonLatPolygonByRect(
       const ARect: TDoubleRect
     ): IGeometryLonLatSinglePolygon;
+
     function CreateLonLatPolygonCircleByPoint(
       const ADatum: IDatum;
       const APos: TDoublePoint;
       const ARadius: double
     ): IGeometryLonLatSinglePolygon;
+
+    function CreateLonLatPolygonByLine(
+      const ADatum: IDatum;
+      const ALine: IGeometryLonLatLine;
+      const ARadius: Double
+    ): IGeometryLonLatPolygon;
+
     function CreateLonLatPolygonByLonLatPathAndFilter(
       const ASource: IGeometryLonLatLine;
       const AFilter: ILonLatPointFilter

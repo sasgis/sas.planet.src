@@ -334,6 +334,7 @@ uses
   u_GeometryProjectedMulti in 'Src\Geometry\u_GeometryProjectedMulti.pas',
   u_GeometryProjectedProvider in 'Src\Geometry\u_GeometryProjectedProvider.pas',
   u_GeometryToWKB in 'Src\Geometry\u_GeometryToWKB.pas',
+  u_LonLatPolygonGenerator in 'Src\Geometry\u_LonLatPolygonGenerator.pas',
   u_LonLatRect in 'Src\Geometry\u_LonLatRect.pas',
   u_LonLatRectByPoint in 'Src\Geometry\u_LonLatRectByPoint.pas',
   u_ProjectedCalc in 'Src\Geometry\u_ProjectedCalc.pas',

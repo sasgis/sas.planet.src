@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2018, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -213,15 +213,13 @@ implementation
 uses
   SysUtils,
   gnugettext,
-  t_CommonTypes,
-  i_DoublePointFilter,
+  t_CommonTypes,  
   i_VectorItemTree,
   i_VectorItemSubset,
   i_MarkCategoryTree,
   i_NotifierOperation,
   i_VectorItemTreeImporter,
   u_ResStrings,
-  u_EnumDoublePointLine2Poly,
   u_StringListStatic,
   u_VectorItemTree,
   u_NotifierOperation,
@@ -896,8 +894,7 @@ var
   VLine: IGeometryLonLatLine;
   VPoly: IGeometryLonLatPolygon;
   VDefRadius: String;
-  VRadius: double;
-  VFilter: ILonLatPointFilter;
+  VRadius: Double;
 begin
   Result := nil;
   if not Assigned(AGeometry.Bounds) then begin
@@ -915,11 +912,11 @@ begin
         ShowMessage(SAS_ERR_ParamsInput);
         Exit;
       end;
-      VFilter := TLonLatPointFilterLine2Poly.Create(VRadius, AProjection);
       Result :=
-        FVectorGeometryLonLatFactory.CreateLonLatPolygonByLonLatPathAndFilter(
+        FVectorGeometryLonLatFactory.CreateLonLatPolygonByLine(
+          AProjection.ProjectionType.Datum,
           VLine,
-          VFilter
+          VRadius
         );
     end;
   end else begin
