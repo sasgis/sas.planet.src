@@ -22,10 +22,6 @@ unit u_LonLatPolygonGenerator;
 
 interface
 
-{$IFDEF DEBUG}
-  {.$DEFINE WITH_PERF_COUNTER}
-{$ENDIF}
-
 uses
   SysUtils,
   clipper,
@@ -66,11 +62,6 @@ type
 implementation
 
 uses
-  {$IFDEF WITH_PERF_COUNTER}
-  Windows,
-  i_Timer,
-  u_TimerByQueryPerformanceCounter,
-  {$ENDIF}
   i_DoublePoints,
   u_DoublePoints;
 
@@ -90,12 +81,6 @@ var
   I: Integer;
   VLineSingle: IGeometryLonLatSingleLine;
   VLineMulti: IGeometryLonLatMultiLine;
-  {$IFDEF WITH_PERF_COUNTER}
-  VTimer: ITimer;
-  VStartTime: Int64;
-  VTime: Double;
-  VMsg: string;
-  {$ENDIF}
 begin
   FDatum := ADatum;
   FRadius := ARadius;
@@ -104,15 +89,6 @@ begin
 
   SetLength(FPattern, cPatternLen);
   FMaxPatternDiff := Round(0.5 * FIntToDoubleCoeff); // 0.5 degree
-
-  {$IFDEF WITH_PERF_COUNTER}
-  VTimer := MakeTimerByQueryPerformanceCounter;
-  if VTimer <> nil then begin
-    VStartTime := VTimer.CurrentTime;
-  end else begin
-    VStartTime := 0;
-  end;
-  {$ENDIF}
 
   if Supports(ALine, IGeometryLonLatSingleLine, VLineSingle) then begin
     GeneratePolygonBySingleLine(VLineSingle, ABuilder);
@@ -123,14 +99,6 @@ begin
     end;
   end;
   Result := ABuilder.MakeStaticAndClear;
-
-  {$IFDEF WITH_PERF_COUNTER}
-  if VTimer <> nil then begin
-    VTime := (VTimer.CurrentTime - VStartTime) / VTimer.Freq;
-    VMsg := Format('Polygon by Minkowski Sum at %.8f sec.', [VTime]);
-    OutputDebugString(PChar(VMsg));
-  end
-  {$ENDIF}
 end;
 
 procedure TLonLatPolygonGenerator.MakePattern(

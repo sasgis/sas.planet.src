@@ -559,7 +559,11 @@ begin
 
   FResourceProvider := FMainConfigProvider.GetSubItem('sas:\Resource');
   FVectorGeometryProjectedFactory := TGeometryProjectedFactory.Create;
-  FVectorGeometryLonLatFactory := TGeometryLonLatFactory.Create(FHashFunction);
+  FVectorGeometryLonLatFactory :=
+    TGeometryLonLatFactory.Create(
+      FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('GeometryLonLatFactory'),
+      FHashFunction
+    );
 
   FGlobalInternetState := TGlobalInternetState.Create;
 

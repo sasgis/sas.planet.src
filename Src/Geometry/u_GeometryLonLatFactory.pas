@@ -32,12 +32,17 @@ uses
   i_DoublePointsAggregator,
   i_GeometryLonLat,
   i_GeometryLonLatFactory,
+  i_InternalPerformanceCounter,
   u_BaseInterfacedObject;
 
 type
   TGeometryLonLatFactory = class(TBaseInterfacedObject, IGeometryLonLatFactory)
   private
     FHashFunction: IHashFunction;
+
+    FLineToPolyByGenCounter: IInternalPerformanceCounter;
+    FLineToPolyByFilterCounter: IInternalPerformanceCounter;
+
     function CreateLonLatPolygonInternal(
       const ARect: TDoubleRect;
       const APoints: IDoublePoints
@@ -94,7 +99,10 @@ type
       const AFilter: ILonLatPointFilter
     ): IGeometryLonLatPolygon;
   public
-    constructor Create(const AHashFunction: IHashFunction);
+    constructor Create(
+      const APerfCounterList: IInternalPerformanceCounterList;
+      const AHashFunction: IHashFunction
+    );
   end;
 
 implementation
@@ -685,14 +693,19 @@ begin
   end;
 end;
 
-{ TVectorGeometryLonLatFactory }
+{ TGeometryLonLatFactory }
 
 constructor TGeometryLonLatFactory.Create(
-  const AHashFunction: IHashFunction);
+  const APerfCounterList: IInternalPerformanceCounterList;
+  const AHashFunction: IHashFunction
+);
 begin
   Assert(Assigned(AHashFunction));
   inherited Create;
   FHashFunction := AHashFunction;
+
+  FLineToPolyByGenCounter := APerfCounterList.CreateAndAddNewCounter('LineToPolyByGen');
+  FLineToPolyByFilterCounter := APerfCounterList.CreateAndAddNewCounter('LineToPolyByFilter');
 end;
 
 function TGeometryLonLatFactory.CreateLonLatPolygonCircleByPoint(
@@ -730,13 +743,19 @@ function TGeometryLonLatFactory.CreateLonLatPolygonByLine(
 var
   VPolygonGenerator: TLonLatPolygonGenerator;
   VBuilder: IGeometryLonLatPolygonBuilder;
+  VCounterContext: TInternalPerformanceCounterContext;
 begin
-  VPolygonGenerator := TLonLatPolygonGenerator.Create;
+  VCounterContext := FLineToPolyByGenCounter.StartOperation;
   try
-    VBuilder := MakePolygonBuilder;
-    Result := VPolygonGenerator.Generate(VBuilder, ADatum, ALine, ARadius);
+    VPolygonGenerator := TLonLatPolygonGenerator.Create;
+    try
+      VBuilder := MakePolygonBuilder;
+      Result := VPolygonGenerator.Generate(VBuilder, ADatum, ALine, ARadius);
+    finally
+      VPolygonGenerator.Free;
+    end;
   finally
-    VPolygonGenerator.Free;
+    FLineToPolyByGenCounter.FinishOperation(VCounterContext);
   end;
 end;
 
@@ -958,24 +977,29 @@ function TGeometryLonLatFactory.CreateLonLatPolygonByLonLatPathAndFilter(
   const AFilter: ILonLatPointFilter
 ): IGeometryLonLatPolygon;
 var
+  I: Integer;
   VTemp: IDoublePointsAggregator;
   VBuilder: IGeometryLonLatPolygonBuilder;
   VLineSingle: IGeometryLonLatSingleLine;
   VLineMulti: IGeometryLonLatMultiLine;
-  i: Integer;
+  VCounterContext: TInternalPerformanceCounterContext;
 begin
-  VBuilder := MakePolygonBuilder;
-
-  VTemp := TDoublePointsAggregator.Create;
-  if Supports(ASource, IGeometryLonLatSingleLine, VLineSingle) then begin
-    AddPolygonsBySingleLine(VLineSingle, AFilter, VBuilder, VTemp);
-  end else if Supports(ASource, IGeometryLonLatMultiLine, VLineMulti) then begin
-    for i := 0 to VLineMulti.Count - 1 do begin
-      VLineSingle := VLineMulti.Item[i];
+  VCounterContext := FLineToPolyByFilterCounter.StartOperation;
+  try
+    VBuilder := MakePolygonBuilder;
+    VTemp := TDoublePointsAggregator.Create;
+    if Supports(ASource, IGeometryLonLatSingleLine, VLineSingle) then begin
       AddPolygonsBySingleLine(VLineSingle, AFilter, VBuilder, VTemp);
+    end else if Supports(ASource, IGeometryLonLatMultiLine, VLineMulti) then begin
+      for I := 0 to VLineMulti.Count - 1 do begin
+        VLineSingle := VLineMulti.Item[I];
+        AddPolygonsBySingleLine(VLineSingle, AFilter, VBuilder, VTemp);
+      end;
     end;
+    Result := VBuilder.MakeStaticAndClear;
+  finally
+    FLineToPolyByFilterCounter.FinishOperation(VCounterContext);
   end;
-  Result := VBuilder.MakeStaticAndClear;
 end;
 
 function TGeometryLonLatFactory.CreateLonLatPolygonByRect(
