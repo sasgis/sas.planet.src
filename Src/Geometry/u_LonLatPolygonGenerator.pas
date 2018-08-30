@@ -260,14 +260,11 @@ procedure TLonLatPolygonGenerator.GeneratePolygonBySingleLine(
     I: Integer;
     VSinglePoly: IDoublePoints;
   begin
-    if ANode.IsHole then begin
-      VSinglePoly := _PathToSinglePolygon(ANode.Contour);
-      if Assigned(VSinglePoly) then begin
+    VSinglePoly := _PathToSinglePolygon(ANode.Contour);
+    if Assigned(VSinglePoly) then begin
+      if ANode.IsHole then begin
         ABuilder.AddHole(VSinglePoly);
-      end;
-    end else begin
-      VSinglePoly := _PathToSinglePolygon(ANode.Contour);
-      if Assigned(VSinglePoly) then begin
+      end else begin
         ABuilder.AddOuter(VSinglePoly);
       end;
     end;
