@@ -524,7 +524,7 @@ begin
     );
     if AProjectedPoints.Count > 0 then begin
       if FConfig.ShowAzimuth then begin
-        VAzimuth := ' ' + SAS_STR_Azimuth + ': ' +
+        VAzimuth := '; ' + SAS_STR_Azimuth + ': ' +
           FloatToStrF(VStartAzimuth, ffNumber, 12, 2) + #176; // #176 - degree symbol
       end else begin
         VAzimuth := '';
