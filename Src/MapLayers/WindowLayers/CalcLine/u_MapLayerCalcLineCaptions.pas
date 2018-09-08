@@ -413,7 +413,7 @@ begin
       if Length(ATextSizeArray) < AProjectedPoints.Count then begin
         SetLength(ATextSizeArray, AProjectedPoints.Count);
       end;
-      VTextSize := FTempBitmap.TextExtent(VText);
+      VTextSize := FTempLastPointBitmap.TextExtent(VText);
       ATextSizeArray[AProjectedPoints.Count - 1].X := VTextSize.cx;
       ATextSizeArray[AProjectedPoints.Count - 1].Y := VTextSize.cy;
       VPrevProjected := VCurrProjected;
