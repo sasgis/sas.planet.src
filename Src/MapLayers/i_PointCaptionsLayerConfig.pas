@@ -44,6 +44,9 @@ type
     function GetLastPointFontSize: Integer;
     property LastPointFontSize: Integer read GetLastPointFontSize;
 
+    function GetFontName: string;
+    property FontName: string read GetFontName;
+
     function GetTextColor: TColor32;
     property TextColor: TColor32 read GetTextColor;
 
@@ -72,6 +75,10 @@ type
     function GetLastPointFontSize: Integer;
     procedure SetLastPointFontSize(AValue: Integer);
     property LastPointFontSize: Integer read GetLastPointFontSize write SetLastPointFontSize;
+
+    function GetFontName: string;
+    procedure SetFontName(const AValue: string);
+    property FontName: string read GetFontName write SetFontName;
 
     function GetTextColor: TColor32;
     procedure SetTextColor(const AValue: TColor32);

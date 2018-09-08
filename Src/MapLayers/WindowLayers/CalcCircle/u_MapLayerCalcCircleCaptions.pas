@@ -53,6 +53,7 @@ type
       const ATextSize: TSize;
       const APosOnBitmap: TDoublePoint;
       const AFontSize: Integer;
+      const AFontName: string;
       const ATextBGColor: TColor32;
       const ATextColor: TColor32
     );
@@ -139,6 +140,7 @@ procedure TMapLayerCalcCircleCaptions.DrawPointText(
   const ATextSize: TSize;
   const APosOnBitmap: TDoublePoint;
   const AFontSize: Integer;
+  const AFontName: string;
   const ATextBGColor: TColor32;
   const ATextColor: TColor32
 );
@@ -149,6 +151,7 @@ begin
      (APosOnBitmap.Y > 0) and (APosOnBitmap.Y < ABitmapSize.Y)
   then begin
     ABuffer.Font.Size := AFontSize;
+    ABuffer.Font.Name := AFontName;
     VRect.Left := Trunc(APosOnBitmap.X + 12);
     VRect.Top := Trunc(APosOnBitmap.Y);
     VRect.Right := VRect.Left + ATextSize.cx + 4;
@@ -170,6 +173,7 @@ begin
   try
     VConfig := FConfig.GetStatic;
     FTempBitmap.Font.Size := VConfig.LastPointFontSize;
+    FTempBitmap.Font.Name := VConfig.FontName;
     Visible := VConfig.Visible and Assigned(FLine);
     SetNeedRedraw;
   finally
@@ -248,6 +252,7 @@ begin
       VTextSize,
       VPosOnBitmap,
       VConfig.LastPointFontSize,
+      VConfig.FontName,
       VConfig.TextBGColor,
       VConfig.TextColor
     );

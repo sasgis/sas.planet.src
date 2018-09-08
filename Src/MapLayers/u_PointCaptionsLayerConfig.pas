@@ -38,6 +38,7 @@ type
     FShowLastPointOnly: Boolean;
     FFontSize: Integer;
     FLastPointFontSize: Integer;
+    FFontName: string;
     FTextColor: TColor32;
     FTextBGColor: TColor32;
   private
@@ -46,6 +47,7 @@ type
     function GetShowLastPointOnly: Boolean;
     function GetFontSize: Integer;
     function GetLastPointFontSize: Integer;
+    function GetFontName: string;
     function GetTextColor: TColor32;
     function GetTextBGColor: TColor32;
   public
@@ -55,6 +57,7 @@ type
       AShowLastPointOnly: Boolean;
       AFontSize: Integer;
       ALastPointFontSize: Integer;
+      const AFontName: string;
       ATextColor: TColor32;
       ATextBGColor: TColor32
     );
@@ -67,6 +70,7 @@ type
     FShowLastPointOnly: Boolean;
     FFontSize: Integer;
     FLastPointFontSize: Integer;
+    FFontName: string;
     FTextColor: TColor32;
     FTextBGColor: TColor32;
   protected
@@ -89,6 +93,9 @@ type
 
     function GetLastPointFontSize: Integer;
     procedure SetLastPointFontSize(AValue: Integer);
+
+    function GetFontName: string;
+    procedure SetFontName(const AValue: string);
 
     function GetTextColor: TColor32;
     procedure SetTextColor(const AValue: TColor32);
@@ -113,6 +120,7 @@ constructor TPointCaptionsLayerConfigStatic.Create(
   AVisible, AShowAzimuth,
   AShowLastPointOnly: Boolean;
   AFontSize, ALastPointFontSize: Integer;
+  const AFontName: string;
   ATextColor, ATextBGColor: TColor32
 );
 begin
@@ -122,8 +130,14 @@ begin
   FShowLastPointOnly := AShowLastPointOnly;
   FFontSize := AFontSize;
   FLastPointFontSize := ALastPointFontSize;
+  FFontName := AFontName;
   FTextColor := ATextColor;
   FTextBGColor := ATextBGColor;
+end;
+
+function TPointCaptionsLayerConfigStatic.GetFontName: string;
+begin
+  Result := FFontName;
 end;
 
 function TPointCaptionsLayerConfigStatic.GetFontSize: Integer;
@@ -171,6 +185,7 @@ begin
   FShowLastPointOnly := False;
   FFontSize := 7;
   FLastPointFontSize := 9;
+  FFontName := 'Arial';
   FTextColor := clBlack32;
   FTextBGColor := SetAlpha(ClWhite32, 110);
 end;
@@ -186,6 +201,7 @@ begin
       FShowLastPointOnly,
       FFontSize,
       FLastPointFontSize,
+      FFontName,
       FTextColor,
       FTextBGColor
     );
@@ -201,6 +217,7 @@ begin
     FShowLastPointOnly := AConfigData.ReadBool('ShowLastPointCaptionOnly', FShowLastPointOnly);
     FFontSize := AConfigData.ReadInteger('FontSize', FFontSize);
     FLastPointFontSize := AConfigData.ReadInteger('LastPointFontSize', FLastPointFontSize);
+    FFontName := AConfigData.ReadString('FontName', FFontName);
     FTextColor := ReadColor32(AConfigData, 'TextColor', FTextColor);
     FTextBGColor := ReadColor32(AConfigData, 'TextBGColor', FTextBGColor);
 
@@ -218,9 +235,20 @@ begin
   AConfigData.WriteBool('ShowLastPointCaptionOnly', FShowLastPointOnly);
   AConfigData.WriteInteger('FontSize', FFontSize);
   AConfigData.WriteInteger('LastPointFontSize', FLastPointFontSize);
+  AConfigData.WriteString('FontName', FFontName);
 
   WriteColor32(AConfigData, 'TextColor', FTextColor);
   WriteColor32(AConfigData, 'TextBGColor', FTextBGColor);
+end;
+
+function TPointCaptionsLayerConfig.GetFontName: string;
+begin
+  LockRead;
+  try
+    Result := FFontName;
+  finally
+    UnlockRead;
+  end;
 end;
 
 function TPointCaptionsLayerConfig.GetFontSize: Integer;
@@ -295,6 +323,19 @@ begin
     Result := FShowAzimuth;
   finally
     UnlockRead;
+  end;
+end;
+
+procedure TPointCaptionsLayerConfig.SetFontName(const AValue: string);
+begin
+  LockWrite;
+  try
+    if FFontName <> AValue then begin
+      FFontName := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
   end;
 end;
 
