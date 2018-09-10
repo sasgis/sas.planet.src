@@ -124,7 +124,6 @@ begin
     FCircleOnMapEdit.GetChangeNotifier
   );
   FTempBitmap := TBitmap32.Create;
-  FTempBitmap.Font.Size := 9;
 end;
 
 destructor TMapLayerCalcCircleCaptions.Destroy;

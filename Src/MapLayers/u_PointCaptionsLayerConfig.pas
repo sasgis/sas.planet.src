@@ -183,11 +183,11 @@ begin
   FVisible := True;
   FShowAzimuth := True;
   FShowLastPointOnly := False;
-  FFontSize := 7;
+  FFontSize := 8;
   FLastPointFontSize := 9;
   FFontName := 'Arial';
-  FTextColor := clBlack32;
-  FTextBGColor := SetAlpha(ClWhite32, 110);
+  FTextColor := clWhite32;
+  FTextBGColor := SetAlpha(clBlack32, $70);
 end;
 
 function TPointCaptionsLayerConfig.CreateStatic: IInterface;

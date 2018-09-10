@@ -176,9 +176,7 @@ begin
     FLineOnMapEdit.GetChangeNotifier
   );
   FTempBitmap := TBitmap32.Create;
-  FTempBitmap.Font.Size := 7;
   FTempLastPointBitmap := TBitmap32.Create;
-  FTempLastPointBitmap.Font.Size := 9;
 end;
 
 destructor TMapLayerCalcLineCaptions.Destroy;
