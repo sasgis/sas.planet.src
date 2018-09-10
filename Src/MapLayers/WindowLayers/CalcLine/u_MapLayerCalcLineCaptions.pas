@@ -211,8 +211,6 @@ begin
   if (APosOnBitmap.X > 0) and (APosOnBitmap.X < ABitmapSize.X) and
      (APosOnBitmap.Y > 0) and (APosOnBitmap.Y < ABitmapSize.Y)
   then begin
-    ABuffer.Font.Size := AFontSize;
-    ABuffer.Font.Name := AFontName;
     VRect.Left := Trunc(APosOnBitmap.X + 12);
     VRect.Top := Trunc(APosOnBitmap.Y);
     VRect.Right := VRect.Left + ATextSize.cx + 4;
@@ -221,7 +219,10 @@ begin
       ABuffer.Changed(VRect);
     end else begin
       ABuffer.FillRectTS(VRect, ATextBGColor);
-      ABuffer.RenderText(VRect.Left + 2, VRect.Top + 2, AText, 3, ATextColor);
+      ABuffer.Font.Size := AFontSize;
+      ABuffer.Font.Name := AFontName;
+      ABuffer.Font.Color := WinColor(ATextColor);
+      ABuffer.Textout(VRect.Left + 2, VRect.Top + 2, AText);
     end;
   end;
 end;
