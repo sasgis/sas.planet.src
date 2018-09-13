@@ -423,8 +423,9 @@ type
     HideSeparator: TTBSeparatorItem;
     tbitmFillingMapAsMain: TTBXItem;
     TBEditPathLabelVisible: TTBSubmenuItem;
-    TBEditPathLabelLastOnly: TTBXItem;
-    TBEditPathLabelShowAzimuth: TTBXItem;
+    tbxShowIntermediateDist: TTBXItem;
+    tbxShowDistIncrement: TTBXItem;
+    tbxShowAzimuth: TTBXItem;
     tbitmPointProject: TTBXItem;
     TBXNextVer: TTBXItem;
     TBXPrevVer: TTBXItem;
@@ -736,8 +737,9 @@ type
     procedure RosreestrClick(Sender: TObject);
     procedure TBXMakeRosreestrPolygonClick(Sender: TObject);
     procedure tbpmiShowOtherVersionsClick(Sender: TObject);
-    procedure TBEditPathLabelLastOnlyClick(Sender: TObject);
-    procedure TBEditPathLabelShowAzimuthClick(Sender: TObject);
+    procedure tbxShowIntermediateDistClick(Sender: TObject);
+    procedure tbxShowDistIncrementClick(Sender: TObject);
+    procedure tbxShowAzimuthClick(Sender: TObject);
     procedure TBEditPathSplitClick(Sender: TObject);
     procedure tbMergePolygonsClose(Sender: TObject);
     procedure tbxtmAddToMergePolygonsClick(Sender: TObject);
@@ -2781,8 +2783,9 @@ begin
     (VNewState = ao_select_line);
 
   TBEditPathLabelVisible.Visible := (VNewState = ao_calc_line) or (VNewState = ao_edit_line);
-  TBEditPathLabelLastOnly.Visible := (VNewState = ao_calc_line) or (VNewState = ao_edit_line);
-  TBEditPathLabelShowAzimuth.Visible := (VNewState = ao_calc_line) or (VNewState = ao_edit_line);
+  tbxShowIntermediateDist.Visible := (VNewState = ao_calc_line) or (VNewState = ao_edit_line);
+  tbxShowDistIncrement.Visible := (VNewState = ao_calc_line) or (VNewState = ao_edit_line);
+  tbxShowAzimuth.Visible := (VNewState = ao_calc_line) or (VNewState = ao_edit_line);
   TBEditPathSplit.Visible := (VNewState = ao_calc_line) or (VNewState = ao_edit_line);
   if (VNewState = ao_calc_line) or (VNewState = ao_edit_line) then begin
     case VNewState of
@@ -2795,9 +2798,10 @@ begin
     end;
     VConfig.LockRead;
     try
-      TBEditPathLabelLastOnly.Checked := VConfig.ShowLastPointOnly;
+      tbxShowIntermediateDist.Checked := VConfig.ShowIntermediateDist;
+      tbxShowDistIncrement.Checked := VConfig.ShowDistIncrement;
+      tbxShowAzimuth.Checked := VConfig.ShowAzimuth;
       TBEditPathLabelVisible.Checked := VConfig.Visible;
-      TBEditPathLabelShowAzimuth.Checked := VConfig.ShowAzimuth;
     finally
       VConfig.UnlockRead;
     end;
@@ -5451,7 +5455,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.TBEditPathLabelLastOnlyClick(Sender: TObject);
+procedure TfrmMain.tbxShowIntermediateDistClick(Sender: TObject);
 var
   VConfig: IPointCaptionsLayerConfig;
 begin
@@ -5463,15 +5467,10 @@ begin
       VConfig := FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig;
     end;
   end;
-  VConfig.LockWrite;
-  try
-    VConfig.ShowLastPointOnly := (Sender as TTBXItem).Checked;
-  finally
-    VConfig.UnlockWrite;
-  end;
+  VConfig.ShowIntermediateDist := (Sender as TTBXItem).Checked;
 end;
 
-procedure TfrmMain.TBEditPathLabelShowAzimuthClick(Sender: TObject);
+procedure TfrmMain.tbxShowDistIncrementClick(Sender: TObject);
 var
   VConfig: IPointCaptionsLayerConfig;
 begin
@@ -5483,12 +5482,22 @@ begin
       VConfig := FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig;
     end;
   end;
-  VConfig.LockWrite;
-  try
-    VConfig.ShowAzimuth := (Sender as TTBXItem).Checked;
-  finally
-    VConfig.UnlockWrite;
+  VConfig.ShowDistIncrement := (Sender as TTBXItem).Checked;
+end;
+
+procedure TfrmMain.tbxShowAzimuthClick(Sender: TObject);
+var
+  VConfig: IPointCaptionsLayerConfig;
+begin
+  case FState.State of
+    ao_calc_line: begin
+      VConfig := FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig;
+    end;
+    ao_edit_line: begin
+      VConfig := FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig;
+    end;
   end;
+  VConfig.ShowAzimuth := (Sender as TTBXItem).Checked;
 end;
 
 procedure TfrmMain.TBEditPathSaveClick(Sender: TObject);

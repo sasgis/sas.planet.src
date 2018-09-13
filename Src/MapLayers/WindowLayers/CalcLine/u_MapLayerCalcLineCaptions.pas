@@ -75,16 +75,7 @@ type
       const AValueConverter: IValueToStringConverter;
       const ALine: IGeometryLonLatSingleLine;
       const AProjection: IProjection;
-      var ATextSizeArray: TArrayOfPoint;
-      var AProjectedPoints: IDoublePointsAggregator;
-      var ALastStartAzimuth: Double;
-      var ATotalDist: Double;
-      var ADistStrings: TStringList
-    );
-    procedure _PrepareMultiLine(
-      const AValueConverter: IValueToStringConverter;
-      const ALine: IGeometryLonLatMultiLine;
-      const AProjection: IProjection;
+      const AIsFinalize: Boolean;
       var ATextSizeArray: TArrayOfPoint;
       var AProjectedPoints: IDoublePointsAggregator;
       var ALastStartAzimuth: Double;
@@ -97,8 +88,6 @@ type
       const AProjection: IProjection;
       var ATextSizeArray: TArrayOfPoint;
       var AProjectedPoints: IDoublePointsAggregator;
-      var ALastStartAzimuth: Double;
-      var ATotalDist: Double;
       var ADistStrings: TStringList
     );
   protected
@@ -138,6 +127,13 @@ uses
   u_ListenerByEvent,
   u_DoublePointsAggregator,
   u_ResStrings;
+
+function AzimuthToString(const AAzimuth: Double): string; inline;
+const
+  cDegreeSymbol = #176;
+begin
+  Result := FloatToStrF(AAzimuth, ffNumber, 12, 2) + cDegreeSymbol;
+end;
 
 { TMapLayerCalcLineCaptions }
 
@@ -265,6 +261,7 @@ procedure TMapLayerCalcLineCaptions.PaintLayer(
   const ALocalConverter: ILocalCoordConverter
 );
 var
+  I: Integer;
   VConfig: IPointCaptionsLayerConfigStatic;
   VProjection: IProjection;
   VPoints: IDoublePointsAggregator;
@@ -278,7 +275,6 @@ var
   VPosOnBitmap: TDoublePoint;
   VText: string;
   VTextSize: TSize;
-  i: Integer;
 begin
   inherited;
   VConfig := FConfig.GetStatic;
@@ -316,12 +312,12 @@ begin
     VLocalRect := ALocalConverter.GetLocalRect;
     VBitmapSize.X := VLocalRect.Right - VLocalRect.Left;
     VBitmapSize.Y := VLocalRect.Bottom - VLocalRect.Top;
-    if not VConfig.ShowLastPointOnly then begin
-      for i := 0 to VPoints.Count - 2 do begin
-        VText := VDistStrings[i];
-        VTextSize.cx := VTextSizeArray[i].X;
-        VTextSize.cy := VTextSizeArray[i].Y;
-        VPosOnMap := VPoints.Points[i];
+    if VConfig.ShowIntermediateDist or VConfig.ShowDistIncrement then begin
+      for I := 0 to VPoints.Count - 2 do begin
+        VText := VDistStrings[I];
+        VTextSize.cx := VTextSizeArray[I].X;
+        VTextSize.cy := VTextSizeArray[I].Y;
+        VPosOnMap := VPoints.Points[I];
         VPosOnBitmap := ALocalConverter.MapPixelFloat2LocalPixelFloat(VPosOnMap);
         DrawPointText(
           ABuffer,
@@ -336,11 +332,11 @@ begin
         );
       end;
     end;
-    i := VPoints.Count - 1;
-    VText := VDistStrings[i];
-    VTextSize.cx := VTextSizeArray[i].X;
-    VTextSize.cy := VTextSizeArray[i].Y;
-    VPosOnMap := VPoints.Points[i];
+    I := VPoints.Count - 1;
+    VText := VDistStrings[I];
+    VTextSize.cx := VTextSizeArray[I].X;
+    VTextSize.cy := VTextSizeArray[I].Y;
+    VPosOnMap := VPoints.Points[I];
     VPosOnBitmap := ALocalConverter.MapPixelFloat2LocalPixelFloat(VPosOnMap);
     DrawPointText(
       ABuffer,
@@ -360,96 +356,128 @@ procedure TMapLayerCalcLineCaptions._PrepareSingleLine(
   const AValueConverter: IValueToStringConverter;
   const ALine: IGeometryLonLatSingleLine;
   const AProjection: IProjection;
+  const AIsFinalize: Boolean;
   var ATextSizeArray: TArrayOfPoint;
   var AProjectedPoints: IDoublePointsAggregator;
   var ALastStartAzimuth, ATotalDist: Double;
   var ADistStrings: TStringList
 );
+type
+  TTextItemInfo = record
+    Enabled: Boolean;
+    Text: string;
+  end;
 var
+  I: Integer;
+  VCount: Integer;
+  VPoints: PDoublePointArray;
+  VIsLastPoint: Boolean;
   VFinishAzimuth: Double;
-  VSkipPoint: Boolean;
   VCurrLonLat: TDoublePoint;
   VCurrProjected: TDoublePoint;
-  VEnum: IEnumLonLatPoint;
   VDist: Double;
+  VDistSkipped: Double;
   VLonLat: TDoublePoint;
   VPrevLonLat: TDoublePoint;
   VPrevProjected: TDoublePoint;
   VText: string;
-  VTextSize: tagSIZE;
+  VTextSize: TSize;
   VProjectionType: IProjectionType;
   VDatum: IDatum;
+  VBitmap: array[Boolean] of TBitmap32;
+  VTextItems: array [0..2] of TTextItemInfo;
 begin
-  VEnum := ALine.GetEnum;
-  if VEnum.Next(VPrevLonLat) then begin
-    VSkipPoint := False;
-    VLonLat := VPrevLonLat;
-    VProjectionType := AProjection.ProjectionType;
-    VDatum := VProjectionType.Datum;
-    VProjectionType.ValidateLonLatPos(VLonLat);
-    VPrevProjected := AProjection.LonLat2PixelPosFloat(VLonLat);
-    while VEnum.Next(VCurrLonLat) do begin
-      VDist := VDatum.CalcDist(VPrevLonLat, VCurrLonLat, ALastStartAzimuth, VFinishAzimuth);
-      ATotalDist := ATotalDist + VDist;
-      VLonLat := VCurrLonLat;
-      VProjectionType.ValidateLonLatPos(VLonLat);
-      VCurrProjected := AProjection.LonLat2PixelPosFloat(VLonLat);
-      VSkipPoint := ((abs(VPrevProjected.X - VCurrProjected.X) < 60) and (abs(VPrevProjected.Y - VCurrProjected.Y) < 15));
-      if not VSkipPoint then begin
-        AProjectedPoints.Add(VCurrProjected);
-        VText := AValueConverter.DistConvert(ATotalDist);
-        if FConfig.ShowAzimuth then begin
-          VText := VText + '; ' + FloatToStrF(ALastStartAzimuth, ffNumber, 12, 2) + #176;
-        end;
-        ADistStrings.Add(VText);
-        if Length(ATextSizeArray) < AProjectedPoints.Count then begin
-          SetLength(ATextSizeArray, AProjectedPoints.Count);
-        end;
-        VTextSize := FTempBitmap.TextExtent(VText);
-        ATextSizeArray[AProjectedPoints.Count - 1].X := VTextSize.cx;
-        ATextSizeArray[AProjectedPoints.Count - 1].Y := VTextSize.cy;
-        VPrevProjected := VCurrProjected;
-      end;
-      VPrevLonLat := VCurrLonLat;
-    end;
-    if VSkipPoint then begin
-      AProjectedPoints.Add(VCurrProjected);
-      VText := AValueConverter.DistConvert(ATotalDist);
-      ADistStrings.Add(VText);
-      if Length(ATextSizeArray) < AProjectedPoints.Count then begin
-        SetLength(ATextSizeArray, AProjectedPoints.Count);
-      end;
-      VTextSize := FTempLastPointBitmap.TextExtent(VText);
-      ATextSizeArray[AProjectedPoints.Count - 1].X := VTextSize.cx;
-      ATextSizeArray[AProjectedPoints.Count - 1].Y := VTextSize.cy;
-      VPrevProjected := VCurrProjected;
-    end;
-  end;
-end;
+  VCount := ALine.Count;
+  VPoints := ALine.Points;
 
-procedure TMapLayerCalcLineCaptions._PrepareMultiLine(
-  const AValueConverter: IValueToStringConverter;
-  const ALine: IGeometryLonLatMultiLine;
-  const AProjection: IProjection;
-  var ATextSizeArray: TArrayOfPoint;
-  var AProjectedPoints: IDoublePointsAggregator;
-  var ALastStartAzimuth, ATotalDist: Double;
-  var ADistStrings: TStringList
-);
-var
-  i: Integer;
-begin
-  for i := 0 to ALine.Count - 1 do begin
-    _PrepareSingleLine(
-      AValueConverter,
-      ALine.Item[i],
-      AProjection,
-      ATextSizeArray,
-      AProjectedPoints,
-      ALastStartAzimuth,
-      ATotalDist,
-      ADistStrings
-    );
+  if VCount <= 1 then begin
+    Exit;
+  end;
+
+  if Length(ATextSizeArray) < AProjectedPoints.Count + VCount then begin
+    SetLength(ATextSizeArray, AProjectedPoints.Count + VCount);
+  end;
+
+  VProjectionType := AProjection.ProjectionType;
+  VDatum := VProjectionType.Datum;
+  VPrevLonLat := VPoints[0];
+  VLonLat := VPrevLonLat;
+  VProjectionType.ValidateLonLatPos(VLonLat);
+  VPrevProjected := AProjection.LonLat2PixelPosFloat(VLonLat);
+  VDistSkipped := 0;
+
+  VTextItems[0].Enabled := FConfig.ShowIntermediateDist;
+  VTextItems[1].Enabled := FConfig.ShowDistIncrement;
+  VTextItems[2].Enabled := FConfig.ShowAzimuth;
+
+  VBitmap[False] := FTempBitmap;
+  VBitmap[True] := FTempLastPointBitmap;
+
+  for I := 1 to VCount - 1 do begin
+    VCurrLonLat := VPoints[I];
+
+    VDist := VDatum.CalcDist(VPrevLonLat, VCurrLonLat, ALastStartAzimuth, VFinishAzimuth);
+    ATotalDist := ATotalDist + VDist;
+
+    VLonLat := VCurrLonLat;
+    VProjectionType.ValidateLonLatPos(VLonLat);
+    VCurrProjected := AProjection.LonLat2PixelPosFloat(VLonLat);
+
+    VIsLastPoint := (I = VCount - 1);
+
+    if not VIsLastPoint then begin
+      if (Abs(VPrevProjected.X - VCurrProjected.X) < 60) and
+         (Abs(VPrevProjected.Y - VCurrProjected.Y) < 15)
+      then begin
+        VDistSkipped := VDistSkipped + VDist;
+        Continue; // skip nearest points
+      end;
+    end;
+
+    AProjectedPoints.Add(VCurrProjected);
+
+    VIsLastPoint := VIsLastPoint and AIsFinalize;
+
+    if VTextItems[0].Enabled or VIsLastPoint then begin
+      if VIsLastPoint then begin
+        VTextItems[0].Text := SAS_STR_Whole + ': ' + AValueConverter.DistConvert(ATotalDist);
+      end else begin
+        VTextItems[0].Text := AValueConverter.DistConvert(ATotalDist);
+      end;
+    end else begin
+      VTextItems[0].Text := '';
+    end;
+
+    if VTextItems[1].Enabled and ((I > 1) or (VTextItems[0].Text = '')) then begin
+      if VTextItems[0].Text <> '' then begin
+        VTextItems[1].Text := ' (+' + AValueConverter.DistConvert(VDistSkipped + VDist) + ')';
+      end else begin
+        VTextItems[1].Text := '+' + AValueConverter.DistConvert(VDistSkipped + VDist);
+      end;
+    end else begin
+      VTextItems[1].Text := '';
+    end;
+    VDistSkipped := 0;
+
+    if VTextItems[2].Enabled and ((VTextItems[0].Text <> '') or (VTextItems[1].Text <> '')) then begin
+      if VIsLastPoint then begin
+        VTextItems[2].Text := '; ' + SAS_STR_Azimuth + ': ' + AzimuthToString(ALastStartAzimuth);
+      end else begin
+        VTextItems[2].Text := '; ' + AzimuthToString(ALastStartAzimuth);
+      end;
+    end else begin
+      VTextItems[2].Text := '';
+    end;
+
+    VText := VTextItems[0].Text + VTextItems[1].Text + VTextItems[2].Text;
+    ADistStrings.Add(VText);
+
+    VTextSize := VBitmap[VIsLastPoint].TextExtent(VText);
+    ATextSizeArray[AProjectedPoints.Count - 1].X := VTextSize.cx;
+    ATextSizeArray[AProjectedPoints.Count - 1].Y := VTextSize.cy;
+
+    VPrevProjected := VCurrProjected;
+    VPrevLonLat := VCurrLonLat;
   end;
 end;
 
@@ -459,36 +487,43 @@ procedure TMapLayerCalcLineCaptions._PrepareGeometry(
   const AProjection: IProjection;
   var ATextSizeArray: TArrayOfPoint;
   var AProjectedPoints: IDoublePointsAggregator;
-  var ALastStartAzimuth: Double;
-  var ATotalDist: Double;
   var ADistStrings: TStringList
 );
 var
+  I: Integer;
+  VTotalDist: Double;
+  VLastStartAzimuth: Double;
   VSingleLine: IGeometryLonLatSingleLine;
   VMultiLine: IGeometryLonLatMultiLine;
 begin
+  VTotalDist := 0;
+  VLastStartAzimuth := 0;
   if Supports(ALine, IGeometryLonLatSingleLine, VSingleLine) then begin
     _PrepareSingleLine(
       AValueConverter,
       VSingleLine,
       AProjection,
+      True,
       ATextSizeArray,
       AProjectedPoints,
-      ALastStartAzimuth,
-      ATotalDist,
+      VLastStartAzimuth,
+      VTotalDist,
       ADistStrings
     );
   end else if Supports(ALine, IGeometryLonLatMultiLine, VMultiLine) then begin
-    _PrepareMultiLine(
-      AValueConverter,
-      VMultiLine,
-      AProjection,
-      ATextSizeArray,
-      AProjectedPoints,
-      ALastStartAzimuth,
-      ATotalDist,
-      ADistStrings
-    );
+    for I := 0 to VMultiLine.Count - 1 do begin
+      _PrepareSingleLine(
+        AValueConverter,
+        VMultiLine.Item[I],
+        AProjection,
+        (I = VMultiLine.Count - 1),
+        ATextSizeArray,
+        AProjectedPoints,
+        VLastStartAzimuth,
+        VTotalDist,
+        ADistStrings
+      );
+    end;
   end else begin
     Assert(False);
   end;
@@ -502,19 +537,13 @@ procedure TMapLayerCalcLineCaptions.PreparePoints(
 );
 var
   VLine: ILonLatPathWithSelected;
-  VTotalDist: Double;
-  VText: string;
-  VTextSize: TSize;
   VValueConverter: IValueToStringConverter;
-  VStartAzimuth: Double;
-  VAzimuth: string;
 begin
   AProjectedPoints := nil;
   ADistStrings := nil;
   FTextSizeArray := nil;
   VLine := FLine;
   if VLine <> nil then begin
-    VTotalDist := 0;
     VValueConverter := FValueToStringConverter.GetStatic;
     ADistStrings := TStringList.Create;
     AProjectedPoints := TDoublePointsAggregator.Create;
@@ -524,23 +553,9 @@ begin
       AProjection,
       ATextSizeArray,
       AProjectedPoints,
-      VStartAzimuth,
-      VTotalDist,
       ADistStrings
     );
-    if AProjectedPoints.Count > 0 then begin
-      if FConfig.ShowAzimuth then begin
-        VAzimuth := '; ' + SAS_STR_Azimuth + ': ' +
-          FloatToStrF(VStartAzimuth, ffNumber, 12, 2) + #176; // #176 - degree symbol
-      end else begin
-        VAzimuth := '';
-      end;
-      VText := SAS_STR_Whole + ': ' + VValueConverter.DistConvert(VTotalDist) + VAzimuth;
-      ADistStrings[AProjectedPoints.Count - 1] := VText;
-      VTextSize := FTempLastPointBitmap.TextExtent(VText);
-      ATextSizeArray[AProjectedPoints.Count - 1].X := VTextSize.cx;
-      ATextSizeArray[AProjectedPoints.Count - 1].Y := VTextSize.cy;
-    end;
+    SetLength(ATextSizeArray, AProjectedPoints.Count);
   end;
 end;
 

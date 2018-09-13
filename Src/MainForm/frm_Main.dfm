@@ -1205,17 +1205,24 @@ object frmMain: TfrmMain
         OnClick = TBEditPathLabelClick
         Caption = ''
         Hint = 'Show/Hide Captions'
-        object TBEditPathLabelLastOnly: TTBXItem
+        object tbxShowDistIncrement: TTBXItem
           AutoCheck = True
           Checked = True
-          OnClick = TBEditPathLabelLastOnlyClick
-          Caption = 'Show only final distance'
-          Hint = 'Show only final distance'
+          OnClick = tbxShowDistIncrementClick
+          Caption = 'Show the distance increment'
+          Hint = 'Show the distance increment'
         end
-        object TBEditPathLabelShowAzimuth: TTBXItem
+        object tbxShowIntermediateDist: TTBXItem
           AutoCheck = True
           Checked = True
-          OnClick = TBEditPathLabelShowAzimuthClick
+          OnClick = tbxShowIntermediateDistClick
+          Caption = 'Show intermediate distances'
+          Hint = 'Show intermediate distances'
+        end
+        object tbxShowAzimuth: TTBXItem
+          AutoCheck = True
+          Checked = True
+          OnClick = tbxShowAzimuthClick
           Caption = 'Show azimuth'
           Hint = 'Show azimuth'
         end

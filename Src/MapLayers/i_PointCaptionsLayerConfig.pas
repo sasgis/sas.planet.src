@@ -35,8 +35,11 @@ type
     function GetShowAzimuth: Boolean;
     property ShowAzimuth: Boolean read GetShowAzimuth;
 
-    function GetShowLastPointOnly: Boolean;
-    property ShowLastPointOnly: Boolean read GetShowLastPointOnly;
+    function GetShowIntermediateDist: Boolean;
+    property ShowIntermediateDist: Boolean read GetShowIntermediateDist;
+
+    function GetShowDistIncrement: Boolean;
+    property ShowDistIncrement: Boolean read GetShowDistIncrement;
 
     function GetFontSize: Integer;
     property FontSize: Integer read GetFontSize;
@@ -64,9 +67,13 @@ type
     procedure SetShowAzimuth(AValue: Boolean);
     property ShowAzimuth: Boolean read GetShowAzimuth write SetShowAzimuth;
 
-    function GetShowLastPointOnly: Boolean;
-    procedure SetShowLastPointOnly(const AValue: Boolean);
-    property ShowLastPointOnly: Boolean read GetShowLastPointOnly write SetShowLastPointOnly;
+    function GetShowIntermediateDist: Boolean;
+    procedure SetShowIntermediateDist(const AValue: Boolean);
+    property ShowIntermediateDist: Boolean read GetShowIntermediateDist write SetShowIntermediateDist;
+
+    function GetShowDistIncrement: Boolean;
+    procedure SetShowDistIncrement(const AValue: Boolean);
+    property ShowDistIncrement: Boolean read GetShowDistIncrement write SetShowDistIncrement;
 
     function GetFontSize: Integer;
     procedure SetFontSize(AValue: Integer);

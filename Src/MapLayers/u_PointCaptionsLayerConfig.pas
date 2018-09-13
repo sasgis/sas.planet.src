@@ -35,7 +35,8 @@ type
   private
     FVisible: Boolean;
     FShowAzimuth: Boolean;
-    FShowLastPointOnly: Boolean;
+    FShowIntermediateDist: Boolean;
+    FShowDistIncrement: Boolean;
     FFontSize: Integer;
     FLastPointFontSize: Integer;
     FFontName: string;
@@ -44,7 +45,8 @@ type
   private
     function GetVisible: Boolean;
     function GetShowAzimuth: Boolean;
-    function GetShowLastPointOnly: Boolean;
+    function GetShowIntermediateDist: Boolean;
+    function GetShowDistIncrement: Boolean;
     function GetFontSize: Integer;
     function GetLastPointFontSize: Integer;
     function GetFontName: string;
@@ -52,14 +54,15 @@ type
     function GetTextBGColor: TColor32;
   public
     constructor Create(
-      AVisible: Boolean;
-      AShowAzimuth: Boolean;
-      AShowLastPointOnly: Boolean;
-      AFontSize: Integer;
-      ALastPointFontSize: Integer;
+      const AVisible: Boolean;
+      const AShowAzimuth: Boolean;
+      const AShowIntermediateDist: Boolean;
+      const AShowDistIncrement: Boolean;
+      const AFontSize: Integer;
+      const ALastPointFontSize: Integer;
       const AFontName: string;
-      ATextColor: TColor32;
-      ATextBGColor: TColor32
+      const ATextColor: TColor32;
+      const ATextBGColor: TColor32
     );
   end;
 
@@ -67,7 +70,8 @@ type
   private
     FVisible: Boolean;
     FShowAzimuth: Boolean;
-    FShowLastPointOnly: Boolean;
+    FShowIntermediateDist: Boolean;
+    FShowDistIncrement: Boolean;
     FFontSize: Integer;
     FLastPointFontSize: Integer;
     FFontName: string;
@@ -85,8 +89,11 @@ type
     function GetShowAzimuth: Boolean;
     procedure SetShowAzimuth(AValue: Boolean);
 
-    function GetShowLastPointOnly: Boolean;
-    procedure SetShowLastPointOnly(const AValue: Boolean);
+    function GetShowIntermediateDist: Boolean;
+    procedure SetShowIntermediateDist(const AValue: Boolean);
+
+    function GetShowDistIncrement: Boolean;
+    procedure SetShowDistIncrement(const AValue: Boolean);
 
     function GetFontSize: Integer;
     procedure SetFontSize(AValue: Integer);
@@ -117,17 +124,22 @@ uses
 { TPointCaptionsLayerConfigStatic }
 
 constructor TPointCaptionsLayerConfigStatic.Create(
-  AVisible, AShowAzimuth,
-  AShowLastPointOnly: Boolean;
-  AFontSize, ALastPointFontSize: Integer;
+  const AVisible: Boolean;
+  const AShowAzimuth: Boolean;
+  const AShowIntermediateDist: Boolean;
+  const AShowDistIncrement: Boolean;
+  const AFontSize: Integer;
+  const ALastPointFontSize: Integer;
   const AFontName: string;
-  ATextColor, ATextBGColor: TColor32
+  const ATextColor: TColor32;
+  const ATextBGColor: TColor32
 );
 begin
   inherited Create;
   FVisible := AVisible;
   FShowAzimuth := AShowAzimuth;
-  FShowLastPointOnly := AShowLastPointOnly;
+  FShowIntermediateDist := AShowIntermediateDist;
+  FShowDistIncrement := AShowDistIncrement;
   FFontSize := AFontSize;
   FLastPointFontSize := ALastPointFontSize;
   FFontName := AFontName;
@@ -150,9 +162,9 @@ begin
   Result := FLastPointFontSize;
 end;
 
-function TPointCaptionsLayerConfigStatic.GetShowLastPointOnly: Boolean;
+function TPointCaptionsLayerConfigStatic.GetShowIntermediateDist: Boolean;
 begin
-  Result := FShowLastPointOnly;
+  Result := FShowIntermediateDist;
 end;
 
 function TPointCaptionsLayerConfigStatic.GetTextBGColor: TColor32;
@@ -175,6 +187,11 @@ begin
   Result := FShowAzimuth;
 end;
 
+function TPointCaptionsLayerConfigStatic.GetShowDistIncrement: Boolean;
+begin
+  Result := FShowDistIncrement;
+end;
+
 { TPointCaptionsLayerConfig }
 
 constructor TPointCaptionsLayerConfig.Create;
@@ -182,7 +199,8 @@ begin
   inherited Create;
   FVisible := True;
   FShowAzimuth := True;
-  FShowLastPointOnly := False;
+  FShowIntermediateDist := True;
+  FShowDistIncrement := True;
   FFontSize := 8;
   FLastPointFontSize := 9;
   FFontName := 'Arial';
@@ -198,7 +216,8 @@ begin
     TPointCaptionsLayerConfigStatic.Create(
       FVisible,
       FShowAzimuth,
-      FShowLastPointOnly,
+      FShowIntermediateDist,
+      FShowDistIncrement,
       FFontSize,
       FLastPointFontSize,
       FFontName,
@@ -214,7 +233,8 @@ begin
   if AConfigData <> nil then begin
     FVisible := AConfigData.ReadBool('VisibleCaptions', FVisible);
     FShowAzimuth := AConfigData.ReadBool('ShowAzimuth', FShowAzimuth);
-    FShowLastPointOnly := AConfigData.ReadBool('ShowLastPointCaptionOnly', FShowLastPointOnly);
+    FShowIntermediateDist := AConfigData.ReadBool('ShowIntermediateDist', FShowIntermediateDist);
+    FShowDistIncrement := AConfigData.ReadBool('ShowDistIncrement', FShowDistIncrement);
     FFontSize := AConfigData.ReadInteger('FontSize', FFontSize);
     FLastPointFontSize := AConfigData.ReadInteger('LastPointFontSize', FLastPointFontSize);
     FFontName := AConfigData.ReadString('FontName', FFontName);
@@ -232,7 +252,8 @@ begin
   inherited;
   AConfigData.WriteBool('VisibleCaptions', FVisible);
   AConfigData.WriteBool('ShowAzimuth', FShowAzimuth);
-  AConfigData.WriteBool('ShowLastPointCaptionOnly', FShowLastPointOnly);
+  AConfigData.WriteBool('ShowIntermediateDist', FShowIntermediateDist);
+  AConfigData.WriteBool('ShowDistIncrement', FShowDistIncrement);
   AConfigData.WriteInteger('FontSize', FFontSize);
   AConfigData.WriteInteger('LastPointFontSize', FLastPointFontSize);
   AConfigData.WriteString('FontName', FFontName);
@@ -271,11 +292,11 @@ begin
   end;
 end;
 
-function TPointCaptionsLayerConfig.GetShowLastPointOnly: Boolean;
+function TPointCaptionsLayerConfig.GetShowIntermediateDist: Boolean;
 begin
   LockRead;
   try
-    Result := FShowLastPointOnly;
+    Result := FShowIntermediateDist;
   finally
     UnlockRead;
   end;
@@ -326,6 +347,16 @@ begin
   end;
 end;
 
+function TPointCaptionsLayerConfig.GetShowDistIncrement: Boolean;
+begin
+  LockRead;
+  try
+    Result := FShowDistIncrement;
+  finally
+    UnlockRead;
+  end;
+end;
+
 procedure TPointCaptionsLayerConfig.SetFontName(const AValue: string);
 begin
   LockWrite;
@@ -365,13 +396,12 @@ begin
   end;
 end;
 
-procedure TPointCaptionsLayerConfig.SetShowLastPointOnly(
-  const AValue: Boolean);
+procedure TPointCaptionsLayerConfig.SetShowIntermediateDist(const AValue: Boolean);
 begin
   LockWrite;
   try
-    if FShowLastPointOnly <> AValue then begin
-      FShowLastPointOnly := AValue;
+    if FShowIntermediateDist <> AValue then begin
+      FShowIntermediateDist := AValue;
       SetChanged;
     end;
   finally
@@ -424,6 +454,19 @@ begin
   try
     if FShowAzimuth <> AValue then begin
       FShowAzimuth := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TPointCaptionsLayerConfig.SetShowDistIncrement(const AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FShowDistIncrement <> AValue then begin
+      FShowDistIncrement := AValue;
       SetChanged;
     end;
   finally
