@@ -419,6 +419,7 @@ begin
     VDist := VDatum.CalcDist(VPrevLonLat, VCurrLonLat, ALastStartAzimuth, VFinishAzimuth);
     ATotalDist := ATotalDist + VDist;
 
+    VPrevLonLat := VCurrLonLat;
     VLonLat := VCurrLonLat;
     VProjectionType.ValidateLonLatPos(VLonLat);
     VCurrProjected := AProjection.LonLat2PixelPosFloat(VLonLat);
@@ -431,6 +432,8 @@ begin
       then begin
         VDistSkipped := VDistSkipped + VDist;
         Continue; // skip nearest points
+      end else begin
+        VPrevProjected := VCurrProjected;
       end;
     end;
 
@@ -475,9 +478,6 @@ begin
     VTextSize := VBitmap[VIsLastPoint].TextExtent(VText);
     ATextSizeArray[AProjectedPoints.Count - 1].X := VTextSize.cx;
     ATextSizeArray[AProjectedPoints.Count - 1].Y := VTextSize.cy;
-
-    VPrevProjected := VCurrProjected;
-    VPrevLonLat := VCurrLonLat;
   end;
 end;
 
