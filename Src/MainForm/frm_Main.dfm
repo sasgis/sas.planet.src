@@ -3698,9 +3698,14 @@ object frmMain: TfrmMain
         Caption = ''
         Hint = ''
       end
-      object NoaaForecastMeteorology1: TTBXItem
-        OnClick = NoaaForecastMeteorology1Click
-        Caption = 'Current and Forecast Meteorology'
+      object tbxWeatherUnderground: TTBXItem
+        OnClick = tbxWeatherUndergroundClick
+        Caption = 'Current and Forecast Meteorology (Weather Underground)'
+        Hint = ''
+      end
+      object tbxYandexWeather: TTBXItem
+        OnClick = tbxYandexWeatherClick
+        Caption = 'Current and Forecast Meteorology (Yandex Weather)'
         Hint = ''
       end
     end

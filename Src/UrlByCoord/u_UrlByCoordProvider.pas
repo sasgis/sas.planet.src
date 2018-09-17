@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2016, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2018, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -151,12 +151,18 @@ type
     );
   end;
 
-  TUrlByCoordProviderNoaaForecast = class(TBaseInterfacedObject, IUrlByCoordProvider)
-  private
-    function GetUrl(
-      const AConverter: ILocalCoordConverter;
-      const ALocalPoint: TPoint
-    ): IDownloadRequest;
+  TUrlByCoordProviderWeatherUnderground = class(TUrlByCoordProviderLonLatBase)
+  protected
+    function GetUrlByLonLat(
+      const ALonLat: TDoublePoint
+    ): AnsiString; override;
+  end;
+
+  TUrlByCoordProviderYandexWeather = class(TUrlByCoordProviderLonLatBase)
+  protected
+    function GetUrlByLonLat(
+      const ALonLat: TDoublePoint
+    ): AnsiString; override;
   end;
 
   TUrlByCoordProviderRosreestr = class(TUrlByCoordProviderBase)
@@ -398,36 +404,27 @@ begin
     '|0|0|';
 end;
 
-{ TUrlByCoordProviderNoaaForecast }
+{ TUrlByCoordProviderWeatherUnderground }
 
-function TUrlByCoordProviderNoaaForecast.GetUrl(
-  const AConverter: ILocalCoordConverter;
-  const ALocalPoint: TPoint
-): IDownloadRequest;
-var
-  VProjection: IProjection;
-  VMapPoint: TDoublePoint;
-  VLonLat: TDoublePoint;
-  VUrl: AnsiString;
-  VReferer: AnsiString;
-  VHeaders: AnsiString;
-  VPostData: IBinaryData;
+function TUrlByCoordProviderWeatherUnderground.GetUrlByLonLat(
+  const ALonLat: TDoublePoint
+): AnsiString;
 begin
-  VProjection := AConverter.Projection;
-  VMapPoint := AConverter.LocalPixel2MapPixelFloat(ALocalPoint);
-  VProjection.ValidatePixelPosFloatStrict(VMapPoint, False);
-  VLonLat := VProjection.PixelPosFloat2LonLat(VMapPoint);
+  Result :=
+    'https://www.wunderground.com/cgi-bin/findweather/getForecast?query=' +
+    RoundExAnsi(ALonLat.Y, 4) + ',' + RoundExAnsi(ALonLat.X, 4);
+end;
 
-  VUrl := 'http://ready.arl.noaa.gov/ready2-bin/main.pl';
-  VReferer := 'http://ready.arl.noaa.gov/READYcmet.php';
-  VHeaders := 'Referer: ' + VReferer + #$D#$A +
-    'Content-Type: application/x-www-form-urlencoded';
+{ TUrlByCoordProviderYandexWeather }
 
-  VPostData :=
-    TBinaryData.CreateByAnsiString(
-      'userid=&map=WORLD&newloc=1&WMO=&city=Or+choose+a+city+--%3E&Lat=' + RoundExAnsi(VLonLat.y, 2) + '&Lon=' + RoundExAnsi(VLonLat.x, 2)
-    );
-  Result := TDownloadPostRequest.Create(VUrl, VHeaders, VPostData, nil);
+function TUrlByCoordProviderYandexWeather.GetUrlByLonLat(
+  const ALonLat: TDoublePoint
+): AnsiString;
+begin
+  Result :=
+    'https://yandex.ru/pogoda?' +
+    'lat=' + RoundExAnsi(ALonLat.Y, 4) + '&' +
+    'lon=' + RoundExAnsi(ALonLat.X, 4);
 end;
 
 { TUrlByCoordProviderRosreestr }

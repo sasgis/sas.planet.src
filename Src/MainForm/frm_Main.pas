@@ -405,7 +405,7 @@ type
     NMarkPlay: TTBXItem;
     tbitmMarkInfo: TTBXItem;
     tbitmCopyToClipboardGenshtabName: TTBXItem;
-    NoaaForecastMeteorology1: TTBXItem;
+    tbxWeatherUnderground: TTBXItem;
     NMapStorageInfo: TTBXItem;
     tbitmMakeVersionByMark: TTBXItem;
     tbitmSelectVersionByMark: TTBXItem;
@@ -572,6 +572,7 @@ type
     NCircleCalc: TTBXItem;
     actViewSunCalc: TAction;
     tbxSunCalc: TTBXItem;
+    tbxYandexWeather: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -730,7 +731,7 @@ type
     procedure NMarkPlayClick(Sender: TObject);
     procedure tbitmMarkInfoClick(Sender: TObject);
     procedure tbitmCopyToClipboardGenshtabNameClick(Sender: TObject);
-    procedure NoaaForecastMeteorology1Click(Sender: TObject);
+    procedure tbxWeatherUndergroundClick(Sender: TObject);
     procedure NMapStorageInfoClick(Sender: TObject);
     procedure tbitmMakeVersionByMarkClick(Sender: TObject);
     procedure tbitmSelectVersionByMarkClick(Sender: TObject);
@@ -822,6 +823,7 @@ type
     procedure actIconsSettingsExecute(Sender: TObject);
     procedure actCircleCalculationExecute(Sender: TObject);
     procedure actViewSunCalcExecute(Sender: TObject);
+    procedure tbxYandexWeatherClick(Sender: TObject);
   private
     FactlstGeoCoders: TActionList;
     FactlstProjections: TActionList;
@@ -888,7 +890,8 @@ type
     FUrlProviderSTRM3: IUrlByCoordProvider;
     FUrlProviderOSM: IUrlByCoordProvider;
     FUrlProviderNokia: IUrlByCoordProvider;
-    FUrlProviderNoaaForecast: IUrlByCoordProvider;
+    FUrlProviderWeatherUnderground: IUrlByCoordProvider;
+    FUrlProviderYandexWeather: IUrlByCoordProvider;
     FUrlProviderRosreestr: IUrlByCoordProvider;
     FUrlProviderTerraserver: IUrlByCoordProvider;
 
@@ -2295,7 +2298,8 @@ begin
   FUrlProviderSTRM3 := TUrlByCoordProviderSTRM3.Create;
   FUrlProviderOSM := TUrlByCoordProviderOSM.Create(GState.ProjectionSetFactory);
   FUrlProviderNokia := TUrlByCoordProviderNokia.Create(GState.ProjectionSetFactory);
-  FUrlProviderNoaaForecast := TUrlByCoordProviderNoaaForecast.Create;
+  FUrlProviderWeatherUnderground := TUrlByCoordProviderWeatherUnderground.Create;
+  FUrlProviderYandexWeather := TUrlByCoordProviderYandexWeather.Create;
   FUrlProviderRosreestr := TUrlByCoordProviderRosreestr.Create(GState.ProjectionSetFactory);
   FUrlProviderTerraserver := TUrlByCoordProviderTerraserver.Create;
 end;
@@ -4621,13 +4625,23 @@ begin
   {FPlacemarkPlayerTask := }FPlacemarkPlayerPlugin.PlayByDescription(FSelectedMark.Desc);
 end;
 
-procedure TfrmMain.NoaaForecastMeteorology1Click(Sender: TObject);
+procedure TfrmMain.tbxWeatherUndergroundClick(Sender: TObject);
 var
   VRequest: IDownloadRequest;
 begin
-  VRequest := FUrlProviderNoaaForecast.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
+  VRequest := FUrlProviderWeatherUnderground.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
   if Assigned(VRequest) then begin
-    GState.InternalBrowser.NavigateByRequest(NoaaForecastMeteorology1.Caption, VRequest);
+    GState.InternalBrowser.NavigateByRequest(tbxWeatherUnderground.Caption, VRequest);
+  end;
+end;
+
+procedure TfrmMain.tbxYandexWeatherClick(Sender: TObject);
+var
+  VRequest: IDownloadRequest;
+begin
+  VRequest := FUrlProviderYandexWeather.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
+  if Assigned(VRequest) then begin
+    GState.InternalBrowser.NavigateByRequest(tbxYandexWeather.Caption, VRequest);
   end;
 end;
 
