@@ -63,8 +63,6 @@ type
       const AConverter: ILocalCoordConverter;
       const ALocalPoint: TPoint
     ): IDownloadRequest;
-  public
-    constructor Create;
   end;
 
   TUrlByCoordProviderBing = class(TUrlByCoordProviderBase)
@@ -120,8 +118,6 @@ type
     function GetUrlByLonLat(
       const ALonLat: TDoublePoint
     ): AnsiString; override;
-  public
-    constructor Create;
   end;
 
   TUrlByCoordProviderSTRM3 = class(TUrlByCoordProviderLonLatBase)
@@ -129,8 +125,6 @@ type
     function GetUrlByLonLat(
       const ALonLat: TDoublePoint
     ): AnsiString; override;
-  public
-    constructor Create;
   end;
 
   TUrlByCoordProviderOSM = class(TUrlByCoordProviderBase)
@@ -163,8 +157,6 @@ type
       const AConverter: ILocalCoordConverter;
       const ALocalPoint: TPoint
     ): IDownloadRequest;
-  public
-    constructor Create;
   end;
 
   TUrlByCoordProviderRosreestr = class(TUrlByCoordProviderBase)
@@ -184,8 +176,6 @@ type
     function GetUrlByLonLat(
       const ALonLat: TDoublePoint
     ): AnsiString; override;
-  public
-    constructor Create;
   end;
 
 implementation
@@ -232,11 +222,6 @@ begin
 end;
 
 { TUrlByCoordProviderLonLatBase }
-
-constructor TUrlByCoordProviderLonLatBase.Create;
-begin
-  inherited Create;
-end;
 
 function TUrlByCoordProviderLonLatBase.GetUrl(
   const AConverter: ILocalCoordConverter;
@@ -344,11 +329,6 @@ end;
 
 { TUrlByCoordProviderGTopo30 }
 
-constructor TUrlByCoordProviderGTopo30.Create;
-begin
-  inherited Create;
-end;
-
 function TUrlByCoordProviderGTopo30.GetUrlByLonLat(
   const ALonLat: TDoublePoint
 ): AnsiString;
@@ -361,11 +341,6 @@ begin
 end;
 
 { TUrlByCoordProviderSTRM3 }
-
-constructor TUrlByCoordProviderSTRM3.Create;
-begin
-  inherited Create;
-end;
 
 function TUrlByCoordProviderSTRM3.GetUrlByLonLat(
   const ALonLat: TDoublePoint
@@ -425,11 +400,6 @@ end;
 
 { TUrlByCoordProviderNoaaForecast }
 
-constructor TUrlByCoordProviderNoaaForecast.Create;
-begin
-  inherited Create;
-end;
-
 function TUrlByCoordProviderNoaaForecast.GetUrl(
   const AConverter: ILocalCoordConverter;
   const ALocalPoint: TPoint
@@ -485,11 +455,6 @@ begin
 end;
 
 { TUrlByCoordProviderTerraserver }
-
-constructor TUrlByCoordProviderTerraserver.Create;
-begin
-  inherited Create;
-end;
 
 function TUrlByCoordProviderTerraserver.GetUrlByLonLat(
   const ALonLat: TDoublePoint
