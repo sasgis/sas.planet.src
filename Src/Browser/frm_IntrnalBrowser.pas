@@ -338,6 +338,7 @@ end;
 
 procedure TfrmIntrnalBrowser.FormHide(Sender: TObject);
 begin
+  FEmbeddedWB.Navigate('about:blank');
   Self.OnResize := nil;
   FConfig.ChangeNotifier.Remove(FConfigListener);
 end;
