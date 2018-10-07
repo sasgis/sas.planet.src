@@ -317,6 +317,9 @@ begin
       VDesc := VDesc + 'Author: ' + VExifData.Author + br;
     end;
 
+    // remove invalid symbols from description text
+    VDesc := StringReplace(VDesc, #0, '', [rfIgnoreCase, rfReplaceAll]);
+
     VImgName := _GetInternalFileName(AFileName);
 
     if Assigned(VConfig) and VConfig.UseThumbnailAsIcon then begin
