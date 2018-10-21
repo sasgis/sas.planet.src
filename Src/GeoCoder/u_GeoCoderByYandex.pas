@@ -61,6 +61,10 @@ uses
   u_GeoToStrFunc,
   u_ResStrings;
 
+resourcestring
+  // https://tech.yandex.ru/maps/doc/geocoder/desc/concepts/input_params-docpage/
+  rsYandexSearchLanguage = 'en_US'; // ru_RU, uk_UA, be_BY, en_RU, en_US, tr_TR
+
 { TGeoCoderByYandex }
 
 function TGeoCoderByYandex.ParseResultToPlacemarksList(
@@ -159,7 +163,8 @@ begin
       '&ll=' + R2AnsiStrPoint(ALocalConverter.GetCenterLonLat.x) + ',' + R2AnsiStrPoint(ALocalConverter.GetCenterLonLat.y) +
       '&spn=' + R2AnsiStrPoint(VLonLatRect.Right - VLonLatRect.Left) + ',' + R2AnsiStrPoint(VLonLatRect.Top - VLonLatRect.Bottom) +
       '&format=json' +
-      '&results=15'
+      '&results=15' +
+      '&lang=' + AnsiString(rsYandexSearchLanguage)
     );
 end;
 
