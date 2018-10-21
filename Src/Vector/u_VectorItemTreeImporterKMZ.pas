@@ -123,7 +123,7 @@ begin
     if VData = nil then begin
       VIndex := 0;
       for I := 0 to VItemsCount - 1 do begin
-        if ExtractFileExt(VZip.GetItemNameByIndex(I)) = '.kml' then begin
+        if LowerCase(ExtractFileExt(VZip.GetItemNameByIndex(I))) = '.kml' then begin
           VIndex := I;
           Break;
         end;

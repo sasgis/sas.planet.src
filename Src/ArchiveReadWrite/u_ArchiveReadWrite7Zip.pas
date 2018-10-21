@@ -171,7 +171,7 @@ begin
   Result := nil;
   for I := 0 to FArch.NumberOfItems - 1 do begin
     VItemName := FArch.ItemPath[I];
-    if AItemName = VItemName then begin
+    if SameText(AItemName, VItemName) then begin
       Result := GetItemByIndex(I, VItemName);
       Break;
     end;
