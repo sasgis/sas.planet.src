@@ -102,6 +102,10 @@ var
 begin
   VList := TInterfaceListSimple.Create;
 
+  {
+
+  Fix me: http://www.sasgis.org/mantis/view.php?id=3377
+
   VItem :=
     TGeoCoderListEntity.Create(
       CGeoCoderGoogleGUID,
@@ -109,6 +113,8 @@ begin
       TGeoCoderByGoogle.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory)
     );
   VList.Add(VItem);
+
+  }
 
   VItem :=
     TGeoCoderListEntity.Create(
