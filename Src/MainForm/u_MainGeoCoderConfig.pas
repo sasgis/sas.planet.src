@@ -54,7 +54,7 @@ uses
 constructor TMainGeoCoderConfig.Create;
 begin
   inherited Create;
-  FActiveGeoCoderGUID := CGeoCoderGoogleGUID;
+  FActiveGeoCoderGUID := CGeoCoderYandexGUID;
 end;
 
 procedure TMainGeoCoderConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
