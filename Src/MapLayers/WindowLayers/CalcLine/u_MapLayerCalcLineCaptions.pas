@@ -25,6 +25,7 @@ interface
 uses
   Types,
   Classes,
+  SysUtils,
   GR32,
   GR32_Image,
   t_GeoTypes,
@@ -121,7 +122,6 @@ type
 implementation
 
 uses
-  SysUtils,
   i_EnumDoublePoint,
   i_ProjectionType,
   u_ListenerByEvent,
