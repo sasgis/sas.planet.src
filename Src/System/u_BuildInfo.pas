@@ -157,8 +157,9 @@ begin
   {$IFDEF VER230} Result := 'Embarcadero' + #153 +' Delphi' + #174 + ' XE2';  {$UNDEF UNKNOWNVERFORBUILDINFO}{$ENDIF}
   {$IFDEF VER310} Result := 'Embarcadero' + #153 +' Delphi' + #174 + ' 10.1 Berlin';  {$UNDEF UNKNOWNVERFORBUILDINFO}{$ENDIF}
   {$IFDEF VER320} Result := 'Embarcadero' + #153 +' Delphi' + #174 + ' 10.2 Tokyo';  {$UNDEF UNKNOWNVERFORBUILDINFO}{$ENDIF}
+  {$IFDEF VER330} Result := 'Embarcadero' + #153 +' Delphi' + #174 + ' 10.3 Rio';  {$UNDEF UNKNOWNVERFORBUILDINFO}{$ENDIF}
   {$IFDEF UNKNOWNVERFORBUILDINFO}
-    ! Define IDE version above !
+    {$MESSAGE ERROR 'Define your compiler version above!'}
   {$ENDIF}
   {$UNDEF UNKNOWNVERFORBUILDINFO}
 end;
