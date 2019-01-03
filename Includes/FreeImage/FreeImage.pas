@@ -306,7 +306,7 @@ const
 //  FIF_PFM     = FREE_IMAGE_FORMAT(32);
 //  FIF_PICT    = FREE_IMAGE_FORMAT(33);
 //  FIF_RAW     = FREE_IMAGE_FORMAT(34);
-//  FIF_WEBP    = FREE_IMAGE_FORMAT(35);
+  FIF_WEBP    = FREE_IMAGE_FORMAT(4);
 //  FIF_JXR     = FREE_IMAGE_FORMAT(36);
 
   // Image type used in FreeImage.
