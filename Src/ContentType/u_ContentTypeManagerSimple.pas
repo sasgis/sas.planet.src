@@ -158,6 +158,14 @@ begin
   AddByType(VContentType, 'image/x-windows-bmp');
   AddByExt(VContentType, VExt);
 
+  VSaver := ABitmapTileSaveLoadFactory.CreateWebpSaver(75, ASavePerfCounterList);
+  VLoader := ABitmapTileSaveLoadFactory.CreateWebpLoader(ALoadPerfCounterList);
+  VType := 'image/webp';
+  VExt := '.webp';
+  VContentType := TContentTypeInfoBitmap.Create(VType, VExt, VLoader, VSaver);
+  AddByType(VContentType, VType);
+  AddByExt(VContentType, VExt);
+
   VContentType := TContentTypeInfoVector.Create(
     'application/vnd.google-earth.kml+xml',
     '.kml',

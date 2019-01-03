@@ -69,6 +69,16 @@ type
       const ACompressionQuality: Byte = 75;
       const APerfCounterList: IInternalPerformanceCounterList = nil
     ): IBitmapTileSaver;
+
+    // WebP
+    function CreateWebpLoader(
+      const APerfCounterList: IInternalPerformanceCounterList = nil
+    ): IBitmapTileLoader;
+
+    function CreateWebpSaver(
+      const ACompressionQuality: Byte = 75;
+      const APerfCounterList: IInternalPerformanceCounterList = nil
+    ): IBitmapTileSaver;
   end;
 
 implementation

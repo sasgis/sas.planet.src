@@ -77,6 +77,16 @@ type
       const ACompressionQuality: Byte = 75;
       const APerfCounterList: IInternalPerformanceCounterList = nil
     ): IBitmapTileSaver;
+    
+    // WebP
+    function CreateWebpLoader(
+      const APerfCounterList: IInternalPerformanceCounterList = nil
+    ): IBitmapTileLoader;
+
+    function CreateWebpSaver(
+      const ACompressionQuality: Byte = 75;
+      const APerfCounterList: IInternalPerformanceCounterList = nil
+    ): IBitmapTileSaver;
   public
     constructor Create(
       const ABitmap32StaticFactory: IBitmap32StaticFactory
@@ -222,6 +232,27 @@ function TBitmapTileSaveLoadFactory.CreateJpegSaver(
 ): IBitmapTileSaver;
 begin
   Result := TLibJpegTileSaver.Create(
+    ACompressionQuality,
+    GetValidPerfCounterList(APerfCounterList)
+  );
+end;
+
+function TBitmapTileSaveLoadFactory.CreateWebpLoader(
+  const APerfCounterList: IInternalPerformanceCounterList
+): IBitmapTileLoader;
+begin
+  Result := TBitmapTileFreeImageLoaderWebp.Create(
+    GetValidPerfCounterList(APerfCounterList),
+    FBitmap32StaticFactory
+  );
+end;
+
+function TBitmapTileSaveLoadFactory.CreateWebpSaver(
+  const ACompressionQuality: Byte;
+  const APerfCounterList: IInternalPerformanceCounterList
+): IBitmapTileSaver;
+begin
+  Result := TBitmapTileFreeImageSaverWebp.Create(
     ACompressionQuality,
     GetValidPerfCounterList(APerfCounterList)
   );
