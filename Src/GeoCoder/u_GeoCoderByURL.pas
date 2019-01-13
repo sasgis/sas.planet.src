@@ -163,7 +163,7 @@ begin
     I := J;
     J := ALPosEx('&', VLink, I);
     VSLon := Copy(VLink, I + 1, J - (I + 1));
-  end;
+  end else
 
   if ALPosEx('http://goo.gl/maps/', VLink, 1) > 0 then begin
     VSName := 'google';
@@ -174,7 +174,7 @@ begin
     I := J;
     J := ALPosEx('&', VLink, I);
     VSLon := Copy(VLink, I + 1, J - (I + 1));
-  end;
+  end else
 
   if (RegExprGetMatchSubStr(VLink, 'yandex\..+/-/', 0) <> '') or
     (ALPosEx('maps.yandex.ru/?oid=', VLink, 1) > 0) then begin
@@ -190,7 +190,7 @@ begin
     I := J;
     J := ALPosEx(',', VLink, I + 1);
     VSLat := Copy(VLink, I + 1, J - (I + 1));
-  end;
+  end else
 
   if (ALPosEx('maps.yandex.ru/?um=', VLink, 1) > 0) then begin // need 2 more test
     VSName := 'yandex';
@@ -204,7 +204,7 @@ begin
     I := J;
     J := ALPosEx(']', VLink, I + 1);
     VSLat := Copy(VLink, I + 1, J - (I + 1));
-  end;
+  end else
 
   if ALPosEx('binged.it', VLink, 1) > 0 then begin
     VSName := 'bing';
@@ -227,7 +227,7 @@ begin
       VSLon := ALStringReplace(VSLon, ',', '.', [rfReplaceAll]);
       VSLat := ALStringReplace(VSLat, ',', '.', [rfReplaceAll]);
     end;
-  end;
+  end else
 
   if ALPosEx('osm.org', VLink, 1) > 0 then begin
     VSName := 'osm';
@@ -238,7 +238,7 @@ begin
     I := J + 1;
     J := ALPosEx(')', VLink, I);
     VSLat := Copy(VLink, I + 1, J - (I + 1));
-  end;
+  end else
 
   if ALPosEx('rambler.ru', VLink, 1) > 0 then begin
     VSName := 'rambler';
@@ -249,7 +249,7 @@ begin
     I := ALPosEx('lat:', VLink, J);
     J := ALPosEx('}', VLink, I + 1);
     VSLat := Copy(VLink, I + 4, J - (I + 4));
-  end;
+  end else
 
   if ALPosEx('permalink.html', VLink, 1) > 0 then begin
     VUrl := 'http://kosmosnimki.ru/TinyReference.ashx?id=' + Copy(VLink, 38, 9);
@@ -270,7 +270,7 @@ begin
       VSName := 'kosmosnimki';
       meters_to_lonlat(ALStrToFloat(VSLon, VFormatSettings), ALStrToFloat(VSLat, VFormatSettings), VSLon, VSLat, VFormatSettings);
     end;
-  end;
+  end else
 
   if ALPosEx('api/index.html?permalink=', VLink, 1) > 0 then begin
     VSLat := Copy(VLink, 53, 5);
@@ -293,7 +293,7 @@ begin
       VSName := 'maps.kosmosnimki';
       meters_to_lonlat(ALStrToFloat(VSLon, VFormatSettings), ALStrToFloat(VSLat, VFormatSettings), VSLon, VSLat, VFormatSettings);
     end;
-  end;
+  end else
 
   if ALPosEx('go.2gis.ru', VLink, 1) > 0 then begin
     VUrl := VLink;
@@ -353,6 +353,7 @@ begin
   VFormatSettings.DecimalSeparator := '.';
   VSName := '';
   VSDesc := '';
+
   // http://maps.google.com/?ll=48.718079,44.504639&spn=0.722115,1.234589&t=h&z=10
   // http://maps.google.ru/maps?hl=ru&ll=43.460987,39.948606&spn=0.023144,0.038581&t=m&z=15&vpsrc=6
   if RegExprGetMatchSubStr(VLink, 'maps\.google\..+ll=-?[0-9]+', 0) <> '' then begin
@@ -363,7 +364,7 @@ begin
     I := J;
     J := ALPosEx('&', VLink, I);
     VSLon := Copy(VLink, I + 1, J - (I + 1));
-  end;
+  end else
 
   // https://www.google.ru/maps/@43.6545592,40.9555717,19z/data=!3m1!1e3
   if RegExprGetMatchSubStr(VLink, '\.google\..+\/maps\/', 0) <> '' then begin
@@ -374,8 +375,7 @@ begin
     I := J;
     J := ALPosEx(',', VLink, I + 1);
     VSLon := Copy(VLink, I + 1, J - (I + 1));
-  end;
-
+  end else
 
   // http://maps.navitel.su/?zoom=16&lat=45.03446&lon=38.96867&fl=J&rId=hN21H5ByVER8e4A%3D&rp=5
   if RegExprGetMatchSubStr(VLink, 'maps\.navitel\.su.+lat=.+lon=', 0) <> '' then begin
@@ -389,7 +389,7 @@ begin
       J := length(VLink) + 1;
     end;
     VSLon := Copy(VLink, I + 4, J - (I + 4));
-  end;
+  end else
 
   // http://kosmosnimki.ru/?x=44.1053254382903&y=45.6876903573303&z=6&fullscreen=false&mode=satellite
   if RegExprGetMatchSubStr(VLink, 'kosmosnimki\.ru.+x=.+y=', 0) <> '' then begin
@@ -400,7 +400,7 @@ begin
     I := ALPosEx('y=', VLink, J);
     J := ALPosEx('&', VLink, I);
     VSLat := Copy(VLink, I + 2, J - (I + 2));
-  end;
+  end else
 
   // http://www.bing.com/maps/default.aspx?v=2&cp=45.5493750107145~41.6883332507903&style=h&lvl=6
   if RegExprGetMatchSubStr(VLink, 'bing\.com.+cp=[0-9]+', 0) <> '' then begin
@@ -411,7 +411,7 @@ begin
     I := J;
     J := ALPosEx('&', VLink, I);
     VSLon := Copy(VLink, I + 1, J - (I + 1));
-  end;
+  end else
 
   // http://wikimapia.org#lat=45.0328&lon=38.9769&z=10&l=1&m=b
   if RegExprGetMatchSubStr(VLink, 'wikimapia\.org.+lat=.+lon=', 0) <> '' then begin
@@ -422,7 +422,7 @@ begin
     I := ALPosEx('lon=', VLink, J);
     J := ALPosEx('&', VLink, I);
     VSLon := Copy(VLink, I + 4, J - (I + 4));
-  end;
+  end else
 
   // http://maps.rosreestr.ru/Portal/?l=11&x=4595254.155000001&y=5398402.163800001&mls=map|anno&cls=cadastre
   if RegExprGetMatchSubStr(VLink, 'maps\.rosreestr\.ru.+x=.+y=', 0) <> '' then begin
@@ -434,7 +434,7 @@ begin
     J := ALPosEx('&', VLink, I);
     VSLat := Copy(VLink, I + 2, J - (I + 2));
     meters_to_lonlat(ALStrToFloat(VSLon, VFormatSettings), ALStrToFloat(VSLat, VFormatSettings), VSLon, VSLat, VFormatSettings);
-  end;
+  end else
 
   // http://maps.mail.ru/?z=10&ll=37.619948,55.750023&J=1
   if RegExprGetMatchSubStr(VLink, 'maps\.mail\.ru.+ll=', 0) <> '' then begin
@@ -448,7 +448,7 @@ begin
       J := length(VLink) + 1;
     end;
     VSLat := Copy(VLink, I + 1, J - (I + 1));
-  end;
+  end else
 
   // http://maps.nokia.com/#|43.5669132|41.2836342|14|0|0|hybrid.day
   // http://maps.nokia.com/mapcreator/?ns=true#|55.32530472503459|37.811186150077816|18|0|0|
@@ -462,7 +462,7 @@ begin
       J := length(VLink) + 1;
     end;
     VSLon := Copy(VLink, I + 1, J - (I + 1));
-  end;
+  end else
 
   // http://maps.yandex.ru/?ll=44.514541%2C48.708958&spn=0.322723%2C0.181775&z=12&l=map
   // http://harita.yandex.com.tr/?ll=29.086777%2C41.000749&spn=0.005043%2C0.003328&z=18&l=sat%2Ctrf&trfm=cur
@@ -480,7 +480,7 @@ begin
       J := Length(VLink);
     end;
     VSLat := Copy(VLink, I + 1, J - (I + 1));
-  end;
+  end else
 
   // http://mobile.maps.yandex.net/ylocation/?lat=55.870155&lon=37.665367&desc=dima%40dzhus.org
   if RegExprGetMatchSubStr(VLink, '\.yandex\..+lat=.+lon=', 0) <> '' then begin
@@ -494,7 +494,7 @@ begin
       J := length(VLink) + 1;
     end;
     VSLon := Copy(VLink, I + 4, J - (I + 4));
-  end;
+  end else
 
   //http://maps.2gis.ru/#/?history=project/krasnodar/center/38.993668%2C45.197055/zoom/17/state/index/sort/relevance
   if RegExprGetMatchSubStr(VLink, 'maps\.2gis\.ru.+zoom', 0) <> '' then begin
@@ -508,7 +508,7 @@ begin
       J := length(VLink) + 1;
     end;
     VSLat := Copy(VLink, I + 1, J - (I + 1));
-  end;
+  end else
 
   // http://www.openstreetmap.org/#map=17/45.12333/38.98709
   // http://www.openstreetmap.org/#map=17/45.12333/38.98576&layers=C
@@ -526,7 +526,7 @@ begin
       J := length(VLink) + 1;
     end;
     VSLon := Copy(VLink, I + 1, J - (I + 1));
-  end;
+  end else
 
   // http://www.openstreetmap.org/?lat=45.227&lon=39.001&zoom=10&layers=M
   // http://osm.org.ru/#layer=M&zoom=3&lat=61.98&lon=88
@@ -541,7 +541,7 @@ begin
       J := length(VLink) + 1;
     end;
     VSLon := Copy(VLink, I + 4, J - (I + 4));
-  end;
+  end else
 
   // http://khm0.google.com/kh/v=127&src=app&x=24398&s=&y=10570&z=15&s=Gali
   if RegExprGetMatchSubStr(VLink, 'khm.+google\..+x=[0-9]+', 0) <> '' then begin
@@ -574,7 +574,7 @@ begin
       VSLat := ALFloatToStr(VPoint.Y, VFormatSettings);
       VSLon := ALFloatToStr(VPoint.X, VFormatSettings);
     end;
-  end;
+  end else
 
   // http://c.tile.openstreetmap.org/10/622/367.png
   if RegExprGetMatchSubStr(VLink, '\.(openstreetmap|opencyclemap|osm).+\.png', 0) <> '' then begin
@@ -602,86 +602,81 @@ begin
       VSLat := ALFloatToStr(VPoint.Y, VFormatSettings);
       VSLon := ALFloatToStr(VPoint.X, VFormatSettings);
     end;
-  end;
+  end else
 
   // http://188.95.188.28/cgi-bin/webfile_mgr.cgi?cmd=cgi_download&path=/mnt/HD/HD_a2/pub/genshtab250m/z12/1302/2506.jpg&path1=/mnt/HD/HD_a2/pub/genshtab250m/z12/1302/2506.jpg&name=2506.jpg&type=JPEG+Image&browser=iee)
   if RegExprGetMatchSubStr(VLink, '/z[0-9]+/.+\.(png|jpg)+', 0) <> '' then begin
-    if VSName = '' then begin
-      VSName := String(RegExprGetMatchSubStr(VLink, 'http://[0-9a-zа-я\.]+', 0));
-      I := ALPosEx('/z', VLink, 1);
-      if I > 0 then begin
-        J := ALPosEx('/', VLink, I + 1);
-        VSLat := Copy(VLink, I + 2, J - (I + 2));
-        try
-          VZoom := ALStrToInt(VSLat);
-        except
-          VZoom := 0;
-        end;
-        I := ALPosEx('/', VLink, J); // X значение
-        J := ALPosEx('/', VLink, I + 1);
-        VSLon := Copy(VLink, I + 1, J - (I + 1));
-        Vilat := ALStrToInt(VSLon);
-        I := J; // Y значение
-        J := ALPosEx('.', VLink, I + 1);
-        VSLat := Copy(VLink, I + 1, J - (I + 1));
-        Vilon := ALStrToInt(VSLat);
-        Inc(VZoom); // зум отличается на 1
-        VXYPoint.X := ViLon;
-        VXYPoint.Y := ViLat;
-        if FProjectionSet.CheckZoom(VZoom - 1) then begin
-          VProjection := FProjectionSet.Zooms[VZoom - 1];
-          VSDesc := 'z=' + IntToStr(VZoom) + ' x=' + IntToStr(Vilon) + ' y=' + IntToStr(Vilat) + #$D#$A;
-          VXYRect := VProjection.TilePos2PixelRect(VXYPoint);
-          VXYPoint := Point((VXYRect.Right + VXYRect.Left) div 2, (VXYRect.Bottom + VXYRect.top) div 2);
-          VPoint := VProjection.PixelPos2LonLat(VXYPoint);
-          VSLat := ALFloatToStr(VPoint.Y, VFormatSettings);
-          VSLon := ALFloatToStr(VPoint.X, VFormatSettings);
-        end;
+    VSName := String(RegExprGetMatchSubStr(VLink, 'http://[0-9a-zа-я\.]+', 0));
+    I := ALPosEx('/z', VLink, 1);
+    if I > 0 then begin
+      J := ALPosEx('/', VLink, I + 1);
+      VSLat := Copy(VLink, I + 2, J - (I + 2));
+      try
+        VZoom := ALStrToInt(VSLat);
+      except
+        VZoom := 0;
+      end;
+      I := ALPosEx('/', VLink, J); // X значение
+      J := ALPosEx('/', VLink, I + 1);
+      VSLon := Copy(VLink, I + 1, J - (I + 1));
+      Vilat := ALStrToInt(VSLon);
+      I := J; // Y значение
+      J := ALPosEx('.', VLink, I + 1);
+      VSLat := Copy(VLink, I + 1, J - (I + 1));
+      Vilon := ALStrToInt(VSLat);
+      Inc(VZoom); // зум отличается на 1
+      VXYPoint.X := ViLon;
+      VXYPoint.Y := ViLat;
+      if FProjectionSet.CheckZoom(VZoom - 1) then begin
+        VProjection := FProjectionSet.Zooms[VZoom - 1];
+        VSDesc := 'z=' + IntToStr(VZoom) + ' x=' + IntToStr(Vilon) + ' y=' + IntToStr(Vilat) + #$D#$A;
+        VXYRect := VProjection.TilePos2PixelRect(VXYPoint);
+        VXYPoint := Point((VXYRect.Right + VXYRect.Left) div 2, (VXYRect.Bottom + VXYRect.top) div 2);
+        VPoint := VProjection.PixelPos2LonLat(VXYPoint);
+        VSLat := ALFloatToStr(VPoint.Y, VFormatSettings);
+        VSLon := ALFloatToStr(VPoint.X, VFormatSettings);
       end;
     end;
-  end;
+  end else
 
   // http://wikimapia.org/d?lng=1&BBOX=42.84668,43.26121,42.89063,43.29320
   // http://www.openstreetmap.org/?box=yes&bbox=41.73729%2C44.25345%2C41.73729%2C44.25345
   if RegExprGetMatchSubStr(AlUpperCase(VLink), 'BBOX=([0-9]+.[0-9]+\,)+([0-9]+.[0-9]+)', 0) <> '' then begin
-    if VSName = '' then begin
-      VSName := String(RegExprGetMatchSubStr(VLink, 'http://[0-9a-zа-я\.]+', 0));
-      I := ALPosEx('BBOX=', AlUpperCase(VLink)) + 4;
-      J := ALPosEx(',', VLink, I + 1);
-      VSLon := Copy(VLink, I + 1, J - (I + 1));
-      I := J;
-      J := ALPosEx(',', VLink, I + 1);
-      VSLat := Copy(VLink, I + 1, J - (I + 1));
-      I := J;
-      J := ALPosEx(',', VLink, I + 1);
-      VSLon := ALFloatToStr((ALStrToFloat(Copy(VLink, I + 1, J - (I + 1)), VFormatSettings) + ALStrToFloat(VSLon, VFormatSettings)) / 2, VFormatSettings);
-      I := J;
-      J := ALPosEx('&', VLink, I + 1);
-      if J = 0 then begin
-        J := length(VLink);
-      end;
-      VSLat := ALFloatToStr((ALStrToFloat(Copy(VLink, I + 1, J - (I + 1)), VFormatSettings) + ALStrToFloat(VSLat, VFormatSettings)) / 2, VFormatSettings);
-      VSLat := ALStringReplace(VSLat, ',', '.', [rfReplaceAll]);
-      VSLon := ALStringReplace(VSLon, ',', '.', [rfReplaceAll]);
-      if (ALStrToFloat(VSLat, VFormatSettings) > 360) or (ALStrToFloat(VSLon, VFormatSettings) > 360) then begin
-        meters_to_lonlat(ALStrToFloat(VSLon, VFormatSettings), ALStrToFloat(VSLat, VFormatSettings), VSLon, VSLat, VFormatSettings);
-      end;
+    VSName := String(RegExprGetMatchSubStr(VLink, 'http://[0-9a-zа-я\.]+', 0));
+    I := ALPosEx('BBOX=', AlUpperCase(VLink)) + 4;
+    J := ALPosEx(',', VLink, I + 1);
+    VSLon := Copy(VLink, I + 1, J - (I + 1));
+    I := J;
+    J := ALPosEx(',', VLink, I + 1);
+    VSLat := Copy(VLink, I + 1, J - (I + 1));
+    I := J;
+    J := ALPosEx(',', VLink, I + 1);
+    VSLon := ALFloatToStr((ALStrToFloat(Copy(VLink, I + 1, J - (I + 1)), VFormatSettings) + ALStrToFloat(VSLon, VFormatSettings)) / 2, VFormatSettings);
+    I := J;
+    J := ALPosEx('&', VLink, I + 1);
+    if J = 0 then begin
+      J := length(VLink);
     end;
-  end;
- // http://чепецк.net/?zoom=15&lat=43.94165&lon=40.14849&layers=BFFFT
+    VSLat := ALFloatToStr((ALStrToFloat(Copy(VLink, I + 1, J - (I + 1)), VFormatSettings) + ALStrToFloat(VSLat, VFormatSettings)) / 2, VFormatSettings);
+    VSLat := ALStringReplace(VSLat, ',', '.', [rfReplaceAll]);
+    VSLon := ALStringReplace(VSLon, ',', '.', [rfReplaceAll]);
+    if (ALStrToFloat(VSLat, VFormatSettings) > 360) or (ALStrToFloat(VSLon, VFormatSettings) > 360) then begin
+      meters_to_lonlat(ALStrToFloat(VSLon, VFormatSettings), ALStrToFloat(VSLat, VFormatSettings), VSLon, VSLat, VFormatSettings);
+    end;
+  end else
+
+  // http://чепецк.net/?zoom=15&lat=43.94165&lon=40.14849&layers=BFFFT
   if RegExprGetMatchSubStr(AlUpperCase(VLink), 'LAT=.+LON=', 0) <> '' then begin
-    if VSName = '' then begin
-      VSName := String(RegExprGetMatchSubStr(VLink, 'http://[0-9a-zа-я\.]+', 0));
-      I := ALPosEx('LAT=', AlUpperCase(VLink), 1);
-      J := ALPosEx('&', VLink, I);
-      VSLat := Copy(VLink, I + 4, J - (I + 4));
-      I := ALPosEx('LON=', AlUpperCase(VLink), J);
-      J := ALPosEx('&', VLink, I);
-      if J = 0 then begin
-        J := length(VLink) + 1;
-      end;
-      VSLon := Copy(VLink, I + 4, J - (I + 4));
+    VSName := String(RegExprGetMatchSubStr(VLink, 'http://[0-9a-zа-я\.]+', 0));
+    I := ALPosEx('LAT=', AlUpperCase(VLink), 1);
+    J := ALPosEx('&', VLink, I);
+    VSLat := Copy(VLink, I + 4, J - (I + 4));
+    I := ALPosEx('LON=', AlUpperCase(VLink), J);
+    J := ALPosEx('&', VLink, I);
+    if J = 0 then begin
+      J := length(VLink) + 1;
     end;
+    VSLon := Copy(VLink, I + 4, J - (I + 4));
   end;
 
   if VSName <> '' then begin
