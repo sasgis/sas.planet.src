@@ -176,10 +176,11 @@ begin
     VSLon := Copy(VLink, I + 1, J - (I + 1));
   end;
 
-  if (RegExprGetMatchSubStr(VLink, '\.yandex\..+/-/', 0) <> '') or
+  if (RegExprGetMatchSubStr(VLink, 'yandex\..+/-/', 0) <> '') or
     (ALPosEx('maps.yandex.ru/?oid=', VLink, 1) > 0) then begin
     VSName := 'yandex';
     VLink := ALStringReplace(AhttpData, '''', '', [rfReplaceAll]);
+    VLink := ALStringReplace(VLink, '"', '', [rfReplaceAll]);
     I := ALPosEx('{ll:', VLink, 1);
     if I = 0 then begin
       I := ALPosEx(',ll:', VLink, 1);
@@ -467,7 +468,8 @@ begin
   // http://harita.yandex.com.tr/?ll=29.086777%2C41.000749&spn=0.005043%2C0.003328&z=18&l=sat%2Ctrf&trfm=cur
   // https://n.maps.yandex.ru/#!/?z=15&ll=37.438471%2C55.816492
   // https://n.maps.yandex.ru/?ll=37.43843%2C55.817359&spn=0.037723%2C0.017035&z=15&l=wmap&oid=105810
-  if RegExprGetMatchSubStr(VLink, '\.yandex\..+ll=-?[0-9]+', 0) <> '' then begin
+  // https://yandex.ru/maps/213/moscow/?ll=37.470836%2C55.789012&z=16
+  if RegExprGetMatchSubStr(VLink, 'yandex\..+ll=-?[0-9]+', 0) <> '' then begin
     VSName := 'Yandex';
     I := ALPosEx('ll', VLink, 1);
     J := ALPosEx(',', VLink, I);
@@ -748,7 +750,8 @@ begin
     (ALPosEx('api/index.html?permalink=', VUrl, 1) > 0) or
     (ALPosEx('rambler.ru/?', VUrl, 1) > 0) or
     (ALPosEx('yandex.ru/?um=', VUrl, 1) > 0) or
-    (RegExprGetMatchSubStr(VUrl, '\.yandex\..+/-/', 0) <> '') then begin
+    (RegExprGetMatchSubStr(VUrl, 'yandex\..+/-/', 0) <> '')
+  then begin
     Result := PrepareRequestByURL(VUrl);
   end;
 end;
@@ -757,6 +760,7 @@ end;
 // http://maps.google.com/?ll=48.718079,44.504639&spn=0.722115,1.234589&t=h&z=10
 // https://www.google.ru/maps/@43.6545592,40.9555717,19z/data=!3m1!1e3
 // http://maps.yandex.ru/?ll=44.514541%2C48.708958&spn=0.322723%2C0.181775&z=12&l=map
+// https://yandex.ru/maps/213/moscow/?ll=37.470836%2C55.789012&z=16
 // http://maps.navitel.su/?zoom=6&lat=55.8&lon=37.6
 // http://kosmosnimki.ru/?x=44.1053254382903&y=45.6876903573303&z=6&fullscreen=false&mode=satellite
 // http://www.bing.com/maps/default.aspx?v=2&cp=45.5493750107145~41.6883332507903&style=h&lvl=6
@@ -780,6 +784,7 @@ end;
 // http://g.co/maps/7anbg
 // http://maps.yandex.ru/-/CBa6ZCOt
 // http://maps.yandex.ru/-/CFVIfLi-#
+// https://yandex.ru/maps/-/CBRvA6wRxD
 // http://osm.org/go/0oqbju
 // http://binged.it/vqaOQQ
 // http://kosmosnimki.ru/permalink.html?Na1d0e33d
