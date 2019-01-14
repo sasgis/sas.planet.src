@@ -197,6 +197,7 @@ begin
   if Index < FCount then begin
     System.Move(FList[Index + 1], FList[Index],
       (FCount - Index) * SizeOf(TInterfaceWithId));
+    FillChar(FList[FCount], SizeOf(TInterfaceWithId), 0);
   end;
 end;
 
