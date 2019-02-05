@@ -619,6 +619,28 @@ object frmMarksExplorer: TfrmMarksExplorer
       Caption = 'Delete Placemark'
       Hint = 'Delete'
     end
+    object tbsprtMarksPopUp2: TTBXSeparatorItem
+      Caption = ''
+      Hint = ''
+    end
+    object tbitmCut: TTBXItem
+      ImageIndex = 63
+      OnClick = tbitmCutClick
+      Caption = 'Cut'
+      Hint = ''
+    end
+    object tbitmCopy: TTBXItem
+      ImageIndex = 67
+      OnClick = tbitmCopyClick
+      Caption = 'Copy'
+      Hint = ''
+    end
+    object tbitmPaste: TTBXItem
+      ImageIndex = 68
+      OnClick = tbitmPasteClick
+      Caption = 'Paste'
+      Hint = ''
+    end
     object tbsprtMarksPopUp: TTBXSeparatorItem
       Caption = ''
       Hint = ''

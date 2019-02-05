@@ -137,6 +137,10 @@ type
     TBXImageList1: TTBXImageList;
     btnExportConfig: TTBXItem;
     TBXSeparatorItem4: TTBXSeparatorItem;
+    tbsprtMarksPopUp2: TTBXSeparatorItem;
+    tbitmCopy: TTBXItem;
+    tbitmPaste: TTBXItem;
+    tbitmCut: TTBXItem;
     procedure BtnAddCategoryClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure BtnDelKatClick(Sender: TObject);
@@ -219,6 +223,12 @@ type
     procedure tbxAddClick(Sender: TObject);
     procedure tbxEditClick(Sender: TObject);
     procedure btnExportConfigClick(Sender: TObject);
+    procedure tbitmCopyClick(Sender: TObject);
+    procedure tbitmCutClick(Sender: TObject);
+    procedure tbitmPasteClick(Sender: TObject);
+  private
+    type
+      TCopyPasteAction = (cpNone, cpCopy, cpCut);
   private
     FfrmMarkSystemConfigEdit: TfrmMarkSystemConfigEdit;
     FfrmMarksExportConfig: TfrmMarksExportConfig;
@@ -245,6 +255,10 @@ type
     FMergePolygonsPresenter: IMergePolygonsPresenter;
     FSelectedCategoryInfo: TExpandInfo;
     FExpandedCategoriesInfo: TExpandInfo;
+
+    FCopyPasteAction: TCopyPasteAction;
+    FCopyPasteBuffer: IInterfaceListStatic;
+    procedure FillCopyPasteBuffer(const AAction: TCopyPasteAction);
 
     procedure RefreshConfigListMenu;
     procedure OnMarkSystemConfigChange;
@@ -1230,6 +1244,7 @@ begin
   MarksListBox.Items.Clear;
   FCategoryList := nil;
   FMarksList := nil;
+  FCopyPasteBuffer := nil;
 end;
 
 procedure TfrmMarksExplorer.FormResize(Sender: TObject);
@@ -1266,6 +1281,10 @@ begin
   if VWidth > 0 then begin
     grpCategory.Width := VWidth;
   end;
+
+  tbitmPaste.Visible := False;
+  FCopyPasteAction := cpNone;
+  FCopyPasteBuffer := nil;
 end;
 
 procedure TfrmMarksExplorer.MarksListBoxContextPopup(
@@ -1534,6 +1553,69 @@ begin
   if MessageDlg(VMsg, mtConfirmation, mbYesNo, 0) = mrYes then begin
     FMarkSystemConfig.DeleteByID(VConfig.ID);
   end;
+end;
+
+procedure TfrmMarksExplorer.FillCopyPasteBuffer(const AAction: TCopyPasteAction);
+begin
+  FCopyPasteBuffer := GetSelectedMarksIdList;
+  if FCopyPasteBuffer <> nil then begin
+    tbitmPaste.Visible := True;
+    FCopyPasteAction := AAction;
+  end else begin
+    tbitmPaste.Visible := False;
+    FCopyPasteAction := cpNone;
+  end;
+end;
+
+procedure TfrmMarksExplorer.tbitmCopyClick(Sender: TObject);
+begin
+  FillCopyPasteBuffer(cpCopy);
+end;
+
+procedure TfrmMarksExplorer.tbitmCutClick(Sender: TObject);
+begin
+  FillCopyPasteBuffer(cpCut);
+end;
+
+procedure TfrmMarksExplorer.tbitmPasteClick(Sender: TObject);
+
+  procedure PasteMarks(const AMove: Boolean);
+  var
+    I: Integer;
+    VMarkIdListNew: IInterfaceListSimple;
+    VCategoryNew: ICategory;
+    VMark: IVectorDataItem;
+  begin
+    VCategoryNew := GetSelectedCategory;
+    if VCategoryNew <> nil then begin
+      VMarkIdListNew := TInterfaceListSimple.Create;
+      for I := 0 to FCopyPasteBuffer.Count - 1 do begin
+        VMark := FMarkDBGUI.MarksDb.MarkDb.GetMarkByID(IMarkId(FCopyPasteBuffer.Items[I]));
+        VMarkIdListNew.Add(FMarkDBGUI.MarksDb.MarkDb.Factory.ReplaceCategory(VMark, VCategoryNew));
+      end;
+      if AMove then begin
+        FMarkDBGUI.MarksDb.MarkDb.UpdateMarkList(FCopyPasteBuffer, VMarkIdListNew.MakeStaticAndClear);
+      end else begin
+        FMarkDBGUI.MarksDb.MarkDb.UpdateMarkList(nil, VMarkIdListNew.MakeStaticAndClear);
+      end;
+    end;
+  end;
+
+begin
+  Assert(FCopyPasteBuffer <> nil);
+
+  case FCopyPasteAction of
+    cpCopy: PasteMarks(False);
+    cpCut: PasteMarks(True);
+  else
+    Assert(False);
+  end;
+
+  tbitmPaste.Visible := False;
+  FCopyPasteBuffer := nil;
+  FCopyPasteAction := cpNone;
+
+  UpdateMarksList;
 end;
 
 procedure TfrmMarksExplorer.tbxEditClick(Sender: TObject);
