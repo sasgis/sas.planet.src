@@ -258,7 +258,9 @@ type
 
     FCopyPasteAction: TCopyPasteAction;
     FCopyPasteBuffer: IInterfaceListStatic;
-    procedure FillCopyPasteBuffer(const AAction: TCopyPasteAction);
+
+    procedure PrepareCopyPasteBuffer(const AAction: TCopyPasteAction);
+    procedure ResetCopyPasteBuffer;
 
     procedure RefreshConfigListMenu;
     procedure OnMarkSystemConfigChange;
@@ -1135,6 +1137,7 @@ end;
 
 procedure TfrmMarksExplorer.OnMarkSystemStateChanged;
 begin
+  ResetCopyPasteBuffer;
   lblReadOnly.Visible := FMarkDBGUI.MarksDb.State.GetStatic.WriteAccess = asDisabled;
 end;
 
@@ -1281,10 +1284,6 @@ begin
   if VWidth > 0 then begin
     grpCategory.Width := VWidth;
   end;
-
-  tbitmPaste.Visible := False;
-  FCopyPasteAction := cpNone;
-  FCopyPasteBuffer := nil;
 end;
 
 procedure TfrmMarksExplorer.MarksListBoxContextPopup(
@@ -1555,26 +1554,32 @@ begin
   end;
 end;
 
-procedure TfrmMarksExplorer.FillCopyPasteBuffer(const AAction: TCopyPasteAction);
+procedure TfrmMarksExplorer.PrepareCopyPasteBuffer(const AAction: TCopyPasteAction);
 begin
   FCopyPasteBuffer := GetSelectedMarksIdList;
   if FCopyPasteBuffer <> nil then begin
     tbitmPaste.Visible := True;
     FCopyPasteAction := AAction;
   end else begin
-    tbitmPaste.Visible := False;
-    FCopyPasteAction := cpNone;
+    ResetCopyPasteBuffer;
   end;
+end;
+
+procedure TfrmMarksExplorer.ResetCopyPasteBuffer;
+begin
+  FCopyPasteBuffer := nil;
+  tbitmPaste.Visible := False;
+  FCopyPasteAction := cpNone;
 end;
 
 procedure TfrmMarksExplorer.tbitmCopyClick(Sender: TObject);
 begin
-  FillCopyPasteBuffer(cpCopy);
+  PrepareCopyPasteBuffer(cpCopy);
 end;
 
 procedure TfrmMarksExplorer.tbitmCutClick(Sender: TObject);
 begin
-  FillCopyPasteBuffer(cpCut);
+  PrepareCopyPasteBuffer(cpCut);
 end;
 
 procedure TfrmMarksExplorer.tbitmPasteClick(Sender: TObject);
@@ -1611,10 +1616,7 @@ begin
     Assert(False);
   end;
 
-  tbitmPaste.Visible := False;
-  FCopyPasteBuffer := nil;
-  FCopyPasteAction := cpNone;
-
+  ResetCopyPasteBuffer;
   UpdateMarksList;
 end;
 
