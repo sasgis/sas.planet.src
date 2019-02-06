@@ -156,12 +156,17 @@ begin
 end;
 
 procedure TSQLCategoryCache.AddPrepared(const AArr: TSQLCategoryRowDynArray);
+var
+  I: Integer;
 begin
   {$IFDEF SQL_LOG_CACHE_ENTER}
   SQLLogEnter(Self, 'AddPrepared');
   {$ENDIF}
   Reset;
-  if Length(AArr) > 0 then begin
+  I := Length(AArr);
+  if I = 1 then begin
+    FRow.FastAddSorted(0, AArr[0]);
+  end else if I > 1 then begin
     FRow.AddArray(AArr);
     FRow.Sort;
   end;
@@ -180,7 +185,7 @@ begin
   {$ENDIF}
   Result := False;
   I := FRow.Find(AID);
-  if I >=0 then begin
+  if I >= 0 then begin
     AItem := @FRows[I];
     Result := True;
   end;
@@ -259,7 +264,7 @@ begin
   {$ENDIF}
   Result := False;
   I := FRow.Find(AID);
-  if I >=0 then begin
+  if I >= 0 then begin
     AItem := @FRows[I];
     Result := True;
   end;
@@ -269,12 +274,17 @@ begin
 end;
 
 procedure TSQLCategoryViewCache.AddPrepared(const AArr: TSQLCategoryViewRowDynArray);
+var
+  I: Integer;
 begin
   {$IFDEF SQL_LOG_CACHE_ENTER}
   SQLLogEnter(Self, 'AddPrepared');
   {$ENDIF}
   Reset;
-  if Length(AArr) > 0 then begin
+  I := Length(AArr);
+  if I = 1 then begin
+    FRow.FastAddSorted(0, AArr[0]);
+  end else if I > 1 then begin
     FRow.AddArray(AArr);
     FRow.Sort;
   end;

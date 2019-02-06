@@ -320,7 +320,7 @@ begin
   {$ENDIF}
   Result := False;
   I := FRow.Find(AID);
-  if I >=0 then begin
+  if I >= 0 then begin
     AItem := @FRows[I];
     Result := True;
   end;
@@ -363,19 +363,20 @@ begin
   SQLLogEnter(Self, 'AddOrIgnore');
   {$ENDIF}
   CheckCacheSize;
-  if not FRow.FastLocateSorted(AImageID, I) then begin
+  if FRow.FastLocateSorted(AImageID, I) then begin
+    // ignore
+    Exit;
+  end else if I >= 0 then begin
     // add
-    if I >= 0 then begin
-      VRec.ImageId := AImageID;
-      VRec.Name := AName;
-      FRow.FastAddSorted(I, VRec);
-      Inc(FDataSize, Length(VRec.Name)*SizeOf(Char));
-      {$IFDEF SQL_LOG_CACHE_RESULT}
-      SQLLogCache('Add ID=%, Name=%, NewCount=%', [AImageID, StringToUTF8(AName), FCount], Self);
-      {$ENDIF}
-    end else begin
-      Assert(False);
-    end;
+    VRec.ImageId := AImageID;
+    VRec.Name := AName;
+    FRow.FastAddSorted(I, VRec);
+    Inc(FDataSize, Length(VRec.Name)*SizeOf(Char));
+    {$IFDEF SQL_LOG_CACHE_RESULT}
+    SQLLogCache('Add ID=%, Name=%, NewCount=%', [AImageID, StringToUTF8(AName), FCount], Self);
+    {$ENDIF}
+  end else begin
+    Assert(False);
   end;
 end;
 
@@ -419,7 +420,7 @@ begin
   {$ENDIF}
   Result := False;
   I := FRow.Find(AID);
-  if I >=0 then begin
+  if I >= 0 then begin
     AItem := @FRows[I];
     Result := True;
   end;
@@ -472,21 +473,22 @@ begin
   SQLLogEnter(Self, 'AddOrIgnore');
   {$ENDIF}
   CheckCacheSize;
-  if not FRow.FastLocateSorted(AID, I) then begin
+  if FRow.FastLocateSorted(AID, I) then begin
+    // ignore
+    Exit;
+  end else if I >= 0 then begin
     // add
-    if I >= 0 then begin
-      VRec.AppearanceId := AID;
-      VRec.Color1 := AColor1;
-      VRec.Color2 := AColor2;
-      VRec.Scale1 := AScale1;
-      VRec.Scale2 := AScale2;
-      FRow.FastAddSorted(I, VRec);
-      {$IFDEF SQL_LOG_CACHE_RESULT}
-      SQLLogCache('Add ID=%, NewCount=%', [AID, FCount], Self);
-      {$ENDIF}
-    end else begin
-      Assert(False);
-    end;
+    VRec.AppearanceId := AID;
+    VRec.Color1 := AColor1;
+    VRec.Color2 := AColor2;
+    VRec.Scale1 := AScale1;
+    VRec.Scale2 := AScale2;
+    FRow.FastAddSorted(I, VRec);
+    {$IFDEF SQL_LOG_CACHE_RESULT}
+    SQLLogCache('Add ID=%, NewCount=%', [AID, FCount], Self);
+    {$ENDIF}
+  end else begin
+    Assert(False);
   end;
 end;
 
@@ -506,7 +508,7 @@ begin
   {$ENDIF}
   Result := False;
   I := FRow.Find(AID);
-  if I >=0 then begin
+  if I >= 0 then begin
     AItem := @FRows[I];
     Result := True;
   end;
@@ -524,18 +526,7 @@ begin
   SQLLogEnter(Self, 'AddOrUpdate');
   {$ENDIF}
   CheckCacheSize;
-  if not FRow.FastLocateSorted(ARec.FMarkId, I) then begin
-    // add
-    if I >= 0 then begin
-      MarkRecToIndexRec(ARec, @VRec);
-      FRow.FastAddSorted(I, VRec);
-      {$IFDEF SQL_LOG_CACHE_RESULT}
-      SQLLogCache('Add ID=%, NewCount=%', [ARec.FMarkId, FCount], Self);
-      {$ENDIF}
-    end else begin
-      Assert(False);
-    end;
-  end else begin
+  if FRow.FastLocateSorted(ARec.FMarkId, I) then begin
     // update
     FRows[I].CategoryId := ARec.FCategoryId;
     FRows[I].ImageId := ARec.FPicId;
@@ -543,16 +534,30 @@ begin
     {$IFDEF SQL_LOG_CACHE_RESULT}
     SQLLogCache('Update ID=%, Count=%', [ARec.FMarkId, FCount], Self);
     {$ENDIF}
+  end else if I >= 0 then begin
+    // add
+    MarkRecToIndexRec(ARec, @VRec);
+    FRow.FastAddSorted(I, VRec);
+    {$IFDEF SQL_LOG_CACHE_RESULT}
+    SQLLogCache('Add ID=%, NewCount=%', [ARec.FMarkId, FCount], Self);
+    {$ENDIF}
+  end else begin
+    Assert(False);
   end;
 end;
 
 procedure TSQLMarkIdIndex.AddPrepared(const AArr: TSQLMarkIdIndexRecDynArray);
+var
+  I: Integer;
 begin
   {$IFDEF SQL_LOG_CACHE_ENTER}
   SQLLogEnter(Self, 'AddPrepared');
   {$ENDIF}
   Reset;
-  if Length(AArr) > 0 then begin
+  I := Length(AArr);
+  if I = 1 then begin
+    FRow.FastAddSorted(0, AArr[0]);
+  end else if I > 1 then begin
     FRow.AddArray(AArr);
     FRow.Sort;
   end;
@@ -758,7 +763,7 @@ begin
   {$ENDIF}
   Result := False;
   I := FRow.Find(AID);
-  if I >=0 then begin
+  if I >= 0 then begin
     AItem := @FRows[I];
     Result := True;
   end;
@@ -812,19 +817,22 @@ begin
   CheckCacheSize;
   VCount := Length(AArr);
   if ACategoryID > 0 then begin
+    if not FPreparedCategoriesDynArr.FastLocateSorted(ACategoryID, I) then begin
+      if I >= 0 then begin
+        FPreparedCategoriesDynArr.FastAddSorted(I, ACategoryID);
+        {$IFDEF SQL_LOG_CACHE_RESULT}
+        SQLLogCache('PreparedCategoryID=%, PreparedCount=%', [ACategoryID, FPreparedCategoriesDynArr.Count], Self);
+        {$ENDIF}
+      end else begin
+        Assert(False);
+        Exit;
+      end;
+    end;
+    if VCount = 0 then begin
+      Exit;
+    end;
     VBits := TBits.Create;
     try
-      if not FPreparedCategoriesDynArr.FastLocateSorted(ACategoryID, I) then begin
-        if I >= 0 then begin
-          FPreparedCategoriesDynArr.FastAddSorted(I, ACategoryID);
-          {$IFDEF SQL_LOG_CACHE_RESULT}
-          SQLLogCache('PreparedCategoryID=%, PreparedCount=%', [ACategoryID, FPreparedCategoriesDynArr.Count], Self);
-          {$ENDIF}
-        end else begin
-          Assert(False);
-          Exit;
-        end;
-      end;
       J := 0;
       VBits.Size := VCount;
       for I := 0 to VCount - 1 do begin
@@ -856,7 +864,9 @@ begin
     end;
   end else begin
     Reset;
-    if VCount > 0 then begin
+    if VCount = 1 then begin
+      FRow.FastAddSorted(0, AArr[0]);
+    end else if VCount > 1 then begin
       FRow.AddArray(AArr);
       FRow.Sort;
     end;
@@ -901,7 +911,7 @@ begin
   {$ENDIF}
   Result := False;
   I := FRow.Find(AMarkID);
-  if I >=0 then begin
+  if I >= 0 then begin
     AItem := @FRows[I];
     Result := True;
   end;
@@ -962,19 +972,22 @@ begin
   CheckCacheSize;
   VCount := Length(AArr);
   if ACategoryID > 0 then begin
+    if not FPreparedCategoriesDynArr.FastLocateSorted(ACategoryID, I) then begin
+      if I >= 0 then begin
+        FPreparedCategoriesDynArr.FastAddSorted(I, ACategoryID);
+        {$IFDEF SQL_LOG_CACHE_RESULT}
+        SQLLogCache('PreparedCategoryID=%, PreparedCount=%', [ACategoryID, FPreparedCategoriesDynArr.Count], Self);
+        {$ENDIF}
+      end else begin
+        Assert(False);
+        Exit;
+      end;
+    end;
+    if VCount <= 0 then begin
+      Exit;
+    end;
     VBits := TBits.Create;
     try
-      if not FPreparedCategoriesDynArr.FastLocateSorted(ACategoryID, I) then begin
-        if I >= 0 then begin
-          FPreparedCategoriesDynArr.FastAddSorted(I, ACategoryID);
-          {$IFDEF SQL_LOG_CACHE_RESULT}
-          SQLLogCache('PreparedCategoryID=%, PreparedCount=%', [ACategoryID, FPreparedCategoriesDynArr.Count], Self);
-          {$ENDIF}
-        end else begin
-          Assert(False);
-          Exit;
-        end;
-      end;
       J := 0;
       VBits.Size := VCount;
       for I := 0 to VCount - 1 do begin
@@ -1000,7 +1013,9 @@ begin
     end;
   end else begin
     Reset;
-    if VCount > 0 then begin
+    if VCount = 1 then begin
+      FRow.FastAddSorted(0, AArr[0]);
+    end else if VCount > 1 then begin
       FRow.AddArray(AArr);
       FRow.Sort;
     end;
