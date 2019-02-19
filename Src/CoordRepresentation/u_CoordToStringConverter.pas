@@ -108,20 +108,20 @@ function TCoordToStringConverter.DegrToStr(
 ): string;
 var
   VDegr: Double;
-  VInt: Integer;
-  VValue: Integer;
+  VInt: Int64;
+  VValue: Int64;
   res: string;
 begin
   VDegr := abs(ADegr);
   Res := '-';
   case FDegrShowFormat of
     dshCharDegrMinSec, dshSignDegrMinSec: begin
-      VValue := Trunc(VDegr * 60 * 60 * 100 + 0.005);
-      VInt := Trunc(VValue / (60 * 60 * 100));
-      VValue := VValue - VInt * (60 * 60 * 100);
+      VValue := Trunc(VDegr * 60 * 60 * 10000 + 0.005);
+      VInt := Trunc(VValue / (60 * 60 * 10000));
+      VValue := VValue - VInt * (60 * 60 * 10000);
       Res := IntToStr(VInt) + '°';
-      VInt := Trunc(VValue / (60 * 100));
-      VValue := VValue - VInt * (60 * 100);
+      VInt := Trunc(VValue / (60 * 10000));
+      VValue := VValue - VInt * (60 * 10000);
 
       if VInt < 10 then begin
         Res := Res + '0' + IntToStr(VInt) + '''';
@@ -129,7 +129,7 @@ begin
         Res := Res + IntToStr(VInt) + '''';
       end;
 
-      Res := Res + FormatFloat('00.00', VValue / 100) + '"';
+      Res := Res + FormatFloat('00.0000', VValue / 10000) + '"';
 
       if ACutZero then begin
         if copy(Res, length(Res) - 3, 4) = FDecimalseparator + '00"' then begin // X12°30'45,00" -> X12°30'45"
@@ -144,11 +144,11 @@ begin
       end;
     end;
     dshCharDegrMin, dshSignDegrMin: begin
-      VValue := Trunc(VDegr * 60 * 10000 + 0.00005);
-      VInt := Trunc(VValue / (60 * 10000));
-      VValue := VValue - VInt * (60 * 10000);
+      VValue := Trunc(VDegr * 60 * 1000000 + 0.00005);
+      VInt := Trunc(VValue / (60 * 1000000));
+      VValue := VValue - VInt * (60 * 1000000);
       Res := IntToStr(VInt) + '°';
-      Res := Res + FormatFloat('00.0000', VValue / 10000) + '''';
+      Res := Res + FormatFloat('00.000000', VValue / 1000000) + '''';
       if ACutZero then begin
         while copy(Res, length(Res) - 1, 2) = '0''' do begin
           Res := ReplaceStr(Res, '0''', '''');
@@ -162,7 +162,7 @@ begin
       end;
     end;
     dshCharDegr, dshSignDegr: begin
-      Res := FormatFloat('0.000000', VDegr) + '°';
+      Res := FormatFloat('0.00000000', VDegr) + '°';
       if ACutZero then begin
         while copy(Res, length(Res) - 1, 2) = '0°' do begin
           Res := ReplaceStr(Res, '0°', '°');
@@ -275,8 +275,8 @@ procedure TCoordToStringConverter.LonLatConvert(
 
   procedure _ProjectedCoordToStr(const AXY: TDoublePoint; out AX, AY: string);
   begin
-    AX := IntToStr(Round(AXY.X));
-    AY := IntToStr(Round(AXY.Y));
+    AX := FormatFloat('0.00', AXY.X);
+    AY := FormatFloat('0.00', AXY.Y);
   end;
 
 var
