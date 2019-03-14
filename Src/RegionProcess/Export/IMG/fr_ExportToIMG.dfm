@@ -531,6 +531,15 @@ object frExportToIMG: TfrExportToIMG
           AutoSize = False
           Caption = 'Path to map compiler license:'
         end
+        object LLicenseFile: TLabel
+          Left = 381
+          Top = 3
+          Width = 88
+          Height = 13
+          Alignment = taRightJustify
+          Anchors = [akTop, akRight]
+          Caption = '(*.mpl)'
+        end
         object btnSetMapCompilerLicensePath: TButton
           Left = 448
           Top = 22
@@ -649,6 +658,16 @@ object frExportToIMG: TfrExportToIMG
           Align = alTop
           AutoSize = False
           Caption = 'Path to map compiler:'
+          ExplicitWidth = 345
+        end
+        object LMapCompilerPath: TLabel
+          Left = 381
+          Top = 3
+          Width = 88
+          Height = 13
+          Alignment = taRightJustify
+          Anchors = [akTop, akRight]
+          Caption = '(bld_gmap32.exe)'
         end
         object btnSetMapCompilerPath: TButton
           Left = 448

@@ -127,6 +127,8 @@ type
     chkKeepTempFiles: TCheckBox;
     pnlGMTTop: TPanel;
     lblWebSite: TLabel;
+    LMapCompilerPath: TLabel;
+    LLicenseFile: TLabel;
     procedure btnSelectTargetFileClick(Sender: TObject);
     procedure edtMapCompilePathChange(Sender: TObject);
     procedure edtMapCompilerLicensePathChange(Sender: TObject);
