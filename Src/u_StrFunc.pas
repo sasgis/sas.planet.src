@@ -31,6 +31,7 @@ function GetBetween(const Str, After, Before: AnsiString): AnsiString;
 
 function SetHeaderValue(const AHeaders, AName, AValue: AnsiString): AnsiString;
 function GetHeaderValue(const AHeaders, AName: AnsiString): AnsiString;
+function DeleteHeaderEntry(const AHeaders, AName: AnsiString): AnsiString;
 
 {$IFDef UNICODE}
 function IsAscii(const P: PChar; const Len: Integer): Boolean; overload; inline;
@@ -108,6 +109,27 @@ begin
       end;
     finally
       FreeAndNil(VRegExpr);
+    end;
+  end else begin
+    Result := '';
+  end;
+end;
+
+function DeleteHeaderEntry(const AHeaders, AName: AnsiString): AnsiString;
+var
+  VRegExpr: TRegExpr;
+begin
+  if AHeaders <> '' then begin
+    VRegExpr := TRegExpr.Create;
+    try
+      VRegExpr.Expression := '(?i)' + AName + ':(\s+|)(.*?)(\r\n|$)';
+      if VRegExpr.Exec(AHeaders) then begin
+        Result := ALStringReplace(AHeaders, VRegExpr.Match[0], '', []);
+      end else begin
+        Result := AHeaders;
+      end;
+    finally
+      VRegExpr.Free;
     end;
   end else begin
     Result := '';

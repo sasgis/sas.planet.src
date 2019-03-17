@@ -145,6 +145,8 @@ implementation
 uses
   UrlMon,
   ALString,
+  ALZLibEx,
+  ALZlibExGZ,
   u_StrFunc,
   u_ListenerByEvent,
   u_Synchronizer,
@@ -540,11 +542,72 @@ function TDownloaderHttp.OnAfterResponse(
     end;
   end;
 
+  function TryDecodeContent(
+    const AContentEncoding: AnsiString;
+    var ABody: TMemoryStream
+  ): Boolean;
+  type
+    TContentEncodingType = (etUnk, etGZip, etDeflate, etBrotli, etIdentity);
+  const
+    CZlibMagic: Word = $9C78; // 0x789C
+  var
+    VStream: TMemoryStream;
+    VEncoding: TContentEncodingType;
+  begin
+    if ABody.Size = 0 then begin
+      Result := True;
+      Exit;
+    end;
+
+    Result := False;
+
+    if AContentEncoding = 'gzip' then begin
+      VEncoding := etGZip;
+    end else
+    if AContentEncoding = 'deflate' then begin
+      VEncoding := etDeflate;
+    end else
+    if AContentEncoding = 'br' then begin
+      //ToDo:
+      Exit;
+    end else
+    if AContentEncoding = 'identity' then begin
+      Result := True;
+      Exit;
+    end else begin
+      Exit;
+    end;
+
+    if VEncoding in [etGZip, etDeflate] then begin
+      VStream := TMemoryStream.Create;
+      try
+        ABody.Position := 0;
+        if VEncoding = etGZip then begin
+          GZDecompressStream(ABody, VStream);
+        end else begin // deflate
+          Assert(ABody.Size > 2);
+          if CompareMem(ABody.Memory, @CZlibMagic, 2) then begin
+            ZDecompressStream(ABody, VStream); // deflate with zlib header
+          end else begin
+            ZDecompressStream2(ABody, VStream, -15); // raw deflate without zlib header
+          end;
+        end;
+        FreeAndNil(ABody);
+        ABody := VStream;
+        VStream := nil;
+        Result := True;
+      finally
+        VStream.Free;
+      end;
+    end;
+  end;
+
 var
   VResponseBody: IBinaryData;
   VRawHeaderText: AnsiString;
   VStatusCode: Cardinal;
   VContentType: AnsiString;
+  VContentEncoding: AnsiString;
   VRealContentType: AnsiString;
 begin
   Result := nil;
@@ -552,12 +615,29 @@ begin
     VRawHeaderText := FHttpResponseHeader.RawHeaderText;
     VStatusCode := ALStrToIntDef(FHttpResponseHeader.StatusCode, 0);
     if IsOkStatus(VStatusCode) then begin
-      VContentType := FHttpResponseHeader.ContentType;
 
+      VContentEncoding := FHttpResponseHeader.ContentEncoding;
+      if VContentEncoding <> '' then begin
+        try
+          if TryDecodeContent(AlLowerCase(VContentEncoding), FHttpResponseBody) then begin
+            VRawHeaderText := DeleteHeaderEntry(VRawHeaderText, 'Content-Encoding');
+          end else begin
+            raise Exception.Create('Unsupported Encoding: ' + VContentEncoding);
+          end;
+        except
+          on E: Exception do begin
+            Result := FResultFactory.BuildNotNecessary(ARequest, '%s: %s',
+              [E.ClassName, E.Message], VStatusCode, VRawHeaderText);
+            Exit;
+          end;
+        end;
+      end;
+
+      VContentType := FHttpResponseHeader.ContentType;
       if FTryDetectContentType and (FHttpResponseBody.Size > 0) then begin
         VRealContentType := DetectContentType(FHttpResponseBody.Memory, FHttpResponseBody.Size);
         if (VRealContentType <> '') and (AlLowerCase(VRealContentType) <> AlLowerCase(VContentType)) then begin
-          VRawHeaderText := ALStringReplace(VRawHeaderText, VContentType, VRealContentType, [rfIgnoreCase, rfReplaceAll]);
+          VRawHeaderText := SetHeaderValue(VRawHeaderText, 'Content-Type', VRealContentType);
           VContentType := VRealContentType;
         end;
       end;
