@@ -1017,7 +1017,6 @@
     <DCCReference Include="Src\Network\i_TileRequestTask.pas" />
     <DCCReference Include="Src\Network\u_AntiBanStuped.pas" />
     <DCCReference Include="Src\Network\u_DownloadCheckerStuped.pas" />
-    <DCCReference Include="Src\Network\u_DownloaderFaked.pas" />
     <DCCReference Include="Src\Network\u_DownloaderHttp.pas" />
     <DCCReference Include="Src\Network\u_DownloaderHttpWithTTL.pas" />
     <DCCReference Include="Src\Network\u_DownloadInfoSimple.pas" />

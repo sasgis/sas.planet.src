@@ -865,7 +865,6 @@ uses
   u_DownloadResultFactory in 'Src\Network\u_DownloadResultFactory.pas',
   u_DownloadResultTextProvider in 'Src\Network\u_DownloadResultTextProvider.pas',
   u_DownloadUIConfig in 'Src\Network\u_DownloadUIConfig.pas',
-  u_DownloaderFaked in 'Src\Network\u_DownloaderFaked.pas',
   u_DownloaderHttp in 'Src\Network\u_DownloaderHttp.pas',
   u_DownloaderHttpWithTTL in 'Src\Network\u_DownloaderHttpWithTTL.pas',
   u_GlobalDownloadConfig in 'Src\Network\u_GlobalDownloadConfig.pas',

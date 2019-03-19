@@ -1112,7 +1112,6 @@
         <DCCReference Include="Src\Network\u_DownloadResultFactory.pas"/>
         <DCCReference Include="Src\Network\u_DownloadResultTextProvider.pas"/>
         <DCCReference Include="Src\Network\u_DownloadUIConfig.pas"/>
-        <DCCReference Include="Src\Network\u_DownloaderFaked.pas"/>
         <DCCReference Include="Src\Network\u_DownloaderHttp.pas"/>
         <DCCReference Include="Src\Network\u_DownloaderHttpWithTTL.pas"/>
         <DCCReference Include="Src\Network\u_GlobalDownloadConfig.pas"/>
