@@ -81,7 +81,6 @@ uses
   t_GeoTypes,
   u_GeoToStrFunc,
   u_GeoFunc,
-  u_InetFunc,
   u_XmlLoaderByVSAGPS,
   u_StreamReadOnlyByBinaryData,
   u_ETS_Tiles;
@@ -754,8 +753,6 @@ begin
 
   if (not Assigned(FTileInfoPtr.AddImageProc)) then
     Exit;
-
-  Assert(not IsGZipped(AResultOk.RawResponseHeader));
 
   VStream := TStreamReadOnlyByBinaryData.Create(AResultOk.Data);
   try

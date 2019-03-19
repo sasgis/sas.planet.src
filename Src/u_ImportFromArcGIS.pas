@@ -53,7 +53,6 @@ uses
   Windows,
   Classes,
   ALString,
-  ALZLibExGZ,
   c_CoordConverter,
   i_DownloadResultFactory,
   i_DownloadResult,
@@ -69,8 +68,6 @@ uses
   u_NotifierOperation,
   u_DoublePointsAggregator,
   u_MultiPoligonParser,
-  u_StreamReadOnlyByBinaryData,
-  u_InetFunc,
   u_GeoToStrFunc;
 
 procedure AddWithBR(var AFullDesc: String; const ACaption, AValue: String);
@@ -148,54 +145,16 @@ begin
   end;
 end;
 
-function _IsZippedDownloadResult(
-  const ADownloadResultOk: IDownloadResultOk;
-  out AInUtf8: Boolean
-): Boolean;
-begin
-  AInUtf8 := (ALPos('utf-8', ADownloadResultOk.ContentType)>0);
-  Result := IsGZipped(ADownloadResultOk.RawResponseHeader);
-end;
-
 function _GetPlainResponseFromDownloadResult(
   const ADownloadResultOk: IDownloadResultOk
 ): String;
 var
-  VZipped: Boolean;
   VUnUtf8: Boolean;
-  VSrc: TStreamReadOnlyByBinaryData;
-  VDst: TMemoryStream;
   VAnsiRes: AnsiString;
 begin
   Result := '';
-  VZipped := _IsZippedDownloadResult(ADownloadResultOk, VUnUtf8);
-  if VZipped then
-  try
-    VDst := nil;
-    VSrc := TStreamReadOnlyByBinaryData.Create(ADownloadResultOk.Data);
-    try
-      VDst := TMemoryStream.Create;
-
-      GZDecompressStream(VSrc, VDst);
-
-      SetString(VAnsiRes, PAnsiChar(VDst.Memory), VDst.Size div SizeOf(AnsiChar));
-
-      if VUnUtf8 then begin
-        Result := Utf8ToAnsi(VAnsiRes);
-      end else begin
-        Result := string(VAnsiRes);
-      end;
-
-      Exit;
-    finally
-      VSrc.Free;
-      VDst.Free;
-    end;
-  except
-  end;
-
-  // as plain text
-  if ADownloadResultOk.Data.Size>0 then begin
+  VUnUtf8 := ALPos('utf-8', ADownloadResultOk.ContentType) > 0;
+  if ADownloadResultOk.Data.Size > 0 then begin
     SetString(VAnsiRes, PAnsiChar(ADownloadResultOk.Data.Buffer), ADownloadResultOk.Data.Size div SizeOf(AnsiChar));
     if VUnUtf8 then begin
       Result := Utf8ToAnsi(VAnsiRes);

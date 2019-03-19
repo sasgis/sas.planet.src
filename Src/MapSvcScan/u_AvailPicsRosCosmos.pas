@@ -72,7 +72,6 @@ uses
   Forms,
   Windows,
   ALString,
-  ALZLibExGZ,
   t_GeoTypes,
   i_BinaryData,
   i_ProjectionType,
@@ -211,7 +210,6 @@ var
   i: Integer;
   VParams: TStrings;
   VMemoryStream: TMemoryStream;
-  VUnZipped: TMemoryStream;
   VItemExists: Boolean;
   VItemFetched: TDateTime;
 begin
@@ -228,34 +226,7 @@ begin
       Exit;
 
     XMLDocument := TXMLDocument.Create(Application);
-
-    VParams := TStringList.Create;
-    try
-      VParams.NameValueSeparator := ':';
-      VParams.Text := AResultOk.RawResponseHeader;
-      if SameText(Trim(VParams.Values['Content-Encoding']), 'gzip') then begin
-        // gzipped
-        try
-          // try to unzip
-          VUnZipped := TMemoryStream.Create;
-          try
-            GZDecompressStream(VMemoryStream, VUnzipped);
-            XMLDocument.LoadFromStream(VUnZipped);
-          finally
-            FreeAndNil(VUnZipped);
-          end;
-        except
-          // try as plain text
-          XMLDocument.LoadFromStream(VMemoryStream);
-        end;
-      end else begin
-        // plain
-        XMLDocument.LoadFromStream(VMemoryStream);
-      end;
-    finally
-      FreeAndNil(VParams);
-    end;
-
+    XMLDocument.LoadFromStream(VMemoryStream);
     FreeAndNil(VMemoryStream);
 
     Node := XMLDocument.DocumentElement; // Geoportal

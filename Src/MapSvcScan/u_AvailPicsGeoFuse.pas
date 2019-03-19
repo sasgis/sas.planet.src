@@ -42,10 +42,6 @@ type
       const AResultOk: IDownloadResultOk;
       const AList: TStrings
     ): Boolean;
-    function GetUnzippedJsonGeoFuseText(
-      const AResultOk: IDownloadResultOk;
-      const AList: TStrings
-    ): Boolean;
   public
     function ContentType: String; override;
 
@@ -57,13 +53,9 @@ type
 implementation
 
 uses
-  ALZLibExGZ,
   {$IFNDef UNICODE}
   Compatibility,
   {$ENDIF}
-  u_StreamReadOnlyByBinaryData,
-  u_StrFunc,
-  u_InetFunc,
   u_GeoToStrFunc;
 
 type
@@ -244,7 +236,6 @@ begin
   VParams := nil;
   VList := TStringList.Create;
   try
-    // try to get plain text (unzip if gzipped)
     if not GetPlainJsonGeoFuseText(AResultOk, VList) then
       Exit;
 
@@ -354,19 +345,7 @@ begin
   if (0=AResultOk.Data.Size) or (nil=AResultOk.Data.Buffer) then
     Exit;
 
-  if IsGZipped(AResultOk.RawResponseHeader) then begin
-    // gzipped
-    try
-      // try to unzip
-      Result := GetUnzippedJsonGeoFuseText(AResultOk, AList);
-    except
-      // try as plain text
-      Result := GetSimpleJsonGeoFuseText(AResultOk, AList);
-    end;
-  end else begin
-    // plain
-    Result := GetSimpleJsonGeoFuseText(AResultOk, AList);
-  end;
+  Result := GetSimpleJsonGeoFuseText(AResultOk, AList);
 end;
 
 function TAvailPicsGeoFuse.GetRequest(const AInetConfig: IInetConfig): IDownloadRequest;
@@ -379,7 +358,6 @@ begin
     'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'+#$D#$A+
     'Accept-Language: ru-ru,ru;q=0.8,en-us;q=0.5,en;q=0.3'+#$D#$A+
     'Accept-Encoding: gzip, deflate'+#$D#$A+
-    //'Accept-Encoding: deflate'+#$D#$A+
     'DNT: 1'+#$D#$A+
     'Connection: keep-alive'+#$D#$A+
     'Referer: http://geofuse.geoeye.com/maps/Map.aspx';
@@ -418,43 +396,6 @@ begin
   AList.NameValueSeparator := ':';
   AList.DelimitedText := VSimpleText;
   Result := (AList.Count>1);
-end;
-
-function TAvailPicsGeoFuse.GetUnzippedJsonGeoFuseText(
-  const AResultOk: IDownloadResultOk;
-  const AList: TStrings
-): Boolean;
-var
-  VZipped: TStreamReadOnlyByBinaryData;
-  VUnzipped: TMemoryStream;
-  VStrValue: String;
-begin
-  VUnzipped := nil;
-  VZipped := TStreamReadOnlyByBinaryData.Create(AResultOk.Data);
-  try
-    VUnzipped := TMemoryStream.Create;
-
-    // unzip
-    GZDecompressStream(VZipped, VUnzipped);
-
-    // failed to unzip - try to use as plain text
-    if (VUnzipped.Memory=nil) or (VUnzipped.Size=0) then
-      Abort;
-
-    // unzipped
-    SetString(VStrValue, PChar(VUnzipped.Memory), (VUnzipped.Size div SizeOf(Char)));
-
-    // apply
-    AList.Clear;
-    AList.QuoteChar := '"';
-    AList.Delimiter := ',';
-    AList.NameValueSeparator := ':';
-    AList.DelimitedText := VStrValue;
-    Result := (AList.Count>1);
-  finally
-    VZipped.Free;
-    VUnzipped.Free;
-  end;
 end;
 
 end.

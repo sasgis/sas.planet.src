@@ -27,16 +27,13 @@ procedure OpenFileInDefaultProgram(const AFullFileName: string);
 procedure SelectFileInExplorer(const AFullFileName: String);
 procedure SelectPathInExplorer(const APath: string);
 
-function IsGZipped(const AHeader: AnsiString): Boolean;
-
 implementation
 
 uses
   Windows,
   ActiveX,
   ShellAPI,
-  SysUtils,
-  ALString;
+  SysUtils;
 
 procedure ShellExecute(
   const AWnd: HWND;
@@ -125,31 +122,6 @@ procedure SelectPathInExplorer(const APath: string);
 begin
   Assert(APath <> '');
   ExecCmdLine('explorer /root,' + APath);
-end;
-
-function IsGZipped(const AHeader: AnsiString): Boolean;
-const
-  c_Content = 'Content-Encoding';
-  c_GZIPped = 'gzip';
-var
-  VPos: Integer;
-  VTxt: AnsiString;
-begin
-  Result := False;
-  VPos := ALPos(c_Content, AHeader);
-  if (VPos > 0) then begin
-    // skip before
-    VPos := VPos + Length(c_Content) + 1;
-    while (VPos <= Length(AHeader)) and (AHeader[VPos] in [#32, #10, #13, #160, ':']) do begin
-      Inc(VPos);
-    end;
-    VTxt := '';
-    while (VPos <= Length(AHeader)) and (not (AHeader[VPos] in [#32, #10, #13, #160, ':'])) do begin
-      VTxt := VTxt + AHeader[VPos];
-      Inc(VPos);
-    end;
-    Result := (VTxt = c_GZIPped);
-  end;
 end;
 
 end.

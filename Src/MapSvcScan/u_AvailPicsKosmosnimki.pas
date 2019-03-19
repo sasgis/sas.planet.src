@@ -51,10 +51,6 @@ type
       const AResultOk: IDownloadResultOk;
       const AList: TStrings
     ): Boolean;
-    function GetUnzippedJsonKosmosnimkiText(
-      const AResultOk: IDownloadResultOk;
-      const AList: TStrings
-    ): Boolean;
     function PrepareToParseString(const AStrValue: String): String;
     procedure PrepareStringList(const AList: Tstrings);
     function MakePostString: AnsiString;
@@ -96,12 +92,9 @@ implementation
 
 uses
   ALString,
-  ALZLibExGZ,
   i_BinaryData,
   u_GeoToStrFunc,
   u_DownloadRequest,
-  u_StreamReadOnlyByBinaryData,
-  u_InetFunc,
   u_BinaryData;
 
 procedure GenerateAvailPicsKS(
@@ -360,19 +353,7 @@ begin
   if (0=AResultOk.Data.Size) or (nil=AResultOk.Data.Buffer) then
     Exit;
 
-  if IsGZipped(AResultOk.RawResponseHeader) then begin
-    // gzipped
-    try
-      // try to unzip
-      Result := GetUnzippedJsonKosmosnimkiText(AResultOk, AList);
-    except
-      // try as plain text
-      Result := GetSimpleJsonKosmosnimkiText(AResultOk, AList);
-    end;
-  end else begin
-    // plain
-    Result := GetSimpleJsonKosmosnimkiText(AResultOk, AList);
-  end;
+  Result := GetSimpleJsonKosmosnimkiText(AResultOk, AList);
 end;
 
 function TAvailPicsKS.GetRequest(const AInetConfig: IInetConfig): IDownloadRequest;
@@ -393,7 +374,6 @@ begin
     'Accept-Encoding: gzip,deflate,sdch'+#$D#$A+
     'Accept-Language: ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4'+#$D#$A+
     'Accept-Charset: windows-1251,utf-8;q=0.7,*;q=0.3'+#$D#$A;
-    //'Accept-Encoding: deflate'+#$D#$A+
 
   VLink := 'http://search.kosmosnimki.ru/QuicklooksJson.ashx'; // json
 
@@ -425,40 +405,6 @@ begin
   AList.DelimitedText := VSimpleText;
 
   Result := (AList.Count>1);
-end;
-
-function TAvailPicsKS.GetUnzippedJsonKosmosnimkiText(
-  const AResultOk: IDownloadResultOk;
-  const AList: TStrings
-): Boolean;
-var
-  VZipped: TStreamReadOnlyByBinaryData;
-  VUnzipped: TMemoryStream;
-  VStrValue: String;
-begin
-  VUnzipped := nil;
-  VZipped := TStreamReadOnlyByBinaryData.Create(AResultOk.Data);
-  try
-    VUnzipped := TMemoryStream.Create;
-
-    GZDecompressStream(VZipped, VUnzipped);
-
-    // failed to unzip - try to use as plain text
-    if (VUnzipped.Memory=nil) or (VUnzipped.Size=0) then
-      Abort;
-
-    // unzipped
-    SetString(VStrValue, PChar(VUnzipped.Memory), (VUnzipped.Size div SizeOf(Char)));
-
-    VStrValue := PrepareToParseString(VStrValue);
-
-    PrepareStringList(AList);
-    AList.DelimitedText := VStrValue;
-    Result := (AList.Count>1);
-  finally
-    VZipped.Free;
-    VUnzipped.Free;
-  end;
 end;
 
 function TAvailPicsKS.PrepareToParseString(const AStrValue: string): String;
