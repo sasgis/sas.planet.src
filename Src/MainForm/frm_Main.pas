@@ -1383,6 +1383,7 @@ begin
       GState.Config.UpdatesPath,
       GState.BuildInfo,
       GState.Config.InetConfig,
+      GState.DownloaderFactory,
       GState.AppClosingNotifier
     );
   FfrmUpdateChecker.PopupParent := Self;
@@ -1392,6 +1393,7 @@ begin
       GState.MapType.GUIConfigList,
       FMainMapState,
       GState.Config.ZmpConfig,
+      GState.DownloaderFactory,
       GState.ProjectionSetFactory,
       GState.ContentTypeManager,
       GState.MapVersionFactoryList.GetSimpleVersionFactory,
@@ -5793,6 +5795,7 @@ begin
       GState.VectorGeometryLonLatFactory,
       GState.VectorItemSubsetBuilderFactory,
       GState.Config.InetConfig,
+      GState.DownloaderFactory,
       FMapSvcScanStorage);
   end;
   // link to position
@@ -5959,6 +5962,7 @@ begin
 
   VMarksList := ImportFromArcGIS(
     GState.Config.InetConfig,
+    GState.DownloaderFactory,
     GState.ProjectionSetFactory,
     GState.VectorGeometryLonLatFactory,
     GState.VectorDataItemMainInfoFactory,

@@ -33,7 +33,7 @@ uses
   i_DownloadRequest,
   i_MapSvcScanConfig,
   i_MapSvcScanStorage,
-  i_DownloadResultFactory,
+  i_DownloaderFactory,
   u_DownloadRequest,
   u_AvailPicsAbstract,
   u_BinaryData;
@@ -43,7 +43,6 @@ type
   private
     FIdRepository: Integer;
     FSatName: string;
-    FResultFactory: IDownloadResultFactory;
     FMapSvcScanConfig: IMapSvcScanConfig;
     function MakeSignInPostString: AnsiString; // формирование Post строки для залогинивания на сайт
     function MakePostString: AnsiString;
@@ -59,7 +58,7 @@ type
 
 procedure GenerateAvailPicsRC(
   var ARCs: TAvailPicsRosCosmos;
-  const AResultFactory: IDownloadResultFactory;
+  const ADownloaderFactory: IDownloaderFactory;
   const ATileInfoPtr: PAvailPicsTileInfo;
   const AProjectionSet: IProjectionSet;
   const AMapSvcScanConfig: IMapSvcScanConfig;
@@ -77,13 +76,12 @@ uses
   i_ProjectionType,
   i_Downloader,
   i_NotifierOperation,
-  u_DownloaderHttp,
   u_NotifierOperation,
   u_GeoToStrFunc;
 
 procedure GenerateAvailPicsRC(
   var ARCs: TAvailPicsRosCosmos;
-  const AResultFactory: IDownloadResultFactory;
+  const ADownloaderFactory: IDownloaderFactory;
   const ATileInfoPtr: PAvailPicsTileInfo;
   const AProjectionSet: IProjectionSet;
   const AMapSvcScanConfig: IMapSvcScanConfig;
@@ -92,12 +90,9 @@ procedure GenerateAvailPicsRC(
 var
   j: TAvailPicsRosCosmosID;
 begin
-  Assert(AResultFactory<>nil);
-
   for j := Low(TAvailPicsRosCosmosID) to High(TAvailPicsRosCosmosID) do begin
     if (nil=ARCs[j]) then begin
-      ARCs[j] := TAvailPicsRC.Create(AProjectionSet, ATileInfoPtr, AMapSvcScanStorage);
-      ARCs[j].FResultFactory := AResultFactory;
+      ARCs[j] := TAvailPicsRC.Create(AProjectionSet, ATileInfoPtr, AMapSvcScanStorage, ADownloaderFactory);
       ARCs[j].FMapSvcScanConfig := AMapSvcScanConfig;
       // switch by repository
       case Ord(j) of
@@ -318,7 +313,7 @@ function TAvailPicsRC.GetRequest(const AInetConfig: IInetConfig): IDownloadReque
 var
   VPostData: IBinaryData;
   VPostdataStr: Ansistring;
-  VDownloader: IDownloader; // TDownloaderHttp;
+  VDownloader: IDownloader;
   VPostRequest: IDownloadPostRequest; // POST
   VHeader: Ansistring;
   VLink: Ansistring;
@@ -350,7 +345,7 @@ begin
                    AInetConfig.GetStatic
                   );
 
-  VDownloader := TDownloaderHttp.Create(FResultFactory, TRUE);
+  VDownloader := FDownloaderFactory.BuildDownloader(TRUE, True, False, nil);
   VCancelNotifier := TNotifierOperationFake.Create;
   VResult := VDownloader.DoRequest(
               VPostRequest,

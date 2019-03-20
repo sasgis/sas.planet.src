@@ -61,6 +61,7 @@ uses
   i_ContentTypeManager,
   i_ZmpConfig,
   i_Downloader,
+  i_DownloaderFactory,
   i_MainMapsState,
   u_PSExecEx,
   u_PSPascalCompilerEx,
@@ -161,6 +162,7 @@ type
     FScriptBuffer: AnsiString;
     FProjFactory: IProjConverterFactory;
     FDownloader: IDownloader;
+    FDownloaderFactory: IDownloaderFactory;
     FTimer: ITimer;
     FAppClosingNotifier: INotifierOneOperation;
     FAppClosingListener: IListener;
@@ -192,6 +194,7 @@ type
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AMainMapState: IMainMapsState;
       const AZmpConfig: IZmpConfig;
+      const ADownloaderFactory: IDownloaderFactory;
       const AProjectionSetFactory: IProjectionSetFactory;
       const AContentTypeManager: IContentTypeManager;
       const AVersionFactory: IMapVersionFactory;
@@ -245,8 +248,6 @@ uses
   u_CoordConverterSimpleByProjectionSet,
   u_ConfigDataProviderByZip,
   u_ConfigDataProviderByFolder,
-  u_DownloaderHttp,
-  u_DownloadResultFactory,
   u_SimpleHttpDownloader,
   u_TimerByQueryPerformanceCounter,
   u_MapTypeMenuItemsGeneratorSimple;
@@ -286,6 +287,7 @@ constructor TfrmPascalScriptIDE.Create(
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AMainMapState: IMainMapsState;
   const AZmpConfig: IZmpConfig;
+  const ADownloaderFactory: IDownloaderFactory;
   const AProjectionSetFactory: IProjectionSetFactory;
   const AContentTypeManager: IContentTypeManager;
   const AVersionFactory: IMapVersionFactory;
@@ -327,9 +329,8 @@ begin
     Self.OnAppClosing;
   end;
 
-  FDownloader := TDownloaderHttp.Create(
-    TDownloadResultFactory.Create
-  );
+  FDownloader := nil;
+  FDownloaderFactory := ADownloaderFactory;
 
   FTimer := MakeTimerByQueryPerformanceCounter;
 
@@ -654,16 +655,18 @@ begin
 
   VSimpleDownloader := nil;
 
-  if FDownloader <> nil then begin
-    if VUseDownloader then begin
-      VSimpleDownloader :=
-        TSimpleHttpDownloader.Create(
-          FDownloader,
-          FInetConfig.GetStatic,
-          FCancelNotifierInternal,
-          FCancelNotifierInternal.CurrentOperation
-        );
+  if VUseDownloader then begin
+    if FDownloader = nil then begin
+      FDownloader := FDownloaderFactory.BuildDownloader(False, True, False, nil);
+      Assert(FDownloader <> nil);
     end;
+    VSimpleDownloader :=
+      TSimpleHttpDownloader.Create(
+        FDownloader,
+        FInetConfig.GetStatic,
+        FCancelNotifierInternal,
+        FCancelNotifierInternal.CurrentOperation
+      );
   end;
 
   VSource :=

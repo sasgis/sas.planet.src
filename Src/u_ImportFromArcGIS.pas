@@ -27,6 +27,7 @@ uses
   Types,
   t_GeoTypes,
   i_InetConfig,
+  i_DownloaderFactory,
   i_ProjectionSetFactory,
   i_GeometryLonLatFactory,
   i_VectorItemSubset,
@@ -36,6 +37,7 @@ uses
 // если ещё надо будет использовать - вынести импортилку в отдельный класс
 function ImportFromArcGIS(
   const AInetConfig: IInetConfig;
+  const ADownloaderFactory: IDownloaderFactory;
   const AProjectionSetFactory: IProjectionSetFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
@@ -62,9 +64,7 @@ uses
   i_DoublePointsAggregator,
   i_ProjectionType,
   i_GeometryLonLat,
-  u_DownloadResultFactory,
   u_DownloadRequest,
-  u_DownloaderHttp,
   u_NotifierOperation,
   u_DoublePointsAggregator,
   u_MultiPoligonParser,
@@ -335,6 +335,7 @@ end;
 
 function ImportFromArcGIS(
   const AInetConfig: IInetConfig;
+  const ADownloaderFactory: IDownloaderFactory;
   const AProjectionSetFactory: IProjectionSetFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
@@ -355,7 +356,6 @@ var
   VDownloader: IDownloader;
   VCancelNotifier: INotifierOperation;
   VJSONParams: TStringList;
-  VResultFactory: IDownloadResultFactory;
   VRequest: IDownloadRequest;
   VDownloadResultOk: IDownloadResultOk;
   VLink: AnsiString;
@@ -370,8 +370,8 @@ var
 begin
   Result := nil;
   VProjectionType := AProjectionSetFactory.GetProjectionSetByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256).Zooms[0].ProjectionType;
-  VResultFactory := TDownloadResultFactory.Create;
-  VDownloader:=TDownloaderHttp.Create(VResultFactory);
+
+  VDownloader := ADownloaderFactory.BuildDownloader(False, True, False, nil);
 
   VHead :=
       'User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.52 Safari/537.17'+#$D#$A+

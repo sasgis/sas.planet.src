@@ -43,6 +43,7 @@ uses
   i_UpdateDownloader,
   i_BuildInfo,
   i_InetConfig,
+  i_DownloaderFactory,
   u_CommonFormAndFrameParents;
 
 type
@@ -96,6 +97,7 @@ type
       const AUpdatesPath: IPathConfig;
       const ABuildInfo: IBuildInfo;
       const AInetConfig: IInetConfig;
+      const ADownloaderFactory: IDownloaderFactory;
       const AAppClosingNotifier: INotifierOneOperation
     ); reintroduce;
     destructor Destroy; override;
@@ -129,6 +131,7 @@ constructor TfrmUpdateChecker.Create(
   const AUpdatesPath: IPathConfig;
   const ABuildInfo: IBuildInfo;
   const AInetConfig: IInetConfig;
+  const ADownloaderFactory: IDownloaderFactory;
   const AAppClosingNotifier: INotifierOneOperation
 );
 var
@@ -163,6 +166,7 @@ begin
   cbbChannel.ItemIndex := 0; // Nightly channel
 
   FUpdateDownloader := TUpdateDownloader.Create(
+    ADownloaderFactory,
     AUpdatesPath.FullPath,
     TUpdateChannel(cbbChannel.ItemIndex),
     AInetConfig,

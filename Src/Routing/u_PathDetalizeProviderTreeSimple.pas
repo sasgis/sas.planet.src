@@ -27,7 +27,7 @@ uses
   i_LanguageManager,
   i_InetConfig,
   i_NotifierTime,
-  i_DownloadResultFactory,
+  i_DownloaderFactory,
   i_VectorDataFactory,
   i_GeometryLonLatFactory,
   i_VectorDataLoader,
@@ -42,7 +42,7 @@ type
     function CreateProvidersSet(
       const AInetConfig: IInetConfig;
       const AGCNotifier: INotifierTime;
-      const AResultFactory: IDownloadResultFactory;
+      const ADownloaderFactory: IDownloaderFactory;
       const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AKmlLoader: IVectorDataLoader
@@ -56,7 +56,7 @@ type
       const ALanguageManager: ILanguageManager;
       const AInetConfig: IInetConfig;
       const AGCNotifier: INotifierTime;
-      const AResultFactory: IDownloadResultFactory;
+      const ADownloaderFactory: IDownloaderFactory;
       const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AKmlLoader: IVectorDataLoader
@@ -84,7 +84,7 @@ constructor TPathDetalizeProviderTreeSimple.Create(
   const ALanguageManager: ILanguageManager;
   const AInetConfig: IInetConfig;
   const AGCNotifier: INotifierTime;
-  const AResultFactory: IDownloadResultFactory;
+  const ADownloaderFactory: IDownloaderFactory;
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AKmlLoader: IVectorDataLoader
@@ -95,7 +95,7 @@ begin
     CreateProvidersSet(
       AInetConfig,
       AGCNotifier,
-      AResultFactory,
+      ADownloaderFactory,
       AVectorDataItemMainInfoFactory,
       AVectorGeometryLonLatFactory,
       AKmlLoader
@@ -105,7 +105,7 @@ end;
 function TPathDetalizeProviderTreeSimple.CreateProvidersSet(
   const AInetConfig: IInetConfig;
   const AGCNotifier: INotifierTime;
-  const AResultFactory: IDownloadResultFactory;
+  const ADownloaderFactory: IDownloaderFactory;
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AKmlLoader: IVectorDataLoader
@@ -116,7 +116,7 @@ var
 begin
   Result := TGUIDInterfaceSet.Create;
 
-  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, AResultFactory);
+  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
   VProvider :=
     TPathDetalizeProviderYourNavigation.Create(
       AInetConfig,
@@ -128,7 +128,7 @@ begin
     );
   Result.Add(CPathDetalizeProviderYourNavigationFastestByCar, VProvider);
 
-  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, AResultFactory);
+  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
   VProvider :=
     TPathDetalizeProviderYourNavigation.Create(
       AInetConfig,
@@ -140,7 +140,7 @@ begin
     );
   Result.Add(CPathDetalizeProviderYourNavigationShortestByCar, VProvider);
 
-  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, AResultFactory);
+  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
   VProvider :=
     TPathDetalizeProviderYourNavigation.Create(
       AInetConfig,
@@ -152,7 +152,7 @@ begin
     );
   Result.Add(CPathDetalizeProviderYourNavigationFastestByBicycle, VProvider);
 
-  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, AResultFactory);
+  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
   VProvider :=
     TPathDetalizeProviderYourNavigation.Create(
       AInetConfig,

@@ -27,7 +27,6 @@ uses
   Classes,
   i_InetConfig,
   i_DownloadResult,
-  i_DownloadResultFactory,
   i_MapSvcScanStorage,
   i_NotifierOperation,
   i_ProjectionSet,
@@ -42,15 +41,6 @@ type
     function ContentType: String; override;
     function ParseResponse(const AResultOk: IDownloadResultOk): Integer; override;
     function GetRequest(const AInetConfig: IInetConfig): IDownloadRequest; override;
-  private
-    FResultFactory: IDownloadResultFactory;
-  public
-    constructor Create(
-      const AProjectionSet: IProjectionSet;
-      const ATileInfoPtr: PAvailPicsTileInfo;
-      const AResultFactory: IDownloadResultFactory;
-      const AMapSvcScanStorage: IMapSvcScanStorage
-    );
   end;
 
 implementation
@@ -63,20 +53,8 @@ uses
   {$ENDIF}
   u_StrFunc,
   u_GeoToStrFunc,
-  u_DownloaderHttp,
   u_NotifierOperation,
   u_StreamReadOnlyByBinaryData;
-
-constructor TAvailPicsTerraserver.Create(
-  const AProjectionSet: IProjectionSet;
-  const ATileInfoPtr: PAvailPicsTileInfo;
-  const AResultFactory: IDownloadResultFactory;
-  const AMapSvcScanStorage: IMapSvcScanStorage
-);
-begin
-  inherited Create(AProjectionSet, ATileInfoPtr, AMapSvcScanStorage);
-  FResultFactory := AResultFactory;
-end;
 
 function _RandInt5: AnsiString;
 var i: Integer;
@@ -279,7 +257,7 @@ var
   VGetRequest: IDownloadRequest;
   VResult: IDownloadResult;
   VCancelNotifier: INotifierOperation;
-  VDownloaderHttp: IDownloader; // TDownloaderHttp;
+  VDownloaderHttp: IDownloader;
   VResultOk: IDownloadResultOk;
   VAnonymousData,VTerraServerSession: AnsiString;
   VRawResponseHeader: AnsiString;
@@ -293,7 +271,7 @@ begin
     VLink,
     VHeader,
     AInetConfig.GetStatic);
-  VDownloaderHttp := TDownloaderHttp.Create(FResultFactory, TRUE);
+  VDownloaderHttp := FDownloaderFactory.BuildDownloader(TRUE, True, False, nil);
   VCancelNotifier := TNotifierOperationFake.Create;
   VResult := VDownloaderHttp.DoRequest(
     VGetRequest,

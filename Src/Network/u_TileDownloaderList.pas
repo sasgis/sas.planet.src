@@ -30,7 +30,7 @@ uses
   i_Listener,
   i_TileDownloaderConfig,
   i_TileDownloader,
-  i_DownloadResultFactory,
+  i_DownloaderFactory,
   i_TileDownloadResultSaver,
   i_TileDownloaderState,
   i_NotifierTime,
@@ -43,7 +43,7 @@ type
   private
     FGCNotifier: INotifierTime;
     FAppClosingNotifier: INotifierOneOperation;
-    FResultFactory: IDownloadResultFactory;
+    FDownloaderFactory: IDownloaderFactory;
     FDownloadSystemState: ITileDownloaderStateChangeble;
     FTileDownloaderConfig: ITileDownloaderConfig;
     FResultSaver: ITileDownloadResultSaver;
@@ -64,7 +64,7 @@ type
     constructor Create(
       const AGCNotifier: INotifierTime;
       const AAppClosingNotifier: INotifierOneOperation;
-      const AResultFactory: IDownloadResultFactory;
+      const ADownloaderFactory: IDownloaderFactory;
       const ADownloadSystemState: ITileDownloaderStateChangeble;
       const ATileDownloaderConfig: ITileDownloaderConfig;
       const AResultSaver: ITileDownloadResultSaver;
@@ -93,7 +93,7 @@ uses
 constructor TTileDownloaderList.Create(
   const AGCNotifier: INotifierTime;
   const AAppClosingNotifier: INotifierOneOperation;
-  const AResultFactory: IDownloadResultFactory;
+  const ADownloaderFactory: IDownloaderFactory;
   const ADownloadSystemState: ITileDownloaderStateChangeble;
   const ATileDownloaderConfig: ITileDownloaderConfig;
   const AResultSaver: ITileDownloadResultSaver;
@@ -103,7 +103,7 @@ begin
   inherited Create;
   FGCNotifier := AGCNotifier;
   FAppClosingNotifier := AAppClosingNotifier;
-  FResultFactory := AResultFactory;
+  FDownloaderFactory := ADownloaderFactory;
   FDownloadSystemState := ADownloadSystemState;
   FTileDownloaderConfig := ATileDownloaderConfig;
   FResultSaver := AResultSaver;
@@ -147,7 +147,7 @@ begin
   VDownloader :=
     TDownloaderHttpWithTTL.Create(
       FGCNotifier,
-      FResultFactory,
+      FDownloaderFactory,
       FTileDownloaderConfig.AllowUseCookie,
       FTileDownloaderConfig.DetectMIMEType
     );

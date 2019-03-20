@@ -28,7 +28,7 @@ uses
   i_InetConfig,
   i_ProjectionSet,
   i_DownloadResult,
-  i_DownloadResultFactory,
+  i_DownloaderFactory,
   i_DownloadRequest,
   i_MapSvcScanStorage,
   u_AvailPicsAbstract;
@@ -42,7 +42,6 @@ type
     FMaxCloudCover: Byte;
     FEveryYear: AnsiString;
     FMaxOfNadir: Byte;
-    FResultFactory: IDownloadResultFactory;
     function GetPlainJsonKosmosnimkiText(
       const AResultOk: IDownloadResultOk;
       const AList: TStrings
@@ -82,7 +81,7 @@ type
 
 procedure GenerateAvailPicsKS(
   var AKSs: TAvailPicsKosmosnimki;
-  const AResultFactory: IDownloadResultFactory;
+  const ADownloaderFactory: IDownloaderFactory;
   const ATileInfoPtr: PAvailPicsTileInfo;
   const AProjectionSet: IProjectionSet;
   const AMapSvcScanStorage: IMapSvcScanStorage
@@ -99,7 +98,7 @@ uses
 
 procedure GenerateAvailPicsKS(
   var AKSs: TAvailPicsKosmosnimki;
-  const AResultFactory: IDownloadResultFactory;
+  const ADownloaderFactory: IDownloaderFactory;
   const ATileInfoPtr: PAvailPicsTileInfo;
   const AProjectionSet: IProjectionSet;
   const AMapSvcScanStorage: IMapSvcScanStorage
@@ -108,17 +107,16 @@ var
   j: TAvailPicsKosmosnimkiID;
   VFormatSettings: TALFormatSettings;
 begin
-  Assert(AResultFactory<>nil);
   VFormatSettings.DateSeparator := '-';
   for j := Low(TAvailPicsKosmosnimkiID) to High(TAvailPicsKosmosnimkiID) do begin
     if (nil=AKSs[j]) then begin
       AKSs[j] := TAvailPicsKS.Create(
         AProjectionSet,
         ATileInfoPtr,
-        AMapSvcScanStorage
+        AMapSvcScanStorage,
+        ADownloaderFactory
       );
       with AKSs[j] do begin
-        FResultFactory := AResultFactory;
         FKSMode := Ord(j);
         FMinDate := '1993-01-01';
         FMaxDate := ALFormatDateTime('yyyy-mm-dd', Now, VFormatSettings);

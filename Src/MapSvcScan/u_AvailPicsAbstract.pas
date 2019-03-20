@@ -28,6 +28,7 @@ uses
   i_InetConfig,
   i_DownloadResult,
   i_DownloadRequest,
+  i_DownloaderFactory,
   i_ProjectionSet,
   i_LocalCoordConverter,
   i_MapSvcScanStorage,
@@ -58,6 +59,7 @@ type
 
   TAvailPicsAbstract = class(TObject)
   protected
+    FDownloaderFactory: IDownloaderFactory;
     FTileInfoPtr: PAvailPicsTileInfo;
     FProjectionSet: IProjectionSet;
     FLocalConverter: ILocalCoordConverter;
@@ -67,7 +69,8 @@ type
     constructor Create(
       const AProjectionSet: IProjectionSet;
       const ATileInfoPtr: PAvailPicsTileInfo;
-      const AMapSvcScanStorage: IMapSvcScanStorage
+      const AMapSvcScanStorage: IMapSvcScanStorage;
+      const ADownloaderFactory: IDownloaderFactory = nil
     );
     destructor Destroy; override;
 
@@ -159,10 +162,12 @@ end;
 constructor TAvailPicsAbstract.Create(
   const AProjectionSet: IProjectionSet;
   const ATileInfoPtr: PAvailPicsTileInfo;
-  const AMapSvcScanStorage: IMapSvcScanStorage
+  const AMapSvcScanStorage: IMapSvcScanStorage;
+  const ADownloaderFactory: IDownloaderFactory
 );
 begin
   inherited Create;
+  FDownloaderFactory := ADownloaderFactory;
   FProjectionSet := AProjectionSet;
   FMapSvcScanStorage := AMapSvcScanStorage;
   FTileInfoPtr := ATileInfoPtr;

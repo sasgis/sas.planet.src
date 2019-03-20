@@ -28,7 +28,7 @@ uses
   i_InterfaceListSimple,
   i_InetConfig,
   i_NotifierTime,
-  i_DownloadResultFactory,
+  i_DownloaderFactory,
   i_DownloadRequest,
   i_DownloadResult,
   i_Downloader,
@@ -79,7 +79,7 @@ type
       const AGCNotifier: INotifierTime;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
-      const AResultFactory: IDownloadResultFactory
+      const ADownloaderFactory: IDownloaderFactory
     );
   end;
 
@@ -103,14 +103,14 @@ constructor TGeoCoderBasic.Create(
   const AGCNotifier: INotifierTime;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APlacemarkFactory: IGeoCodePlacemarkFactory;
-  const AResultFactory: IDownloadResultFactory
+  const ADownloaderFactory: IDownloaderFactory
 );
 begin
   inherited Create;
   FInetSettings := AInetSettings;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FPlacemarkFactory := APlacemarkFactory;
-  FDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, AResultFactory);
+  FDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
 end;
 
 function TGeoCoderBasic.BuildSortedSubset(

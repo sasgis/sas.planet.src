@@ -31,7 +31,7 @@ uses
   i_VectorDataFactory,
   i_GeometryLonLatFactory,
   i_ProjectionSetFactory,
-  i_DownloadResultFactory,
+  i_DownloaderFactory,
   i_CoordToStringConverter,
   u_GeoCoderListBase;
 
@@ -44,7 +44,7 @@ type
       const AGCNotifier: INotifierTime;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
-      const AResultFactory: IDownloadResultFactory;
+      const ADownloaderFactory: IDownloaderFactory;
       const ACoordToStringConverter: ICoordToStringConverterChangeable;
       const AMarksDb: IMarkDb;
       const AProjectionSetFactory: IProjectionSetFactory;
@@ -87,7 +87,7 @@ constructor TGeoCoderListSimple.Create(
   const AGCNotifier: INotifierTime;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APlacemarkFactory: IGeoCodePlacemarkFactory;
-  const AResultFactory: IDownloadResultFactory;
+  const ADownloaderFactory: IDownloaderFactory;
   const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const AMarksDb: IMarkDb;
   const AProjectionSetFactory: IProjectionSetFactory;
@@ -120,7 +120,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderYandexGUID,
       'Yandex',
-      TGeoCoderByYandex.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory)
+      TGeoCoderByYandex.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ADownloaderFactory)
     );
   VList.Add(VItem);
 
@@ -128,7 +128,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoder2GISGUID,
       '2GIS',
-      TGeoCoderBy2GIS.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory)
+      TGeoCoderBy2GIS.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ADownloaderFactory)
     );
   VList.Add(VItem);
 
@@ -136,7 +136,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderOSMGUID,
       'OSM',
-      TGeoCoderByOSM.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory)
+      TGeoCoderByOSM.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ADownloaderFactory)
     );
   VList.Add(VItem);
 
@@ -144,7 +144,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderWikiMapiaGUID,
       'WikiMapia',
-      TGeoCoderByWikiMapia.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory)
+      TGeoCoderByWikiMapia.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ADownloaderFactory)
     );
   VList.Add(VItem);
 
@@ -152,7 +152,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderRosreestrGUID,
       'Rosreestr',
-      TGeoCoderByRosreestr.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory, ACoordToStringConverter)
+      TGeoCoderByRosreestr.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ADownloaderFactory, ACoordToStringConverter)
     );
   VList.Add(VItem);
 
@@ -160,7 +160,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderIp2geolocationGUID,
       'IP2GeoLocation',
-      TGeoCoderByIp2geolocation.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory)
+      TGeoCoderByIp2geolocation.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ADownloaderFactory)
     );
   VList.Add(VItem);
 
@@ -168,7 +168,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderNavitelGUID,
       'Navitel',
-      TGeoCoderByNavitel.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory)
+      TGeoCoderByNavitel.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ADownloaderFactory)
     );
   VList.Add(VItem);
 
@@ -176,7 +176,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderURLGUID,
       'URL',
-      TGeoCoderByURL.Create(AInetConfig, AGCNotifier, AProjectionSetFactory, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory, ACoordToStringConverter)
+      TGeoCoderByURL.Create(AInetConfig, AGCNotifier, AProjectionSetFactory, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ADownloaderFactory, ACoordToStringConverter)
     );
   VList.Add(VItem);
 
@@ -233,7 +233,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderGPSiesGUID,
       'www.GPSies.com',
-      TGeoCoderByGPSies.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory)
+      TGeoCoderByGPSies.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ADownloaderFactory)
     );
   VList.Add(VItem);
 

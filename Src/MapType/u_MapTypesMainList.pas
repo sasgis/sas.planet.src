@@ -39,6 +39,7 @@ uses
   i_Bitmap32BufferFactory,
   i_ImageResamplerFactoryChangeable,
   i_GlobalDownloadConfig,
+  i_DownloaderFactory,
   i_ContentTypeManager,
   i_InvisibleBrowser,
   i_ProjConverter,
@@ -113,6 +114,7 @@ type
       const AInetConfig: IInetConfig;
       const ADownloadConfig: IGlobalDownloadConfig;
       const ADownloaderThreadConfig: IThreadConfig;
+      const ADownloaderFactory: IDownloaderFactory;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AContentTypeManager: IContentTypeManager;
       const AProjectionSetFactory: IProjectionSetFactory;
@@ -225,6 +227,7 @@ procedure TMapTypesMainList.LoadMaps(
   const AInetConfig: IInetConfig;
   const ADownloadConfig: IGlobalDownloadConfig;
   const ADownloaderThreadConfig: IThreadConfig;
+  const ADownloaderFactory: IDownloaderFactory;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AContentTypeManager: IContentTypeManager;
   const AProjectionSetFactory: IProjectionSetFactory;
@@ -293,6 +296,7 @@ begin
           AHashFunction,
           ADownloadConfig,
           ADownloaderThreadConfig,
+          ADownloaderFactory,
           AContentTypeManager,
           AProjectionSetFactory,
           AInvisibleBrowser,

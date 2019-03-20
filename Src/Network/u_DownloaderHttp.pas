@@ -132,10 +132,10 @@ type
   public
     constructor Create(
       const AResultFactory: IDownloadResultFactory;
-      const AAllowUseCookie: Boolean = False;
-      const AAllowRedirect: Boolean = True;
-      const ATryDetectContentType: Boolean = False;
-      const AOnDownloadProgress: TOnDownloadProgress = nil
+      const AAllowUseCookie: Boolean;
+      const AAllowRedirect: Boolean;
+      const ATryDetectContentType: Boolean;
+      const AOnDownloadProgress: TOnDownloadProgress
     );
     destructor Destroy; override;
   end;

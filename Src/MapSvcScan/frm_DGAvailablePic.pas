@@ -48,7 +48,7 @@ uses
   i_NotifierOperation,
   i_DownloadRequest,
   i_DownloadResult,
-  i_DownloadResultFactory,
+  i_DownloaderFactory,
   i_Downloader,
   i_MapSvcScanConfig,
   i_MapSvcScanStorage,
@@ -65,8 +65,6 @@ uses
   u_AvailPicsGeoFuse,
   u_AvailPicsRosCosmos,
   u_AvailPicsKosmosnimki,
-  u_DownloadResultFactory,
-  u_DownloaderHttp,
   u_MarkDbGUIHelper;
 
 type
@@ -265,7 +263,7 @@ type
   private
     FLocalConverter: ILocalCoordConverter;
     FInetConfig: IInetConfig;
-    FResultFactory: IDownloadResultFactory;
+    FDownloaderFactory: IDownloaderFactory;
   public
     constructor Create(
       const AMarkDBGUI: TMarkDbGUIHelper;
@@ -275,6 +273,7 @@ type
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AInetConfig: IInetConfig;
+      const ADownloaderFactory: IDownloaderFactory;
       const AMapSvcScanStorage: IMapSvcScanStorage
     ); reintroduce;
     destructor Destroy; override;
@@ -319,7 +318,7 @@ const
 type
   TGetList = class(TThread)
   public
-    FDownloaderHttp: IDownloader; // TDownloaderHttp;
+    FDownloaderHttp: IDownloader;
     FHttpErrorCode: Cardinal;
     FHttpErrorText: String;
 
@@ -373,7 +372,7 @@ begin
   FForm := AForm;
   FChkBox := AChkBox;
   FCallIndex := AForm.FCallIndex;
-  FDownloaderHttp := TDownloaderHttp.Create(AForm.FResultFactory, TRUE);
+  FDownloaderHttp := AForm.FDownloaderFactory.BuildDownloader(TRUE, True, False, nil);
 end;
 
 procedure TGetList.ShowError;
@@ -1360,17 +1359,17 @@ begin
   GenerateAvailPicsNMC(FNMCs, @FAvailPicsTileInfo, VProjectionSet, FMapSvcScanStorage);
 
   // make for datadoors
-  GenerateAvailPicsDD(FDDs, FResultFactory, @FAvailPicsTileInfo, VProjectionSet, FMapSvcScanStorage);
+  GenerateAvailPicsDD(FDDs, FDownloaderFactory, @FAvailPicsTileInfo, VProjectionSet, FMapSvcScanStorage);
 
   // make for roscosmos
-  GenerateAvailPicsRC(FRCs, FResultFactory, @FAvailPicsTileInfo,  VProjectionSet, FMapSvcScanConfig, FMapSvcScanStorage);
+  GenerateAvailPicsRC(FRCs, FDownloaderFactory, @FAvailPicsTileInfo,  VProjectionSet, FMapSvcScanConfig, FMapSvcScanStorage);
 
   // make for terraserver
   if (nil=FTerraserver) then
-    FTerraserver := TAvailPicsTerraserver.Create(VProjectionSet, @FAvailPicsTileInfo, FResultFactory, FMapSvcScanStorage);
+    FTerraserver := TAvailPicsTerraserver.Create(VProjectionSet, @FAvailPicsTileInfo, FMapSvcScanStorage, FDownloaderFactory);
 
   // make for kosmosnimki
-  GenerateAvailPicsKS(FKSs, FResultFactory, @FAvailPicsTileInfo, VProjectionSet, FMapSvcScanStorage);
+  GenerateAvailPicsKS(FKSs, FDownloaderFactory, @FAvailPicsTileInfo, VProjectionSet, FMapSvcScanStorage);
 
   // make for ESRI
   if (nil=FESRI) then
@@ -1636,6 +1635,7 @@ constructor TfrmDGAvailablePic.Create(
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AInetConfig: IInetConfig;
+  const ADownloaderFactory: IDownloaderFactory;
   const AMapSvcScanStorage: IMapSvcScanStorage
 );
 begin
@@ -1668,7 +1668,7 @@ begin
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FInetConfig := AInetConfig;
   FMapSvcScanStorage := AMapSvcScanStorage;
-  FResultFactory := TDownloadResultFactory.Create;
+  FDownloaderFactory := ADownloaderFactory;
   PrepareImageChecker;
 end;
 
@@ -1678,7 +1678,7 @@ begin
   // kill vendors objects
   KillPicsVendors;
   // interfaces
-  FResultFactory := nil;
+  FDownloaderFactory := nil;
   FVectorGeometryLonLatFactory := nil;
   FInetConfig := nil;
   FLocalConverter := nil;

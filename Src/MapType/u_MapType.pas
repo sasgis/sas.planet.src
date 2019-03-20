@@ -54,6 +54,7 @@ uses
   i_ImageResamplerFactoryChangeable,
   i_ContentTypeManager,
   i_GlobalDownloadConfig,
+  i_DownloaderFactory,
   i_MapAbilitiesConfig,
   i_Listener,
   i_MapVersionInfo,
@@ -224,6 +225,7 @@ type
       const AHashFunction: IHashFunction;
       const ADownloadConfig: IGlobalDownloadConfig;
       const ADownloaderThreadConfig: IThreadConfig;
+      const ADownloaderFactory: IDownloaderFactory;
       const AContentTypeManager: IContentTypeManager;
       const AProjectionSetFactory: IProjectionSetFactory;
       const AInvisibleBrowser: IInvisibleBrowser;
@@ -298,6 +300,7 @@ constructor TMapType.Create(
   const AHashFunction: IHashFunction;
   const ADownloadConfig: IGlobalDownloadConfig;
   const ADownloaderThreadConfig: IThreadConfig;
+  const ADownloaderFactory: IDownloaderFactory;
   const AContentTypeManager: IContentTypeManager;
   const AProjectionSetFactory: IProjectionSetFactory;
   const AInvisibleBrowser: IInvisibleBrowser;
@@ -423,6 +426,7 @@ begin
       ALanguageManager,
       ADownloadConfig,
       AInvisibleBrowser,
+      ADownloaderFactory,
       VDownloadResultFactory,
       FZmp.TileDownloaderConfig,
       AResamplerDownload,

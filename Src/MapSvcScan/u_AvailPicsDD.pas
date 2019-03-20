@@ -31,8 +31,8 @@ uses
   i_InetConfig,
   i_ProjectionSet,
   i_DownloadResult,
-  i_DownloadResultFactory,
   i_DownloadRequest,
+  i_DownloaderFactory,
   i_MapSvcScanStorage,
   u_AvailPicsAbstract;
 
@@ -40,7 +40,6 @@ type
   TAvailPicsDD = class(TAvailPicsByKey)
   Private
    FLayerKey: AnsiString;
-   FResultFactory: IDownloadResultFactory;
   public
     procedure AfterConstruction; override;
 
@@ -58,7 +57,7 @@ type
 
 procedure GenerateAvailPicsDD(
   var ADDs: TAvailPicsDataDoors;
-  const AResultFactory: IDownloadResultFactory;
+  const ADownloaderFactory: IDownloaderFactory;
   const ATileInfoPtr: PAvailPicsTileInfo;
   const AProjectionSet: IProjectionSet;
   const AMapSvcScanStorage: IMapSvcScanStorage
@@ -73,7 +72,6 @@ uses
   i_Downloader,
   i_NotifierOperation,
   u_GeoToStrFunc,
-  u_DownloaderHttp,
   u_BinaryData,
   u_DownloadRequest,
   u_NotifierOperation,
@@ -81,7 +79,7 @@ uses
 
 procedure GenerateAvailPicsDD(
   var ADDs: TAvailPicsDataDoors;
-  const AResultFactory: IDownloadResultFactory;
+  const ADownloaderFactory: IDownloaderFactory;
   const ATileInfoPtr: PAvailPicsTileInfo;
   const AProjectionSet: IProjectionSet;
   const AMapSvcScanStorage: IMapSvcScanStorage
@@ -89,11 +87,9 @@ procedure GenerateAvailPicsDD(
 var
   j: TAvailPicsDataDoorsID;
 begin
-  Assert(AResultFactory<>nil);
   for j := Low(TAvailPicsDataDoorsID) to High(TAvailPicsDataDoorsID) do begin
     if (nil=ADDs[j]) then begin
-      ADDs[j] := TAvailPicsDD.Create(AProjectionSet, ATileInfoPtr, AMapSvcScanStorage);
-      ADDs[j].FResultFactory := AResultFactory;
+      ADDs[j] := TAvailPicsDD.Create(AProjectionSet, ATileInfoPtr, AMapSvcScanStorage, ADownloaderFactory);
       case Ord(j) of
       1: begin
         ADDs[j].FBaseStorageName := 'DD_WV1';
@@ -283,7 +279,7 @@ var
   VPostData: IBinaryData;
   VPostdataStr: AnsiString;
   VHttpData: AnsiString;
-  VDownloader: IDownloader; // TDownloaderHttp;
+  VDownloader: IDownloader;
   VPostRequest: IDownloadPostRequest; // POST
   VHeader: AnsiString;
   VLink: AnsiString;
@@ -322,7 +318,7 @@ begin
                    VPostData,
                    AInetConfig.GetStatic
                   );
-  VDownloader := TDownloaderHttp.Create(FResultFactory);
+  VDownloader := FDownloaderFactory.BuildDownloader(False, True, False, nil);
   VCancelNotifier := TNotifierOperationFake.Create;
   VResult := VDownloader.DoRequest(
               VPostRequest,

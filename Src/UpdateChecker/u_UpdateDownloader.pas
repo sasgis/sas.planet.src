@@ -27,6 +27,7 @@ uses
   i_NotifierOperation,
   i_InetConfig,
   i_Downloader,
+  i_DownloaderFactory,
   i_DownloadResult,
   i_DownloadResultFactory,
   i_UpdateDownloader,
@@ -44,7 +45,7 @@ type
     FBuildType: AnsiString;
     FIsFoundAvailableVersion: Boolean;
     FInetConfig: IInetConfig;
-    FDownloadResultFactory: IDownloadResultFactory;
+    FDownloaderFactory: IDownloaderFactory;
     FSearchVersionInfoUrl: AnsiString;
     FAvailableVersionUrl: AnsiString;
     FUpdateChannel: TUpdateChannel;
@@ -81,6 +82,7 @@ type
     procedure SetUpdateChannel(const AValue: TUpdateChannel);
   public
     constructor Create(
+      const ADownloaderFactory: IDownloaderFactory;
       const AOutputPath: string;
       const AUpdateChannel: TUpdateChannel;
       const AInetConfig: IInetConfig;
@@ -96,9 +98,7 @@ uses
   ALString,
   i_DownloadRequest,
   u_DownloadRequest,
-  u_DownloaderHttp,
-  u_Synchronizer,
-  u_DownloadResultFactory;
+  u_Synchronizer;
 
 const
   cNightlyChannel = 'http://www.sasgis.org/programs/sasplanet/nightly.php';
@@ -110,6 +110,7 @@ const
 { TUpdateDownloader }
 
 constructor TUpdateDownloader.Create(
+  const ADownloaderFactory: IDownloaderFactory;
   const AOutputPath: string;
   const AUpdateChannel: TUpdateChannel;
   const AInetConfig: IInetConfig;
@@ -119,8 +120,7 @@ begin
   inherited Create;
   FInetConfig := AInetConfig;
   FCancelNotifier := ACancelNotifier;
-
-  FDownloadResultFactory := TDownloadResultFactory.Create;
+  FDownloaderFactory := ADownloaderFactory;
 
   FSync := GSync.SyncStd.Make(Self.ClassName);
 
@@ -163,11 +163,7 @@ begin
     FInetConfig.GetStatic
   );
 
-  VDownloader := TDownloaderHttp.Create(
-    FDownloadResultFactory,
-    True, // allow cookie
-    True // allow redirect
-  );
+  VDownloader := FDownloaderFactory.BuildDownloaderAsync(True, True, False, nil);
 
   VDownloader.DoRequestAsync(
     VRequest,
@@ -324,8 +320,7 @@ begin
     FInetConfig.GetStatic
   );
 
-  VDownloader := TDownloaderHttp.Create(
-    FDownloadResultFactory,
+  VDownloader := FDownloaderFactory.BuildDownloaderAsync(
     True, // allow cookie
     True, // allow redirect
     False,// detect content-type

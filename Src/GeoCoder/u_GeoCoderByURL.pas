@@ -34,7 +34,7 @@ uses
   i_DownloadResult,
   i_InetConfig,
   i_NotifierTime,
-  i_DownloadResultFactory,
+  i_DownloaderFactory,
   i_CoordToStringConverter,
   i_VectorDataItemSimple,
   i_VectorItemSubsetBuilder,
@@ -74,7 +74,7 @@ type
       const AProjectionSetFactory: IProjectionSetFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
-      const AResultFactory: IDownloadResultFactory;
+      const ADownloaderFactory: IDownloaderFactory;
       const ACoordToStringConverter: ICoordToStringConverterChangeable
     );
   end;
@@ -113,7 +113,7 @@ constructor TGeoCoderByURL.Create(
   const AProjectionSetFactory: IProjectionSetFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APlacemarkFactory: IGeoCodePlacemarkFactory;
-  const AResultFactory: IDownloadResultFactory;
+  const ADownloaderFactory: IDownloaderFactory;
   const ACoordToStringConverter: ICoordToStringConverterChangeable
 );
 begin
@@ -122,7 +122,7 @@ begin
     AGCNotifier,
     AVectorItemSubsetBuilderFactory,
     APlacemarkFactory,
-    AResultFactory
+    ADownloaderFactory
   );
   FCoordToStringConverter := ACoordToStringConverter;
   FProjectionSet := AProjectionSetFactory.GetProjectionSetByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256);

@@ -36,6 +36,7 @@ uses
   i_ContentTypeManager,
   i_ContentTypeSubst,
   i_TilePostDownloadCropConfig,
+  i_DownloaderFactory,
   i_DownloadResultFactory,
   i_LanguageManager,
   i_GlobalDownloadConfig,
@@ -64,7 +65,7 @@ type
   TRequestBuilderProviderInternal = class
   private
     FGCNotifier: INotifierTime;
-    FDownloadResultFactory: IDownloadResultFactory;
+    FDownloaderFactory: IDownloaderFactory;
     FTileDownloaderConfig: ITileDownloaderConfig;
     FTileDownloadRequestBuilderFactory: ITileDownloadRequestBuilderFactory;
     FLock: IReadWriteSync;
@@ -78,7 +79,7 @@ type
     property RequestBuilderLock: IReadWriteSync read FRequestBuilderLock;
     constructor Create(
       const AGCNotifier: INotifierTime;
-      const ADownloadResultFactory: IDownloadResultFactory;
+      const ADownloaderFactory: IDownloaderFactory;
       const ATileDownloaderConfig: ITileDownloaderConfig;
       const ATileDownloadRequestBuilderFactory: ITileDownloadRequestBuilderFactory
     );
@@ -136,6 +137,7 @@ type
       const ALanguageManager: ILanguageManager;
       const AGlobalDownloadConfig: IGlobalDownloadConfig;
       const AInvisibleBrowser: IInvisibleBrowser;
+      const ADownloaderFactory: IDownloaderFactory;
       const ADownloadResultFactory: IDownloadResultFactory;
       const AZmpTileDownloaderConfig: ITileDownloaderConfigStatic;
       const AImageResampler: IImageResamplerFactoryChangeable;
@@ -189,14 +191,14 @@ const
 
 constructor TRequestBuilderProviderInternal.Create(
   const AGCNotifier: INotifierTime;
-  const ADownloadResultFactory: IDownloadResultFactory;
+  const ADownloaderFactory: IDownloaderFactory;
   const ATileDownloaderConfig: ITileDownloaderConfig;
   const ATileDownloadRequestBuilderFactory: ITileDownloadRequestBuilderFactory
 );
 begin
   inherited Create;
   FGCNotifier := AGCNotifier;
-  FDownloadResultFactory := ADownloadResultFactory;
+  FDownloaderFactory := ADownloaderFactory;
   FTileDownloaderConfig := ATileDownloaderConfig;
   FTileDownloadRequestBuilderFactory := ATileDownloadRequestBuilderFactory;
 
@@ -224,7 +226,7 @@ begin
     VDownloader :=
       TDownloaderHttpWithTTL.Create(
         FGCNotifier,
-        FDownloadResultFactory,
+        FDownloaderFactory,
         FTileDownloaderConfig.AllowUseCookie,
         FTileDownloaderConfig.DetectMIMEType
       );
@@ -259,6 +261,7 @@ constructor TTileDownloadSubsystem.Create(
   const ALanguageManager: ILanguageManager;
   const AGlobalDownloadConfig: IGlobalDownloadConfig;
   const AInvisibleBrowser: IInvisibleBrowser;
+  const ADownloaderFactory: IDownloaderFactory;
   const ADownloadResultFactory: IDownloadResultFactory;
   const AZmpTileDownloaderConfig: ITileDownloaderConfigStatic;
   const AImageResampler: IImageResamplerFactoryChangeable;
@@ -353,7 +356,7 @@ begin
       TTileDownloaderList.Create(
         AGCNotifier,
         AAppClosingNotifier,
-        ADownloadResultFactory,
+        ADownloaderFactory,
         FState,
         FTileDownloaderConfig,
         FDownloadResultSaver,
@@ -372,7 +375,7 @@ begin
     FRequestBuilderProviderInternal :=
       TRequestBuilderProviderInternal.Create(
         AGCNotifier,
-        ADownloadResultFactory,
+        ADownloaderFactory,
         FTileDownloaderConfig,
         FTileDownloadRequestBuilderFactory
       );

@@ -29,21 +29,20 @@ uses
   i_NotifierTime,
   i_DownloadRequest,
   i_DownloadResult,
-  i_DownloadResultFactory,
+  i_DownloaderFactory,
   i_Downloader,
-  u_DownloaderHttp,
   u_BaseInterfacedObject;
 
 type
   TDownloaderHttpWithTTL = class(TBaseInterfacedObject, IDownloader)
   private
-    FResultFactory: IDownloadResultFactory;
     FGCNotifier: INotifierTime;
     FAllowUseCookie: Boolean;
     FTryDetectContentType: Boolean;
     FTTLListener: IListenerTimeWithUsedFlag;
     FCS: IReadWriteSync;
     FDownloader: IDownloader;
+    FDownloaderFactory: IDownloaderFactory;
     procedure OnTTLTrim;
   private
     function DoRequest(
@@ -54,7 +53,7 @@ type
   public
     constructor Create(
       const AGCNotifier: INotifierTime;
-      const AResultFactory: IDownloadResultFactory;
+      const ADownloaderFactory: IDownloaderFactory;
       const AAllowUseCookie: Boolean = False;
       const ATryDetectContentType: Boolean = False
     );
@@ -71,7 +70,7 @@ uses
 
 constructor TDownloaderHttpWithTTL.Create(
   const AGCNotifier: INotifierTime;
-  const AResultFactory: IDownloadResultFactory;
+  const ADownloaderFactory: IDownloaderFactory;
   const AAllowUseCookie: Boolean;
   const ATryDetectContentType: Boolean
 );
@@ -81,7 +80,7 @@ begin
   inherited Create;
   FAllowUseCookie := AAllowUseCookie;
   FTryDetectContentType := ATryDetectContentType;
-  FResultFactory := AResultFactory;
+  FDownloaderFactory := ADownloaderFactory;
   FGCNotifier := AGCNotifier;
   FCS := GSync.SyncStd.Make(Self.ClassName);
   FTTLListener := TListenerTTLCheck.Create(Self.OnTTLTrim, CHttpClientTTL);
@@ -112,7 +111,12 @@ begin
     FTTLListener.UpdateUseTime;
     VDownloader := FDownloader;
     if VDownloader = nil then begin
-      VDownloader := TDownloaderHttp.Create(FResultFactory, FAllowUseCookie, True, FTryDetectContentType);
+      VDownloader := FDownloaderFactory.BuildDownloader(
+        FAllowUseCookie,
+        True,
+        FTryDetectContentType,
+        nil
+      );
       FDownloader := VDownloader;
     end;
     Result := VDownloader.DoRequest(ARequest, ACancelNotifier, AOperationID);

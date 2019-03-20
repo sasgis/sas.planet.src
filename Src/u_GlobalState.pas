@@ -54,6 +54,7 @@ uses
   i_GpsSystem,
   i_GeometryProjectedProvider,
   i_DownloadInfoSimple,
+  i_DownloaderFactory,
   i_ImageResamplerConfig,
   i_GeoCoderList,
   i_MarkPicture,
@@ -145,6 +146,7 @@ type
     FGPSPositionFactory: IGPSPositionFactory;
     FBitmapPostProcessing: IBitmapPostProcessingChangeable;
     FDownloadInfo: IDownloadInfoSimple;
+    FDownloaderFactory: IDownloaderFactory;
     FGlobalInternetState: IGlobalInternetState;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FGeoCoderList: IGeoCoderListStatic;
@@ -249,6 +251,7 @@ type
     property MainConfigProvider: IConfigDataWriteProvider read FMainConfigProvider;
     property ResourceProvider: IConfigDataProvider read FResourceProvider;
     property DownloadInfo: IDownloadInfoSimple read FDownloadInfo;
+    property DownloaderFactory: IDownloaderFactory read FDownloaderFactory;
     property GlobalInternetState: IGlobalInternetState read FGlobalInternetState;
     property ImporterList: IVectorItemTreeImporterListChangeable read FImporterList;
     property ExporterList: IVectorItemTreeExporterListChangeable read FExporterList;
@@ -347,6 +350,7 @@ uses
   u_ProjectionSetFactorySimple,
   u_ProjectionSetListStaticSimple,
   u_DownloadInfoSimple,
+  u_DownloaderByWinInetFactory,
   u_DatumFactory,
   u_GeoCalc,
   u_HashFunctionCityHash,
@@ -377,7 +381,6 @@ uses
   u_GeometryLonLatFactory,
   u_VectorDataFactorySimple,
   u_GeometryProjectedFactory,
-  u_DownloadResultFactory,
   u_PathDetalizeProviderTreeSimple,
   u_InternalDomainInfoProviderList,
   u_InternalDomainInfoProviderByMapTypeList,
@@ -566,6 +569,7 @@ begin
     );
 
   FGlobalInternetState := TGlobalInternetState.Create;
+  FDownloaderFactory := TDownloaderByWinInetFactory.Create;
 
   FProjConverterFactory := TProjConverterFactory.Create;
   FLastSelectionInfo := TLastSelectionInfo.Create;
@@ -780,7 +784,7 @@ begin
       BGTimerNotifier,
       FVectorItemSubsetBuilderFactory,
       FGeoCodePlacemarkFactory,
-      TDownloadResultFactory.Create,
+      FDownloaderFactory,
       FCoordToStringConverter,
       FMarkSystem.MarkDb,
       FProjectionSetFactory,
@@ -851,7 +855,7 @@ begin
       FGlobalConfig.LanguageManager,
       FGlobalConfig.InetConfig,
       FBGTimerNotifier,
-      TDownloadResultFactory.Create,
+      FDownloaderFactory,
       FVectorDataItemMainInfoFactory,
       FVectorGeometryLonLatFactory,
       VKmlLoader
@@ -1115,6 +1119,7 @@ begin
     FGlobalConfig.InetConfig,
     FGlobalConfig.DownloadConfig,
     FGlobalConfig.DownloaderThreadConfig,
+    FDownloaderFactory,
     FBitmap32StaticFactory,
     FContentTypeManager,
     FProjectionSetFactory,

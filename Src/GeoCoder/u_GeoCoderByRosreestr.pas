@@ -33,7 +33,7 @@ uses
   i_GeoCoder,
   i_LocalCoordConverter,
   i_VectorItemSubsetBuilder,
-  i_DownloadResultFactory,
+  i_DownloaderFactory,
   i_CoordToStringConverter,
   u_GeoCoderBasic;
 
@@ -59,7 +59,7 @@ type
       const AGCNotifier: INotifierTime;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
-      const AResultFactory: IDownloadResultFactory;
+      const ADownloaderFactory: IDownloaderFactory;
       const ACoordToStringConverter: ICoordToStringConverterChangeable
     );
 
@@ -91,7 +91,7 @@ constructor TGeoCoderByRosreestr.Create(
   const AGCNotifier: INotifierTime;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APlacemarkFactory: IGeoCodePlacemarkFactory;
-  const AResultFactory: IDownloadResultFactory;
+  const ADownloaderFactory: IDownloaderFactory;
   const ACoordToStringConverter: ICoordToStringConverterChangeable
 );
 begin
@@ -100,7 +100,7 @@ begin
     AGCNotifier,
     AVectorItemSubsetBuilderFactory,
     APlacemarkFactory,
-    AResultFactory
+    ADownloaderFactory
   );
   FCoordToStringConverter := ACoordToStringConverter;
 end;
