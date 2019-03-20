@@ -23,7 +23,8 @@ unit u_MarksExplorerHelper;
 interface
 
 uses
-  ComCtrls;
+  ComCtrls,
+  i_Category;
 
 type
   TExpandInfoItem = record
@@ -36,10 +37,12 @@ function ExpandInfoToString(const AInfo: TExpandInfo): AnsiString;
 function ExpandInfoFromString(const AStr: AnsiString): TExpandInfo;
 
 function GetExpandInfo(ANodes: TTreeNodes): TExpandInfo;
+
 procedure DoExpandNodes(
-    ANodes: TTreeNodes;
-    const AExpandInfo: TExpandInfo
-  );
+  ANodes: TTreeNodes;
+  const AExpandInfo: TExpandInfo;
+  const ASelected: ICategory
+);
 
 function GetSelectedNodeInfo(ATree: TTreeView): TExpandInfo;
 
@@ -50,8 +53,7 @@ implementation
 uses
   ALString,
   ALStringList,
-  libcrc32,
-  i_MarkCategory;
+  libcrc32;
 
 const
   cSep1: AnsiChar = ',';
@@ -136,35 +138,60 @@ end;
 
 procedure DoExpandNodes(
   ANodes: TTreeNodes;
-  const AExpandInfo: TExpandInfo
+  const AExpandInfo: TExpandInfo;
+  const ASelected: ICategory
 );
 var
-  I, J, K: Integer;
-  VUID: Cardinal;
+  I, J: Integer;
+  VCount: Integer;
+  VSelected: Integer;
+  VNode: TTreeNode;
 begin
-  J := ANodes.Count;
-  for I := 0 to Length(AExpandInfo) - 1 do begin
-    K := AExpandInfo[I].Index;
-    if K < J then begin
-      VUID := GetNodeUID(ANodes[K]);
-      if VUID = AExpandInfo[I].UID then begin
-        ANodes[K].Expand(False);
+  VSelected := -1;
+  VCount := ANodes.Count;
+
+  if ASelected <> nil then begin
+    for I := 0 to VCount - 1 do begin
+      VNode := ANodes[I];
+      if
+        (VNode <> nil) and
+        (VNode.Data <> nil) and
+        ASelected.IsSame(ICategory(VNode.Data)) then
+      begin
+        VSelected := I;
+        Break;
       end;
     end;
+  end;
+
+  for I := 0 to VCount - 1 do begin
+    ANodes[I].Collapse(False);
+  end;
+
+  for I := 0 to Length(AExpandInfo) - 1 do begin
+    J := AExpandInfo[I].Index;
+    if J < VCount then begin
+      VNode := ANodes[J];
+      if GetNodeUID(VNode) = AExpandInfo[I].UID then begin
+        VNode.Expand(False);
+      end;
+    end;
+  end;
+
+  if VSelected >= 0 then begin
+    ANodes[VSelected].Selected := True;
   end;
 end;
 
 function GetNodeUID(ANode: TTreeNode): Cardinal;
 var
-  VMarkCategory: IMarkCategory;
+  VCategory: ICategory;
 begin
   Result := 0;
-  if ANode.Data <> nil then begin
-    VMarkCategory := IMarkCategory(ANode.Data);
-    if Assigned(VMarkCategory) then begin
-      if VMarkCategory.Name <> '' then begin
-        Result := crc32(0, PByte(@VMarkCategory.Name[1]), Length(VMarkCategory.Name) * SizeOf(Char));
-      end;
+  if (ANode <> nil) and (ANode.Data <> nil) then begin
+    VCategory := ICategory(ANode.Data);
+    if Assigned(VCategory) and (VCategory.Name <> '') then begin
+      Result := crc32(0, PByte(@VCategory.Name[1]), Length(VCategory.Name) * SizeOf(Char));
     end;
   end;
 end;

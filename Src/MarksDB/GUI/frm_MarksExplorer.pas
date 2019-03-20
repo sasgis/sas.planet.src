@@ -419,6 +419,7 @@ begin
 end;
 
 procedure TfrmMarksExplorer.UpdateCategoryTree;
+
   procedure UpdateTreeSubItems(
     const ATree: IMarkCategoryTree;
     const ASelectedCategory: ICategory;
@@ -428,6 +429,7 @@ procedure TfrmMarksExplorer.UpdateCategoryTree;
   var
     i: Integer;
     VTree: IMarkCategoryTree;
+    VCategory: IMarkCategory;
     VNode: TTreeNode;
     VNodeToDelete: TTreeNode;
     VName: string;
@@ -440,6 +442,7 @@ procedure TfrmMarksExplorer.UpdateCategoryTree;
     if Assigned(ATree) then begin
       for i := 0 to ATree.SubItemCount - 1 do begin
         VTree := ATree.SubItem[i];
+        VCategory := VTree.MarkCategory;
         VName := VTree.Name;
         if VName = '' then begin
           VName := '(NoName)';
@@ -449,14 +452,14 @@ procedure TfrmMarksExplorer.UpdateCategoryTree;
         end else begin
           VNode.Text := VName;
         end;
-        if Assigned(VTree.MarkCategory) then begin
-          VNode.Data := Pointer(VTree.MarkCategory);
-          if VTree.MarkCategory.Visible then begin
+        if Assigned(VCategory) then begin
+          VNode.Data := Pointer(VCategory);
+          if VCategory.Visible then begin
             VNode.StateIndex := 1;
           end else begin
             VNode.StateIndex := 2;
           end;
-          if VTree.MarkCategory.IsSame(ASelectedCategory) then begin
+          if VCategory.IsSame(ASelectedCategory) then begin
             VNode.Selected := True;
           end;
         end else begin
@@ -491,7 +494,8 @@ begin
     try
       UpdateTreeSubItems(VTree, VSelectedCategory, nil, VItems);
       CategoryTreeView.CustomSort(TreeViewCompare, 0);
-      DoExpandNodes(VItems, FExpandedCategoriesInfo);
+      DoExpandNodes(VItems, FExpandedCategoriesInfo, VSelectedCategory);
+      
       VSelectedCategory := GetSelectedCategory;
       if not Assigned(VSelectedCategory) then begin
         if Length(FSelectedCategoryInfo) >= 1 then begin
@@ -829,6 +833,7 @@ procedure TfrmMarksExplorer.CategoryTreeViewVisible(Node: TTreeNode);
 var
   I: Integer;
   VVisible: Boolean;
+  VTopIndex: Integer;
   VCategoryOld: IMarkCategory;
   VCategoryNew: IMarkCategory;
   VOldList, VNewList: IMarkCategoryList;
@@ -839,6 +844,8 @@ begin
   if VCategoryOld <> nil then begin
     CategoryTreeView.Items.BeginUpdate;
     try
+      VTopIndex := CategoryTreeView.TopItem.AbsoluteIndex;
+
       if Node.StateIndex = 1 then begin
         VVisible := False;
       end else begin
@@ -881,6 +888,8 @@ begin
           IMarkCategory(VTempNew.Items[0])
         );
       end;
+
+      CategoryTreeView.TopItem := CategoryTreeView.Items[VTopIndex];
     finally
       CategoryTreeView.Items.EndUpdate;
     end;
