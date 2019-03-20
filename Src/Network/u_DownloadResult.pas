@@ -186,6 +186,30 @@ type
     );
   end;
 
+  TDownloadResultBadContentEncoding = class(TDownloadResultError, IDownloadResultBadContentEncoding, IDownloadResultWithServerRespond)
+  private
+    FStatusCode: Cardinal;
+    FRawResponseHeader: AnsiString;
+    FContentEncoding: AnsiString;
+    FData: IBinaryData;
+  protected
+    function GetIsServerExists: Boolean; override;
+    function GetStatusCode: Cardinal;
+    function GetRawResponseHeader: AnsiString;
+    function GetContentEncoding: AnsiString;
+    function GetData: IBinaryData;
+  public
+    constructor Create(
+      const ARequest: IDownloadRequest;
+      const AStatusCode: Cardinal;
+      const ARawResponseHeader: AnsiString;
+      const AContentEncoding: AnsiString;
+      const AData: IBinaryData;
+      const AErrorTextFormat: string;
+      const AErrorTextArgs: array of const
+    );
+  end;
+
   TDownloadResultDataNotExists = class(TDownloadResult, IDownloadResultDataNotExists, IDownloadResultWithServerRespond)
   private
     FReasonTextFormat: string;
@@ -608,6 +632,50 @@ end;
 function TDownloadResultCanceled.GetIsServerExists: Boolean;
 begin
   Result := False;
+end;
+
+{ TDownloadResultBadContentEncoding }
+
+constructor TDownloadResultBadContentEncoding.Create(
+  const ARequest: IDownloadRequest;
+  const AStatusCode: Cardinal;
+  const ARawResponseHeader: AnsiString;
+  const AContentEncoding: AnsiString;
+  const AData: IBinaryData;
+  const AErrorTextFormat: string;
+  const AErrorTextArgs: array of const
+);
+begin
+  inherited Create(ARequest, AErrorTextFormat, AErrorTextArgs);
+  FContentEncoding := AContentEncoding;
+  FStatusCode := AStatusCode;
+  FRawResponseHeader := ARawResponseHeader;
+  FData := AData;
+end;
+
+function TDownloadResultBadContentEncoding.GetContentEncoding: AnsiString;
+begin
+  Result := FContentEncoding;
+end;
+
+function TDownloadResultBadContentEncoding.GetData: IBinaryData;
+begin
+  Result := FData;
+end;
+
+function TDownloadResultBadContentEncoding.GetIsServerExists: Boolean;
+begin
+  Result := True;
+end;
+
+function TDownloadResultBadContentEncoding.GetRawResponseHeader: AnsiString;
+begin
+  Result := FRawResponseHeader;
+end;
+
+function TDownloadResultBadContentEncoding.GetStatusCode: Cardinal;
+begin
+  Result := FStatusCode;
 end;
 
 end.

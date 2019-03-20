@@ -95,6 +95,21 @@ type
     property RawResponseHeader: AnsiString read GetRawResponseHeader;
   end;
 
+  IDownloadResultBadContentEncoding = interface(IDownloadResultError)
+    ['{D3BA32CE-205C-4FC3-8C8D-C3EA283B1495}']
+    function GetStatusCode: Cardinal;
+    property StatusCode: Cardinal read GetStatusCode;
+
+    function GetContentEncoding: AnsiString;
+    property ContentEncoding: AnsiString read GetContentEncoding;
+
+    function GetRawResponseHeader: AnsiString;
+    property RawResponseHeader: AnsiString read GetRawResponseHeader;
+
+    function GetData: IBinaryData;
+    property Data: IBinaryData read GetData;
+  end;
+
   IDownloadResultDataNotExists = interface(IDownloadResult)
     ['{BA3CF11A-2BD7-4541-B8F7-415E85047C20}']
     function GetReasonText: string;

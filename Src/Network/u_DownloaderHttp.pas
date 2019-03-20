@@ -626,8 +626,9 @@ begin
           end;
         except
           on E: Exception do begin
-            Result := FResultFactory.BuildNotNecessary(ARequest, '%s: %s',
-              [E.ClassName, E.Message], VStatusCode, VRawHeaderText);
+            VResponseBody := TBinaryData.Create(FHttpResponseBody.Size, FHttpResponseBody.Memory);
+            Result := FResultFactory.BuildBadContentEncoding(ARequest, VStatusCode,
+              VRawHeaderText, VContentEncoding, VResponseBody, '%s: %s', [E.ClassName, E.Message]);
             Exit;
           end;
         end;
