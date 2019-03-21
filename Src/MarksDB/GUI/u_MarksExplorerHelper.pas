@@ -24,6 +24,7 @@ interface
 
 uses
   ComCtrls,
+  CityHash,
   i_Category;
 
 type
@@ -46,14 +47,13 @@ procedure DoExpandNodes(
 
 function GetSelectedNodeInfo(ATree: TTreeView): TExpandInfo;
 
-function GetNodeUID(ANode: TTreeNode): Cardinal;
+function GetNodeUID(ANode: TTreeNode): Cardinal; inline;
 
 implementation
 
 uses
   ALString,
-  ALStringList,
-  libcrc32;
+  ALStringList;
 
 const
   cSep1: AnsiChar = ',';
@@ -191,7 +191,7 @@ begin
   if (ANode <> nil) and (ANode.Data <> nil) then begin
     VCategory := ICategory(ANode.Data);
     if Assigned(VCategory) and (VCategory.Name <> '') then begin
-      Result := crc32(0, PByte(@VCategory.Name[1]), Length(VCategory.Name) * SizeOf(Char));
+      Result := CityHash32(@VCategory.Name[1], Length(VCategory.Name) * SizeOf(Char));
     end;
   end;
 end;
