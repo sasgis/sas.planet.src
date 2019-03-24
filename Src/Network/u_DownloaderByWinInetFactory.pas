@@ -26,6 +26,7 @@ uses
   i_Downloader,
   i_DownloaderFactory,
   i_DownloadResultFactory,
+  i_WinInetConfig,
   u_BaseInterfacedObject;
 
 type
@@ -48,21 +49,37 @@ type
       const AOnDownloadProgress: TOnDownloadProgress
     ): IDownloaderAsync;
   public
-    constructor Create;
+    constructor Create(const AWinInetConfig: IWinInetConfig);
   end;
 
 implementation
 
 uses
+  WinInetFix,
   u_DownloaderHttp,
   u_DownloadResultFactory;
 
 { TDownloaderByWinInetFactory }
 
-constructor TDownloaderByWinInetFactory.Create;
+constructor TDownloaderByWinInetFactory.Create(const AWinInetConfig: IWinInetConfig);
+var
+  VConnsPerServer: TConnsPerServerRec;
 begin
   inherited Create;
+
   FResultFactory := TDownloadResultFactory.Create;
+
+  // Fix HTTP connections limit
+  VConnsPerServer := AWinInetConfig.MaxConnsPerServer;
+  if VConnsPerServer.IsAvailable and (VConnsPerServer.Value <> VConnsPerServer.Def) then begin
+    SetMaxConnsPerServerLimit(VConnsPerServer.Value);
+  end;
+
+  // Fix Proxy connections limit
+  VConnsPerServer := AWinInetConfig.MaxConnsPerProxy;
+  if VConnsPerServer.IsAvailable and (VConnsPerServer.Value <> VConnsPerServer.Def) then begin
+    SetMaxConnsPerProxyLimit(VConnsPerServer.Value);
+  end;
 end;
 
 function TDownloaderByWinInetFactory.BuildDownloader(

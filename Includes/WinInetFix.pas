@@ -62,50 +62,82 @@ unit WinInetFix;
 
 interface
 
+procedure SetMaxConnsPerServerLimit(const ALimit: Cardinal);
+procedure SetMaxConnsPerProxyLimit(const ALimit: Cardinal);
+
+function IsMaxConnsPerProxyAvailable: Boolean;
+
 implementation
 
 uses
   Windows,
   SysUtils,
+  Registry,
   WinInet;
 
 const
   INTERNET_OPTION_MAX_CONNS_PER_SERVER = 73;
   INTERNET_OPTION_MAX_CONNS_PER_1_0_SERVER = 74;
+  INTERNET_OPTION_MAX_CONNS_PER_PROXY = 103;
 
-procedure FixMaxConnsPerServerLimit(const ALimit: ULONG = 64);
-var
-  VBuf: ULONG;
-  VRes: Boolean;
+procedure _SetConnsLimit(ALimit: Cardinal; AOptionID: Cardinal); inline;
 begin
-  // HTTP 1.1 (Default 2)
-  VBuf := ALimit;
-  VRes := InternetSetOption(
-    nil,
-    INTERNET_OPTION_MAX_CONNS_PER_SERVER,
-    @VBuf,
-    SizeOf(VBuf)
-  );
-
-  if not VRes then begin
-    RaiseLastOSError;
-  end;
-
-  // HTTP 1.0 (Default 4)
-  VBuf := ALimit;
-  VRes := InternetSetOption(
-    nil,
-    INTERNET_OPTION_MAX_CONNS_PER_1_0_SERVER,
-    @VBuf,
-    SizeOf(VBuf)
-  );
-
-  if not VRes then begin
+  if not InternetSetOption(nil, AOptionID, @ALimit, SizeOf(ALimit)) then begin
     RaiseLastOSError;
   end;
 end;
 
-initialization
-  FixMaxConnsPerServerLimit;
+procedure SetMaxConnsPerServerLimit(const ALimit: Cardinal);
+begin
+  // HTTP 1.1
+  _SetConnsLimit(ALimit, INTERNET_OPTION_MAX_CONNS_PER_SERVER);
+
+  // HTTP 1.0
+  _SetConnsLimit(ALimit, INTERNET_OPTION_MAX_CONNS_PER_1_0_SERVER);
+end;
+
+procedure SetMaxConnsPerProxyLimit(const ALimit: Cardinal);
+begin
+  _SetConnsLimit(ALimit, INTERNET_OPTION_MAX_CONNS_PER_PROXY);
+end;
+
+function IsMaxConnsPerProxyAvailable: Boolean;
+
+  function _GetIEVersion: string;
+  var
+    VReg: TRegistry;
+  begin
+    VReg := TRegistry.Create;
+    try
+      VReg.RootKey := HKEY_LOCAL_MACHINE;
+      if VReg.OpenKeyReadOnly('Software\Microsoft\Internet Explorer') then
+      try
+        Result := VReg.ReadString('svcVersion'); // IE 10 and newer
+        if Result = '' then begin
+          Result := VReg.ReadString('Version'); // IE 9 and older
+        end;
+      finally
+        VReg.CloseKey;
+      end;
+    finally
+      VReg.Free;
+    end;
+  end;
+
+var
+  I: Integer;
+  VStr: string;
+  VMajor: string;
+begin
+  Result := False;
+  VStr := _GetIEVersion;
+  I := Pos('.', VStr);
+  if I > 0 then begin
+    VMajor := Copy(VStr, 1, I - 1);
+    if (VMajor <> '') and TryStrToInt(VMajor, I) then begin
+      Result := I >= 8;
+    end;
+  end;
+end;
 
 end.

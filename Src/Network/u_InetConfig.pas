@@ -25,6 +25,7 @@ interface
 uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  i_WinInetConfig,
   i_ProxySettings,
   i_InetConfig,
   u_ConfigDataElementComplexBase;
@@ -35,6 +36,7 @@ type
     FUserAgentString: AnsiString;
     FTimeOut: Cardinal;
     FProxyConfig: IProxyConfig;
+    FWinInetConfig: IWinInetConfig;
     FSleepOnResetConnection: Cardinal;
     FDownloadTryCount: Integer;
   protected
@@ -43,6 +45,8 @@ type
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
+    function GetWinInetConfig: IWinInetConfig;
+
     function GetProxyConfig: IProxyConfig;
 
     function GetUserAgentString: AnsiString;
@@ -68,6 +72,7 @@ uses
   c_InetConfig,
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_InetConfigStatic,
+  u_WinInetConfig,
   u_ProxyConfig;
 
 { TInetConfig }
@@ -82,6 +87,9 @@ begin
 
   FProxyConfig := TProxyConfig.Create;
   Add(FProxyConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Proxy'));
+
+  FWinInetConfig := TWinInetConfig.Create;
+  Add(FWinInetConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('WinInet'));
 end;
 
 function TInetConfig.CreateStatic: IInterface;
@@ -90,6 +98,7 @@ var
 begin
   VStatic :=
     TInetConfigStatic.Create(
+      FWinInetConfig.GetStatic,
       FProxyConfig.GetStatic,
       FUserAgentString,
       FTimeOut,
@@ -128,6 +137,11 @@ begin
   finally
     UnlockRead;
   end;
+end;
+
+function TInetConfig.GetWinInetConfig: IWinInetConfig;
+begin
+  Result := FWinInetConfig;
 end;
 
 function TInetConfig.GetProxyConfig: IProxyConfig;

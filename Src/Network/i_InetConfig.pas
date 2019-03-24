@@ -24,11 +24,15 @@ interface
 
 uses
   i_ConfigDataElement,
+  i_WinInetConfig,
   i_ProxySettings;
 
 type
   IInetConfigStatic = interface
     ['{5608C1CA-91D5-43CB-BAF0-8C76351EC1D7}']
+    function GetWinInetConfigStatic: IWinInetConfigStatic;
+    property WinInetConfigStatic: IWinInetConfigStatic read GetWinInetConfigStatic;
+
     function GetProxyConfigStatic: IProxyConfigStatic;
     property ProxyConfigStatic: IProxyConfigStatic read GetProxyConfigStatic;
 
@@ -47,6 +51,9 @@ type
 
   IInetConfig = interface(IConfigDataElement)
     ['{D025A3CE-2CC7-4DB3-BBF6-53DF14A2A2E7}']
+    function GetWinInetConfig: IWinInetConfig;
+    property WinInetConfig: IWinInetConfig read GetWinInetConfig;
+
     function GetProxyConfig: IProxyConfig;
     property ProxyConfig: IProxyConfig read GetProxyConfig;
 

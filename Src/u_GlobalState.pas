@@ -569,7 +569,10 @@ begin
     );
 
   FGlobalInternetState := TGlobalInternetState.Create;
-  FDownloaderFactory := TDownloaderByWinInetFactory.Create;
+
+  FDownloaderFactory := TDownloaderByWinInetFactory.Create(
+    FGlobalConfig.InetConfig.WinInetConfig
+  );
 
   FProjConverterFactory := TProjConverterFactory.Create;
   FLastSelectionInfo := TLastSelectionInfo.Create;

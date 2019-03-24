@@ -25,17 +25,20 @@ interface
 uses
   i_ProxySettings,
   i_InetConfig,
+  i_WinInetConfig,
   u_BaseInterfacedObject;
 
 type
   TInetConfigStatic = class(TBaseInterfacedObject, IInetConfigStatic)
   private
+    FWinInetConfigStatic: IWinInetConfigStatic;
     FProxyConfigStatic: IProxyConfigStatic;
     FUserAgentString: AnsiString;
     FTimeOut: Cardinal;
     FSleepOnResetConnection: Cardinal;
     FDownloadTryCount: Integer;
   private
+    function GetWinInetConfigStatic: IWinInetConfigStatic;
     function GetProxyConfigStatic: IProxyConfigStatic;
     function GetUserAgentString: AnsiString;
     function GetTimeOut: Cardinal;
@@ -43,6 +46,7 @@ type
     function GetDownloadTryCount: Integer;
   public
     constructor Create(
+      const AWinInetConfigStatic: IWinInetConfigStatic;
       const AProxyConfigStatic: IProxyConfigStatic;
       const AUserAgentString: AnsiString;
       ATimeOut: Cardinal;
@@ -53,9 +57,10 @@ type
 
 implementation
 
-{ TTileDownloaderConfigStatic }
+{ TInetConfigStatic }
 
 constructor TInetConfigStatic.Create(
+  const AWinInetConfigStatic: IWinInetConfigStatic;
   const AProxyConfigStatic: IProxyConfigStatic;
   const AUserAgentString: AnsiString;
   ATimeOut, ASleepOnResetConnection: Cardinal;
@@ -63,6 +68,7 @@ constructor TInetConfigStatic.Create(
 );
 begin
   inherited Create;
+  FWinInetConfigStatic := AWinInetConfigStatic;
   FProxyConfigStatic := AProxyConfigStatic;
   FTimeOut := ATimeOut;
   FSleepOnResetConnection := ASleepOnResetConnection;
@@ -93,6 +99,11 @@ end;
 function TInetConfigStatic.GetUserAgentString: AnsiString;
 begin
   Result := FUserAgentString;
+end;
+
+function TInetConfigStatic.GetWinInetConfigStatic: IWinInetConfigStatic;
+begin
+  Result := FWinInetConfigStatic;
 end;
 
 end.
