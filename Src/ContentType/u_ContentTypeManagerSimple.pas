@@ -179,6 +179,17 @@ begin
   AddByExt(VContentType, VContentType.GetDefaultExt);
 
   VContentType := TContentTypeInfoVector.Create(
+    'application/vnd.wikimapia.kml+xml',
+    '.kml',
+    TKmlInfoSimpleParser.Create(
+      AVectorGeometryLonLatFactory,
+      AVectorDataFactory,
+      AVectorItemSubsetBuilderFactory
+    )
+  );
+  AddByType(VContentType, VContentType.GetContentType);
+
+  VContentType := TContentTypeInfoVector.Create(
     'application/vnd.google-earth.kmz',
     '.kmz',
     TKmzInfoSimpleParser.Create(
