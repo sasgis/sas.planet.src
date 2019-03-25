@@ -57,6 +57,7 @@ type
     ProxyUseLogin: Boolean;
     ProxyUserName: string;
     ProxyPassword: string;
+    WinInetOptions: TALWininetHttpClientInternetOptionSet;
   end;
 
   TDownloaderHttp = class(TBaseInterfacedObject, IDownloader, IDownloaderAsync)
@@ -230,6 +231,7 @@ begin
   FHttpClientLastConfig.ProxyUseLogin := False;
   FHttpClientLastConfig.ProxyUserName := '';
   FHttpClientLastConfig.ProxyPassword := '';
+  FHttpClientLastConfig.WinInetOptions := [];
 end;
 
 destructor TDownloaderHttp.Destroy;
@@ -721,8 +723,8 @@ begin
       wHttpIo_Keep_connection,
       wHttpIo_Ignore_cert_cn_invalid,
       wHttpIo_Ignore_cert_date_invalid,
-      wHttpIo_Ignore_redirect_to_http,
-      wHttpIo_Ignore_redirect_to_https
+      wHttpIo_Ignore_redirect_to_http, // allow redirects from https to http
+      wHttpIo_Ignore_redirect_to_https // allow redirects from http to https
     ];
 
   if not FAllowUseCookie then begin
@@ -733,7 +735,9 @@ begin
     Include(VOptions, wHttpIo_No_auto_redirect);
   end;
 
-  FHttpClient.InternetOptions := VOptions;
+  if FHttpClientLastConfig.WinInetOptions <> VOptions then begin
+    FHttpClient.InternetOptions := VOptions;
+  end;
 
   VProxyConfig := AInetConfig.ProxyConfigStatic;
   if Assigned(VProxyConfig) then begin
