@@ -179,7 +179,7 @@ begin
   AddByExt(VContentType, VContentType.GetDefaultExt);
 
   VContentType := TContentTypeInfoVector.Create(
-    'application/vnd.wikimapia.kml+xml',
+    'application/vnd.sas.wikimapia.kml+xml',
     '.kml',
     TKmlInfoSimpleParser.Create(
       AVectorGeometryLonLatFactory,
