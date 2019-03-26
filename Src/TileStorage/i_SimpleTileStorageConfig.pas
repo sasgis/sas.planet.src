@@ -35,6 +35,9 @@ type
     function GetNameInCache: string;
     property NameInCache: string read GetNameInCache;
 
+    function GetMainContentType: AnsiString;
+    property MainContentType: AnsiString read GetMainContentType;
+
     function GetTileFileExt: AnsiString;
     property TileFileExt: AnsiString read GetTileFileExt;
 
@@ -63,6 +66,9 @@ type
     function GetNameInCache: string;
     procedure SetNameInCache(const AValue: string);
     property NameInCache: string read GetNameInCache write SetNameInCache;
+
+    function GetMainContentType: AnsiString;
+    property MainContentType: AnsiString read GetMainContentType;
 
     function GetTileFileExt: AnsiString;
     property TileFileExt: AnsiString read GetTileFileExt;

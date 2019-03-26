@@ -167,6 +167,27 @@ begin
   AddByExt(VContentType, VExt);
 
   VContentType := TContentTypeInfoVector.Create(
+    'application/vnd.sas.wikimapia.kml+xml',
+    '.kml',
+    TKmlInfoSimpleParser.Create(
+      AVectorGeometryLonLatFactory,
+      AVectorDataFactory,
+      AVectorItemSubsetBuilderFactory
+    )
+  );
+  AddByType(VContentType, VContentType.GetContentType);
+
+  VContentType := TContentTypeInfoVector.Create(
+    'application/vnd.sas.wikimapia.kmz',
+    '.kmz',
+    TKmzInfoSimpleParser.Create(
+      TKmlInfoSimpleParser.Create(AVectorGeometryLonLatFactory, AVectorDataFactory, AVectorItemSubsetBuilderFactory),
+      FArchiveReadWriteFactory
+    )
+  );
+  AddByType(VContentType, VContentType.GetContentType);
+
+  VContentType := TContentTypeInfoVector.Create(
     'application/vnd.google-earth.kml+xml',
     '.kml',
     TKmlInfoSimpleParser.Create(
@@ -177,17 +198,6 @@ begin
   );
   AddByType(VContentType, VContentType.GetContentType);
   AddByExt(VContentType, VContentType.GetDefaultExt);
-
-  VContentType := TContentTypeInfoVector.Create(
-    'application/vnd.sas.wikimapia.kml+xml',
-    '.kml',
-    TKmlInfoSimpleParser.Create(
-      AVectorGeometryLonLatFactory,
-      AVectorDataFactory,
-      AVectorItemSubsetBuilderFactory
-    )
-  );
-  AddByType(VContentType, VContentType.GetContentType);
 
   VContentType := TContentTypeInfoVector.Create(
     'application/vnd.google-earth.kmz',
@@ -234,6 +244,31 @@ var
   VTargetContent: IContentTypeInfoBasic;
   VConverter: IContentConverter;
 begin
+  VSoruceName := 'application/vnd.google-earth.kml+xml';
+  VSourceContent := TypeList.Get(VSoruceName);
+
+  VTargetName := 'application/vnd.sas.wikimapia.kml+xml';
+  VTargetContent := TypeList.Get(VTargetName);
+
+  VConverter := TContentConverterSimpleCopy.Create(
+    VSourceContent,
+    VTargetContent
+  );
+  ConverterMatrix.Add(VSoruceName, VTargetName, VConverter);
+
+  VSoruceName := 'application/vnd.google-earth.kml+xml';
+  VSourceContent := TypeList.Get(VSoruceName);
+
+  VTargetName := 'application/vnd.sas.wikimapia.kmz';
+  VTargetContent := TypeList.Get(VTargetName);
+
+  VConverter := TContentConverterKml2Kmz.Create(
+    VSourceContent,
+    VTargetContent,
+    FArchiveReadWriteFactory
+  );
+  ConverterMatrix.Add(VSoruceName, VTargetName, VConverter);
+
   VSoruceName := 'application/vnd.google-earth.kmz';
   VSourceContent := TypeList.Get(VSoruceName);
 

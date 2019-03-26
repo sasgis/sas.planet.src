@@ -56,6 +56,7 @@ type
     procedure SetNameInCache(const AValue: string);
 
     function GetTileFileExt: AnsiString;
+    function GetMainContentType: AnsiString;
 
     function GetIsReadOnly: Boolean;
     procedure SetIsReadOnly(AValue: Boolean);
@@ -134,6 +135,7 @@ begin
     TSimpleTileStorageConfigStatic.Create(
       FCacheTypeCode,
       FNameInCache,
+      FDefConfig.MainContentType,
       FDefConfig.TileFileExt,
       VStorageAbilities,
       FUseMemCache,
@@ -257,6 +259,11 @@ begin
   finally
     UnlockRead;
   end;
+end;
+
+function TSimpleTileStorageConfig.GetMainContentType: AnsiString;
+begin
+  Result := FDefConfig.MainContentType;
 end;
 
 function TSimpleTileStorageConfig.GetMemCacheCapacity: Integer;

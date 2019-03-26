@@ -27,7 +27,6 @@ uses
   SysUtils,
   i_SimpleTileStorageConfig,
   i_TileStorage,
-  i_ContentTypeManager,
   i_InternalPerformanceCounter,
   i_NotifierOperation,
   i_NotifierTilePyramidUpdate,
@@ -58,7 +57,7 @@ type
     FTileStorageTypeList: ITileStorageTypeListStatic;
     FVersionFactory: IMapVersionFactoryChangeableInternal;
     FConfig: ISimpleTileStorageConfig;
-    FContentTypeManager: IContentTypeManager;
+    FMainContentType: IContentTypeInfoBasic;
     FCacheTileInfo: ITileInfoBasicMemCache;
     FActualPath: IPathConfig;
     FStorageState: IStorageStateChangeble;
@@ -161,7 +160,7 @@ type
       const AVersionFactory: IMapVersionFactoryChangeableInternal;
       const AConfig: ISimpleTileStorageConfig;
       const ACacheTileInfo: ITileInfoBasicMemCache;
-      const AContentTypeManager: IContentTypeManager;
+      const AMainContentType: IContentTypeInfoBasic;
       const APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
@@ -189,7 +188,7 @@ constructor TTileStorageOfMapType.Create(
   const AVersionFactory: IMapVersionFactoryChangeableInternal;
   const AConfig: ISimpleTileStorageConfig;
   const ACacheTileInfo: ITileInfoBasicMemCache;
-  const AContentTypeManager: IContentTypeManager;
+  const AMainContentType: IContentTypeInfoBasic;
   const APerfCounterList: IInternalPerformanceCounterList
 );
 var
@@ -202,7 +201,7 @@ begin
   FVersionFactory := AVersionFactory;
   FConfig := AConfig;
   FCacheTileInfo := ACacheTileInfo;
-  FContentTypeManager := AContentTypeManager;
+  FMainContentType := AMainContentType;
 
   FAbilitiesNoStorage := TTileStorageTypeAbilitiesNoAccess.Create;
   FStorageCS := GSync.SyncVariable.Make(Self.ClassName);
@@ -262,7 +261,6 @@ procedure TTileStorageOfMapType.BuildStorage(
   const APath: string
 );
 var
-  VMainContentType: IContentTypeInfoBasic;
   VCoordConverter: IProjectionSet;
   VStroageType: ITileStorageTypeListItem;
 begin
@@ -271,8 +269,7 @@ begin
     FCurrentTypeCode := ATypeCode;
     FCurrentPath := APath;
     VCoordConverter := FProjectionSet;
-    VMainContentType := FContentTypeManager.GetInfoByExt(AConfig.TileFileExt);
-    if VMainContentType <> nil then begin
+    if FMainContentType <> nil then begin
       VStroageType := FTileStorageTypeList.GetItemByCode(ATypeCode);
       if VStroageType <> nil then begin
         if Assigned(FCacheTileInfo) then begin
@@ -282,7 +279,7 @@ begin
           VStroageType.StorageType.BuildStorage(
             AConfig.Abilities,
             VCoordConverter,
-            VMainContentType,
+            FMainContentType,
             FTileNotifier,
             FCurrentPath,
             FCacheTileInfo

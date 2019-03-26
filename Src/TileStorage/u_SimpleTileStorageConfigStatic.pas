@@ -32,6 +32,7 @@ type
   private
     FCacheTypeCode: Integer;
     FNameInCache: string;
+    FMainContentType: AnsiString;
     FTileFileExt: AnsiString;
     FAbilities: ITileStorageAbilities;
     FUseMemCache: Boolean;
@@ -41,6 +42,7 @@ type
   private
     function GetCacheTypeCode: Integer;
     function GetNameInCache: string;
+    function GetMainContentType: AnsiString;
     function GetTileFileExt: AnsiString;
     function GetAbilities: ITileStorageAbilities;
     function GetUseMemCache: Boolean;
@@ -51,6 +53,7 @@ type
     constructor Create(
       const ACacheTypeCode: Integer;
       const ANameInCache: string;
+      const AMainContentType: AnsiString;
       const ATileFileExt: AnsiString;
       const AAbilities: ITileStorageAbilities;
       const AUseMemCache: Boolean;
@@ -67,6 +70,7 @@ implementation
 constructor TSimpleTileStorageConfigStatic.Create(
   const ACacheTypeCode: Integer;
   const ANameInCache: string;
+  const AMainContentType: AnsiString;
   const ATileFileExt: AnsiString;
   const AAbilities: ITileStorageAbilities;
   const AUseMemCache: Boolean;
@@ -78,6 +82,7 @@ begin
   inherited Create;
   FCacheTypeCode := ACacheTypeCode;
   FNameInCache := ANameInCache;
+  FMainContentType := AMainContentType;
   FTileFileExt := ATileFileExt;
   FAbilities := AAbilities;
   FUseMemCache := AUseMemCache;
@@ -109,6 +114,11 @@ end;
 function TSimpleTileStorageConfigStatic.GetUseMemCache: Boolean;
 begin
   Result := FUseMemCache;
+end;
+
+function TSimpleTileStorageConfigStatic.GetMainContentType: AnsiString;
+begin
+  Result := FMainContentType;
 end;
 
 function TSimpleTileStorageConfigStatic.GetMemCacheCapacity: Integer;

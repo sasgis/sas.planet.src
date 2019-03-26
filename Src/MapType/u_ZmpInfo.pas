@@ -806,6 +806,7 @@ procedure TZmpInfo.LoadStorageConfig(
 var
   VCacheTypeCode: Integer;
   VNameInCache: string;
+  VMainStorageContentType: AnsiString;
   VTileFileExt: AnsiString;
   VIsReadOnly: boolean;
   VAllowDelete: boolean;
@@ -823,6 +824,7 @@ begin
   VMemCacheCapacity := AConfig.ReadInteger('MemCacheCapacity', FZmpConfig.MemCacheCapacity);
   VMemCacheTTL := AConfig.ReadInteger('MemCacheTTL', FZmpConfig.MemCacheTTL);
   VMemCacheClearStrategy := AConfig.ReadInteger('MemCacheClearStrategy', FZmpConfig.MemCacheClearStrategy);
+  VMainStorageContentType := AConfig.ReadAnsiString('MainStorageContentType', '');
   VTileFileExt := AlLowerCase(AConfig.ReadAnsiString('Ext', '.jpg'));
   VIsReadOnly := AConfig.ReadBool('IsReadOnly', False);
   VAllowDelete := not VIsReadOnly;
@@ -843,6 +845,7 @@ begin
     TSimpleTileStorageConfigStatic.Create(
       VCacheTypeCode,
       VNameInCache,
+      VMainStorageContentType,
       VTileFileExt,
       VStorageAbilities,
       VUseMemCache,

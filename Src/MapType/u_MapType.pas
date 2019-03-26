@@ -359,7 +359,14 @@ begin
   FVersionRequestConfig.ReadConfig(AConfig);
   FTileDownloaderConfig.ReadConfig(AConfig);
   FTileDownloadRequestBuilderConfig.ReadConfig(AConfig);
-  FContentType := AContentTypeManager.GetInfoByExt(FStorageConfig.TileFileExt);
+
+  if FStorageConfig.MainContentType <> '' then begin
+    FContentType := AContentTypeManager.GetInfo(FStorageConfig.MainContentType);
+  end;
+  if not Assigned(FContentType) then begin
+    FContentType := AContentTypeManager.GetInfoByExt(FStorageConfig.TileFileExt);
+  end;
+
   FProjectionSet := FZmp.ProjectionSet;
   FViewProjectionSet := FZmp.ViewProjectionSet;
 
@@ -384,7 +391,7 @@ begin
       VVersionFactory,
       FStorageConfig,
       FCacheTileInfo,
-      AContentTypeManager,
+      FContentType,
       VPerfCounterList
     );
   if Supports(FContentType, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
