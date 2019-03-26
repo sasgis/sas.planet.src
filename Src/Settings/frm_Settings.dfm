@@ -503,13 +503,14 @@ object frmSettings: TfrmSettings
         object pnl1: TPanel
           AlignWithMargins = True
           Left = 3
-          Top = 262
+          Top = 290
           Width = 629
           Height = 23
           Margins.Left = 0
           Align = alTop
           BevelOuter = bvNone
-          TabOrder = 7
+          TabOrder = 8
+          ExplicitTop = 262
           object lbl2: TLabel
             AlignWithMargins = True
             Left = 3
@@ -536,6 +537,38 @@ object frmSettings: TfrmSettings
             Caption = '<>'
             TabOrder = 1
             OnClick = btnResetUserAgentStringClick
+          end
+        end
+        object flwpnlMaxConnsPerServer: TFlowPanel
+          AlignWithMargins = True
+          Left = 3
+          Top = 262
+          Width = 632
+          Height = 22
+          Margins.Left = 0
+          Margins.Right = 0
+          Align = alTop
+          AutoSize = True
+          BevelOuter = bvNone
+          TabOrder = 7
+          ExplicitTop = 280
+          object lblMaxConnsPerServer: TLabel
+            AlignWithMargins = True
+            Left = 3
+            Top = 3
+            Width = 250
+            Height = 13
+            Caption = 'Max number of simultaneous connections per server'
+          end
+          object seMaxConnsPerServer: TSpinEdit
+            Left = 256
+            Top = 0
+            Width = 73
+            Height = 22
+            MaxValue = 0
+            MinValue = 0
+            TabOrder = 0
+            Value = 0
           end
         end
       end

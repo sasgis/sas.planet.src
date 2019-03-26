@@ -236,6 +236,9 @@ type
     pnlCoordSysInfoType: TPanel;
     lblCoordSysInfoType: TLabel;
     cbbCoordSysInfoType: TComboBox;
+    flwpnlMaxConnsPerServer: TFlowPanel;
+    lblMaxConnsPerServer: TLabel;
+    seMaxConnsPerServer: TSpinEdit;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -315,6 +318,7 @@ uses
   t_CoordRepresentation,
   i_ProxySettings,
   i_InetConfig,
+  i_WinInetConfig,
   u_ListenerNotifierLinksList,
   u_StrFunc,
   u_GlobalState,
@@ -581,6 +585,7 @@ var
   VProxyConfig: IProxyConfig;
   VInetConfig: IInetConfig;
   VNeedReboot: boolean;
+  VConnsPerServer: TConnsPerServerRec;
 begin
   VNeedReboot := false;
 
@@ -662,6 +667,8 @@ begin
   end;
 
   FMainFormConfig.ToolbarsLock.IsLock := CBlock_toolbars.Checked;
+
+  // Internet Tab
   VInetConfig := GState.Config.InetConfig;
   VInetConfig.LockWrite;
   try
@@ -688,6 +695,17 @@ begin
       VInetConfig.DownloadTryCount := 1;
     end;
     SetProxy;
+
+    VConnsPerServer := VInetConfig.WinInetConfig.MaxConnsPerServer;
+    if seMaxConnsPerServer.Value <> Integer(VConnsPerServer.Value) then begin
+      VNeedReboot := True;
+      VConnsPerServer.Value := seMaxConnsPerServer.Value;
+      VInetConfig.WinInetConfig.MaxConnsPerServer := VConnsPerServer;
+      // set same value for proxy
+      VConnsPerServer := VInetConfig.WinInetConfig.MaxConnsPerProxy;
+      VConnsPerServer.Value := seMaxConnsPerServer.Value;
+      VInetConfig.WinInetConfig.MaxConnsPerProxy := VConnsPerServer;
+    end;
   finally
     VInetConfig.UnlockWrite;
   end;
@@ -828,6 +846,7 @@ var
   VProxyConfig: IProxyConfig;
   VInetConfig: IInetConfig;
   i: Integer;
+  VConnsPerServer: TConnsPerServerRec;
 begin
   FLinksList.ActivateLinks;
 
@@ -896,6 +915,11 @@ begin
     EditLogin.Text := VProxyConfig.GetLogin;
     EditPass.Text := VProxyConfig.GetPassword;
     CBDblDwnl.Checked := (VInetConfig.DownloadTryCount > 1);
+
+    VConnsPerServer := VInetConfig.WinInetConfig.MaxConnsPerServer;
+    seMaxConnsPerServer.MinValue := VConnsPerServer.Min;
+    seMaxConnsPerServer.MaxValue := VConnsPerServer.Max;
+    seMaxConnsPerServer.Value := VConnsPerServer.Value;
   finally
     VInetConfig.UnlockRead;
   end;
