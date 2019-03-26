@@ -47,7 +47,6 @@ type
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FVectorDataFactory: IVectorDataFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-    FAllowMultiParts: Boolean;
   private
     function ProcessImport(
       AOperationID: Integer;
@@ -63,8 +62,7 @@ type
       const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorDataFactory: IVectorDataFactory;
-      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-      const AAllowMultiParts: Boolean
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory
     );
   end;
 
@@ -84,8 +82,7 @@ constructor TVectorItemTreeImporterKMZ.Create(
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorDataFactory: IVectorDataFactory;
-  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-  const AAllowMultiParts: Boolean
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory
 );
 begin
   inherited Create;
@@ -96,7 +93,6 @@ begin
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FVectorDataFactory := AVectorDataFactory;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
-  FAllowMultiParts := AAllowMultiParts;
 end;
 
 function TVectorItemTreeImporterKMZ.ProcessImport(
@@ -142,8 +138,7 @@ begin
         FVectorDataItemMainInfoFactory,
         FVectorGeometryLonLatFactory,
         FVectorDataFactory,
-        FVectorItemSubsetBuilderFactory,
-        FAllowMultiParts
+        FVectorItemSubsetBuilderFactory
       );
     try
       VStream := TStreamReadOnlyByBinaryData.Create(VData);

@@ -43,7 +43,6 @@ type
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FVectorDataFactory: IVectorDataFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-    FAllowMultiParts: Boolean;
   private
     function Load(
       const AData: IBinaryData;
@@ -56,8 +55,7 @@ type
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorDataFactory: IVectorDataFactory;
-      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-      const AAllowMultiParts: Boolean
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory
     );
   end;
 
@@ -75,8 +73,7 @@ constructor TXmlInfoSimpleParser.Create(
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorDataFactory: IVectorDataFactory;
-  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-  const AAllowMultiParts: Boolean
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory
 );
 begin
   inherited Create;
@@ -85,7 +82,6 @@ begin
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FVectorDataFactory := AVectorDataFactory;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
-  FAllowMultiParts := AAllowMultiParts;
 end;
 
 procedure AddSubTree(
@@ -129,8 +125,7 @@ begin
       AVectorDataItemMainInfoFactory,
       FVectorGeometryLonLatFactory,
       FVectorDataFactory,
-      FVectorItemSubsetBuilderFactory,
-      FAllowMultiParts
+      FVectorItemSubsetBuilderFactory
     );
   try
     VStream := TStreamReadOnlyByBinaryData.Create(AData);

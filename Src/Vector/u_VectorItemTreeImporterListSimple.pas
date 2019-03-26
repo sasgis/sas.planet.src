@@ -130,8 +130,7 @@ begin
       AVectorDataItemMainInfoFactory,
       AVectorGeometryLonLatFactory,
       AVectorDataFactory,
-      AVectorItemSubsetBuilderFactory,
-      True
+      AVectorItemSubsetBuilderFactory
     );
   VItem :=
     TVectorItemTreeImporterListItem.Create(
@@ -149,8 +148,7 @@ begin
       AVectorDataItemMainInfoFactory,
       AVectorGeometryLonLatFactory,
       AVectorDataFactory,
-      AVectorItemSubsetBuilderFactory,
-      True
+      AVectorItemSubsetBuilderFactory
     );
   VItem :=
     TVectorItemTreeImporterListItem.Create(
@@ -167,8 +165,7 @@ begin
       AVectorDataItemMainInfoFactory,
       AVectorGeometryLonLatFactory,
       AVectorDataFactory,
-      AVectorItemSubsetBuilderFactory,
-      True
+      AVectorItemSubsetBuilderFactory
     );
   VItem :=
     TVectorItemTreeImporterListItem.Create(

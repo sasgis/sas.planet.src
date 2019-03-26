@@ -218,8 +218,7 @@ begin
       nil, // ToDo: IAppearanceOfMarkFactory
       AVectorGeometryLonLatFactory,
       AVectorDataFactory,
-      AVectorItemSubsetBuilderFactory,
-      False
+      AVectorItemSubsetBuilderFactory
     )
   );
   AddByType(VContentType, VContentType.GetContentType);

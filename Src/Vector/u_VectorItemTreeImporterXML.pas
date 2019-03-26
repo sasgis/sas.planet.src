@@ -52,7 +52,6 @@ type
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FVectorDataFactory: IVectorDataFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-    FAllowMultiParts: Boolean;
     FFormat: TFormatSettings;
   private
     procedure Internal_ParseXML_UserProc(
@@ -113,8 +112,7 @@ type
       const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorDataFactory: IVectorDataFactory;
-      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-      const AAllowMultiParts: Boolean
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory
     );
   end;
 
@@ -162,8 +160,7 @@ constructor TVectorItemTreeImporterXML.Create(
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorDataFactory: IVectorDataFactory;
-  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-  const AAllowMultiParts: Boolean
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory
 );
 begin
   inherited Create;
@@ -173,7 +170,6 @@ begin
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FVectorDataFactory := AVectorDataFactory;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
-  FAllowMultiParts := AAllowMultiParts;
 
   VSAGPS_PrepareFormatSettings(FFormat);
 end;
@@ -348,7 +344,6 @@ begin
     False, // use True for wiki
     @FFormat,
     AIdData,
-    FAllowMultiParts,
     VAppearanceHelper,
     VConfig,
     FVectorItemSubsetBuilderFactory,

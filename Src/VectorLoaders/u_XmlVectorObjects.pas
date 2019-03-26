@@ -57,7 +57,6 @@ type
     FLineBuilder: IGeometryLonLatLineBuilder;
     FPolygonBuilder: IGeometryLonLatPolygonBuilder;
     FList: IInterfaceListSimple;
-    FAllowMultiParts: Boolean;
     FCheckLineIsClosed: Boolean;
     FSkipPointInMultiObject: Boolean;
     FFormatPtr: PFormatSettings;
@@ -136,7 +135,6 @@ type
       const ACheckLineIsClosed, ASkipPointInMultiObject: Boolean;
       const AFormatPtr: PFormatSettings;
       const AIdData: Pointer;
-      const AAllowMultiParts: Boolean;
       const AAppearanceHelper: IAppearanceHelper;
       const AImportConfig: IImportConfig;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
@@ -283,7 +281,7 @@ var
 begin
   // dont create polygons for every Polygon in MultiGeometry
   // if allow to create multisegment polygons
-  if FAllowMultiParts and FInMultiGeometry then begin
+  if FInMultiGeometry then begin
     Exit;
   end;
 
@@ -371,7 +369,6 @@ constructor TXmlVectorObjects.Create(
   const ACheckLineIsClosed, ASkipPointInMultiObject: Boolean;
   const AFormatPtr: PFormatSettings;
   const AIdData: Pointer;
-  const AAllowMultiParts: Boolean;
   const AAppearanceHelper: IAppearanceHelper;
   const AImportConfig: IImportConfig;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
@@ -387,7 +384,6 @@ begin
   FList := TInterfaceListSimple.Create;
   FLineBuilder := AGeometryFactory.MakeLineBuilder;
   FPolygonBuilder := AGeometryFactory.MakePolygonBuilder;
-  FAllowMultiParts := AAllowMultiParts;
   FCheckLineIsClosed := ACheckLineIsClosed;
   FSkipPointInMultiObject := ASkipPointInMultiObject;
   FFormatPtr := AFormatPtr;
@@ -450,7 +446,7 @@ var
 begin
   // dont create tracks for every gx:Track in gx:MultiTrack
   // if allow to create multisegment polylines
-  if FAllowMultiParts and FInMultiTrack then begin
+  if FInMultiTrack then begin
     Exit;
   end;
 

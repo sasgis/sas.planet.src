@@ -850,8 +850,7 @@ begin
       FAppearanceOfMarkFactory,
       FVectorGeometryLonLatFactory,
       FVectorDataFactory,
-      FVectorItemSubsetBuilderFactory,
-      True
+      FVectorItemSubsetBuilderFactory
     );
   FPathDetalizeTree :=
     TPathDetalizeProviderTreeSimple.Create(
