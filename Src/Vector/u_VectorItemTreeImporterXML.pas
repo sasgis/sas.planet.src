@@ -341,7 +341,6 @@ begin
   // init
   VXmlVectorObjects := TXmlVectorObjects.Create(
     False, // use True for wiki
-    False, // use True for wiki
     @FFormat,
     AIdData,
     VAppearanceHelper,

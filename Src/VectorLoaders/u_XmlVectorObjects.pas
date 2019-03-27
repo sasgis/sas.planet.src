@@ -57,7 +57,6 @@ type
     FLineBuilder: IGeometryLonLatLineBuilder;
     FPolygonBuilder: IGeometryLonLatPolygonBuilder;
     FList: IInterfaceListSimple;
-    FCheckLineIsClosed: Boolean;
     FSkipPointInMultiObject: Boolean;
     FFormatPtr: PFormatSettings;
     FIdData: Pointer;
@@ -132,7 +131,7 @@ type
     procedure CloseFolder(const AName: string);
   public
     constructor Create(
-      const ACheckLineIsClosed, ASkipPointInMultiObject: Boolean;
+      const ASkipPointInMultiObject: Boolean;
       const AFormatPtr: PFormatSettings;
       const AIdData: Pointer;
       const AAppearanceHelper: IAppearanceHelper;
@@ -366,7 +365,7 @@ begin
 end;
 
 constructor TXmlVectorObjects.Create(
-  const ACheckLineIsClosed, ASkipPointInMultiObject: Boolean;
+  const ASkipPointInMultiObject: Boolean;
   const AFormatPtr: PFormatSettings;
   const AIdData: Pointer;
   const AAppearanceHelper: IAppearanceHelper;
@@ -384,7 +383,6 @@ begin
   FList := TInterfaceListSimple.Create;
   FLineBuilder := AGeometryFactory.MakeLineBuilder;
   FPolygonBuilder := AGeometryFactory.MakePolygonBuilder;
-  FCheckLineIsClosed := ACheckLineIsClosed;
   FSkipPointInMultiObject := ASkipPointInMultiObject;
   FFormatPtr := AFormatPtr;
   FIdData := AIdData;
