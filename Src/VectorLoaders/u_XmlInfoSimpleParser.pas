@@ -114,7 +114,7 @@ function TXmlInfoSimpleParser.Load(
 ): IVectorItemSubset;
 var
   VTree: IVectorItemTree;
-  VImporter: TVectorItemTreeImporterXML;
+  VImporter: IVectorItemTreeImporterXMLInternal;
   VStream: TStreamReadOnlyByBinaryData;
   VSubsetBuilder: IVectorItemSubsetBuilder;
 begin
@@ -127,18 +127,14 @@ begin
       FVectorDataFactory,
       FVectorItemSubsetBuilderFactory
     );
+  VStream := TStreamReadOnlyByBinaryData.Create(AData);
   try
-    VStream := TStreamReadOnlyByBinaryData.Create(AData);
-    try
-      VTree := VImporter.LoadFromStream(VStream, AIdData, nil {ToDo: IImportConfig});
-      VSubsetBuilder := FVectorItemSubsetBuilderFactory.Build;
-      AddSubTree(VSubsetBuilder, VTree);
-      Result := VSubsetBuilder.MakeStaticAndClear;
-    finally
-      VStream.Free;
-    end;
+    VTree := VImporter.LoadFromStream(VStream, AIdData, nil {ToDo: IImportConfig});
+    VSubsetBuilder := FVectorItemSubsetBuilderFactory.Build;
+    AddSubTree(VSubsetBuilder, VTree);
+    Result := VSubsetBuilder.MakeStaticAndClear;
   finally
-    VImporter.Free;
+    VStream.Free;
   end;
 end;
 

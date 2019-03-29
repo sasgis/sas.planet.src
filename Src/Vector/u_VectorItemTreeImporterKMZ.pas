@@ -108,7 +108,7 @@ var
   VIndex: Integer;
   I: Integer;
   VFileName: string;
-  VImporter: TVectorItemTreeImporterXML;
+  VImporter: IVectorItemTreeImporterXMLInternal;
   VStream: TStreamReadOnlyByBinaryData;
 begin
   Result := nil;
@@ -140,15 +140,11 @@ begin
         FVectorDataFactory,
         FVectorItemSubsetBuilderFactory
       );
+    VStream := TStreamReadOnlyByBinaryData.Create(VData);
     try
-      VStream := TStreamReadOnlyByBinaryData.Create(VData);
-      try
-        Result := VImporter.LoadFromStream(VStream, nil, AConfig);
-      finally
-        VStream.Free;
-      end;
+      Result := VImporter.LoadFromStream(VStream, nil, AConfig);
     finally
-      VImporter.Free;
+      VStream.Free;
     end;
   end;
 end;

@@ -44,7 +44,16 @@ uses
   vsagps_public_xml_parser;
 
 type
-  TVectorItemTreeImporterXML = class(TBaseInterfacedObject, IVectorItemTreeImporter)
+  IVectorItemTreeImporterXMLInternal = interface
+    function LoadFromStream(
+      const AStream: TStream;
+      const AIdData: Pointer;
+      const AConfig: IInterface
+    ): IVectorItemTree;
+  end;
+
+type
+  TVectorItemTreeImporterXML = class(TBaseInterfacedObject, IVectorItemTreeImporter, IVectorItemTreeImporterXMLInternal)
   private
     FMarkPictureList: IMarkPictureList;
     FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
@@ -99,7 +108,7 @@ type
       const AFileName: string;
       var AConfig: IInterface
     ): IVectorItemTree;
-  public
+  private
     function LoadFromStream(
       const AStream: TStream;
       const AIdData: Pointer;
