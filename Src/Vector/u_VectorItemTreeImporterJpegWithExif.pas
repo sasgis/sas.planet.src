@@ -56,7 +56,7 @@ type
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
-      var AConfig: IInterface
+      const AConfig: IInterface
     ): IVectorItemTree;
   public
     constructor Create(
@@ -130,7 +130,7 @@ function TVectorItemTreeImporterJpegWithExif.ProcessImport(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const AFileName: string;
-  var AConfig: IInterface
+  const AConfig: IInterface
 ): IVectorItemTree;
 const
   br = '<br>' + #$0D#$0A;

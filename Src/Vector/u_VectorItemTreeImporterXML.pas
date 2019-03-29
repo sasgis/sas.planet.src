@@ -106,7 +106,7 @@ type
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
-      var AConfig: IInterface
+      const AConfig: IInterface
     ): IVectorItemTree;
   private
     function LoadFromStream(
@@ -731,7 +731,7 @@ function TVectorItemTreeImporterXML.ProcessImport(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const AFileName: string;
-  var AConfig: IInterface
+  const AConfig: IInterface
 ): IVectorItemTree;
 var
   VMemStream: TMemoryStream;
