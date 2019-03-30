@@ -803,6 +803,7 @@ begin
       FProjectionSetFactory,
       FArchiveReadWriteFactory,
       FContentTypeManager,
+      FAppearanceOfMarkFactory,
       FBufferFactory,
       FBitmap32StaticFactory,
       FGlobalConfig.LanguageManager,

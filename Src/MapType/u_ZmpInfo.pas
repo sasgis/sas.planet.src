@@ -32,6 +32,7 @@ uses
   i_BinaryDataListStatic,
   i_Bitmap32BufferFactory,
   i_ContentTypeSubst,
+  i_AppearanceOfMarkFactory,
   i_TileDownloadRequestBuilderConfig,
   i_TileDownloaderConfig,
   i_TilePostDownloadCropConfig,
@@ -41,6 +42,7 @@ uses
   i_ContentTypeManager,
   i_MapAbilitiesConfig,
   i_SimpleTileStorageConfig,
+  i_ImportConfig,
   i_ZmpConfig,
   i_ZmpInfo,
   u_BaseInterfacedObject;
@@ -129,6 +131,9 @@ type
     FViewProjectionSet: IProjectionSet;
     FGUI: IZmpInfoGUI;
     FAbilities: IMapAbilitiesConfigStatic;
+    FPointParams: IImportPointParams;
+    FLineParams: IImportLineParams;
+    FPolyParams: IImportPolyParams;
     FEmptyTileSamples: IBinaryDataListStatic;
     FBanTileSamples: IBinaryDataListStatic;
     FStorageConfig: ISimpleTileStorageConfigStatic;
@@ -140,7 +145,12 @@ type
   private
     procedure LoadConfig(
       const AProjectionSetFactory: IProjectionSetFactory;
+      const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const ALanguageManager: ILanguageManager
+    );
+    procedure LoadVectorAppearanceConfig(
+      const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+      const AConfig: IConfigDataProvider
     );
     procedure LoadCropConfig(const AConfig: IConfigDataProvider);
     procedure LoadAbilities(const AConfig: IConfigDataProvider);
@@ -175,6 +185,9 @@ type
     function GetProjectionSet: IProjectionSet;
     function GetViewProjectionSet: IProjectionSet;
     function GetAbilities: IMapAbilitiesConfigStatic;
+    function GetPointParams: IImportPointParams;
+    function GetLineParams: IImportLineParams;
+    function GetPolyParams: IImportPolyParams;
     function GetEmptyTileSamples: IBinaryDataListStatic;
     function GetBanTileSamples: IBinaryDataListStatic;
     function GetStorageConfig: ISimpleTileStorageConfigStatic;
@@ -185,6 +198,7 @@ type
       const ALanguageManager: ILanguageManager;
       const AProjectionSetFactory: IProjectionSetFactory;
       const AContentTypeManager: IContentTypeManager;
+      const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AFileName: string;
       const AConfig: IConfigDataProvider;
@@ -209,6 +223,7 @@ uses
   i_StringListStatic,
   i_BitmapTileSaveLoad,
   i_ContentTypeInfo,
+  i_Appearance,
   i_TileStorageAbilities,
   u_BinaryDataListStatic,
   u_StringByLanguageWithStaticList,
@@ -218,6 +233,7 @@ uses
   u_ContentTypeSubstByList,
   u_MapAbilitiesConfigStatic,
   u_TileStorageAbilities,
+  u_ImportConfig,
   u_ConfigProviderHelpers,
   u_SimpleTileStorageConfigStatic,
   u_ResStrings;
@@ -560,6 +576,7 @@ constructor TZmpInfo.Create(
   const ALanguageManager: ILanguageManager;
   const AProjectionSetFactory: IProjectionSetFactory;
   const AContentTypeManager: IContentTypeManager;
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AFileName: string;
   const AConfig: IConfigDataProvider;
@@ -578,7 +595,7 @@ begin
   if FConfigIniParams = nil then begin
     raise EZmpParamsNotFound.Create(_('Not found PARAMS section in zmp'));
   end;
-  LoadConfig(AProjectionSetFactory, ALanguageManager);
+  LoadConfig(AProjectionSetFactory, AAppearanceOfMarkFactory, ALanguageManager);
   FGUI :=
     TZmpInfoGUI.Create(
       FGUID,
@@ -651,6 +668,21 @@ end;
 function TZmpInfo.GetFileName: string;
 begin
   Result := FFileName;
+end;
+
+function TZmpInfo.GetPointParams: IImportPointParams;
+begin
+  Result := FPointParams;
+end;
+
+function TZmpInfo.GetLineParams: IImportLineParams;
+begin
+  Result := FLineParams;
+end;
+
+function TZmpInfo.GetPolyParams: IImportPolyParams;
+begin
+  Result := FPolyParams;
 end;
 
 function TZmpInfo.GetProjectionSet: IProjectionSet;
@@ -730,6 +762,7 @@ end;
 
 procedure TZmpInfo.LoadConfig(
   const AProjectionSetFactory: IProjectionSetFactory;
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const ALanguageManager: ILanguageManager
 );
 begin
@@ -742,6 +775,7 @@ begin
   LoadCropConfig(FConfigIniParams);
   LoadStorageConfig(FConfigIniParams);
   LoadAbilities(FConfigIniParams);
+  LoadVectorAppearanceConfig(AAppearanceOfMarkFactory, FConfigIniParams);
   LoadSamples(FConfig);
   FContentTypeSubst := TContentTypeSubstByList.Create(FConfigIniParams);
 end;
@@ -931,6 +965,49 @@ begin
       VIsUseDownloader,
       VDefaultProjConverterArgs
     );
+end;
+
+procedure TZmpInfo.LoadVectorAppearanceConfig(
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+  const AConfig: IConfigDataProvider
+);
+var
+  VAppearance: IAppearance;
+  VConfig: IConfigDataProvider;
+  VSubConfig: IConfigDataProvider;
+  VLineColor: TColor32;
+  VLineWidth: Integer;
+  VFillColor: TColor32;
+  VIsForceLineColor: Boolean;
+  VIsForceLineWidth: Boolean;
+  VIsForceFillColor: Boolean;
+begin
+  VConfig := AConfig.GetSubItem('Vector');
+  if Assigned(VConfig) then begin
+    FPointParams := nil;
+
+    VSubConfig := VConfig.GetSubItem('Line');
+    if Assigned(VSubConfig) then begin
+      VLineColor := ReadColor32(VSubConfig, 'LineColor', clWhite32);
+      VLineWidth := VSubConfig.ReadInteger('LineWidth', 1);
+      VAppearance := AAppearanceOfMarkFactory.CreateLineAppearance(VLineColor, VLineWidth);
+      VIsForceLineColor := VSubConfig.ReadBool('IsForceLineColor', True);
+      VIsForceLineWidth := VSubConfig.ReadBool('IsForceLineWidth', True);
+      FLineParams := TImportLineParams.Create(VAppearance, VIsForceLineColor, VIsForceLineWidth);
+    end;
+
+    VSubConfig := VConfig.GetSubItem('Poly');
+    if Assigned(VSubConfig) then begin
+      VLineColor := ReadColor32(VSubConfig, 'LineColor', clWhite32);
+      VLineWidth := VSubConfig.ReadInteger('LineWidth', 1);
+      VFillColor := ReadColor32(VSubConfig, 'FillColor', SetAlpha(clWhite32, 30));
+      VAppearance := AAppearanceOfMarkFactory.CreatePolygonAppearance(VLineColor, VLineWidth, VFillColor);
+      VIsForceLineColor := VSubConfig.ReadBool('IsForceLineColor', True);
+      VIsForceLineWidth := VSubConfig.ReadBool('IsForceLineWidth', True);
+      VIsForceFillColor := VSubConfig.ReadBool('IsForceFillColor', True);
+      FPolyParams := TImportPolyParams.Create(VAppearance, VIsForceLineColor, VIsForceLineWidth, VIsForceFillColor);
+    end;
+  end;
 end;
 
 procedure TZmpInfo.LoadVersion(

@@ -31,6 +31,7 @@ uses
   i_LanguageManager,
   i_Bitmap32BufferFactory,
   i_ContentTypeManager,
+  i_AppearanceOfMarkFactory,
   i_FileNameIterator,
   i_ZmpConfig,
   i_ZmpInfoSet,
@@ -49,6 +50,7 @@ type
       const AProjectionSetFactory: IProjectionSetFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const AContentTypeManager: IContentTypeManager;
+      const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const ABufferFactory: IBitmap32BufferFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
       const ALanguageManager: ILanguageManager;
@@ -77,6 +79,7 @@ constructor TZmpInfoSet.Create(
   const AProjectionSetFactory: IProjectionSetFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const AContentTypeManager: IContentTypeManager;
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const ABufferFactory: IBitmap32BufferFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
   const ALanguageManager: ILanguageManager;
@@ -133,6 +136,7 @@ begin
             ALanguageManager,
             AProjectionSetFactory,
             AContentTypeManager,
+            AAppearanceOfMarkFactory,
             ABitmapFactory,
             VFileName,
             VZmpMapConfig,

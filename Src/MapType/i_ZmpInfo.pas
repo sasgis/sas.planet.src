@@ -34,6 +34,7 @@ uses
   i_MapAbilitiesConfig,
   i_BinaryDataListStatic,
   i_StringByLanguage,
+  i_ImportConfig,
   i_TileDownloadRequestBuilderConfig;
 
 type
@@ -110,6 +111,15 @@ type
 
     function GetAbilities: IMapAbilitiesConfigStatic;
     property Abilities: IMapAbilitiesConfigStatic read GetAbilities;
+
+    function GetPointParams: IImportPointParams;
+    property PointParams: IImportPointParams read GetPointParams;
+
+    function GetLineParams: IImportLineParams;
+    property LineParams: IImportLineParams read GetLineParams;
+
+    function GetPolyParams: IImportPolyParams;
+    property PolyParams: IImportPolyParams read GetPolyParams;
 
     function GetEmptyTileSamples: IBinaryDataListStatic;
     property EmptyTileSamples: IBinaryDataListStatic read GetEmptyTileSamples;

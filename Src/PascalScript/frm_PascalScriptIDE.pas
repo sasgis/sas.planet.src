@@ -59,6 +59,7 @@ uses
   i_MapVersionFactory,
   i_Bitmap32BufferFactory,
   i_ContentTypeManager,
+  i_AppearanceOfMarkFactory,
   i_ZmpConfig,
   i_Downloader,
   i_DownloaderFactory,
@@ -153,6 +154,7 @@ type
     FGUIConfigList: IMapTypeGUIConfigList;
     FProjectionSetFactory: IProjectionSetFactory;
     FContentTypeManager: IContentTypeManager;
+    FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
     FVersionFactory: IMapVersionFactory;
     FBufferFactory: IBitmap32BufferFactory;
     FBitmapFactory: IBitmap32StaticFactory;
@@ -197,6 +199,7 @@ type
       const ADownloaderFactory: IDownloaderFactory;
       const AProjectionSetFactory: IProjectionSetFactory;
       const AContentTypeManager: IContentTypeManager;
+      const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AVersionFactory: IMapVersionFactory;
       const ABufferFactory: IBitmap32BufferFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
@@ -290,6 +293,7 @@ constructor TfrmPascalScriptIDE.Create(
   const ADownloaderFactory: IDownloaderFactory;
   const AProjectionSetFactory: IProjectionSetFactory;
   const AContentTypeManager: IContentTypeManager;
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AVersionFactory: IMapVersionFactory;
   const ABufferFactory: IBitmap32BufferFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
@@ -308,6 +312,7 @@ begin
   FZmpConfig := AZmpConfig;
   FProjectionSetFactory := AProjectionSetFactory;
   FContentTypeManager := AContentTypeManager;
+  FAppearanceOfMarkFactory := AAppearanceOfMarkFactory;
   FVersionFactory := AVersionFactory;
   FBufferFactory := ABufferFactory;
   FBitmapFactory := ABitmapFactory;
@@ -548,6 +553,7 @@ begin
       FLanguageManager,
       FProjectionSetFactory,
       FContentTypeManager,
+      FAppearanceOfMarkFactory,
       FBitmapFactory,
       VFileName,
       VZmpMapConfig,
@@ -570,6 +576,7 @@ begin
       FLanguageManager,
       FProjectionSetFactory,
       FContentTypeManager,
+      FAppearanceOfMarkFactory,
       FBitmapFactory,
       AFileName,
       VZmpMapConfig,
@@ -615,6 +622,7 @@ begin
       FLanguageManager,
       FProjectionSetFactory,
       FContentTypeManager,
+      FAppearanceOfMarkFactory,
       FBitmapFactory,
       'ram.zmp',
       VZmpMapConfig,
