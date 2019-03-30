@@ -829,11 +829,12 @@ var
   VFolder: PFolderRec;
 begin
   if not FSkipFolders or (FFoldersList.Count = 0) then begin
-    New(VFolder);
-    VFolder.FVectorDataItemsResultBuilder := FVectorItemSubsetBuilderFactory.Build;
-    VFolder.FSubTree := TInterfaceListSimple.Create;
-    FFoldersList.Add(VFolder);
+    Exit;
   end;
+  New(VFolder);
+  VFolder.FVectorDataItemsResultBuilder := FVectorItemSubsetBuilderFactory.Build;
+  VFolder.FSubTree := TInterfaceListSimple.Create;
+  FFoldersList.Add(VFolder);
 end;
 
 procedure TXmlVectorObjects.CloseFolder(const AName: string);
@@ -843,22 +844,23 @@ var
   VParent: PFolderRec;
   VSubTree: IVectorItemTree;
 begin
-  if not FSkipFolders then begin
-    I := FFoldersList.Count - 1;
-    Assert(I >= 0);
-    VFolder := PFolderRec(FFoldersList.Items[I]);
-    if I > 0 then begin
-      VSubTree := TVectorItemTree.Create(
-        AName,
-        VFolder.FVectorDataItemsResultBuilder.MakeStaticAndClear,
-        VFolder.FSubTree.MakeStaticAndClear
-      );
-      VParent := PFolderRec(FFoldersList.Items[I - 1]);
-      VParent.FSubTree.Add(VSubTree);
-    end;
-    FFoldersList.Delete(I);
-    Dispose(VFolder);
+  if FSkipFolders then begin
+    Exit;
   end;
+  I := FFoldersList.Count - 1;
+  Assert(I >= 0);
+  VFolder := PFolderRec(FFoldersList.Items[I]);
+  if I > 0 then begin
+    VSubTree := TVectorItemTree.Create(
+      AName,
+      VFolder.FVectorDataItemsResultBuilder.MakeStaticAndClear,
+      VFolder.FSubTree.MakeStaticAndClear
+    );
+    VParent := PFolderRec(FFoldersList.Items[I - 1]);
+    VParent.FSubTree.Add(VSubTree);
+  end;
+  FFoldersList.Delete(I);
+  Dispose(VFolder);
 end;
 
 procedure TXmlVectorObjects.SafeAddToResult(
