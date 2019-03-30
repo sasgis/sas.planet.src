@@ -245,6 +245,7 @@ uses
   i_TileInfoBasic,
   i_TileStorageAbilities,
   i_MapVersionListStatic,
+  i_ImportConfig,
   i_DownloadResultFactory,
   u_StringProviderForMapTileItem,
   u_LayerDrawConfig,

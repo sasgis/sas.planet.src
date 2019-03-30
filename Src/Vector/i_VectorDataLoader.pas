@@ -35,7 +35,7 @@ type
     PointParams: IImportPointParams;
     LineParams: IImportLineParams;
     PolygonParams: IImportPolyParams;
-    procedure Init;
+    procedure Init; inline;
   end;
 
 type
