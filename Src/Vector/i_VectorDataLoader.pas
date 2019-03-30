@@ -35,6 +35,7 @@ type
     PointParams: IImportPointParams;
     LineParams: IImportLineParams;
     PolygonParams: IImportPolyParams;
+    procedure Init;
   end;
 
 type
@@ -47,5 +48,16 @@ type
   end;
 
 implementation
+
+{ TVectorLoadContext }
+
+procedure TVectorLoadContext.Init;
+begin
+  IdData := nil;
+  MainInfoFactory := nil;
+  PointParams := nil;
+  LineParams := nil;
+  PolygonParams := nil;
+end;
 
 end.

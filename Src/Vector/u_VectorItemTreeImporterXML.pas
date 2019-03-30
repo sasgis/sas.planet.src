@@ -742,16 +742,12 @@ begin
   try
     VMemStream.LoadFromFile(AFileName);
     VMemStream.Position := 0;
-    VContext.IdData := nil;
+    VContext.Init;
     VContext.MainInfoFactory := FVectorDataItemMainInfoFactory;
     if Supports(AConfig, IImportConfig, VConfig) then begin
       VContext.PointParams := VConfig.PointParams;
       VContext.LineParams := VConfig.LineParams;
       VContext.PolygonParams := VConfig.PolyParams;
-    end else begin
-      VContext.PointParams := nil;
-      VContext.LineParams := nil;
-      VContext.PolygonParams := nil;
     end;
 
     Result := LoadFromStream(VContext, VMemStream);

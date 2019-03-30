@@ -139,6 +139,7 @@ begin
         if Assigned(VLoader) then begin
           try
             VIdData.UrlPrefix := TStringProviderForMapTileItem.Create(FUrlPrefix, ATile, FProjection.Zoom);
+            VContext.Init;
             VContext.IdData := @VIdData;
             VContext.MainInfoFactory := FVectorDataItemMainInfoFactory;
             VContext.PointParams := FPointParams;

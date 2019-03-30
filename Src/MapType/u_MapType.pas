@@ -515,6 +515,7 @@ begin
       VIdData.UrlPrefix := TStringProviderForMapTileItem.Create(FMapDataUrlPrefix, AXY, AZoom);
       try
         VIdData.NextIndex := 0;
+        VContext.Init;
         VContext.IdData := @VIdData;
         VContext.MainInfoFactory := FVectorDataFactory;
         VContext.PointParams := FZmp.PointParams;

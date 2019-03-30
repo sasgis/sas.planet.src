@@ -91,16 +91,12 @@ begin
     VMemStream.LoadFromFile(AFileName);
     VData := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
     VMemStream := nil;
-    VContext.IdData := nil;
+    VContext.Init;
     VContext.MainInfoFactory := FVectorDataItemMainInfoFactory;
     if Supports(AConfig, IImportConfig, VConfig) then begin
       VContext.PointParams := VConfig.PointParams;
       VContext.LineParams := VConfig.LineParams;
       VContext.PolygonParams := VConfig.PolyParams;
-    end else begin
-      VContext.PointParams := nil;
-      VContext.LineParams := nil;
-      VContext.PolygonParams := nil;
     end;
     VVectorData := FLoader.Load(VContext, VData);
     Result := TVectorItemTree.Create('', VVectorData, nil);

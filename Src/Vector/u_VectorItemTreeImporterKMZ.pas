@@ -148,16 +148,12 @@ begin
 
     VStream := TStreamReadOnlyByBinaryData.Create(VData);
     try
-      VContext.IdData := nil;
+      VContext.Init;
       VContext.MainInfoFactory := FVectorDataItemMainInfoFactory;
       if Supports(AConfig, IImportConfig, VConfig) then begin
         VContext.PointParams := VConfig.PointParams;
         VContext.LineParams := VConfig.LineParams;
         VContext.PolygonParams := VConfig.PolyParams;
-      end else begin
-        VContext.PointParams := nil;
-        VContext.LineParams := nil;
-        VContext.PolygonParams := nil;
       end;
       Result := FImporter.LoadFromStream(VContext, VStream);
     finally
