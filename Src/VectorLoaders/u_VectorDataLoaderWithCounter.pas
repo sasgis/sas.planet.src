@@ -37,7 +37,7 @@ type
     FLoadCounter: IInternalPerformanceCounter;
   private
     function Load(
-      var AContext: TVectorLoadContext;
+      const AContext: TVectorLoadContext;
       const AData: IBinaryData
     ): IVectorItemSubset;
   public
@@ -64,7 +64,7 @@ begin
 end;
 
 function TVectorDataLoaderWithCounter.Load(
-  var AContext: TVectorLoadContext;
+  const AContext: TVectorLoadContext;
   const AData: IBinaryData
 ): IVectorItemSubset;
 var

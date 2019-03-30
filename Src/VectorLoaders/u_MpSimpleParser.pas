@@ -44,7 +44,7 @@ type
     );
   private
     function Load(
-      var AContext: TVectorLoadContext;
+      const AContext: TVectorLoadContext;
       const AData: IBinaryData
     ): IVectorItemSubset;
   public
@@ -132,7 +132,7 @@ begin
 end;
 
 function TMpSimpleParser.Load(
-  var AContext: TVectorLoadContext;
+  const AContext: TVectorLoadContext;
   const AData: IBinaryData
 ): IVectorItemSubset;
 var

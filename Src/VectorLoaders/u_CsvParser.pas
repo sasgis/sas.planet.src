@@ -39,7 +39,7 @@ type
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   private
     function Load(
-      var AContext: TVectorLoadContext;
+      const AContext: TVectorLoadContext;
       const AData: IBinaryData
     ): IVectorItemSubset;
   public
@@ -538,7 +538,7 @@ begin
 end;
 
 function TCsvParser.Load(
-  var AContext: TVectorLoadContext;
+  const AContext: TVectorLoadContext;
   const AData: IBinaryData
 ): IVectorItemSubset;
 var

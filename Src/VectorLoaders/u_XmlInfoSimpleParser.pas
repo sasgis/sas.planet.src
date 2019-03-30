@@ -47,7 +47,7 @@ type
     FImporter: IVectorItemTreeImporterXMLInternal;
   private
     function Load(
-      var AContext: TVectorLoadContext;
+      const AContext: TVectorLoadContext;
       const AData: IBinaryData
     ): IVectorItemSubset;
   public
@@ -122,7 +122,7 @@ begin
 end;
 
 function TXmlInfoSimpleParser.Load(
-  var AContext: TVectorLoadContext;
+  const AContext: TVectorLoadContext;
   const AData: IBinaryData
 ): IVectorItemSubset;
 var

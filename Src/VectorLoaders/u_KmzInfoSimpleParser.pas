@@ -37,12 +37,12 @@ type
     FKmlParser: IVectorDataLoader;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     function LoadFromStreamInternal(
-      var AContext: TVectorLoadContext;
+      const AContext: TVectorLoadContext;
       AStream: TStream
     ): IVectorItemSubset;
   private
     function Load(
-      var AContext: TVectorLoadContext;
+      const AContext: TVectorLoadContext;
       const AData: IBinaryData
     ): IVectorItemSubset;
   public
@@ -72,7 +72,7 @@ begin
 end;
 
 function TKmzInfoSimpleParser.Load(
-  var AContext: TVectorLoadContext;
+  const AContext: TVectorLoadContext;
   const AData: IBinaryData
 ): IVectorItemSubset;
 var
@@ -88,7 +88,7 @@ begin
 end;
 
 function TKmzInfoSimpleParser.LoadFromStreamInternal(
-  var AContext: TVectorLoadContext;
+  const AContext: TVectorLoadContext;
   AStream: TStream
 ): IVectorItemSubset;
 var

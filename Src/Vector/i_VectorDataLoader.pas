@@ -42,7 +42,7 @@ type
   IVectorDataLoader = interface
     ['{F9986E7D-897C-4BD3-8A92-A9798BFB32FA}']
     function Load(
-      var AContext: TVectorLoadContext;
+      const AContext: TVectorLoadContext;
       const AData: IBinaryData
     ): IVectorItemSubset;
   end;

@@ -56,11 +56,11 @@ type
     ): AnsiString;
   private
     function LoadFromStream(
-      var AContext: TVectorLoadContext;
+      const AContext: TVectorLoadContext;
       AStream: TStream
     ): IVectorItemSubset;
     function Load(
-      var AContext: TVectorLoadContext;
+      const AContext: TVectorLoadContext;
       const AData: IBinaryData
     ): IVectorItemSubset;
   public
@@ -92,7 +92,7 @@ begin
 end;
 
 function TPLTSimpleParser.Load(
-  var AContext: TVectorLoadContext;
+  const AContext: TVectorLoadContext;
   const AData: IBinaryData
 ): IVectorItemSubset;
 var
@@ -108,7 +108,7 @@ begin
 end;
 
 function TPLTSimpleParser.LoadFromStream(
-  var AContext: TVectorLoadContext;
+  const AContext: TVectorLoadContext;
   AStream: TStream
 ): IVectorItemSubset;
 var

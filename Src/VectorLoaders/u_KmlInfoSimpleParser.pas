@@ -88,12 +88,12 @@ type
       const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
     ): IVectorDataItem;
     function LoadFromStreamInternal(
-      var AContext: TVectorLoadContext;
+      const AContext: TVectorLoadContext;
       AStream: TStream
     ): IVectorItemSubset;
   private
     function Load(
-      var AContext: TVectorLoadContext;
+      const AContext: TVectorLoadContext;
       const AData: IBinaryData
     ): IVectorItemSubset;
   public
@@ -194,7 +194,7 @@ begin
 end;
 
 function TKmlInfoSimpleParser.Load(
-  var AContext: TVectorLoadContext;
+  const AContext: TVectorLoadContext;
   const AData: IBinaryData
 ): IVectorItemSubset;
 var
@@ -210,7 +210,7 @@ begin
 end;
 
 function TKmlInfoSimpleParser.LoadFromStreamInternal(
-  var AContext: TVectorLoadContext;
+  const AContext: TVectorLoadContext;
   AStream: TStream
 ): IVectorItemSubset;
   function GetAnsiString(AStream: TStream): AnsiString;

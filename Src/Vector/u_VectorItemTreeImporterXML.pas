@@ -47,7 +47,7 @@ uses
 type
   IVectorItemTreeImporterXMLInternal = interface
     function LoadFromStream(
-      var AContext: TVectorLoadContext;
+      const AContext: TVectorLoadContext;
       const AStream: TStream
     ): IVectorItemTree;
   end;
@@ -111,7 +111,7 @@ type
     ): IVectorItemTree;
   private
     function LoadFromStream(
-      var AContext: TVectorLoadContext;
+      const AContext: TVectorLoadContext;
       const AStream: TStream
     ): IVectorItemTree;
   public
@@ -325,7 +325,7 @@ begin
 end;
 
 function TVectorItemTreeImporterXML.LoadFromStream(
-  var AContext: TVectorLoadContext;
+  const AContext: TVectorLoadContext;
   const AStream: TStream
 ): IVectorItemTree;
 var
