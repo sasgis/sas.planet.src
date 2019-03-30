@@ -56,6 +56,7 @@ type
     FPolygonBuilder: IGeometryLonLatPolygonBuilder;
     FList: IInterfaceListSimple;
     FSkipPointInMultiObject: Boolean;
+    FSkipFolders: Boolean;
     FFormatPtr: PFormatSettings;
     FIdData: Pointer;
     FAppearanceHelper: IAppearanceHelper;
@@ -129,6 +130,7 @@ type
   public
     constructor Create(
       const ASkipPointInMultiObject: Boolean;
+      const ASkipFolders: Boolean;
       const AFormatPtr: PFormatSettings;
       const AIdData: Pointer;
       const AAppearanceHelper: IAppearanceHelper;
@@ -361,6 +363,7 @@ end;
 
 constructor TXmlVectorObjects.Create(
   const ASkipPointInMultiObject: Boolean;
+  const ASkipFolders: Boolean;
   const AFormatPtr: PFormatSettings;
   const AIdData: Pointer;
   const AAppearanceHelper: IAppearanceHelper;
@@ -378,6 +381,7 @@ begin
   FLineBuilder := AGeometryFactory.MakeLineBuilder;
   FPolygonBuilder := AGeometryFactory.MakePolygonBuilder;
   FSkipPointInMultiObject := ASkipPointInMultiObject;
+  FSkipFolders := ASkipFolders;
   FFormatPtr := AFormatPtr;
   FIdData := AIdData;
   FAppearanceHelper := AAppearanceHelper;
@@ -399,8 +403,12 @@ end;
 
 destructor TXmlVectorObjects.Destroy;
 begin
-  CloseFolder(''); // close root folder
-  FreeAndNil(FFoldersList);
+  if Assigned(FFoldersList) then begin
+    if FFoldersList.Count > 0 then begin
+      Dispose(FFoldersList.Items[0]);
+    end;
+    FreeAndNil(FFoldersList);
+  end;
   inherited;
 end;
 
@@ -818,10 +826,12 @@ procedure TXmlVectorObjects.OpenFolder;
 var
   VFolder: PFolderRec;
 begin
-  New(VFolder);
-  VFolder.FVectorDataItemsResultBuilder := FVectorItemSubsetBuilderFactory.Build;
-  VFolder.FSubTree := TInterfaceListSimple.Create;
-  FFoldersList.Add(VFolder);
+  if not FSkipFolders or (FFoldersList.Count = 0) then begin
+    New(VFolder);
+    VFolder.FVectorDataItemsResultBuilder := FVectorItemSubsetBuilderFactory.Build;
+    VFolder.FSubTree := TInterfaceListSimple.Create;
+    FFoldersList.Add(VFolder);
+  end;
 end;
 
 procedure TXmlVectorObjects.CloseFolder(const AName: string);
@@ -831,20 +841,22 @@ var
   VParent: PFolderRec;
   VSubTree: IVectorItemTree;
 begin
-  I := FFoldersList.Count - 1;
-  Assert(I >= 0);
-  VFolder := PFolderRec(FFoldersList.Items[I]);
-  if I > 0 then begin
-    VSubTree := TVectorItemTree.Create(
-      AName,
-      VFolder.FVectorDataItemsResultBuilder.MakeStaticAndClear,
-      VFolder.FSubTree.MakeStaticAndClear
-    );
-    VParent := PFolderRec(FFoldersList.Items[I - 1]);
-    VParent.FSubTree.Add(VSubTree);
+  if not FSkipFolders then begin
+    I := FFoldersList.Count - 1;
+    Assert(I >= 0);
+    VFolder := PFolderRec(FFoldersList.Items[I]);
+    if I > 0 then begin
+      VSubTree := TVectorItemTree.Create(
+        AName,
+        VFolder.FVectorDataItemsResultBuilder.MakeStaticAndClear,
+        VFolder.FSubTree.MakeStaticAndClear
+      );
+      VParent := PFolderRec(FFoldersList.Items[I - 1]);
+      VParent.FSubTree.Add(VSubTree);
+    end;
+    FFoldersList.Delete(I);
+    Dispose(VFolder);
   end;
-  FFoldersList.Delete(I);
-  Dispose(VFolder);
 end;
 
 procedure TXmlVectorObjects.SafeAddToResult(

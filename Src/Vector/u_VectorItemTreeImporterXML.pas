@@ -55,6 +55,7 @@ type
 type
   TVectorItemTreeImporterXML = class(TBaseInterfacedObject, IVectorItemTreeImporter, IVectorItemTreeImporterXMLInternal)
   private
+    FSkipFolders: Boolean;
     FMarkPictureList: IMarkPictureList;
     FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
     FVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
@@ -115,6 +116,7 @@ type
     ): IVectorItemTree;
   public
     constructor Create(
+      const ASkipFolders: Boolean;
       const AMarkPictureList: IMarkPictureList;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
@@ -163,6 +165,7 @@ end;
 { TXmlInfoSimpleParser }
 
 constructor TVectorItemTreeImporterXML.Create(
+  const ASkipFolders: Boolean;
   const AMarkPictureList: IMarkPictureList;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
@@ -172,6 +175,7 @@ constructor TVectorItemTreeImporterXML.Create(
 );
 begin
   inherited Create;
+  FSkipFolders := ASkipFolders;
   FMarkPictureList := AMarkPictureList;
   FAppearanceOfMarkFactory := AAppearanceOfMarkFactory;
   FVectorDataItemMainInfoFactory := AVectorDataItemMainInfoFactory;
@@ -346,6 +350,7 @@ begin
   // init
   VXmlVectorObjects := TXmlVectorObjects.Create(
     False, // use True for wiki
+    FSkipFolders,
     @FFormat,
     AContext.IdData,
     VAppearanceHelper,

@@ -88,6 +88,7 @@ begin
 
   FImporter :=
     TVectorItemTreeImporterXML.Create(
+      True,
       FMarkPictureList,
       FAppearanceOfMarkFactory,
       nil,
@@ -132,9 +133,13 @@ begin
   VStream := TStreamReadOnlyByBinaryData.Create(AData);
   try
     VTree := FImporter.LoadFromStream(AContext, VStream);
-    VSubsetBuilder := FVectorItemSubsetBuilderFactory.Build;
-    AddSubTree(VSubsetBuilder, VTree);
-    Result := VSubsetBuilder.MakeStaticAndClear;
+    if VTree.SubTreeItemCount = 0 then begin
+      Result := VTree.Items;
+    end else begin
+      VSubsetBuilder := FVectorItemSubsetBuilderFactory.Build;
+      AddSubTree(VSubsetBuilder, VTree);
+      Result := VSubsetBuilder.MakeStaticAndClear;
+    end;
   finally
     VStream.Free;
   end;

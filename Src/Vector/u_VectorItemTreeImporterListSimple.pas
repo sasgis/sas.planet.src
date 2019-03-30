@@ -125,6 +125,7 @@ begin
 
   VImporter :=
     TVectorItemTreeImporterXML.Create(
+      False,
       AMarkPictureList,
       AAppearanceOfMarkFactory,
       AVectorDataItemMainInfoFactory,
@@ -160,6 +161,7 @@ begin
 
   VImporter :=
     TVectorItemTreeImporterXML.Create(
+      False,
       AMarkPictureList,
       AAppearanceOfMarkFactory,
       AVectorDataItemMainInfoFactory,

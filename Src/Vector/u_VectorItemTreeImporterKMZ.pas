@@ -99,6 +99,7 @@ begin
 
   FImporter :=
     TVectorItemTreeImporterXML.Create(
+      False,
       FMarkPictureList,
       FAppearanceOfMarkFactory,
       FVectorDataItemMainInfoFactory,
