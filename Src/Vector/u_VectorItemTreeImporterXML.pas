@@ -350,7 +350,6 @@ begin
   // init
   VXmlVectorObjects := TXmlVectorObjects.Create(
     False, // use True for wiki
-    FSkipFolders,
     @FFormat,
     AContext.IdData,
     VAppearanceHelper,
@@ -427,12 +426,14 @@ begin
 
     case pPX_Result^.kml_data.current_tag of
       kml_Folder: begin
-        case pPX_State^.tag_disposition of
-          xtd_Open: begin
-            AXmlVectorObjects.OpenFolder;
-          end;
-          xtd_Close: begin
-            Internal_CloseFolder(AXmlVectorObjects, pPX_Result);
+        if not FSkipFolders then begin
+          case pPX_State^.tag_disposition of
+            xtd_Open: begin
+              AXmlVectorObjects.OpenFolder;
+            end;
+            xtd_Close: begin
+              Internal_CloseFolder(AXmlVectorObjects, pPX_Result);
+            end;
           end;
         end;
       end;
