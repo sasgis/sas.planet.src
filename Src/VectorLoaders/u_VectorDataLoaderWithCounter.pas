@@ -37,9 +37,8 @@ type
     FLoadCounter: IInternalPerformanceCounter;
   private
     function Load(
-      const AData: IBinaryData;
-      const AIdData: Pointer;
-      const AFactory: IVectorDataItemMainInfoFactory
+      var AContext: TVectorLoadContext;
+      const AData: IBinaryData
     ): IVectorItemSubset;
   public
     constructor Create(
@@ -65,9 +64,8 @@ begin
 end;
 
 function TVectorDataLoaderWithCounter.Load(
-  const AData: IBinaryData;
-  const AIdData: Pointer;
-  const AFactory: IVectorDataItemMainInfoFactory
+  var AContext: TVectorLoadContext;
+  const AData: IBinaryData
 ): IVectorItemSubset;
 var
   VCounterContext: TInternalPerformanceCounterContext;
@@ -76,12 +74,7 @@ begin
   VCounterContext := FLoadCounter.StartOperation;
   try
     // read from single simple source
-    Result :=
-      FLoader.Load(
-        AData,
-        AIdData,
-        AFactory
-      )
+    Result := FLoader.Load(AContext, AData);
   finally
     FLoadCounter.FinishOperation(VCounterContext);
   end;

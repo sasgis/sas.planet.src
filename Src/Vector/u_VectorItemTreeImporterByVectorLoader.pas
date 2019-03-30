@@ -55,6 +55,7 @@ implementation
 uses
   SysUtils,
   i_BinaryData,
+  i_ImportConfig,
   i_VectorItemSubset,
   u_VectorItemTree,
   u_BinaryDataByMemStream;
@@ -80,6 +81,8 @@ function TVectorItemTreeImporterByVectorLoader.ProcessImport(
 var
   VMemStream: TMemoryStream;
   VData: IBinaryData;
+  VConfig: IImportConfig;
+  VContext: TVectorLoadContext;
   VVectorData: IVectorItemSubset;
 begin
   Result := nil;
@@ -88,7 +91,18 @@ begin
     VMemStream.LoadFromFile(AFileName);
     VData := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
     VMemStream := nil;
-    VVectorData := FLoader.Load(VData, nil, FVectorDataItemMainInfoFactory);
+    VContext.IdData := nil;
+    VContext.MainInfoFactory := FVectorDataItemMainInfoFactory;
+    if Supports(AConfig, IImportConfig, VConfig) then begin
+      VContext.PointParams := VConfig.PointParams;
+      VContext.LineParams := VConfig.LineParams;
+      VContext.PolygonParams := VConfig.PolyParams;
+    end else begin
+      VContext.PointParams := nil;
+      VContext.LineParams := nil;
+      VContext.PolygonParams := nil;
+    end;
+    VVectorData := FLoader.Load(VContext, VData);
     Result := TVectorItemTree.Create('', VVectorData, nil);
   finally
     VMemStream.Free;

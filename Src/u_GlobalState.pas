@@ -651,6 +651,7 @@ begin
     TContentTypeManagerSimple.Create(
       FVectorGeometryLonLatFactory,
       FVectorDataFactory,
+      FAppearanceOfMarkFactory,
       FVectorItemSubsetBuilderFactory,
       FBitmapTileSaveLoadFactory,
       FArchiveReadWriteFactory,

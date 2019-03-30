@@ -31,6 +31,7 @@ uses
   i_Bitmap32BufferFactory,
   i_VectorDataItemSimple,
   i_VectorItemSubset,
+  i_Appearance,
   i_GeometryLonLat,
   i_GeometryProjectedProvider,
   i_NotifierOperation,
@@ -66,6 +67,7 @@ type
       const ALine: IGeometryLonLatLine;
       const AProjection: IProjection;
       const AMapRect: TRect;
+      const AAppearance: IAppearance;
       var AFixedPointArray: TArrayOfFixedPoint
     ): Boolean;
     function DrawSinglePolygon(
@@ -73,6 +75,7 @@ type
       ATargetBmp: TCustomBitmap32;
       const APoly: IGeometryProjectedSinglePolygon;
       const AMapRect: TRect;
+      const AAppearance: IAppearance;
       var AFixedPointArray: TArrayOfFixedPoint
     ): Boolean;
     function DrawPoly(
@@ -81,6 +84,7 @@ type
       const APoly: IGeometryLonLatPolygon;
       const AProjection: IProjection;
       const AMapRect: TRect;
+      const AAppearance: IAppearance;
       var AFixedPointArray: TArrayOfFixedPoint
     ): Boolean;
     function DrawWikiElement(
@@ -89,6 +93,7 @@ type
       const AData: IGeometryLonLat;
       const AProjection: IProjection;
       const AMapRect: TRect;
+      const AAppearance: IAppearance;
       var AFixedPointArray: TArrayOfFixedPoint
     ): Boolean;
   private
@@ -113,6 +118,7 @@ implementation
 
 uses
   GR32_Polygons,
+  i_AppearanceOfVectorItem,
   u_Bitmap32ByStaticBitmap,
   u_GeometryFunc;
 
@@ -143,11 +149,13 @@ function TVectorTileRenderer.DrawPath(
   const ALine: IGeometryLonLatLine;
   const AProjection: IProjection;
   const AMapRect: TRect;
+  const AAppearance: IAppearance;
   var AFixedPointArray: TArrayOfFixedPoint
 ): Boolean;
 var
-  VProjected: IGeometryProjectedLine;
   VPolygon: TPolygon32;
+  VProjected: IGeometryProjectedLine;
+  VAppearanceLine: IAppearanceLine;
 begin
   Result := False;
   VPolygon := nil;
@@ -160,27 +168,44 @@ begin
     VPolygon
   );
   try
-    if VPolygon <> nil then begin
+    if Assigned(VPolygon) then begin
       if not ABitmapInited then begin
         InitBitmap(ATargetBmp, Types.Point(AMapRect.Right - AMapRect.Left, AMapRect.Bottom - AMapRect.Top));
         ABitmapInited := True;
       end;
 
-      with VPolygon.Outline do begin
-        try
-          with Grow(GR32.Fixed(0.5), 0.5) do begin
-            try
-              FillMode := pfWinding;
-              DrawFill(ATargetBmp, FColorBG);
-            finally
-              free;
+      if Supports(AAppearance, IAppearanceLine, VAppearanceLine) then begin
+        with VPolygon.Outline do begin
+          try
+            with Grow(GR32.Fixed(VAppearanceLine.LineWidth / 2), 0.5) do begin
+              try
+                FillMode := pfWinding;
+                DrawFill(ATargetBmp, VAppearanceLine.LineColor);
+              finally
+                free;
+              end;
             end;
+          finally
+            free;
           end;
-        finally
-          free;
         end;
+      end else begin
+        with VPolygon.Outline do begin
+          try
+            with Grow(GR32.Fixed(0.5), 0.5) do begin
+              try
+                FillMode := pfWinding;
+                DrawFill(ATargetBmp, FColorBG);
+              finally
+                free;
+              end;
+            end;
+          finally
+            free;
+          end;
+        end;
+        VPolygon.DrawEdge(ATargetBmp, FColorMain);
       end;
-      VPolygon.DrawEdge(ATargetBmp, FColorMain);
 
       Result := True;
     end;
@@ -224,6 +249,7 @@ function TVectorTileRenderer.DrawPoly(
   const APoly: IGeometryLonLatPolygon;
   const AProjection: IProjection;
   const AMapRect: TRect;
+  const AAppearance: IAppearance;
   var AFixedPointArray: TArrayOfFixedPoint
 ): Boolean;
 var
@@ -236,11 +262,11 @@ begin
   VProjected := FProjectedCache.GetProjectedPolygon(AProjection, APoly);
   if Assigned(VProjected) then begin
     if Supports(VProjected, IGeometryProjectedSinglePolygon, VProjectedSingle) then begin
-      Result := DrawSinglePolygon(ABitmapInited, ATargetBmp, VProjectedSingle, AMapRect, AFixedPointArray);
+      Result := DrawSinglePolygon(ABitmapInited, ATargetBmp, VProjectedSingle, AMapRect, AAppearance, AFixedPointArray);
     end else if Supports(VProjected, IGeometryProjectedMultiPolygon, VProjectedMulti) then begin
       for i := 0 to VProjectedMulti.Count - 1 do begin
         VProjectedSingle := VProjectedMulti.Item[i];
-        if DrawSinglePolygon(ABitmapInited, ATargetBmp, VProjectedSingle, AMapRect, AFixedPointArray) then begin
+        if DrawSinglePolygon(ABitmapInited, ATargetBmp, VProjectedSingle, AMapRect, AAppearance, AFixedPointArray) then begin
           Result := True;
         end;
       end;
@@ -255,13 +281,16 @@ function TVectorTileRenderer.DrawSinglePolygon(
   ATargetBmp: TCustomBitmap32;
   const APoly: IGeometryProjectedSinglePolygon;
   const AMapRect: TRect;
+  const AAppearance: IAppearance;
   var AFixedPointArray: TArrayOfFixedPoint
 ): Boolean;
 var
   VPolygon: TPolygon32;
+  VAppearanceBorder: IAppearancePolygonBorder;
+  VAppearanceFill: IAppearancePolygonFill;
 begin
-  VPolygon := nil;
   Result := False;
+  VPolygon := nil;
   try
     ProjectedPolygon2GR32Polygon(
       APoly,
@@ -275,21 +304,43 @@ begin
         InitBitmap(ATargetBmp, Types.Point(AMapRect.Right - AMapRect.Left, AMapRect.Bottom - AMapRect.Top));
         ABitmapInited := True;
       end;
-      with VPolygon.Outline do begin
-        try
-          with Grow(GR32.Fixed(0.5), 0.5) do begin
+      if Assigned(AAppearance) then begin
+        if Supports(AAppearance, IAppearancePolygonFill, VAppearanceFill) then begin
+          VPolygon.DrawFill(ATargetBmp, VAppearanceFill.FillColor);
+        end;
+        if Supports(AAppearance, IAppearancePolygonBorder, VAppearanceBorder) then begin
+          with VPolygon.Outline do begin
             try
-              FillMode := pfWinding;
-              DrawFill(ATargetBmp, FColorBG);
+              with Grow(GR32.Fixed(VAppearanceBorder.LineWidth / 2), 0.5) do begin
+                try
+                  FillMode := pfWinding;
+                  DrawFill(ATargetBmp, VAppearanceBorder.LineColor);
+                finally
+                  free;
+                end;
+              end;
             finally
               free;
             end;
           end;
-        finally
-          free;
         end;
+      end else begin
+        with VPolygon.Outline do begin
+          try
+            with Grow(GR32.Fixed(0.5), 0.5) do begin
+              try
+                FillMode := pfWinding;
+                DrawFill(ATargetBmp, FColorBG);
+              finally
+                free;
+              end;
+            end;
+          finally
+            free;
+          end;
+        end;
+        VPolygon.DrawEdge(ATargetBmp, FColorMain);
       end;
-      VPolygon.DrawEdge(ATargetBmp, FColorMain);
       Result := True;
     end;
   finally
@@ -303,6 +354,7 @@ function TVectorTileRenderer.DrawWikiElement(
   const AData: IGeometryLonLat;
   const AProjection: IProjection;
   const AMapRect: TRect;
+  const AAppearance: IAppearance;
   var AFixedPointArray: TArrayOfFixedPoint
 ): Boolean;
 var
@@ -313,9 +365,9 @@ begin
   if Supports(AData, IGeometryLonLatPoint, VItemPoint) then begin
     Result := DrawPoint(ABitmapInited, ATargetBmp, VItemPoint, AProjection, AMapRect);
   end else if Supports(AData, IGeometryLonLatLine, VItemLine) then begin
-    Result := DrawPath(ABitmapInited, ATargetBmp, VItemLine, AProjection, AMapRect, AFixedPointArray);
+    Result := DrawPath(ABitmapInited, ATargetBmp, VItemLine, AProjection, AMapRect, AAppearance, AFixedPointArray);
   end else if Supports(AData, IGeometryLonLatPolygon, VItemPoly) then begin
-    Result := DrawPoly(ABitmapInited, ATargetBmp, VItemPoly, AProjection, AMapRect, AFixedPointArray);
+    Result := DrawPoly(ABitmapInited, ATargetBmp, VItemPoly, AProjection, AMapRect, AAppearance, AFixedPointArray);
   end else begin
     Result := False;
   end;
@@ -360,7 +412,7 @@ begin
       VIsEmpty := True;
       for i := 0 to ASource.Count - 1 do begin
         VItem := ASource.Items[i];
-        if DrawWikiElement(VBitmapInited, VBitmap, VItem.Geometry, AProjection, VMapPixelRect, VFixedPointArray) then begin
+        if DrawWikiElement(VBitmapInited, VBitmap, VItem.Geometry, AProjection, VMapPixelRect, VItem.Appearance, VFixedPointArray) then begin
           VIsEmpty := False;
         end;
         if ACancelNotifier.IsOperationCanceled(AOperationID) then begin

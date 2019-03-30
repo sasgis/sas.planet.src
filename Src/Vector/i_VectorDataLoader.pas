@@ -25,15 +25,24 @@ interface
 uses
   i_BinaryData,
   i_VectorDataFactory,
+  i_ImportConfig,
   i_VectorItemSubset;
+
+type
+  TVectorLoadContext = record
+    IdData: Pointer;
+    MainInfoFactory: IVectorDataItemMainInfoFactory;
+    PointParams: IImportPointParams;
+    LineParams: IImportLineParams;
+    PolygonParams: IImportPolyParams;
+  end;
 
 type
   IVectorDataLoader = interface
     ['{F9986E7D-897C-4BD3-8A92-A9798BFB32FA}']
     function Load(
-      const AData: IBinaryData;
-      const AIdData: Pointer;
-      const AFactory: IVectorDataItemMainInfoFactory
+      var AContext: TVectorLoadContext;
+      const AData: IBinaryData
     ): IVectorItemSubset;
   end;
 

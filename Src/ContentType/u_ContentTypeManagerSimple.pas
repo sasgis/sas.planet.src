@@ -27,6 +27,7 @@ uses
   i_ContentTypeInfo,
   i_ContentConverter,
   i_VectorDataFactory,
+  i_AppearanceOfMarkFactory,
   i_VectorItemSubsetBuilder,
   i_InternalPerformanceCounter,
   i_BitmapTileSaveLoadFactory,
@@ -48,6 +49,7 @@ type
     procedure InitLists(
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorDataFactory: IVectorDataFactory;
+      const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const ALoadPerfCounterList: IInternalPerformanceCounterList;
@@ -57,6 +59,7 @@ type
     constructor Create(
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorDataFactory: IVectorDataFactory;
+      const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
@@ -83,6 +86,7 @@ uses
 constructor TContentTypeManagerSimple.Create(
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorDataFactory: IVectorDataFactory;
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
@@ -94,6 +98,7 @@ begin
   InitLists(
     AVectorGeometryLonLatFactory,
     AVectorDataFactory,
+    AAppearanceOfMarkFactory,
     AVectorItemSubsetBuilderFactory,
     ABitmapTileSaveLoadFactory,
     APerfCounterList.CreateAndAddNewSubList('TileLoad'),
@@ -104,6 +109,7 @@ end;
 procedure TContentTypeManagerSimple.InitLists(
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorDataFactory: IVectorDataFactory;
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const ALoadPerfCounterList: IInternalPerformanceCounterList;
@@ -190,7 +196,9 @@ begin
   VContentType := TContentTypeInfoVector.Create(
     'application/vnd.google-earth.kml+xml',
     '.kml',
-    TKmlInfoSimpleParser.Create(
+    TXmlInfoSimpleParser.Create(
+      nil, // ToDo: IMarkPictureList
+      AAppearanceOfMarkFactory,
       AVectorGeometryLonLatFactory,
       AVectorDataFactory,
       AVectorItemSubsetBuilderFactory

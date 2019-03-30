@@ -39,9 +39,8 @@ type
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   private
     function Load(
-      const AData: IBinaryData;
-      const AIdData: Pointer;
-      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
+      var AContext: TVectorLoadContext;
+      const AData: IBinaryData
     ): IVectorItemSubset;
   public
     constructor Create(
@@ -539,9 +538,8 @@ begin
 end;
 
 function TCsvParser.Load(
-  const AData: IBinaryData;
-  const AIdData: Pointer;
-  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
+  var AContext: TVectorLoadContext;
+  const AData: IBinaryData
 ): IVectorItemSubset;
 var
   VFileBody, VFileHeader, VParsedLine: TStringList;
@@ -660,9 +658,9 @@ begin
             if (VPointsAggregator.Count > 0) then begin
               _MakeObjectFromArray(
                 FVectorDataFactory,
-                AIdData,
+                AContext.IdData,
                 FVectorGeometryLonLatFactory,
-                AVectorDataItemMainInfoFactory,
+                AContext.MainInfoFactory,
                 VFileHeader,
                 @VOldValues,
                 @VPointFieldIndices,
@@ -684,9 +682,9 @@ begin
           if _HasNonEmptyValue(VParsedLine, VIndexVoxField) then begin
             _MakeNewPointWithFullInfo(
               FVectorDataFactory,
-              AVectorDataItemMainInfoFactory,
+              AContext.MainInfoFactory,
               FVectorGeometryLonLatFactory,
-              AIdData,
+              AContext.IdData,
               VFileHeader,
               VParsedLine,
               VPoint,
@@ -710,9 +708,9 @@ begin
       // make
       _MakeObjectFromArray(
         FVectorDataFactory,
-        AIdData,
+        AContext.IdData,
         FVectorGeometryLonLatFactory,
-        AVectorDataItemMainInfoFactory,
+        AContext.MainInfoFactory,
         VFileHeader,
         @VOldValues,
         @VPointFieldIndices,

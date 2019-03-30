@@ -56,14 +56,12 @@ type
     ): AnsiString;
   private
     function LoadFromStream(
-      AStream: TStream;
-      const AIdData: Pointer;
-      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
+      var AContext: TVectorLoadContext;
+      AStream: TStream
     ): IVectorItemSubset;
     function Load(
-      const AData: IBinaryData;
-      const AIdData: Pointer;
-      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
+      var AContext: TVectorLoadContext;
+      const AData: IBinaryData
     ): IVectorItemSubset;
   public
     constructor Create(
@@ -94,9 +92,8 @@ begin
 end;
 
 function TPLTSimpleParser.Load(
-  const AData: IBinaryData;
-  const AIdData: Pointer;
-  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
+  var AContext: TVectorLoadContext;
+  const AData: IBinaryData
 ): IVectorItemSubset;
 var
   VStream: TStreamReadOnlyByBinaryData;
@@ -104,16 +101,15 @@ begin
   Result := nil;
   VStream := TStreamReadOnlyByBinaryData.Create(AData);
   try
-    Result := LoadFromStream(VStream, AIdData, AVectorDataItemMainInfoFactory);
+    Result := LoadFromStream(AContext, VStream);
   finally
     VStream.Free;
   end;
 end;
 
 function TPLTSimpleParser.LoadFromStream(
-  AStream: TStream;
-  const AIdData: Pointer;
-  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
+  var AContext: TVectorLoadContext;
+  AStream: TStream
 ): IVectorItemSubset;
 var
   pltstr: TALStringList;
@@ -137,7 +133,7 @@ begin
         trackname := string(GetWord(pltstr[4], ',', 4));
         VItem :=
           FVectorDataFactory.BuildItem(
-            AVectorDataItemMainInfoFactory.BuildMainInfo(AIdData, trackname, ''),
+            AContext.MainInfoFactory.BuildMainInfo(AContext.IdData, trackname, ''),
             nil,
             VPath
           );

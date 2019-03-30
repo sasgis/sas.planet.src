@@ -28,8 +28,6 @@ uses
   t_GeoTypes,
   i_Appearance,
   i_AppearanceHelper,
-  i_MarkPicture,
-  i_ImportConfig,
   i_XmlVectorObjects,
   i_VectorItemSubsetBuilder,
   i_VectorItemTree,
@@ -61,7 +59,6 @@ type
     FFormatPtr: PFormatSettings;
     FIdData: Pointer;
     FAppearanceHelper: IAppearanceHelper;
-    FImportConfig: IImportConfig;
     FVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
     FDataFactory: IVectorDataFactory;
     FGeometryFactory: IGeometryLonLatFactory;
@@ -135,7 +132,6 @@ type
       const AFormatPtr: PFormatSettings;
       const AIdData: Pointer;
       const AAppearanceHelper: IAppearanceHelper;
-      const AImportConfig: IImportConfig;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
       const ADataFactory: IVectorDataFactory;
@@ -163,7 +159,6 @@ uses
   vsagps_public_gpx,
   vsagps_public_parser,
   vsagps_public_print,
-  t_MarkAppearance,
   u_GeoFunc,
   u_VectorItemTree,
   u_InterfaceListSimple,
@@ -369,7 +364,6 @@ constructor TXmlVectorObjects.Create(
   const AFormatPtr: PFormatSettings;
   const AIdData: Pointer;
   const AAppearanceHelper: IAppearanceHelper;
-  const AImportConfig: IImportConfig;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const ADataFactory: IVectorDataFactory;
@@ -387,7 +381,6 @@ begin
   FFormatPtr := AFormatPtr;
   FIdData := AIdData;
   FAppearanceHelper := AAppearanceHelper;
-  FImportConfig := AImportConfig;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FDataFactory := ADataFactory;
   FGeometryFactory := AGeometryFactory;
@@ -518,20 +511,21 @@ var
   VParamValue: string;
   VProcessed: Boolean;
   VAllowImportAppearance: Boolean;
-  VImportAppearance: TAppearanceRedefinitions;
-  VImportPic: IMarkPicture;
 begin
   Result := False;
   AAppearance := nil;
   AMarkName := '';
   AMarkDesc := '';
 
-  VImportPic := nil;
-  VImportAppearance.Init;
 
-  VAllowImportAppearance := Assigned(FAppearanceHelper) and Assigned(FImportConfig);
+  if Assigned(FAppearanceHelper) then begin
+    VAllowImportAppearance := True;
+    FAppearanceHelper.Reset;
+  end else begin
+    VAllowImportAppearance := False;
+  end;
 
-  Assert(AData <> nil);
+  Assert(Assigned(AData));
 
   case AMode of
     cmom_KML: begin
@@ -563,29 +557,29 @@ begin
         if VAllowImportAppearance then begin
           // color for LineStyle
           if (kml_color in fAvail_params) then begin
-            VImportAppearance.FLineColorDef.SetKMLColorValue(fValues.color);
+            FAppearanceHelper.LineColor.SetKMLColorValue(fValues.color);
           end;
           // width for LineStyle
           if (kml_width in fAvail_params) then begin
-            VImportAppearance.FLineWidth := fValues.width;
+            FAppearanceHelper.LineWidth.Value := fValues.width;
           end;
           // color for PolyStyle
           if (kml_bgColor in fAvail_params) then begin
-            VImportAppearance.FFillColorDef.SetKMLColorValue(fValues.bgColor);
+            FAppearanceHelper.FillColor.SetKMLColorValue(fValues.bgColor);
           end;
           // TODO: fill
           // color for LabelStyle
           if (kml_textColor in fAvail_params) then begin
-            VImportAppearance.FTextColorDef.SetKMLColorValue(fValues.textColor);
+            FAppearanceHelper.TextColor.SetKMLColorValue(fValues.textColor);
           end;
           // scale for LabelStyle
           if (kml_tileSize in fAvail_params) then begin
-            VImportAppearance.FTextSize := fValues.tileSize;
+            FAppearanceHelper.TextSize.Value := fValues.tileSize;
           end;
           // scale for Icon
           if (kml_scale_ in fAvail_params) then begin
             // TODO: use real image size
-            VImportAppearance.FIconSize := Round(64 * fValues.scale);
+            FAppearanceHelper.IconSize.Value := Round(64 * fValues.scale);
           end;
         end;
       end;
@@ -626,7 +620,7 @@ begin
             if VAllowImportAppearance then begin
               if (y = gpxx_DisplayColor) then begin
                 // get color from gpxx
-                VProcessed := VImportAppearance.FLineColorDef.SetGPXColorName(VParamValue);
+                VProcessed := FAppearanceHelper.LineColor.SetGPXColorName(VParamValue);
               end;
             end;
             if (not VProcessed) then begin
@@ -699,8 +693,7 @@ begin
               VProcessed := False;
               // try to find image
               if (k = wpt_sym) and VAllowImportAppearance then begin
-                VImportPic := FAppearanceHelper.MarkPictureList.FindByName(VParamValue);
-                if Assigned(VImportPic) then begin
+                if FAppearanceHelper.Icon.SetByName(VParamValue) then begin
                   Inc(VProcessed);
                 end;
               end;
@@ -758,26 +751,22 @@ begin
 
   if Result then begin
     // appearance
-    if VAllowImportAppearance and (VImportAppearance.HasSomeValues or Assigned(VImportPic)) then begin
+    if VAllowImportAppearance then begin
       case AMarkType of
         mtPoint: begin
-          AAppearance := FAppearanceHelper.RedefinePointAppearance(
-            FImportConfig.PointParams,
-            VImportAppearance,
-            VImportPic
-          );
+          if FAppearanceHelper.HasPointAppearance then begin
+            AAppearance := FAppearanceHelper.RedefinePointAppearance;
+          end;
         end;
         mtPolyline: begin
-          AAppearance := FAppearanceHelper.RedefineLineAppearance(
-            FImportConfig.LineParams,
-            VImportAppearance
-          );
+          if FAppearanceHelper.HasLineAppearance then begin
+            AAppearance := FAppearanceHelper.RedefineLineAppearance;
+          end;
         end;
         mtPolygon: begin
-          AAppearance := FAppearanceHelper.RedefinePolygonAppearance(
-            FImportConfig.PolyParams,
-            VImportAppearance
-          );
+          if FAppearanceHelper.HasPolygonAppearance then begin
+            AAppearance := FAppearanceHelper.RedefinePolygonAppearance;
+          end;
         end;
       end;
     end;

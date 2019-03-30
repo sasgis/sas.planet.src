@@ -120,6 +120,7 @@ var
   VItem: IVectorDataItem;
   VSingleLine: IGeometryLonLatSingleLine;
   VMultiLine: IGeometryLonLatMultiLine;
+  VContext: TVectorLoadContext;
 begin
   Result := True;
   VEnum := ASource.GetEnum;
@@ -138,7 +139,8 @@ begin
         exit;
       end;
       if Supports(VResult, IDownloadResultOk, VResultOk) then begin
-        kml := AKmlLoader.Load(VResultOk.Data, nil, AVectorDataItemMainInfoFactory);
+        VContext.MainInfoFactory := AVectorDataItemMainInfoFactory;
+        kml := AKmlLoader.Load(VContext, VResultOk.Data);
         if kml <> nil then begin
           if kml.Count > 0 then begin
             VItem := kml.GetItem(0);

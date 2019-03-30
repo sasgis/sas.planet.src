@@ -30,6 +30,7 @@ uses
   i_VectorItemSubsetBuilder,
   i_VectorItemTree,
   i_GeometryLonLatFactory,
+  i_VectorDataLoader,
   i_VectorItemTreeImporter,
   i_XmlVectorObjects,
   i_NotifierOperation,
@@ -46,9 +47,8 @@ uses
 type
   IVectorItemTreeImporterXMLInternal = interface
     function LoadFromStream(
-      const AStream: TStream;
-      const AIdData: Pointer;
-      const AConfig: IInterface
+      var AContext: TVectorLoadContext;
+      const AStream: TStream
     ): IVectorItemTree;
   end;
 
@@ -110,9 +110,8 @@ type
     ): IVectorItemTree;
   private
     function LoadFromStream(
-      const AStream: TStream;
-      const AIdData: Pointer;
-      const AConfig: IInterface
+      var AContext: TVectorLoadContext;
+      const AStream: TStream
     ): IVectorItemTree;
   public
     constructor Create(
@@ -322,24 +321,21 @@ begin
 end;
 
 function TVectorItemTreeImporterXML.LoadFromStream(
-  const AStream: TStream;
-  const AIdData: Pointer;
-  const AConfig: IInterface
+  var AContext: TVectorLoadContext;
+  const AStream: TStream
 ): IVectorItemTree;
 var
-  VConfig: IImportConfig;
   VAppearanceHelper: IAppearanceHelper;
   VXmlVectorObjects: IXmlVectorObjects;
   VParserOptions: Tvsagps_XML_ParserOptions;
 begin
   Result := nil;
 
-  if not Supports(AConfig, IImportConfig, VConfig) then begin
-    VConfig := nil;
-  end;
-
-  if Assigned(VConfig) and Assigned(FAppearanceOfMarkFactory) and Assigned(FMarkPictureList) then begin
+  if (Assigned(AContext.PointParams) or Assigned(AContext.LineParams) or Assigned(AContext.PolygonParams)) and Assigned(FAppearanceOfMarkFactory) then begin
     VAppearanceHelper := TAppearanceHelper.Create(
+      AContext.PointParams,
+      AContext.LineParams,
+      AContext.PolygonParams,
       FMarkPictureList,
       FAppearanceOfMarkFactory
     );
@@ -351,11 +347,10 @@ begin
   VXmlVectorObjects := TXmlVectorObjects.Create(
     False, // use True for wiki
     @FFormat,
-    AIdData,
+    AContext.IdData,
     VAppearanceHelper,
-    VConfig,
     FVectorItemSubsetBuilderFactory,
-    FVectorDataItemMainInfoFactory,
+    AContext.MainInfoFactory,
     FVectorDataFactory,
     FVectorGeometryLonLatFactory
   );
@@ -734,13 +729,27 @@ function TVectorItemTreeImporterXML.ProcessImport(
   const AConfig: IInterface
 ): IVectorItemTree;
 var
+  VConfig: IImportConfig;
+  VContext: TVectorLoadContext;
   VMemStream: TMemoryStream;
 begin
   VMemStream := TMemoryStream.Create;
   try
     VMemStream.LoadFromFile(AFileName);
     VMemStream.Position := 0;
-    Result := LoadFromStream(VMemStream, nil, AConfig);
+    VContext.IdData := nil;
+    VContext.MainInfoFactory := FVectorDataItemMainInfoFactory;
+    if Supports(AConfig, IImportConfig, VConfig) then begin
+      VContext.PointParams := VConfig.PointParams;
+      VContext.LineParams := VConfig.LineParams;
+      VContext.PolygonParams := VConfig.PolyParams;
+    end else begin
+      VContext.PointParams := nil;
+      VContext.LineParams := nil;
+      VContext.PolygonParams := nil;
+    end;
+
+    Result := LoadFromStream(VContext, VMemStream);
   finally
     VMemStream.Free;
   end;

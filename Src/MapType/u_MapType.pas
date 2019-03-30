@@ -506,6 +506,7 @@ function TMapType.LoadKmlTileFromStorage(
 var
   VTileInfoWithData: ITileInfoWithData;
   VIdData: TIdData;
+  VContext: TVectorLoadContext;
   VContentType: IContentTypeInfoVectorData;
 begin
   Result := nil;
@@ -514,7 +515,12 @@ begin
       VIdData.UrlPrefix := TStringProviderForMapTileItem.Create(FMapDataUrlPrefix, AXY, AZoom);
       try
         VIdData.NextIndex := 0;
-        Result := VContentType.GetLoader.Load(VTileInfoWithData.TileData, @VIdData, FVectorDataFactory);
+        VContext.IdData := @VIdData;
+        VContext.MainInfoFactory := FVectorDataFactory;
+        VContext.PointParams := FZmp.PointParams;
+        VContext.LineParams := FZmp.LineParams;
+        VContext.PolygonParams := FZmp.PolyParams;
+        Result := VContentType.GetLoader.Load(VContext, VTileInfoWithData.TileData);
       finally
         VIdData.UrlPrefix := nil;
       end;

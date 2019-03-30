@@ -35,6 +35,7 @@ uses
   i_NotifierOperation,
   i_ArchiveReadWriteFactory,
   i_AppearanceOfMarkFactory,
+  u_VectorItemTreeImporterXML,
   u_BaseInterfacedObject;
 
 type
@@ -47,6 +48,7 @@ type
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FVectorDataFactory: IVectorDataFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+    FImporter: IVectorItemTreeImporterXMLInternal;
   private
     function ProcessImport(
       AOperationID: Integer;
@@ -69,8 +71,9 @@ type
 implementation
 
 uses
+  i_ImportConfig,
+  i_VectorDataLoader,
   i_ArchiveReadWrite,
-  u_VectorItemTreeImporterXML,
   u_StreamReadOnlyByBinaryData;
 
 { TVectorItemTreeImporterKMZ }
@@ -93,6 +96,16 @@ begin
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FVectorDataFactory := AVectorDataFactory;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
+
+  FImporter :=
+    TVectorItemTreeImporterXML.Create(
+      FMarkPictureList,
+      FAppearanceOfMarkFactory,
+      FVectorDataItemMainInfoFactory,
+      FVectorGeometryLonLatFactory,
+      FVectorDataFactory,
+      FVectorItemSubsetBuilderFactory
+    );
 end;
 
 function TVectorItemTreeImporterKMZ.ProcessImport(
@@ -102,13 +115,14 @@ function TVectorItemTreeImporterKMZ.ProcessImport(
   const AConfig: IInterface
 ): IVectorItemTree;
 var
+  VConfig: IImportConfig;
+  VContext: TVectorLoadContext;
   VZip: IArchiveReader;
   VItemsCount: Integer;
   VData: IBinaryData;
   VIndex: Integer;
   I: Integer;
   VFileName: string;
-  VImporter: IVectorItemTreeImporterXMLInternal;
   VStream: TStreamReadOnlyByBinaryData;
 begin
   Result := nil;
@@ -131,18 +145,20 @@ begin
       Exit;
     end;
 
-    VImporter :=
-      TVectorItemTreeImporterXML.Create(
-        FMarkPictureList,
-        FAppearanceOfMarkFactory,
-        FVectorDataItemMainInfoFactory,
-        FVectorGeometryLonLatFactory,
-        FVectorDataFactory,
-        FVectorItemSubsetBuilderFactory
-      );
     VStream := TStreamReadOnlyByBinaryData.Create(VData);
     try
-      Result := VImporter.LoadFromStream(VStream, nil, AConfig);
+      VContext.IdData := nil;
+      VContext.MainInfoFactory := FVectorDataItemMainInfoFactory;
+      if Supports(AConfig, IImportConfig, VConfig) then begin
+        VContext.PointParams := VConfig.PointParams;
+        VContext.LineParams := VConfig.LineParams;
+        VContext.PolygonParams := VConfig.PolyParams;
+      end else begin
+        VContext.PointParams := nil;
+        VContext.LineParams := nil;
+        VContext.PolygonParams := nil;
+      end;
+      Result := FImporter.LoadFromStream(VContext, VStream);
     finally
       VStream.Free;
     end;

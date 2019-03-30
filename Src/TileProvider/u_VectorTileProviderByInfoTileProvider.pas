@@ -29,6 +29,7 @@ uses
   i_VectorItemSubset,
   i_Projection,
   i_InfoTileProvider,
+  i_ImportConfig,
   i_VectorTileProvider,
   i_VectorDataFactory,
   u_BaseInterfacedObject;
@@ -39,6 +40,10 @@ type
     FProjection: IProjection;
     FSource: IInfoTileProvider;
     FVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
+    FUrlPrefix: string;
+    FPointParams: IImportPointParams;
+    FLineParams: IImportLineParams;
+    FPolygonParams: IImportPolyParams;
     FIsIgnoreError: Boolean;
   private
     function GetProjection: IProjection;
@@ -51,6 +56,10 @@ type
     constructor Create(
       const AIsIgnoreError: Boolean;
       const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
+      const AUrlPrefix: string;
+      const APointParams: IImportPointParams;
+      const ALineParams: IImportLineParams;
+      const APolygonParams: IImportPolyParams;
       const ASource: IInfoTileProvider
     );
   end;
@@ -64,13 +73,19 @@ uses
   i_VectorDataLoader,
   i_ContentTypeInfo,
   i_BinaryData,
-  i_TileInfoBasic;
+  i_TileInfoBasic,
+  u_VectorDataFactoryForMap,
+  u_StringProviderForMapTileItem;
 
 { TVectorTileProviderByInfoTileProvider }
 
 constructor TVectorTileProviderByInfoTileProvider.Create(
   const AIsIgnoreError: Boolean;
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
+  const AUrlPrefix: string;
+  const APointParams: IImportPointParams;
+  const ALineParams: IImportLineParams;
+  const APolygonParams: IImportPolyParams;
   const ASource: IInfoTileProvider
 );
 begin
@@ -79,6 +94,10 @@ begin
   inherited Create;
   FIsIgnoreError := AIsIgnoreError;
   FVectorDataItemMainInfoFactory := AVectorDataItemMainInfoFactory;
+  FUrlPrefix := AUrlPrefix;
+  FPointParams := APointParams;
+  FLineParams := ALineParams;
+  FPolygonParams := APolygonParams;
   FSource := ASource;
   FProjection := FSource.Projection;
 end;
@@ -97,6 +116,8 @@ var
   VTileInfo: ITileInfoBasic;
   VTileInfoWithData: ITileInfoWithData;
   VBinary: IBinaryData;
+  VIdData: TIdData;
+  VContext: TVectorLoadContext;
   VContentType: IContentTypeInfoVectorData;
   VLoader: IVectorDataLoader;
 begin
@@ -117,7 +138,13 @@ begin
         VLoader := VContentType.GetLoader;
         if Assigned(VLoader) then begin
           try
-            Result := VLoader.Load(VBinary, nil, FVectorDataItemMainInfoFactory);
+            VIdData.UrlPrefix := TStringProviderForMapTileItem.Create(FUrlPrefix, ATile, FProjection.Zoom);
+            VContext.IdData := @VIdData;
+            VContext.MainInfoFactory := FVectorDataItemMainInfoFactory;
+            VContext.PointParams := FPointParams;
+            VContext.LineParams := FLineParams;
+            VContext.PolygonParams := FPolygonParams;
+            Result := VLoader.Load(VContext, VBinary);
           except
             if not FIsIgnoreError then begin
               raise;

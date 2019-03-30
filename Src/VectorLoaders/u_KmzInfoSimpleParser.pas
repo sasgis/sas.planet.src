@@ -37,15 +37,13 @@ type
     FKmlParser: IVectorDataLoader;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     function LoadFromStreamInternal(
-      AStream: TStream;
-      const AIdData: Pointer;
-      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
+      var AContext: TVectorLoadContext;
+      AStream: TStream
     ): IVectorItemSubset;
   private
     function Load(
-      const AData: IBinaryData;
-      const AIdData: Pointer;
-      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
+      var AContext: TVectorLoadContext;
+      const AData: IBinaryData
     ): IVectorItemSubset;
   public
     constructor Create(
@@ -74,9 +72,8 @@ begin
 end;
 
 function TKmzInfoSimpleParser.Load(
-  const AData: IBinaryData;
-  const AIdData: Pointer;
-  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
+  var AContext: TVectorLoadContext;
+  const AData: IBinaryData
 ): IVectorItemSubset;
 var
   VStream: TStreamReadOnlyByBinaryData;
@@ -84,16 +81,15 @@ begin
   Result := nil;
   VStream := TStreamReadOnlyByBinaryData.Create(AData);
   try
-    Result := LoadFromStreamInternal(VStream, AIdData, AVectorDataItemMainInfoFactory);
+    Result := LoadFromStreamInternal(AContext, VStream);
   finally
     VStream.Free;
   end;
 end;
 
 function TKmzInfoSimpleParser.LoadFromStreamInternal(
-  AStream: TStream;
-  const AIdData: Pointer;
-  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
+  var AContext: TVectorLoadContext;
+  AStream: TStream
 ): IVectorItemSubset;
 var
   VZip: IArchiveReader;
@@ -119,7 +115,7 @@ begin
       VData := VZip.GetItemByIndex(VIndex, VFileName);
     end;
 
-    Result := FKmlParser.Load(VData, AIdData, AVectorDataItemMainInfoFactory);
+    Result := FKmlParser.Load(AContext, VData);
   end;
 end;
 

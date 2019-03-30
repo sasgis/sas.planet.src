@@ -1334,7 +1334,6 @@ uses
   i_VectorItemTreeExporterList in 'Src\Vector\i_VectorItemTreeExporterList.pas',
   i_VectorItemTreeImporter in 'Src\Vector\i_VectorItemTreeImporter.pas',
   i_VectorItemTreeImporterList in 'Src\Vector\i_VectorItemTreeImporterList.pas',
-  t_MarkAppearance in 'Src\Vector\t_MarkAppearance.pas',
   u_AppearanceHelper in 'Src\Vector\u_AppearanceHelper.pas',
   u_AppearanceOfMarkFactory in 'Src\Vector\u_AppearanceOfMarkFactory.pas',
   u_AppearanceOfMarkLine in 'Src\Vector\u_AppearanceOfMarkLine.pas',

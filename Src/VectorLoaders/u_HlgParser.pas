@@ -39,9 +39,8 @@ type
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   private
     function Load(
-      const AData: IBinaryData;
-      const AIdData: Pointer;
-      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
+      var AContext: TVectorLoadContext;
+      const AData: IBinaryData
     ): IVectorItemSubset;
   public
     constructor Create(
@@ -79,9 +78,8 @@ begin
 end;
 
 function THlgParser.Load(
-  const AData: IBinaryData;
-  const AIdData: Pointer;
-  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
+  var AContext: TVectorLoadContext;
+  const AData: IBinaryData
 ): IVectorItemSubset;
 var
   VIniFile: TMemIniFile;
@@ -127,7 +125,7 @@ begin
   if VPolygon <> nil then begin
     VItem :=
       FVectorDataFactory.BuildItem(
-        AVectorDataItemMainInfoFactory.BuildMainInfo(AIdData, '', ''),
+        AContext.MainInfoFactory.BuildMainInfo(AContext.IdData, '', ''),
         nil,
         VPolygon
       );

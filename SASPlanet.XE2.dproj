@@ -1689,7 +1689,6 @@
 			<DCCReference Include="Src\Vector\i_VectorItemTreeExporterList.pas"/>
 			<DCCReference Include="Src\Vector\i_VectorItemTreeImporter.pas"/>
 			<DCCReference Include="Src\Vector\i_VectorItemTreeImporterList.pas"/>
-			<DCCReference Include="Src\Vector\t_MarkAppearance.pas"/>
 			<DCCReference Include="Src\Vector\u_AppearanceHelper.pas"/>
 			<DCCReference Include="Src\Vector\u_AppearanceOfMarkFactory.pas"/>
 			<DCCReference Include="Src\Vector\u_AppearanceOfMarkLine.pas"/>
