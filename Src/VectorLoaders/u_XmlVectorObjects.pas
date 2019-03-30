@@ -402,10 +402,12 @@ begin
 end;
 
 destructor TXmlVectorObjects.Destroy;
+var
+  i: Integer;
 begin
   if Assigned(FFoldersList) then begin
-    if FFoldersList.Count > 0 then begin
-      Dispose(FFoldersList.Items[0]);
+    for i := 0 to FFoldersList.Count - 1 do begin
+      Dispose(FFoldersList.Items[i]);
     end;
     FreeAndNil(FFoldersList);
   end;
