@@ -21,7 +21,7 @@ type
     function GetFound: Boolean;
     property Found: Boolean read GetFound;
 
-    function SetGPXColorName(const AName: WideString): Boolean;
+    function SetGPXColorName(const AName: string): Boolean;
     procedure SetKMLColorValue(const AValue: LongWord);
   end;
 

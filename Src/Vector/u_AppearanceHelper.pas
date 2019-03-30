@@ -76,7 +76,7 @@ type
 
     function GetFound: Boolean;
 
-    function SetGPXColorName(const AName: WideString): Boolean;
+    function SetGPXColorName(const AName: string): Boolean;
     procedure SetKMLColorValue(const AValue: LongWord);
   public
     constructor Create;
@@ -113,15 +113,17 @@ begin
   FFound := True;
 end;
 
-function TColorSetHelper.SetGPXColorName(const AName: WideString): Boolean;
+function TColorSetHelper.SetGPXColorName(const AName: string): Boolean;
+var
+  VName: string;
 begin
   FFound := False;
   FColor := clBlack32;
-
-  case Length(AName) of
+  VName := LowerCase(AName);
+  case Length(VName) of
     3: begin
       // Red
-      if WideSameText(AName, 'Red') then begin
+      if VName = 'red' then begin
         FColor := clRed32;
         FFound := True;
       end;
@@ -129,10 +131,10 @@ begin
     4: begin
       // Blue
       // Cyan
-      if WideSameText(AName, 'Blue') then begin
+      if VName = 'blue' then begin
         FColor := clBlue32;
         FFound := True;
-      end else if WideSameText(AName, 'Cyan') then begin
+      end else if VName = 'cyan' then begin
         FColor := clAqua32;
         FFound := True;
       end;
@@ -141,20 +143,20 @@ begin
       // Black
       // Green
       // White
-      if WideSameText(AName, 'Black') then begin
+      if VName = 'black' then begin
         FColor := clBlack32;
         FFound := True;
-      end else if WideSameText(AName, 'Green') then begin
+      end else if VName = 'green' then begin
         FColor := clGreen32;
         FFound := True;
-      end else if WideSameText(AName, 'White') then begin
+      end else if VName = 'white' then begin
         FColor := clWhite32;
         FFound := True;
       end;
     end;
     6: begin
       // Yellow
-      if WideSameText(AName, 'Yellow') then begin
+      if VName = 'yellow' then begin
         FColor := clLightYellow32;
         FFound := True;
       end;
@@ -162,10 +164,10 @@ begin
     7: begin
       // DarkRed
       // Magenta
-      if WideSameText(AName, 'DarkRed') then begin
+      if VName = 'darkred' then begin
         FColor := clDarkRed32;
         FFound := True;
-      end else if WideSameText(AName, 'Magenta') then begin
+      end else if VName = 'magenta' then begin
         FColor := clDarkMagenta32;
         FFound := True;
       end;
@@ -174,13 +176,13 @@ begin
       // DarkBlue
       // DarkCyan,
       // DarkGray
-      if WideSameText(AName, 'DarkBlue') then begin
+      if VName = 'darkblue' then begin
         FColor := clDarkBlue32;
         FFound := True;
-      end else if WideSameText(AName, 'DarkCyan') then begin
+      end else if VName = 'darkcyan' then begin
         FColor := clDarkCyan32;
         FFound := True;
-      end else if WideSameText(AName, 'DarkGray') then begin
+      end else if VName = 'darkgray' then begin
         FColor := clDarkGray32;
         FFound := True;
       end;
@@ -188,17 +190,17 @@ begin
     9: begin
       // DarkGreen
       // LightGray
-      if WideSameText(AName, 'DarkGreen') then begin
+      if VName = 'darkgreen' then begin
         FColor := clDarkGreen32;
         FFound := True;
-      end else if WideSameText(AName, 'LightGray') then begin
+      end else if VName = 'lightgray' then begin
         FColor := clLightGray32;
         FFound := True;
       end;
     end;
     10: begin
       // DarkYellow
-      if WideSameText(AName, 'DarkYellow') then begin
+      if VName = 'darkyellow' then begin
         FColor := clYellow32;
         FFound := True;
       end;
@@ -206,10 +208,10 @@ begin
     11: begin
       // DarkMagenta
       // Transparent
-      if WideSameText(AName, 'DarkMagenta') then begin
+      if VName = 'darkmagenta' then begin
         FColor := clDarkMagenta32;
         FFound := True;
-      end else if WideSameText(AName, 'Transparent') then begin
+      end else if VName = 'transparent' then begin
         FColor := $00000000;
         FFound := True;
       end;
