@@ -988,6 +988,7 @@
     <DCCReference Include="Src\Network\i_AntiBan.pas" />
     <DCCReference Include="Src\Network\i_DownloadChecker.pas" />
     <DCCReference Include="Src\Network\i_Downloader.pas" />
+    <DCCReference Include="Src\Network\i_DownloaderFactory.pas" />
     <DCCReference Include="Src\Network\i_DownloadInfoSimple.pas" />
     <DCCReference Include="Src\Network\i_DownloadRequest.pas" />
     <DCCReference Include="Src\Network\i_DownloadResult.pas" />
@@ -1015,8 +1016,10 @@
     <DCCReference Include="Src\Network\i_TileRequestProcessorPool.pas" />
     <DCCReference Include="Src\Network\i_TileRequestResult.pas" />
     <DCCReference Include="Src\Network\i_TileRequestTask.pas" />
+    <DCCReference Include="Src\Network\i_WinInetConfig.pas" />
     <DCCReference Include="Src\Network\u_AntiBanStuped.pas" />
     <DCCReference Include="Src\Network\u_DownloadCheckerStuped.pas" />
+    <DCCReference Include="Src\Network\u_DownloaderByWinInetFactory.pas" />
     <DCCReference Include="Src\Network\u_DownloaderHttp.pas" />
     <DCCReference Include="Src\Network\u_DownloaderHttpWithTTL.pas" />
     <DCCReference Include="Src\Network\u_DownloadInfoSimple.pas" />
@@ -1062,6 +1065,7 @@
     <DCCReference Include="Src\Network\u_UiTileDownload.pas" />
     <DCCReference Include="Src\Network\u_UITileDownloadList.pas" />
     <DCCReference Include="Src\Network\u_UiTileRequestManager.pas" />
+    <DCCReference Include="Src\Network\u_WinInetConfig.pas" />
     <DCCReference Include="Src\PascalScript\frm_PascalScriptDbgOut.pas">
       <Form>frmPascalScriptDbgOut</Form>
     </DCCReference>
@@ -1682,7 +1686,6 @@
     <DCCReference Include="Src\Vector\i_VectorItemTreeExporterList.pas" />
     <DCCReference Include="Src\Vector\i_VectorItemTreeImporter.pas" />
     <DCCReference Include="Src\Vector\i_VectorItemTreeImporterList.pas" />
-    <DCCReference Include="Src\Vector\t_MarkAppearance.pas" />
     <DCCReference Include="Src\Vector\u_AppearanceHelper.pas" />
     <DCCReference Include="Src\Vector\u_AppearanceOfMarkFactory.pas" />
     <DCCReference Include="Src\Vector\u_AppearanceOfMarkLine.pas" />
