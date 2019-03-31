@@ -113,7 +113,7 @@ var
 begin
   if Assigned(FItemsList) then begin
     for I := 0 to FItemsList.Count - 1 do begin
-      Dispose(Pointer(FItemsList.Objects[I]));
+      Dispose(PItemRec(FItemsList.Objects[I]));
     end;
     FItemsList.Clear;
   end;

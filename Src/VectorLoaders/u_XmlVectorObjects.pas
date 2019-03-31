@@ -403,7 +403,7 @@ var
 begin
   if Assigned(FFoldersList) then begin
     for i := 0 to FFoldersList.Count - 1 do begin
-      Dispose(FFoldersList.Items[i]);
+      Dispose(PFolderRec(FFoldersList.Items[i]));
     end;
     FreeAndNil(FFoldersList);
   end;
