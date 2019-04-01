@@ -1397,6 +1397,7 @@ begin
       GState.ProjectionSetFactory,
       GState.ContentTypeManager,
       GState.AppearanceOfMarkFactory,
+      GState.MarkPictureList,
       GState.MapVersionFactoryList.GetSimpleVersionFactory,
       GState.BufferFactory,
       GState.Bitmap32StaticFactory,

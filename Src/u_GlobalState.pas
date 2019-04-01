@@ -805,6 +805,7 @@ begin
       FArchiveReadWriteFactory,
       FContentTypeManager,
       FAppearanceOfMarkFactory,
+      FMarkPictureList,
       FBufferFactory,
       FBitmap32StaticFactory,
       FGlobalConfig.LanguageManager,

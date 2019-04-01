@@ -33,6 +33,7 @@ uses
   i_Bitmap32BufferFactory,
   i_ContentTypeSubst,
   i_AppearanceOfMarkFactory,
+  i_MarkPicture,
   i_TileDownloadRequestBuilderConfig,
   i_TileDownloaderConfig,
   i_TilePostDownloadCropConfig,
@@ -146,10 +147,12 @@ type
     procedure LoadConfig(
       const AProjectionSetFactory: IProjectionSetFactory;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+      const AMarkPictureList: IMarkPictureList;
       const ALanguageManager: ILanguageManager
     );
     procedure LoadVectorAppearanceConfig(
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+      const AMarkPictureList: IMarkPictureList;
       const AConfig: IConfigDataProvider
     );
     procedure LoadCropConfig(const AConfig: IConfigDataProvider);
@@ -199,6 +202,7 @@ type
       const AProjectionSetFactory: IProjectionSetFactory;
       const AContentTypeManager: IContentTypeManager;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+      const AMarkPictureList: IMarkPictureList;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AFileName: string;
       const AConfig: IConfigDataProvider;
@@ -577,6 +581,7 @@ constructor TZmpInfo.Create(
   const AProjectionSetFactory: IProjectionSetFactory;
   const AContentTypeManager: IContentTypeManager;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+  const AMarkPictureList: IMarkPictureList;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AFileName: string;
   const AConfig: IConfigDataProvider;
@@ -595,7 +600,7 @@ begin
   if FConfigIniParams = nil then begin
     raise EZmpParamsNotFound.Create(_('Not found PARAMS section in zmp'));
   end;
-  LoadConfig(AProjectionSetFactory, AAppearanceOfMarkFactory, ALanguageManager);
+  LoadConfig(AProjectionSetFactory, AAppearanceOfMarkFactory, AMarkPictureList, ALanguageManager);
   FGUI :=
     TZmpInfoGUI.Create(
       FGUID,
@@ -763,6 +768,7 @@ end;
 procedure TZmpInfo.LoadConfig(
   const AProjectionSetFactory: IProjectionSetFactory;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+  const AMarkPictureList: IMarkPictureList;
   const ALanguageManager: ILanguageManager
 );
 begin
@@ -775,7 +781,7 @@ begin
   LoadCropConfig(FConfigIniParams);
   LoadStorageConfig(FConfigIniParams);
   LoadAbilities(FConfigIniParams);
-  LoadVectorAppearanceConfig(AAppearanceOfMarkFactory, FConfigIniParams);
+  LoadVectorAppearanceConfig(AAppearanceOfMarkFactory, AMarkPictureList, FConfigIniParams);
   LoadSamples(FConfig);
   FContentTypeSubst := TContentTypeSubstByList.Create(FConfigIniParams);
 end;
@@ -969,28 +975,50 @@ end;
 
 procedure TZmpInfo.LoadVectorAppearanceConfig(
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+  const AMarkPictureList: IMarkPictureList;
   const AConfig: IConfigDataProvider
 );
 var
   VAppearance: IAppearance;
   VConfig: IConfigDataProvider;
   VSubConfig: IConfigDataProvider;
-  VLineColor: TColor32;
-  VLineWidth: Integer;
-  VFillColor: TColor32;
+  VIsForceTextColor: Boolean;
+  VIsForceTextBgColor: Boolean;
+  VIsForceFontSize: Boolean;
+  VIsForceMarkerSize: Boolean;
+  VIsForcePicName: Boolean;
+
   VIsForceLineColor: Boolean;
   VIsForceLineWidth: Boolean;
   VIsForceFillColor: Boolean;
 begin
   VConfig := AConfig.GetSubItem('Vector');
   if Assigned(VConfig) then begin
-    FPointParams := nil;
+    VSubConfig := VConfig.GetSubItem('Point');
+    if Assigned(VSubConfig) then begin
+      VAppearance := ReadAppearancePoint(VSubConfig, AMarkPictureList, AAppearanceOfMarkFactory, nil);
+
+      VIsForceTextColor := VSubConfig.ReadBool('IsForceTextColor', True);
+      VIsForceTextBgColor := VSubConfig.ReadBool('IsForceShadowColor', True);
+      VIsForceFontSize := VSubConfig.ReadBool('IsForceFontSize', True);
+      VIsForceMarkerSize := VSubConfig.ReadBool('IsForceIconSize', True);
+      VIsForcePicName := VSubConfig.ReadBool('IsForceIconName', True);
+
+      FPointParams :=
+        TImportPointParams.Create(
+          VAppearance,
+          VIsForceTextColor,
+          VIsForceTextBgColor,
+          VIsForceFontSize,
+          VIsForceMarkerSize,
+          VIsForcePicName
+        );
+    end;
 
     VSubConfig := VConfig.GetSubItem('Line');
     if Assigned(VSubConfig) then begin
-      VLineColor := ReadColor32(VSubConfig, 'LineColor', clWhite32);
-      VLineWidth := VSubConfig.ReadInteger('LineWidth', 1);
-      VAppearance := AAppearanceOfMarkFactory.CreateLineAppearance(VLineColor, VLineWidth);
+      VAppearance := ReadAppearanceLine(VSubConfig, AAppearanceOfMarkFactory, nil);
+
       VIsForceLineColor := VSubConfig.ReadBool('IsForceLineColor', True);
       VIsForceLineWidth := VSubConfig.ReadBool('IsForceLineWidth', True);
       FLineParams := TImportLineParams.Create(VAppearance, VIsForceLineColor, VIsForceLineWidth);
@@ -998,10 +1026,8 @@ begin
 
     VSubConfig := VConfig.GetSubItem('Poly');
     if Assigned(VSubConfig) then begin
-      VLineColor := ReadColor32(VSubConfig, 'LineColor', clWhite32);
-      VLineWidth := VSubConfig.ReadInteger('LineWidth', 1);
-      VFillColor := ReadColor32(VSubConfig, 'FillColor', SetAlpha(clWhite32, 30));
-      VAppearance := AAppearanceOfMarkFactory.CreatePolygonAppearance(VLineColor, VLineWidth, VFillColor);
+      VAppearance := ReadAppearancePolygon(VSubConfig, AAppearanceOfMarkFactory, nil);
+
       VIsForceLineColor := VSubConfig.ReadBool('IsForceLineColor', True);
       VIsForceLineWidth := VSubConfig.ReadBool('IsForceLineWidth', True);
       VIsForceFillColor := VSubConfig.ReadBool('IsForceFillColor', True);

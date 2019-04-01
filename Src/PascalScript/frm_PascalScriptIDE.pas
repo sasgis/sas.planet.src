@@ -60,6 +60,7 @@ uses
   i_Bitmap32BufferFactory,
   i_ContentTypeManager,
   i_AppearanceOfMarkFactory,
+  i_MarkPicture,
   i_ZmpConfig,
   i_Downloader,
   i_DownloaderFactory,
@@ -155,6 +156,7 @@ type
     FProjectionSetFactory: IProjectionSetFactory;
     FContentTypeManager: IContentTypeManager;
     FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+    FMarkPictureList: IMarkPictureList;
     FVersionFactory: IMapVersionFactory;
     FBufferFactory: IBitmap32BufferFactory;
     FBitmapFactory: IBitmap32StaticFactory;
@@ -200,6 +202,7 @@ type
       const AProjectionSetFactory: IProjectionSetFactory;
       const AContentTypeManager: IContentTypeManager;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+      const AMarkPictureList: IMarkPictureList;
       const AVersionFactory: IMapVersionFactory;
       const ABufferFactory: IBitmap32BufferFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
@@ -294,6 +297,7 @@ constructor TfrmPascalScriptIDE.Create(
   const AProjectionSetFactory: IProjectionSetFactory;
   const AContentTypeManager: IContentTypeManager;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+  const AMarkPictureList: IMarkPictureList;
   const AVersionFactory: IMapVersionFactory;
   const ABufferFactory: IBitmap32BufferFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
@@ -313,6 +317,7 @@ begin
   FProjectionSetFactory := AProjectionSetFactory;
   FContentTypeManager := AContentTypeManager;
   FAppearanceOfMarkFactory := AAppearanceOfMarkFactory;
+  FMarkPictureList := AMarkPictureList;
   FVersionFactory := AVersionFactory;
   FBufferFactory := ABufferFactory;
   FBitmapFactory := ABitmapFactory;
@@ -554,6 +559,7 @@ begin
       FProjectionSetFactory,
       FContentTypeManager,
       FAppearanceOfMarkFactory,
+      FMarkPictureList,
       FBitmapFactory,
       VFileName,
       VZmpMapConfig,
@@ -577,6 +583,7 @@ begin
       FProjectionSetFactory,
       FContentTypeManager,
       FAppearanceOfMarkFactory,
+      FMarkPictureList,
       FBitmapFactory,
       AFileName,
       VZmpMapConfig,
@@ -623,6 +630,7 @@ begin
       FProjectionSetFactory,
       FContentTypeManager,
       FAppearanceOfMarkFactory,
+      FMarkPictureList,
       FBitmapFactory,
       'ram.zmp',
       VZmpMapConfig,
