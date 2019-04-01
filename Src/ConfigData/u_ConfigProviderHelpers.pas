@@ -28,6 +28,9 @@ uses
   i_Bitmap32Static,
   i_GeometryLonLat,
   i_GeometryLonLatFactory,
+  i_Appearance,
+  i_AppearanceOfMarkFactory,
+  i_MarkPicture,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider;
 
@@ -70,6 +73,40 @@ procedure WritePolygon(
   const APolygon: IGeometryLonLatPolygon
 );
 
+function ReadAppearancePoint(
+  const AConfigProvider: IConfigDataProvider;
+  const AMarkPictureList: IMarkPictureList;
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+  const ADefault: IAppearance
+): IAppearance;
+
+procedure WriteAppearancePoint(
+  const AConfigProvider: IConfigDataWriteProvider;
+  const AAppearance: IAppearance
+);
+
+function ReadAppearanceLine(
+  const AConfigProvider: IConfigDataProvider;
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+  const ADefault: IAppearance
+): IAppearance;
+
+procedure WriteAppearanceLine(
+  const AConfigProvider: IConfigDataWriteProvider;
+  const AAppearance: IAppearance
+);
+
+function ReadAppearancePolygon(
+  const AConfigProvider: IConfigDataProvider;
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+  const ADefault: IAppearance
+): IAppearance;
+
+procedure WriteAppearancePolygon(
+  const AConfigProvider: IConfigDataWriteProvider;
+  const AAppearance: IAppearance
+);
+
 implementation
 
 uses
@@ -80,6 +117,7 @@ uses
   t_GeoTypes,
   i_BinaryData,
   i_DoublePointsAggregator,
+  i_AppearanceOfVectorItem,
   i_ContentTypeInfo,
   u_GeoFunc,
   u_DoublePointsAggregator;
@@ -378,5 +416,187 @@ begin
     end;
   end;
 end;
+
+function ReadAppearancePoint(
+  const AConfigProvider: IConfigDataProvider;
+  const AMarkPictureList: IMarkPictureList;
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+  const ADefault: IAppearance
+): IAppearance;
+var
+  VPicName: string;
+  VPic: IMarkPicture;
+  VTextColor, VTextBgColor: TColor32;
+  VFontSize, VMarkerSize: Integer;
+  VCaptionAppearance: IAppearancePointCaption;
+  VIconAppearance: IAppearancePointIcon;
+begin
+  if Supports(ADefault, IAppearancePointCaption, VCaptionAppearance) then begin
+    VTextColor := VCaptionAppearance.TextColor;
+    VTextBgColor := VCaptionAppearance.TextBgColor;
+    VFontSize := VCaptionAppearance.FontSize;
+  end else begin
+    VTextColor := SetAlpha(clWhite32, 166);
+    VTextBgColor := SetAlpha(clBlack32, 166);
+    VFontSize := 11;
+  end;
+
+  if Supports(ADefault, IAppearancePointIcon, VIconAppearance) then begin
+    VMarkerSize := VIconAppearance.MarkerSize;
+    VPicName := VIconAppearance.PicName;
+    VPic := VIconAppearance.Pic;
+  end else begin
+    VMarkerSize := 32;
+    VPicName := '';
+    VPic := nil;
+  end;
+
+  if Assigned(AConfigProvider) then begin
+    VPicName := AConfigProvider.ReadString('IconName', VPicName);
+    if not Assigned(VPic) or (VPic.GetName <> VPicName) then begin
+      if Assigned(AMarkPictureList) then begin
+        VPic := AMarkPictureList.FindByName(VPicName);
+      end else begin
+        VPic := nil;
+      end;
+    end;
+    VTextColor := ReadColor32(AConfigProvider, 'TextColor', VTextColor);
+    VTextBgColor := ReadColor32(AConfigProvider, 'ShadowColor', VTextBgColor);
+    VFontSize := AConfigProvider.ReadInteger('FontSize', VFontSize);
+    VMarkerSize := AConfigProvider.ReadInteger('IconSize', VMarkerSize);
+  end;
+
+  Result :=
+    AAppearanceOfMarkFactory.CreatePointAppearance(
+      VTextColor,
+      VTextBgColor,
+      VFontSize,
+      VPicName,
+      VPic,
+      VMarkerSize
+    );
+end;
+
+procedure WriteAppearancePoint(
+  const AConfigProvider: IConfigDataWriteProvider;
+  const AAppearance: IAppearance
+);
+var
+  VCaptionAppearance: IAppearancePointCaption;
+  VIconAppearance: IAppearancePointIcon;
+begin
+  if Supports(AAppearance, IAppearancePointCaption, VCaptionAppearance) then begin
+    WriteColor32(AConfigProvider, 'TextColor', VCaptionAppearance.TextColor);
+    WriteColor32(AConfigProvider, 'ShadowColor', VCaptionAppearance.TextBgColor);
+    AConfigProvider.WriteInteger('FontSize', VCaptionAppearance.FontSize);
+  end;
+
+  if Supports(AAppearance, IAppearancePointIcon, VIconAppearance) then begin
+    AConfigProvider.WriteString('IconName', VIconAppearance.PicName);
+    AConfigProvider.WriteInteger('IconSize', VIconAppearance.MarkerSize);
+  end;
+end;
+
+function ReadAppearanceLine(
+  const AConfigProvider: IConfigDataProvider;
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+  const ADefault: IAppearance
+): IAppearance;
+var
+  VLineColor: TColor32;
+  VLineWidth: Integer;
+  VLineAppearance: IAppearanceLine;
+begin
+  if Supports(ADefault, IAppearanceLine, VLineAppearance) then begin
+    VLineColor := VLineAppearance.LineColor;
+    VLineWidth := VLineAppearance.LineWidth;
+  end else begin
+    VLineColor := clWhite32;
+    VLineWidth := 1;
+  end;
+
+  if Assigned(AConfigProvider) then begin
+    VLineColor := ReadColor32(AConfigProvider, 'LineColor', VLineColor);
+    VLineWidth := AConfigProvider.ReadInteger('LineWidth', VLineWidth);
+  end;
+
+  Result :=
+    AAppearanceOfMarkFactory.CreateLineAppearance(
+      VLineColor,
+      VLineWidth
+    );
+end;
+
+procedure WriteAppearanceLine(
+  const AConfigProvider: IConfigDataWriteProvider;
+  const AAppearance: IAppearance
+);
+var
+  VLineAppearance: IAppearanceLine;
+begin
+  if Supports(AAppearance, IAppearanceLine, VLineAppearance) then begin
+    WriteColor32(AConfigProvider, 'LineColor', VLineAppearance.LineColor);
+    AConfigProvider.WriteInteger('LineWidth', VLineAppearance.LineWidth);
+  end;
+end;
+
+function ReadAppearancePolygon(
+  const AConfigProvider: IConfigDataProvider;
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+  const ADefault: IAppearance
+): IAppearance;
+var
+  VLineColor: TColor32;
+  VLineWidth: Integer;
+  VFillColor: TColor32;
+  VBorderAppearance: IAppearancePolygonBorder;
+  VFillAppearance: IAppearancePolygonFill;
+begin
+  if Supports(ADefault, IAppearancePolygonBorder, VBorderAppearance) then begin
+    VLineColor := VBorderAppearance.LineColor;
+    VLineWidth := VBorderAppearance.LineWidth;
+  end else begin
+    VLineColor := clWhite32;
+    VLineWidth := 1;
+  end;
+
+  if Supports(ADefault, IAppearancePolygonFill, VFillAppearance) then begin
+    VFillColor := VFillAppearance.FillColor;
+  end else begin
+    VFillColor := SetAlpha(clWhite32, 51);
+  end;
+
+  if Assigned(AConfigProvider) then begin
+    VLineColor := ReadColor32(AConfigProvider, 'LineColor', VLineColor);
+    VLineWidth := AConfigProvider.ReadInteger('LineWidth', VLineWidth);
+    VFillColor := ReadColor32(AConfigProvider, 'FillColor', VFillColor);
+  end;
+
+  Result :=
+    AAppearanceOfMarkFactory.CreatePolygonAppearance(
+      VLineColor,
+      VLineWidth,
+      VFillColor
+    );
+end;
+
+procedure WriteAppearancePolygon(
+  const AConfigProvider: IConfigDataWriteProvider;
+  const AAppearance: IAppearance
+);
+var
+  VBorderAppearance: IAppearancePolygonBorder;
+  VFillAppearance: IAppearancePolygonFill;
+begin
+  if Supports(AAppearance, IAppearancePolygonBorder, VBorderAppearance) then begin
+    WriteColor32(AConfigProvider, 'LineColor', VBorderAppearance.LineColor);
+    AConfigProvider.WriteInteger('LineWidth', VBorderAppearance.LineWidth);
+  end;
+
+  if Supports(AAppearance, IAppearancePolygonFill, VFillAppearance) then begin
+    WriteColor32(AConfigProvider, 'FillColor', VFillAppearance.FillColor);
+  end;
+end;
+
 
 end.

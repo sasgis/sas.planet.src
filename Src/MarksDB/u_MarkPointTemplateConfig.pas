@@ -126,37 +126,16 @@ procedure TMarkPointTemplateConfig.DoReadConfig(
   const AConfigData: IConfigDataProvider
 );
 var
-  VPicName: string;
   VCategoryName: string;
-  VTextColor, VTextBgColor: TColor32;
-  VFontSize, VMarkerSize: Integer;
   VTemplate: IMarkTemplatePoint;
   VAppearance: IAppearance;
 begin
   inherited;
   VCategoryName := FDefaultTemplate.Category.Name;
-  VTextColor := FDefaultTemplate.CaptionAppearance.TextColor;
-  VTextBgColor := FDefaultTemplate.CaptionAppearance.TextBgColor;
-  VFontSize := FDefaultTemplate.CaptionAppearance.FontSize;
-  VMarkerSize := FDefaultTemplate.IconAppearance.MarkerSize;
-  VPicName := FDefaultTemplate.IconAppearance.PicName;
   if AConfigData <> nil then begin
-    VPicName := AConfigData.ReadString('IconName', VPicName);
     VCategoryName := AConfigData.ReadString('CategoryName', VCategoryName);
-    VTextColor := ReadColor32(AConfigData, 'TextColor', VTextColor);
-    VTextBgColor := ReadColor32(AConfigData, 'ShadowColor', VTextBgColor);
-    VFontSize := AConfigData.ReadInteger('FontSize', VFontSize);
-    VMarkerSize := AConfigData.ReadInteger('IconSize', VMarkerSize);
   end;
-  VAppearance :=
-    AppearanceOfMarkFactory.CreatePointAppearance(
-      VTextColor,
-      VTextBgColor,
-      VFontSize,
-      VPicName,
-      nil,
-      VMarkerSize
-    );
+  VAppearance := ReadAppearancePoint(AConfigData, nil, AppearanceOfMarkFactory, FDefaultTemplate.Appearance);
   VTemplate :=
     CreateTemplate(
       VAppearance,
@@ -170,12 +149,8 @@ procedure TMarkPointTemplateConfig.DoWriteConfig(
 );
 begin
   inherited;
-  AConfigData.WriteString('IconName', FDefaultTemplate.IconAppearance.PicName);
   AConfigData.WriteString('CategoryName', FDefaultTemplate.Category.Name);
-  WriteColor32(AConfigData, 'TextColor', FDefaultTemplate.CaptionAppearance.TextColor);
-  WriteColor32(AConfigData, 'ShadowColor', FDefaultTemplate.CaptionAppearance.TextBgColor);
-  AConfigData.WriteInteger('FontSize', FDefaultTemplate.CaptionAppearance.FontSize);
-  AConfigData.WriteInteger('IconSize', FDefaultTemplate.IconAppearance.MarkerSize);
+  WriteAppearancePoint(AConfigData, FDefaultTemplate.Appearance);
 end;
 
 function TMarkPointTemplateConfig.GetDefaultTemplate: IMarkTemplatePoint;

@@ -122,25 +122,16 @@ procedure TMarkLineTemplateConfig.DoReadConfig(
 );
 var
   VCategoryName: string;
-  VLineColor: TColor32;
-  VLineWidth: Integer;
   VTemplate: IMarkTemplateLine;
   VAppearance: IAppearance;
 begin
   inherited;
   VCategoryName := FDefaultTemplate.Category.Name;
-  VLineColor := FDefaultTemplate.LineAppearance.LineColor;
-  VLineWidth := FDefaultTemplate.LineAppearance.LineWidth;
   if AConfigData <> nil then begin
     VCategoryName := AConfigData.ReadString('CategoryName', VCategoryName);
-    VLineColor := ReadColor32(AConfigData, 'LineColor', VLineColor);
-    VLineWidth := AConfigData.ReadInteger('LineWidth', VLineWidth);
   end;
-  VAppearance :=
-    AppearanceOfMarkFactory.CreateLineAppearance(
-      VLineColor,
-      VLineWidth
-    );
+  VAppearance := ReadAppearanceLine(AConfigData, AppearanceOfMarkFactory, FDefaultTemplate.Appearance);
+
   VTemplate :=
     CreateTemplate(
       VAppearance,
@@ -156,8 +147,7 @@ procedure TMarkLineTemplateConfig.DoWriteConfig(
 begin
   inherited;
   AConfigData.WriteString('CategoryName', FDefaultTemplate.Category.Name);
-  WriteColor32(AConfigData, 'LineColor', FDefaultTemplate.LineAppearance.LineColor);
-  AConfigData.WriteInteger('LineWidth', FDefaultTemplate.LineAppearance.LineWidth);
+  WriteAppearanceLine(AConfigData, FDefaultTemplate.Appearance);
 end;
 
 function TMarkLineTemplateConfig.GetDefaultTemplate: IMarkTemplateLine;
