@@ -99,6 +99,7 @@ constructor TGeoCoderListSimple.Create(
 var
   VItem: IGeoCoderListEntity;
   VList: IInterfaceListSimple;
+  VPath: string;
 begin
   VList := TInterfaceListSimple.Create;
 
@@ -180,37 +181,37 @@ begin
     );
   VList.Add(VItem);
 
-  try
+  VPath := AUserDataPath + 'gpx' + PathDelim;
+  if DirectoryExists(VPath) then begin
     VItem :=
       TGeoCoderListEntity.Create(
         CGeoCoderGpxGUID,
         'Offline search (*.gpx)',
-        TGeoCoderByGpx.Create(AUserDataPath + 'gpx' + PathDelim, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ACoordToStringConverter, AVectorGeometryLonLatFactory, AVectorDataFactory, AVectorDataItemMainInfoFactory)
+        TGeoCoderByGpx.Create(VPath, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ACoordToStringConverter, AVectorGeometryLonLatFactory, AVectorDataFactory, AVectorDataItemMainInfoFactory)
       );
     VList.Add(VItem);
-  Except
   end;
 
-  try
+  VPath := AUserDataPath + 'mp' + PathDelim;
+  if DirectoryExists(VPath) then begin
     VItem :=
       TGeoCoderListEntity.Create(
         CGeoCoderPolishMapGUID,
         'Offline search (*.mp)',
-        TGeoCoderByPolishMap.Create(AUserDataPath + 'mp' + PathDelim, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ACoordToStringConverter)
+        TGeoCoderByPolishMap.Create(VPath, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ACoordToStringConverter)
       );
     VList.Add(VItem);
-  Except
   end;
 
-  try
+  VPath := AUserDataPath + 'txt' + PathDelim;
+  if DirectoryExists(VPath) then begin
     VItem :=
       TGeoCoderListEntity.Create(
         CGeoCoderGeonamesTXTGUID,
         'Offline search (*.txt)',
-        TGeoCoderByTXT.Create(AUserDataPath + 'txt' + PathDelim, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ACoordToStringConverter)
+        TGeoCoderByTXT.Create(VPath, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ACoordToStringConverter)
       );
     VList.Add(VItem);
-  Except
   end;
 
   VItem :=

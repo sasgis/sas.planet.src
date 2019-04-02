@@ -123,9 +123,6 @@ begin
   FVectorDataFactory := AVectorDataFactory;
   FVectorDataItemMainInfoFactory := AVectorDataItemMainInfoFactory;
   FPath := APath;
-  if not DirectoryExists(FPath) then begin
-    raise EDirNotExist.CreateFmt('not found %s! skip GeoCoderByGpx', [FPath]);
-  end;
   FCoordToStringConverter := AValueToStringConverter;
   FSystemTimeInternal := TSystemTimeProvider.Create;
 end;

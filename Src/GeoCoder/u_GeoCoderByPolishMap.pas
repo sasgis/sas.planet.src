@@ -687,9 +687,6 @@ constructor TGeoCoderByPolishMap.Create(
 begin
   inherited Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory);
   FPath := APath;
-  if not DirectoryExists(FPath) then begin
-    raise EDirNotExist.CreateFmt('not found %s! skip GeoCoderByPolishMap', [FPath]);
-  end;
   FCoordToStringConverter := ACoordToStringConverter;
 end;
 
