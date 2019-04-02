@@ -447,6 +447,7 @@ var
   VNotifierSync: IReadWriteSync;
   VOneOperationSync: IReadWriteSync;
   VLocalCoordConverterFactory: ILocalCoordConverterFactory;
+  VContentTypeManagerBitmapInternal: IContentTypeManagerBitmapInternal;
 begin
   inherited Create;
 
@@ -646,6 +647,11 @@ begin
 
   FVectorDataItemMainInfoFactory := TVectorDataItemMainInfoFactory.Create(FHashFunction, THtmlToHintTextConverterStuped.Create);
   FVectorDataFactory := TVectorDataFactorySimple.Create(FHashFunction);
+  VContentTypeManagerBitmapInternal :=
+    TContentTypeManagerBitmap.Create(
+      FBitmapTileSaveLoadFactory,
+      FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('Content')
+    );
 
   FContentTypeManager :=
     TContentTypeManagerSimple.Create(
@@ -653,9 +659,8 @@ begin
       FVectorDataFactory,
       FAppearanceOfMarkFactory,
       FVectorItemSubsetBuilderFactory,
-      FBitmapTileSaveLoadFactory,
-      FArchiveReadWriteFactory,
-      FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('Content')
+      VContentTypeManagerBitmapInternal,
+      FArchiveReadWriteFactory
     );
 
   FMapCalibrationList := TMapCalibrationListBasic.Create;

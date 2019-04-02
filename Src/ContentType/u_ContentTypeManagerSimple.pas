@@ -30,11 +30,68 @@ uses
   i_AppearanceOfMarkFactory,
   i_VectorItemSubsetBuilder,
   i_InternalPerformanceCounter,
+  i_BitmapTileSaveLoad,
   i_BitmapTileSaveLoadFactory,
   i_ArchiveReadWriteFactory,
+  i_ContentTypeManager,
   u_ContentTypeListByKey,
   u_ContentConverterMatrix,
-  u_ContentTypeManagerBase;
+  u_ContentTypeManagerBase,
+  u_BaseInterfacedObject;
+
+type
+  IContentTypeManagerBitmapInternal = interface(IContentTypeManagerBitmap)
+    function GetLoadPerfCounterList: IInternalPerformanceCounterList;
+    property LoadPerfCounterList: IInternalPerformanceCounterList read GetLoadPerfCounterList;
+
+    function GetSavePerfCounterList: IInternalPerformanceCounterList;
+    property SavePerfCounterList: IInternalPerformanceCounterList read GetSavePerfCounterList;
+
+    function GetBitmapExtList: TContentTypeListByKey;
+    function GetBitmapTypeList: TContentTypeListByKey;
+
+    function GetIsBitmapType(const AType: AnsiString): Boolean;
+    function GetBitmapLoaderByFileName(const AFileName: string): IBitmapTileLoader;
+    function GetIsBitmapExt(const AExt: AnsiString): Boolean;
+  end;
+
+type
+  TContentTypeManagerBitmap = class(TBaseInterfacedObject, IContentTypeManagerBitmap, IContentTypeManagerBitmapInternal)
+  private
+    FBitmapExtList: TContentTypeListByKey;
+    FBitmapTypeList: TContentTypeListByKey;
+
+    FLoadPerfCounterList: IInternalPerformanceCounterList;
+    FSavePerfCounterList: IInternalPerformanceCounterList;
+    procedure AddByType(
+      const AInfo: IContentTypeInfoBitmap;
+      const AType: AnsiString
+    );
+    procedure AddByExt(
+      const AInfo: IContentTypeInfoBitmap;
+      const AExt: AnsiString
+    );
+    procedure InitLists(
+      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory
+    );
+
+  private
+    function GetLoadPerfCounterList: IInternalPerformanceCounterList;
+    function GetSavePerfCounterList: IInternalPerformanceCounterList;
+
+    function GetBitmapExtList: TContentTypeListByKey;
+    function GetBitmapTypeList: TContentTypeListByKey;
+
+    function GetIsBitmapType(const AType: AnsiString): Boolean;
+    function GetIsBitmapExt(const AExt: AnsiString): Boolean;
+    function GetBitmapLoaderByFileName(const AFileName: string): IBitmapTileLoader;
+  public
+    constructor Create(
+      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+      const APerfCounterList: IInternalPerformanceCounterList
+    );
+    destructor Destroy; override;
+  end;
 
 type
   TContentTypeManagerSimple = class(TContentTypeManagerBase)
@@ -46,12 +103,14 @@ type
     procedure ConverterMatrixUpdateBitmaps;
     function FindConverterWithSynonyms(const ASourceType, ATargetType: AnsiString): IContentConverter;
     procedure UpdateConverterMatrix;
+    procedure AddFromContentTypeManagerBitmapInternal(
+      const AContentTypeManagerBitmapInternal: IContentTypeManagerBitmapInternal
+    );
     procedure InitLists(
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorDataFactory: IVectorDataFactory;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const ALoadPerfCounterList: IInternalPerformanceCounterList;
       const ASavePerfCounterList: IInternalPerformanceCounterList
     );
@@ -61,23 +120,24 @@ type
       const AVectorDataFactory: IVectorDataFactory;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
-      const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
-      const APerfCounterList: IInternalPerformanceCounterList
+      const AContentTypeManagerBitmapInternal: IContentTypeManagerBitmapInternal;
+      const AArchiveReadWriteFactory: IArchiveReadWriteFactory
     );
   end;
 
 implementation
 
 uses
+  SysUtils,
+  ALString,
   ALStringList,
-  i_BitmapTileSaveLoad,
   u_ContentTypeInfo,
   u_ContentConverterKmz2Kml,
   u_ContentConverterKml2Kmz,
   u_KmlInfoSimpleParser,
   u_KmzInfoSimpleParser,
   u_XmlInfoSimpleParser,
+  u_StrFunc,
   u_ContentConverterBase,
   u_ContentConverterBitmap;
 
@@ -88,21 +148,22 @@ constructor TContentTypeManagerSimple.Create(
   const AVectorDataFactory: IVectorDataFactory;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
-  const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
-  const APerfCounterList: IInternalPerformanceCounterList
+  const AContentTypeManagerBitmapInternal: IContentTypeManagerBitmapInternal;
+  const AArchiveReadWriteFactory: IArchiveReadWriteFactory
 );
 begin
   inherited Create;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
+
+  AddFromContentTypeManagerBitmapInternal(AContentTypeManagerBitmapInternal);
+
   InitLists(
     AVectorGeometryLonLatFactory,
     AVectorDataFactory,
     AAppearanceOfMarkFactory,
     AVectorItemSubsetBuilderFactory,
-    ABitmapTileSaveLoadFactory,
-    APerfCounterList.CreateAndAddNewSubList('TileLoad'),
-    APerfCounterList.CreateAndAddNewSubList('TileSave')
+    AContentTypeManagerBitmapInternal.LoadPerfCounterList,
+    AContentTypeManagerBitmapInternal.SavePerfCounterList
   );
 end;
 
@@ -111,67 +172,12 @@ procedure TContentTypeManagerSimple.InitLists(
   const AVectorDataFactory: IVectorDataFactory;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const ALoadPerfCounterList: IInternalPerformanceCounterList;
   const ASavePerfCounterList: IInternalPerformanceCounterList
 );
 var
   VContentType: IContentTypeInfoBasic;
-  VLoader: IBitmapTileLoader;
-  VSaver: IBitmapTileSaver;
-  VExt: AnsiString;
-  VType: AnsiString;
 begin
-  VSaver := ABitmapTileSaveLoadFactory.CreateJpegSaver(85, ASavePerfCounterList);
-  VLoader := ABitmapTileSaveLoadFactory.CreateJpegLoader(ALoadPerfCounterList);
-  VType := 'image/jpg';
-  VExt := '.jpg';
-  VContentType := TContentTypeInfoBitmap.Create(VType, VExt, VLoader, VSaver);
-  AddByType(VContentType, VType);
-  AddByType(VContentType, 'image/jpeg');
-  AddByType(VContentType, 'image/pjpeg');
-  AddByExt(VContentType, VExt);
-
-  VExt := '.jpeg';
-  VContentType := TContentTypeInfoBitmap.Create(VType, VExt, VLoader, VSaver);
-  AddByExt(VContentType, VExt);
-
-  VSaver := ABitmapTileSaveLoadFactory.CreatePngSaver(i32bpp, 2, ASavePerfCounterList);
-  VLoader := ABitmapTileSaveLoadFactory.CreatePngLoader(ALoadPerfCounterList);
-  VType := 'image/png';
-  VExt := '.png';
-  VContentType := TContentTypeInfoBitmap.Create(VType, VExt, VLoader, VSaver);
-  AddByType(VContentType, VType);
-  AddByType(VContentType, 'image/x-png');
-  AddByType(VContentType, 'image/png; mode=24bit');
-  AddByExt(VContentType, VExt);
-
-  VSaver := ABitmapTileSaveLoadFactory.CreateGifSaver(ASavePerfCounterList);
-  VLoader := ABitmapTileSaveLoadFactory.CreateGifLoader(ALoadPerfCounterList);
-  VType := 'image/gif';
-  VExt := '.gif';
-  VContentType := TContentTypeInfoBitmap.Create(VType, VExt, VLoader, VSaver);
-  AddByType(VContentType, VType);
-  AddByExt(VContentType, VExt);
-
-  VSaver := ABitmapTileSaveLoadFactory.CreateBmpSaver(ASavePerfCounterList);
-  VLoader := ABitmapTileSaveLoadFactory.CreateBmpLoader(ALoadPerfCounterList);
-  VType := 'image/bmp';
-  VExt := '.bmp';
-  VContentType := TContentTypeInfoBitmap.Create(VType, VExt, VLoader, VSaver);
-  AddByType(VContentType, VType);
-  AddByType(VContentType, 'image/x-ms-bmp');
-  AddByType(VContentType, 'image/x-windows-bmp');
-  AddByExt(VContentType, VExt);
-
-  VSaver := ABitmapTileSaveLoadFactory.CreateWebpSaver(75, ASavePerfCounterList);
-  VLoader := ABitmapTileSaveLoadFactory.CreateWebpLoader(ALoadPerfCounterList);
-  VType := 'image/webp';
-  VExt := '.webp';
-  VContentType := TContentTypeInfoBitmap.Create(VType, VExt, VLoader, VSaver);
-  AddByType(VContentType, VType);
-  AddByExt(VContentType, VExt);
-
   VContentType := TContentTypeInfoVector.Create(
     'application/vnd.sas.wikimapia.kml+xml',
     '.kml',
@@ -424,6 +430,26 @@ begin
   end;
 end;
 
+procedure TContentTypeManagerSimple.AddFromContentTypeManagerBitmapInternal(
+  const AContentTypeManagerBitmapInternal: IContentTypeManagerBitmapInternal
+);
+var
+  VList: TContentTypeListByKey;
+  VEnumerator: TALStringsEnumerator;
+begin
+  VList := AContentTypeManagerBitmapInternal.GetBitmapExtList;
+  VEnumerator := VList.GetEnumerator;
+  while VEnumerator.MoveNext do begin
+    AddByExt(VList.Get(VEnumerator.Current), VEnumerator.Current);
+  end;
+
+  VList := AContentTypeManagerBitmapInternal.GetBitmapTypeList;
+  VEnumerator := VList.GetEnumerator;
+  while VEnumerator.MoveNext do begin
+    AddByType(VList.Get(VEnumerator.Current), VEnumerator.Current);
+  end;
+end;
+
 procedure TContentTypeManagerSimple.ConverterMatrixUpdateBitmaps;
 var
   VSourceEnumerator: TALStringsEnumerator;
@@ -460,6 +486,168 @@ begin
   finally
     VSourceEnumerator.Free;
   end;
+end;
+
+{ TContentTypeManagerBitmap }
+
+procedure TContentTypeManagerBitmap.AddByExt(
+  const AInfo: IContentTypeInfoBitmap;
+  const AExt: AnsiString
+);
+begin
+  Assert(IsAscii(AExt));
+  FBitmapExtList.Add(AExt, AInfo);
+end;
+
+procedure TContentTypeManagerBitmap.AddByType(
+  const AInfo: IContentTypeInfoBitmap;
+  const AType: AnsiString
+);
+begin
+  Assert(IsAscii(AType));
+  FBitmapTypeList.Add(AType, AInfo);
+end;
+
+constructor TContentTypeManagerBitmap.Create(
+  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+  const APerfCounterList: IInternalPerformanceCounterList
+);
+begin
+  inherited Create;
+  FLoadPerfCounterList := APerfCounterList.CreateAndAddNewSubList('TileLoad');
+  FSavePerfCounterList := APerfCounterList.CreateAndAddNewSubList('TileSave');
+
+  FBitmapExtList := TContentTypeListByKey.Create;
+  FBitmapTypeList := TContentTypeListByKey.Create;
+
+  InitLists(ABitmapTileSaveLoadFactory);
+end;
+
+destructor TContentTypeManagerBitmap.Destroy;
+begin
+  FreeAndNil(FBitmapExtList);
+  FreeAndNil(FBitmapTypeList);
+  inherited;
+end;
+
+function TContentTypeManagerBitmap.GetBitmapLoaderByFileName(
+  const AFileName: string
+): IBitmapTileLoader;
+var
+  VExt: string;
+  VExtAscii: AnsiString;
+  VContentType: IContentTypeInfoBasic;
+  VContentTypeBitmap: IContentTypeInfoBitmap;
+begin
+  Result := nil;
+  VExt := ExtractFileExt(AFileName);
+  if IsAscii(VExt) then begin
+    VExtAscii := StringToAsciiSafe(VExt);
+    VExtAscii := AlLowerCase(VExtAscii);
+    VContentType := FBitmapExtList.Get(VExtAscii);
+    if Assigned(VContentType) then begin
+      if Supports(VContentType, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
+        Result := VContentTypeBitmap.GetLoader;
+      end;
+    end;
+  end;
+end;
+
+function TContentTypeManagerBitmap.GetBitmapExtList: TContentTypeListByKey;
+begin
+  Result := FBitmapExtList;
+end;
+
+function TContentTypeManagerBitmap.GetBitmapTypeList: TContentTypeListByKey;
+begin
+  Result := FBitmapTypeList;
+end;
+
+function TContentTypeManagerBitmap.GetIsBitmapExt(
+  const AExt: AnsiString
+): Boolean;
+begin
+  Assert(IsAscii(AExt));
+  Result := FBitmapExtList.Get(AExt) <> nil;
+end;
+
+function TContentTypeManagerBitmap.GetIsBitmapType(
+  const AType: AnsiString
+): Boolean;
+begin
+  Assert(IsAscii(AType));
+  Result := FBitmapTypeList.Get(AType) <> nil;
+end;
+
+function TContentTypeManagerBitmap.GetLoadPerfCounterList: IInternalPerformanceCounterList;
+begin
+  Result := FLoadPerfCounterList;
+end;
+
+function TContentTypeManagerBitmap.GetSavePerfCounterList: IInternalPerformanceCounterList;
+begin
+  Result := FSavePerfCounterList;
+end;
+
+procedure TContentTypeManagerBitmap.InitLists(
+  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory
+);
+var
+  VContentType: IContentTypeInfoBitmap;
+  VLoader: IBitmapTileLoader;
+  VSaver: IBitmapTileSaver;
+  VExt: AnsiString;
+  VType: AnsiString;
+begin
+  VSaver := ABitmapTileSaveLoadFactory.CreateJpegSaver(85, FSavePerfCounterList);
+  VLoader := ABitmapTileSaveLoadFactory.CreateJpegLoader(FLoadPerfCounterList);
+  VType := 'image/jpg';
+  VExt := '.jpg';
+  VContentType := TContentTypeInfoBitmap.Create(VType, VExt, VLoader, VSaver);
+  AddByType(VContentType, VType);
+  AddByType(VContentType, 'image/jpeg');
+  AddByType(VContentType, 'image/pjpeg');
+  AddByExt(VContentType, VExt);
+
+  VExt := '.jpeg';
+  VContentType := TContentTypeInfoBitmap.Create(VType, VExt, VLoader, VSaver);
+  AddByExt(VContentType, VExt);
+
+  VSaver := ABitmapTileSaveLoadFactory.CreatePngSaver(i32bpp, 2, FSavePerfCounterList);
+  VLoader := ABitmapTileSaveLoadFactory.CreatePngLoader(FLoadPerfCounterList);
+  VType := 'image/png';
+  VExt := '.png';
+  VContentType := TContentTypeInfoBitmap.Create(VType, VExt, VLoader, VSaver);
+  AddByType(VContentType, VType);
+  AddByType(VContentType, 'image/x-png');
+  AddByType(VContentType, 'image/png; mode=24bit');
+  AddByExt(VContentType, VExt);
+
+  VSaver := ABitmapTileSaveLoadFactory.CreateGifSaver(FSavePerfCounterList);
+  VLoader := ABitmapTileSaveLoadFactory.CreateGifLoader(FLoadPerfCounterList);
+  VType := 'image/gif';
+  VExt := '.gif';
+  VContentType := TContentTypeInfoBitmap.Create(VType, VExt, VLoader, VSaver);
+  AddByType(VContentType, VType);
+  AddByExt(VContentType, VExt);
+
+  VSaver := ABitmapTileSaveLoadFactory.CreateBmpSaver(FSavePerfCounterList);
+  VLoader := ABitmapTileSaveLoadFactory.CreateBmpLoader(FLoadPerfCounterList);
+  VType := 'image/bmp';
+  VExt := '.bmp';
+  VContentType := TContentTypeInfoBitmap.Create(VType, VExt, VLoader, VSaver);
+  AddByType(VContentType, VType);
+  AddByType(VContentType, 'image/x-ms-bmp');
+  AddByType(VContentType, 'image/x-windows-bmp');
+  AddByExt(VContentType, VExt);
+
+  VSaver := ABitmapTileSaveLoadFactory.CreateWebpSaver(75, FSavePerfCounterList);
+  VLoader := ABitmapTileSaveLoadFactory.CreateWebpLoader(FLoadPerfCounterList);
+  VType := 'image/webp';
+  VExt := '.webp';
+  VContentType := TContentTypeInfoBitmap.Create(VType, VExt, VLoader, VSaver);
+  AddByType(VContentType, VType);
+  AddByExt(VContentType, VExt);
 end;
 
 end.

@@ -26,6 +26,13 @@ uses
   i_BitmapTileSaveLoad,
   i_ContentTypeInfo,
   i_ContentConverter;
+type
+  IContentTypeManagerBitmap = interface
+    ['{B7B3EBF5-60DB-434D-B854-383CE0E752E7}']
+    function GetIsBitmapType(const AType: AnsiString): Boolean;
+    function GetBitmapLoaderByFileName(const AFileName: string): IBitmapTileLoader;
+    function GetIsBitmapExt(const AExt: AnsiString): Boolean;
+  end;
 
 type
   IContentTypeManager = interface

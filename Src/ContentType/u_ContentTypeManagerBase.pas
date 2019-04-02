@@ -32,7 +32,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TContentTypeManagerBase = class(TBaseInterfacedObject, IContentTypeManager)
+  TContentTypeManagerBase = class(TBaseInterfacedObject, IContentTypeManager, IContentTypeManagerBitmap)
   private
     FExtList: TContentTypeListByKey;
     FTypeList: TContentTypeListByKey;
