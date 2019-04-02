@@ -6,7 +6,7 @@
         <DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
         <DCC_DependencyCheckOutputName>.bin\SASPlanet.exe</DCC_DependencyCheckOutputName>
         <FrameworkType>VCL</FrameworkType>
-        <ProjectVersion>18.5</ProjectVersion>
+        <ProjectVersion>18.6</ProjectVersion>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
@@ -1105,6 +1105,7 @@
         <DCCReference Include="Src\Network\i_TileRequestProcessorPool.pas"/>
         <DCCReference Include="Src\Network\i_TileRequestResult.pas"/>
         <DCCReference Include="Src\Network\i_TileRequestTask.pas"/>
+        <DCCReference Include="Src\Network\i_WinInetConfig.pas"/>
         <DCCReference Include="Src\Network\u_AntiBanStuped.pas"/>
         <DCCReference Include="Src\Network\u_DownloadCheckerStuped.pas"/>
         <DCCReference Include="Src\Network\u_DownloadInfoSimple.pas"/>
@@ -1153,6 +1154,7 @@
         <DCCReference Include="Src\Network\u_UITileDownloadList.pas"/>
         <DCCReference Include="Src\Network\u_UiTileDownload.pas"/>
         <DCCReference Include="Src\Network\u_UiTileRequestManager.pas"/>
+        <DCCReference Include="Src\Network\u_WinInetConfig.pas"/>
         <DCCReference Include="Src\PascalScript\frm_PascalScriptDbgOut.pas">
             <Form>frmPascalScriptDbgOut</Form>
         </DCCReference>
@@ -1705,7 +1707,6 @@
         <DCCReference Include="Src\Vector\i_VectorItemTreeExporterList.pas"/>
         <DCCReference Include="Src\Vector\i_VectorItemTreeImporter.pas"/>
         <DCCReference Include="Src\Vector\i_VectorItemTreeImporterList.pas"/>
-        <DCCReference Include="Src\Vector\t_MarkAppearance.pas"/>
         <DCCReference Include="Src\Vector\u_AppearanceHelper.pas"/>
         <DCCReference Include="Src\Vector\u_AppearanceOfMarkFactory.pas"/>
         <DCCReference Include="Src\Vector\u_AppearanceOfMarkLine.pas"/>
@@ -1841,8 +1842,6 @@
         <DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
         <DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
         <DCCReference Include="Src\u_WindowPositionConfig.pas"/>
-        <DCCReference Include="Src\Network\i_WinInetConfig.pas"/>
-        <DCCReference Include="Src\Network\u_WinInetConfig.pas"/>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
