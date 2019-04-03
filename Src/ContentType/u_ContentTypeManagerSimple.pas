@@ -28,6 +28,7 @@ uses
   i_ContentConverter,
   i_VectorDataFactory,
   i_AppearanceOfMarkFactory,
+  i_MarkPicture,
   i_VectorItemSubsetBuilder,
   i_InternalPerformanceCounter,
   i_BitmapTileSaveLoad,
@@ -110,6 +111,7 @@ type
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorDataFactory: IVectorDataFactory;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+      const AMarkPictureList: IMarkPictureList;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const ALoadPerfCounterList: IInternalPerformanceCounterList;
       const ASavePerfCounterList: IInternalPerformanceCounterList
@@ -119,6 +121,7 @@ type
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorDataFactory: IVectorDataFactory;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+      const AMarkPictureList: IMarkPictureList;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AContentTypeManagerBitmapInternal: IContentTypeManagerBitmapInternal;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory
@@ -147,6 +150,7 @@ constructor TContentTypeManagerSimple.Create(
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorDataFactory: IVectorDataFactory;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+  const AMarkPictureList: IMarkPictureList;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AContentTypeManagerBitmapInternal: IContentTypeManagerBitmapInternal;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory
@@ -161,6 +165,7 @@ begin
     AVectorGeometryLonLatFactory,
     AVectorDataFactory,
     AAppearanceOfMarkFactory,
+    AMarkPictureList,
     AVectorItemSubsetBuilderFactory,
     AContentTypeManagerBitmapInternal.LoadPerfCounterList,
     AContentTypeManagerBitmapInternal.SavePerfCounterList
@@ -171,6 +176,7 @@ procedure TContentTypeManagerSimple.InitLists(
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorDataFactory: IVectorDataFactory;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+  const AMarkPictureList: IMarkPictureList;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const ALoadPerfCounterList: IInternalPerformanceCounterList;
   const ASavePerfCounterList: IInternalPerformanceCounterList
@@ -203,7 +209,7 @@ begin
     'application/vnd.google-earth.kml+xml',
     '.kml',
     TXmlInfoSimpleParser.Create(
-      nil, // ToDo: IMarkPictureList
+      AMarkPictureList,
       AAppearanceOfMarkFactory,
       AVectorGeometryLonLatFactory,
       AVectorDataFactory,
@@ -228,8 +234,8 @@ begin
     'application/gpx+xml',
     '.gpx',
     TXmlInfoSimpleParser.Create(
-      nil, // ToDo: IMarkPictureList
-      nil, // ToDo: IAppearanceOfMarkFactory
+      AMarkPictureList,
+      AAppearanceOfMarkFactory,
       AVectorGeometryLonLatFactory,
       AVectorDataFactory,
       AVectorItemSubsetBuilderFactory

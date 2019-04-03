@@ -540,6 +540,23 @@ begin
     TBitmapTileSaveLoadFactory.Create(
       FBitmap32StaticFactory
     );
+
+  VContentTypeManagerBitmapInternal :=
+    TContentTypeManagerBitmap.Create(
+      FBitmapTileSaveLoadFactory,
+      FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('Content')
+    );
+
+  FMarkPictureListInternal :=
+    TMarkPictureListSimple.Create(
+      FHashFunction,
+      FGlobalConfig.MarkPictureConfig,
+      FGlobalConfig.MarksIconsPath,
+      FGlobalConfig.MediaDataPath,
+      VContentTypeManagerBitmapInternal
+    );
+  FMarkPictureList := FMarkPictureListInternal;
+
   FArchiveReadWriteFactory := TArchiveReadWriteFactory.Create;
 
   VNotifierSync := GSync.SyncVariable.Make(Self.ClassName + 'Notifiers');
@@ -644,17 +661,13 @@ begin
 
   FVectorDataItemMainInfoFactory := TVectorDataItemMainInfoFactory.Create(FHashFunction, THtmlToHintTextConverterStuped.Create);
   FVectorDataFactory := TVectorDataFactorySimple.Create(FHashFunction);
-  VContentTypeManagerBitmapInternal :=
-    TContentTypeManagerBitmap.Create(
-      FBitmapTileSaveLoadFactory,
-      FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('Content')
-    );
 
   FContentTypeManager :=
     TContentTypeManagerSimple.Create(
       FVectorGeometryLonLatFactory,
       FVectorDataFactory,
       FAppearanceOfMarkFactory,
+      FMarkPictureList,
       FVectorItemSubsetBuilderFactory,
       VContentTypeManagerBitmapInternal,
       FArchiveReadWriteFactory
@@ -713,15 +726,6 @@ begin
       FVectorGeometryLonLatFactory,
       FHashFunction
     );
-  FMarkPictureListInternal :=
-    TMarkPictureListSimple.Create(
-      FHashFunction,
-      FGlobalConfig.MarkPictureConfig,
-      FGlobalConfig.MarksIconsPath,
-      FGlobalConfig.MediaDataPath,
-      FContentTypeManager
-    );
-  FMarkPictureList := FMarkPictureListInternal;
   FMarkCategoryFactory :=
     TMarkCategoryFactory.Create(
       FGlobalConfig.MarksCategoryFactoryConfig

@@ -43,7 +43,7 @@ type
     FRuntimeFailList: TStringList;
     FBasePath: IPathConfig;
     FMediaDataPath: IPathConfig;
-    FContentTypeManager: IContentTypeManager;
+    FContentTypeManager: IContentTypeManagerBitmap;
     FMarkPictureConfig: IMarkPictureConfig;
     procedure Clear;
     function _GetFromRuntimeList(AIndex: Integer): IMarkPicture;
@@ -67,7 +67,7 @@ type
       const AMarkPictureConfig: IMarkPictureConfig;
       const ABasePath: IPathConfig;
       const AMediaDataPath: IPathConfig;
-      const AContentTypeManager: IContentTypeManager
+      const AContentTypeManager: IContentTypeManagerBitmap
     );
     destructor Destroy; override;
   end;
@@ -134,7 +134,7 @@ constructor TMarkPictureListSimple.Create(
   const AMarkPictureConfig: IMarkPictureConfig;
   const ABasePath: IPathConfig;
   const AMediaDataPath: IPathConfig;
-  const AContentTypeManager: IContentTypeManager
+  const AContentTypeManager: IContentTypeManagerBitmap
 );
 begin
   Assert(AMarkPictureConfig <> nil);
