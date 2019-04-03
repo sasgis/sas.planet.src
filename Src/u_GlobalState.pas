@@ -438,7 +438,6 @@ var
   VFilesIterator: IFileNameIterator;
   VProgramPath: string;
   VSleepByClass: IConfigDataProvider;
-  VResamplerFactoryList: IImageResamplerFactoryList;
   VInternalDebugConfig: IInternalDebugConfig;
   VTileLoadResampler: IImageResamplerFactoryChangeable;
   VTileGetPrevResampler: IImageResamplerFactoryChangeable;
@@ -623,8 +622,6 @@ begin
 
   FGPSDatum := FDatumFactory.GetByCode(CYandexDatumEPSG);
   FGeoCalc := TGeoCalc.Create(FGPSDatum);
-
-  VResamplerFactoryList := TImageResamplerFactoryListStaticSimple.Create;
 
   FGPSPositionFactory := TGPSPositionFactory.Create;
   FGPSRecorderInternal :=
