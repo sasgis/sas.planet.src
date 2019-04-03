@@ -75,10 +75,6 @@ type
     FInMultiTrack: Boolean;
     // check if in placemark object
     FInMarkObject: Boolean;
-
-    // count of segments in array
-    FClosedSegments: Integer;
-    FOpenedSegments: Integer;
   private
     procedure SafeAddToResult(const AItem: IVectorDataItem);
     procedure InternalMakeTrackObject;
@@ -232,7 +228,6 @@ begin
     end else begin
       FPolygonBuilder.AddOuter(FDoublePointsAggregator.MakeStaticAndClear);
     end;
-    Inc(FClosedSegments);
   end;
 end;
 
@@ -247,7 +242,6 @@ begin
   ParseKmlCoordinatesToArray(ACoordinates);
   if FDoublePointsAggregator.Count > 0 then begin
     FLineBuilder.AddLine(FDoublePointsAggregator.MakeStaticAndClear);
-    Inc(FOpenedSegments);
   end;
 end;
 
@@ -354,7 +348,6 @@ procedure TXmlVectorObjects.CloseTrackSegment;
 begin
   if FDoublePointsAggregator.Count > 0 then begin
     FLineBuilder.AddLine(FDoublePointsAggregator.MakeStaticAndClear);
-    Inc(FOpenedSegments);
   end;
   InternalMakeTrackObject;
 end;
@@ -387,8 +380,6 @@ begin
   FVectorDataItemMainInfoFactory := AVectorDataItemMainInfoFactory;
 
   FDoublePointsAggregator := TDoublePointsAggregator.Create;
-  FClosedSegments := 0;
-  FOpenedSegments := 0;
   FInMarkObject := False;
   FInMultiGeometry := False;
   FInMultiTrack := False;
@@ -461,8 +452,6 @@ begin
     raise EXmlVectorObjectsMarkInMark.Create('');
   end;
   FInMarkObject := True;
-  FOpenedSegments := 0;
-  FClosedSegments := 0;
 end;
 
 procedure TXmlVectorObjects.OpenMultiGeometry;
