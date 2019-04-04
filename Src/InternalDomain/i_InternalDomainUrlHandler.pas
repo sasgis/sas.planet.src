@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -18,34 +18,16 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit c_InternalBrowser;
+unit i_InternalDomainUrlHandler;
 
 interface
 
-const
-  CSASProtocolName = 'sas';
-  CSASInternalURLPrefix = CSASProtocolName + '://';
+type
+  IInternalDomainUrlHandler = interface
+    ['{3D96771D-8DFA-4786-A0F7-774EFDDA81D6}']
 
-  CZmpInfoInternalDomain = 'ZmpInfo';
-  CMapDataInternalDomain = 'MapData';
-  CMediaDataInternalDomain = 'MediaData';
-  CShowMessageDomain = 'ShowMessage';
-  CLastSearchResultsInternalDomain = 'SearchResults';
-  CMarksSystemInternalDomain = 'Placemarks';
-  CTileStorageOptionsInternalDomain = 'TileStorageOptions';
-  CPhotoDomain = 'Photo';
-
-  CZmpInfoInternalURL = CSASInternalURLPrefix + CZmpInfoInternalDomain + '/';
-  CMapDataInternalURL = CSASInternalURLPrefix + CMapDataInternalDomain + '/';
-  CMediaDataInternalURL = CSASInternalURLPrefix + CMediaDataInternalDomain + '/';
-  CShowMessageInternalURL = CSASInternalURLPrefix + CShowMessageDomain + '/';
-  CLastSearchResultsInternalURL = CSASInternalURLPrefix + CLastSearchResultsInternalDomain + '/';
-  CMarksSystemInternalURL = CSASInternalURLPrefix + CMarksSystemInternalDomain + '/';
-  CTileStorageOptionsInternalURL = CSASInternalURLPrefix + CTileStorageOptionsInternalDomain + '/';
-  CPhotoInternalUrl = CSASInternalURLPrefix + CPhotoDomain + '/';
-
-  CVectorItemDescriptionSuffix = 'Description';
-  CVectorItemInfoSuffix = 'Info';
+    function Process(const AUrl: string): Boolean;
+  end;
 
 implementation
 

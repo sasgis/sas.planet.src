@@ -289,14 +289,14 @@ begin
       end;
     end;
 
-    VDesc := VDesc + 'GPS Coordinates: [ ' + VCoordToStringConverter.LonLatConvert(VPoint) + ' ]' + br;
+    VDesc := VDesc + 'GPS Coordinates: ' + VCoordToStringConverter.LonLatConvert(VPoint) + br;
 
     if VAltitude <> '' then begin
       VDesc := VDesc + 'GPS Elevation: ' + VAltitude + br;
     end;
 
     if not VExifData.GPSVersion.MissingOrInvalid then begin
-      VDesc := VDesc + 'GPS Version:' + VExifData.GPSVersion.AsString + br;
+      VDesc := VDesc + 'GPS Version: ' + VExifData.GPSVersion.AsString + br;
     end;
 
     if VExifData.CameraMake <> '' then begin
@@ -313,7 +313,7 @@ begin
       VDesc := VDesc + 'Windows Tags: ' + VExifData.Keywords + br;
     end;
 
-    if VExifData.Author <> '' then begin
+    if Trim(VExifData.Author) <> '' then begin
       VDesc := VDesc + 'Author: ' + VExifData.Author + br;
     end;
 
@@ -389,7 +389,10 @@ begin
       VTmpStr := 'width';
     end;
 
-    VDesc := VDesc + '<img ' + VTmpStr + '=' + VResLimit + ' src="' + VImgName + '">';
+    VDesc := VDesc + br +
+      '<a href="' + CPhotoInternalUrl + VImgName + '">' +
+        '<img ' + VTmpStr + '=' + VResLimit + ' src="' + VImgName + '">' +
+      '</a>';
   finally
     VJpeg.Free;
   end;

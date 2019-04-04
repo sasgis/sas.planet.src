@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -18,35 +18,50 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit c_InternalBrowser;
+unit u_InternalDomainUrlHandlerList;
 
 interface
 
-const
-  CSASProtocolName = 'sas';
-  CSASInternalURLPrefix = CSASProtocolName + '://';
+uses
+  i_PathConfig,
+  u_InterfaceListStatic;
 
-  CZmpInfoInternalDomain = 'ZmpInfo';
-  CMapDataInternalDomain = 'MapData';
-  CMediaDataInternalDomain = 'MediaData';
-  CShowMessageDomain = 'ShowMessage';
-  CLastSearchResultsInternalDomain = 'SearchResults';
-  CMarksSystemInternalDomain = 'Placemarks';
-  CTileStorageOptionsInternalDomain = 'TileStorageOptions';
-  CPhotoDomain = 'Photo';
-
-  CZmpInfoInternalURL = CSASInternalURLPrefix + CZmpInfoInternalDomain + '/';
-  CMapDataInternalURL = CSASInternalURLPrefix + CMapDataInternalDomain + '/';
-  CMediaDataInternalURL = CSASInternalURLPrefix + CMediaDataInternalDomain + '/';
-  CShowMessageInternalURL = CSASInternalURLPrefix + CShowMessageDomain + '/';
-  CLastSearchResultsInternalURL = CSASInternalURLPrefix + CLastSearchResultsInternalDomain + '/';
-  CMarksSystemInternalURL = CSASInternalURLPrefix + CMarksSystemInternalDomain + '/';
-  CTileStorageOptionsInternalURL = CSASInternalURLPrefix + CTileStorageOptionsInternalDomain + '/';
-  CPhotoInternalUrl = CSASInternalURLPrefix + CPhotoDomain + '/';
-
-  CVectorItemDescriptionSuffix = 'Description';
-  CVectorItemInfoSuffix = 'Info';
+type
+  TInternalDomainUrlHandlerList = class(TInterfaceListStatic)
+  public
+    constructor Create(
+      const AMediaDataPath: IPathConfig
+    );
+  end;
 
 implementation
+
+uses
+  Classes,
+  i_InternalDomainUrlHandler,
+  u_InternalDomainPhotoUrlHandler;
+
+{ TInternalDomainUrlHandlerList }
+
+constructor TInternalDomainUrlHandlerList.Create(
+  const AMediaDataPath: IPathConfig
+);
+var
+  VList: TList;
+  VItem: IInternalDomainUrlHandler;
+begin
+  VList := TList.Create;
+  try
+    VItem := TInternalDomainPhotoUrlHandler.Create(AMediaDataPath);
+    VItem._AddRef;
+    VList.Add(Pointer(VItem));
+
+    inherited CreateWithOwn(VList);
+
+    VList := nil;
+  finally
+    VList.Free;
+  end;
+end;
 
 end.

@@ -40,6 +40,7 @@ uses
   i_ContentTypeManager,
   i_DownloadRequest,
   i_LanguageManager,
+  i_InterfaceListStatic,
   i_ProxySettings;
 
 type
@@ -82,6 +83,7 @@ type
     FProxyConfig: IProxyConfig;
     FConfig: IWindowPositionConfig;
     FContentTypeManager: IContentTypeManager;
+    FInternalDomainUrlHandlerList: IInterfaceListStatic;
 
     FConfigListener: IListener;
     procedure OnConfigChange;
@@ -93,7 +95,8 @@ type
       const ALanguageManager: ILanguageManager;
       const AConfig: IWindowPositionConfig;
       const AProxyConfig: IProxyConfig;
-      const AContentTypeManager: IContentTypeManager
+      const AContentTypeManager: IContentTypeManager;
+      const AInternalDomainUrlHandlerList: IInterfaceListStatic
     ); reintroduce;
 
     procedure Navigate(const ACaption, AUrl: string);
@@ -104,6 +107,9 @@ implementation
 
 uses
   Variants,
+  Dialogs,
+  c_InternalBrowser,
+  i_InternalDomainUrlHandler,
   u_HtmlToHintTextConverterStuped,
   u_ListenerByEvent,
   u_ResStrings;
@@ -116,15 +122,16 @@ constructor TfrmIntrnalBrowser.Create(
   const ALanguageManager: ILanguageManager;
   const AConfig: IWindowPositionConfig;
   const AProxyConfig: IProxyConfig;
-  const AContentTypeManager: IContentTypeManager
+  const AContentTypeManager: IContentTypeManager;
+  const AInternalDomainUrlHandlerList: IInterfaceListStatic
 );
 begin
   inherited Create(ALanguageManager);
   FConfig := AConfig;
   FContentTypeManager := AContentTypeManager;
   FProxyConfig := AProxyConfig;
-
   FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
+  FInternalDomainUrlHandlerList := AInternalDomainUrlHandlerList;
 
   FEmbeddedWB := TEmbeddedWB.Create(Self);
   FEmbeddedWB.Name := 'IntrnalBrowserEmbeddedWB';
@@ -181,29 +188,45 @@ procedure TfrmIntrnalBrowser.OnEmbeddedWBBeforeNavigate2(
   var Cancel: WordBool
 );
 var
-  VURL: string;
+  I: Integer;
+  VUrl: string;
+  VUrlHandler: IInternalDomainUrlHandler;
 begin
   if Cancel then begin
     Exit;
   end;
+
   try
-    VURL := URL;
+    VUrl := URL;
+
+    if Assigned(FInternalDomainUrlHandlerList) and (Pos(CSASInternalURLPrefix, VUrl) > 0) then begin
+      for I := 0 to FInternalDomainUrlHandlerList.Count - 1 do begin
+        VUrlHandler := IInternalDomainUrlHandler(FInternalDomainUrlHandlerList.Items[I]);
+        if Assigned(VUrlHandler) and VUrlHandler.Process(VUrl) then begin
+          Cancel := True;
+          Exit;
+        end;
+      end;
+    end;
 
     // check file exists and known image type
-    if System.Pos(':', VURL) > 0 then begin
+    if System.Pos(':', VUrl) > 0 then begin
       Exit;
     end;
 
     // check file exists
-    if FileExists(VURL) then begin
-      if Assigned(FContentTypeManager.GetBitmapLoaderByFileName(VURL)) then begin
-        if OpenLocalImage(VURL) then begin
+    if FileExists(VUrl) then begin
+      if Assigned(FContentTypeManager.GetBitmapLoaderByFileName(VUrl)) then begin
+        if OpenLocalImage(VUrl) then begin
         // image opened
           Cancel := TRUE;
         end;
       end;
     end;
   except
+    on E: Exception do begin
+      MessageDlg(E.Message, mtError, [mbOK], 0);
+    end;
   end;
 end;
 
