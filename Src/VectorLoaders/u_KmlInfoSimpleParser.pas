@@ -38,7 +38,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TKmlInfoSimpleParser = class(TBaseInterfacedObject, IVectorDataLoader)
+  TWikimapiaKmlSimpleParser = class(TBaseInterfacedObject, IVectorDataLoader)
   private
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FVectorDataFactory: IVectorDataFactory;
@@ -115,9 +115,9 @@ uses
   u_DoublePointsAggregator,
   u_GeoFunc;
 
-{ TKmlInfoSimpleParser }
+{ TWikimapiaKmlSimpleParser }
 
-function TKmlInfoSimpleParser.BuildItem(
+function TWikimapiaKmlSimpleParser.BuildItem(
   const AContext: TVectorLoadContext;
   const AName, ADesc: string;
   const APointsAggregator: IDoublePointsAggregator
@@ -163,7 +163,7 @@ begin
   end;
 end;
 
-constructor TKmlInfoSimpleParser.Create(
+constructor TWikimapiaKmlSimpleParser.Create(
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorDataFactory: IVectorDataFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory
@@ -187,7 +187,7 @@ begin
   FBMSrchCoordE := TSearchBM.Create('</coordinates');
 end;
 
-destructor TKmlInfoSimpleParser.Destroy;
+destructor TWikimapiaKmlSimpleParser.Destroy;
 begin
   FreeAndNil(FBMSrchPlacemark);
   FreeAndNil(FBMSrchPlacemarkE);
@@ -202,7 +202,7 @@ begin
   inherited;
 end;
 
-function TKmlInfoSimpleParser.Load(
+function TWikimapiaKmlSimpleParser.Load(
   const AContext: TVectorLoadContext;
   const AData: IBinaryData
 ): IVectorItemSubset;
@@ -218,7 +218,7 @@ begin
   end;
 end;
 
-function TKmlInfoSimpleParser.LoadFromStreamInternal(
+function TWikimapiaKmlSimpleParser.LoadFromStreamInternal(
   const AContext: TVectorLoadContext;
   AStream: TStream
 ): IVectorItemSubset;
@@ -273,7 +273,7 @@ begin
   end;
 end;
 
-function TKmlInfoSimpleParser.parseName(Name: AnsiString): string;
+function TWikimapiaKmlSimpleParser.parseName(Name: AnsiString): string;
 var
   pb: integer;
 begin
@@ -284,7 +284,7 @@ begin
   Result := Utf8ToAnsi(Name);
 end;
 
-function TKmlInfoSimpleParser.parseDescription(Description: AnsiString): string;
+function TWikimapiaKmlSimpleParser.parseDescription(Description: AnsiString): string;
 var
   pb: integer;
   iip: integer;
@@ -308,7 +308,7 @@ begin
   Result := Utf8ToAnsi(Description);
 end;
 
-function TKmlInfoSimpleParser.parse(
+function TWikimapiaKmlSimpleParser.parse(
   const AContext: TVectorLoadContext;
   const buffer: AnsiString;
   const AList: IVectorItemSubsetBuilder
@@ -387,7 +387,7 @@ begin
   end;
 end;
 
-function TKmlInfoSimpleParser.parseCoordinates(
+function TWikimapiaKmlSimpleParser.parseCoordinates(
   AText: PAnsiChar;
   ALen: integer;
   const APointsAggregator: IDoublePointsAggregator
@@ -467,7 +467,7 @@ begin
   Result := APointsAggregator.Count > 0;
 end;
 
-function TKmlInfoSimpleParser.PosOfChar(
+function TWikimapiaKmlSimpleParser.PosOfChar(
   APattern: AnsiChar;
   AText: PAnsiChar;
   ALast: PAnsiChar
@@ -486,7 +486,7 @@ begin
   end;
 end;
 
-function TKmlInfoSimpleParser.PosOfNonSpaceChar(
+function TWikimapiaKmlSimpleParser.PosOfNonSpaceChar(
   AText: PAnsiChar;
   ALast: PAnsiChar
 ): PAnsiChar;
@@ -504,7 +504,7 @@ begin
   end;
 end;
 
-function TKmlInfoSimpleParser.PosOfSpaceChar(AText, ALast: PAnsiChar): PAnsiChar;
+function TWikimapiaKmlSimpleParser.PosOfSpaceChar(AText, ALast: PAnsiChar): PAnsiChar;
 var
   VCurr: PAnsiChar;
 begin

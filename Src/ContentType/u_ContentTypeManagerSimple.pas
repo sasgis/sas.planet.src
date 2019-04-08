@@ -134,6 +134,7 @@ uses
   SysUtils,
   ALString,
   ALStringList,
+  i_VectorDataLoader,
   u_ContentTypeInfo,
   u_ContentConverterKmz2Kml,
   u_ContentConverterKml2Kmz,
@@ -183,15 +184,19 @@ procedure TContentTypeManagerSimple.InitLists(
 );
 var
   VContentType: IContentTypeInfoBasic;
+  VKmlParser: IVectorDataLoader;
 begin
-  VContentType := TContentTypeInfoVector.Create(
-    'application/vnd.sas.wikimapia.kml+xml',
-    '.kml',
-    TKmlInfoSimpleParser.Create(
+  VKmlParser :=
+    TWikimapiaKmlSimpleParser.Create(
       AVectorGeometryLonLatFactory,
       AVectorDataFactory,
       AVectorItemSubsetBuilderFactory
-    )
+    );
+
+  VContentType := TContentTypeInfoVector.Create(
+    'application/vnd.sas.wikimapia.kml+xml',
+    '.kml',
+    VKmlParser
   );
   AddByType(VContentType, VContentType.GetContentType);
 
@@ -199,22 +204,25 @@ begin
     'application/vnd.sas.wikimapia.kmz',
     '.kmz',
     TKmzInfoSimpleParser.Create(
-      TKmlInfoSimpleParser.Create(AVectorGeometryLonLatFactory, AVectorDataFactory, AVectorItemSubsetBuilderFactory),
+      VKmlParser,
       FArchiveReadWriteFactory
     )
   );
   AddByType(VContentType, VContentType.GetContentType);
 
-  VContentType := TContentTypeInfoVector.Create(
-    'application/vnd.google-earth.kml+xml',
-    '.kml',
+  VKmlParser :=
     TXmlInfoSimpleParser.Create(
       AMarkPictureList,
       AAppearanceOfMarkFactory,
       AVectorGeometryLonLatFactory,
       AVectorDataFactory,
       AVectorItemSubsetBuilderFactory
-    )
+    );
+
+  VContentType := TContentTypeInfoVector.Create(
+    'application/vnd.google-earth.kml+xml',
+    '.kml',
+    VKmlParser
   );
   AddByType(VContentType, VContentType.GetContentType);
   AddByExt(VContentType, VContentType.GetDefaultExt);
@@ -223,7 +231,7 @@ begin
     'application/vnd.google-earth.kmz',
     '.kmz',
     TKmzInfoSimpleParser.Create(
-      TKmlInfoSimpleParser.Create(AVectorGeometryLonLatFactory, AVectorDataFactory, AVectorItemSubsetBuilderFactory),
+      VKmlParser,
       FArchiveReadWriteFactory
     )
   );
@@ -233,13 +241,7 @@ begin
   VContentType := TContentTypeInfoVector.Create(
     'application/gpx+xml',
     '.gpx',
-    TXmlInfoSimpleParser.Create(
-      AMarkPictureList,
-      AAppearanceOfMarkFactory,
-      AVectorGeometryLonLatFactory,
-      AVectorDataFactory,
-      AVectorItemSubsetBuilderFactory
-    )
+    VKmlParser
   );
   AddByType(VContentType, VContentType.GetContentType);
   AddByExt(VContentType, VContentType.GetDefaultExt);
