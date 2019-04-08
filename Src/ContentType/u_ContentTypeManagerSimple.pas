@@ -205,7 +205,7 @@ begin
     '.kmz',
     TKmzInfoSimpleParser.Create(
       VKmlParser,
-      FArchiveReadWriteFactory
+      FArchiveReadWriteFactory.Zip.ReaderFactory
     )
   );
   AddByType(VContentType, VContentType.GetContentType);
@@ -232,7 +232,7 @@ begin
     '.kmz',
     TKmzInfoSimpleParser.Create(
       VKmlParser,
-      FArchiveReadWriteFactory
+      FArchiveReadWriteFactory.Zip.ReaderFactory
     )
   );
   AddByType(VContentType, VContentType.GetContentType);

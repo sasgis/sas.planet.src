@@ -35,7 +35,7 @@ type
   TKmzInfoSimpleParser = class(TBaseInterfacedObject, IVectorDataLoader)
   private
     FKmlParser: IVectorDataLoader;
-    FArchiveReadWriteFactory: IArchiveReadWriteFactory;
+    FArchiveReadFactory: IArchiveReaderFactory;
     function LoadFromStreamInternal(
       const AContext: TVectorLoadContext;
       AStream: TStream
@@ -48,7 +48,7 @@ type
   public
     constructor Create(
       const AKmlParser: IVectorDataLoader;
-      const AArchiveReadWriteFactory: IArchiveReadWriteFactory
+      const AArchiveReadFactory: IArchiveReaderFactory
     );
   end;
 
@@ -63,12 +63,12 @@ uses
 
 constructor TKmzInfoSimpleParser.Create(
   const AKmlParser: IVectorDataLoader;
-  const AArchiveReadWriteFactory: IArchiveReadWriteFactory
+  const AArchiveReadFactory: IArchiveReaderFactory
 );
 begin
   inherited Create;
   FKmlParser := AKmlParser;
-  FArchiveReadWriteFactory := AArchiveReadWriteFactory;
+  FArchiveReadFactory := AArchiveReadFactory;
 end;
 
 function TKmzInfoSimpleParser.Load(
@@ -100,7 +100,7 @@ var
   VFileName: string;
 begin
   Result := nil;
-  VZip := FArchiveReadWriteFactory.Zip.ReaderFactory.BuildByStream(AStream);
+  VZip := FArchiveReadFactory.BuildByStream(AStream);
   VItemsCount := VZip.GetItemsCount;
   if VItemsCount > 0 then begin
     VData := VZip.GetItemByName('doc.kml');
