@@ -103,7 +103,7 @@ end;
 procedure TInternalDomainUrlHandler.InternalUrlToUrl(var AUrl: string);
 begin
   if StartsStr(FMediaDataUrl, AUrl) then begin
-    AUrl := FMediaDataPath.FullPath + Copy(AUrl, Length(FMediaDataUrl) + 1);
+    AUrl := IncludeTrailingPathDelimiter(FMediaDataPath.FullPath) + Copy(AUrl, Length(FMediaDataUrl) + 1);
   end else
   if StartsStr(CSASInternalURLPrefix, AUrl) then begin
     AUrl := Copy(AUrl, Length(CSASInternalURLPrefix) + 1);
