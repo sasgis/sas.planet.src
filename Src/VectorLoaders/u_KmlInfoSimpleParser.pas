@@ -69,10 +69,9 @@ type
       ALast: PAnsiChar
     ): PAnsiChar;
     function parse(
+      const AContext: TVectorLoadContext;
       const buffer: AnsiString;
-      const AList: IVectorItemSubsetBuilder;
-      const AIdData: Pointer;
-      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
+      const AList: IVectorItemSubsetBuilder
     ): boolean;
     function parseCoordinates(
       AText: PAnsiChar;
@@ -82,10 +81,9 @@ type
     function parseName(Name: AnsiString): string;
     function parseDescription(Description: AnsiString): string;
     function BuildItem(
+      const AContext: TVectorLoadContext;
       const AName, ADesc: string;
-      const APointsAggregator: IDoublePointsAggregator;
-      const AIdData: Pointer;
-      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
+      const APointsAggregator: IDoublePointsAggregator
     ): IVectorDataItem;
     function LoadFromStreamInternal(
       const AContext: TVectorLoadContext;
@@ -112,6 +110,7 @@ uses
   ALString,
   cUnicodeCodecs,
   i_GeometryLonLat,
+  i_Appearance,
   u_StreamReadOnlyByBinaryData,
   u_DoublePointsAggregator,
   u_GeoFunc;
@@ -119,35 +118,45 @@ uses
 { TKmlInfoSimpleParser }
 
 function TKmlInfoSimpleParser.BuildItem(
+  const AContext: TVectorLoadContext;
   const AName, ADesc: string;
-  const APointsAggregator: IDoublePointsAggregator;
-  const AIdData: Pointer;
-  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
+  const APointsAggregator: IDoublePointsAggregator
 ): IVectorDataItem;
 var
   VPointCount: Integer;
   VGeometry: IGeometryLonLat;
+  VAppearance: IAppearance;
 begin
   Result := nil;
+  VAppearance := nil;
   VPointCount := APointsAggregator.Count;
   if VPointCount > 0 then begin
     VGeometry := nil;
     if VPointCount = 1 then begin
       if not PointIsEmpty(APointsAggregator.Points[0]) then begin
         VGeometry := FVectorGeometryLonLatFactory.CreateLonLatPoint(APointsAggregator.Points[0]);
+        if Assigned(AContext.PointParams) then begin
+          VAppearance := AContext.PointParams.Appearance;
+        end;
       end;
     end else begin
       if DoublePointsEqual(APointsAggregator.Points[0], APointsAggregator.Points[VPointCount - 1]) then begin
         VGeometry := FVectorGeometryLonLatFactory.CreateLonLatPolygon(APointsAggregator.Points, VPointCount);
+        if Assigned(AContext.PolygonParams) then begin
+          VAppearance := AContext.PolygonParams.Appearance;
+        end;
       end else begin
         VGeometry := FVectorGeometryLonLatFactory.CreateLonLatLine(APointsAggregator.Points, VPointCount);
+        if Assigned(AContext.LineParams) then begin
+          VAppearance := AContext.LineParams.Appearance;
+        end;
       end;
     end;
     if Assigned(VGeometry) then begin
       Result :=
         FVectorDataFactory.BuildItem(
-          AVectorDataItemMainInfoFactory.BuildMainInfo(AIdData, AName, ADesc),
-          nil,
+          AContext.MainInfoFactory.BuildMainInfo(AContext.IdData, AName, ADesc),
+          VAppearance,
           VGeometry
         );
     end;
@@ -256,7 +265,7 @@ begin
     VKml := GetAnsiString(AStream);
     if VKml <> '' then begin
       VList := FVectorItemSubsetBuilderFactory.Build;
-      parse(VKml, VList, AContext.IdData, AContext.MainInfoFactory);
+      parse(AContext, VKml, VList);
       Result := VList.MakeStaticAndClear;
     end else begin
       Assert(False, 'KML data reader - Unknown error');
@@ -300,10 +309,9 @@ begin
 end;
 
 function TKmlInfoSimpleParser.parse(
+  const AContext: TVectorLoadContext;
   const buffer: AnsiString;
-  const AList: IVectorItemSubsetBuilder;
-  const AIdData: Pointer;
-  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
+  const AList: IVectorItemSubsetBuilder
 ): boolean;
 var
   position, PosStartPlace, PosTag1, PosTag2, PosTag3, PosEndPlace, sLen: integer;
@@ -367,7 +375,7 @@ begin
             result := false;
           end;
         end;
-        VItem := BuildItem(VName, VDescription, VPointsAggregator, AIdData, AVectorDataItemMainInfoFactory);
+        VItem := BuildItem(AContext, VName, VDescription, VPointsAggregator);
         if VItem <> nil then begin
           AList.Add(VItem);
         end;
