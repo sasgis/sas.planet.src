@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -170,6 +170,7 @@ var
   VDesc: string;
   VTmpStr: string;
   VImgName: string;
+  VHrefPrefix: string;
   VPicFullName: string;
   VPicShortName: string;
   VAltitude: string;
@@ -389,8 +390,14 @@ begin
       VTmpStr := 'width';
     end;
 
+    if StartsStr(CSASInternalURLPrefix, VImgName) then begin
+      VHrefPrefix := '';
+    end else begin
+      VHrefPrefix := CSASInternalURLPrefix;
+    end;
+
     VDesc := VDesc + br +
-      '<a href="' + CPhotoInternalUrl + VImgName + '">' +
+      '<a href="' + VHrefPrefix + VImgName + CAppCmdPostfix + '">' +
         '<img ' + VTmpStr + '=' + VResLimit + ' src="' + VImgName + '">' +
       '</a>';
   finally

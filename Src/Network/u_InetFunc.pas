@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -27,12 +27,15 @@ procedure OpenFileInDefaultProgram(const AFullFileName: string);
 procedure SelectFileInExplorer(const AFullFileName: String);
 procedure SelectPathInExplorer(const APath: string);
 
+function UrlDecode(const AUrl: string): string;
+
 implementation
 
 uses
   Windows,
   ActiveX,
   ShellAPI,
+  ShLwApi,
   SysUtils;
 
 procedure ShellExecute(
@@ -122,6 +125,33 @@ procedure SelectPathInExplorer(const APath: string);
 begin
   Assert(APath <> '');
   ExecCmdLine('explorer /root,' + APath);
+end;
+
+function UrlDecode(const AUrl: string): string;
+var
+  VLen: DWORD;
+  VRet: Integer;
+begin
+  Assert(AUrl <> '');
+
+  VLen := Length(AUrl);
+  SetLength(Result, VLen);
+
+  VRet := UrlUnescape(PChar(AUrl), PChar(Result), @VLen, 0);
+
+  if VRet = S_OK then begin
+    SetLength(Result, VLen);
+  end else if VRet = E_POINTER then begin
+    SetLength(Result, VLen);
+    VRet := UrlUnescape(PChar(AUrl), PChar(Result), @VLen, 0);
+    if VRet = S_OK then begin
+      SetLength(Result, VLen);
+    end else begin
+      RaiseLastOSError;
+    end;
+  end else begin
+    RaiseLastOSError;
+  end;
 end;
 
 end.

@@ -197,9 +197,9 @@ begin
   end;
 
   try
-    VUrl := URL;
+    VUrl := LowerCase(URL);
 
-    if Assigned(FInternalDomainUrlHandlerList) and (Pos(CSASInternalURLPrefix, VUrl) > 0) then begin
+    if Assigned(FInternalDomainUrlHandlerList) then begin
       for I := 0 to FInternalDomainUrlHandlerList.Count - 1 do begin
         VUrlHandler := IInternalDomainUrlHandler(FInternalDomainUrlHandlerList.Items[I]);
         if Assigned(VUrlHandler) and VUrlHandler.Process(VUrl) then begin

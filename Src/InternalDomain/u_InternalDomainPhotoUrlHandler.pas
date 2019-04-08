@@ -30,7 +30,13 @@ uses
 type
   TInternalDomainPhotoUrlHandler = class(TBaseInterfacedObject, IInternalDomainUrlHandler)
   private
+    type TCommand = (cmdApp, cmdExplorer, cmdBrowser, cmdUser);
+  private
     FMediaDataPath: IPathConfig;
+    FMediaDataUrl: string;
+    function GetCommand(var AUrl: string; out ACmd: TCommand; out ACmdId: string): Boolean;
+    procedure InternalUrlToUrl(var AUrl: string);
+    function PrepareFileName(const AUrl: string): string;
   private
     function Process(const AUrl: string): Boolean;
   public
@@ -41,6 +47,7 @@ implementation
 
 uses
   SysUtils,
+  StrUtils,
   c_InternalBrowser,
   u_InetFunc;
 
@@ -54,35 +61,121 @@ begin
 
   inherited Create;
   FMediaDataPath := AMediaDataPath;
+  FMediaDataUrl := LowerCase(CMediaDataInternalURL);
+end;
+
+function TInternalDomainPhotoUrlHandler.GetCommand(
+  var AUrl: string;
+  out ACmd: TCommand;
+  out ACmdId: string
+): Boolean;
+var
+  I: Integer;
+begin
+  if EndsStr(CAppCmdPostfix, AUrl) then begin
+    ACmd := cmdApp;
+    SetLength(AUrl, Length(AUrl) - Length(CAppCmdPostfix));
+    Result := True;
+  end else
+  if EndsStr(CExplorerCmdPostfix, AUrl) then begin
+    ACmd := cmdExplorer;
+    SetLength(AUrl, Length(AUrl) - Length(CExplorerCmdPostfix));
+    Result := True;
+  end else
+  if EndsStr(CBrowserCmdPostfix, AUrl) then begin
+    ACmd := cmdBrowser;
+    SetLength(AUrl, Length(AUrl) - Length(CBrowserCmdPostfix));
+    Result := True;
+  end else begin
+    I := Pos(CUserCmdPostfix, AUrl);
+    if I > 0 then begin
+      ACmd := cmdUser;
+      ACmdId := Copy(AUrl, I + Length(CUserCmdPostfix));
+      SetLength(AUrl, I-1);
+      Result := True;
+    end else begin
+      Result := False;
+    end;
+  end;
+end;
+
+procedure TInternalDomainPhotoUrlHandler.InternalUrlToUrl(var AUrl: string);
+begin
+  if StartsStr(FMediaDataUrl, AUrl) then begin
+    AUrl := FMediaDataPath.FullPath + Copy(AUrl, Length(FMediaDataUrl) + 1);
+  end else
+  if StartsStr(CSASInternalURLPrefix, AUrl) then begin
+    AUrl := Copy(AUrl, Length(CSASInternalURLPrefix) + 1);
+  end;
+end;
+
+function TInternalDomainPhotoUrlHandler.PrepareFileName(const AUrl: string): string;
+var
+  I: Integer;
+begin
+  Result := AUrl;
+  InternalUrlToUrl(Result);
+  Result := URLDecode(Result);
+  I := Length(Result);
+  if Result[I] = '/' then begin
+    SetLength(Result, I-1);
+  end;
 end;
 
 function TInternalDomainPhotoUrlHandler.Process(const AUrl: string): Boolean;
 var
-  I: Integer;
+  VUrl: string;
   VFileName: string;
+  VCmd: TCommand;
+  VCmdId: string;
 begin
-  I := Pos(CPhotoInternalUrl, AUrl);
+  Result := False;
 
-  Result := I > 0;
-  if not Result then begin
+  VUrl := AUrl;
+  if not GetCommand(VUrl, VCmd, VCmdId) then begin
     Exit;
   end;
 
-  VFileName := Trim(Copy(AUrl, I + Length(CPhotoInternalUrl)));
-  if VFileName = '' then begin
-    raise Exception.CreateFmt('Url "%s" process error. File name is empty!', [AUrl]);
-  end;
+  case VCmd of
 
-  I := Pos(CMediaDataInternalURL, VFileName);
-  if I > 0 then begin
-    VFileName := FMediaDataPath.FullPath + Copy(VFileName, I + Length(CMediaDataInternalURL));
-  end;
+    cmdApp: begin
+      VFileName := PrepareFileName(VUrl);
+      if FileExists(VFileName) then begin
+        OpenFileInDefaultProgram(VFileName);
+      end else begin
+        raise Exception.CreateFmt(
+          'Url "%s" process error. File not exists: %s', [VUrl, VFileName]
+        );
+      end;
+      Result := True;
+    end;
 
-  if FileExists(VFileName) then begin
-    // ToDo: add option to open photo in a user program
-    OpenFileInDefaultProgram(VFileName);
-  end else begin
-    raise Exception.CreateFmt('Url "%s" process error. File not exists: %s', [AUrl, VFileName]);
+    cmdExplorer: begin
+      VFileName := PrepareFileName(VUrl);
+      if FileExists(VFileName) then begin
+        SelectFileInExplorer(VFileName);
+      end else if DirectoryExists(VFileName) then begin
+        SelectPathInExplorer(VFileName);
+      end else begin
+        raise Exception.CreateFmt(
+          'Url "%s" process error. File (Dir) not exists: %s', [VUrl, VFileName]
+        );
+      end;
+      Result := True;
+    end;
+
+    cmdBrowser: begin
+      InternalUrlToUrl(VUrl);
+      OpenUrlInBrowser(VUrl);
+      Result := True;
+    end;
+
+    cmdUser: begin
+      // ToDo
+      Result := True;
+    end;
+  else
+    Assert(False);
   end;
 end;
 
