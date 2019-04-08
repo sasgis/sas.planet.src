@@ -43,7 +43,7 @@ type
   private
     FMarkPictureList: IMarkPictureList;
     FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
-    FArchiveReadWriteFactory: IArchiveReadWriteFactory;
+    FArchiveReadFactory: IArchiveReaderFactory;
     FVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FVectorDataFactory: IVectorDataFactory;
@@ -60,7 +60,7 @@ type
     constructor Create(
       const AMarkPictureList: IMarkPictureList;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
-      const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+      const AArchiveReadFactory: IArchiveReaderFactory;
       const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorDataFactory: IVectorDataFactory;
@@ -81,7 +81,7 @@ uses
 constructor TVectorItemTreeImporterKMZ.Create(
   const AMarkPictureList: IMarkPictureList;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
-  const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+  const AArchiveReadFactory: IArchiveReaderFactory;
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorDataFactory: IVectorDataFactory;
@@ -91,7 +91,7 @@ begin
   inherited Create;
   FMarkPictureList := AMarkPictureList;
   FAppearanceOfMarkFactory := AAppearanceOfMarkFactory;
-  FArchiveReadWriteFactory := AArchiveReadWriteFactory;
+  FArchiveReadFactory := AArchiveReadFactory;
   FVectorDataItemMainInfoFactory := AVectorDataItemMainInfoFactory;
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FVectorDataFactory := AVectorDataFactory;
@@ -127,7 +127,7 @@ var
   VStream: TStreamReadOnlyByBinaryData;
 begin
   Result := nil;
-  VZip := FArchiveReadWriteFactory.Zip.ReaderFactory.BuildByFileName(AFileName);
+  VZip := FArchiveReadFactory.BuildByFileName(AFileName);
   VItemsCount := VZip.GetItemsCount;
   if VItemsCount > 0 then begin
     VData := VZip.GetItemByName('doc.kml');

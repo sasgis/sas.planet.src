@@ -145,7 +145,7 @@ begin
     TVectorItemTreeImporterKMZ.Create(
       AMarkPictureList,
       AAppearanceOfMarkFactory,
-      AArchiveReadWriteFactory,
+      AArchiveReadWriteFactory.Zip.ReaderFactory,
       AVectorDataItemMainInfoFactory,
       AVectorGeometryLonLatFactory,
       AVectorDataFactory,
