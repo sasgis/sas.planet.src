@@ -138,7 +138,7 @@ uses
   u_ContentTypeInfo,
   u_ContentConverterKmz2Kml,
   u_ContentConverterKml2Kmz,
-  u_KmlInfoSimpleParser,
+  u_WikimapiaKmlSimpleParser,
   u_KmzInfoSimpleParser,
   u_XmlInfoSimpleParser,
   u_StrFunc,
