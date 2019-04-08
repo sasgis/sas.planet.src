@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_KmlInfoSimpleParser;
+unit u_WikimapiaKmlSimpleParser;
 
 interface
 

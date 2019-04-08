@@ -1309,7 +1309,7 @@ uses
   i_XmlVectorObjects in 'Src\VectorLoaders\i_XmlVectorObjects.pas',
   u_CsvParser in 'Src\VectorLoaders\u_CsvParser.pas',
   u_HlgParser in 'Src\VectorLoaders\u_HlgParser.pas',
-  u_KmlInfoSimpleParser in 'Src\VectorLoaders\u_KmlInfoSimpleParser.pas',
+  u_WikimapiaKmlSimpleParser in 'Src\VectorLoaders\u_WikimapiaKmlSimpleParser.pas',
   u_KmzInfoSimpleParser in 'Src\VectorLoaders\u_KmzInfoSimpleParser.pas',
   u_MpSimpleParser in 'Src\VectorLoaders\u_MpSimpleParser.pas',
   u_PLTSimpleParser in 'Src\VectorLoaders\u_PLTSimpleParser.pas',
