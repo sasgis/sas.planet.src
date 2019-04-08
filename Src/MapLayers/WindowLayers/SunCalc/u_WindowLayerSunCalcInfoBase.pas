@@ -45,6 +45,9 @@ type
     FSunCalcProvider: ISunCalcProvider;
     FLocalCoordConverter: ILocalCoordConverterChangeable;
 
+    FFont: TSunCalcFontInfo;
+    FColor: TSunCalcDetailsPanelColors;
+
     FShapesColors: TSunCalcShapesColors;
     FShapesGenerator: ISunCalcShapesGenerator;
 
@@ -152,7 +155,10 @@ begin
     Visible := FSunCalcConfig.Visible;
 
     VColorSchema := FSunCalcConfig.ColorSchemaList.GetActiveColorSchema;
-    FShapesColors := VColorSchema.GetStatic.ShapesColors;
+
+    FFont := VColorSchema.DetailsPanelFont;
+    FColor := VColorSchema.DetailsPanelColors;
+    FShapesColors := VColorSchema.ShapesColors;
 
     SetNeedUpdateLayerVisibility;
     SetNeedFullRepaintLayer;

@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2017, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -127,6 +127,10 @@ type
     function GetIsDetailedView: Boolean;
     procedure SetIsDetailedView(const AValue: Boolean);
     property IsDetailedView: Boolean read GetIsDetailedView write SetIsDetailedView;
+
+    function GetShowCaptionNearSun: Boolean;
+    procedure SetShowCaptionNearSun(const AValue: Boolean);
+    property ShowCaptionNearSun: Boolean read GetShowCaptionNearSun write SetShowCaptionNearSun;
 
     function GetColorSchemaList: ISunCalcColorSchemaList;
     property ColorSchemaList: ISunCalcColorSchemaList read GetColorSchemaList;

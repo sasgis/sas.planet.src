@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2017, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -70,10 +70,12 @@ uses
 resourcestring
   rsDetailedViewCaption = 'Detailed View';
   rsHideSunCalcCaption = 'Hide Sun Calculator';
+  rsShowCaptionNearSunCaption = 'Show Current Altitude and Azimuth';
 
 const
   cDetailedViewTag = 1;
   cHideSunCalcTag = 2;
+  cShowCaptionNearSunTag = 3;
   cColorSchemaTagOffset = 100;
 
 { TLayerSunCalcPopupMenu }
@@ -141,6 +143,9 @@ begin
         cDetailedViewTag: begin
           FSunCalcConfig.IsDetailedView := not FSunCalcConfig.IsDetailedView;
         end;
+        cShowCaptionNearSunTag: begin
+          FSunCalcConfig.ShowCaptionNearSun := not FSunCalcConfig.ShowCaptionNearSun;
+        end;
         cHideSunCalcTag: begin
           FSunCalcConfig.Visible := False;
         end;
@@ -153,17 +158,26 @@ begin
 end;
 
 procedure TLayerSunCalcPopupMenu.BuildPopUpMenu;
+
+  procedure AddMenuItem(const ACaption: string; const ATag: Integer);
+  var
+    VMenuItem: TTBXItem;
+  begin
+    VMenuItem := TTBXItem.Create(FPopup);
+    VMenuItem.Caption := ACaption;
+    VMenuItem.Tag := ATag;
+    VMenuItem.OnClick := OnMenuItemClick;
+    FPopup.Items.Add(VMenuItem);
+  end;
+
 var
   I: Integer;
   VMenuItem: TTBXItem;
   VColorSchema: ISunCalcColorSchemaStatic;
   VColorSchemaList: ISunCalcColorSchemaList;
 begin
-  VMenuItem := TTBXItem.Create(FPopup);
-  VMenuItem.Caption := rsDetailedViewCaption;
-  VMenuItem.Tag := cDetailedViewTag;
-  VMenuItem.OnClick := OnMenuItemClick;
-  FPopup.Items.Add(VMenuItem);
+  AddMenuItem(rsDetailedViewCaption, cDetailedViewTag);
+  AddMenuItem(rsShowCaptionNearSunCaption, cShowCaptionNearSunTag);
 
   FPopup.Items.Add(
     TTBSeparatorItem.Create(FPopup)
@@ -191,11 +205,7 @@ begin
     TTBSeparatorItem.Create(FPopup)
   );
 
-  VMenuItem := TTBXItem.Create(FPopup);
-  VMenuItem.Caption := rsHideSunCalcCaption;
-  VMenuItem.Tag := cHideSunCalcTag;
-  VMenuItem.OnClick := OnMenuItemClick;
-  FPopup.Items.Add(VMenuItem);
+  AddMenuItem(rsHideSunCalcCaption, cHideSunCalcTag);
 end;
 
 procedure TLayerSunCalcPopupMenu.InitItemsState;
@@ -213,6 +223,9 @@ begin
       case VTag of
         cDetailedViewTag: begin
           VMenuItem.Checked := FSunCalcConfig.IsDetailedView;
+        end;
+        cShowCaptionNearSunTag: begin
+          VMenuItem.Checked := FSunCalcConfig.ShowCaptionNearSun;
         end;
       end;
     end else begin

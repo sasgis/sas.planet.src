@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2017, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -39,6 +39,7 @@ type
     FDetailsPanelRowHight: Integer;
     FDetailsPanelColsWidth: TSunCalcDetailsPanelColsWidth;
     FIsDetailedView: Boolean;
+    FShowCaptionNearSun: Boolean;
     FColorSchemaList: ISunCalcColorSchemaList;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
@@ -65,6 +66,9 @@ type
 
     function GetIsDetailedView: Boolean;
     procedure SetIsDetailedView(const AValue: Boolean);
+
+    function GetShowCaptionNearSun: Boolean;
+    procedure SetShowCaptionNearSun(const AValue: Boolean);
 
     function GetColorSchemaList: ISunCalcColorSchemaList;
   public
@@ -199,6 +203,7 @@ begin
   FDetailsPanelColsWidth[3] := 200; // Event
 
   FIsDetailedView := False;
+  FShowCaptionNearSun := False;
 
   FColorSchemaList := TSunCalcColorSchemaList.Create;
 end;
@@ -219,6 +224,7 @@ begin
     end;
 
     FIsDetailedView := AConfigData.ReadBool('IsDetailedView', FIsDetailedView);
+    FShowCaptionNearSun := AConfigData.ReadBool('ShowCaptionNearSun', FShowCaptionNearSun);
     FColorSchemaList.ReadConfig(AConfigData.GetSubItem('ColorSchemaList'));
     SetChanged;
   end;
@@ -240,6 +246,7 @@ begin
     end;
 
     AConfigData.WriteBool('IsDetailedView', FIsDetailedView);
+    AConfigData.WriteBool('ShowCaptionNearSun', FShowCaptionNearSun);
     FColorSchemaList.WriteConfig(AConfigData.GetOrCreateSubItem('ColorSchemaList'));
   end;
 end;
@@ -299,6 +306,16 @@ begin
   LockRead;
   try
     Result := FIsDetailedView;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TSunCalcConfig.GetShowCaptionNearSun: Boolean;
+begin
+  LockRead;
+  try
+    Result := FShowCaptionNearSun;
   finally
     UnlockRead;
   end;
@@ -389,6 +406,19 @@ begin
   try
     if FIsDetailedView <> AValue then begin
       FIsDetailedView := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TSunCalcConfig.SetShowCaptionNearSun(const AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FShowCaptionNearSun <> AValue then begin
+      FShowCaptionNearSun := AValue;
       SetChanged;
     end;
   finally
