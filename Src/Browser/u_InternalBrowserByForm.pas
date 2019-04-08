@@ -30,7 +30,7 @@ uses
   i_InternalBrowserLastContent,
   i_WindowPositionConfig,
   i_ContentTypeManager,
-  i_InterfaceListStatic,
+  i_InternalDomainUrlHandler,
   u_BaseInterfacedObject,
   frm_IntrnalBrowser;
 
@@ -42,7 +42,7 @@ type
     FContentTypeManager: IContentTypeManager;
     FConfig: IWindowPositionConfig;
     FContent: IInternalBrowserLastContent;
-    FUrlHandlerList: IInterfaceListStatic;
+    FUrlHandler: IInternalDomainUrlHandler;
     FfrmInternalBrowser: TfrmIntrnalBrowser;
   private
     procedure SafeCreateInternal;
@@ -58,7 +58,7 @@ type
       const AConfig: IWindowPositionConfig;
       const AProxyConfig: IProxyConfig;
       const AContentTypeManager: IContentTypeManager;
-      const AUrlHandlerList: IInterfaceListStatic
+      const AUrlHandler: IInternalDomainUrlHandler
     );
     destructor Destroy; override;
   end;
@@ -77,7 +77,7 @@ constructor TInternalBrowserByForm.Create(
   const AConfig: IWindowPositionConfig;
   const AProxyConfig: IProxyConfig;
   const AContentTypeManager: IContentTypeManager;
-  const AUrlHandlerList: IInterfaceListStatic
+  const AUrlHandler: IInternalDomainUrlHandler
 );
 begin
   inherited Create;
@@ -86,7 +86,7 @@ begin
   FConfig := AConfig;
   FProxyConfig := AProxyConfig;
   FContentTypeManager := AContentTypeManager;
-  FUrlHandlerList := AUrlHandlerList;
+  FUrlHandler := AUrlHandler;
 end;
 
 destructor TInternalBrowserByForm.Destroy;
@@ -121,7 +121,7 @@ begin
         FConfig,
         FProxyConfig,
         FContentTypeManager,
-        FUrlHandlerList
+        FUrlHandler
       );
   end;
 end;

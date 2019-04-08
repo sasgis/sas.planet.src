@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_InternalDomainPhotoUrlHandler;
+unit u_InternalDomainUrlHandler;
 
 interface
 
@@ -28,7 +28,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TInternalDomainPhotoUrlHandler = class(TBaseInterfacedObject, IInternalDomainUrlHandler)
+  TInternalDomainUrlHandler = class(TBaseInterfacedObject, IInternalDomainUrlHandler)
   private
     type TCommand = (cmdApp, cmdExplorer, cmdBrowser, cmdUser);
   private
@@ -38,6 +38,7 @@ type
     procedure InternalUrlToUrl(var AUrl: string);
     function PrepareFileName(const AUrl: string): string;
   private
+    { IInternalDomainUrlHandler }
     function Process(const AUrl: string): Boolean;
   public
     constructor Create(const AMediaDataPath: IPathConfig);
@@ -51,9 +52,9 @@ uses
   c_InternalBrowser,
   u_InetFunc;
 
-{ TInternalDomainPhotoUrlHandler }
+{ TInternalDomainUrlHandler }
 
-constructor TInternalDomainPhotoUrlHandler.Create(
+constructor TInternalDomainUrlHandler.Create(
   const AMediaDataPath: IPathConfig
 );
 begin
@@ -64,7 +65,7 @@ begin
   FMediaDataUrl := LowerCase(CMediaDataInternalURL);
 end;
 
-function TInternalDomainPhotoUrlHandler.GetCommand(
+function TInternalDomainUrlHandler.GetCommand(
   var AUrl: string;
   out ACmd: TCommand;
   out ACmdId: string
@@ -99,7 +100,7 @@ begin
   end;
 end;
 
-procedure TInternalDomainPhotoUrlHandler.InternalUrlToUrl(var AUrl: string);
+procedure TInternalDomainUrlHandler.InternalUrlToUrl(var AUrl: string);
 begin
   if StartsStr(FMediaDataUrl, AUrl) then begin
     AUrl := FMediaDataPath.FullPath + Copy(AUrl, Length(FMediaDataUrl) + 1);
@@ -109,7 +110,7 @@ begin
   end;
 end;
 
-function TInternalDomainPhotoUrlHandler.PrepareFileName(const AUrl: string): string;
+function TInternalDomainUrlHandler.PrepareFileName(const AUrl: string): string;
 var
   I: Integer;
 begin
@@ -122,7 +123,7 @@ begin
   end;
 end;
 
-function TInternalDomainPhotoUrlHandler.Process(const AUrl: string): Boolean;
+function TInternalDomainUrlHandler.Process(const AUrl: string): Boolean;
 var
   VUrl: string;
   VFileName: string;

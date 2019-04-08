@@ -40,7 +40,7 @@ uses
   i_ContentTypeManager,
   i_DownloadRequest,
   i_LanguageManager,
-  i_InterfaceListStatic,
+  i_InternalDomainUrlHandler,
   i_ProxySettings;
 
 type
@@ -83,7 +83,7 @@ type
     FProxyConfig: IProxyConfig;
     FConfig: IWindowPositionConfig;
     FContentTypeManager: IContentTypeManager;
-    FInternalDomainUrlHandlerList: IInterfaceListStatic;
+    FInternalDomainUrlHandler: IInternalDomainUrlHandler;
 
     FConfigListener: IListener;
     procedure OnConfigChange;
@@ -96,7 +96,7 @@ type
       const AConfig: IWindowPositionConfig;
       const AProxyConfig: IProxyConfig;
       const AContentTypeManager: IContentTypeManager;
-      const AInternalDomainUrlHandlerList: IInterfaceListStatic
+      const AInternalDomainUrlHandler: IInternalDomainUrlHandler
     ); reintroduce;
 
     procedure Navigate(const ACaption, AUrl: string);
@@ -109,7 +109,6 @@ uses
   Variants,
   Dialogs,
   c_InternalBrowser,
-  i_InternalDomainUrlHandler,
   u_HtmlToHintTextConverterStuped,
   u_ListenerByEvent,
   u_ResStrings;
@@ -123,7 +122,7 @@ constructor TfrmIntrnalBrowser.Create(
   const AConfig: IWindowPositionConfig;
   const AProxyConfig: IProxyConfig;
   const AContentTypeManager: IContentTypeManager;
-  const AInternalDomainUrlHandlerList: IInterfaceListStatic
+  const AInternalDomainUrlHandler: IInternalDomainUrlHandler
 );
 begin
   inherited Create(ALanguageManager);
@@ -131,7 +130,7 @@ begin
   FContentTypeManager := AContentTypeManager;
   FProxyConfig := AProxyConfig;
   FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
-  FInternalDomainUrlHandlerList := AInternalDomainUrlHandlerList;
+  FInternalDomainUrlHandler := AInternalDomainUrlHandler;
 
   FEmbeddedWB := TEmbeddedWB.Create(Self);
   FEmbeddedWB.Name := 'IntrnalBrowserEmbeddedWB';
@@ -188,9 +187,7 @@ procedure TfrmIntrnalBrowser.OnEmbeddedWBBeforeNavigate2(
   var Cancel: WordBool
 );
 var
-  I: Integer;
   VUrl: string;
-  VUrlHandler: IInternalDomainUrlHandler;
 begin
   if Cancel then begin
     Exit;
@@ -199,14 +196,9 @@ begin
   try
     VUrl := LowerCase(URL);
 
-    if Assigned(FInternalDomainUrlHandlerList) then begin
-      for I := 0 to FInternalDomainUrlHandlerList.Count - 1 do begin
-        VUrlHandler := IInternalDomainUrlHandler(FInternalDomainUrlHandlerList.Items[I]);
-        if Assigned(VUrlHandler) and VUrlHandler.Process(VUrl) then begin
-          Cancel := True;
-          Exit;
-        end;
-      end;
+    if Assigned(FInternalDomainUrlHandler) and FInternalDomainUrlHandler.Process(VUrl) then begin
+      Cancel := True;
+      Exit;
     end;
 
     // check file exists and known image type

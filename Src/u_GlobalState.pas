@@ -382,7 +382,7 @@ uses
   u_VectorDataFactorySimple,
   u_GeometryProjectedFactory,
   u_PathDetalizeProviderTreeSimple,
-  u_InternalDomainUrlHandlerList,
+  u_InternalDomainUrlHandler,
   u_InternalDomainInfoProviderList,
   u_InternalDomainInfoProviderByMapTypeList,
   u_InternalDomainInfoProviderByDataProvider,
@@ -887,7 +887,7 @@ begin
       FGlobalConfig.InternalBrowserConfig,
       FGlobalConfig.InetConfig.ProxyConfig,
       FContentTypeManager,
-      TInternalDomainUrlHandlerList.Create(FGlobalConfig.MediaDataPath)
+      TInternalDomainUrlHandler.Create(FGlobalConfig.MediaDataPath)
     );
   FDebugInfoWindow :=
     TDebugInfoWindow.Create(
