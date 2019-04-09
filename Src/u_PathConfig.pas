@@ -44,7 +44,7 @@ type
     FBasePathListener: IListener;
     procedure OnBasePathChange;
     procedure _UpdateFullPath;
-    function IsRelativePath(const APath: string): Boolean;
+    function IsRelativePath(const APath: string): Boolean; inline;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
