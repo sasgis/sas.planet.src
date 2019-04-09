@@ -30,6 +30,7 @@ uses
   Controls,
   OleCtrls,
   SysUtils,
+  UITypes,
   EwbCore,
   EmbeddedWB,
   SHDocVw_EWB,
@@ -113,6 +114,9 @@ uses
   u_ListenerByEvent,
   u_ResStrings;
 
+const
+  CEmptyPage = 'about:blank';
+
 {$R *.dfm}
 
 { TfrmIntrnalBrowser }
@@ -195,6 +199,9 @@ begin
 
   try
     VUrl := LowerCase(URL);
+    if VUrl = CEmptyPage then begin
+      Exit;
+    end;
 
     if Assigned(FInternalDomainUrlHandler) and FInternalDomainUrlHandler.Process(VUrl) then begin
       Cancel := True;
@@ -211,12 +218,13 @@ begin
       if Assigned(FContentTypeManager.GetBitmapLoaderByFileName(VUrl)) then begin
         if OpenLocalImage(VUrl) then begin
         // image opened
-          Cancel := TRUE;
+          Cancel := True;
         end;
       end;
     end;
   except
     on E: Exception do begin
+      Cancel := True;
       MessageDlg(E.Message, mtError, [mbOK], 0);
     end;
   end;
@@ -235,21 +243,20 @@ begin
   if IsRectEmpty(FConfig.BoundsRect) then begin
     FConfig.SetWindowPosition(Self.BoundsRect);
   end;
-
-  FEmbeddedWB.Navigate('about:blank');
+  FEmbeddedWB.Navigate(CEmptyPage);
 end;
 
 procedure TfrmIntrnalBrowser.imgViewImageClick(Sender: TObject);
 begin
-  ResetImageView(FALSE);
+  ResetImageView(False);
 end;
 
 procedure TfrmIntrnalBrowser.Navigate(const ACaption, AUrl: string);
 begin
   FEmbeddedWB.HTMLCode.Text := SAS_STR_WiteLoad;
   SetGoodCaption(ACaption);
-  ResetImageView(FALSE);
-  show;
+  ResetImageView(False);
+  Show;
   FEmbeddedWB.Navigate(AUrl);
 end;
 
@@ -266,7 +273,7 @@ var
 begin
   FEmbeddedWB.HTMLCode.Text := SAS_STR_WiteLoad;
   SetGoodCaption(ACaption);
-  ResetImageView(FALSE);
+  ResetImageView(False);
   Show;
 
   VPostData := EmptyParam;
@@ -293,12 +300,13 @@ end;
 
 function TfrmIntrnalBrowser.OpenLocalImage(const AFileName: string): Boolean;
 begin
-  Result := FALSE;
-  ResetImageView(TRUE);
+  Result := False;
+  ResetImageView(True);
   try
     imgViewImage.Bitmap.LoadFromFile(AFileName);
     Inc(Result);
   except
+    //
   end;
 end;
 
@@ -335,7 +343,7 @@ begin
     end;
     VK_BACK: begin
       if imgViewImage.Visible then begin
-        ResetImageView(FALSE);
+        ResetImageView(False);
       end;
     end;
   end;
@@ -353,7 +361,7 @@ end;
 
 procedure TfrmIntrnalBrowser.FormHide(Sender: TObject);
 begin
-  FEmbeddedWB.Navigate('about:blank');
+  FEmbeddedWB.Navigate(CEmptyPage);
   Self.OnResize := nil;
   FConfig.ChangeNotifier.Remove(FConfigListener);
 end;
