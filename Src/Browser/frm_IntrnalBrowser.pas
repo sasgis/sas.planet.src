@@ -118,6 +118,8 @@ constructor TfrmIntrnalBrowser.Create(
   const AInternalDomainUrlHandler: IInternalDomainUrlHandler
 );
 begin
+  Assert(FInternalDomainUrlHandler <> nil);
+
   inherited Create(ALanguageManager);
   FConfig := AConfig;
   FProxyConfig := AProxyConfig;
@@ -191,7 +193,7 @@ begin
       Exit;
     end;
 
-    if Assigned(FInternalDomainUrlHandler) and FInternalDomainUrlHandler.Process(VUrl) then begin
+    if FInternalDomainUrlHandler.Process(VUrl) then begin
       Cancel := True;
       Exit;
     end;
