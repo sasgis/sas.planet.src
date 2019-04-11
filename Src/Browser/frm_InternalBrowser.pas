@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit frm_IntrnalBrowser;
+unit frm_InternalBrowser;
 
 interface
 
@@ -43,7 +43,7 @@ uses
   i_ProxySettings;
 
 type
-  TfrmIntrnalBrowser = class(TFormWitghLanguageManager)
+  TfrmInternalBrowser = class(TFormWitghLanguageManager)
     procedure OnEmbeddedWBAuthenticate(
       Sender: TCustomEmbeddedWB;
       var hwnd: HWND;
@@ -109,9 +109,9 @@ const
 
 {$R *.dfm}
 
-{ TfrmIntrnalBrowser }
+{ TfrmInternalBrowser }
 
-constructor TfrmIntrnalBrowser.Create(
+constructor TfrmInternalBrowser.Create(
   const ALanguageManager: ILanguageManager;
   const AConfig: IWindowPositionConfig;
   const AProxyConfig: IProxyConfig;
@@ -145,7 +145,7 @@ begin
   FEmbeddedWB.OnKeyDown := OnEmbeddedWBKeyDown;
 end;
 
-procedure TfrmIntrnalBrowser.FormDestroy(Sender: TObject);
+procedure TfrmInternalBrowser.FormDestroy(Sender: TObject);
 begin
   if FConfig <> nil then begin
     if FConfigListener <> nil then begin
@@ -155,7 +155,7 @@ begin
   end;
 end;
 
-procedure TfrmIntrnalBrowser.OnEmbeddedWBAuthenticate(
+procedure TfrmInternalBrowser.OnEmbeddedWBAuthenticate(
   Sender: TCustomEmbeddedWB;
   var hwnd: HWND;
   var szUserName, szPassWord: WideString;
@@ -173,7 +173,7 @@ begin
   end;
 end;
 
-procedure TfrmIntrnalBrowser.OnEmbeddedWBBeforeNavigate2(
+procedure TfrmInternalBrowser.OnEmbeddedWBBeforeNavigate2(
   ASender: TObject;
   const pDisp: IDispatch;
   var URL, Flags, TargetFrameName, PostData,
@@ -205,7 +205,7 @@ begin
   end;
 end;
 
-procedure TfrmIntrnalBrowser.FormClose(
+procedure TfrmInternalBrowser.FormClose(
   Sender: TObject;
   var Action: TCloseAction
 );
@@ -213,7 +213,7 @@ begin
   FEmbeddedWB.Stop;
 end;
 
-procedure TfrmIntrnalBrowser.FormCreate(Sender: TObject);
+procedure TfrmInternalBrowser.FormCreate(Sender: TObject);
 begin
   if IsRectEmpty(FConfig.BoundsRect) then begin
     FConfig.SetWindowPosition(Self.BoundsRect);
@@ -221,7 +221,7 @@ begin
   FEmbeddedWB.Navigate(CEmptyPage);
 end;
 
-procedure TfrmIntrnalBrowser.Navigate(const ACaption, AUrl: string);
+procedure TfrmInternalBrowser.Navigate(const ACaption, AUrl: string);
 begin
   FEmbeddedWB.HTMLCode.Text := SAS_STR_WiteLoad;
   SetGoodCaption(ACaption);
@@ -229,7 +229,7 @@ begin
   FEmbeddedWB.Navigate(AUrl);
 end;
 
-procedure TfrmIntrnalBrowser.NavigateByRequest(
+procedure TfrmInternalBrowser.NavigateByRequest(
   const ACaption: string;
   const ARequest: IDownloadRequest
 );
@@ -256,7 +256,7 @@ begin
   FEmbeddedWB.Navigate(ARequest.Url, VFlags, VTargetFrameName, VPostData, VHeaders);
 end;
 
-procedure TfrmIntrnalBrowser.OnConfigChange;
+procedure TfrmInternalBrowser.OnConfigChange;
 var
   VRect: TRect;
 begin
@@ -266,7 +266,7 @@ begin
   end;
 end;
 
-procedure TfrmIntrnalBrowser.SetGoodCaption(const ACaption: String);
+procedure TfrmInternalBrowser.SetGoodCaption(const ACaption: String);
 var
   VCaption: String;
 begin
@@ -279,7 +279,7 @@ begin
   Self.Caption := VCaption;
 end;
 
-procedure TfrmIntrnalBrowser.OnEmbeddedWBKeyDown(
+procedure TfrmInternalBrowser.OnEmbeddedWBKeyDown(
   Sender: TObject;
   var Key: Word;
   ScanCode: Word;
@@ -293,7 +293,7 @@ begin
   end;
 end;
 
-procedure TfrmIntrnalBrowser.OnEmbeddedWBTitleChange(
+procedure TfrmInternalBrowser.OnEmbeddedWBTitleChange(
   ASender: TObject;
   const Text: WideString
 );
@@ -303,14 +303,14 @@ begin
   end;
 end;
 
-procedure TfrmIntrnalBrowser.FormHide(Sender: TObject);
+procedure TfrmInternalBrowser.FormHide(Sender: TObject);
 begin
   FEmbeddedWB.Navigate(CEmptyPage);
   Self.OnResize := nil;
   FConfig.ChangeNotifier.Remove(FConfigListener);
 end;
 
-procedure TfrmIntrnalBrowser.FormMove(var Msg: TWMMove);
+procedure TfrmInternalBrowser.FormMove(var Msg: TWMMove);
 begin
   Inherited;
   if Assigned(Self.OnResize) then begin
@@ -318,14 +318,14 @@ begin
   end;
 end;
 
-procedure TfrmIntrnalBrowser.FormResize(Sender: TObject);
+procedure TfrmInternalBrowser.FormResize(Sender: TObject);
 begin
   if Self.WindowState = wsNormal then begin
     FConfig.SetWindowPosition(BoundsRect);
   end;
 end;
 
-procedure TfrmIntrnalBrowser.FormShow(Sender: TObject);
+procedure TfrmInternalBrowser.FormShow(Sender: TObject);
 begin
   FConfig.ChangeNotifier.Add(FConfigListener);
   OnConfigChange;

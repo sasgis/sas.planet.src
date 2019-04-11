@@ -1,4 +1,4 @@
-object frmIntrnalBrowser: TfrmIntrnalBrowser
+object frmInternalBrowser: TfrmInternalBrowser
   Left = 444
   Top = 208
   BorderStyle = bsSizeToolWin

@@ -31,7 +31,7 @@ uses
   i_WindowPositionConfig,
   i_InternalDomainUrlHandler,
   u_BaseInterfacedObject,
-  frm_IntrnalBrowser;
+  frm_InternalBrowser;
 
 type
   TInternalBrowserByForm = class(TBaseInterfacedObject, IInternalBrowser)
@@ -41,7 +41,7 @@ type
     FConfig: IWindowPositionConfig;
     FContent: IInternalBrowserLastContent;
     FUrlHandler: IInternalDomainUrlHandler;
-    FfrmInternalBrowser: TfrmIntrnalBrowser;
+    FfrmInternalBrowser: TfrmInternalBrowser;
   private
     procedure SafeCreateInternal;
   private
@@ -118,7 +118,7 @@ procedure TInternalBrowserByForm.SafeCreateInternal;
 begin
   if FfrmInternalBrowser = nil then begin
     FfrmInternalBrowser :=
-      TfrmIntrnalBrowser.Create(
+      TfrmInternalBrowser.Create(
         FLanguageManager,
         FConfig,
         FProxyConfig,
