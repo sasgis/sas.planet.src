@@ -92,6 +92,13 @@ begin
   inherited;
 end;
 
+procedure TInternalBrowserByForm.ShowMessage(const ACaption, AText: string);
+begin
+  SafeCreateInternal;
+  FContent.Content := AText;
+  FfrmInternalBrowser.Navigate(ACaption, CShowMessageInternalURL);
+end;
+
 procedure TInternalBrowserByForm.Navigate(const ACaption, AUrl: string);
 begin
   SafeCreateInternal;
@@ -118,13 +125,6 @@ begin
         FUrlHandler
       );
   end;
-end;
-
-procedure TInternalBrowserByForm.ShowMessage(const ACaption, AText: string);
-begin
-  SafeCreateInternal;
-  FContent.Content := AText;
-  FfrmInternalBrowser.Navigate(ACaption, CShowMessageInternalURL);
 end;
 
 end.
