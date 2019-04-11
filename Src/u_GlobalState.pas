@@ -886,7 +886,6 @@ begin
       FInternalBrowserContent,
       FGlobalConfig.InternalBrowserConfig,
       FGlobalConfig.InetConfig.ProxyConfig,
-      FContentTypeManager,
       TInternalDomainUrlHandler.Create(FGlobalConfig.MediaDataPath)
     );
   FDebugInfoWindow :=

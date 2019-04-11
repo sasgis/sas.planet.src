@@ -16,25 +16,4 @@ object frmIntrnalBrowser: TfrmIntrnalBrowser
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
-  object imgViewImage: TImgView32
-    Left = 0
-    Top = 0
-    Width = 554
-    Height = 306
-    Cursor = crHandPoint
-    Align = alClient
-    AutoSize = True
-    Bitmap.ResamplerClassName = 'TLinearResampler'
-    BitmapAlign = baCustom
-    Scale = 1.000000000000000000
-    ScaleMode = smResize
-    ScrollBars.ShowHandleGrip = True
-    ScrollBars.Style = rbsDefault
-    ScrollBars.Size = 16
-    ScrollBars.Visibility = svHidden
-    OverSize = 0
-    TabOrder = 0
-    Visible = False
-    OnClick = imgViewImageClick
-  end
 end

@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -34,11 +34,9 @@ uses
   EwbCore,
   EmbeddedWB,
   SHDocVw_EWB,
-  GR32_Image,
   i_Listener,
   u_CommonFormAndFrameParents,
   i_WindowPositionConfig,
-  i_ContentTypeManager,
   i_DownloadRequest,
   i_LanguageManager,
   i_InternalDomainUrlHandler,
@@ -46,7 +44,6 @@ uses
 
 type
   TfrmIntrnalBrowser = class(TFormWitghLanguageManager)
-    imgViewImage: TImgView32;
     procedure OnEmbeddedWBAuthenticate(
       Sender: TCustomEmbeddedWB;
       var hwnd: HWND;
@@ -70,7 +67,6 @@ type
       ASender: TObject;
       const Text: WideString
     );
-    procedure imgViewImageClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -83,20 +79,15 @@ type
     FCurrentCaption: string;
     FProxyConfig: IProxyConfig;
     FConfig: IWindowPositionConfig;
-    FContentTypeManager: IContentTypeManager;
     FInternalDomainUrlHandler: IInternalDomainUrlHandler;
-
     FConfigListener: IListener;
     procedure OnConfigChange;
     procedure SetGoodCaption(const ACaption: String);
-    function OpenLocalImage(const AFileName: string): Boolean;
-    procedure ResetImageView(const AForImage: Boolean);
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AConfig: IWindowPositionConfig;
       const AProxyConfig: IProxyConfig;
-      const AContentTypeManager: IContentTypeManager;
       const AInternalDomainUrlHandler: IInternalDomainUrlHandler
     ); reintroduce;
 
@@ -109,7 +100,6 @@ implementation
 uses
   Variants,
   Dialogs,
-  c_InternalBrowser,
   u_HtmlToHintTextConverterStuped,
   u_ListenerByEvent,
   u_ResStrings;
@@ -125,16 +115,14 @@ constructor TfrmIntrnalBrowser.Create(
   const ALanguageManager: ILanguageManager;
   const AConfig: IWindowPositionConfig;
   const AProxyConfig: IProxyConfig;
-  const AContentTypeManager: IContentTypeManager;
   const AInternalDomainUrlHandler: IInternalDomainUrlHandler
 );
 begin
   inherited Create(ALanguageManager);
   FConfig := AConfig;
-  FContentTypeManager := AContentTypeManager;
   FProxyConfig := AProxyConfig;
-  FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FInternalDomainUrlHandler := AInternalDomainUrlHandler;
+  FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
 
   FEmbeddedWB := TEmbeddedWB.Create(Self);
   FEmbeddedWB.Name := 'IntrnalBrowserEmbeddedWB';
@@ -207,21 +195,6 @@ begin
       Cancel := True;
       Exit;
     end;
-
-    // check file exists and known image type
-    if System.Pos(':', VUrl) > 0 then begin
-      Exit;
-    end;
-
-    // check file exists
-    if FileExists(VUrl) then begin
-      if Assigned(FContentTypeManager.GetBitmapLoaderByFileName(VUrl)) then begin
-        if OpenLocalImage(VUrl) then begin
-        // image opened
-          Cancel := True;
-        end;
-      end;
-    end;
   except
     on E: Exception do begin
       Cancel := True;
@@ -246,16 +219,10 @@ begin
   FEmbeddedWB.Navigate(CEmptyPage);
 end;
 
-procedure TfrmIntrnalBrowser.imgViewImageClick(Sender: TObject);
-begin
-  ResetImageView(False);
-end;
-
 procedure TfrmIntrnalBrowser.Navigate(const ACaption, AUrl: string);
 begin
   FEmbeddedWB.HTMLCode.Text := SAS_STR_WiteLoad;
   SetGoodCaption(ACaption);
-  ResetImageView(False);
   Show;
   FEmbeddedWB.Navigate(AUrl);
 end;
@@ -273,7 +240,6 @@ var
 begin
   FEmbeddedWB.HTMLCode.Text := SAS_STR_WiteLoad;
   SetGoodCaption(ACaption);
-  ResetImageView(False);
   Show;
 
   VPostData := EmptyParam;
@@ -296,25 +262,6 @@ begin
   if not EqualRect(BoundsRect, VRect) then begin
     BoundsRect := VRect;
   end;
-end;
-
-function TfrmIntrnalBrowser.OpenLocalImage(const AFileName: string): Boolean;
-begin
-  Result := False;
-  ResetImageView(True);
-  try
-    imgViewImage.Bitmap.LoadFromFile(AFileName);
-    Inc(Result);
-  except
-    //
-  end;
-end;
-
-procedure TfrmIntrnalBrowser.ResetImageView(const AForImage: Boolean);
-begin
-  imgViewImage.Bitmap.Clear;
-  imgViewImage.Visible := AForImage;
-  FEmbeddedWB.Visible := (not AForImage);
 end;
 
 procedure TfrmIntrnalBrowser.SetGoodCaption(const ACaption: String);
@@ -340,11 +287,6 @@ begin
   case Key of
     VK_ESCAPE: begin
       Close;
-    end;
-    VK_BACK: begin
-      if imgViewImage.Visible then begin
-        ResetImageView(False);
-      end;
     end;
   end;
 end;
