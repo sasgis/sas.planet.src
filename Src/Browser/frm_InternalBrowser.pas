@@ -31,42 +31,17 @@ uses
   OleCtrls,
   SysUtils,
   UITypes,
-  EwbCore,
-  EmbeddedWB,
-  SHDocVw_EWB,
   i_Listener,
-  u_CommonFormAndFrameParents,
   i_WindowPositionConfig,
   i_DownloadRequest,
   i_LanguageManager,
   i_InternalDomainUrlHandler,
-  i_ProxySettings;
+  i_ProxySettings,
+  u_InternalBrowserImplByIE,
+  u_CommonFormAndFrameParents;
 
 type
   TfrmInternalBrowser = class(TFormWitghLanguageManager)
-    procedure OnEmbeddedWBAuthenticate(
-      Sender: TCustomEmbeddedWB;
-      var hwnd: HWND;
-      var szUserName, szPassWord: WideString;
-      var Rezult: HRESULT
-    );
-    procedure OnEmbeddedWBKeyDown(
-      Sender: TObject;
-      var Key: Word;
-      ScanCode: Word;
-      Shift: TShiftState
-    );
-    procedure OnEmbeddedWBBeforeNavigate2(
-      ASender: TObject;
-      const pDisp: IDispatch;
-      var URL, Flags, TargetFrameName, PostData,
-      Headers: OleVariant;
-      var Cancel: WordBool
-    );
-    procedure OnEmbeddedWBTitleChange(
-      ASender: TObject;
-      const Text: WideString
-    );
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -75,12 +50,18 @@ type
     procedure FormShow(Sender: TObject);
     Procedure FormMove(Var Msg: TWMMove); Message WM_MOVE;
   private
-    FEmbeddedWB: TEmbeddedWB;
+    FBrowser: TInternalBrowserImplByIE;
     FCurrentCaption: string;
-    FProxyConfig: IProxyConfig;
     FConfig: IWindowPositionConfig;
-    FInternalDomainUrlHandler: IInternalDomainUrlHandler;
     FConfigListener: IListener;
+
+    procedure OnBrowserKeyDown(
+      Sender: TObject;
+      var Key: Word;
+      ScanCode: Word;
+      Shift: TShiftState
+    );
+    procedure OnBrowserTitleChange(ASender: TObject; const Text: string);
     procedure OnConfigChange;
     procedure SetGoodCaption(const ACaption: String);
   public
@@ -104,9 +85,6 @@ uses
   u_ListenerByEvent,
   u_ResStrings;
 
-const
-  CEmptyPage = 'about:blank';
-
 {$R *.dfm}
 
 { TfrmInternalBrowser }
@@ -118,31 +96,21 @@ constructor TfrmInternalBrowser.Create(
   const AInternalDomainUrlHandler: IInternalDomainUrlHandler
 );
 begin
-  Assert(FInternalDomainUrlHandler <> nil);
-
   inherited Create(ALanguageManager);
+
   FConfig := AConfig;
-  FProxyConfig := AProxyConfig;
-  FInternalDomainUrlHandler := AInternalDomainUrlHandler;
   FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
 
-  FEmbeddedWB := TEmbeddedWB.Create(Self);
-  FEmbeddedWB.Name := 'IntrnalBrowserEmbeddedWB';
-  FEmbeddedWB.Parent := Self;
-  FEmbeddedWB.Left := 0;
-  FEmbeddedWB.Top := 0;
-  FEmbeddedWB.Align := alClient;
-  FEmbeddedWB.Silent := False;
-  FEmbeddedWB.OnTitleChange := OnEmbeddedWBTitleChange;
-  FEmbeddedWB.OnBeforeNavigate2 := OnEmbeddedWBBeforeNavigate2;
-  FEmbeddedWB.DisableCtrlShortcuts := 'N';
-  FEmbeddedWB.UserInterfaceOptions := [EnablesFormsAutoComplete, EnableThemes];
-  FEmbeddedWB.OnAuthenticate := OnEmbeddedWBAuthenticate;
-  FEmbeddedWB.About := '';
-  FEmbeddedWB.PrintOptions.HTMLHeader.Clear;
-  FEmbeddedWB.PrintOptions.HTMLHeader.Add('<HTML></HTML>');
-  FEmbeddedWB.PrintOptions.Orientation := poPortrait;
-  FEmbeddedWB.OnKeyDown := OnEmbeddedWBKeyDown;
+  FBrowser :=
+    TInternalBrowserImplByIE.Create(
+      Self,
+      False,
+      AProxyConfig,
+      AInternalDomainUrlHandler,
+      '', // ToDo: UserAgent
+      OnBrowserKeyDown,
+      OnBrowserTitleChange
+    );
 end;
 
 procedure TfrmInternalBrowser.FormDestroy(Sender: TObject);
@@ -153,64 +121,12 @@ begin
       FConfigListener := nil;
     end;
   end;
+  FreeAndNil(FBrowser);
 end;
 
-procedure TfrmInternalBrowser.OnEmbeddedWBAuthenticate(
-  Sender: TCustomEmbeddedWB;
-  var hwnd: HWND;
-  var szUserName, szPassWord: WideString;
-  var Rezult: HRESULT
-);
-var
-  VProxyConfig: IProxyConfigStatic;
-  VUseLogin: Boolean;
+procedure TfrmInternalBrowser.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  VProxyConfig := FProxyConfig.GetStatic;
-  VUseLogin := (not VProxyConfig.UseIESettings) and VProxyConfig.UseProxy and VProxyConfig.UseLogin;
-  if VUseLogin then begin
-    szUserName := VProxyConfig.Login;
-    szPassWord := VProxyConfig.Password;
-  end;
-end;
-
-procedure TfrmInternalBrowser.OnEmbeddedWBBeforeNavigate2(
-  ASender: TObject;
-  const pDisp: IDispatch;
-  var URL, Flags, TargetFrameName, PostData,
-  Headers: OleVariant;
-  var Cancel: WordBool
-);
-var
-  VUrl: string;
-begin
-  if Cancel then begin
-    Exit;
-  end;
-
-  try
-    VUrl := LowerCase(URL);
-    if VUrl = CEmptyPage then begin
-      Exit;
-    end;
-
-    if FInternalDomainUrlHandler.Process(VUrl) then begin
-      Cancel := True;
-      Exit;
-    end;
-  except
-    on E: Exception do begin
-      Cancel := True;
-      MessageDlg(E.Message, mtError, [mbOK], 0);
-    end;
-  end;
-end;
-
-procedure TfrmInternalBrowser.FormClose(
-  Sender: TObject;
-  var Action: TCloseAction
-);
-begin
-  FEmbeddedWB.Stop;
+  FBrowser.Stop;
 end;
 
 procedure TfrmInternalBrowser.FormCreate(Sender: TObject);
@@ -218,42 +134,23 @@ begin
   if IsRectEmpty(FConfig.BoundsRect) then begin
     FConfig.SetWindowPosition(Self.BoundsRect);
   end;
-  FEmbeddedWB.Navigate(CEmptyPage);
+  FBrowser.AssignEmptyDocument;
 end;
 
 procedure TfrmInternalBrowser.Navigate(const ACaption, AUrl: string);
 begin
-  FEmbeddedWB.HTMLCode.Text := SAS_STR_WiteLoad;
+  FBrowser.SetHtmlText(SAS_STR_WiteLoad);
   SetGoodCaption(ACaption);
   Show;
-  FEmbeddedWB.Navigate(AUrl);
+  FBrowser.Navigate(AUrl);
 end;
 
-procedure TfrmInternalBrowser.NavigateByRequest(
-  const ACaption: string;
-  const ARequest: IDownloadRequest
-);
-var
-  VPostData, VHeaders: OleVariant;
-  VFlags: OleVariant;
-  VTargetFrameName: OleVariant;
-  VPostRequest: IDownloadPostRequest;
-  VSafeArray: PVarArray;
+procedure TfrmInternalBrowser.NavigateByRequest(const ACaption: string; const ARequest: IDownloadRequest);
 begin
-  FEmbeddedWB.HTMLCode.Text := SAS_STR_WiteLoad;
+  FBrowser.SetHtmlText(SAS_STR_WiteLoad);
   SetGoodCaption(ACaption);
   Show;
-
-  VPostData := EmptyParam;
-  if Supports(ARequest, IDownloadPostRequest, VPostRequest) then begin
-    VPostData := VarArrayCreate([0, VPostRequest.PostData.Size - 1], varByte);
-    VSafeArray := VarArrayAsPSafeArray(VPostData);
-    Move(VPostRequest.PostData.Buffer^, VSafeArray.Data^, VPostRequest.PostData.Size);
-  end;
-  VHeaders := ARequest.RequestHeader;
-  VFlags := EmptyParam;
-  VTargetFrameName := EmptyParam;
-  FEmbeddedWB.Navigate(ARequest.Url, VFlags, VTargetFrameName, VPostData, VHeaders);
+  FBrowser.Navigate(ARequest);
 end;
 
 procedure TfrmInternalBrowser.OnConfigChange;
@@ -279,7 +176,7 @@ begin
   Self.Caption := VCaption;
 end;
 
-procedure TfrmInternalBrowser.OnEmbeddedWBKeyDown(
+procedure TfrmInternalBrowser.OnBrowserKeyDown(
   Sender: TObject;
   var Key: Word;
   ScanCode: Word;
@@ -293,10 +190,7 @@ begin
   end;
 end;
 
-procedure TfrmInternalBrowser.OnEmbeddedWBTitleChange(
-  ASender: TObject;
-  const Text: WideString
-);
+procedure TfrmInternalBrowser.OnBrowserTitleChange(ASender: TObject; const Text: string);
 begin
   if FCurrentCaption = '' then begin
     Self.Caption := Text;
@@ -305,14 +199,14 @@ end;
 
 procedure TfrmInternalBrowser.FormHide(Sender: TObject);
 begin
-  FEmbeddedWB.Navigate(CEmptyPage);
+  FBrowser.AssignEmptyDocument;
   Self.OnResize := nil;
   FConfig.ChangeNotifier.Remove(FConfigListener);
 end;
 
 procedure TfrmInternalBrowser.FormMove(var Msg: TWMMove);
 begin
-  Inherited;
+  inherited;
   if Assigned(Self.OnResize) then begin
     Self.OnResize(Self);
   end;

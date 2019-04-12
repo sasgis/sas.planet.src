@@ -133,6 +133,7 @@ uses
   i_InternalBrowserLastContent in 'Src\Browser\i_InternalBrowserLastContent.pas',
   i_InvisibleBrowser in 'Src\Browser\i_InvisibleBrowser.pas',
   u_InternalBrowserByForm in 'Src\Browser\u_InternalBrowserByForm.pas',
+  u_InternalBrowserImplByIE in 'Src\Browser\u_InternalBrowserImplByIE.pas',
   u_InternalBrowserLastContent in 'Src\Browser\u_InternalBrowserLastContent.pas',
   u_InvisibleBrowserByFormSynchronize in 'Src\Browser\u_InvisibleBrowserByFormSynchronize.pas',
   frm_CacheManager in 'Src\CacheManager\frm_CacheManager.pas' {frmCacheManager},

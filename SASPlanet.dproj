@@ -181,6 +181,7 @@
     <DCCReference Include="Src\Browser\i_InternalBrowserLastContent.pas" />
     <DCCReference Include="Src\Browser\i_InvisibleBrowser.pas" />
     <DCCReference Include="Src\Browser\u_InternalBrowserByForm.pas" />
+    <DCCReference Include="Src\Browser\u_InternalBrowserImplByIE.pas" />
     <DCCReference Include="Src\Browser\u_InternalBrowserLastContent.pas" />
     <DCCReference Include="Src\Browser\u_InvisibleBrowserByFormSynchronize.pas" />
     <DCCReference Include="Src\CacheManager\frm_CacheManager.pas">

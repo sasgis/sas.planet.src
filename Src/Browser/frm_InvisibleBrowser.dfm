@@ -7,6 +7,7 @@ object frmInvisibleBrowser: TfrmInvisibleBrowser
   ParentFont = True
   OldCreateOrder = False
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   PixelsPerInch = 96
   TextHeight = 13
 end

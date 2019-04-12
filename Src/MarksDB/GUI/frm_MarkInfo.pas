@@ -30,9 +30,6 @@ uses
   StdCtrls,
   ExtCtrls,
   OleCtrls,
-  SHDocVw_EWB,
-  EwbCore,
-  EmbeddedWB,
   i_NotifierOperation,
   i_LanguageManager,
   i_GeometryLonLat,
@@ -40,6 +37,7 @@ uses
   i_CoordToStringConverter,
   i_ValueToStringConverter,
   i_VectorDataItemSimple,
+  u_InternalBrowserImplByIE,
   u_CommonFormAndFrameParents;
 
 type
@@ -51,8 +49,9 @@ type
       Sender: TObject;
       var Action: TCloseAction
     );
+    procedure FormDestroy(Sender: TObject);
   private
-    FEmbeddedWB: TEmbeddedWB;
+    FBrowser: TInternalBrowserImplByIE;
     FCancelNotifier: INotifierOperationInternal;
     FCoordToStringConverter: ICoordToStringConverterChangeable;
     FValueToStringConverter: IValueToStringConverterChangeable;
@@ -162,7 +161,6 @@ constructor TfrmMarkInfo.Create(
   const AGeoCalc: IGeoCalc
 );
 begin
-  TP_GlobalIgnoreClassProperty(TEmbeddedWB, 'StatusText');
   Assert(ACoordToStringConverter <> nil);
   Assert(AValueToStringConverter <> nil);
   Assert(Assigned(AGeoCalc));
@@ -175,19 +173,20 @@ begin
       TNotifierBase.Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifier'))
     );
 
-  FEmbeddedWB := TEmbeddedWB.Create(Self);
-  FEmbeddedWB.Name := 'MarkInfoEmbeddedWB';
-  FEmbeddedWB.Parent := pnlDesc;
-  FEmbeddedWB.Left := 0;
-  FEmbeddedWB.Top := 0;
-  FEmbeddedWB.Align := alClient;
-  FEmbeddedWB.Silent := False;
-  FEmbeddedWB.DisableCtrlShortcuts := 'N';
-  FEmbeddedWB.UserInterfaceOptions := [EnablesFormsAutoComplete, EnableThemes];
-  FEmbeddedWB.About := '';
-  FEmbeddedWB.PrintOptions.HTMLHeader.Clear;
-  FEmbeddedWB.PrintOptions.HTMLHeader.Add('<HTML></HTML>');
-  FEmbeddedWB.PrintOptions.Orientation := poPortrait;
+  FBrowser :=
+    TInternalBrowserImplByIE.Create(
+      pnlDesc,
+      False,
+      nil, // ToDo: IProxyConfig
+      nil, // ToDo: IInternalDomainUrlHandler
+      ''   // ToDo: UserAgent
+    );
+
+end;
+
+procedure TfrmMarkInfo.FormDestroy(Sender: TObject);
+begin
+  FreeAndNil(FBrowser);
 end;
 
 procedure TfrmMarkInfo.FormClose(
@@ -379,9 +378,9 @@ begin
   VText := GetTextForMark(AMark);
   mmoInfo.Lines.Text := VText;
   if (AMark.GetInfoUrl <> '') and (AMark.Desc <> '') then begin
-    FEmbeddedWB.NavigateWait(AMark.GetInfoUrl + CVectorItemInfoSuffix);
+    FBrowser.Navigate(AMark.GetInfoUrl + CVectorItemInfoSuffix);
   end else begin
-    FEmbeddedWB.AssignEmptyDocument;
+    FBrowser.AssignEmptyDocument;
   end;
   Self.ShowModal;
   FMark := nil;

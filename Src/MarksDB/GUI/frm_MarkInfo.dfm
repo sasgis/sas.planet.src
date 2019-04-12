@@ -10,6 +10,7 @@ object frmMarkInfo: TfrmMarkInfo
   OldCreateOrder = False
   PopupMode = pmExplicit
   OnClose = FormClose
+  OnDestroy = FormDestroy
   PixelsPerInch = 96
   TextHeight = 13
   object splDesc: TSplitter

@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -29,26 +29,18 @@ uses
   Controls,
   Forms,
   OleCtrls,
-  SHDocVw_EWB,
-  EwbCore,
-  EmbeddedWB,
-  u_CommonFormAndFrameParents,
   i_LanguageManager,
-  i_ProxySettings;
+  i_ProxySettings,
+  u_InternalBrowserImplByIE,
+  u_CommonFormAndFrameParents;
 
 type
   TfrmInvisibleBrowser = class(TFormWitghLanguageManager)
     procedure FormCreate(Sender: TObject);
-    procedure OnEmbeddedWBAuthenticate(
-      Sender: TCustomEmbeddedWB;
-      var hwnd: HWND;
-      var szUserName, szPassWord: WideString;
-      var Rezult: HRESULT
-    );
+    procedure FormDestroy(Sender: TObject);
   private
     FCS: IReadWriteSync;
-    FProxyConfig: IProxyConfig;
-    FEmbeddedWB: TEmbeddedWB;
+    FBrowser: TInternalBrowserImplByIE;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -72,65 +64,35 @@ constructor TfrmInvisibleBrowser.Create(
 );
 begin
   inherited Create(ALanguageManager);
-  FProxyConfig := AProxyConfig;
   FCS := GSync.SyncBig.Make(Self.ClassName);
 
-  FEmbeddedWB := TEmbeddedWB.Create(Self);
-  FEmbeddedWB.Name := 'InvisibleBrowserEmbeddedWB';
-  FEmbeddedWB.Parent := Self;
-  FEmbeddedWB.Left := 0;
-  FEmbeddedWB.Top := 0;
-  FEmbeddedWB.Align := alClient;
-  FEmbeddedWB.DisableCtrlShortcuts := 'N';
-  FEmbeddedWB.DownloadOptions := [DownloadImages, DownloadVideos];
-  FEmbeddedWB.UserInterfaceOptions := [EnablesFormsAutoComplete, EnableThemes];
-  FEmbeddedWB.OnAuthenticate := OnEmbeddedWBAuthenticate;
-  FEmbeddedWB.About := '';
-  FEmbeddedWB.EnableMessageHandler := False;
-  FEmbeddedWB.DisableErrors.EnableDDE := False;
-  FEmbeddedWB.DisableErrors.fpExceptions := False;
-  FEmbeddedWB.DisableErrors.ScriptErrorsSuppressed := False;
-  FEmbeddedWB.DialogBoxes.ReplaceCaption := False;
-  FEmbeddedWB.DialogBoxes.ReplaceIcon := False;
-  FEmbeddedWB.PrintOptions.HTMLHeader.Clear;
-  FEmbeddedWB.PrintOptions.HTMLHeader.Add('<HTML></HTML>');
-  FEmbeddedWB.PrintOptions.Orientation := poPortrait;
-  FEmbeddedWB.UserAgent := 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)';
+  FBrowser :=
+    TInternalBrowserImplByIE.Create(
+      Self,
+      True,
+      AProxyConfig,
+      nil,
+      'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)' // ToDo
+    );
 end;
 
 procedure TfrmInvisibleBrowser.FormCreate(Sender: TObject);
 begin
-  FEmbeddedWB.Navigate('about:blank');
+  FBrowser.AssignEmptyDocument;
+end;
+
+procedure TfrmInvisibleBrowser.FormDestroy(Sender: TObject);
+begin
+  FreeAndNil(FBrowser);
 end;
 
 procedure TfrmInvisibleBrowser.NavigateAndWait(const AUrl: string);
 begin
   FCS.BeginWrite;
   try
-    FEmbeddedWB.NavigateWait(AUrl, 10000);
+    FBrowser.NavigateWait(AUrl, 10000);
   finally
     FCS.EndWrite;
-  end;
-end;
-
-procedure TfrmInvisibleBrowser.OnEmbeddedWBAuthenticate(
-  Sender: TCustomEmbeddedWB;
-  var hwnd: HWND;
-  var szUserName,
-  szPassWord: WideString;
-  var Rezult: HRESULT
-);
-var
-  VUseLogin: Boolean;
-  VProxyConfig: IProxyConfigStatic;
-begin
-  if FProxyConfig <> nil then begin
-    VProxyConfig := FProxyConfig.GetStatic;
-    VUseLogin := (not VProxyConfig.UseIESettings) and VProxyConfig.UseProxy and VProxyConfig.UseLogin;
-    if VUseLogin then begin
-      szUserName := VProxyConfig.Login;
-      szPassWord := VProxyConfig.Password;
-    end;
   end;
 end;
 
