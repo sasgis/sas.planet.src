@@ -40,6 +40,8 @@ uses
   i_CoordRepresentationConfig,
   i_ValueToStringConverter,
   i_GeoCalc,
+  i_InetConfig,
+  i_InternalDomainUrlHandler,
   i_GeometryLonLat,
   i_ProjectionSetChangeable,
   i_LocalCoordConverterChangeable,
@@ -192,6 +194,8 @@ type
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AMarkSystem: IMarkSystem;
       const AGeoCalc: IGeoCalc;
+      const AInetConfig: IInetConfig;
+      const AInternalDomainUrlHandler: IInternalDomainUrlHandler;
       const AExporterList: IVectorItemTreeExporterListChangeable;
       const AImporterList: IVectorItemTreeImporterListChangeable;
       const AViewPortState: ILocalCoordConverterChangeable;
@@ -239,6 +243,8 @@ constructor TMarkDbGUIHelper.Create(
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AMarkSystem: IMarkSystem;
   const AGeoCalc: IGeoCalc;
+  const AInetConfig: IInetConfig;
+  const AInternalDomainUrlHandler: IInternalDomainUrlHandler;
   const AExporterList: IVectorItemTreeExporterListChangeable;
   const AImporterList: IVectorItemTreeImporterListChangeable;
   const AViewPortState: ILocalCoordConverterChangeable;
@@ -319,7 +325,9 @@ begin
       ALanguageManager,
       ACoordToStringConverter,
       AValueToStringConverter,
-      AGeoCalc
+      AGeoCalc,
+      AInetConfig,
+      AInternalDomainUrlHandler
     );
   FfrmMarkInfo.PopupParent := APopUpParent;
   FfrmMarksMultiEdit :=

@@ -36,7 +36,7 @@ uses
   i_DownloadRequest,
   i_LanguageManager,
   i_InternalDomainUrlHandler,
-  i_ProxySettings,
+  i_InetConfig,
   u_InternalBrowserImplByIE,
   u_CommonFormAndFrameParents;
 
@@ -68,7 +68,7 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AConfig: IWindowPositionConfig;
-      const AProxyConfig: IProxyConfig;
+      const AInetConfig: IInetConfig;
       const AInternalDomainUrlHandler: IInternalDomainUrlHandler
     ); reintroduce;
 
@@ -92,10 +92,13 @@ uses
 constructor TfrmInternalBrowser.Create(
   const ALanguageManager: ILanguageManager;
   const AConfig: IWindowPositionConfig;
-  const AProxyConfig: IProxyConfig;
+  const AInetConfig: IInetConfig;
   const AInternalDomainUrlHandler: IInternalDomainUrlHandler
 );
 begin
+  Assert(AInetConfig <> nil);
+  Assert(AInternalDomainUrlHandler <> nil);
+
   inherited Create(ALanguageManager);
 
   FConfig := AConfig;
@@ -105,9 +108,9 @@ begin
     TInternalBrowserImplByIE.Create(
       Self,
       False,
-      AProxyConfig,
+      AInetConfig.ProxyConfig,
       AInternalDomainUrlHandler,
-      '', // ToDo: UserAgent
+      AInetConfig.UserAgentString,
       OnBrowserKeyDown,
       OnBrowserTitleChange
     );

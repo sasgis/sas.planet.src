@@ -23,7 +23,7 @@ unit u_InternalBrowserByForm;
 interface
 
 uses
-  i_ProxySettings,
+  i_InetConfig,
   i_DownloadRequest,
   i_InternalBrowser,
   i_LanguageManager,
@@ -37,7 +37,7 @@ type
   TInternalBrowserByForm = class(TBaseInterfacedObject, IInternalBrowser)
   private
     FLanguageManager: ILanguageManager;
-    FProxyConfig: IProxyConfig;
+    FInetConfig: IInetConfig;
     FConfig: IWindowPositionConfig;
     FContent: IInternalBrowserLastContent;
     FUrlHandler: IInternalDomainUrlHandler;
@@ -54,7 +54,7 @@ type
       const ALanguageManager: ILanguageManager;
       const AContent: IInternalBrowserLastContent;
       const AConfig: IWindowPositionConfig;
-      const AProxyConfig: IProxyConfig;
+      const AInetConfig: IInetConfig;
       const AUrlHandler: IInternalDomainUrlHandler
     );
     destructor Destroy; override;
@@ -72,7 +72,7 @@ constructor TInternalBrowserByForm.Create(
   const ALanguageManager: ILanguageManager;
   const AContent: IInternalBrowserLastContent;
   const AConfig: IWindowPositionConfig;
-  const AProxyConfig: IProxyConfig;
+  const AInetConfig: IInetConfig;
   const AUrlHandler: IInternalDomainUrlHandler
 );
 begin
@@ -80,7 +80,7 @@ begin
   FLanguageManager := ALanguageManager;
   FContent := AContent;
   FConfig := AConfig;
-  FProxyConfig := AProxyConfig;
+  FInetConfig := AInetConfig;
   FUrlHandler := AUrlHandler;
 end;
 
@@ -121,7 +121,7 @@ begin
       TfrmInternalBrowser.Create(
         FLanguageManager,
         FConfig,
-        FProxyConfig,
+        FInetConfig,
         FUrlHandler
       );
   end;

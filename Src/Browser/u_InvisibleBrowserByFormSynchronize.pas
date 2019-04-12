@@ -26,7 +26,7 @@ uses
   SysUtils,
   i_InvisibleBrowser,
   i_LanguageManager,
-  i_ProxySettings,
+  i_InetConfig,
   u_BaseInterfacedObject,
   frm_InvisibleBrowser;
 
@@ -34,7 +34,7 @@ type
   TInvisibleBrowserByFormSynchronize = class(TBaseInterfacedObject, IInvisibleBrowser)
   private
     FCS: IReadWriteSync;
-    FProxyConfig: IProxyConfig;
+    FInetConfig: IInetConfig;
     FLanguageManager: ILanguageManager;
     FfrmInvisibleBrowser: TfrmInvisibleBrowser;
   private
@@ -43,7 +43,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AProxyConfig: IProxyConfig
+      const AInetConfig: IInetConfig
     );
     destructor Destroy; override;
   end;
@@ -94,12 +94,12 @@ end;
 
 constructor TInvisibleBrowserByFormSynchronize.Create(
   const ALanguageManager: ILanguageManager;
-  const AProxyConfig: IProxyConfig
+  const AInetConfig: IInetConfig
 );
 begin
   inherited Create;
   FCS := GSync.SyncVariable.Make(Self.ClassName);
-  FProxyConfig := AProxyConfig;
+  FInetConfig := AInetConfig;
   FLanguageManager := ALanguageManager;
 end;
 
@@ -114,7 +114,7 @@ end;
 
 procedure TInvisibleBrowserByFormSynchronize.InternalCreateBrowser;
 begin
-  FfrmInvisibleBrowser := TfrmInvisibleBrowser.Create(FLanguageManager, FProxyConfig);
+  FfrmInvisibleBrowser := TfrmInvisibleBrowser.Create(FLanguageManager, FInetConfig);
 end;
 
 procedure TInvisibleBrowserByFormSynchronize.NavigateAndWait(const AUrl: string);

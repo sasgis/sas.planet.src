@@ -37,6 +37,8 @@ uses
   i_CoordToStringConverter,
   i_ValueToStringConverter,
   i_VectorDataItemSimple,
+  i_InetConfig,
+  i_InternalDomainUrlHandler,
   u_InternalBrowserImplByIE,
   u_CommonFormAndFrameParents;
 
@@ -73,7 +75,9 @@ type
       const ALanguageManager: ILanguageManager;
       const ACoordToStringConverter: ICoordToStringConverterChangeable;
       const AValueToStringConverter: IValueToStringConverterChangeable;
-      const AGeoCalc: IGeoCalc
+      const AGeoCalc: IGeoCalc;
+      const AInetConfig: IInetConfig;
+      const AInternalDomainUrlHandler: IInternalDomainUrlHandler
     ); reintroduce;
   end;
 
@@ -158,12 +162,17 @@ constructor TfrmMarkInfo.Create(
   const ALanguageManager: ILanguageManager;
   const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const AValueToStringConverter: IValueToStringConverterChangeable;
-  const AGeoCalc: IGeoCalc
+  const AGeoCalc: IGeoCalc;
+  const AInetConfig: IInetConfig;
+  const AInternalDomainUrlHandler: IInternalDomainUrlHandler
 );
 begin
   Assert(ACoordToStringConverter <> nil);
   Assert(AValueToStringConverter <> nil);
-  Assert(Assigned(AGeoCalc));
+  Assert(AGeoCalc <> nil);
+  Assert(AInetConfig <> nil);
+  Assert(AInternalDomainUrlHandler <> nil);
+
   inherited Create(ALanguageManager);
   FCoordToStringConverter := ACoordToStringConverter;
   FValueToStringConverter := AValueToStringConverter;
@@ -172,16 +181,14 @@ begin
     TNotifierOperation.Create(
       TNotifierBase.Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifier'))
     );
-
   FBrowser :=
     TInternalBrowserImplByIE.Create(
       pnlDesc,
       False,
-      nil, // ToDo: IProxyConfig
-      nil, // ToDo: IInternalDomainUrlHandler
-      ''   // ToDo: UserAgent
+      AInetConfig.ProxyConfig,
+      AInternalDomainUrlHandler,
+      AInetConfig.UserAgentString
     );
-
 end;
 
 procedure TfrmMarkInfo.FormDestroy(Sender: TObject);

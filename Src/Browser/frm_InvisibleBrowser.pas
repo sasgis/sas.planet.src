@@ -30,7 +30,7 @@ uses
   Forms,
   OleCtrls,
   i_LanguageManager,
-  i_ProxySettings,
+  i_InetConfig,
   u_InternalBrowserImplByIE,
   u_CommonFormAndFrameParents;
 
@@ -44,7 +44,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AProxyConfig: IProxyConfig
+      const AInetConfig: IInetConfig
     ); reintroduce;
     procedure NavigateAndWait(const AUrl: string);
   end;
@@ -60,7 +60,7 @@ uses
 
 constructor TfrmInvisibleBrowser.Create(
   const ALanguageManager: ILanguageManager;
-  const AProxyConfig: IProxyConfig
+  const AInetConfig: IInetConfig
 );
 begin
   inherited Create(ALanguageManager);
@@ -70,9 +70,9 @@ begin
     TInternalBrowserImplByIE.Create(
       Self,
       True,
-      AProxyConfig,
+      AInetConfig.ProxyConfig,
       nil,
-      'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)' // ToDo
+      AInetConfig.UserAgentString
     );
 end;
 

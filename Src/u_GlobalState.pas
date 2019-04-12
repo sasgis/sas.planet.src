@@ -106,6 +106,7 @@ uses
   i_GlobalConfig,
   i_GlobalCacheConfig,
   i_FavoriteMapSetConfig,
+  i_InternalDomainUrlHandler,
   u_GarbageCollectorThread,
   u_MapTypesMainList,
   u_IeEmbeddedProtocolRegistration;
@@ -207,6 +208,7 @@ type
     FValueToStringConverter: IValueToStringConverterChangeable;
     FAppEnum: IAppEnum;
     FFavoriteMapSetConfig: IFavoriteMapSetConfig;
+    FInternalDomainUrlHandler: IInternalDomainUrlHandler;
 
     procedure OnMainThreadConfigChange;
     procedure InitProtocol;
@@ -295,6 +297,7 @@ type
     property BatteryStatus: IBatteryStatus read FBatteryStatus;
     property AppEnum: IAppEnum read FAppEnum;
     property FavoriteMapSetConfig: IFavoriteMapSetConfig read FFavoriteMapSetConfig;
+    property InternalDomainUrlHandler: IInternalDomainUrlHandler read FInternalDomainUrlHandler;
 
     constructor Create;
     destructor Destroy; override;
@@ -875,18 +878,21 @@ begin
 
   InitProtocol;
 
+  FInternalDomainUrlHandler :=
+    TInternalDomainUrlHandler.Create(FGlobalConfig.MediaDataPath);
+
   FInvisibleBrowser :=
     TInvisibleBrowserByFormSynchronize.Create(
       FGlobalConfig.LanguageManager,
-      FGlobalConfig.InetConfig.ProxyConfig
+      FGlobalConfig.InetConfig
     );
   FInternalBrowser :=
     TInternalBrowserByForm.Create(
       FGlobalConfig.LanguageManager,
       FInternalBrowserContent,
       FGlobalConfig.InternalBrowserConfig,
-      FGlobalConfig.InetConfig.ProxyConfig,
-      TInternalDomainUrlHandler.Create(FGlobalConfig.MediaDataPath)
+      FGlobalConfig.InetConfig,
+      FInternalDomainUrlHandler
     );
   FDebugInfoWindow :=
     TDebugInfoWindow.Create(

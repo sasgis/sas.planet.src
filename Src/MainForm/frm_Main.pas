@@ -1294,6 +1294,8 @@ begin
       GState.AppearanceOfMarkFactory,
       GState.MarksDb,
       GState.GeoCalc,
+      GState.Config.InetConfig,
+      GState.InternalDomainUrlHandler,
       GState.ExporterList,
       GState.ImporterList,
       FViewPortState.View,
