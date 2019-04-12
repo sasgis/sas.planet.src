@@ -447,14 +447,22 @@ var
 begin
   VList := AContentTypeManagerBitmapInternal.GetBitmapExtList;
   VEnumerator := VList.GetEnumerator;
-  while VEnumerator.MoveNext do begin
-    AddByExt(VList.Get(VEnumerator.Current), VEnumerator.Current);
+  try
+    while VEnumerator.MoveNext do begin
+      AddByExt(VList.Get(VEnumerator.Current), VEnumerator.Current);
+    end;
+  finally
+    VEnumerator.Free;
   end;
 
   VList := AContentTypeManagerBitmapInternal.GetBitmapTypeList;
   VEnumerator := VList.GetEnumerator;
-  while VEnumerator.MoveNext do begin
-    AddByType(VList.Get(VEnumerator.Current), VEnumerator.Current);
+  try
+    while VEnumerator.MoveNext do begin
+      AddByType(VList.Get(VEnumerator.Current), VEnumerator.Current);
+    end;
+  finally
+    VEnumerator.Free;
   end;
 end;
 
