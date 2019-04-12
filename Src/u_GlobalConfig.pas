@@ -50,6 +50,7 @@ uses
   i_MapSvcScanConfig,
   i_ExportToIMGConfig,
   i_ExportMarks2KMLConfig,
+  i_InternalDomainUrlHandlerConfig,
   u_ConfigDataElementComplexBase;
 
 type
@@ -71,13 +72,12 @@ type
     FLastSelectionFileName: IPathConfig;
     FGpsRecorderFileName: IPathConfig;
     FGpsTrackRecorderFileName: IPathConfig;
-
     FInternalDebugConfig: IInternalDebugConfig;
-
     FGlobalAppConfig: IGlobalAppConfig;
     FLanguageManager: ILanguageManager;
     FInetConfig: IInetConfig;
     FInternalBrowserConfig: IWindowPositionConfig;
+    FInternalDomainUrlHandlerConfig: IInternalDomainUrlHandlerConfig;
     FMainThreadConfig: IThreadConfig;
     FTileLoadResamplerConfig: IImageResamplerConfig;
     FTileGetPrevResamplerConfig: IImageResamplerConfig;
@@ -122,6 +122,7 @@ type
     function GetLanguageManager: ILanguageManager;
     function GetInetConfig: IInetConfig;
     function GetInternalBrowserConfig: IWindowPositionConfig;
+    function GetInternalDomainUrlHandlerConfig: IInternalDomainUrlHandlerConfig;
     function GetMainThreadConfig: IThreadConfig;
     function GetTileLoadResamplerConfig: IImageResamplerConfig;
     function GetTileGetPrevResamplerConfig: IImageResamplerConfig;
@@ -186,6 +187,7 @@ uses
   u_MarkPictureConfig,
   u_GlobalAppConfig,
   u_PathConfig,
+  u_InternalDomainUrlHandlerConfig,
   u_ExportMarks2KMLConfig,
   u_ExportToIMGConfig;
 
@@ -330,6 +332,9 @@ begin
 
   FExportMarks2KMLConfig := TExportMarks2KMLConfig.Create;
   Add(FExportMarks2KMLConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('ExportMarks2KML'), False, False, False, False);
+
+  FInternalDomainUrlHandlerConfig := TInternalDomainUrlHandlerConfig.Create;
+  Add(FInternalDomainUrlHandlerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('UrlHandler'), False, False, False, False);
 end;
 
 function TGlobalConfig.GetBaseCachePath: IPathConfig;
@@ -405,6 +410,11 @@ end;
 function TGlobalConfig.GetInternalDebugConfig: IInternalDebugConfig;
 begin
   Result := FInternalDebugConfig;
+end;
+
+function TGlobalConfig.GetInternalDomainUrlHandlerConfig: IInternalDomainUrlHandlerConfig;
+begin
+  Result := FInternalDomainUrlHandlerConfig;
 end;
 
 function TGlobalConfig.GetLanguageManager: ILanguageManager;

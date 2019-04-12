@@ -43,7 +43,7 @@ type
     FEmbeddedWB: TEmbeddedWB;
     FOnKeyDown: TOnKeyDown;
     FOnTitleChange: TOnTitleChange;
-
+    FIsInvisible: Boolean;
     FProxyConfig: IProxyConfig;
     FInternalDomainUrlHandler: IInternalDomainUrlHandler;
 
@@ -117,6 +117,7 @@ begin
 
   inherited Create;
 
+  FIsInvisible := AIsInvisible;
   FProxyConfig := AProxyConfig;
   FInternalDomainUrlHandler := AInternalDomainUrlHandler;
   FOnKeyDown := AOnKeyDown;
@@ -222,7 +223,7 @@ begin
   except
     on E: Exception do begin
       Cancel := True;
-      if not FEmbeddedWB.Silent then begin
+      if not FIsInvisible then begin
         MessageDlg(E.Message, mtError, [mbOK], 0);
       end;
     end;

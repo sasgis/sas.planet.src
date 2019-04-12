@@ -23,6 +23,7 @@ unit u_InetFunc;
 interface
 
 procedure OpenUrlInBrowser(const URL: string);
+procedure OpenFileInProgram(const AFullFileName: string; const AProgram: string);
 procedure OpenFileInDefaultProgram(const AFullFileName: string);
 procedure SelectFileInExplorer(const AFullFileName: String);
 procedure SelectPathInExplorer(const APath: string);
@@ -107,6 +108,13 @@ procedure OpenUrlInBrowser(const URL: string);
 begin
   Assert(URL <> '');
   ShellExecute(0, '', URL);
+end;
+
+procedure OpenFileInProgram(const AFullFileName: string; const AProgram: string);
+begin
+  Assert(AFullFileName <> '');
+  Assert(AProgram <> '');
+  ShellExecute(0, '', AProgram, AFullFileName);
 end;
 
 procedure OpenFileInDefaultProgram(const AFullFileName: string);

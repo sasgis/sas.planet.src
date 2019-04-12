@@ -48,6 +48,7 @@ uses
   i_MapSvcScanConfig,
   i_ExportToIMGConfig,
   i_ExportMarks2KMLConfig,
+  i_InternalDomainUrlHandlerConfig,
   i_ConfigDataElement;
 
 type
@@ -112,6 +113,9 @@ type
 
     function GetInternalBrowserConfig: IWindowPositionConfig;
     property InternalBrowserConfig: IWindowPositionConfig read GetInternalBrowserConfig;
+
+    function GetInternalDomainUrlHandlerConfig: IInternalDomainUrlHandlerConfig;
+    property InternalDomainUrlHandlerConfig: IInternalDomainUrlHandlerConfig read GetInternalDomainUrlHandlerConfig;
 
     function GetMainThreadConfig: IThreadConfig;
     property MainThreadConfig: IThreadConfig read GetMainThreadConfig;

@@ -879,7 +879,10 @@ begin
   InitProtocol;
 
   FInternalDomainUrlHandler :=
-    TInternalDomainUrlHandler.Create(FGlobalConfig.MediaDataPath);
+    TInternalDomainUrlHandler.Create(
+      FGlobalConfig.InternalDomainUrlHandlerConfig,
+      FGlobalConfig.MediaDataPath
+    );
 
   FInvisibleBrowser :=
     TInvisibleBrowserByFormSynchronize.Create(

@@ -25,6 +25,7 @@ interface
 uses
   i_PathConfig,
   i_InternalDomainUrlHandler,
+  i_InternalDomainUrlHandlerConfig,
   u_BaseInterfacedObject;
 
 type
@@ -32,8 +33,12 @@ type
   private
     type TCommand = (cmdApp, cmdExplorer, cmdBrowser, cmdUser);
   private
+    FUserApps: TUserAppArray;
+    FAllowedExt: array of string;
     FMediaDataPath: IPathConfig;
     FMediaDataUrl: string;
+    procedure PrepareAllowedExtArray(const AAllowedExt: string);
+    function IsAllowedExt(const AExt: string): Boolean;
     function GetCommand(var AUrl: string; out ACmd: TCommand; out ACmdId: string): Boolean;
     procedure InternalUrlToUrl(var AUrl: string);
     function PrepareFileName(const AUrl: string): string;
@@ -41,7 +46,10 @@ type
     { IInternalDomainUrlHandler }
     function Process(const AUrl: string): Boolean;
   public
-    constructor Create(const AMediaDataPath: IPathConfig);
+    constructor Create(
+      const AConfig: IInternalDomainUrlHandlerConfig;
+      const AMediaDataPath: IPathConfig
+    );
   end;
 
 implementation
@@ -49,20 +57,53 @@ implementation
 uses
   SysUtils,
   StrUtils,
+  Classes,
   c_InternalBrowser,
   u_InetFunc;
 
 { TInternalDomainUrlHandler }
 
 constructor TInternalDomainUrlHandler.Create(
+  const AConfig: IInternalDomainUrlHandlerConfig;
   const AMediaDataPath: IPathConfig
 );
 begin
+  Assert(AConfig <> nil);
   Assert(AMediaDataPath <> nil);
 
   inherited Create;
+  PrepareAllowedExtArray(AConfig.AllowedExt);
+  FUserApps := AConfig.UserAppsConfig.UserApps;
   FMediaDataPath := AMediaDataPath;
   FMediaDataUrl := LowerCase(CMediaDataInternalURL);
+end;
+
+procedure TInternalDomainUrlHandler.PrepareAllowedExtArray(const AAllowedExt: string);
+var
+  I, J: Integer;
+  VList: TStringList;
+begin
+  SetLength(FAllowedExt, 0);
+  if AAllowedExt = '' then begin
+    Exit;
+  end;
+  VList := TStringList.Create;
+  try
+    VList.Delimiter := ';';
+    VList.StrictDelimiter := True;
+    VList.DelimitedText := LowerCase(AAllowedExt);
+    SetLength(FAllowedExt, VList.Count);
+    J := 0;
+    for I := 0 to VList.Count - 1 do begin
+      FAllowedExt[J] := Trim(StringReplace(VList.Strings[I], '.', '', [rfReplaceAll]));
+      if FAllowedExt[J] <> '' then begin
+        Inc(J);
+      end;
+    end;
+    SetLength(FAllowedExt, J);
+  finally
+    VList.Free;
+  end;
 end;
 
 function TInternalDomainUrlHandler.GetCommand(
@@ -110,6 +151,30 @@ begin
   end;
 end;
 
+function TInternalDomainUrlHandler.IsAllowedExt(const AExt: string): Boolean;
+var
+  I: Integer;
+  VExt: string;
+begin
+  Result := Length(FAllowedExt) = 0;
+  if not Result then begin
+    VExt := LowerCase(Trim(AExt));
+    if VExt[1] = '.' then begin
+      VExt := Copy(AExt, 2);
+    end;
+    if VExt = '' then begin
+      Result := False;
+      Exit;
+    end;
+    for I := 0 to Length(FAllowedExt) - 1 do begin
+      if VExt = FAllowedExt[I] then begin
+        Result := True;
+        Break;
+      end;
+    end;
+  end;
+end;
+
 function TInternalDomainUrlHandler.PrepareFileName(const AUrl: string): string;
 var
   I: Integer;
@@ -124,7 +189,35 @@ begin
 end;
 
 function TInternalDomainUrlHandler.Process(const AUrl: string): Boolean;
+
+  procedure _DoOpenFile(const AUrl: string; const AApp: string = '');
+  var
+    VExt: string;
+    VFileName: string;
+  begin
+    VFileName := PrepareFileName(AUrl);
+    if FileExists(VFileName) then begin
+      VExt := ExtractFileExt(VFileName);
+      if IsAllowedExt(VExt) then begin
+        if AApp <> '' then begin
+          OpenFileInProgram(VFileName, AApp);
+        end else begin
+          OpenFileInDefaultProgram(VFileName);
+        end;
+      end else begin
+        raise Exception.CreateFmt(
+          'File extention "%s" disabled by config!', [VExt]
+        );
+      end;
+    end else begin
+      raise Exception.CreateFmt(
+        'Url "%s" process error. File not exists: %s', [AUrl, VFileName]
+      );
+    end;
+  end;
+
 var
+  I: Integer;
   VUrl: string;
   VFileName: string;
   VCmd: TCommand;
@@ -140,14 +233,7 @@ begin
   case VCmd of
 
     cmdApp: begin
-      VFileName := PrepareFileName(VUrl);
-      if FileExists(VFileName) then begin
-        OpenFileInDefaultProgram(VFileName);
-      end else begin
-        raise Exception.CreateFmt(
-          'Url "%s" process error. File not exists: %s', [VUrl, VFileName]
-        );
-      end;
+      _DoOpenFile(VUrl);
       Result := True;
     end;
 
@@ -172,8 +258,16 @@ begin
     end;
 
     cmdUser: begin
-      // ToDo
-      Result := True;
+      for I := 0 to Length(FUserApps) do begin
+        if VCmdId = FUserApps[I].ID then begin
+          _DoOpenFile(VUrl, FUserApps[I].Path);
+          Result := True;
+          Break;
+        end;
+      end;
+      if not Result then begin
+        raise Exception.Create('Unregistered user app id: ' + VCmdId);
+      end;
     end;
   else
     Assert(False);
