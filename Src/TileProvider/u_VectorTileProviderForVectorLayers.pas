@@ -40,6 +40,7 @@ type
   private
     FLayersSet: IMapTypeSet;
     FSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+    FUsePre: Boolean;
     FUseCache: Boolean;
     FErrorLogger: ITileErrorLogger;
     FTileSelectOversize: TRect;
@@ -66,7 +67,7 @@ type
     constructor Create(
       const ASubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const ALayersSet: IMapTypeSet;
-      AUseCache: Boolean;
+      AUsePre, AUseCache: Boolean;
       const AErrorLogger: ITileErrorLogger;
       const ATileSelectOversize: TRect;
       const AItemSelectOversize: TRect
@@ -91,7 +92,7 @@ uses
 constructor TVectorTileProviderForVectorLayers.Create(
   const ASubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const ALayersSet: IMapTypeSet;
-  AUseCache: Boolean;
+  AUsePre, AUseCache: Boolean;
   const AErrorLogger: ITileErrorLogger;
   const ATileSelectOversize: TRect;
   const AItemSelectOversize: TRect
@@ -118,6 +119,7 @@ begin
   inherited Create;
   FSubsetBuilderFactory := ASubsetBuilderFactory;
   FLayersSet := ALayersSet;
+  FUsePre := AUsePre;
   FUseCache := AUseCache;
   FErrorLogger := AErrorLogger;
   FTileSelectOversize := ATileSelectOversize;
@@ -161,7 +163,7 @@ begin
   while VTileIterator.Next(VTile) do begin
     VErrorString := '';
     try
-      VItems := AAlayer.LoadTileVector(VTile, VSourceProjection.Zoom, VVersion, False, AAlayer.CacheVector);
+      VItems := AAlayer.LoadTileVector(VTile, VSourceProjection.Zoom, VVersion, FUsePre, False, AAlayer.CacheVector);
       if VItems <> nil then begin
         if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
           Break;

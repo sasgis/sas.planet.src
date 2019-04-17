@@ -73,7 +73,7 @@ type
       const AXY: TPoint;
       const AZoom: byte;
       const AVersion: IMapVersionRequest;
-      IgnoreError: Boolean;
+      AUsePre, AIgnoreError: Boolean;
       const ACache: ITileObjCacheVector = nil
     ): IVectorItemSubset;
     function LoadTileUni(

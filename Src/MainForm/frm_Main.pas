@@ -573,6 +573,8 @@ type
     actViewSunCalc: TAction;
     tbxSunCalc: TTBXItem;
     tbxYandexWeather: TTBXItem;
+    actConfigUsePrevForVectorLayers: TAction;
+    tbiConfigUsePrevForVectorLayer: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -824,6 +826,7 @@ type
     procedure actCircleCalculationExecute(Sender: TObject);
     procedure actViewSunCalcExecute(Sender: TObject);
     procedure tbxYandexWeatherClick(Sender: TObject);
+    procedure actConfigUsePrevForVectorLayersExecute(Sender: TObject);
   private
     FactlstGeoCoders: TActionList;
     FactlstProjections: TActionList;
@@ -3098,6 +3101,7 @@ var
 begin
   actConfigUsePrevForMap.Checked := FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig.UsePrevZoomAtMap;
   actConfigUsePrevForLayers.Checked := FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig.UsePrevZoomAtLayer;
+  actConfigUsePrevForVectorLayers.Checked := FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig.UsePrevZoomAtVectorLayer;
   map.Color := GState.Config.ViewConfig.BackGroundColor;
 
   actConfigZoomToCursor.Checked := FConfig.MapZoomingConfig.ZoomingAtMousePos;
@@ -6690,6 +6694,12 @@ procedure TfrmMain.actConfigUsePrevForMapExecute(Sender: TObject);
 begin
   FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig.UsePrevZoomAtMap :=
     not FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig.UsePrevZoomAtMap;
+end;
+
+procedure TfrmMain.actConfigUsePrevForVectorLayersExecute(Sender: TObject);
+begin
+  FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig.UsePrevZoomAtVectorLayer :=
+    not FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig.UsePrevZoomAtVectorLayer;
 end;
 
 procedure TfrmMain.actConfigUseZoomAnimationExecute(Sender: TObject);

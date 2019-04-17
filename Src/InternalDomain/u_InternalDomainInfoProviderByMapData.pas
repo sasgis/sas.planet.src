@@ -144,6 +144,7 @@ begin
             VTile,
             VZoom,
             VMapType.VersionRequest.GetStatic,
+            False,
             True,
             VMapType.CacheVector
           );

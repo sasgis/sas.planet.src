@@ -33,6 +33,7 @@ type
   private
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
+    FUsePrevZoomAtVectorLayer: Boolean;
   protected
     function CreateStatic: IInterface; override;
   protected
@@ -44,6 +45,9 @@ type
 
     function GetUsePrevZoomAtLayer: Boolean;
     procedure SetUsePrevZoomAtLayer(const AValue: Boolean);
+
+    function GetUsePrevZoomAtVectorLayer: Boolean;
+    procedure SetUsePrevZoomAtVectorLayer(const AValue: Boolean);
 
     function GetStatic: IUseTilePrevZoomTileConfigStatic;
   public
@@ -60,24 +64,31 @@ type
   private
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
+    FUsePrevZoomAtVectorLayer: Boolean;
   private
     function GetUsePrevZoomAtMap: Boolean;
     function GetUsePrevZoomAtLayer: Boolean;
+    function GetUsePrevZoomAtVectorLayer: Boolean;
   public
     constructor Create(
       AUsePrevZoomAtMap: Boolean;
-      AUsePrevZoomAtLayer: Boolean
+      AUsePrevZoomAtLayer: Boolean;
+      AUsePrevZoomAtVectorLayer: Boolean
     );
   end;
 
 { TUseTilePrevZoomTileConfigStatic }
 
-constructor TUseTilePrevZoomTileConfigStatic.Create(AUsePrevZoomAtMap,
-  AUsePrevZoomAtLayer: Boolean);
+constructor TUseTilePrevZoomTileConfigStatic.Create(
+  AUsePrevZoomAtMap: Boolean;
+  AUsePrevZoomAtLayer: Boolean;
+  AUsePrevZoomAtVectorLayer: Boolean
+);
 begin
   inherited Create;
   FUsePrevZoomAtMap := AUsePrevZoomAtMap;
   FUsePrevZoomAtLayer := AUsePrevZoomAtLayer;
+  FUsePrevZoomAtVectorLayer := AUsePrevZoomAtVectorLayer;
 end;
 
 function TUseTilePrevZoomTileConfigStatic.GetUsePrevZoomAtLayer: Boolean;
@@ -90,6 +101,11 @@ begin
   Result := FUsePrevZoomAtMap;
 end;
 
+function TUseTilePrevZoomTileConfigStatic.GetUsePrevZoomAtVectorLayer: Boolean;
+begin
+  Result := FUsePrevZoomAtVectorLayer;
+end;
+
 { TUseTilePrevZoomConfig }
 
 constructor TUseTilePrevZoomConfig.Create;
@@ -97,6 +113,7 @@ begin
   inherited Create;
   FUsePrevZoomAtMap := True;
   FUsePrevZoomAtLayer := True;
+  FUsePrevZoomAtVectorLayer := True;
 end;
 
 function TUseTilePrevZoomConfig.CreateStatic: IInterface;
@@ -106,7 +123,8 @@ begin
   VStatic :=
     TUseTilePrevZoomTileConfigStatic.Create(
       FUsePrevZoomAtMap,
-      FUsePrevZoomAtLayer
+      FUsePrevZoomAtLayer,
+      FUsePrevZoomAtVectorLayer
     );
   Result := VStatic;
 end;
@@ -118,6 +136,7 @@ begin
   if AConfigData <> nil then begin
     SetUsePrevZoomAtMap(AConfigData.ReadBool('UsePrevZoomAtMap', FUsePrevZoomAtMap));
     SetUsePrevZoomAtLayer(AConfigData.ReadBool('UsePrevZoomAtLayer', FUsePrevZoomAtLayer));
+    SetUsePrevZoomAtLayer(AConfigData.ReadBool('UsePrevZoomAtVectorLayer', FUsePrevZoomAtVectorLayer));
   end;
 end;
 
@@ -127,6 +146,7 @@ begin
   inherited;
   AConfigData.WriteBool('UsePrevZoomAtMap', FUsePrevZoomAtMap);
   AConfigData.WriteBool('UsePrevZoomAtLayer', FUsePrevZoomAtLayer);
+  AConfigData.WriteBool('UsePrevZoomAtVectorLayer', FUsePrevZoomAtVectorLayer);
 end;
 
 function TUseTilePrevZoomConfig.GetStatic: IUseTilePrevZoomTileConfigStatic;
@@ -154,6 +174,16 @@ begin
   end;
 end;
 
+function TUseTilePrevZoomConfig.GetUsePrevZoomAtVectorLayer: Boolean;
+begin
+  LockRead;
+  try
+    Result := FUsePrevZoomAtVectorLayer;
+  finally
+    UnlockRead;
+  end;
+end;
+
 procedure TUseTilePrevZoomConfig.SetUsePrevZoomAtLayer(const AValue: Boolean);
 begin
   LockWrite;
@@ -173,6 +203,19 @@ begin
   try
     if FUsePrevZoomAtMap <> AValue then begin
       FUsePrevZoomAtMap := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TUseTilePrevZoomConfig.SetUsePrevZoomAtVectorLayer(const AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FUsePrevZoomAtVectorLayer <> AValue then begin
+      FUsePrevZoomAtVectorLayer := AValue;
       SetChanged;
     end;
   finally

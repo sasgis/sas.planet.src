@@ -152,11 +152,19 @@ type
       IgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
     ): IBitmap32Static;
+    function LoadOneTileVector(
+      const AXY: TPoint;
+      const AZoom: byte;
+      const AVersion: IMapVersionRequest;
+      AIgnoreError: Boolean;
+      const ACache: ITileObjCacheVector = nil
+    ): IVectorItemSubset;
     function LoadTileVector(
       const AXY: TPoint;
       const AZoom: byte;
       const AVersion: IMapVersionRequest;
-      IgnoreError: Boolean;
+      AUsePre: Boolean;
+      AIgnoreError: Boolean;
       const ACache: ITileObjCacheVector = nil
     ): IVectorItemSubset;
     function LoadTileUni(
@@ -455,7 +463,11 @@ begin
     );
 
   if FZmp.IsLayer then begin
-    FLoadPrevMaxZoomDelta := 4;
+    if GetIsKmlTiles then begin
+      FLoadPrevMaxZoomDelta := 8;
+    end else begin
+      FLoadPrevMaxZoomDelta := 4;
+    end;
   end else begin
     FLoadPrevMaxZoomDelta := 6;
   end;
@@ -732,11 +744,11 @@ begin
   end;
 end;
 
-function TMapType.LoadTileVector(
+function TMapType.LoadOneTileVector(
   const AXY: TPoint;
   const AZoom: byte;
   const AVersion: IMapVersionRequest;
-  IgnoreError: Boolean;
+  AIgnoreError: Boolean;
   const ACache: ITileObjCacheVector
 ): IVectorItemSubset;
 begin
@@ -754,7 +766,7 @@ begin
       end;
     end;
   except
-    if not IgnoreError then begin
+    if not AIgnoreError then begin
       raise;
     end;
   end;
@@ -1105,6 +1117,44 @@ var
 begin
   VPixelRect := AProjection.TilePos2PixelRect(AXY);
   Result := LoadBitmapUni(VPixelRect, AProjection, AVersion, AUsePre, AAllowPartial, IgnoreError, ACache);
+end;
+
+function TMapType.LoadTileVector(
+  const AXY: TPoint;
+  const AZoom: byte;
+  const AVersion: IMapVersionRequest;
+  AUsePre, AIgnoreError: Boolean;
+  const ACache: ITileObjCacheVector
+): IVectorItemSubset;
+var
+  i: integer;
+  VRelative: TDoublePoint;
+  VMinZoom: Integer;
+  VProjection: IProjection;
+  VParentProjection: IProjection;
+  VTileParent: TPoint;
+begin
+  Result := LoadOneTileVector(AXY, AZoom, AVersion, AIgnoreError, ACache);
+  if not Assigned(Result) then begin
+    if AUsePre then begin
+      VProjection := FProjectionSet.Zooms[AZoom];
+      VRelative := VProjection.TilePos2Relative(AXY);
+      VMinZoom := AZoom - FLoadPrevMaxZoomDelta;
+      if VMinZoom < 0 then begin
+        VMinZoom := 0;
+      end;
+      if AZoom - 1 > VMinZoom then begin
+        for i := AZoom - 1 downto VMinZoom do begin
+          VParentProjection := FProjectionSet.Zooms[i];
+          VTileParent := PointFromDoublePoint(VParentProjection.Relative2TilePosFloat(VRelative), prToTopLeft);
+          Result := LoadOneTileVector(VTileParent, VParentProjection.Zoom, AVersion, AIgnoreError, ACache);
+          if Assigned(Result) then begin
+            Break;
+          end;
+        end;
+      end;
+    end;
+  end;
 end;
 
 end.

@@ -28,6 +28,7 @@ uses
   i_TileError,
   i_VectorTileProvider,
   i_VectorTileProviderChangeable,
+  i_UseTilePrevZoomConfig,
   i_MapTypeSet,
   i_MapTypeSetChangeable,
   i_ListenerNotifierLinksList,
@@ -40,6 +41,7 @@ type
     FErrorLogger: ITileErrorLogger;
     FSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FLayesSet: IMapTypeSetChangeable;
+    FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
     FTileSelectOversize: TRect;
     FItemSelectOversize: TRect;
 
@@ -53,6 +55,7 @@ type
   public
     constructor Create(
       const ALayesSet: IMapTypeSetChangeable;
+      const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
       const ASubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AErrorLogger: ITileErrorLogger;
       const ATileSelectOversize: TRect;
@@ -63,6 +66,7 @@ type
 implementation
 
 uses
+  i_Listener,
   u_ListenerByEvent,
   u_ListenerNotifierLinksList,
   u_VectorTileProviderForVectorLayers;
@@ -71,27 +75,32 @@ uses
 
 constructor TVectorTileProviderChangeableForVectorLayers.Create(
   const ALayesSet: IMapTypeSetChangeable;
+  const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
   const ASubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AErrorLogger: ITileErrorLogger;
   const ATileSelectOversize: TRect;
   const AItemSelectOversize: TRect
 );
+var
+  VListener: IListener;
 begin
   Assert(Assigned(ALayesSet));
+  Assert(Assigned(AUseTilePrevZoomConfig));
   Assert(Assigned(ASubsetBuilderFactory));
   inherited Create;
   FSubsetBuilderFactory := ASubsetBuilderFactory;
   FLayesSet := ALayesSet;
+  FUseTilePrevZoomConfig := AUseTilePrevZoomConfig;
   FErrorLogger := AErrorLogger;
   FTileSelectOversize := ATileSelectOversize;
   FItemSelectOversize := AItemSelectOversize;
 
   FLinksList := TListenerNotifierLinksList.Create;
 
-  FLinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnLayerListChange),
-    FLayesSet.ChangeNotifier
-  );
+  VListener := TNotifyNoMmgEventListener.Create(Self.OnLayerListChange);
+
+  FLinksList.Add(VListener, FLayesSet.ChangeNotifier);
+  FLinksList.Add(VListener, FUseTilePrevZoomConfig.ChangeNotifier);
   FLinksList.ActivateLinks;
   OnLayerListChange;
 end;
@@ -118,6 +127,7 @@ begin
       TVectorTileProviderForVectorLayers.Create(
         FSubsetBuilderFactory,
         VLayers,
+        FUseTilePrevZoomConfig.UsePrevZoomAtVectorLayer,
         True,
         FErrorLogger,
         FTileSelectOversize,

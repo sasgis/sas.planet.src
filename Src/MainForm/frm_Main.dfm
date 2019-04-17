@@ -666,6 +666,10 @@ object frmMain: TfrmMain
           Action = actConfigUsePrevForLayers
           Images = MenusImageList
         end
+        object tbiConfigUsePrevForVectorLayer: TTBXItem
+          Action = actConfigUsePrevForVectorLayers
+          Images = MenusImageList
+        end
         object Nanimate: TTBXItem
           Action = actConfigUseZoomAnimation
           Images = MenusImageList
@@ -4010,6 +4014,11 @@ object frmMain: TfrmMain
       Category = 'Config'
       Caption = 'Use Layers from Lower Zooms'
       OnExecute = actConfigUsePrevForLayersExecute
+    end
+    object actConfigUsePrevForVectorLayers: TAction
+      Category = 'Config'
+      Caption = 'Use Vector Layers from Lower Zooms'
+      OnExecute = actConfigUsePrevForVectorLayersExecute
     end
     object actConfigUseZoomAnimation: TAction
       Category = 'Config'

@@ -422,6 +422,7 @@ begin
   VVectorTileProvider :=
     TVectorTileProviderChangeableForVectorLayers.Create(
       AMainMapState.ActiveKmlLayersSet,
+      ALayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig,
       AVectorItemSubsetBuilderFactory,
       ATileErrorLogger,
       Rect(300, 300, 300, 300),

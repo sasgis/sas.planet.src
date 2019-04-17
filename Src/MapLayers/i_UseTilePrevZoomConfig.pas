@@ -12,6 +12,9 @@ type
 
     function GetUsePrevZoomAtLayer: Boolean;
     property UsePrevZoomAtLayer: Boolean read GetUsePrevZoomAtLayer;
+
+    function GetUsePrevZoomAtVectorLayer: Boolean;
+    property UsePrevZoomAtVectorLayer: Boolean read GetUsePrevZoomAtVectorLayer;
   end;
 
   IUseTilePrevZoomConfig = interface(IConfigDataElement)
@@ -23,6 +26,10 @@ type
     function GetUsePrevZoomAtLayer: Boolean;
     procedure SetUsePrevZoomAtLayer(const AValue: Boolean);
     property UsePrevZoomAtLayer: Boolean read GetUsePrevZoomAtLayer write SetUsePrevZoomAtLayer;
+
+    function GetUsePrevZoomAtVectorLayer: Boolean;
+    procedure SetUsePrevZoomAtVectorLayer(const AValue: Boolean);
+    property UsePrevZoomAtVectorLayer: Boolean read GetUsePrevZoomAtVectorLayer write SetUsePrevZoomAtVectorLayer;
 
     function GetStatic: IUseTilePrevZoomTileConfigStatic;
   end;
