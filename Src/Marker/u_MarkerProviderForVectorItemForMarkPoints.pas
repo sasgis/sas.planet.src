@@ -24,8 +24,10 @@ interface
 
 uses
   GR32,
+  t_GeoTypes,
   i_MarkerDrawable,
   i_VectorDataItemSimple,
+  i_MarkerProviderByAppearancePointIcon,
   i_MarksDrawConfig,
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
@@ -37,7 +39,7 @@ type
   TMarkerProviderForVectorItemForMarkPoints = class(TBaseInterfacedObject, IMarkerProviderForVectorItem)
   private
     FBitmap32StaticFactory: IBitmap32StaticFactory;
-    FMarkerDefault: IMarkerDrawableChangeable;
+    FMarkerProviderByAppearancePointIcon: IMarkerProviderByAppearancePointIcon;
 
     FBitmapWithText: TBitmap32;
 
@@ -54,18 +56,9 @@ type
       ATextColor: TColor32;
       ATextBgColor: TColor32;
       ASolidBgDraw: Boolean;
-      AMarkSize: Integer
+      AAnchorDelta: TDoublePoint
     ): IMarkerDrawable;
 
-
-    function GetIconMarker(
-      const ASourceMarker: IBitmapMarker;
-      ASize: Integer
-    ): IMarkerDrawable;
-    function ModifyMarkerWithResize(
-      const ASourceMarker: IBitmapMarker;
-      ASize: Integer
-    ): IBitmapMarker;
   private
     function GetMarker(
       const AConfig: ICaptionDrawConfigStatic;
@@ -74,7 +67,7 @@ type
   public
     constructor Create(
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
-      const AMarkerDefault: IMarkerDrawableChangeable
+      const AMarkerProviderByAppearancePointIcon: IMarkerProviderByAppearancePointIcon
     );
     destructor Destroy; override;
   end;
@@ -85,11 +78,8 @@ uses
   Types,
   SysUtils,
   GR32_Resamplers,
-  t_GeoTypes,
   i_AppearanceOfVectorItem,
   u_Bitmap32ByStaticBitmap,
-  u_BitmapMarker,
-  u_BitmapFunc,
   u_MarkerDrawableByBitmapMarker,
   u_MarkerDrawableByBitmap32Static,
   u_MarkerDrawableComplex,
@@ -99,13 +89,14 @@ uses
 
 constructor TMarkerProviderForVectorItemForMarkPoints.Create(
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
-  const AMarkerDefault: IMarkerDrawableChangeable
+  const AMarkerProviderByAppearancePointIcon: IMarkerProviderByAppearancePointIcon
 );
 begin
   Assert(Assigned(ABitmap32StaticFactory));
+  Assert(Assigned(AMarkerProviderByAppearancePointIcon));
   inherited Create;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
-  FMarkerDefault := AMarkerDefault;
+  FMarkerProviderByAppearancePointIcon := AMarkerProviderByAppearancePointIcon;
 
   FBitmapWithText := TBitmap32.Create;
   FBitmapWithText.Font.Name := 'Tahoma';
@@ -164,7 +155,7 @@ function TMarkerProviderForVectorItemForMarkPoints.GetCaptionMarker(
   AFontSize: Integer;
   ATextColor, ATextBgColor: TColor32;
   ASolidBgDraw: Boolean;
-  AMarkSize: Integer
+  AAnchorDelta: TDoublePoint
 ): IMarkerDrawable;
 var
   VBitmapStatic: IBitmap32Static;
@@ -173,29 +164,8 @@ begin
   Result := nil;
   VBitmapStatic := GetCaptionBitmap(ACaption, AFontSize, ATextColor, ATextBgColor, ASolidBgDraw);
   if VBitmapStatic <> nil then begin
-    VAnchorPoint := DoublePoint(-AMarkSize / 2, AMarkSize / 2 + VBitmapStatic.Size.Y / 2);
+    VAnchorPoint := DoublePoint(-AAnchorDelta.X, -AAnchorDelta.Y + VBitmapStatic.Size.Y / 2);
     Result := TMarkerDrawableByBitmap32Static.Create(VBitmapStatic, VAnchorPoint);
-  end;
-end;
-
-function TMarkerProviderForVectorItemForMarkPoints.GetIconMarker(
-  const ASourceMarker: IBitmapMarker;
-  ASize: Integer
-): IMarkerDrawable;
-var
-  VMarker: IBitmapMarker;
-begin
-  Result := nil;
-  if ASourceMarker = nil then begin
-    if FMarkerDefault <> nil then begin
-      Result := FMarkerDefault.GetStatic;
-    end;
-  end else begin
-    VMarker := ASourceMarker;
-    if ASize <> VMarker.Size.X then begin
-      VMarker := ModifyMarkerWithResize(VMarker, ASize);
-    end;
-    Result := TMarkerDrawableByBitmapMarker.Create(VMarker);
   end;
 end;
 
@@ -204,23 +174,26 @@ function TMarkerProviderForVectorItemForMarkPoints.GetMarker(
   const AItem: IVectorDataItem
 ): IMarkerDrawable;
 var
-  VMarker: IBitmapMarker;
   VAppearanceIcon: IAppearancePointIcon;
   VAppearanceCaption: IAppearancePointCaption;
-  VMarkerIcon: IMarkerDrawable;
+  VMarkerIcon: IBitmapMarker;
   VMarkerCaption: IMarkerDrawable;
-  VMarkerSize: Integer;
+  VMarkerSize: TPoint;
+  VAnchorPoint: TDoublePoint;
+  VAnchorDelta: TDoublePoint;
 begin
   Result := nil;
-  VMarkerSize := 0;
   VMarkerIcon := nil;
   if Supports(AItem.Appearance, IAppearancePointIcon, VAppearanceIcon) then begin
-    VMarkerSize := VAppearanceIcon.MarkerSize;
-    VMarker := nil;
-    if (VAppearanceIcon.Pic <> nil) then begin
-      VMarker := VAppearanceIcon.Pic.GetMarker;
-    end;
-    VMarkerIcon := GetIconMarker(VMarker, VMarkerSize);
+    VMarkerIcon := FMarkerProviderByAppearancePointIcon.GetMarker(VAppearanceIcon);
+  end;
+
+  if Assigned(VMarkerIcon) then begin
+    VMarkerSize := VMarkerIcon.Size;
+    VAnchorPoint := VMarkerIcon.AnchorPoint;
+    VAnchorDelta := DoublePoint(VMarkerSize.X - VAnchorPoint.X, VMarkerSize.Y / 2 - VAnchorPoint.Y);
+  end else begin
+    VAnchorDelta := DoublePoint(0, 0);
   end;
 
   VMarkerCaption := nil;
@@ -233,60 +206,17 @@ begin
           VAppearanceCaption.TextColor,
           VAppearanceCaption.TextBgColor,
           AConfig.UseSolidCaptionBackground,
-          VMarkerSize
+          VAnchorDelta
         );
     end;
   end;
 
   if (VMarkerCaption <> nil) and (VMarkerIcon <> nil) then begin
-    Result := TMarkerDrawableComplex.Create(VMarkerIcon, VMarkerCaption);
+    Result := TMarkerDrawableComplex.Create(TMarkerDrawableByBitmapMarker.Create(VMarkerIcon), VMarkerCaption);
   end else if VMarkerCaption <> nil then begin
     Result := VMarkerCaption;
   end else if VMarkerIcon <> nil then begin
-    Result := VMarkerIcon;
-  end;
-end;
-
-function TMarkerProviderForVectorItemForMarkPoints.ModifyMarkerWithResize(
-  const ASourceMarker: IBitmapMarker;
-  ASize: Integer
-): IBitmapMarker;
-var
-  VSizeSource: TPoint;
-  VSizeTarget: TPoint;
-  VBitmap: TBitmap32ByStaticBitmap;
-  VFixedOnBitmap: TDoublePoint;
-  VScale: Double;
-  VSampler: TCustomResampler;
-  VBitmapStatic: IBitmap32Static;
-begin
-  Result := nil;
-  VSizeSource := ASourceMarker.Size;
-  if VSizeSource.X > 0 then begin
-    VScale := ASize / VSizeSource.X;
-    VSizeTarget.X := Trunc(VSizeSource.X * VScale + 0.5);
-    VSizeTarget.Y := Trunc(VSizeSource.Y * VScale + 0.5);
-    VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
-    try
-      VBitmap.SetSize(VSizeTarget.X, VSizeTarget.Y);
-      VSampler := TLinearResampler.Create;
-      try
-        StretchTransferFull(
-          VBitmap,
-          VBitmap.BoundsRect,
-          ASourceMarker,
-          VSampler,
-          dmOpaque
-        );
-      finally
-        VSampler.Free;
-      end;
-      VBitmapStatic := VBitmap.MakeAndClear;
-    finally
-      VBitmap.Free;
-    end;
-    VFixedOnBitmap := DoublePoint(ASourceMarker.AnchorPoint.X * VScale, ASourceMarker.AnchorPoint.Y * VScale);
-    Result := TBitmapMarker.Create(VBitmapStatic, VFixedOnBitmap);
+    Result := TMarkerDrawableByBitmapMarker.Create(VMarkerIcon);
   end;
 end;
 

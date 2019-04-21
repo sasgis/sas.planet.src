@@ -806,6 +806,9 @@ begin
       FVectorDataFactory,
       FVectorDataItemMainInfoFactory
     );
+
+  FMarkPictureListInternal.LoadList;
+
   VFilesIteratorFactory := TZmpFileNamesIteratorFactory.Create;
   VFilesIterator := VFilesIteratorFactory.CreateIterator(FGlobalConfig.MapsPath.FullPath, '');
   FZmpInfoSet :=
@@ -1154,8 +1157,6 @@ begin
   FGpsTrackRecorderInternal.Load;
 
   if (not ModuleIsLib) then begin
-    FMarkPictureListInternal.LoadList;
-
     VIniFile := TMeminiFile.Create(VMapsPath + 'Favorites.ini');
     try
       VConfig := TConfigDataProviderByIniFile.CreateWithOwn(VIniFile);

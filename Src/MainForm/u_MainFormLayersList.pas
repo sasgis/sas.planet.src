@@ -143,8 +143,10 @@ uses
   t_GeoTypes,
   i_Bitmap32Static,
   i_MarkerDrawable,
+  i_BitmapMarker,
   i_StringListChangeable,
   i_LocalCoordConverterChangeable,
+  i_MarkerProviderByAppearancePointIcon,
   i_MarkerProviderForVectorItem,
   i_InterfaceListSimple,
   i_VectorItemSubsetChangeable,
@@ -191,8 +193,10 @@ uses
   u_MarkerDrawableSimpleArrow,
   u_MarkerDrawableSimpleCross,
   u_MarkerDrawableCenterScale,
+  u_BitmapMarker,
   u_MarkerProviderForVectorItemForMarkPoints,
   u_MarkerProviderForVectorItemWithCache,
+  u_MarkerProviderByAppearancePointIcon,
   u_ActiveMapsLicenseList,
   u_TiledMapLayer,
   u_MapLayerGPSMarker,
@@ -287,12 +291,14 @@ constructor TMainFormLayersList.Create(
 );
 var
   VBitmap: IBitmap32Static;
+  VBitmapMarker: IBitmapMarker;
   VMarkerChangeable: IMarkerDrawableChangeable;
   VMarkerWithDirectionChangeable: IMarkerDrawableWithDirectionChangeable;
   VLicensList: IStringListChangeable;
   VMiniMapConverterChangeable: ILocalCoordConverterChangeable;
   VBitmapChangeable: IBitmapChangeable;
   VMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
+  VMarkerIconProvider: IMarkerProviderByAppearancePointIcon;
   VLayersList: IInterfaceListSimple;
   VVectorItems: IVectorItemSubsetChangeable;
   VPerfList: IInternalPerformanceCounterList;
@@ -404,20 +410,11 @@ begin
       AContentTypeManager,
       nil
     );
-  if VBitmap <> nil then begin
-    VMarkerChangeable :=
-      TMarkerDrawableChangeableFaked.Create(
-        TMarkerDrawableByBitmap32Static.Create(
-          VBitmap, DoublePoint(VBitmap.Size.X / 2, VBitmap.Size.Y / 2)
-        )
-      );
-  end else begin
-    VMarkerChangeable :=
-      TMarkerDrawableChangeableSimple.Create(
-        TMarkerDrawableSimpleSquare,
-        ALayersConfig.KmlLayerConfig.PointMarkerConfig
-      );
-  end;
+  VBitmapMarker :=
+    TBitmapMarker.Create(
+      VBitmap,
+      DoublePoint(VBitmap.Size.X / 2, VBitmap.Size.Y / 2)
+    );
 
   VVectorTileProvider :=
     TVectorTileProviderChangeableForVectorLayers.Create(
@@ -455,12 +452,20 @@ begin
       VPerfList.CreateAndAddNewCounter('FindItems'),
       6
     );
+  VMarkerIconProvider :=
+    TMarkerProviderByAppearancePointIcon.Create(
+      VPerfList.CreateAndAddNewSubList('VectorItemIcons'),
+      AHashFunction,
+      ABitmap32StaticFactory,
+      nil
+    );
   VVectorRenderer :=
     TVectorTileRendererChangeableForVectorMaps.Create(
       ALayersConfig.KmlLayerConfig.DrawConfig,
-      VMarkerChangeable,
+      VBitmapMarker,
       ABitmap32StaticFactory,
-      AProjectedGeometryProvider
+      AProjectedGeometryProvider,
+      VMarkerIconProvider
     );
 
   VTileMatrix :=
@@ -568,7 +573,7 @@ begin
     TMarkerProviderForVectorItemWithCache.Create(
       VPerfList.CreateAndAddNewSubList('Marker'),
       AHashFunction,
-      TMarkerProviderForVectorItemForMarkPoints.Create(ABitmap32StaticFactory, VMarkerChangeable)
+      TMarkerProviderForVectorItemForMarkPoints.Create(ABitmap32StaticFactory, VMarkerIconProvider)
     );
 
   VVectorRenderer :=
@@ -605,13 +610,11 @@ begin
       AContentTypeManager,
       nil
     );
-  VMarkerChangeable := nil;
-  if VBitmap <> nil then begin
-    VMarkerChangeable :=
-      TMarkerDrawableChangeableFaked.Create(
-        TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(8, 8))
-      );
-  end;
+  VBitmapMarker :=
+    TBitmapMarker.Create(
+      VBitmap,
+      DoublePoint(8, 8)
+    );
   VVectorOversizeRect := Rect(10, 10, 10, 10);
   VVectorTileProvider :=
     TVectorTileProviderChangeableForLastSearchResult.Create(
@@ -645,9 +648,10 @@ begin
   VVectorRenderer :=
     TVectorTileRendererChangeableForVectorMaps.Create(
       ALayersConfig.KmlLayerConfig.DrawConfig,
-      VMarkerChangeable,
+      VBitmapMarker,
       ABitmap32StaticFactory,
-      AProjectedGeometryProvider
+      AProjectedGeometryProvider,
+      VMarkerIconProvider
     );
 
   VTileMatrix :=

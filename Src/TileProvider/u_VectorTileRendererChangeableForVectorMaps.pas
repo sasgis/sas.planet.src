@@ -27,7 +27,8 @@ uses
   i_VectorItemDrawConfig,
   i_Bitmap32BufferFactory,
   i_GeometryProjectedProvider,
-  i_MarkerDrawable,
+  i_MarkerProviderByAppearancePointIcon,
+  i_BitmapMarker,
   i_ListenerNotifierLinksList,
   i_VectorTileRenderer,
   i_VectorTileRendererChangeable,
@@ -38,8 +39,9 @@ type
   private
     FConfig: IVectorItemDrawConfig;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
-    FPointMarker: IMarkerDrawableChangeable;
+    FPointMarker: IBitmapMarker;
     FProjectedProvider: IGeometryProjectedProvider;
+    FMarkerIconProvider: IMarkerProviderByAppearancePointIcon;
 
     FLinksList: IListenerNotifierLinksList;
     FResult: IVectorTileRenderer;
@@ -49,9 +51,10 @@ type
   public
     constructor Create(
       const AConfig: IVectorItemDrawConfig;
-      const APointMarker: IMarkerDrawableChangeable;
+      const APointMarker: IBitmapMarker;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
-      const AProjectedProvider: IGeometryProjectedProvider
+      const AProjectedProvider: IGeometryProjectedProvider;
+      const AMarkerIconProvider: IMarkerProviderByAppearancePointIcon
     );
   end;
 
@@ -66,20 +69,23 @@ uses
 
 constructor TVectorTileRendererChangeableForVectorMaps.Create(
   const AConfig: IVectorItemDrawConfig;
-  const APointMarker: IMarkerDrawableChangeable;
+  const APointMarker: IBitmapMarker;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
-  const AProjectedProvider: IGeometryProjectedProvider
+  const AProjectedProvider: IGeometryProjectedProvider;
+  const AMarkerIconProvider: IMarkerProviderByAppearancePointIcon
 );
 begin
   Assert(Assigned(AConfig));
   Assert(Assigned(APointMarker));
   Assert(Assigned(ABitmap32StaticFactory));
   Assert(Assigned(AProjectedProvider));
+  Assert(Assigned(AMarkerIconProvider));
   inherited Create;
   FConfig := AConfig;
   FPointMarker := APointMarker;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FProjectedProvider := AProjectedProvider;
+  FMarkerIconProvider := AMarkerIconProvider;
 
   FLinksList := TListenerNotifierLinksList.Create;
 
@@ -88,10 +94,6 @@ begin
     FConfig.ChangeNotifier
   );
 
-  FLinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FPointMarker.ChangeNotifier
-  );
   FLinksList.ActivateLinks;
   OnConfigChange;
 end;
@@ -117,9 +119,10 @@ begin
     TVectorTileRenderer.Create(
       VConfig.MainColor,
       VConfig.ShadowColor,
-      FPointMarker.GetStatic,
+      FPointMarker,
       FBitmap32StaticFactory,
-      FProjectedProvider
+      FProjectedProvider,
+      FMarkerIconProvider
     );
 
   CS.BeginWrite;

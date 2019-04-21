@@ -226,7 +226,6 @@ uses
   i_BinaryData,
   i_StringListStatic,
   i_BitmapTileSaveLoad,
-  i_ContentTypeInfo,
   i_Appearance,
   i_TileStorageAbilities,
   u_BinaryDataListStatic,
