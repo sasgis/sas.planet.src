@@ -24,6 +24,7 @@ interface
 
 uses
   t_GeoTypes,
+  i_AppearanceHelper,
   i_VectorItemTree;
 
 type
@@ -34,6 +35,9 @@ type
     // result list
     function GetVectorDataItemsResult: IVectorItemTree;
     property VectorDataItemsResult: IVectorItemTree read GetVectorDataItemsResult;
+
+    function GetAppearanceHelper: IAppearanceHelper;
+    property AppearanceHelper: IAppearanceHelper read GetAppearanceHelper;
 
     // open and close multigeometry object
     procedure OpenMultiGeometry;

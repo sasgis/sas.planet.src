@@ -93,6 +93,7 @@ type
   private
     { IXmlVectorObjects }
     function GetVectorDataItemsResult: IVectorItemTree;
+    function GetAppearanceHelper: IAppearanceHelper;
 
     procedure OpenMultiGeometry;
     procedure CloseMultiGeometry;
@@ -401,6 +402,11 @@ begin
   inherited;
 end;
 
+function TXmlVectorObjects.GetAppearanceHelper: IAppearanceHelper;
+begin
+  Result := FAppearanceHelper;
+end;
+
 function TXmlVectorObjects.GetVectorDataItemsResult: IVectorItemTree;
 var
   VRootFolder: PFolderRec;
@@ -452,6 +458,9 @@ begin
     raise EXmlVectorObjectsMarkInMark.Create('');
   end;
   FInMarkObject := True;
+  if Assigned(FAppearanceHelper) then begin
+    FAppearanceHelper.Reset;
+  end;
 end;
 
 procedure TXmlVectorObjects.OpenMultiGeometry;
@@ -512,13 +521,7 @@ begin
   AMarkName := '';
   AMarkDesc := '';
 
-
-  if Assigned(FAppearanceHelper) then begin
-    VAllowImportAppearance := True;
-    FAppearanceHelper.Reset;
-  end else begin
-    VAllowImportAppearance := False;
-  end;
+  VAllowImportAppearance := Assigned(FAppearanceHelper);
 
   Assert(Assigned(AData));
 

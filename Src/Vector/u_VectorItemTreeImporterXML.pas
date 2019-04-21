@@ -129,6 +129,7 @@ type
 implementation
 
 uses
+  StrUtils,
   i_AppearanceHelper,
   u_AppearanceHelper,
   u_XmlVectorObjects;
@@ -406,8 +407,11 @@ const
   c_GPX_Skipped: set of Tvsagps_GPX_main_tag = [
     gpx_metadata
   ];
+const
+  cFilesFolderName = 'files/';
 var
   VWptPoint: TDoublePoint;
+  VIconName: string;
 begin
   // if aborted
   if pPX_State^.aborted_by_user then begin
@@ -595,6 +599,18 @@ begin
             if (pPX_Result^.prev_data <> nil) then begin
               VSAGPS_KML_ShiftParam(pPX_Result, kml_scale_);
             end;
+          end;
+        end;
+      end;
+      kml_Icon: begin
+        // имя файла иконки
+        case pPX_State^.tag_disposition of
+          xtd_Close: begin
+            VIconName := SafeSetStringP(pPX_Result^.kml_data.fParamsStrs[kml_href]);
+            if StartsStr(cFilesFolderName, VIconName)  then begin
+              VIconName := RightStr(VIconName, Length(VIconName) - Length(cFilesFolderName));
+            end;
+            AXmlVectorObjects.AppearanceHelper.Icon.SetByName(VIconName);
           end;
         end;
       end;
