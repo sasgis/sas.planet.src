@@ -24,21 +24,20 @@ interface
 
 uses
   Types,
-  SysUtils,
   GR32,
   t_GeoTypes,
+  i_NotifierOperation,
+  i_Appearance,
+  i_Projection,
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
+  i_GeometryLonLat,
+  i_GeometryProjected,
+  i_GeometryProjectedProvider,
   i_VectorDataItemSimple,
   i_VectorItemSubset,
-  i_Appearance,
-  i_MarkerProviderByAppearancePointIcon,
-  i_GeometryLonLat,
-  i_GeometryProjectedProvider,
-  i_NotifierOperation,
   i_BitmapMarker,
-  i_GeometryProjected,
-  i_Projection,
+  i_MarkerProviderByAppearancePointIcon,
   i_VectorTileRenderer,
   u_BaseInterfacedObject;
 
@@ -48,10 +47,53 @@ type
     FColorMain: TColor32;
     FColorBG: TColor32;
     FPointMarker: IBitmapMarker;
-    FMarkerIconProvider: IMarkerProviderByAppearancePointIcon;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
+    FMarkerIconProvider: IMarkerProviderByAppearancePointIcon;
     FProjectedCache: IGeometryProjectedProvider;
 
+    function DrawSubset(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
+      const AMarksSubset: IVectorItemSubset;
+      ATargetBmp: TCustomBitmap32;
+      const AProjection: IProjection;
+      const AMapRect: TRect;
+      var AFixedPointArray: TArrayOfFixedPoint
+    ): Boolean;
+    function DrawPoint(
+      var ABitmapInited: Boolean;
+      ATargetBmp: TCustomBitmap32;
+      const AProjection: IProjection;
+      const AMapRect: TRect;
+      const AGeometry: IGeometryLonLatPoint;
+      const APoint: IVectorDataItem
+    ): Boolean;
+    function DrawPath(
+      var ABitmapInited: Boolean;
+      ATargetBmp: TCustomBitmap32;
+      const AProjection: IProjection;
+      const AMapRect: TRect;
+      const AAppearance: IAppearance;
+      const ALine: IGeometryLonLatLine;
+      var AFixedPointArray: TArrayOfFixedPoint
+    ): Boolean;
+    function DrawPoly(
+      var ABitmapInited: Boolean;
+      ATargetBmp: TCustomBitmap32;
+      const AProjection: IProjection;
+      const AMapRect: TRect;
+      const AAppearance: IAppearance;
+      const APoly: IGeometryLonLatPolygon;
+      var AFixedPointArray: TArrayOfFixedPoint
+    ): Boolean;
+    function DrawSinglePolygon(
+      var ABitmapInited: Boolean;
+      ATargetBmp: TCustomBitmap32;
+      const AMapRect: TRect;
+      const AAppearance: IAppearance;
+      const APoly: IGeometryProjectedSinglePolygon;
+      var AFixedPointArray: TArrayOfFixedPoint
+    ): Boolean;
     procedure InitBitmap(
       ATargetBmp: TCustomBitmap32;
       const ASize: TPoint
@@ -64,50 +106,6 @@ type
       ABitmap: TCustomBitmap32;
       const AMarker: IBitmapMarker;
       const APosition: TDoublePoint
-    ): Boolean;
-
-    function DrawPoint(
-      var ABitmapInited: Boolean;
-      ATargetBmp: TCustomBitmap32;
-      const APoint: IGeometryLonLatPoint;
-      const AProjection: IProjection;
-      const AMapRect: TRect;
-      const AAppearance: IAppearance
-    ): Boolean;
-    function DrawPath(
-      var ABitmapInited: Boolean;
-      ATargetBmp: TCustomBitmap32;
-      const ALine: IGeometryLonLatLine;
-      const AProjection: IProjection;
-      const AMapRect: TRect;
-      const AAppearance: IAppearance;
-      var AFixedPointArray: TArrayOfFixedPoint
-    ): Boolean;
-    function DrawSinglePolygon(
-      var ABitmapInited: Boolean;
-      ATargetBmp: TCustomBitmap32;
-      const APoly: IGeometryProjectedSinglePolygon;
-      const AMapRect: TRect;
-      const AAppearance: IAppearance;
-      var AFixedPointArray: TArrayOfFixedPoint
-    ): Boolean;
-    function DrawPoly(
-      var ABitmapInited: Boolean;
-      ATargetBmp: TCustomBitmap32;
-      const APoly: IGeometryLonLatPolygon;
-      const AProjection: IProjection;
-      const AMapRect: TRect;
-      const AAppearance: IAppearance;
-      var AFixedPointArray: TArrayOfFixedPoint
-    ): Boolean;
-    function DrawWikiElement(
-      var ABitmapInited: Boolean;
-      ATargetBmp: TCustomBitmap32;
-      const AData: IGeometryLonLat;
-      const AProjection: IProjection;
-      const AMapRect: TRect;
-      const AAppearance: IAppearance;
-      var AFixedPointArray: TArrayOfFixedPoint
     ): Boolean;
   private
     function RenderVectorTile(
@@ -131,7 +129,9 @@ type
 implementation
 
 uses
+  ActiveX,
   Math,
+  SysUtils,
   GR32_Polygons,
   i_AppearanceOfVectorItem,
   u_Bitmap32ByStaticBitmap,
@@ -163,13 +163,53 @@ begin
   FMarkerIconProvider := AMarkerIconProvider;
 end;
 
+function TVectorTileRenderer.DrawPoint(
+  var ABitmapInited: Boolean;
+  ATargetBmp: TCustomBitmap32;
+  const AProjection: IProjection;
+  const AMapRect: TRect;
+  const AGeometry: IGeometryLonLatPoint;
+  const APoint: IVectorDataItem
+): Boolean;
+var
+  VLonLat: TDoublePoint;
+  VMapPoint: TDoublePoint;
+  VLocalPoint: TDoublePoint;
+  VRect: TRect;
+  VDrawMarker: IBitmapMarker;
+  VAppearanceIcon: IAppearancePointIcon;
+begin
+  Result := False;
+  VLonLat := AGeometry.Point;
+  AProjection.ProjectionType.ValidateLonLatPos(VLonLat);
+  VMapPoint := AProjection.LonLat2PixelPosFloat(VLonLat);
+  VLocalPoint.X := VMapPoint.X - AMapRect.Left;
+  VLocalPoint.Y := VMapPoint.Y - AMapRect.Top;
+  if Supports(APoint.Appearance, IAppearancePointIcon, VAppearanceIcon) then begin
+    VDrawMarker := FMarkerIconProvider.GetMarker(VAppearanceIcon);
+  end;
+  if not Assigned(VDrawMarker) then begin
+    VDrawMarker := FPointMarker;
+  end;
+
+  VRect := GetMarkerBoundsForPosition(VDrawMarker, VLocalPoint);
+  if Types.IntersectRect(VRect, Rect(0, 0, AMapRect.Right - AMapRect.Left, AMapRect.Bottom - AMapRect.Top), VRect) then begin
+    if not ABitmapInited then begin
+      InitBitmap(ATargetBmp, Types.Point(AMapRect.Right - AMapRect.Left, AMapRect.Bottom - AMapRect.Top));
+      ABitmapInited := True;
+    end;
+
+    Result := DrawMarkerToBitmap(ATargetBmp, VDrawMarker, VLocalPoint);
+  end;
+end;
+
 function TVectorTileRenderer.DrawPath(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
-  const ALine: IGeometryLonLatLine;
   const AProjection: IProjection;
   const AMapRect: TRect;
   const AAppearance: IAppearance;
+  const ALine: IGeometryLonLatLine;
   var AFixedPointArray: TArrayOfFixedPoint
 ): Boolean;
 var
@@ -234,134 +274,12 @@ begin
   end;
 end;
 
-function TVectorTileRenderer.GetMarkerBoundsForPosition(
-  const AMarker: IBitmapMarker;
-  const APosition: TDoublePoint
-): TRect;
-var
-  VTargetPoint: TPoint;
-  VTargetPointFloat: TDoublePoint;
-  VSourceSize: TPoint;
-begin
-  VTargetPointFloat :=
-    DoublePoint(
-      APosition.X - AMarker.AnchorPoint.X,
-      APosition.Y - AMarker.AnchorPoint.Y
-    );
-  VSourceSize := AMarker.Size;
-  VTargetPoint := PointFromDoublePoint(VTargetPointFloat, prToTopLeft);
-
-  Result.TopLeft := VTargetPoint;
-  Result.Right := Result.Left + VSourceSize.X;
-  Result.Bottom := Result.Top + VSourceSize.Y;
-end;
-
-function TVectorTileRenderer.DrawMarkerToBitmap(
-  ABitmap: TCustomBitmap32;
-  const AMarker: IBitmapMarker;
-  const APosition: TDoublePoint
-): Boolean;
-var
-  VTargetPoint: TPoint;
-  VTargetRect: TRect;
-begin
-  VTargetRect := GetMarkerBoundsForPosition(AMarker, APosition);
-  VTargetPoint := VTargetRect.TopLeft;
-  Types.IntersectRect(VTargetRect, ABitmap.ClipRect, VTargetRect);
-  if Types.IsRectEmpty(VTargetRect) then begin
-    Result := False;
-    Exit;
-  end;
-
-  BlockTransferFull(
-    ABitmap,
-    VTargetPoint.X, VTargetPoint.Y,
-    AMarker,
-    dmBlend,
-    ABitmap.CombineMode
-  );
-  Result := True;
-end;
-
-function TVectorTileRenderer.DrawPoint(
-  var ABitmapInited: Boolean;
-  ATargetBmp: TCustomBitmap32;
-  const APoint: IGeometryLonLatPoint;
-  const AProjection: IProjection;
-  const AMapRect: TRect;
-  const AAppearance: IAppearance
-): Boolean;
-var
-  VPointLL: TDoublePoint;
-  VMapPixelPos: TDoublePoint;
-  VLocalPos: TDoublePoint;
-  VRect: TRect;
-  VDrawMarker: IBitmapMarker;
-  VAppearanceIcon: IAppearancePointIcon;
-begin
-  Result := False;
-  VPointLL := APoint.Point;
-  AProjection.ProjectionType.ValidateLonLatPos(VPointLL);
-  VMapPixelPos := AProjection.LonLat2PixelPosFloat(VPointLL);
-  VLocalPos.X := VMapPixelPos.X - AMapRect.Left;
-  VLocalPos.Y := VMapPixelPos.Y - AMapRect.Top;
-  if Supports(AAppearance, IAppearancePointIcon, VAppearanceIcon) then begin
-    VDrawMarker := FMarkerIconProvider.GetMarker(VAppearanceIcon);
-  end;
-  if not Assigned(VDrawMarker) then begin
-    VDrawMarker := FPointMarker;
-  end;
-
-  VRect := GetMarkerBoundsForPosition(VDrawMarker, VLocalPos);
-  if Types.IntersectRect(VRect, Rect(0, 0, AMapRect.Right - AMapRect.Left, AMapRect.Bottom - AMapRect.Top), VRect) then begin
-    if not ABitmapInited then begin
-      InitBitmap(ATargetBmp, Types.Point(AMapRect.Right - AMapRect.Left, AMapRect.Bottom - AMapRect.Top));
-      ABitmapInited := True;
-    end;
-
-    Result := DrawMarkerToBitmap(ATargetBmp, VDrawMarker, VLocalPos);
-  end;
-end;
-
-function TVectorTileRenderer.DrawPoly(
-  var ABitmapInited: Boolean;
-  ATargetBmp: TCustomBitmap32;
-  const APoly: IGeometryLonLatPolygon;
-  const AProjection: IProjection;
-  const AMapRect: TRect;
-  const AAppearance: IAppearance;
-  var AFixedPointArray: TArrayOfFixedPoint
-): Boolean;
-var
-  VProjected: IGeometryProjectedPolygon;
-  VProjectedSingle: IGeometryProjectedSinglePolygon;
-  VProjectedMulti: IGeometryProjectedMultiPolygon;
-  i: Integer;
-begin
-  Result := False;
-  VProjected := FProjectedCache.GetProjectedPolygon(AProjection, APoly);
-  if Assigned(VProjected) then begin
-    if Supports(VProjected, IGeometryProjectedSinglePolygon, VProjectedSingle) then begin
-      Result := DrawSinglePolygon(ABitmapInited, ATargetBmp, VProjectedSingle, AMapRect, AAppearance, AFixedPointArray);
-    end else if Supports(VProjected, IGeometryProjectedMultiPolygon, VProjectedMulti) then begin
-      for i := 0 to VProjectedMulti.Count - 1 do begin
-        VProjectedSingle := VProjectedMulti.Item[i];
-        if DrawSinglePolygon(ABitmapInited, ATargetBmp, VProjectedSingle, AMapRect, AAppearance, AFixedPointArray) then begin
-          Result := True;
-        end;
-      end;
-    end else begin
-      Assert(False);
-    end;
-  end;
-end;
-
 function TVectorTileRenderer.DrawSinglePolygon(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
-  const APoly: IGeometryProjectedSinglePolygon;
   const AMapRect: TRect;
   const AAppearance: IAppearance;
+  const APoly: IGeometryProjectedSinglePolygon;
   var AFixedPointArray: TArrayOfFixedPoint
 ): Boolean;
 var
@@ -428,28 +346,117 @@ begin
   end;
 end;
 
-function TVectorTileRenderer.DrawWikiElement(
+function TVectorTileRenderer.DrawPoly(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
-  const AData: IGeometryLonLat;
   const AProjection: IProjection;
   const AMapRect: TRect;
   const AAppearance: IAppearance;
+  const APoly: IGeometryLonLatPolygon;
   var AFixedPointArray: TArrayOfFixedPoint
 ): Boolean;
 var
-  VItemPoint: IGeometryLonLatPoint;
-  VItemLine: IGeometryLonLatLine;
-  VItemPoly: IGeometryLonLatPolygon;
+  VProjected: IGeometryProjectedPolygon;
+  VProjectedSingle: IGeometryProjectedSinglePolygon;
+  VProjectedMulti: IGeometryProjectedMultiPolygon;
+  i: Integer;
 begin
-  if Supports(AData, IGeometryLonLatPoint, VItemPoint) then begin
-    Result := DrawPoint(ABitmapInited, ATargetBmp, VItemPoint, AProjection, AMapRect, AAppearance);
-  end else if Supports(AData, IGeometryLonLatLine, VItemLine) then begin
-    Result := DrawPath(ABitmapInited, ATargetBmp, VItemLine, AProjection, AMapRect, AAppearance, AFixedPointArray);
-  end else if Supports(AData, IGeometryLonLatPolygon, VItemPoly) then begin
-    Result := DrawPoly(ABitmapInited, ATargetBmp, VItemPoly, AProjection, AMapRect, AAppearance, AFixedPointArray);
-  end else begin
-    Result := False;
+  Result := False;
+  VProjected := FProjectedCache.GetProjectedPolygon(AProjection, APoly);
+  if Assigned(VProjected) then begin
+    if Supports(VProjected, IGeometryProjectedSinglePolygon, VProjectedSingle) then begin
+      Result := DrawSinglePolygon(ABitmapInited, ATargetBmp, AMapRect, AAppearance, VProjectedSingle, AFixedPointArray);
+    end else if Supports(VProjected, IGeometryProjectedMultiPolygon, VProjectedMulti) then begin
+      for i := 0 to VProjectedMulti.Count - 1 do begin
+        VProjectedSingle := VProjectedMulti.Item[i];
+        if DrawSinglePolygon(ABitmapInited, ATargetBmp, AMapRect, AAppearance, VProjectedSingle, AFixedPointArray) then begin
+          Result := True;
+        end;
+      end;
+    end else begin
+      Assert(False);
+    end;
+  end;
+end;
+
+function TVectorTileRenderer.DrawSubset(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
+  const AMarksSubset: IVectorItemSubset;
+  ATargetBmp: TCustomBitmap32;
+  const AProjection: IProjection;
+  const AMapRect: TRect;
+  var AFixedPointArray: TArrayOfFixedPoint
+): Boolean;
+var
+  VEnumMarks: IEnumUnknown;
+  VMark: IVectorDataItem;
+  i: Cardinal;
+  VPoint: IGeometryLonLatPoint;
+  VLine: IGeometryLonLatLine;
+  VPoly: IGeometryLonLatPolygon;
+  VBitmapInited: Boolean;
+begin
+  Result := False;
+  VBitmapInited := False;
+  VEnumMarks := AMarksSubset.GetEnum;
+  while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
+    if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+      Break;
+    end;
+    if Supports(VMark.Geometry, IGeometryLonLatPolygon, VPoly) then begin
+      if DrawPoly(VBitmapInited, ATargetBmp, AProjection, AMapRect, VMark.Appearance, VPoly, AFixedPointArray) then begin
+        Result := True;
+      end;
+    end;
+  end;
+  VEnumMarks.Reset;
+  while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
+    if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+      Break;
+    end;
+    if Supports(VMark.Geometry, IGeometryLonLatLine, VLine) then begin
+      if DrawPath(VBitmapInited, ATargetBmp, AProjection, AMapRect, VMark.Appearance, VLine, AFixedPointArray) then begin
+        Result := True;
+      end;
+    end;
+  end;
+  VEnumMarks.Reset;
+  while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
+    if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+      Break;
+    end;
+    if Supports(VMark.Geometry, IGeometryLonLatPoint, VPoint) then begin
+      if DrawPoint(VBitmapInited, ATargetBmp, AProjection, AMapRect, VPoint, VMark) then begin
+        Result := True;
+      end;
+    end;
+  end;
+end;
+
+function TVectorTileRenderer.RenderVectorTile(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
+  const AProjection: IProjection;
+  const ATile: TPoint;
+  const ASource: IVectorItemSubset
+): IBitmap32Static;
+var
+  VMapRect: TRect;
+  VBitmap: TBitmap32ByStaticBitmap;
+  VFixedPointArray: TArrayOfFixedPoint;
+begin
+  Result := nil;
+  if Assigned(ASource) and not ASource.IsEmpty then begin
+    VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
+    try
+      VMapRect := AProjection.TilePos2PixelRect(ATile);
+      if DrawSubset(AOperationID, ACancelNotifier, ASource, VBitmap, AProjection, VMapRect, VFixedPointArray) then begin
+        Result := VBitmap.MakeAndClear;
+      end;
+    finally
+      VBitmap.Free;
+    end;
   end;
 end;
 
@@ -463,49 +470,53 @@ begin
   ATargetBmp.CombineMode := cmMerge;
 end;
 
-function TVectorTileRenderer.RenderVectorTile(
-  AOperationID: Integer;
-  const ACancelNotifier: INotifierOperation;
-  const AProjection: IProjection;
-  const ATile: TPoint;
-  const ASource: IVectorItemSubset
-): IBitmap32Static;
+function TVectorTileRenderer.GetMarkerBoundsForPosition(
+  const AMarker: IBitmapMarker;
+  const APosition: TDoublePoint
+): TRect;
 var
-  i: Integer;
-  VItem: IVectorDataItem;
-  VMapPixelRect: TRect;
-  VBitmapInited: Boolean;
-  VBitmap: TBitmap32ByStaticBitmap;
-  VIsEmpty: Boolean;
-  VFixedPointArray: TArrayOfFixedPoint;
+  VTargetPoint: TPoint;
+  VTargetPointFloat: TDoublePoint;
+  VSourceSize: TPoint;
 begin
-  Result := nil;
-  if not AProjection.CheckTilePosStrict(ATile) then begin
+  VTargetPointFloat :=
+    DoublePoint(
+      APosition.X - AMarker.AnchorPoint.X,
+      APosition.Y - AMarker.AnchorPoint.Y
+    );
+  VSourceSize := AMarker.Size;
+  VTargetPoint := PointFromDoublePoint(VTargetPointFloat, prToTopLeft);
+
+  Result.TopLeft := VTargetPoint;
+  Result.Right := Result.Left + VSourceSize.X;
+  Result.Bottom := Result.Top + VSourceSize.Y;
+end;
+
+function TVectorTileRenderer.DrawMarkerToBitmap(
+  ABitmap: TCustomBitmap32;
+  const AMarker: IBitmapMarker;
+  const APosition: TDoublePoint
+): Boolean;
+var
+  VTargetPoint: TPoint;
+  VTargetRect: TRect;
+begin
+  VTargetRect := GetMarkerBoundsForPosition(AMarker, APosition);
+  VTargetPoint := VTargetRect.TopLeft;
+  Types.IntersectRect(VTargetRect, ABitmap.ClipRect, VTargetRect);
+  if Types.IsRectEmpty(VTargetRect) then begin
+    Result := False;
     Exit;
   end;
-  VMapPixelRect := AProjection.TilePos2PixelRect(ATile);
 
-  VBitmapInited := False;
-  if (ASource <> nil) and (ASource.Count > 0) then begin
-    VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
-    try
-      VIsEmpty := True;
-      for i := 0 to ASource.Count - 1 do begin
-        VItem := ASource.Items[i];
-        if DrawWikiElement(VBitmapInited, VBitmap, VItem.Geometry, AProjection, VMapPixelRect, VItem.Appearance, VFixedPointArray) then begin
-          VIsEmpty := False;
-        end;
-        if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-          Break;
-        end;
-      end;
-      if not VIsEmpty then begin
-        Result := VBitmap.MakeAndClear;
-      end;
-    finally
-      VBitmap.Free;
-    end;
-  end;
+  BlockTransferFull(
+    ABitmap,
+    VTargetPoint.X, VTargetPoint.Y,
+    AMarker,
+    dmBlend,
+    ABitmap.CombineMode
+  );
+  Result := True;
 end;
 
 end.

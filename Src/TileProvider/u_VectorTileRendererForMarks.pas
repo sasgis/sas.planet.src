@@ -23,21 +23,21 @@ unit u_VectorTileRendererForMarks;
 interface
 
 uses
-  GR32,
   Types,
+  GR32,
   t_GeoTypes,
-  i_MarkerProviderForVectorItem,
-  i_GeometryLonLat,
-  i_GeometryProjectedProvider,
+  i_NotifierOperation,
   i_Appearance,
   i_Projection,
-  i_NotifierOperation,
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
-  i_MarksDrawConfig,
-  i_VectorDataItemSimple,
+  i_GeometryLonLat,
   i_GeometryProjected,
+  i_GeometryProjectedProvider,
+  i_VectorDataItemSimple,
   i_VectorItemSubset,
+  i_MarksDrawConfig,
+  i_MarkerProviderForVectorItem,
   i_VectorTileRenderer,
   u_BaseInterfacedObject;
 
@@ -58,6 +58,14 @@ type
       const AMapRect: TRect;
       var AFixedPointArray: TArrayOfFixedPoint
     ): Boolean;
+    function DrawPoint(
+      var ABitmapInited: Boolean;
+      ATargetBmp: TCustomBitmap32;
+      const AProjection: IProjection;
+      const AMapRect: TRect;
+      const AGeometry: IGeometryLonLatPoint;
+      const APoint: IVectorDataItem
+    ): Boolean;
     function DrawPath(
       var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
@@ -65,14 +73,6 @@ type
       const AMapRect: TRect;
       const AAppearance: IAppearance;
       const ALine: IGeometryLonLatLine;
-      var AFixedPointArray: TArrayOfFixedPoint
-    ): Boolean;
-    function DrawSinglePolygon(
-      var ABitmapInited: Boolean;
-      ATargetBmp: TCustomBitmap32;
-      const AMapRect: TRect;
-      const AAppearance: IAppearance;
-      const APoly: IGeometryProjectedSinglePolygon;
       var AFixedPointArray: TArrayOfFixedPoint
     ): Boolean;
     function DrawPoly(
@@ -84,14 +84,15 @@ type
       const APoly: IGeometryLonLatPolygon;
       var AFixedPointArray: TArrayOfFixedPoint
     ): Boolean;
-    function DrawPoint(
+    function DrawSinglePolygon(
       var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
-      const AProjection: IProjection;
       const AMapRect: TRect;
-      const AGeometry: IGeometryLonLatPoint;
-      const APoint: IVectorDataItem
+      const AAppearance: IAppearance;
+      const APoly: IGeometryProjectedSinglePolygon;
+      var AFixedPointArray: TArrayOfFixedPoint
     ): Boolean;
+
     procedure InitBitmap(
       ATargetBmp: TCustomBitmap32;
       const ASize: TPoint
@@ -117,6 +118,7 @@ implementation
 
 uses
   ActiveX,
+  Math,
   SysUtils,
   GR32_Polygons,
   i_MarkerDrawable,
@@ -124,7 +126,7 @@ uses
   u_Bitmap32ByStaticBitmap,
   u_GeometryFunc;
 
-{ TMapMarksBitmapLayerProviderByMarksSubset }
+{ TVectorTileRendererForMarks }
 
 constructor TVectorTileRendererForMarks.Create(
   const ACaptionDrawConfigStatic: ICaptionDrawConfigStatic;
@@ -142,6 +144,36 @@ begin
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FProjectedCache := AProjectedCache;
   FMarkerProviderForVectorItem := AMarkerProviderForVectorItem;
+end;
+
+function TVectorTileRendererForMarks.DrawPoint(
+  var ABitmapInited: Boolean;
+  ATargetBmp: TCustomBitmap32;
+  const AProjection: IProjection;
+  const AMapRect: TRect;
+  const AGeometry: IGeometryLonLatPoint;
+  const APoint: IVectorDataItem
+): Boolean;
+var
+  VLocalPoint: TDoublePoint;
+  VMapPoint: TDoublePoint;
+  VLonLat: TDoublePoint;
+  VMarker: IMarkerDrawable;
+begin
+  Result := False;
+  VMarker := FMarkerProviderForVectorItem.GetMarker(FCaptionDrawConfigStatic, APoint);
+  if VMarker <> nil then begin
+    VLonLat := AGeometry.Point;
+    AProjection.ProjectionType.ValidateLonLatPos(VLonLat);
+    VMapPoint := AProjection.LonLat2PixelPosFloat(VLonLat);
+    VLocalPoint.X := VMapPoint.X - AMapRect.Left;
+    VLocalPoint.Y := VMapPoint.Y - AMapRect.Top;
+    if not ABitmapInited then begin
+      InitBitmap(ATargetBmp, Types.Point(AMapRect.Right - AMapRect.Left, AMapRect.Bottom - AMapRect.Top));
+      ABitmapInited := True;
+    end;
+    Result := VMarker.DrawToBitmap(ATargetBmp, VLocalPoint);
+  end;
 end;
 
 function TVectorTileRendererForMarks.DrawPath(
@@ -281,36 +313,6 @@ begin
     end else begin
       Assert(False);
     end;
-  end;
-end;
-
-function TVectorTileRendererForMarks.DrawPoint(
-  var ABitmapInited: Boolean;
-  ATargetBmp: TCustomBitmap32;
-  const AProjection: IProjection;
-  const AMapRect: TRect;
-  const AGeometry: IGeometryLonLatPoint;
-  const APoint: IVectorDataItem
-): Boolean;
-var
-  VLocalPoint: TDoublePoint;
-  VMapPoint: TDoublePoint;
-  VLonLat: TDoublePoint;
-  VMarker: IMarkerDrawable;
-begin
-  Result := False;
-  VMarker := FMarkerProviderForVectorItem.GetMarker(FCaptionDrawConfigStatic, APoint);
-  if VMarker <> nil then begin
-    VLonLat := AGeometry.Point;
-    AProjection.ProjectionType.ValidateLonLatPos(VLonLat);
-    VMapPoint := AProjection.LonLat2PixelPosFloat(VLonLat);
-    VLocalPoint.X := VMapPoint.X - AMapRect.Left;
-    VLocalPoint.Y := VMapPoint.Y - AMapRect.Top;
-    if not ABitmapInited then begin
-      InitBitmap(ATargetBmp, Types.Point(AMapRect.Right - AMapRect.Left, AMapRect.Bottom - AMapRect.Top));
-      ABitmapInited := True;
-    end;
-    Result := VMarker.DrawToBitmap(ATargetBmp, VLocalPoint);
   end;
 end;
 
