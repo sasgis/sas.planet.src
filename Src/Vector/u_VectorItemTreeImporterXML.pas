@@ -610,7 +610,9 @@ begin
             if StartsStr(cFilesFolderName, VIconName)  then begin
               VIconName := RightStr(VIconName, Length(VIconName) - Length(cFilesFolderName));
             end;
-            AXmlVectorObjects.AppearanceHelper.Icon.SetByName(VIconName);
+            if Assigned(AXmlVectorObjects.AppearanceHelper) then begin
+              AXmlVectorObjects.AppearanceHelper.Icon.SetByName(VIconName);
+            end;
           end;
         end;
       end;
