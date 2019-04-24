@@ -73,6 +73,7 @@ uses
   i_HashFunction,
   i_GeometryProjected,
   i_EnumDoublePoint,
+  i_InternalPerformanceCounter,
   u_GeoFunc,
   u_HashFunctionCityHash,
   u_HashFunctionWithCounter,
@@ -87,14 +88,16 @@ procedure TestGeometryLonLatLineBuilderSimple.SetUp;
 var
   VHashFunction: IHashFunction;
   VFactory: IGeometryLonLatFactory;
+  VPerfCounterList: IInternalPerformanceCounterList;
 begin
+  VPerfCounterList := TInternalPerformanceCounterFake.Create;
   FPoints := TDoublePointsAggregator.Create;
   VHashFunction :=
     THashFunctionWithCounter.Create(
       THashFunctionCityHash.Create,
-      TInternalPerformanceCounterFake.Create
+      VPerfCounterList
     );
-  VFactory := TGeometryLonLatFactory.Create(VHashFunction);
+  VFactory := TGeometryLonLatFactory.Create(VPerfCounterList, VHashFunction);
   FBuilder := VFactory.MakeLineBuilder;
 end;
 
@@ -180,14 +183,16 @@ procedure TestGeometryLonLatPolygonBuilderSimple.SetUp;
 var
   VHashFunction: IHashFunction;
   VFactory: IGeometryLonLatFactory;
+  VPerfCounterList: IInternalPerformanceCounterList;
 begin
+  VPerfCounterList := TInternalPerformanceCounterFake.Create;
   FPoints := TDoublePointsAggregator.Create;
   VHashFunction :=
     THashFunctionWithCounter.Create(
       THashFunctionCityHash.Create,
-      TInternalPerformanceCounterFake.Create
+      VPerfCounterList
     );
-  VFactory := TGeometryLonLatFactory.Create(VHashFunction);
+  VFactory := TGeometryLonLatFactory.Create(VPerfCounterList, VHashFunction);
   FBuilder := VFactory.MakePolygonBuilder;
 end;
 

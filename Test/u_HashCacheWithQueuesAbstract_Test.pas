@@ -99,6 +99,8 @@ implementation
 
 uses
   SysUtils,
+  i_InternalPerformanceCounter,
+  u_InternalPerformanceCounterFake,
   u_HashInterfaceCache2Q;
 
 { TSimple }
@@ -129,12 +131,16 @@ constructor THashCacheWithQueuesTest.Create(
   AMultiUseCount: Integer;
   AFirstOutCount: Integer
 );
+var
+  VPerfCounterList: IInternalPerformanceCounterList;
 begin
   inherited Create;
+  VPerfCounterList := TInternalPerformanceCounterFake.Create;
   FOpId := 0;
   FCache :=
     THashInterfaceCache2Q.Create(
       TSimpleRWSync.Create,
+      VPerfCounterList,
       Self.CreateByKey,
       6,
       AFirstUseCount,

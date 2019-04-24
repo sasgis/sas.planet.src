@@ -46,6 +46,7 @@ uses
   SysUtils,
   StrUtils,
   i_HashFunction,
+  i_InternalPerformanceCounter,
   u_HashFunctionCityHash,
   u_HashFunctionWithCounter,
   u_InternalPerformanceCounterFake,
@@ -60,14 +61,16 @@ uses
 procedure TestGeometrySaveLoadWKB.SetUp;
 var
   VHashFunction: IHashFunction;
+  VPerfCounterList: IInternalPerformanceCounterList;
 begin
   inherited;
+  VPerfCounterList := TInternalPerformanceCounterFake.Create;
   VHashFunction :=
     THashFunctionWithCounter.Create(
       THashFunctionCityHash.Create,
-      TInternalPerformanceCounterFake.Create
+      VPerfCounterList
     );
-  FFactory := TGeometryLonLatFactory.Create(VHashFunction);
+  FFactory := TGeometryLonLatFactory.Create(VPerfCounterList, VHashFunction);
   FLoader := TGeometryFromWKB.Create(FFactory);
   FSaver := TGeometryToWKB.Create;
   FStream := TMemoryStream.Create;
