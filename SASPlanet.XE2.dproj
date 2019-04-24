@@ -275,8 +275,8 @@
 			<DCCReference Include="Src\BitmapTileSaveLoad\u_BitmapTileLibPng.pas"/>
 			<DCCReference Include="Src\BitmapTileSaveLoad\u_BitmapTileSaveLoadFactory.pas"/>
 			<DCCReference Include="Src\Browser\c_InternalBrowser.pas"/>
-			<DCCReference Include="Src\Browser\frm_IntrnalBrowser.pas">
-				<Form>frmIntrnalBrowser</Form>
+			<DCCReference Include="Src\Browser\frm_InternalBrowser.pas">
+				<Form>frmInternalBrowser</Form>
 			</DCCReference>
 			<DCCReference Include="Src\Browser\frm_InvisibleBrowser.pas">
 				<Form>frmInvisibleBrowser</Form>
@@ -285,6 +285,7 @@
 			<DCCReference Include="Src\Browser\i_InternalBrowserLastContent.pas"/>
 			<DCCReference Include="Src\Browser\i_InvisibleBrowser.pas"/>
 			<DCCReference Include="Src\Browser\u_InternalBrowserByForm.pas"/>
+			<DCCReference Include="Src\Browser\u_InternalBrowserImplByIE.pas"/>
 			<DCCReference Include="Src\Browser\u_InternalBrowserLastContent.pas"/>
 			<DCCReference Include="Src\Browser\u_InvisibleBrowserByFormSynchronize.pas"/>
 			<DCCReference Include="Src\CacheManager\frm_CacheManager.pas">
@@ -508,6 +509,7 @@
 			<DCCReference Include="Src\InternalDomain\i_InternalDomainInfoProvider.pas"/>
 			<DCCReference Include="Src\InternalDomain\i_InternalDomainOptions.pas"/>
 			<DCCReference Include="Src\InternalDomain\i_InternalDomainUrlHandler.pas"/>
+			<DCCReference Include="Src\InternalDomain\i_InternalDomainUrlHandlerConfig.pas"/>
 			<DCCReference Include="Src\InternalDomain\i_TextByVectorItem.pas"/>
 			<DCCReference Include="Src\InternalDomain\u_IeEmbeddedProtocol.pas"/>
 			<DCCReference Include="Src\InternalDomain\u_IeEmbeddedProtocolFactory.pas"/>
@@ -521,6 +523,7 @@
 			<DCCReference Include="Src\InternalDomain\u_InternalDomainInfoProviderByTileStorageOptions.pas"/>
 			<DCCReference Include="Src\InternalDomain\u_InternalDomainInfoProviderList.pas"/>
 			<DCCReference Include="Src\InternalDomain\u_InternalDomainUrlHandler.pas"/>
+			<DCCReference Include="Src\InternalDomain\u_InternalDomainUrlHandlerConfig.pas"/>
 			<DCCReference Include="Src\InternalDomain\u_TextByVectorItemHTMLByDescription.pas"/>
 			<DCCReference Include="Src\InternalDomain\u_TextByVectorItemMarkInfo.pas"/>
 			<DCCReference Include="Src\Logger\i_ErrorInfo.pas"/>
@@ -1666,12 +1669,12 @@
 			<DCCReference Include="Src\VectorLoaders\i_XmlVectorObjects.pas"/>
 			<DCCReference Include="Src\VectorLoaders\u_CsvParser.pas"/>
 			<DCCReference Include="Src\VectorLoaders\u_HlgParser.pas"/>
-			<DCCReference Include="Src\VectorLoaders\u_WikimapiaKmlSimpleParser.pas"/>
 			<DCCReference Include="Src\VectorLoaders\u_KmzInfoSimpleParser.pas"/>
 			<DCCReference Include="Src\VectorLoaders\u_MpSimpleParser.pas"/>
 			<DCCReference Include="Src\VectorLoaders\u_PLTSimpleParser.pas"/>
 			<DCCReference Include="Src\VectorLoaders\u_SlsParser.pas"/>
 			<DCCReference Include="Src\VectorLoaders\u_VectorDataLoaderWithCounter.pas"/>
+			<DCCReference Include="Src\VectorLoaders\u_WikimapiaKmlSimpleParser.pas"/>
 			<DCCReference Include="Src\VectorLoaders\u_XmlInfoSimpleParser.pas"/>
 			<DCCReference Include="Src\VectorLoaders\u_XmlVectorObjects.pas"/>
 			<DCCReference Include="Src\Vector\i_Appearance.pas"/>

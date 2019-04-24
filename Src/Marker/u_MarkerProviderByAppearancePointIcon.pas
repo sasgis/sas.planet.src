@@ -8,8 +8,6 @@ uses
   i_HashFunction,
   i_InternalPerformanceCounter,
   i_HashInterfaceCache,
-
-
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
   i_BitmapMarker,
@@ -60,9 +58,6 @@ uses
   u_Bitmap32ByStaticBitmap,
   u_BitmapMarker,
   u_BitmapFunc,
-
-
-
   u_GeoFunc;
 
 type
