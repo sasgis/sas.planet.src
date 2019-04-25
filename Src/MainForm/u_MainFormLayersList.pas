@@ -140,6 +140,7 @@ implementation
 
 uses
   Types,
+  Math,
   t_GeoTypes,
   i_Bitmap32Static,
   i_MarkerDrawable,
@@ -152,6 +153,7 @@ uses
   i_VectorItemSubsetChangeable,
   i_ImageResamplerFactoryChangeable,
   i_TileRectChangeable,
+  i_TextDrawerBasic,
   i_BitmapLayerProviderChangeable,
   i_ObjectWithListener,
   i_BitmapTileMatrixChangeable,
@@ -170,6 +172,7 @@ uses
   u_ImageResamplerFactoryChangeableByConfig,
   u_BitmapLayerProviderChangeableForMainLayer,
   u_BitmapChangeableFaked,
+  u_TextDrawerBasic,
   u_SourceDataUpdateInRectByMapsSet,
   u_SourceDataUpdateInRectByFillingMap,
   u_BitmapTileMatrixChangeableWithThread,
@@ -292,6 +295,7 @@ constructor TMainFormLayersList.Create(
 var
   VBitmap: IBitmap32Static;
   VBitmapMarker: IBitmapMarker;
+  VTextDrawerBasic: ITextDrawerBasic;
   VMarkerChangeable: IMarkerDrawableChangeable;
   VMarkerWithDirectionChangeable: IMarkerDrawableWithDirectionChangeable;
   VLicensList: IStringListChangeable;
@@ -569,11 +573,20 @@ begin
         TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(VBitmap.Size.X / 2, VBitmap.Size.Y))
       );
   end;
+  VTextDrawerBasic :=
+    TTextDrawerBasic.Create(
+      VPerfList.CreateAndAddNewSubList('Caption'),
+      AHashFunction,
+      ABitmap32StaticFactory,
+      Max(Max(VVectorOversizeRect.Left, VVectorOversizeRect.Right), Max(VVectorOversizeRect.Top, VVectorOversizeRect.Bottom)),
+      1
+    );
+
   VMarkerProviderForVectorItem :=
     TMarkerProviderForVectorItemWithCache.Create(
       VPerfList.CreateAndAddNewSubList('Marker'),
       AHashFunction,
-      TMarkerProviderForVectorItemForMarkPoints.Create(ABitmap32StaticFactory, VMarkerIconProvider)
+      TMarkerProviderForVectorItemForMarkPoints.Create(VTextDrawerBasic, VMarkerIconProvider)
     );
 
   VVectorRenderer :=

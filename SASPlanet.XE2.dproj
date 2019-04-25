@@ -884,6 +884,7 @@
 			<DCCReference Include="Src\Marker\i_MarkerProviderByAppearancePointIcon.pas"/>
 			<DCCReference Include="Src\Marker\i_MarkerProviderForVectorItem.pas"/>
 			<DCCReference Include="Src\Marker\i_MarkerSimpleConfig.pas"/>
+			<DCCReference Include="Src\Marker\i_TextDrawerBasic.pas"/>
 			<DCCReference Include="Src\Marker\u_BitmapMarker.pas"/>
 			<DCCReference Include="Src\Marker\u_MarkerDrawableByBitmap32Static.pas"/>
 			<DCCReference Include="Src\Marker\u_MarkerDrawableByBitmapMarker.pas"/>
@@ -897,6 +898,7 @@
 			<DCCReference Include="Src\Marker\u_MarkerDrawableSimpleCross.pas"/>
 			<DCCReference Include="Src\Marker\u_MarkerDrawableSimpleSquare.pas"/>
 			<DCCReference Include="Src\Marker\u_MarkerDrawableWithDirectionByBitmapMarker.pas"/>
+			<DCCReference Include="Src\Marker\u_TextDrawerBasic.pas"/>
 			<DCCReference Include="Src\Marker\u_MarkerFromFileConfig.pas"/>
 			<DCCReference Include="Src\Marker\u_MarkerFromFileConfigStatic.pas"/>
 			<DCCReference Include="Src\Marker\u_MarkerProviderByAppearancePointIcon.pas"/>

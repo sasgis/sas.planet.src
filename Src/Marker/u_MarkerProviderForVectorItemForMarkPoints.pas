@@ -32,24 +32,16 @@ uses
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
   i_BitmapMarker,
+  i_TextDrawerBasic,
   i_MarkerProviderForVectorItem,
   u_BaseInterfacedObject;
 
 type
   TMarkerProviderForVectorItemForMarkPoints = class(TBaseInterfacedObject, IMarkerProviderForVectorItem)
   private
-    FBitmap32StaticFactory: IBitmap32StaticFactory;
+    FTextDrawerBasic: ITextDrawerBasic;
     FMarkerProviderByAppearancePointIcon: IMarkerProviderByAppearancePointIcon;
 
-    FBitmapWithText: TBitmap32;
-
-    function GetCaptionBitmap(
-      const ACaption: string;
-      AFontSize: Integer;
-      ATextColor: TColor32;
-      ATextBgColor: TColor32;
-      ASolidBgDraw: Boolean
-    ): IBitmap32Static;
     function GetCaptionMarker(
       const ACaption: string;
       AFontSize: Integer;
@@ -66,10 +58,9 @@ type
     ): IMarkerDrawable;
   public
     constructor Create(
-      const ABitmap32StaticFactory: IBitmap32StaticFactory;
+      const ATextDrawerBasic: ITextDrawerBasic;
       const AMarkerProviderByAppearancePointIcon: IMarkerProviderByAppearancePointIcon
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -88,66 +79,15 @@ uses
 { TMarkerProviderForVectorItemForMarkPoints }
 
 constructor TMarkerProviderForVectorItemForMarkPoints.Create(
-  const ABitmap32StaticFactory: IBitmap32StaticFactory;
+  const ATextDrawerBasic: ITextDrawerBasic;
   const AMarkerProviderByAppearancePointIcon: IMarkerProviderByAppearancePointIcon
 );
 begin
-  Assert(Assigned(ABitmap32StaticFactory));
+  Assert(Assigned(ATextDrawerBasic));
   Assert(Assigned(AMarkerProviderByAppearancePointIcon));
   inherited Create;
-  FBitmap32StaticFactory := ABitmap32StaticFactory;
+  FTextDrawerBasic := ATextDrawerBasic;
   FMarkerProviderByAppearancePointIcon := AMarkerProviderByAppearancePointIcon;
-
-  FBitmapWithText := TBitmap32.Create;
-  FBitmapWithText.Font.Name := 'Tahoma';
-  FBitmapWithText.Font.Style := [];
-  FBitmapWithText.DrawMode := dmBlend;
-  FBitmapWithText.CombineMode := cmMerge;
-  FBitmapWithText.Resampler := TLinearResampler.Create;
-end;
-
-destructor TMarkerProviderForVectorItemForMarkPoints.Destroy;
-begin
-  FreeAndNil(FBitmapWithText);
-  inherited;
-end;
-
-function TMarkerProviderForVectorItemForMarkPoints.GetCaptionBitmap(
-  const ACaption: string;
-  AFontSize: Integer;
-  ATextColor, ATextBgColor: TColor32;
-  ASolidBgDraw: Boolean
-): IBitmap32Static;
-var
-  VTextSize: TSize;
-  VBitmap: TBitmap32ByStaticBitmap;
-begin
-  Result := nil;
-  if (AFontSize > 0) and (ACaption <> '') then begin
-    FBitmapWithText.MasterAlpha := AlphaComponent(ATextColor);
-    FBitmapWithText.Font.Size := AFontSize;
-    VTextSize := FBitmapWithText.TextExtent(ACaption);
-    VTextSize.cx := VTextSize.cx + 2;
-    VTextSize.cy := VTextSize.cy + 2;
-    FBitmapWithText.SetSize(VTextSize.cx + 2, VTextSize.cy + 2);
-    if ASolidBgDraw then begin
-      FBitmapWithText.Clear(ATextBgColor);
-      FBitmapWithText.RenderText(2, 2, ACaption, 1, SetAlpha(ATextColor, 255));
-    end else begin
-      FBitmapWithText.Clear(0);
-      FBitmapWithText.RenderText(2, 2, ACaption, 1, SetAlpha(ATextBgColor, 255));
-      FBitmapWithText.RenderText(1, 1, ACaption, 1, SetAlpha(ATextColor, 255));
-    end;
-    VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
-    try
-      VBitmap.SetSizeFrom(FBitmapWithText);
-      VBitmap.Clear(0);
-      VBitmap.Draw(0, 0, FBitmapWithText);
-      Result := VBitmap.MakeAndClear;
-    finally
-      VBitmap.Free;
-    end;
-  end;
 end;
 
 function TMarkerProviderForVectorItemForMarkPoints.GetCaptionMarker(
@@ -162,7 +102,7 @@ var
   VAnchorPoint: TDoublePoint;
 begin
   Result := nil;
-  VBitmapStatic := GetCaptionBitmap(ACaption, AFontSize, ATextColor, ATextBgColor, ASolidBgDraw);
+  VBitmapStatic := FTextDrawerBasic.DrawText(ACaption, AFontSize, ATextColor, ATextBgColor, ASolidBgDraw);
   if VBitmapStatic <> nil then begin
     VAnchorPoint := DoublePoint(-AAnchorDelta.X, -AAnchorDelta.Y + VBitmapStatic.Size.Y / 2);
     Result := TMarkerDrawableByBitmap32Static.Create(VBitmapStatic, VAnchorPoint);

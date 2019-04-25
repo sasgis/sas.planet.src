@@ -32,6 +32,7 @@ uses
   i_UseTilePrevZoomConfig,
   i_BitmapTileSaveLoadFactory,
   i_BitmapPostProcessing,
+  i_HashFunction,
   i_Bitmap32BufferFactory,
   i_UsedMarksConfig,
   i_MarksDrawConfig,
@@ -82,6 +83,7 @@ type
       const AMarksShowConfig: IUsedMarksConfig;
       const AMarksDrawConfig: IMarksDrawConfig;
       const AMarksDB: IMarkSystem;
+      const AHashFunction: IHashFunction;
       const ABitmapFactory: IBitmap32StaticFactory;
       const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
       const AFillingMapConfig: IFillingMapLayerConfig;
@@ -129,6 +131,7 @@ constructor TProviderMapCombineKMZ.Create(
   const AMarksShowConfig: IUsedMarksConfig;
   const AMarksDrawConfig: IMarksDrawConfig;
   const AMarksDB: IMarkSystem;
+  const AHashFunction: IHashFunction;
   const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
   const AFillingMapConfig: IFillingMapLayerConfig;
@@ -154,6 +157,7 @@ begin
     AMarksShowConfig,
     AMarksDrawConfig,
     AMarksDB,
+    AHashFunction,
     ABitmapFactory,
     ABitmapPostProcessing,
     AFillingMapConfig,

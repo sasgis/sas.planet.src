@@ -1340,6 +1340,7 @@ begin
       FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig,
       FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig,
       GState.MarksDb,
+      GState.HashFunction,
       GState.BitmapPostProcessing,
       GState.ProjectionSetList,
       GState.VectorGeometryLonLatFactory,

@@ -58,6 +58,7 @@ uses
   i_BitmapTileSaveLoadFactory,
   i_ArchiveReadWriteFactory,
   i_BitmapPostProcessing,
+  i_HashFunction,
   i_GlobalDownloadConfig,
   i_DownloadInfoSimple,
   i_UseTilePrevZoomConfig,
@@ -183,6 +184,7 @@ type
       const AMarksShowConfig: IUsedMarksConfig;
       const AMarksDrawConfig: IMarksDrawConfig;
       const AMarksDB: IMarkSystem;
+      const AHashFunction: IHashFunction;
       const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
       const AProjectionSetList: IProjectionSetList;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
@@ -256,6 +258,7 @@ constructor TfrmRegionProcess.Create(
   const AMarksShowConfig: IUsedMarksConfig;
   const AMarksDrawConfig: IMarksDrawConfig;
   const AMarksDB: IMarkSystem;
+  const AHashFunction: IHashFunction;
   const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
   const AProjectionSetList: IProjectionSetList;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
@@ -395,6 +398,7 @@ begin
       AMarksShowConfig,
       AMarksDrawConfig,
       AMarksDB,
+      AHashFunction,
       ABitmapFactory,
       ABitmapPostProcessing,
       AFillingMapConfig,

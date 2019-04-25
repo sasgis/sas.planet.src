@@ -33,6 +33,7 @@ uses
   i_ProjectionSetChangeable,
   i_BitmapLayerProvider,
   i_BitmapTileProvider,
+  i_HashFunction,
   i_Projection,
   i_GeometryProjected,
   i_GeometryLonLat,
@@ -70,6 +71,7 @@ type
     FOptionsSet: TMapCombineOptionsSet;
     FViewConfig: IGlobalViewMainConfig;
     FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
+    FHashFunction: IHashFunction;
     FBitmapFactory: IBitmap32StaticFactory;
     FProjectionSet: IProjectionSetChangeable;
     FProjectionSetList: IProjectionSetList;
@@ -134,6 +136,7 @@ type
       const AMarksShowConfig: IUsedMarksConfig;
       const AMarksDrawConfig: IMarksDrawConfig;
       const AMarksDB: IMarkSystem;
+      const AHashFunction: IHashFunction;
       const ABitmapFactory: IBitmap32StaticFactory;
       const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
       const AFillingMapConfig: IFillingMapLayerConfig;
@@ -161,8 +164,12 @@ uses
   gnugettext,
   t_Bitmap32,
   i_LonLatRect,
+  i_InternalPerformanceCounter,
   i_MarkCategoryList,
+  i_TextDrawerBasic,
+  i_MarkerProviderByAppearancePointIcon,
   i_MarkerProviderForVectorItem,
+  u_InternalPerformanceCounterFake,
   i_VectorItemSubset,
   i_VectorTileProvider,
   i_VectorTileRenderer,
@@ -171,6 +178,8 @@ uses
   i_RegionProcessParamsFrame,
   u_GeoFunc,
   u_ThreadMapCombineBase,
+  u_TextDrawerBasic,
+  u_MarkerProviderByAppearancePointIcon,
   u_MarkerProviderForVectorItemForMarkPoints,
   u_VectorTileProviderByFixedSubset,
   u_VectorTileRendererForMarks,
@@ -204,6 +213,7 @@ constructor TProviderMapCombineBase.Create(
   const AMarksShowConfig: IUsedMarksConfig;
   const AMarksDrawConfig: IMarksDrawConfig;
   const AMarksDB: IMarkSystem;
+  const AHashFunction: IHashFunction;
   const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
   const AFillingMapConfig: IFillingMapLayerConfig;
@@ -225,6 +235,7 @@ begin
   Assert(Assigned(AFillingMapConfig));
   Assert(Assigned(AFillingMapType));
   Assert(Assigned(AFillingMapPolygon));
+  Assert(Assigned(AHashFunction));
   inherited Create(
     AProgressFactory,
     ALanguageManager,
@@ -238,6 +249,7 @@ begin
   FMarksDB := AMarksDB;
   FActiveMapsSet := AActiveMapsSet;
   FBitmapPostProcessing := ABitmapPostProcessing;
+  FhashFunction := AHashFunction;
   FBitmapFactory := ABitmapFactory;
   FProjectionSet := AProjectionSet;
   FProjectionSetList := AProjectionSetList;
@@ -453,7 +465,10 @@ var
   VRect: ILonLatRect;
   VLonLatRect: TDoubleRect;
   VMarksSubset: IVectorItemSubset;
+  VPerf: IInternalPerformanceCounterList;
   VMarksConfigStatic: IUsedMarksConfigStatic;
+  VTextDrawerBasic: ITextDrawerBasic;
+  VIconProvider :IMarkerProviderByAppearancePointIcon;
   VList: IMarkCategoryList;
   VMarksImageProvider: IBitmapTileProvider;
   VRecolorConfig: IBitmapPostProcessing;
@@ -512,10 +527,27 @@ begin
       end;
     end;
     if VMarksSubset <> nil then begin
-      VMarkerProvider :=
-        TMarkerProviderForVectorItemForMarkPoints.Create(
+      VPerf := TInternalPerformanceCounterFake.Create;
+      VTextDrawerBasic :=
+        TTextDrawerBasic.Create(
+          VPerf,
+          FHashFunction,
+          FBitmapFactory,
+          512,
+          1
+        );
+      VIconProvider :=
+        TMarkerProviderByAppearancePointIcon.Create(
+          VPerf,
+          FHashFunction,
           FBitmapFactory,
           nil
+        );
+
+      VMarkerProvider :=
+        TMarkerProviderForVectorItemForMarkPoints.Create(
+          VTextDrawerBasic,
+          VIconProvider
         );
       VVectorTileRenderer :=
         TVectorTileRendererForMarks.Create(
