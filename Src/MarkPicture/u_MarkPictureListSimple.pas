@@ -76,12 +76,10 @@ implementation
 
 uses
   StrUtils,
-  ALString,
   t_Hash,
   t_GeoTypes,
   c_MarkPictureAnchor,
   c_InternalBrowser,
-  i_ContentTypeInfo,
   u_Synchronizer,
   u_MarkPictureSimple;
 

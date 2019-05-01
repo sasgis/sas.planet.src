@@ -4,10 +4,8 @@ interface
 
 uses
   t_Bitmap32,
-  i_ImportConfig,
   i_MarkPicture,
-  i_Appearance,
-  i_AppearanceOfMarkFactory;
+  i_Appearance;
 
 type
   IColorSetHelper = interface

@@ -28,7 +28,6 @@ uses
   Classes,
   ActiveX,
   ALXmlDoc,
-  t_Bitmap32,
   i_GeoCalc,
   i_BuildInfo,
   i_GeometryLonLat,
@@ -97,13 +96,8 @@ uses
   Compatibility,
   {$ENDIF}
   t_GeoTypes,
-  i_BinaryData,
-  i_LonLatRect,
   i_EnumDoublePoint,
-  u_GeoToStrFunc,
-  u_GeoFunc,
-  u_StrFunc,
-  u_StreamReadOnlyByBinaryData;
+  u_GeoToStrFunc;
 
 { TExportMarks2TCX }
 

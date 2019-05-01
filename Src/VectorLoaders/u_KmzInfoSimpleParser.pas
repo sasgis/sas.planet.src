@@ -25,7 +25,6 @@ interface
 uses
   Classes,
   i_BinaryData,
-  i_VectorDataFactory,
   i_VectorItemSubset,
   i_ArchiveReadWriteFactory,
   i_VectorDataLoader,

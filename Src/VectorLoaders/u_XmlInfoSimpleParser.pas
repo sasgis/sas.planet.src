@@ -63,10 +63,7 @@ type
 implementation
 
 uses
-  c_Color32,
-  i_Appearance,
   i_VectorItemTree,
-  u_ImportConfig,
   u_StreamReadOnlyByBinaryData;
 
 { TXmlInfoSimpleParser }

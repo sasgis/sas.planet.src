@@ -87,8 +87,7 @@ uses
   u_CalcWFileParams,
   u_ImageLineProvider,
   u_ImageLineProviderMultiThread,
-  u_GeoFunc,
-  u_ResStrings;
+  u_GeoFunc;
 
 { TBitmapMapCombinerGeoTIFF }
 

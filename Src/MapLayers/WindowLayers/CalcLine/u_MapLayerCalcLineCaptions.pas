@@ -122,7 +122,6 @@ type
 implementation
 
 uses
-  i_EnumDoublePoint,
   i_ProjectionType,
   u_ListenerByEvent,
   u_DoublePointsAggregator,

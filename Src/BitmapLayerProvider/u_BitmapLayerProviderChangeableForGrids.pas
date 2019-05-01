@@ -28,7 +28,6 @@ uses
   i_CoordToStringConverter,
   i_ProjectionSetChangeable,
   i_BitmapLayerProvider,
-  i_ListenerNotifierLinksList,
   u_BitmapLayerProviderChangeableBase;
 
 type

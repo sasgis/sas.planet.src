@@ -26,7 +26,6 @@ uses
   i_InternalPerformanceCounter,
   i_BinaryData,
   i_VectorItemSubset,
-  i_VectorDataFactory,
   i_VectorDataLoader,
   u_BaseInterfacedObject;
 

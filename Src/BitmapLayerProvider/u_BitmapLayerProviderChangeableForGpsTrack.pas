@@ -29,7 +29,6 @@ uses
   i_GPSRecorder,
   i_InternalPerformanceCounter,
   i_SimpleFlag,
-  i_ListenerNotifierLinksList,
   i_BitmapLayerProvider,
   u_BitmapLayerProviderChangeableBase;
 

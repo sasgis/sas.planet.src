@@ -30,7 +30,6 @@ uses
   i_MarkerProviderByAppearancePointIcon,
   i_MarksDrawConfig,
   i_Bitmap32Static,
-  i_Bitmap32BufferFactory,
   i_BitmapMarker,
   i_TextDrawerBasic,
   i_MarkerProviderForVectorItem,
@@ -68,9 +67,7 @@ implementation
 uses
   Types,
   SysUtils,
-  GR32_Resamplers,
   i_AppearanceOfVectorItem,
-  u_Bitmap32ByStaticBitmap,
   u_MarkerDrawableByBitmapMarker,
   u_MarkerDrawableByBitmap32Static,
   u_MarkerDrawableComplex,

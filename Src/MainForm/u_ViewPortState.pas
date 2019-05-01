@@ -87,7 +87,6 @@ implementation
 uses
   i_Projection,
   u_ListenerByEvent,
-  u_Synchronizer,
   u_GeoFunc;
 
 { TViewPortStateNew }

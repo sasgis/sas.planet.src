@@ -32,7 +32,6 @@ uses
   i_MapType,
   i_MapTypeListStatic,
   i_MapTypeListChangeable,
-  i_ListenerNotifierLinksList,
   u_BitmapLayerProviderChangeableBase;
 
 type
