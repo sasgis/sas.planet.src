@@ -662,7 +662,7 @@ begin
 
   VCombiner := PrepareMapCombiner(AProgressInfo);
   Result :=
-    TThreadMapCombineBase.Create(
+    TRegionProcessTaskCombine.Create(
       AProgressInfo,
       APolygon,
       PrepareTargetRect(VProjection, VProjectedPolygon),

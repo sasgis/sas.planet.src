@@ -46,7 +46,7 @@ type
     );
   end;
 
-  TThreadMapCombineBase = class(TRegionProcessTaskAbstract)
+  TRegionProcessTaskCombine = class(TRegionProcessTaskAbstract)
   private
     FImageProvider: IBitmapTileProvider;
     FMapRect: TRect;
@@ -81,9 +81,9 @@ uses
   u_GeoFunc,
   u_ResStrings;
 
-{ TMapCombineThreadBase }
+{ TRegionProcessTaskCombine }
 
-constructor TThreadMapCombineBase.Create(
+constructor TRegionProcessTaskCombine.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: IGeometryLonLatPolygon;
   const AMapRect: TRect;
@@ -110,14 +110,14 @@ begin
   FMapCalibrationList := AMapCalibrationList;
 end;
 
-procedure TThreadMapCombineBase.ProgressFormUpdateOnProgress(AProgress: Double);
+procedure TRegionProcessTaskCombine.ProgressFormUpdateOnProgress(AProgress: Double);
 begin
   ProgressInfo.SetProcessedRatio(AProgress);
   ProgressInfo.SetSecondLine(SAS_STR_Processed + ': ' + IntToStr(Trunc(AProgress * 100)) + '%');
 end;
 
 
-procedure TThreadMapCombineBase.ProcessRegion;
+procedure TRegionProcessTaskCombine.ProcessRegion;
 var
   VProjection: IProjection;
   i, j, pti: integer;
