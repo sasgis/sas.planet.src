@@ -126,7 +126,7 @@ begin
     );
 
   Result :=
-    TThreadExportToAUX.Create(
+    TExportTaskToAUX.Create(
       AProgressInfo,
       APolygon,
       VProjectedPolygon,

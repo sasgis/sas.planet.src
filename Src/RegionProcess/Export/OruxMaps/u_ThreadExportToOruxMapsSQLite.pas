@@ -43,7 +43,7 @@ uses
   u_ExportTaskAbstract;
 
 type
-  TThreadExportToOruxMapsSQLite = class(TExportTaskAbstract)
+  TExportTaskToOruxMapsSQLite = class(TExportTaskAbstract)
   private
     FFormatSettings: TFormatSettings;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -112,9 +112,9 @@ const
   INSERT_SQL = 'INSERT or IGNORE INTO tiles (x,y,z,image) VALUES (%d,%d,%d,?)';
   TABLE_ANDROID_METADATA_DDL = 'CREATE TABLE IF NOT EXISTS android_metadata (locale TEXT)';
 
-{ TThreadExportToOruxMapsSQLite }
+{ TExportTaskToOruxMapsSQLite }
 
-constructor TThreadExportToOruxMapsSQLite.Create(
+constructor TExportTaskToOruxMapsSQLite.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AExportPath: string;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -147,7 +147,7 @@ begin
   FSQLiteAvailable := FSQLite3DB.Init;
 end;
 
-procedure TThreadExportToOruxMapsSQLite.ProcessRegion;
+procedure TExportTaskToOruxMapsSQLite.ProcessRegion;
 var
   I: Integer;
   VZoom: Byte;
@@ -304,7 +304,7 @@ begin
   end;
 end;
 
-procedure TThreadExportToOruxMapsSQLite.WriteMainOtrk2File(
+procedure TExportTaskToOruxMapsSQLite.WriteMainOtrk2File(
   const ATileIterators: array of ITileIterator
 );
 const
@@ -395,7 +395,7 @@ begin
   end;
 end;
 
-procedure TThreadExportToOruxMapsSQLite.OpenSQLiteStorage;
+procedure TExportTaskToOruxMapsSQLite.OpenSQLiteStorage;
 const
   cLocale = '''en_US''';
 var
@@ -429,7 +429,7 @@ begin
   FSQLite3DB.BeginTran;
 end;
 
-procedure TThreadExportToOruxMapsSQLite.CloseSQLiteStorage;
+procedure TExportTaskToOruxMapsSQLite.CloseSQLiteStorage;
 begin
   if FSQLite3DB.Opened then begin
     FSQLite3DB.Commit;
@@ -437,7 +437,7 @@ begin
   end;
 end;
 
-procedure TThreadExportToOruxMapsSQLite.SaveTileToSQLiteStorage(
+procedure TExportTaskToOruxMapsSQLite.SaveTileToSQLiteStorage(
   const ATile: TPoint;
   const AZoom: Byte;
   const AData: IBinaryData

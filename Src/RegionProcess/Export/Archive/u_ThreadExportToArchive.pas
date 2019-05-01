@@ -36,7 +36,7 @@ uses
   u_ExportTaskAbstract;
 
 type
-  TThreadExportToArchive = class(TExportTaskAbstract)
+  TExportTaskToArchive = class(TExportTaskAbstract)
   private
     FTileStorage: ITileStorage;
     FArchive: IArchiveWriter;
@@ -67,9 +67,9 @@ uses
   u_ZoomArrayFunc,
   u_ResStrings;
 
-{ TThreadExportToArchive }
+{ TExportTaskToArchive }
 
-constructor TThreadExportToArchive.Create(
+constructor TExportTaskToArchive.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AArchiveWriter: IArchiveWriter;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -90,7 +90,7 @@ begin
   FArchive := AArchiveWriter;
 end;
 
-procedure TThreadExportToArchive.ProcessRegion;
+procedure TExportTaskToArchive.ProcessRegion;
 var
   I: Integer;
   VZoom: Byte;

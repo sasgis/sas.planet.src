@@ -46,7 +46,7 @@ uses
   u_RMPWriter;
 
 type
-  TThreadExportToRMP = class(TExportTaskAbstract)
+  TExportTaskToRMP = class(TExportTaskAbstract)
   private
     type
       TProcessSingleGeometry = procedure(
@@ -131,9 +131,9 @@ uses
   u_GeometryFunc,
   u_ResStrings;
 
-{ TThreadExportToRMP }
+{ TExportTaskToRMP }
 
-constructor TThreadExportToRMP.Create(
+constructor TExportTaskToRMP.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AExportPath: string;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -175,7 +175,7 @@ begin
   FComments := 'Created with SAS.Planet';
 end;
 
-procedure TThreadExportToRMP.ProcessRegion;
+procedure TExportTaskToRMP.ProcessRegion;
 var
   I, J: Integer;
   VZoom: Byte;
@@ -274,7 +274,7 @@ begin
   end;
 end;
 
-procedure TThreadExportToRMP.ProcessSingleGeometry(
+procedure TExportTaskToRMP.ProcessSingleGeometry(
   const ARMPWriter: TRMPFileWriter;
   const AZoom: Byte;
   const APolygon: IGeometryProjectedSinglePolygon;
@@ -399,7 +399,7 @@ end;
 
 {$DEFINE FULL_TILES}
 
-procedure TThreadExportToRMP.ProcessSingleGeometryUni(
+procedure TExportTaskToRMP.ProcessSingleGeometryUni(
   const ARMPWriter: TRMPFileWriter;
   const AZoom: Byte;
   const APolygon: IGeometryProjectedSinglePolygon;
@@ -647,7 +647,7 @@ begin
   end;
 end;
 
-procedure TThreadExportToRMP.CalcCounts(
+procedure TExportTaskToRMP.CalcCounts(
   const AProjectedPolygons: array of IGeometryProjectedPolygon;
   const AMaxTilesCountPerRmpLayer: Integer;
   const ACalcCountUni: Boolean;

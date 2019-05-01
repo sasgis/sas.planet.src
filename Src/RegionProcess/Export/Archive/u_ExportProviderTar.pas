@@ -138,7 +138,7 @@ begin
   VNameGenerator := (ParamsFrame as IRegionProcessParamsFrameExportToFileCont).NameGenerator;
 
   Result :=
-    TThreadExportToArchive.Create(
+    TExportTaskToArchive.Create(
       AProgressInfo,
       FArchiveReadWriteFactory.Tar.WriterFactory.BuildByFileName(VPath),
       FVectorGeometryProjectedFactory,

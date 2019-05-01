@@ -50,7 +50,7 @@ type
   end;
   TExportTaskIPhoneArray = array of TExportTaskIPhone;
 
-  TThreadExportIPhone = class(TExportTaskAbstract)
+  TExportTaskToIPhone = class(TExportTaskAbstract)
   private
     FBitmapFactory: IBitmap32StaticFactory;
     FTasks: TExportTaskIPhoneArray;
@@ -105,7 +105,7 @@ uses
   u_BitmapFunc,
   u_TileIteratorByPolygon;
 
-constructor TThreadExportIPhone.Create(
+constructor TExportTaskToIPhone.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const ACoordConverterFactory: IProjectionSetFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -135,7 +135,7 @@ begin
   FActiveMapIndex := AActiveMapIndex;
 end;
 
-destructor TThreadExportIPhone.Destroy;
+destructor TExportTaskToIPhone.Destroy;
 var
   i: Integer;
 begin
@@ -146,7 +146,7 @@ begin
   inherited;
 end;
 
-procedure TThreadExportIPhone.WriteTileToSQLite3(
+procedure TExportTaskToIPhone.WriteTileToSQLite3(
   const ASQLite3DbHandler: PSQLite3DbHandler;
   const AXY: TPoint;
   AZoom: Integer;
@@ -169,7 +169,7 @@ begin
   ASQLite3DbHandler^.ExecSQLWithBLOB(s, AData.Buffer, AData.Size);
 end;
 
-procedure TThreadExportIPhone.WritePListFile(const AProjection: IProjection);
+procedure TExportTaskToIPhone.WritePListFile(const AProjection: IProjection);
 var
   PList: Text;
   VLLCenter: TDoublePoint;
@@ -194,7 +194,7 @@ begin
   CloseFile(PList);
 end;
 
-procedure TThreadExportIPhone.ProcessRegion;
+procedure TExportTaskToIPhone.ProcessRegion;
 var
   VZoom: byte;
   i, j, xi, yi, hxyi, sizeim: integer;

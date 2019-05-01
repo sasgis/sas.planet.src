@@ -129,7 +129,7 @@ begin
   VRecoverInfo := (ParamsFrame as IRegionProcessParamsFrameExportToCE).IsAddRecoverInfo;
 
   Result :=
-    TThreadExportToCE.Create(
+    TExportTaskToCE.Create(
       AProgressInfo,
       FProjectionSetFactory,
       FVectorGeometryProjectedFactory,

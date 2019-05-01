@@ -54,7 +54,7 @@ type
     SubmapMTXNames: array [TSubmapKind] of String;
   end;
 
-  TThreadExportToIMG = class(TRegionProcessTaskAbstract, IListener)
+  TExportTaskToIMG = class(TRegionProcessTaskAbstract, IListener)
   private
     FTask: TExportToIMGTask;
     FTargetFileName, FTargetFileExt: string;
@@ -77,7 +77,7 @@ type
     FStrCompileErrorFormat: WideString;
     FStrCompileErrorNoMessage: WideString;
     FStrCannotStartCompiler: WideString;
-    FStrCannotStartGMT: WideString;    
+    FStrCannotStartGMT: WideString;
     FStrIMGBuildError: WideString;
 
     FFormatSettings: TFormatSettings;
@@ -127,7 +127,7 @@ uses
   u_TileIteratorByPolygon,
   u_GeoFunc;
 
-constructor TThreadExportToIMG.Create(
+constructor TExportTaskToIMG.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ATargetFile: string;
@@ -163,14 +163,14 @@ begin
   FFormatSettings.DecimalSeparator := '.';
 end;
 
-destructor TThreadExportToIMG.Destroy;
+destructor TExportTaskToIMG.Destroy;
 begin
   CloseHandle(FCancelEvent);
 
   inherited;
 end;
 
-procedure TThreadExportToIMG.Notification(const AMsg: IInterface);
+procedure TExportTaskToIMG.Notification(const AMsg: IInterface);
 begin
   SetEvent(FCancelEvent);
 end;
@@ -240,7 +240,7 @@ const
     ('.gmp', '', '')
   );
 
-procedure TThreadExportToIMG.InitializeTaskInternalInfo;
+procedure TExportTaskToIMG.InitializeTaskInternalInfo;
 var
   i: Integer;
   VProjection: IProjection;
@@ -283,7 +283,7 @@ begin
   end;
 end;
 
-function TThreadExportToIMG.WriteMTXFiles(var AVolumeInfo: TVolumeInfo): Boolean;
+function TExportTaskToIMG.WriteMTXFiles(var AVolumeInfo: TVolumeInfo): Boolean;
 var
   i: Integer;
   sk: TSubmapKind;
@@ -384,7 +384,7 @@ begin
     // so manual loop unrolling is necessary.
     if AVolumeInfo.SubmapsPresent[skFine] then begin
       CloseFile(VMtxFiles[skFine]);
-    end;      
+    end;
     if AVolumeInfo.SubmapsPresent[skCoarse] then begin
       CloseFile(VMtxFiles[skCoarse]);
     end;
@@ -417,7 +417,7 @@ begin
     VWaitObjects[2] := CancellationEvent;
     try
       if WaitForMultipleObjects(2, @VWaitObjects[1], False, INFINITE) <> WAIT_OBJECT_0 then begin
-        // If user has cancelled the export, terminate the child process.      
+        // If user has cancelled the export, terminate the child process.
         TerminateProcess(VProcessInfo.hProcess, 0);
         exit;
       end;
@@ -432,7 +432,7 @@ begin
   end;
 end;
 
-function TThreadExportToIMG.CompileMaps(var AVolumeInfo: TVolumeInfo; AAddVolumeSuffix: Boolean): Boolean;
+function TExportTaskToIMG.CompileMaps(var AVolumeInfo: TVolumeInfo; AAddVolumeSuffix: Boolean): Boolean;
 var
   sk: TSubmapKind;
   i: Integer;
@@ -521,7 +521,7 @@ begin
   end;
 end;
 
-procedure TThreadExportToIMG.ClearTempFolder;
+procedure TExportTaskToIMG.ClearTempFolder;
 var
   VFilesDeleted: Int64;
   VSearchResult: Integer;
@@ -554,7 +554,7 @@ begin
       try
         RmDir(FTempFolder);
       except
-        // It's not a big deal if we could not delete the folder.   
+        // It's not a big deal if we could not delete the folder.
       end;
     end;
 end;
@@ -573,7 +573,7 @@ begin
   end;
 end;
 
-procedure TThreadExportToIMG.ProcessRegion;
+procedure TExportTaskToIMG.ProcessRegion;
 var
   i: Integer;
   VBitmapTile: IBitmap32Static;

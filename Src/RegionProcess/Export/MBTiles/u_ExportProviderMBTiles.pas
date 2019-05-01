@@ -175,7 +175,7 @@ begin
   end;
 
   Result :=
-    TThreadExportToMBTiles.Create(
+    TExportTaskToMBTiles.Create(
       AProgressInfo,
       VPath,
       FVectorGeometryProjectedFactory,

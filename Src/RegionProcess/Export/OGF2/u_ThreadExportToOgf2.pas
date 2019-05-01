@@ -41,7 +41,7 @@ uses
   u_RegionProcessTaskAbstract;
 
 type
-  TThreadExportToOgf2 = class(TRegionProcessTaskAbstract)
+  TExportTaskToOgf2 = class(TRegionProcessTaskAbstract)
   private
     FZoom: Byte;
     FOgf2TileWidth: Integer;
@@ -101,9 +101,9 @@ uses
 const
   cBackGroundColor = $CCCCCCCC;
 
-{ TThreadExportToOgf2 }
+{ TExportTaskToOgf2 }
 
-constructor TThreadExportToOgf2.Create(
+constructor TExportTaskToOgf2.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const ACoordConverterFactory: IProjectionSetFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
@@ -131,7 +131,7 @@ begin
   FOgf2TileHeight := ATileSize.Y;
 end;
 
-procedure TThreadExportToOgf2.SaveOziCalibrationMap(
+procedure TExportTaskToOgf2.SaveOziCalibrationMap(
   const AProjection: IProjection;
   const APixelRect: TRect
 );
@@ -148,7 +148,7 @@ begin
 end;
 
 
-function TThreadExportToOgf2.GetMapPreview(
+function TExportTaskToOgf2.GetMapPreview(
   const ABitmapSaver: IBitmapTileSaver;
   out AMapPreviewWidth: Integer;
   out AMapPreviewHeight: Integer
@@ -169,7 +169,7 @@ begin
   Result := ABitmapSaver.Save(VBitmapStatic);
 end;
 
-function TThreadExportToOgf2.GetEmptyTile(
+function TExportTaskToOgf2.GetEmptyTile(
   const ABitmapSaver: IBitmapTileSaver
 ): IBinaryData;
 var
@@ -185,7 +185,7 @@ begin
   Result := ABitmapSaver.Save(VBitmapStatic);
 end;
 
-procedure TThreadExportToOgf2.ProcessRegion;
+procedure TExportTaskToOgf2.ProcessRegion;
 var
   VOfg2FileStream: TFileStream;
   VPreviewImageWidth: Integer;

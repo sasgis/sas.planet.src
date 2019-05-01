@@ -46,7 +46,7 @@ type
   end;
   TExportTaskYaMobileV3Array = array of TExportTaskYaMobileV3;
 
-  TThreadExportYaMobileV3 = class(TExportTaskAbstract)
+  TExportTaskToYaMobileV3 = class(TExportTaskAbstract)
   private
     FTasks: TExportTaskYaMobileV3Array;
     FBitmapFactory: IBitmap32StaticFactory;
@@ -105,7 +105,7 @@ uses
 const
   YaHeaderSize: integer = 1024;
 
-constructor TThreadExportYaMobileV3.Create(
+constructor TExportTaskToYaMobileV3.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AProjectionSetFactory: IProjectionSetFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -131,7 +131,7 @@ begin
 
 end;
 
-function TThreadExportYaMobileV3.GetMobileFile(
+function TExportTaskToYaMobileV3.GetMobileFile(
   X, Y: Integer;
   Z: Byte;
   AMapType: Byte
@@ -161,7 +161,7 @@ begin
   Result := LowerCase(Result + IntToHex(Num, 3));
 end;
 
-function TThreadExportYaMobileV3.TileToTablePos(const ATile: TPoint): Integer;
+function TExportTaskToYaMobileV3.TileToTablePos(const ATile: TPoint): Integer;
 var
   X, Y: Integer;
 begin
@@ -183,7 +183,7 @@ begin
     ((X and $01) shl 2);
 end;
 
-procedure TThreadExportYaMobileV3.CreateNilFile(
+procedure TExportTaskToYaMobileV3.CreateNilFile(
   const AFileName: string;
   ATableSize: Integer
 );
@@ -214,7 +214,7 @@ begin
   end;
 end;
 
-destructor TThreadExportYaMobileV3.Destroy;
+destructor TExportTaskToYaMobileV3.Destroy;
 var
   i: Integer;
 begin
@@ -225,7 +225,7 @@ begin
   inherited;
 end;
 
-procedure TThreadExportYaMobileV3.WriteTileToYaCache(
+procedure TExportTaskToYaMobileV3.WriteTileToYaCache(
   const ATile: TPoint;
   AZoom, AMapType, sm_xy: Byte;
   const AExportPath: string;
@@ -276,7 +276,7 @@ begin
   end;
 end;
 
-procedure TThreadExportYaMobileV3.ProcessRegion;
+procedure TExportTaskToYaMobileV3.ProcessRegion;
 var
   i, j, xi, yi, hxyi, sizeim: integer;
   VZoom: Byte;

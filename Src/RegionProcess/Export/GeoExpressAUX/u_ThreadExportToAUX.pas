@@ -35,7 +35,7 @@ uses
   u_RegionProcessTaskAbstract;
 
 type
-  TThreadExportToAUX = class(TRegionProcessTaskAbstract)
+  TExportTaskToAUX = class(TRegionProcessTaskAbstract)
   private
     FTileStorage: ITileStorage;
     FVersion: IMapVersionInfo;
@@ -68,9 +68,9 @@ uses
   i_TileIterator,
   u_TileIteratorByPolygon;
 
-{ TThreadExportToAUX }
+{ TExportTaskToAUX }
 
-constructor TThreadExportToAUX.Create(
+constructor TExportTaskToAUX.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: IGeometryLonLatPolygon;
   const AProjectedPolygon: IGeometryProjectedPolygon;
@@ -92,7 +92,7 @@ begin
   FFileName := AFileName;
 end;
 
-procedure TThreadExportToAUX.ProcessRegion;
+procedure TExportTaskToAUX.ProcessRegion;
 var
   VTileIterator: ITileIterator;
   VTile: TPoint;
@@ -145,7 +145,7 @@ begin
   end;
 end;
 
-procedure TThreadExportToAUX.ProgressFormUpdateOnProgress(AProcessed, AToProcess: Int64);
+procedure TExportTaskToAUX.ProgressFormUpdateOnProgress(AProcessed, AToProcess: Int64);
 begin
   ProgressInfo.SetProcessedRatio(AProcessed / AToProcess);
   ProgressInfo.SetSecondLine(SAS_STR_Processed + ' ' + inttostr(AProcessed));

@@ -189,7 +189,7 @@ begin
   end;
 
   Result :=
-    TThreadExportYaMobileV4.Create(
+    TExportTaskToYaMobileV4.Create(
       AProgressInfo,
       FProjectionSetFactory,
       FVectorGeometryProjectedFactory,

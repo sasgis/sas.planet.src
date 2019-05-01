@@ -240,7 +240,7 @@ begin
       );
   end;
   Result :=
-    TThreadExportIPhone.Create(
+    TExportTaskToIPhone.Create(
       AProgressInfo,
       FProjectionSetFactory,
       FVectorGeometryProjectedFactory,

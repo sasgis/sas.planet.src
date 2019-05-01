@@ -50,7 +50,7 @@ type
   end;
   TExportTaskYaMobileV4Array = array of TExportTaskYaMobileV4;
 
-  TThreadExportYaMobileV4 = class(TExportTaskAbstract)
+  TExportTaskToYaMobileV4 = class(TExportTaskAbstract)
   private
     FTasks: TExportTaskYaMobileV4Array;
     FIsReplace: Boolean;
@@ -105,9 +105,9 @@ uses
   u_ResStrings,
   u_TileIteratorByPolygon;
 
-{ TThreadExportYaMobileV4 }
+{ TExportTaskToYaMobileV4 }
 
-constructor TThreadExportYaMobileV4.Create(
+constructor TExportTaskToYaMobileV4.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AProjectionSetFactory: IProjectionSetFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -141,7 +141,7 @@ begin
   FCacheCount := 0;
 end;
 
-destructor TThreadExportYaMobileV4.Destroy;
+destructor TExportTaskToYaMobileV4.Destroy;
 var
   i: Integer;
 begin
@@ -153,7 +153,7 @@ begin
   inherited;
 end;
 
-function TThreadExportYaMobileV4.OpenCacheFile(
+function TExportTaskToYaMobileV4.OpenCacheFile(
   const ACachePath: string;
   out ACacheFile: TYaMobileCacheFile
 ): Boolean;
@@ -180,7 +180,7 @@ begin
   Result := Assigned(ACacheFile);
 end;
 
-procedure TThreadExportYaMobileV4.CloseCacheFiles;
+procedure TExportTaskToYaMobileV4.CloseCacheFiles;
 var
   I: Integer;
 begin
@@ -191,7 +191,7 @@ begin
   end;
 end;
 
-procedure TThreadExportYaMobileV4.AddTileToCache(
+procedure TExportTaskToYaMobileV4.AddTileToCache(
   const AData: IBinaryData;
   const ATilePoint: TPoint;
   AZoom: Byte;
@@ -216,7 +216,7 @@ begin
   end;
 end;
 
-procedure TThreadExportYaMobileV4.GenUserXml(const AMapID, AMapName: string);
+procedure TExportTaskToYaMobileV4.GenUserXml(const AMapID, AMapName: string);
 var
   VUserXml: string;
   VUserXmlAnsi: AnsiString;
@@ -270,7 +270,7 @@ begin
   end;
 end;
 
-procedure TThreadExportYaMobileV4.ProcessRegion;
+procedure TExportTaskToYaMobileV4.ProcessRegion;
 var
   i, j, xi, yi, hxyi, sizeim: integer;
   VZoom: Byte;

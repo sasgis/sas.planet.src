@@ -44,7 +44,7 @@ uses
   u_ExportTaskAbstract;
 
 type
-  TThreadExportToMBTiles = class(TExportTaskAbstract)
+  TExportTaskToMBTiles = class(TExportTaskAbstract)
   private
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FProjectionSetFactory: IProjectionSetFactory;
@@ -97,9 +97,9 @@ uses
   u_TileIteratorByPolygon,
   u_ResStrings;
 
-{ TThreadExportToMBTiles }
+{ TExportTaskToMBTiles }
 
-constructor TThreadExportToMBTiles.Create(
+constructor TExportTaskToMBTiles.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AExportPath: string;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -157,13 +157,13 @@ begin
     );
 end;
 
-destructor TThreadExportToMBTiles.Destroy;
+destructor TExportTaskToMBTiles.Destroy;
 begin
   FreeAndNil(FSQLiteStorage);
   inherited;
 end;
 
-procedure TThreadExportToMBTiles.ProcessRegion;
+procedure TExportTaskToMBTiles.ProcessRegion;
 var
   I: Integer;
   VZoom: Byte;
@@ -276,7 +276,7 @@ begin
   end;
 end;
 
-function TThreadExportToMBTiles.GetLonLatRect(const ATileIterator: ITileIterator): TDoubleRect;
+function TExportTaskToMBTiles.GetLonLatRect(const ATileIterator: ITileIterator): TDoubleRect;
 var
   VRect: TRect;
   VTileRect: ITileRect;

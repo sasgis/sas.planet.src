@@ -32,7 +32,7 @@ uses
   u_RegionProcessTaskAbstract;
 
 type
-  TThreadExportToJnx = class(TRegionProcessTaskAbstract)
+  TExportTaskToJnx = class(TRegionProcessTaskAbstract)
   private
     FTasks: TExportTaskJnxArray;
     FTargetFile: string;
@@ -83,7 +83,7 @@ uses
   u_ResStrings,
   u_TileIteratorByPolygon;
 
-constructor TThreadExportToJnx.Create(
+constructor TExportTaskToJnx.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ATargetFile: string;
@@ -112,7 +112,7 @@ begin
   FBitmapPostProcessing := ABitmapPostProcessing;
 end;
 
-procedure TThreadExportToJnx.ProcessRegion;
+procedure TExportTaskToJnx.ProcessRegion;
 const
   ZoomToScale: array [0..26] of integer = (
     2446184, 1834628, 1223072, 611526, 458642, 305758, 152877, 114657, 76437,

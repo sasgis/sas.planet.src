@@ -170,7 +170,7 @@ begin
   end;
 
   Result :=
-    TThreadExportToRMapsSQLite.Create(
+    TExportTaskToRMapsSQLite.Create(
       AProgressInfo,
       VPath,
       FVectorGeometryProjectedFactory,

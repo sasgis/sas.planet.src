@@ -121,7 +121,7 @@ begin
   NotSaveNotExists := (ParamsFrame as IRegionProcessParamsFrameKmlExport).NotSaveNotExists;
 
   Result :=
-    TThreadExportKML.Create(
+    TExportTaskToKML.Create(
       AProgressInfo,
       VPath,
       FVectorGeometryProjectedFactory,

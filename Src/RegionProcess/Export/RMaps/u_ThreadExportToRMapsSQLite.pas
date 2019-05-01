@@ -42,7 +42,7 @@ uses
   u_ExportTaskAbstract;
 
 type
-  TThreadExportToRMapsSQLite = class(TExportTaskAbstract)
+  TExportTaskToRMapsSQLite = class(TExportTaskAbstract)
   private
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FProjectionSetFactory: IProjectionSetFactory;
@@ -99,9 +99,9 @@ uses
   u_TileIteratorByPolygon,
   u_ResStrings;
 
-{ TThreadExportToRMapsSQLite }
+{ TExportTaskToRMapsSQLite }
 
-constructor TThreadExportToRMapsSQLite.Create(
+constructor TExportTaskToRMapsSQLite.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AExportPath: string;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -135,7 +135,7 @@ begin
   FSQLiteAvailable := FSQLite3DB.Init;
 end;
 
-procedure TThreadExportToRMapsSQLite.ProcessRegion;
+procedure TExportTaskToRMapsSQLite.ProcessRegion;
 var
   I: Integer;
   VZoom: Byte;
@@ -242,7 +242,7 @@ begin
   end;
 end;
 
-procedure TThreadExportToRMapsSQLite.OpenSQLiteStorage;
+procedure TExportTaskToRMapsSQLite.OpenSQLiteStorage;
 var
   VCreateNewDB: Boolean;
 begin
@@ -303,7 +303,7 @@ begin
   FSQLite3DB.BeginTran;
 end;
 
-procedure TThreadExportToRMapsSQLite.CloseSQLiteStorage;
+procedure TExportTaskToRMapsSQLite.CloseSQLiteStorage;
 begin
   if FSQLite3DB.Opened then begin
     // перед закрытием надо обновить зумы
@@ -315,7 +315,7 @@ begin
   end;
 end;
 
-procedure TThreadExportToRMapsSQLite.SaveTileToSQLiteStorage(
+procedure TExportTaskToRMapsSQLite.SaveTileToSQLiteStorage(
   const ATile: TPoint;
   const AZoom: Byte;
   const AData: IBinaryData

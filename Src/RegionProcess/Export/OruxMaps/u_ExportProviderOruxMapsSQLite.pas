@@ -169,7 +169,7 @@ begin
   end;
 
   Result :=
-    TThreadExportToOruxMapsSQLite.Create(
+    TExportTaskToOruxMapsSQLite.Create(
       AProgressInfo,
       VPath,
       FVectorGeometryProjectedFactory,

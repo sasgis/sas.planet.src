@@ -132,7 +132,7 @@ begin
   end;
 
   Result :=
-    TThreadExportToIMG.Create(
+    TExportTaskToIMG.Create(
       AProgressInfo,
       FVectorGeometryProjectedFactory,
       VProcessParams.Path,

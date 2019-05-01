@@ -143,7 +143,7 @@ begin
   VTileSize := (ParamsFrame as IRegionProcessParamsFrameExportToOgf2).TileSize;
 
   Result :=
-    TThreadExportToOgf2.Create(
+    TExportTaskToOgf2.Create(
       AProgressInfo,
       FProjectionSetFactory,
       FBitmap32StaticFactory,

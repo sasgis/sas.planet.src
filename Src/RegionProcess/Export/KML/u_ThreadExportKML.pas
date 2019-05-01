@@ -36,7 +36,7 @@ uses
   u_ExportTaskAbstract;
 
 type
-  TThreadExportKML = class(TExportTaskAbstract)
+  TExportTaskToKML = class(TExportTaskAbstract)
   private
     FTileStorage: ITileStorage;
     FVersion: IMapVersionInfo;
@@ -81,7 +81,7 @@ uses
   u_GeoFunc,
   u_ResStrings;
 
-constructor TThreadExportKML.Create(
+constructor TExportTaskToKML.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APath: string;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -106,7 +106,7 @@ begin
   FVersion := AVersion;
 end;
 
-procedure TThreadExportKML.KmlFileWrite(
+procedure TExportTaskToKML.KmlFileWrite(
   AKmlStream: TStream;
   const ATile: TPoint;
   AZoom, level: byte
@@ -190,7 +190,7 @@ begin
   AKmlStream.WriteBuffer(VText[1], Length(VText));
 end;
 
-procedure TThreadExportKML.ProcessRegion;
+procedure TExportTaskToKML.ProcessRegion;
 var
   i: integer;
   VZoom: Byte;

@@ -36,7 +36,7 @@ uses
   u_ExportTaskAbstract;
 
 type
-  TThreadExportToCE = class(TExportTaskAbstract)
+  TExportTaskToCE = class(TExportTaskAbstract)
   private
     FTileStorage: ITileStorage;
     FVersion: IMapVersionRequest;
@@ -76,9 +76,9 @@ uses
   u_TileIteratorByPolygon,
   u_ResStrings;
 
-{ TThreadExportToCE }
+{ TExportTaskToCE }
 
-constructor TThreadExportToCE.Create(
+constructor TExportTaskToCE.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AProjectionSetFactory: IProjectionSetFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -107,7 +107,7 @@ begin
   FRecoverInfo := ARecoverInfo;
 end;
 
-procedure TThreadExportToCE.ProcessRegion;
+procedure TExportTaskToCE.ProcessRegion;
 var
   i: integer;
   VExt: string;

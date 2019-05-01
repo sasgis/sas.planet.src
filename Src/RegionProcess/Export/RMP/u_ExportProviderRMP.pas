@@ -198,7 +198,7 @@ begin
   VImageResamplerFactory := FImageResamplerFactoryList.Items[I];
 
   Result :=
-    TThreadExportToRMP.Create(
+    TExportTaskToRMP.Create(
       AProgressInfo,
       VPath,
       FVectorGeometryProjectedFactory,

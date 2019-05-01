@@ -142,7 +142,7 @@ begin
   end;
 
   Result :=
-    TThreadExportToJnx.Create(
+    TExportTaskToJnx.Create(
       AProgressInfo,
       FVectorGeometryProjectedFactory,
       VPath,
