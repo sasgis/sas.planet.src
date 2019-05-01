@@ -23,17 +23,48 @@ unit u_BitmapMapCombinerJPG;
 interface
 
 uses
+  i_InternalPerformanceCounter,
+  i_BitmapMapCombiner,
+  i_RegionProcessParamsFrame,
+  u_BitmapMapCombinerFactoryBase;
+
+type
+  TBitmapMapCombinerFactoryJPG = class(TBitmapMapCombinerFactoryBase)
+  private
+    FSaveRectCounter: IInternalPerformanceCounter;
+    FPrepareDataCounter: IInternalPerformanceCounter;
+    FGetLineCounter: IInternalPerformanceCounter;
+  protected
+    function PrepareMapCombiner(
+      const AParams: IRegionProcessParamsFrameMapCombine;
+      const AProgressInfo: IBitmapCombineProgressUpdate
+    ): IBitmapMapCombiner; override;
+  public
+    constructor Create(
+      const ACounterList: IInternalPerformanceCounterList
+    );
+  end;
+
+implementation
+
+uses
   Types,
   SysUtils,
   Classes,
   LibJpegWrite,
-  i_InternalPerformanceCounter,
+  gnugettext,
+  Exif,
+  t_GeoTypes,
+  t_CommonTypes,
+  t_MapCombineOptions,
   i_NotifierOperation,
   i_Projection,
   i_BitmapTileProvider,
   i_ImageLineProvider,
-  i_BitmapMapCombiner,
-  u_BaseInterfacedObject;
+  u_BaseInterfacedObject,
+  u_ImageLineProvider,
+  u_GeoFunc,
+  u_ResStrings;
 
 type
   TBitmapMapCombinerJPG = class(TBaseInterfacedObject, IBitmapMapCombiner)
@@ -73,15 +104,6 @@ type
       const ASaveGeoRefInfoToExif: Boolean
     );
   end;
-
-implementation
-
-uses
-  Exif,
-  t_GeoTypes,
-  u_ImageLineProvider,
-  u_GeoFunc,
-  u_ResStrings;
 
 { TThreadMapCombineJPG }
 
@@ -199,6 +221,44 @@ begin
   end;
   Result := FLineProvider.GetLine(FOperationID, FCancelNotifier, ALineNumber);
   Abort := (Result = nil) or FCancelNotifier.IsOperationCanceled(FOperationID);
+end;
+
+{ TBitmapMapCombinerFactoryJPG }
+
+constructor TBitmapMapCombinerFactoryJPG.Create(
+  const ACounterList: IInternalPerformanceCounterList
+);
+var
+  VCounterList: IInternalPerformanceCounterList;
+begin
+  inherited Create(
+    Point(0, 0),
+    Point(65536, 65536),
+    stsUnicode,
+    'jpg',
+    gettext_NoExtract('JPEG (Joint Photographic Experts Group)'),
+    [mcQuality, mcExif]
+  );
+  VCounterList := ACounterList.CreateAndAddNewSubList('JPEG');
+  FSaveRectCounter := VCounterList.CreateAndAddNewCounter('SaveRect');
+  FPrepareDataCounter := VCounterList.CreateAndAddNewCounter('PrepareData');
+  FGetLineCounter := VCounterList.CreateAndAddNewCounter('GetLine');
+end;
+
+function TBitmapMapCombinerFactoryJPG.PrepareMapCombiner(
+  const AParams: IRegionProcessParamsFrameMapCombine;
+  const AProgressInfo: IBitmapCombineProgressUpdate
+): IBitmapMapCombiner;
+begin
+  Result :=
+    TBitmapMapCombinerJPG.Create(
+      AProgressInfo,
+      FSaveRectCounter,
+      FPrepareDataCounter,
+      FGetLineCounter,
+      AParams.CustomOptions.Quality,
+      AParams.CustomOptions.IsSaveGeoRefInfoToExif
+    );
 end;
 
 end.

@@ -23,14 +23,44 @@ unit u_BitmapMapCombinerBMP;
 interface
 
 uses
+  i_InternalPerformanceCounter,
+  i_BitmapMapCombiner,
+  i_RegionProcessParamsFrame,
+  u_BitmapMapCombinerFactoryBase;
+
+
+type
+  TBitmapMapCombinerFactoryBMP = class(TBitmapMapCombinerFactoryBase)
+  private
+    FSaveRectCounter: IInternalPerformanceCounter;
+    FPrepareDataCounter: IInternalPerformanceCounter;
+    FGetLineCounter: IInternalPerformanceCounter;
+  protected
+    function PrepareMapCombiner(
+      const AParams: IRegionProcessParamsFrameMapCombine;
+      const AProgressInfo: IBitmapCombineProgressUpdate
+    ): IBitmapMapCombiner; override;
+  public
+    constructor Create(
+      const ACounterList: IInternalPerformanceCounterList
+    );
+  end;
+
+implementation
+
+uses
   SysUtils,
   Types,
-  i_InternalPerformanceCounter,
+  gnugettext,
+  LibBMP,
+  t_CommonTypes,
+  i_ImageLineProvider,
   i_NotifierOperation,
   i_BitmapTileProvider,
-  i_BitmapMapCombiner,
+  u_ImageLineProvider,
   u_BaseInterfacedObject,
-  LibBMP;
+  u_GeoFunc,
+  u_ResStrings;
 
 type
   TBitmapMapCombinerBMP = class(TBaseInterfacedObject, IBitmapMapCombiner)
@@ -55,15 +85,6 @@ type
       const AGetLineCounter: IInternalPerformanceCounter
     );
   end;
-
-implementation
-
-uses
-  gnugettext,
-  i_ImageLineProvider,
-  u_ImageLineProvider,
-  u_GeoFunc,
-  u_ResStrings;
 
 constructor TBitmapMapCombinerBMP.Create(
   const AProgressUpdate: IBitmapCombineProgressUpdate;
@@ -137,6 +158,41 @@ begin
   finally
     FSaveRectCounter.FinishOperation(VContext);
   end;
+end;
+
+{ TBitmapMapCombinerFactoryBMP }
+
+constructor TBitmapMapCombinerFactoryBMP.Create(
+  const ACounterList: IInternalPerformanceCounterList
+);
+var
+  VCounterList: IInternalPerformanceCounterList;
+begin
+  inherited Create(
+    Point(0, 0),
+    Point(32768, 32768),
+    stsUnicode,
+    'bmp',
+    gettext_NoExtract('BMP (Bitmap Picture)')
+  );
+  VCounterList := ACounterList.CreateAndAddNewSubList('BMP');
+  FSaveRectCounter := VCounterList.CreateAndAddNewCounter('SaveRect');
+  FPrepareDataCounter := VCounterList.CreateAndAddNewCounter('PrepareData');
+  FGetLineCounter := VCounterList.CreateAndAddNewCounter('GetLine');
+end;
+
+function TBitmapMapCombinerFactoryBMP.PrepareMapCombiner(
+  const AParams: IRegionProcessParamsFrameMapCombine;
+  const AProgressInfo: IBitmapCombineProgressUpdate
+): IBitmapMapCombiner;
+begin
+  Result :=
+    TBitmapMapCombinerBMP.Create(
+      AProgressInfo,
+      FSaveRectCounter,
+      FPrepareDataCounter,
+      FGetLineCounter
+    );
 end;
 
 end.

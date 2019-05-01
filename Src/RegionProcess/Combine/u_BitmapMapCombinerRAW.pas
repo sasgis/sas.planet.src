@@ -23,15 +23,45 @@ unit u_BitmapMapCombinerRAW;
 interface
 
 uses
+  i_InternalPerformanceCounter,
+  i_BitmapMapCombiner,
+  i_RegionProcessParamsFrame,
+  u_BitmapMapCombinerFactoryBase;
+
+type
+  TBitmapMapCombinerFactoryRAW = class(TBitmapMapCombinerFactoryBase)
+  private
+    FSaveRectCounter: IInternalPerformanceCounter;
+    FPrepareDataCounter: IInternalPerformanceCounter;
+    FGetLineCounter: IInternalPerformanceCounter;
+  protected
+    function PrepareMapCombiner(
+      const AParams: IRegionProcessParamsFrameMapCombine;
+      const AProgressInfo: IBitmapCombineProgressUpdate
+    ): IBitmapMapCombiner; override;
+  public
+    constructor Create(
+      const ACounterList: IInternalPerformanceCounterList
+    );
+  end;
+
+implementation
+
+uses
   SysUtils,
   Classes,
   Types,
+  gnugettext,
+  ALString,
   t_Bitmap32,
-  i_InternalPerformanceCounter,
+  t_CommonTypes,
+  t_MapCombineOptions,
   i_NotifierOperation,
   i_BitmapTileProvider,
-  i_BitmapMapCombiner,
-  u_BaseInterfacedObject;
+  i_ImageLineProvider,
+  u_BaseInterfacedObject,
+  u_ImageLineProvider,
+  u_GeoFunc;
 
 type
   TBitmapMapCombinerRAW = class(TBaseInterfacedObject, IBitmapMapCombiner)
@@ -62,15 +92,6 @@ type
       AWithAlpha: Boolean
     );
   end;
-
-implementation
-
-uses
-  gnugettext,
-  ALString,
-  i_ImageLineProvider,
-  u_ImageLineProvider,
-  u_GeoFunc;
 
 constructor TBitmapMapCombinerRAW.Create(
   const AProgressUpdate: IBitmapCombineProgressUpdate;
@@ -179,6 +200,44 @@ begin
   finally
     FSaveRectCounter.FinishOperation(VContext);
   end;
+end;
+
+{ TBitmapMapCombinerFactoryRAW }
+
+constructor TBitmapMapCombinerFactoryRAW.Create(
+  const ACounterList: IInternalPerformanceCounterList
+);
+var
+  VCounterList: IInternalPerformanceCounterList;
+begin
+  inherited Create(
+    Point(0, 0),
+    Point(1000000, MaxInt),
+    stsUnicode,
+    'raw',
+    gettext_NoExtract('RAW (Simple bitmap graphic)'),
+    [mcAlphaCheck]
+  );
+  VCounterList := ACounterList.CreateAndAddNewSubList('RAW');
+  FSaveRectCounter := VCounterList.CreateAndAddNewCounter('SaveRect');
+  FPrepareDataCounter := VCounterList.CreateAndAddNewCounter('PrepareData');
+  FGetLineCounter := VCounterList.CreateAndAddNewCounter('GetLine');
+end;
+
+function TBitmapMapCombinerFactoryRAW.PrepareMapCombiner(
+  const AParams: IRegionProcessParamsFrameMapCombine;
+  const AProgressInfo: IBitmapCombineProgressUpdate
+): IBitmapMapCombiner;
+begin
+  Result :=
+    TBitmapMapCombinerRAW.Create(
+      AProgressInfo,
+      FSaveRectCounter,
+      FPrepareDataCounter,
+      FGetLineCounter,
+      AParams.BGColor,
+      AParams.CustomOptions.IsSaveAlfa
+    );
 end;
 
 end.

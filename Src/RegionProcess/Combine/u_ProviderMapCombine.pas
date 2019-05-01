@@ -26,8 +26,6 @@ uses
   Windows,
   Forms,
   t_GeoTypes,
-  t_CommonTypes,
-  t_MapCombineOptions,
   i_LanguageManager,
   i_ProjectionSetList,
   i_ProjectionSetChangeable,
@@ -58,17 +56,15 @@ uses
   i_RegionProcessTask,
   i_RegionProcessProgressInfo,
   i_RegionProcessProgressInfoInternalFactory,
+  i_RegionProcessParamsFrame,
   u_ExportProviderAbstract,
   fr_MapSelect,
   fr_MapCombine;
 
 type
-  TProviderMapCombineBase = class(TExportProviderBase)
+  TProviderMapCombine = class(TExportProviderBase)
   private
-    FDefaultExt: string;
-    FCombinePathStringTypeSupport: TStringTypeSupport;
-    FFormatName: string;
-    FOptionsSet: TMapCombineOptionsSet;
+    FCombinerFactory: IBitmapMapCombinerFactory;
     FViewConfig: IGlobalViewMainConfig;
     FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
     FHashFunction: IHashFunction;
@@ -89,8 +85,6 @@ type
     FFillingMapPolygon: IFillingMapPolygon;
     FGridsConfig: IMapLayerGridsConfig;
     FCoordToStringConverter: ICoordToStringConverterChangeable;
-    FMinPartSize: TPoint;
-    FMaxPartSize: TPoint;
     function PrepareGridsProvider(const AProjection: IProjection): IBitmapTileProvider;
     function PrepareFillingMapProvider(const AProjection: IProjection): IBitmapTileProvider;
   protected
@@ -113,10 +107,8 @@ type
       const AProgressInfo: IRegionProcessProgressInfoInternal
     ): IBitmapCombineProgressUpdate;
   protected
+    function Validate(const APolygon: IGeometryLonLatPolygon): Boolean; override;
     function CreateFrame: TFrame; override;
-    function PrepareMapCombiner(
-      const AProgressInfo: IRegionProcessProgressInfoInternal
-    ): IBitmapMapCombiner; virtual; abstract;
   protected
     function GetCaption: string; override;
     function PrepareTask(
@@ -125,6 +117,7 @@ type
     ): IRegionProcessTask; override;
   public
     constructor Create(
+      const ACombinerFactory: IBitmapMapCombinerFactory;
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
@@ -147,13 +140,7 @@ type
       const AFillingMapPolygon: IFillingMapPolygon;
       const AGridsConfig: IMapLayerGridsConfig;
       const ACoordToStringConverter: ICoordToStringConverterChangeable;
-      const AMapCalibrationList: IMapCalibrationList;
-      const AMinPartSize: TPoint;
-      const AMaxPartSize: TPoint;
-      const ACombinePathStringTypeSupport: TStringTypeSupport;
-      const ADefaultExt: string;
-      const AFormatName: string;
-      const AOptionsSet: TMapCombineOptionsSet = []
+      const AMapCalibrationList: IMapCalibrationList
     );
   end;
 
@@ -178,7 +165,6 @@ uses
   i_VectorTileRenderer,
   i_FillingMapColorer,
   i_MapVersionRequest,
-  i_RegionProcessParamsFrame,
   u_GeoFunc,
   u_RegionProcessTaskCombine,
   u_TextDrawerBasic,
@@ -201,7 +187,8 @@ uses
 
 { TProviderMapCombineBase }
 
-constructor TProviderMapCombineBase.Create(
+constructor TProviderMapCombine.Create(
+  const ACombinerFactory: IBitmapMapCombinerFactory;
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
@@ -224,17 +211,10 @@ constructor TProviderMapCombineBase.Create(
   const AFillingMapPolygon: IFillingMapPolygon;
   const AGridsConfig: IMapLayerGridsConfig;
   const ACoordToStringConverter: ICoordToStringConverterChangeable;
-  const AMapCalibrationList: IMapCalibrationList;
-  const AMinPartSize: TPoint;
-  const AMaxPartSize: TPoint;
-  const ACombinePathStringTypeSupport: TStringTypeSupport;
-  const ADefaultExt: string;
-  const AFormatName: string;
-  const AOptionsSet: TMapCombineOptionsSet
+  const AMapCalibrationList: IMapCalibrationList
 );
 begin
-  Assert(AMinPartSize.X <= AMaxPartSize.X);
-  Assert(AMinPartSize.Y <= AMaxPartSize.Y);
+  Assert(Assigned(ACombinerFactory));
   Assert(Assigned(AFillingMapConfig));
   Assert(Assigned(AFillingMapType));
   Assert(Assigned(AFillingMapPolygon));
@@ -244,6 +224,7 @@ begin
     ALanguageManager,
     AMapSelectFrameBuilder
   );
+  FCombinerFactory := ACombinerFactory;
   FMapCalibrationList := AMapCalibrationList;
   FViewConfig := AViewConfig;
   FUseTilePrevZoomConfig := AUseTilePrevZoomConfig;
@@ -264,15 +245,9 @@ begin
   FFillingMapPolygon := AFillingMapPolygon;
   FGridsConfig := AGridsConfig;
   FCoordToStringConverter := ACoordToStringConverter;
-  FMinPartSize := AMinPartSize;
-  FMaxPartSize := AMaxPartSize;
-  FCombinePathStringTypeSupport := ACombinePathStringTypeSupport;
-  FDefaultExt := ADefaultExt;
-  FFormatName := AFormatName;
-  FOptionsSet := AOptionsSet;
 end;
 
-function TProviderMapCombineBase.CreateFrame: TFrame;
+function TProviderMapCombine.CreateFrame: TFrame;
 begin
   Result :=
     TfrMapCombine.Create(
@@ -285,12 +260,12 @@ begin
       FViewConfig,
       FUseTilePrevZoomConfig,
       FMapCalibrationList,
-      FMinPartSize,
-      FMaxPartSize,
-      FOptionsSet,
-      FCombinePathStringTypeSupport,
-      FDefaultExt,
-      FFormatName
+      FCombinerFactory.MinPartSize,
+      FCombinerFactory.MaxPartSize,
+      FCombinerFactory.OptionsSet,
+      FCombinerFactory.CombinePathStringTypeSupport,
+      FCombinerFactory.DefaultExt,
+      FCombinerFactory.FormatName
     );
   Assert(Supports(Result, IRegionProcessParamsFrameImageProvider));
   Assert(Supports(Result, IRegionProcessParamsFrameMapCalibrationList));
@@ -299,18 +274,18 @@ begin
   Assert(Supports(Result, IRegionProcessParamsFrameMapCombine));
 end;
 
-function TProviderMapCombineBase.GetCaption: string;
+function TProviderMapCombine.GetCaption: string;
 begin
-  Result := _(FFormatName);
+  Result := _(FCombinerFactory.FormatName);
 end;
 
-function TProviderMapCombineBase.PrepareCombineProgressUpdate(
+function TProviderMapCombine.PrepareCombineProgressUpdate(
   const AProgressInfo: IRegionProcessProgressInfoInternal): IBitmapCombineProgressUpdate;
 begin
   Result := TBitmapCombineProgressUpdate.Create(AProgressInfo);
 end;
 
-function TProviderMapCombineBase.PrepareFillingMapProvider(
+function TProviderMapCombine.PrepareFillingMapProvider(
   const AProjection: IProjection
 ): IBitmapTileProvider;
 var
@@ -354,7 +329,7 @@ begin
   end;
 end;
 
-function TProviderMapCombineBase.PrepareGridsProvider(
+function TProviderMapCombine.PrepareGridsProvider(
   const AProjection: IProjection
 ): IBitmapTileProvider;
 var
@@ -465,7 +440,7 @@ begin
   end;
 end;
 
-function TProviderMapCombineBase.PrepareImageProvider(
+function TProviderMapCombine.PrepareImageProvider(
   const APolygon: IGeometryLonLatPolygon;
   const AProjection: IProjection;
   const AProjectedPolygon: IGeometryProjectedPolygon
@@ -622,7 +597,7 @@ begin
     );
 end;
 
-function TProviderMapCombineBase.PreparePolygon(
+function TProviderMapCombine.PreparePolygon(
   const AProjection: IProjection;
   const APolygon: IGeometryLonLatPolygon
 ): IGeometryProjectedPolygon;
@@ -634,12 +609,12 @@ begin
     );
 end;
 
-function TProviderMapCombineBase.PrepareProjection: IProjection;
+function TProviderMapCombine.PrepareProjection: IProjection;
 begin
   Result := (ParamsFrame as IRegionProcessParamsFrameTargetProjection).Projection;
 end;
 
-function TProviderMapCombineBase.PrepareTargetRect(
+function TProviderMapCombine.PrepareTargetRect(
   const AProjection: IProjection;
   const APolygon: IGeometryProjectedPolygon
 ): TRect;
@@ -647,7 +622,7 @@ begin
   Result := RectFromDoubleRect(APolygon.Bounds, rrOutside);
 end;
 
-function TProviderMapCombineBase.PrepareTask(
+function TProviderMapCombine.PrepareTask(
   const APolygon: IGeometryLonLatPolygon;
   const AProgressInfo: IRegionProcessProgressInfoInternal
 ): IRegionProcessTask;
@@ -659,6 +634,7 @@ var
   VProjection: IProjection;
   VProjectedPolygon: IGeometryProjectedPolygon;
   VImageProvider: IBitmapTileProvider;
+  VProgressUpdate: IBitmapCombineProgressUpdate;
   VCombiner: IBitmapMapCombiner;
 begin
   VProjection := PrepareProjection;
@@ -668,8 +644,8 @@ begin
   VFileName := PrepareTargetFileName;
   VSplitCount := (ParamsFrame as IRegionProcessParamsFrameMapCombine).SplitCount;
   VSkipExistingFiles := (ParamsFrame as IRegionProcessParamsFrameMapCombine).SkipExistingFiles;
-
-  VCombiner := PrepareMapCombiner(AProgressInfo);
+  VProgressUpdate := PrepareCombineProgressUpdate(AProgressInfo);
+  VCombiner := FCombinerFactory.PrepareMapCombiner(ParamsFrame as IRegionProcessParamsFrameMapCombine, VProgressUpdate);
   Result :=
     TRegionProcessTaskCombine.Create(
       AProgressInfo,
@@ -684,7 +660,17 @@ begin
     );
 end;
 
-function TProviderMapCombineBase.PrepareTargetFileName: string;
+function TProviderMapCombine.Validate(
+  const APolygon: IGeometryLonLatPolygon
+): Boolean;
+begin
+  Result := inherited Validate(APolygon);
+  if Result then begin
+    Result := FCombinerFactory.Validate(ParamsFrame as IRegionProcessParamsFrameMapCombine, APolygon);
+  end;
+end;
+
+function TProviderMapCombine.PrepareTargetFileName: string;
 begin
   Result := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
   if Result = '' then begin

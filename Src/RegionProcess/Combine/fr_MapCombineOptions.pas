@@ -36,32 +36,12 @@ uses
   ExtCtrls,
   Spin,
   i_LanguageManager,
+  i_RegionProcessParamsFrame,
   t_GeoTIFF,
   t_MapCombineOptions,
   u_CommonFormAndFrameParents;
 
 type
-  IMapCombineCustomOptions = interface
-    ['{5E584132-7A0B-4A8A-A79E-005329AF1821}']
-    function GetQuality: Integer;
-    property Quality: Integer read GetQuality;
-
-    function GetIsSaveGeoRefInfoToExif: Boolean;
-    property IsSaveGeoRefInfoToExif: Boolean read GetIsSaveGeoRefInfoToExif;
-
-    function GetThreadCount: Integer;
-    property ThreadCount: Integer read GetThreadCount;
-
-    function GetIsSaveAlfa: Boolean;
-    property IsSaveAlfa: Boolean read GetIsSaveAlfa;
-
-    function GetGeoTiffCompression: TGeoTiffCompression;
-    property GeoTiffCompression: TGeoTiffCompression read GetGeoTiffCompression;
-
-    function GetGeoTiffFormat: TGeoTiffFileFormat;
-    property GeoTiffFormat: TGeoTiffFileFormat read GetGeoTiffFormat;
-  end;
-
   TfrMapCombineCustomOptions = class(TFrame, IMapCombineCustomOptions)
     flwpnlCompression: TFlowPanel;
     lblCompression: TLabel;

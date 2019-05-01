@@ -117,14 +117,14 @@ uses
   gnugettext,
   i_InterfaceListSimple,
   u_InterfaceListSimple,
-  u_ProviderMapCombineBMP,
-  u_ProviderMapCombineJPG,
-  u_ProviderMapCombinePNG,
-  u_ProviderMapCombineKMZ,
-  u_ProviderMapCombineECW,
-  u_ProviderMapCombineRAW,
-  u_ProviderMapCombineJP2,
-  u_ProviderMapCombineGeoTIFF;
+  u_ProviderMapCombine,
+  u_BitmapMapCombinerBMP,
+  u_BitmapMapCombinerJPG,
+  u_BitmapMapCombinerPNG,
+  u_BitmapMapCombinerKMZ,
+  u_BitmapMapCombinerECWJP2,
+  u_BitmapMapCombinerRAW,
+  u_BitmapMapCombinerGeoTIFF;
 
 {$R *.dfm}
 
@@ -167,10 +167,10 @@ begin
   VList := TInterfaceListSimple.Create;
 
   VExportProvider :=
-    TProviderMapCombineJPG.Create(
+    TProviderMapCombine.Create(
+      TBitmapMapCombinerFactoryJPG.Create(ACounterList),
       AProgressFactory,
       ALanguageManager,
-      ACounterList,
       AMapSelectFrameBuilder,
       AActiveMapsSet,
       AViewConfig,
@@ -197,10 +197,10 @@ begin
   cbbOutputFormat.Items.Add(VExportProvider.GetCaption);
 
   VExportProvider :=
-    TProviderMapCombinePNG.Create(
+    TProviderMapCombine.Create(
+      TBitmapMapCombinerFactoryPNG.Create(ACounterList),
       AProgressFactory,
       ALanguageManager,
-      ACounterList,
       AMapSelectFrameBuilder,
       AActiveMapsSet,
       AViewConfig,
@@ -227,10 +227,10 @@ begin
   cbbOutputFormat.Items.Add(VExportProvider.GetCaption);
 
   VExportProvider :=
-    TProviderMapCombineBMP.Create(
+    TProviderMapCombine.Create(
+      TBitmapMapCombinerFactoryBMP.Create(ACounterList),
       AProgressFactory,
       ALanguageManager,
-      ACounterList,
       AMapSelectFrameBuilder,
       AActiveMapsSet,
       AViewConfig,
@@ -257,10 +257,10 @@ begin
   cbbOutputFormat.Items.Add(VExportProvider.GetCaption);
 
   VExportProvider :=
-    TProviderMapCombineECW.Create(
+    TProviderMapCombine.Create(
+      TBitmapMapCombinerFactoryECW.Create(ACounterList),
       AProgressFactory,
       ALanguageManager,
-      ACounterList,
       AMapSelectFrameBuilder,
       AActiveMapsSet,
       AViewConfig,
@@ -287,103 +287,10 @@ begin
   cbbOutputFormat.Items.Add(VExportProvider.GetCaption);
 
   VExportProvider :=
-    TProviderMapCombineJP2.Create(
+    TProviderMapCombine.Create(
+      TBitmapMapCombinerFactoryJP2.Create(ACounterList, False),
       AProgressFactory,
       ALanguageManager,
-      ACounterList,
-      AMapSelectFrameBuilder,
-      AActiveMapsSet,
-      AViewConfig,
-      AUseTilePrevZoomConfig,
-      AProjectionSet,
-      AProjectionSetList,
-      AVectorGeometryProjectedFactory,
-      AProjectedGeometryProvider,
-      AVectorSubsetBuilderFactory,
-      AMarksShowConfig,
-      AMarksDrawConfig,
-      AMarksDB,
-      AHashFunction,
-      ABitmapFactory,
-      ABitmapPostProcessing,
-      AFillingMapConfig,
-      AFillingMapType,
-      AFillingMapPolygon,
-      AGridsConfig,
-      ACoordToStringConverter,
-      AMapCalibrationList,
-      False // Lossless
-    );
-  VList.Add(VExportProvider);
-  cbbOutputFormat.Items.Add(VExportProvider.GetCaption);
-
-  VExportProvider :=
-    TProviderMapCombineJP2.Create(
-      AProgressFactory,
-      ALanguageManager,
-      ACounterList,
-      AMapSelectFrameBuilder,
-      AActiveMapsSet,
-      AViewConfig,
-      AUseTilePrevZoomConfig,
-      AProjectionSet,
-      AProjectionSetList,
-      AVectorGeometryProjectedFactory,
-      AProjectedGeometryProvider,
-      AVectorSubsetBuilderFactory,
-      AMarksShowConfig,
-      AMarksDrawConfig,
-      AMarksDB,
-      AHashFunction,
-      ABitmapFactory,
-      ABitmapPostProcessing,
-      AFillingMapConfig,
-      AFillingMapType,
-      AFillingMapPolygon,
-      AGridsConfig,
-      ACoordToStringConverter,
-      AMapCalibrationList,
-      True // Lossless
-    );
-  VList.Add(VExportProvider);
-  cbbOutputFormat.Items.Add(VExportProvider.GetCaption);
-
-  VExportProvider :=
-    TProviderMapCombineKMZ.Create(
-      AProgressFactory,
-      ALanguageManager,
-      AMapSelectFrameBuilder,
-      AActiveMapsSet,
-      AViewConfig,
-      AUseTilePrevZoomConfig,
-      AProjectionSet,
-      AProjectionSetList,
-      AVectorGeometryProjectedFactory,
-      AProjectedGeometryProvider,
-      AVectorSubsetBuilderFactory,
-      ABitmapTileSaveLoadFactory,
-      AArchiveReadWriteFactory,
-      AMarksShowConfig,
-      AMarksDrawConfig,
-      AMarksDB,
-      AHashFunction,
-      ABitmapFactory,
-      ABitmapPostProcessing,
-      AFillingMapConfig,
-      AFillingMapType,
-      AFillingMapPolygon,
-      AGridsConfig,
-      ACoordToStringConverter,
-      AMapCalibrationList
-    );
-  VList.Add(VExportProvider);
-  cbbOutputFormat.Items.Add(VExportProvider.GetCaption);
-
-  VExportProvider :=
-    TProviderMapCombineRAW.Create(
-      AProgressFactory,
-      ALanguageManager,
-      ACounterList,
       AMapSelectFrameBuilder,
       AActiveMapsSet,
       AViewConfig,
@@ -410,10 +317,100 @@ begin
   cbbOutputFormat.Items.Add(VExportProvider.GetCaption);
 
   VExportProvider :=
-    TProviderMapCombineGeoTIFF.Create(
+    TProviderMapCombine.Create(
+      TBitmapMapCombinerFactoryJP2.Create(ACounterList, True),
       AProgressFactory,
       ALanguageManager,
-      ACounterList,
+      AMapSelectFrameBuilder,
+      AActiveMapsSet,
+      AViewConfig,
+      AUseTilePrevZoomConfig,
+      AProjectionSet,
+      AProjectionSetList,
+      AVectorGeometryProjectedFactory,
+      AProjectedGeometryProvider,
+      AVectorSubsetBuilderFactory,
+      AMarksShowConfig,
+      AMarksDrawConfig,
+      AMarksDB,
+      AHashFunction,
+      ABitmapFactory,
+      ABitmapPostProcessing,
+      AFillingMapConfig,
+      AFillingMapType,
+      AFillingMapPolygon,
+      AGridsConfig,
+      ACoordToStringConverter,
+      AMapCalibrationList
+    );
+  VList.Add(VExportProvider);
+  cbbOutputFormat.Items.Add(VExportProvider.GetCaption);
+
+  VExportProvider :=
+    TProviderMapCombine.Create(
+      TBitmapMapCombinerFactoryKMZ.Create(ABitmapTileSaveLoadFactory, AArchiveReadWriteFactory, ABitmapFactory),
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AActiveMapsSet,
+      AViewConfig,
+      AUseTilePrevZoomConfig,
+      AProjectionSet,
+      AProjectionSetList,
+      AVectorGeometryProjectedFactory,
+      AProjectedGeometryProvider,
+      AVectorSubsetBuilderFactory,
+      AMarksShowConfig,
+      AMarksDrawConfig,
+      AMarksDB,
+      AHashFunction,
+      ABitmapFactory,
+      ABitmapPostProcessing,
+      AFillingMapConfig,
+      AFillingMapType,
+      AFillingMapPolygon,
+      AGridsConfig,
+      ACoordToStringConverter,
+      AMapCalibrationList
+    );
+  VList.Add(VExportProvider);
+  cbbOutputFormat.Items.Add(VExportProvider.GetCaption);
+
+  VExportProvider :=
+    TProviderMapCombine.Create(
+      TBitmapMapCombinerFactoryRAW.Create(ACounterList),
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AActiveMapsSet,
+      AViewConfig,
+      AUseTilePrevZoomConfig,
+      AProjectionSet,
+      AProjectionSetList,
+      AVectorGeometryProjectedFactory,
+      AProjectedGeometryProvider,
+      AVectorSubsetBuilderFactory,
+      AMarksShowConfig,
+      AMarksDrawConfig,
+      AMarksDB,
+      AHashFunction,
+      ABitmapFactory,
+      ABitmapPostProcessing,
+      AFillingMapConfig,
+      AFillingMapType,
+      AFillingMapPolygon,
+      AGridsConfig,
+      ACoordToStringConverter,
+      AMapCalibrationList
+    );
+  VList.Add(VExportProvider);
+  cbbOutputFormat.Items.Add(VExportProvider.GetCaption);
+
+  VExportProvider :=
+    TProviderMapCombine.Create(
+      TBitmapMapCombinerFactoryGeoTIFF.Create(ACounterList),
+      AProgressFactory,
+      ALanguageManager,
       AMapSelectFrameBuilder,
       AActiveMapsSet,
       AViewConfig,

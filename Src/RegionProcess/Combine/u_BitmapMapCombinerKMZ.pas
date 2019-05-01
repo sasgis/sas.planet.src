@@ -23,18 +23,66 @@ unit u_BitmapMapCombinerKMZ;
 interface
 
 uses
+  i_Bitmap32BufferFactory,
+  i_BitmapTileSaveLoadFactory,
+  i_GeometryLonLat,
+  i_ArchiveReadWriteFactory,
+  i_BitmapMapCombiner,
+  i_RegionProcessParamsFrame,
+  u_BitmapMapCombinerFactoryBase;
+
+type
+  TBitmapMapCombinerFactoryKMZ = class(TBitmapMapCombinerFactoryBase)
+  private
+    FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+    FBitmapFactory: IBitmap32StaticFactory;
+    FArchiveReadWriteFactory: IArchiveReadWriteFactory;
+  protected
+    function PrepareMapCombiner(
+      const AParams: IRegionProcessParamsFrameMapCombine;
+      const AProgressInfo: IBitmapCombineProgressUpdate
+    ): IBitmapMapCombiner; override;
+    function Validate(
+      const AParams: IRegionProcessParamsFrameMapCombine;
+      const APolygon: IGeometryLonLatPolygon
+    ): Boolean; override;
+  public
+    constructor Create(
+      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+      const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+      const ABitmapFactory: IBitmap32StaticFactory
+    );
+  end;
+
+implementation
+
+uses
   SysUtils,
   Classes,
   Types,
+  Dialogs,
+  Math,
+  GR32,
+  gnugettext,
+  ALString,
+  t_GeoTypes,
+  t_CommonTypes,
+  t_MapCombineOptions,
+  i_BinaryData,
+  i_BitmapTileSaveLoad,
+  i_ArchiveReadWrite,
   i_Projection,
   i_NotifierOperation,
   i_BitmapTileProvider,
   i_Bitmap32Static,
-  i_Bitmap32BufferFactory,
-  i_BitmapTileSaveLoadFactory,
-  i_ArchiveReadWriteFactory,
-  i_BitmapMapCombiner,
-  u_BaseInterfacedObject;
+  u_BaseInterfacedObject,
+  u_TileIteratorByRect,
+  u_BinaryDataByMemStream,
+  u_Bitmap32ByStaticBitmap,
+  u_BitmapFunc,
+  u_ResStrings,
+  u_GeoFunc,
+  u_GeoToStrFunc;
 
 type
   TBitmapMapCombinerKMZ = class(TBaseInterfacedObject, IBitmapMapCombiner)
@@ -69,22 +117,6 @@ type
       AQuality: Integer
     );
   end;
-
-implementation
-
-uses
-  GR32,
-  ALString,
-  t_GeoTypes,
-  i_BinaryData,
-  i_BitmapTileSaveLoad,
-  i_ArchiveReadWrite,
-  u_TileIteratorByRect,
-  u_BinaryDataByMemStream,
-  u_Bitmap32ByStaticBitmap,
-  u_BitmapFunc,
-  u_GeoFunc,
-  u_GeoToStrFunc;
 
 constructor TBitmapMapCombinerKMZ.Create(
   const AProgressUpdate: IBitmapCombineProgressUpdate;
@@ -259,6 +291,91 @@ begin
   finally
     kmlm.Free;
   end;
+end;
+
+{ TBitmapMapCombinerFactoryKMZ }
+
+constructor TBitmapMapCombinerFactoryKMZ.Create(
+  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+  const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+  const ABitmapFactory: IBitmap32StaticFactory
+);
+begin
+  inherited Create(
+    Types.Point(0, 0),
+    Types.Point(10240, 10240),
+    stsUnicode,
+    'kmz',
+    gettext_NoExtract('KMZ for Garmin (JPEG Overlays)'),
+    [mcQuality]
+  );
+  FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
+  FBitmapFactory := ABitmapFactory;
+  FArchiveReadWriteFactory := AArchiveReadWriteFactory;
+end;
+
+function TBitmapMapCombinerFactoryKMZ.PrepareMapCombiner(
+  const AParams: IRegionProcessParamsFrameMapCombine;
+  const AProgressInfo: IBitmapCombineProgressUpdate
+): IBitmapMapCombiner;
+begin
+  Result :=
+    TBitmapMapCombinerKMZ.Create(
+      AProgressInfo,
+      FBitmapFactory,
+      FBitmapTileSaveLoadFactory,
+      FArchiveReadWriteFactory,
+      AParams.CustomOptions.Quality
+    );
+end;
+
+function TBitmapMapCombinerFactoryKMZ.Validate(
+  const AParams: IRegionProcessParamsFrameMapCombine;
+  const APolygon: IGeometryLonLatPolygon
+): Boolean;
+var
+  VSplitCount: TPoint;
+  VProjection: IProjection;
+  VLonLatRect: TDoubleRect;
+  VPixelRect: TRect;
+  VPixelSize: TPoint;
+  VKmzImgesCount: TPoint;
+begin
+  Result := inherited Validate(AParams, APolygon);
+  if not Result then begin
+    Exit;
+  end;
+
+  if not Assigned(APolygon) then begin
+    Assert(False, _('Polygon isn''t selected'));
+    Result := False;
+    Exit;
+  end;
+  VSplitCount := AParams.SplitCount;
+  VProjection := (AParams as IRegionProcessParamsFrameTargetProjection).Projection;
+  if not Assigned(VProjection) then begin
+    Assert(False, _('Projection isn''t selected'));
+    Result := False;
+    Exit;
+  end;
+  VLonLatRect := APolygon.Bounds.Rect;
+  VProjection.ProjectionType.ValidateLonLatRect(VLonLatRect);
+  VPixelRect :=
+    RectFromDoubleRect(
+      VProjection.LonLatRect2PixelRectFloat(VLonLatRect),
+      rrOutside
+    );
+  VPixelSize := RectSize(VPixelRect);
+  VPixelSize.X := Trunc(VPixelSize.X / VSplitCount.X);
+  VPixelSize.Y := Trunc(VPixelSize.Y / VSplitCount.Y);
+
+  VKmzImgesCount.X := ((VPixelSize.X - 1) div 1024) + 1;
+  VKmzImgesCount.Y := ((VPixelSize.Y - 1) div 1024) + 1;
+  if ((VKmzImgesCount.X * VKmzImgesCount.Y) > 100) then begin
+    ShowMessage(SAS_MSG_GarminMax1Mp);
+  end;
+
+  Result := True;
 end;
 
 end.

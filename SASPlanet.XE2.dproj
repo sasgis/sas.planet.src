@@ -212,7 +212,7 @@
 			<DCCReference Include="Src\Basic\u_HashFunctionCRC64.pas"/>
 			<DCCReference Include="Src\Basic\u_HashFunctionCityHash.pas"/>
 			<DCCReference Include="Src\Basic\u_IDInterfaceList.pas"/>
-			<DCCReference Include="Src\Basic\u_IDListBase.pas"/>
+			<DCCReference Include="Src\Basic\u_IdListBase.pas"/>
 			<DCCReference Include="Src\Basic\u_InterfaceListSimple.pas"/>
 			<DCCReference Include="Src\Basic\u_InterfaceListStatic.pas"/>
 			<DCCReference Include="Src\Basic\u_InterfacedThread.pas"/>
@@ -1207,15 +1207,8 @@
 			<DCCReference Include="Src\RegionProcess\Combine\u_ImageLineProvider.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_ImageLineProviderMultiThread.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombine.pas"/>
-			<DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombineBMP.pas"/>
-			<DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombineECW.pas"/>
-			<DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombineGeoTIFF.pas"/>
-			<DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombineJP2.pas"/>
-			<DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombineJPG.pas"/>
-			<DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombineKMZ.pas"/>
-			<DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombinePNG.pas"/>
-			<DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombineRAW.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_RegionProcessTaskCombine.pas"/>
+			<DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerFactoryBase.pas"/>
 			<DCCReference Include="Src\RegionProcess\Copy\fr_TilesCopy.pas">
 				<Form>frTilesCopy</Form>
 				<DesignClass>TFrame</DesignClass>

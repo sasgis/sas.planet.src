@@ -24,7 +24,11 @@ interface
 
 uses
   Types,
+  t_CommonTypes,
+  t_MapCombineOptions,
   i_NotifierOperation,
+  i_GeometryLonLat,
+  i_RegionProcessParamsFrame,
   i_BitmapTileProvider;
 
 type
@@ -42,6 +46,38 @@ type
       const AImageProvider: IBitmapTileProvider;
       const AMapRect: TRect
     );
+  end;
+
+  IBitmapMapCombinerFactory = interface
+    ['{52A37CEB-7A4B-4C6D-A757-E65BFD1BC8D9}']
+
+    function GetMinPartSize: TPoint;
+    property MinPartSize: TPoint read GetMinPartSize;
+
+    function GetMaxPartSize: TPoint;
+    property MaxPartSize: TPoint read GetMaxPartSize;
+
+    function GetCombinePathStringTypeSupport: TStringTypeSupport;
+    property CombinePathStringTypeSupport: TStringTypeSupport read GetCombinePathStringTypeSupport;
+
+    function GetDefaultExt: string;
+    property DefaultExt: string read GetDefaultExt;
+
+    function GetFormatName: string;
+    property FormatName: string read GetFormatName;
+
+    function GetOptionsSet: TMapCombineOptionsSet;
+    property OptionsSet: TMapCombineOptionsSet read GetOptionsSet;
+
+    function Validate(
+      const AParams: IRegionProcessParamsFrameMapCombine;
+      const APolygon: IGeometryLonLatPolygon
+    ): Boolean;
+
+    function PrepareMapCombiner(
+      const AParams: IRegionProcessParamsFrameMapCombine;
+      const AProgressInfo: IBitmapCombineProgressUpdate
+    ): IBitmapMapCombiner;
   end;
 
 implementation

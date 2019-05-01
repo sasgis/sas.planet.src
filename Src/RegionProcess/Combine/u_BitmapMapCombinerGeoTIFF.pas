@@ -23,17 +23,49 @@ unit u_BitmapMapCombinerGeoTIFF;
 interface
 
 uses
+  i_InternalPerformanceCounter,
+  i_BitmapMapCombiner,
+  i_RegionProcessParamsFrame,
+  u_BitmapMapCombinerFactoryBase;
+
+type
+  TBitmapMapCombinerFactoryGeoTIFF = class(TBitmapMapCombinerFactoryBase)
+  private
+    FSaveRectCounter: IInternalPerformanceCounter;
+    FPrepareDataCounter: IInternalPerformanceCounter;
+    FGetLineCounter: IInternalPerformanceCounter;
+  protected
+    function PrepareMapCombiner(
+      const AParams: IRegionProcessParamsFrameMapCombine;
+      const AProgressInfo: IBitmapCombineProgressUpdate
+    ): IBitmapMapCombiner; override;
+  public
+    constructor Create(
+      const ACounterList: IInternalPerformanceCounterList
+    );
+  end;
+
+implementation
+
+uses
   SysUtils,
   Classes,
   Types,
+  gnugettext,
   GeoTiffWriter,
   t_GeoTIFF,
-  i_InternalPerformanceCounter,
+  t_CommonTypes,
+  t_MapCombineOptions,
+  c_CoordConverter,
+  i_Projection,
   i_ImageLineProvider,
   i_NotifierOperation,
   i_BitmapTileProvider,
-  i_BitmapMapCombiner,
-  u_BaseInterfacedObject;
+  u_BaseInterfacedObject,
+  u_CalcWFileParams,
+  u_ImageLineProvider,
+  u_ImageLineProviderMultiThread,
+  u_GeoFunc;
 
 type
   TBitmapMapCombinerGeoTIFF = class(TBaseInterfacedObject, IBitmapMapCombiner)
@@ -78,16 +110,6 @@ type
       const ACompression: TGeoTiffCompression = gtcLZW
     );
   end;
-
-implementation
-
-uses
-  c_CoordConverter,
-  i_Projection,
-  u_CalcWFileParams,
-  u_ImageLineProvider,
-  u_ImageLineProviderMultiThread,
-  u_GeoFunc;
 
 { TBitmapMapCombinerGeoTIFF }
 
@@ -278,6 +300,46 @@ begin
   end else begin
     Result := nil;
   end;
+end;
+
+{ TBitmapMapCombinerFactoryGeoTIFF }
+
+constructor TBitmapMapCombinerFactoryGeoTIFF.Create(
+  const ACounterList: IInternalPerformanceCounterList
+);
+var
+  VCounterList: IInternalPerformanceCounterList;
+begin
+  inherited Create(
+    Point(0, 0),
+    Point(1000000, MaxInt),
+    stsUnicode,
+    'tif',
+    gettext_NoExtract('GeoTIFF (Tagged Image File Format)'),
+    [mcAlphaUncheck, mcGeoTiff, mcThreadCount]
+  );
+  VCounterList := ACounterList.CreateAndAddNewSubList('GeoTIFF');
+  FSaveRectCounter := VCounterList.CreateAndAddNewCounter('SaveRect');
+  FPrepareDataCounter := VCounterList.CreateAndAddNewCounter('PrepareData');
+  FGetLineCounter := VCounterList.CreateAndAddNewCounter('GetLine');
+end;
+
+function TBitmapMapCombinerFactoryGeoTIFF.PrepareMapCombiner(
+  const AParams: IRegionProcessParamsFrameMapCombine;
+  const AProgressInfo: IBitmapCombineProgressUpdate
+): IBitmapMapCombiner;
+begin
+  Result :=
+    TBitmapMapCombinerGeoTIFF.Create(
+      AProgressInfo,
+      FSaveRectCounter,
+      FPrepareDataCounter,
+      FGetLineCounter,
+      AParams.CustomOptions.ThreadCount,
+      AParams.CustomOptions.IsSaveAlfa,
+      AParams.CustomOptions.GeoTiffFormat,
+      AParams.CustomOptions.GeoTiffCompression
+    );
 end;
 
 end.

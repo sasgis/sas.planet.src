@@ -27,16 +27,74 @@ interface
 {$ENDIF}
 
 uses
+  i_InternalPerformanceCounter,
+  i_BitmapMapCombiner,
+  i_RegionProcessParamsFrame,
+  u_BitmapMapCombinerFactoryBase;
+
+type
+  TBitmapMapCombinerFactoryECW = class(TBitmapMapCombinerFactoryBase)
+  private
+    FSaveRectCounter: IInternalPerformanceCounter;
+    FPrepareDataCounter: IInternalPerformanceCounter;
+    FGetLineCounter: IInternalPerformanceCounter;
+  protected
+    function PrepareMapCombiner(
+      const AParams: IRegionProcessParamsFrameMapCombine;
+      const AProgressInfo: IBitmapCombineProgressUpdate
+    ): IBitmapMapCombiner; override;
+  public
+    constructor Create(
+      const ACounterList: IInternalPerformanceCounterList
+    );
+  end;
+
+type
+  TBitmapMapCombinerFactoryJP2 = class(TBitmapMapCombinerFactoryBase)
+  private
+    FSaveRectCounter: IInternalPerformanceCounter;
+    FPrepareDataCounter: IInternalPerformanceCounter;
+    FGetLineCounter: IInternalPerformanceCounter;
+    FLossless: Boolean;
+  protected
+    function PrepareMapCombiner(
+      const AParams: IRegionProcessParamsFrameMapCombine;
+      const AProgressInfo: IBitmapCombineProgressUpdate
+    ): IBitmapMapCombiner; override;
+  public
+    constructor Create(
+      const ACounterList: IInternalPerformanceCounterList;
+      const ALossless: Boolean
+    );
+  end;
+
+implementation
+
+uses
   SysUtils,
   Types,
-  i_InternalPerformanceCounter,
+  {$IFDEF SHOW_COMPRESSION_STAT}
+  Classes,
+  Dialogs,
+  UITypes,
+  {$ENDIF}
+  gnugettext,
+  libecwj2,
+  ALString,
+  t_ECW,
+  t_CommonTypes,
+  t_MapCombineOptions,
+  c_CoordConverter,
   i_NotifierOperation,
   i_BitmapTileProvider,
   i_Projection,
   i_ImageLineProvider,
-  i_BitmapMapCombiner,
+  u_BaseInterfacedObject,
+  u_CalcWFileParams,
   u_ECWJP2Write,
-  u_BaseInterfacedObject;
+  u_ImageLineProvider,
+  u_GeoFunc,
+  u_ResStrings;
 
 type
   TBitmapMapCombinerECWJP2 = class(TBaseInterfacedObject, IBitmapMapCombiner)
@@ -78,23 +136,6 @@ type
       const AQuality: Integer
     );
   end;
-
-implementation
-
-uses
-  {$IFDEF SHOW_COMPRESSION_STAT}
-  Classes,
-  Dialogs,
-  UITypes,
-  {$ENDIF}
-  libecwj2,
-  ALString,
-  t_ECW,
-  c_CoordConverter,
-  u_CalcWFileParams,
-  u_ImageLineProvider,
-  u_GeoFunc,
-  u_ResStrings;
 
 constructor TBitmapMapCombinerECWJP2.Create(
   const AProgressUpdate: IBitmapCombineProgressUpdate;
@@ -294,5 +335,99 @@ begin
   MessageDlg(VEncodeInfoMsg, mtInformation, [mbOK], 0);
 end;
 {$ENDIF}
+
+{ TBitmapMapCombinerFactoryECW }
+
+constructor TBitmapMapCombinerFactoryECW.Create(
+  const ACounterList: IInternalPerformanceCounterList
+);
+var
+  VCounterList: IInternalPerformanceCounterList;
+begin
+  inherited Create(
+    Point(128, 128),
+    Point(MaxInt, MaxInt),
+    stsAnsi,
+    'ecw',
+    gettext_NoExtract('ECW (Enhanced Compression Wavelet)'),
+    [mcQuality]
+  );
+  VCounterList := ACounterList.CreateAndAddNewSubList('ECW');
+  FSaveRectCounter := VCounterList.CreateAndAddNewCounter('SaveRect');
+  FPrepareDataCounter := VCounterList.CreateAndAddNewCounter('PrepareData');
+  FGetLineCounter := VCounterList.CreateAndAddNewCounter('GetLine');
+end;
+
+function TBitmapMapCombinerFactoryECW.PrepareMapCombiner(
+  const AParams: IRegionProcessParamsFrameMapCombine;
+  const AProgressInfo: IBitmapCombineProgressUpdate
+): IBitmapMapCombiner;
+begin
+  Result :=
+    TBitmapMapCombinerECWJP2.Create(
+      AProgressInfo,
+      FSaveRectCounter,
+      FPrepareDataCounter,
+      FGetLineCounter,
+      AParams.CustomOptions.Quality
+    );
+end;
+
+{ TBitmapMapCombinerFactoryJP2 }
+
+constructor TBitmapMapCombinerFactoryJP2.Create(
+  const ACounterList: IInternalPerformanceCounterList;
+  const ALossless: Boolean
+);
+var
+  VCaption: string;
+  VOptions: TMapCombineOptionsSet;
+  VCounterList: IInternalPerformanceCounterList;
+begin
+  FLossless := ALossless;
+
+  VCaption := 'JPEG2000';
+  VOptions := [mcQuality];
+
+  if FLossless then begin
+    VCaption := VCaption + ' (Lossless Compression)';
+    VOptions := [];
+  end;
+
+  inherited Create(
+    Point(2, 2),
+    Point(MaxInt, MaxInt),
+    stsAnsi,
+    'jp2',
+    gettext_NoExtract(VCaption),
+    VOptions
+  );
+  VCounterList := ACounterList.CreateAndAddNewSubList('JPEG2000');
+  FSaveRectCounter := VCounterList.CreateAndAddNewCounter('SaveRect');
+  FPrepareDataCounter := VCounterList.CreateAndAddNewCounter('PrepareData');
+  FGetLineCounter := VCounterList.CreateAndAddNewCounter('GetLine');
+end;
+
+function TBitmapMapCombinerFactoryJP2.PrepareMapCombiner(
+  const AParams: IRegionProcessParamsFrameMapCombine;
+  const AProgressInfo: IBitmapCombineProgressUpdate
+): IBitmapMapCombiner;
+var
+  VQuality: Integer;
+begin
+  if FLossless then begin
+    VQuality := 100;
+  end else begin
+    VQuality := AParams.CustomOptions.Quality;
+  end;
+  Result :=
+    TBitmapMapCombinerECWJP2.Create(
+      AProgressInfo,
+      FSaveRectCounter,
+      FPrepareDataCounter,
+      FGetLineCounter,
+      VQuality
+    );
+end;
 
 end.

@@ -54,34 +54,6 @@ uses
   u_CommonFormAndFrameParents;
 
 type
-  IRegionProcessParamsFrameMapCombine = interface(IRegionProcessParamsFrameBase)
-    ['{6771DEDD-F33C-4152-B4AB-47E6A0B032E1}']
-    function GetUseMarks: Boolean;
-    property UseMarks: Boolean read GetUseMarks;
-
-    function GetUseGrids: Boolean;
-    property UseGrids: Boolean read GetUseGrids;
-
-    function GetUseFillingMap: Boolean;
-    property UseFillingMap: Boolean read GetUseFillingMap;
-
-    function GetUseRecolor: Boolean;
-    property UseRecolor: Boolean read GetUseRecolor;
-
-    function GetSplitCount: TPoint;
-    property SplitCount: TPoint read GetSplitCount;
-
-    function GetSkipExistingFiles: Boolean;
-    property SkipExistingFiles: Boolean read GetSkipExistingFiles;
-
-    function GetBGColor: TColor32;
-    property BGColor: TColor32 read GetBGColor;
-
-    function GetCustomOptions: IMapCombineCustomOptions;
-    property CustomOptions: IMapCombineCustomOptions read GetCustomOptions;
-  end;
-
-type
   TfrMapCombine = class(
       TFrame,
       IRegionProcessParamsFrameBase,
