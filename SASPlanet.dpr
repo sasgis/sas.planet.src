@@ -972,7 +972,7 @@ uses
   u_ProviderMapCombineKMZ in 'Src\RegionProcess\Combine\u_ProviderMapCombineKMZ.pas',
   u_ProviderMapCombinePNG in 'Src\RegionProcess\Combine\u_ProviderMapCombinePNG.pas',
   u_ProviderMapCombineRAW in 'Src\RegionProcess\Combine\u_ProviderMapCombineRAW.pas',
-  u_ThreadMapCombineBase in 'Src\RegionProcess\Combine\u_ThreadMapCombineBase.pas',
+  u_RegionProcessTaskCombine in 'Src\RegionProcess\Combine\u_RegionProcessTaskCombine.pas',
   fr_TilesCopy in 'Src\RegionProcess\Copy\fr_TilesCopy.pas' {frTilesCopy: TFrame},
   u_ProviderTilesCopy in 'Src\RegionProcess\Copy\u_ProviderTilesCopy.pas',
   u_ThreadCopyFromStorageToStorage in 'Src\RegionProcess\Copy\u_ThreadCopyFromStorageToStorage.pas',

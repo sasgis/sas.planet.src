@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_ThreadMapCombineBase;
+unit u_RegionProcessTaskCombine;
 
 interface
 

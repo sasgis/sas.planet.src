@@ -98,7 +98,6 @@ uses
   gnugettext,
   t_CommonTypes,
   t_MapCombineOptions,
-  u_ThreadMapCombineBase,
   u_BitmapMapCombinerGeoTIFF,
   fr_MapCombine;
 
@@ -176,7 +175,7 @@ function TProviderMapCombineGeoTIFF.PrepareMapCombiner(
 var
   VProgressUpdate: IBitmapCombineProgressUpdate;
 begin
-  VProgressUpdate := TBitmapCombineProgressUpdate.Create(AProgressInfo);
+  VProgressUpdate := PrepareCombineProgressUpdate(AProgressInfo);
   Result :=
     TBitmapMapCombinerGeoTIFF.Create(
       VProgressUpdate,

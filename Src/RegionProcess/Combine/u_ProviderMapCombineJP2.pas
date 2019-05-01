@@ -100,7 +100,6 @@ uses
   gnugettext,
   t_CommonTypes,
   t_MapCombineOptions,
-  u_ThreadMapCombineBase,
   u_BitmapMapCombinerECWJP2,
   fr_MapCombine;
 
@@ -197,7 +196,7 @@ begin
   end else begin
     VQuality := (ParamsFrame as IRegionProcessParamsFrameMapCombine).CustomOptions.Quality;
   end;
-  VProgressUpdate := TBitmapCombineProgressUpdate.Create(AProgressInfo);
+  VProgressUpdate := PrepareCombineProgressUpdate(AProgressInfo);
   Result :=
     TBitmapMapCombinerECWJP2.Create(
       VProgressUpdate,

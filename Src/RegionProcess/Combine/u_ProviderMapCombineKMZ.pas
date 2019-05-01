@@ -106,7 +106,6 @@ uses
   t_MapCombineOptions,
   t_GeoTypes,
   i_Projection,
-  u_ThreadMapCombineBase,
   u_BitmapMapCombinerKMZ,
   u_GeoFunc,
   u_ResStrings,
@@ -184,7 +183,7 @@ function TProviderMapCombineKMZ.PrepareMapCombiner(
 var
   VProgressUpdate: IBitmapCombineProgressUpdate;
 begin
-  VProgressUpdate := TBitmapCombineProgressUpdate.Create(AProgressInfo);
+  VProgressUpdate := PrepareCombineProgressUpdate(AProgressInfo);
   Result :=
     TBitmapMapCombinerKMZ.Create(
       VProgressUpdate,

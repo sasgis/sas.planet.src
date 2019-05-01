@@ -109,6 +109,9 @@ type
       const AProjection: IProjection;
       const APolygon: IGeometryLonLatPolygon
     ): IGeometryProjectedPolygon;
+    function PrepareCombineProgressUpdate(
+      const AProgressInfo: IRegionProcessProgressInfoInternal
+    ): IBitmapCombineProgressUpdate;
   protected
     function CreateFrame: TFrame; override;
     function PrepareMapCombiner(
@@ -177,7 +180,7 @@ uses
   i_MapVersionRequest,
   i_RegionProcessParamsFrame,
   u_GeoFunc,
-  u_ThreadMapCombineBase,
+  u_RegionProcessTaskCombine,
   u_TextDrawerBasic,
   u_MarkerProviderByAppearancePointIcon,
   u_MarkerProviderForVectorItemForMarkPoints,
@@ -299,6 +302,12 @@ end;
 function TProviderMapCombineBase.GetCaption: string;
 begin
   Result := _(FFormatName);
+end;
+
+function TProviderMapCombineBase.PrepareCombineProgressUpdate(
+  const AProgressInfo: IRegionProcessProgressInfoInternal): IBitmapCombineProgressUpdate;
+begin
+  Result := TBitmapCombineProgressUpdate.Create(AProgressInfo);
 end;
 
 function TProviderMapCombineBase.PrepareFillingMapProvider(

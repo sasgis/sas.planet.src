@@ -97,7 +97,6 @@ uses
   Types,
   gnugettext,
   t_CommonTypes,
-  u_ThreadMapCombineBase,
   u_BitmapMapCombinerBMP;
 
 { TProviderMapCombineBMP }
@@ -173,7 +172,7 @@ function TProviderMapCombineBMP.PrepareMapCombiner(
 var
   VProgressUpdate: IBitmapCombineProgressUpdate;
 begin
-  VProgressUpdate := TBitmapCombineProgressUpdate.Create(AProgressInfo);
+  VProgressUpdate := PrepareCombineProgressUpdate(AProgressInfo);
   Result :=
     TBitmapMapCombinerBMP.Create(
       VProgressUpdate,

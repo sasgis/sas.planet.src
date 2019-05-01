@@ -1215,7 +1215,7 @@
 			<DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombineKMZ.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombinePNG.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombineRAW.pas"/>
-			<DCCReference Include="Src\RegionProcess\Combine\u_ThreadMapCombineBase.pas"/>
+			<DCCReference Include="Src\RegionProcess\Combine\u_RegionProcessTaskCombine.pas"/>
 			<DCCReference Include="Src\RegionProcess\Copy\fr_TilesCopy.pas">
 				<Form>frTilesCopy</Form>
 				<DesignClass>TFrame</DesignClass>
