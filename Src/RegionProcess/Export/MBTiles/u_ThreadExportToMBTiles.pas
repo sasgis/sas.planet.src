@@ -41,7 +41,7 @@ uses
   i_BitmapTileSaveLoad,
   i_BitmapLayerProvider,
   u_StorageExportToMBTiles,
-  u_ThreadExportAbstract;
+  u_ExportTaskAbstract;
 
 type
   TThreadExportToMBTiles = class(TExportTaskAbstract)

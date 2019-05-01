@@ -33,7 +33,7 @@ uses
   i_GeometryProjectedFactory,
   i_MapVersionRequest,
   i_TileStorage,
-  u_ThreadExportAbstract;
+  u_ExportTaskAbstract;
 
 type
   TThreadExportToCE = class(TExportTaskAbstract)

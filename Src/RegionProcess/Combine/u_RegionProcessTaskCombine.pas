@@ -35,17 +35,6 @@ uses
   u_RegionProcessTaskAbstract;
 
 type
-  TBitmapCombineProgressUpdate = class(TBaseInterfacedObject, IBitmapCombineProgressUpdate)
-  private
-    FProgressInfo: IRegionProcessProgressInfoInternal;
-  private
-    procedure Update(AProgress: Double);
-  public
-    constructor Create(
-      const AProgressInfo: IRegionProcessProgressInfoInternal
-    );
-  end;
-
   TRegionProcessTaskCombine = class(TRegionProcessTaskAbstract)
   private
     FImageProvider: IBitmapTileProvider;
@@ -209,22 +198,6 @@ begin
       end;
     end;
   end;
-end;
-
-{ TBitmapCombineProgressUpdate }
-
-constructor TBitmapCombineProgressUpdate.Create(
-  const AProgressInfo: IRegionProcessProgressInfoInternal
-);
-begin
-  inherited Create;
-  FProgressInfo := AProgressInfo;
-end;
-
-procedure TBitmapCombineProgressUpdate.Update(AProgress: Double);
-begin
-  FProgressInfo.SetProcessedRatio(AProgress);
-  FProgressInfo.SetSecondLine(SAS_STR_Processed + ': ' + IntToStr(Trunc(AProgress * 100)) + '%');
 end;
 
 end.

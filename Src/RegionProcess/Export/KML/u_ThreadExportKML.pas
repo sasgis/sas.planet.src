@@ -33,7 +33,7 @@ uses
   i_GeometryLonLat,
   i_MapVersionInfo,
   i_TileStorage,
-  u_ThreadExportAbstract;
+  u_ExportTaskAbstract;
 
 type
   TThreadExportKML = class(TExportTaskAbstract)

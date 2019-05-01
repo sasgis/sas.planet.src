@@ -40,7 +40,7 @@ uses
   i_Projection,
   i_ProjectionSet,
   i_GeometryLonLat,
-  u_ThreadExportAbstract;
+  u_ExportTaskAbstract;
 
 type
   TExportTaskIPhone = record

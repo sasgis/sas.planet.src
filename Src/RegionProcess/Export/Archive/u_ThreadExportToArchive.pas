@@ -33,7 +33,7 @@ uses
   i_GeometryLonLat,
   i_ArchiveReadWrite,
   i_TileStorage,
-  u_ThreadExportAbstract;
+  u_ExportTaskAbstract;
 
 type
   TThreadExportToArchive = class(TExportTaskAbstract)

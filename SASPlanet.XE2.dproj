@@ -1340,7 +1340,7 @@
 				<Form>frExport</Form>
 				<DesignClass>TFrame</DesignClass>
 			</DCCReference>
-			<DCCReference Include="Src\RegionProcess\Export\u_ThreadExportAbstract.pas"/>
+			<DCCReference Include="Src\RegionProcess\Export\u_ExportTaskAbstract.pas"/>
 			<DCCReference Include="Src\RegionProcess\GenPrev\fr_TilesGenPrev.pas">
 				<Form>frTilesGenPrev</Form>
 				<DesignClass>TFrame</DesignClass>

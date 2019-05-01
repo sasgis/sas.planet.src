@@ -30,7 +30,7 @@ uses
   i_GeometryLonLat,
   i_GeometryProjectedFactory,
   i_RegionProcessProgressInfo,
-  u_ThreadExportAbstract;
+  u_ExportTaskAbstract;
 
 type
   TCopyTask = record

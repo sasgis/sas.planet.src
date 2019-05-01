@@ -40,7 +40,7 @@ uses
   i_MapVersionRequest,
   i_BitmapTileSaveLoad,
   i_BitmapLayerProvider,
-  u_ThreadExportAbstract;
+  u_ExportTaskAbstract;
 
 type
   TThreadExportToOruxMapsSQLite = class(TExportTaskAbstract)

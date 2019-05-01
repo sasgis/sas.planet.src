@@ -37,7 +37,7 @@ uses
   i_BitmapLayerProvider,
   i_ProjectionSetFactory,
   i_GeometryProjectedFactory,
-  u_ThreadExportAbstract;
+  u_ExportTaskAbstract;
 
 type
   TYaMobileV4TileSize = (yats128 = 0, yats256 = 1);

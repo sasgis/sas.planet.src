@@ -33,7 +33,7 @@ uses
   i_BitmapLayerProvider,
   i_BitmapTileSaveLoad,
   i_MapType,
-  u_ThreadExportAbstract;
+  u_ExportTaskAbstract;
 
 type
   TThreadCopyWithModification = class(TExportTaskAbstract)

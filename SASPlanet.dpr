@@ -1035,7 +1035,7 @@ uses
   u_ThreadExportYaMobileV3 in 'Src\RegionProcess\Export\YandexMobile\u_ThreadExportYaMobileV3.pas',
   u_ThreadExportYaMobileV4 in 'Src\RegionProcess\Export\YandexMobile\u_ThreadExportYaMobileV4.pas',
   fr_Export in 'Src\RegionProcess\Export\fr_Export.pas' {frExport: TFrame},
-  u_ThreadExportAbstract in 'Src\RegionProcess\Export\u_ThreadExportAbstract.pas',
+  u_ExportTaskAbstract in 'Src\RegionProcess\Export\u_ExportTaskAbstract.pas',
   fr_TilesGenPrev in 'Src\RegionProcess\GenPrev\fr_TilesGenPrev.pas' {frTilesGenPrev: TFrame},
   u_ProviderTilesGenPrev in 'Src\RegionProcess\GenPrev\u_ProviderTilesGenPrev.pas',
   u_ThreadGenPrevZoom in 'Src\RegionProcess\GenPrev\u_ThreadGenPrevZoom.pas',

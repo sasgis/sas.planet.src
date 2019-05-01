@@ -36,7 +36,7 @@ uses
   i_ProjectionSetFactory,
   i_GeometryProjectedFactory,
   i_GeometryLonLat,
-  u_ThreadExportAbstract;
+  u_ExportTaskAbstract;
 
 type
   TExportTaskYaMobileV3 = record

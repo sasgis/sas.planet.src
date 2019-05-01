@@ -165,7 +165,9 @@ uses
   i_VectorTileRenderer,
   i_FillingMapColorer,
   i_MapVersionRequest,
+  u_BaseInterfacedObject,
   u_GeoFunc,
+  u_ResStrings,
   u_RegionProcessTaskCombine,
   u_TextDrawerBasic,
   u_MarkerProviderByAppearancePointIcon,
@@ -184,6 +186,35 @@ uses
   u_BitmapTileProviderComplex,
   u_BitmapTileProviderInPolygon,
   u_BitmapTileProviderWithBGColor;
+
+type
+  TBitmapCombineProgressUpdate = class(TBaseInterfacedObject, IBitmapCombineProgressUpdate)
+  private
+    FProgressInfo: IRegionProcessProgressInfoInternal;
+  private
+    procedure Update(AProgress: Double);
+  public
+    constructor Create(
+      const AProgressInfo: IRegionProcessProgressInfoInternal
+    );
+  end;
+
+{ TBitmapCombineProgressUpdate }
+
+constructor TBitmapCombineProgressUpdate.Create(
+  const AProgressInfo: IRegionProcessProgressInfoInternal
+);
+begin
+  inherited Create;
+  FProgressInfo := AProgressInfo;
+end;
+
+procedure TBitmapCombineProgressUpdate.Update(AProgress: Double);
+begin
+  FProgressInfo.SetProcessedRatio(AProgress);
+  FProgressInfo.SetSecondLine(SAS_STR_Processed + ': ' + IntToStr(Trunc(AProgress * 100)) + '%');
+end;
+
 
 { TProviderMapCombineBase }
 

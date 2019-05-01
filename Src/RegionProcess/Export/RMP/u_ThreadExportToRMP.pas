@@ -42,7 +42,7 @@ uses
   i_BitmapLayerProvider,
   i_Bitmap32BufferFactory,
   i_ImageResamplerFactory,
-  u_ThreadExportAbstract,
+  u_ExportTaskAbstract,
   u_RMPWriter;
 
 type
