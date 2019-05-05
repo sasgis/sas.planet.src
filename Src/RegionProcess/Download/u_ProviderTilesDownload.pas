@@ -116,6 +116,7 @@ uses
   Compatibility,
   CompatibilityIniFiles,
   {$ENDIF}
+  gnugettext,
   i_MapType,
   i_RegionProcessParamsFrame,
   i_LogSimple,
@@ -132,8 +133,7 @@ uses
   u_Synchronizer,
   u_ZoomArrayFunc,
   u_DownloadTaskProvider,
-  frm_ProgressDownload,
-  u_ResStrings;
+  frm_ProgressDownload;
 
 { TProviderTilesDownload }
 
@@ -187,7 +187,7 @@ end;
 
 function TProviderTilesDownload.GetCaption: string;
 begin
-  Result := SAS_STR_OperationDownloadCaption;
+  Result := _('Download');
 end;
 
 procedure TProviderTilesDownload.StartSession(

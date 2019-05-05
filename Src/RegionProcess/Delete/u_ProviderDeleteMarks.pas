@@ -66,6 +66,7 @@ implementation
 uses
   Classes,
   SysUtils,
+  gnugettext,
   i_RegionProcessParamsFrame,
   i_Projection,
   i_GeometryProjected,
@@ -102,7 +103,7 @@ end;
 
 function TProviderDeleteMarks.GetCaption: string;
 begin
-  Result := SAS_STR_OperationDeleteCaption;
+  Result := _('Placemarks');
 end;
 
 function TProviderDeleteMarks.PrepareTask(

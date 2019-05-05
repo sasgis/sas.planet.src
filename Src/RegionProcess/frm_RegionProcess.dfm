@@ -15,66 +15,6 @@ object frmRegionProcess: TfrmRegionProcess
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
-  object PageControl1: TPageControl
-    Left = 0
-    Top = 0
-    Width = 572
-    Height = 389
-    ActivePage = TabSheet1
-    Align = alClient
-    TabOrder = 0
-    TabWidth = 92
-    ExplicitHeight = 374
-    object TabSheet1: TTabSheet
-      Caption = 'Download'
-      ExplicitHeight = 346
-    end
-    object TabSheet2: TTabSheet
-      Tag = 1
-      Caption = 'Stitch'
-      ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
-    end
-    object TabSheet3: TTabSheet
-      Tag = 2
-      Caption = 'Generate'
-      ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
-    end
-    object TabSheet4: TTabSheet
-      Tag = 3
-      Caption = 'Delete'
-      ImageIndex = 3
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
-    end
-    object TabSheet5: TTabSheet
-      Tag = 4
-      Caption = 'Export'
-      ImageIndex = 4
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
-    end
-    object TabSheet6: TTabSheet
-      Tag = 5
-      Caption = 'Copy'
-      ImageIndex = 5
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
-    end
-  end
   object pnlBottomButtons: TPanel
     Left = 0
     Top = 389
@@ -83,8 +23,7 @@ object frmRegionProcess: TfrmRegionProcess
     Align = alBottom
     BevelOuter = bvNone
     BorderWidth = 3
-    TabOrder = 1
-    ExplicitTop = 374
+    TabOrder = 0
     object Button1: TButton
       AlignWithMargins = True
       Left = 410
@@ -159,6 +98,18 @@ object frmRegionProcess: TfrmRegionProcess
         Hint = 'Do not close this window after start'
       end
     end
+  end
+  object pnlContent: TPanel
+    Left = 0
+    Top = 0
+    Width = 572
+    Height = 389
+    Align = alClient
+    TabOrder = 1
+    ExplicitLeft = 192
+    ExplicitTop = 128
+    ExplicitWidth = 185
+    ExplicitHeight = 41
   end
   object SaveSelDialog: TSaveDialog
     DefaultExt = '*.hlg'

@@ -1177,8 +1177,8 @@
 			<DCCReference Include="Src\Predicate\i_PredicateByTileRequest.pas"/>
 			<DCCReference Include="Src\Predicate\u_PredicateByStaticSampleList.pas"/>
 			<DCCReference Include="Src\Predicate\u_PredicateByTileInfoBase.pas"/>
-			<DCCReference Include="Src\RegionProcess\Combine\fr_Combine.pas">
-				<Form>frCombine</Form>
+			<DCCReference Include="Src\RegionProcess\fr_RegionProcessComplexComboBox.pas">
+				<Form>frRegionProcessComplexComboBox</Form>
 				<DesignClass>TFrame</DesignClass>
 			</DCCReference>
 			<DCCReference Include="Src\RegionProcess\Combine\fr_MapCombine.pas">
@@ -1216,8 +1216,8 @@
 			<DCCReference Include="Src\RegionProcess\Copy\u_ProviderTilesCopy.pas"/>
 			<DCCReference Include="Src\RegionProcess\Copy\u_ThreadCopyFromStorageToStorage.pas"/>
 			<DCCReference Include="Src\RegionProcess\Copy\u_ThreadCopyWithModification.pas"/>
-			<DCCReference Include="Src\RegionProcess\Delete\fr_Delete.pas">
-				<Form>frDelete</Form>
+			<DCCReference Include="Src\RegionProcess\fr_RegionProcessComplexPageControl.pas">
+				<Form>frRegionProcessComplexPageControl</Form>
 				<DesignClass>TFrame</DesignClass>
 			</DCCReference>
 			<DCCReference Include="Src\RegionProcess\Delete\fr_DeleteMarks.pas">
@@ -1336,10 +1336,6 @@
 			<DCCReference Include="Src\RegionProcess\Export\YandexMobile\u_ExportProviderYaMobileV4.pas"/>
 			<DCCReference Include="Src\RegionProcess\Export\YandexMobile\u_ThreadExportYaMobileV3.pas"/>
 			<DCCReference Include="Src\RegionProcess\Export\YandexMobile\u_ThreadExportYaMobileV4.pas"/>
-			<DCCReference Include="Src\RegionProcess\Export\fr_Export.pas">
-				<Form>frExport</Form>
-				<DesignClass>TFrame</DesignClass>
-			</DCCReference>
 			<DCCReference Include="Src\RegionProcess\Export\u_ExportTaskAbstract.pas"/>
 			<DCCReference Include="Src\RegionProcess\GenPrev\fr_TilesGenPrev.pas">
 				<Form>frTilesGenPrev</Form>
@@ -1376,6 +1372,7 @@
 			<DCCReference Include="Src\RegionProcess\u_RegionProcessProgressInfo.pas"/>
 			<DCCReference Include="Src\RegionProcess\u_RegionProcessProgressInfoDownload.pas"/>
 			<DCCReference Include="Src\RegionProcess\u_RegionProcessProgressInfoInternalFactory.pas"/>
+			<DCCReference Include="Src\RegionProcess\u_RegionProcessProviderComplex.pas"/>
 			<DCCReference Include="Src\RegionProcess\u_RegionProcessTaskAbstract.pas"/>
 			<DCCReference Include="Src\RegionProcess\u_RegionProcessWorker.pas"/>
 			<DCCReference Include="Src\RegionProcess\u_ZoomArrayFunc.pas"/>

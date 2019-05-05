@@ -1,8 +1,8 @@
-object frCombine: TfrCombine
+object frRegionProcessComplexComboBox: TfrRegionProcessComplexComboBox
   Left = 0
   Top = 0
   Width = 480
-  Height = 60
+  Height = 304
   Align = alClient
   Constraints.MinHeight = 60
   Constraints.MinWidth = 480
@@ -19,7 +19,6 @@ object frCombine: TfrCombine
     BevelKind = bkTile
     BevelOuter = bvNone
     BorderWidth = 3
-    Caption = 'Stitch selection'
     TabOrder = 0
   end
   object pnlOutputFormat: TPanel
@@ -36,31 +35,30 @@ object frCombine: TfrCombine
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 73
-      Height = 21
+      Width = 50
+      Height = 13
       Margins.Left = 0
       Margins.Top = 0
       Align = alLeft
-      Caption = 'Output format:'
+      Constraints.MinWidth = 50
       Layout = tlCenter
     end
     object cbbOutputFormat: TComboBox
-      Left = 79
+      Left = 56
       Top = 3
-      Width = 398
+      Width = 421
       Height = 21
       Align = alClient
       Style = csDropDownList
-      ItemHeight = 13
       TabOrder = 0
       OnChange = cbbOutputFormatChange
     end
   end
-  object pnlExport: TPanel
+  object pnlContent: TPanel
     Left = 0
     Top = 49
     Width = 480
-    Height = 11
+    Height = 255
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 2

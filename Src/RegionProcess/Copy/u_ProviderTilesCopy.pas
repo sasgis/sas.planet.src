@@ -96,6 +96,7 @@ uses
   Types,
   Classes,
   SysUtils,
+  gnugettext,
   i_MapType,
   i_MapTypeListStatic,
   i_TileStorageAbilities,
@@ -103,7 +104,6 @@ uses
   i_RegionProcessParamsFrame,
   u_ThreadCopyFromStorageToStorage,
   u_ThreadCopyWithModification,
-  u_ResStrings,
   fr_TilesCopy;
 
 { TProviderTilesCopy }
@@ -168,7 +168,7 @@ end;
 
 function TProviderTilesCopy.GetCaption: string;
 begin
-  Result := SAS_STR_OperationTilesCopyCaption;
+  Result := _('Copy');
 end;
 
 function TProviderTilesCopy.PrepareTask(

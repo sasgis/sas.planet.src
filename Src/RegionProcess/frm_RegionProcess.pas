@@ -80,6 +80,7 @@ uses
   i_MapLayerGridsConfig,
   i_CoordToStringConverter,
   i_ValueToStringConverter,
+  i_InterfaceListStatic,
   i_MapTypeGUIConfigList,
   i_GlobalBerkeleyDBHelper,
   i_RegionProcessProgressInfoInternalFactory,
@@ -87,22 +88,13 @@ uses
   u_CommonFormAndFrameParents,
   u_ProviderTilesDownload,
   u_MarkDbGUIHelper,
-  fr_Combine,
-  fr_Delete,
-  fr_Export;
+  fr_MapSelect;
 
 type
   TfrmRegionProcess = class(TFormWitghLanguageManager, IRegionProcess, IRegionProcessFromFile)
     Button1: TButton;
-    PageControl1: TPageControl;
-    TabSheet1: TTabSheet;
-    TabSheet2: TTabSheet;
-    TabSheet3: TTabSheet;
-    TabSheet4: TTabSheet;
-    TabSheet5: TTabSheet;
     Button3: TButton;
     SaveSelDialog: TSaveDialog;
-    TabSheet6: TTabSheet;
     pnlBottomButtons: TPanel;
     TBXOperationsToolbar: TTBXToolbar;
     tbtmMark: TTBItem;
@@ -111,6 +103,7 @@ type
     tbtmCopyBbox: TTBItem;
     TBXDontClose: TTBXToolbar;
     tbtmDontClose: TTBItem;
+    pnlContent: TPanel;
     procedure Button1Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -119,26 +112,119 @@ type
     procedure tbtmMarkClick(Sender: TObject);
     procedure tbtmCopyBboxClick(Sender: TObject);
   private
-    FfrExport: TfrExport;
-    FfrCombine: TfrCombine;
-    FfrDelete: TfrDelete;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FLastSelectionInfo: ILastSelectionInfo;
     FZoom_rect: byte;
     FPolygonLL: IGeometryLonLatPolygon;
-    FProviderTilesGenPrev: IRegionProcessProvider;
-    FProviderTilesCopy: IRegionProcessProvider;
+    FProviderAll: IRegionProcessProvider;
     FProviderTilesDownload: IRegionProcessProviderDownload;
     FMapGoto: IMapViewGoto;
     FMarkDBGUI: TMarkDbGUIHelper;
     FPosition: ILocalCoordConverterChangeable;
-    function LoadRegion(const APolyLL: IGeometryLonLatPolygon): Boolean;
-    function DelRegion(const APolyLL: IGeometryLonLatPolygon): Boolean;
-    function genbacksatREG(const APolyLL: IGeometryLonLatPolygon): Boolean;
-    function scleitRECT(const APolyLL: IGeometryLonLatPolygon): Boolean;
-    function savefilesREG(const APolyLL: IGeometryLonLatPolygon): Boolean;
-    function ExportREG(const APolyLL: IGeometryLonLatPolygon): Boolean;
+
+    function PrepareProviders(
+      const ALanguageManager: ILanguageManager;
+      const ACounterList: IInternalPerformanceCounterList;
+      const AAppClosingNotifier: INotifierOneOperation;
+      const ATimerNoifier: INotifierTime;
+      const ALastSelectionInfo: ILastSelectionInfo;
+      const AMainMapConfig: IActiveMapConfig;
+      const AMainLayersConfig: IActiveLayersConfig;
+      const AActiveBitmapLayersList: IMapTypeListChangeable;
+      const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
+      const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
+      const APosition: ILocalCoordConverterChangeable;
+      const AProjectionSet: IProjectionSetChangeable;
+      const AFullMapsSet: IMapTypeSet;
+      const AGUIConfigList: IMapTypeGUIConfigList;
+      const AContentTypeManager: IContentTypeManager;
+      const AProjectionSetFactory: IProjectionSetFactory;
+      const ATileStorageTypeList: ITileStorageTypeListStatic;
+      const ATileNameGenerator: ITileFileNameGeneratorsList;
+      const AViewConfig: IGlobalViewMainConfig;
+      const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
+      const AImageResamplerFactoryList: IImageResamplerFactoryList;
+      const AImageResamplerConfig: IImageResamplerConfig;
+      const ATileReprojectResamplerConfig: IImageResamplerConfig;
+      const AMarksShowConfig: IUsedMarksConfig;
+      const AMarksDrawConfig: IMarksDrawConfig;
+      const AMarksDB: IMarkSystem;
+      const AHashFunction: IHashFunction;
+      const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
+      const AProjectionSetList: IProjectionSetList;
+      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+      const AProjectedGeometryProvider: IGeometryProjectedProvider;
+      const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+      const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+      const AMapCalibrationList: IMapCalibrationList;
+      const ADownloadConfig: IGlobalDownloadConfig;
+      const ADownloadInfo: IDownloadInfoSimple;
+      const AFillingMapConfig: IFillingMapLayerConfig;
+      const AFillingMapType: IMapTypeChangeable;
+      const AFillingMapPolygon: IFillingMapPolygon;
+      const AGridsConfig: IMapLayerGridsConfig;
+      const ACoordToStringConverter: ICoordToStringConverterChangeable;
+      const AValueToStringConverter: IValueToStringConverterChangeable;
+      const AMapGoto: IMapViewGoto;
+      const AMarkDBGUI: TMarkDbGUIHelper
+    ): IInterfaceListStatic;
+
+    function PrepareCombineProviders(
+      const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
+      const ALanguageManager: ILanguageManager;
+      const ACounterList: IInternalPerformanceCounterList;
+      const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
+      const AActiveMapsSet: IMapTypeListChangeable;
+      const AViewConfig: IGlobalViewMainConfig;
+      const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
+      const AProjectionSet: IProjectionSetChangeable;
+      const AProjectionSetList: IProjectionSetList;
+      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+      const AProjectedGeometryProvider: IGeometryProjectedProvider;
+      const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+      const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+      const AMarksShowConfig: IUsedMarksConfig;
+      const AMarksDrawConfig: IMarksDrawConfig;
+      const AMarksDB: IMarkSystem;
+      const AHashFunction: IHashFunction;
+      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
+      const AFillingMapConfig: IFillingMapLayerConfig;
+      const AFillingMapType: IMapTypeChangeable;
+      const AFillingMapPolygon: IFillingMapPolygon;
+      const AGridsConfig: IMapLayerGridsConfig;
+      const ACoordToStringConverter: ICoordToStringConverterChangeable;
+      const AMapCalibrationList: IMapCalibrationList
+    ): IInterfaceListStatic;
+    function PrepareDeleteProviders(
+      const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
+      const ALanguageManager: ILanguageManager;
+      const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
+      const APosition: ILocalCoordConverterChangeable;
+      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+      const AMarkSystem: IMarkSystem
+    ): IInterfaceListStatic;
+    function PrepareExportProviders(
+      const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
+      const ALanguageManager: ILanguageManager;
+      const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
+      const AActiveMapsList: IMapTypeListChangeable;
+      const AProjectionSetFactory: IProjectionSetFactory;
+      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
+      const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
+      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+      const AImageResamplerFactoryList: IImageResamplerFactoryList;
+      const ATileReprojectResamplerConfig: IImageResamplerConfig;
+      const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+      const ATileStorageTypeList: ITileStorageTypeListStatic;
+      const ATileNameGenerator: ITileFileNameGeneratorsList
+    ): IInterfaceListStatic;
   private
     procedure ProcessPolygon(
       const APolygon: IGeometryLonLatPolygon
@@ -217,6 +303,7 @@ uses
   CompatibilityIniFiles,
   {$ENDIF}
   gnugettext,
+  i_InterfaceListSimple,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   u_ConfigDataProviderByIniFile,
@@ -224,10 +311,36 @@ uses
   u_ConfigProviderHelpers,
   u_ClipboardFunc,
   u_GeoToStrFunc,
+  u_InterfaceListSimple,
   u_RegionProcessProgressInfoInternalFactory,
   u_ProviderTilesGenPrev,
   u_ProviderTilesCopy,
-  fr_MapSelect;
+  u_RegionProcessProviderComplex,
+  u_ProviderDeleteTiles,
+  u_ProviderDeleteMarks,
+  u_ProviderMapCombine,
+  u_ExportProviderRMP,
+  u_ExportProviderMBTiles,
+  u_ExportProviderRMapsSQLite,
+  u_ExportProviderOruxMapsSQLite,
+  u_ExportProviderYaMobileV3,
+  u_ExportProviderYaMobileV4,
+  u_ExportProviderGEKml,
+  u_ExportProviderIPhone,
+  u_ExportProviderAUX,
+  u_ExportProviderZip,
+  u_ExportProviderTar,
+  u_ExportProviderJNX,
+  u_ExportProviderIMG,
+  u_ExportProviderOgf2,
+  u_ExportProviderCE,
+  u_BitmapMapCombinerBMP,
+  u_BitmapMapCombinerJPG,
+  u_BitmapMapCombinerPNG,
+  u_BitmapMapCombinerKMZ,
+  u_BitmapMapCombinerECWJP2,
+  u_BitmapMapCombinerRAW,
+  u_BitmapMapCombinerGeoTIFF;
 
 {$R *.dfm}
 
@@ -280,9 +393,6 @@ constructor TfrmRegionProcess.Create(
   const AMapGoto: IMapViewGoto;
   const AMarkDBGUI: TMarkDbGUIHelper
 );
-var
-  VProgressFactory: IRegionProcessProgressInfoInternalFactory;
-  VMapSelectFrameBuilder: IMapSelectFrameBuilder;
 begin
   inherited Create(ALanguageManager);
   FLastSelectionInfo := ALastSelectionInfo;
@@ -291,6 +401,131 @@ begin
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FMapGoto := AMapGoto;
   FMarkDBGUI := AMarkDBGUI;
+
+  FProviderAll :=
+    TRegionProcessProviderComplex.Create(
+      ALanguageManager,
+      PrepareProviders(
+        ALanguageManager,
+        ACounterList,
+        AAppClosingNotifier,
+        ATimerNoifier,
+        ALastSelectionInfo,
+        AMainMapConfig,
+        AMainLayersConfig,
+        AActiveBitmapLayersList,
+        AMapTypeListBuilderFactory,
+        AGlobalBerkeleyDBHelper,
+        APosition,
+        AProjectionSet,
+        AFullMapsSet,
+        AGUIConfigList,
+        AContentTypeManager,
+        AProjectionSetFactory,
+        ATileStorageTypeList,
+        ATileNameGenerator,
+        AViewConfig,
+        AUseTilePrevZoomConfig,
+        AImageResamplerFactoryList,
+        AImageResamplerConfig,
+        ATileReprojectResamplerConfig,
+        AMarksShowConfig,
+        AMarksDrawConfig,
+        AMarksDB,
+        AHashFunction,
+        ABitmapPostProcessing,
+        AProjectionSetList,
+        AVectorGeometryLonLatFactory,
+        AVectorGeometryProjectedFactory,
+        AProjectedGeometryProvider,
+        AVectorSubsetBuilderFactory,
+        ABitmapFactory,
+        ABitmapTileSaveLoadFactory,
+        AArchiveReadWriteFactory,
+        AMapCalibrationList,
+        ADownloadConfig,
+        ADownloadInfo,
+        AFillingMapConfig,
+        AFillingMapType,
+        AFillingMapPolygon,
+        AGridsConfig,
+        ACoordToStringConverter,
+        AValueToStringConverter,
+        AMapGoto,
+        AMarkDBGUI
+      ),
+      True,
+      gettext_NoOp('RegionProcess'),
+      '',
+      ''
+    );
+
+end;
+
+destructor TfrmRegionProcess.Destroy;
+begin
+  FProviderTilesDownload := nil;
+  FProviderAll := nil;
+  inherited;
+end;
+
+function TfrmRegionProcess.PrepareProviders(
+  const ALanguageManager: ILanguageManager;
+  const ACounterList: IInternalPerformanceCounterList;
+  const AAppClosingNotifier: INotifierOneOperation;
+  const ATimerNoifier: INotifierTime;
+  const ALastSelectionInfo: ILastSelectionInfo;
+  const AMainMapConfig: IActiveMapConfig;
+  const AMainLayersConfig: IActiveLayersConfig;
+  const AActiveBitmapLayersList: IMapTypeListChangeable;
+  const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
+  const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
+  const APosition: ILocalCoordConverterChangeable;
+  const AProjectionSet: IProjectionSetChangeable;
+  const AFullMapsSet: IMapTypeSet;
+  const AGUIConfigList: IMapTypeGUIConfigList;
+  const AContentTypeManager: IContentTypeManager;
+  const AProjectionSetFactory: IProjectionSetFactory;
+  const ATileStorageTypeList: ITileStorageTypeListStatic;
+  const ATileNameGenerator: ITileFileNameGeneratorsList;
+  const AViewConfig: IGlobalViewMainConfig;
+  const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
+  const AImageResamplerFactoryList: IImageResamplerFactoryList;
+  const AImageResamplerConfig: IImageResamplerConfig;
+  const ATileReprojectResamplerConfig: IImageResamplerConfig;
+  const AMarksShowConfig: IUsedMarksConfig;
+  const AMarksDrawConfig: IMarksDrawConfig;
+  const AMarksDB: IMarkSystem;
+  const AHashFunction: IHashFunction;
+  const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
+  const AProjectionSetList: IProjectionSetList;
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+  const AProjectedGeometryProvider: IGeometryProjectedProvider;
+  const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+  const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+  const AMapCalibrationList: IMapCalibrationList;
+  const ADownloadConfig: IGlobalDownloadConfig;
+  const ADownloadInfo: IDownloadInfoSimple;
+  const AFillingMapConfig: IFillingMapLayerConfig;
+  const AFillingMapType: IMapTypeChangeable;
+  const AFillingMapPolygon: IFillingMapPolygon;
+  const AGridsConfig: IMapLayerGridsConfig;
+  const ACoordToStringConverter: ICoordToStringConverterChangeable;
+  const AValueToStringConverter: IValueToStringConverterChangeable;
+  const AMapGoto: IMapViewGoto;
+  const AMarkDBGUI: TMarkDbGUIHelper
+): IInterfaceListStatic;
+var
+  VProgressFactory: IRegionProcessProgressInfoInternalFactory;
+  VMapSelectFrameBuilder: IMapSelectFrameBuilder;
+  VExportProvider: IRegionProcessProvider;
+  VList: IInterfaceListSimple;
+begin
+  VList := TInterfaceListSimple.Create;
+
   VMapSelectFrameBuilder :=
     TMapSelectFrameBuilder.Create(
       ALanguageManager,
@@ -306,62 +541,7 @@ begin
       Self,
       FMapGoto
     );
-  FfrExport :=
-    TfrExport.Create(
-      VProgressFactory,
-      ALanguageManager,
-      VMapSelectFrameBuilder,
-      AActiveBitmapLayersList,
-      AProjectionSetFactory,
-      AVectorGeometryProjectedFactory,
-      ABitmapFactory,
-      ABitmapPostProcessing,
-      ABitmapTileSaveLoadFactory,
-      AImageResamplerFactoryList,
-      ATileReprojectResamplerConfig,
-      AArchiveReadWriteFactory,
-      ATileStorageTypeList,
-      ATileNameGenerator
-    );
 
-  FfrDelete :=
-    TfrDelete.Create(
-      VProgressFactory,
-      ALanguageManager,
-      VMapSelectFrameBuilder,
-      APosition,
-      AVectorGeometryProjectedFactory,
-      AMarkDBGUI.MarksDb
-    );
-  FProviderTilesGenPrev :=
-    TProviderTilesGenPrev.Create(
-      VProgressFactory,
-      ALanguageManager,
-      VMapSelectFrameBuilder,
-      AViewConfig,
-      AVectorGeometryProjectedFactory,
-      ABitmapFactory,
-      AImageResamplerFactoryList,
-      AImageResamplerConfig
-    );
-  FProviderTilesCopy :=
-    TProviderTilesCopy.Create(
-      ATimerNoifier,
-      VProgressFactory,
-      ALanguageManager,
-      VMapSelectFrameBuilder,
-      AActiveBitmapLayersList,
-      AMainMapConfig,
-      AGlobalBerkeleyDBHelper,
-      AFullMapsSet,
-      AGUIConfigList,
-      AMapTypeListBuilderFactory,
-      AContentTypeManager,
-      AVectorGeometryProjectedFactory,
-      ATileStorageTypeList,
-      ABitmapFactory,
-      ABitmapTileSaveLoadFactory
-    );
   FProviderTilesDownload :=
     TProviderTilesDownload.Create(
       AAppClosingNotifier,
@@ -379,13 +559,168 @@ begin
       FMarkDBGUI,
       AMainMapConfig
     );
-  FfrCombine :=
-    TfrCombine.Create(
+  VExportProvider := FProviderTilesDownload;
+  VList.Add(VExportProvider);
+
+  VExportProvider :=
+    TRegionProcessProviderComplex.Create(
+      ALanguageManager,
+      PrepareCombineProviders(
+        VProgressFactory,
+        ALanguageManager,
+        ACounterList.CreateAndAddNewSubList('Combine'),
+        VMapSelectFrameBuilder,
+        AActiveBitmapLayersList,
+        AViewConfig,
+        AUseTilePrevZoomConfig,
+        AProjectionSet,
+        AProjectionSetList,
+        AVectorGeometryProjectedFactory,
+        AProjectedGeometryProvider,
+        AVectorSubsetBuilderFactory,
+        ABitmapTileSaveLoadFactory,
+        AArchiveReadWriteFactory,
+        AMarksShowConfig,
+        AMarksDrawConfig,
+        AMarksDB,
+        AHashFunction,
+        ABitmapFactory,
+        ABitmapPostProcessing,
+        AFillingMapConfig,
+        AFillingMapType,
+        AFillingMapPolygon,
+        AGridsConfig,
+        ACoordToStringConverter,
+        AMapCalibrationList
+      ),
+      False,
+      gettext_NoOp('Combine'),
+      gettext_NoOp('Stitch selection'),
+      gettext_NoOp('Output format:')
+    );
+  VList.Add(VExportProvider);
+
+  VExportProvider :=
+    TProviderTilesGenPrev.Create(
       VProgressFactory,
       ALanguageManager,
-      ACounterList.CreateAndAddNewSubList('Combine'),
+      VMapSelectFrameBuilder,
+      AViewConfig,
+      AVectorGeometryProjectedFactory,
+      ABitmapFactory,
+      AImageResamplerFactoryList,
+      AImageResamplerConfig
+    );
+  VList.Add(VExportProvider);
+
+  VExportProvider :=
+    TRegionProcessProviderComplex.Create(
+      ALanguageManager,
+      PrepareDeleteProviders(
+        VProgressFactory,
+        ALanguageManager,
+        VMapSelectFrameBuilder,
+        APosition,
+        AVectorGeometryProjectedFactory,
+        AMarkDBGUI.MarksDb
+      ),
+      True,
+      gettext_NoOp('Delete'),
+      '',
+      ''
+    );
+  VList.Add(VExportProvider);
+
+  VExportProvider :=
+    TRegionProcessProviderComplex.Create(
+      ALanguageManager,
+      PrepareExportProviders(
+        VProgressFactory,
+        ALanguageManager,
+        VMapSelectFrameBuilder,
+        AActiveBitmapLayersList,
+        AProjectionSetFactory,
+        AVectorGeometryProjectedFactory,
+        ABitmapFactory,
+        ABitmapPostProcessing,
+        ABitmapTileSaveLoadFactory,
+        AImageResamplerFactoryList,
+        ATileReprojectResamplerConfig,
+        AArchiveReadWriteFactory,
+        ATileStorageTypeList,
+        ATileNameGenerator
+      ),
+      False,
+      gettext_NoOp('Export'),
+      '',
+      gettext_NoOp('Export selection to format')
+    );
+  VList.Add(VExportProvider);
+
+  VExportProvider :=
+    TProviderTilesCopy.Create(
+      ATimerNoifier,
+      VProgressFactory,
+      ALanguageManager,
       VMapSelectFrameBuilder,
       AActiveBitmapLayersList,
+      AMainMapConfig,
+      AGlobalBerkeleyDBHelper,
+      AFullMapsSet,
+      AGUIConfigList,
+      AMapTypeListBuilderFactory,
+      AContentTypeManager,
+      AVectorGeometryProjectedFactory,
+      ATileStorageTypeList,
+      ABitmapFactory,
+      ABitmapTileSaveLoadFactory
+    );
+  VList.Add(VExportProvider);
+
+  Result := VList.MakeStaticAndClear;
+end;
+
+function TfrmRegionProcess.PrepareCombineProviders(
+  const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
+  const ALanguageManager: ILanguageManager;
+  const ACounterList: IInternalPerformanceCounterList;
+  const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
+  const AActiveMapsSet: IMapTypeListChangeable;
+  const AViewConfig: IGlobalViewMainConfig;
+  const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
+  const AProjectionSet: IProjectionSetChangeable;
+  const AProjectionSetList: IProjectionSetList;
+  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+  const AProjectedGeometryProvider: IGeometryProjectedProvider;
+  const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+  const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+  const AMarksShowConfig: IUsedMarksConfig;
+  const AMarksDrawConfig: IMarksDrawConfig;
+  const AMarksDB: IMarkSystem;
+  const AHashFunction: IHashFunction;
+  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
+  const AFillingMapConfig: IFillingMapLayerConfig;
+  const AFillingMapType: IMapTypeChangeable;
+  const AFillingMapPolygon: IFillingMapPolygon;
+  const AGridsConfig: IMapLayerGridsConfig;
+  const ACoordToStringConverter: ICoordToStringConverterChangeable;
+  const AMapCalibrationList: IMapCalibrationList
+): IInterfaceListStatic;
+var
+  VExportProvider: IRegionProcessProvider;
+  VList: IInterfaceListSimple;
+begin
+  VList := TInterfaceListSimple.Create;
+
+  VExportProvider :=
+    TProviderMapCombine.Create(
+      TBitmapMapCombinerFactoryJPG.Create(ACounterList),
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AActiveMapsSet,
       AViewConfig,
       AUseTilePrevZoomConfig,
       AProjectionSet,
@@ -393,8 +728,6 @@ begin
       AVectorGeometryProjectedFactory,
       AProjectedGeometryProvider,
       AVectorSubsetBuilderFactory,
-      ABitmapTileSaveLoadFactory,
-      AArchiveReadWriteFactory,
       AMarksShowConfig,
       AMarksDrawConfig,
       AMarksDB,
@@ -408,18 +741,492 @@ begin
       ACoordToStringConverter,
       AMapCalibrationList
     );
+  VList.Add(VExportProvider);
+
+  VExportProvider :=
+    TProviderMapCombine.Create(
+      TBitmapMapCombinerFactoryPNG.Create(ACounterList),
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AActiveMapsSet,
+      AViewConfig,
+      AUseTilePrevZoomConfig,
+      AProjectionSet,
+      AProjectionSetList,
+      AVectorGeometryProjectedFactory,
+      AProjectedGeometryProvider,
+      AVectorSubsetBuilderFactory,
+      AMarksShowConfig,
+      AMarksDrawConfig,
+      AMarksDB,
+      AHashFunction,
+      ABitmapFactory,
+      ABitmapPostProcessing,
+      AFillingMapConfig,
+      AFillingMapType,
+      AFillingMapPolygon,
+      AGridsConfig,
+      ACoordToStringConverter,
+      AMapCalibrationList
+    );
+  VList.Add(VExportProvider);
+
+  VExportProvider :=
+    TProviderMapCombine.Create(
+      TBitmapMapCombinerFactoryBMP.Create(ACounterList),
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AActiveMapsSet,
+      AViewConfig,
+      AUseTilePrevZoomConfig,
+      AProjectionSet,
+      AProjectionSetList,
+      AVectorGeometryProjectedFactory,
+      AProjectedGeometryProvider,
+      AVectorSubsetBuilderFactory,
+      AMarksShowConfig,
+      AMarksDrawConfig,
+      AMarksDB,
+      AHashFunction,
+      ABitmapFactory,
+      ABitmapPostProcessing,
+      AFillingMapConfig,
+      AFillingMapType,
+      AFillingMapPolygon,
+      AGridsConfig,
+      ACoordToStringConverter,
+      AMapCalibrationList
+    );
+  VList.Add(VExportProvider);
+
+  VExportProvider :=
+    TProviderMapCombine.Create(
+      TBitmapMapCombinerFactoryECW.Create(ACounterList),
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AActiveMapsSet,
+      AViewConfig,
+      AUseTilePrevZoomConfig,
+      AProjectionSet,
+      AProjectionSetList,
+      AVectorGeometryProjectedFactory,
+      AProjectedGeometryProvider,
+      AVectorSubsetBuilderFactory,
+      AMarksShowConfig,
+      AMarksDrawConfig,
+      AMarksDB,
+      AHashFunction,
+      ABitmapFactory,
+      ABitmapPostProcessing,
+      AFillingMapConfig,
+      AFillingMapType,
+      AFillingMapPolygon,
+      AGridsConfig,
+      ACoordToStringConverter,
+      AMapCalibrationList
+    );
+  VList.Add(VExportProvider);
+
+  VExportProvider :=
+    TProviderMapCombine.Create(
+      TBitmapMapCombinerFactoryJP2.Create(ACounterList, False),
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AActiveMapsSet,
+      AViewConfig,
+      AUseTilePrevZoomConfig,
+      AProjectionSet,
+      AProjectionSetList,
+      AVectorGeometryProjectedFactory,
+      AProjectedGeometryProvider,
+      AVectorSubsetBuilderFactory,
+      AMarksShowConfig,
+      AMarksDrawConfig,
+      AMarksDB,
+      AHashFunction,
+      ABitmapFactory,
+      ABitmapPostProcessing,
+      AFillingMapConfig,
+      AFillingMapType,
+      AFillingMapPolygon,
+      AGridsConfig,
+      ACoordToStringConverter,
+      AMapCalibrationList
+    );
+  VList.Add(VExportProvider);
+
+  VExportProvider :=
+    TProviderMapCombine.Create(
+      TBitmapMapCombinerFactoryJP2.Create(ACounterList, True),
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AActiveMapsSet,
+      AViewConfig,
+      AUseTilePrevZoomConfig,
+      AProjectionSet,
+      AProjectionSetList,
+      AVectorGeometryProjectedFactory,
+      AProjectedGeometryProvider,
+      AVectorSubsetBuilderFactory,
+      AMarksShowConfig,
+      AMarksDrawConfig,
+      AMarksDB,
+      AHashFunction,
+      ABitmapFactory,
+      ABitmapPostProcessing,
+      AFillingMapConfig,
+      AFillingMapType,
+      AFillingMapPolygon,
+      AGridsConfig,
+      ACoordToStringConverter,
+      AMapCalibrationList
+    );
+  VList.Add(VExportProvider);
+
+  VExportProvider :=
+    TProviderMapCombine.Create(
+      TBitmapMapCombinerFactoryKMZ.Create(ABitmapTileSaveLoadFactory, AArchiveReadWriteFactory, ABitmapFactory),
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AActiveMapsSet,
+      AViewConfig,
+      AUseTilePrevZoomConfig,
+      AProjectionSet,
+      AProjectionSetList,
+      AVectorGeometryProjectedFactory,
+      AProjectedGeometryProvider,
+      AVectorSubsetBuilderFactory,
+      AMarksShowConfig,
+      AMarksDrawConfig,
+      AMarksDB,
+      AHashFunction,
+      ABitmapFactory,
+      ABitmapPostProcessing,
+      AFillingMapConfig,
+      AFillingMapType,
+      AFillingMapPolygon,
+      AGridsConfig,
+      ACoordToStringConverter,
+      AMapCalibrationList
+    );
+  VList.Add(VExportProvider);
+
+  VExportProvider :=
+    TProviderMapCombine.Create(
+      TBitmapMapCombinerFactoryRAW.Create(ACounterList),
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AActiveMapsSet,
+      AViewConfig,
+      AUseTilePrevZoomConfig,
+      AProjectionSet,
+      AProjectionSetList,
+      AVectorGeometryProjectedFactory,
+      AProjectedGeometryProvider,
+      AVectorSubsetBuilderFactory,
+      AMarksShowConfig,
+      AMarksDrawConfig,
+      AMarksDB,
+      AHashFunction,
+      ABitmapFactory,
+      ABitmapPostProcessing,
+      AFillingMapConfig,
+      AFillingMapType,
+      AFillingMapPolygon,
+      AGridsConfig,
+      ACoordToStringConverter,
+      AMapCalibrationList
+    );
+  VList.Add(VExportProvider);
+
+  VExportProvider :=
+    TProviderMapCombine.Create(
+      TBitmapMapCombinerFactoryGeoTIFF.Create(ACounterList),
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AActiveMapsSet,
+      AViewConfig,
+      AUseTilePrevZoomConfig,
+      AProjectionSet,
+      AProjectionSetList,
+      AVectorGeometryProjectedFactory,
+      AProjectedGeometryProvider,
+      AVectorSubsetBuilderFactory,
+      AMarksShowConfig,
+      AMarksDrawConfig,
+      AMarksDB,
+      AHashFunction,
+      ABitmapFactory,
+      ABitmapPostProcessing,
+      AFillingMapConfig,
+      AFillingMapType,
+      AFillingMapPolygon,
+      AGridsConfig,
+      ACoordToStringConverter,
+      AMapCalibrationList
+    );
+  VList.Add(VExportProvider);
+  Result := VList.MakeStaticAndClear;
 end;
 
-destructor TfrmRegionProcess.Destroy;
+function TfrmRegionProcess.PrepareDeleteProviders(
+  const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
+  const ALanguageManager: ILanguageManager;
+  const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
+  const APosition: ILocalCoordConverterChangeable;
+  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+  const AMarkSystem: IMarkSystem
+): IInterfaceListStatic;
+var
+  VExportProvider: IRegionProcessProvider;
+  VList: IInterfaceListSimple;
 begin
-  FProviderTilesGenPrev := nil;
-  FProviderTilesCopy := nil;
-  FProviderTilesDownload := nil;
+  VList := TInterfaceListSimple.Create;
 
-  FreeAndNil(FfrExport);
-  FreeAndNil(FfrDelete);
-  FreeAndNil(FfrCombine);
-  inherited;
+  VExportProvider :=
+    TProviderDeleteTiles.Create(
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AVectorGeometryProjectedFactory
+    );
+
+  VList.Add(VExportProvider);
+  VExportProvider :=
+    TProviderDeleteMarks.Create(
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      APosition,
+      AVectorGeometryProjectedFactory,
+      AMarkSystem
+    );
+  VList.Add(VExportProvider);
+
+  Result := VList.MakeStaticAndClear;
+end;
+
+function TfrmRegionProcess.PrepareExportProviders(
+  const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
+  const ALanguageManager: ILanguageManager;
+  const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
+  const AActiveMapsList: IMapTypeListChangeable;
+  const AProjectionSetFactory: IProjectionSetFactory;
+  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
+  const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
+  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+  const AImageResamplerFactoryList: IImageResamplerFactoryList;
+  const ATileReprojectResamplerConfig: IImageResamplerConfig;
+  const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+  const ATileStorageTypeList: ITileStorageTypeListStatic;
+  const ATileNameGenerator: ITileFileNameGeneratorsList
+): IInterfaceListStatic;
+var
+  VExportProvider: IRegionProcessProvider;
+  VList: IInterfaceListSimple;
+begin
+  VList := TInterfaceListSimple.Create;
+
+  VExportProvider :=
+    TExportProviderIPhone.Create(
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AProjectionSetFactory,
+      AVectorGeometryProjectedFactory,
+      ABitmap32StaticFactory,
+      ABitmapTileSaveLoadFactory,
+      True
+    );
+  VList.Add(VExportProvider);
+
+  VExportProvider :=
+    TExportProviderIPhone.Create(
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AProjectionSetFactory,
+      AVectorGeometryProjectedFactory,
+      ABitmap32StaticFactory,
+      ABitmapTileSaveLoadFactory,
+      False
+    );
+  VList.Add(VExportProvider);
+
+  VExportProvider :=
+    TExportProviderGEKml.Create(
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AVectorGeometryProjectedFactory
+    );
+  VList.Add(VExportProvider);
+
+  VExportProvider :=
+    TExportProviderYaMobileV3.Create(
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AVectorGeometryProjectedFactory,
+      ABitmap32StaticFactory,
+      ABitmapTileSaveLoadFactory,
+      AProjectionSetFactory
+    );
+  VList.Add(VExportProvider);
+
+  VExportProvider :=
+    TExportProviderYaMobileV4.Create(
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AVectorGeometryProjectedFactory,
+      ABitmap32StaticFactory,
+      ABitmapTileSaveLoadFactory,
+      AProjectionSetFactory
+    );
+  VList.Add(VExportProvider);
+
+  VExportProvider :=
+    TExportProviderAUX.Create(
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AVectorGeometryProjectedFactory
+    );
+  VList.Add(VExportProvider);
+
+  VExportProvider :=
+    TExportProviderZip.Create(
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AVectorGeometryProjectedFactory,
+      AArchiveReadWriteFactory,
+      ATileStorageTypeList,
+      ATileNameGenerator
+    );
+  VList.Add(VExportProvider);
+
+  VExportProvider :=
+    TExportProviderTar.Create(
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AVectorGeometryProjectedFactory,
+      AArchiveReadWriteFactory,
+      ATileStorageTypeList,
+      ATileNameGenerator
+    );
+  VList.Add(VExportProvider);
+
+  VExportProvider :=
+    TExportProviderJNX.Create(
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AVectorGeometryProjectedFactory,
+      ABitmapTileSaveLoadFactory,
+      ABitmapPostProcessing
+    );
+  VList.Add(VExportProvider);
+
+  VExportProvider :=
+    TExportProviderIMG.Create(
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AVectorGeometryProjectedFactory,
+      ABitmapTileSaveLoadFactory,
+      ABitmapPostProcessing
+    );
+  VList.Add(VExportProvider);
+
+  VExportProvider :=
+    TExportProviderOgf2.Create(
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AVectorGeometryProjectedFactory,
+      ABitmap32StaticFactory,
+      ABitmapTileSaveLoadFactory,
+      AProjectionSetFactory
+    );
+  VList.Add(VExportProvider);
+
+  VExportProvider :=
+    TExportProviderCE.Create(
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AVectorGeometryProjectedFactory,
+      AProjectionSetFactory
+    );
+  VList.Add(VExportProvider);
+
+  VExportProvider :=
+    TExportProviderRMapsSQLite.Create(
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AActiveMapsList,
+      AVectorGeometryProjectedFactory,
+      ABitmap32StaticFactory,
+      ABitmapTileSaveLoadFactory,
+      AProjectionSetFactory
+    );
+  VList.Add(VExportProvider);
+
+  VExportProvider :=
+    TExportProviderOruxMapsSQLite.Create(
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AActiveMapsList,
+      AVectorGeometryProjectedFactory,
+      ABitmap32StaticFactory,
+      ABitmapTileSaveLoadFactory,
+      AProjectionSetFactory
+    );
+  VList.Add(VExportProvider);
+
+  VExportProvider :=
+    TExportProviderMBTiles.Create(
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AActiveMapsList,
+      AVectorGeometryProjectedFactory,
+      ABitmap32StaticFactory,
+      ABitmapTileSaveLoadFactory,
+      AProjectionSetFactory
+    );
+  VList.Add(VExportProvider);
+
+  VExportProvider :=
+    TExportProviderRMP.Create(
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AActiveMapsList,
+      AVectorGeometryProjectedFactory,
+      ABitmap32StaticFactory,
+      ABitmapTileSaveLoadFactory,
+      AImageResamplerFactoryList,
+      ATileReprojectResamplerConfig,
+      AProjectionSetFactory
+    );
+  VList.Add(VExportProvider);
+
+  Result := VList.MakeStaticAndClear;
 end;
 
 procedure TfrmRegionProcess.LoadSelFromFile(
@@ -478,67 +1285,13 @@ begin
   end;
 end;
 
-function TfrmRegionProcess.DelRegion(const APolyLL: IGeometryLonLatPolygon): Boolean;
-begin
-  Result := FfrDelete.Validate(APolyLL);
-  if Result then begin
-    FfrDelete.StartProcess(APolyLL);
-  end;
-end;
-
-function TfrmRegionProcess.ExportREG(const APolyLL: IGeometryLonLatPolygon): Boolean;
-begin
-  Result := FfrExport.Validate(APolyLL);
-  if Result then begin
-    FfrExport.StartProcess(APolyLL);
-  end;
-end;
-
-function TfrmRegionProcess.savefilesREG(const APolyLL: IGeometryLonLatPolygon): Boolean;
-begin
-  Result := FProviderTilesCopy.Validate(APolyLL);
-  if Result then begin
-    FProviderTilesCopy.StartProcess(APolyLL);
-  end;
-end;
-
-function TfrmRegionProcess.LoadRegion(const APolyLL: IGeometryLonLatPolygon): Boolean;
-begin
-  Result := FProviderTilesDownload.Validate(APolyLL);
-  if Result then begin
-    FProviderTilesDownload.StartProcess(APolyLL);
-  end;
-end;
-
-function TfrmRegionProcess.genbacksatREG(const APolyLL: IGeometryLonLatPolygon): Boolean;
-begin
-  Result := FProviderTilesGenPrev.Validate(APolyLL);
-  if Result then begin
-    FProviderTilesGenPrev.StartProcess(APolyLL);
-  end;
-end;
-
-function TfrmRegionProcess.scleitRECT(const APolyLL: IGeometryLonLatPolygon): Boolean;
-begin
-  Result := FfrCombine.Validate(APolyLL);
-  if Result then begin
-    FfrCombine.StartProcess(APolyLL);
-  end;
-end;
-
-
 procedure TfrmRegionProcess.Button1Click(Sender: TObject);
 var
   VResult: Boolean;
 begin
-  VResult := False;
-  case PageControl1.ActivePage.Tag of
-    0: VResult := LoadRegion(FPolygonLL);
-    1: VResult := scleitRECT(FPolygonLL);
-    2: VResult := genbacksatREG(FPolygonLL);
-    3: VResult := DelRegion(FPolygonLL);
-    4: VResult := ExportREG(FPolygonLL);
-    5: VResult := savefilesREG(FPolygonLL);
+  VResult := FProviderAll.Validate(FPolygonLL);
+  if VResult then begin
+    FProviderAll.StartProcess(FPolygonLL);
   end;
   if VResult then begin
     if not tbtmDontClose.Checked then begin
@@ -549,19 +1302,12 @@ end;
 
 procedure TfrmRegionProcess.FormShow(Sender: TObject);
 begin
-  FfrExport.Show(TabSheet5, FZoom_rect, FPolygonLL);
-  FfrDelete.Show(TabSheet4, FZoom_rect, FPolygonLL);
-  FProviderTilesGenPrev.Show(TabSheet3, FZoom_rect, FPolygonLL);
-  FProviderTilesCopy.Show(TabSheet6, FZoom_rect, FPolygonLL);
-  FProviderTilesDownload.Show(TabSheet1, FZoom_rect, FPolygonLL);
-  FfrCombine.Show(TabSheet2, FZoom_rect, FPolygonLL);
-
-  PageControl1.ActivePageIndex := 0;
+  FProviderAll.Show(pnlContent, FZoom_rect, FPolygonLL);
 end;
 
 procedure TfrmRegionProcess.Button3Click(Sender: TObject);
 begin
-  close;
+  Close;
 end;
 
 procedure TfrmRegionProcess.tbtmMarkClick(Sender: TObject);

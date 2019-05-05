@@ -31,7 +31,6 @@ uses
   i_GeometryLonLat,
   i_MapCalibration,
   i_BitmapMapCombiner,
-  u_BaseInterfacedObject,
   u_RegionProcessTaskAbstract;
 
 type

@@ -60,6 +60,7 @@ implementation
 uses
   Classes,
   SysUtils,
+  gnugettext,
   i_MapType,
   i_RegionProcessParamsFrame,
   i_PredicateByTileInfo,
@@ -100,7 +101,7 @@ end;
 
 function TProviderDeleteTiles.GetCaption: string;
 begin
-  Result := SAS_STR_OperationDeleteCaption;
+  Result := _('Tiles');
 end;
 
 function TProviderDeleteTiles.PrepareTask(

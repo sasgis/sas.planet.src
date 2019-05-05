@@ -74,11 +74,11 @@ uses
   Classes,
   SysUtils,
   GR32,
+  gnugettext,
   i_MapType,
   i_ContentTypeInfo,
   i_RegionProcessParamsFrame,
-  u_ThreadGenPrevZoom,
-  u_ResStrings;
+  u_ThreadGenPrevZoom;
 
 { TProviderTilesGenPrev }
 
@@ -121,7 +121,7 @@ end;
 
 function TProviderTilesGenPrev.GetCaption: string;
 begin
-  Result := SAS_STR_OperationGenPrevCaption;
+  Result := _('Generate');
 end;
 
 function TProviderTilesGenPrev.PrepareTask(
