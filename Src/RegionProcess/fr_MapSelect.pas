@@ -216,6 +216,7 @@ end;
 procedure TfrMapSelect.SetEnabled(Amode: boolean);
 begin
   cbbMap.Enabled := Amode;
+  RefreshList(nil);
 end;
 
 procedure TfrMapSelect.Show(AParent: TWinControl);
@@ -247,6 +248,9 @@ var
   VMapCount: integer;
   VOrigFilter: string;
 begin
+  if not cbbMap.Enabled then begin
+    Exit;
+  end;
   VMode := 0;
   if Assigned(Sender) then begin // кликнули по пункту меню
     VMode := TTBXItem(Sender).Tag;

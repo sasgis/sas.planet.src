@@ -161,6 +161,8 @@ type
     FfrMap3Select: TfrMapSelect;
     FfrMap4Select: TfrMapSelect;
     FfrMap5Select: TfrMapSelect;
+    FZoom: Byte;
+    FPolygon: IGeometryLonLatPolygon;
   private
     procedure Init(
       const AZoom: byte;
@@ -213,6 +215,8 @@ constructor TfrExportToJNX.Create(
   const AFileFilters: string;
   const AFileExtDefault: string
 );
+var
+  i: integer;
 begin
   inherited Create(ALanguageManager);
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
@@ -225,6 +229,7 @@ begin
       False,  // show disabled map
       GetAllowExport
     );
+  FfrMap1Select.SetEnabled(False);
   FfrMap1Select.OnMapChange := Map1Change;
   FfrMap2Select :=
     AMapSelectFrameBuilder.Build(
@@ -233,6 +238,7 @@ begin
       False,  // show disabled map
       GetAllowExport
     );
+  FfrMap2Select.SetEnabled(False);
   FfrMap2Select.OnMapChange := Map2Change;
   FfrMap3Select :=
     AMapSelectFrameBuilder.Build(
@@ -241,6 +247,7 @@ begin
       False,  // show disabled map
       GetAllowExport
     );
+  FfrMap3Select.SetEnabled(False);
   FfrMap3Select.OnMapChange := Map3Change;
   FfrMap4Select :=
     AMapSelectFrameBuilder.Build(
@@ -249,6 +256,7 @@ begin
       False,  // show disabled map
       GetAllowExport
     );
+  FfrMap4Select.SetEnabled(False);
   FfrMap4Select.OnMapChange := Map4Change;
   FfrMap5Select :=
     AMapSelectFrameBuilder.Build(
@@ -257,7 +265,28 @@ begin
       False,  // show disabled map
       GetAllowExport
     );
+  FfrMap5Select.SetEnabled(False);
   FfrMap5Select.OnMapChange := Map5Change;
+
+  CbbZoom1.Items.BeginUpdate;
+  try
+    for i := 1 to 24 do begin
+      CbbZoom1.Items.Add(inttostr(i));
+    end;
+  finally
+    CbbZoom1.Items.EndUpdate;
+  end;
+
+  CbbZoom2.Items := CbbZoom1.Items;
+  CbbZoom3.Items := CbbZoom1.Items;
+  CbbZoom4.Items := CbbZoom1.Items;
+  CbbZoom5.Items := CbbZoom1.Items;
+
+  cbbscale2.Items := cbbscale1.Items;
+  cbbscale3.Items := cbbscale1.Items;
+  cbbscale4.Items := cbbscale1.Items;
+  cbbscale5.Items := cbbscale1.Items;
+
 end;
 
 destructor TfrExportToJNX.Destroy;
@@ -505,26 +534,12 @@ begin
   if not Assigned(FfrMap5Select.Parent) then
     FfrMap5Select.Show(pnlMap5);
 
-  FfrMap1Select.SetEnabled(ChMap1.Checked);
-  FfrMap2Select.SetEnabled(ChMap2.Checked);
-  FfrMap3Select.SetEnabled(ChMap3.Checked);
-  FfrMap4Select.SetEnabled(ChMap4.Checked);
-  FfrMap5Select.SetEnabled(ChMap5.Checked);
-
-  if CbbZoom1.Items.count = 0 then begin
-    for i := 1 to 24 do begin
-      CbbZoom1.Items.Add(inttostr(i));
-    end;
-
-    CbbZoom2.items := CbbZoom1.Items;
-    CbbZoom3.items := CbbZoom1.Items;
-    CbbZoom4.items := CbbZoom1.Items;
-    CbbZoom5.items := CbbZoom1.Items;
-
-    cbbscale2.items := cbbscale1.Items;
-    cbbscale3.items := cbbscale1.Items;
-    cbbscale4.items := cbbscale1.Items;
-    cbbscale5.items := cbbscale1.Items;
+  if (AZoom <> FZoom) or (not APolygon.IsSameGeometry(FPolygon)) then begin
+    FfrMap1Select.SetEnabled(ChMap1.Checked);
+    FfrMap2Select.SetEnabled(ChMap2.Checked);
+    FfrMap3Select.SetEnabled(ChMap3.Checked);
+    FfrMap4Select.SetEnabled(ChMap4.Checked);
+    FfrMap5Select.SetEnabled(ChMap5.Checked);
 
     CbbZoom1.ItemIndex := AZoom;
     CbbZoom2.ItemIndex := AZoom;
@@ -537,20 +552,22 @@ begin
     cbbscale3.ItemIndex := ZoomIndexToScaleIndex[AZoom];
     cbbscale4.ItemIndex := ZoomIndexToScaleIndex[AZoom];
     cbbscale5.ItemIndex := ZoomIndexToScaleIndex[AZoom];
-  end;
 
-  EMapName.text := FfrMap1Select.Text;
-  EProductName.text := 'SAS Planet';
-  EProductID.ItemIndex := 0;
-  if cbbVersion.ItemIndex = -1 then begin
-    cbbVersion.ItemIndex := 0;
-  end;
-  if cbbVersion.ItemIndex = 1 then begin
-    EZorder.visible := true;
-    LZOrder.visible := true;
-  end else begin
-    EZorder.visible := false;
-    LZOrder.visible := false;
+    EMapName.text := FfrMap1Select.Text;
+    EProductName.text := 'SAS Planet';
+    EProductID.ItemIndex := 0;
+    if cbbVersion.ItemIndex = -1 then begin
+      cbbVersion.ItemIndex := 0;
+    end;
+    if cbbVersion.ItemIndex = 1 then begin
+      EZorder.visible := true;
+      LZOrder.visible := true;
+    end else begin
+      EZorder.visible := false;
+      LZOrder.visible := false;
+    end;
+    FZoom := AZoom;
+    FPolygon := APolygon;
   end;
 end;
 
