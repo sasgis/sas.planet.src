@@ -504,11 +504,11 @@ begin
     VMapCalibration := FMapCalibrationList.Get(i);
     chklstPrTypes.AddItem(VMapCalibration.GetName, Pointer(VMapCalibration));
   end;
-  cbbZoomChange(nil);
   FfrMapSelect.Show(pnlMapFrame);
   FfrLayerSelect.Show(pnlLayerFrame);
   FfrMapCombineOptions.Show(pnlCustomOpt);
   UpdateProjectionsList(Self);
+  cbbZoomChange(nil);
 end;
 
 procedure TfrMapCombine.OnSplitOptChange(Sender: TObject);
