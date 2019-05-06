@@ -594,7 +594,7 @@ begin
         AMapCalibrationList
       ),
       False,
-      gettext_NoOp('Combine'),
+      gettext_NoOp('Stitch'),
       gettext_NoOp('Stitch selection'),
       gettext_NoOp('Output format:')
     );
