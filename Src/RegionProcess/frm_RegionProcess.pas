@@ -455,7 +455,7 @@ begin
         AMarkDBGUI
       ),
       True,
-      gettext_NoOp('RegionProcess'),
+      '',
       '',
       ''
     );
