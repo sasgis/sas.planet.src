@@ -94,6 +94,7 @@ uses
   u_ECWJP2Write,
   u_ImageLineProvider,
   u_GeoFunc,
+  u_StrFunc,
   u_ResStrings;
 
 type
@@ -204,90 +205,99 @@ var
   VCurrentPieceRect: TRect;
   VProjection: IProjection;
   VMapPieceSize: TPoint;
+  VOutputFileName: AnsiString;
   VContext: TInternalPerformanceCounterContext;
 begin
+  if IsAnsi(AFileName) then begin
+    VOutputFileName := AnsiString(AFileName);
+  end else begin
+    raise Exception.CreateFmt(
+      'ECW/JP2K encoder does not support unicode file names: %s', [AFileName]
+    );
+  end;
+
   FOperationID := AOperationID;
   FCancelNotifier := ACancelNotifier;
 
   VContext := FSaveRectCounter.StartOperation;
   try
-  VECWWriter := TECWWrite.Create;
-  try
-    FImageLineProvider :=
-      TImageLineProviderBGR.Create(
-        FPrepareDataCounter,
-        FGetLineCounter,
-        AImageProvider,
-        AMapRect
-      );
-    VProjection := AImageProvider.Projection;
-    VCurrentPieceRect := AMapRect;
-    VMapPieceSize := RectSize(AMapRect);
-    FLinesCount := VMapPieceSize.Y;
+    VECWWriter := TECWWrite.Create;
+    try
+      FImageLineProvider :=
+        TImageLineProviderBGR.Create(
+          FPrepareDataCounter,
+          FGetLineCounter,
+          AImageProvider,
+          AMapRect
+        );
+      VProjection := AImageProvider.Projection;
+      VCurrentPieceRect := AMapRect;
+      VMapPieceSize := RectSize(AMapRect);
+      FLinesCount := VMapPieceSize.Y;
 
-    VEPSG := VProjection.ProjectionType.Datum.EPSG;
-    if VEPSG > 0 then begin
-      Datum := 'EPSG:' + ALIntToStr(VEPSG);
-    end else begin
-      Datum := 'RAW';
-    end;
-
-    VEPSG := VProjection.ProjectionType.ProjectionEPSG;
-    if VEPSG = CGELonLatProjectionEPSG then begin
-      Proj := 'GEODETIC';
-      Datum := 'WGS84';
-      Units := CELL_UNITS_DEGREES;
-    end else begin
+      VEPSG := VProjection.ProjectionType.Datum.EPSG;
       if VEPSG > 0 then begin
-        Proj := 'EPSG:' + ALIntToStr(VEPSG);
+        Datum := 'EPSG:' + ALIntToStr(VEPSG);
       end else begin
-        Proj := 'RAW';
+        Datum := 'RAW';
       end;
-      Units := GetUnitsByProjectionEPSG(VEPSG);
-    end;
 
-    CalculateWFileParams(
-      VProjection.PixelPos2LonLat(VCurrentPieceRect.TopLeft),
-      VProjection.PixelPos2LonLat(VCurrentPieceRect.BottomRight),
-      VMapPieceSize.X, VMapPieceSize.Y, VProjection.ProjectionType,
-      CellIncrementX, CellIncrementY, OriginX, OriginY
-    );
+      VEPSG := VProjection.ProjectionType.ProjectionEPSG;
+      if VEPSG = CGELonLatProjectionEPSG then begin
+        Proj := 'GEODETIC';
+        Datum := 'WGS84';
+        Units := CELL_UNITS_DEGREES;
+      end else begin
+        if VEPSG > 0 then begin
+          Proj := 'EPSG:' + ALIntToStr(VEPSG);
+        end else begin
+          Proj := 'RAW';
+        end;
+        Units := GetUnitsByProjectionEPSG(VEPSG);
+      end;
 
-    FCompressionRatio := 101 - FQuality;
-
-    VErrorCode :=
-      VECWWriter.Encode(
-        FOperationID,
-        FCancelNotifier,
-        AFileName,
-        VMapPieceSize.X,
-        VMapPieceSize.Y,
-        FCompressionRatio,
-        COMPRESS_HINT_BEST,
-        ReadLine,
-        Datum,
-        Proj,
-        Units,
-        CellIncrementX,
-        CellIncrementY,
-        OriginX,
-        OriginY,
-        @FEncodeInfo
+      CalculateWFileParams(
+        VProjection.PixelPos2LonLat(VCurrentPieceRect.TopLeft),
+        VProjection.PixelPos2LonLat(VCurrentPieceRect.BottomRight),
+        VMapPieceSize.X, VMapPieceSize.Y, VProjection.ProjectionType,
+        CellIncrementX, CellIncrementY, OriginX, OriginY
       );
-    if (VErrorCode > NCS_SUCCESS) and (VErrorCode <> NCS_USER_CANCELLED_COMPRESSION) then begin
-      raise Exception.Create(
-        SAS_ERR_Save + ' ' + SAS_ERR_Code + ' [' + IntToStr(VErrorCode) + '] ' +
-        VECWWriter.ErrorCodeToString(VErrorCode)
-      );
-    end else begin
-      {$IFDEF SHOW_COMPRESSION_STAT}
-      FProgressUpdate.Update(1); // 100%
-      TThread.Synchronize(nil, ShowCompressionStat);
-      {$ENDIF}
+
+      FCompressionRatio := 101 - FQuality;
+
+      VErrorCode :=
+        VECWWriter.Encode(
+          FOperationID,
+          FCancelNotifier,
+          VOutputFileName,
+          VMapPieceSize.X,
+          VMapPieceSize.Y,
+          FCompressionRatio,
+          COMPRESS_HINT_BEST,
+          ReadLine,
+          Datum,
+          Proj,
+          Units,
+          CellIncrementX,
+          CellIncrementY,
+          OriginX,
+          OriginY,
+          @FEncodeInfo
+        );
+      if (VErrorCode > NCS_SUCCESS) and (VErrorCode <> NCS_USER_CANCELLED_COMPRESSION) then begin
+        raise Exception.Create(
+          SAS_ERR_Save + ' ' + SAS_ERR_Code + ' [' + IntToStr(VErrorCode) + '] ' +
+          VECWWriter.ErrorCodeToString(VErrorCode)
+        );
+      end else begin
+        {$IFDEF SHOW_COMPRESSION_STAT}
+        FProgressUpdate.Update(1); // 100%
+        TThread.Synchronize(nil, ShowCompressionStat);
+        {$ENDIF}
+      end;
+    finally
+      FreeAndNil(VECWWriter);
     end;
-  finally
-    FreeAndNil(VECWWriter);
-  end;
   finally
     FSaveRectCounter.FinishOperation(VContext);
   end;

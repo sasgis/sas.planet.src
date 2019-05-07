@@ -211,6 +211,7 @@ begin
   end;
 end;
 
+{$IFDEF UNICODE}
 function IsAnsi(const s: string): Boolean;
 var
   VAnsi: AnsiString;
@@ -220,5 +221,11 @@ begin
   VStr := string(VAnsi);
   Result := VStr = s;
 end;
+{$ELSE}
+function IsAnsi(const s: string): Boolean;
+begin
+  Result := True;
+end;
+{$ENDIF}
 
 end.
