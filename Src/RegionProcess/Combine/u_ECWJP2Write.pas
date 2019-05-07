@@ -139,10 +139,14 @@ var
   VNCSError: NCSError;
   VEcwData: PNCSEcwCompressClient;
 begin
-  Result := integer(NCS_MAX_ERROR_NUMBER);
   FReadDelegate := AReadDelegate;
   FOperationID := AOperationID;
   FCancelNotifier := ACancelNotifier;
+
+  {$IF CompilerVersion < 23}
+  VNCSError := NCS_MAX_ERROR_NUMBER; // prevent compiler warning
+  {$IFEND}
+
   VEcwData := NCSEcwCompressAllocClient();
   try
     VEcwData.pClientData := Self;
@@ -194,10 +198,11 @@ begin
         end;
       end;
     end;
-    Result := Integer(VNCSError);
   finally
     NCSEcwCompressFreeClient(VEcwData);
   end;
+
+  Result := Integer(VNCSError);
 end;
 
 class function TECWWrite.ErrorCodeToString(const AErrorCode: Integer): string;
