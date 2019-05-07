@@ -1307,7 +1307,7 @@ var AModifiersInt : integer) : boolean;
  begin
   Result := true;
   IsOn := true;
-  {$IF CompilerVersion < 23}
+  {$IF CompilerVersion < 33}
   Mask := 0; // prevent compiler warning
   {$IFEND}
   for i := 1 to length (AModifiers) do

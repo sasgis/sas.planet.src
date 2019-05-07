@@ -143,7 +143,7 @@ begin
   FOperationID := AOperationID;
   FCancelNotifier := ACancelNotifier;
 
-  {$IF CompilerVersion < 23}
+  {$IF CompilerVersion < 33}
   VNCSError := NCS_MAX_ERROR_NUMBER; // prevent compiler warning
   {$IFEND}
 
