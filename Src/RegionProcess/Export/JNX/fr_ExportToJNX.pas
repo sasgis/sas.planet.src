@@ -518,8 +518,6 @@ procedure TfrExportToJNX.Init(
   const AZoom: byte;
   const APolygon: IGeometryLonLatPolygon
 );
-var
-  i: integer;
 begin
   // Инициализируем список соответствия масштабов каждый раз, чтобы можно было пробовать различные настройки, не перезапуская программу.
   InitZoomIndexToScaleIndex;
