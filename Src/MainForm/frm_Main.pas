@@ -112,6 +112,7 @@ uses
   i_CmdLineArgProcessor,
   u_CmdLineArgProcessorAPI,
   u_ShortcutManager,
+  u_MarksDbMenu,
   u_MarkDbGUIHelper,
   u_FavoriteMapSetMenu,
   u_MainFormLayersList,
@@ -575,6 +576,8 @@ type
     tbxYandexWeather: TTBXItem;
     actConfigUsePrevForVectorLayers: TAction;
     tbiConfigUsePrevForVectorLayer: TTBXItem;
+    TBXSeparatorItem23: TTBXSeparatorItem;
+    tbxMarksDbList: TTBXSubmenuItem;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -952,6 +955,8 @@ type
     FFavoriteMapSetHotKeyList: IFavoriteMapSetHotKeyList;
     FfrmFavoriteMapSetEditor: TfrmFavoriteMapSetEditor;
     FfrmFavoriteMapSetManager: TfrmFavoriteMapSetManager;
+
+    FMarksDbMenu: TMarksDbMenu;
 
     procedure InitSearchersActions;
     procedure InitSearchers;
@@ -1611,6 +1616,12 @@ begin
     TActionListByLanguageManager.Create(
       Self,
       GState.Config.LanguageManager
+    );
+  FMarksDbMenu :=
+    TMarksDbMenu.Create(
+      Self,
+      tbxMarksDbList,
+      GState.MarkSystemConfig
     );
 end;
 

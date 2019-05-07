@@ -23,9 +23,13 @@ unit u_MarksExplorerHelper;
 interface
 
 uses
+  Classes,
   ComCtrls,
+  TBX,
+  TB2Item,
   CityHash,
-  i_Category;
+  i_Category,
+  i_MarkSystemConfig;
 
 type
   TExpandInfoItem = record
@@ -49,11 +53,21 @@ function GetSelectedNodeInfo(ATree: TTreeView): TExpandInfo;
 
 function GetNodeUID(ANode: TTreeNode): Cardinal; inline;
 
+procedure RefreshConfigListMenu(
+  const ASubmenuItem: TTBXSubmenuItem;
+  const ARefreshCaption: Boolean;
+  const AOnClick: TNotifyEvent;
+  const AMarkSystemConfig: IMarkSystemConfigListChangeable
+);
+
 implementation
 
 uses
+  SysUtils,
   ALString,
-  ALStringList;
+  ALStringList,
+  c_MarkSystem,
+  i_InterfaceListStatic;
 
 const
   cSep1: AnsiChar = ',';
@@ -192,6 +206,75 @@ begin
     VCategory := ICategory(ANode.Data);
     if Assigned(VCategory) and (VCategory.Name <> '') then begin
       Result := CityHash32(@VCategory.Name[1], Length(VCategory.Name) * SizeOf(Char));
+    end;
+  end;
+end;
+
+procedure RefreshConfigListMenu(
+  const ASubmenuItem: TTBXSubmenuItem;
+  const ARefreshCaption: Boolean;
+  const AOnClick: TNotifyEvent;
+  const AMarkSystemConfig: IMarkSystemConfigListChangeable
+);
+
+  function _DatabaseToHint(const ADB: TGUID): string;
+  begin
+    if IsEqualGUID(ADB, cSMLMarksDbGUID) then begin
+      Result := rsSMLMarksDbName;
+    end else if IsEqualGUID(ADB, cORMSQLiteMarksDbGUID) then begin
+      Result := rsORMSQLiteMarksDbName;
+    end else if IsEqualGUID(ADB, cORMMongoDbMarksDbGUID) then begin
+      Result := rsORMMongoDbMarksDbName;
+    end else if IsEqualGUID(ADB, cORMODBCMarksDbGUID) then begin
+      Result := rsORMODBCMarksDbName;
+    end else if IsEqualGUID(ADB, cORMZDBCMarksDbGUID) then begin
+      Result := rsORMZDBCMarksDbName;
+    end else begin
+      Result := '';
+      Exit;
+    end;
+    Result := Format(' [%s]', [Result]);
+  end;
+
+var
+  I: Integer;
+  VList: IInterfaceListStatic;
+  VActiveID: Integer;
+  VMenuItem: TTBXItem;
+  VConfigItem: IMarkSystemConfigStatic;
+begin
+  ASubmenuItem.Clear;
+
+  if ARefreshCaption then begin
+    ASubmenuItem.Caption := '';
+  end;
+
+  VList := AMarkSystemConfig.GetIDListStatic;
+  if Assigned(VList) and (VList.Count > 0) then begin
+    ASubmenuItem.Enabled := True;
+    ASubmenuItem.Options := ASubmenuItem.Options + [tboDropdownArrow];
+  end else begin
+    ASubmenuItem.Enabled := False;
+    ASubmenuItem.Options := ASubmenuItem.Options - [tboDropdownArrow];
+    Exit;
+  end;
+
+  VActiveID := AMarkSystemConfig.ActiveConfigID;
+
+  for I := 0 to VList.Count - 1 do begin
+    VConfigItem := IMarkSystemConfigStatic(VList.Items[I]);
+    VMenuItem := TTBXItem.Create(ASubmenuItem);
+    VMenuItem.Tag := VConfigItem.ID;
+    VMenuItem.Caption := VConfigItem.DisplayName + _DatabaseToHint(VConfigItem.DatabaseGUID);
+    VMenuItem.Checked := (VConfigItem.ID = VActiveID);
+    VMenuItem.RadioItem := True;
+    VMenuItem.GroupIndex := 1;
+    VMenuItem.OnClick := AOnClick;
+
+    ASubmenuItem.Add(VMenuItem);
+
+    if VMenuItem.Checked and ARefreshCaption then begin
+      ASubmenuItem.Caption := VMenuItem.Caption;
     end;
   end;
 end;

@@ -465,6 +465,7 @@ uses
   u_MapTypeMenuItemsGeneratorSimple in 'Src\MainForm\u_MapTypeMenuItemsGeneratorSimple.pas',
   u_MapViewGoto in 'Src\MainForm\u_MapViewGoto.pas',
   u_MapZoomingConfig in 'Src\MainForm\u_MapZoomingConfig.pas',
+  u_MarksDbMenu in 'Src\MainForm\u_MarksDbMenu.pas',
   u_MenuGeneratorByStaticTreeSimple in 'Src\MainForm\u_MenuGeneratorByStaticTreeSimple.pas',
   u_MouseState in 'Src\MainForm\u_MouseState.pas',
   u_PointOnMapEdit in 'Src\MainForm\u_PointOnMapEdit.pas',

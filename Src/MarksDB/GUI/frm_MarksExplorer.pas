@@ -263,7 +263,6 @@ type
     procedure PrepareCopyPasteBuffer(const AAction: TCopyPasteAction);
     procedure ResetCopyPasteBuffer;
 
-    procedure RefreshConfigListMenu;
     procedure OnMarkSystemConfigChange;
     procedure OnCategoryDbChanged;
     procedure OnMarksDbChanged;
@@ -308,7 +307,6 @@ implementation
 uses
   ExplorerSort,
   gnugettext,
-  c_MarkSystem,
   t_CommonTypes,
   t_GeoTypes,
   i_InterfaceListSimple,
@@ -1278,7 +1276,6 @@ procedure TfrmMarksExplorer.FormShow(Sender: TObject);
 var
   VWidth: Integer;
 begin
-  RefreshConfigListMenu;
   UpdateCategoryTree;
   btnNavOnMark.Checked := FNavToPoint.IsActive;
   FMarkSystemConfig.ChangeNotifier.Add(FMarkSystemConfigListener);
@@ -1289,6 +1286,7 @@ begin
   FWindowConfig.ChangeNotifier.Add(FConfigListener);
   OnConfigChange;
   OnMarkSystemStateChanged;
+  OnMarkSystemConfigChange;
   Self.OnResize := FormResize;
   VWidth := FMarksExplorerConfig.CategoriesWidth;
   if VWidth > 0 then begin
@@ -1475,70 +1473,6 @@ begin
   end;
 end;
 
-procedure TfrmMarksExplorer.RefreshConfigListMenu;
-
-  function DatabaseToHint(const ADB: TGUID): string;
-  begin
-    if IsEqualGUID(ADB, cSMLMarksDbGUID) then begin
-      Result := rsSMLMarksDbName;
-    end else if IsEqualGUID(ADB, cORMSQLiteMarksDbGUID) then begin
-      Result := rsORMSQLiteMarksDbName;
-    end else if IsEqualGUID(ADB, cORMMongoDbMarksDbGUID) then begin
-      Result := rsORMMongoDbMarksDbName;
-    end else if IsEqualGUID(ADB, cORMODBCMarksDbGUID) then begin
-      Result := rsORMODBCMarksDbName;
-    end else if IsEqualGUID(ADB, cORMZDBCMarksDbGUID) then begin
-      Result := rsORMZDBCMarksDbName;
-    end else begin
-      Result := '';
-      Exit;
-    end;
-    Result := Format(' [%s]', [Result]);
-  end;
-var
-  I: Integer;
-  VList: IInterfaceListStatic;
-  VActiveID: Integer;
-  VMenuItem: TTBXItem;
-  VConfigItem: IMarkSystemConfigStatic;
-begin
-  tbxConfigList.Clear;
-  tbxConfigList.Caption := '';
-
-  VList := FMarkSystemConfig.GetIDListStatic;
-  if Assigned(VList) and (VList.Count > 0) then begin
-    tbxEdit.Enabled := True;
-    tbxDelete.Enabled := True;
-    tbxConfigList.Enabled := True;
-    tbxConfigList.Options := tbxConfigList.Options + [tboDropdownArrow];
-  end else begin
-    tbxEdit.Enabled := False;
-    tbxDelete.Enabled := False;
-    tbxConfigList.Enabled := False;
-    tbxConfigList.Options := tbxConfigList.Options - [tboDropdownArrow];
-    Exit;
-  end;
-
-  VActiveID := FMarkSystemConfig.ActiveConfigID;
-
-  for I := 0 to VList.Count - 1 do begin
-    VConfigItem := IMarkSystemConfigStatic(VList.Items[I]);
-    VMenuItem := TTBXItem.Create(tbxConfigList);
-    VMenuItem.Tag := VConfigItem.ID;
-    VMenuItem.Caption := VConfigItem.DisplayName + DatabaseToHint(VConfigItem.DatabaseGUID);
-    VMenuItem.Checked := (VConfigItem.ID = VActiveID);
-    VMenuItem.RadioItem := True;
-    VMenuItem.GroupIndex := 1;
-    VMenuItem.OnClick := Self.tbxConfigListItemClick;
-
-    tbxConfigList.Add(VMenuItem);
-
-    if VMenuItem.Checked then begin
-      tbxConfigList.Caption := VMenuItem.Caption;
-    end;
-  end;
-end;
-
 procedure TfrmMarksExplorer.tbxConfigListItemClick(Sender: TObject);
 var
   VMenuItem: TTBXItem;
@@ -1641,8 +1575,20 @@ begin
 end;
 
 procedure TfrmMarksExplorer.OnMarkSystemConfigChange;
+var
+  VIsEnabled: Boolean;
 begin
-  RefreshConfigListMenu;
+  RefreshConfigListMenu(
+    tbxConfigList,
+    True,
+    Self.tbxConfigListItemClick,
+    FMarkSystemConfig
+  );
+
+  VIsEnabled := tbxConfigList.Enabled;
+
+  tbxEdit.Enabled := VIsEnabled;
+  tbxDelete.Enabled := VIsEnabled;
 end;
 
 end.
