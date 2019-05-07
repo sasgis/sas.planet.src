@@ -2004,7 +2004,6 @@ Var
 Begin
   MS     := TMemoryStream.Create;
   Try
-    Result := False;
     FN     := ALExtractFilePath(ToDosName(ToZipName(ItemName)));
     TN     := FN;
     INCN   := '';
@@ -2028,10 +2027,10 @@ Begin
             NoMore := False;
          End;
     Until NoMore;
-    Result := True;
   Finally
     MS.Free;
   End;
+  Result := True;
 End;
 
 Function TKAZipEntries.AddFolderChain(ItemName : AnsiString):Boolean;
