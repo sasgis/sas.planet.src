@@ -267,7 +267,9 @@ var
   VItem: PSQLMarkImageRow;
   VSQLMarkImage: TSQLMarkImage;
 begin
-  Result := 0;
+  {$IF CompilerVersion < 33}
+  Result := 0; // prevent compiler warning
+  {$IFEND}
   if FCache.FMarkImage.Find(APicName, VItem) then begin
     // found in cache
     Result := VItem.ImageId;
@@ -325,7 +327,9 @@ var
   VItem: PSQLMarkAppearanceRow;
   VSQLMarkAppearance: TSQLMarkAppearance;
 begin
-  Result := 0;
+  {$IF CompilerVersion < 33}
+  Result := 0; // prevent compiler warning
+  {$IFEND}
   if FCache.FMarkAppearance.Find(AColor1, AColor2, AScale1, AScale2, VItem) then begin
     // found in cache
     Result := VItem.AppearanceId;
