@@ -10,6 +10,7 @@ uses
   i_GeometryLonLat,
   i_GeometryProjected,
   i_LocalCoordConverter,
+  i_CoordToStringConverter,
   i_Projection;
 
 function GetGeometryLonLatNearestPoint(
@@ -86,6 +87,53 @@ procedure SplitProjectedPolygon(
   out AStartPoints: TArrayOfPoint;
   out ATilesCount: TIntegerDynArray
 );
+
+function GeometryLonLatToPlainText(
+  const AGeometry: IGeometryLonLat;
+  const ACoordToStringConverter: ICoordToStringConverter;
+  const APointSeparator: string;
+  const AContourSeparator: string;
+  const AMultiGeometrySeparator: string
+): string;
+
+function GeometryLonLatPointToPlainText(
+  const AGeometry: IGeometryLonLatPoint;
+  const ACoordToStringConverter: ICoordToStringConverter
+): string;
+
+function GeometryLonLatSingleLineToPlainText(
+  const AGeometry: IGeometryLonLatSingleLine;
+  const ACoordToStringConverter: ICoordToStringConverter;
+  const APointSeparator: string
+): string;
+
+function GeometryLonLatLineToPlainText(
+  const AGeometry: IGeometryLonLatLine;
+  const ACoordToStringConverter: ICoordToStringConverter;
+  const APointSeparator: string;
+  const AMultiGeometrySeparator: string
+): string;
+
+function GeometryLonLatContourToPlainText(
+  const AGeometry: IGeometryLonLatContour;
+  const ACoordToStringConverter: ICoordToStringConverter;
+  const APointSeparator: string
+): string;
+
+function GeometryLonLatSinglePolygonToPlainText(
+  const AGeometry: IGeometryLonLatSinglePolygon;
+  const ACoordToStringConverter: ICoordToStringConverter;
+  const APointSeparator: string;
+  const AContourSeparator: string
+): string;
+
+function GeometryLonLatPolygonToPlainText(
+  const AGeometry: IGeometryLonLatPolygon;
+  const ACoordToStringConverter: ICoordToStringConverter;
+  const APointSeparator: string;
+  const AContourSeparator: string;
+  const AMultiGeometrySeparator: string
+): string;
 
 implementation
 
@@ -1037,6 +1085,142 @@ begin
         Inc(I);
       end;
     end;
+  end;
+end;
+
+
+function GeometryLonLatToPlainText(
+  const AGeometry: IGeometryLonLat;
+  const ACoordToStringConverter: ICoordToStringConverter;
+  const APointSeparator: string;
+  const AContourSeparator: string;
+  const AMultiGeometrySeparator: string
+): string;
+var
+  VPoint: IGeometryLonLatPoint;
+  VLine: IGeometryLonLatLine;
+  VPoly: IGeometryLonLatPolygon;
+begin
+  Result := '';
+  if Supports(AGeometry, IGeometryLonLatPoint, VPoint) then begin
+    Result := GeometryLonLatPointToPlainText(VPoint, ACoordToStringConverter);
+  end else if Supports(AGeometry, IGeometryLonLatLine, VLine) then begin
+    Result := GeometryLonLatLineToPlainText(VLine, ACoordToStringConverter, APointSeparator, AMultiGeometrySeparator);
+  end else if Supports(AGeometry, IGeometryLonLatPolygon, VPoly) then begin
+    Result := GeometryLonLatPolygonToPlainText(VPoly, ACoordToStringConverter, APointSeparator, AContourSeparator, AMultiGeometrySeparator);
+  end;
+end;
+
+function GeometryLonLatPointToPlainText(
+  const AGeometry: IGeometryLonLatPoint;
+  const ACoordToStringConverter: ICoordToStringConverter
+): string;
+begin
+  Result := ACoordToStringConverter.LonLatConvert(AGeometry.Point);
+end;
+
+function GeometryLonLatSingleLineToPlainText(
+  const AGeometry: IGeometryLonLatSingleLine;
+  const ACoordToStringConverter: ICoordToStringConverter;
+  const APointSeparator: string
+): string;
+var
+  i: Integer;
+  VPoints: PDoublePointArray;
+begin
+  Result := '';
+  if AGeometry.Count > 0 then begin
+    VPoints := AGeometry.Points;
+    Result := ACoordToStringConverter.LonLatConvert(VPoints[0]);
+    for i := 1 to AGeometry.Count - 1 do begin
+      Result := Result + APointSeparator + ACoordToStringConverter.LonLatConvert(VPoints[i]);
+    end;
+  end;
+end;
+
+function GeometryLonLatLineToPlainText(
+  const AGeometry: IGeometryLonLatLine;
+  const ACoordToStringConverter: ICoordToStringConverter;
+  const APointSeparator: string;
+  const AMultiGeometrySeparator: string
+): string;
+var
+  VSingleLine: IGeometryLonLatSingleLine;
+  VMultiLine: IGeometryLonLatMultiLine;
+  i: Integer;
+begin
+  Result := '';
+  if Supports(AGeometry, IGeometryLonLatMultiLine, VMultiLine) then begin
+    if VMultiLine.Count > 0 then begin
+      VSingleLine := VMultiLine.Item[0];
+      Result := GeometryLonLatSingleLineToPlainText(VSingleLine, ACoordToStringConverter, APointSeparator);
+      for i := 1 to VMultiLine.Count - 1 do begin
+        Result := Result + AMultiGeometrySeparator + GeometryLonLatSingleLineToPlainText(VMultiLine.Item[i], ACoordToStringConverter, APointSeparator);
+      end;
+    end;
+  end else if Supports(AGeometry, IGeometryLonLatSingleLine, VSingleLine) then begin
+    Result := GeometryLonLatSingleLineToPlainText(VSingleLine, ACoordToStringConverter, APointSeparator);
+  end;
+end;
+
+function GeometryLonLatContourToPlainText(
+  const AGeometry: IGeometryLonLatContour;
+  const ACoordToStringConverter: ICoordToStringConverter;
+  const APointSeparator: string
+): string;
+var
+  i: Integer;
+  VPoints: PDoublePointArray;
+begin
+  Result := '';
+  if AGeometry.Count > 0 then begin
+    VPoints := AGeometry.Points;
+    Result := ACoordToStringConverter.LonLatConvert(VPoints[0]);
+    for i := 1 to AGeometry.Count - 1 do begin
+      Result := Result + APointSeparator + ACoordToStringConverter.LonLatConvert(VPoints[i]);
+    end;
+    Result := Result + APointSeparator + ACoordToStringConverter.LonLatConvert(VPoints[0]);
+  end;
+end;
+
+function GeometryLonLatSinglePolygonToPlainText(
+  const AGeometry: IGeometryLonLatSinglePolygon;
+  const ACoordToStringConverter: ICoordToStringConverter;
+  const APointSeparator: string;
+  const AContourSeparator: string
+): string;
+var
+  i: Integer;
+begin
+  Result := GeometryLonLatContourToPlainText(AGeometry.OuterBorder, ACoordToStringConverter, APointSeparator);
+  for i := 0 to AGeometry.HoleCount - 1 do begin
+    Result := Result + AContourSeparator + GeometryLonLatContourToPlainText(AGeometry.HoleBorder[i], ACoordToStringConverter, APointSeparator);
+  end;
+end;
+
+function GeometryLonLatPolygonToPlainText(
+  const AGeometry: IGeometryLonLatPolygon;
+  const ACoordToStringConverter: ICoordToStringConverter;
+  const APointSeparator: string;
+  const AContourSeparator: string;
+  const AMultiGeometrySeparator: string
+): string;
+var
+  VSingleLine: IGeometryLonLatSinglePolygon;
+  VMultiLine: IGeometryLonLatMultiPolygon;
+  i: Integer;
+begin
+  Result := '';
+  if Supports(AGeometry, IGeometryLonLatMultiPolygon, VMultiLine) then begin
+    if VMultiLine.Count > 0 then begin
+      VSingleLine := VMultiLine.Item[0];
+      Result := GeometryLonLatSinglePolygonToPlainText(VSingleLine, ACoordToStringConverter, APointSeparator, AContourSeparator);
+      for i := 1 to VMultiLine.Count - 1 do begin
+        Result := Result + AMultiGeometrySeparator + GeometryLonLatSinglePolygonToPlainText(VMultiLine.Item[i], ACoordToStringConverter, APointSeparator, AContourSeparator);
+      end;
+    end;
+  end else if Supports(AGeometry, IGeometryLonLatSinglePolygon, VSingleLine) then begin
+    Result := GeometryLonLatSinglePolygonToPlainText(VSingleLine, ACoordToStringConverter, APointSeparator, AContourSeparator);
   end;
 end;
 

@@ -317,6 +317,7 @@ uses
   i_MarkCategoryFactory,
   i_MarkFactoryConfig,
   i_GeometryLonLat,
+  u_ClipboardFunc,
   u_MarkCategoryList,
   u_InterfaceListSimple,
   u_ListenerByEvent;
@@ -1504,6 +1505,7 @@ begin
   if FCopyPasteBuffer <> nil then begin
     tbitmPaste.Visible := True;
     FCopyPasteAction := AAction;
+    CopyStringToClipboard(Handle, FMarkDBGUI.MarkIdListToText(FCopyPasteBuffer));
   end else begin
     ResetCopyPasteBuffer;
   end;

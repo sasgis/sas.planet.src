@@ -83,6 +83,7 @@ type
     FVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+    FCoordToStringConverter: ICoordToStringConverterChangeable;
     FfrmMarkEditPoint: TfrmMarkEditPoint;
     FfrmMarkEditPath: TfrmMarkEditPath;
     FfrmMarkEditPoly: TfrmMarkEditPoly;
@@ -179,6 +180,8 @@ type
       const ACategory: IMarkCategory;
       const AMergePolygonsPresenter: IMergePolygonsPresenter
     );
+    function MarkToPlainText(AMark: IVectorDataItem): string;
+    function MarkIdListToText(AMarksIdList: IInterfaceListStatic): string;
 
     property MarksDb: IMarkSystem read FMarkSystem;
     property MarkFactoryConfig: IMarkFactoryConfig read FMarkFactoryConfig;
@@ -224,6 +227,7 @@ uses
   i_NotifierOperation,
   i_VectorItemTreeImporter,
   u_ResStrings,
+  u_GeometryFunc,
   u_StringListStatic,
   u_VectorItemTree,
   u_NotifierOperation,
@@ -267,6 +271,7 @@ begin
   FMarkFactoryConfig := AMarkFactoryConfig;
   FMarksGUIConfig := AMarksGUIConfig;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
+  FCoordToStringConverter := ACoordToStringConverter;
   FImporterList := AImporterList;
   FExporterList := AExporterList;
 
@@ -872,6 +877,59 @@ begin
   end;
   VList := FImporterList.GetStatic;
   Result := ImportFilesModalInternal(AFiles, VList);
+end;
+
+function TMarkDbGUIHelper.MarkToPlainText(AMark: IVectorDataItem): string;
+var
+  VCategory: ICategory;
+  VMarkWithCategory: IVectorDataItemWithCategory;
+  VCategoryName: string;
+  VMarkName: string;
+  VGeometryText: string;
+begin
+  Assert(Assigned(AMark));
+  VCategoryName := '';
+  if Supports(AMark.MainInfo, IVectorDataItemWithCategory, VMarkWithCategory) then begin
+    VCategory := VMarkWithCategory.Category;
+    VCategoryName := VCategory.Name;
+  end;
+  VMarkName := AMark.Name;
+  VGeometryText := GeometryLonLatToPlainText(AMark.Geometry, FCoordToStringConverter.GetStatic, #13#10, #13#10#13#10, #13#10#13#10#13#10);
+
+  Result := VCategoryName;
+  if (Result <> '') and  (VMarkName <> '') then begin
+    Result := Result + ', ';
+  end;
+  Result := Result + VMarkName;
+  if (Result <> '') then begin
+    Result := Result + #13#10;
+  end;
+  Result := Result + VGeometryText;
+end;
+
+function TMarkDbGUIHelper.MarkIdListToText(
+  AMarksIdList: IInterfaceListStatic
+): string;
+var
+  i: Integer;
+  VMarkId: IMarkId;
+  VMark: IVectorDataItem;
+  VMarkText: string;
+begin
+  Result := '';
+  for i := 0 to AMarksIdList.Count - 1 do begin
+    VMarkId := IMarkId(AMarksIdList.Items[i]);
+    VMark := FMarkSystem.MarkDb.GetMarkByID(VMarkId);
+    if Assigned(VMark) then begin
+      VMarkText := MarkToPlainText(VMark);
+      if VMarkText <> '' then begin
+        if Result <> '' then begin
+          Result := Result + #13#10;
+        end;
+        Result := Result + VMarkText;
+      end;
+    end;
+  end;
 end;
 
 function TMarkDbGUIHelper.MarksMultiEditModal(const ACategory: ICategory): IImportConfig;
