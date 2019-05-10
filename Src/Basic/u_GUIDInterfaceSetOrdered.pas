@@ -37,7 +37,7 @@ type
 
 const
   CMaxListSize =
-    {$IF CompilerVersion < 33}
+    {$IF CompilerVersion < 23}
     Classes.MaxListSize;
     {$ELSE}
     High(NativeInt) shr 4;

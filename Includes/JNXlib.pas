@@ -293,7 +293,7 @@ begin
   until c = #0;
 
   Result :=
-    {$IF CompilerVersion < 33}
+    {$IF CompilerVersion < 23}
     UTF8Decode(UTF);
     {$ELSE}
     UTF8ToWideString(UTF);
