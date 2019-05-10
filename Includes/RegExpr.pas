@@ -854,7 +854,7 @@ function RegExprSubExpressions (const ARegExpr : RegExprString;
            if i > Len
             then Result := -1 // unbalansed '('
             else
-             if TRegExpr.ParseModifiersStr (ALCopyStr(ARegExpr, i, i - i0), Modif)
+             if TRegExpr.ParseModifiersStr (Copy(ARegExpr, i, i - i0), Modif)
               then AExtendedSyntax := (Modif and MaskModX) <> 0;
           end
          else begin // subexpression starts
@@ -1314,17 +1314,17 @@ var AModifiersInt : integer) : boolean;
    if AModifiers [i] = '-'
     then IsOn := false
     else begin
-      if ALPos (AModifiers [i], 'iI') > 0
+      if Pos (AModifiers [i], 'iI') > 0
        then Mask := MaskModI
-      else if ALPos (AModifiers [i], 'rR') > 0
+      else if Pos (AModifiers [i], 'rR') > 0
        then Mask := MaskModR
-      else if ALPos (AModifiers [i], 'sS') > 0
+      else if Pos (AModifiers [i], 'sS') > 0
        then Mask := MaskModS
-      else if ALPos (AModifiers [i], 'gG') > 0
+      else if Pos (AModifiers [i], 'gG') > 0
        then Mask := MaskModG
-      else if ALPos (AModifiers [i], 'mM') > 0
+      else if Pos (AModifiers [i], 'mM') > 0
        then Mask := MaskModM
-      else if ALPos (AModifiers [i], 'xX') > 0
+      else if Pos (AModifiers [i], 'xX') > 0
        then Mask := MaskModX
       else begin
         Result := false;
@@ -1992,7 +1992,7 @@ function TRegExpr.ParsePiece (var flagp : integer) : PRegExprChar;
       // Filip Jirsak's note - what will happen, when we are at the end of regparse?
       inc (regparse);
       p := regparse;
-      while ALPos (regparse^, '0123456789') > 0  // <min> MUST appear
+      while Pos (regparse^, '0123456789') > 0  // <min> MUST appear
        do inc (regparse);
       if (regparse^ <> '}') and (regparse^ <> ',') or (p = regparse) then begin
         regparse := savedparse;
@@ -2003,7 +2003,7 @@ function TRegExpr.ParsePiece (var flagp : integer) : PRegExprChar;
       if regparse^ = ',' then begin
          inc (regparse);
          p := regparse;
-         while ALPos (regparse^, '0123456789') > 0
+         while Pos (regparse^, '0123456789') > 0
           do inc (regparse);
          if regparse^ <> '}' then begin
            regparse := savedparse;
