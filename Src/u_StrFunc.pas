@@ -25,9 +25,9 @@ interface
 uses
   SysUtils;
 
-function GetAfter(const SubStr, Str: AnsiString): AnsiString;
-function GetBefore(const SubStr, Str: AnsiString): AnsiString;
-function GetBetween(const Str, After, Before: AnsiString): AnsiString;
+function GetAfter(const SubStr, Str: AnsiString): AnsiString; inline;
+function GetBefore(const SubStr, Str: AnsiString): AnsiString; inline;
+function GetBetween(const Str, After, Before: AnsiString): AnsiString; inline;
 
 function SetHeaderValue(const AHeaders, AName, AValue: AnsiString): AnsiString;
 function GetHeaderValue(const AHeaders, AName: AnsiString): AnsiString;
@@ -100,7 +100,7 @@ begin
         Result := AName + ': ' + AValue + #13#10 + AHeaders;
       end;
     finally
-      FreeAndNil(VRegExpr);
+      VRegExpr.Free;
     end;
   end else begin
     Result := AName + ': ' + AValue + #13#10;
@@ -121,7 +121,7 @@ begin
         Result := '';
       end;
     finally
-      FreeAndNil(VRegExpr);
+      VRegExpr.Free;
     end;
   end else begin
     Result := '';
@@ -149,7 +149,7 @@ begin
   end;
 end;
 
-{$IFDef UNICODE}
+{$IFDEF UNICODE}
 function IsAscii(const s: string): Boolean; overload;
 var
   VLen: Integer;
@@ -241,24 +241,13 @@ begin
 end;
 {$ENDIF}
 
-procedure _Init;
-begin
-  StrICompA :=
-    {$If CompilerVersion < 33}
-    @SysUtils.StrIComp;
-    {$ELSE}
-    @AnsiStrings.StrIComp;
-    {$IFEND}
-
-  TextToFloatA :=
-    {$If CompilerVersion < 33}
-    @SysUtils.TextToFloat;
-    {$ELSE}
-    @AnsiStrings.TextToFloat;
-    {$IFEND}
-end;
-
 initialization
-  _Init;
+  {$If CompilerVersion < 33}
+  StrICompA := @SysUtils.StrIComp;
+  TextToFloatA :=@SysUtils.TextToFloat;
+  {$ELSE}
+  StrICompA := @AnsiStrings.StrIComp;
+  TextToFloatA := @AnsiStrings.TextToFloat;
+  {$IFEND}
 
 end.
