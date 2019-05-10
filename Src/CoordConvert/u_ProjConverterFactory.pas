@@ -112,8 +112,8 @@ var
   VArgs: AnsiString;
 begin
   VArgs := AArgs;
-  if ALSameText(ALCopyStr(AArgs, 1, Length(cEPSG)), cEPSG) then begin
-    if ALTryStrToInt(ALCopyStr(AArgs, Length(cEPSG) + 1, Length(AArgs)), VEPSG) then begin
+  if ALSameText(Copy(AArgs, 1, Length(cEPSG)), cEPSG) then begin
+    if ALTryStrToInt(Copy(AArgs, Length(cEPSG) + 1, Length(AArgs)), VEPSG) then begin
       VArgs := Proj4ArgsByEpsg(VEPSG);
     end;
   end;

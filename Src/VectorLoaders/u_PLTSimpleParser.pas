@@ -209,7 +209,7 @@ begin
     Inc(N);
   end;
   if WordNmbr <= N then begin
-    Result := ALCopyStr(Str, VPrevPos, VCurrPos - VPrevPos);
+    Result := Copy(Str, VPrevPos, VCurrPos - VPrevPos);
   end else begin
     Result := '';
   end;

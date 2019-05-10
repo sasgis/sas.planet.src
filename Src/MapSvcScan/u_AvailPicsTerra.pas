@@ -69,7 +69,7 @@ var
   VSepPos: Integer;
 begin
   Result := '';
-  VSepPos := ALPos(ASep, AText);
+  VSepPos := Pos(ASep, AText);
   if VSepPos > 0 then begin
     Result := System.Copy(AText, 1, VSepPos - 1);
     System.Delete(AText, 1, VSepPos);
@@ -124,7 +124,7 @@ function TAvailPicsTerraserver.ParseResponse(const AResultOk: IDownloadResultOk)
     if (Length(VValue) in [8..10]) then begin
       // find separator
       VSep := '-';
-      VPos := ALPos(VSep, VValue);
+      VPos := Pos(VSep, VValue);
       if (VPos>0) then begin
         // sep defined
         VDate := _ConvertToYYYYMMDD(VValue, VSep);
@@ -230,7 +230,7 @@ begin
       S := ALTrim(VResponse[0]);
       S := GetBetween(S, '"feature_id"', '}');
       if Length(S)>0 then begin
-        if ALPos('<', S) = 0 then begin
+        if Pos('<', S) = 0 then begin
           // ':"47f6c122130d37e9e6b5cf17c9fde868","formatted_date":"09-17-2014","product_type":"pan sharpened natural color'
           // layer = 47f6c122130d37e9e6b5cf17c9fde868
           // date = 09-17-2014

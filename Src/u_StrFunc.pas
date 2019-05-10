@@ -58,18 +58,24 @@ uses
   RegExpr;
 
 function GetAfter(const SubStr, Str: AnsiString): AnsiString;
+var
+  I: Integer;
 begin
-  if ALPos(SubStr, Str) > 0 then begin
-    Result := ALCopyStr(Str, ALPos(SubStr, Str) + Length(SubStr), Length(Str));
+  I := Pos(SubStr, Str);
+  if I > 0 then begin
+    Result := Copy(Str, I + Length(SubStr), Length(Str));
   end else begin
     Result := '';
   end;
 end;
 
 function GetBefore(const SubStr, Str: AnsiString): AnsiString;
+var
+  I: Integer;
 begin
-  if ALPos(SubStr, Str) > 0 then begin
-    Result := ALCopyStr(Str, 1, ALPos(SubStr, Str) - 1);
+  I := Pos(SubStr, Str);
+  if I > 0 then begin
+    Result := Copy(Str, 1, I - 1);
   end else begin
     Result := '';
   end;

@@ -280,7 +280,7 @@ var
 begin
   pb := ALPosEx('<![CDATA[', Name, 1);
   if pb > 0 then begin
-    Name := ALCopyStr(Name, pb + 9, ALPosEx(']]>', Name, 1) - (pb + 9));
+    Name := Copy(Name, pb + 9, ALPosEx(']]>', Name, 1) - (pb + 9));
   end;
   Result := Utf8ToAnsi(Name);
 end;
@@ -292,7 +292,7 @@ var
 begin
   pb := ALPosEx('<![CDATA[', Description, 1);
   if pb > 0 then begin
-    Description := ALCopyStr(Description, pb + 9, ALPosEx(']]>', Description, 1) - (pb + 9));
+    Description := Copy(Description, pb + 9, ALPosEx(']]>', Description, 1) - (pb + 9));
   end;
   iip := ALPosEx('&lt;', Description, 1);
   while iip > 0 do begin
@@ -343,7 +343,7 @@ begin
             if (PosTag2 > PosStartPlace) and (PosTag2 < PosEndPlace) and (PosTag2 > PosTag1) then begin
               PosTag3 := Cardinal(FBMSrchNameE.Search(@buffer[PosTag2], PosEndPlace - PosTag2 + 1)) - sStart + 1;
               if (PosTag3 > PosStartPlace) and (PosTag3 < PosEndPlace) and (PosTag3 > PosTag2) then begin
-                VName := parseName(ALCopyStr(buffer, PosTag2 + 1, PosTag3 - (PosTag2 + 1)));
+                VName := parseName(Copy(buffer, PosTag2 + 1, PosTag3 - (PosTag2 + 1)));
               end;
             end;
           end;

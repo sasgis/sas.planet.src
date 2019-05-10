@@ -763,12 +763,10 @@ begin
       end else if FHttpClientLastConfig.ProxyUseCustomSettings then begin
         VProxyHost := FHttpClientLastConfig.ProxyHost;
         Assert(VProxyHost <> '');
-        VPos := ALPos(':', VProxyHost);
+        VPos := Pos(':', VProxyHost);
         if VPos > 0 then begin
-          FHttpClient.ProxyParams.ProxyServer :=
-            ALCopyStr(VProxyHost, 0, VPos - 1);
-          FHttpClient.ProxyParams.ProxyPort :=
-            ALStrToInt(ALCopyStr(VProxyHost, VPos + 1, Length(VProxyHost)));
+          FHttpClient.ProxyParams.ProxyServer := Copy(VProxyHost, 1, VPos - 1);
+          FHttpClient.ProxyParams.ProxyPort := ALStrToInt(Copy(VProxyHost, VPos + 1, Length(VProxyHost)));
         end else begin
           FHttpClient.ProxyParams.ProxyServer := VProxyHost;
           FHttpClient.ProxyParams.ProxyPort := 0;
@@ -841,11 +839,11 @@ begin
     if (VUrlLen <= 10) then begin
       Exit;
     end;
-    if not ALSameText(ALCopyStr(VUrl, 1, 8), 'file:///') then begin
+    if not ALSameText(Copy(VUrl, 1, 8), 'file:///') then begin
       Exit;
     end;
     // bingo!
-    VUrl := ALCopyStr(VUrl, 9, VUrlLen);
+    VUrl := Copy(VUrl, 9, VUrlLen);
     // replace slashes
     VUrl := ALStringReplace(VUrl, '/', '\', [rfReplaceAll]);
   end else begin

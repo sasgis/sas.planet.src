@@ -153,7 +153,7 @@ var
   VAnsiRes: AnsiString;
 begin
   Result := '';
-  VUnUtf8 := ALPos('utf-8', ADownloadResultOk.ContentType) > 0;
+  VUnUtf8 := Pos('utf-8', ADownloadResultOk.ContentType) > 0;
   if ADownloadResultOk.Data.Size > 0 then begin
     SetString(VAnsiRes, PAnsiChar(ADownloadResultOk.Data.Buffer), ADownloadResultOk.Data.Size div SizeOf(AnsiChar));
     if VUnUtf8 then begin

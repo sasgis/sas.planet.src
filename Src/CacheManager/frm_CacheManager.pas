@@ -382,9 +382,9 @@ begin
   VProjectionSet := FProjectionSetFactory.GetProjectionSetByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256);
 
   VDefExtention := AnsiString(Trim(edtDefExtention.Text));
-  VDotPos := ALPos('.', VDefExtention);
+  VDotPos := Pos('.', VDefExtention);
   if VDotPos > 0 then begin
-    VDefExtention := ALCopyStr(VDefExtention, VDotPos, Length(VDefExtention) - VDotPos + 1);
+    VDefExtention := Copy(VDefExtention, VDotPos, Length(VDefExtention) - VDotPos + 1);
   end else begin
     VDefExtention := '.' + VDefExtention;
   end;
