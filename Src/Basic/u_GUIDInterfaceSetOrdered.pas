@@ -35,9 +35,17 @@ type
   end;
   PInterfaceWithGUID = ^TInterfaceWithGUID;
 
+const
+  CMaxListSize =
+    {$IF CompilerVersion < 33}
+    Classes.MaxListSize;
+    {$ELSE}
+    High(NativeInt) shr 4;
+    {$IFEND}
+
 type
   PInterfaceWithGUIDList = ^TInterfaceWithGUIDList;
-  TInterfaceWithGUIDList = array[0..MaxListSize - 1] of PInterfaceWithGUID;
+  TInterfaceWithGUIDList = array[0..CMaxListSize - 1] of PInterfaceWithGUID;
 
 type
   TGUIDInterfaceSetOrdered = class(TGUIDSetBase, IGUIDInterfaceSet)
@@ -317,7 +325,7 @@ procedure TGUIDInterfaceSetOrdered.SetCapacity(NewCapacity: Integer);
 var
   VNewSize: Integer;
 begin
-  if (NewCapacity < FCount) or (NewCapacity > MaxListSize) then begin
+  if (NewCapacity < FCount) or (NewCapacity > CMaxListSize) then begin
     Error(@SListCapacityError, NewCapacity);
   end;
   if NewCapacity <> FCapacity then begin
@@ -332,7 +340,7 @@ procedure TGUIDInterfaceSetOrdered.SetCount(NewCount: Integer);
 var
   I: Integer;
 begin
-  if (NewCount < 0) or (NewCount > MaxListSize) then begin
+  if (NewCount < 0) or (NewCount > CMaxListSize) then begin
     Error(@SListCountError, NewCount);
   end;
   if NewCount > FCapacity then begin
