@@ -71,9 +71,16 @@ interface
 {$DEFINE ForceAnsiStrings}
 
 {.$DEFINE UniCode} // Unicode support
+
+{$UNDEF HAS_ANSISTRINGS}
+
 {$IFDEF ForceAnsiStrings}
-{$UNDEF UniCode}
+  {$UNDEF UniCode}
+  {$IF CompilerVersion >= 33}
+    {$DEFINE HAS_ANSISTRINGS}
+  {$IFEND}
 {$ENDIF}
+
 {$DEFINE RegExpPCodeDump} // p-code dumping (see Dump method)
 {$IFNDEF FPC} // the option is not supported in FreePascal
  {$DEFINE reRealExceptionAddr} // exceptions will point to appropriate source line, not to Error procedure
@@ -101,9 +108,10 @@ interface
 {$IFDEF FPC} {$DEFINE OverMeth} {$ENDIF}
 
 uses
- Classes,  // TStrings in Split method
  {$IFDEF ForceAnsiStrings}
  ALStringList,
+ {$ELSE}
+ Classes,  // TStrings in Split method
  {$ENDIF}
  SysUtils; // Exception
 
@@ -646,6 +654,9 @@ implementation
 uses
  {$IFDEF ForceAnsiStrings}
  ALString,
+   {$IFDEF HAS_ANSISTRINGS}
+   AnsiStrings,
+   {$ENDIF}
  {$ENDIF}
  Windows; // CharUpper/Lower
 
@@ -1179,18 +1190,37 @@ destructor TRegExpr.Destroy;
 --------------------------------------------------------------}
 
 class function TRegExpr.InvertCaseFunction (const Ch : REChar) : REChar;
- begin
+begin
   {$IFDEF UniCode}
-  if Ch >= #128
-   then Result := Ch
-  else
+  if Ch >= #128 then begin
+    Result := Ch;
+  end else
   {$ENDIF}
-   begin
-    Result := {$IFDEF FPC}AnsiUpperCase (Ch) [1]{$ELSE} REChar (CharUpper (PChar (Ch))){$ENDIF};
-    if Result = Ch
-     then Result := {$IFDEF FPC}AnsiLowerCase (Ch) [1]{$ELSE} REChar (CharLower (PChar (Ch))){$ENDIF};
-   end;
- end; { of function TRegExpr.InvertCaseFunction
+  begin
+    Result :=
+      {$IFDEF FPC}
+      AnsiUpperCase(Ch)[1]
+      {$ELSE}
+        {$IFDEF ForceAnsiStrings}
+        REChar(Windows.CharUpperA(PAnsiChar(Ch)))
+        {$ELSE}
+        REChar(Windows.CharUpper(PChar(Ch)))
+        {$ENDIF}
+      {$ENDIF};
+    if Result = Ch then begin
+      Result :=
+        {$IFDEF FPC}
+        AnsiLowerCase(Ch)[1]
+        {$ELSE}
+          {$IFDEF ForceAnsiStrings}
+          REChar(Windows.CharLowerA(PAnsiChar(Ch)))
+          {$ELSE}
+          REChar(Windows.CharLower(PChar(Ch)))
+          {$ENDIF}
+        {$ENDIF};
+    end;
+  end;
+end; { of function TRegExpr.InvertCaseFunction
 --------------------------------------------------------------}
 
 function TRegExpr.GetExpression : RegExprString;
@@ -1218,7 +1248,7 @@ procedure TRegExpr.SetExpression (const s : RegExprString);
       {$IFDEF UniCode}
       StrPCopy (fExpression, Copy (s, 1, Len)); //###0.950
       {$ELSE}
-      StrLCopy (fExpression, PRegExprChar (s), Len); //###0.950
+      {$IFDEF HAS_ANSISTRINGS}AnsiStrings.{$ENDIF}StrLCopy(fExpression, PRegExprChar (s), Len); //###0.950
       {$ENDIF UniCode}
 
       InvalidateProgramm; //###0.941
@@ -1686,9 +1716,9 @@ function TRegExpr.CompileRegExpr (exp : PRegExprChar) : boolean;
         len := 0;
         while scan <> nil do begin
           if (PREOp (scan)^ = EXACTLY)
-             and (strlen (scan + REOpSz + RENextOffSz) >= len) then begin
+             and ({$IFDEF HAS_ANSISTRINGS}AnsiStrings.{$ENDIF}StrLen(scan + REOpSz + RENextOffSz) >= len) then begin
               longest := scan + REOpSz + RENextOffSz;
-              len := strlen (longest);
+              len := {$IFDEF HAS_ANSISTRINGS}AnsiStrings.{$ENDIF}StrLen(longest);
            end;
           scan := regnext (scan);
          end;
@@ -2911,7 +2941,7 @@ function TRegExpr.MatchPrim (prog : PRegExprChar) : boolean;
             if (opnd^ <> reginput^)
                and (InvertCase (opnd^) <> reginput^)
              then EXIT;
-            len := strlen (opnd);
+            len := {$IFDEF HAS_ANSISTRINGS}AnsiStrings.{$ENDIF}StrLen(opnd);
             //###0.929 begin
             no := len;
             save := reginput;
@@ -2931,7 +2961,7 @@ function TRegExpr.MatchPrim (prog : PRegExprChar) : boolean;
             // Inline the first character, for speed.
             if opnd^ <> reginput^
              then EXIT;
-            len := strlen (opnd);
+            len := {$IFDEF HAS_ANSISTRINGS}AnsiStrings.{$ENDIF}StrLen(opnd);
             //###0.929 begin
             no := len;
             save := reginput;
@@ -3464,9 +3494,9 @@ function TRegExpr.ExecPrim (AOffset: integer) : boolean;
   if regmust <> nil then begin
     s := StartPtr;
     REPEAT
-     s := StrScan (s, regmust [0]);
+     s := {$IFDEF HAS_ANSISTRINGS}AnsiStrings.{$ENDIF}StrScan(s, regmust [0]);
      if s <> nil then begin
-       if StrLComp (s, regmust, regmlen) = 0
+       if {$IFDEF HAS_ANSISTRINGS}AnsiStrings.{$ENDIF}StrLComp(s, regmust, regmlen) = 0
         then BREAK; // Found it.
        inc (s);
       end;
@@ -3497,7 +3527,7 @@ function TRegExpr.ExecPrim (AOffset: integer) : boolean;
   s := StartPtr;
   if regstart <> #0 then // We know what char it must start with.
     REPEAT
-     s := StrScan (s, regstart);
+     s := {$IFDEF HAS_ANSISTRINGS}AnsiStrings.{$ENDIF}StrScan(s, regstart);
      if s <> nil then begin
        Result := RegMatch (s);
        if Result
@@ -3595,7 +3625,7 @@ procedure TRegExpr.SetInputString (const AInputString : RegExprString);
   {$IFDEF UniCode}
   StrPCopy (fInputString, Copy (AInputString, 1, Len)); //###0.927
   {$ELSE}
-  StrLCopy (fInputString, PRegExprChar (AInputString), Len);
+  {$IFDEF HAS_ANSISTRINGS}AnsiStrings.{$ENDIF}StrLCopy(fInputString, PRegExprChar(AInputString), Len);
   {$ENDIF}
 
   {
