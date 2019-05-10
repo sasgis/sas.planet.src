@@ -159,7 +159,11 @@ begin
   FStrPhase3 := _('Cleaning up. ');
 
   // Use '.' as a floating point independently of the user's locale preferences.
+  {$IF CompilerVersion < 33}
   GetLocaleFormatSettings(GetThreadLocale, FFormatSettings);
+  {$ELSE}
+  FFormatSettings := TFormatSettings.Create;
+  {$IFEND}
   FFormatSettings.DecimalSeparator := '.';
 end;
 

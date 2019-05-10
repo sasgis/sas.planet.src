@@ -292,7 +292,12 @@ begin
       UTF := UTF + c;
   until c = #0;
 
-  Result := UTF8Decode(UTF);
+  Result :=
+    {$IF CompilerVersion < 33}
+    UTF8Decode(UTF);
+    {$ELSE}
+    UTF8ToWideString(UTF);
+    {$IFEND}
 end;
 
 procedure WriteUTFString(var f: File; const s: WideString);
