@@ -44,9 +44,16 @@ function AsciiToStringSafe(const s: AnsiString): string; inline;
 
 function IsAnsi(const s: string): Boolean; inline;
 
+var StrICompA: function(const S1, S2: PAnsiChar): Integer;
+var TextToFloatA: function(Buffer: PAnsiChar; var Value; ValueType: TFloatValue;
+      const AFormatSettings: TFormatSettings): Boolean;
+
 implementation
 
 uses
+  {$IF CompilerVersion >= 33}
+  AnsiStrings,
+  {$IFEND}
   ALString,
   RegExpr;
 
@@ -227,5 +234,25 @@ begin
   Result := True;
 end;
 {$ENDIF}
+
+procedure _Init;
+begin
+  StrICompA :=
+    {$If CompilerVersion < 33}
+    @SysUtils.StrIComp;
+    {$ELSE}
+    @AnsiStrings.StrIComp;
+    {$IFEND}
+
+  TextToFloatA :=
+    {$If CompilerVersion < 33}
+    @SysUtils.TextToFloat;
+    {$ELSE}
+    @AnsiStrings.TextToFloat;
+    {$IFEND}
+end;
+
+initialization
+  _Init;
 
 end.

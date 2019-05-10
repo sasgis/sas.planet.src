@@ -1,5 +1,9 @@
 unit VarRecUtils;
 
+{$IF CompilerVersion >= 33}
+  {$DEFINE HAS_ANSISTRINGS}
+{$IFEND}
+
 interface
 
 type
@@ -25,6 +29,9 @@ procedure FinalizeConstArray(var Arr: TConstArray);
 implementation
 
 uses
+  {$IFDEF HAS_ANSISTRINGS}
+  AnsiStrings,
+  {$ENDIF}
   SysUtils;
 
 function CopyVarRec(const Item: TVarRec): TVarRec;
@@ -47,7 +54,7 @@ begin
         Result.VString^ := Item.VString^;
       end;
     vtPChar:
-      Result.VPChar := StrNew(Item.VPChar);
+      Result.VPChar := {$IFDEF HAS_ANSISTRINGS}AnsiStrings.{$ENDIF}StrNew(Item.VPChar);
     // there is no StrNew for PWideChar
     vtPWideChar:
       begin
@@ -120,7 +127,7 @@ begin
   case Item.VType of
     vtExtended: Dispose(Item.VExtended);
     vtString: Dispose(Item.VString);
-    vtPChar: StrDispose(Item.VPChar);
+    vtPChar: {$IFDEF HAS_ANSISTRINGS}AnsiStrings.{$ENDIF}StrDispose(Item.VPChar);
     vtPWideChar: FreeMem(Item.VPWideChar);
     vtAnsiString: AnsiString(Item.VAnsiString) := '';
     vtCurrency: Dispose(Item.VCurrency);

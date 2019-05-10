@@ -113,6 +113,7 @@ uses
   i_Appearance,
   u_StreamReadOnlyByBinaryData,
   u_DoublePointsAggregator,
+  u_StrFunc,
   u_GeoFunc;
 
 { TWikimapiaKmlSimpleParser }
@@ -412,7 +413,7 @@ begin
         VNumEndPos := PosOfChar(',', VCurPos, VLastPos);
         if VNumEndPos <> nil then begin
           VNumEndPos^ := #0;
-          if TextToFloat(VCurPos, VValue, fvExtended, FFormat) then begin
+          if TextToFloatA(VCurPos, VValue, fvExtended, FFormat) then begin
             VCurCoord.x := VValue;
             VCurPos := VNumEndPos;
             Inc(VCurPos);
@@ -435,7 +436,7 @@ begin
                   VNumEndPos := VLastPos;
                 end;
                 VNumEndPos^ := #0;
-                if TextToFloat(VCurPos, VValue, fvExtended, FFormat) then begin
+                if TextToFloatA(VCurPos, VValue, fvExtended, FFormat) then begin
                   VCurCoord.Y := VValue;
                   APointsAggregator.Add(VCurCoord);
                 end;

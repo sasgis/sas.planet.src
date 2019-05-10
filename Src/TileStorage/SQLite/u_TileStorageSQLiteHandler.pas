@@ -172,6 +172,7 @@ uses
   AlSqlite3Wrapper,
   libcrc32,
   c_TileStorageSQLite,
+  u_StrFunc,
   u_InterfaceListSimple,
   u_MapVersionListStatic,
   u_TileInfoBasic,
@@ -472,18 +473,18 @@ begin
     ColCount := AStmtData^.ColumnCount;
     for I := 0 to ColCount - 1 do begin
       VName := AStmtData^.ColumnName(I);
-      if StrIComp(VName, 'v') = 0 then begin
+      if StrICompA(VName, 'v') = 0 then begin
         VName := AStmtData^.ColumnDeclType(I);
-        if StrIComp(VName, 'TEXT') = 0 then begin
+        if StrICompA(VName, 'TEXT') = 0 then begin
           ModeV := vcm_Text;
         end else begin
           ModeV := vcm_Int;
         end;
         Dec(VFound);
-      end else if StrIComp(VName, 'c') = 0 then begin
+      end else if StrICompA(VName, 'c') = 0 then begin
         HasC := True;
         Dec(VFound);
-      end else if StrIComp(VName, 'h') = 0 then begin
+      end else if StrICompA(VName, 'h') = 0 then begin
         HasH := True;
         Dec(VFound);
       end;
