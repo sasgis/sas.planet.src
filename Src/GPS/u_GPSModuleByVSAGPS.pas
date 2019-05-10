@@ -33,6 +33,7 @@ uses
   i_GPSConfig,
   i_SystemTimeProvider,
   i_Listener,
+  u_StrFunc,
   u_GeoFunc,
   u_GPSModuleAbstract,
 {$if defined(VSAGPS_AS_DLL)}
@@ -1571,9 +1572,9 @@ procedure TGPSModuleByVSAGPS.GPSRecv_LowLevel(const AUnitIndex: Byte;
   procedure AddLoggerPacket(const p: PAnsiChar);
   begin
 {$if defined(VSAGPS_AS_DLL)}
-    VSAGPS_AddLoggerPacket(FVSAGPS_LOGGER, p, StrLen(p), nil);
+    VSAGPS_AddLoggerPacket(FVSAGPS_LOGGER, p, StrLenA(p), nil);
 {$else}
-    FVSAGPS_Logger.AddPacket(p, StrLen(p), nil);
+    FVSAGPS_Logger.AddPacket(p, StrLenA(p), nil);
 {$ifend}
   end;
 

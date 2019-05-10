@@ -83,7 +83,8 @@ const
 implementation
 
 uses
-  Windows;
+  Windows,
+  u_StrFunc;
 
 const
   cTimeZoneInfoUpdateInterval = 200; // ms
@@ -242,7 +243,7 @@ begin
         ReallocMem(FStrBuf, VLen);
         FStrBufSize := VLen;
       end;
-      StrLCopy(FStrBuf, PAnsiChar(FLastTZID), FStrBufSize);
+      StrLCopyA(FStrBuf, PAnsiChar(FLastTZID), FStrBufSize);
     end;
 
     VUTCTime := LocalTimeToUTC(Now);
@@ -270,7 +271,7 @@ begin
     FLastUpdateTime := GetTickCount;
     if VLen > 0 then begin
       SetLength(FLastTZID, VLen);
-      StrLCopy(PAnsiChar(FLastTZID), FStrBuf, VLen);
+      StrLCopyA(PAnsiChar(FLastTZID), FStrBuf, VLen);
     end else begin
       FLastTZID := '';
     end;
@@ -307,7 +308,7 @@ begin
 
   if VLen > 0 then begin
     SetLength(FLastTZID, VLen);
-    StrLCopy(PAnsiChar(FLastTZID), FStrBuf, VLen);
+    StrLCopyA(PAnsiChar(FLastTZID), FStrBuf, VLen);
   end else begin
     FLastTZID := '';
   end;

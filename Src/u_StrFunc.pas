@@ -44,6 +44,8 @@ function AsciiToStringSafe(const s: AnsiString): string; inline;
 
 function IsAnsi(const s: string): Boolean; inline;
 
+var StrLenA: function(const S: PAnsiChar): Cardinal;
+var StrLCopyA: function(Dest: PAnsiChar; const Source: PAnsiChar; MaxLen: Cardinal): PAnsiChar;
 var StrICompA: function(const S1, S2: PAnsiChar): Integer;
 var TextToFloatA: function(Buffer: PAnsiChar; var Value; ValueType: TFloatValue;
       const AFormatSettings: TFormatSettings): Boolean;
@@ -243,9 +245,13 @@ end;
 
 initialization
   {$If CompilerVersion < 33}
+  StrLenA := @SysUtils.StrLen;
+  StrLCopyA := @SysUtils.StrLCopy;
   StrICompA := @SysUtils.StrIComp;
   TextToFloatA :=@SysUtils.TextToFloat;
   {$ELSE}
+  StrLenA := @AnsiStrings.StrLen;
+  StrLCopyA := @AnsiStrings.StrLCopy;
   StrICompA := @AnsiStrings.StrIComp;
   TextToFloatA := @AnsiStrings.TextToFloat;
   {$IFEND}

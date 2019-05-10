@@ -81,6 +81,7 @@ uses
   t_GeoTypes,
   u_GeoToStrFunc,
   u_GeoFunc,
+  u_StrFunc,
   u_XmlLoaderByVSAGPS,
   u_StreamReadOnlyByBinaryData,
   u_ETS_Tiles;
@@ -377,7 +378,7 @@ begin
     Exit;
 
   // treat VExifAttr as PAnsiChar
-  ASize := StrLen(PAnsiChar(AOffset));
+  ASize := StrLenA(PAnsiChar(AOffset));
   if (0=ASize) then
     Exit;
 
