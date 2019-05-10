@@ -65,12 +65,12 @@ begin
   APSComp.AddDelphiFunction('function RoundEx(const chislo: Double; const Precision: Integer): String');
 
   // u_StrFunc
-  APSComp.AddDelphiFunction('function GetAfter(SubStr, Str: AnsiString): AnsiString');
-  APSComp.AddDelphiFunction('function GetBefore(SubStr, Str: AnsiString): AnsiString');
-  APSComp.AddDelphiFunction('function GetBetween(Str, After, Before: AnsiString): AnsiString');
+  APSComp.AddDelphiFunction('function GetAfter(const SubStr, Str: AnsiString): AnsiString');
+  APSComp.AddDelphiFunction('function GetBefore(const SubStr, Str: AnsiString): AnsiString');
+  APSComp.AddDelphiFunction('function GetBetween(const Str, After, Before: AnsiString): AnsiString');
 
-  APSComp.AddDelphiFunction('function SetHeaderValue(AHeaders, AName, AValue: AnsiString): AnsiString');
-  APSComp.AddDelphiFunction('function GetHeaderValue(AHeaders, AName: AnsiString): AnsiString');
+  APSComp.AddDelphiFunction('function SetHeaderValue(const AHeaders, AName, AValue: AnsiString): AnsiString');
+  APSComp.AddDelphiFunction('function GetHeaderValue(const AHeaders, AName: AnsiString): AnsiString');
 
   // internal routines
   APSComp.AddDelphiFunction('function SubStrPos(const Str, SubStr: AnsiString; FromPos: Integer): Integer');
