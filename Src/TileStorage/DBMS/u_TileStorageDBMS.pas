@@ -665,7 +665,9 @@ begin
     Exit;
 
   VTileID.z := 0; // check for first time
+  {$IF CompilerVersion < 33}
   VResult := ETS_RESULT_NEED_EXCLUSIVE; // any value <> ETS_RESULT_OK
+  {$IFEND}
   VBufferIn.dwOptionsIn := GetInitialExclusiveFlag(FALSE);
   repeat
     // let us go
@@ -911,7 +913,9 @@ var
   VTileID: TTILE_ID_XYZ;
   VBufferIn: TETS_SELECT_TILE_IN;
 begin
+  {$IF CompilerVersion < 33}
   VResult := ETS_RESULT_OK;
+  {$IFEND}
   FillChar(VObj, SizeOf(VObj), 0);
   VTileID.z := 0; // initial flag
   VBufferIn.dwOptionsIn := GetInitialExclusiveFlag(TRUE);
@@ -1019,7 +1023,9 @@ begin
   if MalfunctionDetected then
     Exit;
 
+  {$IF CompilerVersion < 33}
   VResult := ETS_RESULT_OK;
+  {$IFEND}
 
   FillChar(VObj, SizeOf(VObj), 0);
   VObj.AllowSaveToMemCache := Assigned(FTileInfoMemCache);
@@ -1144,7 +1150,9 @@ begin
   if MalfunctionDetected then
     Exit;
 
+  {$IF CompilerVersion < 33}
   VResult := ETS_RESULT_OK;
+  {$IFEND}
 
   FillChar(VObj, SizeOf(VObj), 0);
   VObj.AllowSaveToMemCache := Assigned(FTileInfoMemCache);
@@ -1259,7 +1267,9 @@ begin
   if Assigned(AVersionInfo) then begin
     VVersion := AVersionInfo.BaseVersion;
   end;
+  {$IF CompilerVersion < 33}
   VResult := ETS_RESULT_OK;
+  {$IFEND}
   FillChar(VObj, SizeOf(VObj), 0);
   VBufferIn.btTileZoom := 0;
   VBufferIn.dwOptionsIn := GetInitialExclusiveFlag(TRUE);
@@ -1673,7 +1683,9 @@ begin
   CheckMalfunction;
 
   VDeadConnectionFound := FALSE;
+  {$IF CompilerVersion < 33}
   VResult := ETS_RESULT_NEED_EXCLUSIVE; // any value <> ETS_RESULT_OK
+  {$IFEND}
   VTileID.z := 0; // initiali flag
   VBufferIn.dwOptionsIn := GetInitialExclusiveFlag(FALSE);
   repeat
