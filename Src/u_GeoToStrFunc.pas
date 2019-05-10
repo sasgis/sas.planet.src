@@ -80,7 +80,7 @@ begin
         VFormatSettings.DecimalSeparator := '.';
       end else begin
         VFormatSettings.DecimalSeparator :=
-          {$IF (CompilerVersion >= 24)} // XE3 and UP
+          {$IF CompilerVersion >= 23} // XE2 and UP
           FormatSettings.DecimalSeparator;
           {$ELSE}
           DecimalSeparator;

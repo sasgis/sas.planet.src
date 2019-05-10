@@ -91,7 +91,7 @@ begin
   VConfig := FConfig.GetStatic;
   Result :=
     TCoordToStringConverter.Create(
-      {$IF (CompilerVersion >= 24)} // XE3 and UP
+      {$IF CompilerVersion >= 23} // XE2 and UP
       FormatSettings.DecimalSeparator,
       {$ELSE}
       DecimalSeparator,

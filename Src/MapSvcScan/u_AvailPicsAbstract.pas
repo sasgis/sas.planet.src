@@ -215,7 +215,7 @@ end;
 
 class function TAvailPicsAbstract.DateSeparator: Char;
 begin
-  {$IF (CompilerVersion >= 24)} // XE3 and UP
+  {$IF CompilerVersion >= 23} // XE2 and UP
   Result := FormatSettings.DateSeparator;
   {$ELSE}
   Result := SysUtils.DateSeparator;
