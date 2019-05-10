@@ -84,7 +84,7 @@ end;
 
 function SubStrPos_P(const Str, SubStr: AnsiString; FromPos: Integer): Integer;
 begin
-  Result := PosEx(SubStr, Str, FromPos);
+  Result := ALPosEx(SubStr, Str, FromPos);
 end;
 
 function GetNumberAfter_P(const ASubStr, AText: string): string;
