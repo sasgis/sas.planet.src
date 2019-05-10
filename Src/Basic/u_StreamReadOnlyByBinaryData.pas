@@ -54,7 +54,6 @@ end;
 
 procedure TStreamReadOnlyByBinaryData.SetSize(NewSize: Integer);
 begin
-  inherited;
   if NewSize <> FData.Size then begin
     raise EWriteError.Create('Read only stream');
   end;
