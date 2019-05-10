@@ -26,6 +26,7 @@ uses
   Windows,
   Classes,
   ImgList,
+  UITypes,
   GR32_Image,
   TB2Item,
   TB2Dock,

@@ -25,6 +25,7 @@ interface
 uses
   Classes,
   ImgList,
+  UITypes,
   TB2Item,
   TB2Dock,
   i_NotifierTime,
