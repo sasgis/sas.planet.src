@@ -645,6 +645,16 @@ object frmMarksExplorer: TfrmMarksExplorer
       Caption = ''
       Hint = ''
     end
+    object tbitmCopyAsText: TTBXItem
+      ImageIndex = 69
+      OnClick = tbitmCopyAsTextClick
+      Caption = 'Copy to Clipboard as Text'
+      Hint = ''
+    end
+    object TBXSeparatorItem5: TTBXSeparatorItem
+      Caption = ''
+      Hint = ''
+    end
     object tbitmMarkInfo: TTBXItem
       ImageIndex = 27
       OnClick = tbitmMarkInfoClick

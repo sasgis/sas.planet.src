@@ -142,6 +142,8 @@ type
     tbitmCopy: TTBXItem;
     tbitmPaste: TTBXItem;
     tbitmCut: TTBXItem;
+    tbitmCopyAsText: TTBXItem;
+    TBXSeparatorItem5: TTBXSeparatorItem;
     procedure BtnAddCategoryClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure BtnDelKatClick(Sender: TObject);
@@ -227,6 +229,7 @@ type
     procedure tbitmCopyClick(Sender: TObject);
     procedure tbitmCutClick(Sender: TObject);
     procedure tbitmPasteClick(Sender: TObject);
+    procedure tbitmCopyAsTextClick(Sender: TObject);
   private
     type
       TCopyPasteAction = (cpNone, cpCopy, cpCut);
@@ -1505,7 +1508,6 @@ begin
   if FCopyPasteBuffer <> nil then begin
     tbitmPaste.Visible := True;
     FCopyPasteAction := AAction;
-    CopyStringToClipboard(Handle, FMarkDBGUI.MarkIdListToText(FCopyPasteBuffer));
   end else begin
     ResetCopyPasteBuffer;
   end;
@@ -1516,6 +1518,16 @@ begin
   FCopyPasteBuffer := nil;
   tbitmPaste.Visible := False;
   FCopyPasteAction := cpNone;
+end;
+
+procedure TfrmMarksExplorer.tbitmCopyAsTextClick(Sender: TObject);
+var
+  VMarksIdList: IInterfaceListStatic;
+begin
+  VMarksIdList := GetSelectedMarksIdList;
+  if VMarksIdList <> nil then begin
+    CopyStringToClipboard(Handle, FMarkDBGUI.MarkIdListToText(VMarksIdList));
+  end;
 end;
 
 procedure TfrmMarksExplorer.tbitmCopyClick(Sender: TObject);
