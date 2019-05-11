@@ -545,6 +545,15 @@ Begin
   Result := ALStringReplace(Result,'/','\',[rfReplaceAll]);
 End;
 
+function _GetFileDateTime(const ASerchRec: TSearchRec): TDateTime; inline;
+begin
+  {$IF CompilerVersion >= 23}
+  Result := ASerchRec.TimeStamp;
+  {$ELSE}
+  Result := FileDateToDateTime(ASerchRec.Time)
+  {$IFEND}
+end;
+
 { TKAZipEntriesEntry }
 
 constructor TKAZipEntriesEntry.Create(Collection: TCollection);
@@ -2068,7 +2077,7 @@ begin
       FS := TFileStream.Create(FileName,fmOpenRead or fmShareDenyNone);
       Try
         FS.Position := 0;
-        Result := AddStream(NewFileName,Dir.Attr,FileDateToDateTime(Dir.Time),FS)
+        Result := AddStream(NewFileName,Dir.Attr,_GetFileDateTime(Dir),FS)
       Finally
         FS.Free;
       End;
@@ -2114,7 +2123,7 @@ Begin
                  Begin
                    FN := FolderName+'\'+Dir.Name;
                    if (FParent.FStoreFolders) AND (FParent.FStoreRelativePath) Then
-                      AddFolderChain(RemoveRootName(FN+'\',RootFolder),Dir.Attr,FileDateToDateTime(Dir.Time));
+                      AddFolderChain(RemoveRootName(FN+'\',RootFolder),Dir.Attr,_GetFileDateTime(Dir));
                    if WithSubFolders Then
                       Begin
                         AddFolderEx(FN, RootFolder, WildCard, WithSubFolders);
@@ -2122,7 +2131,7 @@ Begin
                  End
               Else
                  Begin
-                   if (Dir.Name = '.') Then AddFolderChain(RemoveRootName(FolderName+'\',RootFolder),Dir.Attr,FileDateToDateTime(Dir.Time));
+                   if (Dir.Name = '.') Then AddFolderChain(RemoveRootName(FolderName+'\',RootFolder),Dir.Attr,_GetFileDateTime(Dir));
                  End;
             End
         Else
