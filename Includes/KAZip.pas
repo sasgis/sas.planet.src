@@ -499,20 +499,20 @@ Var
 Begin
   Result := FileName;
   Result := ALStringReplace(Result,'\','/',[rfReplaceAll]);
-  P := ALPos(':/',Result);
+  P := Pos(':/',Result);
   if P > 0 Then
      Begin
        System.Delete(Result,1,P+1);
      End;
-  P := ALPos('//',Result);
+  P := Pos('//',Result);
   if P > 0 Then
      Begin
        System.Delete(Result,1,P+1);
-       P := ALPos('/',Result);
+       P := Pos('/',Result);
        if P > 0 Then
           Begin
              System.Delete(Result,1,P);
-             P := ALPos('/',Result);
+             P := Pos('/',Result);
              if P > 0 Then System.Delete(Result,1,P);
           End;
      End;
@@ -525,20 +525,20 @@ Var
 Begin
   Result := FileName;
   Result := ALStringReplace(Result,'\','/',[rfReplaceAll]);
-  P := ALPos(':/',Result);
+  P := Pos(':/',Result);
   if P > 0 Then
      Begin
        System.Delete(Result,1,P+1);
      End;
-  P := ALPos('//',Result);
+  P := Pos('//',Result);
   if P > 0 Then
      Begin
        System.Delete(Result,1,P+1);
-       P := ALPos('/',Result);
+       P := Pos('/',Result);
        if P > 0 Then
           Begin
              System.Delete(Result,1,P);
-             P := ALPos('/',Result);
+             P := Pos('/',Result);
              if P > 0 Then System.Delete(Result,1,P);
           End;
      End;
@@ -2018,7 +2018,7 @@ Begin
     INCN   := '';
     Repeat
       NoMore := True;
-      P      := ALPos('\',TN);
+      P      := Pos('\',TN);
       if P > 0 Then
          Begin
             INCN        := INCN+Copy(TN,1,P);
@@ -2177,7 +2177,7 @@ Begin
                      if (Dir.Name <> '..') And (Dir.Name <> '.') Then
                         Begin
                           AddFolderEx(FileNames.Strings[X],RootFolder,'*.*',WithSubFolders);
-                        End;  
+                        End;
                    End
                 Else
                    Begin
@@ -2367,7 +2367,7 @@ End;
 procedure TKAZipEntries.ExtractToFile(ItemIndex: Integer; FileName: String);
 var
   Can       : Boolean;
-  OA        : TOverwriteAction;                                                     
+  OA        : TOverwriteAction;
 Begin
   OA  := FParent.FOverwriteAction;
   Can := True;
@@ -2584,7 +2584,7 @@ begin
        For X := 0 To Count-1 do
            Begin
              S := Items[X].FileName;
-             if ALPos(FN,S) = 1 Then
+             if Pos(FN,S) = 1 Then
                 Begin
                   System.Delete(S,1,L);
                   S := NFN+S;
@@ -2694,7 +2694,7 @@ begin
  FN := S;
  FN := ALStringReplace(FN,'//','\',[rfReplaceAll]);
  FN := ALStringReplace(FN,'/','\',[rfReplaceAll]);
- P := ALPos(':\',FN);
+ P := Pos(':\',FN);
  if P > 0 Then System.Delete(FN,1,P+1);
  Result := ALExtractFileName(ALStringReplace(FN,'/','\',[rfReplaceAll]));
 end;
@@ -2707,7 +2707,7 @@ begin
  FN := S;
  FN := ALStringReplace(FN,'//','\',[rfReplaceAll]);
  FN := ALStringReplace(FN,'/','\',[rfReplaceAll]);
- P := ALPos(':\',FN);
+ P := Pos(':\',FN);
  if P > 0 Then System.Delete(FN,1,P+1);
  Result := ALExtractFilePath(ALStringReplace(FN,'/','\',[rfReplaceAll]));
 end;
