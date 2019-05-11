@@ -233,6 +233,35 @@ IMPLEMENTATION
 
 IMPLEMENTATION
 
+{$IF CompilerVersion >= 33}
+  {$DEFINE HAS_ANSISTRINGS}
+{$IFEND}
+
+{$IFDEF HAS_ANSISTRINGS}
+uses
+  AnsiStrings;
+{$ENDIF}
+
+function StrLCopyA(Dest: PAnsiChar; const Source: PAnsiChar; MaxLen: Cardinal): PAnsiChar; inline;
+begin
+  Result := {$IFDEF HAS_ANSISTRINGS}AnsiStrings.{$ENDIF}StrLCopy(Dest, Source, MaxLen);
+end;
+
+function StrMoveA(Dest: PAnsiChar; const Source: PAnsiChar; Count: Cardinal): PAnsiChar; inline;
+begin
+  Result := {$IFDEF HAS_ANSISTRINGS}AnsiStrings.{$ENDIF}StrMove(Dest, Source, Count);
+end;
+
+function TrimA(const S: AnsiString): AnsiString; inline;
+begin
+  Result :=
+    {$IFDEF HAS_ANSISTRINGS}
+    AnsiStrings.Trim(S);
+    {$ELSE}
+    AnsiString(Trim(string(S)));
+    {$ENDIF}
+end;
+
 FUNCTION PermissionString (Permissions : TTarPermissions) : STRING;
 BEGIN
   Result := '';
@@ -366,7 +395,7 @@ FUNCTION ExtractNumber (P : PAnsiChar) : INTEGER; OVERLOAD;
 VAR
   Strg : AnsiString;
 BEGIN
-  Strg := AnsiString (Trim (string (P)));
+  Strg := TrimA(AnsiString(P));
   P := PAnsiChar (Strg);
   Result := 0;
   WHILE (P^ <> #32) AND (P^ <> #0) DO BEGIN
@@ -380,7 +409,7 @@ FUNCTION ExtractNumber64 (P : PAnsiChar) : INT64; OVERLOAD;
 VAR
   Strg : AnsiString;
 BEGIN
-  Strg := AnsiString (Trim (string (P)));
+  Strg := TrimA(AnsiString(P));
   P := PAnsiChar (Strg);
   Result := 0;
   WHILE (P^ <> #32) AND (P^ <> #0) DO BEGIN
@@ -396,8 +425,8 @@ VAR
   S0   : ARRAY [0..255] OF AnsiChar;
   Strg : AnsiString;
 BEGIN
-  StrLCopy (S0, P, MaxLen);
-  Strg := AnsiString (Trim (string (S0)));
+  StrLCopyA(S0, P, MaxLen);
+  Strg := TrimA(AnsiString(S0));
   P := PAnsiChar (Strg);
   Result := 0;
   WHILE (P^ <> #32) AND (P^ <> #0) DO BEGIN
@@ -412,8 +441,8 @@ VAR
   S0   : ARRAY [0..255] OF AnsiChar;
   Strg : AnsiString;
 BEGIN
-  StrLCopy (S0, P, MaxLen);
-  Strg := AnsiString (Trim (string (S0)));
+  StrLCopyA (S0, P, MaxLen);
+  Strg := TrimA(AnsiString(S0));
   P := PAnsiChar (Strg);
   Result := 0;
   WHILE (P^ <> #32) AND (P^ <> #0) DO BEGIN
@@ -484,7 +513,7 @@ VAR
   I        : INTEGER;
 BEGIN
   FillChar (Rec, RECORDSIZE, 0);
-  StrLCopy (TH.Name, PAnsiChar (DirRec.Name), NAMSIZ);
+  StrLCopyA (TH.Name, PAnsiChar (DirRec.Name), NAMSIZ);
   CASE DirRec.FileType OF
     ftNormal, ftLink  : Mode := $08000;
     ftSymbolicLink    : Mode := $0A000;
@@ -525,13 +554,13 @@ BEGIN
     ftVolumeHeader : TH.LinkFlag := 'V';
     ftLongNameLink : TH.LinkFlag := 'L';
     END;
-  StrLCopy (TH.LinkName, PAnsiChar (DirRec.LinkName), NAMSIZ);
-  StrLCopy (TH.Magic, PAnsiChar (DirRec.Magic + #32#32#32#32#32#32#32#32), 8);
-  StrLCopy (TH.UName, PAnsiChar (DirRec.UserName), TUNMLEN);
-  StrLCopy (TH.GName, PAnsiChar (DirRec.GroupName), TGNMLEN);
+  StrLCopyA (TH.LinkName, PAnsiChar (DirRec.LinkName), NAMSIZ);
+  StrLCopyA (TH.Magic, PAnsiChar (DirRec.Magic + #32#32#32#32#32#32#32#32), 8);
+  StrLCopyA (TH.UName, PAnsiChar (DirRec.UserName), TUNMLEN);
+  StrLCopyA (TH.GName, PAnsiChar (DirRec.GroupName), TGNMLEN);
   OctalN (DirRec.MajorDevNo, @TH.DevMajor, 8);
   OctalN (DirRec.MinorDevNo, @TH.DevMinor, 8);
-  StrMove (TH.ChkSum, CHKBLANKS, 8);
+  StrMoveA (TH.ChkSum, CHKBLANKS, 8);
 
   CheckSum := 0;
   FOR I := 0 TO SizeOf (TTarHeader)-1 DO
@@ -596,7 +625,7 @@ VAR
 BEGIN
   // --- Scan until next pointer
   IF FBytesToGo > 0 THEN
-    FStream.Seek (Records (FBytesToGo) * RECORDSIZE, soFromCurrent);
+    FStream.Seek (Records (FBytesToGo) * RECORDSIZE, soCurrent);
 
   // --- EOF reached?
   Result := FALSE;
@@ -646,13 +675,13 @@ BEGIN
   DirRec.GID        := ExtractNumber (@Header.GID);
   DirRec.UserName   := ExtractText (Header.UName);
   DirRec.GroupName  := ExtractText (Header.GName);
-  DirRec.Magic      := AnsiString (Trim (string (Header.Magic)));
+  DirRec.Magic      := TrimA(AnsiString(Header.Magic));
   DirRec.MajorDevNo := ExtractNumber (@Header.DevMajor);
   DirRec.MinorDevNo := ExtractNumber (@Header.DevMinor);
 
   HeaderChkSum := ExtractNumber (@Header.ChkSum);   // Calc Checksum
   CheckSum := 0;
-  StrMove (Header.ChkSum, CHKBLANKS, 8);
+  StrMoveA (Header.ChkSum, CHKBLANKS, 8);
   FOR I := 0 TO SizeOf (TTarHeader)-1 DO
     INC (CheckSum, INTEGER (ORD (Rec [I])));
   DirRec.CheckSumOK := WORD (CheckSum) = WORD (HeaderChkSum);
@@ -667,12 +696,12 @@ PROCEDURE TTarArchive.ReadFile (Buffer : POINTER);
           // Reads file data for the last Directory Record. The entire file is read into the buffer.
           // The buffer must be large enough to take up the whole file.
 VAR
-  RestBytes : INTEGER;
+  RestBytes : INT64;
 BEGIN
   IF FBytesToGo = 0 THEN EXIT;
   RestBytes := Records (FBytesToGo) * RECORDSIZE - FBytesToGo;
   FStream.ReadBuffer (Buffer^, FBytesToGo);
-  FStream.Seek (RestBytes, soFromCurrent);
+  FStream.Seek (RestBytes, soCurrent);
   FBytesToGo := 0;
 END;
 
@@ -682,12 +711,12 @@ PROCEDURE TTarArchive.ReadFile (Stream : TStream);
           // The entire file is written out to the stream.
           // The stream is left at its current position prior to writing
 VAR
-  RestBytes : INTEGER;
+  RestBytes : INT64;
 BEGIN
   IF FBytesToGo = 0 THEN EXIT;
   RestBytes := Records (FBytesToGo) * RECORDSIZE - FBytesToGo;
   Stream.CopyFrom (FStream, FBytesToGo);
-  FStream.Seek (RestBytes, soFromCurrent);
+  FStream.Seek (RestBytes, soCurrent);
   FBytesToGo := 0;
 END;
 
@@ -711,13 +740,13 @@ FUNCTION  TTarArchive.ReadFile : RawByteString;
           // Reads file data for the last Directory Record. The entire file is returned
           // as a large ANSI string.
 VAR
-  RestBytes : INTEGER;
+  RestBytes : INT64;
 BEGIN
   IF FBytesToGo = 0 THEN EXIT;
   RestBytes := Records (FBytesToGo) * RECORDSIZE - FBytesToGo;
   SetLength (Result, FBytesToGo);
   FStream.ReadBuffer (PAnsiChar (Result)^, FBytesToGo);
-  FStream.Seek (RestBytes, soFromCurrent);
+  FStream.Seek (RestBytes, soCurrent);
   FBytesToGo := 0;
 END;
 
@@ -733,7 +762,7 @@ END;
 PROCEDURE TTarArchive.SetFilePos (NewPos : INT64);                   // Set new Current File Position
 BEGIN
   IF NewPos < FStream.Size THEN
-    FStream.Seek (NewPos, soFromBeginning);
+    FStream.Seek (NewPos, soBeginning);
 END;
 
 
