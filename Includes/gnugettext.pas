@@ -2289,7 +2289,7 @@ begin
   // Open file
   fs:=TFileStream.Create (filename,fmOpenWrite or fmShareDenyWrite);
   if append then
-    fs.Seek(0,soFromEnd);
+    fs.Seek(0,soEnd);
 
   // Write header if appending
   if fs.Position<>0 then begin
@@ -2300,7 +2300,7 @@ begin
   // Copy the memorystream contents to the file
   if DebugLog <> nil then
   begin
-    DebugLog.Seek(0,soFromBeginning);
+    DebugLog.Seek(0,soBeginning);
     fs.CopyFrom(DebugLog,0);
   end;
 
@@ -2418,7 +2418,7 @@ begin
     end else begin
       Result := '';
       Len := 0;
-      While Length(Result)<=Len+1 do begin     
+      While Length(Result)<=Len+1 do begin
         if Length(Result) = 0 then
           SetLength(Result, 1024)
         else
@@ -2634,12 +2634,12 @@ begin
   end;
 
   offset:=0;
-  str.Seek(0, soFromBeginning);
+  str.Seek(0, soBeginning);
 
   SetLength (a, bufsize);
   SetLength (b, bufsize);
   str.Read(a[1],bufsize);
-  
+
   while true do begin
     rd:=str.Read(b[1],bufsize);
     p:=pos(signature,a+b);
@@ -2721,17 +2721,17 @@ begin
         headerbeginpos := headerbeginpos + HeaderSize + PrefixSize;
 
         // get file table offset (8 byte, stored directly before the end header)
-        fs.Seek(headerendpos - 8, soFromBeginning);
+        fs.Seek(headerendpos - 8, soBeginning);
         // get relative offset and convert to absolute offset during runtime
         tableoffset := headerbeginpos + ReadInt64(fs);
 
         // go to beginning of embedded block
-        fs.Seek(headerbeginpos, soFromBeginning);
+        fs.Seek(headerbeginpos, soBeginning);
         
         offset := tableoffset;
         Assert(sizeof(offset)=8);
         while (true) and (fs.Position<headerendpos) do begin
-          fs.Seek(offset,soFromBeginning);
+          fs.Seek(offset,soBeginning);
           offset:=ReadInt64(fs);
           if offset=0 then
             exit;
@@ -3165,7 +3165,7 @@ begin
         size := mofile.Size;
       Getmem (momemoryHandle, size);
       momemory := momemoryHandle;
-      mofile.Seek(offset, soFromBeginning);
+      mofile.Seek(offset, soBeginning);
       mofile.ReadBuffer(momemory^, size);
     finally
       FreeAndNil(mofile);
