@@ -1271,7 +1271,7 @@
         </DCCReference>
         <DCCReference Include="Src\RegionProcess\Export\Archive\u_ExportProviderTar.pas"/>
         <DCCReference Include="Src\RegionProcess\Export\Archive\u_ExportProviderZip.pas"/>
-        <DCCReference Include="Src\RegionProcess\Export\Archive\u_ThreadExportToArchive.pas"/>
+        <DCCReference Include="Src\RegionProcess\Export\Archive\u_ExportTaskToArchive.pas"/>
         <DCCReference Include="Src\RegionProcess\Export\GeoExpressAUX\fr_ExportAUX.pas">
             <Form>frExportAUX</Form>
             <DesignClass>TFrame</DesignClass>

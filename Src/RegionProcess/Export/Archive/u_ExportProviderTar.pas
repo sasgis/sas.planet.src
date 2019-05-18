@@ -73,7 +73,7 @@ uses
   i_MapType,
   i_RegionProcessParamsFrame,
   i_TileFileNameGenerator,
-  u_ThreadExportToArchive,
+  u_ExportTaskToArchive,
   u_ResStrings;
 
 { TExportProviderTar }

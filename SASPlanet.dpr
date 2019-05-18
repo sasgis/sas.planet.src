@@ -989,7 +989,7 @@ uses
   fr_ExportToFileCont in 'Src\RegionProcess\Export\Archive\fr_ExportToFileCont.pas' {frExportToFileCont: TFrame},
   u_ExportProviderTar in 'Src\RegionProcess\Export\Archive\u_ExportProviderTar.pas',
   u_ExportProviderZip in 'Src\RegionProcess\Export\Archive\u_ExportProviderZip.pas',
-  u_ThreadExportToArchive in 'Src\RegionProcess\Export\Archive\u_ThreadExportToArchive.pas',
+  u_ExportTaskToArchive in 'Src\RegionProcess\Export\Archive\u_ExportTaskToArchive.pas',
   fr_ExportAUX in 'Src\RegionProcess\Export\GeoExpressAUX\fr_ExportAUX.pas' {frExportAUX: TFrame},
   u_ExportProviderAUX in 'Src\RegionProcess\Export\GeoExpressAUX\u_ExportProviderAUX.pas',
   u_ThreadExportToAUX in 'Src\RegionProcess\Export\GeoExpressAUX\u_ThreadExportToAUX.pas',
