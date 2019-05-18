@@ -290,10 +290,15 @@ begin
     at7Zip: begin
       Result := CreateOutArchive(CLSID_CFormat7z);
     end;
-  else // atRar
-  begin
-    raise EArchiveWriteBy7Zip.Create('Unsupport open RAR in write mode!');
-  end;
+    atRar: begin
+      raise EArchiveWriteBy7Zip.Create('RAR writer not supported!');
+    end
+  else
+    begin
+      raise EArchiveWriteBy7Zip.CreateFmt(
+        'Unexpected archive type: %d', [Integer(AArchiveType)]
+      );
+    end;
   end;
 end;
 
@@ -305,22 +310,24 @@ function TArchiveWriteBy7Zip.AddFile(
 var
   VStream: TStream;
   VFileTime: TFileTime;
+  VAttributes: Cardinal;
 begin
   VFileTime := DateTimeToFileTime(AFileDate);
   VStream := TStreamReadOnlyByBinaryData.Create(AFileData);
   try
     {$WARN SYMBOL_PLATFORM OFF}
+    VAttributes := faArchive;
+    {$WARN SYMBOL_PLATFORM ON}
     FArch.AddStream(
       VStream,
       soOwned,
-      faArchive, // (!) platform
+      VAttributes,
       VFileTime,
       VFileTime,
       AFileNameInArchive,
       False,
       False
     );
-    {$WARN SYMBOL_PLATFORM ON}
     VStream := nil;
     Inc(FFilesCount);
     Result := FFilesCount;
