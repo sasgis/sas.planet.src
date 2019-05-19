@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -140,7 +140,7 @@ begin
   Result :=
     TExportTaskToArchive.Create(
       AProgressInfo,
-      FArchiveReadWriteFactory.Zip.WriterFactory.BuildByFileName(VPath),
+      FArchiveReadWriteFactory.ZipSequential.WriterFactory.Build(VPath),
       FVectorGeometryProjectedFactory,
       APolygon,
       Zoomarr,

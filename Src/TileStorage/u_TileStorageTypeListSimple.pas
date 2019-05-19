@@ -78,7 +78,7 @@ uses
   u_TileFileNameMOBAC,
   u_TileFileNameOsmAnd,
   u_TileFileNameTMS,
-  u_TileStorageTypeArchiveTar,
+  //u_TileStorageTypeArchive, // ToDo
   u_TileStorageTypeConfig,
   u_TileStorageTypeGoogleEarth,
   u_TileStorageTypeBerkeleyDB,
@@ -484,6 +484,8 @@ begin
       True
     );
   AList.Add(VItem);
+
+  { ToDo
   VStorageType :=
     TTileStorageTypeArchiveTar.Create(
       AContentTypeManager,
@@ -503,6 +505,7 @@ begin
       True
     );
   AList.Add(VItem);
+  }
 end;
 
 end.

@@ -140,7 +140,7 @@ begin
   Result :=
     TExportTaskToArchive.Create(
       AProgressInfo,
-      FArchiveReadWriteFactory.Tar.WriterFactory.BuildByFileName(VPath),
+      FArchiveReadWriteFactory.TarSequential.WriterFactory.Build(VPath),
       FVectorGeometryProjectedFactory,
       APolygon,
       Zoomarr,

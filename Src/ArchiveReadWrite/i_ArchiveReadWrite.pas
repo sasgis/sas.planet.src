@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -26,7 +26,12 @@ uses
   i_BinaryData;
 
 type
-  IArchiveReader = interface
+  // reader
+  IArchiveReaderBase = interface
+    ['{D162E59B-3F5C-41D0-BD6E-BEB302E77E2E}']
+  end;
+
+  IArchiveReader = interface(IArchiveReaderBase)
     ['{1C1C0E2A-929E-457D-880F-47EAD7FBD0CA}']
     function GetItemsCount: Integer;
     function GetItemByName(const AItemName: string): IBinaryData;
@@ -37,13 +42,37 @@ type
     ): IBinaryData;
   end;
 
-  IArchiveWriter = interface
+  IArchiveReaderSequential = interface(IArchiveReaderBase)
+    ['{29AE3F26-EA70-4DBB-94A8-ADD02E176B97}']
+    procedure Reset;
+    function Next(
+      out AFileData: IBinaryData;
+      out AFileNameInArchive: string;
+      out AFileDate: TDateTime
+    ): Boolean;
+  end;
+
+  // writer
+  IArchiveWriterBase = interface
+    ['{4D3441CF-FC43-4683-88F6-7B677F931B1A}']
+  end;
+
+  IArchiveWriter = interface(IArchiveWriterBase)
     ['{339859BF-E9E7-4E25-9BF8-5C7281734C52}']
     function AddFile(
       const AFileData: IBinaryData;
       const AFileNameInArchive: string;
       const AFileDate: TDateTime
     ): Integer;
+  end;
+
+  IArchiveWriterSequential = interface(IArchiveWriterBase)
+    ['{27F15477-5D26-4E70-9A37-796A1DEC8634}']
+    procedure Add(
+      const AFileData: IBinaryData;
+      const AFileNameInArchive: string;
+      const AFileDate: TDateTime
+    );
   end;
 
 implementation

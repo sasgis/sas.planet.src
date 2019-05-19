@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -35,7 +35,6 @@ uses
   i_MapVersionListStatic,
   i_ContentTypeInfo,
   i_ArchiveReadWrite,
-  i_ArchiveReadWriteFactory,
   i_ContentTypeManager,
   i_TileFileNameParser,
   i_TileFileNameGenerator,
@@ -49,8 +48,9 @@ type
   protected
     FStorageTypeAbilities: ITileStorageTypeAbilities;
     FSync: IReadWriteSync;
-    FArchiveFactory: IArchiveWriterFactory;
+    FReader: IArchiveReaderBase;
     FWriter: IArchiveWriter;
+    FWriterSeq: IArchiveWriterSequential;
     FArchiveFileName: string;
     FContentType: IContentTypeInfoBasic;
     FContentTypeManager: IContentTypeManager;
@@ -59,8 +59,7 @@ type
     FProjectionSet: IProjectionSet;
     FTileNameParser: ITileFileNameParser;
     FTileNameGenerator: ITileFileNameGenerator;
-    function GetArchiveWriter: IArchiveWriter;
-  protected
+  private
     { ITileStorage }
     function GetStorageTypeAbilities: ITileStorageTypeAbilities;
     function GetTileNotifier: INotifierTilePyramidUpdate;
@@ -97,7 +96,6 @@ type
       const AData: IBinaryData;
       const AIsOverwrite: Boolean
     ): Boolean;
-
     function GetListOfTileVersions(
       const AXY: TPoint;
       const AZoom: byte;
@@ -113,15 +111,16 @@ type
     function ScanTiles(
       const AIgnoreTNE: Boolean;
       const AIgnoreMultiVersionTiles: Boolean
-    ): IEnumTileInfo; virtual;
+    ): IEnumTileInfo;
   public
     constructor Create(
       const AStorageTypeAbilities: ITileStorageTypeAbilities;
       const AArchiveFileName: string;
+      const AArchiveReader: IArchiveReaderBase;
+      const AArchiveWriter: IArchiveWriterBase;
       const AContentType: IContentTypeInfoBasic;
       const AContentTypeManager: IContentTypeManager;
       const AProjectionSet: IProjectionSet;
-      const AArchiveFactory: IArchiveWriterFactory;
       const ATileNameParser: ITileFileNameParser;
       const ATileNameGenerator: ITileFileNameGenerator
     );
@@ -131,17 +130,41 @@ implementation
 
 uses
   u_Synchronizer,
-  u_BinaryData;
+  u_BinaryData,
+  u_StrFunc;
+
+type
+  TEnumTileInfoArchive = class(TBaseInterfacedObject, IEnumTileInfo)
+  private
+    FIndex: Int64;
+    FCount: Int64;
+    FReader: IArchiveReader;
+    FReaderSeq: IArchiveReaderSequential;
+    FIgnoreTNE: Boolean;
+    FContentTypeManager: IContentTypeManager;
+    FTileFileNameParser: ITileFileNameParser;
+  private
+    { IEnumTileInfo }
+    function Next(var ATileInfo: TTileInfo): Boolean;
+  public
+    constructor Create(
+      const AIgnoreTNE: Boolean;
+      const AArchiveReader: IArchiveReaderBase;
+      const AContentTypeManager: IContentTypeManager;
+      const ATileFileNameParser: ITileFileNameParser
+    );
+  end;
 
 { TTileStorageArchive }
 
 constructor TTileStorageArchive.Create(
   const AStorageTypeAbilities: ITileStorageTypeAbilities;
   const AArchiveFileName: string;
+  const AArchiveReader: IArchiveReaderBase;
+  const AArchiveWriter: IArchiveWriterBase;
   const AContentType: IContentTypeInfoBasic;
   const AContentTypeManager: IContentTypeManager;
   const AProjectionSet: IProjectionSet;
-  const AArchiveFactory: IArchiveWriterFactory;
   const ATileNameParser: ITileFileNameParser;
   const ATileNameGenerator: ITileFileNameGenerator
 );
@@ -150,26 +173,24 @@ begin
   inherited Create;
   FStorageTypeAbilities := AStorageTypeAbilities;
   FArchiveFileName := AArchiveFileName;
+  if FStorageTypeAbilities.BaseStorageAbilities.AllowAdd then begin
+    if Supports(AArchiveWriter, IArchiveWriter, FWriter) then begin
+      FWriterSeq := nil;
+    end else if Supports(AArchiveWriter, IArchiveWriterSequential, FWriterSeq) then begin
+      FWriter := nil;
+    end else begin
+      raise Exception.Create('ArchiveWriter: Unexpected interface type!');
+    end;
+  end;
+  FReader := AArchiveReader;
   FContentType := AContentType;
   FContentTypeManager := AContentTypeManager;
   FTileNotifier := nil;
   FState := nil;
   FProjectionSet := AProjectionSet;
-  FArchiveFactory := AArchiveFactory;
   FTileNameParser := ATileNameParser;
   FTileNameGenerator := ATileNameGenerator;
   FSync := GSync.SyncBig.Make(Self.ClassName);
-end;
-
-function TTileStorageArchive.GetArchiveWriter: IArchiveWriter;
-begin
-  if Assigned(FWriter) then begin
-    Result := FWriter;
-  end else begin
-    ForceDirectories(ExtractFilePath(FArchiveFileName));
-    FWriter := FArchiveFactory.BuildByFileName(FArchiveFileName);
-    Result := FWriter;
-  end;
 end;
 
 function TTileStorageArchive.GetTileNotifier: INotifierTilePyramidUpdate;
@@ -198,7 +219,8 @@ function TTileStorageArchive.GetTileFileName(
   const AVersion: IMapVersionInfo
 ): string;
 begin
-  Result := FArchiveFileName + PathDelim + FTileNameGenerator.GetTileFileName(AXY, AZoom) + FContentType.GetDefaultExt;
+  Result := FArchiveFileName + PathDelim +
+    FTileNameGenerator.GetTileFileName(AXY, AZoom) + FContentType.GetDefaultExt;
 end;
 
 function TTileStorageArchive.GetTileInfo(
@@ -242,34 +264,50 @@ function TTileStorageArchive.SaveTile(
 var
   VTileName: string;
   VData: IBinaryData;
-  VArchiveWriter: IArchiveWriter;
 begin
   Result := False;
+  if (FWriter = nil) and (FWriterSeq = nil) then begin
+    Assert(False);
+    Exit;
+  end;
   FSync.BeginWrite;
   try
-    VArchiveWriter := GetArchiveWriter;
-    if Assigned(VArchiveWriter) then begin
-      if Assigned(AContentType) and Assigned(AData) then begin
-        VData := AData;
-        VTileName := FTileNameGenerator.GetTileFileName(AXY, AZoom) + FContentType.GetDefaultExt;
-        VTileName := FTileNameGenerator.AddExt(VTileName, AContentType.GetDefaultExt);
-      end else begin
-        VData := TBinaryData.Create(0, nil);
-        VTileName := FTileNameGenerator.GetTileFileName(AXY, AZoom) + '.tne';
-      end;
-      VArchiveWriter.AddFile(VData, VTileName, ALoadDate);
-      Result := True;
+    if Assigned(AContentType) and Assigned(AData) then begin
+      VData := AData;
+      VTileName := FTileNameGenerator.GetTileFileName(AXY, AZoom) + FContentType.GetDefaultExt;
+      VTileName := FTileNameGenerator.AddExt(VTileName, AContentType.GetDefaultExt);
+    end else begin
+      VData := TBinaryData.Create(0, nil);
+      VTileName := FTileNameGenerator.GetTileFileName(AXY, AZoom) + '.tne';
     end;
+    if FWriterSeq <> nil then begin
+      FWriterSeq.Add(VData, VTileName, ALoadDate);
+    end else begin
+      Assert(FWriter <> nil);
+      FWriter.AddFile(VData, VTileName, ALoadDate);
+    end;
+    Result := True;
   finally
     FSync.EndWrite;
   end;
 end;
 
 function TTileStorageArchive.ScanTiles(
-  const AIgnoreTNE, AIgnoreMultiVersionTiles: Boolean
+  const AIgnoreTNE: Boolean;
+  const AIgnoreMultiVersionTiles: Boolean
 ): IEnumTileInfo;
 begin
-  Result := nil;
+  if FStorageTypeAbilities.BaseStorageAbilities.AllowScan then begin
+    Result :=
+      TEnumTileInfoArchive.Create(
+        AIgnoreTNE,
+        FReader,
+        FContentTypeManager,
+        FTileNameParser
+      );
+  end else begin
+    raise Exception.Create('Storage do not support ScanTiles method!');
+  end;
 end;
 
 function TTileStorageArchive.GetListOfTileVersions(
@@ -290,6 +328,87 @@ function TTileStorageArchive.GetTileRectInfo(
 ): ITileRectInfo;
 begin
   Result := nil;
+end;
+
+{ TEnumTileInfoArchive }
+
+constructor TEnumTileInfoArchive.Create(
+  const AIgnoreTNE: Boolean;
+  const AArchiveReader: IArchiveReaderBase;
+  const AContentTypeManager: IContentTypeManager;
+  const ATileFileNameParser: ITileFileNameParser
+);
+begin
+  Assert(AArchiveReader <> nil);
+  inherited Create;
+  if Supports(AArchiveReader, IArchiveReader, FReader) then begin
+    FReaderSeq := nil;
+    FIndex := 0;
+    FCount := FReader.GetItemsCount;
+  end else if Supports(AArchiveReader, IArchiveReaderSequential, FReaderSeq) then begin
+    FReader := nil;
+  end else begin
+    raise Exception.Create('ArchiveReader: Unexpected interface type!');
+  end;
+  FIgnoreTNE := AIgnoreTNE;
+  FContentTypeManager := AContentTypeManager;
+  FTileFileNameParser := ATileFileNameParser;
+end;
+
+function TEnumTileInfoArchive.Next(var ATileInfo: TTileInfo): Boolean;
+var
+  VZoom: Byte;
+  VPoint: TPoint;
+  VExt: string;
+  VName: string;
+  VExtA: AnsiString;
+  VNameA: AnsiString;
+begin
+  Result := False;
+
+  while not Result do begin
+
+    if FReaderSeq <> nil then begin
+      if not FReaderSeq.Next(ATileInfo.FData, VName, ATileInfo.FLoadDate) then begin
+        Exit;
+      end;
+    end else begin
+      if FIndex < FCount then begin
+        ATileInfo.FData := FReader.GetItemByIndex(FIndex, VName);
+        ATileInfo.FLoadDate := Now; // ToDo ?
+        Inc(FIndex);
+      end else begin
+        Exit;
+      end;
+    end;
+
+    VNameA := StringToAnsiSafe(VName);
+    if FTileFileNameParser.GetTilePoint(VNameA, VPoint, VZoom) then begin
+      ATileInfo.FTile := VPoint;
+      ATileInfo.FZoom := VZoom;
+      ATileInfo.FVersionInfo := nil;
+      VExt := LowerCase(ExtractFileExt(VName));
+      if VExt = '.tne' then begin
+        if not FIgnoreTNE then begin
+          ATileInfo.FInfoType := titTneExists;
+          ATileInfo.FContentType := nil;
+          ATileInfo.FData := nil;
+          Result := True;
+        end;
+      end else begin
+        if ATileInfo.FData <> nil then begin
+          VExtA := StringToAnsiSafe(VExt);
+          ATileInfo.FInfoType := titExists;
+          ATileInfo.FContentType := FContentTypeManager.GetInfoByExt(VExtA);
+          Result := True;
+        end else begin
+          Assert(False, 'Tile data is empty!');
+        end;
+      end;
+    end else begin
+      Assert(False, 'Tile name parse error: ' + VName);
+    end;
+  end;
 end;
 
 end.

@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -39,7 +39,7 @@ type
   TExportTaskToArchive = class(TExportTaskAbstract)
   private
     FTileStorage: ITileStorage;
-    FArchive: IArchiveWriter;
+    FArchive: IArchiveWriterSequential;
     FTileNameGen: ITileFileNameGenerator;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   protected
@@ -47,7 +47,7 @@ type
   public
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
-      const AArchiveWriter: IArchiveWriter;
+      const AArchiveWriter: IArchiveWriterSequential;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const APolygon: IGeometryLonLatPolygon;
       const Azoomarr: TByteDynArray;
@@ -71,7 +71,7 @@ uses
 
 constructor TExportTaskToArchive.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
-  const AArchiveWriter: IArchiveWriter;
+  const AArchiveWriter: IArchiveWriterSequential;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const APolygon: IGeometryLonLatPolygon;
   const Azoomarr: TByteDynArray;
@@ -138,7 +138,7 @@ begin
         end;
         if Supports(FTileStorage.GetTileInfo(VTile, VZoom, nil, gtimWithData), ITileInfoWithData, VTileInfo) then begin
           VExt := VTileInfo.ContentType.GetDefaultExt;
-          FArchive.AddFile(
+          FArchive.Add(
             VTileInfo.TileData,
             FTileNameGen.AddExt(FTileNameGen.GetTileFileName(VTile, VZoom), VExt),
             VTileInfo.GetLoadDate

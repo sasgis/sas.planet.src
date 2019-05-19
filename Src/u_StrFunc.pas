@@ -39,10 +39,13 @@ function IsAscii(const s: string): Boolean; overload; inline;
 {$ENDIF}
 function IsAscii(const P: PAnsiChar; const Len: Integer): Boolean; overload; inline;
 function IsAscii(const s: AnsiString): Boolean; overload; inline;
+
 function StringToAsciiSafe(const s: string): AnsiString; inline;
 function AsciiToStringSafe(const s: AnsiString): string; inline;
 
 function IsAnsi(const s: string): Boolean; inline;
+
+function StringToAnsiSafe(const s: string): AnsiString; inline;
 
 var StrLenA: function(const S: PAnsiChar): Cardinal;
 var StrLCopyA: function(Dest: PAnsiChar; const Source: PAnsiChar; MaxLen: Cardinal): PAnsiChar;
@@ -242,6 +245,18 @@ begin
   Result := True;
 end;
 {$ENDIF}
+
+function StringToAnsiSafe(const s: string): AnsiString;
+begin
+  {$IFDEF UNICODE}
+  Result := AnsiString(s);
+  if string(Result) <> s then begin
+    raise Exception.CreateFmt('String "%s" contain non-ansi characters!', [s]);
+  end;
+  {$ELSE}
+  Result := s;
+  {$ENDIF}
+end;
 
 initialization
   {$If CompilerVersion < 33}

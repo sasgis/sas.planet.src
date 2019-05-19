@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_TileStorageTypeArchiveTar;
+unit u_TileStorageTypeArchive;
 
 interface
 
@@ -28,7 +28,7 @@ uses
   i_ContentTypeManager,
   i_TileFileNameGenerator,
   i_TileFileNameParser,
-  i_ArchiveReadWriteFactory,
+  i_ArchiveReadWrite,
   i_MapVersionFactory,
   i_ConfigDataProvider,
   i_NotifierTilePyramidUpdate,
@@ -39,10 +39,11 @@ uses
   u_TileStorageTypeBase;
 
 type
-  TTileStorageTypeArchiveTar = class(TTileStorageTypeBase)
+  TTileStorageTypeArchive = class(TTileStorageTypeBase)
   private
     FContentTypeManager: IContentTypeManager;
-    FArchiveReadWriteFactory: IArchiveReadWriteFactory;
+    FArchiveReader: IArchiveReaderBase;
+    FArchiveWriter: IArchiveWriterBase;
     FNameGenerator: ITileFileNameGenerator;
     FTileNameParser: ITileFileNameParser;
   protected
@@ -57,8 +58,10 @@ type
     ): ITileStorage; override;
   public
     constructor Create(
+      const ATileStorageAbilities: ITileStorageAbilities;
+      const AArchiveReader: IArchiveReaderBase;
+      const AArchiveWriter: IArchiveWriterBase;
       const AContentTypeManager: IContentTypeManager;
-      const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const ANameGenerator: ITileFileNameGenerator;
       const ATileNameParser: ITileFileNameParser;
       const AMapVersionFactory: IMapVersionFactory;
@@ -71,13 +74,15 @@ implementation
 uses
   t_CommonTypes,
   u_TileStorageAbilities,
-  u_TileStorageTar;
+  u_TileStorageArchive;
 
-{ TTileStorageTypeArchiveTar }
+{ TTileStorageTypeArchive }
 
-constructor TTileStorageTypeArchiveTar.Create(
+constructor TTileStorageTypeArchive.Create(
+  const ATileStorageAbilities: ITileStorageAbilities;
+  const AArchiveReader: IArchiveReaderBase;
+  const AArchiveWriter: IArchiveWriterBase;
   const AContentTypeManager: IContentTypeManager;
-  const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const ANameGenerator: ITileFileNameGenerator;
   const ATileNameParser: ITileFileNameParser;
   const AMapVersionFactory: IMapVersionFactory;
@@ -85,11 +90,10 @@ constructor TTileStorageTypeArchiveTar.Create(
 );
 var
   VAbilities: ITileStorageTypeAbilities;
-
 begin
   VAbilities :=
     TTileStorageTypeAbilities.Create(
-      TTileStorageAbilities.Create(False, False, True, True, False, False),
+      ATileStorageAbilities,
       tstvsVersionIgnored,
       True,
       stsUnicode,
@@ -100,13 +104,14 @@ begin
     AMapVersionFactory,
     AConfig
   );
+  FArchiveReader := AArchiveReader;
+  FArchiveWriter := AArchiveWriter;
   FContentTypeManager := AContentTypeManager;
-  FArchiveReadWriteFactory := AArchiveReadWriteFactory;
   FNameGenerator := ANameGenerator;
   FTileNameParser := ATileNameParser;
 end;
 
-function TTileStorageTypeArchiveTar.BuildStorageInternal(
+function TTileStorageTypeArchive.BuildStorageInternal(
   const AStorageConfigData: IConfigDataProvider;
   const AForceAbilities: ITileStorageAbilities;
   const AProjectionSet: IProjectionSet;
@@ -117,13 +122,14 @@ function TTileStorageTypeArchiveTar.BuildStorageInternal(
 ): ITileStorage;
 begin
   Result :=
-    TTileStorageTar.Create(
+    TTileStorageArchive.Create(
       GetAbilities,
       APath,
+      FArchiveReader,
+      FArchiveWriter,
       AMainContentType,
       FContentTypeManager,
       AProjectionSet,
-      FArchiveReadWriteFactory.Tar.WriterFactory,
       FTileNameParser,
       FNameGenerator
     );

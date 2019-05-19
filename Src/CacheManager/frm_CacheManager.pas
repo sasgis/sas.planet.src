@@ -51,6 +51,7 @@ uses
   i_TileFileNameParsersList,
   i_TileStorageTypeList,
   i_ValueToStringConverter,
+  i_MapVersionFactory,
   i_MapVersionFactoryList,
   i_GlobalBerkeleyDBHelper,
   u_CommonFormAndFrameParents;
@@ -92,13 +93,13 @@ type
     procedure FormShow(Sender: TObject);
   private
     type
-      TTileCacheInArchiveType = (atNoArch = 0, atTar = 1, atZip = 2, atUnk = 3);
+      TTileCacheInArchiveType = (atNotArch, atTar, atZip, atUnk);
   private
     FLanguageManager: ILanguageManager;
     FAppClosingNotifier: INotifierOneOperation;
     FTimerNoifier: INotifierTime;
     FGCNotifier: INotifierTime;
-    FMapVersionFactoryList: IMapVersionFactoryList;
+    FMapVersionFactory: IMapVersionFactory;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FContentTypeManager: IContentTypeManager;
     FProjectionSetFactory: IProjectionSetFactory;
@@ -145,8 +146,12 @@ uses
   SysUtils,
   c_CacheTypeCodes,
   c_CoordConverter,
+  i_ArchiveReadWrite,
   i_MapVersionInfo,
   i_ContentTypeInfo,
+  i_PathConfig,
+  i_TileStorageType,
+  i_TileStorageTypeConfig,
   i_TileStorageAbilities,
   i_TileFileNameGenerator,
   i_TileFileNameParser,
@@ -154,10 +159,15 @@ uses
   i_CacheConverterProgressInfo,
   u_Notifier,
   u_NotifierOperation,
+  u_PathConfig,
   u_ThreadCacheConverter,
-  u_TileStorageTar,
+  u_TileStorageArchive,
+  u_TileStorageTypeArchive,
+  u_TileStorageTypeConfig,
+  u_TileStorageAbilities,
   u_CacheConverterProgressInfo,
   u_Synchronizer,
+  u_StrFunc,
   frm_ProgressCacheConvrter;
 
 {$R *.dfm}
@@ -185,7 +195,7 @@ begin
   FAppClosingNotifier := AAppClosingNotifier;
   FTimerNoifier := ATimerNoifier;
   FGCNotifier := AGCNotifier;
-  FMapVersionFactoryList := AMapVersionFactoryList;
+  FMapVersionFactory := AMapVersionFactoryList.GetSimpleVersionFactory;
   FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
   FFileNameGeneratorsList := AFileNameGeneratorsList;
@@ -237,66 +247,77 @@ function TfrmCacheManager.CreateSimpleTileStorage(
 ): ITileStorage;
 var
   VContentType: IContentTypeInfoBasic;
-  VFileNameGenerator: ITileFileNameGenerator;
-  VFileNameParser: ITileFileNameParser;
-  VStorageType: ITileStorageTypeListItem;
+  VItem: ITileStorageTypeListItem;
+  VStorageType: ITileStorageType;
+  VStorageConfig: ITileStorageTypeConfig;
+  VArchiveReader: IArchiveReaderBase;
 begin
   Result := nil;
 
-  VContentType := FContentTypeManager.GetInfoByExt(AnsiString(ADefExtention));
-  if VContentType = nil then begin
-    Exit;
-  end;
-
-  if AArchiveType <> atNoArch then begin
-     if (AFormatID in [
-      c_File_Cache_Id_BDB,
-      c_File_Cache_Id_BDB_Versioned,
-      c_File_Cache_Id_DBMS,
-      c_File_Cache_Id_SQLite,
-      c_File_Cache_Id_GE,
-      c_File_Cache_Id_GC
-    ]) then begin
-      Exit;
-    end;
-    VFileNameGenerator := FFileNameGeneratorsList.GetGenerator(AFormatID);
-    VFileNameParser := FFileNameParsersList.GetParser(AFormatID);
-    case AArchiveType of
-      atTar: begin
-        Result :=
-          TTileStorageTar.Create(
-            nil,
-            ARootPath,
-            VContentType,
-            FContentTypeManager,
-            AProjectionSet,
-            FArchiveReadWriteFactory.Tar.WriterFactory,
-            VFileNameParser,
-            VFileNameGenerator
-          );
-      end;
-      atZip: begin
-        // ToDo
-        Assert(False);
-      end;
-    else
-      // Error
-      Assert(False);
+  if AArchiveType = atNotArch then begin
+    VItem := FTileStorageTypeList.GetItemByCode(AFormatID);
+    if VItem <> nil then begin
+      VStorageType := VItem.StorageType;
+    end else begin
+      raise Exception.CreateFmt('Fail to get StorageType by ID: %d', [AFormatID]);
     end;
   end else begin
-    VStorageType := FTileStorageTypeList.GetItemByCode(AFormatID);
-    if VStorageType <> nil then begin
-      Result :=
-        VStorageType.StorageType.BuildStorage(
-          nil,
-          AProjectionSet,
-          VContentType,
-          nil,
-          ARootPath,
-          nil
-        );
+    if
+      (AFormatID in [
+        c_File_Cache_Id_BDB,
+        c_File_Cache_Id_BDB_Versioned,
+        c_File_Cache_Id_DBMS,
+        c_File_Cache_Id_SQLite,
+        c_File_Cache_Id_GE,
+        c_File_Cache_Id_GC
+      ])
+    then begin
+      Exit;
     end;
+
+    case AArchiveType of
+      atTar: begin
+        VArchiveReader := FArchiveReadWriteFactory.TarSequential.ReaderFactory.Build(ARootPath);
+      end;
+      atZip: begin
+        VArchiveReader := FArchiveReadWriteFactory.ZipSequential.ReaderFactory.Build(ARootPath);
+      end;
+    else
+      raise Exception.CreateFmt('Unexpected ArchiveType value: %d', [Integer(AArchiveType)]);
+    end;
+
+    VStorageConfig :=
+      TTileStorageTypeConfig.Create(
+        TPathConfig.Create('', ARootPath, nil) as IPathConfig
+      );
+
+    VStorageType :=
+      TTileStorageTypeArchive.Create(
+        TTileStorageAbilities.Create(False, False, True, False, False, False),
+        VArchiveReader,
+        nil,
+        FContentTypeManager,
+        FFileNameGeneratorsList.GetGenerator(AFormatID),
+        FFileNameParsersList.GetParser(AFormatID),
+        FMapVersionFactory,
+        VStorageConfig
+      );
   end;
+
+  VContentType := FContentTypeManager.GetInfoByExt(StringToAnsiSafe(ADefExtention));
+  if VContentType = nil then begin
+    raise Exception.Create('Fail to get ContentType for extention: ' + ADefExtention);
+  end;
+
+  Result :=
+    VStorageType.BuildStorage(
+      nil,
+      AProjectionSet,
+      VContentType,
+      nil,
+      ARootPath,
+      nil
+    );
 end;
 
 procedure TfrmCacheManager.btnSelectSrcPathClick(Sender: TObject);
@@ -340,7 +361,7 @@ procedure TfrmCacheManager.ProcessCacheConverter;
   var
     VExt: string;
   begin
-    AArchType := atNoArch;
+    AArchType := atNotArch;
     if FileExists(APath) then begin
       VExt := LowerCase(ExtractFileExt(APath));
       if VExt = '.tar' then begin
@@ -351,7 +372,7 @@ procedure TfrmCacheManager.ProcessCacheConverter;
         AArchType := atUnk;
       end;
     end;
-    Result := AArchType <> atNoArch;
+    Result := AArchType <> atNotArch;
   end;
 
 var
@@ -424,11 +445,11 @@ begin
   VDestVersion := nil;
 
   if chkCheckSourceVersion.Checked then begin
-    VSourceVersion := FMapVersionFactoryList.GetSimpleVersionFactory.CreateByStoreString(Trim(edtSourceVersion.Text));
+    VSourceVersion := FMapVersionFactory.CreateByStoreString(Trim(edtSourceVersion.Text));
   end;
 
   if chkReplaceDestVersion.Checked then begin
-    VDestVersion := FMapVersionFactoryList.GetSimpleVersionFactory.CreateByStoreString(Trim(edtDestVersion.Text));
+    VDestVersion := FMapVersionFactory.CreateByStoreString(Trim(edtDestVersion.Text));
   end;
 
   VConverterThread := TThreadCacheConverter.Create(
