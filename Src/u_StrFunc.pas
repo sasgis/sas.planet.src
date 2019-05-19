@@ -47,11 +47,18 @@ function IsAnsi(const s: string): Boolean; inline;
 
 function StringToAnsiSafe(const s: string): AnsiString; inline;
 
-var StrLenA: function(const S: PAnsiChar): Cardinal;
-var StrLCopyA: function(Dest: PAnsiChar; const Source: PAnsiChar; MaxLen: Cardinal): PAnsiChar;
-var StrICompA: function(const S1, S2: PAnsiChar): Integer;
-var TextToFloatA: function(Buffer: PAnsiChar; var Value; ValueType: TFloatValue;
-      const AFormatSettings: TFormatSettings): Boolean;
+type
+  TStrLenAFunc = function(const S: PAnsiChar): Cardinal;
+  TStrLCopyAFunc = function(Dest: PAnsiChar; const Source: PAnsiChar; MaxLen: Cardinal): PAnsiChar;
+  TStrICompAFunc = function(const S1, S2: PAnsiChar): Integer;
+  TTextToFloatAFunc = function(Buffer: PAnsiChar; var Value; ValueType: TFloatValue;
+    const AFormatSettings: TFormatSettings): Boolean;
+
+var
+  StrLenA: TStrLenAFunc;
+  StrLCopyA: TStrLCopyAFunc;
+  StrICompA: TStrICompAFunc;
+  TextToFloatA: TTextToFloatAFunc;
 
 implementation
 
@@ -260,15 +267,15 @@ end;
 
 initialization
   {$If CompilerVersion < 33}
-  StrLenA := @SysUtils.StrLen;
-  StrLCopyA := @SysUtils.StrLCopy;
-  StrICompA := @SysUtils.StrIComp;
-  TextToFloatA :=@SysUtils.TextToFloat;
+  StrLenA := SysUtils.StrLen;
+  StrLCopyA := SysUtils.StrLCopy;
+  StrICompA := SysUtils.StrIComp;
+  TextToFloatA := SysUtils.TextToFloat;
   {$ELSE}
-  StrLenA := @AnsiStrings.StrLen;
-  StrLCopyA := @AnsiStrings.StrLCopy;
-  StrICompA := @AnsiStrings.StrIComp;
-  TextToFloatA := @AnsiStrings.TextToFloat;
+  StrLenA := AnsiStrings.StrLen;
+  StrLCopyA := AnsiStrings.StrLCopy;
+  StrICompA := AnsiStrings.StrIComp;
+  TextToFloatA := AnsiStrings.TextToFloat;
   {$IFEND}
 
 end.
