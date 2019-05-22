@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  SyncObjs,
   i_NotifierOperation,
   i_TileInfoBasic,
   i_TileStorage,
@@ -34,6 +35,8 @@ uses
 type
   TThreadCacheConverter = class(TThreadCacheManagerAbstract)
   private
+    FPaused: Boolean;
+    FSleepEvent: TEvent;
     FOperationID: Integer;
     FCancelNotifier: INotifierOperation;
     FSourceTileStorage: ITileStorage;
@@ -51,6 +54,7 @@ type
 
     procedure SetLastTileName(const ATileInfo: TTileInfo); inline;
     function OnSourceTileStorageScan(const ATileInfo: TTileInfo): Boolean;
+    function IsCanceled: Boolean; inline;
   protected
     procedure Process; override;
   public
@@ -67,6 +71,9 @@ type
       const ADestOverwriteTiles: Boolean;
       const AProgressInfo: ICacheConverterProgressInfo
     );
+    destructor Destroy; override;
+  public
+    property Paused: Boolean read FPaused write FPaused;
   end;
 
 implementation
@@ -123,7 +130,18 @@ begin
     FIgnoreMultiVersionTiles := True;
   end;
 
+  FSleepEvent := TEvent.Create;
+
   inherited Create(FCancelNotifier, FOperationID, Self.ClassName);
+end;
+
+destructor TThreadCacheConverter.Destroy;
+begin
+  if FSleepEvent <> nil then begin
+    FSleepEvent.SetEvent;
+  end;
+  FSleepEvent.Free;
+  inherited Destroy;
 end;
 
 procedure TThreadCacheConverter.Process;
@@ -131,30 +149,36 @@ var
   VEnum: IEnumTileInfo;
   VTileInfo: TTileInfo;
 begin
-  VEnum := FSourceTileStorage.ScanTiles(FSourceIgnoreTne, FIgnoreMultiVersionTiles);
-  while VEnum.Next(VTileInfo) do begin
-    if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
-      Break;
+  try
+    if IsCanceled then begin
+      Exit;
     end;
-    if FCheckSourceVersion then begin
-      if Assigned(VTileInfo.FVersionInfo) and SameText(VTileInfo.FVersionInfo.StoreString, FSourceVersionInfo.StoreString) then begin
-        if not OnSourceTileStorageScan(VTileInfo) then begin
-          Break;
+    VEnum := FSourceTileStorage.ScanTiles(FSourceIgnoreTne, FIgnoreMultiVersionTiles);
+    while VEnum.Next(VTileInfo) do begin
+      if IsCanceled then begin
+        Exit;
+      end;
+      if FCheckSourceVersion then begin
+        if Assigned(VTileInfo.FVersionInfo) and SameText(VTileInfo.FVersionInfo.StoreString, FSourceVersionInfo.StoreString) then begin
+          if not OnSourceTileStorageScan(VTileInfo) then begin
+            Break;
+          end;
+        end else begin
+          SetLastTileName(VTileInfo);
+          FProgressInfo.TilesSkipped := FProgressInfo.TilesSkipped + 1;
         end;
-      end else begin
-        SetLastTileName(VTileInfo);
-        FProgressInfo.TilesSkipped := FProgressInfo.TilesSkipped + 1;
+      end else if not OnSourceTileStorageScan(VTileInfo) then begin
+        Break;
       end;
-    end else if not OnSourceTileStorageScan(VTileInfo) then begin
-      Break;
-    end;
-    if FSourceRemoveTiles then begin
-      if VTileInfo.FInfoType in [titExists, titTneExists] then begin
-        FSourceTileStorage.DeleteTile(VTileInfo.FTile, VTileInfo.FZoom, VTileInfo.FVersionInfo);
+      if FSourceRemoveTiles then begin
+        if VTileInfo.FInfoType in [titExists, titTneExists] then begin
+          FSourceTileStorage.DeleteTile(VTileInfo.FTile, VTileInfo.FZoom, VTileInfo.FVersionInfo);
+        end;
       end;
     end;
+  finally
+    FProgressInfo.Finished := True;
   end;
-  FProgressInfo.Finished := True;
 end;
 
 function TThreadCacheConverter.OnSourceTileStorageScan(
@@ -165,66 +189,64 @@ var
   VDestVersionInfo: IMapVersionInfo;
 begin
   Result := False;
-  if not FCancelNotifier.IsOperationCanceled(FOperationID) then begin
 
-    if FReplaceDestVersion then begin
-      VDestVersionInfo := FDestVersionInfo;
-    end else begin
-      VDestVersionInfo := ATileInfo.FVersionInfo;
-    end;
-
-    if not FDestOverwriteTiles then begin
-      VTileInfo :=
-        FDestTileStorage.GetTileInfo(
-          ATileInfo.FTile,
-          ATileInfo.FZoom,
-          VDestVersionInfo,
-          gtimWithoutData
-        );
-      if Assigned(VTileInfo) then begin
-        if (VTileInfo.IsExists or (VTileInfo.IsExistsTNE and (ATileInfo.FInfoType = titTneExists))) then begin
-          Result := True;
-          FProgressInfo.TilesSkipped := FProgressInfo.TilesSkipped + 1;
-        end;
-      end;
-    end;
-
-    if not Result then begin
-
-      if ATileInfo.FInfoType = titExists then begin
-        FDestTileStorage.SaveTile(
-          ATileInfo.FTile,
-          ATileInfo.FZoom,
-          VDestVersionInfo,
-          ATileInfo.FLoadDate,
-          ATileInfo.FContentType,
-          ATileInfo.FData,
-          True
-        );
-        Result := True;
-      end else if ATileInfo.FInfoType = titTneExists then begin
-        FDestTileStorage.SaveTile(
-          ATileInfo.FTile,
-          ATileInfo.FZoom,
-          VDestVersionInfo,
-          ATileInfo.FLoadDate,
-          nil,
-          nil,
-          True
-        );
-        Result := True;
-      end;
-
-      if Result then begin
-        FProgressInfo.TilesProcessed := FProgressInfo.TilesProcessed + 1;
-        if Assigned(ATileInfo.FData) then begin
-          FProgressInfo.TilesSize := FProgressInfo.TilesSize + ATileInfo.FData.Size;
-        end;
-      end;
-    end;
-
-    SetLastTileName(ATileInfo);
+  if FReplaceDestVersion then begin
+    VDestVersionInfo := FDestVersionInfo;
+  end else begin
+    VDestVersionInfo := ATileInfo.FVersionInfo;
   end;
+
+  if not FDestOverwriteTiles then begin
+    VTileInfo :=
+      FDestTileStorage.GetTileInfo(
+        ATileInfo.FTile,
+        ATileInfo.FZoom,
+        VDestVersionInfo,
+        gtimWithoutData
+      );
+    if Assigned(VTileInfo) then begin
+      if (VTileInfo.IsExists or (VTileInfo.IsExistsTNE and (ATileInfo.FInfoType = titTneExists))) then begin
+        Result := True;
+        FProgressInfo.TilesSkipped := FProgressInfo.TilesSkipped + 1;
+      end;
+    end;
+  end;
+
+  if not Result then begin
+
+    if ATileInfo.FInfoType = titExists then begin
+      FDestTileStorage.SaveTile(
+        ATileInfo.FTile,
+        ATileInfo.FZoom,
+        VDestVersionInfo,
+        ATileInfo.FLoadDate,
+        ATileInfo.FContentType,
+        ATileInfo.FData,
+        True
+      );
+      Result := True;
+    end else if ATileInfo.FInfoType = titTneExists then begin
+      FDestTileStorage.SaveTile(
+        ATileInfo.FTile,
+        ATileInfo.FZoom,
+        VDestVersionInfo,
+        ATileInfo.FLoadDate,
+        nil,
+        nil,
+        True
+      );
+      Result := True;
+    end;
+
+    if Result then begin
+      FProgressInfo.TilesProcessed := FProgressInfo.TilesProcessed + 1;
+      if Assigned(ATileInfo.FData) then begin
+        FProgressInfo.TilesSize := FProgressInfo.TilesSize + ATileInfo.FData.Size;
+      end;
+    end;
+  end;
+
+  SetLastTileName(ATileInfo);
 end;
 
 procedure TThreadCacheConverter.SetLastTileName(const ATileInfo: TTileInfo);
@@ -239,6 +261,16 @@ begin
     );
   FProgressInfo.LastTileName :=
     StringReplace(VTileFullPath, FSourceStorageRootPath, '', [rfIgnoreCase]);
+end;
+
+function TThreadCacheConverter.IsCanceled: Boolean;
+begin
+  Result := FCancelNotifier.IsOperationCanceled(FOperationID);
+  while FPaused and not Result do begin
+    Result :=
+      (FSleepEvent.WaitFor(250) <> wrTimeout) or
+      FCancelNotifier.IsOperationCanceled(FOperationID);
+  end;
 end;
 
 end.

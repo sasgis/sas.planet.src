@@ -80,7 +80,6 @@ type
     FCancelNotifierInternal: INotifierOperationInternal;
     FProgressInfo: ICacheConverterProgressInfo;
     FValueToStringConverter: IValueToStringConverterChangeable;
-    FThreadPaused: Boolean;
     FFinished: Boolean;
     procedure OnAppClosing;
     procedure CancelOperation;
@@ -130,7 +129,6 @@ begin
   FTimerListener := TListenerTimeCheck.Create(Self.OnTimerTick, 1000);
   FTimerNoifier.Add(FTimerListener);
 
-  FThreadPaused := False;
   FFinished := False;
 
   FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);
@@ -194,13 +192,11 @@ end;
 procedure TfrmProgressCacheConverter.btnPauseClick(Sender: TObject);
 begin
   if not FFinished then begin
-    if FThreadPaused then begin
-      FConverterThread.Resume;
-      FThreadPaused := False;
+    if FConverterThread.Paused then begin
+      FConverterThread.Paused := False;
       btnPause.Caption := SAS_STR_Pause;
     end else begin
-      FConverterThread.Suspend;
-      FThreadPaused := True;
+      FConverterThread.Paused := True;
       btnPause.Caption := SAS_STR_Continue;
     end;
   end;
@@ -208,12 +204,9 @@ end;
 
 procedure TfrmProgressCacheConverter.btnQuitClick(Sender: TObject);
 begin
-  if FThreadPaused then begin
-    FFinished := True;
-    CancelOperation;
-    FConverterThread.Resume;
-    Application.ProcessMessages;
-  end;
+  FFinished := True;
+  CancelOperation;
+  Application.ProcessMessages;
   Self.Close;
 end;
 
