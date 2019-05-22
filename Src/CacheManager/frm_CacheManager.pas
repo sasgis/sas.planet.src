@@ -50,6 +50,7 @@ uses
   i_TileFileNameGeneratorsList,
   i_TileFileNameParsersList,
   i_TileStorageTypeList,
+  i_TileStorageAbilities,
   i_ValueToStringConverter,
   i_MapVersionFactory,
   i_MapVersionFactoryList,
@@ -93,7 +94,7 @@ type
     procedure FormShow(Sender: TObject);
   private
     type
-      TTileCacheInArchiveType = (atNotArch, atTar, atZip, atUnk);
+      TArchiveType = (atNotArch, atTar, atZip);
   private
     FLanguageManager: ILanguageManager;
     FAppClosingNotifier: INotifierOneOperation;
@@ -114,7 +115,8 @@ type
     function CreateSimpleTileStorage(
       const ARootPath: string;
       const ADefExtention: string;
-      const AArchiveType: TTileCacheInArchiveType;
+      const AArchiveType: TArchiveType;
+      const AStorageAbilities: ITileStorageAbilities;
       const AProjectionSet: IProjectionSet;
       const AFormatID: Byte
     ): ITileStorage;
@@ -152,7 +154,6 @@ uses
   i_PathConfig,
   i_TileStorageType,
   i_TileStorageTypeConfig,
-  i_TileStorageAbilities,
   i_TileFileNameGenerator,
   i_TileFileNameParser,
   i_TileStorageTypeListItem,
@@ -235,13 +236,30 @@ begin
   FfrSrcCacheTypesList.Show(pnlCacheTypes);
   FfrDestCacheTypesList.Show(pnlDestCacheTypes);
   FfrSrcCacheTypesList.IntCode := c_File_Cache_Id_SAS;
-  FfrDestCacheTypesList.IntCode := c_File_Cache_Id_BDB;
+  FfrDestCacheTypesList.IntCode := c_File_Cache_Id_SQLite;
+end;
+
+function IsFileSystemStorage(const AFormatID: Byte): Boolean; inline;
+begin
+  Result :=
+    AFormatID in [
+      c_File_Cache_Id_GMV,
+      c_File_Cache_Id_SAS,
+      c_File_Cache_Id_ES,
+      c_File_Cache_Id_GM,
+      c_File_Cache_Id_GM_Aux,
+      c_File_Cache_Id_GM_Bing,
+      c_File_Cache_Id_MOBAC,
+      c_File_Cache_Id_OsmAnd,
+      c_File_Cache_Id_TMS
+    ];
 end;
 
 function TfrmCacheManager.CreateSimpleTileStorage(
   const ARootPath: string;
   const ADefExtention: string;
-  const AArchiveType: TTileCacheInArchiveType;
+  const AArchiveType: TArchiveType;
+  const AStorageAbilities: ITileStorageAbilities;
   const AProjectionSet: IProjectionSet;
   const AFormatID: Byte
 ): ITileStorage;
@@ -251,6 +269,7 @@ var
   VStorageType: ITileStorageType;
   VStorageConfig: ITileStorageTypeConfig;
   VArchiveReader: IArchiveReaderBase;
+  VArchiveWriter: IArchiveWriterBase;
 begin
   Result := nil;
 
@@ -262,28 +281,36 @@ begin
       raise Exception.CreateFmt('Fail to get StorageType by ID: %d', [AFormatID]);
     end;
   end else begin
-    if
-      (AFormatID in [
-        c_File_Cache_Id_BDB,
-        c_File_Cache_Id_BDB_Versioned,
-        c_File_Cache_Id_DBMS,
-        c_File_Cache_Id_SQLite,
-        c_File_Cache_Id_GE,
-        c_File_Cache_Id_GC
-      ])
-    then begin
-      Exit;
+    if not IsFileSystemStorage(AFormatID) then begin
+      raise Exception.Create('Supported archives with FileSystem storages only!');
     end;
+
+    VArchiveReader := nil;
+    VArchiveWriter := nil;
 
     case AArchiveType of
       atTar: begin
-        VArchiveReader := FArchiveReadWriteFactory.TarSequential.ReaderFactory.Build(ARootPath);
+        if AStorageAbilities.AllowScan then begin
+          VArchiveReader := FArchiveReadWriteFactory.TarSequential.ReaderFactory.Build(ARootPath);
+        end else
+        if AStorageAbilities.AllowAdd then begin
+          VArchiveWriter := FArchiveReadWriteFactory.TarSequential.WriterFactory.Build(ARootPath);
+        end;
       end;
       atZip: begin
-        VArchiveReader := FArchiveReadWriteFactory.ZipSequential.ReaderFactory.Build(ARootPath);
+        if AStorageAbilities.AllowScan then begin
+          VArchiveReader := FArchiveReadWriteFactory.ZipSequential.ReaderFactory.Build(ARootPath);
+        end else
+        if AStorageAbilities.AllowAdd then begin
+          VArchiveWriter := FArchiveReadWriteFactory.ZipSequential.WriterFactory.Build(ARootPath);
+        end;
       end;
     else
       raise Exception.CreateFmt('Unexpected ArchiveType value: %d', [Integer(AArchiveType)]);
+    end;
+
+    if (VArchiveReader <> nil) and (VArchiveWriter <> nil) then begin
+      Assert(False);
     end;
 
     VStorageConfig :=
@@ -293,9 +320,9 @@ begin
 
     VStorageType :=
       TTileStorageTypeArchive.Create(
-        TTileStorageAbilities.Create(False, False, True, False, False, False),
+        AStorageAbilities,
         VArchiveReader,
-        nil,
+        VArchiveWriter,
         FContentTypeManager,
         FFileNameGeneratorsList.GetGenerator(AFormatID),
         FFileNameParsersList.GetParser(AFormatID),
@@ -357,21 +384,30 @@ end;
 
 procedure TfrmCacheManager.ProcessCacheConverter;
 
-  function IsTileCacheInArchive(const APath: string; out AArchType: TTileCacheInArchiveType): Boolean;
+  function IsTileCacheInArchive(
+    const APath: string;
+    const AFileMustExists: Boolean;
+    out AArchType: TArchiveType
+  ): Boolean;
   var
     VExt: string;
   begin
+    Result := False;
     AArchType := atNotArch;
-    if FileExists(APath) then begin
-      VExt := LowerCase(ExtractFileExt(APath));
-      if VExt = '.tar' then begin
-        AArchType := atTar;
-      end else if VExt = '.zip' then begin
-        AArchType := atZip;
-      end else if VExt <> '' then begin
-        AArchType := atUnk;
-      end;
+
+    if AFileMustExists and not FileExists(APath) then begin
+      Exit;
     end;
+
+    VExt := LowerCase(ExtractFileExt(APath));
+    if VExt = '.tar' then begin
+      AArchType := atTar;
+    end else if VExt = '.zip' then begin
+      AArchType := atZip;
+    end else if VExt <> '' then begin
+      raise Exception.Create('Unsupported archive type: ' + VExt);
+    end;
+
     Result := AArchType <> atNotArch;
   end;
 
@@ -389,7 +425,7 @@ var
   VDestPath: string;
   VDefExtention: string;
   VDotPos: Integer;
-  VArchType: TTileCacheInArchiveType;
+  VArchType: TArchiveType;
 begin
   VProgressInfo := TCacheConverterProgressInfo.Create;
 
@@ -411,7 +447,7 @@ begin
   VDefExtention := LowerCase(VDefExtention);
 
   VSourcePath := Trim(edtPath.Text);
-  if not IsTileCacheInArchive(VSourcePath, VArchType) then begin
+  if not IsTileCacheInArchive(VSourcePath, True, VArchType) then begin
     VSourcePath := IncludeTrailingPathDelimiter(VSourcePath);
   end;
 
@@ -420,12 +456,13 @@ begin
       VSourcePath,
       VDefExtention,
       VArchType,
+      TTileStorageAbilities.Create([tsatScan]),
       VProjectionSet,
       FfrSrcCacheTypesList.IntCode
     );
 
   VDestPath := Trim(edtDestPath.Text);
-  if not IsTileCacheInArchive(VDestPath, VArchType) then begin
+  if not IsTileCacheInArchive(VDestPath, False, VArchType) then begin
     VDestPath := IncludeTrailingPathDelimiter(VDestPath);
     if FfrDestCacheTypesList.IntCode <> c_File_Cache_Id_DBMS then begin
       ForceDirectories(VDestPath);
@@ -437,6 +474,7 @@ begin
       VDestPath,
       VDefExtention,
       VArchType,
+      TTileStorageAbilities.Create([tsatAdd]),
       VProjectionSet,
       FfrDestCacheTypesList.IntCode
     );

@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -28,6 +28,15 @@ uses
   u_BaseInterfacedObject;
 
 type
+  TTileStorageAbilitiesType = (tsatRead, tsatScan, tsatAdd, tsatDelete, tsatReplace);
+  TTileStorageAbilitiesTypes = set of TTileStorageAbilitiesType;
+
+const
+  CTileStorageReadOnly: TTileStorageAbilitiesTypes = [tsatRead, tsatScan];
+  CTileStorageWriteOnly: TTileStorageAbilitiesTypes = [tsatAdd, tsatDelete, tsatReplace];
+  CTileStorageReadWrite: TTileStorageAbilitiesTypes = [tsatRead, tsatScan, tsatAdd, tsatDelete, tsatReplace];
+
+type
   TTileStorageAbilities = class(TBaseInterfacedObject, ITileStorageAbilities)
   private
     FIsReadOnly: Boolean;
@@ -51,7 +60,11 @@ type
       const AAllowAdd: Boolean;
       const AAllowDelete: Boolean;
       const AAllowReplace: Boolean
-    );
+    ); overload;
+
+    constructor Create(
+      const AAbilitiesTypes: TTileStorageAbilitiesTypes
+    ); overload;
   end;
 
   TTileStorageAbilitiesNoAccess = class(TBaseInterfacedObject, ITileStorageAbilities)
@@ -120,6 +133,34 @@ begin
   FAllowAdd := AAllowAdd and not FIsReadOnly;
   FAllowDelete := AAllowDelete and not FIsReadOnly;
   FAllowReplace := AAllowReplace and not FIsReadOnly;
+end;
+
+constructor TTileStorageAbilities.Create(
+  const AAbilitiesTypes: TTileStorageAbilitiesTypes
+);
+begin
+  inherited Create;
+
+  // Read Abilities
+  if tsatRead in AAbilitiesTypes then begin
+    FAllowRead := True;
+  end;
+  if tsatScan in AAbilitiesTypes then begin
+    FAllowScan := True;
+  end;
+
+  // Write Abilities
+  if tsatAdd in AAbilitiesTypes then begin
+    FAllowAdd := True;
+  end;
+  if tsatDelete in AAbilitiesTypes then begin
+    FAllowDelete := True;
+  end;
+  if tsatReplace in AAbilitiesTypes then begin
+    FAllowReplace := True;
+  end;
+
+  FIsReadOnly := not FAllowAdd and not FAllowDelete and not FAllowReplace;
 end;
 
 function TTileStorageAbilities.GetAllowAdd: Boolean;
