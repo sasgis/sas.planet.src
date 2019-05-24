@@ -175,6 +175,8 @@
         <DCCReference Include="Src\ArchiveReadWrite\i_ArchiveReadWriteFactory.pas"/>
         <DCCReference Include="Src\ArchiveReadWrite\u_ArchiveReadWrite7Zip.pas"/>
         <DCCReference Include="Src\ArchiveReadWrite\u_ArchiveReadWriteFactory.pas"/>
+        <DCCReference Include="Src\ArchiveReadWrite\u_ArchiveReadWriteSequentialTar.pas"/>
+        <DCCReference Include="Src\ArchiveReadWrite\u_ArchiveReadWriteSequentialZip.pas"/>
         <DCCReference Include="Src\Basic\i_BackgroundTask.pas"/>
         <DCCReference Include="Src\Basic\i_BinaryData.pas"/>
         <DCCReference Include="Src\Basic\i_BinaryDataListChangeable.pas"/>
@@ -916,7 +918,6 @@
         <DCCReference Include="Src\Marker\u_MarkerDrawableSimpleCross.pas"/>
         <DCCReference Include="Src\Marker\u_MarkerDrawableSimpleSquare.pas"/>
         <DCCReference Include="Src\Marker\u_MarkerDrawableWithDirectionByBitmapMarker.pas"/>
-        <DCCReference Include="Src\Marker\u_TextDrawerBasic.pas"/>
         <DCCReference Include="Src\Marker\u_MarkerFromFileConfig.pas"/>
         <DCCReference Include="Src\Marker\u_MarkerFromFileConfigStatic.pas"/>
         <DCCReference Include="Src\Marker\u_MarkerProviderByAppearancePointIcon.pas"/>
@@ -925,6 +926,7 @@
         <DCCReference Include="Src\Marker\u_MarkerProviderForVectorItemWithCache.pas"/>
         <DCCReference Include="Src\Marker\u_MarkerSimpleConfig.pas"/>
         <DCCReference Include="Src\Marker\u_MarkerSimpleConfigStatic.pas"/>
+        <DCCReference Include="Src\Marker\u_TextDrawerBasic.pas"/>
         <DCCReference Include="Src\MarksDB\GUI\fr_JpegImportOptions.pas">
             <Form>frJpegImportOptions</Form>
             <DesignClass>TFrame</DesignClass>
@@ -1195,10 +1197,6 @@
         <DCCReference Include="Src\Predicate\i_PredicateByTileRequest.pas"/>
         <DCCReference Include="Src\Predicate\u_PredicateByStaticSampleList.pas"/>
         <DCCReference Include="Src\Predicate\u_PredicateByTileInfoBase.pas"/>
-        <DCCReference Include="Src\RegionProcess\fr_RegionProcessComplexComboBox.pas">
-            <Form>frRegionProcessComplexComboBox</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Src\RegionProcess\Combine\fr_MapCombine.pas">
             <Form>frMapCombine</Form>
             <DesignClass>TFrame</DesignClass>
@@ -1215,6 +1213,7 @@
         <DCCReference Include="Src\RegionProcess\Combine\t_MapCombineOptions.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerBMP.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerECWJP2.pas"/>
+        <DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerFactoryBase.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerGeoTIFF.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerJPG.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerKMZ.pas"/>
@@ -1226,7 +1225,6 @@
         <DCCReference Include="Src\RegionProcess\Combine\u_ImageLineProviderMultiThread.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombine.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\u_RegionProcessTaskCombine.pas"/>
-        <DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerFactoryBase.pas"/>
         <DCCReference Include="Src\RegionProcess\Copy\fr_TilesCopy.pas">
             <Form>frTilesCopy</Form>
             <DesignClass>TFrame</DesignClass>
@@ -1234,10 +1232,6 @@
         <DCCReference Include="Src\RegionProcess\Copy\u_ProviderTilesCopy.pas"/>
         <DCCReference Include="Src\RegionProcess\Copy\u_ThreadCopyFromStorageToStorage.pas"/>
         <DCCReference Include="Src\RegionProcess\Copy\u_ThreadCopyWithModification.pas"/>
-        <DCCReference Include="Src\RegionProcess\fr_RegionProcessComplexPageControl.pas">
-            <Form>frRegionProcessComplexPageControl</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Src\RegionProcess\Delete\fr_DeleteMarks.pas">
             <Form>frDeleteMarks</Form>
             <DesignClass>TFrame</DesignClass>
@@ -1367,6 +1361,14 @@
         </DCCReference>
         <DCCReference Include="Src\RegionProcess\fr_PathSelect.pas">
             <Form>frPathSelect</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Src\RegionProcess\fr_RegionProcessComplexComboBox.pas">
+            <Form>frRegionProcessComplexComboBox</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Src\RegionProcess\fr_RegionProcessComplexPageControl.pas">
+            <Form>frRegionProcessComplexPageControl</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Src\RegionProcess\fr_ZoomsSelect.pas">
@@ -1562,6 +1564,7 @@
         <DCCReference Include="Src\TileProvider\u_VectorTileRendererChangeableForVectorMaps.pas"/>
         <DCCReference Include="Src\TileProvider\u_VectorTileRendererForMarks.pas"/>
         <DCCReference Include="Src\TileStorage\Archive\u_TileStorageArchive.pas"/>
+        <DCCReference Include="Src\TileStorage\Archive\u_TileStorageTypeArchive.pas"/>
         <DCCReference Include="Src\TileStorage\BerkeleyDB\i_BerkeleyDB.pas"/>
         <DCCReference Include="Src\TileStorage\BerkeleyDB\i_BerkeleyDBEnv.pas"/>
         <DCCReference Include="Src\TileStorage\BerkeleyDB\i_BerkeleyDBFactory.pas"/>
@@ -1838,9 +1841,6 @@
         <DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
         <DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
         <DCCReference Include="Src\u_WindowPositionConfig.pas"/>
-        <DCCReference Include="Src\ArchiveReadWrite\u_ArchiveReadWriteSequentialTar.pas"/>
-        <DCCReference Include="Src\TileStorage\Archive\u_TileStorageTypeArchive.pas"/>
-        <DCCReference Include="Src\ArchiveReadWrite\u_ArchiveReadWriteSequentialZip.pas"/>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
