@@ -90,7 +90,7 @@ constructor TGlobalCacheConfig.Create(
 begin
   inherited Create;
   FCacheGlobalPath := ACacheGlobalPath;
-  FDefCache := c_File_Cache_Id_SAS;
+  FDefCache := c_File_Cache_Id_SQLite;
 
   FOldCPath := TPathConfig.Create('GMVC', c_File_Cache_Default_GMV, FCacheGlobalPath);
   Add(FOldCPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
