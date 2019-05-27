@@ -150,8 +150,8 @@ uses
   FileCtrl,
   {$WARN UNIT_PLATFORM ON}
   SysUtils,
-  t_CommonTypes,
   c_CacheTypeCodes,
+  i_StorageState,
   i_TileDownloaderState,
   u_SynEditExt,
   u_StrFunc,
@@ -321,6 +321,7 @@ end;
 
 function TfrmMapTypeEdit.EditMapModadl(const AMapType: IMapType): Boolean;
 var
+  VStorageState: IStorageStateStatic;
   VDownloadState: ITileDownloaderStateStatic;
 begin
   FMapType := AMapType;
@@ -375,9 +376,16 @@ begin
   end;
   chkDownloadEnabled.Checked := FMapType.Abilities.UseDownload;
 
-  // check storage write access
-  if (FMapType.TileStorage.State.GetStatic.WriteAccess = asDisabled) then begin
+  // check storage write accesses
+  VStorageState := FMapType.TileStorage.State.GetStatic;
+  if not VStorageState.AddAccess then begin
     mmoDownloadState.Lines.Add(_('No write access to tile storage'));
+  end;
+  if not VStorageState.DeleteAccess then begin
+    mmoDownloadState.Lines.Add(_('No delete access to tile storage'));
+  end;
+  if not VStorageState.ReplaceAccess then begin
+    mmoDownloadState.Lines.Add(_('No replace access to tile storage'));
   end;
 
   Result := ShowModal = mrOk;

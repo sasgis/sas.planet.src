@@ -167,7 +167,9 @@ end;
 
 function TfrTilesGenPrev.GetAllowGenPrev(const AMapType: IMapType): boolean;
 begin
-  Result := (AMapType.IsBitmapTiles) and (AMapType.TileStorage.State.GetStatic.WriteAccess <> asDisabled);
+  Result :=
+    AMapType.IsBitmapTiles and
+    AMapType.TileStorage.State.GetStatic.AddAccess;
 end;
 
 procedure TfrTilesGenPrev.cbbFromZoomChange(Sender: TObject);

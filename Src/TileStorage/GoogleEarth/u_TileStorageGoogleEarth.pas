@@ -147,7 +147,6 @@ uses
   Types,
   Math,
   t_GeoTypes,
-  t_CommonTypes,
   i_InterfaceListSimple,
   u_GeoFunc,
   u_InterfaceListSimple,
@@ -538,7 +537,7 @@ begin
 
   Result := FTileNotExistsTileInfo;
 
-  if GetState.GetStatic.ReadAccess <> asDisabled then begin
+  if StorageStateInternal.ReadAccess then begin
     Result := InternalGetTileInfo(AXY, AZoom, AVersionInfo, False, AMode);
 
     if not Assigned(Result) then begin
@@ -576,7 +575,7 @@ begin
 
   Result := FTileNotExistsTileInfo;
 
-  if GetState.GetStatic.ReadAccess <> asDisabled then begin
+  if StorageStateInternal.ReadAccess then begin
     Result := InternalGetTileInfo(AXY, AZoom, VVersion, VShowOtherVersions, AMode);
 
     if not Assigned(Result) then begin
@@ -630,7 +629,7 @@ var
   VListSimple: IInterfaceListSimple;
 begin
   Result := nil;
-  if GetState.GetStatic.ReadAccess <> asDisabled then begin
+  if StorageStateInternal.ReadAccess then begin
     if not LazyBuildProviders then begin
       Exit;
     end;
@@ -673,7 +672,7 @@ var
   VShowOtherVersions: Boolean;
 begin
   Result := nil;
-  if GetState.GetStatic.ReadAccess <> asDisabled then begin
+  if StorageStateInternal.ReadAccess then begin
     if not LazyBuildProviders then begin
       Exit;
     end;
@@ -735,7 +734,6 @@ function TTileStorageGoogleEarth.SaveTile(
 ): Boolean;
 begin
   Result := False;
-  Abort;
 end;
 
 function TTileStorageGoogleEarth.DeleteTile(
@@ -752,8 +750,7 @@ function TTileStorageGoogleEarth.ScanTiles(
   const AIgnoreMultiVersionTiles: Boolean
 ): IEnumTileInfo;
 begin
-  // ToDo: Prepare tile iterator
-  Result := Self as IEnumTileInfo;
+  Result := nil; // ToDo
 end;
 
 function TTileStorageGoogleEarth.Next(var ATileInfo: TTileInfo): Boolean;

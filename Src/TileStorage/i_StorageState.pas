@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -23,26 +23,25 @@ unit i_StorageState;
 interface
 
 uses
-  t_CommonTypes,
   i_Changeable;
 
 type
   IStorageStateStatic = interface
     ['{C3CDBB82-28B7-4470-9DC6-C17A5B69F07A}']
-    function GetReadAccess: TAccesState;
-    property ReadAccess: TAccesState read GetReadAccess;
+    function GetReadAccess: Boolean;
+    property ReadAccess: Boolean read GetReadAccess;
 
-    function GetWriteAccess: TAccesState;
-    property WriteAccess: TAccesState read GetWriteAccess;
+    function GetScanAccess: Boolean;
+    property ScanAccess: Boolean read GetScanAccess;
 
-    function GetDeleteAccess: TAccesState;
-    property DeleteAccess: TAccesState read GetDeleteAccess;
+    function GetAddAccess: Boolean;
+    property AddAccess: Boolean read GetAddAccess;
 
-    function GetAddAccess: TAccesState;
-    property AddAccess: TAccesState read GetAddAccess;
+    function GetDeleteAccess: Boolean;
+    property DeleteAccess: Boolean read GetDeleteAccess;
 
-    function GetReplaceAccess: TAccesState;
-    property ReplaceAccess: TAccesState read GetReplaceAccess;
+    function GetReplaceAccess: Boolean;
+    property ReplaceAccess: Boolean read GetReplaceAccess;
 
     function IsSame(const AValue: IStorageStateStatic): Boolean;
   end;

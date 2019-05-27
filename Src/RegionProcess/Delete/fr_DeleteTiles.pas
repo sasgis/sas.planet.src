@@ -172,7 +172,9 @@ end;
 
 function TfrDeleteTiles.CheckIsDeleteable(const AMapType: IMapType): boolean;
 begin
-  Result := (AMapType.StorageConfig.AllowDelete) and (AMapType.TileStorage.State.GetStatic.WriteAccess <> asDisabled);
+  Result :=
+    AMapType.StorageConfig.AllowDelete and
+    AMapType.TileStorage.State.GetStatic.DeleteAccess;
 end;
 
 procedure TfrDeleteTiles.Init(

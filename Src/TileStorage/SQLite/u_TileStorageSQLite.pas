@@ -128,7 +128,6 @@ implementation
 uses
   Classes,
   c_TileStorageSQLite,
-  t_CommonTypes,
   t_TileStorageSQLite,
   t_NotifierOperationRec,
   i_FileNameIterator,
@@ -244,7 +243,7 @@ function TTileStorageSQLite.GetListOfTileVersions(
 ): IMapVersionListStatic;
 begin
   Result := nil;
-  if GetState.GetStatic.ReadAccess <> asDisabled then begin
+  if StorageStateInternal.ReadAccess then begin
     Result :=
       FTileStorageSQLiteHelper.GetListOfTileVersions(
         nil,
@@ -273,7 +272,7 @@ begin
     end;
   end;
 
-  if GetState.GetStatic.ReadAccess <> asDisabled then begin
+  if StorageStateInternal.ReadAccess then begin
     FillChar(VTileResult, SizeOf(VTileResult), 0);
     VObtained :=
       FTileStorageSQLiteHelper.GetTileInfo(
@@ -358,7 +357,7 @@ begin
     VShowOtherVersions := True;
   end;
 
-  if GetState.GetStatic.ReadAccess <> asDisabled then begin
+  if StorageStateInternal.ReadAccess then begin
     with VTileInfoShortEnumData do begin
       try
         // check
@@ -422,7 +421,7 @@ var
   VTileInfo: ITileInfoBasic;
 begin
   Result := False;
-  if GetState.GetStatic.WriteAccess <> asDisabled then begin
+  if StorageStateInternal.AddAccess then begin
     // prepare data
     with VSaveData do begin
       SXY := AXY;
@@ -478,7 +477,7 @@ var
   VDelData: TDeleteTileAllData;
 begin
   Result := False;
-  if GetState.GetStatic.DeleteAccess <> asDisabled then begin
+  if StorageStateInternal.DeleteAccess then begin
     try
       // prepare data
       with VDelData do begin
@@ -517,6 +516,10 @@ var
   VBaseIteratorPath: String;
   VFileNameParser: ITileFileNameParser;
 begin
+  if not StorageStateInternal.ScanAccess then begin
+    Result := nil;
+    Exit;
+  end;
   VProcessFileMasks := TStringList.Create;
   try
     VProcessFileMasks.Add('*' + cSQLiteDBFileExt);

@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -34,29 +34,30 @@ type
   private
     FStorageForceAbilities: ITileStorageAbilities;
 
-    FReadAccess: TAccesState;
-    FWriteAccess: TAccesState;
-    FDeleteAccess: TAccesState;
-    FAddAccess: TAccesState;
-    FReplaceAccess: TAccesState;
+    FReadAccess: Boolean;
+    FScanAccess: Boolean;
+
+    FAddAccess: Boolean;
+    FDeleteAccess: Boolean;
+    FReplaceAccess: Boolean;
 
     FStatic: IStorageStateStatic;
-    function CreateStatic: IStorageStateStatic;
+    function CreateStatic: IStorageStateStatic; inline;
   private
-    function GetReadAccess: TAccesState;
-    procedure SetReadAccess(AValue: TAccesState);
+    function GetReadAccess: Boolean;
+    procedure SetReadAccess(AValue: Boolean);
 
-    function GetWriteAccess: TAccesState;
-    procedure SetWriteAccess(AValue: TAccesState);
+    function GetScanAccess: Boolean;
+    procedure SetScanAccess(AValue: Boolean);
 
-    function GetDeleteAccess: TAccesState;
-    procedure SetDeleteAccess(AValue: TAccesState);
+    function GetAddAccess: Boolean;
+    procedure SetAddAccess(AValue: Boolean);
 
-    function GetAddAccess: TAccesState;
-    procedure SetAddAccess(AValue: TAccesState);
+    function GetDeleteAccess: Boolean;
+    procedure SetDeleteAccess(AValue: Boolean);
 
-    function GetReplaceAccess: TAccesState;
-    procedure SetReplaceAccess(AValue: TAccesState);
+    function GetReplaceAccess: Boolean;
+    procedure SetReplaceAccess(AValue: Boolean);
 
     function GetStatic: IStorageStateStatic;
   public
@@ -78,43 +79,16 @@ constructor TStorageStateInternal.Create(
 begin
   Assert(AStorageForceAbilities <> nil);
   inherited Create;
+
   FStorageForceAbilities := AStorageForceAbilities;
 
-  FReadAccess := asUnknown;
-  FWriteAccess := asUnknown;
-  FDeleteAccess := asUnknown;
-  FAddAccess := asUnknown;
-  FReplaceAccess := asUnknown;
-  if not FStorageForceAbilities.AllowRead then begin
-    FReadAccess := asDisabled;
-  end;
+  FReadAccess := FStorageForceAbilities.AllowRead;
+  FScanAccess := FStorageForceAbilities.AllowScan;
 
-  if FStorageForceAbilities.IsReadOnly then begin
-    FWriteAccess := asDisabled;
-    FDeleteAccess := asDisabled;
-    FAddAccess := asDisabled;
-    FReplaceAccess := asDisabled;
-  end else begin
-    FWriteAccess := asUnknown;
-    if FStorageForceAbilities.AllowAdd then begin
-      FAddAccess := asUnknown;
-    end else begin
-      FAddAccess := asDisabled;
-    end;
-    if FStorageForceAbilities.AllowDelete then begin
-      FDeleteAccess := asUnknown;
-    end else begin
-      FDeleteAccess := asDisabled;
-    end;
-    if FStorageForceAbilities.AllowReplace then begin
-      FReplaceAccess := asUnknown;
-    end else begin
-      FReplaceAccess := asDisabled;
-    end;
-    if (FDeleteAccess = asDisabled) and (FAddAccess = asDisabled) and (FReplaceAccess = asDisabled) then begin
-      FWriteAccess := asDisabled;
-    end;
-  end;
+  FAddAccess := FStorageForceAbilities.AllowAdd;
+  FDeleteAccess := FStorageForceAbilities.AllowDelete;
+  FReplaceAccess := FStorageForceAbilities.AllowReplace;
+
   FStatic := CreateStatic;
 end;
 
@@ -123,14 +97,14 @@ begin
   Result :=
     TStorageStateStatic.Create(
       FReadAccess,
-      FWriteAccess,
-      FDeleteAccess,
+      FScanAccess,
       FAddAccess,
+      FDeleteAccess,
       FReplaceAccess
     );
 end;
 
-function TStorageStateInternal.GetAddAccess: TAccesState;
+function TStorageStateInternal.GetAddAccess: Boolean;
 begin
   CS.BeginRead;
   try
@@ -140,7 +114,7 @@ begin
   end;
 end;
 
-function TStorageStateInternal.GetDeleteAccess: TAccesState;
+function TStorageStateInternal.GetDeleteAccess: Boolean;
 begin
   CS.BeginRead;
   try
@@ -150,7 +124,7 @@ begin
   end;
 end;
 
-function TStorageStateInternal.GetReadAccess: TAccesState;
+function TStorageStateInternal.GetReadAccess: Boolean;
 begin
   CS.BeginRead;
   try
@@ -160,7 +134,7 @@ begin
   end;
 end;
 
-function TStorageStateInternal.GetReplaceAccess: TAccesState;
+function TStorageStateInternal.GetReplaceAccess: Boolean;
 begin
   CS.BeginRead;
   try
@@ -170,11 +144,11 @@ begin
   end;
 end;
 
-function TStorageStateInternal.GetWriteAccess: TAccesState;
+function TStorageStateInternal.GetScanAccess: Boolean;
 begin
   CS.BeginRead;
   try
-    Result := FWriteAccess;
+    Result := FScanAccess;
   finally
     CS.EndRead;
   end;
@@ -190,81 +164,7 @@ begin
   end;
 end;
 
-procedure TStorageStateInternal.SetAddAccess(AValue: TAccesState);
-var
-  VValue: TAccesState;
-  VNeedNotify: Boolean;
-begin
-  VNeedNotify := False;
-  VValue := AValue;
-  if FStorageForceAbilities.IsReadOnly or not FStorageForceAbilities.AllowAdd then begin
-    VValue := asDisabled;
-  end;
-
-  CS.BeginWrite;
-  try
-    if FAddAccess <> VValue then begin
-      FAddAccess := VValue;
-      if (FDeleteAccess = asDisabled) and (FAddAccess = asDisabled) and (FReplaceAccess = asDisabled) then begin
-        FWriteAccess := asDisabled;
-      end;
-      if (FAddAccess = asEnabled) then begin
-        if (FWriteAccess <> asEnabled) then begin
-          FWriteAccess := asEnabled;
-        end;
-        if (FReadAccess <> asEnabled) then begin
-          FReadAccess := asEnabled;
-        end;
-      end;
-      VNeedNotify := True;
-      FStatic := CreateStatic;
-    end;
-  finally
-    CS.EndWrite;
-  end;
-  if VNeedNotify then begin
-    DoChangeNotify;
-  end;
-end;
-
-procedure TStorageStateInternal.SetDeleteAccess(AValue: TAccesState);
-var
-  VValue: TAccesState;
-  VNeedNotify: Boolean;
-begin
-  VNeedNotify := False;
-  VValue := AValue;
-  if FStorageForceAbilities.IsReadOnly or not FStorageForceAbilities.AllowDelete then begin
-    VValue := asDisabled;
-  end;
-
-  CS.BeginWrite;
-  try
-    if FDeleteAccess <> VValue then begin
-      FDeleteAccess := VValue;
-      if (FDeleteAccess = asDisabled) and (FAddAccess = asDisabled) and (FReplaceAccess = asDisabled) then begin
-        FWriteAccess := asDisabled;
-      end;
-      if (FDeleteAccess = asEnabled) then begin
-        if (FWriteAccess <> asEnabled) then begin
-          FWriteAccess := asEnabled;
-        end;
-        if (FReadAccess <> asEnabled) then begin
-          FReadAccess := asEnabled;
-        end;
-      end;
-      VNeedNotify := True;
-      FStatic := CreateStatic;
-    end;
-  finally
-    CS.EndWrite;
-  end;
-  if VNeedNotify then begin
-    DoChangeNotify;
-  end;
-end;
-
-procedure TStorageStateInternal.SetReadAccess(AValue: TAccesState);
+procedure TStorageStateInternal.SetReadAccess(AValue: Boolean);
 var
   VNeedNotify: Boolean;
 begin
@@ -273,12 +173,6 @@ begin
   try
     if FReadAccess <> AValue then begin
       FReadAccess := AValue;
-      if FAddAccess = asDisabled then begin
-        FWriteAccess := asDisabled;
-        FDeleteAccess := asDisabled;
-        FAddAccess := asDisabled;
-        FReplaceAccess := asDisabled;
-      end;
       VNeedNotify := True;
       FStatic := CreateStatic;
     end;
@@ -290,32 +184,87 @@ begin
   end;
 end;
 
-procedure TStorageStateInternal.SetReplaceAccess(AValue: TAccesState);
+procedure TStorageStateInternal.SetScanAccess(AValue: Boolean);
 var
-  VValue: TAccesState;
+  VValue: Boolean;
   VNeedNotify: Boolean;
 begin
   VNeedNotify := False;
-  VValue := AValue;
-  if FStorageForceAbilities.IsReadOnly or not FStorageForceAbilities.AllowReplace then begin
-    VValue := asDisabled;
+  VValue := AValue and FStorageForceAbilities.AllowScan;
+
+  CS.BeginWrite;
+  try
+    if FScanAccess <> VValue then begin
+      FScanAccess := VValue;
+      VNeedNotify := True;
+      FStatic := CreateStatic;
+    end;
+  finally
+    CS.EndWrite;
   end;
+  if VNeedNotify then begin
+    DoChangeNotify;
+  end;
+end;
+
+procedure TStorageStateInternal.SetAddAccess(AValue: Boolean);
+var
+  VValue: Boolean;
+  VNeedNotify: Boolean;
+begin
+  VNeedNotify := False;
+  VValue := AValue and FStorageForceAbilities.AllowAdd;
+
+  CS.BeginWrite;
+  try
+    if FAddAccess <> VValue then begin
+      FAddAccess := VValue;
+      VNeedNotify := True;
+      FStatic := CreateStatic;
+    end;
+  finally
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
+  end;
+end;
+
+procedure TStorageStateInternal.SetDeleteAccess(AValue: Boolean);
+var
+  VValue: Boolean;
+  VNeedNotify: Boolean;
+begin
+  VNeedNotify := False;
+  VValue := AValue and FStorageForceAbilities.AllowDelete;
+
+  CS.BeginWrite;
+  try
+    if FDeleteAccess <> VValue then begin
+      FDeleteAccess := VValue;
+      VNeedNotify := True;
+      FStatic := CreateStatic;
+    end;
+  finally
+    CS.EndWrite;
+  end;
+  if VNeedNotify then begin
+    DoChangeNotify;
+  end;
+end;
+
+procedure TStorageStateInternal.SetReplaceAccess(AValue: Boolean);
+var
+  VValue: Boolean;
+  VNeedNotify: Boolean;
+begin
+  VNeedNotify := False;
+  VValue := AValue and FStorageForceAbilities.AllowReplace;
 
   CS.BeginWrite;
   try
     if FReplaceAccess <> VValue then begin
       FReplaceAccess := VValue;
-      if (FDeleteAccess = asDisabled) and (FAddAccess = asDisabled) and (FReplaceAccess = asDisabled) then begin
-        FWriteAccess := asDisabled;
-      end;
-      if (FReplaceAccess = asEnabled) then begin
-        if (FWriteAccess <> asEnabled) then begin
-          FWriteAccess := asEnabled;
-        end;
-        if (FReadAccess <> asEnabled) then begin
-          FReadAccess := asEnabled;
-        end;
-      end;
       VNeedNotify := True;
       FStatic := CreateStatic;
     end;
@@ -325,50 +274,6 @@ begin
   if VNeedNotify then begin
     DoChangeNotify;
   end;
-end;
-
-procedure TStorageStateInternal.SetWriteAccess(AValue: TAccesState);
-var
-  VValue: TAccesState;
-  VNeedNotify: Boolean;
-begin
-  VNeedNotify := False;
-  VValue := AValue;
-  if FStorageForceAbilities.IsReadOnly or not (
-    FStorageForceAbilities.AllowReplace or
-    FStorageForceAbilities.AllowAdd or
-    FStorageForceAbilities.AllowDelete
-    ) then begin
-    VValue := asDisabled;
-  end;
-
-  CS.BeginWrite;
-  try
-    if (FDeleteAccess = asDisabled) and (FAddAccess = asDisabled) and (FReplaceAccess = asDisabled) then begin
-      VValue := asDisabled;
-    end;
-    if FWriteAccess <> VValue then begin
-      FWriteAccess := VValue;
-      if FWriteAccess = asDisabled then begin
-        FDeleteAccess := asDisabled;
-        FAddAccess := asDisabled;
-        FReplaceAccess := asDisabled;
-      end;
-      if (FWriteAccess = asEnabled) then begin
-        if (FReadAccess <> asEnabled) then begin
-          FReadAccess := asEnabled;
-        end;
-      end;
-      VNeedNotify := True;
-      FStatic := CreateStatic;
-    end;
-  finally
-    CS.EndWrite;
-  end;
-  if VNeedNotify then begin
-    DoChangeNotify;
-  end;
-
 end;
 
 end.

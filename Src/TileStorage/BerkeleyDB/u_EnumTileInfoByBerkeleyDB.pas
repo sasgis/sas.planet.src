@@ -71,6 +71,7 @@ uses
   Types,
   SysUtils,
   i_BinaryData,
+  i_StorageState,
   u_MapVersionRequest,
   u_StrFunc,
   u_GlobalBerkeleyDBHelper;
@@ -124,10 +125,15 @@ var
   VData: IBinaryData;
   VTileXY: TPoint;
   VVersionInfo: IMapVersionInfo;
+  VStorageState: IStorageStateStatic;
 begin
   Result := False;
   try
     while FCurFileIndex >= 0 do begin
+      VStorageState := FStorage.State.GetStatic;
+      if not (VStorageState.ReadAccess and VStorageState.ScanAccess) then begin
+        Exit;
+      end;
       if FCurFileIndex < Length(FCurFileTilesArray) then begin
         ATileInfo.FZoom := FCurFileZoom;
         ATileInfo.FTile := FCurFileTilesArray[FCurFileIndex];

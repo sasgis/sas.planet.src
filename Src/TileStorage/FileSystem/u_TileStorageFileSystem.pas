@@ -125,7 +125,6 @@ implementation
 
 uses
   Types,
-  t_CommonTypes,
   i_FileNameIterator,
   i_StorageState,
   u_TileRectInfoShort,
@@ -203,7 +202,7 @@ var
   VTneName: string;
 begin
   Result := false;
-  if GetState.GetStatic.DeleteAccess <> asDisabled then begin
+  if StorageStateInternal.DeleteAccess then begin
     try
       VBaseFN := FFileNameGenerator.GetTileFileName(AXY, AZoom);
       VFileName := StoragePath + FFileNameGenerator.AddExt(VBaseFN, FFileExt);
@@ -390,7 +389,7 @@ var
   VFolderExists: Boolean;
 begin
   Result := nil;
-  if GetState.GetStatic.ReadAccess <> asDisabled then begin
+  if StorageStateInternal.ReadAccess then begin
     VRect := ARect;
     VZoom := AZoom;
     ProjectionSet.Zooms[VZoom].ValidateTileRect(VRect);
@@ -477,7 +476,7 @@ begin
       Exit;
     end;
   end;
-  if GetState.GetStatic.ReadAccess <> asDisabled then begin
+  if StorageStateInternal.ReadAccess then begin
     VPath :=
       StoragePath +
       FFileNameGenerator.AddExt(
@@ -508,7 +507,7 @@ var
   VTileInfo: ITileInfoBasic;
 begin
   Result := False;
-  if GetState.GetStatic.WriteAccess <> asDisabled then begin
+  if StorageStateInternal.AddAccess then begin
     if Assigned(AContentType) then begin
       if not FMainContentType.CheckOtherForSaveCompatible(AContentType) then begin
         raise Exception.Create('Bad content type for this tile storage');
@@ -674,7 +673,7 @@ begin
       VTileFileName := StringToAsciiSafe(VTileFileNameW);
       if FTileFileNameParser.GetTilePoint(VTileFileName, VTileXY, VTileZoom) then begin
         VFullFileName := FFilesIterator.GetRootFolderName + VTileFileNameW;
-        if FStorageState.GetStatic.ReadAccess <> asDisabled then begin
+        if FStorageState.GetStatic.ScanAccess then begin
           FLock.BeginRead;
           try
             UpdateTileInfoByFile(
@@ -712,6 +711,10 @@ var
   VFoldersIteratorFactory: IFileNameIteratorFactory;
   VFilesInFolderIteratorFactory: IFileNameIteratorFactory;
 begin
+  if not StorageStateInternal.ScanAccess then begin
+    Result := nil;
+    Exit;
+  end;
   VProcessFileMasks := TStringList.Create;
   try
     VProcessFileMasks.Add('*' + FFileExt);

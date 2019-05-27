@@ -105,7 +105,6 @@ type
 implementation
 
 uses
-  t_CommonTypes,
   u_TileRectInfoShort,
   u_TileIteratorByRect,
   u_TileInfoBasic;
@@ -216,7 +215,7 @@ var
   VTileInfo: ITileInfoBasic;
 begin
   Result := nil;
-  if GetState.GetStatic.ReadAccess <> asDisabled then begin
+  if StorageStateInternal.ReadAccess then begin
     VRect := ARect;
     VZoom := AZoom;
     ProjectionSet.Zooms[VZoom].ValidateTileRect(VRect);
@@ -284,7 +283,7 @@ var
   VTileInfo: ITileInfoBasic;
 begin
   Result := False;
-  if GetState.GetStatic.WriteAccess <> asDisabled then begin
+  if StorageStateInternal.AddAccess then begin
     if not AIsOverwrite then begin
       VTileInfo := FTileInfoMemCache.Get(AXY, AZoom, AVersionInfo, gtimAsIs, False);
       if Assigned(VTileInfo) and (VTileInfo.IsExists or VTileInfo.IsExistsTNE) then begin
@@ -318,7 +317,7 @@ function TTileStorageInRAM.DeleteTile(
 ): Boolean;
 begin
   Result := False;
-  if GetState.GetStatic.DeleteAccess <> asDisabled then begin
+  if StorageStateInternal.DeleteAccess then begin
     FTileInfoMemCache.Add(
       AXY,
       AZoom,

@@ -80,7 +80,7 @@ var
 begin
   VAbilities :=
     TTileStorageTypeAbilities.Create(
-      TTileStorageAbilities.Create(True, True, False, False, False, False),
+      TTileStorageAbilities.Create([tsatRead]),
       tstvsMultiVersions,
       True,
       stsAnsi,

@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -23,32 +23,31 @@ unit i_StorageStateInternal;
 interface
 
 uses
-  t_CommonTypes,
   i_StorageState,
   i_Changeable;
 
 type
   IStorageStateInternal = interface(IChangeable)
     ['{1ABE492B-E945-4921-AA99-709090CF62F5}']
-    function GetReadAccess: TAccesState;
-    procedure SetReadAccess(AValue: TAccesState);
-    property ReadAccess: TAccesState read GetReadAccess write SetReadAccess;
+    function GetReadAccess: Boolean;
+    procedure SetReadAccess(AValue: Boolean);
+    property ReadAccess: Boolean read GetReadAccess write SetReadAccess;
 
-    function GetWriteAccess: TAccesState;
-    procedure SetWriteAccess(AValue: TAccesState);
-    property WriteAccess: TAccesState read GetWriteAccess write SetWriteAccess;
+    function GetScanAccess: Boolean;
+    procedure SetScanAccess(AValue: Boolean);
+    property ScanAccess: Boolean read GetScanAccess write SetScanAccess;
 
-    function GetDeleteAccess: TAccesState;
-    procedure SetDeleteAccess(AValue: TAccesState);
-    property DeleteAccess: TAccesState read GetDeleteAccess write SetDeleteAccess;
+    function GetAddAccess: Boolean;
+    procedure SetAddAccess(AValue: Boolean);
+    property AddAccess: Boolean read GetAddAccess write SetAddAccess;
 
-    function GetAddAccess: TAccesState;
-    procedure SetAddAccess(AValue: TAccesState);
-    property AddAccess: TAccesState read GetAddAccess write SetAddAccess;
+    function GetDeleteAccess: Boolean;
+    procedure SetDeleteAccess(AValue: Boolean);
+    property DeleteAccess: Boolean read GetDeleteAccess write SetDeleteAccess;
 
-    function GetReplaceAccess: TAccesState;
-    procedure SetReplaceAccess(AValue: TAccesState);
-    property ReplaceAccess: TAccesState read GetReplaceAccess write SetReplaceAccess;
+    function GetReplaceAccess: Boolean;
+    procedure SetReplaceAccess(AValue: Boolean);
+    property ReplaceAccess: Boolean read GetReplaceAccess write SetReplaceAccess;
 
     function GetStatic: IStorageStateStatic;
   end;

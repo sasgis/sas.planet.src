@@ -374,7 +374,7 @@ begin
       end;
     end;
     Result := FTileNotExistsTileInfo;
-    if GetState.GetStatic.ReadAccess <> asDisabled then begin
+    if StorageStateInternal.ReadAccess then begin
 
       VPath :=
         StoragePath +
@@ -506,7 +506,7 @@ begin
       end;
     end;
     Result := FTileNotExistsTileInfo;
-    if GetState.GetStatic.ReadAccess <> asDisabled then begin
+    if StorageStateInternal.ReadAccess then begin
       VPath :=
         StoragePath +
         FFileNameGenerator.GetTileFileName(AXY, AZoom) +
@@ -629,7 +629,7 @@ begin
   end;
   Result := nil;
   try
-    if GetState.GetStatic.ReadAccess <> asDisabled then begin
+    if StorageStateInternal.ReadAccess then begin
       VPath := StoragePath + FFileNameGenerator.GetTileFileName(AXY, AZoom) + GetStorageFileExtention;
       if FileExists(VPath) then begin
         VHelper := GetStorageHelper;
@@ -715,7 +715,7 @@ begin
   end;
   Result := nil;
   try
-    if GetState.GetStatic.ReadAccess <> asDisabled then begin
+    if StorageStateInternal.ReadAccess then begin
       VHelper := nil;
       VRect := ARect;
       VZoom := AZoom;
@@ -867,7 +867,7 @@ var
 begin
   Result := False;
   try
-    if GetState.GetStatic.WriteAccess <> asDisabled then begin
+    if StorageStateInternal.AddAccess then begin
 
       VTileInfo := GetTileInfo(AXY, AZoom, AVersionInfo, gtimWithoutData);
       if Assigned(VTileInfo) and (VTileInfo.IsExists or VTileInfo.IsExistsTNE) then begin
@@ -982,7 +982,7 @@ var
 begin
   Result := False;
   try
-    if GetState.GetStatic.DeleteAccess <> asDisabled then begin
+    if StorageStateInternal.DeleteAccess then begin
       try
         VPath :=
           StoragePath +
@@ -1058,6 +1058,10 @@ var
   VFilesInFolderIteratorFactory: IFileNameIteratorFactory;
   VHelper: ITileStorageBerkeleyDBHelper;
 begin
+  if not (StorageStateInternal.ReadAccess and StorageStateInternal.ScanAccess) then begin
+    Result := nil;
+    Exit;
+  end;
   VProcessFileMasks := TStringList.Create;
   try
     VProcessFileMasks.Add('*' + GetStorageFileExtention);

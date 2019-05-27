@@ -61,14 +61,7 @@ constructor TStorageStateProxy.Create;
 begin
   inherited Create;
   FTarget := nil;
-  FDisableStatic :=
-    TStorageStateStatic.Create(
-      asDisabled,
-      asDisabled,
-      asDisabled,
-      asDisabled,
-      asDisabled
-    );
+  FDisableStatic := TStorageStateStatic.Create(False, False, False, False, False);
   FLastStatic := FDisableStatic;
   FTargetChangeListener := TNotifyNoMmgEventListener.Create(Self.OnTargetChange);
 end;

@@ -266,7 +266,6 @@ type
 implementation
 
 uses
-  t_CommonTypes,
   i_InterfaceListSimple,
   u_InterfaceListSimple,
   u_BinaryData,
@@ -639,7 +638,7 @@ begin
   InternalLib_CleanupProc;
 
   if not InternalLib_SetPath(AGlobalStorageIdentifier, StoragePath) then begin
-    StorageStateInternal.ReadAccess := asEnabled;
+    StorageStateInternal.ReadAccess := True;
   end;
 
   InternalLib_Complete;
@@ -673,7 +672,7 @@ begin
     // let us go
     DoBeginWork(VBufferIn.dwOptionsIn, VLockedExclusively);
     try
-      if StorageStateInternal.DeleteAccess <> asDisabled then begin
+      if StorageStateInternal.DeleteAccess then begin
         // allow delete - initialize buffers
         if (0=VTileID.z) then begin
           VTileID.xy := AXY;
@@ -739,7 +738,7 @@ destructor TTileStorageETS.Destroy;
 var VDummyLocked: Boolean;
 begin
   if Assigned(StorageStateInternal) then begin
-    StorageStateInternal.ReadAccess := asDisabled;
+    StorageStateInternal.ReadAccess := False;
   end;
 
   DoBeginWork(ETS_ROI_EXCLUSIVELY, VDummyLocked);
@@ -925,7 +924,7 @@ begin
     // let us go
     DoBeginWork(VBufferIn.dwOptionsIn, VLockedExclusively);
     try
-      if StorageStateInternal.ReadAccess <> asDisabled then begin
+      if StorageStateInternal.ReadAccess then begin
         // has access
 
         // initialize buffers
@@ -1037,7 +1036,7 @@ begin
     // let us go
     DoBeginWork(VBufferIn.dwOptionsIn, VLockedExclusively);
     try
-      if StorageStateInternal.ReadAccess <> asDisabled then begin
+      if StorageStateInternal.ReadAccess then begin
         // has access
 
         // initialize buffers
@@ -1164,7 +1163,7 @@ begin
     // let us go
     DoBeginWork(VBufferIn.dwOptionsIn, VLockedExclusively);
     try
-      if StorageStateInternal.ReadAccess <> asDisabled then begin
+      if StorageStateInternal.ReadAccess then begin
         // has access
 
         // initialize buffers
@@ -1288,7 +1287,7 @@ begin
     // let us go
     DoBeginWork(VBufferIn.dwOptionsIn, VLockedExclusively);
     try
-      if StorageStateInternal.ReadAccess <> asDisabled then begin
+      if StorageStateInternal.ReadAccess then begin
         // has access
 
         // initialize buffers
@@ -1575,18 +1574,9 @@ begin
 end;
 
 function TTileStorageETS.InternalLib_NotifyStateChanged(const AEnabled: Boolean): Boolean;
-var
-  VReadAccess: TAccesState;
 begin
   Result := FALSE;
-
-  if AEnabled then begin
-    VReadAccess := asEnabled;
-  end else begin
-    VReadAccess := asDisabled;
-  end;
-
-  StorageStateInternal.ReadAccess := VReadAccess;
+  StorageStateInternal.ReadAccess := AEnabled;
 end;
 
 function TTileStorageETS.InternalLib_SetPath(const AGlobalStorageIdentifier, AServiceName: String): Boolean;
@@ -1692,7 +1682,7 @@ begin
     // let us go
     DoBeginWork(VBufferIn.dwOptionsIn, VLockedExclusively);
     try
-      if StorageStateInternal.WriteAccess <> asDisabled then begin
+      if StorageStateInternal.AddAccess then begin
         // allow insert\update - initialize buffers
         if (0=VTileID.z) then begin
           VTileID.xy := AXY;

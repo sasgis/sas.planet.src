@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -23,32 +23,32 @@ unit u_StorageStateStatic;
 interface
 
 uses
-  t_CommonTypes,
   i_StorageState,
   u_BaseInterfacedObject;
 
 type
   TStorageStateStatic = class(TBaseInterfacedObject, IStorageStateStatic)
   private
-    FReadAccess: TAccesState;
-    FWriteAccess: TAccesState;
-    FDeleteAccess: TAccesState;
-    FAddAccess: TAccesState;
-    FReplaceAccess: TAccesState;
+    FReadAccess: Boolean;
+    FScanAccess: Boolean;
+    FAddAccess: Boolean;
+    FDeleteAccess: Boolean;
+    FReplaceAccess: Boolean;
   private
-    function GetReadAccess: TAccesState;
-    function GetWriteAccess: TAccesState;
-    function GetDeleteAccess: TAccesState;
-    function GetAddAccess: TAccesState;
-    function GetReplaceAccess: TAccesState;
+    { IStorageStateStatic }
+    function GetReadAccess: Boolean;
+    function GetScanAccess: Boolean;
+    function GetAddAccess: Boolean;
+    function GetDeleteAccess: Boolean;
+    function GetReplaceAccess: Boolean;
     function IsSame(const AValue: IStorageStateStatic): Boolean;
   public
     constructor Create(
-      AReadAccess: TAccesState;
-      AWriteAccess: TAccesState;
-      ADeleteAccess: TAccesState;
-      AAddAccess: TAccesState;
-      AReplaceAccess: TAccesState
+      AReadAccess: Boolean;
+      AScanAccess: Boolean;
+      AAddAccess: Boolean;
+      ADeleteAccess: Boolean;
+      AReplaceAccess: Boolean
     );
   end;
 
@@ -57,45 +57,45 @@ implementation
 { TStorageStateStatic }
 
 constructor TStorageStateStatic.Create(
-  AReadAccess: TAccesState;
-  AWriteAccess: TAccesState;
-  ADeleteAccess: TAccesState;
-  AAddAccess: TAccesState;
-  AReplaceAccess: TAccesState
+  AReadAccess: Boolean;
+  AScanAccess: Boolean;
+  AAddAccess: Boolean;
+  ADeleteAccess: Boolean;
+  AReplaceAccess: Boolean
 );
 begin
   inherited Create;
   FReadAccess := AReadAccess;
-  FWriteAccess := AWriteAccess;
-  FDeleteAccess := ADeleteAccess;
+  FScanAccess := AScanAccess;
   FAddAccess := AAddAccess;
+  FDeleteAccess := ADeleteAccess;
   FReplaceAccess := AReplaceAccess;
 end;
 
 
-function TStorageStateStatic.GetAddAccess: TAccesState;
+function TStorageStateStatic.GetAddAccess: Boolean;
 begin
   Result := FAddAccess;
 end;
 
-function TStorageStateStatic.GetDeleteAccess: TAccesState;
+function TStorageStateStatic.GetDeleteAccess: Boolean;
 begin
   Result := FDeleteAccess;
 end;
 
-function TStorageStateStatic.GetReadAccess: TAccesState;
+function TStorageStateStatic.GetReadAccess: Boolean;
 begin
   Result := FReadAccess;
 end;
 
-function TStorageStateStatic.GetReplaceAccess: TAccesState;
+function TStorageStateStatic.GetReplaceAccess: Boolean;
 begin
   Result := FReplaceAccess;
 end;
 
-function TStorageStateStatic.GetWriteAccess: TAccesState;
+function TStorageStateStatic.GetScanAccess: Boolean;
 begin
-  Result := FWriteAccess;
+  Result := FScanAccess;
 end;
 
 function TStorageStateStatic.IsSame(const AValue: IStorageStateStatic): Boolean;
@@ -107,9 +107,9 @@ begin
   end else begin
     Result :=
       (AValue.ReadAccess = FReadAccess) and
-      (AValue.WriteAccess = FWriteAccess) and
-      (AValue.DeleteAccess = FDeleteAccess) and
+      (AValue.ScanAccess = FScanAccess) and
       (AValue.AddAccess = FAddAccess) and
+      (AValue.DeleteAccess = FDeleteAccess) and
       (AValue.ReplaceAccess = FReplaceAccess);
   end;
 end;

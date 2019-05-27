@@ -75,7 +75,7 @@ type
     procedure CutDownloadedBitmap(
       const ASaver: IBitmapTileSaver;
       const AXY: TPoint;
-      AZoom: byte;
+      const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
       const ABtm: IBitmap32Static
     );
@@ -84,9 +84,9 @@ type
       const ACropRect: TRect;
       const ATileSize: TPoint
     ): IBitmap32Static;
-    procedure SaveOneTile(
+    procedure SaveTileToStorage(
       const AXY: TPoint;
-      AZoom: byte;
+      const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
       const AData: IBinaryData
     );
@@ -120,6 +120,7 @@ uses
   i_ContentConverter,
   i_Projection,
   i_ProjectionSet,
+  i_StorageState,
   i_TileRequest,
   i_TileDownloadRequest,
   u_ListenerByEvent,
@@ -127,6 +128,9 @@ uses
   u_Bitmap32ByStaticBitmap,
   u_BitmapFunc,
   u_ResStrings;
+
+resourcestring
+  rsNoWriteAccess = 'No write access to tile storage';
 
 type
   ESaveTileEmptyError = class(Exception);
@@ -230,8 +234,8 @@ begin
   if not Assigned(FStateInternal) then begin
     Exit;
   end;
-  if FStorage.State.GetStatic.WriteAccess = asDisabled then begin
-    FStateInternal.Disable(gettext_NoOp('No write access to tile storage'));
+  if not FStorage.State.GetStatic.AddAccess then begin
+    FStateInternal.Disable(gettext_NoOp(rsNoWriteAccess));
   end else begin
     FStateInternal.Enable;
   end;
@@ -250,50 +254,52 @@ begin
   Result := nil;
   VResult := AResult;
   if Assigned(VResult) then begin
-    if FStorage.State.GetStatic.AddAccess <> asDisabled then begin
-      if Supports(VResult, IDownloadResultOk, VResultOk) then begin
-        try
-          VResult := SaveTileDownload(VResultOk);
-          Result := TTileRequestResultOk.Create(AResult);
-        except
-          on E: Exception do begin
-            Result :=
-              TTileRequestResultErrorAfterDownloadRequest.Create(
-                AResult,
-                E.Message
-              );
-          end;
-        end;
-      end;
-      if not Assigned(Result) then begin
-        if Supports(VResult, IDownloadResultDataNotExists) then begin
-          if Supports(AResult.Request, ITileDownloadRequest, VTileDownloadRequest) then begin
-            VTileRequest := VTileDownloadRequest.Source;
-            SaveOneTile(
-              VTileRequest.Tile,
-              VTileRequest.Zoom,
-              VTileRequest.VersionInfo,
-              nil
+    if Supports(VResult, IDownloadResultOk, VResultOk) then begin
+      try
+        VResult := SaveTileDownload(VResultOk);
+        Result := TTileRequestResultOk.Create(AResult);
+      except
+        on E: Exception do begin
+          Result :=
+            TTileRequestResultErrorAfterDownloadRequest.Create(
+              AResult,
+              E.Message
             );
-          end else begin
-            raise Exception.Create('This was not tile request');
-          end;
-          Result := TTileRequestResultOk.Create(VResult);
         end;
       end;
-    end else begin
-      raise ESaveTileDownloadError.Create('Для этой карты запрещено добавление тайлов.');
+    end;
+    if not Assigned(Result) then begin
+      if Supports(VResult, IDownloadResultDataNotExists) then begin
+        if Supports(AResult.Request, ITileDownloadRequest, VTileDownloadRequest) then begin
+          VTileRequest := VTileDownloadRequest.Source;
+          SaveTileToStorage(
+            VTileRequest.Tile,
+            VTileRequest.Zoom,
+            VTileRequest.VersionInfo,
+            nil
+          );
+        end else begin
+          raise Exception.Create('This was not tile request');
+        end;
+        Result := TTileRequestResultOk.Create(VResult);
+      end;
     end;
   end;
 end;
 
-procedure TTileDownloadResultSaverStuped.SaveOneTile(
+procedure TTileDownloadResultSaverStuped.SaveTileToStorage(
   const AXY: TPoint;
-  AZoom: byte;
+  const AZoom: Byte;
   const AVersionInfo: IMapVersionInfo;
   const AData: IBinaryData
 );
+var
+  VStorageState: IStorageStateStatic;
 begin
+  VStorageState := FStorage.State.GetStatic;
+  if not VStorageState.AddAccess then begin
+    raise ESaveTileDownloadError.Create(rsNoWriteAccess);
+  end;
   if Assigned(AData) then begin
     FStorage.SaveTile(
       AXY,
@@ -302,28 +308,26 @@ begin
       Now,
       FContentType,
       AData,
-      true
+      VStorageState.ReplaceAccess
     );
-  end else begin
-    if FDownloadConfig.IsSaveTileNotExists then begin
-      FStorage.SaveTile(
-        AXY,
-        AZoom,
-        AVersionInfo,
-        Now,
-        nil,
-        nil,
-        true
-      );
-    end;
+  end else
+  if FDownloadConfig.IsSaveTileNotExists then begin
+    FStorage.SaveTile(
+      AXY,
+      AZoom,
+      AVersionInfo,
+      Now,
+      nil,
+      nil,
+      VStorageState.ReplaceAccess
+    );
   end;
-
 end;
 
 procedure TTileDownloadResultSaverStuped.CutDownloadedBitmap(
   const ASaver: IBitmapTileSaver;
   const AXY: TPoint;
-  AZoom: byte;
+  const AZoom: Byte;
   const AVersionInfo: IMapVersionInfo;
   const ABtm: IBitmap32Static
 );
@@ -394,7 +398,7 @@ begin
               VData := nil;
             end;
           end;
-          SaveOneTile(VPos, AZoom, AVersionInfo, VData);
+          SaveTileToStorage(VPos, AZoom, AVersionInfo, VData);
         end;
       end;
     end;
@@ -468,7 +472,7 @@ begin
                   ADownloadResult.RawResponseHeader
                 );
             end;
-            SaveOneTile(VTileRequest.Tile, VTileRequest.Zoom, VTileRequest.VersionInfo, VData);
+            SaveTileToStorage(VTileRequest.Tile, VTileRequest.Zoom, VTileRequest.VersionInfo, VData);
           end;
         end else begin
           raise ESaveTileDownloadError.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [VContentType]);
@@ -498,7 +502,7 @@ begin
             ADownloadResult.RawResponseHeader
           );
       end;
-      SaveOneTile(VTileRequest.Tile, VTileRequest.Zoom, VTileRequest.VersionInfo, VData);
+      SaveTileToStorage(VTileRequest.Tile, VTileRequest.Zoom, VTileRequest.VersionInfo, VData);
     end else begin
       raise ESaveTileDownloadError.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [VContentType]);
     end;
