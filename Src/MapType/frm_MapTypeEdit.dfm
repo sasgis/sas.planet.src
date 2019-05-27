@@ -34,14 +34,14 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       TabVisible = False
       object pnlDownloaderState: TPanel
         Left = 0
-        Top = 249
+        Top = 269
         Width = 397
         Height = 70
         Align = alTop
         BevelOuter = bvNone
         BorderWidth = 3
-        TabOrder = 5
-        ExplicitTop = 247
+        TabOrder = 6
+        ExplicitTop = 249
         object lblDownloaderState: TLabel
           AlignWithMargins = True
           Left = 6
@@ -69,13 +69,14 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       end
       object pnlHeader: TPanel
         Left = 0
-        Top = 67
+        Top = 90
         Width = 397
         Height = 70
         Align = alTop
         BevelOuter = bvNone
         BorderWidth = 3
-        TabOrder = 1
+        TabOrder = 2
+        ExplicitTop = 67
         object lblHeader: TLabel
           AlignWithMargins = True
           Left = 6
@@ -123,13 +124,14 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       end
       object pnlUrl: TPanel
         Left = 0
-        Top = 0
+        Top = 23
         Width = 397
         Height = 67
         Align = alTop
         BevelOuter = bvNone
         BorderWidth = 3
-        TabOrder = 0
+        TabOrder = 1
+        ExplicitTop = 0
         object lblUrl: TLabel
           AlignWithMargins = True
           Left = 6
@@ -180,13 +182,14 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       end
       object pnlVersion: TPanel
         Left = 0
-        Top = 137
+        Top = 160
         Width = 397
         Height = 48
         Align = alTop
         BevelOuter = bvNone
         BorderWidth = 3
-        TabOrder = 2
+        TabOrder = 3
+        ExplicitTop = 137
         object lblVersion: TLabel
           AlignWithMargins = True
           Left = 6
@@ -226,13 +229,14 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       end
       object pnlSleep: TPanel
         Left = 0
-        Top = 185
+        Top = 208
         Width = 397
         Height = 31
         Align = alTop
         BevelOuter = bvNone
         BorderWidth = 3
-        TabOrder = 3
+        TabOrder = 4
+        ExplicitTop = 185
         object lblPause: TLabel
           AlignWithMargins = True
           Left = 6
@@ -271,32 +275,32 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       object chkDownloadEnabled: TCheckBox
         AlignWithMargins = True
         Left = 6
-        Top = 359
+        Top = 3
         Width = 388
         Height = 17
         Margins.Left = 6
-        Align = alBottom
+        Align = alTop
         Caption = 'Download enabled'
-        TabOrder = 6
+        TabOrder = 0
+        ExplicitTop = -6
       end
       object flwpnlMaxConnectToServerCount: TFlowPanel
         Left = 0
-        Top = 216
+        Top = 239
         Width = 397
-        Height = 33
+        Height = 30
         Align = alTop
         AutoSize = True
         BevelOuter = bvNone
         Padding.Top = 2
-        TabOrder = 4
-        ExplicitLeft = -3
-        ExplicitTop = 224
+        TabOrder = 5
+        ExplicitTop = 216
         object lblMaxConnectToServerCount: TLabel
           AlignWithMargins = True
           Left = 6
           Top = 8
           Width = 200
-          Height = 22
+          Height = 13
           Margins.Left = 6
           Margins.Top = 6
           Caption = 'Max concurrent http(s)-requests number:'
@@ -331,6 +335,18 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       Caption = 'Cache and Other'
       ImageIndex = 5
       TabVisible = False
+      object lblCacheState: TLabel
+        AlignWithMargins = True
+        Left = 3
+        Top = 183
+        Width = 391
+        Height = 13
+        Align = alTop
+        Caption = 'Cache state:'
+        ExplicitLeft = 0
+        ExplicitTop = 227
+        ExplicitWidth = 62
+      end
       object pnlCacheName: TPanel
         Left = 0
         Top = 0
@@ -339,7 +355,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
         Align = alTop
         BevelOuter = bvNone
         BorderWidth = 3
-        TabOrder = 0
+        TabOrder = 1
         object lblFolder: TLabel
           AlignWithMargins = True
           Left = 6
@@ -395,7 +411,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
         Align = alTop
         BevelOuter = bvNone
         BorderWidth = 3
-        TabOrder = 1
+        TabOrder = 2
         object lblCacheType: TLabel
           AlignWithMargins = True
           Left = 6
@@ -434,13 +450,14 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       end
       object pnlParentItem: TPanel
         Left = 0
-        Top = 89
+        Top = 241
         Width = 397
         Height = 33
         Align = alTop
         BevelOuter = bvNone
         BorderWidth = 3
-        TabOrder = 3
+        TabOrder = 5
+        ExplicitTop = 89
         object lblSubMenu: TLabel
           AlignWithMargins = True
           Left = 6
@@ -478,7 +495,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       end
       object grdpnlHotKey: TGridPanel
         Left = 0
-        Top = 145
+        Top = 297
         Width = 397
         Height = 25
         Align = alTop
@@ -516,7 +533,8 @@ object frmMapTypeEdit: TfrmMapTypeEdit
           item
             Value = 100.000000000000000000
           end>
-        TabOrder = 5
+        TabOrder = 7
+        ExplicitTop = 145
         DesignSize = (
           397
           25)
@@ -558,24 +576,27 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       object chkBoxSeparator: TCheckBox
         AlignWithMargins = True
         Left = 6
-        Top = 125
+        Top = 277
         Width = 388
         Height = 17
         Margins.Left = 6
         Align = alTop
         Caption = 'Add menu separator line after this map'
-        TabOrder = 4
+        TabOrder = 6
+        ExplicitTop = 125
       end
       object CheckEnabled: TCheckBox
         AlignWithMargins = True
         Left = 6
-        Top = 359
+        Top = 325
         Width = 388
         Height = 17
         Margins.Left = 6
-        Align = alBottom
+        Align = alTop
         Caption = 'Map enabled'
-        TabOrder = 6
+        TabOrder = 0
+        ExplicitLeft = 5
+        ExplicitTop = 337
       end
       object chkCacheReadOnly: TCheckBox
         AlignWithMargins = True
@@ -586,7 +607,72 @@ object frmMapTypeEdit: TfrmMapTypeEdit
         Margins.Left = 6
         Align = alTop
         Caption = 'Cache is Read-Only'
-        TabOrder = 2
+        TabOrder = 3
+        OnClick = chkCacheReadOnlyClick
+      end
+      object grpCacheAccess: TGroupBox
+        AlignWithMargins = True
+        Left = 0
+        Top = 92
+        Width = 397
+        Height = 85
+        Margins.Left = 0
+        Margins.Right = 0
+        Align = alTop
+        Caption = 'Cache abilities'
+        TabOrder = 4
+        object chkReadAccess: TCheckBox
+          Left = 6
+          Top = 16
+          Width = 187
+          Height = 17
+          Caption = 'Allow Read'
+          Enabled = False
+          TabOrder = 0
+        end
+        object chkScanAccess: TCheckBox
+          Left = 6
+          Top = 39
+          Width = 187
+          Height = 17
+          Caption = 'Allow Scan'
+          Enabled = False
+          TabOrder = 1
+        end
+        object chkAddAccess: TCheckBox
+          Left = 199
+          Top = 16
+          Width = 187
+          Height = 17
+          Caption = 'Allow Add'
+          TabOrder = 2
+        end
+        object chkDeleteAccess: TCheckBox
+          Left = 199
+          Top = 39
+          Width = 187
+          Height = 17
+          Caption = 'Allow Delete'
+          TabOrder = 3
+        end
+        object chkReplaceAccess: TCheckBox
+          Left = 199
+          Top = 62
+          Width = 187
+          Height = 17
+          Caption = 'Allow Replace'
+          TabOrder = 4
+        end
+      end
+      object mmoCacheState: TMemo
+        Left = 0
+        Top = 199
+        Width = 397
+        Height = 42
+        Align = alTop
+        Lines.Strings = (
+          'mmoCacheState')
+        TabOrder = 8
       end
     end
     object tsParams: TTabSheet

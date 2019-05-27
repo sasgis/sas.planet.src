@@ -100,6 +100,14 @@ type
     seMaxConnectToServerCount: TSpinEdit;
     btnResetMaxConnect: TButton;
     flwpnlMaxConnectToServerCount: TFlowPanel;
+    grpCacheAccess: TGroupBox;
+    chkReadAccess: TCheckBox;
+    chkScanAccess: TCheckBox;
+    chkAddAccess: TCheckBox;
+    chkDeleteAccess: TCheckBox;
+    chkReplaceAccess: TCheckBox;
+    mmoCacheState: TMemo;
+    lblCacheState: TLabel;
     procedure btnOkClick(Sender: TObject);
     procedure FormClose(
       Sender: TObject;
@@ -123,6 +131,7 @@ type
     );
     procedure FormShow(Sender: TObject);
     procedure btnResetMaxConnectClick(Sender: TObject);
+    procedure chkCacheReadOnlyClick(Sender: TObject);
   private
     synedtParams: TSynEdit;
     synedtScript: TSynEdit;
@@ -130,10 +139,12 @@ type
     FTileStorageTypeList: ITileStorageTypeListStatic;
     FMapType: IMapType;
     FfrCacheTypesList: TfrCacheTypeList;
+    FNeedRestart: Boolean;
     procedure BuildTreeViewMenu;
     procedure CreateSynEditTextHighlighters;
+    function IsCacheTypeChangable: Boolean;
   public
-    function EditMapModadl(const AMapType: IMapType): Boolean;
+    function EditMapModal(const AMapType: IMapType): Boolean;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -150,6 +161,8 @@ uses
   FileCtrl,
   {$WARN UNIT_PLATFORM ON}
   SysUtils,
+  StrUtils,
+  Dialogs,
   c_CacheTypeCodes,
   i_StorageState,
   i_TileDownloaderState,
@@ -189,6 +202,11 @@ begin
   FfrCacheTypesList.Show(pnlCacheTypesList);
 end;
 
+function TfrmMapTypeEdit.IsCacheTypeChangable: Boolean;
+begin
+  Result := not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE, c_File_Cache_Id_GC]);
+end;
+
 procedure TfrmMapTypeEdit.btnResetHeaderClick(Sender: TObject);
 begin
   mmoHeader.Text := string(FMapType.Zmp.TileDownloadRequestBuilderConfig.RequestHeader);
@@ -225,10 +243,23 @@ begin
   FMapType.StorageConfig.LockWrite;
   try
     FMapType.StorageConfig.NameInCache := EditNameinCache.Text;
-    // do not change cache types for GE and GC
-    if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE, c_File_Cache_Id_GC]) then begin
+    if IsCacheTypeChangable then begin
       FMapType.StorageConfig.CacheTypeCode := FfrCacheTypesList.IntCode;
+
+      FNeedRestart :=
+        (FMapType.StorageConfig.IsReadOnly <> chkCacheReadOnly.Checked) or
+        (FMapType.StorageConfig.AllowRead <> chkReadAccess.Checked) or
+        (FMapType.StorageConfig.AllowScan <> chkScanAccess.Checked) or
+        (FMapType.StorageConfig.AllowAdd <> chkAddAccess.Checked) or
+        (FMapType.StorageConfig.AllowDelete <> chkDeleteAccess.Checked) or
+        (FMapType.StorageConfig.AllowReplace <> chkReplaceAccess.Checked);
+
       FMapType.StorageConfig.IsReadOnly := chkCacheReadOnly.Checked;
+      FMapType.StorageConfig.AllowRead := chkReadAccess.Checked;
+      FMapType.StorageConfig.AllowScan := chkScanAccess.Checked;
+      FMapType.StorageConfig.AllowAdd := chkAddAccess.Checked;
+      FMapType.StorageConfig.AllowDelete := chkDeleteAccess.Checked;
+      FMapType.StorageConfig.AllowReplace := chkReplaceAccess.Checked;
     end;
   finally
     FMapType.StorageConfig.UnlockWrite;
@@ -237,6 +268,10 @@ begin
   FMapType.Abilities.UseDownload := chkDownloadEnabled.Checked;
 
   ModalResult := mrOk;
+
+  if FNeedRestart then begin
+    MessageDlg(_('Changes will take effect after restart.'), mtInformation, [mbOK], -1);
+  end;
 end;
 
 procedure TfrmMapTypeEdit.btnResetVersionClick(Sender: TObject);
@@ -272,7 +307,7 @@ begin
   seMaxConnectToServerCount.Value := FMapType.Zmp.TileDownloaderConfig.MaxConnectToServerCount;
   EditHotKey.HotKey := FMapType.Zmp.GUI.HotKey;
 
-  if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE, c_File_Cache_Id_GC]) then begin
+  if IsCacheTypeChangable then begin
     FfrCacheTypesList.IntCode := FMapType.Zmp.StorageConfig.CacheTypeCode;
   end;
   chkCacheReadOnly.Checked := FMapType.Zmp.StorageConfig.Abilities.IsReadOnly;
@@ -314,16 +349,50 @@ end;
 
 procedure TfrmMapTypeEdit.btnResetCacheTypeClick(Sender: TObject);
 begin
-  if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE, c_File_Cache_Id_GC]) then begin
+  if IsCacheTypeChangable then begin
     FfrCacheTypesList.IntCode := FMapType.Zmp.StorageConfig.CacheTypeCode;
   end;
 end;
 
-function TfrmMapTypeEdit.EditMapModadl(const AMapType: IMapType): Boolean;
+function StorageStateToString(const AState: IStorageStateStatic): string;
+
+  procedure AddState(const s: string);
+  begin
+    Result := Result + IfThen(Result <> '', ', ', '') + s;
+  end;
+
+begin
+  Result := '';
+
+  if AState.ReadAccess then begin
+    AddState( _('Read') );
+  end;
+  if AState.ScanAccess then begin
+    AddState( _('Scan') );
+  end;
+  if AState.AddAccess then begin
+    AddState( _('Add') );
+  end;
+  if AState.DeleteAccess then begin
+    AddState( _('Delete') );
+  end;
+  if AState.ReplaceAccess then begin
+    AddState( _('Replace') );
+  end;
+
+  if Result <> '' then begin
+    Result := _('Allowed') + ': ' + Result;
+  end else begin
+    Result := _('Access is denied');
+  end;
+end;
+
+function TfrmMapTypeEdit.EditMapModal(const AMapType: IMapType): Boolean;
 var
-  VStorageState: IStorageStateStatic;
   VDownloadState: ITileDownloaderStateStatic;
 begin
+  FNeedRestart := False;
+
   FMapType := AMapType;
 
   Caption := SAS_STR_EditMap + ' ' + FMapType.GUIConfig.Name.Value;
@@ -349,14 +418,30 @@ begin
   FMapType.StorageConfig.LockRead;
   try
     EditNameinCache.Text := FMapType.StorageConfig.NameInCache;
+
     chkCacheReadOnly.Checked := FMapType.StorageConfig.IsReadOnly;
     chkCacheReadOnly.Enabled := not FMapType.Zmp.StorageConfig.Abilities.IsReadOnly;
-    if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE, c_File_Cache_Id_GC]) then begin
+
+    chkReadAccess.Checked := FMapType.StorageConfig.AllowRead;
+    chkReadAccess.Enabled := FMapType.Zmp.StorageConfig.Abilities.AllowRead;
+
+    chkScanAccess.Checked := FMapType.StorageConfig.AllowScan;
+    chkScanAccess.Enabled := FMapType.Zmp.StorageConfig.Abilities.AllowScan;
+
+    chkAddAccess.Checked := FMapType.StorageConfig.AllowAdd;
+    chkAddAccess.Enabled := FMapType.Zmp.StorageConfig.Abilities.AllowAdd;
+
+    chkDeleteAccess.Checked := FMapType.StorageConfig.AllowDelete;
+    chkDeleteAccess.Enabled := FMapType.Zmp.StorageConfig.Abilities.AllowDelete;
+
+    chkReplaceAccess.Checked := FMapType.StorageConfig.AllowReplace;
+    chkReplaceAccess.Enabled := FMapType.Zmp.StorageConfig.Abilities.AllowReplace;
+
+    if IsCacheTypeChangable then begin
       pnlCacheType.Visible := True;
       pnlCacheType.Enabled := True;
       FfrCacheTypesList.IntCode := FMapType.StorageConfig.CacheTypeCode;
     end else begin
-      // GE or GC
       pnlCacheType.Visible := False;
       pnlCacheType.Enabled := False;
     end;
@@ -372,21 +457,13 @@ begin
   if VDownloadState.Enabled then begin
     mmoDownloadState.Text := _('Download Enabled');
   end else begin
-    mmoDownloadState.Text := gettext_NoExtract(VDownloadState.DisableReason);
+    mmoDownloadState.Text := _('Download Disabled');
+    mmoDownloadState.Lines.Add(gettext_NoExtract(VDownloadState.DisableReason));
   end;
   chkDownloadEnabled.Checked := FMapType.Abilities.UseDownload;
 
-  // check storage write accesses
-  VStorageState := FMapType.TileStorage.State.GetStatic;
-  if not VStorageState.AddAccess then begin
-    mmoDownloadState.Lines.Add(_('No write access to tile storage'));
-  end;
-  if not VStorageState.DeleteAccess then begin
-    mmoDownloadState.Lines.Add(_('No delete access to tile storage'));
-  end;
-  if not VStorageState.ReplaceAccess then begin
-    mmoDownloadState.Lines.Add(_('No replace access to tile storage'));
-  end;
+  // storage access state
+  mmoCacheState.Text := StorageStateToString(FMapType.TileStorage.State.GetStatic);
 
   Result := ShowModal = mrOk;
 end;
@@ -416,6 +493,16 @@ begin
   // show default tab
   VDefNode.Selected := True;
   tvMenuClick(Self);
+end;
+
+procedure TfrmMapTypeEdit.chkCacheReadOnlyClick(Sender: TObject);
+var
+  VIsReadOnly: Boolean;
+begin
+  VIsReadOnly := chkCacheReadOnly.Checked;
+  chkAddAccess.Checked := not VIsReadOnly;
+  chkDeleteAccess.Checked := not VIsReadOnly;
+  chkReplaceAccess.Checked := not VIsReadOnly;
 end;
 
 procedure TfrmMapTypeEdit.tvMenuClick(Sender: TObject);

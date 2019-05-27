@@ -36,6 +36,8 @@ type
     FCacheTypeCode: Integer;
     FNameInCache: string;
     FIsReadOnly: Boolean;
+    FAllowRead: Boolean;
+    FAllowScan: Boolean;
     FAllowDelete: Boolean;
     FAllowAdd: Boolean;
     FAllowReplace: Boolean;
@@ -60,6 +62,12 @@ type
 
     function GetIsReadOnly: Boolean;
     procedure SetIsReadOnly(AValue: Boolean);
+
+    function GetAllowRead: Boolean;
+    procedure SetAllowRead(AValue: Boolean);
+
+    function GetAllowScan: boolean;
+    procedure SetAllowScan(AValue: Boolean);
 
     function GetAllowDelete: Boolean;
     procedure SetAllowDelete(AValue: Boolean);
@@ -108,9 +116,12 @@ begin
   FNameInCache := FDefConfig.NameInCache;
 
   FIsReadOnly := FDefConfig.Abilities.IsReadOnly;
-  FAllowDelete := FDefConfig.Abilities.AllowDelete;
+  FAllowRead := FDefConfig.Abilities.AllowRead;
+  FAllowScan := FDefConfig.Abilities.AllowScan;
   FAllowAdd := FDefConfig.Abilities.AllowAdd;
+  FAllowDelete := FDefConfig.Abilities.AllowDelete;
   FAllowReplace := FDefConfig.Abilities.AllowReplace;
+
   FUseMemCache := FDefConfig.UseMemCache;
   FMemCacheCapacity := FDefConfig.MemCacheCapacity;
   FMemCacheTTL := FDefConfig.MemCacheTTL;
@@ -125,8 +136,8 @@ begin
   VStorageAbilities :=
     TTileStorageAbilities.Create(
       FIsReadOnly,
-      True,
-      True,
+      FAllowRead,
+      FAllowScan,
       FAllowAdd,
       FAllowDelete,
       FAllowReplace
@@ -155,6 +166,11 @@ begin
     SetCacheTypeCode(AConfigData.ReadInteger('CacheType', FCacheTypeCode));
     SetNameInCache(AConfigData.ReadString('NameInCache', FNameInCache));
     SetIsReadOnly(AConfigData.ReadBool('IsReadOnly', FIsReadOnly));
+    SetAllowRead(AConfigData.ReadBool('AllowRead', FAllowRead));
+    SetAllowScan(AConfigData.ReadBool('AllowScan', FAllowScan));
+    SetAllowAdd(AConfigData.ReadBool('AllowAdd', FAllowAdd));
+    SetAllowDelete(AConfigData.ReadBool('AllowDelete', FAllowDelete));
+    SetAllowReplace(AConfigData.ReadBool('AllowReplace', FAllowReplace));
     SetChanged;
   end;
 end;
@@ -179,6 +195,31 @@ begin
   end else begin
     AConfigData.DeleteValue('IsReadOnly');
   end;
+  if FAllowRead <> FDefConfig.Abilities.AllowRead then begin
+    AConfigData.WriteBool('AllowRead', FAllowRead);
+  end else begin
+    AConfigData.DeleteValue('AllowRead');
+  end;
+  if FAllowScan <> FDefConfig.Abilities.AllowScan then begin
+    AConfigData.WriteBool('AllowScan', FAllowScan);
+  end else begin
+    AConfigData.DeleteValue('AllowScan');
+  end;
+  if FAllowAdd <> FDefConfig.Abilities.AllowAdd then begin
+    AConfigData.WriteBool('AllowAdd', FAllowAdd);
+  end else begin
+    AConfigData.DeleteValue('AllowAdd');
+  end;
+  if FAllowDelete <> FDefConfig.Abilities.AllowDelete then begin
+    AConfigData.WriteBool('AllowDelete', FAllowDelete);
+  end else begin
+    AConfigData.DeleteValue('AllowDelete');
+  end;
+  if FAllowReplace <> FDefConfig.Abilities.AllowReplace then begin
+    AConfigData.WriteBool('AllowReplace', FAllowReplace);
+  end else begin
+    AConfigData.DeleteValue('AllowReplace');
+  end;
 end;
 
 function TSimpleTileStorageConfig.GetAllowAdd: Boolean;
@@ -201,11 +242,31 @@ begin
   end;
 end;
 
+function TSimpleTileStorageConfig.GetAllowRead: Boolean;
+begin
+  LockRead;
+  try
+    Result := FAllowRead;
+  finally
+    UnlockRead;
+  end;
+end;
+
 function TSimpleTileStorageConfig.GetAllowReplace: Boolean;
 begin
   LockRead;
   try
     Result := FAllowReplace;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TSimpleTileStorageConfig.GetAllowScan: boolean;
+begin
+  LockRead;
+  try
+    Result := FAllowScan;
   finally
     UnlockRead;
   end;
@@ -328,6 +389,22 @@ begin
   end;
 end;
 
+procedure TSimpleTileStorageConfig.SetAllowRead(AValue: Boolean);
+var
+  VValue: Boolean;
+begin
+  LockWrite;
+  try
+    VValue := FDefConfig.Abilities.AllowRead and AValue;
+    if FAllowRead <> VValue then begin
+      FAllowRead := VValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
 procedure TSimpleTileStorageConfig.SetAllowReplace(AValue: Boolean);
 var
   VValue: Boolean;
@@ -337,6 +414,22 @@ begin
     VValue := FDefConfig.Abilities.AllowReplace and (not FIsReadOnly) and AValue;
     if FAllowReplace <> VValue then begin
       FAllowReplace := VValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TSimpleTileStorageConfig.SetAllowScan(AValue: Boolean);
+var
+  VValue: Boolean;
+begin
+  LockWrite;
+  try
+    VValue := FDefConfig.Abilities.AllowScan and AValue;
+    if FAllowScan <> VValue then begin
+      FAllowScan := VValue;
       SetChanged;
     end;
   finally

@@ -77,6 +77,14 @@ type
     procedure SetIsReadOnly(AValue: Boolean);
     property IsReadOnly: Boolean read GetIsReadOnly write SetIsReadOnly;
 
+    function GetAllowRead: boolean;
+    procedure SetAllowRead(AValue: Boolean);
+    property AllowRead: Boolean read GetAllowRead write SetAllowRead;
+
+    function GetAllowScan: boolean;
+    procedure SetAllowScan(AValue: Boolean);
+    property AllowScan: Boolean read GetAllowScan write SetAllowScan;
+
     function GetAllowDelete: boolean;
     procedure SetAllowDelete(AValue: Boolean);
     property AllowDelete: Boolean read GetAllowDelete write SetAllowDelete;

@@ -90,7 +90,7 @@ begin
             FTileStorageTypeList
           );
       end;
-      Result := FfrmMapTypeEdit.EditMapModadl(AMapType);
+      Result := FfrmMapTypeEdit.EditMapModal(AMapType);
     end else begin
       Result := False;
     end;
