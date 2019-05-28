@@ -131,7 +131,7 @@ type
     );
     procedure FormShow(Sender: TObject);
     procedure btnResetMaxConnectClick(Sender: TObject);
-    procedure chkCacheReadOnlyClick(Sender: TObject);
+    procedure chkAccessClick(Sender: TObject);
   private
     synedtParams: TSynEdit;
     synedtScript: TSynEdit;
@@ -140,6 +140,7 @@ type
     FMapType: IMapType;
     FfrCacheTypesList: TfrCacheTypeList;
     FNeedRestart: Boolean;
+    FInAccessClick: Boolean;
     procedure BuildTreeViewMenu;
     procedure CreateSynEditTextHighlighters;
     function IsCacheTypeChangable: Boolean;
@@ -458,9 +459,9 @@ begin
 
   // download availability
   if VDownloadState.Enabled then begin
-    mmoDownloadState.Text := _('Download Enabled');
+    mmoDownloadState.Text := _('Allowed');
   end else begin
-    mmoDownloadState.Text := _('Download Disabled');
+    mmoDownloadState.Text := _('Not allowed:');
     mmoDownloadState.Lines.Add(gettext_NoExtract(VDownloadState.DisableReason));
   end;
   chkDownloadEnabled.Checked := FMapType.Abilities.UseDownload;
@@ -498,14 +499,43 @@ begin
   tvMenuClick(Self);
 end;
 
-procedure TfrmMapTypeEdit.chkCacheReadOnlyClick(Sender: TObject);
+procedure TfrmMapTypeEdit.chkAccessClick(Sender: TObject);
 var
-  VIsReadOnly: Boolean;
+  VTag: Integer;
 begin
-  VIsReadOnly := chkCacheReadOnly.Checked;
-  chkAddAccess.Checked := not VIsReadOnly;
-  chkDeleteAccess.Checked := not VIsReadOnly;
-  chkReplaceAccess.Checked := not VIsReadOnly;
+  if FInAccessClick then begin
+    Exit;
+  end;
+  FInAccessClick := True;
+  try
+    VTag := (Sender as TCheckBox).Tag;
+    if VTag = 0 then begin
+      if chkCacheReadOnly.Checked then begin
+        if chkReadAccess.Enabled then begin
+          chkReadAccess.Checked := True;
+        end;
+        if chkAddAccess.Enabled then begin
+          chkAddAccess.Checked := False;
+        end;
+        if chkDeleteAccess.Enabled then begin
+          chkDeleteAccess.Checked := False;
+        end;
+        if chkReplaceAccess.Enabled then begin
+          chkReplaceAccess.Checked := False;
+        end;
+      end;
+    end else
+    if (VTag > 2) and chkCacheReadOnly.Enabled then begin
+      chkCacheReadOnly.Checked :=
+        not (
+          chkAddAccess.Checked or
+          chkDeleteAccess.Checked or
+          chkReplaceAccess.Checked
+        );
+    end;
+  finally
+    FInAccessClick := False;
+  end;
 end;
 
 procedure TfrmMapTypeEdit.tvMenuClick(Sender: TObject);
