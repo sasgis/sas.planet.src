@@ -137,7 +137,7 @@ function TLanguageManager.GetCurrentLanguageIndex: Integer;
 var
   VCurrentCode: AnsiString;
 begin
-  VCurrentCode := StringToAsciiSafe(DefaultInstance.GetCurrentLanguage);
+  VCurrentCode := StringToAsciiSafe(DefaultInstance.GetCurrentLocaleName);
   if not FList.FindCode(VCurrentCode, Result) then begin
     Result := 0;
   end;
@@ -221,7 +221,7 @@ begin
       end;
       FList := TLanguageListStatic.Create(VCodes);
 
-      VCurrentCode := StringToAsciiSafe(DefaultInstance.GetCurrentLanguage);
+      VCurrentCode := StringToAsciiSafe(DefaultInstance.GetCurrentLocaleName);
       if not FList.FindCode(VCurrentCode, VCurrentIndex) then begin
         VLangCodeID := VLanguagesEx.GNUGetTextID[VCurrentCode];
         VCurrentCode := StringToAsciiSafe(VLanguagesEx.GNUGetTextName[VLangCodeID]);
@@ -239,21 +239,21 @@ end;
 
 procedure TLanguageManager.SetCurrentLanguageIndex(const AValue: Integer);
 var
-  VLastUsedCode: string;
-  VCurrCode: string;
   VLangFile: string;
+  VPrevLocaleName: string;
+  VCurrLocaleName: string;
 begin
   LockWrite;
   try
-    VLastUsedCode := DefaultInstance.GetCurrentLanguage;
+    VPrevLocaleName := DefaultInstance.GetCurrentLocaleName;
     if AValue >= 0 then begin
       DefaultInstance.UseLanguage(FList.Code[AValue]);
     end else begin
       DefaultInstance.UseLanguage(FDefaultLangCode);
     end;
-    VCurrCode := GetCurrentLanguage;
-    if VLastUsedCode <> VCurrCode then begin
-      VLangFile := FLangRootPath + VCurrCode + cLangFileExt;
+    VCurrLocaleName := DefaultInstance.GetCurrentLocaleName;
+    if VPrevLocaleName <> VCurrLocaleName then begin
+      VLangFile := FLangRootPath + VCurrLocaleName + cLangFileExt;
       DefaultInstance.bindtextdomainToFile(DefaultTextDomain, VLangFile);
       SetChanged;
     end;
