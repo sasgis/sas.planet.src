@@ -163,6 +163,7 @@ uses
   SysUtils,
   StrUtils,
   Dialogs,
+  UITypes,
   c_CacheTypeCodes,
   i_StorageState,
   i_TileDownloaderState,
@@ -361,27 +362,29 @@ function StorageStateToString(const AState: IStorageStateStatic): string;
     Result := Result + IfThen(Result <> '', ', ', '') + s;
   end;
 
+const
+  cCtx = 'Allowed';
 begin
   Result := '';
 
   if AState.ReadAccess then begin
-    AddState( _('Read') );
+    AddState( pgettext(cCtx, 'Read') );
   end;
   if AState.ScanAccess then begin
-    AddState( _('Scan') );
+    AddState( pgettext(cCtx, 'Scan') );
   end;
   if AState.AddAccess then begin
-    AddState( _('Add') );
+    AddState( pgettext(cCtx, 'Add') );
   end;
   if AState.DeleteAccess then begin
-    AddState( _('Delete') );
+    AddState( pgettext(cCtx, 'Delete') );
   end;
   if AState.ReplaceAccess then begin
-    AddState( _('Replace') );
+    AddState( pgettext(cCtx, 'Replace') );
   end;
 
   if Result <> '' then begin
-    Result := _('Allowed') + ': ' + Result;
+    Result := Format(_('Allowed: %s'), [Result]);
   end else begin
     Result := _('Access is denied');
   end;
