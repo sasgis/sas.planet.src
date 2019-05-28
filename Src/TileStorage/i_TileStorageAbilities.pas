@@ -31,20 +31,19 @@ type
     function GetAllowRead: Boolean;
     property AllowRead: Boolean read GetAllowRead;
 
-    function GetIsReadOnly: boolean;
-    property IsReadOnly: boolean read GetIsReadOnly;
+    function GetAllowScan: Boolean;
+    property AllowScan: Boolean read GetAllowScan;
 
     function GetAllowAdd: Boolean;
     property AllowAdd: Boolean read GetAllowAdd;
 
-    function GetAllowDelete: boolean;
-    property AllowDelete: boolean read GetAllowDelete;
+    function GetAllowDelete: Boolean;
+    property AllowDelete: Boolean read GetAllowDelete;
 
-    function GetAllowReplace: boolean;
-    property AllowReplace: boolean read GetAllowReplace;
+    function GetAllowReplace: Boolean;
+    property AllowReplace: Boolean read GetAllowReplace;
 
-    function GetAllowScan: boolean;
-    property AllowScan: boolean read GetAllowScan;
+    function IsReadOnly: Boolean;
   end;
 
 type

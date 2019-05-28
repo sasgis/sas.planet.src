@@ -97,6 +97,8 @@ function TTileStorageTypeBase.GetStorageAbilitiesByConfig(
 ): ITileStorageAbilities;
 var
   VIsReadOnly: Boolean;
+  VAllowRead: Boolean;
+  VAllowScan: Boolean;
   VAllowAdd: Boolean;
   VAllowDelete: Boolean;
   VAllowReplace: Boolean;
@@ -107,24 +109,24 @@ begin
     VStorageConfigData := AStorageConfigData.GetSubItem('Common');
     if Assigned(VStorageConfigData) then begin
       VIsReadOnly := VStorageConfigData.ReadBool('IsReadOnly', Result.IsReadOnly);
+      VAllowRead := VStorageConfigData.ReadBool('AllowRead', Result.AllowRead);
+      VAllowScan := VStorageConfigData.ReadBool('AllowScan', Result.AllowScan);
       VAllowAdd := VStorageConfigData.ReadBool('AllowAdd', Result.AllowAdd);
       VAllowDelete := VStorageConfigData.ReadBool('AllowDelete', Result.AllowDelete);
       VAllowReplace := VStorageConfigData.ReadBool('AllowReplace', Result.AllowReplace);
       Result :=
         TTileStorageAbilities.Create(
-          Result.IsReadOnly or VIsReadOnly,
-          Result.AllowRead,
-          Result.AllowScan,
-          Result.AllowAdd and VAllowAdd,
-          Result.AllowDelete and VAllowDelete,
-          Result.AllowReplace and VAllowReplace
+          Result.AllowRead and VAllowRead,
+          Result.AllowScan and VAllowScan,
+          Result.AllowAdd and VAllowAdd and not VIsReadOnly,
+          Result.AllowDelete and VAllowDelete and not VIsReadOnly,
+          Result.AllowReplace and VAllowReplace and not VIsReadOnly
         );
     end;
   end;
   if Assigned(AForceAbilities) then begin
     Result :=
       TTileStorageAbilities.Create(
-        Result.IsReadOnly or AForceAbilities.IsReadOnly,
         Result.AllowRead and AForceAbilities.AllowRead,
         Result.AllowScan and AForceAbilities.AllowScan,
         Result.AllowAdd and AForceAbilities.AllowAdd,

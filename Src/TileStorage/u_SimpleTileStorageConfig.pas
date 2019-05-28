@@ -135,7 +135,6 @@ var
 begin
   VStorageAbilities :=
     TTileStorageAbilities.Create(
-      FIsReadOnly,
       FAllowRead,
       FAllowScan,
       FAllowAdd,
@@ -439,7 +438,7 @@ end;
 
 procedure TSimpleTileStorageConfig.SetCacheTypeCode(AValue: Integer);
 begin
-  if FDefConfig.CacheTypeCode <> 5 then begin
+  if FDefConfig.CacheTypeCode <> c_File_Cache_Id_GE then begin
     if AValue <> c_File_Cache_Id_GE then begin
       LockWrite;
       try

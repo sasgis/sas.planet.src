@@ -847,10 +847,12 @@ var
   VNameInCache: string;
   VMainStorageContentType: AnsiString;
   VTileFileExt: AnsiString;
-  VIsReadOnly: boolean;
-  VAllowDelete: boolean;
-  VAllowAdd: boolean;
-  VAllowReplace: boolean;
+  VIsReadOnly: Boolean;
+  VAllowRead: Boolean;
+  VAllowScan: Boolean;
+  VAllowAdd: Boolean;
+  VAllowDelete: Boolean;
+  VAllowReplace: Boolean;
   VUseMemCache: Boolean;
   VMemCacheCapacity: Integer;
   VMemCacheTTL: Cardinal;
@@ -865,16 +867,18 @@ begin
   VMemCacheClearStrategy := AConfig.ReadInteger('MemCacheClearStrategy', FZmpConfig.MemCacheClearStrategy);
   VMainStorageContentType := AConfig.ReadAnsiString('MainStorageContentType', '');
   VTileFileExt := AlLowerCase(AConfig.ReadAnsiString('Ext', '.jpg'));
+
   VIsReadOnly := AConfig.ReadBool('IsReadOnly', False);
-  VAllowDelete := not VIsReadOnly;
-  VAllowAdd := not VIsReadOnly;
-  VAllowReplace := not VIsReadOnly;
+  VAllowRead := AConfig.ReadBool('AllowRead', True);
+  VAllowScan := AConfig.ReadBool('AllowScan', True);
+  VAllowAdd := AConfig.ReadBool('AllowAdd', not VIsReadOnly);
+  VAllowDelete := AConfig.ReadBool('AllowDelete', not VIsReadOnly);
+  VAllowReplace := AConfig.ReadBool('AllowScan', not VIsReadOnly);
 
   VStorageAbilities :=
     TTileStorageAbilities.Create(
-      VIsReadOnly,
-      True,
-      True,
+      VAllowRead,
+      VAllowScan,
       VAllowAdd,
       VAllowDelete,
       VAllowReplace

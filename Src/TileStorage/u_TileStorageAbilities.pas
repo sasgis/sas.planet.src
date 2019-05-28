@@ -39,24 +39,23 @@ const
 type
   TTileStorageAbilities = class(TBaseInterfacedObject, ITileStorageAbilities)
   private
-    FIsReadOnly: Boolean;
     FAllowRead: Boolean;
+    FAllowScan: Boolean;
     FAllowAdd: Boolean;
     FAllowDelete: Boolean;
     FAllowReplace: Boolean;
-    FAllowScan: boolean;
   private
+    { ITileStorageAbilities }
     function GetAllowRead: Boolean;
-    function GetIsReadOnly: Boolean;
+    function GetAllowScan: Boolean;
     function GetAllowAdd: Boolean;
     function GetAllowDelete: Boolean;
     function GetAllowReplace: Boolean;
-    function GetAllowScan: boolean;
+    function IsReadOnly: Boolean;
   public
     constructor Create(
-      const AIsReadOnly: Boolean;
       const AAllowRead: Boolean;
-      const AAllowScan: boolean;
+      const AAllowScan: Boolean;
       const AAllowAdd: Boolean;
       const AAllowDelete: Boolean;
       const AAllowReplace: Boolean
@@ -70,11 +69,11 @@ type
   TTileStorageAbilitiesNoAccess = class(TBaseInterfacedObject, ITileStorageAbilities)
   private
     function GetAllowRead: Boolean;
-    function GetIsReadOnly: Boolean;
+    function GetAllowScan: Boolean;
     function GetAllowAdd: Boolean;
     function GetAllowDelete: Boolean;
     function GetAllowReplace: Boolean;
-    function GetAllowScan: boolean;
+    function IsReadOnly: Boolean;
   end;
 
   TTileStorageTypeAbilities = class(TBaseInterfacedObject, ITileStorageTypeAbilities)
@@ -118,9 +117,8 @@ implementation
 { TTileStorageAbilities }
 
 constructor TTileStorageAbilities.Create(
-  const AIsReadOnly: Boolean;
   const AAllowRead: Boolean;
-  const AAllowScan: boolean;
+  const AAllowScan: Boolean;
   const AAllowAdd: Boolean;
   const AAllowDelete: Boolean;
   const AAllowReplace: Boolean
@@ -129,10 +127,9 @@ begin
   inherited Create;
   FAllowRead := AAllowRead;
   FAllowScan := AAllowScan;
-  FIsReadOnly := AIsReadOnly or not (AAllowAdd or AAllowDelete or AAllowReplace);
-  FAllowAdd := AAllowAdd and not FIsReadOnly;
-  FAllowDelete := AAllowDelete and not FIsReadOnly;
-  FAllowReplace := AAllowReplace and not FIsReadOnly;
+  FAllowAdd := AAllowAdd;
+  FAllowDelete := AAllowDelete;
+  FAllowReplace := AAllowReplace;
 end;
 
 constructor TTileStorageAbilities.Create(
@@ -159,8 +156,6 @@ begin
   if tsatReplace in AAbilitiesTypes then begin
     FAllowReplace := True;
   end;
-
-  FIsReadOnly := not FAllowAdd and not FAllowDelete and not FAllowReplace;
 end;
 
 function TTileStorageAbilities.GetAllowAdd: Boolean;
@@ -183,14 +178,14 @@ begin
   Result := FAllowReplace;
 end;
 
-function TTileStorageAbilities.GetAllowScan: boolean;
+function TTileStorageAbilities.GetAllowScan: Boolean;
 begin
   Result := FAllowScan;
 end;
 
-function TTileStorageAbilities.GetIsReadOnly: Boolean;
+function TTileStorageAbilities.IsReadOnly: Boolean;
 begin
-  Result := FIsReadOnly;
+  Result := not FAllowAdd and not FAllowDelete and not FAllowReplace;
 end;
 
 { TTileStorageTypeAbilities }
@@ -258,12 +253,12 @@ begin
   Result := False;
 end;
 
-function TTileStorageAbilitiesNoAccess.GetAllowScan: boolean;
+function TTileStorageAbilitiesNoAccess.GetAllowScan: Boolean;
 begin
   Result := False;
 end;
 
-function TTileStorageAbilitiesNoAccess.GetIsReadOnly: Boolean;
+function TTileStorageAbilitiesNoAccess.IsReadOnly: Boolean;
 begin
   Result := True;
 end;

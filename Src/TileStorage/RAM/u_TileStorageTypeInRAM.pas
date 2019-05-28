@@ -71,7 +71,7 @@ var
 begin
   VAbilities :=
     TTileStorageTypeAbilities.Create(
-      TTileStorageAbilities.Create(False, True, False, True, True, True),
+      TTileStorageAbilities.Create(CTileStorageReadWrite - [tsatScan]),
       tstvsVersionStored,
       True,
       stsUnicode,

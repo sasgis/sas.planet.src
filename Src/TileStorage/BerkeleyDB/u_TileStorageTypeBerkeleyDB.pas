@@ -98,7 +98,7 @@ begin
   end;
   VAbilities :=
     TTileStorageTypeAbilities.Create(
-      TTileStorageAbilities.Create(False, True, True, True, True, True),
+      TTileStorageAbilities.Create(CTileStorageReadWrite),
       VVersionSupport,
       True,
       stsUnicode,
