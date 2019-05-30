@@ -82,7 +82,6 @@ object frmMarksExportConfig: TfrmMarksExportConfig
     Style = tsFlatButtons
     TabOrder = 1
     object tsExportToKml: TTabSheet
-      Caption = 'tsExportToKml'
       object rgSorting: TRadioGroup
         Left = 0
         Top = 40

@@ -407,7 +407,6 @@ object frmMarksExplorer: TfrmMarksExplorer
     ShrinkMode = tbsmWrap
     Stretch = True
     TabOrder = 0
-    Caption = 'TBXToolbar3'
     object tbxConfigList: TTBXSubmenuItem
       DisplayMode = nbdmImageAndText
       ImageIndex = 0

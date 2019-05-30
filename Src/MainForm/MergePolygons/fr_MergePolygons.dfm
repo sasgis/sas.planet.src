@@ -33,7 +33,6 @@ object frMergePolygons: TfrMergePolygons
     Align = alTop
     Images = frmMain.MenusImageList
     TabOrder = 0
-    Caption = 'tbTop'
     object tbUp: TTBItem
       ImageIndex = 47
       OnClick = tbUpClick
