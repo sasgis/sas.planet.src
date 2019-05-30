@@ -673,8 +673,8 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       ImageIndex = 1
       TabVisible = False
     end
-    object tsGetURLScript: TTabSheet
-      Caption = 'GetURLScript.txt'
+    object tsGetUrlScript: TTabSheet
+      Caption = 'GetUrlScript.txt'
       ImageIndex = 2
       TabVisible = False
     end

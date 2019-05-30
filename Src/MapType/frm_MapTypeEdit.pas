@@ -87,7 +87,7 @@ type
     PageControl1: TPageControl;
     tsInternet: TTabSheet;
     tsParams: TTabSheet;
-    tsGetURLScript: TTabSheet;
+    tsGetUrlScript: TTabSheet;
     tsInfo: TTabSheet;
     BtnSelectPath: TButton;
     tvMenu: TTreeView;
