@@ -207,7 +207,6 @@ implementation
 
 uses
   t_Bitmap32,
-  t_CommonTypes,
   i_AppearanceOfVectorItem,
   u_ListenerByEvent,
   u_InterfaceListSimple,
@@ -240,7 +239,7 @@ begin
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
 
   FStateInternal := AStateInternal;
-  VIsReadOnly := (FStateInternal.WriteAccess <> asEnabled);
+  VIsReadOnly := not FStateInternal.WriteAccess;
 
   FHelper :=
     TMarkDbImplORMHelper.Create(
@@ -274,7 +273,7 @@ procedure TMarkDbImplORM._OnStateChange;
 begin
   LockWrite;
   try
-    FHelper.IsReadOnly := (FStateInternal.WriteAccess <> asEnabled); 
+    FHelper.IsReadOnly := not FStateInternal.WriteAccess;
   finally
     UnlockWrite;
   end;
@@ -546,7 +545,7 @@ begin
   end;
 
   if Supports(ANewMark, IVectorDataItem, VNewMark) then begin
-    if FStateInternal.WriteAccess <> asEnabled then begin
+    if not FStateInternal.WriteAccess then begin
       Exit;
     end;
     VNewMark := FFactoryDbInternal.CreateInternalMark(VNewMark);

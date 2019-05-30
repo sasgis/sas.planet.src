@@ -105,7 +105,6 @@ implementation
 uses
   DB,
   StrUtils,
-  t_CommonTypes,
   i_EnumID,
   i_InterfaceListSimple,
   u_IDInterfaceList,
@@ -546,14 +545,14 @@ begin
   try
     InitEmptyDS;
     FList.Clear;
-    if FStateInternal.ReadAccess <> asDisabled then begin
+    if FStateInternal.ReadAccess then begin
       if FStream <> nil then begin
         try
           FCdsCategory.LoadFromStream(FStream);
           FCdsCategory.MergeChangeLog;
           FCdsCategory.LogChanges := False;
         except
-          FStateInternal.WriteAccess := asDisabled;
+          FStateInternal.WriteAccess := False;
           InitEmptyDS;
         end;
       end;
@@ -578,7 +577,7 @@ begin
   result := true;
   if FNeedSaveFlag.CheckFlagAndReset then begin
     try
-      if FStateInternal.WriteAccess = asEnabled then begin
+      if FStateInternal.WriteAccess then begin
         LockWrite;
         try
           if FStream <> nil then begin

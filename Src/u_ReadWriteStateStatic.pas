@@ -23,22 +23,21 @@ unit u_ReadWriteStateStatic;
 interface
 
 uses
-  t_CommonTypes,
   i_ReadWriteState,
   u_BaseInterfacedObject;
 
 type
   TReadWriteStateStatic = class(TBaseInterfacedObject, IReadWriteStateStatic)
   private
-    FReadAccess: TAccesState;
-    FWriteAccess: TAccesState;
+    FReadAccess: Boolean;
+    FWriteAccess: Boolean;
   private
-    function GetReadAccess: TAccesState;
-    function GetWriteAccess: TAccesState;
+    function GetReadAccess: Boolean;
+    function GetWriteAccess: Boolean;
   public
     constructor Create(
-      AReadAccess: TAccesState;
-      AWriteAccess: TAccesState
+      const AReadAccess: Boolean;
+      const AWriteAccess: Boolean
     );
   end;
 
@@ -46,20 +45,22 @@ implementation
 
 { TReadWriteStateStatic }
 
-constructor TReadWriteStateStatic.Create(AReadAccess,
-  AWriteAccess: TAccesState);
+constructor TReadWriteStateStatic.Create(
+  const AReadAccess: Boolean;
+  const AWriteAccess: Boolean
+);
 begin
   inherited Create;
   FReadAccess := AReadAccess;
   FWriteAccess := AWriteAccess;
 end;
 
-function TReadWriteStateStatic.GetReadAccess: TAccesState;
+function TReadWriteStateStatic.GetReadAccess: Boolean;
 begin
   Result := FReadAccess;
 end;
 
-function TReadWriteStateStatic.GetWriteAccess: TAccesState;
+function TReadWriteStateStatic.GetWriteAccess: Boolean;
 begin
   Result := FWriteAccess;
 end;

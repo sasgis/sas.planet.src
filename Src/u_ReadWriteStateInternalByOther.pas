@@ -49,7 +49,6 @@ type
 implementation
 
 uses
-  t_CommonTypes,
   u_ListenerByEvent,
   u_ReadWriteStateStatic;
 
@@ -58,7 +57,7 @@ uses
 constructor TReadWriteStateInternalByOther.Create;
 begin
   inherited Create;
-  FDefault := TReadWriteStateStatic.Create(asDisabled, asDisabled);
+  FDefault := TReadWriteStateStatic.Create(False, False);
   FOtherStateListener := TNotifyNoMmgEventListener.Create(Self.OnOtherStateChange);
   FOtherState := nil;
 end;

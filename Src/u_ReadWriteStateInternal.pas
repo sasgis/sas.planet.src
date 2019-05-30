@@ -23,7 +23,6 @@ unit u_ReadWriteStateInternal;
 interface
 
 uses
-  t_CommonTypes,
   i_ReadWriteState,
   i_ReadWriteStateInternal,
   u_ChangeableBase;
@@ -31,20 +30,23 @@ uses
 type
   TReadWriteStateInternal = class(TChangeableWithSimpleLockBase, IReadWriteStateInternal, IReadWriteStateChangeble)
   private
-    FReadAccess: TAccesState;
-    FWriteAccess: TAccesState;
+    FReadAccess: Boolean;
+    FWriteAccess: Boolean;
     FStatic: IReadWriteStateStatic;
     function CreateStatic: IReadWriteStateStatic;
   private
-    function GetReadAccess: TAccesState;
-    procedure SetReadAccess(AValue: TAccesState);
+    function GetReadAccess: Boolean;
+    procedure SetReadAccess(AValue: Boolean);
 
-    function GetWriteAccess: TAccesState;
-    procedure SetWriteAccess(AValue: TAccesState);
+    function GetWriteAccess: Boolean;
+    procedure SetWriteAccess(AValue: Boolean);
 
     function GetStatic: IReadWriteStateStatic;
   public
-    constructor Create;
+    constructor Create(
+      const AReadAccess: Boolean;
+      const AWriteAccess: Boolean
+    );
   end;
 
 implementation
@@ -54,11 +56,14 @@ uses
 
 { TReadWriteStateInternal }
 
-constructor TReadWriteStateInternal.Create;
+constructor TReadWriteStateInternal.Create(
+  const AReadAccess: Boolean;
+  const AWriteAccess: Boolean
+);
 begin
   inherited Create;
-  FReadAccess := asUnknown;
-  FWriteAccess := asUnknown;
+  FReadAccess := AReadAccess;
+  FWriteAccess := AWriteAccess;
   FStatic := CreateStatic;
 end;
 
@@ -71,7 +76,7 @@ begin
     );
 end;
 
-function TReadWriteStateInternal.GetReadAccess: TAccesState;
+function TReadWriteStateInternal.GetReadAccess: Boolean;
 begin
   CS.BeginRead;
   try
@@ -81,7 +86,7 @@ begin
   end;
 end;
 
-function TReadWriteStateInternal.GetWriteAccess: TAccesState;
+function TReadWriteStateInternal.GetWriteAccess: Boolean;
 begin
   CS.BeginRead;
   try
@@ -101,7 +106,7 @@ begin
   end;
 end;
 
-procedure TReadWriteStateInternal.SetReadAccess(AValue: TAccesState);
+procedure TReadWriteStateInternal.SetReadAccess(AValue: Boolean);
 var
   VNeedNotify: Boolean;
 begin
@@ -110,8 +115,8 @@ begin
   try
     if FReadAccess <> AValue then begin
       FReadAccess := AValue;
-      if FReadAccess = asDisabled then begin
-        FWriteAccess := asDisabled;
+      if not FReadAccess then begin
+        FWriteAccess := False;
       end;
       VNeedNotify := True;
       FStatic := CreateStatic;
@@ -124,7 +129,7 @@ begin
   end;
 end;
 
-procedure TReadWriteStateInternal.SetWriteAccess(AValue: TAccesState);
+procedure TReadWriteStateInternal.SetWriteAccess(AValue: Boolean);
 var
   VNeedNotify: Boolean;
 begin
@@ -133,10 +138,8 @@ begin
   try
     if FWriteAccess <> AValue then begin
       FWriteAccess := AValue;
-      if (FWriteAccess = asEnabled) then begin
-        if (FReadAccess <> asEnabled) then begin
-          FReadAccess := asEnabled;
-        end;
+      if FWriteAccess and not FReadAccess then begin
+        FReadAccess := True;
       end;
       VNeedNotify := True;
       FStatic := CreateStatic;

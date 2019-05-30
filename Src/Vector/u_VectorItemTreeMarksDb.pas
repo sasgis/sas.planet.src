@@ -86,7 +86,6 @@ implementation
 uses
   SysUtils,
   c_MarkSystem,
-  t_CommonTypes,
   i_MarkCategoryList,
   i_MarkSystemImplConfig,
   u_MarkSystemImplConfigSML,
@@ -184,7 +183,7 @@ var
   VImpl: IMarkSystemImpl;
 begin
   VImpl := _GetImpl(AOperationID, ACancelNotifier, AFileName, False);
-  if Assigned(VImpl) and (VImpl.State.GetStatic.WriteAccess = asEnabled) then begin
+  if Assigned(VImpl) and VImpl.State.GetStatic.WriteAccess then begin
     ImportItemsTree(
       ATree,
       _GetConfigForExporter,
@@ -208,7 +207,7 @@ var
 begin
   Result := nil;
   VImpl := _GetImpl(AOperationID, ACancelNotifier, AFileName, True);
-  if Assigned(VImpl) and (VImpl.State.GetStatic.ReadAccess = asEnabled) then begin
+  if Assigned(VImpl) and VImpl.State.GetStatic.ReadAccess then begin
     VCategoiesList := VImpl.CategoryDB.GetCategoriesList;
     if Assigned(VCategoiesList) then begin
       Result := CategoryTreeToMarkTreeHelper(

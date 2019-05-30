@@ -34,7 +34,6 @@ uses
   Buttons,
   Spin,
   u_CommonFormAndFrameParents,
-  t_CommonTypes,
   i_LanguageManager,
   i_PathConfig,
   i_ProjectionSetChangeable,
@@ -138,7 +137,7 @@ type
       const AMark: IVectorDataItem;
       const AIsNewMark: Boolean;
       var AVisible: Boolean;
-      const AMarksDBWriteAccess: TAccesState
+      const AMarksDBWriteAccess: Boolean
     ): IVectorDataItem;
   end;
 
@@ -217,7 +216,7 @@ function TfrmMarkEditPoint.EditMark(
   const AMark: IVectorDataItem;
   const AIsNewMark: Boolean;
   var AVisible: Boolean;
-  const AMarksDBWriteAccess: TAccesState
+  const AMarksDBWriteAccess: Boolean
 ): IVectorDataItem;
 var
   VLonLat: TDoublePoint;
@@ -229,7 +228,7 @@ var
   VPoint: IGeometryLonLatPoint;
   VMarkWithCategory: IVectorDataItemWithCategory;
 begin
-  lblReadOnly.Visible := AMarksDBWriteAccess <> asEnabled;
+  lblReadOnly.Visible := not AMarksDBWriteAccess;
 
   FSourceMark := AMark;
   frMarkDescription.Description := '';

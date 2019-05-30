@@ -94,7 +94,6 @@ implementation
 
 uses
   StrUtils,
-  t_CommonTypes,
   t_MarkSystemORM,
   i_InterfaceListSimple,
   i_MarkCategoryInternalORM,
@@ -123,7 +122,7 @@ begin
   FFactoryDbInternal := TMarkCategoryFactoryDbInternalORM.Create(FDbId);
 
   FStateInternal := AStateInternal;
-  VIsReadOnly := (FStateInternal.WriteAccess <> asEnabled);
+  VIsReadOnly := not FStateInternal.WriteAccess;
   FHelper := TMarkCategoryDbImplORMHelper.Create(VIsReadOnly, AClientProvider);
 
   FStateChangeNotifier := FStateInternal.ChangeNotifier;
@@ -149,7 +148,7 @@ procedure TMarkCategoryDbImplORM._OnStateChange;
 begin
   LockWrite;
   try
-    FHelper.IsReadOnly := (FStateInternal.WriteAccess <> asEnabled); 
+    FHelper.IsReadOnly := not FStateInternal.WriteAccess;
   finally
     UnlockWrite;
   end;

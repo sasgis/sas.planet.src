@@ -98,7 +98,6 @@ implementation
 
 uses
   SysUtils,
-  t_CommonTypes,
   i_GeometryToStream,
   i_GeometryFromStream,
   u_ReadWriteStateInternal,
@@ -146,18 +145,14 @@ var
 begin
   inherited Create;
   FDbId := Integer(Self);
-  VState := TReadWriteStateInternal.Create;
+  VState := TReadWriteStateInternal.Create(True, not AImplConfig.IsReadOnly);
   FState := VState;
   VStateInternal := VState;
 
   VUseUnicodeSchema := False; // ToDo
   VStoreInBinaryFormat := False; // ToDo
 
-  VUseIndex := not AImplConfig.IsReadOnly;
-
-  if AImplConfig.IsReadOnly then begin
-    VStateInternal.WriteAccess := asDisabled;
-  end;
+  VUseIndex := VStateInternal.WriteAccess;
 
   if AImplConfig.FileName <> '' then begin
     VName := ExtractFileName(AImplConfig.FileName);
@@ -184,12 +179,12 @@ begin
   VMarkFileName := VPath + VName;
   VMarkStream := PrepareStream(VMarkFileName, VState);
 
-  if VStateInternal.WriteAccess <> asDisabled then begin
+  if VStateInternal.WriteAccess then begin
     // ensure that we have some free space on current drive
     VBackUpRequaredDiskSize := (VCategoryStream.Size + VMarkStream.Size) * 2;
     VFreeDiskSpace := GetDiskFree(ExtractFileDrive(ABasePath)[1]);
     if (VFreeDiskSpace >= 0) and (VBackUpRequaredDiskSize > VFreeDiskSpace) then begin
-      VStateInternal.WriteAccess := asDisabled;
+      VStateInternal.WriteAccess := False;
     end;
   end;
 
@@ -234,7 +229,7 @@ begin
       VUseIndex
     );
 
-  if FState.GetStatic.WriteAccess = asEnabled then begin
+  if FState.GetStatic.WriteAccess then begin
     if VCategoryStream.Size > 0 then begin
       MakeBackUp(VCategoryFileName);
     end;
@@ -255,43 +250,40 @@ function TMarkSystemSml.PrepareStream(
 ): TStream;
 begin
   Result := nil;
-  if AState.ReadAccess <> asDisabled then begin
+  if AState.ReadAccess then begin
     if FileExists(AFileName) then begin
-      if AState.WriteAccess <> asDisabled then begin
+      if AState.WriteAccess then begin
         try
           Result := TFileStream.Create(AFileName, fmOpenReadWrite + fmShareDenyWrite);
-          AState.WriteAccess := asEnabled;
         except
           Result := nil;
-          AState.WriteAccess := asDisabled;
+          AState.WriteAccess := False;
         end;
       end;
       if Result = nil then begin
         try
           Result := TFileStream.Create(AFileName, fmOpenRead + fmShareDenyNone);
-          AState.ReadAccess := asEnabled;
         except
-          AState.ReadAccess := asDisabled;
+          AState.ReadAccess := False;
           Result := nil;
         end;
       end;
     end else begin
-      if AState.WriteAccess <> asDisabled then begin
+      if AState.WriteAccess then begin
         try
           Result := TFileStream.Create(AFileName, fmCreate);
           Result.Free;
           Result := nil;
         except
-          AState.WriteAccess := asDisabled;
+          AState.WriteAccess := False;
           Result := nil;
         end;
-        if AState.WriteAccess <> asDisabled then begin
+        if AState.WriteAccess then begin
           try
             Result := TFileStream.Create(AFileName, fmOpenReadWrite + fmShareDenyWrite);
-            AState.WriteAccess := asEnabled;
           except
             Result := nil;
-            AState.WriteAccess := asDisabled;
+            AState.WriteAccess := False;
           end;
         end;
       end;

@@ -30,7 +30,6 @@ uses
   StdCtrls,
   ExtCtrls,
   Spin,
-  t_CommonTypes,
   i_LanguageManager,
   i_MarkCategory,
   i_MarkCategoryDB,
@@ -61,7 +60,7 @@ type
     function EditCategory(
       const ACategory: IMarkCategory;
       const AIsNewCategory: Boolean;
-      const AMarksDBWriteAccess: TAccesState
+      const AMarksDBWriteAccess: Boolean
     ): IMarkCategory;
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -106,10 +105,10 @@ end;
 function TfrmMarkCategoryEdit.EditCategory(
   const ACategory: IMarkCategory;
   const AIsNewCategory: Boolean;
-  const AMarksDBWriteAccess: TAccesState
+  const AMarksDBWriteAccess: Boolean
 ): IMarkCategory;
 begin
-  lblReadOnly.Visible := AMarksDBWriteAccess <> asEnabled;
+  lblReadOnly.Visible := not AMarksDBWriteAccess;
 
   EditName.Text := SAS_STR_NewPoly;
 

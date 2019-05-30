@@ -310,7 +310,6 @@ implementation
 uses
   ExplorerSort,
   gnugettext,
-  t_CommonTypes,
   t_GeoTypes,
   i_InterfaceListSimple,
   i_MarkCategoryTree,
@@ -1150,7 +1149,7 @@ end;
 procedure TfrmMarksExplorer.OnMarkSystemStateChanged;
 begin
   ResetCopyPasteBuffer;
-  lblReadOnly.Visible := FMarkDBGUI.MarksDb.State.GetStatic.WriteAccess = asDisabled;
+  lblReadOnly.Visible := not FMarkDBGUI.MarksDb.State.GetStatic.WriteAccess;
 end;
 
 procedure TfrmMarksExplorer.tbitmAddCategoryClick(Sender: TObject);

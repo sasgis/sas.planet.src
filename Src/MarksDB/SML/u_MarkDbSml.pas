@@ -201,7 +201,6 @@ uses
   ActiveX,
   StrUtils,
   t_Bitmap32,
-  t_CommonTypes,
   i_AppearanceOfVectorItem,
   i_MarkCategoryFactoryDbInternal,
   u_IDInterfaceList,
@@ -1435,7 +1434,7 @@ begin
       InitEmptyDS;
       FMarkList.Clear;
       FByCategoryList.Clear;
-      if FStateInternal.ReadAccess <> asDisabled then begin
+      if FStateInternal.ReadAccess then begin
         if FStream <> nil then begin
           try
             FCdsMarks.LoadFromStream(FStream);
@@ -1443,7 +1442,7 @@ begin
             FCdsMarks.MergeChangeLog;
             FCdsMarks.LogChanges := False;
           except
-            FStateInternal.WriteAccess := asDisabled;
+            FStateInternal.WriteAccess := False;
             InitEmptyDS;
           end;
         end;
@@ -1490,7 +1489,7 @@ begin
     end;
     try
       try
-        if FStateInternal.WriteAccess = asEnabled then begin
+        if FStateInternal.WriteAccess then begin
           LockWrite;
           try
             if FStream <> nil then begin

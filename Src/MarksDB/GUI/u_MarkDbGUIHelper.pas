@@ -220,7 +220,6 @@ implementation
 uses
   SysUtils,
   gnugettext,
-  t_CommonTypes,  
   i_VectorItemTree,
   i_VectorItemSubset,
   i_MarkCategoryTree,
@@ -369,7 +368,7 @@ end;
 
 function TMarkDbGUIHelper.IsMarksDBWritable: Boolean;
 begin
-  Result := FMarkSystem.State.GetStatic.WriteAccess = asEnabled;
+  Result := FMarkSystem.State.GetStatic.WriteAccess;
   if not Result then begin
     MessageDlg(_('No write access to current Marks DB!'), mtError, [mbOk], 0);
   end;
@@ -502,7 +501,7 @@ function TMarkDbGUIHelper.EditMarkModal(
   var AVisible: Boolean
 ): IVectorDataItem;
 var
-  VWriteAccess: TAccesState;
+  VWriteAccess: Boolean;
 begin
   Result := nil;
   VWriteAccess := FMarkSystem.State.GetStatic.WriteAccess;

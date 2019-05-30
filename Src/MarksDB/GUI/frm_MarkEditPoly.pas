@@ -33,7 +33,6 @@ uses
   StdCtrls,
   ExtCtrls,
   Buttons,
-  t_CommonTypes,
   u_CommonFormAndFrameParents,
   i_Appearance,
   i_AppearanceOfMarkFactory,
@@ -104,7 +103,7 @@ type
       const AMark: IVectorDataItem;
       const AIsNewMark: Boolean;
       var AVisible: Boolean;
-      const AMarksDBWriteAccess: TAccesState
+      const AMarksDBWriteAccess: Boolean
     ): IVectorDataItem;
   end;
 
@@ -152,7 +151,7 @@ function TfrmMarkEditPoly.EditMark(
   const AMark: IVectorDataItem;
   const AIsNewMark: Boolean;
   var AVisible: Boolean;
-  const AMarksDBWriteAccess: TAccesState
+  const AMarksDBWriteAccess: Boolean
 ): IVectorDataItem;
 var
   VAppearanceBorder: IAppearancePolygonBorder;
@@ -160,7 +159,7 @@ var
   VCategory: ICategory;
   VMarkWithCategory: IVectorDataItemWithCategory;
 begin
-  lblReadOnly.Visible := AMarksDBWriteAccess <> asEnabled;
+  lblReadOnly.Visible := not AMarksDBWriteAccess;
 
   VCategory := nil;
   if Supports(AMark.MainInfo, IVectorDataItemWithCategory, VMarkWithCategory) then begin

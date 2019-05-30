@@ -23,8 +23,6 @@ unit t_CommonTypes;
 interface
 
 type
-  TAccesState = (asUnknown = 0, asEnabled = 1, asDisabled = -1);
-
   TTileSource = (tsInternet = 0, tsCache = 1, tsCacheInternet = 2);
 
   { Способ отображения расстояний

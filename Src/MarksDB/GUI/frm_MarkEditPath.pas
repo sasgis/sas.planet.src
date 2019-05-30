@@ -33,7 +33,6 @@ uses
   Spin,
   StdCtrls,
   ExtCtrls,
-  t_CommonTypes,
   u_CommonFormAndFrameParents,
   i_PathConfig,
   i_LanguageManager,
@@ -91,7 +90,7 @@ type
       const AMark: IVectorDataItem;
       const AIsNewMark: Boolean;
       var AVisible: Boolean;
-      const AMarksDBWriteAccess: TAccesState
+      const AMarksDBWriteAccess: Boolean
     ): IVectorDataItem;
   end;
 
@@ -139,14 +138,14 @@ function TfrmMarkEditPath.EditMark(
   const AMark: IVectorDataItem;
   const AIsNewMark: Boolean;
   var AVisible: Boolean;
-  const AMarksDBWriteAccess: TAccesState
+  const AMarksDBWriteAccess: Boolean
 ): IVectorDataItem;
 var
   VAppearanceLine: IAppearanceLine;
   VCategory: ICategory;
   VMarkWithCategory: IVectorDataItemWithCategory;
 begin
-  lblReadOnly.Visible := AMarksDBWriteAccess <> asEnabled;
+  lblReadOnly.Visible := not AMarksDBWriteAccess;
 
   VCategory := nil;
   if Supports(AMark.MainInfo, IVectorDataItemWithCategory, VMarkWithCategory) then begin
