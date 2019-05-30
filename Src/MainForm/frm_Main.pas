@@ -242,7 +242,7 @@ type
     TBXSeparatorItem11: TTBXSeparatorItem;
     tbsprtGPS1: TTBXSeparatorItem;
     TBXSeparatorItem14: TTBXSeparatorItem;
-    tbsprtHelp01: TTBXSeparatorItem;
+    tbxSep3: TTBXSeparatorItem;
     TBXSensorsBar: TTBXToolWindow;
     ScrollBox1: TScrollBox;
     TBXDock1: TTBXDock;
@@ -578,6 +578,7 @@ type
     tbiConfigUsePrevForVectorLayer: TTBXItem;
     TBXSeparatorItem23: TTBXSeparatorItem;
     tbxMarksDbList: TTBXSubmenuItem;
+    tbxSep4: TTBXSeparatorItem;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
