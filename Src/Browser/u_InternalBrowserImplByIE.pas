@@ -114,6 +114,8 @@ constructor TInternalBrowserImplByIE.Create(
 );
 begin
   TP_GlobalIgnoreClassProperty(TEmbeddedWB, 'StatusText');
+  TP_GlobalIgnoreClassProperty(TEmbeddedWB, 'UserAgent');
+  TP_GlobalIgnoreClassProperty(TEmbeddedWB, 'About');
 
   inherited Create;
 

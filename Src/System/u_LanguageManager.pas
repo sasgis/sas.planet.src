@@ -64,13 +64,14 @@ uses
   SysUtils,
   Forms,
   Dialogs,
+  StdCtrls,
   Controls,
   ActnList,
+  ExtActns,
   Graphics,
   ALStringList,
   ALString,
   GR32,
-  EmbeddedWB,
   gnugettext,
   i_FileNameIterator,
   u_FileNameIteratorInFolderByMask,
@@ -276,12 +277,14 @@ procedure TLanguageManager.SetTranslateIgnore;
 begin
   TP_GlobalIgnoreClass(TFont);
   TP_GlobalIgnoreClassProperty(TAction, 'Category');
+  TP_GlobalIgnoreClassProperty(TBrowseURL, 'Category');
+  TP_GlobalIgnoreClassProperty(TBrowseURL, 'URL');
   TP_GlobalIgnoreClassProperty(TControl, 'HelpKeyword');
+  TP_GlobalIgnoreClassProperty(TEdit, 'PasswordChar');
   TP_GlobalIgnoreClassProperty(TWinControl, 'ImeName');
-  TP_GlobalIgnoreClassProperty(TEmbeddedWB, 'StatusText');
-  TP_GlobalIgnoreClassProperty(TEmbeddedWB, 'UserAgent');
-  TP_GlobalIgnoreClassProperty(TEmbeddedWB, 'About');
   TP_GlobalIgnoreClassProperty(TOpenDialog, 'DefaultExt');
+  TP_GlobalIgnoreClassProperty(TSaveDialog, 'DefaultExt');
+  TP_GlobalIgnoreClassProperty(TBitmap32, 'ResamplerClassName');
   TP_GlobalIgnoreClassProperty(TCustomBitmap32, 'ResamplerClassName');
 end;
 

@@ -75,6 +75,9 @@ type
 
 implementation
 
+uses
+  gnugettext;
+
 {$R *.dfm}
 
 { TfrMapCombineCustomOptions }
@@ -99,6 +102,9 @@ constructor TfrMapCombineCustomOptions.Create(
   const AOptionsSet: TMapCombineOptionsSet
 );
 begin
+  TP_Ignore(Self, 'cbbFormat.Items');
+  TP_Ignore(Self, 'cbbCompression.Items');
+
   inherited Create(ALanguageManager);
 
   SetControlVisible(Self, False);
