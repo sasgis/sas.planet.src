@@ -36,6 +36,7 @@ uses
   StdCtrls,
   ExtCtrls,
   ImgList,
+  ImageList,
   UITypes,
   TB2Dock,
   TB2Toolbar,
