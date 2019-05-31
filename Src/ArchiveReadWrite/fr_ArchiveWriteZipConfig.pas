@@ -33,6 +33,7 @@ uses
   Forms,
   Dialogs,
   StdCtrls,
+  UITypes,
   TBX,
   TBXExtItems,
   TB2Item,

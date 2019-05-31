@@ -7,9 +7,12 @@ uses
   Forms,
   SysUtils,
   u_ReadableThreadNames,
+  fr_ArchiveWriteZipConfig in 'Src\ArchiveReadWrite\fr_ArchiveWriteZipConfig.pas' {frArchiveWriteZipConfig: TFrame},
   i_ArchiveReadWrite in 'Src\ArchiveReadWrite\i_ArchiveReadWrite.pas',
+  i_ArchiveReadWriteConfig in 'Src\ArchiveReadWrite\i_ArchiveReadWriteConfig.pas',
   i_ArchiveReadWriteFactory in 'Src\ArchiveReadWrite\i_ArchiveReadWriteFactory.pas',
   u_ArchiveReadWrite7Zip in 'Src\ArchiveReadWrite\u_ArchiveReadWrite7Zip.pas',
+  u_ArchiveReadWriteConfig in 'Src\ArchiveReadWrite\u_ArchiveReadWriteConfig.pas',
   u_ArchiveReadWriteFactory in 'Src\ArchiveReadWrite\u_ArchiveReadWriteFactory.pas',
   u_ArchiveReadWriteSequentialTar in 'Src\ArchiveReadWrite\u_ArchiveReadWriteSequentialTar.pas',
   u_ArchiveReadWriteSequentialZip in 'Src\ArchiveReadWrite\u_ArchiveReadWriteSequentialZip.pas',
@@ -1469,10 +1472,7 @@ uses
   u_ValueToStringConverter in 'Src\u_ValueToStringConverter.pas',
   u_ValueToStringConverterChangeable in 'Src\u_ValueToStringConverterChangeable.pas',
   u_ValueToStringConverterConfig in 'Src\u_ValueToStringConverterConfig.pas',
-  u_WindowPositionConfig in 'Src\u_WindowPositionConfig.pas',
-  i_ArchiveReadWriteConfig in 'Src\ArchiveReadWrite\i_ArchiveReadWriteConfig.pas',
-  u_ArchiveReadWriteConfig in 'Src\ArchiveReadWrite\u_ArchiveReadWriteConfig.pas',
-  fr_ArchiveWriteZipConfig in 'Src\ArchiveReadWrite\fr_ArchiveWriteZipConfig.pas' {frArchiveWriteZipConfig: TFrame};
+  u_WindowPositionConfig in 'Src\u_WindowPositionConfig.pas';
 
 {$R .\Resources\VersionInfo.res}
 {$R .\Resources\MainIcon.res}

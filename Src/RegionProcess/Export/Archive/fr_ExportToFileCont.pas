@@ -31,6 +31,7 @@ uses
   Dialogs,
   StdCtrls,
   ExtCtrls,
+  UITypes,
   i_LanguageManager,
   i_GeometryLonLat,
   i_MapType,

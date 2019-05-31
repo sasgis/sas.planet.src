@@ -51,7 +51,6 @@ object frArchiveWriteZipConfig: TfrArchiveWriteZipConfig
     Stretch = True
     TabOrder = 2
     TabStop = True
-    Caption = 'tbxToolbar'
     object tbxcbbVolumeSize: TTBXComboBoxItem
       AutoCheck = True
       CharCase = ecUpperCase
