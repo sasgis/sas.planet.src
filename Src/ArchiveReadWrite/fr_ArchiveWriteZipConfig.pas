@@ -72,7 +72,6 @@ uses
 
 const
   cCompressMethodStr: array [0..2] of string = ('Deflate', 'BZip2', 'LZMA');
-  cCompressLevelStr: array [0..3] of string = ('Store', 'Fast', 'Normal', 'Best');
   cVolumeSizeStr: array [0..6] of string = (
     '100M', '200M', '650M - CD', '700M - CD', '1000M', '4092M - FAT', '4480M - DVD'
   );
@@ -87,9 +86,11 @@ var
 begin
   inherited Create(ALanguageManager);
 
-  for I := 0 to Length(cCompressLevelStr) - 1 do begin
-    cbbCompressLevel.Items.Add(cCompressLevelStr[I]);
-  end;
+  cbbCompressLevel.Items.Add( _('Store') );
+  cbbCompressLevel.Items.Add( _('Fast') );
+  cbbCompressLevel.Items.Add( _('Normal') );
+  cbbCompressLevel.Items.Add( _('Best') );
+
   cbbCompressLevel.ItemIndex := 0; // Store
 
   for I := 0 to Length(cCompressMethodStr) - 1 do begin
