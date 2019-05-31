@@ -52,11 +52,13 @@
       <MainSource>MainSource</MainSource>
     </DelphiCompile>
     <DCCReference Include="Src\ArchiveReadWrite\i_ArchiveReadWrite.pas" />
+    <DCCReference Include="Src\ArchiveReadWrite\i_ArchiveReadWriteConfig.pas" />
     <DCCReference Include="Src\ArchiveReadWrite\i_ArchiveReadWriteFactory.pas" />
     <DCCReference Include="Src\ArchiveReadWrite\u_ArchiveReadWrite7Zip.pas" />
+    <DCCReference Include="Src\ArchiveReadWrite\u_ArchiveReadWriteConfig.pas" />
     <DCCReference Include="Src\ArchiveReadWrite\u_ArchiveReadWriteFactory.pas" />
-    <DCCReference Include="Src\ArchiveReadWrite\u_ArchiveReadWriteKaZip.pas" />
-    <DCCReference Include="Src\ArchiveReadWrite\u_ArchiveWriteLibTar.pas" />
+    <DCCReference Include="Src\ArchiveReadWrite\u_ArchiveReadWriteSequentialTar.pas" />
+    <DCCReference Include="Src\ArchiveReadWrite\u_ArchiveReadWriteSequentialZip.pas" />
     <DCCReference Include="Src\Basic\i_BackgroundTask.pas" />
     <DCCReference Include="Src\Basic\i_BinaryData.pas" />
     <DCCReference Include="Src\Basic\i_BinaryDataListChangeable.pas" />
@@ -1172,6 +1174,7 @@
     </DCCReference>
     <DCCReference Include="Src\RegionProcess\Export\Archive\u_ExportProviderTar.pas" />
     <DCCReference Include="Src\RegionProcess\Export\Archive\u_ExportProviderZip.pas" />
+    <DCCReference Include="Src\RegionProcess\Export\Archive\u_ExportTaskToArchive.pas" />
     <DCCReference Include="Src\RegionProcess\Export\Archive\u_ThreadExportToArchive.pas" />
     <DCCReference Include="Src\RegionProcess\Export\GeoExpressAUX\fr_ExportAUX.pas">
       <Form>frExportAUX</Form>
@@ -1477,6 +1480,7 @@
     <DCCReference Include="Src\TileProvider\u_VectorTileRendererForMarks.pas" />
     <DCCReference Include="Src\TileStorage\Archive\u_TileStorageArchive.pas" />
     <DCCReference Include="Src\TileStorage\Archive\u_TileStorageTar.pas" />
+    <DCCReference Include="Src\TileStorage\Archive\u_TileStorageTypeArchive.pas" />
     <DCCReference Include="Src\TileStorage\Archive\u_TileStorageTypeArchiveTar.pas" />
     <DCCReference Include="Src\TileStorage\Archive\u_TileStorageTypeArchiveZip.pas" />
     <DCCReference Include="Src\TileStorage\BerkeleyDB\i_BerkeleyDB.pas" />

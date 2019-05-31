@@ -24,6 +24,7 @@ interface
 
 uses
   i_ArchiveReadWrite,
+  i_ArchiveReadWriteConfig,
   i_ArchiveReadWriteFactory,
   u_BaseInterfacedObject;
 
@@ -33,7 +34,7 @@ type
     { IArchiveReaderSequentialFactory }
     function Build(
       const AFileName: string;
-      const AOptions: Pointer = nil
+      const AConfig: IArchiveReadConfig = nil
     ): IArchiveReaderSequential;
   end;
 
@@ -42,7 +43,7 @@ type
     { IArchiveWriterSequentialFactory }
     function Build(
       const AFileName: string;
-      const AOptions: Pointer = nil
+      const AConfig: IArchiveWriteConfig = nil
     ): IArchiveWriterSequential;
   end;
 
@@ -71,7 +72,7 @@ type
   public
     constructor Create(
       const AFileName: string;
-      const AOptions: Pointer = nil
+      const AConfig: IArchiveReadConfig = nil
     );
     destructor Destroy; override;
   end;
@@ -88,7 +89,7 @@ type
   public
     constructor Create(
       const AFileName: string;
-      const AOptions: Pointer = nil
+      const AConfig: IArchiveWriteConfig = nil
     );
     destructor Destroy; override;
   end;
@@ -97,27 +98,27 @@ type
 
 function TArchiveReaderSequentialFactoryTar.Build(
   const AFileName: string;
-  const AOptions: Pointer
+  const AConfig: IArchiveReadConfig
 ): IArchiveReaderSequential;
 begin
-  Result := TArchiveReaderSequentialTar.Create(AFileName, AOptions);
+  Result := TArchiveReaderSequentialTar.Create(AFileName, AConfig);
 end;
 
 { TArchiveWriterSequentialFactoryTar }
 
 function TArchiveWriterSequentialFactoryTar.Build(
   const AFileName: string;
-  const AOptions: Pointer
+  const AConfig: IArchiveWriteConfig
 ): IArchiveWriterSequential;
 begin
-  Result := TArchiveWriterSequentialTar.Create(AFileName, AOptions);
+  Result := TArchiveWriterSequentialTar.Create(AFileName, AConfig);
 end;
 
 { TArchiveWriteSequentialTar }
 
 constructor TArchiveWriterSequentialTar.Create(
   const AFileName: string;
-  const AOptions: Pointer
+  const AConfig: IArchiveWriteConfig
 );
 begin
   inherited Create;
@@ -157,7 +158,7 @@ end;
 
 constructor TArchiveReaderSequentialTar.Create(
   const AFileName: string;
-  const AOptions: Pointer
+  const AConfig: IArchiveReadConfig
 );
 begin
   inherited Create;

@@ -1,5 +1,5 @@
 {
-   MiniZip project, Version 2.8.7, May 9, 2019
+   MiniZip project
 
    Copyright (C) 2010-2019 Nathan Moinvaziri
      https://github.com/nmoinvaz/minizip
@@ -50,7 +50,7 @@ const
 {$ENDIF MZ_LZMA}
 
 const
-  MZ_VERSION = '2.8.7';
+  MZ_VERSION = '2.8.8';
 
   MZ_OK = 0;
 
@@ -381,7 +381,8 @@ procedure mz_check(const p: pointer); inline; overload;
 procedure mz_check(const err: int32_t); inline; overload;
 
 function mz_string_encode(const s: string): mz_string_t; inline;
-function mz_string_decode(const s: p_char): string; inline;
+function mz_string_decode(const s: p_char): string; overload; inline;
+function mz_string_decode(const s: mz_string_t): string; overload; inline;
 
 function LoadLibMiniZip(const ALibName: string = libminizip_dll; const ASilent: Boolean = False): Boolean;
 procedure UnloadLibMiniZip;
@@ -425,6 +426,15 @@ begin
     {$IFEND}
 end;
 
+function mz_string_decode(const s: mz_string_t): string;
+begin
+  if s <> '' then begin
+    Result := mz_string_decode(@s[1]);
+  end else begin
+    Result := '';
+  end;
+end;
+
 function LoadProc(const AProcName: PAnsiChar): Pointer; inline;
 begin
   Result := GetProcAddress(GLibHandle, AProcName);
@@ -435,6 +445,8 @@ end;
 
 function LoadLibMiniZip(const ALibName: string; const ASilent: Boolean): Boolean;
 begin
+  Result := False;
+
   if GLibHandle <> 0 then begin
     Result := True;
     Exit;
@@ -451,7 +463,6 @@ begin
 
     if GLibHandle = 0 then begin
       if ASilent then begin
-        Result := False;
         Exit;
       end else begin
         raise EMiniZipError.CreateFmt(

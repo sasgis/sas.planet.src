@@ -24,6 +24,7 @@ interface
 
 uses
   i_ArchiveReadWrite,
+  i_ArchiveReadWriteConfig,
   i_ArchiveReadWriteFactory,
   u_BaseInterfacedObject;
 
@@ -33,7 +34,7 @@ type
     { IArchiveReaderSequentialFactory }
     function Build(
       const AFileName: string;
-      const AOptions: Pointer = nil
+      const AConfig: IArchiveReadConfig = nil
     ): IArchiveReaderSequential;
   end;
 
@@ -42,7 +43,7 @@ type
     { IArchiveWriterSequentialFactory }
     function Build(
       const AFileName: string;
-      const AOptions: Pointer = nil
+      const AConfig: IArchiveWriteConfig = nil
     ): IArchiveWriterSequential;
   end;
 
@@ -73,7 +74,7 @@ type
   public
     constructor Create(
       const AFileName: string;
-      const AOptions: Pointer = nil
+      const AConfig: IArchiveReadConfig = nil
     );
     destructor Destroy; override;
   end;
@@ -91,41 +92,44 @@ type
   public
     constructor Create(
       const AFileName: string;
-      const AOptions: Pointer = nil
+      const AConfig: IArchiveWriteConfig = nil
     );
     destructor Destroy; override;
   end;
+
+  EArchiveWriterSequentialZip = class(Exception);
 
 { TArchiveReaderSequentialFactoryZip }
 
 function TArchiveReaderSequentialFactoryZip.Build(
   const AFileName: string;
-  const AOptions: Pointer
+  const AConfig: IArchiveReadConfig
 ): IArchiveReaderSequential;
 begin
-  Result := TArchiveReaderSequentialZip.Create(AFileName, AOptions);
+  Result := TArchiveReaderSequentialZip.Create(AFileName, AConfig);
 end;
 
 { TArchiveWriterSequentialFactoryZip }
 
 function TArchiveWriterSequentialFactoryZip.Build(
   const AFileName: string;
-  const AOptions: Pointer
+  const AConfig: IArchiveWriteConfig
 ): IArchiveWriterSequential;
 begin
-  Result := TArchiveWriterSequentialZip.Create(AFileName, AOptions);
+  Result := TArchiveWriterSequentialZip.Create(AFileName, AConfig);
 end;
 
 { TArchiveWriteSequentialZip }
 
 constructor TArchiveWriterSequentialZip.Create(
   const AFileName: string;
-  const AOptions: Pointer
+  const AConfig: IArchiveWriteConfig
 );
 var
   VFileName: mz_string_t;
   VVolumSize: int64_t;
   VCompressLevel: int16_t;
+  VConfig: IArchiveWriteZipConfig;
 begin
   Assert(AFileName <> '');
   inherited Create;
@@ -134,10 +138,40 @@ begin
 
   VFileName := mz_string_encode(AFileName);
 
-  // ToDo: use AOption
-  FCompressMethod := MZ_COMPRESS_METHOD_STORE;
-  VCompressLevel := MZ_COMPRESS_LEVEL_DEFAULT;
-  VVolumSize := 0;
+  VConfig := nil;
+  if AConfig <> nil then begin
+    if not Supports(AConfig, IArchiveWriteZipConfig, VConfig) then begin
+      raise EArchiveWriterSequentialZip.Create('Unexpected interface type!');
+    end;
+  end;
+
+  if VConfig <> nil then begin
+    case VConfig.CompressionLevel of
+      zclDefault : VCompressLevel := MZ_COMPRESS_LEVEL_DEFAULT;
+      zclFast    : VCompressLevel := MZ_COMPRESS_LEVEL_FAST;
+      zclNormal  : VCompressLevel := MZ_COMPRESS_LEVEL_NORMAL;
+      zclBest    : VCompressLevel := MZ_COMPRESS_LEVEL_BEST;
+    else
+      raise EArchiveWriterSequentialZip.CreateFmt(
+        'Unexpected CompressionLevel value: %d', [Integer(VConfig.CompressionLevel)]
+      );
+    end;
+    case VConfig.CompressionMethod of
+      zcmStore   : FCompressMethod := MZ_COMPRESS_METHOD_STORE;
+      zcmDeflate : FCompressMethod := MZ_COMPRESS_METHOD_DEFLATE;
+      zcmBZip2   : FCompressMethod := MZ_COMPRESS_METHOD_BZIP2;
+      zcmLZMA    : FCompressMethod := MZ_COMPRESS_METHOD_LZMA;
+    else
+      raise EArchiveWriterSequentialZip.CreateFmt(
+        'Unexpected CompressionMethod value: %d', [Integer(VConfig.CompressionMethod)]
+      );
+    end;
+    VVolumSize := VConfig.VolumeSize;
+  end else begin
+    FCompressMethod := MZ_COMPRESS_METHOD_STORE;
+    VCompressLevel := MZ_COMPRESS_LEVEL_DEFAULT;
+    VVolumSize := 0;
+  end;
 
   mz_check( mz_zip_writer_create(FWriter) );
 
@@ -195,7 +229,7 @@ end;
 
 constructor TArchiveReaderSequentialZip.Create(
   const AFileName: string;
-  const AOptions: Pointer
+  const AConfig: IArchiveReadConfig
 );
 var
   VFileName: mz_string_t;

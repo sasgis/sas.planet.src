@@ -1469,7 +1469,9 @@ uses
   u_ValueToStringConverter in 'Src\u_ValueToStringConverter.pas',
   u_ValueToStringConverterChangeable in 'Src\u_ValueToStringConverterChangeable.pas',
   u_ValueToStringConverterConfig in 'Src\u_ValueToStringConverterConfig.pas',
-  u_WindowPositionConfig in 'Src\u_WindowPositionConfig.pas';
+  u_WindowPositionConfig in 'Src\u_WindowPositionConfig.pas',
+  i_ArchiveReadWriteConfig in 'Src\ArchiveReadWrite\i_ArchiveReadWriteConfig.pas',
+  u_ArchiveReadWriteConfig in 'Src\ArchiveReadWrite\u_ArchiveReadWriteConfig.pas';
 
 {$R .\Resources\VersionInfo.res}
 {$R .\Resources\MainIcon.res}

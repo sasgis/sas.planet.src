@@ -24,7 +24,8 @@ interface
 
 uses
   Classes,
-  i_ArchiveReadWrite;
+  i_ArchiveReadWrite,
+  i_ArchiveReadWriteConfig;
 
 type
   // reader factory
@@ -43,7 +44,7 @@ type
     ['{EEC4958E-B843-413D-8BAF-30FCC216C577}']
     function Build(
       const AFileName: string;
-      const AOptions: Pointer = nil
+      const AConfig: IArchiveReadConfig = nil
     ): IArchiveReaderSequential;
   end;
 
@@ -63,7 +64,7 @@ type
     ['{F83F0DE4-162C-40C5-AC38-BD131A3D78CB}']
     function Build(
       const AFileName: string;
-      const AOptions: Pointer = nil
+      const AConfig: IArchiveWriteConfig = nil
     ): IArchiveWriterSequential;
   end;
 
