@@ -147,7 +147,6 @@ begin
 
   if VConfig <> nil then begin
     case VConfig.CompressionLevel of
-      zclDefault : VCompressLevel := MZ_COMPRESS_LEVEL_DEFAULT;
       zclFast    : VCompressLevel := MZ_COMPRESS_LEVEL_FAST;
       zclNormal  : VCompressLevel := MZ_COMPRESS_LEVEL_NORMAL;
       zclBest    : VCompressLevel := MZ_COMPRESS_LEVEL_BEST;

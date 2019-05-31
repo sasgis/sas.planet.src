@@ -31,7 +31,12 @@ type
     ['{6E06150B-432A-4E0C-BE82-F291AA58CE34}']
   end;
 
-  TZipCompressionLevel = (zclDefault, zclFast, zclNormal, zclBest);
+  IArchiveWriteConfigFrame = interface
+    ['{E4D76A42-EE4B-4DA2-AB1E-7154E2D425E4}']
+    function GetWriteConfig: IArchiveWriteConfig;
+  end;
+
+  TZipCompressionLevel = (zclFast, zclNormal, zclBest);
   TZipCompressionMethod = (zcmStore, zcmDeflate, zcmBZip2, zcmLZMA);
 
   IArchiveWriteZipConfig = interface(IArchiveWriteConfig)

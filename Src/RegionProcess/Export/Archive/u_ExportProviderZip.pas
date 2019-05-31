@@ -70,13 +70,15 @@ uses
   Types,
   Classes,
   SysUtils,
+  fr_ArchiveWriteZipConfig,
+  i_ArchiveReadWriteConfig,
   i_MapType,
   i_RegionProcessParamsFrame,
   i_TileFileNameGenerator,
   u_ExportTaskToArchive,
   u_ResStrings;
 
-{ TExportProviderKml }
+{ TExportProviderZip }
 
 constructor TExportProviderZip.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
@@ -100,7 +102,11 @@ begin
 end;
 
 function TExportProviderZip.CreateFrame: TFrame;
+var
+  VWriteConfigFrame: TfrArchiveWriteZipConfig;
 begin
+  VWriteConfigFrame := TfrArchiveWriteZipConfig.Create(Self.LanguageManager);
+  Assert(Supports(VWriteConfigFrame, IArchiveWriteConfigFrame));
   Result :=
     TfrExportToFileCont.Create(
       Self.LanguageManager,
@@ -108,7 +114,8 @@ begin
       FTileNameGenerator,
       FTileStorageTypeList,
       'Zip |*.zip',
-      'zip'
+      'zip',
+      VWriteConfigFrame
     );
   Assert(Supports(Result, IRegionProcessParamsFrameZoomArray));
   Assert(Supports(Result, IRegionProcessParamsFrameOneMap));
@@ -130,17 +137,19 @@ var
   Zoomarr: TByteDynArray;
   VMapType: IMapType;
   VNameGenerator: ITileFileNameGenerator;
+  VWriteConfig: IArchiveWriteConfig;
 begin
   inherited;
   Zoomarr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
   VPath := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
   VNameGenerator := (ParamsFrame as IRegionProcessParamsFrameExportToFileCont).NameGenerator;
+  VWriteConfig := (ParamsFrame as IRegionProcessParamsFrameExportToFileCont).ArchiveWriteConfig;
 
   Result :=
     TExportTaskToArchive.Create(
       AProgressInfo,
-      FArchiveReadWriteFactory.ZipSequential.WriterFactory.Build(VPath),
+      FArchiveReadWriteFactory.ZipSequential.WriterFactory.Build(VPath, VWriteConfig),
       FVectorGeometryProjectedFactory,
       APolygon,
       Zoomarr,

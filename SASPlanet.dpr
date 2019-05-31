@@ -1471,7 +1471,8 @@ uses
   u_ValueToStringConverterConfig in 'Src\u_ValueToStringConverterConfig.pas',
   u_WindowPositionConfig in 'Src\u_WindowPositionConfig.pas',
   i_ArchiveReadWriteConfig in 'Src\ArchiveReadWrite\i_ArchiveReadWriteConfig.pas',
-  u_ArchiveReadWriteConfig in 'Src\ArchiveReadWrite\u_ArchiveReadWriteConfig.pas';
+  u_ArchiveReadWriteConfig in 'Src\ArchiveReadWrite\u_ArchiveReadWriteConfig.pas',
+  fr_ArchiveWriteZipConfig in 'Src\ArchiveReadWrite\fr_ArchiveWriteZipConfig.pas' {frArchiveWriteZipConfig: TFrame};
 
 {$R .\Resources\VersionInfo.res}
 {$R .\Resources\MainIcon.res}

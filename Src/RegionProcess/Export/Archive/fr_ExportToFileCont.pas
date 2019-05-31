@@ -37,6 +37,7 @@ uses
   i_TileFileNameGenerator,
   i_TileFileNameGeneratorsList,
   i_TileStorageTypeList,
+  i_ArchiveReadWriteConfig,
   i_RegionProcessParamsFrame,
   fr_MapSelect,
   fr_ZoomsSelect,
@@ -48,6 +49,9 @@ type
     ['{0DB6292A-DE1D-4437-A110-3439923ED4B0}']
     function GetNameGenerator: ITileFileNameGenerator;
     property NameGenerator: ITileFileNameGenerator read GetNameGenerator;
+
+    function GetArchiveWriteConfig: IArchiveWriteConfig;
+    property ArchiveWriteConfig: IArchiveWriteConfig read GetArchiveWriteConfig;
   end;
 
 type
@@ -71,12 +75,14 @@ type
     lblNamesType: TLabel;
     pnlFrame: TPanel;
     pnlCacheTypes: TPanel;
+    pnlArchiveWriteConfig: TPanel;
     procedure btnSelectTargetFileClick(Sender: TObject);
   private
     FTileNameGeneratorList: ITileFileNameGeneratorsList;
     FfrMapSelect: TfrMapSelect;
     FfrZoomsSelect: TfrZoomsSelect;
     FfrCacheTypeList: TfrCacheTypeList;
+    FfrArchiveWriterConfig: TFrame;
   private
     procedure Init(
       const AZoom: byte;
@@ -89,6 +95,7 @@ type
     function GetPath: string;
     function GetNameGenerator: ITileFileNameGenerator;
     function GetAllowExport(const AMapType: IMapType): boolean;
+    function GetArchiveWriteConfig: IArchiveWriteConfig;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -96,7 +103,8 @@ type
       const ATileNameGeneratorList: ITileFileNameGeneratorsList;
       const ATileStorageTypeList: ITileStorageTypeListStatic;
       const AFileFilters: string;
-      const AFileExtDefault: string
+      const AFileExtDefault: string;
+      const AArchiveWriterConfigFrame: TFrame = nil
     ); reintroduce;
     destructor Destroy; override;
     procedure RefreshTranslation; override;
@@ -116,7 +124,8 @@ constructor TfrExportToFileCont.Create(
   const ATileNameGeneratorList: ITileFileNameGeneratorsList;
   const ATileStorageTypeList: ITileStorageTypeListStatic;
   const AFileFilters: string;
-  const AFileExtDefault: string
+  const AFileExtDefault: string;
+  const AArchiveWriterConfigFrame: TFrame
 );
 begin
   inherited Create(ALanguageManager);
@@ -143,6 +152,7 @@ begin
       ALanguageManager
     );
   FfrZoomsSelect.Init(0, 23);
+  FfrArchiveWriterConfig := AArchiveWriterConfigFrame;
 end;
 
 destructor TfrExportToFileCont.Destroy;
@@ -150,6 +160,7 @@ begin
   FreeAndNil(FfrMapSelect);
   FreeAndNil(FfrZoomsSelect);
   FreeAndNil(FfrCacheTypeList);
+  FreeAndNil(FfrArchiveWriterConfig);
   inherited;
 end;
 
@@ -163,6 +174,14 @@ end;
 function TfrExportToFileCont.GetAllowExport(const AMapType: IMapType): boolean;
 begin
   Result := True;
+end;
+
+function TfrExportToFileCont.GetArchiveWriteConfig: IArchiveWriteConfig;
+begin
+  Result := nil;
+  if FfrArchiveWriterConfig <> nil then begin
+    Result := (FfrArchiveWriterConfig as IArchiveWriteConfigFrame).GetWriteConfig;
+  end;
 end;
 
 function TfrExportToFileCont.GetMapType: IMapType;
@@ -191,6 +210,10 @@ begin
   FfrMapSelect.Show(pnlFrame);
   FfrZoomsSelect.Show(pnlZoom);
   FfrCacheTypeList.Show(pnlCacheTypes);
+  if FfrArchiveWriterConfig <> nil then begin
+    FfrArchiveWriterConfig.Parent := pnlArchiveWriteConfig;
+    FfrArchiveWriterConfig.Show;
+  end;
 end;
 
 procedure TfrExportToFileCont.RefreshTranslation;
@@ -199,16 +222,30 @@ begin
 end;
 
 function TfrExportToFileCont.Validate: Boolean;
+
+  procedure ShowErr(const AMsg: string);
+  begin
+    MessageDlg(AMsg, mtError, [mbOk], -1);
+  end;
+
 begin
   Result := (edtTargetFile.Text <> '');
   if not Result then begin
-    ShowMessage(_('Please, select output file first!'));
+    ShowErr(_('Please, select output file first!'));
     Exit;
   end;
 
   Result := FfrZoomsSelect.Validate;
   if not Result then begin
-    ShowMessage(_('Please select at least one zoom'));
+    ShowErr(_('Please select at least one zoom!'));
+    Exit;
+  end;
+
+  if FfrArchiveWriterConfig <> nil then begin
+    Result := GetArchiveWriteConfig <> nil;
+    if not Result then begin
+      Exit;
+    end;
   end;
 end;
 

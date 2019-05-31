@@ -1,11 +1,11 @@
 object frExportToFileCont: TfrExportToFileCont
   Left = 0
   Top = 0
-  Width = 480
+  Width = 451
   Height = 304
   Align = alClient
   Constraints.MinHeight = 120
-  Constraints.MinWidth = 480
+  Constraints.MinWidth = 451
   ParentShowHint = False
   ShowHint = True
   TabOrder = 0
@@ -13,13 +13,13 @@ object frExportToFileCont: TfrExportToFileCont
   object pnlCenter: TPanel
     Left = 0
     Top = 27
-    Width = 480
+    Width = 451
     Height = 277
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
     object pnlZoom: TPanel
-      Left = 405
+      Left = 376
       Top = 0
       Width = 75
       Height = 277
@@ -31,7 +31,7 @@ object frExportToFileCont: TfrExportToFileCont
     object pnlMain: TPanel
       Left = 0
       Top = 0
-      Width = 405
+      Width = 376
       Height = 277
       Align = alClient
       AutoSize = True
@@ -42,7 +42,7 @@ object frExportToFileCont: TfrExportToFileCont
         AlignWithMargins = True
         Left = 3
         Top = 44
-        Width = 399
+        Width = 370
         Height = 13
         Margins.Left = 0
         Margins.Right = 0
@@ -53,7 +53,7 @@ object frExportToFileCont: TfrExportToFileCont
       object pnlFrame: TPanel
         Left = 3
         Top = 3
-        Width = 399
+        Width = 370
         Height = 38
         Align = alTop
         BevelOuter = bvNone
@@ -62,7 +62,7 @@ object frExportToFileCont: TfrExportToFileCont
           AlignWithMargins = True
           Left = 0
           Top = 0
-          Width = 399
+          Width = 370
           Height = 13
           Margins.Left = 0
           Margins.Top = 0
@@ -75,20 +75,32 @@ object frExportToFileCont: TfrExportToFileCont
       object pnlCacheTypes: TPanel
         Left = 3
         Top = 60
-        Width = 399
+        Width = 370
         Height = 21
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitLeft = 0
-        ExplicitTop = 84
+      end
+      object pnlArchiveWriteConfig: TPanel
+        AlignWithMargins = True
+        Left = 3
+        Top = 84
+        Width = 370
+        Height = 184
+        Margins.Left = 0
+        Margins.Right = 0
+        Margins.Bottom = 0
+        Align = alTop
+        BevelOuter = bvNone
+        TabOrder = 2
+        ExplicitTop = 81
       end
     end
   end
   object pnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 480
+    Width = 451
     Height = 27
     Align = alTop
     BevelOuter = bvNone
@@ -111,13 +123,13 @@ object frExportToFileCont: TfrExportToFileCont
     object edtTargetFile: TEdit
       Left = 47
       Top = 3
-      Width = 409
+      Width = 380
       Height = 21
       Align = alClient
       TabOrder = 0
     end
     object btnSelectTargetFile: TButton
-      Left = 456
+      Left = 427
       Top = 3
       Width = 21
       Height = 21
