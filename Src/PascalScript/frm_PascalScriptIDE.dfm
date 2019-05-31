@@ -1,7 +1,7 @@
 object frmPascalScriptIDE: TfrmPascalScriptIDE
   Left = 0
   Top = 0
-  Caption = 'PascalScript IDE'
+  Caption = 'Pascal Script IDE'
   ClientHeight = 535
   ClientWidth = 756
   Color = clBtnFace
