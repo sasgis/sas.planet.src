@@ -4389,7 +4389,7 @@ object frmMain: TfrmMain
     end
     object actHelpOpenOnline: TBrowseURL
       Category = 'Help'
-      Caption = 'Open user manual'
+      Caption = 'Open User Manual'
       ImageIndex = 26
       ShortCut = 112
       URL = 'http://sasgis.org/wikisasiya/'
@@ -4402,27 +4402,27 @@ object frmMain: TfrmMain
     end
     object actHelpOpenWebSite: TBrowseURL
       Category = 'Help'
-      Caption = 'Open home page'
+      Caption = 'Open Home Page'
       URL = 'http://sasgis.org/'
     end
     object actHelpOpenIssueTracker: TBrowseURL
       Category = 'Help'
-      Caption = 'Report a bug'
+      Caption = 'Report a Bug'
       URL = 'http://sasgis.org/mantis/'
     end
     object actHelpOpenCommunity: TBrowseURL
       Category = 'Help'
-      Caption = 'Open forum page'
+      Caption = 'Open Forum Page'
       URL = 'http://sasgis.org/forum/'
     end
     object actShowPascalScriptIde: TAction
       Category = 'Help'
-      Caption = 'Pascal script IDE'
+      Caption = 'Pascal Script IDE'
       OnExecute = actShowPascalScriptIdeExecute
     end
     object actShowUpddateChecker: TAction
       Category = 'Help'
-      Caption = 'Check for updates'
+      Caption = 'Check for Updates'
       OnExecute = actShowUpddateCheckerExecute
     end
     object actViewFillingMapMarkUnexisting: TAction
