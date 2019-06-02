@@ -1187,6 +1187,7 @@
         <DCCReference Include="Src\PascalScript\u_PascalScriptRegExpr.pas"/>
         <DCCReference Include="Src\PascalScript\u_PascalScriptTypes.pas"/>
         <DCCReference Include="Src\PascalScript\u_PascalScriptUtils.pas"/>
+        <DCCReference Include="Src\PascalScript\u_PascalScriptWriteLn.pas"/>
         <DCCReference Include="Src\Performance\i_InternalPerformanceCounter.pas"/>
         <DCCReference Include="Src\Performance\i_InternalPerformanceCounterListForDebug.pas"/>
         <DCCReference Include="Src\Performance\u_InternalPerformanceCounter.pas"/>
@@ -1847,7 +1848,8 @@
         <DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
         <DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
         <DCCReference Include="Src\u_WindowPositionConfig.pas"/>
-        <DCCReference Include="Src\PascalScript\u_PascalScriptWriteLn.pas"/>
+        <DCCReference Include="Src\TileStorage\FileSystem\u_EnumTileInfoByFileIterator.pas"/>
+        <DCCReference Include="Src\TileStorage\FileSystem\u_FileSystemTools.pas"/>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

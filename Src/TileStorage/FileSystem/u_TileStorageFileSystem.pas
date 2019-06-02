@@ -47,53 +47,59 @@ type
   private
     FTileInfoMemCache: ITileInfoBasicMemCache;
     FMainContentType: IContentTypeInfoBasic;
+
+    FTneExt: string;
     FFileExt: string;
+
     FTileFileNameParser: ITileFileNameParser;
     FFileNameGenerator: ITileFileNameGenerator;
 
     FFsLock: IReadWriteSync;
     FTileNotExistsTileInfo: ITileInfoBasic;
 
-    procedure CreateDirIfNotExists(const APath: string);
     function GetTileInfoByPath(
       const APath: string;
       const AVersionInfo: IMapVersionInfo;
-      AIsLoadIfExists: Boolean
+      const AIsLoadIfExists: Boolean
     ): ITileInfoBasic;
   protected
     function GetTileFileName(
       const AXY: TPoint;
-      const AZoom: byte;
+      const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo
     ): string; override;
+
     function GetTileInfo(
       const AXY: TPoint;
-      const AZoom: byte;
+      const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
       const AMode: TGetTileInfoMode
     ): ITileInfoBasic; override;
+
     function GetTileInfoEx(
       const AXY: TPoint;
-      const AZoom: byte;
+      const AZoom: Byte;
       const AVersionInfo: IMapVersionRequest;
       const AMode: TGetTileInfoMode
     ): ITileInfoBasic; override;
+
     function GetTileRectInfo(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const ARect: TRect;
-      const AZoom: byte;
+      const AZoom: Byte;
       const AVersionInfo: IMapVersionRequest
     ): ITileRectInfo; override;
 
     function DeleteTile(
       const AXY: TPoint;
-      const AZoom: byte;
+      const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo
     ): Boolean; override;
+
     function SaveTile(
       const AXY: TPoint;
-      const AZoom: byte;
+      const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
       const ALoadDate: TDateTime;
       const AContentType: IContentTypeInfoBasic;
@@ -126,20 +132,15 @@ implementation
 uses
   Types,
   i_FileNameIterator,
-  i_StorageState,
   u_TileRectInfoShort,
-  u_BinaryDataByMemStream,
   u_TileIteratorByRect,
   u_FileNameIteratorFolderWithSubfolders,
   u_FoldersIteratorRecursiveByLevels,
   u_FileNameIteratorInFolderByMaskList,
   u_Synchronizer,
-  u_StrFunc,
   u_TileInfoBasic,
-  u_BaseInterfacedObject;
-
-const
-  CTneFileExt = '.tne';
+  u_FileSystemTools,
+  u_EnumTileInfoByFileIterator;
 
 { TTileStorageFileSystem }
 
@@ -174,26 +175,15 @@ begin
   FTileFileNameParser := ATileNameParser;
   FFileNameGenerator := ATileNameGenerator;
 
+  FTneExt := TFileSystemTools.GetTileNotFoundExt;
   FFileExt := FMainContentType.GetDefaultExt;
   FFsLock := GSync.SyncStdRecursive.Make(Self.ClassName);
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
 end;
 
-procedure TTileStorageFileSystem.CreateDirIfNotExists(const APath: string);
-var
-  i: integer;
-  VPath: string;
-begin
-  i := LastDelimiter(PathDelim, APath);
-  VPath := copy(APath, 1, i);
-  if not (DirectoryExists(VPath)) then begin
-    ForceDirectories(VPath);
-  end;
-end;
-
 function TTileStorageFileSystem.DeleteTile(
   const AXY: TPoint;
-  const AZoom: byte;
+  const AZoom: Byte;
   const AVersionInfo: IMapVersionInfo
 ): Boolean;
 var
@@ -206,7 +196,7 @@ begin
     try
       VBaseFN := FFileNameGenerator.GetTileFileName(AXY, AZoom);
       VFileName := StoragePath + FFileNameGenerator.AddExt(VBaseFN, FFileExt);
-      VTneName := StoragePath + FFileNameGenerator.AddExt(VBaseFN, CTneFileExt);
+      VTneName := StoragePath + FFileNameGenerator.AddExt(VBaseFN, FTneExt);
 
       FFsLock.BeginWrite;
       try
@@ -233,7 +223,7 @@ end;
 
 function TTileStorageFileSystem.GetTileFileName(
   const AXY: TPoint;
-  const AZoom: byte;
+  const AZoom: Byte;
   const AVersionInfo: IMapVersionInfo
 ): string;
 begin
@@ -242,86 +232,17 @@ begin
     FFileNameGenerator.AddExt(FFileNameGenerator.GetTileFileName(AXY, AZoom), FFileExt);
 end;
 
-function _GetFileDateTime(var AInfo: WIN32_FILE_ATTRIBUTE_DATA): TDateTime;
-var
-  VSysTime: TSystemTime;
-  VFileTimePtr: PFileTime;
-begin
-  Result := 0;
-  VFileTimePtr := nil;
-
-  // last modified time (if exists)
-  if (AInfo.ftLastWriteTime.dwLowDateTime <> 0) and (AInfo.ftLastWriteTime.dwHighDateTime <> 0) then begin
-    VFileTimePtr := @(AInfo.ftLastWriteTime);
-  end else if (AInfo.ftCreationTime.dwLowDateTime <> 0) and (AInfo.ftCreationTime.dwHighDateTime <> 0) then begin
-    // created time (if exists)
-    VFileTimePtr := @(AInfo.ftCreationTime);
-  end;
-
-  if VFileTimePtr <> nil then begin
-    if FileTimeToSystemTime(VFileTimePtr^, VSysTime) then begin
-      try
-        Result := SystemTimeToDateTime(VSysTime);
-      except
-        //
-      end;
-    end;
-  end;
-end;
-
-procedure UpdateTileInfoByFile(
-  const AIsTneFile: Boolean;
-  const AIsLoadData: Boolean;
-  const AFileName: string;
-  var ATileInfo: TTileInfo
-);
-var
-  VInfo: WIN32_FILE_ATTRIBUTE_DATA;
-  VMemStream: TMemoryStream;
-begin
-  if GetFileAttributesEx(PChar(AFileName), GetFileExInfoStandard, @VInfo) <> FALSE then begin
-    if AIsTneFile then begin
-      ATileInfo.FInfoType := titTneExists;
-      ATileInfo.FLoadDate := _GetFileDateTime(VInfo);
-      ATileInfo.FData := nil;
-      ATileInfo.FSize := 0;
-    end else begin
-      ATileInfo.FInfoType := titExists;
-      ATileInfo.FLoadDate := _GetFileDateTime(VInfo);
-      if AIsLoadData then begin
-        VMemStream := TMemoryStream.Create;
-        try
-          VMemStream.LoadFromFile(AFileName);
-          ATileInfo.FData := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
-          VMemStream := nil;
-        finally
-          VMemStream.Free;
-        end;
-        ATileInfo.FSize := ATileInfo.FData.Size;
-      end else begin
-        ATileInfo.FData := nil;
-        ATileInfo.FSize := VInfo.nFileSizeLow;
-      end;
-    end;
-  end else begin
-    ATileInfo.FInfoType := titNotExists;
-    ATileInfo.FLoadDate := 0;
-    ATileInfo.FData := nil;
-    ATileInfo.FSize := 0;
-  end;
-end;
-
 function TTileStorageFileSystem.GetTileInfoByPath(
   const APath: string;
   const AVersionInfo: IMapVersionInfo;
-  AIsLoadIfExists: Boolean
+  const AIsLoadIfExists: Boolean
 ): ITileInfoBasic;
 var
   VTileInfo: TTileInfo;
 begin
   FFsLock.BeginRead;
   try
-    UpdateTileInfoByFile(False, AIsLoadIfExists, APath, VTileInfo);
+    TFileSystemTools.UpdateTileInfoByFile(False, AIsLoadIfExists, APath, VTileInfo);
     if VTileInfo.FInfoType = titExists then begin
       // tile exists
       if AIsLoadIfExists then begin
@@ -342,7 +263,12 @@ begin
           );
       end;
     end else begin
-      UpdateTileInfoByFile(True, AIsLoadIfExists, ChangeFileExt(APath, CTneFileExt), VTileInfo);
+      TFileSystemTools.UpdateTileInfoByFile(
+        True,
+        AIsLoadIfExists,
+        ChangeFileExt(APath, FTneExt),
+        VTileInfo
+      );
       if VTileInfo.FInfoType = titTneExists then begin
         // tne exists
         Result := TTileInfoBasicTNE.Create(VTileInfo.FLoadDate, nil);
@@ -358,7 +284,7 @@ end;
 
 function TTileStorageFileSystem.GetTileInfoEx(
   const AXY: TPoint;
-  const AZoom: byte;
+  const AZoom: Byte;
   const AVersionInfo: IMapVersionRequest;
   const AMode: TGetTileInfoMode
 ): ITileInfoBasic;
@@ -370,7 +296,7 @@ function TTileStorageFileSystem.GetTileRectInfo(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const ARect: TRect;
-  const AZoom: byte;
+  const AZoom: Byte;
   const AVersionInfo: IMapVersionRequest
 ): ITileRectInfo;
 var
@@ -419,14 +345,24 @@ begin
             VPrevFolderExist := VFolderExists;
           end;
           if VFolderExists then begin
-            UpdateTileInfoByFile(False, False, FFileNameGenerator.AddExt(VFileName, FFileExt), VTileInfo);
+            TFileSystemTools.UpdateTileInfoByFile(
+              False,
+              False,
+              FFileNameGenerator.AddExt(VFileName, FFileExt),
+              VTileInfo
+            );
             if VTileInfo.FInfoType = titExists then begin
               // tile exists
               VItems[VIndex].FInfoType := titExists;
               VItems[VIndex].FLoadDate := VTileInfo.FLoadDate;
               VItems[VIndex].FSize := VTileInfo.FSize;
             end else begin
-              UpdateTileInfoByFile(True, False, FFileNameGenerator.AddExt(VFileName, CTneFileExt), VTileInfo);
+              TFileSystemTools.UpdateTileInfoByFile(
+                True,
+                False,
+                FFileNameGenerator.AddExt(VFileName, FTneExt),
+                VTileInfo
+              );
               if VTileInfo.FInfoType = titTneExists then begin
                 // tne exists
                 VItems[VIndex].FInfoType := titTneExists;
@@ -462,7 +398,7 @@ end;
 
 function TTileStorageFileSystem.GetTileInfo(
   const AXY: TPoint;
-  const AZoom: byte;
+  const AZoom: Byte;
   const AVersionInfo: IMapVersionInfo;
   const AMode: TGetTileInfoMode
 ): ITileInfoBasic;
@@ -491,7 +427,7 @@ end;
 
 function TTileStorageFileSystem.SaveTile(
   const AXY: TPoint;
-  const AZoom: byte;
+  const AZoom: Byte;
   const AVersionInfo: IMapVersionInfo;
   const ALoadDate: TDateTime;
   const AContentType: IContentTypeInfoBasic;
@@ -516,7 +452,7 @@ begin
 
     VBaseFN := FFileNameGenerator.GetTileFileName(AXY, AZoom);
     VFileName := StoragePath + FFileNameGenerator.AddExt(VBaseFN, FFileExt);
-    VTneName := StoragePath + FFileNameGenerator.AddExt(VBaseFN, CTneFileExt);
+    VTneName := StoragePath + FFileNameGenerator.AddExt(VBaseFN, FTneExt);
 
     FFsLock.BeginWrite;
     try
@@ -527,7 +463,7 @@ begin
         end;
       end;
       if Assigned(AContentType) and Assigned(AData) then begin
-        CreateDirIfNotExists(VFileName);
+        TFileSystemTools.CreateDirIfNotExists(VFileName);
         VHandle := INVALID_HANDLE_VALUE;
         try
           VHandle :=
@@ -543,10 +479,7 @@ begin
           if VHandle = INVALID_HANDLE_VALUE then begin
             RaiseLastOSError;
           end;
-
-          {$WARN SYMBOL_PLATFORM OFF}
-          FileSetDate(VHandle, DateTimeToFileDate(ALoadDate)); // (!) 'FileSetDate' is specific to a platform
-          {$WARN SYMBOL_PLATFORM ON}
+          TFileSystemTools.SetFileDate(VHandle, ALoadDate);
           VFileStream := THandleStream.Create(VHandle);
           try
             VFileStream.Size := AData.Size;
@@ -573,7 +506,7 @@ begin
         end;
       end else begin
         if not FileExists(VTneName) then begin
-          CreateDirIfNotExists(VTneName);
+          TFileSystemTools.CreateDirIfNotExists(VTneName);
           VHandle := INVALID_HANDLE_VALUE;
           try
             VHandle :=
@@ -589,9 +522,7 @@ begin
             if VHandle = INVALID_HANDLE_VALUE then begin
               RaiseLastOSError;
             end;
-            {$WARN SYMBOL_PLATFORM OFF}
-            FileSetDate(VHandle, DateTimeToFileDate(ALoadDate)); // (!) 'FileSetDate' is specific to a platform
-            {$WARN SYMBOL_PLATFORM ON}
+            TFileSystemTools.SetFileDate(VHandle, ALoadDate);
           finally
             if VHandle <> INVALID_HANDLE_VALUE then begin
               FileClose(VHandle);
@@ -621,84 +552,6 @@ begin
   end;
 end;
 
-{ TEnumTileInfoByFileIterator }
-
-type
-  TEnumTileInfoByFileIterator = class(TBaseInterfacedObject, IEnumTileInfo)
-  private
-    FFilesIterator: IFileNameIterator;
-    FTileFileNameParser: ITileFileNameParser;
-    FStorageState: IStorageStateChangeble;
-    FMainContentType: IContentTypeInfoBasic;
-    FLock: IReadWriteSync;
-  private
-    function Next(var ATileInfo: TTileInfo): Boolean;
-  public
-    constructor Create(
-      const AFilesIterator: IFileNameIterator;
-      const ATileFileNameParser: ITileFileNameParser;
-      const ALock: IReadWriteSync;
-      const AStorageState: IStorageStateChangeble;
-      const AMainContentType: IContentTypeInfoBasic
-    );
-  end;
-
-constructor TEnumTileInfoByFileIterator.Create(
-  const AFilesIterator: IFileNameIterator;
-  const ATileFileNameParser: ITileFileNameParser;
-  const ALock: IReadWriteSync;
-  const AStorageState: IStorageStateChangeble;
-  const AMainContentType: IContentTypeInfoBasic
-);
-begin
-  inherited Create;
-  FFilesIterator := AFilesIterator;
-  FTileFileNameParser := ATileFileNameParser;
-  FLock := ALock;
-  FStorageState := AStorageState;
-  FMainContentType := AMainContentType;
-end;
-
-function TEnumTileInfoByFileIterator.Next(var ATileInfo: TTileInfo): Boolean;
-var
-  VTileFileName: AnsiString;
-  VTileFileNameW: string;
-  VTileXY: TPoint;
-  VTileZoom: Byte;
-  VFullFileName: string;
-begin
-  Result := False;
-  while FFilesIterator.Next(VTileFileNameW) do begin
-    if IsAscii(VTileFileNameW) then begin
-      VTileFileName := StringToAsciiSafe(VTileFileNameW);
-      if FTileFileNameParser.GetTilePoint(VTileFileName, VTileXY, VTileZoom) then begin
-        VFullFileName := FFilesIterator.GetRootFolderName + VTileFileNameW;
-        if FStorageState.GetStatic.ScanAccess then begin
-          FLock.BeginRead;
-          try
-            UpdateTileInfoByFile(
-              ExtractFileExt(VFullFileName) = CTneFileExt,
-              True,
-              VFullFileName,
-              ATileInfo
-            );
-            ATileInfo.FTile := VTileXY;
-            ATileInfo.FZoom := VTileZoom;
-            ATileInfo.FVersionInfo := nil;
-            ATileInfo.FContentType := FMainContentType;
-            if ATileInfo.FInfoType <> titNotExists then begin
-              Result := True;
-              Break;
-            end;
-          finally
-            FLock.EndRead;
-          end;
-        end;
-      end;
-    end;
-  end;
-end;
-
 function TTileStorageFileSystem.ScanTiles(
   const AIgnoreTNE: Boolean;
   const AIgnoreMultiVersionTiles: Boolean
@@ -719,7 +572,7 @@ begin
   try
     VProcessFileMasks.Add('*' + FFileExt);
     if not AIgnoreTNE then begin
-      VProcessFileMasks.Add('*' + CTneFileExt);
+      VProcessFileMasks.Add('*' + FTneExt);
     end;
 
     VFoldersIteratorFactory :=

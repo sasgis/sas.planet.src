@@ -1233,6 +1233,8 @@ uses
   u_ETS_Tiles in 'Src\TileStorage\DBMS\ExtTileStorages\u_ETS_Tiles.pas',
   u_TileStorageDBMS in 'Src\TileStorage\DBMS\u_TileStorageDBMS.pas',
   u_TileStorageTypeDBMS in 'Src\TileStorage\DBMS\u_TileStorageTypeDBMS.pas',
+  u_EnumTileInfoByFileIterator in 'Src\TileStorage\FileSystem\u_EnumTileInfoByFileIterator.pas',
+  u_FileSystemTools in 'Src\TileStorage\FileSystem\u_FileSystemTools.pas',
   u_TileFileNameBase in 'Src\TileStorage\FileSystem\u_TileFileNameBase.pas',
   u_TileFileNameES in 'Src\TileStorage\FileSystem\u_TileFileNameES.pas',
   u_TileFileNameGM1 in 'Src\TileStorage\FileSystem\u_TileFileNameGM1.pas',

@@ -1095,6 +1095,7 @@
     <DCCReference Include="Src\PascalScript\u_PascalScriptRegExpr.pas" />
     <DCCReference Include="Src\PascalScript\u_PascalScriptTypes.pas" />
     <DCCReference Include="Src\PascalScript\u_PascalScriptUtils.pas" />
+    <DCCReference Include="Src\PascalScript\u_PascalScriptWriteLn.pas" />
     <DCCReference Include="Src\PascalScript\u_PSExecEx.pas" />
     <DCCReference Include="Src\PascalScript\u_PSPascalCompilerEx.pas" />
     <DCCReference Include="Src\Performance\i_InternalPerformanceCounter.pas" />
@@ -1520,6 +1521,8 @@
     <DCCReference Include="Src\TileStorage\DBMS\ExtTileStorages\u_ETS_Tiles.pas" />
     <DCCReference Include="Src\TileStorage\DBMS\u_TileStorageDBMS.pas" />
     <DCCReference Include="Src\TileStorage\DBMS\u_TileStorageTypeDBMS.pas" />
+    <DCCReference Include="Src\TileStorage\FileSystem\u_EnumTileInfoByFileIterator.pas" />
+    <DCCReference Include="Src\TileStorage\FileSystem\u_FileSystemTools.pas" />
     <DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameBase.pas" />
     <DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameES.pas" />
     <DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameGM1.pas" />
