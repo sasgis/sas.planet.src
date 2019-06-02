@@ -39,6 +39,7 @@ uses
   TBX,
   SynEdit,
   frm_PascalScriptDbgOut,
+  t_PascalScript,
   i_Listener,
   i_NotifierOperation,
   i_MapTypeSet,
@@ -67,6 +68,7 @@ uses
   i_MainMapsState,
   u_PSExecEx,
   u_PSPascalCompilerEx,
+  u_PascalScriptWriteLn,
   u_CommonFormAndFrameParents,
   u_TileDownloadRequestBuilderPascalScriptVars;
 
@@ -172,7 +174,7 @@ type
     FAppClosingListener: IListener;
     FCancelNotifierInternal: INotifierOperationInternal;
     FViewPortState: ILocalCoordConverterChangeable;
-    FDebugLines: TStringList;
+    FWriteLn: TPascalScriptWriteLn;
     function GetZmpFromFolder(const APath: string): IZmpInfo;
     function GetZmpFromZip(const AFileName: string): IZmpInfo;
     function GetZmpFromGUI: IZmpInfo;
@@ -194,7 +196,8 @@ type
     procedure CancelOperation;
     function IsModified: Boolean;
     procedure ResetModified;
-    procedure DebugWriteLn(const s: string);
+    function GetCompileTimeRegProcArray: TOnCompileTimeRegProcArray;
+    function GetExecTimeRegMethodArray: TOnExecTimeRegMethodArray;
   public
     constructor Create(
       const AGUIConfigList: IMapTypeGUIConfigList;
@@ -235,7 +238,6 @@ uses
   {$ENDIF}
   Encodings,
   t_GeoTypes,
-  t_PascalScript,
   i_TileRequest,
   i_ArchiveReadWrite,
   i_ConfigDataProvider,
@@ -279,22 +281,6 @@ const
     '%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%' +
     'D0%B5%D0%BB%D1%8C%D1%81%D0%BA%D0%B8%D1%85_%D0%BA%' +
     'D0%B0%D1%80%D1%82_zmp';
-
-procedure CompileTimeReg_Debug(const APSComp: TPSPascalCompiler);
-begin
-  APSComp.AddDelphiFunction('procedure writeln(const s: string)');
-end;
-
-function CompileTime_GetRegProcArray: TOnCompileTimeRegProcArray;
-begin
-  SetLength(Result, 6);
-  Result[0] := @CompileTimeReg_ProjConverter;
-  Result[1] := @CompileTimeReg_ProjConverterFactory;
-  Result[2] := @CompileTimeReg_CoordConverterSimple;
-  Result[3] := @CompileTimeReg_SimpleHttpDownloader;
-  Result[4] := @CompileTimeReg_RequestBuilderVars;
-  Result[5] := @CompileTimeReg_Debug;
-end;
 
 { TfrmPascalScriptIDE }
 
@@ -359,7 +345,7 @@ begin
   FArchiveStream := TMemoryStream.Create;
   FLastPath := '';
   FScriptBuffer := '';
-  FDebugLines := TStringList.Create;
+  FWriteLn := TPascalScriptWriteLn.Create;
 end;
 
 destructor TfrmPascalScriptIDE.Destroy;
@@ -369,10 +355,28 @@ begin
     FAppClosingNotifier := nil;
     FAppClosingListener := nil;
   end;
-  FDebugLines.Free;
+  FWriteLn.Free;
   FArchiveStream.Free;
   FreeAndNil(FfrmDebug);
   inherited Destroy;
+end;
+
+function TfrmPascalScriptIDE.GetCompileTimeRegProcArray: TOnCompileTimeRegProcArray;
+begin
+  SetLength(Result, 6);
+  Result[0] := @CompileTimeReg_ProjConverter;
+  Result[1] := @CompileTimeReg_ProjConverterFactory;
+  Result[2] := @CompileTimeReg_CoordConverterSimple;
+  Result[3] := @CompileTimeReg_SimpleHttpDownloader;
+  Result[4] := @CompileTimeReg_RequestBuilderVars;
+  Result[5] := @CompileTimeReg_WriteLn;
+end;
+
+function TfrmPascalScriptIDE.GetExecTimeRegMethodArray: TOnExecTimeRegMethodArray;
+begin
+  SetLength(Result, 1);
+  Result[0].Obj := FWriteLn;
+  Result[0].Func := @ExecTimeReg_WriteLn;
 end;
 
 procedure TfrmPascalScriptIDE.VersionFromZmp;
@@ -442,7 +446,7 @@ var
 begin
   AByteCode := '';
 
-  FDebugLines.Clear;
+  FWriteLn.Clear;
   FfrmDebug.mmoDbgOut.Lines.Clear;
 
   if IsModified then begin
@@ -454,7 +458,7 @@ begin
 
   VCode := FZmp.DataProvider.ReadAnsiString('GetUrlScript.txt', '');
 
-  VComp := TPSPascalCompilerEx.Create(CompileTime_GetRegProcArray);
+  VComp := TPSPascalCompilerEx.Create(GetCompileTimeRegProcArray);
   try
     VTime := FTimer.CurrentTime;
 
@@ -485,15 +489,8 @@ var
 begin
   Result := Compile(VByteCode);
   if Result then begin
-    VExec := TPSExecEx.Create;
+    VExec := TPSExecEx.Create(nil, GetExecTimeRegMethodArray);
     try
-      VExec.RegisterDelphiMethod(
-        Self,
-        @TfrmPascalScriptIDE.DebugWriteLn,
-        'WriteLn',
-        cdRegister
-      );
-
       Result := VExec.LoadData(VByteCode);
       if Result then begin
         VTime := FTimer.CurrentTime;
@@ -519,11 +516,6 @@ begin
       VExec.Free;
     end;
   end;
-end;
-
-procedure TfrmPascalScriptIDE.DebugWriteLn(const S: string);
-begin
-  FDebugLines.Add(s);
 end;
 
 procedure TfrmPascalScriptIDE.CreateMapUILayersList;
@@ -760,9 +752,9 @@ begin
   FfrmDebug.mmoDbgOut.Lines.Add('[Version]');
   FfrmDebug.mmoDbgOut.Lines.Add(_VarToStr(FPSVars.Version));
 
-  if FDebugLines.Count > 0 then begin
+  if FWriteLn.Count > 0 then begin
     FfrmDebug.mmoDbgOut.Lines.Add('[WriteLn]');
-    FfrmDebug.mmoDbgOut.Lines.AddStrings(FDebugLines);
+    FfrmDebug.mmoDbgOut.Lines.AddStrings(FWriteLn);
   end;
 
   FScriptBuffer := FPSVars.ScriptBuffer;

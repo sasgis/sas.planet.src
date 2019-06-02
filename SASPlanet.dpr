@@ -932,6 +932,7 @@ uses
   u_PascalScriptRegExpr in 'Src\PascalScript\u_PascalScriptRegExpr.pas',
   u_PascalScriptTypes in 'Src\PascalScript\u_PascalScriptTypes.pas',
   u_PascalScriptUtils in 'Src\PascalScript\u_PascalScriptUtils.pas',
+  u_PascalScriptWriteLn in 'Src\PascalScript\u_PascalScriptWriteLn.pas',
   i_InternalPerformanceCounter in 'Src\Performance\i_InternalPerformanceCounter.pas',
   i_InternalPerformanceCounterListForDebug in 'Src\Performance\i_InternalPerformanceCounterListForDebug.pas',
   u_InternalPerformanceCounter in 'Src\Performance\u_InternalPerformanceCounter.pas',

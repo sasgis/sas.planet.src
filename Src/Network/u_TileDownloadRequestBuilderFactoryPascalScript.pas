@@ -79,6 +79,7 @@ uses
   u_Synchronizer,
   u_CoordConverterSimpleByProjectionSet,
   u_PascalScriptTypes,
+  u_PascalScriptWriteLn,
   u_PascalScriptCompiler,
   u_TileDownloadRequestBuilderPascalScript,
   u_TileDownloadRequestBuilderPascalScriptVars;
@@ -123,12 +124,13 @@ procedure TTileDownloadRequestBuilderFactoryPascalScript.DoCompileScript;
 
   function _GetRegProcArray: TOnCompileTimeRegProcArray;
   begin
-    SetLength(Result, 5);
+    SetLength(Result, 6);
     Result[0] := @CompileTimeReg_ProjConverter;
     Result[1] := @CompileTimeReg_ProjConverterFactory;
     Result[2] := @CompileTimeReg_CoordConverterSimple;
     Result[3] := @CompileTimeReg_SimpleHttpDownloader;
     Result[4] := @CompileTimeReg_RequestBuilderVars;
+    Result[5] := @CompileTimeReg_WriteLn;
   end;
 
 var

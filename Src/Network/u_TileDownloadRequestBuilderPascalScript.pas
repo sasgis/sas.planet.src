@@ -104,6 +104,7 @@ implementation
 
 uses
   t_GeoTypes,
+  t_PascalScript,
   i_BinaryData,
   i_MapVersionInfo,
   i_SimpleHttpDownloader,
@@ -112,6 +113,7 @@ uses
   u_TileDownloadRequest,
   u_SimpleHttpDownloader,
   u_SimpleFlagWithInterlock,
+  u_PascalScriptWriteLn,
   u_ResStrings;
 
 { TTileRequestBuilderPascalScript }
@@ -233,11 +235,19 @@ begin
 end;
 
 procedure TTileDownloadRequestBuilderPascalScript.PrepareCompiledScript(const ACompiledData: TbtString);
+
+  function GetExecTimeRegMethodArray: TOnExecTimeRegMethodArray;
+  begin
+    SetLength(Result, 1);
+    Result[0].Obj := nil;
+    Result[0].Func := @ExecTimeReg_WriteLn;
+  end;
+
 begin
   FScriptBuffer := '';
 
   // create
-  FPSExec := TPSExecEx.Create;
+  FPSExec := TPSExecEx.Create(nil, GetExecTimeRegMethodArray);
 
   // load
   if not FPSExec.LoadData(ACompiledData) then begin

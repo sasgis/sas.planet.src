@@ -27,14 +27,25 @@ uses
   uPSCompiler;
 
 type
+  // compile time
   TOnCompileTimeRegProc = procedure(const APSComp: TPSPascalCompiler);
 
   TOnCompileTimeRegProcArray = array of TOnCompileTimeRegProc;
 
-
+  // exec time
   TOnExecTimeRegProc = procedure(const APSExec: TPSExec);
 
   TOnExecTimeRegProcArray = array of TOnExecTimeRegProc;
+
+  // exec time - object methods
+  TOnExecTimeRegMethod = procedure(const APSExec: TPSExec; const AObj: TObject);
+
+  TOnExecTimeRegMethodRec = record
+    Obj: TObject;
+    Func: TOnExecTimeRegMethod;
+  end;
+
+  TOnExecTimeRegMethodArray = array of TOnExecTimeRegMethodRec;
 
 implementation
 

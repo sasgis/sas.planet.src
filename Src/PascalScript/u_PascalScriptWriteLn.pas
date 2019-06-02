@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -18,68 +18,58 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_PSExecEx;
+unit u_PascalScriptWriteLn;
 
 interface
 
 uses
+  Classes,
   uPSRuntime,
-  t_PascalScript;
+  uPSCompiler;
+
+procedure CompileTimeReg_WriteLn(const APSComp: TPSPascalCompiler);
+procedure ExecTimeReg_WriteLn(const APSExec: TPSExec; const AObj: TObject);
 
 type
-  TPSExecEx = class(TPSExec)
+  TPascalScriptWriteLn = class(TStringList)
   private
-    procedure DoExecTimeReg(
-      const ARegProcArray: TOnExecTimeRegProcArray;
-      const ARegMethodArray: TOnExecTimeRegMethodArray
-    );
-  public
-    constructor Create(
-      const ARegProcArray: TOnExecTimeRegProcArray = nil;
-      const ARegMethodArray: TOnExecTimeRegMethodArray = nil
-    );
+    procedure PSAddString(const s: string);
   end;
 
 implementation
 
-uses
-  uPSR_dll,
-  u_PascalScriptBase64,
-  u_PascalScriptRegExpr,
-  u_PascalScriptMath,
-  u_PascalScriptUtils;
-
-{ TPSExecEx }
-
-constructor TPSExecEx.Create(
-  const ARegProcArray: TOnExecTimeRegProcArray;
-  const ARegMethodArray: TOnExecTimeRegMethodArray
-);
+procedure CompileTimeReg_WriteLn(const APSComp: TPSPascalCompiler);
 begin
-  inherited Create;
-  DoExecTimeReg(ARegProcArray, ARegMethodArray);
+  APSComp.AddDelphiFunction('procedure WriteLn(const s: string)');
 end;
 
-procedure TPSExecEx.DoExecTimeReg(
-  const ARegProcArray: TOnExecTimeRegProcArray;
-  const ARegMethodArray: TOnExecTimeRegMethodArray
-);
-var
-  I: Integer;
+{ TPascalScriptWriteLn }
+
+procedure TPascalScriptWriteLn.PSAddString(const s: string);
 begin
-  RegisterDLLRuntime(Self);
+  Add(s);
+end;
 
-  ExecTimeReg_Math(Self);
-  ExecTimeReg_RegExpr(Self);
-  ExecTimeReg_Base64(Self);
-  ExecTimeReg_Utils(Self);
+procedure FakeWriteLn(const s: string);
+begin
+  // nothing here
+end;
 
-  for I := Low(ARegProcArray) to High(ARegProcArray) do begin
-    ARegProcArray[I](Self);
-  end;
-
-  for I := Low(ARegMethodArray) to High(ARegMethodArray) do begin
-    ARegMethodArray[I].Func(Self, ARegMethodArray[I].Obj);
+procedure ExecTimeReg_WriteLn(const APSExec: TPSExec; const AObj: TObject);
+begin
+  if AObj <> nil then begin
+    APSExec.RegisterDelphiMethod(
+      AObj as TPascalScriptWriteLn,
+      @TPascalScriptWriteLn.PSAddString,
+      'WriteLn',
+      cdRegister
+    );
+  end else begin
+    APSExec.RegisterDelphiFunction(
+      @FakeWriteLn,
+      'WriteLn',
+      cdRegister
+    );
   end;
 end;
 
