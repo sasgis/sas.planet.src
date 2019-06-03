@@ -37,6 +37,8 @@ type
     FOnChange: TNotifyEvent;
     FOptions: TTileStorageTypeClassSet;
     FRequaredAbilities: TTileStorageAbilitiesClassSet;
+    FTileStorageTypeList: ITileStorageTypeListStatic;
+    FWithDefaultItem: Boolean;
     function IsItemAllowed(
       const AItem: ITileStorageTypeListItem
     ): Boolean; inline;
@@ -44,11 +46,15 @@ type
       const ATypesList: ITileStorageTypeListStatic;
       const AWithDefaultItem: Boolean
     );
+    procedure SetFilterOptions(
+      const AOptions: TTileStorageTypeClassSet
+    );
   public
     procedure Show(AParent: TWinControl);
     function GetIntCode: Integer;
     procedure SetIntCode(const AValue: Integer);
     property IntCode: Integer read GetIntCode write SetIntCode;
+    property FilterOptions: TTileStorageTypeClassSet read FOptions write SetFilterOptions;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -79,13 +85,14 @@ constructor TfrCacheTypeList.Create(
   const AOnChange: TNotifyEvent
 );
 begin
-  Assert(AFilterOptions <> []);
   inherited Create(ALanguageManager);
-  FOnChange := AOnChange;
-  FOptions := AFilterOptions;
+
+  FTileStorageTypeList := ATileStorageTypeList;
+  FWithDefaultItem := AWithDefaultItem;
   FRequaredAbilities := ARequaredAbilities;
-  
-  FillItems(ATileStorageTypeList, AWithDefaultItem);
+  FOnChange := AOnChange;
+
+  SetFilterOptions(AFilterOptions);
 end;
 
 procedure TfrCacheTypeList.Show(AParent: TWinControl);
@@ -174,6 +181,15 @@ var
 begin
   I := cbbCacheType.ItemIndex;
   Result := Integer(cbbCacheType.Items.Objects[I]);
+end;
+
+procedure TfrCacheTypeList.SetFilterOptions(
+  const AOptions: TTileStorageTypeClassSet
+);
+begin
+  Assert(AOptions <> []);
+  FOptions := AOptions;
+  FillItems(FTileStorageTypeList, FWithDefaultItem);
 end;
 
 procedure TfrCacheTypeList.SetIntCode(const AValue: Integer);

@@ -87,15 +87,25 @@ type
     edtDestVersion: TEdit;
     TBXDontClose: TTBXToolbar;
     tbtmDontClose: TTBItem;
+    cbbSourceType: TComboBox;
+    dlgOpenFile: TOpenDialog;
+    dlgSaveFile: TSaveDialog;
+    cbbDestType: TComboBox;
     procedure btnStartClick(Sender: TObject);
     procedure btnSelectSrcPathClick(Sender: TObject);
     procedure btnSelectDestPathClick(Sender: TObject);
     procedure btnCanselClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure cbbSourceTypeChange(Sender: TObject);
+    procedure cbbDestTypeChange(Sender: TObject);
   private
     type
+      TSrcType = (stArchive, stFolder);
+      TDestType = (dtArchiveZip, dtArchiveTar, dtFolder);
       TArchiveType = (atNotArch, atTar, atZip);
   private
+    FSrcType: TSrcType;
+    FDestType: TDestType;
     FLanguageManager: ILanguageManager;
     FAppClosingNotifier: INotifierOneOperation;
     FTimerNoifier: INotifierTime;
@@ -146,6 +156,7 @@ uses
   FileCtrl,
   {$WARN UNIT_PLATFORM ON}
   SysUtils,
+  gnugettext,
   c_CacheTypeCodes,
   c_CoordConverter,
   i_ArchiveReadWrite,
@@ -206,6 +217,9 @@ begin
   FValueToStringConverter := AValueToStringConverter;
   FTileStorageTypeList := ATileStorageTypeList;
 
+  FSrcType := stFolder;
+  FDestType := dtFolder;
+
   FfrSrcCacheTypesList :=
     TfrCacheTypeList.Create(
       ALanguageManager,
@@ -214,6 +228,7 @@ begin
       CTileStorageTypeClassAll - [tstcInMemory],
       [tsacScan]
     );
+
   FfrDestCacheTypesList :=
     TfrCacheTypeList.Create(
       ALanguageManager,
@@ -222,6 +237,9 @@ begin
       CTileStorageTypeClassAll - [tstcInMemory],
       [tsacAdd]
     );
+
+  cbbSourceTypeChange(nil);
+  cbbDestTypeChange(nil);
 end;
 
 destructor TfrmCacheManager.Destroy;
@@ -235,8 +253,6 @@ procedure TfrmCacheManager.FormShow(Sender: TObject);
 begin
   FfrSrcCacheTypesList.Show(pnlCacheTypes);
   FfrDestCacheTypesList.Show(pnlDestCacheTypes);
-  FfrSrcCacheTypesList.IntCode := c_File_Cache_Id_SAS;
-  FfrDestCacheTypesList.IntCode := c_File_Cache_Id_SQLite;
 end;
 
 function IsFileSystemStorage(const AFormatID: Byte): Boolean; inline;
@@ -351,9 +367,106 @@ procedure TfrmCacheManager.btnSelectSrcPathClick(Sender: TObject);
 var
   VPath: string;
 begin
-  VPath := edtPath.Text;
-  if SelectDirectory('', '', VPath) then begin
-    edtPath.Text := IncludeTrailingPathDelimiter(VPath);
+  VPath := Trim(edtPath.Text);
+  case FSrcType of
+    stArchive: begin
+      dlgOpenFile.Filter := 'zip|*.zip|tar|*.tar';
+      dlgOpenFile.DefaultExt := '*.zip';
+      if dlgOpenFile.Execute then begin
+        edtPath.Text := dlgOpenFile.FileName;
+      end;
+    end;
+    stFolder: begin
+      if SelectDirectory('', '', VPath) then begin
+        edtPath.Text := IncludeTrailingPathDelimiter(VPath);
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmCacheManager.btnSelectDestPathClick(Sender: TObject);
+var
+  VPath: string;
+begin
+  VPath := Trim(edtDestPath.Text);
+  case FDestType of
+    dtArchiveZip: begin
+      dlgSaveFile.Filter := 'zip|*.zip';
+      dlgSaveFile.DefaultExt := '*.zip';
+    end;
+    dtArchiveTar: begin
+      dlgSaveFile.Filter := 'tar|*.tar';
+      dlgSaveFile.DefaultExt := '*.tar';
+    end;
+    dtFolder: begin
+      if SelectDirectory('', '', VPath) then begin
+        edtDestPath.Text := IncludeTrailingPathDelimiter(VPath);
+      end;
+    end;
+  end;
+  if FDestType in [dtArchiveZip, dtArchiveTar] then begin
+    if dlgSaveFile.Execute then begin
+      edtDestPath.Text := dlgSaveFile.FileName;
+    end;
+  end;
+end;
+
+procedure TfrmCacheManager.btnStartClick(Sender: TObject);
+
+  procedure ShowError(const AMsg: string);
+  begin
+    MessageDlg(AMsg, mtError, [mbOk], -1);
+  end;
+
+  function IsValidInputForCacheConverter: Boolean;
+  begin
+    Result := False;
+
+    // source
+    if Trim(edtPath.Text) = '' then begin
+      case FSrcType of
+        stArchive: ShowError( _('Source cache file is not specified!') );
+        stFolder: ShowError( _('Source cache path is not specified!') );
+      else
+        Assert(False);
+      end;
+      Exit;
+    end;
+    if FfrSrcCacheTypesList.cbbCacheType.ItemIndex = -1 then begin
+      ShowError( _('Source cache type is not selected!') );
+      Exit;
+    end;
+
+    // dest
+    if Trim(edtDestPath.Text) = '' then begin
+      case FDestType of
+        dtArchiveZip, dtArchiveTar: begin
+          ShowError( _('Dest cache file is not specified!') );
+        end;
+        dtFolder: ShowError( _('Dest cache path is not specified!') );
+      else
+        Assert(False);
+      end;
+      Exit;
+    end;
+    if FfrDestCacheTypesList.cbbCacheType.ItemIndex = -1 then begin
+      ShowError( _('Dest cache type is not selected!') );
+      Exit;
+    end;
+
+    Result := True;
+  end;
+
+begin
+  if PageControl1.ActivePageIndex = 0 then begin
+    if IsValidInputForCacheConverter then begin
+      ProcessCacheConverter;
+    end else begin
+      Exit;
+    end;
+  end;
+  if not tbtmDontClose.Checked then begin
+    Self.Close;
   end;
 end;
 
@@ -362,24 +475,55 @@ begin
   Self.Close;
 end;
 
-procedure TfrmCacheManager.btnSelectDestPathClick(Sender: TObject);
-var
-  VPath: string;
+procedure TfrmCacheManager.cbbSourceTypeChange(Sender: TObject);
 begin
-  VPath := edtDestPath.Text;
-  if SelectDirectory('', '', VPath) then begin
-    edtDestPath.Text := IncludeTrailingPathDelimiter(VPath);
+  case cbbSourceType.ItemIndex of
+    0: begin
+      FSrcType := stArchive;
+      lblPath.Caption := _('File:');
+      chkRemove.Checked := False;
+      chkRemove.Enabled := False;
+      FfrSrcCacheTypesList.FilterOptions := [tstcInSeparateFiles];
+    end;
+    1: begin
+      FSrcType := stFolder;
+      lblPath.Caption := _('Path:');
+      chkRemove.Enabled := True;
+      FfrSrcCacheTypesList.FilterOptions := CTileStorageTypeClassAll - [tstcInMemory];
+    end
+  else
+    Assert(False);
   end;
+  edtPath.Text := '';
+  FfrSrcCacheTypesList.cbbCacheType.ItemIndex := -1;
 end;
 
-procedure TfrmCacheManager.btnStartClick(Sender: TObject);
+procedure TfrmCacheManager.cbbDestTypeChange(Sender: TObject);
 begin
-  if PageControl1.ActivePageIndex = 0 then begin
-    ProcessCacheConverter;
+  case cbbDestType.ItemIndex of
+    0: begin
+      FDestType := dtArchiveZip;
+    end;
+    1: begin
+      FDestType := dtArchiveTar;
+    end;
+    2: begin
+      FDestType := dtFolder;
+      lblDestPath.Caption := _('Path:');
+      chkOverwrite.Enabled := True;
+      FfrDestCacheTypesList.FilterOptions := CTileStorageTypeClassAll - [tstcInMemory];
+    end
+  else
+    Assert(False);
   end;
-  if not tbtmDontClose.Checked then begin
-    Self.Close;
+  if FDestType in [dtArchiveZip, dtArchiveTar] then begin
+    lblDestPath.Caption := _('File:');
+    chkOverwrite.Checked := False;
+    chkOverwrite.Enabled := False;
+    FfrDestCacheTypesList.FilterOptions := [tstcInSeparateFiles];
   end;
+  edtDestPath.Text := '';
+  FfrDestCacheTypesList.cbbCacheType.ItemIndex := -1;
 end;
 
 procedure TfrmCacheManager.ProcessCacheConverter;
@@ -465,7 +609,9 @@ begin
   if not IsTileCacheInArchive(VDestPath, False, VArchType) then begin
     VDestPath := IncludeTrailingPathDelimiter(VDestPath);
     if FfrDestCacheTypesList.IntCode <> c_File_Cache_Id_DBMS then begin
-      ForceDirectories(VDestPath);
+      if not ForceDirectories(VDestPath) then begin
+        RaiseLastOSError;
+      end;
     end;
   end;
 

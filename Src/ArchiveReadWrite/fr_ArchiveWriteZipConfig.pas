@@ -134,7 +134,12 @@ begin
       VStr := Copy(VStr, 1, I - 1);
     end;
     if not TryStrToInt(VStr, I) then begin
-      MessageDlg(_('Invalid Volume Size value: ') + tbxcbbVolumeSize.Text, mtError, [mbOk], -1);
+      MessageDlg(
+        Format(_('Invalid Volume Size value: %s'), [tbxcbbVolumeSize.Text]),
+        mtError,
+        [mbOk],
+        -1
+      );
       Exit;
     end;
   end;
@@ -151,7 +156,7 @@ begin
     TArchiveWriteZipConfig.Create(
       VLevel,
       VMethod,
-      I * 1024 * 1024
+      Int64(I) * 1024 * 1024
     ) as IArchiveWriteZipConfig;
 end;
 
