@@ -257,6 +257,9 @@ begin
       [tsacAdd]
     );
 
+  cbbSourceType.ItemIndex := 1; // Folder
+  cbbDestType.ItemIndex := 2; // Folder
+
   cbbSourceTypeChange(nil);
   cbbDestTypeChange(nil);
 
