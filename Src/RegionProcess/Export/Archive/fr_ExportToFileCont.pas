@@ -153,7 +153,11 @@ begin
       ALanguageManager
     );
   FfrZoomsSelect.Init(0, 23);
+
   FfrArchiveWriterConfig := AArchiveWriterConfigFrame;
+  if FfrArchiveWriterConfig <> nil then begin
+    FfrArchiveWriterConfig.Parent := pnlArchiveWriteConfig;
+  end;
 end;
 
 destructor TfrExportToFileCont.Destroy;
@@ -211,10 +215,6 @@ begin
   FfrMapSelect.Show(pnlFrame);
   FfrZoomsSelect.Show(pnlZoom);
   FfrCacheTypeList.Show(pnlCacheTypes);
-  if FfrArchiveWriterConfig <> nil then begin
-    FfrArchiveWriterConfig.Parent := pnlArchiveWriteConfig;
-    FfrArchiveWriterConfig.Show;
-  end;
 end;
 
 procedure TfrExportToFileCont.RefreshTranslation;

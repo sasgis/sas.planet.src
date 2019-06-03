@@ -34,6 +34,7 @@ type
   IArchiveWriteConfigFrame = interface
     ['{E4D76A42-EE4B-4DA2-AB1E-7154E2D425E4}']
     function GetWriteConfig: IArchiveWriteConfig;
+    procedure Reset(const AWriteConfig: IArchiveWriteConfig);
   end;
 
   TZipCompressionLevel = (zclFast, zclNormal, zclBest);

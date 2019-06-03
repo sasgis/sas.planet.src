@@ -57,6 +57,7 @@ type
   private
     { IArchiveWriteConfigFrame }
     function GetWriteConfig: IArchiveWriteConfig;
+    procedure Reset(const AWriteConfig: IArchiveWriteConfig);
   public
     constructor Create(
       const ALanguageManager: ILanguageManager
@@ -72,10 +73,12 @@ uses
 {$R *.dfm}
 
 const
+  cMegabyte: Int64 = 1024 * 1024;
   cCompressMethodStr: array [0..2] of string = ('Deflate', 'BZip2', 'LZMA');
   cVolumeSizeStr: array [0..6] of string = (
     '100M', '200M', '650M - CD', '700M - CD', '1000M', '4092M - FAT', '4480M - DVD'
   );
+  cVolumeSizeVal: array [0..6] of Integer = (100, 200, 650, 700, 1000, 4092, 4480);
 
 { TfrArchiveWriteZipConfig }
 
@@ -156,8 +159,49 @@ begin
     TArchiveWriteZipConfig.Create(
       VLevel,
       VMethod,
-      Int64(I) * 1024 * 1024
+      I * cMegabyte
     ) as IArchiveWriteZipConfig;
+end;
+
+procedure TfrArchiveWriteZipConfig.Reset(
+  const AWriteConfig: IArchiveWriteConfig
+);
+var
+  I: Integer;
+  VSize: Int64;
+  VConfig: IArchiveWriteZipConfig;
+begin
+  if AWriteConfig = nil then begin
+    cbbCompressLevel.ItemIndex := 0;
+    cbbCompressLevelChange(Self);
+    tbxcbbVolumeSize.Text := '';
+  end else
+  if Supports(AWriteConfig, IArchiveWriteZipConfig, VConfig) then begin
+    Assert(Integer(zcmStore) = 0);
+    if VConfig.CompressionMethod = zcmStore then begin
+      cbbCompressLevel.ItemIndex := 0;
+    end else begin
+      cbbCompressMethod.ItemIndex := Integer(VConfig.CompressionMethod) - 1;
+      cbbCompressLevel.ItemIndex := Integer(VConfig.CompressionLevel) + 1;
+    end;
+    cbbCompressLevelChange(Self);
+
+    tbxcbbVolumeSize.Text := '';
+    VSize := VConfig.VolumeSize;
+    if VSize > 0 then begin
+      for I := 0 to Length(cVolumeSizeVal) - 1 do begin
+        if VSize = cVolumeSizeVal[I] * cMegabyte then begin
+          tbxcbbVolumeSize.Text := cVolumeSizeStr[I];
+          Break;
+        end;
+      end;
+      if tbxcbbVolumeSize.Text = '' then begin
+        tbxcbbVolumeSize.Text := IntToStr(VSize div cMegabyte);
+      end;
+    end;
+  end else begin
+    raise Exception.Create('Unsupported interface type!');
+  end;
 end;
 
 end.

@@ -227,6 +227,20 @@ object frmCacheManager: TfrmCacheManager
             'Archive (tar)'
             'Folder')
         end
+        object btnArchiveWriterConfig: TTBXButton
+          Left = 175
+          Top = 14
+          Width = 26
+          Height = 26
+          ButtonStyle = bsFlat
+          ImageIndex = 20
+          Images = frmMain.MenusImageList
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 7
+          Visible = False
+          OnClick = btnArchiveWriterConfigClick
+        end
       end
     end
   end

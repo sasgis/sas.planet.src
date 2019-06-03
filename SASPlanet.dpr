@@ -1475,7 +1475,8 @@ uses
   u_ValueToStringConverter in 'Src\u_ValueToStringConverter.pas',
   u_ValueToStringConverterChangeable in 'Src\u_ValueToStringConverterChangeable.pas',
   u_ValueToStringConverterConfig in 'Src\u_ValueToStringConverterConfig.pas',
-  u_WindowPositionConfig in 'Src\u_WindowPositionConfig.pas';
+  u_WindowPositionConfig in 'Src\u_WindowPositionConfig.pas',
+  frm_ArchiverSettings in 'Src\CacheManager\frm_ArchiverSettings.pas' {frmArchiverSettings};
 
 {$R .\Resources\VersionInfo.res}
 {$R .\Resources\MainIcon.res}

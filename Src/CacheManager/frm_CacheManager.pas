@@ -38,7 +38,9 @@ uses
   TB2Dock,
   TB2Toolbar,
   TBX,
+  TBXControls,
   fr_CacheTypeList,
+  frm_ArchiverSettings,
   i_PathConfig,
   i_NotifierOperation,
   i_ProjectionSet,
@@ -47,6 +49,7 @@ uses
   i_LanguageManager,
   i_NotifierTime,
   i_ContentTypeManager,
+  i_ArchiveReadWriteConfig,
   i_ArchiveReadWriteFactory,
   i_TileFileNameGeneratorsList,
   i_TileFileNameParsersList,
@@ -92,6 +95,7 @@ type
     dlgSaveFile: TSaveDialog;
     cbbDestType: TComboBox;
     cbbExt: TComboBox;
+    btnArchiveWriterConfig: TTBXButton;
     procedure btnStartClick(Sender: TObject);
     procedure btnSelectSrcPathClick(Sender: TObject);
     procedure btnSelectDestPathClick(Sender: TObject);
@@ -99,6 +103,7 @@ type
     procedure FormShow(Sender: TObject);
     procedure cbbSourceTypeChange(Sender: TObject);
     procedure cbbDestTypeChange(Sender: TObject);
+    procedure btnArchiveWriterConfigClick(Sender: TObject);
   private
     type
       TSrcType = (stArchive, stFolder);
@@ -123,6 +128,7 @@ type
     FValueToStringConverter: IValueToStringConverterChangeable;
     FfrSrcCacheTypesList: TfrCacheTypeList;
     FfrDestCacheTypesList: TfrCacheTypeList;
+    FfrmArchiverSettings: TfrmArchiverSettings;
     procedure PrepareExtList;
     procedure ProcessCacheConverter;
     function CreateSimpleTileStorage(
@@ -130,6 +136,7 @@ type
       const ADefExtension: string;
       const AIsArchive: Boolean;
       const AArchiveType: TArchiveType;
+      const AArchiveWriteConfig: IArchiveWriteConfig;
       const AStorageAbilities: ITileStorageAbilities;
       const AProjectionSet: IProjectionSet;
       const AFormatID: Byte
@@ -254,10 +261,13 @@ begin
   cbbDestTypeChange(nil);
 
   PrepareExtList;
+
+  FfrmArchiverSettings := TfrmArchiverSettings.Create(Self, ALanguageManager);
 end;
 
 destructor TfrmCacheManager.Destroy;
 begin
+  FreeAndNil(FfrmArchiverSettings);
   FreeAndNil(FfrSrcCacheTypesList);
   FreeAndNil(FfrDestCacheTypesList);
   inherited;
@@ -311,6 +321,7 @@ function TfrmCacheManager.CreateSimpleTileStorage(
   const ADefExtension: string;
   const AIsArchive: Boolean;
   const AArchiveType: TArchiveType;
+  const AArchiveWriteConfig: IArchiveWriteConfig;
   const AStorageAbilities: ITileStorageAbilities;
   const AProjectionSet: IProjectionSet;
   const AFormatID: Byte
@@ -347,7 +358,7 @@ begin
           VArchiveReader := FArchiveReadWriteFactory.ZipSequential.ReaderFactory.Build(ARootPath);
         end else
         if AStorageAbilities.AllowAdd then begin
-          VArchiveWriter := FArchiveReadWriteFactory.ZipSequential.WriterFactory.Build(ARootPath);
+          VArchiveWriter := FArchiveReadWriteFactory.ZipSequential.WriterFactory.Build(ARootPath, AArchiveWriteConfig);
         end;
       end;
     else
@@ -538,15 +549,19 @@ begin
   case cbbDestType.ItemIndex of
     0: begin
       FDestType := dtArchiveZip;
+      btnArchiveWriterConfig.Visible := True;
+      btnArchiveWriterConfig.Hint := _('zip archiver settings');
     end;
     1: begin
       FDestType := dtArchiveTar;
+      btnArchiveWriterConfig.Visible := False;
     end;
     2: begin
       FDestType := dtFolder;
       lblDestPath.Caption := _('Path:');
       chkOverwrite.Enabled := True;
       FfrDestCacheTypesList.FilterOptions := CTileStorageTypeClassAll - [tstcInMemory];
+      btnArchiveWriterConfig.Visible := False;
     end
   else
     Assert(False);
@@ -559,6 +574,11 @@ begin
   end;
   edtDestPath.Text := '';
   FfrDestCacheTypesList.cbbCacheType.ItemIndex := -1;
+end;
+
+procedure TfrmCacheManager.btnArchiveWriterConfigClick(Sender: TObject);
+begin
+  FfrmArchiverSettings.ShowModal;
 end;
 
 procedure TfrmCacheManager.ProcessCacheConverter;
@@ -645,6 +665,7 @@ begin
       VDefExtension,
       (FSrcType = stArchive),
       VArchiveType,
+      nil,
       TTileStorageAbilities.Create([tsatScan]),
       VProjectionSet,
       FfrSrcCacheTypesList.IntCode
@@ -679,6 +700,7 @@ begin
       VDefExtension,
       (FDestType in [dtArchiveZip, dtArchiveTar]),
       VArchiveType,
+      FfrmArchiverSettings.GetWriterConfig,
       TTileStorageAbilities.Create([tsatAdd]),
       VProjectionSet,
       FfrDestCacheTypesList.IntCode
