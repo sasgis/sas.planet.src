@@ -144,8 +144,12 @@ begin
   Assert(AList <> nil);
   AList.Clear;
   VEnum := FExtList.GetEnumerator;
-  while VEnum.MoveNext do begin
-    AList.Add(VEnum.Current);
+  try
+    while VEnum.MoveNext do begin
+      AList.Add(VEnum.Current);
+    end;
+  finally
+    VEnum.Free;
   end;
 end;
 
