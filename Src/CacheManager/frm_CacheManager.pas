@@ -39,6 +39,7 @@ uses
   TB2Toolbar,
   TBX,
   fr_CacheTypeList,
+  i_PathConfig,
   i_NotifierOperation,
   i_ProjectionSet,
   i_ProjectionSetFactory,
@@ -71,8 +72,7 @@ type
     lblCacheType: TLabel;
     chkIgnoreTNE: TCheckBox;
     chkRemove: TCheckBox;
-    edtDefExtention: TEdit;
-    lblDefExtention: TLabel;
+    lblDefExtension: TLabel;
     grpDestCache: TGroupBox;
     lblDestPath: TLabel;
     lblDestFormat: TLabel;
@@ -91,6 +91,7 @@ type
     dlgOpenFile: TOpenDialog;
     dlgSaveFile: TSaveDialog;
     cbbDestType: TComboBox;
+    cbbExt: TComboBox;
     procedure btnStartClick(Sender: TObject);
     procedure btnSelectSrcPathClick(Sender: TObject);
     procedure btnSelectDestPathClick(Sender: TObject);
@@ -102,11 +103,12 @@ type
     type
       TSrcType = (stArchive, stFolder);
       TDestType = (dtArchiveZip, dtArchiveTar, dtFolder);
-      TArchiveType = (atNotArch, atTar, atZip);
+      TArchiveType = (atUndef, atTar, atZip);
   private
     FSrcType: TSrcType;
     FDestType: TDestType;
     FLanguageManager: ILanguageManager;
+    FBaseApplicationPath: IPathConfig;
     FAppClosingNotifier: INotifierOneOperation;
     FTimerNoifier: INotifierTime;
     FGCNotifier: INotifierTime;
@@ -121,10 +123,12 @@ type
     FValueToStringConverter: IValueToStringConverterChangeable;
     FfrSrcCacheTypesList: TfrCacheTypeList;
     FfrDestCacheTypesList: TfrCacheTypeList;
+    procedure PrepareExtList;
     procedure ProcessCacheConverter;
     function CreateSimpleTileStorage(
       const ARootPath: string;
-      const ADefExtention: string;
+      const ADefExtension: string;
+      const AIsArchive: Boolean;
       const AArchiveType: TArchiveType;
       const AStorageAbilities: ITileStorageAbilities;
       const AProjectionSet: IProjectionSet;
@@ -133,6 +137,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
+      const ABaseApplicationPath: IPathConfig;
       const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifierTime;
       const AGCNotifier: INotifierTime;
@@ -162,7 +167,6 @@ uses
   i_ArchiveReadWrite,
   i_MapVersionInfo,
   i_ContentTypeInfo,
-  i_PathConfig,
   i_TileStorageType,
   i_TileStorageTypeConfig,
   i_TileFileNameGenerator,
@@ -180,14 +184,21 @@ uses
   u_CacheConverterProgressInfo,
   u_Synchronizer,
   u_StrFunc,
+  u_FileSystemFunc,
   frm_ProgressCacheConvrter;
 
 {$R *.dfm}
+
+procedure ShowError(const AMsg: string);
+begin
+  MessageDlg(AMsg, mtError, [mbOk], -1);
+end;
 
 {TfrmCacheManager}
 
 constructor TfrmCacheManager.Create(
   const ALanguageManager: ILanguageManager;
+  const ABaseApplicationPath: IPathConfig;
   const AAppClosingNotifier: INotifierOneOperation;
   const ATimerNoifier: INotifierTime;
   const AGCNotifier: INotifierTime;
@@ -204,6 +215,7 @@ constructor TfrmCacheManager.Create(
 begin
   inherited Create(ALanguageManager);
   FLanguageManager := ALanguageManager;
+  FBaseApplicationPath := ABaseApplicationPath;
   FAppClosingNotifier := AAppClosingNotifier;
   FTimerNoifier := ATimerNoifier;
   FGCNotifier := AGCNotifier;
@@ -240,6 +252,8 @@ begin
 
   cbbSourceTypeChange(nil);
   cbbDestTypeChange(nil);
+
+  PrepareExtList;
 end;
 
 destructor TfrmCacheManager.Destroy;
@@ -253,6 +267,27 @@ procedure TfrmCacheManager.FormShow(Sender: TObject);
 begin
   FfrSrcCacheTypesList.Show(pnlCacheTypes);
   FfrDestCacheTypesList.Show(pnlDestCacheTypes);
+end;
+
+procedure TfrmCacheManager.PrepareExtList;
+var
+  I, J: Integer;
+  VItems: TStrings;
+begin
+  VItems := cbbExt.Items;
+  VItems.BeginUpdate;
+  try
+    FContentTypeManager.FillKnownExtList(VItems);
+    Assert(VItems.Count > 0);
+    I := VItems.IndexOf('.jpg');
+    J := VItems.IndexOf('.jpeg');
+    if (I >= 0) and (J >= 0) then begin
+      VItems.Delete(J);
+    end;
+  finally
+    VItems.EndUpdate;
+  end;
+  cbbExt.ItemIndex := -1;
 end;
 
 function IsFileSystemStorage(const AFormatID: Byte): Boolean; inline;
@@ -273,7 +308,8 @@ end;
 
 function TfrmCacheManager.CreateSimpleTileStorage(
   const ARootPath: string;
-  const ADefExtention: string;
+  const ADefExtension: string;
+  const AIsArchive: Boolean;
   const AArchiveType: TArchiveType;
   const AStorageAbilities: ITileStorageAbilities;
   const AProjectionSet: IProjectionSet;
@@ -289,14 +325,7 @@ var
 begin
   Result := nil;
 
-  if AArchiveType = atNotArch then begin
-    VItem := FTileStorageTypeList.GetItemByCode(AFormatID);
-    if VItem <> nil then begin
-      VStorageType := VItem.StorageType;
-    end else begin
-      raise Exception.CreateFmt('Fail to get StorageType by ID: %d', [AFormatID]);
-    end;
-  end else begin
+  if AIsArchive then begin
     if not IsFileSystemStorage(AFormatID) then begin
       raise Exception.Create('Supported archives with FileSystem storages only!');
     end;
@@ -345,11 +374,18 @@ begin
         FMapVersionFactory,
         VStorageConfig
       );
+  end else begin
+    VItem := FTileStorageTypeList.GetItemByCode(AFormatID);
+    if VItem <> nil then begin
+      VStorageType := VItem.StorageType;
+    end else begin
+      raise Exception.CreateFmt('Fail to get StorageType by ID: %d', [AFormatID]);
+    end;
   end;
 
-  VContentType := FContentTypeManager.GetInfoByExt(StringToAnsiSafe(ADefExtention));
+  VContentType := FContentTypeManager.GetInfoByExt(StringToAnsiSafe(ADefExtension));
   if VContentType = nil then begin
-    raise Exception.Create('Fail to get ContentType for extention: ' + ADefExtention);
+    raise Exception.Create('Fail to get ContentType for extension: ' + ADefExtension);
   end;
 
   Result :=
@@ -413,11 +449,6 @@ end;
 
 procedure TfrmCacheManager.btnStartClick(Sender: TObject);
 
-  procedure ShowError(const AMsg: string);
-  begin
-    MessageDlg(AMsg, mtError, [mbOk], -1);
-  end;
-
   function IsValidInputForCacheConverter: Boolean;
   begin
     Result := False;
@@ -434,6 +465,10 @@ procedure TfrmCacheManager.btnStartClick(Sender: TObject);
     end;
     if FfrSrcCacheTypesList.cbbCacheType.ItemIndex = -1 then begin
       ShowError( _('Source cache type is not selected!') );
+      Exit;
+    end;
+    if cbbExt.ItemIndex = -1 then begin
+      ShowError( _('Tiles extension is not selected!') );
       Exit;
     end;
 
@@ -528,31 +563,37 @@ end;
 
 procedure TfrmCacheManager.ProcessCacheConverter;
 
-  function IsTileCacheInArchive(
-    const APath: string;
-    const AFileMustExists: Boolean;
-    out AArchType: TArchiveType
+  function DetectSrcArchiveType(
+    const AFileName: string;
+    out AArchiveType: TArchiveType
   ): Boolean;
   var
     VExt: string;
   begin
     Result := False;
-    AArchType := atNotArch;
 
-    if AFileMustExists and not FileExists(APath) then begin
+    if not FileExists(AFileName) then begin
+      ShowError( Format(_('Source file does not exists: %s'), [AFileName]));
       Exit;
     end;
 
-    VExt := LowerCase(ExtractFileExt(APath));
+    VExt := LowerCase(ExtractFileExt(AFileName));
     if VExt = '.tar' then begin
-      AArchType := atTar;
-    end else if VExt = '.zip' then begin
-      AArchType := atZip;
-    end else if VExt <> '' then begin
-      raise Exception.Create('Unsupported archive type: ' + VExt);
+      AArchiveType := atTar;
+    end else
+    if VExt = '.zip' then begin
+      AArchiveType := atZip;
+    end else
+    if VExt <> '' then begin
+      ShowError( Format(_('Unsupported archive type: %s'), [VExt]));
+      Exit;
+    end else
+    if VExt = '' then begin
+      ShowError( Format(_('Failed detect archive type from file name: %s'), [AFileName]));
+      Exit;
     end;
 
-    Result := AArchType <> atNotArch;
+    Result := True;
   end;
 
 var
@@ -567,10 +608,11 @@ var
   VDestVersion: IMapVersionInfo;
   VSourcePath: string;
   VDestPath: string;
-  VDefExtention: string;
-  VDotPos: Integer;
-  VArchType: TArchiveType;
+  VDefExtension: string;
+  VArchiveType: TArchiveType;
 begin
+  VArchiveType := atUndef;
+
   VProgressInfo := TCacheConverterProgressInfo.Create;
 
   VCancelNotifierInternal :=
@@ -581,45 +623,62 @@ begin
 
   VProjectionSet := FProjectionSetFactory.GetProjectionSetByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256);
 
-  VDefExtention := Trim(edtDefExtention.Text);
-  VDotPos := Pos('.', VDefExtention);
-  if VDotPos > 0 then begin
-    VDefExtention := Copy(VDefExtention, VDotPos, Length(VDefExtention) - VDotPos + 1);
-  end else begin
-    VDefExtention := '.' + VDefExtention;
-  end;
-  VDefExtention := LowerCase(VDefExtention);
+  VDefExtension := cbbExt.Items.Strings[cbbExt.ItemIndex];
 
   VSourcePath := Trim(edtPath.Text);
-  if not IsTileCacheInArchive(VSourcePath, True, VArchType) then begin
-    VSourcePath := IncludeTrailingPathDelimiter(VSourcePath);
+  case FSrcType of
+    stArchive: begin
+      if not DetectSrcArchiveType(VSourcePath, VArchiveType) then begin
+        Exit;
+      end;
+    end;
+    stFolder: begin
+      VSourcePath := IncludeTrailingPathDelimiter(VSourcePath);
+    end;
+  else
+    Assert(False);
   end;
 
   VSourceStorage :=
     CreateSimpleTileStorage(
       VSourcePath,
-      VDefExtention,
-      VArchType,
+      VDefExtension,
+      (FSrcType = stArchive),
+      VArchiveType,
       TTileStorageAbilities.Create([tsatScan]),
       VProjectionSet,
       FfrSrcCacheTypesList.IntCode
     );
 
   VDestPath := Trim(edtDestPath.Text);
-  if not IsTileCacheInArchive(VDestPath, False, VArchType) then begin
-    VDestPath := IncludeTrailingPathDelimiter(VDestPath);
-    if FfrDestCacheTypesList.IntCode <> c_File_Cache_Id_DBMS then begin
-      if not ForceDirectories(VDestPath) then begin
-        RaiseLastOSError;
+  case FDestType of
+    dtArchiveZip: begin
+      VArchiveType := atZip;
+    end;
+    dtArchiveTar: begin
+      VArchiveType := atTar;
+    end;
+    dtFolder: begin
+      VDestPath := IncludeTrailingPathDelimiter(VDestPath);
+      if FfrDestCacheTypesList.IntCode <> c_File_Cache_Id_DBMS then begin
+        if IsRelativePath(VDestPath) then begin
+          VDestPath := GetFullPath(FBaseApplicationPath.FullPath, VDestPath)
+        end;
+        if not ForceDirectories(VDestPath) then begin
+          RaiseLastOSError;
+        end;
       end;
     end;
+  else
+    Assert(False);
   end;
 
   VDestStorage :=
     CreateSimpleTileStorage(
       VDestPath,
-      VDefExtention,
-      VArchType,
+      VDefExtension,
+      (FDestType in [dtArchiveZip, dtArchiveTar]),
+      VArchiveType,
       TTileStorageAbilities.Create([tsatAdd]),
       VProjectionSet,
       FfrDestCacheTypesList.IntCode

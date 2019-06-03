@@ -1374,6 +1374,7 @@ begin
   FfrmCacheManager :=
     TfrmCacheManager.Create(
       GState.Config.LanguageManager,
+      GState.BaseApplicationPath,
       GState.AppClosingNotifier,
       GState.GUISyncronizedTimerNotifier,
       GState.BGTimerNotifier,

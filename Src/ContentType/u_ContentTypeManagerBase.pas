@@ -23,6 +23,7 @@ unit u_ContentTypeManagerBase;
 interface
 
 uses
+  Classes,
   i_BitmapTileSaveLoad,
   i_ContentTypeInfo,
   i_ContentConverter,
@@ -32,7 +33,11 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TContentTypeManagerBase = class(TBaseInterfacedObject, IContentTypeManager, IContentTypeManagerBitmap)
+  TContentTypeManagerBase = class(
+    TBaseInterfacedObject,
+    IContentTypeManager,
+    IContentTypeManagerBitmap
+  )
   private
     FExtList: TContentTypeListByKey;
     FTypeList: TContentTypeListByKey;
@@ -57,7 +62,6 @@ type
     property KmlExtList: TContentTypeListByKey read FKmlExtList;
     property KmlTypeList: TContentTypeListByKey read FKmlTypeList;
     property ConverterMatrix: TContentConverterMatrix read FConverterMatrix;
-
   private
     function GetInfo(const AType: AnsiString): IContentTypeInfoBasic;
     function GetInfoByExt(const AExt: AnsiString): IContentTypeInfoBasic;
@@ -67,6 +71,7 @@ type
     function GetIsKmlType(const AType: AnsiString): Boolean;
     function GetIsKmlExt(const AExt: AnsiString): Boolean;
     function GetConverter(const ATypeSource, ATypeTarget: AnsiString): IContentConverter;
+    procedure FillKnownExtList(const AList: TStrings);
   public
     constructor Create;
     destructor Destroy; override;
@@ -77,6 +82,7 @@ implementation
 uses
   SysUtils,
   ALString,
+  ALStringList,
   u_StrFunc;
 
 procedure TContentTypeManagerBase.AddByExt(
@@ -129,6 +135,18 @@ begin
   FreeAndNil(FKmlTypeList);
   FreeAndNil(FConverterMatrix);
   inherited;
+end;
+
+procedure TContentTypeManagerBase.FillKnownExtList(const AList: TStrings);
+var
+  VEnum: TALStringsEnumerator;
+begin
+  Assert(AList <> nil);
+  AList.Clear;
+  VEnum := FExtList.GetEnumerator;
+  while VEnum.MoveNext do begin
+    AList.Add(VEnum.Current);
+  end;
 end;
 
 function TContentTypeManagerBase.GetBitmapLoaderByFileName(

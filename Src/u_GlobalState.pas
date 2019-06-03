@@ -223,6 +223,7 @@ type
     {$ENDIF SasDebugWithJcl}
   public
     property Config: IGlobalConfig read FGlobalConfig;
+    property BaseApplicationPath: IPathConfig read FBaseApplicationPath;
     property BaseConfigPath: IPathConfig read FBaseConfigPath;
     property MapType: TMapTypesMainList read FMainMapsList;
     property CacheConfig: IGlobalCacheConfig read FCacheConfig;

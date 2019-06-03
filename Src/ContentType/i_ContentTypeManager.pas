@@ -23,9 +23,11 @@ unit i_ContentTypeManager;
 interface
 
 uses
+  Classes,
   i_BitmapTileSaveLoad,
   i_ContentTypeInfo,
   i_ContentConverter;
+
 type
   IContentTypeManagerBitmap = interface
     ['{B7B3EBF5-60DB-434D-B854-383CE0E752E7}']
@@ -45,6 +47,7 @@ type
     function GetIsKmlType(const AType: AnsiString): Boolean;
     function GetIsKmlExt(const AExt: AnsiString): Boolean;
     function GetConverter(const ATypeSource, ATypeTarget: AnsiString): IContentConverter;
+    procedure FillKnownExtList(const AList: TStrings);
   end;
 
 

@@ -20,10 +20,8 @@ object frmCacheManager: TfrmCacheManager
     ActivePage = tsConverter
     Align = alClient
     TabOrder = 0
-    ExplicitHeight = 360
     object tsConverter: TTabSheet
       Caption = 'Convert Cache Format'
-      ExplicitHeight = 332
       object grpSrc: TGroupBox
         Left = 2
         Top = 0
@@ -47,12 +45,12 @@ object frmCacheManager: TfrmCacheManager
           Height = 13
           Caption = 'Format:'
         end
-        object lblDefExtention: TLabel
+        object lblDefExtension: TLabel
           Left = 176
           Top = 86
-          Width = 50
+          Width = 51
           Height = 13
-          Caption = 'Extention:'
+          Caption = 'Extension:'
         end
         object edtPath: TEdit
           Left = 11
@@ -61,7 +59,7 @@ object frmCacheManager: TfrmCacheManager
           Height = 21
           Align = alCustom
           Anchors = [akLeft, akTop, akRight]
-          TabOrder = 0
+          TabOrder = 2
         end
         object pnlCacheTypes: TPanel
           Left = 11
@@ -69,7 +67,7 @@ object frmCacheManager: TfrmCacheManager
           Width = 153
           Height = 21
           BevelOuter = bvNone
-          TabOrder = 2
+          TabOrder = 4
         end
         object chkIgnoreTNE: TCheckBox
           Left = 280
@@ -77,7 +75,7 @@ object frmCacheManager: TfrmCacheManager
           Width = 130
           Height = 17
           Caption = 'Ignore *.tne'
-          TabOrder = 4
+          TabOrder = 5
         end
         object chkRemove: TCheckBox
           Left = 416
@@ -85,15 +83,7 @@ object frmCacheManager: TfrmCacheManager
           Width = 141
           Height = 17
           Caption = 'Remove tiles'
-          TabOrder = 5
-        end
-        object edtDefExtention: TEdit
-          Left = 176
-          Top = 105
-          Width = 98
-          Height = 21
-          TabOrder = 3
-          Text = '*.jpg'
+          TabOrder = 6
         end
         object btnSelectSrcPath: TButton
           Left = 533
@@ -112,7 +102,7 @@ object frmCacheManager: TfrmCacheManager
           Width = 536
           Height = 17
           Caption = 'Process only tiles  with version:'
-          TabOrder = 6
+          TabOrder = 7
         end
         object edtSourceVersion: TEdit
           Left = 11
@@ -121,7 +111,7 @@ object frmCacheManager: TfrmCacheManager
           Height = 21
           Align = alCustom
           Anchors = [akLeft, akTop, akRight]
-          TabOrder = 7
+          TabOrder = 8
         end
         object cbbSourceType: TComboBox
           Left = 11
@@ -130,12 +120,20 @@ object frmCacheManager: TfrmCacheManager
           Height = 21
           ItemHeight = 13
           ItemIndex = 1
-          TabOrder = 8
+          TabOrder = 0
           Text = 'Folder'
           OnChange = cbbSourceTypeChange
           Items.Strings = (
             'Archive'
             'Folder')
+        end
+        object cbbExt: TComboBox
+          Left = 176
+          Top = 104
+          Width = 97
+          Height = 21
+          ItemHeight = 13
+          TabOrder = 3
         end
       end
       object grpDestCache: TGroupBox
@@ -168,7 +166,7 @@ object frmCacheManager: TfrmCacheManager
           Height = 21
           Align = alCustom
           Anchors = [akLeft, akTop, akRight]
-          TabOrder = 0
+          TabOrder = 1
         end
         object pnlDestCacheTypes: TPanel
           Left = 10
@@ -176,7 +174,7 @@ object frmCacheManager: TfrmCacheManager
           Width = 153
           Height = 21
           BevelOuter = bvNone
-          TabOrder = 2
+          TabOrder = 3
         end
         object chkOverwrite: TCheckBox
           Left = 175
@@ -184,7 +182,7 @@ object frmCacheManager: TfrmCacheManager
           Width = 381
           Height = 17
           Caption = 'Overwrite existing tiles'
-          TabOrder = 3
+          TabOrder = 4
         end
         object btnSelectDestPath: TButton
           Left = 532
@@ -194,7 +192,7 @@ object frmCacheManager: TfrmCacheManager
           Align = alCustom
           Anchors = [akTop, akRight]
           Caption = '...'
-          TabOrder = 1
+          TabOrder = 2
           OnClick = btnSelectDestPathClick
         end
         object chkReplaceDestVersion: TCheckBox
@@ -203,7 +201,7 @@ object frmCacheManager: TfrmCacheManager
           Width = 536
           Height = 17
           Caption = 'Set same version for all processed tiles:'
-          TabOrder = 4
+          TabOrder = 5
         end
         object edtDestVersion: TEdit
           Left = 10
@@ -212,7 +210,7 @@ object frmCacheManager: TfrmCacheManager
           Height = 21
           Align = alCustom
           Anchors = [akLeft, akTop, akRight]
-          TabOrder = 5
+          TabOrder = 6
         end
         object cbbDestType: TComboBox
           Left = 10
@@ -221,7 +219,7 @@ object frmCacheManager: TfrmCacheManager
           Height = 21
           ItemHeight = 13
           ItemIndex = 2
-          TabOrder = 6
+          TabOrder = 0
           Text = 'Folder'
           OnChange = cbbDestTypeChange
           Items.Strings = (
@@ -241,7 +239,6 @@ object frmCacheManager: TfrmCacheManager
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 1
-    ExplicitTop = 360
     object btnStart: TButton
       AlignWithMargins = True
       Left = 410
