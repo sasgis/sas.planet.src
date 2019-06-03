@@ -31,6 +31,7 @@ uses
   Controls,
   Forms,
   Dialogs,
+  UITypes,
   StdCtrls,
   ExtCtrls,
   ComCtrls,
@@ -179,6 +180,7 @@ uses
   i_TileFileNameGenerator,
   i_TileFileNameParser,
   i_TileStorageTypeListItem,
+  i_StringListStatic,
   i_CacheConverterProgressInfo,
   u_Notifier,
   u_NotifierOperation,
@@ -196,7 +198,7 @@ uses
 
 {$R *.dfm}
 
-procedure ShowError(const AMsg: string);
+procedure ShowError(const AMsg: string); inline;
 begin
   MessageDlg(AMsg, mtError, [mbOk], -1);
 end;
@@ -286,11 +288,19 @@ procedure TfrmCacheManager.PrepareExtList;
 var
   I, J: Integer;
   VItems: TStrings;
+  VList: IStringListStatic;
 begin
+  VList := FContentTypeManager.GetKnownExtList;
+  if VList = nil then begin
+    raise Exception.Create('Failed get list of extensions!');
+  end;
   VItems := cbbExt.Items;
   VItems.BeginUpdate;
   try
-    FContentTypeManager.FillKnownExtList(VItems);
+    VItems.Clear;
+    for I := 0 to VList.Count - 1 do begin
+      VItems.Add(VList.Items[I]);
+    end;
     Assert(VItems.Count > 0);
     I := VItems.IndexOf('.jpg');
     J := VItems.IndexOf('.jpeg');

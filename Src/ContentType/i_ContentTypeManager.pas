@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_StringListStatic,
   i_BitmapTileSaveLoad,
   i_ContentTypeInfo,
   i_ContentConverter;
@@ -47,7 +48,7 @@ type
     function GetIsKmlType(const AType: AnsiString): Boolean;
     function GetIsKmlExt(const AExt: AnsiString): Boolean;
     function GetConverter(const ATypeSource, ATypeTarget: AnsiString): IContentConverter;
-    procedure FillKnownExtList(const AList: TStrings);
+    function GetKnownExtList: IStringListStatic;
   end;
 
 

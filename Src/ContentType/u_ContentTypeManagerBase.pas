@@ -28,6 +28,7 @@ uses
   i_ContentTypeInfo,
   i_ContentConverter,
   i_ContentTypeManager,
+  i_StringListStatic,
   u_ContentTypeListByKey,
   u_ContentConverterMatrix,
   u_BaseInterfacedObject;
@@ -71,7 +72,7 @@ type
     function GetIsKmlType(const AType: AnsiString): Boolean;
     function GetIsKmlExt(const AExt: AnsiString): Boolean;
     function GetConverter(const ATypeSource, ATypeTarget: AnsiString): IContentConverter;
-    procedure FillKnownExtList(const AList: TStrings);
+    function GetKnownExtList: IStringListStatic;
   public
     constructor Create;
     destructor Destroy; override;
@@ -83,6 +84,7 @@ uses
   SysUtils,
   ALString,
   ALStringList,
+  u_StringListStatic,
   u_StrFunc;
 
 procedure TContentTypeManagerBase.AddByExt(
@@ -137,16 +139,20 @@ begin
   inherited;
 end;
 
-procedure TContentTypeManagerBase.FillKnownExtList(const AList: TStrings);
+function TContentTypeManagerBase.GetKnownExtList: IStringListStatic;
 var
+  VList: TStringList;
   VEnum: TALStringsEnumerator;
 begin
-  Assert(AList <> nil);
-  AList.Clear;
   VEnum := FExtList.GetEnumerator;
   try
-    while VEnum.MoveNext do begin
-      AList.Add(VEnum.Current);
+    VList := TStringList.Create;
+    try
+      while VEnum.MoveNext do begin
+        VList.Add(VEnum.Current);
+      end;
+    finally
+      Result := TStringListStatic.CreateWithOwn(VList);
     end;
   finally
     VEnum.Free;
