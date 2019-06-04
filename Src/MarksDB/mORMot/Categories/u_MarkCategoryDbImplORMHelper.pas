@@ -427,21 +427,24 @@ function TMarkCategoryDbImplORMHelper.CountCategorySQL(
 ): Integer;
 var
   VName: RawUTF8;
-  VRowCount: PtrInt;
+  VList: TSQLTableJSON;
 begin
   Assert(AName <> '');
   VName := StringToUTF8(AName);
 
-  VRowCount := 0;
+  Result := 0;
 
-  FClient.ExecuteJSON(
+  VList := FClient.ExecuteList(
     [TSQLCategory],
-    FormatUTF8('SELECT RowID FROM Category WHERE cName=?', [], [VName]),
-    False,
-    @VRowCount
+    FormatUTF8('SELECT RowID FROM Category WHERE cName=?', [], [VName])
   );
 
-  Result := VRowCount;
+  if VList <> nil then
+  try
+    Result := VList.RowCount;
+  finally
+    VList.Free;
+  end;
 end;
 
 function TMarkCategoryDbImplORMHelper._FillPrepareCategoryCache: Integer;
