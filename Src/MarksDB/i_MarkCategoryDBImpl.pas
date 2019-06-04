@@ -32,6 +32,7 @@ type
   IMarkCategoryDBImpl = interface
     ['{7B54650B-BF85-4688-A493-0DED82DADFFD}']
     function GetFirstCategoryByName(const AName: string): IMarkCategory;
+    function GetCategoryByNameCount(const AName: string): Integer;
 
     function UpdateCategory(
       const AOldCategory: IMarkCategory;

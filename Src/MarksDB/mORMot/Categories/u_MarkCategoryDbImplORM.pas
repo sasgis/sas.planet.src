@@ -69,6 +69,7 @@ type
     function IsCategoryFromThisDb(const ACategory: ICategory): Boolean;
     function GetCategoryByID(const ID: TID): IMarkCategory;
     function GetFirstCategoryByName(const AName: string): IMarkCategory;
+    function GetCategoryByNameCount(const AName: string): Integer;
   private
     { IMarkCategoryDBImpl }
     function UpdateCategory(
@@ -407,6 +408,16 @@ begin
     Result := _GetCategory(0, AName);
   finally
     UnlockWrite;
+  end;
+end;
+
+function TMarkCategoryDbImplORM.GetCategoryByNameCount(const AName: string): Integer;
+begin
+  LockRead;
+  try
+    Result := FHelper.CountCategorySQL(AName)
+  finally
+    UnlockRead;
   end;
 end;
 

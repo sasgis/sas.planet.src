@@ -33,6 +33,7 @@ type
   IMarkCategoryDB = interface
     ['{F418B319-3B89-4B09-BC9E-0E4FC684BADF}']
     function GetFirstCategoryByName(const AName: string): IMarkCategory;
+    function GetCategoryByNameCount(const AName: string): Integer;
     function GetCategoryWithSubCategories(const ACategory: IMarkCategory): IMarkCategoryList;
     function GetSubCategoryListForCategory(const ACategory: IMarkCategory): IMarkCategoryList;
     function GetCategoriesList: IMarkCategoryList;

@@ -50,6 +50,7 @@ type
     procedure OnDBImplChange;
   private
     function GetFirstCategoryByName(const AName: string): IMarkCategory;
+    function GetCategoryByNameCount(const AName: string): Integer;
     function GetCategoryWithSubCategories(const ACategory: IMarkCategory): IMarkCategoryList;
     function GetSubCategoryListForCategory(const ACategory: IMarkCategory): IMarkCategoryList;
     function GetCategoriesList: IMarkCategoryList;
@@ -217,6 +218,26 @@ end;
 function TMarkCategoryDbByImpl.GetFactory: IMarkCategoryFactory;
 begin
   Result := FMarkCategoryFactory;
+end;
+
+function TMarkCategoryDbByImpl.GetCategoryByNameCount(
+  const AName: string
+): Integer;
+var
+  VImpl: IMarkSystemImpl;
+begin
+  Result := 0;
+  try
+    VImpl := FMarkSystemImpl.GetStatic;
+    if VImpl <> nil then begin
+      Result := VImpl.CategoryDB.GetCategoryByNameCount(AName);
+    end;
+  except
+    on E: Exception do begin
+      Result := 0;
+      CatchException(E, FErrorNotifierInternal);
+    end;
+  end;
 end;
 
 function TMarkCategoryDbByImpl.GetCategoryWithSubCategories(

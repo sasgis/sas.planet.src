@@ -58,6 +58,9 @@ type
       const ID: TID;
       const AName: string
     ): Boolean;
+    function CountCategorySQL(
+      const AName: string
+    ): Integer;
     procedure SetAllCategoriesVisibleSQL(
       const AVisible: Boolean
     );
@@ -417,6 +420,28 @@ begin
   finally
     VSQLCategoryView.Free;
   end;
+end;
+
+function TMarkCategoryDbImplORMHelper.CountCategorySQL(
+  const AName: string
+): Integer;
+var
+  VName: RawUTF8;
+  VRowCount: PtrInt;
+begin
+  Assert(AName <> '');
+  VName := StringToUTF8(AName);
+
+  VRowCount := 0;
+
+  FClient.ExecuteJSON(
+    [TSQLCategory],
+    FormatUTF8('SELECT RowID FROM Category WHERE cName=?', [], [VName]),
+    False,
+    @VRowCount
+  );
+
+  Result := VRowCount;
 end;
 
 function TMarkCategoryDbImplORMHelper._FillPrepareCategoryCache: Integer;

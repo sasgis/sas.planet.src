@@ -75,6 +75,7 @@ type
     function IsCategoryFromThisDb(const ACategory: ICategory): Boolean;
     function GetCategoryByID(id: integer): IMarkCategory;
     function GetFirstCategoryByName(const AName: string): IMarkCategory;
+    function GetCategoryByNameCount(const AName: string): Integer;
   private
     { IMarkCategoryDBImpl }
     function UpdateCategory(
@@ -472,6 +473,28 @@ begin
       if SameStr(VCategory.Name, AName) then begin
         Result := VCategory;
         Break;
+      end;
+    end;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TMarkCategoryDBSml.GetCategoryByNameCount(const AName: string): Integer;
+var
+  I: Cardinal;
+  VId: Integer;
+  VEnum: IEnumID;
+  VCategory: IMarkCategory;
+begin
+  Result := 0;
+  LockRead;
+  try
+    VEnum := FList.GetIDEnum;
+    while VEnum.Next(1, VId, I) = S_OK do begin
+      VCategory := IMarkCategory(FList.GetByID(VId));
+      if SameStr(VCategory.Name, AName) then begin
+        Inc(Result);
       end;
     end;
   finally
