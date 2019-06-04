@@ -110,15 +110,15 @@ type
 
     function DeleteMarkModal(
       const AMarkId: IMarkId;
-      handle: THandle
+      const AHandle: THandle
     ): Boolean;
     function DeleteMarksModal(
       const AMarkIDList: IInterfaceListStatic;
-      handle: THandle
+      const AHandle: THandle
     ): Boolean;
     function DeleteCategoryModal(
       const ACategory: IMarkCategory;
-      handle: THandle
+      const AHandle: THandle
     ): Boolean;
     function PolygonForOperation(
       const AGeometry: IGeometryLonLat;
@@ -391,7 +391,7 @@ end;
 
 function TMarkDbGUIHelper.DeleteCategoryModal(
   const ACategory: IMarkCategory;
-  handle: THandle
+  const AHandle: THandle
 ): Boolean;
 var
   VMessage: string;
@@ -402,13 +402,25 @@ begin
     Exit;
   end;
   if ACategory <> nil then begin
+    if FMarkSystem.CategoryDB.GetCategoryByNameCount(ACategory.Name) > 1 then begin
+      // Workaround soluton until MarksDB schema changed.
+      // Current implementation can't delete subcategories safety:
+      // http://www.sasgis.org/mantis/view.php?id=3435
+      VMessage := Format(
+        _('Can''t delete category: "%s".' + #13#10 +
+          'Detected multiply categories with same name.'),
+        [ACategory.Name]
+      );
+      MessageBox(AHandle, PChar(VMessage), PChar(SAS_MSG_error), MB_OK or MB_ICONERROR);
+      Exit;
+    end;
     VList := FMarkSystem.CategoryDB.GetSubCategoryListForCategory(ACategory);
     if Assigned(VList) and (VList.Count > 0) then begin
       VMessage := Format(SAS_MSG_DeleteSubCategoryAsk, [ACategory.Name, VList.Count]);
     end else begin
       VMessage := Format(SAS_MSG_DeleteMarkCategoryAsk, [ACategory.Name]);
     end;
-    if MessageBox(handle, PChar(VMessage), PChar(SAS_MSG_coution), 36) = IDYES then begin
+    if MessageBox(AHandle, PChar(VMessage), PChar(SAS_MSG_coution), MB_YESNO or MB_ICONQUESTION) = IDYES then begin
       if Assigned(VList) then begin
         FMarkSystem.DeleteCategoryListWithMarks(VList);
       end;
@@ -420,7 +432,7 @@ end;
 
 function TMarkDbGUIHelper.DeleteMarkModal(
   const AMarkId: IMarkId;
-  handle: THandle
+  const AHandle: THandle
 ): Boolean;
 var
   VMessage: string;
@@ -439,7 +451,7 @@ begin
       VMessage := _('Are you sure you want to delete placemark of unknown type with name "%0:s"?');
     end;
     VMessage := Format(VMessage, [AMarkId.Name]);
-    if MessageBox(handle, PChar(VMessage), PChar(SAS_MSG_coution), 36) = IDYES then begin
+    if MessageBox(AHandle, PChar(VMessage), PChar(SAS_MSG_coution), MB_YESNO or MB_ICONQUESTION) = IDYES then begin
       VMark := FMarkSystem.MarkDb.GetMarkByID(AMarkId);
       if Assigned(VMark) then begin
         FMarkSystem.MarkDb.UpdateMark(VMark, nil);
@@ -451,7 +463,7 @@ end;
 
 function TMarkDbGUIHelper.DeleteMarksModal(
   const AMarkIDList: IInterfaceListStatic;
-  handle: THandle
+  const AHandle: THandle
 ): Boolean;
 var
   VMark: IMarkId;
@@ -464,10 +476,10 @@ begin
   if (AMarkIDList <> nil) and (AMarkIDList.Count > 0) then begin
     if AMarkIDList.Count = 1 then begin
       VMark := IMarkId(AMarkIDList[0]);
-      Result := DeleteMarkModal(VMark, handle);
+      Result := DeleteMarkModal(VMark, AHandle);
     end else begin
       VMessage := Format(SAS_MSG_DeleteManyMarksAsk, [AMarkIDList.Count]);
-      if MessageBox(handle, PChar(VMessage), PChar(SAS_MSG_coution), 36) = IDYES then begin
+      if MessageBox(AHandle, PChar(VMessage), PChar(SAS_MSG_coution), MB_YESNO or MB_ICONQUESTION) = IDYES then begin
         FMarkSystem.MarkDb.UpdateMarkList(AMarkIDList, nil);
         Result := True;
       end;

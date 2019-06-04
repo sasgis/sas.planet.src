@@ -25,6 +25,7 @@ interface
 uses
   Windows,
   Classes,
+  SysUtils,
   Controls,
   Forms,
   StdCtrls,
@@ -71,17 +72,33 @@ type
 implementation
 
 uses
+  gnugettext,
   i_MarkCategoryFactory,
   i_MarkCategoryFactoryConfig,
   u_ResStrings;
 
 {$R *.dfm}
 
+{ TfrmMarkCategoryEdit }
+
+constructor TfrmMarkCategoryEdit.Create(
+  const ALanguageManager: ILanguageManager;
+  const ACategoryDB: IMarkCategoryDB
+);
+begin
+  inherited Create(ALanguageManager);
+  FCategoryDB := ACategoryDB;
+end;
+
 procedure TfrmMarkCategoryEdit.btnSetAsTemplateClick(Sender: TObject);
 var
+  VMsg: string;
+  VResult: Integer;
   VConfig: IMarkCategoryFactoryConfig;
 begin
-  if MessageBox(handle, pchar('Set as default for new marks?'), pchar(SAS_MSG_coution), 36) = IDYES then begin
+  VMsg := _('Set as default for new marks?');
+  VResult := MessageBox(Self.Handle, PChar(VMsg), PChar(SAS_MSG_coution), MB_YESNO or MB_ICONQUESTION);
+  if VResult = IDYES then begin
     VConfig := FCategoryDB.Factory.Config;
     VConfig.LockWrite;
     try
@@ -93,44 +110,43 @@ begin
   end;
 end;
 
-constructor TfrmMarkCategoryEdit.Create(
-  const ALanguageManager: ILanguageManager;
-  const ACategoryDB: IMarkCategoryDB
-);
-begin
-  inherited Create(ALanguageManager);
-  FCategoryDB := ACategoryDB;
-end;
-
 function TfrmMarkCategoryEdit.EditCategory(
   const ACategory: IMarkCategory;
   const AIsNewCategory: Boolean;
   const AMarksDBWriteAccess: Boolean
 ): IMarkCategory;
+var
+  VMsg: string;
 begin
-  lblReadOnly.Visible := not AMarksDBWriteAccess;
+  Result := nil;
 
-  EditName.Text := SAS_STR_NewPoly;
+  lblReadOnly.Visible := not AMarksDBWriteAccess;
 
   if AIsNewCategory then begin
     Self.Caption := SAS_STR_AddNewCategory;
   end else begin
     Self.Caption := SAS_STR_EditCategory;
   end;
+
   EditName.Text := ACategory.Name;
   EditS1.Value := ACategory.AfterScale;
   EditS2.Value := ACategory.BeforeScale;
   CBShow.Checked := ACategory.Visible;
+
   if ShowModal = mrOk then begin
-    Result := FCategoryDB.Factory.Modify(
-        ACategory,
-        EditName.Text,
-        CBShow.Checked,
-        EditS1.Value,
-        EditS2.Value
-      );
-  end else begin
-    Result := nil;
+    if FCategoryDB.GetFirstCategoryByName(EditName.Text) = nil then begin
+      Result :=
+        FCategoryDB.Factory.Modify(
+          ACategory,
+          EditName.Text,
+          CBShow.Checked,
+          EditS1.Value,
+          EditS2.Value
+        );
+    end else begin
+      VMsg := Format(_('Category with name: "%s" already exists!'), [EditName.Text]);
+      MessageBox(Self.Handle, PChar(VMsg), PChar(SAS_MSG_error), MB_OK or MB_ICONERROR);
+    end;
   end;
 end;
 
