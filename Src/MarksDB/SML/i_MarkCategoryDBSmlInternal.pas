@@ -37,7 +37,7 @@ type
 
     function IsCategoryFromThisDb(const ACategory: ICategory): Boolean;
     function GetCategoryByID(id: integer): IMarkCategory;
-    function GetCategoryByName(const AName: string): IMarkCategory;
+    function GetFirstCategoryByName(const AName: string): IMarkCategory;
   end;
 
 implementation

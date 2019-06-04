@@ -32,7 +32,7 @@ uses
 type
   IMarkCategoryDB = interface
     ['{F418B319-3B89-4B09-BC9E-0E4FC684BADF}']
-    function GetCategoryByName(const AName: string): IMarkCategory;
+    function GetFirstCategoryByName(const AName: string): IMarkCategory;
     function GetCategoryWithSubCategories(const ACategory: IMarkCategory): IMarkCategoryList;
     function GetSubCategoryListForCategory(const ACategory: IMarkCategory): IMarkCategoryList;
     function GetCategoriesList: IMarkCategoryList;

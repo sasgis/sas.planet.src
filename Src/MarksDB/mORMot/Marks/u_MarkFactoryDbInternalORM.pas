@@ -462,7 +462,7 @@ begin
     VCategory := VMarkWithCategory.Category;
     if Assigned(VCategory) then begin
       if not FCategoryDB.IsCategoryFromThisDb(VCategory) then begin
-        VCategory := FCategoryDB.GetCategoryByName(VCategory.Name);
+        VCategory := FCategoryDB.GetFirstCategoryByName(VCategory.Name);
         if Assigned(VCategory) then begin
           Result := FMarkFactory.ReplaceCategory(AMark, VCategory);
           Exit;

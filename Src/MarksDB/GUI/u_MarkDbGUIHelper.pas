@@ -383,7 +383,7 @@ begin
     Exit;
   end;
   VCategory := FMarkSystem.CategoryDB.Factory.CreateNew(Name);
-  Result := FMarkSystem.CategoryDB.GetCategoryByName(VCategory.Name);
+  Result := FMarkSystem.CategoryDB.GetFirstCategoryByName(VCategory.Name);
   if Result = nil then begin
     Result := FMarkSystem.CategoryDB.UpdateCategory(nil, VCategory);
   end;

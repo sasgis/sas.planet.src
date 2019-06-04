@@ -32,7 +32,7 @@ type
     ['{B68D1FBF-370E-4B58-84ED-F7BEAE2E2BE7}']
     function IsCategoryFromThisDb(const ACategory: ICategory): Boolean;
     function GetCategoryByID(const ID: TID): IMarkCategory;
-    function GetCategoryByName(const AName: string): IMarkCategory;
+    function GetFirstCategoryByName(const AName: string): IMarkCategory;
   end;
 
 implementation

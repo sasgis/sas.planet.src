@@ -49,7 +49,7 @@ type
     procedure OnImplChange;
     procedure OnDBImplChange;
   private
-    function GetCategoryByName(const AName: string): IMarkCategory;
+    function GetFirstCategoryByName(const AName: string): IMarkCategory;
     function GetCategoryWithSubCategories(const ACategory: IMarkCategory): IMarkCategoryList;
     function GetSubCategoryListForCategory(const ACategory: IMarkCategory): IMarkCategoryList;
     function GetCategoriesList: IMarkCategoryList;
@@ -189,7 +189,7 @@ begin
   end;
 end;
 
-function TMarkCategoryDbByImpl.GetCategoryByName(
+function TMarkCategoryDbByImpl.GetFirstCategoryByName(
   const AName: string
 ): IMarkCategory;
 var
@@ -199,7 +199,7 @@ begin
   try
     VImpl := FMarkSystemImpl.GetStatic;
     if VImpl <> nil then begin
-      Result := VImpl.CategoryDB.GetCategoryByName(AName);
+      Result := VImpl.CategoryDB.GetFirstCategoryByName(AName);
     end;
   except
     on E: Exception do begin

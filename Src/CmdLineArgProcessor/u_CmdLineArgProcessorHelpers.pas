@@ -256,7 +256,7 @@ function GetTempCategory(const ACategoryDB: IMarkCategoryDB): IMarkCategory;
 const
   cTmpCategoryName = 'TEMP';
 begin
-  Result := ACategoryDB.GetCategoryByName(cTmpCategoryName);
+  Result := ACategoryDB.GetFirstCategoryByName(cTmpCategoryName);
   if not Assigned(Result) then begin
     Result := ACategoryDB.Factory.CreateNew(cTmpCategoryName);
     if Assigned(Result) then begin

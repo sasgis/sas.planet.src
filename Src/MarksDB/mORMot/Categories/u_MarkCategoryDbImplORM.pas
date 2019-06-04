@@ -68,7 +68,7 @@ type
     { IMarkCategoryInternalORM }
     function IsCategoryFromThisDb(const ACategory: ICategory): Boolean;
     function GetCategoryByID(const ID: TID): IMarkCategory;
-    function GetCategoryByName(const AName: string): IMarkCategory;
+    function GetFirstCategoryByName(const AName: string): IMarkCategory;
   private
     { IMarkCategoryDBImpl }
     function UpdateCategory(
@@ -399,7 +399,7 @@ begin
   end;
 end;
 
-function TMarkCategoryDbImplORM.GetCategoryByName(const AName: string): IMarkCategory;
+function TMarkCategoryDbImplORM.GetFirstCategoryByName(const AName: string): IMarkCategory;
 begin
   Assert(AName <> '');
   LockWrite;

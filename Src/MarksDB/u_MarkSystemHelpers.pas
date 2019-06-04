@@ -95,7 +95,7 @@ begin
     end else begin
       VCategoryName := ADataItemTree.Name;
     end;
-    VMarkCategory := ACategoryDB.GetCategoryByName(VCategoryName);
+    VMarkCategory := ACategoryDB.GetFirstCategoryByName(VCategoryName);
     if not Assigned(VMarkCategory) then begin
       VMarkCategory := ACategoryFactory.CreateNew(VCategoryName);
       ACategoryList.Add(VMarkCategory);
@@ -149,7 +149,7 @@ begin
     end else begin
       VCategoryName := ADataItemTree.Name;
     end;
-    VMarkCategory := ACategoryDB.GetCategoryByName(VCategoryName);
+    VMarkCategory := ACategoryDB.GetFirstCategoryByName(VCategoryName);
     if not Assigned(VMarkCategory) then begin
       VMarkCategory := ACategoryFactory.CreateNew(VCategoryName);
       VMarkCategory := ACategoryDB.UpdateCategory(nil, VMarkCategory);

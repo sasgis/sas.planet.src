@@ -31,11 +31,13 @@ uses
 type
   IMarkCategoryDBImpl = interface
     ['{7B54650B-BF85-4688-A493-0DED82DADFFD}']
-    function GetCategoryByName(const AName: string): IMarkCategory;
+    function GetFirstCategoryByName(const AName: string): IMarkCategory;
+
     function UpdateCategory(
       const AOldCategory: IMarkCategory;
       const ANewCategory: IMarkCategory
     ): IMarkCategory;
+
     function UpdateCategoryList(
       const AOldCategory: IMarkCategoryList;
       const ANewCategory: IMarkCategoryList

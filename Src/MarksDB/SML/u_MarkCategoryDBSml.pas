@@ -74,7 +74,7 @@ type
     );
     function IsCategoryFromThisDb(const ACategory: ICategory): Boolean;
     function GetCategoryByID(id: integer): IMarkCategory;
-    function GetCategoryByName(const AName: string): IMarkCategory;
+    function GetFirstCategoryByName(const AName: string): IMarkCategory;
   private
     { IMarkCategoryDBImpl }
     function UpdateCategory(
@@ -456,7 +456,7 @@ begin
   end;
 end;
 
-function TMarkCategoryDBSml.GetCategoryByName(const AName: string): IMarkCategory;
+function TMarkCategoryDBSml.GetFirstCategoryByName(const AName: string): IMarkCategory;
 var
   VEnum: IEnumID;
   i: Cardinal;
