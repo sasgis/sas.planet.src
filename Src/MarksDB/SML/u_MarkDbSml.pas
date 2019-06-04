@@ -121,7 +121,7 @@ type
     ): IInterfaceListStatic;
 
     function GetMarkByID(const AMarkId: IMarkId): IVectorDataItem;
-    function GetMarkByName(
+    function GetFirstMarkByName(
       const AName: string;
       const ACategory: ICategory
     ): IVectorDataItem;
@@ -263,7 +263,7 @@ begin
   inherited;
 end;
 
-function TMarkDbSml.GetMarkByName(
+function TMarkDbSml.GetFirstMarkByName(
   const AName: string;
   const ACategory: ICategory
 ): IVectorDataItem;

@@ -53,7 +53,7 @@ type
     procedure OnImplChange;
     procedure OnDBImplChange;
   private
-    function GetMarkByName(
+    function GetFirstMarkByName(
       const AName: string;
       const ACategory: ICategory
     ): IVectorDataItem;
@@ -225,7 +225,7 @@ begin
   end;
 end;
 
-function TMarkDbByImpl.GetMarkByName(
+function TMarkDbByImpl.GetFirstMarkByName(
   const AName: string;
   const ACategory: ICategory
 ): IVectorDataItem;
@@ -236,7 +236,7 @@ begin
   try
     VImpl := FMarkSystemImpl.GetStatic;
     if VImpl <> nil then begin
-      Result := VImpl.MarkDb.GetMarkByName(AName, ACategory);
+      Result := VImpl.MarkDb.GetFirstMarkByName(AName, ACategory);
     end;
   except
     on E: Exception do begin

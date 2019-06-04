@@ -122,7 +122,7 @@ type
 
     function GetMarkByID(const AMarkId: IMarkId): IVectorDataItem;
 
-    function GetMarkByName(
+    function GetFirstMarkByName(
       const AName: string;
       const ACategory: ICategory
     ): IVectorDataItem;
@@ -346,7 +346,7 @@ begin
   end;
 end;
 
-function TMarkDbImplORM.GetMarkByName(
+function TMarkDbImplORM.GetFirstMarkByName(
   const AName: string;
   const ACategory: ICategory
 ): IVectorDataItem;

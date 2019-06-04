@@ -170,7 +170,7 @@ begin
         end;
       end else begin
         if AImportConfig.CategoryParams.IsIgnoreMarkIfExistsWithSameNameInCategory then begin
-          if AMarkDB.GetMarkByName(VName, VCategory) <> nil then begin
+          if AMarkDB.GetFirstMarkByName(VName, VCategory) <> nil then begin
             Continue;
           end;
         end;

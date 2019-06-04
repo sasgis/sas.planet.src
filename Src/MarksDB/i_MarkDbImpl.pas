@@ -35,7 +35,7 @@ uses
 type
   IMarkDbImpl = interface
     ['{03887FA9-8588-489E-80D1-FE7C82708B95}']
-    function GetMarkByName(
+    function GetFirstMarkByName(
       const AName: string;
       const ACategory: ICategory
     ): IVectorDataItem;
