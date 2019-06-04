@@ -23,7 +23,6 @@ unit i_ContentTypeManager;
 interface
 
 uses
-  Classes,
   i_StringListStatic,
   i_BitmapTileSaveLoad,
   i_ContentTypeInfo,
