@@ -90,13 +90,14 @@ object frmUpdateChecker: TfrmUpdateChecker
     Top = 100
     Width = 152
     Height = 21
+    Style = csDropDownList
+    ItemHeight = 13
     TabOrder = 1
     Text = 'Nightly (testing)'
     OnChange = cbbChannelChange
     Items.Strings = (
       'Nightly (testing)'
-      'Release (stable)'
-      '')
+      'Release (stable)')
   end
   object tmrCheckState: TTimer
     Enabled = False

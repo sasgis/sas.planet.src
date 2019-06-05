@@ -132,6 +132,7 @@ object frGPSConfig: TfrGPSConfig
             Top = 0
             Width = 63
             Height = 21
+            Style = csDropDownList
             ItemHeight = 13
             ItemIndex = 5
             TabOrder = 0

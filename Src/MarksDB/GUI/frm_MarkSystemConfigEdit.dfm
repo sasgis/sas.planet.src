@@ -40,6 +40,8 @@ object frmMarkSystemConfigEdit: TfrmMarkSystemConfigEdit
       Margins.Left = 10
       Margins.Right = 10
       Align = alClient
+      Style = csDropDownList
+      ItemHeight = 13
       TabOrder = 0
       OnChange = cbbDbTypeChange
     end
