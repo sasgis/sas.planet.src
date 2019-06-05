@@ -34,12 +34,6 @@ uses
   Dialogs,
   StdCtrls,
   UITypes,
-  TBX,
-  TBXExtItems,
-  TB2Item,
-  TB2ExtItems,
-  TB2Dock,
-  TB2Toolbar,
   i_LanguageManager,
   i_ArchiveReadWriteConfig,
   u_CommonFormAndFrameParents;
@@ -51,8 +45,7 @@ type
     cbbCompressMethod: TComboBox;
     lblCompressMethod: TLabel;
     lblSplitToVolumes: TLabel;
-    tbxToolbar: TTBXToolbar;
-    tbxcbbVolumeSize: TTBXComboBoxItem;
+    cbbVolumeSize: TComboBox;
     procedure cbbCompressLevelChange(Sender: TObject);
   private
     { IArchiveWriteConfigFrame }
@@ -104,7 +97,7 @@ begin
   cbbCompressLevelChange(Self);
 
   for I := 0 to Length(cVolumeSizeStr) - 1 do begin
-    tbxcbbVolumeSize.Lines.Add(cVolumeSizeStr[I]);
+    cbbVolumeSize.Items.Add(cVolumeSizeStr[I]);
   end;
 end;
 
@@ -129,7 +122,7 @@ begin
 
   I := 0;
 
-  VStr := Trim(tbxcbbVolumeSize.Text);
+  VStr := Trim(cbbVolumeSize.Text);
 
   if VStr <> '' then begin
     I := Pos('M', VStr);
@@ -138,7 +131,7 @@ begin
     end;
     if not TryStrToInt(VStr, I) then begin
       MessageDlg(
-        Format(_('Invalid Volume Size value: %s'), [tbxcbbVolumeSize.Text]),
+        Format(_('Invalid Volume Size value: %s'), [cbbVolumeSize.Text]),
         mtError,
         [mbOk],
         -1
@@ -171,10 +164,10 @@ var
   VSize: Int64;
   VConfig: IArchiveWriteZipConfig;
 begin
+  cbbVolumeSize.Text := '';
   if AWriteConfig = nil then begin
     cbbCompressLevel.ItemIndex := 0;
     cbbCompressLevelChange(Self);
-    tbxcbbVolumeSize.Text := '';
   end else
   if Supports(AWriteConfig, IArchiveWriteZipConfig, VConfig) then begin
     Assert(Integer(zcmStore) = 0);
@@ -186,17 +179,16 @@ begin
     end;
     cbbCompressLevelChange(Self);
 
-    tbxcbbVolumeSize.Text := '';
     VSize := VConfig.VolumeSize;
     if VSize > 0 then begin
       for I := 0 to Length(cVolumeSizeVal) - 1 do begin
         if VSize = cVolumeSizeVal[I] * cMegabyte then begin
-          tbxcbbVolumeSize.Text := cVolumeSizeStr[I];
+          cbbVolumeSize.Text := cVolumeSizeStr[I];
           Break;
         end;
       end;
-      if tbxcbbVolumeSize.Text = '' then begin
-        tbxcbbVolumeSize.Text := IntToStr(VSize div cMegabyte);
+      if cbbVolumeSize.Text = '' then begin
+        cbbVolumeSize.Text := IntToStr(VSize div cMegabyte);
       end;
     end;
   end else begin

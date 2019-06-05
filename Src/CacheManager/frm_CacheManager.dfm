@@ -118,6 +118,7 @@ object frmCacheManager: TfrmCacheManager
           Top = 16
           Width = 158
           Height = 21
+          Style = csDropDownList
           ItemHeight = 13
           ItemIndex = 1
           TabOrder = 0
@@ -132,6 +133,7 @@ object frmCacheManager: TfrmCacheManager
           Top = 104
           Width = 97
           Height = 21
+          Style = csDropDownList
           ItemHeight = 13
           TabOrder = 3
         end
@@ -217,6 +219,7 @@ object frmCacheManager: TfrmCacheManager
           Top = 16
           Width = 159
           Height = 21
+          Style = csDropDownList
           ItemHeight = 13
           ItemIndex = 2
           TabOrder = 0

@@ -30,7 +30,10 @@ object frArchiveWriteZipConfig: TfrArchiveWriteZipConfig
     Top = 3
     Width = 145
     Height = 21
-    ItemHeight = 0
+    Align = alCustom
+    Style = csDropDownList
+    Anchors = [akRight]
+    ItemHeight = 13
     TabOrder = 0
     OnChange = cbbCompressLevelChange
   end
@@ -39,30 +42,22 @@ object frArchiveWriteZipConfig: TfrArchiveWriteZipConfig
     Top = 30
     Width = 145
     Height = 21
-    ItemHeight = 0
+    Align = alCustom
+    Style = csDropDownList
+    Anchors = [akRight]
+    ItemHeight = 13
     TabOrder = 1
   end
-  object tbxToolbar: TTBXToolbar
+  object cbbVolumeSize: TComboBox
     Left = 3
     Top = 79
     Width = 330
     Height = 21
-    Options = [tboNoRotation]
-    Stretch = True
+    Align = alCustom
+    AutoComplete = False
+    Anchors = [akLeft, akRight]
+    CharCase = ecUpperCase
+    ItemHeight = 13
     TabOrder = 2
-    TabStop = True
-    object tbxcbbVolumeSize: TTBXComboBoxItem
-      AutoCheck = True
-      CharCase = ecUpperCase
-      DisplayMode = nbdmTextOnly
-      EditWidth = 330
-      MaskOptions = [tboNoRotation]
-      Options = [tboNoAutoHint, tboNoRotation]
-      ExtendedAccept = True
-      AutoComplete = False
-      MinListWidth = 330
-      Caption = ''
-      Hint = ''
-    end
   end
 end
