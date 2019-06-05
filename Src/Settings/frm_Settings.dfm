@@ -9,7 +9,7 @@ object frmSettings: TfrmSettings
   Constraints.MinWidth = 660
   ParentFont = True
   OldCreateOrder = False
-  Position = poScreenCenter
+  Position = poMainFormCenter
   ShowHint = True
   OnCloseQuery = FormCloseQuery
   OnShow = FormShow
