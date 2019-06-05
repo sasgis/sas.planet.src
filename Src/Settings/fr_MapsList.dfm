@@ -80,6 +80,7 @@ object frMapsList: TfrMapsList
       Height = 21
       Margins.Top = 0
       Align = alTop
+      Style = csDropDownList
       ItemHeight = 13
       ItemIndex = 0
       TabOrder = 4
