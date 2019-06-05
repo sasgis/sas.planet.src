@@ -471,7 +471,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Style = csDropDownList
         ItemHeight = 13
         TabOrder = 2
-        Text = 'cbbElevProviderList'
       end
     end
   end
