@@ -393,6 +393,9 @@ end;
 procedure TfrmMarksExplorer.FormCreate(Sender: TObject);
 begin
   if IsRectEmpty(FWindowConfig.BoundsRect) then begin
+    Self.Width := 700;
+    Self.Height := 500;
+    Self.Position := poMainFormCenter;
     FWindowConfig.SetWindowPosition(Self.BoundsRect);
   end;
   FSelectedCategoryInfo := ExpandInfoFromString(FMarksExplorerConfig.SelectedCategory);
