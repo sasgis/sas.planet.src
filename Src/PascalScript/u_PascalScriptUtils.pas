@@ -47,8 +47,10 @@ uses
 procedure CompileTimeReg_Utils(const APSComp: TPSPascalCompiler);
 begin
   // SysUtils
-  APSComp.AddDelphiFunction('function IntToHex(Value: Integer; Digits: Integer): String');
-  APSComp.AddDelphiFunction('function FileExists(const FileName: String): Boolean');
+  APSComp.AddDelphiFunction('function IntToHex(Value: Integer; Digits: Integer): string');
+  APSComp.AddDelphiFunction('function FileExists(const FileName: string): Boolean');
+  APSComp.AddDelphiFunction('function Format(const Format: string; const Args: array of const): string');
+  APSComp.AddDelphiFunction('function FormatEx(const Format: string; const Args: array of const; const ADecimalSeparator: Char): string');
 
   // StrUtils
   APSComp.AddDelphiFunction('function PosEx(const SubStr, S: string; Offset: Integer): Integer');
@@ -173,11 +175,27 @@ begin
   Result := IntToHex(AValue, ADigits);
 end;
 
+function Format_P(const Format: string; const Args: array of const): string;
+begin
+  Result := SysUtils.Format(Format, Args);
+end;
+
+function FormatEx_P(const Format: string; const Args: array of const;
+  const ADecimalSeparator: Char): string;
+var
+  VFormatSettings: TFormatSettings;
+begin
+  VFormatSettings.DecimalSeparator := ADecimalSeparator;
+  Result := SysUtils.Format(Format, Args, VFormatSettings);
+end;
+
 procedure ExecTimeReg_Utils(const APSExec: TPSExec);
 begin
   // SysUtils
   APSExec.RegisterDelphiFunction(@IntToHex_P, 'IntToHex', cdRegister);
   APSExec.RegisterDelphiFunction(@FileExists, 'FileExists', cdRegister);
+  APSExec.RegisterDelphiFunction(@Format_P, 'Format', cdRegister);
+  APSExec.RegisterDelphiFunction(@FormatEx_P, 'FormatEx', cdRegister);
 
   // StrUtils
   APSExec.RegisterDelphiFunction(@StrUtils.PosEx, 'PosEx', cdRegister);
