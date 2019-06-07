@@ -24,15 +24,23 @@ interface
 
 uses
   Classes,
+  i_GeoCoder,
+  i_InetConfig,
   i_InterfaceListSimple,
+  i_NotifierTime,
   i_NotifierOperation,
   i_LocalCoordConverter,
+  i_VectorItemSubsetBuilder,
   i_DownloadRequest,
   i_DownloadResult,
+  i_DownloaderFactory,
   u_GeoCoderBasic;
 
 type
   TGeoCoderByGoogle = class(TGeoCoderBasic)
+  private
+    FApiKey: string;
+    procedure LoadApiKey(const AFileName: string);
   protected
     function PrepareRequest(
       const ASearch: string;
@@ -46,7 +54,18 @@ type
       const ALocalConverter: ILocalCoordConverter
     ): IInterfaceListSimple; override;
   public
+    constructor Create(
+      const AApiKeyFileName: string;
+      const AInetSettings: IInetConfig;
+      const AGCNotifier: INotifierTime;
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+      const APlacemarkFactory: IGeoCodePlacemarkFactory;
+      const ADownloaderFactory: IDownloaderFactory
+    );
   end;
+
+const
+  cGoogleApiKeyFileName = 'GoogleApiKey.txt';
 
 implementation
 
@@ -55,7 +74,6 @@ uses
   ALString,
   superobject,
   t_GeoTypes,
-  i_GeoCoder,
   i_VectorDataItemSimple,
   i_Projection,
   u_InterfaceListSimple,
@@ -63,6 +81,53 @@ uses
   u_GeoToStrFunc;
 
 { TGeoCoderByGoogle }
+
+constructor TGeoCoderByGoogle.Create(
+  const AApiKeyFileName: string;
+  const AInetSettings: IInetConfig;
+  const AGCNotifier: INotifierTime;
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+  const APlacemarkFactory: IGeoCodePlacemarkFactory;
+  const ADownloaderFactory: IDownloaderFactory
+);
+begin
+  inherited Create(
+    AInetSettings,
+    AGCNotifier,
+    AVectorItemSubsetBuilderFactory,
+    APlacemarkFactory,
+    ADownloaderFactory
+  );
+
+  LoadApiKey(AApiKeyFileName);
+end;
+
+procedure TGeoCoderByGoogle.LoadApiKey(const AFileName: string);
+var
+  I: Integer;
+  VList: TStringList;
+begin
+  if not FileExists(AFileName) then begin
+    raise Exception.Create('Google API Key requared, but not found: ' + AFileName);
+  end;
+
+  VList := TStringList.Create;
+  try
+    FApiKey := '';
+    VList.LoadFromFile(AFileName);
+    for I := 0 to VList.Count - 1 do begin
+      FApiKey := Trim(VList.Strings[I]);
+      if FApiKey <> '' then begin
+        Break;
+      end;
+    end;
+    if FApiKey = '' then begin
+      raise Exception.Create('Google API Key is empty!');
+    end;
+  finally
+    VList.Free;
+  end;
+end;
 
 function TGeoCoderByGoogle.ParseResultToPlacemarksList(
   const ACancelNotifier: INotifierOperation;
@@ -128,6 +193,9 @@ begin
   if VStatus <> 'OK' then begin
     if VStatus = 'ZERO_RESULTS' then begin
       Exit;
+    end else
+    if VStatus = 'OVER_QUERY_LIMIT' then begin
+      raise Exception.Create('You are over your quota!');
     end else begin
       raise Exception.CreateFmt('Unexpected status value: %s', [VStatus]);
     end;
@@ -181,8 +249,9 @@ begin
   // https://developers.google.com/maps/documentation/geocoding/index
   Result :=
     PrepareRequestByURL(
-      'http://maps.googleapis.com/maps/api/geocode/json?address=' +
-      URLEncode(AnsiToUtf8(VSearch)) +
+      'https://maps.googleapis.com/maps/api/geocode/json?' +
+      'key=' + AnsiString(FApiKey) +
+      '&address=' + URLEncode(AnsiToUtf8(VSearch)) +
       '&sensor=false' +
       '&language=' + ALStringReplace(AnsiString(SAS_STR_GoogleSearchLanguage), '&hl=', '', [rfIgnoreCase]) +
       '&bounds=' +

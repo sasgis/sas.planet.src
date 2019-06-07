@@ -103,19 +103,23 @@ var
 begin
   VList := TInterfaceListSimple.Create;
 
-  {
-
-  Fix me: http://www.sasgis.org/mantis/view.php?id=3377
-
-  VItem :=
-    TGeoCoderListEntity.Create(
-      CGeoCoderGoogleGUID,
-      'Google',
-      TGeoCoderByGoogle.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory)
-    );
-  VList.Add(VItem);
-
-  }
+  VPath := AUserDataPath + cGoogleApiKeyFileName;
+  if FileExists(VPath) then begin
+    VItem :=
+      TGeoCoderListEntity.Create(
+        CGeoCoderGoogleGUID,
+        'Google',
+        TGeoCoderByGoogle.Create(
+          VPath,
+          AInetConfig,
+          AGCNotifier,
+          AVectorItemSubsetBuilderFactory,
+          APlacemarkFactory,
+          ADownloaderFactory
+        )
+      );
+    VList.Add(VItem);
+  end;
 
   VItem :=
     TGeoCoderListEntity.Create(
