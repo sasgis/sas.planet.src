@@ -139,6 +139,7 @@ uses
   u_InternalBrowserImplByIE in 'Src\Browser\u_InternalBrowserImplByIE.pas',
   u_InternalBrowserLastContent in 'Src\Browser\u_InternalBrowserLastContent.pas',
   u_InvisibleBrowserByFormSynchronize in 'Src\Browser\u_InvisibleBrowserByFormSynchronize.pas',
+  frm_ArchiverSettings in 'Src\CacheManager\frm_ArchiverSettings.pas' {frmArchiverSettings},
   frm_CacheManager in 'Src\CacheManager\frm_CacheManager.pas' {frmCacheManager},
   frm_ProgressCacheConvrter in 'Src\CacheManager\frm_ProgressCacheConvrter.pas' {frmProgressCacheConvrter},
   i_CacheConverterProgressInfo in 'Src\CacheManager\i_CacheConverterProgressInfo.pas',
@@ -923,11 +924,13 @@ uses
   u_WinInetConfig in 'Src\Network\u_WinInetConfig.pas',
   frm_PascalScriptDbgOut in 'Src\PascalScript\frm_PascalScriptDbgOut.pas' {frmPascalScriptDbgOut},
   frm_PascalScriptIDE in 'Src\PascalScript\frm_PascalScriptIDE.pas' {frmPascalScriptIDE},
+  i_PascalScriptGlobal in 'Src\PascalScript\i_PascalScriptGlobal.pas',
   t_PascalScript in 'Src\PascalScript\t_PascalScript.pas',
   u_PSExecEx in 'Src\PascalScript\u_PSExecEx.pas',
   u_PSPascalCompilerEx in 'Src\PascalScript\u_PSPascalCompilerEx.pas',
   u_PascalScriptBase64 in 'Src\PascalScript\u_PascalScriptBase64.pas',
   u_PascalScriptCompiler in 'Src\PascalScript\u_PascalScriptCompiler.pas',
+  u_PascalScriptGlobal in 'Src\PascalScript\u_PascalScriptGlobal.pas',
   u_PascalScriptMath in 'Src\PascalScript\u_PascalScriptMath.pas',
   u_PascalScriptRegExpr in 'Src\PascalScript\u_PascalScriptRegExpr.pas',
   u_PascalScriptTypes in 'Src\PascalScript\u_PascalScriptTypes.pas',
@@ -1475,8 +1478,7 @@ uses
   u_ValueToStringConverter in 'Src\u_ValueToStringConverter.pas',
   u_ValueToStringConverterChangeable in 'Src\u_ValueToStringConverterChangeable.pas',
   u_ValueToStringConverterConfig in 'Src\u_ValueToStringConverterConfig.pas',
-  u_WindowPositionConfig in 'Src\u_WindowPositionConfig.pas',
-  frm_ArchiverSettings in 'Src\CacheManager\frm_ArchiverSettings.pas' {frmArchiverSettings};
+  u_WindowPositionConfig in 'Src\u_WindowPositionConfig.pas';
 
 {$R .\Resources\VersionInfo.res}
 {$R .\Resources\MainIcon.res}

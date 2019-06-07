@@ -35,6 +35,7 @@ uses
   i_TileDownloadRequestBuilderConfig,
   i_TileDownloadRequestBuilder,
   i_TileDownloadRequestBuilderFactory,
+  i_PascalScriptGlobal,
   u_BaseInterfacedObject,
   u_TileDownloaderStateInternal;
 
@@ -55,6 +56,7 @@ type
     FScriptInited: Boolean;
     FDefProjConverter: IProjConverter;
     FProjFactory: IProjConverterFactory;
+    FPSGlobal: IPascalScriptGlobal;
     procedure DoCompileScript;
   protected
     function GetState: ITileDownloaderStateChangeble;
@@ -79,6 +81,7 @@ uses
   u_Synchronizer,
   u_CoordConverterSimpleByProjectionSet,
   u_PascalScriptTypes,
+  u_PascalScriptGlobal,
   u_PascalScriptWriteLn,
   u_PascalScriptCompiler,
   u_TileDownloadRequestBuilderPascalScript,
@@ -107,6 +110,8 @@ begin
   FTileDownloaderConfig := ATileDownloaderConfig;
   FProjFactory := AProjFactory;
 
+  FPSGlobal := TPascalScriptGlobal.Create;
+
   FCoordConverter := TCoordConverterSimpleByProjectionSet.Create(AProjectionSet);
   FCS := GSync.SyncStd.Make(Self.ClassName);
   VState := TTileDownloaderStateInternal.Create;
@@ -124,13 +129,14 @@ procedure TTileDownloadRequestBuilderFactoryPascalScript.DoCompileScript;
 
   function _GetRegProcArray: TOnCompileTimeRegProcArray;
   begin
-    SetLength(Result, 6);
+    SetLength(Result, 7);
     Result[0] := @CompileTimeReg_ProjConverter;
     Result[1] := @CompileTimeReg_ProjConverterFactory;
     Result[2] := @CompileTimeReg_CoordConverterSimple;
     Result[3] := @CompileTimeReg_SimpleHttpDownloader;
-    Result[4] := @CompileTimeReg_RequestBuilderVars;
+    Result[4] := @CompileTimeReg_PascalScriptGlobal;
     Result[5] := @CompileTimeReg_WriteLn;
+    Result[6] := @CompileTimeReg_RequestBuilderVars; // must always be the last
   end;
 
 var
@@ -195,7 +201,8 @@ begin
           FCheker,
           FDefProjConverter,
           FProjFactory,
-          FLangManager
+          FLangManager,
+          FPSGlobal
         );
     except
       on E: Exception do begin

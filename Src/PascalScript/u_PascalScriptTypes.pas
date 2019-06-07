@@ -31,11 +31,13 @@ procedure CompileTimeReg_ProjConverter(const APSComp: TPSPascalCompiler);
 procedure CompileTimeReg_ProjConverterFactory(const APSComp: TPSPascalCompiler);
 procedure CompileTimeReg_CoordConverterSimple(const APSComp: TPSPascalCompiler);
 procedure CompileTimeReg_SimpleHttpDownloader(const APSComp: TPSPascalCompiler);
+procedure CompileTimeReg_PascalScriptGlobal(const APSComp: TPSPascalCompiler);
 
 implementation
 
 uses
   i_ProjConverter,
+  i_PascalScriptGlobal,
   i_CoordConverterSimple,
   i_SimpleHttpDownloader;
 
@@ -83,6 +85,31 @@ procedure CompileTimeReg_SimpleHttpDownloader(const APSComp: TPSPascalCompiler);
 begin
   with APSComp.AddInterface(APSComp.FindInterface('IUnknown'), ISimpleHttpDownloader, 'ISimpleHttpDownloader') do begin
     RegisterMethod('function DoHttpRequest(const ARequestUrl, ARequestHeader, APostData: AnsiString; out AResponseHeader, AResponseData: AnsiString): Cardinal', cdRegister);
+  end;
+end;
+
+procedure CompileTimeReg_PascalScriptGlobal(const APSComp: TPSPascalCompiler);
+var
+  VIntf: TPSInterface;
+begin
+  VIntf := APSComp.AddInterface(
+    APSComp.FindInterface('IUnknown'), IPascalScriptGlobal, 'IPascalScriptGlobal'
+  );
+  with VIntf do begin
+    RegisterMethod('procedure Lock;', cdRegister);
+    RegisterMethod('procedure Unlock;', cdRegister);
+
+    RegisterMethod('procedure LockRead;', cdRegister);
+    RegisterMethod('procedure UnlockRead;', cdRegister);
+
+    RegisterMethod('procedure SetVar(const AVarID: Integer; const AValue: Variant);', cdRegister);
+    RegisterMethod('procedure SetVarTS(const AVarID: Integer; const AValue: Variant);', cdRegister);
+
+    RegisterMethod('function GetVar(const AVarID: Integer): Variant;', cdRegister);
+    RegisterMethod('function GetVarTS(const AVarID: Integer): Variant;', cdRegister);
+
+    RegisterMethod('function Exists(const AVarID: Integer): Boolean;', cdRegister);
+    RegisterMethod('function ExistsTS(const AVarID: Integer): Boolean;', cdRegister);
   end;
 end;
 

@@ -66,6 +66,7 @@ uses
   i_Downloader,
   i_DownloaderFactory,
   i_MainMapsState,
+  i_PascalScriptGlobal,
   u_PSExecEx,
   u_PSPascalCompilerEx,
   u_PascalScriptWriteLn,
@@ -174,7 +175,8 @@ type
     FAppClosingListener: IListener;
     FCancelNotifierInternal: INotifierOperationInternal;
     FViewPortState: ILocalCoordConverterChangeable;
-    FWriteLn: TPascalScriptWriteLn;
+    FPSWriteLn: TPascalScriptWriteLn;
+    FPSGlobal: IPascalScriptGlobal;
     function GetZmpFromFolder(const APath: string): IZmpInfo;
     function GetZmpFromZip(const AFileName: string): IZmpInfo;
     function GetZmpFromGUI: IZmpInfo;
@@ -246,6 +248,7 @@ uses
   i_MapVersionInfo,
   i_SimpleHttpDownloader,
   u_PascalScriptTypes,
+  u_PascalScriptGlobal,
   u_ZmpInfo,
   u_GeoFunc,
   u_InetFunc,
@@ -345,7 +348,8 @@ begin
   FArchiveStream := TMemoryStream.Create;
   FLastPath := '';
   FScriptBuffer := '';
-  FWriteLn := TPascalScriptWriteLn.Create;
+  FPSWriteLn := TPascalScriptWriteLn.Create;
+  FPSGlobal := TPascalScriptGlobal.Create;
 end;
 
 destructor TfrmPascalScriptIDE.Destroy;
@@ -355,7 +359,7 @@ begin
     FAppClosingNotifier := nil;
     FAppClosingListener := nil;
   end;
-  FWriteLn.Free;
+  FPSWriteLn.Free;
   FArchiveStream.Free;
   FreeAndNil(FfrmDebug);
   inherited Destroy;
@@ -363,19 +367,20 @@ end;
 
 function TfrmPascalScriptIDE.GetCompileTimeRegProcArray: TOnCompileTimeRegProcArray;
 begin
-  SetLength(Result, 6);
+  SetLength(Result, 7);
   Result[0] := @CompileTimeReg_ProjConverter;
   Result[1] := @CompileTimeReg_ProjConverterFactory;
   Result[2] := @CompileTimeReg_CoordConverterSimple;
   Result[3] := @CompileTimeReg_SimpleHttpDownloader;
-  Result[4] := @CompileTimeReg_RequestBuilderVars;
+  Result[4] := @CompileTimeReg_PascalScriptGlobal;
   Result[5] := @CompileTimeReg_WriteLn;
+  Result[6] := @CompileTimeReg_RequestBuilderVars; // must always be the last
 end;
 
 function TfrmPascalScriptIDE.GetExecTimeRegMethodArray: TOnExecTimeRegMethodArray;
 begin
   SetLength(Result, 1);
-  Result[0].Obj := FWriteLn;
+  Result[0].Obj := FPSWriteLn;
   Result[0].Func := @ExecTimeReg_WriteLn;
 end;
 
@@ -446,7 +451,7 @@ var
 begin
   AByteCode := '';
 
-  FWriteLn.Clear;
+  FPSWriteLn.Clear;
   FfrmDebug.mmoDbgOut.Lines.Clear;
 
   if IsModified then begin
@@ -721,7 +726,8 @@ begin
     nil,  // LastResponseInfo
     VSource,
     VDefProjConverter,
-    FProjFactory
+    FProjFactory,
+    FPSGlobal
   );
 end;
 
@@ -752,9 +758,9 @@ begin
   FfrmDebug.mmoDbgOut.Lines.Add('[Version]');
   FfrmDebug.mmoDbgOut.Lines.Add(_VarToStr(FPSVars.Version));
 
-  if FWriteLn.Count > 0 then begin
+  if FPSWriteLn.Count > 0 then begin
     FfrmDebug.mmoDbgOut.Lines.Add('[WriteLn]');
-    FfrmDebug.mmoDbgOut.Lines.AddStrings(FWriteLn);
+    FfrmDebug.mmoDbgOut.Lines.AddStrings(FPSWriteLn);
   end;
 
   FScriptBuffer := FPSVars.ScriptBuffer;

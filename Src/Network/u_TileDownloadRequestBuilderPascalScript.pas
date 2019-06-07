@@ -44,6 +44,7 @@ uses
   i_SimpleFlag,
   i_TileDownloadRequest,
   i_TileDownloadRequestBuilderConfig,
+  i_PascalScriptGlobal,
   u_PSExecEx,
   u_TileDownloadRequestBuilder,
   u_TileDownloadRequestBuilderPascalScriptVars;
@@ -59,6 +60,7 @@ type
     FDefProjConverter: IProjConverter;
     FProjFactory: IProjConverterFactory;
     FScriptBuffer: AnsiString;
+    FPSGlobal: IPascalScriptGlobal;
 
     FLang: AnsiString;
     FLangManager: ILanguageManager;
@@ -95,7 +97,8 @@ type
       const ACheker: IDownloadChecker;
       const ADefProjConverter: IProjConverter;
       const AProjFactory: IProjConverterFactory;
-      const ALangManager: ILanguageManager
+      const ALangManager: ILanguageManager;
+      const APSGlobal: IPascalScriptGlobal
     );
     destructor Destroy; override;
   end;
@@ -128,7 +131,8 @@ constructor TTileDownloadRequestBuilderPascalScript.Create(
   const ACheker: IDownloadChecker;
   const ADefProjConverter: IProjConverter;
   const AProjFactory: IProjConverterFactory;
-  const ALangManager: ILanguageManager
+  const ALangManager: ILanguageManager;
+  const APSGlobal: IPascalScriptGlobal
 );
 begin
   inherited Create(AConfig);
@@ -139,6 +143,7 @@ begin
   FDownloader := ADownloader;
   FDefProjConverter := ADefProjConverter;
   FProjFactory := AProjFactory;
+  FPSGlobal := APSGlobal;
   FCheker := ACheker;
 
   FLangChangeFlag := TSimpleFlagWithInterlock.Create;
@@ -311,7 +316,8 @@ begin
     ALastResponseInfo,
     ASource,
     FDefProjConverter,
-    FProjFactory
+    FProjFactory,
+    FPSGlobal
   );
 end;
 

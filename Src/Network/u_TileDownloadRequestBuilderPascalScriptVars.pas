@@ -31,6 +31,7 @@ uses
   i_TileRequest,
   i_LastResponseInfo,
   i_ProjConverter,
+  i_PascalScriptGlobal,
   i_SimpleHttpDownloader;
 
 type
@@ -57,6 +58,7 @@ type
     FpGetBMetr: PPSVariantDouble;
     FpConverter: PPSVariantInterface;
     FpDownloader: PPSVariantInterface;
+    FpGlobal: PPSVariantInterface;
     FpDefProjConverter: PPSVariantInterface;
     FpProjFactory: PPSVariantInterface;
 
@@ -81,7 +83,8 @@ type
       const ALastResponseInfo: ILastResponseInfo;
       const ASource: ITileRequest;
       const ADefProjConverter: IProjConverter;
-      const AProjFactory: IProjConverterFactory
+      const AProjFactory: IProjConverterFactory;
+      const APSGlobal: IPascalScriptGlobal
     ); inline;
   end;
 
@@ -97,6 +100,9 @@ procedure CompileTimeReg_RequestBuilderVars(const APSComp: TPSPascalCompiler);
 var
   VType: TPSType;
 begin
+  VType := APSComp.FindType('IPascalScriptGlobal');
+  APSComp.AddUsedVariable('Global', VType);
+
   VType := APSComp.FindType('ISimpleHttpDownloader');
   APSComp.AddUsedVariable('Downloader', VType);
 
@@ -163,6 +169,7 @@ begin
   FpGetRMetr := PPSVariantDouble(APSExec.GetVar2('GetRmetr'));
   FpConverter := PPSVariantInterface(APSExec.GetVar2('Converter'));
   FpDownloader := PPSVariantInterface(APSExec.GetVar2('Downloader'));
+  FpGlobal := PPSVariantInterface(APSExec.GetVar2('Global'));
   FpDefProjConverter := PPSVariantInterface(APSExec.GetVar2('DefProjConverter'));
   FpProjFactory := PPSVariantInterface(APSExec.GetVar2('ProjFactory'));
 end;
@@ -178,7 +185,8 @@ procedure TRequestBuilderVars.ExecTimeSet(
   const ALastResponseInfo: ILastResponseInfo;
   const ASource: ITileRequest;
   const ADefProjConverter: IProjConverter;
-  const AProjFactory: IProjConverterFactory
+  const AProjFactory: IProjConverterFactory;
+  const APSGlobal: IPascalScriptGlobal
 );
 var
   VLonLatRect: TDoubleRect;
@@ -187,7 +195,6 @@ var
   VZoom: Byte;
   VProjection: IProjection;
 begin
-
   VTile := ASource.Tile;
   VZoom := ASource.Zoom;
   VProjection := AProjectionSet.Zooms[VZoom];
@@ -237,6 +244,7 @@ begin
   FpDownloader.Data := ASimpleDownloader;
   FpDefProjConverter.Data := ADefProjConverter;
   FpProjFactory.Data := AProjFactory;
+  FpGlobal.Data := APSGlobal;
 end;
 
 function TRequestBuilderVars.ResultUrl: AnsiString;
