@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.org                                                          *}
+{* info@sasgis.org                                                            *}
+{******************************************************************************}
+
 unit u_SearchToolbarContainer;
 
 interface
@@ -7,6 +27,7 @@ uses
   Actions,
   ActnList,
   Classes,
+  Windows,
   TBX,
   TB2Item,
   TBXExtItems,
@@ -46,6 +67,8 @@ type
       var NewText: String;
       var Accept: Boolean
     );
+
+    procedure DoSearch(const AText: string);
   public
     constructor Create(
       const AOwner: TComponent;
@@ -130,6 +153,7 @@ begin
   FSearchHistory.ChangeNotifier.Add(FHistoryChangeListener);
 
   FSearchTextEdit.OnAcceptText := Self.OnAcceptText;
+  FSearchTextEdit.ExtendedAccept := True;
 
   FActionButton.Visible := False; // ToDo
 
@@ -223,36 +247,56 @@ procedure TSearchToolbarContainer.OnAcceptText(
   var NewText: String;
   var Accept: Boolean
 );
+
+  function IsEnterPressed: Boolean;
+  var
+    VState: SHORT;
+  begin
+    // If the high-order bit is 1, the key is down; otherwise, it is up
+    VState := GetKeyState(VK_RETURN);
+    Result := (VState and (1 shl 7)) <> 0;
+  end;
+
+begin
+  // when user press Enter key, triggers regular accept event - that's what we need
+  // when Edit lost its focus, triggers Extended accept event and save the NewText
+  if IsEnterPressed then begin
+    DoSearch(NewText);
+  end;
+end;
+
+procedure TSearchToolbarContainer.DoSearch(const AText: string);
 var
+  I: Integer;
   VItem: IGeoCoderListEntity;
   VResult: IGeoCodeResult;
   VLocalConverter: ILocalCoordConverter;
-  VText: string;
   VNotifier: INotifierOperation;
   VIndex: Integer;
 begin
-  VText := Trim(NewText);
-  if VText <> '' then begin
-    VIndex := FGeoCoderList.GetIndexByGUID(FMainGeoCoderConfig.ActiveGeoCoderGUID);
-    if VIndex >= 0 then begin
-      VItem := FGeoCoderList.Items[VIndex];
-      if Assigned(VItem) then begin
-        VLocalConverter := FCoordConverter.GetStatic;
-        VNotifier := TNotifierOperationFake.Create;
+  if AText = '' then begin
+    Exit;
+  end;
 
-        //ToDo: use worker thread
+  VIndex := FGeoCoderList.GetIndexByGUID(FMainGeoCoderConfig.ActiveGeoCoderGUID);
+  if VIndex >= 0 then begin
+    VItem := FGeoCoderList.Items[VIndex];
+    if Assigned(VItem) then begin
+      VLocalConverter := FCoordConverter.GetStatic;
+      VNotifier := TNotifierOperationFake.Create;
 
-        VResult :=
-          VItem.GetGeoCoder.GetLocations(
-            VNotifier,
-            VNotifier.CurrentOperation,
-            VText,
-            VLocalConverter
-          );
+      //ToDo: use worker thread
 
-        FSearchHistory.AddItem(VText);
-        FSearchPresenter.ShowSearchResults(VResult);
-      end;
+      VResult :=
+        VItem.GetGeoCoder.GetLocations(
+          VNotifier,
+          VNotifier.CurrentOperation,
+          AText,
+          VLocalConverter
+        );
+
+      FSearchHistory.AddItem(AText);
+      FSearchPresenter.ShowSearchResults(VResult);
     end;
   end;
 end;
