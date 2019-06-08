@@ -574,7 +574,7 @@
 			<DCCReference Include="Src\MainForm\MergePolygons\u_MergePolygonsProcessor.pas"/>
 			<DCCReference Include="Src\MainForm\MergePolygons\u_MergePolygonsProgress.pas"/>
 			<DCCReference Include="Src\MainForm\MergePolygons\u_MergePolygonsResult.pas"/>
-			<DCCReference Include="Src\MainForm\fr_SearchResultsItem.pas">
+			<DCCReference Include="Src\MainForm\Search\fr_SearchResultsItem.pas">
 				<Form>frSearchResultsItem</Form>
 				<DesignClass>TFrame</DesignClass>
 			</DCCReference>
@@ -604,7 +604,7 @@
 			<DCCReference Include="Src\MainForm\i_PanelsPositionsSaveLoad.pas"/>
 			<DCCReference Include="Src\MainForm\i_PointOnMapEdit.pas"/>
 			<DCCReference Include="Src\MainForm\i_PopUp.pas"/>
-			<DCCReference Include="Src\MainForm\i_SearchResultPresenter.pas"/>
+			<DCCReference Include="Src\MainForm\Search\i_SearchResultPresenter.pas"/>
 			<DCCReference Include="Src\MainForm\i_SelectionRect.pas"/>
 			<DCCReference Include="Src\MainForm\i_StickToGrid.pas"/>
 			<DCCReference Include="Src\MainForm\i_ViewPortState.pas"/>
@@ -648,7 +648,7 @@
 			<DCCReference Include="Src\MainForm\u_PointOnMapEdit.pas"/>
 			<DCCReference Include="Src\MainForm\u_ProjectionSetChangeableByConfig.pas"/>
 			<DCCReference Include="Src\MainForm\u_SaveLoadTBConfigByConfigProvider.pas"/>
-			<DCCReference Include="Src\MainForm\u_SearchResultPresenterOnPanel.pas"/>
+			<DCCReference Include="Src\MainForm\Search\u_SearchResultPresenterOnPanel.pas"/>
 			<DCCReference Include="Src\MainForm\u_SelectionRect.pas"/>
 			<DCCReference Include="Src\MainForm\u_StickToGridDegree.pas"/>
 			<DCCReference Include="Src\MainForm\u_StickToGridGenShtab.pas"/>
