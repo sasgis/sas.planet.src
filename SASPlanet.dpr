@@ -405,6 +405,7 @@ uses
   u_MergePolygonsProcessor in 'Src\MainForm\MergePolygons\u_MergePolygonsProcessor.pas',
   u_MergePolygonsProgress in 'Src\MainForm\MergePolygons\u_MergePolygonsProgress.pas',
   u_MergePolygonsResult in 'Src\MainForm\MergePolygons\u_MergePolygonsResult.pas',
+  u_SearchToolbarContainer in 'Src\MainForm\Search\u_SearchToolbarContainer.pas',
   fr_SearchResultsItem in 'Src\MainForm\fr_SearchResultsItem.pas' {frSearchResultsItem: TFrame},
   frm_Main in 'Src\MainForm\frm_Main.pas' {frmMain},
   i_FillingMapPolygon in 'Src\MainForm\i_FillingMapPolygon.pas',

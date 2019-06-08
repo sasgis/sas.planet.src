@@ -116,6 +116,7 @@ uses
   u_MarkDbGUIHelper,
   u_FavoriteMapSetMenu,
   u_MainFormLayersList,
+  u_SearchToolbarContainer,
   frm_About,
   frm_Settings,
   frm_MapLayersOptions,
@@ -579,6 +580,7 @@ type
     TBXSeparatorItem23: TTBXSeparatorItem;
     tbxMarksDbList: TTBXSubmenuItem;
     tbxSep4: TTBXSeparatorItem;
+    tbxDoSearch: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -653,11 +655,6 @@ type
       var AllowChange: Boolean
     );
     procedure TBXSensorsBarVisibleChanged(Sender: TObject);
-    procedure TBXSearchEditAcceptText(
-      Sender: TObject;
-      var NewText: String;
-      var Accept: Boolean
-    );
     procedure NMarkExportClick(Sender: TObject);
     procedure ZSliderMouseMove(
       Sender: TObject;
@@ -822,7 +819,6 @@ type
     procedure actFavoriteManageExecute(Sender: TObject);
     procedure actViewNotMinimizedExecute(Sender: TObject);
     procedure actViewTilesGridExecute(Sender: TObject);
-    procedure actGeoCoderSetMain(Sender: TObject);
     procedure actConfigScaleLineExtendedExecute(Sender: TObject);
     procedure actConfigScaleLineOptionsShowExecute(Sender: TObject);
     procedure actConfigScaleLineNumberFormatExecute(Sender: TObject);
@@ -832,7 +828,6 @@ type
     procedure tbxYandexWeatherClick(Sender: TObject);
     procedure actConfigUsePrevForVectorLayersExecute(Sender: TObject);
   private
-    FactlstGeoCoders: TActionList;
     FactlstProjections: TActionList;
     FactlstLanguages: TActionList;
     FactlstTileGrids: TActionList;
@@ -876,6 +871,8 @@ type
     FLayerSearchResults: IFindVectorItems;
 
     FSearchPresenter: ISearchResultPresenter;
+    FSearchToolbarContainer: TSearchToolbarContainer;
+
     FMergePolygonsPresenter: IMergePolygonsPresenter;
     FMergePolygonsResult: IMergePolygonsResult;
     FMapMoving: Boolean;
@@ -959,7 +956,6 @@ type
 
     FMarksDbMenu: TMarksDbMenu;
 
-    procedure InitSearchersActions;
     procedure InitSearchers;
     procedure InitMergepolygons;
     procedure InitLayers;
@@ -989,7 +985,6 @@ type
     procedure GPSReceiverReceive;
 
     procedure OnMapGUIChange;
-    procedure OnSearchhistoryChange;
     procedure OnWinPositionChange;
     procedure OnToolbarsLockChange;
     procedure OnLineOnMapEditChange;
@@ -1985,11 +1980,6 @@ begin
     );
 
     FLinksList.Add(
-      TNotifyNoMmgEventListener.Create(Self.OnSearchhistoryChange),
-      FConfig.SearchHistory.GetChangeNotifier
-    );
-
-    FLinksList.Add(
       TNotifyNoMmgEventListener.Create(Self.OnNavToMarkChange),
       FConfig.NavToPoint.ChangeNotifier
     );
@@ -2007,7 +1997,6 @@ begin
       FPathProvidersTree.ChangeNotifier
     );
 
-    InitSearchersActions;
     InitSearchers;
     InitMergePolygons;
     CreateLangMenu;
@@ -2091,7 +2080,6 @@ begin
     OnMainMapChange;
     OnActivLayersChange;
     ProcessPosChangeMessage;
-    OnSearchhistoryChange;
     OnPathProvidesChange;
     OnNavToMarkChange;
 
@@ -2258,33 +2246,11 @@ begin
   end;
 end;
 
-procedure TfrmMain.InitSearchersActions;
-var
-  VItem: IGeoCoderListEntity;
-  i: Integer;
-  procedure _AddItem(const ACaption: string; const ATag: Integer);
-  var
-    VAction: TAction;
-  begin
-    VAction := TAction.Create(Self);
-    VAction.Caption := ACaption;
-    VAction.Tag := ATag;
-    VAction.OnExecute := Self.actGeoCoderSetMain;
-    VAction.ActionList := FactlstGeoCoders;
-  end;
-begin
-  FactlstGeoCoders := TActionList.Create(Self);
-  for i := 0 to GState.GeoCoderList.Count - 1 do begin
-    VItem := GState.GeoCoderList.Items[i];
-    _AddItem(VItem.Caption, Integer(VItem));
-  end;
-end;
-
 procedure TfrmMain.InitSearchers;
 var
+  I: Integer;
   VItem: IGeoCoderListEntity;
   VTBEditItem: TTBEditItem;
-  i: Integer;
 begin
   FSearchPresenter :=
     TSearchResultPresenterOnPanel.Create(
@@ -2296,8 +2262,8 @@ begin
       GState.CoordToStringConverter,
       GState.LastSearchResult
     );
-  for i := 0 to GState.GeoCoderList.Count - 1 do begin
-    VItem := GState.GeoCoderList.Items[i];
+  for I := 0 to GState.GeoCoderList.Count - 1 do begin
+    VItem := GState.GeoCoderList.Items[I];
 
     VTBEditItem := TTBEditItem.Create(Self);
     VTBEditItem.EditCaption := VItem.GetCaption;
@@ -2306,9 +2272,22 @@ begin
     VTBEditItem.Hint := '';
     VTBEditItem.Tag := Integer(VItem);
     VTBEditItem.OnAcceptText := Self.tbiEditSrchAcceptText;
+
     TBGoTo.Add(VTBEditItem);
   end;
-  SubMenuByActionList(TBXSelectSrchType, FactlstGeoCoders);
+
+  FSearchToolbarContainer :=
+    TSearchToolbarContainer.Create(
+      Self,
+      TBXSelectSrchType,
+      tbiSearch,
+      tbxDoSearch,
+      GState.GeoCoderList,
+      FConfig.MainGeoCoderConfig,
+      FConfig.SearchHistory,
+      FViewPortState.View,
+      FSearchPresenter
+    );
 end;
 
 procedure TfrmMain.InitUrlProviders;
@@ -2622,11 +2601,12 @@ end;
 
 destructor TfrmMain.Destroy;
 begin
+  FSearchToolbarContainer.Free;
+  FSearchPresenter := nil;
   FreeAndNil(FfrmDGAvailablePic);
   FPlacemarkPlayerPlugin := nil;
   FLineOnMapEdit := nil;
   FWinPosition := nil;
-  FSearchPresenter := nil;
   FMergePolygonsPresenter := nil;
   FNLayerParamsItemList := nil;
   FNLayerInfoItemList := nil;
@@ -3107,11 +3087,6 @@ begin
 end;
 
 procedure TfrmMain.OnMainFormMainConfigChange;
-var
-  VGUID: TGUID;
-  i: Integer;
-  VAction: TCustomAction;
-  VItem: IGeoCoderListEntity;
 begin
   actConfigUsePrevForMap.Checked := FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig.UsePrevZoomAtMap;
   actConfigUsePrevForLayers.Checked := FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig.UsePrevZoomAtLayer;
@@ -3132,20 +3107,6 @@ begin
     TBSMB.Caption := FMainMapState.ActiveMap.GetStatic.GUIConfig.Name.Value;
   end else begin
     TBSMB.Caption := '';
-  end;
-
-  VGUID := FConfig.MainGeoCoderConfig.ActiveGeoCoderGUID;
-  for i := 0 to FactlstGeoCoders.ActionCount - 1 do begin
-    VAction := TCustomAction(FactlstGeoCoders.Actions[i]);
-    VItem := IGeoCoderListEntity(VAction.Tag);
-    if VItem <> nil then begin
-      if IsEqualGUID(VGUID, VItem.GetGUID) then begin
-        VAction.Checked := True;
-        TBXSelectSrchType.Caption := VAction.Caption;
-      end else begin
-        VAction.Checked := False;
-      end;
-    end;
   end;
 end;
 
@@ -6009,35 +5970,6 @@ begin
   MakeRosreestrPolygon(FMouseState.GetLastDownPos(mbRight));
 end;
 
-procedure TfrmMain.TBXSearchEditAcceptText(
-  Sender: TObject;
-  var NewText: String;
-  var Accept: Boolean
-);
-var
-  VItem: IGeoCoderListEntity;
-  VResult: IGeoCodeResult;
-  VLocalConverter: ILocalCoordConverter;
-  VText: string;
-  VNotifier: INotifierOperation;
-  VIndex: Integer;
-begin
-  VText := Trim(NewText);
-  if VText <> '' then begin
-    VIndex := GState.GeoCoderList.GetIndexByGUID(FConfig.MainGeoCoderConfig.ActiveGeoCoderGUID);
-    if VIndex >= 0 then begin
-      VItem := GState.GeoCoderList.Items[VIndex];
-      if Assigned(VItem) then begin
-        VLocalConverter := FViewPortState.View.GetStatic;
-        VNotifier := TNotifierOperationFake.Create;
-        VResult := VItem.GetGeoCoder.GetLocations(VNotifier, VNotifier.CurrentOperation, VText, VLocalConverter);
-        FConfig.SearchHistory.AddItem(VText);
-        FSearchPresenter.ShowSearchResults(VResult);
-      end;
-    end;
-  end;
-end;
-
 procedure TfrmMain.tbiEditSrchAcceptText(
   Sender: TObject;
   var NewText: String;
@@ -6427,21 +6359,6 @@ begin
   FPathProvidersTreeStatic := VTree;
 end;
 
-procedure TfrmMain.OnSearchhistoryChange;
-var
-  i: Integer;
-begin
-  tbiSearch.Lines.Clear;
-  FConfig.SearchHistory.LockRead;
-  try
-    for i := 0 to FConfig.SearchHistory.Count - 1 do begin
-      tbiSearch.Lines.Add(FConfig.SearchHistory.GetItem(i));
-    end;
-  finally
-    FConfig.SearchHistory.UnlockRead;
-  end;
-end;
-
 procedure TfrmMain.OnShowSearchResults(Sender: TObject);
 begin
   TBSearchWindow.Show;
@@ -6761,18 +6678,6 @@ begin
   VList := FMarkDBGUI.ImportFileDialog(Self.Handle);
   if Assigned(VList) then begin
     ProcessOpenFiles(VList);
-  end;
-end;
-
-procedure TfrmMain.actGeoCoderSetMain(Sender: TObject);
-var
-  VItem: IGeoCoderListEntity;
-begin
-  if Assigned(Sender) then begin
-    VItem := IGeoCoderListEntity(TComponent(Sender).tag);
-    if VItem <> nil then begin
-      FConfig.MainGeoCoderConfig.ActiveGeoCoderGUID := VItem.GetGUID;
-    end;
   end;
 end;
 

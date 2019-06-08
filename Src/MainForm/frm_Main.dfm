@@ -955,15 +955,20 @@ object frmMain: TfrmMain
       end
       object tbiSearch: TTBXComboBoxItem
         EditCaption = 'Search'
-        EditWidth = 150
+        EditWidth = 200
         Options = [tboNoRotation]
-        OnAcceptText = TBXSearchEditAcceptText
         AutoComplete = False
         MaxVisibleItems = 20
         MinListWidth = 150
         Caption = ''
         Hint = ''
         EditCaption = 'Search'
+      end
+      object tbxDoSearch: TTBXItem
+        ImageIndex = 11
+        Images = MenusImageList
+        Caption = ''
+        Hint = ''
       end
     end
     object FillDates: TTBXToolbar
