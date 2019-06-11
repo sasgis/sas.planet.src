@@ -71,7 +71,6 @@ type
     procedure DoSearch(const AText: string);
   public
     constructor Create(
-      const AOwner: TComponent;
       const AGeoCoderMenu: TTBXSubmenuItem;
       const ASearchTextEdit: TTBXComboBoxItem;
       const AActionButton: TTBXItem;
@@ -118,7 +117,6 @@ end;
 { TSearchToolbarContainer }
 
 constructor TSearchToolbarContainer.Create(
-  const AOwner: TComponent;
   const AGeoCoderMenu: TTBXSubmenuItem;
   const ASearchTextEdit: TTBXComboBoxItem;
   const AActionButton: TTBXItem;
@@ -141,10 +139,10 @@ begin
   FCoordConverter := ACoordConverter;
   FSearchPresenter := ASearchPresenter;
 
-  FactlstGeoCoders := TActionList.Create(AOwner);
+  FactlstGeoCoders := TActionList.Create(nil);
 
   InitActionList;
-  BuildSubMenuByActionList(AGeoCoderMenu, FactlstGeoCoders);
+  BuildSubMenuByActionList(FGeoCoderMenu, FactlstGeoCoders);
 
   FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FMainGeoCoderConfig.ChangeNotifier.Add(FConfigChangeListener);
@@ -172,6 +170,9 @@ begin
     FSearchHistory.ChangeNotifier.Remove(FHistoryChangeListener);
     FHistoryChangeListener := nil;
   end;
+
+  FGeoCoderMenu.Clear;
+  FactlstGeoCoders.Free;
 
   inherited;
 end;

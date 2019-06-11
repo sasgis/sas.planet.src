@@ -2278,7 +2278,6 @@ begin
 
   FSearchToolbarContainer :=
     TSearchToolbarContainer.Create(
-      Self,
       TBXSelectSrchType,
       tbiSearch,
       tbxDoSearch,
