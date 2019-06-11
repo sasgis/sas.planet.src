@@ -123,8 +123,10 @@ function TfrmMarkCategoryEdit.EditCategory(
     if ANewName = '' then begin
       VErr := _('Category name can''t be empty!');
     end else
-    if not SameText(ANewName, ACategory.Name) and (FCategoryDB.GetFirstCategoryByName(ANewName) <> nil) then begin
-      VErr := Format(_('Category with name: "%s" already exists!'), [ANewName]);
+    if FCategoryDB.GetFirstCategoryByName(ANewName) <> nil then begin
+      if AIsNewCategory or not SameText(ANewName, ACategory.Name) then begin
+        VErr := Format(_('Category with name: "%s" already exists!'), [ANewName]);
+      end;
     end else begin
       VErr := '';
     end;
