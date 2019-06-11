@@ -115,8 +115,25 @@ function TfrmMarkCategoryEdit.EditCategory(
   const AIsNewCategory: Boolean;
   const AMarksDBWriteAccess: Boolean
 ): IMarkCategory;
-var
-  VMsg: string;
+
+  function _CheckNewName(const ANewName: string): Boolean;
+  var
+    VErr: string;
+  begin
+    if ANewName = '' then begin
+      VErr := _('Category name can''t be empty!');
+    end else
+    if not SameText(ANewName, ACategory.Name) and (FCategoryDB.GetFirstCategoryByName(ANewName) <> nil) then begin
+      VErr := Format(_('Category with name: "%s" already exists!'), [ANewName]);
+    end else begin
+      VErr := '';
+    end;
+    Result := VErr = '';
+    if not Result then begin
+      MessageBox(Self.Handle, PChar(VErr), PChar(SAS_MSG_error), MB_OK or MB_ICONERROR);
+    end;
+  end;
+
 begin
   Result := nil;
 
@@ -133,20 +150,15 @@ begin
   EditS2.Value := ACategory.BeforeScale;
   CBShow.Checked := ACategory.Visible;
 
-  if ShowModal = mrOk then begin
-    if FCategoryDB.GetFirstCategoryByName(EditName.Text) = nil then begin
-      Result :=
-        FCategoryDB.Factory.Modify(
-          ACategory,
-          EditName.Text,
-          CBShow.Checked,
-          EditS1.Value,
-          EditS2.Value
-        );
-    end else begin
-      VMsg := Format(_('Category with name: "%s" already exists!'), [EditName.Text]);
-      MessageBox(Self.Handle, PChar(VMsg), PChar(SAS_MSG_error), MB_OK or MB_ICONERROR);
-    end;
+  if (ShowModal = mrOk) and _CheckNewName(EditName.Text) then begin
+    Result :=
+      FCategoryDB.Factory.Modify(
+        ACategory,
+        EditName.Text,
+        CBShow.Checked,
+        EditS1.Value,
+        EditS2.Value
+      );
   end;
 end;
 
