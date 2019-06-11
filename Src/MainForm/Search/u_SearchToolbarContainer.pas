@@ -32,9 +32,12 @@ uses
   TB2Item,
   TBXExtItems,
   i_Listener,
+  i_GeoCoder,
   i_GeoCoderList,
   i_StringHistory,
+  i_NotifierOperation,
   i_MainGeoCoderConfig,
+  i_SearchBackgroundTask,
   i_SearchResultPresenter,
   i_LocalCoordConverterChangeable;
 
@@ -56,6 +59,8 @@ type
     FConfigChangeListener: IListener;
     FHistoryChangeListener: IListener;
 
+    FTask: ISearchBackgroundTask;
+
     procedure InitActionList;
     procedure actGeoCoderSetMain(Sender: TObject);
 
@@ -69,11 +74,17 @@ type
     );
 
     procedure DoSearch(const AText: string);
+
+    procedure OnSearchResult(
+      const ATaskData: PSearchTaskData;
+      const AGeoCodeResult: IGeoCodeResult
+    );
   public
     constructor Create(
       const AGeoCoderMenu: TTBXSubmenuItem;
       const ASearchTextEdit: TTBXComboBoxItem;
       const AActionButton: TTBXItem;
+      const AAppClosingNotifier: INotifierOneOperation;
       const AGeoCoderList: IGeoCoderListStatic;
       const AMainGeoCoderConfig: IMainGeoCoderConfig;
       const ASearchHistory: IStringHistory;
@@ -87,9 +98,8 @@ implementation
 
 uses
   SysUtils,
-  i_GeoCoder,
-  i_NotifierOperation,
   i_LocalCoordConverter,
+  u_SearchBackgroundTask,
   u_ListenerByEvent,
   u_NotifierOperation;
 
@@ -120,6 +130,7 @@ constructor TSearchToolbarContainer.Create(
   const AGeoCoderMenu: TTBXSubmenuItem;
   const ASearchTextEdit: TTBXComboBoxItem;
   const AActionButton: TTBXItem;
+  const AAppClosingNotifier: INotifierOneOperation;
   const AGeoCoderList: IGeoCoderListStatic;
   const AMainGeoCoderConfig: IMainGeoCoderConfig;
   const ASearchHistory: IStringHistory;
@@ -150,10 +161,16 @@ begin
   FHistoryChangeListener := TNotifyNoMmgEventListener.Create(Self.OnHistoryChange);
   FSearchHistory.ChangeNotifier.Add(FHistoryChangeListener);
 
+  FTask := // ToDo: get it as param
+    TSearchBackgroundTask.Create(
+      AAppClosingNotifier,
+      ACoordConverter
+    );
+
   FSearchTextEdit.OnAcceptText := Self.OnAcceptText;
   FSearchTextEdit.ExtendedAccept := True;
 
-  FActionButton.Visible := False; // ToDo
+  FActionButton.Visible := False; // ToDo: make search cancelable
 
   OnConfigChange;
   OnHistoryChange;
@@ -269,36 +286,46 @@ end;
 procedure TSearchToolbarContainer.DoSearch(const AText: string);
 var
   I: Integer;
+  VData: PSearchTaskData;
   VItem: IGeoCoderListEntity;
-  VResult: IGeoCodeResult;
-  VLocalConverter: ILocalCoordConverter;
   VNotifier: INotifierOperation;
-  VIndex: Integer;
 begin
   if AText = '' then begin
     Exit;
   end;
 
-  VIndex := FGeoCoderList.GetIndexByGUID(FMainGeoCoderConfig.ActiveGeoCoderGUID);
-  if VIndex >= 0 then begin
-    VItem := FGeoCoderList.Items[VIndex];
-    if Assigned(VItem) then begin
-      VLocalConverter := FCoordConverter.GetStatic;
-      VNotifier := TNotifierOperationFake.Create;
+  I := FGeoCoderList.GetIndexByGUID(FMainGeoCoderConfig.ActiveGeoCoderGUID);
+  if I < 0 then begin
+    Exit;
+  end;
 
-      //ToDo: use worker thread
+  VItem := FGeoCoderList.Items[I];
+  if not Assigned(VItem) then begin
+    Exit;
+  end;
 
-      VResult :=
-        VItem.GetGeoCoder.GetLocations(
-          VNotifier,
-          VNotifier.CurrentOperation,
-          AText,
-          VLocalConverter
-        );
+  VNotifier := TNotifierOperationFake.Create; // ToDo: make search cancelable
 
-      FSearchHistory.AddItem(AText);
-      FSearchPresenter.ShowSearchResults(VResult);
-    end;
+  New(VData);
+
+  VData.Text := AText;
+  VData.GeoCoder := VItem.GetGeoCoder;
+  VData.OperationID := VNotifier.CurrentOperation;
+  VData.CancelNotifier := VNotifier;
+
+  FTask.Run(VData, Self.OnSearchResult);
+end;
+
+procedure TSearchToolbarContainer.OnSearchResult(
+  const ATaskData: PSearchTaskData;
+  const AGeoCodeResult: IGeoCodeResult
+);
+begin
+  try
+    FSearchHistory.AddItem(ATaskData.Text);
+    FSearchPresenter.ShowSearchResults(AGeoCodeResult);
+  finally
+    Dispose(ATaskData);
   end;
 end;
 

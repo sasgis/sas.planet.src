@@ -2281,6 +2281,7 @@ begin
       TBXSelectSrchType,
       tbiSearch,
       tbxDoSearch,
+      GState.AppClosingNotifier,
       GState.GeoCoderList,
       FConfig.MainGeoCoderConfig,
       FConfig.SearchHistory,
