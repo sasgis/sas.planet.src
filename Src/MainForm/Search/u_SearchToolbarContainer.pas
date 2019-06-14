@@ -46,7 +46,7 @@ type
   private
     const
       cBusyImageIndex = 49;
-      cReadyImageIndex = 11;
+      cReadyImageIndex = 74;
   private
     FGeoCoderMenu: TTBXSubmenuItem;
     FSearchTextEdit: TTBXComboBoxItem;
