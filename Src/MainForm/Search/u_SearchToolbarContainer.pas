@@ -37,7 +37,7 @@ uses
   i_StringHistory,
   i_NotifierOperation,
   i_MainGeoCoderConfig,
-  i_SearchBackgroundTask,
+  i_SearchTaskRunnerAsync,
   i_SearchResultPresenter,
   i_LocalCoordConverterChangeable;
 
@@ -59,7 +59,7 @@ type
     FConfigChangeListener: IListener;
     FHistoryChangeListener: IListener;
 
-    FTask: ISearchBackgroundTask;
+    FTaskRunner: ISearchTaskRunnerAsync;
 
     procedure InitActionList;
     procedure actGeoCoderSetMain(Sender: TObject);
@@ -99,7 +99,7 @@ implementation
 uses
   SysUtils,
   i_LocalCoordConverter,
-  u_SearchBackgroundTask,
+  u_SearchTaskRunnerAsync,
   u_ListenerByEvent,
   u_NotifierOperation;
 
@@ -161,8 +161,8 @@ begin
   FHistoryChangeListener := TNotifyNoMmgEventListener.Create(Self.OnHistoryChange);
   FSearchHistory.ChangeNotifier.Add(FHistoryChangeListener);
 
-  FTask := // ToDo: get it as param
-    TSearchBackgroundTask.Create(
+  FTaskRunner := // ToDo: get it as param
+    TSearchTaskRunnerAsync.Create(
       AAppClosingNotifier,
       ACoordConverter
     );
@@ -313,7 +313,7 @@ begin
   VData.OperationID := VNotifier.CurrentOperation;
   VData.CancelNotifier := VNotifier;
 
-  FTask.Run(VData, Self.OnSearchResult);
+  FTaskRunner.Run(VData, Self.OnSearchResult);
 end;
 
 procedure TSearchToolbarContainer.OnSearchResult(

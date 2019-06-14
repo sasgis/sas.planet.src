@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_SearchBackgroundTask;
+unit u_SearchTaskRunnerAsync;
 
 interface
 
@@ -28,15 +28,15 @@ uses
   i_GeoCoder,
   i_BackgroundTask,
   i_NotifierOperation,
-  i_SearchBackgroundTask,
+  i_SearchTaskRunnerAsync,
   i_LocalCoordConverterChangeable,
   u_BaseInterfacedObject;
 
 type
-  TSearchBackgroundTask = class(TBaseInterfacedObject, ISearchBackgroundTask)
+  TSearchTaskRunnerAsync = class(TBaseInterfacedObject, ISearchTaskRunnerAsync)
   private
     type
-      TTaskStatus = (tsWhait, tsBusy, tsReady);
+      TTaskStatus = (tsWait, tsBusy, tsReady);
       TTaskRec = record
         Data: Pointer;
         OnResult: TOnSearchTaskResult;
@@ -59,7 +59,7 @@ type
     procedure OnResultSync;
     procedure ClearTasksList;
   private
-    { ISearchBackgroundTask }
+    { ISearchTaskRunnerAsync }
     procedure Run(
       const ATaskData: PSearchTaskData;
       const AOnTaskResult: TOnSearchTaskResult
@@ -81,9 +81,9 @@ uses
   u_NotifierOperation,
   u_Synchronizer;
 
-{ TSearchBackgroundTask }
+{ TSearchTaskRunnerAsync }
 
-constructor TSearchBackgroundTask.Create(
+constructor TSearchTaskRunnerAsync.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   const ACoordConverter: ILocalCoordConverterChangeable
 );
@@ -98,14 +98,14 @@ begin
   FTasks := TList.Create;
 end;
 
-destructor TSearchBackgroundTask.Destroy;
+destructor TSearchTaskRunnerAsync.Destroy;
 begin
   ClearTasksList;
   FTasks.Free;
   inherited Destroy;
 end;
 
-procedure TSearchBackgroundTask.ClearTasksList;
+procedure TSearchTaskRunnerAsync.ClearTasksList;
 var
   I: Integer;
   VItem: PTaskRec;
@@ -124,7 +124,7 @@ begin
   end;
 end;
 
-procedure TSearchBackgroundTask.OnExec(
+procedure TSearchTaskRunnerAsync.OnExec(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation
 );
@@ -139,7 +139,7 @@ begin
 
     for I := 0 to FTasks.Count - 1 do begin
       VItem := FTasks.Items[I];
-      if (VItem <> nil) and (VItem.Status = tsWhait) then begin
+      if (VItem <> nil) and (VItem.Status = tsWait) then begin
         VItem.Status := tsBusy;
         Break;
       end else begin
@@ -173,30 +173,39 @@ begin
   end;
 end;
 
-procedure TSearchBackgroundTask.OnResultSync;
+procedure TSearchTaskRunnerAsync.OnResultSync;
 var
-  I: Integer;
-  VItem: PTaskRec;
+  I, J: Integer;
+  VItems: array of PTaskRec;
 begin
+  J := 0;
+
   FLock.BeginWrite;
   try
+    SetLength(VItems, FTasks.Count);
     for I := FTasks.Count - 1 downto 0 do begin
-      VItem := FTasks.Items[I];
-      if (VItem <> nil) and (VItem.Status = tsReady) then begin
-        try
-          VItem.OnResult(VItem.Data, VItem.Result);
-        finally
-          Dispose(VItem);
-          FTasks.Delete(I);
-        end;
+      VItems[J] := FTasks.Items[I];
+      if (VItems[J] <> nil) and (VItems[J].Status = tsReady) then begin
+        Inc(J);
+        FTasks.Delete(I);
       end;
     end;
   finally
     FLock.EndWrite;
   end;
+
+  try
+    for I := J - 1 downto 0 do begin
+      VItems[I].OnResult(VItems[I].Data, VItems[I].Result);
+    end;
+  finally
+    for I := J - 1 downto 0 do begin
+      Dispose(VItems[I]);
+    end;
+  end;
 end;
 
-procedure TSearchBackgroundTask.Run(
+procedure TSearchTaskRunnerAsync.Run(
   const ATaskData: PSearchTaskData;
   const AOnTaskResult: TOnSearchTaskResult
 );
@@ -224,7 +233,7 @@ begin
   VItem.Data := ATaskData;
   VItem.OnResult := AOnTaskResult;
   VItem.Result := nil;
-  VItem.Status := tsWhait;
+  VItem.Status := tsWait;
 
   FLock.BeginWrite;
   try

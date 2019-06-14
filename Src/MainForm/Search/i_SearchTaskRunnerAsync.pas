@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_SearchBackgroundTask;
+unit i_SearchTaskRunnerAsync;
 
 interface
 
@@ -40,7 +40,7 @@ type
     const AGeoCodeResult: IGeoCodeResult
   ) of object;
 
-  ISearchBackgroundTask = interface
+  ISearchTaskRunnerAsync = interface
     ['{2F99C571-E84A-4313-8C53-37C515BB1802}']
     procedure Run(
       const ATaskData: PSearchTaskData;
