@@ -44,6 +44,10 @@ uses
 type
   TSearchToolbarContainer = class
   private
+    const
+      cBusyImageIndex = 49;
+      cReadyImageIndex = 11;
+  private
     FGeoCoderMenu: TTBXSubmenuItem;
     FSearchTextEdit: TTBXComboBoxItem;
     FActionButton: TTBXItem;
@@ -56,6 +60,10 @@ type
 
     FactlstGeoCoders: TActionList;
 
+    FCancelNotifier: INotifierOperationInternal;
+    FAppClosingNotifier: INotifierOneOperation;
+
+    FAppCloseListener: IListener;
     FConfigChangeListener: IListener;
     FHistoryChangeListener: IListener;
 
@@ -64,8 +72,11 @@ type
     procedure InitActionList;
     procedure actGeoCoderSetMain(Sender: TObject);
 
+    procedure OnAppClose;
     procedure OnConfigChange;
     procedure OnHistoryChange;
+
+    procedure OnActionButtonClick(Sender: TObject);
 
     procedure OnAcceptText(
       Sender: TObject;
@@ -73,7 +84,7 @@ type
       var Accept: Boolean
     );
 
-    procedure DoSearch(const AText: string);
+    procedure RunSearchTask(const AText: string);
 
     procedure OnSearchResult(
       const ATaskData: PSearchTaskData;
@@ -99,8 +110,10 @@ implementation
 uses
   SysUtils,
   i_LocalCoordConverter,
+  u_Synchronizer,
   u_SearchTaskRunnerAsync,
   u_ListenerByEvent,
+  u_Notifier,
   u_NotifierOperation;
 
 procedure BuildSubMenuByActionList(
@@ -144,6 +157,7 @@ begin
   FSearchTextEdit := ASearchTextEdit;
   FActionButton := AActionButton;
 
+  FAppClosingNotifier := AAppClosingNotifier;
   FGeoCoderList := AGeoCoderList;
   FMainGeoCoderConfig := AMainGeoCoderConfig;
   FSearchHistory := ASearchHistory;
@@ -155,6 +169,14 @@ begin
   InitActionList;
   BuildSubMenuByActionList(FGeoCoderMenu, FactlstGeoCoders);
 
+  FCancelNotifier :=
+    TNotifierOperation.Create(
+      TNotifierBase.Create(GSync.SyncStd.Make(Self.ClassName + 'CancelNotifier'))
+    );
+
+  FAppCloseListener := TNotifyNoMmgEventListener.Create(Self.OnAppClose);
+  FAppClosingNotifier.Add(FAppCloseListener);
+
   FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FMainGeoCoderConfig.ChangeNotifier.Add(FConfigChangeListener);
 
@@ -163,14 +185,14 @@ begin
 
   FTaskRunner := // ToDo: get it as param
     TSearchTaskRunnerAsync.Create(
-      AAppClosingNotifier,
+      FAppClosingNotifier,
       ACoordConverter
     );
 
   FSearchTextEdit.OnAcceptText := Self.OnAcceptText;
   FSearchTextEdit.ExtendedAccept := True;
 
-  FActionButton.Visible := False; // ToDo: make search cancelable
+  FActionButton.OnClick := Self.OnActionButtonClick;
 
   OnConfigChange;
   OnHistoryChange;
@@ -178,6 +200,10 @@ end;
 
 destructor TSearchToolbarContainer.Destroy;
 begin
+  if (FAppCloseListener <> nil) and (FAppClosingNotifier <> nil) then begin
+    FAppClosingNotifier.Remove(FAppCloseListener);
+    FAppCloseListener := nil;
+  end;
   if (FConfigChangeListener <> nil) and (FMainGeoCoderConfig <> nil) then begin
     FMainGeoCoderConfig.ChangeNotifier.Remove(FConfigChangeListener);
     FConfigChangeListener := nil;
@@ -221,6 +247,11 @@ begin
       FMainGeoCoderConfig.ActiveGeoCoderGUID := VItem.GetGUID;
     end;
   end;
+end;
+
+procedure TSearchToolbarContainer.OnAppClose;
+begin
+  FCancelNotifier.NextOperation;
 end;
 
 procedure TSearchToolbarContainer.OnConfigChange;
@@ -279,18 +310,29 @@ begin
   // when user press Enter key, triggers regular accept event - that's what we need
   // when Edit lost its focus, triggers Extended accept event and save the NewText
   if IsEnterPressed then begin
-    DoSearch(NewText);
+    RunSearchTask(NewText);
   end;
 end;
 
-procedure TSearchToolbarContainer.DoSearch(const AText: string);
+procedure TSearchToolbarContainer.OnActionButtonClick(Sender: TObject);
+begin
+  if FSearchTextEdit.Enabled then begin
+    RunSearchTask(FSearchTextEdit.Text);
+  end else begin
+    FCancelNotifier.NextOperation;
+  end;
+end;
+
+procedure TSearchToolbarContainer.RunSearchTask(const AText: string);
 var
   I: Integer;
+  VText: string;
   VData: PSearchTaskData;
   VItem: IGeoCoderListEntity;
-  VNotifier: INotifierOperation;
 begin
-  if AText = '' then begin
+  VText := Trim(AText);
+
+  if VText = '' then begin
     Exit;
   end;
 
@@ -304,14 +346,18 @@ begin
     Exit;
   end;
 
-  VNotifier := TNotifierOperationFake.Create; // ToDo: make search cancelable
+  FCancelNotifier.NextOperation;
 
   New(VData);
 
-  VData.Text := AText;
+  VData.Text := VText;
   VData.GeoCoder := VItem.GetGeoCoder;
-  VData.OperationID := VNotifier.CurrentOperation;
-  VData.CancelNotifier := VNotifier;
+  VData.OperationID := FCancelNotifier.CurrentOperation;
+  VData.CancelNotifier := FCancelNotifier;
+
+  FActionButton.ImageIndex := cBusyImageIndex;
+  FSearchTextEdit.Enabled := False;
+  FGeoCoderMenu.Enabled := False;
 
   FTaskRunner.Run(VData, Self.OnSearchResult);
 end;
@@ -323,8 +369,13 @@ procedure TSearchToolbarContainer.OnSearchResult(
 begin
   try
     FSearchHistory.AddItem(ATaskData.Text);
-    FSearchPresenter.ShowSearchResults(AGeoCodeResult);
+    if AGeoCodeResult <> nil then begin
+      FSearchPresenter.ShowSearchResults(AGeoCodeResult);
+    end;
   finally
+    FActionButton.ImageIndex := cReadyImageIndex;
+    FSearchTextEdit.Enabled := True;
+    FGeoCoderMenu.Enabled := True;
     Dispose(ATaskData);
   end;
 end;
