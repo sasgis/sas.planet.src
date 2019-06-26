@@ -604,10 +604,10 @@
             <Form>frSearchResultsItem</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Src\MainForm\Search\i_SearchTaskRunnerAsync.pas"/>
         <DCCReference Include="Src\MainForm\Search\i_SearchResultPresenter.pas"/>
-        <DCCReference Include="Src\MainForm\Search\u_SearchTaskRunnerAsync.pas"/>
+        <DCCReference Include="Src\MainForm\Search\i_SearchTaskRunnerAsync.pas"/>
         <DCCReference Include="Src\MainForm\Search\u_SearchResultPresenterOnPanel.pas"/>
+        <DCCReference Include="Src\MainForm\Search\u_SearchTaskRunnerAsync.pas"/>
         <DCCReference Include="Src\MainForm\Search\u_SearchToolbarContainer.pas"/>
         <DCCReference Include="Src\MainForm\frm_Main.pas">
             <Form>frmMain</Form>
@@ -1523,9 +1523,11 @@
         <DCCReference Include="Src\Terrain\u_TerrainProviderListElement.pas"/>
         <DCCReference Include="Src\TileIterator\i_TileIterator.pas"/>
         <DCCReference Include="Src\TileIterator\i_TileIteratorDataProvider.pas"/>
+        <DCCReference Include="Src\TileIterator\i_TileIteratorFactory.pas"/>
         <DCCReference Include="Src\TileIterator\u_TileIteratorByPolygon.pas"/>
         <DCCReference Include="Src\TileIterator\u_TileIteratorByRect.pas"/>
         <DCCReference Include="Src\TileIterator\u_TileIteratorDataProvider.pas"/>
+        <DCCReference Include="Src\TileIterator\u_TileIteratorFactory.pas"/>
         <DCCReference Include="Src\TileIterator\u_TileIteratorSpiralByRect.pas"/>
         <DCCReference Include="Src\TileMatrix\i_BitmapTileMatrix.pas"/>
         <DCCReference Include="Src\TileMatrix\i_BitmapTileMatrixBuilder.pas"/>
