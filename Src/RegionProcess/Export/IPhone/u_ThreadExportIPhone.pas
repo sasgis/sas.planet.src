@@ -36,7 +36,7 @@ uses
   i_BitmapTileSaveLoad,
   i_BitmapLayerProvider,
   i_ProjectionSetFactory,
-  i_GeometryProjectedFactory,
+  i_TileIteratorFactory,
   i_Projection,
   i_ProjectionSet,
   i_GeometryLonLat,
@@ -59,10 +59,8 @@ type
 
     FIsReplace: boolean;
     FExportPath: string;
-    //FSQLite3Lib: TALSqlite3Library;
-    //FSqlite3: PSQLite3;
+
     FProjectionSetFactory: IProjectionSetFactory;
-    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     procedure WritePListFile(const AProjection: IProjection);
     procedure WriteTileToSQLite3(
       const ASQLite3DbHandler: PSQLite3DbHandler;
@@ -77,15 +75,15 @@ type
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const ACoordConverterFactory: IProjectionSetFactory;
-      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+      const ATileIteratorFactory: ITileIteratorFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
       const APath: string;
       const APolygon: IGeometryLonLatPolygon;
       const ATasks: TExportTaskIPhoneArray;
-      const Azoomarr: TByteDynArray;
-      AActiveMapIndex: Integer;
-      AReplace: boolean;
-      ANewFormat: Boolean
+      const AZoomArr: TByteDynArray;
+      const AActiveMapIndex: Integer;
+      const AReplace: boolean;
+      const ANewFormat: Boolean
     );
     destructor Destroy; override;
   end;
@@ -97,36 +95,34 @@ uses
   ALString,
   c_CoordConverter,
   i_Bitmap32Static,
-  i_GeometryProjected,
   i_TileIterator,
   u_GeoToStrFunc,
   u_ResStrings,
   u_GeoFunc,
-  u_BitmapFunc,
-  u_TileIteratorByPolygon;
+  u_BitmapFunc;
 
 constructor TExportTaskToIPhone.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const ACoordConverterFactory: IProjectionSetFactory;
-  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+  const ATileIteratorFactory: ITileIteratorFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
   const APath: string;
   const APolygon: IGeometryLonLatPolygon;
   const ATasks: TExportTaskIPhoneArray;
-  const Azoomarr: TByteDynArray;
-  AActiveMapIndex: Integer;
-  AReplace: boolean;
-  ANewFormat: Boolean
+  const AZoomArr: TByteDynArray;
+  const AActiveMapIndex: Integer;
+  const AReplace: boolean;
+  const ANewFormat: Boolean
 );
 begin
   inherited Create(
     AProgressInfo,
     APolygon,
-    Azoomarr
+    AZoomArr,
+    ATileIteratorFactory
   );
   FProjectionSetFactory := ACoordConverterFactory;
   FBitmapFactory := ABitmapFactory;
-  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FExportPath := IncludeTrailingPathDelimiter(APath);
   ForceDirectories(FExportPath);
   FTasks := ATasks;
@@ -208,7 +204,6 @@ var
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
   VDatabaseName: string;
-  VProjectedPolygon: IGeometryProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
   VSQLite3DbHandler: TSQLite3DbHandler;
@@ -235,16 +230,7 @@ begin
     for i := 0 to Length(FZooms) - 1 do begin
       VZoom := FZooms[i];
       VProjection := VProjectionSet.Zooms[VZoom];
-      VProjectedPolygon :=
-        FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-          VProjection,
-          PolygLL
-        );
-      VTileIterators[i] :=
-        TTileIteratorByPolygon.Create(
-          VProjection,
-          VProjectedPolygon
-        );
+      VTileIterators[i] := Self.MakeTileIterator(VProjection);
       VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal * Length(FTasks);
     end;
     try

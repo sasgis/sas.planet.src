@@ -1049,7 +1049,7 @@ begin
       ALanguageManager,
       AMapSelectFrameBuilder,
       AProjectionSetFactory,
-      AVectorGeometryProjectedFactory,
+      FTileIteratorFactory,
       ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
       True
@@ -1062,7 +1062,7 @@ begin
       ALanguageManager,
       AMapSelectFrameBuilder,
       AProjectionSetFactory,
-      AVectorGeometryProjectedFactory,
+      FTileIteratorFactory,
       ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
       False
@@ -1151,7 +1151,7 @@ begin
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,
-      AVectorGeometryProjectedFactory,
+      FTileIteratorFactory,
       ABitmapTileSaveLoadFactory,
       ABitmapPostProcessing
     );

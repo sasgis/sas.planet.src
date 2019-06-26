@@ -28,7 +28,7 @@ uses
   i_GeometryLonLat,
   i_Bitmap32BufferFactory,
   i_ProjectionSetFactory,
-  i_GeometryProjectedFactory,
+  i_TileIteratorFactory,
   i_BitmapTileSaveLoadFactory,
   i_RegionProcessTask,
   i_RegionProcessProgressInfo,
@@ -43,7 +43,6 @@ type
     FFrame: TfrExportIPhone;
     FProjectionSetFactory: IProjectionSetFactory;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
-    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FNewFormat: Boolean;
   protected
@@ -60,10 +59,10 @@ type
       const ALanguageManager: ILanguageManager;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const AProjectionSetFactory: IProjectionSetFactory;
-      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+      const ATileIteratorFactory: ITileIteratorFactory;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
-      ANewFormat: Boolean
+      const ANewFormat: Boolean
     );
   end;
 
@@ -87,20 +86,20 @@ constructor TExportProviderIPhone.Create(
   const ALanguageManager: ILanguageManager;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const AProjectionSetFactory: IProjectionSetFactory;
-  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+  const ATileIteratorFactory: ITileIteratorFactory;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
-  ANewFormat: Boolean
+  const ANewFormat: Boolean
 );
 begin
   Assert(Assigned(ABitmap32StaticFactory));
   inherited Create(
     AProgressFactory,
     ALanguageManager,
-    AMapSelectFrameBuilder
+    AMapSelectFrameBuilder,
+    ATileIteratorFactory
   );
   FProjectionSetFactory := AProjectionSetFactory;
-  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FNewFormat := ANewFormat;
@@ -243,7 +242,7 @@ begin
     TExportTaskToIPhone.Create(
       AProgressInfo,
       FProjectionSetFactory,
-      FVectorGeometryProjectedFactory,
+      Self.TileIteratorFactory,
       FBitmap32StaticFactory,
       VPath,
       APolygon,

@@ -29,7 +29,7 @@ uses
   t_GeoTypes,
   i_RegionProcessProgressInfo,
   i_GeometryLonLat,
-  i_GeometryProjectedFactory,
+  i_TileIteratorFactory,
   i_BitmapPostProcessing,
   i_Listener,
   i_TileIterator,  
@@ -58,7 +58,6 @@ type
   private
     FTask: TExportToIMGTask;
     FTargetFileName, FTargetFileExt: string;
-    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FBitmapPostProcessing: IBitmapPostProcessing;
     FCancelEvent: THandle;
     FTempFolder: String;
@@ -94,7 +93,7 @@ type
   public
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
-      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+      const ATileIteratorFactory: ITileIteratorFactory;
       const ATargetFile: string;
       const APolygon: IGeometryLonLatPolygon;
       const ATask: TExportToIMGTask;
@@ -121,15 +120,13 @@ uses
   i_BinaryData,
   i_MapVersionRequest,
   i_BitmapTileSaveLoad,
-  i_GeometryProjected,
   i_TileStorageAbilities,
   u_ResStrings,
-  u_TileIteratorByPolygon,
   u_GeoFunc;
 
 constructor TExportTaskToIMG.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
-  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+  const ATileIteratorFactory: ITileIteratorFactory;
   const ATargetFile: string;
   const APolygon: IGeometryLonLatPolygon;
   const ATask: TExportToIMGTask;
@@ -138,11 +135,11 @@ constructor TExportTaskToIMG.Create(
 begin
   inherited Create(
     AProgressInfo,
-    APolygon
+    APolygon,
+    ATileIteratorFactory
   );
   FTargetFileName := ChangeFileExt(ATargetFile, '');
   FTargetFileExt := ExtractFileExt(ATargetFile);
-  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FTask := ATask;
   FBitmapPostProcessing := ABitmapPostProcessing;
 
@@ -248,7 +245,6 @@ procedure TExportTaskToIMG.InitializeTaskInternalInfo;
 var
   i: Integer;
   VProjection: IProjection;
-  VProjectedPolygon: IGeometryProjectedPolygon;
   VRect: TDoubleRect;
 begin
   // Calculating the number of source tiles.
@@ -256,13 +252,7 @@ begin
   SetLength(FTileIterators, Length(FTask.FItems));
   for i := 0 to Length(FTask.FItems) - 1 do begin
     VProjection := FTask.FItems[i].FSourceTileStorage.ProjectionSet.Zooms[FTask.FItems[i].FSourceScale];
-
-    VProjectedPolygon :=
-      FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-        VProjection,
-        PolygLL
-      );
-    FTileIterators[i] := TTileIteratorByPolygon.Create(VProjection, VProjectedPolygon);
+    FTileIterators[i] := Self.MakeTileIterator(VProjection);
     inc(FTilesToProcess, FTileIterators[i].TilesTotal);
 
     VRect := VProjection.TileRect2LonLatRect(FTileIterators[i].TilesRect.Rect);

@@ -25,7 +25,7 @@ interface
 uses
   Forms,
   i_GeometryLonLat,
-  i_GeometryProjectedFactory,
+  i_TileIteratorFactory,
   i_LanguageManager,
   i_BitmapTileSaveLoadFactory,
   i_BitmapPostProcessing,
@@ -39,7 +39,6 @@ uses
 type
   TExportProviderIMG = class(TExportProviderBase)
   private
-    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FBitmapPostProcessing: IBitmapPostProcessingChangeable;
   protected
@@ -55,7 +54,7 @@ type
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
-      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+      const ATileIteratorFactory: ITileIteratorFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const ABitmapPostProcessing: IBitmapPostProcessingChangeable
     );
@@ -77,7 +76,7 @@ constructor TExportProviderIMG.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
-  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+  const ATileIteratorFactory: ITileIteratorFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const ABitmapPostProcessing: IBitmapPostProcessingChangeable
 );
@@ -85,9 +84,9 @@ begin
   inherited Create(
     AProgressFactory,
     ALanguageManager,
-    AMapSelectFrameBuilder
+    AMapSelectFrameBuilder,
+    ATileIteratorFactory
   );
-  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FBitmapPostProcessing := ABitmapPostProcessing;
 end;
@@ -134,7 +133,7 @@ begin
   Result :=
     TExportTaskToIMG.Create(
       AProgressInfo,
-      FVectorGeometryProjectedFactory,
+      Self.TileIteratorFactory,
       VProcessParams.Path,
       APolygon,
       VTask,
