@@ -85,6 +85,7 @@ uses
   i_GlobalBerkeleyDBHelper,
   i_RegionProcessProgressInfoInternalFactory,
   i_RegionProcessProvider,
+  i_TileIteratorFactory,
   u_CommonFormAndFrameParents,
   u_ProviderTilesDownload,
   u_MarkDbGUIHelper,
@@ -112,6 +113,7 @@ type
     procedure tbtmMarkClick(Sender: TObject);
     procedure tbtmCopyBboxClick(Sender: TObject);
   private
+    FTileIteratorFactory: ITileIteratorFactory;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FLastSelectionInfo: ILastSelectionInfo;
@@ -306,6 +308,7 @@ uses
   i_InterfaceListSimple,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  u_TileIteratorFactory,
   u_ConfigDataProviderByIniFile,
   u_ConfigDataWriteProviderByIniFile,
   u_ConfigProviderHelpers,
@@ -401,6 +404,9 @@ begin
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FMapGoto := AMapGoto;
   FMarkDBGUI := AMarkDBGUI;
+
+  FTileIteratorFactory :=
+    TTileIteratorFactory.Create(AVectorGeometryProjectedFactory);
 
   FProviderAll :=
     TRegionProcessProviderComplex.Create(
@@ -546,6 +552,7 @@ begin
     TProviderTilesDownload.Create(
       AAppClosingNotifier,
       VProgressFactory,
+      FTileIteratorFactory,
       ALanguageManager,
       AValueToStringConverter,
       VMapSelectFrameBuilder,
@@ -603,10 +610,10 @@ begin
   VExportProvider :=
     TProviderTilesGenPrev.Create(
       VProgressFactory,
+      FTileIteratorFactory,
       ALanguageManager,
       VMapSelectFrameBuilder,
       AViewConfig,
-      AVectorGeometryProjectedFactory,
       ABitmapFactory,
       AImageResamplerFactoryList,
       AImageResamplerConfig
@@ -670,7 +677,7 @@ begin
       AGUIConfigList,
       AMapTypeListBuilderFactory,
       AContentTypeManager,
-      AVectorGeometryProjectedFactory,
+      FTileIteratorFactory,
       ATileStorageTypeList,
       ABitmapFactory,
       ABitmapTileSaveLoadFactory
@@ -996,7 +1003,7 @@ begin
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,
-      AVectorGeometryProjectedFactory
+      FTileIteratorFactory
     );
 
   VList.Add(VExportProvider);
@@ -1167,8 +1174,7 @@ begin
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,
-      AVectorGeometryProjectedFactory,
-      AProjectionSetFactory
+      FTileIteratorFactory
     );
   VList.Add(VExportProvider);
 

@@ -32,6 +32,7 @@ uses
   i_DownloadTaskProvider,
   i_InterfaceListStatic,
   i_InterfaceListSimple,
+  i_TileIteratorFactory,
   i_TileIteratorDataProvider,
   u_BaseInterfacedObject;
 
@@ -41,6 +42,7 @@ type
     FLock: IReadWriteSync;
     FMapType: IMapType;
     FPolygon: IGeometryLonLatPolygon;
+    FTileIteratorFactory: ITileIteratorFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FZoomArray: TByteDynArray;
     FLastProcessedZoom: Byte;
@@ -61,6 +63,7 @@ type
     constructor Create(
       const AMapType: IMapType;
       const APolygon: IGeometryLonLatPolygon;
+      const ATileIteratorFactory: ITileIteratorFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const APartsCount: Integer;
       const AZoomArray: TByteDynArray;
@@ -89,6 +92,7 @@ uses
 constructor TDownloadTaskProvider.Create(
   const AMapType: IMapType;
   const APolygon: IGeometryLonLatPolygon;
+  const ATileIteratorFactory: ITileIteratorFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const APartsCount: Integer;
   const AZoomArray: TByteDynArray;
@@ -105,6 +109,7 @@ begin
 
   FMapType := AMapType;
   FPolygon := APolygon;
+  FTileIteratorFactory := ATileIteratorFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FZoomArray := GetZoomArrayCopy(AZoomArray);
   FLastProcessedZoom := ALastProcessedZoom;
@@ -213,7 +218,7 @@ begin
         end;
       end;
 
-      VTileIterator :=
+      VTileIterator := // ToDo use TileIteratorFactory here
         TTileIteratorByPolygon.Create(
           VDataProvider.Projection,
           VDataProvider.Polygon,

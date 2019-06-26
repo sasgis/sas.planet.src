@@ -32,7 +32,7 @@ uses
   i_RegionProcessProgressInfo,
   i_ContentTypeInfo,
   i_Bitmap32BufferFactory,
-  i_GeometryProjectedFactory,
+  i_TileIteratorFactory,
   i_GeometryLonLat,
   i_MapVersionRequest,
   i_ImageResamplerFactory,
@@ -42,17 +42,16 @@ uses
 type
   TThreadGenPrevZoom = class(TRegionProcessTaskAbstract)
   private
-    FIsReplace: boolean;
-    FIsSaveFullOnly: boolean;
-    FGenFormFirstZoom: boolean;
-    FUsePrevTiles: boolean;
+    FIsReplace: Boolean;
+    FIsSaveFullOnly: Boolean;
+    FGenFormFirstZoom: Boolean;
+    FUsePrevTiles: Boolean;
     FZooms: TByteDynArray;
     FContentType: IContentTypeInfoBitmap;
     FMapType: IMapType;
     FVersion: IMapVersionRequest;
     FResamplerFactory: IImageResamplerFactory;
     FBitmapFactory: IBitmap32StaticFactory;
-    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
 
     FTileInProc: integer;
     FBackGroundColor: TColor32;
@@ -62,18 +61,18 @@ type
   public
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
-      const AVectorItemsFactory: IGeometryProjectedFactory;
+      const ATileIteratorFactory: ITileIteratorFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AZooms: TByteDynArray;
       const APolygLL: IGeometryLonLatPolygon;
       const AContentType: IContentTypeInfoBitmap;
       const AMapType: IMapType;
       const AVersion: IMapVersionRequest;
-      AReplace: boolean;
-      Asavefull: boolean;
-      AGenFormFirstZoom: boolean;
-      AUsePrevTiles: boolean;
-      ABackGroundColor: TColor32;
+      const AReplace: Boolean;
+      const ASaveFull: Boolean;
+      const AGenFormFirstZoom: Boolean;
+      const AUsePrevTiles: Boolean;
+      const ABackGroundColor: TColor32;
       const AResamplerFactory: IImageResamplerFactory
     );
   end;
@@ -100,32 +99,32 @@ uses
 
 constructor TThreadGenPrevZoom.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
-  const AVectorItemsFactory: IGeometryProjectedFactory;
+  const ATileIteratorFactory: ITileIteratorFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AZooms: TByteDynArray;
   const APolygLL: IGeometryLonLatPolygon;
   const AContentType: IContentTypeInfoBitmap;
   const AMapType: IMapType;
   const AVersion: IMapVersionRequest;
-  AReplace: boolean;
-  Asavefull: boolean;
-  AGenFormFirstZoom: boolean;
-  AUsePrevTiles: boolean;
-  ABackGroundColor: TColor32;
+  const AReplace: Boolean;
+  const ASaveFull: Boolean;
+  const AGenFormFirstZoom: Boolean;
+  const AUsePrevTiles: Boolean;
+  const ABackGroundColor: TColor32;
   const AResamplerFactory: IImageResamplerFactory
 );
 begin
   inherited Create(
     AProgressInfo,
-    APolygLL
+    APolygLL,
+    ATileIteratorFactory
   );
   if Length(AZooms) <= 1 then begin
     raise Exception.Create('Не выбрано целевых масштабов');
   end;
-  FVectorGeometryProjectedFactory := AVectorItemsFactory;
   FBitmapFactory := ABitmapFactory;
   FIsReplace := AReplace;
-  FIsSaveFullOnly := Asavefull;
+  FIsSaveFullOnly := ASaveFull;
   FGenFormFirstZoom := AGenFormFirstZoom;
   FUsePrevTiles := AUsePrevTiles;
   FZooms := AZooms;
@@ -140,8 +139,8 @@ end;
 procedure TThreadGenPrevZoom.ProcessRegion;
 var
   bmp_ex: TCustomBitmap32;
-  i, VSubTileCount: integer;
-  VSubTilesSavedCount: integer;
+  I, VSubTileCount: Integer;
+  VSubTilesSavedCount: Integer;
   VTile: TPoint;
   VSubTile: TPoint;
   VProjectionSet: IProjectionSet;
@@ -171,19 +170,14 @@ begin
   VTileSaver := FContentType.GetSaver;
   VProjectionSet := FMapType.ProjectionSet;
   SetLength(VTileIterators, Length(FZooms) - 1);
-  for i := 1 to Length(FZooms) - 1 do begin
-    VProjection := VProjectionSet.Zooms[FZooms[i]];
-    VProjectedPolygon :=
-      FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-        VProjection,
-        PolygLL
-      );
-    VTileIterator := TTileIteratorByPolygon.Create(VProjection, VProjectedPolygon);
-    VTileIterators[i - 1] := VTileIterator;
+  for I := 1 to Length(FZooms) - 1 do begin
+    VProjection := VProjectionSet.Zooms[FZooms[I]];
+    VTileIterator := MakeTileIterator(VProjection);
+    VTileIterators[I - 1] := VTileIterator;
     if FGenFormFirstZoom then begin
-      VZoomDelta := FZooms[0] - FZooms[i];
+      VZoomDelta := FZooms[0] - FZooms[I];
     end else begin
-      VZoomDelta := FZooms[i - 1] - FZooms[i];
+      VZoomDelta := FZooms[I - 1] - FZooms[I];
     end;
     VTilesToProcess := VTilesToProcess + VTileIterator.TilesTotal * (1 shl (2 * VZoomDelta));
   end;
@@ -197,13 +191,13 @@ begin
     try
       FTileInProc := 0;
       VTilesProcessed := 0;
-      for i := 1 to Length(FZooms) - 1 do begin
+      for I := 1 to Length(FZooms) - 1 do begin
         if FGenFormFirstZoom then begin
           VProjectionPrev := VProjectionSet.Zooms[FZooms[0]];
         end else begin
-          VProjectionPrev := VProjectionSet.Zooms[FZooms[i - 1]];
+          VProjectionPrev := VProjectionSet.Zooms[FZooms[I - 1]];
         end;
-        VTileIterator := VTileIterators[i - 1];
+        VTileIterator := VTileIterators[I - 1];
         VProjection := VTileIterator.TilesRect.Projection;
         while VTileIterator.Next(VTile) do begin
           if CancelNotifier.IsOperationCanceled(OperationID) then begin
@@ -308,8 +302,8 @@ begin
       bmp_ex.Free;
     end;
   finally
-    for i := 0 to Length(VTileIterators) - 1 do begin
-      VTileIterators[i] := nil;
+    for I := 0 to Length(VTileIterators) - 1 do begin
+      VTileIterators[I] := nil;
     end;
     VTileIterators := nil;
   end;

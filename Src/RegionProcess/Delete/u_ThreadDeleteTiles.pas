@@ -30,7 +30,7 @@ uses
   i_RegionProcessProgressInfo,
   i_Projection,
   i_GeometryLonLat,
-  i_GeometryProjected,
+  i_TileIteratorFactory,
   i_MapVersionRequest,
   i_PredicateByTileInfo,
   i_TileStorage,
@@ -43,7 +43,6 @@ type
     FProjection: IProjection;
     FTileStorage: ITileStorage;
     FVersion: IMapVersionRequest;
-    FPolyProjected: IGeometryProjectedPolygon;
     FPredicate: IPredicateByTileInfo;
   protected
     procedure ProcessRegion; override;
@@ -53,8 +52,8 @@ type
   public
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
+      const ATileIteratorFactory: ITileIteratorFactory;
       const APolyLL: IGeometryLonLatPolygon;
-      const AProjectedPolygon: IGeometryProjectedPolygon;
       const AProjection: IProjection;
       const ATileStorage: ITileStorage;
       const AVersion: IMapVersionRequest;
@@ -72,8 +71,8 @@ uses
 
 constructor TThreadDeleteTiles.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
+  const ATileIteratorFactory: ITileIteratorFactory;
   const APolyLL: IGeometryLonLatPolygon;
-  const AProjectedPolygon: IGeometryProjectedPolygon;
   const AProjection: IProjection;
   const ATileStorage: ITileStorage;
   const AVersion: IMapVersionRequest;
@@ -82,9 +81,9 @@ constructor TThreadDeleteTiles.Create(
 begin
   inherited Create(
     AProgressInfo,
-    APolyLL
+    APolyLL,
+    ATileIteratorFactory
   );
-  FPolyProjected := AProjectedPolygon;
   FProjection := AProjection;
   FZoom := AProjection.Zoom;
   FTileStorage := ATileStorage;
@@ -102,8 +101,7 @@ var
   VTileInfo: ITileInfoBasic;
   VGetTileInfoMode: TGetTileInfoMode;
 begin
-  inherited;
-  VTileIterator := TTileIteratorByPolygon.Create(FProjection, FPolyProjected);
+  VTileIterator := Self.MakeTileIterator(FProjection);
   VTilesToProcess := VTileIterator.TilesTotal;
   ProgressInfo.SetCaption(
     SAS_STR_Deleted + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files + ' (x' + inttostr(FZoom + 1) + ')'

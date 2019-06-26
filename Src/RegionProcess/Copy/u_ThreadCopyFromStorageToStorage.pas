@@ -28,7 +28,7 @@ uses
   i_MapVersionRequest,
   i_TileStorage,
   i_GeometryLonLat,
-  i_GeometryProjectedFactory,
+  i_TileIteratorFactory,
   i_RegionProcessProgressInfo,
   u_ExportTaskAbstract;
 
@@ -43,7 +43,6 @@ type
 
   TThreadCopyFromStorageToStorage = class(TExportTaskAbstract)
   private
-    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FTasks: TCopyTaskArray;
     FIsMove: Boolean;
     FIsOverwriteDestTiles: Boolean;
@@ -58,7 +57,7 @@ type
   public
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
-      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+      const ATileIteratorFactory: ITileIteratorFactory;
       const APolygon: IGeometryLonLatPolygon;
       const ATasks: TCopyTaskArray;
       const AZoomArr: TByteDynArray;
@@ -75,8 +74,6 @@ uses
   i_TileIterator,
   i_ProjectionSet,
   i_Projection,
-  i_GeometryProjected,
-  u_TileIteratorByPolygon,
   i_MapVersionListStatic,
   i_TileInfoBasic,
   u_ZoomArrayFunc,
@@ -86,7 +83,7 @@ uses
 
 constructor TThreadCopyFromStorageToStorage.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
-  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+  const ATileIteratorFactory: ITileIteratorFactory;
   const APolygon: IGeometryLonLatPolygon;
   const ATasks: TCopyTaskArray;
   const AZoomArr: TByteDynArray;
@@ -97,9 +94,9 @@ begin
   inherited Create(
     AProgressInfo,
     APolygon,
-    AZoomArr
+    AZoomArr,
+    ATileIteratorFactory
   );
-  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FIsProcessTne := AIsProcessTne;
   FIsMove := AIsMove;
   FIsOverwriteDestTiles := AIsOverwriteDestTiles;
@@ -115,7 +112,6 @@ var
   VZoom: Byte;
   VProjectionSet: IProjectionSet;
   VProjection: IProjection;
-  VProjectedPolygon: IGeometryProjectedPolygon;
   VTileIterator: ITileIterator;
   VTile: TPoint;
 begin
@@ -128,16 +124,7 @@ begin
       VZoom := FZooms[J];
       VProjectionSet := FTasks[I].FSource.ProjectionSet;
       VProjection := VProjectionSet.Zooms[VZoom];
-      VProjectedPolygon :=
-        FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-          VProjection,
-          PolygLL
-        );
-      VTileIterators[I, J] :=
-        TTileIteratorByPolygon.Create(
-          VProjection,
-          VProjectedPolygon
-        );
+      VTileIterators[I, J] := Self.MakeTileIterator(VProjection);
       VTilesToProcess := VTilesToProcess + VTileIterators[I, J].TilesTotal;
     end;
   end;

@@ -26,7 +26,7 @@ uses
   Windows,
   Forms,
   i_LanguageManager,
-  i_GeometryProjectedFactory,
+  i_TileIteratorFactory,
   i_GeometryLonLat,
   i_RegionProcessTask,
   i_RegionProcessProgressInfo,
@@ -36,8 +36,6 @@ uses
 
 type
   TProviderDeleteTiles = class(TExportProviderBase)
-  private
-    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   protected
     function CreateFrame: TFrame; override;
   protected
@@ -46,13 +44,6 @@ type
       const APolygon: IGeometryLonLatPolygon;
       const AProgressInfo: IRegionProcessProgressInfoInternal
     ): IRegionProcessTask; override;
-  public
-    constructor Create(
-      const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
-      const ALanguageManager: ILanguageManager;
-      const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
-      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory
-    );
   end;
 
 implementation
@@ -71,21 +62,6 @@ uses
   fr_DeleteTiles;
 
 { TProviderTilesDelete }
-
-constructor TProviderDeleteTiles.Create(
-  const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
-  const ALanguageManager: ILanguageManager;
-  const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
-  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory
-);
-begin
-  inherited Create(
-    AProgressFactory,
-    ALanguageManager,
-    AMapSelectFrameBuilder
-  );
-  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
-end;
 
 function TProviderDeleteTiles.CreateFrame: TFrame;
 begin
@@ -112,7 +88,6 @@ var
   VMapType: IMapType;
   VZoom: byte;
   VProjection: IProjection;
-  VProjectedPolygon: IGeometryProjectedPolygon;
   VPredicate: IPredicateByTileInfo;
 begin
   inherited;
@@ -124,17 +99,12 @@ begin
   VZoom := (ParamsFrame as IRegionProcessParamsFrameOneZoom).Zoom;
   VPredicate := (ParamsFrame as IRegionProcessParamsFrameProcessPredicate).Predicate;
   VProjection := VMapType.ProjectionSet[VZoom];
-  VProjectedPolygon :=
-    FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-      VProjection,
-      APolygon
-    );
 
   Result :=
     TThreadDeleteTiles.Create(
       AProgressInfo,
+      Self.TileIteratorFactory,
       APolygon,
-      VProjectedPolygon,
       VProjection,
       VMapType.TileStorage,
       VMapType.VersionRequest.GetStatic,

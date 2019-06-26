@@ -87,7 +87,8 @@ constructor TThreadDeleteMarks.Create(
 begin
   inherited Create(
     AProgressInfo,
-    APolyLL
+    APolyLL,
+    nil
   );
   Assert(AProgressInfo <> nil);
   Assert(APolyLL <> nil);

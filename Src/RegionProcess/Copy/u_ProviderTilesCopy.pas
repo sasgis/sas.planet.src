@@ -32,7 +32,7 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_ContentTypeManager,
-  i_GeometryProjectedFactory,
+  i_TileIteratorFactory,
   i_TileStorage,
   i_TileStorageTypeList,
   i_MapVersionInfo,
@@ -54,7 +54,6 @@ type
     FMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
     FTimerNoifier: INotifierTime;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
-    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FContentTypeManager: IContentTypeManager;
     FTileStorageTypeList: ITileStorageTypeListStatic;
     FMainMapConfig: IActiveMapConfig;
@@ -83,7 +82,7 @@ type
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
       const AContentTypeManager: IContentTypeManager;
-      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+      const ATileIteratorFactory: ITileIteratorFactory;
       const ATileStorageTypeList: ITileStorageTypeListStatic;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory
@@ -120,7 +119,7 @@ constructor TProviderTilesCopy.Create(
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
   const AContentTypeManager: IContentTypeManager;
-  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+  const ATileIteratorFactory: ITileIteratorFactory;
   const ATileStorageTypeList: ITileStorageTypeListStatic;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory
@@ -129,7 +128,8 @@ begin
   inherited Create(
     AProgressFactory,
     ALanguageManager,
-    AMapSelectFrameBuilder
+    AMapSelectFrameBuilder,
+    ATileIteratorFactory
   );
   FActiveMapsList := AActiveMapsList;
   FMainMapConfig := AMainMapConfig;
@@ -139,7 +139,6 @@ begin
   FTimerNoifier := ATimerNoifier;
   FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
   FContentTypeManager := AContentTypeManager;
-  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FTileStorageTypeList := ATileStorageTypeList;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
@@ -247,7 +246,7 @@ var
     Result :=
       TThreadCopyFromStorageToStorage.Create(
         VProgressInfo,
-        FVectorGeometryProjectedFactory,
+        Self.TileIteratorFactory,
         APolygon,
         VTasks,
         VZoomArr,
@@ -302,7 +301,7 @@ var
     Result :=
       TThreadCopyWithModification.Create(
         VProgressInfo,
-        FVectorGeometryProjectedFactory,
+        Self.TileIteratorFactory,
         APolygon,
         ATarget,
         ATargetVersionForce,

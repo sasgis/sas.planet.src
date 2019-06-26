@@ -26,8 +26,7 @@ uses
   Classes,
   Forms,
   i_GeometryLonLat,
-  i_ProjectionSetFactory,
-  i_GeometryProjectedFactory,
+  i_TileIteratorFactory,
   i_LanguageManager,
   i_RegionProcessTask,
   i_RegionProcessProgressInfo,
@@ -38,8 +37,7 @@ uses
 type
   TExportProviderCE = class(TExportProviderBase)
   private
-    FProjectionSetFactory: IProjectionSetFactory;
-    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+    FTileIteratorFactory: ITileIteratorFactory;
   protected
     function CreateFrame: TFrame; override;
   protected
@@ -53,8 +51,7 @@ type
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
-      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const AProjectionSetFactory: IProjectionSetFactory
+      const ATileIteratorFactory: ITileIteratorFactory
     );
   end;
 
@@ -75,8 +72,7 @@ constructor TExportProviderCE.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
-  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const AProjectionSetFactory: IProjectionSetFactory
+  const ATileIteratorFactory: ITileIteratorFactory
 );
 begin
   inherited Create(
@@ -84,8 +80,7 @@ begin
     ALanguageManager,
     AMapSelectFrameBuilder
   );
-  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
-  FProjectionSetFactory := AProjectionSetFactory;
+  FTileIteratorFactory := ATileIteratorFactory;
 end;
 
 function TExportProviderCE.CreateFrame: TFrame;
@@ -116,7 +111,6 @@ var
   VPath: string;
   Zoomarr: TByteDynArray;
   VMapType: IMapType;
-
   VMaxSize: integer;
   VComent: string;
   VRecoverInfo: boolean;
@@ -131,8 +125,7 @@ begin
   Result :=
     TExportTaskToCE.Create(
       AProgressInfo,
-      FProjectionSetFactory,
-      FVectorGeometryProjectedFactory,
+      FTileIteratorFactory,
       VPath,
       APolygon,
       Zoomarr,

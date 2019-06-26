@@ -27,6 +27,7 @@ uses
   Forms,
   i_LanguageManager,
   i_GeometryLonLat,
+  i_TileIteratorFactory,
   i_RegionProcessTask,
   i_RegionProcessProgressInfo,
   i_RegionProcessProgressInfoInternalFactory,
@@ -40,9 +41,11 @@ type
   private
     FFrame: TFrame;
     FLanguageManager: ILanguageManager;
+    FTileIteratorFactory: ITileIteratorFactory;
     FMapSelectFrameBuilder: IMapSelectFrameBuilder;
     FProgressFactory: IRegionProcessProgressInfoInternalFactory;
     function GetParamsFrame: IRegionProcessParamsFrameBase;
+    function GetTileIteratorFactory: ITileIteratorFactory;
   protected
     function GetCaption: string; virtual; abstract;
     procedure Show(
@@ -61,13 +64,15 @@ type
     function CreateFrame: TFrame; virtual; abstract;
     property ParamsFrame: IRegionProcessParamsFrameBase read GetParamsFrame;
     property ProgressFactory: IRegionProcessProgressInfoInternalFactory read FProgressFactory;
+    property TileIteratorFactory: ITileIteratorFactory read GetTileIteratorFactory;
     property LanguageManager: ILanguageManager read FLanguageManager;
     property MapSelectFrameBuilder: IMapSelectFrameBuilder read FMapSelectFrameBuilder;
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
-      const AMapSelectFrameBuilder: IMapSelectFrameBuilder
+      const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
+      const ATileIteratorFactory: ITileIteratorFactory = nil
     );
     destructor Destroy; override;
   end;
@@ -94,16 +99,21 @@ uses
 constructor TExportProviderAbstract.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
-  const AMapSelectFrameBuilder: IMapSelectFrameBuilder
+  const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
+  const ATileIteratorFactory: ITileIteratorFactory
 );
 begin
   Assert(Assigned(AProgressFactory));
   Assert(Assigned(ALanguageManager));
   Assert(Assigned(AMapSelectFrameBuilder));
+  //ATileIteratorFactory can be nil here
+
   inherited Create;
+
   FProgressFactory := AProgressFactory;
   FLanguageManager := ALanguageManager;
   FMapSelectFrameBuilder := AMapSelectFrameBuilder;
+  FTileIteratorFactory := ATileIteratorFactory;
 end;
 
 destructor TExportProviderAbstract.Destroy;
@@ -117,6 +127,12 @@ begin
   if not Supports(FFrame, IRegionProcessParamsFrameBase, Result) then begin
     Result := nil;
   end;
+end;
+
+function TExportProviderAbstract.GetTileIteratorFactory: ITileIteratorFactory;
+begin
+  Result := FTileIteratorFactory;
+  Assert(Result <> nil);
 end;
 
 procedure TExportProviderAbstract.Hide;

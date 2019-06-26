@@ -26,6 +26,7 @@ uses
   Classes,
   Types,
   i_GeometryLonLat,
+  i_TileIteratorFactory,
   i_RegionProcessProgressInfo,
   u_RegionProcessTaskAbstract;
 
@@ -38,7 +39,8 @@ type
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: IGeometryLonLatPolygon;
-      const AZooms: TByteDynArray
+      const AZooms: TByteDynArray;
+      const ATileIteratorFactory: ITileIteratorFactory = nil
     );
   end;
 
@@ -50,17 +52,19 @@ uses
 constructor TExportTaskAbstract.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: IGeometryLonLatPolygon;
-  const AZooms: TByteDynArray
+  const AZooms: TByteDynArray;
+  const ATileIteratorFactory: ITileIteratorFactory
 );
 var
-  i: Integer;
+  I: Integer;
   VZoomSourceCount: Integer;
   VZoomCount: Integer;
   VZoom: Byte;
 begin
   inherited Create(
     AProgressInfo,
-    APolygon
+    APolygon,
+    ATileIteratorFactory
   );
   Assert(AZooms <> nil);
   VZoomSourceCount := Length(AZooms);
@@ -70,8 +74,8 @@ begin
     VZoomSourceCount := 24;
   end;
   VZoomCount := 0;
-  for i := 0 to VZoomSourceCount - 1 do begin
-    VZoom := AZooms[i];
+  for I := 0 to VZoomSourceCount - 1 do begin
+    VZoom := AZooms[I];
     if VZoom < 24 then begin
       if VZoomCount > 0 then begin
         if FZooms[VZoomCount - 1] < VZoom then begin

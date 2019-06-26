@@ -42,6 +42,7 @@ uses
   i_DownloadTaskProvider,
   i_RegionProcessProgressInfoInternalFactory,
   i_RegionProcessProvider,
+  i_TileIteratorFactory,
   u_ExportProviderAbstract,
   u_MarkDbGUIHelper,
   fr_MapSelect,
@@ -89,6 +90,7 @@ type
     constructor Create(
       const AAppClosingNotifier: INotifierOneOperation;
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
+      const ATileIteratorFactory: ITileIteratorFactory;
       const ALanguageManager: ILanguageManager;
       const AValueToStringConverter: IValueToStringConverterChangeable;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
@@ -140,6 +142,7 @@ uses
 constructor TProviderTilesDownload.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
+  const ATileIteratorFactory: ITileIteratorFactory;
   const ALanguageManager: ILanguageManager;
   const AValueToStringConverter: IValueToStringConverterChangeable;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
@@ -157,7 +160,8 @@ begin
   inherited Create(
     AProgressFactory,
     ALanguageManager,
-    AMapSelectFrameBuilder
+    AMapSelectFrameBuilder,
+    ATileIteratorFactory
   );
   FAppClosingNotifier := AAppClosingNotifier;
   FValueToStringConverter := AValueToStringConverter;
@@ -303,6 +307,7 @@ begin
     TDownloadTaskProvider.Create(
       VSession.MapType,
       VSession.Polygon,
+      Self.TileIteratorFactory,
       FVectorGeometryProjectedFactory,
       VSession.WorkersCount,
       VSession.ZoomArr,
@@ -336,6 +341,7 @@ begin
     TDownloadTaskProvider.Create(
       VMapType,
       APolygon,
+      Self.TileIteratorFactory,
       FVectorGeometryProjectedFactory,
       VWorkersCount,
       VZoomArr,

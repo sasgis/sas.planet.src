@@ -33,6 +33,7 @@ uses
   i_GeometryProjectedFactory,
   i_MapVersionRequest,
   i_TileStorage,
+  i_TileIteratorFactory,
   u_ExportTaskAbstract;
 
 type
@@ -41,8 +42,6 @@ type
     FTileStorage: ITileStorage;
     FVersion: IMapVersionRequest;
     FTargetFile: string;
-    FProjectionSetFactory: IProjectionSetFactory;
-    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FMaxSize: Integer;
     FComment: string;
     FRecoverInfo: Boolean;
@@ -51,16 +50,15 @@ type
   public
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
-      const AProjectionSetFactory: IProjectionSetFactory;
-      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+      const ATileIteratorFactory: ITileIteratorFactory;
       const ATargetFile: string;
       const APolygon: IGeometryLonLatPolygon;
       const Azoomarr: TByteDynArray;
       const ATileStorage: ITileStorage;
       const AVersion: IMapVersionRequest;
-      AMaxSize: Integer;
+      const AMaxSize: Integer;
       const AComment: string;
-      ARecoverInfo: Boolean
+      const ARecoverInfo: Boolean
     );
   end;
 
@@ -80,28 +78,26 @@ uses
 
 constructor TExportTaskToCE.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
-  const AProjectionSetFactory: IProjectionSetFactory;
-  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+  const ATileIteratorFactory: ITileIteratorFactory;
   const ATargetFile: string;
   const APolygon: IGeometryLonLatPolygon;
   const Azoomarr: TByteDynArray;
   const ATileStorage: ITileStorage;
   const AVersion: IMapVersionRequest;
-  AMaxSize: Integer;
+  const AMaxSize: Integer;
   const AComment: string;
-  ARecoverInfo: Boolean
+  const ARecoverInfo: Boolean
 );
 begin
   inherited Create(
     AProgressInfo,
     APolygon,
-    Azoomarr
+    Azoomarr,
+    ATileIteratorFactory
   );
   FTargetFile := ATargetFile;
   FTileStorage := ATileStorage;
   FVersion := AVersion;
-  FProjectionSetFactory := AProjectionSetFactory;
-  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FMaxSize := AMaxSize;
   FComment := AComment;
   FRecoverInfo := ARecoverInfo;
@@ -109,7 +105,7 @@ end;
 
 procedure TExportTaskToCE.ProcessRegion;
 var
-  i: integer;
+  I: Integer;
   VExt: string;
   VZoom: Byte;
   VTile: TPoint;
@@ -127,16 +123,11 @@ begin
   ProgressInfo.SetCaption(SAS_STR_ExportTiles);
   ProgressInfo.SetFirstLine('Preparing tiles to export..');
   SetLength(VTileIterators, Length(FZooms));
-  for i := 0 to Length(FZooms) - 1 do begin
-    VZoom := FZooms[i];
+  for I := 0 to Length(FZooms) - 1 do begin
+    VZoom := FZooms[I];
     VProjection := FTileStorage.ProjectionSet.Zooms[VZoom];
-    VProjectedPolygon :=
-      FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-        VProjection,
-        PolygLL
-      );
-    VTileIterators[i] := TTileIteratorByPolygon.Create(VProjection, VProjectedPolygon);
-    VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal;
+    VTileIterators[I] := MakeTileIterator(VProjection);
+    VTilesToProcess := VTilesToProcess + VTileIterators[I].TilesTotal;
     ProgressInfo.SetSecondLine(
       SAS_STR_Zoom + ': ' + inttostr(VZoom) + '  ' + SAS_STR_Tiles + ': ' + inttostr(VTilesToProcess)
     );
@@ -155,9 +146,9 @@ begin
       ProgressInfo.SetFirstLine(SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files);
       VTilesProcessed := 0;
       ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
-      for i := 0 to Length(FZooms) - 1 do begin
-        VZoom := FZooms[i];
-        VTileIterator := VTileIterators[i];
+      for I := 0 to Length(FZooms) - 1 do begin
+        VZoom := FZooms[I];
+        VTileIterator := VTileIterators[I];
         while VTileIterator.Next(VTile) do begin
           if CancelNotifier.IsOperationCanceled(OperationID) then begin
             exit;
@@ -191,8 +182,8 @@ begin
       ProgressInfo.SetSecondLine('');
       VSAS4WinCE.SaveINX(FTargetFile);
     finally
-      for i := 0 to Length(FZooms) - 1 do begin
-        VTileIterators[i] := nil;
+      for I := 0 to Length(FZooms) - 1 do begin
+        VTileIterators[I] := nil;
       end;
       VTileIterators := nil;
     end;

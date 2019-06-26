@@ -24,6 +24,9 @@ interface
 
 uses
   i_GeometryLonLat,
+  i_Projection,
+  i_TileIterator,
+  i_TileIteratorFactory,
   i_NotifierOperation,
   i_RegionProcessTask,
   i_RegionProcessProgressInfo,
@@ -35,19 +38,24 @@ type
     FCancelNotifier: INotifierOperation;
     FOperationID: Integer;
     FProgressInfo: IRegionProcessProgressInfoInternal;
-    FPolygLL: IGeometryLonLatPolygon;
+    FLonLatPolygon: IGeometryLonLatPolygon;
+    FTileIteratorFactory: ITileIteratorFactory;
   protected
+    function MakeTileIterator(const AProjection: IProjection): ITileIterator;
+
     procedure ProgressFormUpdateOnProgress(AProcessed, AToProcess: Int64);
     procedure ProcessRegion; virtual; abstract;
 
     property CancelNotifier: INotifierOperation read FCancelNotifier;
     property OperationID: Integer read FOperationID;
+
     property ProgressInfo: IRegionProcessProgressInfoInternal read FProgressInfo;
-    property PolygLL: IGeometryLonLatPolygon read FPolygLL;
+    property PolygLL: IGeometryLonLatPolygon read FLonLatPolygon;
   public
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
-      const APolygon: IGeometryLonLatPolygon
+      const APolygon: IGeometryLonLatPolygon;
+      const ATileIteratorFactory: ITileIteratorFactory = nil
     );
     destructor Destroy; override;
   end;
@@ -62,14 +70,16 @@ uses
 
 constructor TRegionProcessTaskAbstract.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
-  const APolygon: IGeometryLonLatPolygon
+  const APolygon: IGeometryLonLatPolygon;
+  const ATileIteratorFactory: ITileIteratorFactory
 );
 begin
   inherited Create;
   FCancelNotifier := AProgressInfo.CancelNotifier;
   FOperationID := AProgressInfo.OperationID;
   FProgressInfo := AProgressInfo;
-  FPolygLL := APolygon;
+  FLonLatPolygon := APolygon;
+  FTileIteratorFactory := ATileIteratorFactory;
 end;
 
 destructor TRegionProcessTaskAbstract.Destroy;
@@ -79,6 +89,14 @@ begin
     FProgressInfo := nil;
   end;
   inherited;
+end;
+
+function TRegionProcessTaskAbstract.MakeTileIterator(
+  const AProjection: IProjection
+): ITileIterator;
+begin
+  Assert(FTileIteratorFactory <> nil);
+  Result := FTileIteratorFactory.MakeTileIterator(AProjection, FLonLatPolygon);
 end;
 
 procedure TRegionProcessTaskAbstract.ProgressFormUpdateOnProgress(

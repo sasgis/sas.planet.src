@@ -29,7 +29,7 @@ uses
   i_GeometryLonLat,
   i_ImageResamplerFactory,
   i_ImageResamplerConfig,
-  i_GeometryProjectedFactory,
+  i_TileIteratorFactory,
   i_Bitmap32BufferFactory,
   i_GlobalViewMainConfig,
   i_RegionProcessTask,
@@ -42,7 +42,6 @@ uses
 type
   TProviderTilesGenPrev = class(TExportProviderBase)
   private
-    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FBitmapFactory: IBitmap32StaticFactory;
     FImageResamplerFactoryList: IImageResamplerFactoryList;
     FImageResamplerConfig: IImageResamplerConfig;
@@ -58,10 +57,10 @@ type
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
+      const ATileIteratorFactory: ITileIteratorFactory;
       const ALanguageManager: ILanguageManager;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const AViewConfig: IGlobalViewMainConfig;
-      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AImageResamplerFactoryList: IImageResamplerFactoryList;
       const AImageResamplerConfig: IImageResamplerConfig
@@ -84,10 +83,10 @@ uses
 
 constructor TProviderTilesGenPrev.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
+  const ATileIteratorFactory: ITileIteratorFactory;
   const ALanguageManager: ILanguageManager;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const AViewConfig: IGlobalViewMainConfig;
-  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AImageResamplerFactoryList: IImageResamplerFactoryList;
   const AImageResamplerConfig: IImageResamplerConfig
@@ -96,9 +95,9 @@ begin
   inherited Create(
     AProgressFactory,
     ALanguageManager,
-    AMapSelectFrameBuilder
+    AMapSelectFrameBuilder,
+    ATileIteratorFactory
   );
-  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmapFactory := ABitmapFactory;
   FViewConfig := AViewConfig;
   FImageResamplerFactoryList := AImageResamplerFactoryList;
@@ -147,7 +146,7 @@ begin
   Result :=
     TThreadGenPrevZoom.Create(
       AProgressInfo,
-      FVectorGeometryProjectedFactory,
+      Self.TileIteratorFactory,
       FBitmapFactory,
       VInZooms,
       APolygon,
