@@ -29,7 +29,7 @@ uses
   i_TileFileNameGenerator,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
-  i_GeometryProjectedFactory,
+  i_TileIteratorFactory,
   i_GeometryLonLat,
   i_ArchiveReadWrite,
   i_TileStorage,
@@ -41,16 +41,15 @@ type
     FTileStorage: ITileStorage;
     FArchive: IArchiveWriterSequential;
     FTileNameGen: ITileFileNameGenerator;
-    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   protected
     procedure ProcessRegion; override;
   public
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const AArchiveWriter: IArchiveWriterSequential;
-      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+      const ATileIteratorFactory: ITileIteratorFactory;
       const APolygon: IGeometryLonLatPolygon;
-      const Azoomarr: TByteDynArray;
+      const AZoomArr: TByteDynArray;
       const ATileStorage: ITileStorage;
       const ATileNameGen: ITileFileNameGenerator
     );
@@ -60,10 +59,8 @@ implementation
 
 uses
   i_Projection,
-  i_GeometryProjected,
   i_TileIterator,
   i_TileInfoBasic,
-  u_TileIteratorByPolygon,
   u_ZoomArrayFunc,
   u_ResStrings;
 
@@ -72,9 +69,9 @@ uses
 constructor TExportTaskToArchive.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AArchiveWriter: IArchiveWriterSequential;
-  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+  const ATileIteratorFactory: ITileIteratorFactory;
   const APolygon: IGeometryLonLatPolygon;
-  const Azoomarr: TByteDynArray;
+  const AZoomArr: TByteDynArray;
   const ATileStorage: ITileStorage;
   const ATileNameGen: ITileFileNameGenerator
 );
@@ -82,9 +79,9 @@ begin
   inherited Create(
     AProgressInfo,
     APolygon,
-    Azoomarr
+    AZoomArr,
+    ATileIteratorFactory
   );
-  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FTileNameGen := ATileNameGen;
   FTileStorage := ATileStorage;
   FArchive := AArchiveWriter;
@@ -100,7 +97,6 @@ var
   VTileIterator: ITileIterator;
   VTileInfo: ITileInfoWithData;
   VProjection: IProjection;
-  VProjectedPolygon: IGeometryProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
 begin
@@ -110,16 +106,7 @@ begin
   for I := 0 to Length(FZooms) - 1 do begin
     VZoom := FZooms[I];
     VProjection := FTileStorage.ProjectionSet.Zooms[VZoom];
-    VProjectedPolygon :=
-      FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-        VProjection,
-        PolygLL
-      );
-    VTileIterators[I] :=
-      TTileIteratorByPolygon.Create(
-        VProjection,
-        VProjectedPolygon
-      );
+    VTileIterators[I] := Self.MakeTileIterator(VProjection);
     VTilesToProcess := VTilesToProcess + VTileIterators[I].TilesTotal;
   end;
   try

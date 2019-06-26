@@ -24,19 +24,13 @@ interface
 
 uses
   Forms,
-  i_LanguageManager,
-  i_GeometryProjectedFactory,
   i_GeometryLonLat,
   i_RegionProcessTask,
   i_RegionProcessProgressInfo,
-  i_RegionProcessProgressInfoInternalFactory,
-  fr_MapSelect,
   u_ExportProviderAbstract;
 
 type
   TExportProviderAUX = class(TExportProviderBase)
-  private
-    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   protected
     function CreateFrame: TFrame; override;
   protected
@@ -45,13 +39,6 @@ type
       const APolygon: IGeometryLonLatPolygon;
       const AProgressInfo: IRegionProcessProgressInfoInternal
     ): IRegionProcessTask; override;
-  public
-    constructor Create(
-      const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
-      const ALanguageManager: ILanguageManager;
-      const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
-      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory
-    );
   end;
 
 
@@ -63,27 +50,11 @@ uses
   i_RegionProcessParamsFrame,
   i_MapType,
   i_Projection,
-  i_GeometryProjected,
   u_ThreadExportToAUX,
   u_ResStrings,
   fr_ExportAUX;
 
-{ TExportProviderKml }
-
-constructor TExportProviderAUX.Create(
-  const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
-  const ALanguageManager: ILanguageManager;
-  const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
-  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory
-);
-begin
-  inherited Create(
-    AProgressFactory,
-    ALanguageManager,
-    AMapSelectFrameBuilder
-  );
-  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
-end;
+{ TExportProviderAUX }
 
 function TExportProviderAUX.CreateFrame: TFrame;
 begin
@@ -111,7 +82,6 @@ var
   VMapType: IMapType;
   VZoom: byte;
   VProjection: IProjection;
-  VProjectedPolygon: IGeometryProjectedPolygon;
 begin
   inherited;
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
@@ -119,17 +89,12 @@ begin
   VPath := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
 
   VProjection := VMapType.ProjectionSet[VZoom];
-  VProjectedPolygon :=
-    FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-      VProjection,
-      APolygon
-    );
 
   Result :=
     TExportTaskToAUX.Create(
       AProgressInfo,
       APolygon,
-      VProjectedPolygon,
+      Self.TileIteratorFactory,
       VProjection,
       VMapType.TileStorage,
       VMapType.VersionRequest.GetStatic.BaseVersion,

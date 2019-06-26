@@ -25,13 +25,9 @@ interface
 uses
   Windows,
   Forms,
-  i_LanguageManager,
-  i_TileIteratorFactory,
   i_GeometryLonLat,
   i_RegionProcessTask,
   i_RegionProcessProgressInfo,
-  i_RegionProcessProgressInfoInternalFactory,
-  fr_MapSelect,
   u_ExportProviderAbstract;
 
 type
@@ -56,7 +52,6 @@ uses
   i_RegionProcessParamsFrame,
   i_PredicateByTileInfo,
   i_Projection,
-  i_GeometryProjected,
   u_ThreadDeleteTiles,
   u_ResStrings,
   fr_DeleteTiles;

@@ -50,6 +50,7 @@ implementation
 
 uses
   Types,
+  Math,
   SysUtils,
   t_GeoTypes,
   i_TileRect,

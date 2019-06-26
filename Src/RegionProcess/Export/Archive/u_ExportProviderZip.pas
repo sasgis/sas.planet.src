@@ -26,7 +26,7 @@ uses
   Forms,
   i_LanguageManager,
   i_GeometryLonLat,
-  i_GeometryProjectedFactory,
+  i_TileIteratorFactory,
   i_ArchiveReadWriteFactory,
   i_TileStorageTypeList,
   i_TileFileNameGeneratorsList,
@@ -40,7 +40,6 @@ uses
 type
   TExportProviderZip = class(TExportProviderBase)
   private
-    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FTileStorageTypeList: ITileStorageTypeListStatic;
     FTileNameGenerator: ITileFileNameGeneratorsList;
@@ -57,7 +56,7 @@ type
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
-      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+      const ATileIteratorFactory: ITileIteratorFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const ATileStorageTypeList: ITileStorageTypeListStatic;
       const ATileNameGenerator: ITileFileNameGeneratorsList
@@ -84,7 +83,7 @@ constructor TExportProviderZip.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
-  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+  const ATileIteratorFactory: ITileIteratorFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const ATileStorageTypeList: ITileStorageTypeListStatic;
   const ATileNameGenerator: ITileFileNameGeneratorsList
@@ -93,9 +92,9 @@ begin
   inherited Create(
     AProgressFactory,
     ALanguageManager,
-    AMapSelectFrameBuilder
+    AMapSelectFrameBuilder,
+    ATileIteratorFactory
   );
-  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
   FTileStorageTypeList := ATileStorageTypeList;
   FTileNameGenerator := ATileNameGenerator;
@@ -150,7 +149,7 @@ begin
     TExportTaskToArchive.Create(
       AProgressInfo,
       FArchiveReadWriteFactory.ZipSequential.WriterFactory.Build(VPath, VWriteConfig),
-      FVectorGeometryProjectedFactory,
+      Self.TileIteratorFactory,
       APolygon,
       Zoomarr,
       VMapType.TileStorage,

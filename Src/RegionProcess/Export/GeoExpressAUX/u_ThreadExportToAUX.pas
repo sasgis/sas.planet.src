@@ -31,7 +31,7 @@ uses
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
   i_GeometryLonLat,
-  i_GeometryProjected,
+  i_TileIteratorFactory,
   u_RegionProcessTaskAbstract;
 
 type
@@ -40,7 +40,6 @@ type
     FTileStorage: ITileStorage;
     FVersion: IMapVersionInfo;
     FProjection: IProjection;
-    FPolyProjected: IGeometryProjectedPolygon;
     FFileName: string;
     FZoom: Byte;
   protected
@@ -50,7 +49,7 @@ type
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: IGeometryLonLatPolygon;
-      const AProjectedPolygon: IGeometryProjectedPolygon;
+      const ATileIteratorFactory: ITileIteratorFactory;
       const AProjection: IProjection;
       const ATileStorage: ITileStorage;
       const AVersion: IMapVersionInfo;
@@ -62,18 +61,16 @@ implementation
 
 uses
   Classes,
-  ALString,
   i_TileInfoBasic,
-  u_ResStrings,
   i_TileIterator,
-  u_TileIteratorByPolygon;
+  u_ResStrings;
 
 { TExportTaskToAUX }
 
 constructor TExportTaskToAUX.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: IGeometryLonLatPolygon;
-  const AProjectedPolygon: IGeometryProjectedPolygon;
+  const ATileIteratorFactory: ITileIteratorFactory;
   const AProjection: IProjection;
   const ATileStorage: ITileStorage;
   const AVersion: IMapVersionInfo;
@@ -82,9 +79,9 @@ constructor TExportTaskToAUX.Create(
 begin
   inherited Create(
     AProgressInfo,
-    APolygon
+    APolygon,
+    ATileIteratorFactory
   );
-  FPolyProjected := AProjectedPolygon;
   FProjection := AProjection;
   FZoom := AProjection.Zoom;
   FTileStorage := ATileStorage;
@@ -106,42 +103,37 @@ var
   VTilesProcessed: Int64;
   VTileInfo: ITileInfoBasic;
 begin
-  inherited;
-  VTileIterator := TTileIteratorByPolygon.Create(FProjection, FPolyProjected);
+  VTileIterator := Self.MakeTileIterator(FProjection);
+  VTilesToProcess := VTileIterator.TilesTotal;
+  ProgressInfo.SetCaption(SAS_STR_ExportTiles);
+  ProgressInfo.SetFirstLine(
+    SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files
+  );
+  VTilesProcessed := 0;
+  ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
+  VPixelRect := FProjection.TileRect2PixelRect(VTileIterator.TilesRect.Rect);
+  VFileStream := TFileStream.Create(FFileName, fmCreate);
   try
-    VTilesToProcess := VTileIterator.TilesTotal;
-    ProgressInfo.SetCaption(SAS_STR_ExportTiles);
-    ProgressInfo.SetFirstLine(
-      SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files
-    );
-    VTilesProcessed := 0;
-    ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
-    VPixelRect := FProjection.TileRect2PixelRect(VTileIterator.TilesRect.Rect);
-    VFileStream := TFileStream.Create(FFileName, fmCreate);
-    try
-      while VTileIterator.Next(VTile) do begin
-        if CancelNotifier.IsOperationCanceled(OperationID) then begin
-          exit;
-        end;
-        VTileInfo := FTileStorage.GetTileInfo(VTile, FZoom, FVersion, gtimAsIs);
-        if Assigned(VTileInfo) and VTileInfo.GetIsExists then begin
-          VRectOfTilePixels := FProjection.TilePos2PixelRect(VTile);
-          VOutPos.X := VRectOfTilePixels.Left - VPixelRect.Left;
-          VOutPos.Y := VPixelRect.Bottom - VRectOfTilePixels.Bottom;
-          VFileName := FTileStorage.GetTileFileName(VTile, FZoom, FVersion);
-          VOutString := '"' + AnsiToUtf8(VFileName) + '" ' + ALIntToStr(VOutPos.X) + ' ' + ALIntToStr(VOutPos.Y) + #13#10;
-          VFileStream.WriteBuffer(VOutString[1], Length(VOutString));
-        end;
-        inc(VTilesProcessed);
-        if VTilesProcessed mod 100 = 0 then begin
-          ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
-        end;
+    while VTileIterator.Next(VTile) do begin
+      if CancelNotifier.IsOperationCanceled(OperationID) then begin
+        exit;
       end;
-    finally
-      VFileStream.Free;
+      VTileInfo := FTileStorage.GetTileInfo(VTile, FZoom, FVersion, gtimAsIs);
+      if Assigned(VTileInfo) and VTileInfo.GetIsExists then begin
+        VRectOfTilePixels := FProjection.TilePos2PixelRect(VTile);
+        VOutPos.X := VRectOfTilePixels.Left - VPixelRect.Left;
+        VOutPos.Y := VPixelRect.Bottom - VRectOfTilePixels.Bottom;
+        VFileName := FTileStorage.GetTileFileName(VTile, FZoom, FVersion);
+        VOutString := UTF8Encode(Format('"%s" %d %d', [VFileName, VOutPos.X, VOutPos.Y])) + #13#10;
+        VFileStream.WriteBuffer(VOutString[1], Length(VOutString));
+      end;
+      inc(VTilesProcessed);
+      if VTilesProcessed mod 100 = 0 then begin
+        ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
+      end;
     end;
   finally
-    VTileIterator := nil;
+    VFileStream.Free;
   end;
 end;
 

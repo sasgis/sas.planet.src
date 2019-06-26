@@ -88,7 +88,8 @@ begin
   inherited Create(
     AProgressFactory,
     ALanguageManager,
-    AMapSelectFrameBuilder
+    AMapSelectFrameBuilder,
+    nil
   );
   FPosition := APosition;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;

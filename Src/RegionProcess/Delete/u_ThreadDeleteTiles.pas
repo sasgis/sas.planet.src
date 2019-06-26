@@ -66,7 +66,6 @@ implementation
 uses
   i_TileIterator,
   i_TileInfoBasic,
-  u_TileIteratorByPolygon,
   u_ResStrings;
 
 constructor TThreadDeleteTiles.Create(

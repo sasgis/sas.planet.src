@@ -85,7 +85,6 @@ uses
   i_ProjectionSet,
   i_Bitmap32Static,
   i_Projection,
-  i_GeometryProjected,
   i_BinaryData,
   i_BitmapTileSaveLoad,
   i_TileInfoBasic,
@@ -94,7 +93,6 @@ uses
   u_GeoFunc,
   u_BitmapFunc,
   u_ResStrings,
-  u_TileIteratorByPolygon,
   u_TileIteratorByRect;
 
 constructor TThreadGenPrevZoom.Create(
@@ -155,7 +153,6 @@ var
   VSubTileBounds: TRect;
   VSubTileInTargetBounds: TRect;
   VSubTileIterator: TTileIteratorByRectRecord;
-  VProjectedPolygon: IGeometryProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
   VResampler: TCustomResampler;
@@ -172,7 +169,7 @@ begin
   SetLength(VTileIterators, Length(FZooms) - 1);
   for I := 1 to Length(FZooms) - 1 do begin
     VProjection := VProjectionSet.Zooms[FZooms[I]];
-    VTileIterator := MakeTileIterator(VProjection);
+    VTileIterator := Self.MakeTileIterator(VProjection);
     VTileIterators[I - 1] := VTileIterator;
     if FGenFormFirstZoom then begin
       VZoomDelta := FZooms[0] - FZooms[I];

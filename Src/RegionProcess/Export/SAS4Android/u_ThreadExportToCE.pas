@@ -29,8 +29,6 @@ uses
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
   i_GeometryLonLat,
-  i_ProjectionSetFactory,
-  i_GeometryProjectedFactory,
   i_MapVersionRequest,
   i_TileStorage,
   i_TileIteratorFactory,
@@ -70,8 +68,6 @@ uses
   i_TileInfoBasic,
   i_BinaryData,
   i_Projection,
-  i_GeometryProjected,
-  u_TileIteratorByPolygon,
   u_ResStrings;
 
 { TExportTaskToCE }
@@ -113,7 +109,6 @@ var
   VTileIterator: ITileIterator;
   VSAS4WinCE: TSAS4WinCE;
   VProjection: IProjection;
-  VProjectedPolygon: IGeometryProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
   VTileInfo: ITileInfoWithData;
@@ -126,7 +121,7 @@ begin
   for I := 0 to Length(FZooms) - 1 do begin
     VZoom := FZooms[I];
     VProjection := FTileStorage.ProjectionSet.Zooms[VZoom];
-    VTileIterators[I] := MakeTileIterator(VProjection);
+    VTileIterators[I] := Self.MakeTileIterator(VProjection);
     VTilesToProcess := VTilesToProcess + VTileIterators[I].TilesTotal;
     ProgressInfo.SetSecondLine(
       SAS_STR_Zoom + ': ' + inttostr(VZoom) + '  ' + SAS_STR_Tiles + ': ' + inttostr(VTilesToProcess)

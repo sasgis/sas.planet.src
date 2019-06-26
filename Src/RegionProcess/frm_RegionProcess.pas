@@ -1107,7 +1107,7 @@ begin
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,
-      AVectorGeometryProjectedFactory
+      FTileIteratorFactory
     );
   VList.Add(VExportProvider);
 
@@ -1116,7 +1116,7 @@ begin
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,
-      AVectorGeometryProjectedFactory,
+      FTileIteratorFactory,
       AArchiveReadWriteFactory,
       ATileStorageTypeList,
       ATileNameGenerator
@@ -1128,7 +1128,7 @@ begin
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,
-      AVectorGeometryProjectedFactory,
+      FTileIteratorFactory,
       AArchiveReadWriteFactory,
       ATileStorageTypeList,
       ATileNameGenerator
