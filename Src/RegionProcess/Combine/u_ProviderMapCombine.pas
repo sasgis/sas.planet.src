@@ -253,7 +253,8 @@ begin
   inherited Create(
     AProgressFactory,
     ALanguageManager,
-    AMapSelectFrameBuilder
+    AMapSelectFrameBuilder,
+    nil
   );
   FCombinerFactory := ACombinerFactory;
   FMapCalibrationList := AMapCalibrationList;

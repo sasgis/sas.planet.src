@@ -1070,11 +1070,11 @@ begin
   VList.Add(VExportProvider);
 
   VExportProvider :=
-    TExportProviderGEKml.Create(
+    TExportProviderKml.Create(
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,
-      AVectorGeometryProjectedFactory
+      FTileIteratorFactory
     );
   VList.Add(VExportProvider);
 
@@ -1083,7 +1083,7 @@ begin
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,
-      AVectorGeometryProjectedFactory,
+      FTileIteratorFactory,
       ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
       AProjectionSetFactory
@@ -1095,7 +1095,7 @@ begin
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,
-      AVectorGeometryProjectedFactory,
+      FTileIteratorFactory,
       ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
       AProjectionSetFactory
@@ -1140,7 +1140,7 @@ begin
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,
-      AVectorGeometryProjectedFactory,
+      FTileIteratorFactory,
       ABitmapTileSaveLoadFactory,
       ABitmapPostProcessing
     );
@@ -1184,7 +1184,7 @@ begin
       ALanguageManager,
       AMapSelectFrameBuilder,
       AActiveMapsList,
-      AVectorGeometryProjectedFactory,
+      FTileIteratorFactory,
       ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
       AProjectionSetFactory
@@ -1197,6 +1197,7 @@ begin
       ALanguageManager,
       AMapSelectFrameBuilder,
       AActiveMapsList,
+      FTileIteratorFactory,
       AVectorGeometryProjectedFactory,
       ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
@@ -1210,7 +1211,7 @@ begin
       ALanguageManager,
       AMapSelectFrameBuilder,
       AActiveMapsList,
-      AVectorGeometryProjectedFactory,
+      FTileIteratorFactory,
       ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
       AProjectionSetFactory

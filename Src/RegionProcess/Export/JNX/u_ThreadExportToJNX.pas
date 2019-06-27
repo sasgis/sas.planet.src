@@ -26,7 +26,7 @@ uses
   t_GeoTypes,
   i_RegionProcessProgressInfo,
   i_GeometryLonLat,
-  i_GeometryProjectedFactory,
+  i_TileIteratorFactory,
   i_BitmapPostProcessing,
   u_ExportToJnxTask,
   u_RegionProcessTaskAbstract;
@@ -36,12 +36,11 @@ type
   private
     FTasks: TExportTaskJnxArray;
     FTargetFile: string;
-    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FProductName: string; // копирайт
     FMapName: string;  // имя карты
-    FJNXVersion: byte;  // 3..4
-    FZorder: integer;   // для 4 версии
-    FProductID: integer; // 0,2,3,4,5,6,7,8,9
+    FJNXVersion: Byte;  // 3..4
+    FZorder: Integer;   // для 4 версии
+    FProductID: Integer; // 0,2,3,4,5,6,7,8,9
     FBitmapPostProcessing: IBitmapPostProcessing;
 
   protected
@@ -49,16 +48,16 @@ type
   public
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
-      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+      const ATileIteratorFactory: ITileIteratorFactory;
       const ATargetFile: string;
       const APolygon: IGeometryLonLatPolygon;
       const ATasks: TExportTaskJnxArray;
       const AProductName: string;
       const AMapName: string;
       const ABitmapPostProcessing: IBitmapPostProcessing;
-      AJNXVersion: integer;
-      AZorder: integer;
-      AProductID: integer
+      const AJNXVersion: Integer;
+      const AZorder: Integer;
+      const AProductID: Integer
     );
   end;
 
@@ -79,30 +78,28 @@ uses
   i_BinaryData,
   i_MapVersionRequest,
   i_BitmapTileSaveLoad,
-  i_GeometryProjected,
-  u_ResStrings,
-  u_TileIteratorByPolygon;
+  u_ResStrings;
 
 constructor TExportTaskToJnx.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
-  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+  const ATileIteratorFactory: ITileIteratorFactory;
   const ATargetFile: string;
   const APolygon: IGeometryLonLatPolygon;
   const ATasks: TExportTaskJnxArray;
   const AProductName: string;
   const AMapName: string;
   const ABitmapPostProcessing: IBitmapPostProcessing;
-  AJNXVersion: integer;
-  AZorder: integer;
-  AProductID: integer
+  const AJNXVersion: Integer;
+  const AZorder: Integer;
+  const AProductID: Integer
 );
 begin
   inherited Create(
     AProgressInfo,
-    APolygon
+    APolygon,
+    ATileIteratorFactory
   );
   FTargetFile := ATargetFile;
-  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FTasks := ATasks;
   FProductName := AProductName;
   FMapName := AMapName;
@@ -114,14 +111,14 @@ end;
 
 procedure TExportTaskToJnx.ProcessRegion;
 const
-  ZoomToScale: array [0..26] of integer = (
+  ZoomToScale: array [0..26] of Integer = (
     2446184, 1834628, 1223072, 611526, 458642, 305758, 152877, 114657, 76437,
     38218, 28664, 19109, 9554, 7166, 4777, 2388, 1791, 1194,
     597, 448, 298, 149, 112, 75, 37, 28, 19
   );
 
 var
-  i: integer;
+  I: Integer;
   VBitmapTile: IBitmap32Static;
   VZoom: Byte;
   VTile: TPoint;
@@ -135,7 +132,6 @@ var
   VTopLeft: TDoublePoint;
   VBottomRight: TDoublePoint;
   VProjection: IProjection;
-  VProjectedPolygon: IGeometryProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
   VData: IBinaryData;
@@ -148,18 +144,13 @@ begin
   inherited;
   VTilesToProcess := 0;
   SetLength(VTileIterators, Length(FTasks));
-  for i := 0 to Length(FTasks) - 1 do begin
-    VZoom := FTasks[i].FZoom;
-    if not FTasks[i].FBlankLevel then begin
-      VProjectionSet := FTasks[i].FTileStorage.ProjectionSet;
+  for I := 0 to Length(FTasks) - 1 do begin
+    VZoom := FTasks[I].FZoom;
+    if not FTasks[I].FBlankLevel then begin
+      VProjectionSet := FTasks[I].FTileStorage.ProjectionSet;
       VProjection := VProjectionSet.Zooms[VZoom];
-      VProjectedPolygon :=
-        FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-          VProjection,
-          PolygLL
-        );
-      VTileIterators[i] := TTileIteratorByPolygon.Create(VProjection, VProjectedPolygon);
-      VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal;
+      VTileIterators[I] := Self.MakeTileIterator(VProjection);
+      VTilesToProcess := VTilesToProcess + VTileIterators[I].TilesTotal;
     end;
   end;
 
@@ -172,16 +163,16 @@ begin
     VWriter.ZOrder := FZorder;
     VWriter.ProductID := FProductID;
 
-    for i := 0 to Length(FTasks) - 1 do begin
-      VWriter.LevelScale[i] := ZoomToScale[FTasks[i].FScale];
-      if FTasks[i].FBlankLevel then
-        VWriter.TileCount[i] := 1
+    for I := 0 to Length(FTasks) - 1 do begin
+      VWriter.LevelScale[I] := ZoomToScale[FTasks[I].FScale];
+      if FTasks[I].FBlankLevel then
+        VWriter.TileCount[I] := 1
       else
-        VWriter.TileCount[i] := VTileIterators[i].TilesTotal;
-      VWriter.LevelDescription[i] := FTasks[i].FLevelDesc;
-      VWriter.LevelName[i] := FTasks[i].FLevelName;
-      VWriter.LevelCopyright[i] := FTasks[i].FLevelCopyright;
-      VWriter.LevelZoom[i] := FTasks[i].FZoom;
+        VWriter.TileCount[I] := VTileIterators[I].TilesTotal;
+      VWriter.LevelDescription[I] := FTasks[I].FLevelDesc;
+      VWriter.LevelName[I] := FTasks[I].FLevelName;
+      VWriter.LevelCopyright[I] := FTasks[I].FLevelCopyright;
+      VWriter.LevelZoom[I] := FTasks[I].FZoom;
     end;
 
     try
@@ -191,17 +182,17 @@ begin
       try
         VTilesProcessed := 0;
         ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
-        for i := 0 to Length(FTasks) - 1 do begin
-          if FTasks[i].FBlankLevel then begin
-            VWriter.WriteEmptyTile(i)
+        for I := 0 to Length(FTasks) - 1 do begin
+          if FTasks[I].FBlankLevel then begin
+            VWriter.WriteEmptyTile(I)
           end else begin
-            VSaver := FTasks[i].FSaver;
-            VRecompress := FTasks[i].FRecompress or (FBitmapPostProcessing <> nil);
-            VTileStorage := FTasks[i].FTileStorage;
-            VVersion := FTasks[i].FMapVersion;
-            VZoom := FTasks[i].FZoom;
+            VSaver := FTasks[I].FSaver;
+            VRecompress := FTasks[I].FRecompress or (FBitmapPostProcessing <> nil);
+            VTileStorage := FTasks[I].FTileStorage;
+            VVersion := FTasks[I].FMapVersion;
+            VZoom := FTasks[I].FZoom;
             VProjectionSet := VTileStorage.ProjectionSet;
-            VTileIterator := VTileIterators[i];
+            VTileIterator := VTileIterators[I];
             while VTileIterator.Next(VTile) do begin
               if CancelNotifier.IsOperationCanceled(OperationID) then begin
                 exit;
@@ -238,7 +229,7 @@ begin
                   VStringStream.WriteBuffer(VData.Buffer^, VData.Size);
 
                   VWriter.WriteTile(
-                    i,
+                    I,
                     256,
                     256,
                     VTileBounds,
@@ -257,8 +248,8 @@ begin
         VStringStream.Free;
       end;
     finally
-      for i := 0 to Length(VTileIterators) - 1 do begin
-        VTileIterators[i] := nil;
+      for I := 0 to Length(VTileIterators) - 1 do begin
+        VTileIterators[I] := nil;
       end;
       VTileIterators := nil;
     end;

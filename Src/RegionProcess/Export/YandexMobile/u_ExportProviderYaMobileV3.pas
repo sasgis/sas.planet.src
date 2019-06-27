@@ -27,7 +27,7 @@ uses
   i_LanguageManager,
   i_ProjectionSetFactory,
   i_Bitmap32BufferFactory,
-  i_GeometryProjectedFactory,
+  i_TileIteratorFactory,
   i_GeometryLonLat,
   i_RegionProcessTask,
   i_RegionProcessProgressInfo,
@@ -42,7 +42,6 @@ type
   private
     FFrame: TfrExportYaMobileV3;
     FProjectionSetFactory: IProjectionSetFactory;
-    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   protected
@@ -58,7 +57,7 @@ type
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
-      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+      const ATileIteratorFactory: ITileIteratorFactory;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const AProjectionSetFactory: IProjectionSetFactory
@@ -84,7 +83,7 @@ constructor TExportProviderYaMobileV3.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
-  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+  const ATileIteratorFactory: ITileIteratorFactory;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AProjectionSetFactory: IProjectionSetFactory
@@ -94,9 +93,9 @@ begin
   inherited Create(
     AProgressFactory,
     ALanguageManager,
-    AMapSelectFrameBuilder
+    AMapSelectFrameBuilder,
+    ATileIteratorFactory
   );
-  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FProjectionSetFactory := AProjectionSetFactory;
@@ -189,7 +188,7 @@ begin
     TExportTaskToYaMobileV3.Create(
       AProgressInfo,
       FProjectionSetFactory,
-      FVectorGeometryProjectedFactory,
+      Self.TileIteratorFactory,
       FBitmap32StaticFactory,
       VPath,
       APolygon,

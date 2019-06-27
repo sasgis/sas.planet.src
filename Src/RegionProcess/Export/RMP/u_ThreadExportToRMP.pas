@@ -36,7 +36,6 @@ uses
   i_GeometryLonLat,
   i_TileInfoBasic,
   i_TileStorage,
-  i_TileIterator,
   i_MapVersionRequest,
   i_BitmapTileSaveLoad,
   i_BitmapLayerProvider,
@@ -124,11 +123,9 @@ uses
   t_GeoTypes,
   i_Projection,
   i_Bitmap32Static,
-  i_TileRect,
   u_BitmapFunc,
   u_Bitmap32ByStaticBitmap,
   u_GeoFunc,
-  u_GeometryFunc,
   u_ResStrings;
 
 { TExportTaskToRMP }
@@ -154,7 +151,8 @@ begin
   inherited Create(
     AProgressInfo,
     APolygon,
-    AZoomArr
+    AZoomArr,
+    nil
   );
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FProjectionSet := AProjectionSet;

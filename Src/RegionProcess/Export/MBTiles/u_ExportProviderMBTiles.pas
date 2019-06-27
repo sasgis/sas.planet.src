@@ -25,7 +25,7 @@ interface
 uses
   Forms,
   i_GeometryLonLat,
-  i_GeometryProjectedFactory,
+  i_TileIteratorFactory,
   i_LanguageManager,
   i_RegionProcessTask,
   i_RegionProcessProgressInfo,
@@ -42,7 +42,6 @@ type
   TExportProviderMBTiles = class(TExportProviderBase)
   private
     FActiveMapsList: IMapTypeListChangeable;
-    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FProjectionSetFactory: IProjectionSetFactory;
@@ -60,7 +59,7 @@ type
       const ALanguageManager: ILanguageManager;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const AActiveMapsList: IMapTypeListChangeable;
-      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+      const ATileIteratorFactory: ITileIteratorFactory;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const AProjectionSetFactory: IProjectionSetFactory
@@ -90,7 +89,7 @@ constructor TExportProviderMBTiles.Create(
   const ALanguageManager: ILanguageManager;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const AActiveMapsList: IMapTypeListChangeable;
-  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+  const ATileIteratorFactory: ITileIteratorFactory;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AProjectionSetFactory: IProjectionSetFactory
@@ -100,10 +99,10 @@ begin
   inherited Create(
     AProgressFactory,
     ALanguageManager,
-    AMapSelectFrameBuilder
+    AMapSelectFrameBuilder,
+    ATileIteratorFactory
   );
   FActiveMapsList := AActiveMapsList;
-  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FProjectionSetFactory := AProjectionSetFactory;
@@ -178,7 +177,7 @@ begin
     TExportTaskToMBTiles.Create(
       AProgressInfo,
       VPath,
-      FVectorGeometryProjectedFactory,
+      Self.TileIteratorFactory,
       FProjectionSetFactory,
       APolygon,
       VZoomArr,

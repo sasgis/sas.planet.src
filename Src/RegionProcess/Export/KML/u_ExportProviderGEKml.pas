@@ -25,19 +25,13 @@ interface
 uses
   Forms,
   i_GeometryLonLat,
-  i_GeometryProjectedFactory,
-  i_LanguageManager,
   i_RegionProcessTask,
   i_RegionProcessProgressInfo,
-  i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
-  fr_MapSelect,
   fr_ExportGEKml;
 
 type
-  TExportProviderGEKml = class(TExportProviderBase)
-  private
-    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+  TExportProviderKml = class(TExportProviderBase)
   protected
     function CreateFrame: TFrame; override;
   protected
@@ -46,13 +40,6 @@ type
       const APolygon: IGeometryLonLatPolygon;
       const AProgressInfo: IRegionProcessProgressInfoInternal
     ): IRegionProcessTask; override;
-  public
-    constructor Create(
-      const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
-      const ALanguageManager: ILanguageManager;
-      const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
-      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory
-    );
   end;
 
 
@@ -69,25 +56,10 @@ uses
 
 { TExportProviderKml }
 
-constructor TExportProviderGEKml.Create(
-  const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
-  const ALanguageManager: ILanguageManager;
-  const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
-  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory
-);
-begin
-  inherited Create(
-    AProgressFactory,
-    ALanguageManager,
-    AMapSelectFrameBuilder
-  );
-  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
-end;
-
-function TExportProviderGEKml.CreateFrame: TFrame;
+function TExportProviderKml.CreateFrame: TFrame;
 begin
   Result :=
-    TfrExportGEKml.Create(
+    TfrExportKml.Create(
       Self.LanguageManager,
       Self.MapSelectFrameBuilder
     );
@@ -97,12 +69,12 @@ begin
   Assert(Supports(Result, IRegionProcessParamsFrameKmlExport));
 end;
 
-function TExportProviderGEKml.GetCaption: string;
+function TExportProviderKml.GetCaption: string;
 begin
   Result := SAS_STR_ExportGEKmlExportCaption;
 end;
 
-function TExportProviderGEKml.PrepareTask(
+function TExportProviderKml.PrepareTask(
   const APolygon: IGeometryLonLatPolygon;
   const AProgressInfo: IRegionProcessProgressInfoInternal
 ): IRegionProcessTask;
@@ -124,7 +96,7 @@ begin
     TExportTaskToKML.Create(
       AProgressInfo,
       VPath,
-      FVectorGeometryProjectedFactory,
+      Self.TileIteratorFactory,
       APolygon,
       VZoomArr,
       VMapType.TileStorage,

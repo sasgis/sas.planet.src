@@ -92,7 +92,8 @@ begin
   inherited Create(
     AProgressFactory,
     ALanguageManager,
-    AMapSelectFrameBuilder
+    AMapSelectFrameBuilder,
+    nil
   );
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmap32StaticFactory := ABitmap32StaticFactory;

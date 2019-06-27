@@ -72,7 +72,7 @@ type
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
-      const ATileIteratorFactory: ITileIteratorFactory = nil
+      const ATileIteratorFactory: ITileIteratorFactory
     );
     destructor Destroy; override;
   end;

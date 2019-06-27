@@ -110,7 +110,8 @@ begin
   inherited Create(
     AProgressFactory,
     ALanguageManager,
-    AMapSelectFrameBuilder
+    AMapSelectFrameBuilder,
+    nil
   );
   FActiveMapsList := AActiveMapsList;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;

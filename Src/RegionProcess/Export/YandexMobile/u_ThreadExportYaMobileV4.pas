@@ -36,7 +36,7 @@ uses
   i_RegionProcessProgressInfo,
   i_BitmapLayerProvider,
   i_ProjectionSetFactory,
-  i_GeometryProjectedFactory,
+  i_TileIteratorFactory,
   u_ExportTaskAbstract;
 
 type
@@ -57,7 +57,6 @@ type
     FExportPath: string;
     FProjectionSetFactory: IProjectionSetFactory;
     FBitmapFactory: IBitmap32StaticFactory;
-    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FCacheFile: array [0..7] of TYaMobileCacheFile;
     FCacheCount: Byte;
     FTileSize: TYaMobileV4TileSize;
@@ -79,12 +78,12 @@ type
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const AProjectionSetFactory: IProjectionSetFactory;
-      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+      const ATileIteratorFactory: ITileIteratorFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
       const APath: string;
       const APolygon: IGeometryLonLatPolygon;
       const ATasks: TExportTaskYaMobileV4Array;
-      const Azoomarr: TByteDynArray;
+      const AZoomArr: TByteDynArray;
       const AReplace: boolean;
       const ATileSize: TYaMobileV4TileSize
     );
@@ -99,23 +98,21 @@ uses
   i_ProjectionSet,
   i_Bitmap32Static,
   i_Projection,
-  i_GeometryProjected,
   i_TileIterator,
   u_BitmapFunc,
-  u_ResStrings,
-  u_TileIteratorByPolygon;
+  u_ResStrings;
 
 { TExportTaskToYaMobileV4 }
 
 constructor TExportTaskToYaMobileV4.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AProjectionSetFactory: IProjectionSetFactory;
-  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+  const ATileIteratorFactory: ITileIteratorFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
   const APath: string;
   const APolygon: IGeometryLonLatPolygon;
   const ATasks: TExportTaskYaMobileV4Array;
-  const Azoomarr: TByteDynArray;
+  const AZoomArr: TByteDynArray;
   const AReplace: boolean;
   const ATileSize: TYaMobileV4TileSize
 );
@@ -125,12 +122,12 @@ begin
   inherited Create(
     AProgressInfo,
     APolygon,
-    Azoomarr
+    AZoomArr,
+    ATileIteratorFactory
   );
   FTileSize := ATileSize;
   FProjectionSetFactory := AProjectionSetFactory;
   FBitmapFactory := ABitmapFactory;
-  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FTasks := ATasks;
   FExportPath := APath;
   FIsReplace := AReplace;
@@ -282,7 +279,6 @@ var
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
   VProjection: IProjection;
-  VProjectedPolygon: IGeometryProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
   VStaticBitmapCrop: IBitmap32Static;
@@ -302,12 +298,7 @@ begin
     for i := 0 to Length(FZooms) - 1 do begin
       VZoom := FZooms[i];
       VProjection := VProjectionSet.Zooms[VZoom];
-      VProjectedPolygon :=
-        FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-          VProjection,
-          PolygLL
-        );
-      VTileIterators[i] := TTileIteratorByPolygon.Create(VProjection, VProjectedPolygon);
+      VTileIterators[i] := Self.MakeTileIterator(VProjection);
       VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal * Length(FTasks);
     end;
     try

@@ -50,7 +50,7 @@ type
   end;
 
 type
-  TfrExportGEKml = class(
+  TfrExportKml = class(
       TFrame,
       IRegionProcessParamsFrameBase,
       IRegionProcessParamsFrameOneMap,
@@ -103,7 +103,7 @@ uses
 
 {$R *.dfm}
 
-constructor TfrExportGEKml.Create(
+constructor TfrExportKml.Create(
   const ALanguageManager: ILanguageManager;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder
 );
@@ -123,59 +123,59 @@ begin
   FfrZoomsSelect.Init(0, 23);
 end;
 
-destructor TfrExportGEKml.Destroy;
+destructor TfrExportKml.Destroy;
 begin
   FreeAndNil(FfrMapSelect);
   FreeAndNil(FfrZoomsSelect);
   inherited;
 end;
 
-function TfrExportGEKml.GetAllowExport(const AMapType: IMapType): boolean;
+function TfrExportKml.GetAllowExport(const AMapType: IMapType): boolean;
 begin
   Result :=
     (AMapType.IsBitmapTiles) and
     (AMapType.TileStorage.StorageTypeAbilities.StorageClass = tstcInSeparateFiles);
 end;
 
-procedure TfrExportGEKml.btnSelectTargetFileClick(Sender: TObject);
+procedure TfrExportKml.btnSelectTargetFileClick(Sender: TObject);
 begin
   if dlgSaveKML.Execute then begin
     edtTargetFile.Text := dlgSaveKML.FileName;
   end;
 end;
 
-function TfrExportGEKml.GetMapType: IMapType;
+function TfrExportKml.GetMapType: IMapType;
 begin
   Result := FfrMapSelect.GetSelectedMapType;
 end;
 
-function TfrExportGEKml.GetNotSaveNotExists: Boolean;
+function TfrExportKml.GetNotSaveNotExists: Boolean;
 begin
   Result := chkNotSaveNotExists.Checked;
 end;
 
-function TfrExportGEKml.GetPath: string;
+function TfrExportKml.GetPath: string;
 begin
   Result := edtTargetFile.Text;
 end;
 
-function TfrExportGEKml.GetRelativePath: Boolean;
+function TfrExportKml.GetRelativePath: Boolean;
 begin
   Result := chkUseRelativePath.Checked;
 end;
 
-function TfrExportGEKml.GetZoomArray: TByteDynArray;
+function TfrExportKml.GetZoomArray: TByteDynArray;
 begin
   Result := FfrZoomsSelect.GetZoomList;
 end;
 
-procedure TfrExportGEKml.Init;
+procedure TfrExportKml.Init;
 begin
   FfrMapSelect.Show(pnlMap);
   FfrZoomsSelect.Show(pnlZoom);
 end;
 
-function TfrExportGEKml.Validate: Boolean;
+function TfrExportKml.Validate: Boolean;
 begin
   Result := (edtTargetFile.Text <> '');
   if not Result then begin

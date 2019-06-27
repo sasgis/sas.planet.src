@@ -29,7 +29,7 @@ uses
   t_GeoTypes,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
-  i_GeometryProjectedFactory,
+  i_TileIteratorFactory,
   i_GeometryLonLat,
   i_MapVersionInfo,
   i_TileStorage,
@@ -40,7 +40,6 @@ type
   private
     FTileStorage: ITileStorage;
     FVersion: IMapVersionInfo;
-    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FNotSaveNotExists: boolean;
     FPathExport: string;
     FRelativePath: boolean;
@@ -57,13 +56,13 @@ type
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APath: string;
-      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+      const ATileIteratorFactory: ITileIteratorFactory;
       const APolygon: IGeometryLonLatPolygon;
-      const Azoomarr: TByteDynArray;
+      const AZoomArr: TByteDynArray;
       const ATileStorage: ITileStorage;
       const AVersion: IMapVersionInfo;
-      ANotSaveNotExists: boolean;
-      ARelativePath: boolean
+      const ANotSaveNotExists: boolean;
+      const ARelativePath: boolean
     );
   end;
 
@@ -71,12 +70,10 @@ implementation
 
 uses
   Math,
-  i_GeometryProjected,
   i_Projection,
   i_TileInfoBasic,
   i_TileIterator,
   u_TileIteratorByRect,
-  u_TileIteratorByPolygon,
   u_GeoToStrFunc,
   u_GeoFunc,
   u_ResStrings;
@@ -84,21 +81,21 @@ uses
 constructor TExportTaskToKML.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APath: string;
-  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+  const ATileIteratorFactory: ITileIteratorFactory;
   const APolygon: IGeometryLonLatPolygon;
-  const Azoomarr: TByteDynArray;
+  const AZoomArr: TByteDynArray;
   const ATileStorage: ITileStorage;
   const AVersion: IMapVersionInfo;
-  ANotSaveNotExists: boolean;
-  ARelativePath: boolean
+  const ANotSaveNotExists: boolean;
+  const ARelativePath: boolean
 );
 begin
   inherited Create(
     AProgressInfo,
     APolygon,
-    Azoomarr
+    AZoomArr,
+    ATileIteratorFactory
   );
-  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FPathExport := APath;
   FNotSaveNotExists := ANotSaveNotExists;
   FRelativePath := ARelativePath;
@@ -192,11 +189,10 @@ end;
 
 procedure TExportTaskToKML.ProcessRegion;
 var
-  i: integer;
+  I: Integer;
   VZoom: Byte;
   VText: UTF8String;
   VProjection: IProjection;
-  VProjectedPolygon: IGeometryProjectedPolygon;
   VTempIterator: ITileIterator;
   VIterator: ITileIterator;
   VTile: TPoint;
@@ -207,22 +203,12 @@ begin
   if Length(FZooms) > 0 then begin
     VZoom := FZooms[0];
     VProjection := FTileStorage.ProjectionSet.Zooms[VZoom];
-    VProjectedPolygon :=
-      FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-        VProjection,
-        PolygLL
-      );
-    VIterator := TTileIteratorByPolygon.Create(VProjection, VProjectedPolygon);
+    VIterator := Self.MakeTileIterator(VProjection);
     FTilesToProcess := FTilesToProcess + VIterator.TilesTotal;
-    for i := 0 to Length(FZooms) - 1 do begin
-      VZoom := FZooms[i];
+    for I := 0 to Length(FZooms) - 1 do begin
+      VZoom := FZooms[I];
       VProjection := FTileStorage.ProjectionSet.Zooms[VZoom];
-      VProjectedPolygon :=
-        FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-          VProjection,
-          PolygLL
-        );
-      VTempIterator := TTileIteratorByPolygon.Create(VProjection, VProjectedPolygon);
+      VTempIterator := Self.MakeTileIterator(VProjection);
       FTilesToProcess := FTilesToProcess + VTempIterator.TilesTotal;
     end;
   end;

@@ -26,6 +26,7 @@ uses
   Forms,
   i_GeometryLonLat,
   i_GeometryProjectedFactory,
+  i_TileIteratorFactory,
   i_LanguageManager,
   i_RegionProcessTask,
   i_RegionProcessProgressInfo,
@@ -60,6 +61,7 @@ type
       const ALanguageManager: ILanguageManager;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const AActiveMapsList: IMapTypeListChangeable;
+      const ATileIteratorFactory: ITileIteratorFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
@@ -91,6 +93,7 @@ constructor TExportProviderOruxMapsSQLite.Create(
   const ALanguageManager: ILanguageManager;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const AActiveMapsList: IMapTypeListChangeable;
+  const ATileIteratorFactory: ITileIteratorFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
@@ -101,7 +104,8 @@ begin
   inherited Create(
     AProgressFactory,
     ALanguageManager,
-    AMapSelectFrameBuilder
+    AMapSelectFrameBuilder,
+    ATileIteratorFactory
   );
   FActiveMapsList := AActiveMapsList;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
@@ -172,6 +176,7 @@ begin
     TExportTaskToOruxMapsSQLite.Create(
       AProgressInfo,
       VPath,
+      Self.TileIteratorFactory,
       FVectorGeometryProjectedFactory,
       FProjectionSetFactory,
       APolygon,

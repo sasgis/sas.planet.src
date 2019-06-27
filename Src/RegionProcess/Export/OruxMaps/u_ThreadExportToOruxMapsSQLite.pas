@@ -33,6 +33,7 @@ uses
   i_RegionProcessProgressInfo,
   i_ProjectionSetFactory,
   i_GeometryProjectedFactory,
+  i_TileIteratorFactory,
   i_GeometryLonLat,
   i_TileInfoBasic,
   i_TileStorage,
@@ -73,6 +74,7 @@ type
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const AExportPath: string;
+      const ATileIteratorFactory: ITileIteratorFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const AProjectionSetFactory: IProjectionSetFactory;
       const APolygon: IGeometryLonLatPolygon;
@@ -117,6 +119,7 @@ const
 constructor TExportTaskToOruxMapsSQLite.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AExportPath: string;
+  const ATileIteratorFactory: ITileIteratorFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const AProjectionSetFactory: IProjectionSetFactory;
   const APolygon: IGeometryLonLatPolygon;
@@ -132,7 +135,8 @@ begin
   inherited Create(
     AProgressInfo,
     APolygon,
-    AZoomArr
+    AZoomArr,
+    ATileIteratorFactory
   );
   FFormatSettings.DecimalSeparator := '.';
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
@@ -217,11 +221,7 @@ begin
       VTileRect := TTileRect.Create(VProjection, VRect);
       VTileIterators[I] := TTileIteratorByRect.Create(VTileRect);
     end else begin
-      VTileIterators[I] :=
-        TTileIteratorByPolygon.Create(
-          VProjection,
-          VProjectedPolygons[I]
-        );
+      VTileIterators[I] := Self.MakeTileIterator(VProjection);
     end;
     VTilesToProcess := VTilesToProcess + VTileIterators[I].TilesTotal;
   end;

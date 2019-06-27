@@ -85,7 +85,8 @@ constructor TRegionProcessTaskCombine.Create(
 begin
   inherited Create(
     AProgressInfo,
-    APolygon
+    APolygon,
+    nil
   );
   FMapRect := AMapRect;
   FCombiner := ACombiner;

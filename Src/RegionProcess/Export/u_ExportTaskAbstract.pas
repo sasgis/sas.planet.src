@@ -40,7 +40,7 @@ type
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: IGeometryLonLatPolygon;
       const AZooms: TByteDynArray;
-      const ATileIteratorFactory: ITileIteratorFactory = nil
+      const ATileIteratorFactory: ITileIteratorFactory
     );
   end;
 

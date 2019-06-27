@@ -36,8 +36,6 @@ uses
 
 type
   TExportProviderCE = class(TExportProviderBase)
-  private
-    FTileIteratorFactory: ITileIteratorFactory;
   protected
     function CreateFrame: TFrame; override;
   protected
@@ -46,13 +44,6 @@ type
       const APolygon: IGeometryLonLatPolygon;
       const AProgressInfo: IRegionProcessProgressInfoInternal
     ): IRegionProcessTask; override;
-  public
-    constructor Create(
-      const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
-      const ALanguageManager: ILanguageManager;
-      const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
-      const ATileIteratorFactory: ITileIteratorFactory
-    );
   end;
 
 implementation
@@ -67,21 +58,6 @@ uses
   fr_ExportToCE;
 
 { TExportProviderCE }
-
-constructor TExportProviderCE.Create(
-  const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
-  const ALanguageManager: ILanguageManager;
-  const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
-  const ATileIteratorFactory: ITileIteratorFactory
-);
-begin
-  inherited Create(
-    AProgressFactory,
-    ALanguageManager,
-    AMapSelectFrameBuilder
-  );
-  FTileIteratorFactory := ATileIteratorFactory;
-end;
 
 function TExportProviderCE.CreateFrame: TFrame;
 begin
@@ -125,7 +101,7 @@ begin
   Result :=
     TExportTaskToCE.Create(
       AProgressInfo,
-      FTileIteratorFactory,
+      Self.TileIteratorFactory,
       VPath,
       APolygon,
       Zoomarr,

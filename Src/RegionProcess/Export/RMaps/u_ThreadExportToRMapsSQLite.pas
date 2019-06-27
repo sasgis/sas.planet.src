@@ -32,7 +32,7 @@ uses
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
   i_ProjectionSetFactory,
-  i_GeometryProjectedFactory,
+  i_TileIteratorFactory,
   i_GeometryLonLat,
   i_TileInfoBasic,
   i_TileStorage,
@@ -44,7 +44,6 @@ uses
 type
   TExportTaskToRMapsSQLite = class(TExportTaskAbstract)
   private
-    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FProjectionSetFactory: IProjectionSetFactory;
     FExportPath: string;
     FTileStorage: ITileStorage;
@@ -71,7 +70,7 @@ type
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const AExportPath: string;
-      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+      const ATileIteratorFactory: ITileIteratorFactory;
       const AProjectionSetFactory: IProjectionSetFactory;
       const APolygon: IGeometryLonLatPolygon;
       const AZoomArr: TByteDynArray;
@@ -91,12 +90,10 @@ uses
   ALString,
   ALSqlite3Wrapper,
   c_CoordConverter,
-  i_GeometryProjected,
   i_ProjectionSet,
   i_Projection,
   i_TileIterator,
   i_Bitmap32Static,
-  u_TileIteratorByPolygon,
   u_ResStrings;
 
 { TExportTaskToRMapsSQLite }
@@ -104,7 +101,7 @@ uses
 constructor TExportTaskToRMapsSQLite.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AExportPath: string;
-  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+  const ATileIteratorFactory: ITileIteratorFactory;
   const AProjectionSetFactory: IProjectionSetFactory;
   const APolygon: IGeometryLonLatPolygon;
   const AZoomArr: TByteDynArray;
@@ -120,9 +117,9 @@ begin
   inherited Create(
     AProgressInfo,
     APolygon,
-    AZoomArr
+    AZoomArr,
+    ATileIteratorFactory
   );
-  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FProjectionSetFactory := AProjectionSetFactory;
   FExportPath := AExportPath;
   FTileStorage := ATileStorage;
@@ -146,7 +143,6 @@ var
   VProjectionSet: IProjectionSet;
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
-  VProjectedPolygon: IGeometryProjectedPolygon;
   VTileInfo: ITileInfoWithData;
   VBitmapTile: IBitmap32Static;
   VTileData: IBinaryData;
@@ -174,16 +170,7 @@ begin
       );
     end;
     VProjection := VProjectionSet.Zooms[FZooms[I]];
-    VProjectedPolygon :=
-      FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-        VProjection,
-        PolygLL
-      );
-    VTileIterators[I] :=
-      TTileIteratorByPolygon.Create(
-        VProjection,
-        VProjectedPolygon
-      );
+    VTileIterators[I] := Self.MakeTileIterator(VProjection);
     VTilesToProcess := VTilesToProcess + VTileIterators[I].TilesTotal;
   end;
 

@@ -75,7 +75,7 @@ type
       const ATargetFile: string;
       const APolygon: IGeometryLonLatPolygon;
       const AImageProvider: IBitmapTileUniProvider;
-      AZoom: Byte;
+      const AZoom: Byte;
       const ATileSize: TPoint;
       const ATileSaver: IBitmapTileSaver
     );
@@ -111,14 +111,15 @@ constructor TExportTaskToOgf2.Create(
   const ATargetFile: string;
   const APolygon: IGeometryLonLatPolygon;
   const AImageProvider: IBitmapTileUniProvider;
-  AZoom: Byte;
+  const AZoom: Byte;
   const ATileSize: TPoint;
   const ATileSaver: IBitmapTileSaver
 );
 begin
   inherited Create(
     AProgressInfo,
-    APolygon
+    APolygon,
+    nil
   );
   FImageProvider := AImageProvider;
   FZoom := AZoom;
