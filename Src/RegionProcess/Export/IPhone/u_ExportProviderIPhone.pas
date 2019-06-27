@@ -75,7 +75,7 @@ uses
   SysUtils,
   i_MapVersionRequest,
   i_RegionProcessParamsFrame,
-  u_ThreadExportIPhone,
+  u_ExportTaskToIPhone,
   u_BitmapLayerProviderMapWithLayer,
   u_ResStrings;
 

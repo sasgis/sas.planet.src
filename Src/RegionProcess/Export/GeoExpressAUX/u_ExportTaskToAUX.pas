@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_ThreadExportToAUX;
+unit u_ExportTaskToAUX;
 
 interface
 

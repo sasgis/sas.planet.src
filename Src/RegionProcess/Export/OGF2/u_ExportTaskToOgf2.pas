@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_ThreadExportToOgf2;
+unit u_ExportTaskToOgf2;
 
 interface
 

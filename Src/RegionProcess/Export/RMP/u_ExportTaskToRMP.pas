@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_ThreadExportToRMP;
+unit u_ExportTaskToRMP;
 
 interface
 

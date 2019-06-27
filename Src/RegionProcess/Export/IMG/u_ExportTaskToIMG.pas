@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_ThreadExportToIMG;
+unit u_ExportTaskToIMG;
 
 interface
 

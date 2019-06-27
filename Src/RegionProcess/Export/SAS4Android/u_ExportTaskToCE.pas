@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_ThreadExportToCE;
+unit u_ExportTaskToCE;
 
 interface
 

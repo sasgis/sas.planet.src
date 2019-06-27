@@ -50,7 +50,7 @@ uses
   i_RegionProcessParamsFrame,
   i_MapType,
   i_Projection,
-  u_ThreadExportToAUX,
+  u_ExportTaskToAUX,
   u_ResStrings,
   fr_ExportAUX;
 

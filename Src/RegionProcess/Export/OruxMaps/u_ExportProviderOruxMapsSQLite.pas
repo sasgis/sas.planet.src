@@ -83,7 +83,7 @@ uses
   i_TileStorage,
   i_MapVersionRequest,
   i_MapType,
-  u_ThreadExportToOruxMapsSQLite,
+  u_ExportTaskToOruxMapsSQLite,
   u_ResStrings;
 
 { TExportProviderOruxMapsSQLite }

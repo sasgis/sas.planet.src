@@ -328,7 +328,7 @@ uses
   u_ExportProviderOruxMapsSQLite,
   u_ExportProviderYaMobileV3,
   u_ExportProviderYaMobileV4,
-  u_ExportProviderGEKml,
+  u_ExportProviderKml,
   u_ExportProviderIPhone,
   u_ExportProviderAUX,
   u_ExportProviderZip,

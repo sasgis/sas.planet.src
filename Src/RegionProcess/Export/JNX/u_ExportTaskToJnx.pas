@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_ThreadExportToJNX;
+unit u_ExportTaskToJnx;
 
 interface
 

@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_ExportProviderGEKml;
+unit u_ExportProviderKml;
 
 interface
 
@@ -28,7 +28,7 @@ uses
   i_RegionProcessTask,
   i_RegionProcessProgressInfo,
   u_ExportProviderAbstract,
-  fr_ExportGEKml;
+  fr_ExportKml;
 
 type
   TExportProviderKml = class(TExportProviderBase)
@@ -51,7 +51,7 @@ uses
   SysUtils,
   i_MapType,
   i_RegionProcessParamsFrame,
-  u_ThreadExportKML,
+  u_ExportTaskToKML,
   u_ResStrings;
 
 { TExportProviderKml }

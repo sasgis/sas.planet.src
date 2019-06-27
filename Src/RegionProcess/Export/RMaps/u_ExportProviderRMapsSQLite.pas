@@ -79,7 +79,7 @@ uses
   i_TileStorage,
   i_MapVersionRequest,
   i_MapType,
-  u_ThreadExportToRMapsSQLite,
+  u_ExportTaskToRMapsSQLite,
   u_ResStrings;
 
 { TExportProviderRMapsSQLite }

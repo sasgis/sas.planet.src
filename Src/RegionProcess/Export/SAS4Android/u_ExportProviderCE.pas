@@ -53,7 +53,7 @@ uses
   SysUtils,
   i_MapType,
   i_RegionProcessParamsFrame,
-  u_ThreadExportToCE,
+  u_ExportTaskToCE,
   u_ResStrings,
   fr_ExportToCE;
 

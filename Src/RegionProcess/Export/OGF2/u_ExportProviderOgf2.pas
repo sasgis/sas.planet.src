@@ -73,7 +73,7 @@ uses
   i_RegionProcessParamsFrame,
   i_BitmapLayerProvider,
   i_BitmapTileSaveLoad,
-  u_ThreadExportToOgf2,
+  u_ExportTaskToOgf2,
   u_ResStrings;
 
 { TExportProviderOgf2 }

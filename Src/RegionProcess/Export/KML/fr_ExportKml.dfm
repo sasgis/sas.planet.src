@@ -1,4 +1,4 @@
-object frExportGEKml: TfrExportKml
+object frExportKml: TfrExportKml
   Left = 0
   Top = 0
   Width = 400

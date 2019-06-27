@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit fr_ExportGEKml;
+unit fr_ExportKml;
 
 interface
 

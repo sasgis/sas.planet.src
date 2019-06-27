@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_ThreadExportIPhone;
+unit u_ExportTaskToIPhone;
 
 interface
 

@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_ThreadExportKML;
+unit u_ExportTaskToKML;
 
 interface
 

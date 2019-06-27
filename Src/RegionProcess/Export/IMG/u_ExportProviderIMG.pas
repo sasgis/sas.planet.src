@@ -67,7 +67,7 @@ uses
   SysUtils,
   i_RegionProcessParamsFrame,
   u_ExportToIMGTask,
-  u_ThreadExportToIMG,
+  u_ExportTaskToIMG,
   u_ResStrings;
 
 { TExportProviderIMG }

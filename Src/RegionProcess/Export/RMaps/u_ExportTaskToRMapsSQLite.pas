@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2015, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_ThreadExportToMBTiles;
+unit u_ExportTaskToRMapsSQLite;
 
 interface
 
@@ -27,7 +27,7 @@ uses
   Windows,
   SysUtils,
   Classes,
-  t_GeoTypes,
+  SQLite3Handler,
   i_BinaryData,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
@@ -36,28 +36,34 @@ uses
   i_GeometryLonLat,
   i_TileInfoBasic,
   i_TileStorage,
-  i_TileIterator,
   i_MapVersionRequest,
   i_BitmapTileSaveLoad,
   i_BitmapLayerProvider,
-  u_StorageExportToMBTiles,
   u_ExportTaskAbstract;
 
 type
-  TExportTaskToMBTiles = class(TExportTaskAbstract)
+  TExportTaskToRMapsSQLite = class(TExportTaskAbstract)
   private
     FProjectionSetFactory: IProjectionSetFactory;
     FExportPath: string;
-    FExportFileName: string;
     FTileStorage: ITileStorage;
     FMapVersion: IMapVersionRequest;
     FBitmapTileSaver: IBitmapTileSaver;
     FBitmapProvider: IBitmapTileUniProvider;
+    FForceDropTarget: Boolean;
+    FIsReplace: Boolean;
     FDirectTilesCopy: Boolean;
-    FBasePoint: TPoint;
-    FSQLiteStorage: TSQLiteStorageMBTilesBase;
+    FInsertSQLText: AnsiString;
+    FSQLite3DB: TSQLite3DbHandler;
+    FSQLiteAvailable: Boolean;
   private
-    function GetLonLatRect(const ATileIterator: ITileIterator): TDoubleRect;
+    procedure OpenSQLiteStorage;
+    procedure CloseSQLiteStorage;
+    procedure SaveTileToSQLiteStorage(
+      const ATile: TPoint;
+      const AZoom: Byte;
+      const AData: IBinaryData
+    );
   protected
     procedure ProcessRegion; override;
   public
@@ -72,31 +78,27 @@ type
       const AMapVersion: IMapVersionRequest;
       const ABitmapTileSaver: IBitmapTileSaver;
       const ABitmapProvider: IBitmapTileUniProvider;
-      const ADirectTilesCopy: Boolean;
-      const AUseXYZScheme: Boolean;
-      const AMakeTileMillCompatibility: Boolean;
-      const AName: string;
-      const ADescription: string;
-      const AAttribution: string;
-      const AIsLayer: Boolean;
-      const AImgFormat: string
+      const AForceDropTarget: Boolean;
+      const AReplace: Boolean;
+      const ADirectTilesCopy: Boolean
     );
-    destructor Destroy; override;
   end;
 
 implementation
 
 uses
+  ALString,
+  ALSqlite3Wrapper,
   c_CoordConverter,
   i_ProjectionSet,
   i_Projection,
+  i_TileIterator,
   i_Bitmap32Static,
-  i_TileRect,
   u_ResStrings;
 
-{ TExportTaskToMBTiles }
+{ TExportTaskToRMapsSQLite }
 
-constructor TExportTaskToMBTiles.Create(
+constructor TExportTaskToRMapsSQLite.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AExportPath: string;
   const ATileIteratorFactory: ITileIteratorFactory;
@@ -107,22 +109,10 @@ constructor TExportTaskToMBTiles.Create(
   const AMapVersion: IMapVersionRequest;
   const ABitmapTileSaver: IBitmapTileSaver;
   const ABitmapProvider: IBitmapTileUniProvider;
-  const ADirectTilesCopy: Boolean;
-  const AUseXYZScheme: Boolean;
-  const AMakeTileMillCompatibility: Boolean;
-  const AName: string;
-  const ADescription: string;
-  const AAttribution: string;
-  const AIsLayer: Boolean;
-  const AImgFormat: string
+  const AForceDropTarget: Boolean;
+  const AReplace: Boolean;
+  const ADirectTilesCopy: Boolean
 );
-const
-  cSQLiteStorageTypes: array [Boolean] of TSQLiteStorageMBTilesBaseClass = (
-    TSQLiteStorageMBTilesClassic,
-    TSQLiteStorageMBTilesTileMill
-  );
-var
-  VSQLiteStorageClass: TSQLiteStorageMBTilesBaseClass;
 begin
   inherited Create(
     AProgressInfo,
@@ -131,36 +121,18 @@ begin
     ATileIteratorFactory
   );
   FProjectionSetFactory := AProjectionSetFactory;
-  FExportPath := ExtractFilePath(AExportPath);
-  FExportFileName := ExtractFileName(AExportPath);
+  FExportPath := AExportPath;
   FTileStorage := ATileStorage;
   FMapVersion := AMapVersion;
   FBitmapTileSaver := ABitmapTileSaver;
   FBitmapProvider := ABitmapProvider;
+  FForceDropTarget := AForceDropTarget;
+  FIsReplace := AReplace;
   FDirectTilesCopy := ADirectTilesCopy;
-
-  VSQLiteStorageClass := cSQLiteStorageTypes[AMakeTileMillCompatibility];
-
-  FSQLiteStorage :=
-    VSQLiteStorageClass.Create(
-      FExportPath,
-      FExportFileName,
-      AName,
-      ADescription,
-      AAttribution,
-      AIsLayer,
-      AImgFormat,
-      AUseXYZScheme
-    );
+  FSQLiteAvailable := FSQLite3DB.Init;
 end;
 
-destructor TExportTaskToMBTiles.Destroy;
-begin
-  FreeAndNil(FSQLiteStorage);
-  inherited;
-end;
-
-procedure TExportTaskToMBTiles.ProcessRegion;
+procedure TExportTaskToRMapsSQLite.ProcessRegion;
 var
   I: Integer;
   VZoom: Byte;
@@ -185,32 +157,24 @@ begin
     Assert(FBitmapTileSaver <> nil);
   end;
 
-  if not DirectoryExists(FExportPath) then begin
-    if not ForceDirectories(FExportPath) then begin
-      RaiseLastOSError;
-    end;
-  end;
-
   SetLength(VTileIterators, Length(FZooms));
-
   VTilesToProcess := 0;
 
-  if VDoDirectCopy then begin
-    VProjectionSet := FTileStorage.ProjectionSet;
-  end else begin
-    VProjectionSet := FProjectionSetFactory.GetProjectionSetByCode(
-      CGoogleProjectionEPSG,
-      CTileSplitQuadrate256x256
-    );
-  end;
-
   for I := 0 to Length(FZooms) - 1 do begin
+    if VDoDirectCopy then begin
+      VProjectionSet := FTileStorage.ProjectionSet;
+    end else begin
+      VProjectionSet := FProjectionSetFactory.GetProjectionSetByCode(
+        CGoogleProjectionEPSG,
+        CTileSplitQuadrate256x256
+      );
+    end;
     VProjection := VProjectionSet.Zooms[FZooms[I]];
     VTileIterators[I] := Self.MakeTileIterator(VProjection);
     VTilesToProcess := VTilesToProcess + VTileIterators[I].TilesTotal;
   end;
 
-  FSQLiteStorage.Open(GetLonLatRect(VTileIterators[0]), FZooms);
+  OpenSQLiteStorage;
   try
     ProgressInfo.SetCaption(SAS_STR_ExportTiles);
     ProgressInfo.SetFirstLine(
@@ -224,7 +188,6 @@ begin
       VTileIterator := VTileIterators[I];
       if Assigned(VTileIterator) then begin
         VProjection := VTileIterator.TilesRect.Projection;
-        FBasePoint := VTileIterator.TilesRect.TopLeft;
         while VTileIterator.Next(VTile) do begin
           if CancelNotifier.IsOperationCanceled(OperationID) then begin
             Exit;
@@ -232,7 +195,8 @@ begin
 
           if VDoDirectCopy then begin
             if Supports(FTileStorage.GetTileInfoEx(VTile, VZoom, FMapVersion, gtimWithData), ITileInfoWithData, VTileInfo) then begin
-              FSQLiteStorage.Add(VTile, VZoom, VTileInfo.TileData);
+              // save tile as is
+              SaveTileToSQLiteStorage(VTile, VZoom, VTileInfo.TileData);
             end;
           end else begin
             VBitmapTile :=
@@ -244,7 +208,8 @@ begin
               );
             if Assigned(VBitmapTile) then begin
               VTileData := FBitmapTileSaver.Save(VBitmapTile);
-              FSQLiteStorage.Add(VTile, VZoom, VTileData);
+              // save reprojected tile with overlay
+              SaveTileToSQLiteStorage(VTile, VZoom, VTileData);
             end;
           end;
 
@@ -256,20 +221,108 @@ begin
       end;
     end;
   finally
-    FSQLiteStorage.Close;
+    CloseSQLiteStorage;
+    for I := 0 to Length(FZooms) - 1 do begin
+      VTileIterators[I] := nil;
+    end;
+    VTileIterators := nil;
   end;
 end;
 
-function TExportTaskToMBTiles.GetLonLatRect(const ATileIterator: ITileIterator): TDoubleRect;
+procedure TExportTaskToRMapsSQLite.OpenSQLiteStorage;
 var
-  VRect: TRect;
-  VTileRect: ITileRect;
-  VProjection: IProjection;
+  VCreateNewDB: Boolean;
 begin
-  VTileRect := ATileIterator.TilesRect;
-  VProjection := VTileRect.Projection;
-  VRect := VTileRect.Rect;
-  Result := VProjection.TileRect2LonLatRect(VRect);
+  // check library
+  if not FSQLiteAvailable then begin
+    raise ESQLite3SimpleError.Create('SQLite not available');
+  end;
+
+  // закрываем предыдущее (если есть)
+  CloseSQLiteStorage;
+
+  // make sqlite database
+  if FileExists(FExportPath) then begin
+    // база уже есть - будем дописывать или грохнем
+    if FForceDropTarget then begin
+      if not DeleteFile(FExportPath) then begin
+        raise ESQLite3SimpleError.CreateFmt('Can''t delete database: %s', [FExportPath]);
+      end;
+      VCreateNewDB := True;
+    end else begin
+      VCreateNewDB := False;
+    end;
+  end else begin
+    // базы ещё нет
+    VCreateNewDB := True;
+  end;
+
+  // создаём новую или открываем существующую
+  FSQLite3Db.OpenW(FExportPath);
+
+  // настраиваем текст SQL
+  if FIsReplace then begin
+    FInsertSQLText := 'REPLACE';
+  end else begin
+    FInsertSQLText := 'IGNORE';
+  end;
+
+  FInsertSQLText := 'INSERT OR ' + FInsertSQLText + ' INTO tiles (x,y,z,s,image) VALUES (';
+
+  // если новая - забацаем структуру
+  if VCreateNewDB then begin
+    FSQLite3DB.ExecSQL('CREATE TABLE IF NOT EXISTS tiles (x int, y int, z int, s int, image blob, PRIMARY KEY (x,y,z,s))');
+    FSQLite3DB.ExecSQL('CREATE TABLE IF NOT EXISTS info (maxzoom Int, minzoom Int)');
+    FSQLite3DB.ExecSQL('INSERT OR REPLACE INTO info (maxzoom, minzoom) VALUES (0,0)');
+
+    (*
+      ещё есть
+      CREATE TABLE android_metadata (locale  text);
+      с одной строкой
+      'en_US'
+    *)
+  end;
+
+  FSQLite3DB.SetExclusiveLockingMode;
+  FSQLite3DB.ExecSQL('PRAGMA synchronous=OFF');
+
+  // открываем транзакцию для пущей скорости
+  FSQLite3DB.BeginTran;
+end;
+
+procedure TExportTaskToRMapsSQLite.CloseSQLiteStorage;
+begin
+  if FSQLite3DB.Opened then begin
+    // перед закрытием надо обновить зумы
+    FSQLite3DB.ExecSQL('UPDATE info SET minzoom = (SELECT DISTINCT z FROM tiles ORDER BY z ASC LIMIT 1)');
+    FSQLite3DB.ExecSQL('UPDATE info SET maxzoom = (SELECT DISTINCT z FROM tiles ORDER BY z DESC LIMIT 1)');
+    // закрытие
+    FSQLite3DB.Commit;
+    FSQLite3DB.Close;
+  end;
+end;
+
+procedure TExportTaskToRMapsSQLite.SaveTileToSQLiteStorage(
+  const ATile: TPoint;
+  const AZoom: Byte;
+  const AData: IBinaryData
+);
+var
+  VSQLText: AnsiString;
+begin
+  Assert(AData <> nil);
+
+  VSQLText := FInsertSQLText +
+    ALIntToStr(ATile.X) + ',' +
+    ALIntToStr(ATile.Y) + ',' +
+    ALIntToStr(17 - AZoom) +
+    ',0,?)';
+
+  FSQLite3DB.ExecSQLWithBLOB(
+    VSQLText,
+    AData.Buffer,
+    AData.Size
+  );
 end;
 
 end.

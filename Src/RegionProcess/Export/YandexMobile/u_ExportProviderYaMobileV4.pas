@@ -72,7 +72,7 @@ uses
   SysUtils,
   i_MapVersionRequest,
   i_RegionProcessParamsFrame,
-  u_ThreadExportYaMobileV4,
+  u_ExportTaskToYaMobileV4,
   u_BitmapLayerProviderMapWithLayer,
   u_ResStrings;
 

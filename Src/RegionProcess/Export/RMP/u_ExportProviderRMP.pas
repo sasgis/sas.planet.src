@@ -88,7 +88,7 @@ uses
   i_ProjectionSet,
   i_MapVersionRequest,
   i_MapType,
-  u_ThreadExportToRMP,
+  u_ExportTaskToRMP,
   u_ResStrings;
 
 { TExportProviderRMP }

@@ -500,10 +500,6 @@
     <DCCReference Include="Src\MainForm\frm_Main.pas">
       <Form>frmMain</Form>
     </DCCReference>
-    <DCCReference Include="Src\MainForm\Search\fr_SearchResultsItem.pas">
-      <Form>frSearchResultsItem</Form>
-      <DesignClass>TFrame</DesignClass>
-    </DCCReference>
     <DCCReference Include="Src\MainForm\i_FillingMapPolygon.pas" />
     <DCCReference Include="Src\MainForm\i_FindVectorItems.pas" />
     <DCCReference Include="Src\MainForm\i_KeyMovingConfig.pas" />
@@ -527,7 +523,6 @@
     <DCCReference Include="Src\MainForm\i_PanelsPositionsSaveLoad.pas" />
     <DCCReference Include="Src\MainForm\i_PointOnMapEdit.pas" />
     <DCCReference Include="Src\MainForm\i_PopUp.pas" />
-    <DCCReference Include="Src\MainForm\Search\i_SearchResultPresenter.pas" />
     <DCCReference Include="Src\MainForm\i_SelectionRect.pas" />
     <DCCReference Include="Src\MainForm\i_StickToGrid.pas" />
     <DCCReference Include="Src\MainForm\i_ViewPortState.pas" />
@@ -548,6 +543,15 @@
     <DCCReference Include="Src\MainForm\MergePolygons\u_MergePolygonsProcessor.pas" />
     <DCCReference Include="Src\MainForm\MergePolygons\u_MergePolygonsProgress.pas" />
     <DCCReference Include="Src\MainForm\MergePolygons\u_MergePolygonsResult.pas" />
+    <DCCReference Include="Src\MainForm\Search\fr_SearchResultsItem.pas">
+      <Form>frSearchResultsItem</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
+    <DCCReference Include="Src\MainForm\Search\i_SearchResultPresenter.pas" />
+    <DCCReference Include="Src\MainForm\Search\i_SearchTaskRunnerAsync.pas" />
+    <DCCReference Include="Src\MainForm\Search\u_SearchResultPresenterOnPanel.pas" />
+    <DCCReference Include="Src\MainForm\Search\u_SearchTaskRunnerAsync.pas" />
+    <DCCReference Include="Src\MainForm\Search\u_SearchToolbarContainer.pas" />
     <DCCReference Include="Src\MainForm\u_ActionListByLanguageManager.pas" />
     <DCCReference Include="Src\MainForm\u_ActiveMapTBXItem.pas" />
     <DCCReference Include="Src\MainForm\u_FillingMapPolygon.pas" />
@@ -588,7 +592,6 @@
     <DCCReference Include="Src\MainForm\u_PointOnMapEdit.pas" />
     <DCCReference Include="Src\MainForm\u_ProjectionSetChangeableByConfig.pas" />
     <DCCReference Include="Src\MainForm\u_SaveLoadTBConfigByConfigProvider.pas" />
-    <DCCReference Include="Src\MainForm\Search\u_SearchResultPresenterOnPanel.pas" />
     <DCCReference Include="Src\MainForm\u_SelectionRect.pas" />
     <DCCReference Include="Src\MainForm\u_StickToGridDegree.pas" />
     <DCCReference Include="Src\MainForm\u_StickToGridGenShtab.pas" />
@@ -1091,9 +1094,11 @@
     <DCCReference Include="Src\PascalScript\frm_PascalScriptIDE.pas">
       <Form>frmPascalScriptIDE</Form>
     </DCCReference>
+    <DCCReference Include="Src\PascalScript\i_PascalScriptGlobal.pas" />
     <DCCReference Include="Src\PascalScript\t_PascalScript.pas" />
     <DCCReference Include="Src\PascalScript\u_PascalScriptBase64.pas" />
     <DCCReference Include="Src\PascalScript\u_PascalScriptCompiler.pas" />
+    <DCCReference Include="Src\PascalScript\u_PascalScriptGlobal.pas" />
     <DCCReference Include="Src\PascalScript\u_PascalScriptMath.pas" />
     <DCCReference Include="Src\PascalScript\u_PascalScriptRegExpr.pas" />
     <DCCReference Include="Src\PascalScript\u_PascalScriptTypes.pas" />
@@ -1188,73 +1193,73 @@
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="Src\RegionProcess\Export\GeoExpressAUX\u_ExportProviderAUX.pas" />
-    <DCCReference Include="Src\RegionProcess\Export\GeoExpressAUX\u_ThreadExportToAUX.pas" />
+    <DCCReference Include="Src\RegionProcess\Export\GeoExpressAUX\u_ExportTaskToAUX.pas" />
     <DCCReference Include="Src\RegionProcess\Export\IMG\fr_ExportToIMG.pas">
       <Form>frExportToIMG</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="Src\RegionProcess\Export\IMG\i_ExportToIMGConfig.pas" />
     <DCCReference Include="Src\RegionProcess\Export\IMG\u_ExportProviderIMG.pas" />
+    <DCCReference Include="Src\RegionProcess\Export\IMG\u_ExportTaskToIMG.pas" />
     <DCCReference Include="Src\RegionProcess\Export\IMG\u_ExportToIMGConfig.pas" />
     <DCCReference Include="Src\RegionProcess\Export\IMG\u_ExportToIMGTask.pas" />
-    <DCCReference Include="Src\RegionProcess\Export\IMG\u_ThreadExportToIMG.pas" />
     <DCCReference Include="Src\RegionProcess\Export\IPhone\fr_ExportIPhone.pas">
       <Form>frExportIPhone</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="Src\RegionProcess\Export\IPhone\u_ExportProviderIPhone.pas" />
-    <DCCReference Include="Src\RegionProcess\Export\IPhone\u_ThreadExportIPhone.pas" />
+    <DCCReference Include="Src\RegionProcess\Export\IPhone\u_ExportTaskToIPhone.pas" />
     <DCCReference Include="Src\RegionProcess\Export\JNX\fr_ExportToJNX.pas">
       <Form>frExportToJNX</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="Src\RegionProcess\Export\JNX\u_ExportProviderJNX.pas" />
+    <DCCReference Include="Src\RegionProcess\Export\JNX\u_ExportTaskToJnx.pas" />
     <DCCReference Include="Src\RegionProcess\Export\JNX\u_ExportToJnxTask.pas" />
-    <DCCReference Include="Src\RegionProcess\Export\JNX\u_ThreadExportToJNX.pas" />
-    <DCCReference Include="Src\RegionProcess\Export\KML\fr_ExportGEKml.pas">
+    <DCCReference Include="Src\RegionProcess\Export\KML\fr_ExportKml.pas">
       <Form>frExportGEKml</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
-    <DCCReference Include="Src\RegionProcess\Export\KML\u_ExportProviderGEKml.pas" />
-    <DCCReference Include="Src\RegionProcess\Export\KML\u_ThreadExportKML.pas" />
+    <DCCReference Include="Src\RegionProcess\Export\KML\u_ExportProviderKml.pas" />
+    <DCCReference Include="Src\RegionProcess\Export\KML\u_ExportTaskToKML.pas" />
     <DCCReference Include="Src\RegionProcess\Export\MBTiles\fr_ExportMBTiles.pas">
       <Form>frExportMBTiles</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="Src\RegionProcess\Export\MBTiles\u_ExportProviderMBTiles.pas" />
+    <DCCReference Include="Src\RegionProcess\Export\MBTiles\u_ExportTaskToMBTiles.pas" />
     <DCCReference Include="Src\RegionProcess\Export\MBTiles\u_StorageExportToMBTiles.pas" />
-    <DCCReference Include="Src\RegionProcess\Export\MBTiles\u_ThreadExportToMBTiles.pas" />
     <DCCReference Include="Src\RegionProcess\Export\OGF2\fr_ExportToOgf2.pas">
       <Form>frExportToOgf2</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="Src\RegionProcess\Export\OGF2\u_ExportProviderOgf2.pas" />
-    <DCCReference Include="Src\RegionProcess\Export\OGF2\u_ThreadExportToOgf2.pas" />
+    <DCCReference Include="Src\RegionProcess\Export\OGF2\u_ExportTaskToOgf2.pas" />
     <DCCReference Include="Src\RegionProcess\Export\OruxMaps\fr_ExportOruxMapsSQLite.pas">
       <Form>frExportOruxMapsSQLite</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="Src\RegionProcess\Export\OruxMaps\u_ExportProviderOruxMapsSQLite.pas" />
-    <DCCReference Include="Src\RegionProcess\Export\OruxMaps\u_ThreadExportToOruxMapsSQLite.pas" />
+    <DCCReference Include="Src\RegionProcess\Export\OruxMaps\u_ExportTaskToOruxMapsSQLite.pas" />
     <DCCReference Include="Src\RegionProcess\Export\RMaps\fr_ExportRMapsSQLite.pas">
       <Form>frExportRMapsSQLite</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="Src\RegionProcess\Export\RMaps\u_ExportProviderRMapsSQLite.pas" />
-    <DCCReference Include="Src\RegionProcess\Export\RMaps\u_ThreadExportToRMapsSQLite.pas" />
+    <DCCReference Include="Src\RegionProcess\Export\RMaps\u_ExportTaskToRMapsSQLite.pas" />
     <DCCReference Include="Src\RegionProcess\Export\RMP\fr_ExportRMP.pas">
       <Form>frExportRMP</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="Src\RegionProcess\Export\RMP\u_ExportProviderRMP.pas" />
+    <DCCReference Include="Src\RegionProcess\Export\RMP\u_ExportTaskToRMP.pas" />
     <DCCReference Include="Src\RegionProcess\Export\RMP\u_RMPWriter.pas" />
-    <DCCReference Include="Src\RegionProcess\Export\RMP\u_ThreadExportToRMP.pas" />
     <DCCReference Include="Src\RegionProcess\Export\SAS4Android\fr_ExportToCE.pas">
       <Form>frExportToCE</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="Src\RegionProcess\Export\SAS4Android\u_ExportProviderCE.pas" />
-    <DCCReference Include="Src\RegionProcess\Export\SAS4Android\u_ThreadExportToCE.pas" />
+    <DCCReference Include="Src\RegionProcess\Export\SAS4Android\u_ExportTaskToCE.pas" />
     <DCCReference Include="Src\RegionProcess\Export\u_ExportTaskAbstract.pas" />
     <DCCReference Include="Src\RegionProcess\Export\YandexMobile\fr_ExportYaMobileV3.pas">
       <Form>frExportYaMobileV3</Form>
@@ -1266,8 +1271,8 @@
     </DCCReference>
     <DCCReference Include="Src\RegionProcess\Export\YandexMobile\u_ExportProviderYaMobileV3.pas" />
     <DCCReference Include="Src\RegionProcess\Export\YandexMobile\u_ExportProviderYaMobileV4.pas" />
-    <DCCReference Include="Src\RegionProcess\Export\YandexMobile\u_ThreadExportYaMobileV3.pas" />
-    <DCCReference Include="Src\RegionProcess\Export\YandexMobile\u_ThreadExportYaMobileV4.pas" />
+    <DCCReference Include="Src\RegionProcess\Export\YandexMobile\u_ExportTaskToYaMobileV3.pas" />
+    <DCCReference Include="Src\RegionProcess\Export\YandexMobile\u_ExportTaskToYaMobileV4.pas" />
     <DCCReference Include="Src\RegionProcess\frm_ProgressSimple.pas">
       <Form>frmProgressSimple</Form>
     </DCCReference>
@@ -1430,9 +1435,11 @@
     <DCCReference Include="Src\Terrain\u_TerrainProviderListElement.pas" />
     <DCCReference Include="Src\TileIterator\i_TileIterator.pas" />
     <DCCReference Include="Src\TileIterator\i_TileIteratorDataProvider.pas" />
+    <DCCReference Include="Src\TileIterator\i_TileIteratorFactory.pas" />
     <DCCReference Include="Src\TileIterator\u_TileIteratorByPolygon.pas" />
     <DCCReference Include="Src\TileIterator\u_TileIteratorByRect.pas" />
     <DCCReference Include="Src\TileIterator\u_TileIteratorDataProvider.pas" />
+    <DCCReference Include="Src\TileIterator\u_TileIteratorFactory.pas" />
     <DCCReference Include="Src\TileIterator\u_TileIteratorSpiralByRect.pas" />
     <DCCReference Include="Src\TileMatrix\i_BitmapTileMatrix.pas" />
     <DCCReference Include="Src\TileMatrix\i_BitmapTileMatrixBuilder.pas" />

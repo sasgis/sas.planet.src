@@ -67,7 +67,7 @@ uses
   SysUtils,
   i_RegionProcessParamsFrame,
   u_ExportToJnxTask,
-  u_ThreadExportToJNX,
+  u_ExportTaskToJnx,
   u_ResStrings;
 
 { TExportProviderJNX }
