@@ -66,15 +66,17 @@ uses
   function IsIntersecLonLatRect(const R1, R2: TDoubleRect): Boolean; inline;
   function IsIntersecProjectedRect(const R1, R2: TDoubleRect): Boolean; inline;
 
-
   function DoublePointsEqual(const p1,p2: TDoublePoint): Boolean; inline;
   function DoubleRectsEqual(const ARect1, ARect2: TDoubleRect): Boolean; inline;
   function IsPointsEqual(const P1, P2: TPoint): Boolean; inline;
 
-  function GetGhBordersStepByScale(AScale: Integer; AZoom: Byte): TDoublePoint;
-  function GetDegBordersStepByScale(const AScale: Double; AZoom: Byte): TDoublePoint;
   function PointIsEmpty(const APoint: TDoublePoint): Boolean; inline;
+
   function GetActualGshSCale(AScale: Integer; AZoom:Byte): Integer;
+  function GetGhBordersStepByScale(AScale: Integer; AZoom: Byte): TDoublePoint;
+
+  function GetDegBordersStepByScale(const AScale: Double; AZoom: Byte): TDoublePoint;
+
 const
   CEmptyDoublePoint: TDoublePoint = (X: NAN; Y: NAN);
 

@@ -80,7 +80,7 @@ uses
   i_Projection,
   i_GeometryProjected,
   u_GeoFunc,
-  u_GeometryFunc,
+
   u_ZoomArrayFunc,
   u_InterfaceListSimple,
   u_TileIteratorByPolygon,
@@ -218,10 +218,10 @@ begin
         end;
       end;
 
-      VTileIterator := // ToDo use TileIteratorFactory here
-        TTileIteratorByPolygon.Create(
+      VTileIterator :=
+        FTileIteratorFactory.MakeTileIterator(
           VDataProvider.Projection,
-          VDataProvider.Polygon,
+          FPolygon,
           VTilesToProcess,
           VStartPoint.X,
           VStartPoint.Y

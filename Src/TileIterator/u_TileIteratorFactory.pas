@@ -38,7 +38,10 @@ type
     { ITileIteratorFactory }
     function MakeTileIterator(
       const AProjection: IProjection;
-      const ALonLatPolygon: IGeometryLonLatPolygon
+      const ALonLatPolygon: IGeometryLonLatPolygon;
+      const ATilesToProcess: Int64 = -1;
+      const AStartPointX: Integer = -1;
+      const AStartPointY: Integer = -1
     ): ITileIterator;
   public
     constructor Create(
@@ -49,14 +52,9 @@ type
 implementation
 
 uses
-  Types,
-  Math,
-  SysUtils,
-  t_GeoTypes,
   i_TileRect,
   i_GeometryProjected,
-  u_GeoFunc,
-  u_TileRect,
+  u_GeometryFunc,
   u_TileIteratorByRect,
   u_TileIteratorByPolygon;
 
@@ -74,67 +72,40 @@ end;
 
 function TTileIteratorFactory.MakeTileIterator(
   const AProjection: IProjection;
-  const ALonLatPolygon: IGeometryLonLatPolygon
+  const ALonLatPolygon: IGeometryLonLatPolygon;
+  const ATilesToProcess: Int64;
+  const AStartPointX: Integer;
+  const AStartPointY: Integer
 ): ITileIterator;
 var
-  I: Integer;
-  VRect: ITileRect;
-  VIsRect: Boolean;
-  VSingle: IGeometryLonLatSinglePolygon;
+  VTileRect: ITileRect;
   VProjected: IGeometryProjectedPolygon;
-  VPoints: PDoublePointArray;
-  VCornerTiles: array [0..3] of TPoint;
 begin
-  VRect := nil;
+  VProjected :=
+    FGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
+      AProjection,
+      ALonLatPolygon
+    );
 
-  if Supports(ALonLatPolygon, IGeometryLonLatSinglePolygon, VSingle) then begin
-    if (VSingle.OuterBorder.Count = 4) and (VSingle.HoleCount = 0) then begin
+  VTileRect := TryProjectedPolygonToTileRect(AProjection, VProjected);
 
-      VPoints := VSingle.OuterBorder.Points;
-
-      for I := 0 to 3 do begin
-        VCornerTiles[I] :=
-          PointFromDoublePoint(
-            AProjection.LonLat2TilePosFloat(VPoints[I]),
-            prToTopLeft
-          );
-      end;
-
-      VIsRect :=
-        (
-          (VCornerTiles[0].X = VCornerTiles[3].X) and
-          (VCornerTiles[2].X = VCornerTiles[1].X) and
-          (VCornerTiles[0].Y = VCornerTiles[1].Y) and
-          (VCornerTiles[2].Y = VCornerTiles[3].Y)
-        ) or (
-          (VCornerTiles[0].X = VCornerTiles[1].X) and
-          (VCornerTiles[2].X = VCornerTiles[3].X) and
-          (VCornerTiles[3].Y = VCornerTiles[0].Y) and
-          (VCornerTiles[1].Y = VCornerTiles[2].Y)
-        );
-
-      if VIsRect then begin
-        VRect :=
-          TTileRect.Create(
-            AProjection,
-            RectFromDoubleRect(
-              AProjection.LonLatRect2TileRectFloat(VSingle.Bounds.Rect),
-              rrOutside
-            )
-          );
-      end;
-    end;
-  end;
-
-  if VRect <> nil then begin
-    Result := TTileIteratorByRect.Create(VRect);
-  end else begin
-    VProjected :=
-      FGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-        AProjection,
-        ALonLatPolygon
+  if VTileRect <> nil then begin
+    Result :=
+      TTileIteratorByRect.Create(
+        VTileRect,
+        ATilesToProcess,
+        AStartPointX,
+        AStartPointY
       );
-    Result := TTileIteratorByPolygon.Create(AProjection, VProjected);
+  end else begin
+    Result :=
+      TTileIteratorByPolygon.Create(
+        AProjection,
+        VProjected,
+        ATilesToProcess,
+        AStartPointX,
+        AStartPointY
+      );
   end;
 end;
 

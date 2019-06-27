@@ -29,7 +29,6 @@ uses
   i_TileRect,
   i_TileIterator,
   i_GeometryProjected,
-  i_TileIteratorDataProvider,
   u_BaseInterfacedObject;
 
 type
@@ -49,6 +48,7 @@ type
     FMultiProjected: IGeometryProjectedMultiPolygon;
     // кэш куска
     FLastUsedLine: IGeometryProjectedSinglePolygon;
+    procedure MakeEmptySetup;
   private
     function GetTilesTotal: Int64;
     function GetTilesRect: ITileRect;
@@ -60,9 +60,9 @@ type
     constructor Create(
       const AProjection: IProjection;
       const AProjected: IGeometryProjectedPolygon;
-      const ATilesTotal: Int64 = -1;
-      const AStartX: Integer = -1;
-      const AStartY: Integer = -1
+      const ATilesToProcess: Int64 = -1;
+      const AStartPointX: Integer = -1;
+      const AStartPointY: Integer = -1
     );
   end;
 
@@ -75,38 +75,25 @@ uses
   u_GeometryFunc,
   u_GeoFunc;
 
-const
-  cFakePoint: TPoint = (X: -1; Y: -1);
-
 { TTileIteratorByPolygon }
 
 constructor TTileIteratorByPolygon.Create(
   const AProjection: IProjection;
   const AProjected: IGeometryProjectedPolygon;
-  const ATilesTotal: Int64;
-  const AStartX: Integer;
-  const AStartY: Integer
+  const ATilesToProcess: Int64;
+  const AStartPointX: Integer;
+  const AStartPointY: Integer
 );
 var
   VBounds: TDoubleRect;
 begin
   inherited Create;
+
   FProjection := AProjection;
 
-  if (AStartX <> -1) and (AStartY <> -1) then begin
-    FStartPoint := Point(AStartX, AStartY);
-  end else begin
-    FStartPoint := cFakePoint;
-  end;
-
-  FProcessedTilesCount := 0;
-  FStopOnProcessedTilesCount := ATilesTotal <> -1;
-
   if not Assigned(AProjected) then begin
-    FTilesTotal := 0;
-    FTilesRect := Rect(0, 0, 0, 0);
     Assert(False);
-    FRect := TTileRect.Create(AProjection, FTilesRect);
+    MakeEmptySetup;
   end else begin
     if Supports(AProjected, IGeometryProjectedSinglePolygon, FSingleLine) then begin
       FMultiProjected := nil;
@@ -121,13 +108,10 @@ begin
       end;
     end else begin
       Assert(False);
-      FSingleLine := nil;
-      FMultiProjected := nil;
-      FTilesTotal := 0;
-      FTilesRect := Rect(0, 0, 0, 0);
-      FRect := TTileRect.Create(AProjection, FTilesRect);
+      MakeEmptySetup;
       Exit;
     end;
+
     VBounds := AProjected.Bounds;
 
     FTilesRect :=
@@ -137,8 +121,17 @@ begin
       );
     FRect := TTileRect.Create(AProjection, FTilesRect);
     FPolygon := AProjected;
+
+    if (AStartPointX <> -1) and (AStartPointY <> -1) then begin
+      FStartPoint := Point(AStartPointX, AStartPointY);
+    end else begin
+      FStartPoint := FTilesRect.TopLeft;
+    end;
+
+    FStopOnProcessedTilesCount := ATilesToProcess <> -1;
+    FTilesTotal := ATilesToProcess;
+
     Reset;
-    FTilesTotal := ATilesTotal;
   end;
 end;
 
@@ -233,13 +226,20 @@ end;
 
 procedure TTileIteratorByPolygon.Reset;
 begin
-  if IsPointsEqual(FStartPoint, cFakePoint) then begin
-    FCurrent := FTilesRect.TopLeft;
-  end else begin
-    FCurrent := FStartPoint;
-  end;
   FLastUsedLine := nil;
   FProcessedTilesCount := 0;
+  FCurrent := FStartPoint;
+end;
+
+procedure TTileIteratorByPolygon.MakeEmptySetup;
+begin
+  FSingleLine := nil;
+  FMultiProjected := nil;
+  FTilesTotal := 0;
+  FTilesRect := Rect(0, 0, 0, 0);
+  FRect := TTileRect.Create(FProjection, FTilesRect);
+  FStartPoint := Point(0, 0);
+  Reset;
 end;
 
 end.

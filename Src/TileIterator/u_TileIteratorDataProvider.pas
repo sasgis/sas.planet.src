@@ -65,9 +65,10 @@ implementation
 
 uses
   Math,
-  u_Synchronizer,
+  i_TileRect,
   u_GeoFunc,
-  u_GeometryFunc;
+  u_GeometryFunc,
+  u_Synchronizer;
 
 { TTileIteratorDataProvider }
 
@@ -166,9 +167,16 @@ begin
 end;
 
 procedure TTileIteratorDataProvider._DoPrepareCount;
+var
+  VTilesRect: ITileRect;
 begin
   if FTilesTotal = -1 then begin
-    FTilesTotal := CalcTileCountInProjectedPolygon(FProjection, FPolygon);
+    VTilesRect := TryProjectedPolygonToTileRect(FProjection, FPolygon);
+    if VTilesRect <> nil then begin
+      FTilesTotal := (VTilesRect.Right - VTilesRect.Left) * (VTilesRect.Bottom - VTilesRect.Top);
+    end else begin
+      FTilesTotal := CalcTileCountInProjectedPolygon(FProjection, FPolygon);
+    end;
   end;
 end;
 

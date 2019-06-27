@@ -33,7 +33,10 @@ type
 
     function MakeTileIterator(
       const AProjection: IProjection;
-      const ALonLatPolygon: IGeometryLonLatPolygon
+      const ALonLatPolygon: IGeometryLonLatPolygon;
+      const ATilesToProcess: Int64 = -1;
+      const AStartPointX: Integer = -1;
+      const AStartPointY: Integer = -1
     ): ITileIterator;
   end;
 

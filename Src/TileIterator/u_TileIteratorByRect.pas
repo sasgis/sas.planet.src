@@ -47,11 +47,18 @@ type
   private
     FEOI: Boolean;
     FCurrent: TPoint;
+    FStartPoint: TPoint;
+    FProcessedCount: Int64;
   private
     function Next(out ATile: TPoint): Boolean;
     procedure Reset;
   public
-    constructor Create(const ARect: ITileRect);
+    constructor Create(
+      const ARect: ITileRect;
+      const ATilesToProcess: Int64 = -1;
+      const AStartPointX: Integer = -1;
+      const AStartPointY: Integer = -1
+    );
   end;
 
   TTileIteratorByRectRecord = record
@@ -96,9 +103,26 @@ end;
 
 { TTileIteratorByRect }
 
-constructor TTileIteratorByRect.Create(const ARect: ITileRect);
+constructor TTileIteratorByRect.Create(
+  const ARect: ITileRect;
+  const ATilesToProcess: Int64;
+  const AStartPointX: Integer;
+  const AStartPointY: Integer
+);
 begin
   inherited Create(ARect);
+
+  if (AStartPointX <> -1) and (AStartPointY <> -1) then begin
+    FStartPoint := Point(AStartPointX, AStartPointY);
+  end else begin
+    FStartPoint := TilesRect.TopLeft;
+  end;
+
+  if (FTilesTotal > 0) and (ATilesToProcess <> -1) then begin
+    Assert(ATilesToProcess <= FTilesTotal);
+    FTilesTotal := ATilesToProcess;
+  end;
+
   Reset;
 end;
 
@@ -116,14 +140,17 @@ begin
         FEOI := True;
       end;
     end;
+    Inc(FProcessedCount);
+    FEOI := FEOI or (FProcessedCount >= FTilesTotal);
   end;
 end;
 
 procedure TTileIteratorByRect.Reset;
 begin
-  FEOI := IsRectEmpty(TilesRect);
+  FProcessedCount := 0;
+  FEOI := IsRectEmpty(TilesRect) or (FTilesTotal <= 0);
   if not FEOI then begin
-    FCurrent := TilesRect.TopLeft;
+    FCurrent := FStartPoint;
   end;
 end;
 

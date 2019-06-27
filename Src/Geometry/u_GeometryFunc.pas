@@ -7,6 +7,7 @@ uses
   GR32_Polygons,
   Types,
   t_GeoTypes,
+  i_TileRect,
   i_GeometryLonLat,
   i_GeometryProjected,
   i_LocalCoordConverter,
@@ -79,6 +80,11 @@ function CalcTileCountInProjectedMultiPolygon(
   const AGeometry: IGeometryProjectedMultiPolygon
 ): Int64;
 
+function TryProjectedPolygonToTileRect(
+  const AProjection: IProjection;
+  const APolygon: IGeometryProjectedPolygon
+): ITileRect;
+
 procedure SplitProjectedPolygon(
   const AProjection: IProjection;
   const AGeometry: IGeometryProjectedPolygon;
@@ -147,6 +153,7 @@ uses
   u_EnumDoublePointMapPixelToLocalPixel,
   u_EnumDoublePointWithClip,
   u_EnumDoublePointFilterEqual,
+  u_TileRect,
   u_TileIteratorByRect,
   u_TileIteratorByPolygon,
   u_GeoFunc;
@@ -1033,6 +1040,59 @@ begin
   end;
 end;
 
+function TryProjectedPolygonToTileRect(
+  const AProjection: IProjection;
+  const APolygon: IGeometryProjectedPolygon
+): ITileRect;
+var
+  I: Integer;
+  VIsRect: Boolean;
+  VSingle: IGeometryProjectedSinglePolygon;
+  VPoints: PDoublePointArray;
+  VCornerTiles: array [0..3] of TPoint;
+begin
+  Result := nil;
+
+  if Supports(APolygon, IGeometryProjectedSinglePolygon, VSingle) then begin
+    if (VSingle.OuterBorder.Count = 4) and (VSingle.HoleCount = 0) then begin
+
+      VPoints := VSingle.OuterBorder.Points;
+
+      for I := 0 to 3 do begin
+        VCornerTiles[I] :=
+          PointFromDoublePoint(
+            AProjection.PixelPosFloat2TilePosFloat(VPoints[I]),
+            prToTopLeft
+          );
+      end;
+
+      VIsRect :=
+        (
+          (VCornerTiles[0].X = VCornerTiles[3].X) and
+          (VCornerTiles[2].X = VCornerTiles[1].X) and
+          (VCornerTiles[0].Y = VCornerTiles[1].Y) and
+          (VCornerTiles[2].Y = VCornerTiles[3].Y)
+        ) or (
+          (VCornerTiles[0].X = VCornerTiles[1].X) and
+          (VCornerTiles[2].X = VCornerTiles[3].X) and
+          (VCornerTiles[3].Y = VCornerTiles[0].Y) and
+          (VCornerTiles[1].Y = VCornerTiles[2].Y)
+        );
+
+      if VIsRect then begin
+        Result :=
+          TTileRect.Create(
+            AProjection,
+            RectFromDoubleRect(
+              AProjection.PixelRectFloat2TileRectFloat(VSingle.Bounds),
+              rrOutside
+            )
+          );
+      end;
+    end;
+  end;
+end;
+
 procedure SplitProjectedPolygon(
   const AProjection: IProjection;
   const AGeometry: IGeometryProjectedPolygon;
@@ -1044,6 +1104,7 @@ procedure SplitProjectedPolygon(
 var
   I: Integer;
   VPoint: TPoint;
+  VTileRect: ITileRect;
   VPartTilesCount: Int64;
   VSplitCount: Integer;
   VIterator: ITileIterator;
@@ -1066,7 +1127,13 @@ begin
   SetLength(AStartPoints, VSplitCount);
   SetLength(ATilesCount, VSplitCount);
 
-  VIterator := TTileIteratorByPolygon.Create(AProjection, AGeometry);
+  VTileRect := TryProjectedPolygonToTileRect(AProjection, AGeometry);
+  if VTileRect <> nil then begin
+    // ToDo: make calculations faster then Iterator do
+    VIterator := TTileIteratorByRect.Create(VTileRect);
+  end else begin
+    VIterator := TTileIteratorByPolygon.Create(AProjection, AGeometry);
+  end;
 
   I := 0;
   VFoundNextPart := True;
@@ -1087,7 +1154,6 @@ begin
     end;
   end;
 end;
-
 
 function GeometryLonLatToPlainText(
   const AGeometry: IGeometryLonLat;
