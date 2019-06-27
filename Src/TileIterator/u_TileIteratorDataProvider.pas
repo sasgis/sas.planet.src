@@ -167,16 +167,9 @@ begin
 end;
 
 procedure TTileIteratorDataProvider._DoPrepareCount;
-var
-  VTilesRect: ITileRect;
 begin
   if FTilesTotal = -1 then begin
-    VTilesRect := TryProjectedPolygonToTileRect(FProjection, FPolygon);
-    if VTilesRect <> nil then begin
-      FTilesTotal := (VTilesRect.Right - VTilesRect.Left) * (VTilesRect.Bottom - VTilesRect.Top);
-    end else begin
-      FTilesTotal := CalcTileCountInProjectedPolygon(FProjection, FPolygon);
-    end;
+    FTilesTotal := CalcTileCountInProjectedPolygon(FProjection, FPolygon);
   end;
 end;
 

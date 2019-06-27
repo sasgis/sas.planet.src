@@ -75,11 +75,6 @@ function CalcTileCountInProjectedSinglePolygon(
   const AGeometry: IGeometryProjectedSinglePolygon
 ): Int64;
 
-function CalcTileCountInProjectedMultiPolygon(
-  const AProjection: IProjection;
-  const AGeometry: IGeometryProjectedMultiPolygon
-): Int64;
-
 function TryProjectedPolygonToTileRect(
   const AProjection: IProjection;
   const APolygon: IGeometryProjectedPolygon
@@ -956,63 +951,30 @@ function CalcTileCountInProjectedSinglePolygon(
   const AGeometry: IGeometryProjectedSinglePolygon
 ): Int64;
 var
-  VTileRect: TRect;
+  VRect: TRect;
+  VTileRect: ITileRect;
   VIterator: TTileIteratorByRectRecord;
   VTile: TPoint;
   VPixelRect: TDoubleRect;
 begin
   Result := 0;
-  VTileRect :=
+
+  VTileRect := TryProjectedPolygonToTileRect(AProjection, AGeometry);
+  if VTileRect <> nil then begin
+    Result := (VTileRect.Right - VTileRect.Left) * (VTileRect.Bottom - VTileRect.Top);
+    Exit;
+  end;
+
+  VRect :=
     RectFromDoubleRect(
       AProjection.PixelRectFloat2TileRectFloat(AGeometry.Bounds),
       rrOutside
     );
-  VIterator.Init(VTileRect);
+  VIterator.Init(VRect);
   while VIterator.Next(VTile) do begin
     VPixelRect := AProjection.TilePos2PixelRectFloat(VTile);
     if AGeometry.IsRectIntersectPolygon(VPixelRect) then begin
       Inc(Result);
-    end;
-  end;
-end;
-
-function CalcTileCountInProjectedMultiPolygon(
-  const AProjection: IProjection;
-  const AGeometry: IGeometryProjectedMultiPolygon
-): Int64;
-var
-  VTileRect: TRect;
-  VIterator: TTileIteratorByRectRecord;
-  VTile: TPoint;
-  VPixelRect: TDoubleRect;
-  i: Integer;
-  VLine: IGeometryProjectedSinglePolygon;
-  VLastUsedLine: IGeometryProjectedSinglePolygon;
-begin
-  Result := 0;
-  VTileRect :=
-    RectFromDoubleRect(
-      AProjection.PixelRectFloat2TileRectFloat(AGeometry.Bounds),
-      rrOutside
-    );
-  VLastUsedLine := nil;
-  VIterator.Init(VTileRect);
-  while VIterator.Next(VTile) do begin
-    VPixelRect := AProjection.TilePos2PixelRectFloat(VTile);
-    if (VLastUsedLine <> nil) then begin
-      if VLastUsedLine.IsRectIntersectPolygon(VPixelRect) then begin
-        Inc(Result);
-        continue;
-      end;
-    end;
-    for i := 0 to AGeometry.Count - 1 do begin
-      VLine := AGeometry.GetItem(i);
-      if (Pointer(VLine) <> Pointer(VLastUsedLine)) then begin
-        if VLine.IsRectIntersectPolygon(VPixelRect) then begin
-          Inc(Result);
-          continue;
-        end;
-      end;
     end;
   end;
 end;
@@ -1022,19 +984,19 @@ function CalcTileCountInProjectedPolygon(
   const AGeometry: IGeometryProjectedPolygon
 ): Int64;
 var
-  VSingleLine: IGeometryProjectedSinglePolygon;
-  VMultiLine: IGeometryProjectedMultiPolygon;
+  I: Integer;
+  VCount: Int64;
+  VSingle: IGeometryProjectedSinglePolygon;
+  VMulti: IGeometryProjectedMultiPolygon;
 begin
   Result := 0;
   if Assigned(AGeometry) then begin
-    if Supports(AGeometry, IGeometryProjectedSinglePolygon, VSingleLine) then begin
-      Result := CalcTileCountInProjectedSinglePolygon(AProjection, VSingleLine);
-    end else if Supports(AGeometry, IGeometryProjectedMultiPolygon, VMultiLine) then begin
-      if VMultiLine.Count > 1 then begin
-        Result := CalcTileCountInProjectedMultiPolygon(AProjection, VMultiLine);
-      end else begin
-        VSingleLine := VMultiLine.Item[0];
-        Result := CalcTileCountInProjectedSinglePolygon(AProjection, VSingleLine);
+    if Supports(AGeometry, IGeometryProjectedSinglePolygon, VSingle) then begin
+      Result := CalcTileCountInProjectedSinglePolygon(AProjection, VSingle);
+    end else if Supports(AGeometry, IGeometryProjectedMultiPolygon, VMulti) then begin
+      for I := 0 to VMulti.Count - 1 do begin
+        VCount := CalcTileCountInProjectedSinglePolygon(AProjection, VMulti.Item[I]);
+        Inc(Result, VCount);
       end;
     end;
   end;
