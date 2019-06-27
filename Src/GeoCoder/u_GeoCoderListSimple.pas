@@ -58,6 +58,7 @@ implementation
 
 uses
   SysUtils,
+  gnugettext,
   c_GeoCoderGUIDSimple,
   i_InterfaceListSimple,
   i_GeoCoderList,
@@ -124,7 +125,7 @@ begin
   VItem :=
     TGeoCoderListEntity.Create(
       CGeoCoderYandexGUID,
-      'Yandex',
+      _('Yandex'),
       TGeoCoderByYandex.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ADownloaderFactory)
     );
   VList.Add(VItem);
@@ -156,7 +157,7 @@ begin
   VItem :=
     TGeoCoderListEntity.Create(
       CGeoCoderRosreestrGUID,
-      'Rosreestr',
+      _('Rosreestr'),
       TGeoCoderByRosreestr.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ADownloaderFactory, ACoordToStringConverter)
     );
   VList.Add(VItem);
@@ -172,7 +173,7 @@ begin
   VItem :=
     TGeoCoderListEntity.Create(
       CGeoCoderNavitelGUID,
-      'Navitel',
+      _('Navitel'),
       TGeoCoderByNavitel.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ADownloaderFactory)
     );
   VList.Add(VItem);
@@ -190,7 +191,7 @@ begin
     VItem :=
       TGeoCoderListEntity.Create(
         CGeoCoderGpxGUID,
-        'Offline search (*.gpx)',
+        Format(_('Offline search (%s)'), ['*.gpx']),
         TGeoCoderByGpx.Create(VPath, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ACoordToStringConverter, AVectorGeometryLonLatFactory, AVectorDataFactory, AVectorDataItemMainInfoFactory)
       );
     VList.Add(VItem);
@@ -201,7 +202,7 @@ begin
     VItem :=
       TGeoCoderListEntity.Create(
         CGeoCoderPolishMapGUID,
-        'Offline search (*.mp)',
+        Format(_('Offline search (%s)'), ['*.mp']),
         TGeoCoderByPolishMap.Create(VPath, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ACoordToStringConverter)
       );
     VList.Add(VItem);
@@ -212,7 +213,7 @@ begin
     VItem :=
       TGeoCoderListEntity.Create(
         CGeoCoderGeonamesTXTGUID,
-        'Offline search (*.txt)',
+        Format(_('Offline search (%s)'), ['*.txt']),
         TGeoCoderByTXT.Create(VPath, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ACoordToStringConverter)
       );
     VList.Add(VItem);
@@ -221,7 +222,7 @@ begin
   VItem :=
     TGeoCoderListEntity.Create(
       CGeoCoderCoordGUID,
-      'Coordinates',
+      _('Coordinates'),
       TGeoCoderByCoord.Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory, ACoordToStringConverter, AProjectionSetFactory)
     );
   VList.Add(VItem);
@@ -229,7 +230,7 @@ begin
   VItem :=
     TGeoCoderListEntity.Create(
       CGeoCoderMarksGUID,
-      'Marks',
+      _('Marks'),
       TGeoCoderByMarks.Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory, AMarksDb)
     );
   VList.Add(VItem);
