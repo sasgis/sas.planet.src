@@ -136,7 +136,7 @@ begin
   if AConfigData <> nil then begin
     SetUsePrevZoomAtMap(AConfigData.ReadBool('UsePrevZoomAtMap', FUsePrevZoomAtMap));
     SetUsePrevZoomAtLayer(AConfigData.ReadBool('UsePrevZoomAtLayer', FUsePrevZoomAtLayer));
-    SetUsePrevZoomAtLayer(AConfigData.ReadBool('UsePrevZoomAtVectorLayer', FUsePrevZoomAtVectorLayer));
+    SetUsePrevZoomAtVectorLayer(AConfigData.ReadBool('UsePrevZoomAtVectorLayer', FUsePrevZoomAtVectorLayer));
   end;
 end;
 
