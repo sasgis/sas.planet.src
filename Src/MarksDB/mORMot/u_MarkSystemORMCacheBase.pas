@@ -47,7 +47,7 @@ type
     procedure DeleteByIndex(const AIndex: Integer); inline;
   public
     procedure Sort;
-    procedure Reset;
+    procedure Reset; virtual;
     procedure Delete(const AID: TID); virtual;
   public
     property Count: Integer read FCount;
@@ -74,6 +74,7 @@ type
     FPreparedCategories: TIDDynArray;
     FPreparedCategoriesDynArr: TDynArray;
   public
+    procedure Reset; override;
     function IsCategoryPrepared(const ACategoryID: TID): Boolean;
   public
     constructor Create(
@@ -281,6 +282,12 @@ end;
 function TSQLCacheBaseWithPreparedByCategory.IsCategoryPrepared(const ACategoryID: TID): Boolean;
 begin
   Result := (FPreparedCategoriesDynArr.Find(ACategoryID) >= 0);
+end;
+
+procedure TSQLCacheBaseWithPreparedByCategory.Reset;
+begin
+  inherited Reset;
+  FPreparedCategoriesDynArr.Clear;
 end;
 
 { TIDDynArrayObject }
