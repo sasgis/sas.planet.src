@@ -51,6 +51,7 @@ type
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FZip: IArchiveWriter;
     FConfig: IExportMarks2KMLConfigStatic;
+    FMarkIconList: TStringList;
     function AddTree(
       const AParentNode: TALXMLNode;
       const ATree: IVectorItemTree
@@ -119,6 +120,7 @@ type
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const AExportMarks2KMLConfig: IExportMarks2KMLConfig
     );
+    destructor Destroy; override;
     procedure ExportTreeToKML(
       const ATree: IVectorItemTree;
       const AFileName: string
@@ -180,6 +182,16 @@ begin
   inherited Create;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
   FConfig := AExportMarks2KMLConfig.GetStatic;
+
+  FMarkIconList := TStringList.Create;
+  FMarkIconList.Sorted := True;
+  FMarkIconList.CaseSensitive := True;
+end;
+
+destructor TExportMarks2KML.Destroy;
+begin
+  FreeAndNil(FMarkIconList);
+  inherited Destroy;
 end;
 
 procedure TExportMarks2KML.PrepareExportToFile(const AFileName: string);
@@ -665,6 +677,7 @@ function TExportMarks2KML.SaveMarkIcon(
 const
   cFilesFolderName = 'files';
 var
+  I: Integer;
   VTargetPath: string;
   VTargetFullName: string;
   VPicName: string;
@@ -675,10 +688,16 @@ begin
   if AAppearanceIcon.Pic <> nil then begin
     VData := AAppearanceIcon.Pic.Source;
     if VData <> nil then begin
+      VPicName := ExtractFileName(AAppearanceIcon.Pic.GetName);
+      Result := cFilesFolderName + '/' + VPicName;
+
+      if FMarkIconList.Find(LowerCase(VPicName), I) then begin
+        // icone has been saved previously
+        Exit;
+      end;
+
       VStream := TStreamReadOnlyByBinaryData.Create(VData);
       try
-        VPicName := ExtractFileName(AAppearanceIcon.Pic.GetName);
-        Result := cFilesFolderName + '/' + VPicName;
         if Assigned(FZip) then begin
           FZip.AddFile(VData, Result, Now);
         end else begin
@@ -690,6 +709,9 @@ begin
       finally
         VStream.Free;
       end;
+
+      // remember saved icon name
+      FMarkIconList.Add(VPicName);
     end;
   end;
 end;
