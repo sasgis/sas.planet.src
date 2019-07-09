@@ -70,12 +70,14 @@ implementation
 uses
   SysUtils,
   StrUtils,
+  DateUtils,
   ALString,
   RegExpr,
   superobject,
   t_GeoTypes,
   i_VectorDataItemSimple,
   u_InterfaceListSimple,
+  u_DownloadRequest,
   u_ResStrings;
 
 { TGeoCoderByRosreestr }
@@ -113,64 +115,87 @@ function TGeoCoderByRosreestr.ParseResultToPlacemarksList(
   const ALocalConverter: ILocalCoordConverter
 ): IInterfaceListSimple;
 var
+  I: Integer;
   X, Y: Double;
-  VTempString: string;
+  VStr: string;
   VPoint: TDoublePoint;
   VPlace: IVectorDataItem;
   VList: IInterfaceListSimple;
   VCoordToStringConverter: ICoordToStringConverter;
   VJsonObject: ISuperObject;
+  VJsonArray: TSuperArray;
+  VItem: ISuperObject;
   VTmpBuf: UTF8String;
   VName, VFullDesc, VDescription: string;
 begin
-  VCoordToStringConverter := FCoordToStringConverter.GetStatic;
-  VTempString := '';
-  VList := TInterfaceListSimple.Create;
-  SetLength(VTmpBuf, AResult.Data.Size);
-  Move(AResult.Data.Buffer^, VTmpBuf[1], AResult.Data.Size);
-  VJsonObject := SO(Utf8ToAnsi(VTmpBuf));
-
   if AResult.Data.Size <= 0 then begin
     raise EParserError.Create(SAS_ERR_EmptyServerResponse);
   end;
+
+  SetLength(VTmpBuf, AResult.Data.Size);
+  Move(AResult.Data.Buffer^, VTmpBuf[1], AResult.Data.Size);
+
+  VJsonObject := SO(Utf8ToAnsi(VTmpBuf));
   if not Assigned(VJsonObject) then begin
     raise EParserError.Create('JSON parser error');
   end;
 
-  if Assigned(VJsonObject) and Assigned(VJsonObject.O['feature.attrs']) then
-  begin
-    VName := ASearch;
-    VTempString := VJsonObject.S['feature.attrs.address'];
-    if VTempString <> '' then VDescription := 'address: ' + VTempString;
-    VTempString := VJsonObject.S['feature.attrs.cn'];
-    if VTempString <> '' then VDescription := VDescription + #$D#$A + 'cn: ' + VTempString;
-    VTempString := VJsonObject.S['feature.attrs.adate'];
-    if VTempString <> '' then VDescription := VDescription + #$D#$A + 'adate: ' + VTempString;
-    VTempString := VJsonObject.S['feature.attrs.pubdate'];
-    if VTempString <> '' then VDescription := VDescription + #$D#$A + 'pubdate: ' + VTempString;
-    VTempString := VJsonObject.S['feature.attrs.cad_record_date'];
-    if VTempString <> '' then VDescription := VDescription + #$D#$A + 'cad_record_date: ' + VTempString;
-    VTempString := VJsonObject.S['feature.attrs.util_by_doc'];
-    if VTempString <> '' then VDescription := VDescription + #$D#$A + 'util_by_doc: ' + VTempString;
-    VTempString := VJsonObject.S['feature.attrs.cad_cost'];
-    if VTempString <> '' then VDescription := VDescription + #$D#$A + 'cad_cost: ' + VTempString;
-    VTempString := VJsonObject.S['feature.attrs.area_value'];
-    if VTempString <> '' then VDescription := VDescription + #$D#$A + 'area_value: ' + VTempString;
+  VStr := VJsonObject.S['status'];
+  if VStr <> '200' then begin
+    raise Exception.CreateFmt('Unexpected "status" value: %s', [VStr]);
+  end;
 
-    X := VJsonObject.D['feature.center.x'];
-    Y := VJsonObject.D['feature.center.y'];
+  VJsonArray := VJsonObject.A['features'];
+  Assert(VJsonArray <> nil);
 
-    try
-      MetersToLonLat(X, Y, Vpoint);
-    except
-      raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [FloatToStr(X), FloatToStr(Y)]);
+  VName := ASearch;
+  VList := TInterfaceListSimple.Create;
+  VCoordToStringConverter := FCoordToStringConverter.GetStatic;
+
+  for I := 0 to VJsonArray.Length - 1 do begin
+    VItem := VJsonArray.O[I];
+    Assert(VItem <> nil);
+
+    VFullDesc := '';
+    VDescription := '';
+
+    if Assigned(VItem.O['attrs']) then begin
+      VStr := VItem.S['attrs.address'];
+      if VStr <> '' then VDescription := 'address: ' + VStr;
+      VStr := VItem.S['attrs.cn'];
+      if VStr <> '' then VDescription := VDescription + #$D#$A + 'cn: ' + VStr;
+      VStr := VItem.S['attrs.adate'];
+      if VStr <> '' then VDescription := VDescription + #$D#$A + 'adate: ' + VStr;
+      VStr := VItem.S['attrs.pubdate'];
+      if VStr <> '' then VDescription := VDescription + #$D#$A + 'pubdate: ' + VStr;
+      VStr := VItem.S['attrs.cad_record_date'];
+      if VStr <> '' then VDescription := VDescription + #$D#$A + 'cad_record_date: ' + VStr;
+      VStr := VItem.S['attrs.util_by_doc'];
+      if VStr <> '' then VDescription := VDescription + #$D#$A + 'util_by_doc: ' + VStr;
+      VStr := VItem.S['attrs.cad_cost'];
+      if VStr <> '' then VDescription := VDescription + #$D#$A + 'cad_cost: ' + VStr;
+      VStr := VItem.S['attrs.area_value'];
+      if VStr <> '' then VDescription := VDescription + #$D#$A + 'area_value: ' + VStr;
+
+      VDescription := VDescription + #$D#$A + '[ ' + VCoordToStringConverter.LonLatConvert(VPoint) + ' ]';
+      VFullDesc := ReplaceStr(VName + #$D#$A + VDescription, #$D#$A, '<br>');
     end;
 
-    VDescription := VDescription + #$D#$A + '[ ' + VCoordToStringConverter.LonLatConvert(VPoint) + ' ]';
-    VFullDesc := ReplaceStr(VName + #$D#$A + VDescription, #$D#$A, '<br>');
-    VPlace := PlacemarkFactory.Build(VPoint, VName, VDescription, VFullDesc, 4);
-    VList.Add(VPlace);
+    if Assigned(VItem.O['center']) then begin
+      X := VItem.D['center.x'];
+      Y := VItem.D['center.y'];
+
+      try
+        MetersToLonLat(X, Y, VPoint);
+      except
+        raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [FloatToStr(X), FloatToStr(Y)]);
+      end;
+
+      VPlace := PlacemarkFactory.Build(VPoint, VName, VDescription, VFullDesc, 4);
+      VList.Add(VPlace);
+    end;
   end;
+
   Result := VList;
 end;
 
@@ -179,14 +204,13 @@ function TGeoCoderByRosreestr.PrepareRequest(
   const ALocalConverter: ILocalCoordConverter
 ): IDownloadRequest;
 const
-  cURLFmt = 'http://pkk5.rosreestr.ru/api/features/%d/%s?f=pjson';
+  cURLFmt = 'https://pkk5.rosreestr.ru/api/features/%d?text=%s&limit=11&_=%d';
 var
   I: Integer;
   VRequestStr: UTF8String;
   VRegExpr: TRegExpr;
   VSearch: AnsiString;
 begin
-
   VRegExpr  := TRegExpr.Create;
   try
     VSearch := AnsiString(ASearch);
@@ -203,17 +227,19 @@ begin
         I := 1;
       end;
       VRequestStr := URLEncode(VSearch);
-      Result := PrepareRequestByURL(ALFormat(cURLFmt, [I, VRequestStr]));
+      Result :=
+        TDownloadRequest.Create(
+          ALFormat(cURLFmt, [I, VRequestStr, DateTimeToUnix(Now, False)]),
+          'Referer: https://pkk5.rosreestr.ru/',
+          InetSettings.GetStatic
+        );
     end else begin
       Result := nil;
     end;
   finally
-    FreeAndNil(VRegExpr);
+    VRegExpr.Free;
   end;
 end;
 
 end.
 
-// "http://pkk5.rosreestr.ru/api/typeahead?text="%"D0"%"BD"%"D0"%"BE"%"D0"%"B2"%"D0"%"BE&limit=10&skip=0&type=-1"
-// "http://pkk5.rosreestr.ru/api/typeahead?text=vjcrdf&limit=10&skip=0&type=-1"
-// http://pkk5.rosreestr.ru/api/typeahead?text=%D0%BA%D1%80%D0%B0%D1%81%D0%BD%D0%BE%D0%B4%D0%B0&limit=10&skip=0&type=-1
