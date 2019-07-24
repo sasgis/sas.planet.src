@@ -1137,6 +1137,7 @@ uses
   i_PopUp,
   i_ProjectionSet,
   i_ProjectionSetList,
+  i_SunCalcConfig,
   i_ScaleLineConfig,
   i_FavoriteMapSetItemStatic,
   u_FavoriteMapSetHotKeyList,
@@ -7179,11 +7180,14 @@ end;
 
 procedure TfrmMain.actViewSunCalcExecute(Sender: TObject);
 var
-  VNewVisible: Boolean;
+  VIsVisible: Boolean;
+  VSunCalcConfig: ISunCalcConfig;
 begin
-  VNewVisible := not FConfig.LayersConfig.SunCalcConfig.Visible;
+  VSunCalcConfig := FConfig.LayersConfig.SunCalcConfig;
 
-  if VNewVisible then begin
+  VIsVisible := VSunCalcConfig.Visible;
+
+  if not VIsVisible then begin
     FSunCalcProvider.StopNotify;
     try
       FSunCalcProvider.LocalDateTime := Now;
@@ -7195,7 +7199,8 @@ begin
     FSunCalcProvider.Reset;
   end;
 
-  FConfig.LayersConfig.SunCalcConfig.Visible := VNewVisible;
+  VSunCalcConfig.Visible := not VIsVisible;
+  VSunCalcConfig.IsRealTime := not VIsVisible;
 end;
 
 procedure TfrmMain.actViewToolbarsLockExecute(Sender: TObject);

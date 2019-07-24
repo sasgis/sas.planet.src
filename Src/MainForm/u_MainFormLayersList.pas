@@ -1645,7 +1645,8 @@ begin
       AParentMap,
       AViewPortState.View,
       ASunCalcConfig,
-      ASunCalcProvider
+      ASunCalcProvider,
+      AGUISyncronizedTimerNotifier
     );
   VLayersList.Add(VLayer);
 

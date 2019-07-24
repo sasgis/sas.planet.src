@@ -66,6 +66,7 @@ type
   public
     class function GetSystemTzOffset(const AUTCTime: TDateTime): Extended;
     class function LocalTimeToUTC(const AValue: TDateTime): TDateTime;
+    class function UTCToLocalTime(const AValue: TDateTime): TDateTime; inline;
     class function UTCToTzLocalTime(const AUTCTime: TDateTime; const ATzOffset: Extended): TDateTime; inline;
     class function TzLocalTimeToUTC(const ALocalTime: TDateTime; const ATzOffset: Extended): TDateTime; inline;
     class function UTCOffsetToString(const AOffset: Extended): string;
@@ -171,6 +172,11 @@ class function TTimeZoneInfo.TzLocalTimeToUTC(
 ): TDateTime;
 begin
   Result := UTCToTzLocalTime(ALocalTime, -ATzOffset);
+end;
+
+class function TTimeZoneInfo.UTCToLocalTime(const AValue: TDateTime): TDateTime;
+begin
+  Result := UTCToTzLocalTime(AValue, GetSystemTzOffset(AValue));
 end;
 
 class function TTimeZoneInfo.UTCToTzLocalTime(

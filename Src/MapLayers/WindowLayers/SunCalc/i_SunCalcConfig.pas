@@ -132,6 +132,10 @@ type
     procedure SetShowCaptionNearSun(const AValue: Boolean);
     property ShowCaptionNearSun: Boolean read GetShowCaptionNearSun write SetShowCaptionNearSun;
 
+    function GetIsRealTime: Boolean;
+    procedure SetIsRealTime(const AValue: Boolean);
+    property IsRealTime: Boolean read GetIsRealTime write SetIsRealTime;
+
     function GetColorSchemaList: ISunCalcColorSchemaList;
     property ColorSchemaList: ISunCalcColorSchemaList read GetColorSchemaList;
   end;

@@ -27,7 +27,8 @@ uses
   GR32_Layers,
   t_GeoTypes,
   t_SunCalcConfig,
-  i_NotifierOperation,  
+  i_NotifierTime,
+  i_NotifierOperation,
   i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
   i_SunCalcShapesGenerator,
@@ -58,6 +59,7 @@ type
     procedure OnSunCalcConfigChange;
     procedure OnSunCalcProviderChange;
     procedure OnPosChange;
+    procedure OnTimer;
   protected
     procedure StartThreads; override;
   public
@@ -65,20 +67,22 @@ type
       const APerfList: IInternalPerformanceCounterList;
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
-      AParentMap: TImage32;
+      const AParentMap: TImage32;
       const ALocalCoordConverter: ILocalCoordConverterChangeable;
       const ASunCalcConfig: ISunCalcConfig;
-      const ASunCalcProvider: ISunCalcProvider
+      const ASunCalcProvider: ISunCalcProvider;
+      const ATimerNoifier: INotifierTime = nil
     );
-    destructor Destroy; override;
   end;
 
 implementation
 
 uses
   Math,
+  SysUtils,
   DateUtils,
   u_GeoFunc,
+  u_ListenerTime,
   u_ListenerByEvent,
   u_SunCalcShapesGenerator;
 
@@ -88,10 +92,11 @@ constructor TWindowLayerSunCalcInfoBase.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
-  AParentMap: TImage32;
+  const AParentMap: TImage32;
   const ALocalCoordConverter: ILocalCoordConverterChangeable;
   const ASunCalcConfig: ISunCalcConfig;
-  const ASunCalcProvider: ISunCalcProvider
+  const ASunCalcProvider: ISunCalcProvider;
+  const ATimerNoifier: INotifierTime
 );
 begin
   Assert(ASunCalcProvider <> nil);
@@ -130,6 +135,13 @@ begin
     FLocalCoordConverter.ChangeNotifier
   );
 
+  if ATimerNoifier <> nil then begin
+    LinksList.Add(
+      TListenerTimeCheck.Create(Self.OnTimer, 5000),
+      ATimerNoifier
+    );
+  end;
+
   FShapesGenerator :=
     TSunCalcShapesGenerator.Create(
       ALocalCoordConverter,
@@ -139,11 +151,6 @@ begin
   FRepaintOnDayChange := True;
   FRepaintOnTimeChange := True;
   FRepaintOnLocationChange := True;
-end;
-
-destructor TWindowLayerSunCalcInfoBase.Destroy;
-begin
-  inherited Destroy;
 end;
 
 procedure TWindowLayerSunCalcInfoBase.OnSunCalcConfigChange;
@@ -216,6 +223,13 @@ begin
     finally
       ViewUpdateUnlock;
     end;
+  end;
+end;
+
+procedure TWindowLayerSunCalcInfoBase.OnTimer;
+begin
+  if Visible and FSunCalcConfig.IsRealTime then begin
+    FSunCalcProvider.LocalDateTime := Now;
   end;
 end;
 

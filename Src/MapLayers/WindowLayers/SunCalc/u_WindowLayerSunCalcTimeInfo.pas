@@ -26,6 +26,7 @@ uses
   Types,
   GR32,
   GR32_Math,
+  i_MarkerDrawable,
   u_WindowLayerSunCalcInfoBase;
 
 type
@@ -35,6 +36,7 @@ type
       Text: string;
       Bitmap: TBitmap32;
     end;
+    FMarker: IMarkerDrawable;
     procedure DrawCaption(ABuffer: TBitmap32; const ASunPoint: TPoint);
   protected
     procedure PaintLayer(ABuffer: TBitmap32); override;
@@ -49,7 +51,11 @@ uses
   Math,
   SysUtils,
   SunCalc,
-  u_SunCalcDrawTools;
+  t_GeoTypes,
+  u_GeoFunc,
+  u_SunCalcDrawTools,
+  u_MarkerSimpleConfigStatic,
+  u_MarkerDrawableSimpleCircle;
 
 resourcestring
   rsAzimuth = 'Azimuth';
@@ -65,6 +71,11 @@ begin
   FRepaintOnLocationChange := True;
   FCaption.Text := '';
   FCaption.Bitmap := nil;
+
+  FMarker :=
+    TMarkerDrawableSimpleCircle.Create(
+      TMarkerSimpleConfigStatic.Create(14, clYellow32, clRed32)
+    );
 end;
 
 destructor TWindowLayerSunCalcTimeInfo.Destroy;
@@ -142,6 +153,11 @@ begin
     // Draw sun line
     if (VSunPoint.X > 0) and (VSunPoint.Y > 0) then begin
       ThickLine(ABuffer, VCenter, VSunPoint, FShapesColors.DayLineColor, 6);
+
+      // Draw sun marker
+      if FSunCalcConfig.IsRealTime then begin
+        FMarker.DrawToBitmap(ABuffer, DoublePoint(GR32.Point(VSunPoint)) );
+      end;
 
       // Draw caption (Azimuth and Altitude info)
       if FSunCalcConfig.ShowCaptionNearSun then begin

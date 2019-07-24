@@ -43,8 +43,9 @@ type
     procedure SetDateTime(const AValue: TDateTime);
     property UTCDateTime: TDateTime read GetDateTime write SetDateTime;
 
+    function GetLocalTimeFromDateTime: TDateTime;
     procedure SetDateTimeFromLocalTime(const ALocalTime: TDateTime);
-    property LocalDateTime: TDateTime write SetDateTimeFromLocalTime;
+    property LocalDateTime: TDateTime read GetLocalTimeFromDateTime write SetDateTimeFromLocalTime;
 
     function GetTzInfo(
       const AUTCTime: TDateTime;

@@ -45,6 +45,7 @@ type
     procedure SetDateTime(const AValue: TDateTime);
 
     procedure SetDateTimeFromLocalTime(const ALocalTime: TDateTime);
+    function GetLocalTimeFromDateTime: TDateTime;
 
     function GetTzInfo(
       const AUTCTime: TDateTime;
@@ -103,6 +104,16 @@ begin
   LockRead;
   try
     Result := FDateTime;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TSunCalcProvider.GetLocalTimeFromDateTime: TDateTime;
+begin
+  LockRead;
+  try
+    Result := TTimeZoneInfo.UTCToLocalTime(FDateTime);
   finally
     UnlockRead;
   end;

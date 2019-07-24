@@ -40,6 +40,7 @@ type
     FDetailsPanelColsWidth: TSunCalcDetailsPanelColsWidth;
     FIsDetailedView: Boolean;
     FShowCaptionNearSun: Boolean;
+    FIsRealTime: Boolean;
     FColorSchemaList: ISunCalcColorSchemaList;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
@@ -69,6 +70,9 @@ type
 
     function GetShowCaptionNearSun: Boolean;
     procedure SetShowCaptionNearSun(const AValue: Boolean);
+
+    function GetIsRealTime: Boolean;
+    procedure SetIsRealTime(const AValue: Boolean);
 
     function GetColorSchemaList: ISunCalcColorSchemaList;
   public
@@ -204,6 +208,7 @@ begin
 
   FIsDetailedView := False;
   FShowCaptionNearSun := False;
+  FIsRealTime := False;
 
   FColorSchemaList := TSunCalcColorSchemaList.Create;
 end;
@@ -311,6 +316,16 @@ begin
   end;
 end;
 
+function TSunCalcConfig.GetIsRealTime: Boolean;
+begin
+  LockRead;
+  try
+    Result := FIsRealTime;
+  finally
+    UnlockRead;
+  end;
+end;
+
 function TSunCalcConfig.GetShowCaptionNearSun: Boolean;
 begin
   LockRead;
@@ -406,6 +421,19 @@ begin
   try
     if FIsDetailedView <> AValue then begin
       FIsDetailedView := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TSunCalcConfig.SetIsRealTime(const AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FIsRealTime <> AValue then begin
+      FIsRealTime := AValue;
       SetChanged;
     end;
   finally

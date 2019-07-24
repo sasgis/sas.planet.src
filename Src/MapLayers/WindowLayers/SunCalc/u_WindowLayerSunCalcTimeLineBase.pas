@@ -420,6 +420,7 @@ begin
 
     mbLeft: begin
       FIsMarkerMoving := True;
+      FSunCalcConfig.IsRealTime := False;
       FSunCalcProvider.UTCDateTime := PosToUtcDateTime(X - FMargins.Left);
     end;
   end;
@@ -431,8 +432,13 @@ procedure TWindowLayerSunCalcTimeLineBase.OnMouseUp(
   Shift: TShiftState;
   X, Y: Integer
 );
+var
+  VDateTime: TDateTime;
 begin
   FIsMarkerMoving := False;
+
+  VDateTime := FSunCalcProvider.LocalDateTime;
+  FSunCalcConfig.IsRealTime := SecondsBetween(Now, VDateTime) < 60;
 end;
 
 procedure TWindowLayerSunCalcTimeLineBase.OnMouseMove(

@@ -78,8 +78,8 @@ uses
 
 constructor TWindowLayerBasicBase.Create(
   const APerfList: IInternalPerformanceCounterList;
-  const AAppStartedNotifier,
-  AAppClosingNotifier: INotifierOneOperation;
+  const AAppStartedNotifier: INotifierOneOperation;
+  const AAppClosingNotifier: INotifierOneOperation;
   ALayer: TCustomLayer
 );
 begin
