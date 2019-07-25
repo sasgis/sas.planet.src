@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -23,6 +23,7 @@ unit u_GeoCoderByRosreestr;
 interface
 
 uses
+  Windows,
   Classes,
   i_InterfaceListSimple,
   i_InetConfig,
@@ -62,7 +63,6 @@ type
       const ADownloaderFactory: IDownloaderFactory;
       const ACoordToStringConverter: ICoordToStringConverterChangeable
     );
-
   end;
 
 implementation
@@ -81,6 +81,14 @@ uses
   u_ResStrings;
 
 { TGeoCoderByRosreestr }
+
+function UtcNow: TDateTime;
+var
+  VSystemTime: TSystemTime;
+begin
+  GetSystemTime(VSystemTime);
+  Result := SystemTimeToDateTime(VSystemTime);
+end;
 
 procedure MetersToLonLat(const AX, AY: Double; out ALonLat: TDoublePoint);
 begin
@@ -204,7 +212,13 @@ function TGeoCoderByRosreestr.PrepareRequest(
   const ALocalConverter: ILocalCoordConverter
 ): IDownloadRequest;
 const
-  cURLFmt = 'https://pkk5.rosreestr.ru/api/features/%d?text=%s&limit=11&_=%d';
+  cURLFmt = 'https://pkk5.rosreestr.ru/api/features/%d?text=%s&tolerance=262259&limit=11&_=%d000';
+  cRequestHeader =
+    'Accept: text/javascript, application/javascript, application/ecmascript, application/x-ecmascript, */*; q=0.01' + #13#10 +
+    'Accept-Language: en-US' + #13#10 +
+    'Accept-Encoding: gzip, deflate' + #13#10 +
+    'Referer: https://pkk5.rosreestr.ru/' + #13#10 +
+    'X-Requested-With: XMLHttpRequest';
 var
   I: Integer;
   VRequestStr: UTF8String;
@@ -229,8 +243,8 @@ begin
       VRequestStr := URLEncode(VSearch);
       Result :=
         TDownloadRequest.Create(
-          ALFormat(cURLFmt, [I, VRequestStr, DateTimeToUnix(Now, False)]),
-          'Referer: https://pkk5.rosreestr.ru/',
+          ALFormat(cURLFmt, [I, VRequestStr, DateTimeToUnix(UtcNow)]),
+          cRequestHeader,
           InetSettings.GetStatic
         );
     end else begin
