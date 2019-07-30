@@ -1860,6 +1860,9 @@
         <DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
         <DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
         <DCCReference Include="Src\u_WindowPositionConfig.pas"/>
+        <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\i_SunCalcDataProvider.pas"/>
+        <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcDataProviderChangeable.pas"/>
+        <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcDataProviderSun.pas"/>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

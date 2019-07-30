@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.œÎ‡ÌÂÚ‡)                                                   *}
-{* Copyright (C) 2007-2017, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -34,6 +34,7 @@ uses
   i_PopUp,
   i_SunCalcConfig,
   i_SunCalcProvider,
+  i_SunCalcDataProvider,
   i_NotifierOperation,
   i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
@@ -71,6 +72,7 @@ type
     FPopUpMenu: IPopUp;
     FSunCalcConfig: ISunCalcConfig;
     FSunCalcProvider: ISunCalcProvider;
+    FSunCalcDataProvider: ISunCalcDataProvider;
     FLocalCoordConverter: ILocalCoordConverterChangeable;
 
     FRowHeight: Integer;
@@ -104,6 +106,7 @@ type
     procedure OnPosChange;
     procedure OnSunCalcConfigChange;
     procedure OnSunCalcProviderChange;
+    procedure OnSunCalcDataProviderChange;
   protected
     function GetNewBitmapSize: TPoint; override;
     function GetNewLayerLocation: TFloatRect; override;
@@ -130,7 +133,6 @@ uses
   Math,
   SysUtils,
   DateUtils,
-  SunCalc,
   i_LocalCoordConverter,
   u_ListenerByEvent,
   u_TimeZoneInfo;
@@ -140,19 +142,6 @@ resourcestring
   rsAz = 'Az.';
   rsAlt = 'Alt.';
   rsEvent = 'Event';
-
-  rsAstroStart = 'Astro. twilight start';
-  rsNauticalSatrt = 'Nautical twilight start';
-  rsCivilStart = 'Civil twilight start';
-  rsRise = 'Rise';
-  rsGoldenHrEnd = 'Golden hour end';
-  rsNoon = 'Noon';
-  rsGoldenHrStart = 'Golden hour start';
-  rsSet = 'Set';
-  rsCivilEnd = 'Civil twilight end';
-  rsNauticalEnd = 'Nautical twilight end';
-  rsAstroEnd = 'Astro. twilight end';
-  rsMidnight = 'Midnight';
 
 const
   cDetailedRowsCount = 12 + 1;
@@ -181,6 +170,7 @@ begin
   FPopUpMenu := ASunCalcPopUpMenu;
   FSunCalcConfig := ASunCalcConfig;
   FSunCalcProvider := ASunCalcProvider;
+  FSunCalcDataProvider := FSunCalcProvider.GetDataProviderChangeable.GetStatic;
   FLocalCoordConverter := ALocalCoordConverter;
 
   Layer.OnMouseDown := OnMouseDown;
@@ -313,7 +303,7 @@ procedure TWindowLayerSunCalcDetailsPanel.DrawRow(
 );
 var
   I: Integer;
-  VSunPos: TSunPos;
+  VPos: TSunCalcProviderPosition;
   VTime: string;
   VAzimuth: string;
   VAltitude: string;
@@ -321,12 +311,12 @@ var
 begin
   if ATime <> 0 then begin
     if FIsDetailedView then begin
-      VSunPos := SunCalc.GetPosition(ATime, FLocation.Y, FLocation.X);
-      VAzimuth := Format('%.0f∞', [RadToDeg(VSunPos.Azimuth + Pi)]);
-      VAltitude := Format('%.1f∞', [RadToDeg(VSunPos.Altitude)]);
+      VPos := FSunCalcDataProvider.GetPosition(ATime, FLocation);
+      VAzimuth := Format('%.0f∞', [RadToDeg(VPos.Azimuth + Pi)]);
+      VAltitude := Format('%.1f∞', [RadToDeg(VPos.Altitude)]);
     end;
     VLocalTime := TTimeZoneInfo.UTCToTzLocalTime(ATime, FTzOffset);
-    VTime := FormatDateTime('hh:mm', VLocalTime);
+    VTime := FormatDateTime('hh:nn', VLocalTime);
   end else begin
     VTime := '';
     VAzimuth := '';
@@ -353,7 +343,8 @@ procedure TWindowLayerSunCalcDetailsPanel.DoUpdateBitmapDraw;
 var
   I: Integer;
   VDay: TDateTime;
-  VSunTimes: TSunCalcTimes;
+  VRow: Integer;
+  VEvents: TSunCalcDayEvents;
 begin
   inherited;
 
@@ -368,60 +359,22 @@ begin
       Layer.Bitmap.HorzLineS(0, FRowHeight * (I + 1), FWidth - 1, FColors.GridLinesColor);
     end;
 
-    I := 0;
+    VRow := 0;
 
     if FIsDetailedView then begin
-      RenderText(0, I, rsTime, taCenter);
-      RenderText(1, I, rsAz, taCenter);
-      RenderText(2, I, rsAlt, taCenter);
-      RenderText(3, I, rsEvent, taCenter);
-      Inc(I);
+      RenderText(0, VRow, rsTime, taCenter);
+      RenderText(1, VRow, rsAz, taCenter);
+      RenderText(2, VRow, rsAlt, taCenter);
+      RenderText(3, VRow, rsEvent, taCenter);
+      Inc(VRow);
     end;
 
     VDay := StartOfTheDay(TTimeZoneInfo.UTCToTzLocalTime(FDateTime, FTzOffset));
-    VSunTimes := SunCalc.GetTimes(VDay, FLocation.Y, FLocation.X);
+    VEvents := FSunCalcDataProvider.GetDayEvents(VDay, FLocation, FIsDetailedView);
 
-    if FIsDetailedView then begin
-      DrawRow(I, VSunTimes[nightEnd].Value, rsAstroStart);
-      Inc(I);
-
-      DrawRow(I, VSunTimes[nauticalDawn].Value, rsNauticalSatrt);
-      Inc(I);
-    end;
-
-    DrawRow(I, VSunTimes[Dawn].Value, rsCivilStart);
-    Inc(I);
-
-    DrawRow(I, VSunTimes[sunrise].Value, rsRise);
-    Inc(I);
-
-    if FIsDetailedView then begin
-      DrawRow(I, VSunTimes[goldenHourEnd].Value, rsGoldenHrEnd);
-      Inc(I);
-    end;
-
-    DrawRow(I, VSunTimes[solarNoon].Value, rsNoon);
-    Inc(I);
-
-    if FIsDetailedView then begin
-      DrawRow(I, VSunTimes[goldenHour].Value, rsGoldenHrStart);
-      Inc(I);
-    end;
-
-    DrawRow(I, VSunTimes[sunset].Value, rsSet);
-    Inc(I);
-
-    DrawRow(I, VSunTimes[Dusk].Value, rsCivilEnd);
-    Inc(I);
-
-    if FIsDetailedView then begin
-      DrawRow(I, VSunTimes[nauticalDusk].Value, rsNauticalEnd);
-      Inc(I);
-
-      DrawRow(I, VSunTimes[night].Value, rsAstroEnd);
-      Inc(I);
-
-      DrawRow(I, VSunTimes[nadir].Value, rsMidnight);
+    for I := 0 to Length(VEvents) - 1 do begin
+      DrawRow(VRow, VEvents[I].Date, VEvents[I].Name);
+      Inc(VRow);
     end;
   finally
     Layer.Bitmap.EndUpdate;
@@ -554,6 +507,17 @@ begin
   end;
 end;
 
+procedure TWindowLayerSunCalcDetailsPanel.OnSunCalcDataProviderChange;
+begin
+  ViewUpdateLock;
+  try
+    FSunCalcDataProvider := FSunCalcProvider.GetDataProviderChangeable.GetStatic;
+    SetNeedUpdateBitmapDraw;
+  finally
+    ViewUpdateUnlock;
+  end;
+end;
+
 procedure TWindowLayerSunCalcDetailsPanel.OnPosChange;
 begin
   ViewUpdateLock;
@@ -570,6 +534,7 @@ begin
   inherited;
   OnSunCalcConfigChange;
   OnSunCalcProviderChange;
+  OnSunCalcDataProviderChange;
 end;
 
 end.

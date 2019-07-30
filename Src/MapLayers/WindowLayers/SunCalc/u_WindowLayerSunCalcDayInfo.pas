@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2017, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -52,8 +52,8 @@ end;
 procedure TWindowLayerSunCalcDayInfo.PaintLayer(ABuffer: TBitmap32);
 var
   VDayPoints: TArrayOfFixedPoint;
-  VSunrise: TFixedPoint;
-  VSunset: TFixedPoint;
+  VRisePoint: TFixedPoint;
+  VSetPoint: TFixedPoint;
   VCenter: TFixedPoint;
 begin
   if not FShapesGenerator.IsIntersectScreenRect then begin
@@ -65,17 +65,17 @@ begin
     FShapesGenerator.ValidateCache;
 
     // Day info
-    FShapesGenerator.GetDayInfoPoints(VDayPoints, VSunrise, VSunset, VCenter);
+    FShapesGenerator.GetDayInfoPoints(VDayPoints, VRisePoint, VSetPoint, VCenter);
 
     // Draw day curve
     if Length(VDayPoints) > 0 then begin
       ThickPolyLine(ABuffer, VDayPoints, FShapesColors.DayPolyLineColor);
     end;
 
-    // Draw sunrise and sunset lines
-    if (VSunrise.X <> VSunset.X) and (VSunrise.Y <> VSunset.Y) then begin
-      ThickLine(ABuffer, VCenter, VSunrise, FShapesColors.DaySunriseLineColor, 6);
-      ThickLine(ABuffer, VCenter, VSunset, FShapesColors.DaySunsetLineColor, 6);
+    // Draw rise and set lines
+    if (VRisePoint.X <> VSetPoint.X) and (VRisePoint.Y <> VSetPoint.Y) then begin
+      ThickLine(ABuffer, VCenter, VRisePoint, FShapesColors.DaySunriseLineColor, 6);
+      ThickLine(ABuffer, VCenter, VSetPoint, FShapesColors.DaySunsetLineColor, 6);
     end;
   finally
     ABuffer.EndUpdate;

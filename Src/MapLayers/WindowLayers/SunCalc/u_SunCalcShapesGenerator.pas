@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2017, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -28,6 +28,7 @@ uses
   t_GeoTypes,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
+  i_SunCalcDataProvider,
   i_SunCalcShapesGenerator,
   u_GeoFunc,
   u_BaseInterfacedObject;
@@ -37,31 +38,42 @@ type
   private
     FRadius: Integer;
     FCenter: TFloatPoint;
+
     FLocation: TDoublePoint;
     FDateTime: TDateTime;
+    FDataProvider: ISunCalcDataProvider;
 
     FCirclePoints: TArrayOfFixedPoint;
     FIsCirclePointsValid: Boolean;
 
-    FLongestDayPoints: TArrayOfFixedPoint;
-    FShortestDayPoints: TArrayOfFixedPoint;
-    FSunlightFillPoints: TArrayOfFixedPoint;
-    FIsYearInfoPointsValid: Boolean;
+    FMaxAltitudeDayPoints: TArrayOfFixedPoint;
+    FMinAltitudeDayPoints: TArrayOfFixedPoint;
+    FMinMaxAltitudePoly: TArrayOfFixedPoint;
+    FIsAltitudePointsValid: Boolean;
 
     FDayPoints: TArrayOfFixedPoint;
-    FSunrisePoint: TFixedPoint;
-    FSunsetPoint: TFixedPoint;
+    FRisePoint: TFixedPoint;
+    FSetPoint: TFixedPoint;
     FIsDayInfoPointsValid: Boolean;
 
-    FSunPos: TFixedPoint;
+    FCurrentPos: TFixedPoint;
     FIsTimeInfoPointsValid: Boolean;
-
-    FSolstice: array [0..1] of TDateTime;
 
     FLocalCoordConverter: ILocalCoordConverterChangeable;
   private
     function CalcCenter: TFloatPoint;
     function IsValidSate: Boolean; inline;
+
+    procedure GetPointPosition(
+      const ADate: TDateTime;
+      out APoint: TFixedPoint;
+      out AIsBelowHorizont: Boolean
+    ); inline;
+
+    function GenerateCurvePoints(
+      const ADate: TDateTime;
+      const AIgnoreInvisiblePos: Boolean
+    ): TArrayOfFixedPoint;
   private
     { ISunCalcShapesGenerator }
     procedure ValidateCache;
@@ -70,26 +82,27 @@ type
 
     procedure SetLocation(const AValue: TDoublePoint);
     procedure SetDateTime(const AValue: TDateTime);
+    procedure SetDataProvider(const AProvider: ISunCalcDataProvider);
 
     procedure GetCirclePoints(
       out ACirclePoints: TArrayOfFixedPoint
     );
 
-    procedure GetYearInfoPoints(
-      out ALongestDayPoints: TArrayOfFixedPoint;
-      out AShortestDayPoints: TArrayOfFixedPoint;
-      out ASunlightFillPoints: TArrayOfFixedPoint
+    procedure GetMinMaxAltitudePoints(
+      out AMinAltitudePoints: TArrayOfFixedPoint;
+      out AMaxAltitudePoints: TArrayOfFixedPoint;
+      out AMinMaxAltitudePolygon: TArrayOfFixedPoint
     );
 
     procedure GetDayInfoPoints(
       out ADayPoints: TArrayOfFixedPoint;
-      out ASunrise: TFixedPoint;
-      out ASunset: TFixedPoint;
+      out ARise: TFixedPoint;
+      out ASet: TFixedPoint;
       out ACenter: TFixedPoint
     );
 
     procedure GetTimeInfoPoints(
-      out ASunPos: TFixedPoint;
+      out APos: TFixedPoint;
       out ACenter: TFixedPoint
     );
   public
@@ -104,9 +117,7 @@ implementation
 uses
   Math,
   DateUtils,
-  GR32_Math,
-  Solstice,
-  SunCalc;
+  GR32_Math;
 
 function IsSameFloatPoint(const A, B: TFloatPoint): Boolean; inline;
 begin
@@ -130,17 +141,15 @@ begin
 
   FDateTime := 0;
   FLocation := CEmptyDoublePoint;
+  FDataProvider := nil;
 
   FCenter.X := NaN;
   FCenter.Y := NaN;
 
   FIsCirclePointsValid := False;
-  FIsYearInfoPointsValid := False;
+  FIsAltitudePointsValid := False;
   FIsDayInfoPointsValid := False;
   FIsTimeInfoPointsValid := False;
-
-  FSolstice[0] := 0;
-  FSolstice[1] := 0;
 end;
 
 function GenerateCircle(
@@ -188,7 +197,7 @@ begin
     Exit;
   end;
 
-  Assert(IsIntersectScreenRect, 'SunCalc: Shape will be out of screen rect!');
+  Assert(IsIntersectScreenRect, 'SunCalc: Shape is out of screen rect!');
 
   if not FIsCirclePointsValid then begin
     FCirclePoints := GenerateCircle(FCenter, FRadius);
@@ -197,32 +206,26 @@ begin
   ACirclePoints := FCirclePoints;
 end;
 
-procedure GetSunPosPoint(
+procedure TSunCalcShapesGenerator.GetPointPosition(
   const ADate: TDateTime;
-  const ALocation: TDoublePoint;
-  const ACenter: TFloatPoint;
-  const ARadius: Integer;
   out APoint: TFixedPoint;
   out AIsBelowHorizont: Boolean
-); inline;
+);
 var
-  VSunPos: TSunPos;
+  VPos: TSunCalcProviderPosition;
   VAngle: Double;
   R: Double;
 begin
-  VSunPos := SunCalc.GetPosition(ADate, ALocation.Y, ALocation.X);
-  VAngle := Pi / 2 + VSunPos.Azimuth;
-  R := ARadius * Cos(VSunPos.Altitude);
-  APoint.X := Fixed(ACenter.X + R * Cos(VAngle));
-  APoint.Y := Fixed(ACenter.Y + R * Sin(VAngle));
-  AIsBelowHorizont := VSunPos.Altitude < 0;
+  VPos := FDataProvider.GetPosition(ADate, FLocation);
+  VAngle := Pi / 2 + VPos.Azimuth;
+  R := FRadius * Cos(VPos.Altitude);
+  APoint.X := Fixed(FCenter.X + R * Cos(VAngle));
+  APoint.Y := Fixed(FCenter.Y + R * Sin(VAngle));
+  AIsBelowHorizont := VPos.Altitude < 0;
 end;
 
-function GenerateCurvePoints(
+function TSunCalcShapesGenerator.GenerateCurvePoints(
   const ADate: TDateTime;
-  const ALocation: TDoublePoint;
-  const ACenter: TFloatPoint;
-  const ARadius: Integer;
   const AIgnoreInvisiblePos: Boolean
 ): TArrayOfFixedPoint;
 const
@@ -230,27 +233,29 @@ const
 var
   I, J: Integer;
   VCount: Integer;
-  VTime: TSunCalcTimesInfo;
-  VSunTimes: TSunCalcTimes;
+  VTimes: TSunCalcProviderTimes;
   VStart, VEnd: TDateTime;
   VIsCurveBelowHorizont: Boolean;
   VIsPointBelowHorizont: Boolean;
   VTimePoints: array of TDateTime;
 begin
-  VSunTimes := SunCalc.GetTimes(ADate, ALocation.Y, ALocation.X);
+  if ADate = 0 then begin
+    SetLength(Result, 0);
+    Exit;
+  end;
 
-  // sunrise start
-  VTime := VSunTimes[sunrise];
-  if VTime.Value <> 0 then begin
-    VStart := VTime.Value;
+  VTimes := FDataProvider.GetTimes(ADate, FLocation);
+
+  // rise start
+  if VTimes.RiseUtcTime <> 0 then begin
+    VStart := VTimes.RiseUtcTime;
   end else begin
     VStart := ADate;
   end;
 
-  // sunset end
-  VTime := VSunTimes[sunset];
-  if VTime.Value <> 0 then begin
-    VEnd := VTime.Value;
+  // set end
+  if VTimes.SetUtcTime <> 0 then begin
+    VEnd := VTimes.SetUtcTime;
   end else begin
     VEnd := IncDay(ADate, 1);
   end;
@@ -268,11 +273,8 @@ begin
   VIsCurveBelowHorizont := True;
   SetLength(Result, Length(VTimePoints));
   for I := 0 to Length(VTimePoints) - 1 do begin
-    GetSunPosPoint(
+    GetPointPosition(
       VTimePoints[I],
-      ALocation,
-      ACenter,
-      ARadius,
       Result[J],
       VIsPointBelowHorizont
     );
@@ -338,58 +340,46 @@ begin
   end;
 end;
 
-procedure TSunCalcShapesGenerator.GetYearInfoPoints(
-  out ALongestDayPoints: TArrayOfFixedPoint;
-  out AShortestDayPoints: TArrayOfFixedPoint;
-  out ASunlightFillPoints: TArrayOfFixedPoint
+procedure TSunCalcShapesGenerator.GetMinMaxAltitudePoints(
+  out AMinAltitudePoints: TArrayOfFixedPoint;
+  out AMaxAltitudePoints: TArrayOfFixedPoint;
+  out AMinMaxAltitudePolygon: TArrayOfFixedPoint
 );
 var
   I, J: Integer;
-  VYear: Word;
+  VDay: TDateTime;
   VLen1, VLen2, VLen3, VLen4: Integer;
   VSeg1, VSeg2: TArrayOfFixedPoint;
 begin
   if not IsValidSate then begin
-    SetLength(ALongestDayPoints, 0);
-    SetLength(AShortestDayPoints, 0);
-    SetLength(ASunlightFillPoints, 0);
+    SetLength(AMinAltitudePoints, 0);
+    SetLength(AMaxAltitudePoints, 0);
+    SetLength(AMinMaxAltitudePolygon, 0);
     Exit;
   end;
 
-  Assert(IsIntersectScreenRect, 'SunCalc: Shape will be out of screen rect!');
+  Assert(IsIntersectScreenRect, 'SunCalc: Shape is out of screen rect!');
 
-  if not FIsYearInfoPointsValid then begin
+  if not FIsAltitudePointsValid then begin
+    // min altitude curve
+    VDay := FDataProvider.GetMinAltitudeDay(FDateTime, FLocation);
+    FMinAltitudeDayPoints := GenerateCurvePoints(VDay, False);
 
-    VYear := YearOf(FDateTime);
-    if (FSolstice[0] = 0) or (VYear <> YearOf(FSolstice[0])) then begin
-      FSolstice[0] := Solstice.June(VYear);
-      FSolstice[1] := Solstice.December(VYear);
-    end;
+    // max altitude curve
+    VDay := FDataProvider.GetMaxAltitudeDay(FDateTime, FLocation);
+    FMaxAltitudeDayPoints := GenerateCurvePoints(VDay, False);
 
-    if FLocation.Y > 0 then begin
-      I := 0;
-      J := 1;
-    end else begin
-      I := 1;
-      J := 0;
-    end;
 
-    // Longest day
-    FLongestDayPoints := GenerateCurvePoints(FSolstice[I], FLocation, FCenter, FRadius, False);
-
-    // Shortest day
-    FShortestDayPoints := GenerateCurvePoints(FSolstice[J], FLocation, FCenter, FRadius, False);
-
-    // Polygon between longest and shortest day
-    VLen1 := Length(FLongestDayPoints);
-    VLen2 := Length(FShortestDayPoints);
+    // Polygon between min/max curves
+    VLen1 := Length(FMaxAltitudeDayPoints);
+    VLen2 := Length(FMinAltitudeDayPoints);
     if (VLen1 > 0) and (VLen2 > 0) then begin
       VSeg1 :=
         GenerateCircleSegment(
           FCenter,
           FRadius,
-          FLongestDayPoints[0],
-          FShortestDayPoints[0]
+          FMaxAltitudeDayPoints[0],
+          FMinAltitudeDayPoints[0]
         );
       VLen3 := Length(VSeg1);
 
@@ -397,83 +387,77 @@ begin
         GenerateCircleSegment(
           FCenter,
           FRadius,
-          FShortestDayPoints[VLen2 - 1],
-          FLongestDayPoints[VLen1 - 1]
+          FMinAltitudeDayPoints[VLen2 - 1],
+          FMaxAltitudeDayPoints[VLen1 - 1]
         );
       VLen4 := Length(VSeg2);
 
-      SetLength(FSunlightFillPoints, VLen1 + VLen2 + VLen3 + VLen4);
+      SetLength(FMinMaxAltitudePoly, VLen1 + VLen2 + VLen3 + VLen4);
 
-      Move(FLongestDayPoints[0], FSunlightFillPoints[0], VLen1 * SizeOf(TFixedPoint));
+      Move(FMaxAltitudeDayPoints[0], FMinMaxAltitudePoly[0], VLen1 * SizeOf(TFixedPoint));
 
       J := VLen1;
 
       for I := VLen4 - 1 downto 0 do begin
-        FSunlightFillPoints[J] := VSeg2[I];
+        FMinMaxAltitudePoly[J] := VSeg2[I];
         Inc(J);
       end;
 
       for I := VLen2 - 1 downto 0 do begin
-        FSunlightFillPoints[J] := FShortestDayPoints[I];
+        FMinMaxAltitudePoly[J] := FMinAltitudeDayPoints[I];
         Inc(J);
       end;
 
       for I := VLen3 - 1 downto 0 do begin
-        FSunlightFillPoints[J] := VSeg1[I];
+        FMinMaxAltitudePoly[J] := VSeg1[I];
         Inc(J);
       end;
     end else begin
-      SetLength(FSunlightFillPoints, 0);
+      SetLength(FMinMaxAltitudePoly, 0);
     end;
 
-    FIsYearInfoPointsValid := True;
+    FIsAltitudePointsValid := True;
   end;
 
-  ALongestDayPoints := FLongestDayPoints;
-  AShortestDayPoints := FShortestDayPoints;
-  ASunlightFillPoints := FSunlightFillPoints;
+  AMinAltitudePoints := FMinAltitudeDayPoints;
+  AMaxAltitudePoints := FMaxAltitudeDayPoints;
+  AMinMaxAltitudePolygon := FMinMaxAltitudePoly;
 end;
 
 procedure TSunCalcShapesGenerator.GetDayInfoPoints(
   out ADayPoints: TArrayOfFixedPoint;
-  out ASunrise, ASunset, ACenter: TFixedPoint
+  out ARise, ASet, ACenter: TFixedPoint
 );
 var
-  VSunTimes: TSunCalcTimes;
+  VTimes: TSunCalcProviderTimes;
   VIsPointBelowHorizont: Boolean;
 begin
   if not IsValidSate then begin
     SetLength(ADayPoints, 0);
-    ASunrise := FixedPoint(0, 0);
-    ASunset := FixedPoint(0, 0);
+    ARise := FixedPoint(0, 0);
+    ASet := FixedPoint(0, 0);
     ACenter := FixedPoint(0, 0);
     Exit;
   end;
 
-  Assert(IsIntersectScreenRect, 'SunCalc: Shape will be out of screen rect!');
+  Assert(IsIntersectScreenRect, 'SunCalc: Shape is out of screen rect!');
 
   if not FIsDayInfoPointsValid then begin
-    FDayPoints := GenerateCurvePoints(FDateTime, FLocation, FCenter, FRadius, False);
+    VTimes := FDataProvider.GetTimes(FDateTime, FLocation);
 
-    VSunTimes := SunCalc.GetTimes(FDateTime, FLocation.Y, FLocation.X);
+    FDayPoints := GenerateCurvePoints(FDateTime, False);
 
-    // sunrise
-    GetSunPosPoint(
-      VSunTimes[sunrise].Value,
-      FLocation,
-      FCenter,
-      FRadius,
-      FSunrisePoint,
+    // rise
+    GetPointPosition(
+      VTimes.RiseUtcTime,
+      FRisePoint,
       VIsPointBelowHorizont
     );
 
-    // sunset
-    GetSunPosPoint(
-      VSunTimes[sunset].Value,
-      FLocation,
-      FCenter,
-      FRadius,
-      FSunsetPoint,
+    // set
+    GetPointPosition(
+      VTimes.SetUtcTime,
+      FSetPoint,
       VIsPointBelowHorizont
     );
 
@@ -481,44 +465,51 @@ begin
   end;
 
   ADayPoints := FDayPoints;
-  ASunrise := FSunrisePoint;
-  ASunset := FSunsetPoint;
+  ARise := FRisePoint;
+  ASet := FSetPoint;
   ACenter := FixedPoint(FCenter);
 end;
 
 procedure TSunCalcShapesGenerator.GetTimeInfoPoints(
-  out ASunPos, ACenter: TFixedPoint
+  out APos, ACenter: TFixedPoint
 );
 var
   VIsPointBelowHorizont: Boolean;
 begin
   if not IsValidSate then begin
-    ASunPos := FixedPoint(0, 0);
+    APos := FixedPoint(0, 0);
     ACenter := FixedPoint(0, 0);
     Exit;
   end;
 
-  Assert(IsIntersectScreenRect, 'SunCalc: Shape will be out of screen rect!');
+  Assert(IsIntersectScreenRect, 'SunCalc: Shape is out of screen rect!');
 
   if not FIsTimeInfoPointsValid then begin
-    GetSunPosPoint(
+    GetPointPosition(
       FDateTime,
-      FLocation,
-      FCenter,
-      FRadius,
-      FSunPos,
+      FCurrentPos,
       VIsPointBelowHorizont
     );
 
     if VIsPointBelowHorizont then begin
-      FSunPos := FixedPoint(0, 0);
+      FCurrentPos := FixedPoint(0, 0);
     end;
 
     FIsTimeInfoPointsValid := True;
   end;
 
-  ASunPos := FSunPos;
+  APos := FCurrentPos;
   ACenter := FixedPoint(FCenter);
+end;
+
+procedure TSunCalcShapesGenerator.SetDataProvider(const AProvider: ISunCalcDataProvider);
+begin
+  FDataProvider := AProvider;
+
+  FIsCirclePointsValid := False;
+  FIsAltitudePointsValid := False;
+  FIsDayInfoPointsValid := False;
+  FIsTimeInfoPointsValid := False;
 end;
 
 procedure TSunCalcShapesGenerator.SetDateTime(const AValue: TDateTime);
@@ -537,7 +528,7 @@ begin
     FCenter := CalcCenter;
 
     FIsCirclePointsValid := False;
-    FIsYearInfoPointsValid := False;
+    FIsAltitudePointsValid := False;
     FIsDayInfoPointsValid := False;
     FIsTimeInfoPointsValid := False;
   end;
@@ -555,7 +546,7 @@ begin
   if not IsSameFloatPoint(FCenter, VCenter) then begin
     FCenter := VCenter;
     FIsCirclePointsValid := False;
-    FIsYearInfoPointsValid := False;
+    FIsAltitudePointsValid := False;
     FIsDayInfoPointsValid := False;
     FIsTimeInfoPointsValid := False;
   end;
@@ -587,6 +578,7 @@ end;
 function TSunCalcShapesGenerator.IsValidSate: Boolean;
 begin
   Result :=
+    (FDataProvider <> nil) and
     (FDateTime <> 0) and
     not PointIsEmpty(FLocation) and
     not IsNan(FCenter.X) and not IsNan(FCenter.Y);

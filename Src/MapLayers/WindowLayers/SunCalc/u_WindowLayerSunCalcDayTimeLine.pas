@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2017, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -26,6 +26,7 @@ uses
   GR32,  
   t_SunCalcConfig,
   i_SunCalcConfig,
+  i_SunCalcDataProvider,
   u_TimeZoneInfo,
   u_WindowLayerSunCalcTimeLineBase;
 
@@ -57,10 +58,7 @@ implementation
 
 uses
   SysUtils,
-  DateUtils,
-  SunCalc,
-  u_MarkerSimpleConfigStatic,
-  u_MarkerDrawableSimpleCircle;
+  DateUtils;
 
 { TWindowLayerSunCalcDayTimeLine }
 
@@ -82,10 +80,7 @@ begin
 
   FTimeLineHeight := 8;
 
-  FMarker :=
-    TMarkerDrawableSimpleCircle.Create(
-      TMarkerSimpleConfigStatic.Create(14, clYellow32, clRed32)
-    );
+  FMarker := FSunCalcDataProvider.DayMarker;
 
   SetLength(FRenderedText, 24);
   for I := Low(FRenderedText) to High(FRenderedText) do begin
@@ -98,8 +93,6 @@ begin
   FRedrawOnLocationChanged := True;
 
   FIsDetailedView := False;
-
-  SetLength(FLineItems, 10);
 end;
 
 function TWindowLayerSunCalcDayTimeLine.UtcDateTimeToPosF(
@@ -164,63 +157,48 @@ begin
 end;
 
 procedure TWindowLayerSunCalcDayTimeLine.DrawColoredTimeLine;
-
-var
-  VItemIndex: Integer;
-  VColorIndex: Integer;
-
-  procedure SetupItem(const ADateTime: TDateTime; const K: Integer);
-  begin
-    if ADateTime > 0 then begin
-      FLineItems[VItemIndex].Pos := Round(UtcDateTimeToPosF(ADateTime));
-    end else begin
-      FLineItems[VItemIndex].Pos := 0;
-    end;
-
-    FLineItems[VItemIndex].ItemColorIndex := VColorIndex;
-    FLineItems[VItemIndex].NextColorIndex := VColorIndex + K;
-
-    Inc(VItemIndex);
-    Inc(VColorIndex, K);
-  end;
-
 var
   I: Integer;
   VDay: TDateTime;
   VRect: TRect;
   VColor: TColor32;
-  VNoonPos: TSunPos;
-  VSunTimes: TSunCalcTimes;
+  VDayEvents: TSunCalcDayEvents;
+  VTransitPos: TSunCalcProviderPosition;
+  VTransitDate: TDateTime;
+  VIsTransitFound: Boolean;
   VTimeLineEndPos: Integer;
 begin
-  VItemIndex := 0;
-  VColorIndex := 0;
+  VTransitDate := 0;
+  VIsTransitFound := False;
 
   VDay := StartOfTheDay(TTimeZoneInfo.UTCToTzLocalTime(FDateTime, FTzOffset));
-  VSunTimes := SunCalc.GetTimes(VDay, FLocation.Y, FLocation.X);
+  VDayEvents := FSunCalcDataProvider.GetDayEvents(VDay, FLocation, FIsDetailedView);
 
-  I := 1;
-  SetupItem(VSunTimes[nightEnd].Value, I);
-  SetupItem(VSunTimes[nauticalDawn].Value, I);
-  SetupItem(VSunTimes[dawn].Value, I);
-  SetupItem(VSunTimes[sunrise].Value, I);
-  SetupItem(VSunTimes[goldenHourEnd].Value, I);
+  SetLength(FLineItems, Length(VDayEvents));
 
-  I := -1;
-  SetupItem(VSunTimes[goldenHour].Value, I);
-  SetupItem(VSunTimes[sunset].Value, I);
-  SetupItem(VSunTimes[dusk].Value, I);
-  SetupItem(VSunTimes[nauticalDusk].Value, I);
-  SetupItem(VSunTimes[night].Value, I);
+  for I := 0 to Length(VDayEvents) - 1 do begin
+    if VDayEvents[I].Date > 0 then begin
+      FLineItems[I].Pos := Round(UtcDateTimeToPosF(VDayEvents[I].Date));
+    end else begin
+      FLineItems[I].Pos := 0;
+    end;
+
+    FLineItems[I].ItemColorIndex := VDayEvents[I].ColorIndex;
+    FLineItems[I].NextColorIndex := VDayEvents[I].NextColorIndex;
+
+    if (VDayEvents[I].IsTransit) and (VDayEvents[I].Date <> 0) then begin
+      VTransitDate := VDayEvents[I].Date;
+      VTransitPos := FSunCalcDataProvider.GetPosition(VTransitDate, FLocation);
+      VIsTransitFound := True;
+    end;
+  end;
 
   SortLineItems;
 
-  VNoonPos := SunCalc.GetPosition(VSunTimes[solarNoon].Value, FLocation.Y, FLocation.X);
-
-  if VNoonPos.Altitude >= 0 then begin
-    VColor := FColors.DayLineColors[Length(FColors.DayLineColors)-1]; // polar day
+  if VIsTransitFound and (VTransitPos.Altitude >= 0) then begin
+    VColor := FColors.DayLineColors[Length(FColors.DayLineColors)-1];
   end else begin
-    VColor := FColors.DayLineColors[0]; // polar night
+    VColor := FColors.DayLineColors[0];
   end;
 
   VTimeLineEndPos := FBorder.Left + FTimeLineWidth;
@@ -231,7 +209,7 @@ begin
   VRect.Bottom := VRect.Top + FTimeLineHeight;
 
   for I := Low(FLineItems) to High(FLineItems) do begin
-    if FLineItems[I].Pos > 0 then begin
+    if (FLineItems[I].Pos > 0) and (FLineItems[I].ItemColorIndex >= 0) then begin
       VColor := FColors.DayLineColors[FLineItems[I].ItemColorIndex];
 
       VRect.Right := FLineItems[I].Pos;
@@ -248,10 +226,10 @@ begin
     Layer.Bitmap.FillRectS(VRect, VColor);
   end;
 
-  // Noon vert line
-  if VSunTimes[solarNoon].Value <> 0 then begin
+  // Transit vert line
+  if VIsTransitFound then begin
     Layer.Bitmap.VertLineS(
-      Round(UtcDateTimeToPosF(VSunTimes[solarNoon].Value)),
+      Round(UtcDateTimeToPosF(VTransitDate)),
       FTimeLineTop - 6,
       FTimeLineTop - 1,
       clYellow32
@@ -282,7 +260,7 @@ begin
     // Sun Marker
     if FIsShowMarkerCaption then begin
       VTime := TTimeZoneInfo.UTCToTzLocalTime(FDateTime, FTzOffset);
-      VMarkerText := FormatDateTime('hh:mm', VTime) + TTimeZoneInfo.UTCOffsetToString(FTzOffset);
+      VMarkerText := FormatDateTime('hh:nn', VTime) + TTimeZoneInfo.UTCOffsetToString(FTzOffset);
     end else begin
       VMarkerText := '';
     end;
@@ -315,12 +293,6 @@ begin
       FColors := VColorSchemaStatic.TimeLineColors;
       FFont := VColorSchemaStatic.TimeLineFont;
       FMarkerCaptionFont := VColorSchemaStatic.TimeLineHintFont;
-
-      if not FIsDetailedView then begin
-        FColors.DayLineColors[1] := FColors.DayLineColors[0];
-        FColors.DayLineColors[2] := FColors.DayLineColors[0];
-        FColors.DayLineColors[4] := FColors.DayLineColors[5];
-      end;
 
       ClearRenderedText;
     finally

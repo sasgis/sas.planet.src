@@ -26,7 +26,6 @@ uses
   Types,
   GR32,
   GR32_Math,
-  i_MarkerDrawable,
   u_WindowLayerSunCalcInfoBase;
 
 type
@@ -36,8 +35,7 @@ type
       Text: string;
       Bitmap: TBitmap32;
     end;
-    FMarker: IMarkerDrawable;
-    procedure DrawCaption(ABuffer: TBitmap32; const ASunPoint: TPoint);
+    procedure DrawCaption(ABuffer: TBitmap32; const ACurrentPosition: TPoint);
   protected
     procedure PaintLayer(ABuffer: TBitmap32); override;
   public
@@ -50,12 +48,10 @@ implementation
 uses
   Math,
   SysUtils,
-  SunCalc,
   t_GeoTypes,
+  i_SunCalcDataProvider,
   u_GeoFunc,
-  u_SunCalcDrawTools,
-  u_MarkerSimpleConfigStatic,
-  u_MarkerDrawableSimpleCircle;
+  u_SunCalcDrawTools;
 
 resourcestring
   rsAzimuth = 'Azimuth';
@@ -71,11 +67,6 @@ begin
   FRepaintOnLocationChange := True;
   FCaption.Text := '';
   FCaption.Bitmap := nil;
-
-  FMarker :=
-    TMarkerDrawableSimpleCircle.Create(
-      TMarkerSimpleConfigStatic.Create(14, clYellow32, clRed32)
-    );
 end;
 
 destructor TWindowLayerSunCalcTimeInfo.Destroy;
@@ -86,20 +77,20 @@ end;
 
 procedure TWindowLayerSunCalcTimeInfo.DrawCaption(
   ABuffer: TBitmap32;
-  const ASunPoint: TPoint
+  const ACurrentPosition: TPoint
 );
 var
-  VSunPos: TSunPos;
+  VPos: TSunCalcProviderPosition;
   VAzimuth: string;
   VAltitude: string;
   VText: string;
   VRect: TRect;
   VTextSize: TSize;
 begin
-  VSunPos := SunCalc.GetPosition(FDateTime, FLocation.Y, FLocation.X);
+  VPos := FSunCalcDataProvider.GetPosition(FDateTime, FLocation);
 
-  VAzimuth := Format('%.2f°', [RadToDeg(VSunPos.Azimuth + Pi)]);
-  VAltitude := Format('%.2f°', [RadToDeg(VSunPos.Altitude)]);
+  VAzimuth := Format('%.2f°', [RadToDeg(VPos.Azimuth + Pi)]);
+  VAltitude := Format('%.2f°', [RadToDeg(VPos.Altitude)]);
   VText := Format('%s: %s; %s: %s', [rsAltitude, VAltitude, rsAzimuth, VAzimuth]);
 
   if not Assigned(FCaption.Bitmap) then begin
@@ -122,8 +113,8 @@ begin
     FCaption.Bitmap.DrawMode := dmBlend;
   end;
 
-  VRect.Left := ASunPoint.X + 12;
-  VRect.Top := ASunPoint.Y;
+  VRect.Left := ACurrentPosition.X + 12;
+  VRect.Top := ACurrentPosition.Y;
   VRect.Right := VRect.Left + FCaption.Bitmap.Width;
   VRect.Bottom := VRect.Top + FCaption.Bitmap.Height;
 
@@ -137,7 +128,7 @@ end;
 procedure TWindowLayerSunCalcTimeInfo.PaintLayer(ABuffer: TBitmap32);
 var
   VCenter: TFixedPoint;
-  VSunPoint: TFixedPoint;
+  VCurrentPos: TFixedPoint;
 begin
   if not FShapesGenerator.IsIntersectScreenRect then begin
     Exit;
@@ -148,20 +139,23 @@ begin
     FShapesGenerator.ValidateCache;
 
     // Current time info
-    FShapesGenerator.GetTimeInfoPoints(VSunPoint, VCenter);
+    FShapesGenerator.GetTimeInfoPoints(VCurrentPos, VCenter);
 
-    // Draw sun line
-    if (VSunPoint.X > 0) and (VSunPoint.Y > 0) then begin
-      ThickLine(ABuffer, VCenter, VSunPoint, FShapesColors.DayLineColor, 6);
+    // Draw line to the current position
+    if (VCurrentPos.X > 0) and (VCurrentPos.Y > 0) then begin
+      ThickLine(ABuffer, VCenter, VCurrentPos, FShapesColors.DayLineColor, 6);
 
-      // Draw sun marker
+      // Draw marker
       if FSunCalcConfig.IsRealTime then begin
-        FMarker.DrawToBitmap(ABuffer, DoublePoint(GR32.Point(VSunPoint)) );
+        FSunCalcDataProvider.DayMarker.DrawToBitmap(
+          ABuffer,
+          DoublePoint(GR32.Point(VCurrentPos))
+        );
       end;
 
       // Draw caption (Azimuth and Altitude info)
       if FSunCalcConfig.ShowCaptionNearSun then begin
-        DrawCaption(ABuffer, GR32.Point(VSunPoint));
+        DrawCaption(ABuffer, GR32.Point(VCurrentPos));
       end;
     end;
   finally

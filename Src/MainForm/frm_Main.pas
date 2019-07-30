@@ -1690,7 +1690,10 @@ begin
 
   FSelectedPolygon := nil;
 
-  FSunCalcProvider := TSunCalcProvider.Create;
+  FSunCalcProvider :=
+    TSunCalcProvider.Create(
+      FConfig.LayersConfig.SunCalcConfig
+    );
 
   InitLayers;
 

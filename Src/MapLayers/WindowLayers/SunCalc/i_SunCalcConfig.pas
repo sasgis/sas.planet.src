@@ -27,6 +27,8 @@ uses
   i_ConfigDataElement;
 
 type
+  TSunCalcDataProviderType = (scdpSun, scdpMoon);
+
   ISunCalcColorSchemaStatic = interface
     ['{59740592-7425-4E8C-BE19-DF7121E1ACC0}']
     function GetSchemaName: string;
@@ -135,6 +137,10 @@ type
     function GetIsRealTime: Boolean;
     procedure SetIsRealTime(const AValue: Boolean);
     property IsRealTime: Boolean read GetIsRealTime write SetIsRealTime;
+
+    function GetDataProviderType: TSunCalcDataProviderType;
+    procedure SetDataProviderType(const AValue: TSunCalcDataProviderType);
+    property DataProviderType: TSunCalcDataProviderType read GetDataProviderType write SetDataProviderType;
 
     function GetColorSchemaList: ISunCalcColorSchemaList;
     property ColorSchemaList: ISunCalcColorSchemaList read GetColorSchemaList;

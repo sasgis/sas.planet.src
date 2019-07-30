@@ -33,6 +33,7 @@ uses
   i_InternalPerformanceCounter,
   i_SunCalcShapesGenerator,
   i_SunCalcProvider,
+  i_SunCalcDataProvider,
   i_SunCalcConfig,
   u_WindowLayerBasicBase;
 
@@ -44,6 +45,8 @@ type
 
     FSunCalcConfig: ISunCalcConfig;
     FSunCalcProvider: ISunCalcProvider;
+    FSunCalcDataProvider: ISunCalcDataProvider;
+
     FLocalCoordConverter: ILocalCoordConverterChangeable;
 
     FFont: TSunCalcFontInfo;
@@ -58,6 +61,7 @@ type
 
     procedure OnSunCalcConfigChange;
     procedure OnSunCalcProviderChange;
+    procedure OnSunCalcDataProviderChange;
     procedure OnPosChange;
     procedure OnTimer;
   protected
@@ -114,6 +118,7 @@ begin
 
   FLocation := CEmptyDoublePoint;
   FDateTime := 0;
+  FSunCalcDataProvider := FSunCalcProvider.GetDataProviderChangeable.GetStatic;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnSunCalcConfigChange),
@@ -128,6 +133,11 @@ begin
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnSunCalcProviderChange),
     FSunCalcProvider.ChangeNotifier
+  );
+
+  LinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnSunCalcDataProviderChange),
+    FSunCalcProvider.GetDataProviderChangeable.ChangeNotifier
   );
 
   LinksList.Add(
@@ -212,6 +222,18 @@ begin
   end;
 end;
 
+procedure TWindowLayerSunCalcInfoBase.OnSunCalcDataProviderChange;
+begin
+  ViewUpdateLock;
+  try
+    FSunCalcDataProvider := FSunCalcProvider.GetDataProviderChangeable.GetStatic;
+    FShapesGenerator.SetDataProvider(FSunCalcDataProvider);
+    SetNeedFullRepaintLayer;
+  finally
+    ViewUpdateUnlock;
+  end;
+end;
+
 procedure TWindowLayerSunCalcInfoBase.OnPosChange;
 begin
   if Visible then begin
@@ -238,6 +260,7 @@ begin
   inherited;
   OnSunCalcConfigChange;
   OnSunCalcProviderChange;
+  OnSunCalcDataProviderChange;
 end;
 
 end.

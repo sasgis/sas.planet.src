@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2017, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -26,6 +26,7 @@ uses
   GR32,  
   t_SunCalcConfig,
   i_SunCalcConfig,
+  i_SunCalcDataProvider,
   u_TimeZoneInfo,
   u_WindowLayerSunCalcTimeLineBase;
 
@@ -33,8 +34,6 @@ type
   TWindowLayerSunCalcYearTimeLine = class(TWindowLayerSunCalcTimeLineBase)
   private
     FColors: TSunCalcTimeLineColors;
-    FFixedDates: array [0..3] of TDateTime;
-    procedure UpdateFixedDatesIfNeed; inline;
   protected
     function PosToUtcDateTime(const X: Integer): TDateTime; override;
     function UtcDateTimeToPosF(const ADateTime: TDateTime): Double; override;
@@ -49,14 +48,7 @@ implementation
 
 uses
   SysUtils,
-  DateUtils,
-  Solstice,
-  u_MarkerSimpleConfigStatic,
-  u_MarkerDrawableSimpleSquare;
-
-resourcestring
-  rsSolstice = 'Solstice at';
-  rsEquinox = 'Equinox at';
+  DateUtils;
 
 { TWindowLayerSunCalcYearTimeLine }
 
@@ -78,10 +70,7 @@ begin
 
   FTimeLineHeight := 4;
 
-  FMarker :=
-    TMarkerDrawableSimpleSquare.Create(
-      TMarkerSimpleConfigStatic.Create(8, clYellow32, clRed32)
-    );
+  FMarker := FSunCalcDataProvider.YearMarker;
 
   SetLength(FRenderedText, Length(cMonthText));
   for I := Low(FRenderedText) to High(FRenderedText) do begin
@@ -89,25 +78,8 @@ begin
     FRenderedText[I].Bitmap := nil;
   end;
 
-  for I := Low(FFixedDates) to High(FFixedDates) do begin
-    FFixedDates[I] := 0;
-  end;
-
   FRedrawOnDateChanged := True;
   FRedrawOnTzOffsetChanged := True;
-end;
-
-procedure TWindowLayerSunCalcYearTimeLine.UpdateFixedDatesIfNeed;
-var
-  VYear: Word;
-begin
-  VYear := YearOf(FDateTime);
-  if (FFixedDates[0] = 0) or (VYear <> YearOf(FFixedDates[0])) then begin
-    FFixedDates[0] := Solstice.March(VYear);
-    FFixedDates[1] := Solstice.June(VYear);
-    FFixedDates[2] := Solstice.September(VYear);
-    FFixedDates[3] := Solstice.December(VYear);
-  end;
 end;
 
 function TWindowLayerSunCalcYearTimeLine.UtcDateTimeToPosF(
@@ -166,12 +138,13 @@ var
   I: Integer;
   VRect: TRect;
   VDate: TDateTime;
-  VFixedDate: TDateTime;
+  VYearEvents: TSunCalcYearEvents;
+  VEventDate: TDateTime;
   VMarkerText: string;
 begin
   inherited;
 
-  UpdateFixedDatesIfNeed;
+  VYearEvents := FSunCalcDataProvider.GetYearEvents(FDateTime, FLocation);
 
   Layer.Bitmap.BeginUpdate;
   try
@@ -188,10 +161,10 @@ begin
     // Month lines and captions
     DrawScaleItems(FColors.VertLinesColor);
 
-    // Fixed days lines
-    for I := Low(FFixedDates) to High(FFixedDates) do begin
+    // Year event days lines
+    for I := Low(VYearEvents) to High(VYearEvents) do begin
       Layer.Bitmap.VertLineS(
-        Round(UtcDateTimeToPosF(FFixedDates[I])),
+        Round(UtcDateTimeToPosF(VYearEvents[I].Date)),
         FTimeLineTop - 6,
         FTimeLineTop - 1,
         clYellow32
@@ -202,15 +175,13 @@ begin
     if FIsShowMarkerCaption then begin
       VMarkerText := '';
       VDate := TTimeZoneInfo.UTCToTzLocalTime(FDateTime, FTzOffset);
-      for I := Low(FFixedDates) to High(FFixedDates) do begin
-        VFixedDate := TTimeZoneInfo.UTCToTzLocalTime(FFixedDates[I], FTzOffset);
-        if SameDate(VDate, VFixedDate) then begin
-          if (I = 0) or (I = 2) then begin
-            VMarkerText := rsEquinox;
-          end else begin
-            VMarkerText := rsSolstice;
-          end;
-          VMarkerText := ', ' + VMarkerText + ' ' + FormatDateTime('hh:mm', VFixedDate) +
+      for I := Low(VYearEvents) to High(VYearEvents) do begin
+        VEventDate := TTimeZoneInfo.UTCToTzLocalTime(VYearEvents[I].Date, FTzOffset);
+        if SameDate(VDate, VEventDate) then begin
+          VMarkerText :=
+            ', ' +
+            VYearEvents[I].Name + ' ' +
+            FormatDateTime('hh:nn', VEventDate) +
             TTimeZoneInfo.UTCOffsetToString(FTzOffset);
           Break;
         end;

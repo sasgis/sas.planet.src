@@ -22,9 +22,11 @@ unit u_SunCalcProvider;
 
 interface
 
-uses  
-  i_SunCalcProvider,
+uses
   t_GeoTypes,
+  i_SunCalcConfig,
+  i_SunCalcProvider,
+  i_SunCalcDataProvider,
   u_TimeZoneInfo,
   u_ConfigDataElementBase;
 
@@ -36,6 +38,7 @@ type
     FTz: TSunCalcTzInfo;
     FIsTzValid: Boolean;
     FTimeZoneInfo: TTimeZoneInfo;
+    FDataProviderChangeable: ISunCalcDataProviderChangeable;
   private
     { ISunCalcProvider }
     function GetLocation: TDoublePoint;
@@ -57,9 +60,11 @@ type
       out ATzOffset: Extended
     ): Boolean;
 
+    function GetDataProviderChangeable: ISunCalcDataProviderChangeable;
+
     procedure Reset;
   public
-    constructor Create;
+    constructor Create(const AConfig: ISunCalcConfig);
     destructor Destroy; override;
   end;
 
@@ -69,13 +74,15 @@ uses
   Math,
   SysUtils,
   DateUtils,
-  u_GeoFunc;
+  u_GeoFunc,
+  u_SunCalcDataProviderChangeable;
 
 { TSunCalcProvider }
 
-constructor TSunCalcProvider.Create;
+constructor TSunCalcProvider.Create(const AConfig: ISunCalcConfig);
 begin
   inherited Create;
+  FDataProviderChangeable := TSunCalcDataProviderChangeable.Create(AConfig);
   FTimeZoneInfo := TTimeZoneInfo.Create;
   Reset;
 end;
@@ -97,6 +104,11 @@ begin
   finally
     UnlockWrite;
   end;
+end;
+
+function TSunCalcProvider.GetDataProviderChangeable: ISunCalcDataProviderChangeable;
+begin
+  Result := FDataProviderChangeable;
 end;
 
 function TSunCalcProvider.GetDateTime: TDateTime;

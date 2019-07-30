@@ -37,6 +37,7 @@ uses
   i_MarkerDrawable,
   i_SunCalcConfig,
   i_SunCalcProvider,
+  i_SunCalcDataProvider,
   i_NotifierOperation,
   i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
@@ -72,6 +73,7 @@ type
     FPopUpMenu: IPopUp;
     FSunCalcConfig: ISunCalcConfig;
     FSunCalcProvider: ISunCalcProvider;
+    FSunCalcDataProvider: ISunCalcDataProvider;
     FLocalCoordConverter: ILocalCoordConverterChangeable;
 
     FRedrawOnDateChanged: Boolean;
@@ -102,6 +104,7 @@ type
     procedure OnTimerEvent;
     procedure OnSunCalcConfigChange; virtual; abstract;
     procedure OnSunCalcProviderChange;
+    procedure OnSunCalcDataProviderChange;
 
     procedure OnMouseDown(
       Sender: TObject;
@@ -193,6 +196,11 @@ begin
   );
 
   LinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnSunCalcDataProviderChange),
+    FSunCalcProvider.GetDataProviderChangeable.ChangeNotifier
+  );
+
+  LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnSunCalcConfigChange),
     FSunCalcConfig.ChangeNotifier
   );
@@ -222,7 +230,6 @@ begin
   FMarkerCaptionFont.TextColor := 0;
   FMarkerCaptionFont.BgColor := 0;
 
-
   FMargins := Rect(0, 0, 0, 0);
   FBorder := Rect(0, 0, 0, 0);
 
@@ -233,6 +240,7 @@ begin
 
   FDateTime := 0;
   FLocation := CEmptyDoublePoint;
+  FSunCalcDataProvider := FSunCalcProvider.GetDataProviderChangeable.GetStatic;
 
   FMarker := nil;
   FIsMarkerMoving := False;
@@ -527,6 +535,17 @@ begin
   end;
 end;
 
+procedure TWindowLayerSunCalcTimeLineBase.OnSunCalcDataProviderChange;
+begin
+  ViewUpdateLock;
+  try
+    FSunCalcDataProvider := FSunCalcProvider.GetDataProviderChangeable.GetStatic;
+    SetNeedUpdateBitmapDraw;
+  finally
+    ViewUpdateUnlock;
+  end;
+end;
+
 function TWindowLayerSunCalcTimeLineBase.IsMouseAboveMarker: Boolean;
 var
   VMousePos: TPoint;
@@ -603,6 +622,7 @@ begin
   inherited;
   OnSunCalcConfigChange;
   OnSunCalcProviderChange;
+  OnSunCalcDataProviderChange;
 end;
 
 end.

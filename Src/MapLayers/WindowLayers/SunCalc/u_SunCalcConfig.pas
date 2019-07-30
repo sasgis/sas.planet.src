@@ -41,6 +41,7 @@ type
     FIsDetailedView: Boolean;
     FShowCaptionNearSun: Boolean;
     FIsRealTime: Boolean;
+    FDataProviderType: TSunCalcDataProviderType;
     FColorSchemaList: ISunCalcColorSchemaList;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
@@ -73,6 +74,9 @@ type
 
     function GetIsRealTime: Boolean;
     procedure SetIsRealTime(const AValue: Boolean);
+
+    function GetDataProviderType: TSunCalcDataProviderType;
+    procedure SetDataProviderType(const AValue: TSunCalcDataProviderType);
 
     function GetColorSchemaList: ISunCalcColorSchemaList;
   public
@@ -209,6 +213,7 @@ begin
   FIsDetailedView := False;
   FShowCaptionNearSun := False;
   FIsRealTime := False;
+  FDataProviderType := scdpSun;
 
   FColorSchemaList := TSunCalcColorSchemaList.Create;
 end;
@@ -271,6 +276,16 @@ begin
   LockRead;
   try
     Result := FColorSchemaList;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TSunCalcConfig.GetDataProviderType: TSunCalcDataProviderType;
+begin
+  LockRead;
+  try
+    Result := FDataProviderType;
   finally
     UnlockRead;
   end;
@@ -362,6 +377,19 @@ begin
   try
     if FCircleRadius <> AValue then begin
       FCircleRadius := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TSunCalcConfig.SetDataProviderType(const AValue: TSunCalcDataProviderType);
+begin
+  LockWrite;
+  try
+    if FDataProviderType <> AValue then begin
+      FDataProviderType := AValue;
       SetChanged;
     end;
   finally

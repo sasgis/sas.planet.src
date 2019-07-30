@@ -24,7 +24,8 @@ interface
 
 uses
   GR32,
-  t_GeoTypes;
+  t_GeoTypes,
+  i_SunCalcDataProvider;
 
 type
   ISunCalcShapesGenerator = interface
@@ -35,26 +36,27 @@ type
     
     procedure SetLocation(const AValue: TDoublePoint);
     procedure SetDateTime(const AValue: TDateTime);
+    procedure SetDataProvider(const AProvider: ISunCalcDataProvider);
 
     procedure GetCirclePoints(
       out ACirclePoints: TArrayOfFixedPoint
     );
 
-    procedure GetYearInfoPoints(
-      out ALongestDayPoints: TArrayOfFixedPoint;
-      out AShortestDayPoints: TArrayOfFixedPoint;
-      out ASunlightFillPoints: TArrayOfFixedPoint
+    procedure GetMinMaxAltitudePoints(
+      out AMinAltitudePoints: TArrayOfFixedPoint;
+      out AMaxAltitudePoints: TArrayOfFixedPoint;
+      out AMinMaxAltitudePolygon: TArrayOfFixedPoint
     );
 
     procedure GetDayInfoPoints(
       out ADayPoints: TArrayOfFixedPoint;
-      out ASunrise: TFixedPoint;
-      out ASunset: TFixedPoint;
+      out ARise: TFixedPoint;
+      out ASet: TFixedPoint;
       out ACenter: TFixedPoint
     );
 
     procedure GetTimeInfoPoints(
-      out ASunPos: TFixedPoint;
+      out APos: TFixedPoint;
       out ACenter: TFixedPoint
     );
   end;

@@ -23,8 +23,9 @@ unit i_SunCalcProvider;
 interface
 
 uses
+  t_GeoTypes,
   i_ConfigDataElement,
-  t_GeoTypes;
+  i_SunCalcDataProvider;
 
 type
   TSunCalcTzInfo = record
@@ -56,6 +57,8 @@ type
       const AUTCTime: TDateTime;
       out ATzOffset: Extended
     ): Boolean;
+
+    function GetDataProviderChangeable: ISunCalcDataProviderChangeable;
 
     procedure Reset;
   end;

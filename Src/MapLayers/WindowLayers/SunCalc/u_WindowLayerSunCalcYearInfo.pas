@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2017, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -37,7 +37,8 @@ type
 implementation
 
 uses
-  GR32_Polygons;
+  GR32_Polygons,
+  i_SunCalcConfig;
 
 { TWindowLayerSunCalcYearInfo }
 
@@ -51,7 +52,7 @@ end;
 
 procedure TWindowLayerSunCalcYearInfo.PaintLayer(ABuffer: TBitmap32);
 var
-  VCircle, VCurve1, VCurve2, VPoly: TArrayOfFixedPoint;
+  VCircle, VMaxAlt, VMinAlt, VPoly: TArrayOfFixedPoint;
 begin
   if not FShapesGenerator.IsIntersectScreenRect then begin
     Exit;
@@ -67,23 +68,22 @@ begin
       PolylineXS(ABuffer, VCircle, FShapesColors.YearCircleColor, True);
     end;
 
-    // Year info
-    FShapesGenerator.GetYearInfoPoints(VCurve1, VCurve2, VPoly);
+    // Min/Max altitude
+    FShapesGenerator.GetMinMaxAltitudePoints(VMinAlt, VMaxAlt, VPoly);
 
-    // Draw longest day curve
-    if Length(VCurve1) > 0 then begin
-      PolylineXS(ABuffer, VCurve1, FShapesColors.YearPolyLinesColor, False);
+    if Length(VMinAlt) > 0 then begin
+      PolylineXS(ABuffer, VMinAlt, FShapesColors.YearPolyLinesColor, False);
     end;
 
-    // Draw shortest day curve
-    if Length(VCurve2) > 0 then begin
-      PolylineXS(ABuffer, VCurve2, FShapesColors.YearPolyLinesColor, False);
+    if Length(VMaxAlt) > 0 then begin
+      PolylineXS(ABuffer, VMaxAlt, FShapesColors.YearPolyLinesColor, False);
     end;
 
-    // Draw transparent polygon betwen longest and shortest day curves
+    // Draw transparent polygon betwen min and max altitude curves
     if Length(VPoly) > 0 then begin
       PolygonTS(ABuffer, VPoly, FShapesColors.YearPolygonFillColor);
     end;
+
   finally
     ABuffer.EndUpdate;
     ABuffer.Changed;
