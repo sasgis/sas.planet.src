@@ -51,7 +51,8 @@ end;
 
 procedure TWindowLayerSunCalcDayInfo.PaintLayer(ABuffer: TBitmap32);
 var
-  VDayPoints: TArrayOfFixedPoint;
+  I: Integer;
+  VDayPoints: TArrayOfArrayOfFixedPoint;
   VRisePoint: TFixedPoint;
   VSetPoint: TFixedPoint;
   VCenter: TFixedPoint;
@@ -68,13 +69,17 @@ begin
     FShapesGenerator.GetDayInfoPoints(VDayPoints, VRisePoint, VSetPoint, VCenter);
 
     // Draw day curve
-    if Length(VDayPoints) > 0 then begin
-      ThickPolyLine(ABuffer, VDayPoints, FShapesColors.DayPolyLineColor);
+    for I := 0 to Length(VDayPoints) - 1 do begin
+      ThickPolyLine(ABuffer, VDayPoints[I], FShapesColors.DayPolyLineColor);
     end;
 
-    // Draw rise and set lines
-    if (VRisePoint.X <> VSetPoint.X) and (VRisePoint.Y <> VSetPoint.Y) then begin
+    // Draw rise line
+    if VRisePoint.X > 0 then begin
       ThickLine(ABuffer, VCenter, VRisePoint, FShapesColors.DaySunriseLineColor, 6);
+    end;
+
+    // Draw set line
+    if VSetPoint.X > 0 then begin
       ThickLine(ABuffer, VCenter, VSetPoint, FShapesColors.DaySunsetLineColor, 6);
     end;
   finally

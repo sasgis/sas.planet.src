@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  Math,
   GR32,
   t_GeoTypes,
   i_LocalCoordConverter,
@@ -41,48 +42,65 @@ type
 
     FLocation: TDoublePoint;
     FDateTime: TDateTime;
+    FTimeZone: Double;
+    FStartOfTheDay: TDateTime;
+    FEndOfTheDay: TDateTime;
     FDataProvider: ISunCalcDataProvider;
 
     FCirclePoints: TArrayOfFixedPoint;
     FIsCirclePointsValid: Boolean;
+
+    FMinAltitude: Double;
 
     FMaxAltitudeDayPoints: TArrayOfFixedPoint;
     FMinAltitudeDayPoints: TArrayOfFixedPoint;
     FMinMaxAltitudePoly: TArrayOfFixedPoint;
     FIsAltitudePointsValid: Boolean;
 
-    FDayPoints: TArrayOfFixedPoint;
+    FDayPoints: TArrayOfArrayOfFixedPoint;
     FRisePoint: TFixedPoint;
     FSetPoint: TFixedPoint;
     FIsDayInfoPointsValid: Boolean;
 
     FCurrentPos: TFixedPoint;
-    FIsTimeInfoPointsValid: Boolean;
+    FIsCurrentPosValid: Boolean;
 
     FLocalCoordConverter: ILocalCoordConverterChangeable;
   private
     function CalcCenter: TFloatPoint;
     function IsValidSate: Boolean; inline;
 
-    procedure GetPointPosition(
+    function GetPointPosition(
       const ADate: TDateTime;
-      out APoint: TFixedPoint;
-      out AIsBelowHorizont: Boolean
-    ); inline;
+      out AAltitude: Double
+    ): TFixedPoint; inline;
 
     function GenerateCurvePoints(
-      const ADate: TDateTime;
-      const AIgnoreInvisiblePos: Boolean
-    ): TArrayOfFixedPoint;
+      const AStartOfTheDay: TDateTime;
+      const AEndOfTheDay: TDateTime
+    ): TArrayOfArrayOfFixedPoint;
+
+    procedure UpdateMinAltitude(
+      const AStartOfTheDay: TDateTime;
+      const AEndOfTheDay: TDateTime
+    );
   private
     { ISunCalcShapesGenerator }
     procedure ValidateCache;
 
     function IsIntersectScreenRect: Boolean;
 
-    procedure SetLocation(const AValue: TDoublePoint);
-    procedure SetDateTime(const AValue: TDateTime);
-    procedure SetDataProvider(const AProvider: ISunCalcDataProvider);
+    procedure SetLocation(
+      const ALonLat: TDoublePoint
+    );
+    procedure SetDateTime(
+      const AUtcDateTime: TDateTime;
+      const AUtcOffset: Double
+    );
+
+    procedure SetDataProvider(
+      const AProvider: ISunCalcDataProvider
+    );
 
     procedure GetCirclePoints(
       out ACirclePoints: TArrayOfFixedPoint
@@ -95,7 +113,7 @@ type
     );
 
     procedure GetDayInfoPoints(
-      out ADayPoints: TArrayOfFixedPoint;
+      out ADayPoints: TArrayOfArrayOfFixedPoint;
       out ARise: TFixedPoint;
       out ASet: TFixedPoint;
       out ACenter: TFixedPoint
@@ -115,9 +133,10 @@ type
 implementation
 
 uses
-  Math,
   DateUtils,
-  GR32_Math;
+  GR32_Math,
+  t_SunCalcDataProvider,
+  u_TimeZoneInfo;
 
 function IsSameFloatPoint(const A, B: TFloatPoint): Boolean; inline;
 begin
@@ -139,7 +158,11 @@ begin
   FLocalCoordConverter := ALocalCoordConverter;
   FRadius := ARadius;
 
+  FMinAltitude := 0;
+
   FDateTime := 0;
+  FStartOfTheDay := 0;
+  FEndOfTheDay := 0;
   FLocation := CEmptyDoublePoint;
   FDataProvider := nil;
 
@@ -149,7 +172,7 @@ begin
   FIsCirclePointsValid := False;
   FIsAltitudePointsValid := False;
   FIsDayInfoPointsValid := False;
-  FIsTimeInfoPointsValid := False;
+  FIsCurrentPosValid := False;
 end;
 
 function GenerateCircle(
@@ -206,92 +229,119 @@ begin
   ACirclePoints := FCirclePoints;
 end;
 
-procedure TSunCalcShapesGenerator.GetPointPosition(
+function TSunCalcShapesGenerator.GetPointPosition(
   const ADate: TDateTime;
-  out APoint: TFixedPoint;
-  out AIsBelowHorizont: Boolean
-);
+  out AAltitude: Double
+): TFixedPoint;
 var
   VPos: TSunCalcProviderPosition;
   VAngle: Double;
   R: Double;
 begin
+  if ADate = 0 then begin
+    AAltitude := 0;
+    Result := FixedPoint(0, 0);
+    Exit;
+  end;
   VPos := FDataProvider.GetPosition(ADate, FLocation);
   VAngle := Pi / 2 + VPos.Azimuth;
   R := FRadius * Cos(VPos.Altitude);
-  APoint.X := Fixed(FCenter.X + R * Cos(VAngle));
-  APoint.Y := Fixed(FCenter.Y + R * Sin(VAngle));
-  AIsBelowHorizont := VPos.Altitude < 0;
+  AAltitude := VPos.Altitude;
+  Result.X := Fixed(FCenter.X + R * Cos(VAngle));
+  Result.Y := Fixed(FCenter.Y + R * Sin(VAngle));
 end;
 
 function TSunCalcShapesGenerator.GenerateCurvePoints(
-  const ADate: TDateTime;
-  const AIgnoreInvisiblePos: Boolean
-): TArrayOfFixedPoint;
-const
-  cStep = 20; // minutes
+  const AStartOfTheDay: TDateTime;
+  const AEndOfTheDay: TDateTime
+): TArrayOfArrayOfFixedPoint;
+
+  function GetInterval(const AStart, AEnd: TDateTime): TArrayOfFixedPoint;
+  const
+    cStep = 20; // minutes
+  var
+    I, J: Integer;
+    VCount: Integer;
+    VAltitude: Double;
+    VTimePoints: array of TDateTime;
+  begin
+    // make times
+    VCount := Floor(MinutesBetween(AStart, AEnd) / cStep) + 1;
+    SetLength(VTimePoints, VCount);
+
+    for I := 0 to VCount - 2 {!} do begin
+      VTimePoints[I] := IncMinute(AStart, I * cStep);
+    end;
+    VTimePoints[VCount-1] := AEnd;
+
+    SetLength(Result, VCount);
+
+    // calc positions
+    J := 0;
+    for I := 0 to VCount - 1 do begin
+      Result[J] := GetPointPosition(VTimePoints[I], VAltitude);
+      if VAltitude >= FMinAltitude then begin
+        Inc(J);
+      end;
+    end;
+
+    if J = 1 then begin
+      Dec(J);
+    end;
+
+    SetLength(Result, J);
+  end;
+
 var
-  I, J: Integer;
-  VCount: Integer;
+  I: Integer;
   VTimes: TSunCalcProviderTimes;
-  VStart, VEnd: TDateTime;
-  VIsCurveBelowHorizont: Boolean;
-  VIsPointBelowHorizont: Boolean;
-  VTimePoints: array of TDateTime;
 begin
-  if ADate = 0 then begin
-    SetLength(Result, 0);
+  UpdateMinAltitude(AStartOfTheDay, AEndOfTheDay);
+
+  SetLength(Result, 0);
+
+  if (AStartOfTheDay = 0) or (AEndOfTheDay = 0) then begin
     Exit;
   end;
 
-  VTimes := FDataProvider.GetTimes(ADate, FLocation);
+  VTimes := FDataProvider.GetTimes(AStartOfTheDay, AEndOfTheDay, FLocation);
 
-  // rise start
-  if VTimes.RiseUtcTime <> 0 then begin
-    VStart := VTimes.RiseUtcTime;
+  if VTimes.RiseTime = 0 then begin
+    VTimes.RiseTime := AStartOfTheDay;
+  end;
+
+  if VTimes.SetTime = 0 then begin
+    VTimes.SetTime := AEndOfTheDay;
+  end;
+
+  if SameValue(VTimes.RiseTime, VTimes.SetTime) then begin
+    Exit;
+  end;
+
+  I := 0;
+
+  if VTimes.RiseTime < VTimes.SetTime then begin
+    SetLength(Result, 1);
+
+    Result[I] := GetInterval(VTimes.RiseTime, VTimes.SetTime);
+    if Length(Result[I]) > 0 then begin
+      Inc(I);
+    end;
   end else begin
-    VStart := ADate;
-  end;
+    SetLength(Result, 2);
 
-  // set end
-  if VTimes.SetUtcTime <> 0 then begin
-    VEnd := VTimes.SetUtcTime;
-  end else begin
-    VEnd := IncDay(ADate, 1);
-  end;
+    Result[I] := GetInterval(AStartOfTheDay, VTimes.SetTime);
+    if Length(Result[I]) > 0 then begin
+      Inc(I)
+    end;
 
-  // make time points
-  VCount := MinutesBetween(VStart, VEnd) div cStep;
-  SetLength(VTimePoints, VCount + 1);
-  for I := 0 to VCount - 1 do begin
-    VTimePoints[I] := IncMinute(VStart, I * cStep);
-  end;
-  VTimePoints[VCount] := VEnd;
-
-  // calc points posions
-  J := 0;
-  VIsCurveBelowHorizont := True;
-  SetLength(Result, Length(VTimePoints));
-  for I := 0 to Length(VTimePoints) - 1 do begin
-    GetPointPosition(
-      VTimePoints[I],
-      Result[J],
-      VIsPointBelowHorizont
-    );
-    if VIsPointBelowHorizont then begin
-      if not AIgnoreInvisiblePos then begin
-        Inc(J);
-      end;
-    end else begin
-      VIsCurveBelowHorizont := False;
-      Inc(J);
+    Result[I] := GetInterval(VTimes.RiseTime, AEndOfTheDay);
+    if Length(Result[I]) > 0 then begin
+      Inc(I)
     end;
   end;
-  if VIsCurveBelowHorizont then begin
-    SetLength(Result, 0);
-  end else begin
-    SetLength(Result, J);
-  end;
+
+  SetLength(Result, I);
 end;
 
 function GenerateCircleSegment(
@@ -348,6 +398,7 @@ procedure TSunCalcShapesGenerator.GetMinMaxAltitudePoints(
 var
   I, J: Integer;
   VDay: TDateTime;
+  VPoints: TArrayOfArrayOfFixedPoint;
   VLen1, VLen2, VLen3, VLen4: Integer;
   VSeg1, VSeg2: TArrayOfFixedPoint;
 begin
@@ -362,13 +413,22 @@ begin
 
   if not FIsAltitudePointsValid then begin
     // min altitude curve
-    VDay := FDataProvider.GetMinAltitudeDay(FDateTime, FLocation);
-    FMinAltitudeDayPoints := GenerateCurvePoints(VDay, False);
+    VDay := FDataProvider.GetMinAltitudeDay(FStartOfTheDay, FLocation);
+    VPoints := GenerateCurvePoints(StartOfTheDay(VDay), EndOfTheDay(VDay));
+    if Length(VPoints) > 0 then begin
+      FMinAltitudeDayPoints := VPoints[0];
+    end else begin
+      FMinAltitudeDayPoints := nil;
+    end;
 
     // max altitude curve
-    VDay := FDataProvider.GetMaxAltitudeDay(FDateTime, FLocation);
-    FMaxAltitudeDayPoints := GenerateCurvePoints(VDay, False);
-
+    VDay := FDataProvider.GetMaxAltitudeDay(FStartOfTheDay, FLocation);
+    VPoints := GenerateCurvePoints(StartOfTheDay(VDay), EndOfTheDay(VDay));
+    if Length(VPoints) > 0 then begin
+      FMaxAltitudeDayPoints := VPoints[0];
+    end else begin
+      FMaxAltitudeDayPoints := nil;
+    end;
 
     // Polygon between min/max curves
     VLen1 := Length(FMaxAltitudeDayPoints);
@@ -425,56 +485,42 @@ begin
 end;
 
 procedure TSunCalcShapesGenerator.GetDayInfoPoints(
-  out ADayPoints: TArrayOfFixedPoint;
+  out ADayPoints: TArrayOfArrayOfFixedPoint;
   out ARise, ASet, ACenter: TFixedPoint
 );
 var
   VTimes: TSunCalcProviderTimes;
-  VIsPointBelowHorizont: Boolean;
+  VAltitude: Double;
 begin
+  ACenter := FixedPoint(FCenter);
+
   if not IsValidSate then begin
     SetLength(ADayPoints, 0);
     ARise := FixedPoint(0, 0);
     ASet := FixedPoint(0, 0);
-    ACenter := FixedPoint(0, 0);
     Exit;
   end;
 
   Assert(IsIntersectScreenRect, 'SunCalc: Shape is out of screen rect!');
 
   if not FIsDayInfoPointsValid then begin
-    VTimes := FDataProvider.GetTimes(FDateTime, FLocation);
-
-    FDayPoints := GenerateCurvePoints(FDateTime, False);
-
-    // rise
-    GetPointPosition(
-      VTimes.RiseUtcTime,
-      FRisePoint,
-      VIsPointBelowHorizont
-    );
-
-    // set
-    GetPointPosition(
-      VTimes.SetUtcTime,
-      FSetPoint,
-      VIsPointBelowHorizont
-    );
-
+    VTimes := FDataProvider.GetTimes(FStartOfTheDay, FEndOfTheDay, FLocation);
+    FDayPoints := GenerateCurvePoints(FStartOfTheDay, FEndOfTheDay);
+    FRisePoint := GetPointPosition(VTimes.RiseTime, VAltitude);
+    FSetPoint := GetPointPosition(VTimes.SetTime, VAltitude);
     FIsDayInfoPointsValid := True;
   end;
 
   ADayPoints := FDayPoints;
   ARise := FRisePoint;
   ASet := FSetPoint;
-  ACenter := FixedPoint(FCenter);
 end;
 
 procedure TSunCalcShapesGenerator.GetTimeInfoPoints(
   out APos, ACenter: TFixedPoint
 );
 var
-  VIsPointBelowHorizont: Boolean;
+  VAltitude: Double;
 begin
   if not IsValidSate then begin
     APos := FixedPoint(0, 0);
@@ -484,22 +530,45 @@ begin
 
   Assert(IsIntersectScreenRect, 'SunCalc: Shape is out of screen rect!');
 
-  if not FIsTimeInfoPointsValid then begin
-    GetPointPosition(
-      FDateTime,
-      FCurrentPos,
-      VIsPointBelowHorizont
-    );
+  if not FIsCurrentPosValid then begin
+    FCurrentPos := GetPointPosition(FDateTime, VAltitude);
 
-    if VIsPointBelowHorizont then begin
-      FCurrentPos := FixedPoint(0, 0);
+    if VAltitude < FMinAltitude then begin
+      UpdateMinAltitude(FStartOfTheDay, FEndOfTheDay);
+      if VAltitude < FMinAltitude then begin
+        FCurrentPos := FixedPoint(0, 0);
+      end;
     end;
 
-    FIsTimeInfoPointsValid := True;
+    FIsCurrentPosValid := True;
   end;
 
   APos := FCurrentPos;
   ACenter := FixedPoint(FCenter);
+end;
+
+procedure TSunCalcShapesGenerator.UpdateMinAltitude(
+  const AStartOfTheDay: TDateTime;
+  const AEndOfTheDay: TDateTime
+);
+var
+  VAlt: Double;
+  VPoint: TFixedPoint;
+  VTimes: TSunCalcProviderTimes;
+begin
+  FMinAltitude := 0;
+
+  VTimes := FDataProvider.GetTimes(AStartOfTheDay, AEndOfTheDay, FLocation);
+
+  VPoint := GetPointPosition(VTimes.RiseTime, VAlt);
+  if VPoint.X > 0 then begin
+    FMinAltitude := Min(VAlt, FMinAltitude);
+  end;
+
+  VPoint := GetPointPosition(VTimes.SetTime, VAlt);
+  if VPoint.X > 0 then begin
+    FMinAltitude := Min(VAlt, FMinAltitude);
+  end;
 end;
 
 procedure TSunCalcShapesGenerator.SetDataProvider(const AProvider: ISunCalcDataProvider);
@@ -509,28 +578,44 @@ begin
   FIsCirclePointsValid := False;
   FIsAltitudePointsValid := False;
   FIsDayInfoPointsValid := False;
-  FIsTimeInfoPointsValid := False;
+  FIsCurrentPosValid := False;
 end;
 
-procedure TSunCalcShapesGenerator.SetDateTime(const AValue: TDateTime);
+procedure TSunCalcShapesGenerator.SetDateTime(
+  const AUtcDateTime: TDateTime;
+  const AUtcOffset: Double
+);
+var
+  VLocalTime: TDateTime;
 begin
-  if FDateTime <> AValue then begin
-    FIsTimeInfoPointsValid := False;
-    FIsDayInfoPointsValid := FIsDayInfoPointsValid and IsSameDay(FDateTime, AValue);
-    FDateTime := AValue;
+  if (AUtcDateTime <> FDateTime) or (AUtcOffset <> FTimeZone) then begin
+    FIsCurrentPosValid := False;
+
+    FIsDayInfoPointsValid :=
+      FIsDayInfoPointsValid and
+      (AUtcOffset = FTimeZone) and
+      IsSameDay(AUtcDateTime, FDateTime);
+
+    FDateTime := AUtcDateTime;
+    FTimeZone := AUtcOffset;
+
+    VLocalTime := TTimeZoneInfo.UTCToTzLocalTime(FDateTime, FTimeZone);
+
+    FStartOfTheDay := TTimeZoneInfo.TzLocalTimeToUTC(StartOfTheDay(VLocalTime), FTimeZone);
+    FEndOfTheDay := TTimeZoneInfo.TzLocalTimeToUTC(EndOfTheDay(VLocalTime), FTimeZone);
   end;
 end;
 
-procedure TSunCalcShapesGenerator.SetLocation(const AValue: TDoublePoint);
+procedure TSunCalcShapesGenerator.SetLocation(const ALonLat: TDoublePoint);
 begin
-  if not DoublePointsEqual(FLocation, AValue) then begin
-    FLocation := AValue;
+  if not DoublePointsEqual(FLocation, ALonLat) then begin
+    FLocation := ALonLat;
     FCenter := CalcCenter;
 
     FIsCirclePointsValid := False;
     FIsAltitudePointsValid := False;
     FIsDayInfoPointsValid := False;
-    FIsTimeInfoPointsValid := False;
+    FIsCurrentPosValid := False;
   end;
 end;
 
@@ -548,7 +633,7 @@ begin
     FIsCirclePointsValid := False;
     FIsAltitudePointsValid := False;
     FIsDayInfoPointsValid := False;
-    FIsTimeInfoPointsValid := False;
+    FIsCurrentPosValid := False;
   end;
 end;
 

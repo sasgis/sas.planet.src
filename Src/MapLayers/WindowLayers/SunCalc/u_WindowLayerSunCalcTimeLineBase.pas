@@ -67,6 +67,8 @@ type
 
     FLocation: TDoublePoint;
     FDateTime: TDateTime;
+    FStartOfTheDay: TDateTime;
+    FEndOfTheDay: TDateTime;
     FTzOffset: Extended;
     FIsMarkerMoving: Boolean;
 
@@ -530,6 +532,11 @@ begin
     FDateTime := VDateTime;
     FLocation := VLocation;
     FTzOffset := VTzOffset;
+
+    VDateTime := TTimeZoneInfo.UTCToTzLocalTime(FDateTime, FTzOffset);
+
+    FStartOfTheDay := TTimeZoneInfo.TzLocalTimeToUTC(StartOfTheDay(VDateTime), FTzOffset);
+    FEndOfTheDay := TTimeZoneInfo.TzLocalTimeToUTC(EndOfTheDay(VDateTime), FTzOffset);
   finally
     ViewUpdateUnlock;
   end;

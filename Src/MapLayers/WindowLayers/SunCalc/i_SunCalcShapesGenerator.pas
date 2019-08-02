@@ -34,9 +34,18 @@ type
 
     function IsIntersectScreenRect: Boolean;
     
-    procedure SetLocation(const AValue: TDoublePoint);
-    procedure SetDateTime(const AValue: TDateTime);
-    procedure SetDataProvider(const AProvider: ISunCalcDataProvider);
+    procedure SetLocation(
+      const ALonLat: TDoublePoint
+    );
+
+    procedure SetDateTime(
+      const AUtcDateTime: TDateTime;
+      const AUtcOffset: Double
+    );
+
+    procedure SetDataProvider(
+      const AProvider: ISunCalcDataProvider
+    );
 
     procedure GetCirclePoints(
       out ACirclePoints: TArrayOfFixedPoint
@@ -49,7 +58,7 @@ type
     );
 
     procedure GetDayInfoPoints(
-      out ADayPoints: TArrayOfFixedPoint;
+      out ADayPoints: TArrayOfArrayOfFixedPoint;
       out ARise: TFixedPoint;
       out ASet: TFixedPoint;
       out ACenter: TFixedPoint

@@ -1401,10 +1401,13 @@
         <DCCReference Include="Src\MapLayers\WindowLayers\StatusBar\u_StatBarConfig.pas"/>
         <DCCReference Include="Src\MapLayers\WindowLayers\StatusBar\u_WindowLayerStatusBar.pas"/>
         <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\i_SunCalcConfig.pas"/>
+        <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\i_SunCalcDataProvider.pas"/>
         <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\i_SunCalcProvider.pas"/>
         <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\i_SunCalcShapesGenerator.pas"/>
         <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\t_SunCalcConfig.pas"/>
         <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcConfig.pas"/>
+        <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcDataProviderChangeable.pas"/>
+        <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcDataProviderSun.pas"/>
         <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcDrawTools.pas"/>
         <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcProvider.pas"/>
         <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcShapesGenerator.pas"/>
@@ -2489,9 +2492,8 @@
         <DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
         <DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
         <DCCReference Include="Src\u_WindowPositionConfig.pas"/>
-        <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\i_SunCalcDataProvider.pas"/>
-        <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcDataProviderChangeable.pas"/>
-        <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcDataProviderSun.pas"/>
+        <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcDataProviderMoon.pas"/>
+        <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\t_SunCalcDataProvider.pas"/>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

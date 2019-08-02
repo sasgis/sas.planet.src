@@ -49,6 +49,7 @@ uses
   Math,
   SysUtils,
   t_GeoTypes,
+  t_SunCalcDataProvider,
   i_SunCalcDataProvider,
   u_GeoFunc,
   u_SunCalcDrawTools;

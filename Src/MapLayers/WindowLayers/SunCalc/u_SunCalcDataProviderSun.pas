@@ -25,6 +25,7 @@ interface
 uses
   SunCalc,
   t_GeoTypes,
+  t_SunCalcDataProvider,
   i_MarkerDrawable,
   i_SunCalcDataProvider,
   u_BaseInterfacedObject;
@@ -53,7 +54,8 @@ type
   private
     { ISunCalcDataProvider }
     function GetTimes(
-      const AUtcDate: TDateTime;
+      const AStartOfTheDay: TDateTime;
+      const AEndOfTheDay: TDateTime;
       const ALonLat: TDoublePoint
     ): TSunCalcProviderTimes;
 
@@ -73,9 +75,7 @@ type
     ): TDateTime;
 
     function GetDayEvents(
-      const AUtcDate: TDateTime;
-      const ALonLat: TDoublePoint;
-      const AIsFullDetails: Boolean
+      const AParams: TSunCalcParams
     ): TSunCalcDayEvents;
 
     function GetYearEvents(
@@ -156,7 +156,8 @@ begin
 end;
 
 function TSunCalcDataProviderSun.GetTimes(
-  const AUtcDate: TDateTime;
+  const AStartOfTheDay: TDateTime;
+  const AEndOfTheDay: TDateTime;
   const ALonLat: TDoublePoint
 ): TSunCalcProviderTimes;
 var
@@ -164,18 +165,18 @@ var
 begin
   VIsTimesValid :=
     FIsTimesPrepared and
-    SameDate(AUtcDate, FTimesDate) and
+    SameDate(AStartOfTheDay, FTimesDate) and
     DoublePointsEqual(ALonLat, FTimesLocation);
 
   if not VIsTimesValid then begin
-    FTimes := SunCalc.GetTimes(AUtcDate, ALonLat.Y, ALonLat.X);
-    FTimesDate := AUtcDate;
+    FTimes := SunCalc.GetTimes(AStartOfTheDay, ALonLat.Y, ALonLat.X);
+    FTimesDate := AStartOfTheDay;
     FTimesLocation := ALonLat;
     FIsTimesPrepared := True;
   end;
 
-  Result.RiseUtcTime := FTimes[sunrise].Value;
-  Result.SetUtcTime := FTimes[sunset].Value;
+  Result.RiseTime := FTimes[sunrise].Value;
+  Result.SetTime := FTimes[sunset].Value;
 end;
 
 procedure TSunCalcDataProviderSun.YearEventsValidate(const AUtcDate: TDateTime);
@@ -291,9 +292,7 @@ begin
 end;
 
 function TSunCalcDataProviderSun.GetDayEvents(
-  const AUtcDate: TDateTime;
-  const ALonLat: TDoublePoint;
-  const AIsFullDetails: Boolean
+  const AParams: TSunCalcParams
 ): TSunCalcDayEvents;
 var
   I: Integer;
@@ -305,29 +304,29 @@ var
 begin
   VIsTimesValid :=
     FIsTimesPrepared and
-    SameDate(AUtcDate, FTimesDate) and
-    DoublePointsEqual(ALonLat, FTimesLocation);
+    SameDate(AParams.StartOfTheDay, FTimesDate) and
+    DoublePointsEqual(AParams.LonLat, FTimesLocation);
 
   VIsDayEventsValid :=
     VIsTimesValid and
     FIsDayEventsPrepared and
-    (AIsFullDetails = FDayEventsIsFullDetails);
+    (AParams.IsFullDetails = FDayEventsIsFullDetails);
 
   if VIsDayEventsValid then begin
     Result := FDayEvents;
     Exit;
   end;
 
-  if AIsFullDetails then begin
+  if AParams.IsFullDetails then begin
     VItems := GetDayEventItems;
   end else begin
     VItems := GetDayEventItemsShort;
   end;
 
   if not VIsTimesValid then begin
-    FTimes := SunCalc.GetTimes(AUtcDate, ALonLat.Y, ALonLat.X);
-    FTimesDate := AUtcDate;
-    FTimesLocation := ALonLat;
+    FTimes := SunCalc.GetTimes(AParams.StartOfTheDay, AParams.LonLat.Y, AParams.LonLat.X);
+    FTimesDate := AParams.StartOfTheDay;
+    FTimesLocation := AParams.LonLat;
     FIsTimesPrepared := True;
   end;
 
@@ -338,7 +337,7 @@ begin
     VTimeID := VItems[I].Id;
     FDayEvents[I].Date := FTimes[VTimeID].Value;
     FDayEvents[I].Name := FDayEventNames[VTimeID];
-    FDayEvents[I].IsTransit := (VTimeID = solarNoon);
+    FDayEvents[I].IsCulmination := (VTimeID = solarNoon);
 
     if VTimeID in [solarNoon, nadir] then begin
       FDayEvents[I].ColorIndex := -1;
@@ -350,7 +349,7 @@ begin
   end;
 
   Result := FDayEvents;
-  FDayEventsIsFullDetails := AIsFullDetails;
+  FDayEventsIsFullDetails := AParams.IsFullDetails;
   FIsDayEventsPrepared := True;
 end;
 

@@ -427,7 +427,8 @@ begin
   Result := IncMilliSecond(ADate, Round(h * 60 * 60 * 1000));
 end;
 
-// calculations for moon rise/set times are based on http://www.stargazing.net/kepler/moonrise.html article
+// calculations for moon rise/set times are based on
+// http://www.stargazing.net/kepler/moonrise.html article
 
 function GetMoonTimes(const ADate: TDateTime; const ALat, ALon: Double): TMoonTimes;
 var

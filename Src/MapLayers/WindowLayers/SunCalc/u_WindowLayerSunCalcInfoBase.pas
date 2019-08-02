@@ -42,6 +42,7 @@ type
   protected
     FLocation: TDoublePoint;
     FDateTime: TDateTime;
+    FTzOffset: Extended;
 
     FSunCalcConfig: ISunCalcConfig;
     FSunCalcProvider: ISunCalcProvider;
@@ -88,6 +89,7 @@ uses
   u_GeoFunc,
   u_ListenerTime,
   u_ListenerByEvent,
+  u_TimeZoneInfo,
   u_SunCalcShapesGenerator;
 
 { TWindowLayerSunCalcInfoBase }
@@ -118,6 +120,7 @@ begin
 
   FLocation := CEmptyDoublePoint;
   FDateTime := 0;
+  FTzOffset := 0;
   FSunCalcDataProvider := FSunCalcProvider.GetDataProviderChangeable.GetStatic;
 
   LinksList.Add(
@@ -188,6 +191,10 @@ procedure TWindowLayerSunCalcInfoBase.OnSunCalcProviderChange;
 var
   VLocation: TDoublePoint;
   VDateTime: TDateTime;
+  VTzOffset: Extended;
+  VIsSameDate: Boolean;
+  VIsSameDateTime: Boolean;
+  VIsSameLocation: Boolean;
 begin
   ViewUpdateLock;
   try
@@ -203,13 +210,28 @@ begin
       Exit;
     end;
 
-    FShapesGenerator.SetLocation(VLocation);
-    FShapesGenerator.SetDateTime(VDateTime);
+    VIsSameLocation := DoublePointsEqual(FLocation, VLocation);
+    VIsSameDate := SameDate(FDateTime, VDateTime);
+    VIsSameDateTime := VIsSameDate and SameDateTime(FDateTime, VDateTime);
+
+    if not VIsSameLocation or not VIsSameDate then begin
+      if not FSunCalcProvider.GetTzOffset(VDateTime, VTzOffset) then begin
+        VTzOffset := TTimeZoneInfo.GetSystemTzOffset(VDateTime);
+      end;
+    end else begin
+      VTzOffset := FTzOffset;
+    end;
+
+    if not VIsSameLocation then begin
+      FShapesGenerator.SetLocation(VLocation);
+    end;
+
+    FShapesGenerator.SetDateTime(VDateTime, VTzOffset);
 
     if FShapesGenerator.IsIntersectScreenRect then begin
-      if (FRepaintOnLocationChange and not DoublePointsEqual(FLocation, VLocation)) or
-         (FRepaintOnDayChange and not SameDate(FDateTime, VDateTime)) or
-         (FRepaintOnTimeChange and not SameDateTime(FDateTime, VDateTime))
+      if (FRepaintOnLocationChange and not VIsSameLocation) or
+         (FRepaintOnDayChange and not VIsSameDate) or
+         (FRepaintOnTimeChange and not VIsSameDateTime)
       then begin
         SetNeedFullRepaintLayer;
       end;
@@ -217,6 +239,7 @@ begin
 
     FLocation := VLocation;
     FDateTime := VDateTime;
+    FTzOffset := VTzOffset;
   finally
     ViewUpdateUnlock;
   end;

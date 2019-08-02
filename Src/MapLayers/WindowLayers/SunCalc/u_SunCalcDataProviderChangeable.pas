@@ -53,14 +53,20 @@ implementation
 
 uses
   u_ListenerByEvent,
-  u_SunCalcDataProviderSun;
+  u_SunCalcDataProviderSun,
+  u_SunCalcDataProviderMoon;
 
 { TSunCalcDataProviderChangeable }
 
 constructor TSunCalcDataProviderChangeable.Create(const AConfig: ISunCalcConfig);
 begin
+  Assert(AConfig <> nil);
+
   inherited Create;
+
   FConfig := AConfig;
+  FProviderType := FConfig.DataProviderType;
+
   FListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FConfig.ChangeNotifier.Add(FListener);
 end;
@@ -76,12 +82,12 @@ end;
 
 function TSunCalcDataProviderChangeable.CreateStatic: IInterface;
 begin
-  Result := nil;
   case FProviderType of
-    scdpSun: Result := TSunCalcDataProviderSun.Create;
-    scdpMoon: Assert(False, 'ToDo');
+    scdpSun  : Result := TSunCalcDataProviderSun.Create;
+    scdpMoon : Result := TSunCalcDataProviderMoon.Create;
   else
     Assert(False);
+    Result := nil;
   end;
 end;
 

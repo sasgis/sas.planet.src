@@ -23,8 +23,11 @@ unit u_WindowLayerSunCalcDayTimeLine;
 interface
 
 uses
-  GR32,  
+  Types,
+  GR32,
+  t_GeoTypes,
   t_SunCalcConfig,
+  t_SunCalcDataProvider,
   i_SunCalcConfig,
   i_SunCalcDataProvider,
   u_TimeZoneInfo,
@@ -159,20 +162,19 @@ end;
 procedure TWindowLayerSunCalcDayTimeLine.DrawColoredTimeLine;
 var
   I: Integer;
-  VDay: TDateTime;
   VRect: TRect;
   VColor: TColor32;
   VDayEvents: TSunCalcDayEvents;
-  VTransitPos: TSunCalcProviderPosition;
-  VTransitDate: TDateTime;
-  VIsTransitFound: Boolean;
+  VCulminationPos: TSunCalcProviderPosition;
+  VCulminationTime: TDateTime;
   VTimeLineEndPos: Integer;
 begin
-  VTransitDate := 0;
-  VIsTransitFound := False;
+  VCulminationTime := 0;
 
-  VDay := StartOfTheDay(TTimeZoneInfo.UTCToTzLocalTime(FDateTime, FTzOffset));
-  VDayEvents := FSunCalcDataProvider.GetDayEvents(VDay, FLocation, FIsDetailedView);
+  VDayEvents :=
+    FSunCalcDataProvider.GetDayEvents(
+      SunCalcParams(FStartOfTheDay, FEndOfTheDay, FLocation, FIsDetailedView)
+    );
 
   SetLength(FLineItems, Length(VDayEvents));
 
@@ -186,16 +188,15 @@ begin
     FLineItems[I].ItemColorIndex := VDayEvents[I].ColorIndex;
     FLineItems[I].NextColorIndex := VDayEvents[I].NextColorIndex;
 
-    if (VDayEvents[I].IsTransit) and (VDayEvents[I].Date <> 0) then begin
-      VTransitDate := VDayEvents[I].Date;
-      VTransitPos := FSunCalcDataProvider.GetPosition(VTransitDate, FLocation);
-      VIsTransitFound := True;
+    if (VDayEvents[I].IsCulmination) and (VDayEvents[I].Date <> 0) then begin
+      VCulminationTime := VDayEvents[I].Date;
+      VCulminationPos := FSunCalcDataProvider.GetPosition(VCulminationTime, FLocation);
     end;
   end;
 
   SortLineItems;
 
-  if VIsTransitFound and (VTransitPos.Altitude >= 0) then begin
+  if (VCulminationTime > 0) and (VCulminationPos.Altitude >= 0) then begin
     VColor := FColors.DayLineColors[Length(FColors.DayLineColors)-1];
   end else begin
     VColor := FColors.DayLineColors[0];
@@ -226,10 +227,10 @@ begin
     Layer.Bitmap.FillRectS(VRect, VColor);
   end;
 
-  // Transit vert line
-  if VIsTransitFound then begin
+  // Culmination vert line
+  if VCulminationTime > 0 then begin
     Layer.Bitmap.VertLineS(
-      Round(UtcDateTimeToPosF(VTransitDate)),
+      Round(UtcDateTimeToPosF(VCulminationTime)),
       FTimeLineTop - 6,
       FTimeLineTop - 1,
       clYellow32

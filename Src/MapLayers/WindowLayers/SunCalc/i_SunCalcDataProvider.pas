@@ -24,39 +24,16 @@ interface
 
 uses
   t_GeoTypes,
+  t_SunCalcDataProvider,
   i_Changeable,
   i_MarkerDrawable;
 
 type
-  TSunCalcProviderTimes = record
-    RiseUtcTime: TDateTime;
-    SetUtcTime: TDateTime;
-  end;
-
-  TSunCalcProviderPosition = record
-    Azimuth: Double;
-    Altitude: Double;
-  end;
-
-  TSunCalcDayEvent = record
-    Date: TDateTime;
-    Name: string;
-    IsTransit: Boolean;
-    ColorIndex: Integer;
-    NextColorIndex: Integer;
-  end;
-  TSunCalcDayEvents = array of TSunCalcDayEvent;
-
-  TSunCalcYearEvent = record
-    Date: TDateTime;
-    Name: string;
-  end;
-  TSunCalcYearEvents = array of TSunCalcYearEvent;
-
   ISunCalcDataProvider = interface
     ['{448C3FEE-A49C-41E4-9080-5B0389181AB3}']
     function GetTimes(
-      const AUtcDate: TDateTime;
+      const AStartOfTheDay: TDateTime;
+      const AEndOfTheDay: TDateTime;
       const ALonLat: TDoublePoint
     ): TSunCalcProviderTimes;
 
@@ -76,9 +53,7 @@ type
     ): TDateTime;
 
     function GetDayEvents(
-      const AUtcDate: TDateTime;
-      const ALonLat: TDoublePoint;
-      const AIsFullDetails: Boolean
+      const AParams: TSunCalcParams
     ): TSunCalcDayEvents;
 
     function GetYearEvents(

@@ -25,6 +25,7 @@ interface
 uses
   GR32,  
   t_SunCalcConfig,
+  t_SunCalcDataProvider,
   i_SunCalcConfig,
   i_SunCalcDataProvider,
   u_TimeZoneInfo,

@@ -30,6 +30,7 @@ uses
   GR32_Image,
   GR32_Layers,
   t_SunCalcConfig,
+  t_SunCalcDataProvider,
   t_GeoTypes,
   i_PopUp,
   i_SunCalcConfig,
@@ -67,6 +68,8 @@ type
 
     FLocation: TDoublePoint;
     FDateTime: TDateTime;
+    FStartOfTheDay: TDateTime;
+    FEndOfTheDay: TDateTime;
     FTzOffset: Extended;
 
     FPopUpMenu: IPopUp;
@@ -342,11 +345,34 @@ end;
 procedure TWindowLayerSunCalcDetailsPanel.DoUpdateBitmapDraw;
 var
   I: Integer;
-  VDay: TDateTime;
   VRow: Integer;
+  VRowsCount: Integer;
+  VPanelHeight: Integer;
   VEvents: TSunCalcDayEvents;
 begin
-  inherited;
+  VEvents :=
+    FSunCalcDataProvider.GetDayEvents(
+      SunCalcParams(FStartOfTheDay, FEndOfTheDay, FLocation, FIsDetailedView)
+    );
+
+  VRowsCount := Length(VEvents);
+  if FIsDetailedView then begin
+    Inc(VRowsCount);
+  end;
+
+  VPanelHeight := VRowsCount * FRowHeight;
+
+  if FHeight <> VPanelHeight then begin
+    ViewUpdateLock;
+    try
+      FHeight := VPanelHeight;
+      SetNeedUpdateBitmapDraw;
+      SetNeedUpdateBitmapSize;
+      Exit;
+    finally
+      ViewUpdateUnlock;
+    end;
+  end;
 
   Layer.Bitmap.BeginUpdate;
   try
@@ -355,7 +381,7 @@ begin
     Layer.Bitmap.Font.Name := FFont.FontName;
     Layer.Bitmap.Font.Size := FFont.FontSize;
 
-    for I := 0 to FRowsCount - 1 do begin
+    for I := 0 to VRowsCount - 1 do begin
       Layer.Bitmap.HorzLineS(0, FRowHeight * (I + 1), FWidth - 1, FColors.GridLinesColor);
     end;
 
@@ -368,9 +394,6 @@ begin
       RenderText(3, VRow, rsEvent, taCenter);
       Inc(VRow);
     end;
-
-    VDay := StartOfTheDay(TTimeZoneInfo.UTCToTzLocalTime(FDateTime, FTzOffset));
-    VEvents := FSunCalcDataProvider.GetDayEvents(VDay, FLocation, FIsDetailedView);
 
     for I := 0 to Length(VEvents) - 1 do begin
       DrawRow(VRow, VEvents[I].Date, VEvents[I].Name);
@@ -502,6 +525,11 @@ begin
     FDateTime := VDateTime;
     FLocation := VLocation;
     FTzOffset := VTzOffset;
+
+    VDateTime := TTimeZoneInfo.UTCToTzLocalTime(FDateTime, FTzOffset);
+
+    FStartOfTheDay := TTimeZoneInfo.TzLocalTimeToUTC(StartOfTheDay(VDateTime), FTzOffset);
+    FEndOfTheDay := TTimeZoneInfo.TzLocalTimeToUTC(EndOfTheDay(VDateTime), FTzOffset);
   finally
     ViewUpdateUnlock;
   end;
