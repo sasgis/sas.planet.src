@@ -51,6 +51,8 @@ type
   end;
 
   TWindowLayerSunCalcTimeLineBase = class(TWindowLayerWithBitmapBase)
+  private
+    FMarker: IMarkerDrawable;
   protected
     FFont: TSunCalcFontInfo;
     FMarkerCaptionFont: TSunCalcFontInfo;
@@ -62,8 +64,6 @@ type
     FTimeLineTop: Integer;
     FTimeLineWidth: Integer;
     FTimeLineHeight: Integer;
-
-    FMarker: IMarkerDrawable;
 
     FLocation: TDoublePoint;
     FDateTime: TDateTime;
@@ -107,6 +107,8 @@ type
     procedure OnSunCalcConfigChange; virtual; abstract;
     procedure OnSunCalcProviderChange;
     procedure OnSunCalcDataProviderChange;
+
+    function GetMarker: IMarkerDrawable; virtual; abstract;
 
     procedure OnMouseDown(
       Sender: TObject;
@@ -547,6 +549,7 @@ begin
   ViewUpdateLock;
   try
     FSunCalcDataProvider := FSunCalcProvider.GetDataProviderChangeable.GetStatic;
+    FMarker := GetMarker;
     SetNeedUpdateBitmapDraw;
   finally
     ViewUpdateUnlock;

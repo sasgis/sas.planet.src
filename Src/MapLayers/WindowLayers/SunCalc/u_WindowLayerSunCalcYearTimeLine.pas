@@ -28,6 +28,7 @@ uses
   t_SunCalcDataProvider,
   i_SunCalcConfig,
   i_SunCalcDataProvider,
+  i_MarkerDrawable,
   u_TimeZoneInfo,
   u_WindowLayerSunCalcTimeLineBase;
 
@@ -38,7 +39,9 @@ type
   protected
     function PosToUtcDateTime(const X: Integer): TDateTime; override;
     function UtcDateTimeToPosF(const ADateTime: TDateTime): Double; override;
+
     procedure OnSunCalcConfigChange; override;
+    function GetMarker: IMarkerDrawable; override;
   protected
     procedure DoUpdateBitmapDraw; override;
   public
@@ -70,8 +73,6 @@ begin
   FBorder.Bottom := 4;
 
   FTimeLineHeight := 4;
-
-  FMarker := FSunCalcDataProvider.YearMarker;
 
   SetLength(FRenderedText, Length(cMonthText));
   for I := Low(FRenderedText) to High(FRenderedText) do begin
@@ -231,6 +232,11 @@ begin
   finally
     ViewUpdateUnlock;
   end;
+end;
+
+function TWindowLayerSunCalcYearTimeLine.GetMarker: IMarkerDrawable;
+begin
+  Result := FSunCalcDataProvider.YearMarker;
 end;
 
 end.

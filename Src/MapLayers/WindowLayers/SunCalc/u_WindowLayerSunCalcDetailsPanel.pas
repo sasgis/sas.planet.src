@@ -184,6 +184,11 @@ begin
   );
 
   LinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnSunCalcDataProviderChange),
+    FSunCalcProvider.GetDataProviderChangeable.ChangeNotifier
+  );
+
+  LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnSunCalcConfigChange),
     FSunCalcConfig.ChangeNotifier
   );
@@ -540,6 +545,11 @@ begin
   ViewUpdateLock;
   try
     FSunCalcDataProvider := FSunCalcProvider.GetDataProviderChangeable.GetStatic;
+
+    ClearRenderedText;
+
+    SetNeedUpdateBitmapSize;
+    SetNeedUpdateLayerLocation;
     SetNeedUpdateBitmapDraw;
   finally
     ViewUpdateUnlock;

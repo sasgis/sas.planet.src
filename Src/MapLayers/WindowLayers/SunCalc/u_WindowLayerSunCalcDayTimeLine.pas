@@ -30,6 +30,7 @@ uses
   t_SunCalcDataProvider,
   i_SunCalcConfig,
   i_SunCalcDataProvider,
+  i_MarkerDrawable,
   u_TimeZoneInfo,
   u_WindowLayerSunCalcTimeLineBase;
 
@@ -50,6 +51,8 @@ type
   protected
     function PosToUtcDateTime(const X: Integer): TDateTime; override;
     function UtcDateTimeToPosF(const ADateTime: TDateTime): Double; override;
+
+    function GetMarker: IMarkerDrawable; override;
     procedure OnSunCalcConfigChange; override;
   protected
     procedure DoUpdateBitmapDraw; override;
@@ -82,8 +85,6 @@ begin
   FBorder.Bottom := 6;
 
   FTimeLineHeight := 8;
-
-  FMarker := FSunCalcDataProvider.DayMarker;
 
   SetLength(FRenderedText, 24);
   for I := Low(FRenderedText) to High(FRenderedText) do begin
@@ -307,6 +308,11 @@ begin
   finally
     ViewUpdateUnlock;
   end;
+end;
+
+function TWindowLayerSunCalcDayTimeLine.GetMarker: IMarkerDrawable;
+begin
+  Result := FSunCalcDataProvider.DayMarker;
 end;
 
 end.
