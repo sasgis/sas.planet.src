@@ -108,6 +108,7 @@ uses
   i_FavoriteMapSetHelper,
   i_FavoriteMapSetHotKeyList,
   i_UrlByCoordProvider,
+  i_SunCalcConfig,
   i_SunCalcProvider,
   i_CmdLineArgProcessor,
   u_CmdLineArgProcessorAPI,
@@ -581,6 +582,8 @@ type
     tbxMarksDbList: TTBXSubmenuItem;
     tbxSep4: TTBXSeparatorItem;
     tbxDoSearch: TTBXItem;
+    tbxMoonCalc: TTBXItem;
+    actViewMoonCalc: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -825,6 +828,7 @@ type
     procedure actIconsSettingsExecute(Sender: TObject);
     procedure actCircleCalculationExecute(Sender: TObject);
     procedure actViewSunCalcExecute(Sender: TObject);
+    procedure actViewMoonCalcExecute(Sender: TObject);
     procedure tbxYandexWeatherClick(Sender: TObject);
     procedure actConfigUsePrevForVectorLayersExecute(Sender: TObject);
   private
@@ -1068,6 +1072,7 @@ type
     procedure MakeRosreestrPolygon(const APoint: TPoint);
 
     procedure OnInternalErrorNotify(const AMsg: IInterface);
+    procedure SwitchSunCalc(const ACalcType: TSunCalcDataProviderType);
   protected
     procedure CreateWnd; override;
     procedure DestroyWnd; override;
@@ -1137,7 +1142,6 @@ uses
   i_PopUp,
   i_ProjectionSet,
   i_ProjectionSetList,
-  i_SunCalcConfig,
   i_ScaleLineConfig,
   i_FavoriteMapSetItemStatic,
   u_FavoriteMapSetHotKeyList,
@@ -2642,10 +2646,15 @@ end;
 
 procedure TfrmMain.MapLayersVisibleChange;
 var
+  VIsVisible: Boolean;
+  VProvider: TSunCalcDataProviderType;
   VUseDownload: TTileSource;
 begin
-  actViewSunCalc.Checked := FConfig.LayersConfig.SunCalcConfig.Visible;
-  if actViewSunCalc.Checked then begin
+  VIsVisible := FConfig.LayersConfig.SunCalcConfig.Visible;
+  VProvider := FConfig.LayersConfig.SunCalcConfig.DataProviderType;
+  actViewSunCalc.Checked := VIsVisible and (VProvider = scdpSun);
+  actViewMoonCalc.Checked := VIsVisible and (VProvider = scdpMoon);
+  if VIsVisible then begin
     //ToDo: Change TopMargin in LicenseLayer (TWindowLayerLicenseList)
   end;
   actConfigStatusBarVisible.Checked := FConfig.LayersConfig.StatBar.Visible;
@@ -7181,16 +7190,29 @@ begin
   end;
 end;
 
-procedure TfrmMain.actViewSunCalcExecute(Sender: TObject);
+procedure TfrmMain.SwitchSunCalc(const ACalcType: TSunCalcDataProviderType);
 var
+  VProvType: TSunCalcDataProviderType;
   VIsVisible: Boolean;
   VSunCalcConfig: ISunCalcConfig;
 begin
   VSunCalcConfig := FConfig.LayersConfig.SunCalcConfig;
 
+  VProvType := VSunCalcConfig.DataProviderType;
   VIsVisible := VSunCalcConfig.Visible;
 
-  if not VIsVisible then begin
+  if VIsVisible then begin
+    if VProvType = ACalcType then begin
+      // hide
+      FSunCalcProvider.Reset;
+      VSunCalcConfig.Visible := False;
+      VSunCalcConfig.IsRealTime := False;
+    end else begin
+      // switch provider
+      VSunCalcConfig.DataProviderType := ACalcType;
+    end;
+  end else begin
+    // show
     FSunCalcProvider.StopNotify;
     try
       FSunCalcProvider.LocalDateTime := Now;
@@ -7198,12 +7220,20 @@ begin
     finally
       FSunCalcProvider.StartNotify;
     end;
-  end else begin
-    FSunCalcProvider.Reset;
+    VSunCalcConfig.DataProviderType := ACalcType;
+    VSunCalcConfig.Visible := True;
+    VSunCalcConfig.IsRealTime := True;
   end;
+end;
 
-  VSunCalcConfig.Visible := not VIsVisible;
-  VSunCalcConfig.IsRealTime := not VIsVisible;
+procedure TfrmMain.actViewSunCalcExecute(Sender: TObject);
+begin
+  SwitchSunCalc(scdpSun);
+end;
+
+procedure TfrmMain.actViewMoonCalcExecute(Sender: TObject);
+begin
+  SwitchSunCalc(scdpMoon);
 end;
 
 procedure TfrmMain.actViewToolbarsLockExecute(Sender: TObject);
