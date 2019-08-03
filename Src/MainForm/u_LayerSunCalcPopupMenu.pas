@@ -69,13 +69,17 @@ uses
 
 resourcestring
   rsDetailedViewCaption = 'Detailed View';
-  rsHideSunCalcCaption = 'Hide Sun Calculator';
-  rsShowCaptionNearSunCaption = 'Show Current Altitude and Azimuth';
+  rsSwitchToMoonCalcCaption = 'Switch to the Moon Calculator';
+  rsSwitchToSunCalcCaption = 'Switch to the Sun Calculator';
+  rsCloseMoonCalcCaption = 'Close Moon Calculator';
+  rsCloseSunCalcCaption = 'Close Sun Calculator';
+  rsShowCurrAzAndAltCaption = 'Show Current Altitude and Azimuth';
 
 const
   cDetailedViewTag = 1;
-  cHideSunCalcTag = 2;
-  cShowCaptionNearSunTag = 3;
+  cCloseCalcTag = 2;
+  cSwitchCalcTag = 3;
+  cShowCurrAzAndAltTag = 4;
   cColorSchemaTagOffset = 100;
 
 { TLayerSunCalcPopupMenu }
@@ -143,10 +147,18 @@ begin
         cDetailedViewTag: begin
           FSunCalcConfig.IsDetailedView := not FSunCalcConfig.IsDetailedView;
         end;
-        cShowCaptionNearSunTag: begin
+        cShowCurrAzAndAltTag: begin
           FSunCalcConfig.ShowCaptionNearSun := not FSunCalcConfig.ShowCaptionNearSun;
         end;
-        cHideSunCalcTag: begin
+        cSwitchCalcTag: begin
+          case FSunCalcConfig.DataProviderType of
+            scdpSun: FSunCalcConfig.DataProviderType := scdpMoon;
+            scdpMoon: FSunCalcConfig.DataProviderType := scdpSun;
+          else
+            Assert(False);
+          end;
+        end;
+        cCloseCalcTag: begin
           FSunCalcConfig.Visible := False;
         end;
       end;
@@ -177,7 +189,7 @@ var
   VColorSchemaList: ISunCalcColorSchemaList;
 begin
   AddMenuItem(rsDetailedViewCaption, cDetailedViewTag);
-  AddMenuItem(rsShowCaptionNearSunCaption, cShowCaptionNearSunTag);
+  AddMenuItem(rsShowCurrAzAndAltCaption, cShowCurrAzAndAltTag);
 
   FPopup.Items.Add(
     TTBSeparatorItem.Create(FPopup)
@@ -205,7 +217,18 @@ begin
     TTBSeparatorItem.Create(FPopup)
   );
 
-  AddMenuItem(rsHideSunCalcCaption, cHideSunCalcTag);
+  case FSunCalcConfig.DataProviderType of
+    scdpSun: begin
+      AddMenuItem(rsSwitchToMoonCalcCaption, cSwitchCalcTag);
+      AddMenuItem(rsCloseSunCalcCaption, cCloseCalcTag);
+    end;
+    scdpMoon: begin
+      AddMenuItem(rsSwitchToSunCalcCaption, cSwitchCalcTag);
+      AddMenuItem(rsCloseMoonCalcCaption, cCloseCalcTag);
+    end;
+  else
+    Assert(False);
+  end;
 end;
 
 procedure TLayerSunCalcPopupMenu.InitItemsState;
@@ -224,7 +247,7 @@ begin
         cDetailedViewTag: begin
           VMenuItem.Checked := FSunCalcConfig.IsDetailedView;
         end;
-        cShowCaptionNearSunTag: begin
+        cShowCurrAzAndAltTag: begin
           VMenuItem.Checked := FSunCalcConfig.ShowCaptionNearSun;
         end;
       end;
