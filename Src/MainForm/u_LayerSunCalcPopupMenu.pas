@@ -69,17 +69,17 @@ uses
 
 resourcestring
   rsDetailedViewCaption = 'Detailed View';
-  rsSwitchToMoonCalcCaption = 'Switch to the Moon Calculator';
-  rsSwitchToSunCalcCaption = 'Switch to the Sun Calculator';
-  rsCloseMoonCalcCaption = 'Close Moon Calculator';
-  rsCloseSunCalcCaption = 'Close Sun Calculator';
+  rsSunCalcCaption = 'Sun Calculator';
+  rsMoonCalcCaption = 'Moon Calculator';
+  rsCloseCalcCaption = 'Close the Calculator';
   rsShowCurrAzAndAltCaption = 'Show Current Altitude and Azimuth';
 
 const
   cDetailedViewTag = 1;
   cCloseCalcTag = 2;
-  cSwitchCalcTag = 3;
-  cShowCurrAzAndAltTag = 4;
+  cShowCurrAzAndAltTag = 3;
+  cSunProviderTypeTag = 4;
+  cMoonProviderTypeTag = 5;
   cColorSchemaTagOffset = 100;
 
 { TLayerSunCalcPopupMenu }
@@ -150,13 +150,11 @@ begin
         cShowCurrAzAndAltTag: begin
           FSunCalcConfig.ShowCaptionNearSun := not FSunCalcConfig.ShowCaptionNearSun;
         end;
-        cSwitchCalcTag: begin
-          case FSunCalcConfig.DataProviderType of
-            scdpSun: FSunCalcConfig.DataProviderType := scdpMoon;
-            scdpMoon: FSunCalcConfig.DataProviderType := scdpSun;
-          else
-            Assert(False);
-          end;
+        cSunProviderTypeTag: begin
+          FSunCalcConfig.DataProviderType := scdpSun;
+        end;
+        cMoonProviderTypeTag: begin
+          FSunCalcConfig.DataProviderType := scdpMoon;
         end;
         cCloseCalcTag: begin
           FSunCalcConfig.Visible := False;
@@ -171,7 +169,7 @@ end;
 
 procedure TLayerSunCalcPopupMenu.BuildPopUpMenu;
 
-  procedure AddMenuItem(const ACaption: string; const ATag: Integer);
+  procedure AddMenuItem(const ACaption: string; const ATag: Integer; const AGroup: Integer = 0);
   var
     VMenuItem: TTBXItem;
   begin
@@ -179,56 +177,53 @@ procedure TLayerSunCalcPopupMenu.BuildPopUpMenu;
     VMenuItem.Caption := ACaption;
     VMenuItem.Tag := ATag;
     VMenuItem.OnClick := OnMenuItemClick;
+    if AGroup > 0 then begin
+      VMenuItem.RadioItem := True;
+      VMenuItem.GroupIndex := AGroup;
+    end;
     FPopup.Items.Add(VMenuItem);
+  end;
+
+  procedure AddSeparator;
+  begin
+    FPopup.Items.Add( TTBSeparatorItem.Create(FPopup) );
   end;
 
 var
   I: Integer;
+  VGroup: Integer;
   VMenuItem: TTBXItem;
   VColorSchema: ISunCalcColorSchemaStatic;
   VColorSchemaList: ISunCalcColorSchemaList;
 begin
+  VGroup := 0;
+
   AddMenuItem(rsDetailedViewCaption, cDetailedViewTag);
   AddMenuItem(rsShowCurrAzAndAltCaption, cShowCurrAzAndAltTag);
 
-  FPopup.Items.Add(
-    TTBSeparatorItem.Create(FPopup)
-  );
+  AddSeparator;
 
   VColorSchemaList := FSunCalcConfig.ColorSchemaList;
   VColorSchemaList.LockRead;
   try
+    Inc(VGroup);
     for I := 0 to VColorSchemaList.Count - 1 do begin
       VColorSchema := VColorSchemaList.GetColorSchemaByIndex(I).GetStatic;
-
-      VMenuItem := TTBXItem.Create(FPopup);
-      VMenuItem.RadioItem := True;
-      VMenuItem.GroupIndex := 1;
-      VMenuItem.Caption := VColorSchema.SchemaName;
-      VMenuItem.Tag := 100 + I;
-      VMenuItem.OnClick := OnMenuItemClick;
-      FPopup.Items.Add(VMenuItem);
+      AddMenuItem(VColorSchema.SchemaName, cColorSchemaTagOffset + I, VGroup);
     end;
   finally
     VColorSchemaList.UnlockRead;
   end;
 
-  FPopup.Items.Add(
-    TTBSeparatorItem.Create(FPopup)
-  );
+  AddSeparator;
 
-  case FSunCalcConfig.DataProviderType of
-    scdpSun: begin
-      AddMenuItem(rsSwitchToMoonCalcCaption, cSwitchCalcTag);
-      AddMenuItem(rsCloseSunCalcCaption, cCloseCalcTag);
-    end;
-    scdpMoon: begin
-      AddMenuItem(rsSwitchToSunCalcCaption, cSwitchCalcTag);
-      AddMenuItem(rsCloseMoonCalcCaption, cCloseCalcTag);
-    end;
-  else
-    Assert(False);
-  end;
+  Inc(VGroup);
+  AddMenuItem(rsSunCalcCaption, cSunProviderTypeTag, VGroup);
+  AddMenuItem(rsMoonCalcCaption, cMoonProviderTypeTag, VGroup);
+
+  AddSeparator;
+
+  AddMenuItem(rsCloseCalcCaption, cCloseCalcTag);
 end;
 
 procedure TLayerSunCalcPopupMenu.InitItemsState;
@@ -236,8 +231,10 @@ var
   I: Integer;
   VTag: Integer;
   VMenuItem: TTBCustomItem;
+  VProvider: TSunCalcDataProviderType;
   VActiveSchemaIndex: Integer;
 begin
+  VProvider := FSunCalcConfig.DataProviderType;
   VActiveSchemaIndex := FSunCalcConfig.ColorSchemaList.ActiveSchemaIndex;
   for I := 0 to FPopup.Items.Count - 1 do begin
     VMenuItem := FPopup.Items[I];
@@ -249,6 +246,12 @@ begin
         end;
         cShowCurrAzAndAltTag: begin
           VMenuItem.Checked := FSunCalcConfig.ShowCaptionNearSun;
+        end;
+        cSunProviderTypeTag: begin
+          VMenuItem.Checked := VProvider = scdpSun;
+        end;
+        cMoonProviderTypeTag: begin
+          VMenuItem.Checked := VProvider = scdpMoon;
         end;
       end;
     end else begin
