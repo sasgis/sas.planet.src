@@ -376,7 +376,7 @@ function TSunCalcDataProviderSun.GetDayInfo(
     if AMinutes > 0 then begin
       VHour := AMinutes div 60;
       VMin := AMinutes - VHour * 60;
-      Result := Format(_('%.2d:%.2d'), [VHour, VMin]);
+      Result := Format('%.2d:%.2d', [VHour, VMin]);
     end else begin
       Result := '';
     end;
@@ -389,10 +389,10 @@ function TSunCalcDataProviderSun.GetDayInfo(
     if AAltitude > 0 then begin
       VMeters := 1/Tan(AAltitude);
       if VMeters < 10 then begin
-        Result := Format(_('%.1f'), [VMeters]);
+        Result := Format('%.1f', [VMeters]);
       end else
       if VMeters < 500 then begin
-        Result := Format(_('%.0f'), [VMeters]);
+        Result := Format('%.0f', [VMeters]);
       end else begin
         Result := '';
       end;
@@ -447,7 +447,7 @@ begin
   end;
 
   AddRow(VRow, _('Day Length'), MinutesToStr(VUptime) );
-  AddRow(VRow, _('Azimuth'), Format('%.0f°', [RadToDeg(VPos.Azimuth)]) );
+  AddRow(VRow, _('Azimuth'), Format('%.0f°', [RadToDeg(VPos.Azimuth + Pi)]) );
   AddRow(VRow, _('Altitude'), Format('%.1f°', [RadToDeg(VPos.Altitude)]) );
   AddRow(VRow, _('Shadow, meters'), ShadowToStr(VPos.Altitude) );
 
