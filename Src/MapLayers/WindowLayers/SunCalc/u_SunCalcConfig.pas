@@ -39,6 +39,7 @@ type
     FDetailsPanelRowHight: Integer;
     FDetailsPanelColsWidth: TSunCalcDetailsPanelColsWidth;
     FIsDetailedView: Boolean;
+    FShowDayInfoPanel: Boolean;
     FShowCaptionNearSun: Boolean;
     FIsRealTime: Boolean;
     FDataProviderType: TSunCalcDataProviderType;
@@ -71,6 +72,9 @@ type
 
     function GetShowCaptionNearSun: Boolean;
     procedure SetShowCaptionNearSun(const AValue: Boolean);
+
+    function GetShowDayInfoPanel: Boolean;
+    procedure SetShowDayInfoPanel(const AValue: Boolean);
 
     function GetIsRealTime: Boolean;
     procedure SetIsRealTime(const AValue: Boolean);
@@ -211,6 +215,7 @@ begin
   FDetailsPanelColsWidth[3] := 200; // Event
 
   FIsDetailedView := False;
+  FShowDayInfoPanel := True;
   FShowCaptionNearSun := False;
   FIsRealTime := False;
   FDataProviderType := scdpSun;
@@ -234,6 +239,7 @@ begin
     end;
 
     FIsDetailedView := AConfigData.ReadBool('IsDetailedView', FIsDetailedView);
+    FShowDayInfoPanel := AConfigData.ReadBool('ShowDayInfoPanel', FShowDayInfoPanel);
     FShowCaptionNearSun := AConfigData.ReadBool('ShowCaptionNearSun', FShowCaptionNearSun);
     FColorSchemaList.ReadConfig(AConfigData.GetSubItem('ColorSchemaList'));
     SetChanged;
@@ -256,6 +262,7 @@ begin
     end;
 
     AConfigData.WriteBool('IsDetailedView', FIsDetailedView);
+    AConfigData.WriteBool('ShowDayInfoPanel', FShowDayInfoPanel);
     AConfigData.WriteBool('ShowCaptionNearSun', FShowCaptionNearSun);
     FColorSchemaList.WriteConfig(AConfigData.GetOrCreateSubItem('ColorSchemaList'));
   end;
@@ -346,6 +353,16 @@ begin
   LockRead;
   try
     Result := FShowCaptionNearSun;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TSunCalcConfig.GetShowDayInfoPanel: Boolean;
+begin
+  LockRead;
+  try
+    Result := FShowDayInfoPanel;
   finally
     UnlockRead;
   end;
@@ -475,6 +492,19 @@ begin
   try
     if FShowCaptionNearSun <> AValue then begin
       FShowCaptionNearSun := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TSunCalcConfig.SetShowDayInfoPanel(const AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FShowDayInfoPanel <> AValue then begin
+      FShowDayInfoPanel := AValue;
       SetChanged;
     end;
   finally

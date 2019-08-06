@@ -72,14 +72,16 @@ resourcestring
   rsSunCalcCaption = 'Sun Calculator';
   rsMoonCalcCaption = 'Moon Calculator';
   rsCloseCalcCaption = 'Close the Calculator';
+  rsShowDayInfoPanelCaption = 'Show Info Panel';
   rsShowCurrAzAndAltCaption = 'Show Current Altitude and Azimuth';
 
 const
   cDetailedViewTag = 1;
   cCloseCalcTag = 2;
   cShowCurrAzAndAltTag = 3;
-  cSunProviderTypeTag = 4;
-  cMoonProviderTypeTag = 5;
+  cShowDayInfoPanelTag = 4;
+  cSunProviderTypeTag = 5;
+  cMoonProviderTypeTag = 6;
   cColorSchemaTagOffset = 100;
 
 { TLayerSunCalcPopupMenu }
@@ -147,6 +149,9 @@ begin
         cDetailedViewTag: begin
           FSunCalcConfig.IsDetailedView := not FSunCalcConfig.IsDetailedView;
         end;
+        cShowDayInfoPanelTag: begin
+          FSunCalcConfig.ShowDayInfoPanel := not FSunCalcConfig.ShowDayInfoPanel;
+        end;
         cShowCurrAzAndAltTag: begin
           FSunCalcConfig.ShowCaptionNearSun := not FSunCalcConfig.ShowCaptionNearSun;
         end;
@@ -192,13 +197,13 @@ procedure TLayerSunCalcPopupMenu.BuildPopUpMenu;
 var
   I: Integer;
   VGroup: Integer;
-  VMenuItem: TTBXItem;
   VColorSchema: ISunCalcColorSchemaStatic;
   VColorSchemaList: ISunCalcColorSchemaList;
 begin
   VGroup := 0;
 
   AddMenuItem(rsDetailedViewCaption, cDetailedViewTag);
+  AddMenuItem(rsShowDayInfoPanelCaption, cShowDayInfoPanelTag);
   AddMenuItem(rsShowCurrAzAndAltCaption, cShowCurrAzAndAltTag);
 
   AddSeparator;
@@ -243,6 +248,9 @@ begin
       case VTag of
         cDetailedViewTag: begin
           VMenuItem.Checked := FSunCalcConfig.IsDetailedView;
+        end;
+        cShowDayInfoPanelTag: begin
+          VMenuItem.Checked := FSunCalcConfig.ShowDayInfoPanel;
         end;
         cShowCurrAzAndAltTag: begin
           VMenuItem.Checked := FSunCalcConfig.ShowCaptionNearSun;

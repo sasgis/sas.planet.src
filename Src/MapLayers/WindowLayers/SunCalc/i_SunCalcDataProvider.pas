@@ -56,6 +56,13 @@ type
       const AParams: TSunCalcParams
     ): TSunCalcDayEvents;
 
+    function GetDayInfo(
+      const AStartOfTheDay: TDateTime;
+      const AEndOfTheDay: TDateTime;
+      const ACurrentTime: TDateTime;
+      const ALonLat: TDoublePoint
+    ): TSunCalcDayInfo;
+
     function GetYearEvents(
       const AUtcDate: TDateTime;
       const ALonLat: TDoublePoint

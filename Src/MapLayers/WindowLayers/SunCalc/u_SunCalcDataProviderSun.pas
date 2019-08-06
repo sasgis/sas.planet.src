@@ -78,6 +78,13 @@ type
       const AParams: TSunCalcParams
     ): TSunCalcDayEvents;
 
+    function GetDayInfo(
+      const AStartOfTheDay: TDateTime;
+      const AEndOfTheDay: TDateTime;
+      const ACurrentTime: TDateTime;
+      const ALonLat: TDoublePoint
+    ): TSunCalcDayInfo;
+
     function GetYearEvents(
       const AUtcDate: TDateTime;
       const ALonLat: TDoublePoint
@@ -93,8 +100,10 @@ implementation
 
 uses
   Math,
+  SysUtils,
   DateUtils,
   GR32,
+  gnugettext,
   Solstice,
   u_GeoFunc,
   u_MarkerSimpleConfigStatic,
@@ -351,6 +360,98 @@ begin
   Result := FDayEvents;
   FDayEventsIsFullDetails := AParams.IsFullDetails;
   FIsDayEventsPrepared := True;
+end;
+
+function TSunCalcDataProviderSun.GetDayInfo(
+  const AStartOfTheDay: TDateTime;
+  const AEndOfTheDay: TDateTime;
+  const ACurrentTime: TDateTime;
+  const ALonLat: TDoublePoint
+): TSunCalcDayInfo;
+
+  function MinutesToStr(const AMinutes: Int64): string;
+  var
+    VHour, VMin: Int64;
+  begin
+    if AMinutes > 0 then begin
+      VHour := AMinutes div 60;
+      VMin := AMinutes - VHour * 60;
+      Result := Format(_('%.2d:%.2d'), [VHour, VMin]);
+    end else begin
+      Result := '';
+    end;
+  end;
+
+  function ShadowToStr(const AAltitude: Double): string;
+  var
+    VMeters: Double;
+  begin
+    if AAltitude > 0 then begin
+      VMeters := 1/Tan(AAltitude);
+      if VMeters < 10 then begin
+        Result := Format(_('%.1f'), [VMeters]);
+      end else
+      if VMeters < 500 then begin
+        Result := Format(_('%.0f'), [VMeters]);
+      end else begin
+        Result := '';
+      end;
+    end else begin
+      Result := '';
+    end;
+  end;
+
+  procedure AddRow(var ARow: Integer; const AStr1, AStr2: string);
+  begin
+    with Result[ARow] do begin
+      Text[0] := AStr1;
+      Text[1] := AStr2;
+    end;
+    Inc(ARow);
+  end;
+
+var
+  VRow: Integer;
+  VPos: TSunPos;
+  VUptime: Integer;
+  VIsUnderHorizont: Boolean;
+  VTimes: TSunCalcProviderTimes;
+begin
+  // day length
+  // azimuth
+  // altitude
+  // shadow
+
+  VRow := 0;
+  SetLength(Result, 4);
+
+  VTimes := GetTimes(AStartOfTheDay, AEndOfTheDay, ALonLat);
+  VPos := SunCalc.GetPosition(ACurrentTime, ALonLat.Y, ALonLat.X);
+
+  VUptime := 0;
+  VIsUnderHorizont := RadToDeg(VPos.Altitude) < 0;
+
+  if (VTimes.RiseTime = 0) and (VTimes.SetTime = 0) then begin
+    if not VIsUnderHorizont then begin
+      VUptime := 24 * 60;
+    end;
+  end else
+  if (VTimes.RiseTime > 0) and (VTimes.SetTime > 0) then begin
+    VUptime := MinutesBetween(VTimes.RiseTime, VTimes.SetTime);
+  end else
+  if VTimes.RiseTime = 0 then begin
+    VUptime := MinutesBetween(AStartOfTheDay, VTimes.SetTime);
+  end else
+  if VTimes.SetTime = 0 then begin
+    VUptime := MinutesBetween(VTimes.RiseTime, AEndOfTheDay);
+  end;
+
+  AddRow(VRow, _('Day Length'), MinutesToStr(VUptime) );
+  AddRow(VRow, _('Azimuth'), Format('%.0f°', [RadToDeg(VPos.Azimuth)]) );
+  AddRow(VRow, _('Altitude'), Format('%.1f°', [RadToDeg(VPos.Altitude)]) );
+  AddRow(VRow, _('Shadow, meters'), ShadowToStr(VPos.Altitude) );
+
+  SetLength(Result, VRow);
 end;
 
 function TSunCalcDataProviderSun.GetDayMarker: IMarkerDrawable;

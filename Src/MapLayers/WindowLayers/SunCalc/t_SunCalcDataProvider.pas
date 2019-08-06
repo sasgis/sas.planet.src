@@ -28,11 +28,23 @@ type
   end;
   TSunCalcDayEvents = array of TSunCalcDayEvent;
 
+  TSunCalcDayInfoRec = record
+    Text: array [0..1] of string;
+  end;
+  TSunCalcDayInfo = array of TSunCalcDayInfoRec;
+
   TSunCalcYearEvent = record
     Date: TDateTime;
     Name: string;
   end;
   TSunCalcYearEvents = array of TSunCalcYearEvent;
+
+  TSunCalcTimesParams = record
+    StartOfTheDay: TDateTime;
+    EndOfTheDay: TDateTime;
+    LonLat: TDoublePoint;
+    class operator Equal(const A, B: TSunCalcTimesParams): Boolean; inline;
+  end;
 
   TSunCalcParams = record
     StartOfTheDay: TDateTime;
@@ -41,6 +53,12 @@ type
     IsFullDetails: Boolean;
     class operator Equal(const A, B: TSunCalcParams): Boolean; inline;
   end;
+
+function SunCalcTimesParams(
+  AStartOfTheDay: TDateTime;
+  AEndOfTheDay: TDateTime;
+  ALonLat: TDoublePoint
+): TSunCalcTimesParams; inline;
 
 function SunCalcParams(
   const AStartOfTheDay: TDateTime;
@@ -58,6 +76,17 @@ function SunCalcDayEvent(
 ): TSunCalcDayEvent; inline;
 
 implementation
+
+function SunCalcTimesParams(
+  AStartOfTheDay: TDateTime;
+  AEndOfTheDay: TDateTime;
+  ALonLat: TDoublePoint
+): TSunCalcTimesParams;
+begin
+  Result.StartOfTheDay := AStartOfTheDay;
+  Result.EndOfTheDay := AEndOfTheDay;
+  Result.LonLat := ALonLat;
+end;
 
 function SunCalcParams(
   const AStartOfTheDay: TDateTime;
@@ -87,7 +116,19 @@ begin
   Result.NextColorIndex := ANextColorIndex;
 end;
 
-{ TSunCalcDayEventsParams }
+{ TSunCalcTimesParams }
+
+class operator TSunCalcTimesParams.Equal(
+  const A, B: TSunCalcTimesParams
+): Boolean;
+begin
+  Result :=
+    SameDate(A.StartOfTheDay, B.StartOfTheDay) and
+    SameDate(A.EndOfTheDay, B.EndOfTheDay) and
+    DoublePointsEqual(A.LonLat, B.LonLat);
+end;
+
+{ TSunCalcParams }
 
 class operator TSunCalcParams.Equal(
   const A, B: TSunCalcParams

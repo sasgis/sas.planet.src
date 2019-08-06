@@ -37,6 +37,8 @@ type
     FYearMarker: IMarkerDrawable;
 
     FTimes: array[0..1] of TMoonTimes;
+    FTimesParams: TSunCalcTimesParams;
+    FIsTimesPrepared: Boolean;
 
     FDayEvents: TSunCalcDayEvents;
     FDayEventsParams: TSunCalcParams;
@@ -68,6 +70,13 @@ type
       const AParams: TSunCalcParams
     ): TSunCalcDayEvents;
 
+    function GetDayInfo(
+      const AStartOfTheDay: TDateTime;
+      const AEndOfTheDay: TDateTime;
+      const ACurrentTime: TDateTime;
+      const ALonLat: TDoublePoint
+    ): TSunCalcDayInfo;
+
     function GetYearEvents(
       const AUtcDate: TDateTime;
       const ALonLat: TDoublePoint
@@ -83,8 +92,10 @@ implementation
 
 uses
   Math,
+  SysUtils,
   DateUtils,
   GR32,
+  gnugettext,
   u_GeoFunc,
   u_MarkerSimpleConfigStatic,
   u_MarkerDrawableSimpleCircle,
@@ -110,6 +121,7 @@ begin
       TMarkerSimpleConfigStatic.Create(8, clSilver32, clWhite32)
     );
 
+  FIsTimesPrepared := False;
   FIsDayEventsPrepared := False;
 end;
 
@@ -141,15 +153,24 @@ function TSunCalcDataProviderMoon.GetTimes(
   end;
 
 var
+  VIsPrepared: Boolean;
   VIsRiseFound: Boolean;
   VIsSetFound: Boolean;
+  VParams: TSunCalcTimesParams;
 begin
-  FTimes[0] := SunCalc.GetMoonTimes(AStartOfTheDay, ALonLat.Y, ALonLat.X);
+  VParams := SunCalcTimesParams(AStartOfTheDay, AEndOfTheDay, ALonLat);
+  VIsPrepared := FIsTimesPrepared and (FTimesParams = VParams);
+
+  if not VIsPrepared then begin
+    FTimes[0] := SunCalc.GetMoonTimes(AStartOfTheDay, ALonLat.Y, ALonLat.X);
+  end;
   VIsRiseFound := TrySetTime(FTimes[0].MoonRise, Result.RiseTime);
   VIsSetFound := TrySetTime(FTimes[0].MoonSet, Result.SetTime);
 
   if not VIsRiseFound or not VIsSetFound then begin
-    FTimes[1] := SunCalc.GetMoonTimes(AEndOfTheDay, ALonLat.Y, ALonLat.X);
+    if not VIsPrepared then begin
+      FTimes[1] := SunCalc.GetMoonTimes(AEndOfTheDay, ALonLat.Y, ALonLat.X);
+    end;
     if not VIsRiseFound then begin
       VIsRiseFound := TrySetTime(FTimes[1].MoonRise, Result.RiseTime);
     end;
@@ -164,6 +185,11 @@ begin
 
   if not VIsSetFound then begin
     Result.SetTime := 0;
+  end;
+
+  if not VIsPrepared then begin
+    FIsTimesPrepared := True;
+    FTimesParams := VParams;
   end;
 end;
 
@@ -294,6 +320,143 @@ begin
   FDayEvents := Result;
   FDayEventsParams := AParams;
   FIsDayEventsPrepared := True;
+end;
+
+function TSunCalcDataProviderMoon.GetDayInfo(
+  const AStartOfTheDay: TDateTime;
+  const AEndOfTheDay: TDateTime;
+  const ACurrentTime: TDateTime;
+  const ALonLat: TDoublePoint
+): TSunCalcDayInfo;
+
+  function MinutesToStr(const AMinutes: Int64): string;
+  var
+    VHour, VMin: Int64;
+  begin
+    if AMinutes > 0 then begin
+      VHour := AMinutes div 60;
+      VMin := AMinutes - VHour * 60;
+      Result := Format(_('%.2d:%.2d'), [VHour, VMin]);
+    end else begin
+      Result := '';
+    end;
+  end;
+
+  function ShadowToStr(const AAltitude: Double): string;
+  var
+    VMeters: Double;
+  begin
+    if AAltitude > 0 then begin
+      VMeters := 1/Tan(AAltitude);
+      if VMeters < 10 then begin
+        Result := Format(_('%.1f'), [VMeters]);
+      end else
+      if VMeters < 500 then begin
+        Result := Format(_('%.0f'), [VMeters]);
+      end else begin
+        Result := '';
+      end;
+    end else begin
+      Result := '';
+    end;
+  end;
+
+  function PhaseToStr(const APhase: Double): string;
+  var
+    VDays: Double;
+  begin
+    VDays := APhase * 29.53;
+    if VDays < 1.84566 then begin
+      Result := _('New Moon')
+    end else
+    if VDays < 5.53699 then begin
+      Result := _('Waxing Crescent');
+    end else
+    if VDays < 9.22831 then begin
+      Result := _('First Quarter');
+    end else
+    if VDays < 12.91963 then begin
+      Result := _('Waxing Gibbous')
+    end else
+    if VDays < 16.61096 then begin
+      Result := _('Full Moon');
+    end else
+    if VDays < 20.30228 then begin
+      Result := _('Waning Gibbous');
+    end else
+    if VDays < 23.99361 then begin
+      Result := _('Last Quarter');
+    end else
+    if VDays < 27.68493 then begin
+      Result := _('Waning Crescent');
+    end else begin
+      Result := _('New Moon');
+    end;
+  end;
+
+  procedure AddRow(var ARow: Integer; const AStr1, AStr2: string);
+  begin
+    with Result[ARow] do begin
+      Text[0] := AStr1;
+      Text[1] := AStr2;
+    end;
+    Inc(ARow);
+  end;
+
+var
+  VRow: Integer;
+  VPos: TMoonPos;
+  VUptime: Integer;
+  VIsUnderHorizont: Boolean;
+  VTimes: TSunCalcProviderTimes;
+  VIllumination: TMoonIllumination;
+begin
+  // uptime
+  // azimuth
+  // altitude
+  // shadow
+  // illumination
+  // phase
+
+  VRow := 0;
+  SetLength(Result, 6);
+
+  VTimes := GetTimes(AStartOfTheDay, AEndOfTheDay, ALonLat);
+  VPos := SunCalc.GetMoonPosition(ACurrentTime, ALonLat.Y, ALonLat.X);
+  VIllumination := SunCalc.GetMoonIllumination(ACurrentTime);
+
+  VUptime := 0;
+  VIsUnderHorizont := RadToDeg(VPos.Altitude) < 0;
+
+  if (VTimes.RiseTime = 0) and (VTimes.SetTime = 0) then begin
+    if not VIsUnderHorizont then begin
+      VUptime := 24 * 60;
+    end;
+  end else
+  if (VTimes.RiseTime > 0) and (VTimes.SetTime > 0) then begin
+    if VTimes.RiseTime < VTimes.SetTime then begin
+      VUptime := MinutesBetween(VTimes.RiseTime, VTimes.SetTime);
+    end else begin
+      VUptime :=
+        MinutesBetween(AStartOfTheDay, VTimes.SetTime) +
+        MinutesBetween(VTimes.RiseTime, AEndOfTheDay);
+    end;
+  end else
+  if VTimes.RiseTime = 0 then begin
+    VUptime := MinutesBetween(AStartOfTheDay, VTimes.SetTime);
+  end else
+  if VTimes.SetTime = 0 then begin
+    VUptime := MinutesBetween(VTimes.RiseTime, AEndOfTheDay);
+  end;
+
+  AddRow(VRow, _('Up Time'), MinutesToStr(VUptime) );
+  AddRow(VRow, _('Azimuth'), Format('%.0f°', [RadToDeg(VPos.Azimuth)]) );
+  AddRow(VRow, _('Altitude'), Format('%.1f°', [RadToDeg(VPos.Altitude)]) );
+  AddRow(VRow, _('Shadow, meters'), ShadowToStr(VPos.Altitude) );
+  AddRow(VRow, _('Illumination'), Format('%.0f%%', [VIllumination.Fraction * 100]) );
+  AddRow(VRow, PhaseToStr(VIllumination.Phase), '');
+
+  SetLength(Result, VRow);
 end;
 
 function TSunCalcDataProviderMoon.GetDayMarker: IMarkerDrawable;

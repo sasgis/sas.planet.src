@@ -80,6 +80,7 @@ type
 
     FRowHeight: Integer;
     FRowsCount: Integer;
+    FInfoRowSeparatorHeight: Integer;
 
     FColWidth: TSunCalcDetailsPanelColsWidth;
 
@@ -87,12 +88,14 @@ type
 
     FIsDetailedView: Boolean;
 
+    function GetRenderedTextRec(const ACol, ARow: Integer): PRenderedTextRec;
     procedure ClearRenderedText;
 
     procedure RenderText(
       const ACol, ARow: Integer;
       const AText: string;
-      const AAlign: TTextAlign = taLeft
+      const AAlign: TTextAlign = taLeft;
+      const ASeparatorHeight: Integer = 0
     );
 
     procedure OnMouseDown(
@@ -101,11 +104,18 @@ type
       Shift: TShiftState;
       X, Y: Integer
     );
+
     procedure DrawRow(
       const ARowNum: Integer;
       const ATime: TDateTime;
       const AName: string
     );
+
+    procedure DrawInfoRow(
+      const ARowNum: Integer;
+      const AInfo: TSunCalcDayInfoRec
+    );
+
     procedure OnPosChange;
     procedure OnSunCalcConfigChange;
     procedure OnSunCalcProviderChange;
@@ -148,7 +158,7 @@ resourcestring
 
 const
   cDetailedRowsCount = 12 + 1;
-  cDetailedColsCount = 4;
+  cMaxColumnsCount = 4;
 
 { TWindowLayerSunCalcDetailsPanel }
 
@@ -212,8 +222,7 @@ begin
 
   FIsDetailedView := False;
 
-  SetLength(FRenderedText, cDetailedColsCount * cDetailedRowsCount);
-  ClearRenderedText;
+  SetLength(FRenderedText, 0);
 end;
 
 destructor TWindowLayerSunCalcDetailsPanel.Destroy;
@@ -244,10 +253,31 @@ begin
   end;
 end;
 
+function TWindowLayerSunCalcDetailsPanel.GetRenderedTextRec(
+  const ACol, ARow: Integer
+): PRenderedTextRec;
+var
+  I: Integer;
+  VIndex: Integer;
+  VCount: Integer;
+begin
+  VIndex := ARow * cMaxColumnsCount + ACol;
+  VCount := Length(FRenderedText);
+  if VIndex >= VCount then begin
+    SetLength(FRenderedText, VIndex + 1);
+    for I := VCount to Length(FRenderedText) - 1 do begin
+      FRenderedText[I].Text := '';
+      FRenderedText[I].Bitmap := nil;
+    end;
+  end;
+  Result := @FRenderedText[VIndex];
+end;
+
 procedure TWindowLayerSunCalcDetailsPanel.RenderText(
   const ACol, ARow: Integer;
   const AText: string;
-  const AAlign: TTextAlign
+  const AAlign: TTextAlign;
+  const ASeparatorHeight: Integer
 );
 var
   I: Integer;
@@ -255,7 +285,7 @@ var
   VTextRec: PRenderedTextRec;
   VTextSize: TSize;
 begin
-  VTextRec := @FRenderedText[ARow * cDetailedColsCount + ACol];
+  VTextRec := GetRenderedTextRec(ACol, ARow);
 
   if not Assigned(VTextRec.Bitmap) then begin
     VTextRec.Bitmap := TBitmap32.Create;
@@ -299,7 +329,7 @@ begin
     end;
   end;
 
-  Y := FBorder.Top + ARow * FRowHeight;
+  Y := FBorder.Top + ARow * FRowHeight + ASeparatorHeight;
 
   VTextRec.Bitmap.DrawTo(Layer.Bitmap, X, Y);
 end;
@@ -347,12 +377,24 @@ begin
   RenderText(I, ARowNum, AName);
 end;
 
+procedure TWindowLayerSunCalcDetailsPanel.DrawInfoRow(
+  const ARowNum: Integer;
+  const AInfo: TSunCalcDayInfoRec
+);
+begin
+  RenderText(0, ARowNum, AInfo.Text[1], taCenter, FInfoRowSeparatorHeight);
+  RenderText(1, ARowNum, AInfo.Text[0], taLeft, FInfoRowSeparatorHeight);
+end;
+
 procedure TWindowLayerSunCalcDetailsPanel.DoUpdateBitmapDraw;
 var
   I: Integer;
+  VTop: Integer;
   VRow: Integer;
   VRowsCount: Integer;
+  VInfoRowsCount: Integer;
   VPanelHeight: Integer;
+  VInfo: TSunCalcDayInfo;
   VEvents: TSunCalcDayEvents;
 begin
   VEvents :=
@@ -360,12 +402,28 @@ begin
       SunCalcParams(FStartOfTheDay, FEndOfTheDay, FLocation, FIsDetailedView)
     );
 
+  if FSunCalcConfig.ShowDayInfoPanel then begin
+    VInfo :=
+      FSunCalcDataProvider.GetDayInfo(
+        FStartOfTheDay, FEndOfTheDay, FDateTime, FLocation
+      );
+  end else begin
+    VInfo := nil;
+  end;
+
   VRowsCount := Length(VEvents);
   if FIsDetailedView then begin
     Inc(VRowsCount);
   end;
 
-  VPanelHeight := VRowsCount * FRowHeight;
+  VInfoRowsCount := Length(VInfo);
+  if VInfoRowsCount > 0 then begin
+    FInfoRowSeparatorHeight := 6;
+  end else begin
+    FInfoRowSeparatorHeight := 0;
+  end;
+
+  VPanelHeight := VRowsCount * FRowHeight + VInfoRowsCount * FRowHeight + FInfoRowSeparatorHeight;
 
   if FHeight <> VPanelHeight then begin
     ViewUpdateLock;
@@ -386,11 +444,12 @@ begin
     Layer.Bitmap.Font.Name := FFont.FontName;
     Layer.Bitmap.Font.Size := FFont.FontSize;
 
+    VRow := 0;
+
+    // events
     for I := 0 to VRowsCount - 1 do begin
       Layer.Bitmap.HorzLineS(0, FRowHeight * (I + 1), FWidth - 1, FColors.GridLinesColor);
     end;
-
-    VRow := 0;
 
     if FIsDetailedView then begin
       RenderText(0, VRow, rsTime, taCenter);
@@ -402,6 +461,22 @@ begin
 
     for I := 0 to Length(VEvents) - 1 do begin
       DrawRow(VRow, VEvents[I].Date, VEvents[I].Name);
+      Inc(VRow);
+    end;
+
+    // info
+    VTop := FRowHeight * VRowsCount;
+    for I := 0 to FInfoRowSeparatorHeight - 1 do begin
+      Layer.Bitmap.HorzLineS(0, VTop + I, FWidth - 1, SetAlpha(FColors.GridLinesColor, 0));
+    end;
+
+    Inc(VTop, FInfoRowSeparatorHeight);
+    for I := 0 to VInfoRowsCount - 1 do begin
+      Layer.Bitmap.HorzLineS(0, VTop + FRowHeight * (I + 1), FWidth - 1, FColors.GridLinesColor);
+    end;
+
+    for I := 0 to Length(VInfo) - 1 do begin
+      DrawInfoRow(VRow, VInfo[I]);
       Inc(VRow);
     end;
   finally
@@ -490,6 +565,7 @@ var
   VTzOffset: Extended;
   VIsSameLocation: Boolean;
   VIsSameDate: Boolean;
+  VIsSameTime: Boolean;
   VIsSameTzOffset: Boolean;
 begin
   ViewUpdateLock;
@@ -508,6 +584,7 @@ begin
 
     VIsSameLocation := DoublePointsEqual(VLocation, FLocation);
     VIsSameDate := SameDate(VDateTime, FDateTime);
+    VIsSameTime := VIsSameDate and SameDateTime(VDateTime, FDateTime);
 
     if IsNan(FTzOffset) or not VIsSameLocation or not VIsSameDate then begin
       if not FSunCalcProvider.GetTzOffset(VDateTime, VTzOffset) then begin
@@ -523,7 +600,12 @@ begin
       VIsSameTzOffset := True;
     end;
 
-    if not VIsSameLocation or not VIsSameDate or not VIsSameTzOffset then begin
+    if
+      not VIsSameLocation or
+      not VIsSameDate or
+      not VIsSameTime or
+      not VIsSameTzOffset then
+    begin
       SetNeedUpdateBitmapDraw;
     end;
 

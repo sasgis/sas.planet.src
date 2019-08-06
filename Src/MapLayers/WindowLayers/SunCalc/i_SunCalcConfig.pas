@@ -134,6 +134,10 @@ type
     procedure SetShowCaptionNearSun(const AValue: Boolean);
     property ShowCaptionNearSun: Boolean read GetShowCaptionNearSun write SetShowCaptionNearSun;
 
+    function GetShowDayInfoPanel: Boolean;
+    procedure SetShowDayInfoPanel(const AValue: Boolean);
+    property ShowDayInfoPanel: Boolean read GetShowDayInfoPanel write SetShowDayInfoPanel;
+
     function GetIsRealTime: Boolean;
     procedure SetIsRealTime(const AValue: Boolean);
     property IsRealTime: Boolean read GetIsRealTime write SetIsRealTime;
