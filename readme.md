@@ -7,11 +7,11 @@
 
     `hg clone https://bitbucket.org/sas_team/sas.planet.src`
     
-3. Download and extract all files from [latest release](https://bitbucket.org/sas_team/sas.planet.bin/downloads/) into *sas.planet.src/.bin*
+3. Download and extract all files from [latest release](https://bitbucket.org/sas_team/sas.planet.bin/downloads/) into *sas.planet.src\\.bin*
 
-4. Download and extract all files from [latest nightly build](https://dl.bintray.com/zed/SASPlanet/) into *sas.planet.src/.bin* (overwrite existing files)
+4. Download and extract all files from [latest nightly build](https://dl.bintray.com/zed/SASPlanet/) into *sas.planet.src\\.bin* (overwrite existing files)
 
-5. Update maps: execute *sas.planet.src\.bin\Maps\sas.maps\Update.cmd* and *sas.planet.src\.bin\Maps\sas.plus.maps\UpdatePlus.cmd*
+5. Update maps: execute *sas.planet.src\\.bin\Maps\sas.maps\Update.cmd* and *sas.planet.src\\.bin\Maps\sas.plus.maps\UpdatePlus.cmd*
 
 6. Now you can open `*.dproj` file (for example: *sas.planet.src\SASPlanet.Rio.dproj*) and compile it!
 
