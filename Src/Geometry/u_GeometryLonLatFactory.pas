@@ -624,6 +624,7 @@ begin
     if Assigned(FReadyMultiPolygon) then begin
       Result := FReadyMultiPolygon;
       FReadyMultiPolygon := nil;
+      FOuterDataExists := False;
     end else if Assigned(FReadySinglePolygon) then begin
       if Assigned(FPolygonList) and (FPolygonList.Count > 0) then begin
         VPolygon := FReadySinglePolygon;
@@ -639,6 +640,7 @@ begin
         Result := FReadySinglePolygon;
       end;
       FReadySinglePolygon := nil;
+      FOuterDataExists := False;
     end else if Assigned(FPolygonList) and (FPolygonList.Count > 0) then begin
       VPolygon := MakeCurrentSinglePolygon(True);
       AddSinglePolygonToList(VPolygon);

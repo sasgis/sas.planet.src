@@ -24,12 +24,14 @@ interface
 
 uses
   GR32,
-  GR32_Polygons,
-  GR32_Transforms,
   GR32_Image,
   i_NotifierOperation,
+  i_SimpleFlag,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
+  i_ConfigDataElement,
+  i_TileRect,
+  i_TileRectChangeable,
   i_InternalPerformanceCounter,
   i_Projection,
   i_DoublePointsAggregator,
@@ -39,28 +41,39 @@ uses
   i_GeometryProjected,
   i_PolyLineLayerConfig,
   i_PolygonLayerConfig,
-  i_InterfaceListStatic,
-  u_BaseInterfacedObject,
+  i_ProjectedDrawableElement,
   u_MapLayerBasicNoBitmap;
 
 type
   TMapLayerSingleGeometryBase = class(TMapLayerBasicNoBitmap)
   private
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-    FConfig: ILineLayerConfig;
+    FConfig: IConfigDataElement;
+    FTileRectForShow: ITileRectChangeable;
 
-    FLineVisible: Boolean;
-    FLineColor: TColor32;
-    FLineWidth: Integer;
-    FSimpleLineDraw: Boolean;
+    FPrepareDrawableCounter: IInternalPerformanceCounter;
+    FDrawDrawableCounter: IInternalPerformanceCounter;
+
+    FSourceChanged: ISimpleFlag;
+    FFrawableTileRect: ITileRect;
+    FDrawable: IProjectedDrawableElement;
 
     FPreparedPointsAggreagtor: IDoublePointsAggregator;
   protected
     property Factory: IGeometryProjectedFactory read FVectorGeometryProjectedFactory;
     property PreparedPointsAggreagtor: IDoublePointsAggregator read FPreparedPointsAggreagtor;
+    procedure MarkSourceChanged;
     procedure OnConfigChange;
-    procedure DoConfigChange; virtual;
+    procedure DoConfigChange; virtual; abstract;
     procedure StartThreads; override;
+    procedure PaintLayer(
+      ABuffer: TBitmap32;
+      const ALocalConverter: ILocalCoordConverter
+    ); override;
+    function PrepareDrawable(
+      const AProjection: IProjection;
+      const AMapRect: TRect
+    ): IProjectedDrawableElement; virtual; abstract;
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
@@ -68,73 +81,28 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
+      const ATileRectForShow: ITileRectChangeable;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const AConfig: ILineLayerConfig
+      const AConfig: IConfigDataElement
     );
-  end;
-
-  IDrawablePolygon = interface
-    ['{EB682EC5-9DD3-4B9C-84AD-44A5EED26FA6}']
-    procedure DrawFill(
-      Bitmap: TCustomBitmap32;
-      Color: TColor32;
-      Transformation: TTransformation = nil
-    );
-    procedure DrawEdge(
-      Bitmap: TCustomBitmap32;
-      Color: TColor32;
-      Transformation: TTransformation = nil
-    );
-    procedure Draw(
-      Bitmap: TCustomBitmap32;
-      OutlineColor, FillColor: TColor32;
-      Transformation: TTransformation = nil
-    );
-  end;
-
-  TDrawablePolygon32 = class(TPolygon32, IDrawablePolygon)
-  public
-    constructor Create; override;
-    constructor CreateFromSource(ASource: TPolygon32);
-  end;
-
-  TDrawablePolygonByList = class(TBaseInterfacedObject, IDrawablePolygon)
-  private
-    FList: IInterfaceListStatic;
-  private
-    procedure DrawFill(
-      Bitmap: TCustomBitmap32;
-      Color: TColor32;
-      Transformation: TTransformation = nil
-    );
-    procedure DrawEdge(
-      Bitmap: TCustomBitmap32;
-      Color: TColor32;
-      Transformation: TTransformation = nil
-    );
-    procedure Draw(
-      Bitmap: TCustomBitmap32;
-      OutlineColor, FillColor: TColor32;
-      Transformation: TTransformation = nil
-    );
-  public
-    constructor Create(const AList: IInterfaceListStatic);
   end;
 
   TMapLayerSingleLine = class(TMapLayerSingleGeometryBase)
   private
     FSource: IGeometryLonLatLineChangeable;
     FPrevLine: IGeometryLonLatLine;
-    FProjection: IProjection;
-    FProjectedLine: IGeometryProjectedLine;
-    FLocalConverter: ILocalCoordConverter;
-    FPolygon: IDrawablePolygon;
+    FConfig: ILineLayerConfig;
+
+    FLineColor: TColor32;
+    FLineWidth: Integer;
+
     procedure OnChangedSource;
   protected
-    procedure PaintLayer(
-      ABuffer: TBitmap32;
-      const ALocalConverter: ILocalCoordConverter
-    ); override;
+    procedure DoConfigChange; override;
+    function PrepareDrawable(
+      const AProjection: IProjection;
+      const AMapRect: TRect
+    ): IProjectedDrawableElement; override;
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
@@ -142,6 +110,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
+      const ATileRectForShow: ITileRectChangeable;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const AConfig: ILineLayerConfig;
       const ASource: IGeometryLonLatLineChangeable
@@ -153,22 +122,18 @@ type
     FConfig: IPolygonLayerConfig;
     FSource: IGeometryLonLatPolygonChangeable;
 
+    FLineColor: TColor32;
+    FLineWidth: Integer;
     FFillColor: TColor32;
-    FFillVisible: Boolean;
 
     FPrevLine: IGeometryLonLatPolygon;
-    FProjection: IProjection;
-    FProjectedLine: IGeometryProjectedPolygon;
-    FLocalConverter: ILocalCoordConverter;
-    FPolygonBorder: IDrawablePolygon;
-    FPolygonFill: IDrawablePolygon;
     procedure OnChangedSource;
   protected
     procedure DoConfigChange; override;
-    procedure PaintLayer(
-      ABuffer: TBitmap32;
-      const ALocalConverter: ILocalCoordConverter
-    ); override;
+    function PrepareDrawable(
+      const AProjection: IProjection;
+      const AMapRect: TRect
+    ): IProjectedDrawableElement; override;
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
@@ -176,6 +141,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
+      const ATileRectForShow: ITileRectChangeable;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const AConfig: IPolygonLayerConfig;
       const ASource: IGeometryLonLatPolygonChangeable
@@ -185,11 +151,14 @@ type
 implementation
 
 uses
+  Types,
   SysUtils,
   i_InterfaceListSimple,
+  u_SimpleFlagWithInterlock,
   u_InterfaceListSimple,
   u_DoublePointsAggregator,
   u_ListenerByEvent,
+  u_ProjectedDrawableElementByPolygon,
   u_GeometryFunc;
 
 { TLineLayerBase }
@@ -200,12 +169,14 @@ constructor TMapLayerSingleGeometryBase.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
+  const ATileRectForShow: ITileRectChangeable;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const AConfig: ILineLayerConfig
+  const AConfig: IConfigDataElement
 );
 begin
   Assert(Assigned(AVectorGeometryProjectedFactory));
   Assert(Assigned(AConfig));
+  Assert(Assigned(ATileRectForShow));
   inherited Create(
     APerfList,
     AAppStartedNotifier,
@@ -214,7 +185,13 @@ begin
     AView
   );
   FConfig := AConfig;
+  FTileRectForShow := ATileRectForShow;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
+
+  FPrepareDrawableCounter := APerfList.CreateAndAddNewCounter('PrepareDrawable');
+  FDrawDrawableCounter := APerfList.CreateAndAddNewCounter('DrawDrawable');
+
+  FSourceChanged := TSimpleFlagWithInterlock.Create;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
@@ -223,12 +200,9 @@ begin
   FPreparedPointsAggreagtor := TDoublePointsAggregator.Create;
 end;
 
-procedure TMapLayerSingleGeometryBase.DoConfigChange;
+procedure TMapLayerSingleGeometryBase.MarkSourceChanged;
 begin
-  FLineColor := FConfig.LineColor;
-  FLineWidth := FConfig.LineWidth;
-  FLineVisible := ((AlphaComponent(FLineColor) > 0) and (FLineWidth > 0));
-  FSimpleLineDraw := (FLineWidth = 1);
+  FSourceChanged.SetFlag;
 end;
 
 procedure TMapLayerSingleGeometryBase.OnConfigChange;
@@ -238,11 +212,58 @@ begin
     FConfig.LockRead;
     try
       DoConfigChange;
+      MarkSourceChanged;
     finally
       FConfig.UnlockRead;
     end;
   finally
     ViewUpdateUnlock;
+  end;
+end;
+
+procedure TMapLayerSingleGeometryBase.PaintLayer(
+  ABuffer: TBitmap32;
+  const ALocalConverter: ILocalCoordConverter
+);
+var
+  VCounterContext: TInternalPerformanceCounterContext;
+  VTileRect: ITileRect;
+  VProjection: IProjection;
+  VPixelRect: TRect;
+  VSourceChanged: Boolean;
+begin
+  inherited;
+  Assert(Assigned(ALocalConverter));
+  VSourceChanged := FSourceChanged.CheckFlagAndReset;
+  if not VSourceChanged then begin
+    if not Assigned(FFrawableTileRect) then begin
+      VSourceChanged := true;
+    end;
+  end;
+  VTileRect := FTileRectForShow.GetStatic;
+  if not VSourceChanged then begin
+    if not FFrawableTileRect.IsEqual(VTileRect) then begin
+      VSourceChanged := True;
+    end;
+  end;
+  if VSourceChanged then begin
+    VProjection := VTileRect.Projection;
+    VPixelRect := VProjection.TileRect2PixelRect(VTileRect.Rect);
+    VCounterContext := FPrepareDrawableCounter.StartOperation;
+    try
+      FDrawable := PrepareDrawable(VProjection, VPixelRect);
+    finally
+      FPrepareDrawableCounter.FinishOperation(VCounterContext);
+    end;
+    FFrawableTileRect := VTileRect;
+  end;
+  if Assigned(FDrawable) then begin
+    VCounterContext := FDrawDrawableCounter.StartOperation;
+    try
+      FDrawable.Draw(ABuffer, ALocalConverter);
+    finally
+      FDrawDrawableCounter.FinishOperation(VCounterContext);
+    end;
   end;
 end;
 
@@ -252,20 +273,6 @@ begin
   OnConfigChange;
 end;
 
-{ TDrawablePolygon32 }
-
-constructor TDrawablePolygon32.Create;
-begin
-  inherited;
-  RefCounted := True;
-end;
-
-constructor TDrawablePolygon32.CreateFromSource(ASource: TPolygon32);
-begin
-  Create;
-  Assign(ASource);
-end;
-
 { TMapLayerSingleLine }
 
 constructor TMapLayerSingleLine.Create(
@@ -273,6 +280,7 @@ constructor TMapLayerSingleLine.Create(
   const AAppStartedNotifier, AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
+  const ATileRectForShow: ITileRectChangeable;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const AConfig: ILineLayerConfig;
   const ASource: IGeometryLonLatLineChangeable
@@ -285,14 +293,22 @@ begin
     AAppClosingNotifier,
     AParentMap,
     AView,
+    ATileRectForShow,
     AVectorGeometryProjectedFactory,
     AConfig
   );
   FSource := ASource;
+  FConfig := AConfig;
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnChangedSource),
     FSource.ChangeNotifier
   );
+end;
+
+procedure TMapLayerSingleLine.DoConfigChange;
+begin
+  FLineColor := FConfig.LineColor;
+  FLineWidth := FConfig.LineWidth;
 end;
 
 procedure TMapLayerSingleLine.OnChangedSource;
@@ -305,16 +321,20 @@ begin
     if Assigned(VLine) then begin
       if Assigned(FPrevLine) then begin
         if not VLine.IsSameGeometry(FPrevLine) then begin
-          FPrevLine := nil;
+          FPrevLine := VLine;
+          MarkSourceChanged;
           SetNeedRedraw;
         end;
       end else begin
+        FPrevLine := VLine;
+        MarkSourceChanged;
         SetNeedRedraw;
         Show;
       end;
     end else begin
       if Assigned(FPrevLine) then begin
         FPrevLine := nil;
+        MarkSourceChanged;
         Hide;
       end;
     end;
@@ -323,110 +343,49 @@ begin
   end;
 end;
 
-procedure TMapLayerSingleLine.PaintLayer(
-  ABuffer: TBitmap32;
-  const ALocalConverter: ILocalCoordConverter
-);
+function TMapLayerSingleLine.PrepareDrawable(
+  const AProjection: IProjection;
+  const AMapRect: TRect
+): IProjectedDrawableElement;
 var
   VLonLatLine: IGeometryLonLatLine;
-  VProjection: IProjection;
   VProjectedLine: IGeometryProjectedLine;
-  VLocalConverter: ILocalCoordConverter;
-  VDrawablePolygon: IDrawablePolygon;
-  VPolygon: TPolygon32;
-  VPolygonOutline: TPolygon32;
-  VPolygonGrow: TPolygon32;
-  VPathFixedPoints: TArrayOfFixedPoint;
+  VPathPoints: TArrayOfFixedPoint;
+  VPolygon: TArrayOfArrayOfFixedPoint;
 begin
+  Result := nil;
   if (AlphaComponent(FLineColor) = 0) or (FLineWidth < 1) then begin
     Exit;
   end;
-
-  VLonLatLine := FPrevLine;
-  VProjection := FProjection;
-  VProjectedLine := FProjectedLine;
-  VLocalConverter := FLocalConverter;
-  VDrawablePolygon := FPolygon;
-
-  if not Assigned(VLonLatLine) then begin
-    VLonLatLine := FSource.GetStatic;
-    FPrevLine := VLonLatLine;
-    VProjectedLine := nil;
-    VProjection := nil;
-  end;
-
+  VLonLatLine := FSource.GetStatic;
   if not Assigned(VLonLatLine) then begin
     Exit;
   end;
-  if Assigned(VProjectedLine) then begin
-    if not ALocalConverter.Projection.IsSame(VProjection) then begin
-      VProjectedLine := nil;
-    end;
-  end;
-
-  if not Assigned(VProjectedLine) then begin
-    VDrawablePolygon := nil;
-    VLocalConverter := nil;
-    VProjection := ALocalConverter.Projection;
-    VProjectedLine :=
-      FVectorGeometryProjectedFactory.CreateProjectedLineByLonLatPath(
-        VProjection,
-        VLonLatLine,
-        FPreparedPointsAggreagtor
-      );
-    FProjectedLine := VProjectedLine;
-    FProjection := VProjection;
-  end;
-
+  VProjectedLine :=
+    FVectorGeometryProjectedFactory.CreateProjectedLineByLonLatPath(
+      AProjection,
+      VLonLatLine,
+      FPreparedPointsAggreagtor
+    );
   if not Assigned(VProjectedLine) then begin
     Exit;
   end;
-
-  if Assigned(VDrawablePolygon) then begin
-    if not ALocalConverter.GetIsSameConverter(VLocalConverter) then begin
-      VDrawablePolygon := nil;
-      VLocalConverter := nil;
+  VPolygon :=
+    ProjectedLine2ArrayOfArray(
+      VProjectedLine,
+      AMapRect,
+      VPathPoints
+    );
+  if Assigned(VPolygon) then begin
+    if FLineWidth = 1 then begin
+      Result := TDrawableSimpleLine.Create(AProjection, AMapRect.TopLeft, VPolygon, False, FLineColor);
+    end else begin
+      Result := TDrawablePolygonFill.Create(AProjection, AMapRect.TopLeft, BuildPolyPolyLine(VPolygon, False, FLineWidth), FLineColor);
     end;
   end;
 
-  if not Assigned(VDrawablePolygon) then begin
-    VPolygon := nil;
-    try
-      ProjectedLine2GR32Polygon(
-        VProjectedLine,
-        ALocalConverter,
-        am4times,
-        VPathFixedPoints,
-        VPolygon
-      );
-      if Assigned(VPolygon) then begin
-        if FLineWidth = 1 then begin
-          VDrawablePolygon := TDrawablePolygon32.CreateFromSource(VPolygon);
-        end else begin
-          VPolygonOutline := VPolygon.Outline;
-          try
-            VPolygonGrow := VPolygonOutline.Grow(Fixed(FLineWidth / 2), 0.5);
-            try
-              VDrawablePolygon := TDrawablePolygon32.CreateFromSource(VPolygonGrow);
-            finally
-              VPolygonGrow.Free;
-            end;
-          finally
-            VPolygonOutline.Free;
-          end;
-        end;
-      end;
-    finally
-      VPolygon.Free;
-    end;
-    FPolygon := VDrawablePolygon;
-    FLocalConverter := VLocalConverter;
-  end;
-  if not Assigned(VDrawablePolygon) then begin
-    Exit;
-  end;
-  VDrawablePolygon.DrawFill(ABuffer, FLineColor);
 end;
+
 
 { TMapLayerSinglePolygon }
 
@@ -436,6 +395,7 @@ constructor TMapLayerSinglePolygon.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
+  const ATileRectForShow: ITileRectChangeable;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const AConfig: IPolygonLayerConfig;
   const ASource: IGeometryLonLatPolygonChangeable
@@ -448,6 +408,7 @@ begin
     AAppClosingNotifier,
     AParentMap,
     AView,
+    ATileRectForShow,
     AVectorGeometryProjectedFactory,
     AConfig
   );
@@ -459,117 +420,34 @@ begin
   );
 end;
 
-procedure PrepareFillAndBorderForSinglePolygon(
-  const ASimpleLineDraw: Boolean;
-  const ALineWidth: Integer;
-  const AProjectedLine: IGeometryProjectedSinglePolygon;
-  const ALocalConverter: ILocalCoordConverter;
-  var ADrawablePolygonFill: IDrawablePolygon;
-  var ADrawablePolygonBorder: IDrawablePolygon
-);
-var
-  VPolygonGrow: TPolygon32;
-  VPolygonOutline: TPolygon32;
-  VPathFixedPoints: TArrayOfFixedPoint;
-  VPolygon: TPolygon32;
-begin
-  VPolygon := nil;
-  try
-    ProjectedPolygon2GR32Polygon(AProjectedLine, ALocalConverter, am4times, VPathFixedPoints, VPolygon);
-    if Assigned(VPolygon) then begin
-      ADrawablePolygonFill := TDrawablePolygon32.CreateFromSource(VPolygon);
-      ADrawablePolygonBorder := nil;
-      if not ASimpleLineDraw then begin
-        VPolygonOutline := VPolygon.Outline;
-        try
-          VPolygonGrow := VPolygonOutline.Grow(Fixed(ALineWidth / 2), 0.5);
-          try
-            ADrawablePolygonBorder := TDrawablePolygon32.CreateFromSource(VPolygonGrow);
-          finally
-            VPolygonGrow.Free;
-          end;
-        finally
-          VPolygonOutline.Free;
-        end;
-      end;
-    end;
-  finally
-    VPolygon.Free;
-  end;
-end;
-
 procedure PrepareFillAndBorder(
-  const ASimpleLineDraw: Boolean;
+  const ALineColor: TColor32;
   const ALineWidth: Integer;
-  const AProjectedLine: IGeometryProjectedPolygon;
-  const ALocalConverter: ILocalCoordConverter;
-  var ADrawablePolygonFill: IDrawablePolygon;
-  var ADrawablePolygonBorder: IDrawablePolygon
+  const AFillColor: TColor32;
+  const AProjectedLine: IGeometryProjectedSinglePolygon;
+  const AProjection: IProjection;
+  const AMapRect: TRect;
+  var ADrawableList: IInterfaceListSimple
 );
 var
-  VSinglePolygon: IGeometryProjectedSinglePolygon;
-  VMultiPolygon: IGeometryProjectedMultiPolygon;
-  i: Integer;
-  VFillList: IInterfaceListSimple;
-  VBorderList: IInterfaceListSimple;
+  VPathPoints: TArrayOfFixedPoint;
+  VPolygon: TArrayOfArrayOfFixedPoint;
+  VFill: IProjectedDrawableElement;
+  VBorder: IProjectedDrawableElement;
 begin
-  if Supports(AProjectedLine, IGeometryProjectedSinglePolygon, VSinglePolygon) then begin
-    PrepareFillAndBorderForSinglePolygon(
-      ASimpleLineDraw,
-      ALineWidth,
-      VSinglePolygon,
-      ALocalConverter,
-      ADrawablePolygonFill,
-      ADrawablePolygonBorder
-    );
-  end else if Supports(AProjectedLine, IGeometryProjectedMultiPolygon, VMultiPolygon) then begin
-    if VMultiPolygon.Count = 0 then begin
-      ADrawablePolygonFill := nil;
-      ADrawablePolygonBorder := nil;
-    end else if VMultiPolygon.Count = 1 then begin
-      VSinglePolygon := VMultiPolygon.Item[0];
-      PrepareFillAndBorderForSinglePolygon(
-        ASimpleLineDraw,
-        ALineWidth,
-        VSinglePolygon,
-        ALocalConverter,
-        ADrawablePolygonFill,
-        ADrawablePolygonBorder
-      );
-    end else begin
-      VFillList := TInterfaceListSimple.Create;
-      VBorderList := TInterfaceListSimple.Create;
-      for i := 0 to VMultiPolygon.Count - 1 do begin
-        VSinglePolygon := VMultiPolygon.Item[i];
-        PrepareFillAndBorderForSinglePolygon(
-          ASimpleLineDraw,
-          ALineWidth,
-          VSinglePolygon,
-          ALocalConverter,
-          ADrawablePolygonFill,
-          ADrawablePolygonBorder
-        );
-        if Assigned(ADrawablePolygonFill) then begin
-          VFillList.Add(ADrawablePolygonFill);
-        end;
-        if Assigned(ADrawablePolygonBorder) then begin
-          VBorderList.Add(ADrawablePolygonBorder);
-        end;
-      end;
-      if VFillList.Count = 0 then begin
-        ADrawablePolygonFill := nil;
-      end else if VFillList.Count = 1 then begin
-        ADrawablePolygonFill := IDrawablePolygon(VFillList.Items[0]);
+  VPolygon := ProjectedPolygon2ArrayOfArray(AProjectedLine, AMapRect, VPathPoints);
+  if Assigned(VPolygon) then begin
+    if AlphaComponent(AFillColor) > 0 then begin
+      VFill := TDrawablePolygonFill.Create(AProjection, AMapRect.TopLeft, VPolygon, AFillColor);
+      ADrawableList.Add(VFill);
+    end;
+    if (ALineWidth > 0) and (AlphaComponent(ALineColor) > 0) then begin
+      if ALineWidth = 1 then begin
+        VBorder := TDrawableSimpleLine.Create(AProjection, AMapRect.TopLeft, VPolygon, True, ALineColor);
       end else begin
-        ADrawablePolygonFill := TDrawablePolygonByList.Create(VFillList.MakeStaticAndClear);
+        VBorder := TDrawablePolygonFill.Create(AProjection, AMapRect.TopLeft, BuildPolyPolyLine(VPolygon, True, ALineWidth), ALineColor);
       end;
-      if VBorderList.Count = 0 then begin
-        ADrawablePolygonBorder := nil;
-      end else if VBorderList.Count = 1 then begin
-        ADrawablePolygonBorder := IDrawablePolygon(VBorderList.Items[0]);
-      end else begin
-        ADrawablePolygonBorder := TDrawablePolygonByList.Create(VBorderList.MakeStaticAndClear);
-      end;
+      ADrawableList.Add(VBorder);
     end;
   end;
 end;
@@ -577,8 +455,9 @@ end;
 procedure TMapLayerSinglePolygon.DoConfigChange;
 begin
   inherited;
+  FLineColor := FConfig.LineColor;
+  FLineWidth := FConfig.LineWidth;
   FFillColor := FConfig.FillColor;
-  FFillVisible := (AlphaComponent(FFillColor) > 0);
 end;
 
 procedure TMapLayerSinglePolygon.OnChangedSource;
@@ -591,16 +470,20 @@ begin
     if Assigned(VLine) then begin
       if Assigned(FPrevLine) then begin
         if not VLine.IsSameGeometry(FPrevLine) then begin
-          FPrevLine := nil;
+          FPrevLine := VLine;
+          MarkSourceChanged;
           SetNeedRedraw;
         end;
       end else begin
+        FPrevLine := VLine;
         SetNeedRedraw;
+        MarkSourceChanged;
         Show;
       end;
     end else begin
       if Assigned(FPrevLine) then begin
         FPrevLine := nil;
+        MarkSourceChanged;
         Hide;
       end;
     end;
@@ -609,147 +492,53 @@ begin
   end;
 end;
 
-procedure TMapLayerSinglePolygon.PaintLayer(
-  ABuffer: TBitmap32;
-  const ALocalConverter: ILocalCoordConverter
-);
+function TMapLayerSinglePolygon.PrepareDrawable(
+  const AProjection: IProjection;
+  const AMapRect: TRect
+): IProjectedDrawableElement;
 var
   VLonLatLine: IGeometryLonLatPolygon;
-  VProjection: IProjection;
   VProjectedLine: IGeometryProjectedPolygon;
-  VDrawablePolygonFill: IDrawablePolygon;
-  VDrawablePolygonBorder: IDrawablePolygon;
+  VDrawableList: IInterfaceListSimple;
+  VSinglePolygon: IGeometryProjectedSinglePolygon;
+  VMultiPolygon: IGeometryProjectedMultiPolygon;
+  i: Integer;
 begin
-  if not FFillVisible and not FLineVisible then begin
+  Result := nil;
+  if ((AlphaComponent(FLineColor) = 0) or (FLineWidth < 1)) and (AlphaComponent(FFillColor) = 0) then begin
     Exit;
   end;
-
-  VLonLatLine := FPrevLine;
-  VProjection := FProjection;
-  VProjectedLine := FProjectedLine;
-  VDrawablePolygonFill := FPolygonFill;
-  VDrawablePolygonBorder := FPolygonBorder;
-  if not Assigned(VLonLatLine) then begin
     VLonLatLine := FSource.GetStatic;
-    FPrevLine := VLonLatLine;
-    VProjectedLine := nil;
-    VProjection := nil;
-  end;
-
   if not Assigned(VLonLatLine) then begin
     Exit;
   end;
-
-  if Assigned(VProjectedLine) then begin
-    if not ALocalConverter.Projection.IsSame(VProjection) then begin
-      VProjection := nil;
-      VProjectedLine := nil;
-    end;
-  end;
-
-  if not Assigned(VProjectedLine) then begin
-    VDrawablePolygonFill := nil;
-    VDrawablePolygonBorder := nil;
-    VProjection := ALocalConverter.Projection;
     VProjectedLine :=
       FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-        VProjection,
+        AProjection,
         VLonLatLine,
         FPreparedPointsAggreagtor
       );
-    FProjection := VProjection;
-    FProjectedLine := VProjectedLine;
-  end;
-
   if not Assigned(VProjectedLine) then begin
     Exit;
   end;
+  VDrawableList := TInterfaceListSimple.Create;
 
-  if Assigned(VDrawablePolygonFill) or Assigned(VDrawablePolygonBorder) then begin
-    if not ALocalConverter.GetIsSameConverter(FLocalConverter) then begin
-      VDrawablePolygonFill := nil;
-      VDrawablePolygonBorder := nil;
+  if Supports(VProjectedLine, IGeometryProjectedSinglePolygon, VSinglePolygon) then begin
+    PrepareFillAndBorder(FLineColor, FLineWidth, FFillColor, VSinglePolygon, AProjection, AMapRect, VDrawableList);
+  end else if Supports(VProjectedLine, IGeometryProjectedMultiPolygon, VMultiPolygon) then begin
+    for i := 0 to VMultiPolygon.Count - 1 do begin
+      VSinglePolygon := VMultiPolygon.Item[i];
+      PrepareFillAndBorder(FLineColor, FLineWidth, FFillColor, VSinglePolygon, AProjection, AMapRect, VDrawableList);
     end;
   end;
 
-  if not Assigned(VDrawablePolygonFill) then begin
-    PrepareFillAndBorder(FSimpleLineDraw, FLineWidth, VProjectedLine, ALocalConverter, VDrawablePolygonFill, VDrawablePolygonBorder);
-    FPolygonFill := VDrawablePolygonFill;
-    FPolygonBorder := VDrawablePolygonBorder;
-    FLocalConverter := ALocalConverter;
-  end;
-  if not Assigned(VDrawablePolygonFill) then begin
+  if VDrawableList.Count = 0 then begin
     Exit;
   end;
-  if FFillVisible then begin
-    if FLineVisible and FSimpleLineDraw then begin
-      VDrawablePolygonFill.Draw(ABuffer, FLineColor, FFillColor);
-    end else begin
-      VDrawablePolygonFill.DrawFill(ABuffer, FFillColor);
-    end;
+  if VDrawableList.Count = 1 then begin
+    Result := IProjectedDrawableElement(VDrawableList.First);
   end else begin
-    if FLineVisible and FSimpleLineDraw then begin
-      VDrawablePolygonFill.DrawEdge(ABuffer, FLineColor);
-    end;
-  end;
-
-  if Assigned(VDrawablePolygonBorder) then begin
-    VDrawablePolygonBorder.DrawFill(ABuffer, FLineColor);
-  end;
-end;
-
-{ TDrawablePolygonByList }
-
-constructor TDrawablePolygonByList.Create(const AList: IInterfaceListStatic);
-begin
-  Assert(Assigned(AList));
-  Assert(AList.Count > 1);
-  inherited Create;
-  FList := AList;
-end;
-
-procedure TDrawablePolygonByList.Draw(
-  Bitmap: TCustomBitmap32;
-  OutlineColor, FillColor: TColor32;
-  Transformation: TTransformation
-);
-var
-  i: Integer;
-  VItem: IDrawablePolygon;
-begin
-  for i := 0 to FList.Count - 1 do begin
-    VItem := IDrawablePolygon(FList.Items[i]);
-    VItem.Draw(Bitmap, OutlineColor, FillColor, Transformation);
-  end;
-end;
-
-procedure TDrawablePolygonByList.DrawEdge(
-  Bitmap: TCustomBitmap32;
-  Color: TColor32;
-  Transformation: TTransformation
-);
-var
-  i: Integer;
-  VItem: IDrawablePolygon;
-begin
-  for i := 0 to FList.Count - 1 do begin
-    VItem := IDrawablePolygon(FList.Items[i]);
-    VItem.DrawEdge(Bitmap, Color, Transformation);
-  end;
-end;
-
-procedure TDrawablePolygonByList.DrawFill(
-  Bitmap: TCustomBitmap32;
-  Color: TColor32;
-  Transformation: TTransformation
-);
-var
-  i: Integer;
-  VItem: IDrawablePolygon;
-begin
-  for i := 0 to FList.Count - 1 do begin
-    VItem := IDrawablePolygon(FList.Items[i]);
-    VItem.DrawFill(Bitmap, Color, Transformation);
+    Result := TDrawableByList.Create(AProjection, VDrawableList.MakeStaticAndClear);
   end;
 end;
 

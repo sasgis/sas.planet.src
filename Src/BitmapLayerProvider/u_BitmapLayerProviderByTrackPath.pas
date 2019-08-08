@@ -24,7 +24,6 @@ interface
 
 uses
   GR32,
-  GR32_Polygons,
   t_GeoTypes,
   i_NotifierOperation,
   i_Projection,
@@ -52,7 +51,6 @@ type
     FPointsProjected: array of TGPSTrackPoint;
     FPointsProjectedCount: Integer;
 
-    FPolygon: TPolygon32;
     procedure PrepareLonLatPointsByEnum(
       AMaxPointsCount: Integer;
       const AEnum: IEnumGPSTrackPoint
@@ -96,7 +94,6 @@ type
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AEnum: IEnumGPSTrackPoint
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -105,8 +102,10 @@ uses
   SysUtils,
   Types,
   Math,
+  GR32_Polygons,
   i_ProjectionType,
   u_Bitmap32ByStaticBitmap,
+  u_GeometryFunc,
   u_GeoFunc;
 
 { TBitmapLayerProviderByTrackPath }
@@ -133,16 +132,6 @@ begin
 
   PrepareLonLatPointsByEnum(AMaxPointsCount, AEnum);
 
-  FPolygon := TPolygon32.Create;
-  FPolygon.Antialiased := true;
-  FPolygon.AntialiasMode := am4times;
-  FPolygon.Closed := false;
-end;
-
-destructor TBitmapLayerProviderByTrackPath.Destroy;
-begin
-  FreeAndNil(FPolygon);
-  inherited;
 end;
 
 function TBitmapLayerProviderByTrackPath.DrawPath(
@@ -243,29 +232,24 @@ procedure TBitmapLayerProviderByTrackPath.DrawSection(
   const ASpeed: Double
 );
 var
-  VFixedPointsPair: array [0..10] of TFixedPoint;
   VSegmentColor: TColor32;
+  VLine: TArrayOfFixedPoint;
+  VLines: TArrayOfArrayOfFixedPoint;
 begin
   if (APointPrev.x < 32767) and (APointPrev.x > -32767) and (APointPrev.y < 32767) and (APointPrev.y > -32767) then begin
-    VFixedPointsPair[0] := FixedPoint(APointPrev.X, APointPrev.Y);
-    VFixedPointsPair[1] := FixedPoint(APointCurr.X, APointCurr.Y);
-    FPolygon.Clear;
-    FPolygon.AddPoints(VFixedPointsPair[0], 2);
-    with FPolygon.Outline do begin
-      try
-        with Grow(Fixed(ALineWidth / 2), 0.5) do begin
-          try
-            VSegmentColor := ATrackColorer.GetColorForSpeed(ASpeed);
-            DrawFill(ATargetBmp, VSegmentColor);
-          finally
-            free;
-          end;
-        end;
-      finally
-        free;
-      end;
-    end;
-    FPolygon.Clear;
+    VSegmentColor := ATrackColorer.GetColorForSpeed(ASpeed);
+    SetLength(VLine, 2);
+    VLine[0] := FixedPoint(APointPrev.X, APointPrev.Y);
+    VLine[1] := FixedPoint(APointCurr.X, APointCurr.Y);
+    SetLength(VLines, 1);
+    VLines[0] := VLine;
+    VLines := BuildPolyPolyLine(VLines, False, ALineWidth);
+
+    PolyPolygonXS(
+      ATargetBmp,
+      VLines,
+      VSegmentColor
+    );
   end;
 end;
 

@@ -803,6 +803,7 @@ begin
       AAppClosingNotifier,
       AParentMap,
       AViewPortState.View,
+      VTileRectForShow,
       AVectorGeometryProjectedFactory,
       ALayersConfig.LastSelectionLayerConfig,
       VPolygonChangeable
@@ -824,6 +825,7 @@ begin
       AAppClosingNotifier,
       AParentMap,
       AViewPortState.View,
+      VTileRectForShow,
       AVectorGeometryProjectedFactory,
       ALayersConfig.MergePolygonsResultLayerConfig,
       VPolygonChangeable
@@ -850,6 +852,7 @@ begin
       AAppClosingNotifier,
       AParentMap,
       AViewPortState.View,
+      VTileRectForShow,
       AVectorGeometryProjectedFactory,
       ALayersConfig.CalcLineLayerConfig.LineConfig,
       VGeometryChangeableByPathEdit.LineChangeable
@@ -941,6 +944,7 @@ begin
       AAppClosingNotifier,
       AParentMap,
       AViewPortState.View,
+      VTileRectForShow,
       AVectorGeometryProjectedFactory,
       ALayersConfig.CalcCircleLayerConfig.PolygonConfig,
       VGeometryChangeableByPolygonEdit.PolygonChangeable
@@ -967,6 +971,7 @@ begin
       AAppClosingNotifier,
       AParentMap,
       AViewPortState.View,
+      VTileRectForShow,
       AVectorGeometryProjectedFactory,
       ALayersConfig.CalcCircleLayerConfig.LineConfig,
       VGeometryChangeableByPathEdit.LineChangeable
@@ -1058,6 +1063,7 @@ begin
       AAppClosingNotifier,
       AParentMap,
       AViewPortState.View,
+      VTileRectForShow,
       AVectorGeometryProjectedFactory,
       ALayersConfig.MarkPolyLineLayerConfig.LineConfig,
       VGeometryChangeableByPathEdit.LineChangeable
@@ -1149,6 +1155,7 @@ begin
       AAppClosingNotifier,
       AParentMap,
       AViewPortState.View,
+      VTileRectForShow,
       AVectorGeometryProjectedFactory,
       ALayersConfig.MarkPolygonLayerConfig.LineConfig,
       VGeometryChangeableByPolygonEdit.PolygonChangeable
@@ -1223,6 +1230,7 @@ begin
       AAppClosingNotifier,
       AParentMap,
       AViewPortState.View,
+      VTileRectForShow,
       AVectorGeometryProjectedFactory,
       ALayersConfig.SelectionPolygonLayerConfig.LineConfig,
       VGeometryChangeableByPolygonEdit.PolygonChangeable
@@ -1304,6 +1312,7 @@ begin
       AAppClosingNotifier,
       AParentMap,
       AViewPortState.View,
+      VTileRectForShow,
       AVectorGeometryProjectedFactory,
       ALayersConfig.SelectionPolylineLayerConfig.ShadowConfig,
       VPolygonChangeable
@@ -1320,6 +1329,7 @@ begin
       AAppClosingNotifier,
       AParentMap,
       AViewPortState.View,
+      VTileRectForShow,
       AVectorGeometryProjectedFactory,
       ALayersConfig.SelectionPolylineLayerConfig.LineConfig,
       VGeometryChangeableByPathEdit.LineChangeable

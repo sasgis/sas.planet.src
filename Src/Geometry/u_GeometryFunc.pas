@@ -25,6 +25,28 @@ function GetProjectedSinglePolygonByProjectedPolygon(
   const AGeometry: IGeometryProjectedPolygon
 ): IGeometryProjectedSinglePolygon;
 
+function BuildPolyPolyLine(
+  const APoints: TArrayOfArrayOfFixedPoint;
+  AClosed: Boolean;
+  AStrokeWidth: double
+): TArrayOfArrayOfFixedPoint;
+
+procedure AppendArrayOfArrayOfFixedPoint(
+  var APoints1: TArrayOfArrayOfFixedPoint;
+  const APoints2: TArrayOfArrayOfFixedPoint
+); overload;
+
+procedure AppendArrayOfArrayOfFixedPoint(
+  var APoints1: TArrayOfArrayOfFixedPoint;
+  const APoints2: TArrayOfFixedPoint
+); overload;
+
+function ProjectedLine2ArrayOfArray(
+  const ALine: IGeometryProjectedLine;
+  const AMapRect: TRect;
+  var APointArray: TArrayOfFixedPoint
+): TArrayOfArrayOfFixedPoint;
+
 procedure ProjectedLine2GR32Polygon(
   const ALine: IGeometryProjectedLine;
   const ALocalConverter: ILocalCoordConverter;
@@ -40,6 +62,12 @@ procedure ProjectedLine2GR32Polygon(
   var AFixedPointArray: TArrayOfFixedPoint;
   var APolygon: TPolygon32
 ); overload;
+
+function ProjectedPolygon2ArrayOfArray(
+  const ALine: IGeometryProjectedSinglePolygon;
+  const AMapRect: TRect;
+  var APointArray: TArrayOfFixedPoint
+): TArrayOfArrayOfFixedPoint;
 
 procedure ProjectedPolygon2GR32Polygon(
   const ALine: IGeometryProjectedSinglePolygon;
@@ -435,6 +463,112 @@ begin
   end;
 end;
 
+function BuildPolyPolyLine(
+  const APoints: TArrayOfArrayOfFixedPoint;
+  AClosed: Boolean;
+  AStrokeWidth: double
+): TArrayOfArrayOfFixedPoint;
+var
+  VPolygon: TPolygon32;
+begin
+  VPolygon := TPolygon32.Create;
+  try
+    VPolygon.Closed := AClosed;
+    VPolygon.Points := APoints;
+    with VPolygon.Outline do begin
+      try
+        with Grow(GR32.Fixed(AStrokeWidth / 2), 0.5) do begin
+          try
+            Result := Points;
+          finally
+            Free;
+          end;
+        end;
+      finally
+        Free;
+      end;
+    end;
+  finally
+    VPolygon.Free;
+  end;
+end;
+
+procedure AppendArrayOfArrayOfFixedPoint(
+  var APoints1: TArrayOfArrayOfFixedPoint;
+  const APoints2: TArrayOfArrayOfFixedPoint
+); overload;
+var
+  i: Integer;
+begin
+  for i := 0 to Length(APoints2) - 1 do begin
+    AppendArrayOfArrayOfFixedPoint(APoints1, APoints2[i]);
+  end;
+end;
+
+procedure AppendArrayOfArrayOfFixedPoint(
+  var APoints1: TArrayOfArrayOfFixedPoint;
+  const APoints2: TArrayOfFixedPoint
+); overload;
+var
+  VLen: Integer;
+begin
+  VLen := Length(APoints1);
+  SetLength(APoints1, VLen +1);
+  APoints1[VLen] := APoints2;
+end;
+
+function SingleLine2ArrayOfArray(
+  const ALine: IGeometryProjectedSingleLine;
+  const ARectWithDelta: TDoubleRect;
+  const AMapRect: TDoubleRect;
+  var APointArray: TArrayOfFixedPoint
+): TArrayOfArrayOfFixedPoint;
+var
+  VEnum: IEnumLocalPoint;
+  VPoint: TDoublePoint;
+  VPointsProcessedCount: Integer;
+  VIndex: Integer;
+begin
+  Result := nil;
+  if IsIntersecProjectedRect(AMapRect, ALine.Bounds) then begin
+    VEnum :=
+      TEnumDoublePointMapPixelToLocalPixelSimple.Create(
+        AMapRect.TopLeft,
+        ALine.GetEnum
+      );
+    VEnum :=
+      TEnumLocalPointClipByRect.Create(
+        False,
+        ARectWithDelta,
+        VEnum
+      );
+    VEnum := TEnumLocalPointFilterEqual.Create(VEnum);
+    VPointsProcessedCount := 0;
+    while VEnum.Next(VPoint) do begin
+      if PointIsEmpty(VPoint) then begin
+        if VPointsProcessedCount > 0 then begin
+          VIndex := Length(Result);
+          SetLength(Result, VIndex + 1);
+          SetLength(Result[VIndex], VPointsProcessedCount);
+          Move(APointArray[0], Result[VIndex][0], VPointsProcessedCount * SizeOf(APointArray[0]));
+        end;
+      end else begin
+        if VPointsProcessedCount + 1 >= Length(APointArray) then begin
+          SetLength(APointArray, (VPointsProcessedCount + 1) * 2);
+        end;
+        APointArray[VPointsProcessedCount] := FixedPoint(VPoint.X, VPoint.Y);
+        Inc(VPointsProcessedCount);
+      end;
+    end;
+    if VPointsProcessedCount > 0 then begin
+      VIndex := Length(Result);
+      SetLength(Result, VIndex + 1);
+      SetLength(Result[VIndex], VPointsProcessedCount);
+      Move(APointArray[0], Result[VIndex][0], VPointsProcessedCount * SizeOf(APointArray[0]));
+    end;
+  end;
+end;
+
 procedure SingleLine2GR32Polygon(
   const ALine: IGeometryProjectedSingleLine;
   const ALocalConverter: ILocalCoordConverter;
@@ -554,6 +688,53 @@ begin
         APolygon.NewLine;
       end;
       APolygon.AddPoints(AFixedPointArray[0], VPointsProcessedCount);
+    end;
+  end;
+end;
+
+function ProjectedLine2ArrayOfArray(
+  const ALine: IGeometryProjectedLine;
+  const AMapRect: TRect;
+  var APointArray: TArrayOfFixedPoint
+): TArrayOfArrayOfFixedPoint;
+var
+  VMapRect: TDoubleRect;
+  VLocalRect: TDoubleRect;
+  VRectWithDelta: TDoubleRect;
+  VLineIndex: Integer;
+  VSingleLine: IGeometryProjectedSingleLine;
+  VMultiLine: IGeometryProjectedMultiLine;
+  VLines: TArrayOfArrayOfFixedPoint;
+begin
+  if Assigned(ALine) then begin
+    VMapRect := DoubleRect(AMapRect);
+    if IsIntersecProjectedRect(VMapRect, ALine.Bounds) then begin
+      VLocalRect := DoubleRect(0, 0, VMapRect.Right - VMapRect.Left, VMapRect.Bottom - VMapRect.Top);
+      VRectWithDelta.Left := VLocalRect.Left - 10;
+      VRectWithDelta.Top := VLocalRect.Top - 10;
+      VRectWithDelta.Right := VLocalRect.Right + 10;
+      VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
+      if Supports(ALine, IGeometryProjectedSingleLine, VSingleLine) then begin
+        Result :=
+          SingleLine2ArrayOfArray(
+            VSingleLine,
+            VRectWithDelta,
+            VMapRect,
+            APointArray
+          );
+      end else if Supports(ALine, IGeometryProjectedMultiLine, VMultiLine) then begin
+        for VLineIndex := 0 to VMultiLine.Count - 1 do begin
+          VSingleLine := VMultiLine.Item[VLineIndex];
+          VLines :=
+            SingleLine2ArrayOfArray(
+              VSingleLine,
+              VRectWithDelta,
+              VMapRect,
+              APointArray
+            );
+          AppendArrayOfArrayOfFixedPoint(Result, VLines);
+        end;
+      end;
     end;
   end;
 end;
@@ -666,6 +847,60 @@ begin
   end;
 end;
 
+function SingleContour2ArrayOfArray(
+  const ALine: IGeometryProjectedContour;
+  const ARectWithDelta: TDoubleRect;
+  const AMapRect: TDoubleRect;
+  var APointArray: TArrayOfFixedPoint
+): TArrayOfArrayOfFixedPoint; overload;
+var
+  VEnum: IEnumLocalPoint;
+  VPoint: TDoublePoint;
+  VPointsProcessedCount: Integer;
+  VIndex: Integer;
+begin
+  Result := nil;
+  if IsIntersecProjectedRect(AMapRect, ALine.Bounds) then begin
+    VEnum :=
+      TEnumDoublePointMapPixelToLocalPixelSimple.Create(
+        AMapRect.TopLeft,
+        ALine.GetEnum
+      );
+    VEnum :=
+      TEnumLocalPointClipByRect.Create(
+        True,
+        ARectWithDelta,
+        VEnum
+      );
+    VEnum := TEnumLocalPointFilterEqual.Create(VEnum);
+    VEnum := TEnumLocalPointClosePoly.Create(VEnum);
+    VPointsProcessedCount := 0;
+    while VEnum.Next(VPoint) do begin
+      if PointIsEmpty(VPoint) then begin
+        if VPointsProcessedCount > 0 then begin
+          VIndex := Length(Result);
+          SetLength(Result, VIndex + 1);
+          SetLength(Result[VIndex], VPointsProcessedCount);
+          Move(APointArray[0], Result[VIndex][0], VPointsProcessedCount * SizeOf(APointArray[0]));
+        end;
+      end else begin
+        if VPointsProcessedCount + 1 >= Length(APointArray) then begin
+          SetLength(APointArray, (VPointsProcessedCount + 1) * 2);
+        end;
+        APointArray[VPointsProcessedCount] := FixedPoint(VPoint.X, VPoint.Y);
+        Inc(VPointsProcessedCount);
+      end;
+    end;
+
+    if VPointsProcessedCount > 0 then begin
+      VIndex := Length(Result);
+      SetLength(Result, VIndex + 1);
+      SetLength(Result[VIndex], VPointsProcessedCount);
+      Move(APointArray[0], Result[VIndex][0], VPointsProcessedCount * SizeOf(APointArray[0]));
+    end;
+  end;
+end;
+
 procedure SingleContour2GR32Polygon(
   const ALine: IGeometryProjectedContour;
   const ALocalConverter: ILocalCoordConverter;
@@ -791,6 +1026,47 @@ begin
         APolygon.NewLine;
       end;
       APolygon.AddPoints(AFixedPointArray[0], VPointsProcessedCount);
+    end;
+  end;
+end;
+
+function ProjectedPolygon2ArrayOfArray(
+  const ALine: IGeometryProjectedSinglePolygon;
+  const AMapRect: TRect;
+  var APointArray: TArrayOfFixedPoint
+): TArrayOfArrayOfFixedPoint;
+var
+  VMapRect: TDoubleRect;
+  VLocalRect: TDoubleRect;
+  VRectWithDelta: TDoubleRect;
+  VLineIndex: Integer;
+  VLines: TArrayOfArrayOfFixedPoint;
+begin
+  if Assigned(ALine) then begin
+    VMapRect := DoubleRect(AMapRect);
+    if IsIntersecProjectedRect(VMapRect, ALine.Bounds) then begin
+      VLocalRect := DoubleRect(0, 0, VMapRect.Right - VMapRect.Left, VMapRect.Bottom - VMapRect.Top);
+      VRectWithDelta.Left := VLocalRect.Left - 10;
+      VRectWithDelta.Top := VLocalRect.Top - 10;
+      VRectWithDelta.Right := VLocalRect.Right + 10;
+      VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
+      Result :=
+        SingleContour2ArrayOfArray(
+          ALine.OuterBorder,
+          VRectWithDelta,
+          VMapRect,
+          APointArray
+        );
+      for VLineIndex := 0 to ALine.HoleCount - 1 do begin
+        VLines :=
+          SingleContour2ArrayOfArray(
+            ALine.HoleBorder[VLineIndex],
+            VRectWithDelta,
+            VMapRect,
+            APointArray
+          );
+        AppendArrayOfArrayOfFixedPoint(Result, VLines);
+      end;
     end;
   end;
 end;
