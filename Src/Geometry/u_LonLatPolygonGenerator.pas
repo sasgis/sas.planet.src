@@ -66,8 +66,11 @@ uses
   u_DoublePoints;
 
 const
-  cPatternLen = 6;
+  cPatternLen = 12; // ToDo: read this value from config
   cPatternStep = 360 / cPatternLen;
+
+const
+  cNearestPointRadiusCoeff = 0.25; // ToDo: read this value from config
 
 { TLonLatPolygonGenerator }
 
@@ -106,7 +109,6 @@ procedure TLonLatPolygonGenerator.MakePattern(
 );
 var
   I: Integer;
-  VTmp: Integer;
   VPoint, VPatternPoint: t_GeoTypes.TDoublePoint;
 begin
   FPatternPoint := APoint;
@@ -124,21 +126,13 @@ begin
 
     FPattern[I].X := Round(VPoint.X * FIntToDoubleCoeff) - FPatternPoint.X;
     FPattern[I].Y := Round(VPoint.Y * FIntToDoubleCoeff) - FPatternPoint.Y;
-
-    if I = 0 then begin
-      FMaxPointDiff.X := Abs(FPattern[I].X);
-      FMaxPointDiff.Y := Abs(FPattern[I].Y);
-    end else begin
-      VTmp := Abs(FPattern[I].X);
-      if VTmp > FMaxPointDiff.X then begin
-        FMaxPointDiff.X := VTmp;
-      end;
-      VTmp := Abs(FPattern[I].Y);
-      if VTmp > FMaxPointDiff.Y then begin
-        FMaxPointDiff.Y := VTmp;
-      end;
-    end;
   end;
+
+  VPoint := FDatum.CalcFinishPosition(VPatternPoint, 90, FRadius * cNearestPointRadiusCoeff);
+  FMaxPointDiff.X := Abs(Round(VPoint.X * FIntToDoubleCoeff) - FPatternPoint.X);
+
+  VPoint := FDatum.CalcFinishPosition(VPatternPoint, 0, FRadius * cNearestPointRadiusCoeff);
+  FMaxPointDiff.Y := Abs(Round(VPoint.Y * FIntToDoubleCoeff) - FPatternPoint.Y);
 end;
 
 function TLonLatPolygonGenerator.Minkowski(
