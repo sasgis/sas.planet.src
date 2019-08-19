@@ -46,7 +46,6 @@ type
     FMarkSystem: IMarkSystem;
     FMarksState: Byte;
     FDelHiddenMarks: Boolean;
-
   protected
     procedure ProcessRegion; override;
     procedure ProgressFormUpdateOnProgress(
@@ -70,6 +69,7 @@ uses
   Math,
   t_GeoTypes,
   i_MarkId,
+  i_MarkCategory,
   i_EnumDoublePoint,
   i_VectorItemSubset,
   u_InterfaceListSimple,
@@ -279,50 +279,66 @@ end;
 
 procedure TThreadDeleteMarks.ProcessRegion;
 var
-  VTilesToProcess: Int64;
+  I: Integer;
+  VMarksToProcess: Int64;
   VProcessed: Int64;
   VVectorItems: IVectorItemSubset;
-  I: Integer;
   VTemp: IInterfaceListSimple;
   VMarksListToDelete: IInterfaceListStatic;
   VDoAdd: Boolean;
+  VMarkId: IMarkId;
 begin
   inherited;
-  VVectorItems := FMarkSystem.MarkDb.GetMarkSubsetByCategoryListInRect(FpolyLL.Bounds.Rect, nil, FDelHiddenMarks, DoublePoint(0, 0));
-  VProcessed := 0;
-  if VVectorItems <> nil then begin
-    VTemp := TInterfaceListSimple.Create;
-    VTilesToProcess := VVectorItems.Count;
-    ProgressInfo.SetCaption(
-      SAS_STR_Whole + ' ' + inttostr(VVectorItems.Count)
-    );
-    for I := 0 to VVectorItems.Count - 1 do begin
-      inc(VProcessed);
-      VDoAdd := False;
 
-      case (VVectorItems.Items[i].MainInfo as IMarkId).MarkType of
-        midPoint: if (FMarksState and CPlacemarkFlag) <> 0 then VDoAdd := True;
-        midLine:  if (FMarksState and CPathFlag) <> 0 then VDoAdd := True;
-        midPoly:  if (FMarksState and CPolygonFlag) <> 0 then VDoAdd := True;
+  VVectorItems :=
+    FMarkSystem.MarkDb.GetMarkSubsetByCategoryListInRect(
+      FpolyLL.Bounds.Rect,
+      nil,
+      FDelHiddenMarks,
+      DoublePoint(0, 0)
+    );
+
+  if VVectorItems <> nil then begin
+    VProcessed := 0;
+    VTemp := TInterfaceListSimple.Create;
+    VMarksToProcess := VVectorItems.Count;
+
+    ProgressInfo.SetCaption(SAS_STR_Whole + ' ' + IntToStr(VVectorItems.Count));
+
+    for I := 0 to VVectorItems.Count - 1 do begin
+      Inc(VProcessed);
+
+      VMarkId := VVectorItems.Items[I].MainInfo as IMarkId;
+
+      case VMarkId.MarkType of
+        midPoint : VDoAdd := (FMarksState and CPlacemarkFlag) <> 0;
+        midLine  : VDoAdd := (FMarksState and CPathFlag) <> 0;
+        midPoly  : VDoAdd := (FMarksState and CPolygonFlag) <> 0;
       else
+        VDoAdd := False;
+      end;
+
+      if VDoAdd and not FDelHiddenMarks then begin
+        VDoAdd := (VMarkId.Category as IMarkCategory).Visible;
       end;
 
       if VDoAdd then begin
-        VDoAdd := FpolyLL.Bounds.IsContainRect(VVectorItems.Items[i].Geometry.Bounds);
+        VDoAdd := FpolyLL.Bounds.IsContainRect(VVectorItems.Items[I].Geometry.Bounds);
       end;
 
       if VDoAdd then begin
         VDoAdd :=
           IsLonLatGeometryInProjectedPolygon(
-            VVectorItems.Items[i].Geometry,
+            VVectorItems.Items[I].Geometry,
             FProjectedPolygon,
             FProjection
           );
         if VDoAdd then begin
-          VTemp.Add(IMarkId(VVectorItems.Items[i].MainInfo));
+          VTemp.Add(IMarkId(VVectorItems.Items[I].MainInfo));
         end;
       end;
-      ProgressFormUpdateOnProgress(VProcessed, VTilesToProcess, VTemp.Count);
+
+      ProgressFormUpdateOnProgress(VProcessed, VMarksToProcess, VTemp.Count);
     end;
 
     if VTemp.Count > 0 then begin
@@ -337,8 +353,8 @@ procedure TThreadDeleteMarks.ProgressFormUpdateOnProgress(
 );
 begin
   ProgressInfo.SetProcessedRatio(AProcessed / AToProcess);
-  ProgressInfo.SetSecondLine(SAS_STR_Processed + ' ' + inttostr(AProcessed));
-  ProgressInfo.SetFirstLine(SAS_STR_AllDelete + ' ' + inttostr(ADeleted) + ' ' + SAS_STR_PlaceMarks);
+  ProgressInfo.SetSecondLine(SAS_STR_Processed + ' ' + IntToStr(AProcessed));
+  ProgressInfo.SetFirstLine(SAS_STR_AllDelete + ' ' + IntToStr(ADeleted) + ' ' + SAS_STR_PlaceMarks);
 end;
 
 end.
