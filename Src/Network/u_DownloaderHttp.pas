@@ -683,6 +683,7 @@ procedure TDownloaderHttp.PreConfigHttpClient(
 );
 var
   VProxyConfig: IProxyConfigStatic;
+  VCookie: AnsiString;
   VUserAgent: AnsiString;
   VProxyHost: AnsiString;
   VPos: Integer;
@@ -693,6 +694,13 @@ begin
   begin
     FHttpClientLastConfig.HeaderRawText := ARawHttpRequestHeader;
     FHttpClient.RequestHeader.RawHeaderText := FHttpClientLastConfig.HeaderRawText;
+  end;
+
+  // fix automatic URL Decoding inside TALHTTPRequestHeader.SetRawHeaderText
+  // for Cookies field: http://www.sasgis.org/mantis/view.php?id=3550
+  VCookie := GetHeaderValue(ARawHttpRequestHeader, 'Cookie');
+  if VCookie <> '' then begin
+    FHttpClient.RequestHeader.Cookies.Text := VCookie;
   end;
 
   VUserAgent := GetHeaderValue(ARawHttpRequestHeader, 'User-Agent');
