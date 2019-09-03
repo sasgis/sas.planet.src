@@ -500,12 +500,12 @@ function TGeometryProjectedContour.IsRectIntersectPolygon(
   const ARect: TDoubleRect
 ): Boolean;
 var
-  VEnum: IEnumProjectedPoint;
   VPrevPoint: TDoublePoint;
   VCurrPoint: TDoublePoint;
   VIntersect: Double;
   VDelta: TDoublePoint;
   VRectIn: Boolean;
+  i: Integer;
 begin
   if not IsIntersecProjectedRect(FBounds, ARect) then begin
     Result := False;
@@ -515,11 +515,12 @@ begin
     end else begin
       VRectIn := False;
       Result := False;
-      VEnum := GetEnum;
       // »щем есть ли пересечени€ пр€моугольника с полигоном,
       // и заодно провер€ем попадает ли левый верхний угол в полигон
-      if VEnum.Next(VPrevPoint) then begin
-        while VEnum.Next(VCurrPoint) do begin
+      if FCount > 1 then begin
+        VPrevPoint := FPoints.Points[FCount - 1];
+        for i := 0 to FCount - 1 do begin
+          VCurrPoint := FPoints.Points[i];
           VDelta.X := VCurrPoint.X - VPrevPoint.X;
           VDelta.Y := VCurrPoint.Y - VPrevPoint.Y;
           if (VDelta.Y < 0) then begin
