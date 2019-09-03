@@ -196,13 +196,16 @@ var
   B: Double;
   VVectorDist: TDoublePoint;
   VDistSQR: Double;
-  VEnum: IEnumProjectedPoint;
+  VPoints: PDoublePointArray;
+  i: Integer;
 begin
   Result := False;
-  VEnum := GetEnum;
-  if VEnum.Next(VPrevPoint) then begin
+  VPoints := FPoints.Points;
+  if FCount > 1 then begin
+    VPrevPoint := VPoints[0];
     VDistSQR := ADist * ADist;
-    while VEnum.Next(VCurrPoint) do begin
+    for i := 1 to FCount - 1 do begin
+      VCurrPoint := VPoints[i];
       VVectorW.X := APoint.X - VPrevPoint.X;
       VVectorW.Y := APoint.Y - VPrevPoint.Y;
       VVectorV.X := VCurrPoint.X - VPrevPoint.X;
@@ -228,7 +231,8 @@ end;
 function TGeometryProjectedLine.IsRectIntersectPath(
   const ARect: TDoubleRect): Boolean;
 var
-  VEnum: IEnumProjectedPoint;
+  VPoints: PDoublePointArray;
+  i: Integer;
   VPrevPoint: TDoublePoint;
   VCurrPoint: TDoublePoint;
   VIntersect: Double;
@@ -236,10 +240,12 @@ var
 begin
   Result := False;
   if IsIntersecProjectedRect(FBounds, ARect) then begin
-    VEnum := GetEnum;
+    VPoints := FPoints.Points;
     // »щем есть ли пересечени€ пр€моугольника с линией
-    if VEnum.Next(VPrevPoint) then begin
-      while VEnum.Next(VCurrPoint) do begin
+    if FCount > 1 then begin
+      VPrevPoint := VPoints[0];
+      for i := 1 to FCount - 1 do begin
+        VCurrPoint := VPoints[i];
         VDelta.X := VCurrPoint.X - VPrevPoint.X;
         VDelta.Y := VCurrPoint.Y - VPrevPoint.Y;
         if (VDelta.Y < 0) then begin
@@ -323,14 +329,17 @@ end;
 
 function TGeometryProjectedContour.CalcArea: Double;
 var
-  VEnum: IEnumProjectedPoint;
+  VPoints: PDoublePointArray;
+  i: Integer;
   VPrevPoint: TDoublePoint;
   VCurrPoint: TDoublePoint;
 begin
   Result := 0;
-  VEnum := GetEnum;
-  if VEnum.Next(VPrevPoint) then begin
-    while VEnum.Next(VCurrPoint) do begin
+  VPoints := FPoints.Points;
+  if FCount > 1 then begin
+    VPrevPoint := VPoints[FCount - 1];
+    for i := 0 to FCount - 1 do begin
+      VCurrPoint := VPoints[i];
       Result := Result + (VPrevPoint.X + VCurrPoint.X) * (VPrevPoint.Y - VCurrPoint.Y);
       VPrevPoint := VCurrPoint;
     end;
@@ -346,18 +355,21 @@ end;
 function TGeometryProjectedContour.IsPointInPolygon(
   const APoint: TDoublePoint): Boolean;
 var
-  VEnum: IEnumDoublePoint;
+  VPoints: PDoublePointArray;
+  i: Integer;
   VPrevPoint: TDoublePoint;
   VCurrPoint: TDoublePoint;
 begin
-  result := false;
-  VEnum := GetEnum;
-  if VEnum.Next(VPrevPoint) then begin
-    while VEnum.Next(VCurrPoint) do begin
+  Result := false;
+  VPoints := FPoints.Points;
+  if FCount > 1 then begin
+    VPrevPoint := VPoints[FCount - 1];
+    for i := 0 to FCount - 1 do begin
+      VCurrPoint := VPoints[i];
       if (((VCurrPoint.y <= APoint.y) and (APoint.y < VPrevPoint.y)) or
         ((VPrevPoint.y <= APoint.y) and (APoint.y < VCurrPoint.y))) and
         (APoint.x > (VPrevPoint.x - VCurrPoint.x) * (APoint.y - VCurrPoint.y) / (VPrevPoint.y - VCurrPoint.y) + VCurrPoint.x) then begin
-        result := not (result);
+        Result := not (Result);
       end;
       VPrevPoint := VCurrPoint;
     end;
@@ -378,13 +390,16 @@ var
   B: Double;
   VVectorDist: TDoublePoint;
   VDistSQR: Double;
-  VEnum: IEnumProjectedPoint;
+  VPoints: PDoublePointArray;
+  i: Integer;
 begin
   Result := False;
-  VEnum := GetEnum;
-  if VEnum.Next(VPrevPoint) then begin
+  VPoints := FPoints.Points;
+  if FCount > 1 then begin
+    VPrevPoint := VPoints[FCount - 1];
     VDistSQR := ADist * ADist;
-    while VEnum.Next(VCurrPoint) do begin
+    for i := 0 to FCount - 1 do begin
+      VCurrPoint := VPoints[i];
       VVectorW.X := APoint.X - VPrevPoint.X;
       VVectorW.Y := APoint.Y - VPrevPoint.Y;
       VVectorV.X := VCurrPoint.X - VPrevPoint.X;
@@ -410,7 +425,8 @@ end;
 function TGeometryProjectedContour.IsRectIntersectBorder(
   const ARect: TDoubleRect): Boolean;
 var
-  VEnum: IEnumProjectedPoint;
+  VPoints: PDoublePointArray;
+  i: Integer;
   VPrevPoint: TDoublePoint;
   VCurrPoint: TDoublePoint;
   VIntersect: Double;
@@ -420,10 +436,12 @@ begin
     Result := False;
   end else begin
     Result := False;
-    VEnum := GetEnum;
+    VPoints := FPoints.Points;
     // »щем есть ли пересечени€ пр€моугольника с полигоном
-    if VEnum.Next(VPrevPoint) then begin
-      while VEnum.Next(VCurrPoint) do begin
+    if FCount > 1 then begin
+      VPrevPoint := VPoints[FCount - 1];
+      for i := 0 to FCount - 1 do begin
+        VCurrPoint := VPoints[i];
         VDelta.X := VCurrPoint.X - VPrevPoint.X;
         VDelta.Y := VCurrPoint.Y - VPrevPoint.Y;
         if (VDelta.Y < 0) then begin
@@ -505,12 +523,14 @@ var
   VIntersect: Double;
   VDelta: TDoublePoint;
   VRectIn: Boolean;
+  VPoints: PDoublePointArray;
   i: Integer;
 begin
   if not IsIntersecProjectedRect(FBounds, ARect) then begin
     Result := False;
   end else begin
-    if PixelPointInRect(FPoints.Points[0], ARect) then begin
+    VPoints := FPoints.Points;
+    if PixelPointInRect(VPoints[0], ARect) then begin
       Result := True;
     end else begin
       VRectIn := False;
@@ -518,9 +538,9 @@ begin
       // »щем есть ли пересечени€ пр€моугольника с полигоном,
       // и заодно провер€ем попадает ли левый верхний угол в полигон
       if FCount > 1 then begin
-        VPrevPoint := FPoints.Points[FCount - 1];
+        VPrevPoint := VPoints[FCount - 1];
         for i := 0 to FCount - 1 do begin
-          VCurrPoint := FPoints.Points[i];
+          VCurrPoint := VPoints[i];
           VDelta.X := VCurrPoint.X - VPrevPoint.X;
           VDelta.Y := VCurrPoint.Y - VPrevPoint.Y;
           if (VDelta.Y < 0) then begin
