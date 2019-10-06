@@ -800,7 +800,7 @@ begin
   _AddPoint(VPoint);
   _AddPoint( ADatum.CalcFinishPosition(VPoint, 90, ARadius) );
 
-  // Left
+  // Right
   _AddPoint( ADatum.CalcFinishPosition(APos, 90, ARadius) );
 
   // Bottom
@@ -809,7 +809,7 @@ begin
   _AddPoint(VPoint);
   _AddPoint( ADatum.CalcFinishPosition(VPoint, 270, ARadius) );
 
-  // Right
+  // Left
   _AddPoint( ADatum.CalcFinishPosition(APos, 270, ARadius) );
 
   Result := CreateLonLatPolygonInternal(VBounds, VAggreagator.MakeStaticAndClear);
