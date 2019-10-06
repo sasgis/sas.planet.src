@@ -71,6 +71,7 @@ uses
   frm_MarkInfo,
   frm_ImportConfigEdit,
   frm_JpegImportConfigEdit,
+  frm_PolygonForOperationConfig,
   frm_MarksMultiEdit;
 
 type
@@ -90,6 +91,7 @@ type
     FfrmMarkCategoryEdit: TfrmMarkCategoryEdit;
     FfrmImportConfigEdit: TfrmImportConfigEdit;
     FfrmJpegImportConfigEdit: TfrmJpegImportConfigEdit;
+    FfrmPolygonForOperationConfig: TfrmPolygonForOperationConfig;
     FfrmMarksMultiEdit: TfrmMarksMultiEdit;
     FfrmMarkInfo: TfrmMarkInfo;
     FExportDialog: TSaveDialog;
@@ -324,6 +326,10 @@ begin
       FMarkSystem.MarkDb.Factory,
       FMarkSystem.CategoryDB
     );
+  FfrmPolygonForOperationConfig :=
+    TfrmPolygonForOperationConfig.Create(
+      ALanguageManager
+    );
   FfrmMarkInfo :=
     TfrmMarkInfo.Create(
       ALanguageManager,
@@ -359,6 +365,7 @@ begin
   FreeAndNil(FfrmMarkCategoryEdit);
   FreeAndNil(FfrmImportConfigEdit);
   FreeAndNil(FfrmJpegImportConfigedit);
+  FreeAndNil(FfrmPolygonForOperationConfig);
   FreeAndNil(FfrmMarksMultiEdit);
   FreeAndNil(FfrmMarkInfo);
   FreeAndNil(FExportDialog);
@@ -972,6 +979,7 @@ var
   VPoly: IGeometryLonLatPolygon;
   VDefRadius: String;
   VRadius: Double;
+  VShape: TShapeType;
 begin
   Result := nil;
   if not Assigned(AGeometry.Bounds) then begin
@@ -982,7 +990,7 @@ begin
     Result := VPoly;
   end else if Supports(AGeometry, IGeometryLonLatLine, VLine) then begin
     VDefRadius := '100';
-    if InputQuery('', 'Radius , m', VDefRadius) then begin
+    if InputQuery('', _('Radius, m'), VDefRadius) then begin
       try
         VRadius := str2r(VDefRadius);
       except
@@ -998,20 +1006,35 @@ begin
     end;
   end else begin
     if Supports(AGeometry, IGeometryLonLatPoint, VPoint) then begin
-      VDefRadius := '100';
-      if InputQuery('', 'Radius , m', VDefRadius) then begin
-        try
-          VRadius := str2r(VDefRadius);
-        except
-          ShowMessage(SAS_ERR_ParamsInput);
-          Exit;
+      if FfrmPolygonForOperationConfig.GetOptions(VRadius, VShape) then begin
+        case VShape of
+          stCircle: begin
+            Result :=
+              FVectorGeometryLonLatFactory.CreateLonLatPolygonCircleByPoint(
+                AProjection.ProjectionType.Datum,
+                VPoint.Point,
+                VRadius
+              );
+          end;
+          stSquare: begin
+            Result :=
+              FVectorGeometryLonLatFactory.CreateLonLatPolygonSquareByPoint(
+                AProjection.ProjectionType.Datum,
+                VPoint.Point,
+                VRadius
+              );
+          end;
+          stSquareOnSurface: begin
+            Result :=
+              FVectorGeometryLonLatFactory.CreateLonLatPolygonSquareOnSurfaceByPoint(
+                AProjection.ProjectionType.Datum,
+                VPoint.Point,
+                VRadius
+              );
+          end;
+        else
+          Assert(False);
         end;
-        Result :=
-          FVectorGeometryLonLatFactory.CreateLonLatPolygonCircleByPoint(
-            AProjection.ProjectionType.Datum,
-            VPoint.Point,
-            VRadius
-          );
       end;
     end;
   end;

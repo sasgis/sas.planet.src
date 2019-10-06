@@ -702,10 +702,15 @@
     <DCCReference Include="Src\MapLayers\WindowLayers\StatusBar\u_StatBarConfig.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\StatusBar\u_WindowLayerStatusBar.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\i_SunCalcConfig.pas" />
+    <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\i_SunCalcDataProvider.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\i_SunCalcProvider.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\i_SunCalcShapesGenerator.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\t_SunCalcConfig.pas" />
+    <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\t_SunCalcDataProvider.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcConfig.pas" />
+    <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcDataProviderChangeable.pas" />
+    <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcDataProviderMoon.pas" />
+    <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcDataProviderSun.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcDrawTools.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcProvider.pas" />
     <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcShapesGenerator.pas" />
@@ -887,6 +892,9 @@
     </DCCReference>
     <DCCReference Include="Src\MarksDB\GUI\frm_PointProjecting.pas">
       <Form>frmPointProjecting</Form>
+    </DCCReference>
+    <DCCReference Include="Src\MarksDB\GUI\frm_PolygonForOperationConfig.pas">
+      <Form>frmPolygonForOperationConfig</Form>
     </DCCReference>
     <DCCReference Include="Src\MarksDB\GUI\fr_JpegImportOptions.pas">
       <Form>frJpegImportOptions</Form>

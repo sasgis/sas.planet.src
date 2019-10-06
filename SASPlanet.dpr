@@ -752,6 +752,7 @@ uses
   frm_MarksExportConfig in 'Src\MarksDB\GUI\frm_MarksExportConfig.pas' {frmMarksExportConfig},
   frm_MarksMultiEdit in 'Src\MarksDB\GUI\frm_MarksMultiEdit.pas' {frmMarksMultiEdit},
   frm_PointProjecting in 'Src\MarksDB\GUI\frm_PointProjecting.pas' {frmPointProjecting},
+  frm_PolygonForOperationConfig in 'Src\MarksDB\GUI\frm_PolygonForOperationConfig.pas' {frmPolygonForOperationConfig},
   i_MarksExplorerConfig in 'Src\MarksDB\GUI\i_MarksExplorerConfig.pas',
   i_MarksGUIConfig in 'Src\MarksDB\GUI\i_MarksGUIConfig.pas',
   u_MarkDbGUIHelper in 'Src\MarksDB\GUI\u_MarkDbGUIHelper.pas',

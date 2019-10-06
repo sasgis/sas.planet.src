@@ -88,6 +88,18 @@ type
       const ARadius: double
     ): IGeometryLonLatSinglePolygon;
 
+    function CreateLonLatPolygonSquareByPoint(
+      const ADatum: IDatum;
+      const APos: TDoublePoint;
+      const ARadius: double
+    ): IGeometryLonLatSinglePolygon;
+
+    function CreateLonLatPolygonSquareOnSurfaceByPoint(
+      const ADatum: IDatum;
+      const APos: TDoublePoint;
+      const ARadius: double
+    ): IGeometryLonLatSinglePolygon;
+
     function CreateLonLatPolygonByLine(
       const ADatum: IDatum;
       const ALine: IGeometryLonLatLine;
@@ -718,22 +730,88 @@ function TGeometryLonLatFactory.CreateLonLatPolygonCircleByPoint(
 const
   CPointCount = 64;
 var
-  VAggreagator: IDoublePointsAggregator;
-  j: Integer;
+  I: Integer;
   VAngle: Double;
   VPoint: TDoublePoint;
   VBounds: TDoubleRect;
+  VAggreagator: IDoublePointsAggregator;
 begin
   Assert(not PointIsEmpty(APos));
   VAggreagator := TDoublePointsAggregator.Create(CPointCount);
   VBounds.TopLeft := APos;
   VBounds.BottomRight := APos;
-  for j := 0 to CPointCount - 1 do begin
-    VAngle := j * 360 / CPointCount;
+  for I := 0 to CPointCount - 1 do begin
+    VAngle := I * 360 / CPointCount;
     VPoint := ADatum.CalcFinishPosition(APos, VAngle, ARadius);
     VAggreagator.Add(VPoint);
     UpdateLonLatMBRByPoint(VBounds, VPoint);
   end;
+  Result := CreateLonLatPolygonInternal(VBounds, VAggreagator.MakeStaticAndClear);
+end;
+
+function TGeometryLonLatFactory.CreateLonLatPolygonSquareByPoint(
+  const ADatum: IDatum;
+  const APos: TDoublePoint;
+  const ARadius: double
+): IGeometryLonLatSinglePolygon;
+var
+  I: Integer;
+  VPoint: TDoublePoint;
+  VBounds: TDoubleRect;
+begin
+  Assert(not PointIsEmpty(APos));
+  VBounds.TopLeft := APos;
+  VBounds.BottomRight := APos;
+  for I := 0 to 3 do begin
+    VPoint := ADatum.CalcFinishPosition(APos, I * 90, ARadius);
+    UpdateLonLatMBRByPoint(VBounds, VPoint);
+  end;
+  Result := CreateLonLatPolygonByRect(VBounds);
+end;
+
+function TGeometryLonLatFactory.CreateLonLatPolygonSquareOnSurfaceByPoint(
+  const ADatum: IDatum;
+  const APos: TDoublePoint;
+  const ARadius: double
+): IGeometryLonLatSinglePolygon;
+var
+  VBounds: TDoubleRect;
+  VAggreagator: IDoublePointsAggregator;
+
+  procedure _AddPoint(const APoint: TDoublePoint);
+  begin
+    VAggreagator.Add(APoint);
+    UpdateLonLatMBRByPoint(VBounds, APoint);
+  end;
+
+var
+  VPoint: TDoublePoint;
+begin
+  Assert(not PointIsEmpty(APos));
+
+  VBounds.TopLeft := APos;
+  VBounds.BottomRight := APos;
+
+  VAggreagator := TDoublePointsAggregator.Create(8);
+
+  // Top
+  VPoint := ADatum.CalcFinishPosition(APos, 0, ARadius);
+  _AddPoint( ADatum.CalcFinishPosition(VPoint, 270, ARadius) );
+  _AddPoint(VPoint);
+  _AddPoint( ADatum.CalcFinishPosition(VPoint, 90, ARadius) );
+
+  // Left
+  _AddPoint( ADatum.CalcFinishPosition(APos, 90, ARadius) );
+
+  // Bottom
+  VPoint := ADatum.CalcFinishPosition(APos, 180, ARadius);
+  _AddPoint( ADatum.CalcFinishPosition(VPoint, 90, ARadius) );
+  _AddPoint(VPoint);
+  _AddPoint( ADatum.CalcFinishPosition(VPoint, 270, ARadius) );
+
+  // Right
+  _AddPoint( ADatum.CalcFinishPosition(APos, 270, ARadius) );
+
   Result := CreateLonLatPolygonInternal(VBounds, VAggreagator.MakeStaticAndClear);
 end;
 

@@ -118,6 +118,18 @@ type
       const ARadius: double
     ): IGeometryLonLatSinglePolygon;
 
+    function CreateLonLatPolygonSquareByPoint(
+      const ADatum: IDatum;
+      const APos: TDoublePoint;
+      const ARadius: double
+    ): IGeometryLonLatSinglePolygon;
+
+    function CreateLonLatPolygonSquareOnSurfaceByPoint(
+      const ADatum: IDatum;
+      const APos: TDoublePoint;
+      const ARadius: double
+    ): IGeometryLonLatSinglePolygon;
+
     function CreateLonLatPolygonByLine(
       const ADatum: IDatum;
       const ALine: IGeometryLonLatLine;
