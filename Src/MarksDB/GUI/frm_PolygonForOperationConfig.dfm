@@ -37,31 +37,28 @@ object frmPolygonForOperationConfig: TfrmPolygonForOperationConfig
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 47
-    ExplicitWidth = 454
+    ExplicitTop = 101
     object btnOk: TButton
-      Left = 155
-      Top = 3
+      Left = 154
+      Top = 0
       Width = 75
       Height = 25
       Align = alCustom
-      Anchors = [akRight, akBottom]
+      Anchors = [akTop, akRight]
       Caption = 'OK'
       TabOrder = 0
       OnClick = btnOkClick
-      ExplicitLeft = 274
     end
     object btnCancel: TButton
-      Left = 236
-      Top = 3
+      Left = 235
+      Top = 0
       Width = 75
       Height = 25
       Align = alCustom
-      Anchors = [akRight, akBottom]
+      Anchors = [akTop, akRight]
       Caption = 'Cancel'
       TabOrder = 1
       OnClick = btnCancelClick
-      ExplicitLeft = 354
     end
   end
   object cbbShapeType: TComboBox

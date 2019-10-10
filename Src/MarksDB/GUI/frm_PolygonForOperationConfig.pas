@@ -73,10 +73,10 @@ constructor TfrmPolygonForOperationConfig.Create(
 begin
   inherited Create(ALanguageManager);
 
-  cbbShapeType.Clear;
-  cbbShapeType.AddItem( _('Circle'), nil);
-  cbbShapeType.AddItem( _('Square'), nil);
-  cbbShapeType.AddItem( _('Square on surface'), nil);
+  cbbShapeType.Items.Clear;
+  cbbShapeType.Items.Add( _('Circle') );
+  cbbShapeType.Items.Add( _('Square') );
+  cbbShapeType.Items.Add( _('Square (on the surface)') );
   cbbShapeType.ItemIndex := 0;
 end;
 
