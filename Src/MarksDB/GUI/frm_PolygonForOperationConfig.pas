@@ -34,6 +34,7 @@ uses
   Dialogs,
   StdCtrls,
   ExtCtrls,
+  UITypes,
   i_LanguageManager,
   u_CommonFormAndFrameParents;
 
@@ -51,7 +52,10 @@ type
     procedure btnOkClick(Sender: TObject);
     procedure btnCancelClick(Sender: TObject);
   private
+    procedure SetupItems;
     procedure ShowError(const AMsg: string); inline;
+  protected
+    procedure RefreshTranslation; override;
   public
     constructor Create(const ALanguageManager: ILanguageManager);
     function GetOptions(out ARadius: Double; out AShape: TShapeType): Boolean;
@@ -72,12 +76,7 @@ constructor TfrmPolygonForOperationConfig.Create(
 );
 begin
   inherited Create(ALanguageManager);
-
-  cbbShapeType.Items.Clear;
-  cbbShapeType.Items.Add( _('Circle') );
-  cbbShapeType.Items.Add( _('Square') );
-  cbbShapeType.Items.Add( _('Square (on the surface)') );
-  cbbShapeType.ItemIndex := 0;
+  SetupItems;
 end;
 
 function TfrmPolygonForOperationConfig.GetOptions(
@@ -101,6 +100,25 @@ begin
       Result := False;
     end;
   end;
+end;
+
+procedure TfrmPolygonForOperationConfig.RefreshTranslation;
+var
+  I: Integer;
+begin
+  inherited RefreshTranslation;
+  I := cbbShapeType.ItemIndex;
+  SetupItems;
+  cbbShapeType.ItemIndex := I;
+end;
+
+procedure TfrmPolygonForOperationConfig.SetupItems;
+begin
+  cbbShapeType.Items.Clear;
+  cbbShapeType.Items.Add( _('Circle') );
+  cbbShapeType.Items.Add( _('Square') );
+  cbbShapeType.Items.Add( _('Square (on the surface)') );
+  cbbShapeType.ItemIndex := 0;
 end;
 
 procedure TfrmPolygonForOperationConfig.ShowError(const AMsg: string);
