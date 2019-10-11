@@ -1327,6 +1327,7 @@ begin
       GState.LastSelectionInfo,
       FConfig.MainMapConfig,
       FConfig.MapLayersConfig,
+      FConfig.ViewProjectionConfig,
       FMainMapState.ActiveBitmapLayersList,
       GState.MapTypeListBuilderFactory,
       GState.GlobalBerkeleyDBHelper,

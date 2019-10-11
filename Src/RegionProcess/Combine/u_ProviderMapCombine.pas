@@ -51,6 +51,7 @@ uses
   i_FillingMapPolygon,
   i_GeometryProjectedFactory,
   i_GlobalViewMainConfig,
+  i_ViewProjectionConfig,
   i_MapTypeListChangeable,
   i_BitmapMapCombiner,
   i_RegionProcessTask,
@@ -66,6 +67,7 @@ type
   private
     FCombinerFactory: IBitmapMapCombinerFactory;
     FViewConfig: IGlobalViewMainConfig;
+    FViewProjectionConfig: IViewProjectionConfig;
     FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
     FHashFunction: IHashFunction;
     FBitmapFactory: IBitmap32StaticFactory;
@@ -123,6 +125,7 @@ type
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const AActiveMapsSet: IMapTypeListChangeable;
       const AViewConfig: IGlobalViewMainConfig;
+      const AViewProjectionConfig: IViewProjectionConfig;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
       const AProjectionSet: IProjectionSetChangeable;
       const AProjectionSetList: IProjectionSetList;
@@ -225,6 +228,7 @@ constructor TProviderMapCombine.Create(
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const AActiveMapsSet: IMapTypeListChangeable;
   const AViewConfig: IGlobalViewMainConfig;
+  const AViewProjectionConfig: IViewProjectionConfig;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
   const AProjectionSet: IProjectionSetChangeable;
   const AProjectionSetList: IProjectionSetList;
@@ -259,6 +263,7 @@ begin
   FCombinerFactory := ACombinerFactory;
   FMapCalibrationList := AMapCalibrationList;
   FViewConfig := AViewConfig;
+  FViewProjectionConfig := AViewProjectionConfig;
   FUseTilePrevZoomConfig := AUseTilePrevZoomConfig;
   FMarksShowConfig := AMarksShowConfig;
   FMarksDrawConfig := AMarksDrawConfig;
@@ -290,6 +295,7 @@ begin
       Self.MapSelectFrameBuilder,
       FActiveMapsSet,
       FViewConfig,
+      FViewProjectionConfig,
       FUseTilePrevZoomConfig,
       FMapCalibrationList,
       FCombinerFactory.MinPartSize,

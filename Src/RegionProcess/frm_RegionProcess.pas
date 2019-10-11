@@ -86,6 +86,7 @@ uses
   i_RegionProcessProgressInfoInternalFactory,
   i_RegionProcessProvider,
   i_TileIteratorFactory,
+  i_ViewProjectionConfig,
   u_CommonFormAndFrameParents,
   u_ProviderTilesDownload,
   u_MarkDbGUIHelper,
@@ -133,6 +134,7 @@ type
       const ALastSelectionInfo: ILastSelectionInfo;
       const AMainMapConfig: IActiveMapConfig;
       const AMainLayersConfig: IActiveLayersConfig;
+      const AViewProjectionConfig: IViewProjectionConfig;
       const AActiveBitmapLayersList: IMapTypeListChangeable;
       const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
@@ -182,6 +184,7 @@ type
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const AActiveMapsSet: IMapTypeListChangeable;
       const AViewConfig: IGlobalViewMainConfig;
+      const AViewProjectionConfig: IViewProjectionConfig;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
       const AProjectionSet: IProjectionSetChangeable;
       const AProjectionSetList: IProjectionSetList;
@@ -253,6 +256,7 @@ type
       const ALastSelectionInfo: ILastSelectionInfo;
       const AMainMapConfig: IActiveMapConfig;
       const AMainLayersConfig: IActiveLayersConfig;
+      const AViewProjectionConfig: IViewProjectionConfig;
       const AActiveBitmapLayersList: IMapTypeListChangeable;
       const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
@@ -355,6 +359,7 @@ constructor TfrmRegionProcess.Create(
   const ALastSelectionInfo: ILastSelectionInfo;
   const AMainMapConfig: IActiveMapConfig;
   const AMainLayersConfig: IActiveLayersConfig;
+  const AViewProjectionConfig: IViewProjectionConfig;
   const AActiveBitmapLayersList: IMapTypeListChangeable;
   const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
@@ -419,6 +424,7 @@ begin
         ALastSelectionInfo,
         AMainMapConfig,
         AMainLayersConfig,
+        AViewProjectionConfig,
         AActiveBitmapLayersList,
         AMapTypeListBuilderFactory,
         AGlobalBerkeleyDBHelper,
@@ -483,6 +489,7 @@ function TfrmRegionProcess.PrepareProviders(
   const ALastSelectionInfo: ILastSelectionInfo;
   const AMainMapConfig: IActiveMapConfig;
   const AMainLayersConfig: IActiveLayersConfig;
+  const AViewProjectionConfig: IViewProjectionConfig;
   const AActiveBitmapLayersList: IMapTypeListChangeable;
   const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
@@ -579,6 +586,7 @@ begin
         VMapSelectFrameBuilder,
         AActiveBitmapLayersList,
         AViewConfig,
+        AViewProjectionConfig,
         AUseTilePrevZoomConfig,
         AProjectionSet,
         AProjectionSetList,
@@ -694,6 +702,7 @@ function TfrmRegionProcess.PrepareCombineProviders(
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const AActiveMapsSet: IMapTypeListChangeable;
   const AViewConfig: IGlobalViewMainConfig;
+  const AViewProjectionConfig: IViewProjectionConfig;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
   const AProjectionSet: IProjectionSetChangeable;
   const AProjectionSetList: IProjectionSetList;
@@ -729,6 +738,7 @@ begin
       AMapSelectFrameBuilder,
       AActiveMapsSet,
       AViewConfig,
+      AViewProjectionConfig,
       AUseTilePrevZoomConfig,
       AProjectionSet,
       AProjectionSetList,
@@ -758,6 +768,7 @@ begin
       AMapSelectFrameBuilder,
       AActiveMapsSet,
       AViewConfig,
+      AViewProjectionConfig,
       AUseTilePrevZoomConfig,
       AProjectionSet,
       AProjectionSetList,
@@ -787,6 +798,7 @@ begin
       AMapSelectFrameBuilder,
       AActiveMapsSet,
       AViewConfig,
+      AViewProjectionConfig,
       AUseTilePrevZoomConfig,
       AProjectionSet,
       AProjectionSetList,
@@ -816,6 +828,7 @@ begin
       AMapSelectFrameBuilder,
       AActiveMapsSet,
       AViewConfig,
+      AViewProjectionConfig,
       AUseTilePrevZoomConfig,
       AProjectionSet,
       AProjectionSetList,
@@ -845,6 +858,7 @@ begin
       AMapSelectFrameBuilder,
       AActiveMapsSet,
       AViewConfig,
+      AViewProjectionConfig,
       AUseTilePrevZoomConfig,
       AProjectionSet,
       AProjectionSetList,
@@ -874,6 +888,7 @@ begin
       AMapSelectFrameBuilder,
       AActiveMapsSet,
       AViewConfig,
+      AViewProjectionConfig,
       AUseTilePrevZoomConfig,
       AProjectionSet,
       AProjectionSetList,
@@ -903,6 +918,7 @@ begin
       AMapSelectFrameBuilder,
       AActiveMapsSet,
       AViewConfig,
+      AViewProjectionConfig,
       AUseTilePrevZoomConfig,
       AProjectionSet,
       AProjectionSetList,
@@ -932,6 +948,7 @@ begin
       AMapSelectFrameBuilder,
       AActiveMapsSet,
       AViewConfig,
+      AViewProjectionConfig,
       AUseTilePrevZoomConfig,
       AProjectionSet,
       AProjectionSetList,
@@ -961,6 +978,7 @@ begin
       AMapSelectFrameBuilder,
       AActiveMapsSet,
       AViewConfig,
+      AViewProjectionConfig,
       AUseTilePrevZoomConfig,
       AProjectionSet,
       AProjectionSetList,

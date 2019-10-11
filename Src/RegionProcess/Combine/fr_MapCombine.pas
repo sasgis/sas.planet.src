@@ -45,12 +45,14 @@ uses
   i_MapCalibration,
   i_UseTilePrevZoomConfig,
   i_GlobalViewMainConfig,
+  i_ViewProjectionConfig,
   i_RegionProcessParamsFrame,
   i_Projection,
   i_BitmapLayerProvider,
   i_Bitmap32BufferFactory,
   fr_MapSelect,
   fr_MapCombineOptions,
+  fr_ProjectionSelect,
   u_CommonFormAndFrameParents;
 
 type
@@ -83,8 +85,6 @@ type
     lblStat: TLabel;
     pnlBottom: TPanel;
     pnlProjection: TPanel;
-    lblProjection: TLabel;
-    cbbProjection: TComboBox;
     pnlMapSelect: TPanel;
     pnlZoom: TPanel;
     Labelzoom: TLabel;
@@ -105,7 +105,6 @@ type
   private
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FBitmapFactory: IBitmap32StaticFactory;
-    FProjectionSetList: IProjectionSetList;
     FActiveMapsList: IMapTypeListChangeable;
     FMapCalibrationList: IMapCalibrationList;
     FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
@@ -115,15 +114,18 @@ type
     FFormatName: string;
     FfrMapSelect: TfrMapSelect;
     FfrLayerSelect: TfrMapSelect;
+    FfrProjectionSelect: TfrProjectionSelect;
     FfrMapCombineOptions: TfrMapCombineCustomOptions;
     FMinPartSize: TPoint;
     FMaxPartSize: TPoint;
     FCombinePathStringTypeSupport: TStringTypeSupport;
-    procedure UpdateProjectionsList(Sender: TObject);
+    procedure UpdateStatCaption;
+    procedure OnMapChange(Sender: TObject);
+    procedure OnProjChange(Sender: TObject);
     procedure OnSplitOptChange(Sender: TObject);
   private
     procedure Init(
-      const AZoom: byte;
+      const AZoom: Byte;
       const APolygon: IGeometryLonLatPolygon
     );
     function Validate: Boolean;
@@ -141,7 +143,7 @@ type
     function GetSkipExistingFiles: Boolean;
     function GetBGColor: TColor32;
     function GetCustomOptions: IMapCombineCustomOptions;
-    function GetAllowWrite(const AMapType: IMapType): boolean;
+    function GetAllowWrite(const AMapType: IMapType): Boolean;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -151,6 +153,7 @@ type
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const AActiveMapsList: IMapTypeListChangeable;
       const AViewConfig: IGlobalViewMainConfig;
+      const AViewProjectionConfig: IViewProjectionConfig;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
       const AMapCalibrationList: IMapCalibrationList;
       const AMinPartSize: TPoint;
@@ -160,7 +163,6 @@ type
       const ADefaultExt: string;
       const AFormatName: string
     ); reintroduce;
-    procedure RefreshTranslation; override;
     destructor Destroy; override;
   end;
 
@@ -197,6 +199,7 @@ constructor TfrMapCombine.Create(
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const AActiveMapsList: IMapTypeListChangeable;
   const AViewConfig: IGlobalViewMainConfig;
+  const AViewProjectionConfig: IViewProjectionConfig;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
   const AMapCalibrationList: IMapCalibrationList;
   const AMinPartSize: TPoint;
@@ -210,7 +213,6 @@ begin
   Assert(AMinPartSize.X <= AMaxPartSize.X);
   Assert(AMinPartSize.Y <= AMaxPartSize.Y);
   inherited Create(ALanguageManager);
-  FProjectionSetList := AProjectionSetList;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmapFactory := ABitmapFactory;
   FActiveMapsList := AActiveMapsList;
@@ -233,6 +235,9 @@ begin
       False,     // show disabled maps
       GetAllowWrite
     );
+  FfrMapSelect.Tag := 1;
+  FfrMapSelect.OnMapChange := Self.OnMapChange;
+
   FfrLayerSelect :=
     AMapSelectFrameBuilder.Build(
       mfLayers,  // show Layers
@@ -240,9 +245,17 @@ begin
       False,     // show disabled maps
       GetAllowWrite
     );
-  UpdateProjectionsList(Self);
-  FfrMapSelect.OnMapChange := Self.UpdateProjectionsList;
-  FfrLayerSelect.OnMapChange := Self.UpdateProjectionsList;
+  FfrLayerSelect.Tag := 2;
+  FfrLayerSelect.OnMapChange := Self.OnMapChange;
+
+  FfrProjectionSelect :=
+    TfrProjectionSelect.Create(
+      ALanguageManager,
+      AProjectionSetList,
+      AViewProjectionConfig
+    );
+  FfrProjectionSelect.OnProjectionChange := Self.OnProjChange;
+
   seSplitHor.OnChange := Self.OnSplitOptChange;
   seSplitVert.OnChange := Self.OnSplitOptChange;
   OnSplitOptChange(Self);
@@ -253,10 +266,11 @@ begin
   FreeAndNil(FfrMapCombineOptions);
   FreeAndNil(FfrMapSelect);
   FreeAndNil(FfrLayerSelect);
+  FreeAndNil(FfrProjectionSelect);
   inherited;
 end;
 
-function TfrMapCombine.GetAllowWrite(const AMapType: IMapType): boolean;
+function TfrMapCombine.GetAllowWrite(const AMapType: IMapType): Boolean;
 begin
   Result := AMapType.IsBitmapTiles;
 end;
@@ -270,57 +284,58 @@ begin
   end;
 end;
 
-procedure TfrMapCombine.cbbZoomChange(Sender: TObject);
+procedure TfrMapCombine.UpdateStatCaption;
 var
-  numd: int64;
-  VMapType: IMapType;
   VProjection: IProjection;
-  VPolyLL: IGeometryLonLatPolygon;
   VProjected: IGeometryProjectedPolygon;
-  VLine: IGeometryProjectedSinglePolygon;
+  VSinglePolygon: IGeometryProjectedSinglePolygon;
   VBounds: TDoubleRect;
   VPixelRect: TRect;
   VTileRect: TRect;
   VPixelSize: TPoint;
   VTileSize: TPoint;
 begin
-  VMapType := FfrMapSelect.GetSelectedMapType;
-  if (VMapType = nil) then begin
-    VMapType := FfrLayerSelect.GetSelectedMapType;
-  end; //calc for layer if map is not selected
-  if VMapType <> nil then begin
-    VProjection := GetProjection;
-    VPolyLL := FPolygLL;
-    if VPolyLL <> nil then begin
-      VProjected :=
-        FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-          VProjection,
-          VPolyLL
-        );
-      VLine := GetProjectedSinglePolygonByProjectedPolygon(VProjected);
-      if Assigned(VLine) then begin
-        VBounds := VLine.Bounds;
-        VPixelRect := RectFromDoubleRect(VBounds, rrOutside);
-        VPixelSize := RectSize(VPixelRect);
-        VTileRect := VProjection.PixelRect2TileRect(VPixelRect);
-        VTileSize := RectSize(VTileRect);
+  VProjection := GetProjection;
 
-        numd := VTileSize.X;
-        numd := numd * VTileSize.Y;
-        lblStat.Caption :=
-          Format(
-            _('Number of tiles: %0:sx%1:s (%2:s), size: %3:sx%4:s'),
-            [
-              IntToStr(VTileSize.X),
-              IntToStr(VTileSize.Y),
-              IntToStr(numd),
-              IntToStr(VPixelSize.X),
-              IntToStr(VPixelSize.Y)
-            ]
-          );
-      end;
-    end;
+  if (VProjection = nil) or (FPolygLL = nil) then begin
+    lblStat.Caption := '';
+    Exit;
   end;
+
+  VProjected :=
+    FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
+      VProjection,
+      FPolygLL
+    );
+  VSinglePolygon := GetProjectedSinglePolygonByProjectedPolygon(VProjected);
+
+  if VSinglePolygon = nil then begin
+    lblStat.Caption := '';
+    Exit;
+  end;
+
+  VBounds := VSinglePolygon.Bounds;
+  VPixelRect := RectFromDoubleRect(VBounds, rrOutside);
+  VPixelSize := RectSize(VPixelRect);
+  VTileRect := VProjection.PixelRect2TileRect(VPixelRect);
+  VTileSize := RectSize(VTileRect);
+
+  lblStat.Caption :=
+    Format(
+      _('Number of tiles: %0:sx%1:s (%2:s), size: %3:sx%4:s pix'),
+      [
+        IntToStr(VTileSize.X),
+        IntToStr(VTileSize.Y),
+        IntToStr(Int64(VTileSize.X) * VTileSize.Y),
+        IntToStr(VPixelSize.X),
+        IntToStr(VPixelSize.Y)
+      ]
+    );
+end;
+
+procedure TfrMapCombine.cbbZoomChange(Sender: TObject);
+begin
+  UpdateStatCaption;
 end;
 
 procedure TfrMapCombine.chkAddVisibleLayersClick(Sender: TObject);
@@ -344,13 +359,13 @@ end;
 
 function TfrMapCombine.GetMapCalibrationList: IMapCalibrationList;
 var
-  i: Integer;
+  I: Integer;
   VList: IInterfaceListSimple;
 begin
   VList := TInterfaceListSimple.Create;
-  for i := 0 to chklstPrTypes.Items.Count - 1 do begin
-    if chklstPrTypes.Checked[i] then begin
-      VList.Add(IMapCalibration(Pointer(chklstPrTypes.Items.Objects[i])));
+  for I := 0 to chklstPrTypes.Items.Count - 1 do begin
+    if chklstPrTypes.Checked[I] then begin
+      VList.Add(IMapCalibration(Pointer(chklstPrTypes.Items.Objects[I])));
     end;
   end;
   Result := TMapCalibrationListByInterfaceList.Create(VList.MakeStaticAndClear);
@@ -363,49 +378,13 @@ end;
 
 function TfrMapCombine.GetProjection: IProjection;
 var
-  VMap: IMapType;
-  VLayer: IMapType;
-  VMainMapType: IMapType;
   VZoom: Byte;
   VProjectionSet: IProjectionSet;
-  VIndex: Integer;
 begin
   Result := nil;
-  VProjectionSet := nil;
-  VIndex := cbbProjection.ItemIndex;
-  if VIndex < 0 then begin
-    VIndex := 0;
-  end;
-  if VIndex >= 2 then begin
-    VIndex := VIndex - 2;
-    if VIndex < FProjectionSetList.Count then begin
-      VProjectionSet := FProjectionSetList.Items[VIndex];
-    end;
-    VIndex := 0;
-  end;
-  if VProjectionSet = nil then begin
-    VMainMapType := nil;
-    VMap := FfrMapSelect.GetSelectedMapType;
-    VLayer := FfrLayerSelect.GetSelectedMapType;
-    if VIndex = 0 then begin
-      if VMap <> nil then begin
-        VMainMapType := VMap;
-      end else if VLayer <> nil then begin
-        VMainMapType := VLayer;
-      end;
-    end else begin
-      if VLayer <> nil then begin
-        VMainMapType := VLayer;
-      end else if VMap <> nil then begin
-        VMainMapType := VMap;
-      end;
-    end;
-    if VMainMapType <> nil then begin
-      VProjectionSet := VMainMapType.ProjectionSet;
-    end;
-  end;
-  VZoom := cbbZoom.ItemIndex;
+  VProjectionSet := FfrProjectionSelect.GetSelectedProjection;
   if VProjectionSet <> nil then begin
+    VZoom := cbbZoom.ItemIndex;
     VProjectionSet.ValidateZoom(VZoom);
     Result := VProjectionSet[VZoom];
   end;
@@ -486,95 +465,69 @@ begin
 end;
 
 procedure TfrMapCombine.Init(
-  const AZoom: byte;
+  const AZoom: Byte;
   const APolygon: IGeometryLonLatPolygon
 );
 var
-  i: Integer;
+  I: Integer;
   VMapCalibration: IMapCalibration;
 begin
   FPolygLL := APolygon;
+
   cbbZoom.Items.Clear;
-  for i := 1 to 24 do begin
-    cbbZoom.Items.Add(inttostr(i));
+  for I := 1 to 24 do begin
+    cbbZoom.Items.Add(IntToStr(I));
   end;
   cbbZoom.ItemIndex := AZoom;
+
   chklstPrTypes.Clear;
-  for i := 0 to FMapCalibrationList.Count - 1 do begin
-    VMapCalibration := FMapCalibrationList.Get(i);
+  for I := 0 to FMapCalibrationList.Count - 1 do begin
+    VMapCalibration := FMapCalibrationList.Get(I);
     chklstPrTypes.AddItem(VMapCalibration.GetName, Pointer(VMapCalibration));
   end;
+
   FfrMapSelect.Show(pnlMapFrame);
   FfrLayerSelect.Show(pnlLayerFrame);
+  FfrProjectionSelect.Show(pnlProjection);
   FfrMapCombineOptions.Show(pnlCustomOpt);
-  UpdateProjectionsList(Self);
-  cbbZoomChange(nil);
+
+  OnMapChange(FfrMapSelect);
+  OnMapChange(FfrLayerSelect);
+
+  UpdateStatCaption;
+end;
+
+procedure TfrMapCombine.OnMapChange(Sender: TObject);
+var
+  VProj: IProjectionSet;
+  VMapType: IMapType;
+  VfrMapSelect: TfrMapSelect;
+begin
+  VfrMapSelect := Sender as TfrMapSelect;
+
+  VMapType := VfrMapSelect.GetSelectedMapType;
+  if VMapType <> nil then begin
+    VProj := VMapType.ProjectionSet;
+  end else begin
+    VProj := nil;
+  end;
+
+  case VfrMapSelect.Tag of
+    1: FfrProjectionSelect.SetMapProjection(VProj);
+    2: FfrProjectionSelect.SetLayerProjection(VProj);
+  else
+    Assert(False);
+  end;
+end;
+
+procedure TfrMapCombine.OnProjChange(Sender: TObject);
+begin
+  UpdateStatCaption;
 end;
 
 procedure TfrMapCombine.OnSplitOptChange(Sender: TObject);
 begin
   chkSkipExistingFiles.Enabled := (seSplitHor.Value > 1) or (seSplitVert.Value > 1);
-end;
-
-procedure TfrMapCombine.RefreshTranslation;
-var
-  VProjectionIndex: Integer;
-begin
-  VProjectionIndex := cbbProjection.ItemIndex;
-  inherited;
-  UpdateProjectionsList(Self);
-  if VProjectionIndex >= 0 then begin
-    cbbProjection.ItemIndex := VProjectionIndex;
-  end;
-end;
-
-procedure TfrMapCombine.UpdateProjectionsList(Sender: TObject);
-
-  procedure AddProj(const AMapType: IMapType; const ACaption: string);
-  var
-    I: Integer;
-    VProj: string;
-    VProjectionSet: IProjectionSet;
-  begin
-    VProj := ACaption;
-    if Assigned(AMapType) then begin
-      VProjectionSet := AMapType.ProjectionSet;
-      for I := 0 to FProjectionSetList.Count - 1 do begin
-        if FProjectionSetList.Items[I].IsSame(VProjectionSet) then begin
-          VProj := VProj + ' - ' + FProjectionSetList.Captions[I];
-          Break;
-        end;
-      end;
-    end;
-    if VProj = ACaption then begin
-      VProj := VProj + ' - ' + '<UNKNOWN>';
-    end;
-    cbbProjection.Items.Add(VProj);
-  end;
-
-var
-  I: Integer;
-  VPrevIndex, VPrevCount: Integer;
-begin
-  VPrevIndex := cbbProjection.ItemIndex;
-  VPrevCount := cbbProjection.Items.Count;
-
-  cbbProjection.Items.Clear;
-  AddProj(FfrMapSelect.GetSelectedMapType, _('Projection of map'));
-  AddProj(FfrLayerSelect.GetSelectedMapType, _('Projection of layer'));
-
-  for I := 0 to FProjectionSetList.Count - 1 do begin
-    cbbProjection.Items.Add(FProjectionSetList.Captions[I]);
-  end;
-
-  if (VPrevIndex >= 0) and
-     (cbbProjection.Items.Count > VPrevIndex) and
-     (cbbProjection.Items.Count = VPrevCount)
-  then begin
-    cbbProjection.ItemIndex := VPrevIndex;
-  end else begin
-    cbbProjection.ItemIndex := 0;
-  end;
 end;
 
 function TfrMapCombine.Validate: Boolean;
@@ -591,7 +544,7 @@ var
   VPixelRect: TRect;
   VSplitCount: TPoint;
   VPixelSize: TPoint;
-  i: Integer;
+  I: Integer;
 begin
   if (FfrMapSelect.GetSelectedMapType = nil) and (FfrLayerSelect.GetSelectedMapType = nil) then begin
     ShowMessage(_('Please select map or layer'));
@@ -672,8 +625,8 @@ begin
   VCalibrationList := GetMapCalibrationList;
   if Assigned(VCalibrationList) and (VCalibrationList.Count > 0) then begin
     VCalibrationStringSupport := stsUnicode;
-    for i := 0 to VCalibrationList.Count - 1 do begin
-      VCalibration := VCalibrationList.Items[i];
+    for I := 0 to VCalibrationList.Count - 1 do begin
+      VCalibration := VCalibrationList.Items[I];
       case VCalibration.StringSupport of
         stsAscii: begin
           VCalibrationStringSupport := stsAscii;

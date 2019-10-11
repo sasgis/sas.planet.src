@@ -963,6 +963,7 @@ uses
   u_PredicateByTileInfoBase in 'Src\Predicate\u_PredicateByTileInfoBase.pas',
   fr_MapCombine in 'Src\RegionProcess\Combine\fr_MapCombine.pas' {frMapCombine: TFrame},
   fr_MapCombineOptions in 'Src\RegionProcess\Combine\fr_MapCombineOptions.pas' {frGeoTiffOpt: TFrame},
+  fr_ProjectionSelect in 'Src\RegionProcess\Combine\fr_ProjectionSelect.pas' {frProjectionSelect: TFrame},
   i_BitmapMapCombiner in 'Src\RegionProcess\Combine\i_BitmapMapCombiner.pas',
   i_ImageLineProvider in 'Src\RegionProcess\Combine\i_ImageLineProvider.pas',
   t_ECW in 'Src\RegionProcess\Combine\t_ECW.pas',

@@ -1138,6 +1138,10 @@
       <Form>frGeoTiffOpt</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
+    <DCCReference Include="Src\RegionProcess\Combine\fr_ProjectionSelect.pas">
+      <Form>frProjectionSelect</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
     <DCCReference Include="Src\RegionProcess\Combine\i_BitmapMapCombiner.pas" />
     <DCCReference Include="Src\RegionProcess\Combine\i_ImageLineProvider.pas" />
     <DCCReference Include="Src\RegionProcess\Combine\t_ECW.pas" />

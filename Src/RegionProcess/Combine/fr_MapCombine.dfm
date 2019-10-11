@@ -78,7 +78,6 @@ object frMapCombine: TfrMapCombine
         Align = alTop
         Caption = 'Add visible Placemarks'
         TabOrder = 2
-        ExplicitTop = 88
       end
       object chkUseRecolor: TCheckBox
         Left = 3
@@ -88,8 +87,6 @@ object frMapCombine: TfrMapCombine
         Align = alTop
         Caption = 'Use postprocessing settings'
         TabOrder = 4
-        ExplicitLeft = 0
-        ExplicitTop = 77
       end
       object chkUseMapGrids: TCheckBox
         Left = 3
@@ -99,7 +96,6 @@ object frMapCombine: TfrMapCombine
         Align = alTop
         Caption = 'Add visible Grids'
         TabOrder = 1
-        ExplicitTop = 71
       end
       object chkAddVisibleLayers: TCheckBox
         Left = 3
@@ -110,7 +106,6 @@ object frMapCombine: TfrMapCombine
         Caption = 'Add visible Layers'
         TabOrder = 3
         OnClick = chkAddVisibleLayersClick
-        ExplicitTop = 105
       end
       object chkUseFillingMap: TCheckBox
         Left = 3
@@ -120,18 +115,15 @@ object frMapCombine: TfrMapCombine
         Align = alTop
         Caption = 'Add visible Cached Tiles Map'
         TabOrder = 0
-        ExplicitTop = 54
       end
       object pnlCustomOpt: TPanel
         Left = 3
         Top = 88
         Width = 209
-        Height = 81
+        Height = 60
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 5
-        ExplicitTop = 153
-        ExplicitHeight = 62
       end
     end
     object pnlPrTypes: TPanel
@@ -273,6 +265,7 @@ object frMapCombine: TfrMapCombine
         Width = 67
         Height = 21
         Style = csDropDownList
+        ItemHeight = 0
         TabOrder = 0
         OnChange = cbbZoomChange
       end
@@ -288,7 +281,7 @@ object frMapCombine: TfrMapCombine
       object lblStat: TLabel
         AlignWithMargins = True
         Left = 3
-        Top = 110
+        Top = 113
         Width = 6
         Height = 13
         Align = alBottom
@@ -343,29 +336,6 @@ object frMapCombine: TfrMapCombine
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 2
-        object lblProjection: TLabel
-          AlignWithMargins = True
-          Left = 3
-          Top = 0
-          Width = 52
-          Height = 13
-          Margins.Top = 0
-          Margins.Right = 5
-          Margins.Bottom = 2
-          Align = alLeft
-          Caption = 'Projection:'
-          Layout = tlCenter
-        end
-        object cbbProjection: TComboBox
-          Left = 63
-          Top = 0
-          Width = 403
-          Height = 21
-          Align = alCustom
-          Style = csDropDownList
-          Anchors = [akLeft, akTop, akRight]
-          TabOrder = 0
-        end
       end
     end
   end
