@@ -23,6 +23,7 @@ unit u_MarkSystemImplConfigORM;
 interface
 
 uses
+  SynTable,
   SynCommons,
   i_MarkSystemImplConfigORM,
   u_MarkSystemImplConfigBase;
