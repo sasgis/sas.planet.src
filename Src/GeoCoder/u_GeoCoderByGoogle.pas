@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -38,9 +38,6 @@ uses
 
 type
   TGeoCoderByGoogle = class(TGeoCoderBasic)
-  private
-    FApiKey: string;
-    procedure LoadApiKey(const AFileName: string);
   protected
     function PrepareRequest(
       const ASearch: string;
@@ -53,15 +50,6 @@ type
       const ASearch: string;
       const ALocalConverter: ILocalCoordConverter
     ): IInterfaceListSimple; override;
-  public
-    constructor Create(
-      const AApiKeyFileName: string;
-      const AInetSettings: IInetConfig;
-      const AGCNotifier: INotifierTime;
-      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-      const APlacemarkFactory: IGeoCodePlacemarkFactory;
-      const ADownloaderFactory: IDownloaderFactory
-    );
   end;
 
 const
@@ -81,53 +69,6 @@ uses
   u_GeoToStrFunc;
 
 { TGeoCoderByGoogle }
-
-constructor TGeoCoderByGoogle.Create(
-  const AApiKeyFileName: string;
-  const AInetSettings: IInetConfig;
-  const AGCNotifier: INotifierTime;
-  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-  const APlacemarkFactory: IGeoCodePlacemarkFactory;
-  const ADownloaderFactory: IDownloaderFactory
-);
-begin
-  inherited Create(
-    AInetSettings,
-    AGCNotifier,
-    AVectorItemSubsetBuilderFactory,
-    APlacemarkFactory,
-    ADownloaderFactory
-  );
-
-  LoadApiKey(AApiKeyFileName);
-end;
-
-procedure TGeoCoderByGoogle.LoadApiKey(const AFileName: string);
-var
-  I: Integer;
-  VList: TStringList;
-begin
-  if not FileExists(AFileName) then begin
-    raise Exception.Create('Google API Key requared, but not found: ' + AFileName);
-  end;
-
-  VList := TStringList.Create;
-  try
-    FApiKey := '';
-    VList.LoadFromFile(AFileName);
-    for I := 0 to VList.Count - 1 do begin
-      FApiKey := Trim(VList.Strings[I]);
-      if FApiKey <> '' then begin
-        Break;
-      end;
-    end;
-    if FApiKey = '' then begin
-      raise Exception.Create('Google API Key is empty!');
-    end;
-  finally
-    VList.Free;
-  end;
-end;
 
 function TGeoCoderByGoogle.ParseResultToPlacemarksList(
   const ACancelNotifier: INotifierOperation;

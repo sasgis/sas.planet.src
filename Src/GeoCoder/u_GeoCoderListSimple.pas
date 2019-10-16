@@ -111,24 +111,34 @@ begin
         CGeoCoderGoogleGUID,
         'Google',
         TGeoCoderByGoogle.Create(
-          VPath,
           AInetConfig,
           AGCNotifier,
           AVectorItemSubsetBuilderFactory,
           APlacemarkFactory,
-          ADownloaderFactory
+          ADownloaderFactory,
+          VPath
         )
       );
     VList.Add(VItem);
   end;
 
-  VItem :=
-    TGeoCoderListEntity.Create(
-      CGeoCoderYandexGUID,
-      _('Yandex'),
-      TGeoCoderByYandex.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ADownloaderFactory)
-    );
-  VList.Add(VItem);
+  VPath := AUserDataPath + cYandexApiKeyFileName;
+  if FileExists(VPath) then begin
+    VItem :=
+      TGeoCoderListEntity.Create(
+        CGeoCoderYandexGUID,
+        _('Yandex'),
+        TGeoCoderByYandex.Create(
+          AInetConfig,
+          AGCNotifier,
+          AVectorItemSubsetBuilderFactory,
+          APlacemarkFactory,
+          ADownloaderFactory,
+          VPath
+        )
+      );
+    VList.Add(VItem);
+  end;
 
   VItem :=
     TGeoCoderListEntity.Create(

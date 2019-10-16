@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -23,6 +23,7 @@ unit u_GeoCoderBasic;
 interface
 
 uses
+  Classes,
   SysUtils,
   i_NotifierOperation,
   i_InterfaceListSimple,
@@ -49,7 +50,9 @@ type
       const AList: IInterfaceListSimple;
       const ALocalConverter: ILocalCoordConverter
     ): IVectorItemSubset;
+    procedure LoadApiKey(const AFileName: string);
   protected
+    FApiKey: string;
     property PlacemarkFactory: IGeoCodePlacemarkFactory read FPlacemarkFactory;
     property Downloader: IDownloader read FDownloader;
     property InetSettings: IInetConfig read FInetSettings;
@@ -79,7 +82,8 @@ type
       const AGCNotifier: INotifierTime;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
-      const ADownloaderFactory: IDownloaderFactory
+      const ADownloaderFactory: IDownloaderFactory;
+      const AApiKeyFileName: string = ''
     );
   end;
 
@@ -89,6 +93,7 @@ type
 implementation
 
 uses
+  gnugettext,
   i_VectorDataItemSimple,
   i_Datum,
   u_DownloaderHttpWithTTL,
@@ -103,7 +108,8 @@ constructor TGeoCoderBasic.Create(
   const AGCNotifier: INotifierTime;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APlacemarkFactory: IGeoCodePlacemarkFactory;
-  const ADownloaderFactory: IDownloaderFactory
+  const ADownloaderFactory: IDownloaderFactory;
+  const AApiKeyFileName: string
 );
 begin
   inherited Create;
@@ -111,6 +117,7 @@ begin
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FPlacemarkFactory := APlacemarkFactory;
   FDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
+  LoadApiKey(AApiKeyFileName);
 end;
 
 function TGeoCoderBasic.BuildSortedSubset(
@@ -195,7 +202,7 @@ begin
           VMessage := VResultError.ErrorText;
         end else begin
           VResultCode := 417;
-          VMessage := 'Unknown error';
+          VMessage := _('Unknown error');
         end;
       end else begin
         VList :=
@@ -217,9 +224,44 @@ begin
   end;
   if not (Assigned(VSubset)) or (VSubset.Count = 0) then begin
     VResultCode := 404;
-    VMessage := 'Не найдено';
+    VMessage := _('Not Found');
   end;
   Result := TGeoCodeResult.Create(ASearch, VResultCode, VMessage, VSubset);
+end;
+
+procedure TGeoCoderBasic.LoadApiKey(const AFileName: string);
+var
+  I: Integer;
+  VList: TStringList;
+begin
+  FApiKey := '';
+
+  if AFileName = '' then begin
+    Exit;
+  end else if not FileExists(AFileName) then begin
+    raise Exception.CreateFmt(
+      _('File with Geocoder API Key is not found: %s'), [AFileName]
+    );
+  end;
+
+  VList := TStringList.Create;
+  try
+    VList.LoadFromFile(AFileName);
+    for I := 0 to VList.Count - 1 do begin
+      FApiKey := Trim(VList.Strings[I]);
+      if FApiKey <> '' then begin
+        Break;
+      end;
+    end;
+  finally
+    VList.Free;
+  end;
+
+  if FApiKey = '' then begin
+    raise Exception.CreateFmt(
+      _('File with Geocoder API Key is empty: %s'), [AFileName]
+    );
+  end;
 end;
 
 function TGeoCoderBasic.PrepareRequestByURL(const AUrl: AnsiString): IDownloadRequest;
