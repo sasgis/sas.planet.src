@@ -269,7 +269,8 @@ begin
       if IsEqualGUID(VGUID, VItem.GetGUID) then begin
         VAction.Checked := True;
         FGeoCoderMenu.Caption := VAction.Caption;
-        Break;
+        // don't break loop here:
+        // we need to reset Checked property for all other Actions
       end else begin
         VAction.Checked := False;
       end;
