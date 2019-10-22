@@ -46,7 +46,7 @@ implementation
 
 uses
   SysUtils,
-  c_GeoCoderGUIDSimple,
+  c_ZeroGUID,
   u_ConfigProviderHelpers;
 
 { TMainGeoCoderConfig }
@@ -54,7 +54,7 @@ uses
 constructor TMainGeoCoderConfig.Create;
 begin
   inherited Create;
-  FActiveGeoCoderGUID := CGeoCoderYandexGUID;
+  FActiveGeoCoderGUID := CGUID_Zero;
 end;
 
 procedure TMainGeoCoderConfig.DoReadConfig(const AConfigData: IConfigDataProvider);

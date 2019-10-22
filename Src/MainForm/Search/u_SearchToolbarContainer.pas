@@ -269,6 +269,7 @@ begin
       if IsEqualGUID(VGUID, VItem.GetGUID) then begin
         VAction.Checked := True;
         FGeoCoderMenu.Caption := VAction.Caption;
+        Break;
       end else begin
         VAction.Checked := False;
       end;

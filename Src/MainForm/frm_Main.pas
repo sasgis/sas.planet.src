@@ -2259,7 +2259,10 @@ procedure TfrmMain.InitSearchers;
 var
   I: Integer;
   VItem: IGeoCoderListEntity;
+  VGeoCoderList: IGeoCoderListStatic;
   VTBEditItem: TTBEditItem;
+  VActiveGeoCoder: TGUID;
+  VIsActiveGeoCoderFound: Boolean;
 begin
   FSearchPresenter :=
     TSearchResultPresenterOnPanel.Create(
@@ -2271,8 +2274,13 @@ begin
       GState.CoordToStringConverter,
       GState.LastSearchResult
     );
-  for I := 0 to GState.GeoCoderList.Count - 1 do begin
-    VItem := GState.GeoCoderList.Items[I];
+
+  VGeoCoderList := GState.GeoCoderList;
+  VActiveGeoCoder := FConfig.MainGeoCoderConfig.ActiveGeoCoderGUID;
+  VIsActiveGeoCoderFound := False;
+
+  for I := 0 to VGeoCoderList.Count - 1 do begin
+    VItem := VGeoCoderList.Items[I];
 
     VTBEditItem := TTBEditItem.Create(Self);
     VTBEditItem.EditCaption := VItem.GetCaption;
@@ -2283,6 +2291,19 @@ begin
     VTBEditItem.OnAcceptText := Self.tbiEditSrchAcceptText;
 
     TBGoTo.Add(VTBEditItem);
+
+    if IsEqualGUID(VActiveGeoCoder, VItem.GUID) then begin
+      VIsActiveGeoCoderFound := True;
+    end;
+  end;
+
+  if not VIsActiveGeoCoderFound then begin
+    if VGeoCoderList.Count > 0 then begin
+      VActiveGeoCoder := VGeoCoderList.Items[0].GUID;
+      FConfig.MainGeoCoderConfig.ActiveGeoCoderGUID := VActiveGeoCoder;
+    end else begin
+      //ToDo
+    end;
   end;
 
   FSearchToolbarContainer :=
@@ -2291,7 +2312,7 @@ begin
       tbiSearch,
       tbxDoSearch,
       GState.AppClosingNotifier,
-      GState.GeoCoderList,
+      VGeoCoderList,
       FConfig.MainGeoCoderConfig,
       FConfig.SearchHistory,
       FViewPortState.View,

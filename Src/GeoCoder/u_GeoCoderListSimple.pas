@@ -142,17 +142,17 @@ begin
 
   VItem :=
     TGeoCoderListEntity.Create(
-      CGeoCoder2GISGUID,
-      '2GIS',
-      TGeoCoderBy2GIS.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ADownloaderFactory)
+      CGeoCoderOSMGUID,
+      'OSM',
+      TGeoCoderByOSM.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ADownloaderFactory)
     );
   VList.Add(VItem);
 
   VItem :=
     TGeoCoderListEntity.Create(
-      CGeoCoderOSMGUID,
-      'OSM',
-      TGeoCoderByOSM.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ADownloaderFactory)
+      CGeoCoder2GISGUID,
+      '2GIS',
+      TGeoCoderBy2GIS.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ADownloaderFactory)
     );
   VList.Add(VItem);
 
