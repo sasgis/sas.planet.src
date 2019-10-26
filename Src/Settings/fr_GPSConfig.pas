@@ -102,6 +102,8 @@ type
       Sender: TObject;
       AThread: TObject
     );
+  protected
+    procedure RefreshTranslation; override;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -263,7 +265,7 @@ var
 begin
   ComboBoxCOM.Items.Clear;
   for i := 1 to 64 do begin
-    ComboBoxCOM.Items.Add('COM' + inttostr(i));
+    ComboBoxCOM.Items.Add('COM' + IntToStr(i));
   end;
 
   FGPSTrackConfig.LockRead;
@@ -282,7 +284,7 @@ begin
     CB_GPSlogNmea.Checked := FGPSConfig.ModuleConfig.LowLevelLog;
     SpinEdit1.Value := FGPSConfig.ModuleConfig.Delay;
     ComboBoxCOM.Text := 'COM' + IntToStr(FGPSConfig.ModuleConfig.Port);
-    ComboBoxBoudRate.Text := inttostr(FGPSConfig.ModuleConfig.BaudRate);
+    ComboBoxBoudRate.Text := IntToStr(FGPSConfig.ModuleConfig.BaudRate);
     CB_GPSlogPLT.Checked := FGPSConfig.WriteLog[ttPLT];
     CB_GPSlogGPX.Checked := FGPSConfig.WriteLog[ttGPX];
     case FGPSConfig.ModuleConfig.GPSOrigin of
@@ -402,6 +404,15 @@ begin
   ApplyChanges;
   // change state
   FGPSConfig.GPSEnabled := (not FGPSConfig.GPSEnabled);
+end;
+
+procedure TfrGPSConfig.RefreshTranslation;
+var
+  I: Integer;
+begin
+  I := ComboBoxBoudRate.ItemIndex;
+  inherited RefreshTranslation;
+  ComboBoxBoudRate.ItemIndex := I;
 end;
 
 end.
