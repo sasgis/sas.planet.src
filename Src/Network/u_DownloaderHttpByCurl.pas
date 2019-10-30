@@ -278,12 +278,18 @@ begin
       except
         on E: EOSError do begin
           Result := OnOSError(ARequest, E.ErrorCode);
-          {$IFDEF VerboseHttpClient}
-          WriteLogMsg(Format('[ERR] TreadID=%d; %s', [E.ClassName + SysErrorMessage(E.ErrorCode)));
+          {$IFDEF DO_HTTP_LOG}
+          WriteLogMsg(Format('[ERR] TreadID=%d; %s', [E.ClassName + SysErrorMessage(E.ErrorCode)]));
           {$ENDIF}
         end;
         on E: Exception do begin
-          {$IFDEF VerboseHttpClient}
+          Result :=
+            FResultFactory.BuildLoadErrorByUnknownReason(
+              ARequest,
+              E.Message,
+              []
+            );
+          {$IFDEF DO_HTTP_LOG}
           WriteLogMsg(Format('[ERR] TreadID=%d; %s', [E.ClassName + ': ' + E.Message]));
           {$ENDIF}
         end;
