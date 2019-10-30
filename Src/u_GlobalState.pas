@@ -354,6 +354,7 @@ uses
   u_ProjectionSetFactorySimple,
   u_ProjectionSetListStaticSimple,
   u_DownloadInfoSimple,
+  u_DownloaderByCurlFactory,
   u_DownloaderByWinInetFactory,
   u_DatumFactory,
   u_GeoCalc,
@@ -592,9 +593,13 @@ begin
 
   FGlobalInternetState := TGlobalInternetState.Create;
 
-  FDownloaderFactory := TDownloaderByWinInetFactory.Create(
-    FGlobalConfig.InetConfig.WinInetConfig
-  );
+  if FileExists(VProgramPath + 'libcurl.dll') then begin
+    FDownloaderFactory := TDownloaderByCurlFactory.Create;
+  end else begin
+    FDownloaderFactory := TDownloaderByWinInetFactory.Create(
+      FGlobalConfig.InetConfig.WinInetConfig
+    );
+  end;
 
   FProjConverterFactory := TProjConverterFactory.Create;
   FLastSelectionInfo := TLastSelectionInfo.Create;
