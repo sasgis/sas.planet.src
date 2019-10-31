@@ -18,6 +18,7 @@ type
     FollowLocation: Boolean;
     AcceptEncoding: Boolean;
     IgnoreSSLCertificateErrors: Boolean;
+    TimeOut: Integer;
     ConnectionTimeOut: Integer;
   end;
   PCurlOptions = ^TCurlOptions;
@@ -262,6 +263,7 @@ begin
   FOptions.FollowLocation := True;
   FOptions.AcceptEncoding := True;
   FOptions.IgnoreSSLCertificateErrors := False;
+  FOptions.TimeOut := 30; // seconds
   FOptions.ConnectionTimeOut := 30; // seconds
 
   if curl.Module = 0 then begin
@@ -302,6 +304,7 @@ begin
       (FOptions.StoreCookie <> AOptions.StoreCookie) or
       (FOptions.FollowLocation <> AOptions.FollowLocation) or
       (FOptions.IgnoreSSLCertificateErrors <> AOptions.IgnoreSSLCertificateErrors) or
+      (FOptions.TimeOut <> AOptions.TimeOut) or
       (FOptions.ConnectionTimeOut <> AOptions.ConnectionTimeOut);
   end else begin
     Result := False;
@@ -312,6 +315,7 @@ procedure TCurlHttpClient.CurlSetup;
 const
   cBoolToLong: array [Boolean] of Integer = (0, 1);
 begin
+  CurlCheck( curl.easy_setopt(FCurl, coTimeout, FOptions.TimeOut) );
   CurlCheck( curl.easy_setopt(FCurl, coConnectTimeout, FOptions.ConnectionTimeOut) );
   CurlCheck( curl.easy_setopt(FCurl, coFollowLocation, cBoolToLong[FOptions.FollowLocation]) );
 

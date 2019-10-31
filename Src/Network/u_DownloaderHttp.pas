@@ -148,35 +148,15 @@ uses
   ALString,
   ALZLibEx,
   ALZlibExGZ,
+  u_AsyncRequestHelperThread,
   u_StrFunc,
   u_ListenerByEvent,
   u_Synchronizer,
   u_HttpStatusChecker,
   u_SimpleFlagWithInterlock,
   u_StreamReadOnlyByBinaryData,
-  u_ReadableThreadNames,
   u_BinaryData,
   u_BinaryDataByMemStream;
-
-type
-  TAsyncRequestHelperThread = class(TThread)
-  private
-    FDownloader: IDownloader;
-    FRequest: IDownloadRequest;
-    FCancelNotifier: INotifierOperation;
-    FOperationID: Integer;
-    FOnResultCallBack: TRequestAsyncCallBack;
-  protected
-    procedure Execute; override;
-  public
-    constructor Create(
-      const ADownloader: IDownloader;
-      const ARequest: IDownloadRequest;
-      const ACancelNotifier: INotifierOperation;
-      const AOperationID: Integer;
-      const AOnResultCallBack: TRequestAsyncCallBack
-    );
-  end;
 
 {$IFDEF VerboseHttpClient}
 procedure VerboseStatusChange(
@@ -936,42 +916,6 @@ begin
         AResponseBody
       );
     end;
-  end;
-end;
-
-{ TAsyncRequestHelperThread }
-
-constructor TAsyncRequestHelperThread.Create(
-  const ADownloader: IDownloader;
-  const ARequest: IDownloadRequest;
-  const ACancelNotifier: INotifierOperation;
-  const AOperationID: Integer;
-  const AOnResultCallBack: TRequestAsyncCallBack
-);
-begin
-  FDownloader := ADownloader;
-  FRequest := ARequest;
-  FCancelNotifier := ACancelNotifier;
-  FOperationID := AOperationID;
-  FOnResultCallBack := AOnResultCallBack;
-  FreeOnTerminate := True;
-  inherited Create(False);
-end;
-
-procedure TAsyncRequestHelperThread.Execute;
-var
-  VResult: IDownloadResult;
-begin
-  SetCurrentThreadName(Self.ClassName);
-  try
-    VResult := FDownloader.DoRequest(FRequest, FCancelNotifier, FOperationID);
-    FOnResultCallBack(VResult, FOperationID);
-  except
-    {$IFDEF VerboseHttpClient}
-    on E: Exception do begin
-      OutputDebugString(PChar(IntToStr(GetCurrentThreadId) + ' <E> ' + E.ClassName + ':' + E.Message));
-    end;
-    {$ENDIF}
   end;
 end;
 

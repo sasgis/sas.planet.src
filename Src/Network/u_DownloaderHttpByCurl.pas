@@ -65,11 +65,6 @@ type
       var AContentType, ARawHeaderText: AnsiString
     ): IDownloadResult;
 
-    function OnOSError(
-      const ARequest: IDownloadRequest;
-      const AErrorCode: Cardinal
-    ): IDownloadResult;
-
     function OnBeforeRequest(
       const ARequest: IDownloadRequest
     ): IDownloadResult;
@@ -118,31 +113,11 @@ uses
   UrlMon,
   ALString,
   u_StrFunc,
+  u_AsyncRequestHelperThread,
   u_ListenerByEvent,
   u_HttpStatusChecker,
-  u_ReadableThreadNames,
   u_BinaryData,
   u_Synchronizer;
-
-type
-  TAsyncRequestHelperThread = class(TThread)
-  private
-    FDownloader: IDownloader;
-    FRequest: IDownloadRequest;
-    FCancelNotifier: INotifierOperation;
-    FOperationID: Integer;
-    FOnResultCallBack: TRequestAsyncCallBack;
-  protected
-    procedure Execute; override;
-  public
-    constructor Create(
-      const ADownloader: IDownloader;
-      const ARequest: IDownloadRequest;
-      const ACancelNotifier: INotifierOperation;
-      const AOperationID: Integer;
-      const AOnResultCallBack: TRequestAsyncCallBack
-    );
-  end;
 
 procedure OnCurlProgress(const ATotal: Integer; const ADownload: Integer;
   const AUserData: Pointer);
@@ -183,6 +158,7 @@ begin
 
   FHttpOptions.StoreCookie := AAllowUseCookie;
   FHttpOptions.FollowLocation := AAllowRedirect;
+  FHttpOptions.IgnoreSSLCertificateErrors := True;
 
   FHttpRequest.Options := @FHttpOptions;
   FHttpResponse.Data := TMemoryStream.Create;
@@ -261,13 +237,15 @@ begin
         Exit;
       end;
 
-      Result := OnBeforeRequest(ARequest);
-      if Result <> nil then begin
-        Exit;
-      end;
-
       try
-        if not FHttpClient.DoRequest(@FHttpRequest, @FHttpResponse) then begin
+        Result := OnBeforeRequest(ARequest);
+        if Result <> nil then begin
+          Exit;
+        end;
+
+        if FHttpClient.DoRequest(@FHttpRequest, @FHttpResponse) then begin
+          Result := OnAfterResponse(ARequest);
+        end else begin
           Result :=
             FResultFactory.BuildLoadErrorByUnknownReason(
               ARequest,
@@ -276,12 +254,6 @@ begin
             );
         end;
       except
-        on E: EOSError do begin
-          Result := OnOSError(ARequest, E.ErrorCode);
-          {$IFDEF DO_HTTP_LOG}
-          WriteLogMsg(Format('[ERR] TreadID=%d; %s', [E.ClassName + SysErrorMessage(E.ErrorCode)]));
-          {$ENDIF}
-        end;
         on E: Exception do begin
           Result :=
             FResultFactory.BuildLoadErrorByUnknownReason(
@@ -293,10 +265,6 @@ begin
           WriteLogMsg(Format('[ERR] TreadID=%d; %s', [E.ClassName + ': ' + E.Message]));
           {$ENDIF}
         end;
-      end;
-
-      if Result = nil then begin
-        Result := OnAfterResponse(ARequest);
       end;
     finally
       ACancelNotifier.RemoveListener(FCancelListener);
@@ -376,40 +344,19 @@ begin
 
   VInetConfig := ARequest.InetConfig;
 
-  FHttpOptions.ConnectionTimeOut := VInetConfig.TimeOut div 1000;
+  FHttpOptions.TimeOut := VInetConfig.TimeOut div 1000;
+  FHttpOptions.ConnectionTimeOut := FHttpOptions.TimeOut;
 
   if GetHeaderValue(FHttpRequest.Headers, 'User-Agent') = '' then begin
     FHttpRequest.Headers :=
       SetHeaderValue(FHttpRequest.Headers, 'User-Agent', VInetConfig.UserAgentString);
   end;
 
-  // ToDo: Configure Proxy
-end;
+  // accept and auto-decompress all known encodings
+  FHttpOptions.AcceptEncoding := True;
+  FHttpRequest.Headers := DeleteHeaderEntry(FHttpRequest.Headers, 'Accept-Encoding');
 
-function TDownloaderHttpByCurl.OnOSError(
-  const ARequest: IDownloadRequest;
-  const AErrorCode: Cardinal
-): IDownloadResult;
-begin
-  Result := nil;
-  if FResultFactory <> nil then begin
-    if IsConnectError(AErrorCode) then begin
-      Result := FResultFactory.BuildNoConnetctToServerByErrorCode(
-        ARequest,
-        AErrorCode
-      );
-    end else if IsDownloadError(AErrorCode) then begin
-      Result := FResultFactory.BuildLoadErrorByErrorCode(
-        ARequest,
-        AErrorCode
-      );
-    end else begin
-      Result := FResultFactory.BuildNoConnetctToServerByErrorCode(
-        ARequest,
-        AErrorCode
-      );
-    end;
-  end;
+  // ToDo: Configure Proxy
 end;
 
 function TDownloaderHttpByCurl.OnAfterResponse(
@@ -562,7 +509,7 @@ begin
   VLogId := InterlockedIncrement(GLogIdCounter);
   VLogFileName := Format('%s\HttpLog\%.4d.curl.log', [ExtractFileDir(ParamStr(0)), VLogId]);
   ForceDirectories(ExtractFileDir(VLogFileName));
-  FLogStream := TFileStream.Create(VLogFileName, fmCreate);
+  FLogStream := TFileStream.Create(VLogFileName, fmCreate or fmShareDenyWrite);
 end;
 
 procedure TDownloaderHttpByCurl.FinLog;
@@ -578,41 +525,5 @@ begin
   FLogStream.WriteBuffer(PAnsiChar(VText)^, Length(VText));
 end;
 {$ENDIF}
-
-{ TAsyncRequestHelperThread }
-
-constructor TAsyncRequestHelperThread.Create(
-  const ADownloader: IDownloader;
-  const ARequest: IDownloadRequest;
-  const ACancelNotifier: INotifierOperation;
-  const AOperationID: Integer;
-  const AOnResultCallBack: TRequestAsyncCallBack
-);
-begin
-  FDownloader := ADownloader;
-  FRequest := ARequest;
-  FCancelNotifier := ACancelNotifier;
-  FOperationID := AOperationID;
-  FOnResultCallBack := AOnResultCallBack;
-  FreeOnTerminate := True;
-  inherited Create(False);
-end;
-
-procedure TAsyncRequestHelperThread.Execute;
-var
-  VResult: IDownloadResult;
-begin
-  SetCurrentThreadName(Self.ClassName);
-  try
-    VResult := FDownloader.DoRequest(FRequest, FCancelNotifier, FOperationID);
-    FOnResultCallBack(VResult, FOperationID);
-  except
-    {$IFDEF DEBUG}
-    on E: Exception do begin
-      OutputDebugString(PChar(IntToStr(GetCurrentThreadId) + ' <E> ' + E.ClassName + ':' + E.Message));
-    end;
-    {$ENDIF}
-  end;
-end;
 
 end.

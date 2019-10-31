@@ -1767,6 +1767,7 @@
         <DCCReference Include="Src\Network\i_TileRequestTask.pas"/>
         <DCCReference Include="Src\Network\i_WinInetConfig.pas"/>
         <DCCReference Include="Src\Network\u_AntiBanStuped.pas"/>
+        <DCCReference Include="Src\Network\u_AsyncRequestHelperThread.pas"/>
         <DCCReference Include="Src\Network\u_CurlHttpClient.pas"/>
         <DCCReference Include="Src\Network\u_DownloadCheckerStuped.pas"/>
         <DCCReference Include="Src\Network\u_DownloadInfoSimple.pas"/>

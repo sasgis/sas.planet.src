@@ -883,6 +883,7 @@ uses
   i_TileRequestTask in 'Src\Network\i_TileRequestTask.pas',
   i_WinInetConfig in 'Src\Network\i_WinInetConfig.pas',
   u_AntiBanStuped in 'Src\Network\u_AntiBanStuped.pas',
+  u_AsyncRequestHelperThread in 'Src\Network\u_AsyncRequestHelperThread.pas',
   u_CurlHttpClient in 'Src\Network\u_CurlHttpClient.pas',
   u_DownloadCheckerStuped in 'Src\Network\u_DownloadCheckerStuped.pas',
   u_DownloadInfoSimple in 'Src\Network\u_DownloadInfoSimple.pas',
