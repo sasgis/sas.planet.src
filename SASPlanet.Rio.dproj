@@ -1768,6 +1768,7 @@
         <DCCReference Include="Src\Network\i_WinInetConfig.pas"/>
         <DCCReference Include="Src\Network\u_AntiBanStuped.pas"/>
         <DCCReference Include="Src\Network\u_AsyncRequestHelperThread.pas"/>
+        <DCCReference Include="Src\Network\u_ContentDecoder.pas"/>
         <DCCReference Include="Src\Network\u_CurlHttpClient.pas"/>
         <DCCReference Include="Src\Network\u_DownloadCheckerStuped.pas"/>
         <DCCReference Include="Src\Network\u_DownloadInfoSimple.pas"/>
@@ -1778,7 +1779,8 @@
         <DCCReference Include="Src\Network\u_DownloadUIConfig.pas"/>
         <DCCReference Include="Src\Network\u_DownloaderByCurlFactory.pas"/>
         <DCCReference Include="Src\Network\u_DownloaderByWinInetFactory.pas"/>
-        <DCCReference Include="Src\Network\u_DownloaderHttp.pas"/>
+        <DCCReference Include="Src\Network\u_DownloaderHttpByWinInet.pas"/>
+        <DCCReference Include="Src\Network\u_DownloaderHttpBase.pas"/>
         <DCCReference Include="Src\Network\u_DownloaderHttpByCurl.pas"/>
         <DCCReference Include="Src\Network\u_DownloaderHttpWithTTL.pas"/>
         <DCCReference Include="Src\Network\u_GlobalDownloadConfig.pas"/>
@@ -2505,8 +2507,6 @@
         <DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
         <DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
         <DCCReference Include="Src\u_WindowPositionConfig.pas"/>
-        <DCCReference Include="Src\Network\u_ContentDecoder.pas"/>
-        <DCCReference Include="Src\Network\u_DownloaderHttpBase.pas"/>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

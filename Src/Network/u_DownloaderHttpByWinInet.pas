@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_DownloaderHttp;
+unit u_DownloaderHttpByWinInet;
 
 interface
 
@@ -60,7 +60,7 @@ type
     WinInetOptions: TALWininetHttpClientInternetOptionSet;
   end;
 
-  TDownloaderHttp = class(TDownloaderHttpBase, IDownloader)
+  TDownloaderHttpByWinInet = class(TDownloaderHttpBase, IDownloader)
   private
     FCS: IReadWriteSync;
     FCancelListener: IListener;
@@ -147,9 +147,9 @@ procedure VerboseStatusChange(
 ); forward;
 {$ENDIF}
 
-{ TDownloaderHttp }
+{ TDownloaderHttpByWinInet }
 
-constructor TDownloaderHttp.Create(
+constructor TDownloaderHttpByWinInet.Create(
   const AResultFactory: IDownloadResultFactory;
   const AAllowUseCookie: Boolean;
   const AAllowRedirect: Boolean;
@@ -197,7 +197,7 @@ begin
   FHttpClientLastConfig.WinInetOptions := [];
 end;
 
-destructor TDownloaderHttp.Destroy;
+destructor TDownloaderHttpByWinInet.Destroy;
 begin
   Disconnect;
   FreeAndNil(FHttpResponseHeader);
@@ -210,7 +210,7 @@ begin
   inherited;
 end;
 
-procedure TDownloaderHttp.DoGetRequest(const ARequest: IDownloadRequest);
+procedure TDownloaderHttpByWinInet.DoGetRequest(const ARequest: IDownloadRequest);
 begin
   FHttpClient.Get(
     ARequest.Url,
@@ -219,7 +219,7 @@ begin
   );
 end;
 
-procedure TDownloaderHttp.DoHeadRequest(const ARequest: IDownloadHeadRequest);
+procedure TDownloaderHttpByWinInet.DoHeadRequest(const ARequest: IDownloadHeadRequest);
 begin
   FHttpClient.Head(
     ARequest.Url,
@@ -228,7 +228,7 @@ begin
   );
 end;
 
-procedure TDownloaderHttp.DoOnALStatusChange(
+procedure TDownloaderHttpByWinInet.DoOnALStatusChange(
   sender: Tobject;
   InternetStatus: DWord;
   StatusInformation: Pointer;
@@ -251,7 +251,7 @@ begin
   end;
 end;
 
-procedure TDownloaderHttp.DoOnALDownloadProgress(
+procedure TDownloaderHttpByWinInet.DoOnALDownloadProgress(
   sender: Tobject;
   Read: Integer;
   Total: Integer
@@ -260,7 +260,7 @@ begin
   FOnDownloadProgress(Read, Total);
 end;
 
-procedure TDownloaderHttp.DoPostRequest(const ARequest: IDownloadPostRequest);
+procedure TDownloaderHttpByWinInet.DoPostRequest(const ARequest: IDownloadPostRequest);
 var
   VData: IBinaryData;
   VStream: TStream;
@@ -287,7 +287,7 @@ begin
   end;
 end;
 
-function TDownloaderHttp.DoRequest(
+function TDownloaderHttpByWinInet.DoRequest(
   const ARequest: IDownloadRequest;
   const ACancelNotifier: INotifierOperation;
   const AOperationID: Integer
@@ -385,7 +385,7 @@ begin
   end;
 end;
 
-procedure TDownloaderHttp.Disconnect;
+procedure TDownloaderHttpByWinInet.Disconnect;
 begin
   if Assigned(FHttpClient) then begin
     {$IFDEF VerboseHttpClient}
@@ -404,7 +404,7 @@ begin
   end;
 end;
 
-function TDownloaderHttp.OnBeforeRequest(
+function TDownloaderHttpByWinInet.OnBeforeRequest(
   const ARequest: IDownloadRequest
 ): IDownloadResult;
 var
@@ -427,12 +427,12 @@ begin
   Result := nil; // successful
 end;
 
-procedure TDownloaderHttp.OnCancelEvent;
+procedure TDownloaderHttpByWinInet.OnCancelEvent;
 begin
   Disconnect;
 end;
 
-function TDownloaderHttp.OnOSError(
+function TDownloaderHttpByWinInet.OnOSError(
   const ARequest: IDownloadRequest;
   AErrorCode: Cardinal
 ): IDownloadResult;
@@ -458,7 +458,7 @@ begin
   end;
 end;
 
-procedure TDownloaderHttp.PreConfigHttpClient(
+procedure TDownloaderHttpByWinInet.PreConfigHttpClient(
   const ARawHttpRequestHeader: AnsiString;
   const AInetConfig: IInetConfigStatic
 );
@@ -592,7 +592,7 @@ begin
   end;
 end;
 
-function TDownloaderHttp.ProcessFileSystemRequest(
+function TDownloaderHttpByWinInet.ProcessFileSystemRequest(
   const ARequest: IDownloadRequest
 ): IDownloadResult;
 var

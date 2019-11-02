@@ -56,7 +56,7 @@ implementation
 
 uses
   WinInetFix,
-  u_DownloaderHttp,
+  u_DownloaderHttpByWinInet,
   u_DownloadResultFactory;
 
 { TDownloaderByWinInetFactory }
@@ -90,7 +90,7 @@ function TDownloaderByWinInetFactory.BuildDownloader(
 ): IDownloader;
 begin
   Result :=
-    TDownloaderHttp.Create(
+    TDownloaderHttpByWinInet.Create(
       FResultFactory,
       AAllowUseCookie,
       AAllowRedirect,
@@ -108,7 +108,7 @@ function TDownloaderByWinInetFactory.BuildDownloaderAsync(
 ): IDownloaderAsync;
 begin
   Result :=
-    TDownloaderHttp.Create(
+    TDownloaderHttpByWinInet.Create(
       FResultFactory,
       AAllowUseCookie,
       AAllowRedirect,
