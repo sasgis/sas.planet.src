@@ -41,10 +41,10 @@ uses
   i_DownloadResultFactory,
   i_DownloadChecker,
   u_CurlHttpClient,
-  u_BaseInterfacedObject;
+  u_DownloaderHttpBase;
 
 type
-  TDownloaderHttpByCurl = class(TBaseInterfacedObject, IDownloader, IDownloaderAsync)
+  TDownloaderHttpByCurl = class(TDownloaderHttpBase, IDownloader)
   private
     FLock: IReadWriteSync;
     FCancelListener: IListener;
@@ -54,22 +54,10 @@ type
     FHttpResponse: TCurlResponse;
     FHttpClient: TCurlHttpClient;
 
-    FResultFactory: IDownloadResultFactory;
     FTryDetectContentType: Boolean;
     FOnDownloadProgress: TOnDownloadProgress;
 
-    function InternalMakeResponse(
-      const ARequest: IDownloadRequest;
-      const AResponseBody: IBinaryData;
-      var AStatusCode: Cardinal;
-      var AContentType, ARawHeaderText: AnsiString
-    ): IDownloadResult;
-
     function OnBeforeRequest(
-      const ARequest: IDownloadRequest
-    ): IDownloadResult;
-
-    function OnAfterResponse(
       const ARequest: IDownloadRequest
     ): IDownloadResult;
 
@@ -89,18 +77,12 @@ type
       const ACancelNotifier: INotifierOperation;
       const AOperationID: Integer
     ): IDownloadResult;
-    { IDownloaderAsync }
-    procedure DoRequestAsync(
-      const ARequest: IDownloadRequest;
-      const ACancelNotifier: INotifierOperation;
-      const AOperationID: Integer;
-      const AOnResultCallBack: TRequestAsyncCallBack
-    );
   public
     constructor Create(
       const AResultFactory: IDownloadResultFactory;
       const AAllowUseCookie: Boolean;
       const AAllowRedirect: Boolean;
+      const AAcceptEncoding: Boolean;
       const ATryDetectContentType: Boolean;
       const AOnDownloadProgress: TOnDownloadProgress
     );
@@ -110,13 +92,8 @@ type
 implementation
 
 uses
-  UrlMon,
-  ALString,
   u_StrFunc,
-  u_AsyncRequestHelperThread,
   u_ListenerByEvent,
-  u_HttpStatusChecker,
-  u_BinaryData,
   u_Synchronizer;
 
 procedure OnCurlProgress(const ATotal: Integer; const ADownload: Integer;
@@ -145,6 +122,7 @@ constructor TDownloaderHttpByCurl.Create(
   const AResultFactory: IDownloadResultFactory;
   const AAllowUseCookie: Boolean;
   const AAllowRedirect: Boolean;
+  const AAcceptEncoding: Boolean;
   const ATryDetectContentType: Boolean;
   const AOnDownloadProgress: TOnDownloadProgress
 );
@@ -152,12 +130,11 @@ var
   VDebugCallBack: TCurlDebugCallBack;
   VProgressCallBack: TCurlProgressCallBack;
 begin
-  inherited Create;
-
-  FResultFactory := AResultFactory;
+  inherited Create(AResultFactory);
 
   FHttpOptions.StoreCookie := AAllowUseCookie;
   FHttpOptions.FollowLocation := AAllowRedirect;
+  FHttpOptions.AcceptEncoding := AAcceptEncoding;
   FHttpOptions.IgnoreSSLCertificateErrors := True;
 
   FHttpRequest.Options := @FHttpOptions;
@@ -244,7 +221,15 @@ begin
         end;
 
         if FHttpClient.DoRequest(@FHttpRequest, @FHttpResponse) then begin
-          Result := OnAfterResponse(ARequest);
+          Result :=
+            OnAfterResponse(
+              False,
+              FTryDetectContentType,
+              ARequest,
+              FHttpResponse.Code,
+              FHttpResponse.Headers,
+              FHttpResponse.Data
+            );
         end else begin
           Result :=
             FResultFactory.BuildLoadErrorByUnknownReason(
@@ -281,22 +266,6 @@ begin
   finally
     FLock.EndWrite;
   end;
-end;
-
-procedure TDownloaderHttpByCurl.DoRequestAsync(
-  const ARequest: IDownloadRequest;
-  const ACancelNotifier: INotifierOperation;
-  const AOperationID: Integer;
-  const AOnResultCallBack: TRequestAsyncCallBack
-);
-begin
-  TAsyncRequestHelperThread.Create(
-    (Self as IDownloader),
-    ARequest,
-    ACancelNotifier,
-    AOperationID,
-    AOnResultCallBack
-  );
 end;
 
 procedure TDownloaderHttpByCurl.DoDisconnect;
@@ -352,152 +321,11 @@ begin
       SetHeaderValue(FHttpRequest.Headers, 'User-Agent', VInetConfig.UserAgentString);
   end;
 
-  // accept and auto-decompress all known encodings
-  FHttpOptions.AcceptEncoding := True;
-  FHttpRequest.Headers := DeleteHeaderEntry(FHttpRequest.Headers, 'Accept-Encoding');
+  if FHttpOptions.AcceptEncoding then begin
+    FHttpRequest.Headers := DeleteHeaderEntry(FHttpRequest.Headers, 'Accept-Encoding');
+  end;
 
   // ToDo: Configure Proxy
-end;
-
-function TDownloaderHttpByCurl.OnAfterResponse(
-  const ARequest: IDownloadRequest
-): IDownloadResult;
-
-  function DetectContentType(const AData: Pointer; const ASize: Int64): AnsiString;
-  const
-    // IE9. Returns image/png and image/jpeg instead of image/x-png and image/pjpeg
-    FMFD_RETURNUPDATEDIMGMIMES = $20;
-  var
-    VResult: HRESULT;
-    VContentType: PWideChar;
-  begin
-    Assert(AData <> nil);
-    Assert(ASize > 0);
-
-    Result := '';
-
-    VResult :=
-      UrlMon.FindMimeFromData(
-        nil,
-        nil,
-        AData,
-        ASize,
-        nil,
-        FMFD_RETURNUPDATEDIMGMIMES,
-        VContentType,
-        0
-      );
-
-    if VResult = S_OK then begin
-      Result := AnsiString(VContentType);
-
-      // fix detected mime types for IE versions prior IE 9
-      if AlLowerCase(Result) = 'image/x-png' then begin
-        Result := 'image/png';
-      end else if AlLowerCase(Result) = 'image/pjpeg' then begin
-        Result := 'image/jpeg';
-      end;
-    end;
-  end;
-
-var
-  VBody: TMemoryStream;
-  VHeaders: AnsiString;
-  VStatusCode: Cardinal;
-  VContentType: AnsiString;
-  VDetectedContentType: AnsiString;
-begin
-  Result := nil;
-
-  if FResultFactory <> nil then begin
-    VHeaders := FHttpResponse.Headers;
-    VStatusCode := FHttpResponse.Code;
-
-    if IsOkStatus(VStatusCode) then begin
-      VBody := FHttpResponse.Data;
-      VContentType := GetHeaderValue(VHeaders, 'Content-Type');
-      if FTryDetectContentType and (VBody.Size > 0) then begin
-        VDetectedContentType := DetectContentType(VBody.Memory, VBody.Size);
-        if (VDetectedContentType <> '') and (AlLowerCase(VDetectedContentType) <> AlLowerCase(VContentType)) then begin
-          VHeaders := SetHeaderValue(VHeaders, 'Content-Type', VDetectedContentType);
-          VContentType := VDetectedContentType;
-        end;
-      end;
-
-      Result :=
-        InternalMakeResponse(
-          ARequest,
-          TBinaryData.Create(VBody.Size, VBody.Memory) as IBinaryData,
-          VStatusCode,
-          VContentType,
-          VHeaders
-        );
-    end else
-    if IsDownloadErrorStatus(VStatusCode) then begin
-      Result :=
-        FResultFactory.BuildLoadErrorByStatusCode(
-          ARequest,
-          VStatusCode
-        );
-    end else
-    if IsContentNotExistStatus(VStatusCode) then begin
-      Result :=
-        FResultFactory.BuildDataNotExistsByStatusCode(
-          ARequest,
-          VHeaders,
-          VStatusCode
-        );
-    end else begin
-      Result :=
-        FResultFactory.BuildLoadErrorByUnknownStatusCode(
-          ARequest,
-          VStatusCode
-        );
-    end;
-  end;
-end;
-
-function TDownloaderHttpByCurl.InternalMakeResponse(
-  const ARequest: IDownloadRequest;
-  const AResponseBody: IBinaryData;
-  var AStatusCode: Cardinal;
-  var AContentType, ARawHeaderText: AnsiString
-): IDownloadResult;
-var
-  VRequestWithChecker: IRequestWithChecker;
-begin
-  if Supports(ARequest, IRequestWithChecker, VRequestWithChecker) then begin
-    Result :=
-      VRequestWithChecker.Checker.AfterReciveData(
-        FResultFactory,
-        ARequest,
-        AResponseBody,
-        AStatusCode,
-        AContentType,
-        ARawHeaderText
-      );
-    if Result <> nil then begin
-      Exit;
-    end;
-  end;
-
-  if AResponseBody.Size > 0 then begin
-    Result :=
-      FResultFactory.BuildOk(
-        ARequest,
-        AStatusCode,
-        ARawHeaderText,
-        AContentType,
-        AResponseBody
-      );
-  end else begin
-    Result :=
-      FResultFactory.BuildDataNotExistsZeroSize(
-        ARequest,
-        AStatusCode,
-        ARawHeaderText
-      );
-  end;
 end;
 
 {$IFDEF DO_HTTP_LOG}

@@ -77,6 +77,7 @@ begin
       FResultFactory,
       AAllowUseCookie,
       AAllowRedirect,
+      True, // ToDo
       ATryDetectContentType,
       AOnDownloadProgress
     );
@@ -94,6 +95,7 @@ begin
       FResultFactory,
       AAllowUseCookie,
       AAllowRedirect,
+      True, // ToDo
       ATryDetectContentType,
       AOnDownloadProgress
     );

@@ -1048,9 +1048,15 @@
     <DCCReference Include="Src\Network\i_TileRequestTask.pas" />
     <DCCReference Include="Src\Network\i_WinInetConfig.pas" />
     <DCCReference Include="Src\Network\u_AntiBanStuped.pas" />
+    <DCCReference Include="Src\Network\u_AsyncRequestHelperThread.pas" />
+    <DCCReference Include="Src\Network\u_ContentDecoder.pas" />
+    <DCCReference Include="Src\Network\u_CurlHttpClient.pas" />
     <DCCReference Include="Src\Network\u_DownloadCheckerStuped.pas" />
+    <DCCReference Include="Src\Network\u_DownloaderByCurlFactory.pas" />
     <DCCReference Include="Src\Network\u_DownloaderByWinInetFactory.pas" />
     <DCCReference Include="Src\Network\u_DownloaderHttp.pas" />
+    <DCCReference Include="Src\Network\u_DownloaderHttpBase.pas" />
+    <DCCReference Include="Src\Network\u_DownloaderHttpByCurl.pas" />
     <DCCReference Include="Src\Network\u_DownloaderHttpWithTTL.pas" />
     <DCCReference Include="Src\Network\u_DownloadInfoSimple.pas" />
     <DCCReference Include="Src\Network\u_DownloadRequest.pas" />
