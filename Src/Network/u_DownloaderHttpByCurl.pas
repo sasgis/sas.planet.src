@@ -40,7 +40,9 @@ uses
   i_DownloadRequest,
   i_DownloadResultFactory,
   i_DownloadChecker,
+  t_CurlHttpClient,
   u_CurlHttpClient,
+  u_CurlProxyResolver,
   u_DownloaderHttpBase;
 
 type
@@ -49,10 +51,13 @@ type
     FLock: IReadWriteSync;
     FCancelListener: IListener;
 
+    FHttpProxy: TCurlProxy;
     FHttpOptions: TCurlOptions;
     FHttpRequest: TCurlRequest;
     FHttpResponse: TCurlResponse;
     FHttpClient: TCurlHttpClient;
+
+    FProxyResolver: TCurlProxyResolver;
 
     FTryDetectContentType: Boolean;
     FOnDownloadProgress: TOnDownloadProgress;
@@ -92,7 +97,9 @@ type
 implementation
 
 uses
+  gnugettext,
   u_StrFunc,
+  u_NetworkStrFunc,
   u_ListenerByEvent,
   u_Synchronizer;
 
@@ -135,9 +142,12 @@ begin
   FHttpOptions.StoreCookie := AAllowUseCookie;
   FHttpOptions.FollowLocation := AAllowRedirect;
   FHttpOptions.AcceptEncoding := AAcceptEncoding;
-  FHttpOptions.IgnoreSSLCertificateErrors := True;
+  FHttpOptions.IgnoreSSLCertificateErrors := True; // ToDo
+
+  FillChar(FHttpProxy, SizeOf(FHttpProxy), 0);
 
   FHttpRequest.Options := @FHttpOptions;
+  FHttpRequest.Proxy := @FHttpProxy;
   FHttpResponse.Data := TMemoryStream.Create;
 
   FTryDetectContentType := ATryDetectContentType;
@@ -147,6 +157,8 @@ begin
   if Assigned(FOnDownloadProgress) then begin
     VProgressCallBack := OnCurlProgress;
   end;
+
+  FProxyResolver := TCurlProxyResolver.Create;
 
   {$IFDEF DO_HTTP_LOG}
   InitLog;
@@ -175,6 +187,7 @@ destructor TDownloaderHttpByCurl.Destroy;
 begin
   FreeAndNil(FHttpClient);
   FreeAndNil(FHttpResponse.Data);
+  FreeAndNil(FProxyResolver);
   {$IFDEF DO_HTTP_LOG}
   FinLog;
   {$ENDIF}
@@ -186,6 +199,11 @@ function TDownloaderHttpByCurl.DoRequest(
   const ACancelNotifier: INotifierOperation;
   const AOperationID: Integer
 ): IDownloadResult;
+var
+  VResult: Boolean;
+  VDescription: string;
+  VProxyAuthType: string;
+  VProxyRealm: string;
 begin
   Assert(ARequest <> nil);
   Assert(ARequest.InetConfig <> nil);
@@ -220,7 +238,50 @@ begin
           Exit;
         end;
 
-        if FHttpClient.DoRequest(@FHttpRequest, @FHttpResponse) then begin
+        VResult := FHttpClient.DoRequest(@FHttpRequest, @FHttpResponse);
+
+        if (FHttpResponse.Code = 407) and (FHttpRequest.Proxy <> nil) then begin
+
+          VResult :=
+            FProxyResolver.GetProxyAuthenticateInfo(
+              FHttpResponse.Headers,
+              FHttpProxy.AuthType,
+              VProxyAuthType,
+              VProxyRealm
+            );
+
+          if not VResult then begin
+            Assert(
+              False,
+              'Proxy-Authenticate parsing failed:' + #13#10 + FHttpResponse.Headers
+            );
+          end;
+
+          if VResult and (VProxyRealm <> '') then begin
+            VDescription := Format('%s "%s"', [FHttpProxy.Address, VProxyRealm]);
+          end else begin
+            VDescription := string(FHttpProxy.Address);
+          end;
+
+          VDescription :=
+            Format(
+              _('The proxy server %s is requesting a username and password.'),
+              [VDescription]
+            );
+
+          FProxyResolver.DoResolveProxyAuth(
+            ExtractFileName(ParamStr(0)),
+            VDescription,
+            FHttpProxy
+          );
+          VResult := FHttpProxy.UserName <> '';
+
+          if VResult then begin
+            VResult := FHttpClient.DoRequest(@FHttpRequest, @FHttpResponse);
+          end;
+        end;
+
+        if VResult then begin
           Result :=
             OnAfterResponse(
               False,
@@ -281,6 +342,7 @@ function TDownloaderHttpByCurl.OnBeforeRequest(
 var
   VPostData: IBinaryData;
   VInetConfig: IInetConfigStatic;
+  VProxyConfig: IProxyConfigStatic;
   VHeadRequest: IDownloadHeadRequest;
   VPostRequest: IDownloadPostRequest;
   VRequestWithChecker: IRequestWithChecker;
@@ -309,23 +371,42 @@ begin
     FHttpRequest.Method := rmGet;
   end;
 
-  FHttpResponse.Data.Clear;
-
   VInetConfig := ARequest.InetConfig;
 
-  FHttpOptions.TimeOut := VInetConfig.TimeOut div 1000;
-  FHttpOptions.ConnectionTimeOut := FHttpOptions.TimeOut;
+  FHttpOptions.TimeOutMS := VInetConfig.TimeOut;
+  FHttpOptions.ConnectionTimeOutMS := FHttpOptions.TimeOutMS;
 
-  if GetHeaderValue(FHttpRequest.Headers, 'User-Agent') = '' then begin
-    FHttpRequest.Headers :=
-      SetHeaderValue(FHttpRequest.Headers, 'User-Agent', VInetConfig.UserAgentString);
+  if GetHeaderValue(FHttpRequest.Headers, 'USER-AGENT') = '' then begin
+    FHttpRequest.Headers := 'User-Agent: ' + VInetConfig.UserAgentString + #13#10 + FHttpRequest.Headers;
   end;
 
   if FHttpOptions.AcceptEncoding then begin
-    FHttpRequest.Headers := DeleteHeaderEntry(FHttpRequest.Headers, 'Accept-Encoding');
+    DeleteHeaderValue(FHttpRequest.Headers, 'ACCEPT-ENCODING');
   end;
 
-  // ToDo: Configure Proxy
+  VProxyConfig := VInetConfig.ProxyConfigStatic;
+
+  if (VProxyConfig = nil) or
+     (not VProxyConfig.UseProxy and not VProxyConfig.UseIESettings)
+  then begin
+    FHttpRequest.Proxy := nil;
+  end else begin
+    FillChar(FHttpProxy, SizeOf(FHttpProxy), 0);
+    FHttpProxy.AuthType := atAny;
+
+    if VProxyConfig.UseProxy then begin
+      FHttpProxy.Address := VProxyConfig.Host;
+      if VProxyConfig.UseLogin then begin
+        FHttpProxy.UserName := StringToAnsiSafe(VProxyConfig.Login);
+        FHttpProxy.UserPass := StringToAnsiSafe(VProxyConfig.Password);
+      end;
+    end else
+    if VProxyConfig.UseIESettings then begin
+      FProxyResolver.DoResolveProxy(string(FHttpRequest.Url), FHttpProxy);
+    end;
+
+    FHttpRequest.Proxy := @FHttpProxy;
+  end;
 end;
 
 {$IFDEF DO_HTTP_LOG}

@@ -1766,10 +1766,12 @@
         <DCCReference Include="Src\Network\i_TileRequestResult.pas"/>
         <DCCReference Include="Src\Network\i_TileRequestTask.pas"/>
         <DCCReference Include="Src\Network\i_WinInetConfig.pas"/>
+        <DCCReference Include="Src\Network\t_CurlHttpClient.pas"/>
         <DCCReference Include="Src\Network\u_AntiBanStuped.pas"/>
         <DCCReference Include="Src\Network\u_AsyncRequestHelperThread.pas"/>
         <DCCReference Include="Src\Network\u_ContentDecoder.pas"/>
         <DCCReference Include="Src\Network\u_CurlHttpClient.pas"/>
+        <DCCReference Include="Src\Network\u_CurlProxyResolver.pas"/>
         <DCCReference Include="Src\Network\u_DownloadCheckerStuped.pas"/>
         <DCCReference Include="Src\Network\u_DownloadInfoSimple.pas"/>
         <DCCReference Include="Src\Network\u_DownloadRequest.pas"/>
@@ -1779,9 +1781,9 @@
         <DCCReference Include="Src\Network\u_DownloadUIConfig.pas"/>
         <DCCReference Include="Src\Network\u_DownloaderByCurlFactory.pas"/>
         <DCCReference Include="Src\Network\u_DownloaderByWinInetFactory.pas"/>
-        <DCCReference Include="Src\Network\u_DownloaderHttpByWinInet.pas"/>
         <DCCReference Include="Src\Network\u_DownloaderHttpBase.pas"/>
         <DCCReference Include="Src\Network\u_DownloaderHttpByCurl.pas"/>
+        <DCCReference Include="Src\Network\u_DownloaderHttpByWinInet.pas"/>
         <DCCReference Include="Src\Network\u_DownloaderHttpWithTTL.pas"/>
         <DCCReference Include="Src\Network\u_GlobalDownloadConfig.pas"/>
         <DCCReference Include="Src\Network\u_GlobalInternetState.pas"/>
@@ -1789,7 +1791,9 @@
         <DCCReference Include="Src\Network\u_InetConfig.pas"/>
         <DCCReference Include="Src\Network\u_InetConfigStatic.pas"/>
         <DCCReference Include="Src\Network\u_InetFunc.pas"/>
+        <DCCReference Include="Src\Network\u_InternetExplorerProxy.pas"/>
         <DCCReference Include="Src\Network\u_LastResponseInfo.pas"/>
+        <DCCReference Include="Src\Network\u_NetworkStrFunc.pas"/>
         <DCCReference Include="Src\Network\u_ProxyConfig.pas"/>
         <DCCReference Include="Src\Network\u_SimpleHttpDownloader.pas"/>
         <DCCReference Include="Src\Network\u_TileDownloadRequest.pas"/>
@@ -1821,6 +1825,7 @@
         <DCCReference Include="Src\Network\u_UiTileDownload.pas"/>
         <DCCReference Include="Src\Network\u_UiTileRequestManager.pas"/>
         <DCCReference Include="Src\Network\u_WinInetConfig.pas"/>
+        <DCCReference Include="Src\Network\u_WindowsCredentials.pas"/>
         <DCCReference Include="Src\PascalScript\frm_PascalScriptDbgOut.pas">
             <Form>frmPascalScriptDbgOut</Form>
         </DCCReference>

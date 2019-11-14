@@ -1,58 +1,39 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.org                                                          *}
+{* info@sasgis.org                                                            *}
+{******************************************************************************}
+
 unit u_CurlHttpClient;
 
 interface
 
 uses
   Classes,
-  SynCurl;
+  SynCurl,
+  t_CurlHttpClient;
 
 type
-  {$IFNDEF UNICODE}
-  RawByteString = type AnsiString;
-  {$ENDIF}
-
-  TReqMethod = (rmHead, rmGet, rmPost);
-
-  TCurlOptions = record
-    StoreCookie: Boolean;
-    FollowLocation: Boolean;
-    AcceptEncoding: Boolean;
-    IgnoreSSLCertificateErrors: Boolean;
-    TimeOut: Integer;
-    ConnectionTimeOut: Integer;
-  end;
-  PCurlOptions = ^TCurlOptions;
-
-  TCurlRequest = record
-    Method: TReqMethod;
-    Url: RawByteString;
-    Headers: RawByteString;
-    PostData: Pointer;
-    PostDataSize: Integer;
-    Options: PCurlOptions;
-  end;
-  PCurlRequest = ^TCurlRequest;
-
-  TCurlResponse = record
-    Code: Integer;
-    Headers: RawByteString;
-    Data: TMemoryStream;
-    ErrorReason: string;
-  end;
-  PCurlResponse = ^TCurlResponse;
-
-  TCurlDebugCallBack = procedure(
-    const ADebugMsg: RawByteString;
-    const AUserData: Pointer
-  );
-
-  TCurlProgressCallBack = procedure(
-    const ATotal: Integer;
-    const ADownload: Integer;
-    const AUserData: Pointer
-  );
-
   TCurlHttpClient = class
+  private
+    const
+      coTimeoutMS = TCurlOption(155);
+      coConnectTimeoutMS = TCurlOption(156);
+      coNoProxy = TCurlOption(10177);
   private
     FCurl: TCurl;
     FCurlSlist: Pointer;
@@ -62,6 +43,7 @@ type
     FReq: PCurlRequest;
     FResp: PCurlResponse;
     FOptions: TCurlOptions;
+    FProxy: TCurlProxy;
 
     FReqMethod: TReqMethod;
     FReqHeaders: RawByteString;
@@ -72,12 +54,14 @@ type
 
     procedure CurlSetup;
     procedure CurlClose; inline;
-    procedure CurlCheck(const AResult: TCurlResult); inline;
+    procedure CurlCheck(const AResult: TCurlResult); {$IFNDEF DEBUG} inline; {$ENDIF}
 
+    class function CurlAuthType(const AType: TCurlAuthType): Cardinal;
     class procedure CurlClearSlist(var ASlist: Pointer);
     class procedure CurlUpdateSlist(const ARawHeaders: RawByteString; var ASlist: Pointer);
 
     function IsOptionsChanged(const AOptions: PCurlOptions): Boolean; inline;
+    function IsProxyChanged(const AProxy: PCurlProxy): Boolean; inline;
   public
     function DoRequest(
       const AReq: PCurlRequest;
@@ -99,34 +83,22 @@ const
   // https://curl.haxx.se/docs/caextract.html
   cCurlDefaultCertFileName = 'curl-ca-bundle.crt';
 
+const
+  cCurlDefaultOptions: TCurlOptions = (
+    StoreCookie: True;
+    FollowLocation: True;
+    AcceptEncoding: True;
+    IgnoreSSLCertificateErrors: False;
+    TimeOutMS: 30000;
+    ConnectionTimeOutMS: 15000;
+  );
+
 implementation
 
 uses
   WinSock,
-  SysUtils;
-
-procedure GetNextLine(var P: PAnsiChar; var AResult: RawByteString);
-var
-  S: PAnsiChar;
-begin
-  if P = nil then begin
-    AResult := '';
-  end else begin
-    S := P;
-    while S^ >= ' ' do begin // break on any control char
-      Inc(S);
-    end;
-    SetString(AResult, P, S-P);
-    while (S^ <> #0) and (S^ < ' ') do begin // ignore e.g. #13 or #10
-      Inc(S);
-    end;
-    if S^ <> #0 then begin
-      P := S;
-    end else begin
-      P := nil;
-    end;
-  end;
-end;
+  SysUtils,
+  u_NetworkStrFunc;
 
 function CurlWriteHeaderCallBack(
   const AData: PAnsiChar;
@@ -186,6 +158,13 @@ begin
   end else begin
     Result := 1;
   end;
+end;
+
+function CurlProgressCallBack2(const P: Pointer; const ADlTotal, ADlNow, AUlTotal,
+  AUlNow: Double): Integer; cdecl;
+begin
+  Result := CurlProgressCallBack(P, Trunc(ADlTotal), Trunc(ADlNow),
+    Trunc(AUlTotal), Trunc(AUlNow));
 end;
 
 {$MINENUMSIZE 4}
@@ -259,12 +238,8 @@ begin
     );
   end;
 
-  FOptions.StoreCookie := True;
-  FOptions.FollowLocation := True;
-  FOptions.AcceptEncoding := True;
-  FOptions.IgnoreSSLCertificateErrors := False;
-  FOptions.TimeOut := 30; // seconds
-  FOptions.ConnectionTimeOut := 30; // seconds
+  FOptions := cCurlDefaultOptions;
+  FillChar(FProxy, SizeOf(FProxy), 0);
 
   if curl.Module = 0 then begin
     LibCurlInitialize;
@@ -278,8 +253,26 @@ begin
   inherited Destroy;
 end;
 
+class function TCurlHttpClient.CurlAuthType(const AType: TCurlAuthType): Cardinal;
+begin
+  // https://curl.haxx.se/libcurl/c/CURLOPT_HTTPAUTH.html
+  case AType of
+    atAny       : Result := $FFFFFFFF {xor 16};
+    atBasic     : Result := 1;
+    atDigest    : Result := 2;
+    atNegotiate : Result := 4;
+    atNtlm      : Result := 8;
+    atDigestIE  : Result := 16;
+    atNtlmWB    : Result := 32;
+    atBearer    : Result := 64;
+  else
+    raise ECurl.CreateFmt('Unexpected auth type value: %d', [Integer(AType)]);
+  end;
+end;
+
 procedure TCurlHttpClient.CurlCheck(const AResult: TCurlResult);
 begin
+  // https://curl.haxx.se/libcurl/c/libcurl-errors.html
   {$IFDEF DEBUG}
   if AResult <> crOK then begin
     raise ECurl.CreateFmt(
@@ -297,26 +290,21 @@ begin
   end;
 end;
 
-function TCurlHttpClient.IsOptionsChanged(const AOptions: PCurlOptions): Boolean;
-begin
-  if AOptions <> nil then begin
-    Result :=
-      (FOptions.StoreCookie <> AOptions.StoreCookie) or
-      (FOptions.FollowLocation <> AOptions.FollowLocation) or
-      (FOptions.IgnoreSSLCertificateErrors <> AOptions.IgnoreSSLCertificateErrors) or
-      (FOptions.TimeOut <> AOptions.TimeOut) or
-      (FOptions.ConnectionTimeOut <> AOptions.ConnectionTimeOut);
-  end else begin
-    Result := False;
-  end;
-end;
-
 procedure TCurlHttpClient.CurlSetup;
+
+  function _GetCurlUserPwd: RawByteString;
+  begin
+    Result := URLEncode(FProxy.UserName);
+    if (Result <> '') and (FProxy.UserPass <> '') then begin
+      Result := Result + ':' + URLEncode(FProxy.UserPass);
+    end;
+  end;
+
 const
   cBoolToLong: array [Boolean] of Integer = (0, 1);
 begin
-  CurlCheck( curl.easy_setopt(FCurl, coTimeout, FOptions.TimeOut) );
-  CurlCheck( curl.easy_setopt(FCurl, coConnectTimeout, FOptions.ConnectionTimeOut) );
+  CurlCheck( curl.easy_setopt(FCurl, coTimeoutMS, FOptions.TimeOutMS) );
+  CurlCheck( curl.easy_setopt(FCurl, coConnectTimeoutMS, FOptions.ConnectionTimeOutMS) );
   CurlCheck( curl.easy_setopt(FCurl, coFollowLocation, cBoolToLong[FOptions.FollowLocation]) );
 
   if FOptions.IgnoreSSLCertificateErrors then begin
@@ -337,6 +325,11 @@ begin
     CurlCheck( curl.easy_setopt(FCurl, coAcceptEncoding, nil) );
   end;
 
+  CurlCheck( curl.easy_setopt(FCurl, coProxy, PAnsiChar(FProxy.Address)) );
+  CurlCheck( curl.easy_setopt(FCurl, coNoProxy, PAnsiChar(FProxy.NoProxy)) );
+  CurlCheck( curl.easy_setopt(FCurl, coProxyAuth, CurlAuthType(FProxy.AuthType)) );
+  CurlCheck( curl.easy_setopt(FCurl, coProxyUserPwd, PAnsiChar(_GetCurlUserPwd)) );
+
   CurlCheck( curl.easy_setopt(FCurl, coHeaderFunction, @CurlWriteHeaderCallBack) );
   CurlCheck( curl.easy_setopt(FCurl, coWriteHeader, Self) );
 
@@ -344,8 +337,14 @@ begin
   CurlCheck( curl.easy_setopt(FCurl, coWriteData, Self) );
 
   if Assigned(FCurlProgressCallBack) then begin
-    CurlCheck( curl.easy_setopt(FCurl, TCurlOption(coXferInfoFunction), @CurlProgressCallBack) );
-    CurlCheck( curl.easy_setopt(FCurl, coXferInfoData, Self) );
+    if curl.info.version_num > $072000 then begin
+      // for libcurl newer than 7.32.0
+      CurlCheck( curl.easy_setopt(FCurl, coXferInfoFunction, @CurlProgressCallBack) );
+      CurlCheck( curl.easy_setopt(FCurl, coXferInfoData, Self) );
+    end else begin
+      CurlCheck( curl.easy_setopt(FCurl, coProgressFunction, @CurlProgressCallBack2) );
+      CurlCheck( curl.easy_setopt(FCurl, coProgressData, Self) );
+    end;
     CurlCheck( curl.easy_setopt(FCurl, coNoProgress, 0) );
   end;
 
@@ -381,6 +380,16 @@ begin
   end;
 end;
 
+function TCurlHttpClient.IsOptionsChanged(const AOptions: PCurlOptions): Boolean;
+begin
+  Result := (AOptions <> nil) and (FOptions <> AOptions^);
+end;
+
+function TCurlHttpClient.IsProxyChanged(const AProxy: PCurlProxy): Boolean;
+begin
+  Result := (AProxy <> nil) and (FProxy <> AProxy^);
+end;
+
 function TCurlHttpClient.DoRequest(
   const AReq: PCurlRequest;
   const AResp: PCurlResponse
@@ -399,6 +408,9 @@ begin
 
   FResp.Code := 0;
   FResp.Headers := '';
+  if FResp.Data <> nil then begin
+    FResp.Data.Clear;
+  end;
   FResp.ErrorReason := '';
 
   if FCurl = nil then begin
@@ -410,10 +422,15 @@ begin
     if FReq.Options <> nil then begin
       FOptions := FReq.Options^;
     end;
+    if FReq.Proxy <> nil then begin
+      FProxy := FReq.Proxy^;
+    end;
     CurlSetup;
   end else begin
-    if IsOptionsChanged(FReq.Options) then begin
+    if IsOptionsChanged(FReq.Options) or IsProxyChanged(FReq.Proxy) then begin
       FOptions := FReq.Options^;
+      FProxy := FReq.Proxy^;
+      curl.easy_reset(FCurl);
       CurlSetup;
     end;
   end;
@@ -452,8 +469,11 @@ begin
   VCurlResult := curl.easy_perform(FCurl);
 
   if (VCurlResult <> crOK) and not FDoDisconnect then begin
+    if (FResp.Code = 0) and (FResp.Headers <> '') then begin
+      FResp.Code := GetResponseCode(FResp.Headers);
+    end;
     FResp.ErrorReason := Format(
-      'curl_easy_perform() error %d (%s) on %s %s',
+      'curl error #%d (%s) on %s %s',
       [Ord(VCurlResult), curl.easy_strerror(VCurlResult), VMethod, FReq.Url]
     );
     Exit;
