@@ -103,7 +103,7 @@ begin
   FUseIESettings := True;
   FUseProxy := False;
   FUseLogin := False;
-  FHost := '';
+  FHost := '127.0.0.1:8080';
   FLogin := '';
   FPassword := '';
 end;

@@ -1056,7 +1056,6 @@
     <DCCReference Include="Src\Network\u_DownloadCheckerStuped.pas" />
     <DCCReference Include="Src\Network\u_DownloaderByCurlFactory.pas" />
     <DCCReference Include="Src\Network\u_DownloaderByWinInetFactory.pas" />
-    <DCCReference Include="Src\Network\u_DownloaderHttp.pas" />
     <DCCReference Include="Src\Network\u_DownloaderHttpBase.pas" />
     <DCCReference Include="Src\Network\u_DownloaderHttpByCurl.pas" />
     <DCCReference Include="Src\Network\u_DownloaderHttpByWinInet.pas" />

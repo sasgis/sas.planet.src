@@ -335,6 +335,7 @@ uses
   u_ConfigDataProviderByIniFile,
   u_ConfigDataWriteProviderByIniFile,
   u_ConfigDataProviderByPathConfig,
+  i_InetConfig,
   i_InternalDomainInfoProvider,
   i_TextByVectorItem,
   i_LocalCoordConverterFactory,
@@ -593,12 +594,17 @@ begin
 
   FGlobalInternetState := TGlobalInternetState.Create;
 
-  if FileExists(VProgramPath + 'libcurl.dll') then begin
-    FDownloaderFactory := TDownloaderByCurlFactory.Create;
-  end else begin
-    FDownloaderFactory := TDownloaderByWinInetFactory.Create(
-      FGlobalConfig.InetConfig.WinInetConfig
-    );
+  case FGlobalConfig.InetConfig.NetworkEngineType of
+    neWinInet: begin
+      FDownloaderFactory := TDownloaderByWinInetFactory.Create(
+        FGlobalConfig.InetConfig.WinInetConfig
+      );
+    end;
+    neCurl: begin
+      FDownloaderFactory := TDownloaderByCurlFactory.Create;
+    end;
+  else
+    raise Exception.Create('Unknown NetworkEngineType');
   end;
 
   FProjConverterFactory := TProjConverterFactory.Create;

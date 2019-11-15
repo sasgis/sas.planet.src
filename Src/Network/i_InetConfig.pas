@@ -28,6 +28,8 @@ uses
   i_ProxySettings;
 
 type
+  TNetworkEngineType = (neWinInet, neCurl);
+
   IInetConfigStatic = interface
     ['{5608C1CA-91D5-43CB-BAF0-8C76351EC1D7}']
     function GetWinInetConfigStatic: IWinInetConfigStatic;
@@ -47,6 +49,9 @@ type
 
     function GetDownloadTryCount: Integer;
     property DownloadTryCount: Integer read GetDownloadTryCount;
+
+    function GetNetworkEngineType: TNetworkEngineType;
+    property NetworkEngineType: TNetworkEngineType read GetNetworkEngineType;
   end;
 
   IInetConfig = interface(IConfigDataElement)
@@ -72,6 +77,10 @@ type
     function GetDownloadTryCount: Integer;
     procedure SetDownloadTryCount(AValue: Integer);
     property DownloadTryCount: Integer read GetDownloadTryCount write SetDownloadTryCount;
+
+    function GetNetworkEngineType: TNetworkEngineType;
+    procedure SetNetworkEngineType(const AValue: TNetworkEngineType);
+    property NetworkEngineType: TNetworkEngineType read GetNetworkEngineType write SetNetworkEngineType;
 
     function GetStatic: IInetConfigStatic;
   end;

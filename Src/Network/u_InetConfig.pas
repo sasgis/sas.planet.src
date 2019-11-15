@@ -39,6 +39,7 @@ type
     FWinInetConfig: IWinInetConfig;
     FSleepOnResetConnection: Cardinal;
     FDownloadTryCount: Integer;
+    FNetworkEngineType: TNetworkEngineType;
   protected
     function CreateStatic: IInterface; override;
   protected
@@ -61,6 +62,9 @@ type
     function GetDownloadTryCount: Integer;
     procedure SetDownloadTryCount(AValue: Integer);
 
+    function GetNetworkEngineType: TNetworkEngineType;
+    procedure SetNetworkEngineType(const AValue: TNetworkEngineType);
+
     function GetStatic: IInetConfigStatic;
   public
     constructor Create;
@@ -69,6 +73,7 @@ type
 implementation
 
 uses
+  SysUtils,
   c_InetConfig,
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_InetConfigStatic,
@@ -84,6 +89,7 @@ begin
   FTimeOut := 40000;
   FSleepOnResetConnection := 30000;
   FDownloadTryCount := 2;
+  FNetworkEngineType := neWinInet;
 
   FProxyConfig := TProxyConfig.Create;
   Add(FProxyConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Proxy'));
@@ -103,12 +109,23 @@ begin
       FUserAgentString,
       FTimeOut,
       FSleepOnResetConnection,
-      FDownloadTryCount
+      FDownloadTryCount,
+      FNetworkEngineType
     );
   Result := VStatic;
 end;
 
 procedure TInetConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
+
+  procedure SetNetworkEngineType(const ATypeId: Integer);
+  begin
+    if TNetworkEngineType(ATypeId) in [neWinInet, neCurl] then begin
+      FNetworkEngineType := TNetworkEngineType(ATypeId);
+    end else begin
+      Assert(False, Format('Unexpected NetworkEngineType Id: %d', [ATypeId]));
+    end;
+  end;
+
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -116,6 +133,9 @@ begin
     FTimeOut := AConfigData.ReadInteger('TimeOut', FTimeOut);
     SetDownloadTryCount(AConfigData.ReadInteger('DownloadTryCount', FDownloadTryCount));
     FSleepOnResetConnection := AConfigData.ReadInteger('SleepOnResetConnection', FSleepOnResetConnection);
+    SetNetworkEngineType(
+      AConfigData.ReadInteger('NetworkEngine', Integer(FNetworkEngineType))
+    );
     SetChanged;
   end;
 end;
@@ -127,6 +147,7 @@ begin
   AConfigData.WriteInteger('TimeOut', FTimeOut);
   AConfigData.WriteInteger('DownloadTryCount', FDownloadTryCount);
   AConfigData.WriteInteger('SleepOnResetConnection', FSleepOnResetConnection);
+  AConfigData.WriteInteger('NetworkEngine', Integer(FNetworkEngineType));
 end;
 
 function TInetConfig.GetDownloadTryCount: Integer;
@@ -134,6 +155,16 @@ begin
   LockRead;
   try
     Result := FDownloadTryCount;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TInetConfig.GetNetworkEngineType: TNetworkEngineType;
+begin
+  LockRead;
+  try
+    Result := FNetworkEngineType
   finally
     UnlockRead;
   end;
@@ -196,6 +227,19 @@ begin
     finally
       UnlockWrite;
     end;
+  end;
+end;
+
+procedure TInetConfig.SetNetworkEngineType(const AValue: TNetworkEngineType);
+begin
+  LockWrite;
+  try
+    if FNetworkEngineType <> AValue then begin
+      FNetworkEngineType := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
   end;
 end;
 

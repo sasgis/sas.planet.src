@@ -87,10 +87,9 @@ type
     CBShowmapname: TCheckBox;
     CBinvertcolor: TCheckBox;
     GroupBox4: TGroupBox;
-    CBProxyused: TCheckBox;
     EditPass: TEdit;
     EditLogin: TEdit;
-    Label25: TLabel;
+    lblProxyPass: TLabel;
     CBLogin: TCheckBox;
     EditIP: TEdit;
     Label27: TLabel;
@@ -130,11 +129,8 @@ type
     pnlBottomButtons: TPanel;
     flwpnlMemCache: TFlowPanel;
     pnlProxyUrl: TPanel;
-    lblUseProxy: TLabel;
     lblProxyLogin: TLabel;
     flwpnlProxyAuth: TFlowPanel;
-    chkUseIEProxy: TCheckBox;
-    pnlUseIEProxy: TPanel;
     pnlDownloadParams: TPanel;
     flwpnlDownloadTimeOut: TFlowPanel;
     pnlDistFormat: TPanel;
@@ -239,13 +235,19 @@ type
     flwpnlMaxConnsPerServer: TFlowPanel;
     lblMaxConnsPerServer: TLabel;
     seMaxConnsPerServer: TSpinEdit;
+    pnlNetworkEngine: TPanel;
+    lbl3: TLabel;
+    cbbNetworkEngine: TComboBox;
+    rbNoProxy: TRadioButton;
+    rbUseIESettings: TRadioButton;
+    rbManualProxy: TRadioButton;
+    lblProxyHostAndPort: TLabel;
+    pnlProxyRadioButtons: TPanel;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure TrBarGammaChange(Sender: TObject);
     procedure TrBarContrastChange(Sender: TObject);
-    procedure chkUseIEProxyClick(Sender: TObject);
-    procedure CBProxyusedClick(Sender: TObject);
     procedure CBLoginClick(Sender: TObject);
     procedure CBoxLocalChange(Sender: TObject);
     procedure FormCloseQuery(
@@ -255,6 +257,7 @@ type
     procedure btnImageProcessResetClick(Sender: TObject);
     procedure btnResetUserAgentStringClick(Sender: TObject);
     procedure BtnDefClick(Sender: TObject);
+    procedure rbProxyClick(Sender: TObject);
   private
     FOnSave: TNotifyEvent;
     FLinksList: IListenerNotifierLinksList;
@@ -672,12 +675,17 @@ begin
   VInetConfig := GState.Config.InetConfig;
   VInetConfig.LockWrite;
   try
-    VProxyConfig := VInetConfig.ProxyConfig;
-    if (chkUseIEProxy.Checked) and (VProxyConfig.GetUseIESettings <> chkUseIEProxy.Checked) then begin
-      VNeedReboot := true;
+    if cbbNetworkEngine.ItemIndex <> Integer(VInetConfig.NetworkEngineType) then begin
+      VInetConfig.NetworkEngineType := TNetworkEngineType(cbbNetworkEngine.ItemIndex);
+      VNeedReboot := True;
     end;
-    VProxyConfig.SetUseIESettings(chkUseIEProxy.Checked);
-    VProxyConfig.SetUseProxy(CBProxyused.Checked);
+
+    VProxyConfig := VInetConfig.ProxyConfig;
+    if (rbUseIESettings.Checked) and (VProxyConfig.GetUseIESettings <> rbUseIESettings.Checked) then begin
+      VNeedReboot := True;
+    end;
+    VProxyConfig.SetUseIESettings(rbUseIESettings.Checked);
+    VProxyConfig.SetUseProxy(rbManualProxy.Checked);
     VProxyConfig.SetHost(StringToAsciiSafe(Trim(EditIP.Text)));
     VProxyConfig.SetUseLogin(CBLogin.Checked);
     VProxyConfig.SetLogin(EditLogin.Text);
@@ -775,40 +783,9 @@ begin
   end;
 end;
 
-procedure TfrmSettings.CBLoginClick(Sender: TObject);
-var
-  VUseAuth: Boolean;
-begin
-  VUseAuth := CBLogin.Enabled and CBLogin.Checked;
-  EditLogin.Enabled := VUseAuth;
-  Label25.Enabled := VUseAuth;
-  EditPass.Enabled := VUseAuth;
-end;
-
 procedure TfrmSettings.CBoxLocalChange(Sender: TObject);
 begin
   GState.Config.LanguageManager.SetCurrentLanguageIndex(CBoxLocal.ItemIndex);
-end;
-
-procedure TfrmSettings.CBProxyusedClick(Sender: TObject);
-var
-  VUseProxy: Boolean;
-begin
-  VUseProxy := CBProxyused.Enabled and CBProxyused.Checked;
-  EditIP.Enabled := VUseProxy;
-  CBLogin.Enabled := VUseProxy;
-  lblProxyLogin.Enabled := VUseProxy;
-  CBLoginClick(CBLogin);
-end;
-
-procedure TfrmSettings.chkUseIEProxyClick(Sender: TObject);
-var
-  VUseIeProxy: Boolean;
-begin
-  VUseIeProxy := chkUseIEProxy.Checked;
-  CBProxyused.Enabled := not VUseIeProxy;
-  lblUseProxy.Enabled := not VUseIeProxy;
-  CBProxyusedClick(CBProxyused);
 end;
 
 destructor TfrmSettings.Destroy;
@@ -904,12 +881,18 @@ begin
   VInetConfig := GState.Config.InetConfig;
   VInetConfig.LockRead;
   try
+    cbbNetworkEngine.Items.Clear;
+    cbbNetworkEngine.Items.Add('WinInet');
+    cbbNetworkEngine.Items.Add('cURL');
+    cbbNetworkEngine.ItemIndex := Integer(VInetConfig.NetworkEngineType);
+
     SETimeOut.Value := VInetConfig.GetTimeOut;
     seSleepOnResetConnection.Value := VInetConfig.SleepOnResetConnection;
     edtUserAgent.Text := VInetConfig.UserAgentString;
     VProxyConfig := VInetConfig.ProxyConfig;
-    chkUseIEProxy.Checked := VProxyConfig.GetUseIESettings;
-    CBProxyused.Checked := VProxyConfig.GetUseProxy;
+    rbUseIESettings.Checked := VProxyConfig.GetUseIESettings;
+    rbManualProxy.Checked := VProxyConfig.GetUseProxy;
+    rbNoProxy.Checked := not rbManualProxy.Checked and not rbUseIESettings.Checked;
     CBLogin.Checked := VProxyConfig.GetUseLogin;
     EditIP.Text := VProxyConfig.GetHost;
     EditLogin.Text := VProxyConfig.GetLogin;
@@ -1034,7 +1017,7 @@ begin
   CBMinimizeToTray.Checked := GState.Config.GlobalAppConfig.IsShowIconInTray;
   ChkShowLogo.Checked := GState.Config.StartUpLogoConfig.IsShowLogo;
 
-  chkUseIEProxyClick(chkUseIEProxy);
+  rbProxyClick(Self);
 end;
 
 procedure TfrmSettings.FormCloseQuery(
@@ -1076,6 +1059,32 @@ begin
   for i := 0 to AList.Count - 1 do begin
     ABox.Items.Add(AList.Captions[i]);
   end;
+end;
+
+procedure TfrmSettings.rbProxyClick(Sender: TObject);
+var
+  VIsManual: Boolean;
+begin
+  VIsManual := rbManualProxy.Checked;
+
+  lblProxyHostAndPort.Enabled := VIsManual;
+  EditIP.Enabled := VIsManual;
+
+  CBLogin.Enabled := VIsManual;
+  CBLoginClick(Sender);
+end;
+
+procedure TfrmSettings.CBLoginClick(Sender: TObject);
+var
+  VUseAuth: Boolean;
+begin
+  VUseAuth := CBLogin.Enabled and CBLogin.Checked;
+
+  lblProxyLogin.Enabled := VUseAuth;
+  EditLogin.Enabled := VUseAuth;
+
+  lblProxyPass.Enabled := VUseAuth;
+  EditPass.Enabled := VUseAuth;
 end;
 
 end.

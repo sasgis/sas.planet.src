@@ -44,7 +44,6 @@ object frmSettings: TfrmSettings
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 13
-        ExplicitTop = 333
         object Label30: TLabel
           AlignWithMargins = True
           Left = 0
@@ -85,13 +84,12 @@ object frmSettings: TfrmSettings
         BevelEdges = []
         BevelOuter = bvNone
         TabOrder = 11
-        ExplicitTop = 280
         object lbDBMSCachePath: TLabel
           AlignWithMargins = True
           Left = 3
           Top = 3
           Width = 54
-          Height = 16
+          Height = 19
           Align = alLeft
           Caption = 'DBMS root:'
           Layout = tlCenter
@@ -202,7 +200,6 @@ object frmSettings: TfrmSettings
         BevelEdges = []
         BevelOuter = bvNone
         TabOrder = 10
-        ExplicitTop = 252
       end
       object pnlDefCache: TPanel
         Left = 0
@@ -213,7 +210,6 @@ object frmSettings: TfrmSettings
         BevelEdges = []
         BevelOuter = bvNone
         TabOrder = 12
-        ExplicitTop = 302
         object lbl: TLabel
           Left = 3
           Top = 12
@@ -261,8 +257,6 @@ object frmSettings: TfrmSettings
         BevelEdges = []
         BevelOuter = bvNone
         TabOrder = 9
-        ExplicitLeft = 3
-        ExplicitTop = 264
       end
     end
     object tsInternet: TTabSheet
@@ -281,37 +275,40 @@ object frmSettings: TfrmSettings
         object CBDblDwnl: TCheckBox
           AlignWithMargins = True
           Left = 6
-          Top = 114
+          Top = 202
           Width = 626
           Height = 17
           Align = alTop
           Caption = 'Retry download if tile not found'
           TabOrder = 1
+          ExplicitTop = 114
         end
         object CkBGoNextTile: TCheckBox
           AlignWithMargins = True
           Left = 6
-          Top = 137
+          Top = 225
           Width = 626
           Height = 17
           Align = alTop
           Caption = 'Download next tile if no response'
           TabOrder = 2
+          ExplicitTop = 137
         end
         object CBSaveTileNotExists: TCheckBox
           AlignWithMargins = True
           Left = 6
-          Top = 160
+          Top = 248
           Width = 626
           Height = 17
           Align = alTop
           Caption = 'Store info about not found tiles'
           TabOrder = 3
+          ExplicitTop = 160
         end
         object flwpnlDownloadTimeOut: TFlowPanel
           AlignWithMargins = True
           Left = 3
-          Top = 206
+          Top = 294
           Width = 632
           Height = 22
           Margins.Left = 0
@@ -320,6 +317,7 @@ object frmSettings: TfrmSettings
           AutoSize = True
           BevelOuter = bvNone
           TabOrder = 5
+          ExplicitTop = 206
           object Label32: TLabel
             AlignWithMargins = True
             Left = 3
@@ -342,137 +340,175 @@ object frmSettings: TfrmSettings
         object CBLastSuccess: TCheckBox
           AlignWithMargins = True
           Left = 6
-          Top = 183
+          Top = 271
           Width = 626
           Height = 17
           Align = alTop
           Caption = 'Restore download from last successful tile'
           TabOrder = 4
+          ExplicitTop = 183
         end
         object GroupBox4: TGroupBox
           Left = 3
-          Top = 3
+          Top = 32
           Width = 632
-          Height = 108
+          Height = 167
           Align = alTop
-          Caption = 'Connection settings'
+          Caption = 'Proxy settings'
           TabOrder = 0
           object pnlProxyUrl: TPanel
             AlignWithMargins = True
             Left = 5
-            Top = 47
+            Top = 86
             Width = 622
-            Height = 23
+            Height = 21
             Align = alTop
             BevelOuter = bvNone
-            TabOrder = 1
-            object lblUseProxy: TLabel
+            TabOrder = 0
+            ExplicitTop = 87
+            object lblProxyHostAndPort: TLabel
               AlignWithMargins = True
-              Left = 24
+              Left = 18
               Top = 3
-              Width = 94
-              Height = 13
+              Width = 32
+              Height = 18
+              Margins.Left = 18
+              Margins.Right = 6
               Align = alLeft
-              Caption = 'Use proxy (IP:port)'
-              Layout = tlCenter
-            end
-            object CBProxyused: TCheckBox
-              AlignWithMargins = True
-              Left = 3
-              Top = 3
-              Width = 15
-              Height = 17
-              Align = alLeft
-              TabOrder = 1
-              OnClick = CBProxyusedClick
+              Caption = 'Proxy:'
+              ExplicitLeft = 6
+              ExplicitHeight = 13
             end
             object EditIP: TEdit
-              Left = 121
+              Left = 56
               Top = 0
-              Width = 501
-              Height = 23
+              Width = 566
+              Height = 21
               Align = alClient
               TabOrder = 0
+              Text = '127.0.0.1:8080'
+              ExplicitLeft = 0
+              ExplicitTop = 15
+              ExplicitWidth = 622
             end
           end
           object flwpnlProxyAuth: TFlowPanel
             AlignWithMargins = True
             Left = 5
-            Top = 76
+            Top = 136
             Width = 622
-            Height = 23
+            Height = 21
             Align = alTop
             AutoSize = True
             BevelOuter = bvNone
-            TabOrder = 2
-            object CBLogin: TCheckBox
-              AlignWithMargins = True
-              Left = 3
-              Top = 3
-              Width = 17
-              Height = 17
-              TabOrder = 2
-              OnClick = CBLoginClick
-            end
+            TabOrder = 1
+            ExplicitLeft = 7
+            ExplicitTop = 138
             object lblProxyLogin: TLabel
               AlignWithMargins = True
-              Left = 26
+              Left = 18
               Top = 3
-              Width = 57
+              Width = 52
               Height = 13
-              Caption = 'Proxy login:'
+              Margins.Left = 18
+              Caption = 'Username:'
             end
             object EditLogin: TEdit
-              Left = 86
+              Left = 73
               Top = 0
-              Width = 81
+              Width = 125
               Height = 21
               TabOrder = 0
             end
-            object Label25: TLabel
+            object lblProxyPass: TLabel
               AlignWithMargins = True
-              Left = 170
+              Left = 213
               Top = 3
-              Width = 81
+              Width = 50
               Height = 13
-              Caption = 'Proxy password:'
+              Margins.Left = 15
+              Caption = 'Password:'
             end
             object EditPass: TEdit
-              Left = 254
+              Left = 266
               Top = 0
-              Width = 81
+              Width = 125
               Height = 21
               PasswordChar = '*'
               TabOrder = 1
             end
           end
-          object pnlUseIEProxy: TPanel
+          object CBLogin: TCheckBox
             AlignWithMargins = True
-            Left = 5
-            Top = 18
-            Width = 622
-            Height = 23
+            Left = 22
+            Top = 113
+            Width = 605
+            Height = 17
+            Margins.Left = 20
             Align = alTop
-            AutoSize = True
+            Caption = 'Proxy server requires authentication'
+            TabOrder = 2
+            OnClick = CBLoginClick
+            ExplicitLeft = 31
+            ExplicitTop = 100
+            ExplicitWidth = 607
+          end
+          object pnlProxyRadioButtons: TPanel
+            Left = 2
+            Top = 15
+            Width = 628
+            Height = 68
+            Align = alTop
             BevelOuter = bvNone
-            TabOrder = 0
-            object chkUseIEProxy: TCheckBox
+            Caption = 'pnlProxyRadioButtons'
+            TabOrder = 3
+            object rbManualProxy: TRadioButton
+              Tag = 3
+              AlignWithMargins = True
+              Left = 3
+              Top = 49
+              Width = 622
+              Height = 17
+              Align = alTop
+              Caption = 'Manual proxy configuration'
+              TabOrder = 0
+              OnClick = rbProxyClick
+              ExplicitLeft = 5
+              ExplicitTop = 64
+            end
+            object rbNoProxy: TRadioButton
+              Tag = 1
               AlignWithMargins = True
               Left = 3
               Top = 3
-              Width = 616
+              Width = 622
               Height = 17
               Align = alTop
-              Caption = 'Use system proxy settings'
-              TabOrder = 0
-              OnClick = chkUseIEProxyClick
+              Caption = 'No proxy'
+              TabOrder = 1
+              OnClick = rbProxyClick
+              ExplicitLeft = 4
+              ExplicitTop = -3
+            end
+            object rbUseIESettings: TRadioButton
+              Tag = 2
+              AlignWithMargins = True
+              Left = 3
+              Top = 26
+              Width = 622
+              Height = 17
+              Align = alTop
+              Caption = 'Use system (Internet Explorer) proxy settings'
+              TabOrder = 2
+              OnClick = rbProxyClick
+              ExplicitTop = 12
             end
           end
         end
         object flwpnl1: TFlowPanel
           AlignWithMargins = True
           Left = 3
-          Top = 234
+          Top = 322
           Width = 632
           Height = 22
           Margins.Left = 0
@@ -481,6 +517,7 @@ object frmSettings: TfrmSettings
           AutoSize = True
           BevelOuter = bvNone
           TabOrder = 6
+          ExplicitTop = 234
           object lbl1: TLabel
             AlignWithMargins = True
             Left = 3
@@ -503,33 +540,39 @@ object frmSettings: TfrmSettings
         object pnl1: TPanel
           AlignWithMargins = True
           Left = 3
-          Top = 290
+          Top = 378
           Width = 629
           Height = 23
           Margins.Left = 0
           Align = alTop
           BevelOuter = bvNone
           TabOrder = 8
-          ExplicitTop = 262
+          ExplicitTop = 390
           object lbl2: TLabel
             AlignWithMargins = True
             Left = 3
             Top = 3
             Width = 59
-            Height = 13
+            Height = 20
             Align = alLeft
             Caption = 'User-Agent:'
+            ExplicitHeight = 13
           end
           object edtUserAgent: TEdit
-            Left = 65
+            AlignWithMargins = True
+            Left = 68
             Top = 0
-            Width = 543
+            Width = 535
             Height = 23
+            Margins.Top = 0
+            Margins.Bottom = 0
             Align = alClient
             TabOrder = 0
+            ExplicitLeft = 65
+            ExplicitWidth = 543
           end
           object btnResetUserAgentString: TButton
-            Left = 608
+            Left = 606
             Top = 0
             Width = 21
             Height = 23
@@ -537,12 +580,13 @@ object frmSettings: TfrmSettings
             Caption = '<>'
             TabOrder = 1
             OnClick = btnResetUserAgentStringClick
+            ExplicitLeft = 608
           end
         end
         object flwpnlMaxConnsPerServer: TFlowPanel
           AlignWithMargins = True
           Left = 3
-          Top = 262
+          Top = 350
           Width = 632
           Height = 22
           Margins.Left = 0
@@ -551,7 +595,7 @@ object frmSettings: TfrmSettings
           AutoSize = True
           BevelOuter = bvNone
           TabOrder = 7
-          ExplicitTop = 280
+          ExplicitTop = 262
           object lblMaxConnsPerServer: TLabel
             AlignWithMargins = True
             Left = 3
@@ -569,6 +613,39 @@ object frmSettings: TfrmSettings
             MinValue = 0
             TabOrder = 0
             Value = 0
+          end
+        end
+        object pnlNetworkEngine: TPanel
+          AlignWithMargins = True
+          Left = 3
+          Top = 6
+          Width = 629
+          Height = 23
+          Margins.Left = 0
+          Align = alTop
+          BevelOuter = bvNone
+          TabOrder = 9
+          ExplicitLeft = 8
+          ExplicitTop = -1
+          object lbl3: TLabel
+            AlignWithMargins = True
+            Left = 3
+            Top = 3
+            Width = 79
+            Height = 20
+            Align = alLeft
+            Caption = 'Network engine:'
+            ExplicitHeight = 13
+          end
+          object cbbNetworkEngine: TComboBox
+            Left = 85
+            Top = 0
+            Width = 544
+            Height = 21
+            Align = alClient
+            Style = csDropDownList
+            ItemHeight = 13
+            TabOrder = 0
           end
         end
       end
@@ -599,7 +676,7 @@ object frmSettings: TfrmSettings
         Left = 0
         Top = 42
         Width = 644
-        Height = 340
+        Height = 445
         Align = alClient
         Caption = 'Hotkeys'
         TabOrder = 1
@@ -702,7 +779,7 @@ object frmSettings: TfrmSettings
               Alignment = taRightJustify
               Caption = 'Coordinates representation'
               Layout = tlCenter
-              ExplicitHeight = 310
+              ExplicitHeight = 13
             end
             object CB_llstrType: TComboBox
               AlignWithMargins = True
@@ -725,9 +802,6 @@ object frmSettings: TfrmSettings
                 '-- deg.min.sec. (-12'#176'12'#39'12.1234")'
                 '-- deg.min. (-12'#176'12.1234'#39')'
                 '-- deg. (-12.12345678'#176')')
-              ExplicitLeft = 138
-              ExplicitTop = 6
-              ExplicitWidth = 172
             end
           end
           object pnlLang: TPanel
@@ -745,11 +819,12 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 47
-              Height = 13
+              Height = 26
               Align = alLeft
               Alignment = taRightJustify
               Caption = 'Language'
               Layout = tlCenter
+              ExplicitHeight = 13
             end
             object CBoxLocal: TComboBox
               AlignWithMargins = True
@@ -759,7 +834,7 @@ object frmSettings: TfrmSettings
               Height = 21
               Align = alClient
               Style = csDropDownList
-              ItemHeight = 0
+              ItemHeight = 13
               TabOrder = 0
               OnChange = CBoxLocalChange
             end
@@ -774,7 +849,6 @@ object frmSettings: TfrmSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 6
-            ExplicitTop = 204
             object CBShowmapname: TCheckBox
               Left = 3
               Top = 37
@@ -831,7 +905,6 @@ object frmSettings: TfrmSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 7
-            ExplicitTop = 295
             object Label69: TLabel
               AlignWithMargins = True
               Left = 6
@@ -862,7 +935,6 @@ object frmSettings: TfrmSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 8
-            ExplicitTop = 323
             object LabelGamma: TLabel
               Left = 3
               Top = 23

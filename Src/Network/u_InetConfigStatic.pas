@@ -37,6 +37,7 @@ type
     FTimeOut: Cardinal;
     FSleepOnResetConnection: Cardinal;
     FDownloadTryCount: Integer;
+    FNetworkEngineType: TNetworkEngineType;
   private
     function GetWinInetConfigStatic: IWinInetConfigStatic;
     function GetProxyConfigStatic: IProxyConfigStatic;
@@ -44,14 +45,16 @@ type
     function GetTimeOut: Cardinal;
     function GetSleepOnResetConnection: Cardinal;
     function GetDownloadTryCount: Integer;
+    function GetNetworkEngineType: TNetworkEngineType;
   public
     constructor Create(
       const AWinInetConfigStatic: IWinInetConfigStatic;
       const AProxyConfigStatic: IProxyConfigStatic;
       const AUserAgentString: AnsiString;
-      ATimeOut: Cardinal;
-      ASleepOnResetConnection: Cardinal;
-      ADownloadTryCount: Integer
+      const ATimeOut: Cardinal;
+      const ASleepOnResetConnection: Cardinal;
+      const ADownloadTryCount: Integer;
+      const ANetworkEngineType: TNetworkEngineType
     );
   end;
 
@@ -63,8 +66,9 @@ constructor TInetConfigStatic.Create(
   const AWinInetConfigStatic: IWinInetConfigStatic;
   const AProxyConfigStatic: IProxyConfigStatic;
   const AUserAgentString: AnsiString;
-  ATimeOut, ASleepOnResetConnection: Cardinal;
-  ADownloadTryCount: Integer
+  const ATimeOut, ASleepOnResetConnection: Cardinal;
+  const ADownloadTryCount: Integer;
+  const ANetworkEngineType: TNetworkEngineType
 );
 begin
   inherited Create;
@@ -74,6 +78,7 @@ begin
   FSleepOnResetConnection := ASleepOnResetConnection;
   FDownloadTryCount := ADownloadTryCount;
   FUserAgentString := AUserAgentString;
+  FNetworkEngineType := ANetworkEngineType;
 end;
 
 function TInetConfigStatic.GetDownloadTryCount: Integer;
@@ -104,6 +109,11 @@ end;
 function TInetConfigStatic.GetWinInetConfigStatic: IWinInetConfigStatic;
 begin
   Result := FWinInetConfigStatic;
+end;
+
+function TInetConfigStatic.GetNetworkEngineType: TNetworkEngineType;
+begin
+  Result := FNetworkEngineType;
 end;
 
 end.

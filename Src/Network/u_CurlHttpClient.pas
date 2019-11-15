@@ -241,7 +241,7 @@ begin
 
   FCertFileName := ACertFileName;
   if (FCertFileName <> '') and not FileExists(string(FCertFileName)) then begin
-    raise Exception.CreateFmt(
+    raise ECurl.CreateFmt(
       'Can''t find curl certificate: %s', [FCertFileName]
     );
   end;
@@ -251,6 +251,9 @@ begin
 
   if curl.Module = 0 then begin
     LibCurlInitialize;
+  end else
+  if not CurlIsAvailable then begin
+    raise ECurl.Create('Curl library is not available');
   end;
 end;
 
