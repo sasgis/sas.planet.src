@@ -386,7 +386,7 @@ object frmSettings: TfrmSettings
               Height = 21
               Align = alClient
               TabOrder = 0
-              Text = '127.0.0.1:8080'
+              Text = ''
               ExplicitLeft = 0
               ExplicitTop = 15
               ExplicitWidth = 622
@@ -460,7 +460,7 @@ object frmSettings: TfrmSettings
             Height = 68
             Align = alTop
             BevelOuter = bvNone
-            Caption = 'pnlProxyRadioButtons'
+            Caption = ''
             TabOrder = 3
             object rbManualProxy: TRadioButton
               Tag = 3
