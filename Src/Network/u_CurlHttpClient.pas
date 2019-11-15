@@ -93,6 +93,14 @@ const
     ConnectionTimeOutMS: 15000;
   );
 
+  cCurlDefaultProxy: TCurlProxy = (
+    Address: '';
+    NoProxy: '';
+    UserName: '';
+    UserPass: '';
+    AuthType: atAny;
+  );
+
 implementation
 
 uses
@@ -239,7 +247,7 @@ begin
   end;
 
   FOptions := cCurlDefaultOptions;
-  FillChar(FProxy, SizeOf(FProxy), 0);
+  FProxy := cCurlDefaultProxy;
 
   if curl.Module = 0 then begin
     LibCurlInitialize;
@@ -399,6 +407,7 @@ const
 var
   VMethod: RawByteString;
   VCurlResult: TCurlResult;
+  VDoCurlSetup: Boolean;
 begin
   Result := False;
   FDoDisconnect := False;
@@ -415,24 +424,30 @@ begin
 
   if FCurl = nil then begin
     FCurl := curl.easy_init;
+    VDoCurlSetup := True;
     if FCurl = nil then begin
       FResp.ErrorReason := 'Unexpected result of curl_easy_init()';
       Exit;
     end;
+  end else begin
+    VDoCurlSetup := IsOptionsChanged(FReq.Options) or IsProxyChanged(FReq.Proxy);
+    if VDoCurlSetup then begin
+      curl.easy_reset(FCurl);
+    end;
+  end;
+
+  if VDoCurlSetup then begin
     if FReq.Options <> nil then begin
       FOptions := FReq.Options^;
+    end else begin
+      FOptions := cCurlDefaultOptions;
     end;
     if FReq.Proxy <> nil then begin
       FProxy := FReq.Proxy^;
+    end else begin
+      FProxy := cCurlDefaultProxy;
     end;
     CurlSetup;
-  end else begin
-    if IsOptionsChanged(FReq.Options) or IsProxyChanged(FReq.Proxy) then begin
-      FOptions := FReq.Options^;
-      FProxy := FReq.Proxy^;
-      curl.easy_reset(FCurl);
-      CurlSetup;
-    end;
   end;
 
   if FReq.Method = rmHead then begin
