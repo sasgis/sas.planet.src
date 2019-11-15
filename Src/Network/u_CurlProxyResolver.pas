@@ -511,7 +511,7 @@ begin
   AShemeName := '';
   ARealm := '';
 
-  VHeader := GetHeaderValue(AResponseHeaders, 'PROXY-AUTHENTICATE');
+  VHeader := GetHeaderValueUp(AResponseHeaders, 'PROXY-AUTHENTICATE');
 
   if VHeader <> '' then begin
     I := 1;

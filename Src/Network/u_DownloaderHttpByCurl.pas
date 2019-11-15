@@ -376,12 +376,12 @@ begin
   FHttpOptions.TimeOutMS := VInetConfig.TimeOut;
   FHttpOptions.ConnectionTimeOutMS := FHttpOptions.TimeOutMS;
 
-  if GetHeaderValue(FHttpRequest.Headers, 'USER-AGENT') = '' then begin
+  if GetHeaderValueUp(FHttpRequest.Headers, 'USER-AGENT') = '' then begin
     FHttpRequest.Headers := 'User-Agent: ' + VInetConfig.UserAgentString + #13#10 + FHttpRequest.Headers;
   end;
 
   if FHttpOptions.AcceptEncoding then begin
-    DeleteHeaderValue(FHttpRequest.Headers, 'ACCEPT-ENCODING');
+    DeleteHeaderValueUp(FHttpRequest.Headers, 'ACCEPT-ENCODING');
   end;
 
   VProxyConfig := VInetConfig.ProxyConfigStatic;

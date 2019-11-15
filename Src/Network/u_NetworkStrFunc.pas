@@ -34,9 +34,9 @@ function IdemPChar(const AStr, ASubStr: PAnsiChar): Boolean;
 
 procedure GetNextLine(var P: PAnsiChar; var AResult: RawByteString);
 
-function GetHeaderValue(const AHeaders: RawByteString; const AUpName: RawByteString): RawByteString;
-function SetHeaderValue(var AHeaders: RawByteString; const AUpName: RawByteString; const AValue: RawByteString): Boolean;
-procedure DeleteHeaderValue(var AHeaders: RawByteString; const AUpName: RawByteString);
+function GetHeaderValueUp(const AHeaders: RawByteString; const AUpName: RawByteString): RawByteString;
+function ReplaceHeaderValueUp(var AHeaders: RawByteString; const AUpName, AValue: RawByteString): Boolean;
+procedure DeleteHeaderValueUp(var AHeaders: RawByteString; const AUpName: RawByteString);
 
 function GetResponseCode(const AHeaders: RawByteString): Cardinal;
 function URLEncode(const S: AnsiString): AnsiString;
@@ -121,7 +121,7 @@ begin
   end;
 end;
 
-function GetHeaderValue(const AHeaders: RawByteString; const AUpName: RawByteString): RawByteString;
+function GetHeaderValueUp(const AHeaders: RawByteString; const AUpName: RawByteString): RawByteString;
 var
   I, J, K: Integer;
 begin
@@ -161,7 +161,7 @@ begin
   until False;
 end;
 
-function SetHeaderValue(var AHeaders: RawByteString; const AUpName: RawByteString; const AValue: RawByteString): Boolean;
+function ReplaceHeaderValueUp(var AHeaders: RawByteString; const AUpName, AValue: RawByteString): Boolean;
 var
   I, J, K: Integer;
 begin
@@ -208,7 +208,7 @@ begin
   until False;
 end;
 
-procedure DeleteHeaderValue(var AHeaders: RawByteString; const AUpName: RawByteString);
+procedure DeleteHeaderValueUp(var AHeaders: RawByteString; const AUpName: RawByteString);
 var
   I, J, K: Integer;
 begin
