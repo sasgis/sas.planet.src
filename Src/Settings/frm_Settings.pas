@@ -32,6 +32,7 @@ uses
   ComCtrls,
   Dialogs,
   Spin,
+  UITypes,
   urlmon,
   wininet,
   GR32,
@@ -779,7 +780,7 @@ begin
     FOnSave(nil);
   end;
   if VNeedReboot then begin
-    ShowMessage(SAS_MSG_need_reload_application_curln);
+    MessageDlg(SAS_MSG_need_reload_application_curln, mtInformation, [mbOK], 0);
   end;
 end;
 
