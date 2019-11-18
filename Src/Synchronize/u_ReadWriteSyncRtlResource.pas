@@ -31,7 +31,7 @@ type
   PVOID = Pointer;
   INT = Integer;
 
-  RTL_RWLOCK = packed record
+  RTL_RWLOCK = record
     rtlCS: RTL_CRITICAL_SECTION;
     hSharedReleaseSemaphore: THandle;
     uSharedWaiters: UINT;
