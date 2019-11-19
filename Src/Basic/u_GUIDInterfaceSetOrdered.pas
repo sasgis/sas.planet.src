@@ -36,12 +36,7 @@ type
   PInterfaceWithGUID = ^TInterfaceWithGUID;
 
 const
-  CMaxListSize =
-    {$IF CompilerVersion < 23}
-    Classes.MaxListSize;
-    {$ELSE}
-    High(NativeInt) shr 4;
-    {$IFEND}
+  CMaxListSize = MaxInt shr SizeOf(PInterfaceWithGUID);
 
 type
   PInterfaceWithGUIDList = ^TInterfaceWithGUIDList;
