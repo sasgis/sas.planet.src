@@ -134,6 +134,7 @@ constructor TDownloaderHttpByCurl.Create(
   const AOnDownloadProgress: TOnDownloadProgress
 );
 var
+  VCertFileName: AnsiString;
   VDebugCallBack: TCurlDebugCallBack;
   VProgressCallBack: TCurlProgressCallBack;
 begin
@@ -167,9 +168,14 @@ begin
   VDebugCallBack := nil;
   {$ENDIF}
 
+  VCertFileName := '';
+  if not FHttpOptions.IgnoreSSLCertificateErrors then begin
+    VCertFileName := StringToAnsiSafe(ExtractFilePath(ParamStr(0)) + cCurlDefaultCertFileName)
+  end;
+
   FHttpClient :=
     TCurlHttpClient.Create(
-      StringToAnsiSafe(ExtractFilePath(ParamStr(0)) + cCurlDefaultCertFileName),
+      VCertFileName,
       VProgressCallBack,
       VDebugCallBack,
       Self
