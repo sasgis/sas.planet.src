@@ -74,6 +74,7 @@ uses
   SysUtils,
   i_InterfaceListStatic,
   i_TerrainProviderListElement,
+  u_InetFunc,
   u_ResStrings,
   u_TimeZoneInfo,
   u_ListenerByEvent;
@@ -91,6 +92,7 @@ resourcestring
   rsOptions = 'Options...';
   rsAnyAvailableElevationSource = 'Any Available Source';
   rsDisableElevationInfo = 'Disable';
+  rsOpenManual = 'Open the Manual (online)';
 
 type
   TMenuItemTag = (
@@ -111,6 +113,13 @@ type
 const
   cDisableElevationInfoItemTag = 0;
   cAnyAvailableElevationSourceItemTag = 1;
+  cOpenManualItemTag = 2;
+
+const
+  cElevationInfoManualUrl =
+    'http://www.sasgis.org/wikisasiya/doku.php/' +
+    '%D0%B2%D1%8B%D1%81%D0%BE%D1%82%D0%B0_%D0%BD%D0%B0%D0%B4_%D1%83%D1%80%D0' +
+    '%BE%D0%B2%D0%BD%D0%B5%D0%BC_%D0%BC%D0%BE%D1%80%D1%8F';
 
 function GetMenuItemList: TMenuItemList; inline;
 begin
@@ -221,6 +230,16 @@ begin
         VMenuSubItem.Add(VMenuItem);
 
         VMenuSubItem.Checked := VMenuItem.Checked;
+
+        VMenuSeparator := TTBSeparatorItem.Create(FPopup);
+        VMenuSubItem.Add(VMenuSeparator);
+
+        VMenuItem := TTBXItem.Create(FPopup);
+        VMenuItem.AutoCheck := False;
+        VMenuItem.Caption := rsOpenManual;
+        VMenuItem.Tag := cOpenManualItemTag;
+        VMenuItem.OnClick := OnTerrainCustomizeItemClick;
+        VMenuSubItem.Add(VMenuItem);
       end;
 
       FPopup.Items.Add(VMenuSubItem);
@@ -263,6 +282,8 @@ begin
           end else if VMenuItem.Tag = cAnyAvailableElevationSourceItemTag then begin
             VMenuItem.Enabled := FTerrainConfig.ShowInStatusBar;
             VMenuItem.Checked := FTerrainConfig.TrySecondaryElevationProviders;
+          end else if VMenuItem.Tag = cOpenManualItemTag then begin
+            // do nothing
           end else begin
             VItem := ITerrainProviderListElement(VMenuItem.Tag);
             if (VItem <> nil) then begin
@@ -364,6 +385,9 @@ begin
       end;
       cAnyAvailableElevationSourceItemTag: begin
         FTerrainConfig.TrySecondaryElevationProviders := VMenuItem.Checked;
+      end;
+      cOpenManualItemTag: begin
+        OpenUrlInBrowser(cElevationInfoManualUrl);
       end;
     end;
   end;
