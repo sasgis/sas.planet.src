@@ -49,9 +49,9 @@ type
     function InternalMakeResponse(
       const ARequest: IDownloadRequest;
       const AResponseBody: IBinaryData;
-      var AStatusCode: Cardinal;
-      var AContentType: AnsiString;
-      var ARawHeaderText: AnsiString
+      const AStatusCode: Cardinal;
+      const AContentType: AnsiString;
+      const ARawHeaderText: AnsiString
     ): IDownloadResult;
   private
     { IDownloaderAsync }
@@ -72,15 +72,15 @@ implementation
 uses
   UrlMon,
   SysUtils,
-  ALString,
   i_DownloadChecker,
   u_AsyncRequestHelperThread,
   u_BinaryData,
   u_ContentDecoder,
   u_HttpStatusChecker,
-  u_StrFunc;
+  u_StrFunc,
+  u_NetworkStrFunc;
 
-function DetectContentType(const AData: Pointer; const ASize: Int64): AnsiString;
+function DetectContentType(const AData: Pointer; const ASize: Int64): RawByteString;
 const
   // IE9. Returns image/png and image/jpeg instead of image/x-png and image/pjpeg
   FMFD_RETURNUPDATEDIMGMIMES = $20;
@@ -97,12 +97,13 @@ begin
     FMFD_RETURNUPDATEDIMGMIMES, VContentType, 0);
 
   if VResult = S_OK then begin
-    Result := AnsiString(VContentType);
+    Result := LowerCaseA(AnsiString(VContentType));
 
     // fix detected mime types for IE versions prior IE 9
-    if AlLowerCase(Result) = 'image/x-png' then begin
+    if Result = 'image/x-png' then begin
       Result := 'image/png';
-    end else if AlLowerCase(Result) = 'image/pjpeg' then begin
+    end else
+    if Result = 'image/pjpeg' then begin
       Result := 'image/jpeg';
     end;
   end;
@@ -146,10 +147,10 @@ function TDownloaderHttpBase.OnAfterResponse(
 var
   VStatusCode: Cardinal;
   VResponseBody: IBinaryData;
-  VRawHeaderText: AnsiString;
-  VContentType: AnsiString;
-  VContentEncoding: AnsiString;
-  VDetectedContentType: AnsiString;
+  VRawHeaderText: RawByteString;
+  VContentType: RawByteString;
+  VContentEncoding: RawByteString;
+  VDetectedContentType: RawByteString;
 begin
   Result := nil;
 
@@ -163,10 +164,10 @@ begin
     VRawHeaderText := ARawHeaderText;
 
     if ATryDecodeContent then begin
-      VContentEncoding := GetHeaderValue(VRawHeaderText, 'Content-Encoding');
+      VContentEncoding := GetHeaderValueUp(VRawHeaderText, 'CONTENT-ENCODING');
       try
         TContentDecoder.Decode(VContentEncoding, AResponseBody);
-        VRawHeaderText := DeleteHeaderEntry(VRawHeaderText, 'Content-Encoding');
+        DeleteHeaderValueUp(VRawHeaderText, 'CONTENT-ENCODING');
       except
         on E: Exception do begin
           VResponseBody := TBinaryData.Create(AResponseBody.Size, AResponseBody.Memory);
@@ -177,11 +178,13 @@ begin
       end;
     end;
 
-    VContentType := GetHeaderValue(VRawHeaderText, 'Content-Type');
+    VContentType := GetHeaderValueUp(VRawHeaderText, 'CONTENT-TYPE');
     if ATryDetectContentType and (AResponseBody.Size > 0) then begin
       VDetectedContentType := DetectContentType(AResponseBody.Memory, AResponseBody.Size);
-      if (VDetectedContentType <> '') and (AlLowerCase(VDetectedContentType) <> AlLowerCase(VContentType)) then begin
-        VRawHeaderText := SetHeaderValue(VRawHeaderText, 'Content-Type', VDetectedContentType);
+      if (VDetectedContentType <> '') and (VDetectedContentType <> LowerCaseA(VContentType)) then begin
+        if not ReplaceHeaderValueUp(VRawHeaderText, 'CONTENT-TYPE', VDetectedContentType) then begin
+          AddHeaderValue(VRawHeaderText, 'Content-Type', VDetectedContentType);
+        end;
         VContentType := VDetectedContentType;
       end;
     end;
@@ -225,22 +228,29 @@ end;
 function TDownloaderHttpBase.InternalMakeResponse(
   const ARequest: IDownloadRequest;
   const AResponseBody: IBinaryData;
-  var AStatusCode: Cardinal;
-  var AContentType: AnsiString;
-  var ARawHeaderText: AnsiString
+  const AStatusCode: Cardinal;
+  const AContentType: AnsiString;
+  const ARawHeaderText: AnsiString
 ): IDownloadResult;
 var
+  VStatusCode: Cardinal;
+  VContentType: AnsiString;
+  VRawHeaderText: AnsiString;
   VRequestWithChecker: IRequestWithChecker;
 begin
+  VStatusCode := AStatusCode;
+  VContentType := AContentType;
+  VRawHeaderText := ARawHeaderText;
+
   if Supports(ARequest, IRequestWithChecker, VRequestWithChecker) then begin
     Result :=
       VRequestWithChecker.Checker.AfterReciveData(
         FResultFactory,
         ARequest,
         AResponseBody,
-        AStatusCode,
-        AContentType,
-        ARawHeaderText
+        VStatusCode,
+        VContentType,
+        VRawHeaderText
       );
     if Result <> nil then begin
       Exit;
@@ -251,17 +261,17 @@ begin
     Result :=
       FResultFactory.BuildOk(
         ARequest,
-        AStatusCode,
-        ARawHeaderText,
-        AContentType,
+        VStatusCode,
+        VRawHeaderText,
+        VContentType,
         AResponseBody
       );
   end else begin
     Result :=
       FResultFactory.BuildDataNotExistsZeroSize(
         ARequest,
-        AStatusCode,
-        ARawHeaderText
+        VStatusCode,
+        VRawHeaderText
       );
   end;
 end;

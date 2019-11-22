@@ -53,12 +53,14 @@ type
   TStrICompAFunc = function(const S1, S2: PAnsiChar): Integer;
   TTextToFloatAFunc = function(Buffer: PAnsiChar; var Value; ValueType: TFloatValue;
     const AFormatSettings: TFormatSettings): Boolean;
+  TLowerCaseAFunc = function(const S: AnsiString): AnsiString;
 
 var
   StrLenA: TStrLenAFunc;
   StrLCopyA: TStrLCopyAFunc;
   StrICompA: TStrICompAFunc;
   TextToFloatA: TTextToFloatAFunc;
+  LowerCaseA: TLowerCaseAFunc;
 
 implementation
 
@@ -271,11 +273,13 @@ initialization
   StrLCopyA := SysUtils.StrLCopy;
   StrICompA := SysUtils.StrIComp;
   TextToFloatA := SysUtils.TextToFloat;
+  LowerCaseA := SysUtils.LowerCase;
   {$ELSE}
   StrLenA := AnsiStrings.StrLen;
   StrLCopyA := AnsiStrings.StrLCopy;
   StrICompA := AnsiStrings.StrIComp;
   TextToFloatA := AnsiStrings.TextToFloat;
+  LowerCaseA := AnsiStrings.LowerCase;
   {$IFEND}
 
 end.

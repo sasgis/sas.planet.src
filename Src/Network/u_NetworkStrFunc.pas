@@ -37,6 +37,7 @@ procedure GetNextLine(var P: PAnsiChar; var AResult: RawByteString);
 function GetHeaderValueUp(const AHeaders: RawByteString; const AUpName: RawByteString): RawByteString;
 function ReplaceHeaderValueUp(var AHeaders: RawByteString; const AUpName, AValue: RawByteString): Boolean;
 procedure DeleteHeaderValueUp(var AHeaders: RawByteString; const AUpName: RawByteString);
+procedure AddHeaderValue(var AHeaders: RawByteString; const AName, AValue: RawByteString);
 
 function GetResponseCode(const AHeaders: RawByteString): Cardinal;
 function URLEncode(const S: AnsiString): AnsiString;
@@ -248,6 +249,33 @@ begin
       end;
     end;
   until False;
+end;
+
+procedure AddHeaderValue(var AHeaders: RawByteString; const AName, AValue: RawByteString);
+var
+  I, J, K: Integer;
+begin
+  if AHeaders = '' then begin
+    AHeaders := AName + ': ' + AValue + #13#10;
+  end else begin
+    K := Length(AHeaders) + 1;
+    J := K;
+    for I := K - 1 downto 0 do begin
+      if AHeaders[I] < ' ' then begin
+        Dec(J);
+      end else begin
+        Break;
+      end;
+    end;
+    if J = K then begin
+      AHeaders := AHeaders + #13#10 + AName + ': ' + AValue + #13#10;
+    end else
+    if J > 0 then begin
+      Insert(#13#10 + AName + ': ' + AValue, AHeaders, J);
+    end else begin
+      AHeaders := AName + ': ' + AValue + AHeaders;
+    end;
+  end;
 end;
 
 function GetResponseCode(const AHeaders: RawByteString): Cardinal;
