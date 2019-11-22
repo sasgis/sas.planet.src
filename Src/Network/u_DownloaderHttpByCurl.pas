@@ -345,6 +345,21 @@ end;
 function TDownloaderHttpByCurl.OnBeforeRequest(
   const ARequest: IDownloadRequest
 ): IDownloadResult;
+
+  function GetProxyProtocol(const AProxyType: TProxyServerType): RawByteString;
+  begin
+    case AProxyType of
+      ptHttp    : Result := '';
+      ptHttps   : Result := 'https://';
+      ptSocks4  : Result := 'socks4://';
+      ptSocks4a : Result := 'socks4a://';
+      ptSocks5  : Result := 'socks5://';
+      ptSocks5h : Result := 'socks5h://';
+    else
+      raise Exception.CreateFmt('Unexpected ProxyType: %d', [Integer(AProxyType)]);
+    end;
+  end;
+
 var
   VPostData: IBinaryData;
   VInetConfig: IInetConfigStatic;
@@ -401,7 +416,7 @@ begin
     FHttpProxy.AuthType := atAny;
 
     if VProxyConfig.UseProxy then begin
-      FHttpProxy.Address := VProxyConfig.Host;
+      FHttpProxy.Address := GetProxyProtocol(VProxyConfig.ProxyType) + VProxyConfig.Host;
       if VProxyConfig.UseLogin then begin
         FHttpProxy.UserName := StringToAnsiSafe(VProxyConfig.Login);
         FHttpProxy.UserPass := StringToAnsiSafe(VProxyConfig.Password);

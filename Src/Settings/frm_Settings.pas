@@ -36,6 +36,8 @@ uses
   urlmon,
   wininet,
   GR32,
+  i_InetConfig,
+  i_ProxySettings,
   i_ListenerNotifierLinksList,
   i_ImageResamplerFactory,
   i_MapTypeConfigModalEdit,
@@ -242,8 +244,8 @@ type
     rbNoProxy: TRadioButton;
     rbUseIESettings: TRadioButton;
     rbManualProxy: TRadioButton;
-    lblProxyHostAndPort: TLabel;
     pnlProxyRadioButtons: TPanel;
+    cbbProxyType: TComboBox;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -259,6 +261,7 @@ type
     procedure btnResetUserAgentStringClick(Sender: TObject);
     procedure BtnDefClick(Sender: TObject);
     procedure rbProxyClick(Sender: TObject);
+    procedure cbbNetworkEngineChange(Sender: TObject);
   private
     FOnSave: TNotifyEvent;
     FLinksList: IListenerNotifierLinksList;
@@ -295,6 +298,12 @@ type
       const AList: IImageResamplerFactoryList;
       ABox: TComboBox
     );
+    procedure RefreshProxyTypeComboBox(
+      const ANetworkEngineType: TNetworkEngineType;
+      const AProxyType: TProxyServerType
+    );
+    function StrToProxyAddress(const AStr: string): string;
+    function GetProxyTypeValue: TProxyServerType;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -320,8 +329,6 @@ uses
   c_InetConfig, // for default UserAgent
   t_CommonTypes,
   t_CoordRepresentation,
-  i_ProxySettings,
-  i_InetConfig,
   i_WinInetConfig,
   u_ListenerNotifierLinksList,
   u_StrFunc,
@@ -535,42 +542,55 @@ end;
 
 procedure TfrmSettings.SetProxy;
 var
-  PIInfo: PInternetProxyInfo;
+  VInfo: TInternetProxyInfo;
   VProxyConfig: IProxyConfig;
   VUseIEProxy: Boolean;
   VUseProxy: Boolean;
   VHost: AnsiString;
+  VProxyType: TProxyServerType;
 begin
   VProxyConfig := GState.Config.InetConfig.ProxyConfig;
+
   VProxyConfig.LockRead;
   try
     VUseIEProxy := VProxyConfig.GetUseIESettings;
     VUseProxy := VProxyConfig.GetUseProxy;
     VHost := VProxyConfig.GetHost;
+    VProxyType := VProxyConfig.ProxyType;
   finally
     VProxyConfig.UnlockRead;
   end;
-  New(PIInfo);
+
+  if VUseProxy then begin
+    if VProxyType = ptSocks4 then begin
+      VHost := 'socks=' + VHost;
+    end else
+    if VProxyType <> ptHttp then begin
+      VUseProxy := False;
+    end;
+  end;
+
+  FillChar(VInfo, SizeOf(VInfo), 0);
+
   if VUseIEProxy then begin
-    PIInfo^.dwAccessType := INTERNET_OPEN_TYPE_PRECONFIG;
-    PIInfo^.lpszProxy := nil;
-    PIInfo^.lpszProxyBypass := nil;
-    UrlMkSetSessionOption(INTERNET_OPTION_PROXY, piinfo, SizeOf(Internet_Proxy_Info), 0);
+    VInfo.dwAccessType := INTERNET_OPEN_TYPE_PRECONFIG;
+    VInfo.lpszProxy := nil;
+    VInfo.lpszProxyBypass := nil;
+    UrlMkSetSessionOption(INTERNET_OPTION_PROXY, @VInfo, SizeOf(VInfo), 0);
     UrlMkSetSessionOption(INTERNET_OPTION_REFRESH, nil, 0, 0);
   end else begin
     if VUseProxy then begin
-      PIInfo^.dwAccessType := INTERNET_OPEN_TYPE_PROXY;
-      PIInfo^.lpszProxy := PAnsiChar(VHost);
-      PIInfo^.lpszProxyBypass := nil;
+      VInfo.dwAccessType := INTERNET_OPEN_TYPE_PROXY;
+      VInfo.lpszProxy := PAnsiChar(VHost);
+      VInfo.lpszProxyBypass := nil;
     end else begin
-      PIInfo^.dwAccessType := INTERNET_OPEN_TYPE_DIRECT;
-      PIInfo^.lpszProxy := nil;
-      PIInfo^.lpszProxyBypass := nil;
+      VInfo.dwAccessType := INTERNET_OPEN_TYPE_DIRECT;
+      VInfo.lpszProxy := nil;
+      VInfo.lpszProxyBypass := nil;
     end;
-    UrlMkSetSessionOption(INTERNET_OPTION_PROXY, piinfo, SizeOf(Internet_Proxy_Info), 0);
+    UrlMkSetSessionOption(INTERNET_OPTION_PROXY, @VInfo, SizeOf(VInfo), 0);
     UrlMkSetSessionOption(INTERNET_OPTION_SETTINGS_CHANGED, nil, 0, 0);
   end;
-  Dispose(PIInfo);
 end;
 
 procedure TfrmSettings.ShowGPSSettings;
@@ -685,17 +705,23 @@ begin
     if (rbUseIESettings.Checked) and (VProxyConfig.GetUseIESettings <> rbUseIESettings.Checked) then begin
       VNeedReboot := True;
     end;
-    VProxyConfig.SetUseIESettings(rbUseIESettings.Checked);
-    VProxyConfig.SetUseProxy(rbManualProxy.Checked);
-    VProxyConfig.SetHost(StringToAsciiSafe(Trim(EditIP.Text)));
-    VProxyConfig.SetUseLogin(CBLogin.Checked);
-    VProxyConfig.SetLogin(EditLogin.Text);
-    VProxyConfig.SetPassword(EditPass.Text);
+    VProxyConfig.UseIESettings := rbUseIESettings.Checked;
+    VProxyConfig.UseProxy := rbManualProxy.Checked;
+    VProxyConfig.Host := StringToAsciiSafe(StrToProxyAddress(EditIP.Text));
+    VProxyConfig.UseLogin := CBLogin.Checked;
+    VProxyConfig.Login := Trim(EditLogin.Text);
+    VProxyConfig.Password := Trim(EditPass.Text);
+    VProxyConfig.ProxyType := GetProxyTypeValue;
+
+    SetProxy;
+
     VInetConfig.SetTimeOut(SETimeOut.Value);
     VInetConfig.SleepOnResetConnection := seSleepOnResetConnection.Value;
+
     if Trim(edtUserAgent.Text) <> '' then begin
       VInetConfig.UserAgentString := StringToAsciiSafe(Trim(edtUserAgent.Text));
     end;
+
     if CBDblDwnl.Checked then begin
       if VInetConfig.DownloadTryCount < 2 then begin
         VInetConfig.DownloadTryCount := 2;
@@ -703,7 +729,6 @@ begin
     end else begin
       VInetConfig.DownloadTryCount := 1;
     end;
-    SetProxy;
 
     VConnsPerServer := VInetConfig.WinInetConfig.MaxConnsPerServer;
     if seMaxConnsPerServer.Value <> Integer(VConnsPerServer.Value) then begin
@@ -887,9 +912,11 @@ begin
     cbbNetworkEngine.Items.Add('cURL');
     cbbNetworkEngine.ItemIndex := Integer(VInetConfig.NetworkEngineType);
 
+    CBDblDwnl.Checked := (VInetConfig.DownloadTryCount > 1);
     SETimeOut.Value := VInetConfig.GetTimeOut;
     seSleepOnResetConnection.Value := VInetConfig.SleepOnResetConnection;
     edtUserAgent.Text := VInetConfig.UserAgentString;
+
     VProxyConfig := VInetConfig.ProxyConfig;
     rbUseIESettings.Checked := VProxyConfig.GetUseIESettings;
     rbManualProxy.Checked := VProxyConfig.GetUseProxy;
@@ -898,7 +925,7 @@ begin
     EditIP.Text := VProxyConfig.GetHost;
     EditLogin.Text := VProxyConfig.GetLogin;
     EditPass.Text := VProxyConfig.GetPassword;
-    CBDblDwnl.Checked := (VInetConfig.DownloadTryCount > 1);
+    RefreshProxyTypeComboBox(VInetConfig.NetworkEngineType, VProxyConfig.ProxyType);
 
     VConnsPerServer := VInetConfig.WinInetConfig.MaxConnsPerServer;
     seMaxConnsPerServer.MinValue := VConnsPerServer.Min;
@@ -1068,7 +1095,7 @@ var
 begin
   VIsManual := rbManualProxy.Checked;
 
-  lblProxyHostAndPort.Enabled := VIsManual;
+  cbbProxyType.Enabled := VIsManual;
   EditIP.Enabled := VIsManual;
 
   CBLogin.Enabled := VIsManual;
@@ -1086,6 +1113,83 @@ begin
 
   lblProxyPass.Enabled := VUseAuth;
   EditPass.Enabled := VUseAuth;
+end;
+
+function TfrmSettings.GetProxyTypeValue: TProxyServerType;
+begin
+  if cbbNetworkEngine.ItemIndex = 0 then begin
+    if cbbProxyType.ItemIndex = 1 then begin
+      Result := ptSocks4;
+    end else begin
+      Result := ptHttp;
+    end;
+  end else begin
+    Result := TProxyServerType(cbbProxyType.ItemIndex);
+  end;
+end;
+
+procedure TfrmSettings.RefreshProxyTypeComboBox(
+  const ANetworkEngineType: TNetworkEngineType;
+  const AProxyType: TProxyServerType
+);
+const
+  cWinInetItems: array [0..1] of string = (
+    'HTTP', 'SOCKS4'
+  );
+  cCurlItems: array [0..5] of string = (
+    'HTTP', 'HTTPS', 'SOCKS4', 'SOCKS4A', 'SOCKS5', 'SOCKS5H'
+  );
+
+  procedure AddItems(const AItems: array of string);
+  var
+    I: Integer;
+  begin
+    cbbProxyType.Items.Clear;
+    for I := 0 to Length(AItems) - 1 do begin
+      cbbProxyType.Items.Add(AItems[I]);
+    end;
+    cbbProxyType.ItemIndex := 0;
+  end;
+
+begin
+  case ANetworkEngineType of
+    neWinInet: begin
+      AddItems(cWinInetItems);
+      if AProxyType = ptSocks4 then begin
+        cbbProxyType.ItemIndex := 1;
+      end;
+    end;
+    neCurl: begin
+      AddItems(cCurlItems);
+      cbbProxyType.ItemIndex := Integer(AProxyType);
+    end
+  else
+    raise Exception.CreateFmt(
+      'Unexpected NetworkEngineType: %d', [Integer(ANetworkEngineType)]
+    );
+  end;
+end;
+
+procedure TfrmSettings.cbbNetworkEngineChange(Sender: TObject);
+begin
+  RefreshProxyTypeComboBox(TNetworkEngineType(cbbNetworkEngine.ItemIndex), ptHttp);
+end;
+
+function TfrmSettings.StrToProxyAddress(const AStr: string): string;
+var
+  I: Integer;
+begin
+  Result := Trim(AStr);
+
+  I := Pos('=', Result);
+  if I > 0 then begin
+    Delete(Result, 1, I);
+  end;
+
+  I := Pos('://', Result);
+  if I > 0 then begin
+    Delete(Result, 1, I+2);
+  end;
 end;
 
 end.

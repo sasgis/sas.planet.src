@@ -57,6 +57,7 @@ type
     ProxyUseLogin: Boolean;
     ProxyUserName: string;
     ProxyPassword: string;
+    ProxyType: TProxyServerType;
     WinInetOptions: TALWininetHttpClientInternetOptionSet;
   end;
 
@@ -194,6 +195,7 @@ begin
   FHttpClientLastConfig.ProxyUseLogin := False;
   FHttpClientLastConfig.ProxyUserName := '';
   FHttpClientLastConfig.ProxyPassword := '';
+  FHttpClientLastConfig.ProxyType := ptHttp;
   FHttpClientLastConfig.WinInetOptions := [];
 end;
 
@@ -536,6 +538,7 @@ begin
   if Assigned(VProxyConfig) then begin
     if (FHttpClientLastConfig.ProxyUseIESettings <> VProxyConfig.UseIESettings) or
       (FHttpClientLastConfig.ProxyUseCustomSettings <> VProxyConfig.UseProxy) or
+      (FHttpClientLastConfig.ProxyType <> VProxyConfig.ProxyType) or
       (FHttpClientLastConfig.ProxyUseLogin <> VProxyConfig.UseLogin) or
       (FHttpClientLastConfig.ProxyHost <> VProxyConfig.Host) or
       (FHttpClientLastConfig.ProxyUserName <> VProxyConfig.Login) or
@@ -547,6 +550,7 @@ begin
       FHttpClientLastConfig.ProxyHost := VProxyConfig.Host;
       FHttpClientLastConfig.ProxyUserName := VProxyConfig.Login;
       FHttpClientLastConfig.ProxyPassword := VProxyConfig.Password;
+      FHttpClientLastConfig.ProxyType := VProxyConfig.ProxyType;
 
       if FHttpClientLastConfig.ProxyUseIESettings then begin
         FHttpClient.AccessType := wHttpAt_Preconfig;
@@ -556,6 +560,11 @@ begin
       end else if FHttpClientLastConfig.ProxyUseCustomSettings then begin
         VProxyHost := FHttpClientLastConfig.ProxyHost;
         Assert(VProxyHost <> '');
+        if FHttpClientLastConfig.ProxyType = ptSocks4 then begin
+          VProxyHost := 'socks=' + VProxyHost;
+        end else if FHttpClientLastConfig.ProxyType <> ptHttp then begin
+          Assert(False, Format('Unsupported proxy type: %d', [Integer(FHttpClientLastConfig.ProxyType)]));
+        end;
         VPos := Pos(':', VProxyHost);
         if VPos > 0 then begin
           FHttpClient.ProxyParams.ProxyServer := Copy(VProxyHost, 1, VPos - 1);

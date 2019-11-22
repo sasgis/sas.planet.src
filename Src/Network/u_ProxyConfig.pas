@@ -38,6 +38,7 @@ type
     FUseLogin: boolean;
     FLogin: string;
     FPassword: string;
+    FProxyType: TProxyServerType;
   private
     function GetUseIESettings: Boolean;
     function GetUseProxy: Boolean;
@@ -45,14 +46,16 @@ type
     function GetUseLogin: boolean;
     function GetLogin: string;
     function GetPassword: string;
+    function GetProxyType: TProxyServerType;
   public
     constructor Create(
-      AUseIESettings: Boolean;
-      AUseProxy: Boolean;
+      const AUseIESettings: Boolean;
+      const AUseProxy: Boolean;
       const AHost: AnsiString;
-      AUseLogin: boolean;
+      const AUseLogin: boolean;
       const ALogin: string;
-      const APassword: string
+      const APassword: string;
+      const AProxyType: TProxyServerType
     );
   end;
 
@@ -60,6 +63,7 @@ type
   private
     FUseIESettings: Boolean;
     FUseProxy: Boolean;
+    FProxyType: TProxyServerType;
     FHost: AnsiString;
     FUseLogin: boolean;
     FLogin: string;
@@ -75,6 +79,9 @@ type
 
     function GetUseProxy: Boolean; safecall;
     procedure SetUseProxy(AValue: Boolean);
+
+    function GetProxyType: TProxyServerType;
+    procedure SetProxyType(const AValue: TProxyServerType);
 
     function GetHost: AnsiString; safecall;
     procedure SetHost(const AValue: AnsiString);
@@ -95,6 +102,9 @@ type
 
 implementation
 
+uses
+  SysUtils;
+
 { TProxyConfig }
 
 constructor TProxyConfig.Create;
@@ -106,6 +116,7 @@ begin
   FHost := '127.0.0.1:8080';
   FLogin := '';
   FPassword := '';
+  FProxyType := ptHttp;
 end;
 
 function TProxyConfig.CreateStatic: IInterface;
@@ -119,21 +130,54 @@ begin
       FHost,
       FUseLogin,
       FLogin,
-      FPassword
+      FPassword,
+      FProxyType
     );
   Result := VStatic;
 end;
 
 procedure TProxyConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
+
+  procedure SetProxyType(const AValue: Integer);
+  const
+    cKnownTypes: set of TProxyServerType = [
+      ptHttp, ptHttps, ptSocks4, ptSocks4a, ptSocks5, ptSocks5h
+    ];
+  begin
+    if TProxyServerType(AValue) in cKnownTypes then begin
+      FProxyType := TProxyServerType(AValue);
+    end else begin
+      Assert(False, Format('Unexpected ProxyType value: %d', [AValue]));
+    end;
+  end;
+
+  function StrToProxyAddress(const AStr: string): string;
+  var
+    I: Integer;
+  begin
+    Result := Trim(AStr);
+
+    I := Pos('=', Result);
+    if I > 0 then begin
+      Delete(Result, 1, I);
+    end;
+
+    I := Pos('://', Result);
+    if I > 0 then begin
+      Delete(Result, 1, I+2);
+    end;
+  end;
+
 begin
   inherited;
   if AConfigData <> nil then begin
     FUseIESettings := AConfigData.ReadBool('UseIEProxySettings', FUseIESettings);
     FUseProxy := AConfigData.ReadBool('UseProxy', FUseProxy);
-    FHost := AConfigData.ReadAnsiString('Host', FHost);
+    FHost := StrToProxyAddress(AConfigData.ReadAnsiString('Host', FHost));
     FUseLogin := AConfigData.ReadBool('UseAuth', FUseLogin);
     FLogin := AConfigData.ReadString('Login', FLogin);
     FPassword := AConfigData.ReadString('Password', FPassword);
+    SetProxyType( AConfigData.ReadInteger('ProxyType', Integer(FProxyType)) );
     SetChanged;
   end;
 end;
@@ -147,6 +191,7 @@ begin
   AConfigData.WriteBool('UseAuth', FUseLogin);
   AConfigData.WriteString('Login', FLogin);
   AConfigData.WriteString('Password', FPassword);
+  AConfigData.WriteInteger('ProxyType', Integer(FProxyType));
 end;
 
 function TProxyConfig.GetHost: AnsiString;
@@ -174,6 +219,16 @@ begin
   LockRead;
   try
     Result := FPassword;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TProxyConfig.GetProxyType: TProxyServerType;
+begin
+  LockRead;
+  try
+    Result := FProxyType;
   finally
     UnlockRead;
   end;
@@ -259,6 +314,19 @@ begin
   end;
 end;
 
+procedure TProxyConfig.SetProxyType(const AValue: TProxyServerType);
+begin
+  LockWrite;
+  try
+    if FProxyType <> AValue then begin
+      FProxyType := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
 procedure TProxyConfig.SetUseIESettings(AValue: Boolean);
 begin
   LockWrite;
@@ -270,7 +338,6 @@ begin
   finally
     UnlockWrite;
   end;
-
 end;
 
 procedure TProxyConfig.SetUseLogin(AValue: Boolean);
@@ -306,10 +373,12 @@ end;
 { TProxyConfigStatic }
 
 constructor TProxyConfigStatic.Create(
-  AUseIESettings, AUseProxy: Boolean;
+  const AUseIESettings: Boolean;
+  const AUseProxy: Boolean;
   const AHost: AnsiString;
-  AUseLogin: boolean;
-  const ALogin, APassword: string
+  const AUseLogin: Boolean;
+  const ALogin, APassword: string;
+  const AProxyType: TProxyServerType
 );
 begin
   inherited Create;
@@ -319,6 +388,7 @@ begin
   FUseLogin := AUseLogin;
   FLogin := ALogin;
   FPassword := APassword;
+  FProxyType := AProxyType;
 end;
 
 function TProxyConfigStatic.GetHost: AnsiString;
@@ -334,6 +404,11 @@ end;
 function TProxyConfigStatic.GetPassword: string;
 begin
   Result := FPassword;
+end;
+
+function TProxyConfigStatic.GetProxyType: TProxyServerType;
+begin
+  Result := FProxyType;
 end;
 
 function TProxyConfigStatic.GetUseIESettings: Boolean;

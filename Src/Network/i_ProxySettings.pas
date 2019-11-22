@@ -26,6 +26,15 @@ uses
   i_ConfigDataElement;
 
 type
+  TProxyServerType = (
+    ptHttp,
+    ptHttps,
+    ptSocks4,
+    ptSocks4a,
+    ptSocks5,
+    ptSocks5h
+  );
+
   IProxyConfigStatic = interface(IInterface)
     ['{DD723CA2-3A8F-4350-B04E-284B00AC47EA}']
     function GetUseIESettings: Boolean;
@@ -33,6 +42,9 @@ type
 
     function GetUseProxy: boolean;
     property UseProxy: boolean read GetUseProxy;
+
+    function GetProxyType: TProxyServerType;
+    property ProxyType: TProxyServerType read GetProxyType;
 
     function GetHost: AnsiString;
     property Host: AnsiString read GetHost;
@@ -56,6 +68,10 @@ type
     function GetUseProxy: Boolean; safecall;
     procedure SetUseProxy(AValue: Boolean);
     property UseProxy: boolean read GetUseProxy write SetUseProxy;
+
+    function GetProxyType: TProxyServerType;
+    procedure SetProxyType(const AValue: TProxyServerType);
+    property ProxyType: TProxyServerType read GetProxyType write SetProxyType;
 
     function GetHost: AnsiString; safecall;
     procedure SetHost(const AValue: AnsiString);

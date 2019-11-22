@@ -89,7 +89,7 @@ object frmSettings: TfrmSettings
           Left = 3
           Top = 3
           Width = 54
-          Height = 19
+          Height = 16
           Align = alLeft
           Caption = 'DBMS root:'
           Layout = tlCenter
@@ -281,7 +281,6 @@ object frmSettings: TfrmSettings
           Align = alTop
           Caption = 'Retry download if tile not found'
           TabOrder = 1
-          ExplicitTop = 114
         end
         object CkBGoNextTile: TCheckBox
           AlignWithMargins = True
@@ -292,7 +291,6 @@ object frmSettings: TfrmSettings
           Align = alTop
           Caption = 'Download next tile if no response'
           TabOrder = 2
-          ExplicitTop = 137
         end
         object CBSaveTileNotExists: TCheckBox
           AlignWithMargins = True
@@ -303,7 +301,6 @@ object frmSettings: TfrmSettings
           Align = alTop
           Caption = 'Store info about not found tiles'
           TabOrder = 3
-          ExplicitTop = 160
         end
         object flwpnlDownloadTimeOut: TFlowPanel
           AlignWithMargins = True
@@ -317,7 +314,6 @@ object frmSettings: TfrmSettings
           AutoSize = True
           BevelOuter = bvNone
           TabOrder = 5
-          ExplicitTop = 206
           object Label32: TLabel
             AlignWithMargins = True
             Left = 3
@@ -346,7 +342,6 @@ object frmSettings: TfrmSettings
           Align = alTop
           Caption = 'Restore download from last successful tile'
           TabOrder = 4
-          ExplicitTop = 183
         end
         object GroupBox4: TGroupBox
           Left = 3
@@ -365,31 +360,30 @@ object frmSettings: TfrmSettings
             Align = alTop
             BevelOuter = bvNone
             TabOrder = 0
-            ExplicitTop = 87
-            object lblProxyHostAndPort: TLabel
-              AlignWithMargins = True
-              Left = 18
-              Top = 3
-              Width = 32
-              Height = 18
-              Margins.Left = 18
-              Margins.Right = 6
-              Align = alLeft
-              Caption = 'Proxy:'
-              ExplicitLeft = 6
-              ExplicitHeight = 13
-            end
             object EditIP: TEdit
-              Left = 56
+              Left = 128
               Top = 0
-              Width = 566
+              Width = 494
               Height = 21
               Align = alClient
               TabOrder = 0
-              Text = ''
-              ExplicitLeft = 0
-              ExplicitTop = 15
-              ExplicitWidth = 622
+              ExplicitLeft = 56
+              ExplicitWidth = 566
+            end
+            object cbbProxyType: TComboBox
+              AlignWithMargins = True
+              Left = 18
+              Top = 0
+              Width = 100
+              Height = 21
+              Margins.Left = 18
+              Margins.Top = 0
+              Margins.Right = 10
+              Margins.Bottom = 0
+              Align = alLeft
+              Style = csDropDownList
+              ItemHeight = 13
+              TabOrder = 1
             end
           end
           object flwpnlProxyAuth: TFlowPanel
@@ -402,8 +396,6 @@ object frmSettings: TfrmSettings
             AutoSize = True
             BevelOuter = bvNone
             TabOrder = 1
-            ExplicitLeft = 7
-            ExplicitTop = 138
             object lblProxyLogin: TLabel
               AlignWithMargins = True
               Left = 18
@@ -449,9 +441,6 @@ object frmSettings: TfrmSettings
             Caption = 'Proxy server requires authentication'
             TabOrder = 2
             OnClick = CBLoginClick
-            ExplicitLeft = 31
-            ExplicitTop = 100
-            ExplicitWidth = 607
           end
           object pnlProxyRadioButtons: TPanel
             Left = 2
@@ -460,7 +449,6 @@ object frmSettings: TfrmSettings
             Height = 68
             Align = alTop
             BevelOuter = bvNone
-            Caption = ''
             TabOrder = 3
             object rbManualProxy: TRadioButton
               Tag = 3
@@ -473,8 +461,6 @@ object frmSettings: TfrmSettings
               Caption = 'Manual proxy configuration'
               TabOrder = 0
               OnClick = rbProxyClick
-              ExplicitLeft = 5
-              ExplicitTop = 64
             end
             object rbNoProxy: TRadioButton
               Tag = 1
@@ -487,8 +473,6 @@ object frmSettings: TfrmSettings
               Caption = 'No proxy'
               TabOrder = 1
               OnClick = rbProxyClick
-              ExplicitLeft = 4
-              ExplicitTop = -3
             end
             object rbUseIESettings: TRadioButton
               Tag = 2
@@ -501,7 +485,6 @@ object frmSettings: TfrmSettings
               Caption = 'Use system (Internet Explorer) proxy settings'
               TabOrder = 2
               OnClick = rbProxyClick
-              ExplicitTop = 12
             end
           end
         end
@@ -517,7 +500,6 @@ object frmSettings: TfrmSettings
           AutoSize = True
           BevelOuter = bvNone
           TabOrder = 6
-          ExplicitTop = 234
           object lbl1: TLabel
             AlignWithMargins = True
             Left = 3
@@ -547,13 +529,12 @@ object frmSettings: TfrmSettings
           Align = alTop
           BevelOuter = bvNone
           TabOrder = 8
-          ExplicitTop = 390
           object lbl2: TLabel
             AlignWithMargins = True
             Left = 3
             Top = 3
             Width = 59
-            Height = 20
+            Height = 17
             Align = alLeft
             Caption = 'User-Agent:'
             ExplicitHeight = 13
@@ -562,17 +543,16 @@ object frmSettings: TfrmSettings
             AlignWithMargins = True
             Left = 68
             Top = 0
-            Width = 535
+            Width = 537
             Height = 23
             Margins.Top = 0
             Margins.Bottom = 0
             Align = alClient
             TabOrder = 0
-            ExplicitLeft = 65
-            ExplicitWidth = 543
+            ExplicitHeight = 21
           end
           object btnResetUserAgentString: TButton
-            Left = 606
+            Left = 608
             Top = 0
             Width = 21
             Height = 23
@@ -580,7 +560,6 @@ object frmSettings: TfrmSettings
             Caption = '<>'
             TabOrder = 1
             OnClick = btnResetUserAgentStringClick
-            ExplicitLeft = 608
           end
         end
         object flwpnlMaxConnsPerServer: TFlowPanel
@@ -595,7 +574,6 @@ object frmSettings: TfrmSettings
           AutoSize = True
           BevelOuter = bvNone
           TabOrder = 7
-          ExplicitTop = 262
           object lblMaxConnsPerServer: TLabel
             AlignWithMargins = True
             Left = 3
@@ -625,14 +603,12 @@ object frmSettings: TfrmSettings
           Align = alTop
           BevelOuter = bvNone
           TabOrder = 9
-          ExplicitLeft = 8
-          ExplicitTop = -1
           object lbl3: TLabel
             AlignWithMargins = True
             Left = 3
             Top = 3
             Width = 79
-            Height = 20
+            Height = 17
             Align = alLeft
             Caption = 'Network engine:'
             ExplicitHeight = 13
@@ -646,6 +622,7 @@ object frmSettings: TfrmSettings
             Style = csDropDownList
             ItemHeight = 13
             TabOrder = 0
+            OnChange = cbbNetworkEngineChange
           end
         end
       end
@@ -819,7 +796,7 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 47
-              Height = 26
+              Height = 23
               Align = alLeft
               Alignment = taRightJustify
               Caption = 'Language'
@@ -1163,7 +1140,7 @@ object frmSettings: TfrmSettings
           end
           object flwpnlMiniMapAlfa: TFlowPanel
             Left = 3
-            Top = 217
+            Top = 220
             Width = 314
             Height = 30
             Align = alTop
@@ -1195,7 +1172,7 @@ object frmSettings: TfrmSettings
           end
           object pnlFillMap: TPanel
             Left = 3
-            Top = 283
+            Top = 286
             Width = 314
             Height = 51
             Align = alTop
@@ -1217,9 +1194,9 @@ object frmSettings: TfrmSettings
             end
             object flwpnlFillMap: TFlowPanel
               Left = 3
-              Top = 19
+              Top = 22
               Width = 308
-              Height = 27
+              Height = 24
               Align = alClient
               BevelOuter = bvNone
               TabOrder = 0
@@ -1263,7 +1240,7 @@ object frmSettings: TfrmSettings
           end
           object pnlBgColor: TPanel
             Left = 3
-            Top = 247
+            Top = 250
             Width = 314
             Height = 36
             Align = alTop
@@ -1278,7 +1255,7 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 82
-              Height = 25
+              Height = 22
               Align = alLeft
               Caption = 'Background color'
               Layout = tlCenter
@@ -1298,7 +1275,7 @@ object frmSettings: TfrmSettings
           end
           object pnlResize: TPanel
             Left = 3
-            Top = 184
+            Top = 187
             Width = 314
             Height = 33
             Align = alTop
@@ -1311,7 +1288,7 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 28
-              Height = 24
+              Height = 21
               Align = alLeft
               Alignment = taRightJustify
               Caption = 'Other'
@@ -1334,7 +1311,7 @@ object frmSettings: TfrmSettings
           end
           object pnlResizeOnload: TPanel
             Left = 3
-            Top = 19
+            Top = 22
             Width = 314
             Height = 33
             Align = alTop
@@ -1347,7 +1324,7 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 93
-              Height = 24
+              Height = 21
               Align = alLeft
               Alignment = taRightJustify
               Caption = 'On load from cache'
@@ -1370,7 +1347,7 @@ object frmSettings: TfrmSettings
           end
           object pnlResizeGetPre: TPanel
             Left = 3
-            Top = 52
+            Top = 55
             Width = 314
             Height = 33
             Align = alTop
@@ -1383,7 +1360,7 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 115
-              Height = 24
+              Height = 21
               Align = alLeft
               Alignment = taRightJustify
               Caption = 'On get from lower zoom'
@@ -1406,7 +1383,7 @@ object frmSettings: TfrmSettings
           end
           object pnlProjectionChange: TPanel
             Left = 3
-            Top = 85
+            Top = 88
             Width = 314
             Height = 33
             Align = alTop
@@ -1419,7 +1396,7 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 103
-              Height = 24
+              Height = 21
               Align = alLeft
               Alignment = taRightJustify
               Caption = 'On projection change'
@@ -1442,7 +1419,7 @@ object frmSettings: TfrmSettings
           end
           object pnlDownloadResize: TPanel
             Left = 3
-            Top = 118
+            Top = 121
             Width = 314
             Height = 33
             Align = alTop
@@ -1455,7 +1432,7 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 63
-              Height = 24
+              Height = 21
               Align = alLeft
               Alignment = taRightJustify
               Caption = 'On download'
@@ -1478,7 +1455,7 @@ object frmSettings: TfrmSettings
           end
           object pnlResizeTileMatrixDraft: TPanel
             Left = 3
-            Top = 151
+            Top = 154
             Width = 314
             Height = 33
             Align = alTop
@@ -1491,7 +1468,7 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 107
-              Height = 24
+              Height = 21
               Align = alLeft
               Alignment = taRightJustify
               Caption = 'On change zoom draft'
@@ -1514,7 +1491,7 @@ object frmSettings: TfrmSettings
           end
           object chkShowLogo: TCheckBox
             Left = 3
-            Top = 334
+            Top = 337
             Width = 314
             Height = 17
             Align = alTop
