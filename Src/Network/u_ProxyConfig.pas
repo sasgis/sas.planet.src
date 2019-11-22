@@ -151,21 +151,24 @@ procedure TProxyConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
     end;
   end;
 
-  function StrToProxyAddress(const AStr: string): string;
+  function StrToProxyAddress(const AStr: AnsiString): AnsiString;
   var
     I: Integer;
+    VStr: string;
   begin
-    Result := Trim(AStr);
+    VStr := Trim(string(AStr));
 
-    I := Pos('=', Result);
+    I := Pos('=', VStr);
     if I > 0 then begin
-      Delete(Result, 1, I);
+      Delete(VStr, 1, I);
     end;
 
-    I := Pos('://', Result);
+    I := Pos('://', VStr);
     if I > 0 then begin
-      Delete(Result, 1, I+2);
+      Delete(VStr, 1, I+2);
     end;
+
+    Result := AnsiString(VStr);
   end;
 
 begin
