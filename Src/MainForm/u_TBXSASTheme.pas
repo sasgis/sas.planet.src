@@ -1,20 +1,43 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.org                                                          *}
+{* info@sasgis.org                                                            *}
+{******************************************************************************}
+
 unit u_TBXSASTheme;
 
 interface
 
+const
+  CTTBSASThemeName = 'TBXSASTheme';
+
+implementation
+
 uses
-  TBXDefaultTheme,
-  windows,
-  Messages,
-  Graphics,
-  TBXThemes,
+  Windows,
   ImgList,
-  CommCtrl;
+  Graphics,
+  TBXUtils,
+  TB2Item,
+  TBXThemes,
+  TBXDefaultTheme;
 
 type
   TTBXSASTheme = class(TTBXDefaultTheme)
-  private
-  protected
   public
     procedure PaintImage(
       DC: HDC;
@@ -25,18 +48,7 @@ type
     ); override;
   end;
 
-implementation
-
-uses
-  Classes,
-  Controls,
-  TBXUtils,
-  TBXGraphics,
-  TBXUxThemes,
-  TB2Common,
-  TB2Item,
-  TBX,
-  Forms;
+{ TTBXSASTheme }
 
 procedure TTBXSASTheme.PaintImage(
   DC: HDC;
@@ -87,6 +99,10 @@ begin
       end else if HiContrast or TBXHiContrast or TBXLoColor then begin
         DrawTBXIcon(DC, ARect, ImageList, ImageIndex, HiContrast);
       end else begin
+        // 2019-11-23, zed:
+        // The only difference this function from original is the next line of code,
+        // which provide a fix to draw full-color icons instead of semi-transparent
+        // (original value 178 replaced with 255)
         HighlightTBXIcon(DC, ARect, ImageList, ImageIndex, clWindow, 255);
       end;
     end else begin
@@ -108,5 +124,6 @@ begin
 end;
 
 initialization
-  RegisterTBXTheme('SAStbxTheme', TTBXSASTheme);
+  RegisterTBXTheme(CTTBSASThemeName, TTBXSASTheme);
+
 end.

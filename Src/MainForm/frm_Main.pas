@@ -118,6 +118,7 @@ uses
   u_FavoriteMapSetMenu,
   u_MainFormLayersList,
   u_SearchToolbarContainer,
+  u_TBXSASTheme,
   frm_About,
   frm_Settings,
   frm_MapLayersOptions,
@@ -1647,7 +1648,7 @@ var
 begin
   Caption := GState.ApplicationCaption;
 
-  TBXSetTheme('SAStbxTheme');
+  TBXSetTheme(CTTBSASThemeName);
 
   VProvider := FStateConfigDataProvider.GetSubItem('MainForm');
   FWinPosition.ReadConfig(VProvider);
