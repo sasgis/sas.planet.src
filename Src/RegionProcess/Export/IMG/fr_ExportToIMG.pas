@@ -188,17 +188,8 @@ implementation
 
 uses
   Windows,
-  IniFiles,
-  {$IFNDef UNICODE}
-  CompatibilityIniFiles,
-  {$ENDIF}
-  ALString,
-  RegExprUtils,
-  gnugettext,
   Graphics,
-  i_ConfigDataProvider,
-  i_PathConfig,
-  u_ConfigDataProviderByIniFile,
+  gnugettext,
   u_InetFunc,
   u_GlobalState;
 
