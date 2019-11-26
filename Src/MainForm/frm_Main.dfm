@@ -1176,7 +1176,6 @@ object frmMain: TfrmMain
       object TBEditSelectPolylineRadiusCap1: TTBXLabelItem
         Margin = 2
         Caption = 'Radius'
-        Hint = ''
       end
       object TBControlItem4: TTBControlItem
         Control = TBEditSelectPolylineRadius
@@ -1184,7 +1183,6 @@ object frmMain: TfrmMain
       object TBEditSelectPolylineRadiusCap2: TTBXLabelItem
         Margin = 2
         Caption = 'm'
-        Hint = ''
       end
       object TBEditPathMarsh: TTBXSubmenuItem
         ImageIndex = 39
