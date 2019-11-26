@@ -242,10 +242,9 @@ object frExportToIMG: TfrExportToIMG
           TabOrder = 1
           object tbSettings: TTBItem
             AutoCheck = True
+            Hint = 'Toggle Options'
             ImageIndex = 20
             OnClick = tbSettingsClick
-            Caption = ''
-            Hint = 'Toggle Options'
           end
         end
       end
@@ -295,17 +294,15 @@ object frExportToIMG: TfrExportToIMG
           TabOrder = 1
           object TBEdit: TTBItem
             Enabled = False
+            Hint = 'Edit SAS Zoom'
             ImageIndex = 31
             OnClick = lstSasZoomsDblClick
-            Caption = ''
-            Hint = 'Edit SAS Zoom'
           end
           object TBReset: TTBItem
             Enabled = False
+            Hint = 'Reset SAS Zooms'
             ImageIndex = 49
             OnClick = TBResetClick
-            Caption = ''
-            Hint = 'Reset SAS Zooms'
           end
         end
       end
@@ -465,10 +462,9 @@ object frExportToIMG: TfrExportToIMG
           ShrinkMode = tbsmWrap
           TabOrder = 3
           object TBGenerateId: TTBItem
+            Hint = 'Generate'
             ImageIndex = 40
             OnClick = TBGenerateIdClick
-            Caption = ''
-            Hint = 'Generate'
           end
         end
         object edtVolumeSize: TEdit

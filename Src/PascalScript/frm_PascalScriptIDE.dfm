@@ -37,7 +37,6 @@ object frmPascalScriptIDE: TfrmPascalScriptIDE
     ShrinkMode = tbsmWrap
     Stretch = True
     TabOrder = 0
-    UseThemeColor = False
     object tbxsbmntmOpen: TTBXSubmenuItem
       DisplayMode = nbdmImageAndText
       ImageIndex = 34
@@ -56,8 +55,6 @@ object frmPascalScriptIDE: TfrmPascalScriptIDE
         Hint = ''
       end
       object tbxsprtrtm2: TTBXSeparatorItem
-        Caption = ''
-        Hint = ''
       end
       object tbxsbmntmMap: TTBXSubmenuItem
         Caption = 'From Map'
@@ -87,8 +84,6 @@ object frmPascalScriptIDE: TfrmPascalScriptIDE
       end
     end
     object tbxSep2: TTBXSeparatorItem
-      Caption = ''
-      Hint = ''
     end
     object tbxtmParams: TTBXItem
       AutoCheck = True
@@ -110,8 +105,6 @@ object frmPascalScriptIDE: TfrmPascalScriptIDE
       Hint = 'GetUrlScript.txt'
     end
     object tbxSep1: TTBXSeparatorItem
-      Caption = ''
-      Hint = ''
     end
     object tbxtmRun: TTBXItem
       DisplayMode = nbdmImageAndText
@@ -124,8 +117,6 @@ object frmPascalScriptIDE: TfrmPascalScriptIDE
       Hint = 'Run'
     end
     object tbxsprtrtm4: TTBXSeparatorItem
-      Caption = ''
-      Hint = ''
     end
     object tbxtmSyntaxCheck: TTBXItem
       ImageIndex = 52
@@ -144,8 +135,6 @@ object frmPascalScriptIDE: TfrmPascalScriptIDE
       Hint = 'Decompile'
     end
     object tbxsprtrtm3: TTBXSeparatorItem
-      Caption = ''
-      Hint = ''
     end
     object tbxtmWordWrap: TTBXItem
       AutoCheck = True
@@ -157,8 +146,6 @@ object frmPascalScriptIDE: TfrmPascalScriptIDE
       Hint = 'Word Wrap'
     end
     object tbxsprtrtm1: TTBXSeparatorItem
-      Caption = ''
-      Hint = ''
     end
     object tbxtmHelp: TTBXItem
       ImageIndex = 26

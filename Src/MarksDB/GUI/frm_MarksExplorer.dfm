@@ -61,73 +61,56 @@ object frmMarksExplorer: TfrmMarksExplorer
             DockPos = 2
             DockRow = 1
             Images = frmMain.MenusImageList
-            ParentBackground = True
-            ParentColor = True
             Stretch = True
             TabOrder = 0
-            UseThemeColor = False
             object btnAddMark: TTBXItem
+              Hint = 'Create new placemark'
               ImageIndex = 32
               OnClick = tbitmAddMarkClick
-              Caption = ''
-              Hint = 'Create new placemark'
             end
             object btnEditMark: TTBXItem
+              Hint = 'Edit selected placemark'
               ImageIndex = 31
               ShortCut = 113
               OnClick = btnEditMarkClick
-              Caption = ''
-              Hint = 'Edit selected placemark'
             end
             object btnDelMark: TTBXItem
+              Hint = 'Delete selected placemark'
               ImageIndex = 30
               ShortCut = 46
               OnClick = btnDelMarkClick
-              Caption = ''
-              Hint = 'Delete selected placemark'
             end
             object TBXSeparatorItem1: TTBXSeparatorItem
-              Caption = ''
-              Hint = ''
             end
             object btnGoToMark: TTBXItem
+              Hint = 'Go to selected object'
               ImageIndex = 11
               OnClick = btnGoToMarkClick
-              Caption = ''
-              Hint = 'Go to selected object'
             end
             object btnOpSelectMark: TTBXItem
+              Hint = 'Selection manager'
               ImageIndex = 10
               OnClick = btnOpSelectMarkClick
-              Caption = ''
-              Hint = 'Selection manager'
             end
             object btnNavOnMark: TTBXItem
               AutoCheck = True
+              Hint = 'Navigate to selected placemark'
               ImageIndex = 33
               OnClick = btnNavOnMarkClick
-              Caption = ''
-              Hint = 'Navigate to selected placemark'
             end
             object TBXSeparatorItem2: TTBXSeparatorItem
-              Caption = ''
-              Hint = ''
             end
             object btnSaveMark: TTBXItem
+              Hint = 'Export selected placemark'
               ImageIndex = 25
               OnClick = btnSaveMarkClick
-              Caption = ''
-              Hint = 'Export selected placemark'
             end
             object btnExportConfig: TTBXItem
+              Hint = 'Export settings'
               ImageIndex = 20
               OnClick = btnExportConfigClick
-              Caption = ''
-              Hint = 'Export settings'
             end
             object TBXSeparatorItem4: TTBXSeparatorItem
-              Caption = ''
-              Hint = ''
             end
             object tbitmAllVisible: TTBXItem
               ImageIndex = 55
@@ -236,40 +219,31 @@ object frmMarksExplorer: TfrmMarksExplorer
             CloseButton = False
             DockPos = 1
             Images = frmMain.MenusImageList
-            ParentBackground = True
-            ParentColor = True
             Stretch = True
             TabOrder = 0
-            UseThemeColor = False
             object BtnAddCategory: TTBXItem
+              Hint = 'Add new category'
               ImageIndex = 32
               OnClick = BtnAddCategoryClick
-              Caption = ''
-              Hint = 'Add new category'
             end
             object BtnEditCategory: TTBXItem
+              Hint = 'Edit selected category'
               ImageIndex = 31
               ShortCut = 113
               OnClick = BtnEditCategoryClick
-              Caption = ''
-              Hint = 'Edit selected category'
             end
             object BtnDelKat: TTBXItem
+              Hint = 'Delete selected category'
               ImageIndex = 30
               ShortCut = 46
               OnClick = BtnDelKatClick
-              Caption = ''
-              Hint = 'Delete selected category'
             end
             object TBXSeparatorItem3: TTBXSeparatorItem
-              Caption = ''
-              Hint = ''
             end
             object btnExportCategory: TTBXItem
+              Hint = 'Export placemarks from selected category'
               ImageIndex = 25
               OnClick = btnExportCategoryClick
-              Caption = ''
-              Hint = 'Export placemarks from selected category'
             end
           end
         end
@@ -412,30 +386,23 @@ object frmMarksExplorer: TfrmMarksExplorer
       ImageIndex = 0
       Options = [tboDropdownArrow]
       Stretch = True
-      Caption = ''
-      Hint = ''
     end
     object tbxSep1: TTBXSeparatorItem
-      Caption = ''
-      Hint = ''
     end
     object tbxAdd: TTBXItem
+      Caption = 'Add a database'
       ImageIndex = 1
       OnClick = tbxAddClick
-      Caption = 'Add a database'
-      Hint = ''
     end
     object tbxEdit: TTBXItem
+      Caption = 'Edit the database'
       ImageIndex = 3
       OnClick = tbxEditClick
-      Caption = 'Edit the database'
-      Hint = ''
     end
     object tbxDelete: TTBXItem
+      Caption = 'Delete the database'
       ImageIndex = 2
       OnClick = tbxDeleteClick
-      Caption = 'Delete the database'
-      Hint = ''
     end
   end
   object imlStates: TImageList
@@ -577,8 +544,6 @@ object frmMarksExplorer: TfrmMarksExplorer
       Hint = 'Delete'
     end
     object tbsprtCategoriesPopUp: TTBXSeparatorItem
-      Caption = ''
-      Hint = ''
     end
     object tbitmExportCategory: TTBXItem
       ImageIndex = 25
@@ -587,10 +552,9 @@ object frmMarksExplorer: TfrmMarksExplorer
       Hint = 'Export placemarks from selected category'
     end
     object tbxtmCatAddToMergePolygons: TTBXItem
+      Caption = 'Add to Merge Polygons'
       ImageIndex = 62
       OnClick = tbxtmCatAddToMergePolygonsClick
-      Caption = 'Add to Merge Polygons'
-      Hint = ''
     end
   end
   object tbpmnMarks: TTBXPopupMenu
@@ -619,46 +583,35 @@ object frmMarksExplorer: TfrmMarksExplorer
       Hint = 'Delete'
     end
     object tbsprtMarksPopUp2: TTBXSeparatorItem
-      Caption = ''
-      Hint = ''
     end
     object tbitmCut: TTBXItem
+      Caption = 'Cut'
       ImageIndex = 63
       OnClick = tbitmCutClick
-      Caption = 'Cut'
-      Hint = ''
     end
     object tbitmCopy: TTBXItem
+      Caption = 'Copy'
       ImageIndex = 67
       OnClick = tbitmCopyClick
-      Caption = 'Copy'
-      Hint = ''
     end
     object tbitmPaste: TTBXItem
+      Caption = 'Paste'
       ImageIndex = 68
       OnClick = tbitmPasteClick
-      Caption = 'Paste'
-      Hint = ''
     end
     object tbsprtMarksPopUp: TTBXSeparatorItem
-      Caption = ''
-      Hint = ''
     end
     object tbitmCopyAsText: TTBXItem
+      Caption = 'Copy to Clipboard as Text'
       ImageIndex = 69
       OnClick = tbitmCopyAsTextClick
-      Caption = 'Copy to Clipboard as Text'
-      Hint = ''
     end
     object TBXSeparatorItem5: TTBXSeparatorItem
-      Caption = ''
-      Hint = ''
     end
     object tbitmMarkInfo: TTBXItem
+      Caption = 'Placemark Info'
       ImageIndex = 27
       OnClick = tbitmMarkInfoClick
-      Caption = 'Placemark Info'
-      Hint = ''
     end
     object tbitmExportMark: TTBXItem
       ImageIndex = 25
@@ -667,16 +620,14 @@ object frmMarksExplorer: TfrmMarksExplorer
       Hint = 'Export selected placemark'
     end
     object tbxtmAddToMergePolygons: TTBXItem
+      Caption = 'Add to Merge Polygons'
       ImageIndex = 62
       OnClick = tbxtmAddToMergePolygonsClick
-      Caption = 'Add to Merge Polygons'
-      Hint = ''
     end
     object tbxtmUngroup: TTBXItem
+      Caption = 'Ungroup'
       ImageIndex = 57
       OnClick = tbxtmUngroupClick
-      Caption = 'Ungroup'
-      Hint = ''
     end
   end
   object TBXImageList1: TTBXImageList

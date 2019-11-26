@@ -46,8 +46,6 @@ object frMergePolygons: TfrMergePolygons
       Hint = 'Move selected item Down (Shift + Down Arrow)'
     end
     object tbxSep1: TTBXSeparatorItem
-      Caption = ''
-      Hint = ''
     end
     object tbDel: TTBItem
       ImageIndex = 50
@@ -62,8 +60,6 @@ object frMergePolygons: TfrMergePolygons
       Hint = 'Remove All'
     end
     object tbxSep2: TTBXSeparatorItem
-      Caption = ''
-      Hint = ''
     end
     object tbOperationType: TTBSubmenuItem
       DropdownCombo = True
@@ -98,8 +94,6 @@ object frMergePolygons: TfrMergePolygons
         Hint = ''
       end
       object tbSep4: TTBSeparatorItem
-        Caption = ''
-        Hint = ''
       end
       object tbtmGroup: TTBItem
         Tag = 4
@@ -116,8 +110,6 @@ object frMergePolygons: TfrMergePolygons
       Hint = ''
     end
     object tbSep3: TTBSeparatorItem
-      Caption = ''
-      Hint = ''
     end
     object tbtmSelect: TTBItem
       ImageIndex = 10

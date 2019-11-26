@@ -57,8 +57,6 @@ object frMapSelect: TfrMapSelect
       Hint = ''
     end
     object TBSeparatorItem1: TTBSeparatorItem
-      Caption = ''
-      Hint = ''
     end
     object TBX_Filter: TTBXItem
       Tag = 5

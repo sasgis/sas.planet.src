@@ -73,17 +73,14 @@ object frmMain: TfrmMain
         Images = PanelsImageList
       end
       object TBXSeparatorItem4: TTBXSeparatorItem
-        Caption = ''
-        Hint = ''
       end
       object TBMapZap: TTBXSubmenuItem
         DisplayMode = nbdmImageAndText
+        Hint = 'Cached tiles map'
         ImageIndex = 7
         Images = PanelsImageList
         LinkSubitems = NFillMap
         Options = [tboDropdownArrow, tboShowHint]
-        Caption = ''
-        Hint = 'Cached tiles map'
       end
       object TBGoTo: TTBXSubmenuItem
         Action = actShowGoTo
@@ -92,8 +89,6 @@ object frmMain: TfrmMain
         Options = [tboShowHint]
       end
       object TBXSeparatorItem5: TTBXSeparatorItem
-        Caption = ''
-        Hint = ''
       end
       object TBFullSize: TTBXItem
         Action = actViewFullScreen
@@ -109,37 +104,30 @@ object frmMain: TfrmMain
       TabOrder = 4
       Caption = 'Sources'
       object TBSrc: TTBXSubmenuItem
+        Hint = 'Select data source'
         ImageIndex = 0
         Images = PanelsImageList
         LinkSubitems = NSources
         Options = [tboDropdownArrow]
-        Caption = ''
-        Hint = 'Select data source'
       end
       object TBSMB: TTBXSubmenuItem
         DisplayMode = nbdmImageAndText
+        Hint = 'Selected basemap'
         ImageIndex = 3
         Images = PanelsImageList
         Options = [tboDropdownArrow]
-        Caption = ''
-        Hint = 'Selected basemap'
       end
       object TBLayerSel: TTBXSubmenuItem
+        Hint = 'Select overlay layers'
         ImageIndex = 3
         Images = PanelsImageList
         Options = [tboDropdownArrow]
-        Caption = ''
-        Hint = 'Select overlay layers'
         object btnHideAll: TTBXItem
           Action = actMapsAllLayersHide
         end
         object HideSeparator: TTBSeparatorItem
-          Caption = ''
-          Hint = ''
         end
         object tbiLayersList: TTBGroupItem
-          Caption = ''
-          Hint = ''
         end
       end
     end
@@ -176,16 +164,12 @@ object frmMain: TfrmMain
           Images = MenusImageList
         end
         object TBXSeparatorItem16: TTBXSeparatorItem
-          Caption = ''
-          Hint = ''
         end
         object tbitmGPSTrackSaveToMarks: TTBXItem
           Action = actGpsTrackSaveToDb
           Images = MenusImageList
         end
         object TBXSeparatorItem17: TTBXSeparatorItem
-          Caption = ''
-          Hint = ''
         end
         object TBItemDelTrack: TTBXItem
           Action = actGpsTrackClear
@@ -236,8 +220,6 @@ object frmMain: TfrmMain
           Images = MenusImageList
         end
         object TBXSeparatorItem6: TTBXSeparatorItem
-          Caption = ''
-          Hint = ''
         end
         object NZoomIn: TTBXItem
           Action = actZoomIn
@@ -248,8 +230,6 @@ object frmMain: TfrmMain
           Images = MenusImageList
         end
         object TBXSeparatorItem7: TTBXSeparatorItem
-          Caption = ''
-          Hint = ''
         end
         object tbitmGoToModal: TTBXItem
           Action = actShowGoTo
@@ -265,8 +245,6 @@ object frmMain: TfrmMain
           Images = MenusImageList
         end
         object TBXSeparatorItem8: TTBXSeparatorItem
-          Caption = ''
-          Hint = ''
         end
         object NRectSave: TTBXSubmenuItem
           Images = MenusImageList
@@ -294,8 +272,6 @@ object frmMain: TfrmMain
             Images = PanelsImageList
           end
           object TBXSeparatorItem13: TTBXSeparatorItem
-            Caption = ''
-            Hint = ''
           end
           object TBPrevious: TTBXItem
             Action = actSelectByLastSelection
@@ -311,16 +287,12 @@ object frmMain: TfrmMain
           end
         end
         object TBXSeparatorItem9: TTBXSeparatorItem
-          Caption = ''
-          Hint = ''
         end
         object tbitmCacheManager: TTBXItem
           Action = actShowCacheManager
           Images = MenusImageList
         end
         object TBXSeparatorCacheManager: TTBXSeparatorItem
-          Caption = ''
-          Hint = ''
         end
         object tbitmQuit: TTBXItem
           Action = actQuit
@@ -403,8 +375,6 @@ object frmMain: TfrmMain
             Hint = ''
           end
           object TBXSeparatorItem18: TTBXSeparatorItem
-            Caption = ''
-            Hint = ''
           end
           object NBlock_toolbars: TTBXItem
             Action = actViewToolbarsLock
@@ -443,13 +413,9 @@ object frmMain: TfrmMain
               OnAdjustFont = AdjustFont
             end
             object tbiFillingMapMaps: TTBGroupItem
-              Caption = ''
-              Hint = ''
             end
           end
           object TBXSeparatorItem11: TTBXSeparatorItem
-            Caption = ''
-            Hint = ''
           end
           object tbtpltCachedTilesMap: TTBXToolPalette
             ColCount = 5
@@ -457,12 +423,8 @@ object frmMain: TfrmMain
             PaletteOptions = []
             RowCount = 7
             OnCellClick = tbtpltCachedTilesMapCellClick
-            Caption = ''
-            Hint = ''
           end
           object TBXSeparatorItem20: TTBXSeparatorItem
-            Caption = ''
-            Hint = ''
           end
           object NFillMode1: TTBXItem
             Action = actViewFillingMapMarkUnexisting
@@ -477,8 +439,6 @@ object frmMain: TfrmMain
             Images = MenusImageList
           end
           object TBXSeparatorItem21: TTBXSeparatorItem
-            Caption = ''
-            Hint = ''
           end
           object NShowFillDates: TTBXItem
             Action = actViewFillingMapFilterMode
@@ -497,8 +457,6 @@ object frmMain: TfrmMain
             RowCount = 7
             OnCellClick = tbtpltViewGridTileCellClick
             OnGetCellVisible = tbtpltViewGridTileGetCellVisible
-            Caption = ''
-            Hint = ''
           end
         end
         object tbsbmGenShtabScale: TTBXSubmenuItem
@@ -546,8 +504,6 @@ object frmMain: TfrmMain
             Images = MenusImageList
           end
           object TBSeparatorItem3: TTBSeparatorItem
-            Caption = ''
-            Hint = ''
           end
           object NGShauto: TTBXItem
             Action = actViewGridGenShtabAuto
@@ -591,8 +547,6 @@ object frmMain: TfrmMain
             Images = MenusImageList
           end
           object TBXSeparatorItem22: TTBXSeparatorItem
-            Caption = ''
-            Hint = ''
           end
           object NDegScaleUser: TTBXItem
             Action = actViewGridLonLat_User
@@ -600,12 +554,8 @@ object frmMain: TfrmMain
           end
           object NDegValue: TTBXEditItem
             OnAcceptText = NDegValueAcceptText
-            Caption = ''
-            Hint = ''
           end
           object TBSeparatorItem2: TTBSeparatorItem
-            Caption = ''
-            Hint = ''
           end
           object NDegScaleAuto: TTBXItem
             Action = actViewGridLonLatAuto
@@ -617,8 +567,6 @@ object frmMain: TfrmMain
           Caption = 'Projection'
           Hint = ''
           object tbiProjections: TTBGroupItem
-            Caption = ''
-            Hint = ''
           end
           object tbiProjectionOfMap: TTBXItem
             Action = actConfigProjectionOfMapUse
@@ -647,8 +595,6 @@ object frmMain: TfrmMain
           end
         end
         object TBXSeparatorItem10: TTBXSeparatorItem
-          Caption = ''
-          Hint = ''
         end
         object NFoolSize: TTBXItem
           Action = actViewFullScreen
@@ -745,8 +691,6 @@ object frmMain: TfrmMain
         Caption = 'Placemarks'
         Hint = ''
         object NMarksGroup: TTBGroupItem
-          Caption = ''
-          Hint = ''
           object TBAdd_Point: TTBXItem
             Action = actMarksAddPoint
             Images = PanelsImageList
@@ -764,8 +708,6 @@ object frmMain: TfrmMain
             Options = [tboShowHint]
           end
           object TBXSeparatorItem12: TTBXSeparatorItem
-            Caption = ''
-            Hint = ''
           end
           object tbitmPlacemarkManager: TTBXItem
             Action = actShowPlacemarkManager
@@ -777,8 +719,6 @@ object frmMain: TfrmMain
             Images = PanelsImageList
           end
           object TBXSeparatorItem23: TTBXSeparatorItem
-            Caption = ''
-            Hint = ''
           end
           object tbxMarksDbList: TTBXSubmenuItem
             ImageIndex = 25
@@ -804,8 +744,6 @@ object frmMain: TfrmMain
           Hint = ''
         end
         object TBSeparatorItem4: TTBSeparatorItem
-          Caption = ''
-          Hint = ''
         end
         object tbxIconsSettings: TTBXItem
           Action = actIconsSettings
@@ -814,7 +752,6 @@ object frmMain: TfrmMain
       end
       object tbsbmGPS: TTBXSubmenuItem
         Caption = 'GPS'
-        Hint = ''
         object tbitmGPSConnect: TTBXItem
           Action = actGpsConnect
           Images = MenusImageList
@@ -832,8 +769,6 @@ object frmMain: TfrmMain
           Images = MenusImageList
         end
         object tbsprtGPS1: TTBXSeparatorItem
-          Caption = ''
-          Hint = ''
         end
         object tbitmSaveCurrentPosition: TTBXItem
           Action = actGpsMarkPointAdd
@@ -848,12 +783,8 @@ object frmMain: TfrmMain
           Images = MenusImageList
         end
         object tbsprtGPS2: TTBXSeparatorItem
-          Caption = ''
-          Hint = ''
         end
         object TBXSeparatorItem19: TTBXSeparatorItem
-          Caption = ''
-          Hint = ''
         end
         object tbitmGPSOptions: TTBXItem
           Action = actConfigGpsOptionsShow
@@ -874,8 +805,6 @@ object frmMain: TfrmMain
           Hint = ''
         end
         object TBXSeparatorItem14: TTBXSeparatorItem
-          Caption = ''
-          Hint = ''
         end
         object tbitmOptions: TTBXItem
           Action = actConfigOptionsShow
@@ -908,8 +837,6 @@ object frmMain: TfrmMain
           Images = MenusImageList
         end
         object tbxSep4: TTBXSeparatorItem
-          Caption = ''
-          Hint = ''
         end
         object tbtmHelpBugTrack: TTBXItem
           Action = actHelpOpenIssueTracker
@@ -917,16 +844,12 @@ object frmMain: TfrmMain
           Images = MenusImageList
         end
         object tbxSep1: TTBXSeparatorItem
-          Caption = ''
-          Hint = ''
         end
         object tbxtmPascalScriptIDE: TTBXItem
           Action = actShowPascalScriptIde
           Images = MenusImageList
         end
         object tbxSep2: TTBXSeparatorItem
-          Caption = ''
-          Hint = ''
         end
         object tbitmCheckUpdate: TTBXItem
           Action = actShowUpddateChecker
@@ -934,8 +857,6 @@ object frmMain: TfrmMain
           Images = MenusImageList
         end
         object tbxSep3: TTBXSeparatorItem
-          Caption = ''
-          Hint = ''
         end
         object tbitmAbout: TTBXItem
           Action = actHelpShowAbout
@@ -985,23 +906,15 @@ object frmMain: TfrmMain
       Caption = 'FillDates'
       object TBControlItem7: TTBControlItem
         Control = Label1
-        Caption = ''
-        Hint = ''
       end
       object TBControlItem6: TTBControlItem
         Control = DateTimePicker1
-        Caption = ''
-        Hint = ''
       end
       object TBControlItem8: TTBControlItem
         Control = Label2
-        Caption = ''
-        Hint = ''
       end
       object TBControlItem9: TTBControlItem
         Control = DateTimePicker2
-        Caption = ''
-        Hint = ''
       end
       object Label1: TLabel
         Left = 0
@@ -1059,12 +972,8 @@ object frmMain: TfrmMain
           Action = actFavoriteManage
         end
         object TBXSeparatorItem15: TTBXSeparatorItem
-          Caption = ''
-          Hint = ''
         end
         object tbiFavoriteItems: TTBGroupItem
-          Caption = ''
-          Hint = ''
         end
       end
     end
@@ -1101,19 +1010,13 @@ object frmMain: TfrmMain
       object TBXSeparatorItem1: TTBXSeparatorItem
         Blank = True
         Size = 3
-        Caption = ''
-        Hint = ''
       end
       object TBControlItem1: TTBControlItem
         Control = ZSlider
-        Caption = ''
-        Hint = ''
       end
       object TBXSeparatorItem3: TTBXSeparatorItem
         Blank = True
         Size = 3
-        Caption = ''
-        Hint = ''
       end
       object TBZoom_out: TTBXItem
         Action = actZoomOut
@@ -1124,13 +1027,9 @@ object frmMain: TfrmMain
       object TBXSeparatorItem2: TTBXSeparatorItem
         Blank = True
         Size = 4
-        Caption = ''
-        Hint = ''
       end
       object TBControlItem2: TTBControlItem
         Control = labZoom
-        Caption = ''
-        Hint = ''
       end
       object labZoom: TLabel
         Left = 24
@@ -1281,8 +1180,6 @@ object frmMain: TfrmMain
       end
       object TBControlItem4: TTBControlItem
         Control = TBEditSelectPolylineRadius
-        Caption = ''
-        Hint = ''
       end
       object TBEditSelectPolylineRadiusCap2: TTBXLabelItem
         Margin = 2
@@ -3773,8 +3670,6 @@ object frmMain: TfrmMain
       Hint = ''
     end
     object tbsprtMainPopUp0: TTBXSeparatorItem
-      Caption = ''
-      Hint = ''
     end
     object NaddPoint: TTBXItem
       ImageIndex = 15
@@ -3783,8 +3678,6 @@ object frmMain: TfrmMain
       Hint = ''
     end
     object tbsprtMainPopUp1: TTBXSeparatorItem
-      Caption = ''
-      Hint = ''
     end
     object tbitmCenterWithZoom: TTBXSubmenuItem
       Caption = 'Center With &Zoom'
@@ -3795,13 +3688,9 @@ object frmMain: TfrmMain
         PaletteOptions = []
         RowCount = 5
         OnCellClick = tbtpltCenterWithZoomCellClick
-        Caption = ''
-        Hint = ''
       end
     end
     object tbsprtMainPopUp2: TTBXSeparatorItem
-      Caption = ''
-      Hint = ''
     end
     object tbitmCopyToClipboard: TTBXSubmenuItem
       ImageIndex = 28
@@ -3849,8 +3738,6 @@ object frmMain: TfrmMain
         Hint = ''
       end
       object tbsprtCopyToClipboard0: TTBXSeparatorItem
-        Caption = ''
-        Hint = ''
       end
       object tbitmCopyToClipboardMainMapUrl: TTBXItem
         ImageIndex = 45
@@ -3902,8 +3789,6 @@ object frmMain: TfrmMain
       Hint = ''
     end
     object tbsprtMainPopUp3: TTBXSeparatorItem
-      Caption = ''
-      Hint = ''
     end
     object tbitmAdditionalOperations: TTBXSubmenuItem
       Caption = 'Additional Operations'
@@ -3919,8 +3804,6 @@ object frmMain: TfrmMain
         Hint = ''
       end
       object tbsprtAdditionalOperations1: TTBXSeparatorItem
-        Caption = ''
-        Hint = ''
       end
       object DigitalGlobe1: TTBXItem
         ImageIndex = 11
@@ -3935,8 +3818,6 @@ object frmMain: TfrmMain
         Hint = ''
       end
       object tbsprtAdditionalOperations0: TTBXSeparatorItem
-        Caption = ''
-        Hint = ''
       end
       object tbxWeatherUnderground: TTBXItem
         OnClick = tbxWeatherUndergroundClick
@@ -3976,8 +3857,6 @@ object frmMain: TfrmMain
       end
     end
     object tbsprtMainPopUp4: TTBXSeparatorItem
-      Caption = ''
-      Hint = ''
     end
     object tbitmDownloadMainMapTile: TTBXItem
       ImageIndex = 21
@@ -4002,8 +3881,6 @@ object frmMain: TfrmMain
       Hint = ''
     end
     object tbsprtMainPopUp5: TTBXSeparatorItem
-      Caption = ''
-      Hint = ''
     end
     object NMapInfo: TTBXItem
       ImageIndex = 27
@@ -4037,8 +3914,6 @@ object frmMain: TfrmMain
       Action = actViewNotMinimized
     end
     object TBSeparatorItem1: TTBSeparatorItem
-      Caption = ''
-      Hint = ''
     end
     object TrayItemQuit: TTBItem
       Action = actQuit
@@ -4727,7 +4602,6 @@ object frmMain: TfrmMain
     end
     object tbxsbmScaleLineNumberFormat: TTBXSubmenuItem
       Caption = 'Numbers Format'
-      Hint = ''
       object tbiConfigScaleLineNumberFormatNice: TTBXItem
         Action = actConfigScaleLineNumberFormatNice
       end

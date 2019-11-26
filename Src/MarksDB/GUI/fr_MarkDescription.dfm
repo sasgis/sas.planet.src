@@ -55,8 +55,6 @@ object frMarkDescription: TfrMarkDescription
         Hint = ''
       end
       object TBXSeparatorItem1: TTBXSeparatorItem
-        Caption = ''
-        Hint = ''
       end
       object TBXItem4: TTBXItem
         Tag = 3
@@ -80,8 +78,6 @@ object frMarkDescription: TfrMarkDescription
         Hint = ''
       end
       object TBXSeparatorItem2: TTBXSeparatorItem
-        Caption = ''
-        Hint = ''
       end
       object TBXItem7: TTBXItem
         Tag = 6
