@@ -182,25 +182,27 @@ begin
   inherited;
 end;
 
+{$IF CompilerVersion < 23}
+function ReturnAddress: Pointer;
+asm
+  mov eax, [ebp+4]
+end;
+{$IFEND}
+
 class procedure TGUIDSetBase.Error(
   Msg: PResStringRec;
   Data: Integer
 );
 begin
-  TGUIDSetBase.Error(LoadResString(Msg), Data);
+  raise EListError.CreateFmt(LoadResString(Msg), [Data]) at ReturnAddress;
 end;
 
 class procedure TGUIDSetBase.Error(
   const Msg: string;
   Data: Integer
 );
-  function ReturnAddr: Pointer;
-  asm
-    MOV     EAX,[EBP+4]
-  end;
-
 begin
-  raise EListError.CreateFmt(Msg, [Data]) at ReturnAddr;
+  raise EListError.CreateFmt(Msg, [Data]) at ReturnAddress;
 end;
 
 function TGUIDSetBase.Find(
