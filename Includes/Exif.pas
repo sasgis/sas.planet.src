@@ -37,8 +37,11 @@ const
   CGpsLatitudeValueOffset = $6E;
   CGpsLongitudeValueOffset = $86;
 
-function Swap(AValue: Cardinal): Cardinal; assembler;
+function Swap32(AValue: Cardinal): Cardinal; assembler;
 asm
+  {$IFDEF CPUX64}
+  mov eax, ecx
+  {$ENDIF}
   bswap eax;
 end;
 
@@ -89,11 +92,11 @@ begin
 
   CoordToDegrMinSec(ALatitude, VDegr, VMin, VSec, VSecDiv);
 
-  VDegr := Swap(VDegr);
-  VMin  := Swap(VMin);
-  VDegrMinDiv := Swap(1);
-  VSec := Swap(VSec);
-  VSecDiv := Swap(VSecDiv);
+  VDegr := Swap32(VDegr);
+  VMin  := Swap32(VMin);
+  VDegrMinDiv := Swap32(1);
+  VSec := Swap32(VSec);
+  VSecDiv := Swap32(VSecDiv);
 
   FStream.Position := CGpsLatitudeValueOffset;
   FStream.WriteBuffer(VDegr, 4);
@@ -105,11 +108,11 @@ begin
 
   CoordToDegrMinSec(ALongitude, VDegr, VMin, VSec, VSecDiv);
 
-  VDegr := Swap(VDegr);
-  VMin  := Swap(VMin);
-  VDegrMinDiv := Swap(1);
-  VSec := Swap(VSec);
-  VSecDiv := Swap(VSecDiv);
+  VDegr := Swap32(VDegr);
+  VMin  := Swap32(VMin);
+  VDegrMinDiv := Swap32(1);
+  VSec := Swap32(VSec);
+  VSecDiv := Swap32(VSecDiv);
 
   FStream.Position := CGpsLongitudeValueOffset;
   FStream.WriteBuffer(VDegr, 4);
