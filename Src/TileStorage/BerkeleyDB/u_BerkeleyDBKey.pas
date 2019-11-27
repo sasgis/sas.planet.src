@@ -130,12 +130,15 @@ end;
 
 function Swap32(Value: Cardinal): Cardinal; assembler;
 asm
+  {$IFDEF CPUX64}
+  mov eax, ecx
+  {$ENDIF}
   bswap eax
 end;
 
-function Swap16(Value: Word): Word; assembler;
-asm
-   xchg al, ah
+function Swap16(Value: Word): Word; inline;
+begin
+  Result := System.Swap(Value);
 end;
 
 procedure SetBit(
