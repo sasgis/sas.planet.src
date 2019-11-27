@@ -4044,12 +4044,12 @@ function TRegExpr.Dump : RegExprString;
 // way to restore compiler optimization flag ...
 {$ENDIF}
 procedure TRegExpr.Error (AErrorID : integer);
-{$IFDEF reRealExceptionAddr}
- function ReturnAddr : pointer; //###0.938
+{$IF DEFINED(reRealExceptionAddr) AND (CompilerVersion < 23)}  
+  function ReturnAddress: pointer; //###0.938
   asm
-   mov  eax,[ebp+4]
+    mov eax, [ebp+4]
   end;
-{$ENDIF}
+{$IFEND}
  var
   e : ERegExpr;
  begin
@@ -4062,7 +4062,7 @@ procedure TRegExpr.Error (AErrorID : integer);
   e.CompilerErrorPos := CompilerErrorPos;
   raise e
    {$IFDEF reRealExceptionAddr}
-   At ReturnAddr; //###0.938
+   At ReturnAddress; //###0.938
    {$ENDIF}
  end; { of procedure TRegExpr.Error
 --------------------------------------------------------------}
