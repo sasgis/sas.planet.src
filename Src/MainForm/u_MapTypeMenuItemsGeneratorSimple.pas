@@ -56,6 +56,9 @@ implementation
 
 uses
   SysUtils,
+  {$IF CompilerVersion <= 18.5}
+  Compatibility,
+  {$IFEND}
   i_GUIDListStatic,
   u_TBXSubmenuItemWithIndicator;
 
@@ -82,7 +85,7 @@ function TMapMenuGeneratorSimple.CreateMenuItem(
 ): TTBXCustomItem;
 begin
   Result := TTBXItem.Create(FRootMenu);
-  Result.tag := LongInt(AMapType);
+  Result.Tag := NativeInt(AMapType);
   Result.Caption := AMapType.GUIConfig.Name.Value;
   Result.OnClick := FOnClick;
 end;

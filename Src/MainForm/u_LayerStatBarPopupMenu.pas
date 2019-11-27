@@ -72,6 +72,9 @@ implementation
 uses
   ActiveX,
   SysUtils,
+  {$IF CompilerVersion <= 18.5}
+  Compatibility,
+  {$IFEND}
   i_InterfaceListStatic,
   i_TerrainProviderListElement,
   u_InetFunc,
@@ -205,7 +208,7 @@ begin
           VMenuItem.AutoCheck := True;
           VMenuItem.GroupIndex := 1;
           VMenuItem.Caption := VItem.Caption;
-          VMenuItem.Tag := Integer(VItem);
+          VMenuItem.Tag := NativeInt(VItem);
           VMenuItem.OnClick := OnTerrainItemClick;
           VMenuSubItem.Add(VMenuItem);
         end;

@@ -2288,7 +2288,7 @@ begin
     VTBEditItem.Caption := VItem.GetCaption;
     VTBEditItem.EditWidth := 150;
     VTBEditItem.Hint := '';
-    VTBEditItem.Tag := Integer(VItem);
+    VTBEditItem.Tag := NativeInt(VItem);
     VTBEditItem.OnAcceptText := Self.tbiEditSrchAcceptText;
 
     TBGoTo.Add(VTBEditItem);
@@ -2478,7 +2478,7 @@ begin
       NDwnItem.Caption := VMapType.GUIConfig.Name.Value;
       NDwnItem.ImageIndex := VIcon18Index;
       NDwnItem.OnClick := tbitmDownloadMainMapTileClick;
-      NDwnItem.Tag := longint(VMapType);
+      NDwnItem.Tag := NativeInt(VMapType);
       ldm.Add(NDwnItem);
 
       NDelItem := tTBXItem.Create(dlm);
@@ -2486,7 +2486,7 @@ begin
       NDelItem.Caption := VMapType.GUIConfig.Name.Value;
       NDelItem.ImageIndex := VIcon18Index;
       NDelItem.OnClick := NDelClick;
-      NDelItem.Tag := longint(VMapType);
+      NDelItem.Tag := NativeInt(VMapType);
       dlm.Add(NDelItem);
 
       NOpenDirItem := tTBXItem.Create(TBOpenDirLayer);
@@ -2494,7 +2494,7 @@ begin
       NOpenDirItem.Caption := VMapType.GUIConfig.Name.Value;
       NOpenDirItem.ImageIndex := VIcon18Index;
       NOpenDirItem.OnClick := tbitmOpenFolderMainMapTileClick;
-      NOpenDirItem.Tag := longint(VMapType);
+      NOpenDirItem.Tag := NativeInt(VMapType);
       TBOpenDirLayer.Add(NOpenDirItem);
 
       NCopyLinkItem := tTBXItem.Create(TBCopyLinkLayer);
@@ -2502,7 +2502,7 @@ begin
       NCopyLinkItem.Caption := VMapType.GUIConfig.Name.Value;
       NCopyLinkItem.ImageIndex := VIcon18Index;
       NCopyLinkItem.OnClick := tbitmCopyToClipboardMainMapUrlClick;
-      NCopyLinkItem.Tag := Longint(VMapType);
+      NCopyLinkItem.Tag := NativeInt(VMapType);
       TBCopyLinkLayer.Add(NCopyLinkItem);
 
       NLayerParamsItem := tTBXItem.Create(NLayerParams);
@@ -2510,7 +2510,7 @@ begin
       NLayerParamsItem.Caption := VMapType.GUIConfig.Name.Value;
       NLayerParamsItem.ImageIndex := VIcon18Index;
       NLayerParamsItem.OnClick := actMapsEditMapParamsExecute;
-      NLayerParamsItem.Tag := longint(VMapType);
+      NLayerParamsItem.Tag := NativeInt(VMapType);
       NLayerParams.Add(NLayerParamsItem);
 
       NLayerInfoItem := tTBXItem.Create(TBLayerInfo);
@@ -2518,7 +2518,7 @@ begin
       NLayerInfoItem.Caption := VMapType.GUIConfig.Name.Value;
       NLayerInfoItem.ImageIndex := VIcon18Index;
       NLayerInfoItem.OnClick := NMapInfoClick;
-      NLayerInfoItem.Tag := longint(VMapType);
+      NLayerInfoItem.Tag := NativeInt(VMapType);
       TBLayerInfo.Add(NLayerInfoItem);
     end;
   end;
@@ -3715,7 +3715,7 @@ begin
 
         VMenuItem.Checked := ((Length(VCurrentVersion) > 0) and (VCurrentVersion = VVersionInfo.StoreString));
         VMenuItem.OnClick := DoSelectSpecialVersion;
-        VMenuItem.Tag := Integer(VVersionInfo);
+        VMenuItem.Tag := NativeInt(VVersionInfo);
 
         if VSorted then begin
           tbpmiVersions.Add(VMenuItem);

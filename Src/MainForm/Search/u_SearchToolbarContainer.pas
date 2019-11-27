@@ -109,6 +109,9 @@ implementation
 
 uses
   SysUtils,
+  {$IF CompilerVersion <= 18.5}
+  Compatibility,
+  {$IFEND}
   i_LocalCoordConverter,
   u_Synchronizer,
   u_SearchTaskRunnerAsync,
@@ -231,7 +234,7 @@ begin
 
     VAction := TAction.Create(FactlstGeoCoders);
     VAction.Caption := VItem.Caption;
-    VAction.Tag := Integer(VItem);
+    VAction.Tag := NativeInt(VItem);
     VAction.OnExecute := Self.actGeoCoderSetMain;
     VAction.ActionList := FactlstGeoCoders;
   end;

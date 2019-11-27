@@ -94,6 +94,9 @@ type
 implementation
 
 uses
+  {$IF CompilerVersion <= 18.5}
+  Compatibility,
+  {$IFEND}
   t_GeoTypes,
   i_AppearanceOfVectorItem,
   u_BitmapFunc;
@@ -166,7 +169,7 @@ begin
     if FPopUp.Tag <> 0 then begin
       IInterface(FPopUp.Tag)._Release;
     end;
-    FPopUp.Tag := Integer(FPlacemark);
+    FPopUp.Tag := NativeInt(FPlacemark);
     IInterface(FPopUp.Tag)._AddRef;
     VPoint := ClientToScreen(MousePos);
     FPopUp.Popup(VPoint.X, VPoint.Y);

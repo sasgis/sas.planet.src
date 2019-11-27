@@ -58,6 +58,9 @@ type
 implementation
 
 uses
+  {$IF CompilerVersion <= 18.5}
+  Compatibility,
+  {$IFEND}
   TBX,
   TBXExtItems;
 
@@ -105,7 +108,7 @@ begin
     if AItem.Data <> nil then begin
       VItem := TTBXItem.Create(AParent);
       VItem.Caption := AItem.Name;
-      VItem.Tag := Integer(AItem.Data);
+      VItem.Tag := NativeInt(AItem.Data);
       VItem.OnClick := FOnClick;
       AParent.Add(VItem);
     end;
