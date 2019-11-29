@@ -45,7 +45,8 @@ type
 
 implementation
 
-{$IF CompilerVersion >= 23}
+{$IF CompilerVersion >= 29}
+  // WinHttp unit was added in Delphi XE8
   {$DEFINE USE_WINHTTP_UNIT}
 {$IFEND}
 

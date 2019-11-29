@@ -65,7 +65,7 @@ var
 implementation
 
 uses
-  {$IF CompilerVersion >= 33}
+  {$IF CompilerVersion >= 23}
   AnsiStrings,
   {$IFEND}
   ALString,
@@ -273,13 +273,16 @@ initialization
   StrLCopyA := SysUtils.StrLCopy;
   StrICompA := SysUtils.StrIComp;
   TextToFloatA := SysUtils.TextToFloat;
-  LowerCaseA := SysUtils.LowerCase;
   {$ELSE}
   StrLenA := AnsiStrings.StrLen;
   StrLCopyA := AnsiStrings.StrLCopy;
   StrICompA := AnsiStrings.StrIComp;
   TextToFloatA := AnsiStrings.TextToFloat;
-  LowerCaseA := AnsiStrings.LowerCase;
   {$IFEND}
 
+  {$If CompilerVersion < 23}
+  LowerCaseA := SysUtils.LowerCase;
+  {$ELSE}
+  LowerCaseA := AnsiStrings.LowerCase;
+  {$IFEND}
 end.
