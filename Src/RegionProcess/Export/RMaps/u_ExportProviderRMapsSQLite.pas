@@ -24,6 +24,7 @@ interface
 
 uses
   Forms,
+  t_RMapsSQLite,
   i_GeometryLonLat,
   i_TileIteratorFactory,
   i_LanguageManager,
@@ -45,6 +46,7 @@ type
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FProjectionSetFactory: IProjectionSetFactory;
+    FModType: TRMapsSQLiteModType;
   protected
     function CreateFrame: TFrame; override;
   protected
@@ -62,10 +64,10 @@ type
       const ATileIteratorFactory: ITileIteratorFactory;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
-      const AProjectionSetFactory: IProjectionSetFactory
+      const AProjectionSetFactory: IProjectionSetFactory;
+      const AModType: TRMapsSQLiteModType
     );
   end;
-
 
 implementation
 
@@ -92,7 +94,8 @@ constructor TExportProviderRMapsSQLite.Create(
   const ATileIteratorFactory: ITileIteratorFactory;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
-  const AProjectionSetFactory: IProjectionSetFactory
+  const AProjectionSetFactory: IProjectionSetFactory;
+  const AModType: TRMapsSQLiteModType
 );
 begin
   Assert(Assigned(ABitmap32StaticFactory));
@@ -106,6 +109,7 @@ begin
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FProjectionSetFactory := AProjectionSetFactory;
+  FModType := AModType;
 end;
 
 function TExportProviderRMapsSQLite.CreateFrame: TFrame;
@@ -116,7 +120,8 @@ begin
       Self.MapSelectFrameBuilder,
       FActiveMapsList,
       FBitmap32StaticFactory,
-      FBitmapTileSaveLoadFactory
+      FBitmapTileSaveLoadFactory,
+      FModType
     );
 
   Assert(Supports(Result, IRegionProcessParamsFrameZoomArray));
@@ -128,7 +133,14 @@ end;
 
 function TExportProviderRMapsSQLite.GetCaption: string;
 begin
-  Result := SAS_STR_ExportRMapsSQLiteExportCaption;
+  case FModType of
+    mtBase   : Result := SAS_STR_ExportRMapsSQLiteExportCaption;
+    mtOsmAnd : Result := SAS_STR_ExportOsmAndSQLiteExportCaption;
+    mtLocus  : Result := SAS_STR_ExportLocusSQLiteExportCaption;
+  else
+    Result := '';
+    Assert(False);
+  end;
 end;
 
 function TExportProviderRMapsSQLite.PrepareTask(
@@ -182,7 +194,8 @@ begin
       VBitmapProvider,
       VForceDropTarget,
       VReplaceExistingTiles,
-      VDirectTilesCopy
+      VDirectTilesCopy,
+      FModType
     );
 end;
 

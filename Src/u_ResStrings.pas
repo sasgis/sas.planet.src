@@ -193,6 +193,8 @@ ResourceString
   SAS_STR_ExportRMPExportCaption = 'RMP raster map for Magellan';
   SAS_STR_ExportMBTilesExportCaption = 'MBTiles 1.2 (SQLite3)';
   SAS_STR_ExportRMapsSQLiteExportCaption = 'RMaps (SQLite3)';
+  SAS_STR_ExportOsmAndSQLiteExportCaption = 'OsmAnd (SQLite3)';
+  SAS_STR_ExportLocusSQLiteExportCaption = 'Locus (SQLite3)';
   SAS_STR_ExportOruxMapsSQLiteExportCaption = 'OruxMaps (SQLite3)';
   SAS_STR_ExportIPhone128Caption = 'iPhone (version 2.2 and above, 128x128)';
   SAS_STR_ExportIPhone64Caption = 'iPhone (version prior to 2.2, 64x64)';

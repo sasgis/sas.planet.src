@@ -32,6 +32,7 @@ uses
   StdCtrls,
   ExtCtrls,
   Spin,
+  t_RMapsSQLite,
   i_LanguageManager,
   i_GeometryLonLat,
   i_RegionProcessParamsFrame,
@@ -107,6 +108,7 @@ type
     FfrMapSelect: TfrMapSelect;
     FfrOverlaySelect: TfrMapSelect;
     FfrZoomsSelect: TfrZoomsSelect;
+    FModType: TRMapsSQLiteModType;
   private
     procedure Init(
       const AZoom: byte;
@@ -131,7 +133,8 @@ type
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const AActiveMapsList: IMapTypeListChangeable;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
-      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory
+      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+      const AModType: TRMapsSQLiteModType
     ); reintroduce;
     destructor Destroy; override;
   end;
@@ -154,7 +157,8 @@ constructor TfrExportRMapsSQLite.Create(
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const AActiveMapsList: IMapTypeListChangeable;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
-  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory
+  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+  const AModType: TRMapsSQLiteModType
 );
 begin
   Assert(Assigned(ABitmap32StaticFactory));
@@ -163,6 +167,7 @@ begin
   FActiveMapsList := AActiveMapsList;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
+  FModType := AModType;
 
   FfrMapSelect :=
     AMapSelectFrameBuilder.Build(
@@ -320,6 +325,20 @@ begin
 end;
 
 function TfrExportRMapsSQLite.GetDirectTilesCopy: Boolean;
+
+  function IsSupportedEpsg(const AMapType: IMapType): Boolean;
+  var
+    VEPSG: Integer;
+  begin
+    VEPSG := AMapType.ProjectionSet.Zooms[0].ProjectionType.ProjectionEPSG;
+
+    Result :=
+      AMapType.IsBitmapTiles and (
+        (VEPSG = CGoogleProjectionEPSG) or
+        ( (VEPSG = CYandexProjectionEPSG) and (FModType in [mtOsmAnd]) )
+      );
+  end;
+
 var
   VMap: IMapType;
   VLayer: IMapType;
@@ -333,17 +352,10 @@ begin
     VMap := FfrMapSelect.GetSelectedMapType;
     VLayer := FfrOverlaySelect.GetSelectedMapType;
     if Assigned(VMap) and not Assigned(VLayer) then begin
-      if VMap.IsBitmapTiles then begin
-        if VMap.ProjectionSet.Zooms[0].ProjectionType.ProjectionEPSG = CGoogleProjectionEPSG then begin
-          Result := True;
-        end;
-      end;
-    end else if not Assigned(VMap) and Assigned(VLayer) then begin
-      if VLayer.IsBitmapTiles then begin
-        if VLayer.ProjectionSet.Zooms[0].ProjectionType.ProjectionEPSG = CGoogleProjectionEPSG then begin
-          Result := True;
-        end;
-      end;
+      Result := IsSupportedEpsg(VMap);
+    end else
+    if not Assigned(VMap) and Assigned(VLayer) then begin
+      Result := IsSupportedEpsg(VLayer);
     end;
     Result := Result and (cbbImageFormat.ItemIndex = 0);
   end;

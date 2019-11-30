@@ -25,9 +25,10 @@ interface
 uses
   Types,
   Windows,
-  SysUtils,
-  Classes,
+  SysUtils,  
+  ALString,
   SQLite3Handler,
+  t_RMapsSQLite,
   i_BinaryData,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
@@ -56,6 +57,9 @@ type
     FInsertSQLText: AnsiString;
     FSQLite3DB: TSQLite3DbHandler;
     FSQLiteAvailable: Boolean;
+    FModType: TRMapsSQLiteModType;
+    FIsEllipsoid: Boolean;
+    FFormatSettings: TALFormatSettings;
   private
     procedure OpenSQLiteStorage;
     procedure CloseSQLiteStorage;
@@ -64,6 +68,10 @@ type
       const AZoom: Byte;
       const AData: IBinaryData
     );
+    function CoordToStr(const AValue: Double): AnsiString; inline;
+    function RMapsZoomStr(const AZoom: Byte): AnsiString; inline;
+    procedure FillZoomsCallback(const AHandler: PSQLite3DbHandler;
+      const ACallbackPtr: Pointer; const AStmtData: PSQLite3StmtData);
   protected
     procedure ProcessRegion; override;
   public
@@ -80,15 +88,16 @@ type
       const ABitmapProvider: IBitmapTileUniProvider;
       const AForceDropTarget: Boolean;
       const AReplace: Boolean;
-      const ADirectTilesCopy: Boolean
+      const ADirectTilesCopy: Boolean;
+      const AModType: TRMapsSQLiteModType
     );
   end;
 
 implementation
 
 uses
-  ALString,
   ALSqlite3Wrapper,
+  t_GeoTypes,
   c_CoordConverter,
   i_ProjectionSet,
   i_Projection,
@@ -111,7 +120,8 @@ constructor TExportTaskToRMapsSQLite.Create(
   const ABitmapProvider: IBitmapTileUniProvider;
   const AForceDropTarget: Boolean;
   const AReplace: Boolean;
-  const ADirectTilesCopy: Boolean
+  const ADirectTilesCopy: Boolean;
+  const AModType: TRMapsSQLiteModType
 );
 begin
   inherited Create(
@@ -130,9 +140,39 @@ begin
   FIsReplace := AReplace;
   FDirectTilesCopy := ADirectTilesCopy;
   FSQLiteAvailable := FSQLite3DB.Init;
+  FModType := AModType;
+  FFormatSettings.DecimalSeparator := '.';
 end;
 
 procedure TExportTaskToRMapsSQLite.ProcessRegion;
+
+  function GetProjectionSet(const ADirectCopy: Boolean): IProjectionSet;
+  var
+    VEpsg: Integer;
+  begin
+    Result := nil;
+
+    if ADirectCopy then begin
+      Result := FTileStorage.ProjectionSet;
+    end else begin
+
+      if Assigned(FTileStorage) and (FModType in [mtOsmAnd]) then begin
+        VEpsg := FTileStorage.ProjectionSet.Zooms[0].ProjectionType.ProjectionEPSG;
+        if (VEpsg = CGoogleProjectionEPSG) or (VEpsg = CYandexProjectionEPSG) then begin
+          Result := FTileStorage.ProjectionSet;
+        end;
+      end;
+
+      if Result = nil then begin
+        Result :=
+          FProjectionSetFactory.GetProjectionSetByCode(
+            CGoogleProjectionEPSG,
+            CTileSplitQuadrate256x256
+          );
+      end;
+    end;
+  end;
+
 var
   I: Integer;
   VZoom: Byte;
@@ -160,15 +200,10 @@ begin
   SetLength(VTileIterators, Length(FZooms));
   VTilesToProcess := 0;
 
+  VProjectionSet := GetProjectionSet(VDoDirectCopy);
+  FIsEllipsoid := VProjectionSet.Zooms[0].ProjectionType.ProjectionEPSG = CYandexProjectionEPSG;
+
   for I := 0 to Length(FZooms) - 1 do begin
-    if VDoDirectCopy then begin
-      VProjectionSet := FTileStorage.ProjectionSet;
-    end else begin
-      VProjectionSet := FProjectionSetFactory.GetProjectionSetByCode(
-        CGoogleProjectionEPSG,
-        CTileSplitQuadrate256x256
-      );
-    end;
     VProjection := VProjectionSet.Zooms[FZooms[I]];
     VTileIterators[I] := Self.MakeTileIterator(VProjection);
     VTilesToProcess := VTilesToProcess + VTileIterators[I].TilesTotal;
@@ -178,7 +213,7 @@ begin
   try
     ProgressInfo.SetCaption(SAS_STR_ExportTiles);
     ProgressInfo.SetFirstLine(
-      SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files
+      SAS_STR_AllSaves + ' ' + IntToStr(VTilesToProcess) + ' ' + SAS_STR_Files
     );
     VTilesProcessed := 0;
     ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
@@ -222,15 +257,17 @@ begin
     end;
   finally
     CloseSQLiteStorage;
-    for I := 0 to Length(FZooms) - 1 do begin
-      VTileIterators[I] := nil;
-    end;
-    VTileIterators := nil;
   end;
+end;
+
+function TExportTaskToRMapsSQLite.CoordToStr(const AValue: Double): AnsiString;
+begin
+  Result := ALFormat('%.8f', [AValue], FFormatSettings);
 end;
 
 procedure TExportTaskToRMapsSQLite.OpenSQLiteStorage;
 var
+  VCenter: TDoublePoint;
   VCreateNewDB: Boolean;
 begin
   // check library
@@ -272,15 +309,51 @@ begin
   // если новая - забацаем структуру
   if VCreateNewDB then begin
     FSQLite3DB.ExecSQL('CREATE TABLE IF NOT EXISTS tiles (x int, y int, z int, s int, image blob, PRIMARY KEY (x,y,z,s))');
-    FSQLite3DB.ExecSQL('CREATE TABLE IF NOT EXISTS info (maxzoom Int, minzoom Int)');
-    FSQLite3DB.ExecSQL('INSERT OR REPLACE INTO info (maxzoom, minzoom) VALUES (0,0)');
 
-    (*
-      ещё есть
-      CREATE TABLE android_metadata (locale  text);
-      с одной строкой
-      'en_US'
-    *)
+    case FModType of
+      mtBase: begin
+        FSQLite3DB.ExecSQL('CREATE TABLE IF NOT EXISTS info (maxzoom Int, minzoom Int)');
+        FSQLite3DB.ExecSQL('INSERT OR REPLACE INTO info (minzoom, maxzoom) VALUES (0,0)');
+        (*
+          ещё есть
+          CREATE TABLE android_metadata (locale  text);
+          с одной строкой
+          'en_US'
+        *)
+      end;
+
+      mtOsmAnd: begin
+        FSQLite3DB.ExecSQL(
+          'CREATE TABLE IF NOT EXISTS info (minzoom INTEGER, maxzoom INTEGER,' +
+          ' tilenumbering TEXT, timecolumn TEXT, expireminutes TEXT)'
+        );
+        FSQLite3DB.ExecSQL(
+          'INSERT OR REPLACE INTO info '+
+          '(minzoom, maxzoom, tilenumbering, timecolumn, expireminutes) VALUES ' +
+          '(0,0,"BigPlanet","no","0")'
+        );
+        if FIsEllipsoid then begin
+          FSQLite3DB.ExecSQL('ALTER TABLE info ADD COLUMN ellipsoid TEXT');
+          FSQLite3DB.ExecSQL('UPDATE info SET ellipsoid="1"');
+        end;
+      end;
+
+      mtLocus: begin
+        FSQLite3DB.ExecSQL(
+          'CREATE TABLE IF NOT EXISTS info (minzoom INTEGER, maxzoom INTEGER,' +
+          ' center_x DOUBLE, center_y DOUBLE, zooms TEXT, provider INTEGER)'
+        );
+
+        VCenter := PolygLL.GetGoToPoint;
+
+        FSQLite3DB.ExecSQL(
+          'INSERT OR REPLACE INTO info (minzoom, maxzoom, center_x, center_y) VALUES (' +
+          '0,0,' + CoordToStr(VCenter.Y) + ',' + CoordToStr(VCenter.X) + ')'
+        );
+      end;
+    else
+      Assert(False);
+    end;
   end;
 
   FSQLite3DB.SetExclusiveLockingMode;
@@ -290,16 +363,56 @@ begin
   FSQLite3DB.BeginTran;
 end;
 
+procedure TExportTaskToRMapsSQLite.FillZoomsCallback(
+  const AHandler: PSQLite3DbHandler;
+  const ACallbackPtr: Pointer;
+  const AStmtData: PSQLite3StmtData
+);
+var
+  VLen: Integer;
+  VZoom: AnsiString;
+  VZoomsPtr: ^AnsiString absolute ACallbackPtr;
+begin
+  VZoom := AStmtData.ColumnAsAnsiString(0);
+  if VZoom <> '' then begin
+    VLen := Length(VZoomsPtr^);
+    if VLen > 0 then begin
+      VZoom := ';' + VZoom;
+    end;
+    SetLength(VZoomsPtr^, VLen + Length(VZoom));
+    Move(VZoom[1], PPAnsiChar(VZoomsPtr)^[VLen], Length(VZoom));
+  end;
+end;
+
 procedure TExportTaskToRMapsSQLite.CloseSQLiteStorage;
+var
+  VZooms: AnsiString;
 begin
   if FSQLite3DB.Opened then begin
     // перед закрытием надо обновить зумы
     FSQLite3DB.ExecSQL('UPDATE info SET minzoom = (SELECT DISTINCT z FROM tiles ORDER BY z ASC LIMIT 1)');
     FSQLite3DB.ExecSQL('UPDATE info SET maxzoom = (SELECT DISTINCT z FROM tiles ORDER BY z DESC LIMIT 1)');
+
+    if FModType = mtLocus then begin
+      VZooms := '';
+      FSQLite3DB.OpenSQL(
+        'SELECT DISTINCT z FROM tiles ORDER BY z DESC',
+        FillZoomsCallback,
+        @VZooms,
+        True
+      );
+      FSQLite3DB.ExecSQL('UPDATE info SET zooms = ("' + VZooms + '")');
+    end;
+
     // закрытие
     FSQLite3DB.Commit;
     FSQLite3DB.Close;
   end;
+end;
+
+function TExportTaskToRMapsSQLite.RMapsZoomStr(const AZoom: Byte): AnsiString;
+begin
+  Result := ALIntToStr(17 - AZoom);
 end;
 
 procedure TExportTaskToRMapsSQLite.SaveTileToSQLiteStorage(
@@ -315,7 +428,7 @@ begin
   VSQLText := FInsertSQLText +
     ALIntToStr(ATile.X) + ',' +
     ALIntToStr(ATile.Y) + ',' +
-    ALIntToStr(17 - AZoom) +
+    RMapsZoomStr(AZoom) +
     ',0,?)';
 
   FSQLite3DB.ExecSQLWithBLOB(

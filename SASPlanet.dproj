@@ -1268,6 +1268,7 @@
       <Form>frExportRMapsSQLite</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
+    <DCCReference Include="Src\RegionProcess\Export\RMaps\t_RMapsSQLite.pas" />
     <DCCReference Include="Src\RegionProcess\Export\RMaps\u_ExportProviderRMapsSQLite.pas" />
     <DCCReference Include="Src\RegionProcess\Export\RMaps\u_ExportTaskToRMapsSQLite.pas" />
     <DCCReference Include="Src\RegionProcess\Export\RMP\fr_ExportRMP.pas">

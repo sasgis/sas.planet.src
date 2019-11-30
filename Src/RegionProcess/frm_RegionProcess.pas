@@ -309,6 +309,7 @@ uses
   CompatibilityIniFiles,
   {$ENDIF}
   gnugettext,
+  t_RMapsSQLite,
   i_InterfaceListSimple,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
@@ -1205,7 +1206,36 @@ begin
       FTileIteratorFactory,
       ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
-      AProjectionSetFactory
+      AProjectionSetFactory,
+      mtBase
+    );
+  VList.Add(VExportProvider);
+
+  VExportProvider :=
+    TExportProviderRMapsSQLite.Create(
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AActiveMapsList,
+      FTileIteratorFactory,
+      ABitmap32StaticFactory,
+      ABitmapTileSaveLoadFactory,
+      AProjectionSetFactory,
+      mtOsmAnd
+    );
+  VList.Add(VExportProvider);
+
+  VExportProvider :=
+    TExportProviderRMapsSQLite.Create(
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AActiveMapsList,
+      FTileIteratorFactory,
+      ABitmap32StaticFactory,
+      ABitmapTileSaveLoadFactory,
+      AProjectionSetFactory,
+      mtLocus
     );
   VList.Add(VExportProvider);
 
