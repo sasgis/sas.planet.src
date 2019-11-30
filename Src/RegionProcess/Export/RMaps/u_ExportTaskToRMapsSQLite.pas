@@ -25,7 +25,7 @@ interface
 uses
   Types,
   Windows,
-  SysUtils,  
+  SysUtils,
   ALString,
   SQLite3Handler,
   t_RMapsSQLite,

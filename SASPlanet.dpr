@@ -1050,6 +1050,7 @@ uses
   u_ExportTaskToRMP in 'Src\RegionProcess\Export\RMP\u_ExportTaskToRMP.pas',
   u_RMPWriter in 'Src\RegionProcess\Export\RMP\u_RMPWriter.pas',
   fr_ExportRMapsSQLite in 'Src\RegionProcess\Export\RMaps\fr_ExportRMapsSQLite.pas' {frExportRMapsSQLite: TFrame},
+  t_RMapsSQLite in 'Src\RegionProcess\Export\RMaps\t_RMapsSQLite.pas',
   u_ExportProviderRMapsSQLite in 'Src\RegionProcess\Export\RMaps\u_ExportProviderRMapsSQLite.pas',
   u_ExportTaskToRMapsSQLite in 'Src\RegionProcess\Export\RMaps\u_ExportTaskToRMapsSQLite.pas',
   fr_ExportToCE in 'Src\RegionProcess\Export\SAS4Android\fr_ExportToCE.pas' {frExportToCE: TFrame},
@@ -1501,8 +1502,7 @@ uses
   u_ValueToStringConverter in 'Src\u_ValueToStringConverter.pas',
   u_ValueToStringConverterChangeable in 'Src\u_ValueToStringConverterChangeable.pas',
   u_ValueToStringConverterConfig in 'Src\u_ValueToStringConverterConfig.pas',
-  u_WindowPositionConfig in 'Src\u_WindowPositionConfig.pas',
-  t_RMapsSQLite in 'Src\RegionProcess\Export\RMaps\t_RMapsSQLite.pas';
+  u_WindowPositionConfig in 'Src\u_WindowPositionConfig.pas';
 
 {$R .\Resources\VersionInfo.res}
 {$R .\Resources\MainIcon.res}

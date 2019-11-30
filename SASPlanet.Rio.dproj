@@ -1995,6 +1995,7 @@
             <Form>frExportRMapsSQLite</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
+        <DCCReference Include="Src\RegionProcess\Export\RMaps\t_RMapsSQLite.pas"/>
         <DCCReference Include="Src\RegionProcess\Export\RMaps\u_ExportProviderRMapsSQLite.pas"/>
         <DCCReference Include="Src\RegionProcess\Export\RMaps\u_ExportTaskToRMapsSQLite.pas"/>
         <DCCReference Include="Src\RegionProcess\Export\SAS4Android\fr_ExportToCE.pas">
