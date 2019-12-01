@@ -849,7 +849,16 @@ Change log:
     immediately during a FreeMem call the block will added to a list of blocks
     that will be freed later, either in the background cleanup thread or during
     the next call to FreeMem.
-
+  Version 4.??? (unreleased)
+  - Added some "address space slack" under FullDebugMode. This reserves a
+    block of address space on startup (currently 5MB) that is released just
+    before the first time an EOutOfMemory exception is raised, allowing some
+    GetMem calls following the initial EOutOfMemory to succeed. This allows
+    the application to perform any error logging and other shutdown operations
+    successfully that would have failed it the address space was actually
+    completely exhausted. (Under FullDebugMode address space is never released
+    back to the operating system so once the address space has been exhausted
+    there is very little room to manoeuvre.)
 *)
 
 unit FastMM4;
@@ -1130,7 +1139,7 @@ interface
 {-------------------------Public constants-----------------------------}
 const
   {The current version of FastMM}
-  FastMMVersion = '4.991';
+  FastMMVersion = '4.992';
   {The number of small block types}
 {$ifdef Align16Bytes}
   NumSmallBlockTypes = 46;
@@ -1453,14 +1462,19 @@ const
   {The pattern used to fill unused memory}
   DebugFillByte = $80;
 {$ifdef 32Bit}
-  DebugFillPattern = $01010101 * Cardinal(DebugFillByte);
+  DebugFillPattern = $01010101 * Cardinal(DebugFillByte); // Default value $80808080
   {The address that is reserved so that accesses to the address of the fill
    pattern will result in an A/V. (Not used under 64-bit, since the upper half
    of the address space is always reserved by the OS.)}
-  DebugReservedAddress = $01010000 * Cardinal(DebugFillByte);
+  DebugReservedAddress = $01010000 * Cardinal(DebugFillByte); // Default value $80800000
 {$else}
   DebugFillPattern = $8080808080808080;
 {$endif}
+  {The number of bytes of address space that cannot be allocated under FullDebugMode.  This block is reserved on
+  startup and freed the first time the system runs out of address space.  This allows some subsequent memory allocation
+  requests to succeed in order to allow the application to allocate some memory for error handling, etc. in response to
+  the first EOutOfMemory exception.}
+  FullDebugModeAddressSpaceSlack = 5 * 1024 * 1024;
 
 {-------------------------FullDebugMode structures--------------------}
 type
@@ -2128,6 +2142,10 @@ var
   {The 64K block of reserved memory used to trap invalid memory accesses using
    fields in a freed object.}
   ReservedBlock: Pointer;
+  {Points to a block of size FullDebugModeAddressSpaceSlack that is freed the first time the system runs out of memory.
+  Memory is never release under FullDebugMode, so this allows the application to continue to function for a short while
+  after the first EOutOfMemory exception.}
+  AddressSpaceSlackPtr: Pointer;
   {The virtual method index count - used to get the virtual method index for a
    virtual method call on a freed object.}
   VMIndex: Integer;
@@ -3567,18 +3585,53 @@ begin
   Result := Pointer(PByte(ADestination) + ACount);
 end;
 
+{$ifdef EnableMemoryLeakReportingUsesQualifiedClassName}
+type
+  PClassData = ^TClassData;
+  TClassData = record
+    ClassType: TClass;
+    ParentInfo: Pointer;
+    PropCount: SmallInt;
+    UnitName: ShortString;
+  end;
+{$endif EnableMemoryLeakReportingUsesQualifiedClassName}
+
 {Appends the name of the class to the destination buffer and returns the new
  destination position}
 function AppendClassNameToBuffer(AClass: TClass; ADestination: PAnsiChar): PAnsiChar;
 var
+{$ifdef EnableMemoryLeakReportingUsesQualifiedClassName}
+  FirstUnitNameChar: PAnsiChar;
+  LClassInfo: Pointer;
+  UnitName: PShortString;
+{$endif EnableMemoryLeakReportingUsesQualifiedClassName}
   LPClassName: PShortString;
 begin
   {Get a pointer to the class name}
   if AClass <> nil then
   begin
+    Result := ADestination;
+{$ifdef EnableMemoryLeakReportingUsesQualifiedClassName}
+    // based on TObject.UnitScope
+    LClassInfo := AClass.ClassInfo;
+    if LClassInfo <> nil then // prepend the UnitName
+    begin
+      UnitName := @PClassData(PByte(LClassInfo) + 2 + PByte(PByte(LClassInfo) + 1)^).UnitName;
+      FirstUnitNameChar := @UnitName^[1];
+      if FirstUnitNameChar^ <> '@' then
+        Result := AppendStringToBuffer(FirstUnitNameChar, Result, Length(UnitName^))
+      else // Pos does no memory allocations, so it is safe to use
+      begin // Skip the '@', then copy until the ':' - never seen this happen in Delphi, but might be a C++ thing
+        Result := AppendStringToBuffer(@UnitName^[2], Result, Pos(ShortString(':'), UnitName^) - 2)
+        ;
+      end;
+      // dot between unit name and class name:
+      Result := AppendStringToBuffer('.', Result, Length('.'));
+    end;
+{$endif EnableMemoryLeakReportingUsesQualifiedClassName}
     LPClassName := PShortString(PPointer(PByte(AClass) + vmtClassName)^);
     {Append the class name}
-    Result := AppendStringToBuffer(@LPClassName^[1], ADestination, Length(LPClassName^));
+    Result := AppendStringToBuffer(@LPClassName^[1], Result, Length(LPClassName^));
   end
   else
   begin
@@ -9652,6 +9705,16 @@ begin
 {$endif LogLockContention}
         Result := nil;
       end;
+    end
+    else
+    begin
+      {The process ran out of address space:  Release the address space slack so that some subsequent GetMem calls will
+      succeed in order for any error logging, etc. to complete successfully.}
+      if AddressSpaceSlackPtr <> nil then
+      begin
+        VirtualFree(AddressSpaceSlackPtr, 0, MEM_RELEASE);
+        AddressSpaceSlackPtr := nil;
+      end;
     end;
   finally
     {Leaving the memory manager routine: Block scans may be performed again.}
@@ -12081,7 +12144,9 @@ begin
       LMsgPtr := AppendStringToBuffer(CRLF, LMsgPtr, Length(CRLF));
     end;
     AppendStringToModuleName(LockingReportTitle, LMessageTitleBuffer);
+{$ifndef NoMessageBoxes}
     ShowMessageBox(LErrorMessage, LMessageTitleBuffer);
+{$endif}
     for i := 4 to 10 do
     begin
       if i > mergedCount then
@@ -12599,8 +12664,10 @@ begin
   begin
 {$ifdef FullDebugMode}
   {$ifdef 32Bit}
-    {Try to reserve the 64K block covering address $80808080}
+    {Try to reserve the 64K block covering address $80808080 so pointers with DebugFillPattern will A/V}
     ReservedBlock := VirtualAlloc(Pointer(DebugReservedAddress), 65536, MEM_RESERVE, PAGE_NOACCESS);
+    {Allocate the address space slack.}
+    AddressSpaceSlackPtr := VirtualAlloc(nil, FullDebugModeAddressSpaceSlack, MEM_RESERVE or MEM_TOP_DOWN, PAGE_NOACCESS);
   {$endif}
 {$endif}
 {$ifdef MMSharingEnabled}
@@ -12802,6 +12869,12 @@ begin
     begin
       VirtualFree(ReservedBlock, 0, MEM_RELEASE);
       ReservedBlock := nil;
+    end;
+    {Release the address space slack}
+    if AddressSpaceSlackPtr <> nil then
+    begin
+      VirtualFree(AddressSpaceSlackPtr, 0, MEM_RELEASE);
+      AddressSpaceSlackPtr := nil;
     end;
 {$endif}
   end;
