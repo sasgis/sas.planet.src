@@ -632,7 +632,7 @@ var
   VSname, VSDesc: string;
   VFullDesc: string;
   I, J: Integer;
-  VLatStr, VLonStr: string;
+  VLatStr: string;
   VPoint: TDoublePoint;
   VPlace: IVectorDataItem;
   VToStringConverter: ICoordToStringConverter;
