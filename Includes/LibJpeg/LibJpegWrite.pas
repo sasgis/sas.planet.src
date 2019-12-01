@@ -19,8 +19,11 @@ type
   ): PByte of object;
 
   TJpegWriter = class(TObject)
-  protected
-    FStream: TStream;
+  private
+    jerr: jpeg_error_mgr;
+    jdest: jpeg_destination_mgr;
+    cinfo: jpeg_compress_struct;
+  private
     FLibInitilized: Boolean;
     FUseBGRAColorSpace: Boolean;
     FWidth: Integer;
@@ -29,10 +32,9 @@ type
     FComMarker: AnsiString;
     FAppMarker: array [$E0..$EF] of TMemoryStream;
     FAppData: Pointer;
-    jpeg62: LibJpeg62.jpeg_compress_struct;
-    jpeg62_err: LibJpeg62.jpeg_error_mgr;
-    function InitComp62: Boolean;
-    function DoComp62(
+    FDataManager: TJpegDataManager;
+    function InitCompress: Boolean;
+    function DoCompress(
       AWriteCallBack: TWriteScanLineCallBack = nil;
       AInPutStream: TStream = nil
     ): Boolean;
@@ -55,7 +57,7 @@ type
 
   TJpegWriterExtended = class(TJpegWriter)
   public
-    function GetCompressStruct(out jpeg: LibJpeg62.j_compress_ptr): Boolean;
+    function GetCompressStruct(out jpeg: j_compress_ptr): Boolean;
   end;
 
 implementation
@@ -66,7 +68,7 @@ constructor TJpegWriter.Create(AJpegDest: TStream; AUseBGRAColorSpace: Boolean);
 var
   I: Integer;
 begin
-  FStream := AJpegDest;
+  FDataManager.FStream := AJpegDest;
   FUseBGRAColorSpace := AUseBGRAColorSpace;
   FWidth := -1;
   FHeight := -1;
@@ -76,7 +78,7 @@ begin
     FAppMarker[I] := nil;
   end;
   FAppData := nil;
-  FLibInitilized := InitComp62;
+  FLibInitilized := InitCompress;
 end;
 
 destructor TJpegWriter.Destroy;
@@ -84,7 +86,7 @@ var
   I: Integer;
 begin
   if FLibInitilized then begin
-    LibJpeg62.jpeg_destroy_compress(@jpeg62);
+    jpeg_destroy_compress(@cinfo);
   end;
   FComMarker := '';
   for I := Low(FAppMarker) to High(FAppMarker) do begin
@@ -98,7 +100,7 @@ function TJpegWriter.Compress(AWriteCallBack: TWriteScanLineCallBack): Boolean;
 begin
   Result := False;
   if FLibInitilized then begin
-    Result := DoComp62(AWriteCallBack, nil);
+    Result := DoCompress(AWriteCallBack, nil);
   end;
 end;
 
@@ -106,7 +108,7 @@ function TJpegWriter.Compress(AInPutStream: TStream): Boolean;
 begin
   Result := False;
   if FLibInitilized then begin
-    Result := DoComp62(nil, AInPutStream);
+    Result := DoCompress(nil, AInPutStream);
   end;
 end;
 
@@ -177,22 +179,22 @@ begin
     if (FWidth <= 0) or (FHeight <= 0) then begin
       raise ELibJpegException.Create('Set output resolution first!');
     end;
-    jpeg62.image_width := FWidth;
-    jpeg62.image_height := FHeight;
+    cinfo.image_width := FWidth;
+    cinfo.image_height := FHeight;
     if FUseBGRAColorSpace then begin
       {$IFDEF LIB_JPEG_62_TURBO_JCS_ALPHA_EXTENSIONS}
-      jpeg62.input_components := 4;
-      jpeg62.in_color_space := LibJpeg62.JCS_EXT_BGRA;
+      cinfo.input_components := 4;
+      cinfo.in_color_space := JCS_EXT_BGRA;
       {$ELSE}
       raise ELibJpegException.Create('Extended color spaces disabled by config!');
       {$ENDIF}
     end else begin
-      jpeg62.input_components := 3;
-      jpeg62.in_color_space := LibJpeg62.JCS_RGB;
+      cinfo.input_components := 3;
+      cinfo.in_color_space := JCS_RGB;
     end;
-    LibJpeg62.jpeg_set_defaults(@jpeg62);
-    LibJpeg62.jpeg_set_quality(@jpeg62, FQuality, True);
-    Result := jpeg62.global_state <> 0;
+    jpeg_set_defaults(@cinfo);
+    jpeg_set_quality(@cinfo, FQuality, True);
+    Result := cinfo.global_state <> 0;
   end;
 end;
 
@@ -201,50 +203,51 @@ var
   I: Integer;
 begin
   if FComMarker <> '' then begin
-    LibJpeg62.jpeg_write_marker(@jpeg62, LibJpeg62.JPEG_COM, @FComMarker[1], Length(FComMarker));
+    jpeg_write_marker(@cinfo, JPEG_COM, @FComMarker[1], Length(FComMarker));
   end;
   for I := Low(FAppMarker) to High(FAppMarker) do begin
     if Assigned(FAppMarker[I]) then begin
       FAppMarker[I].Position := 0;
-      LibJpeg62.jpeg_write_marker(@jpeg62, I, FAppMarker[I].Memory, FAppMarker[I].Size);
+      jpeg_write_marker(@cinfo, I, FAppMarker[I].Memory, FAppMarker[I].Size);
     end;
   end;
   Result := True;
 end;
 
-function TJpegWriter.InitComp62: Boolean;
+function TJpegWriter.InitCompress: Boolean;
 begin
-  if {$IFNDEF LIB_JPEG_62_STATIC_LINK} InitLibJpeg62() {$ELSE} True {$ENDIF} then begin
-    FillChar(jpeg62, SizeOf(LibJpeg62.jpeg_compress_struct), $00);
-    FillChar(jpeg62_err, SizeOf(LibJpeg62.jpeg_error_mgr), $00);
-
-    jpeg62.err := LibJpeg62.jpeg_std_error(@jpeg62_err);
-    jpeg62_err.error_exit := libjpeg_error_exit;
-    jpeg62_err.output_message := libjpeg_output_message;
-
-    LibJpeg62.jpeg_create_compress(@jpeg62);
-
-    jpeg62.dest := jpeg62.mem^.alloc_small(
-      @jpeg62, JPOOL_PERMANENT, SizeOf(TJpeg62OutPutDataManager)
-    );
-
-    with PJpeg62OutPutDataManager(jpeg62.dest)^ do begin
-      jpeg_dest_mgr.init_destination := libjpeg_init_destination;
-      jpeg_dest_mgr.empty_output_buffer := libjpeg_empty_output_buffer;
-      jpeg_dest_mgr.term_destination := libjpeg_term_destination;
-    end;
-
-    jpeg62.client_data := @FStream;
-
-    jpeg62.global_state := LibJpeg62.CSTATE_START;
-
-    Result := True;
-  end else begin
-    raise ELibJpegException.Create('LibJpeg62 init failed!');
+  {$IFNDEF LIB_JPEG_62_STATIC_LINK}
+  if not InitLibJpeg62() then begin
+    raise ELibJpegException.Create('LibJpeg62 initialization failed!');
   end;
+  {$ENDIF}
+
+  FillChar(jerr, SizeOf(jpeg_error_mgr), 0);
+  FillChar(jdest, SizeOf(jpeg_destination_mgr), 0);
+  FillChar(cinfo, SizeOf(jpeg_compress_struct), 0);
+
+  cinfo.err := jpeg_std_error(@jerr);
+  with cinfo.err^ do begin
+    error_exit := libjpeg_error_exit;
+    output_message := libjpeg_output_message;
+  end;
+
+  jpeg_create_compress(@cinfo);
+
+  cinfo.dest := @jdest;
+  with cinfo.dest^ do begin
+    init_destination := libjpeg_init_destination;
+    empty_output_buffer := libjpeg_empty_output_buffer;
+    term_destination := libjpeg_term_destination;
+  end;
+
+  cinfo.client_data := @FDataManager;
+  cinfo.global_state := CSTATE_START;
+
+  Result := True;
 end;
 
-function TJpegWriter.DoComp62(
+function TJpegWriter.DoCompress(
   AWriteCallBack: TWriteScanLineCallBack = nil;
   AInPutStream: TStream = nil
 ): Boolean;
@@ -263,10 +266,10 @@ begin
   VLine := nil;
 
   if SetCompOptions then begin
-    LibJpeg62.jpeg_start_compress(@jpeg62, True);
+    jpeg_start_compress(@cinfo, True);
     try
       if WriteMarkers then begin
-        VSize := jpeg62.image_width * Cardinal(jpeg62.input_components);
+        VSize := cinfo.image_width * Cardinal(cinfo.input_components);
 
         if (Addr(AWriteCallBack) = nil) and Assigned(AInPutStream) then begin
           VStreamPos := AInPutStream.Position;
@@ -278,8 +281,8 @@ begin
         end;
 
         try
-          for I := 0 to jpeg62.image_height - 1 do begin
-            if jpeg62.global_state = 0 then begin
+          for I := 0 to cinfo.image_height - 1 do begin
+            if cinfo.global_state = 0 then begin
               VAborted := True;
               Break; // abort by exception
             end;
@@ -299,7 +302,7 @@ begin
               raise ELibJpegException.Create('Input data not assigned!');
             end;
 
-            LibJpeg62.jpeg_write_scanlines(@jpeg62, @VLine, 1);
+            jpeg_write_scanlines(@cinfo, @VLine, 1);
 
           end;
         finally
@@ -312,8 +315,8 @@ begin
         end;
       end;
     finally
-      if jpeg62.global_state <> 0 then begin
-        LibJpeg62.jpeg_finish_compress(@jpeg62);
+      if cinfo.global_state <> 0 then begin
+        jpeg_finish_compress(@cinfo);
       end;
     end;
     Result := not VAborted;
@@ -323,11 +326,11 @@ end;
 { TJpegWriterExtended }
 
 function TJpegWriterExtended.GetCompressStruct(
-  out jpeg: LibJpeg62.j_compress_ptr
+  out jpeg: j_compress_ptr
 ): Boolean;
 begin
   if FLibInitilized then begin
-    jpeg := @jpeg62;
+    jpeg := @cinfo;
     Result := True;
   end else begin
     jpeg := nil;
@@ -349,13 +352,16 @@ var
 begin
   VOutPut := TMemoryStream.Create;
   try
-    VJpegWriter := TJpegWriter.Create(VOutPut);
+    VJpegWriter := TJpegWriter.Create(VOutPut, False);
     try
       VInPut := TFileStream.Create('Test.raw', fmOpenRead);
       try
+        VInPut.Position := 0;
+
+        // you must know the raw image resolution before start compression
         VJpegWriter.Width := 256;
         VJpegWriter.Height := 256;
-        VInPut.Position := 0;
+
         if VJpegWriter.Compress(VInPut) then begin
           VOutPut.SaveToFile('TestFromRaw.jpg');
         end;
