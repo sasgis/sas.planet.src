@@ -68,12 +68,9 @@ object frSearchResultsItem: TfrSearchResultsItem
       Images = frmMain.MenusImageList
       ParentFont = False
       TabOrder = 0
-      ChevronHint = ''
       object tbtmHide: TTBItem
         ImageIndex = 35
         OnClick = tbtmHideClick
-        Caption = ''
-        Hint = ''
       end
     end
   end
