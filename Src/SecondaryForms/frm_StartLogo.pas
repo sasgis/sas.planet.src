@@ -90,9 +90,6 @@ uses
   u_ListenerByEvent,
   u_BitmapFunc;
 
-var
-  frmStartLogo: TfrmStartLogo;
-
 {$R *.dfm}
 
 constructor TfrmStartLogo.Create(
@@ -122,8 +119,6 @@ begin
     FAppStartedNotifier := nil;
     FAppStartedListener := nil;
   end;
-
-  frmStartLogo := nil;
   inherited;
 end;
 
@@ -189,15 +184,19 @@ class procedure TfrmStartLogo.ShowLogo(
   const AConfigData: IConfigDataProvider;
   const AConfig: IStartUpLogoConfig
 );
+var
+  VLogo: TfrmStartLogo;
 begin
   if AConfig.IsShowLogo then begin
-    TfrmStartLogo.Create(
-      ALanguageManager,
-      ABuildInfo,
-      AAppStartedNotifier,
-      AContentTypeManager,
-      AConfigData
-    ).Show;
+    VLogo :=
+      TfrmStartLogo.Create(
+        ALanguageManager,
+        ABuildInfo,
+        AAppStartedNotifier,
+        AContentTypeManager,
+        AConfigData
+      );
+    VLogo.Show;
     Application.ProcessMessages;
   end;
 end;
