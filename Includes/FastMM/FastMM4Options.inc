@@ -345,11 +345,12 @@ Set the default options for FastMM here.
 {Group the options you use for release and debug versions below}
 {$ifdef Release}
   {Specify the options you use for release versions below}
-  {.$undef FullDebugMode}
-  {.$undef CheckHeapForCorruption}
-  {.$define ASMVersion}
-  {.$undef EnableMemoryLeakReporting}
-  {.$undef UseOutputDebugString}
+  {$undef FullDebugMode}
+  {$undef CheckHeapForCorruption}
+  {$define ASMVersion}
+  {$undef EnableMemoryLeakReporting}
+  {$undef UseOutputDebugString}
+  {$undef DetectMMOperationsAfterUninstall}
 {$else}
   {Specify the options you use for debugging below}
   {.$define FullDebugMode}
