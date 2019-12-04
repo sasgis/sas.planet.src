@@ -285,11 +285,11 @@ procedure TSearchToolbarContainer.OnHistoryChange;
 var
   I: Integer;
 begin
-  FSearchTextEdit.Lines.Clear;
+  FSearchTextEdit.Strings.Clear;
   FSearchHistory.LockRead;
   try
     for I := 0 to FSearchHistory.Count - 1 do begin
-      FSearchTextEdit.Lines.Add(FSearchHistory.GetItem(I));
+      FSearchTextEdit.Strings.Add(FSearchHistory.GetItem(I));
     end;
   finally
     FSearchHistory.UnlockRead;

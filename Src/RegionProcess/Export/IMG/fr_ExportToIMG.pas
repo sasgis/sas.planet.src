@@ -38,7 +38,6 @@ uses
   TB2Toolbar,
   TB2Dock,
   TBX,
-  TBXControls,
   i_LanguageManager,
   i_MapType,
   i_GeometryLonLat,

@@ -291,9 +291,8 @@ object frmCacheManager: TfrmCacheManager
       TabOrder = 0
       object tbtmDontClose: TTBItem
         AutoCheck = True
-        ImageIndex = 46
-        Caption = ''
         Hint = 'Do not close this window after start'
+        ImageIndex = 46
       end
     end
   end

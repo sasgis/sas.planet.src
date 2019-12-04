@@ -31,7 +31,7 @@ uses
   TB2Item,
   TB2Dock,
   TBX,
-  TBXControls,
+  TBXDkPanels,
   i_Notifier,
   i_NotifierTime,
   i_SimpleFlag,

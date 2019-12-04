@@ -39,7 +39,7 @@ uses
   TB2Dock,
   TB2Toolbar,
   TBX,
-  TBXControls,
+  TBXDkPanels,
   fr_CacheTypeList,
   frm_ArchiverSettings,
   i_PathConfig,

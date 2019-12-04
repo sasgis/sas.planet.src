@@ -42,7 +42,7 @@ uses
   TB2Toolbar,
   TB2Item,
   TBX,
-  TBXControls,
+  TBXDkPanels,
   TBXGraphics,
   CityHash,
   frm_MarkSystemConfigEdit,
