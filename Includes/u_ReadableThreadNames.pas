@@ -4,11 +4,11 @@ interface
 
 (*
  * In order to see names for your threads in the Delphi IDE while debugging your
- * Win32 application, call SetCurrentThreadName() in your TThread.Execute method
+ * application, call SetCurrentThreadName() in your TThread.Execute method
  *
  *)
 
-procedure SetCurrentThreadName(const AName: string);
+procedure SetCurrentThreadName(const AName: string); {$IFNDEF DEBUG} inline; {$ENDIF}
 
 implementation
 
@@ -22,6 +22,7 @@ function IsDebuggerPresent: Boolean; stdcall; external 'kernel32.dll';
 {$IFEND}
 
 type
+  {$A8}
   TThreadNameInfo = record
     dwType     : DWORD;   // must be 0x1000
     szName     : LPCSTR;  // pointer to name (in user addr space)
@@ -30,34 +31,32 @@ type
   end;
 
 const
-  cDefaultInfoType    = $1000;
-  cSetThreadNameExcep = $406D1388;
-
-procedure SetThreadName(const AName: string; const AThreadID: Cardinal);
-var
-  VInfo: TThreadNameInfo;
-begin
-  if IsDebuggerPresent and (AName <> '') then begin
-
-    // This code is extremely strange, but it's the documented way of doing it:
-    // http://msdn.microsoft.com/en-us/library/xcb2z8hs(VS.71).aspx
-
-    VInfo.dwType     := cDefaultInfoType;
-    VInfo.szName     := PAnsiChar(AnsiString(AName));
-    VInfo.dwThreadID := AThreadID;
-    VInfo.dwFlags    := 0;
-
-    try
-      RaiseException(cSetThreadNameExcep, 0, SizeOf(VInfo) div SizeOf(LongWord), @VInfo);
-    except
-      // do nothing
-    end;
-  end;
-end;
+  MS_VC_EXCEPTION: DWORD = $406D1388;
 
 procedure SetCurrentThreadName(const AName: string);
+var
+  VName: AnsiString;
+  VInfo: TThreadNameInfo;
 begin
-  SetThreadName(AName, Cardinal(-1));
+  // This code is extremely strange, but it's the documented way of doing it
+  // https://docs.microsoft.com/en-us/visualstudio/debugger/how-to-set-a-thread-name-in-native-code
+
+  if not IsDebuggerPresent or (AName = '') then begin
+    Exit;
+  end;
+
+  VName := AnsiString(AName);
+
+  VInfo.dwType     := $1000;
+  VInfo.szName     := Pointer(VName);
+  VInfo.dwThreadID := DWORD(-1);
+  VInfo.dwFlags    := 0;
+
+  try
+    RaiseException(MS_VC_EXCEPTION, 0, SizeOf(VInfo) div SizeOf(ULONG_PTR), @VInfo);
+  except
+    // do nothing
+  end;
 end;
 
 {$ELSE}
