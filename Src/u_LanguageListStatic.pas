@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -24,25 +24,24 @@ interface
 
 uses
   Classes,
-  ALStringList,
   i_LanguageListStatic,
   u_BaseInterfacedObject;
 
 type
   TLanguageListStatic = class(TBaseInterfacedObject, ILanguageListStatic)
   private
-    FSortedByCode: TALStringList;
-    FList: TALStringList;
+    FSortedByCode: TStringList;
+    FList: TStringList;
   private
     function GetCount: Integer;
 
-    function GetCode(const AIndex: Integer): AnsiString;
+    function GetCode(const AIndex: Integer): string;
     function FindCode(
-      const ACode: AnsiString;
+      const ACode: string;
       out AIndex: Integer
     ): Boolean;
   public
-    constructor Create(const AList: TALStrings);
+    constructor Create(const AList: TStrings);
     destructor Destroy; override;
   end;
 
@@ -53,21 +52,21 @@ uses
 
 { TLanguageListStatic }
 
-constructor TLanguageListStatic.Create(const AList: TALStrings);
+constructor TLanguageListStatic.Create(const AList: TStrings);
 var
-  i: Integer;
-  VCode: AnsiString;
+  I: Integer;
+  VCode: string;
 begin
   inherited Create;
-  FSortedByCode := TALStringList.Create;
+  FSortedByCode := TStringList.Create;
   FSortedByCode.Sorted := True;
   FSortedByCode.Duplicates := dupError;
 
-  FList := TALStringList.Create;
+  FList := TStringList.Create;
 
-  for i := 0 to AList.Count - 1 do begin
-    VCode := AList.Strings[i];
-    FSortedByCode.AddObject(VCode, TObject(i));
+  for I := 0 to AList.Count - 1 do begin
+    VCode := AList.Strings[I];
+    FSortedByCode.AddObject(VCode, TObject(I));
     FList.Add(VCode);
   end;
 end;
@@ -80,7 +79,7 @@ begin
 end;
 
 function TLanguageListStatic.FindCode(
-  const ACode: AnsiString;
+  const ACode: string;
   out AIndex: Integer
 ): Boolean;
 begin
@@ -90,7 +89,7 @@ begin
   end;
 end;
 
-function TLanguageListStatic.GetCode(const AIndex: Integer): AnsiString;
+function TLanguageListStatic.GetCode(const AIndex: Integer): string;
 begin
   Result := FList.Strings[AIndex];
 end;

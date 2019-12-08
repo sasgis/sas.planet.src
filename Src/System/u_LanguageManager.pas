@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -35,7 +35,7 @@ type
   TLanguageManager = class(TConfigDataElementBase, ILanguageManager)
   private
     FList: ILanguageListStatic;
-    FDefaultLangCode: AnsiString;
+    FDefaultLangCode: string;
     FNames: TStringList;
     FLangRootPath: string;
     procedure LoadLangs;
@@ -45,8 +45,8 @@ type
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
-    function GetCurrentLanguageCode: AnsiString;
-    procedure SetCurrentLanguageCode(const ACode: AnsiString);
+    function GetCurrentLanguageCode: string;
+    procedure SetCurrentLanguageCode(const ACode: string);
 
     function GetCurrentLanguageIndex: Integer;
     procedure SetCurrentLanguageIndex(const AValue: Integer);
@@ -69,16 +69,13 @@ uses
   ActnList,
   ExtActns,
   Graphics,
-  ALStringList,
-  ALString,
   GR32,
   gnugettext,
   i_FileNameIterator,
   u_FileNameIteratorInFolderByMask,
   u_LanguagesEx,
-  u_StrFunc,
-  u_CommonFormAndFrameParents,
-  u_LanguageListStatic;
+  u_LanguageListStatic,
+  u_CommonFormAndFrameParents;
 
 const
   cDefLangCode = 'en';
@@ -117,34 +114,34 @@ end;
 
 procedure TLanguageManager.DoReadConfig(const AConfigData: IConfigDataProvider);
 var
-  VCurrentCode: AnsiString;
+  VCurrentCode: string;
 begin
   inherited;
   if AConfigData <> nil then begin
-    VCurrentCode := AConfigData.ReadAnsiString('Lang', '');
-    if IsAscii(VCurrentCode) then begin
-      SetCurrentLanguageCode(VCurrentCode);
-    end;
+    VCurrentCode := AConfigData.ReadString('Lang', FDefaultLangCode);
+    SetCurrentLanguageCode(VCurrentCode);
   end;
 end;
 
 procedure TLanguageManager.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
-  AConfigData.WriteAnsiString('Lang', GetCurrentLanguageCode);
+  if AConfigData <> nil then begin
+    AConfigData.WriteString('Lang', GetCurrentLanguageCode);
+  end;
 end;
 
 function TLanguageManager.GetCurrentLanguageIndex: Integer;
 var
-  VCurrentCode: AnsiString;
+  VCurrentCode: string;
 begin
-  VCurrentCode := StringToAsciiSafe(DefaultInstance.GetCurrentLocaleName);
+  VCurrentCode := DefaultInstance.GetCurrentLocaleName;
   if not FList.FindCode(VCurrentCode, Result) then begin
     Result := 0;
   end;
 end;
 
-function TLanguageManager.GetCurrentLanguageCode: AnsiString;
+function TLanguageManager.GetCurrentLanguageCode: string;
 var
   VIndex: Integer;
 begin
@@ -168,47 +165,43 @@ end;
 
 procedure TLanguageManager.LoadLangs;
 
-  procedure Add(const ACodes: TALStrings; const AName: string; const ACode: AnsiString);
+  procedure Add(const ACodes: TStrings; const AName: string; const ACode: string);
   begin
     FNames.Add(AName);
     ACodes.Add(ACode);
   end;
 
-  procedure GetListOfLanguages(const AList: TALStrings);
+  procedure GetListOfLanguages(const AList: TStrings);
   var
+    VFileName: string;
+    VLangCode: string;
     VIterator: IFileNameIterator;
-    VFileNameW: string;
-    VFileName: AnsiString;
-    VLangCode: AnsiString;
   begin
     VIterator := TFileNameIteratorInFolderByMask.Create(FLangRootPath, '', '*' + cLangFileExt, True);
-    while VIterator.Next(VFileNameW) do begin
-      if IsAscii(VFileNameW) then begin
-        VFileName := StringToAsciiSafe(VFileNameW);
-        VLangCode := ALStringReplace(VFileName, cLangFileExt, '', [rfReplaceAll, rfIgnoreCase]);
-        AList.Add(VLangCode);
-      end;
+    while VIterator.Next(VFileName) do begin
+      VLangCode := StringReplace(VFileName, cLangFileExt, '', [rfReplaceAll, rfIgnoreCase]);
+      AList.Add(VLangCode);
     end;
   end;
 
 var
-  VCodes: TALStringList;
+  VCodes: TStringList;
   VLanguagesEx: TLanguagesEx;
-  VInstalledLanguages: TALStringList;
+  VInstalledLanguages: TStringList;
   I: Integer;
   VLangCodeID: LCID;
   VLangFile: string;
-  VCurrentCode: AnsiString;
+  VCurrentCode: string;
   VCurrentIndex: Integer;
 begin
-  VCodes := TALStringList.Create;
+  VCodes := TStringList.Create;
   try
     VLanguagesEx := TLanguagesEx.Create;
     try
       VLangCodeID := VLanguagesEx.GNUGetTextID[FDefaultLangCode];
       Add(VCodes, VLanguagesEx.EngNameFromLocaleID[VLangCodeID], FDefaultLangCode);
 
-      VInstalledLanguages := TALStringList.Create;
+      VInstalledLanguages := TStringList.Create;
       try
         GetListOfLanguages(VInstalledLanguages);
         for I := 0 to VInstalledLanguages.Count - 1 do begin
@@ -222,10 +215,10 @@ begin
       end;
       FList := TLanguageListStatic.Create(VCodes);
 
-      VCurrentCode := StringToAsciiSafe(DefaultInstance.GetCurrentLocaleName);
+      VCurrentCode := DefaultInstance.GetCurrentLocaleName;
       if not FList.FindCode(VCurrentCode, VCurrentIndex) then begin
         VLangCodeID := VLanguagesEx.GNUGetTextID[VCurrentCode];
-        VCurrentCode := StringToAsciiSafe(VLanguagesEx.GNUGetTextName[VLangCodeID]);
+        VCurrentCode := VLanguagesEx.GNUGetTextName[VLangCodeID];
         DefaultInstance.UseLanguage(VCurrentCode);
         VLangFile := FLangRootPath + VCurrentCode + cLangFileExt;
         DefaultInstance.bindtextdomainToFile(DefaultTextDomain, VLangFile);
@@ -263,11 +256,10 @@ begin
   end;
 end;
 
-procedure TLanguageManager.SetCurrentLanguageCode(const ACode: AnsiString);
+procedure TLanguageManager.SetCurrentLanguageCode(const ACode: string);
 var
   VIndex: Integer;
 begin
-  Assert(IsAscii(ACode));
   if FList.FindCode(ACode, VIndex) then begin
     SetCurrentLanguageIndex(VIndex);
   end;

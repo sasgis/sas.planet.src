@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -29,9 +29,9 @@ uses
 type
   ILanguageManager = interface(IConfigDataElement)
     ['{F8D76CED-2681-4DD4-AB24-4C6ECE89CE4D}']
-    function GetCurrentLanguageCode: AnsiString;
-    procedure SetCurrentLanguageCode(const ACode: AnsiString);
-    property CurrentLanguageCode: AnsiString read GetCurrentLanguageCode write SetCurrentLanguageCode;
+    function GetCurrentLanguageCode: string;
+    procedure SetCurrentLanguageCode(const ACode: string);
+    property CurrentLanguageCode: string read GetCurrentLanguageCode write SetCurrentLanguageCode;
 
     function GetCurrentLanguageIndex: Integer;
     procedure SetCurrentLanguageIndex(const AValue: Integer);
