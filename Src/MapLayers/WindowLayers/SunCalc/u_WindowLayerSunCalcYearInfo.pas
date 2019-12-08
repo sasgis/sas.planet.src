@@ -52,7 +52,7 @@ end;
 
 procedure TWindowLayerSunCalcYearInfo.PaintLayer(ABuffer: TBitmap32);
 var
-  VCircle, VMaxAlt, VMinAlt, VPoly: TArrayOfFixedPoint;
+  VCircle, VMaxAlt, VMinAlt, VPoly: TArrayOfFloatPoint;
 begin
   if not FShapesGenerator.IsIntersectScreenRect then begin
     Exit;
@@ -65,23 +65,23 @@ begin
     // Background circle
     FShapesGenerator.GetCirclePoints(VCircle);
     if Length(VCircle) > 0 then begin
-      PolylineXS(ABuffer, VCircle, FShapesColors.YearCircleColor, True);
+      PolylineFS(ABuffer, VCircle, FShapesColors.YearCircleColor, True);
     end;
 
     // Min/Max altitude
     FShapesGenerator.GetMinMaxAltitudePoints(VMinAlt, VMaxAlt, VPoly);
 
     if Length(VMinAlt) > 0 then begin
-      PolylineXS(ABuffer, VMinAlt, FShapesColors.YearPolyLinesColor, False);
+      PolylineFS(ABuffer, VMinAlt, FShapesColors.YearPolyLinesColor, False);
     end;
 
     if Length(VMaxAlt) > 0 then begin
-      PolylineXS(ABuffer, VMaxAlt, FShapesColors.YearPolyLinesColor, False);
+      PolylineFS(ABuffer, VMaxAlt, FShapesColors.YearPolyLinesColor, False);
     end;
 
     // Draw transparent polygon betwen min and max altitude curves
     if Length(VPoly) > 0 then begin
-      PolygonTS(ABuffer, VPoly, FShapesColors.YearPolygonFillColor);
+      PolygonFS(ABuffer, VPoly, FShapesColors.YearPolygonFillColor);
     end;
 
   finally

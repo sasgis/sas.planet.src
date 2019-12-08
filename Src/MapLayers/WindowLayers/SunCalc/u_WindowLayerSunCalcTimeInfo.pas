@@ -128,8 +128,8 @@ end;
 
 procedure TWindowLayerSunCalcTimeInfo.PaintLayer(ABuffer: TBitmap32);
 var
-  VCenter: TFixedPoint;
-  VCurrentPos: TFixedPoint;
+  VCenter: TFloatPoint;
+  VCurrentPos: TFloatPoint;
 begin
   if not FShapesGenerator.IsIntersectScreenRect then begin
     Exit;

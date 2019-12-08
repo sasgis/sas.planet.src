@@ -103,6 +103,7 @@ uses
   Types,
   Math,
   GR32_Polygons,
+  GR32_VectorUtils,
   i_ProjectionType,
   u_Bitmap32ByStaticBitmap,
   u_GeometryFunc,
@@ -233,19 +234,19 @@ procedure TBitmapLayerProviderByTrackPath.DrawSection(
 );
 var
   VSegmentColor: TColor32;
-  VLine: TArrayOfFixedPoint;
-  VLines: TArrayOfArrayOfFixedPoint;
+  VLine: TArrayOfFloatPoint;
+  VLines: TArrayOfArrayOfFloatPoint;
 begin
   if (APointPrev.x < 32767) and (APointPrev.x > -32767) and (APointPrev.y < 32767) and (APointPrev.y > -32767) then begin
     VSegmentColor := ATrackColorer.GetColorForSpeed(ASpeed);
     SetLength(VLine, 2);
-    VLine[0] := FixedPoint(APointPrev.X, APointPrev.Y);
-    VLine[1] := FixedPoint(APointCurr.X, APointCurr.Y);
+    VLine[0] := FloatPoint(APointPrev.X, APointPrev.Y);
+    VLine[1] := FloatPoint(APointCurr.X, APointCurr.Y);
     SetLength(VLines, 1);
     VLines[0] := VLine;
     VLines := BuildPolyPolyLine(VLines, False, ALineWidth);
 
-    PolyPolygonXS(
+    PolyPolygonFS(
       ATargetBmp,
       VLines,
       VSegmentColor

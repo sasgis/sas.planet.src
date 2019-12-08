@@ -39,7 +39,6 @@ type
     FProjection: IProjection;
     FSource: IGeometryProjectedPolygon;
     FColor: TColor32;
-    FAntialiasMode: TAntialiasMode;
   private
     function GetProjection: IProjection;
     procedure Draw(
@@ -50,27 +49,26 @@ type
     constructor Create(
       const AProjection: IProjection;
       const ASource: IGeometryProjectedPolygon;
-      const AAntialiasMode: TAntialiasMode;
       const AColor: TColor32
     );
   end;
 
   TDrawableBaseByPoints = class(TBaseInterfacedObject)
   private
-    FPoints: TArrayOfArrayOfFixedPoint;
+    FPoints: TArrayOfArrayOfFloatPoint;
     FProjection: IProjection;
 
     FBaseRelativeRect: TDoubleRect;
     FCachedForLocalCoordConverter: ILocalCoordConverter;
-    FCachedPoints: TArrayOfArrayOfFixedPoint;
+    FCachedPoints: TArrayOfArrayOfFloatPoint;
   protected
     function GetProjection: IProjection;
-    function PreparePoints(const ALocalCoordConverter: ILocalCoordConverter): TArrayOfArrayOfFixedPoint;
+    function PreparePoints(const ALocalCoordConverter: ILocalCoordConverter): TArrayOfArrayOfFloatPoint;
   public
     constructor Create(
       const AProjection: IProjection;
       const AMapPixelAtLocalZero: TPoint;
-      APoints: TArrayOfArrayOfFixedPoint
+      APoints: TArrayOfArrayOfFloatPoint
     );
   end;
 
@@ -87,7 +85,7 @@ type
     constructor Create(
       const AProjection: IProjection;
       const AMapPixelAtLocalZero: TPoint;
-      APoints: TArrayOfArrayOfFixedPoint;
+      APoints: TArrayOfArrayOfFloatPoint;
       const AClosed: Boolean;
       const AColor: TColor32
     );
@@ -105,7 +103,7 @@ type
     constructor Create(
       const AProjection: IProjection;
       const AMapPixelAtLocalZero: TPoint;
-      APoints: TArrayOfArrayOfFixedPoint;
+      APoints: TArrayOfArrayOfFloatPoint;
       const AColor: TColor32
     );
   end;
@@ -132,6 +130,7 @@ implementation
 uses
   SysUtils,
   GR32_Math,
+  GR32_VectorUtils,
   u_GeometryFunc,
   u_GeoFunc;
 
@@ -140,7 +139,6 @@ uses
 constructor TProjectedDrawableElementByPolygonSimpleEdge.Create(
   const AProjection: IProjection;
   const ASource: IGeometryProjectedPolygon;
-  const AAntialiasMode: TAntialiasMode;
   const AColor: TColor32
 );
 begin
@@ -148,7 +146,6 @@ begin
   inherited Create;
   FProjection := AProjection;
   FSource := ASource;
-  FAntialiasMode := AAntialiasMode;
   FColor := AColor;
 end;
 
@@ -158,8 +155,8 @@ procedure TProjectedDrawableElementByPolygonSimpleEdge.Draw(
 );
 var
   VDrawRect: TDoubleRect;
-  VPolygon: TPolygon32;
-  VPathFixedPoints: TArrayOfFixedPoint;
+  VPolygon: TArrayOfArrayOfFloatPoint;
+  VPathPoints: TArrayOfFloatPoint;
   VIntersectRect: TDoubleRect;
   i: integer;
   VProjectedMultiLine: IGeometryProjectedMultiPolygon;
@@ -168,39 +165,19 @@ begin
   VDrawRect := ALocalConverter.LocalRect2MapRectFloat(ABitmap.ClipRect);
   if IntersecProjectedRect(VIntersectRect, VDrawRect, FSource.Bounds) then begin
     if DoubleRectsEqual(VIntersectRect, FSource.Bounds) or FSource.IsRectIntersectBorder(VDrawRect) then begin
-      VPolygon := TPolygon32.Create;
-      try
-        VPolygon.Closed := True;
-        if Supports(FSource, IGeometryProjectedSinglePolygon, VProjectedSingleLine) then begin
-          ProjectedPolygon2GR32Polygon(
-            VProjectedSingleLine,
-            ALocalConverter,
-            am4times,
-            VPathFixedPoints,
-            VPolygon
-          );
+      if Supports(FSource, IGeometryProjectedSinglePolygon, VProjectedSingleLine) then begin
+        VPolygon := ProjectedPolygon2ArrayOfArray(VProjectedSingleLine, ALocalConverter.GetRectInMapPixel, VPathPoints);
+        if Assigned(VPolygon) then begin
+          PolyPolylineFS(ABitmap, VPolygon, FColor, True);
+        end;
+      end else if Supports(FSource, IGeometryProjectedMultiPolygon, VProjectedMultiLine) then begin
+        for i := 0 to VProjectedMultiLine.Count - 1 do begin
+          VProjectedSingleLine := VProjectedMultiLine.Item[i];
+          VPolygon := ProjectedPolygon2ArrayOfArray(VProjectedSingleLine, ALocalConverter.GetRectInMapPixel, VPathPoints);
           if Assigned(VPolygon) then begin
-            VPolygon.DrawEdge(ABitmap, FColor);
-          end;
-        end else if Supports(FSource, IGeometryProjectedMultiPolygon, VProjectedMultiLine) then begin
-          for i := 0 to VProjectedMultiLine.Count - 1 do begin
-            VProjectedSingleLine := VProjectedMultiLine.Item[i];
-            ProjectedPolygon2GR32Polygon(
-              VProjectedSingleLine,
-              ALocalConverter,
-              am4times,
-              VPathFixedPoints,
-              VPolygon
-            );
-            if Assigned(VPolygon) then begin
-              VPolygon.DrawEdge(ABitmap, FColor);
-            end;
+            PolyPolylineFS(ABitmap, VPolygon, FColor, True);
           end;
         end;
-
-        VPathFixedPoints := nil;
-      finally
-        VPolygon.Free;
       end;
     end;
   end;
@@ -211,63 +188,12 @@ begin
   Result := FProjection;
 end;
 
-// Scales to a polygon (TArrayOfFixedPoint)
-function ScalePolygon(const Points: TArrayOfFixedPoint; ScaleX, ScaleY: TFixed): TArrayOfFixedPoint;
-var
-  I, L: Integer;
-begin
-  L := Length(Points);
-  SetLength(Result, L);
-  for I := 0 to L - 1 do
-  begin
-    Result[I].X := FixedMul(Points[I].X, ScaleX);
-    Result[I].Y := FixedMul(Points[I].Y, ScaleY);
-  end;
-end;
-
-// Scales all sub polygons in a complex polygon (TArrayOfArrayOfFixedPoint)
-function ScalePolyPolygon(const Points: TArrayOfArrayOfFixedPoint;
-  ScaleX, ScaleY: TFixed): TArrayOfArrayOfFixedPoint;
-var
-  I, L: Integer;
-begin
-  L := Length(Points);
-  SetLength(Result, L);
-  for I := 0 to L - 1 do
-    Result[I] := ScalePolygon(Points[I], ScaleX, ScaleY);
-end;
-// Translates a polygon (TArrayOfFixedPoint)
-function TranslatePolygon(const Points: TArrayOfFixedPoint;
-  OffsetX, OffsetY: TFixed): TArrayOfFixedPoint;
-var
-  I, Len: Integer;
-begin
-  Len := Length(Points);
-  SetLength(Result, Len);
-  for I := 0 to Len - 1 do
-  begin
-    Result[I].X := Points[I].X + OffsetX;
-    Result[I].Y := Points[I].Y + OffsetY;
-  end;
-end;
-// Translates all sub polygons in a complex polygon (TArrayOfArrayOfFixedPoint)
-function TranslatePolyPolygon(const Points: TArrayOfArrayOfFixedPoint;
-  OffsetX, OffsetY: TFixed): TArrayOfArrayOfFixedPoint;
-var
-  I, L: Integer;
-begin
-  L := Length(Points);
-  SetLength(Result, L);
-  for I := 0 to L - 1 do
-    Result[I] := TranslatePolygon(Points[I], OffsetX, OffsetY);
-end;
-
 { TDrawableBaseByPoints }
 
 constructor TDrawableBaseByPoints.Create(
   const AProjection: IProjection;
   const AMapPixelAtLocalZero: TPoint;
-  APoints: TArrayOfArrayOfFixedPoint
+  APoints: TArrayOfArrayOfFloatPoint
 );
 begin
   Assert(Assigned(AProjection));
@@ -285,7 +211,7 @@ end;
 
 function TDrawableBaseByPoints.PreparePoints(
   const ALocalCoordConverter: ILocalCoordConverter
-): TArrayOfArrayOfFixedPoint;
+): TArrayOfArrayOfFloatPoint;
 var
   VTranslateDelta: TDoublePoint;
   VTargetRect: TDoubleRect;
@@ -302,12 +228,12 @@ begin
   VTargetRect := ALocalCoordConverter.MapRectFloat2LocalRectFloat(ALocalCoordConverter.Projection.RelativeRect2PixelRectFloat(FBaseRelativeRect));
   VScale := RectSize(VTargetRect);
   if (VScale.X <> 1.0) or (VScale.Y <> 1.0) then begin
-    FCachedPoints := ScalePolyPolygon(FCachedPoints, Fixed(VScale.X), Fixed(VScale.Y));
+    FCachedPoints := ScalePolyPolygon(FCachedPoints, VScale.X, VScale.Y);
   end;
   VTranslateDelta := VTargetRect.TopLeft;
 
   if (Abs(VTranslateDelta.X) > 0.0001) or (Abs(VTranslateDelta.Y) > 0.0001) then begin
-    FCachedPoints := TranslatePolyPolygon(FCachedPoints, Fixed(VTranslateDelta.X), Fixed(VTranslateDelta.Y));
+    FCachedPoints := TranslatePolyPolygon(FCachedPoints, VTranslateDelta.X, VTranslateDelta.Y);
   end;
   FCachedForLocalCoordConverter := ALocalCoordConverter;
   Result := FCachedPoints;
@@ -318,7 +244,7 @@ end;
 constructor TDrawableSimpleLine.Create(
   const AProjection: IProjection;
   const AMapPixelAtLocalZero: TPoint;
-  APoints: TArrayOfArrayOfFixedPoint;
+  APoints: TArrayOfArrayOfFloatPoint;
   const AClosed: Boolean;
   const AColor: TColor32
 );
@@ -333,10 +259,10 @@ procedure TDrawableSimpleLine.Draw(
   const ALocalCoordConverter: ILocalCoordConverter
 );
 var
-  VPoints: TArrayOfArrayOfFixedPoint;
+  VPoints: TArrayOfArrayOfFloatPoint;
 begin
   VPoints := PreparePoints(ALocalCoordConverter);
-  PolyPolylineXS(ABitmap, VPoints, FColor, FClosed);
+  PolyPolylineFS(ABitmap, VPoints, FColor, FClosed);
 end;
 
 { TDrawablePolygonFill }
@@ -344,7 +270,7 @@ end;
 constructor TDrawablePolygonFill.Create(
   const AProjection: IProjection;
   const AMapPixelAtLocalZero: TPoint;
-  APoints: TArrayOfArrayOfFixedPoint;
+  APoints: TArrayOfArrayOfFloatPoint;
   const AColor: TColor32
 );
 begin
@@ -357,10 +283,10 @@ procedure TDrawablePolygonFill.Draw(
   const ALocalCoordConverter: ILocalCoordConverter
 );
 var
-  VPoints: TArrayOfArrayOfFixedPoint;
+  VPoints: TArrayOfArrayOfFloatPoint;
 begin
   VPoints := PreparePoints(ALocalCoordConverter);
-  PolyPolygonXS(ABitmap, VPoints, FColor, pfWinding, am4times);
+  PolyPolygonFS(ABitmap, VPoints, FColor, pfWinding);
 end;
 
 { TDrawableByList }

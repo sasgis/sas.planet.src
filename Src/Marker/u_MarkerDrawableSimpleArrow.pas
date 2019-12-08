@@ -54,7 +54,7 @@ function TMarkerDrawableSimpleArrow.DrawToBitmapWithDirection(
   const AAngle: Double
 ): Boolean;
 var
-  VPolygon: TPolygon32;
+  VPolygon: TArrayOfFloatPoint;
   VTransform: TAffineTransformation;
   VHalfSize: Double;
   VWidth: Double;
@@ -82,20 +82,12 @@ begin
       VTransform := TAffineTransformation.Create;
       try
         VTransform.Rotate(APosition.X, APosition.Y, -AAngle);
-        VPolygon := TPolygon32.Create;
-        try
-          VPolygon.Closed := True;
-          VPolygon.Antialiased := true;
-          VPolygon.AntialiasMode := am2times;
-          VPolygon.Add(VTransform.Transform(FixedPoint(APosition.X, APosition.Y - VHalfSize)));
-          VPolygon.Add(VTransform.Transform(FixedPoint(APosition.X - VWidth, APosition.Y + VHalfSize)));
-          VPolygon.Add(VTransform.Transform(FixedPoint(APosition.X + VWidth, APosition.Y + VHalfSize)));
-
-          VPolygon.DrawFill(ABitmap, Config.MarkerColor);
-          VPolygon.DrawEdge(ABitmap, Config.BorderColor);
-        finally
-          VPolygon.Free;
-        end;
+          SetLength(VPolygon, 3);
+          VPolygon[0] := VTransform.Transform(FloatPoint(APosition.X, APosition.Y - VHalfSize));
+          VPolygon[1] := VTransform.Transform(FloatPoint(APosition.X - VWidth, APosition.Y + VHalfSize));
+          VPolygon[2] := VTransform.Transform(FloatPoint(APosition.X + VWidth, APosition.Y + VHalfSize));
+          PolygonFS(ABitmap, VPolygon, Config.MarkerColor);
+          PolylineFS(ABitmap, VPolygon, Config.BorderColor, True);
       finally
         VTransform.Free;
       end;

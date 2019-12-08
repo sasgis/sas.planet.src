@@ -48,25 +48,25 @@ type
     );
 
     procedure GetCirclePoints(
-      out ACirclePoints: TArrayOfFixedPoint
+      out ACirclePoints: TArrayOfFloatPoint
     );
 
     procedure GetMinMaxAltitudePoints(
-      out AMinAltitudePoints: TArrayOfFixedPoint;
-      out AMaxAltitudePoints: TArrayOfFixedPoint;
-      out AMinMaxAltitudePolygon: TArrayOfFixedPoint
+      out AMinAltitudePoints: TArrayOfFloatPoint;
+      out AMaxAltitudePoints: TArrayOfFloatPoint;
+      out AMinMaxAltitudePolygon: TArrayOfFloatPoint
     );
 
     procedure GetDayInfoPoints(
-      out ADayPoints: TArrayOfArrayOfFixedPoint;
-      out ARise: TFixedPoint;
-      out ASet: TFixedPoint;
-      out ACenter: TFixedPoint
+      out ADayPoints: TArrayOfArrayOfFloatPoint;
+      out ARise: TFloatPoint;
+      out ASet: TFloatPoint;
+      out ACenter: TFloatPoint
     );
 
     procedure GetTimeInfoPoints(
-      out APos: TFixedPoint;
-      out ACenter: TFixedPoint
+      out APos: TFloatPoint;
+      out ACenter: TFloatPoint
     );
   end;
 

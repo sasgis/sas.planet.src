@@ -57,7 +57,7 @@ end;
 function GenerateCirclePoints(
   const ACenter: TFloatPoint;
   const ARadius: TFloat
-): TArrayOfFixedPoint;
+): TArrayOfFloatPoint;
 var
   I: Integer;
   M: TFloat;
@@ -70,8 +70,8 @@ begin
   M := 2 * System.Pi / VSteps;
 
   // first item
-  Result[0].X := Fixed(ARadius + ACenter.X);
-  Result[0].Y := Fixed(ACenter.Y);
+  Result[0].X := ARadius + ACenter.X;
+  Result[0].Y := ACenter.Y;
 
   // calculate complex offset
   GR32_Math.SinCos(M, C.Y, C.X);
@@ -79,15 +79,15 @@ begin
   D.Y := ARadius * C.Y;
 
   // second item
-  Result[1].X := Fixed(D.X + ACenter.X);
-  Result[1].Y := Fixed(D.Y + ACenter.Y);
+  Result[1].X := D.X + ACenter.X;
+  Result[1].Y := D.Y + ACenter.Y;
 
   // other items
   for I := 2 to VSteps - 1 do begin
     D := FloatPoint(D.X * C.X - D.Y * C.Y, D.Y * C.X + D.X * C.Y);
 
-    Result[I].X := Fixed(D.X + ACenter.X);
-    Result[I].Y := Fixed(D.Y + ACenter.Y);
+    Result[I].X := D.X + ACenter.X;
+    Result[I].Y := D.Y + ACenter.Y;
   end;
 end;
 
@@ -102,7 +102,7 @@ var
   VDoubleRect: TDoubleRect;
   VRect: TRect;
   VTargetRect: TRect;
-  VCirclePoints: TArrayOfFixedPoint;
+  VCirclePoints: TArrayOfFloatPoint;
 begin
   VHalfSize := Config.MarkerSize / 2;
   VDoubleRect.Left := APosition.X - VHalfSize;
@@ -124,9 +124,9 @@ begin
       VHalfSize
     );
     if Length(VCirclePoints) > 0 then begin
-      PolygonTS(ABitmap, VCirclePoints, Config.MarkerColor);
+      PolygonFS(ABitmap, VCirclePoints, Config.MarkerColor);
       if Config.MarkerColor <> Config.BorderColor then begin
-        PolylineXS(ABitmap, VCirclePoints, Config.BorderColor, True);
+        PolylineFS(ABitmap, VCirclePoints, Config.BorderColor, True);
       end;
     end;
   end else begin

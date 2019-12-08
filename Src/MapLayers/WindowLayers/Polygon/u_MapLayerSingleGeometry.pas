@@ -153,6 +153,7 @@ implementation
 uses
   Types,
   SysUtils,
+  GR32_VectorUtils,
   i_InterfaceListSimple,
   u_SimpleFlagWithInterlock,
   u_InterfaceListSimple,
@@ -350,8 +351,8 @@ function TMapLayerSingleLine.PrepareDrawable(
 var
   VLonLatLine: IGeometryLonLatLine;
   VProjectedLine: IGeometryProjectedLine;
-  VPathPoints: TArrayOfFixedPoint;
-  VPolygon: TArrayOfArrayOfFixedPoint;
+  VPathPoints: TArrayOfFloatPoint;
+  VPolygon: TArrayOfArrayOfFloatPoint;
 begin
   Result := nil;
   if (AlphaComponent(FLineColor) = 0) or (FLineWidth < 1) then begin
@@ -430,8 +431,8 @@ procedure PrepareFillAndBorder(
   var ADrawableList: IInterfaceListSimple
 );
 var
-  VPathPoints: TArrayOfFixedPoint;
-  VPolygon: TArrayOfArrayOfFixedPoint;
+  VPathPoints: TArrayOfFloatPoint;
+  VPolygon: TArrayOfArrayOfFloatPoint;
   VFill: IProjectedDrawableElement;
   VBorder: IProjectedDrawableElement;
 begin

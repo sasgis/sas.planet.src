@@ -54,7 +54,7 @@ function TMarkerDrawableSimpleCross.DrawToBitmap(
 var
   VCrossHalfWidth: Double;
   VHalfSize: Double;
-  VPolygon: TPolygon32;
+  VPolygon: TArrayOfFloatPoint;
   VTargetRect: TRect;
   VTargetDoubleRect: TDoubleRect;
 begin
@@ -74,29 +74,21 @@ begin
   if not ABitmap.MeasuringMode then begin
     ABitmap.BeginUpdate;
     try
-      VPolygon := TPolygon32.Create;
-      try
-        VPolygon.Closed := True;
-        VPolygon.Antialiased := true;
-        VPolygon.AntialiasMode := am2times;
-        VPolygon.Add(FixedPoint(APosition.X - VCrossHalfWidth, APosition.Y - VHalfSize));
-        VPolygon.Add(FixedPoint(APosition.X + VCrossHalfWidth, APosition.Y - VHalfSize));
-        VPolygon.Add(FixedPoint(APosition.X + VCrossHalfWidth, APosition.Y - VCrossHalfWidth));
-        VPolygon.Add(FixedPoint(APosition.X + VHalfSize, APosition.Y - VCrossHalfWidth));
-        VPolygon.Add(FixedPoint(APosition.X + VHalfSize, APosition.Y + VCrossHalfWidth));
-        VPolygon.Add(FixedPoint(APosition.X + VCrossHalfWidth, APosition.Y + VCrossHalfWidth));
-        VPolygon.Add(FixedPoint(APosition.X + VCrossHalfWidth, APosition.Y + VHalfSize));
-        VPolygon.Add(FixedPoint(APosition.X - VCrossHalfWidth, APosition.Y + VHalfSize));
-        VPolygon.Add(FixedPoint(APosition.X - VCrossHalfWidth, APosition.Y + VCrossHalfWidth));
-        VPolygon.Add(FixedPoint(APosition.X - VHalfSize, APosition.Y + VCrossHalfWidth));
-        VPolygon.Add(FixedPoint(APosition.X - VHalfSize, APosition.Y - VCrossHalfWidth));
-        VPolygon.Add(FixedPoint(APosition.X - VCrossHalfWidth, APosition.Y - VCrossHalfWidth));
-
-        VPolygon.DrawFill(ABitmap, Config.MarkerColor);
-        VPolygon.DrawEdge(ABitmap, Config.BorderColor);
-      finally
-        VPolygon.Free;
-      end;
+      SetLength(VPolygon, 12);
+      VPolygon[0] := FloatPoint(APosition.X - VCrossHalfWidth, APosition.Y - VHalfSize);
+      VPolygon[1] := FloatPoint(APosition.X + VCrossHalfWidth, APosition.Y - VHalfSize);
+      VPolygon[2] := FloatPoint(APosition.X + VCrossHalfWidth, APosition.Y - VCrossHalfWidth);
+      VPolygon[3] := FloatPoint(APosition.X + VHalfSize, APosition.Y - VCrossHalfWidth);
+      VPolygon[4] := FloatPoint(APosition.X + VHalfSize, APosition.Y + VCrossHalfWidth);
+      VPolygon[5] := FloatPoint(APosition.X + VCrossHalfWidth, APosition.Y + VCrossHalfWidth);
+      VPolygon[6] := FloatPoint(APosition.X + VCrossHalfWidth, APosition.Y + VHalfSize);
+      VPolygon[7] := FloatPoint(APosition.X - VCrossHalfWidth, APosition.Y + VHalfSize);
+      VPolygon[8] := FloatPoint(APosition.X - VCrossHalfWidth, APosition.Y + VCrossHalfWidth);
+      VPolygon[9] := FloatPoint(APosition.X - VHalfSize, APosition.Y + VCrossHalfWidth);
+      VPolygon[10] := FloatPoint(APosition.X - VHalfSize, APosition.Y - VCrossHalfWidth);
+      VPolygon[11] := FloatPoint(APosition.X - VCrossHalfWidth, APosition.Y - VCrossHalfWidth);
+      PolygonFS(ABitmap, VPolygon, Config.MarkerColor);
+      PolylineFS(ABitmap, VPolygon, Config.BorderColor, True);
     finally
       ABitmap.EndUpdate;
     end;

@@ -27,14 +27,14 @@ uses
 
 procedure ThickLine(
   ABitmap: TBitmap32;
-  const AStart, AEnd: TFixedPoint;
+  const AStart, AEnd: TFloatPoint;
   const AColor: TColor32;
   const AWidth: Integer
 );
 
 procedure ThickPolyLine(
   ABitmap: TBitmap32;
-  const APoints: TArrayOfFixedPoint;
+  const APoints: TArrayOfFloatPoint;
   const AColor: TColor32
 );
 
@@ -50,86 +50,44 @@ var
 
 procedure ThickLine(
   ABitmap: TBitmap32;
-  const AStart, AEnd: TFixedPoint;
+  const AStart, AEnd: TFloatPoint;
   const AColor: TColor32;
   const AWidth: Integer
 );
 var
   I: Integer;
   P1, P2: TPoint;
-  VPolygon: TPolygon32;
+  VPolygon: TArrayOfFloatPoint;
 begin
   I := AWidth div 2;
 
   P1 := GR32.Point(AStart);
   P2 := GR32.Point(AEnd);
 
-  VPolygon := TPolygon32.Create;
-  try
-    VPolygon.Add(FixedPoint(P1.X - I, P1.Y));
-    VPolygon.Add(FixedPoint(P1.X + I, P1.Y));
-    VPolygon.Add(FixedPoint(P2.X + I, P2.Y));
-    VPolygon.Add(FixedPoint(P2.X - I, P2.Y));
+  SetLength(VPolygon, 4);
 
-    if GUsePolygonAntiAliasing then begin
-      try
-        PolyPolygonXS(ABitmap, VPolygon.Points, AColor);
-      except
-        GUsePolygonAntiAliasing := False;
-      end;
-    end else begin
-      PolyPolygonTS(ABitmap, VPolygon.Points, AColor);
-    end;
+  VPolygon[0] := FloatPoint(P1.X - I, P1.Y);
+  VPolygon[1] := FloatPoint(P1.X + I, P1.Y);
+  VPolygon[2] := FloatPoint(P2.X + I, P2.Y);
+  VPolygon[3] := FloatPoint(P2.X - I, P2.Y);
 
-    VPolygon.Clear;
+  PolygonFS(ABitmap, VPolygon, AColor);
 
-    VPolygon.Add(FixedPoint(P1.X, P1.Y + I));
-    VPolygon.Add(FixedPoint(P1.X, P1.Y - I));
-    VPolygon.Add(FixedPoint(P2.X, P2.Y - I));
-    VPolygon.Add(FixedPoint(P2.X, P2.Y + I));
+  VPolygon[0] := FloatPoint(P1.X, P1.Y + I);
+  VPolygon[1] := FloatPoint(P1.X, P1.Y - I);
+  VPolygon[2] := FloatPoint(P2.X, P2.Y - I);
+  VPolygon[3] := FloatPoint(P2.X, P2.Y + I);
 
-    if GUsePolygonAntiAliasing then begin
-      try
-        PolyPolygonXS(ABitmap, VPolygon.Points, AColor);
-      except
-        GUsePolygonAntiAliasing := False;
-      end;
-    end else begin
-      PolyPolygonTS(ABitmap, VPolygon.Points, AColor);
-    end;
-  finally
-    VPolygon.Free;
-  end;
+  PolygonFS(ABitmap, VPolygon, AColor);
 end;
 
 procedure ThickPolyLine(
   ABitmap: TBitmap32;
-  const APoints: TArrayOfFixedPoint;
+  const APoints: TArrayOfFloatPoint;
   const AColor: TColor32
 );
-var
-  I: Integer;
-  VPolygon, VTmp: TPolygon32;
 begin
-  VPolygon := TPolygon32.Create;
-  try
-    VPolygon.Closed := False;
-    VPolygon.AddPoints(APoints[0], Length(APoints));
-    for I := -2 to 1 do begin
-      if I = 0 then begin
-        PolylineXS(ABitmap, APoints, AColor, False);
-      end else begin
-        VTmp := VPolygon.Grow(Fixed(I));
-        try
-          PolyPolyLineXS(ABitmap, VTmp.Points, AColor, False);
-        finally
-          VTmp.Free;
-        end;
-      end;
-    end;
-  finally
-    VPolygon.Free;
-  end;
+  PolylineFS(ABitmap, APoints, AColor, False, 4);
 end;
 
 end.

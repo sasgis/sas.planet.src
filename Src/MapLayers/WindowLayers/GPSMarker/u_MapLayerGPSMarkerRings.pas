@@ -289,7 +289,6 @@ begin
       TProjectedDrawableElementByPolygonSimpleEdge.Create(
         ALocalConverter.Projection,
         VCirclesProjected,
-        amNone,
         clRed32
       );
   end;

@@ -52,10 +52,10 @@ end;
 procedure TWindowLayerSunCalcDayInfo.PaintLayer(ABuffer: TBitmap32);
 var
   I: Integer;
-  VDayPoints: TArrayOfArrayOfFixedPoint;
-  VRisePoint: TFixedPoint;
-  VSetPoint: TFixedPoint;
-  VCenter: TFixedPoint;
+  VDayPoints: TArrayOfArrayOfFloatPoint;
+  VRisePoint: TFloatPoint;
+  VSetPoint: TFloatPoint;
+  VCenter: TFloatPoint;
 begin
   if not FShapesGenerator.IsIntersectScreenRect then begin
     Exit;

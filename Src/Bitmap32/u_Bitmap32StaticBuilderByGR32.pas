@@ -104,16 +104,14 @@ type
     procedure FinalizeSurface; override;
   public
     constructor Create(
-      Owner: TCustomBitmap32;
-      const ABitmapBuffer: IBitmap32Buffer
-    );
+      Owner: TCustomBitmap32
+    ); override;
   end;
 
   TBitmap32FixedBitmapBuffer = class(TCustomBitmap32)
   private
     FBitmapBuffer: IBitmap32Buffer;
   protected
-    procedure InitializeBackend; override;
     procedure SetBackend(const Backend: TCustomBackend); override;
   public
     constructor Create(const ABitmapBuffer: IBitmap32Buffer); reintroduce;
@@ -122,13 +120,12 @@ type
 { TFixedBufferBitmapBackend }
 
 constructor TFixedBufferBitmapBackend.Create(
-  Owner: TCustomBitmap32;
-  const ABitmapBuffer: IBitmap32Buffer
+  Owner: TCustomBitmap32
 );
 begin
-  Assert(Assigned(ABitmapBuffer));
+  Assert(Owner is TBitmap32FixedBitmapBuffer);
   inherited Create(Owner);
-  FBitmapBuffer := ABitmapBuffer;
+  FBitmapBuffer := TBitmap32FixedBitmapBuffer(FOwner).FBitmapBuffer;
 end;
 
 procedure TFixedBufferBitmapBackend.FinalizeSurface;
@@ -159,14 +156,8 @@ constructor TBitmap32FixedBitmapBuffer.Create(
 );
 begin
   Assert(Assigned(ABitmapBuffer));
-  inherited Create;
+  inherited Create(TFixedBufferBitmapBackend);
   FBitmapBuffer := ABitmapBuffer;
-end;
-
-procedure TBitmap32FixedBitmapBuffer.InitializeBackend;
-begin
-  inherited;
-  TFixedBufferBitmapBackend.Create(Self, FBitmapBuffer);
 end;
 
 procedure TBitmap32FixedBitmapBuffer.SetBackend(const Backend: TCustomBackend);
