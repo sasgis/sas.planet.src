@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2015, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -33,8 +33,8 @@ type
   TMarksExplorerConfig = class(TConfigDataElementBase, IMarksExplorerConfig)
   private
     FCategoriesWidth: Integer;
-    FSelectedCategory: AnsiString;
-    FExpandedCategories: AnsiString;
+    FSelectedCategory: string;
+    FExpandedCategories: string;
     FWindowPositionConfig: IWindowPositionConfig;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
@@ -43,10 +43,10 @@ type
     { IMarksExplorerConfig }
     function GetCategoriesWidth: Integer;
     procedure SetCategoriesWidth(const AValue: Integer);
-    function GetExpandedCategories: AnsiString;
-    procedure SetExpandedCategories(const AValue: AnsiString);
-    function GetSelectedCategory: AnsiString;
-    procedure SetSelectedCategory(const AValue: AnsiString);
+    function GetExpandedCategories: string;
+    procedure SetExpandedCategories(const AValue: string);
+    function GetSelectedCategory: string;
+    procedure SetSelectedCategory(const AValue: string);
     function GetWindowPositionConfig: IWindowPositionConfig;
   public
     constructor Create;
@@ -76,8 +76,8 @@ begin
   if AConfigData <> nil then begin
     FWindowPositionConfig.ReadConfig(AConfigData);
     FCategoriesWidth := AConfigData.ReadInteger('CategoriesWidth', 0);
-    FExpandedCategories := AConfigData.ReadAnsiString('ExpandedCategories', '');
-    FSelectedCategory := AConfigData.ReadAnsiString('SelectedCategory', '');
+    FExpandedCategories := AConfigData.ReadString('ExpandedCategories', '');
+    FSelectedCategory := AConfigData.ReadString('SelectedCategory', '');
     SetChanged;
   end;
 end;
@@ -90,8 +90,8 @@ begin
   if AConfigData <> nil then begin
     FWindowPositionConfig.WriteConfig(AConfigData);
     AConfigData.WriteInteger('CategoriesWidth', FCategoriesWidth);
-    AConfigData.WriteAnsiString('ExpandedCategories', FExpandedCategories);
-    AConfigData.WriteAnsiString('SelectedCategory', FSelectedCategory);
+    AConfigData.WriteString('ExpandedCategories', FExpandedCategories);
+    AConfigData.WriteString('SelectedCategory', FSelectedCategory);
   end;
 end;
 
@@ -128,7 +128,7 @@ begin
   end;
 end;
 
-function TMarksExplorerConfig.GetExpandedCategories: AnsiString;
+function TMarksExplorerConfig.GetExpandedCategories: string;
 begin
   LockRead;
   try
@@ -138,7 +138,7 @@ begin
   end;
 end;
 
-procedure TMarksExplorerConfig.SetExpandedCategories(const AValue: AnsiString);
+procedure TMarksExplorerConfig.SetExpandedCategories(const AValue: string);
 begin
   LockWrite;
   try
@@ -151,7 +151,7 @@ begin
   end;
 end;
 
-function TMarksExplorerConfig.GetSelectedCategory: AnsiString;
+function TMarksExplorerConfig.GetSelectedCategory: string;
 begin
   LockRead;
   try
@@ -161,7 +161,7 @@ begin
   end;
 end;
 
-procedure TMarksExplorerConfig.SetSelectedCategory(const AValue: AnsiString);
+procedure TMarksExplorerConfig.SetSelectedCategory(const AValue: string);
 begin
   LockWrite;
   try

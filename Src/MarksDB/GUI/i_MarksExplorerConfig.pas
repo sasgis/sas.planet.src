@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2015, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -37,13 +37,13 @@ type
     procedure SetCategoriesWidth(const AValue: Integer);
     property CategoriesWidth: Integer read GetCategoriesWidth write SetCategoriesWidth;
 
-    function GetExpandedCategories: AnsiString;
-    procedure SetExpandedCategories(const AValue: AnsiString);
-    property ExpandedCategories: AnsiString read GetExpandedCategories write SetExpandedCategories;
+    function GetExpandedCategories: string;
+    procedure SetExpandedCategories(const AValue: string);
+    property ExpandedCategories: string read GetExpandedCategories write SetExpandedCategories;
 
-    function GetSelectedCategory: AnsiString;
-    procedure SetSelectedCategory(const AValue: AnsiString);
-    property SelectedCategory: AnsiString read GetSelectedCategory write SetSelectedCategory;
+    function GetSelectedCategory: string;
+    procedure SetSelectedCategory(const AValue: string);
+    property SelectedCategory: string read GetSelectedCategory write SetSelectedCategory;
   end;
 
 implementation

@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2015, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -38,8 +38,8 @@ type
   end;
   TExpandInfo = array of TExpandInfoItem;
 
-function ExpandInfoToString(const AInfo: TExpandInfo): AnsiString;
-function ExpandInfoFromString(const AStr: AnsiString): TExpandInfo;
+function ExpandInfoToString(const AInfo: TExpandInfo): string;
+function ExpandInfoFromString(const AStr: string): TExpandInfo;
 
 function GetExpandInfo(ANodes: TTreeNodes): TExpandInfo;
 
@@ -64,26 +64,24 @@ implementation
 
 uses
   SysUtils,
-  ALString,
-  ALStringList,
   c_MarkSystem,
   i_InterfaceListStatic;
 
 const
-  cSep1: AnsiChar = ',';
-  cSep2: AnsiChar = ':';
+  cSep1 = ',';
+  cSep2 = ':';
 
-function ExpandInfoToString(const AInfo: TExpandInfo): AnsiString;
+function ExpandInfoToString(const AInfo: TExpandInfo): string;
 var
   I: Integer;
-  VStrings: TALStringList;
+  VStrings: TStringList;
 begin
-  VStrings := TALStringList.Create;
+  VStrings := TStringList.Create;
   try
     VStrings.Delimiter := cSep1;
     VStrings.NameValueSeparator := cSep2;
     for I := 0 to Length(AInfo) - 1 do begin
-      VStrings.Values[ALIntToHex(AInfo[I].UID, 8)] := ALIntToStr(AInfo[I].Index);
+      VStrings.Values[IntToHex(AInfo[I].UID, 8)] := IntToStr(AInfo[I].Index);
     end;
     Result := VStrings.DelimitedText;
   finally
@@ -91,21 +89,21 @@ begin
   end;
 end;
 
-function ExpandInfoFromString(const AStr: AnsiString): TExpandInfo;
+function ExpandInfoFromString(const AStr: string): TExpandInfo;
 var
   I: Integer;
-  VStrings: TALStringList;
+  VStrings: TStringList;
 begin
   if AStr <> '' then begin
-    VStrings := TALStringList.Create;
+    VStrings := TStringList.Create;
     try
       VStrings.Delimiter := cSep1;
       VStrings.NameValueSeparator := cSep2;
       VStrings.DelimitedText := AStr;
       SetLength(Result, VStrings.Count);
       for I := 0 to Length(Result) - 1 do begin
-        Result[I].UID := ALStrToInt('$' + VStrings.Names[I]);
-        Result[I].Index := ALStrToInt(VStrings.ValueFromIndex[I]);
+        Result[I].UID := StrToInt('$' + VStrings.Names[I]);
+        Result[I].Index := StrToInt(VStrings.ValueFromIndex[I]);
       end;
     finally
       VStrings.Free;
