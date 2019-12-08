@@ -155,12 +155,18 @@
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
 			<DCCReference Include="Src\SASPlanet.modules.pas"/>
+			<DCCReference Include="Src\ArchiveReadWrite\fr_ArchiveWriteZipConfig.pas">
+				<Form>frArchiveWriteZipConfig</Form>
+				<DesignClass>TFrame</DesignClass>
+			</DCCReference>
 			<DCCReference Include="Src\ArchiveReadWrite\i_ArchiveReadWrite.pas"/>
+			<DCCReference Include="Src\ArchiveReadWrite\i_ArchiveReadWriteConfig.pas"/>
 			<DCCReference Include="Src\ArchiveReadWrite\i_ArchiveReadWriteFactory.pas"/>
 			<DCCReference Include="Src\ArchiveReadWrite\u_ArchiveReadWrite7Zip.pas"/>
+			<DCCReference Include="Src\ArchiveReadWrite\u_ArchiveReadWriteConfig.pas"/>
 			<DCCReference Include="Src\ArchiveReadWrite\u_ArchiveReadWriteFactory.pas"/>
-			<DCCReference Include="Src\ArchiveReadWrite\u_ArchiveReadWriteKaZip.pas"/>
-			<DCCReference Include="Src\ArchiveReadWrite\u_ArchiveWriteLibTar.pas"/>
+			<DCCReference Include="Src\ArchiveReadWrite\u_ArchiveReadWriteSequentialTar.pas"/>
+			<DCCReference Include="Src\ArchiveReadWrite\u_ArchiveReadWriteSequentialZip.pas"/>
 			<DCCReference Include="Src\Basic\i_BackgroundTask.pas"/>
 			<DCCReference Include="Src\Basic\i_BinaryData.pas"/>
 			<DCCReference Include="Src\Basic\i_BinaryDataListChangeable.pas"/>
@@ -288,6 +294,9 @@
 			<DCCReference Include="Src\Browser\u_InternalBrowserImplByIE.pas"/>
 			<DCCReference Include="Src\Browser\u_InternalBrowserLastContent.pas"/>
 			<DCCReference Include="Src\Browser\u_InvisibleBrowserByFormSynchronize.pas"/>
+			<DCCReference Include="Src\CacheManager\frm_ArchiverSettings.pas">
+				<Form>frmArchiverSettings</Form>
+			</DCCReference>
 			<DCCReference Include="Src\CacheManager\frm_CacheManager.pas">
 				<Form>frmCacheManager</Form>
 			</DCCReference>
@@ -578,6 +587,11 @@
 				<Form>frSearchResultsItem</Form>
 				<DesignClass>TFrame</DesignClass>
 			</DCCReference>
+			<DCCReference Include="Src\MainForm\Search\i_SearchResultPresenter.pas"/>
+			<DCCReference Include="Src\MainForm\Search\i_SearchTaskRunnerAsync.pas"/>
+			<DCCReference Include="Src\MainForm\Search\u_SearchResultPresenterOnPanel.pas"/>
+			<DCCReference Include="Src\MainForm\Search\u_SearchTaskRunnerAsync.pas"/>
+			<DCCReference Include="Src\MainForm\Search\u_SearchToolbarContainer.pas"/>
 			<DCCReference Include="Src\MainForm\frm_Main.pas">
 				<Form>frmMain</Form>
 			</DCCReference>
@@ -604,7 +618,6 @@
 			<DCCReference Include="Src\MainForm\i_PanelsPositionsSaveLoad.pas"/>
 			<DCCReference Include="Src\MainForm\i_PointOnMapEdit.pas"/>
 			<DCCReference Include="Src\MainForm\i_PopUp.pas"/>
-			<DCCReference Include="Src\MainForm\Search\i_SearchResultPresenter.pas"/>
 			<DCCReference Include="Src\MainForm\i_SelectionRect.pas"/>
 			<DCCReference Include="Src\MainForm\i_StickToGrid.pas"/>
 			<DCCReference Include="Src\MainForm\i_ViewPortState.pas"/>
@@ -643,12 +656,12 @@
 			<DCCReference Include="Src\MainForm\u_MapTypeMenuItemsGeneratorSimple.pas"/>
 			<DCCReference Include="Src\MainForm\u_MapViewGoto.pas"/>
 			<DCCReference Include="Src\MainForm\u_MapZoomingConfig.pas"/>
+			<DCCReference Include="Src\MainForm\u_MarksDbMenu.pas"/>
 			<DCCReference Include="Src\MainForm\u_MenuGeneratorByStaticTreeSimple.pas"/>
 			<DCCReference Include="Src\MainForm\u_MouseState.pas"/>
 			<DCCReference Include="Src\MainForm\u_PointOnMapEdit.pas"/>
 			<DCCReference Include="Src\MainForm\u_ProjectionSetChangeableByConfig.pas"/>
 			<DCCReference Include="Src\MainForm\u_SaveLoadTBConfigByConfigProvider.pas"/>
-			<DCCReference Include="Src\MainForm\Search\u_SearchResultPresenterOnPanel.pas"/>
 			<DCCReference Include="Src\MainForm\u_SelectionRect.pas"/>
 			<DCCReference Include="Src\MainForm\u_StickToGridDegree.pas"/>
 			<DCCReference Include="Src\MainForm\u_StickToGridGenShtab.pas"/>
@@ -742,10 +755,15 @@
 			<DCCReference Include="Src\MapLayers\WindowLayers\StatusBar\u_StatBarConfig.pas"/>
 			<DCCReference Include="Src\MapLayers\WindowLayers\StatusBar\u_WindowLayerStatusBar.pas"/>
 			<DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\i_SunCalcConfig.pas"/>
+			<DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\i_SunCalcDataProvider.pas"/>
 			<DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\i_SunCalcProvider.pas"/>
 			<DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\i_SunCalcShapesGenerator.pas"/>
 			<DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\t_SunCalcConfig.pas"/>
+			<DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\t_SunCalcDataProvider.pas"/>
 			<DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcConfig.pas"/>
+			<DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcDataProviderChangeable.pas"/>
+			<DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcDataProviderMoon.pas"/>
+			<DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcDataProviderSun.pas"/>
 			<DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcDrawTools.pas"/>
 			<DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcProvider.pas"/>
 			<DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcShapesGenerator.pas"/>
@@ -898,7 +916,6 @@
 			<DCCReference Include="Src\Marker\u_MarkerDrawableSimpleCross.pas"/>
 			<DCCReference Include="Src\Marker\u_MarkerDrawableSimpleSquare.pas"/>
 			<DCCReference Include="Src\Marker\u_MarkerDrawableWithDirectionByBitmapMarker.pas"/>
-			<DCCReference Include="Src\Marker\u_TextDrawerBasic.pas"/>
 			<DCCReference Include="Src\Marker\u_MarkerFromFileConfig.pas"/>
 			<DCCReference Include="Src\Marker\u_MarkerFromFileConfigStatic.pas"/>
 			<DCCReference Include="Src\Marker\u_MarkerProviderByAppearancePointIcon.pas"/>
@@ -907,6 +924,7 @@
 			<DCCReference Include="Src\Marker\u_MarkerProviderForVectorItemWithCache.pas"/>
 			<DCCReference Include="Src\Marker\u_MarkerSimpleConfig.pas"/>
 			<DCCReference Include="Src\Marker\u_MarkerSimpleConfigStatic.pas"/>
+			<DCCReference Include="Src\Marker\u_TextDrawerBasic.pas"/>
 			<DCCReference Include="Src\MarksDB\GUI\fr_JpegImportOptions.pas">
 				<Form>frJpegImportOptions</Form>
 				<DesignClass>TFrame</DesignClass>
@@ -967,6 +985,9 @@
 			</DCCReference>
 			<DCCReference Include="Src\MarksDB\GUI\frm_PointProjecting.pas">
 				<Form>frmPointProjecting</Form>
+			</DCCReference>
+			<DCCReference Include="Src\MarksDB\GUI\frm_PolygonForOperationConfig.pas">
+				<Form>frmPolygonForOperationConfig</Form>
 			</DCCReference>
 			<DCCReference Include="Src\MarksDB\GUI\i_MarksExplorerConfig.pas"/>
 			<DCCReference Include="Src\MarksDB\GUI\i_MarksGUIConfig.pas"/>
@@ -1097,7 +1118,12 @@
 			<DCCReference Include="Src\Network\i_TileRequestResult.pas"/>
 			<DCCReference Include="Src\Network\i_TileRequestTask.pas"/>
 			<DCCReference Include="Src\Network\i_WinInetConfig.pas"/>
+			<DCCReference Include="Src\Network\t_CurlHttpClient.pas"/>
 			<DCCReference Include="Src\Network\u_AntiBanStuped.pas"/>
+			<DCCReference Include="Src\Network\u_AsyncRequestHelperThread.pas"/>
+			<DCCReference Include="Src\Network\u_ContentDecoder.pas"/>
+			<DCCReference Include="Src\Network\u_CurlHttpClient.pas"/>
+			<DCCReference Include="Src\Network\u_CurlProxyResolver.pas"/>
 			<DCCReference Include="Src\Network\u_DownloadCheckerStuped.pas"/>
 			<DCCReference Include="Src\Network\u_DownloadInfoSimple.pas"/>
 			<DCCReference Include="Src\Network\u_DownloadRequest.pas"/>
@@ -1105,8 +1131,11 @@
 			<DCCReference Include="Src\Network\u_DownloadResultFactory.pas"/>
 			<DCCReference Include="Src\Network\u_DownloadResultTextProvider.pas"/>
 			<DCCReference Include="Src\Network\u_DownloadUIConfig.pas"/>
+			<DCCReference Include="Src\Network\u_DownloaderByCurlFactory.pas"/>
 			<DCCReference Include="Src\Network\u_DownloaderByWinInetFactory.pas"/>
-			<DCCReference Include="Src\Network\u_DownloaderHttp.pas"/>
+			<DCCReference Include="Src\Network\u_DownloaderHttpBase.pas"/>
+			<DCCReference Include="Src\Network\u_DownloaderHttpByCurl.pas"/>
+			<DCCReference Include="Src\Network\u_DownloaderHttpByWinInet.pas"/>
 			<DCCReference Include="Src\Network\u_DownloaderHttpWithTTL.pas"/>
 			<DCCReference Include="Src\Network\u_GlobalDownloadConfig.pas"/>
 			<DCCReference Include="Src\Network\u_GlobalInternetState.pas"/>
@@ -1114,7 +1143,9 @@
 			<DCCReference Include="Src\Network\u_InetConfig.pas"/>
 			<DCCReference Include="Src\Network\u_InetConfigStatic.pas"/>
 			<DCCReference Include="Src\Network\u_InetFunc.pas"/>
+			<DCCReference Include="Src\Network\u_InternetExplorerProxy.pas"/>
 			<DCCReference Include="Src\Network\u_LastResponseInfo.pas"/>
+			<DCCReference Include="Src\Network\u_NetworkStrFunc.pas"/>
 			<DCCReference Include="Src\Network\u_ProxyConfig.pas"/>
 			<DCCReference Include="Src\Network\u_SimpleHttpDownloader.pas"/>
 			<DCCReference Include="Src\Network\u_TileDownloadRequest.pas"/>
@@ -1146,21 +1177,25 @@
 			<DCCReference Include="Src\Network\u_UiTileDownload.pas"/>
 			<DCCReference Include="Src\Network\u_UiTileRequestManager.pas"/>
 			<DCCReference Include="Src\Network\u_WinInetConfig.pas"/>
+			<DCCReference Include="Src\Network\u_WindowsCredentials.pas"/>
 			<DCCReference Include="Src\PascalScript\frm_PascalScriptDbgOut.pas">
 				<Form>frmPascalScriptDbgOut</Form>
 			</DCCReference>
 			<DCCReference Include="Src\PascalScript\frm_PascalScriptIDE.pas">
 				<Form>frmPascalScriptIDE</Form>
 			</DCCReference>
+			<DCCReference Include="Src\PascalScript\i_PascalScriptGlobal.pas"/>
 			<DCCReference Include="Src\PascalScript\t_PascalScript.pas"/>
 			<DCCReference Include="Src\PascalScript\u_PSExecEx.pas"/>
 			<DCCReference Include="Src\PascalScript\u_PSPascalCompilerEx.pas"/>
 			<DCCReference Include="Src\PascalScript\u_PascalScriptBase64.pas"/>
 			<DCCReference Include="Src\PascalScript\u_PascalScriptCompiler.pas"/>
+			<DCCReference Include="Src\PascalScript\u_PascalScriptGlobal.pas"/>
 			<DCCReference Include="Src\PascalScript\u_PascalScriptMath.pas"/>
 			<DCCReference Include="Src\PascalScript\u_PascalScriptRegExpr.pas"/>
 			<DCCReference Include="Src\PascalScript\u_PascalScriptTypes.pas"/>
 			<DCCReference Include="Src\PascalScript\u_PascalScriptUtils.pas"/>
+			<DCCReference Include="Src\PascalScript\u_PascalScriptWriteLn.pas"/>
 			<DCCReference Include="Src\Performance\i_InternalPerformanceCounter.pas"/>
 			<DCCReference Include="Src\Performance\i_InternalPerformanceCounterListForDebug.pas"/>
 			<DCCReference Include="Src\Performance\u_InternalPerformanceCounter.pas"/>
@@ -1177,10 +1212,6 @@
 			<DCCReference Include="Src\Predicate\i_PredicateByTileRequest.pas"/>
 			<DCCReference Include="Src\Predicate\u_PredicateByStaticSampleList.pas"/>
 			<DCCReference Include="Src\Predicate\u_PredicateByTileInfoBase.pas"/>
-			<DCCReference Include="Src\RegionProcess\fr_RegionProcessComplexComboBox.pas">
-				<Form>frRegionProcessComplexComboBox</Form>
-				<DesignClass>TFrame</DesignClass>
-			</DCCReference>
 			<DCCReference Include="Src\RegionProcess\Combine\fr_MapCombine.pas">
 				<Form>frMapCombine</Form>
 				<DesignClass>TFrame</DesignClass>
@@ -1190,6 +1221,10 @@
 				<FormType>dfm</FormType>
 				<DesignClass>TFrame</DesignClass>
 			</DCCReference>
+			<DCCReference Include="Src\RegionProcess\Combine\fr_ProjectionSelect.pas">
+				<Form>frProjectionSelect</Form>
+				<DesignClass>TFrame</DesignClass>
+			</DCCReference>
 			<DCCReference Include="Src\RegionProcess\Combine\i_BitmapMapCombiner.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\i_ImageLineProvider.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\t_ECW.pas"/>
@@ -1197,6 +1232,7 @@
 			<DCCReference Include="Src\RegionProcess\Combine\t_MapCombineOptions.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerBMP.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerECWJP2.pas"/>
+			<DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerFactoryBase.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerGeoTIFF.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerJPG.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerKMZ.pas"/>
@@ -1208,7 +1244,6 @@
 			<DCCReference Include="Src\RegionProcess\Combine\u_ImageLineProviderMultiThread.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombine.pas"/>
 			<DCCReference Include="Src\RegionProcess\Combine\u_RegionProcessTaskCombine.pas"/>
-			<DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerFactoryBase.pas"/>
 			<DCCReference Include="Src\RegionProcess\Copy\fr_TilesCopy.pas">
 				<Form>frTilesCopy</Form>
 				<DesignClass>TFrame</DesignClass>
@@ -1216,10 +1251,6 @@
 			<DCCReference Include="Src\RegionProcess\Copy\u_ProviderTilesCopy.pas"/>
 			<DCCReference Include="Src\RegionProcess\Copy\u_ThreadCopyFromStorageToStorage.pas"/>
 			<DCCReference Include="Src\RegionProcess\Copy\u_ThreadCopyWithModification.pas"/>
-			<DCCReference Include="Src\RegionProcess\fr_RegionProcessComplexPageControl.pas">
-				<Form>frRegionProcessComplexPageControl</Form>
-				<DesignClass>TFrame</DesignClass>
-			</DCCReference>
 			<DCCReference Include="Src\RegionProcess\Delete\fr_DeleteMarks.pas">
 				<Form>frDeleteMarks</Form>
 				<DesignClass>TFrame</DesignClass>
@@ -1251,79 +1282,80 @@
 			</DCCReference>
 			<DCCReference Include="Src\RegionProcess\Export\Archive\u_ExportProviderTar.pas"/>
 			<DCCReference Include="Src\RegionProcess\Export\Archive\u_ExportProviderZip.pas"/>
-			<DCCReference Include="Src\RegionProcess\Export\Archive\u_ThreadExportToArchive.pas"/>
+			<DCCReference Include="Src\RegionProcess\Export\Archive\u_ExportTaskToArchive.pas"/>
 			<DCCReference Include="Src\RegionProcess\Export\GeoExpressAUX\fr_ExportAUX.pas">
 				<Form>frExportAUX</Form>
 				<DesignClass>TFrame</DesignClass>
 			</DCCReference>
 			<DCCReference Include="Src\RegionProcess\Export\GeoExpressAUX\u_ExportProviderAUX.pas"/>
-			<DCCReference Include="Src\RegionProcess\Export\GeoExpressAUX\u_ThreadExportToAUX.pas"/>
+			<DCCReference Include="Src\RegionProcess\Export\GeoExpressAUX\u_ExportTaskToAUX.pas"/>
 			<DCCReference Include="Src\RegionProcess\Export\IMG\fr_ExportToIMG.pas">
 				<Form>frExportToIMG</Form>
 				<DesignClass>TFrame</DesignClass>
 			</DCCReference>
 			<DCCReference Include="Src\RegionProcess\Export\IMG\i_ExportToIMGConfig.pas"/>
 			<DCCReference Include="Src\RegionProcess\Export\IMG\u_ExportProviderIMG.pas"/>
+			<DCCReference Include="Src\RegionProcess\Export\IMG\u_ExportTaskToIMG.pas"/>
 			<DCCReference Include="Src\RegionProcess\Export\IMG\u_ExportToIMGConfig.pas"/>
 			<DCCReference Include="Src\RegionProcess\Export\IMG\u_ExportToIMGTask.pas"/>
-			<DCCReference Include="Src\RegionProcess\Export\IMG\u_ThreadExportToIMG.pas"/>
 			<DCCReference Include="Src\RegionProcess\Export\IPhone\fr_ExportIPhone.pas">
 				<Form>frExportIPhone</Form>
 				<DesignClass>TFrame</DesignClass>
 			</DCCReference>
 			<DCCReference Include="Src\RegionProcess\Export\IPhone\u_ExportProviderIPhone.pas"/>
-			<DCCReference Include="Src\RegionProcess\Export\IPhone\u_ThreadExportIPhone.pas"/>
+			<DCCReference Include="Src\RegionProcess\Export\IPhone\u_ExportTaskToIPhone.pas"/>
 			<DCCReference Include="Src\RegionProcess\Export\JNX\fr_ExportToJNX.pas">
 				<Form>frExportToJNX</Form>
 				<DesignClass>TFrame</DesignClass>
 			</DCCReference>
 			<DCCReference Include="Src\RegionProcess\Export\JNX\u_ExportProviderJNX.pas"/>
+			<DCCReference Include="Src\RegionProcess\Export\JNX\u_ExportTaskToJnx.pas"/>
 			<DCCReference Include="Src\RegionProcess\Export\JNX\u_ExportToJnxTask.pas"/>
-			<DCCReference Include="Src\RegionProcess\Export\JNX\u_ThreadExportToJNX.pas"/>
-			<DCCReference Include="Src\RegionProcess\Export\KML\fr_ExportGEKml.pas">
+			<DCCReference Include="Src\RegionProcess\Export\KML\fr_ExportKml.pas">
 				<Form>frExportGEKml</Form>
 				<DesignClass>TFrame</DesignClass>
 			</DCCReference>
-			<DCCReference Include="Src\RegionProcess\Export\KML\u_ExportProviderGEKml.pas"/>
-			<DCCReference Include="Src\RegionProcess\Export\KML\u_ThreadExportKML.pas"/>
+			<DCCReference Include="Src\RegionProcess\Export\KML\u_ExportProviderKml.pas"/>
+			<DCCReference Include="Src\RegionProcess\Export\KML\u_ExportTaskToKML.pas"/>
 			<DCCReference Include="Src\RegionProcess\Export\MBTiles\fr_ExportMBTiles.pas">
 				<Form>frExportMBTiles</Form>
 				<DesignClass>TFrame</DesignClass>
 			</DCCReference>
 			<DCCReference Include="Src\RegionProcess\Export\MBTiles\u_ExportProviderMBTiles.pas"/>
+			<DCCReference Include="Src\RegionProcess\Export\MBTiles\u_ExportTaskToMBTiles.pas"/>
 			<DCCReference Include="Src\RegionProcess\Export\MBTiles\u_StorageExportToMBTiles.pas"/>
-			<DCCReference Include="Src\RegionProcess\Export\MBTiles\u_ThreadExportToMBTiles.pas"/>
 			<DCCReference Include="Src\RegionProcess\Export\OGF2\fr_ExportToOgf2.pas">
 				<Form>frExportToOgf2</Form>
 				<DesignClass>TFrame</DesignClass>
 			</DCCReference>
 			<DCCReference Include="Src\RegionProcess\Export\OGF2\u_ExportProviderOgf2.pas"/>
-			<DCCReference Include="Src\RegionProcess\Export\OGF2\u_ThreadExportToOgf2.pas"/>
+			<DCCReference Include="Src\RegionProcess\Export\OGF2\u_ExportTaskToOgf2.pas"/>
 			<DCCReference Include="Src\RegionProcess\Export\OruxMaps\fr_ExportOruxMapsSQLite.pas">
 				<Form>frExportOruxMapsSQLite</Form>
 				<DesignClass>TFrame</DesignClass>
 			</DCCReference>
 			<DCCReference Include="Src\RegionProcess\Export\OruxMaps\u_ExportProviderOruxMapsSQLite.pas"/>
-			<DCCReference Include="Src\RegionProcess\Export\OruxMaps\u_ThreadExportToOruxMapsSQLite.pas"/>
+			<DCCReference Include="Src\RegionProcess\Export\OruxMaps\u_ExportTaskToOruxMapsSQLite.pas"/>
 			<DCCReference Include="Src\RegionProcess\Export\RMP\fr_ExportRMP.pas">
 				<Form>frExportRMP</Form>
 				<DesignClass>TFrame</DesignClass>
 			</DCCReference>
 			<DCCReference Include="Src\RegionProcess\Export\RMP\u_ExportProviderRMP.pas"/>
+			<DCCReference Include="Src\RegionProcess\Export\RMP\u_ExportTaskToRMP.pas"/>
 			<DCCReference Include="Src\RegionProcess\Export\RMP\u_RMPWriter.pas"/>
-			<DCCReference Include="Src\RegionProcess\Export\RMP\u_ThreadExportToRMP.pas"/>
 			<DCCReference Include="Src\RegionProcess\Export\RMaps\fr_ExportRMapsSQLite.pas">
 				<Form>frExportRMapsSQLite</Form>
 				<DesignClass>TFrame</DesignClass>
 			</DCCReference>
+			<DCCReference Include="Src\RegionProcess\Export\RMaps\t_RMapsSQLite.pas"/>
 			<DCCReference Include="Src\RegionProcess\Export\RMaps\u_ExportProviderRMapsSQLite.pas"/>
-			<DCCReference Include="Src\RegionProcess\Export\RMaps\u_ThreadExportToRMapsSQLite.pas"/>
+			<DCCReference Include="Src\RegionProcess\Export\RMaps\u_ExportTaskToRMapsSQLite.pas"/>
 			<DCCReference Include="Src\RegionProcess\Export\SAS4Android\fr_ExportToCE.pas">
 				<Form>frExportToCE</Form>
 				<DesignClass>TFrame</DesignClass>
 			</DCCReference>
 			<DCCReference Include="Src\RegionProcess\Export\SAS4Android\u_ExportProviderCE.pas"/>
-			<DCCReference Include="Src\RegionProcess\Export\SAS4Android\u_ThreadExportToCE.pas"/>
+			<DCCReference Include="Src\RegionProcess\Export\SAS4Android\u_ExportTaskToCE.pas"/>
 			<DCCReference Include="Src\RegionProcess\Export\YandexMobile\fr_ExportYaMobileV3.pas">
 				<Form>frExportYaMobileV3</Form>
 				<DesignClass>TFrame</DesignClass>
@@ -1334,8 +1366,8 @@
 			</DCCReference>
 			<DCCReference Include="Src\RegionProcess\Export\YandexMobile\u_ExportProviderYaMobileV3.pas"/>
 			<DCCReference Include="Src\RegionProcess\Export\YandexMobile\u_ExportProviderYaMobileV4.pas"/>
-			<DCCReference Include="Src\RegionProcess\Export\YandexMobile\u_ThreadExportYaMobileV3.pas"/>
-			<DCCReference Include="Src\RegionProcess\Export\YandexMobile\u_ThreadExportYaMobileV4.pas"/>
+			<DCCReference Include="Src\RegionProcess\Export\YandexMobile\u_ExportTaskToYaMobileV3.pas"/>
+			<DCCReference Include="Src\RegionProcess\Export\YandexMobile\u_ExportTaskToYaMobileV4.pas"/>
 			<DCCReference Include="Src\RegionProcess\Export\u_ExportTaskAbstract.pas"/>
 			<DCCReference Include="Src\RegionProcess\GenPrev\fr_TilesGenPrev.pas">
 				<Form>frTilesGenPrev</Form>
@@ -1349,6 +1381,14 @@
 			</DCCReference>
 			<DCCReference Include="Src\RegionProcess\fr_PathSelect.pas">
 				<Form>frPathSelect</Form>
+				<DesignClass>TFrame</DesignClass>
+			</DCCReference>
+			<DCCReference Include="Src\RegionProcess\fr_RegionProcessComplexComboBox.pas">
+				<Form>frRegionProcessComplexComboBox</Form>
+				<DesignClass>TFrame</DesignClass>
+			</DCCReference>
+			<DCCReference Include="Src\RegionProcess\fr_RegionProcessComplexPageControl.pas">
+				<Form>frRegionProcessComplexPageControl</Form>
 				<DesignClass>TFrame</DesignClass>
 			</DCCReference>
 			<DCCReference Include="Src\RegionProcess\fr_ZoomsSelect.pas">
@@ -1488,9 +1528,11 @@
 			<DCCReference Include="Src\Terrain\u_TerrainProviderListElement.pas"/>
 			<DCCReference Include="Src\TileIterator\i_TileIterator.pas"/>
 			<DCCReference Include="Src\TileIterator\i_TileIteratorDataProvider.pas"/>
+			<DCCReference Include="Src\TileIterator\i_TileIteratorFactory.pas"/>
 			<DCCReference Include="Src\TileIterator\u_TileIteratorByPolygon.pas"/>
 			<DCCReference Include="Src\TileIterator\u_TileIteratorByRect.pas"/>
 			<DCCReference Include="Src\TileIterator\u_TileIteratorDataProvider.pas"/>
+			<DCCReference Include="Src\TileIterator\u_TileIteratorFactory.pas"/>
 			<DCCReference Include="Src\TileIterator\u_TileIteratorSpiralByRect.pas"/>
 			<DCCReference Include="Src\TileMatrix\i_BitmapTileMatrix.pas"/>
 			<DCCReference Include="Src\TileMatrix\i_BitmapTileMatrixBuilder.pas"/>
@@ -1544,9 +1586,7 @@
 			<DCCReference Include="Src\TileProvider\u_VectorTileRendererChangeableForVectorMaps.pas"/>
 			<DCCReference Include="Src\TileProvider\u_VectorTileRendererForMarks.pas"/>
 			<DCCReference Include="Src\TileStorage\Archive\u_TileStorageArchive.pas"/>
-			<DCCReference Include="Src\TileStorage\Archive\u_TileStorageTar.pas"/>
-			<DCCReference Include="Src\TileStorage\Archive\u_TileStorageTypeArchiveTar.pas"/>
-			<DCCReference Include="Src\TileStorage\Archive\u_TileStorageTypeArchiveZip.pas"/>
+			<DCCReference Include="Src\TileStorage\Archive\u_TileStorageTypeArchive.pas"/>
 			<DCCReference Include="Src\TileStorage\BerkeleyDB\i_BerkeleyDB.pas"/>
 			<DCCReference Include="Src\TileStorage\BerkeleyDB\i_BerkeleyDBEnv.pas"/>
 			<DCCReference Include="Src\TileStorage\BerkeleyDB\i_BerkeleyDBFactory.pas"/>
@@ -1580,6 +1620,8 @@
 			<DCCReference Include="Src\TileStorage\DBMS\ExtTileStorages\u_ETS_Tiles.pas"/>
 			<DCCReference Include="Src\TileStorage\DBMS\u_TileStorageDBMS.pas"/>
 			<DCCReference Include="Src\TileStorage\DBMS\u_TileStorageTypeDBMS.pas"/>
+			<DCCReference Include="Src\TileStorage\FileSystem\u_EnumTileInfoByFileIterator.pas"/>
+			<DCCReference Include="Src\TileStorage\FileSystem\u_FileSystemTools.pas"/>
 			<DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameBase.pas"/>
 			<DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameES.pas"/>
 			<DCCReference Include="Src\TileStorage\FileSystem\u_TileFileNameGM1.pas"/>
