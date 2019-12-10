@@ -1098,6 +1098,7 @@ uses
   CompatibilityIniFiles,
   {$ENDIF}
   gnugettext,
+  GR32_Gamma,
   t_CommonTypes,
   t_FillingMapModes,
   c_ZeroGUID,
@@ -1225,6 +1226,8 @@ var
   VIniFile: TMemIniFile;
 begin
   inherited;
+
+  GR32_Gamma.SetGamma(1);
 
   // Disable popup menu item "Make Polygon by RosReestr (F8+MLeft)" due it
   // stop working: http://www.sasgis.org/mantis/view.php?id=2641

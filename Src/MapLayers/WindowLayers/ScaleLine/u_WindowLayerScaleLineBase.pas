@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -57,11 +57,11 @@ type
     );
   protected
     procedure DrawOutLinedText(
-      X, Y: Integer;
-      const Text: string;
-      TextColor: TColor32;
-      OutLineColor: TColor32;
-      TargetBitmap: TBitmap32
+      const X, Y: Integer;
+      const AText: string;
+      const ATextColor: TColor32;
+      const AOutLineColor: TColor32;
+      const ATargetBitmap: TBitmap32
     );
     function GetNiceLen(ALen: Double): Double;
     function GetNewVisibility: boolean; virtual; abstract;
@@ -285,39 +285,62 @@ begin
   Layer.MouseEvents := Visible;
 end;
 
-procedure TWindowLayerScaleLineBase.DrawOutLinedText(
-  X, Y: Integer;
-  const Text: string;
-  TextColor: TColor32;
-  OutLineColor: TColor32;
-  TargetBitmap: TBitmap32
-);
+const
+  cBackGroundColor: TColor32 = 0;
+
+function IsPixelForOutLine(
+  const ABitmap: TBitmap32;
+  const X, Y: Integer;
+  const AOutLineColor: TColor32
+): Boolean; inline;
 var
   I, J: Integer;
+  VPixel: TColor32;
 begin
-  FTmpBitmap.SetSize(FTmpBitmap.TextWidth(Text) + 4, FTmpBitmap.TextHeight(Text) + 4);
-  FTmpBitmap.Clear(0);
-  FTmpBitmap.RenderText(2, 2, Text, 0, TextColor);
-  for I := 1 to FTmpBitmap.Width - 2 do begin
-    for J := 1 to FTmpBitmap.Height - 2 do begin
-      if (FTmpBitmap.Pixel[I, J] <> TextColor) and (FTmpBitmap.Pixel[I, J] <> OutLineColor) then begin
-        if (FTmpBitmap.Pixel[I + 1, J] = TextColor) or
-          (FTmpBitmap.Pixel[I - 1, J] = TextColor) or
-          (FTmpBitmap.Pixel[I, J + 1] = TextColor) or
-          (FTmpBitmap.Pixel[I, J - 1] = TextColor) or
-          (FTmpBitmap.Pixel[I + 1, J + 1] = TextColor) or
-          (FTmpBitmap.Pixel[I - 1, J + 1] = TextColor) or
-          (FTmpBitmap.Pixel[I + 1, J - 1] = TextColor) or
-          (FTmpBitmap.Pixel[I - 1, J - 1] = TextColor) then begin
-          FTmpBitmap.Pixel[I, J] := OutLineColor;
-        end;
+  Result := False;
+  if ABitmap.Pixel[X, Y] <> cBackGroundColor then begin
+    Exit;
+  end;
+  for I := -1 to 1 do begin
+    for J := -1 to 1 do begin
+      VPixel := ABitmap.Pixel[X + I, Y + J];
+      if (VPixel <> cBackGroundColor) and (VPixel <> AOutLineColor) then begin
+        Result := True;
+        Exit;
       end;
     end;
   end;
+end;
+
+procedure TWindowLayerScaleLineBase.DrawOutLinedText(
+  const X, Y: Integer;
+  const AText: string;
+  const ATextColor: TColor32;
+  const AOutLineColor: TColor32;
+  const ATargetBitmap: TBitmap32
+);
+var
+  I, J: Integer;
+  VSize: TSize;
+begin
+  VSize := FTmpBitmap.TextExtent(AText);
+  FTmpBitmap.SetSize(VSize.cx + 4, VSize.cy + 4);
+
+  FTmpBitmap.Clear(cBackGroundColor);
+  FTmpBitmap.RenderText(2, 2, AText, 0, ATextColor);
+
+  for I := 1 to FTmpBitmap.Width - 2 do begin
+    for J := 1 to FTmpBitmap.Height - 2 do begin
+      if IsPixelForOutLine(FTmpBitmap, I, J, AOutLineColor) then begin
+        FTmpBitmap.Pixel[I, J] := AOutLineColor;
+      end;
+    end;
+  end;
+
   BlockTransfer(
-    TargetBitmap,
+    ATargetBitmap,
     X, Y,
-    TargetBitmap.ClipRect,
+    ATargetBitmap.ClipRect,
     FTmpBitmap.Bits,
     FTmpBitmap.Width,
     FTmpBitmap.Height,

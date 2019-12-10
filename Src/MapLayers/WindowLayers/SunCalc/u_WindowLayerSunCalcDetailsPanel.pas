@@ -308,7 +308,7 @@ begin
     VTextRec.Bitmap.Clear(FColors.BgColor);
 
     VTextRec.Bitmap.RenderText(0, 0, VTextRec.Text, 0, FFont.TextColor);
-    VTextRec.Bitmap.DrawMode := dmBlend;
+    VTextRec.Bitmap.DrawMode := dmOpaque;
   end;
 
   X := FBorder.Left;

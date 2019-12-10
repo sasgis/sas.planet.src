@@ -24,6 +24,8 @@ interface
 
 uses
   GR32,
+  GR32_Polygons,
+  GR32_Transforms,
   u_WindowLayerSunCalcInfoBase;
 
 type

@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2017, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2019, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -36,7 +36,7 @@ procedure ThickPolyLine(
   ABitmap: TBitmap32;
   const APoints: TArrayOfFloatPoint;
   const AColor: TColor32
-);
+); inline;
 
 implementation
 
@@ -44,9 +44,6 @@ uses
   Types,
   GR32_Math,
   GR32_Polygons;
-
-var
-  GUsePolygonAntiAliasing: Boolean = True;
 
 procedure ThickLine(
   ABitmap: TBitmap32;
