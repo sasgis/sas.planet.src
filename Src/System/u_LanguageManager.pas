@@ -118,7 +118,7 @@ var
 begin
   inherited;
   if AConfigData <> nil then begin
-    VCurrentCode := AConfigData.ReadString('Lang', FDefaultLangCode);
+    VCurrentCode := AConfigData.ReadString('Lang', '');
     SetCurrentLanguageCode(VCurrentCode);
   end;
 end;
