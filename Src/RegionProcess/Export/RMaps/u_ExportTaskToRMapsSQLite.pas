@@ -388,26 +388,30 @@ procedure TExportTaskToRMapsSQLite.CloseSQLiteStorage;
 var
   VZooms: AnsiString;
 begin
-  if FSQLite3DB.Opened then begin
-    // перед закрытием надо обновить зумы
+  if not FSQLite3DB.Opened then begin
+    Exit;
+  end;
+
+  if FModType = mtLocus then begin
+    VZooms := '';
+    FSQLite3DB.OpenSQL(
+      'SELECT DISTINCT z FROM tiles ORDER BY z DESC',
+      FillZoomsCallback,
+      @VZooms,
+      True
+    );
+    FSQLite3DB.ExecSQL('UPDATE info SET zooms = ("' + VZooms + '")');
+
+    // Locus min/maxzoom is opposite to RMaps & OsmAnd
+    FSQLite3DB.ExecSQL('UPDATE info SET maxzoom = (SELECT DISTINCT z FROM tiles ORDER BY z ASC LIMIT 1)');
+    FSQLite3DB.ExecSQL('UPDATE info SET minzoom = (SELECT DISTINCT z FROM tiles ORDER BY z DESC LIMIT 1)');
+  end else begin
     FSQLite3DB.ExecSQL('UPDATE info SET minzoom = (SELECT DISTINCT z FROM tiles ORDER BY z ASC LIMIT 1)');
     FSQLite3DB.ExecSQL('UPDATE info SET maxzoom = (SELECT DISTINCT z FROM tiles ORDER BY z DESC LIMIT 1)');
-
-    if FModType = mtLocus then begin
-      VZooms := '';
-      FSQLite3DB.OpenSQL(
-        'SELECT DISTINCT z FROM tiles ORDER BY z DESC',
-        FillZoomsCallback,
-        @VZooms,
-        True
-      );
-      FSQLite3DB.ExecSQL('UPDATE info SET zooms = ("' + VZooms + '")');
-    end;
-
-    // закрытие
-    FSQLite3DB.Commit;
-    FSQLite3DB.Close;
   end;
+
+  FSQLite3DB.Commit;
+  FSQLite3DB.Close;
 end;
 
 function TExportTaskToRMapsSQLite.RMapsZoomStr(const AZoom: Byte): AnsiString;
