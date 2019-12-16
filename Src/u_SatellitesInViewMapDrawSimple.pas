@@ -221,7 +221,7 @@ end;
 
 procedure CalcCirclePoints(
   const X, Y, R: TFloat;
-  var AResult: TArrayOfFixedPoint
+  var AResult: TArrayOfFloatPoint
 );
 var
   I: Integer;
@@ -236,23 +236,23 @@ begin
   M := 2 * System.Pi / Steps;
 
   // first item
-  AResult[0].X := Fixed(R + X);
-  AResult[0].Y := Fixed(Y);
+  AResult[0].X := R + X;
+  AResult[0].Y := Y;
 
   // calculate complex offset
   GR32_Math.SinCos(M, C.Y, C.X);
   D := C;
 
   // second item
-  AResult[1].X := Fixed(R * D.X + X);
-  AResult[1].Y := Fixed(R * D.Y + Y);
+  AResult[1].X := R * D.X + X;
+  AResult[1].Y := R * D.Y + Y;
 
   // other items
   for I := 2 to Steps - 1 do begin
     D := FloatPoint(D.X * C.X - D.Y * C.Y, D.Y * C.X + D.X * C.Y);
 
-    AResult[I].X := Fixed(R * D.X + X);
-    AResult[I].Y := Fixed(R * D.Y + Y);
+    AResult[I].X := R * D.X + X;
+    AResult[I].Y := R * D.Y + Y;
   end;
 end;
 
@@ -262,8 +262,8 @@ procedure TSatellitesInViewMapDrawSimple.DrawEmptySkyMap(
   ARadius: Integer
 );
 var
-  VCenter: TFixedPoint;
-  VPoints: TArrayOfFixedPoint;
+  VCenter: TFloatPoint;
+  VPoints: TArrayOfFloatPoint;
   VCirclesCount: Integer;
   VCirlcesDelta: Single;
   VRadius: Single;
@@ -282,13 +282,13 @@ begin
   for i := 0 to VCirclesCount - 1 do begin
     VRadius := ARadius - VCirlcesDelta * i;
     CalcCirclePoints(ACenter.X, ACenter.Y, VRadius, VPoints);
-    PolylineXS(ABitmap, VPoints, FSkyMapGridColor, True);
+    PolylineFS(ABitmap, VPoints, FSkyMapGridColor, True);
   end;
   SetLength(VPoints, 16);
   CalcCirclePoints(ACenter.X, ACenter.Y, ARadius, VPoints);
-  VCenter := FixedPoint(ACenter);
+  VCenter := FloatPoint(ACenter);
   for i := 0 to Length(VPoints) - 1 do begin
-    ABitmap.LineXS(VCenter.X, VCenter.Y, VPoints[i].X, VPoints[i].Y, FSkyMapGridColor);
+    ABitmap.LineFS(VCenter.X, VCenter.Y, VPoints[i].X, VPoints[i].Y, FSkyMapGridColor);
   end;
 end;
 
@@ -445,7 +445,7 @@ var
   VColor: TColor32;
   VSatAtRadius: TFloat;
   VSatPos: TFloatPoint;
-  VPoints: TArrayOfFixedPoint;
+  VPoints: TArrayOfFloatPoint;
   VText: string;
   VTextSize: TSize;
   VTextPos: TPoint;
@@ -494,7 +494,7 @@ begin
           VSatPos.x := ACenter.x + VSatAtRadius * cos((VSatSky.azimuth - 90) * (Pi / 180));
           VSatPos.y := ACenter.y + VSatAtRadius * sin((VSatSky.azimuth - 90) * (Pi / 180));
           CalcCirclePoints(VSatPos.X, VSatPos.Y, FSkyMapSatRdius, VPoints);
-          PolygonXS(ABitmap, VPoints, VColor);
+          PolygonFS(ABitmap, VPoints, VColor);
 
           if (VSatFixibility.sat_info.svid > 0) then begin
             VText := IntToStr(VSatFixibility.sat_info.svid);
@@ -503,8 +503,7 @@ begin
             VTextPos.Y := Trunc(VSatPos.Y - VTextSize.cy / 2);
             ABitmap.RenderText(VTextPos.X, VTextPos.Y, VText, 4, FSkyMapGridColor);
           end;
-
-          PolylineXS(ABitmap, VPoints, FSkyMapGridColor, true);
+          PolylineFS(ABitmap, VPoints, FSkyMapGridColor, true);
         end;
       end;
     end;
