@@ -678,7 +678,6 @@ const
   cFilesFolderName = 'files';
 var
   I: Integer;
-  VTargetPath: string;
   VTargetFullName: string;
   VPicName: string;
   VPicNameLower: string;
@@ -689,7 +688,7 @@ begin
   if AAppearanceIcon.Pic <> nil then begin
     VData := AAppearanceIcon.Pic.Source;
     if VData <> nil then begin
-      VPicName := ExtractFileName(AAppearanceIcon.Pic.GetName);
+      VPicName := StringReplace(AAppearanceIcon.PicName, PathDelim, '/', [rfReplaceAll]);
       Result := cFilesFolderName + '/' + VPicName;
 
       VPicNameLower := AnsiLowerCase(VPicName);
@@ -702,9 +701,10 @@ begin
         if Assigned(FZip) then begin
           FZip.AddFile(VData, Result, Now);
         end else begin
-          VTargetPath := ExtractFilePath(FFileName) + cFilesFolderName + PathDelim;
-          VTargetFullName := VTargetPath + VPicName;
-          CreateDir(VTargetPath);
+          VTargetFullName := ExtractFilePath(FFileName) + StringReplace(Result, '/', PathDelim, [rfReplaceAll]);
+          if not ForceDirectories(ExtractFileDir(VTargetFullName)) then begin
+            RaiseLastOSError;
+          end;
           VStream.SaveToFile(VTargetFullName);
         end;
       finally

@@ -611,6 +611,7 @@ begin
               VIconName := RightStr(VIconName, Length(VIconName) - Length(cFilesFolderName));
             end;
             if Assigned(AXmlVectorObjects.AppearanceHelper) then begin
+              VIconName := StringReplace(VIconName, '/', PathDelim, [rfReplaceAll]);
               AXmlVectorObjects.AppearanceHelper.Icon.SetByName(VIconName);
             end;
           end;
