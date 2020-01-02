@@ -185,7 +185,7 @@ begin
 
   FMarkIconList := TStringList.Create;
   FMarkIconList.Sorted := True;
-  FMarkIconList.CaseSensitive := True;
+  FMarkIconList.CaseSensitive := False;
 end;
 
 destructor TExportMarks2KML.Destroy;
@@ -681,6 +681,7 @@ var
   VTargetPath: string;
   VTargetFullName: string;
   VPicName: string;
+  VPicNameLower: string;
   VStream: TCustomMemoryStream;
   VData: IBinaryData;
 begin
@@ -691,9 +692,9 @@ begin
       VPicName := ExtractFileName(AAppearanceIcon.Pic.GetName);
       Result := cFilesFolderName + '/' + VPicName;
 
-      if FMarkIconList.Find(LowerCase(VPicName), I) then begin
-        // icone has been saved previously
-        Exit;
+      VPicNameLower := AnsiLowerCase(VPicName);
+      if FMarkIconList.Find(VPicNameLower, I) then begin
+        Exit; // icon has been saved previously
       end;
 
       VStream := TStreamReadOnlyByBinaryData.Create(VData);
@@ -711,7 +712,7 @@ begin
       end;
 
       // remember saved icon name
-      FMarkIconList.Add(VPicName);
+      FMarkIconList.Add(VPicNameLower);
     end;
   end;
 end;
