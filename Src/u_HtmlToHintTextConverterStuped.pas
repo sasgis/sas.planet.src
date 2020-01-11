@@ -172,21 +172,12 @@ begin
       OrigHTML := Copy(OrigHTML, 1, System.Pos('</body>', LowerCase(OrigHTML)) - 1);
     end;
   end;
-  OrigHTML := StringReplace(OrigHTML, Chr(13), '', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, Chr(10), '', [rfReplaceAll]);
   while System.Pos('  ', OrigHTML) > 0 do begin
     OrigHTML := StringReplace(OrigHTML, '  ', ' ', [rfReplaceAll]);
   end;
   OrigHTML := StringReplace(OrigHTML, '<br>', #13#10, [rfReplaceAll, rfIgnoreCase]);
   OrigHTML := StringReplace(OrigHTML, '<br />', #13#10, [rfReplaceAll, rfIgnoreCase]);
   OrigHTML := StringReplace(OrigHTML, '</div>', #13#10#13#10, [rfReplaceAll, rfIgnoreCase]);
-  while System.Pos('<p', OrigHTML) > 0 do begin
-    NoHTML := MidStr(OrigHTML, '<p', '>', True);
-    if NoHTML = '' then begin
-      Break;
-    end;
-    OrigHTML := StringReplace(OrigHTML, NoHTML, (#13#10#13#10), [rfReplaceAll, rfIgnoreCase]);
-  end;
   if System.Pos('<style', OrigHTML) > 0 then begin
     NoHTML := MidStr(OrigHTML, '<style', '</style>', False);
     OrigHTML := StringReplace(OrigHTML, NoHTML, '', [rfReplaceAll, rfIgnoreCase]);
