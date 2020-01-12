@@ -57,6 +57,7 @@ type
     TBXSeparatorItem2: TTBXSeparatorItem;
     TBXItem7: TTBXItem;
     tbxtmInsertUrl: TTBXItem;
+    TBXItem8: TTBXItem;
     imglstToolbar: TTBXImageList;
     OpenPictureDialog: TOpenPictureDialog;
     procedure TBXItem1Click(Sender: TObject);
@@ -90,7 +91,7 @@ uses
 {$R *.dfm}
 
 type
-  TEditBtn = (ebB, ebI, ebU, ebLeft, ebCenter, ebRight, ebImg, ebUrl);
+  TEditBtn = (ebB, ebI, ebU, ebLeft, ebCenter, ebRight, ebImg, ebUrl, ebCut);
 
 constructor TfrMarkDescription.Create(
   const ALanguageManager: ILanguageManager;
@@ -222,6 +223,11 @@ begin
     begin
       VTextBeforeSelection := '<div ALIGN=RIGHT>';
       VTextAfterSelection := '</div>';
+    end;
+    ebCut:
+    begin
+      VTextBeforeSelection := '<!-- sas.cut -->' + #13#10;
+      VTextAfterSelection := '';
     end;
   end;
   if (VTextBeforeSelection <> '') or (VTextAfterSelection <> '') then begin

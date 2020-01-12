@@ -165,6 +165,9 @@ var
   end;
 
 begin
+  if System.Pos('<!-- sas.cut -->', LowerCase(OrigHTML)) > 0 Then begin
+    OrigHTML := LeftStr(OrigHTML, System.Pos('<!-- sas.cut -->', LowerCase(OrigHTML))-1) + '-->';
+  end;
   if System.Pos('<body', LowerCase(OrigHTML)) > 0 Then begin
     OrigHTML := Mid(OrigHTML, System.Pos('<body', LowerCase(OrigHTML)));
     OrigHTML := Mid(OrigHTML, System.Pos('>', OrigHTML) + 1);
