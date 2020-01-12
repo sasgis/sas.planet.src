@@ -164,15 +164,20 @@ var
     result := copy(str, pos, length(str) - pos + 1);
   end;
 
+var
+  I: Integer;
 begin
-  if System.Pos('<!-- sas.cut -->', LowerCase(OrigHTML)) > 0 Then begin
-    OrigHTML := LeftStr(OrigHTML, System.Pos('<!-- sas.cut -->', LowerCase(OrigHTML))-1) + '-->';
+  I := System.Pos('<!-- sas.cut -->', LowerCase(OrigHTML));
+  if I > 0 Then begin
+    OrigHTML := LeftStr(OrigHTML, I-1) + '-->';
   end;
-  if System.Pos('<body', LowerCase(OrigHTML)) > 0 Then begin
-    OrigHTML := Mid(OrigHTML, System.Pos('<body', LowerCase(OrigHTML)));
+  I := System.Pos('<body', LowerCase(OrigHTML));
+  if I > 0 Then begin
+    OrigHTML := Mid(OrigHTML, I);
     OrigHTML := Mid(OrigHTML, System.Pos('>', OrigHTML) + 1);
-    if System.Pos('</body>', LowerCase(OrigHTML)) > 0 Then begin
-      OrigHTML := Copy(OrigHTML, 1, System.Pos('</body>', LowerCase(OrigHTML)) - 1);
+    I := System.Pos('</body>', LowerCase(OrigHTML));
+    if I > 0 Then begin
+      OrigHTML := Copy(OrigHTML, 1, I-1);
     end;
   end;
   while System.Pos('  ', OrigHTML) > 0 do begin
