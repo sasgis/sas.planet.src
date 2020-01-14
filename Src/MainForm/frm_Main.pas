@@ -1152,6 +1152,7 @@ uses
   u_StickToGrids,
   u_GeoFunc,
   u_GeoToStrFunc,
+  u_HtmlDoc,
   u_MapSvcScanStorage,
   u_StringListStatic,
   u_ResStrings,
@@ -5065,11 +5066,9 @@ var
   VMouseDownPos: TPoint;
   VMouseMoveDelta: TPoint;
   VVectorItems: IVectorItemSubset;
-  I: Integer;
   VDescription: string;
   VTitle: string;
   VMark: IVectorDataItem;
-  VItemTitle: string;
 begin
   FMouseHandler.OnMouseUp(Button, Shift, Point(X, Y));
 
@@ -5207,33 +5206,13 @@ begin
           FMergePolygonsPresenter.AddVectorItems(VVectorItems);
           Exit;
         end;
-        if VVectorItems.Count > 1 then begin
-          VDescription := '';
-          for i := 0 to VVectorItems.Count - 1 do begin
-            VMark := VVectorItems.Items[i];
-            VItemTitle := VMark.GetInfoCaption;
-            if VItemTitle = '' then begin
-              VItemTitle := VMark.GetInfoUrl;
-            end else begin
-              VTitle := VTitle + VMark.GetInfoCaption + '; ';
-            end;
-            if VMark.GetInfoUrl <> '' then begin
-              VDescription := VDescription + '<hr><a href="' + VMark.GetInfoUrl + CVectorItemDescriptionSuffix + '">' +
-                VItemTitle + '</a><br>'#13#10;
-            end else begin
-              VDescription := VDescription + '<hr>'#13#10;
-            end;
-            VDescription := VDescription + VMark.Desc + #13#10;
-          end;
-          VDescription := 'Found: ' + inttostr(VVectorItems.Count) + '<br>' + VDescription;
+
+        if THtmlDoc.FromVectorItemsDescription(VVectorItems, VTitle, VDescription) then begin
           GState.InternalBrowser.ShowMessage(VTitle, VDescription);
         end else begin
           VMark := VVectorItems.Items[0];
-          if VMark.GetInfoUrl <> '' then begin
-            GState.InternalBrowser.Navigate(VMark.GetInfoCaption, VMark.GetInfoUrl + CVectorItemDescriptionSuffix);
-          end else begin
-            GState.InternalBrowser.ShowMessage(VMark.GetInfoCaption, VMark.Desc);
-          end;
+          Assert(VMark.GetInfoUrl <> '');
+          GState.InternalBrowser.Navigate(VMark.GetInfoCaption, VMark.GetInfoUrl + CVectorItemDescriptionSuffix);
         end;
       end;
     end;

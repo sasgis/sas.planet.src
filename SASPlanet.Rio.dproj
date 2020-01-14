@@ -2626,6 +2626,7 @@
         <DCCReference Include="Src\u_HashFunctionByImpl.pas"/>
         <DCCReference Include="Src\u_HashFunctionWithCounter.pas"/>
         <DCCReference Include="Src\u_HashInterfaceCache2Q.pas"/>
+        <DCCReference Include="Src\u_HtmlDoc.pas"/>
         <DCCReference Include="Src\u_HtmlToHintTextConverterStuped.pas"/>
         <DCCReference Include="Src\u_ImportFromArcGIS.pas"/>
         <DCCReference Include="Src\u_InterfaceQueue.pas"/>

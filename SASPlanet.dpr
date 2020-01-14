@@ -1451,6 +1451,7 @@ uses
   u_HashFunctionByImpl in 'Src\u_HashFunctionByImpl.pas',
   u_HashFunctionWithCounter in 'Src\u_HashFunctionWithCounter.pas',
   u_HashInterfaceCache2Q in 'Src\u_HashInterfaceCache2Q.pas',
+  u_HtmlDoc in 'Src\u_HtmlDoc.pas',
   u_HtmlToHintTextConverterStuped in 'Src\u_HtmlToHintTextConverterStuped.pas',
   u_ImportFromArcGIS in 'Src\u_ImportFromArcGIS.pas',
   u_InterfaceQueue in 'Src\u_InterfaceQueue.pas',
