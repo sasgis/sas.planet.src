@@ -42,6 +42,7 @@ implementation
 
 uses
   SysUtils,
+  gnugettext,
   c_InternalBrowser,
   i_VectorDataItemSimple;
 
@@ -63,6 +64,8 @@ class function THtmlDoc.FromVectorItemsDescription(
   out ATitle: string;
   out AHtmlDoc: string
 ): Boolean;
+const
+  cTitleSep: array [Boolean] of string = ('', '; ');
 var
   I: Integer;
   VMark: IVectorDataItem;
@@ -77,7 +80,7 @@ begin
       if VItemTitle = '' then begin
         VItemTitle := VMark.GetInfoUrl;
       end else begin
-        ATitle := ATitle + VMark.GetInfoCaption + '; ';
+        ATitle := ATitle + cTitleSep[ATitle <> ''] + VMark.GetInfoCaption;
       end;
       if VMark.GetInfoUrl <> '' then begin
         AHtmlDoc :=
@@ -89,7 +92,7 @@ begin
       end;
       AHtmlDoc := AHtmlDoc + FormattedTextToHtml(VMark.Desc) + #13#10;
     end;
-    AHtmlDoc := 'Found: ' + IntToStr(AVectorItems.Count) + '<br>' + AHtmlDoc;
+    AHtmlDoc := Format(_('Found %d items'), [AVectorItems.Count]) + '<br>' + AHtmlDoc;
     Result := True;
   end else begin
     VMark := AVectorItems.Items[0];
