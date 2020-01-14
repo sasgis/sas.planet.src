@@ -27,6 +27,10 @@ uses
 
 type
   THtmlDoc = record
+    class function FormattedTextToHtml(
+      const AText: string
+    ): string; static;
+
     class function FromVectorItemsDescription(
       const AVectorItems: IVectorItemSubset;
       out ATitle: string;
@@ -42,6 +46,17 @@ uses
   i_VectorDataItemSimple;
 
 { THtmlDoc }
+
+class function THtmlDoc.FormattedTextToHtml(const AText: string): string;
+begin
+  Result := AText;
+  Result := StringReplace(Result, '<!-- sas.cut -->', '', [rfReplaceAll, rfIgnoreCase]);
+  if Pos('<', Result) > 0 then begin
+    Result := AText;
+  end else begin
+    Result := StringReplace(Result, #13#10, '<br>', [rfReplaceAll]);
+  end;
+end;
 
 class function THtmlDoc.FromVectorItemsDescription(
   const AVectorItems: IVectorItemSubset;
@@ -72,7 +87,7 @@ begin
       end else begin
         AHtmlDoc := AHtmlDoc + '<hr>'#13#10;
       end;
-      AHtmlDoc := AHtmlDoc + VMark.Desc + #13#10;
+      AHtmlDoc := AHtmlDoc + FormattedTextToHtml(VMark.Desc) + #13#10;
     end;
     AHtmlDoc := 'Found: ' + IntToStr(AVectorItems.Count) + '<br>' + AHtmlDoc;
     Result := True;
@@ -81,7 +96,7 @@ begin
     Result := VMark.GetInfoUrl = '';
     if Result then begin
       ATitle := VMark.GetInfoCaption;
-      AHtmlDoc := VMark.Desc;
+      AHtmlDoc := FormattedTextToHtml(VMark.Desc);
     end;
   end;
 end;

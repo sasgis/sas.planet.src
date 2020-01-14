@@ -35,6 +35,9 @@ type
 
 implementation
 
+uses
+  u_HtmlDoc;
+
 { TTextByVectorItemHTMLByDescription }
 
 function TTextByVectorItemHTMLByDescription.GetText(
@@ -46,7 +49,7 @@ begin
         '<title>' + AItem.GetInfoCaption + '</title>'#13#10 +
       '</head>'#13#10 +
       '<body>'#13#10 +
-        AItem.Desc + #13#10 +
+      THtmlDoc.FormattedTextToHtml(AItem.Desc) + #13#10 +
       '</body>'#13#10 +
       '</html>';
 end;

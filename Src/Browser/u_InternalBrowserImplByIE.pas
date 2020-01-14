@@ -96,7 +96,8 @@ uses
   Variants,
   SysUtils,
   Dialogs,
-  gnugettext;
+  gnugettext,
+  u_HtmlDoc;
 
 const
   CEmptyDocument = 'about:blank';
@@ -284,7 +285,7 @@ end;
 
 procedure TInternalBrowserImplByIE.SetHtmlText(const AText: string);
 begin
-  FEmbeddedWB.HTMLCode.Text := AText;
+  FEmbeddedWB.HTMLCode.Text := THtmlDoc.FormattedTextToHtml(AText);
 end;
 
 procedure TInternalBrowserImplByIE.Stop;
