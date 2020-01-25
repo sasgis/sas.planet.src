@@ -956,12 +956,14 @@ procedure TZmpInfo.LoadTileRequestBuilderConfig(
 );
 var
   VUrlBase: AnsiString;
+  VServerNames: AnsiString;
   VRequestHead: AnsiString;
   VIsUseDownloader: Boolean;
   VDefaultProjConverterArgs: AnsiString;
 begin
   VUrlBase := AConfig.ReadAnsiString('DefURLBase', '');
   VUrlBase := AConfig.ReadAnsiString('URLBase', VUrlBase);
+  VServerNames := AConfig.ReadAnsiString('ServerNames', '');
   VRequestHead := AConfig.ReadAnsiString('RequestHead', '');
   VRequestHead := ALStringReplace(VRequestHead, '\r\n', #13#10, [rfIgnoreCase, rfReplaceAll]);
   VIsUseDownloader := AConfig.ReadBool('IsUseDownloaderInScript', False);
@@ -970,6 +972,7 @@ begin
   FTileDownloadRequestBuilderConfig :=
     TTileDownloadRequestBuilderConfigStatic.Create(
       VUrlBase,
+      VServerNames,
       VRequestHead,
       VIsUseDownloader,
       VDefaultProjConverterArgs

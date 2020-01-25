@@ -954,6 +954,7 @@ uses
   u_PascalScriptMath in 'Src\PascalScript\u_PascalScriptMath.pas',
   u_PascalScriptRegExpr in 'Src\PascalScript\u_PascalScriptRegExpr.pas',
   u_PascalScriptTypes in 'Src\PascalScript\u_PascalScriptTypes.pas',
+  u_PascalScriptUrlTemplate in 'Src\PascalScript\u_PascalScriptUrlTemplate.pas',
   u_PascalScriptUtils in 'Src\PascalScript\u_PascalScriptUtils.pas',
   u_PascalScriptWriteLn in 'Src\PascalScript\u_PascalScriptWriteLn.pas',
   i_InternalPerformanceCounter in 'Src\Performance\i_InternalPerformanceCounter.pas',

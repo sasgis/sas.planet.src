@@ -31,6 +31,9 @@ type
     function GetUrlBase: AnsiString;
     property UrlBase: AnsiString read GetUrlBase;
 
+    function GetServerNames: AnsiString;
+    property ServerNames: AnsiString read GetServerNames;
+
     function GetRequestHeader: AnsiString;
     property RequestHeader: AnsiString read GetRequestHeader;
 
@@ -47,6 +50,10 @@ type
     function GetUrlBase: AnsiString;
     procedure SetUrlBase(const AValue: AnsiString);
     property UrlBase: AnsiString read GetUrlBase write SetUrlBase;
+
+    function GetServerNames: AnsiString;
+    procedure SetServerNames(const AValue: AnsiString);
+    property ServerNames: AnsiString read GetServerNames write SetServerNames;
 
     function GetRequestHeader: AnsiString;
     procedure SetRequestHeader(const AValue: AnsiString);

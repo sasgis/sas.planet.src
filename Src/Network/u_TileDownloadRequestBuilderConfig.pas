@@ -33,17 +33,20 @@ type
   TTileDownloadRequestBuilderConfigStatic = class(TBaseInterfacedObject, ITileDownloadRequestBuilderConfigStatic)
   private
     FUrlBase: AnsiString;
+    FServerNames: AnsiString;
     FRequestHeader: AnsiString;
     FIsUseDownloader: Boolean;
     FDefaultProjConverterArgs: AnsiString;
   private
     function GetUrlBase: AnsiString;
+    function GetServerNames: AnsiString;
     function GetRequestHeader: AnsiString;
     function GetIsUseDownloader: Boolean;
     function GetDefaultProjConverterArgs: AnsiString;
   public
     constructor Create(
       const AUrlBase: AnsiString;
+      const AServerNames: AnsiString;
       const ARequestHeader: AnsiString;
       const AIsUseDownloader: Boolean;
       const ADefaultProjConverterArgs: AnsiString
@@ -54,6 +57,7 @@ type
   private
     FDefConfig: ITileDownloadRequestBuilderConfigStatic;
     FUrlBase: AnsiString;
+    FServerNames: AnsiString;
     FRequestHeader: AnsiString;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
@@ -61,6 +65,9 @@ type
   private
     function GetUrlBase: AnsiString;
     procedure SetUrlBase(const AValue: AnsiString);
+
+    function GetServerNames: AnsiString;
+    procedure SetServerNames(const AValue: AnsiString);
 
     function GetRequestHeader: AnsiString;
     procedure SetRequestHeader(const AValue: AnsiString);
@@ -86,6 +93,7 @@ begin
   inherited Create;
   FDefConfig := ADefConfig;
   FUrlBase := FDefConfig.UrlBase;
+  FServerNames := FDefConfig.ServerNames;
   FRequestHeader := FDefConfig.RequestHeader;
 end;
 
@@ -98,6 +106,8 @@ begin
   inherited;
   if AConfigData <> nil then begin
     SetUrlBase(AConfigData.ReadAnsiString('URLBase', FUrlBase));
+    SetServerNames(AConfigData.ReadAnsiString('ServerNames', FServerNames));
+
     VRequestHeader :=
       ALStringReplace(
         AConfigData.ReadAnsiString('RequestHead', FRequestHeader),
@@ -156,6 +166,16 @@ begin
   end;
 end;
 
+function TTileDownloadRequestBuilderConfig.GetServerNames: AnsiString;
+begin
+  LockRead;
+  try
+    Result := FServerNames;
+  finally
+    UnlockRead;
+  end;
+end;
+
 function TTileDownloadRequestBuilderConfig.GetUrlBase: AnsiString;
 begin
   LockRead;
@@ -179,6 +199,19 @@ begin
   end;
 end;
 
+procedure TTileDownloadRequestBuilderConfig.SetServerNames(const AValue: AnsiString);
+begin
+  LockWrite;
+  try
+    if FServerNames <> AValue then begin
+      FServerNames := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
 procedure TTileDownloadRequestBuilderConfig.SetUrlBase(const AValue: AnsiString);
 begin
   LockWrite;
@@ -195,13 +228,16 @@ end;
 { TTileDownloadRequestBuilderConfigStatic }
 
 constructor TTileDownloadRequestBuilderConfigStatic.Create(
-  const AUrlBase, ARequestHeader: AnsiString;
+  const AUrlBase: AnsiString;
+  const AServerNames: AnsiString;
+  const ARequestHeader: AnsiString;
   const AIsUseDownloader: Boolean;
   const ADefaultProjConverterArgs: AnsiString
 );
 begin
   inherited Create;
   FUrlBase := AUrlBase;
+  FServerNames := AServerNames;
   FRequestHeader := ARequestHeader;
   FIsUseDownloader := AIsUseDownloader;
   FDefaultProjConverterArgs := ADefaultProjConverterArgs;
@@ -220,6 +256,11 @@ end;
 function TTileDownloadRequestBuilderConfigStatic.GetRequestHeader: AnsiString;
 begin
   Result := FRequestHeader;
+end;
+
+function TTileDownloadRequestBuilderConfigStatic.GetServerNames: AnsiString;
+begin
+  Result := FServerNames;
 end;
 
 function TTileDownloadRequestBuilderConfigStatic.GetUrlBase: AnsiString;

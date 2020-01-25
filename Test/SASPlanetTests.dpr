@@ -30,7 +30,8 @@ uses
   u_CalcTilesInPolygon_Test in 'u_CalcTilesInPolygon_Test.pas',
   u_MarkCategoryListToTree_Test in 'u_MarkCategoryListToTree_Test.pas',
   u_BitmapTileLibPng_Test in 'u_BitmapTileLibPng_Test.pas',
-  u_BitmapTileSaveLoadFactory_Test in 'u_BitmapTileSaveLoadFactory_Test.pas';
+  u_BitmapTileSaveLoadFactory_Test in 'u_BitmapTileSaveLoadFactory_Test.pas',
+  u_PascalScriptUrlTemplate_Test in 'u_PascalScriptUrlTemplate_Test.pas';
 
 begin
   Application.Initialize;
