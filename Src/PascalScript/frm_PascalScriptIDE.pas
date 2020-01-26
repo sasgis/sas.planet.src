@@ -70,6 +70,7 @@ uses
   u_PSExecEx,
   u_PSPascalCompilerEx,
   u_PascalScriptWriteLn,
+  u_PascalScriptUrlTemplate,
   u_CommonFormAndFrameParents,
   u_TileDownloadRequestBuilderPascalScriptVars;
 
@@ -177,6 +178,7 @@ type
     FViewPortState: ILocalCoordConverterChangeable;
     FPSWriteLn: TPascalScriptWriteLn;
     FPSGlobal: IPascalScriptGlobal;
+    FPSUrlTemplate: TPascalScriptUrlTemplate;
     function GetZmpFromFolder(const APath: string): IZmpInfo;
     function GetZmpFromZip(const AFileName: string): IZmpInfo;
     function GetZmpFromGUI: IZmpInfo;
@@ -197,9 +199,12 @@ type
     procedure OnAppClosing;
     procedure CancelOperation;
     function IsModified: Boolean;
+    function IsScriptEmpty(const AScript: string): Boolean;
     procedure ResetModified;
+    function NewPSUrlTemplate(const AZmp: IZmpInfo): TPascalScriptUrlTemplate;
     function GetCompileTimeRegProcArray: TOnCompileTimeRegProcArray;
     function GetExecTimeRegMethodArray: TOnExecTimeRegMethodArray;
+    procedure ExecuteUrlTemplate;
   public
     constructor Create(
       const AGUIConfigList: IMapTypeGUIConfigList;
@@ -240,6 +245,7 @@ uses
   {$ENDIF}
   Encodings,
   t_GeoTypes,
+  i_SimpleFlag,
   i_TileRequest,
   i_ArchiveReadWrite,
   i_ConfigDataProvider,
@@ -247,6 +253,7 @@ uses
   i_LastResponseInfo,
   i_MapVersionInfo,
   i_SimpleHttpDownloader,
+  i_TileDownloadRequestBuilderConfig,
   u_PascalScriptTypes,
   u_PascalScriptGlobal,
   u_ZmpInfo,
@@ -263,6 +270,7 @@ uses
   u_ConfigDataProviderByZip,
   u_ConfigDataProviderByFolder,
   u_SimpleHttpDownloader,
+  u_TileDownloadRequestBuilderConfig,
   u_TimerByQueryPerformanceCounter,
   u_MapTypeMenuItemsGeneratorSimple;
 
@@ -271,6 +279,7 @@ uses
 resourcestring
   rsSuccessfullyCompiled = 'Successfully compiled';
   rsSuccessfullyExecuted = 'Successfully executed';
+  rsSuccessfullyRendered = 'Successfully rendered';
 
   rsCanCloseQuery =
     'ZMP has been modified, but not saved yet!' + #13#10#13#10 +
@@ -350,6 +359,7 @@ begin
   FScriptBuffer := '';
   FPSWriteLn := TPascalScriptWriteLn.Create;
   FPSGlobal := TPascalScriptGlobal.Create;
+  FPSUrlTemplate := nil;
 end;
 
 destructor TfrmPascalScriptIDE.Destroy;
@@ -359,29 +369,59 @@ begin
     FAppClosingNotifier := nil;
     FAppClosingListener := nil;
   end;
-  FPSWriteLn.Free;
-  FArchiveStream.Free;
+  FreeAndNil(FPSWriteLn);
+  FreeAndNil(FArchiveStream);
   FreeAndNil(FfrmDebug);
+  FreeAndNil(FPSUrlTemplate);
   inherited Destroy;
+end;
+
+function TfrmPascalScriptIDE.NewPSUrlTemplate(const AZmp: IZmpInfo): TPascalScriptUrlTemplate;
+var
+  VRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
+begin
+  FreeAndNil(FPSUrlTemplate);
+
+  if AZmp = nil then begin
+    Result := nil;
+    Exit;
+  end;
+
+  VRequestBuilderConfig :=
+    TTileDownloadRequestBuilderConfig.Create(
+      AZmp.TileDownloadRequestBuilderConfig
+    );
+
+  Result :=
+    TPascalScriptUrlTemplate.Create(
+      FLanguageManager,
+      AZmp.ProjectionSet,
+      VRequestBuilderConfig
+    );
 end;
 
 function TfrmPascalScriptIDE.GetCompileTimeRegProcArray: TOnCompileTimeRegProcArray;
 begin
-  SetLength(Result, 7);
+  SetLength(Result, 8);
   Result[0] := @CompileTimeReg_ProjConverter;
   Result[1] := @CompileTimeReg_ProjConverterFactory;
   Result[2] := @CompileTimeReg_CoordConverterSimple;
   Result[3] := @CompileTimeReg_SimpleHttpDownloader;
   Result[4] := @CompileTimeReg_PascalScriptGlobal;
   Result[5] := @CompileTimeReg_WriteLn;
-  Result[6] := @CompileTimeReg_RequestBuilderVars; // must always be the last
+  Result[6] := @CompileTimeReg_UrlTemplate;
+  Result[7] := @CompileTimeReg_RequestBuilderVars; // must always be the last
 end;
 
 function TfrmPascalScriptIDE.GetExecTimeRegMethodArray: TOnExecTimeRegMethodArray;
 begin
-  SetLength(Result, 1);
+  SetLength(Result, 2);
+
   Result[0].Obj := FPSWriteLn;
   Result[0].Func := @ExecTimeReg_WriteLn;
+
+  Result[1].Obj := FPSUrlTemplate;
+  Result[1].Func := @ExecTimeReg_UrlTemplate;
 end;
 
 procedure TfrmPascalScriptIDE.VersionFromZmp;
@@ -438,6 +478,7 @@ begin
   FScriptBuffer := '';
   ResetModified;
   FNeedSavePrompt := False;
+  FPSUrlTemplate := NewPSUrlTemplate(FZmp);
 end;
 
 function TfrmPascalScriptIDE.Compile(out AByteCode: AnsiString): Boolean;
@@ -452,6 +493,7 @@ begin
   AByteCode := '';
 
   FPSWriteLn.Clear;
+  lstLog.Clear;
   FfrmDebug.mmoDbgOut.Lines.Clear;
 
   if IsModified then begin
@@ -463,6 +505,12 @@ begin
 
   VCode := FZmp.DataProvider.ReadAnsiString('GetUrlScript.txt', '');
 
+  if IsScriptEmpty( string(VCode) ) then begin
+    lstLog.Items.Add('Script is empty');
+    Result := False;
+    Exit;
+  end;
+
   VComp := TPSPascalCompilerEx.Create(GetCompileTimeRegProcArray);
   try
     VTime := FTimer.CurrentTime;
@@ -472,7 +520,6 @@ begin
     VTime := FTimer.CurrentTime - VTime;
     VTimeInfo := Format('[%.6f sec]', [VTime / FTimer.Freq]);
 
-    lstLog.Clear;
     for I := 0 to VComp.MsgCount - 1 do begin
       lstLog.Items.Add(VComp.Msg[I].MessageToString);
     end;
@@ -519,6 +566,55 @@ begin
       end;
     finally
       VExec.Free;
+    end;
+  end;
+end;
+
+procedure TfrmPascalScriptIDE.ExecuteUrlTemplate;
+
+  procedure _AddLines(const ACaption, AText: string);
+  begin
+    FfrmDebug.mmoDbgOut.Lines.Add(ACaption);
+    if AText <> '' then begin
+      FfrmDebug.mmoDbgOut.Lines.Add(AText + #13#10);
+    end else begin
+      FfrmDebug.mmoDbgOut.Lines.Add('<empty>' + #13#10);
+    end;
+  end;
+
+var
+  VUrl: string;
+  VTime: Int64;
+  VTimeInfo: string;
+  VRequest: ITileRequest;
+begin
+  try
+    VRequest :=
+      TTileRequest.Create(
+        Point(SysUtils.StrToInt(edtGetX.Text), SysUtils.StrToInt(edtGetY.Text)),
+        SysUtils.StrToInt(edtGetZ.Text) - 1,
+        FVersionFactory.CreateByStoreString(edtVersion.Text)
+      );
+
+    VTime := FTimer.CurrentTime;
+
+    VUrl := FPSUrlTemplate.Render(VRequest);
+
+    VTime := FTimer.CurrentTime - VTime;
+    VTimeInfo := Format('[%.6f sec]', [VTime / FTimer.Freq]);
+
+    lstLog.Items.Add(rsSuccessfullyRendered + ' ' + VTimeInfo);
+
+    _AddLines('[ResultURL]', VUrl);
+    _AddLines('[RequestHead]', FZmp.TileDownloadRequestBuilderConfig.RequestHeader);
+    _AddLines('[PostData]', '');
+    _AddLines('[ScriptBuffer]', '');
+    _AddLines('[Version]', edtVersion.Text);
+
+    FfrmDebug.Visible := True;
+  except
+    on E: Exception do begin
+      lstLog.Items.Add(E.ClassName + ': ' + E.Message);
     end;
   end;
 end;
@@ -729,6 +825,8 @@ begin
     FProjFactory,
     FPSGlobal
   );
+
+  FPSUrlTemplate.Request := VSource;
 end;
 
 procedure TfrmPascalScriptIDE.OnExecSuccess;
@@ -769,10 +867,17 @@ begin
 end;
 
 procedure TfrmPascalScriptIDE.tbxtmRunClick(Sender: TObject);
+var
+  VScript: string;
 begin
   tbxtmScript.Checked := True;
   pgcMain.ActivePageIndex := 1;
-  Execute;
+  if not Execute then begin
+    VScript := string( FZmp.DataProvider.ReadAnsiString('GetUrlScript.txt', '') );
+    if IsScriptEmpty(VScript) then begin
+      ExecuteUrlTemplate;
+    end;
+  end;
 end;
 
 procedure TfrmPascalScriptIDE.tbxtmSyntaxCheckClick(Sender: TObject);
@@ -897,6 +1002,17 @@ begin
   statEditor.Panels[0].Text :=
     'Ln : ' + SysUtils.IntToStr(VEdit.CaretY) + '    ' +
     'Col : ' + SysUtils.IntToStr(VEdit.CaretX);
+end;
+
+function TfrmPascalScriptIDE.IsScriptEmpty(const AScript: string): Boolean;
+var
+  VStr: string;
+begin
+  Result := AScript = '';
+  if not Result then begin
+    VStr := StringReplace(AScript, #13#10, ' ', [rfReplaceAll]);
+    Result := Trim(VStr) = '';
+  end;
 end;
 
 function TfrmPascalScriptIDE.IsModified: Boolean;
