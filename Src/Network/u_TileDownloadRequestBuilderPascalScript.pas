@@ -45,6 +45,7 @@ uses
   i_TileDownloadRequest,
   i_TileDownloadRequestBuilderConfig,
   i_PascalScriptGlobal,
+  u_PascalScriptUrlTemplate,
   u_PSExecEx,
   u_TileDownloadRequestBuilder,
   u_TileDownloadRequestBuilderPascalScriptVars;
@@ -61,6 +62,7 @@ type
     FProjFactory: IProjConverterFactory;
     FScriptBuffer: AnsiString;
     FPSGlobal: IPascalScriptGlobal;
+    FPSUrlTemplate: TPascalScriptUrlTemplate;
 
     FLang: AnsiString;
     FLangManager: ILanguageManager;
@@ -69,6 +71,8 @@ type
 
     FPSExec: TPSExecEx;
     FPSVars: TRequestBuilderVars;
+
+    FUseUrlTemplateDirectly: Boolean;
 
     procedure PrepareCompiledScript(const ACompiledData: TbtString);
     procedure SetVar(
@@ -149,10 +153,22 @@ begin
   FLangChangeFlag := TSimpleFlagWithInterlock.Create;
 
   FLangListener := TNotifyNoMmgEventListener.Create(Self.OnLangChange);
-  FLangManager.GetChangeNotifier.Add(FLangListener);
+  FLangManager.ChangeNotifier.Add(FLangListener);
 
   FCoordConverter := ACoordConverter;
-  PrepareCompiledScript(ACompiledData);
+
+  FPSUrlTemplate :=
+    TPascalScriptUrlTemplate.Create(
+      FLangManager,
+      FProjectionSet,
+      AConfig
+    );
+
+  FUseUrlTemplateDirectly := ACompiledData = '';
+
+  if not FUseUrlTemplateDirectly then begin
+    PrepareCompiledScript(ACompiledData);
+  end;
 
   OnLangChange;
 end;
@@ -160,12 +176,13 @@ end;
 destructor TTileDownloadRequestBuilderPascalScript.Destroy;
 begin
   if Assigned(FLangManager) and Assigned(FLangListener) then begin
-    FLangManager.GetChangeNotifier.Remove(FLangListener);
+    FLangManager.ChangeNotifier.Remove(FLangListener);
     FLangManager := nil;
     FLangListener := nil;
   end;
 
   FreeAndNil(FPSExec);
+  FreeAndNil(FPSUrlTemplate);
   FCoordConverter := nil;
   FDownloader := nil;
 
@@ -184,6 +201,7 @@ function TTileDownloadRequestBuilderPascalScript.BuildRequest(
   AOperationID: Integer
 ): ITileDownloadRequest;
 var
+  VResultUrl: string;
   VDownloaderConfig: ITileDownloaderConfigStatic;
   VPostData: IBinaryData;
 begin
@@ -193,6 +211,22 @@ begin
     try
       if (ACancelNotifier <> nil) and (not ACancelNotifier.IsOperationCanceled(AOperationID)) then begin
         VDownloaderConfig := FTileDownloaderConfig.GetStatic;
+
+        if FUseUrlTemplateDirectly then begin
+          VResultUrl := FPSUrlTemplate.Render(ASource);
+          if VResultUrl <> '' then begin
+            Result :=
+              TTileDownloadRequest.Create(
+                AnsiString(VResultUrl),
+                Config.RequestHeader,
+                VDownloaderConfig.InetConfigStatic,
+                FCheker,
+                ASource
+              );
+          end;
+          Exit;
+        end;
+
         SetVar(
           ALastResponseInfo,
           VDownloaderConfig,
@@ -239,13 +273,19 @@ begin
   end;
 end;
 
-procedure TTileDownloadRequestBuilderPascalScript.PrepareCompiledScript(const ACompiledData: TbtString);
+procedure TTileDownloadRequestBuilderPascalScript.PrepareCompiledScript(
+  const ACompiledData: TbtString
+);
 
   function GetExecTimeRegMethodArray: TOnExecTimeRegMethodArray;
   begin
-    SetLength(Result, 1);
+    SetLength(Result, 2);
+
     Result[0].Obj := nil;
     Result[0].Func := @ExecTimeReg_WriteLn;
+
+    Result[1].Obj := FPSUrlTemplate;
+    Result[1].Func := @ExecTimeReg_UrlTemplate;
   end;
 
 begin
@@ -319,6 +359,8 @@ begin
     FProjFactory,
     FPSGlobal
   );
+
+  FPSUrlTemplate.Request := ASource;
 end;
 
 end.

@@ -76,13 +76,13 @@ type
 implementation
 
 uses
-  gnugettext,
   t_PascalScript,
   u_Synchronizer,
   u_CoordConverterSimpleByProjectionSet,
   u_PascalScriptTypes,
   u_PascalScriptGlobal,
   u_PascalScriptWriteLn,
+  u_PascalScriptUrlTemplate,
   u_PascalScriptCompiler,
   u_TileDownloadRequestBuilderPascalScript,
   u_TileDownloadRequestBuilderPascalScriptVars;
@@ -119,7 +119,10 @@ begin
   FState := VState;
 
   if FScriptText = '' then begin
-    FStateInternal.Disable(gettext_NoOp('Empty script'));
+    // In case when script is empty we will use
+    // TPascalScriptUrlTemplate.Render() to get url from template
+    // http://www.sasgis.org/mantis/view.php?id=3610
+    FScriptInited := True;
   end;
 
   FCompiledData := '';
@@ -129,14 +132,15 @@ procedure TTileDownloadRequestBuilderFactoryPascalScript.DoCompileScript;
 
   function _GetRegProcArray: TOnCompileTimeRegProcArray;
   begin
-    SetLength(Result, 7);
+    SetLength(Result, 8);
     Result[0] := @CompileTimeReg_ProjConverter;
     Result[1] := @CompileTimeReg_ProjConverterFactory;
     Result[2] := @CompileTimeReg_CoordConverterSimple;
     Result[3] := @CompileTimeReg_SimpleHttpDownloader;
     Result[4] := @CompileTimeReg_PascalScriptGlobal;
     Result[5] := @CompileTimeReg_WriteLn;
-    Result[6] := @CompileTimeReg_RequestBuilderVars; // must always be the last
+    Result[6] := @CompileTimeReg_UrlTemplate;
+    Result[7] := @CompileTimeReg_RequestBuilderVars; // must always be the last
   end;
 
 var
