@@ -277,6 +277,7 @@ uses
 {$R *.dfm}
 
 resourcestring
+  rsScriptIsEmpty = 'Script is empy';
   rsSuccessfullyCompiled = 'Successfully compiled';
   rsSuccessfullyExecuted = 'Successfully executed';
   rsSuccessfullyRendered = 'Successfully rendered';
@@ -506,7 +507,7 @@ begin
   VCode := FZmp.DataProvider.ReadAnsiString('GetUrlScript.txt', '');
 
   if IsScriptEmpty( string(VCode) ) then begin
-    lstLog.Items.Add('Script is empty');
+    lstLog.Items.Add(rsScriptIsEmpty);
     Result := False;
     Exit;
   end;

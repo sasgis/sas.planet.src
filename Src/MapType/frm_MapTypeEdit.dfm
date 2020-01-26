@@ -138,7 +138,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
           Margins.Top = 0
           Margins.Bottom = 1
           Align = alTop
-          Caption = 'Base part of request URL:'
+          Caption = 'Template or Base part of request URL:'
           ExplicitWidth = 125
         end
         object pnlUrlRight: TPanel
