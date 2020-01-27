@@ -423,7 +423,7 @@ begin
       ivtS:         VItem.Value := GetServerNameValue;
       ivtX:         VItem.Value := IntToStr(VTile.X);
       ivtY:         VItem.Value := IntToStr(VTile.Y);
-      ivtYb:        VItem.Value := IntToStr( (2 shl VZoom) - 1 - VTile.Y );
+      ivtYb:        VItem.Value := IntToStr( (1 shl VZoom) - 1 - VTile.Y );
       ivtZ:         VItem.Value := IntToStr(VZoom);
       ivtZp1:       VItem.Value := IntToStr(VZoom + 1);
       ivtQ:         VItem.Value := GetQuadkey(VTile.X, VTile.Y, VZoom);

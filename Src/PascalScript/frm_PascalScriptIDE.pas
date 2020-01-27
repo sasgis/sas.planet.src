@@ -277,7 +277,7 @@ uses
 {$R *.dfm}
 
 resourcestring
-  rsScriptIsEmpty = 'Script is empy';
+  rsScriptIsEmpty = 'Script is empty';
   rsSuccessfullyCompiled = 'Successfully compiled';
   rsSuccessfullyExecuted = 'Successfully executed';
   rsSuccessfullyRendered = 'Successfully rendered';
