@@ -16,6 +16,7 @@ type
   TestIPathConfigWithoutBase = class(TTestCase)
   private
     FPath: IPathConfig;
+    procedure CheckSamePath(const A, B: string);
   protected
     procedure SetUp; override;
   published
@@ -48,6 +49,11 @@ uses
 
 { TestIPathConfigWithoutBase }
 
+procedure TestIPathConfigWithoutBase.CheckSamePath(const A, B: string);
+begin
+  CheckEqualsString(AnsiLowerCase(A), AnsiLowerCase(B));
+end;
+
 procedure TestIPathConfigWithoutBase.SetUp;
 begin
   inherited;
@@ -66,7 +72,7 @@ begin
   end;
   VFullPath := VDir + 'Test.txt';
   FPath.Path := '..\Test.txt';
-  CheckEqualsString(VFullPath, FPath.FullPath);
+  CheckSamePath(VFullPath, FPath.FullPath);
 end;
 
 procedure TestIPathConfigWithoutBase.TestEmptyPath;
@@ -75,16 +81,16 @@ var
 begin
   VFullPath := ExcludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)));
   FPath.Path := '';
-  CheckEqualsString(VFullPath, FPath.FullPath);
+  CheckSamePath(VFullPath, FPath.FullPath);
 
   FPath.Path := '.';
-  CheckEqualsString(VFullPath, FPath.FullPath);
+  CheckSamePath(VFullPath, FPath.FullPath);
 end;
 
 procedure TestIPathConfigWithoutBase.TestSimpleFullPath;
 begin
   FPath.Path := 'C:\Windows';
-  CheckEqualsString('C:\Windows', FPath.FullPath);
+  CheckSamePath('C:\Windows', FPath.FullPath);
 end;
 
 procedure TestIPathConfigWithoutBase.TestSimpleRelativePath;
@@ -93,10 +99,10 @@ var
 begin
   VFullPath := ExpandFileName(ParamStr(0));
   FPath.Path := ExtractFileName(VFullPath);
-  CheckEqualsString(VFullPath, FPath.FullPath);
+  CheckSamePath(VFullPath, FPath.FullPath);
 
   FPath.Path := '.\' + ExtractFileName(VFullPath);
-  CheckEqualsString(VFullPath, FPath.FullPath);
+  CheckSamePath(VFullPath, FPath.FullPath);
 end;
 
 { TestIPathConfigWithBase }
