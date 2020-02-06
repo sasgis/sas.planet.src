@@ -387,7 +387,7 @@ begin
           end;
 
           VPalette := VFreeBitmap.GetPalette;
-          VPaletteSize := VFreeBitmap.GetPaletteSize div SizeOf(PRGBQUAD);
+          VPaletteSize := VFreeBitmap.GetPaletteSize div SizeOf(RGBQUAD);
 
           Assert(VPaletteSize = 256);
 
