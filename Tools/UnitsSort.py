@@ -4,6 +4,7 @@
 
 import os
 import re
+import sys
 import logging
 
 
@@ -26,15 +27,29 @@ def check_path(path):
         if path and path[-1:] != os.path.sep:
             path += os.path.sep
     return path
+    
 
+def read_content(file_name):
+    with open(file_name, 'rb') as f:
+        content = f.read()
+        if sys.version_info[0] >= 3:
+            content = content.decode('utf-8')
+        return content
+        
+        
+def write_content(file_name, content):
+    if sys.version_info[0] >= 3:
+        content = content.encode('utf-8')
+    with open(file_name, 'wb') as f:
+        f.write(content)
+        
 
 def sort_dpr(proj_file, by_unit_name=True):
     logging.info('Sorting uses in dpr: ' + proj_file)
 
-    def sort_func_by_unit_path(x, y):
-        x1 = x.split(' in ')
-        y1 = y.split(' in ')
-        return cmp(x1[1], y1[1])
+    def cmp_by_unit_path(item):
+        unit_path = item.split(' in ')
+        return unit_path[1]
 
     def uses_to_text(uses_list, text):
         for unit in uses_list:
@@ -44,8 +59,7 @@ def sort_dpr(proj_file, by_unit_name=True):
                 text += unit
         return text
 
-    with open(proj_file, 'rb') as f:
-        data = f.read()
+    data = read_content(proj_file)
 
     uses_sys = []
     uses_sorted = []
@@ -65,7 +79,7 @@ def sort_dpr(proj_file, by_unit_name=True):
             if by_unit_name:
                 uses_sorted.sort()
             else:
-                uses_sorted.sort(cmp=sort_func_by_unit_path)
+                uses_sorted.sort(key=cmp_by_unit_path)
 
             uses_text = uses_to_text(uses_sys, uses_text)
             uses_text = uses_to_text(uses_sorted, uses_text)
@@ -73,8 +87,7 @@ def sort_dpr(proj_file, by_unit_name=True):
             if uses_text:
                 if match[0] != uses_text:
                     data = data.replace(match[0], uses_text)
-                    with open(proj_file, 'wb') as f:
-                        f.write(data)
+                    write_content(proj_file, data)
                     logging.info('Sorting update')
                 else:
                     logging.info('Sorting OK')
@@ -86,8 +99,7 @@ def patch_proj_file(proj_file, proj_info):
     is_patched = False
     
     # read proj
-    with open(proj_file, 'rb') as f:
-        data = f.read()
+    data = read_content(proj_file)
 
     # apply patch
     unit_expr = r"[\"'](.*?)[\"']"
@@ -107,8 +119,7 @@ def patch_proj_file(proj_file, proj_info):
         logging.info('Proj file ' + proj_file + ' is OK')
     else:
         # save proj
-        with open(proj_file, 'wb') as f:
-            f.write(data)
+        write_content(proj_file, data)
         logging.info('Proj file ' + proj_file + ' is updated')
 
 
