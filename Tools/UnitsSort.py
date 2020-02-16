@@ -19,7 +19,7 @@ def init_log(log_file, level=logging.NOTSET):
     console.setFormatter(formatter)
     logging.getLogger('').addHandler(console)
 
-    
+
 def check_path(path):
     if path:
         path = os.path.abspath(path)
@@ -106,46 +106,42 @@ def patch_proj_file(proj_file, proj_info):
     if not is_patched:
         logging.info('Proj file ' + proj_file + ' is OK')
     else:
-        # save proj    
+        # save proj
         with open(proj_file, 'wb') as f:
             f.write(data)
         logging.info('Proj file ' + proj_file + ' is updated')
 
-    
+
 def main(src_path):
 
     flst = []
-
+    dproj = []
+    
     logging.info('Scan file system: ' + src_path)
     
     for root, dirs, files in os.walk(src_path):
 
-        if '.bin' in dirs:
-            dirs.remove('.bin')
-        if '.dcu' in dirs:
-            dirs.remove('.dcu')
-        if '.hg' in dirs:
-            dirs.remove('.hg')
-        if '__history' in dirs:
-            dirs.remove('__history')
+        for dir in dirs:
+            if dir.startswith('.') or dir.startswith('__'):
+                dirs.remove(dir)
 
-        for pasfile in files:
-            if pasfile.endswith('.pas'):
+        for f in files:
+            if f.endswith('.dproj') and root == src_path:
+                dproj.append(f)
+            elif f.endswith('.pas'):
                 unit = root.replace(src_path, '')
                 if unit:
                     unit += '\\'
-                unit += pasfile
-                flst.append((pasfile, unit))
-                logging.debug('Found ' + pasfile + ' in ' + unit)
+                unit += f
+                flst.append((f, unit))
+                logging.debug('Found ' + f + ' in ' + unit)
 
     if flst:
         patch_proj_file(src_path + 'SASPlanet.dpr', flst)
-        patch_proj_file(src_path + 'SASPlanet.dproj', flst)
-        patch_proj_file(src_path + 'SASPlanet.XE.dproj', flst)
-        patch_proj_file(src_path + 'SASPlanet.XE2.dproj', flst)
-        patch_proj_file(src_path + 'SASPlanet.Berlin.dproj', flst)
-        patch_proj_file(src_path + 'SASPlanet.Tokyo.dproj', flst)
         sort_dpr(src_path + 'SASPlanet.dpr', False)
+        
+        for proj in dproj:
+            patch_proj_file(src_path + proj, flst)
 
 
 if __name__ == '__main__':
