@@ -154,7 +154,7 @@ begin
           for I := 0 to VCount - 1 do begin
             VIndexList[I] := IMapType(VList[I]).GUIConfig.SortIndex;
           end;
-          SortInterfaceListByIntegerMeasure(VList, VIndexList);
+          StableSortInterfaceListByIntegerMeasure(VList, VIndexList);
         end;
         soByMapName: begin
           SetLength(VStrIndexList, VCount);
@@ -167,7 +167,7 @@ begin
             end;
             VStrIndexList[I] := VSubMenu + VSep + IMapType(VList[I]).GUIConfig.Name.Value;
           end;
-          SortInterfaceListByStringMeasure(VList, VStrIndexList);
+          StableSortInterfaceListByStringMeasure(VList, VStrIndexList);
         end;
         soByZmpName: begin
           // Do nothing (already sorted)

@@ -56,6 +56,16 @@ procedure SortInterfaceListByStringMeasure(
   var AMeasure: array of string
 );
 
+procedure StableSortInterfaceListByIntegerMeasure(
+  const AList: IInterfaceListSimple;
+  var AMeasure: array of Integer
+);
+
+procedure StableSortInterfaceListByStringMeasure(
+  const AList: IInterfaceListSimple;
+  var AMeasure: array of string
+);
+
 type
   TInterfaceListSortCompareFunction = function (const Item1, Item2: IInterface): Integer;
   TInterfaceListSortCompareFunctor = function (const Item1, Item2: IInterface): Integer of object;
@@ -540,6 +550,228 @@ begin
   VCount := AList.Count;
   if VCount > 1 then begin
     QuickSort(AList, ACompareFunc, 0, VCount - 1);
+  end;
+end;
+
+procedure StableSortInterfaceListByIntegerMeasure(
+  const AList: IInterfaceListSimple;
+  var AMeasure: array of Integer
+);
+
+  procedure DoInsertionSort(const AFirstIndex, ALastIndex: Integer);
+  var
+    I, J, K: Integer;
+  begin
+    for I := Succ(AFirstIndex) to ALastIndex do begin
+      J := I;
+      K := AMeasure[I];
+      while (J > AFirstIndex) and (AMeasure[J-1] > K) do begin
+        AList.Exchange(J, J-1);
+        AMeasure[J] := AMeasure[J-1];
+        Dec(J);
+      end;
+      AMeasure[J] := K;
+    end;
+  end;
+
+  procedure DoMergeSort(
+    const AFirstIndex, ALastIndex: Integer;
+    var ATempList: array of IInterface;
+    var ATempMeasure: array of Integer
+  );
+  const
+    // When the list is smaller than this we use InsertionSort instead of calling
+    // MergeSort recursively.
+    // 8 and 64 seem to be the lower and upper limits where the performance degrades, so
+    // something between 16 and 32 probably gives the best performance
+    CMinListSize = 16;
+  var
+    I, J: Integer;
+    VMid: Integer;
+    VToInx: Integer;
+    VFirstCount: Integer;
+  begin
+    // calculate the midpoint
+    VMid := (AFirstIndex + ALastIndex) div 2;
+
+    // sort the 1st half of the list, either with merge sort, or, if there are
+    // few enough items, with insertion sort
+    if AFirstIndex < VMid then begin
+      if VMid - AFirstIndex <= CMinListSize then begin
+        DoInsertionSort(AFirstIndex, VMid);
+      end else begin
+        DoMergeSort(AFirstIndex, VMid, ATempList, ATempMeasure);
+      end;
+    end;
+
+    // sort the 2nd half of the list likewise
+    if Succ(VMid) < ALastIndex then begin
+      if ALastIndex - Succ(VMid) <= CMinListSize then begin
+        DoInsertionSort(Succ(VMid), ALastIndex);
+      end else begin
+        DoMergeSort(Succ(VMid), ALastIndex, ATempList, ATempMeasure);
+      end;
+    end;
+
+    // copy the first half of the list to our temporary list
+    VFirstCount := Succ(VMid - AFirstIndex);
+    for I := 0 to VFirstCount - 1 do begin
+      ATempList[I] := AList[AFirstIndex + I];
+    end;
+    System.Move(AMeasure[AFirstIndex], ATempMeasure[0], VFirstCount * SizeOf(Integer));
+
+    // set up the indexes: i is the index for the temporary list (i.e., the
+    // first half of the list), j is the index for the second half of the
+    // list, ToInx is the index in the merged where items will be copied
+    I := 0;
+    J := Succ(VMid);
+    VToInx := AFirstIndex;
+
+    // now merge the two lists
+    // repeat until one of the lists empties...
+    while (I < VFirstCount) and (J <= ALastIndex) do begin
+      // calculate the smaller item from the next items in both lists and copy
+      // it over; increment the relevant index
+      if ATempMeasure[I] <= AMeasure[J] then begin
+        AList[VToInx] := ATempList[I];
+        AMeasure[VToInx] := ATempMeasure[I];
+        Inc(I);
+      end else begin
+        AList[VToInx] := AList[J];
+        AMeasure[VToInx] := AMeasure[J];
+        Inc(J);
+      end;
+      // there's one more item in the merged list
+      Inc(VToInx);
+    end;
+
+    // if there are any more items in the first list, copy them back over
+    if I < VFirstCount then begin
+      for J := 0 to VFirstCount - I - 1 do begin
+        AList[VToInx + J] := ATempList[I + J];
+      end;
+      System.Move(ATempMeasure[I], AMeasure[VToInx], (VFirstCount - I) * SizeOf(Integer));
+    end;
+
+    // if there are any more items in the second list then they're already in
+    // place and we're done; if there aren't, we're still done
+  end;
+
+var
+  VCount: Integer;
+  VTempList: array of IInterface;
+  VTempMeasure: array of Integer;
+  VTempCount: Integer;
+begin
+  Assert(Assigned(AList));
+  VCount := Length(AMeasure);
+  Assert(AList.Count = VCount);
+  if VCount > 1 then begin
+    VTempCount := (VCount div 2) + 1;
+    SetLength(VTempList, VTempCount);
+    SetLength(VTempMeasure, VTempCount);
+    DoMergeSort(0, VCount - 1, VTempList, VTempMeasure);
+  end;
+end;
+
+procedure StableSortInterfaceListByStringMeasure(
+  const AList: IInterfaceListSimple;
+  var AMeasure: array of string
+);
+
+  procedure DoInsertionSort(const AFirstIndex, ALastIndex: Integer);
+  var
+    I, J: Integer;
+    K: string;
+  begin
+    for I := Succ(AFirstIndex) to ALastIndex do begin
+      J := I;
+      K := AMeasure[I];
+      while (J > AFirstIndex) and (CompareStringOrdinal(K, AMeasure[J-1]) < 0) do begin
+        AList.Exchange(J, J-1);
+        AMeasure[J] := AMeasure[J-1];
+        Dec(J);
+      end;
+      AMeasure[J] := K;
+    end;
+  end;
+
+  procedure DoMergeSort(
+    const AFirstIndex, ALastIndex: Integer;
+    var ATempList: array of IInterface;
+    var ATempMeasure: array of string
+  );
+  const
+    CMinListSize = 16;
+  var
+    I, J: Integer;
+    VMid: Integer;
+    VToInx: Integer;
+    VFirstCount: Integer;
+  begin
+    VMid := (AFirstIndex + ALastIndex) div 2;
+
+    if AFirstIndex < VMid then begin
+      if VMid - AFirstIndex <= CMinListSize then begin
+        DoInsertionSort(AFirstIndex, VMid);
+      end else begin
+        DoMergeSort(AFirstIndex, VMid, ATempList, ATempMeasure);
+      end;
+    end;
+
+    if Succ(VMid) < ALastIndex then begin
+      if ALastIndex - Succ(VMid) <= CMinListSize then begin
+        DoInsertionSort(Succ(VMid), ALastIndex);
+      end else begin
+        DoMergeSort(Succ(VMid), ALastIndex, ATempList, ATempMeasure);
+      end;
+    end;
+
+    VFirstCount := Succ(VMid - AFirstIndex);
+    for I := 0 to VFirstCount - 1 do begin
+      ATempList[I] := AList[AFirstIndex + I];
+      ATempMeasure[I] := AMeasure[AFirstIndex + I];
+    end;
+
+    I := 0;
+    J := Succ(VMid);
+    VToInx := AFirstIndex;
+
+    while (I < VFirstCount) and (J <= ALastIndex) do begin
+      if CompareStringOrdinal(ATempMeasure[I], AMeasure[J]) <= 0 then begin
+        AList[VToInx] := ATempList[I];
+        AMeasure[VToInx] := ATempMeasure[I];
+        Inc(I);
+      end else begin
+        AList[VToInx] := AList[J];
+        AMeasure[VToInx] := AMeasure[J];
+        Inc(J);
+      end;
+      Inc(VToInx);
+    end;
+
+    if I < VFirstCount then begin
+      for J := 0 to VFirstCount - I - 1 do begin
+        AList[VToInx + J] := ATempList[I + J];
+        AMeasure[VToInx + J] := ATempMeasure[I + J];
+      end;
+    end;
+  end;
+
+var
+  VCount: Integer;
+  VTempList: array of IInterface;
+  VTempMeasure: array of string;
+  VTempCount: Integer;
+begin
+  Assert(Assigned(AList));
+  VCount := Length(AMeasure);
+  Assert(AList.Count = VCount);
+  if VCount > 1 then begin
+    VTempCount := (VCount div 2) + 1;
+    SetLength(VTempList, VTempCount);
+    SetLength(VTempMeasure, VTempCount);
+    DoMergeSort(0, VCount - 1, VTempList, VTempMeasure);
   end;
 end;
 
