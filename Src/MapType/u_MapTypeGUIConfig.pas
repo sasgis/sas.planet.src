@@ -122,7 +122,7 @@ begin
 
   FSortIndex := FDefConfig.SortIndex;
   if FSortIndex < 0 then begin
-    FSortIndex := 1000;
+    FSortIndex := MaxInt;
   end;
   FHotKey := FDefConfig.HotKey;
   FSeparator := FDefConfig.Separator;
