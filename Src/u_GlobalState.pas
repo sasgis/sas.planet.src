@@ -117,7 +117,7 @@ type
     FGlobalConfig: IGlobalConfig;
     FBaseConfigPath: IPathConfig;
     FBaseDataPath: IPathConfig;
-    FBaseCahcePath: IPathConfig;
+    FBaseCachePath: IPathConfig;
     FBaseApplicationPath: IPathConfig;
 
     FMainConfigProvider: IConfigDataWriteProvider;
@@ -471,7 +471,7 @@ begin
   FBaseApplicationPath := TPathConfig.Create('', VProgramPath, nil);
   FBaseConfigPath := TPathConfig.Create('', VProgramPath, nil);
   FBaseDataPath := TPathConfig.Create('', VProgramPath, nil);
-  FBaseCahcePath := TPathConfig.Create('', '.\', FBaseDataPath);
+  FBaseCachePath := TPathConfig.Create('', '.\', FBaseDataPath);
 
   FBuildInfo := TBuildInfo.Create;
 
@@ -513,7 +513,7 @@ begin
     TGlobalConfig.Create(
       VInternalDebugConfig,
       FAppearanceOfMarkFactory,
-      FBaseCahcePath,
+      FBaseCachePath,
       FBaseConfigPath,
       FBaseDataPath,
       FBaseApplicationPath
@@ -622,7 +622,7 @@ begin
   FLocalConverterFactory :=
     TLocalCoordConverterFactorySimpe.Create(VLocalCoordConverterFactory);
 
-  FCacheConfig := TGlobalCacheConfig.Create(FBaseCahcePath);
+  FCacheConfig := TGlobalCacheConfig.Create(FBaseCachePath);
   FDownloadInfo := TDownloadInfoSimple.Create(nil);
   VViewCnonfig := FMainConfigProvider.GetSubItem('VIEW');
 
