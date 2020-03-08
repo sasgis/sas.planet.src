@@ -150,7 +150,7 @@ type
     constructor Create(
       const AInternalDebugConfig: IInternalDebugConfig;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
-      const ABaseCacheDataPath: IPathConfig;
+      const ABaseCachePath: IPathConfig;
       const ABaseConfigPath: IPathConfig;
       const ABaseDataPath: IPathConfig;
       const ABaseApplicationPath: IPathConfig
@@ -196,7 +196,7 @@ uses
 constructor TGlobalConfig.Create(
   const AInternalDebugConfig: IInternalDebugConfig;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
-  const ABaseCacheDataPath: IPathConfig;
+  const ABaseCachePath: IPathConfig;
   const ABaseConfigPath: IPathConfig;
   const ABaseDataPath: IPathConfig;
   const ABaseApplicationPath: IPathConfig
@@ -205,8 +205,8 @@ begin
   inherited Create;
   FBaseConfigPath := ABaseConfigPath;
 
-  FBaseCachePath := ABaseCacheDataPath;
-  Add(FBaseCachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
+  FBaseCachePath := ABaseCachePath;
+  Add(FBaseCachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PathToCache'), False, False, False, False);
 
   FMapsPath := TPathConfig.Create('PrimaryPath', '.\Maps', ABaseConfigPath);
   Add(FMapsPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoMAPS'), False, False, False, False);
