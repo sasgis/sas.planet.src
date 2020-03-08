@@ -471,7 +471,7 @@ begin
   FBaseApplicationPath := TPathConfig.Create('', VProgramPath, nil);
   FBaseConfigPath := TPathConfig.Create('', VProgramPath, nil);
   FBaseDataPath := TPathConfig.Create('', VProgramPath, nil);
-  FBaseCachePath := TPathConfig.Create('', '.\', FBaseDataPath);
+  FBaseCachePath := TPathConfig.Create('PrimaryPath', '.\', FBaseDataPath);
 
   FBuildInfo := TBuildInfo.Create;
 
