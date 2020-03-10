@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2020, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -140,9 +140,11 @@ begin
     ATileNotifier,
     ''
   );
-  FTileInfoMemCache := ATileInfoMemCache;
-  FMainContentType := AMainContentType;
 
+  FTileInfoMemCache := ATileInfoMemCache;
+  FTileInfoMemCache.OnTileInfoUpdate := Self.NotifyTileUpdate;
+
+  FMainContentType := AMainContentType;
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
 end;
 
@@ -173,7 +175,6 @@ begin
   Result := FTileInfoMemCache.Get(AXY, AZoom, AVersionInfo, AMode, False);
   if Result = nil then begin
     Result := FTileNotExistsTileInfo;
-    FTileInfoMemCache.Add(AXY, AZoom, AVersionInfo, FTileNotExistsTileInfo);
   end;
 end;
 
@@ -193,7 +194,6 @@ begin
   Result := FTileInfoMemCache.Get(AXY, AZoom, VVersionInfo, AMode, False);
   if Result = nil then begin
     Result := FTileNotExistsTileInfo;
-    FTileInfoMemCache.Add(AXY, AZoom, VVersionInfo, FTileNotExistsTileInfo);
   end;
 end;
 
@@ -306,7 +306,7 @@ begin
       VTileInfo := TTileInfoBasicTNE.Create(ALoadDate, AVersionInfo);
     end;
     FTileInfoMemCache.Add(AXY, AZoom, AVersionInfo, VTileInfo);
-    NotifyTileUpdate(AXY, AZoom, AVersionInfo);
+    Result := True;
   end;
 end;
 
@@ -318,13 +318,12 @@ function TTileStorageInRAM.DeleteTile(
 begin
   Result := False;
   if StorageStateInternal.DeleteAccess then begin
-    FTileInfoMemCache.Add(
-      AXY,
-      AZoom,
-      AVersionInfo,
-      TTileInfoBasicNotExists.Create(0, AVersionInfo)
-    );
-    NotifyTileUpdate(AXY, AZoom, AVersionInfo);
+    Result :=
+      FTileInfoMemCache.Remove(
+        AXY,
+        AZoom,
+        AVersionInfo
+      );
   end;
 end;
 

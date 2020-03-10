@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2020, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -69,7 +69,9 @@ type
     FHitCounter: IInternalPerformanceCounter;
     FMissCounter: IInternalPerformanceCounter;
     FClearByTTLCounter: IInternalPerformanceCounter;
+    FOnTileInfoUpdateNotify: TOnTileInfoUpdateNotify;
     procedure MakeItClean(const ATileRec: PTileInfoCacheRec); inline;
+    procedure DoTileInfoUpdateNotify(const ATileRec: PTileInfoCacheRec); inline;
     procedure ClearByTTL;
   private
     { ITileInfoBasicMemCache }
@@ -79,11 +81,13 @@ type
       const AVersionInfo: IMapVersionInfo;
       const ATileInfoBasic: ITileInfoBasic
     );
-    procedure Remove(
+
+    function Remove(
       const AXY: TPoint;
       const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo
-    );
+    ): Boolean;
+
     function Get(
       const AXY: TPoint;
       const AZoom: Byte;
@@ -91,7 +95,11 @@ type
       const AMode: TGetTileInfoMode;
       const AUpdateTTL: Boolean
     ): ITileInfoBasic;
+
     procedure Clear;
+
+    function GetOnTileInfoUpdate: TOnTileInfoUpdateNotify;
+    procedure SetOnTileInfoUpdate(const AValue: TOnTileInfoUpdateNotify);
   public
     constructor Create(
       const ACapacity: Integer;
@@ -128,6 +136,7 @@ begin
   FCapacity := ACapacity;
   FTTL := ATTL;
   FClearStrategy := TClearByTTLStrategy(AClearStrategy);
+  FOnTileInfoUpdateNotify := nil;
 
   FAddCounter := APerfCounterList.CreateAndAddNewCounter('Add');
   FRemoveCounter := APerfCounterList.CreateAndAddNewCounter('Remove');
@@ -157,6 +166,13 @@ begin
   inherited;
 end;
 
+procedure TTileInfoBasicMemCache.DoTileInfoUpdateNotify(const ATileRec: PTileInfoCacheRec);
+begin
+  if Assigned(FOnTileInfoUpdateNotify) then begin
+    FOnTileInfoUpdateNotify(ATileRec.TileXY, ATileRec.TileZoom, ATileRec.TileVersionInfo);
+  end;
+end;
+
 procedure TTileInfoBasicMemCache.Add(
   const AXY: TPoint;
   const AZoom: Byte;
@@ -173,6 +189,7 @@ var
   VOldestItem: Integer;
   VEmptyItem: Integer;
   VMinTTL: Cardinal;
+  VTickCount: Cardinal;
   VCounterContext: TInternalPerformanceCounterContext;
 begin
   VCounterContext := FAddCounter.StartOperation;
@@ -183,6 +200,7 @@ begin
       VOldestItem := cUndefItemValue;
       VEmptyItem := cUndefItemValue;
       VMinTTL := $FFFFFFFF;
+      VTickCount := GetTickCount;
       if Assigned(AVersionInfo) then begin
         VVersion := AVersionInfo.StoreString;
       end else begin
@@ -195,15 +213,16 @@ begin
         end else begin
           VTileVersion := '';
         end;
-        if (VTile.TileXY.X = AXY.X) and
+        if not VTile.IsEmptyCacheRec and
+           (VTile.TileXY.X = AXY.X) and
            (VTile.TileXY.Y = AXY.Y) and
            (VTile.TileZoom = AZoom) and
-           (not VTile.IsEmptyCacheRec) and
            SameStr(VTileVersion, VVersion)
         then begin
-          VTile.TileTTL := GetTickCount + FTTL;
+          VTile.TileTTL := VTickCount + FTTL;
           VTile.TileVersionInfo := AVersionInfo;
           VTile.TileInfoBasic := ATileInfoBasic;
+          DoTileInfoUpdateNotify(VTile);
           Exit; // OK - found and update tile info rec
         end else begin
           if VTile.IsEmptyCacheRec then begin
@@ -225,12 +244,13 @@ begin
       end else begin
         raise ETileInfoBasicMemCache.Create('Can''t add TileInfo to MemCache!');
       end;
-      VTile.TileTTL := GetTickCount + FTTL;
+      VTile.TileTTL := VTickCount + FTTL;
       VTile.TileXY := AXY;
       VTile.TileZoom := AZoom;
       VTile.TileVersionInfo := AVersionInfo;
       VTile.TileInfoBasic := ATileInfoBasic;
       VTile.IsEmptyCacheRec := False;
+      DoTileInfoUpdateNotify(VTile);
     finally
       FCS.EndWrite;
     end;
@@ -239,11 +259,11 @@ begin
   end;
 end;
 
-procedure TTileInfoBasicMemCache.Remove(
+function TTileInfoBasicMemCache.Remove(
   const AXY: TPoint;
   const AZoom: Byte;
   const AVersionInfo: IMapVersionInfo
-);
+): Boolean;
 var
   I: Integer;
   VVersion: string;
@@ -251,6 +271,7 @@ var
   VTile: PTileInfoCacheRec;
   VCounterContext: TInternalPerformanceCounterContext;
 begin
+  Result := False;
   VCounterContext := FRemoveCounter.StartOperation;
   try
     FCS.BeginWrite;
@@ -262,6 +283,9 @@ begin
       end;
       for I := 0 to FList.Count - 1 do begin
         VTile := PTileInfoCacheRec(FList.Items[I]);
+        if VTile.IsEmptyCacheRec then begin
+          Continue;
+        end;
         if Assigned(VTile.TileVersionInfo) then begin
           VTileVersion := VTile.TileVersionInfo.StoreString;
         end else begin
@@ -273,6 +297,7 @@ begin
            SameStr(VTileVersion, VVersion)
         then begin
           MakeItClean(VTile);
+          Result := True;
           Break;
         end;
       end;
@@ -296,14 +321,16 @@ var
   I: Integer;
   VVersion: string;
   VTileVersion: string;
+  VTickCount: Cardinal;
   VTile: PTileInfoCacheRec;
   VCounterContext: TInternalPerformanceCounterContext;
 begin
+  Result := nil;
   VCounterContext := FGetCounter.StartOperation;
   try
     FCS.BeginWrite;
     try
-      Result := nil;
+      VTickCount := GetTickCount;
       if Assigned(AVersionInfo) then begin
         VVersion := AVersionInfo.StoreString;
       end else begin
@@ -311,6 +338,9 @@ begin
       end;
       for I := 0 to FList.Count - 1 do begin
         VTile := PTileInfoCacheRec(FList.Items[I]);
+        if VTile.IsEmptyCacheRec then begin
+          Continue;
+        end;
         if Assigned(VTile.TileVersionInfo) then begin
           VTileVersion := VTile.TileVersionInfo.StoreString;
         end else begin
@@ -319,16 +349,11 @@ begin
         if (VTile.TileXY.X = AXY.X) and
            (VTile.TileXY.Y = AXY.Y) and
            (VTile.TileZoom = AZoom) and
-           (not VTile.IsEmptyCacheRec) and
            SameStr(VTileVersion, VVersion)
         then begin
-          if (VTile.TileTTL < GetTickCount) then begin
-            if FClearStrategy = csOneByOne then begin
-              MakeItClean(VTile);
-            end;
-          end else begin
+          if VTile.TileTTL > VTickCount then begin
             if AUpdateTTL then begin
-              VTile.TileTTL := GetTickCount + FTTL;
+              VTile.TileTTL := VTickCount + FTTL;
             end;
             if AMode = gtimWithData then begin
               if not Supports(VTile.TileInfoBasic, ITileInfoWithData, Result) then begin
@@ -337,6 +362,8 @@ begin
             end else begin // gtimWithoutData, gtimAsIs
               Result := VTile.TileInfoBasic;
             end;
+          end else if FClearStrategy = csOneByOne then begin
+            MakeItClean(VTile);
           end;
           Break;
         end;
@@ -380,11 +407,13 @@ var
   VTile: PTileInfoCacheRec;
   VMinTTL: Cardinal;
   VMaxTTL: Cardinal;
+  VTickCount: Cardinal;
   VCleanerCalled: Boolean;
   VCounterContext: TInternalPerformanceCounterContext;
 begin
   FCS.BeginWrite;
   try
+    VTickCount := GetTickCount;
     VCleanerCalled := False;
     if FClearStrategy in [csByOldest, csByYoungest] then begin
       VMinTTL := $FFFFFFFF;
@@ -400,8 +429,8 @@ begin
           end;
         end;
       end;
-      if ((FClearStrategy = csByOldest) and (VMinTTL < GetTickCount)) or
-         ((FClearStrategy = csByYoungest) and (VMaxTTL < GetTickCount)) then
+      if ((FClearStrategy = csByOldest) and (VMinTTL < VTickCount)) or
+         ((FClearStrategy = csByYoungest) and (VMaxTTL < VTickCount)) then
       begin // clear all records
         VCleanerCalled := True;
         VCounterContext := FClearByTTLCounter.StartOperation;
@@ -416,7 +445,7 @@ begin
     end else begin // csOneByOne
       for I := 0 to FList.Count - 1 do begin
         VTile := PTileInfoCacheRec(FList.Items[I]);
-        if not VTile.IsEmptyCacheRec and (VTile.TileTTL < GetTickCount) then begin
+        if not VTile.IsEmptyCacheRec and (VTile.TileTTL < VTickCount) then begin
           VCleanerCalled := True;
           MakeItClean(VTile);
         end;
@@ -436,13 +465,35 @@ end;
 
 procedure TTileInfoBasicMemCache.MakeItClean(const ATileRec: PTileInfoCacheRec);
 begin
-  if (ATileRec <> nil) then begin
+  if (ATileRec <> nil) and not ATileRec.IsEmptyCacheRec then begin
+    DoTileInfoUpdateNotify(ATileRec);
+
     ATileRec.TileTTL := 0;
     ATileRec.TileXY := Point(MaxInt, MaxInt);
     ATileRec.TileZoom := 255;
     ATileRec.TileVersionInfo := nil;
     ATileRec.TileInfoBasic := nil;
     ATileRec.IsEmptyCacheRec := True;
+  end;
+end;
+
+function TTileInfoBasicMemCache.GetOnTileInfoUpdate: TOnTileInfoUpdateNotify;
+begin
+  FCS.BeginRead;
+  try
+    Result := FOnTileInfoUpdateNotify;
+  finally
+    FCS.EndRead;
+  end;
+end;
+
+procedure TTileInfoBasicMemCache.SetOnTileInfoUpdate(const AValue: TOnTileInfoUpdateNotify);
+begin
+  FCS.BeginWrite;
+  try
+    FOnTileInfoUpdateNotify := AValue;
+  finally
+    FCS.EndWrite;
   end;
 end;
 

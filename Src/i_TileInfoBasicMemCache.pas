@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2020, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -29,6 +29,12 @@ uses
   i_TileInfoBasic;
 
 type
+  TOnTileInfoUpdateNotify = procedure(
+    const ATile: TPoint;
+    const AZoom: Byte;
+    const AVersion: IMapVersionInfo
+  ) of object;
+
   ITileInfoBasicMemCache = interface
     ['{9D01F466-1089-46D7-B13B-1ED1116A8376}']
     procedure Add(
@@ -38,11 +44,11 @@ type
       const ATileInfoBasic: ITileInfoBasic
     );
 
-    procedure Remove(
+    function Remove(
       const AXY: TPoint;
       const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo
-    );
+    ): Boolean;
 
     function Get(
       const AXY: TPoint;
@@ -53,6 +59,10 @@ type
     ): ITileInfoBasic;
 
     procedure Clear;
+
+    function GetOnTileInfoUpdate: TOnTileInfoUpdateNotify;
+    procedure SetOnTileInfoUpdate(const AValue: TOnTileInfoUpdateNotify);
+    property OnTileInfoUpdate: TOnTileInfoUpdateNotify read GetOnTileInfoUpdate write SetOnTileInfoUpdate;
   end;
 
 implementation
