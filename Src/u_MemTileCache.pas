@@ -51,7 +51,7 @@ type
     FTTLListener: IListenerTimeWithUsedFlag;
 
     FCacheList: TStringList;
-    FCacheListCapasity: Integer;
+    FCacheListCapacity: Integer;
 
     FSync: IReadWriteSync;
 
@@ -167,9 +167,9 @@ begin
     end;
   end;
 
-  FCacheListCapasity := FConfig.MaxSize;
+  FCacheListCapacity := FConfig.MaxSize;
   FCacheList := TStringList.Create(dupError, True, True);
-  FCacheList.Capacity := FCacheListCapasity;
+  FCacheList.Capacity := FCacheListCapacity;
 
   FSync := GSync.SyncBig.Make(Self.ClassName);
   FTTLListener := TListenerTTLCheck.Create(Self.OnTTLTrim, 40000);
@@ -262,7 +262,7 @@ begin
         ItemFree(I);
       end;
       FCacheList.Clear;
-      FCacheList.Capacity := FCacheListCapasity;
+      FCacheList.Capacity := FCacheListCapacity;
     finally
       FSync.EndWrite;
     end;
@@ -355,17 +355,17 @@ procedure TMemTileCacheBase.OnChangeConfig;
 var
   I: Integer;
 begin
-  FCacheListCapasity := FConfig.MaxSize;
+  FCacheListCapacity := FConfig.MaxSize;
   FSync.BeginWrite;
   try
-    if FCacheListCapasity <> FCacheList.Capacity then begin
-      if FCacheListCapasity < FCacheList.Count then begin
-        for I := 0 to (FCacheList.Count - FCacheListCapasity) - 1 do begin
+    if FCacheListCapacity <> FCacheList.Capacity then begin
+      if FCacheListCapacity < FCacheList.Count then begin
+        for I := 0 to (FCacheList.Count - FCacheListCapacity) - 1 do begin
           ItemFree(0);
           FCacheList.Delete(0);
         end;
       end;
-      FCacheList.Capacity := FCacheListCapasity;
+      FCacheList.Capacity := FCacheListCapacity;
     end;
   finally
     FSync.EndWrite;
