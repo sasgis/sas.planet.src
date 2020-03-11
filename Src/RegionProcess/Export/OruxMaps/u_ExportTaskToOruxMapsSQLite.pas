@@ -425,14 +425,12 @@ begin
 
   FSQLite3DB.SetExclusiveLockingMode;
   FSQLite3DB.ExecSQL('PRAGMA synchronous=OFF');
-
-  FSQLite3DB.BeginTran;
+  FSQLite3DB.ExecSQL('PRAGMA journal_mode=OFF');
 end;
 
 procedure TExportTaskToOruxMapsSQLite.CloseSQLiteStorage;
 begin
   if FSQLite3DB.Opened then begin
-    FSQLite3DB.Commit;
     FSQLite3DB.Close;
   end;
 end;
