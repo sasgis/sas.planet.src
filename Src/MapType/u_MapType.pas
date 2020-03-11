@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2020, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -66,6 +66,7 @@ uses
   i_MainMemCacheConfig,
   i_VectorItemSubset,
   i_VectorDataFactory,
+  i_VectorItemSubsetBuilder,
   i_ProjConverter,
   i_TileDownloadSubsystem,
   i_InternalPerformanceCounter,
@@ -89,6 +90,7 @@ type
     FBitmapSaverToStorage: IBitmapTileSaver;
     FKmlLoaderFromStorage: IVectorDataLoader;
     FVectorDataFactory: IVectorDataItemMainInfoFactory;
+    FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FProjectionSet: IProjectionSet;
     FViewProjectionSet: IProjectionSet;
     FLoadPrevMaxZoomDelta: Integer;
@@ -265,6 +267,7 @@ uses
   u_SimpleTileStorageConfig,
   u_MapAbilitiesConfig,
   u_VectorDataFactoryForMap,
+  u_VectorItemSubsetBuilder,
   u_HtmlToHintTextConverterStuped,
   u_MapTypeGUIConfig,
   u_MapVersionFactoryChangeable,
@@ -429,6 +432,10 @@ begin
       TVectorDataItemMainInfoFactoryForMap.Create(
         AHashFunction,
         THtmlToHintTextConverterStuped.Create
+      );
+    FVectorItemSubsetBuilderFactory :=
+      TVectorItemSubsetBuilderFactory.Create(
+        AHashFunction
       );
   end;
 
@@ -1127,12 +1134,15 @@ function TMapType.LoadTileVector(
   const ACache: ITileObjCacheVector
 ): IVectorItemSubset;
 var
-  i: integer;
+  I, J: Integer;
   VRelative: TDoublePoint;
+  VLonLatRect: TDoubleRect;
   VMinZoom: Integer;
   VProjection: IProjection;
   VParentProjection: IProjection;
   VTileParent: TPoint;
+  VSubset: IVectorItemSubset;
+  VBuilder: IVectorItemSubsetBuilder;
 begin
   Result := LoadOneTileVector(AXY, AZoom, AVersion, AIgnoreError, ACache);
   if not Assigned(Result) then begin
@@ -1144,11 +1154,19 @@ begin
         VMinZoom := 0;
       end;
       if AZoom - 1 > VMinZoom then begin
-        for i := AZoom - 1 downto VMinZoom do begin
-          VParentProjection := FProjectionSet.Zooms[i];
+        for I := AZoom - 1 downto VMinZoom do begin
+          VParentProjection := FProjectionSet.Zooms[I];
           VTileParent := PointFromDoublePoint(VParentProjection.Relative2TilePosFloat(VRelative), prToTopLeft);
-          Result := LoadOneTileVector(VTileParent, VParentProjection.Zoom, AVersion, AIgnoreError, ACache);
-          if Assigned(Result) then begin
+          VSubset := LoadOneTileVector(VTileParent, VParentProjection.Zoom, AVersion, AIgnoreError, ACache);
+          if Assigned(VSubset) then begin
+            VBuilder := FVectorItemSubsetBuilderFactory.Build;
+            VLonLatRect := VProjection.TilePos2LonLatRect(AXY);
+            for J := 0 to VSubset.Count - 1 do begin
+              if VSubset.Items[J].Geometry.Bounds.IsIntersecWithRect(VLonLatRect) then begin
+                VBuilder.Add(VSubset.Items[J]);
+              end;
+            end;
+            Result := VBuilder.MakeStaticAndClear;
             Break;
           end;
         end;
