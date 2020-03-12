@@ -29,6 +29,7 @@ uses
   i_MapVersionFactory,
   i_MapVersionRequest,
   i_TileObjCache,
+  i_TileInfoBasicMemCache,
   i_Bitmap32Static,
   i_VectorItemSubset,
   i_Projection,
@@ -142,6 +143,9 @@ type
     property CacheBitmap: ITileObjCacheBitmap read GetCacheBitmap;
     function GetCacheVector: ITileObjCacheVector;
     property CacheVector: ITileObjCacheVector read GetCacheVector;
+    function GetCacheTileInfo: ITileInfoBasicMemCache;
+    property CacheTileInfo: ITileInfoBasicMemCache read GetCacheTileInfo;
+
   end;
 
   IMapTypeChangeable = interface(IChangeable)

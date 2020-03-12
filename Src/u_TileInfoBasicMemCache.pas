@@ -30,6 +30,7 @@ uses
   i_MapVersionInfo,
   i_TileInfoBasic,
   i_TileInfoBasicMemCache,
+  i_Notifier,
   i_NotifierTime,
   i_ListenerTime,
   i_TileStorage,
@@ -68,6 +69,7 @@ type
     FGetCounter: IInternalPerformanceCounter;
     FHitCounter: IInternalPerformanceCounter;
     FMissCounter: IInternalPerformanceCounter;
+    FClearByTTLNotifier: INotifierInternal;
     FClearByTTLCounter: IInternalPerformanceCounter;
     FOnTileInfoUpdateNotify: TOnTileInfoUpdateNotify;
     procedure MakeItClean(const ATileRec: PTileInfoCacheRec); inline;
@@ -98,6 +100,8 @@ type
 
     procedure Clear;
 
+    function GetClearByTTLNotifier: INotifier;
+
     function GetOnTileInfoUpdate: TOnTileInfoUpdateNotify;
     procedure SetOnTileInfoUpdate(const AValue: TOnTileInfoUpdateNotify);
   public
@@ -114,6 +118,7 @@ type
 implementation
 
 uses
+  u_Notifier,
   u_ListenerTime,
   u_Synchronizer;
 
@@ -145,6 +150,8 @@ begin
   FMissCounter := APerfCounterList.CreateAndAddNewCounter('Get/Miss');
   FClearByTTLCounter := APerfCounterList.CreateAndAddNewCounter('ClearByTTL');
 
+  FClearByTTLNotifier := TNotifierBase.Create(GSync.SyncStd.Make(Self.ClassName));
+
   FTTLCheckNotifier := ATTLCheckNotifier;
   if Assigned(FTTLCheckNotifier) then begin
     FTTLCheckListener := TListenerTTLCheck.Create(ClearByTTL, FTTL);
@@ -163,6 +170,7 @@ begin
   end;
   FreeAndNil(FList);
   FCS := nil;
+  FClearByTTLNotifier := nil;
   inherited;
 end;
 
@@ -413,47 +421,44 @@ var
 begin
   FCS.BeginWrite;
   try
-    VTickCount := GetTickCount;
     VCleanerCalled := False;
-    if FClearStrategy in [csByOldest, csByYoungest] then begin
-      VMinTTL := $FFFFFFFF;
-      VMaxTTL := 0;
-      for I := 0 to FList.Count - 1 do begin
-        VTile := PTileInfoCacheRec(FList.Items[I]);
-        if not VTile.IsEmptyCacheRec then begin
-          if VTile.TileTTL < VMinTTL then begin
-            VMinTTL := VTile.TileTTL; // oldest item
-          end;
-          if VTile.TileTTL > VMaxTTL then begin
-            VMaxTTL := VTile.TileTTL; // youngest item
+    VCounterContext := FClearByTTLCounter.StartOperation;
+    try
+      VTickCount := GetTickCount;
+      if FClearStrategy in [csByOldest, csByYoungest] then begin
+        VMinTTL := $FFFFFFFF;
+        VMaxTTL := 0;
+        for I := 0 to FList.Count - 1 do begin
+          VTile := PTileInfoCacheRec(FList.Items[I]);
+          if not VTile.IsEmptyCacheRec then begin
+            if VTile.TileTTL < VMinTTL then begin
+              VMinTTL := VTile.TileTTL; // oldest item
+            end;
+            if VTile.TileTTL > VMaxTTL then begin
+              VMaxTTL := VTile.TileTTL; // youngest item
+            end;
           end;
         end;
-      end;
-      if ((FClearStrategy = csByOldest) and (VMinTTL < VTickCount)) or
-         ((FClearStrategy = csByYoungest) and (VMaxTTL < VTickCount)) then
-      begin // clear all records
-        VCleanerCalled := True;
-        VCounterContext := FClearByTTLCounter.StartOperation;
-        try
+        if ((FClearStrategy = csByOldest) and (VMinTTL < VTickCount)) or
+           ((FClearStrategy = csByYoungest) and (VMaxTTL < VTickCount)) then
+        begin // clear all records
+          VCleanerCalled := True;
           for I := 0 to FList.Count - 1 do begin
             MakeItClean(PTileInfoCacheRec(FList.Items[I]));
           end;
-        finally
-          FClearByTTLCounter.FinishOperation(VCounterContext);
+         end;
+      end else begin // csOneByOne
+        for I := 0 to FList.Count - 1 do begin
+          VTile := PTileInfoCacheRec(FList.Items[I]);
+          if not VTile.IsEmptyCacheRec and (VTile.TileTTL < VTickCount) then begin
+            VCleanerCalled := True;
+            MakeItClean(VTile);
+          end;
         end;
       end;
-    end else begin // csOneByOne
-      for I := 0 to FList.Count - 1 do begin
-        VTile := PTileInfoCacheRec(FList.Items[I]);
-        if not VTile.IsEmptyCacheRec and (VTile.TileTTL < VTickCount) then begin
-          VCleanerCalled := True;
-          MakeItClean(VTile);
-        end;
-      end;
-      if VCleanerCalled then begin
-        VCounterContext := FClearByTTLCounter.StartOperation;
-        FClearByTTLCounter.FinishOperation(VCounterContext);
-      end;
+    finally
+      FClearByTTLCounter.FinishOperation(VCounterContext);
+      FClearByTTLNotifier.Notify(nil);
     end;
     if not VCleanerCalled then begin
       FTTLCheckListener.CheckUseTimeUpdated;
@@ -495,6 +500,11 @@ begin
   finally
     FCS.EndWrite;
   end;
+end;
+
+function TTileInfoBasicMemCache.GetClearByTTLNotifier: INotifier;
+begin
+  Result := FClearByTTLNotifier as INotifier;
 end;
 
 end.

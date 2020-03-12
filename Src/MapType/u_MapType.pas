@@ -215,7 +215,7 @@ type
     function GetTileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
     function GetCacheBitmap: ITileObjCacheBitmap;
     function GetCacheVector: ITileObjCacheVector;
-
+    function GetCacheTileInfo: ITileInfoBasicMemCache;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -606,6 +606,11 @@ end;
 function TMapType.GetCacheVector: ITileObjCacheVector;
 begin
   Result := FCacheVector;
+end;
+
+function TMapType.GetCacheTileInfo: ITileInfoBasicMemCache;
+begin
+  Result := FCacheTileInfo;
 end;
 
 function TMapType.GetContentType: IContentTypeInfoBasic;

@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  i_Notifier,
   i_MapVersionInfo,
   i_TileStorage,
   i_TileInfoBasic;
@@ -59,6 +60,9 @@ type
     ): ITileInfoBasic;
 
     procedure Clear;
+
+    function GetClearByTTLNotifier: INotifier;
+    property ClearByTTLNotifier: INotifier read GetClearByTTLNotifier;
 
     function GetOnTileInfoUpdate: TOnTileInfoUpdateNotify;
     procedure SetOnTileInfoUpdate(const AValue: TOnTileInfoUpdateNotify);

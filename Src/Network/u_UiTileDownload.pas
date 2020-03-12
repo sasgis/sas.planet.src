@@ -24,10 +24,11 @@ interface
 
 uses
   SysUtils,
-  i_Notifier,
   t_CommonTypes,
+  i_Notifier,
   i_NotifierOperation,
   i_NotifierTime,
+  i_Listener,
   i_ListenerTime,
   i_DownloadUIConfig,
   i_DownloadInfoSimple,
@@ -62,7 +63,8 @@ type
     FLinksList: IListenerNotifierLinksList;
     FDownloadTask: IBackgroundTask;
     FTTLListener: IListenerTimeWithUsedFlag;
-    FMemCacheTTLListener: IListenerTime;
+    FCacheTileInfoTTLListener: IListener;
+    FCacheTileInfoTTLNotifier: INotifier;
     FDownloadState: ITileDownloaderStateChangeble;
 
     FUseDownload: TTileSource;
@@ -209,13 +211,13 @@ begin
     FMapType.StorageConfig.UseMemCache and
     FMapType.Zmp.TileDownloaderConfig.RestartDownloadOnMemCacheTTL
   then begin
-    FMemCacheTTLListener := TListenerTimeCheck.Create(
-      Self.OnMemCacheTTLTrim,
-      FMapType.StorageConfig.MemCacheTTL
-    );
-    FGCNotifier.Add(FMemCacheTTLListener);
+    Assert(FMapType.CacheTileInfo <> nil);
+    FCacheTileInfoTTLListener := TNotifyNoMmgEventListener.Create(Self.OnMemCacheTTLTrim);
+    FCacheTileInfoTTLNotifier := FMapType.CacheTileInfo.ClearByTTLNotifier;
+    FCacheTileInfoTTLNotifier.Add(FCacheTileInfoTTLListener);
   end else begin
-    FMemCacheTTLListener := nil;
+    FCacheTileInfoTTLListener := nil;
+    FCacheTileInfoTTLNotifier := nil;
   end;
 
   FLinksList.ActivateLinks;
@@ -231,11 +233,13 @@ begin
     FTaskFinishNotifier := nil;
   end;
 
+  if Assigned(FCacheTileInfoTTLListener) and Assigned(FCacheTileInfoTTLNotifier) then begin
+    FCacheTileInfoTTLNotifier.Remove(FCacheTileInfoTTLListener);
+    FCacheTileInfoTTLListener := nil;
+    FCacheTileInfoTTLNotifier := nil;
+  end;
+
   if Assigned(FGCNotifier) then begin
-    if Assigned(FMemCacheTTLListener) then begin
-      FGCNotifier.Remove(FMemCacheTTLListener);
-      FMemCacheTTLListener := nil;
-    end;
     if Assigned(FTTLListener) then begin
       FGCNotifier.Remove(FTTLListener);
       FTTLListener := nil;
