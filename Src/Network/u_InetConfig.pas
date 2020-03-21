@@ -89,7 +89,7 @@ begin
   FTimeOut := 40000;
   FSleepOnResetConnection := 30000;
   FDownloadTryCount := 2;
-  FNetworkEngineType := neWinInet;
+  FNetworkEngineType := neCurl;
 
   FProxyConfig := TProxyConfig.Create;
   Add(FProxyConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Proxy'));
