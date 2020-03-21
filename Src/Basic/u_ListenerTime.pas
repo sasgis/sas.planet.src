@@ -37,7 +37,10 @@ type
     FLastUseTime: Cardinal;
     FTTL: Cardinal;
   private
+    { IListenerTime }
     procedure Notification(const ANow: Cardinal);
+  private
+    { IListenerTimeWithUsedFlag }
     procedure UpdateUseTime;
     procedure CheckUseTimeUpdated;
   public
@@ -54,6 +57,7 @@ type
 
     FNextTime: Cardinal;
   private
+    { IListenerTime }
     procedure Notification(const ANow: Cardinal);
   public
     constructor Create(
