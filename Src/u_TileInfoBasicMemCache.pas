@@ -200,9 +200,9 @@ var
   VTickCount: Cardinal;
   VCounterContext: TInternalPerformanceCounterContext;
 begin
-  VCounterContext := FAddCounter.StartOperation;
+  FCS.BeginWrite;
   try
-    FCS.BeginWrite;
+    VCounterContext := FAddCounter.StartOperation;
     try
       FTTLCheckListener.CheckUseTimeUpdated;
       VOldestItem := cUndefItemValue;
@@ -260,10 +260,10 @@ begin
       VTile.IsEmptyCacheRec := False;
       DoTileInfoUpdateNotify(VTile);
     finally
-      FCS.EndWrite;
+      FAddCounter.FinishOperation(VCounterContext);
     end;
   finally
-    FAddCounter.FinishOperation(VCounterContext);
+    FCS.EndWrite;
   end;
 end;
 
@@ -280,9 +280,9 @@ var
   VCounterContext: TInternalPerformanceCounterContext;
 begin
   Result := False;
-  VCounterContext := FRemoveCounter.StartOperation;
+  FCS.BeginWrite;
   try
-    FCS.BeginWrite;
+    VCounterContext := FRemoveCounter.StartOperation;
     try
       if Assigned(AVersionInfo) then begin
         VVersion := AVersionInfo.StoreString;
@@ -311,10 +311,10 @@ begin
       end;
       FTTLCheckListener.CheckUseTimeUpdated;
     finally
-      FCS.EndWrite;
+      FRemoveCounter.FinishOperation(VCounterContext);
     end;
   finally
-    FRemoveCounter.FinishOperation(VCounterContext);
+    FCS.EndWrite;
   end;
 end;
 
@@ -334,9 +334,9 @@ var
   VCounterContext: TInternalPerformanceCounterContext;
 begin
   Result := nil;
-  VCounterContext := FGetCounter.StartOperation;
+  FCS.BeginWrite;
   try
-    FCS.BeginWrite;
+    VCounterContext := FGetCounter.StartOperation;
     try
       VTickCount := GetTickCount;
       if Assigned(AVersionInfo) then begin
@@ -377,10 +377,10 @@ begin
         end;
       end;
     finally
-      FCS.EndWrite;
+      FGetCounter.FinishOperation(VCounterContext);
     end;
   finally
-    FGetCounter.FinishOperation(VCounterContext);
+    FCS.EndWrite;
   end;
   if Assigned(Result) then begin
     VCounterContext := FHitCounter.StartOperation;
@@ -421,9 +421,9 @@ var
 begin
   FCS.BeginWrite;
   try
-    VCleanerCalled := False;
     VCounterContext := FClearByTTLCounter.StartOperation;
     try
+      VCleanerCalled := False;
       VTickCount := GetTickCount;
       if FClearStrategy in [csByOldest, csByYoungest] then begin
         VMinTTL := $FFFFFFFF;
@@ -456,12 +456,12 @@ begin
           end;
         end;
       end;
+      if not VCleanerCalled then begin
+        FTTLCheckListener.CheckUseTimeUpdated;
+      end;
     finally
       FClearByTTLCounter.FinishOperation(VCounterContext);
       FClearByTTLNotifier.Notify(nil);
-    end;
-    if not VCleanerCalled then begin
-      FTTLCheckListener.CheckUseTimeUpdated;
     end;
   finally
     FCS.EndWrite;
