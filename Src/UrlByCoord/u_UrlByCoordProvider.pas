@@ -441,14 +441,14 @@ function TUrlByCoordProviderRosreestr.GetUrlByLonLat(
   const ALonLat: TDoublePoint
 ): AnsiString;
 var
-  VMetr: TDoublePoint;
+  VLon, VLat: AnsiString;
 begin
-  VMetr := AProjection.ProjectionType.LonLat2Metr(ALonLat);
+  VLon := RoundExAnsi(ALonLat.X, 6);
+  VLat := RoundExAnsi(ALonLat.Y, 6);
   Result :=
-    'http://pkk5.rosreestr.ru/#' +
-    'x=' + RoundExAnsi(VMetr.x, 9) +
-    '&y=' + RoundExAnsi(VMetr.y, 9) +
-    '&z=' + ALIntToStr(AProjection.Zoom);
+    'https://pkk.rosreestr.ru/#/search/' +
+    VLat + ',' + VLon + '/' + ALIntToStr(AProjection.Zoom) + '/' +
+    '@470200?text=' + VLat + '%20' + VLon + '&type=1&inPoint=true';
 end;
 
 { TUrlByCoordProviderTerraserver }
