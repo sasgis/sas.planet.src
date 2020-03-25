@@ -90,10 +90,10 @@ begin
   Result := SystemTimeToDateTime(VSystemTime);
 end;
 
-procedure MetersToLonLat(const AX, AY: Double; out ALonLat: TDoublePoint);
+function MetersToLonLatPoint(const X, Y: Double): TDoublePoint;
 begin
-  ALonLat.X := AX / 6378137 * 180 / Pi;
-  ALonLat.Y := ((arctan(exp(AY / 6378137)) - Pi / 4) * 360) / Pi;
+  Result.X := X / 6378137 * 180 / Pi;
+  Result.Y := ((ArcTan(Exp(Y / 6378137)) - Pi / 4) * 360) / Pi;
 end;
 
 constructor TGeoCoderByRosreestr.Create(
@@ -136,6 +136,11 @@ var
   VTmpBuf: UTF8String;
   VName, VFullDesc, VDescription: string;
 begin
+  if AResult = nil then begin
+    Result := nil;
+    Exit;
+  end;
+
   if AResult.Data.Size <= 0 then begin
     raise EParserError.Create(SAS_ERR_EmptyServerResponse);
   end;
@@ -148,13 +153,10 @@ begin
     raise EParserError.Create('JSON parser error');
   end;
 
-  VStr := VJsonObject.S['status'];
-  if VStr <> '200' then begin
-    raise Exception.CreateFmt('Unexpected "status" value: %s', [VStr]);
-  end;
-
   VJsonArray := VJsonObject.A['features'];
-  Assert(VJsonArray <> nil);
+  if VJsonArray = nil then begin
+    raise EParserError.Create('"features" array is not found');
+  end;
 
   VName := ASearch;
   VList := TInterfaceListSimple.Create;
@@ -184,9 +186,6 @@ begin
       if VStr <> '' then VDescription := VDescription + #$D#$A + 'cad_cost: ' + VStr;
       VStr := VItem.S['attrs.area_value'];
       if VStr <> '' then VDescription := VDescription + #$D#$A + 'area_value: ' + VStr;
-
-      VDescription := VDescription + #$D#$A + '[ ' + VCoordToStringConverter.LonLatConvert(VPoint) + ' ]';
-      VFullDesc := ReplaceStr(VName + #$D#$A + VDescription, #$D#$A, '<br>');
     end;
 
     if Assigned(VItem.O['center']) then begin
@@ -194,10 +193,13 @@ begin
       Y := VItem.D['center.y'];
 
       try
-        MetersToLonLat(X, Y, VPoint);
+        VPoint := MetersToLonLatPoint(X, Y);
       except
         raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [FloatToStr(X), FloatToStr(Y)]);
       end;
+
+      VDescription := VDescription + #$D#$A + '[ ' + VCoordToStringConverter.LonLatConvert(VPoint) + ' ]';
+      VFullDesc := ReplaceStr(VName + #$D#$A + VDescription, #$D#$A, '<br>');
 
       VPlace := PlacemarkFactory.Build(VPoint, VName, VDescription, VFullDesc, 4);
       VList.Add(VPlace);
@@ -212,12 +214,12 @@ function TGeoCoderByRosreestr.PrepareRequest(
   const ALocalConverter: ILocalCoordConverter
 ): IDownloadRequest;
 const
-  cURLFmt = 'https://pkk5.rosreestr.ru/api/features/%d?text=%s&tolerance=262259&limit=11&_=%d000';
+  cURLFmt = 'https://pkk.rosreestr.ru/api/features/%d?text=%s&tolerance=262259&limit=11&_=%d000';
   cRequestHeader =
     'Accept: text/javascript, application/javascript, application/ecmascript, application/x-ecmascript, */*; q=0.01' + #13#10 +
     'Accept-Language: en-US' + #13#10 +
     'Accept-Encoding: gzip, deflate' + #13#10 +
-    'Referer: https://pkk5.rosreestr.ru/' + #13#10 +
+    'Referer: https://pkk.rosreestr.ru/' + #13#10 +
     'X-Requested-With: XMLHttpRequest';
 var
   I: Integer;
@@ -249,6 +251,7 @@ begin
         );
     end else begin
       Result := nil;
+      Assert(False, 'Unexpected input format: ' + ASearch);
     end;
   finally
     VRegExpr.Free;
