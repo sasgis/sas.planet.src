@@ -68,12 +68,11 @@ type
       const AStream: TStream
     );
   private
+    { IGeometryToStream }
     procedure Save(
       const AGeometry: IGeometryLonLat;
       const AStream: TStream
     );
-  public
-    constructor Create();
   end;
 
 implementation
@@ -82,15 +81,23 @@ uses
   SysUtils,
   Math,
   t_GeometryPointSML,
-  i_EnumDoublePoint,
-  u_GeoFunc;
+  i_EnumDoublePoint;
+
+const
+  CEmptySmlPoint: TGeometryPointSML = (
+    X: NAN;
+    Y: NAN;
+    Reserved: 0;
+  );
+
+function DoubleToSmlPoint(const APoint: TDoublePoint): TGeometryPointSML; inline;
+begin
+  Result.X := APoint.X;
+  Result.Y := APoint.Y;
+  Result.Reserved := 0;
+end;
 
 { TGeometryToStreamSML }
-
-constructor TGeometryToStreamSML.Create;
-begin
-  inherited Create;
-end;
 
 procedure TGeometryToStreamSML.Save(
   const AGeometry: IGeometryLonLat;
@@ -101,6 +108,8 @@ var
   VLine: IGeometryLonLatLine;
   VPolygon: IGeometryLonLatPolygon;
 begin
+  Assert(SizeOf(TGeometryPointSML) = 24);
+
   if Supports(AGeometry, IGeometryLonLatPoint, VPoint) then begin
     SavePoint(VPoint, AStream);
   end else if Supports(AGeometry, IGeometryLonLatLine, VLine) then begin
@@ -119,9 +128,7 @@ procedure TGeometryToStreamSML.SavePoint(
 var
   VPoint: TGeometryPointSML;
 begin
-  Assert(SizeOf(TGeometryPointSML) = 24);
-  VPoint.X := AGeometry.Point.X;
-  VPoint.Y := AGeometry.Point.Y;
+  VPoint := DoubleToSmlPoint(AGeometry.Point);
   AStream.Write(VPoint, SizeOf(VPoint));
 end;
 
@@ -142,8 +149,7 @@ begin
     Assert(False);
   end;
   if AStream.Size > 0 then begin
-    VPoint.X := CEmptyDoublePoint.X;
-    VPoint.Y := CEmptyDoublePoint.Y;
+    VPoint := CEmptySmlPoint;
     AStream.Write(VPoint, SizeOf(VPoint));
   end;
 end;
@@ -157,7 +163,7 @@ var
   VEnum: IEnumLonLatPoint;
   VCurrPoint: TDoublePoint;
 begin
-  Assert(SizeOf(TGeometryPointSML) = 24);
+  VPoint.Reserved := 0;
   VEnum := AGeometry.GetEnum;
   while VEnum.Next(VCurrPoint) do begin
     VPoint.X := VCurrPoint.X;
@@ -171,17 +177,15 @@ procedure TGeometryToStreamSML.SaveMultiLine(
   const AStream: TStream
 );
 var
-  i: Integer;
+  I: Integer;
   VPoint: TGeometryPointSML;
 begin
-  Assert(SizeOf(TGeometryPointSML) = 24);
   Assert(AGeometry.Count > 0);
+  VPoint := CEmptySmlPoint;
   SaveSingleLine(AGeometry.Item[0], AStream);
-  for i := 1 to AGeometry.Count - 1 do begin
-    VPoint.X := CEmptyDoublePoint.X;
-    VPoint.Y := CEmptyDoublePoint.Y;
+  for I := 1 to AGeometry.Count - 1 do begin
     AStream.Write(VPoint, SizeOf(VPoint));
-    SaveSingleLine(AGeometry.Item[i], AStream);
+    SaveSingleLine(AGeometry.Item[I], AStream);
   end;
 end;
 
@@ -205,6 +209,7 @@ begin
   if AStream.Size > 0 then begin
     VPoint.X := VFirstPoint.X;
     VPoint.Y := VFirstPoint.Y;
+    VPoint.Reserved := 0;
     AStream.Write(VPoint, SizeOf(VPoint));
   end;
 end;
@@ -219,8 +224,8 @@ var
   VEnum: IEnumLonLatPoint;
   VCurrPoint: TDoublePoint;
 begin
-  Assert(SizeOf(TGeometryPointSML) = 24);
   Assert(AGeometry.Count > 0);
+  VPoint.Reserved := 0;
   VEnum := AGeometry.GetEnum;
   if VEnum.Next(AFirstPoint) then begin
     VPoint.X := AFirstPoint.X;
@@ -240,18 +245,21 @@ procedure TGeometryToStreamSML.SaveSinglePolygon(
   var AFirstPoint: TDoublePoint
 );
 var
+  I: Integer;
   VPoint: TGeometryPointSML;
   VContour: IGeometryLonLatContour;
   VFirstPoint: TDoublePoint;
-  i: Integer;
 begin
+  VPoint.X := NaN;
+  VPoint.Y := -1;
+  VPoint.Reserved := 0;
+
   VContour := AGeometry.OuterBorder;
   SaveContour(VContour, AStream, AFirstPoint);
-  for i := 0 to AGeometry.HoleCount - 1 do begin
-    VPoint.X := NaN;
-    VPoint.Y := -1;
+  for I := 0 to AGeometry.HoleCount - 1 do begin
     AStream.Write(VPoint, SizeOf(VPoint));
-    VContour := AGeometry.HoleBorder[i];
+
+    VContour := AGeometry.HoleBorder[I];
     SaveContour(VContour, AStream, VFirstPoint);
   end;
 end;
@@ -262,7 +270,7 @@ procedure TGeometryToStreamSML.SaveMultiPolygon(
   var AFirstPoint: TDoublePoint
 );
 var
-  i: Integer;
+  I: Integer;
   VPolygon: IGeometryLonLatSinglePolygon;
   VPoint: TGeometryPointSML;
   VFirstPoint: TDoublePoint;
@@ -270,14 +278,14 @@ begin
   Assert(Assigned(AGeometry));
   Assert(AGeometry.Count > 0);
 
+  VPoint := CEmptySmlPoint;
+
   VPolygon := AGeometry.Item[0];
   SaveSinglePolygon(VPolygon, AStream, AFirstPoint);
-  for i := 1 to AGeometry.Count - 1 do begin
-    VPoint.X := NaN;
-    VPoint.Y := NaN;
+  for I := 1 to AGeometry.Count - 1 do begin
     AStream.Write(VPoint, SizeOf(VPoint));
 
-    VPolygon := AGeometry.Item[i];
+    VPolygon := AGeometry.Item[I];
     SaveSinglePolygon(VPolygon, AStream, VFirstPoint);
   end;
 end;
