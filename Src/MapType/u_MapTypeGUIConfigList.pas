@@ -88,7 +88,7 @@ var
   VMap: IMapType;
 begin
   inherited Create;
-  FSortOrder := soByMapNumber;
+  FSortOrder := soByMapName;
   FLanguageManager := ALanguageManager;
   FMapsSet := AMapsSet;
   FOrderedMapGUIDList := CreateOrderedList;
