@@ -35,39 +35,45 @@ type
   private
     FList: IIDInterfaceList;
   private
-    function GetMapTypeGUIDByHotKey(AHotKey: TShortCut): IMapType;
+    { IMapTypeHotKeyListStatic }
+    function GetMapTypeGUIDByHotKey(const AHotKey: TShortCut): IMapType;
   public
-    constructor Create(
-      const AMapsSet: IMapTypeSet
-    );
+    constructor Create(const AMapsSet: IMapTypeSet);
   end;
 
 implementation
 
 uses
+  i_MapTypeGUIConfig,
   u_IDInterfaceList;
 
 { TMapTypeHotKeyListStatic }
 
 constructor TMapTypeHotKeyListStatic.Create(const AMapsSet: IMapTypeSet);
 var
+  I: Integer;
   VMap: IMapType;
+  VConfig: IMapTypeGUIConfig;
   VHotKey: TShortCut;
-  i: Integer;
 begin
   inherited Create;
+
   FList := TIDInterfaceList.Create(False);
-  for i := 0 to AMapsSet.Count - 1 do begin
-    VMap := AMapsSet.Items[i];
-    VHotKey := VMap.GUIConfig.HotKey;
-    if VHotKey <> 0 then begin
-      FList.Add(VHotKey, VMap);
+
+  for I := 0 to AMapsSet.Count - 1 do begin
+    VMap := AMapsSet.Items[I];
+    VConfig := VMap.GUIConfig;
+    if VConfig.Enabled then begin
+      VHotKey := VConfig.HotKey;
+      if VHotKey <> 0 then begin
+        FList.Add(VHotKey, VMap);
+      end;
     end;
   end;
 end;
 
 function TMapTypeHotKeyListStatic.GetMapTypeGUIDByHotKey(
-  AHotKey: TShortCut
+  const AHotKey: TShortCut
 ): IMapType;
 begin
   Result := IMapType(FList.GetByID(AHotKey));
