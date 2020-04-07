@@ -84,7 +84,7 @@ constructor TMapTypeGUIConfigList.Create(
   const AMapsSet: IMapTypeSet
 );
 var
-  i: Integer;
+  I: Integer;
   VMap: IMapType;
 begin
   inherited Create;
@@ -93,8 +93,8 @@ begin
   FMapsSet := AMapsSet;
   FOrderedMapGUIDList := CreateOrderedList;
   FHotKeyList := CreateHotKeyList;
-  for i := 0 to FMapsSet.Count - 1 do begin
-    VMap := FMapsSet.Items[i];
+  for I := 0 to FMapsSet.Count - 1 do begin
+    VMap := FMapsSet.Items[I];
     Add(VMap.GUIConfig, nil);
   end;
   FBeforeLangChangeListener := TNotifyNoMmgEventListener.Create(Self.OnBeforeLangChange);
