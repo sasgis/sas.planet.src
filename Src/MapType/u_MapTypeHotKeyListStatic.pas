@@ -36,7 +36,7 @@ type
     FList: IIDInterfaceList;
   private
     { IMapTypeHotKeyListStatic }
-    function GetMapTypeGUIDByHotKey(const AHotKey: TShortCut): IMapType;
+    function GetMapTypeByHotKey(const AHotKey: TShortCut): IMapType;
   public
     constructor Create(const AMapsSet: IMapTypeSet);
   end;
@@ -72,7 +72,7 @@ begin
   end;
 end;
 
-function TMapTypeHotKeyListStatic.GetMapTypeGUIDByHotKey(
+function TMapTypeHotKeyListStatic.GetMapTypeByHotKey(
   const AHotKey: TShortCut
 ): IMapType;
 begin

@@ -3490,7 +3490,7 @@ begin
           Exit;
         end;
 
-        VMapType := FMapHotKeyList.GetMapTypeGUIDByHotKey(VShortCut);
+        VMapType := FMapHotKeyList.GetMapTypeByHotKey(VShortCut);
         if VMapType <> nil then begin
           if VMapType.Zmp.IsLayer then begin
             FConfig.MapLayersConfig.InvertLayerSelectionByGUID(VMapType.GUID);
