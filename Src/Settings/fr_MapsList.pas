@@ -117,6 +117,7 @@ type
     procedure ExchangeItems(const I, J: Integer);
     procedure _BeginUpdate;
     procedure _EndUpdate;
+    procedure ResetMapsNumber;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -199,7 +200,7 @@ end;
 
 procedure TfrMapsList.ApplyChanges;
 var
-  i: Integer;
+  I: Integer;
   VMapType: IMapType;
 begin
   if not FChanged or not ((FPrevSortColumnIndex = 0) and not FIsPrevSortReversed) then begin
@@ -207,10 +208,10 @@ begin
   end;
   FGUIConfigList.LockWrite;
   try
-    For i := 0 to MapList.Items.Count - 1 do begin
-      VMapType := IMapType(MapList.Items.Item[i].data);
+    For I := 0 to MapList.Items.Count - 1 do begin
+      VMapType := IMapType(MapList.Items.Item[I].Data);
       if VMapType <> nil then begin
-        VMapType.GUIConfig.SortIndex := i + 1;
+        VMapType.GUIConfig.SortIndex := I + 1;
       end;
     end;
   finally
@@ -274,12 +275,36 @@ procedure TfrMapsList.CancelChanges;
 begin
 end;
 
+procedure TfrMapsList.ResetMapsNumber;
+var
+  I: Integer;
+  VMap: IMapType;
+begin
+  FGUIConfigList.LockWrite;
+  try
+    for I := 0 to FFullMapsSet.Count - 1 do begin
+      VMap := FFullMapsSet.Items[I];
+      VMap.GUIConfig.SortIndex := VMap.Zmp.GUI.SortIndex;
+    end;
+  finally
+    FGUIConfigList.UnlockWrite;
+  end;
+end;
+
 procedure TfrMapsList.cbbSortingOrderChange(Sender: TObject);
 var
   VEnabled: Boolean;
+  VPrevSortOrder, VCurrSortOrder: TMapTypeGUIConfigListSortOrder;
 begin
-  FGUIConfigList.SortOrder := TMapTypeGUIConfigListSortOrder(cbbSortingOrder.ItemIndex);
-  VEnabled := FGUIConfigList.SortOrder = soByMapNumber;
+  VPrevSortOrder := FGUIConfigList.SortOrder;
+  VCurrSortOrder := TMapTypeGUIConfigListSortOrder(cbbSortingOrder.ItemIndex);
+
+  if (VPrevSortOrder <> VCurrSortOrder) and (VCurrSortOrder = soByMapNumber) then begin
+    ResetMapsNumber;
+  end;
+  FGUIConfigList.SortOrder := VCurrSortOrder;
+
+  VEnabled := VCurrSortOrder = soByMapNumber;
   btnUp.Enabled := VEnabled;
   btnDown.Enabled := VEnabled;
   UpdateList;

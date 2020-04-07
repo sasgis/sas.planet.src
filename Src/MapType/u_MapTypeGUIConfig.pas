@@ -81,6 +81,15 @@ uses
   u_ConfigSaveLoadStrategyBasicUseProvider,
   u_MapTypeGUIConfigStatic;
 
+function SortIndexFromInt(const AValue: Integer): Integer; inline;
+begin
+  if AValue < 0 then begin
+    Result := MaxInt;
+  end else begin
+    Result := AValue;
+  end;
+end;
+
 { TMapTypeGUIConfig }
 
 constructor TMapTypeGUIConfig.Create(
@@ -120,10 +129,7 @@ begin
     );
   Add(FInfoUrl, nil);
 
-  FSortIndex := FDefConfig.SortIndex;
-  if FSortIndex < 0 then begin
-    FSortIndex := MaxInt;
-  end;
+  FSortIndex := SortIndexFromInt(FDefConfig.SortIndex);
   FHotKey := FDefConfig.HotKey;
   FSeparator := FDefConfig.Separator;
   FEnabled := FDefConfig.Enabled;
@@ -153,7 +159,7 @@ begin
     FHotKey := AConfigData.ReadInteger('HotKey', FHotKey);
     FSeparator := AConfigData.ReadBool('separator', FSeparator);
     FEnabled := AConfigData.ReadBool('Enabled', FEnabled);
-    FSortIndex := AConfigData.ReadInteger('pnum', FSortIndex);
+    FSortIndex := SortIndexFromInt(AConfigData.ReadInteger('pnum', FSortIndex));
     SetChanged;
   end;
 end;
@@ -285,11 +291,14 @@ begin
 end;
 
 procedure TMapTypeGUIConfig.SetSortIndex(const AValue: Integer);
+var
+  VNewIndex: Integer;
 begin
   LockWrite;
   try
-    if FSortIndex <> AValue then begin
-      FSortIndex := AValue;
+    VNewIndex := SortIndexFromInt(AValue);
+    if FSortIndex <> VNewIndex then begin
+      FSortIndex := VNewIndex;
       SetChanged;
     end;
   finally
