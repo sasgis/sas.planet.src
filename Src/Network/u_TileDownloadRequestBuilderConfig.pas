@@ -89,6 +89,16 @@ begin
   Result := ALStringReplace(AStr, ' ', '%20', [rfReplaceAll]);
 end;
 
+function StrToHeader(const AStr: AnsiString): AnsiString; inline;
+begin
+  Result := ALStringReplace(AStr, '\r\n', #13#10, [rfIgnoreCase, rfReplaceAll]);
+end;
+
+function HeaderToStr(const AHeader: AnsiString): AnsiString; inline;
+begin
+  Result := ALStringReplace(AHeader, #13#10, '\r\n', [rfReplaceAll]);
+end;
+
 { TTileDownloadRequestBuilderConfig }
 
 constructor TTileDownloadRequestBuilderConfig.Create(
@@ -99,36 +109,24 @@ begin
   FDefConfig := ADefConfig;
   FUrlBase := StrToUrl(FDefConfig.UrlBase);
   FServerNames := FDefConfig.ServerNames;
-  FRequestHeader := FDefConfig.RequestHeader;
+  FRequestHeader := StrToHeader(FDefConfig.RequestHeader);
 end;
 
 procedure TTileDownloadRequestBuilderConfig.DoReadConfig(
   const AConfigData: IConfigDataProvider
 );
-var
-  VRequestHeader: AnsiString;
 begin
   inherited;
   if AConfigData <> nil then begin
     SetUrlBase(AConfigData.ReadAnsiString('URLBase', FUrlBase));
     SetServerNames(AConfigData.ReadAnsiString('ServerNames', FServerNames));
-
-    VRequestHeader :=
-      ALStringReplace(
-        AConfigData.ReadAnsiString('RequestHead', FRequestHeader),
-        '\r\n',
-        #13#10,
-        [rfIgnoreCase, rfReplaceAll]
-      );
-    SetRequestHeader(VRequestHeader);
+    SetRequestHeader(AConfigData.ReadAnsiString('RequestHead', FRequestHeader));
   end;
 end;
 
 procedure TTileDownloadRequestBuilderConfig.DoWriteConfig(
   const AConfigData: IConfigDataWriteProvider
 );
-var
-  VRequestHeader: AnsiString;
 begin
   inherited;
   if FUrlBase <> FDefConfig.UrlBase then begin
@@ -138,14 +136,7 @@ begin
   end;
 
   if FRequestHeader <> FDefConfig.RequestHeader then begin
-    VRequestHeader :=
-      ALStringReplace(
-        FRequestHeader,
-        #13#10,
-        '\r\n',
-        [rfIgnoreCase, rfReplaceAll]
-      );
-    AConfigData.WriteAnsiString('RequestHead', VRequestHeader);
+    AConfigData.WriteAnsiString('RequestHead', HeaderToStr(FRequestHeader));
   end else begin
     AConfigData.DeleteValue('RequestHead');
   end;
@@ -192,11 +183,14 @@ begin
 end;
 
 procedure TTileDownloadRequestBuilderConfig.SetRequestHeader(const AValue: AnsiString);
+var
+  VHeader: AnsiString;
 begin
+  VHeader := StrToHeader(AValue);
   LockWrite;
   try
-    if FRequestHeader <> AValue then begin
-      FRequestHeader := AValue;
+    if FRequestHeader <> VHeader then begin
+      FRequestHeader := VHeader;
       SetChanged;
     end;
   finally
@@ -244,9 +238,9 @@ constructor TTileDownloadRequestBuilderConfigStatic.Create(
 );
 begin
   inherited Create;
-  FUrlBase := AUrlBase;
+  FUrlBase := StrToUrl(AUrlBase);
   FServerNames := AServerNames;
-  FRequestHeader := ARequestHeader;
+  FRequestHeader := StrToHeader(ARequestHeader);
   FIsUseDownloader := AIsUseDownloader;
   FDefaultProjConverterArgs := ADefaultProjConverterArgs;
 end;

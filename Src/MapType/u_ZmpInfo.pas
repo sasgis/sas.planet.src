@@ -965,7 +965,6 @@ begin
   VUrlBase := AConfig.ReadAnsiString('URLBase', VUrlBase);
   VServerNames := AConfig.ReadAnsiString('ServerNames', '');
   VRequestHead := AConfig.ReadAnsiString('RequestHead', '');
-  VRequestHead := ALStringReplace(VRequestHead, '\r\n', #13#10, [rfIgnoreCase, rfReplaceAll]);
   VIsUseDownloader := AConfig.ReadBool('IsUseDownloaderInScript', False);
   VDefaultProjConverterArgs := AConfig.ReadAnsiString('Proj4Args', '');
 
