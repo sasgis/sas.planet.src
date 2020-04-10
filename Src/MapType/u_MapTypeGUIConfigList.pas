@@ -129,8 +129,9 @@ end;
 function TMapTypeGUIConfigList.CreateOrderedList: IGUIDListStatic;
 var
   I: Integer;
+  VLen: Integer;
   VCount: Integer;
-  VSubMenu, VSep: string;
+  VSubMenu: string;
   VIndexList: array of Integer;
   VStrIndexList: array of string;
   VGUIDList: array of TGUID;
@@ -160,12 +161,22 @@ begin
           SetLength(VStrIndexList, VCount);
           for I := 0 to VCount - 1 do begin
             VSubMenu := IMapType(VList[I]).GUIConfig.ParentSubMenu.Value;
-            if (VSubMenu <> '') and (VSubMenu[Length(VSubMenu)] <> '\') then begin
-              VSep := '\';
-            end else begin
-              VSep := '';
+            if VSubMenu <> '' then begin
+              // The submenu is the equivalent of a folder in windows explorer.
+              // To make sorting work the same way (first folders, then files)
+              // we need to apply this little trick.
+              VSubMenu := StringReplace(VSubMenu, '\', #01, [rfReplaceAll]);
+              if VSubMenu[1] <> #01 then begin
+                VSubMenu := VSubMenu + #01;
+              end;
+              VLen := Length(VSubMenu);
+              if VSubMenu[VLen] = #01 then begin
+                VSubMenu[VLen] := #02;
+              end else begin
+                VSubMenu := VSubMenu + #02;
+              end;
             end;
-            VStrIndexList[I] := VSubMenu + VSep + IMapType(VList[I]).GUIConfig.Name.Value;
+            VStrIndexList[I] := VSubMenu + IMapType(VList[I]).GUIConfig.Name.Value;
           end;
           StableSortInterfaceListByStringMeasure(VList, VStrIndexList);
         end;
