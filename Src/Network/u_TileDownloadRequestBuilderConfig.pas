@@ -86,7 +86,7 @@ uses
 
 function StrToUrl(const AStr: AnsiString): AnsiString; inline;
 begin
-  Result := ALStringReplace(AStr, ' ', '%20', [rfReplaceAll]);
+  Result := ALStringReplace(ALTrim(AStr), ' ', '%20', [rfReplaceAll]);
 end;
 
 function StrToHeader(const AStr: AnsiString): AnsiString; inline;
