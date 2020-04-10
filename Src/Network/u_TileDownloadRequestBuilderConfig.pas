@@ -84,6 +84,11 @@ uses
   SysUtils,
   ALString;
 
+function StrToUrl(const AStr: AnsiString): AnsiString; inline;
+begin
+  Result := ALStringReplace(AStr, ' ', '%20', [rfReplaceAll]);
+end;
+
 { TTileDownloadRequestBuilderConfig }
 
 constructor TTileDownloadRequestBuilderConfig.Create(
@@ -92,7 +97,7 @@ constructor TTileDownloadRequestBuilderConfig.Create(
 begin
   inherited Create;
   FDefConfig := ADefConfig;
-  FUrlBase := FDefConfig.UrlBase;
+  FUrlBase := StrToUrl(FDefConfig.UrlBase);
   FServerNames := FDefConfig.ServerNames;
   FRequestHeader := FDefConfig.RequestHeader;
 end;
@@ -213,11 +218,14 @@ begin
 end;
 
 procedure TTileDownloadRequestBuilderConfig.SetUrlBase(const AValue: AnsiString);
+var
+  VUrl: AnsiString;
 begin
+  VUrl := StrToUrl(AValue);
   LockWrite;
   try
-    if FUrlBase <> AValue then begin
-      FUrlBase := AValue;
+    if FUrlBase <> VUrl then begin
+      FUrlBase := VUrl;
       SetChanged;
     end;
   finally
