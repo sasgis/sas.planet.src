@@ -103,8 +103,8 @@ type
     ColorBoxBorder: TColorBox;
     GenshtabBoxBorder: TColorBox;
     DegreeBoxBorder: TColorBox;
-    CBDblDwnl: TCheckBox;
-    CkBGoNextTile: TCheckBox;
+    chkRetryIfNoResponse: TCheckBox;
+    chkProcessNextTile: TCheckBox;
     tsMaps: TTabSheet;
     GroupBox5: TGroupBox;
     CBoxLocal: TComboBox;
@@ -618,7 +618,7 @@ begin
   GState.Config.DownloadConfig.LockWrite;
   try
     GState.Config.DownloadConfig.IsUseSessionLastSuccess := CBLastSuccess.Checked;
-    GState.Config.DownloadConfig.IsGoNextTileIfDownloadError := CkBGoNextTile.Checked;
+    GState.Config.DownloadConfig.IsGoNextTileIfDownloadError := chkProcessNextTile.Checked;
     GState.Config.DownloadConfig.IsSaveTileNotExists := CBSaveTileNotExists.Checked;
   finally
     GState.Config.DownloadConfig.UnlockWrite;
@@ -722,7 +722,7 @@ begin
       VInetConfig.UserAgentString := StringToAsciiSafe(Trim(edtUserAgent.Text));
     end;
 
-    if CBDblDwnl.Checked then begin
+    if chkRetryIfNoResponse.Checked then begin
       if VInetConfig.DownloadTryCount < 2 then begin
         VInetConfig.DownloadTryCount := 2;
       end;
@@ -895,7 +895,7 @@ begin
   GState.Config.DownloadConfig.LockRead;
   try
     CBLastSuccess.Checked := GState.Config.DownloadConfig.IsUseSessionLastSuccess;
-    CkBGoNextTile.Checked := GState.Config.DownloadConfig.IsGoNextTileIfDownloadError;
+    chkProcessNextTile.Checked := GState.Config.DownloadConfig.IsGoNextTileIfDownloadError;
     CBSaveTileNotExists.Checked := GState.Config.DownloadConfig.IsSaveTileNotExists;
   finally
     GState.Config.DownloadConfig.UnlockRead;
@@ -912,7 +912,7 @@ begin
     cbbNetworkEngine.Items.Add('cURL');
     cbbNetworkEngine.ItemIndex := Integer(VInetConfig.NetworkEngineType);
 
-    CBDblDwnl.Checked := (VInetConfig.DownloadTryCount > 1);
+    chkRetryIfNoResponse.Checked := (VInetConfig.DownloadTryCount > 1);
     SETimeOut.Value := VInetConfig.GetTimeOut;
     seSleepOnResetConnection.Value := VInetConfig.SleepOnResetConnection;
     edtUserAgent.Text := VInetConfig.UserAgentString;

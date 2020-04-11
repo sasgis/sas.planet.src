@@ -272,24 +272,24 @@ object frmSettings: TfrmSettings
         BevelOuter = bvNone
         BorderWidth = 3
         TabOrder = 0
-        object CBDblDwnl: TCheckBox
+        object chkRetryIfNoResponse: TCheckBox
           AlignWithMargins = True
           Left = 6
           Top = 202
           Width = 626
           Height = 17
           Align = alTop
-          Caption = 'Retry download if tile not found'
+          Caption = 'Retry download tile if no response'
           TabOrder = 1
         end
-        object CkBGoNextTile: TCheckBox
+        object chkProcessNextTile: TCheckBox
           AlignWithMargins = True
           Left = 6
           Top = 225
           Width = 626
           Height = 17
           Align = alTop
-          Caption = 'Download next tile if no response'
+          Caption = 'Process next tile if no response (when downloading the region)'
           TabOrder = 2
         end
         object CBSaveTileNotExists: TCheckBox
