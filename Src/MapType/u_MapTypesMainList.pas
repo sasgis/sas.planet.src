@@ -78,6 +78,7 @@ type
 
     procedure BuildMapsLists;
     function GetFirstMainMapGUID: TGUID;
+    function GetDefaultMainMapGUID: TGUID;
   public
     constructor Create(
       const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
@@ -100,6 +101,7 @@ type
     property MapsSet: IMapTypeSet read FMapsSet;
     property LayersSet: IMapTypeSet read FLayersSet;
     property FirstMainMapGUID: TGUID read GetFirstMainMapGUID;
+    property DefaultMainMapGUID: TGUID read GetDefaultMainMapGUID;
     property GUIConfigList: IMapTypeGUIConfigList read FGUIConfigList;
 
     procedure LoadMaps(
@@ -174,6 +176,20 @@ begin
       nil
     );
   FFullMapsSetChangeable := FFullMapsSetChangeableInternal;
+end;
+
+function TMapTypesMainList.GetDefaultMainMapGUID: TGUID;
+const
+  CDefaultMainMapGUID: TGUID = '{CBA03063-23D9-4FA4-931A-9182B98644B1}';
+var
+  VGUID: TGUID;
+begin
+  VGUID := CDefaultMainMapGUID;
+  if FMapsSet.GetMapTypeByGUID(VGUID) <> nil then begin
+    Result := VGUID;
+  end else begin
+    Result := GetFirstMainMapGUID;
+  end;
 end;
 
 function TMapTypesMainList.GetFirstMainMapGUID: TGUID;

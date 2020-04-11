@@ -1250,7 +1250,7 @@ begin
   FMergePolygonsResult := TMergePolygonsResult.Create;
 
 
-  FConfig := TMainFormConfig.Create(GState.BaseConfigPath, GState.MapType.FirstMainMapGUID);
+  FConfig := TMainFormConfig.Create(GState.BaseConfigPath, GState.MapType.DefaultMainMapGUID);
   FConfig.ReadConfig(GState.MainConfigProvider);
 
   VFormStateFileName := FConfig.FormStateConfigPath.FullPath;
