@@ -27,7 +27,7 @@ def check_path(path):
         if path and path[-1:] != os.path.sep:
             path += os.path.sep
     return path
-    
+
 
 def read_content(file_name):
     with open(file_name, 'rb') as f:
@@ -35,8 +35,8 @@ def read_content(file_name):
         if sys.version_info[0] >= 3:
             content = content.decode('utf-8')
         return content
-        
-        
+
+
 def write_content(file_name, content):
     if sys.version_info[0] >= 3:
         content = content.encode('utf-8')
@@ -123,24 +123,24 @@ def patch_proj_file(proj_file, proj_info):
         logging.info('Proj file ' + proj_file + ' is updated')
 
 
-def main(src_path):
+def process_project(root_path, dpr_name):
 
     flst = []
     dproj = []
     
-    logging.info('Scan file system: ' + src_path)
+    logging.info('Scan file system: ' + root_path)
     
-    for root, dirs, files in os.walk(src_path):
+    for root, dirs, files in os.walk(root_path):
 
         for dir in dirs:
             if dir.startswith('.') or dir.startswith('__'):
                 dirs.remove(dir)
 
         for f in files:
-            if f.endswith('.dproj') and root == src_path:
+            if f.endswith('.dproj') and root == root_path:
                 dproj.append(f)
             elif f.endswith('.pas'):
-                unit = root.replace(src_path, '')
+                unit = root.replace(root_path, '')
                 if unit:
                     unit += '\\'
                 unit += f
@@ -148,14 +148,20 @@ def main(src_path):
                 logging.debug('Found ' + f + ' in ' + unit)
 
     if flst:
-        patch_proj_file(src_path + 'SASPlanet.dpr', flst)
-        sort_dpr(src_path + 'SASPlanet.dpr', False)
+        patch_proj_file(root_path + dpr_name, flst)
+        sort_dpr(root_path + dpr_name, False)
         
         for proj in dproj:
-            patch_proj_file(src_path + proj, flst)
+            patch_proj_file(root_path + proj, flst)
 
 
 if __name__ == '__main__':
     init_log('UnitsSort.log', logging.INFO)
-    src = '..\\'
-    main(check_path(src))
+    
+    projects = (
+        ('..\\', 'SASPlanet.dpr'), 
+        ('..\\Test\\', 'SASPlanetTests.dpr'),
+    )
+    
+    for path, dpr in projects:
+        process_project(check_path(path), dpr)
