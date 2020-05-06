@@ -46,6 +46,7 @@ begin
   APSComp.AddTypeS('TPoint', 'record X, Y: Integer; end;');
   APSComp.AddTypeS('TDoublePoint', 'record X, Y: Double; end;');
   APSComp.AddTypeS('TRect', 'record Left, Top, Right, Bottom: Integer; end;');
+  APSComp.AddTypeS('TDoubleRect', 'record Left, Top, Right, Bottom: Double; end;');
 end;
 
 procedure CompileTimeReg_ProjConverter(const APSComp: TPSPascalCompiler);
