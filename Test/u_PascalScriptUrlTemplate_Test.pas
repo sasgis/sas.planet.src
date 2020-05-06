@@ -70,8 +70,6 @@ procedure TestPascalScriptUrlTemplate.TestUrlTemplate;
 const
   CZoom = 18;
   CTile: TPoint = (X: 200; Y: 300);
-  CUrlTemplate = 'https://{s}.example.com/{z}/{x}/{y}.png';
-  CUrlRendered = 'https://n1.example.com/18/200/300.png';
 var
   VUrl: string;
   VRequest: ITileRequest;
@@ -86,17 +84,19 @@ begin
       FRequestBuilderConfig
     );
   try
-    FRequestBuilderConfig.UrlBase := CUrlTemplate;
+    FRequestBuilderConfig.UrlBase := 'https://{s}.example.com/{z}/{x}/{y}.png';
     FRequestBuilderConfig.ServerNames := 'n1, n1 ';
-
     VUrl := VUrlTemplate.Render(VRequest);
-
-    Check(VUrl = CUrlRendered, 'Render failed: ' + VUrl);
+    Check(VUrl = 'https://n1.example.com/18/200/300.png', VUrl);
 
     //
     FRequestBuilderConfig.UrlBase := 'https://{s}.example.com/p?bbox={bbox}/{q}';
     FRequestBuilderConfig.ServerNames := 'a,b,c,d';
     VUrl := VUrlTemplate.Render(VRequest);
+
+    FRequestBuilderConfig.UrlBase := 'http://example.com/{sas_path}.png';
+    VUrl := VUrlTemplate.Render(VRequest);
+    Check(VUrl = 'http://example.com/z19/0/x200/0/y300.png', VUrl);
   finally
     VUrlTemplate.Free;
   end;

@@ -45,13 +45,13 @@ type
     type
       TItemValueType = (
         ivtText, ivtS, ivtX, ivtY, ivtYb, ivtZ, ivtZp1, ivtQ, ivtBBox,
-        ivtTimeStamp, ivtX_1024, ivtY_1024, ivtVer, ivtLang
+        ivtTimeStamp, ivtX_1024, ivtY_1024, ivtVer, ivtLang, ivtSasPath
       );
 
     const
       CKnownItemValues: array [TItemValueType] of string = (
         '', 's', 'x', 'y', '-y', 'z', 'z+1', 'q', 'bbox',
-        'timestamp', 'x/1024', 'y/1024', 'ver', 'lang'
+        'timestamp', 'x/1024', 'y/1024', 'ver', 'lang', 'sas_path'
       );
 
     type
@@ -89,6 +89,7 @@ type
     function GetServerNameValue: string; inline;
     function GetBBox(const ATile: TPoint; const AZoom: Byte): string;
     class function GetQuadkey(X, Y: Integer; const AZoom: Byte): string;
+    class function GetSasPathValue(const X, Y: Integer; const AZoom: Byte): string; static; inline;
 
     procedure OnConfigChange;
     procedure OnLangChange;
@@ -289,6 +290,17 @@ begin
     RoundEx(VMetrRect.Top, 8);
 end;
 
+class function TPascalScriptUrlTemplate.GetSasPathValue(const X, Y: Integer;
+  const AZoom: Byte): string;
+begin
+  Result :=
+    'z' + IntToStr(AZoom + 1) + '/' +
+    IntToStr(X div 1024) + '/' +
+    'x' + IntToStr(X) + '/' +
+    IntToStr(Y div 1024) + '/' +
+    'y' + IntToStr(Y);
+end;
+
 procedure TPascalScriptUrlTemplate.ParseServerNames(const ANames: string);
 const
   CSep: Char = ',';
@@ -433,6 +445,7 @@ begin
       ivtY_1024:    VItem.Value := IntToStr(VTile.Y div 1024);
       ivtVer:       VItem.Value := GetVersionValue;
       ivtLang:      VItem.Value := GetLangValue;
+      ivtSasPath:   VItem.Value := GetSasPathValue(VTile.X, VTile.Y, VZoom);
     else
       Assert(False);
     end;
