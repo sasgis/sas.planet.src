@@ -442,12 +442,19 @@ function TUrlByCoordProviderRosreestr.GetUrlByLonLat(
 ): AnsiString;
 var
   VLon, VLat: AnsiString;
+  VZoom: Byte;
 begin
   VLon := RoundExAnsi(ALonLat.X, 6);
   VLat := RoundExAnsi(ALonLat.Y, 6);
+
+  VZoom := AProjection.Zoom;
+  if VZoom > 18 then begin
+    VZoom := 18;
+  end;
+
   Result :=
     'https://pkk.rosreestr.ru/#/search/' +
-    VLat + ',' + VLon + '/' + ALIntToStr(AProjection.Zoom) + '/' +
+    VLat + ',' + VLon + '/' + ALIntToStr(VZoom) + '/' +
     '@470200?text=' + VLat + '%20' + VLon + '&type=1&inPoint=true';
 end;
 
