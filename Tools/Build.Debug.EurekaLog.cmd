@@ -1,6 +1,6 @@
 @echo off
 cd ..\
-hg log --template "{rev}" -r . > ".\Tools\revision.txt"
+git rev-list master --count > ".\Tools\revision.txt"
 copy ".\Tools\eurekalog\EurekaLog.pas" ".\" /Y
 cscript .\Tools\eurekalog\Clear.js
 cscript .\Tools\eurekalog\Prepare.js

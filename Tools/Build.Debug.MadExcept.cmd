@@ -1,6 +1,6 @@
 @echo off
 cd ..\
-hg log --template "{rev}" -r . > ".\Tools\revision.txt"
+git rev-list master --count > ".\Tools\revision.txt"
 copy ".\Tools\madexcept\u_MadExcept.pas" ".\" /Y
 cscript .\Tools\madexcept\Clear.js
 cscript .\Tools\madexcept\Prepare.js

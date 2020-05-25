@@ -1,6 +1,6 @@
 @echo off
 cd ..\
-hg log --template "{rev}" -r . > ".\Tools\revision.txt" 
+git rev-list master --count > ".\Tools\revision.txt" 
 cscript .\Tools\CreateVersionInfo.js
 call .\Tools\CreateBuildInfo.cmd "Stable" %~dp0..\ %~dp0..\..\sas.requires
 cd .\Resources

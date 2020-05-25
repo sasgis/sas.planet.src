@@ -1,0 +1,16 @@
+.bin/**
+.bin-x64/**
+*.bak
+*.dcu
+*.~*
+*.dsk
+*.bpg
+*.drc
+*.orig
+*.dproj.local
+*.identcache
+*.cbk
+*.stat
+*.tvsconfig
+*.log
+Test/bitmaps/*_out.*

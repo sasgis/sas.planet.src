@@ -17,11 +17,11 @@ echo %sas_date%
 rem Get sources revision and node hash
 cd %SrcPath%
 
-for /f "delims=" %%a in ('hg log --template {rev} -r .') do @set SrcRev=%%a
+for /f "delims=" %%a in ('git rev-list master --count') do @set SrcRev=%%a
 IF NOT ERRORLEVEL 0 goto error
 echo %SrcRev%
 
-for /f "delims=" %%a in ('hg log --template {node} -r .') do @set SrcNode=%%a
+for /f "delims=" %%a in ('git rev-parse master') do @set SrcNode=%%a
 IF NOT ERRORLEVEL 0 goto error
 echo %SrcNode%
 
