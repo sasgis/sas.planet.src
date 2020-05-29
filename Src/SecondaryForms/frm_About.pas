@@ -89,7 +89,7 @@ uses
 const
   cHomePage = 'http://sasgis.org/';
   cSrcRepoLink = 'https://github.com/sasgis/sas.planet.src/';
-  cReqRepoLink = 'https://bitbucket.org/sas_team/sas.requires/';
+  cReqRepoLink = 'https://github.com/sasgis/sas.requires/';
 
 resourcestring
   rsDevelopmentTeam = 'SAS.Planet Development Team';
@@ -162,7 +162,7 @@ var
   VRevision: Integer;
 begin
   if FBuildInfo.GetBuildReqInfo(VRevision, VNode) then begin
-    OpenUrlInBrowser(cReqRepoLink + 'commits/all?search=0%3A' + VNode);
+    OpenUrlInBrowser(cReqRepoLink + 'commits/' + VNode);
   end;
 end;
 
