@@ -168,7 +168,10 @@ begin
   end;
 
   FCacheListCapacity := FConfig.MaxSize;
-  FCacheList := TStringList.Create(dupError, True, True);
+  FCacheList := TStringList.Create;
+  FCacheList.Duplicates := dupError;
+  FCacheList.Sorted := True;
+  FCacheList.CaseSensitive := True;
   FCacheList.Capacity := FCacheListCapacity;
 
   FSync := GSync.SyncBig.Make(Self.ClassName);
