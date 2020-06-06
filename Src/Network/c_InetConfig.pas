@@ -23,7 +23,7 @@ unit c_InetConfig;
 interface
 
 const
-  cUserAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:74.0) Gecko/20100101 Firefox/74.0';
+  cUserAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:77.0) Gecko/20100101 Firefox/77.0';
 
 implementation
 
