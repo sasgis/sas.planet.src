@@ -274,6 +274,7 @@ begin
       if VStroageType <> nil then begin
         if Assigned(FCacheTileInfo) then begin
           FCacheTileInfo.Clear;
+          FCacheTileInfo.OnTileInfoUpdate := nil;
         end;
         FStorage :=
           VStroageType.StorageType.BuildStorage(

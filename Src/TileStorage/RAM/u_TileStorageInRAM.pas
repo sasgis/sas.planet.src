@@ -150,6 +150,7 @@ end;
 
 destructor TTileStorageInRAM.Destroy;
 begin
+  FTileInfoMemCache.OnTileInfoUpdate := nil;
   FTileInfoMemCache := nil;
   FMainContentType := nil;
   FTileNotExistsTileInfo := nil;
