@@ -56,7 +56,7 @@ type
       const ATile: TPoint;
       const AZoom: Byte;
       const AVersion: IMapVersionInfo
-    );
+    ); inline;
     property StorageStateInternal: IStorageStateInternal read FStorageStateInternal;
     property StoragePath: string read FStoragePath;
     property ProjectionSet: IProjectionSet read FProjectionSet;
