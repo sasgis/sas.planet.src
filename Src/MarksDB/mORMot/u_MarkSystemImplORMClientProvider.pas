@@ -40,7 +40,11 @@ uses
   SynDBODBC,
   {$ENDIF}
   SynMongoDB,
+  {$IFDEF USE_STATIC_SQLITE3}
   SynSQLite3Static,
+  {$ELSE}
+  SynSQLite3,
+  {$ENDIF}
   SynCommons,
   i_MarkSystemImplConfig,
   i_MarkSystemImplConfigORM,
@@ -471,5 +475,14 @@ function TMarkSystemImplORMClientProvider.GetRestClientType: TMarkSystemImplORMC
 begin
   Result := FClientType;
 end;
+
+{$IFNDEF USE_STATIC_SQLITE3}
+initialization
+  FreeAndNil(sqlite3);
+  sqlite3 := TSQLite3LibraryDynamic.Create;
+
+finalization
+  FreeAndNil(sqlite3);
+{$ENDIF}
 
 end.
