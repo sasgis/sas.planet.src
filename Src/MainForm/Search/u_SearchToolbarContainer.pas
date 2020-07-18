@@ -30,7 +30,6 @@ uses
   Windows,
   TBX,
   TB2Item,
-  TBXExtItems,
   i_Listener,
   i_GeoCoder,
   i_GeoCoderList,
@@ -39,7 +38,8 @@ uses
   i_MainGeoCoderConfig,
   i_SearchTaskRunnerAsync,
   i_SearchResultPresenter,
-  i_LocalCoordConverterChangeable;
+  i_LocalCoordConverterChangeable,
+  u_TBXExtItems;
 
 type
   TSearchToolbarContainer = class
@@ -49,7 +49,7 @@ type
       cReadyImageIndex = 74;
   private
     FGeoCoderMenu: TTBXSubmenuItem;
-    FSearchTextEdit: TTBXComboBoxItem;
+    FSearchTextEdit: u_TBXExtItems.TTBXComboBoxItem;
     FActionButton: TTBXItem;
 
     FGeoCoderList: IGeoCoderListStatic;
@@ -84,6 +84,8 @@ type
       var Accept: Boolean
     );
 
+    procedure OnWmPaste(var AText: string);
+
     procedure RunSearchTask(const AText: string);
 
     procedure OnSearchResult(
@@ -93,7 +95,7 @@ type
   public
     constructor Create(
       const AGeoCoderMenu: TTBXSubmenuItem;
-      const ASearchTextEdit: TTBXComboBoxItem;
+      const ASearchTextEdit: u_TBXExtItems.TTBXComboBoxItem;
       const AActionButton: TTBXItem;
       const AAppClosingNotifier: INotifierOneOperation;
       const AGeoCoderList: IGeoCoderListStatic;
@@ -144,7 +146,7 @@ end;
 
 constructor TSearchToolbarContainer.Create(
   const AGeoCoderMenu: TTBXSubmenuItem;
-  const ASearchTextEdit: TTBXComboBoxItem;
+  const ASearchTextEdit: u_TBXExtItems.TTBXComboBoxItem;
   const AActionButton: TTBXItem;
   const AAppClosingNotifier: INotifierOneOperation;
   const AGeoCoderList: IGeoCoderListStatic;
@@ -192,6 +194,7 @@ begin
       ACoordConverter
     );
 
+  FSearchTextEdit.OnWmPaste := Self.OnWmPaste;
   FSearchTextEdit.OnAcceptText := Self.OnAcceptText;
   FSearchTextEdit.ExtendedAccept := True;
 
@@ -294,6 +297,11 @@ begin
   finally
     FSearchHistory.UnlockRead;
   end;
+end;
+
+procedure TSearchToolbarContainer.OnWmPaste(var AText: string);
+begin
+  AText := StringReplace(AText, #13#10, ' ', [rfReplaceAll]);
 end;
 
 procedure TSearchToolbarContainer.OnAcceptText(

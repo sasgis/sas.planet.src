@@ -1478,6 +1478,7 @@
         <DCCReference Include="Src\MainForm\u_StickToGridGenShtab.pas"/>
         <DCCReference Include="Src\MainForm\u_StickToGridTiles.pas"/>
         <DCCReference Include="Src\MainForm\u_StickToGrids.pas"/>
+        <DCCReference Include="Src\MainForm\u_TBXExtItems.pas"/>
         <DCCReference Include="Src\MainForm\u_TBXSASTheme.pas"/>
         <DCCReference Include="Src\MainForm\u_TBXSubmenuItemWithIndicator.pas"/>
         <DCCReference Include="Src\MainForm\u_ViewPortState.pas"/>
@@ -2007,6 +2008,7 @@
         <DCCReference Include="Src\PascalScript\u_PascalScriptMath.pas"/>
         <DCCReference Include="Src\PascalScript\u_PascalScriptRegExpr.pas"/>
         <DCCReference Include="Src\PascalScript\u_PascalScriptTypes.pas"/>
+        <DCCReference Include="Src\PascalScript\u_PascalScriptUrlTemplate.pas"/>
         <DCCReference Include="Src\PascalScript\u_PascalScriptUtils.pas"/>
         <DCCReference Include="Src\PascalScript\u_PascalScriptWriteLn.pas"/>
         <DCCReference Include="Src\Performance\i_InternalPerformanceCounter.pas"/>
@@ -2679,7 +2681,6 @@
         <DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
         <DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
         <DCCReference Include="Src\u_WindowPositionConfig.pas"/>
-        <DCCReference Include="Src\PascalScript\u_PascalScriptUrlTemplate.pas"/>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

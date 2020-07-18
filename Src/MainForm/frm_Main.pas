@@ -119,6 +119,7 @@ uses
   u_MainFormLayersList,
   u_SearchToolbarContainer,
   u_TBXSASTheme,
+  u_TBXExtItems,
   frm_About,
   frm_Settings,
   frm_MapLayersOptions,
@@ -335,7 +336,7 @@ type
     TBSeparatorItem1: TTBSeparatorItem;
     TrayItemQuit: TTBItem;
     NAnimateMove: TTBXItem;
-    tbiSearch: TTBXComboBoxItem;
+    tbiSearch: u_TBXExtItems.TTBXComboBoxItem;
     NSearchResults: TTBXVisibilityToggleItem;
     TBSearchWindow: TTBXDockablePanel;
     PanelSearch: TPanel;

@@ -484,6 +484,7 @@ uses
   u_StickToGridGenShtab in 'Src\MainForm\u_StickToGridGenShtab.pas',
   u_StickToGridTiles in 'Src\MainForm\u_StickToGridTiles.pas',
   u_StickToGrids in 'Src\MainForm\u_StickToGrids.pas',
+  u_TBXExtItems in 'Src\MainForm\u_TBXExtItems.pas',
   u_TBXSASTheme in 'Src\MainForm\u_TBXSASTheme.pas',
   u_TBXSubmenuItemWithIndicator in 'Src\MainForm\u_TBXSubmenuItemWithIndicator.pas',
   u_ViewPortState in 'Src\MainForm\u_ViewPortState.pas',
