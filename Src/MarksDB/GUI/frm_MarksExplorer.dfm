@@ -6,6 +6,7 @@ object frmMarksExplorer: TfrmMarksExplorer
   ClientWidth = 614
   Color = clBtnFace
   ParentFont = True
+  KeyPreview = True
   OldCreateOrder = False
   PopupMode = pmExplicit
   Position = poDefault
@@ -13,6 +14,7 @@ object frmMarksExplorer: TfrmMarksExplorer
   OnActivate = FormActivate
   OnCreate = FormCreate
   OnHide = FormHide
+  OnKeyPress = FormKeyPress
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13

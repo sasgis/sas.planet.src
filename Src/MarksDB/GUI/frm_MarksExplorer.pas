@@ -231,6 +231,7 @@ type
     procedure tbitmCutClick(Sender: TObject);
     procedure tbitmPasteClick(Sender: TObject);
     procedure tbitmCopyAsTextClick(Sender: TObject);
+    procedure FormKeyPress(Sender: TObject; var Key: Char);
   private
     type
       TCopyPasteAction = (cpNone, cpCopy, cpCut);
@@ -1280,6 +1281,13 @@ begin
   FCategoryList := nil;
   FMarksList := nil;
   FCopyPasteBuffer := nil;
+end;
+
+procedure TfrmMarksExplorer.FormKeyPress(Sender: TObject; var Key: Char);
+begin
+  if Key = #27 { ESC } then begin
+    Close;
+  end;
 end;
 
 procedure TfrmMarksExplorer.FormResize(Sender: TObject);
