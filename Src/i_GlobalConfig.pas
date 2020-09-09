@@ -41,6 +41,7 @@ uses
   i_MarkPictureConfig,
   i_GlobalDownloadConfig,
   i_ThreadConfig,
+  i_PathDetalizeConfig,
   i_StartUpLogoConfig,
   i_WindowPositionConfig,
   i_TerrainConfig,
@@ -176,6 +177,9 @@ type
 
     function GetTerrainConfig: ITerrainConfig;
     property TerrainConfig: ITerrainConfig read GetTerrainConfig;
+
+    function GetPathDetalizeConfig: IPathDetalizeConfig;
+    property PathDetalizeConfig: IPathDetalizeConfig read GetPathDetalizeConfig;
 
     function GetZmpConfig: IZmpConfig;
     property ZmpConfig: IZmpConfig read GetZmpConfig;

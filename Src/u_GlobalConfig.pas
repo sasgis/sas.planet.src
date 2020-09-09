@@ -43,6 +43,7 @@ uses
   i_ThreadConfig,
   i_StartUpLogoConfig,
   i_TerrainConfig,
+  i_PathDetalizeConfig,
   i_ZmpConfig,
   i_WindowPositionConfig,
   i_GlobalConfig,
@@ -98,6 +99,7 @@ type
     FDownloaderThreadConfig: IThreadConfig;
     FStartUpLogoConfig: IStartUpLogoConfig;
     FTerrainConfig: ITerrainConfig;
+    FPathDetalizeConfig: IPathDetalizeConfig;
     FZmpConfig: IZmpConfig;
     FMapSvcScanConfig: IMapSvcScanConfig;
     FExportToIMGConfig: IExportToIMGConfig;
@@ -143,6 +145,7 @@ type
     function GetDownloaderThreadConfig: IThreadConfig;
     function GetStartUpLogoConfig: IStartUpLogoConfig;
     function GetTerrainConfig: ITerrainConfig;
+    function GetPathDetalizeConfig: IPathDetalizeConfig;
     function GetZmpConfig: IZmpConfig;
     function GetMapSvcScanConfig: IMapSvcScanConfig;
     function GetExportToIMGConfig: IExportToIMGConfig;
@@ -177,6 +180,7 @@ uses
   u_GlobalViewMainConfig,
   u_GlobalDownloadConfig,
   u_TerrainConfig,
+  u_PathDetalizeConfig,
   u_ZmpConfig,
   u_MapSvcScanConfig,
   u_StartUpLogoConfig,
@@ -305,6 +309,9 @@ begin
 
   FTerrainConfig := TTerrainConfig.Create;
   Add(FTerrainConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Terrain'), False, False, False, False);
+
+  FPathDetalizeConfig := TPathDetalizeConfig.Create;
+  Add(FPathDetalizeConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PathDetalize'), False, False, False, False);
 
   FZmpConfig := TZmpConfig.Create;
   Add(FZmpConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('ZmpDefaultParams'), False, False, False, False);
@@ -485,6 +492,11 @@ end;
 function TGlobalConfig.GetStartUpLogoConfig: IStartUpLogoConfig;
 begin
   Result := FStartUpLogoConfig;
+end;
+
+function TGlobalConfig.GetPathDetalizeConfig: IPathDetalizeConfig;
+begin
+  Result := FPathDetalizeConfig;
 end;
 
 function TGlobalConfig.GetTerrainConfig: ITerrainConfig;
