@@ -1053,6 +1053,7 @@ type
       var NewText: String;
       var Accept: Boolean
     );
+    procedure ExtendRoute;
     procedure SaveConfig(Sender: TObject);
     function ConvLatLon2Scale(const Astr: string): Double;
     function Deg2StrValue(const aDeg: Double): string;
@@ -1104,6 +1105,7 @@ uses
   t_FillingMapModes,
   c_ZeroGUID,
   c_InternalBrowser,
+  i_PathDetalizeConfig,
   i_NotifierOperation,
   i_Bitmap32Static,
   i_InternalPerformanceCounter,
@@ -1146,6 +1148,7 @@ uses
   i_ProjectionSet,
   i_ProjectionSetList,
   i_ScaleLineConfig,
+  i_DoublePointsAggregator,
   i_FavoriteMapSetItemStatic,
   u_FavoriteMapSetHotKeyList,
   u_FavoriteMapSetHelper,
@@ -1205,6 +1208,7 @@ uses
   u_PlayerPlugin,
   u_FillingMapPolygon,
   u_SunCalcProvider,
+  u_DoublePointsAggregator,
   u_ConfigDataWriteProviderByIniFile,
   u_CmdLineArgProcessor,
   u_CmdLineArgProcessorHelpers,
@@ -2862,13 +2866,13 @@ begin
     (VNewState = ao_select_poly) or
     (VNewState = ao_select_line);
   TBEditMagnetDraw.Checked := FConfig.MainConfig.MagnetDraw;
-  
-  TBEditSelectPolylineRadius.Visible := 
-    (VNewState = ao_select_line) or 
+
+  TBEditSelectPolylineRadius.Visible :=
+    (VNewState = ao_select_line) or
     (VNewState = ao_calc_circle);
   TBEditSelectPolylineRadiusCap1.Visible := TBEditSelectPolylineRadius.Visible;
   TBEditSelectPolylineRadiusCap2.Visible := TBEditSelectPolylineRadius.Visible;
-  
+
   if FLineOnMapEdit <> nil then begin
     FLineOnMapEdit.Clear;
   end;
@@ -4938,6 +4942,13 @@ begin
             end;
           end else begin
             FLineOnMapEdit.InsertPoint(VClickLonLat);
+            if
+              (FState.State = ao_edit_line) and
+              FLineOnMapEdit.IsReady and
+              (HiWord(GetKeyState(VK_CONTROL)) <> 0) then
+            begin
+              ExtendRoute;
+            end;
           end;
         end;
       end;
@@ -6303,6 +6314,167 @@ begin
         FMarshrutComment := '';
       end;
     end;
+  end;
+end;
+
+procedure TfrmMain.ExtendRoute;
+
+  function GetPathDetalizeProvider(
+    const ATree: IStaticTreeItem;
+    const AGuid: TGUID
+  ): IPathDetalizeProvider;
+  var
+    I: Integer;
+    VEntity: IPathDetalizeProviderTreeEntity;
+  begin
+    Result := nil;
+    if Supports(ATree.Data, IPathDetalizeProviderTreeEntity, VEntity) then begin
+      if IsEqualGUID(VEntity.GUID, AGuid) then begin
+        Result := VEntity.GetProvider;
+        Exit;
+      end;
+    end;
+    for I := 0 to ATree.SubItemCount - 1 do begin
+      Result := GetPathDetalizeProvider(ATree.SubItem[I], AGUID);
+      if Result <> nil then begin
+        Break;
+      end;
+    end;
+  end;
+
+  function GetLonLatLine(const APath: ILonLatPathWithSelected): IGeometryLonLatLine;
+  var
+    I, J: Integer;
+    VPoints: array [0..1] of TDoublePoint;
+  begin
+    Assert(APath.Count > 1);
+    Assert(APath.GetSelectedPointIndex > 0);
+
+    J := Length(VPoints) - 1;
+    for I := APath.GetSelectedPointIndex downto 0 do begin
+      VPoints[J] := APath.Points[I];
+      if not PointIsEmpty(VPoints[J]) then begin
+        Dec(J);
+        if J < 0 then begin
+          Break;        
+        end;
+      end;
+    end;
+    
+    if J < 0 then begin
+      Result := GState.VectorGeometryLonLatFactory.CreateLonLatLine(
+        @VPoints[0], 
+        Length(VPoints)
+      );
+    end else begin
+      Result := nil;      
+    end;
+  end;
+
+  function MergeRouteWithPath(
+    const ARoute: IGeometryLonLatLine;
+    const APath: ILonLatPathWithSelected
+  ): IGeometryLonLatLine;
+  var
+    I: Integer;
+    VCountBefore: Integer;
+    VCountAfter: Integer;
+    VPoints: PDoublePointArray;    
+    VAggregator: IDoublePointsAggregator;
+    VSingle: IGeometryLonLatSingleLine;
+    VMulti: IGeometryLonLatMultiLine;
+  begin
+    VCountBefore := APath.GetSelectedPointIndex - 1;
+    VCountAfter := APath.Count - VCountBefore - 2;
+
+    VPoints := APath.Points;
+    
+    VAggregator := TDoublePointsAggregator.Create(APath.Count);
+
+    if VCountBefore > 0 then begin
+      VAggregator.AddPoints(@VPoints[0], VCountBefore);
+    end;
+
+    if Supports(ARoute, IGeometryLonLatSingleLine, VSingle) then begin
+      VAggregator.AddPoints(VSingle.Points, VSingle.Count);
+    end else if Supports(ARoute, IGeometryLonLatMultiLine, VMulti) then begin
+      for I := 0 to VMulti.Count - 1 do begin
+        VSingle := VMulti.Item[I];      
+        VAggregator.AddPoints(VSingle.Points, VSingle.Count);
+        VAggregator.Add(CEmptyDoublePoint);
+      end;
+    end else begin
+      Assert(False);
+    end;
+
+    if VCountAfter > 0 then begin
+      VAggregator.AddPoints(@VPoints[APath.GetSelectedPointIndex + 1], VCountAfter);
+    end;
+
+    Result := GState.VectorGeometryLonLatFactory.CreateLonLatLine(
+      VAggregator.Points, 
+      VAggregator.Count
+    );
+  end;
+
+var
+  VConfig: IPathDetalizeConfig;
+  VLonLatLine, VRoute: IGeometryLonLatLine;
+  VResult: IGeometryLonLatLine;
+  VProvider: IPathDetalizeProvider;
+  VIsError: Boolean;
+  VPathOnMapEdit: IPathOnMapEdit;
+  VOperationNotifier: INotifierOperation;
+begin
+  VConfig := GState.Config.PathDetalizeConfig;
+  if not VConfig.EnableAutomaticRouting then begin
+    Exit;
+  end;
+
+  if not Supports(FLineOnMapEdit, IPathOnMapEdit, VPathOnMapEdit) then begin
+    Assert(False);
+    Exit;
+  end;
+
+  VProvider := GetPathDetalizeProvider(
+    FPathProvidersTree.GetStatic,
+    VConfig.DefaultProvider
+  );
+
+  if not Assigned(VProvider) then begin
+    Assert(False, 'PathDetalizeProvider not assigned!');
+    Exit;
+  end;
+
+  VIsError := True;
+  try
+    VOperationNotifier := TNotifierOperationFake.Create;
+
+    VLonLatLine := GetLonLatLine(VPathOnMapEdit.Path);
+    if not Assigned(VLonLatLine) then begin
+      Assert(False, 'Can''t build LonLatLine from current Path!');
+      Exit;    
+    end;
+    
+    VRoute :=
+      VProvider.GetPath(
+        VOperationNotifier,
+        VOperationNotifier.CurrentOperation,
+        VLonLatLine,
+        FMarshrutComment
+      );
+    VIsError := (VRoute = nil);
+  except
+    on E: Exception do begin
+      ShowMessage(E.Message);
+    end;
+  end;
+
+  if not VIsError then begin
+    VResult := MergeRouteWithPath(VRoute, VPathOnMapEdit.Path);
+    VPathOnMapEdit.SetPath(VResult);
+  end else begin
+    FMarshrutComment := '';
   end;
 end;
 
