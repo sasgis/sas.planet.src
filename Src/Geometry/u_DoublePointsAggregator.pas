@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2020, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -95,7 +95,6 @@ procedure TDoublePointsAggregator.Grow(const AAddCount: Integer);
 var
   VNewCount: Integer;
   VNewCapacity: Integer;
-  VPoints: PDoublePointArray;
 begin
   Assert(AAddCount >= 0);
   VNewCount := FCount + AAddCount;
@@ -110,14 +109,7 @@ begin
         VNewCapacity := VNewCapacity + 4 * 1024;
       end;
     end;
-    if FCount > 0 then begin
-      GetMem(VPoints, VNewCapacity * SizeOf(TDoublePoint));
-      Move(FPoints[0], VPoints[0], FCount * SizeOf(TDoublePoint));
-      FreeMem(FPoints);
-      FPoints := VPoints;
-    end else begin
-      GetMem(FPoints, VNewCapacity * SizeOf(TDoublePoint));
-    end;
+    ReallocMem(FPoints, VNewCapacity * SizeOf(TDoublePoint));
     FCapacity := VNewCapacity;
   end;
 end;
@@ -137,7 +129,7 @@ begin
   if ACount > 0 then begin
     Grow(ACount);
     Move(APoints[0], FPoints[FCount], ACount * SizeOf(TDoublePoint));
-    FCount := FCount + ACount;
+    Inc(FCount, ACount);
   end;
 end;
 
@@ -175,7 +167,7 @@ begin
       Grow(ACount);
       Move(FPoints[AIndex], FPoints[AIndex + ACount], (FCount - AIndex) * SizeOf(TDoublePoint));
       Move(APoints[0], FPoints[AIndex], ACount * SizeOf(TDoublePoint));
-      FCount := FCount + ACount;
+      Inc(FCount, ACount);
     end;
   end;
 end;
