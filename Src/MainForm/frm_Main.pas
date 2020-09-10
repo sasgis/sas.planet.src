@@ -589,6 +589,7 @@ type
     tbxExtendRoute: TTBXSubmenuItem;
     TBXSeparatorItem24: TTBXSeparatorItem;
     TBXSeparatorItem25: TTBXSeparatorItem;
+    tbxUndoRouteCalc: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -837,6 +838,7 @@ type
     procedure actViewMoonCalcExecute(Sender: TObject);
     procedure tbxYandexWeatherClick(Sender: TObject);
     procedure actConfigUsePrevForVectorLayersExecute(Sender: TObject);
+    procedure tbxUndoRouteCalcClick(Sender: TObject);
   private
     FactlstProjections: TActionList;
     FactlstLanguages: TActionList;
@@ -856,7 +858,10 @@ type
     FMouseHandler: IMouseHandler;
     FMouseState: IMouseState;
     FMoveByMouseStartPoint: TPoint;
-    FMarshrutComment: string;
+
+    FRouteComment: string;
+    FRouteUndoPath: ILonLatPathWithSelected;
+
     movepoint: boolean;
 
     FUIDownload: IInterface;
@@ -2802,7 +2807,7 @@ begin
   if VNewState <> ao_select_rect then begin
     FSelectionRect.Reset;
   end;
-  FMarshrutComment := '';
+  FRouteComment := '';
   actMoveMap.Checked := VNewState = ao_movemap;
   actDistanceCalculation.Checked := VNewState = ao_calc_line;
   actCircleCalculation.Checked := VNewState = ao_calc_circle;
@@ -2874,8 +2879,11 @@ begin
   TBEditPathMarsh.Visible := VIsRoutingVisible;
   tbxExtendRoute.Visible := VIsRoutingVisible;
   tbxExtendRoute.Checked := GState.Config.PathDetalizeConfig.EnableAutomaticRouting;
+  tbxUndoRouteCalc.Visible := VIsRoutingVisible;
+  tbxUndoRouteCalc.Enabled := False;
   TBXSeparatorItem24.Visible := VIsRoutingVisible;
   TBXSeparatorItem25.Visible := VIsRoutingVisible;
+  FRouteUndoPath := nil;
 
   TBEditMagnetDraw.Visible :=
     (VNewState = ao_edit_line) or
@@ -5586,7 +5594,7 @@ begin
     end;
     ao_edit_line, ao_calc_line: begin
       if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathEdit) then begin
-        VResult := FMarkDBGUI.SaveMarkModal(FEditMarkLine, VPathEdit.Path.Geometry, True, FMarshrutComment);
+        VResult := FMarkDBGUI.SaveMarkModal(FEditMarkLine, VPathEdit.Path.Geometry, True, FRouteComment);
       end;
     end;
     ao_calc_circle: begin
@@ -6317,7 +6325,7 @@ begin
             VOperationNotifier,
             VOperationNotifier.CurrentOperation,
             VPathOnMapEdit.Path.Geometry,
-            FMarshrutComment
+            FRouteComment
           );
         VIsError := (VResult = nil);
       except
@@ -6326,12 +6334,14 @@ begin
         end;
       end;
       if not VIsError then begin
+        FRouteUndoPath := VPathOnMapEdit.Path;
         VPathOnMapEdit.SetPath(VResult);
       end else begin
-        FMarshrutComment := '';
+        FRouteComment := '';
       end;
     end;
   end;
+  tbxUndoRouteCalc.Enabled := FRouteUndoPath <> nil;
 end;
 
 procedure TfrmMain.tbxExtendRouteClick(Sender: TObject);
@@ -6494,7 +6504,7 @@ begin
         VOperationNotifier,
         VOperationNotifier.CurrentOperation,
         VLonLatLine,
-        FMarshrutComment
+        FRouteComment
       );
     VIsError := (VRoute = nil);
   except
@@ -6504,10 +6514,27 @@ begin
   end;
 
   if not VIsError then begin
+    FRouteUndoPath := VPathOnMapEdit.Path;
     VResult := MergeRouteWithPath(VRoute, VPathOnMapEdit.Path);
     VPathOnMapEdit.SetPath(VResult);
   end else begin
-    FMarshrutComment := '';
+    FRouteComment := '';
+  end;
+
+  tbxUndoRouteCalc.Enabled := FRouteUndoPath <> nil;
+end;
+
+procedure TfrmMain.tbxUndoRouteCalcClick(Sender: TObject);
+var
+  VPathOnMapEdit: IPathOnMapEdit;
+begin
+  if
+    Assigned(FRouteUndoPath) and
+    Supports(FLineOnMapEdit, IPathOnMapEdit, VPathOnMapEdit) then
+  begin
+    VPathOnMapEdit.SetPath(FRouteUndoPath);
+    FRouteUndoPath := nil;
+    tbxUndoRouteCalc.Enabled := False;
   end;
 end;
 
