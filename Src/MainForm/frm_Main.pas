@@ -586,6 +586,9 @@ type
     tbxDoSearch: TTBXItem;
     tbxMoonCalc: TTBXItem;
     actViewMoonCalc: TAction;
+    tbxExtendRoute: TTBXSubmenuItem;
+    TBXSeparatorItem24: TTBXSeparatorItem;
+    TBXSeparatorItem25: TTBXSeparatorItem;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -753,6 +756,7 @@ type
     procedure tbMergePolygonsClose(Sender: TObject);
     procedure tbxtmAddToMergePolygonsClick(Sender: TObject);
     procedure tbxFillingMapClick(Sender: TObject);
+    procedure tbxExtendRouteClick(Sender: TObject);
     procedure actSelectByRectExecute(Sender: TObject);
     procedure actSelectByPolygonExecute(Sender: TObject);
     procedure actSelectByLineExecute(Sender: TObject);
@@ -940,6 +944,7 @@ type
     FPathProvidersTree: ITreeChangeable;
     FPathProvidersTreeStatic: IStaticTreeItem;
     FPathProvidersMenuBuilder: IMenuGeneratorByTree;
+    FPathProvidersConfigMenuBuilder: IMenuGeneratorByTree;
     FMapHotKeyList: IMapTypeHotKeyListStatic;
     FMapTypeEditor: IMapTypeConfigModalEdit;
 
@@ -1047,13 +1052,17 @@ type
     procedure SavePosition(const AProvider: IConfigDataWriteProvider);
     procedure SaveWindowConfigToIni(const AProvider: IConfigDataWriteProvider);
     procedure DoSelectSpecialVersion(Sender: TObject);
+
     procedure TBEditPathMarshClick(Sender: TObject);
+    procedure tbxExtendRouteSelect(Sender: TObject);
+    procedure ExtendRoute;
+
     procedure tbiEditSrchAcceptText(
       Sender: TObject;
       var NewText: String;
       var Accept: Boolean
     );
-    procedure ExtendRoute;
+
     procedure SaveConfig(Sender: TObject);
     function ConvLatLon2Scale(const Astr: string): Double;
     function Deg2StrValue(const aDeg: Double): string;
@@ -2010,6 +2019,7 @@ begin
 
     FPathProvidersTree := GState.PathDetalizeTree;
     FPathProvidersMenuBuilder := TMenuGeneratorByStaticTreeSimple.Create(Self.TBEditPathMarshClick);
+    FPathProvidersConfigMenuBuilder := TMenuGeneratorByStaticTreeSimple.Create(Self.tbxExtendRouteSelect);
 
     FLinksList.Add(
       TNotifyNoMmgEventListener.Create(Self.OnPathProvidesChange),
@@ -2786,6 +2796,7 @@ var
   VNewState: TStateEnum;
   VConfig: IPointCaptionsLayerConfig;
   VIsMarkEdit: Boolean;
+  VIsRoutingVisible: Boolean;
 begin
   VNewState := FState.State;
   if VNewState <> ao_select_rect then begin
@@ -2859,7 +2870,13 @@ begin
     end;
   end;
 
-  TBEditPathMarsh.Visible := (VNewState = ao_edit_line);
+  VIsRoutingVisible := VNewState = ao_edit_line;
+  TBEditPathMarsh.Visible := VIsRoutingVisible;
+  tbxExtendRoute.Visible := VIsRoutingVisible;
+  tbxExtendRoute.Checked := GState.Config.PathDetalizeConfig.EnableAutomaticRouting;
+  TBXSeparatorItem24.Visible := VIsRoutingVisible;
+  TBXSeparatorItem25.Visible := VIsRoutingVisible;
+
   TBEditMagnetDraw.Visible :=
     (VNewState = ao_edit_line) or
     (VNewState = ao_edit_poly) or
@@ -6317,6 +6334,22 @@ begin
   end;
 end;
 
+procedure TfrmMain.tbxExtendRouteClick(Sender: TObject);
+begin
+  GState.Config.PathDetalizeConfig.EnableAutomaticRouting := tbxExtendRoute.Checked;
+end;
+
+procedure TfrmMain.tbxExtendRouteSelect(Sender: TObject);
+var
+  VEntity: IPathDetalizeProviderTreeEntity;
+  VInterface: IInterface;
+begin
+  VInterface := IInterface(TComponent(Sender).tag);
+  if Supports(VInterface, IPathDetalizeProviderTreeEntity, VEntity) then begin
+    GState.Config.PathDetalizeConfig.DefaultProvider := VEntity.GUID;
+  end;
+end;
+
 procedure TfrmMain.ExtendRoute;
 
   function GetPathDetalizeProvider(
@@ -6356,18 +6389,18 @@ procedure TfrmMain.ExtendRoute;
       if not PointIsEmpty(VPoints[J]) then begin
         Dec(J);
         if J < 0 then begin
-          Break;        
+          Break;
         end;
       end;
     end;
-    
+
     if J < 0 then begin
       Result := GState.VectorGeometryLonLatFactory.CreateLonLatLine(
-        @VPoints[0], 
+        @VPoints[0],
         Length(VPoints)
       );
     end else begin
-      Result := nil;      
+      Result := nil;
     end;
   end;
 
@@ -6379,7 +6412,7 @@ procedure TfrmMain.ExtendRoute;
     I: Integer;
     VCountBefore: Integer;
     VCountAfter: Integer;
-    VPoints: PDoublePointArray;    
+    VPoints: PDoublePointArray;
     VAggregator: IDoublePointsAggregator;
     VSingle: IGeometryLonLatSingleLine;
     VMulti: IGeometryLonLatMultiLine;
@@ -6388,7 +6421,7 @@ procedure TfrmMain.ExtendRoute;
     VCountAfter := APath.Count - VCountBefore - 2;
 
     VPoints := APath.Points;
-    
+
     VAggregator := TDoublePointsAggregator.Create(APath.Count);
 
     if VCountBefore > 0 then begin
@@ -6399,7 +6432,7 @@ procedure TfrmMain.ExtendRoute;
       VAggregator.AddPoints(VSingle.Points, VSingle.Count);
     end else if Supports(ARoute, IGeometryLonLatMultiLine, VMulti) then begin
       for I := 0 to VMulti.Count - 1 do begin
-        VSingle := VMulti.Item[I];      
+        VSingle := VMulti.Item[I];
         VAggregator.AddPoints(VSingle.Points, VSingle.Count);
         VAggregator.Add(CEmptyDoublePoint);
       end;
@@ -6412,7 +6445,7 @@ procedure TfrmMain.ExtendRoute;
     end;
 
     Result := GState.VectorGeometryLonLatFactory.CreateLonLatLine(
-      VAggregator.Points, 
+      VAggregator.Points,
       VAggregator.Count
     );
   end;
@@ -6437,7 +6470,7 @@ begin
   end;
 
   VProvider := GetPathDetalizeProvider(
-    FPathProvidersTree.GetStatic,
+    FPathProvidersTreeStatic,
     VConfig.DefaultProvider
   );
 
@@ -6453,9 +6486,9 @@ begin
     VLonLatLine := GetLonLatLine(VPathOnMapEdit.Path);
     if not Assigned(VLonLatLine) then begin
       Assert(False, 'Can''t build LonLatLine from current Path!');
-      Exit;    
+      Exit;
     end;
-    
+
     VRoute :=
       VProvider.GetPath(
         VOperationNotifier,
@@ -6543,11 +6576,33 @@ end;
 
 procedure TfrmMain.OnPathProvidesChange;
 var
+  I: Integer;
   VTree: IStaticTreeItem;
+  VItem: TTBCustomItem;
+  VGUID: TGUID;
+  VEntity: IPathDetalizeProviderTreeEntity;
+  VInterface: IInterface;
 begin
   VTree := FPathProvidersTree.GetStatic;
-  FPathProvidersMenuBuilder.BuildMenu(TBEditPathMarsh, VTree);
   FPathProvidersTreeStatic := VTree;
+
+  FPathProvidersMenuBuilder.BuildMenu(TBEditPathMarsh, VTree);
+  FPathProvidersConfigMenuBuilder.BuildMenu(tbxExtendRoute, VTree);
+
+  VGUID := GState.Config.PathDetalizeConfig.DefaultProvider;
+  for I := 0 to tbxExtendRoute.Count - 1 do begin
+    VItem := tbxExtendRoute.Items[I];
+    if Assigned(VItem.OnClick) then begin
+      VItem.RadioItem := True;
+      VItem.GroupIndex := 1;
+      VItem.Checked := False;
+      VItem.AutoCheck := True;
+      VInterface := IInterface(VItem.Tag);
+      if Supports(VInterface, IPathDetalizeProviderTreeEntity, VEntity) then begin
+        VItem.Checked := IsEqualGUID(VGUID, VEntity.GUID);
+      end;
+    end;
+  end;
 end;
 
 procedure TfrmMain.OnShowSearchResults(Sender: TObject);
