@@ -86,10 +86,9 @@ begin
         VLabel := TTBXLabelItem.Create(AParent);
         VLabel.ShowAccelChar := False;
         VLabel.FontSettings.Bold := tsTrue;
-        VItem := VLabel;
-        VItem.Caption := AItem.Name;
-        VItem.Tag := -1;
-        AParent.Add(VItem);
+        VLabel.Caption := AItem.Name;
+        VLabel.Tag := -1;
+        AParent.Add(VLabel);
         AddSubItems(AParent, AItem);
       end else begin
         AddSubItems(AParent, AItem);
