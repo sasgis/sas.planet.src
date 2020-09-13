@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2017, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2020, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -28,7 +28,9 @@ const
   CPathDetalizeProviderYourNavigationFastestByBicycle: TGUID = '{FB9561C9-0AC4-4E4D-9F9E-CE81A5D1CA45}';
   CPathDetalizeProviderYourNavigationShortestByBicycle: TGUID = '{FB699DA8-87AF-4B6B-BB4D-7C714510396B}';
 
-
+  CPathDetalizeProviderOSRMByCar: TGUID = '{8AC99C3F-4DBD-47AA-BBD0-4A9A7F3027A1}';
+  CPathDetalizeProviderOSRMByBike: TGUID = '{A6C023A6-89FD-4E97-B6A9-BB1A5C2B3AB1}';
+  CPathDetalizeProviderOSRMByFoot: TGUID = '{7C6C4696-A13C-472C-BBC7-37A07A7EBEEC}';
 implementation
 
 end.

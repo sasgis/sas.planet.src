@@ -1095,6 +1095,8 @@ uses
   i_PathDetalizeProvider in 'Src\Routing\i_PathDetalizeProvider.pas',
   i_PathDetalizeProviderTreeEntity in 'Src\Routing\i_PathDetalizeProviderTreeEntity.pas',
   u_PathDetalizeConfig in 'Src\Routing\u_PathDetalizeConfig.pas',
+  u_PathDetalizeProviderBase in 'Src\Routing\u_PathDetalizeProviderBase.pas',
+  u_PathDetalizeProviderOSRM in 'Src\Routing\u_PathDetalizeProviderOSRM.pas',
   u_PathDetalizeProviderTreeEntity in 'Src\Routing\u_PathDetalizeProviderTreeEntity.pas',
   u_PathDetalizeProviderTreeSimple in 'Src\Routing\u_PathDetalizeProviderTreeSimple.pas',
   u_PathDetalizeProviderYourNavigation in 'Src\Routing\u_PathDetalizeProviderYourNavigation.pas',

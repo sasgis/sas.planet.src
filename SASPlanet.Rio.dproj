@@ -2232,8 +2232,10 @@
         <DCCReference Include="Src\RegionProcess\u_RegionProcessWorker.pas"/>
         <DCCReference Include="Src\RegionProcess\u_ZoomArrayFunc.pas"/>
         <DCCReference Include="Src\Routing\c_PathDetalizeProvidersGUID.pas"/>
+        <DCCReference Include="Src\Routing\i_PathDetalizeConfig.pas"/>
         <DCCReference Include="Src\Routing\i_PathDetalizeProvider.pas"/>
         <DCCReference Include="Src\Routing\i_PathDetalizeProviderTreeEntity.pas"/>
+        <DCCReference Include="Src\Routing\u_PathDetalizeConfig.pas"/>
         <DCCReference Include="Src\Routing\u_PathDetalizeProviderTreeEntity.pas"/>
         <DCCReference Include="Src\Routing\u_PathDetalizeProviderTreeSimple.pas"/>
         <DCCReference Include="Src\Routing\u_PathDetalizeProviderYourNavigation.pas"/>
@@ -2681,8 +2683,8 @@
         <DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
         <DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
         <DCCReference Include="Src\u_WindowPositionConfig.pas"/>
-        <DCCReference Include="Src\Routing\i_PathDetalizeConfig.pas"/>
-        <DCCReference Include="Src\Routing\u_PathDetalizeConfig.pas"/>
+        <DCCReference Include="Src\Routing\u_PathDetalizeProviderOSRM.pas"/>
+        <DCCReference Include="Src\Routing\u_PathDetalizeProviderBase.pas"/>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

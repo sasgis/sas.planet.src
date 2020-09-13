@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2020, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -31,33 +31,30 @@ uses
   i_GeometryLonLat,
   i_GeometryLonLatFactory,
   i_VectorDataFactory,
-  i_PathDetalizeProvider,
-  u_BaseInterfacedObject;
+  i_DoublePointsAggregator,
+  u_PathDetalizeProviderBase;
 
 type
-  TPathDetalizeProviderYourNavigation = class(TBaseInterfacedObject, IPathDetalizeProvider)
+  TPathDetalizeProviderYourNavigation = class(TPathDetalizeProviderBase)
   private
-    FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
-    FVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
-    FBaseUrl: AnsiString;
     FKmlLoader: IVectorDataLoader;
-    FDownloader: IDownloader;
-    FInetConfig: IInetConfig;
-  private
-    function GetPath(
+    FVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
+  protected
+    function ProcessSinglePath(
       const ACancelNotifier: INotifierOperation;
-      AOperationID: Integer;
-      const ASource: IGeometryLonLatLine;
-      var AComment: string
-    ): IGeometryLonLatLine;
+      const AOperationID: Integer;
+      const ASource: IGeometryLonLatSingleLine;
+      const APointsAggregator: IDoublePointsAggregator;
+      const ABuilder: IGeometryLonLatLineBuilder
+    ): Boolean; override;
   public
     constructor Create(
-      const AInetConfig: IInetConfig;
+      const ABaseUrl: AnsiString;
       const ADownloader: IDownloader;
-      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
+      const AInetConfig: IInetConfig;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
-      const AKmlLoader: IVectorDataLoader;
-      const ABaseUrl: AnsiString
+      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
+      const AKmlLoader: IVectorDataLoader
     );
   end;
 
@@ -70,43 +67,37 @@ uses
   i_EnumDoublePoint,
   i_VectorDataItemSimple,
   i_VectorItemSubset,
-  i_DoublePointsAggregator,
-  u_DoublePointsAggregator,
   u_DownloadRequest,
-  u_GeoFunc,
   u_GeoToStrFunc;
 
 { TPathDetalizeProviderYourNavigation }
 
 constructor TPathDetalizeProviderYourNavigation.Create(
-  const AInetConfig: IInetConfig;
-  const ADownloader: IDownloader;
-  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
-  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
-  const AKmlLoader: IVectorDataLoader;
-  const ABaseUrl: AnsiString
-);
-begin
-  inherited Create;
-  FBaseUrl := ABaseUrl;
-  FDownloader := ADownloader;
-  FInetConfig := AInetConfig;
-  FVectorDataItemMainInfoFactory := AVectorDataItemMainInfoFactory;
-  FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
-  FKmlLoader := AKmlLoader;
-end;
-
-function ProcessSinglePath(
-  const ACancelNotifier: INotifierOperation;
-  AOperationID: Integer;
-  const ASource: IGeometryLonLatSingleLine;
-  const APointsAggregator: IDoublePointsAggregator;
-  const ABuilder: IGeometryLonLatLineBuilder;
   const ABaseUrl: AnsiString;
   const ADownloader: IDownloader;
   const AInetConfig: IInetConfig;
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const AKmlLoader: IVectorDataLoader
+);
+begin
+  inherited Create(
+    ABaseUrl,
+    ADownloader,
+    AInetConfig,
+    AVectorGeometryLonLatFactory
+  );
+
+  FVectorDataItemMainInfoFactory := AVectorDataItemMainInfoFactory;
+  FKmlLoader := AKmlLoader;
+end;
+
+function TPathDetalizeProviderYourNavigation.ProcessSinglePath(
+  const ACancelNotifier: INotifierOperation;
+  const AOperationID: Integer;
+  const ASource: IGeometryLonLatSingleLine;
+  const APointsAggregator: IDoublePointsAggregator;
+  const ABuilder: IGeometryLonLatLineBuilder
 ): Boolean;
 var
   url: AnsiString;
@@ -130,17 +121,17 @@ begin
         Result := false;
         exit;
       end;
-      url := ABaseUrl + '&flat=' + R2AnsiStrPoint(VPrevPoint.y) + '&flon=' + R2AnsiStrPoint(VPrevPoint.x) +
+      url := FBaseUrl + '&flat=' + R2AnsiStrPoint(VPrevPoint.y) + '&flon=' + R2AnsiStrPoint(VPrevPoint.x) +
         '&tlat=' + R2AnsiStrPoint(VCurrPoint.y) + '&tlon=' + R2AnsiStrPoint(VCurrPoint.x);
-      VRequest := TDownloadRequest.Create(url, '', AInetConfig.GetStatic);
-      VResult := ADownloader.DoRequest(VRequest, ACancelNotifier, AOperationID);
+      VRequest := TDownloadRequest.Create(url, '', FInetConfig.GetStatic);
+      VResult := FDownloader.DoRequest(VRequest, ACancelNotifier, AOperationID);
       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         Result := false;
         exit;
       end;
       if Supports(VResult, IDownloadResultOk, VResultOk) then begin
-        VContext.MainInfoFactory := AVectorDataItemMainInfoFactory;
-        kml := AKmlLoader.Load(VContext, VResultOk.Data);
+        VContext.MainInfoFactory := FVectorDataItemMainInfoFactory;
+        kml := FKmlLoader.Load(VContext, VResultOk.Data);
         if kml <> nil then begin
           if kml.Count > 0 then begin
             VItem := kml.GetItem(0);
@@ -166,68 +157,6 @@ begin
   end;
   if APointsAggregator.Count > 0 then begin
     ABuilder.AddLine(APointsAggregator.MakeStaticAndClear);
-  end;
-end;
-
-function TPathDetalizeProviderYourNavigation.GetPath(
-  const ACancelNotifier: INotifierOperation;
-  AOperationID: Integer;
-  const ASource: IGeometryLonLatLine;
-  var AComment: string
-): IGeometryLonLatLine;
-var
-  conerr: boolean;
-  VPointsAggregator: IDoublePointsAggregator;
-  VSingleLine: IGeometryLonLatSingleLine;
-  VMultiLine: IGeometryLonLatMultiLine;
-  VBuilder: IGeometryLonLatLineBuilder;
-  i: Integer;
-begin
-  Result := nil;
-  AComment := '';
-  conerr := false;
-  VPointsAggregator := TDoublePointsAggregator.Create;
-  VBuilder := FVectorGeometryLonLatFactory.MakeLineBuilder;
-  if Supports(ASource, IGeometryLonLatSingleLine, VSingleLine) then begin
-    conerr :=
-      not ProcessSinglePath(
-        ACancelNotifier,
-        AOperationID,
-        VSingleLine,
-        VPointsAggregator,
-        VBuilder,
-        FBaseUrl,
-        FDownloader,
-        FInetConfig,
-        FVectorDataItemMainInfoFactory,
-        FKmlLoader
-      );
-  end else if Supports(ASource, IGeometryLonLatMultiLine, VMultiLine) then begin
-    for i := 0 to VMultiLine.Count - 1 do begin
-      VSingleLine := VMultiLine.Item[i];
-      conerr :=
-        not ProcessSinglePath(
-          ACancelNotifier,
-          AOperationID,
-          VSingleLine,
-          VPointsAggregator,
-          VBuilder,
-          FBaseUrl,
-          FDownloader,
-          FInetConfig,
-          FVectorDataItemMainInfoFactory,
-          FKmlLoader
-        );
-      if conerr then break;
-
-      VPointsAggregator.Add(CEmptyDoublePoint);
-    end;
-  end else begin
-    Assert(false);
-  end;
-
-  if not conerr then begin
-    Result := VBuilder.MakeStaticAndClear;
   end;
 end;
 

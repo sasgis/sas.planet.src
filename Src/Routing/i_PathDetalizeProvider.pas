@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2020, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -29,11 +29,12 @@ uses
 type
   IPathDetalizeProvider = interface
     ['{93696D0E-A464-4136-8CCE-E70BF48CA918}']
+
     function GetPath(
       const ACancelNotifier: INotifierOperation;
-      AOperationID: Integer;
+      const AOperationID: Integer;
       const ASource: IGeometryLonLatLine;
-      var AComment: string
+      out AComment: string
     ): IGeometryLonLatLine;
   end;
 
