@@ -6330,7 +6330,7 @@ begin
         VIsError := (VResult = nil);
       except
         on E: Exception do begin
-          ShowMessage(E.Message);
+          MessageDlg(E.ClassName + ': ' + E.Message, mtError, [mbOk], 0);
         end;
       end;
       if not VIsError then begin
@@ -6509,7 +6509,7 @@ begin
     VIsError := (VRoute = nil);
   except
     on E: Exception do begin
-      ShowMessage(E.Message);
+      MessageDlg(E.ClassName + ': ' + E.Message, mtError, [mbOk], 0);
     end;
   end;
 

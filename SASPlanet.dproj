@@ -1347,10 +1347,14 @@
     <DCCReference Include="Src\RegionProcess\u_RegionProcessWorker.pas" />
     <DCCReference Include="Src\RegionProcess\u_ZoomArrayFunc.pas" />
     <DCCReference Include="Src\Routing\c_PathDetalizeProvidersGUID.pas" />
+    <DCCReference Include="Src\Routing\i_PathDetalizeConfig.pas" />
     <DCCReference Include="Src\Routing\i_PathDetalizeProvider.pas" />
     <DCCReference Include="Src\Routing\i_PathDetalizeProviderTreeEntity.pas" />
+    <DCCReference Include="Src\Routing\u_PathDetalizeConfig.pas" />
+    <DCCReference Include="Src\Routing\u_PathDetalizeProviderBase.pas" />
     <DCCReference Include="Src\Routing\u_PathDetalizeProviderCloudMade.pas" />
     <DCCReference Include="Src\Routing\u_PathDetalizeProviderMailRu.pas" />
+    <DCCReference Include="Src\Routing\u_PathDetalizeProviderOSRM.pas" />
     <DCCReference Include="Src\Routing\u_PathDetalizeProviderTreeEntity.pas" />
     <DCCReference Include="Src\Routing\u_PathDetalizeProviderTreeSimple.pas" />
     <DCCReference Include="Src\Routing\u_PathDetalizeProviderYourNavigation.pas" />

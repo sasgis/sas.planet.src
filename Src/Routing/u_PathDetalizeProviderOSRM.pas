@@ -107,19 +107,19 @@ procedure TPathDetalizeProviderOSRM.ParseResponse(
   const APointsAggregator: IDoublePointsAggregator
 );
 
-  function _GetPoint(const ACoord: TSuperArray): TDoublePoint;
-  var    
+  function _GetPoint(const ACoord: TSuperArray; out APoint: TDoublePoint): Boolean;
+  var
     VFormatSettings: TFormatSettings;
   begin
-    if ACoord.Length <> 2 then begin
-      raise EPathDetalizeProviderOSRM.Create(
-        'Invalid point coordinates value: ' + ACoord.ToString
-      );
+    if not Assigned(ACoord) or (ACoord.Length <> 2) then begin
+      Result := False;
+      Exit;
     end;
     VFormatSettings.DecimalSeparator := '.';
     try
-      Result.X := StrToFloat(ACoord.S[0], VFormatSettings);
-      Result.Y := StrToFloat(ACoord.S[1], VFormatSettings);
+      APoint.X := StrToFloat(ACoord.S[0], VFormatSettings);
+      APoint.Y := StrToFloat(ACoord.S[1], VFormatSettings);
+      Result := True;
     except
       raise EPathDetalizeProviderOSRM.CreateFmt(
         SAS_ERR_CoordParseError, [ACoord.S[0], ACoord.S[1]]
@@ -157,8 +157,13 @@ begin
   VCoordinates := VRoutes.O[0].A['geometry.coordinates'];
   if Assigned(VCoordinates) then begin
     for I := 0 to VCoordinates.Length - 1 do begin
-      VPoint := _GetPoint(VCoordinates.O[I].AsArray);
-      APointsAggregator.Add(VPoint);
+      if _GetPoint(VCoordinates.O[I].AsArray, VPoint) then begin
+        APointsAggregator.Add(VPoint);
+      end else begin
+        raise EPathDetalizeProviderOSRM.Create(
+          'Invalid point coordinates: ' + VCoordinates.S[I]
+        );
+      end;
     end;
   end;
 end;
