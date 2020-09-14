@@ -860,7 +860,7 @@ type
     FMoveByMouseStartPoint: TPoint;
 
     FRouteComment: string;
-    FRouteUndoPath: ILonLatPathWithSelected;
+    FRouteUndoPath: IPathOnMapEdit;
 
     movepoint: boolean;
 
@@ -1058,6 +1058,10 @@ type
     procedure SaveWindowConfigToIni(const AProvider: IConfigDataWriteProvider);
     procedure DoSelectSpecialVersion(Sender: TObject);
 
+    procedure MakeBackupOfPathOnMapEdit(
+      const APathOnMapEdit: IPathOnMapEdit;
+      const AIncludeActivePoint: Boolean
+    );
     procedure TBEditPathMarshClick(Sender: TObject);
     procedure tbxExtendRouteSelect(Sender: TObject);
     procedure ExtendRoute;
@@ -6309,6 +6313,18 @@ begin
   end;
 end;
 
+procedure TfrmMain.MakeBackupOfPathOnMapEdit(
+  const APathOnMapEdit: IPathOnMapEdit;
+  const AIncludeActivePoint: Boolean
+);
+begin
+  FRouteUndoPath := TPathOnMapEdit.Create(GState.VectorGeometryLonLatFactory);
+  FRouteUndoPath.SetPath(APathOnMapEdit.Path);
+  if not AIncludeActivePoint then begin
+    FRouteUndoPath.DeleteActivePoint;
+  end;
+end;
+
 procedure TfrmMain.TBEditPathMarshClick(Sender: TObject);
 var
   VResult: IGeometryLonLatLine;
@@ -6340,7 +6356,7 @@ begin
         end;
       end;
       if not VIsError then begin
-        FRouteUndoPath := VPathOnMapEdit.Path;
+        MakeBackupOfPathOnMapEdit(VPathOnMapEdit, True);
         VPathOnMapEdit.SetPath(VResult);
       end else begin
         FRouteComment := '';
@@ -6520,7 +6536,7 @@ begin
   end;
 
   if not VIsError then begin
-    FRouteUndoPath := VPathOnMapEdit.Path;
+    MakeBackupOfPathOnMapEdit(VPathOnMapEdit, False);
     VResult := MergeRouteWithPath(VRoute, VPathOnMapEdit.Path);
     VPathOnMapEdit.SetPath(VResult);
   end else begin
@@ -6538,7 +6554,7 @@ begin
     Assigned(FRouteUndoPath) and
     Supports(FLineOnMapEdit, IPathOnMapEdit, VPathOnMapEdit) then
   begin
-    VPathOnMapEdit.SetPath(FRouteUndoPath);
+    VPathOnMapEdit.SetPath(FRouteUndoPath.Path);
     FRouteUndoPath := nil;
     tbxUndoRouteCalc.Enabled := False;
   end;
