@@ -6439,7 +6439,7 @@ procedure TfrmMain.ExtendRoute;
   function MergeRouteWithPath(
     const ARoute: IGeometryLonLatLine;
     const APath: ILonLatPathWithSelected
-  ): IGeometryLonLatLine;
+  ): ILonLatPathWithSelected;
   var
     I: Integer;
     VCountBefore: Integer;
@@ -6448,9 +6448,12 @@ procedure TfrmMain.ExtendRoute;
     VAggregator: IDoublePointsAggregator;
     VSingle: IGeometryLonLatSingleLine;
     VMulti: IGeometryLonLatMultiLine;
+    VPath: IPathOnMapEdit;
+    VLonLatLine: IGeometryLonLatLine;
+    VSelectedPoint: TDoublePoint;
   begin
-    VCountBefore := APath.GetSelectedPointIndex - 1;
-    VCountAfter := APath.Count - VCountBefore - 2;
+    VCountBefore := APath.GetSelectedPointIndex; // exclude active point
+    VCountAfter := APath.Count - VCountBefore;
 
     VPoints := APath.Points;
 
@@ -6473,19 +6476,36 @@ procedure TfrmMain.ExtendRoute;
     end;
 
     if VCountAfter > 0 then begin
-      VAggregator.AddPoints(@VPoints[APath.GetSelectedPointIndex + 1], VCountAfter);
+      VAggregator.AddPoints(@VPoints[APath.GetSelectedPointIndex], VCountAfter);
+      VSelectedPoint := VAggregator.Points[(VAggregator.Count - 1) - (VCountAfter - 1)];
+    end else begin
+      if VAggregator.Count > 0 then begin
+        VSelectedPoint := VAggregator.Points[VAggregator.Count - 1];
+      end else begin
+        VSelectedPoint := CEmptyDoublePoint;
+      end;
     end;
 
-    Result := GState.VectorGeometryLonLatFactory.CreateLonLatLine(
+    VLonLatLine := GState.VectorGeometryLonLatFactory.CreateLonLatLine(
       VAggregator.Points,
       VAggregator.Count
     );
+
+    VPath := TPathOnMapEdit.Create(GState.VectorGeometryLonLatFactory);
+    VPath.SetPath(VLonLatLine);
+
+    if not PointIsEmpty(VSelectedPoint) then begin
+      // restore previously selected point
+      VPath.SelectPointInLonLatRect( DoubleRect(VSelectedPoint, VSelectedPoint) );
+    end;
+
+    Result := VPath.Path;
   end;
 
 var
   VConfig: IPathDetalizeConfig;
   VLonLatLine, VRoute: IGeometryLonLatLine;
-  VResult: IGeometryLonLatLine;
+  VResult: ILonLatPathWithSelected;
   VProvider: IPathDetalizeProvider;
   VIsError: Boolean;
   VPathOnMapEdit: IPathOnMapEdit;
