@@ -1160,6 +1160,7 @@ object frmMain: TfrmMain
         Hint = 'Undo Route Calculation'
         ImageIndex = 77
         Images = MenusImageList
+        ShortCut = 16392
         OnClick = tbxUndoRouteCalcClick
       end
       object TBXSeparatorItem24: TTBXSeparatorItem

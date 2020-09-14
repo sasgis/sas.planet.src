@@ -3408,6 +3408,12 @@ begin
           Handled := True;
         end;
       end;
+      VK_BACK + scCtrl: begin
+        if FLineOnMapEdit <> nil then begin
+          tbxUndoRouteCalcClick(nil);
+          Handled := True;
+        end;
+      end;
       VK_ESCAPE: begin
         case FState.State of
           ao_select_rect: begin
