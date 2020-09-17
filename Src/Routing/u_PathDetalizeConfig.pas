@@ -31,10 +31,18 @@ uses
 type
   TPathDetalizeConfig = class(TConfigDataElementBase, IPathDetalizeConfig)
   private
+    FEnableYourNavigation: Boolean;
+    FEnableProjectOSRM: Boolean;
+    FArrayOfProjectOSRM: TArrayOfProjectOSRM;
     FEnableAutomaticRouting: Boolean;
     FDefaultProvider: TGUID;
   private
     { IPathDetalizeConfig }
+    function GetEnableYourNavigation: Boolean;
+    function GetEnableProjectOSRM: Boolean;
+
+    function GetArrayOfProjectOSRM: TArrayOfProjectOSRM;
+
     function GetEnableAutomaticRouting: Boolean;
     procedure SetEnableAutomaticRouting(const AValue: Boolean);
 
@@ -50,7 +58,10 @@ type
 implementation
 
 uses
+  Classes,
   SysUtils,
+  libcrc32,
+  c_ZeroGUID,
   c_PathDetalizeProvidersGUID,
   u_ConfigProviderHelpers;
 
@@ -59,15 +70,55 @@ uses
 constructor TPathDetalizeConfig.Create;
 begin
   inherited Create;
-
+  FEnableYourNavigation := True;
+  FEnableProjectOSRM := True;
+  FArrayOfProjectOSRM := nil;
   FEnableAutomaticRouting := False;
   FDefaultProvider := CPathDetalizeProviderYourNavigationFastestByCar;
 end;
 
 procedure TPathDetalizeConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
+
+  procedure ReadArrayOfProjectOSRM(const AStr: string);
+  var
+    I, J, K: Integer;
+    VGuid: TGUID;
+    VAddress: AnsiString;
+    VList: TStringList;
+  begin
+    VList := TStringList.Create;
+    try
+      VList.Delimiter := ';';
+      VList.StrictDelimiter := True;
+      VList.DelimitedText := AStr;
+      K := 0;
+      SetLength(FArrayOfProjectOSRM, VList.Count);
+      for I := 0 to Length(FArrayOfProjectOSRM) - 1 do begin
+        FArrayOfProjectOSRM[K].Address := Trim(VList.Strings[I]);
+        if FArrayOfProjectOSRM[K].Address = '' then begin
+          Continue;
+        end;
+        VAddress := AnsiString(FArrayOfProjectOSRM[K].Address);
+        VGuid := CGUID_Zero;
+        VGuid.D1 := libcrc32.crc32(0, @VAddress[1], Length(VAddress));
+        for J := 0 to Length(FArrayOfProjectOSRM[K].Guid) - 1 do begin
+          VGuid.D2 := J+1;
+          FArrayOfProjectOSRM[K].Guid[J] := VGuid;
+        end;
+        Inc(K);
+      end;
+      SetLength(FArrayOfProjectOSRM, K);
+    finally
+      VList.Free;
+    end;
+  end;
+
 begin
   inherited;
   if AConfigData <> nil then begin
+    FEnableYourNavigation := AConfigData.ReadBool('EnableYourNavigation', FEnableYourNavigation);
+    FEnableProjectOSRM := AConfigData.ReadBool('EnableProjectOSRM', FEnableProjectOSRM);
+    ReadArrayOfProjectOSRM( AConfigData.ReadString('CustomOSRM', '') );
     FEnableAutomaticRouting := AConfigData.ReadBool('EnableAutomaticRouting', FEnableAutomaticRouting);
     FDefaultProvider := ReadGUID(AConfigData, 'DefaultProvider', FDefaultProvider);
     SetChanged;
@@ -75,10 +126,36 @@ begin
 end;
 
 procedure TPathDetalizeConfig.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
+
+  function _GetCustomOSRM: string;
+  const
+    CDelim: array [Boolean] of string = ('', ';');
+  var
+    I: Integer;
+  begin
+    Result := '';
+    for I := 0 to Length(FArrayOfProjectOSRM) - 1 do begin
+      Result := Result + CDelim[I>0] + FArrayOfProjectOSRM[I].Address;
+    end;
+  end;
+
 begin
   inherited;
+  AConfigData.WriteBool('EnableYourNavigation', FEnableYourNavigation);
+  AConfigData.WriteBool('EnableProjectOSRM', FEnableProjectOSRM);
+  AConfigData.WriteString('CustomOSRM', _GetCustomOSRM);
   AConfigData.WriteBool('EnableAutomaticRouting', FEnableAutomaticRouting);
   AConfigData.WriteString('DefaultProvider', GUIDToString(FDefaultProvider));
+end;
+
+function TPathDetalizeConfig.GetArrayOfProjectOSRM: TArrayOfProjectOSRM;
+begin
+  LockRead;
+  try
+    Result := Copy(FArrayOfProjectOSRM);
+  finally
+    UnlockRead;
+  end;
 end;
 
 function TPathDetalizeConfig.GetDefaultProvider: TGUID;
@@ -96,6 +173,26 @@ begin
   LockRead;
   try
     Result := FEnableAutomaticRouting;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TPathDetalizeConfig.GetEnableProjectOSRM: Boolean;
+begin
+  LockRead;
+  try
+    Result := FEnableProjectOSRM;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TPathDetalizeConfig.GetEnableYourNavigation: Boolean;
+begin
+  LockRead;
+  try
+    Result := FEnableYourNavigation;
   finally
     UnlockRead;
   end;

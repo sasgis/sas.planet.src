@@ -882,6 +882,7 @@ begin
     );
   FPathDetalizeTree :=
     TPathDetalizeProviderTreeSimple.Create(
+      FGlobalConfig.PathDetalizeConfig,
       FGlobalConfig.LanguageManager,
       FGlobalConfig.InetConfig,
       FBGTimerNotifier,

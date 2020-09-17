@@ -2879,7 +2879,10 @@ begin
     end;
   end;
 
-  VIsRoutingVisible := VNewState = ao_edit_line;
+  VIsRoutingVisible :=
+    (VNewState = ao_edit_line) and
+    Assigned(FPathProvidersTreeStatic) and
+    (FPathProvidersTreeStatic.SubItemCount > 0);
   TBEditPathMarsh.Visible := VIsRoutingVisible;
   tbxExtendRoute.Visible := VIsRoutingVisible;
   tbxExtendRoute.Checked := GState.Config.PathDetalizeConfig.EnableAutomaticRouting;
@@ -6649,6 +6652,7 @@ var
   VTree: IStaticTreeItem;
   VItem: TTBCustomItem;
   VGUID: TGUID;
+  VIsDefaultFound: Boolean;
   VEntity: IPathDetalizeProviderTreeEntity;
   VInterface: IInterface;
 begin
@@ -6658,6 +6662,7 @@ begin
   FPathProvidersMenuBuilder.BuildMenu(TBEditPathMarsh, VTree);
   FPathProvidersConfigMenuBuilder.BuildMenu(tbxExtendRoute, VTree);
 
+  VIsDefaultFound := False;
   VGUID := GState.Config.PathDetalizeConfig.DefaultProvider;
   for I := 0 to tbxExtendRoute.Count - 1 do begin
     VItem := tbxExtendRoute.Items[I];
@@ -6669,6 +6674,20 @@ begin
       VInterface := IInterface(VItem.Tag);
       if Supports(VInterface, IPathDetalizeProviderTreeEntity, VEntity) then begin
         VItem.Checked := IsEqualGUID(VGUID, VEntity.GUID);
+        VIsDefaultFound := VIsDefaultFound or VItem.Checked;
+      end;
+    end;
+  end;
+  if not VIsDefaultFound then begin
+    for I := 0 to tbxExtendRoute.Count - 1 do begin
+      VItem := tbxExtendRoute.Items[I];
+      if Assigned(VItem.OnClick) then begin
+        VInterface := IInterface(VItem.Tag);
+        if Supports(VInterface, IPathDetalizeProviderTreeEntity, VEntity) then begin
+          GState.Config.PathDetalizeConfig.DefaultProvider := VEntity.GUID;
+          VItem.Checked := True;
+          Break;
+        end;
       end;
     end;
   end;

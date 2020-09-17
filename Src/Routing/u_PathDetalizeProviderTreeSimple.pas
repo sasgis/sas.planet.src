@@ -23,6 +23,7 @@ unit u_PathDetalizeProviderTreeSimple;
 interface
 
 uses
+  i_PathDetalizeConfig,
   i_StaticTreeItem,
   i_LanguageManager,
   i_InetConfig,
@@ -38,6 +39,8 @@ uses
 type
   TPathDetalizeProviderTreeSimple = class(TTreeChangeableBase)
   private
+    FArrayOfProjectOSRM: TArrayOfProjectOSRM;
+    FPathDetalizeConfig: IPathDetalizeConfig;
     FProvidersSet: IGUIDInterfaceSet;
     function CreateProvidersSet(
       const AInetConfig: IInetConfig;
@@ -50,10 +53,12 @@ type
 
     function CreateYourNavigation: IStaticTreeItem;
     function CreateOSRM: IStaticTreeItem;
+    function CreateCustomOSRM(const AItemId: Integer): IStaticTreeItem;
   protected
     function CreateStatic: IStaticTreeItem; override;
   public
     constructor Create(
+      const APathDetalizeConfig: IPathDetalizeConfig;
       const ALanguageManager: ILanguageManager;
       const AInetConfig: IInetConfig;
       const AGCNotifier: INotifierTime;
@@ -67,6 +72,7 @@ type
 implementation
 
 uses
+  SysUtils,
   gnugettext,
   c_PathDetalizeProvidersGUID,
   i_Downloader,
@@ -83,6 +89,7 @@ uses
 { TPathDetalizeProviderTreeSimple }
 
 constructor TPathDetalizeProviderTreeSimple.Create(
+  const APathDetalizeConfig: IPathDetalizeConfig;
   const ALanguageManager: ILanguageManager;
   const AInetConfig: IInetConfig;
   const AGCNotifier: INotifierTime;
@@ -93,6 +100,8 @@ constructor TPathDetalizeProviderTreeSimple.Create(
 );
 begin
   inherited Create(ALanguageManager.ChangeNotifier);
+  FPathDetalizeConfig := APathDetalizeConfig;
+  FArrayOfProjectOSRM := FPathDetalizeConfig.ArrayOfProjectOSRM;
   FProvidersSet :=
     CreateProvidersSet(
       AInetConfig,
@@ -113,92 +122,141 @@ function TPathDetalizeProviderTreeSimple.CreateProvidersSet(
   const AKmlLoader: IVectorDataLoader
 ): IGUIDInterfaceSet;
 var
+  I: Integer;
+  VAddress: string;
   VProvider: IPathDetalizeProvider;
   VDownloader: IDownloader;
 begin
   Result := TGUIDInterfaceSet.Create;
 
 {$REGION 'YourNavigation'}
-  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
-  VProvider :=
-    TPathDetalizeProviderYourNavigation.Create(
-      'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=1&layer=mapnik',
-      VDownloader,
-      AInetConfig,
-      AVectorGeometryLonLatFactory,
-      AVectorDataItemMainInfoFactory,
-      AKmlLoader
-    );
-  Result.Add(CPathDetalizeProviderYourNavigationFastestByCar, VProvider);
+  if FPathDetalizeConfig.EnableYourNavigation then begin
+    VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
+    VProvider :=
+      TPathDetalizeProviderYourNavigation.Create(
+        'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=1&layer=mapnik',
+        VDownloader,
+        AInetConfig,
+        AVectorGeometryLonLatFactory,
+        AVectorDataItemMainInfoFactory,
+        AKmlLoader
+      );
+    Result.Add(CPathDetalizeProviderYourNavigationFastestByCar, VProvider);
 
-  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
-  VProvider :=
-    TPathDetalizeProviderYourNavigation.Create(
-      'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=0&layer=mapnik',
-      VDownloader,
-      AInetConfig,
-      AVectorGeometryLonLatFactory,
-      AVectorDataItemMainInfoFactory,
-      AKmlLoader
-    );
-  Result.Add(CPathDetalizeProviderYourNavigationShortestByCar, VProvider);
+    VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
+    VProvider :=
+      TPathDetalizeProviderYourNavigation.Create(
+        'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=0&layer=mapnik',
+        VDownloader,
+        AInetConfig,
+        AVectorGeometryLonLatFactory,
+        AVectorDataItemMainInfoFactory,
+        AKmlLoader
+      );
+    Result.Add(CPathDetalizeProviderYourNavigationShortestByCar, VProvider);
 
-  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
-  VProvider :=
-    TPathDetalizeProviderYourNavigation.Create(
-      'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=1&layer=mapnik',
-      VDownloader,
-      AInetConfig,
-      AVectorGeometryLonLatFactory,
-      AVectorDataItemMainInfoFactory,
-      AKmlLoader
-    );
-  Result.Add(CPathDetalizeProviderYourNavigationFastestByBicycle, VProvider);
+    VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
+    VProvider :=
+      TPathDetalizeProviderYourNavigation.Create(
+        'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=1&layer=mapnik',
+        VDownloader,
+        AInetConfig,
+        AVectorGeometryLonLatFactory,
+        AVectorDataItemMainInfoFactory,
+        AKmlLoader
+      );
+    Result.Add(CPathDetalizeProviderYourNavigationFastestByBicycle, VProvider);
 
-  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
-  VProvider :=
-    TPathDetalizeProviderYourNavigation.Create(
-      'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=0&layer=mapnik',
-      VDownloader,
-      AInetConfig,
-      AVectorGeometryLonLatFactory,
-      AVectorDataItemMainInfoFactory,
-      AKmlLoader
-    );
-  Result.Add(CPathDetalizeProviderYourNavigationShortestByBicycle, VProvider);
+    VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
+    VProvider :=
+      TPathDetalizeProviderYourNavigation.Create(
+        'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=0&layer=mapnik',
+        VDownloader,
+        AInetConfig,
+        AVectorGeometryLonLatFactory,
+        AVectorDataItemMainInfoFactory,
+        AKmlLoader
+      );
+    Result.Add(CPathDetalizeProviderYourNavigationShortestByBicycle, VProvider);
+  end;
 {$ENDREGION}
 
 {$REGION 'Project OSRM'}
+  if FPathDetalizeConfig.EnableProjectOSRM then begin
+    VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
+    VProvider :=
+      TPathDetalizeProviderOSRM.Create(
+        'http://router.project-osrm.org/route/v1/car/',
+        VDownloader,
+        AInetConfig,
+        AVectorGeometryLonLatFactory
+      );
+    Result.Add(CPathDetalizeProviderOSRMByCar, VProvider);
 
-  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
-  VProvider :=
-    TPathDetalizeProviderOSRM.Create(
-      'http://router.project-osrm.org/route/v1/car/',
-      VDownloader,
-      AInetConfig,
-      AVectorGeometryLonLatFactory
-    );
-  Result.Add(CPathDetalizeProviderOSRMByCar, VProvider);
+    VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
+    VProvider :=
+      TPathDetalizeProviderOSRM.Create(
+        'https://routing.openstreetmap.de/routed-bike/route/v1/driving/',
+        VDownloader,
+        AInetConfig,
+        AVectorGeometryLonLatFactory
+      );
+    Result.Add(CPathDetalizeProviderOSRMByBike, VProvider);
 
-  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
-  VProvider :=
-    TPathDetalizeProviderOSRM.Create(
-      'https://routing.openstreetmap.de/routed-bike/route/v1/driving/',
-      VDownloader,
-      AInetConfig,
-      AVectorGeometryLonLatFactory
-    );
-  Result.Add(CPathDetalizeProviderOSRMByBike, VProvider);
+    VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
+    VProvider :=
+      TPathDetalizeProviderOSRM.Create(
+        'https://routing.openstreetmap.de/routed-foot/route/v1/driving/',
+        VDownloader,
+        AInetConfig,
+        AVectorGeometryLonLatFactory
+      );
+    Result.Add(CPathDetalizeProviderOSRMByFoot, VProvider);
+  end;
+{$ENDREGION}
 
-  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
-  VProvider :=
-    TPathDetalizeProviderOSRM.Create(
-      'https://routing.openstreetmap.de/routed-foot/route/v1/driving/',
-      VDownloader,
-      AInetConfig,
-      AVectorGeometryLonLatFactory
-    );
-  Result.Add(CPathDetalizeProviderOSRMByFoot, VProvider);
+{$REGION 'Project OSRM (with custom server)'}
+  for I := 0 to Length(FArrayOfProjectOSRM) - 1 do begin
+    VAddress := FArrayOfProjectOSRM[I].Address;
+    if VAddress <> '' then begin
+      if Pos('://', VAddress) <= 0 then begin
+        VAddress := 'http://' + VAddress;
+      end;
+      if VAddress[Length(VAddress)] <> '/' then begin
+        VAddress := VAddress + '/';
+      end;
+
+      VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
+      VProvider :=
+        TPathDetalizeProviderOSRM.Create(
+          AnsiString(VAddress) + 'route/v1/car/',
+          VDownloader,
+          AInetConfig,
+          AVectorGeometryLonLatFactory
+        );
+      Result.Add(FArrayOfProjectOSRM[I].Guid[0], VProvider);
+
+      VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
+      VProvider :=
+        TPathDetalizeProviderOSRM.Create(
+          AnsiString(VAddress) + 'route/v1/bike/',
+          VDownloader,
+          AInetConfig,
+          AVectorGeometryLonLatFactory
+        );
+      Result.Add(FArrayOfProjectOSRM[I].Guid[1], VProvider);
+
+      VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
+      VProvider :=
+        TPathDetalizeProviderOSRM.Create(
+          AnsiString(VAddress) + 'route/v1/foot/',
+          VDownloader,
+          AInetConfig,
+          AVectorGeometryLonLatFactory
+        );
+      Result.Add(FArrayOfProjectOSRM[I].Guid[2], VProvider);
+    end;
+  end;
 {$ENDREGION}
 end;
 
@@ -366,14 +424,115 @@ begin
     );
 end;
 
+function TPathDetalizeProviderTreeSimple.CreateCustomOSRM(
+  const AItemId: Integer
+): IStaticTreeItem;
+
+  function _GetCaption: string;
+  var
+    I: Integer;
+  begin
+    Result := FArrayOfProjectOSRM[AItemId].Address;
+    I := Pos('://', Result);
+    if I > 0 then begin
+      Result := Copy(Result, I+3);
+    end;
+    I := Length(Result);
+    if (I > 0) and (Result[I] = '/') then begin
+      SetLength(Result, I-1);
+    end;
+  end;
+
+var
+  VList: IInterfaceListSimple;
+  VGUID: TGUID;
+  VProvider: IPathDetalizeProvider;
+  VEntity: IPathDetalizeProviderTreeEntity;
+  VItem: IStaticTreeItem;
+begin
+  VList := TInterfaceListSimple.Create;
+
+  VGUID := FArrayOfProjectOSRM[AItemId].Guid[0];
+  VProvider := IPathDetalizeProvider(FProvidersSet.GetByGUID(VGUID));
+  VEntity :=
+    TPathDetalizeProviderTreeEntity.Create(
+      VGUID,
+      '',
+      _('By Car'),
+      VProvider
+    );
+  VItem :=
+    TStaticTreeItem.Create(
+      VEntity,
+      VEntity.MenuItemName,
+      '0010',
+      nil
+    );
+  VList.Add(VItem);
+
+  VGUID := FArrayOfProjectOSRM[AItemId].Guid[1];
+  VProvider := IPathDetalizeProvider(FProvidersSet.GetByGUID(VGUID));
+  VEntity :=
+    TPathDetalizeProviderTreeEntity.Create(
+      VGUID,
+      '',
+      _('By Bike'),
+      VProvider
+    );
+  VItem :=
+    TStaticTreeItem.Create(
+      VEntity,
+      VEntity.MenuItemName,
+      '0020',
+      nil
+    );
+  VList.Add(VItem);
+
+  VGUID := FArrayOfProjectOSRM[AItemId].Guid[2];
+  VProvider := IPathDetalizeProvider(FProvidersSet.GetByGUID(VGUID));
+  VEntity :=
+    TPathDetalizeProviderTreeEntity.Create(
+      VGUID,
+      '',
+      _('By Foot'),
+      VProvider
+    );
+  VItem :=
+    TStaticTreeItem.Create(
+      VEntity,
+      VEntity.MenuItemName,
+      '0030',
+      nil
+    );
+  VList.Add(VItem);
+
+  Result :=
+    TStaticTreeItem.Create(
+      nil,
+      _GetCaption,
+      '00' + IntToStr(30 + AItemId + 1) + '~',
+      VList.MakeStaticAndClear
+    );
+end;
+
 function TPathDetalizeProviderTreeSimple.CreateStatic: IStaticTreeItem;
 var
+  I: Integer;
   VList: IInterfaceListSimple;
 begin
   VList := TInterfaceListSimple.Create;
 
-  VList.Add(CreateYourNavigation);
-  VList.Add(CreateOSRM);
+  if FPathDetalizeConfig.EnableYourNavigation then begin
+    VList.Add(CreateYourNavigation);
+  end;
+
+  if FPathDetalizeConfig.EnableProjectOSRM then begin
+    VList.Add(CreateOSRM);
+  end;
+
+  for I := 0 to Length(FArrayOfProjectOSRM) - 1 do begin
+    VList.Add( CreateCustomOSRM(I) );
+  end;
 
   Result :=
     TStaticTreeItem.Create(

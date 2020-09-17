@@ -26,8 +26,23 @@ uses
   i_ConfigDataElement;
 
 type
+  TProjectOSRM = record
+    Address: string;
+    Guid: array [0..2] of TGUID;
+  end;
+  TArrayOfProjectOSRM = array of TProjectOSRM;
+
   IPathDetalizeConfig = interface(IConfigDataElement)
     ['{BD3A7204-23C6-4DA5-AB16-35996256F5D6}']
+
+    function GetEnableYourNavigation: Boolean;
+    property EnableYourNavigation: Boolean read GetEnableYourNavigation;
+
+    function GetEnableProjectOSRM: Boolean;
+    property EnableProjectOSRM: Boolean read GetEnableProjectOSRM;
+
+    function GetArrayOfProjectOSRM: TArrayOfProjectOSRM;
+    property ArrayOfProjectOSRM: TArrayOfProjectOSRM read GetArrayOfProjectOSRM;
 
     function GetEnableAutomaticRouting: Boolean;
     procedure SetEnableAutomaticRouting(const AValue: Boolean);
