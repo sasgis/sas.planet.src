@@ -441,6 +441,7 @@ function TPathDetalizeProviderTreeSimple.CreateCustomOSRM(
     if (I > 0) and (Result[I] = '/') then begin
       SetLength(Result, I-1);
     end;
+    Result := Result + ' (osrm)';
   end;
 
 var

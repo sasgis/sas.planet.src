@@ -757,7 +757,6 @@ type
     procedure tbMergePolygonsClose(Sender: TObject);
     procedure tbxtmAddToMergePolygonsClick(Sender: TObject);
     procedure tbxFillingMapClick(Sender: TObject);
-    procedure tbxExtendRouteClick(Sender: TObject);
     procedure actSelectByRectExecute(Sender: TObject);
     procedure actSelectByPolygonExecute(Sender: TObject);
     procedure actSelectByLineExecute(Sender: TObject);
@@ -2885,7 +2884,6 @@ begin
     (FPathProvidersTreeStatic.SubItemCount > 0);
   TBEditPathMarsh.Visible := VIsRoutingVisible;
   tbxExtendRoute.Visible := VIsRoutingVisible;
-  tbxExtendRoute.Checked := GState.Config.PathDetalizeConfig.EnableAutomaticRouting;
   tbxUndoRouteCalc.Visible := VIsRoutingVisible;
   tbxUndoRouteCalc.Enabled := False;
   TBXSeparatorItem24.Visible := VIsRoutingVisible;
@@ -6367,11 +6365,6 @@ begin
     end;
   end;
   tbxUndoRouteCalc.Enabled := FRouteUndoPath <> nil;
-end;
-
-procedure TfrmMain.tbxExtendRouteClick(Sender: TObject);
-begin
-  GState.Config.PathDetalizeConfig.EnableAutomaticRouting := tbxExtendRoute.Checked;
 end;
 
 procedure TfrmMain.tbxExtendRouteSelect(Sender: TObject);

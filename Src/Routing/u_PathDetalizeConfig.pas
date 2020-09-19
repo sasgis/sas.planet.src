@@ -62,8 +62,10 @@ uses
   SysUtils,
   libcrc32,
   c_ZeroGUID,
-  c_PathDetalizeProvidersGUID,
   u_ConfigProviderHelpers;
+
+const
+  CDefaultCustomOSRM = 'https://zlzk.biz/'; // BY ES LT LV RU UA, weekly updates
 
 { TPathDetalizeConfig }
 
@@ -73,8 +75,8 @@ begin
   FEnableYourNavigation := True;
   FEnableProjectOSRM := True;
   FArrayOfProjectOSRM := nil;
-  FEnableAutomaticRouting := False;
-  FDefaultProvider := CPathDetalizeProviderYourNavigationFastestByCar;
+  FEnableAutomaticRouting := True;
+  FDefaultProvider := CGUID_Zero; // first available
 end;
 
 procedure TPathDetalizeConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
@@ -118,7 +120,7 @@ begin
   if AConfigData <> nil then begin
     FEnableYourNavigation := AConfigData.ReadBool('EnableYourNavigation', FEnableYourNavigation);
     FEnableProjectOSRM := AConfigData.ReadBool('EnableProjectOSRM', FEnableProjectOSRM);
-    ReadArrayOfProjectOSRM( AConfigData.ReadString('CustomOSRM', '') );
+    ReadArrayOfProjectOSRM( AConfigData.ReadString('CustomOSRM', CDefaultCustomOSRM) );
     FEnableAutomaticRouting := AConfigData.ReadBool('EnableAutomaticRouting', FEnableAutomaticRouting);
     FDefaultProvider := ReadGUID(AConfigData, 'DefaultProvider', FDefaultProvider);
     SetChanged;

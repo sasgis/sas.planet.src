@@ -31,6 +31,7 @@ const
   CPathDetalizeProviderOSRMByCar: TGUID = '{8AC99C3F-4DBD-47AA-BBD0-4A9A7F3027A1}';
   CPathDetalizeProviderOSRMByBike: TGUID = '{A6C023A6-89FD-4E97-B6A9-BB1A5C2B3AB1}';
   CPathDetalizeProviderOSRMByFoot: TGUID = '{7C6C4696-A13C-472C-BBC7-37A07A7EBEEC}';
+
 implementation
 
 end.

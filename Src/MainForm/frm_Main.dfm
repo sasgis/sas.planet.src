@@ -1148,13 +1148,11 @@ object frmMain: TfrmMain
         Options = [tboDropdownArrow]
       end
       object tbxExtendRoute: TTBXSubmenuItem
-        AutoCheck = True
-        DropdownCombo = True
-        Hint = 'Enable/Disable Automatic Route Calculation (with Ctrl key)'
+        Hint = 'Provider for Automatic Route Calculation (with Ctrl key)'
         ImageIndex = 76
         Images = MenusImageList
+        Options = [tboDropdownArrow]
         RadioItem = True
-        OnClick = tbxExtendRouteClick
       end
       object tbxUndoRouteCalc: TTBXItem
         Hint = 'Undo Route Calculation'
