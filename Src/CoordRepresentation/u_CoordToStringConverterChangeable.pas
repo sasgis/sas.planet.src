@@ -51,7 +51,6 @@ type
 implementation
 
 uses
-  SysUtils,
   u_ListenerByEvent,
   u_CoordToStringConverter;
 
@@ -91,11 +90,6 @@ begin
   VConfig := FConfig.GetStatic;
   Result :=
     TCoordToStringConverter.Create(
-      {$IF CompilerVersion >= 23} // XE2 and UP
-      FormatSettings.DecimalSeparator,
-      {$ELSE}
-      DecimalSeparator,
-      {$IFEND}
       VConfig.IsLatitudeFirst,
       VConfig.DegrShowFormat,
       VConfig.CoordSysType,

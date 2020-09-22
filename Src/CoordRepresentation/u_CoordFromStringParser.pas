@@ -194,17 +194,11 @@ var
   X, Y: Double;
   VCoord: TDoublePoint;
 begin
-  Result := TryStrToFloat(AX, X);
-  if not Result then begin
-    Exit;
-  end;
-
-  Result := TryStrToFloat(AY, Y);
-  if not Result then begin
-    Exit;
-  end;
-
   Result := False;
+
+  X := str2r(AX);
+  Y := str2r(AY);
+
   case FConfig.CoordSysType of
     cstSK42GK: Result := gauss_kruger_to_wgs84(X, Y, AZone, AIsNorth, VCoord.X, VCoord.Y);
   else

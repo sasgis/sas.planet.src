@@ -23,6 +23,7 @@ unit u_CoordToStringConverter;
 interface
 
 uses
+  SysUtils,
   t_GeoTypes,
   t_CoordRepresentation,
   i_CoordToStringConverter,
@@ -35,12 +36,13 @@ type
     FDegrShowFormat: TDegrShowFormat;
     FCoordSysType: TCoordSysType;
     FCoordSysInfoType: TCoordSysInfoType;
-    FDecimalseparator: Char;
     FEastMarker: string;
     FWestMarker: string;
     FNorthMarker: string;
     FSouthMarker: string;
+    FFormatSettings: TFormatSettings;
   private
+    function FloatToStr(const AFormat: string; const AValue: Double): string; inline;
     function DegrToStr(
       const ADegr: Double;
       const ACutZero: Boolean
@@ -63,7 +65,6 @@ type
     ); overload;
   public
     constructor Create(
-      const ADecimalseparator: Char;
       const AIsLatitudeFirst: Boolean;
       const ADegrShowFormat: TDegrShowFormat;
       const ACoordSysType: TCoordSysType;
@@ -75,7 +76,6 @@ implementation
 
 uses
   Math,
-  SysUtils,
   StrUtils,
   Proj4SK42,
   u_ResStrings;
@@ -83,7 +83,6 @@ uses
 { TCoordToStringConverter }
 
 constructor TCoordToStringConverter.Create(
-  const ADecimalseparator: Char;
   const AIsLatitudeFirst: Boolean;
   const ADegrShowFormat: TDegrShowFormat;
   const ACoordSysType: TCoordSysType;
@@ -91,7 +90,6 @@ constructor TCoordToStringConverter.Create(
 );
 begin
   inherited Create;
-  FDecimalseparator := ADecimalseparator;
   FIsLatitudeFirst := AIsLatitudeFirst;
   FDegrShowFormat := ADegrShowFormat;
   FCoordSysType := ACoordSysType;
@@ -100,6 +98,15 @@ begin
   FEastMarker := 'E';
   FWestMarker := 'W';
   FSouthMarker := 'S';
+  FFormatSettings.DecimalSeparator := '.';
+end;
+
+function TCoordToStringConverter.FloatToStr(
+  const AFormat: string;
+  const AValue: Double
+): string;
+begin
+  Result := FormatFloat(AFormat, AValue, FFormatSettings);
 end;
 
 function TCoordToStringConverter.DegrToStr(
@@ -110,34 +117,33 @@ var
   VDegr: Double;
   VInt: Int64;
   VValue: Int64;
-  res: string;
 begin
-  VDegr := abs(ADegr);
-  Res := '-';
+  VDegr := Abs(ADegr);
+  Result := '-';
   case FDegrShowFormat of
     dshCharDegrMinSec, dshSignDegrMinSec: begin
       VValue := Trunc(VDegr * 60 * 60 * 10000 + 0.005);
       VInt := Trunc(VValue / (60 * 60 * 10000));
       VValue := VValue - VInt * (60 * 60 * 10000);
-      Res := IntToStr(VInt) + '°';
+      Result := IntToStr(VInt) + '°';
       VInt := Trunc(VValue / (60 * 10000));
       VValue := VValue - VInt * (60 * 10000);
 
       if VInt < 10 then begin
-        Res := Res + '0' + IntToStr(VInt) + '''';
+        Result := Result + '0' + IntToStr(VInt) + '''';
       end else begin
-        Res := Res + IntToStr(VInt) + '''';
+        Result := Result + IntToStr(VInt) + '''';
       end;
 
-      Res := Res + FormatFloat('00.0000', VValue / 10000) + '"';
+      Result := Result + FloatToStr('00.0000', VValue / 10000) + '"';
 
       if ACutZero then begin
-        if copy(Res, length(Res) - 3, 4) = FDecimalseparator + '00"' then begin // X12°30'45,00" -> X12°30'45"
-          Res := ReplaceStr(Res, FDecimalseparator + '00"', '"');
-          if copy(Res, length(Res) - 2, 3) = '00"' then begin   // X12°30'00" -> X12°30'
-            Res := ReplaceStr(Res, '00"', '');
-            if copy(Res, length(Res) - 2, 3) = '00''' then begin  // X12°00' -> X12°
-              Res := ReplaceStr(Res, '00''', '');
+        if Copy(Result, Length(Result) - 3, 4) = '.00"' then begin // X12°30'45.00" -> X12°30'45"
+          Result := ReplaceStr(Result, '.00"', '"');
+          if Copy(Result, Length(Result) - 2, 3) = '00"' then begin   // X12°30'00" -> X12°30'
+            Result := ReplaceStr(Result, '00"', '');
+            if Copy(Result, Length(Result) - 2, 3) = '00''' then begin  // X12°00' -> X12°
+              Result := ReplaceStr(Result, '00''', '');
             end;
           end;
         end;
@@ -147,33 +153,34 @@ begin
       VValue := Trunc(VDegr * 60 * 1000000 + 0.00005);
       VInt := Trunc(VValue / (60 * 1000000));
       VValue := VValue - VInt * (60 * 1000000);
-      Res := IntToStr(VInt) + '°';
-      Res := Res + FormatFloat('00.000000', VValue / 1000000) + '''';
+      Result := IntToStr(VInt) + '°';
+      Result := Result + FloatToStr('00.000000', VValue / 1000000) + '''';
       if ACutZero then begin
-        while copy(Res, length(Res) - 1, 2) = '0''' do begin
-          Res := ReplaceStr(Res, '0''', '''');
-        end;   // 12°34,50000' -> 12°34,5'   12°00,00000' -> 12°00,'
-        if copy(Res, length(Res) - 1, 2) = FDecimalseparator + '''' then begin
-          Res := ReplaceStr(Res, FDecimalseparator + '''', '''');
+        while Copy(Result, Length(Result) - 1, 2) = '0''' do begin
+          Result := ReplaceStr(Result, '0''', '''');
+        end;   // 12°34.50000' -> 12°34.5'   12°00.00000' -> 12°00.'
+        if Copy(Result, Length(Result) - 1, 2) = '.''' then begin
+          Result := ReplaceStr(Result, '.''', '''');
         end; // 12°40,' -> 12°40'
-        if copy(Res, length(Res) - 2, 3) = '00''' then begin
-          Res := ReplaceStr(Res, '00''', '');
+        if Copy(Result, Length(Result) - 2, 3) = '00''' then begin
+          Result := ReplaceStr(Result, '00''', '');
         end; //  12°00' -> 12°
       end;
     end;
     dshCharDegr, dshSignDegr: begin
-      Res := FormatFloat('0.00000000', VDegr) + '°';
+      Result := FloatToStr('0.00000000', VDegr) + '°';
       if ACutZero then begin
-        while copy(Res, length(Res) - 1, 2) = '0°' do begin
-          Res := ReplaceStr(Res, '0°', '°');
-        end;   // 12,3450000° -> 12,345°   12,0000000° -> 12,°
-        if copy(Res, length(Res) - 1, 2) = FDecimalseparator + '°' then begin
-          Res := ReplaceStr(Res, FDecimalseparator + '°', '°');
-        end; //12,° -> 12°
+        // 12.3450000° -> 12.345°
+        while Copy(Result, Length(Result) - 1, 2) = '0°' do begin
+          Result := ReplaceStr(Result, '0°', '°');
+        end;
+        // 12.° -> 12°
+        if Copy(Result, Length(Result) - 1, 2) = '.°' then begin
+          Result := ReplaceStr(Result, '.°', '°');
+        end;
       end;
     end;
   end;
-  Result := res;
 end;
 
 function TCoordToStringConverter.GetLatitudeMarker(const ADegr: Double): string;
@@ -275,8 +282,8 @@ procedure TCoordToStringConverter.LonLatConvert(
 
   procedure _ProjectedCoordToStr(const AXY: TDoublePoint; out AX, AY: string);
   begin
-    AX := FormatFloat('0.00', AXY.X);
-    AY := FormatFloat('0.00', AXY.Y);
+    AX := FloatToStr('0.00', AXY.X);
+    AY := FloatToStr('0.00', AXY.Y);
   end;
 
 var
