@@ -186,7 +186,7 @@ begin
     VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
     VProvider :=
       TPathDetalizeProviderOSRM.Create(
-        'http://router.project-osrm.org/route/v1/car/',
+        'https://routing.openstreetmap.de/routed-car/route/v1/driving/',
         VDownloader,
         AInetConfig,
         AVectorGeometryLonLatFactory
