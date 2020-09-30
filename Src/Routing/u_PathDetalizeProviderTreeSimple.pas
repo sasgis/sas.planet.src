@@ -54,6 +54,7 @@ type
     function CreateYourNavigation: IStaticTreeItem;
     function CreateOSRM: IStaticTreeItem;
     function CreateCustomOSRM(const AItemId: Integer): IStaticTreeItem;
+    function CreateOsmScout: IStaticTreeItem;
   protected
     function CreateStatic: IStaticTreeItem; override;
   public
@@ -74,6 +75,7 @@ implementation
 uses
   SysUtils,
   gnugettext,
+  libosmscout_route,
   c_PathDetalizeProvidersGUID,
   i_Downloader,
   i_PathDetalizeProvider,
@@ -84,6 +86,7 @@ uses
   u_GUIDInterfaceSet,
   u_PathDetalizeProviderTreeEntity,
   u_PathDetalizeProviderOSRM,
+  u_PathDetalizeProviderOsmScout,
   u_PathDetalizeProviderYourNavigation;
 
 { TPathDetalizeProviderTreeSimple }
@@ -126,6 +129,7 @@ var
   VAddress: string;
   VProvider: IPathDetalizeProvider;
   VDownloader: IDownloader;
+  VOsmScoutRouteContext: IOsmScoutRouteContext;
 begin
   Result := TGUIDInterfaceSet.Create;
 
@@ -256,6 +260,40 @@ begin
         );
       Result.Add(FArrayOfProjectOSRM[I].Guid[2], VProvider);
     end;
+  end;
+{$ENDREGION}
+
+{$REGION 'OSM Scout (offline)'}
+  if IsLibOsmScoutRouteAvailable then begin
+
+    VOsmScoutRouteContext :=
+      NewOsmScoutRouteContext(
+        ExtractFilePath(ParamStr(0)) + 'OsmScout\'
+      );
+
+    VProvider :=
+      TPathDetalizeProviderOsmScout.Create(
+        ROUTE_PROFILE_CAR,
+        VOsmScoutRouteContext,
+        AVectorGeometryLonLatFactory
+      );
+    Result.Add(CPathDetalizeProviderOsmScoutByCar, VProvider);
+
+    VProvider :=
+      TPathDetalizeProviderOsmScout.Create(
+        ROUTE_PROFILE_BIKE,
+        VOsmScoutRouteContext,
+        AVectorGeometryLonLatFactory
+      );
+    Result.Add(CPathDetalizeProviderOsmScoutByBike, VProvider);
+
+    VProvider :=
+      TPathDetalizeProviderOsmScout.Create(
+        ROUTE_PROFILE_FOOT,
+        VOsmScoutRouteContext,
+        AVectorGeometryLonLatFactory
+      );
+    Result.Add(CPathDetalizeProviderOsmScoutByFoot, VProvider);
   end;
 {$ENDREGION}
 end;
@@ -441,7 +479,7 @@ function TPathDetalizeProviderTreeSimple.CreateCustomOSRM(
     if (I > 0) and (Result[I] = '/') then begin
       SetLength(Result, I-1);
     end;
-    Result := Result + ' (osrm)';
+    Result := Result + ' (OSRM)';
   end;
 
 var
@@ -516,6 +554,79 @@ begin
     );
 end;
 
+function TPathDetalizeProviderTreeSimple.CreateOsmScout: IStaticTreeItem;
+var
+  VList: IInterfaceListSimple;
+  VGUID: TGUID;
+  VProvider: IPathDetalizeProvider;
+  VEntity: IPathDetalizeProviderTreeEntity;
+  VItem: IStaticTreeItem;
+begin
+  VList := TInterfaceListSimple.Create;
+
+  VGUID := CPathDetalizeProviderOsmScoutByCar;
+  VProvider := IPathDetalizeProvider(FProvidersSet.GetByGUID(VGUID));
+  VEntity :=
+    TPathDetalizeProviderTreeEntity.Create(
+      VGUID,
+      '',
+      _('By Car'),
+      VProvider
+    );
+  VItem :=
+    TStaticTreeItem.Create(
+      VEntity,
+      VEntity.MenuItemName,
+      '0010',
+      nil
+    );
+  VList.Add(VItem);
+
+  VGUID := CPathDetalizeProviderOsmScoutByBike;
+  VProvider := IPathDetalizeProvider(FProvidersSet.GetByGUID(VGUID));
+  VEntity :=
+    TPathDetalizeProviderTreeEntity.Create(
+      VGUID,
+      '',
+      _('By Bike'),
+      VProvider
+    );
+  VItem :=
+    TStaticTreeItem.Create(
+      VEntity,
+      VEntity.MenuItemName,
+      '0020',
+      nil
+    );
+  VList.Add(VItem);
+
+  VGUID := CPathDetalizeProviderOsmScoutByFoot;
+  VProvider := IPathDetalizeProvider(FProvidersSet.GetByGUID(VGUID));
+  VEntity :=
+    TPathDetalizeProviderTreeEntity.Create(
+      VGUID,
+      '',
+      _('By Foot'),
+      VProvider
+    );
+  VItem :=
+    TStaticTreeItem.Create(
+      VEntity,
+      VEntity.MenuItemName,
+      '0030',
+      nil
+    );
+  VList.Add(VItem);
+
+  Result :=
+    TStaticTreeItem.Create(
+      nil,
+      'OSM Scout (offline)',
+      '0040~',
+      VList.MakeStaticAndClear
+    );
+end;
+
 function TPathDetalizeProviderTreeSimple.CreateStatic: IStaticTreeItem;
 var
   I: Integer;
@@ -533,6 +644,10 @@ begin
 
   for I := 0 to Length(FArrayOfProjectOSRM) - 1 do begin
     VList.Add( CreateCustomOSRM(I) );
+  end;
+
+  if IsLibOsmScoutRouteAvailable then begin
+    VList.Add(CreateOsmScout);
   end;
 
   Result :=

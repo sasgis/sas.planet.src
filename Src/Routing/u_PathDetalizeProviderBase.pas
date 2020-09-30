@@ -28,6 +28,8 @@ type
       const APointsAggregator: IDoublePointsAggregator;
       const ABuilder: IGeometryLonLatLineBuilder
     ): Boolean; virtual; abstract;
+    procedure OnBeforeGetPath; virtual;
+    procedure OnAfterGetPath; virtual;
   private
     { IPathDetalizeProvider }
     function GetPath(
@@ -76,7 +78,7 @@ function TPathDetalizeProviderBase.GetPath(
 ): IGeometryLonLatLine;
 var
   I: Integer;
-  VConErr: Boolean;
+  VIsLineProcessed: Boolean;
   VPointsAggregator: IDoublePointsAggregator;
   VSingleLine: IGeometryLonLatSingleLine;
   VMultiLine: IGeometryLonLatMultiLine;
@@ -85,41 +87,58 @@ begin
   Result := nil;
   AComment := '';
 
-  VConErr := False;
-  VPointsAggregator := TDoublePointsAggregator.Create;
-  VBuilder := FVectorGeometryLonLatFactory.MakeLineBuilder;
+  OnBeforeGetPath;
+  try
+    VIsLineProcessed := False;
+    VPointsAggregator := TDoublePointsAggregator.Create;
+    VBuilder := FVectorGeometryLonLatFactory.MakeLineBuilder;
 
-  if Supports(ASource, IGeometryLonLatSingleLine, VSingleLine) then begin
-    VConErr :=
-      not ProcessSinglePath(
-        ACancelNotifier,
-        AOperationID,
-        VSingleLine,
-        VPointsAggregator,
-        VBuilder
-      );
-  end else if Supports(ASource, IGeometryLonLatMultiLine, VMultiLine) then begin
-    for I := 0 to VMultiLine.Count - 1 do begin
-      VConErr :=
-        not ProcessSinglePath(
+    if Supports(ASource, IGeometryLonLatSingleLine, VSingleLine) then begin
+      VIsLineProcessed :=
+        ProcessSinglePath(
           ACancelNotifier,
           AOperationID,
-          VMultiLine.Item[I],
+          VSingleLine,
           VPointsAggregator,
           VBuilder
         );
-      if VConErr then begin
-        Break;
+    end else if Supports(ASource, IGeometryLonLatMultiLine, VMultiLine) then begin
+      for I := 0 to VMultiLine.Count - 1 do begin
+        if
+          ProcessSinglePath(
+            ACancelNotifier,
+            AOperationID,
+            VMultiLine.Item[I],
+            VPointsAggregator,
+            VBuilder
+          )
+        then begin
+          VIsLineProcessed := True;
+          VPointsAggregator.Add(CEmptyDoublePoint);
+        end else begin
+          Break;
+        end;
       end;
-      VPointsAggregator.Add(CEmptyDoublePoint);
+    end else begin
+      Assert(False);
     end;
-  end else begin
-    Assert(False);
-  end;
 
-  if not VConErr then begin
-    Result := VBuilder.MakeStaticAndClear;
+    if VIsLineProcessed then begin
+      Result := VBuilder.MakeStaticAndClear;
+    end;
+  finally
+    OnAfterGetPath;
   end;
+end;
+
+procedure TPathDetalizeProviderBase.OnBeforeGetPath;
+begin
+  // empty
+end;
+
+procedure TPathDetalizeProviderBase.OnAfterGetPath;
+begin
+  // empty
 end;
 
 end.
