@@ -35,6 +35,13 @@ uses
   u_BaseInterfacedObject;
 
 type
+  TDynamicOptionsReader =
+    procedure(
+      const ALonLat: TDoublePoint;
+      out ALinesCount: Integer;
+      out ASamplesCount: Integer
+    ) of object;
+
   TTerrainProviderByExternal = class(TBaseInterfacedObject, ITerrainProvider)
   private
     FDefaultPath: String;
@@ -51,6 +58,14 @@ type
     FByteOrder: Integer;
     FPrefix, FSuffix: String;
     FLonDigitsWidth, FLatDigitsWidth : Integer;
+
+    FDynamicOptionsReader: TDynamicOptionsReader;
+
+    procedure AlosDynamicOptionsReader(
+      const ALonLat: TDoublePoint;
+      out ALinesCount: Integer;
+      out ASamplesCount: Integer
+    );
   private
     procedure InternalClose;
   private
@@ -151,6 +166,12 @@ begin
 
   FLatDigitsWidth := AOptions.ReadInteger('LatDigitsWidth', 2);
   FLonDigitsWidth := AOptions.ReadInteger('LonDigitsWidth', 3);
+
+  if LowerCase(AOptions.ReadString('DynamicSchema', '')) = 'alos' then begin
+    FDynamicOptionsReader := Self.AlosDynamicOptionsReader;
+  end else begin
+    FDynamicOptionsReader := nil;
+  end;
 end;
 
 destructor TTerrainProviderByExternal.Destroy;
@@ -177,11 +198,11 @@ begin
   // 'E056'
   Result := IntToStr(Abs(AValue));
 
-  while (Length(Result) < AWidth) do begin
+  while Length(Result) < AWidth do begin
     Result := '0' + Result;
   end;
 
-  if (AValue < 0) then begin
+  if AValue < 0 then begin
     Result := APrefIfMinus + Result;
   end else begin
     Result := APrefIfPlus + Result;
@@ -199,81 +220,96 @@ var
   VFilenameForPoint: String;
   VDone: Boolean;
   VElevationData: SmallInt; // signed 16bit
+  VLinesCount, VSamplesCount: Integer;
 begin
-  if (FProjConverter <> nil) then begin
+  Result := cUndefinedElevationValue;
+
+  if FProjConverter <> nil then begin
     // TODO: convert to WGS84/EGM96 geoid
+    Exit;
+  end;
+
+  if Assigned(FDynamicOptionsReader) then begin
+    FDynamicOptionsReader(ALonLat, VLinesCount, VSamplesCount);
+  end else begin
+    VLinesCount := FLinesCount;
+    VSamplesCount := FSamplesCount;
+  end;
+
+  // get filename for given point
+  // use common 1x1 distribution (GDEM, STRM, viewfinderpanoramas)
+  // TODO: see 'file' implementation for ETOPO1 in ExternalTerrains.dll source
+  // TODO: see 'a-p,50' implementation for GLOBE in ExternalTerrains.dll source
+  VCustomRowCount := VLinesCount;
+
+  VFilePoint.X := Floor(ALonLat.X);
+  VFilePoint.Y := Floor(ALonLat.Y);
+
+  // StripIndex
+  VIndexInLines := Round((1 - (ALonLat.Y - VFilePoint.Y)) * (VLinesCount - 1));
+  // ColumnIndex
+  VIndexInSamples := Round((ALonLat.X - VFilePoint.X) * (VSamplesCount - 1));
+
+  // make filename
+  VFilenameForPoint :=
+    FBaseFolder +
+    FPrefix +
+    GetFilenamePart(VFilePoint.Y, 'N', 'S', FLatDigitsWidth) +
+    GetFilenamePart(VFilePoint.X, 'E', 'W', FLonDigitsWidth) +
+    FSuffix;
+
+  // if file not opened or opened another file - open this
+  if (FFileName <> VFilenameForPoint) or (FFileHandle = 0) then begin
+    InternalClose;
+    FFileName := VFilenameForPoint;
+    // open file
+    FFileHandle := CreateFile(PChar(FFileName), GENERIC_READ, FILE_SHARE_READ,
+      nil, OPEN_EXISTING, 0, 0);
+
+    if FFileHandle = INVALID_HANDLE_VALUE then begin
+      FFileHandle := 0;
+    end;
+  end;
+
+  if FFileHandle = 0 then begin
+    Exit;
+  end;
+
+  // check format
+  if SameText(ExtractFileExt(FFileName), '.tif') then begin
+    // with tiff header
+    VDone := FindElevationInTiff(
+      FFileHandle,
+      VIndexInLines,
+      VIndexInSamples,
+      VCustomRowCount,
+      VSamplesCount,
+      VElevationData
+    );
+  end else begin
+    // without header
+    VDone := FindElevationInPlain(
+      FFileHandle,
+      VIndexInLines,
+      VIndexInSamples,
+      VCustomRowCount,
+      VSamplesCount,
+      VElevationData
+    );
+  end;
+
+  // check byte inversion
+  if VDone and (FByteOrder <> 0) then begin
+    SwapInWord(@VElevationData);
+  end;
+
+  // check voids and result
+  if not VDone or ((FVoidValue <> 0) and (FVoidValue = VElevationData)) then begin
+    // void or failed
     Result := cUndefinedElevationValue;
   end else begin
-    // without conversion
-    Result := cUndefinedElevationValue;
-
-    // get filename for given point
-    // use common 1x1 distribution (GDEM, STRM, viewfinderpanoramas)
-    // TODO: see 'file' implementation for ETOPO1 in ExternalTerrains.dll source
-    // TODO: see 'a-p,50' implementation for GLOBE in ExternalTerrains.dll source
-    VCustomRowCount := FLinesCount;
-
-    VFilePoint.X := Floor(ALonLat.X);
-    VFilePoint.Y := Floor(ALonLat.Y);
-
-    // StripIndex
-    VIndexInLines := Round((1 - (ALonLat.Y - VFilePoint.Y)) * (FLinesCount - 1));
-    // ColumnIndex
-    VIndexInSamples := Round((ALonLat.X - VFilePoint.X) * (FSamplesCount - 1));
-
-    // make filename
-    VFilenameForPoint := FBaseFolder + FPrefix + GetFilenamePart(VFilePoint.Y, 'N', 'S', FLatDigitsWidth) + GetFilenamePart(VFilePoint.X, 'E', 'W', FLonDigitsWidth) + FSuffix;
-
-    // if file not opened or opened another file - open this
-    if (FFileName <> VFilenameForPoint) or (0 = FFileHandle) then begin
-      InternalClose;
-      FFileName := VFilenameForPoint;
-      // open file
-      FFileHandle := CreateFile(PChar(FFileName), GENERIC_READ, FILE_SHARE_READ, nil, OPEN_EXISTING, 0, 0);
-      if (INVALID_HANDLE_VALUE = FFileHandle) then begin
-        FFileHandle := 0;
-      end;
-    end;
-
-    // if file opened
-    if (FFileHandle <> 0) then begin
-      // check format
-      if SameText(ExtractFileExt(FFileName), '.tif') then begin
-        // with tiff header
-        VDone := FindElevationInTiff(
-          FFileHandle,
-          VIndexInLines,
-          VIndexInSamples,
-          VCustomRowCount,
-          FSamplesCount,
-          VElevationData
-        );
-      end else begin
-        // without header
-        VDone := FindElevationInPlain(
-          FFileHandle,
-          VIndexInLines,
-          VIndexInSamples,
-          VCustomRowCount,
-          FSamplesCount,
-          VElevationData
-        );
-      end;
-
-      // check byte inversion
-      if VDone and (FByteOrder <> 0) then begin
-        SwapInWord(@VElevationData);
-      end;
-
-      // check voids and result
-      if (not VDone) or ((FVoidValue <> 0) and (FVoidValue = VElevationData)) then begin
-        // void or failed
-        Result := cUndefinedElevationValue;
-      end else begin
-        // ok
-        Result := VElevationData;
-      end;
-    end;
+    // ok
+    Result := VElevationData;
   end;
 end;
 
@@ -284,9 +320,39 @@ end;
 
 procedure TTerrainProviderByExternal.InternalClose;
 begin
-  if (FFileHandle <> 0) then begin
+  if FFileHandle <> 0 then begin
     CloseHandle(FFileHandle);
     FFileHandle := 0;
+  end;
+end;
+
+procedure TTerrainProviderByExternal.AlosDynamicOptionsReader(
+  const ALonLat: TDoublePoint;
+  out ALinesCount: Integer;
+  out ASamplesCount: Integer
+);
+var
+  VLat: Double;
+begin
+  // https://www.eorc.jaxa.jp/ALOS/en/aw3d30/aw3d30v31_product_e_a.pdf
+
+  ALinesCount := 3600;
+
+  VLat := Abs(ALonLat.Y);
+
+  if VLat < 60 then begin // 0..59
+    ASamplesCount := 3600;
+  end else
+  if VLat < 70 then begin // 60..69
+    ASamplesCount := 1800;
+  end else
+  if VLat < 80 then begin // 70..79
+    ASamplesCount := 1200;
+  end else
+  if VLat < 90 then begin // 80..89
+    ASamplesCount := 600;
+  end else begin
+    Assert(False);
   end;
 end;
 
