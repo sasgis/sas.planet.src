@@ -150,7 +150,7 @@ var
   I: Integer;
   VCount: uint32_t;
   VRoutePoint: ppoint_t;
-  VCalcResult: TRouteCaclResult;
+  VCalcResult: TRouteCalcResult;
   VPoints: PDoublePointArray;
 begin
   Assert(FCtx <> nil);

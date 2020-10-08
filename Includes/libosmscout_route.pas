@@ -18,7 +18,7 @@ type
     ROUTE_PROFILE_FOOT
   );
 
-  TRouteCaclResult  = (
+  TRouteCalcResult  = (
     CALC_RESULT_OK,
     CALC_RESULT_NODATA,
     CALC_RESULT_ERROR
@@ -39,7 +39,7 @@ var
     del: procedure(ctx: pointer); cdecl;
 
     calc: function(ctx: pointer; profile: TRouteProfile; const p1, p2: ppoint_t;
-            out out_count: uint32_t; out out_points: ppoint_t): TRouteCaclResult; cdecl;
+            out out_count: uint32_t; out out_points: ppoint_t): TRouteCalcResult; cdecl;
 
     clear: procedure(ctx: pointer); cdecl;
     get_error_message: function(ctx: pointer): PAnsiChar; cdecl;
