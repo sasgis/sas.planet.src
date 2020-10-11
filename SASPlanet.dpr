@@ -236,6 +236,7 @@ uses
   i_CoordToStringConverter in 'Src\CoordRepresentation\i_CoordToStringConverter.pas',
   t_CoordRepresentation in 'Src\CoordRepresentation\t_CoordRepresentation.pas',
   u_CoordFromStringParser in 'Src\CoordRepresentation\u_CoordFromStringParser.pas',
+  u_CoordRepresentation in 'Src\CoordRepresentation\u_CoordRepresentation.pas',
   u_CoordRepresentationConfig in 'Src\CoordRepresentation\u_CoordRepresentationConfig.pas',
   u_CoordToStringConverter in 'Src\CoordRepresentation\u_CoordToStringConverter.pas',
   u_CoordToStringConverterChangeable in 'Src\CoordRepresentation\u_CoordToStringConverterChangeable.pas',

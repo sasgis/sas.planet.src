@@ -11,34 +11,6 @@ object frLonLat: TfrLonLat
   ParentShowHint = False
   ShowHint = True
   TabOrder = 0
-  object pnlTop: TPanel
-    Left = 0
-    Top = 0
-    Width = 451
-    Height = 24
-    Align = alTop
-    BevelOuter = bvNone
-    TabOrder = 0
-    object cbbCoordType: TComboBox
-      AlignWithMargins = True
-      Left = 3
-      Top = 3
-      Width = 445
-      Height = 21
-      Align = alTop
-      Style = csDropDownList
-      ItemIndex = 0
-      TabOrder = 0
-      Text = 'Geographic Coordinates'
-      OnSelect = cbbCoordTypeSelect
-      Items.Strings = (
-        'Geographic Coordinates'
-        'Pixel'
-        'Tile')
-      ExplicitLeft = 6
-      ExplicitWidth = 219
-    end
-  end
   object grdpnlLonLat: TGridPanel
     Left = 0
     Top = 24
@@ -510,5 +482,112 @@ object frLonLat: TfrLonLat
         ExplicitWidth = 145
       end
     end
+  end
+  object grdpnlTop: TGridPanel
+    Left = 0
+    Top = 0
+    Width = 451
+    Height = 24
+    Align = alTop
+    BevelOuter = bvNone
+    ColumnCollection = <
+      item
+        Value = 100.000000000000000000
+      end
+      item
+        SizeStyle = ssAuto
+        Value = 100.000000000000000000
+      end>
+    ControlCollection = <
+      item
+        Column = 0
+        Control = cbbCoordType
+        Row = 0
+      end
+      item
+        Column = 1
+        Control = pnlButtons
+        Row = 0
+      end>
+    RowCollection = <
+      item
+        Value = 100.000000000000000000
+      end
+      item
+        SizeStyle = ssAuto
+      end>
+    TabOrder = 3
+    object cbbCoordType: TComboBox
+      AlignWithMargins = True
+      Left = 3
+      Top = 3
+      Width = 355
+      Height = 21
+      Align = alTop
+      Style = csDropDownList
+      Anchors = []
+      ItemHeight = 13
+      ItemIndex = 0
+      TabOrder = 0
+      Text = 'Geographic Coordinates'
+      OnSelect = cbbCoordTypeSelect
+      Items.Strings = (
+        'Geographic Coordinates'
+        'Pixel'
+        'Tile')
+    end
+    object pnlButtons: TPanel
+      Left = 361
+      Top = 0
+      Width = 90
+      Height = 26
+      Align = alClient
+      BevelOuter = bvNone
+      TabOrder = 1
+      object btnPaste: TTBXButton
+        Left = 35
+        Top = 0
+        Width = 29
+        Height = 26
+        Hint = 'Paste coordinates from clipboard'
+        Align = alRight
+        ButtonStyle = bsFlat
+        ImageIndex = 68
+        Images = frmMain.MenusImageList
+        TabOrder = 0
+        OnClick = btnPasteClick
+      end
+      object btnCopy: TTBXButton
+        Left = 9
+        Top = 0
+        Width = 26
+        Height = 26
+        Hint = 'Copy coordinates to clipboard'
+        Align = alRight
+        ButtonStyle = bsFlat
+        ImageIndex = 67
+        Images = frmMain.MenusImageList
+        TabOrder = 1
+        OnClick = btnCopyClick
+      end
+      object btnCoordFormat: TTBXButton
+        Left = 64
+        Top = 0
+        Width = 26
+        Height = 26
+        Hint = 'Change coordinates representation'
+        Align = alRight
+        ButtonStyle = bsFlat
+        DropDownMenu = tbxpmnCoordFormat
+        ImageIndex = 20
+        Images = frmMain.MenusImageList
+        TabOrder = 2
+        OnClick = btnCoordFormatClick
+      end
+    end
+  end
+  object tbxpmnCoordFormat: TTBXPopupMenu
+    Left = 32
+    Top = 232
   end
 end

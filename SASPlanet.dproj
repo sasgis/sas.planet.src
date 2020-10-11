@@ -288,6 +288,7 @@
     <DCCReference Include="Src\CoordConvert\u_ProjectionTypeGELonLat.pas" />
     <DCCReference Include="Src\CoordConvert\u_ProjectionTypeMercatorOnEllipsoid.pas" />
     <DCCReference Include="Src\CoordConvert\u_ProjectionTypeMercatorOnSphere.pas" />
+    <DCCReference Include="Src\CoordRepresentation\u_CoordRepresentation.pas" />
     <DCCReference Include="Src\CoordRepresentation\i_CoordFromStringParser.pas" />
     <DCCReference Include="Src\CoordRepresentation\i_CoordRepresentationConfig.pas" />
     <DCCReference Include="Src\CoordRepresentation\i_CoordToStringConverter.pas" />
@@ -1354,6 +1355,7 @@
     <DCCReference Include="Src\Routing\u_PathDetalizeProviderBase.pas" />
     <DCCReference Include="Src\Routing\u_PathDetalizeProviderCloudMade.pas" />
     <DCCReference Include="Src\Routing\u_PathDetalizeProviderMailRu.pas" />
+    <DCCReference Include="Src\Routing\u_PathDetalizeProviderOsmScout.pas" />
     <DCCReference Include="Src\Routing\u_PathDetalizeProviderOSRM.pas" />
     <DCCReference Include="Src\Routing\u_PathDetalizeProviderTreeEntity.pas" />
     <DCCReference Include="Src\Routing\u_PathDetalizeProviderTreeSimple.pas" />

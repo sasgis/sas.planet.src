@@ -769,16 +769,7 @@ object frmSettings: TfrmSettings
               Align = alBottom
               Style = csDropDownList
               ItemHeight = 13
-              ItemIndex = 0
               TabOrder = 0
-              Text = 'WS deg.min.sec. (W12'#176'12'#39'12.1234")'
-              Items.Strings = (
-                'WS deg.min.sec. (W12'#176'12'#39'12.1234")'
-                'WS deg.min. (W12'#176'12.123456'#39')'
-                'WS deg. (W12.12345678'#176')'
-                '-- deg.min.sec. (-12'#176'12'#39'12.1234")'
-                '-- deg.min. (-12'#176'12.1234'#39')'
-                '-- deg. (-12.12345678'#176')')
             end
           end
           object pnlLang: TPanel

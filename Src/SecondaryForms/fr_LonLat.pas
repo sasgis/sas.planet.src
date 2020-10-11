@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2020, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -32,6 +32,11 @@ uses
   Dialogs,
   ExtCtrls,
   StdCtrls,
+  UITypes,
+  Menus,
+  TBX,
+  TBXDkPanels,
+  TB2Item,
   t_GeoTypes,
   i_LanguageManager,
   i_ProjectionSetChangeable,
@@ -45,7 +50,6 @@ type
   TTileSelectStyle = (tssCenter, tssTopLeft, tssBottomRight);
 
   TfrLonLat = class(TFrame)
-    pnlTop: TPanel;
     cbbCoordType: TComboBox;
     pnlXY: TPanel;
     grdpnlLonLat: TGridPanel;
@@ -71,7 +75,16 @@ type
     lblZone: TLabel;
     cbbZone: TComboBox;
     chkNorth: TCheckBox;
+    btnCopy: TTBXButton;
+    grdpnlTop: TGridPanel;
+    btnPaste: TTBXButton;
+    pnlButtons: TPanel;
+    btnCoordFormat: TTBXButton;
+    tbxpmnCoordFormat: TTBXPopupMenu;
     procedure cbbCoordTypeSelect(Sender: TObject);
+    procedure btnCopyClick(Sender: TObject);
+    procedure btnPasteClick(Sender: TObject);
+    procedure btnCoordFormatClick(Sender: TObject);
   private
     FCoordinates: TDoublePoint;
     FProjectionSet: IProjectionSetChangeable;
@@ -84,6 +97,10 @@ type
     procedure SetLonLat(const Value: TDoublePoint);
     procedure SetEnabled(const Value: Boolean); reintroduce;
     function IsProjected: Boolean; inline;
+    procedure BuildCoordFormatMenu;
+    procedure OnCoordFormatClick(Sender: TObject);
+  protected
+    procedure RefreshTranslation; override;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -105,12 +122,15 @@ implementation
 uses
   Types,
   Math,
+  Clipbrd,
   gnugettext,
   Proj4SK42,
   t_CoordRepresentation,
   i_Projection,
   i_ProjectionSet,
   i_LocalCoordConverter,
+  u_ClipboardFunc,
+  u_CoordRepresentation,
   u_GeoFunc,
   u_GeoToStrFunc,
   u_ResStrings;
@@ -118,11 +138,6 @@ uses
 {$R *.dfm}
 
 { TfrLonLat }
-
-procedure TfrLonLat.cbbCoordTypeSelect(Sender: TObject);
-begin
-  SetLonLat(FCoordinates);
-end;
 
 constructor TfrLonLat.Create(
   const ALanguageManager: ILanguageManager;
@@ -147,6 +162,12 @@ begin
   for I := 1 to 60 do begin
     cbbZone.AddItem(IntToStr(I), nil);
   end;
+  BuildCoordFormatMenu;
+end;
+
+procedure TfrLonLat.cbbCoordTypeSelect(Sender: TObject);
+begin
+  SetLonLat(FCoordinates);
 end;
 
 function TfrLonLat.IsProjected: Boolean;
@@ -367,6 +388,124 @@ begin
   if Result then begin
     FCoordinates := VLonLat;
   end;
+end;
+
+procedure TfrLonLat.btnCopyClick(Sender: TObject);
+const
+  CSep = ' ';
+var
+  VStr: string;
+begin
+  if not Validate then begin
+    Exit;
+  end;
+
+  VStr := '';
+
+  case cbbCoordType.ItemIndex of
+    0: begin
+      if IsProjected then begin
+        VStr := edtProjectedX.Text + CSep + edtProjectedY.Text;
+      end else begin
+        VStr := edtLat.Text + CSep + edtLon.Text;
+      end;
+    end;
+    1, 2: begin
+      VStr := edtX.Text + CSep + edtY.Text;
+    end;
+  else
+    Assert(False);
+  end;
+
+  CopyStringToClipboard(Self.Handle, VStr);
+end;
+
+procedure TfrLonLat.btnPasteClick(Sender: TObject);
+var
+  I: Integer;
+  S1, S2: string;
+  VText: string;
+begin
+  VText := Clipboard.AsText;
+
+  if VText = '' then begin
+    MessageDlg(_('Clipboard is empty!'), mtError, [mbOK], 0);
+    Exit;
+  end;
+
+  I := Pos(' ', VText); // "Lat Lon" or "X Y"
+  if I > 0 then begin
+    S1 := Trim(Copy(VText, 1, I-1));
+    S2 := Trim(Copy(VText, I+1));
+  end else begin
+    S1 := '';
+    S2 := '';
+  end;
+
+  if (S1 = '') or (S2 = '') then begin
+    MessageDlg(
+      Format(_('Can''t parse coordinates from clipboard: %s'), [VText]),
+      mtError, [mbOK], 0
+    );
+    Exit;
+  end;
+
+  case cbbCoordType.ItemIndex of
+    0: begin
+      if IsProjected then begin
+        edtProjectedX.Text := S1;
+        edtProjectedY.Text := S2;
+      end else begin
+        edtLon.Text := S2;
+        edtLat.Text := S1;
+      end;
+    end;
+    1, 2: begin
+      edtX.Text := S1;
+      edtY.Text := S2;
+    end;
+  else
+    Assert(False);
+  end;
+end;
+
+procedure TfrLonLat.BuildCoordFormatMenu;
+var
+  I: TDegrShowFormat;
+  VItem: TTBXCustomItem;
+  VCaption: TDegrShowFormatCaption;
+begin
+  VCaption := GetDegrShowFormatCaption;
+  tbxpmnCoordFormat.Items.Clear;
+  for I := Low(TDegrShowFormat) to High(TDegrShowFormat) do begin
+    VItem := TTBXCustomItem.Create(tbxpmnCoordFormat);
+    VItem.Caption := VCaption[I];
+    VItem.Tag := 100 + Integer(I);
+    VItem.OnClick := Self.OnCoordFormatClick;
+    tbxpmnCoordFormat.Items.Add(VItem);
+  end;
+end;
+
+procedure TfrLonLat.OnCoordFormatClick(Sender: TObject);
+var
+  VItem: TTBXCustomItem;
+begin
+  VItem := Sender as TTBXCustomItem;
+  FCoordRepresentationConfig.DegrShowFormat := TDegrShowFormat(VItem.Tag - 100);
+  SetLonLat(FCoordinates);
+end;
+
+procedure TfrLonLat.btnCoordFormatClick(Sender: TObject);
+begin
+  with btnCoordFormat.ClientToScreen(Point(0, btnCoordFormat.Height)) do begin
+    tbxpmnCoordFormat.Popup(X, Y);
+  end;
+end;
+
+procedure TfrLonLat.RefreshTranslation;
+begin
+  inherited;
+  BuildCoordFormatMenu;
 end;
 
 end.

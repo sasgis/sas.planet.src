@@ -294,6 +294,7 @@ type
     FfrCacheTypesList: TfrCacheTypeList;
     frFavoriteMapSetManager: TfrFavoriteMapSetManager;
 
+    procedure InitCoordRepresentationList;
     procedure InitResamplersList(
       const AList: IImageResamplerFactoryList;
       ABox: TComboBox
@@ -333,6 +334,7 @@ uses
   u_ListenerNotifierLinksList,
   u_StrFunc,
   u_GlobalState,
+  u_CoordRepresentation,
   u_ResStrings;
 
 {$R *.dfm}
@@ -1016,6 +1018,8 @@ begin
   InitResamplersList(GState.ImageResamplerFactoryList, cbbResizeTileMatrixDraft);
   cbbResizeTileMatrixDraft.ItemIndex := GState.ImageResamplerFactoryList.GetIndexByGUID(GState.Config.TileMatrixDraftResamplerConfig.ActiveGUID);
 
+  InitCoordRepresentationList;
+
   GState.Config.CoordRepresentationConfig.LockRead;
   try
     ChBoxFirstLat.Checked := GState.Config.CoordRepresentationConfig.IsLatitudeFirst;
@@ -1074,6 +1078,18 @@ procedure TfrmSettings.RefreshTranslation;
 begin
   inherited;
   FormShow(Self);
+end;
+
+procedure TfrmSettings.InitCoordRepresentationList;
+var
+  I: TDegrShowFormat;
+  VCaption: TDegrShowFormatCaption;
+begin
+  VCaption := GetDegrShowFormatCaption;
+  CB_llstrType.Clear;
+  for I := Low(TDegrShowFormat) to High(TDegrShowFormat) do begin
+    CB_llstrType.Items.Add(VCaption[I]);
+  end;
 end;
 
 procedure TfrmSettings.InitResamplersList(
