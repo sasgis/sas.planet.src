@@ -118,9 +118,10 @@ var
   VInt: Int64;
   VValue: Int64;
 begin
+  Result := '';
   VDegr := Abs(ADegr);
-  Result := '-';
   case FDegrShowFormat of
+
     dshCharDegrMinSec, dshSignDegrMinSec: begin
       VValue := Trunc(VDegr * 60 * 60 * 10000 + 0.005);
       VInt := Trunc(VValue / (60 * 60 * 10000));
@@ -149,6 +150,7 @@ begin
         end;
       end;
     end;
+
     dshCharDegrMin, dshSignDegrMin: begin
       VValue := Trunc(VDegr * 60 * 1000000 + 0.00005);
       VInt := Trunc(VValue / (60 * 1000000));
@@ -167,6 +169,7 @@ begin
         end; //  12°00' -> 12°
       end;
     end;
+
     dshCharDegr, dshSignDegr: begin
       Result := FloatToStr('0.00000000', VDegr) + '°';
       if ACutZero then begin
@@ -180,6 +183,10 @@ begin
         end;
       end;
     end;
+  else
+    raise Exception.CreateFmt(
+      'Unexpected degree format value: %d', [Integer(FDegrShowFormat)]
+    );
   end;
 end;
 
