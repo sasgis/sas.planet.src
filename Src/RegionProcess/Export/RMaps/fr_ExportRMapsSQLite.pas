@@ -148,6 +148,7 @@ uses
   i_MapVersionRequest,
   i_ContentTypeInfo,
   i_MapTypeListStatic,
+  u_FileSystemFunc,
   u_BitmapLayerProviderMapWithLayer;
 
 {$R *.dfm}
@@ -459,7 +460,9 @@ var
   VMap: IMapType;
   VLayer: IMapType;
 begin
-  Result := (edtTargetFile.Text <> '');
+  edtTargetFile.Text := Trim(edtTargetFile.Text);
+
+  Result := IsValidFileName(edtTargetFile.Text);
   if not Result then begin
     ShowMessage(_('Please, select output file first!'));
     Exit;

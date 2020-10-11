@@ -28,6 +28,7 @@ function IsRelativePath(const Path: string): Boolean; inline;
 function GetFullPath(const ABasePath, ARelativePath: string): string;
 function GetDiskFree(const ADrive: Char): Int64;
 function ReplaceIllegalFileNameChars(const AFileName: string): string;
+function IsValidFileName(const AFileName: string): Boolean;
 
 implementation
 
@@ -86,6 +87,30 @@ begin
   Result := StringReplace(Result, '>', '-', [rfReplaceAll]);
   Result := StringReplace(Result, '<', '-', [rfReplaceAll]);
   Result := StringReplace(Result, '|', '-', [rfReplaceAll]);
+end;
+
+function IsValidFileName(const AFileName: string): Boolean;
+var
+  VHandle: THandle;
+begin
+  Result := False;
+
+  if (AFileName = '') or (ExtractFileName(AFileName) = '') then begin
+    Exit;
+  end;
+
+  if FileExists(AFileName) then begin
+    Result := True;
+    Exit;
+  end;
+
+  VHandle := CreateFile(PChar(AFileName), GENERIC_READ or GENERIC_WRITE, 0, nil,
+    CREATE_NEW, FILE_ATTRIBUTE_TEMPORARY or FILE_FLAG_DELETE_ON_CLOSE, 0);
+
+  if VHandle <> INVALID_HANDLE_VALUE then begin
+    Result := True;
+    CloseHandle(VHandle);
+  end;
 end;
 
 end.
