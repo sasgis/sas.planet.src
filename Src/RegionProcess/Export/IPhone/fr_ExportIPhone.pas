@@ -202,16 +202,19 @@ end;
 
 function TfrExportIPhone.Validate: Boolean;
 begin
-  Result := (edtTargetPath.Text <> '');
-  if not Result then begin
+  Result := False;
+
+  if Trim(edtTargetPath.Text) = '' then begin
     ShowMessage(_('Please select output folder'));
     Exit;
   end;
 
-  Result := FfrZoomsSelect.Validate;
-  if not Result then begin
+  if not FfrZoomsSelect.Validate then begin
     ShowMessage(_('Please select at least one zoom'));
+    Exit;
   end;
+
+  Result := True;
 end;
 
 end.

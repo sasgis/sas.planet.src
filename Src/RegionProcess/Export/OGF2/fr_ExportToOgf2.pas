@@ -133,6 +133,7 @@ uses
   i_GeometryProjected,
   u_GeoFunc,
   u_GeometryFunc,
+  u_FileSystemFunc,
   u_BitmapLayerProviderMapWithLayer,
   u_ResStrings;
 
@@ -257,7 +258,7 @@ end;
 
 function TfrExportToOgf2.GetPath: string;
 begin
-  Result := edtTargetFile.Text;
+  Result := Trim(edtTargetFile.Text);
 end;
 
 function TfrExportToOgf2.GetProvider: IBitmapTileUniProvider;
@@ -356,11 +357,22 @@ end;
 
 function TfrExportToOgf2.Validate: Boolean;
 begin
-  Result := (edtTargetFile.Text <> '');
-  if not Result then begin
-    ShowMessage(_('Please, select output file first!'));
+  Result := False;
+
+  if not IsValidFileName(edtTargetFile.Text) then begin
+    ShowMessage(_('Output file name is not set or incorrect!'));
     Exit;
   end;
+
+  if
+    (FfrMapSelect.GetSelectedMapType = nil) and
+    (FfrHybSelect.GetSelectedMapType = nil) then
+  begin
+    ShowMessage(_('Please select at least one map or overlay layer'));
+    Exit;
+  end;
+
+  Result := True;
 end;
 
 end.

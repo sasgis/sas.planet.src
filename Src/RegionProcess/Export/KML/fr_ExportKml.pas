@@ -99,7 +99,8 @@ implementation
 
 uses
   gnugettext,
-  i_TileStorageAbilities;
+  i_TileStorageAbilities,
+  u_FileSystemFunc;
 
 {$R *.dfm}
 
@@ -156,7 +157,7 @@ end;
 
 function TfrExportKml.GetPath: string;
 begin
-  Result := edtTargetFile.Text;
+  Result := Trim(edtTargetFile.Text);
 end;
 
 function TfrExportKml.GetRelativePath: Boolean;
@@ -177,16 +178,24 @@ end;
 
 function TfrExportKml.Validate: Boolean;
 begin
-  Result := (edtTargetFile.Text <> '');
-  if not Result then begin
-    ShowMessage(_('Please, select output file first!'));
+  Result := False;
+
+  if not IsValidFileName(edtTargetFile.Text) then begin
+    ShowMessage(_('Output file name is not set or incorrect!'));
     Exit;
   end;
 
-  Result := FfrZoomsSelect.Validate;
-  if not Result then begin
+  if not FfrZoomsSelect.Validate then begin
     ShowMessage(_('Please select at least one zoom'));
+    Exit;
   end;
+
+  if FfrMapSelect.GetSelectedMapType = nil then begin
+    ShowMessage(_('Please select the map first!'));
+    Exit;
+  end;
+
+  Result := True;
 end;
 
 end.

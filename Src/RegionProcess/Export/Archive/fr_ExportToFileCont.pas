@@ -108,14 +108,14 @@ type
       const AArchiveWriterConfigFrame: TFrame = nil
     ); reintroduce;
     destructor Destroy; override;
-    procedure RefreshTranslation; override;
   end;
 
 implementation
 
 uses
   gnugettext,
-  i_TileStorageAbilities;
+  i_TileStorageAbilities,
+  u_FileSystemFunc;
 
 {$R *.dfm}
 
@@ -192,7 +192,6 @@ end;
 function TfrExportToFileCont.GetMapType: IMapType;
 begin
   Result := FfrMapSelect.GetSelectedMapType;
-  Assert(Result <> nil);
 end;
 
 function TfrExportToFileCont.GetNameGenerator: ITileFileNameGenerator;
@@ -202,7 +201,7 @@ end;
 
 function TfrExportToFileCont.GetPath: string;
 begin
-  Result := edtTargetFile.Text;
+  Result := Trim(edtTargetFile.Text);
 end;
 
 function TfrExportToFileCont.GetZoomArray: TByteDynArray;
@@ -217,11 +216,6 @@ begin
   FfrCacheTypeList.Show(pnlCacheTypes);
 end;
 
-procedure TfrExportToFileCont.RefreshTranslation;
-begin
-  inherited;
-end;
-
 function TfrExportToFileCont.Validate: Boolean;
 
   procedure ShowErr(const AMsg: string);
@@ -230,24 +224,32 @@ function TfrExportToFileCont.Validate: Boolean;
   end;
 
 begin
-  Result := (edtTargetFile.Text <> '');
-  if not Result then begin
-    ShowErr(_('Please, select output file first!'));
+  Result := False;
+
+  if not IsValidFileName(edtTargetFile.Text) then begin
+    ShowErr(_('Output file name is not set or incorrect!'));
     Exit;
   end;
 
-  Result := FfrZoomsSelect.Validate;
-  if not Result then begin
+  if not FfrZoomsSelect.Validate then begin
     ShowErr(_('Please select at least one zoom!'));
     Exit;
   end;
 
-  if FfrArchiveWriterConfig <> nil then begin
-    Result := GetArchiveWriteConfig <> nil;
-    if not Result then begin
-      Exit;
-    end;
+  if
+    (FfrArchiveWriterConfig <> nil) and
+    (Self.GetArchiveWriteConfig = nil) then
+  begin
+    Assert(False);
+    Exit;
   end;
+
+  if FfrMapSelect.GetSelectedMapType = nil then begin
+    ShowErr(_('Please select the map first!'));
+    Exit;
+  end;
+
+  Result := True;
 end;
 
 end.

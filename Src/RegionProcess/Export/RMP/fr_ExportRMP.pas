@@ -150,6 +150,7 @@ uses
   i_ContentTypeInfo,
   i_MapTypeListStatic,
   u_StrFunc,
+  u_FileSystemFunc,
   u_BitmapLayerProviderMapWithLayer;
 
 {$R *.dfm}
@@ -358,23 +359,24 @@ end;
 
 function TfrExportRMP.Validate: Boolean;
 begin
-  Result := (Trim(edtTargetFile.Text) <> '');
-  if not Result then begin
-    ShowMessage(_('Please select output file'));
+  Result := False;
+
+  if not IsValidFileName(edtTargetFile.Text) then begin
+    ShowMessage(_('Output file name is not set or incorrect!'));
     Exit;
   end;
 
-  Result := FfrZoomsSelect.Validate;
-  if not Result then begin
+  if not FfrZoomsSelect.Validate then begin
     ShowMessage(_('Please select at least one zoom'));
+    Exit;
   end;
 
-  if Result then begin
-    if Self.GetMapType = nil then begin
-      Result := False;
-      ShowMessage(_('Please select at least one map or overlay layer'));
-    end;
+  if Self.GetMapType = nil then begin
+    ShowMessage(_('Please select at least one map or overlay layer'));
+    Exit;
   end;
+
+  Result := True;
 end;
 
 end.

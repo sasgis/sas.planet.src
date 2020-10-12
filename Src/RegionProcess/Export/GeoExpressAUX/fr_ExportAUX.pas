@@ -83,7 +83,8 @@ implementation
 
 uses
   gnugettext,
-  i_TileStorageAbilities;
+  i_TileStorageAbilities,
+  u_FileSystemFunc;
 
 {$R *.dfm}
 
@@ -120,12 +121,11 @@ end;
 function TfrExportAUX.GetMapType: IMapType;
 begin
   Result := FfrMapSelect.GetSelectedMapType;
-  Assert(Result <> nil);
 end;
 
 function TfrExportAUX.GetPath: string;
 begin
-  Result := edtTargetFile.Text;
+  Result := Trim(edtTargetFile.Text);
 end;
 
 function TfrExportAUX.GetZoom: Byte;
@@ -160,11 +160,19 @@ end;
 
 function TfrExportAUX.Validate: Boolean;
 begin
-  Result := (edtTargetFile.Text <> '');
-  if not Result then begin
-    ShowMessage(_('Please, select output file first!'));
+  Result := False;
+
+  if not IsValidFileName(edtTargetFile.Text) then begin
+    ShowMessage(_('Output file name is not set or incorrect!'));
     Exit;
   end;
+
+  if FfrMapSelect.GetSelectedMapType = nil then begin
+    ShowMessage(_('Please select the map first!'));
+    Exit;
+  end;
+
+  Result := True;
 end;
 
 end.

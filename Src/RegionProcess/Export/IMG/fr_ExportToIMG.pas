@@ -190,6 +190,7 @@ uses
   Graphics,
   gnugettext,
   u_InetFunc,
+  u_FileSystemFunc,
   u_GlobalState;
 
 {$R *.dfm}
@@ -522,8 +523,8 @@ begin
     exit;
   end;
 
-  if edtTargetFile.Text = '' then begin
-    ShowMessage(_('Please select output file first!'));
+  if not IsValidFileName(edtTargetFile.Text) then begin
+    ShowMessage(_('Output file name is not set or incorrect!'));
     edtTargetFile.SetFocus;
     exit;
   end;
@@ -580,7 +581,7 @@ end;
 
 function TfrExportToIMG.GetPath: string;
 begin
-  Result := edtTargetFile.Text;
+  Result := Trim(edtTargetFile.Text);
 end;
 
 function TfrExportToIMG.GetTask: TExportToIMGTask;

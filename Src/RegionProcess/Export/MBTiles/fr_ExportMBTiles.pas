@@ -163,6 +163,7 @@ uses
   i_MapVersionRequest,
   i_ContentTypeInfo,
   i_MapTypeListStatic,
+  u_FileSystemFunc,
   u_BitmapLayerProviderMapWithLayer;
 
 {$R *.dfm}
@@ -466,29 +467,28 @@ begin
 end;
 
 function TfrExportMBTiles.Validate: Boolean;
-var
-  VMap: IMapType;
-  VLayer: IMapType;
 begin
-  Result := (edtTargetFile.Text <> '');
-  if not Result then begin
-    ShowMessage(_('Please select output file'));
+  Result := False;
+
+  if not IsValidFileName(edtTargetFile.Text) then begin
+    ShowMessage(_('Output file name is not set or incorrect!'));
     Exit;
   end;
 
-  Result := FfrZoomsSelect.Validate;
-  if not Result then begin
+  if not FfrZoomsSelect.Validate then begin
     ShowMessage(_('Please select at least one zoom'));
+    Exit;
   end;
 
-  if Result then begin
-    VMap := FfrMapSelect.GetSelectedMapType;
-    VLayer := FfrOverlaySelect.GetSelectedMapType;
-    if not Assigned(VMap) and not Assigned(VLayer) then begin
-      Result := False;
-      ShowMessage(_('Please select at least one map or overlay layer'));
-    end;
+  if
+    (FfrMapSelect.GetSelectedMapType = nil) and
+    (FfrOverlaySelect.GetSelectedMapType = nil) then
+  begin
+    ShowMessage(_('Please select at least one map or overlay layer'));
+    Exit;
   end;
+
+  Result := True;
 end;
 
 end.

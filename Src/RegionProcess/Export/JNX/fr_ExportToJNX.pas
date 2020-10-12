@@ -203,6 +203,7 @@ uses
   gnugettext,
   i_ConfigDataProvider,
   i_PathConfig,
+  u_FileSystemFunc,
   u_ConfigDataProviderByIniFile,
   u_GlobalState;
 
@@ -778,9 +779,10 @@ end;
 
 function TfrExportToJNX.Validate: Boolean;
 begin
-  Result := (edtTargetFile.Text <> '');
-  if not Result then begin
-    ShowMessage(_('Please, select output file first!'));
+  Result := False;
+
+  if not IsValidFileName(edtTargetFile.Text) then begin
+    ShowMessage(_('Output file name is not set or incorrect!'));
     Exit;
   end;
 
@@ -803,7 +805,7 @@ end;
 
 function TfrExportToJNX.GetPath: string;
 begin
-  Result := edtTargetFile.Text;
+  Result := Trim(edtTargetFile.Text);
 end;
 
 function TfrExportToJNX.GetProductID: Integer;

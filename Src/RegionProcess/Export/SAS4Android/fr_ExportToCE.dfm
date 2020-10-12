@@ -137,7 +137,7 @@ object frExportToCE: TfrExportToCE
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 0
-    object lblTargetFile: TLabel
+    object lblTargetPath: TLabel
       AlignWithMargins = True
       Left = 3
       Top = 3
@@ -151,7 +151,7 @@ object frExportToCE: TfrExportToCE
       Layout = tlCenter
       ExplicitHeight = 13
     end
-    object edtTargetFile: TEdit
+    object edtTargetPath: TEdit
       Left = 47
       Top = 3
       Width = 380
@@ -159,7 +159,7 @@ object frExportToCE: TfrExportToCE
       Align = alClient
       TabOrder = 0
     end
-    object btnSelectTargetFile: TButton
+    object btnSelectTargetPath: TButton
       Left = 427
       Top = 3
       Width = 21
@@ -167,14 +167,7 @@ object frExportToCE: TfrExportToCE
       Align = alRight
       Caption = '...'
       TabOrder = 1
-      OnClick = btnSelectTargetFileClick
+      OnClick = btnSelectTargetPathClick
     end
-  end
-  object dlgSaveTargetFile: TSaveDialog
-    DefaultExt = '.d00'
-    Filter = '*.d00|*.d00|All (*.*)|*.*'
-    Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
-    Left = 336
-    Top = 272
   end
 end

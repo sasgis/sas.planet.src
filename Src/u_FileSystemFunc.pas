@@ -92,19 +92,21 @@ end;
 function IsValidFileName(const AFileName: string): Boolean;
 var
   VHandle: THandle;
+  VFileName: string;
 begin
   Result := False;
 
-  if (AFileName = '') or (ExtractFileName(AFileName) = '') then begin
+  VFileName := Trim(AFileName);
+  if (VFileName = '') or (ExtractFileName(VFileName) = '') then begin
     Exit;
   end;
 
-  if FileExists(AFileName) then begin
+  if FileExists(VFileName) then begin
     Result := True;
     Exit;
   end;
 
-  VHandle := CreateFile(PChar(AFileName), GENERIC_READ or GENERIC_WRITE, 0, nil,
+  VHandle := CreateFile(PChar(VFileName), GENERIC_READ or GENERIC_WRITE, 0, nil,
     CREATE_NEW, FILE_ATTRIBUTE_TEMPORARY or FILE_FLAG_DELETE_ON_CLOSE, 0);
 
   if VHandle <> INVALID_HANDLE_VALUE then begin

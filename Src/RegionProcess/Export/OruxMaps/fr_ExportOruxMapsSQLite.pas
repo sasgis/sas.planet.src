@@ -385,29 +385,28 @@ begin
 end;
 
 function TfrExportOruxMapsSQLite.Validate: Boolean;
-var
-  VMap: IMapType;
-  VLayer: IMapType;
 begin
-  Result := (edtTargetPath.Text <> '');
-  if not Result then begin
+  Result := False;
+
+  if Trim(edtTargetPath.Text) = '' then begin
     ShowMessage(_('Please select output folder'));
     Exit;
   end;
 
-  Result := FfrZoomsSelect.Validate;
-  if not Result then begin
+  if not FfrZoomsSelect.Validate then begin
     ShowMessage(_('Please select at least one zoom'));
+    Exit;
   end;
 
-  if Result then begin
-    VMap := FfrMapSelect.GetSelectedMapType;
-    VLayer := FfrOverlaySelect.GetSelectedMapType;
-    if not Assigned(VMap) and not Assigned(VLayer) then begin
-      Result := False;
-      ShowMessage(_('Please select at least one map or overlay layer'));
-    end;
+  if
+    (FfrMapSelect.GetSelectedMapType = nil) and
+    (FfrOverlaySelect.GetSelectedMapType = nil) then
+  begin
+    ShowMessage(_('Please select at least one map or overlay layer'));
+    Exit;
   end;
+
+  Result := True;
 end;
 
 end.

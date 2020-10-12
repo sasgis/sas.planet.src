@@ -317,7 +317,7 @@ end;
 
 function TfrExportRMapsSQLite.GetPath: string;
 begin
-  Result := edtTargetFile.Text;
+  Result := Trim(edtTargetFile.Text);
 end;
 
 function TfrExportRMapsSQLite.GetReplaceExistingTiles: Boolean;
@@ -456,31 +456,28 @@ begin
 end;
 
 function TfrExportRMapsSQLite.Validate: Boolean;
-var
-  VMap: IMapType;
-  VLayer: IMapType;
 begin
-  edtTargetFile.Text := Trim(edtTargetFile.Text);
+  Result := False;
 
-  Result := IsValidFileName(edtTargetFile.Text);
-  if not Result then begin
-    ShowMessage(_('Please, select output file first!'));
+  if not IsValidFileName(edtTargetFile.Text) then begin
+    ShowMessage(_('Output file name is not set or incorrect!'));
     Exit;
   end;
 
-  Result := FfrZoomsSelect.Validate;
-  if not Result then begin
+  if not FfrZoomsSelect.Validate then begin
     ShowMessage(_('Please select at least one zoom'));
+    Exit;
   end;
 
-  if Result then begin
-    VMap := FfrMapSelect.GetSelectedMapType;
-    VLayer := FfrOverlaySelect.GetSelectedMapType;
-    if not Assigned(VMap) and not Assigned(VLayer) then begin
-      Result := False;
-      ShowMessage(_('Please select at least one map or overlay layer'));
-    end;
+  if
+    (FfrMapSelect.GetSelectedMapType = nil) and
+    (FfrOverlaySelect.GetSelectedMapType = nil) then
+  begin
+    ShowMessage(_('Please select at least one map or overlay layer'));
+    Exit;
   end;
+
+  Result := True;
 end;
 
 end.

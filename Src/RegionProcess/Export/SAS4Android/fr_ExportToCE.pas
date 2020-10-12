@@ -64,19 +64,18 @@ type
     pnlZoom: TPanel;
     lblMap: TLabel;
     pnlTop: TPanel;
-    lblTargetFile: TLabel;
-    edtTargetFile: TEdit;
-    btnSelectTargetFile: TButton;
+    lblTargetPath: TLabel;
+    edtTargetPath: TEdit;
+    btnSelectTargetPath: TButton;
     EMapName: TEdit;
     EComent: TEdit;
     SaveRecoverInfo: TCheckBox;
     lVolSize: TLabel;
-    dlgSaveTargetFile: TSaveDialog;
     CComment: TCheckBox;
     CMapName: TCheckBox;
     cbbMaxVolSize: TSpinEdit;
     pnlMap: TPanel;
-    procedure btnSelectTargetFileClick(Sender: TObject);
+    procedure btnSelectTargetPathClick(Sender: TObject);
     procedure MapChange(Sender: TObject);
     procedure CMapNameClick(Sender: TObject);
     procedure CCommentClick(Sender: TObject);
@@ -154,14 +153,14 @@ begin
   Result := AMapType.IsBitmapTiles;
 end;
 
-procedure TfrExportToCE.btnSelectTargetFileClick(Sender: TObject);
+procedure TfrExportToCE.btnSelectTargetPathClick(Sender: TObject);
 var
   TempString: string;
 begin
   if FfrMapSelect.GetSelectedMapType <> nil then begin
     if SelectDirectory('', '', TempString) then begin
       TempPath := TempString;
-      edtTargetFile.Text := IncludeTrailingPathDelimiter(TempPath) + FfrMapSelect.GetSelectedMapType.GetShortFolderName;
+      edtTargetPath.Text := IncludeTrailingPathDelimiter(TempPath) + FfrMapSelect.GetSelectedMapType.GetShortFolderName;
     end;
   end;
 end;
@@ -183,29 +182,37 @@ end;
 
 function TfrExportToCE.Validate: Boolean;
 begin
-  Result := (edtTargetFile.Text <> '');
-  if not Result then begin
-    ShowMessage(_('Please, select output file first!'));
+  Result := False;
+
+  if Trim(edtTargetPath.Text) = '' then begin
+    ShowMessage(_('Please select output folder'));
     Exit;
   end;
 
-  Result := FfrZoomsSelect.Validate;
-  if not Result then begin
+  if not FfrZoomsSelect.Validate then begin
     ShowMessage(_('Please select at least one zoom'));
+    Exit;
   end;
+
+  if FfrMapSelect.GetSelectedMapType = nil then begin
+    ShowMessage(_('Please select the map first!'));
+    Exit;
+  end;
+
+  Result := True;
 end;
 
 procedure TfrExportToCE.MapChange(Sender: TObject);
 begin
   SetMapName();
-  if (TempPath = '') and (edtTargetFile.Text <> '') then begin
-    TempPath := edtTargetFile.Text;
+  if (TempPath = '') and (edtTargetPath.Text <> '') then begin
+    TempPath := edtTargetPath.Text;
   end;
   if (TempPath <> '') then begin
     if FfrMapSelect.GetSelectedMapType <> nil then begin
-      edtTargetFile.Text := IncludeTrailingPathDelimiter(TempPath) + FfrMapSelect.GetSelectedMapType.GetShortFolderName;
+      edtTargetPath.Text := IncludeTrailingPathDelimiter(TempPath) + FfrMapSelect.GetSelectedMapType.GetShortFolderName;
     end else begin
-      edtTargetFile.Text := '';
+      edtTargetPath.Text := '';
     end;
   end;
 end;
@@ -263,13 +270,13 @@ var
 begin
   Result := '';
   if TempPath <> '' then begin
-    Result := edtTargetFile.Text;
-  end else if copy(edtTargetFile.Text, length(edtTargetFile.Text), 1) <> '\' then begin
-    Result := edtTargetFile.Text;
+    Result := edtTargetPath.Text;
+  end else if copy(edtTargetPath.Text, length(edtTargetPath.Text), 1) <> '\' then begin
+    Result := edtTargetPath.Text;
   end else begin
     VMapType := GetMapType;
     if VMapType <> nil then begin
-      Result := IncludeTrailingPathDelimiter(edtTargetFile.Text) + VMapType.GetShortFolderName;
+      Result := IncludeTrailingPathDelimiter(edtTargetPath.Text) + VMapType.GetShortFolderName;
     end;
   end;
 end;
@@ -291,7 +298,7 @@ begin
   SetMapName();
   FfrZoomsSelect.Show(pnlZoom);
   if TempPath <> '' then begin
-    edtTargetFile.Text := IncludeTrailingPathDelimiter(TempPath) + FfrMapSelect.GetSelectedMapType.GetShortFolderName;
+    edtTargetPath.Text := IncludeTrailingPathDelimiter(TempPath) + FfrMapSelect.GetSelectedMapType.GetShortFolderName;
   end;
 end;
 
