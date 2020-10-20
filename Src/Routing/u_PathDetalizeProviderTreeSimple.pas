@@ -430,7 +430,7 @@ begin
       CreateItem(
         'zlzk.biz (OSRM)',
         Format('%.4d0~', [VGroupId]),
-        FProjectOSRMGuidList,
+        FZlzkGuidList,
         [ _('By Car'), _('By Bike'), _('By Foot') ]
       );
     VList.Add(VItem);
