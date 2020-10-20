@@ -38,6 +38,9 @@ type
     function GetEnableYourNavigation: Boolean;
     property EnableYourNavigation: Boolean read GetEnableYourNavigation;
 
+    function GetEnableZlzk: Boolean;
+    property EnableZlzk: Boolean read GetEnableZlzk;
+
     function GetEnableProjectOSRM: Boolean;
     property EnableProjectOSRM: Boolean read GetEnableProjectOSRM;
 

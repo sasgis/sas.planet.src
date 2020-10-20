@@ -32,6 +32,7 @@ type
   TPathDetalizeConfig = class(TConfigDataElementBase, IPathDetalizeConfig)
   private
     FEnableYourNavigation: Boolean;
+    FEnableZlzk: Boolean;
     FEnableProjectOSRM: Boolean;
     FArrayOfProjectOSRM: TArrayOfProjectOSRM;
     FEnableAutomaticRouting: Boolean;
@@ -40,6 +41,7 @@ type
     { IPathDetalizeConfig }
     function GetEnableYourNavigation: Boolean;
     function GetEnableProjectOSRM: Boolean;
+    function GetEnableZlzk: Boolean;
 
     function GetArrayOfProjectOSRM: TArrayOfProjectOSRM;
 
@@ -64,9 +66,6 @@ uses
   c_ZeroGUID,
   u_ConfigProviderHelpers;
 
-const
-  CDefaultCustomOSRM = 'https://zlzk.biz/'; // BY ES LT LV RU UA, weekly updates
-
 { TPathDetalizeConfig }
 
 constructor TPathDetalizeConfig.Create;
@@ -74,6 +73,7 @@ begin
   inherited Create;
   FEnableYourNavigation := True;
   FEnableProjectOSRM := True;
+  FEnableZlzk := True;
   FArrayOfProjectOSRM := nil;
   FEnableAutomaticRouting := True;
   FDefaultProvider := CGUID_Zero; // first available
@@ -100,6 +100,10 @@ procedure TPathDetalizeConfig.DoReadConfig(const AConfigData: IConfigDataProvide
         if FArrayOfProjectOSRM[K].Address = '' then begin
           Continue;
         end;
+        if Pos('zlzk.biz', LowerCase(FArrayOfProjectOSRM[K].Address)) > 0 then begin
+          // this server is built in now
+          Continue;
+        end;
         VAddress := AnsiString(FArrayOfProjectOSRM[K].Address);
         VGuid := CGUID_Zero;
         VGuid.D1 := libcrc32.crc32(0, @VAddress[1], Length(VAddress));
@@ -118,9 +122,10 @@ procedure TPathDetalizeConfig.DoReadConfig(const AConfigData: IConfigDataProvide
 begin
   inherited;
   if AConfigData <> nil then begin
+    FEnableZlzk := AConfigData.ReadBool('EnableZlzk', FEnableZlzk);
     FEnableYourNavigation := AConfigData.ReadBool('EnableYourNavigation', FEnableYourNavigation);
     FEnableProjectOSRM := AConfigData.ReadBool('EnableProjectOSRM', FEnableProjectOSRM);
-    ReadArrayOfProjectOSRM( AConfigData.ReadString('CustomOSRM', CDefaultCustomOSRM) );
+    ReadArrayOfProjectOSRM( AConfigData.ReadString('CustomOSRM', '') );
     FEnableAutomaticRouting := AConfigData.ReadBool('EnableAutomaticRouting', FEnableAutomaticRouting);
     FDefaultProvider := ReadGUID(AConfigData, 'DefaultProvider', FDefaultProvider);
     SetChanged;
@@ -143,6 +148,7 @@ procedure TPathDetalizeConfig.DoWriteConfig(const AConfigData: IConfigDataWriteP
 
 begin
   inherited;
+  AConfigData.WriteBool('EnableZlzk', FEnableZlzk);
   AConfigData.WriteBool('EnableYourNavigation', FEnableYourNavigation);
   AConfigData.WriteBool('EnableProjectOSRM', FEnableProjectOSRM);
   AConfigData.WriteString('CustomOSRM', _GetCustomOSRM);
@@ -175,6 +181,16 @@ begin
   LockRead;
   try
     Result := FEnableAutomaticRouting;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TPathDetalizeConfig.GetEnableZlzk: Boolean;
+begin
+  LockRead;
+  try
+    Result := FEnableZlzk;
   finally
     UnlockRead;
   end;

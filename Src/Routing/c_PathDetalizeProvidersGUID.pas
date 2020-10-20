@@ -23,6 +23,10 @@ unit c_PathDetalizeProvidersGUID;
 interface
 
 const
+  CPathDetalizeProviderZlzkByCar: TGUID = '{A41D73F7-475F-480B-A824-5CC2191FF794}';
+  CPathDetalizeProviderZlzkByBike: TGUID = '{D74F8B94-2D91-44FE-BDD4-64E5808A8CCA}';
+  CPathDetalizeProviderZlzkByFoot: TGUID = '{94BFEEE7-34FC-43DC-8031-EF5FB0FF5DDC}';
+
   CPathDetalizeProviderYourNavigationFastestByCar: TGUID = '{49F567B9-9E8A-4878-86FD-BDDDB7098928}';
   CPathDetalizeProviderYourNavigationShortestByCar: TGUID = '{3789A641-00FA-4DFD-BE57-BF53D162B0E7}';
   CPathDetalizeProviderYourNavigationFastestByBicycle: TGUID = '{FB9561C9-0AC4-4E4D-9F9E-CE81A5D1CA45}';

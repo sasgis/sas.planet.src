@@ -37,11 +37,21 @@ uses
   u_TreeChangeableBase;
 
 type
+  TProviderGuidList = array of TGUID;
+
   TPathDetalizeProviderTreeSimple = class(TTreeChangeableBase)
   private
+    FZlzkGuidList: TProviderGuidList;
+    FYourNavigationGuidList: TProviderGuidList;
+    FProjectOSRMGuidList: TProviderGuidList;
+    FOsmScoutGuidList: TProviderGuidList;
+
     FArrayOfProjectOSRM: TArrayOfProjectOSRM;
     FPathDetalizeConfig: IPathDetalizeConfig;
     FProvidersSet: IGUIDInterfaceSet;
+
+    procedure InitGuidLists;
+
     function CreateProvidersSet(
       const AInetConfig: IInetConfig;
       const AGCNotifier: INotifierTime;
@@ -51,10 +61,12 @@ type
       const AKmlLoader: IVectorDataLoader
     ): IGUIDInterfaceSet;
 
-    function CreateYourNavigation: IStaticTreeItem;
-    function CreateOSRM: IStaticTreeItem;
-    function CreateCustomOSRM(const AItemId: Integer): IStaticTreeItem;
-    function CreateOsmScout: IStaticTreeItem;
+    function CreateItem(
+      const AName: string;
+      const AGroupName: string;
+      const AGuidList: TProviderGuidList;
+      const ACaptionList: array of string
+    ): IStaticTreeItem;
   protected
     function CreateStatic: IStaticTreeItem; override;
   public
@@ -105,6 +117,9 @@ begin
   inherited Create(ALanguageManager.ChangeNotifier);
   FPathDetalizeConfig := APathDetalizeConfig;
   FArrayOfProjectOSRM := FPathDetalizeConfig.ArrayOfProjectOSRM;
+
+  InitGuidLists;
+
   FProvidersSet :=
     CreateProvidersSet(
       AInetConfig,
@@ -116,6 +131,128 @@ begin
     );
 end;
 
+procedure TPathDetalizeProviderTreeSimple.InitGuidLists;
+begin
+  SetLength(FZlzkGuidList, 3);
+  FZlzkGuidList[0] := CPathDetalizeProviderZlzkByCar;
+  FZlzkGuidList[1] := CPathDetalizeProviderZlzkByBike;
+  FZlzkGuidList[2] := CPathDetalizeProviderZlzkByFoot;
+
+  SetLength(FYourNavigationGuidList, 4);
+  FYourNavigationGuidList[0] := CPathDetalizeProviderYourNavigationFastestByCar;
+  FYourNavigationGuidList[1] := CPathDetalizeProviderYourNavigationShortestByCar;
+  FYourNavigationGuidList[2] := CPathDetalizeProviderYourNavigationFastestByBicycle;
+  FYourNavigationGuidList[3] := CPathDetalizeProviderYourNavigationShortestByBicycle;
+
+  SetLength(FProjectOsrmGuidList, 3);
+  FProjectOsrmGuidList[0] := CPathDetalizeProviderOSRMByCar;
+  FProjectOsrmGuidList[1] := CPathDetalizeProviderOSRMByBike;
+  FProjectOsrmGuidList[2] := CPathDetalizeProviderOSRMByFoot;
+
+  SetLength(FOsmScoutGuidList, 3);
+  FOsmScoutGuidList[0] := CPathDetalizeProviderOsmScoutByCar;
+  FOsmScoutGuidList[1] := CPathDetalizeProviderOsmScoutByBike;
+  FOsmScoutGuidList[2] := CPathDetalizeProviderOsmScoutByFoot;
+end;
+
+procedure AddYourNavigationProvider(
+  const AUrlTemplate: string;
+  const AGuidList: TProviderGuidList;
+  const AInetConfig: IInetConfig;
+  const AGCNotifier: INotifierTime;
+  const ADownloaderFactory: IDownloaderFactory;
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
+  const AKmlLoader: IVectorDataLoader;
+  const ASet: IGUIDInterfaceSet
+);
+const
+  CProfile: array [0..3] of string = (
+    'motorcar&fast=1', 'motorcar&fast=0', 'bicycle&fast=1', 'bicycle&fast=0'
+  );
+var
+  I: Integer;
+  VBaseUrl: string;
+  VDownloader: IDownloader;
+  VProvider: IPathDetalizeProvider;
+begin
+  Assert(Length(AGuidList) = Length(CProfile));
+  for I := 0 to Length(CProfile) - 1 do begin
+    VBaseUrl := StringReplace(AUrlTemplate, '{profile}', CProfile[I], [rfIgnoreCase]);
+    VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
+    VProvider :=
+      TPathDetalizeProviderYourNavigation.Create(
+        AnsiString(VBaseUrl),
+        VDownloader,
+        AInetConfig,
+        AVectorGeometryLonLatFactory,
+        AVectorDataItemMainInfoFactory,
+        AKmlLoader
+      );
+    ASet.Add(AGuidList[I], VProvider);
+  end;
+end;
+
+procedure AddOsrmProvider(
+  const AUrlTemplate: string;
+  const AGuidList: TProviderGuidList;
+  const AInetConfig: IInetConfig;
+  const AGCNotifier: INotifierTime;
+  const ADownloaderFactory: IDownloaderFactory;
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+  const ASet: IGUIDInterfaceSet
+);
+const
+  CProfile: array [0..2] of string = ('car', 'bike', 'foot');
+var
+  I: Integer;
+  VBaseUrl: string;
+  VDownloader: IDownloader;
+  VProvider: IPathDetalizeProvider;
+begin
+  Assert(Length(AGuidList) = Length(CProfile));
+  for I := 0 to Length(CProfile) - 1 do begin
+    VBaseUrl := StringReplace(AUrlTemplate, '{profile}', CProfile[I], [rfIgnoreCase]);
+    VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
+    VProvider :=
+      TPathDetalizeProviderOSRM.Create(
+        AnsiString(VBaseUrl),
+        VDownloader,
+        AInetConfig,
+        AVectorGeometryLonLatFactory
+      );
+    ASet.Add(AGuidList[I], VProvider);
+  end;
+end;
+
+procedure AddOsmScoutProvider(
+  const AGuidList: TProviderGuidList;
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+  const ASet: IGUIDInterfaceSet
+);
+var
+  I: TRouteProfile;
+  VProvider: IPathDetalizeProvider;
+  VOsmScoutRouteContext: IOsmScoutRouteContext;
+begin
+  Assert(Length(AGuidList) = 3);
+
+  VOsmScoutRouteContext :=
+    NewOsmScoutRouteContext(
+      ExtractFilePath(ParamStr(0)) + 'OsmScout\'
+    );
+
+  for I := Low(TRouteProfile) to High(TRouteProfile) do begin
+    VProvider :=
+      TPathDetalizeProviderOsmScout.Create(
+        I,
+        VOsmScoutRouteContext,
+        AVectorGeometryLonLatFactory
+      );
+    ASet.Add(AGuidList[Integer(I)], VProvider);
+  end;
+end;
+
 function TPathDetalizeProviderTreeSimple.CreateProvidersSet(
   const AInetConfig: IInetConfig;
   const AGCNotifier: INotifierTime;
@@ -125,348 +262,134 @@ function TPathDetalizeProviderTreeSimple.CreateProvidersSet(
   const AKmlLoader: IVectorDataLoader
 ): IGUIDInterfaceSet;
 var
-  I: Integer;
+  I, J: Integer;
   VAddress: string;
-  VProvider: IPathDetalizeProvider;
-  VDownloader: IDownloader;
-  VOsmScoutRouteContext: IOsmScoutRouteContext;
+  VGuidList: TProviderGuidList;
 begin
   Result := TGUIDInterfaceSet.Create;
 
-{$REGION 'YourNavigation'}
+  if FPathDetalizeConfig.EnableZlzk then begin
+    AddOsrmProvider(
+      'https://zlzk.biz/route/v1/{profile}/',
+      FZlzkGuidList,
+      AInetConfig,
+      AGCNotifier,
+      ADownloaderFactory,
+      AVectorGeometryLonLatFactory,
+      Result
+    );
+  end;
+
   if FPathDetalizeConfig.EnableYourNavigation then begin
-    VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
-    VProvider :=
-      TPathDetalizeProviderYourNavigation.Create(
-        'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=1&layer=mapnik',
-        VDownloader,
-        AInetConfig,
-        AVectorGeometryLonLatFactory,
-        AVectorDataItemMainInfoFactory,
-        AKmlLoader
-      );
-    Result.Add(CPathDetalizeProviderYourNavigationFastestByCar, VProvider);
-
-    VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
-    VProvider :=
-      TPathDetalizeProviderYourNavigation.Create(
-        'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=0&layer=mapnik',
-        VDownloader,
-        AInetConfig,
-        AVectorGeometryLonLatFactory,
-        AVectorDataItemMainInfoFactory,
-        AKmlLoader
-      );
-    Result.Add(CPathDetalizeProviderYourNavigationShortestByCar, VProvider);
-
-    VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
-    VProvider :=
-      TPathDetalizeProviderYourNavigation.Create(
-        'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=1&layer=mapnik',
-        VDownloader,
-        AInetConfig,
-        AVectorGeometryLonLatFactory,
-        AVectorDataItemMainInfoFactory,
-        AKmlLoader
-      );
-    Result.Add(CPathDetalizeProviderYourNavigationFastestByBicycle, VProvider);
-
-    VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
-    VProvider :=
-      TPathDetalizeProviderYourNavigation.Create(
-        'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=0&layer=mapnik',
-        VDownloader,
-        AInetConfig,
-        AVectorGeometryLonLatFactory,
-        AVectorDataItemMainInfoFactory,
-        AKmlLoader
-      );
-    Result.Add(CPathDetalizeProviderYourNavigationShortestByBicycle, VProvider);
+    AddYourNavigationProvider(
+      'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v={profile}&layer=mapnik',
+      FYourNavigationGuidList,
+      AInetConfig,
+      AGCNotifier,
+      ADownloaderFactory,
+      AVectorGeometryLonLatFactory,
+      AVectorDataItemMainInfoFactory,
+      AKmlLoader,
+      Result
+    );
   end;
-{$ENDREGION}
 
-{$REGION 'Project OSRM'}
   if FPathDetalizeConfig.EnableProjectOSRM then begin
-    VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
-    VProvider :=
-      TPathDetalizeProviderOSRM.Create(
-        'https://routing.openstreetmap.de/routed-car/route/v1/driving/',
-        VDownloader,
-        AInetConfig,
-        AVectorGeometryLonLatFactory
-      );
-    Result.Add(CPathDetalizeProviderOSRMByCar, VProvider);
-
-    VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
-    VProvider :=
-      TPathDetalizeProviderOSRM.Create(
-        'https://routing.openstreetmap.de/routed-bike/route/v1/driving/',
-        VDownloader,
-        AInetConfig,
-        AVectorGeometryLonLatFactory
-      );
-    Result.Add(CPathDetalizeProviderOSRMByBike, VProvider);
-
-    VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
-    VProvider :=
-      TPathDetalizeProviderOSRM.Create(
-        'https://routing.openstreetmap.de/routed-foot/route/v1/driving/',
-        VDownloader,
-        AInetConfig,
-        AVectorGeometryLonLatFactory
-      );
-    Result.Add(CPathDetalizeProviderOSRMByFoot, VProvider);
+    AddOsrmProvider(
+      'https://routing.openstreetmap.de/routed-{profile}/route/v1/driving/',
+      FProjectOsrmGuidList,
+      AInetConfig,
+      AGCNotifier,
+      ADownloaderFactory,
+      AVectorGeometryLonLatFactory,
+      Result
+    );
   end;
-{$ENDREGION}
 
-{$REGION 'Project OSRM (with custom server)'}
   for I := 0 to Length(FArrayOfProjectOSRM) - 1 do begin
     VAddress := FArrayOfProjectOSRM[I].Address;
-    if VAddress <> '' then begin
-      if Pos('://', VAddress) <= 0 then begin
-        VAddress := 'http://' + VAddress;
-      end;
-      if VAddress[Length(VAddress)] <> '/' then begin
-        VAddress := VAddress + '/';
-      end;
-
-      VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
-      VProvider :=
-        TPathDetalizeProviderOSRM.Create(
-          AnsiString(VAddress) + 'route/v1/car/',
-          VDownloader,
-          AInetConfig,
-          AVectorGeometryLonLatFactory
-        );
-      Result.Add(FArrayOfProjectOSRM[I].Guid[0], VProvider);
-
-      VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
-      VProvider :=
-        TPathDetalizeProviderOSRM.Create(
-          AnsiString(VAddress) + 'route/v1/bike/',
-          VDownloader,
-          AInetConfig,
-          AVectorGeometryLonLatFactory
-        );
-      Result.Add(FArrayOfProjectOSRM[I].Guid[1], VProvider);
-
-      VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
-      VProvider :=
-        TPathDetalizeProviderOSRM.Create(
-          AnsiString(VAddress) + 'route/v1/foot/',
-          VDownloader,
-          AInetConfig,
-          AVectorGeometryLonLatFactory
-        );
-      Result.Add(FArrayOfProjectOSRM[I].Guid[2], VProvider);
+    if VAddress = '' then begin
+      Assert(False);
+      Continue;
     end;
-  end;
-{$ENDREGION}
+    if Pos('://', VAddress) <= 0 then begin
+      VAddress := 'http://' + VAddress;
+    end;
+    if VAddress[Length(VAddress)] <> '/' then begin
+      VAddress := VAddress + '/';
+    end;
 
-{$REGION 'OSM Scout (offline)'}
+    SetLength(VGuidList, 3);
+    for J := 0 to Length(VGuidList) - 1 do begin
+      VGuidList[J] := FArrayOfProjectOSRM[I].Guid[J];
+    end;
+
+    AddOsrmProvider(
+      VAddress + 'route/v1/{profile}/',
+      VGuidList,
+      AInetConfig,
+      AGCNotifier,
+      ADownloaderFactory,
+      AVectorGeometryLonLatFactory,
+      Result
+    );
+  end;
+
   if IsLibOsmScoutRouteAvailable then begin
-
-    VOsmScoutRouteContext :=
-      NewOsmScoutRouteContext(
-        ExtractFilePath(ParamStr(0)) + 'OsmScout\'
-      );
-
-    VProvider :=
-      TPathDetalizeProviderOsmScout.Create(
-        ROUTE_PROFILE_CAR,
-        VOsmScoutRouteContext,
-        AVectorGeometryLonLatFactory
-      );
-    Result.Add(CPathDetalizeProviderOsmScoutByCar, VProvider);
-
-    VProvider :=
-      TPathDetalizeProviderOsmScout.Create(
-        ROUTE_PROFILE_BIKE,
-        VOsmScoutRouteContext,
-        AVectorGeometryLonLatFactory
-      );
-    Result.Add(CPathDetalizeProviderOsmScoutByBike, VProvider);
-
-    VProvider :=
-      TPathDetalizeProviderOsmScout.Create(
-        ROUTE_PROFILE_FOOT,
-        VOsmScoutRouteContext,
-        AVectorGeometryLonLatFactory
-      );
-    Result.Add(CPathDetalizeProviderOsmScoutByFoot, VProvider);
+    AddOsmScoutProvider(
+      FOsmScoutGuidList,
+      AVectorGeometryLonLatFactory,
+      Result
+    );
   end;
-{$ENDREGION}
 end;
 
-function TPathDetalizeProviderTreeSimple.CreateYourNavigation: IStaticTreeItem;
-var
-  VList: IInterfaceListSimple;
-  VGUID: TGUID;
-  VProvider: IPathDetalizeProvider;
-  VEntity: IPathDetalizeProviderTreeEntity;
-  VItem: IStaticTreeItem;
-begin
-  VList := TInterfaceListSimple.Create;
-
-  VGUID := CPathDetalizeProviderYourNavigationFastestByCar;
-  VProvider := IPathDetalizeProvider(FProvidersSet.GetByGUID(VGUID));
-  VEntity :=
-    TPathDetalizeProviderTreeEntity.Create(
-      VGUID,
-      _('Detalize route by car (Fastest) with yournavigation.org'),
-      _('By Car (Fastest)'),
-      VProvider
-    );
-  VItem :=
-    TStaticTreeItem.Create(
-      VEntity,
-      VEntity.MenuItemName,
-      '0010',
-      nil
-    );
-  VList.Add(VItem);
-
-  VGUID := CPathDetalizeProviderYourNavigationShortestByCar;
-  VProvider := IPathDetalizeProvider(FProvidersSet.GetByGUID(VGUID));
-  VEntity :=
-    TPathDetalizeProviderTreeEntity.Create(
-      VGUID,
-      _('Detalize route by car (Shortest) with yournavigation.org'),
-      _('By Car (Shortest)'),
-      VProvider
-    );
-  VItem :=
-    TStaticTreeItem.Create(
-      VEntity,
-      VEntity.MenuItemName,
-      '0020',
-      nil
-    );
-  VList.Add(VItem);
-
-  VGUID := CPathDetalizeProviderYourNavigationFastestByBicycle;
-  VProvider := IPathDetalizeProvider(FProvidersSet.GetByGUID(VGUID));
-  VEntity :=
-    TPathDetalizeProviderTreeEntity.Create(
-      VGUID,
-      _('Detalize route by bicycle (Fastest) with yournavigation.org'),
-      _('By Bicycle (Fastest)'),
-      VProvider
-    );
-  VItem :=
-    TStaticTreeItem.Create(
-      VEntity,
-      VEntity.MenuItemName,
-      '0030',
-      nil
-    );
-  VList.Add(VItem);
-
-  VGUID := CPathDetalizeProviderYourNavigationShortestByBicycle;
-  VProvider := IPathDetalizeProvider(FProvidersSet.GetByGUID(VGUID));
-  VEntity :=
-    TPathDetalizeProviderTreeEntity.Create(
-      VGUID,
-      _('Detalize route by bicycle (Shortest) with yournavigation.org'),
-      _('By Bicycle (Shortest)'),
-      VProvider
-    );
-  VItem :=
-    TStaticTreeItem.Create(
-      VEntity,
-      VEntity.MenuItemName,
-      '0040',
-      nil
-    );
-  VList.Add(VItem);
-
-  Result :=
-    TStaticTreeItem.Create(
-      nil,
-      'yournavigation.org (OSM)',
-      '0010~',
-      VList.MakeStaticAndClear
-    );
-end;
-
-function TPathDetalizeProviderTreeSimple.CreateOSRM: IStaticTreeItem;
-var
-  VList: IInterfaceListSimple;
-  VGUID: TGUID;
-  VProvider: IPathDetalizeProvider;
-  VEntity: IPathDetalizeProviderTreeEntity;
-  VItem: IStaticTreeItem;
-begin
-  VList := TInterfaceListSimple.Create;
-
-  VGUID := CPathDetalizeProviderOSRMByCar;
-  VProvider := IPathDetalizeProvider(FProvidersSet.GetByGUID(VGUID));
-  VEntity :=
-    TPathDetalizeProviderTreeEntity.Create(
-      VGUID,
-      _('Detalize route by Car with project-osrm.org'),
-      _('By Car'),
-      VProvider
-    );
-  VItem :=
-    TStaticTreeItem.Create(
-      VEntity,
-      VEntity.MenuItemName,
-      '0010',
-      nil
-    );
-  VList.Add(VItem);
-
-  VGUID := CPathDetalizeProviderOSRMByBike;
-  VProvider := IPathDetalizeProvider(FProvidersSet.GetByGUID(VGUID));
-  VEntity :=
-    TPathDetalizeProviderTreeEntity.Create(
-      VGUID,
-      _('Detalize route by Bike with project-osrm.org'),
-      _('By Bike'),
-      VProvider
-    );
-  VItem :=
-    TStaticTreeItem.Create(
-      VEntity,
-      VEntity.MenuItemName,
-      '0020',
-      nil
-    );
-  VList.Add(VItem);
-
-  VGUID := CPathDetalizeProviderOSRMByFoot;
-  VProvider := IPathDetalizeProvider(FProvidersSet.GetByGUID(VGUID));
-  VEntity :=
-    TPathDetalizeProviderTreeEntity.Create(
-      VGUID,
-      _('Detalize route by Foot with project-osrm.org'),
-      _('By Foot'),
-      VProvider
-    );
-  VItem :=
-    TStaticTreeItem.Create(
-      VEntity,
-      VEntity.MenuItemName,
-      '0030',
-      nil
-    );
-  VList.Add(VItem);
-
-  Result :=
-    TStaticTreeItem.Create(
-      nil,
-      'Project OSRM',
-      '0020~',
-      VList.MakeStaticAndClear
-    );
-end;
-
-function TPathDetalizeProviderTreeSimple.CreateCustomOSRM(
-  const AItemId: Integer
+function TPathDetalizeProviderTreeSimple.CreateItem(
+  const AName: string;
+  const AGroupName: string;
+  const AGuidList: TProviderGuidList;
+  const ACaptionList: array of string
 ): IStaticTreeItem;
+var
+  I: Integer;
+  VList: IInterfaceListSimple;
+  VProvider: IPathDetalizeProvider;
+  VEntity: IPathDetalizeProviderTreeEntity;
+  VItem: IStaticTreeItem;
+begin
+  VList := TInterfaceListSimple.Create;
 
-  function _GetCaption: string;
+  for I := 0 to Length(AGuidList) - 1 do begin
+    VProvider := IPathDetalizeProvider(FProvidersSet.GetByGUID(AGuidList[I]));
+    VEntity :=
+      TPathDetalizeProviderTreeEntity.Create(
+        AGuidList[I],
+        '',
+        ACaptionList[I],
+        VProvider
+      );
+    VItem :=
+      TStaticTreeItem.Create(
+        VEntity,
+        VEntity.MenuItemName,
+        Format('%.4d0', [I]),
+        nil
+      );
+    VList.Add(VItem);
+  end;
+
+  Result :=
+    TStaticTreeItem.Create(
+      nil,
+      AName,
+      AGroupName,
+      VList.MakeStaticAndClear
+    );
+end;
+
+function TPathDetalizeProviderTreeSimple.CreateStatic: IStaticTreeItem;
+
+  function _GetOsrmCaption(const AItemId: Integer): string;
   var
     I: Integer;
   begin
@@ -482,172 +405,88 @@ function TPathDetalizeProviderTreeSimple.CreateCustomOSRM(
     Result := Result + ' (OSRM)';
   end;
 
-var
-  VList: IInterfaceListSimple;
-  VGUID: TGUID;
-  VProvider: IPathDetalizeProvider;
-  VEntity: IPathDetalizeProviderTreeEntity;
-  VItem: IStaticTreeItem;
-begin
-  VList := TInterfaceListSimple.Create;
+  function _GetOsrmGuidList(const AItemId: Integer): TProviderGuidList;
+  var
+    I: Integer;
+  begin
+    SetLength(Result, 3);
+    for I := 0 to Length(Result) - 1 do begin
+      Result[I] := FArrayOfProjectOSRM[AItemId].Guid[I];
+    end;
+  end;
 
-  VGUID := FArrayOfProjectOSRM[AItemId].Guid[0];
-  VProvider := IPathDetalizeProvider(FProvidersSet.GetByGUID(VGUID));
-  VEntity :=
-    TPathDetalizeProviderTreeEntity.Create(
-      VGUID,
-      '',
-      _('By Car'),
-      VProvider
-    );
-  VItem :=
-    TStaticTreeItem.Create(
-      VEntity,
-      VEntity.MenuItemName,
-      '0010',
-      nil
-    );
-  VList.Add(VItem);
-
-  VGUID := FArrayOfProjectOSRM[AItemId].Guid[1];
-  VProvider := IPathDetalizeProvider(FProvidersSet.GetByGUID(VGUID));
-  VEntity :=
-    TPathDetalizeProviderTreeEntity.Create(
-      VGUID,
-      '',
-      _('By Bike'),
-      VProvider
-    );
-  VItem :=
-    TStaticTreeItem.Create(
-      VEntity,
-      VEntity.MenuItemName,
-      '0020',
-      nil
-    );
-  VList.Add(VItem);
-
-  VGUID := FArrayOfProjectOSRM[AItemId].Guid[2];
-  VProvider := IPathDetalizeProvider(FProvidersSet.GetByGUID(VGUID));
-  VEntity :=
-    TPathDetalizeProviderTreeEntity.Create(
-      VGUID,
-      '',
-      _('By Foot'),
-      VProvider
-    );
-  VItem :=
-    TStaticTreeItem.Create(
-      VEntity,
-      VEntity.MenuItemName,
-      '0030',
-      nil
-    );
-  VList.Add(VItem);
-
-  Result :=
-    TStaticTreeItem.Create(
-      nil,
-      _GetCaption,
-      '00' + IntToStr(30 + AItemId + 1) + '~',
-      VList.MakeStaticAndClear
-    );
-end;
-
-function TPathDetalizeProviderTreeSimple.CreateOsmScout: IStaticTreeItem;
-var
-  VList: IInterfaceListSimple;
-  VGUID: TGUID;
-  VProvider: IPathDetalizeProvider;
-  VEntity: IPathDetalizeProviderTreeEntity;
-  VItem: IStaticTreeItem;
-begin
-  VList := TInterfaceListSimple.Create;
-
-  VGUID := CPathDetalizeProviderOsmScoutByCar;
-  VProvider := IPathDetalizeProvider(FProvidersSet.GetByGUID(VGUID));
-  VEntity :=
-    TPathDetalizeProviderTreeEntity.Create(
-      VGUID,
-      '',
-      _('By Car'),
-      VProvider
-    );
-  VItem :=
-    TStaticTreeItem.Create(
-      VEntity,
-      VEntity.MenuItemName,
-      '0010',
-      nil
-    );
-  VList.Add(VItem);
-
-  VGUID := CPathDetalizeProviderOsmScoutByBike;
-  VProvider := IPathDetalizeProvider(FProvidersSet.GetByGUID(VGUID));
-  VEntity :=
-    TPathDetalizeProviderTreeEntity.Create(
-      VGUID,
-      '',
-      _('By Bike'),
-      VProvider
-    );
-  VItem :=
-    TStaticTreeItem.Create(
-      VEntity,
-      VEntity.MenuItemName,
-      '0020',
-      nil
-    );
-  VList.Add(VItem);
-
-  VGUID := CPathDetalizeProviderOsmScoutByFoot;
-  VProvider := IPathDetalizeProvider(FProvidersSet.GetByGUID(VGUID));
-  VEntity :=
-    TPathDetalizeProviderTreeEntity.Create(
-      VGUID,
-      '',
-      _('By Foot'),
-      VProvider
-    );
-  VItem :=
-    TStaticTreeItem.Create(
-      VEntity,
-      VEntity.MenuItemName,
-      '0030',
-      nil
-    );
-  VList.Add(VItem);
-
-  Result :=
-    TStaticTreeItem.Create(
-      nil,
-      'OSM Scout (offline)',
-      '0040~',
-      VList.MakeStaticAndClear
-    );
-end;
-
-function TPathDetalizeProviderTreeSimple.CreateStatic: IStaticTreeItem;
 var
   I: Integer;
+  VGroupId: Integer;
+  VItem: IStaticTreeItem;
   VList: IInterfaceListSimple;
 begin
+  VGroupId := 0;
   VList := TInterfaceListSimple.Create;
 
+  if FPathDetalizeConfig.EnableZlzk then begin
+    Inc(VGroupId);
+    VItem :=
+      CreateItem(
+        'zlzk.biz (OSRM)',
+        Format('%.4d0~', [VGroupId]),
+        FProjectOSRMGuidList,
+        [ _('By Car'), _('By Bike'), _('By Foot') ]
+      );
+    VList.Add(VItem);
+  end;
+
   if FPathDetalizeConfig.EnableYourNavigation then begin
-    VList.Add(CreateYourNavigation);
+    Inc(VGroupId);
+    VItem :=
+      CreateItem(
+        'yournavigation.org (OSM)',
+        Format('%.4d0~', [VGroupId]),
+        FYourNavigationGuidList,
+        [
+         _('By Car (Fastest)'),
+         _('By Car (Shortest)'),
+         _('By Bicycle (Fastest)'),
+         _('By Bicycle (Shortest)')
+        ]
+      );
+    VList.Add(VItem);
   end;
 
   if FPathDetalizeConfig.EnableProjectOSRM then begin
-    VList.Add(CreateOSRM);
+    Inc(VGroupId);
+    VItem :=
+      CreateItem(
+        'Project OSRM',
+        Format('%.4d0~', [VGroupId]),
+        FProjectOSRMGuidList,
+        [ _('By Car'), _('By Bike'), _('By Foot') ]
+      );
+    VList.Add(VItem);
   end;
 
   for I := 0 to Length(FArrayOfProjectOSRM) - 1 do begin
-    VList.Add( CreateCustomOSRM(I) );
+    Inc(VGroupId);
+    VItem :=
+      CreateItem(
+        _GetOsrmCaption(I),
+        Format('%.4d0~', [VGroupId]),
+        _GetOsrmGuidList(I),
+        [ _('By Car'), _('By Bike'), _('By Foot') ]
+      );
+    VList.Add(VItem);
   end;
 
   if IsLibOsmScoutRouteAvailable then begin
-    VList.Add(CreateOsmScout);
+    Inc(VGroupId);
+    VItem :=
+      CreateItem(
+        'OSM Scout (offline)',
+        Format('%.4d0~', [VGroupId]),
+        FOsmScoutGuidList,
+        [ _('By Car'), _('By Bike'), _('By Foot') ]
+      );
+    VList.Add(VItem);
   end;
 
   Result :=
