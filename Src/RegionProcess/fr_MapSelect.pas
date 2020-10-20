@@ -43,7 +43,7 @@ uses
 
 type
   TMapSelectFilter = (mfAll = 0, mfMaps = 1, mfLayers = 2);
-  TMapSelectPredicate = function(const AMapType: IMapType): boolean of object;
+  TMapSelectPredicate = function(const AMapType: IMapType): Boolean of object;
 
   TfrMapSelect = class(TFrame)
     cbbMap: TComboBox;
@@ -68,9 +68,9 @@ type
     FMapSelectFilter: TMapSelectFilter;
     FMapSelectPredicate: TMapSelectPredicate;
     FOnMapChange: TNotifyEvent;
-    FNoItemAdd: boolean;
-    FShowDisabled: boolean;
-
+    FNoItemAdd: Boolean;
+    FShowDisabled: Boolean;
+    FIsEmpty: Boolean;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -79,15 +79,15 @@ type
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AFullMapsSet: IMapTypeSet;
       const AMapSelectFilter: TMapSelectFilter;
-      const ANoItemAdd: boolean;
-      const AShowDisabled: boolean;
+      const ANoItemAdd: Boolean;
+      const AShowDisabled: Boolean;
       AMapSelectPredicate: TMapSelectPredicate
     ); reintroduce;
     function GetSelectedMapType: IMapType;
     function TrySelectMapType(const AMapType: IMapType): Boolean; overload;
     function TrySelectMapType(const AMapTypeGUID: TGUID): Boolean; overload;
     function Text: TCaption;
-    procedure SetEnabled(Amode: boolean); reintroduce;
+    procedure SetEnabled(const AMode: Boolean); reintroduce;
     procedure Show(AParent: TWinControl);
     property OnMapChange: TNotifyEvent read FOnMapChange write FOnMapChange;
   end;
@@ -96,8 +96,8 @@ type
   IMapSelectFrameBuilder = interface
     function Build(
       const AMapSelectFilter: TMapSelectFilter;
-      const ANoItemAdd: boolean;
-      const AShowDisabled: boolean;
+      const ANoItemAdd: Boolean;
+      const AShowDisabled: Boolean;
       AMapSelectPredicate: TMapSelectPredicate
     ): TfrMapSelect;
   end;
@@ -113,8 +113,8 @@ type
   private
     function Build(
       const AMapSelectFilter: TMapSelectFilter;
-      const ANoItemAdd: boolean;
-      const AShowDisabled: boolean;
+      const ANoItemAdd: Boolean;
+      const AShowDisabled: Boolean;
       AMapSelectPredicate: TMapSelectPredicate
     ): TfrMapSelect;
   public
@@ -145,8 +145,8 @@ constructor TfrMapSelect.Create(
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AFullMapsSet: IMapTypeSet;
   const AMapSelectFilter: TMapSelectFilter;
-  const ANoItemAdd: boolean;
-  const AShowDisabled: boolean;
+  const ANoItemAdd: Boolean;
+  const AShowDisabled: Boolean;
   AMapSelectPredicate: TMapSelectPredicate
 );
 begin
@@ -170,6 +170,8 @@ begin
   TBX_Maps.Visible := FMapSelectFilter <> mfLayers;
   TBX_Layers.Visible := FMapSelectFilter <> mfMaps;
   TBX_Active.Visible := FMapSelectFilter <> mfMaps;
+
+  FIsEmpty := True;
 end;
 
 procedure TfrMapSelect.cbbMapChange(Sender: TObject);
@@ -181,12 +183,19 @@ end;
 
 function TfrMapSelect.Text: TCaption;
 begin
-  Result := cbbMap.Text;
+  if not FIsEmpty then begin
+    Result := cbbMap.Text;
+  end else begin
+    Result := '';
+  end;
 end;
 
 function TfrMapSelect.GetSelectedMapType: IMapType;
 begin
   Result := nil;
+  if FIsEmpty then begin
+    Exit;
+  end;
   if cbbMap.ItemIndex >= 0 then begin
     Result := IMapType(Pointer(cbbMap.Items.Objects[cbbMap.ItemIndex]));
   end;
@@ -198,6 +207,9 @@ var
   VMapType: IMapType;
 begin
   Result := False;
+  if FIsEmpty then begin
+    Exit;
+  end;
   for I := 0 to cbbMap.Items.Count - 1 do begin
     VMapType := IMapType(Pointer(cbbMap.Items.Objects[I]));
     if IsEqualGUID(VMapType.GUID, AMapTypeGUID) then begin
@@ -213,9 +225,9 @@ begin
   Result := TrySelectMapType(AMapType.GUID);
 end;
 
-procedure TfrMapSelect.SetEnabled(Amode: boolean);
+procedure TfrMapSelect.SetEnabled(const AMode: Boolean);
 begin
-  cbbMap.Enabled := Amode;
+  cbbMap.Enabled := AMode and not FIsEmpty;
   RefreshList(nil);
 end;
 
@@ -252,11 +264,14 @@ begin
     Exit;
   end;
   VMode := 0;
-  if Assigned(Sender) then begin // кликнули по пункту меню
+  if Assigned(Sender) then begin
+    // кликнули по пункту меню
     VMode := TTBXItem(Sender).Tag;
     TTBXItem(Sender).checked := True;
-  end else begin // ничего не передали - этоне клик по менюшке
-    case FMapSelectFilter of  // выбираем режим в зависимости от того что в списке карт
+  end else begin
+    // ничего не передали - это не клик по менюшке
+    case FMapSelectFilter of
+      // выбираем режим в зависимости от того что в списке карт
       mfAll: begin
         VMode := 1;
         TBX_All.Checked := true;
@@ -292,31 +307,36 @@ begin
       VGUID := VGUIDList.Items[i];
       VAdd := false;
       VCurMapType := FFullMapsSet.GetMapTypeByGUID(VGUID);
-        // check if allow to add map to list
+      // check if allow to add map to list
       if VCurMapType.GUIConfig.Enabled or FShowDisabled then begin
-        if (FMapSelectFilter = mfAll) or // карты и слои
-          ((FMapSelectFilter = mfMaps) and (not VCurMapType.Zmp.IsLayer)) or //карты и текущая - карта
-          ((FMapSelectFilter = mfLayers) and (VCurMapType.Zmp.IsLayer)) // слои и текущий - слой
+        if (FMapSelectFilter = mfAll) or // maps and layers
+          ((FMapSelectFilter = mfMaps) and (not VCurMapType.Zmp.IsLayer)) or // maps and current map
+          ((FMapSelectFilter = mfLayers) and (VCurMapType.Zmp.IsLayer)) // layers and current layer
         then begin
           case VMode of
             1: begin
+              // all maps
               VAdd := True;
-            end;  // all maps
+            end;
             2: begin
-              VAdd := (not VCurMapType.Zmp.IsLayer);
-            end; // only maps
+              // only maps
+              VAdd := not VCurMapType.Zmp.IsLayer;
+            end;
             3: begin
-              VAdd := (VCurMapType.Zmp.IsLayer);
-            end;// only layers
+              // only layers
+              VAdd := VCurMapType.Zmp.IsLayer;
+            end;
             4: begin
-              if (VCurMapType.Zmp.IsLayer) then begin // only visible items: main map or visible layer
+              // only visible items: main map or visible layers
+              if VCurMapType.Zmp.IsLayer then begin
                 VAdd := Assigned(VLayers) and VLayers.IsExists(VGUID);
               end else begin
                 VAdd := IsEqualGUID(VActiveMapGUID, VGUID);
               end;
             end;
-            5: begin // Filter by name
-              if VFilter <> '' then begin //фильтруем
+            5: begin
+              // filter by name
+              if VFilter <> '' then begin
                 VMapName := AnsiUpperCase(VCurMapType.GUIConfig.Name.Value);
                 if posex(VFilter, VMapName) <> 0 then begin
                   VAdd := True;
@@ -355,17 +375,25 @@ begin
     cbbMap.Items.EndUpdate;
   end;
 
-  if (cbbMap.Items.Count > 0) then begin
-    if (VDefaultIndex >= 0) then begin
-      cbbMap.ItemIndex := VDefaultIndex;
-    end else begin
-      cbbMap.ItemIndex := 0;
-    end;
-  end;
-
   VMapCount := cbbMap.Items.Count;
   if FNoItemAdd then begin
-    dec(VMapCount);
+    Dec(VMapCount);
+  end;
+
+  FIsEmpty := VMapCount <= 0;
+
+  if FIsEmpty then begin
+    cbbMap.Clear;
+    cbbMap.Items.Add(_('There is no supported maps'));
+    cbbMap.ItemIndex := 0;
+    cbbMap.Enabled := False;
+    Exit;
+  end;
+
+  if VDefaultIndex >= 0 then begin
+    cbbMap.ItemIndex := VDefaultIndex;
+  end else begin
+    cbbMap.ItemIndex := 0;
   end;
 
   case VMode of
@@ -428,7 +456,7 @@ end;
 
 function TMapSelectFrameBuilder.Build(
   const AMapSelectFilter: TMapSelectFilter;
-  const ANoItemAdd, AShowDisabled: boolean;
+  const ANoItemAdd, AShowDisabled: Boolean;
   AMapSelectPredicate: TMapSelectPredicate
 ): TfrMapSelect;
 begin
