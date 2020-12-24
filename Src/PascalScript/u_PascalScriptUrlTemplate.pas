@@ -112,6 +112,7 @@ uses
   Math,
   StrUtils,
   DateUtils,
+  c_CoordConverter,
   t_GeoTypes,
   i_Projection,
   i_ProjectionType,
@@ -280,24 +281,37 @@ begin
 end;
 
 function TPascalScriptUrlTemplate.GetBBox(const ATile: TPoint; const AZoom: Byte): string;
+
+  function IsGeographicProjection(const AProjection: IProjection): Boolean;
+  begin
+    Result :=
+      AProjection.ProjectionType.ProjectionEPSG = CGELonLatProjectionEPSG;
+  end;
+
 var
-  VMetrRect: TDoubleRect;
+  VRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
   VProjection: IProjection;
   VProjectionType: IProjectionType;
 begin
   VProjection := FProjectionSet.Zooms[AZoom];
-  VLonLatRect := VProjection.TilePos2LonLatRect(ATile);
 
-  VProjectionType := VProjection.ProjectionType;
-  VMetrRect.TopLeft := VProjectionType.LonLat2Metr(VLonLatRect.TopLeft);
-  VMetrRect.BottomRight := VProjectionType.LonLat2Metr(VLonLatRect.BottomRight);
+  if IsGeographicProjection(VProjection) then begin
+    // LonLat rect
+    VRect := VProjection.TilePos2LonLatRect(ATile);
+  end else begin
+    // Metr rect
+    VProjectionType := VProjection.ProjectionType;
+    VLonLatRect := VProjection.TilePos2LonLatRect(ATile);
+    VRect.TopLeft := VProjectionType.LonLat2Metr(VLonLatRect.TopLeft);
+    VRect.BottomRight := VProjectionType.LonLat2Metr(VLonLatRect.BottomRight);
+  end;
 
   Result :=
-    RoundEx(VMetrRect.Left, 8) + ',' +
-    RoundEx(VMetrRect.Bottom, 8) + ',' +
-    RoundEx(VMetrRect.Right, 8) + ',' +
-    RoundEx(VMetrRect.Top, 8);
+    RoundEx(VRect.Left, 8) + ',' +
+    RoundEx(VRect.Bottom, 8) + ',' +
+    RoundEx(VRect.Right, 8) + ',' +
+    RoundEx(VRect.Top, 8);
 end;
 
 class function TPascalScriptUrlTemplate.GetSasPathValue(const X, Y: Integer;
