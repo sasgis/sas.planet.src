@@ -247,25 +247,35 @@ end;
 
 class function TPascalScriptUrlTemplate.GetQuadkey(X, Y: Integer; const AZoom: Byte): string;
 var
-  I, Q: Integer;
+  I: Integer;
+  P: PChar;
+  VKey: Char;
+  VMask: Integer;
 begin
-  Result := '';
+  // https://docs.microsoft.com/en-us/bingmaps/articles/bing-maps-tile-system
 
-  for I := 0 to AZoom do begin
-    Q := 0;
+  if AZoom = 0 then begin
+    Result := '';
+    Exit;
+  end;
 
-    if X mod 2 = 1 then begin
-      Q := Q + 1;
+  SetLength(Result, AZoom);
+  P := Pointer(Result);
+
+  for I := AZoom downto 1 do begin
+    VKey := '0';
+    VMask := 1 shl (I - 1);
+
+    if X and VMask <> 0 then begin
+      VKey := Succ(VKey);
     end;
 
-    if Y mod 2 = 1 then begin
-      Q := Q + 2;
+    if Y and VMask <> 0 then begin
+      VKey := Succ(VKey);
+      VKey := Succ(VKey);
     end;
 
-    X := X div 2;
-    Y := Y div 2;
-
-    Result := IntToStr(Q) + Result;
+    P[AZoom-I] := VKey;
   end;
 end;
 

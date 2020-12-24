@@ -89,8 +89,12 @@ begin
     VUrl := VUrlTemplate.Render(VRequest);
     Check(VUrl = 'https://n1.example.com/18/200/300.png', VUrl);
 
+    FRequestBuilderConfig.UrlBase := 'http://example.com/{q}';
+    VUrl := VUrlTemplate.Render(VRequest);
+    Check(VUrl = 'http://example.com/000000000211203200', VUrl);
+
     //
-    FRequestBuilderConfig.UrlBase := 'https://{s}.example.com/p?bbox={bbox}/{q}';
+    FRequestBuilderConfig.UrlBase := 'https://{s}.example.com/p?bbox={bbox}';
     FRequestBuilderConfig.ServerNames := 'a,b,c,d';
     VUrl := VUrlTemplate.Render(VRequest);
 
