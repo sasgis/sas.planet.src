@@ -1,9 +1,17 @@
 unit libecwj2;
 
+{$DEFINE ECW_ALL_IN_ONE}
+
 {$A8}
 {$MINENUMSIZE 4}
 
 interface
+
+uses
+  SysUtils;
+
+type
+  ELibEcwJ2Error = class(Exception);
 
 type
   NCSFileColorSpace = (
@@ -465,16 +473,21 @@ type
   end;
 
 var
-  NCSEcwCompressAllocClient: function (): Pointer; cdecl;
-  NCSEcwCompressOpen: function (pInfo: Pointer; bCalculateSizesOnly: Boolean): NCSError; cdecl;
-  NCSEcwCompress: function (pInfo: Pointer): NCSError; cdecl;
-  NCSEcwCompressClose: function (pInfo: Pointer): NCSError; cdecl;
-  NCSEcwCompressFreeClient: function (pInfo: Pointer): NCSError; cdecl;
+  NCSEcwCompressAllocClient: function(): Pointer; cdecl;
+  NCSEcwCompressOpen: function(pInfo: Pointer; bCalculateSizesOnly: Boolean): NCSError; cdecl;
+  NCSEcwCompress: function(pInfo: Pointer): NCSError; cdecl;
+  NCSEcwCompressClose: function(pInfo: Pointer): NCSError; cdecl;
+  NCSEcwCompressFreeClient: function(pInfo: Pointer): NCSError; cdecl;
 
 const
-  NCSEcwC_dll = 'NCSEcwC.dll';
+  libecwj2_dll =
+    {$IFDEF ECW_ALL_IN_ONE}
+    'libecwj2.dll';
+    {$ELSE}
+    'NCSEcwC.dll';
+    {$ENDIF}
 
-function InitLibEcw(const ALibName: string = NCSEcwC_dll): Boolean;
+procedure LoadLibEcw(const ALibName: string = libecwj2_dll);
 
 implementation
 
@@ -482,61 +495,84 @@ uses
   Windows,
   SyncObjs;
 
+{$IFDEF ECW_ALL_IN_ONE}
 var
-  LibHandle: Cardinal = 0;
-  LibCS: TCriticalSection = nil;
-  LibInitialized: Boolean = False;
+  NCSEcwInit: procedure(); cdecl;
+  //NCSEcwShutdown: procedure(); cdecl;
+{$ENDIF}
 
-function GetProcAddr(ProcName: PAnsiChar): Pointer;
+var
+  GLibHandle: THandle = 0;
+  GLock: TCriticalSection = nil;
+
+function LoadProc(const AHandle: THandle; const AProcName: PAnsiChar): Pointer; inline;
 begin
-  GetProcAddr := GetProcAddress(LibHandle, ProcName);
+  Result := GetProcAddress(AHandle, AProcName);
+  if Result = nil then begin
+    raise ELibEcwJ2Error.Create('Could not load proc: ' + string(AProcName));
+  end;
 end;
 
-function InitLibEcw(const ALibName: string = NCSEcwC_dll): Boolean;
+procedure LoadLibEcw(const ALibName: string);
+var
+  VHandle: THandle;
 begin
-  if LibInitialized then begin
-    Result := True;
+  if GLibHandle <> 0 then begin
     Exit;
   end;
 
-  LibCS.Acquire;
+  GLock.Acquire;
   try
-    if LibInitialized then begin
-      Result := True;
+    if GLibHandle <> 0 then begin
       Exit;
     end;
 
-    LibHandle := LoadLibrary(PChar(ALibName));
-    if LibHandle <> 0 then begin
-      NCSEcwCompressAllocClient := GetProcAddr('NCSEcwCompressAllocClient');
-      NCSEcwCompressOpen := GetProcAddr('NCSEcwCompressOpen');
-      NCSEcwCompress := GetProcAddr('NCSEcwCompress');
-      NCSEcwCompressClose := GetProcAddr('NCSEcwCompressClose');
-      NCSEcwCompressFreeClient := GetProcAddr('NCSEcwCompressFreeClient');
+    VHandle := LoadLibrary(PChar(ALibName));
+    if VHandle = 0 then begin
+      raise ELibEcwJ2Error.CreateFmt(
+        'Could not load library: %s' + #13#10 + '%s',
+        [ALibName, SysErrorMessage(GetLastError)]
+      );
     end;
 
-    LibInitialized :=
-      (LibHandle <> 0) and
-      (Addr(NCSEcwCompressAllocClient) <> nil) and
-      (Addr(NCSEcwCompressOpen) <> nil) and
-      (Addr(NCSEcwCompress) <> nil) and
-      (Addr(NCSEcwCompressClose) <> nil) and
-      (Addr(NCSEcwCompressFreeClient) <> nil);
+    try
+      {$IFDEF ECW_ALL_IN_ONE}
+      NCSEcwInit := LoadProc(VHandle, 'NCSecwInit');
+      //NCSEcwShutdown := LoadProc(VHandle, 'NCSecwShutdown');
+      {$ENDIF}
+      NCSEcwCompressAllocClient := LoadProc(VHandle, 'NCSEcwCompressAllocClient');
+      NCSEcwCompressOpen        := LoadProc(VHandle, 'NCSEcwCompressOpen');
+      NCSEcwCompress            := LoadProc(VHandle, 'NCSEcwCompress');
+      NCSEcwCompressClose       := LoadProc(VHandle, 'NCSEcwCompressClose');
+      NCSEcwCompressFreeClient  := LoadProc(VHandle, 'NCSEcwCompressFreeClient');
+    except
+      on E: Exception do begin
+        FreeLibrary(VHandle);
+        raise;
+      end;
+    end;
 
-    Result := LibInitialized;
+    {$IFDEF ECW_ALL_IN_ONE}
+    NCSEcwInit();
+    {$ENDIF}
+
+    GLibHandle := VHandle;
   finally
-    LibCS.Release;
+    GLock.Release;
   end;
 end;
 
-procedure QuitLibEcw;
+procedure UnloadLibEcw;
 begin
-  LibCS.Acquire;
+  GLock.Acquire;
   try
-    LibInitialized := False;
-    if LibHandle > 0 then begin
-      FreeLibrary(LibHandle);
-      LibHandle := 0;
+    if GLibHandle > 0 then begin
+      {$IFDEF ECW_ALL_IN_ONE}
+      //calling NCSEcwShutdown here cause AV on FreeLibrary
+      //NCSEcwShutdown();
+      {$ENDIF}
+      FreeLibrary(GLibHandle);
+      GLibHandle := 0;
       NCSEcwCompressAllocClient := nil;
       NCSEcwCompressOpen := nil;
       NCSEcwCompress := nil;
@@ -544,16 +580,16 @@ begin
       NCSEcwCompressFreeClient := nil;
     end;
   finally
-    LibCS.Release;
+    GLock.Release;
   end;
 end;
 
 initialization
-  LibCS := TCriticalSection.Create;
+  GLock := TCriticalSection.Create;
 
 finalization
-  QuitLibEcw;
-  LibCS.Free;
+  UnloadLibEcw;
+  GLock.Free;
 
 end.
 
