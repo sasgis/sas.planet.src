@@ -222,8 +222,11 @@ begin
     Exit;
   end;
   VDllHandle := GetModuleHandle('ntdll.dll');
-  // Resource
+  // Slim Reader/Writer (SRW) Lock
   if (0 <> VDllHandle) then begin
+    if GetProcAddress(VDllHandle, 'wine_get_version') <> nil then begin
+      Exit; // http://www.sasgis.org/mantis/view.php?id=2925
+    end;
     VInitializePtr := GetProcAddress(VDllHandle, 'RtlInitializeSRWLock');
     if VInitializePtr <> nil then begin
       VAcquireExclusivePtr := GetProcAddress(VDllHandle, 'RtlAcquireSRWLockExclusive');
