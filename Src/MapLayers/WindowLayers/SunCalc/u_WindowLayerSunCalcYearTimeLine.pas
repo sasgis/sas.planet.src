@@ -183,7 +183,7 @@ begin
           VMarkerText :=
             ', ' +
             VYearEvents[I].Name + ' ' +
-            FormatDateTime('hh:nn', VEventDate) +
+            FormatDateTime('hh:nn', VEventDate) + ' ' +
             TTimeZoneInfo.UTCOffsetToString(FTzOffset);
           Break;
         end;

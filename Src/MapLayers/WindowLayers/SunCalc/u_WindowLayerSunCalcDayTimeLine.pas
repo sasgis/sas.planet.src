@@ -262,7 +262,7 @@ begin
     // Sun Marker
     if FIsShowMarkerCaption then begin
       VTime := TTimeZoneInfo.UTCToTzLocalTime(FDateTime, FTzOffset);
-      VMarkerText := FormatDateTime('hh:nn', VTime) + TTimeZoneInfo.UTCOffsetToString(FTzOffset);
+      VMarkerText := FormatDateTime('hh:nn', VTime) + ' ' + TTimeZoneInfo.UTCOffsetToString(FTzOffset);
     end else begin
       VMarkerText := '';
     end;

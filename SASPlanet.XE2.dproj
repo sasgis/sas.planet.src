@@ -1508,7 +1508,7 @@
 			<DCCReference Include="Src\System\u_LanguageManager.pas"/>
 			<DCCReference Include="Src\System\u_LanguagesEx.pas"/>
 			<DCCReference Include="Src\System\u_SystemTimeProvider.pas"/>
-			<DCCReference Include="Src\System\u_TimeZoneInfo.pas"/>
+			<DCCReference Include="Src\TimeZone\u_TimeZoneInfo.pas"/>
 			<DCCReference Include="Src\Terrain\External\u_ExternalTerrainAPI.pas"/>
 			<DCCReference Include="Src\Terrain\External\u_ExternalTerrainsProvider.pas"/>
 			<DCCReference Include="Src\Terrain\GoogleEarth\i_GoogleEarthTerrainTileStorage.pas"/>
