@@ -646,8 +646,8 @@ object frExportToJNX: TfrExportToJNX
     end
   end
   object dlgSaveTargetFile: TSaveDialog
-    DefaultExt = 'zip'
-    Filter = 'Zip |*.zip'
+    DefaultExt = 'JNX'
+    Filter = 'JNX |*.jnx'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     Left = 344
     Top = 200
