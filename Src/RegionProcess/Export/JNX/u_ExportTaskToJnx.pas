@@ -43,6 +43,9 @@ type
     FProductID: Integer; // 0,2,3,4,5,6,7,8,9
     FBitmapPostProcessing: IBitmapPostProcessing;
 
+    FDoAbortExport: Boolean;
+    FTileProcessErrorMsg: string;
+    procedure ShowErrorSync;
   protected
     procedure ProcessRegion; override;
   public
@@ -65,7 +68,10 @@ implementation
 
 uses
   Types,
+  Classes,
   SysUtils,
+  Dialogs,
+  UITypes,
   ALString,
   JNXlib,
   i_TileStorage,
@@ -79,6 +85,13 @@ uses
   i_MapVersionRequest,
   i_BitmapTileSaveLoad,
   u_ResStrings;
+
+resourcestring
+  rsTileProcessErrorFmt =
+    '[JNX] Tile processing error!' + #13#10 +
+    'Tile: X = %d, Y = %d, Z = %d' + #13#10 +
+    'Error: "%s: %s"' + #13#10 + #13#10 +
+    'Do you want to continue?';
 
 constructor TExportTaskToJnx.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
@@ -201,12 +214,25 @@ begin
               VData := nil;
               if VRecompress or not ALSameText(VTileInfo.ContentType.GetContentType, 'image/jpg') then begin
                 if Supports(VTileInfo.ContentType, IContentTypeInfoBitmap, VContentTypeInfoBitmap) then begin
-                  VBitmapTile := VContentTypeInfoBitmap.GetLoader.Load(VTileInfo.TileData);
-                  if FBitmapPostProcessing <> nil then begin
-                    VBitmapTile := FBitmapPostProcessing.Process(VBitmapTile);
-                  end;
-                  if Assigned(VBitmapTile) then begin
-                    VData := VSaver.Save(VBitmapTile);
+                  try
+                    VBitmapTile := VContentTypeInfoBitmap.GetLoader.Load(VTileInfo.TileData);
+                    if FBitmapPostProcessing <> nil then begin
+                      VBitmapTile := FBitmapPostProcessing.Process(VBitmapTile);
+                    end;
+                    if Assigned(VBitmapTile) then begin
+                      VData := VSaver.Save(VBitmapTile);
+                    end;
+                  except
+                    on E: Exception do begin
+                      FTileProcessErrorMsg := Format(
+                        rsTileProcessErrorFmt,
+                        [VTile.X, VTile.Y, VZoom + 1, E.ClassName, E.Message]
+                      );
+                      TThread.Synchronize(nil, Self.ShowErrorSync);
+                      if FDoAbortExport then begin
+                        Exit;
+                      end;
+                    end;
                   end;
                 end;
               end else begin
@@ -250,6 +276,12 @@ begin
   finally
     VWriter.Free;
   end;
+end;
+
+procedure TExportTaskToJnx.ShowErrorSync;
+begin
+  FDoAbortExport :=
+    MessageDlg(FTileProcessErrorMsg, mtError, [mbYes, mbNo], 0) <> mrYes;
 end;
 
 end.
