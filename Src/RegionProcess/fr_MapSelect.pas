@@ -227,7 +227,7 @@ end;
 
 procedure TfrMapSelect.SetEnabled(const AMode: Boolean);
 begin
-  cbbMap.Enabled := AMode and not FIsEmpty;
+  cbbMap.Enabled := AMode;
   RefreshList(nil);
 end;
 
