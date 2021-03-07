@@ -81,7 +81,7 @@ type
       const AMapSelectFilter: TMapSelectFilter;
       const ANoItemAdd: Boolean;
       const AShowDisabled: Boolean;
-      AMapSelectPredicate: TMapSelectPredicate
+      const AMapSelectPredicate: TMapSelectPredicate
     ); reintroduce;
     function GetSelectedMapType: IMapType;
     function TrySelectMapType(const AMapType: IMapType): Boolean; overload;
@@ -147,7 +147,7 @@ constructor TfrMapSelect.Create(
   const AMapSelectFilter: TMapSelectFilter;
   const ANoItemAdd: Boolean;
   const AShowDisabled: Boolean;
-  AMapSelectPredicate: TMapSelectPredicate
+  const AMapSelectPredicate: TMapSelectPredicate
 );
 begin
   Assert(Assigned(AMainMapConfig));

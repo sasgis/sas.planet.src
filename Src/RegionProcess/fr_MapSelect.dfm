@@ -25,52 +25,45 @@ object frMapSelect: TfrMapSelect
     Top = 224
     object TBX_All: TTBXItem
       Tag = 1
+      Caption = 'All'
       Checked = True
       GroupIndex = 1
       RadioItem = True
       OnClick = RefreshList
-      Caption = 'All'
-      Hint = ''
     end
     object TBX_Maps: TTBXItem
       Tag = 2
+      Caption = 'Maps'
       GroupIndex = 1
       RadioItem = True
       OnClick = RefreshList
-      Caption = 'Maps'
-      Hint = ''
     end
     object TBX_Layers: TTBXItem
       Tag = 3
+      Caption = 'Layers'
       GroupIndex = 1
       RadioItem = True
       OnClick = RefreshList
-      Caption = 'Layers'
-      Hint = ''
     end
     object TBX_Active: TTBXItem
       Tag = 4
+      Caption = 'Active'
       GroupIndex = 1
       RadioItem = True
       OnClick = RefreshList
-      Caption = 'Active'
-      Hint = ''
     end
     object TBSeparatorItem1: TTBSeparatorItem
     end
     object TBX_Filter: TTBXItem
       Tag = 5
+      Caption = 'Filter'
       GroupIndex = 1
       RadioItem = True
       OnClick = RefreshList
-      Caption = 'Filter'
-      Hint = ''
     end
     object TBX_AFilter: TTBXEditItem
       Tag = 5
       OnChange = ApplyFilter
-      Caption = ''
-      Hint = ''
     end
   end
 end

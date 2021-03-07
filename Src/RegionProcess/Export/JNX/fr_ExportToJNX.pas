@@ -520,7 +520,8 @@ procedure TfrExportToJNX.Init(
   const APolygon: IGeometryLonLatPolygon
 );
 begin
-  // Инициализируем список соответствия масштабов каждый раз, чтобы можно было пробовать различные настройки, не перезапуская программу.
+  // Инициализируем список соответствия масштабов каждый раз,
+  // чтобы можно было пробовать различные настройки, не перезапуская программу.
   InitZoomIndexToScaleIndex;
   if not Assigned(FfrMap1Select.Parent) then
     FfrMap1Select.Show(pnlMap1);
