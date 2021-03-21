@@ -55,7 +55,7 @@ begin
   P := tz_get_error(ACtx);
 
   if P <> nil then begin
-    VMsg := UTF8ToString(UTF8String(P));
+    VMsg := {$IFDEF UNICODE}UTF8ToString(P){$ELSE}UTF8Decode(P){$ENDIF};
   end else begin
     VMsg := 'unknown error'
   end;

@@ -72,6 +72,9 @@ uses
   SysUtils,
   Dialogs,
   UITypes,
+  {$IF CompilerVersion < 20}
+  Controls, // for mrYes
+  {$IFEND}
   ALString,
   JNXlib,
   i_TileStorage,
