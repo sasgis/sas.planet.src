@@ -26,12 +26,14 @@ uses
   i_Downloader,
   i_DownloaderFactory,
   i_DownloadResultFactory,
+  i_ContentTypeManager,
   u_BaseInterfacedObject;
 
 type
   TDownloaderByCurlFactory = class(TBaseInterfacedObject, IDownloaderFactory)
   private
     FResultFactory: IDownloadResultFactory;
+    FContentTypeManager: IContentTypeManager;
   private
     { IDownloaderFactory }
     function BuildDownloader(
@@ -48,7 +50,9 @@ type
       const AOnDownloadProgress: TOnDownloadProgress
     ): IDownloaderAsync;
   public
-    constructor Create;
+    constructor Create(
+      const AContentTypeManager: IContentTypeManager
+    );
   end;
 
 implementation
@@ -59,10 +63,13 @@ uses
 
 { TDownloaderByCurlFactory }
 
-constructor TDownloaderByCurlFactory.Create;
+constructor TDownloaderByCurlFactory.Create(
+  const AContentTypeManager: IContentTypeManager
+);
 begin
   inherited Create;
   FResultFactory := TDownloadResultFactory.Create;
+  FContentTypeManager := AContentTypeManager;
 end;
 
 function TDownloaderByCurlFactory.BuildDownloader(
@@ -75,6 +82,7 @@ begin
   Result :=
     TDownloaderHttpByCurl.Create(
       FResultFactory,
+      FContentTypeManager,
       AAllowUseCookie,
       AAllowRedirect,
       True, // ToDo
@@ -93,6 +101,7 @@ begin
   Result :=
     TDownloaderHttpByCurl.Create(
       FResultFactory,
+      FContentTypeManager,
       AAllowUseCookie,
       AAllowRedirect,
       True, // ToDo

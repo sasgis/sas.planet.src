@@ -30,12 +30,14 @@ uses
   i_DownloadRequest,
   i_DownloadResultFactory,
   i_NotifierOperation,
+  i_ContentTypeManager,
   u_BaseInterfacedObject;
 
 type
   TDownloaderHttpBase = class(TBaseInterfacedObject, IDownloaderAsync)
   protected
     FResultFactory: IDownloadResultFactory;
+    FContentTypeManager: IContentTypeManager;
 
     function OnAfterResponse(
       const ATryDecodeContent: Boolean;
@@ -53,6 +55,10 @@ type
       const AContentType: AnsiString;
       const ARawHeaderText: AnsiString
     ): IDownloadResult;
+
+    function ProcessFileSystemRequest(
+      const ARequest: IDownloadRequest
+    ): IDownloadResult;
   private
     { IDownloaderAsync }
     procedure DoRequestAsync(
@@ -63,7 +69,8 @@ type
     );
   public
     constructor Create(
-      const AResultFactory: IDownloadResultFactory
+      const AResultFactory: IDownloadResultFactory;
+      const AContentTypeManager: IContentTypeManager
     );
   end;
 
@@ -72,6 +79,10 @@ implementation
 uses
   UrlMon,
   SysUtils,
+  {$IFNDEF UNICODE}
+  Compatibility,
+  {$ENDIF}
+  i_ContentTypeInfo,
   i_DownloadChecker,
   u_AsyncRequestHelperThread,
   u_BinaryData,
@@ -112,12 +123,15 @@ end;
 { TDownloaderHttpBase }
 
 constructor TDownloaderHttpBase.Create(
-  const AResultFactory: IDownloadResultFactory
+  const AResultFactory: IDownloadResultFactory;
+  const AContentTypeManager: IContentTypeManager
 );
 begin
   Assert(AResultFactory <> nil);
+  Assert(AContentTypeManager <> nil);
   inherited Create;
   FResultFactory := AResultFactory;
+  FContentTypeManager := AContentTypeManager;
 end;
 
 procedure TDownloaderHttpBase.DoRequestAsync(
@@ -153,10 +167,6 @@ var
   VDetectedContentType: RawByteString;
 begin
   Result := nil;
-
-  if FResultFactory = nil then begin
-    Exit;
-  end;
 
   VStatusCode := AStatusCode;
 
@@ -273,6 +283,91 @@ begin
         VStatusCode,
         VRawHeaderText
       );
+  end;
+end;
+
+function TDownloaderHttpBase.ProcessFileSystemRequest(
+  const ARequest: IDownloadRequest
+): IDownloadResult;
+var
+  VUrl: string;
+  VUrlLen: Integer;
+  VRawHeaderText: AnsiString;
+  VMemStream: TMemoryStream;
+  VFileName: string;
+  VFileExt: AnsiString;
+  VContentTypeInfo: IContentTypeInfoBasic;
+begin
+  Result := nil;
+
+  // check filename
+  VUrl := string(ARequest.Url);
+  VUrlLen := Length(VUrl);
+  if VUrlLen < 4 then begin
+    Exit;
+  end;
+
+  // very simple checks
+  if CharInSet(VUrl[2], ['t', 'T']) then begin
+    // fast detect ftp & http(s)
+    // skip file, \\ & C:
+    Exit;
+  end else if (VUrl[1] = '\') and (VUrl[2] = '\') then begin
+    // in case of \\servername\sharename\folder\..
+  end else if (VUrl[2] = ':') and (VUrl[3] = '\') then begin
+    // in case of C:\folder\...
+  end else if CharInSet(VUrl[1], ['f', 'F']) then begin
+    // check for
+    // file:///C:/folder/...
+    // file://///servername/sharename/folder/...
+    if VUrlLen <= 10 then begin
+      Exit;
+    end;
+    if not SameText(Copy(VUrl, 1, 8), 'file:///') then begin
+      Exit;
+    end;
+    // bingo!
+    VUrl := Copy(VUrl, 9, VUrlLen);
+    // replace slashes
+    VUrl := StringReplace(VUrl, '/', '\', [rfReplaceAll]);
+  end else begin
+    // noway
+    Exit;
+  end;
+
+  // check
+  VFileName := VUrl;
+  if not FileExists(VFileName) then begin
+    Result := FResultFactory.BuildDataNotExistsByStatusCode(ARequest, '', 404);
+    Exit;
+  end;
+
+  // found
+  VMemStream := TMemoryStream.Create;
+  try
+    // read file
+    VMemStream.LoadFromFile(VFileName);
+    VMemStream.Position := 0;
+
+    VFileExt := AnsiString(ExtractFileExt(VFileName));
+    VContentTypeInfo := FContentTypeManager.GetInfoByExt(VFileExt);
+
+    if VContentTypeInfo <> nil then begin
+      VRawHeaderText := 'Content-Type: ' + VContentTypeInfo.GetContentType;
+    end else begin
+      VRawHeaderText := '';
+    end;
+
+    Result := OnAfterResponse(
+      False,
+      (VRawHeaderText = ''), // try detect content-type for unknown file extensions
+      ARequest,
+      200,
+      VRawHeaderText,
+      VMemStream
+    );
+  finally
+    VMemStream.Free;
   end;
 end;
 

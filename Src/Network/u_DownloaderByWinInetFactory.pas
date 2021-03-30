@@ -27,12 +27,14 @@ uses
   i_DownloaderFactory,
   i_DownloadResultFactory,
   i_WinInetConfig,
+  i_ContentTypeManager,
   u_BaseInterfacedObject;
 
 type
   TDownloaderByWinInetFactory = class(TBaseInterfacedObject, IDownloaderFactory)
   private
     FResultFactory: IDownloadResultFactory;
+    FContentTypeManager: IContentTypeManager;
   private
     { IDownloaderFactory }
     function BuildDownloader(
@@ -49,7 +51,10 @@ type
       const AOnDownloadProgress: TOnDownloadProgress
     ): IDownloaderAsync;
   public
-    constructor Create(const AWinInetConfig: IWinInetConfig);
+    constructor Create(
+      const AWinInetConfig: IWinInetConfig;
+      const AContentTypeManager: IContentTypeManager
+    );
   end;
 
 implementation
@@ -61,13 +66,17 @@ uses
 
 { TDownloaderByWinInetFactory }
 
-constructor TDownloaderByWinInetFactory.Create(const AWinInetConfig: IWinInetConfig);
+constructor TDownloaderByWinInetFactory.Create(
+  const AWinInetConfig: IWinInetConfig;
+  const AContentTypeManager: IContentTypeManager
+);
 var
   VConnsPerServer: TConnsPerServerRec;
 begin
   inherited Create;
 
   FResultFactory := TDownloadResultFactory.Create;
+  FContentTypeManager := AContentTypeManager;
 
   // Fix HTTP connections limit
   VConnsPerServer := AWinInetConfig.MaxConnsPerServer;
@@ -92,6 +101,7 @@ begin
   Result :=
     TDownloaderHttpByWinInet.Create(
       FResultFactory,
+      FContentTypeManager,
       AAllowUseCookie,
       AAllowRedirect,
       True, // ToDo
@@ -110,6 +120,7 @@ begin
   Result :=
     TDownloaderHttpByWinInet.Create(
       FResultFactory,
+      FContentTypeManager,
       AAllowUseCookie,
       AAllowRedirect,
       True, // ToDo

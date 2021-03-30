@@ -592,21 +592,6 @@ begin
       FHashFunction
     );
 
-  FGlobalInternetState := TGlobalInternetState.Create;
-
-  case FGlobalConfig.InetConfig.NetworkEngineType of
-    neWinInet: begin
-      FDownloaderFactory := TDownloaderByWinInetFactory.Create(
-        FGlobalConfig.InetConfig.WinInetConfig
-      );
-    end;
-    neCurl: begin
-      FDownloaderFactory := TDownloaderByCurlFactory.Create;
-    end;
-  else
-    raise Exception.Create('Unknown NetworkEngineType');
-  end;
-
   FProjConverterFactory := TProjConverterFactory.Create;
   FLastSelectionInfo := TLastSelectionInfo.Create;
   FLastSearchResult := TLastSearchResult.Create;
@@ -688,6 +673,24 @@ begin
       VContentTypeManagerBitmapInternal,
       FArchiveReadWriteFactory
     );
+
+  FGlobalInternetState := TGlobalInternetState.Create;
+
+  case FGlobalConfig.InetConfig.NetworkEngineType of
+    neWinInet: begin
+      FDownloaderFactory := TDownloaderByWinInetFactory.Create(
+        FGlobalConfig.InetConfig.WinInetConfig,
+        FContentTypeManager
+      );
+    end;
+    neCurl: begin
+      FDownloaderFactory := TDownloaderByCurlFactory.Create(
+        FContentTypeManager
+      );
+    end;
+  else
+    raise Exception.Create('Unknown NetworkEngineType');
+  end;
 
   FMapCalibrationList := TMapCalibrationListBasic.Create;
   FProjectedGeometryProvider :=

@@ -44,6 +44,7 @@ uses
   i_DownloadResultFactory,
   i_DownloadChecker,
   i_SimpleFlag,
+  i_ContentTypeManager,
   u_DownloaderHttpBase;
 
 type
@@ -76,9 +77,6 @@ type
     FAcceptEncoding: Boolean;
     FTryDetectContentType: Boolean;
     FOnDownloadProgress: TOnDownloadProgress;
-    function ProcessFileSystemRequest(
-      const ARequest: IDownloadRequest
-    ): IDownloadResult;
     function OnBeforeRequest(
       const ARequest: IDownloadRequest
     ): IDownloadResult;
@@ -118,6 +116,7 @@ type
   public
     constructor Create(
       const AResultFactory: IDownloadResultFactory;
+      const AContentTypeManager: IContentTypeManager;
       const AAllowUseCookie: Boolean;
       const AAllowRedirect: Boolean;
       const AAcceptEncoding: Boolean;
@@ -152,6 +151,7 @@ procedure VerboseStatusChange(
 
 constructor TDownloaderHttpByWinInet.Create(
   const AResultFactory: IDownloadResultFactory;
+  const AContentTypeManager: IContentTypeManager;
   const AAllowUseCookie: Boolean;
   const AAllowRedirect: Boolean;
   const AAcceptEncoding: Boolean;
@@ -159,7 +159,7 @@ constructor TDownloaderHttpByWinInet.Create(
   const AOnDownloadProgress: TOnDownloadProgress
 );
 begin
-  inherited Create(AResultFactory);
+  inherited Create(AResultFactory, AContentTypeManager);
 
   FAllowUseCookie := AAllowUseCookie;
   FAllowRedirect := AAllowRedirect;
@@ -598,96 +598,6 @@ begin
     {$IFDEF VerboseHttpClient}
     OutputDebugString(PChar(IntToStr(GetCurrentThreadId) + ' <E> Fail ProxyConfig read.'));
     {$ENDIF}
-  end;
-end;
-
-function TDownloaderHttpByWinInet.ProcessFileSystemRequest(
-  const ARequest: IDownloadRequest
-): IDownloadResult;
-var
-  VUrl: AnsiString;
-  VUrlLen: Integer;
-  VStatusCode: Cardinal;
-  VContentType, VRawResponseHeader: AnsiString;
-  VMemStream: TMemoryStream;
-  VResponseBody: IBinaryData;
-  VFileName: string;
-begin
-  Result := nil;
-  if (nil = FResultFactory) then begin
-    Exit;
-  end;
-
-  // check filename
-  VUrl := ARequest.Url;
-  VUrlLen := Length(VUrl);
-  if (VUrlLen < 4) then begin
-    Exit;
-  end;
-
-  // very simple checks
-  if (VUrl[2] in ['t', 'T']) then begin
-    // fast detect ftp & http(s)
-    // skip file, \\ & C:
-    Exit;
-  end else if (VUrl[1] = '\') and (VUrl[2] = '\') then begin
-    // in case of \\servername\sharename\folder\..
-  end else if (VUrl[2] = ':') and (VUrl[3] = '\') then begin
-    // in case of C:\folder\...
-  end else if (VUrl[1] in ['f', 'F']) then begin
-    // check for
-    // file:///C:/folder/...
-    // file://///servername/sharename/folder/...
-    if (VUrlLen <= 10) then begin
-      Exit;
-    end;
-    if not ALSameText(Copy(VUrl, 1, 8), 'file:///') then begin
-      Exit;
-    end;
-    // bingo!
-    VUrl := Copy(VUrl, 9, VUrlLen);
-    // replace slashes
-    VUrl := ALStringReplace(VUrl, '/', '\', [rfReplaceAll]);
-  end else begin
-    // noway
-    Exit;
-  end;
-  VFileName := string(VUrl);
-
-  // just empty headers
-  VRawResponseHeader := '';
-
-  // check
-  if FileExists(VFileName) then begin
-    // found
-    VMemStream := TMemoryStream.Create;
-    try
-      // read file
-      VMemStream.LoadFromFile(VFileName);
-      VResponseBody := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
-      VMemStream := nil;
-    finally
-      VMemStream.Free;
-    end;
-    // autodetect file type
-    VContentType := '';
-    VStatusCode := HTTP_STATUS_OK;
-    Result := InternalMakeResponse(
-      ARequest,
-      VResponseBody,
-      VStatusCode,
-      VContentType,
-      VRawResponseHeader
-    );
-  end;
-
-  // no file
-  if (nil = Result) then begin
-    Result := FResultFactory.BuildDataNotExistsByStatusCode(
-      ARequest,
-      VRawResponseHeader,
-      HTTP_STATUS_NOT_FOUND
-    );
   end;
 end;
 

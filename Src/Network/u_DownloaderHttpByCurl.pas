@@ -40,6 +40,7 @@ uses
   i_DownloadRequest,
   i_DownloadResultFactory,
   i_DownloadChecker,
+  i_ContentTypeManager,
   t_CurlHttpClient,
   u_CurlHttpClient,
   u_CurlProxyResolver,
@@ -85,6 +86,7 @@ type
   public
     constructor Create(
       const AResultFactory: IDownloadResultFactory;
+      const AContentTypeManager: IContentTypeManager;
       const AAllowUseCookie: Boolean;
       const AAllowRedirect: Boolean;
       const AAcceptEncoding: Boolean;
@@ -127,6 +129,7 @@ end;
 
 constructor TDownloaderHttpByCurl.Create(
   const AResultFactory: IDownloadResultFactory;
+  const AContentTypeManager: IContentTypeManager;
   const AAllowUseCookie: Boolean;
   const AAllowRedirect: Boolean;
   const AAcceptEncoding: Boolean;
@@ -138,7 +141,7 @@ var
   VDebugCallBack: TCurlDebugCallBack;
   VProgressCallBack: TCurlProgressCallBack;
 begin
-  inherited Create(AResultFactory);
+  inherited Create(AResultFactory, AContentTypeManager);
 
   FHttpOptions.StoreCookie := AAllowUseCookie;
   FHttpOptions.FollowLocation := AAllowRedirect;
@@ -235,6 +238,11 @@ begin
     try
       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         Result := FResultFactory.BuildCanceled(ARequest);
+        Exit;
+      end;
+
+      Result := ProcessFileSystemRequest(ARequest);
+      if Result <> nil then begin
         Exit;
       end;
 
