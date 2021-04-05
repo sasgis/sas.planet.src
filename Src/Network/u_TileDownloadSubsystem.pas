@@ -130,6 +130,7 @@ type
     function GetState: ITileDownloaderStateChangeble;
   public
     constructor Create(
+      const AZmpFileName: string;
       const AGCNotifier: INotifierTime;
       const AAppClosingNotifier: INotifierOneOperation;
       const AProjectionSet: IProjectionSet;
@@ -254,6 +255,7 @@ end;
 { TTileDownloadSubsystem }
 
 constructor TTileDownloadSubsystem.Create(
+  const AZmpFileName: string;
   const AGCNotifier: INotifierTime;
   const AAppClosingNotifier: INotifierOneOperation;
   const AProjectionSet: IProjectionSet;
@@ -321,6 +323,7 @@ begin
     );
     FTileDownloadRequestBuilderFactory :=
       TTileDownloadRequestBuilderFactoryPascalScript.Create(
+        AZmpFileName,
         GetScriptText(AZmpData),
         FTileDownloadRequestBuilderConfig,
         FTileDownloaderConfig,

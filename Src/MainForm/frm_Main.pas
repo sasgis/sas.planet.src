@@ -1434,6 +1434,7 @@ begin
       GState.MapType.GUIConfigList,
       FMainMapState,
       GState.Config.ZmpConfig,
+      GState.Config.LogsPath,
       GState.DownloaderFactory,
       GState.ProjectionSetFactory,
       GState.ContentTypeManager,

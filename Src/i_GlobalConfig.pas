@@ -61,6 +61,9 @@ type
     function GetBaseCachePath: IPathConfig;
     property BaseCachePath: IPathConfig read GetBaseCachePath;
 
+    function GetLogsPath: IPathConfig;
+    property LogsPath: IPathConfig read GetLogsPath;
+
     function GetMapsPath: IPathConfig;
     property MapsPath: IPathConfig read GetMapsPath;
 

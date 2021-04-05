@@ -442,6 +442,7 @@ begin
   VDownloadResultFactory := TDownloadResultFactory.Create;
   FTileDownloadSubsystem :=
     TTileDownloadSubsystem.Create(
+      FZmp.FileName,
       AGCNotifier,
       AAppClosingNotifier,
       FProjectionSet,

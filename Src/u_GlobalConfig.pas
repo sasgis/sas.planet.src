@@ -59,6 +59,7 @@ type
   private
     FBaseConfigPath: IPathConfig;
     FBaseCachePath: IPathConfig;
+    FLogsPath: IPathConfig;
     FMapsPath: IPathConfig;
     FMapSvcScanPath: IPathConfig;
     FTrackPath: IPathConfig;
@@ -106,6 +107,7 @@ type
   private
     function GetBaseConfigPath: IPathConfig;
     function GetBaseCachePath: IPathConfig;
+    function GetLogsPath: IPathConfig;
     function GetMapsPath: IPathConfig;
     function GetTrackPath: IPathConfig;
     function GetMarksDbPath: IPathConfig;
@@ -211,6 +213,9 @@ begin
 
   FBaseCachePath := ABaseCachePath;
   Add(FBaseCachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PathToCache'), False, False, False, False);
+
+  FLogsPath := TPathConfig.Create('PrimaryPath', '.\Logs', ABaseDataPath);
+  Add(FLogsPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PathToLogs'), False, False, False, False);
 
   FMapsPath := TPathConfig.Create('PrimaryPath', '.\Maps', ABaseConfigPath);
   Add(FMapsPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoMAPS'), False, False, False, False);
@@ -352,6 +357,11 @@ end;
 function TGlobalConfig.GetBaseConfigPath: IPathConfig;
 begin
   Result := FBaseConfigPath;
+end;
+
+function TGlobalConfig.GetLogsPath: IPathConfig;
+begin
+  Result := FLogsPath;
 end;
 
 function TGlobalConfig.GetBitmapPostProcessingConfig: IBitmapPostProcessingConfig;

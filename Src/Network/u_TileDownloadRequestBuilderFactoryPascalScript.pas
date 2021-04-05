@@ -36,6 +36,7 @@ uses
   i_TileDownloadRequestBuilder,
   i_TileDownloadRequestBuilderFactory,
   i_PascalScriptGlobal,
+  i_PascalScriptLogger,
   u_BaseInterfacedObject,
   u_TileDownloaderStateInternal;
 
@@ -57,12 +58,14 @@ type
     FDefProjConverter: IProjConverter;
     FProjFactory: IProjConverterFactory;
     FPSGlobal: IPascalScriptGlobal;
+    FPSLogger: IPascalScriptLogger;
     procedure DoCompileScript;
   protected
     function GetState: ITileDownloaderStateChangeble;
     function BuildRequestBuilder(const ADownloader: IDownloader): ITileDownloadRequestBuilder;
   public
     constructor Create(
+      const AZmpFileName: string;
       const AScriptText: AnsiString;
       const AConfig: ITileDownloadRequestBuilderConfig;
       const ATileDownloaderConfig: ITileDownloaderConfig;
@@ -77,10 +80,12 @@ implementation
 
 uses
   t_PascalScript,
+  u_GlobalState,
   u_Synchronizer,
   u_CoordConverterSimpleByProjectionSet,
   u_PascalScriptTypes,
   u_PascalScriptGlobal,
+  u_PascalScriptLogger,
   u_PascalScriptWriteLn,
   u_PascalScriptUrlTemplate,
   u_PascalScriptCompiler,
@@ -90,6 +95,7 @@ uses
 { TTileDownloadRequestBuilderFactoryPascalScript }
 
 constructor TTileDownloadRequestBuilderFactoryPascalScript.Create(
+  const AZmpFileName: string;
   const AScriptText: AnsiString;
   const AConfig: ITileDownloadRequestBuilderConfig;
   const ATileDownloaderConfig: ITileDownloaderConfig;
@@ -112,6 +118,11 @@ begin
 
   FPSGlobal := TPascalScriptGlobal.Create;
 
+  FPSLogger := TPascalScriptLogger.Create(
+    GState.Config.LogsPath.FullPath,
+    AZmpFileName
+  );
+
   FCoordConverter := TCoordConverterSimpleByProjectionSet.Create(AProjectionSet);
   FCS := GSync.SyncStd.Make(Self.ClassName);
   VState := TTileDownloaderStateInternal.Create;
@@ -132,7 +143,7 @@ procedure TTileDownloadRequestBuilderFactoryPascalScript.DoCompileScript;
 
   function _GetRegProcArray: TOnCompileTimeRegProcArray;
   begin
-    SetLength(Result, 8);
+    SetLength(Result, 9);
     Result[0] := @CompileTimeReg_ProjConverter;
     Result[1] := @CompileTimeReg_ProjConverterFactory;
     Result[2] := @CompileTimeReg_CoordConverterSimple;
@@ -140,7 +151,8 @@ procedure TTileDownloadRequestBuilderFactoryPascalScript.DoCompileScript;
     Result[4] := @CompileTimeReg_PascalScriptGlobal;
     Result[5] := @CompileTimeReg_WriteLn;
     Result[6] := @CompileTimeReg_UrlTemplate;
-    Result[7] := @CompileTimeReg_RequestBuilderVars; // must always be the last
+    Result[7] := @CompileTimeReg_PascalScriptLogger;
+    Result[8] := @CompileTimeReg_RequestBuilderVars; // must always be the last
   end;
 
 var
@@ -206,7 +218,8 @@ begin
           FDefProjConverter,
           FProjFactory,
           FLangManager,
-          FPSGlobal
+          FPSGlobal,
+          FPSLogger
         );
     except
       on E: Exception do begin

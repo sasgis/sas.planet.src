@@ -32,12 +32,14 @@ procedure CompileTimeReg_ProjConverterFactory(const APSComp: TPSPascalCompiler);
 procedure CompileTimeReg_CoordConverterSimple(const APSComp: TPSPascalCompiler);
 procedure CompileTimeReg_SimpleHttpDownloader(const APSComp: TPSPascalCompiler);
 procedure CompileTimeReg_PascalScriptGlobal(const APSComp: TPSPascalCompiler);
+procedure CompileTimeReg_PascalScriptLogger(const APSComp: TPSPascalCompiler);
 
 implementation
 
 uses
   i_ProjConverter,
   i_PascalScriptGlobal,
+  i_PascalScriptLogger,
   i_CoordConverterSimple,
   i_SimpleHttpDownloader;
 
@@ -111,6 +113,19 @@ begin
 
     RegisterMethod('function Exists(const AVarID: Integer): Boolean;', cdRegister);
     RegisterMethod('function ExistsTS(const AVarID: Integer): Boolean;', cdRegister);
+  end;
+end;
+
+procedure CompileTimeReg_PascalScriptLogger(const APSComp: TPSPascalCompiler);
+var
+  VIntf: TPSInterface;
+begin
+  VIntf := APSComp.AddInterface(
+    APSComp.FindInterface('IUnknown'), IPascalScriptLogger, 'IPascalScriptLogger'
+  );
+  with VIntf do begin
+    RegisterMethod('procedure Write(const AStr: AnsiString);', cdRegister);
+    RegisterMethod('procedure WriteFmt(const AFormat: string; const AArgs: array of const);', cdRegister);
   end;
 end;
 

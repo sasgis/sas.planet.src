@@ -2513,6 +2513,7 @@
         <DCCReference Include="Src\TileStorage\u_TileStorageTypeList.pas"/>
         <DCCReference Include="Src\TileStorage\u_TileStorageTypeListItem.pas"/>
         <DCCReference Include="Src\TileStorage\u_TileStorageTypeListSimple.pas"/>
+        <DCCReference Include="Src\TimeZone\u_TimeZoneInfo.pas"/>
         <DCCReference Include="Src\UpdateChecker\frm_UpdateChecker.pas">
             <Form>frmUpdateChecker</Form>
         </DCCReference>
@@ -2686,7 +2687,8 @@
         <DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
         <DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
         <DCCReference Include="Src\u_WindowPositionConfig.pas"/>
-        <DCCReference Include="Src\TimeZone\u_TimeZoneInfo.pas"/>
+        <DCCReference Include="Src\PascalScript\i_PascalScriptLogger.pas"/>
+        <DCCReference Include="Src\PascalScript\u_PascalScriptLogger.pas"/>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

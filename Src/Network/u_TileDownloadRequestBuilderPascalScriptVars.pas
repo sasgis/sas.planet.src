@@ -32,6 +32,7 @@ uses
   i_LastResponseInfo,
   i_ProjConverter,
   i_PascalScriptGlobal,
+  i_PascalScriptLogger,
   i_SimpleHttpDownloader;
 
 type
@@ -59,6 +60,7 @@ type
     FpConverter: PPSVariantInterface;
     FpDownloader: PPSVariantInterface;
     FpGlobal: PPSVariantInterface;
+    FpLogger: PPSVariantInterface;
     FpDefProjConverter: PPSVariantInterface;
     FpProjFactory: PPSVariantInterface;
 
@@ -84,7 +86,8 @@ type
       const ASource: ITileRequest;
       const ADefProjConverter: IProjConverter;
       const AProjFactory: IProjConverterFactory;
-      const APSGlobal: IPascalScriptGlobal
+      const APSGlobal: IPascalScriptGlobal;
+      const APSLogger: IPascalScriptLogger
     ); inline;
   end;
 
@@ -100,6 +103,9 @@ procedure CompileTimeReg_RequestBuilderVars(const APSComp: TPSPascalCompiler);
 var
   VType: TPSType;
 begin
+  VType := APSComp.FindType('IPascalScriptLogger');
+  APSComp.AddUsedVariable('Logger', VType);
+
   VType := APSComp.FindType('IPascalScriptGlobal');
   APSComp.AddUsedVariable('Global', VType);
 
@@ -170,6 +176,7 @@ begin
   FpConverter := PPSVariantInterface(APSExec.GetVar2('Converter'));
   FpDownloader := PPSVariantInterface(APSExec.GetVar2('Downloader'));
   FpGlobal := PPSVariantInterface(APSExec.GetVar2('Global'));
+  FpLogger := PPSVariantInterface(APSExec.GetVar2('Logger'));
   FpDefProjConverter := PPSVariantInterface(APSExec.GetVar2('DefProjConverter'));
   FpProjFactory := PPSVariantInterface(APSExec.GetVar2('ProjFactory'));
 end;
@@ -186,7 +193,8 @@ procedure TRequestBuilderVars.ExecTimeSet(
   const ASource: ITileRequest;
   const ADefProjConverter: IProjConverter;
   const AProjFactory: IProjConverterFactory;
-  const APSGlobal: IPascalScriptGlobal
+  const APSGlobal: IPascalScriptGlobal;
+  const APSLogger: IPascalScriptLogger
 );
 var
   VLonLatRect: TDoubleRect;
@@ -245,6 +253,7 @@ begin
   FpDefProjConverter.Data := ADefProjConverter;
   FpProjFactory.Data := AProjFactory;
   FpGlobal.Data := APSGlobal;
+  FpLogger.Data := APSLogger;
 end;
 
 function TRequestBuilderVars.ResultUrl: AnsiString;

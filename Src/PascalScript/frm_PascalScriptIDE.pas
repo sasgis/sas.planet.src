@@ -40,6 +40,7 @@ uses
   SynEdit,
   frm_PascalScriptDbgOut,
   t_PascalScript,
+  i_PathConfig,
   i_Listener,
   i_NotifierOperation,
   i_MapTypeSet,
@@ -67,6 +68,7 @@ uses
   i_DownloaderFactory,
   i_MainMapsState,
   i_PascalScriptGlobal,
+  i_PascalScriptLogger,
   u_PSExecEx,
   u_PSPascalCompilerEx,
   u_PascalScriptWriteLn,
@@ -178,6 +180,7 @@ type
     FViewPortState: ILocalCoordConverterChangeable;
     FPSWriteLn: TPascalScriptWriteLn;
     FPSGlobal: IPascalScriptGlobal;
+    FPSLogger: IPascalScriptLogger;
     FPSUrlTemplate: TPascalScriptUrlTemplate;
     function GetZmpFromFolder(const APath: string): IZmpInfo;
     function GetZmpFromZip(const AFileName: string): IZmpInfo;
@@ -210,6 +213,7 @@ type
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AMainMapState: IMainMapsState;
       const AZmpConfig: IZmpConfig;
+      const ALogsPath: IPathConfig;
       const ADownloaderFactory: IDownloaderFactory;
       const AProjectionSetFactory: IProjectionSetFactory;
       const AContentTypeManager: IContentTypeManager;
@@ -240,7 +244,7 @@ uses
   uPSRuntime,
   uPSCompiler,
   uPSDisassembly,
-  {$IFNDef UNICODE}
+  {$IFNDEF UNICODE}
   Compatibility,
   {$ENDIF}
   Encodings,
@@ -256,6 +260,7 @@ uses
   i_TileDownloadRequestBuilderConfig,
   u_PascalScriptTypes,
   u_PascalScriptGlobal,
+  u_PascalScriptLogger,
   u_ZmpInfo,
   u_GeoFunc,
   u_InetFunc,
@@ -301,6 +306,7 @@ constructor TfrmPascalScriptIDE.Create(
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AMainMapState: IMainMapsState;
   const AZmpConfig: IZmpConfig;
+  const ALogsPath: IPathConfig;
   const ADownloaderFactory: IDownloaderFactory;
   const AProjectionSetFactory: IProjectionSetFactory;
   const AContentTypeManager: IContentTypeManager;
@@ -360,6 +366,7 @@ begin
   FScriptBuffer := '';
   FPSWriteLn := TPascalScriptWriteLn.Create;
   FPSGlobal := TPascalScriptGlobal.Create;
+  FPSLogger := TPascalScriptLogger.Create(ALogsPath.FullPath, 'PascalScriptIDE');
   FPSUrlTemplate := nil;
 end;
 
@@ -403,7 +410,7 @@ end;
 
 function TfrmPascalScriptIDE.GetCompileTimeRegProcArray: TOnCompileTimeRegProcArray;
 begin
-  SetLength(Result, 8);
+  SetLength(Result, 9);
   Result[0] := @CompileTimeReg_ProjConverter;
   Result[1] := @CompileTimeReg_ProjConverterFactory;
   Result[2] := @CompileTimeReg_CoordConverterSimple;
@@ -411,7 +418,8 @@ begin
   Result[4] := @CompileTimeReg_PascalScriptGlobal;
   Result[5] := @CompileTimeReg_WriteLn;
   Result[6] := @CompileTimeReg_UrlTemplate;
-  Result[7] := @CompileTimeReg_RequestBuilderVars; // must always be the last
+  Result[7] := @CompileTimeReg_PascalScriptLogger;
+  Result[8] := @CompileTimeReg_RequestBuilderVars; // must always be the last
 end;
 
 function TfrmPascalScriptIDE.GetExecTimeRegMethodArray: TOnExecTimeRegMethodArray;
@@ -824,7 +832,8 @@ begin
     VSource,
     VDefProjConverter,
     FProjFactory,
-    FPSGlobal
+    FPSGlobal,
+    FPSLogger
   );
 
   FPSUrlTemplate.Request := VSource;
