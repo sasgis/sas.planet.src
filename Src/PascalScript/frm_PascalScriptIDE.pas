@@ -210,6 +210,7 @@ type
     procedure ExecuteUrlTemplate;
   public
     constructor Create(
+      const AAppId: Integer;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AMainMapState: IMainMapsState;
       const AZmpConfig: IZmpConfig;
@@ -303,6 +304,7 @@ const
 { TfrmPascalScriptIDE }
 
 constructor TfrmPascalScriptIDE.Create(
+  const AAppId: Integer;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AMainMapState: IMainMapsState;
   const AZmpConfig: IZmpConfig;
@@ -366,7 +368,7 @@ begin
   FScriptBuffer := '';
   FPSWriteLn := TPascalScriptWriteLn.Create;
   FPSGlobal := TPascalScriptGlobal.Create;
-  FPSLogger := TPascalScriptLogger.Create(ALogsPath.FullPath, 'PascalScriptIDE');
+  FPSLogger := TPascalScriptLogger.Create(AAppId, ALogsPath.FullPath, 'PascalScriptIDE');
   FPSUrlTemplate := nil;
 end;
 

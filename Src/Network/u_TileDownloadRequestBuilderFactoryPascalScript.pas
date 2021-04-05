@@ -119,6 +119,7 @@ begin
   FPSGlobal := TPascalScriptGlobal.Create;
 
   FPSLogger := TPascalScriptLogger.Create(
+    GState.AppEnum.CurrentID,
     GState.Config.LogsPath.FullPath,
     AZmpFileName
   );

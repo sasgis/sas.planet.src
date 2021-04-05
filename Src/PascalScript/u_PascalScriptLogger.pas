@@ -35,6 +35,7 @@ type
     FStream: TFileStream;
     FLock: TCriticalSection;
     procedure LazyInit;
+    function GetUniqId(const AAppId: Integer): string;
     function GetFormattedStr(const AStr: AnsiString): AnsiString;
   private
     { IPascalScriptLogger }
@@ -42,6 +43,7 @@ type
     procedure WriteFmt(const AFormat: string; const AArgs: array of const);
   public
     constructor Create(
+      const AAppId: Integer;
       const ALogsPath: string;
       const AZmpFileName: string
     );
@@ -57,6 +59,7 @@ uses
 { TPascalScriptLogger }
 
 constructor TPascalScriptLogger.Create(
+  const AAppId: Integer;
   const ALogsPath: string;
   const AZmpFileName: string
 );
@@ -71,7 +74,7 @@ begin
 
   FFileName :=
     IncludeTrailingPathDelimiter(ALogsPath) + 'zmp\' +
-    ChangeFileExt(ExtractFileName(AZmpFileName), '.log');
+    ChangeFileExt(ExtractFileName(AZmpFileName), GetUniqId(AAppId) + '.log');
 end;
 
 destructor TPascalScriptLogger.Destroy;
@@ -80,6 +83,15 @@ begin
   FreeAndNil(FLock);
 
   inherited Destroy;
+end;
+
+function TPascalScriptLogger.GetUniqId(const AAppId: Integer): string;
+begin
+  if AAppId = 1 then begin
+    Result := '';
+  end else begin
+    Result := '.' + IntToStr(AAppId);
+  end;
 end;
 
 procedure TPascalScriptLogger.LazyInit;

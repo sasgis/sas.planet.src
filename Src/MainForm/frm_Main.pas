@@ -1431,6 +1431,7 @@ begin
 
   FfrmPascalScriptIDE :=
     TfrmPascalScriptIDE.Create(
+      GState.AppEnum.CurrentID,
       GState.MapType.GUIConfigList,
       FMainMapState,
       GState.Config.ZmpConfig,
