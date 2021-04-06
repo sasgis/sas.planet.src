@@ -257,11 +257,13 @@ uses
   i_CoordConverterSimple,
   i_LastResponseInfo,
   i_MapVersionInfo,
+  i_PascalScriptTileCache,
   i_SimpleHttpDownloader,
   i_TileDownloadRequestBuilderConfig,
   u_PascalScriptTypes,
   u_PascalScriptGlobal,
   u_PascalScriptLogger,
+  u_PascalScriptTileCache,
   u_ZmpInfo,
   u_GeoFunc,
   u_InetFunc,
@@ -412,7 +414,7 @@ end;
 
 function TfrmPascalScriptIDE.GetCompileTimeRegProcArray: TOnCompileTimeRegProcArray;
 begin
-  SetLength(Result, 9);
+  SetLength(Result, 10);
   Result[0] := @CompileTimeReg_ProjConverter;
   Result[1] := @CompileTimeReg_ProjConverterFactory;
   Result[2] := @CompileTimeReg_CoordConverterSimple;
@@ -421,7 +423,8 @@ begin
   Result[5] := @CompileTimeReg_WriteLn;
   Result[6] := @CompileTimeReg_UrlTemplate;
   Result[7] := @CompileTimeReg_PascalScriptLogger;
-  Result[8] := @CompileTimeReg_RequestBuilderVars; // must always be the last
+  Result[8] := @CompileTimeReg_PascalScriptTileCache;
+  Result[9] := @CompileTimeReg_RequestBuilderVars; // must always be the last
 end;
 
 function TfrmPascalScriptIDE.GetExecTimeRegMethodArray: TOnExecTimeRegMethodArray;
@@ -784,6 +787,7 @@ var
   VDefProjConverter: IProjConverter;
   VSimpleDownloader: ISimpleHttpDownloader;
   VConverter: ICoordConverterSimple;
+  VPSTileCache: IPascalScriptTileCache;
 begin
   FPSVars.ExecTimeInit(APSExec);
 
@@ -822,6 +826,12 @@ begin
 
   VConverter := TCoordConverterSimpleByProjectionSet.Create(FZmp.ProjectionSet);
 
+  VPSTileCache := TPascalScriptTileCache.Create(
+     nil, // ToDo: CreateTileStorage
+     FVersionFactory,
+     FContentTypeManager
+  );
+
   FPSVars.ExecTimeSet(
     VUrlBase,
     VRequestHeader,
@@ -835,7 +845,8 @@ begin
     VDefProjConverter,
     FProjFactory,
     FPSGlobal,
-    FPSLogger
+    FPSLogger,
+    VPSTileCache
   );
 
   FPSUrlTemplate.Request := VSource;

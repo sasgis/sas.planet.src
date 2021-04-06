@@ -452,6 +452,7 @@ begin
       AInvisibleBrowser,
       ADownloaderFactory,
       VDownloadResultFactory,
+      AMapVersionFactoryList.GetSimpleVersionFactory,
       FZmp.TileDownloaderConfig,
       AResamplerDownload,
       ABitmap32StaticFactory,

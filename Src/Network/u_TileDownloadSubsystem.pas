@@ -54,6 +54,7 @@ uses
   i_MapAbilitiesConfig,
   i_ImageResamplerFactoryChangeable,
   i_MapVersionInfo,
+  i_MapVersionFactory,
   i_Bitmap32BufferFactory,
   i_InvisibleBrowser,
   i_ProjConverter,
@@ -140,6 +141,7 @@ type
       const AInvisibleBrowser: IInvisibleBrowser;
       const ADownloaderFactory: IDownloaderFactory;
       const ADownloadResultFactory: IDownloadResultFactory;
+      const AMapVersionFactory: IMapVersionFactory;
       const AZmpTileDownloaderConfig: ITileDownloaderConfigStatic;
       const AImageResampler: IImageResamplerFactoryChangeable;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
@@ -265,6 +267,7 @@ constructor TTileDownloadSubsystem.Create(
   const AInvisibleBrowser: IInvisibleBrowser;
   const ADownloaderFactory: IDownloaderFactory;
   const ADownloadResultFactory: IDownloadResultFactory;
+  const AMapVersionFactory: IMapVersionFactory;
   const AZmpTileDownloaderConfig: ITileDownloaderConfigStatic;
   const AImageResampler: IImageResamplerFactoryChangeable;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
@@ -330,7 +333,10 @@ begin
         FProjectionSet,
         VDownloadChecker,
         AProjFactory,
-        ALanguageManager
+        ALanguageManager,
+        AStorage,
+        AMapVersionFactory,
+        AContentTypeManager
       );
 
     FDownloadResultSaver :=

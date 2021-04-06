@@ -46,6 +46,7 @@ uses
   i_TileDownloadRequestBuilderConfig,
   i_PascalScriptGlobal,
   i_PascalScriptLogger,
+  i_PascalScriptTileCache,
   u_PascalScriptUrlTemplate,
   u_PSExecEx,
   u_TileDownloadRequestBuilder,
@@ -64,6 +65,7 @@ type
     FScriptBuffer: AnsiString;
     FPSGlobal: IPascalScriptGlobal;
     FPSLogger: IPascalScriptLogger;
+    FPSTileCache: IPascalScriptTileCache;
     FPSUrlTemplate: TPascalScriptUrlTemplate;
 
     FLang: AnsiString;
@@ -105,7 +107,8 @@ type
       const AProjFactory: IProjConverterFactory;
       const ALangManager: ILanguageManager;
       const APSGlobal: IPascalScriptGlobal;
-      const APSLogger: IPascalScriptLogger
+      const APSLogger: IPascalScriptLogger;
+      const APSTileCache: IPascalScriptTileCache
     );
     destructor Destroy; override;
   end;
@@ -140,7 +143,8 @@ constructor TTileDownloadRequestBuilderPascalScript.Create(
   const AProjFactory: IProjConverterFactory;
   const ALangManager: ILanguageManager;
   const APSGlobal: IPascalScriptGlobal;
-  const APSLogger: IPascalScriptLogger
+  const APSLogger: IPascalScriptLogger;
+  const APSTileCache: IPascalScriptTileCache
 );
 begin
   inherited Create(AConfig);
@@ -153,6 +157,7 @@ begin
   FProjFactory := AProjFactory;
   FPSGlobal := APSGlobal;
   FPSLogger := APSLogger;
+  FPSTileCache := APSTileCache;
   FCheker := ACheker;
 
   FLangChangeFlag := TSimpleFlagWithInterlock.Create;
@@ -363,7 +368,8 @@ begin
     FDefProjConverter,
     FProjFactory,
     FPSGlobal,
-    FPSLogger
+    FPSLogger,
+    FPSTileCache
   );
 
   FPSUrlTemplate.Request := ASource;

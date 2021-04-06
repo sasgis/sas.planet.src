@@ -30,6 +30,9 @@ uses
   i_ProjectionSet,
   i_DownloadChecker,
   i_ProjConverter,
+  i_TileStorage,
+  i_MapVersionFactory,
+  i_ContentTypeManager,
   i_TileDownloaderConfig,
   i_TileDownloaderState,
   i_TileDownloadRequestBuilderConfig,
@@ -37,6 +40,7 @@ uses
   i_TileDownloadRequestBuilderFactory,
   i_PascalScriptGlobal,
   i_PascalScriptLogger,
+  i_PascalScriptTileCache,
   u_BaseInterfacedObject,
   u_TileDownloaderStateInternal;
 
@@ -51,14 +55,15 @@ type
     FTileDownloaderConfig: ITileDownloaderConfig;
     FCheker: IDownloadChecker;
     FLangManager: ILanguageManager;
-    FCS: IReadWriteSync;
+    FLock: IReadWriteSync;
     FCompiledData: AnsiString;
     FScriptText: AnsiString;
-    FScriptInited: Boolean;
+    FIsScriptInitialized: Boolean;
     FDefProjConverter: IProjConverter;
     FProjFactory: IProjConverterFactory;
     FPSGlobal: IPascalScriptGlobal;
     FPSLogger: IPascalScriptLogger;
+    FPSTileCache: IPascalScriptTileCache;
     procedure DoCompileScript;
   protected
     function GetState: ITileDownloaderStateChangeble;
@@ -72,7 +77,10 @@ type
       const AProjectionSet: IProjectionSet;
       const ACheker: IDownloadChecker;
       const AProjFactory: IProjConverterFactory;
-      const ALangManager: ILanguageManager
+      const ALangManager: ILanguageManager;
+      const AStorage: ITileStorage;
+      const AMapVersionFactory: IMapVersionFactory;
+      const AContentTypeManager: IContentTypeManager
     );
   end;
 
@@ -86,6 +94,7 @@ uses
   u_PascalScriptTypes,
   u_PascalScriptGlobal,
   u_PascalScriptLogger,
+  u_PascalScriptTileCache,
   u_PascalScriptWriteLn,
   u_PascalScriptUrlTemplate,
   u_PascalScriptCompiler,
@@ -102,12 +111,16 @@ constructor TTileDownloadRequestBuilderFactoryPascalScript.Create(
   const AProjectionSet: IProjectionSet;
   const ACheker: IDownloadChecker;
   const AProjFactory: IProjConverterFactory;
-  const ALangManager: ILanguageManager
+  const ALangManager: ILanguageManager;
+  const AStorage: ITileStorage;
+  const AMapVersionFactory: IMapVersionFactory;
+  const AContentTypeManager: IContentTypeManager
 );
 var
   VState: TTileDownloaderStateInternal;
 begin
   inherited Create;
+
   FScriptText := AScriptText;
   FConfig := AConfig;
   FCheker := ACheker;
@@ -116,16 +129,6 @@ begin
   FTileDownloaderConfig := ATileDownloaderConfig;
   FProjFactory := AProjFactory;
 
-  FPSGlobal := TPascalScriptGlobal.Create;
-
-  FPSLogger := TPascalScriptLogger.Create(
-    GState.AppEnum.CurrentID,
-    GState.Config.LogsPath.FullPath,
-    AZmpFileName
-  );
-
-  FCoordConverter := TCoordConverterSimpleByProjectionSet.Create(AProjectionSet);
-  FCS := GSync.SyncStd.Make(Self.ClassName);
   VState := TTileDownloaderStateInternal.Create;
   FStateInternal := VState;
   FState := VState;
@@ -134,7 +137,25 @@ begin
     // In case when script is empty we will use
     // TPascalScriptUrlTemplate.Render() to get url from template
     // http://www.sasgis.org/mantis/view.php?id=3610
-    FScriptInited := True;
+    FIsScriptInitialized := True;
+  end else begin
+    FPSGlobal := TPascalScriptGlobal.Create;
+
+    FPSLogger := TPascalScriptLogger.Create(
+      GState.AppEnum.CurrentID,
+      GState.Config.LogsPath.FullPath,
+      AZmpFileName
+    );
+
+    FPSTileCache := TPascalScriptTileCache.Create(
+      AStorage,
+      AMapVersionFactory,
+      AContentTypeManager
+    );
+
+    FCoordConverter := TCoordConverterSimpleByProjectionSet.Create(AProjectionSet);
+
+    FLock := GSync.SyncStd.Make(Self.ClassName);
   end;
 
   FCompiledData := '';
@@ -144,7 +165,7 @@ procedure TTileDownloadRequestBuilderFactoryPascalScript.DoCompileScript;
 
   function _GetRegProcArray: TOnCompileTimeRegProcArray;
   begin
-    SetLength(Result, 9);
+    SetLength(Result, 10);
     Result[0] := @CompileTimeReg_ProjConverter;
     Result[1] := @CompileTimeReg_ProjConverterFactory;
     Result[2] := @CompileTimeReg_CoordConverterSimple;
@@ -153,7 +174,8 @@ procedure TTileDownloadRequestBuilderFactoryPascalScript.DoCompileScript;
     Result[5] := @CompileTimeReg_WriteLn;
     Result[6] := @CompileTimeReg_UrlTemplate;
     Result[7] := @CompileTimeReg_PascalScriptLogger;
-    Result[8] := @CompileTimeReg_RequestBuilderVars; // must always be the last
+    Result[8] := @CompileTimeReg_PascalScriptTileCache;
+    Result[9] := @CompileTimeReg_RequestBuilderVars; // must always be the last
   end;
 
 var
@@ -183,17 +205,17 @@ begin
   Result := nil;
   if FStateInternal.Enabled then begin
     try
-      if not FScriptInited then begin
-        FCS.BeginWrite;
+      if not FIsScriptInitialized then begin
+        FLock.BeginWrite;
         try
-          if not FScriptInited then begin
+          if not FIsScriptInitialized then begin
             try
               VProjArgs := FConfig.DefaultProjConverterArgs;
               if VProjArgs <> '' then begin
                 FDefProjConverter := FProjFactory.GetByInitString(VProjArgs);
               end;
               DoCompileScript;
-              FScriptInited := True;
+              FIsScriptInitialized := True;
             except
               on E: EPascalScriptCompileError do begin
                 FStateInternal.Disable(E.Message);
@@ -204,7 +226,7 @@ begin
             end;
           end;
         finally
-          FCS.EndWrite;
+          FLock.EndWrite;
         end;
       end;
       Result :=
@@ -220,7 +242,8 @@ begin
           FProjFactory,
           FLangManager,
           FPSGlobal,
-          FPSLogger
+          FPSLogger,
+          FPSTileCache
         );
     except
       on E: Exception do begin

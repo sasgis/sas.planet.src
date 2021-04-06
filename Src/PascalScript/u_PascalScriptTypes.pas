@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2021, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -33,6 +33,7 @@ procedure CompileTimeReg_CoordConverterSimple(const APSComp: TPSPascalCompiler);
 procedure CompileTimeReg_SimpleHttpDownloader(const APSComp: TPSPascalCompiler);
 procedure CompileTimeReg_PascalScriptGlobal(const APSComp: TPSPascalCompiler);
 procedure CompileTimeReg_PascalScriptLogger(const APSComp: TPSPascalCompiler);
+procedure CompileTimeReg_PascalScriptTileCache(const APSComp: TPSPascalCompiler);
 
 implementation
 
@@ -40,6 +41,7 @@ uses
   i_ProjConverter,
   i_PascalScriptGlobal,
   i_PascalScriptLogger,
+  i_PascalScriptTileCache,
   i_CoordConverterSimple,
   i_SimpleHttpDownloader;
 
@@ -126,6 +128,66 @@ begin
   with VIntf do begin
     RegisterMethod('procedure Write(const AStr: AnsiString);', cdRegister);
     RegisterMethod('procedure WriteFmt(const AFormat: string; const AArgs: array of const);', cdRegister);
+  end;
+end;
+
+procedure CompileTimeReg_PascalScriptTileCache(const APSComp: TPSPascalCompiler);
+var
+  VIntf: TPSInterface;
+begin
+  APSComp.AddTypeS(
+    'TTileInfo',
+    'record' +
+    ' IsExists    : Boolean;' +
+    ' IsExistsTne : Boolean;' +
+    ' LoadDate    : Int64;' +
+    ' Size        : Cardinal;' +
+    ' Version     : string;' +
+    ' ContentType : AnsiString;' +
+    ' Data        : AnsiString; ' +
+    'end;'
+  );
+
+  VIntf := APSComp.AddInterface(
+    APSComp.FindInterface('IUnknown'), IPascalScriptTileCache, 'IPascalScriptTileCache'
+  );
+  with VIntf do begin
+    RegisterMethod(
+      'function Read(' +
+        'const X: Integer;' +
+        'const Y: Integer;' +
+        'const AZoom: Byte;' +
+        'const AVersion: string;' +
+        'const AWithData: Boolean' +
+      '): TTileInfo;', cdRegister
+    );
+    RegisterMethod(
+      'function Write(' +
+        'const X: Integer;' +
+        'const Y: Integer;' +
+        'const AZoom: Byte;' +
+        'const AVersion: string;' +
+        'const AContentType: AnsiString;' +
+        'const AData: AnsiString;' +
+        'const AIsOverwrite: Boolean' +
+      '): Boolean;', cdRegister
+    );
+    RegisterMethod(
+      'function WriteTne(' +
+        'const X: Integer;' +
+        'const Y: Integer;' +
+        'const AZoom: Byte;' +
+        'const AVersion: string' +
+      '): Boolean;', cdRegister
+    );
+    RegisterMethod(
+      'function Delete(' +
+        'const X: Integer;' +
+        'const Y: Integer;' +
+        'const AZoom: Byte;' +
+        'const AVersion: string' +
+      '): Boolean;', cdRegister
+    );
   end;
 end;
 

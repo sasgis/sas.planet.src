@@ -33,6 +33,7 @@ uses
   i_ProjConverter,
   i_PascalScriptGlobal,
   i_PascalScriptLogger,
+  i_PascalScriptTileCache,
   i_SimpleHttpDownloader;
 
 type
@@ -61,6 +62,7 @@ type
     FpDownloader: PPSVariantInterface;
     FpGlobal: PPSVariantInterface;
     FpLogger: PPSVariantInterface;
+    FpTileCache: PPSVariantInterface;
     FpDefProjConverter: PPSVariantInterface;
     FpProjFactory: PPSVariantInterface;
 
@@ -87,7 +89,8 @@ type
       const ADefProjConverter: IProjConverter;
       const AProjFactory: IProjConverterFactory;
       const APSGlobal: IPascalScriptGlobal;
-      const APSLogger: IPascalScriptLogger
+      const APSLogger: IPascalScriptLogger;
+      const APSTileCache: IPascalScriptTileCache
     ); inline;
   end;
 
@@ -103,6 +106,9 @@ procedure CompileTimeReg_RequestBuilderVars(const APSComp: TPSPascalCompiler);
 var
   VType: TPSType;
 begin
+  VType := APSComp.FindType('IPascalScriptTileCache');
+  APSComp.AddUsedVariable('TileCache', VType);
+
   VType := APSComp.FindType('IPascalScriptLogger');
   APSComp.AddUsedVariable('Logger', VType);
 
@@ -177,6 +183,7 @@ begin
   FpDownloader := PPSVariantInterface(APSExec.GetVar2('Downloader'));
   FpGlobal := PPSVariantInterface(APSExec.GetVar2('Global'));
   FpLogger := PPSVariantInterface(APSExec.GetVar2('Logger'));
+  FpTileCache := PPSVariantInterface(APSExec.GetVar2('TileCache'));
   FpDefProjConverter := PPSVariantInterface(APSExec.GetVar2('DefProjConverter'));
   FpProjFactory := PPSVariantInterface(APSExec.GetVar2('ProjFactory'));
 end;
@@ -194,7 +201,8 @@ procedure TRequestBuilderVars.ExecTimeSet(
   const ADefProjConverter: IProjConverter;
   const AProjFactory: IProjConverterFactory;
   const APSGlobal: IPascalScriptGlobal;
-  const APSLogger: IPascalScriptLogger
+  const APSLogger: IPascalScriptLogger;
+  const APSTileCache: IPascalScriptTileCache
 );
 var
   VLonLatRect: TDoubleRect;
@@ -254,6 +262,7 @@ begin
   FpProjFactory.Data := AProjFactory;
   FpGlobal.Data := APSGlobal;
   FpLogger.Data := APSLogger;
+  FpTileCache.Data := APSTileCache;
 end;
 
 function TRequestBuilderVars.ResultUrl: AnsiString;
