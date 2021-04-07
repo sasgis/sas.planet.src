@@ -89,6 +89,11 @@ type
       const AData: IBinaryData;
       const AIsOverwrite: Boolean
     ): Boolean; override;
+
+    function ScanTiles(
+      const AIgnoreTNE: Boolean;
+      const AIgnoreMultiVersionTiles: Boolean
+    ): IEnumTileInfo; override;
   public
     constructor Create(
       const AStorageTypeAbilities: ITileStorageTypeAbilities;
@@ -323,6 +328,13 @@ begin
         AVersionInfo
       );
   end;
+end;
+
+function TTileStorageInRAM.ScanTiles(
+  const AIgnoreTNE, AIgnoreMultiVersionTiles: Boolean
+): IEnumTileInfo;
+begin
+  Result := FTileInfoMemCache.GetEnum(AIgnoreTNE, AIgnoreMultiVersionTiles);
 end;
 
 end.

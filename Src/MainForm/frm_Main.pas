@@ -1432,6 +1432,7 @@ begin
   FfrmPascalScriptIDE :=
     TfrmPascalScriptIDE.Create(
       GState.AppEnum.CurrentID,
+      GState.BGTimerNotifier,
       GState.MapType.GUIConfigList,
       FMainMapState,
       GState.Config.ZmpConfig,
@@ -1449,7 +1450,8 @@ begin
       GState.ArchiveReadWriteFactory,
       GState.Config.LanguageManager,
       GState.AppClosingNotifier,
-      FViewPortState.View
+      FViewPortState.View,
+      GState.TileStorageTypeList
     );
   FfrmPascalScriptIDE.PopupParent := Self;
 

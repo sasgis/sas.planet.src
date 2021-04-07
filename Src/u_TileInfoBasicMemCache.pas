@@ -104,6 +104,11 @@ type
 
     function GetOnTileInfoUpdate: TOnTileInfoUpdateNotify;
     procedure SetOnTileInfoUpdate(const AValue: TOnTileInfoUpdateNotify);
+
+    function GetEnum(
+      const AIgnoreTNE: Boolean;
+      const AIgnoreMultiVersionTiles: Boolean
+    ): IEnumTileInfo;
   public
     constructor Create(
       const ACapacity: Integer;
@@ -124,6 +129,24 @@ uses
 
 type
   ETileInfoBasicMemCache = class(Exception);
+
+  TMemCacheEnum = class(TBaseInterfacedObject, IEnumTileInfo)
+  private
+    type
+      PCacheRec = TTileInfoBasicMemCache.PTileInfoCacheRec;
+  private
+    FItems: array of TTileInfo;
+    FNextIndex: Integer;
+  private
+    { IEnumTileInfo }
+    function Next(var ATileInfo: TTileInfo): Boolean;
+  public
+    constructor Create(
+      const AItems: TList;
+      const AIgnoreTNE: Boolean;
+      const AIgnoreMultiVersionTiles: Boolean
+    );
+  end;
 
 { TTileInfoBasicMemCache }
 
@@ -505,6 +528,82 @@ end;
 function TTileInfoBasicMemCache.GetClearByTTLNotifier: INotifier;
 begin
   Result := FClearByTTLNotifier as INotifier;
+end;
+
+function TTileInfoBasicMemCache.GetEnum(
+  const AIgnoreTNE: Boolean;
+  const AIgnoreMultiVersionTiles: Boolean
+): IEnumTileInfo;
+begin
+  Result := TMemCacheEnum.Create(FList, AIgnoreTNE, AIgnoreMultiVersionTiles);
+end;
+
+{ TMemCacheEnum }
+
+constructor TMemCacheEnum.Create(
+  const AItems: TList;
+  const AIgnoreTNE: Boolean;
+  const AIgnoreMultiVersionTiles: Boolean
+);
+var
+  I, J: Integer;
+  VItem: PTileInfo;
+  VTile: PCacheRec;
+  VInfo: ITileInfoWithData;
+begin
+  inherited Create;
+
+  J := 0;
+  SetLength(FItems, AItems.Count);
+
+  for I := 0 to AItems.Count - 1 do begin
+
+    VTile := AItems.Items[I];
+    if
+      (VTile = nil) or
+      VTile.IsEmptyCacheRec or
+      (VTile.TileInfoBasic = nil) or
+      (AIgnoreTNE and VTile.TileInfoBasic.IsExistsTNE)
+    then begin
+      Continue;
+    end;
+
+    VItem := @FItems[J];
+
+    VItem.FTile := VTile.TileXY;
+    VItem.FZoom := VTile.TileZoom;
+    VItem.FLoadDate := VTile.TileInfoBasic.LoadDate;
+    VItem.FVersionInfo := VTile.TileVersionInfo;
+    VItem.FContentType := VTile.TileInfoBasic.ContentType;
+    VItem.FSize := VTile.TileInfoBasic.Size;
+
+    VItem.FInfoType := titUnknown;
+    if Supports(VTile.TileInfoBasic, ITileInfoWithData, VInfo) then begin
+      VItem.FData := VInfo.TileData;
+      VItem.FInfoType := titExists;
+    end else begin
+      VItem.FData := nil;
+      if VTile.TileInfoBasic.IsExistsTNE then begin
+        VItem.FInfoType := titTneExists;
+      end
+    end;
+
+    if VItem.FInfoType in [titExists, titTneExists] then begin
+      Inc(J);
+    end;
+  end;
+
+  SetLength(FItems, J);
+  FNextIndex := 0;
+end;
+
+function TMemCacheEnum.Next(var ATileInfo: TTileInfo): Boolean;
+begin
+  Result := FNextIndex < Length(FItems);
+  if Result then begin
+    ATileInfo := FItems[FNextIndex];
+    Inc(FNextIndex);
+  end;
 end;
 
 end.

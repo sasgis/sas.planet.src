@@ -67,6 +67,11 @@ type
     function GetOnTileInfoUpdate: TOnTileInfoUpdateNotify;
     procedure SetOnTileInfoUpdate(const AValue: TOnTileInfoUpdateNotify);
     property OnTileInfoUpdate: TOnTileInfoUpdateNotify read GetOnTileInfoUpdate write SetOnTileInfoUpdate;
+
+    function GetEnum(
+      const AIgnoreTNE: Boolean;
+      const AIgnoreMultiVersionTiles: Boolean
+    ): IEnumTileInfo;
   end;
 
 implementation

@@ -145,20 +145,36 @@ begin
 
   Result.IsExists := VInfo.IsExists;
   Result.IsExistsTne := VInfo.IsExistsTNE;
-  Result.LoadDate := DateTimeToUnix(VInfo.LoadDate);
-  Result.Size := VInfo.Size;
+
+  if not VInfo.IsExists and not VInfo.IsExistsTNE and AWithData then begin
+    VInfo := FStorage.GetTileInfo(Point(X, Y), AZoom, VVersion, gtimWithoutData);
+    if VInfo = nil then begin
+      Exit;
+    end;
+    Result.IsExistsTne := VInfo.IsExistsTNE;
+  end;
+
+  if VInfo.IsExists or VInfo.IsExistsTNE then begin
+    Result.LoadDate := DateTimeToUnix(VInfo.LoadDate);
+  end;
+
   if VInfo.VersionInfo <> nil then begin
     Result.Version := VInfo.VersionInfo.StoreString;
   end;
-  if VInfo.ContentType <> nil then begin
-    Result.ContentType := VInfo.ContentType.GetContentType;
-  end;
 
-  if AWithData and Supports(VInfo, ITileInfoWithData, VInfoWithData) then begin
-    VData := VInfoWithData.TileData;
-    if VData.Size > 0 then begin
-      SetLength(Result.Data, VData.Size);
-      Move(VData.Buffer^, Result.Data[1], VData.Size);
+  if VInfo.IsExists then begin
+    Result.Size := VInfo.Size;
+
+    if VInfo.ContentType <> nil then begin
+      Result.ContentType := VInfo.ContentType.GetContentType;
+    end;
+
+    if AWithData and Supports(VInfo, ITileInfoWithData, VInfoWithData) then begin
+      VData := VInfoWithData.TileData;
+      if VData.Size > 0 then begin
+        SetLength(Result.Data, VData.Size);
+        Move(VData.Buffer^, Result.Data[1], VData.Size);
+      end;
     end;
   end;
 end;

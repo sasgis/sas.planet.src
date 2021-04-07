@@ -23,6 +23,7 @@ unit u_PSPascalCompilerEx;
 interface
 
 uses
+  Classes,
   uPSUtils,
   uPSCompiler,
   t_PascalScript;
@@ -33,6 +34,9 @@ type
     FDebugInfo: string;
     FStoreDebugInfo: Boolean;
     FRegProcArray: TOnCompileTimeRegProcArray;
+    FUsedVars: TStringList;
+    procedure AddUsedVar(const AVarName: string); inline;
+    function IsVarUsed(const AVarName: string): Boolean; inline;
   public
     constructor Create(
       const ARegProcArray: TOnCompileTimeRegProcArray = nil;
@@ -48,7 +52,7 @@ type
 implementation
 
 uses
-  ALString,
+  SysUtils,
   uPSC_dll,
   u_PascalScriptBase64,
   u_PascalScriptRegExpr,
@@ -70,7 +74,7 @@ begin
 
   VComp := Sender as TPSPascalCompilerEx;
 
-  if ALSameText(AName, 'SYSTEM') then begin
+  if UpperCase(AName) = 'SYSTEM' then begin
 
     CompileTimeReg_CommonTypes(Sender);
 
@@ -91,6 +95,22 @@ begin
   end;
 end;
 
+procedure PascalScriptOnUseVariable(
+  Sender: TPSPascalCompiler;
+  VarType: TPSVariableType;
+  VarNo: Longint;
+  ProcNo, Position: Cardinal;
+  const PropData: tbtString
+);
+var
+  VPSVar: TPSVar;
+begin
+  VPSVar := Sender.GetVar(VarNo);
+  if VPSVar <> nil then begin
+    TPSPascalCompilerEx(Sender).AddUsedVar(VPSVar.Name);
+  end;
+end;
+
 { TPSPascalCompilerEx }
 
 constructor TPSPascalCompilerEx.Create(
@@ -107,6 +127,24 @@ begin
 
   OnExternalProc := DllExternalProc;
   OnUses := PascalScriptOnUses;
+  OnUseVariable := PascalScriptOnUseVariable;
+
+  FUsedVars := TStringList.Create;
+  FUsedVars.Duplicates := dupIgnore;
+  FUsedVars.CaseSensitive := False;
+  FUsedVars.Sorted := True;
+end;
+
+procedure TPSPascalCompilerEx.AddUsedVar(const AVarName: string);
+begin
+  FUsedVars.Add(AVarName);
+end;
+
+function TPSPascalCompilerEx.IsVarUsed(const AVarName: string): Boolean;
+var
+  I: Integer;
+begin
+  Result := FUsedVars.Find(AVarName, I);
 end;
 
 function TPSPascalCompilerEx.KnownVarsToString: string;

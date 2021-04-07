@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2021, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -40,8 +40,11 @@ uses
   SynEdit,
   frm_PascalScriptDbgOut,
   t_PascalScript,
+  i_TileStorage,
+  i_TileStorageTypeList,
   i_PathConfig,
   i_Listener,
+  i_NotifierTime,
   i_NotifierOperation,
   i_MapTypeSet,
   i_MapType,
@@ -182,6 +185,10 @@ type
     FPSGlobal: IPascalScriptGlobal;
     FPSLogger: IPascalScriptLogger;
     FPSUrlTemplate: TPascalScriptUrlTemplate;
+    FIsTileCacheVarUsed: Boolean;
+    FTileStorage: ITileStorage;
+    FTileStorageTypeList: ITileStorageTypeListStatic;
+    FGCNotifier: INotifierTime;
     function GetZmpFromFolder(const APath: string): IZmpInfo;
     function GetZmpFromZip(const AFileName: string): IZmpInfo;
     function GetZmpFromGUI: IZmpInfo;
@@ -208,9 +215,11 @@ type
     function GetCompileTimeRegProcArray: TOnCompileTimeRegProcArray;
     function GetExecTimeRegMethodArray: TOnExecTimeRegMethodArray;
     procedure ExecuteUrlTemplate;
+    function GetTileStorage: ITileStorage;
   public
     constructor Create(
       const AAppId: Integer;
+      const AGCNotifier: INotifierTime;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AMainMapState: IMainMapsState;
       const AZmpConfig: IZmpConfig;
@@ -228,7 +237,8 @@ type
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: INotifierOneOperation;
-      const AViewPortState: ILocalCoordConverterChangeable
+      const AViewPortState: ILocalCoordConverterChangeable;
+      const ATileStorageTypeList: ITileStorageTypeListStatic
     ); reintroduce;
     destructor Destroy; override;
   end;
@@ -249,10 +259,12 @@ uses
   Compatibility,
   {$ENDIF}
   Encodings,
+  c_CacheTypeCodes,
   t_GeoTypes,
   i_SimpleFlag,
   i_TileRequest,
   i_ArchiveReadWrite,
+  i_ContentTypeInfo,
   i_ConfigDataProvider,
   i_CoordConverterSimple,
   i_LastResponseInfo,
@@ -260,6 +272,11 @@ uses
   i_PascalScriptTileCache,
   i_SimpleHttpDownloader,
   i_TileDownloadRequestBuilderConfig,
+  i_TileInfoBasic,
+  i_TileInfoBasicMemCache,
+  i_InternalPerformanceCounter,
+  u_TileInfoBasicMemCache,
+  u_InternalPerformanceCounterFake,
   u_PascalScriptTypes,
   u_PascalScriptGlobal,
   u_PascalScriptLogger,
@@ -307,6 +324,7 @@ const
 
 constructor TfrmPascalScriptIDE.Create(
   const AAppId: Integer;
+  const AGCNotifier: INotifierTime;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AMainMapState: IMainMapsState;
   const AZmpConfig: IZmpConfig;
@@ -324,11 +342,13 @@ constructor TfrmPascalScriptIDE.Create(
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: INotifierOneOperation;
-  const AViewPortState: ILocalCoordConverterChangeable
+  const AViewPortState: ILocalCoordConverterChangeable;
+  const ATileStorageTypeList: ITileStorageTypeListStatic
 );
 begin
   inherited Create(ALanguageManager);
 
+  FGCNotifier := AGCNotifier;
   FGUIConfigList := AGUIConfigList;
   FMainMapState := AMainMapState;
   FZmpConfig := AZmpConfig;
@@ -345,6 +365,7 @@ begin
   FLanguageManager := ALanguageManager;
   FAppClosingNotifier := AAppClosingNotifier;
   FViewPortState := AViewPortState;
+  FTileStorageTypeList := ATileStorageTypeList;
 
   FCancelNotifierInternal :=
     TNotifierOperation.Create(
@@ -449,6 +470,7 @@ procedure TfrmPascalScriptIDE.FormClose(
 );
 begin
   Self.CancelOperation;
+  FTileStorage := nil;
   Action := caHide;
   Application.MainForm.SetFocus;
 end;
@@ -510,6 +532,8 @@ begin
   lstLog.Clear;
   FfrmDebug.mmoDbgOut.Lines.Clear;
 
+  FIsTileCacheVarUsed := False;
+
   if IsModified then begin
     VBuff := FScriptBuffer;
     InitByZmp(GetZmpFromGUI);
@@ -538,6 +562,7 @@ begin
       lstLog.Items.Add(VComp.Msg[I].MessageToString);
     end;
     if Result then begin
+      FIsTileCacheVarUsed := VComp.IsVarUsed('TileCache');
       lstLog.Items.Add(rsSuccessfullyCompiled + ' ' + VTimeInfo);
       Result := VComp.GetOutput(AByteCode);
     end;
@@ -827,7 +852,7 @@ begin
   VConverter := TCoordConverterSimpleByProjectionSet.Create(FZmp.ProjectionSet);
 
   VPSTileCache := TPascalScriptTileCache.Create(
-     nil, // ToDo: CreateTileStorage
+     GetTileStorage,
      FVersionFactory,
      FContentTypeManager
   );
@@ -852,6 +877,51 @@ begin
   FPSUrlTemplate.Request := VSource;
 end;
 
+function TfrmPascalScriptIDE.GetTileStorage: ITileStorage;
+var
+  VCode: Integer;
+  VCapacity, VTTL: Integer;
+  VMemCache: ITileInfoBasicMemCache;
+  VPerfCounter: IInternalPerformanceCounterList;
+  VMainContentType: IContentTypeInfoBasic;
+begin
+  if FTileStorage = nil then begin
+    // ignore zmp settings and build fake in-memory storage
+    VCode := c_File_Cache_Id_RAM;
+
+    VCapacity := FZmp.StorageConfig.MemCacheCapacity;
+    VTTL := FZmp.StorageConfig.MemCacheTTL;
+
+    if FZmp.StorageConfig.CacheTypeCode <> VCode then begin
+      VCapacity := Max(VCapacity, 1024);
+      VTTL := Max(VTTL, 24*60*60000 {24 hour});
+    end;
+
+    VPerfCounter := TInternalPerformanceCounterFake.Create();
+
+    VMemCache := TTileInfoBasicMemCache.Create(VCapacity, VTTL,
+      FZmp.StorageConfig.MemCacheClearStrategy, FGCNotifier, VPerfCounter);
+
+    if FZmp.StorageConfig.MainContentType <> '' then begin
+      VMainContentType := FContentTypeManager.GetInfo(FZmp.StorageConfig.MainContentType);
+    end;
+    if not Assigned(VMainContentType) then begin
+      VMainContentType := FContentTypeManager.GetInfoByExt(FZmp.StorageConfig.TileFileExt);
+    end;
+
+    FTileStorage :=
+      FTileStorageTypeList.GetItemByCode(VCode).StorageType.BuildStorage(
+        FZmp.StorageConfig.Abilities,
+        FZmp.ProjectionSet,
+        VMainContentType,
+        nil, // don't notify gui about fake storage changes
+        '',  // path: not relevant for in-memory storage
+        VMemCache
+      );
+  end;
+  Result := FTileStorage;
+end;
+
 procedure TfrmPascalScriptIDE.OnExecSuccess;
 
   function _VarToStr(const AStr: AnsiString): string;
@@ -861,6 +931,43 @@ procedure TfrmPascalScriptIDE.OnExecSuccess;
     end else begin
       Result := string(AStr) + #13#10;
     end;
+  end;
+
+  procedure DumpTileStorageToLog;
+  var
+    VCount: Integer;
+    VEnum: IEnumTileInfo;
+    VInfo: TTileInfo;
+    VLogStr: string;
+  begin
+    VCount := 0;
+    VEnum := FTileStorage.ScanTiles(False, False);
+    if not Assigned(VEnum) then begin
+      Exit;
+    end;
+    while VEnum.Next(VInfo) do begin
+      VLogStr := Format(
+        'z: %d, x: %d, y: %d, size: %d, date: %s',
+        [VInfo.FZoom, VInfo.FTile.X, VInfo.FTile.Y, VInfo.FSize,
+         FormatDateTime('yyyy-mm-dd hh:nn:ss', VInfo.FLoadDate)]
+      );
+
+      if (VInfo.FVersionInfo <> nil) and (VInfo.FVersionInfo.StoreString <> '') then begin
+        VLogStr := VLogStr + ', version: ' + VInfo.FVersionInfo.StoreString;
+      end;
+
+      if (VInfo.FContentType <> nil) and (VInfo.FContentType.GetContentType <> '') then begin
+        VLogStr := VLogStr + ', content-type: ' + VInfo.FContentType.GetContentType;
+      end;
+
+      if VInfo.FInfoType = titTneExists then begin
+        VLogStr := VLogStr + ', TNE';
+      end;
+
+      FfrmDebug.mmoDbgOut.Lines.Add(VLogStr);
+      Inc(VCount);
+    end;
+    FfrmDebug.mmoDbgOut.Lines.Add('Total count: ' + IntToStr(VCount));
   end;
 
 begin
@@ -882,7 +989,18 @@ begin
   if FPSWriteLn.Count > 0 then begin
     FfrmDebug.mmoDbgOut.Lines.Add('[WriteLn]');
     FfrmDebug.mmoDbgOut.Lines.AddStrings(FPSWriteLn);
+    FfrmDebug.mmoDbgOut.Lines.Add('');
   end;
+
+  if FIsTileCacheVarUsed then begin
+    FfrmDebug.mmoDbgOut.Lines.Add('[TileCache]');
+    if FTileStorage <> nil then begin
+      DumpTileStorageToLog;
+      //todo: DumpTileStorageToZip;
+    end;
+  end;
+
+  FTileStorage := nil;
 
   FScriptBuffer := FPSVars.ScriptBuffer;
 
