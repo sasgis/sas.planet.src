@@ -40,8 +40,11 @@ type
   public
     constructor Create(
       const ARegProcArray: TOnCompileTimeRegProcArray = nil;
-      const AStoreDebugInfo: Boolean = False
+      const AStoreDebugInfo: Boolean = False;
+      const AStoreUsedVarsInfo: Boolean = False
     );
+    destructor Destroy; override;
+
     function KnownVarsToString: string;
     function KnownProcsToString(const AWikiFormat: Boolean = True): string;
     function KnownConstsToString: string;
@@ -115,7 +118,8 @@ end;
 
 constructor TPSPascalCompilerEx.Create(
   const ARegProcArray: TOnCompileTimeRegProcArray;
-  const AStoreDebugInfo: Boolean
+  const AStoreDebugInfo: Boolean;
+  const AStoreUsedVarsInfo: Boolean
 );
 begin
   inherited Create;
@@ -125,26 +129,44 @@ begin
 
   FDebugInfo := '';
 
-  OnExternalProc := DllExternalProc;
-  OnUses := PascalScriptOnUses;
-  OnUseVariable := PascalScriptOnUseVariable;
+  Self.OnExternalProc := DllExternalProc;
+  Self.OnUses := PascalScriptOnUses;
 
-  FUsedVars := TStringList.Create;
-  FUsedVars.Duplicates := dupIgnore;
-  FUsedVars.CaseSensitive := False;
-  FUsedVars.Sorted := True;
+  FUsedVars := nil;
+  if AStoreUsedVarsInfo then begin
+    FUsedVars := TStringList.Create;
+    FUsedVars.Duplicates := dupIgnore;
+    FUsedVars.CaseSensitive := False;
+    FUsedVars.Sorted := True;
+
+    Self.OnUseVariable := PascalScriptOnUseVariable;
+  end;
+end;
+
+destructor TPSPascalCompilerEx.Destroy;
+begin
+  FreeAndNil(FUsedVars);
+  inherited Destroy;
 end;
 
 procedure TPSPascalCompilerEx.AddUsedVar(const AVarName: string);
 begin
-  FUsedVars.Add(AVarName);
+  if FUsedVars <> nil then begin
+    FUsedVars.Add(AVarName);
+  end else begin
+    raise Exception.Create('UsedVars not assigned!');
+  end;
 end;
 
 function TPSPascalCompilerEx.IsVarUsed(const AVarName: string): Boolean;
 var
   I: Integer;
 begin
-  Result := FUsedVars.Find(AVarName, I);
+  if FUsedVars <> nil then begin
+    Result := FUsedVars.Find(AVarName, I);
+  end else begin
+    raise Exception.Create('UsedVars not assigned!');
+  end;
 end;
 
 function TPSPascalCompilerEx.KnownVarsToString: string;

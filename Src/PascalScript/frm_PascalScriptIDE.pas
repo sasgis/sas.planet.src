@@ -549,7 +549,7 @@ begin
     Exit;
   end;
 
-  VComp := TPSPascalCompilerEx.Create(GetCompileTimeRegProcArray);
+  VComp := TPSPascalCompilerEx.Create(GetCompileTimeRegProcArray, False, True);
   try
     VTime := FTimer.CurrentTime;
 
@@ -933,14 +933,13 @@ procedure TfrmPascalScriptIDE.OnExecSuccess;
     end;
   end;
 
-  procedure DumpTileStorageToLog;
+  function DumpTileCacheToLog: Integer;
   var
-    VCount: Integer;
     VEnum: IEnumTileInfo;
     VInfo: TTileInfo;
     VLogStr: string;
   begin
-    VCount := 0;
+    Result := 0;
     VEnum := FTileStorage.ScanTiles(False, False);
     if not Assigned(VEnum) then begin
       Exit;
@@ -965,11 +964,45 @@ procedure TfrmPascalScriptIDE.OnExecSuccess;
       end;
 
       FfrmDebug.mmoDbgOut.Lines.Add(VLogStr);
-      Inc(VCount);
+      Inc(Result);
     end;
-    FfrmDebug.mmoDbgOut.Lines.Add('Total count: ' + IntToStr(VCount));
+    FfrmDebug.mmoDbgOut.Lines.Add('Total count: ' + IntToStr(Result));
   end;
 
+  procedure DumpTileCacheToZip;
+  var
+    VEnum: IEnumTileInfo;
+    VInfo: TTileInfo;
+    VZip: IArchiveWriter;
+    VItemName: string;
+    VZipFileName: string;
+  begin
+    VEnum := FTileStorage.ScanTiles(False, False);
+    if not Assigned(VEnum) then begin
+      Exit;
+    end;
+
+    VZipFileName := ExtractFilePath(ParamStr(0)) + 'TileCacheDump.zip';
+    VZip := FArchiveReadWriteFactory.Zip.WriterFactory.BuildByFileName(VZipFileName);
+
+    while VEnum.Next(VInfo) do begin
+      VItemName := Format('z%d_x%d_y%d', [VInfo.FZoom, VInfo.FTile.X, VInfo.FTile.Y]);
+
+      if (VInfo.FVersionInfo <> nil) and (VInfo.FVersionInfo.StoreString <> '') then begin
+        VItemName := VItemName + '_v' + VInfo.FVersionInfo.StoreString;
+      end;
+
+      if (VInfo.FContentType <> nil) and (VInfo.FContentType.GetDefaultExt <> '') then begin
+        VItemName := VItemName + VInfo.FContentType.GetDefaultExt;
+      end;
+
+      VZip.AddFile(VInfo.FData, VItemName, VInfo.FLoadDate);
+    end;
+    FfrmDebug.mmoDbgOut.Lines.Add('Dump saved to: ' + VZipFileName);
+  end;
+
+var
+  VTilesCount: Integer;
 begin
   FfrmDebug.mmoDbgOut.Lines.Add('[ResultURL]');
   FfrmDebug.mmoDbgOut.Lines.Add(_VarToStr(FPSVars.ResultUrl));
@@ -995,8 +1028,10 @@ begin
   if FIsTileCacheVarUsed then begin
     FfrmDebug.mmoDbgOut.Lines.Add('[TileCache]');
     if FTileStorage <> nil then begin
-      DumpTileStorageToLog;
-      //todo: DumpTileStorageToZip;
+      VTilesCount := DumpTileCacheToLog;
+      if VTilesCount > 0 then begin
+        DumpTileCacheToZip;
+      end;
     end;
   end;
 
