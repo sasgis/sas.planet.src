@@ -992,6 +992,9 @@ procedure TfrmPascalScriptIDE.OnExecSuccess;
         VItemName := VItemName + '_v' + VInfo.FVersionInfo.StoreString;
       end;
 
+      if VInfo.FInfoType = titTneExists then begin
+        VItemName := VItemName + '.tne';
+      end else
       if (VInfo.FContentType <> nil) and (VInfo.FContentType.GetDefaultExt <> '') then begin
         VItemName := VItemName + VInfo.FContentType.GetDefaultExt;
       end;

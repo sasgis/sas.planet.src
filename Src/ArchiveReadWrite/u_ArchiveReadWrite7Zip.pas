@@ -312,12 +312,17 @@ var
   VFileTime: TFileTime;
   VAttributes: Cardinal;
 begin
+  {$WARN SYMBOL_PLATFORM OFF}
+  VAttributes := faArchive;
+  {$WARN SYMBOL_PLATFORM ON}
   VFileTime := DateTimeToFileTime(AFileDate);
-  VStream := TStreamReadOnlyByBinaryData.Create(AFileData);
+  if AFileData <> nil then begin
+    VStream := TStreamReadOnlyByBinaryData.Create(AFileData);
+  end else begin
+    // allow save files with zero size (e.g. *.tne)
+    VStream := TMemoryStream.Create;
+  end;
   try
-    {$WARN SYMBOL_PLATFORM OFF}
-    VAttributes := faArchive;
-    {$WARN SYMBOL_PLATFORM ON}
     FArch.AddStream(
       VStream,
       soOwned,
