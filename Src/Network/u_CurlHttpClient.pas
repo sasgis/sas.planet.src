@@ -433,7 +433,10 @@ begin
       Exit;
     end;
   end else begin
-    VDoCurlSetup := IsOptionsChanged(FReq.Options) or IsProxyChanged(FReq.Proxy);
+    VDoCurlSetup :=
+      IsOptionsChanged(FReq.Options) or
+      IsProxyChanged(FReq.Proxy) or
+      (FReq.Method <> FReqMethod);
     if VDoCurlSetup then begin
       curl.easy_reset(FCurl);
     end;
@@ -459,15 +462,15 @@ begin
     CurlCheck( curl.easy_setopt(FCurl, coNoBody, 0) );
   end;
 
-  VMethod := cMethod[FReq.Method];
-  CurlCheck( curl.easy_setopt(FCurl, coCustomRequest, Pointer(VMethod)) );
-
-  CurlCheck( curl.easy_setopt(FCurl, coUrl, Pointer(FReq.Url)) );
-
   if FReq.Method = rmPOST then begin
     CurlCheck( curl.easy_setopt(FCurl, coPostFields, FReq.PostData) );
     CurlCheck( curl.easy_setopt(FCurl, coPostFieldSize, FReq.PostDataSize) );
   end;
+
+  VMethod := cMethod[FReq.Method];
+  CurlCheck( curl.easy_setopt(FCurl, coCustomRequest, Pointer(VMethod)) );
+
+  CurlCheck( curl.easy_setopt(FCurl, coUrl, Pointer(FReq.Url)) );
 
   if (FReq.Headers <> FReqHeaders) or (FReq.Method <> FReqMethod) then begin
     CurlClearSlist(FCurlSlist);

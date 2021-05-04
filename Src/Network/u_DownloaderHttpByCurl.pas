@@ -391,6 +391,7 @@ begin
     FHttpRequest.Method := rmHead;
   end else
   if Supports(ARequest, IDownloadPostRequest, VPostRequest) then begin
+    FHttpRequest.Method := rmPost;
     VPostData := VPostRequest.PostData;
     if VPostData <> nil then begin
       FHttpRequest.PostData := VPostData.Buffer;
