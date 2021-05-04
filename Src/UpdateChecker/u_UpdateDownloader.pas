@@ -95,7 +95,6 @@ implementation
 uses
   Classes,
   RegExpr,
-  ALString,
   i_DownloadRequest,
   u_DownloadRequest,
   u_Synchronizer;
