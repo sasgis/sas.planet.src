@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2020, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2021, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -26,11 +26,6 @@ const
   CPathDetalizeProviderZlzkByCar: TGUID = '{A41D73F7-475F-480B-A824-5CC2191FF794}';
   CPathDetalizeProviderZlzkByBike: TGUID = '{D74F8B94-2D91-44FE-BDD4-64E5808A8CCA}';
   CPathDetalizeProviderZlzkByFoot: TGUID = '{94BFEEE7-34FC-43DC-8031-EF5FB0FF5DDC}';
-
-  CPathDetalizeProviderYourNavigationFastestByCar: TGUID = '{49F567B9-9E8A-4878-86FD-BDDDB7098928}';
-  CPathDetalizeProviderYourNavigationShortestByCar: TGUID = '{3789A641-00FA-4DFD-BE57-BF53D162B0E7}';
-  CPathDetalizeProviderYourNavigationFastestByBicycle: TGUID = '{FB9561C9-0AC4-4E4D-9F9E-CE81A5D1CA45}';
-  CPathDetalizeProviderYourNavigationShortestByBicycle: TGUID = '{FB699DA8-87AF-4B6B-BB4D-7C714510396B}';
 
   CPathDetalizeProviderOSRMByCar: TGUID = '{8AC99C3F-4DBD-47AA-BBD0-4A9A7F3027A1}';
   CPathDetalizeProviderOSRMByBike: TGUID = '{A6C023A6-89FD-4E97-B6A9-BB1A5C2B3AB1}';

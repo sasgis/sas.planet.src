@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2020, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2021, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -31,7 +31,6 @@ uses
 type
   TPathDetalizeConfig = class(TConfigDataElementBase, IPathDetalizeConfig)
   private
-    FEnableYourNavigation: Boolean;
     FEnableZlzk: Boolean;
     FEnableProjectOSRM: Boolean;
     FArrayOfProjectOSRM: TArrayOfProjectOSRM;
@@ -39,7 +38,6 @@ type
     FDefaultProvider: TGUID;
   private
     { IPathDetalizeConfig }
-    function GetEnableYourNavigation: Boolean;
     function GetEnableProjectOSRM: Boolean;
     function GetEnableZlzk: Boolean;
 
@@ -71,7 +69,6 @@ uses
 constructor TPathDetalizeConfig.Create;
 begin
   inherited Create;
-  FEnableYourNavigation := True;
   FEnableProjectOSRM := True;
   FEnableZlzk := True;
   FArrayOfProjectOSRM := nil;
@@ -123,7 +120,6 @@ begin
   inherited;
   if AConfigData <> nil then begin
     FEnableZlzk := AConfigData.ReadBool('EnableZlzk', FEnableZlzk);
-    FEnableYourNavigation := AConfigData.ReadBool('EnableYourNavigation', FEnableYourNavigation);
     FEnableProjectOSRM := AConfigData.ReadBool('EnableProjectOSRM', FEnableProjectOSRM);
     ReadArrayOfProjectOSRM( AConfigData.ReadString('CustomOSRM', '') );
     FEnableAutomaticRouting := AConfigData.ReadBool('EnableAutomaticRouting', FEnableAutomaticRouting);
@@ -149,7 +145,6 @@ procedure TPathDetalizeConfig.DoWriteConfig(const AConfigData: IConfigDataWriteP
 begin
   inherited;
   AConfigData.WriteBool('EnableZlzk', FEnableZlzk);
-  AConfigData.WriteBool('EnableYourNavigation', FEnableYourNavigation);
   AConfigData.WriteBool('EnableProjectOSRM', FEnableProjectOSRM);
   AConfigData.WriteString('CustomOSRM', _GetCustomOSRM);
   AConfigData.WriteBool('EnableAutomaticRouting', FEnableAutomaticRouting);
@@ -201,16 +196,6 @@ begin
   LockRead;
   try
     Result := FEnableProjectOSRM;
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TPathDetalizeConfig.GetEnableYourNavigation: Boolean;
-begin
-  LockRead;
-  try
-    Result := FEnableYourNavigation;
   finally
     UnlockRead;
   end;

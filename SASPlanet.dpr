@@ -1105,7 +1105,6 @@ uses
   u_PathDetalizeProviderOsmScout in 'Src\Routing\u_PathDetalizeProviderOsmScout.pas',
   u_PathDetalizeProviderTreeEntity in 'Src\Routing\u_PathDetalizeProviderTreeEntity.pas',
   u_PathDetalizeProviderTreeSimple in 'Src\Routing\u_PathDetalizeProviderTreeSimple.pas',
-  u_PathDetalizeProviderYourNavigation in 'Src\Routing\u_PathDetalizeProviderYourNavigation.pas',
   fr_LonLat in 'Src\SecondaryForms\fr_LonLat.pas' {frLonLat: TFrame},
   frm_About in 'Src\SecondaryForms\frm_About.pas' {frmAbout},
   frm_GoTo in 'Src\SecondaryForms\frm_GoTo.pas' {frmGoTo},

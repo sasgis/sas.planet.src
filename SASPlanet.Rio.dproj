@@ -2244,7 +2244,6 @@
         <DCCReference Include="Src\Routing\u_PathDetalizeProviderOsmScout.pas"/>
         <DCCReference Include="Src\Routing\u_PathDetalizeProviderTreeEntity.pas"/>
         <DCCReference Include="Src\Routing\u_PathDetalizeProviderTreeSimple.pas"/>
-        <DCCReference Include="Src\Routing\u_PathDetalizeProviderYourNavigation.pas"/>
         <DCCReference Include="Src\SecondaryForms\fr_LonLat.pas">
             <Form>frLonLat</Form>
             <DesignClass>TFrame</DesignClass>

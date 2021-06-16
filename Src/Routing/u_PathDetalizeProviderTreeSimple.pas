@@ -42,7 +42,6 @@ type
   TPathDetalizeProviderTreeSimple = class(TTreeChangeableBase)
   private
     FZlzkGuidList: TProviderGuidList;
-    FYourNavigationGuidList: TProviderGuidList;
     FProjectOSRMGuidList: TProviderGuidList;
     FOsmScoutGuidList: TProviderGuidList;
 
@@ -98,8 +97,7 @@ uses
   u_GUIDInterfaceSet,
   u_PathDetalizeProviderTreeEntity,
   u_PathDetalizeProviderOSRM,
-  u_PathDetalizeProviderOsmScout,
-  u_PathDetalizeProviderYourNavigation;
+  u_PathDetalizeProviderOsmScout;
 
 { TPathDetalizeProviderTreeSimple }
 
@@ -138,12 +136,6 @@ begin
   FZlzkGuidList[1] := CPathDetalizeProviderZlzkByBike;
   FZlzkGuidList[2] := CPathDetalizeProviderZlzkByFoot;
 
-  SetLength(FYourNavigationGuidList, 4);
-  FYourNavigationGuidList[0] := CPathDetalizeProviderYourNavigationFastestByCar;
-  FYourNavigationGuidList[1] := CPathDetalizeProviderYourNavigationShortestByCar;
-  FYourNavigationGuidList[2] := CPathDetalizeProviderYourNavigationFastestByBicycle;
-  FYourNavigationGuidList[3] := CPathDetalizeProviderYourNavigationShortestByBicycle;
-
   SetLength(FProjectOsrmGuidList, 3);
   FProjectOsrmGuidList[0] := CPathDetalizeProviderOSRMByCar;
   FProjectOsrmGuidList[1] := CPathDetalizeProviderOSRMByBike;
@@ -153,44 +145,6 @@ begin
   FOsmScoutGuidList[0] := CPathDetalizeProviderOsmScoutByCar;
   FOsmScoutGuidList[1] := CPathDetalizeProviderOsmScoutByBike;
   FOsmScoutGuidList[2] := CPathDetalizeProviderOsmScoutByFoot;
-end;
-
-procedure AddYourNavigationProvider(
-  const AUrlTemplate: string;
-  const AGuidList: TProviderGuidList;
-  const AInetConfig: IInetConfig;
-  const AGCNotifier: INotifierTime;
-  const ADownloaderFactory: IDownloaderFactory;
-  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
-  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
-  const AKmlLoader: IVectorDataLoader;
-  const ASet: IGUIDInterfaceSet
-);
-const
-  CProfile: array [0..3] of string = (
-    'motorcar&fast=1', 'motorcar&fast=0', 'bicycle&fast=1', 'bicycle&fast=0'
-  );
-var
-  I: Integer;
-  VBaseUrl: string;
-  VDownloader: IDownloader;
-  VProvider: IPathDetalizeProvider;
-begin
-  Assert(Length(AGuidList) = Length(CProfile));
-  for I := 0 to Length(CProfile) - 1 do begin
-    VBaseUrl := StringReplace(AUrlTemplate, '{profile}', CProfile[I], [rfIgnoreCase]);
-    VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
-    VProvider :=
-      TPathDetalizeProviderYourNavigation.Create(
-        AnsiString(VBaseUrl),
-        VDownloader,
-        AInetConfig,
-        AVectorGeometryLonLatFactory,
-        AVectorDataItemMainInfoFactory,
-        AKmlLoader
-      );
-    ASet.Add(AGuidList[I], VProvider);
-  end;
 end;
 
 procedure AddOsrmProvider(
@@ -276,20 +230,6 @@ begin
       AGCNotifier,
       ADownloaderFactory,
       AVectorGeometryLonLatFactory,
-      Result
-    );
-  end;
-
-  if FPathDetalizeConfig.EnableYourNavigation then begin
-    AddYourNavigationProvider(
-      'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v={profile}&layer=mapnik',
-      FYourNavigationGuidList,
-      AInetConfig,
-      AGCNotifier,
-      ADownloaderFactory,
-      AVectorGeometryLonLatFactory,
-      AVectorDataItemMainInfoFactory,
-      AKmlLoader,
       Result
     );
   end;
@@ -432,23 +372,6 @@ begin
         Format('%.4d0~', [VGroupId]),
         FZlzkGuidList,
         [ _('By Car'), _('By Bike'), _('By Foot') ]
-      );
-    VList.Add(VItem);
-  end;
-
-  if FPathDetalizeConfig.EnableYourNavigation then begin
-    Inc(VGroupId);
-    VItem :=
-      CreateItem(
-        'yournavigation.org (OSM)',
-        Format('%.4d0~', [VGroupId]),
-        FYourNavigationGuidList,
-        [
-         _('By Car (Fastest)'),
-         _('By Car (Shortest)'),
-         _('By Bicycle (Fastest)'),
-         _('By Bicycle (Shortest)')
-        ]
       );
     VList.Add(VItem);
   end;

@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2020, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2021, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -34,9 +34,6 @@ type
 
   IPathDetalizeConfig = interface(IConfigDataElement)
     ['{BD3A7204-23C6-4DA5-AB16-35996256F5D6}']
-
-    function GetEnableYourNavigation: Boolean;
-    property EnableYourNavigation: Boolean read GetEnableYourNavigation;
 
     function GetEnableZlzk: Boolean;
     property EnableZlzk: Boolean read GetEnableZlzk;
