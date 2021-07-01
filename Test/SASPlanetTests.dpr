@@ -30,6 +30,7 @@ uses
   u_ProjectedSingleLine_Test in 'u_ProjectedSingleLine_Test.pas',
   u_RegularExpressions_Test in 'u_RegularExpressions_Test.pas',
   u_SASTestCase in 'u_SASTestCase.pas',
+  u_UpdateChecker_Test in 'u_UpdateChecker_Test.pas',
   u_VectorItmesFactorySimple_Test in 'u_VectorItmesFactorySimple_Test.pas',
   u_WideStrings_Test in 'u_WideStrings_Test.pas';
 

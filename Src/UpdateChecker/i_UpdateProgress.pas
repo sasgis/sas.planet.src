@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2021, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -18,42 +18,66 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_UpdateDownloader;
+unit i_UpdateProgress;
 
 interface
 
+uses
+  t_UpdateChecker,
+  i_NotifierOperation;
+
 type
-  TUpdateDownloaderState = (
-    udsIdle = 0,
-    udsSearch,
-    udsDownload,
-    udsError
+  TUpdateProgressStatus = (
+    psBusy,
+    psFinished,
+    psCanceled
   );
 
-  TUpdateChannel = (
-    ucNightly = 0,
-    ucStable
-  );
+  IUpdateProgress = interface
+    ['{74411BA1-D449-4482-8E20-017ED3287F5E}']
+    procedure Reset;
 
-  IUpdateDownloader = interface
-    ['{19488A83-101C-4BBC-A5C3-36DE1EE7B2FA}']
-    function SearchAvailableVersionInfoAsync(const AOperationID: Integer): TUpdateDownloaderState;
-    function GetAvailableVersionInfo(
-      out ADate: TDateTime;
-      out ARev: Integer;
-      out ABuildType: string
-    ): Boolean;
+    function GetCancelNotifier: INotifierOperation;
+    property CancelNotifier: INotifierOperation read GetCancelNotifier;
 
-    function DownloadAvailableVersionAsync(const AOperationID: Integer): TUpdateDownloaderState;
-    function GetDownloadProgress(out ADone, ATotal: Integer): Boolean;
+    function GetCurrentOperationID: Integer;
+    property CurrentOperationID: Integer read GetCurrentOperationID;
+  end;
 
-    function GetState: TUpdateDownloaderState;
+  IUpdateCheckerProgress = interface(IUpdateProgress)
+    ['{70D2873D-5227-410D-936A-4406C363B683}']
+    procedure SetResult(
+      const AOperationID: Integer;
+      const AResult: TUpdateCheckerResult
+    );
 
-    function GetError: string;
+    function GetResult(
+      const AOperationID: Integer;
+      out AResult: TUpdateCheckerResult
+    ): TUpdateProgressStatus;
+  end;
 
-    function GetFileName: string;
+  TUpdateDownloaderResult = record
+    IsFinished: Boolean;
+    IsError: Boolean;
 
-    procedure SetUpdateChannel(const AValue: TUpdateChannel);
+    BytesDownloaded: Integer;
+    BytesTotal: Integer;
+
+    Text: string;
+  end;
+
+  IUpdateDownloaderProgress = interface(IUpdateProgress)
+    ['{A3C2D499-A3FA-4458-BF73-44DC7B2FE7C3}']
+    procedure SetResult(
+      const AOperationID: Integer;
+      const AResult: TUpdateDownloaderResult
+    );
+
+    function GetResult(
+      const AOperationID: Integer;
+      out AResult: TUpdateDownloaderResult
+    ): TUpdateProgressStatus;
   end;
 
 implementation

@@ -63,7 +63,7 @@
     <PropertyGroup Condition="'$(Base)'!=''">
         <DCC_ExeOutput>..\.bin</DCC_ExeOutput>
         <DCC_DcuOutput>..\.dcu</DCC_DcuOutput>
-        <DCC_UnitSearchPath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\CoordRepresentation\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\Marker\;..\Src\MarksDb\;..\Src\MarkPicture\;..\Src\PascalScript\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\;..\Src\TileIterator\;..\Src\Vector\;..\Src\Network\;..\Src\MapVersion\;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\CoordRepresentation\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\Marker\;..\Src\MarksDb\;..\Src\MarkPicture\;..\Src\PascalScript\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\;..\Src\TileIterator\;..\Src\Vector\;..\Src\Network\;..\Src\MapVersion\;..\Src\UpdateChecker\;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <Manifest_File>None</Manifest_File>
         <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;System.Win;$(DCC_Namespace)</DCC_Namespace>
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
@@ -181,6 +181,11 @@
                     <Source Name="MainSource">SASPlanetTests.dpr</Source>
                 </Source>
                 <Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclbindcomp260.bpl">Embarcadero LiveBindings Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclbindcompfmx260.bpl">Embarcadero LiveBindings Components FireMonkey</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclbindcompvcl260.bpl">Embarcadero LiveBindings Components VCL</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclBindCompFireDAC260.bpl">LiveBinding Expression Components FireDac</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclbindcompdbx260.bpl">LiveBindings Expression Components DbExpress</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dcloffice2k260.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dclofficexp260.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
                 </Excluded_Packages>
@@ -1058,6 +1063,7 @@
         <DCCReference Include="u_ProjectedSingleLine_Test.pas"/>
         <DCCReference Include="u_RegularExpressions_Test.pas"/>
         <DCCReference Include="u_SASTestCase.pas"/>
+        <DCCReference Include="u_UpdateChecker_Test.pas"/>
         <DCCReference Include="u_VectorItmesFactorySimple_Test.pas"/>
         <DCCReference Include="u_WideStrings_Test.pas"/>
         <BuildConfiguration Include="Debug">

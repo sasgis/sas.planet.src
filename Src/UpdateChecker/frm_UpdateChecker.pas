@@ -36,14 +36,13 @@ uses
   ComCtrls,
   ExtCtrls,
   UITypes,
-  i_Listener,
+  t_UpdateChecker,
   i_PathConfig,
   i_LanguageManager,
-  i_NotifierOperation,
-  i_UpdateDownloader,
   i_BuildInfo,
   i_InetConfig,
   i_DownloaderFactory,
+  i_UpdateProgress,
   u_CommonFormAndFrameParents;
 
 type
@@ -53,7 +52,7 @@ type
     pbDownloadProgress: TProgressBar;
     lblProgressInfo: TLabel;
     btnDownload: TButton;
-    tmrCheckState: TTimer;
+    tmrProgress: TTimer;
     lblCurVerValue: TLabel;
     lblNewVerValue: TLabel;
     btnClose: TButton;
@@ -64,30 +63,37 @@ type
       var Action: TCloseAction
     );
     procedure FormShow(Sender: TObject);
-    procedure tmrCheckStateTimer(Sender: TObject);
     procedure btnDownloadClick(Sender: TObject);
     procedure cbbChannelChange(Sender: TObject);
   private
     FCurDate: TDateTime;
     FCurRevision: Integer;
     FCurBuildType: string;
-    FNewDate: TDateTime;
-    FNewRevision: Integer;
-    FNewBuildType: string;
-    FSearchProgress: Byte;
-    FSearchProgressLastStep: Cardinal;
-    FUpdateDownloader: IUpdateDownloader;
-    FState: TUpdateDownloaderState;
-    FAppClosingNotifier: INotifierOneOperation;
-    FAppClosingListener: IListener;
-    FCancelNotifierInternal: INotifierOperationInternal;
+
     FDownloadProgressDefCaption: string;
     FNewVerValueDefColor: TColor;
     FBuildInfo: IBuildInfo;
-    procedure OnAppClosing;
-    procedure CancelOperation;
+
+    FSearchProgress: Byte;
+    FSearchProgressLastStep: Cardinal;
+
+    FUpdateCheckerOperationID: Integer;
+    FUpdateCheckerProgress: IUpdateCheckerProgress;
+    FUpdateCheckerResult: TUpdateCheckerResult;
+
+    FUpdateDownloaderOperationID: Integer;
+    FUpdateDownloaderProgress: IUpdateDownloaderProgress;
+
+    FUpdatesPath: IPathConfig;
+    FInetConfig: IInetConfig;
+    FDownloaderFactory: IDownloaderFactory;
+
+    procedure ResetTimer;
+    procedure OnTimerCheckerProgress(Sender: TObject);
+    procedure OnTimerDownloaderProgress(Sender: TObject);
+
+    procedure CancelOperations;
     procedure CheckAvailableVersion;
-    procedure OnVersionCheckError(const AMsg: string);
     procedure ShowError(const AMsg: string);
   protected
     procedure RefreshTranslation; override;
@@ -97,8 +103,7 @@ type
       const AUpdatesPath: IPathConfig;
       const ABuildInfo: IBuildInfo;
       const AInetConfig: IInetConfig;
-      const ADownloaderFactory: IDownloaderFactory;
-      const AAppClosingNotifier: INotifierOneOperation
+      const ADownloaderFactory: IDownloaderFactory
     ); reintroduce;
     destructor Destroy; override;
   end;
@@ -108,21 +113,15 @@ implementation
 {$R *.dfm}
 
 uses
-  u_Notifier,
-  u_NotifierOperation,
-  u_ListenerByEvent,
-  u_UpdateDownloader,
-  u_Synchronizer,
-  u_ResStrings;
+  u_UpdateDownloaderThread,
+  u_UpdateCheckerThread,
+  u_UpdateProgress;
 
 resourcestring
   rsError = 'Error';
   rsSearchAvailableVersionInfo = 'searching';
   rsDownloadProgressInfo = '%s %.2f of %.2f MB (%.2f%s)';
   rsDownloadFinished = 'Download completed successfully. You can update the program manually from file: %s';
-
-const
-  cSearchAvailableVersionInfoProgressStep: Cardinal = 500; // ms
 
 { TfrmUpdateChecker }
 
@@ -131,30 +130,20 @@ constructor TfrmUpdateChecker.Create(
   const AUpdatesPath: IPathConfig;
   const ABuildInfo: IBuildInfo;
   const AInetConfig: IInetConfig;
-  const ADownloaderFactory: IDownloaderFactory;
-  const AAppClosingNotifier: INotifierOneOperation
+  const ADownloaderFactory: IDownloaderFactory
 );
 var
   VTmp: string;
 begin
-  Assert(AUpdatesPath <> nil);
-  Assert(ABuildInfo <> nil);
-  Assert(AAppClosingNotifier <> nil);
-
   inherited Create(ALanguageManager);
-  FAppClosingNotifier := AAppClosingNotifier;
+
+  FUpdatesPath := AUpdatesPath;
   FBuildInfo := ABuildInfo;
+  FInetConfig := AInetConfig;
+  FDownloaderFactory := ADownloaderFactory;
 
-  FCancelNotifierInternal :=
-    TNotifierOperation.Create(
-      TNotifierBase.Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifier'))
-    );
-
-  FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);
-  FAppClosingNotifier.Add(FAppClosingListener);
-  if FAppClosingNotifier.IsExecuted then begin
-    Self.OnAppClosing;
-  end;
+  FUpdateCheckerProgress := TUpdateCheckerProgress.Create;
+  FUpdateDownloaderProgress := TUpdateDownloaderProgress.Create;
 
   FCurDate := FBuildInfo.GetBuildDate;
   FCurBuildType := FBuildInfo.GetBuildType;
@@ -165,31 +154,25 @@ begin
 
   cbbChannel.ItemIndex := 0; // Nightly channel
 
-  FUpdateDownloader := TUpdateDownloader.Create(
-    ADownloaderFactory,
-    AUpdatesPath.FullPath,
-    TUpdateChannel(cbbChannel.ItemIndex),
-    AInetConfig,
-    FCancelNotifierInternal
-  );
-
   FDownloadProgressDefCaption := lblProgressInfo.Caption;
   FNewVerValueDefColor := lblNewVerValue.Font.Color;
+
+  ResetTimer;
 end;
 
 destructor TfrmUpdateChecker.Destroy;
 begin
-  if Assigned(tmrCheckState) then begin
-    tmrCheckState.Enabled := False;
-  end;
-  if Assigned(FAppClosingNotifier) and Assigned(FAppClosingListener) then begin
-    FAppClosingNotifier.Remove(FAppClosingListener);
-    FAppClosingNotifier := nil;
-    FAppClosingListener := nil;
-  end;
-  FCancelNotifierInternal := nil;
+  ResetTimer;
 
-  inherited;
+  if Assigned(FUpdateCheckerProgress) then begin
+    FUpdateCheckerProgress.Reset;
+  end;
+
+  if Assigned(FUpdateDownloaderProgress) then begin
+    FUpdateDownloaderProgress.Reset;
+  end;
+
+  inherited Destroy;
 end;
 
 procedure TfrmUpdateChecker.FormClose(
@@ -197,8 +180,8 @@ procedure TfrmUpdateChecker.FormClose(
   var Action: TCloseAction
 );
 begin
-  tmrCheckState.Enabled := False;
-  Self.CancelOperation;
+  CancelOperations;
+
   Action := caHide;
   Application.MainForm.SetFocus;
 end;
@@ -208,209 +191,225 @@ begin
   CheckAvailableVersion;
 end;
 
+procedure TfrmUpdateChecker.cbbChannelChange(Sender: TObject);
+begin
+  CheckAvailableVersion;
+end;
+
 procedure TfrmUpdateChecker.btnCloseClick(Sender: TObject);
 begin
   Self.Close;
 end;
 
-procedure TfrmUpdateChecker.OnAppClosing;
+procedure TfrmUpdateChecker.CancelOperations;
 begin
-  Self.Close;
+  ResetTimer;
+
+  FUpdateCheckerProgress.Reset;
+  FUpdateDownloaderProgress.Reset;
 end;
 
 procedure TfrmUpdateChecker.CheckAvailableVersion;
-var
-  VOperation: Integer;
 begin
-  VOperation := FCancelNotifierInternal.CurrentOperation;
+  CancelOperations;
 
-  // reset controls
   cbbChannel.Enabled := True;
-  tmrCheckState.Enabled := False;
+
   btnDownload.Enabled := False;
-  lblNewVerValue.Font.Color := FNewVerValueDefColor;
-  lblNewVerValue.Font.Style := [];
-  lblProgressInfo.Caption := FDownloadProgressDefCaption;
+
+  lblProgressInfo.Visible := False;
+
   pbDownloadProgress.Position := 0;
   pbDownloadProgress.Enabled := False;
 
-  FSearchProgressLastStep := GetTickCount;
-  FSearchProgress := 0;
+  lblNewVerValue.Font.Color := FNewVerValueDefColor;
+  lblNewVerValue.Font.Style := [];
   lblNewVerValue.Caption := rsSearchAvailableVersionInfo + '...';
 
-  // start search avilable version
-  FState := FUpdateDownloader.SearchAvailableVersionInfoAsync(VOperation);
+  FSearchProgressLastStep := GetTickCount;
+  FSearchProgress := 0;
 
-  if FState = udsSearch then begin
-    tmrCheckState.Enabled := True;
-  end else begin
-    OnVersionCheckError(FUpdateDownloader.GetError);
-  end;
+  // start update checker thread
+  FUpdateCheckerOperationID := FUpdateCheckerProgress.CurrentOperationID;
+
+  TUpdateCheckerThread.Create(
+    TUpdateChannel(cbbChannel.ItemIndex),
+    FDownloaderFactory,
+    FInetConfig,
+    FUpdateCheckerProgress
+  );
+
+  tmrProgress.OnTimer := Self.OnTimerCheckerProgress;
+  tmrProgress.Enabled := True;
 end;
 
 procedure TfrmUpdateChecker.btnDownloadClick(Sender: TObject);
-var
-  VMsg: string;
-  VFileName: string;
-  VOperation: Integer;
 begin
-  cbbChannel.Enabled := False;
+  CancelOperations;
 
-  VFileName := FUpdateDownloader.GetFileName;
-  if FileExists(VFileName) then begin
-    VMsg := Format(SAS_MSG_FileExists, [VFileName]);
-    if (Application.MessageBox(PChar(VMsg), PChar(SAS_MSG_coution), 36) <> IDYES) then begin
+  cbbChannel.Enabled := False;
+  btnDownload.Enabled := False;
+
+  lblProgressInfo.Caption := FDownloadProgressDefCaption;
+  lblProgressInfo.Visible := True;
+
+  // start update downloader thread
+  FUpdateDownloaderOperationID := FUpdateDownloaderProgress.CurrentOperationID;
+
+  TUpdateDownloaderThread.Create(
+    FUpdateCheckerResult,
+    FUpdatesPath,
+    FDownloaderFactory,
+    FInetConfig,
+    FUpdateDownloaderProgress
+  );
+
+  tmrProgress.OnTimer := Self.OnTimerDownloaderProgress;
+  tmrProgress.Enabled := True;
+end;
+
+procedure TfrmUpdateChecker.OnTimerCheckerProgress(Sender: TObject);
+const
+  CUpdateCheckerProgressStep: Cardinal = 300; // ms
+var
+  I: Integer;
+  VDots: string;
+  VRevision: string;
+  VIsNewRevision: Boolean;
+  VStatus: TUpdateProgressStatus;
+  VResult: ^TUpdateCheckerResult;
+begin
+  VResult := @FUpdateCheckerResult;
+  VStatus := FUpdateCheckerProgress.GetResult(FUpdateCheckerOperationID, FUpdateCheckerResult);
+
+  case VStatus of
+    psBusy: begin
+      if GetTickCount - FSearchProgressLastStep > CUpdateCheckerProgressStep then begin
+        FSearchProgressLastStep := GetTickCount;
+        FSearchProgress := (FSearchProgress + 1) mod 4;
+        VDots := '';
+        for I := 0 to FSearchProgress - 1 do begin
+          VDots := VDots + '.';
+        end;
+        lblNewVerValue.Caption := rsSearchAvailableVersionInfo + VDots;
+      end;
+    end;
+
+    psFinished: begin
+      ResetTimer;
+
+      if not VResult.IsFound then begin
+        lblNewVerValue.Caption := rsError + '!';
+        lblNewVerValue.Font.Color := clRed;
+        lblNewVerValue.Font.Style := [fsBold];
+
+        ShowError('Update check failed!');
+        Exit;
+      end;
+
+      VRevision := '';
+      if VResult.BuildRevision > 0 then begin
+        VRevision := '.' + IntToStr(VResult.BuildRevision);
+      end;
+
+      lblNewVerValue.Caption :=
+        FormatDateTime('yymmdd', VResult.BuildDate) +
+        VRevision + ' ' +
+        VResult.BuildType;
+
+      VIsNewRevision :=
+        (VResult.BuildRevision > 0) and
+        (FCurRevision > 0) and
+        (VResult.BuildRevision > FCurRevision);
+
+      if
+        VIsNewRevision or
+        (VResult.BuildDate > FCurDate) or
+        (VResult.BuildType <> FCurBuildType)
+      then begin
+        btnDownload.Enabled := True;
+        lblNewVerValue.Font.Color := clGreen;
+        lblNewVerValue.Font.Style := [fsBold];
+      end else begin
+        lblNewVerValue.Font.Color := clGray;
+      end;
+    end;
+
+    psCanceled: begin
+      // nothing to do
+    end;
+  else
+    raise Exception.CreateFmt(
+      'Unexpected TUpdateProgressStatus value: %d', [Integer(VStatus)]
+    );
+  end;
+end;
+
+procedure TfrmUpdateChecker.OnTimerDownloaderProgress(Sender: TObject);
+
+  procedure UpdateProgress(const AResult: TUpdateDownloaderResult);
+  var
+    VPercent: Double;
+  begin
+    if AResult.BytesTotal > 0 then begin
+      if AResult.BytesDownloaded = AResult.BytesTotal then begin
+        VPercent := 100;
+      end else begin
+        VPercent := 100 * AResult.BytesDownloaded / AResult.BytesTotal;
+      end;
+    end else begin
+      VPercent := 0;
+    end;
+
+    pbDownloadProgress.Max := 100;
+    pbDownloadProgress.Position := Round(VPercent);
+
+    lblProgressInfo.Caption := Format(
+      rsDownloadProgressInfo,
+      [FDownloadProgressDefCaption, AResult.BytesDownloaded / 1024 / 1024,
+      AResult.BytesTotal / 1024 / 1024,  VPercent, '%']
+    );
+  end;
+
+var
+  VStatus: TUpdateProgressStatus;
+  VResult: TUpdateDownloaderResult;
+begin
+  VStatus := FUpdateDownloaderProgress.GetResult(FUpdateDownloaderOperationID, VResult);
+
+  case VStatus of
+    psBusy: begin
+      UpdateProgress(VResult);
+    end;
+
+    psFinished: begin
+      ResetTimer;
+
+      UpdateProgress(VResult);
+
+      if not VResult.IsError then begin
+        MessageDlg(Format(rsDownloadFinished, [VResult.Text]), mtInformation, [mbOK], 0);
+      end else begin
+        ShowError(VResult.Text);
+      end;
+
       Self.Close;
     end;
-  end;
 
-  VOperation := FCancelNotifierInternal.CurrentOperation;
-
-  // start downloader
-  FState := FUpdateDownloader.DownloadAvailableVersionAsync(VOperation);
-
-  if FState = udsDownload then begin
-    tmrCheckState.Enabled := True;
-  end else begin
-    ShowError(FUpdateDownloader.GetError);
-  end;
-end;
-
-procedure TfrmUpdateChecker.CancelOperation;
-begin
-  if Assigned(FCancelNotifierInternal) then begin
-    FCancelNotifierInternal.NextOperation;
-  end;
-end;
-
-procedure TfrmUpdateChecker.cbbChannelChange(Sender: TObject);
-begin
-  if Assigned(FCancelNotifierInternal) then begin
-    FCancelNotifierInternal.NextOperation;
-  end;
-  if Assigned(FUpdateDownloader) then begin
-    FUpdateDownloader.SetUpdateChannel(TUpdateChannel(cbbChannel.ItemIndex));
-    CheckAvailableVersion;
-  end;
-end;
-
-procedure TfrmUpdateChecker.tmrCheckStateTimer(Sender: TObject);
-var
-  VDone, VTotal: Integer;
-  VPercent: Single;
-  VDots: string;
-  I: Integer;
-  VIsNewRevision: Boolean;
-begin
-  case FState of
-
-    udsSearch: begin
-      FState := FUpdateDownloader.GetState;
-      case FState of
-        udsIdle: begin
-          if FUpdateDownloader.GetAvailableVersionInfo(FNewDate, FNewRevision, FNewBuildType) then begin
-            if FNewRevision > 0 then begin
-              lblNewVerValue.Caption :=
-                FormatDateTime('yymmdd', FNewDate) + '.' + IntToStr(FNewRevision) + ' ' + FNewBuildType;
-            end else begin
-              lblNewVerValue.Caption :=
-                FormatDateTime('yymmdd', FNewDate) + ' ' + FNewBuildType;
-            end;
-            VIsNewRevision := (FNewRevision > 0) and (FCurRevision > 0) and (FNewRevision > FCurRevision);
-            if (FNewDate > FCurDate) or VIsNewRevision or (FNewBuildType <> FCurBuildType) then begin
-              btnDownload.Enabled := True;
-              lblNewVerValue.Font.Color := clGreen;
-              lblNewVerValue.Font.Style := [fsBold];
-            end else begin
-              lblNewVerValue.Font.Color := clGray;
-            end;
-          end else begin
-            FState := udsError;
-            OnVersionCheckError(FUpdateDownloader.GetError);
-          end;
-        end;
-        udsError: begin
-          OnVersionCheckError(FUpdateDownloader.GetError);
-        end;
-        udsSearch: begin
-          // indicate serch progress
-          if GetTickCount - FSearchProgressLastStep > cSearchAvailableVersionInfoProgressStep then begin
-            FSearchProgressLastStep := GetTickCount;
-            FSearchProgress := (FSearchProgress + 1) mod 4;
-            VDots := '';
-            for I := 0 to FSearchProgress - 1 do begin
-              VDots := VDots + '.';
-            end;
-            lblNewVerValue.Caption := rsSearchAvailableVersionInfo + VDots;
-          end;
-        end;
-      else
-        Assert(False);
-      end;
+    psCanceled: begin
+      // nothing to do
     end;
-
-    udsDownload: begin
-      FState := FUpdateDownloader.GetState;
-      case FState of
-        udsIdle: begin
-          // all done!
-          cbbChannel.Enabled := True;
-          pbDownloadProgress.Position := pbDownloadProgress.Max;
-          lblProgressInfo.Caption := FDownloadProgressDefCaption;
-          MessageDlg(Format(rsDownloadFinished, [FUpdateDownloader.GetFileName]), mtInformation, [mbOK], 0);
-          Self.Close;
-        end;
-        udsError: begin
-          ShowError(FUpdateDownloader.GetError);
-        end;
-        udsDownload: begin
-          if not FUpdateDownloader.GetDownloadProgress(VDone, VTotal) then begin
-            FState := udsError;
-            ShowError(FUpdateDownloader.GetError);
-          end else begin
-            // show download progress
-            if VTotal > 0 then begin
-              if VDone = VTotal then begin
-                VPercent := 100;
-              end else begin
-                VPercent := (VDone / VTotal) * 100;
-              end;
-            end else begin
-              VPercent := 0.0;
-            end;
-
-            pbDownloadProgress.Max := VTotal;
-            pbDownloadProgress.Position := VDone;
-            lblProgressInfo.Caption :=
-              Format(
-                rsDownloadProgressInfo,
-                [
-                  FDownloadProgressDefCaption,
-                  VDone / 1024 / 1024,
-                  VTotal / 1024 / 1024,
-                  VPercent,
-                  '%'
-                ]
-              );
-          end;
-        end;
-      else
-        Assert(False);
-      end;
-    end;
-
-    udsIdle, udsError: begin
-      tmrCheckState.Enabled := False;
-    end;
+  else
+    raise Exception.CreateFmt(
+      'Unexpected TUpdateProgressStatus value: %d', [Integer(VStatus)]
+    );
   end;
 end;
 
-procedure TfrmUpdateChecker.OnVersionCheckError(const AMsg: string);
+procedure TfrmUpdateChecker.ResetTimer;
 begin
-  lblNewVerValue.Caption := rsError + '!';
-  lblNewVerValue.Font.Color := clRed;
-  lblNewVerValue.Font.Style := [fsBold];
-  ShowError(AMsg);
+  tmrProgress.Enabled := False;
+  tmrProgress.OnTimer := nil;
 end;
 
 procedure TfrmUpdateChecker.ShowError(const AMsg: string);
@@ -420,7 +419,8 @@ end;
 
 procedure TfrmUpdateChecker.RefreshTranslation;
 begin
-  inherited;
+  inherited RefreshTranslation;
+
   lblCurVerValue.Caption := FBuildInfo.GetVersion + ' ' + FBuildInfo.GetBuildType;
 end;
 

@@ -1424,8 +1424,7 @@ begin
       GState.Config.UpdatesPath,
       GState.BuildInfo,
       GState.Config.InetConfig,
-      GState.DownloaderFactory,
-      GState.AppClosingNotifier
+      GState.DownloaderFactory
     );
   FfrmUpdateChecker.PopupParent := Self;
 
