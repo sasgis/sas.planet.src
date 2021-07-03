@@ -585,7 +585,7 @@ begin
   Result := FStorage.GetTileFileName(AXY, AZoom, AVersion);
   if FStorage.StorageTypeAbilities.StorageClass <> tstcInSeparateFiles then begin
     Result :=
-      IncludeTrailingPathDelimiter(Result) +
+      Result + ' :: ' +
       'z' + IntToStr(AZoom + 1) + PathDelim +
       'x' + IntToStr(AXY.X) + PathDelim +
       'y' + IntToStr(AXY.Y) + FContentType.GetDefaultExt;

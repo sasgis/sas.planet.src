@@ -118,6 +118,7 @@ type
   ETileStorageInRAM = class(Exception);
 
 resourcestring
+  rsRAM = 'RAM';
   rsMemCacheNotAssigned =
     'Can''t initialize in-memory tile storage. Check your config!';
 
@@ -165,7 +166,7 @@ function TTileStorageInRAM.GetTileFileName(
   const AVersionInfo: IMapVersionInfo
 ): string;
 begin
-  Result := ':: memory';
+  Result := ':: ' + rsRAM;
 end;
 
 function TTileStorageInRAM.GetTileInfo(

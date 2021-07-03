@@ -51,6 +51,8 @@ type
   TTileStorageETS = class(TTileStorageAbstract, IInternalDomainOptions)
   // base interface
   private
+    FStorageIdentifier: string;
+
     FMainContentType: IContentTypeInfoBasic;
     FContentTypeManager: IContentTypeManager;
     FGCNotifier: INotifierTime;
@@ -616,6 +618,11 @@ begin
     VCorrectPath
   );
 
+  FStorageIdentifier := Copy(
+    VCorrectPath,
+    Pos(LowerCase(AGlobalStorageIdentifier), LowerCase(VCorrectPath))
+  );
+
   FETS_SERVICE_STORAGE_OPTIONS.Clear;
 
   FDLLSync := GSync.SyncBig.Make(Self.ClassName);
@@ -993,7 +1000,7 @@ function TTileStorageETS.GetTileFileName(
   const AVersionInfo: IMapVersionInfo
 ): string;
 begin
-  Result := StoragePath;
+  Result := ':: ' + FStorageIdentifier;
 end;
 
 function TTileStorageETS.GetTileInfo(
