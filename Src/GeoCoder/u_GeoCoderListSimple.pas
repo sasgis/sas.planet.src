@@ -182,13 +182,15 @@ begin
     );
   VList.Add(VItem);
 
-  VItem :=
-    TGeoCoderListEntity.Create(
-      CGeoCoderNavitelGUID,
-      _('Navitel'),
-      TGeoCoderByNavitel.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ADownloaderFactory)
-    );
-  VList.Add(VItem);
+//  Navitel is not working: http://www.sasgis.org/mantis/view.php?id=3772
+//
+//  VItem :=
+//    TGeoCoderListEntity.Create(
+//      CGeoCoderNavitelGUID,
+//      _('Navitel'),
+//      TGeoCoderByNavitel.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ADownloaderFactory)
+//    );
+//  VList.Add(VItem);
 
   VItem :=
     TGeoCoderListEntity.Create(
