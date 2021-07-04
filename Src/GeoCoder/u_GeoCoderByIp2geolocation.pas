@@ -91,7 +91,7 @@ begin
 
   VRegExpr := TRegExpr.Create;
   try
-    VRegExpr.Expression := '<strong>IP</strong>.+?([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})';
+    VRegExpr.Expression := '<strong><nobr>IP address</nobr></strong>.+?([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})';
     if VRegExpr.Exec(VStr) then begin
       if VRegExpr.Match[1] <> cLocalHost_v4 then begin
         VName := 'IP: ' + VRegExpr.Match[1];
@@ -100,48 +100,48 @@ begin
       end;
     end;
 
-    VRegExpr.Expression := '<strong>Country Name</strong>.+?>([^<]+)</a></td></tr>';
+    VRegExpr.Expression := '<strong><nobr>Country Name</nobr></strong>.+?>([^<]+)</a></td></tr>';
     if VRegExpr.Exec(VStr) then begin
       VDesc := 'Country Name: ' + VRegExpr.Match[1];
       VFullDesc := VDesc;
     end;
 
-    VRegExpr.Expression := '<strong>Region Name</strong>.+?>([^<]+)</td></tr>';
+    VRegExpr.Expression := '<strong><nobr>Region Name</nobr></strong>.+?>([^<]+)</td></tr>';
     if VRegExpr.Exec(VStr) then begin
       VDesc := VDesc + #$D#$A + 'Region Name: ' + VRegExpr.Match[1];
-      VFullDesc := VFullDesc + ', Region Name: ' + VRegExpr.Match[1];
+      VFullDesc := VFullDesc + '</br>' + 'Region Name: ' + VRegExpr.Match[1];
     end;
 
-    VRegExpr.Expression := '<strong>City</strong>.+?>([^<]+)</td></tr>';
+    VRegExpr.Expression := '<strong><nobr>City Name</nobr></strong>.+?>([^<]+)</td></tr>';
     if VRegExpr.Exec(VStr) then begin
-      VFullDesc := VFullDesc + ', City: ' + VRegExpr.Match[1];
+      VFullDesc := VFullDesc + '</br>' + 'City Name: ' + VRegExpr.Match[1];
     end;
 
-    VRegExpr.Expression := '<strong>Postal Code</strong>.+?>([^<]+)</td></tr>';
+    VRegExpr.Expression := '<strong><nobr>Postal Code</nobr></strong>.+?>([^<]+)</td></tr>';
     if VRegExpr.Exec(VStr) then begin
-      VFullDesc := VFullDesc + ', Postal Code: ' + VRegExpr.Match[1];
+      VFullDesc := VFullDesc + '</br>' + 'Postal Code: ' + VRegExpr.Match[1];
     end;
 
-    VRegExpr.Expression := '<strong>ISP</strong>.+?>([^<]+)</td></tr>';
+    VRegExpr.Expression := '<strong><nobr>ISP Name</nobr></strong>.+?>([^<]+)</td></tr>';
     if VRegExpr.Exec(VStr) then begin
-      VFullDesc := VFullDesc + ', ISP: ' + VRegExpr.Match[1];
+      VFullDesc := VFullDesc + '</br>' + 'ISP Name: ' + VRegExpr.Match[1];
     end;
 
-    VRegExpr.Expression := '<strong>Time Zone</strong>.+?>([^<]+)</td></tr>';
+    VRegExpr.Expression := '<strong><nobr>Time Zone</nobr></strong>.+?>([^<]+)<img';
     if VRegExpr.Exec(VStr) then begin
-      VFullDesc := VFullDesc + ', Time Zone: ' + VRegExpr.Match[1];
+      VFullDesc := VFullDesc + '</br>' + 'Time Zone: ' + VRegExpr.Match[1];
     end;
 
     VRegExpr.Expression := '<strong>Latitude</strong>.+?([-\d\.]+)';
     if VRegExpr.Exec(VStr) then begin
       VLat := VRegExpr.Match[1];
-      VFullDesc := VFullDesc + ', Latitude: ' + VLat;
+      VFullDesc := VFullDesc + '</br>' + 'Latitude: ' + VLat;
     end;
 
     VRegExpr.Expression := '<strong>Longitude</strong>.+?([-\d\.]+)';
     if VRegExpr.Exec(VStr) then begin
       VLon := VRegExpr.Match[1];
-      VFullDesc := VFullDesc + ', Longitude: ' + VLon;
+      VFullDesc := VFullDesc + '</br>' + 'Longitude: ' + VLon;
     end;
 
     try
@@ -168,10 +168,10 @@ function TGeoCoderByIp2geolocation.PrepareRequest(
   const ALocalConverter: ILocalCoordConverter
 ): IDownloadRequest;
 begin
-  // http://ip2geolocation.com/?ip=37.78.14.148&lang=en
+  // https://ip2geolocation.com/?ip=37.78.14.148&lang=en
   Result :=
     PrepareRequestByURL(
-      'http://ip2geolocation.com/?ip=' + URLEncode(AnsiToUtf8(ASearch)) + '&lang=en'
+      'https://ip2geolocation.com/?ip=' + URLEncode(AnsiToUtf8(ASearch)) + '&lang=en'
     );
 end;
 
