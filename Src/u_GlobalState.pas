@@ -808,7 +808,7 @@ begin
 
   FGeoCoderList :=
     TGeoCoderListSimple.Create(
-      IncludeTrailingPathDelimiter(FGlobalConfig.UserDataPath.FullPath),
+      FGlobalConfig.GeoCoderConfig,
       FGlobalConfig.InetConfig,
       BGTimerNotifier,
       FVectorItemSubsetBuilderFactory,

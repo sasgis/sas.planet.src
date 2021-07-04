@@ -52,9 +52,6 @@ type
     ): IInterfaceListSimple; override;
   end;
 
-const
-  cGoogleApiKeyFileName = 'GoogleApiKey.txt';
-
 implementation
 
 uses

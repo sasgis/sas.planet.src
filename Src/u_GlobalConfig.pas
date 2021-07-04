@@ -28,6 +28,7 @@ uses
   i_LanguageManager,
   i_AppearanceOfMarkFactory,
   i_InetConfig,
+  i_GeoCoderConfig,
   i_BitmapPostProcessingConfig,
   i_ValueToStringConverterConfig,
   i_CoordRepresentationConfig,
@@ -77,6 +78,7 @@ type
     FInternalDebugConfig: IInternalDebugConfig;
     FGlobalAppConfig: IGlobalAppConfig;
     FLanguageManager: ILanguageManager;
+    FGeoCoderConfig: IGeoCoderConfig;
     FInetConfig: IInetConfig;
     FInternalBrowserConfig: IWindowPositionConfig;
     FInternalDomainUrlHandlerConfig: IInternalDomainUrlHandlerConfig;
@@ -124,6 +126,7 @@ type
     function GetInternalDebugConfig: IInternalDebugConfig;
     function GetGlobalAppConfig: IGlobalAppConfig;
     function GetLanguageManager: ILanguageManager;
+    function GetGeoCoderConfig: IGeoCoderConfig;
     function GetInetConfig: IInetConfig;
     function GetInternalBrowserConfig: IWindowPositionConfig;
     function GetInternalDomainUrlHandlerConfig: IInternalDomainUrlHandlerConfig;
@@ -171,6 +174,7 @@ uses
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_ConfigSaveLoadStrategyBasicUseProvider,
   u_LanguageManager,
+  u_GeoCoderConfig,
   u_InetConfig,
   u_WindowPositionConfig,
   u_ThreadConfig,
@@ -347,6 +351,9 @@ begin
 
   FInternalDomainUrlHandlerConfig := TInternalDomainUrlHandlerConfig.Create;
   Add(FInternalDomainUrlHandlerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('UrlHandler'), False, False, False, False);
+
+  FGeoCoderConfig := TGeoCoderConfig.Create(FUserDataPath);
+  Add(FGeoCoderConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('GeoCoder'), False, False, False, False);
 end;
 
 function TGlobalConfig.GetBaseCachePath: IPathConfig;
@@ -387,6 +394,11 @@ end;
 function TGlobalConfig.GetExportToIMGConfig: IExportToIMGConfig;
 begin
   Result := FExportToIMGConfig;
+end;
+
+function TGlobalConfig.GetGeoCoderConfig: IGeoCoderConfig;
+begin
+  Result := FGeoCoderConfig;
 end;
 
 function TGlobalConfig.GetGlobalAppConfig: IGlobalAppConfig;

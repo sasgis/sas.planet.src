@@ -25,6 +25,7 @@ interface
 uses
   i_PathConfig,
   i_GlobalAppConfig,
+  i_GeoCoderConfig,
   i_LanguageManager,
   i_InetConfig,
   i_BitmapPostProcessingConfig,
@@ -111,6 +112,9 @@ type
 
     function GetLanguageManager: ILanguageManager;
     property LanguageManager: ILanguageManager read GetLanguageManager;
+
+    function GetGeoCoderConfig: IGeoCoderConfig;
+    property GeoCoderConfig: IGeoCoderConfig read GetGeoCoderConfig;
 
     function GetInetConfig: IInetConfig;
     property InetConfig: IInetConfig read GetInetConfig;

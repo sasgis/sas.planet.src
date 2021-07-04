@@ -50,7 +50,6 @@ type
       const AList: IInterfaceListSimple;
       const ALocalConverter: ILocalCoordConverter
     ): IVectorItemSubset;
-    procedure LoadApiKey(const AFileName: string);
   protected
     FApiKey: string;
     property PlacemarkFactory: IGeoCodePlacemarkFactory read FPlacemarkFactory;
@@ -83,7 +82,7 @@ type
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
       const ADownloaderFactory: IDownloaderFactory;
-      const AApiKeyFileName: string = ''
+      const AApiKey: string = ''
     );
   end;
 
@@ -109,7 +108,7 @@ constructor TGeoCoderBasic.Create(
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APlacemarkFactory: IGeoCodePlacemarkFactory;
   const ADownloaderFactory: IDownloaderFactory;
-  const AApiKeyFileName: string
+  const AApiKey: string
 );
 begin
   inherited Create;
@@ -117,7 +116,7 @@ begin
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FPlacemarkFactory := APlacemarkFactory;
   FDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, ADownloaderFactory);
-  LoadApiKey(AApiKeyFileName);
+  FApiKey := AApiKey;
 end;
 
 function TGeoCoderBasic.BuildSortedSubset(
@@ -227,41 +226,6 @@ begin
     VMessage := _('Not Found');
   end;
   Result := TGeoCodeResult.Create(ASearch, VResultCode, VMessage, VSubset);
-end;
-
-procedure TGeoCoderBasic.LoadApiKey(const AFileName: string);
-var
-  I: Integer;
-  VList: TStringList;
-begin
-  FApiKey := '';
-
-  if AFileName = '' then begin
-    Exit;
-  end else if not FileExists(AFileName) then begin
-    raise Exception.CreateFmt(
-      _('File with Geocoder API Key is not found: %s'), [AFileName]
-    );
-  end;
-
-  VList := TStringList.Create;
-  try
-    VList.LoadFromFile(AFileName);
-    for I := 0 to VList.Count - 1 do begin
-      FApiKey := Trim(VList.Strings[I]);
-      if FApiKey <> '' then begin
-        Break;
-      end;
-    end;
-  finally
-    VList.Free;
-  end;
-
-  if FApiKey = '' then begin
-    raise Exception.CreateFmt(
-      _('File with Geocoder API Key is empty: %s'), [AFileName]
-    );
-  end;
 end;
 
 function TGeoCoderBasic.PrepareRequestByURL(const AUrl: AnsiString): IDownloadRequest;

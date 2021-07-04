@@ -1254,6 +1254,7 @@
         <DCCReference Include="Src\GeoCalc\u_PolygonAreaCalculator.pas"/>
         <DCCReference Include="Src\GeoCoder\c_GeoCoderGUIDSimple.pas"/>
         <DCCReference Include="Src\GeoCoder\i_GeoCoder.pas"/>
+        <DCCReference Include="Src\GeoCoder\i_GeoCoderConfig.pas"/>
         <DCCReference Include="Src\GeoCoder\i_GeoCoderList.pas"/>
         <DCCReference Include="Src\GeoCoder\u_GeoCodePlacemark.pas"/>
         <DCCReference Include="Src\GeoCoder\u_GeoCodeResult.pas"/>
@@ -1273,6 +1274,7 @@
         <DCCReference Include="Src\GeoCoder\u_GeoCoderByURL.pas"/>
         <DCCReference Include="Src\GeoCoder\u_GeoCoderByWikimapia.pas"/>
         <DCCReference Include="Src\GeoCoder\u_GeoCoderByYandex.pas"/>
+        <DCCReference Include="Src\GeoCoder\u_GeoCoderConfig.pas"/>
         <DCCReference Include="Src\GeoCoder\u_GeoCoderListBase.pas"/>
         <DCCReference Include="Src\GeoCoder\u_GeoCoderListEntity.pas"/>
         <DCCReference Include="Src\GeoCoder\u_GeoCoderListSimple.pas"/>

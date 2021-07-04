@@ -47,9 +47,6 @@ type
     ): IInterfaceListSimple; override;
   end;
 
-const
-  cYandexApiKeyFileName = 'YandexApiKey.txt';
-
 implementation
 
 uses

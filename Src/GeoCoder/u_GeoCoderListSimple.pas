@@ -26,6 +26,7 @@ uses
   i_NotifierTime,
   i_InetConfig,
   i_GeoCoder,
+  i_GeoCoderConfig,
   i_MarkDb,
   i_VectorItemSubsetBuilder,
   i_VectorDataFactory,
@@ -39,7 +40,7 @@ type
   TGeoCoderListSimple = class(TGeoCoderListStatic)
   public
     constructor Create(
-      const AUserDataPath: string;
+      const AGeoCoderConfig: IGeoCoderConfig;
       const AInetConfig: IInetConfig;
       const AGCNotifier: INotifierTime;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
@@ -83,7 +84,7 @@ uses
 { TGeoCoderListSimple }
 
 constructor TGeoCoderListSimple.Create(
-  const AUserDataPath: string;
+  const AGeoCoderConfig: IGeoCoderConfig;
   const AInetConfig: IInetConfig;
   const AGCNotifier: INotifierTime;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
@@ -101,11 +102,12 @@ var
   VItem: IGeoCoderListEntity;
   VList: IInterfaceListSimple;
   VPath: string;
+  VApiKey: string;
 begin
   VList := TInterfaceListSimple.Create;
 
-  VPath := AUserDataPath + cGoogleApiKeyFileName;
-  if FileExists(VPath) then begin
+  VApiKey := AGeoCoderConfig.GoogleApiKey;
+  if VApiKey <> '' then begin
     VItem :=
       TGeoCoderListEntity.Create(
         CGeoCoderGoogleGUID,
@@ -116,14 +118,14 @@ begin
           AVectorItemSubsetBuilderFactory,
           APlacemarkFactory,
           ADownloaderFactory,
-          VPath
+          VApiKey
         )
       );
     VList.Add(VItem);
   end;
 
-  VPath := AUserDataPath + cYandexApiKeyFileName;
-  if FileExists(VPath) then begin
+  VApiKey := AGeoCoderConfig.YandexApiKey;
+  if VApiKey <> '' then begin
     VItem :=
       TGeoCoderListEntity.Create(
         CGeoCoderYandexGUID,
@@ -134,7 +136,7 @@ begin
           AVectorItemSubsetBuilderFactory,
           APlacemarkFactory,
           ADownloaderFactory,
-          VPath
+          VApiKey
         )
       );
     VList.Add(VItem);
@@ -200,7 +202,7 @@ begin
     );
   VList.Add(VItem);
 
-  VPath := AUserDataPath + 'gpx' + PathDelim;
+  VPath := AGeoCoderConfig.DataPath + 'gpx' + PathDelim;
   if DirectoryExists(VPath) then begin
     VItem :=
       TGeoCoderListEntity.Create(
@@ -211,7 +213,7 @@ begin
     VList.Add(VItem);
   end;
 
-  VPath := AUserDataPath + 'mp' + PathDelim;
+  VPath := AGeoCoderConfig.DataPath + 'mp' + PathDelim;
   if DirectoryExists(VPath) then begin
     VItem :=
       TGeoCoderListEntity.Create(
@@ -222,7 +224,7 @@ begin
     VList.Add(VItem);
   end;
 
-  VPath := AUserDataPath + 'txt' + PathDelim;
+  VPath := AGeoCoderConfig.DataPath + 'txt' + PathDelim;
   if DirectoryExists(VPath) then begin
     VItem :=
       TGeoCoderListEntity.Create(
