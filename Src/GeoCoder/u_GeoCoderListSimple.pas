@@ -148,13 +148,15 @@ begin
     );
   VList.Add(VItem);
 
-  VItem :=
-    TGeoCoderListEntity.Create(
-      CGeoCoder2GISGUID,
-      '2GIS',
-      TGeoCoderBy2GIS.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ADownloaderFactory)
-    );
-  VList.Add(VItem);
+// 2GIS is not working: http://www.sasgis.org/mantis/view.php?id=1120
+//
+//  VItem :=
+//    TGeoCoderListEntity.Create(
+//      CGeoCoder2GISGUID,
+//      '2GIS',
+//      TGeoCoderBy2GIS.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ADownloaderFactory)
+//    );
+//  VList.Add(VItem);
 
   VItem :=
     TGeoCoderListEntity.Create(
