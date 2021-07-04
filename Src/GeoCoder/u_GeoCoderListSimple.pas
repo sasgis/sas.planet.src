@@ -247,13 +247,15 @@ begin
     );
   VList.Add(VItem);
 
-  VItem :=
-    TGeoCoderListEntity.Create(
-      CGeoCoderGPSiesGUID,
-      'www.GPSies.com',
-      TGeoCoderByGPSies.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ADownloaderFactory)
-    );
-  VList.Add(VItem);
+//  www.GPSies.com is not working: http://www.sasgis.org/mantis/view.php?id=3771
+//
+//  VItem :=
+//    TGeoCoderListEntity.Create(
+//      CGeoCoderGPSiesGUID,
+//      'www.GPSies.com',
+//      TGeoCoderByGPSies.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ADownloaderFactory)
+//    );
+//  VList.Add(VItem);
 
   inherited Create(VList.MakeStaticAndClear);
 end;
